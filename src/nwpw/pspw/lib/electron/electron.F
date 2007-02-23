@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.47 2006-10-13 01:43:58 bylaska Exp $
+* $Id: electron.F,v 1.48 2007-02-23 01:24:32 bylaska Exp $
 *
 
 
@@ -2164,14 +2164,15 @@ c    >                         sum)
 
 *     **** local variables ****
       logical value
-      integer n,ms,n1(2),n2(2),np
+      integer i,n,ms,n1(2),n2(2),np_i,np_j
       integer nee(2)
       integer n2ft3d
       real*8 enlocal,sum
       integer tmp1(2),tmp2(2)
 
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
 
       n2ft3d = 2*nfft3d
       value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
@@ -2200,12 +2201,15 @@ c    >                         sum)
             call Pack_cc_idot(1,psi1(1+(n-1)*npack1),
      >                         dbl_mb(tmp1(1)),
      >                         sum)
-            if (fractional) sum=sum*dbl_mb(fweight(1)+n-1)
+            if (fractional) then
+               call Dneall_qton(n,i)
+               sum=sum*dbl_mb(fweight(1)+i-1)
+            end if
             enlocal = enlocal - sum
          end do
       end do
-      if (np.gt.1) call D3dB_SumAll(enlocal)
-      if (np.gt.1) call D1dB_SumAll(enlocal)
+      if (np_i.gt.1) call D3dB_SumAll(enlocal)
+      if (np_j.gt.1) call D1dB_SumAll(enlocal)
       if (ispin.eq.1) enlocal = 2.0d0*enlocal
 
  

@@ -1,5 +1,5 @@
 *
-* $Id: integrate_stress.F,v 1.3 2005-09-07 23:55:04 bylaska Exp $
+* $Id: integrate_stress.F,v 1.4 2007-02-23 01:24:14 bylaska Exp $
 *
 
 *     **********************************
@@ -420,10 +420,9 @@
     
   700 CONTINUE
 
-
-      call D3dB_Vector_SumAll(4*nfft3d,rho_sc_k)
-      call D3dB_Vector_SumAll(nfft3d,dvl)
-      call D3dB_Vector_Sumall(3*lmmax*nfft3d,dvnl)
+      call Parallel_Vector_SumAll(4*nfft3d,rho_sc_k)
+      call Parallel_Vector_SumAll(nfft3d,dvl)
+      call Parallel_Vector_Sumall(3*lmmax*nfft3d,dvnl)
 
 *:::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
       dvl(1,1,1)= 0.0d0

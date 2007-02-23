@@ -1,5 +1,5 @@
 *
-* $Id: HGH_local.F,v 1.3 2007-02-08 22:56:00 bylaska Exp $
+* $Id: HGH_local.F,v 1.4 2007-02-23 01:24:14 bylaska Exp $
 *
 
 
@@ -82,7 +82,7 @@
     
   700 continue
    
-      call D3dB_Vector_SumAll(nfft3d,vl)
+      call Parallel_Vector_SumAll(nfft3d,vl)
 
       f = b1 *(C1+3.0d0*C2+15.0d0*C3+105.0d0*C4)-b0*0.5d0*rloc*rloc
       if (version.eq.4) then

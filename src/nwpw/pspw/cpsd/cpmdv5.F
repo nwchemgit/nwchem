@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.55 2006-12-27 19:47:52 bylaska Exp $
+* $Id: cpmdv5.F,v 1.56 2007-02-23 01:24:32 bylaska Exp $
 *
 
 ***********************************************************************
@@ -179,6 +179,9 @@ c      parameter (autoatm =290.360032539d6)
      
       logical  Dneall_m_allocate,Dneall_m_free
       external Dneall_m_allocate,Dneall_m_free
+
+      real*8   Dneall_m_value
+      external Dneall_m_value
 
 
 
@@ -879,126 +882,36 @@ c      parameter (autoatm =290.360032539d6)
       end if
 
 *     **** comparison between hamiltonian an lambda matrix ****
-      n = ne(1)
-      nn = n*n
-      if (taskid.eq.MASTER) then
-         write(17,1330)
-         do ms=1,ispin
-            do i=n1(ms),n2(ms)
-               ii = i-n1(ms)
-               do j=n1(ms),n2(ms)
-                  jj = j-n1(ms)
-                  index = (ii+1) + jj*n +(ms-1)*nn
-                  write(17,1340) ms,ii+1,jj+1,
-     >                           dbl_mb(hml(1)+index-1),
-     >                           dbl_mb(lmd(1)+index-1),
-     >             dbl_mb(hml(1)+index-1)-dbl_mb(lmd(1)+index-1)
-               end do
-            end do
+      if (taskid.eq.MASTER) write(17,1330)
+      do ms=1,ispin
+         do i=1,ne(ms)
+         do j=1,ne(ms)
+            w   = Dneall_m_value(0,ms,i,j,dbl_mb(hml(1)))
+            sum = Dneall_m_value(0,ms,i,j,dbl_mb(lmd(1)))
+
+            if (taskid.eq.MASTER)
+     >      write(17,1340) ms,i,j,w,sum,w-sum
+
          end do
-      end if
+         end do
+      end do
 
 *     **** check orthonormality ****
       if (taskid.eq.MASTER) then
          write(17,1350)
       end if
 
+      call Dneall_ffm_Multiply(0,dcpl_mb(psi1(1)),
+     >                           dcpl_mb(psi1(1)),npack1,
+     >                           dbl_mb(lmd(1)))
       do ms=1,ispin
-         do i=n1(ms),n2(ms)
-            ii = i-n1(ms)+1
-            do j=i,n2(ms)
-               jj = j-n1(ms)+1
-               call Pack_cc_dot(1,dcpl_mb(psi1(1)+(i-1)*npack1),
-     >                          dcpl_mb(psi1(1)+(j-1)*npack1),
-     >                          w)
-               if (taskid.eq.MASTER) then
-                  write(17,1360) ms,ii,jj,w
-               end if
-            end do
+         do j=1,ne(ms)
+         do i=j,ne(ms)
+            w  = Dneall_m_value(0,ms,i,j,dbl_mb(lmd(1)))
+            if (taskid.eq.MASTER) write(17,1360) ms,i,j,w
+         end do
          end do
       end do
-
-*     ***** do not diagonalize the hamiltonian matrix *****
-      if (pspw_SIC()) then
-        call dcopy(2*npack1*nemax,
-     >             dcpl_mb(psi1(1)),1,
-     >             dcpl_mb(psi2(1)),1)
-      
-
-*     ***** diagonalize the hamiltonian matrix *****
-      else
-      n = ne(1)
-      nn = n*n
-      call dcopy(2*nemax,0.0d0,0,dbl_mb(eig(1)),1)
-      do ms=1,ispin
-c        call eigen(n,ne(ms),
-c    >              dbl_mb(hml(1)+(ms-1)*nn),
-c    >              dbl_mb(eig(1)+(ms-1)*n),
-c    >              dbl_mb(lmd(1)),ierr)
-        if (fractional) then
-         do jj=1,ne(ms)
-         do ii=1,ne(ms)
-           dbl_mb(hml(1)+(ii-1)+(jj-1)*n+(ms-1)*nn)
-     >     =dbl_mb(hml(1)+(ii-1)+(jj-1)*n+(ms-1)*nn)
-     >     *dbl_mb(fweight(1)+(jj-1)+(ms-1)*n)
-         end do
-         end do
-        end if
-        call DSYEV('V','U',ne(ms),
-     >              dbl_mb(hml(1)+(ms-1)*nn),n,
-     >              dbl_mb(eig(1)+(ms-1)*n),
-     >              dbl_mb(lmd(1)),(2*nemax*nemax),
-     >              ierr)
-        call eigsrt(dbl_mb(eig(1)+(ms-1)*n),
-     >              dbl_mb(hml(1)+(ms-1)*nn),
-     >              ne(ms),n)
-        if (fractional) then
-        do ii=1,ne(ms)
-           dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
-     >       =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
-     >       /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
-        end do
-        end if
-
-      end do
-
-*     *** rotate current psi ***
-      call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi2(1)),1)
-      do ms=1,ispin
-         do j=n1(ms),n2(ms)
-            jj = j-n1(ms)
-            do i=n1(ms),n2(ms)
-               ii = i-n1(ms)
-               index = (ii+1) + jj*n + (ms-1)*nn
-             
-               call Pack_cc_daxpy(1,dbl_mb(hml(1)+index-1),
-     >                            dcpl_mb(psi1(1)+(i-1)*npack1),
-     >                            dcpl_mb(psi2(1)+(j-1)*npack1))
-            end do
-         end do
-      end do
-
-*     *** rotate current v_psi ***
-      call dcopy(2*npack1*nemax,dcpl_mb(psi0(1)),1,
-     >                          dcpl_mb(psi1(1)),1)
-      call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi0(1)),1)
-      do ms=1,ispin
-         do j=n1(ms),n2(ms)
-            jj = j-n1(ms)
-            do i=n1(ms),n2(ms)
-               ii = i-n1(ms)
-               index = (ii+1) + jj*n + (ms-1)*nn
-             
-               call Pack_cc_daxpy(1,dbl_mb(hml(1)+index-1),
-     >                            dcpl_mb(psi1(1)+(i-1)*npack1),
-     >                            dcpl_mb(psi0(1)+(j-1)*npack1))
-            end do
-         end do
-      end do
-      end if
-
-
-
 
 *     **** close check file ****
       if (taskid.eq.MASTER) then
@@ -1006,6 +919,48 @@ c    >              dbl_mb(lmd(1)),ierr)
       end if
 
 
+
+*     ***** do not diagonalize the hamiltonian matrix *****
+      if (pspw_SIC()) then
+        call dcopy(2*npack1*nemaxq,
+     >             dcpl_mb(psi1(1)),1,
+     >             dcpl_mb(psi2(1)),1)
+      
+*     ***** diagonalize the hamiltonian matrix *****
+      else
+
+         if (fractional) then
+           call Dneall_m_HmltimesSA(0,dbl_mb(hml(1)),dbl_mb(fweight(1)))
+         end if
+
+         call Dneall_m_diagonalize(0,dbl_mb(hml(1)),
+     >                               dbl_mb(eig(1)),.false.)
+
+
+         if (fractional) then
+         do ii=1,ne(ms)
+           dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
+     >       =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
+     >       /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
+         end do
+         end if
+
+
+*        *** rotate current psi ***
+         call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+     >                              dbl_mb(hml(1)),  1.0d0,
+     >                              dcpl_mb(psi2(1)),0.0d0)
+
+
+*        *** rotate current v_psi ***
+         call dcopy(2*npack1*nemaxq,dcpl_mb(psi0(1)),1,
+     >                              dcpl_mb(psi1(1)),1)
+
+         call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+     >                              dbl_mb(hml(1)),  1.0d0,
+     >                              dcpl_mb(psi0(1)),0.0d0)
+
+      end if
 
 
 

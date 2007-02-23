@@ -1,5 +1,5 @@
 *,eke
-* $Id: inner_loop.F,v 1.23 2006-10-13 01:43:58 bylaska Exp $
+* $Id: inner_loop.F,v 1.24 2007-02-23 01:24:32 bylaska Exp $
 *
 
 *  ************************************************************
@@ -98,8 +98,8 @@ c     real*8     fion(3,natmx)
 
       double precision Dneall_m_trace
       external         Dneall_m_trace
-      logical  Dneall_m_push_get_block
-      external Dneall_m_push_get_block
+      logical  Dneall_m_push_get_block,Dneall_m_pop_stack
+      external Dneall_m_push_get_block,Dneall_m_pop_stack
 
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found,pspw_charge_found
@@ -674,7 +674,7 @@ c     end do
       value = MA_pop_stack(vc(2))
       value = MA_pop_stack(tmp2(2))
       value = MA_pop_stack(tmp1(2))
-      value = MA_pop_stack(tmp_L(2))
+      value = Dneall_m_pop_stack(tmp_L)
 
       call nwpw_timing_end(12)
 

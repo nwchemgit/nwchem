@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix.F,v 1.3 2006-10-13 01:43:58 bylaska Exp $
+* $Id: DMatrix.F,v 1.4 2007-02-23 01:24:49 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -457,6 +457,170 @@ c
 
       call DMatrix_SumAll(sum)
       DMatrix_trace = sum
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_m_get_value     *
+*     *                                 *
+*     ***********************************
+
+      real*8 function DMatrix_m_get_value(i1,j1,A,ldq,mq,nq)
+      implicit none
+      integer i1,j1
+      integer ldq,mq(*),nq(*)
+      real*8  A(ldq,*)
+
+*     **** local variables ****
+      logical value
+      integer taskid
+      integer i,j
+      integer ii,jj
+      integer icur,jcur
+      integer psend
+      real*8 w
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
+
+      call Parallel_taskid(taskid)
+
+
+      jj   = 1
+      jcur = 0
+      do j=1,j1-1
+          jj = jj + 1
+         if (jj.gt.nq(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 1
+         end if
+      end do
+
+      ii   = 1
+      icur = 0
+      do i=1,i1-1
+         ii = ii +1
+         if (ii.gt.mq(icur+1)) then
+            icur = icur + 1
+            ii   = 1
+         end if
+      end do
+
+      w = 0.0d0
+      psend = Parallel2d_convert_taskid_ij(icur,jcur)
+      if (psend.eq.taskid) then
+          w = A(ii,jj)
+      end if
+      call Parallel_Brdcst_value(psend,w)
+
+      Dmatrix_m_get_value = w
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      DMatrix_HmltimesSA         *
+*     *                                 *
+*     ***********************************
+
+      subroutine DMatrix_HmltimesSA(n,SA,
+     >               A,ldq,mq,nq,
+     >               taskid_i,taskid_j)
+      implicit none
+      integer n
+      real*8  SA(*)
+      integer ldq,mq(*),nq(*)
+      real*8  A(ldq,*)
+      integer taskid_i,taskid_j
+
+
+*     **** local variables ****
+      integer i,j,ii,jj
+      integer icur,jcur
+
+      jj   = 1
+      jcur = 0
+      do j=1,n
+         ii   = 1
+         icur = 0
+         do i=1,n
+
+            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+                  A(ii,jj) = A(ii,jj)*SA(j)
+            end if
+
+            ii = ii + 1
+            if (ii.gt.mq(icur+1)) then
+              icur = icur + 1
+              ii   = 1
+            end if
+         end do
+
+         jj = jj + 1
+         if (jj.gt.nq(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 1
+         end if
+      end do
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      DMatrix_HmldivideSA        *
+*     *                                 *
+*     ***********************************
+
+      subroutine DMatrix_HmldivideSA(n,SA,
+     >               A,ldq,mq,nq,
+     >               taskid_i,taskid_j)
+      implicit none
+      integer n
+      real*8  SA(*)
+      integer ldq,mq(*),nq(*)
+      real*8  A(ldq,*)
+      integer taskid_i,taskid_j
+
+
+*     **** local variables ****
+      integer i,j,ii,jj
+      integer icur,jcur
+
+      jj   = 1
+      jcur = 0
+      do j=1,n
+         ii   = 1
+         icur = 0
+         do i=1,n
+
+            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+                  A(ii,jj) = A(ii,jj)/SA(j)
+            end if
+
+            ii = ii + 1
+            if (ii.gt.mq(icur+1)) then
+              icur = icur + 1
+              ii   = 1
+            end if
+         end do
+
+         jj = jj + 1
+         if (jj.gt.nq(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 1
+         end if
+      end do
+
       return
       end
 

@@ -1,5 +1,5 @@
 *
-* $Id: psp_stress.F,v 1.12 2006-08-13 01:03:28 bylaska Exp $
+* $Id: psp_stress.F,v 1.13 2007-02-23 01:24:33 bylaska Exp $
 *
 
 
@@ -243,7 +243,7 @@
 
 
 *     *** local variables ***
-      integer nfft3d,npack1,shift,shift2
+      integer nfft3d,npack1,shift,shift2,np_j
       integer nproj,l_prj
       integer i,ii,ia,k,l,nn
       integer s,u,v
@@ -260,6 +260,7 @@
       external lattice_omega,lattice_unitg
 
       call nwpw_timing_start(6)
+      call Parallel2d_np_j(np_j)
       
       
 *     **** allocate local memory ****
@@ -438,6 +439,7 @@
 
         end if
       end do !** ii **
+      if (np_j.gt.1) call D1dB_Vector_SumAll(9,Bus)
 
       value =           MA_pop_stack(sw3(2))
       value = value.and.MA_pop_stack(sw2(2))

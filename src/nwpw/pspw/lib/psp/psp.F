@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.22 2007-01-02 18:36:52 bylaska Exp $
+* $Id: psp.F,v 1.23 2007-02-23 01:24:32 bylaska Exp $
 *
 
 #define TCGMSG
@@ -785,7 +785,7 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
       integer nfft3d,G(3),npack1,nion
       integer i,ii,ia,l,n,nn
       integer k,shift,l_prj,nproj
-      real*8  omega,scal
+      real*8  omega,scal,ff(3)
       complex*16 ctmp
       integer exi(2),xtmp(2),sw1(2),sw2(2),sum(2)
       integer Gx(2),Gy(2),Gz(2)
@@ -972,31 +972,36 @@ c     >              psi2,                    (2*npack1))
 
              end do
 
-             call D3dB_Vector_Sumall(3*(nn),dbl_mb(sum(1)))
+             call D3dB_Vector_SumAll(3*(nn),dbl_mb(sum(1)))
 
              !**** fractional weighting ****
              if (fractional) then
               do n=1,nn
+               call Dneall_qton(n,i)
                dbl_mb(sum(1)+3*(n-1))=dbl_mb(sum(1)+3*(n-1))
-     >                               *dbl_mb(fweight(1)+n-1)
+     >                               *dbl_mb(fweight(1)+i-1)
                dbl_mb(sum(1)+1+3*(n-1))=dbl_mb(sum(1)+1+3*(n-1))
-     >                                 *dbl_mb(fweight(1)+n-1)
+     >                                 *dbl_mb(fweight(1)+i-1)
                dbl_mb(sum(1)+2+3*(n-1))=dbl_mb(sum(1)+2+3*(n-1))
-     >                                 *dbl_mb(fweight(1)+n-1)
+     >                                 *dbl_mb(fweight(1)+i-1)
               end do
              end if
   
+             ff(1) = 0.0d0
+             ff(2) = 0.0d0
+             ff(3) = 0.0d0
              do n=1,nn
-                fion(1,ii) = fion(1,ii) 
-     >                     + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
-     >                            *dbl_mb(sum(1)+3*(n-1))
-                fion(2,ii) = fion(2,ii) 
-     >                     + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
-     >                            *dbl_mb(sum(1)+1+3*(n-1))
-                fion(3,ii) = fion(3,ii) 
-     >                     + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
-     >                            *dbl_mb(sum(1)+2+3*(n-1))
+                ff(1) = ff(1) + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
+     >                               *dbl_mb(sum(1)+  3*(n-1))
+                ff(2) = ff(2) + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
+     >                               *dbl_mb(sum(1)+1+3*(n-1))
+                ff(3) = ff(3) + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
+     >                               *dbl_mb(sum(1)+2+3*(n-1))
              end do
+             call D1dB_Vector_SumAll(3,ff)
+             fion(1,ii) = fion(1,ii)  + ff(1)
+             fion(2,ii) = fion(2,ii)  + ff(2)
+             fion(3,ii) = fion(3,ii)  + ff(3)
        
         end do !** l **
         end if !** move **
@@ -1082,7 +1087,7 @@ c     >              psi2,                    (2*npack1))
 *     *** local variables ***
       integer nfft3d,G(3),npack1,shift
       integer i,ii,ia,k,l,n,nn,l_prj,nproj
-      real*8  omega,scal
+      real*8  omega,scal,ff(3)
       complex*16 ctmp
       integer exi(2),vtmp(2),xtmp(2),sw1(2),sw2(2),sum(2)
       integer Gx(2),Gy(2),Gz(2)
@@ -1294,26 +1299,31 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
           !**** fractional weighting ****
           if (fractional) then
            do n=1,nn
+            call Dneall_qton(n,i)
             dbl_mb(sum(1)+3*(n-1))=dbl_mb(sum(1)+3*(n-1))
-     >                            *dbl_mb(fweight(1)+n-1)
+     >                            *dbl_mb(fweight(1)+i-1)
             dbl_mb(sum(1)+1+3*(n-1))=dbl_mb(sum(1)+1+3*(n-1))
-     >                              *dbl_mb(fweight(1)+n-1)
+     >                              *dbl_mb(fweight(1)+i-1)
             dbl_mb(sum(1)+2+3*(n-1))=dbl_mb(sum(1)+2+3*(n-1))
-     >                              *dbl_mb(fweight(1)+n-1)
+     >                              *dbl_mb(fweight(1)+i-1)
            end do
           end if
   
+          ff(1) = 0.0d0
+          ff(2) = 0.0d0
+          ff(3) = 0.0d0
           do n=1,nn
-             fion(1,ii) = fion(1,ii) 
-     >                  + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
-     >                         *dbl_mb(sum(1)+3*(n-1))
-             fion(2,ii) = fion(2,ii) 
-     >                  + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
-     >                         *dbl_mb(sum(1)+1+3*(n-1))
-             fion(3,ii) = fion(3,ii) 
-     >                  + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
-     >                         *dbl_mb(sum(1)+2+3*(n-1))
+             ff(1) = ff(1) + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
+     >                            *dbl_mb(sum(1)+3*(n-1))
+             ff(2) = ff(2) + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
+     >                            *dbl_mb(sum(1)+1+3*(n-1))
+             ff(3) = ff(3) + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
+     >                            *dbl_mb(sum(1)+2+3*(n-1))
           end do
+          call D1dB_Vector_SumAll(3,ff)
+          fion(1,ii) = fion(1,ii) + ff(1)
+          fion(2,ii) = fion(2,ii) + ff(2)
+          fion(3,ii) = fion(3,ii) + ff(3)
        
         end do !** l **
 

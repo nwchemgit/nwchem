@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-tcgmsg.F,v 1.2 2006-10-07 00:10:05 bylaska Exp $
+* $Id: Parallel-tcgmsg.F,v 1.3 2007-02-23 01:24:49 bylaska Exp $
 *
 
 * Parallel.f
@@ -132,4 +132,134 @@ c      integer mpierr
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *         Parallel_SumAll         *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_SumAll(sum)
+c     implicit none
+      real*8  sum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+      if (np.gt.1) then
+         call GA_DGOP(9+MSGDBL,sum,1,'+')
+      end if
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         Parallel_ISumAll        *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_ISumAll(sum)
+c     implicit none
+      integer  sum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+      if (np.gt.1) then
+         call GA_IGOP(9+MSGINT,sum,1,'+')
+      end if
+      
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_Vector_SumAll     *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_Vector_SumAll(n,sum)
+c     implicit none
+      integer n
+      real*8  sum(*)
+
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "errquit.fh"
+#include "Parallel.fh"
+
+
+      call nwpw_timing_start(2)
+      if (np.gt.1) then
+         call GA_DGOP(9+MSGDBL,sum,n,'+')
+      end if
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *     Parallel_Vector_ISumAll     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Vector_ISumAll(n,sum)
+c     implicit none
+      integer n
+      integer  sum(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+
+      call nwpw_timing_start(2)
+      if (np.gt.1) then
+         call GA_IGOP(9+MSGINT,sum,n,'+')
+      end if
+      call nwpw_timing_end(2)
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_Brdcst_value      *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Brdcst_value(psend,sum)
+      implicit none
+      integer psend
+      real*8  sum
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+*     **** local variables ****
+      integer msglen
+
+      if (np.gt.1) then
+         msglen = 1
+         call BRDCST(9+MSGDBL,sum,mdtob(msglen),psend)
+      end if
+
+      return
+      end
 

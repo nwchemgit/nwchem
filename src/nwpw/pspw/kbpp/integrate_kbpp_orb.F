@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_orb.F,v 1.2 2001-11-30 00:56:04 bylaska Exp $
+* $Id: integrate_kbpp_orb.F,v 1.3 2007-02-23 01:24:14 bylaska Exp $
 *
 
       subroutine integrate_kbpp_orb(version,
@@ -180,7 +180,7 @@
 
   700 CONTINUE
 
-      call D3dB_Vector_Sumall(lmmax*nfft3d,aorbs)
+      call Parallel_Vector_Sumall(lmmax*nfft3d,aorbs)
 *:::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
 
       do l=1,lmmax

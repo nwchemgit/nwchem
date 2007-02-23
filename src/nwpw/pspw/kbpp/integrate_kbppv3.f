@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3.f,v 1.5 2007-02-09 00:08:42 d3p708 Exp $
+* $Id: integrate_kbppv3.f,v 1.6 2007-02-23 01:24:14 bylaska Exp $
 *
 
 
@@ -107,8 +107,8 @@ c     parameter (c6=0.00004306380d0)
       end do
 
 *======================  Fourier transformation  ======================
-      call dcopy(nfft3d,0.0d0,0,VL,1)
-      call dcopy(lmmax*nfft3d,0.0d0,0,VNL,1)
+      call dcopy(nfft3d,0.0d0,0,vl,1)
+      call dcopy(lmmax*nfft3d,0.0d0,0,vnl,1)
       call dcopy(4*nfft3d,0.0d0,0,rho_sc_k,1)
       task_count = -1
       DO 700 k3=1,nfft3
@@ -147,24 +147,24 @@ c     parameter (c6=0.00004306380d0)
            end do
            D=P3*SIMP(NRHO,F,DRHO)/Q
            lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
+           vnl(k1,k2,k3,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
      >                          /dsqrt(24.0d0)
            lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
+           vnl(k1,k2,k3,lcount)=D*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
      >                          /dsqrt(24.0d0)
            lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GZ*(GX*GX - GY*GY)
+           vnl(k1,k2,k3,lcount)=D*GZ*(GX*GX - GY*GY)
      >                          /2.0d0
            lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GX*GY*GZ
+           vnl(k1,k2,k3,lcount)=D*GX*GY*GZ
            lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GX*(5.0d0*GZ*GZ-1.0d0)
+           vnl(k1,k2,k3,lcount)=D*GX*(5.0d0*GZ*GZ-1.0d0)
      >                          /dsqrt(40.0d0)
            lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GY*(5.0d0*GZ*GZ-1.0d0)
+           vnl(k1,k2,k3,lcount)=D*GY*(5.0d0*GZ*GZ-1.0d0)
      >                          /dsqrt(40.0d0)
            lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GZ*(5.0d0*GZ*GZ-3.0d0)
+           vnl(k1,k2,k3,lcount)=D*GZ*(5.0d0*GZ*GZ-3.0d0)
      >                          /dsqrt(60.0d0)
         end if
 
@@ -180,18 +180,16 @@ c     parameter (c6=0.00004306380d0)
           END DO
           D=P2*SIMP(NRHO,F,DRHO)/Q
           lcount = lcount-1
-c          VNL(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
-c     >                          /(2.0d0*dsqrt(3.0d0))
-          VNL(k1,k2,k3,lcount)=D*(2.0d0*GZ*GZ-GX*GX-GY*GY)
+          vnl(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
      >                          /(2.0d0*dsqrt(3.0d0))
           lcount = lcount-1
-          VNL(k1,k2,k3,lcount)=D*GX*GY
+          vnl(k1,k2,k3,lcount)=D*GX*GY
           lcount = lcount-1
-          VNL(k1,k2,k3,lcount)=D*GY*GZ
+          vnl(k1,k2,k3,lcount)=D*GY*GZ
           lcount = lcount-1
-          VNL(k1,k2,k3,lcount)=D*GZ*GX
+          vnl(k1,k2,k3,lcount)=D*GZ*GX
           lcount = lcount-1
-          VNL(k1,k2,k3,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
+          vnl(k1,k2,k3,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
         end if
 
 *::::::::::::::::::::::::::::::  p-wave  ::::::::::::::::::::::::::::::
@@ -203,11 +201,11 @@ c     >                          /(2.0d0*dsqrt(3.0d0))
            END DO
            P=P1*SIMP(NRHO,F,DRHO)/Q
            lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=P*GX
+           vnl(k1,k2,k3,lcount)=P*GX
            lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=P*GY
+           vnl(k1,k2,k3,lcount)=P*GY
            lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=P*GZ
+           vnl(k1,k2,k3,lcount)=P*GZ
         end if
 
 *::::::::::::::::::::::::::::::  s-wave  :::::::::::::::::::::::::::::::
@@ -217,7 +215,7 @@ c     >                          /(2.0d0*dsqrt(3.0d0))
             F(I)=SN(I)*WP(I,0)*VP(I,0)
           END DO
           lcount = lcount-1
-          VNL(k1,k2,k3,lcount)=P0*SIMP(NRHO,F,DRHO)/Q
+          vnl(k1,k2,k3,lcount)=P0*SIMP(NRHO,F,DRHO)/Q
         end if
 
 *::::::::::::::::::::::::::::::  local  :::::::::::::::::::::::::::::::
@@ -228,7 +226,7 @@ c     >                          /(2.0d0*dsqrt(3.0d0))
         DO  I=1,NRHO
           F(I)=RHO(I)*VP(I,locp)*SN(I)
         END DO
-        VL(k1,k2,k3)=SIMP(NRHO,F,DRHO)*FORPI/Q-ZV*FORPI*CS(NRHO)/(Q*Q)
+        vl(k1,k2,k3)=SIMP(NRHO,F,DRHO)*FORPI/Q-ZV*FORPI*CS(NRHO)/(Q*Q)
         end if
  
         if (version.eq.4) then
@@ -244,7 +242,7 @@ c     >                          /(2.0d0*dsqrt(3.0d0))
           F(I)=(RHO(I)*VP(I,locp)+ZV*yerf)*SN(I)
 c         F(I)=(RHO(I)*VP(I,locp)+ZV*ERF(RHO(I)/RC(locp)))*SN(I)
         END DO
-        VL(k1,k2,k3)=SIMP(NRHO,F,DRHO)*FORPI/Q
+        vl(k1,k2,k3)=SIMP(NRHO,F,DRHO)*FORPI/Q
         end if
 
 
@@ -267,16 +265,16 @@ c         F(I)=(RHO(I)*VP(I,locp)+ZV*ERF(RHO(I)/RC(locp)))*SN(I)
     
   700 CONTINUE
 
-      call D3dB_Vector_SumAll(4*nfft3d,rho_sc_k)
-      call D3dB_Vector_SumAll(nfft3d,VL)
-      call D3dB_Vector_Sumall(lmmax*nfft3d,VNL)
+      call Parallel_Vector_SumAll(4*nfft3d,rho_sc_k)
+      call Parallel_Vector_SumAll(nfft3d,vl)
+      call Parallel_Vector_Sumall(lmmax*nfft3d,vnl)
 *:::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
 
       if (version.eq.3) then
       DO I=1,NRHO
         F(I)=VP(I,locp)*RHO(I)**2
       END DO
-      VL(1,1,1)=FORPI*SIMP(NRHO,F,DRHO)+TWOPI*ZV*RHO(NRHO)**2
+      vl(1,1,1)=FORPI*SIMP(NRHO,F,DRHO)+TWOPI*ZV*RHO(NRHO)**2
       end if
 
       if (version.eq.4) then
@@ -291,7 +289,7 @@ c       yerf = (1.0d0 - 1.0d0/yerf**4)
         F(I)=(VP(I,locp)*RHO(I)+ZV*yerf)*RHO(I)
 c       F(I)=(VP(I,locp)*RHO(I)+ZV*ERF(RHO(I)/RC(locp)))*RHO(I)
       END DO
-      VL(1,1,1)=FORPI*SIMP(NRHO,F,DRHO)
+      vl(1,1,1)=FORPI*SIMP(NRHO,F,DRHO)
       end if
 
 *     **** semicore density ****
@@ -313,7 +311,7 @@ c       F(I)=(VP(I,locp)*RHO(I)+ZV*ERF(RHO(I)/RC(locp)))*RHO(I)
          DO  I=1,NRHO
            F(I)=RHO(I)*WP(I,0)*VP(I,0)
          END DO
-         VNL(1,1,1,1)=P0*SIMP(NRHO,F,DRHO)
+         vnl(1,1,1,1)=P0*SIMP(NRHO,F,DRHO)
       end if
 
 

@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.47 2007-02-10 03:40:17 bylaska Exp $
+* $Id: cpsdv5.F,v 1.48 2007-02-23 01:24:32 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -151,6 +151,9 @@
 
       logical  Dneall_m_allocate,Dneall_m_free
       external Dneall_m_allocate,Dneall_m_free
+
+      real*8   Dneall_m_value
+      external Dneall_m_value
 
 
 *                            |************|
@@ -605,43 +608,33 @@ c         end if
       end if
 
 *     **** comparison between hamiltonian an lambda matrix ****
-      n = ne(1)
-      nn = n*n
-      if (taskid.eq.MASTER) then
-         write(17,1330)
-         do ms=1,ispin
-            do i=n1(ms),n2(ms)
-               ii = i-n1(ms)
-               do j=n1(ms),n2(ms)
-                  jj = j-n1(ms)
-                  indx  = (ii+1)+jj*n      + (ms-1)*nn
-                  indx1 = (ii+1)+jj*ne(ms) + (ms-1)*nn
-                  write(17,1340) ms,ii+1,jj+1,
-     >                           dbl_mb(hml(1)+indx1-1),
-     >                           dbl_mb(lmd(1)+indx-1),
-     >             dbl_mb(hml(1)+indx1-1)-dbl_mb(lmd(1)+indx-1)
-               end do
-            end do
+      if (taskid.eq.MASTER) write(17,1330)
+      do ms=1,ispin
+         do j=1,ne(ms)
+         do i=1,ne(ms)
+            w      = Dneall_m_value(0,ms,i,j,dbl_mb(hml(1)))
+            virial = Dneall_m_value(0,ms,i,j,dbl_mb(lmd(1)))
+
+            if (taskid.eq.MASTER)
+     >      write(17,1340) ms,i,j,w,virial,w-virial
          end do
-      end if
+         end do
+      end do
+
 
 *     **** check orthonormality ****
       if (taskid.eq.MASTER) then
          write(17,1350)
       end if
-
+      call Dneall_ffm_Multiply(0,dcpl_mb(psi1(1)),
+     >                           dcpl_mb(psi1(1)),npack1,
+     >                           dbl_mb(lmd(1)))
       do ms=1,ispin
-         do i=n1(ms),n2(ms)
-            ii = i-n1(ms)+1
-            do j=i,n2(ms)
-               jj = j-n1(ms)+1
-               call Pack_cc_dot(1,dcpl_mb(psi1(1)+(i-1)*npack1),
-     >                          dcpl_mb(psi1(1)+(j-1)*npack1),
-     >                          w)
-               if (taskid.eq.MASTER) then
-                  write(17,1360) ms,ii,jj,w
-               end if
-            end do
+         do j=1,ne(ms)
+         do i=j,ne(ms)
+            w  = Dneall_m_value(0,ms,i,j,dbl_mb(lmd(1)))
+            if (taskid.eq.MASTER) write(17,1360) ms,i,j,w
+         end do
          end do
       end do
 
@@ -662,15 +655,7 @@ c         end if
         nn = n*n
 
         if (fractional) then
-          do ms=1,ispin
-          do jj=1,ne(ms)
-          do ii=1,ne(ms)
-             dbl_mb(hml(1)+(ii-1)+(jj-1)*ne(ms)+(ms-1)*nn)
-     >       =dbl_mb(hml(1)+(ii-1)+(jj-1)*ne(ms)+(ms-1)*nn)
-     >       *dbl_mb(fweight(1)+(jj-1)+(ms-1)*n)
-          end do
-          end do
-          end do
+          call Dneall_m_HmltimesSA(0,dbl_mb(hml(1)),dbl_mb(fweight(1)))
         end if
 
         call Dneall_m_diagonalize(0,dbl_mb(hml(1)),

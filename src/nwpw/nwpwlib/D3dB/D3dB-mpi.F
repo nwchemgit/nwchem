@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.17 2006-10-07 00:10:04 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.18 2007-02-23 01:24:49 bylaska Exp $
 *
 
 #ifdef MPI
@@ -815,7 +815,6 @@ c     implicit none
       call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,
      >                MPI_INTEGER,
      >                MPI_SUM,Parallel2d_comm_i(),mpierr)
-
 
       call icopy(n,int_mb(sumall(1)),1,sum,1)
       value = MA_pop_stack(sumall(2))

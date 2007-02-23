@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-mpi.F,v 1.4 2006-10-07 00:10:05 bylaska Exp $
+* $Id: Parallel-mpi.F,v 1.5 2007-02-23 01:24:49 bylaska Exp $
 *
 
 * Parallel.f
@@ -81,7 +81,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
 *     *** local variables ***
       integer i,j,icount,ierr
-      integer tmp(2),n,mpi_group
+      integer tmp(2),mpi_group
 
       np_i = np/ncolumns
       np_j = ncolumns
@@ -150,5 +150,191 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
       return
       end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         Parallel_SumAll         *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_SumAll(sum)
+c     implicit none
+      real*8  sum
+
+
+#include "Parallel.fh"
+#include "mpif.h"
+
+      integer msglen,mpierr
+      real*8 sumall
+
+*     **** external functions ****
+
+      if (np.gt.1) then
+         msglen = 1
+         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+     >                       MPI_SUM,MPI_COMM_WORLD,mpierr)
+         sum = sumall
+      end if
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         Parallel_ISumAll        *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_ISumAll(sum)
+c     implicit none
+      integer sum
+
+
+#include "Parallel.fh"
+#include "mpif.h"
+
+      integer msglen,mpierr
+      integer sumall
+
+      if (np.gt.1) then
+         msglen = 1
+
+         call MPI_Allreduce(sum,sumall,msglen,MPI_INTEGER,
+     >                       MPI_SUM,MPI_COMM_WORLD,mpierr)
+         sum = sumall
+      end if
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_Vector_SumAll     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Vector_SumAll(n,sum)
+c     implicit none
+      integer n
+      real*8  sum(*)
+
+#include "mafdecls.fh"
+#include "mpif.h"
+#include "errquit.fh"
+#include "Parallel.fh"
+
+*     **** local variable ****
+      logical value
+      integer msglen,mpierr
+
+*     **** temporary workspace ****
+      integer sumall(2)
+
+
+      call nwpw_timing_start(2)
+      if (np.gt.1) then
+
+*     ***** allocate temporary space ****
+      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      msglen = n
+
+      call MPI_Allreduce(sum,dbl_mb(sumall(1)),msglen,
+     >                MPI_DOUBLE_PRECISION,
+     >                MPI_SUM,MPI_COMM_WORLD,mpierr)
+
+
+      call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
+      value = MA_pop_stack(sumall(2))
+
+      end if
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_Vector_ISumAll    *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Vector_ISumAll(n,sum)
+c     implicit none
+      integer n
+      integer  sum(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "mpif.h"
+#include "Parallel.fh"
+
+      logical value
+      integer msglen,mpierr
+
+*     **** temporary workspace ****
+      integer sumall(2)
+
+
+      call nwpw_timing_start(2)
+
+      if (np.gt.1) then
+
+*     ***** allocate temporary space ****
+      value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      msglen = n
+
+
+      call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,
+     >                MPI_INTEGER,
+     >                MPI_SUM,MPI_COMM_WORLD,mpierr)
+
+
+      call icopy(n,int_mb(sumall(1)),1,sum,1)
+      value = MA_pop_stack(sumall(2))
+      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+
+      end if
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_Brdcst_value      *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Brdcst_value(psend,sum)
+      implicit none
+      integer psend
+      real*8  sum
+
+#include "Parallel.fh"
+#include "mpif.h"
+
+      integer ierr
+
+      if (np.gt.1) then
+         call MPI_Bcast(sum,1,MPI_DOUBLE_PRECISION,
+     >                  psend,MPI_COMM_WORLD,ierr)
+      end if
+
+      return
+      end
+
 
 

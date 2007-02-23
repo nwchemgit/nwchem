@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-tcgmsg.F,v 1.13 2006-08-21 20:24:13 bylaska Exp $
+* $Id: D3dB-tcgmsg.F,v 1.14 2007-02-23 01:24:49 bylaska Exp $
 *
 
 #ifdef TCGMSG
@@ -705,34 +705,22 @@ c     integer i2_start(NFFT3+1)
 c     implicit none
       real*8  sum
 
-
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 
-
-      integer MASTER
-      parameter (MASTER=0)
-      integer msglen
-      real*8 sumall,sumt
+*     **** local variables ****
+      integer np_i
 
 *     **** external functions ****
-      integer  Parallel2d_comm_i
-      external Parallel2d_comm_i
+      integer  Parallel2d_comm_i,Parallel2d_np_i
+      external Parallel2d_comm_i,Parallel2d_np_i
 
-c     msglen = 8
-      msglen = 1
+      call Parallel2d_np_i(np_i)
+      if (np_i.gt.1) then
+         call GA_PGROUP_DGOP(Parallel2d_comm_i(),
+     >                       9+MSGDBL,sum,1,'+')
+      end if
 
-      sumt = sum
-
-      call GA_PGROUP_DGOP(Parallel2d_comm_i(),
-     >                    9+MSGDBL,sumt,1,'+')
-
-c      call GA_DGOP(9+MSGDBL,sumt,1,'+')
-c     call DGOP(9+MSGDBL,sumt,1,'+')
-      sumall=sumt
-
-
-      sum = sumall
       return
       end
 
@@ -750,51 +738,28 @@ c     implicit none
       real*8  sum(*)
 
 #include "mafdecls.fh"
-
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "errquit.fh"
 
 
-
-      logical value
-      integer MASTER
-      parameter (MASTER=0)
-      integer msglen
-
 *     **** temporary workspace ****
-      integer sumall(2),np
+      integer np_i
 
 *     **** external functions ****
-      integer  Parallel2d_comm_i
-      external Parallel2d_comm_i
+      integer  Parallel2d_comm_i,Parallel2d_np_i
+      external Parallel2d_comm_i,Parallel2d_np_i
 
-
-
-      call Parallel_np(np)
       call nwpw_timing_start(2)
-      if (np.gt.1) then
 
-*     ***** allocate temporary space ****
-      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-      msglen = n
-
-
-      call dcopy(n,sum,1,dbl_mb(sumall(1)),1)
-
-      call GA_PGROUP_DGOP(Parallel2d_comm_i(),
-     >                    9+MSGDBL,dbl_mb(sumall(1)),n,'+')
-c     call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
-c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
-
-
-      call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
-      value = MA_pop_stack(sumall(2))
-
+      call Parallel2d_np_i(np_i)
+      if (np_i.gt.1) then
+         call GA_PGROUP_DGOP(Parallel2d_comm_i(),
+     >                       9+MSGDBL,sum,n,'+')
       end if
+
       call nwpw_timing_end(2)
+
       return
       end
 
@@ -811,33 +776,23 @@ c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 c     implicit none
       integer  sum
 
-
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 
-
-      integer MASTER
-      parameter (MASTER=0)
-      integer msglen
-      integer sumall,sumt
+*     **** local variables ****
+      integer np_i
 
 *     **** external functions ****
-      integer  Parallel2d_comm_i
-      external Parallel2d_comm_i
+      integer  Parallel2d_comm_i,Parallel2d_np_i
+      external Parallel2d_comm_i,Parallel2d_np_i
 
 
-c     msglen = 8
-      msglen = 1
+      call Parallel2d_np_i(np_i)
+      if (np_i.gt.1) then
+         call GA_PGROUP_IGOP(Parallel2d_comm_i(),
+     >                       9+MSGINT,sum,1,'+')
+      end if
 
-      sumt = sum
-
-      call GA_PGROUP_IGOP(Parallel2d_comm_i(),
-     >                    9+MSGINT,sumt,1,'+')
-c     call GA_IGOP(9+MSGINT,sumt,1,'+')
-      sumall=sumt
-
-
-      sum = sumall
       return
       end
 
@@ -854,46 +809,26 @@ c     implicit none
 
 #include "mafdecls.fh"
 #include "errquit.fh"
-
-
-
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 
-
-
-      integer MASTER
-      parameter (MASTER=0)
-      integer msglen
-      logical value
-
-*     **** temporary workspace ****
-      integer sumall(2)
+*     **** local variables ****
+      integer np_i
 
 *     **** external functions ****
-      integer  Parallel2d_comm_i
-      external Parallel2d_comm_i
-
+      integer  Parallel2d_comm_i,Parallel2d_np_i
+      external Parallel2d_comm_i,Parallel2d_np_i
 
       call nwpw_timing_start(2)
 
-*     ***** allocate temporary space ****
-      value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-      msglen = n
-
-
-      call icopy(n,sum,1,int_mb(sumall(1)),1)
-      call GA_PGROUP_IGOP(Parallel2d_comm_i(),
-     >                    9+MSGINT,int_mb(sumall(1)),n,'+')
-c     call GA_IGOP(9+MSGINT,int_mb(sumall(1)),n,'+')
-
-
-      call icopy(n,int_mb(sumall(1)),1,sum,1)
-      value = MA_pop_stack(sumall(2))
+      call Parallel2d_np_i(np_i)
+      if (np_i.gt.1) then
+         call GA_PGROUP_IGOP(Parallel2d_comm_i(),
+     >                       9+MSGINT,sum,n,'+')
+      end if
 
       call nwpw_timing_end(2)
+
       return
       end
 

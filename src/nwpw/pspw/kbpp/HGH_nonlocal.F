@@ -1,5 +1,5 @@
 *
-* $Id: HGH_nonlocal.F,v 1.4 2007-02-08 22:56:00 bylaska Exp $
+* $Id: HGH_nonlocal.F,v 1.5 2007-02-23 01:24:14 bylaska Exp $
 *
 
 
@@ -109,7 +109,7 @@
         vnl(k1,k2,k3)=coef*a*poly
 
   700 CONTINUE
-      call D3dB_Vector_Sumall(nfft3d,vnl)
+      call Parallel_Vector_SumAll(nfft3d,vnl)
 
       return
       end

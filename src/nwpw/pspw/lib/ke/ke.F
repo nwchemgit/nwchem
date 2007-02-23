@@ -1,5 +1,5 @@
 *
-* $Id: ke.F,v 1.14 2006-10-07 00:10:06 bylaska Exp $
+* $Id: ke.F,v 1.15 2007-02-23 01:24:32 bylaska Exp $
 *
       subroutine ke_init()
       implicit none 
@@ -205,7 +205,7 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.14 2006-10-07 00:10:06 bylaska Exp $
+* $Id: ke.F,v 1.15 2007-02-23 01:24:32 bylaska Exp $
 *
       implicit none 
 #include "errquit.fh"
@@ -217,11 +217,11 @@ c     complex*16 tmp1(nfft3d)
 
 *     **** local variables ****
       integer npack1,nfft3d,G(2,3)
-      integer i,j,ms,n,n1(2),n2(2)
+      integer i,j,ms,n,n1(2),n2(2),np_i,np_j
       integer u,v,s
       logical value
 
-      real*8 pi,scal,sum
+      real*8 pi,scal,sum,ave
       real*8 hm(3,3),Aus(3,3)
       integer tmp1(2),tmp2(2)
 
@@ -233,6 +233,9 @@ c     real*8 G(nfft3d,3)
       real*8   lattice_unitg,lattice_omega,lattice_unita
       external lattice_unitg,lattice_omega,lattice_unita
 
+
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
 
       n1(1) = 1
       n2(1) = ne(1)
@@ -284,18 +287,23 @@ c     real*8 G(nfft3d,3)
         call Pack_tt_Mul(1,dbl_mb(G(1,u)),
      >                     dbl_mb(G(1,s)),
      >                     dbl_mb(tmp1(1)))
+        ave = 0.0d0
         do ms=1,ispin
         do n=n1(ms),n2(ms)    
             call Pack_tc_Mul(1,dbl_mb(tmp1(1)),
      >                       psi(1+(n-1)*npack1),
      >                       dcpl_mb(tmp2(1)))
-            call Pack_cc_dot(1,psi(1+(n-1)*npack1),
-     >                       dcpl_mb(tmp2(1)),
+            call Pack_cc_idot(1,psi(1+(n-1)*npack1),
+     >                        dcpl_mb(tmp2(1)),
      >                       sum)
-           
-             Aus(u,s) = Aus(u,s) + sum
+             ave = ave + sum
+             !Aus(u,s) = Aus(u,s) + sum
         end do
         end do
+        if (np_i.gt.1) call D3dB_SumAll(ave)
+        if (np_j.gt.1) call D1dB_SumAll(ave)
+        Aus(u,s) = Aus(u,s) + ave
+
       end do
       end do
       do u=1,3

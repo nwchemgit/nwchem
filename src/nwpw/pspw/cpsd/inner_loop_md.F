@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.25 2006-08-13 01:03:26 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.26 2007-02-23 01:24:32 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -34,7 +34,7 @@
       real*8     dn(2*nfft3d,2)
       integer    it_in,it_sum
       real*8     E(*)
-      real*8     hml(2*nemax*nemax),lmd(2*nemax*nemax)
+      real*8     hml(*),lmd(*)
 
 *     **** very big workspace variables ****
       complex*16 Hpsi(npack1,nemax)
@@ -51,7 +51,7 @@
 
 *     **** local variables ****
       logical move
-      integer n2ft3d,np
+      integer n2ft3d,np,np_i,np_j
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr,gga
       integer nx,ny,nz
       integer index,indext
@@ -129,6 +129,11 @@ c     real*8     fion(3,natmx)
       external pspw_SIC,pspw_SIC_relaxed,control_allow_translation
       external pspw_HFX,pspw_HFX_relaxed
 
+      double precision Dneall_m_trace
+      external         Dneall_m_trace
+      logical  Dneall_m_push_get_block,Dneall_m_pop_stack
+      external Dneall_m_push_get_block,Dneall_m_pop_stack
+
       call Parallel_np(np)
       call Pack_npack(0,npack0)
 
@@ -140,8 +145,7 @@ c     real*8     fion(3,natmx)
 
 *     **** allocate MA local variables ****
       call nwpw_timing_start(12)
-      value = MA_push_get(mt_dbl,(8*nemax*nemax),
-     >                     'tmp_L',tmp_L(2),tmp_L(1))
+      value = Dneall_m_push_get_block(1,8,tmp_L)
       value = value.and.
      >        MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
@@ -269,6 +273,7 @@ c     real*8     fion(3,natmx)
                 end do
              end do
              call D3dB_r_Zero_Ends(1,dn(1,ms))
+             call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
           end do
         else
           do ms=1,ispin
@@ -278,6 +283,7 @@ c     real*8     fion(3,natmx)
                 end do
              end do
              call D3dB_r_Zero_Ends(1,dn(1,ms))
+             call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
           end do
         end if
 
@@ -578,39 +584,22 @@ c        end if
 *     ***** total energy calculation ******
 *     *************************************
       call nwpw_timing_start(10)
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
 
 *     *** get orbital energies ****
-      n = ne(1)
-      nn = n*n
-      do ms=1,ispin
-         do ii=n1(ms),n2(ms)
-           i = ii-n1(ms)
-           index = (i+1) + i*n + (ms-1)*nn
-           call Pack_cc_idot(1,psi1(1,ii),Hpsi(1,ii),sum)
-           hml(index) = -sum
-           do jj=ii+1,n2(ms)
-              j = jj-n1(ms)
-              index  = (i+1) + j*n + (ms-1)*nn
-              indext = (j+1) + i*n + (ms-1)*nn
-              call Pack_cc_idot(1,psi1(1,ii),Hpsi(1,jj),sum)
-              hml(index)  = -sum
-              hml(indext) = -sum
-           end do 
-         end do
-      end do
-      if (np.gt.1) call D3dB_Vector_SumAll(ispin*nn,hml)
-
-      eorbit = 0.0d0
-      do ms=1,ispin
-         do ii=1,ne(ms)
-            index = (ii) + (ii-1)*n + (ms-1)*nn
-            sum = hml(index)
-            if (fractional) sum=sum*dbl_mb(fweight(1)+ii-1+(ms-1)*ne(1))
-            eorbit = eorbit + sum
-         end do
-      end do
+      call Dneall_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
+      call Dneall_m_scal(0,(-1.0d0),hml)
+      if (fractional) then
+         call Dneall_m_diag_scal(0,dbl_mb(fweight(1)),hml)
+         eorbit = Dneall_m_trace(0,hml)
+         call Dneall_m_diag_scal_inv(0,dbl_mb(fweight(1)),hml)
+      else
+         eorbit = Dneall_m_trace(0,hml)
+      end if
       if (ispin.eq.1) eorbit = eorbit+eorbit
-        
+
+
 
 *     **** get ewald energy ****
       eion = 0.0d0
@@ -659,7 +648,8 @@ c        end if
          call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
          eke = eke+sum
       end do
-      if (np.gt.1) call D3dB_SumAll(eke)
+      if (np_i.gt.1) call D3dB_SumAll(eke)
+      if (np_j.gt.1) call D1dB_SumAll(eke)
       eke = eke*fmass
       if (ispin.eq.1) eke = 2.0d0*eke
 
@@ -812,7 +802,7 @@ c       call ecce_print1('gradient max', mt_dbl, E(1), 1)
       value = value.and.MA_pop_stack(vc(2))
       value = value.and.MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
-      value = value.and.MA_pop_stack(tmp_L(2))
+      value = value.and.Dneall_m_pop_stack(tmp_L)
       if (.not.value) 
      > call errquit('inner_loop_md:popping stack',1, MA_ERR)
 

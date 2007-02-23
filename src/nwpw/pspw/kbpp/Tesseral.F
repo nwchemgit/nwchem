@@ -1,5 +1,5 @@
 *
-* $Id: Tesseral.F,v 1.3 2007-02-09 00:08:42 d3p708 Exp $
+* $Id: Tesseral.F,v 1.4 2007-02-23 01:24:14 bylaska Exp $
 *
 
 
@@ -95,11 +95,8 @@
 *::::::::::::::::::::::::::::::  d-wave  ::::::::::::::::::::::::::::::
 
 
-c        if ((l.eq.2).and.(m.eq.-2)) 
-c     >    Ylm(k1,k2,k3)=P2*(3.0d0*GZ*GZ-1.0d0)
-c     >                          /(2.0d0*dsqrt(3.0d0))
         if ((l.eq.2).and.(m.eq.-2)) 
-     >    Ylm(k1,k2,k3)=P2*(2.0d0*GZ*GZ-GX*GX-GY*GY)
+     >    Ylm(k1,k2,k3)=P2*(3.0d0*GZ*GZ-1.0d0)
      >                          /(2.0d0*dsqrt(3.0d0))
 
         if ((l.eq.2).and.(m.eq.-1)) 
@@ -135,7 +132,7 @@ c     >                          /(2.0d0*dsqrt(3.0d0))
 
     
   700 CONTINUE
-      call D3dB_Vector_Sumall(nfft3d,Ylm)
+      call Parallel_Vector_Sumall(nfft3d,Ylm)
 
 
       Ylm(1,1,1) = 0.0d0

@@ -1,9 +1,13 @@
 *
-* $Id: psi.F,v 1.74 2007-02-10 03:56:54 bylaska Exp $
+* $Id: psi.F,v 1.75 2007-02-23 01:24:32 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.74  2007/02/10 03:56:54  bylaska
+* ...bug fix...
+* ..EJB
+*
 * Revision 1.73  2007/02/10 03:40:18  bylaska
 * replaced calls to Grsm_g_MakeOrtho with Dneall_f_ortho
 * ...EJB
@@ -2178,6 +2182,43 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***************************
+*     *                         *
+*     *         epsi_2to1        *
+*     *                         *
+*     ***************************
+      subroutine epsi_2to1()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      call zcopy(npack1*(ne_excited(1)+ne_excited(2)),
+     >           dcpl_mb(psi2_excited(1)),1,
+     >           dcpl_mb(psi1_excited(1)),1)
+      return
+      end
+
+
+*     ***************************
+*     *                         *
+*     *         epsi_1to2       *
+*     *                         *
+*     ***************************
+      subroutine epsi_1to2()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      call zcopy(npack1*(ne_excited(1)+ne_excited(2)),
+     >           dcpl_mb(psi1_excited(1)),1,
+     >           dcpl_mb(psi2_excited(1)),1)
+      return
+      end
+
+
+
+*     ***************************
 *     *				*
 *     *		psi_1get_psi	*
 *     *				*
@@ -3951,7 +3992,7 @@ c    >                            dcpl_mb(dng1(1)))
 #include "mafdecls.fh"
 #include "psi.fh"
 
-      call ke_euv(ispin,ne,dcpl_mb(psi1(1)),stress)
+      call ke_euv(ispin,neq,dcpl_mb(psi1(1)),stress)
       return
       end
 
@@ -4128,8 +4169,9 @@ c    >                            dcpl_mb(dng1(1)))
       end do
       end do
 
-      call v_nonlocal_euv_2(ispin,ne,dcpl_mb(psi1(1)),stress)
+      call v_nonlocal_euv_2(ispin,neq,dcpl_mb(psi1(1)),stress)
       evnl = psi_1vnl()
+
       do v=1,3
       do u=1,3
          stress(u,v) = stress(u,v) - evnl*hm(u,v)

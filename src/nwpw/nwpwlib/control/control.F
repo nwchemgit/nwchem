@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.95 2007-01-02 18:36:50 bylaska Exp $
+* $Id: control.F,v 1.96 2007-02-23 01:24:49 bylaska Exp $
 *
 
 *     ***********************************
@@ -36,7 +36,7 @@
       !character*30 cell_name
       character*30 rtdb_unita,rtdb_ngrid,rtdb_boundry
       character*30 exchange_correlation
-      integer i,l,ind
+      integer i,l,ind,np
 
       logical  control_allow_translation
       external control_allow_translation
@@ -54,13 +54,22 @@
          mapping = 1
       end if
 
+*     **** set mapping1d ****
       if (.not.rtdb_get(rtdb,'nwpw:mapping1d',mt_int,1,mapping1d)) then
          mapping1d = 1
       end if
 
+*     **** set np_orbital ****
       if(.not.rtdb_get(rtdb,'nwpw:np_orbital',mt_int,1,np_orbital)) then
          np_orbital = 1
       end if
+*     **** reset np_orbital if np not a multiple of np_orbital ***
+      call Parallel_np(np)
+      do while ((mod(np,np_orbital).ne.0).and.(np_orbital.gt.1))
+           np_orbital = np_orbital - 1
+      end do
+      
+      
 
 *     **** get balance mapping ****
       if (.not.rtdb_get(rtdb,'nwpw:balance',mt_log,1,balance)) then
