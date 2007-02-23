@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.29 2007-02-22 18:40:01 d3p708 Exp $
+* $Id: c_electron.F,v 1.30 2007-02-23 01:14:33 bylaska Exp $
 *
 
 
@@ -136,6 +136,29 @@
       return
       end
 
+*     ***********************************
+*     *					*
+*     *		c_electron_run_noscf	*
+*     *					*
+*     ***********************************
+      subroutine c_electron_run_noscf(psi_k,dn,dng,dnall)
+      implicit none
+      complex*16 psi_k(*)
+      real*8     dn(*)
+      complex*16 dng(*)
+      real*8     dnall(*)
+
+#include "c_electron_common.fh"
+
+      counter = counter+1
+
+
+      call c_electron_gen_psi_r(psi_k)
+      call c_electron_gen_densities(psi_k,dn,dng,dnall)
+      call c_electron_gen_Hpsi_k_vall(psi_k)
+
+      return
+      end
 
 *     ***********************************
 *     *					*
@@ -691,6 +714,36 @@ cccccccccccccccccc
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *   c_electron_gen_Hpsi_k_vall    *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_electron_gen_Hpsi_k_vall(psi_k)
+      implicit none
+      complex*16 psi_k(*)
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+
+*     ******************
+*     **** get Hpsi ****
+*     ******************
+      call cpsi_H_vall(ispin,ne,
+     >           psi_k,
+     >           dcpl_mb(psi_r(1)),
+     >           dcpl_mb(vall(1)),
+     >           dcpl_mb(Hpsi_k(1)))
+
+      call BGrsm_ff_dScale((-1.0d0),
+     >                     dcpl_mb(Hpsi_k(1)),
+     >                     dcpl_mb(Hpsi_k(1)))
+      return
+      end
+
+
+
 
 
 
@@ -1154,7 +1207,7 @@ c         end do
       call cpsp_v_local(dcpl_mb(vl(1)),
      >                  move,
      >                  dcpl_mb(tmp1(1)),
-     >                  dbl_mb(tmp2(1)))
+     >                   dbl_mb(tmp2(1)))
 
       value = MA_pop_stack(tmp2(2))
       value = value.and.

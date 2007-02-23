@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.14 2007-02-20 21:44:38 d3p708 Exp $
+* $Id: cpsi_H.F,v 1.15 2007-02-23 01:14:33 bylaska Exp $
 *
 
       subroutine cpsi_H(ispin,ne,
@@ -307,7 +307,7 @@
       external cpsi_ne
 
       
-      value=MA_set_auto_verify(.true.)
+c      value=MA_set_auto_verify(.true.)
       ne1=cpsi_ne(1)
       call Cram_max_npack(npack1)
       call C3dB_nx(1,nx)
@@ -383,4 +383,116 @@
       return
       end
 
+
+
+*     ***************************************************
+*     *                                                 *
+*     *                 cpsi_H_vall                     *
+*     *                                                 *
+*     ***************************************************
+
+      subroutine cpsi_H_vall(ispin,ne,psi_k,psi_r,vall,Hpsi_k)
+      implicit none
+      integer    ispin,ne(2)
+      complex*16 psi_k(*)
+      complex*16 psi_r(*)
+      complex*16 vall(*)
+      complex*16 Hpsi_k(*)
+
+#include "errquit.fh"
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      integer ms,n,n1(2),n2(2)
+      integer nx,ny,nz
+      real*8  scal1,scal2,fion(3)
+
+*     **** tempory space ****
+      integer nfft3d,npack1,nb,neall,indx,indx2,nbrill
+      integer vpsi(2)
+      logical value
+
+
+*     **** external functions ****
+      integer  brillioun_nbrillioun
+      real*8   lattice_omega
+      !logical  cpsi_spin_orbit
+      !external cpsi_spin_orbit
+      external brillioun_nbrillioun
+      external lattice_omega
+
+
+      
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
+      call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
+
+      call nwpw_timing_start(12)
+      value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+      if (.not.value) call errquit('cpsi_H_vall:out of stack',0,MA_ERR)
+      call nwpw_timing_end(12)
+      
+
+      scal2 = 1.0d0/lattice_omega()
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      n1(1) = 1
+      n2(1) = ne(1)
+      n1(2) = ne(1) + 1
+      n2(2) = ne(1) + ne(2)
+      neall = ne(1) + ne(2)
+      nbrill = brillioun_nbrillioun()
+       
+
+*     ****************************
+*     **** add kinetic energy ****
+*     ****************************
+      call cke(ispin,ne,psi_k,Hpsi_k)
+
+*     **************************
+*     **** add non-local psp ***
+*     **************************
+      call cpsp_v_nonlocal(ispin,ne,psi_k,Hpsi_k,  .false.,fion)
+      call cpsp_v_spin_orbit(ispin,ne,psi_k,Hpsi_k,.false.,fion)
+
+*     **************************************************
+*     **** Hpsi_k = Hpsi_k + FFT[vall_r+)*psi_r]    ****
+*     **************************************************
+      do nb=1,nbrill
+      do ms=1,ispin
+         do n=n1(ms),n2(ms)
+
+            indx  = 1 + (n-1)*nfft3d + (nb-1)*nfft3d*neall
+            indx2 = 1 + (n-1)*npack1 + (nb-1)*npack1*neall
+*           *************************************
+*           **** vpsi_r = (vall_r)*psi_r ****
+*           *************************************
+            call C3dB_cc_Mul(1,vall(1+(ms-1)*nfft3d),
+     >                         psi_r(indx),
+     >                         dcpl_mb(vpsi(1)))
+
+*           *******************************
+*           **** get vpsi_r in k-space ****
+*           *******************************
+            call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+            call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
+
+*           ***********************
+*           **** add to Hpsi_k ****
+*           ***********************
+            call Cram_cc_daxpy(nb,(-scal1),
+     >                         dcpl_mb(vpsi(1)),
+     >                         Hpsi_k(indx2))
+         end do
+      end do
+      end do
+
+
+      call nwpw_timing_start(12)
+      value = MA_pop_stack(vpsi(2))
+      if(.not.value) call errquit('cpsi_H_vall:popping stack',0,MA_ERR)
+      call nwpw_timing_end(12)
+      return
+      end
 
