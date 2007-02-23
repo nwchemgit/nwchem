@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.22 2007-02-20 21:45:02 d3p708 Exp $
+* $Id: band_structure.F,v 1.23 2007-02-23 01:11:19 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -148,6 +148,8 @@
 
       call nwpw_timing_init()
       call dcopy(10,0.0d0,0,E,1)
+
+
 *     **** get parallel variables ****
       call Parallel_Init()
       call Parallel_np(np)
@@ -227,6 +229,7 @@
       call cphafac()
       call cphafac_k()
 
+
 *     **** read in wavefunctions and initialize psi ****
       if (.not.psi_filefind()) then
         call cpsi_new()
@@ -246,6 +249,15 @@
         end if
       end if
 
+      call psi_get_ne(ispin,ne)
+      if (ispin.eq.3) then
+         spin_orbit = .true.
+         ispin=2
+      else
+         spin_orbit = .false.
+      end if
+      nbrillioun = brillioun_nbrillioun()
+      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       value = cpsi_initialize(.true.) 
 
 *     **** electron and geodesic data structures ****
@@ -362,11 +374,13 @@
       end if
 
 
+
       !**** set the size of the band - include virtual orbitals ****
       ispin = cpsi_ispin()
       ne(1) = cpsi_ne(1)+control_excited_ne(1)
       ne(2) = 0
       if (ispin.gt.1) ne(2) = cpsi_ne(2)+control_excited_ne(2)
+      
 
       if (taskid.eq.MASTER) call current_second(cpu2)
 
@@ -376,10 +390,9 @@
      >  call errquit('band_structure:out of heap memory',0, MA_ERR)
 
 
+
       EV = c_cgsd_noit_energy()
-
       call c_electron_gen_vall()
-
       call c_electron_get_vall(dcpl_mb(vall(1)))
 
       if (taskid.eq.MASTER) then
@@ -390,7 +403,7 @@
 
 
 *     **** deallocate heap memory ****
-      value=cpsi_finalize(.true.)
+      value=cpsi_band_finalize(.false.)
 
       call c_electron_finalize()
       call c_geodesic_finalize()
@@ -510,10 +523,7 @@
          if (taskid.eq.MASTER) 
      >     write(luout,*) "band structure calculation"
       end if
-cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  The point by point band structure calculation
-c  begins here....
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
       call control_reset_band_structure()
       do k=1,control_num_kvectors_structure()
         ortho = .true.
@@ -546,18 +556,23 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call cphafac()
       call cphafac_k()
 
+
 *     **** read in wavefunctions and initialize psi ****
-      call Pneb_set_ne(ne)
       if (.not.psi_filefind()) then
         call cpsi_new_ne(ispin,ne)
         newpsi = .true.
         ortho  = .false.
         vers = 5
-      else       
+        write(*,*)"CPSI_NEW_NE VERSION = ",vers
+        call flush(6)
+
+      else
         newpsi = .false.
+
 *       **** convert from pspw format to band format ****
         vers = psi_get_version()
-
+        write(*,*)"Version = ",vers
+        call flush(6)
         if ((vers.eq.3).or.(vers.eq.4)) then
            nbrillioun = brillioun_nbrillioun()
            newpsi = .true.
@@ -567,9 +582,19 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         end if
       end if
 
-      value = cpsi_initialize(.true.)
+      call psi_get_ne(ispin,ne)
+      if (ispin.eq.3) then
+         spin_orbit = .true.
+         ispin=2
+      else
+         spin_orbit = .false.
+      end if
+      nbrillioun = brillioun_nbrillioun()
+      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
+      value = cpsi_initialize(ortho)
  
       if (flag.eq.2) call cpsi_dospsi_read(k)
+
 
 *     **** allocate eigs_dos if first iteration ****
       if ((flag.eq.1).and.(k.eq.1).and.(taskid.eq.MASTER)) then
@@ -590,6 +615,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     **** diagonalize hamiltonian and rotate psi ****
       call c_electron_set_vall(dcpl_mb(vall(1)))
+
+*     **** initialize with steepest descent ***
+      call c_sdminimize_noscf(0)
+
+*     **** diagonalize current result ***
+      call cpsi_1gen_hml()
+      call cpsi_diagonalize_hml()
+      call cpsi_1rotate2()
+      call cpsi_2to1()
 
       call cpsi_KS_minimize(1,.false.,control_tole(),control_tolc())
 
