@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.23 2007-02-23 01:11:19 bylaska Exp $
+* $Id: band_structure.F,v 1.24 2007-02-23 17:41:03 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -401,10 +401,7 @@
          write(luout,*) "Self-Consistent Potential Generated"
       end if
 
-
-*     **** deallocate heap memory ****
-      value=cpsi_band_finalize(.false.)
-
+      value=cpsi_finalize(.true.)
       call c_electron_finalize()
       call c_geodesic_finalize()
       call c_ewald_end()
