@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.46 2007-01-21 00:35:40 d3p708 Exp $
+* $Id: band_minimizer.F,v 1.47 2007-02-23 18:11:03 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -422,6 +422,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
 
 
 *     **** calculate the spin contamination ****
+      if (flag.gt.-1) call cpsi_spin2(dipole(1))
       
 *     **** calculate the dipole ***
       dipole(1) = 0.0d0
