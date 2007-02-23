@@ -1,4 +1,4 @@
-c     $Id: c_sdminimize.F,v 1.5 2006-12-22 02:59:33 d3p708 Exp $                       
+c     $Id: c_sdminimize.F,v 1.6 2007-02-23 01:18:11 bylaska Exp $                       
 
       subroutine c_sdminimize(flag)
       implicit none
@@ -6,18 +6,21 @@ c     $Id: c_sdminimize.F,v 1.5 2006-12-22 02:59:33 d3p708 Exp $
 
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "util.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
 
+      logical  value,oprint
       integer it,it_in
       real*8 dt,dte
 
 *     **** external functions ****
+      logical  control_print
       integer  control_it_in
       real*8   control_time_step,control_fake_mass
-      logical  value
+      external control_print
       external control_it_in
       external control_time_step,control_fake_mass
 
@@ -37,7 +40,8 @@ c     $Id: c_sdminimize.F,v 1.5 2006-12-22 02:59:33 d3p708 Exp $
       end do
 
       call Parallel_taskid(taskid)
-      if (taskid.eq.MASTER) then
+      oprint = (taskid.eq.MASTER).and.control_print(print_medium) 
+      if (oprint) then
         write(*,'(A,I3,A)') "     - ",
      >             it_in," steepest descent iterations performed"
       end if
@@ -45,4 +49,49 @@ c     $Id: c_sdminimize.F,v 1.5 2006-12-22 02:59:33 d3p708 Exp $
       return
       end
  
+
+      subroutine c_sdminimize_noscf(flag)
+      implicit none
+      integer flag
+
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      logical  value,oprint
+      integer it,it_in
+      real*8 dt,dte
+
+*     **** external functions ****
+      logical  control_print
+      integer  control_it_in
+      real*8   control_time_step,control_fake_mass
+      external control_print
+      external control_it_in
+      external control_time_step,control_fake_mass
+
+      dt = control_time_step()
+      dte = dt/dsqrt(control_fake_mass())
+      it_in = control_it_in()
+      if (flag.gt.0) it_in = flag
+
+
+      do it=1,it_in
+         call cpsi1to2_sd_update_noscf(dte)
+         call cpsi_2to1()
+      end do
+
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER).and.control_print(print_medium)
+      if (oprint) then
+        write(*,'(A,I3,A)') "     - ",
+     >             it_in," steepest descent iterations performed"
+      end if
+
+      return
+      end
 

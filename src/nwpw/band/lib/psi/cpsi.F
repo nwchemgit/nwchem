@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.41 2007-02-12 20:59:43 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.42 2007-02-23 01:18:11 bylaska Exp $ *
 
 
 *     ***************************
@@ -747,6 +747,71 @@ c     real*8 sum1,sum2
       end
 
 
+
+*     ***********************************
+*     *                                 *
+*     *    cpsi1to2_sd_update_noscf     *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi1to2_sd_update_noscf(dte)
+      implicit none
+      real*8 dte
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+#include "rhoall_common.fh"
+
+*     **** local variables ****
+      logical value
+      integer n,neall,ierr
+      integer lmd(2),tmp_L(2)
+
+
+      call c_electron_run_noscf(dcpl_mb(psi1(1)),
+     >                          dbl_mb(rho1(1)),
+     >                          dcpl_mb(dng1(1)),
+     >                          dbl_mb(rho1_all(1)))
+
+*     **** do a steepest descent step ****
+
+      call c_electron_sd_update(dcpl_mb(psi1(1)),
+     >                          dcpl_mb(psi2(1)),
+     >                          dte)
+
+*     **** lagrange multiplier corrections ****
+      neall = ne(1)+ne(2)
+      n     = ne(1)
+
+*     **** allocate MA local variables ****
+      value = MA_push_get(mt_dcpl,(8*n*n),
+     >                    'tmp_L',tmp_L(2),tmp_L(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(4*n*n*nbrillioun),
+     >                    'lmd',lmd(2),lmd(1))
+      if (.not. value)
+     >     call errquit(
+     >          'psi1to2_sd_update_noscf: stack failure',0,MA_ERR)
+
+
+      call cpsi_lmbda(ispin,ne,npack1,neall,nbrillioun,n,
+     >                 dcpl_mb(psi1(1)),
+     >                 dcpl_mb(psi2(1)),
+     >                 dte,
+     >                 dcpl_mb(lmd(1)),
+     >                 dcpl_mb(tmp_L(1)),ierr)
+
+      value = value.and.MA_pop_stack(lmd(2))
+      value = value.and.MA_pop_stack(tmp_L(2))
+      if (.not. value)
+     >     call errquit(
+     >          'psi1to2_sd_update_noscf: stack failure',0,MA_ERR)
+
+      return
+      end
+
+
+
 *     ***************************
 *     *				*
 *     *		cpsi_1force     *
@@ -1371,17 +1436,16 @@ c     real*8 sum1,sum2
 *     **** external functions ****
       logical  pspw_reformat_c_wvfnc,Pneb_w_allocate
       integer  brillioun_nbrillioun,psi_get_version
-      integer  Pneb_ispinq,Pneb_nbrillq,Pneb_ispin
+      integer  Pneb_ispinq,Pneb_nbrillq
       double precision util_random
       external pspw_reformat_c_wvfnc,Pneb_w_allocate
       external brillioun_nbrillioun,psi_get_version
-      external Pneb_ispinq,Pneb_nbrillq,Pneb_ispin
+      external Pneb_ispinq,Pneb_nbrillq
       external         util_random
 
 
 *     ***** get ispin, and ne, and nfft3d ****
-      ispin=Pneb_ispin()
-      call Pneb_ne(ne)
+      call psi_get_ne(ispin,ne)  !** only ne is used 
       nbrillioun = brillioun_nbrillioun()
 
       call Pneb_neq(neq)
@@ -1402,7 +1466,7 @@ c     real*8 sum1,sum2
 
       neall = neq(1)+neq(2)
       n     = ne(1)
-        
+       
 *     **** allocate memory ****
       value = MA_alloc_get(mt_dcpl,npack1*neall*nbrillq,
      >                     'psi2',psi2(2),psi2(1))
@@ -1460,6 +1524,7 @@ c     *****  read initial wavefunctions into psi1  ****
         if (taskid.eq.MASTER) then
 
           filename =  control_input_psi()
+
           ind = index(filename,' ') - 1
           if (.not. rtdb_cput(rtdb,'c_xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
@@ -1492,12 +1557,12 @@ c     *****  read initial wavefunctions into psi1  ****
 
       end if
 
+
 *     *****  read initial wavefunctions into psi1  ****
       call cpsi_read(spin_orbit,ispin,ne,nbrillioun,dcpl_mb(psi1(1)))
 
+
 *     **** Ortho Check ****
-*       orthogonalize even if the calling function does not ask it
-*       avoids problems!
       call Pneb_orthoCheckMake(.true.,0,0,npack1,
      >                        dcpl_mb(psi1(1)))
       cpsi_initialize = value

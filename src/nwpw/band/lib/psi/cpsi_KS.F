@@ -1,7 +1,10 @@
-* $Id: cpsi_KS.F,v 1.12 2007-01-24 22:32:51 d3p708 Exp $
+* $Id: cpsi_KS.F,v 1.13 2007-02-23 01:18:11 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.12  2007/01/24 22:32:51  d3p708
+* pjn
+*
 * Revision 1.11  2007/01/23 23:03:58  d3p708
 * PJN
 *
@@ -183,7 +186,7 @@
 #include "cpsi_common.fh"
 
 *     **** local variables ****
-      logical done
+      logical done,stalled
       integer psix,psiy
       integer nb,i,j,neall,maxit_orb,maxit_orbs,shiftb,i2,j2
       real*8 error_out,psi_error_out,e0,sum
@@ -191,6 +194,7 @@
 *     **** external functions ****
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
+
 
       if (spin_orbit) then
         call  cpsi_KS_minimize2com(psi_number,precondition,
@@ -201,23 +205,23 @@
       neall = ne(1)+ne(2)
       maxit_orb  = 120
       maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
-
-c      do nb=1,nbrillioun
-c      shiftb=(nb-1)*npack1*neall
-c      do i2=1,neall
-c        do j2=1,neall
-c           psix=psi1(1)+(i2-1)*npack1+shiftb
-c           psiy=psi1(1)+(j2-1)*npack1+shiftb
-c           call Cram_cc_dot(nb,dcpl_mb(psix),dcpl_mb(psiy),
-c     >            zsum) 
-c           write(*,*)"Ovl(",i2,",",j2,")=",zsum
-c        end do
-c      end do
-c      end do
+      stalled = .false.
   
         do nb=1,nbrillioun
           shiftb = (nb-1)*npack1*neall
           do i=1,neall
+
+           if (stalled) then
+              !*** intialize with steepest descent ****
+              call c_sdminimize_noscf(0)
+
+*             **** diagonalize current result ***
+              call cpsi_1gen_hml()
+              call cpsi_diagonalize_hml()
+              call cpsi_1rotate2()
+              call cpsi_2to1()
+              stalled = .false.
+           end if
 
 
            !*** orthogonalize to lower orbitals  ****
@@ -245,6 +249,7 @@ c      end do
             if (((error_out.gt.maxerror).or.
      >           (psi_error_out.gt.maxpsi_error))
      >          .and.(j.le.24)) go to 2
+            if (j.gt.1) stalled = .true.
 
             dbl_mb(eig(1)+(i-1)+(nb-1)*(ne(1)+ne(2))) = e0
 
