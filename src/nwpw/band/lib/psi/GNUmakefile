@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.9 2007-01-23 23:04:13 d3p708 Exp $
+# $Id: GNUmakefile,v 1.10 2007-02-23 18:08:01 bylaska Exp $
 #
 
     OBJ_OPTIMIZE = \
@@ -8,6 +8,7 @@
 			cpsi_lmbda.o \
 			cpsi_KS.o \
 			BGrsm.o \
+			cpsi_spin2.o \
 			c_check.o \
 			cpsi_read.o \
 			cpsi_write.o \

@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.42 2007-02-23 01:18:11 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.43 2007-02-23 18:08:02 bylaska Exp $ *
 
 
 *     ***************************
@@ -1145,6 +1145,25 @@ c     real*8 sum1,sum2
       
       return
       end
+
+*     ***************************
+*     *				*
+*     *	      cpsi_spin2        *
+*     *				*
+*     ***************************
+      subroutine cpsi_spin2(Sab)
+      implicit none
+      real*8 Sab
+    
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      call Calculate_cpsi_spin2(nbrillioun,ispin,ne,npack1,
+     >                          dcpl_mb(psi1(1)),Sab)
+
+      return
+      end
+
 
 *     ***************************
 *     *				*
