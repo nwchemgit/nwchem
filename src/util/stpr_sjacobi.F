@@ -1,7 +1,10 @@
       subroutine stpr_sjacobi(nm,n,a,w,eivr,ierr,sorting)
-c $Id: stpr_sjacobi.F,v 1.2 2003-01-18 03:58:31 edo Exp $
-      IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
-      dimension a(n*(n+1)/2),w(n),eivr(nm,n)
+c $Id: stpr_sjacobi.F,v 1.3 2007-02-24 17:33:43 edo Exp $
+      IMPLICIT  none
+      integer n,nm
+      integer ierr
+      double precision a(*),w(*),eivr(nm,*)
+      logical sorting
 c
 c     use jacobi method to emulate eispack rs
 c     this routine uses a variable threshold jacobi method
@@ -10,7 +13,16 @@ c     the routine is much faster than the old hdiag routine written
 c     at m.i.t. that uses the jacobi method but not the variable
 c     threshold technique that is applied here
 c
-      logical sorting
+      double precision sq2inv,t1,t2,avgf,atop
+      integer j,i,ij,iflag,jcol,jcoltr,jcol1,irow,
+     I     indxa,irowtr,i2,itr,jtr,idiag,isort,
+     K     k,nsweep,nsweep_max
+      double precision d,dstop,thrsh,aij,daij,ajj,aii,
+     S     s,ds,c,t,u,temp,eps
+      double precision dlamch
+      external dlamch
+      eps=dlamch('e')
+c
 c-----parameters---------------
       sq2inv = 1.d0/sqrt(2.d0)
       t1     = 1.d-12
@@ -38,7 +50,7 @@ c
       do 40 i=1,n
         do 30 j=1,i
           ij = ij + 1
-          if(atop.lt.dabs(a(ij)))atop = dabs(a(ij))
+          if(atop.lt.abs(a(ij)))atop = abs(a(ij))
    30   continue
    40 continue
       if(atop.le.0.0d0) then
@@ -61,11 +73,21 @@ c
 c
 c     Calculate the threshold, thrsh.
 c
-      thrsh= sqrt(d/avgf)
+      thrsh= max(sqrt(d/avgf),eps)
 c
 c     Start a sweep.
 c
+      nsweep=0
+      nsweep_max=n*n*n
    70 continue
+      nsweep=nsweep+1
+      if(nsweep.gt.nsweep_max) then
+         write(0,*) 
+     A     ' nsweep max exceeded',nsweep
+         goto 160
+         ierr=1
+         return
+         endif
       iflag=0
       do 150 jcol=2,n
         jcoltr = jcol*(jcol-1)/2
@@ -76,7 +98,7 @@ c
 c
 c         Compare the off-diagonal element with thrsh.
 c
-          daij = dabs(aij)
+          daij = abs(aij)
           if(daij.le.thrsh) goto 140
           irowtr = irow*(irow-1)/2
           indxa = irowtr + irow
@@ -84,7 +106,7 @@ c
           indxa = jcoltr + jcol
           ajj=a(indxa)
           s=ajj-aii
-          ds = dabs(s)
+          ds = abs(s)
 c
 c         The chosen rotation is less than the rounding.
 c         Do not rotate.
@@ -164,7 +186,7 @@ c
   130       continue
             dstop=t1*d
           end if
-          thrsh=sqrt(d/avgf)
+          thrsh=max(sqrt(d/avgf),eps)
   140   continue
   150 continue
       if(iflag.ne.0) goto 70
