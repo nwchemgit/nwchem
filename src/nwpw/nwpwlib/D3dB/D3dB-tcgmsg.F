@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-tcgmsg.F,v 1.14 2007-02-23 01:24:49 bylaska Exp $
+* $Id: D3dB-tcgmsg.F,v 1.15 2007-02-25 05:46:04 d3p708 Exp $
 *
 
 #ifdef TCGMSG
@@ -712,8 +712,8 @@ c     implicit none
       integer np_i
 
 *     **** external functions ****
-      integer  Parallel2d_comm_i,Parallel2d_np_i
-      external Parallel2d_comm_i,Parallel2d_np_i
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
 
       call Parallel2d_np_i(np_i)
       if (np_i.gt.1) then
@@ -747,8 +747,8 @@ c     implicit none
       integer np_i
 
 *     **** external functions ****
-      integer  Parallel2d_comm_i,Parallel2d_np_i
-      external Parallel2d_comm_i,Parallel2d_np_i
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
 
       call nwpw_timing_start(2)
 
@@ -783,8 +783,8 @@ c     implicit none
       integer np_i
 
 *     **** external functions ****
-      integer  Parallel2d_comm_i,Parallel2d_np_i
-      external Parallel2d_comm_i,Parallel2d_np_i
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
 
 
       call Parallel2d_np_i(np_i)
@@ -816,8 +816,8 @@ c     implicit none
       integer np_i
 
 *     **** external functions ****
-      integer  Parallel2d_comm_i,Parallel2d_np_i
-      external Parallel2d_comm_i,Parallel2d_np_i
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
 
       call nwpw_timing_start(2)
 
