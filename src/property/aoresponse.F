@@ -6,7 +6,7 @@
      &   lgiao, lvelocity, lmagpert, lifetime, gamwidth,
      &   alfare, alfaim, betare, betaim)
 
-c     $Id: aoresponse.F,v 1.1 2006-11-16 18:23:01 jochen Exp $
+c     $Id: aoresponse.F,v 1.2 2007-02-27 00:23:50 bert Exp $
       
 c     =================================================================
       
@@ -116,8 +116,8 @@ c     external functions:
       double precision ga_trace_diag
       external ga_trace_diag
 
-      logical  cphf2, cphf3, file_write_ga, file_read_ga, cphf
-      external cphf2, cphf3, file_write_ga, file_read_ga, cphf
+      logical  cphf2, cphf3, cphf4, file_write_ga, file_read_ga, cphf
+      external cphf2, cphf3, cphf4, file_write_ga, file_read_ga, cphf
 
 c  ====================================================================
 
@@ -568,8 +568,8 @@ c
 
         if (lstatic .and. .not.lifetime) then
 c         ... static CPKS solver:         
-          if (.not.cphf2(rtdb)) call errquit
-     &       ('aoresponse: failure in cphf2 ',0, RTDB_ERR)
+          if (.not.cphf4(rtdb)) call errquit
+     &       ('aoresponse: failure in cphf4 ',0, RTDB_ERR)
         else       
 c         ... dynamic CPKS solver:
           if (debug) write (6,*) 'calling cphf3',omega,lifetime,gamwidth
@@ -688,8 +688,8 @@ c         a one-component situation (needed if lifetime.eq.true.)
 c         call static CPKS solver if no lifetime key is present,
 c         otherwise use dynamic solver but set omega to zero:
           if (.not.lifetime) then
-            if (.not.cphf2(rtdb)) call errquit
-     &         ('aoresponse: failure in cphf2 zero',0, RTDB_ERR)
+            if (.not.cphf4(rtdb)) call errquit
+     &         ('aoresponse: failure in cphf4 zero',0, RTDB_ERR)
           else
             if (.not.cphf3(rtdb, 0d0, lifetime, gamwidth)) call errquit
      &         ('aoresponse: failure in cphf3 zero',0, RTDB_ERR)
