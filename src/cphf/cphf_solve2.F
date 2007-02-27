@@ -1,6 +1,6 @@
       subroutine cphf_solve2(rtdb)
 *
-* $Id: cphf_solve2.F,v 1.10 2004-12-03 22:38:22 bert Exp $
+* $Id: cphf_solve2.F,v 1.11 2007-02-27 16:14:48 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -17,6 +17,7 @@
 #include "crohf.fh"
 #include "cuhf.fh"
 #include "stdio.fh"
+#include "cosmo.fh"
 c!!! BGJ
 #include "bgj.fh"
 c!!! BGJ
@@ -33,7 +34,7 @@ c$$$  logical ga_it_ls_mrhs
 c$$$  external ga_it_ls_mrhs
       external rohf_hessv_precond,rohf_hessv, rohf_hessv2
       external uhf_precond,uhf_hessv, uhf_hessv2
-      logical oprint, oprint_conv
+      logical oprint, oprint_conv, ocosmo
 c     
       character*255 rhs_title
       character*(nw_max_path_len) cphf_rhs
@@ -196,6 +197,13 @@ c !!! BGJ
      $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0,
      &       RTDB_ERR)
 c !!! BGJ
+      if (.not. rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo))
+     $     ocosmo = .false.
+      if (ocosmo) then
+         cosmo_on = .true.
+         cosmo_phase = 2
+      endif
+
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)
          call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
