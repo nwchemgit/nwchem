@@ -1,5 +1,5 @@
 *
-* $Id: dipole.F,v 1.8 2006-12-05 00:14:41 bylaska Exp $
+* $Id: dipole.F,v 1.9 2007-02-27 22:22:51 bylaska Exp $
 *
 
 *     ******************************
@@ -33,6 +33,7 @@
       real*8 cdx3,cdy3,cdz3
       real*8 tmass,tcharge,ncharge,pcharge
       real*8 dv
+      real*8 dipole_crystal(3),dipole_molecule(3)
 
       integer rgrid(2)
       integer rgx(2),rgy(2),rgz(2)
@@ -45,11 +46,11 @@
  
 *     **** external functions ****
       logical  control_print
-      integer  ion_katm,ion_nion,control_ncut
+      integer  ion_katm,ion_nion,control_ncut,control_version
       real*8   ion_amass,psp_zv,ion_rion,lattice_omega
       real*8   lattice_unita
       external control_print
-      external ion_katm,ion_nion,control_ncut
+      external ion_katm,ion_nion,control_ncut,control_version
       external ion_amass,psp_zv,ion_rion,lattice_omega
       external lattice_unita
 
@@ -253,26 +254,33 @@
 *     ***** calculate crystal dipole with respect to center of cell ****
       pcharge   = tcharge
       ncharge   = dble(ne(1)+ne(ispin))
-      dipole(1) = -ncharge*cdx3 + pcharge*cqGX 
-      dipole(2) = -ncharge*cdy3 + pcharge*cqGY 
-      dipole(3) = -ncharge*cdz3 + pcharge*cqGZ 
-      cdx1 = dsqrt(dipole(1)**2 + dipole(2)**2 + dipole(3)**2)
+      dipole_crystal(1) = -ncharge*cdx3 + pcharge*cqGX 
+      dipole_crystal(2) = -ncharge*cdy3 + pcharge*cqGY 
+      dipole_crystal(3) = -ncharge*cdz3 + pcharge*cqGZ 
+      cdx1 = dsqrt( dipole_crystal(1)**2 
+     >            + dipole_crystal(2)**2 
+     >            + dipole_crystal(3)**2)
       if (oprint) then
          WRITE(*,1240)
-         WRITE(*,1231) dipole
+         WRITE(*,1231) dipole_crystal
          WRITE(*,1232) cdx1,cdx1*autoDebye
       end if
 
 *     ***** calculate dipole with respect to center of mass ****
       pcharge   = tcharge
       ncharge   = dble(ne(1)+ne(ispin))
-      dipole(1) = -ncharge*cdx3 + pcharge*qGX - GX*(pcharge-ncharge)      
-      dipole(2) = -ncharge*cdy3 + pcharge*qGY - GY*(pcharge-ncharge)
-      dipole(3) = -ncharge*cdz3 + pcharge*qGZ - GZ*(pcharge-ncharge)
-      cdx1 = dsqrt(dipole(1)**2 + dipole(2)**2 + dipole(3)**2)
+      dipole_molecule(1) = -ncharge*cdx3 + pcharge*qGX 
+     >                     - GX*(pcharge-ncharge)      
+      dipole_molecule(2) = -ncharge*cdy3 + pcharge*qGY 
+     >                     - GY*(pcharge-ncharge)
+      dipole_molecule(3) = -ncharge*cdz3 + pcharge*qGZ 
+     >                     - GZ*(pcharge-ncharge)
+      cdx1 = dsqrt( dipole_molecule(1)**2 
+     >            + dipole_molecule(2)**2 
+     >            + dipole_molecule(3)**2)
       if (oprint) then
          WRITE(*,1230)
-         WRITE(*,1231) dipole
+         WRITE(*,1231) dipole_molecule
          WRITE(*,1232) cdx1,cdx1*autoDebye
       end if
  1230 FORMAT(//'== Molecular Dipole wrt Center of Mass =='/)
@@ -288,6 +296,16 @@
       if (.not. value) 
      >   call errquit('Calculate_Dipole: cannot pop stack memory',0,
      &       MA_ERR)
+
+      if (control_version().eq.3) then
+         dipole(1) = dipole_crystal(1)
+         dipole(2) = dipole_crystal(2)
+         dipole(3) = dipole_crystal(3)
+      else
+         dipole(1) = dipole_molecule(1)
+         dipole(2) = dipole_molecule(2)
+         dipole(3) = dipole_molecule(3)
+      end if
 
       return
       end
