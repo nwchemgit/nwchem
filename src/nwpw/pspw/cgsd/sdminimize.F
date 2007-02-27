@@ -1,5 +1,5 @@
 c
-c     $Id: sdminimize.F,v 1.8 2007-02-23 01:24:31 bylaska Exp $                       
+c     $Id: sdminimize.F,v 1.9 2007-02-27 20:08:53 bylaska Exp $                       
 c
 
       subroutine sdminimize(flag)
@@ -76,13 +76,14 @@ c
       external control_it_in
       external control_time_step,control_fake_mass
 
+      write(*,*) "Warning - sdminimize_virutal not finished"
       dt = control_time_step()
       dte = dt/dsqrt(control_fake_mass())
       it_in = control_it_in()
       if (flag.gt.0) it_in = flag
 
       do it=1,it_in
-         call epsi1to2_sd_update_virtual(dte)
+c         call epsi1to2_sd_update_virtual(dte)
          call epsi_2to1()
       end do
 
