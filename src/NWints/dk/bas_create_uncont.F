@@ -1,5 +1,5 @@
       subroutine bas_create_uncont(usertdb,basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.15 2003-10-17 22:53:48 carlfahl Exp $
+c $Id: bas_create_uncont.F,v 1.16 2007-03-01 22:14:14 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -353,7 +353,7 @@ c
     1 continue
       do 2 iloop = 1, iuniq
          do 3 jloop = iloop+1, iuniq 
-            if ((dabs(rd(iloop)-rd(jloop)).lt.1.0d-8)
+            if ((dabs(rd(iloop)-rd(jloop)).lt.1.0d-5)
      $          .and.(id1(iloop).eq.id1(jloop)) .and.
      $          (id3(iloop).eq.id3(jloop))) then
                do 4 kloop = jloop+1, iuniq
