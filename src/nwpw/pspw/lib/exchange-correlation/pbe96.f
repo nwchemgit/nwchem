@@ -1,5 +1,5 @@
 *
-* $Id: pbe96.f,v 1.6 2005-07-09 22:44:23 bylaska Exp $
+* $Id: pbe96.f,v 1.7 2007-03-08 02:26:04 d3p708 Exp $
 *
 
 *    ************************************
@@ -18,7 +18,7 @@
 *           x_parameter: scale parameter for exchange
 *           c_parameter: scale parameter for correlation
 *
-*   Exit - xce(*)  : PBE96 energy density
+*   Exit - xce(*)  : PBE96 energy density/ divided by electronic density ?
 *        - fn(*,2) : d(n*xce)/dnup, d(n*xce)/dndn
 *        - fdn(*,3): d(n*xce)/d|grad nup|, d(n*xce)/d|grad ndn|
 *                    d(n*xce)/d|grad n|
@@ -171,38 +171,33 @@ c        ****************************************************************
 c        ************
 c        **** up ****
 c        ************
-         n     = 2.0d0*nup
-         agr   = 2.0d0*agrup
+         n     = nup
+         agr   = agrup
 
-         n_onethird = (3.0d0*n/pi)**onethird
+         n_onethird = (6.0d0*n/pi)**onethird
          ex_lda     = -0.75d0*n_onethird
 
-         kf = (3.0d0*pi*pi*n)**onethird
+         kf = (6.0d0*pi*pi*n)**onethird
          s  = agr/(2.0d0*kf*n)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
 
          F   = (1.0d0 + KAPPA - KAPPA/P0)
-         Fs  = 2.0d0*MU/(P0*P0)*s
+         Fs  = 2.0d0*MU/(P0*P0)*s*
 
          exup = ex_lda*F
          fnxup = fourthird*(exup - ex_lda*Fs*s)
-         fdnxup = fdnx_const*Fs
+         fdnxup = ex_lda*Fs*0.5d0/kf
 
-c         exup = ex_lda
-c         fnxup = fourthird*(exup)
-c         fdnxup = 0.0d0
-
-			
 c        **************
 c        **** down ****
 c        **************
-         n     = 2.0d0*ndn
-         agr   = 2.0d0*agrdn
+         n     = ndn
+         agr   = agrdn
 
-         n_onethird = (3.0d0*n/pi)**onethird
+         n_onethird = (6.0d0*n/pi)**onethird
          ex_lda     = -0.75d0*n_onethird
 
-         kf = (3.0d0*pi*pi*n)**onethird
+         kf = (6.0d0*pi*pi*n)**onethird
          s  = agr/(2.0d0*kf*n)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
 
@@ -211,14 +206,10 @@ c        **************
 
          exdn   = ex_lda*F
          fnxdn  = fourthird*(exdn - ex_lda*Fs*s)
-         fdnxdn = fdnx_const*Fs
+         fdnxdn = ex_lda*Fs*0.5d0/kf
 
-c         exdn   = ex_lda
-c         fnxdn  = fourthird*(exdn)
-c         fdnxdn = 0.0d0
-			
+
          ex = (exup*nup+ exdn*ndn)/ (nup+ndn)
-         
          
 c        *******************************************************************
 c        ***** calculate polarized correlation energies and potentials ***** 
@@ -530,13 +521,6 @@ c        ***** calculate unpolarized Exchange energies and potentials *****
          s  = agr/(2.0d0*kf*n)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
 
-c        if (n.gt.DNS_CUT) then
-c           F   = (1.0d0 + KAPPA - KAPPA/P0)
-c           Fs  = 2.0d0*MU/(P0*P0)*s
-c        else
-c           F   = 1.0d0
-c           Fs  = 0.0d0
-c        end if
          F   = (1.0d0 + KAPPA - KAPPA/P0)
          Fs  = 2.0d0*MU/(P0*P0)*s
 
