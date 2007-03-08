@@ -1,6 +1,6 @@
       subroutine dia_gettrj
 c
-c $Id: dia_gettrj.F,v 1.5 2007-02-16 16:01:12 d3j191 Exp $
+c $Id: dia_gettrj.F,v 1.6 2007-03-08 23:07:21 d3j191 Exp $
 c
 c     read the trajectory
 c     -------------------
@@ -21,6 +21,7 @@ c
       integer nread,nframe,itmp(4),ifil,nfram
       integer meio,meframf,meframl,mefilf,mefill,meskip,melast
       integer ifram,iffram,ilfram,lq,ifr
+      real*8 t(6)
       character*255 fname
 c
 c     deallocate any existing global arrays
@@ -32,6 +33,8 @@ c
       if(.not.ga_destroy(ga_trw))
      + call md_abort('Failed to destroy ga_trw',0)
       endif
+      if(.not.ga_destroy(ga_trt))
+     + call md_abort('Failed to destroy ga_trt',0)
       endif
 c
       read(card(8:37),'(3i10,l1)') ifrfr,ifrto,ifrsk,lslvnt
@@ -66,6 +69,8 @@ c
       if(.not.ga_create(mt_dbl,nwm*nwa*3,nfrtot,'trw',nwm*nwa*3,nfrdim,
      + ga_trw)) call md_abort('Failed to create ga_trw',0)
       endif
+      if(.not.ga_create(mt_dbl,6,nfrtot,'trt',6,nfrdim,
+     + ga_trt)) call md_abort('Failed to create ga_trt',0)
 c
 c      write(*,'(i5,a,2i5)') me,' allocated ga for frames ',
 c     + me*nfrdim+1,min((me+1)*nfrdim,nfrtot)
@@ -190,10 +195,11 @@ c
       if(mod(ifr-iffram+1,ifrsk).eq.0) then
       nfram=nfram+1
       call fseek(lfntrj,ioffhd+(ifr-1)*iofffr,0,9999)
-      call dia_preadframe(dbl_mb(i_xdat),dbl_mb(i_wdat))
+      call dia_preadframe(dbl_mb(i_xdat),dbl_mb(i_wdat),t)
       call ga_put(ga_trj,1,3*nsa,nfram,nfram,dbl_mb(i_xdat),nsa)
       if(lslvnt) call ga_put(ga_trw,1,3*nwm*nwa,ndata,ndata,
      + dbl_mb(i_wdat),nwm*nwa)
+      call ga_put(ga_trt,1,6,nfram,nfram,t,6)
       endif
   102 continue
   103 continue

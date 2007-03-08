@@ -1,6 +1,6 @@
       logical function dia_rdfram(x,w)
 c
-c $Id: dia_rdfram.F,v 1.6 2007-02-16 16:01:12 d3j191 Exp $
+c $Id: dia_rdfram.F,v 1.7 2007-03-08 23:07:21 d3j191 Exp $
 c
       implicit none
 c
@@ -381,7 +381,7 @@ c
 c
       return
       end
-      subroutine dia_preadframe(x,w)
+      subroutine dia_preadframe(x,w,t)
 c
       implicit none
 c
@@ -393,7 +393,7 @@ c
 c
       integer ftell
       external ftell
-      real*8 x(msa,3),w(mwm,mwa,3)
+      real*8 x(msa,3),w(mwm,mwa,3),t(6)
       integer i,j,k
       real*8 timp
       integer inwm,inwa
@@ -404,6 +404,9 @@ c
      + call md_abort('Could not find frame',0)
       read(lfntrj,1001,err=9999,end=9998) timp,temp,pres,datum,tijd
  1001 format(2f12.6,e12.5,2a10)
+      t(1)=timp
+      t(2)=temp
+      t(3)=pres
       read(lfntrj,1000) card
       if(card(54:54).eq.'.') then
       read(card,1012) box
@@ -414,6 +417,9 @@ c
       read(lfntrj,1022) box(2),box(3)
  1022 format(12x,f12.6,/,24x,f12.6)
       endif
+      t(4)=box(1)
+      t(5)=box(2)
+      t(6)=box(3)
       read(lfntrj,1000) card
       if(card(8:8).eq.'F'.or.card(8:8).eq.'T') then
       read(card,1006) lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,inwm,inwa,nsa
