@@ -1,5 +1,5 @@
 *
-* $Id: pbe96.f,v 1.7 2007-03-08 02:26:04 d3p708 Exp $
+* $Id: pbe96.f,v 1.8 2007-03-08 22:14:02 d3p708 Exp $
 *
 
 *    ************************************
@@ -155,11 +155,11 @@ c     **** local variables ****
 
       
       do i=1,n2ft3d
-         nup     = dn_in(i,1)+ETA
+         nup     = dn_in(i,1)
          agrup   = agr_in(i,1)
 
  
-         ndn     = dn_in(i,2)+ETA
+         ndn     = dn_in(i,2)
          agrdn   = agr_in(i,2)
 
          
@@ -180,13 +180,14 @@ c        ************
          kf = (6.0d0*pi*pi*n)**onethird
          s  = agr/(2.0d0*kf*n)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
+         P0 =1.0D0/P0
 
-         F   = (1.0d0 + KAPPA - KAPPA/P0)
-         Fs  = 2.0d0*MU/(P0*P0)*s*
+         F   = 1.0d0 + KAPPA*(1.0D0-P0)
+         Fs  = 2.0d0*MU*(P0*P0)*s
 
          exup = ex_lda*F
          fnxup = fourthird*(exup - ex_lda*Fs*s)
-         fdnxup = ex_lda*Fs*0.5d0/kf
+         fdnxup = -ex_lda*Fs*0.25d0/kf
 
 c        **************
 c        **** down ****
@@ -200,16 +201,17 @@ c        **************
          kf = (6.0d0*pi*pi*n)**onethird
          s  = agr/(2.0d0*kf*n)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
+	 P0 = 1.0D0/P0
 
-         F   = (1.0d0 + KAPPA - KAPPA/P0)
-         Fs  = 2.0d0*MU/(P0*P0)*s
+         F   = 1.0d0 + KAPPA*(1.0D0 - P0)
+         Fs  = 2.0d0*MU*(P0*P0)*s
 
          exdn   = ex_lda*F
          fnxdn  = fourthird*(exdn - ex_lda*Fs*s)
-         fdnxdn = ex_lda*Fs*0.5d0/kf
+         fdnxdn = -ex_lda*Fs*0.25d0/kf
 
 
-         ex = (exup*nup+ exdn*ndn)/ (nup+ndn)
+         ex = (exup*nup+ exdn*ndn)
          
 c        *******************************************************************
 c        ***** calculate polarized correlation energies and potentials ***** 
@@ -218,13 +220,6 @@ c        *******************************************************************
          agr   = agr_in(i,3)
 
          zet = (nup-ndn)/n
-c         if (zet.gt.0.0d0) zet = zet - ETA2
-c         if (zet.lt.0.0d0) zet = zet + ETA2
-c        if (dabs(dn_in(i,2)).gt.DNS_CUT) zet_nup =  2*ndn/n**2
-c        if (dabs(dn_in(i,1)).gt.DNS_CUT) zet_ndn = -2*nup/n**2
-c        if (dabs(dn_in(i,2)).gt.DNS_CUT) zet_nup =  2*ndn/n
-c        zet_nup =  2*ndn/n
-c        zet_ndn = -2*nup/n
          zet_nup = -(zet - 1.0d0)
          zet_ndn = -(zet + 1.0d0)
          zetpm_1_3 = (1.0d0+zet*alpha_zeta)**onethirdm
@@ -263,9 +258,6 @@ c        **** calculate t ****
 c        t  = 0.25d0*(pi/3.0)**onesixth*agr*(n**sevensixthm)/phi
 
 *        *** calculate n*dt/dnup, n*dt/dndn, n*dt/d|grad n| ****
-c        t_nup = sevensixthm*t/n - (phi_zet)*(zet_nup)*t/phi
-c        t_ndn = sevensixthm*t/n - (phi_zet)*(zet_ndn)*t/phi
-c        t_agr  = 1.0d0/(twoksg*n)
          t_nup = sevensixthm*t - (phi_zet)*(zet_nup)*t/phi
          t_ndn = sevensixthm*t - (phi_zet)*(zet_ndn)*t/phi
          t_agr  = 1.0d0/(twoksg)
@@ -392,7 +384,6 @@ c        fncdn  = ec + n*(ec_lda_ndn + Hpbe_ndn)
 
          fdn(i,1) = x_parameter*fdnxup 
          fdn(i,2) = x_parameter*fdnxdn 
-c        fdn(i,3) = n*t_agr*Hpbe_t
          fdn(i,3) =  c_parameter*t_agr*Hpbe_t
 
       end do
