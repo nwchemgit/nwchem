@@ -1,6 +1,6 @@
       subroutine dia_init
 c
-c $Id: dia_init.F,v 1.5 2007-02-06 21:24:16 d3j191 Exp $
+c $Id: dia_init.F,v 1.6 2007-03-10 02:04:47 d3j191 Exp $
 c
 c
 c     initialize variables
@@ -25,8 +25,9 @@ c     and ignore current state
 c
       ignore=rtdb_parallel(.false.)
 c
-      lfnexp=63
-      lfntcl=64
+      lfnexp=62
+      lfntcl=63
+      lfnpca=64
       lfnavg=65
       lfnhol=66
       lfnpin=67
@@ -219,6 +220,7 @@ c
 #include "util.fh"
 #include "rtdb.fh"
 c 
+      logical lopen
 c
       if(me.eq.0) close(unit=lfncmd,status='delete')
 c      if(me.eq.0) close(unit=lfncmd,status='keep')
@@ -238,6 +240,9 @@ c
 c
       if(.not.ma_pop_stack(l_wrk))
      + call md_abort('Could not deallocate iwrk',0)
+c
+      inquire(unit=lfnpca,opened=lopen)
+      if(lopen) close(lfnpca,status='keep')
 c
       ignore=rtdb_parallel(.true.)
 c

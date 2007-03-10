@@ -1,6 +1,6 @@
       subroutine dia_input(irtdb)
 c
-c $Id: dia_input.F,v 1.7 2007-02-16 16:01:12 d3j191 Exp $
+c $Id: dia_input.F,v 1.8 2007-03-10 02:04:47 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +13,7 @@ c
 c
       character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml,filtop
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
-      character*255 filpin,filhol,filpou,filavg,filexp
+      character*255 filpin,filhol,filpou,filavg,filexp,filpca
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,lsel
       integer iopt,ivctr,nbatch,iomode
@@ -71,6 +71,7 @@ c
       filxyz=prefix(1:len)//'.xyz '
       filref=prefix(1:len)//'.rst '
       filtrj=prefix(1:len)//'.trj '
+      filpca=prefix(1:len)//'.pca '
       lent=index(prefix,'_')-1
       if(lent.le.0) lent=len
       filtop=prefix(1:lent)//'.top '
@@ -900,7 +901,7 @@ c     essential dynamics analysis
 c     ---------------------------
 c
       if(inp_compare(.false.,'essential',item)) then
-      if(.not.inp_a(item)) item=' ' 
+      if(.not.inp_a(item)) item=filpca 
       write(lfncmd,1009) item(1:index(item,' ')-1)
  1009 format('xaver  ',/,'covar  ',a)
       numcmd=numcmd+2

@@ -1,6 +1,6 @@
       subroutine dia_covar()
 c
-c $Id: dia_covar.F,v 1.5 2007-01-30 00:46:21 d3j191 Exp $
+c $Id: dia_covar.F,v 1.6 2007-03-10 02:04:47 d3j191 Exp $
 c
       implicit none
 c
@@ -10,10 +10,9 @@ c
 #include "global.fh"
 #include "util.fh"
 c
-      character*80 fil
       integer i,j,k
 c
-      fil=card(8:80)
+      filpca=card(8:80)
       if(nsel.eq.0) call md_abort('No atoms selected',0)
 c
       if(active) call dia_edfinal()
@@ -60,10 +59,12 @@ c
    17 continue
 c
       if(me.eq.0) then
-      write(*,'(/,a,i10,a)') ' Covariance matrix diagonalized for ',
-     + nfrtot,' frames'
-      write(*,'(/,a,//,(5x,6e12.5))') ' Eigenvalues',
-     + (dbl_mb(i_cov-1+int_mb(i_ord+i-1)),i=1,3*nsel)
+      open(unit=lfnpca,file=filpca(1:index(filpca,' ')-1),
+     + form='formatted',status='unknown')
+      write(lfnpca,1000) 3*nsel,nsa
+ 1000 format(i5)
+      write(lfnpca,1001) (dbl_mb(i_cov-1+int_mb(i_ord+i-1)),i=1,3*nsel)
+ 1001 format(6e12.5)
       endif
 c
       return
@@ -210,8 +211,8 @@ c
       integer i,ivec,nbatch
       integer ga_prj,ilp,ihp,jlp,jhp,ndxp,ldp
       integer ga_val,ilv,ihv,jlv,jhv,ndxv,ldv
-      integer kvec
-      integer i_a,l_a
+      integer kvec,ip
+      integer i_a,l_a,i_pcav,l_pcav
 c
       lesd=.true.
       read(card(8:14),'(i7)') ivec
@@ -272,7 +273,7 @@ c
 c
       call dia_proj(int_mb(i_ndx),dbl_mb(i_cov),int_mb(i_isel),
      + dbl_mb(ndx),dbl_mb(ndxp),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
-     + dbl_mb(i_xadat),msa,dbl_mb(ndxv),dbl_mb(i_a))
+     + dbl_mb(i_xadat),msa,dbl_mb(ndxv))
 c
       if(.not.ma_pop_stack(l_a)) call md_abort('Error deallocating a',0)
 c
@@ -289,6 +290,21 @@ c
       call ga_sync()
 c
       call dia_wrttrj(ga_prj,fil(1:i-1),fmt,nbatch,.false.)
+c
+      if(me.eq.0) then
+      if(.not.ma_push_get(mt_dbl,nfrtot,'ipcav',l_pcav,i_pcav))
+     + call md_abort('Failed to allocate ipcav',0)
+      write(lfnpca,1000) nfrtot
+ 1000 format(i10)
+      do 1 ip=0,np-1
+      call ga_distribution(ga_val,ip,ilv,ihv,jlv,jhv)
+      call ga_get(ga_val,1,1,jlv,jhv,dbl_mb(i_pcav+ip*nfrdim),1)
+    1 continue
+      write(lfnpca,1001) (dbl_mb(i_pcav+i-1),i=1,nfrtot)
+ 1001 format(5e12.5)
+      if(.not.ma_pop_stack(l_pcav))
+     + call md_abort('Failed to deallocate ipcav')
+      endif
 c
       if(.not.ga_destroy(ga_val))
      + call md_abort('Could not destroy ga_val',0)
