@@ -1,5 +1,5 @@
 *
-* $Id: pbe96.f,v 1.9 2007-03-10 23:19:32 d3p708 Exp $
+* $Id: pbe96.f,v 1.10 2007-03-11 05:26:32 d3p708 Exp $
 *
 
 *    ************************************
@@ -151,7 +151,7 @@ c     **** local variables ****
 
       pi = 4.0d0*datan(1.0d0)
       rs_scale = (0.75d0/pi)**onethird
-      fdnx_const = -3.0d0/(8.0d0*pi)
+      fdnx_const = -3.0d0/(16.0d0*pi)
 
       
       do i=1,n2ft3d
@@ -182,13 +182,8 @@ c        ************
 
          exup = ex_lda*F
          fnxup = fourthird*(exup - ex_lda*Fs*s)
-         fdnxup = -ex_lda*Fs*0.25d0/kf
+         fdnxup = fdnx_const*Fs
 
-c         exup = ex_lda
-c         fnxup = fourthird*(exup)
-c         fdnxup = 0.0d0
-
-			
 c        **************
 c        **** down ****
 c        **************
@@ -209,30 +204,19 @@ c        **************
 
          exdn   = ex_lda*F
          fnxdn  = fourthird*(exdn - ex_lda*Fs*s)
-         fdnxdn = -ex_lda*Fs*0.25d0/kf
+         fdnxup = fdnx_const*Fs
 
-c         exdn   = ex_lda
-c         fnxdn  = fourthird*(exdn)
-c         fdnxdn = 0.0d0
-			
          ex = (exup*nup+ exdn*ndn)/ (nup+ndn)
-         
          
 c        *******************************************************************
 c        ***** calculate polarized correlation energies and potentials ***** 
 c        *******************************************************************
-         n     = dn_in(i,1) + dn_in(i,2) + ETA 
-         n     = max(n,1.d-18)
+         n     = dn_in(i,1) + dn_in(i,2) 
+         n     = max(n,1.d-20)
+         n13   = n**onethird
+         n13   = max(n13,1.d-15)
          agr   = agr_in(i,3)
-         agr   = max(agr,1.d-15)
          zet = (nup-ndn)/n
-c         if (zet.gt.0.0d0) zet = zet - ETA2
-c         if (zet.lt.0.0d0) zet = zet + ETA2
-c        if (dabs(dn_in(i,2)).gt.DNS_CUT) zet_nup =  2*ndn/n**2
-c        if (dabs(dn_in(i,1)).gt.DNS_CUT) zet_ndn = -2*nup/n**2
-c        if (dabs(dn_in(i,2)).gt.DNS_CUT) zet_nup =  2*ndn/n
-c        zet_nup =  2*ndn/n
-c        zet_ndn = -2*nup/n
          zet_nup = -(zet - 1.0d0)
          zet_ndn = -(zet + 1.0d0)
          zetpm_1_3 = (1.0d0+zet*alpha_zeta)**onethirdm
@@ -252,11 +236,10 @@ c        zet_ndn = -2*nup/n
 
 
 *        **** calculate Wigner radius ****
-         rs    = rs_scale/(n**onethird)
+         rs    = rs_scale/n13
          rss   = dsqrt(rs)
 
 *        **** calculate n*drs/dn ****
-c        rs_n = onethirdm*rs/n
          rs_n = onethirdm*rs
 
 
