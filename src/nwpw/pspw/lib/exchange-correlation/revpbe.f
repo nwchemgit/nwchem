@@ -1,5 +1,5 @@
 *
-* $Id: revpbe.f,v 1.1 2005-12-22 01:35:06 bylaska Exp $
+* $Id: revpbe.f,v 1.2 2007-03-11 05:27:31 d3p708 Exp $
 *
 
 *    ************************************
@@ -40,8 +40,8 @@
 *     **** Density cutoff parameter ****
       real*8 DNS_CUT,ETA,ETA2,alpha_zeta,alpha_zeta2
       parameter (DNS_CUT = 1.0d-20)
-      parameter (ETA=1.0d-20)
-      parameter (ETA2=1.0d-14)
+      parameter (ETA=1.0d-12)
+      parameter (ETA2=1.0d-6)
       parameter (alpha_zeta=(1.0d0-ETA2))
       parameter (alpha_zeta2=(1.0d0-ETA2))
 
@@ -96,7 +96,7 @@ c     ****** Perdew-Wang92 LDA correlation coefficients *******
 c     **** other constants ****
       real*8 onethird,fourthird,fivethird,onesixthm
       real*8 twothird,sevensixthm
-      real*8 onethirdm
+      real*8 onethirdm,n13
       parameter (onethird=1.0d0/3.0d0)
       parameter (onethirdm=-1.0d0/3.0d0)
       parameter (twothird=2.0d0/3.0d0)
@@ -152,15 +152,15 @@ c     **** local variables ****
 
       pi = 4.0d0*datan(1.0d0)
       rs_scale = (0.75d0/pi)**onethird
-      fdnx_const = -3.0d0/(8.0d0*pi)
+      fdnx_const = -3.0d0/(16.0d0*pi)
 
       
       do i=1,n2ft3d
-         nup     = dn_in(i,1)+ETA
+         nup     = dn_in(i,1)
          agrup   = agr_in(i,1)
 
  
-         ndn     = dn_in(i,2)+ETA
+         ndn     = dn_in(i,2)
          agrdn   = agr_in(i,2)
 
          
@@ -175,11 +175,13 @@ c        ************
          n     = 2.0d0*nup
          agr   = 2.0d0*agrup
 
-         n_onethird = (3.0d0*n/pi)**onethird
+         n13 = n**onethird
+         n13 = max(n13,1.e-14)
+         n_onethird = n13*(3.0d0/pi)**onethird
          ex_lda     = -0.75d0*n_onethird
 
-         kf = (3.0d0*pi*pi*n)**onethird
-         s  = agr/(2.0d0*kf*n)
+         kf = (3.0d0*pi*pi)**onethird * n13
+         s  = agr/(2.0d0*kf*n13*n13*n13)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
 
          F   = (1.0d0 + KAPPA - KAPPA/P0)
@@ -200,11 +202,13 @@ c        **************
          n     = 2.0d0*ndn
          agr   = 2.0d0*agrdn
 
-         n_onethird = (3.0d0*n/pi)**onethird
+         n13 = n**onethird
+         n13 = max(n13,1.e-14)
+         n_onethird = n13*(3.0d0/pi)**onethird
          ex_lda     = -0.75d0*n_onethird
 
-         kf = (3.0d0*pi*pi*n)**onethird
-         s  = agr/(2.0d0*kf*n)
+         kf = (3.0d0*pi*pi)**onethird * n13
+         s  = agr/(2.0d0*kf*n13*n13*n13)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
 
          F   = (1.0d0 + KAPPA - KAPPA/P0)
@@ -224,9 +228,9 @@ c         fdnxdn = 0.0d0
 c        *******************************************************************
 c        ***** calculate polarized correlation energies and potentials ***** 
 c        *******************************************************************
-         n     = dn_in(i,1) + dn_in(i,2) + ETA
+         n     = dn_in(i,1) + dn_in(i,2) 
          agr   = agr_in(i,3)
-
+         n  = max(n,1.d-30)
          zet = (nup-ndn)/n
 c         if (zet.gt.0.0d0) zet = zet - ETA2
 c         if (zet.lt.0.0d0) zet = zet + ETA2
@@ -286,37 +290,10 @@ c        t_agr  = 1.0d0/(twoksg*n)
 c        **************************************************
 c        ***** compute LSDA correlation energy density ****
 c        **************************************************
-         Q0 = -2.0d0*A_1*(1.0d0+A1_1*rs)
-         Q1 =  2.0d0*A_1*rss*(B1_1+rss*(B2_1+rss*(B3_1+B4_1*rss)))
-         Q2 = dlog(1.0d0+1.0d0/Q1)
-         Q3 = A_1*(B1_1/rss + 2.0d0*B2_1 
-     >                      + rss*(3.0d0*B3_1+4.0d0*B4_1*rss))
+         CALL LSDT2(A_1,A1_1,B1_1,B2_1,B3_1,B4_1,rss,ecu,ecu_rs)
+         CALL LSDT2(A_2,A1_2,B1_2,B2_2,B3_2,B4_2,rss,ecp,ecp_rs)
+         CALL LSDT2(A_3,A1_3,B1_3,B2_3,B3_3,B4_3,rss,eca,eca_rs)
 
-         ecu    = Q0*Q2
-         ecu_rs = -2.0d0*A_1*A1_1*Q2-Q0*Q3/(Q1*(1.0d0+Q1))
-      
-
-      
-         Q0 = -2.0d0*A_2*(1.0d0+A1_2*rs)
-         Q1 =  2.0d0*A_2*rss*(B1_2+rss*(B2_2+rss*(B3_2+B4_2*rss)))
-         Q2 = dlog(1.0d0+1.0d0/Q1)
-         Q3 = A_2*(B1_2/rss + 2.0d0*B2_2 
-     >                      + rss*(3.0d0*B3_2+4.0d0*B4_2*rss))
-
-         ecp    = Q0*Q2
-         ecp_rs = -2.0d0*A_2*A1_2*Q2-Q0*Q3/(Q1*(1+Q1))
-            
-                  
-         Q0 = -2.0d0*A_3*(1.0d0+A1_3*rs)
-         Q1 =  2.0d0*A_3*rss*(B1_3+rss*(B2_3+rss*(B3_3+B4_3*rss)))
-         Q2 = dlog(1.0d0+1.0d0/Q1)
-         Q3 = A_3*(B1_3/rss + 2.0d0*B2_3 
-     >                      + rss*(3.0d0*B3_3+4.0d0*B4_3*rss))
-
-         eca    = Q0*Q2
-         eca_rs = -2.0d0*A_3*A1_3*Q2-Q0*Q3/(Q1*(1+Q1))
-
-         
          z4 = zet**4
             
          ec_lda = ecu*(1.0d0-F*z4) 
@@ -565,16 +542,8 @@ c        **** unpolarized LDA correlation energy ****
 c        **** ec_p = correlation energy          ****
 c        ****   ec_p_rs = dec_p/drs              ****
 c        ****   uc_p    = dec_p/dn               ****
-         Q0 = -2.0d0*A_1*(1.0d0+A1_1*rs)
-         Q1 =  2.0d0*A_1*rss*(B1_1+rss*(B2_1+rss*(B3_1+B4_1*rss)))
-         Q2 = dlog(1.0d0+1.0d0/Q1)
-         Q3 = A_1*(B1_1/rss + 2.0d0*B2_1 
-     >                      + rss*(3.0d0*B3_1+4.0d0*B4_1*rss))
-
-         ec_lda    = Q0*Q2
-         ec_lda_rs = -2.0d0*A_1*A1_1*Q2-Q0*Q3/(Q1*(1+Q1))
+         CALL LSDT2(A_1,A1_1,B1_1,B2_1,B3_1,B4_1,rss,ec_lda,ec_lda_rs)
       
-
 c        **** PBE96 correlation energy  corrections ****
          t2 = t*t
          t4 = t2*t2
@@ -615,5 +584,21 @@ c       write(*,*) "pbe96:",i,ec,fnc,fdnc
 
       return
       end
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine LSDT2(a,a1,b1,b2,b3,b4,srs,ec,ec_rs)
+      real*8 a,a1,b1,b2,b3,b4,srs,ec,ec_rs
+      real*8 q0,q1,q1p,qd,ql
+      q0= -2.0d0*a*(1.0d0+srs*srs)
+      q1= 2.0d0*a*srs*(b1+srs*(b2+srs*(b3+srs*b4)))
+      q1p= a*((b1/srs)+2.0d0*b2+srs*(3.0d0*b3+srs*4.0d0*b4))
+      qd=1.0d0/(q1*q1+q1)
+      ql= -dlog(qd*q1*q1)
+      ec= q0*ql
+      ec_rs= -2.0d0*a*a1*ql-q0*q1p*qd
+      return
+      end
+      
+      
+ 
 
  
