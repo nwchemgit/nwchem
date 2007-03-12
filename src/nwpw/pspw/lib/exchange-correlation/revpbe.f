@@ -1,5 +1,5 @@
 *
-* $Id: revpbe.f,v 1.2 2007-03-11 05:27:31 d3p708 Exp $
+* $Id: revpbe.f,v 1.3 2007-03-12 16:27:16 d3p708 Exp $
 *
 
 *    ************************************
@@ -176,7 +176,7 @@ c        ************
          agr   = 2.0d0*agrup
 
          n13 = n**onethird
-         n13 = max(n13,1.e-14)
+         n13 = max(n13,1.d-14)
          n_onethird = n13*(3.0d0/pi)**onethird
          ex_lda     = -0.75d0*n_onethird
 
@@ -191,11 +191,6 @@ c        ************
          fnxup = fourthird*(exup - ex_lda*Fs*s)
          fdnxup = fdnx_const*Fs
 
-c         exup = ex_lda
-c         fnxup = fourthird*(exup)
-c         fdnxup = 0.0d0
-
-			
 c        **************
 c        **** down ****
 c        **************
@@ -203,7 +198,7 @@ c        **************
          agr   = 2.0d0*agrdn
 
          n13 = n**onethird
-         n13 = max(n13,1.e-14)
+         n13 = max(n13,1.d-14)
          n_onethird = n13*(3.0d0/pi)**onethird
          ex_lda     = -0.75d0*n_onethird
 
@@ -218,12 +213,7 @@ c        **************
          fnxdn  = fourthird*(exdn - ex_lda*Fs*s)
          fdnxdn = fdnx_const*Fs
 
-c         exdn   = ex_lda
-c         fnxdn  = fourthird*(exdn)
-c         fdnxdn = 0.0d0
-			
          ex = (exup*nup+ exdn*ndn)/ (nup+ndn)
-         
          
 c        *******************************************************************
 c        ***** calculate polarized correlation energies and potentials ***** 
@@ -232,13 +222,6 @@ c        *******************************************************************
          agr   = agr_in(i,3)
          n  = max(n,1.d-30)
          zet = (nup-ndn)/n
-c         if (zet.gt.0.0d0) zet = zet - ETA2
-c         if (zet.lt.0.0d0) zet = zet + ETA2
-c        if (dabs(dn_in(i,2)).gt.DNS_CUT) zet_nup =  2*ndn/n**2
-c        if (dabs(dn_in(i,1)).gt.DNS_CUT) zet_ndn = -2*nup/n**2
-c        if (dabs(dn_in(i,2)).gt.DNS_CUT) zet_nup =  2*ndn/n
-c        zet_nup =  2*ndn/n
-c        zet_ndn = -2*nup/n
          zet_nup = -(zet - 1.0d0)
          zet_ndn = -(zet + 1.0d0)
          zetpm_1_3 = (1.0d0+zet*alpha_zeta)**onethirdm
@@ -262,10 +245,7 @@ c        zet_ndn = -2*nup/n
          rss   = dsqrt(rs)
 
 *        **** calculate n*drs/dn ****
-c        rs_n = onethirdm*rs/n
          rs_n = onethirdm*rs
-
-
 
 c        **** calculate t ****
          kf = (3.0d0*pi*pi*n)**onethird
@@ -274,12 +254,8 @@ c        **** calculate t ****
          twoksg = 2.0d0*ks*phi
        
          t  = agr/(twoksg*n)
-c        t  = 0.25d0*(pi/3.0)**onesixth*agr*(n**sevensixthm)/phi
 
 *        *** calculate n*dt/dnup, n*dt/dndn, n*dt/d|grad n| ****
-c        t_nup = sevensixthm*t/n - (phi_zet)*(zet_nup)*t/phi
-c        t_ndn = sevensixthm*t/n - (phi_zet)*(zet_ndn)*t/phi
-c        t_agr  = 1.0d0/(twoksg*n)
          t_nup = sevensixthm*t - (phi_zet)*(zet_nup)*t/phi
          t_ndn = sevensixthm*t - (phi_zet)*(zet_ndn)*t/phi
          t_agr  = 1.0d0/(twoksg)
@@ -379,8 +355,7 @@ c        fncdn  = ec + n*(ec_lda_ndn + Hpbe_ndn)
 
          fdn(i,1) = x_parameter*fdnxup 
          fdn(i,2) = x_parameter*fdnxdn 
-c        fdn(i,3) = n*t_agr*Hpbe_t
-         fdn(i,3) =  c_parameter*t_agr*Hpbe_t
+         fdn(i,3) = c_parameter*t_agr*Hpbe_t
 
       end do
       
@@ -509,21 +484,12 @@ c        ***** calculate unpolarized Exchange energies and potentials *****
          s  = agr/(2.0d0*kf*n)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
 
-c        if (n.gt.DNS_CUT) then
-c           F   = (1.0d0 + KAPPA - KAPPA/P0)
-c           Fs  = 2.0d0*MU/(P0*P0)*s
-c        else
-c           F   = 1.0d0
-c           Fs  = 0.0d0
-c        end if
          F   = (1.0d0 + KAPPA - KAPPA/P0)
          Fs  = 2.0d0*MU/(P0*P0)*s
 
          ex   = ex_lda*F
          fnx  = fourthird*(ex - ex_lda*Fs*s) 
          fdnx = fdnx_const*Fs
-
-			
 
 *        *********************************************************************
 c        ***** calculate unpolarized correlation energies and potentials *****
@@ -536,7 +502,6 @@ c        **** calculate rs and t ****
          kf = (3.0d0*pi*pi*n)**onethird
          ks = dsqrt(4.0d0*kf/pi)
          t  = agr/(2.0*ks*n)
-
 
 c        **** unpolarized LDA correlation energy ****
 c        **** ec_p = correlation energy          ****
@@ -588,7 +553,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine LSDT2(a,a1,b1,b2,b3,b4,srs,ec,ec_rs)
       real*8 a,a1,b1,b2,b3,b4,srs,ec,ec_rs
       real*8 q0,q1,q1p,qd,ql
-      q0= -2.0d0*a*(1.0d0+srs*srs)
+      q0= -2.0d0*a*(1.0d0+a1*srs*srs)
       q1= 2.0d0*a*srs*(b1+srs*(b2+srs*(b3+srs*b4)))
       q1p= a*((b1/srs)+2.0d0*b2+srs*(3.0d0*b3+srs*4.0d0*b4))
       qd=1.0d0/(q1*q1+q1)

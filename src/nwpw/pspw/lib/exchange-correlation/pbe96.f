@@ -1,5 +1,5 @@
 *
-* $Id: pbe96.f,v 1.10 2007-03-11 05:26:32 d3p708 Exp $
+* $Id: pbe96.f,v 1.11 2007-03-12 16:27:16 d3p708 Exp $
 *
 
 *    ************************************
@@ -169,7 +169,7 @@ c        ************
          n     = 2.0d0*nup
          agr   = 2.0d0*agrup
 	 n13   = n**onethird         
-	 n13   = max(n13,1.e-14)
+	 n13   = max(n13,1.d-14)
          n_onethird = n13*((3.0d0/pi)**onethird)
          ex_lda     = -0.75d0*n_onethird
 
@@ -191,7 +191,7 @@ c        **************
          agr   = 2.0d0*agrdn
 
 	 n13   = n**onethird         
-	 n13   = max(n13,1.e-14)
+	 n13   = max(n13,1.d-14)
          n_onethird = n13*((3.0d0/pi)**onethird)
          ex_lda     = -0.75d0*n_onethird
 
@@ -204,7 +204,7 @@ c        **************
 
          exdn   = ex_lda*F
          fnxdn  = fourthird*(exdn - ex_lda*Fs*s)
-         fdnxup = fdnx_const*Fs
+         fdnxdn = fdnx_const*Fs
 
          ex = (exup*nup+ exdn*ndn)/ (nup+ndn)
          
@@ -557,7 +557,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine LSDT(a,a1,b1,b2,b3,b4,srs,ec,ec_rs)
       real*8 a,a1,b1,b2,b3,b4,srs,ec,ec_rs
       real*8 q0,q1,q1p,qd,ql
-      q0= -2.0d0*a*(1.0d0+srs*srs)
+      q0= -2.0d0*a*(1.0d0+a1*srs*srs)
       q1= 2.0d0*a*srs*(b1+srs*(b2+srs*(b3+srs*b4)))
       q1p= a*((b1/srs)+2.0d0*b2+srs*(3.0d0*b3+srs*4.0d0*b4))
       qd=1.0d0/(q1*q1+q1)
