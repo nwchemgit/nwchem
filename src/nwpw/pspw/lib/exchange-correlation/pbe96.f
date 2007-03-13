@@ -1,5 +1,5 @@
 *
-* $Id: pbe96.f,v 1.12 2007-03-13 03:51:31 d3p708 Exp $
+* $Id: pbe96.f,v 1.13 2007-03-13 16:30:49 d3p708 Exp $
 *
 
 *    ************************************
@@ -151,7 +151,7 @@ c     **** local variables ****
 
       pi = 4.0d0*datan(1.0d0)
       rs_scale = (0.75d0/pi)**onethird
-      fdnx_const = -3.0d0/(16.0d0*pi)
+      fdnx_const = -3.0d0/(8.0d0*pi)
 
       
       do i=1,n2ft3d
