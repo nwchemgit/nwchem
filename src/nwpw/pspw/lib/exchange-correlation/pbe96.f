@@ -1,5 +1,5 @@
 *
-* $Id: pbe96.f,v 1.11 2007-03-12 16:27:16 d3p708 Exp $
+* $Id: pbe96.f,v 1.12 2007-03-13 03:51:31 d3p708 Exp $
 *
 
 *    ************************************
@@ -139,7 +139,7 @@ c     **** local variables ****
       real*8 Ipbe
       real*8 Ipbe_t,Ipbe_A     ! dIpbe/dt, dIpbe/dA
 
-      real*8 exup,exdn,ex,ex_lda,n13
+      real*8 exup,exdn,ex,ex_lda
       real*8 ecu,ecp,eca,ec,ec_lda
       real*8 ecu_rs,ecp_rs,eca_rs
       real*8 ec_lda_rs,ec_lda_zet  ! d(ec_lda)/drs, d(ec_lda)/dzet
@@ -155,10 +155,15 @@ c     **** local variables ****
 
       
       do i=1,n2ft3d
-         nup     = dn_in(i,1)
+         nup     = dn_in(i,1)+ETA
          agrup   = agr_in(i,1)
-         ndn     = dn_in(i,2)
+
+ 
+         ndn     = dn_in(i,2)+ETA
          agrdn   = agr_in(i,2)
+
+         
+ 
 c        ****************************************************************
 c        ***** calculate polarized Exchange energies and potentials *****
 c        ****************************************************************
@@ -168,13 +173,12 @@ c        **** up ****
 c        ************
          n     = 2.0d0*nup
          agr   = 2.0d0*agrup
-	 n13   = n**onethird         
-	 n13   = max(n13,1.d-14)
-         n_onethird = n13*((3.0d0/pi)**onethird)
+
+         n_onethird = (3.0d0*n/pi)**onethird
          ex_lda     = -0.75d0*n_onethird
 
-         kf = n13*((3.0d0*pi*pi)**onethird)
-         s  = agr/(2.0d0*kf*(n13**3))
+         kf = (3.0d0*pi*pi*n)**onethird
+         s  = agr/(2.0d0*kf*n)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
 
          F   = (1.0d0 + KAPPA - KAPPA/P0)
@@ -184,19 +188,22 @@ c        ************
          fnxup = fourthird*(exup - ex_lda*Fs*s)
          fdnxup = fdnx_const*Fs
 
+c         exup = ex_lda
+c         fnxup = fourthird*(exup)
+c         fdnxup = 0.0d0
+
+			
 c        **************
 c        **** down ****
 c        **************
          n     = 2.0d0*ndn
          agr   = 2.0d0*agrdn
 
-	 n13   = n**onethird         
-	 n13   = max(n13,1.d-14)
-         n_onethird = n13*((3.0d0/pi)**onethird)
+         n_onethird = (3.0d0*n/pi)**onethird
          ex_lda     = -0.75d0*n_onethird
 
-         kf = n13*((3.0d0*pi*pi)**onethird)
-         s  = agr/(2.0d0*kf*(n13**3))
+         kf = (3.0d0*pi*pi*n)**onethird
+         s  = agr/(2.0d0*kf*n)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
 
          F   = (1.0d0 + KAPPA - KAPPA/P0)
@@ -206,17 +213,27 @@ c        **************
          fnxdn  = fourthird*(exdn - ex_lda*Fs*s)
          fdnxdn = fdnx_const*Fs
 
+c         exdn   = ex_lda
+c         fnxdn  = fourthird*(exdn)
+c         fdnxdn = 0.0d0
+			
          ex = (exup*nup+ exdn*ndn)/ (nup+ndn)
+         
          
 c        *******************************************************************
 c        ***** calculate polarized correlation energies and potentials ***** 
 c        *******************************************************************
-         n     = dn_in(i,1) + dn_in(i,2) 
-         n     = max(n,1.d-20)
-         n13   = n**onethird
-         n13   = max(n13,1.d-15)
+         n     = dn_in(i,1) + dn_in(i,2) + ETA
          agr   = agr_in(i,3)
+
          zet = (nup-ndn)/n
+c         if (zet.gt.0.0d0) zet = zet - ETA2
+c         if (zet.lt.0.0d0) zet = zet + ETA2
+c        if (dabs(dn_in(i,2)).gt.DNS_CUT) zet_nup =  2*ndn/n**2
+c        if (dabs(dn_in(i,1)).gt.DNS_CUT) zet_ndn = -2*nup/n**2
+c        if (dabs(dn_in(i,2)).gt.DNS_CUT) zet_nup =  2*ndn/n
+c        zet_nup =  2*ndn/n
+c        zet_ndn = -2*nup/n
          zet_nup = -(zet - 1.0d0)
          zet_ndn = -(zet + 1.0d0)
          zetpm_1_3 = (1.0d0+zet*alpha_zeta)**onethirdm
@@ -236,10 +253,11 @@ c        *******************************************************************
 
 
 *        **** calculate Wigner radius ****
-         rs    = rs_scale/n13
+         rs    = rs_scale/(n**onethird)
          rss   = dsqrt(rs)
 
 *        **** calculate n*drs/dn ****
+c        rs_n = onethirdm*rs/n
          rs_n = onethirdm*rs
 
 
@@ -267,9 +285,9 @@ c        t_agr  = 1.0d0/(twoksg*n)
 c        **************************************************
 c        ***** compute LSDA correlation energy density ****
 c        **************************************************
-         CALL LSDT(A_1,A1_1,B1_1,B2_1,B3_1,B4_1,rss,ecu,ecu_rs)
-         CALL LSDT(A_2,A1_2,B1_2,B2_2,B3_2,B4_2,rss,ecp,ecp_rs)
-         CALL LSDT(A_3,A1_3,B1_3,B2_3,B3_3,B4_3,rss,eca,eca_rs)
+         call LSDT(A_1,A1_1,B1_1,B2_1,B3_1,B4_1,rss,ecu,ecu_rs)
+         call LSDT(A_2,A1_2,B1_2,B2_2,B3_2,B4_2,rss,ecp,ecp_rs)
+         call LSDT(A_3,A1_3,B1_3,B2_3,B3_3,B4_3,rss,eca,eca_rs)
          
          z4 = zet**4
             
@@ -343,11 +361,17 @@ c        ********************************************
 
 
          ec = ec_lda + Hpbe
+
+c        fncup  = ec + n*(ec_lda_nup + Hpbe_nup)
+c        fncdn  = ec + n*(ec_lda_ndn + Hpbe_ndn)
          fncup  = ec + (ec_lda_nup + Hpbe_nup)
          fncdn  = ec + (ec_lda_ndn + Hpbe_ndn)
+
+
          xce(i)   = x_parameter*ex     + c_parameter*ec
          fn(i,1)  = x_parameter*fnxup  + c_parameter*fncup
          fn(i,2)  = x_parameter*fnxdn  + c_parameter*fncdn
+
          fdn(i,1) = x_parameter*fdnxup 
          fdn(i,2) = x_parameter*fdnxdn 
          fdn(i,3) = c_parameter*t_agr*Hpbe_t
@@ -490,7 +514,7 @@ c        end if
 
          ex   = ex_lda*F
          fnx  = fourthird*(ex - ex_lda*Fs*s) 
-         fdnx = ex_lda*Fs*0.25d0/kf
+         fdnx = fdnx_const*Fs
 
 			
 
@@ -511,8 +535,7 @@ c        **** unpolarized LDA correlation energy ****
 c        **** ec_p = correlation energy          ****
 c        ****   ec_p_rs = dec_p/drs              ****
 c        ****   uc_p    = dec_p/dn               ****
-         CALL LSDT(A_1,A1_1,B1_1,B2_1,B3_1,B4_1,rss,ec_lda,ec_lda_rs)
-
+         call LSDT(A_1,A1_1,B1_1,B2_1,B3_1,B4_1,rss,ec_lda,ec_lda_rs)
 c        **** PBE96 correlation energy  corrections ****
          t2 = t*t
          t4 = t2*t2
@@ -568,4 +591,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
       
       
+ 
+
  
