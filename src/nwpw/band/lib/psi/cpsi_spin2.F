@@ -18,7 +18,7 @@
       logical oprint
       integer i,j,nb
       integer ii,jj
-      real*8  Sexact,SS,en(2),w
+      real*8  Sexact,SS,en(2),w,ssum
        
       integer taskid,MASTER
       parameter (MASTER=0)
@@ -54,6 +54,7 @@
          Sab = 0.0d0
          do nb=1,nbrill
             w = brillioun_weight(nb)
+	    ssum=0.0d0
             do i=1,ne(1)
             do j=1,ne(2)
                ii = i      +(nb-1)*(ne(1)+ne(2))
@@ -61,11 +62,17 @@
  
 *              *** SS =  GCDOTC(nida,nidb,c2(1,i),c2(1,j+ne(1))) ****
                call Cram_cc_dot(nb,psi(1,ii),psi(1,jj),SS)
-               Sab = Sab + SS*SS*w
+               ssum = ssum + SS*SS
+c               write(*,*)i,j,SS,(SS*SS)
             end do
             end do
+c            write(*,*)"nb= ",nb," ssum =",ssum
+c            write(*,*)"delS = ",(ne(2)-ssum)
+c            call flush(6)
+            Sab=Sab+w*(ne(2)-ssum)
          end do
-         Sab = Sexact + en(2) - Sab
+c         write(*,*)"Sab = ",Sab 
+         Sab = Sexact + Sab
       else
          Sexact = 0.0d0
          Sab    = 0.0d0
