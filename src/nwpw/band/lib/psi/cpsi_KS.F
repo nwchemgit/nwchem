@@ -1,7 +1,10 @@
-* $Id: cpsi_KS.F,v 1.13 2007-02-23 01:18:11 bylaska Exp $
+* $Id: cpsi_KS.F,v 1.14 2007-03-14 20:35:52 d3p708 Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.13  2007/02/23 01:18:11  bylaska
+* ...EJB
+*
 * Revision 1.12  2007/01/24 22:32:51  d3p708
 * pjn
 *
@@ -501,7 +504,10 @@
 
          it = it + 1
          eold = e0
-
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
+cc Check 
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccccccccccc this cc_dot is okay! cccccccccccccccccc
 *        *** calculate residual (steepest descent) direction for a single band ***
          call cpsi_get_gradient_orb(psi_number,nb,i,dcpl_mb(g(1)))
          call Cram_cc_dot(nb,dcpl_mb(psi_ptr+(i-1)*npack1),

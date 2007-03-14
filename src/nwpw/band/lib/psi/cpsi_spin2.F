@@ -3,7 +3,11 @@
 *     *    Calculate_cpsi_spin2    *
 *     *                            *
 *     ******************************
-
+c  Calculate the spin contamination for the band case
+c  This is defined as (see Szabo and Ostlund auf seite 107)
+c     DeltaS= N(down) - sum (i,j) dconjg(S(i,j))*(Si,j)
+C  Note that S(i,j) is _complex_!
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine Calculate_cpsi_spin2(nbrill,ispin,ne,nfft3d,psi,Sab)
       implicit none
       integer nbrill,ispin,ne(2)
@@ -19,7 +23,7 @@
       integer i,j,nb
       integer ii,jj
       real*8  Sexact,SS,en(2),w,ssum
-       
+      complex*16 sij
       integer taskid,MASTER
       parameter (MASTER=0)
 
@@ -38,19 +42,8 @@
 *     ****************************
 
       if (ispin .eq. 2) then
-
-         en(1)     = ne(1)
-         en(ispin) = ne(ispin)
-
-         w = 0.0d0
-         do nb=1,nbrill
-            w = w + brillioun_weight(nb)
-         end do
-         en(1)     = w*ne(1)
-         en(ispin) = w*ne(ispin)
-
-         Sexact = ((en(1)-en(2))/2.0d0)
-     >          * (((en(1)-en(2))/2.0d0)+1.0d0)
+         Sexact = ((ne(1)-ne(2))/2.0d0)
+     >          * (((ne(1)-ne(2))/2.0d0)+1.0d0)
          Sab = 0.0d0
          do nb=1,nbrill
             w = brillioun_weight(nb)
@@ -61,9 +54,10 @@
                jj = j+ne(1)+(nb-1)*(ne(1)+ne(2))
  
 *              *** SS =  GCDOTC(nida,nidb,c2(1,i),c2(1,j+ne(1))) ****
-               call Cram_cc_dot(nb,psi(1,ii),psi(1,jj),SS)
-               ssum = ssum + SS*SS
-c               write(*,*)i,j,SS,(SS*SS)
+               call Cram_cc_zdot(nb,psi(1,ii),psi(1,jj),sij)
+	       SS=dconjg(sij)*sij
+               ssum = ssum + SS
+c               write(*,*)i,j,SS,(SS*SS),"sij=",sij
             end do
             end do
 c            write(*,*)"nb= ",nb," ssum =",ssum
