@@ -1,6 +1,6 @@
       subroutine dia_super()
 c
-c $Id: dia_super.F,v 1.4 2007-02-06 16:32:24 d3j191 Exp $
+c $Id: dia_super.F,v 1.5 2007-03-14 16:17:48 d3j191 Exp $
 c
       implicit none
 c
@@ -14,12 +14,11 @@ c
 c
       if(.not.ma_verify_allocator_stuff()) print*,'Oopsi 3'
 c
-      call dia_supimp(dbl_mb(ndx),nsa,
-     + min((me+1)*nfrme,nfrtot)-me*nfrdim)
+      call dia_supimp(dbl_mb(ndx))
 c
       return
       end
-      subroutine dia_supimp(xtrj,ntrj,nfr)
+      subroutine dia_supimp(xtrj)
 c
       implicit none
 c
@@ -31,13 +30,13 @@ c
       real*8 zero
       parameter(zero=0.0d0)
 c
-      integer ntrj,nfr,nxa
-      real*8 xtrj(ntrj,3,nfr)
+      integer nfr,nxa
+      real*8 xtrj(ntrj,3,nfrdim)
 c
       integer i,j,k
 c
       nwm=0
-      do 1 k=1,nfr
+      do 1 k=1,nfrme
       call super(xtrj(1,1,k),ntrj,ntrj,
      + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.false.)
@@ -47,7 +46,7 @@ c
       end
       subroutine dia_super2(x,ix,nx,mx,y,w,sdev,ny,my,mod,rms0,rms1)
 c
-c $Id: dia_super.F,v 1.4 2007-02-06 16:32:24 d3j191 Exp $
+c $Id: dia_super.F,v 1.5 2007-03-14 16:17:48 d3j191 Exp $
 c
 c     superimpose x(1:n,1:3) onto y(1:n,1:3)
 c

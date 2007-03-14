@@ -1,6 +1,6 @@
       subroutine dia_gettrj
 c
-c $Id: dia_gettrj.F,v 1.6 2007-03-08 23:07:21 d3j191 Exp $
+c $Id: dia_gettrj.F,v 1.7 2007-03-14 16:17:48 d3j191 Exp $
 c
 c     read the trajectory
 c     -------------------
@@ -49,11 +49,19 @@ c
 c
 c     allocate global array
 c
+c     nfrtot : total number of frames
+c     nfrdim : maximum number of frames per processor
+c     nfrme  : actual number of frames on processor
+c     nfrndx : global index of first element local list
+c     ntrj   : number of solute atoms per frame in memory resident frames
 c
       nfrtot=int((ifrto-ifrfr+1)/ifrsk)
       nfrdim=nfrtot/np
       if(mod(nfrtot,np).ne.0) nfrdim=nfrdim+1
       nfrme=min(nfrdim,nfrtot-me*nfrdim)
+      if(nfrme.lt.0) nfrme=0
+      nfrndx=me*nfrdim+1
+      ntrj=nsa
 c
       if(me.eq.0) then
       write(*,6001) np,nfrtot,nfrdim,nsel
@@ -63,7 +71,7 @@ c
      + ' Number of selected atoms',t45,i5,//)
       endif
 c
-      if(.not.ga_create(mt_dbl,nsa*3,nfrtot,'trj',nsa*3,nfrdim,
+      if(.not.ga_create(mt_dbl,ntrj*3,nfrtot,'trj',ntrj*3,nfrdim,
      + ga_trj)) call md_abort('Failed to create ga_trj',0)
       if(lslvnt) then
       if(.not.ga_create(mt_dbl,nwm*nwa*3,nfrtot,'trw',nwm*nwa*3,nfrdim,

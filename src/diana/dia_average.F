@@ -1,6 +1,6 @@
       subroutine dia_average()
 c
-c $Id: dia_average.F,v 1.2 2007-02-06 16:32:24 d3j191 Exp $
+c $Id: dia_average.F,v 1.3 2007-03-14 16:17:44 d3j191 Exp $
 c
 c     get atom selection
 c     ------------------
@@ -26,8 +26,7 @@ c
       call ga_distribution(ga_trj,me,il,ih,jl,jh)
       call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
 c
-      call dia_xaver(dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
-     + dbl_mb(i_xadat),nsa)
+      call dia_xaver(dbl_mb(ndx),dbl_mb(i_xadat))
 c
       if(card(7:7).eq.' ') return
 c

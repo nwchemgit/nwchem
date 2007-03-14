@@ -1,6 +1,6 @@
       subroutine dia_getsel
 c
-c $Id: dia_getsel.F,v 1.4 2007-02-06 21:24:16 d3j191 Exp $
+c $Id: dia_getsel.F,v 1.5 2007-03-14 16:17:48 d3j191 Exp $
 c
 c     get atom selection
 c     ------------------
@@ -128,7 +128,7 @@ c
 #include "msgids.fh"
 #include "util.fh"
 c
-      logical lequiv
+      logical lequiv,last
       integer i,idtors,ntorsp
       integer ndims(4)
 c
@@ -149,10 +149,12 @@ c
       itors(ntors,1,3)=idtors
       itors(ntors,2,3)=1
 c
+      last=ntors
       if(lequiv) then
-      call dia_equitors(byte_mb(i_snam),int_mb(i_iequi),int_mb(i_imol),
+      call dia_equitors(int_mb(i_iequi),int_mb(i_imol),
      + idtors)
       endif
+      call dia_listtors(byte_mb(i_snam),last)
 c
       itors(ntors,2,3)=ntors-ntorsp
       endif
@@ -174,7 +176,7 @@ c
       call md_abort('Failed to read torsion',0)
       return
       end
-      subroutine dia_equitors(sgmnam,iequi,imol,idtors)
+      subroutine dia_equitors(iequi,imol,idtors)
 c
       implicit none
 c
@@ -186,7 +188,6 @@ c
 #include "msgids.fh"
 #include "util.fh"
 c
-      character*16 sgmnam(msa)
       integer iequi(msa),imol(msa)
       integer i,j,last,idtors
 c
@@ -212,11 +213,23 @@ c
       goto 2
 c
     9 continue
+      return
+      end
+      subroutine dia_listtors(sgmnam,last)
+c
+      implicit none
+c
+#include "dia_common.fh"
+c
+      integer last
+      character*16 sgmnam(msa)
+      integer i,j
+c
       if(me.eq.0) then
       do 5 i=last,ntors
-      write(*,1000) i,(sgmnam(itors(i,j,1))(11:16),':',
-     + sgmnam(itors(i,j,1))(1:10),j=1,4)
- 1000 format(i4,4(a6,a,a10))
+      write(ctors(i),1000) i,itors(i,1,3),(sgmnam(itors(i,j,1))(11:16),
+     + ':',sgmnam(itors(i,j,1))(1:10),j=1,4)
+ 1000 format(2i4,4(a6,a,a10))
     5 continue
       endif
 c
@@ -230,13 +243,10 @@ c
 c
 #include "dia_common.fh"
 #include "dia_params.fh"
-#include "global.fh"
 #include "mafdecls.fh"
-#include "rtdb.fh"
 #include "msgids.fh"
-#include "util.fh"
 c
-      logical lequiv
+      logical lequiv,last
       integer i,idordr,ndordr,nordp
       integer ndims(4)
 c
@@ -258,10 +268,12 @@ c
       iord(nord,2,3)=1
       iord(nord,3,3)=ndordr
 c
+      last=nord
       if(lequiv) then
-      call dia_equiord(byte_mb(i_snam),int_mb(i_iequi),int_mb(i_imol),
+      call dia_equiord(int_mb(i_iequi),int_mb(i_imol),
      + idordr,ndordr)
       endif
+      call dia_listord(byte_mb(i_snam),last,ndordr)
 c
       do 2 i=nordp+1,nord
       iord(i,2,3)=nord-nordp
@@ -284,19 +296,13 @@ c
       call md_abort('Failed to read order parameter',0)
       return
       end
-      subroutine dia_equiord(sgmnam,iequi,imol,idordr,ndordr)
+      subroutine dia_equiord(iequi,imol,idordr,ndordr)
 c
       implicit none
 c
 #include "dia_common.fh"
 #include "dia_params.fh"
-#include "global.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "msgids.fh"
-#include "util.fh"
 c
-      character*16 sgmnam(msa)
       integer iequi(msa),imol(msa)
       integer i,j,last,idordr,ndordr
 c
@@ -323,11 +329,25 @@ c
       goto 2
 c
     9 continue
+c
+      return
+      end
+      subroutine dia_listord(sgmnam,last,ndordr)
+c
+      implicit none
+c
+#include "dia_common.fh"
+#include "dia_params.fh"
+c
+      integer last,ndordr
+      character*16 sgmnam(msa)
+      integer i,j
+c
       if(me.eq.0) then
       do 5 i=last,nord
-      write(*,1000) i,(sgmnam(iord(i,j,1))(11:16),':',
+      write(cord(i),1000) (sgmnam(iord(i,j,1))(11:16),':',
      + sgmnam(iord(i,j,1))(1:10),j=1,ndordr+1)
- 1000 format(i4,4(a6,a,a10))
+ 1000 format(4(a6,a1,a10))
     5 continue
       endif
 c

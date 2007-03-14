@@ -1,6 +1,6 @@
       subroutine dia_finish(sgmnam,ltask)
 c
-c $Id: dia_finish.F,v 1.1 2006-12-10 01:03:21 d3j191 Exp $
+c $Id: dia_finish.F,v 1.2 2007-03-14 16:17:48 d3j191 Exp $
 c
       implicit none
 c
@@ -10,7 +10,7 @@ c
       character*16 sgmnam(nsa)
       logical ltask
 c
-      call dia_report(sgmnam,dbl_mb(i_xrms),int_mb(i_isel))
+c      call dia_report(sgmnam,dbl_mb(i_xrms),int_mb(i_isel))
 c
 c
       if(me.eq.0) then

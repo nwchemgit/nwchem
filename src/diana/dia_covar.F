@@ -1,6 +1,6 @@
       subroutine dia_covar()
 c
-c $Id: dia_covar.F,v 1.6 2007-03-10 02:04:47 d3j191 Exp $
+c $Id: dia_covar.F,v 1.7 2007-03-14 16:17:48 d3j191 Exp $
 c
       implicit none
 c
@@ -26,8 +26,7 @@ c      call dia_xaver(dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
 c     + dbl_mb(i_xadat),nsa)
 c
       call dia_cov(int_mb(i_ndx),dbl_mb(i_cov),int_mb(i_isel),
-     + dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
-     + dbl_mb(i_xadat),nsa)
+     + dbl_mb(ndx),dbl_mb(i_xadat))
 c
       call ga_scale(ga_cov,1.0d0/dble(nfrtot))
 c
@@ -62,7 +61,7 @@ c
       open(unit=lfnpca,file=filpca(1:index(filpca,' ')-1),
      + form='formatted',status='unknown')
       write(lfnpca,1000) 3*nsel,nsa
- 1000 format(i5)
+ 1000 format(2i7)
       write(lfnpca,1001) (dbl_mb(i_cov-1+int_mb(i_ord+i-1)),i=1,3*nsel)
  1001 format(6e12.5)
       endif
@@ -141,7 +140,7 @@ c
 c
       return
       end
-      subroutine dia_cov(ndex,cov,isel,xtrj,ntrj,nfr,xa,nxa)
+      subroutine dia_cov(ndex,cov,isel,xtrj,xa)
 c
       implicit none
 c
@@ -150,10 +149,9 @@ c
 #include "global.fh"
 #include "msgids.fh"
 c
-      integer ntrj,nfr,nxa
       integer ndex(*)
       real*8 cov(*)
-      real*8 xtrj(ntrj,3,nfr),xa(nxa,3)
+      real*8 xtrj(ntrj,3,nfrdim),xa(nsa,3)
       integer isel(msa)
 c
       integer i,j,k,ia,ja,ix,jx
@@ -180,7 +178,7 @@ c
       do 5 j=jlc,jhc
       cov(j-jlc+1)=0.0d0
     5 continue
-      do 2 k=1,nfr
+      do 2 k=1,nfrme
       do 4 j=jlc,jhc
       ja=ndex((j+2)/3)
       jx=mod(j+2,3)+1
@@ -272,8 +270,8 @@ c
      + call md_abort('Error allocating a',0)
 c
       call dia_proj(int_mb(i_ndx),dbl_mb(i_cov),int_mb(i_isel),
-     + dbl_mb(ndx),dbl_mb(ndxp),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
-     + dbl_mb(i_xadat),msa,dbl_mb(ndxv))
+     + dbl_mb(ndx),dbl_mb(ndxp),
+     + dbl_mb(i_xadat),dbl_mb(ndxv))
 c
       if(.not.ma_pop_stack(l_a)) call md_abort('Error deallocating a',0)
 c
@@ -294,8 +292,8 @@ c
       if(me.eq.0) then
       if(.not.ma_push_get(mt_dbl,nfrtot,'ipcav',l_pcav,i_pcav))
      + call md_abort('Failed to allocate ipcav',0)
-      write(lfnpca,1000) nfrtot
- 1000 format(i10)
+      write(lfnpca,1000) ivec,nfrtot
+ 1000 format(i5,i10)
       do 1 ip=0,np-1
       call ga_distribution(ga_val,ip,ilv,ihv,jlv,jhv)
       call ga_get(ga_val,1,1,jlv,jhv,dbl_mb(i_pcav+ip*nfrdim),1)
@@ -303,7 +301,7 @@ c
       write(lfnpca,1001) (dbl_mb(i_pcav+i-1),i=1,nfrtot)
  1001 format(5e12.5)
       if(.not.ma_pop_stack(l_pcav))
-     + call md_abort('Failed to deallocate ipcav')
+     + call md_abort('Failed to deallocate ipcav',0)
       endif
 c
       if(.not.ga_destroy(ga_val))
@@ -316,7 +314,7 @@ c
       call md_abort(' Could not open projection files',0)
       return
       end
-      subroutine dia_proj(ndex,vct,isel,xtrj,xprj,ntrj,nfr,xa,mx,val)
+      subroutine dia_proj(ndex,vct,isel,xtrj,xprj,xa,val)
 c
       implicit none
 c
@@ -324,11 +322,9 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 c
-      integer ntrj,nfr
-      integer mx
       integer ndex(nsel)
-      real*8 vct(*),val(nfr),pnorm,vval
-      real*8 xtrj(ntrj,3,nfr),xprj(ntrj,3,nfr),xa(mx,3)
+      real*8 vct(*),val(nfrdim),pnorm,vval
+      real*8 xtrj(ntrj,3,nfrdim),xprj(ntrj,3,nfrdim),xa(nsa,3)
       integer isel(nsa)
 c
       integer i,j,k,l,m
@@ -338,7 +334,7 @@ c      write(*,'(3f12.6)') ((xtrj(5,i,k),i=1,3),k=1,5)
 c      write(*,'(5i5)') (ndex(i),i=1,5)
 c      write(*,'(6f12.6)') (vct(k),k=1,3*nsel)
 c      write(*,'(3f12.6)') (xa(5,i),i=1,3)
-      do 1 k=1,nfr
+      do 1 k=1,nfrme
       val(k)=0.0d0
       pnorm=0.0d0
       m=0
@@ -354,7 +350,7 @@ c      write(*,'(3f12.6)') (xa(5,i),i=1,3)
     1 continue
 c      write(*,'(5f12.6)') (val(k),k=1,nfr)
 c
-      do 4 k=1,nfr
+      do 4 k=1,nfrme
       m=0
       do 5 i=1,nsel
       do 6 j=1,3
@@ -418,7 +414,6 @@ c
 #include "global.fh"
 #include "msgids.fh"
 c
-      integer ntrj,nfr,nxa
       integer ndex(*)
       real*8 cov(*)
       integer isel(msa)

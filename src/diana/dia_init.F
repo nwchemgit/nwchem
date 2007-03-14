@@ -1,6 +1,6 @@
       subroutine dia_init
 c
-c $Id: dia_init.F,v 1.6 2007-03-10 02:04:47 d3j191 Exp $
+c $Id: dia_init.F,v 1.7 2007-03-14 16:17:48 d3j191 Exp $
 c
 c
 c     initialize variables
@@ -25,6 +25,7 @@ c     and ignore current state
 c
       ignore=rtdb_parallel(.false.)
 c
+      lfndat=61
       lfnexp=62
       lfntcl=63
       lfnpca=64
@@ -243,6 +244,10 @@ c
 c
       inquire(unit=lfnpca,opened=lopen)
       if(lopen) close(lfnpca,status='keep')
+      inquire(unit=lfnord,opened=lopen)
+      if(lopen) close(lfnord,status='keep')
+      inquire(unit=lfndat,opened=lopen)
+      if(lopen) close(lfndat,status='keep')
 c
       ignore=rtdb_parallel(.true.)
 c
