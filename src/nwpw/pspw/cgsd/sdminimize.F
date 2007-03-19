@@ -1,5 +1,5 @@
 c
-c     $Id: sdminimize.F,v 1.9 2007-02-27 20:08:53 bylaska Exp $                       
+c     $Id: sdminimize.F,v 1.10 2007-03-19 19:05:37 bylaska Exp $                       
 c
 
       subroutine sdminimize(flag)
@@ -47,9 +47,6 @@ c
       return
       end
  
-
-
-
 
       subroutine sdminimize_virtual(flag)
       implicit none

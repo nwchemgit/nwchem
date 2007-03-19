@@ -6,7 +6,6 @@
       subroutine set_katm_list(tag,nion,aname_function,
      >                         nkatm,katm,natm,atom)
       implicit none
-#include "errquit.fh"
       integer tag
       integer nion
       character*2 aname_function
@@ -14,6 +13,7 @@
       integer nkatm,katm(2),natm(2),atom(2)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
       logical value
       integer i,ka

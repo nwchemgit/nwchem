@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize.F,v 1.21 2006-10-07 00:10:05 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.22 2007-03-19 19:05:36 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -129,6 +129,7 @@ c      complex*16 G1(nfft3d,nemax)
       if (current_iteration.eq.1) then
          precondition = control_precondition()
       end if
+
 
 
 *     ***** get the initial gradient and direction ****

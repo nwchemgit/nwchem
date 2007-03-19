@@ -1,5 +1,5 @@
 c
-c $Id: psp_formatter.F,v 1.12 2007-01-02 18:36:51 bylaska Exp $
+c $Id: psp_formatter.F,v 1.13 2007-03-19 19:05:37 bylaska Exp $
 c
 
 *     ***************************************
@@ -135,8 +135,9 @@ c
 *     ***************************************
       subroutine psp_formatter_auto(atom)
       implicit none
-#include "errquit.fh"
       character*2  atom
+
+#include "errquit.fh"
 
 *     ***** local variables *****
       logical       value

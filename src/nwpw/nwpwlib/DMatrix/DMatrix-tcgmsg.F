@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix-tcgmsg.F,v 1.3 2006-11-22 18:43:01 bylaska Exp $
+* $Id: DMatrix-tcgmsg.F,v 1.4 2007-03-19 19:05:34 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -84,12 +84,14 @@ c     **** loop over all row pannels of C ***
          end if
 
 c        **** broadcast work1  within my row ***
-         call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
+         if (np_j.gt.1)
+     >    call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
      >                         work1, mdtob(iwrk*ma(taskid_i+1)),
      >                         jcur)
 
 c        **** broadcast work2  within my column ***
-         call GA_PGROUP_BRDCST(comm_i, 9+MSGDBL,
+         if (np_i.gt.1)
+     >    call GA_PGROUP_BRDCST(comm_i, 9+MSGDBL,
      >                         work2, mdtob(iwrk*nb(taskid_j+1)),
      >                         icur)
 
@@ -194,7 +196,8 @@ c     **** loop over all row pannels of C ***
             end if
 
 c           **** broadcast work1  within my row ***
-         call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
+         if (np_j.gt.1)
+     >    call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
      >                         work1,mdtob(iwrk*ma(taskid_i+1)),
      >                         jcur)
 
@@ -217,7 +220,8 @@ c     >          (ma(taskid_i+1).gt.0))
 
 
 c        **** summ to node that holds current rows of C ****
-        call GA_PGROUP_DGOP(comm_i, 9+MSGDBL,
+        if (np_i.gt.1)
+     >   call GA_PGROUP_DGOP(comm_i, 9+MSGDBL,
      >                       work2,nc(taskid_j+1)*iwrk,'+')
 
 
@@ -315,7 +319,8 @@ c        **** add to current rows of C ****
      >                   work2,     iwrk)
          end if
 
-         call GA_PGROUP_BRDCST(comm_i, 9+MSGDBL,
+         if (np_i.gt.1)
+     >      call GA_PGROUP_BRDCST(comm_i, 9+MSGDBL,
      >                         work2, mdtob(iwrk*nb(taskid_j+1)),
      >                         icur)
 
@@ -329,8 +334,8 @@ c        **** add to current rows of C ****
      >              0.0d0,
      >              work1, mc(taskid_i+1))
 
-
-         call GA_PGROUP_DGOP(comm_j, 9+MSGDBL,
+         if (np_j.gt.1)
+     >    call GA_PGROUP_DGOP(comm_j, 9+MSGDBL,
      >                       work1,mc(taskid_i+1)*iwrk,'+')
 
 
@@ -465,14 +470,14 @@ c        **** add to current rows of C ****
                if (jcur1.eq.taskid_j)
      >             call dcopy(mq(taskid_i+1),Q(1,jj1),1,work2,1)
 
-
-               call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
-     >                         work1, mdtob(mq(taskid_i+1)),
-     >                         jcur0)
-
-               call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
-     >                         work2, mdtob(mq(taskid_i+1)),
-     >                         jcur1)
+               if (np_j.gt.1) then
+                 call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
+     >                           work1, mdtob(mq(taskid_i+1)),
+     >                           jcur0)
+                 call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
+     >                           work2, mdtob(mq(taskid_i+1)),
+     >                           jcur1)
+               end if
 
 
                if (jcur0.eq.taskid_j) then
@@ -608,14 +613,15 @@ c        **** add to current rows of C ****
             end if
          end do
          mu = mu0
-         call GA_PGROUP_DGOP(comm_i,9+MSGDBL,mu,1,'+')
+         if (np_i.gt.1) call GA_PGROUP_DGOP(comm_i,9+MSGDBL,mu,1,'+')
          mu = dsqrt(mu)
 
 
          if (mu.ne.0.0d0) then
            if (icur1.eq.taskid_i)
      >        beta = V(ii1,jj0) + dsign(mu,V(ii1,jj0))
-              call GA_PGROUP_BRDCST(comm_i,9+MSGDBL,beta,mdtob(1),icur1)
+              if (np_i.gt.1) 
+     >        call GA_PGROUP_BRDCST(comm_i,9+MSGDBL,beta,mdtob(1),icur1)
 
            icur = icur2
            ii   = ii2
@@ -643,14 +649,12 @@ c        **** add to current rows of C ****
             end if
          end do
          v2 = v20
-         call GA_PGROUP_DGOP(comm_i,9+MSGDBL,v2,1,'+')
-
+         if (np_i.gt.1) call GA_PGROUP_DGOP(comm_i,9+MSGDBL,v2,1,'+')
 
          v2 = 2.0d0/v2
       end if
-      call GA_PGROUP_BRDCST(comm_j,9+MSGDBL,v2,mdtob(1),jcur0)
-
-
+      if (np_j.gt.1)
+     >   call GA_PGROUP_BRDCST(comm_j,9+MSGDBL,v2,mdtob(1),jcur0)
 
 
       call DMatrix_eye(n,n,1.0d0,Q,lda,ma,na,taskid_i,taskid_j)
@@ -734,12 +738,14 @@ c        **** add to current rows of C ****
             if (jcur1.eq.taskid_j)
      >         call dcopy(mq(taskid_i+1),Q(1,jj1),1,work2,1)
 
+              if (np_j.gt.1) then
               call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
      >                         work1, mdtob(mq(taskid_i+1)),
      >                         jcur0)
               call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
      >                         work2, mdtob(mq(taskid_i+1)),
      >                         jcur1)
+              end if
 
 
             if (jcur0.eq.taskid_j)
@@ -805,16 +811,17 @@ c        **** add to current rows of C ****
          end do
          work1(j) = A(ii,jj)
 
-         call GA_PGROUP_BRDCST(comm_i, 9+MSGDBL,
-     >                         work1(j), mdtob(1),
-     >                         icur)
+         if (np_i.gt.1)
+     >      call GA_PGROUP_BRDCST(comm_i, 9+MSGDBL,
+     >                           work1(j), mdtob(1),
+     >                           icur)
          jj = jj + 1
          if (jj.gt.na(jcur+1)) then
             jcur = jcur + 1
             jj = 1
          end if
       end do
-      call GA_PGROUP_DGOP(comm_j,9+MSGDBL,work1,n,'+')
+      if (np_j.gt.1) call GA_PGROUP_DGOP(comm_j,9+MSGDBL,work1,n,'+')
       call dcopy(n,work1,1,eig,1)
 
 
@@ -843,7 +850,8 @@ c        **** add to current rows of C ****
             end if
          end do
          work1(i) = A(ii,jj)
-         call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
+         if (np_j.gt.1)
+     >    call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
      >                         work1(i), mdtob(1),
      >                         jcur)
          ii = ii + 1
@@ -852,7 +860,7 @@ c        **** add to current rows of C ****
             ii = 1
          end if
       end do
-      call GA_PGROUP_DGOP(comm_i,9+MSGDBL,work1,n-1,'+')
+      if (np_i.gt.1) call GA_PGROUP_DGOP(comm_i,9+MSGDBL,work1,n-1,'+')
       call dcopy(n-1,work1,1,tu,1)
 
       return

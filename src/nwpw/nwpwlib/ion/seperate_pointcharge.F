@@ -1,5 +1,5 @@
 *     
-* $Id: seperate_pointcharge.F,v 1.3 2003-10-17 22:56:42 carlfahl Exp $
+* $Id: seperate_pointcharge.F,v 1.4 2007-03-19 19:05:35 bylaska Exp $
 *     
 
 *     ***************************
@@ -40,9 +40,9 @@
       value = geom_create(geom1,'chargepspwgeometry')
       value = value.and.geom_create(geom2,'pspwgeometry')
       value = value.and.geom_create(geom3,'chargegeometry')
-      value = value.and.geom_rtdb_load(rtdb,geom1,'chargepspwgeometry')
+      value = value.and.geom_rtdb_load(rtdb,geom1,'geometry')
       value = value.and.geom_ncent(geom1,nion1)
-      if (.not. value) call errquit('opening chargepspwgeometry',0,
+      if (.not. value) call errquit('opening geometry',0,
      &       GEOM_ERR)
 
       value = MA_push_get(mt_dbl, (3*nion1), 'rt',rt(2),rt(1))
@@ -173,7 +173,7 @@
         if (mmexist)
      >    value = value.and.geom_create(geom3,'chargegeometry')
         value = value.and.
-     >          geom_rtdb_load(rtdb,geom1,'chargepspwgeometry')
+     >          geom_rtdb_load(rtdb,geom1,'geometry')
         value = value.and.geom_ncent(geom1,nion1)
         value = value.and.geom_rtdb_load(rtdb,geom2,'pspwgeometry')
         value = value.and.geom_ncent(geom2,nion2)
@@ -202,19 +202,19 @@
      >     value = value.and.geom_vel_get(geom3,dbl_mb(rt(1+3*nion2)))
         value = value.and.geom_vel_set(geom1, dbl_mb(rt(1)))
 
-        value = value.and.geom_rtdb_delete(rtdb,'chargepspwgeometry')
+        value = value.and.geom_rtdb_delete(rtdb,'geometry')
         value = value.and.geom_rtdb_delete(rtdb,'pspwgeometry')
         if (nion3.gt.0)
      >     value = value.and.geom_rtdb_delete(rtdb,'chargegeometry')
         value = value.and.
-     >          geom_rtdb_store(rtdb,geom1,'chargepspwgeometry')
+     >          geom_rtdb_store(rtdb,geom1,'geometry')
         if (mmexist)
      >     value = value.and.geom_destroy(geom3)
         value = value.and.geom_destroy(geom2)
         value = value.and.geom_destroy(geom1)
         value = value.and.MA_pop_stack(rt(2))
         if (.not. value)
-     >   call errquit('pspwgeometry->chargepspwgeometry write 2',0,
+     >   call errquit('pspwgeometry->geometry write 2',0,
      &       GEOM_ERR)
 
       return

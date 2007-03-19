@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.76 2007-01-02 18:36:51 bylaska Exp $
+* $Id: cgsdv5.F,v 1.77 2007-03-19 19:05:36 bylaska Exp $
 *
 
 ***********************************************************************
@@ -96,11 +96,11 @@
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      integer  pspw_qmmm_nion,pspw_charge_nion
+      integer  pspw_charge_nion
       external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      external pspw_qmmm_nion,pspw_charge_nion
+      external pspw_charge_nion
 
       character*12 control_boundry
       external     control_boundry
@@ -262,7 +262,6 @@ c     value = psi_initialize()
 
 
       value = psi_initialize()
-
 
       !call D3dB_n_fft_init(1,psi_ne(1)+psi_ne(2))
 
@@ -511,7 +510,6 @@ c     end if
       nion = ion_nion()
       if (pspw_charge_found().and.
      >    (.not.pspw_bqext())) nion = nion + pspw_charge_nion()
-      if (pspw_qmmm_found())   nion = nion + pspw_qmmm_nion()
 
       value = MA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))

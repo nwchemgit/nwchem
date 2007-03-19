@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.19 2003-10-17 22:57:46 carlfahl Exp $
+c $Id: pspw_qmmm.F,v 1.20 2007-03-19 19:05:38 bylaska Exp $
 c
 
 ***********************************************************
@@ -26,12 +26,12 @@ c
 
       subroutine pspw_qmmm_init(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
+#include "errquit.fh"
 
 ****** pspw_qmmm common block ****
 #include "pspw_qmmm.fh"
@@ -116,6 +116,7 @@ c         end if
          if (rtdb_ma_get(rtdb, 'pspw:qmmm_frag', ma_type,
      >        h_nfrag, h_hndl)) then
 
+           
            if (.not.MA_get_index(h_hndl,h_indx))
      >      call errquit(
      >      'pspw_qmmm_init: ma_get_index failed for qmmm_frag',911,
@@ -162,7 +163,7 @@ c         end if
      >                           max_frag_length,nfrag,
      >                           int_mb(size_frag(1)),
      >                           int_mb(indx_from_frag(1)),
-     >                           int_mb(shake_frag(1)))
+     >                           log_mb(shake_frag(1)))
 
 *        **** set frag_from_indx ****
          call set_frag_from_indx(max_frag_length,nfrag,
@@ -178,6 +179,7 @@ c         end if
      >                      dbl_mb(dsqm_frag(1)))
 
 
+*        **** set frag_from_indx ****
 *       **** free h_array ****
         value = MA_free_heap(h_hndl)
         if (.not.value) call errquit('cannot free heap memory',0,
@@ -246,22 +248,23 @@ c         end if
  
       integer h,j,k
 
+      write(*,*) "nh,max_frag,nfrag=",nh,max_frag_length,nfrag
       j = 1
       k = 1
       do h=1,nh 
-        if (h_array(h).gt.0) then
+         if (h_array(h).gt.0) then
              indx_from_frag(j,k) = h_array(h)
              j=j+1
-           else
-              size_frag(k) = j-1
-              if (h_array(h).eq. (-1)) then
-                shake_frag(k) = .true.
-              else
-                shake_frag(k) = .false. 
-              end if
-              k=k+1
-              j=1 
-           end if
+         else
+            size_frag(k) = j-1
+            if (h_array(h).eq. (-1)) then
+              shake_frag(k) = .true.
+            else
+              shake_frag(k) = .false. 
+            end if
+            k=k+1
+            j=1 
+         end if
       end do
 
       return
@@ -925,7 +928,6 @@ c     >                                   n2ft3d,rgrid,Vqm)
      >                           n2ft3d,rgrid,rho,dv,
      >                           dt,fion,deltar)
       implicit none
-#include "errquit.fh"
       integer algorithm
       integer n2ft3d
       real*8 rgrid(3,*)
@@ -936,9 +938,8 @@ c     >                                   n2ft3d,rgrid,Vqm)
       real*8 deltar
 
 #include "mafdecls.fh"
-
-****** pspw_qmmm common block ****
 #include "pspw_qmmm.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       logical value
@@ -1012,9 +1013,8 @@ c     >                                   n2ft3d,rgrid,Vqm)
       implicit none
 
 #include "mafdecls.fh"
-
-****** pspw_qmmm common block ****
 #include "pspw_qmmm.fh"
+
 *     **** external functions ****
       real*8   pspw_Q_Energy_IonMM
       external pspw_Q_Energy_IonMM
@@ -1189,7 +1189,6 @@ c     >                                   n2ft3d,rgrid,Vqm)
       real*8 dv
       real*8 fion(3,*)
 
-****** pspw_qmmm common block ****
 #include "pspw_qmmm.fh"
 
       if (nion.gt.0) then
@@ -1305,7 +1304,7 @@ c     >                                   n2ft3d,rgrid,Vqm)
       real*8  dti
 
 
-*     **** steepest descent update of water ****
+*     **** newton update of water ****
       do ii=1,nion
         dti = 0.5d0*dt*dt/(mass(ii))
         r2(1,ii) = r1(1,ii) + dt *v(1,ii) + dti*fmm(1,ii)

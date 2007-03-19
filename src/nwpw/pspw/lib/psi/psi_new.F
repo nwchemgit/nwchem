@@ -1,5 +1,5 @@
 *
-* $Id: psi_new.F,v 1.11 2004-02-23 16:58:00 bylaska Exp $
+* $Id: psi_new.F,v 1.12 2007-03-19 19:05:37 bylaska Exp $
 *
 
 *     ***********************************
@@ -40,8 +40,8 @@
       external control_multiplicity
       real*8   control_totalcharge
       external control_totalcharge
-      real*8   ion_totalcharge
-      external ion_totalcharge
+      real*8   ion_TotalCharge_qm
+      external ion_TotalCharge_qm
       logical  lcao_wvfnc,control_print
       external lcao_wvfnc,control_print
       integer  control_rtdb,control_version
@@ -65,7 +65,7 @@
       ispin   = control_ispin()
       mult    = control_multiplicity()
       tcharge = control_totalcharge()
-      icharge = ion_totalcharge()
+      icharge = ion_TotalCharge_qm()
       t = icharge - tcharge       !** total number of electrons **
       x = NINT(t)
       xx = x

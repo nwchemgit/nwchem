@@ -1,5 +1,5 @@
 *
-* $Id: center.f,v 1.5 2005-01-26 23:57:22 bylaska Exp $
+* $Id: center.f,v 1.6 2007-03-19 19:05:35 bylaska Exp $
 *
 
       subroutine center_geom(cx,cy,cz)
@@ -144,14 +144,10 @@
       real*8 am
 
 *     **** external functions ****
-      logical  pspw_qmmm_found
-      integer  pspw_qmmm_nion
       integer  ion_nion
-      real*8   ion_amass,pspw_qmmm_amass
-      external pspw_qmmm_found
-      external pspw_qmmm_nion
+      real*8   ion_amass
       external ion_nion
-      external ion_amass,pspw_qmmm_amass
+      external ion_amass
 
       nion = ion_nion()
       gx=0.0d0
@@ -164,16 +160,6 @@
         gz=gz+ion_amass(i)*F(3,i)
         am=am+ion_amass(i)
       end do
-      if (pspw_qmmm_found()) then
-         do i=1,pspw_qmmm_nion()
-            i1 = nion + i
-            gx = gx + pspw_qmmm_amass(i)*F(1,i1)
-            gy = gy + pspw_qmmm_amass(i)*F(2,i1)
-            gz = gz + pspw_qmmm_amass(i)*F(3,i1)
-            am=am+pspw_qmmm_amass(i)
-
-         end do
-      end if
       gx=gx/am
       gy=gy/am
       gz=gz/am
@@ -192,14 +178,10 @@
       real*8   gx,gy,gz
 
 *     **** external functions ****
-      logical  pspw_qmmm_found
-      integer  pspw_qmmm_nion
       integer  ion_nion
-      real*8   ion_amass,pspw_qmmm_amass
-      external pspw_qmmm_found
-      external pspw_qmmm_nion
+      real*8   ion_amass
       external ion_nion
-      external ion_amass,pspw_qmmm_amass
+      external ion_amass
 
       nion = ion_nion()
       gx=0.0d0
@@ -212,23 +194,11 @@
         gz=gz+ion_amass(i)*F(3,i)
         am=am+ion_amass(i)
       end do
-      if (pspw_qmmm_found()) then
-         do i=1,pspw_qmmm_nion()
-            i1 = nion + i
-            gx = gx + pspw_qmmm_amass(i)*F(1,i1)
-            gy = gy + pspw_qmmm_amass(i)*F(2,i1)
-            gz = gz + pspw_qmmm_amass(i)*F(3,i1)
-            am=am+pspw_qmmm_amass(i)
-
-         end do
-      end if
       gx=gx/am
       gy=gy/am
       gz=gz/am
 
       !**** remove center of mass motion ***
-      nion = ion_nion()
-      if (pspw_qmmm_found()) nion = nion + pspw_qmmm_nion()
       do i=1,nion
          F(1,i) = F(1,i) - gx
          F(2,i) = F(2,i) - gy
@@ -253,14 +223,10 @@
       real*8   hx,hy,hz
 
 *     **** external functions ****
-      logical  pspw_qmmm_found
-      integer  pspw_qmmm_nion
       integer  ion_nion
-      real*8   ion_amass,pspw_qmmm_amass
-      external pspw_qmmm_found
-      external pspw_qmmm_nion
+      real*8   ion_amass
       external ion_nion
-      external ion_amass,pspw_qmmm_amass
+      external ion_amass
 
       nion = ion_nion()
       hx=0.0d0
@@ -279,19 +245,6 @@
         gz=gz+ion_amass(i)*R1(3,i)
         am=am+ion_amass(i)
       end do
-      if (pspw_qmmm_found()) then
-         do i=1,pspw_qmmm_nion()
-            i1 = nion + i
-            hx = hx + pspw_qmmm_amass(i)*R2(1,i1)
-            hy = hy + pspw_qmmm_amass(i)*R2(2,i1)
-            hz = hz + pspw_qmmm_amass(i)*R2(3,i1)
-            gx = gx + pspw_qmmm_amass(i)*R1(1,i1)
-            gy = gy + pspw_qmmm_amass(i)*R1(2,i1)
-            gz = gz + pspw_qmmm_amass(i)*R1(3,i1)
-            am=am+pspw_qmmm_amass(i)
-
-         end do
-      end if
       hx=hx/am
       hy=hy/am
       hz=hz/am
@@ -300,8 +253,6 @@
       gz=gz/am
 
       !**** remove center of mass motion ***
-      nion = ion_nion()
-      if (pspw_qmmm_found()) nion = nion + pspw_qmmm_nion()
       do i=1,nion
          R2(1,i) = R2(1,i) - hx + gx
          R2(2,i) = R2(2,i) - hy + gy
@@ -310,6 +261,4 @@
 
       return
       end
-
-
 

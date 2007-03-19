@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_new.F,v 1.10 2007-02-12 20:59:43 d3p708 Exp $
+* $Id: cpsi_new.F,v 1.11 2007-03-19 19:05:33 bylaska Exp $
 *
 
 *     ***********************************
@@ -41,8 +41,8 @@
       external control_totalcharge
       logical control_spin_orbit
       external control_spin_orbit
-      real*8   ion_totalcharge
-      external ion_totalcharge
+      real*8   ion_TotalCharge_qm
+      external ion_TotalCharge_qm
 c     logical  lcao_wvfnc
 c     external lcao_wvfnc
       integer  control_rtdb,brillioun_nbrillioun
@@ -67,7 +67,7 @@ c     external lcao_wvfnc
       ispin   = control_ispin()
       mult    = control_multiplicity()
       tcharge = control_totalcharge()
-      icharge = ion_totalcharge()
+      icharge = ion_TotalCharge_qm()
       t = icharge - tcharge   !*** total number of electrons ***
 
 

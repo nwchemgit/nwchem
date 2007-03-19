@@ -1,5 +1,5 @@
 *
-* $Id: psi_read.F,v 1.12 2006-08-13 01:03:28 bylaska Exp $
+* $Id: psi_read.F,v 1.13 2007-03-19 19:05:37 bylaska Exp $
 *
 
 #define TCGMSG
@@ -161,9 +161,7 @@ c     **** send header to all nodes ****
 
 *     *** read in 3d blocks ***
       do n=1,(ne(1)+ne(2))
-
          call Dneall_ntoqp(n,q,pj)
-
          call D3dB_c_read(1,5,dcpl_mb(tmp2(1)),
      >                        dcpl_mb(tmp(1)),pj)
          if (pj.eq.taskid_j) then

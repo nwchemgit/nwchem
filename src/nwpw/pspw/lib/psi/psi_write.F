@@ -1,5 +1,5 @@
 *
-* $Id: psi_write.F,v 1.11 2006-08-13 01:03:28 bylaska Exp $
+* $Id: psi_write.F,v 1.12 2007-03-19 19:05:37 bylaska Exp $
 *
 
 *     ***********************************
@@ -10,11 +10,11 @@
 
       subroutine psi_write(ispin,ne,psi2)
       implicit none 
-#include "errquit.fh"
       integer ispin,ne(2)
       double complex psi2(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 
 *    *** local variables ***

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.8 2005-12-22 01:35:04 bylaska Exp $
+# $Id: GNUmakefile,v 1.9 2007-03-19 19:05:36 bylaska Exp $
 #
       SUBDIRS = paw_atom
 
@@ -9,6 +9,7 @@
                 hgh_parse.o \
                 cpi_parse.o \
                 teter_parse.o \
+                qmmm_parse.o \
                 get_word.o name.o\
                 loggrid.o pred_cor.o spline.o grids.o atom.o  \
                 schrodin.o \

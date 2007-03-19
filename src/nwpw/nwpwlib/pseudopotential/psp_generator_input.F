@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.32 2007-02-01 01:00:01 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.33 2007-03-19 19:05:36 bylaska Exp $
 c
 
 *     ***************************************
@@ -710,6 +710,19 @@ c        *** revPBE ***
      >        atom(1:ka),ka)
 
 
+      !*** QMMM format ***
+      else if (psp_type.eq.5) then
+         debug = 0
+         print = 0
+         if (control_print(print_debug)) debug = 1
+         if (control_print(print_high)) print  = 1
+         call qmmm_parse(debug,    
+     >        lmax,locp,rlocal,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in(1:j),j,
+     >        psp_out(1:k),k,
+     >        atom(1:ka),ka)
       end if
 
       open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')

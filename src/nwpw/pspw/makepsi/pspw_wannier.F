@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.11 2005-10-05 21:23:27 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.12 2007-03-19 19:05:38 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -37,12 +37,14 @@
       logical      control_read
       integer      control_ngrid,control_ispin,control_mapping
       integer      pack_nwave,pack_nwave_all
+      integer      control_np_orbital
       real*8       lattice_unita,lattice_unitg
       real*8       lattice_ecut,lattice_wcut,lattice_omega
       character*30 control_input_psi,control_output_psi
       external     control_read
       external     control_ngrid,control_ispin,control_mapping
       external     pack_nwave,pack_nwave_all
+      external     control_np_orbital
       external     lattice_unita,lattice_unitg
       external     lattice_ecut,lattice_wcut,lattice_omega
       external     control_input_psi,control_output_psi
@@ -82,6 +84,8 @@
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
       mapping = control_mapping()
+
+      call Parallel2d_Init(control_np_orbital())
 
 
 
@@ -424,6 +428,8 @@ c        end if
 
 
  9000 if (oprint) call nwpw_message(4)
+      call Parallel2d_Finalize()
+      call Parallel_Finalize()
       pspw_wannier = value
       return 
 

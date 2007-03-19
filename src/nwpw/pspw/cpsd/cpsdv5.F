@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.48 2007-02-23 01:24:32 bylaska Exp $
+* $Id: cpsdv5.F,v 1.49 2007-03-19 19:05:37 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -154,6 +154,8 @@
 
       real*8   Dneall_m_value
       external Dneall_m_value
+      character*9 ion_amm
+      external    ion_amm
 
 
 *                            |************|
@@ -480,10 +482,10 @@ c         end if
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
            write(6,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0
+     >                   ion_amass(I)/1822.89d0,ion_amm(i)
            else
            write(6,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0
+     >                   ion_amass(I)/1822.89d0,ion_amm(i)
            end if
          end do
          write(6,1200) cx,cy,cz
@@ -689,10 +691,10 @@ c         end if
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
            write(6,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
-     >                   ion_amass(I)/1822.89d0
+     >                   ion_amass(I)/1822.89d0,ion_amm(i)
            else
            write(6,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
-     >                   ion_amass(I)/1822.89d0
+     >                   ion_amass(I)/1822.89d0,ion_amm(i)
            end if
          end do
          write(6,1200) cx,cy,cz
@@ -947,9 +949,9 @@ c         end if
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')
- 1190 FORMAT(5X, I4, A3, ' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
+ 1190 FORMAT(5X, I4, A3, ' (',3F11.5,' ) - atomic mass= ',F7.3,' ',A)
  1191 FORMAT(5X, I4, A3, ' (',3F11.5,
-     >       ' ) - atomic mass= ',F6.3,' - fixed')
+     >       ' ) - atomic mass= ',F6.3,' - fixed ',A)
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1219 FORMAT(/' number of electrons: spin up=',F6.2,'  down=',F6.2,A)

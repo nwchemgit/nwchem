@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-tcgmsg.F,v 1.3 2007-02-23 01:24:49 bylaska Exp $
+* $Id: Parallel-tcgmsg.F,v 1.4 2007-03-19 19:05:34 bylaska Exp $
 *
 
 * Parallel.f
@@ -105,6 +105,7 @@ c      integer mpierr
         comm_j = ga_pgroup_create(int_mb(tmp(1)),np_j)
       if (.not.MA_pop_stack(tmp(2)))
      >  call errquit('Parallel2d_init:popping stack memory',0, MA_ERR)
+
       return
       end
 

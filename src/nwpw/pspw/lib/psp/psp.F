@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.23 2007-02-23 01:24:32 bylaska Exp $
+* $Id: psp.F,v 1.24 2007-03-19 19:05:38 bylaska Exp $
 *
 
 #define TCGMSG
@@ -909,7 +909,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                      dbl_mb(sw1(1)+(l-1)*nn))
 
         end do
-        call D3dB_Vector_Sumall((nn*nproj),dbl_mb(sw1(1)))
+        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
  
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_timing.F,v 1.2 2002-02-11 19:02:41 edo Exp $
+* $Id: nwpw_timing.F,v 1.3 2007-03-19 19:05:36 bylaska Exp $
 *
 
 * nwpw_timing.F
@@ -32,7 +32,9 @@
 
 #include "nwpw_timing_common.fh"
 
+      
 	  call current_second(nwpw_tim2(counter))
+     
       times(counter) = times(counter) 
      >               + (nwpw_tim2(counter)-nwpw_tim1(counter))
       return

@@ -1,5 +1,5 @@
 *
-* $Id: v_psi_new.F,v 1.3 2003-07-31 00:19:50 bylaska Exp $
+* $Id: v_psi_new.F,v 1.4 2007-03-19 19:05:37 bylaska Exp $
 *
 
 *     ***********************************
@@ -25,14 +25,8 @@
       external     control_input_v_psi
       double precision control_unita
       external         control_unita
-      integer  control_ngrid,control_ispin
-      external control_ngrid,control_ispin
-      integer  control_multiplicity
-      external control_multiplicity
-      real*8   control_totalcharge
-      external control_totalcharge
-      real*8   ion_totalcharge
-      external ion_totalcharge
+      integer  control_ngrid
+      external control_ngrid
 
       filename = control_input_v_psi()
       version = 3

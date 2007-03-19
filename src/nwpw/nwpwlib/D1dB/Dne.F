@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.8 2007-02-23 01:24:48 bylaska Exp $
+* $Id: Dne.F,v 1.9 2007-03-19 19:05:34 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -791,7 +791,7 @@ c     ****************************************
             shift1 = 1+(ms-1)*ishift1
             shift2 = 1+(ms-1)*ishift2
 
-
+            
             call DMatrix_tredq(ne(ms),
      >                hml(shift2),dbl_mb(Q(1)),
      >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),

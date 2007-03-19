@@ -1,19 +1,17 @@
 *
-* $Id: ion.F,v 1.44 2006-12-27 19:47:52 bylaska Exp $
+* $Id: ion.F,v 1.45 2007-03-19 19:05:35 bylaska Exp $
 *
 
 *     ***************************
-*     *							*
-*     *		ion_end 			*
-*     *							*
+*     *				*
+*     *		ion_end 	*
+*     *				*
 *     ***************************
       subroutine ion_end()
       implicit none
+
 #include "errquit.fh"
-
 #include "mafdecls.fh"
-
-***** ion common block ****
 #include "ion.fh"
 
       logical value
@@ -24,6 +22,10 @@
       value = value.and.MA_free_heap(katm(2))
       value = value.and.MA_free_heap(natm(2))
       value = value.and.MA_free_heap(atom(2))
+      value = value.and.MA_free_heap(katm_qm(2))
+      value = value.and.MA_free_heap(natm_qm(2))
+      value = value.and.MA_free_heap(atom_qm(2))
+
       value = value.and.MA_free_heap(dti(2))
       if (.not. value) call errquit('ion_end:free heap ',0, MA_ERR)
 
@@ -42,8 +44,6 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
-
-*     **** ion common block ****
 #include "ion.fh"
 
       integer geom
@@ -67,7 +67,7 @@
 *     *** write out CIF file ***
       call CIF_write(rtdb)
 
-      if (control_frac_coord()) call fcoord_to_frac(nion,dbl_mb(r1(1)))     
+      if (control_frac_coord()) call fcoord_to_frac(nion,dbl_mb(r1(1)))
 
       do i=1,nion
          value = geom_cent_get(geom,i,t,rxyz,q)
@@ -94,7 +94,7 @@
       end if
       value = geom_destroy(geom)
 
-      if (control_frac_coord()) call fcoord_to_real(nion,dbl_mb(r1(1)))     
+      if (control_frac_coord()) call fcoord_to_real(nion,dbl_mb(r1(1)))
 
 *     *****************************************************
 *     **** update rtdb if md or steepest descent code  ****
@@ -107,11 +107,9 @@
 
 
 *       *****************************************
-*       **** put together ions,charges       ****
-*       ***** and molecular pseudopotentials ****
+*       **** put together ions, and charges  ****
 *       *****************************************
         call combine_pointcharge(rtdb)
-        call combine_molpsp(rtdb)
 
       else
         value = geom_rtdb_delete(rtdb,'chargepspwgeometry')
@@ -161,12 +159,12 @@
 *
       logical function ion_init(rtdb)
       implicit none 
-#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
+#include "errquit.fh"
 
 
 ***** ion common block ****
@@ -197,17 +195,17 @@
       external    control_code
       
       logical          control_frac_coord,control_init_velocities
+      logical          parseqmmm
       double precision control_ion_time_step,ion_amass
       external         control_frac_coord,control_init_velocities
       external         control_ion_time_step,ion_amass
+      external         parseqmmm
 
       call Parallel_taskid(taskid)
 
 *     *****************************************
 *     **** seperate ions and charges       ****
-*     **** from molecular pseudopotentials ****
 *     *****************************************
-      call seperate_molpsp(rtdb)
       call seperate_pointcharge(rtdb)
 
 
@@ -238,13 +236,22 @@
       call dcopy(3*nion,0.0d0,0,dbl_mb(r2(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(r1(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
+      nion_qm = 0
+      nion_mm = 0
       do i=1,nion
          value = geom_cent_get(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
          if (.not. value) call errquit('error reading ions',0, GEOM_ERR)
+         if (parseqmmm(t)) then
+            nion_mm = nion_mm + 1
+         else
+            nion_qm = nion_qm + 1
+         end if
       end do
 
 *     **** define atom list: nkatm,katm,natm,atom ****
       call set_katm_list(1,nion,ion_aname,nkatm,katm,natm,atom)
+      call set_katm_list(1,nion_qm,ion_aname,
+     >                   nkatm_qm,katm_qm,natm_qm,atom_qm)
 
       if (control_frac_coord()) then
          if (taskid.eq.MASTER) then
@@ -312,6 +319,57 @@ c         eki1=0.5d0*eki1
       return
       end
 
+*     ***************************
+*     *				*
+*     *	     ion_amm		*
+*     *				*
+*     ***************************
+      character*9 function ion_amm(i)
+      implicit none
+      integer i
+      character*9 string
+      logical  ion_aismm
+      external ion_aismm
+
+      if (ion_aismm(i)) then
+         string = "- mm atom"
+      else
+         string = "         "
+      end if
+      ion_amm = string
+      return
+      end
+
+*     ***************************
+*     *				*
+*     *	     ion_aismm		*
+*     *				*
+*     ***************************
+      logical function ion_aismm(i)
+      implicit none
+      integer i
+
+#include "stdio.fh"
+#include "geom.fh"
+#include "errquit.fh"
+
+      integer geom
+      common / ION2/ geom
+
+*     **** local variables ****
+      character*16 t
+
+*     **** external functions ****
+      logical  parseqmmm
+      external parseqmmm
+
+      if (.not. geom_cent_tag(geom,i,t))
+     >        call errquit(' ion_aismm  failed ',i, GEOM_ERR)
+
+      ion_aismm = parseqmmm(t)
+      return
+      end 
+
 
     
 
@@ -323,11 +381,11 @@ c         eki1=0.5d0*eki1
 *     ***************************
       character*2 function ion_aname(i)
       implicit none
-#include "errquit.fh"
       integer i
 
 #include "stdio.fh"
 #include "geom.fh"
+#include "errquit.fh"
 
       integer geom
       common / ION2/ geom
@@ -337,11 +395,19 @@ c         eki1=0.5d0*eki1
       character*16 t,name
       real*8 q
 
+*     **** external functions ****
+      logical  parseqmmm
+      external parseqmmm
+
       if (.not. geom_cent_tag(geom,i,t))
      >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
 
       if (.not. geom_tag_to_element(t,symbol,name,q))
      >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
+
+      if (parseqmmm(t)) then
+         symbol = symbol(1:1)//'^'
+      end if
       
       ion_aname = symbol
       return
@@ -805,9 +871,9 @@ c         eki1=0.5d0*eki1
 
 
 *     ***************************
-*     *							*
-*     *		ion_mmexist			*
-*     *							*
+*     *				*
+*     *		ion_mmexist	*
+*     *				*
 *     ***************************
       logical function ion_mmexist()
       implicit none
@@ -820,9 +886,9 @@ c         eki1=0.5d0*eki1
       end
 
 *     ***************************
-*     *							*
-*     *		ion_nionall
-*     *							*
+*     *				*
+*     *		ion_nionall     *
+*     *				*
 *     ***************************
       integer function ion_nionall()
       implicit none
@@ -836,9 +902,9 @@ c         eki1=0.5d0*eki1
 
 
 *     ***************************
-*     *							*
-*     *		ion_chargeexist		*
-*     *							*
+*     *				*
+*     *		ion_chargeexist	*
+*     *				*
 *     ***************************
       logical function ion_chargeexist()
       implicit none
@@ -851,9 +917,9 @@ c         eki1=0.5d0*eki1
       end
 
 *     ***************************
-*     *							*
-*     *		ion_nion			*
-*     *							*
+*     *				*
+*     *		ion_nion	*
+*     *				*
 *     ***************************
       integer function ion_nion()
       implicit none
@@ -864,6 +930,38 @@ c         eki1=0.5d0*eki1
       ion_nion = nion
       return
       end
+
+*     ***************************
+*     *                         *
+*     *         ion_nion_qm     *
+*     *                         *
+*     ***************************
+      integer function ion_nion_qm()
+      implicit none
+
+***** ion common block ****
+#include "ion.fh"
+
+      ion_nion_qm = nion_qm
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *         ion_nion_mm     *
+*     *                         *
+*     ***************************
+      integer function ion_nion_mm()
+      implicit none
+
+***** ion common block ****
+#include "ion.fh"
+
+      ion_nion_mm = nion_mm
+      return
+      end
+
+
 
 *     ***************************
 *     *                         *
@@ -916,10 +1014,63 @@ c         eki1=0.5d0*eki1
       end
 
 
+
 *     ***************************
-*     *							*
-*     *		ion_nkatm			*
-*     *							*
+*     *                         *
+*     *    ion_TotalCharge_qm   *
+*     *                         *
+*     ***************************
+      real*8 function ion_TotalCharge_qm()
+      implicit none
+
+*     **** local variables ****
+      integer ia
+      real*8  icharge,zv
+
+*     **** external functions ****
+      real*8   psp_zv,cpsp_zv
+      real*8   paw_basis_ion_charge,paw_basis_core_charge
+      integer  ion_natm_qm,ion_nkatm_qm,control_code
+      external psp_zv,cpsp_zv
+      external paw_basis_ion_charge,paw_basis_core_charge
+      external ion_natm_qm,ion_nkatm_qm,control_code
+
+      !**** paw code ****
+      if ((control_code().eq.6).or.
+     >    (control_code().eq.7).or.
+     >    (control_code().eq.8)) then
+         icharge = 0.0d0
+         do ia=1,ion_nkatm_qm()
+            zv = paw_basis_ion_charge(ia)
+     >         - paw_basis_core_charge(ia)
+            icharge = icharge + ion_natm_qm(ia)*zv
+         end do
+
+      !**** band structure code ****
+      else if (control_code().eq.5) then
+         icharge = 0.0d0
+         do ia=1,ion_nkatm_qm()
+            icharge = icharge + ion_natm_qm(ia)*cpsp_zv(ia)
+         end do
+
+      !**** pspw codes ****
+      else
+         icharge = 0.0d0
+         do ia=1,ion_nkatm_qm()
+            icharge = icharge + ion_natm_qm(ia)*psp_zv(ia)
+         end do
+      end if
+
+      ion_TotalCharge_qm = icharge
+      return
+      end
+
+
+
+*     ***************************
+*     *				*
+*     *		ion_nkatm	*
+*     *				*
 *     ***************************
       integer function ion_nkatm()
       implicit none
@@ -931,11 +1082,26 @@ c         eki1=0.5d0*eki1
       return
       end
 
+*     ***************************
+*     *                         *
+*     *         ion_nkatm_qm   *
+*     *                         *
+*     ***************************
+      integer function ion_nkatm_qm()
+      implicit none
+
+#include "ion.fh"
+
+      ion_nkatm_qm = nkatm_qm
+      return
+      end
+
+
 
 *     ***************************
-*     *							*
-*     *		ion_katm			*
-*     *							*
+*     *				*
+*     *		ion_katm	*
+*     *				*
 *     ***************************
 
       integer function ion_katm(i)
@@ -951,10 +1117,28 @@ c         eki1=0.5d0*eki1
       return
       end
 
+
 *     ***************************
-*     *							*
-*     *		ion_natm			*
-*     *							*
+*     *                         *
+*     *         ion_katm_qm     *
+*     *                         *
+*     ***************************
+
+      integer function ion_katm_qm(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+#include "ion.fh"
+
+      ion_katm_qm = int_mb(katm_qm(1)+i-1)
+      return
+      end
+
+*     ***************************
+*     *				*
+*     *		ion_natm	*
+*     *				*
 *     ***************************
       integer function ion_natm(i)
       implicit none
@@ -969,10 +1153,28 @@ c         eki1=0.5d0*eki1
       return
       end
 
+
 *     ***************************
-*     *							*
-*     *		ion_atom			*
-*     *							*
+*     *                         *
+*     *         ion_natm_qm     *
+*     *                         *
+*     ***************************
+      integer function ion_natm_qm(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+#include "ion.fh"
+
+      ion_natm_qm = int_mb(natm_qm(1)+i-1)
+      return
+      end
+
+
+*     ***************************
+*     *				*
+*     *		ion_atom	*
+*     *				*
 *     ***************************
       character*2 function ion_atom(i)
       implicit none
@@ -988,6 +1190,26 @@ c         eki1=0.5d0*eki1
       ion_atom = aname
       return
       end
+
+*     ***************************
+*     *                         *
+*     *         ion_atom_qm     *
+*     *                         *
+*     ***************************
+      character*2 function ion_atom_qm(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+#include "ion.fh"
+
+      character*2 aname
+
+      call pspw_copy_atom(1,byte_mb(atom_qm(1)+2*(i-1)),aname)
+      ion_atom_qm = aname
+      return
+      end
+
 
 *     ***********************************
 *     *					*
