@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize.F,v 1.22 2007-03-19 19:05:36 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.23 2007-03-21 03:31:28 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -319,16 +319,11 @@ c     call dng_2to1()
       if (pspw_qmmm_found()) then
 
 *        **** get QM/MM  energies ****
-         e_qmmm_e  = psi_1v_field()
-         e_qmmm_q   = pspw_qmmm_Energy_QMMM_Q()
          e_qmmm_lj  = pspw_qmmm_Energy_QMMM_LJ()
 
-         e_mmmm_q  = pspw_qmmm_Energy_MMMM_Q()
+         e_mmmm_q   = pspw_qmmm_Energy_MMMM_Q()
          e_mmmm_lj  = pspw_qmmm_Energy_MMMM_LJ()
 
-         e_pol   = pspw_qmmm_Energy_pol()
-         e_vib   = pspw_qmmm_Energy_vib()
-         e_cav   = pspw_qmmm_Energy_cav()
 
          E(1) = E(1) + e_qmmm_q
      >               + e_qmmm_lj

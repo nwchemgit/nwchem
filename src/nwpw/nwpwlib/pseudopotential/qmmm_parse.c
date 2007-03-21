@@ -1,5 +1,5 @@
 /*
- $Id: qmmm_parse.c,v 1.1 2007-03-19 19:05:36 bylaska Exp $
+ $Id: qmmm_parse.c,v 1.2 2007-03-21 03:31:28 bylaska Exp $
 */
 
 #include <math.h>
@@ -9,8 +9,6 @@
 #include "typesf2c.h"
 #include "get_word.h"
 
-extern double cpi_Splint();
-extern void   cpi_Spline();
 
 
 #if defined(CRAY) || defined(CRAY_T3D)
@@ -76,27 +74,23 @@ Integer	*n3;
 
 
    double   Zion;      /* local psp parameters          */
-   double over_fourpi;
 
-   int      *nl;
-   int      i,j,k,p,p1;
-   int      Ngrid,nrl;
-   double   *rgrid,*psi,*psp;
-   double       *rl, *tmp, *tmp2, *sc_rho, *sc_rhol, *sc_drho, *sc_drhol,
+   int      i,k,p,p1;
+   int      nrl;
+   double       *rl, 
                 **psil,
                 **pspl;
-   double   r,ul,vl,amesh,al,drl,r_semicore,rmax;
+   double   drl,rmax;
 
-   int      lmaxp;
-   double   dum1,dum2,dum3,dum4,r0;
-   int idum;
+   int      lmaxp,n_sigma;
+   double   rc,rc1,rc2,rr1,rr2,ttt,sss,s_sigma;
 
 
    char   *w,*tc;
    FILE   *fp;
 
    char     comment[255];
-   int      argc,value;
+   int      argc;
     
 
 
@@ -134,11 +128,10 @@ Integer	*n3;
    (void) strncpy(atom_out, atom, m3);
    atom_out[m3] = '\0';
    
-   over_fourpi = 1.0/(16.0*atan(1.0));
 
 
   /* find the comment */
-   strcpy(comment,"CPI formatted  pseudopotential");
+   strcpy(comment,"QMMM formatted  pseudopotential");
    fp = fopen(infile,"r+");
    w = get_word(fp);
    while ((w!=NIL) && (strcmp("<comment>",w)!=0))
@@ -182,184 +175,66 @@ Integer	*n3;
 
 
 
-  /* Read CPI psp */
+  /* Read QMMM psp */
    fp = fopen(infile,"r+");
    w = get_word(fp);
-   while ((w!=NIL) && (strcmp("<CPI>",w)!=0))
+   while ((w!=NIL) && (strcmp("<QMMM>",w)!=0))
       w = get_word(fp);
 
   /* Error occured */
    if (w==NIL)
    {
-      printf("Error: <CPI> section not found\n");
+      printf("Error: <QMMM> section not found\n");
       fclose(fp);
       exit(99);
    }
 
    argc = to_eoln(fp);
+
+   if (!get_string(fp,atom))  printf("NO Atom name\n");
+   if (!get_float(fp,&Zion))  printf("NO Zion\n");
+   if (!get_int(fp,&n_sigma)) printf("NO n_sigma\n");
+   if (!get_float(fp,&rc))    printf("NO rc\n");
+   fclose(fp);
    
-
-   fscanf(fp,"%lf %d",&Zion,&lmaxp);
-   lmax = lmaxp-1;
-
-   fscanf(fp,"%lf %lf %lf %lf",&dum1,&dum2,&dum3,&dum4);
-   fscanf(fp,"%lf %lf %lf ",&dum1,&dum2,&dum3);
-   fscanf(fp,"%lf %lf %lf ",&dum1,&dum2,&dum3);
-   fscanf(fp,"%lf %lf %lf ",&dum1,&dum2,&dum3);
-   fscanf(fp,"%lf %lf %lf ",&dum1,&dum2,&dum3);
-   fscanf(fp,"%lf %lf %lf ",&dum1,&dum2,&dum3);
-   fscanf(fp,"%lf %lf %lf ",&dum1,&dum2,&dum3);
-   fscanf(fp,"%lf %lf %lf ",&dum1,&dum2,&dum3);
-   fscanf(fp,"%lf %lf %lf ",&dum1,&dum2,&dum3);
-   fscanf(fp,"%lf %lf %lf ",&dum1,&dum2,&dum3);
-
-   fscanf(fp,"%d %lf",&Ngrid,&amesh);
-   al = log(amesh);
-
-   psi     = (double *) malloc(Ngrid*sizeof(double));
-   psp     = (double *) malloc(Ngrid*sizeof(double));
-   rgrid   = (double *) malloc(Ngrid*sizeof(double));
-   tmp     = (double *) malloc(Ngrid*sizeof(double));
-   tmp2    = (double *) malloc(Ngrid*sizeof(double));
-   sc_rho  = (double *) malloc(Ngrid*sizeof(double));
-   sc_drho = (double *) malloc(Ngrid*sizeof(double));
-
-   for (i=0; i<Ngrid; ++i)
-   {
-     fscanf(fp,"%d %lf %lf %lf",&j, &r,&ul,&vl);
-     rgrid[i]  = r;
-     psi[i] = ul;
-     psp[i] = vl;
-   }
-
-
-   /* check linear grid and redefine if necessary */
-   if (rmax > rgrid[Ngrid-5]) 
-   {  
-       rmax = rgrid[Ngrid-5];
-       drl = rmax/((double) (nrl-1));
-   }
-
+   lmax  = 0;
+   lmaxp = lmax+1;
 
 
    /* generate linear meshes */
    rl       = (double *) malloc(nrl*sizeof(double));
-   nl       = (int *)    malloc(nrl*sizeof(int));
    psil     = (double **) malloc(lmaxp*sizeof(double*));
    pspl     = (double **) malloc(lmaxp*sizeof(double*));
-   sc_rhol  = (double *) malloc(nrl*sizeof(double));
-   sc_drhol = (double *) malloc(nrl*sizeof(double));
 
-   r0    = rgrid[0];
-   rl[0] = rgrid[0];
+   rl[0] = 0.00004167;
    for (i=1; i<nrl; ++i)
    {
      rl[i] = drl*((double) i);
-     nl[i] = rint(log(rl[i]/r0)/al -0.5);
    }
+   
+   /* generate potential */
+   rc1 = 1.0;
+   for (i=0; i<n_sigma; ++i) rc1 *= rc;
+   rc2 = rc1*rc;
 
-
-   psil[0] = (double *) malloc(nrl*sizeof(double));
    pspl[0] = (double *) malloc(nrl*sizeof(double));
-
-   cpi_Spline(rgrid,psp,Ngrid-4,0.0,0.0,tmp,tmp2);
-   pspl[0][0] = psp[0];
-   for (i=1; i<nrl; ++i)
+   psil[0] = (double *) malloc(nrl*sizeof(double));
+   for (i=0; i<nrl; ++i)
    {
-      pspl[0][i] = cpi_Splint(rgrid,psp,tmp,Ngrid-4,nl[i],rl[i]);
+      rr1 = 1.0; for (p=0; p<n_sigma; ++p) rr1 *= rl[i];
+      rr2 = rr1*rl[i];
+      ttt = (rc1 - rr1);
+      sss = (rc2 - rr2);
+      pspl[0][i] = -Zion*(ttt/sss);
+      psil[0][i] = 0.0;
    }
-
-   cpi_Spline(rgrid,psi,Ngrid-4,0.0,0.0,tmp,tmp2);
-   psil[0][0] = psi[0];
-   for (i=1; i<nrl; ++i)
-   {
-      psil[0][i] = cpi_Splint(rgrid,psi,tmp,Ngrid-4,nl[i],rl[i]);
-   }
-
-   for (p=1; p<lmaxp; ++p)
-   {
-      fscanf(fp,"%d %lf",&idum,&dum1);
-
-      for (i=0; i<Ngrid; ++i)
-      {
-        fscanf(fp,"%d %lf %lf %lf",&j, &r,&ul,&vl);
-        rgrid[i]  = r;
-        psi[i] = ul;
-        psp[i] = vl;
-      }
-
-      psil[p] = (double *) malloc(nrl*sizeof(double));
-      pspl[p] = (double *) malloc(nrl*sizeof(double));
-
-      cpi_Spline(rgrid,psp,Ngrid-4,0.0,0.0,tmp,tmp2);
-      pspl[p][0] = psp[0];
-      for (i=1; i<nrl; ++i)
-      {
-         pspl[p][i] = cpi_Splint(rgrid,psp,tmp,Ngrid-4,nl[i],rl[i]);
-      }
-
-      cpi_Spline(rgrid,psi,Ngrid-4,0.0,0.0,tmp,tmp2);
-      psil[p][0] = psi[0];
-      for (i=1; i<nrl; ++i)
-      {
-         psil[p][i] = cpi_Splint(rgrid,psi,tmp,Ngrid-4,nl[i],rl[i]);
-      }
-
-
-   }
-
-   /* read semi-core */
-   r_semicore = 0.0;
-   value = fscanf(fp,"%lf   %lf %lf %lf", &r,&ul,&vl,&dum1);
-   if (value!=EOF) 
-   {
-     r_semicore =  99.99; /* not known?? */
-     rgrid[0]  = r; sc_rho[0] = ul; sc_drho[0] = vl;
-     for (i=1; i<Ngrid; ++i)
-      {
-        fscanf(fp,"%lf   %lf %lf %lf", &r,&ul,&vl,&dum1);
-        rgrid[i]   = r;
-        sc_rho[i]  = ul;
-        sc_drho[i] = vl;
-      }
-
-      cpi_Spline(rgrid,sc_rho,Ngrid-4,0.0,0.0,tmp,tmp2);
-      sc_rhol[0] = sc_rho[0];
-      for (i=1; i<nrl; ++i)
-      {
-         sc_rhol[i] = cpi_Splint(rgrid,sc_rho,tmp,Ngrid-4,nl[i],rl[i]);
-      }
-
-      cpi_Spline(rgrid,sc_drho,Ngrid-4,0.0,0.0,tmp,tmp2);
-      sc_drhol[0] = sc_drho[0];
-      for (i=1; i<nrl; ++i)
-      {
-         sc_drhol[i] = cpi_Splint(rgrid,sc_drho,tmp,Ngrid-4,nl[i],rl[i]);
-      }
-
-
-   }
-   free(nl);
-   free(rgrid);
-   free(psi);
-   free(psp);
-   free(tmp);
-   free(tmp2);
-   free(sc_rho);
-   free(sc_drho);
-
-
-
-   fclose(fp);
 
 
    /* write outfile */
    fp = fopen(outfile,"w+");
       fprintf(fp,"%s\n",atom_out);
       fprintf(fp,"%lf %lf %d   %d %d %lf\n",Zion,0.0,lmax,lmax_out,locp_out,rlocal_out);
-      for (p=0; p<=lmax; ++p)
-         fprintf(fp,"%lf ", -1.0);
-      fprintf(fp,"\n");
+      fprintf(fp,"%lf\n", rc);
       fprintf(fp,"%d %lf\n",nrl,drl);
       fprintf(fp,"%s\n",comment);
 
@@ -385,35 +260,17 @@ Integer	*n3;
       for (p=0; p<=lmax; ++p) free(psil[p]);
       free(psil);
       
-
-      /* append semicore corrections */
-      if (r_semicore != 0.0)
-      {
-         fprintf(fp,"%lf\n",r_semicore);
-         for (k=0; k<nrl; ++k)
-             fprintf(fp,"%12.8lf %12.8lf\n", rl[k],
-                                  fabs(sc_rhol[k]*over_fourpi));
-         for (k=0; k<nrl; ++k)
-             fprintf(fp,"%12.8lf %12.8lf\n", rl[k],
-                                  (sc_drhol[k]*over_fourpi));
-      }
-      free(sc_drhol);
-      free(sc_rhol);
-      free(rl);
-
-
    fclose(fp);
 
 
    if (debug)
    {
-      printf("CPI pseudopotential Parameters\n\n");
+      printf("QMMM pseudopotential Parameters\n\n");
       printf("atom : %s\n",atom);
       printf("Zion : %lf\n",Zion);
       printf(" lmax: %d\n",lmax);
       printf(" locp: %d\n",locp_out);
       printf(" rlocal: %lf\n\n",rlocal_out);
-      printf(" r_semicore: %lf\n",r_semicore);
 
    }
 
@@ -429,119 +286,5 @@ Integer	*n3;
 } /* main */
 
 
-
-/********************************
- *				*
- *	     cpi_Spline		*
- *				*
- ********************************/
-
-void cpi_Spline(x,y,n,yp1,ypn,y2,u)
-double 	x[],
-       	y[];
-int	n;
-double	yp1;
-double	ypn;
-double	y2[];
-double	u[];
-{
-   int	i,k;
-   double sig,qn,un,p;
-
-   if (yp1 > 0.99e30)
-   {
-      y2[0] = 0.0;
-      u[0]  = 0.0;
-   }
-   else
-   {
-      y2[0] = -0.5;
-      u[0] = 3.0/(x[1]-x[0]) * ((y[1]-y[0])/(x[1]-x[0]) - yp1);
-   }
-
-   for (i=1; i<(n-1); ++i)
-   {
-      sig = (x[i]-x[i-1])/(x[i+1] - x[i-1]);
-      p   = sig*y2[i-1] + 2.0;
-      y2[i] = (sig-1.0)/p;
-      u[i] = ( 6.0 * 
-                  ((y[i+1]-y[i])/(x[i+1]-x[i]) - (y[i]-y[i-1])/(x[i]-x[i-1]))
-                 /(x[i+1]-x[i-1]) 
-                 - sig*u[i-1]
-             ) / p;
-   }
-
-   if (ypn > 0.99e30)
-   {
-     qn = 0.0;
-     un = 0.0;
-   }
-   else
-   {
-      qn = 0.5;
-      un = 3.0/(x[n-1]-x[n-2]) * (ypn - (y[n-1]-y[n-2])/(x[n-1]-x[n-2]));
-   }
-
-   y2[n-1] = (un-qn*u[n-2])/(qn*y2[n-2] + 1.0);
-   for (k=n-2; k>=0; --k)
-      y2[k] = y2[k]*y2[k+1] + u[k];
-
-
-} /* cpi_Spline */
-
-/********************************
- *				*
- *	     cpi_Splint		*
- *				*
- ********************************/
-
-
-double	cpi_Splint(xa,ya,y2a,n,nx,x)
-double	xa[];
-double	ya[];
-double	y2a[];
-int	n;
-int	nx;
-double	x;
-{
-   int khi,klo;
-   double h,a,b;
-   double y;
-
-   khi = nx+1;
-   klo = nx;
-
-   while ( (xa[klo] > x) || ( xa[khi] < x))
-   {
-/*
-      printf("Error in Splint ");
-      printf("%d ->  %le %le %le",klo,x,xa[klo],xa[khi]);
-*/
-      if (xa[klo] > x)
-      {
-         --klo;
-         --khi;
-/*
-         printf("   <\n");
-*/
-      }
-      if (xa[khi] < x)
-      {
-         ++klo;
-         ++khi;
-/*
-         printf("   >\n");
-*/
-      }
-   }
-   h = xa[khi] - xa[klo];
-   a = (xa[khi] - x)/h;
-   b = (x - xa[klo])/h;
-   y = a*ya[klo] + b*ya[khi] 
-     + ( (a*a*a-a)*y2a[klo] + (b*b*b-b)*y2a[khi] ) * (h*h)/6.0;
-
-   return y;
-
-} /* cpi_Splint */
 
 

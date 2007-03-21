@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.23 2006-02-11 02:50:47 bylaska Exp $
+! $Id: paw_basis_data.F,v 1.24 2007-03-21 03:31:28 bylaska Exp $
 
 !**************************************************
 !
@@ -766,7 +766,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
       !*** external functions ***
       integer  paw_basis_i_rgrid,paw_basis_i_i_cut
-      external paw_basis_i_rgrid,paw_basis_i_i_cut                                                 
+      external paw_basis_i_rgrid,paw_basis_i_i_cut
 
       paw_basis_sphere_radius = dbl_mb(paw_basis_i_rgrid(ia)
      >                                 +int_mb(paw_basis_i_i_cut(ia))-1)
@@ -791,7 +791,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
       !*** external functions ***
       integer  paw_basis_i_sigma
-      external paw_basis_i_sigma                                             
+      external paw_basis_i_sigma 
 
       paw_basis_sigma = dbl_mb(paw_basis_i_sigma(ia))
       return
@@ -878,7 +878,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
       !*** external functions ***
       integer  paw_basis_i_pr_n
-      external paw_basis_i_pr_n                                                
+      external paw_basis_i_pr_n
 
       paw_basis_n = int_mb(paw_basis_i_pr_n(ia)+ii-1)
       return
@@ -901,7 +901,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
       !*** external functions ***
       integer  paw_basis_i_pr_n_ps
-      external paw_basis_i_pr_n_ps                                                
+      external paw_basis_i_pr_n_ps 
 
       paw_basis_n_ps = int_mb(paw_basis_i_pr_n_ps(ia)+ii-1)
       return
@@ -948,7 +948,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
       !*** external functions ***
       integer  paw_basis_i_eig
-      external paw_basis_i_eig                                                
+      external paw_basis_i_eig
 
       paw_basis_eig = dbl_mb(paw_basis_i_eig(ia)+ii-1)
       return

@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.12 2006-04-08 00:25:48 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.13 2007-03-21 03:31:28 bylaska Exp $
 *
 
 ***********************************************************************
@@ -235,6 +235,7 @@ c     write(*,*) "time1:",t2-t1
 c     call current_second(t1)
 c      value = MA_set_auto_verify(.true.)
       call init_paw_basis()
+      call init_paw_small_basis()
 c     call current_second(t2)
 c     write(*,*) "time2:",t2-t1
 

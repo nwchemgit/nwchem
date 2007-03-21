@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.14 2007-01-02 18:36:51 bylaska Exp $
+* $Id: kbppv3.F,v 1.15 2007-03-21 03:31:28 bylaska Exp $
 *
 
 *     **************************************
@@ -322,7 +322,10 @@ c      call Parallel_Init()
          call dwrite(2,rcore,1)
 
          call dwrite(2,dbl_mb(vl_indx),nsize)
-         call dwrite(2,dbl_mb(vnl_indx),nsize*lmmax)
+         if (nprj.gt.0) then
+            call dwrite(2,dbl_mb(vnl_indx),nsize*lmmax)
+         end if
+
          if (semicore) then
            call dwrite(2,dbl_mb(sc_k_indx),4*nsize)
          end if

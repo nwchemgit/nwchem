@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.31 2006-02-11 02:50:46 bylaska Exp $
+* $Id: paw_basis.F,v 1.32 2007-03-21 03:31:28 bylaska Exp $
 *
 
 !**************************************************
@@ -59,7 +59,7 @@ c      !*** external functions ***
       do it = 1,nt 
          call ion_atom_plus_suffix(it,'_basis',fname)
          call util_file_name_resolve(fname, .false.)
-         call read_paw_basis  ( dbl_mb(paw_basis_i_r1(it)),
+         call read_paw_basis(  dbl_mb(paw_basis_i_r1(it)),
      >                         dbl_mb(paw_basis_i_rmax(it)),
      >                         int_mb(paw_basis_i_ngrid(it)),
      >                         int_mb(paw_basis_i_nbasis(it)),
@@ -185,14 +185,15 @@ c     >             paw_basis_npoints(it)
 !**************************************************
       subroutine read_paw_basis_dims(nb,ng,filename)
       implicit none
+      integer          nb
+      integer          ng
+      character*(*)     filename
+
 #include "errquit.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-      integer          ng
-      integer          nb
-      character*(*)     filename
 
 *     !*** local variables ***
       integer     fp

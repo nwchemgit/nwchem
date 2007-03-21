@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.20 2007-03-19 19:05:38 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.21 2007-03-21 03:31:29 bylaska Exp $
 c
 
 ***********************************************************
@@ -57,18 +57,6 @@ c
 *     *************************
       if (ion_mmexist()) then
     
-*        **** model potential is the default, qmmm_type = 1 ****
-         if (.not.
-     >      rtdb_get(rtdb,'pspw:qmmm_type',mt_int,1,qmmm_type))
-     >      qmmm_type = 1
-
-         value = geom_create(geom,'qmmmgeometry')
-         value = value.and.geom_rtdb_load(rtdb,geom,'qmmmgeometry')
-         value = value.and.geom_ncent(geom,nion)
-         if (.not. value) call errquit('opening qmmgeometry',0,
-     &       GEOM_ERR)
-      else
-         nion = 0
       end if
 
 
@@ -76,41 +64,9 @@ c
 *     **** don't do anything if there are no MM atoms ****
       if (nion.gt.0) then
 
-c*        ***** Boundary condition check ****
-c         if (control_version().ne.4) then
-c          value = geom_destroy(geom)
-c          call errquit(
-c     >    'Aperiodic boundary conditions must be used with QM/MM',0)
-c         end if
 
 
-*        ***** Allocate pspw_qmmm geometries, velocities, and masses *****
-         value = MA_alloc_get(mt_dbl,(3*nion),
-     >                        'mm_r2',r2(2),r2(1))
-         value = value.and.
-     >           MA_alloc_get(mt_dbl,(3*nion),
-     >                        'mm_r1',r1(2),r1(1))
-         value = value.and.
-     >           MA_alloc_get(mt_dbl,(3*nion),
-     >                        'mm_r0',r0(2),r0(1))
-         value = value.and.
-     >           MA_alloc_get(mt_dbl,(nion),
-     >                        'mm_mass',mass(2),mass(1))
-         if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
-
-*        **** read in qmmm geometries, velocities, and masses ****
-         do i=1,nion
-             value = value.and.
-     >            geom_cent_get(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
-         end do
-         call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(r2(1)),1)
-
-         call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
-         value = value.and.geom_vel_get(geom,dbl_mb(r0(1)))
-         value = value.and.geom_masses_get(geom,nion,dbl_mb(mass(1)))
-         if (.not. value) call errquit('error reading qmmmgeometry', 0,
-     &       GEOM_ERR)
 
 *        **** read in fragment list ****
          if (rtdb_ma_get(rtdb, 'pspw:qmmm_frag', ma_type,
@@ -185,16 +141,9 @@ c         end if
         if (.not.value) call errquit('cannot free heap memory',0,
      &       MA_ERR)
 
-*       **** set katm_list: nkatm, katm, natm, atom ****
-        call set_katm_list(2,nion,pspw_qmmm_aname,
-     >                     nkatm,katm,natm,atom)
-
 
 *       ***** initialize Model, LJ, Pol, VIB, and CAV ****
         call pspw_LJ_init(rtdb)
-        call pspw_Q_init(rtdb)
-        if (qmmm_type.eq.1) call Model_Potential_init(rtdb)
-        if (qmmm_type.eq.2) call Switching_Charge_init(rtdb)
       end if
 
       return
@@ -1016,9 +965,7 @@ c     >                                   n2ft3d,rgrid,Vqm)
 #include "pspw_qmmm.fh"
 
 *     **** external functions ****
-      real*8   pspw_Q_Energy_IonMM
-      external pspw_Q_Energy_IonMM
-
+*     **** local variables *****
 
       pspw_qmmm_Energy_QMMM_Q = pspw_Q_Energy_IonMM()
       return
