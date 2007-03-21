@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.93 2007-02-14 21:58:12 bert Exp $ 
+% $Id: dft.tex,v 1.94 2007-03-21 19:01:07 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -539,13 +539,13 @@ meta-GGA calculations.
 
 It is possible to calculate metaGGA energies both ways
 in NWChem, that is, self-consistently or with
-GGA/LDA orbitals and densities.  However, second derivatives
-are not available for metaGGAs so in order to
-calculate geometries, one must use
-\verb+ task dft optimize numerical+.
+GGA/LDA orbitals and densities.  However, since second derivatives
+are not available for metaGGAs, in order to
+calculate frequencies, one must use
+\verb+ task dft freq numerical+.
 A sample file with this is shown below,
 in \ref{sec:DFTsample}.  In this instance, the
-energy is calculated self-consistently.
+energy is calculated self-consistently and geometry is optimized using the analytical gradients.
 
 
 (For more information on metaGGAs,  see
@@ -594,8 +594,8 @@ A simple example  calculates the geometry
 This also highlights some of
 the print features in the DFT module.  Note
 that you must use the line
-\verb+task dft optimize numerical+ because
-analytic gradients are not available for the metaGGAs:
+\verb+task dft freq numerical+ because
+analytic hessians are not available for the metaGGAs:
 \begin{verbatim}
 title "WATER 6-311G* meta-GGA XC geometry"
 echo
@@ -614,7 +614,9 @@ dft
  xc xtpss03 ctpss03
  decomp
 end
-task dft optimize numerical
+task dft optimize
+
+task dft freq numerical
 \end{verbatim}
 
 
@@ -994,8 +996,8 @@ the constaint will be applied. Therefore the atoms in the same group should be p
 continuously in the geometry input. If fatom2 and latom2 are specified, the difference between
 group 1 and 2 (i.e. 1-2) is constrained. 
 
-The constraint can be either on the charge or the spin density (# of alpha - beta electrons) with
-a user specified constaint_value.  Note: No gradients have been implemented for the spin constaints 
+The constraint can be either on the charge or the spin density (\# of alpha - beta electrons) with
+a user specified constaint\_value.  Note: No gradients have been implemented for the spin constaints 
 case. Geometry optimizations can only be performed using the charge constaint.
 
 To calculate the charge or spin density, the Becke, Mulliken, and Lowdin population schemes can be 
