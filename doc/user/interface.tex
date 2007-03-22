@@ -1,4 +1,4 @@
-% $Id: interface.tex,v 1.15 2004-10-29 21:35:21 edo Exp $
+% $Id: interface.tex,v 1.16 2007-03-22 22:18:57 windus Exp $
 \label{sec:interface}
 
 NWChem has interfaces to several different packages which are listed below.
@@ -377,9 +377,9 @@ scf
 end
 
 dirdyvtst autosym 0.001
-  theory scf input "scf; uhf; doublet; thresh 1.0e-06; end"
+  theory scf input "scf\; uhf\; doublet\; thresh 1.0e-06\; end"
   sptheory mp2 basis singlepoint input \
-    "scf; uhf; doublet; thresh 1.0e-07; end"
+    "scf\; uhf\; doublet\; thresh 1.0e-07\; end"
 *GENERAL
   TITLE
     Test run: H+H2 reaction, Page-McIver CLQA algorithm, no restart
