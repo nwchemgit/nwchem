@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.45 2007-03-19 19:05:35 bylaska Exp $
+* $Id: ion.F,v 1.46 2007-03-22 20:46:19 bylaska Exp $
 *
 
 *     ***************************
@@ -27,6 +27,7 @@
       value = value.and.MA_free_heap(atom_qm(2))
 
       value = value.and.MA_free_heap(dti(2))
+      value = value.and.MA_free_heap(amass(2))
       if (.not. value) call errquit('ion_end:free heap ',0, MA_ERR)
 
       return
@@ -196,9 +197,9 @@
       
       logical          control_frac_coord,control_init_velocities
       logical          parseqmmm
-      double precision control_ion_time_step,ion_amass
+      double precision control_ion_time_step,ion_amass_geom
       external         control_frac_coord,control_init_velocities
-      external         control_ion_time_step,ion_amass
+      external         control_ion_time_step,ion_amass_geom
       external         parseqmmm
 
       call Parallel_taskid(taskid)
@@ -231,6 +232,8 @@
      >        MA_alloc_get(mt_dbl,(3*nion),'r0',r0(2),r0(1))
       value = value.and.
      >       MA_alloc_get(mt_dbl,(nion),'dti',dti(2),dti(1))
+      value = value.and.
+     >       MA_alloc_get(mt_dbl,(nion),'amass',amass(2),amass(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       call dcopy(3*nion,0.0d0,0,dbl_mb(r2(1)),1)
@@ -269,7 +272,8 @@
 *     **** define dti ****
       dt = control_ion_time_step()
       do i=1,nion
-         dbl_mb(dti(1)+i-1) = dt*dt/(ion_amass(i))
+         dbl_mb(dti(1)  +i-1) = dt*dt/(ion_amass_geom(i))
+         dbl_mb(amass(1)+i-1) = ion_amass_geom(i)
       end do
 
 c     value = geom_destroy(geom)
@@ -415,10 +419,10 @@ c         eki1=0.5d0*eki1
 
 *     ***************************
 *     *				*
-*     *	     ion_amass		*
+*     *	     ion_amass_geom	*
 *     *				*
 *     ***************************
-      real*8 function ion_amass(i)
+      real*8 function ion_amass_geom(i)
       implicit none
       integer i
 
@@ -436,9 +440,45 @@ c         eki1=0.5d0*eki1
       if(.not.geom_mass_get(geom,i,mass))
      >  call errquit(' geom_mass_get  failed ',i, GEOM_ERR)
 
-      ion_amass = mass*1822.89d0
+      ion_amass_geom = mass*1822.89d0
       return
       end
+
+
+*     ***************************
+*     *                         *
+*     *      ion_amass          *
+*     *                         *
+*     ***************************
+      real*8 function ion_amass(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ion.fh"
+
+      ion_amass = dbl_mb(amass(1)+i-1)
+      return
+      end
+
+
+*     ***************************
+*     *                         *
+*     *      ion_amass_ptr      *
+*     *                         *
+*     ***************************
+      integer function ion_amass_ptr()
+      implicit none
+      integer i
+
+#include "ion.fh"
+
+      ion_amass_ptr = amass(1)
+      return
+      end
+
+
 
 *     ***************************
 *     *				*
@@ -528,11 +568,11 @@ c         eki1=0.5d0*eki1
 *     ***********************
       real*8 function ion_q(i)
       implicit none
-#include "errquit.fh"
       integer i
 
 #include "stdio.fh"
 #include "geom.fh"
+#include "errquit.fh"
 
 
       integer geom
@@ -1120,6 +1160,23 @@ c         eki1=0.5d0*eki1
 
 *     ***************************
 *     *                         *
+*     *         ion_katm_ptr    *
+*     *                         *
+*     ***************************
+
+      integer function ion_katm_ptr()
+      implicit none
+
+#include "mafdecls.fh"
+#include "ion.fh"
+
+      ion_katm_ptr = katm(1)
+      return
+      end
+
+
+*     ***************************
+*     *                         *
 *     *         ion_katm_qm     *
 *     *                         *
 *     ***************************
@@ -1281,6 +1338,24 @@ c         eki1=0.5d0*eki1
       ion_rion = dbl_mb(r1(1)+(i-1) + (j-1)*3)
       return
       end
+
+
+*     ***************************
+*     *                         *
+*     *         ion_rion_ptr    *
+*     *                         *
+*     ***************************
+
+      integer function ion_rion_ptr()
+      implicit none
+
+#include "mafdecls.fh"
+#include "ion.fh"
+
+      ion_rion_ptr = r1(1)
+      return
+      end
+
 
 *     ***************************
 *     *				*

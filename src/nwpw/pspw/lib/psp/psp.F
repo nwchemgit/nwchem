@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.24 2007-03-19 19:05:38 bylaska Exp $
+* $Id: psp.F,v 1.25 2007-03-22 20:46:22 bylaska Exp $
 *
 
 #define TCGMSG
@@ -192,6 +192,21 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
 
 
       psp_zv = dbl_mb(zv(1)+ia-1)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *            psp_zv_ptr           *
+*     *                                 *
+*     ***********************************
+      integer function psp_zv_ptr()
+      implicit none
+
+#include "psp.fh"
+
+      psp_zv_ptr = zv(1)
       return
       end
 

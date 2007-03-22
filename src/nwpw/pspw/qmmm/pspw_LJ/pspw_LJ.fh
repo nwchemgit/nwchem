@@ -1,12 +1,9 @@
 c
-c $Id: pspw_LJ.fh,v 1.4 2001-11-01 16:37:12 bylaska Exp $
+c $Id: pspw_LJ.fh,v 1.5 2007-03-22 20:46:23 bylaska Exp $
 c
 
 *     ***** pspw_LJ common block ************************************
-      integer sigma_mm(2),epsilon_mm(2)
-      integer sigma_ion(2),epsilon_ion(2)
-      common / pspw_LJ /   sigma_mm,		! MM  LJ parameters
-     >                     epsilon_mm,		! MM  LJ parameters
-     >                     sigma_ion,		! Ion LJ parameters
-     >                     epsilon_ion		! Ion LJ parameters
+      integer sigma_all(2),epsilon_all(2)
+      common / pspw_LJ /   sigma_all,		! LJ parameters
+     >                     epsilon_all		! LJ parameters
 *     ******************************************************************

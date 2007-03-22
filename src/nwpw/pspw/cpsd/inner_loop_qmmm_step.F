@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_qmmm_step.F,v 1.1 2005-08-12 23:08:43 bylaska Exp $
+* $Id: inner_loop_qmmm_step.F,v 1.2 2007-03-22 20:46:21 bylaska Exp $
 *
   
       subroutine inner_loop_qmmm_step(verlet,
@@ -47,7 +47,7 @@
       real*8  sum,Eold,eorbit,eion,ehartr,eke,eki,sse,ssr
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,fmass,h
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
-      real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
+c      real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
 
 *     **** MA local variables ****
@@ -79,8 +79,8 @@
       external Nose_e_energy,Nose_r_energy,Nose_sse,Nose_ssr
 
 *     ***** QM/MM external functions ****
-      real*8   pspw_charge_Energy_ion_qmmm
-      external pspw_charge_Energy_ion_qmmm
+c      real*8   pspw_charge_Energy_ion_qmmm
+c      external pspw_charge_Energy_ion_qmmm
       logical  dplot_iteration_check
       external dplot_iteration_check
 
@@ -324,11 +324,11 @@
 
 
 *          **** generate charge potential ****
-          call pspw_charge_Generate_V_qmmm(rcharge,qcharge,ncharge,
-     >                               n2ft3d,
-     >                               dbl_mb(r_grid(1)),
-     >                               dbl_mb(v_field(1)))
-
+c          call pspw_charge_Generate_V_qmmm(rcharge,qcharge,ncharge,
+c     >                               n2ft3d,
+c     >                               dbl_mb(r_grid(1)),
+c     >                               dbl_mb(v_field(1)))
+c
         end if
 
 
@@ -370,14 +370,14 @@
 *       **** get qmmm  forces ****
 *       **************************
 
-        call pspw_charge_rho_Fcharge_qmmm(rcharge,qcharge,ncharge,
-     >                                    n2ft3d,
-     >                                    dbl_mb(r_grid(1)),
-     >                                    dbl_mb(rho(1)),
-     >                                    dv,
-     >                                    fcharge)
-        call pspw_charge_Fion_Fcharge_qmmm(rcharge,qcharge,ncharge,
-     >                                         fion,fcharge)
+c        call pspw_charge_rho_Fcharge_qmmm(rcharge,qcharge,ncharge,
+c     >                                    n2ft3d,
+c     >                                    dbl_mb(r_grid(1)),
+c     >                                    dbl_mb(rho(1)),
+c     >                                    dv,
+c     >                                    fcharge)
+c        call pspw_charge_Fion_Fcharge_qmmm(rcharge,qcharge,ncharge,
+c     >                                         fion,fcharge)
 
 
 *       *****************************************
@@ -587,12 +587,12 @@
       if (ispin.eq.1) eke = 2.0d0*eke
 
  
-      e_ionmm = pspw_charge_Energy_ion_qmmm(rcharge,qcharge,ncharge)
+c      e_ionmm = pspw_charge_Energy_ion_qmmm(rcharge,qcharge,ncharge)
 
 
 *     **** total energy ****
       Eold=E(1)
-      E(2) = eorbit + eion + exc - ehartr - pxc + e_ionmm
+      E(2) = eorbit + eion + exc - ehartr - pxc 
       E(3) = eke
       E(4) = 0.0d0
       E(5) = eorbit

@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.49 2007-03-19 19:05:37 bylaska Exp $
+* $Id: cpsdv5.F,v 1.50 2007-03-22 20:46:21 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -131,13 +131,13 @@
       character*12 control_boundry
       external     control_boundry
 
-      logical      pspw_SIC,pspw_SIC_relaxed
+      logical      pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
       logical      pspw_HFX,pspw_HFX_relaxed
-      logical      psp_semicore,control_Mulliken,pspw_qmmm_found
+      logical      psp_semicore,control_Mulliken
       real*8       psp_rcore,psp_ncore,psp_rlocal
-      external     pspw_SIC,pspw_SIC_relaxed
+      external     pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
       external     pspw_HFX,pspw_HFX_relaxed
-      external     psp_semicore,control_Mulliken,pspw_qmmm_found
+      external     psp_semicore,control_Mulliken
       external     psp_rcore,psp_ncore,psp_rlocal
       logical      control_check_charge_multiplicity
       external     control_check_charge_multiplicity
@@ -491,7 +491,6 @@ c         end if
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
-         call pspw_qmmm_Print(6)
 
          if (fractional) then
            write(6,1219) en(1),en(ispin),' (   fractional)'
@@ -700,7 +699,6 @@ c         end if
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
-         call pspw_qmmm_Print(6)
 
          write(6,*)
          write(6,1320) en(1),en(ispin),' (real space)'
@@ -709,8 +707,8 @@ c         end if
          if (pspw_qmmm_found()) then
             write(6,1431) 
             write(6,1432) 
-            write(6,1433) (E(1)-E(11)-E(12)-E(13)-E(14)-E(15)),
-     >         (E(1)-E(11)-E(12)-E(13)-E(14)-E(15))/ion_nion()
+            write(6,1433) (E(1)-E(11)),
+     >                    (E(1)-E(11))/ion_nion()
          end if
          write(6,1440) E(2),E(2)/n2(ispin)
          write(6,1450) E(3),E(3)/n2(ispin)
@@ -739,15 +737,21 @@ c         end if
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(6,1498) virial
  
-         if (pspw_qmmm_found()) then
-            write(6,1700) 
-            write(6,1701) 
-            write(6,1702) E(11) 
+      if (pspw_qmmm_found()) then
+            write(6,1700)
+            write(6,1701)
+            write(6,1702) E(11)
             write(6,1703) E(12)
-            write(6,1704) E(13)
-            write(6,1705) E(14)
-            write(6,1706) E(15)
-         end if
+c
+c            write(luout,1703) E(14)+E(15)
+c            write(luout,1710) E(14)
+c            write (luout,1711) E(15)
+c
+c            write(luout,1704) E(16)
+c            write(luout,1705) E(17)
+c            write(luout,1706) E(18)
+        end if
+
 
 *        **** write out diagonal <psi|H|psi> matrix ****
          if (pspw_SIC()) then
@@ -832,7 +836,6 @@ c         end if
       call psi_write(ispin,ne,dcpl_mb(psi2(1)))
  
 *     **** write geometry to rtdb ****
-      call pspw_qmmm_write(rtdb)
       call ion_write(rtdb)
 
 

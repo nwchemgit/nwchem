@@ -6,7 +6,7 @@
 *     ***************************
       subroutine xyz_init()
 *
-* $Id: xyz.F,v 1.8 2004-12-31 00:46:13 edo Exp $
+* $Id: xyz.F,v 1.9 2007-03-22 20:46:20 bylaska Exp $
 *
       implicit none 
 
@@ -93,10 +93,10 @@
 
 *     **** external functions ***
       character*2 ion_aname
-      integer     ion_nion, pspw_qmmm_nion
+      integer     ion_nion
       real*8      ion_rion, ion_vion
       external    ion_aname
-      external    ion_nion, pspw_qmmm_nion
+      external    ion_nion
       external    ion_rion, ion_vion
       integer ierr
 
@@ -104,10 +104,10 @@
     
       if (taskid.eq.MASTER) then
 #if defined(PSCALE) || defined(__crayx1)
-       write(18,110,IOSTAT=ierr) (ion_nion()+pspw_qmmm_nion())
+       write(18,110,IOSTAT=ierr) ion_nion()
        if(ierr.ne.0)  backspace 18
 #else
-       write(18,110) (ion_nion()+pspw_qmmm_nion())
+       write(18,110) ion_nion()
 #endif
          do i=1,ion_nion()
             write(18,111) ion_aname(i),
@@ -118,7 +118,6 @@
      >                  ion_vion(2,i)*AACONV,
      >                  ion_vion(3,i)*AACONV
          end do
-         call pspw_qmmm_PrintXYZ(18)
          call util_flush(18)
       end if
   110 format(I5/)

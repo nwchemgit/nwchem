@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.77 2007-03-19 19:05:36 bylaska Exp $
+* $Id: cgsdv5.F,v 1.78 2007-03-22 20:46:21 bylaska Exp $
 *
 
 ***********************************************************************
@@ -112,9 +112,9 @@
       external     psp_semicore
       external     psp_rcore,psp_ncore,psp_rlocal
 
-      logical  psi_initialize, psi_finalize, pspw_qmmm_found
+      logical  psi_initialize, psi_finalize
       integer  psi_ispin,psi_ne,psi_neq,electron_count,linesearch_count
-      external psi_initialize, psi_finalize, pspw_qmmm_found
+      external psi_initialize, psi_finalize
       external psi_ispin,psi_ne,psi_neq,electron_count,linesearch_count
       real*8   cgsd_energy,cgsd_noit_energy
       external cgsd_energy,cgsd_noit_energy
@@ -132,8 +132,8 @@
       external control_ks_algorithm
       real*8   control_ks_alpha
       external control_ks_alpha
-      logical  control_print,control_qmmm,control_balance
-      external control_print,control_qmmm,control_balance
+      logical  control_print,control_balance
+      external control_print,control_balance
       integer  control_mapping,control_mapping1d,control_np_orbital
       external control_mapping,control_mapping1d,control_np_orbital
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
@@ -204,7 +204,6 @@
       nwave = 0
       minimizer = control_minimizer()
       mapping   = control_mapping()
-      qmmm      = control_qmmm()
 
 
 *     **** initialize D3dB data structure ****
@@ -315,7 +314,7 @@ c     value = psi_initialize()
          write(luout,1121) control_boundry(),control_version()
          if (psi_ispin().eq.1) write(luout,1130) "restricted"
          if (psi_ispin().eq.2) write(luout,1130) "unrestricted"
-         if (qmmm) write(luout,1122)
+         !if (qmmm) write(luout,1122)
          IF (control_gga().eq.-1) THEN
             write(luout,1131) 'off'
          ELSE IF (control_gga().eq.0) THEN
@@ -397,7 +396,6 @@ c     value = psi_initialize()
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
 
-         call pspw_qmmm_Print(luout)
          call pspw_charge_Print(luout)
          end if
 
@@ -580,7 +578,6 @@ c     end if
 
 *     **** write geometry to rtdb ****
       call pspw_charge_write(rtdb)
-      call pspw_qmmm_write(rtdb)
       call ion_write(rtdb)
 
 

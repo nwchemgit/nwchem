@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.48 2007-02-23 01:24:32 bylaska Exp $
+* $Id: electron.F,v 1.49 2007-03-22 20:46:22 bylaska Exp $
 *
 
 
@@ -1952,9 +1952,9 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       integer r_grid(2)
 
 *     **** external functions *****
-      logical  pspw_qmmm_found,pspw_charge_found
+      logical  pspw_charge_found
       integer  control_version
-      external pspw_qmmm_found,pspw_charge_found
+      external pspw_charge_found
       external control_version
 
       value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
@@ -1980,7 +1980,6 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
 *     **** generate real-space fields ****
       if ((control_version().eq.4).or.
-     >    (pspw_qmmm_found()).or.
      >    (pspw_charge_found()))    then
 
          value = MA_push_get(mt_dbl,(6*nfft3d),'r_grid',
@@ -1997,14 +1996,6 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 *        **** zero out v_field ****
          call dcopy(2*nfft3d,0.0d0,0,dbl_mb(v_field(1)),1)
 
-
-*        **** generate QM/MM potential ****
-         if (pspw_qmmm_found()) then
-           field_exist = .true.
-           n2ft3d = 2*nfft3d
-           call pspw_qmmm_Generate_V(n2ft3d,dbl_mb(r_grid(1)),
-     >                                     dbl_mb(v_field(1)))
-         end if
 
 *        **** generate charge potential ****
          if (pspw_charge_found()) then

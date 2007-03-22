@@ -1,5 +1,5 @@
 *
-* $Id: cgmdv5.F,v 1.3 2007-01-02 18:36:51 bylaska Exp $
+* $Id: cgmdv5.F,v 1.4 2007-03-22 20:46:20 bylaska Exp $
 *
 
 ***********************************************************************
@@ -105,11 +105,11 @@
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      integer  pspw_qmmm_nion,pspw_charge_nion
+      integer  pspw_charge_nion
       external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      external pspw_qmmm_nion,pspw_charge_nion
+      external pspw_charge_nion
 
       character*12 control_boundry
       external     control_boundry
@@ -121,9 +121,9 @@
       external     psp_semicore
       external     psp_rcore,psp_ncore,psp_rlocal
 
-      logical  psi_initialize, psi_finalize, pspw_qmmm_found
+      logical  psi_initialize, psi_finalize
       integer  psi_ispin,psi_ne,electron_count,linesearch_count
-      external psi_initialize, psi_finalize, pspw_qmmm_found
+      external psi_initialize, psi_finalize
       external psi_ispin,psi_ne,electron_count,linesearch_count
       real*8   cgsd_energy,cgsd_noit_energy
       external cgsd_energy,cgsd_noit_energy
@@ -141,8 +141,8 @@
       external control_ks_algorithm
       real*8   control_ks_alpha
       external control_ks_alpha
-      logical  control_print,control_qmmm,control_balance
-      external control_print,control_qmmm,control_balance
+      logical  control_print,control_balance
+      external control_print,control_balance
       integer  control_mapping
       external control_mapping
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
@@ -210,7 +210,7 @@
       nwave = 0
       minimizer = control_minimizer()
       mapping   = control_mapping()
-      qmmm      = control_qmmm()
+      !qmmm      = control_qmmm()
 
 
 *     **** initialize D3dB data structure ****
@@ -346,7 +346,7 @@ c      end if
          write(6,1121) control_boundry(),control_version()
          if (psi_ispin().eq.1) write(6,1130) "restricted"
          if (psi_ispin().eq.2) write(6,1130) "unrestricted"
-         if (qmmm) write(6,1122)
+         !if (qmmm) write(6,1122)
          IF (control_gga().eq.-1) THEN
             write(6,1131) 'off'
          ELSE IF (control_gga().eq.0) THEN
@@ -428,7 +428,6 @@ c      end if
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
-         call pspw_qmmm_Print(6)
          call pspw_charge_Print(6)
 
          write(6,1181)
@@ -437,7 +436,6 @@ c      end if
          write(6,1200) vcx,vcy,vcz
          write(6,1210) vgx,vgy,vgz
 
-         call pspw_qmmm_Print2(6)
          !end if
 
          !write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
@@ -576,7 +574,6 @@ c      end if
       nion = ion_nion()
       if (pspw_charge_found().and.
      >    (.not.pspw_bqext())) nion = nion + pspw_charge_nion()
-      if (pspw_qmmm_found())   nion = nion + pspw_qmmm_nion()
 
       value = MA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
@@ -771,7 +768,6 @@ c      call control_up_print()
 
 *     **** write geometry to rtdb ****
       call pspw_charge_write(rtdb)
-      call pspw_qmmm_write(rtdb)
       call ion_write(rtdb)
 
 

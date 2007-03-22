@@ -1,6 +1,12 @@
 *
-* $Id: paw_cpmd.F,v 1.22 2006-08-13 01:03:26 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.23 2007-03-22 20:46:20 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.22  2006/08/13 01:03:26  bylaska
+* Checking in code not include in 5.0 release.
+* A chain algorithm was added to Nose-Hoover thermostats.
+* Preliminary implementation of a processor group decomposition added to pspw, i.e. parallel decomposition is over fft grid and electrons.
+* ...EJB
+*
 * Revision 1.20  2006/02/11 02:50:46  bylaska
 * GGA's using 1st derivative formulas have been added in core part of PAW....EJB
 *
@@ -211,11 +217,9 @@
       real*8   control_rti,control_rte
       real*8   ion_vion,ion_com_ke,ion_ke
       real*8   ion_Temperature,ion_com_Temperature
-      real*8   pspw_qmmm_Temperature
       external control_rti,control_rte
       external ion_vion,ion_com_ke,ion_ke
       external ion_Temperature,ion_com_Temperature
-      external pspw_qmmm_Temperature
 
       real*8   control_tole,control_tolc,control_tolr,ion_rion
       external control_tole,control_tolc,control_tolr,ion_rion
@@ -228,12 +232,10 @@
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,control_lmax_multipole
       integer  ion_nion,ion_natm,ion_katm,ion_nkatm
-      integer  pspw_qmmm_nion
       external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,control_lmax_multipole
       external ion_nion,ion_natm,ion_katm,ion_nkatm
-      external pspw_qmmm_nion
 
       character*12 control_boundry
       external     control_boundry
@@ -245,8 +247,8 @@
       real*8       nwpw_timing,paw_psi_CheckOrtho
       external     nwpw_timing,paw_psi_CheckOrtho
 
-      logical  control_Nose,pspw_qmmm_found
-      external control_Nose,pspw_qmmm_found
+      logical  control_Nose
+      external control_Nose
 
       integer  Nose_Mchain,Nose_Nchain
       external Nose_Mchain,Nose_Nchain
@@ -559,7 +561,7 @@ c      call init_paw_density(ispin,lmax)
 
 
 *     **** initialize QM/MM ****
-      call pspw_qmmm_init(rtdb)
+c      call pspw_qmmm_init(rtdb)
 
 *     **** initialize dplot ****
       call dplot_iteration_init()
@@ -645,7 +647,6 @@ c      call init_paw_density(ispin,lmax)
          write(6,1210) gx,gy,gz
 
 
-         call pspw_qmmm_Print(6)
 
          write(6,1181)
          write(6,1192) (I,ion_aname(I),
@@ -653,7 +654,6 @@ c      call init_paw_density(ispin,lmax)
          write(6,1200) vcx,vcy,vcz
          write(6,1210) vgx,vgy,vgz
 
-         call pspw_qmmm_Print2(6)
 
 
 
@@ -1111,7 +1111,6 @@ c    >              dbl_mb(lmd(1)),ierr)
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
-         call pspw_qmmm_Print(6)
 
          write(6,1421)
          write(6,1192) (I,ion_aname(I),
@@ -1119,7 +1118,6 @@ c    >              dbl_mb(lmd(1)),ierr)
          write(6,1200) vcx,vcy,vcz
          write(6,1210) vgx,vgy,vgz
 
-         call pspw_qmmm_Print2(6)
 
 
          write(6,*)
@@ -1136,15 +1134,15 @@ c    >              dbl_mb(lmd(1)),ierr)
          write(6,1472) ion_ke(),ion_ke()/ion_nion()
 
 
-         if (pspw_qmmm_found()) then
-            write(6,1700)
-            write(6,1701)
-            write(6,1702) E(11)
-            write(6,1703) E(12)
-            write(6,1704) E(13)
-            write(6,1705) E(14)
-            write(6,1706) E(15)
-         end if
+c         if (pspw_qmmm_found()) then
+c            write(6,1700)
+c            write(6,1701)
+c            write(6,1702) E(11)
+c            write(6,1703) E(12)
+c            write(6,1704) E(13)
+c            write(6,1705) E(14)
+c            write(6,1706) E(15)
+c         end if
 
 
          if (control_Nose()) then
@@ -1159,12 +1157,6 @@ c    >              dbl_mb(lmd(1)),ierr)
 *       **** write out Temperatures ****
          write(6,1491) eke
          eki0 = ion_Temperature()
-         if (pspw_qmmm_found()) then
-            eki1 =pspw_qmmm_Temperature()
-            sum = ion_nion() + pspw_qmmm_nion() - 2.0d0
-            eki0 = eki0*((ion_nion()-2.0d0)/sum)
-     >           + eki1*((pspw_qmmm_nion()-2.0d0)/sum)
-         end if
          write(6,1480) eki0
          write(6,1490) ion_com_Temperature()
 
@@ -1213,7 +1205,6 @@ c    >              dbl_mb(lmd(1)),ierr)
 
 
 !*     **** write geometry to rtdb ****
-       call pspw_qmmm_write(rtdb)
        call ion_write(rtdb)
 
 

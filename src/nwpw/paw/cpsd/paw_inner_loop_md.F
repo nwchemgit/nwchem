@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.11 2006-02-11 02:50:46 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.12 2007-03-22 20:46:20 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.11  2006/02/11 02:50:46  bylaska
+* GGA's using 1st derivative formulas have been added in core part of PAW....EJB
+*
 * Revision 1.10  2005/02/09 02:38:57  bylaska
 * ..............EJB
 *
@@ -158,24 +161,6 @@
       external Nose_e_energy,Nose_r_energy,Nose_sse,Nose_ssr
 
 *     ***** QM/MM external functions ****
-      logical  pspw_qmmm_found,pspw_charge_found
-      real*8   pspw_qmmm_ke
-      real*8   pspw_qmmm_Energy_QMMM_Q
-      real*8   pspw_qmmm_Energy_QMMM_LJ
-      real*8   pspw_qmmm_Energy_MMMM_Q
-      real*8   pspw_qmmm_Energy_MMMM_LJ
-      real*8   pspw_qmmm_Energy_pol
-      real*8   pspw_qmmm_Energy_vib
-      real*8   pspw_qmmm_Energy_cav
-      external pspw_qmmm_found,pspw_charge_found
-      external pspw_qmmm_ke
-      external pspw_qmmm_Energy_QMMM_Q
-      external pspw_qmmm_Energy_QMMM_LJ
-      external pspw_qmmm_Energy_MMMM_Q
-      external pspw_qmmm_Energy_MMMM_LJ
-      external pspw_qmmm_Energy_pol
-      external pspw_qmmm_Energy_vib
-      external pspw_qmmm_Energy_cav
       logical  dplot_iteration_check
       external dplot_iteration_check
 
@@ -188,7 +173,7 @@
       deltamm = 0.0d0
       gga = control_gga()
 
-      field_exist = pspw_qmmm_found().or.pspw_charge_found()
+      !field_exist = pspw_charge_found()
 c      allow_translation = control_allow_translation()
 
 
@@ -292,7 +277,6 @@ c      allow_translation = control_allow_translation()
 *       *** skip ion_shift if newton step ***
         if (verlet) call ion_shift()
         if (nose)   call Nose_Shift()
-        if ((verlet).and.(pspw_qmmm_found())) call pspw_qmmm_shift()
 
 
 *       ********************************

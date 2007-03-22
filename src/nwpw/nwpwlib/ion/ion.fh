@@ -3,11 +3,12 @@
       logical     sym_inversion
       integer     nion_mm,nion_qm
       integer     nion,nkatm,nkatm_qm
-      integer     r2(2),r1(2),r0(2)
+      integer     r2(2),r1(2),r0(2),amass(2)
       integer     katm(2),natm(2),atom(2)
       integer     katm_qm(2),natm_qm(2),atom_qm(2)
       integer     dti(2)
       common / ION / r2,r1,r0,  ! ion positions and velocities
+     >              amass,      ! atomic masses
      >              katm,       ! katm list, integer katm(nion)
      >              katm_qm,   ! katm list, integer katm(nion)
      >              natm,		! natm list, integer natm(nkatm)

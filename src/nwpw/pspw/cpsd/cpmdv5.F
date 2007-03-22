@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.56 2007-02-23 01:24:32 bylaska Exp $
+* $Id: cpmdv5.F,v 1.57 2007-03-22 20:46:21 bylaska Exp $
 *
 
 ***********************************************************************
@@ -119,11 +119,9 @@ c      parameter (autoatm =290.360032539d6)
       real*8   control_rti,control_rte,ion_rion
       real*8   ion_vion,ion_com_ke,ion_ke
       real*8   ion_Temperature,ion_com_Temperature
-      real*8   pspw_qmmm_Temperature
       external control_rti,control_rte,ion_rion
       external ion_vion,ion_com_ke,ion_ke
       external ion_Temperature,ion_com_Temperature
-      external pspw_qmmm_Temperature
       real*8   control_time_step,control_fake_mass
       external control_time_step,control_fake_mass
       logical  control_read,control_move,ion_init,ion_q_FixIon
@@ -132,11 +130,9 @@ c      parameter (autoatm =290.360032539d6)
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      integer  pspw_qmmm_nion
       external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      external pspw_qmmm_nion
 
       character*12 control_boundry
       external     control_boundry
@@ -146,8 +142,8 @@ c      parameter (autoatm =290.360032539d6)
       external     psp_semicore
       external     psp_rcore,psp_ncore,psp_rlocal
 
-      logical  control_Nose,control_Mulliken,pspw_qmmm_found
-      external control_Nose,control_Mulliken,pspw_qmmm_found
+      logical  control_Nose,control_Mulliken
+      external control_Nose,control_Mulliken
 
       integer  Nose_Mchain,Nose_Nchain
       external Nose_Mchain,Nose_Nchain
@@ -521,7 +517,6 @@ c      parameter (autoatm =290.360032539d6)
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
-         call pspw_qmmm_Print(6)
 
          write(6,1181)
          write(6,1192) (I,ion_aname(I),
@@ -529,7 +524,6 @@ c      parameter (autoatm =290.360032539d6)
          write(6,1200) vcx,vcy,vcz
          write(6,1210) vgx,vgy,vgz
 
-         call pspw_qmmm_Print2(6)
 
          if (fractional) then
            write(6,1219) en(1),en(ispin),' (   fractional)'
@@ -989,7 +983,6 @@ c      parameter (autoatm =290.360032539d6)
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
-         call pspw_qmmm_Print(6)
 
          write(6,1421)
          write(6,1192) (I,ion_aname(I),
@@ -997,7 +990,6 @@ c      parameter (autoatm =290.360032539d6)
          write(6,1200) vcx,vcy,vcz
          write(6,1210) vgx,vgy,vgz
 
-         call pspw_qmmm_Print2(6)
 
          write(6,*)
          write(6,1320) en(1),en(ispin),' (real space)'
@@ -1017,15 +1009,15 @@ c      parameter (autoatm =290.360032539d6)
          write(6,1472) ion_ke(),ion_ke()/ion_nion()
 
 
-         if (pspw_qmmm_found()) then
-            write(6,1700)
-            write(6,1701)
-            write(6,1702) E(11)
-            write(6,1703) E(12)
-            write(6,1704) E(13)
-            write(6,1705) E(14)
-            write(6,1706) E(15)
-         end if
+c         if (pspw_qmmm_found()) then
+c            write(6,1700)
+c            write(6,1701)
+c            write(6,1702) E(11)
+c            write(6,1703) E(12)
+c            write(6,1704) E(13)
+c            write(6,1705) E(14)
+c            write(6,1706) E(15)
+c         end if
 
 
          if (control_Nose()) then
@@ -1040,12 +1032,12 @@ c      parameter (autoatm =290.360032539d6)
 *       **** write out Temperatures ****
          write(6,1491) eke
          eki0 = ion_Temperature()
-         if (pspw_qmmm_found()) then
-            eki1 =pspw_qmmm_Temperature()
-            sum = ion_nion() + pspw_qmmm_nion() - 2.0d0
-            eki0 = eki0*((ion_nion()-2.0d0)/sum)
-     >           + eki1*((pspw_qmmm_nion()-2.0d0)/sum)
-         end if
+c         if (pspw_qmmm_found()) then
+c            eki1 =pspw_qmmm_Temperature()
+c            sum = ion_nion() + pspw_qmmm_nion() - 2.0d0
+c            eki0 = eki0*((ion_nion()-2.0d0)/sum)
+c     >           + eki1*((pspw_qmmm_nion()-2.0d0)/sum)
+c         end if
          write(6,1480) eki0
          write(6,1490) ion_com_Temperature()
 
@@ -1128,7 +1120,6 @@ c      parameter (autoatm =290.360032539d6)
       call v_psi_write(ispin,ne,dcpl_mb(psi0(1)))
 
 *     **** write geometry to rtdb ****
-      call pspw_qmmm_write(rtdb)
       call ion_write(rtdb)
 
 *     **** deallocate heap memory ****

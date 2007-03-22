@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.66 2006-07-20 17:27:55 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.67 2007-03-22 20:46:21 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -36,7 +36,7 @@ c#include "rtdb.fh"
       integer rtdb
 
 *     **** external functions ****
-      logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
+      logical     psp_semicore,pspw_charge_found,pspw_qmmm_found
       logical     control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
       logical     control_print,control_psi_tmp
       character*2 ion_aname
@@ -45,7 +45,7 @@ c#include "rtdb.fh"
       integer     psi_iptr_hml
       real*8      control_tole,control_tolc
       real*8      ion_rion,psi_eigenvalue,psi_hml,ion_amass
-      external psp_semicore,pspw_qmmm_found,pspw_charge_found
+      external psp_semicore,pspw_charge_found,pspw_qmmm_found
       external control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
@@ -229,11 +229,10 @@ c#include "rtdb.fh"
          if (pspw_qmmm_found()) then
             write(luout,1431)
             write(luout,1432)
-            write(luout,1433) 
-     >(E(1)-E(11)-E(12)-E(13)-E(14)-E(15)-E(16)-E(17)-E(18)),
-     >(E(1)-E(11)-E(12)-E(13)-E(14)-E(15)-E(16)-E(17)-E(18))
-     > /ion_nion()
+            write(luout,1433)  E(1)-E(11),
+     >                        (E(1)-E(11))/ion_nion()
          end if
+
          if (pspw_charge_found()) then
             write(luout,1431)
             write(luout,1432)
@@ -254,11 +253,14 @@ c#include "rtdb.fh"
          write(luout,1470) E(5),E(5)/ion_nion()
 
          write(luout,1480) E(6),E(6)/neall
-         if (pspw_qmmm_found()) then
-            write(luout,1491) E(7),E(7)/neall
-         else
-            write(luout,1490) E(7),E(7)/neall
-         end if
+
+c        if (pspw_qmmm_found()) then
+c           write(luout,1491) E(7),E(7)/neall
+c        else
+c           write(luout,1490) E(7),E(7)/neall
+c        end if
+         write(luout,1490) E(7),E(7)/neall
+
          write(luout,1495) E(8),E(8)/neall
          write(luout,1496) E(9),E(9)/neall
          write(luout,1497) E(10),E(10)/neall
@@ -276,19 +278,17 @@ c#include "rtdb.fh"
         if (pspw_qmmm_found()) then
             write(luout,1700)
             write(luout,1701)
-            write(luout,1702) E(11)+E(12)+E(13)
-            write(luout,1707) E(11)
-            write(luout,1708) E(12)
-            write(luout,1709) E(13)
-
-            write(luout,1703) E(14)+E(15)
-            write(luout,1710) E(14)
-            write (luout,1711) E(15)
-
-            write(luout,1704) E(16)
-            write(luout,1705) E(17)
-            write(luout,1706) E(18)
-         end if
+            write(luout,1702) E(11)
+            write(luout,1703) E(12)
+c
+c            write(luout,1703) E(14)+E(15)
+c            write(luout,1710) E(14)
+c            write (luout,1711) E(15)
+c
+c            write(luout,1704) E(16)
+c            write(luout,1705) E(17)
+c            write(luout,1706) E(18)
+        end if
         if (pspw_charge_found()) then
             write(luout,1800)
             write(luout,1801)
@@ -472,8 +472,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')
- 1702 FORMAT( ' QM/MM energy                     :',E19.10)
- 1703 FORMAT(/' MM/MM energy                     :',E19.10)
+ 1702 FORMAT( ' LJ energy                        :',E19.10)
+ 1703 FORMAT(/' Residual Coulomb energy          :',E19.10)
  1704 FORMAT(/' MM Polarization energy           :',E19.10)
  1705 FORMAT( ' MM Vibration energy              :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy            :',E19.10)
@@ -515,19 +515,19 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       real*8  fmx2,fmy2,fmz2
 
 *     **** external functions ****
-      logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
+      logical     psp_semicore,pspw_charge_found,pspw_qmmm_found
       logical     control_allow_translation,ion_q_FixIon,control_print
-      character*2 ion_aname,pspw_qmmm_aname,pspw_charge_aname
+      character*2 ion_aname,pspw_charge_aname
       integer     ion_katm,ion_nion,control_version
-      integer     pspw_qmmm_nion,pspw_charge_nion
-      real*8      ion_rion,pspw_qmmm_rion,pspw_charge_rion
+      integer     pspw_charge_nion
+      real*8      ion_rion,pspw_charge_rion
       real*8      pspw_charge_charge
-      external psp_semicore,pspw_qmmm_found,pspw_charge_found
+      external psp_semicore,pspw_charge_found,pspw_qmmm_found
       external control_allow_translation,ion_q_FixIon,control_print
-      external ion_aname,pspw_qmmm_aname,pspw_charge_aname
+      external ion_aname,pspw_charge_aname
       external ion_katm,ion_nion,control_version
-      external pspw_qmmm_nion,pspw_charge_nion
-      external ion_rion,pspw_qmmm_rion,pspw_charge_rion
+      external pspw_charge_nion
+      external ion_rion,pspw_charge_rion
       external pspw_charge_charge
       logical  pspw_bqext
       external pspw_bqext
@@ -537,7 +537,6 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       nion = ion_nion()
       if (pspw_charge_found().and.
      >    (.not.pspw_bqext())) nion = nion + pspw_charge_nion()
-      if (pspw_qmmm_found())   nion = nion + pspw_qmmm_nion()
 
       call dcopy(3*nion,0.0d0,0,G1,1)
 
@@ -546,6 +545,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
 
       if (control_version().eq.3) call ewald_f(G1)
       if (control_version().eq.4) call ion_ion_f(G1)
+      if (pspw_qmmm_found()) call pspw_qmmm_fion(G1)
 
       if (pspw_charge_found()) then
         if(pspw_bqext()) then
@@ -558,10 +558,6 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
          end if
       end if
 
-      if (pspw_qmmm_found()) then
-         nion1 = ion_nion() + pspw_charge_nion()
-         call rho_1_Fion_Fmm(G1,G1(1,nion1+1))
-      end if
 
 *     **** remove ion forces using ion_FixIon ****
       call ion_FixIon(G1)
@@ -625,21 +621,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
             end if
           end do
         end if
+        end if
 
-*       **** print out mm positions ***
-        if (pspw_qmmm_found()) then
-          do i=1,pspw_qmmm_nion()
-            i1 = ion_nion() + pspw_charge_nion() + i
-            if (ion_q_FixIon(i1)) then
-            write(luout,1191) i1,pspw_qmmm_aname(i),
-     >                    (pspw_qmmm_rion(K,i),K=1,3)
-            else
-            write(luout,1190) i1,pspw_qmmm_aname(i),
-     >                    (pspw_qmmm_rion(K,i),K=1,3)
-            end if
-          end do
-        end if
-        end if
 
         if (lprint) then
         write(luout,1421)
@@ -651,15 +634,6 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
           do i=1,pspw_charge_nion()
             i1 = ion_nion() + i
             write(luout,1190) i1,pspw_charge_aname(i),
-     >                    (G1(K,i1),K=1,3)
-          end do
-        end if
-
-*       **** print out mm forces ***
-        if (pspw_qmmm_found()) then
-          do i=1,pspw_qmmm_nion()
-            i1 = ion_nion() + pspw_charge_nion() + i
-            write(luout,1190) i1,pspw_qmmm_aname(i),
      >                    (G1(K,i1),K=1,3)
           end do
         end if

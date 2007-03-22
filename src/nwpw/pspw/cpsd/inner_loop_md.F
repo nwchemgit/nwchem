@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.26 2007-02-23 01:24:32 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.27 2007-03-22 20:46:21 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -58,7 +58,7 @@
       real*8  sum,Eold,eorbit,eion,ehartr,eke,eki,sse,ssr,sa1,sa2
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,fmass,h
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx,espring,enlocal
-      real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
+      !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       real*8  s,r
 
 
@@ -103,24 +103,9 @@ c     real*8     fion(3,natmx)
       external Nose_dXe,Nose_dXr
 
 *     ***** QM/MM external functions ****
-      logical  pspw_qmmm_found,pspw_charge_found
-      real*8   pspw_qmmm_ke
-      real*8   pspw_qmmm_Energy_QMMM_Q
-      real*8   pspw_qmmm_Energy_QMMM_LJ
-      real*8   pspw_qmmm_Energy_MMMM_Q
-      real*8   pspw_qmmm_Energy_MMMM_LJ
-      real*8   pspw_qmmm_Energy_pol
-      real*8   pspw_qmmm_Energy_vib
-      real*8   pspw_qmmm_Energy_cav
-      external pspw_qmmm_found,pspw_charge_found
-      external pspw_qmmm_ke
-      external pspw_qmmm_Energy_QMMM_Q
-      external pspw_qmmm_Energy_QMMM_LJ
-      external pspw_qmmm_Energy_MMMM_Q
-      external pspw_qmmm_Energy_MMMM_LJ
-      external pspw_qmmm_Energy_pol
-      external pspw_qmmm_Energy_vib
-      external pspw_qmmm_Energy_cav
+      logical  pspw_charge_found
+      external pspw_charge_found
+
       logical  dplot_iteration_check
       external dplot_iteration_check
 
@@ -138,7 +123,7 @@ c     real*8     fion(3,natmx)
       call Pack_npack(0,npack0)
 
       n2ft3d = 2*nfft3d
-      field_exist       = pspw_qmmm_found().or.pspw_charge_found()
+      field_exist       = pspw_charge_found()
       sic               = pspw_SIC()
       gga               = control_gga()
       allow_translation = control_allow_translation()
@@ -239,7 +224,7 @@ c     real*8     fion(3,natmx)
 *       *** skip ion_shift if newton step ***
         if (verlet) call ion_shift()
         if (nose.and.verlet) call Nose_Shift()
-        if ((verlet).and.(pspw_qmmm_found())) call pspw_qmmm_shift()
+
 
 *       ********************************
 *       **** generate phaze factors ****
@@ -382,12 +367,6 @@ c     real*8     fion(3,natmx)
 
            call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
 
-*          **** generate QM/MM potential ****
-           if (pspw_qmmm_found()) then
-            call pspw_qmmm_Generate_V(n2ft3d,
-     >                               dbl_mb(r_grid(1)),
-     >                               dbl_mb(v_field(1)))
-           end if
 
 *          **** generate charge potential ****
            if (pspw_charge_found()) then
@@ -469,13 +448,6 @@ c        end if
              end do
 
 *            **** QM/MM Verlet update ****
-             if (pspw_qmmm_found()) then
-                call pspw_qmmm_Update(2,n2ft3d,dbl_mb(r_grid(1)),
-     >                                       dbl_mb(rho(1)),
-     >                                       dv,dt,
-     >                                       dbl_mb(fion(1)),
-     >                                       sum)
-             end if
              call ion_verlet_step(dbl_mb(fion(1)),sa_alpha(2))
            end if
 
@@ -496,13 +468,6 @@ c        end if
            end do
 
 *          **** QM/MM Newton update ****
-           if (pspw_qmmm_found()) then
-              call pspw_qmmm_Update(1,n2ft3d,dbl_mb(r_grid(1)),
-     >                                       dbl_mb(rho(1)),
-     >                                       dv,dt,
-     >                                       dbl_mb(fion(1)),
-     >                                       sum)
-           end if
            call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2)*r)
 
         end if
@@ -667,28 +632,8 @@ c        end if
       E(22) = espring
 
 *     ******** QM/MM energies ******
-      if (pspw_qmmm_found()) then
-         e_ionmm = pspw_qmmm_Energy_QMMM_Q()
-         e_qmmm  = pspw_qmmm_Energy_QMMM_LJ()
-         e_mmmm  = pspw_qmmm_Energy_MMMM_Q()
-     >           + pspw_qmmm_Energy_MMMM_LJ()
-         e_pol   = pspw_qmmm_Energy_pol()
-         e_vib   = pspw_qmmm_Energy_vib()
-         e_cav   = pspw_qmmm_Energy_cav()
-
-         E(2) = E(2) + e_ionmm
-     >               + e_qmmm
-     >               + e_mmmm
-     >               + e_pol
-     >               + e_vib
-     >               + e_cav
-         E(4) = E(4) + pspw_qmmm_ke()
-         E(11) = e_qmmm
-         E(12) = e_mmmm
-         E(13) = e_pol
-         E(14) = e_vib
-         E(15) = e_cav
-      end if
+      !if (pspw_qmmm_found()) then
+      !end if
 
 *     **** SIC corrections ****
       if (pspw_SIC()) then

@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.8 2006-10-07 00:10:06 bylaska Exp $
+* $Id: ewald.F,v 1.9 2007-03-22 20:46:22 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -41,6 +41,19 @@
       ewald_nshl3d = (2*ncut+1)**3
       return
       end 
+
+      integer function ewald_rcell_ptr()
+      implicit none
+
+*     **** common block for ewald.f ****
+      integer    ncut
+      real*8     rcut,cewald,alpha
+      integer    vg(2),rcell(2)
+      common / ewald_block / vg,rcell,cewald,alpha,rcut,ncut
+
+      ewald_rcell_ptr = rcell(1)
+      return
+      end
 
 
       real*8 function ewald_mandelung()
@@ -369,7 +382,6 @@ c    >     + i+1
       real*8 function ewald_e()
       implicit none
 #include "errquit.fh"
-
 #include "mafdecls.fh"
 
 

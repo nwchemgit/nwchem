@@ -1,5 +1,5 @@
 c
-c     $Id: c_cgsd_energy_gradient.F,v 1.4 2004-11-29 16:05:17 bylaska Exp $         c
+c     $Id: c_cgsd_energy_gradient.F,v 1.5 2007-03-22 20:46:19 bylaska Exp $         c
 
 *     *******************************
 *     *				    *
@@ -29,7 +29,7 @@ c     $Id: c_cgsd_energy_gradient.F,v 1.4 2004-11-29 16:05:17 bylaska Exp $     
       real*8      ion_rion
       external cpsp_semicore
       external control_allow_translation,ion_q_FixIon
-      external ion_aname,pspw_qmmm_aname
+      external ion_aname
       external ion_katm,ion_nion,control_version
       external ion_rion
 

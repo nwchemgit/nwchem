@@ -1,5 +1,5 @@
 /*
- $Id: qmmm_parse.c,v 1.2 2007-03-21 03:31:28 bylaska Exp $
+ $Id: qmmm_parse.c,v 1.3 2007-03-22 20:46:20 bylaska Exp $
 */
 
 #include <math.h>
@@ -159,7 +159,7 @@ Integer	*n3;
    /* define linear grid */
    nrl  = 2001;
    rmax = 40.0;
-   drl  = rmax/((double) (nrl-1));
+   drl  = rmax/((double)(nrl-1));
 
    fp = fopen(infile,"r+");
    w = get_word(fp);
@@ -225,7 +225,11 @@ Integer	*n3;
       rr2 = rr1*rl[i];
       ttt = (rc1 - rr1);
       sss = (rc2 - rr2);
-      pspl[0][i] = -Zion*(ttt/sss);
+      /* l'Hopital */
+      if (fabs(sss)<1.0e-9)
+         pspl[0][i] = (-Zion/rc) * ((double) n_sigma)/((double) (n_sigma+1));
+      else
+         pspl[0][i] = -Zion*(ttt/sss);
       psil[0][i] = 0.0;
    }
 

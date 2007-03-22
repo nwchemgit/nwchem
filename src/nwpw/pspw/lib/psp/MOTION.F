@@ -1,5 +1,5 @@
 *
-* $Id: MOTION.F,v 1.7 2005-10-06 01:04:35 bylaska Exp $
+* $Id: MOTION.F,v 1.8 2007-03-22 20:46:22 bylaska Exp $
 
 *  Note - The format of the MOTION file was changed on 5-8-2002.
 *
@@ -44,9 +44,9 @@
 
 *     **** external functions ***
       real*8   lattice_omega
-      integer  ion_nion,control_it_out,pspw_qmmm_nion
+      integer  ion_nion,control_it_out
       external lattice_omega
-      external ion_nion,control_it_out,pspw_qmmm_nion
+      external ion_nion,control_it_out
 
 
       call Parallel_taskid(taskid)
@@ -79,10 +79,6 @@
      >           status='new')
          end if
 
-c        ! taken out on 5-8-2002
-c         open(unit=19,file=full_filename,form='formatted')
-c         write(19,*) control_it_out(),(ion_nion()+pspw_qmmm_nion()),
-c     >               lattice_omega()
       end if
 
       return
@@ -126,20 +122,16 @@ c     >               lattice_omega()
       integer taskid,i
 
 *     **** external functions ***
-      logical     pspw_qmmm_found
-      integer     ion_nion,pspw_qmmm_nion
+      integer     ion_nion
       real*8      ion_rion, ion_vion,lattice_omega
-      real*8      pspw_qmmm_rion,pspw_qmmm_vion
-      external    pspw_qmmm_found
-      external    ion_nion,pspw_qmmm_nion
+      external    ion_nion
       external    ion_rion, ion_vion,lattice_omega
-      external    pspw_qmmm_rion,pspw_qmmm_vion
 
       call Parallel_taskid(taskid)
     
       if (taskid.eq.MASTER) then
          write(19,110) time,
-     >                 (ion_nion()+pspw_qmmm_nion()),
+     >                 ion_nion(),
      >                 lattice_omega()
          do i=1,ion_nion()
             write(19,111) ion_rion(1,i),
@@ -149,17 +141,6 @@ c     >               lattice_omega()
      >                    ion_vion(2,i),
      >                    ion_vion(3,i)
          end do
-         if (pspw_qmmm_found()) then
-           do i=1,pspw_qmmm_nion()
-              write(19,111) pspw_qmmm_rion(1,i),
-     >                      pspw_qmmm_rion(2,i),
-     >                      pspw_qmmm_rion(3,i),
-     >                      pspw_qmmm_vion(1,i),
-     >                      pspw_qmmm_vion(2,i),
-     >                      pspw_qmmm_vion(3,i)
-
-           end do
-         end if
          call util_flush(19)
       end if
   110 format(e14.6,I6,e14.6)

@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.10 2003-10-17 22:57:49 carlfahl Exp $
+c $Id: pspw_LJ.F,v 1.11 2007-03-22 20:46:23 bylaska Exp $
 c
 
 *     *************************
@@ -9,15 +9,12 @@ c
 *     *************************
       subroutine pspw_LJ_init(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
-
-
-***** LJparam common block ****
 #include "pspw_LJ.fh"
+#include "errquit.fh"
 
 *     **** local variables
       logical value
@@ -26,61 +23,42 @@ c
       parameter(MASTER=0)
 
       integer i,j
-      integer nkatm_mm,nkatm_ion
+      integer nkatm
       real*8  sigma_epsilon(2)
       character*30 rtdbname
 
 *     **** external functions ****
-      character*2 pspw_qmmm_atom,ion_atom
-      integer     pspw_qmmm_nkatm,ion_nkatm
-      integer     pspw_qmmm_katm,ion_katm
-      external    pspw_qmmm_atom,ion_atom
-      external    pspw_qmmm_nkatm,ion_nkatm
-      external    pspw_qmmm_katm,ion_katm
+      character*2 ion_atom
+      integer     ion_nkatm
+      integer     ion_katm
+      external    ion_atom
+      external    ion_nkatm
+      external    ion_katm
       
 
-      nkatm_mm = pspw_qmmm_nkatm()
-      nkatm_ion = ion_nkatm()
+      nkatm = ion_nkatm()
 
 *     **** allocate LJ parameters ****
       value = rtdb_parallel(.true.)
+      value = MA_alloc_get(mt_dbl,nkatm,
+     >                 'sigma_all',sigma_all(2),sigma_all(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nkatm_mm,
-     >                 'sigma_mm',sigma_mm(2),sigma_mm(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,nkatm_mm,
-     >                 'epsilon_mm',epsilon_mm(2),epsilon_mm(1))
-      value = MA_alloc_get(mt_dbl,nkatm_ion,
-     >                 'sigma_ion',sigma_ion(2),sigma_ion(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,nkatm_ion,
-     >                 'epsilon_ion',epsilon_ion(2),epsilon_ion(1))
+     >        MA_alloc_get(mt_dbl,nkatm,
+     >                 'epsilon_ion',epsilon_all(2),epsilon_all(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
-*     **** read in MM LJ parameters ***
-      do i=1,nkatm_mm
-         rtdbname = 'pspw_LJ_param_mm:'//pspw_qmmm_atom(i)
-         j = index(rtdbname,' ')-1
-         value = rtdb_get(rtdb,rtdbname(1:j),
-     >                  mt_dbl,2,sigma_epsilon)
-         if (.not. value) call dcopy(2,0.0d0,0,sigma_epsilon,1)
-
-        dbl_mb(sigma_mm(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
-        dbl_mb(epsilon_mm(1)+i-1)=sigma_epsilon(2)/(23.06d0*27.2116d0)
-      end do
-
       
-*     **** read in Ion LJ parameters ***
-      do i=1,nkatm_ion
+*     **** read in LJ parameters ***
+      do i=1,nkatm
          rtdbname = 'pspw_LJ_param_ion:'//ion_atom(i)
          j = index(rtdbname,' ')-1
          value = rtdb_get(rtdb,rtdbname(1:j),
      >                  mt_dbl,2,sigma_epsilon)
          if (.not. value) call dcopy(2,0.0d0,0,sigma_epsilon,1)
 
-        dbl_mb(sigma_ion(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
-        dbl_mb(epsilon_ion(1)+i-1)=sigma_epsilon(2)/(23.06d0*27.2116d0)
+        dbl_mb(sigma_all(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
+        dbl_mb(epsilon_all(1)+i-1)=sigma_epsilon(2)/(23.06d0*27.2116d0)
       end do
       
       
@@ -88,30 +66,17 @@ c
       if (taskid.eq.MASTER) then
           write(*,*)
           write(*,*) 'Ion LJ Parameters:'
-          do i=1,nkatm_ion
+          do i=1,nkatm
             write(*,'(A3,4x,A12,E10.3,A9,A12,E10.3,A9)') 
      >         ion_atom(i),
      >         'sigma:',  
-     >         dbl_mb(sigma_ion(1)+i-1)*(0.529177d0), 
+     >         dbl_mb(sigma_all(1)+i-1)*(0.529177d0), 
      >         'Angstrom',
      >         'epsilon:',
-     >         dbl_mb(epsilon_ion(1)+ i-1)*(23.06d0*27.2116d0),
+     >         dbl_mb(epsilon_all(1)+ i-1)*(23.06d0*27.2116d0),
      >         'kcal/mol'
           end do
          write(*,*)
-         write(*,*) 'MM LJ Parameters:'
-         do i=1,nkatm_mm
-            write(*,'(A3,4x,A12,E10.3,A9,A12,E10.3,A9)') 
-     >         pspw_qmmm_atom(i),
-     >         'sigma:',  
-     >         dbl_mb(sigma_mm(1)+i-1)*(0.529177d0), 
-     >         'Angstrom',
-     >         'epsilon:',
-     >         dbl_mb(epsilon_mm(1)+i-1)*(23.06d0*27.2116d0),
-     >         'kcal/mol'
-          end do
-          write(*,*)
-
       end if
 
       return
@@ -119,34 +84,30 @@ c
 
 *     *************************
 *     *                       *
-*     *     pspw_LJ_end		  *
+*     *     pspw_LJ_end	      *
 *     *                       *
 *     *************************
       subroutine pspw_LJ_end()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
-
-***** LJparam common block ****
 #include "pspw_LJ.fh"
+#include "errquit.fh"
 
       logical value
 
-      value = MA_free_heap(sigma_mm(2))
-      value = value.and.MA_free_heap(epsilon_mm(2))
-      value = value.and.MA_free_heap(sigma_ion(2))
-      value = value.and.MA_free_heap(epsilon_ion(2))
-      if (.not.value) call errquit('error MA_free_heap',0, MA_ERR)
-
+      value =           MA_free_heap(sigma_all(2))
+      value = value.and.MA_free_heap(epsilon_all(2))
+      if (.not.value) call errquit('pspw_LJ_end: error MA_free_heap',
+     >                             0,MA_ERR)
       return
       end
 
 
 *     ***************************
-*     *							*
+*     *				*
 *     *    pspw_LJ_param_Ion	*
-*     *							*
+*     *				*
 *     ***************************
       subroutine pspw_LJ_param_Ion(i,s,e)
       implicit none
@@ -154,8 +115,6 @@ c
       real*8  s,e
 
 #include "mafdecls.fh"
-
-***** LJparam common block ****
 #include "pspw_LJ.fh"
 
 *     **** local variables ****
@@ -166,357 +125,253 @@ c
       external ion_katm
 
       ka = ion_katm(i)
-      s  = dbl_mb(sigma_ion(1)  + ka-1)
-      e  = dbl_mb(epsilon_ion(1)+ ka-1)
+      s  = dbl_mb(sigma_all(1)  + ka-1)
+      e  = dbl_mb(epsilon_all(1)+ ka-1)
       return
       end
 
-*     ***************************
-*     *							*
-*     *    pspw_LJ_param_MM 	*
-*     *							*
-*     ***************************
-      subroutine pspw_LJ_param_MM(i,s,e)
+
+c     *************************************
+c     *                                   *
+c     *           pspw_LJ_E               *
+c     *                                   *
+c     *************************************
+      real*8 function pspw_LJ_E(nion,nion_qm,katm,
+     >                          nfrag,indx_frag_start,size_frag,
+     >                          nshl3d,rcell,
+     >                          rion)
       implicit none
-      integer i
-      real*8  s,e
+      integer nion,nion_qm
+      integer katm(*)
+      integer nfrag
+      integer indx_frag_start(*),size_frag(*) 
+      integer nshl3d
+      real*8  rcell(nshl3d,3)
+      real*8  rion(3,*)
 
 #include "mafdecls.fh"
-
-***** LJparam common block ****
 #include "pspw_LJ.fh"
 
 *     **** local variables ****
-      integer ka
-
-*     **** external functions ****
-      integer  pspw_qmmm_katm
-      external pspw_qmmm_katm
-
-      ka = pspw_qmmm_katm(i)
-      s  = dbl_mb(sigma_mm(1)  + ka-1)
-      e  = dbl_mb(epsilon_mm(1)+ ka-1)
-      return
-      end
-
-
-      
-*     ***************************
-*     *							*
-*     *   pspw_LJ_Energy_MM  	*
-*     *							*
-*     ***************************
-      real*8 function pspw_LJ_Energy_MM()
-      implicit none
-
-*     **** local variables ****
-      real*8  E,si,ei,sj,ej
-      real*8 ri(3),rj(3)
-      integer i,j,nion
-
-*     **** external functions ****
-      logical  pspw_qmmm_different_frag
-      integer  pspw_qmmm_nion
-      real*8   pspw_qmmm_rion,LJ_Repulsion
-      external pspw_qmmm_different_frag
-      external pspw_qmmm_nion
-      external pspw_qmmm_rion,LJ_Repulsion
-
-      nion = pspw_qmmm_nion()
-     
-      E = 0.0d0
-      do i=1,nion
-         call pspw_LJ_param_MM(i,si,ei)
-         if (ei.gt.1.0d-10) then
-         ri(1) = pspw_qmmm_rion(1,i)
-         ri(2) = pspw_qmmm_rion(2,i)
-         ri(3) = pspw_qmmm_rion(3,i)
-         do j=i+1,nion
-           if (pspw_qmmm_different_frag(i,j)) then
-             call pspw_LJ_param_MM(j,sj,ej)
-             if (ej.gt.1.0d-10) then
-             rj(1) = pspw_qmmm_rion(1,j)
-             rj(2) = pspw_qmmm_rion(2,j)
-             rj(3) = pspw_qmmm_rion(3,j)
-             E = E + LJ_Repulsion(ri,si,ei,rj,sj,ej)
-             end if
-           end if
-         end do
-         end if
-      end do
-
-
-      pspw_LJ_Energy_MM = E
-      return
-      end
-
-
-
-*     ***************************
-*     *							*
-*     *   pspw_LJ_Energy_IonMM 	*
-*     *							*
-*     ***************************
-      real*8 function pspw_LJ_Energy_IonMM()
-      implicit none
-
-*     **** local variables ****
-      real*8  E,si,ei,sj,ej
-      real*8 ri(3),rj(3)
-      integer i,j,nion_ion,nion_mm
-
-*     **** external functions ****
-      integer  pspw_qmmm_nion,ion_nion
-      real*8   pspw_qmmm_rion,ion_rion,LJ_Repulsion
-      external pspw_qmmm_nion,ion_nion
-      external pspw_qmmm_rion,ion_rion,LJ_Repulsion
-
-      nion_mm  = pspw_qmmm_nion()
-      nion_ion = ion_nion()
-     
-      E = 0.0d0
-      do i=1,nion_ion
-         call pspw_LJ_param_Ion(i,si,ei)
-         if (ei.gt.1.0d-10) then
-         ri(1) = ion_rion(1,i)
-         ri(2) = ion_rion(2,i)
-         ri(3) = ion_rion(3,i)
-         do j=1,nion_mm
-            call pspw_LJ_param_MM(j,sj,ej)
-            if (ej.gt.1.0d-10) then
-            rj(1) = pspw_qmmm_rion(1,j)
-            rj(2) = pspw_qmmm_rion(2,j)
-            rj(3) = pspw_qmmm_rion(3,j)
-            E = E + LJ_Repulsion(ri,si,ei,rj,sj,ej)
-            end if
-         end do
-         end if
-      end do
-
-
-      pspw_LJ_Energy_IonMM = E
-      return
-      end
-
-
-*     ***************************
-*     *							*
-*     *       pspw_LJ_Fmm	 	*
-*     *							*
-*     ***************************
-
-*     This routine calculates the force on the MM ions from the
-*   Lenard-Jones interaction with the MM atoms and the QM ions and 
-*   then adds it to the MM ion force, f_mm.
-*
-*     Exit - f_mm: force on the MM ions
-*
-*     Uses - ion_nion,ion_rion
-*            pspw_qmmm_nion,pspw_qmmm_rion
-*            pspw_qmmm_different_frag
-*
-*     Author - Eric Bylaska
-*
-      subroutine pspw_LJ_Fmm(f_mm)
-      implicit none
-      real*8 f_mm(3,*)
-
-*     **** local variables ****
-      real*8  si,ei,sj,ej
-      real*8 ri(3),rj(3),fion(3)
       integer i,j
+      integer w1,a,k1,kk1
+      integer w2,b,k2,kk2
+      real*8  e1,s1,e2,s2,E
 
 *     **** external functions ****
-      logical  pspw_qmmm_different_frag
-      integer  pspw_qmmm_nion,ion_nion
-      real*8   pspw_qmmm_rion,ion_rion
-      external pspw_qmmm_different_frag
-      external pspw_qmmm_nion,ion_nion
-      external pspw_qmmm_rion,ion_rion
+      real*8   pspw_VLJ_E_periodic
+      external pspw_VLJ_E_periodic
+      
 
+      E = 0.0d0
 
-*     **** force from the MM atoms ****
-      do i=1,pspw_qmmm_nion()
-         call pspw_LJ_param_MM(i,si,ei)
-         if (ei.gt.1.0d-10) then
-         ri(1) = pspw_qmmm_rion(1,i)
-         ri(2) = pspw_qmmm_rion(2,i)
-         ri(3) = pspw_qmmm_rion(3,i)
-         do j=i+1,pspw_qmmm_nion()
-           if (pspw_qmmm_different_frag(i,j)) then
-             call pspw_LJ_param_MM(j,sj,ej)
-             if (ej.gt.1.0d-10) then
-             rj(1) = pspw_qmmm_rion(1,j)
-             rj(2) = pspw_qmmm_rion(2,j)
-             rj(3) = pspw_qmmm_rion(3,j)
-             call LJ_Ion_Repulsion_Force(ri,si,ei,f_mm(1,i),
-     >                                   rj,sj,ej,f_mm(1,j))
-             end if  
-           end if  
-         end do
-         end if
-      end do
-
-
-*     **** force from the QM atoms ****
-      call dcopy(3,0.0d0,0,fion,1)
-      do i=1,ion_nion()
-         call pspw_LJ_param_Ion(i,si,ei)
-         if (ei.gt.1.0d-10) then
-         ri(1) = ion_rion(1,i)
-         ri(2) = ion_rion(2,i)
-         ri(3) = ion_rion(3,i)
-         do j=1,pspw_qmmm_nion()
-            call pspw_LJ_param_MM(j,sj,ej)
-            if (ej.gt.1.0d-10) then
-            rj(1) = pspw_qmmm_rion(1,j)
-            rj(2) = pspw_qmmm_rion(2,j)
-            rj(3) = pspw_qmmm_rion(3,j)
-            call LJ_Ion_Repulsion_Force(ri,si,ei,fion,
-     >                                  rj,sj,ej,f_mm(1,j))
+c     **** QM/MM LJ energy ****
+      do i=1,nion_qm
+         e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
+         s1 = dbl_mb(sigma_all(1)  +katm(i)-1)
+         do j = nion_qm+1,nion
+            e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
+            if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
+            s2 = dbl_mb(sigma_all(1)+katm(j)-1)
+            E = E + pspw_VLJ_E_periodic(e1,s1,rion(1,i),
+     >                                  e2,s2,rion(1,j),
+     >                                  nshl3d,rcell)
             end if
          end do
-         end if
+      end do
+
+c     **** MM/MM LJ energy ****
+      do w1 = 1,nfrag-1
+      do w2 = w1+1,nfrag
+         k1 = indx_frag_start(w1)
+         k2 = indx_frag_start(w2)
+         kk1 = k1
+         do a=1,size_frag(w1)
+            kk2 = k2
+            do b=1,size_frag(w2)
+               e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
+               e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
+               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
+               s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
+               s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
+               E = E + pspw_VLJ_E_periodic(e1,s1,rion(1,kk1),
+     >                                     e2,s2,rion(1,kk2),
+     >                                     nshl3d,rcell)
+               end if
+               kk2 = kk2 + 1
+            end do
+            kk1 = kk1 + 1
+         end do
+      end do
+      end do
+
+      pspw_LJ_E = E
+      return
+      end
+
+c     *********************************************
+c     *                                           *
+c     *              pspw_VLJ_E_periodic          *
+c     *                                           *
+c     *********************************************
+
+      real*8 function pspw_VLJ_E_periodic(e1,s1,r1,e2,s2,r2,
+     >                                    nshl3d,rcell)
+      implicit none
+      real*8 e1,s1,r1(3)
+      real*8 e2,s2,r2(3)
+      integer nshl3d
+      real*8  rcell(nshl3d,3)
+
+*     **** local variables ****
+      integer l
+      real*8  dx,dy,dz
+      real*8  x,y,z,r
+      real*8  sigma12,epsilon12
+      real*8  u,u6,u12,E
+
+      E         = 0.0d0
+      sigma12   = dsqrt(s1*s2)
+      epsilon12 = dsqrt(e1*e2)
+      dx = r1(1) - r2(1)
+      dy = r1(2) - r2(2)
+      dz = r1(3) - r2(3)
+      do l=1,nshl3d
+         x = dx + rcell(l,1)
+         y = dy + rcell(l,2)
+         z = dz + rcell(l,3)
+         r = dsqrt(x**2 + y**2 + z**2)
+         u = (sigma12/r)
+         u6  = u**6
+         u12 = u6**2
+         E = E + 4.0d0*epsilon12*(u12-u6)
+      end do
+
+      pspw_VLJ_E_periodic = E
+      return
+      end
+
+
+
+
+c     *************************************
+c     *                                   *
+c     *           pspw_LJ_fion            *
+c     *                                   *
+c     *************************************
+      subroutine pspw_LJ_fion(nion,nion_qm,katm,
+     >                        nfrag,indx_frag_start,size_frag,
+     >                        nshl3d,rcell,
+     >                        rion,fion)
+      implicit none
+      integer nion,nion_qm
+      integer katm(*)
+      integer nfrag
+      integer indx_frag_start(*),size_frag(*) 
+      integer nshl3d
+      real*8  rcell(nshl3d,3)
+      real*8  rion(3,*)
+      real*8  fion(3,*)
+
+#include "mafdecls.fh"
+#include "pspw_LJ.fh"
+
+*     **** local variables ****
+      integer i,j
+      integer w1,a,k1,kk1
+      integer w2,b,k2,kk2
+      real*8  e1,s1,e2,s2
+
+
+c     **** QM/MM LJ energy ****
+      do i=1,nion_qm
+         e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
+         s1 = dbl_mb(sigma_all(1)  +katm(i)-1)
+         do j = nion_qm+1,nion
+            e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
+            if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
+            s2 = dbl_mb(sigma_all(1)+katm(j)-1)
+            call pspw_VLJ_fion_periodic(e1,s1,rion(1,i),fion(1,i),
+     >                                  e2,s2,rion(1,j),fion(1,j),
+     >                                  nshl3d,rcell)
+            end if
+         end do
+      end do
+
+c     **** MM/MM LJ energy ****
+      do w1 = 1,nfrag-1
+      do w2 = w1+1,nfrag
+         k1 = indx_frag_start(w1)
+         k2 = indx_frag_start(w2)
+         kk1 = k1
+         do a=1,size_frag(w1)
+            kk2 = k2
+            do b=1,size_frag(w2)
+              e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
+              e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
+              if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
+              s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
+              s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
+              call pspw_VLJ_fion_periodic(e1,s1,rion(1,kk1),fion(1,kk1),
+     >                                    e2,s2,rion(1,kk2),fion(1,kk2),
+     >                                    nshl3d,rcell)
+              end if
+              kk2 = kk2 + 1
+            end do
+            kk1 = kk1 + 1
+         end do
+      end do
       end do
 
       return
       end
 
 
-*     ***************************
-*     *							*
-*     *   pspw_LJ_Fion 			*
-*     *							*
-*     ***************************
+c     *********************************************
+c     *                                           *
+c     *              pspw_VLJ_fion_periodic       *
+c     *                                           *
+c     *********************************************
 
-*     This routine calculates the force on the QM ions from the 
-*   Lenard-Jones interaction with the MM atoms and adds it
-*   to the QM ion force, fion.
-*
-*     Exit - fion: force on the QM ions
-*
-*     Uses - ion_nion,ion_rion
-*            pspw_qmmm_nion,pspw_qmmm_rion
-*
-*     Author - Eric Bylaska
-
-      subroutine pspw_LJ_Fion(fion)
+      subroutine pspw_VLJ_fion_periodic(e1,s1,r1,f1,
+     >                                  e2,s2,r2,f2,
+     >                                  nshl3d,rcell)
       implicit none
-      real*8 fion(3,*)
+      real*8 e1,s1,r1(3),f1(3)
+      real*8 e2,s2,r2(3),f2(3)
+      integer nshl3d
+      real*8  rcell(nshl3d,3)
 
 *     **** local variables ****
-      real*8  si,ei,sj,ej
-      real*8 ri(3),rj(3),f_mm(3)
-      integer i,j,nion_ion,nion_mm
+      integer l
+      real*8  dx,dy,dz
+      real*8  x,y,z,r
+      real*8  sigma12,epsilon12
+      real*8  u,u6,u12,dVLJ
 
-*     **** external functions ****
-      integer  pspw_qmmm_nion,ion_nion
-      real*8   pspw_qmmm_rion,ion_rion
-      external pspw_qmmm_nion,ion_nion
-      external pspw_qmmm_rion,ion_rion
-
-      nion_mm  = pspw_qmmm_nion()
-      nion_ion = ion_nion()
-     
-      call dcopy(3,0.0d0,0,f_mm,1)
-      do i=1,nion_ion
-         call pspw_LJ_param_Ion(i,si,ei)
-         if (ei.gt.1.0d-10) then
-         ri(1) = ion_rion(1,i)
-         ri(2) = ion_rion(2,i)
-         ri(3) = ion_rion(3,i)
-         do j=1,nion_mm
-            call pspw_LJ_param_MM(j,sj,ej)
-            if (ej.gt.1.0d-10) then
-            rj(1) = pspw_qmmm_rion(1,j)
-            rj(2) = pspw_qmmm_rion(2,j)
-            rj(3) = pspw_qmmm_rion(3,j)
-            call LJ_Ion_Repulsion_Force(ri,si,ei,fion(1,i),
-     >                                  rj,sj,ej,f_mm)
-            end if
-         end do
-         end if
+      sigma12   = dsqrt(s1*s2)
+      epsilon12 = dsqrt(e1*e2)
+      dx = r1(1) - r2(1)
+      dy = r1(2) - r2(2)
+      dz = r1(3) - r2(3)
+      do l=1,nshl3d
+         x = dx + rcell(l,1)
+         y = dy + rcell(l,2)
+         z = dz + rcell(l,3)
+         r = dsqrt(x**2 + y**2 + z**2)
+         u = (sigma12/r)
+         u6  = u**6
+         u12 = u6**2
+         dVLJ = -(4.0d0*epsilon12/r)*(12.0d0*u12-6.0d0*u6)
+         f1(1) = f1(1) - (x/r)*dVLJ
+         f1(2) = f1(2) - (y/r)*dVLJ
+         f1(3) = f1(3) - (z/r)*dVLJ
+         f2(1) = f2(1) + (x/r)*dVLJ
+         f2(2) = f2(2) + (y/r)*dVLJ
+         f2(3) = f2(3) + (z/r)*dVLJ
       end do
 
       return
       end
-
-
-*     **********************************
-*     *	                               *
-*     *          LJ_Repulsion		   *
-*     *                                *
-*     **********************************
-
-*   This routine calculates the LJ Repulsion between two centers 
-*
-      real*8 function LJ_Repulsion(r1,s1,e1,r2,s2,e2)
-      implicit none
-      real*8 r1(3),s1,e1
-      real*8 r2(3),s2,e2
-
-*     **** local variables ****
-      real*8 xo,yo,zo,d2
-      real*8 ee,ss
-     
-      ee = dsqrt(e1*e2)
-      ss = (s1*s2)
-
-      xo = r2(1)-r1(1)
-      yo = r2(2)-r1(2)
-      zo = r2(3)-r1(3)
-  
-      d2 = (xo*xo + yo*yo + zo*zo)
-        
-
-      LJ_Repulsion = 4.0d0*ee * ((ss/d2)**6 - (ss/d2)**3)    
-      return 
-      end
-
-*     **********************************
-*     *	                               *
-*     *      LJ_Repulsion_Force   	   *
-*     *                                *
-*     **********************************
-
-*   This routine calculates the LJ Repulsion force between two centers
-*
-      subroutine LJ_Ion_Repulsion_Force(r1,s1,e1,f1,r2,s2,e2,f2)
-      implicit none
-      real*8 r1(3),s1,e1
-      real*8 f1(3)
-      real*8 r2(3),s2,e2
-      real*8 f2(3)
-
-*     **** local variables ****
-      real*8 xo,yo,zo,d2
-      real*8 der
-      real*8 ee,ss,fx,fy,fz
-     
-      ee = dsqrt(e1*e2)
-      ss = (s1*s2)
-
-      xo = r2(1)-r1(1)
-      yo = r2(2)-r1(2)
-      zo = r2(3)-r1(3)
-  
-      d2 = (xo*xo + yo*yo + zo*zo)
-
-      der = (4.0d0*ee/d2) * ( -12.0d0*(ss/d2)**6 
-     >                       +  6.0d0*(ss/d2)**3 ) 
-      fx = -(xo)*der
-      fy = -(yo)*der
-      fz = -(zo)*der  
-
-      f2(1) = f2(1) + fx
-      f2(2) = f2(2) + fy
-      f2(3) = f2(3) + fz
-
-      f1(1) = f1(1) - fx
-      f1(2) = f1(2) - fy
-      f1(3) = f1(3) - fz
-      return 
-      end
-
 
 

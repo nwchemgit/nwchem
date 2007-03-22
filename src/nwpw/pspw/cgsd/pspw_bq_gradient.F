@@ -1,5 +1,5 @@
 *
-* $Id: pspw_bq_gradient.F,v 1.1 2005-12-29 03:05:57 marat Exp $
+* $Id: pspw_bq_gradient.F,v 1.2 2007-03-22 20:46:21 bylaska Exp $
 *
 
 
@@ -88,11 +88,11 @@
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      integer  pspw_qmmm_nion,pspw_charge_nion
+      integer  pspw_charge_nion
       external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      external pspw_qmmm_nion,pspw_charge_nion
+      external pspw_charge_nion
 
       character*12 control_boundry
       external     control_boundry
@@ -104,9 +104,9 @@
       external     psp_semicore
       external     psp_rcore,psp_ncore,psp_rlocal
 
-      logical  psi_initialize, psi_finalize, pspw_qmmm_found
+      logical  psi_initialize, psi_finalize
       integer  psi_ispin,psi_ne,electron_count,linesearch_count
-      external psi_initialize, psi_finalize, pspw_qmmm_found
+      external psi_initialize, psi_finalize
       external psi_ispin,psi_ne,electron_count,linesearch_count
       real*8   cgsd_energy,cgsd_noit_energy
       external cgsd_energy,cgsd_noit_energy
@@ -124,8 +124,8 @@
       external control_ks_algorithm
       real*8   control_ks_alpha
       external control_ks_alpha
-      logical  control_print,control_qmmm,control_balance
-      external control_print,control_qmmm,control_balance
+      logical  control_print,control_balance
+      external control_print,control_balance
       integer  control_mapping
       external control_mapping
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
@@ -189,7 +189,7 @@
       nwave = 0
       minimizer = control_minimizer()
       mapping   = control_mapping()
-      qmmm      = control_qmmm()
+      !qmmm      = control_qmmm()
 
 
 *     **** initialize D3dB data structure ****
@@ -269,8 +269,6 @@ c     end if
 
 *     ****  calculate gradient ***
       call dcopy(3*n_bq,0.0d0,0,f_bq,1)
-      call pspw_charge_ion_Fcharge_qmmm(r_bq,q_bq,n_bq,f_bq)
-      call rho_1Fcharge_qmmm(r_bq,q_bq,n_bq,f_bq)
 
       if (taskid.eq.MASTER) call current_second(cpu3)
 

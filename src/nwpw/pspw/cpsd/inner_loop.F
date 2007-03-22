@@ -1,5 +1,5 @@
 *,eke
-* $Id: inner_loop.F,v 1.24 2007-02-23 01:24:32 bylaska Exp $
+* $Id: inner_loop.F,v 1.25 2007-03-22 20:46:21 bylaska Exp $
 *
 
 *  ************************************************************
@@ -53,7 +53,8 @@
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       real*8  deltamm
-      real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
+      real*8  e_lj, e_q
+      !real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
 
 
@@ -102,29 +103,16 @@ c     real*8     fion(3,natmx)
       external Dneall_m_push_get_block,Dneall_m_pop_stack
 
 *     ***** QM/MM external functions ****
-      logical  pspw_qmmm_found,pspw_charge_found
-      real*8   pspw_qmmm_Energy_QMMM_Q
-      real*8   pspw_qmmm_Energy_QMMM_LJ
-      real*8   pspw_qmmm_Energy_MMMM_Q
-      real*8   pspw_qmmm_Energy_MMMM_LJ
-      real*8   pspw_qmmm_Energy_pol
-      real*8   pspw_qmmm_Energy_vib
-      real*8   pspw_qmmm_Energy_cav
-      external pspw_qmmm_found,pspw_charge_found
-      external pspw_qmmm_Energy_QMMM_Q
-      external pspw_qmmm_Energy_QMMM_LJ
-      external pspw_qmmm_Energy_MMMM_Q
-      external pspw_qmmm_Energy_MMMM_LJ
-      external pspw_qmmm_Energy_pol
-      external pspw_qmmm_Energy_vib
-      external pspw_qmmm_Energy_cav
-
+      logical  pspw_charge_found,pspw_qmmm_found
+      real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E
+      external pspw_charge_found,pspw_qmmm_found
+      external pspw_qmmm_LJ_E,pspw_qmmm_Q_E
 
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
       deltamm = 0.0d0
 
-      field_exist = pspw_charge_found().or.pspw_qmmm_found()
+      field_exist = pspw_charge_found()
       sic        = pspw_SIC()
       hfx        = pspw_HFX()
       gga = control_gga()
@@ -210,7 +198,6 @@ c     real*8     fion(3,natmx)
       do it=1,it_in
         call dcopy(2*npack1*nemax,psi2,1,psi1,1)
         if (move) call ion_shift()
-        if ((move).and.(pspw_qmmm_found())) call pspw_qmmm_shift()
 
 *       ********************************
 *       **** generate phaze factors ****
@@ -356,12 +343,6 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 
            call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
 
-*          **** generate QM/MM potential ****
-           if (pspw_qmmm_found()) then
-              call pspw_qmmm_Generate_V(n2ft3d,
-     >                                  dbl_mb(r_grid(1)),
-     >                                  dbl_mb(v_field(1)))
-           end if
 
 *          **** generate charge potential ****
            if (pspw_charge_found()) then
@@ -419,14 +400,8 @@ c        call mask_C(0,dcpl_mb(dng(1)))
               call semicore_xc_F(ispin,dbl_mb(xcp(1)),dbl_mb(fion(1)))
            end if
 
-*          **** QM/MM update ****
-           if (pspw_qmmm_found()) then
-              call pspw_qmmm_Update(0,n2ft3d,dbl_mb(r_grid(1)),
-     >                                       dbl_mb(rho(1)),
-     >                                       dv,dt,
-     >                                       dbl_mb(fion(1)),
-     >                                       deltamm)
-           end if
+*          **** get the qmmm force ****
+           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
 
 *          **** remove ion forces using ion_FixIon ****
            call ion_FixIon(dbl_mb(fion(1)))
@@ -560,27 +535,12 @@ c    >                 lmd,dbl_mb(tmp_L(1)),ierr)
       E(10) = pxc
 
       if (pspw_qmmm_found()) then
+         e_lj = pspw_qmmm_LJ_E()
+         e_q  = pspw_qmmm_Q_E()
+         E(1)  = E(1) + e_lj + e_q
 
-*        **** get QM/MM  energies ****
-         e_ionmm = pspw_qmmm_Energy_QMMM_Q()
-         e_qmmm  = pspw_qmmm_Energy_QMMM_LJ()
-         e_mmmm  = pspw_qmmm_Energy_MMMM_Q()
-     >           + pspw_qmmm_Energy_MMMM_LJ()
-         e_pol   = pspw_qmmm_Energy_pol()
-         e_vib   = pspw_qmmm_Energy_vib()
-         e_cav   = pspw_qmmm_Energy_cav()
-
-         E(1) = E(1) + e_ionmm 
-     >               + e_qmmm
-     >               + e_mmmm
-     >               + e_pol
-     >               + e_vib
-     >               + e_cav
-         E(11) = e_qmmm
-         E(12) = e_mmmm
-         E(13) = e_pol
-         E(14) = e_vib
-         E(15) = e_cav
+         E(11) = e_lj
+         E(12) = e_q
       end if
 
 *     **** SIC corrections ****
