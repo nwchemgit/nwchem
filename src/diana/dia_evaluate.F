@@ -1,6 +1,6 @@
       subroutine dia_evaluate()
 c
-c $Id: dia_evaluate.F,v 1.4 2007-03-14 16:17:48 d3j191 Exp $
+c $Id: dia_evaluate.F,v 1.5 2007-03-24 04:26:34 d3j191 Exp $
 c
 c     evaluate the defined properties
 c     -------------------------------
@@ -110,6 +110,7 @@ c
       integer ntdim
 c
       ntdim=ntval+1
+      if(ntval.le.0) return
 c
       call ga_sync()
 c
