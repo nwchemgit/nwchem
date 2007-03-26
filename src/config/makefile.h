@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.541 2006-12-05 20:17:20 edo Exp $
+# $Id: makefile.h,v 1.542 2007-03-26 23:18:35 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -889,7 +889,8 @@ RSQRT=y
   ifdef XLF8
     FVECTORIZE= -O3 -qstrict -qtune=auto -qarch=auto -qcache=auto -qalign=natural -qnozerosize -qlargepage -qnozerosize -qipa=level=2
     FOPTIMIZE = -O4  -NQ40000 -NT80000  -qarch=auto -qtune=auto
-    FOPTIMIZE  += -qipa -qhot -qlargepage -qessl 
+#adding -qstrict to fix linking problem for v10.1
+    FOPTIMIZE  += -qstrict -qipa -qhot -qlargepage -qessl 
     FOPTIONS += -blpdata  
     FOPTIMIZE  += -qfloat=rsqrt:fltint
     FVECTORIZE  += -qfloat=rsqrt:fltint
