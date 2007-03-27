@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.67 2007-03-22 20:46:21 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.68 2007-03-27 02:02:49 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -538,6 +538,28 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       if (pspw_charge_found().and.
      >    (.not.pspw_bqext())) nion = nion + pspw_charge_nion()
 
+c*     **** debug ****
+c      call dcopy(3*nion,0.0d0,0,G1,1)
+c      call psi_1force_local(G1)
+c      call write_force(nion,G1,"local")
+c      call dcopy(3*nion,0.0d0,0,G1,1)
+c      call psi_1force_nonlocal(G1)
+c      call write_force(nion,G1,"nonlocal")
+c      call dcopy(3*nion,0.0d0,0,G1,1)
+c      if (psp_semicore(0)) call electron_semicoreforce(G1)
+c      call write_force(nion,G1,"xc")
+c      call dcopy(3*nion,0.0d0,0,G1,1)
+c      if (control_version().eq.3) call ewald_f(G1)
+c      if (control_version().eq.4) call ion_ion_f(G1)
+c      call write_force(nion,G1,"ewald ")
+c      call dcopy(3*nion,0.0d0,0,G1,1)
+c      if (pspw_qmmm_found()) call pspw_qmmm_LJ_fion(G1)
+c      call write_force(nion,G1,"LJ ")
+c      call dcopy(3*nion,0.0d0,0,G1,1)
+c      if (pspw_qmmm_found()) call pspw_qmmm_Q_fion(G1)
+c      call write_force(nion,G1,"Q ")
+c*     **** debug ****
+      
       call dcopy(3*nion,0.0d0,0,G1,1)
 
       call psi_1force(G1)

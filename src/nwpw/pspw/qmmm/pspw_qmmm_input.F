@@ -1,19 +1,21 @@
       subroutine pspw_qmmm_input(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "nwc_const.fh"
+#include "errquit.fh"
 c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 7)
+      parameter (num_dirs = 8)
       character*30 dirs(num_dirs)
       data dirs / 'lj_ion_parameters:',
+     >            'lj_ion_parameters',
      >            'lj_mm_parameters:',
      >            'polarization_mm_parameter:',
      >            'sr_basis:',
@@ -22,20 +24,23 @@ c
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
-      parameter (num_fdirs = 3)
+      parameter (num_fdirs = 5)
       character*30 fdirs(num_fdirs)
       data fdirs / 'size',
      >            'index_start',
+     >            'shake',
+     >            'switching',
      >            'end'/
 c
       logical       value
       character*4   element
       character*80  rtdb_name
       integer       element_length,basis_length,tmp(2)
-      integer       ni,nkf,nfrag,frag_size,index_start(30)
-      real*8        se(2),alpha
+      integer       ni,nkf,nfrag,frag_size,index_start(2)
+      real*8        se(2),alpha,Rin,Rout,sdist2(30),scal
       character*255 test
       integer ind               ! Index of matched directive
+      integer j,jstart,jlast,jstride
 
 *     **** external functions ****
       character*7 c_index_name
@@ -55,7 +60,7 @@ c
      >  'pspw_qmmm_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 100, 200, 300, 400, 500, 600,
+      goto ( 100,100, 200, 300, 400, 500, 600,
      >      9999) ind
       call errquit(
      >      'pspw_qmmm_input: unimplemented directive', ind, INPUT_ERR)
@@ -197,7 +202,7 @@ c
      >  call errquit('pspw_qmmm_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 610, 620,
+      goto ( 610, 620,630,640,
      >       699) ind
       call errquit('pspw_qmmm_input:directive not found',ind,INPUT_ERR)
 
@@ -215,28 +220,88 @@ c
 c
 c index_start
 c
- 620  ni = 0
-      do while (inp_i(index_start(ni+1)))
-        ni = ni + 1
+ 620  value = MA_push_get(mt_int,nw_max_atom,'indx_start',
+     >                    index_start(2),index_start(1))
+      if (.not. value) call errquit(
+     > 'pspw_qmmm_input:failed allocating index_start',0,MA_ERR)
+
+      ni = 0
+      do while (inp_irange(jstart,jlast,jstride))
+         do j=jstart,jlast,jstride
+          int_mb(index_start(1)+ni) = j
+          ni = ni+1
+         end do
       end do
+c      do while (inp_i(index_start(ni+1)))
+c        ni = ni + 1
+c      end do
       rtdb_name = 'pspw_qmmm_frag_index_start:'//c_index_name(nkf)
-      value = rtdb_put(rtdb,rtdb_name,mt_int,ni,index_start)
-      if (.not. value)
-     >  call errquit(
-     > 'pspw_qmmm_input:failed writing index_start',0, RTDB_ERR)
+      value = rtdb_put(rtdb,rtdb_name,mt_int,ni,int_mb(index_start(1)))
+      if (.not. value) call errquit(
+     > 'pspw_qmmm_input:failed writing index_start',0,RTDB_ERR)
+
+      value = MA_pop_stack(index_start(2))
+      if (.not. value) call errquit(
+     > 'pspw_qmmm_input:failed deallocating index_start',0,MA_ERR)
 
       rtdb_name = 'pspw_qmmm_frag_nindex_start:'//c_index_name(nkf)
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
-      if (.not. value)
-     >  call errquit(
+      if (.not. value) call errquit(
      > 'pspw_qmmm_input:failed writing nindex_start',0, RTDB_ERR)
 
       nfrag = nfrag + ni
       rtdb_name = 'pspw_qmmm_nfrag'
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,nfrag)
+      if (.not. value) call errquit(
+     > 'pspw_qmmm_input:failed writing nfrag',0, RTDB_ERR)
+
+      goto 601
+
+c
+c shake
+c
+ 630  ni = 0
+      if (inp_f(alpha)) then
+         scal = 1.0d0
+         sdist2(ni+1) = (scal*alpha)**2
+         ni = ni + 1
+      else
+         call get_scalefrominput(scal)
+      end if
+      do while (inp_f(alpha))
+        sdist2(ni+1) = (scal*alpha)**2
+        ni = ni + 1
+      end do
+      rtdb_name = 'pspw_qmmm_frag_sdist:'//c_index_name(nkf)
+      value = rtdb_put(rtdb,rtdb_name,mt_dbl,ni,sdist2)
       if (.not. value)
      >  call errquit(
-     > 'pspw_qmmm_input:failed writing nfrag',0, RTDB_ERR)
+     > 'pspw_qmmm_input:failed writing sdist',0, RTDB_ERR)
+
+      rtdb_name = 'pspw_qmmm_frag_n_sdist:'//c_index_name(nkf)
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
+      if (.not. value)
+     >  call errquit(
+     > 'pspw_qmmm_input:failed writing n_sdist',0, RTDB_ERR)
+
+      goto 601
+c
+c switching
+c
+ 640  if (.not.inp_f(Rin))  Rin = 0.0d0
+      if (.not.inp_f(Rout)) Rout = 0.0d0
+
+      rtdb_name = 'pspw_qmmm_frag_switch_Rin:'//c_index_name(nkf)
+      value = rtdb_put(rtdb,rtdb_name,mt_dbl,1,Rin)
+      if (.not. value)
+     >  call errquit(
+     > 'pspw_qmmm_input:failed writing switch_Rin',0, RTDB_ERR)
+
+      rtdb_name = 'pspw_qmmm_frag_switch_Rout:'//c_index_name(nkf)
+      value = rtdb_put(rtdb,rtdb_name,mt_dbl,1,Rout)
+      if (.not. value)
+     >  call errquit(
+     > 'pspw_qmmm_input:failed writing switch_Rout',0, RTDB_ERR)
 
       goto 601
 

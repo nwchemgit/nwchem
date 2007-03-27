@@ -6,7 +6,7 @@
 *     ***************************
       subroutine molecular_init(rtdb)
 *
-* $Id: molecular.F,v 1.5 2006-12-27 19:47:52 bylaska Exp $
+* $Id: molecular.F,v 1.6 2007-03-27 02:02:47 bylaska Exp $
 *
       implicit none 
       integer   rtdb
@@ -145,9 +145,12 @@
       double precision blist(20),mass(20)
 
 *     **** external functions ****
+      logical  pspw_qmmm_shake_found
+      external pspw_qmmm_shake_found
       double precision ion_amass
       external         ion_amass
 
+      if (pspw_qmmm_shake_found()) call pspw_qmmm_shake(r2,r1)
       if (value) then     
 
          call pspw_molecule_msize(msize)
@@ -156,6 +159,7 @@
             call pspw_molecule_data(m,na,indxa,blist,cyclic)
 
 *           **** set mass variable ****
+*           **** should be rewritten since mass is not katm anymore****
             do a=1,na
                 mass(a) = ion_amass(indxa(a))
             end do

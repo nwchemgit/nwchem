@@ -1,5 +1,5 @@
 *
-* $Id: stress_fd.F,v 1.8 2006-07-24 19:04:40 edo Exp $
+* $Id: stress_fd.F,v 1.9 2007-03-27 02:02:48 bylaska Exp $
 *
       logical function stress_fd(rtdb)
       implicit none
@@ -235,3 +235,5 @@
       stress_fd = value
       return 
       end
+
+

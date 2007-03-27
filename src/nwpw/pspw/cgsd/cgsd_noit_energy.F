@@ -1,4 +1,4 @@
-c     $Id: cgsd_noit_energy.F,v 1.4 2006-06-19 17:33:36 bylaska Exp $                       
+c     $Id: cgsd_noit_energy.F,v 1.5 2007-03-27 02:02:49 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *	   cgsd_noit_energy	*
@@ -58,7 +58,14 @@ c     call psi_2to1()
       value = value.and.rtdb_put(rtdb,'pspw:E_hfx',     mt_dbl,1,E(26))
       if (.not. value) call errquit(
      >   'cgsd_noit_energy: numerical stress - error writing rtdb',0,
-     &       RTDB_ERR)
+     >       RTDB_ERR)
+
+*     **** debug - energies written to rtdb for numerical forces ****
+      value = value.and.rtdb_put(rtdb,'pspw:E_LJ',   mt_dbl,1,E(11))
+      value = value.and.rtdb_put(rtdb,'pspw:E_Q',    mt_dbl,1,E(12))
+      if (.not. value) call errquit(
+     >   'cgsd_noit_energy: numerical force - error writing rtdb',0,
+     >       RTDB_ERR)
 
 
       cgsd_noit_energy = E(1)

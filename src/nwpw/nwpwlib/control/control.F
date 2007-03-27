@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.96 2007-02-23 01:24:49 bylaska Exp $
+* $Id: control.F,v 1.97 2007-03-27 02:02:47 bylaska Exp $
 *
 
 *     ***********************************
@@ -136,7 +136,7 @@ c     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
       if(.not.rtdb_get(rtdb,'cpsd:rcut',mt_dbl,1,rcut))
      >    rcut = 0.0d0
       if(.not.rtdb_get(rtdb,'cpsd:ncut',mt_int,1,ncut))
-     >    ncut = 0
+     >    ncut = 1
       if(.not.rtdb_get(rtdb,'cpsd:mult',mt_int,1,multiplicity))
      >    multiplicity = 1
       if(.not.rtdb_get(rtdb,'cpsd:ispin',mt_int,1,ispin))
@@ -211,7 +211,7 @@ c     *     call errquit(' control: rtdb_put failed ',0,0)
       if(.not. rtdb_get(rtdb,'cpmd:rcut',mt_dbl,1,rcut))
      >    rcut = 0.0d0
       if(.not. rtdb_get(rtdb,'cpmd:ncut',mt_int,1,ncut))
-     >    ncut = 0
+     >    ncut = 1
       SA = .true.
       if (.not.rtdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,sa_decay)) then
         SA = .false.
@@ -339,7 +339,7 @@ c
       if (.not.rtdb_get(rtdb,'cgsd:rcut',mt_dbl,1,rcut))
      >   rcut = 0.0d0
       if (.not.rtdb_get(rtdb,'cgsd:ncut',mt_int,1,ncut))
-     >   ncut = 0
+     >   ncut = 1
       if (.not.rtdb_get(rtdb,'cgsd:mult',mt_int,1,multiplicity))
      >   multiplicity = 1
       if (.not.rtdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin))
@@ -382,7 +382,7 @@ c
          ecut=9000.0d0
          wcut=9000.0d0
          rcut = 0.0d0
-         ncut = 0
+         ncut = 1
          npsp = 0
 
          control_read = value

@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.19 2007-03-22 20:46:20 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.20 2007-03-27 02:02:48 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -48,6 +48,7 @@ c
       integer n2ft3d
       !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
+      real*8 e_lj,e_q
       real*8 ehfx,phfx
       
 
@@ -82,6 +83,10 @@ c
       external psi_1eorbit
 
 *     ***** QM/MM external functions ****
+      logical  pspw_qmmm_found
+      real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E
+      external pspw_qmmm_found
+      external pspw_qmmm_LJ_E,pspw_qmmm_Q_E
 
 *     ***** pspw_charge external functions ****
       logical  pspw_charge_found,control_precondition,pspw_HFX
@@ -345,8 +350,14 @@ c
       E(8)  = psi_1vnl()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
-      !if (pspw_qmmm_found()) then
-      !end if
+      if (pspw_qmmm_found()) then
+         e_lj = pspw_qmmm_LJ_E()
+         e_q  = pspw_qmmm_Q_E()
+         E(1)  = E(1) + e_lj + e_q
+
+         E(11) = e_lj
+         E(12) = e_q
+      end if
 
 *     **** get pspw_charge  energies ****
       if (pspw_charge_found()) then

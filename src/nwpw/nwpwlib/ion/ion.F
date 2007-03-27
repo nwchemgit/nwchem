@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.46 2007-03-22 20:46:19 bylaska Exp $
+* $Id: ion.F,v 1.47 2007-03-27 02:02:47 bylaska Exp $
 *
 
 *     ***************************
@@ -197,12 +197,18 @@
       
       logical          control_frac_coord,control_init_velocities
       logical          parseqmmm
+      integer          control_version
       double precision control_ion_time_step,ion_amass_geom
       external         control_frac_coord,control_init_velocities
-      external         control_ion_time_step,ion_amass_geom
       external         parseqmmm
+      external         control_version
+      external         control_ion_time_step,ion_amass_geom
 
       call Parallel_taskid(taskid)
+
+*     ***** set periodic ****
+      periodic = .true.
+      if (control_version().eq.4) periodic = .false.
 
 *     *****************************************
 *     **** seperate ions and charges       ****
@@ -263,8 +269,8 @@
         call fcoord_to_real(nion,dbl_mb(r1(1)))
       end if         
 
-*     **** make sure ions are in cell ***
-      call incell1(nion,dbl_mb(r1(1)))
+*     **** make sure qm ions are in cell ***
+      if (periodic) call incell1(nion_qm,dbl_mb(r1(1)))
 
       call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r2(1)),1)
 
@@ -416,6 +422,44 @@ c         eki1=0.5d0*eki1
       ion_aname = symbol
       return
       end
+
+
+
+
+*     ***************************
+*     *                         *
+*     *      ion_aname_nocarat  *
+*     *                         *
+*     ***************************
+      character*2 function ion_aname_nocarat(i)
+      implicit none
+      integer i
+
+#include "stdio.fh"
+#include "geom.fh"
+#include "errquit.fh"
+
+      integer geom
+      common / ION2/ geom
+
+*     **** local variables ****
+      character*2  symbol
+      character*16 t,name
+      real*8 q
+
+
+      if (.not. geom_cent_tag(geom,i,t))
+     >        call errquit('ion_aname_nocarat failed ',i,GEOM_ERR)
+
+      if (.not. geom_tag_to_element(t,symbol,name,q))
+     >        call errquit('ion_aname_nocarat failed ',i,GEOM_ERR)
+
+
+      ion_aname_nocarat = symbol
+      return
+      end
+
+
 
 *     ***************************
 *     *				*
@@ -1427,7 +1471,10 @@ c         eki1=0.5d0*eki1
       end do
 
 *     *** make sure ions are in the cell ***
-      call incell1(nion,dbl_mb(r1(1)))
+      if (periodic) then
+         call incell1(nion_qm,dbl_mb(r1(1)))
+         call pspw_qmmm_incell1(dbl_mb(r1(1)))
+      end if
 
       return
       end
@@ -1468,8 +1515,11 @@ c         eki1=0.5d0*eki1
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
 
-*     **** make sure ions are in cell ***
-      call incell1(nion,dbl_mb(r2(1)))
+*     **** make sure qm ions and fragments are in cell ***
+      if (periodic) then
+         call incell1(nion_qm,dbl_mb(r2(1)))
+         call pspw_qmmm_incell1(dbl_mb(r2(1)))
+      end if
 
       return
       end
@@ -1535,9 +1585,14 @@ c         eki1=0.5d0*eki1
 
 
 *     **** make sure ions are in cell ***
-      call incell3(nion,dbl_mb(r2(1)),
-     >                  dbl_mb(r1(1)),
-     >                  dbl_mb(r0(1)))
+      if (periodic) then
+         call incell3(nion_qm,dbl_mb(r2(1)),
+     >                        dbl_mb(r1(1)),
+     >                        dbl_mb(r0(1)))
+         call pspw_qmmm_incell3(dbl_mb(r2(1)),
+     >                          dbl_mb(r1(1)),
+     >                          dbl_mb(r0(1)))
+      end if
 
 *     **** remove translation? ***
       if (.not.control_translation()) 
@@ -1638,7 +1693,10 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
 
 
 *     **** make sure ions are in cell ***
-      call incell1(nion,dbl_mb(r1(1)))
+      if (periodic) then
+         call incell1(nion_qm,dbl_mb(r1(1)))
+         call pspw_qmmm_incell1(dbl_mb(r1(1)))
+      end if
 
 
 *     **** remove translation? ***
@@ -1865,8 +1923,12 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
 
 
 *     **** make sure ions are in cell ***
-      call incell2(nion,dbl_mb(r2(1)),
-     >                  dbl_mb(r1(1)))
+      if (periodic) then
+         call incell2(nion_qm,dbl_mb(r2(1)),
+     >                        dbl_mb(r1(1)))
+         call pspw_qmmm_incell2(dbl_mb(r2(1)),
+     >                          dbl_mb(r1(1)))
+      end if
 
 *     **** remove translation? ***
       if (.not.control_translation()) 
@@ -1948,9 +2010,14 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
 
 
 *     **** make sure ions are in cell ***
-      call incell3(nion,dbl_mb(r2(1)),
-     >                  dbl_mb(r1(1)),
-     >                  dbl_mb(r0(1)))
+      if (periodic) then
+         call incell3(nion_qm,dbl_mb(r2(1)),
+     >                        dbl_mb(r1(1)),
+     >                        dbl_mb(r0(1)))
+         call pspw_qmmm_incell3(dbl_mb(r2(1)),
+     >                          dbl_mb(r1(1)),
+     >                          dbl_mb(r0(1)))
+      end if
 
 *     **** remove translation? ***
       if (.not.control_translation())
@@ -2060,10 +2127,10 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
 
 
 *     **** external functions ****
-      character*2 ion_aname
+      character*2 ion_aname_nocarat
       integer  ion_nion,ion_katm
       real*8   ion_rion
-      external ion_aname
+      external ion_aname_nocarat
       external ion_nion,ion_katm
       external ion_rion
 
@@ -2077,7 +2144,7 @@ c     **** ouput xyz format ****
         write(unit,*) ion_nion()
         write(unit,*) 
         do ii=1,ion_nion()
-           WRITE(unit,1205) ion_aname(ii),
+           WRITE(unit,1205) ion_aname_nocarat(ii),
      >                   ion_rion(1,ii)*0.529177d0,
      >                   ion_rion(2,ii)*0.529177d0,
      >                   ion_rion(3,ii)*0.529177d0
@@ -2118,10 +2185,10 @@ c     **** ouput xyz format ****
 
 
 *     **** external functions ****
-      character*2 ion_aname
+      character*2 ion_aname_nocarat
       integer  ion_nion,ion_katm
       real*8   ion_rion,lattice_unita
-      external ion_aname
+      external ion_aname_nocarat
       external ion_nion,ion_katm
       external ion_rion,lattice_unita
 
@@ -2204,7 +2271,7 @@ c     **** ouput xyz format ****
            frac(3) = b(1,3)*ion_rion(1,ii)
      >             + b(2,3)*ion_rion(2,ii)
      >             + b(3,3)*ion_rion(3,ii) + 0.5
-           WRITE(unit,1250) ion_aname(ii),ii,frac
+           WRITE(unit,1250) ion_aname_nocarat(ii),ii,frac
 
         end do
       end if
@@ -2246,7 +2313,7 @@ c     **** ouput xyz format ****
            frac(3) = b(1,3)*ion_rion(1,ii)
      >             + b(2,3)*ion_rion(2,ii)
      >             + b(3,3)*ion_rion(3,ii) 
-           WRITE(unit,1250) ion_aname(ii),ii,frac
+           WRITE(unit,1250) ion_aname_nocarat(ii),ii,frac
 
         end do
       end if

@@ -1,6 +1,6 @@
 
 *     **** ion common block ****
-      logical     sym_inversion
+      logical     sym_inversion,periodic
       integer     nion_mm,nion_qm
       integer     nion,nkatm,nkatm_qm
       integer     r2(2),r1(2),r0(2),amass(2)
@@ -21,5 +21,6 @@
      >              nkatm,		! number of kinds of ions
      >              nkatm_qm,		! number of kinds of quantum ions
      >              dti,		! Verlet/steepest descent alpha
-     >              sym_inversion     !true if inversion symmetry
+     >              sym_inversion,    !true if inversion symmetry
+     >              periodic          !true if periodic
 

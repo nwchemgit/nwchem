@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_default.F,v 1.12 2004-11-14 23:31:44 bylaska Exp $
+c $Id: nwpw_default.F,v 1.13 2007-03-27 02:02:47 bylaska Exp $
 c
       subroutine nwpw_default(rtdb)
       implicit none
@@ -58,7 +58,7 @@ c
       ecut=9000.0d0
       wcut=9000.0d0
       rcut = 0.0d0
-      ncut = 0
+      ncut = 1
       npsp = 0
       ispin        = 1
       multiplicity = 1

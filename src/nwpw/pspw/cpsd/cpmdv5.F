@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.57 2007-03-22 20:46:21 bylaska Exp $
+* $Id: cpmdv5.F,v 1.58 2007-03-27 02:02:49 bylaska Exp $
 *
 
 ***********************************************************************
@@ -137,9 +137,9 @@ c      parameter (autoatm =290.360032539d6)
       character*12 control_boundry
       external     control_boundry
 
-      logical      psp_semicore
+      logical      psp_semicore,pspw_qmmm_found
       real*8       psp_rcore,psp_ncore,psp_rlocal
-      external     psp_semicore
+      external     psp_semicore,pspw_qmmm_found
       external     psp_rcore,psp_ncore,psp_rlocal
 
       logical  control_Nose,control_Mulliken
@@ -314,8 +314,6 @@ c      parameter (autoatm =290.360032539d6)
 *     **** read ions ****
       value = ion_init(rtdb)
 
-*     **** initialize FixIon constraint ****
-      call ion_init_FixIon(rtdb)
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
@@ -398,6 +396,9 @@ c      parameter (autoatm =290.360032539d6)
 *     **** initialize SIC and HFX ****
       call pspw_init_SIC(rtdb,ne)
       call pspw_init_HFX(rtdb,ispin,ne)
+
+*     **** initialize FixIon constraint ****
+      call ion_init_FixIon(rtdb)
 
 *     **** initialize pressure ****
       calc_pressure = control_pressure().and.(control_version().eq.3)
@@ -1009,15 +1010,15 @@ c      parameter (autoatm =290.360032539d6)
          write(6,1472) ion_ke(),ion_ke()/ion_nion()
 
 
-c         if (pspw_qmmm_found()) then
-c            write(6,1700)
-c            write(6,1701)
-c            write(6,1702) E(11)
-c            write(6,1703) E(12)
+         if (pspw_qmmm_found()) then
+            write(6,1700)
+            write(6,1701)
+            write(6,1702) E(11)
+            write(6,1703) E(12)
 c            write(6,1704) E(13)
 c            write(6,1705) E(14)
 c            write(6,1706) E(15)
-c         end if
+         end if
 
 
          if (control_Nose()) then
@@ -1352,8 +1353,8 @@ c         end if
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')
- 1702 FORMAT( ' QM/MM energy           :',E19.10)
- 1703 FORMAT( ' MM/MM energy           :',E19.10)
+ 1702 FORMAT( ' LJ energy              :',E19.10)
+ 1703 FORMAT( ' Residual Coulomb energy:',E19.10)
  1704 FORMAT( ' MM Polarization energy :',E19.10)
  1705 FORMAT( ' MM Vibration energy    :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)

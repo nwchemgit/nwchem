@@ -25,34 +25,34 @@
         REAL*8      RPTOL, RMA, RMB
         PARAMETER ( RPTOL = 1.0E-6 )
 
-        real*8 ua(3,3),ub(3,3),volume
-        real*8 c1,c2,c3
+c        real*8 ua(3,3),ub(3,3),volume
+c        real*8 c1,c2,c3
 
-*     **** external functions ****
-      real*8   lattice_unita
-      external lattice_unita
+c*     **** external functions ****
+c      real*8   lattice_unita
+c      external lattice_unita
 
 
 *     ***** Determine the unit lattice vectors and distances ******
-      do j=1,3
-      do i=1,3
-         ua(i,j) = lattice_unita(i,j)
-      end do
-      end do
-      ub(1,1) = ua(2,2)*ua(3,3) - ua(3,2)*ua(2,3)
-      ub(2,1) = ua(3,2)*ua(1,3) - ua(1,2)*ua(3,3)
-      ub(3,1) = ua(1,2)*ua(2,3) - ua(2,2)*ua(1,3)
-      ub(1,2) = ua(2,3)*ua(3,1) - ua(3,3)*ua(2,1)
-      ub(2,2) = ua(3,3)*ua(1,1) - ua(1,3)*ua(3,1)
-      ub(3,2) = ua(1,3)*ua(2,1) - ua(2,3)*ua(1,1)
-      ub(1,3) = ua(2,1)*ua(3,2) - ua(3,1)*ua(2,2)
-      ub(2,3) = ua(3,1)*ua(1,2) - ua(1,1)*ua(3,2)
-      ub(3,3) = ua(1,1)*ua(2,2) - ua(2,1)*ua(1,2)
-      volume = ua(1,1)*ub(1,1)
-     >       + ua(2,1)*ub(2,1)
-     >       + ua(3,1)*ub(3,1)
-      volume = 1.0d0/volume
-      call dscal(9,volume,ub,1)
+c      do j=1,3
+c      do i=1,3
+c         ua(i,j) = lattice_unita(i,j)
+c      end do
+c      end do
+c      ub(1,1) = ua(2,2)*ua(3,3) - ua(3,2)*ua(2,3)
+c      ub(2,1) = ua(3,2)*ua(1,3) - ua(1,2)*ua(3,3)
+c      ub(3,1) = ua(1,2)*ua(2,3) - ua(2,2)*ua(1,3)
+c      ub(1,2) = ua(2,3)*ua(3,1) - ua(3,3)*ua(2,1)
+c      ub(2,2) = ua(3,3)*ua(1,1) - ua(1,3)*ua(3,1)
+c      ub(3,2) = ua(1,3)*ua(2,1) - ua(2,3)*ua(1,1)
+c      ub(1,3) = ua(2,1)*ua(3,2) - ua(3,1)*ua(2,2)
+c      ub(2,3) = ua(3,1)*ua(1,2) - ua(1,1)*ua(3,2)
+c      ub(3,3) = ua(1,1)*ua(2,2) - ua(2,1)*ua(1,2)
+c      volume = ua(1,1)*ub(1,1)
+c     >       + ua(2,1)*ub(2,1)
+c     >       + ua(3,1)*ub(3,1)
+c      volume = 1.0d0/volume
+c      call dscal(9,volume,ub,1)
 
 
         
@@ -91,15 +91,16 @@ C       ** BEGIN ITERATIVE LOOP **
                     PXAB = PXI(A) - PXI(B)
                     PYAB = PYI(A) - PYI(B)
                     PZAB = PZI(A) - PZI(B)
-                    c1 = PXAB*ub(1,1) + PYAB*ub(2,1) + PZAB*ub(3,1)
-                    c2 = PXAB*ub(1,2) + PYAB*ub(2,2) + PZAB*ub(3,2)
-                    c3 = PXAB*ub(1,3) + PYAB*ub(2,3) + PZAB*ub(3,3)
-                    c1 = c1 - ANINT(c1)
-                    c2 = c2 - ANINT(c2)
-                    c3 = c3 - ANINT(c3)
-                    PXAB = ua(1,1)*c1 + ua(1,2)*c2 + ua(1,3)*c3
-                    PYAB = ua(2,1)*c1 + ua(2,2)*c2 + ua(2,3)*c3
-                    PZAB = ua(3,1)*c1 + ua(3,2)*c2 + ua(3,3)*c3
+                    call lattice_min_difference(PXAB,PYAB,PZAB)
+c                    c1 = PXAB*ub(1,1) + PYAB*ub(2,1) + PZAB*ub(3,1)
+c                    c2 = PXAB*ub(1,2) + PYAB*ub(2,2) + PZAB*ub(3,2)
+c                    c3 = PXAB*ub(1,3) + PYAB*ub(2,3) + PZAB*ub(3,3)
+c                    c1 = c1 - ANINT(c1)
+c                    c2 = c2 - ANINT(c2)
+c                    c3 = c3 - ANINT(c3)
+c                    PXAB = ua(1,1)*c1 + ua(1,2)*c2 + ua(1,3)*c3
+c                    PYAB = ua(2,1)*c1 + ua(2,2)*c2 + ua(2,3)*c3
+c                    PZAB = ua(3,1)*c1 + ua(3,2)*c2 + ua(3,3)*c3
                  
 
                     PABSQ  = PXAB ** 2 + PYAB ** 2 + PZAB ** 2
@@ -112,15 +113,16 @@ C       ** BEGIN ITERATIVE LOOP **
                        RXAB = RXI(A) - RXI(B)
                        RYAB = RYI(A) - RYI(B)
                        RZAB = RZI(A) - RZI(B)
-                       c1 = RXAB*ub(1,1) + RYAB*ub(2,1) + RZAB*ub(3,1)
-                       c2 = RXAB*ub(1,2) + RYAB*ub(2,2) + RZAB*ub(3,2)
-                       c3 = RXAB*ub(1,3) + RYAB*ub(2,3) + RZAB*ub(3,3)
-                       c1 = c1 - ANINT(c1)
-                       c2 = c2 - ANINT(c2)
-                       c3 = c3 - ANINT(c3)
-                       RXAB = ua(1,1)*c1 + ua(1,2)*c2 + ua(1,3)*c3
-                       RYAB = ua(2,1)*c1 + ua(2,2)*c2 + ua(2,3)*c3
-                       RZAB = ua(3,1)*c1 + ua(3,2)*c2 + ua(3,3)*c3
+                       call lattice_min_difference(RXAB,RYAB,RZAB)
+c                       c1 = RXAB*ub(1,1) + RYAB*ub(2,1) + RZAB*ub(3,1)
+c                       c2 = RXAB*ub(1,2) + RYAB*ub(2,2) + RZAB*ub(3,2)
+c                       c3 = RXAB*ub(1,3) + RYAB*ub(2,3) + RZAB*ub(3,3)
+c                       c1 = c1 - ANINT(c1)
+c                       c2 = c2 - ANINT(c2)
+c                       c3 = c3 - ANINT(c3)
+c                       RXAB = ua(1,1)*c1 + ua(1,2)*c2 + ua(1,3)*c3
+c                       RYAB = ua(2,1)*c1 + ua(2,2)*c2 + ua(2,3)*c3
+c                       RZAB = ua(3,1)*c1 + ua(3,2)*c2 + ua(3,3)*c3
 
                        RPAB = RXAB * PXAB + RYAB * PYAB + RZAB * PZAB
 

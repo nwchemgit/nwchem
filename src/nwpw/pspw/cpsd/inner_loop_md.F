@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.27 2007-03-22 20:46:21 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.28 2007-03-27 02:02:49 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -59,6 +59,7 @@
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,fmass,h
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx,espring,enlocal
       !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
+      real*8   e_lj,e_q
       real*8  s,r
 
 
@@ -103,8 +104,10 @@ c     real*8     fion(3,natmx)
       external Nose_dXe,Nose_dXr
 
 *     ***** QM/MM external functions ****
-      logical  pspw_charge_found
-      external pspw_charge_found
+      logical  pspw_charge_found,pspw_qmmm_found
+      real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E
+      external pspw_charge_found,pspw_qmmm_found
+      external pspw_qmmm_LJ_E,pspw_qmmm_Q_E
 
       logical  dplot_iteration_check
       external dplot_iteration_check
@@ -412,6 +415,10 @@ c     real*8     fion(3,natmx)
            call semicore_xc_F(ispin,dbl_mb(xcp(1)),dbl_mb(fion(1)))
         end if
 
+*       **** get the qmmm force ****
+        if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
+
+
 *       *****************************************
 *       **** remove ion forces using ion_FixIon *
 *       *****************************************
@@ -632,8 +639,14 @@ c        end if
       E(22) = espring
 
 *     ******** QM/MM energies ******
-      !if (pspw_qmmm_found()) then
-      !end if
+      if (pspw_qmmm_found()) then
+         e_lj = pspw_qmmm_LJ_E()
+         e_q  = pspw_qmmm_Q_E()
+         E(2)  = E(2) + e_lj + e_q
+
+         E(11) = e_lj
+         E(12) = e_q
+      end if
 
 *     **** SIC corrections ****
       if (pspw_SIC()) then

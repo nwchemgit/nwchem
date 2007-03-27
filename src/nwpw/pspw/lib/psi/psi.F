@@ -1,9 +1,13 @@
 *
-* $Id: psi.F,v 1.76 2007-03-22 20:46:22 bylaska Exp $
+* $Id: psi.F,v 1.77 2007-03-27 02:02:49 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.76  2007/03/22 20:46:22  bylaska
+* New implementation of QM/MM.
+* ....EJB
+*
 * Revision 1.75  2007/02/23 01:24:32  bylaska
 * ...EJB
 *
@@ -3844,6 +3848,83 @@ c    >                            dcpl_mb(dng1(1)))
      >                 fion)
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *         psi_1force_local        *
+*     *                                 *
+*     ***********************************
+      subroutine psi_1force_local(fion)
+      implicit none
+      real*8 fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      logical value
+      integer r_grid(2),tmp(2)
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
+
+c     call electron_gen_psi_r(dcpl_mb(psi1(1)))
+c     call electron_gen_densities(dcpl_mb(psi1(1)),
+c    >                             dbl_mb(rho1(1)),
+c    >                            dcpl_mb(dng1(1)))
+
+      call f_vlocal(dcpl_mb(dng1(1)),fion)
+
+      if (control_version().eq.4) then
+          value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',
+     >                        tmp(2),tmp(1))
+          value = value.and.
+     >            MA_push_get(mt_dbl,(6*nfft3d),'r_grid',
+     >                        r_grid(2),r_grid(1))
+         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+          call D3dB_rr_Sum(1,dbl_mb(rho1(1)),
+     >                       dbl_mb(rho1(1)+(ispin-1)*2*nfft3d),
+     >                       dbl_mb(tmp(1)))
+          call lattice_r_grid(dbl_mb(r_grid(1)))
+          call grad_v_lr_local(dbl_mb(r_grid(1)),
+     >                         dbl_mb(tmp(1)),
+     >                         fion)
+
+          value = MA_pop_stack(r_grid(2))
+          value = value.and.MA_pop_stack(tmp(2))
+         if (.not. value) call errquit('error popping stack memory',0,
+     &       MA_ERR)
+      end if
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         psi_1force_nonlocal     *
+*     *                                 *
+*     ***********************************
+      subroutine psi_1force_nonlocal(fion)
+      implicit none
+      real*8 fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+      call f_vnonlocal(ispin,
+     >                 neq,
+     >                 dcpl_mb(psi1(1)),
+     >                 fion)
+      return
+      end
+
+
+
+
 
 
 *     ***********************************

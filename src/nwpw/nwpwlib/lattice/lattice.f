@@ -1,6 +1,427 @@
 *
-* $Id: lattice.f,v 1.10 2007-02-08 22:18:05 bylaska Exp $
+* $Id: lattice.f,v 1.11 2007-03-27 02:02:48 bylaska Exp $
 *
+
+      subroutine lattice_min_difference(x,y,z)
+      implicit none
+      real*8 x,y,z
+
+*     **** common block ****
+      real*8 ecut,wcut,omega
+      real*8 ua(3,3),unitg(3,3)
+      common / lattice_block / ua,unitg,ecut,wcut,omega
+
+      real*8 ub(3,3)
+      common / lattice_block2 / ub
+
+*     *** local variables ****
+      real*8 c1,c2,c3
+
+      c1 = x*ub(1,1) + y*ub(2,1) + z*ub(3,1)
+      c2 = x*ub(1,2) + y*ub(2,2) + z*ub(3,2)
+      c3 = x*ub(1,3) + y*ub(2,3) + z*ub(3,3)
+      c1 = c1 - ANINT(c1)
+      c2 = c2 - ANINT(c2)
+      c3 = c3 - ANINT(c3)
+      x = ua(1,1)*c1 + ua(1,2)*c2 + ua(1,3)*c3
+      y = ua(2,1)*c1 + ua(2,2)*c2 + ua(2,3)*c3
+      z = ua(3,1)*c1 + ua(3,2)*c2 + ua(3,3)*c3
+
+      return
+      end
+
+      subroutine lattice_frac_to_r1(n,f1,r1)
+      implicit none
+      integer n
+      real*8 f1(3,*),r1(3,*)
+
+*     **** common block ****
+      real*8 ecut,wcut,omega
+      real*8 ua(3,3),unitg(3,3)
+      common / lattice_block / ua,unitg,ecut,wcut,omega
+
+*     **** local variables ***
+      integer i
+
+      do i=1,n
+         r1(1,i) = f1(1,i)*ua(1,1) + f1(2,i)*ua(2,1) + f1(3,i)*ua(3,1)
+         r1(2,i) = f1(1,i)*ua(1,2) + f1(2,i)*ua(2,2) + f1(3,i)*ua(3,2)
+         r1(3,i) = f1(1,i)*ua(1,3) + f1(2,i)*ua(2,3) + f1(3,i)*ua(3,3)
+      end do
+      return
+      end
+
+      subroutine lattice_r1_to_frac(n,r1,f1)
+      implicit none
+      integer n
+      real*8 r1(3,*),f1(3,*)
+
+*     **** common block ****
+      real*8 ub(3,3)
+      common / lattice_block2 / ub
+
+*     **** local variables ***
+      integer i
+
+      do i=1,n
+         f1(1,i) = r1(1,i)*ub(1,1) + r1(2,i)*ub(2,1) + r1(3,i)*ub(3,1)
+         f1(2,i) = r1(1,i)*ub(1,2) + r1(2,i)*ub(2,2) + r1(3,i)*ub(3,2)
+         f1(3,i) = r1(1,i)*ub(1,3) + r1(2,i)*ub(2,3) + r1(3,i)*ub(3,3)
+      end do
+      return
+      end
+
+      subroutine lattice_incell1_frag(rcm,n1,r1)
+      implicit none 
+      real*8  rcm(3)
+      integer n1
+      real*8  r1(3,*)
+
+*     **** common block ****
+      real*8 ecut,wcut,omega
+      real*8 ua(3,3),unitg(3,3)
+      common / lattice_block / ua,unitg,ecut,wcut,omega
+
+*     **** common block ****
+      real*8 ub(3,3)
+      common / lattice_block2 / ub
+
+*     **** local variables ****
+      integer i
+      real*8 fcm(3)
+
+      call lattice_r1_to_frac(1,rcm,fcm)
+      
+      do while (fcm(1).gt.(0.5d0))
+         rcm(1) = rcm(1) - ua(1,1)
+         rcm(2) = rcm(2) - ua(2,1)
+         rcm(3) = rcm(3) - ua(3,1)
+         do i=1,n1
+           r1(1,i) = r1(1,i) - ua(1,1)
+           r1(2,i) = r1(2,i) - ua(2,1)
+           r1(3,i) = r1(3,i) - ua(3,1)
+         end do
+         fcm(1) = rcm(1)*ub(1,1) + rcm(2)*ub(2,1) + rcm(3)*ub(3,1)
+      end do
+      do while (fcm(1).le.(-0.5d0))
+         rcm(1) = rcm(1) + ua(1,1)
+         rcm(2) = rcm(2) + ua(2,1)
+         rcm(3) = rcm(3) + ua(3,1)
+         do i=1,n1
+           r1(1,i) = r1(1,i) + ua(1,1)
+           r1(2,i) = r1(2,i) + ua(2,1)
+           r1(3,i) = r1(3,i) + ua(3,1)
+         end do
+         fcm(1) = rcm(1)*ub(1,1) + rcm(2)*ub(2,1) + rcm(3)*ub(3,1)
+      end do
+
+      do while (fcm(2).gt.(0.5d0))
+         rcm(1) = rcm(1) - ua(1,2)
+         rcm(2) = rcm(2) - ua(2,2)
+         rcm(3) = rcm(3) - ua(3,2)
+         do i=1,n1
+           r1(1,i) = r1(1,i) - ua(1,2)
+           r1(2,i) = r1(2,i) - ua(2,2)
+           r1(3,i) = r1(3,i) - ua(3,2)
+         end do
+         fcm(2) = rcm(1)*ub(1,2) + rcm(2)*ub(2,2) + rcm(3)*ub(3,2)
+      end do
+      do while (fcm(2).le.(-0.5d0))
+         rcm(1) = rcm(1) + ua(1,2)
+         rcm(2) = rcm(2) + ua(2,2)
+         rcm(3) = rcm(3) + ua(3,2)
+         do i=1,n1
+           r1(1,i) = r1(1,i) + ua(1,2)
+           r1(2,i) = r1(2,i) + ua(2,2)
+           r1(3,i) = r1(3,i) + ua(3,2)
+         end do
+         fcm(2) = rcm(1)*ub(1,2) + rcm(2)*ub(2,2) + rcm(3)*ub(3,2)
+      end do
+
+      do while (fcm(3).gt.(0.5d0))
+         rcm(1) = rcm(1) - ua(1,3)
+         rcm(2) = rcm(2) - ua(2,3)
+         rcm(3) = rcm(3) - ua(3,3)
+         do i=1,n1
+           r1(1,i) = r1(1,i) - ua(1,3)
+           r1(2,i) = r1(2,i) - ua(2,3)
+           r1(3,i) = r1(3,i) - ua(3,3)
+         end do
+         fcm(3) = rcm(1)*ub(1,3) + rcm(2)*ub(2,3) + rcm(3)*ub(3,3)
+      end do
+      do while (fcm(3).le.(-0.5d0))
+         rcm(1) = rcm(1) + ua(1,3)
+         rcm(2) = rcm(2) + ua(2,3)
+         rcm(3) = rcm(3) + ua(3,3)
+         do i=1,n1
+           r1(1,i) = r1(1,i) + ua(1,3)
+           r1(2,i) = r1(2,i) + ua(2,3)
+           r1(3,i) = r1(3,i) + ua(3,3)
+         end do
+         fcm(3) = rcm(1)*ub(1,3) + rcm(2)*ub(2,3) + rcm(3)*ub(3,3)
+      end do
+      return
+      end
+
+      subroutine lattice_incell2_frag(rcm,n1,r1,r2)
+      implicit none 
+      real*8  rcm(3)
+      integer n1
+      real*8  r1(3,*)
+      real*8  r2(3,*)
+
+*     **** common block ****
+      real*8 ecut,wcut,omega
+      real*8 ua(3,3),unitg(3,3)
+      common / lattice_block / ua,unitg,ecut,wcut,omega
+
+*     **** common block ****
+      real*8 ub(3,3)
+      common / lattice_block2 / ub
+
+*     **** local variables ****
+      integer i
+      real*8 fcm(3)
+
+      call lattice_r1_to_frac(1,rcm,fcm)
+      
+      do while (fcm(1).gt.(0.5d0))
+         rcm(1) = rcm(1) - ua(1,1)
+         rcm(2) = rcm(2) - ua(2,1)
+         rcm(3) = rcm(3) - ua(3,1)
+         do i=1,n1
+           r1(1,i) = r1(1,i) - ua(1,1)
+           r1(2,i) = r1(2,i) - ua(2,1)
+           r1(3,i) = r1(3,i) - ua(3,1)
+
+           r2(1,i) = r2(1,i) - ua(1,1)
+           r2(2,i) = r2(2,i) - ua(2,1)
+           r2(3,i) = r2(3,i) - ua(3,1)
+         end do
+         fcm(1) = rcm(1)*ub(1,1) + rcm(2)*ub(2,1) + rcm(3)*ub(3,1)
+      end do
+      do while (fcm(1).le.(-0.5d0))
+         rcm(1) = rcm(1) + ua(1,1)
+         rcm(2) = rcm(2) + ua(2,1)
+         rcm(3) = rcm(3) + ua(3,1)
+         do i=1,n1
+           r1(1,i) = r1(1,i) + ua(1,1)
+           r1(2,i) = r1(2,i) + ua(2,1)
+           r1(3,i) = r1(3,i) + ua(3,1)
+
+           r2(1,i) = r2(1,i) + ua(1,1)
+           r2(2,i) = r2(2,i) + ua(2,1)
+           r2(3,i) = r2(3,i) + ua(3,1)
+         end do
+         fcm(1) = rcm(1)*ub(1,1) + rcm(2)*ub(2,1) + rcm(3)*ub(3,1)
+      end do
+
+      do while (fcm(2).gt.(0.5d0))
+         rcm(1) = rcm(1) - ua(1,2)
+         rcm(2) = rcm(2) - ua(2,2)
+         rcm(3) = rcm(3) - ua(3,2)
+         do i=1,n1
+           r1(1,i) = r1(1,i) - ua(1,2)
+           r1(2,i) = r1(2,i) - ua(2,2)
+           r1(3,i) = r1(3,i) - ua(3,2)
+
+           r2(1,i) = r2(1,i) - ua(1,2)
+           r2(2,i) = r2(2,i) - ua(2,2)
+           r2(3,i) = r2(3,i) - ua(3,2)
+         end do
+         fcm(2) = rcm(1)*ub(1,2) + rcm(2)*ub(2,2) + rcm(3)*ub(3,2)
+      end do
+      do while (fcm(2).le.(-0.5d0))
+         rcm(1) = rcm(1) + ua(1,2)
+         rcm(2) = rcm(2) + ua(2,2)
+         rcm(3) = rcm(3) + ua(3,2)
+         do i=1,n1
+           r1(1,i) = r1(1,i) + ua(1,2)
+           r1(2,i) = r1(2,i) + ua(2,2)
+           r1(3,i) = r1(3,i) + ua(3,2)
+
+           r2(1,i) = r2(1,i) + ua(1,2)
+           r2(2,i) = r2(2,i) + ua(2,2)
+           r2(3,i) = r2(3,i) + ua(3,2)
+         end do
+         fcm(2) = rcm(1)*ub(1,2) + rcm(2)*ub(2,2) + rcm(3)*ub(3,2)
+      end do
+
+      do while (fcm(3).gt.(0.5d0))
+         rcm(1) = rcm(1) - ua(1,3)
+         rcm(2) = rcm(2) - ua(2,3)
+         rcm(3) = rcm(3) - ua(3,3)
+         do i=1,n1
+           r1(1,i) = r1(1,i) - ua(1,3)
+           r1(2,i) = r1(2,i) - ua(2,3)
+           r1(3,i) = r1(3,i) - ua(3,3)
+
+           r2(1,i) = r2(1,i) - ua(1,3)
+           r2(2,i) = r2(2,i) - ua(2,3)
+           r2(3,i) = r2(3,i) - ua(3,3)
+         end do
+         fcm(3) = rcm(1)*ub(1,3) + rcm(2)*ub(2,3) + rcm(3)*ub(3,3)
+      end do
+      do while (fcm(3).le.(-0.5d0))
+         rcm(1) = rcm(1) + ua(1,3)
+         rcm(2) = rcm(2) + ua(2,3)
+         rcm(3) = rcm(3) + ua(3,3)
+         do i=1,n1
+           r1(1,i) = r1(1,i) + ua(1,3)
+           r1(2,i) = r1(2,i) + ua(2,3)
+           r1(3,i) = r1(3,i) + ua(3,3)
+
+           r2(1,i) = r2(1,i) + ua(1,3)
+           r2(2,i) = r2(2,i) + ua(2,3)
+           r2(3,i) = r2(3,i) + ua(3,3)
+         end do
+         fcm(3) = rcm(1)*ub(1,3) + rcm(2)*ub(2,3) + rcm(3)*ub(3,3)
+      end do
+      return
+      end
+
+      subroutine lattice_incell3_frag(rcm,n1,r1,r2,r3)
+      implicit none 
+      real*8  rcm(3)
+      integer n1
+      real*8  r1(3,*)
+      real*8  r2(3,*)
+      real*8  r3(3,*)
+
+*     **** common block ****
+      real*8 ecut,wcut,omega
+      real*8 ua(3,3),unitg(3,3)
+      common / lattice_block / ua,unitg,ecut,wcut,omega
+
+*     **** common block ****
+      real*8 ub(3,3)
+      common / lattice_block2 / ub
+
+*     **** local variables ****
+      integer i
+      real*8 fcm(3)
+
+      call lattice_r1_to_frac(1,rcm,fcm)
+      
+      do while (fcm(1).gt.(0.5d0))
+         rcm(1) = rcm(1) - ua(1,1)
+         rcm(2) = rcm(2) - ua(2,1)
+         rcm(3) = rcm(3) - ua(3,1)
+         do i=1,n1
+           r1(1,i) = r1(1,i) - ua(1,1)
+           r1(2,i) = r1(2,i) - ua(2,1)
+           r1(3,i) = r1(3,i) - ua(3,1)
+
+           r2(1,i) = r2(1,i) - ua(1,1)
+           r2(2,i) = r2(2,i) - ua(2,1)
+           r2(3,i) = r2(3,i) - ua(3,1)
+
+           r3(1,i) = r3(1,i) - ua(1,1)
+           r3(2,i) = r3(2,i) - ua(2,1)
+           r3(3,i) = r3(3,i) - ua(3,1)
+         end do
+         fcm(1) = rcm(1)*ub(1,1) + rcm(2)*ub(2,1) + rcm(3)*ub(3,1)
+      end do
+      do while (fcm(1).le.(-0.5d0))
+         rcm(1) = rcm(1) + ua(1,1)
+         rcm(2) = rcm(2) + ua(2,1)
+         rcm(3) = rcm(3) + ua(3,1)
+         do i=1,n1
+           r1(1,i) = r1(1,i) + ua(1,1)
+           r1(2,i) = r1(2,i) + ua(2,1)
+           r1(3,i) = r1(3,i) + ua(3,1)
+
+           r2(1,i) = r2(1,i) + ua(1,1)
+           r2(2,i) = r2(2,i) + ua(2,1)
+           r2(3,i) = r2(3,i) + ua(3,1)
+
+           r3(1,i) = r3(1,i) + ua(1,1)
+           r3(2,i) = r3(2,i) + ua(2,1)
+           r3(3,i) = r3(3,i) + ua(3,1)
+         end do
+         fcm(1) = rcm(1)*ub(1,1) + rcm(2)*ub(2,1) + rcm(3)*ub(3,1)
+      end do
+
+      do while (fcm(2).gt.(0.5d0))
+         rcm(1) = rcm(1) - ua(1,2)
+         rcm(2) = rcm(2) - ua(2,2)
+         rcm(3) = rcm(3) - ua(3,2)
+         do i=1,n1
+           r1(1,i) = r1(1,i) - ua(1,2)
+           r1(2,i) = r1(2,i) - ua(2,2)
+           r1(3,i) = r1(3,i) - ua(3,2)
+
+           r2(1,i) = r2(1,i) - ua(1,2)
+           r2(2,i) = r2(2,i) - ua(2,2)
+           r2(3,i) = r2(3,i) - ua(3,2)
+
+           r3(1,i) = r3(1,i) - ua(1,2)
+           r3(2,i) = r3(2,i) - ua(2,2)
+           r3(3,i) = r3(3,i) - ua(3,2)
+         end do
+         fcm(2) = rcm(1)*ub(1,2) + rcm(2)*ub(2,2) + rcm(3)*ub(3,2)
+      end do
+      do while (fcm(2).le.(-0.5d0))
+         rcm(1) = rcm(1) + ua(1,2)
+         rcm(2) = rcm(2) + ua(2,2)
+         rcm(3) = rcm(3) + ua(3,2)
+         do i=1,n1
+           r1(1,i) = r1(1,i) + ua(1,2)
+           r1(2,i) = r1(2,i) + ua(2,2)
+           r1(3,i) = r1(3,i) + ua(3,2)
+
+           r2(1,i) = r2(1,i) + ua(1,2)
+           r2(2,i) = r2(2,i) + ua(2,2)
+           r2(3,i) = r2(3,i) + ua(3,2)
+
+           r3(1,i) = r3(1,i) + ua(1,2)
+           r3(2,i) = r3(2,i) + ua(2,2)
+           r3(3,i) = r3(3,i) + ua(3,2)
+         end do
+         fcm(2) = rcm(1)*ub(1,2) + rcm(2)*ub(2,2) + rcm(3)*ub(3,2)
+      end do
+
+      do while (fcm(3).gt.(0.5d0))
+         rcm(1) = rcm(1) - ua(1,3)
+         rcm(2) = rcm(2) - ua(2,3)
+         rcm(3) = rcm(3) - ua(3,3)
+         do i=1,n1
+           r1(1,i) = r1(1,i) - ua(1,3)
+           r1(2,i) = r1(2,i) - ua(2,3)
+           r1(3,i) = r1(3,i) - ua(3,3)
+
+           r2(1,i) = r2(1,i) - ua(1,3)
+           r2(2,i) = r2(2,i) - ua(2,3)
+           r2(3,i) = r2(3,i) - ua(3,3)
+
+           r3(1,i) = r3(1,i) - ua(1,3)
+           r3(2,i) = r3(2,i) - ua(2,3)
+           r3(3,i) = r3(3,i) - ua(3,3)
+         end do
+         fcm(3) = rcm(1)*ub(1,3) + rcm(2)*ub(2,3) + rcm(3)*ub(3,3)
+      end do
+      do while (fcm(3).le.(-0.5d0))
+         rcm(1) = rcm(1) + ua(1,3)
+         rcm(2) = rcm(2) + ua(2,3)
+         rcm(3) = rcm(3) + ua(3,3)
+         do i=1,n1
+           r1(1,i) = r1(1,i) + ua(1,3)
+           r1(2,i) = r1(2,i) + ua(2,3)
+           r1(3,i) = r1(3,i) + ua(3,3)
+
+           r2(1,i) = r2(1,i) + ua(1,3)
+           r2(2,i) = r2(2,i) + ua(2,3)
+           r2(3,i) = r2(3,i) + ua(3,3)
+
+           r3(1,i) = r3(1,i) + ua(1,3)
+           r3(2,i) = r3(2,i) + ua(2,3)
+           r3(3,i) = r3(3,i) + ua(3,3)
+         end do
+         fcm(3) = rcm(1)*ub(1,3) + rcm(2)*ub(2,3) + rcm(3)*ub(3,3)
+      end do
+      return
+      end
+
 
       real*8 function lattice_wcut()
       implicit none
@@ -101,6 +522,10 @@
       real*8 unita(3,3),unitg(3,3)
       common / lattice_block / unita,unitg,ecut,wcut,omega
 
+      real*8 ub(3,3)
+      common / lattice_block2 / ub
+
+
 *     **** local variables ****
       integer nx,ny,nz
       integer nxh,nyh,nzh
@@ -126,6 +551,11 @@
       unita(2,3) = control_unita(2,3)
       unita(3,3) = control_unita(3,3)
       call get_cube(unita,unitg,omega)
+
+*     **** define ub ****
+      call dcopy(9,unitg,1,ub,1)
+      call dscal(9,(1.0d0/(8.0d0*datan(1.0d0))),ub,1)
+       
 
 
 *     *** set the ecut variable ***

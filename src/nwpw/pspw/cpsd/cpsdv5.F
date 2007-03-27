@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.50 2007-03-22 20:46:21 bylaska Exp $
+* $Id: cpsdv5.F,v 1.51 2007-03-27 02:02:49 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -374,9 +374,6 @@ c         end if
      >   call errquit('cpsdv5:out of heap memory',0,MA_ERR)
 
 
-*     **** initialize FixIon constraint ****
-      call ion_init_FixIon(rtdb)
-
 *     **** initialize SIC and HFX  ****
       call pspw_init_SIC(rtdb,ne)
       call pspw_init_HFX(rtdb,ispin,ne)
@@ -387,6 +384,9 @@ c         end if
 
 *     **** initialize frac_occ data structure ****
       call frac_occ_init(rtdb,ispin,ne)
+
+*     **** initialize FixIon constraint ****
+      call ion_init_FixIon(rtdb)
 
 
 *                |**************************|
@@ -1036,8 +1036,8 @@ c            write(luout,1706) E(18)
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')
- 1702 FORMAT( ' QM/MM energy           :',E19.10)
- 1703 FORMAT( ' MM/MM energy           :',E19.10)
+ 1702 FORMAT( ' LJ energy              :',E19.10)
+ 1703 FORMAT( ' Residual Coulomb energy:',E19.10)
  1704 FORMAT( ' MM Polarization energy :',E19.10)
  1705 FORMAT( ' MM Vibration energy    :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)

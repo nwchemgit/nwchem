@@ -1,6 +1,6 @@
       subroutine simulation_cell_input(rtdb)
 c
-c $Id: simulation_cell_input.F,v 1.9 2005-06-24 19:24:18 bylaska Exp $
+c $Id: simulation_cell_input.F,v 1.10 2007-03-27 02:02:48 bylaska Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -432,11 +432,11 @@ c
 *     *************************************************
       subroutine get_scalefrominput(scale)
       implicit none
-#include "errquit.fh"
       double precision scale
 
 #include "inp.fh"
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ***
       double precision bohr
@@ -477,23 +477,24 @@ c
 
 *       **** atomic units ****
   52    scale = 1.0d0
-        goto 51
+        goto 60
 
 *       **** angstrom units ****
   53    scale = 1.0d0/bohr
-        goto 51
+        goto 60
 
 *       **** nanometer units ****
   54    scale = 10.0d0/bohr
-        goto 51
+        goto 60
 
 *       **** picometer units ****
   55    scale = 1.0d0/bohr/100.0d0
-        goto 51
+        goto 60
 
       end if
       end if
 
+  60  continue
       return
       end
      

@@ -6,7 +6,7 @@
 *     ***************************
       subroutine xyz_init()
 *
-* $Id: xyz.F,v 1.9 2007-03-22 20:46:20 bylaska Exp $
+* $Id: xyz.F,v 1.10 2007-03-27 02:02:47 bylaska Exp $
 *
       implicit none 
 
@@ -92,10 +92,10 @@
       integer taskid,i
 
 *     **** external functions ***
-      character*2 ion_aname
+      character*2 ion_aname_nocarat
       integer     ion_nion
       real*8      ion_rion, ion_vion
-      external    ion_aname
+      external    ion_aname_nocarat
       external    ion_nion
       external    ion_rion, ion_vion
       integer ierr
@@ -110,7 +110,7 @@
        write(18,110) ion_nion()
 #endif
          do i=1,ion_nion()
-            write(18,111) ion_aname(i),
+            write(18,111) ion_aname_nocarat(i),
      >                  ion_rion(1,i)*AACONV,
      >                  ion_rion(2,i)*AACONV,
      >                  ion_rion(3,i)*AACONV,

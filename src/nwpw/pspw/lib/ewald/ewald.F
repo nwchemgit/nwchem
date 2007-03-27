@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.9 2007-03-22 20:46:22 bylaska Exp $
+* $Id: ewald.F,v 1.10 2007-03-27 02:02:49 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -347,13 +347,17 @@ c    >     + i+1
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       
-*     **** get lattice vectors in real space ****
-      l=0
+*     **** get lattice vectors in real space - define rcell(1) = origin****
+      l=1
+      dbl_mb(rcell(1)+(l-1))          = 0.0d0
+      dbl_mb(rcell(1)+(l-1)+nshl3d)   = 0.0d0
+      dbl_mb(rcell(1)+(l-1)+2*nshl3d) = 0.0d0
       do k=-ncut,ncut
         do j=-ncut,ncut
           do i=-ncut,ncut
+             if (.not.((i.eq.0).and.(j.eq.0).and.(k.eq.0))) then
              l = l+1
-             dbl_mb(rcell(1)+ (l-1) ) 
+             dbl_mb(rcell(1)+(l-1) ) 
      >                = i*lattice_unita(1,1)
      >                + j*lattice_unita(1,2)
      >                + k*lattice_unita(1,3)
@@ -365,6 +369,7 @@ c    >     + i+1
      >                = i*lattice_unita(3,1)
      >                + j*lattice_unita(3,2)
      >                + k*lattice_unita(3,3)
+             end if
 
           end do
         end do
@@ -460,6 +465,7 @@ c     real*8     tmp3(nfft3d*2)
         dx = ion_rion(1,i) - ion_rion(1,j)
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
+c        call lattice_min_difference(dx,dy,dz)  
         zz = psp_zv(ion_katm(i)) * psp_zv(ion_katm(j))
         do l=1,nshl3d
            x = dbl_mb(rcell(1)+(l-1))          + dx
@@ -618,6 +624,7 @@ c     real*8     tmp3(nfft3d*2)
         dx = ion_rion(1,i) - ion_rion(1,j)
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
+c        call lattice_min_difference(dx,dy,dz)  
         zz = psp_zv(ion_katm(i)) * psp_zv(ion_katm(j))
         do l=1,nshl3d
            x = dbl_mb(rcell(1)+(l-1))          + dx
@@ -958,6 +965,7 @@ c       end do
         dx = ion_rion(1,i) - ion_rion(1,j)
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
+c        call lattice_min_difference(dx,dy,dz)  
         zz = psp_zv(ion_katm(i)) * psp_zv(ion_katm(j))
         do l=1,nshl3d
            ax = dbl_mb(rcell(1)+(l-1))          + dx
