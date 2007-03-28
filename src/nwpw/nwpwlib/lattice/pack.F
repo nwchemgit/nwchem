@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.27 2006-10-13 01:43:58 bylaska Exp $
+* $Id: pack.F,v 1.28 2007-03-28 03:56:11 bylaska Exp $
 *
 
 *     ***********************************
@@ -11,11 +11,9 @@
       subroutine Pack_Init()
       implicit none
 
-
 #include "mafdecls.fh"
 #include "mask_common.fh"
 #include "errquit.fh"
-
 
 *     **** common block for pack ****
       integer nida(0:1),nidb2(0:1)
@@ -27,6 +25,9 @@
       integer nwave_all(0:1)
       common / pack_blk3x / nwave_all
 
+*     **** common block for G_pack ****
+      integer G_pack(3,0:1),G_pack_hndl
+      common / G_pack_blk / G_pack,G_pack_hndl
 
 *     **** local variables ****
       logical value
@@ -34,14 +35,16 @@
       integer i,j,k
       integer k1,k2,k3
       integer q,p,indx
-      integer nb
+      integer nb,nsize,tmp(2)
       integer nx,ny,nz
       integer nxh,nyh,nzh      
       integer nwave_in(0:1),nwave_out(0:1)
 
 *     **** external functions ****
       logical  control_balance
+      integer  G_indx
       external control_balance
+      external G_indx
 
 
 *     **** allocate pack memory ****
@@ -52,8 +55,8 @@
       value = value.and.
      >        MA_alloc_get(mt_int,nfft3d,
      >                     'pack',pack(2,1),pack(1,1))
-      if (.not. value) call errquit('Pack_init: out of heap memory',0,
-     &       MA_ERR)
+      if (.not. value) 
+     > call errquit('Pack_init: out of heap memory',0,MA_ERR)
 
 
       call Parallel2d_taskid_i(taskid)
@@ -171,8 +174,49 @@ c      write(*,*) " nida(0),nidb(0),nidb2(0):",taskid,nida(0),
 c     >                                      nidb(0),nidb2(0)
 c      write(*,*) " nida(1),nidb(1),nidb2(1):",taskid,nida(1),
 c     >                                      nidb(1),nidb2(1)
-       
+
+
+*     **** allocate and define G_pack ****
+      nsize = 3*((nida(0)+nidb2(0)) + (nida(1)+nidb2(1)))
+      value = MA_push_get(mt_dbl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,nsize,
+     >                     'G_pack',G_pack_hndl,G_pack(1,0))
+      if (.not. value) 
+     > call errquit('Pack_init:error pushing stack',0,MA_ERR)
+      G_pack(2,0) = G_pack(1,0) + (nida(0)+nidb2(0))
+      G_pack(3,0) = G_pack(2,0) + (nida(0)+nidb2(0))
+      G_pack(1,1) = G_pack(3,0) + (nida(0)+nidb2(0))
+      G_pack(2,1) = G_pack(1,1) + (nida(1)+nidb2(1))
+      G_pack(3,1) = G_pack(2,1) + (nida(1)+nidb2(1))
+      do nb=0,1
+         do i=1,3
+            call D3dB_t_Copy(1,dbl_mb(G_indx(i)),dbl_mb(tmp(1))) 
+            call Pack_t_pack(nb,dbl_mb(tmp(1)))
+            call Pack_t_Copy(nb,dbl_mb(tmp(1)),dbl_mb(G_pack(i,nb)))
+         end do
+      end do
+      value = MA_pop_stack(tmp(2))
+      if (.not. value) 
+     > call errquit('Pack_init:error popping stack',0,MA_ERR)
       return 
+      end
+
+*     ***********************************
+*     *                                 *
+*     *           Pack_G_indx           *
+*     *                                 *
+*     ***********************************
+      integer function Pack_G_indx(nb,i)
+      implicit none
+      integer nb,i
+
+c     **** common block for G_pack ****
+      integer G_pack(3,0:1),G_pack_hndl
+      common / G_pack_blk / G_pack,G_pack_hndl
+
+      Pack_G_indx = G_pack(i,nb)
+      return
       end
 
 *     ***********************************
@@ -192,17 +236,21 @@ c     >                                      nidb(1),nidb2(1)
       integer pack(2,0:1)
       common / pack_blk / pack,nida,nidb
 
+*     **** common block for G_pack ****
+      integer G_pack(3,0:1),G_pack_hndl
+      common / G_pack_blk / G_pack,G_pack_hndl
+
       logical value
 
 *     **** external functions ****
       logical  control_balance
       external control_balance
 
-      value = MA_free_heap(pack(2,0))
-      value = value.and.
-     >        MA_free_heap(pack(2,1))
-      if (.not. value) call errquit('error freeing heap memory',0,
-     &       MA_ERR)
+      value =           MA_free_heap(pack(2,0))
+      value = value.and.MA_free_heap(pack(2,1))
+      value = value.and.MA_free_heap(G_pack_hndl)
+      if (.not. value) 
+     > call errquit('Pack_end:error freeing heap',0,MA_ERR)
       if (control_balance()) call Balance_End()
       return
       end

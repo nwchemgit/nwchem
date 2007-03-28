@@ -1,5 +1,5 @@
 *
-* $Id: strfac.F,v 1.16 2006-08-13 01:03:25 bylaska Exp $
+* $Id: strfac.F,v 1.17 2007-03-28 03:56:11 bylaska Exp $
 *
 
 *     ***********************************
@@ -10,9 +10,9 @@
 
       subroutine strfac_init()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "strfac_common.fh"
 
       integer nion,nx,ny,nz,nxh,nfft3d
@@ -64,9 +64,9 @@
 c             index = (q-1)*(nxh+1)*ny
 c    >              + j*(nxh+1)
 c    >              + i+1
-              int_mb(i_indx(1,nb)+index-1) = i
-              int_mb(j_indx(1,nb)+index-1) = j
-              int_mb(k_indx(1,nb)+index-1) = k
+              int_mb(i_indx(1,nb)+index-1) = i+1
+              int_mb(j_indx(1,nb)+index-1) = j+1
+              int_mb(k_indx(1,nb)+index-1) = k+1
             end if
          end do
          end do
@@ -148,7 +148,7 @@ C
       external lattice_unitg,ion_rion
 
 
-      call nwpw_timing_start(8)
+      call nwpw_timing_start(20)
 
       pi = 4.0d0*datan(1.0d0)
 
@@ -228,7 +228,7 @@ c       ex3(nz/2,i)=dcmplx(0.0d0, 0.0d0)
         dcpl_mb(ex3(1)+nz/2+(i-1)*nz)=dcmplx(0.0d0, 0.0d0)
       end do
 
-      call nwpw_timing_end(8)
+      call nwpw_timing_end(20)
 
       return
       end
@@ -259,7 +259,7 @@ C     ***********************************
       external ion_nion
       external lattice_unitg,ion_rion2
 
-      call nwpw_timing_start(8)
+      call nwpw_timing_start(20)
       pi = 4.0d0*datan(1.0d0)
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -318,7 +318,7 @@ c      !***DEBUG ***
         dcpl_mb(ex2(1)+ny/2+(i-1)*ny)=dcmplx(0.0d0, 0.0d0)
         dcpl_mb(ex3(1)+nz/2+(i-1)*nz)=dcmplx(0.0d0, 0.0d0)
       end do
-      call nwpw_timing_end(8)
+      call nwpw_timing_end(20)
       return
       end
 
@@ -356,7 +356,7 @@ C
       external ion_nion
       external lattice_unitg
 
-      call nwpw_timing_start(8)
+      call nwpw_timing_start(20)
 
       pi = 4.0d0*datan(1.0d0)
 
@@ -420,7 +420,7 @@ c       ex3(nz/2,i)=dcmplx(0.0d0, 0.0d0)
         dcpl_mb(ex3(1)+nz/2+(i-1)*nz)=dcmplx(0.0d0, 0.0d0)
       end do
 
-      call nwpw_timing_end(8)
+      call nwpw_timing_end(20)
 
       return
       end
@@ -530,19 +530,41 @@ C
       call D3dB_nz(1,nz)
 
      
-*     **** structure factor in packed space ****
-      do index=1,npack
-        i = int_mb(i_indx(1,nb)+index-1)
-        j = int_mb(j_indx(1,nb)+index-1)
-        k = int_mb(k_indx(1,nb)+index-1)
-      
-        exi(index) = dcpl_mb(ex1(1)+i+(II-1)*nx)
-     >             * dcpl_mb(ex2(1)+j+(II-1)*ny)
-     >             * dcpl_mb(ex3(1)+k+(II-1)*nz)
-      end do
+c*     **** structure factor in packed space ****
+c      do index=1,npack
+c        i = int_mb(i_indx(1,nb)+index-1)
+c        j = int_mb(j_indx(1,nb)+index-1)
+c        k = int_mb(k_indx(1,nb)+index-1)
+c      
+c        exi(index) = dcpl_mb(ex1(1)+i+(II-1)*nx)
+c     >             * dcpl_mb(ex2(1)+j+(II-1)*ny)
+c     >             * dcpl_mb(ex3(1)+k+(II-1)*nz)
+c      end do
+      call strfac_pack_sub(npack,
+     >                     int_mb(i_indx(1,nb)),
+     >                     int_mb(j_indx(1,nb)),
+     >                     int_mb(k_indx(1,nb)),
+     >                     dcpl_mb(ex1(1)+(II-1)*nx),
+     >                     dcpl_mb(ex2(1)+(II-1)*ny),
+     >                     dcpl_mb(ex3(1)+(II-1)*nz),
+     >                     exi)
 
       call nwpw_timing_end(8)
+      return
+      end
 
+      subroutine strfac_pack_sub(npack,
+     >                           indxi,indxj,indxk,
+     >                           ex1,ex2,ex3,
+     >                           exi)
+      implicit none
+      integer npack,indxi(*),indxj(*),indxk(*)
+      complex*16 ex1(*),ex2(*),ex3(*),exi(*)
+
+      integer i,j,k,indx
+      do indx=1,npack
+        exi(indx) = ex1(indxi(indx))*ex2(indxj(indx))*ex3(indxk(indx))
+      end do
       return
       end
 
@@ -645,7 +667,7 @@ C
       external ion_nion
       external lattice_unitg
 
-      call nwpw_timing_start(8)
+      call nwpw_timing_start(20)
 
       pi = 4.0d0*datan(1.0d0)
 
@@ -697,7 +719,7 @@ C
         dcpl_mb(qex3(1)+nz/2+(i-1)*nz)=dcmplx(0.0d0, 0.0d0)
       end do
 
-      call nwpw_timing_end(8)
+      call nwpw_timing_end(20)
 
       return
       end
@@ -803,15 +825,24 @@ C
 
      
 *     **** structure factor in packed space ****
-      do index=1,npack
-        i = int_mb(i_indx(1,nb)+index-1)
-        j = int_mb(j_indx(1,nb)+index-1)
-        k = int_mb(k_indx(1,nb)+index-1)
-      
-        exi(index) = dcpl_mb(qex1(1)+i+(II-1)*nx)
-     >             * dcpl_mb(qex2(1)+j+(II-1)*ny)
-     >             * dcpl_mb(qex3(1)+k+(II-1)*nz)
-      end do
+c      do index=1,npack
+c        i = int_mb(i_indx(1,nb)+index-1)
+c        j = int_mb(j_indx(1,nb)+index-1)
+c        k = int_mb(k_indx(1,nb)+index-1)
+c      
+c        exi(index) = dcpl_mb(qex1(1)+i+(II-1)*nx)
+c     >             * dcpl_mb(qex2(1)+j+(II-1)*ny)
+c     >             * dcpl_mb(qex3(1)+k+(II-1)*nz)
+c      end do
+      call strfac_pack_sub(npack,
+     >                     int_mb(i_indx(1,nb)),
+     >                     int_mb(j_indx(1,nb)),
+     >                     int_mb(k_indx(1,nb)),
+     >                     dcpl_mb(qex1(1)+(II-1)*nx),
+     >                     dcpl_mb(qex2(1)+(II-1)*ny),
+     >                     dcpl_mb(qex3(1)+(II-1)*nz),
+     >                     exi)
+
 
       call nwpw_timing_end(8)
 
