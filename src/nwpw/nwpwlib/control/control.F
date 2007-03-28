@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.97 2007-03-27 02:02:47 bylaska Exp $
+* $Id: control.F,v 1.98 2007-03-28 03:56:00 bylaska Exp $
 *
 
 *     ***********************************
@@ -2273,7 +2273,7 @@ c      end
       end if
 
 
-      if ((code.eq.3).and.(code.eq.11)) then
+      if ((code.eq.3).or.(code.eq.11)) then
         if (.not.rtdb_get(rtdb,'cgsd:mulliken',mt_log,1,value))
      >     value = .false.
       end if
