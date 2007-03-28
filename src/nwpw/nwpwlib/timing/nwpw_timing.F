@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_timing.F,v 1.3 2007-03-19 19:05:36 bylaska Exp $
+* $Id: nwpw_timing.F,v 1.4 2007-03-28 03:56:30 bylaska Exp $
 *
 
 * nwpw_timing.F
@@ -7,6 +7,28 @@
 *
 *   These routines are to be used to time the nwpw module
 *
+*
+*   1 - total FFT 
+*   2 - total dot products
+*   3 - lagrange multipliers
+*   4 - exchange correlation
+*   5 - local pseudopotentials
+*   6 - non-local pseudopotentials
+*   7 - hartree potentials
+*   8 - structure factors
+*   9 - masking and packing
+*   10 - geodesic time
+*   11 - gen psi_r and dn
+*   12 - allocating memory from stack
+*   13 - miscellaneous steepest descent update
+*   20 - phase factors
+*   21 - ewald /ion-ion
+*   30 - queue fft
+*   31 - queue fft serial
+*   32 - queue fft parallel
+*   33 - HFX
+*   40 - qmmm LJ
+*   41 - qmmm residual Q
 
       subroutine nwpw_timing_init()
       implicit none
@@ -49,3 +71,75 @@
       return
       end
 
+
+      subroutine nwpw_timing_print_final(oprint,counter)
+      implicit none
+      logical  oprint
+      integer counter
+
+#include "stdio.fh"
+
+c     **** external functions ****
+      real*8   nwpw_timing
+      external nwpw_timing
+
+      if (oprint) then
+      write(luout,1809) 'Time spent doing               ',
+     >                  'total','step'
+         write(luout,1808) '  FFTs                       : ',
+     >                 nwpw_timing(1),
+     >                 nwpw_timing(1)/dble(counter)
+         write(luout,1808) '  dot products               : ',
+     >                 nwpw_timing(2),
+     >                 nwpw_timing(2)/dble(counter)
+         write(luout,1808) '  geodesic                   : ',
+     >                 nwpw_timing(10),
+     >                 nwpw_timing(10)/dble(counter)
+         write(luout,1808) '  exchange correlation       : ',
+     >                 nwpw_timing(4),
+     >                 nwpw_timing(4)/dble(counter)
+         write(luout,1808) '  local pseudopotentials     : ',
+     >                 nwpw_timing(5),
+     >                 nwpw_timing(5)/dble(counter)
+         write(luout,1808) '  non-local pseudopotentials : ',
+     >                 nwpw_timing(6),
+     >                 nwpw_timing(6)/dble(counter)
+         write(luout,1808) '  hartree potentials         : ',
+     >                 nwpw_timing(7),
+     >                 nwpw_timing(7)/dble(counter)
+         write(luout,1808) '  ion-ion interaction        : ',
+     >                 nwpw_timing(21),
+     >                 nwpw_timing(21)/dble(counter)
+         write(luout,1808) '  structure factors          : ',
+     >                 nwpw_timing(8),
+     >                 nwpw_timing(8)/dble(counter)
+         write(luout,1808) '  phase factors              : ',
+     >                 nwpw_timing(20),
+     >                 nwpw_timing(20)/dble(counter)
+         write(luout,1808) '  masking and packing        : ',
+     >                 nwpw_timing(9),
+     >                 nwpw_timing(9)/dble(counter)
+         write(luout,1808) '  queue fft                  : ',
+     >                 nwpw_timing(30),
+     >                 nwpw_timing(30)/dble(counter)
+         write(luout,1808) '  queue fft (serial)         : ',
+     >                 nwpw_timing(31),
+     >                 nwpw_timing(31)/dble(counter)
+         write(luout,1808) '  queue fft (message passing): ',
+     >                 nwpw_timing(32),
+     >                 nwpw_timing(32)/dble(counter)
+         write(luout,1808) '  HFX potential              : ',
+     >                 nwpw_timing(33),
+     >                 nwpw_timing(33)/dble(counter)
+         write(luout,1808) '  qmmm LJ                    : ',
+     >                 nwpw_timing(40),
+     >                 nwpw_timing(40)/dble(counter)
+         write(luout,1808) '  qmmm residual Q            : ',
+     >                 nwpw_timing(41),
+     >                 nwpw_timing(41)/dble(counter)
+      end if
+
+      return 
+ 1808 FORMAT(A,E14.6,E14.6)
+ 1809 FORMAT(//A,2A14)
+      end
