@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.12 2007-03-27 02:02:50 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.13 2007-03-28 03:57:33 bylaska Exp $
 c
 
 *     *************************
@@ -162,7 +162,7 @@ c     *************************************
       real*8   pspw_VLJ_E_periodic,pspw_VLJ_E_periodic_self
       external pspw_VLJ_E_periodic,pspw_VLJ_E_periodic_self
       
-
+      call nwpw_timing_start(40)
       E = 0.0d0
 
 c     **** QM/MM LJ energy ****
@@ -229,6 +229,8 @@ c     **** MM/MM LJ self image energy ****
          end do
       end do
       end if
+
+      call nwpw_timing_end(40)
 
       pspw_LJ_E = E
       return
@@ -350,6 +352,7 @@ c     *************************************
       integer w2,b,k2,kk2
       real*8  e1,s1,e2,s2
 
+      call nwpw_timing_start(40)
 
 c     **** QM/MM LJ energy ****
       do i=1,nion_qm
@@ -418,7 +421,7 @@ c     **** MM/MM LJ self image energy ****
       end do
       end if
 
-
+      call nwpw_timing_end(40)
       return
       end
 

@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.10 2007-03-27 02:02:49 bylaska Exp $
+* $Id: ewald.F,v 1.11 2007-03-28 03:57:21 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -318,8 +318,8 @@ c    >     + i+1
             dbl_mb(vg(1)+i-1) = (fourpi/gg)*exp(-w*gg)
          end if
       end do
-
-      call mask_R(0,dbl_mb(vg(1)))
+c      call mask_R(0,dbl_mb(vg(1)))
+      call Pack_t_pack(0,dbl_mb(vg(1)))
 
     
 *     **** set the Madelung constant ****
@@ -334,7 +334,8 @@ c    >     + i+1
          zz = zz + psp_zv(ion_katm(i))**2
          z  = z  + psp_zv(ion_katm(i))
       end do
-      call D3dB_t_dsum(1,dbl_mb(vg(1)),cewald)
+c      call D3dB_t_dsum(1,dbl_mb(vg(1)),cewald)
+      call Pack_t_dsum(0,dbl_mb(vg(1)),cewald)
       cewald = -0.5d0*zz*(alpha/rs + cewald/lattice_omega())
      >         -0.5d0*(z*z-zz)*rcut*rcut*pi/lattice_omega()
      
@@ -414,7 +415,7 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
 c     complex*16  exi(nfft3d)
 c     complex*16    s(nfft3d)
 c     real*8     tmp3(nfft3d*2)
-      integer nfft3d,nshl3d
+      integer npack0,nshl3d
       integer exi(2),s(2),tmp3(2),ft(2)
       logical value
 
@@ -424,26 +425,28 @@ c     real*8     tmp3(nfft3d*2)
       external ion_nion,ion_katm,ewald_nshl3d
       external lattice_omega,psp_zv,dsum,ion_rion,util_erfc
 
+      call nwpw_timing_start(21)
       call Parallel2d_np_i(np)
       call Parallel2d_taskid_i(taskid)
 
 *     **** allocate temp workspace ****
-      call D3dB_nfft3d(1,nfft3d)
+c      call D3dB_nfft3d(1,nfft3d)
+      call Pack_npack(0,npack0)
       nshl3d = ewald_nshl3d()
-      value = MA_push_get(mt_dcpl,nfft3d,'exi',exi(2),exi(1)) 
+      value = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1)) 
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'s',s(2),s(1)) 
+     >        MA_push_get(mt_dcpl,npack0,'s',s(2),s(1)) 
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'tmp3',tmp3(2),tmp3(1)) 
+     >        MA_push_get(mt_dbl, npack0,'tmp3',tmp3(2),tmp3(1)) 
       value = value.and.
      >        MA_push_get(mt_dbl, (3*nshl3d),'ft',ft(2),ft(1)) 
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
      
 *     **** get the structure factor ****
-      call dcopy((2*nfft3d),0.0d0,0,dcpl_mb(s(1)),1)
+      call dcopy((2*npack0),0.0d0,0,dcpl_mb(s(1)),1)
       do ii=1,ion_nion()
-         call strfac(ii,dcpl_mb(exi(1)))
-         call D3dB_cc_daxpy(1,psp_zv(ion_katm(ii)),
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+         call Pack_cc_daxpy(0,psp_zv(ion_katm(ii)),
      >                      dcpl_mb(exi(1)),
      >                      dcpl_mb(s(1)))
 
@@ -451,10 +454,11 @@ c     real*8     tmp3(nfft3d*2)
 
       
 *     **** calculate the ewald energy ****
-      call D3dB_ct_Sqr(1,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
-      call D3dB_tt_dot(1,dbl_mb(tmp3(1)),dbl_mb(vg(1)),energy)
+      call Pack_ct_Sqr(0,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
+      call Pack_tt_dot(0,dbl_mb(tmp3(1)),dbl_mb(vg(1)),energy)
       energyG = 0.5d0*energy/lattice_omega()
-      energy = 0.5d0*energy/lattice_omega() + cewald
+      energy  = 0.5d0*energy/lattice_omega() + cewald
+
 
 *     *** need to make parallel ****
       dutask = 0
@@ -495,6 +499,7 @@ c          dbl_mb(ft(1)+(l-1))=zz*erfc**4/r
       value = MA_pop_stack(s(2))
       value = MA_pop_stack(exi(2))
 
+      call nwpw_timing_end(21)
       ewald_e = energy
       return
       end
@@ -540,29 +545,31 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
 c     complex*16  exi(nfft3d)
 c     complex*16    s(nfft3d)
 c     real*8     tmp3(nfft3d*2)
-      integer nfft3d,nshl3d,nion
+      integer npack0,nshl3d,nion
       integer exi(2),s(2),tmp3(2),ft(2)
       integer fx(2),fy(2),fz(2)
       logical value
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm,G_indx,ewald_nshl3d
-      external ion_nion,ion_katm,G_indx,ewald_nshl3d
+      integer  ion_nion,ion_katm,Pack_G_indx,ewald_nshl3d
+      external ion_nion,ion_katm,Pack_G_indx,ewald_nshl3d
       real*8   lattice_omega,psp_zv,dsum,ion_rion,util_erfc
       external lattice_omega,psp_zv,dsum,ion_rion,util_erfc
 
+      call nwpw_timing_start(21)
       call Parallel2d_np_i(np)
       call Parallel2d_taskid_i(taskid)
       nion = ion_nion()
 
 *     **** allocate temp workspace ****
-      call D3dB_nfft3d(1,nfft3d)
+c      call D3dB_nfft3d(1,nfft3d)
+      call Pack_npack(0,npack0)
       nshl3d = ewald_nshl3d()
-      value = MA_push_get(mt_dcpl,nfft3d,'exi',exi(2),exi(1)) 
+      value = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1)) 
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'s',s(2),s(1)) 
+     >        MA_push_get(mt_dcpl,npack0,'s',s(2),s(1)) 
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'tmp3',tmp3(2),tmp3(1)) 
+     >        MA_push_get(mt_dbl, npack0,'tmp3',tmp3(2),tmp3(1)) 
       value = value.and.
      >        MA_push_get(mt_dbl, (3*nshl3d),'ft',ft(2),ft(1)) 
       value = value.and.
@@ -580,17 +587,18 @@ c     real*8     tmp3(nfft3d*2)
       call dcopy(nion,0.0d0,0,dbl_mb(fz(1)),1)
      
 *     **** get the structure factor ****
-      call dcopy((2*nfft3d),0.0d0,0,dcpl_mb(s(1)),1)
+      call dcopy((2*npack0),0.0d0,0,dcpl_mb(s(1)),1)
       do ii=1,nion
-         call strfac(ii,dcpl_mb(exi(1)))
-         call D3dB_cc_daxpy(1,psp_zv(ion_katm(ii)),dcpl_mb(exi(1)),
-     >                                           dcpl_mb(s(1)))
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+         call Pack_cc_daxpy(0,psp_zv(ion_katm(ii)),
+     >                        dcpl_mb(exi(1)),
+     >                        dcpl_mb(s(1)))
       end do
 
       do ii=1,nion
-         call strfac(ii,dcpl_mb(exi(1)))
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
 
-         do i=1,nfft3d
+         do i=1,npack0
             dbl_mb(tmp3(1)+i-1) 
      >              = ( dble(dcpl_mb(exi(1)+i-1))
      >                *dimag(dcpl_mb(s(1)+i-1))
@@ -599,18 +607,22 @@ c     real*8     tmp3(nfft3d*2)
      >                )*dbl_mb(vg(1)+i-1)
          end do
 
-         call D3dB_tt_idot(1,dbl_mb(G_indx(1)),dbl_mb(tmp3(1)),sum)
 *        fion(1,ii) = fion(1,ii) + sum*psp_zv(ion_katm(ii))*scal2
+*        fion(2,ii) = fion(2,ii) + sum*psp_zv(ion_katm(ii))*scal2
+*        fion(3,ii) = fion(3,ii) + sum*psp_zv(ion_katm(ii))*scal2
+
+         call Pack_tt_idot(0,dbl_mb(Pack_G_indx(0,1)),
+     >                       dbl_mb(tmp3(1)),sum)
          dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
      >                      +  sum*psp_zv(ion_katm(ii))*scal2
 
-         call D3dB_tt_idot(1,dbl_mb(G_indx(2)),dbl_mb(tmp3(1)),sum)
-*        fion(2,ii) = fion(2,ii) + sum*psp_zv(ion_katm(ii))*scal2
+         call Pack_tt_idot(0,dbl_mb(Pack_G_indx(0,2)),
+     >                       dbl_mb(tmp3(1)),sum)
          dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) 
      >                      +  sum*psp_zv(ion_katm(ii))*scal2
 
-         call D3dB_tt_idot(1,dbl_mb(G_indx(3)),dbl_mb(tmp3(1)),sum)
-*        fion(3,ii) = fion(3,ii) + sum*psp_zv(ion_katm(ii))*scal2
+         call Pack_tt_idot(0,dbl_mb(Pack_G_indx(0,3)),
+     >                       dbl_mb(tmp3(1)),sum)
          dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
      >                      +  sum*psp_zv(ion_katm(ii))*scal2
       end do
@@ -684,6 +696,7 @@ c          erfc = 1.0d0/erfc**4
       value = MA_pop_stack(s(2))
       value = MA_pop_stack(exi(2))
 
+      call nwpw_timing_end(21)
       return
       end
 
@@ -726,7 +739,7 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
 
 *     **** local variables ****
       logical value
-      integer npack0,nfft3d
+      integer npack0
       integer i,ii,j,l
       integer n1,n2,n3
       integer u,v,s
@@ -741,13 +754,14 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
       integer nshl3d
 
 *     **** external functions ****
-      integer  ion_katm,ion_nion,G_indx,ewald_nshl3d
+      integer  ion_katm,ion_nion,Pack_G_indx,ewald_nshl3d
       real*8   psp_zv,lattice_unitg,lattice_unita,lattice_omega
       real*8   util_erfc,ion_rion
-      external ion_katm,ion_nion,G_indx,ewald_nshl3d
+      external ion_katm,ion_nion,Pack_G_indx,ewald_nshl3d
       external psp_zv,lattice_unitg,lattice_unita,lattice_omega
       external util_erfc,ion_rion
 
+      call nwpw_timing_start(21)
       pi     = 4.0d0*datan(1.0d0)
       fourpi = 4.0d0*pi
       scal   = 1.0d0/(2.0d0*pi)
@@ -761,10 +775,8 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
       end do
       end do
 
-
-      call D3dB_nfft3d(1,nfft3d)
+c      call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
-
 
       zz = 0.0d0
       z  = 0.0d0
@@ -786,29 +798,30 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
 
 *     **** get the structure factor ****
       value =           MA_push_get(mt_dbl,npack0,'H',H(2),H(1))
-      value = value.and.MA_push_get(mt_dcpl,nfft3d,'exi',exi(2),exi(1))
+      value = value.and.MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
       value = value.and.
      >      MA_push_get(mt_dcpl,npack0,'strf',strf(2),strf(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) call errquit('out of stack memory',0,MA_ERR)
 
       call dcopy((2*npack0),0.0d0,0,dcpl_mb(strf(1)),1)
       do ii=1,ion_nion()
-         call strfac(ii,dcpl_mb(exi(1)))
-         call Pack_c_pack(0,dcpl_mb(exi(1)))
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+c         ***!call Pack_c_pack(0,dcpl_mb(exi(1)))
          call Pack_cc_daxpy(0,psp_zv(ion_katm(ii)),dcpl_mb(exi(1)),
-     >                                           dcpl_mb(strf(1)))
+     >                                             dcpl_mb(strf(1)))
       end do
       call Pack_ct_Sqr(0,dcpl_mb(strf(1)),dbl_mb(H(1)))
-      value = MA_pop_stack(strf(2))
+      value =           MA_pop_stack(strf(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) call errquit('error popping stack memory',0,
-     &       MA_ERR)
+      if (.not. value) 
+     > call errquit('error popping stack memory',0,MA_ERR)
 
 *     **** calculate the ewald energy ****
-      value = MA_push_get(mt_dbl,nfft3d,'F',F(2),F(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      call dcopy(nfft3d,dbl_mb(vg(1)),    1,dbl_mb(F(1)),  1)
-      call Pack_t_Pack(0,dbl_mb(F(1)))
+c      value = MA_push_get(mt_dbl,nfft3d,'F',F(2),F(1))
+c      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+c      call dcopy(nfft3d,dbl_mb(vg(1)),    1,dbl_mb(F(1)),  1)
+c      call Pack_t_Pack(0,dbl_mb(F(1)))
+      F(1) = vg(1)
 
       call Pack_tt_dot(0,dbl_mb(F(1)),dbl_mb(H(1)),energy)
       energy = -0.5d0*energy/lattice_omega()
@@ -844,27 +857,27 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
 
 
 *     **** calculate Cus ****
-      value =           MA_push_get(mt_dbl,nfft3d,
-     >                     'G1',G(2,1),G(1,1))
-      value = value.and.MA_push_get(mt_dbl,nfft3d,
-     >                     'G2',G(2,2),G(1,2))
-      value = value.and.MA_push_get(mt_dbl,nfft3d,
-     >                     'G3',G(2,3),G(1,3))
-      if (.not. value) call errquit('out of stack  memory',0, MA_ERR)
-      call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(G(1,1)),1)
-      call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(G(1,2)),1)
-      call dcopy(nfft3d,dbl_mb(G_indx(3)),1,dbl_mb(G(1,3)),1)
-      call Pack_t_pack(0,dbl_mb(G(1,1)))
-      call Pack_t_pack(0,dbl_mb(G(1,2)))
-      call Pack_t_pack(0,dbl_mb(G(1,3)))
+c      value =           MA_push_get(mt_dbl,nfft3d,
+c     >                     'G1',G(2,1),G(1,1))
+c      value = value.and.MA_push_get(mt_dbl,nfft3d,
+c     >                     'G2',G(2,2),G(1,2))
+c      value = value.and.MA_push_get(mt_dbl,nfft3d,
+c     >                     'G3',G(2,3),G(1,3))
+c      if (.not. value) call errquit('out of stack  memory',0, MA_ERR)
+c      call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(G(1,1)),1)
+c      call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(G(1,2)),1)
+c      call dcopy(nfft3d,dbl_mb(G_indx(3)),1,dbl_mb(G(1,3)),1)
+c      call Pack_t_pack(0,dbl_mb(G(1,1)))
+c      call Pack_t_pack(0,dbl_mb(G(1,2)))
+c      call Pack_t_pack(0,dbl_mb(G(1,3)))
 
       call dcopy(9,0.0d0,0,Cus,1)
 c     ss = -1.0d0/lattice_omega()
       ss =  1.0d0/lattice_omega()
       do u=1,3
       do s=u,3
-         call Pack_tt_Mul(0,dbl_mb(G(1,u)),
-     >                      dbl_mb(G(1,s)),
+         call Pack_tt_Mul(0,dbl_mb(Pack_G_indx(0,u)),
+     >                      dbl_mb(Pack_G_indx(0,s)),
      >                      dbl_mb(tmp1(1)))
          call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)),sum)
          Cus(u,s) = ss*sum
@@ -883,12 +896,12 @@ c     ss = -1.0d0/lattice_omega()
       end do
       end do
 
-      value =           MA_pop_stack(G(2,3))
-      value = value.and.MA_pop_stack(G(2,2))
-      value = value.and.MA_pop_stack(G(2,1))
+c      value =           MA_pop_stack(G(2,3))
+c      value = value.and.MA_pop_stack(G(2,2))
+c      value = value.and.MA_pop_stack(G(2,1))
       value = value.and.MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
-      value = value.and.MA_pop_stack(F(2))
+c      value = value.and.MA_pop_stack(F(2))
       value = value.and.MA_Pop_stack(H(2))
       if (.not. value) call errquit('error popping stack memory',0,
      &       MA_ERR)
@@ -1001,5 +1014,6 @@ c        call lattice_min_difference(dx,dy,dz)
         end do
         end do
 
+      call nwpw_timing_end(21)
       return
       end
