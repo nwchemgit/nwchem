@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Q.F,v 1.13 2007-03-27 02:02:50 bylaska Exp $
+c $Id: pspw_Q.F,v 1.14 2007-03-28 03:57:56 bylaska Exp $
 c
 
 
@@ -159,7 +159,8 @@ c     *************************************
 *     **** external functions ****
       real*8   pspw_Q_E_frag_frag,Q_Electrostatic_self
       external pspw_Q_E_frag_frag,Q_Electrostatic_self
-      
+
+      call nwpw_timing_start(41) 
 
       E = 0.0d0
 
@@ -201,6 +202,7 @@ c     **** take out MM/MM Coulomb self energy ****
          end do
       end do
 
+      call nwpw_timing_end(41) 
       pspw_Q_E = E
       return
       end
@@ -382,9 +384,7 @@ c     *************************************
       real*8  Rin2,Rout2,rw2_cm(3),m2
       real*8  Rin,Rout
 
-*     **** external functions ****
-      
-
+      call nwpw_timing_start(41) 
 
       do w1=1,nfrag-1
          ks1 = indx_frag_start(w1)
@@ -424,6 +424,7 @@ c     **** take out MM/MM Coulomb self energy ****
          end do
       end do
 
+      call nwpw_timing_end(41) 
       return
       end
 
