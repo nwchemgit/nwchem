@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.58 2007-03-27 02:02:49 bylaska Exp $
+* $Id: cpmdv5.F,v 1.59 2007-03-28 03:56:54 bylaska Exp $
 *
 
 ***********************************************************************
@@ -1180,21 +1180,8 @@ c         end if
          write(6,*) 'total       : ',T4
          write(6,*) 'cputime/step: ',AV
          write(6,*)
-         write(6,*) '-------------------------------'
-         write(6,*) 'Time spent doing:'
-         write(6,*) '  FFTs                       : ', nwpw_timing(1)
-         write(6,*) '  dot products               : ', nwpw_timing(2)
-         write(6,*) '  orthonormalization         : ', nwpw_timing(3)
-         write(6,*) '  exchange correlation       : ', nwpw_timing(4)
-         write(6,*) '  local pseudopotentials     : ', nwpw_timing(5)
-         write(6,*) '  non-local pseudopotentials : ', nwpw_timing(6)
-         write(6,*) '  hartree potentials         : ', nwpw_timing(7)
-         write(6,*) '  structure factors          : ', nwpw_timing(8)
-         write(6,*) '  masking and packing        : ', nwpw_timing(9)
-         write(6,*) '  total energy evalulation   : ', nwpw_timing(10)
-         write(6,*) '  density                    : ', nwpw_timing(11)
-         write(6,*) '  allocate and deallocate    : ', nwpw_timing(12)
-         write(6,*)
+
+         call nwpw_timing_print_final(.true.,(icount*it_in))
          CALL nwpw_message(4)
       end if 
 

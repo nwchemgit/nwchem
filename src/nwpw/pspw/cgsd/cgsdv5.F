@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.78 2007-03-22 20:46:21 bylaska Exp $
+* $Id: cgsdv5.F,v 1.79 2007-03-28 03:56:44 bylaska Exp $
 *
 
 ***********************************************************************
@@ -630,49 +630,7 @@ c     end if
          write(luout,1806) T4
          write(luout,1807) AV,electron_count(),linesearch_count()
 
-         if (oprint) then
-         write(luout,1809) 'Time spent doing               ',
-     >              'total','step'
-         write(luout,1808) '  FFTs                       : ', 
-     >                 nwpw_timing(1),
-     >                 nwpw_timing(1)/dble(electron_count())           
-         write(luout,1808) '  dot products               : ', 
-     >                 nwpw_timing(2),
-     >                 nwpw_timing(2)/dble(electron_count())           
-         write(luout,1808) '  geodesic                   : ', 
-     >                 nwpw_timing(10),
-     >                 nwpw_timing(10)/dble(electron_count())           
-         write(luout,1808) '  exchange correlation       : ', 
-     >                 nwpw_timing(4),
-     >                 nwpw_timing(4)/dble(electron_count())           
-         write(luout,1808) '  local pseudopotentials     : ', 
-     >                 nwpw_timing(5),
-     >                 nwpw_timing(5)/dble(electron_count())           
-         write(luout,1808) '  non-local pseudopotentials : ', 
-     >                 nwpw_timing(6),
-     >                 nwpw_timing(6)/dble(electron_count())           
-         write(luout,1808) '  hartree potentials         : ', 
-     >                 nwpw_timing(7),
-     >                 nwpw_timing(7)/dble(electron_count())           
-         write(luout,1808) '  structure factors          : ', 
-     >                 nwpw_timing(8),
-     >                 nwpw_timing(8)/dble(electron_count())           
-         write(luout,1808) '  masking and packing        : ', 
-     >                 nwpw_timing(9),
-     >                 nwpw_timing(9)/dble(electron_count())           
-         write(luout,1808) '  queue fft                  : ', 
-     >                 nwpw_timing(30),
-     >                 nwpw_timing(30)/dble(electron_count())           
-         write(luout,1808) '  queue fft (serial)         : ', 
-     >                 nwpw_timing(31),
-     >                 nwpw_timing(31)/dble(electron_count())           
-         write(luout,1808) '  queue fft (message passing): ', 
-     >                 nwpw_timing(32),
-     >                 nwpw_timing(32)/dble(electron_count())           
-         write(luout,1808) '  HFX potential              : ', 
-     >                 nwpw_timing(33),
-     >                 nwpw_timing(33)/dble(electron_count())           
-         end if
+         call nwpw_timing_print_final(oprint,electron_count())
          write(luout,*)
          CALL nwpw_MESSAGE(4)
       end if 
