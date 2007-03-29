@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.28 2007-03-28 03:56:11 bylaska Exp $
+* $Id: pack.F,v 1.29 2007-03-29 00:50:53 bylaska Exp $
 *
 
 *     ***********************************
@@ -2028,12 +2028,13 @@ c      end do
 *     *					*
 *     ***********************************
 
-      subroutine Pack_c_pack_start(nb,A,tmp1,request,reqcnt)
+      subroutine Pack_c_pack_start(nb,A,tmp1,request,reqcnt,msgtype)
       implicit none
       integer    nb
       complex*16 A(*)
       complex*16 tmp1(*)
       integer    request(*),reqcnt
+      integer    msgtype
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -2066,7 +2067,7 @@ c      end do
 
 
       if (control_balance()) 
-     >  call Balance_c_balance_start(nb,A,request,reqcnt)
+     >  call Balance_c_balance_start(nb,A,request,reqcnt,msgtype)
 
       call nwpw_timing_end(9)
       return
@@ -2129,12 +2130,13 @@ c      end do
 *     *					*
 *     ***********************************
 
-      subroutine Pack_c_unpack_start(nb,A,tmp1,request,reqcnt)
+      subroutine Pack_c_unpack_start(nb,A,tmp1,request,reqcnt,msgtype)
       implicit none
       integer    nb
       complex*16 A(*)
       complex*16 tmp1(*)
       integer    request(*),reqcnt
+      integer    msgtype
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -2153,7 +2155,7 @@ c      end do
       call nwpw_timing_start(9)
       call Pack_c_Copy(nb,A,tmp1)
       if (control_balance())
-     >   call Balance_c_unbalance_start(nb,tmp1,request,reqcnt)
+     >   call Balance_c_unbalance_start(nb,tmp1,request,reqcnt,msgtype)
 
       call nwpw_timing_end(9)
   
@@ -2170,7 +2172,7 @@ c      end do
 *     ***********************************
 
       subroutine Pack_c_unpack_mid(nb,tmp1,tmp2,tmp1z,tmp2z,
-     >                         request,reqcnt)
+     >                         request,reqcnt,msgtype)
       implicit none
       integer    nb
       complex*16 tmp1(*)
@@ -2178,6 +2180,7 @@ c      end do
       complex*16 tmp1z(*)
       complex*16 tmp2z(*)
       integer    request(*),reqcnt
+      integer    msgtype
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -2214,7 +2217,8 @@ c      end do
 
 
 *     **** make the kx=0 plane complete **** 
-      call D3dB_c_timereverse_start(1,tmp1,tmp1z,tmp2z,request,reqcnt)
+      call D3dB_c_timereverse_start(1,tmp1,tmp1z,tmp2z,
+     >                              request,reqcnt,msgtype)
 
       call nwpw_timing_end(9)
   

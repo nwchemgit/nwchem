@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-tcgmsg.F,v 1.15 2007-02-25 05:46:04 d3p708 Exp $
+* $Id: D3dB-tcgmsg.F,v 1.16 2007-03-29 00:50:47 bylaska Exp $
 *
 
 #ifdef TCGMSG
@@ -1267,11 +1267,11 @@ c     integer i2_start(NFFT3+1)
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_balance_start(nb,A,request,reqcnt)
+      subroutine Balance_c_balance_start(nb,A,request,reqcnt,msgtype)
       implicit none
       integer nb
       complex*16 A(*)
-      integer    request(*),reqcnt
+      integer    request(*),reqcnt,msgtype
 
       call Balance_c_balance(nb,A)
       return
@@ -1299,11 +1299,11 @@ c     integer i2_start(NFFT3+1)
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_unbalance_start(nb,A,request,reqcnt)
+      subroutine Balance_c_unbalance_start(nb,A,request,reqcnt,msgtype)
       implicit none
       integer nb
       complex*16 A(*)
-      integer    request(*),reqcnt
+      integer    request(*),reqcnt,msgtype
 
       call Balance_c_unbalance(nb,A)
       return
@@ -1346,12 +1346,12 @@ c     integer i2_start(NFFT3+1)
 *
 
       subroutine D3dB_c_ptranspose1_jk_start(nbb,A,tmp1,tmp2,
-     >                                       request,reqcnt)
+     >                                       request,reqcnt,msgtype)
       implicit none
       integer nbb
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
-      integer request(*),reqcnt
+      integer request(*),reqcnt,msgtype
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -1520,12 +1520,12 @@ c     integer i2_start(NFFT3+1)
 *
 
       subroutine D3dB_c_ptranspose2_jk_start(nbb,A,tmp1,tmp2,
-     >                                       request,reqcnt)
+     >                                       request,reqcnt,msgtype)
       implicit none
       integer nbb
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
-      integer request(*),reqcnt
+      integer request(*),reqcnt,msgtype
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -1700,13 +1700,13 @@ c     integer i2_start(NFFT3+1)
 
 
       subroutine D3dB_c_ptranspose_ijk_start(nbb,op,A,tmp1,tmp2,
-     >                                       request,reqcnt)
+     >                                       request,reqcnt,msgtype)
 
       implicit none
       integer nbb,op
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
-      integer     request(*),reqcnt
+      integer     request(*),reqcnt,msgtype
 
 #include "mafdecls.fh"
 #include "errquit.fh"

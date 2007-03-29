@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB_pfft.F,v 1.8 2006-08-13 01:03:24 bylaska Exp $
+* $Id: D3dB_pfft.F,v 1.9 2007-03-29 00:50:47 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2229,7 +2229,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call D3dB_c_ptranspose_ijk_start(nbb,1,A,tmp1,tmp2,request,reqcnt)
+      call D3dB_c_ptranspose_ijk_start(nbb,1,A,tmp1,tmp2,
+     >                                 request,reqcnt,40)
       call nwpw_timing_end(32)
 
       end if
@@ -2353,7 +2354,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
       call D3dB_c_ptranspose2_jk_start(nbb,tmp1,tmp2,tmp1,
-     >                                 request,reqcnt)
+     >                                 request,reqcnt,41)
       call nwpw_timing_end(32)
 
 
@@ -2393,7 +2394,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
       call D3dB_c_ptranspose_ijk_start(nbb,2,tmp1,tmp2,tmp1,
-     >                                 request,reqcnt)
+     >                                 request,reqcnt,42)
       call nwpw_timing_end(32)
 
 
@@ -2548,7 +2549,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
       call nwpw_timing_start(32)
-      call Pack_c_pack_start(nbb,tmp2,tmp1,request,reqcnt)
+      call Pack_c_pack_start(nbb,tmp2,tmp1,request,reqcnt,43)
       call nwpw_timing_end(32)
 
       return
@@ -2740,7 +2741,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
       call D3dB_c_ptranspose1_jk_start(nbb,tmp1,tmp2,tmp1,
-     >                                 request,reqcnt)
+     >                                 request,reqcnt,44)
       call nwpw_timing_end(32)
 
 
@@ -2776,7 +2777,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
       call D3dB_c_ptranspose_ijk_start(nbb,3,tmp1,tmp2,tmp1,
-     >                                 request,reqcnt)
+     >                                 request,reqcnt,45)
       call nwpw_timing_end(32)
 
 
@@ -2931,7 +2932,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
       call D3dB_c_ptranspose_ijk_start(nbb,4,tmp2,tmp1,tmp2,
-     >                                 request,reqcnt)
+     >                                 request,reqcnt,46)
       call nwpw_timing_end(32)
 
 
@@ -3075,13 +3076,13 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       if (step.eq.1) then
          call nwpw_timing_start(32)
-         call Pack_c_unpack_start(nbb,A,tmp1,request,reqcnt)
+         call Pack_c_unpack_start(nbb,A,tmp1,request,reqcnt,47)
          call nwpw_timing_end(32)
       else if (step.eq.2) then
          call nwpw_timing_start(32)
          call Pack_c_unpack_mid(nbb,tmp1,tmp2,
      >                          dcpl_mb(tmp1z(1)),dcpl_mb(tmp2z(1)),
-     >                          request,reqcnt)
+     >                          request,reqcnt,48)
          call nwpw_timing_end(32)
       else if (step.eq.3) then
          call nwpw_timing_start(32)
@@ -3119,12 +3120,17 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #include "D3dB_pfft.fh"
 
 
-      !**** pfft_queue ****
-      integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
-      integer qmax,qsize,last_index
-      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+      !**** pfft_queues ****
+      integer aqindx(2),aqstatus(2)
+      integer atmp(2),arequest(2),areqcnt(2)
+      integer aqmax,aqsize,alast_index
+      common / pfft_aqueue_common / aqindx,aqstatus,atmp,arequest,
+     >                              areqcnt,aqmax,aqsize,alast_index
+      integer bqindx(2),bqstatus(2)
+      integer btmp(2),brequest(2),breqcnt(2)
+      integer bqmax,bqsize,blast_index
+      common / pfft_bqueue_common / bqindx,bqstatus,btmp,brequest,
+     >                              breqcnt,bqmax,bqsize,blast_index
       
       integer tmp1z(2),tmp2z(2)
       common / pfft_queuez_common / tmp1z,tmp2z
@@ -3132,24 +3138,43 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       logical value
       integer np,size,zplane_sizetmp
 
-      qmax  = qmax_in
-      qsize = 0
-      last_index = qmax
-
       call Parallel2d_np_i(np)
-      size  = nfft3d(1)*qmax*2
-      value = MA_alloc_get(mt_dcpl,size,'tmp',tmp(2),tmp(1))
 
-      size  = np*qmax*2
+c     **** allocate aqueue ****
+      aqmax       = qmax_in
+      aqsize      = 0
+      alast_index = aqmax
+      size  = nfft3d(1)*aqmax*2
+      value = MA_alloc_get(mt_dcpl,size,'atmp',atmp(2),atmp(1))
+      size  = np*aqmax*2
       value = value.and.
-     >        MA_alloc_get(mt_int,size,'request',request(2),request(1))
-      size  = qmax
+     >      MA_alloc_get(mt_int,size,'arequest',arequest(2),arequest(1))
+      size  = aqmax
       value = value.and.
-     >        MA_alloc_get(mt_int,size,'qindx',qindx(2),qindx(1))
+     >        MA_alloc_get(mt_int,size,'aqindx',aqindx(2),aqindx(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,size,'qstatus',qstatus(2),qstatus(1))
+     >      MA_alloc_get(mt_int,size,'aqstatus',aqstatus(2),aqstatus(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,size,'reqcnt',reqcnt(2),reqcnt(1))
+     >        MA_alloc_get(mt_int,size,'areqcnt',areqcnt(2),areqcnt(1))
+
+
+c     **** allocate bqueue ****
+      bqmax       = qmax_in
+      bqsize      = 0
+      blast_index = bqmax
+      size  = nfft3d(1)*bqmax*2
+      value = MA_alloc_get(mt_dcpl,size,'btmp',btmp(2),btmp(1))
+      size  = np*bqmax*2
+      value = value.and.
+     >      MA_alloc_get(mt_int,size,'brequest',brequest(2),brequest(1))
+      size  = bqmax
+      value = value.and.
+     >        MA_alloc_get(mt_int,size,'bqindx',bqindx(2),bqindx(1))
+      value = value.and.
+     >      MA_alloc_get(mt_int,size,'bqstatus',bqstatus(2),bqstatus(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,size,'breqcnt',breqcnt(2),breqcnt(1))
+
 
 
       call D3dB_zplane_size(1,zplane_sizetmp)
@@ -3185,26 +3210,36 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #include "D3dB_pfft.fh"
 
 
-      !**** pfft_queue ****
-      integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
-      integer qmax,qsize,last_index
-      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+      !**** pfft_queues ****
+      integer aqindx(2),aqstatus(2)
+      integer atmp(2),arequest(2),areqcnt(2)
+      integer aqmax,aqsize,alast_index
+      common / pfft_aqueue_common / aqindx,aqstatus,atmp,arequest,
+     >                              areqcnt,aqmax,aqsize,alast_index
+
+      integer bqindx(2),bqstatus(2)
+      integer btmp(2),brequest(2),breqcnt(2)
+      integer bqmax,bqsize,blast_index
+      common / pfft_bqueue_common / bqindx,bqstatus,btmp,brequest,
+     >                              breqcnt,bqmax,bqsize,blast_index
 
       integer tmp1z(2),tmp2z(2)
       common / pfft_queuez_common / tmp1z,tmp2z
 
-
-
       logical value
 
+      value =           MA_free_heap(atmp(2))
+      value = value.and.MA_free_heap(arequest(2))
+      value = value.and.MA_free_heap(aqindx(2))
+      value = value.and.MA_free_heap(aqstatus(2))
+      value = value.and.MA_free_heap(areqcnt(2))
 
-      value =           MA_free_heap(tmp(2))
-      value = value.and.MA_free_heap(request(2))
-      value = value.and.MA_free_heap(qindx(2))
-      value = value.and.MA_free_heap(qstatus(2))
-      value = value.and.MA_free_heap(reqcnt(2))
+      value = value.and.MA_free_heap(btmp(2))
+      value = value.and.MA_free_heap(brequest(2))
+      value = value.and.MA_free_heap(bqindx(2))
+      value = value.and.MA_free_heap(bqstatus(2))
+      value = value.and.MA_free_heap(breqcnt(2))
+
       value = value.and.MA_free_heap(tmp1z(2))
       value = value.and.MA_free_heap(tmp2z(2))
       if (.not. value) call errquit('error freeing heap',0,MA_ERR)
@@ -3220,13 +3255,12 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     ***********************************
 *     *                                 *
-*     *     D3dB_pfft3_queue_filled     *
+*     *     D3dB_cr_pfft3_queue_filled  *
 *     *                                 *
 *     ***********************************
 
-      logical function D3dB_pfft3_queue_filled()
+      logical function D3dB_cr_pfft3_queue_filled()
       implicit none
-
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -3239,14 +3273,41 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2)
       integer qmax,qsize,last_index
-      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                             qmax,qsize,last_index
 
-
-      D3dB_pfft3_queue_filled = (qsize.ge.qmax)
+      D3dB_cr_pfft3_queue_filled = (qsize.ge.qmax)
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *     D3dB_rc_pfft3_queue_filled  *
+*     *                                 *
+*     ***********************************
+
+      logical function D3dB_rc_pfft3_queue_filled()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      !**** pfft_queue ****
+      integer qindx(2),qstatus(2)
+      integer tmp(2),request(2),reqcnt(2)
+      integer qmax,qsize,last_index
+      common / pfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
+     >                             qmax,qsize,last_index
+
+      D3dB_rc_pfft3_queue_filled = (qsize.ge.qmax)
+      return
+      end
 
 
 
@@ -3274,14 +3335,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2)
       integer qmax,qsize,last_index
-      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                             qmax,qsize,last_index
 
       !*** local variables ***
       integer shift1,shift2,shift3
       integer q,indx,status,np
 
-      call nwpw_timing_start(1)
+c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
       call Parallel2d_np_i(np)
 
@@ -3315,7 +3376,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
      >                     int_mb(request(1)+shift3),
      >                     int_mb(reqcnt(1)+last_index-1))
 
-      call nwpw_timing_end(1)
+c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
       return
       end
@@ -3346,14 +3407,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2)
       integer qmax,qsize,last_index
-      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                             qmax,qsize,last_index
 
       !*** local variables ***
       integer shift1,shift2,shift3
       integer q,indx,indx1,status,np
 
-      call nwpw_timing_start(1)
+c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
       call Parallel2d_np_i(np)
 
@@ -3396,7 +3457,7 @@ c      end do
       shift2=nfft3d(1)*(2*(indx1-1)+1)
       call Pack_c_Copy(nbb,dcpl_mb(tmp(1)+shift2),A)
 
-      call nwpw_timing_end(1)
+c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
       return
       end
@@ -3428,14 +3489,14 @@ c      end do
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2)
       integer qmax,qsize,last_index
-      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                             qmax,qsize,last_index
 
       !*** local variables ***
       integer shift1,shift2,shift3
       integer q,indx,status,np
 
-      call nwpw_timing_start(1)
+c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
       call Parallel2d_np_i(np)
 
@@ -3469,7 +3530,7 @@ c      end do
      >                     int_mb(request(1)+shift3),
      >                     int_mb(reqcnt(1)+last_index-1))
 
-      call nwpw_timing_end(1)
+c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
       return
       end
@@ -3500,7 +3561,7 @@ c      end do
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2)
       integer qmax,qsize,last_index
-      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                             qmax,qsize,last_index
 
       !*** local variables ***
@@ -3509,7 +3570,7 @@ c      end do
 
       call Parallel2d_np_i(np)
 
-      call nwpw_timing_start(1)
+c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
 
 
@@ -3553,7 +3614,7 @@ c      end do
       shift1=nfft3d(1)*(2*(indx1-1))
       call dcopy(2*nfft3d(1),dcpl_mb(tmp(1)+shift1),1,A,1)
 
-      call nwpw_timing_end(1)
+c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
       return
       end

@@ -1,8 +1,31 @@
 *
-* $Id: Grassman.F,v 1.17 2006-10-07 00:10:07 bylaska Exp $
+* $Id: Grassman.F,v 1.18 2007-03-29 00:51:45 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.17  2006/10/07 00:10:07  bylaska
+* Initial implementation of 2d processor grid parallelization in pspw.  Currently works with:
+*
+* task pspw steepest_descent
+* task pspw energy            (only minimizer 1, minimizer 2?, other minimizers not yet implemented)
+*
+* Currently only works with USE_MPIF option, straight tcgmsg only partially implemented.  Car-Parrinello, HFX, SIC, and various analysis codes are also not yet ported.
+*
+*
+* The number of processors along the orbital dimension, np_orbital, is entered as follows, e.g.:
+*
+* nwpw
+*    np_orbital  2
+* end
+*
+* The number of processors along the grid dimension, np_grid, is currently defined using np_orbital as
+*
+* np_grid = np/np_orbital
+*
+* where np is the total number of processors.
+*
+* ...EJB
+*
 * Revision 1.16  2005/07/12 21:26:33  bylaska
 * Intitial implementation of pipelined parallel FFT implemented.
 *
@@ -433,8 +456,8 @@ c        call D3dB_c_SMul(1,scale,A(1,k),C(1,k))
 
 
 *     **** external functions ****
-      logical  D3dB_pfft3_queue_filled
-      external D3dB_pfft3_queue_filled
+      logical  D3dB_cr_pfft3_queue_filled
+      external D3dB_cr_pfft3_queue_filled
 
 c      do k=1,n
 c        call Pack_c_unpack(1,A(1,k))
@@ -452,7 +475,7 @@ c      call D3dB_cr_mpfft3b(1,1,n,A)
            indx1 = indx1 + 1
         end if
 
-        if ((D3dB_pfft3_queue_filled()).or.(indx1.gt.n)) then
+        if ((D3dB_cr_pfft3_queue_filled()).or.(indx1.gt.n)) then
            call D3dB_cr_pfft3b_queueout(1,A(1,indx2))
            indx2 = indx2 + 1
         end if

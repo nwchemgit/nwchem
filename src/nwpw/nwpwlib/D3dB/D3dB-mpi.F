@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.18 2007-02-23 01:24:49 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.19 2007-03-29 00:50:46 bylaska Exp $
 *
 
 #ifdef MPI
@@ -1289,11 +1289,12 @@ c     **** external functions ****
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_balance_start(nb,A,request,reqcnt)
+      subroutine Balance_c_balance_start(nb,A,request,reqcnt,msgtype)
       implicit none
       integer nb
       complex*16 A(*)
       integer    request(*),reqcnt
+      integer msgtype
 
 #include "mafdecls.fh"
 #include "mpif.h"
@@ -1302,7 +1303,7 @@ c     **** external functions ****
 
 *     **** local variables ****
       integer j
-      integer pto,pfrom,msglen,indx,msgtype,mpierr
+      integer pto,pfrom,msglen,indx,mpierr
 
 c     **** external functions ****
       integer  Parallel2d_convert_taskid_i
@@ -1314,7 +1315,7 @@ c     **** external functions ****
             pto    = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)    
             msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
             indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
-            msgtype=2
+c            msgtype=2
 c            send data....
             if (msglen.gt.0) then
             reqcnt = reqcnt + 1
@@ -1334,7 +1335,7 @@ c            send data....
             pfrom  = int_mb(int_mb(proc_from_list(1)  +2*nb)+j-1)    
             msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
             indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
-            msgtype=2
+c            msgtype=2
 c            recieve data....
             if (msglen.gt.0) then
             reqcnt = reqcnt + 1
@@ -1417,11 +1418,12 @@ c            recieve data....
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_unbalance_start(nb,A,request,reqcnt)
+      subroutine Balance_c_unbalance_start(nb,A,request,reqcnt,msgtype)
       implicit none
       integer nb
       complex*16 A(*)
       integer    request(*),reqcnt
+      integer    msgtype
 
 #include "mafdecls.fh"
 #include "mpif.h"
@@ -1429,7 +1431,7 @@ c            recieve data....
 
 *     **** local variables ****
       integer j
-      integer pto,pfrom,msglen,indx,msgtype,mpierr
+      integer pto,pfrom,msglen,indx,mpierr
 
 c     **** external functions ****
       integer  Parallel2d_convert_taskid_i
@@ -1441,7 +1443,7 @@ c     **** external functions ****
             pfrom  = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)
             msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
             indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
-            msgtype=2
+c            msgtype=2
 c            recieve data....
             if (msglen.gt.0) then
             reqcnt = reqcnt + 1
@@ -1460,7 +1462,7 @@ c            recieve data....
             pto    = int_mb(int_mb(proc_from_list(1)  +2*nb)+j-1)    
             msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
             indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
-            msgtype=2
+c            msgtype=2
 c            send data....
             if (msglen.gt.0) then
             reqcnt = reqcnt + 1
@@ -1553,12 +1555,13 @@ c            send data....
 *
 
       subroutine D3dB_c_ptranspose1_jk_start(nbb,A,tmp1,tmp2,
-     >                                       request,reqcnt)
+     >                                       request,reqcnt,msgtype)
       implicit none
       integer nbb
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
       integer request(*),reqcnt
+      integer msgtype
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -1578,8 +1581,8 @@ c            send data....
 
 *     **** local variables ***
       integer proc_to,proc_from,it
-      integer msgtype,source
-      integer msglen,type
+      integer source
+      integer msglen
       integer taskid,np
       integer mpierr,n1
 
@@ -1611,9 +1614,9 @@ c     **** external functions ****
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np) 
 
-         msgtype = 1
+c         msgtype = 1
+c         type   = 1
          source=proc_from
-         type   = 1
          msglen = (int_mb(i2_start(1,nbb)+it+2-1) 
      >          -  int_mb(i2_start(1,nbb)+it+1-1))
          
@@ -1623,7 +1626,7 @@ c     **** external functions ****
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    type,MPI_COMM_WORLD,
+     >                    msgtype,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr) 
          end if
 
@@ -1636,7 +1639,7 @@ c     **** external functions ****
          proc_to   = mod((taskid)+it, np) 
          msglen    = (int_mb(i1_start(1,nbb)+it+2-1)
      >              - int_mb(i1_start(1,nbb)+it+1-1))
-         msgtype   = 1
+c         msgtype   = 1
       
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
@@ -1758,12 +1761,13 @@ c     **** external functions ****
 *
 
       subroutine D3dB_c_ptranspose2_jk_start(nbb,A,tmp1,tmp2,
-     >                                       request,reqcnt)
+     >                                       request,reqcnt,msgtype)
       implicit none
       integer nbb
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
       integer request(*),reqcnt
+      integer msgtype
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -1783,8 +1787,8 @@ c     **** external functions ****
 
 *     **** local variables ***
       integer proc_to,proc_from,it
-      integer msgtype,source
-      integer msglen,type
+      integer source
+      integer msglen
       integer taskid,np
       integer mpierr,n1
 
@@ -1816,9 +1820,9 @@ c     **** external functions ****
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np) 
 
-         msgtype = 1
+c         msgtype = 1
+c         type   = 1
          source=proc_from
-         type   = 1
          msglen = (int_mb(i2_start(1,nbb)+it+2-1) 
      >          -  int_mb(i2_start(1,nbb)+it+1-1))
          
@@ -1828,7 +1832,7 @@ c     **** external functions ****
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    type,MPI_COMM_WORLD,
+     >                    msgtype,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr) 
          end if
 
@@ -1841,7 +1845,7 @@ c     **** external functions ****
          proc_to   = mod((taskid)+it, np) 
          msglen    = (int_mb(i1_start(1,nbb)+it+2-1)
      >              - int_mb(i1_start(1,nbb)+it+1-1))
-         msgtype   = 1
+c         msgtype   = 1
       
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
@@ -1960,13 +1964,14 @@ c     **** external functions ****
 
 
       subroutine D3dB_c_ptranspose_ijk_start(nbb,op,A,tmp1,tmp2,
-     >                                       request,reqcnt)
+     >                                       request,reqcnt,msgtype)
 
       implicit none
       integer nbb,op
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
       integer     request(*),reqcnt
+      integer     msgtype
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -1992,8 +1997,8 @@ c     **** external functions ****
 *     **** local variables ***
       integer n1
       integer proc_to,proc_from,it
-      integer msgtype,source
-      integer msglen,type
+      integer source
+      integer msglen
       integer taskid,np
       integer mpierr
 
@@ -2025,9 +2030,9 @@ c     **** external functions ****
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np) 
 
-         msgtype = 1
+c         msgtype = 1
+c         type   = 1
          source=proc_from
-         type   = 1
          msglen = (int_mb(h_i2_start(1,op,nbb)+it+2-1) 
      >          -  int_mb(h_i2_start(1,op,nbb)+it+1-1))
          
@@ -2037,7 +2042,7 @@ c     **** external functions ****
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    type,MPI_COMM_WORLD,
+     >                    msgtype,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr) 
          end if
 
@@ -2050,7 +2055,7 @@ c     **** external functions ****
          proc_to   = mod((taskid)+it, np) 
          msglen    = (int_mb(h_i1_start(1,op,nbb)+it+2-1)
      >              - int_mb(h_i1_start(1,op,nbb)+it+1-1))
-         msgtype   = 1
+c         msgtype   = 1
       
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
@@ -2173,13 +2178,15 @@ c     **** external functions ****
 *      np = the number of worker nodes          
 *      proc#=0...(np-1)                          
 *                                                 
-      subroutine D3dB_c_timereverse_start(nb,A,tmp1,tmp2,request,reqcnt)
+      subroutine D3dB_c_timereverse_start(nb,A,tmp1,tmp2,
+     >                                    request,reqcnt,msgtype)
       implicit none
       integer     nb
       complex*16  A(*)
       complex*16  tmp1(*)
       complex*16  tmp2(*)
       integer     request(*),reqcnt
+      integer     msgtype
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -2203,7 +2210,7 @@ c     integer i2_start(NFFT3+1)
       integer i
       integer it
       integer source
-      integer msglen,msgtype,type
+      integer msglen
       integer proc_from,proc_to
       integer taskid,np
       integer index1
@@ -2244,9 +2251,9 @@ c     **** external functions ****
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np)
 
-         msgtype = 1
+c         msgtype = 1
+c         type   = 1
          source=proc_from
-         type   = 1
          msglen = (int_mb(i2_start(1,nb)+it+2-1)
      >          -  int_mb(i2_start(1,nb)+it+1-1))
 
@@ -2256,7 +2263,7 @@ c     **** external functions ****
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    type,MPI_COMM_WORLD,
+     >                    msgtype,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr)
          end if
 
@@ -2270,7 +2277,7 @@ c     **** external functions ****
          proc_to   = mod((taskid)+it, np)
          msglen    = (int_mb(i1_start(1,nb)+it+2-1)
      >              - int_mb(i1_start(1,nb)+it+1-1))
-         msgtype   = 1
+c         msgtype   = 1
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1

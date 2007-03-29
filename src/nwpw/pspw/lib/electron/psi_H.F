@@ -1,5 +1,5 @@
 *
-* $Id: psi_H.F,v 1.18 2005-07-13 00:20:36 bylaska Exp $
+* $Id: psi_H.F,v 1.19 2007-03-29 00:51:33 bylaska Exp $
 *
 
 *     *************************************
@@ -61,10 +61,10 @@ c     complex*16 vpsi(nfft3d)
 
 
 *     **** external functions ****
-      logical  pspw_SIC,pspw_SIC_relaxed,D3dB_pfft3_queue_filled
+      logical  pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
       logical  pspw_HFX,pspw_HFX_relaxed
       real*8   lattice_omega
-      external pspw_SIC,pspw_SIC_relaxed,D3dB_pfft3_queue_filled
+      external pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
       external pspw_HFX,pspw_HFX_relaxed
       external lattice_omega
 
@@ -176,7 +176,8 @@ c     complex*16 vpsi(nfft3d)
 
          end if
 
-         if ((D3dB_pfft3_queue_filled()).or.(indx1.gt.n2(ispin))) then
+         if ((D3dB_rc_pfft3_queue_filled()).or.
+     >       (indx1.gt.n2(ispin))) then
             call D3dB_rc_pfft3f_queueout(1,dcpl_mb(vpsi(1)))
 
 *           **** add to Hpsi_k ****
