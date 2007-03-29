@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.48 2006-10-07 00:10:04 bylaska Exp $
+* $Id: D3dB-new.F,v 1.49 2007-03-29 23:19:04 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -319,10 +319,12 @@ c     integer i2_start(NFFT3+1)
       integer i2_start(2,NBLOCKS)
       common / trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
 
+#ifndef MPI
       integer Nchannels(NBLOCKS)
       integer channel_proc(2,NBLOCKS)
       integer channel_type(2,NBLOCKS)
       common / channel_blk / channel_proc,channel_type,Nchannels
+#endif
 
       logical value
       integer i
@@ -367,8 +369,11 @@ c     integer i2_start(NFFT3+1)
       end do
       end if
 
+#ifndef MPI
       value = value.and.MA_free_heap(channel_proc(2,nb))
       value = value.and.MA_free_heap(channel_type(2,nb))
+#endif
+
       if (.not. value)
      > call errquit('D3dB_end:freeing heap memory',0, MA_ERR)
 
@@ -776,7 +781,11 @@ c     p = p_map(k)
       call Mapping_Init(nb)
       if (mapping.eq.1) call D3dB_c_transpose_jk_init(nb)
       if (mapping.eq.2) call D3dB_c_transpose_ijk_init(nb)
+
+#ifndef MPI
       call D3dB_channel_init(nb)
+#endif
+
       call D3dB_c_timereverse_init(nb)
       call D3dB_fft_init(nb)
       
@@ -2928,12 +2937,6 @@ c     integer i2_start(NFFT3+1)
       integer i2_start(2,NBLOCKS)
       common / trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
 
-*     **** Used to avoid asynchronous communications ****
-      integer Nchannels(NBLOCKS)
-      integer channel_proc(2,NBLOCKS)
-      integer channel_type(2,NBLOCKS)
-      common / channel_blk / channel_proc,channel_type,Nchannels
-
 
 *     **** local variables ****
       integer proc_to,proc_from
@@ -2943,10 +2946,6 @@ c     integer i2_start(NFFT3+1)
       integer index1,index2,itmp
       integer i,j,k,it
       logical value
-
-*     **** external functions ****
-      logical  full_ps
-      external full_ps
 
 
 *     **** allocate trans_blk common block ****
@@ -3014,182 +3013,6 @@ c     i2_start(np+1) = index2
 
       return
       end
-
-
-*     ***********************************
-*     *                                 *
-*     *      D3dB_channel_init          *
-*     *                                 *
-*     ***********************************
-
-      subroutine D3dB_channel_init(nb)
-      implicit none
-      integer nb
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "D3dB.fh"
-
-
-*     **** Used to avoid asynchronous communications ****
-      integer Nchannels(NBLOCKS)
-      integer channel_proc(2,NBLOCKS)
-      integer channel_type(2,NBLOCKS)
-      common / channel_blk / channel_proc,channel_type,Nchannels
-      integer pair1(2),pair2(2)
-      integer pair_step(2),pair_tmp(2)
-      integer step,Nstep,icount,jcount,jcount_max
-
-*     **** local variables ****
-      integer np,taskid
-      integer i,j,k
-      logical value
-
-*     **** external functions ****
-      logical  full_ps
-      external full_ps
-
-      call Parallel2d_taskid_i(taskid)
-      call Parallel2d_np_i(np)
-*
-*     **** Define Channels - which are used to avoid ****
-*     **** asynchronous communications               ****
-
-      value = MA_alloc_get(mt_int,(2*np),
-     >        'channel_proc',channel_proc(2,nb),channel_proc(1,nb))
-      value = value.and.
-     >        MA_alloc_get(mt_int,(2*np),
-     >        'channel_type',channel_type(2,nb),channel_type(1,nb))
-      if (.not. value) 
-     > call errquit('D3dB_channel_init:out of heap memory',0, MA_ERR)
-
-
-
-      value = MA_push_get(mt_int,(np*(np-1)/2),
-     >                    'pair1',pair1(2),pair1(1))
-      value = value.and.
-     >        MA_push_get(mt_int,(np*(np-1)/2),
-     >                    'pair2',pair2(2),pair2(1))
-      value = value.and.
-     >        MA_push_get(mt_int,(np*(np-1)/2),
-     >                'pair_step',pair_step(2),pair_step(1))
-      value = value.and.
-     >        MA_push_get(mt_int,(np*(np-1)/2),
-     >                'pair_tmp',pair_tmp(2),pair_tmp(1))
-      if (.not. value) 
-     >  call errquit('D3dB_channel_init:out of stack memory',0, MA_ERR)
-
-*     *** define pair1,pair2 ****
-      icount = 0
-      do i=0,     (np-1)
-      do j=(i+1), (np-1)
-         icount = icount + 1
-         int_mb(pair1(1)+icount-1) = i
-         int_mb(pair2(1)+icount-1) = j
-      end do
-      end do
-
-*     **** define pair_step ****
-      do i=1,(np*(np-1)/2)
-         int_mb(pair_step(1)+i-1) = (-1)
-      end do
-
-      step=0
-      jcount = 0
-      jcount_max = np*(np-1)/2
-c      do while(.not. full_ps(int_mb(pair_step(1)),np))
-      do while(jcount.lt.jcount_max)
-         step=step+1
-
-         icount = 0
-         do i=1, (np*(np-1)/2)
-            if (int_mb(pair_step(1)+i-1).eq.(-1)) then
-               value=.true.
-               do k=1,icount
-                 j = int_mb(pair_tmp(1)+k-1)
-
-                 if
-     >        ((int_mb(pair1(1)+i-1).eq.int_mb(pair1(1)+j-1)).or.
-     >         (int_mb(pair1(1)+i-1).eq.int_mb(pair2(1)+j-1)).or.
-     >         (int_mb(pair2(1)+i-1).eq.int_mb(pair1(1)+j-1)).or.
-     >         (int_mb(pair2(1)+i-1).eq.int_mb(pair2(1)+j-1)))
-     >           value=.false.
-
-               end do
-               if (value) then
-                 int_mb(pair_step(1)+i-1) = step
-                 icount = icount + 1
-                 jcount = jcount + 1
-                 int_mb(pair_tmp(1)+icount-1) = i
-               end if
-            end if
-         end do
-      end do
-      Nstep=step
-
-
-*     **** define channels ***
-      Nchannels(nb)=0
-      do step=1,Nstep
-         do i=1,(np*(np-1)/2)
-            if (int_mb(pair_step(1)+i-1).eq.step) then
-*              **** send then recv ****
-               if (int_mb(pair1(1)+i-1).eq.taskid) then
-                  Nchannels(nb)=Nchannels(nb)+1
-                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1)
-     >             = int_mb(pair2(1)+i-1)
-                  int_mb(channel_type(1,nb)+Nchannels(nb)-1) = 0
-                  Nchannels(nb)=Nchannels(nb)+1
-                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1)
-     >            = int_mb(pair2(1)+i-1)
-                  int_mb(channel_type(1,nb)+Nchannels(nb)-1) = 1
-               end if
-
-*              **** recv then send ****
-               if (int_mb(pair2(1)+i-1).eq.taskid) then
-                  Nchannels(nb)=Nchannels(nb)+1
-                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1)
-     >            = int_mb(pair1(1)+i-1)
-                  int_mb(channel_type(1,nb)+Nchannels(nb)-1) = 1
-                  Nchannels(nb)=Nchannels(nb)+1
-                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1)
-     >            = int_mb(pair1(1)+i-1)
-                  int_mb(channel_type(1,nb)+Nchannels(nb)-1) = 0
-               end if
-            end if
-         end do
-      end do
-
-
-      value=          MA_pop_stack(pair_tmp(2))
-      value=value.and.MA_pop_stack(pair_step(2))
-      value=value.and.MA_pop_stack(pair2(2))
-      value=value.and.MA_pop_stack(pair1(2))
-      if (.not. value) 
-     >  call errquit('D3dB_channel_init:popping stack',0, MA_ERR)
-
-      return
-      end
-
-
-      
-      logical function full_ps(ps,np)
-      implicit none
-      integer ps(*)
-      integer np
-
-      integer i
-      logical value
-
-      value=.true.
-      do i=1,(np*(np-1)/2)
-         if (ps(i).eq.(-1)) value=.false.
-      end do
-
-      full_ps=value
-      return
-      end
-
 
 
 
