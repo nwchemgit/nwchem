@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.28 2007-03-27 02:02:49 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.29 2007-03-29 00:51:21 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -239,10 +239,17 @@ c     real*8     fion(3,natmx)
 *       *******************
 *       **** get psi_r ****
 *       *******************
+c        do n=n1(1),n2(ispin)
+c           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
+c           call Pack_c_unpack(1,psi_r(1,n))
+c           call D3dB_cr_fft3b(1,psi_r(1,n))
+c           call D3dB_r_Zero_Ends(1,psi_r(1,n))
+c        end do
         do n=n1(1),n2(ispin)
            call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
-           call Pack_c_unpack(1,psi_r(1,n))
-           call D3dB_cr_fft3b(1,psi_r(1,n))
+        end do
+        call Grsm_gh_fftb(nfft3d,n2(ispin),psi_r)
+        do n=n1(1),n2(ispin)
            call D3dB_r_Zero_Ends(1,psi_r(1,n))
         end do
 
