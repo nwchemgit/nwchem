@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.13 2007-03-28 03:57:33 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.14 2007-03-29 01:47:54 bylaska Exp $
 c
 
 *     *************************
@@ -153,6 +153,7 @@ c     *************************************
 #include "pspw_LJ.fh"
 
 *     **** local variables ****
+      integer dutask,taskid,np
       integer i,j
       integer w1,a,k1,kk1,n1
       integer w2,b,k2,kk2
@@ -163,25 +164,32 @@ c     *************************************
       external pspw_VLJ_E_periodic,pspw_VLJ_E_periodic_self
       
       call nwpw_timing_start(40)
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
       E = 0.0d0
 
 c     **** QM/MM LJ energy ****
-      do i=1,nion_qm
-         e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
-         s1 = dbl_mb(sigma_all(1)  +katm(i)-1)
-         do j = nion_qm+1,nion
-            e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
+      dutask = 0
+      do j = nion_qm+1,nion
+         if (dutask.eq.taskid) then
+         e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
+         s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+         do i=1,nion_qm
+            e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
             if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-            s2 = dbl_mb(sigma_all(1)+katm(j)-1)
+            s1 = dbl_mb(sigma_all(1)+katm(i)-1)
             E = E + pspw_VLJ_E_periodic(e1,s1,rion(1,i),
      >                                  e2,s2,rion(1,j),
      >                                  nshl3d,rcell)
             end if
          end do
+         end if
+         dutask = mod(dutask+1,np)
       end do
 
 c     **** MM/MM LJ energy ****
       do w1 = 1,nfrag-1
+      if (dutask.eq.taskid) then
       do w2 = w1+1,nfrag
          k1 = indx_frag_start(w1)
          k2 = indx_frag_start(w2)
@@ -203,11 +211,14 @@ c     **** MM/MM LJ energy ****
             kk1 = kk1 + 1
          end do
       end do
+      end if
+      dutask = mod(dutask+1,np)
       end do
 
 c     **** MM/MM LJ self image energy ****
       if (nshl3d.gt.1) then
       do w1 = 1,nfrag
+         if (dutask.eq.taskid) then
          k1 = indx_frag_start(w1)
          n1 = size_frag(w1)
          kk1 = k1
@@ -227,9 +238,12 @@ c     **** MM/MM LJ self image energy ****
             end do
             kk1 = kk1 + 1
          end do
+         end if
+         dutask = mod(dutask+1,np)
       end do
       end if
 
+      if (np.gt.1) call Parallel_SumAll(E)
       call nwpw_timing_end(40)
 
       pspw_LJ_E = E
@@ -347,30 +361,38 @@ c     *************************************
 #include "pspw_LJ.fh"
 
 *     **** local variables ****
+      integer dutask,taskid,np
       integer i,j
       integer w1,a,k1,kk1,n1
       integer w2,b,k2,kk2
       real*8  e1,s1,e2,s2
 
       call nwpw_timing_start(40)
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      dutask = 0
 
 c     **** QM/MM LJ energy ****
-      do i=1,nion_qm
-         e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
-         s1 = dbl_mb(sigma_all(1)  +katm(i)-1)
-         do j = nion_qm+1,nion
-            e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
+      do j = nion_qm+1,nion
+         if (dutask.eq.taskid) then
+         e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
+         s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+         do i=1,nion_qm
+            e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
             if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-            s2 = dbl_mb(sigma_all(1)+katm(j)-1)
+            s1 = dbl_mb(sigma_all(1)  +katm(i)-1)
             call pspw_VLJ_fion_periodic(e1,s1,rion(1,i),fion(1,i),
      >                                  e2,s2,rion(1,j),fion(1,j),
      >                                  nshl3d,rcell)
             end if
          end do
+         end if
+         dutask = mod(dutask+1,np)
       end do
 
 c     **** MM/MM LJ energy ****
       do w1 = 1,nfrag-1
+      if (dutask.eq.taskid) then
       do w2 = w1+1,nfrag
          k1 = indx_frag_start(w1)
          k2 = indx_frag_start(w2)
@@ -392,11 +414,14 @@ c     **** MM/MM LJ energy ****
             kk1 = kk1 + 1
          end do
       end do
+      end if
+      dutask = mod(dutask+1,np)
       end do
 
 c     **** MM/MM LJ self image energy ****
       if (nshl3d.gt.1) then
       do w1 = 1,nfrag
+         if (dutask.eq.taskid) then
          k1 = indx_frag_start(w1)
          n1 = size_frag(w1)
          kk1 = k1
@@ -418,6 +443,8 @@ c     **** MM/MM LJ self image energy ****
             end do
             kk1 = kk1 + 1
          end do
+         end if
+         dutask = mod(dutask+1,np)
       end do
       end if
 

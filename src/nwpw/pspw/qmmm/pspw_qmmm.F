@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.23 2007-03-27 02:02:50 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.24 2007-03-29 01:47:50 bylaska Exp $
 c
 
 ***********************************************************
@@ -438,9 +438,34 @@ c     **** external functions ***
       implicit none
       real*8 fion(3,*)
 
-      call pspw_qmmm_LJ_fion(fion)
-      call pspw_qmmm_Q_fion(fion)
+#include "mafdecls.fh"
+#include "errquit.fh"
 
+*      **** local variables ****
+      integer ftmp(2),nion3,np
+
+*     *** external functions ****
+      integer  ion_nion
+      external ion_nion
+      call Parallel_np(np)
+
+      if (np.eq.1) then
+         call pspw_qmmm_LJ_fion(fion)
+         call pspw_qmmm_Q_fion(fion)
+      else
+         nion3 = 3*ion_nion()
+         if (.not.MA_push_get(mt_dbl,nion3,'ftmp',ftmp(2),ftmp(1)))
+     >  call errquit('pspw_qmmm_fion:cannot push stack memory',0,MA_ERR)
+
+         call dcopy(nion3,0.0,0,dbl_mb(ftmp(1)),1)
+         call pspw_qmmm_LJ_fion(dbl_mb(ftmp(1)))
+         call pspw_qmmm_Q_fion(dbl_mb(ftmp(1)))
+         call Parallel_Vector_SumAll(nion3,dbl_mb(ftmp(1)))
+         call daxpy(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+
+         if (.not.MA_pop_stack(ftmp(2)))
+     >   call errquit('pspw_qmmm_fion:cannot pop stack memory',0,MA_ERR)
+      end if
       return
       end
 

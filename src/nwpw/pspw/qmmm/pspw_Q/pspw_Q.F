@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Q.F,v 1.14 2007-03-28 03:57:56 bylaska Exp $
+c $Id: pspw_Q.F,v 1.15 2007-03-29 01:47:57 bylaska Exp $
 c
 
 
@@ -150,6 +150,7 @@ c     *************************************
 
 
 *     **** local variables ****
+      integer dutask,taskid,np
       integer w1,a,ks1,kk1,n1
       integer w2,b,ks2,kk2,n2
       real*8  Rin1,Rout1,rw1_cm(3)
@@ -161,10 +162,14 @@ c     *************************************
       external pspw_Q_E_frag_frag,Q_Electrostatic_self
 
       call nwpw_timing_start(41) 
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      dutask = 0
 
       E = 0.0d0
 
       do w1=1,nfrag-1
+         if (dutask.eq.taskid) then
          ks1 = indx_frag_start(w1)
          n1  = size_frag(w1)
          Rin1  = switch_Rin(kfrag(w1))
@@ -186,11 +191,14 @@ c     *************************************
      >                                 katm,psp_zv,rion,
      >                                 nshl3d,rcell)
          end do
+         end if
+         dutask = mod(dutask+1,np)
       end do
      
 
 c     **** take out MM/MM Coulomb self energy ****
       do w1 = 1,nfrag
+         if (dutask.eq.taskid) then
          ks1 = indx_frag_start(w1)
          do a=1,size_frag(w1)
          do b=a+1,size_frag(w1)
@@ -200,7 +208,10 @@ c     **** take out MM/MM Coulomb self energy ****
      >                                   rion(1,kk2),psp_zv(katm(kk2)))
          end do
          end do
+         end if
+         dutask = mod(dutask+1,np)
       end do
+      if (np.gt.1) call Parallel_SumAll(E)
 
       call nwpw_timing_end(41) 
       pspw_Q_E = E
@@ -378,6 +389,7 @@ c     *************************************
 
 
 *     **** local variables ****
+      integer dutask,taskid,np
       integer w1,a,ks1,kk1,n1
       integer w2,b,ks2,kk2,n2
       real*8  Rin1,Rout1,rw1_cm(3),m1
@@ -385,8 +397,12 @@ c     *************************************
       real*8  Rin,Rout
 
       call nwpw_timing_start(41) 
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      dutask = 0
 
       do w1=1,nfrag-1
+         if (dutask.eq.taskid) then
          ks1 = indx_frag_start(w1)
          n1  = size_frag(w1)
          Rin1  = switch_Rin(kfrag(w1))
@@ -408,10 +424,13 @@ c     *************************************
      >                                 katm,psp_zv,amass,rion,fion,
      >                                 nshl3d,rcell)
          end do
+         end if
+         dutask = mod(dutask+1,np)
       end do
 
 c     **** take out MM/MM Coulomb self energy ****
       do w1 = 1,nfrag
+         if (dutask.eq.taskid) then
          ks1 = indx_frag_start(w1)
          do a=1,size_frag(w1)
          do b=a+1,size_frag(w1)
@@ -422,6 +441,8 @@ c     **** take out MM/MM Coulomb self energy ****
      >               rion(1,kk2),psp_zv(katm(kk2)),fion(1,kk2))
          end do
          end do
+         end if
+         dutask = mod(dutask+1,np)
       end do
 
       call nwpw_timing_end(41) 
