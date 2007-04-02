@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.52 2006-09-25 22:35:51 windus Exp $
+* $Id: task_input.F,v 1.53 2007-04-02 15:41:22 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -152,6 +152,9 @@ c
          else if (inp_compare(.false.,test,
      >                        'dos_dplot')) then
             operation='dos_dplot'
+         else if (inp_compare(.false.,test,
+     >                        'rdf')) then
+            operation='rdf'
 
          else if (theory .eq. ' ') then
             theory = test
