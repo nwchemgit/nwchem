@@ -1,5 +1,5 @@
 *
-* $Id: task_pspw.F,v 1.13 2006-08-13 01:03:26 bylaska Exp $
+* $Id: task_pspw.F,v 1.14 2007-04-02 15:38:40 bylaska Exp $
 *
 
       logical function task_pspw(rtdb)
@@ -17,7 +17,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 18)
+      parameter (num_dirs = 19)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'psp_generator',
@@ -37,19 +37,20 @@ c
      >            'expand_cell',
      >            'ionize',
      >            'convert_restricted',
-     >            'Born-Oppenheimer'/
+     >            'Born-Oppenheimer',
+     >            'rdf'/
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       logical  v_wvfnc_init,wvfnc_expander,cell_optimize
       logical  pspw_dplot,pspw_stress,pspw_noit_energy
       logical  pspw_wannier,expand_cell,wvfnc_ionize
-      logical  wvfnc_convert_restricted
+      logical  wvfnc_convert_restricted,nwpw_rdf
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize
       external pspw_dplot,pspw_stress,pspw_noit_energy
       external pspw_wannier,expand_cell,wvfnc_ionize
-      external wvfnc_convert_restricted
+      external wvfnc_convert_restricted,nwpw_rdf
 c
 c
       value = .false.
@@ -62,7 +63,8 @@ c
 c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
-     >       1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800 ) ind
+     >       1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
+     >       1900 ) ind
       call errquit('task pspw: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -303,7 +305,19 @@ c
       call ga_sync()
       goto 9999
 
-
+c
+c  rdf
+c
+ 1900 value = .true.
+      value = rtdb_parallel(.false.)
+      if (ga_nodeid().eq.MASTER) then
+        write(*,*)
+     >     ">>>> PSPW Serial Module - rdf <<<<"
+        write(*,*) "not finished"
+        value = nwpw_rdf(rtdb)
+      endif
+      call ga_sync()
+      goto 9999
 
 
  9999 continue

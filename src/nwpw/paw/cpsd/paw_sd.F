@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.80 2006-06-05 17:34:26 edo Exp $
+* $Id: paw_sd.F,v 1.81 2007-04-02 15:38:39 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.80  2006/06/05 17:34:26  edo
+* added USES_BLAS
+*
 * Revision 1.79  2006/02/11 02:50:46  bylaska
 * GGA's using 1st derivative formulas have been added in core part of PAW....EJB
 *
@@ -267,7 +270,7 @@
       real*8      lattice_unitg
       integer     paw_mult_ncut
       character   spdf_name
-      character*2 ion_aname,ion_atom
+      character*4 ion_aname,ion_atom
       external    paw_mult_rcut,ion_amass
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
@@ -1107,7 +1110,7 @@ c      call paw_density_end()
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
- 1141 FORMAT(5X,I2,': ',A2,'  ion charge:',F4.1,'  core charge:',F4.1)
+ 1141 FORMAT(5X,I2,': ',A4,'  ion charge:',F4.1,'  core charge:',F4.1)
 
  1143 FORMAT(12x,' augmentation sphere radius  :',F6.3)
 c1144 FORMAT(12x,' compensation sigma          :',F6.3,
@@ -1126,13 +1129,13 @@ c    .   ' (',F6.3,' smooth)')
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
  1159 FORMAT(/' total charge:',F8.3)
  1160 FORMAT(/' atomic composition:')
- 1170 FORMAT(7(5X,A2,':',I3))
+ 1170 FORMAT(7(5X,A4,':',I3))
  1180 FORMAT(/' initial position of ions:')
- 1190 FORMAT(5X, I4, A3, ' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
- 1191 FORMAT(5X, I4, A3, ' (',3F11.5,
+ 1190 FORMAT(5X, I4, A5, ' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
+ 1191 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F6.3,' - fixed')
- 1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
- 1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
+ 1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
+ 1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,'             omega=',F8.1)

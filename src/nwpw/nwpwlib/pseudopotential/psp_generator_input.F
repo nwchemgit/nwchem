@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.33 2007-03-19 19:05:36 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.34 2007-04-02 15:38:38 bylaska Exp $
 c
 
 *     ***************************************
@@ -27,7 +27,7 @@ c
       character*255 test,dir_name,sdir_name
 
       character*255 pspgenerator
-      character*2  element
+      character*4  element
       double precision charge
       double precision mass_number
       character*25  pseudopotential_type
@@ -531,7 +531,7 @@ c
 #include "util.fh"
 
       integer iopt
-      character*2 atom
+      character*4 atom
       double precision rlocal
       integer	    locp,lmax
 c
@@ -571,7 +571,7 @@ c
       close(unit=99,status='delete')
       psp_in = "junk.inp "
       ka = index(atom,' ') - 1
-      if (ka.lt.0) ka = 2
+      if (ka.lt.0) ka = 4
       if (iopt.eq.1) psp_out = atom(1:ka)//".psp "
       if (iopt.eq.2) psp_out = atom(1:ka)//"_basis "
       j = index(psp_in,' ')  - 1
@@ -759,7 +759,7 @@ c        *** revPBE ***
 #include "rtdb.fh"
 #include "util.fh"
 
-      character*2 atom
+      character*4 atom
       double precision rlocal
       integer	    locp,lmax
 c
@@ -799,7 +799,7 @@ c
       close(unit=99,status='delete')
       psp_in = "junk.inp "
       ka = index(atom,' ') - 1
-      if (ka.lt.0) ka = 2
+      if (ka.lt.0) ka = 4
       psp_out = atom(1:ka)//".psp1"
       j = index(psp_in,' ')  - 1
       k = index(psp_out,' ') - 1

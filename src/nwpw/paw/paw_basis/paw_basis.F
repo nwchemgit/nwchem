@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.32 2007-03-21 03:31:28 bylaska Exp $
+* $Id: paw_basis.F,v 1.33 2007-04-02 15:38:39 bylaska Exp $
 *
 
 !**************************************************
@@ -395,13 +395,13 @@ c     >             paw_basis_npoints(it)
 
       logical found
       integer ia,lmax,locp
-      character*2 atom
+      character*4 atom
       character*255 fname,libfile
       real*8        sum,rlocal
 
 *     **** external functions ****
       logical     nwpw_filefind
-      character*2 ion_atom
+      character*4 ion_atom
       integer     ion_nkatm
       external    nwpw_filefind
       external    ion_atom

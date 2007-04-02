@@ -8,7 +8,7 @@
       implicit none
       integer tag
       integer nion
-      character*2 aname_function
+      character*4 aname_function
       external    aname_function
       integer nkatm,katm(2),natm(2),atom(2)
 
@@ -18,7 +18,7 @@
       logical value
       integer i,ka
       integer atom_list(2)
-      character*2 aname
+      character*4 aname
       character*20 rtdb_name
 
       integer     pspw_compare_atom
@@ -26,7 +26,7 @@
 
 
 *     **** define nkatm, and atom ****
-      value = MA_push_get(mt_byte,2*nion,
+      value = MA_push_get(mt_byte,4*nion,
      >                    'atom_list',atom_list(2),atom_list(1))
       if (.not. value) call errquit('out of stack memory',0,
      &       MA_ERR)
@@ -41,7 +41,7 @@
          end if
       end do
       rtdb_name = 'atom'//CHAR(tag+ICHAR('a'))
-      value = MA_alloc_get(mt_byte,(2*nkatm),rtdb_name,atom(2),atom(1))
+      value = MA_alloc_get(mt_byte,(4*nkatm),rtdb_name,atom(2),atom(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
       call pspw_copy_atom(nkatm,byte_mb(atom_list(1)),
      >                          byte_mb(atom(1)))
@@ -74,8 +74,8 @@
       subroutine pspw_copy_atom(nkatm,alist1,alist2)
       implicit none
       integer nkatm
-      character*2 alist1(nkatm)
-      character*2 alist2(nkatm)
+      character*4 alist1(nkatm)
+      character*4 alist2(nkatm)
       integer i
       do i=1,nkatm
          alist2(i) = alist1(i)
@@ -84,17 +84,17 @@
       end
       subroutine pspw_insert_atom(aname,nkatm,alist)
       implicit none
-      character*2 aname
+      character*4 aname
       integer nkatm
-      character*2 alist(nkatm)
+      character*4 alist(nkatm)
       alist(nkatm) = aname
       return
       end
       integer function pspw_compare_atom(aname,nkatm,alist)
       implicit none
-      character*2 aname
+      character*4 aname
       integer nkatm
-      character*2 alist(nkatm)
+      character*4 alist(nkatm)
       integer i,j
       j=0
       do i=1,nkatm

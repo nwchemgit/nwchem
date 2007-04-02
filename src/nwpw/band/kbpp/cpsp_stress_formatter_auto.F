@@ -1,5 +1,5 @@
 c
-c $Id: cpsp_stress_formatter_auto.F,v 1.1 2005-09-07 23:55:02 bylaska Exp $
+c $Id: cpsp_stress_formatter_auto.F,v 1.2 2007-04-02 15:38:36 bylaska Exp $
 c
 
 *     ***************************************
@@ -10,7 +10,7 @@ c
 
       subroutine cpsp_stress_formatter_auto(atom)
       implicit none
-      character*2  atom
+      character*4  atom
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -21,7 +21,7 @@ c
       integer       i,j,l
       integer	    locp,lmax
       character*20  psp_filename,formatted_filename
-      character*4   element
+      character*5   element
       real*8        rlocal
       integer       nbrillioun,kv(2),nb
 
@@ -48,7 +48,7 @@ c
       rlocal = 1.0d0
 
 *     **** define psp_filename and formatted_filename ****
-      element = '    '
+      element = '     '
       element = atom
       l = index(element,' ') - 1
       psp_filename       = element(1:l)//'.psp'

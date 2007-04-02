@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.3 2007-01-02 18:36:50 bylaska Exp $
+* $Id: cpsp_stress.F,v 1.4 2007-04-02 15:38:37 bylaska Exp $
 *
 
 
@@ -669,7 +669,7 @@ c       close(11)
       character*12 boundry
       integer tmp(2),tmp2(2),ierr
       logical value,found,correct_box
-      character*4  element
+      character*5  element
       character*20 fname
 
 *     **** parallel i/o variable ****
@@ -682,7 +682,7 @@ c       close(11)
       integer      psp_lmmax
       real*8       control_unita
       character*12 control_boundry
-      character*2  ion_atom
+      character*4  ion_atom
       external     nwpw_filefind
       external     control_ngrid,brillioun_nbrillioun
       external     psp_lmmax
@@ -709,7 +709,7 @@ ccc corrected to complex by pjn 11-7-06
       do ia=1,npsp
 
 *       **** define formatted psp name ****
-         element = '    '
+         element = '     '
          element = ion_atom(ia)
          l = index(element,' ') - 1
          fname = element(1:l)//'.cpp2'

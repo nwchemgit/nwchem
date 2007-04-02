@@ -1,5 +1,5 @@
 c
-c     $Id: MOTION_nframes.F,v 1.2 2003-02-12 20:12:19 edo Exp $
+c     $Id: MOTION_nframes.F,v 1.3 2007-04-02 15:38:38 bylaska Exp $
 c
 
 *     *********************************
@@ -13,11 +13,11 @@ c
 *  now needed because the format of the MOTION file
 *  has changed.
 *
-      subroutine MOTION_nframes(filename,nframes,nion,omega)
+      subroutine MOTION_nframes(filename,nframes,nion,omega,unita)
       implicit none
       character*(*) filename
       integer nframes,nion
-      real*8  omega
+      real*8  omega,unita(3,3)
 
       real*8    time
       integer   i,nion1
@@ -27,7 +27,7 @@ c
 
       open(unit=19,file=filename,form='formatted',status='old')
       do while(.true.)
-        read(19,*,ERR=30,END=30) time,nion1,omega
+        read(19,*,ERR=30,END=30) time,nion1,omega,unita
         if (nion1.gt.nion) nion = nion1
         do i=1,nion1
           read(19,*,ERR=30,END=30) 

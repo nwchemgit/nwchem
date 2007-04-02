@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.22 2006-12-05 00:14:41 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.23 2007-04-02 15:38:42 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint_in,it_max,
      >                      wavefunction_filename,
@@ -45,9 +45,9 @@
 
 *     **** external functions ****
       logical     psp_semicore,aorbs_init,aorbs_readall
-      character*2 psp_atom
+      character*4 ion_atom
       integer     aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax,ion_nion
-      integer     psp_locp,psp_lmmax,ion_natm,psp_npsp
+      integer     psp_locp,psp_lmmax,ion_natm
       integer     control_version
       integer     ewald_ncut,ewald_nshl3d
       real*8      psp_ncore,psp_rcore,psp_rlocal,psp_rc,psp_zv
@@ -56,9 +56,9 @@
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,control_tole,control_tolc
       external    psp_semicore,aorbs_init,aorbs_readall
-      external    psp_atom
+      external    ion_atom
       external    aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax,ion_nion
-      external    psp_locp,psp_lmmax,ion_natm,psp_npsp
+      external    psp_locp,psp_lmmax,ion_natm
       external    control_version
       external    ewald_ncut,ewald_nshl3d
       external    psp_ncore,psp_rcore,psp_rlocal,psp_rc,psp_zv
@@ -198,14 +198,14 @@
 
         write(*,1117) 
         do ia=1,ion_nkatm()
-           write(*,1118) psp_atom(ia),aorbs_norbs(ia)
+           write(*,1118) ion_atom(ia),aorbs_norbs(ia)
         end do
         write(*,1119) nbasis
 
 
         write(6,1140)
-         do ia = 1,psp_npsp()
-           write(6,1150) ia,psp_atom(ia),
+         do ia = 1,ion_nkatm()
+           write(6,1150) ia,ion_atom(ia),
      >                    psp_zv(ia),psp_lmax(ia)
            write(6,1152) psp_lmax(ia)
            write(6,1153) psp_locp(ia)
@@ -588,7 +588,7 @@ c     value = .false.
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
- 1150 FORMAT(5X,I2,': ',A2,'  core charge:',F4.1,'  lmax=',I1)
+ 1150 FORMAT(5X,I2,': ',A4,'  core charge:',F4.1,'  lmax=',I1)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
  1152 FORMAT(12X,' highest angular component      : ',i2)
  1153 FORMAT(12X,' local potential used           : ',i2)
@@ -601,7 +601,7 @@ c     value = .false.
  1160 FORMAT(/' ATOMIC COMPOSITION:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' INITIAL POSITION OF IONS:')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' )')
+ 1190 FORMAT(5X, I4, A4  ,' (',3F11.5,' )')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1220 FORMAT(' # of Electrons(ispin=',I1,')  :',I4,' up',I4,' down')

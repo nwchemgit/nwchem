@@ -1,5 +1,5 @@
 c
-c     $Id: cpmd_properties.F,v 1.6 2006-12-27 19:47:52 bylaska Exp $
+c     $Id: cpmd_properties.F,v 1.7 2007-04-02 15:38:38 bylaska Exp $
 c
 
 *     *********************************
@@ -29,7 +29,6 @@ c
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                    full_filename)
-
 
 
       call pair_dist(full_filename)

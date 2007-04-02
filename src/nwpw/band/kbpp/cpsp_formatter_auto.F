@@ -1,22 +1,22 @@
 
 *     ***************************************
-*     *										*
-*     *			cpsp_formatter_auto			*
-*     *										*
+*     *					    *
+*     *		cpsp_formatter_auto	    *
+*     *					    *
 *     ***************************************
       subroutine cpsp_formatter_auto(atom)
       implicit none
-#include "errquit.fh"
-      character*2  atom
+      character*4  atom
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     ***** local variables *****
       logical       value
       integer       i,j,l
       integer	    locp,lmax,psp_type
       character*20  psp_filename,formatted_filename
-      character*4   element
+      character*5   element
       real*8        rlocal
       integer       nbrillioun,kv(2),nb
 
@@ -42,7 +42,7 @@
       rlocal = 1.0d0
 
 *     **** define psp_filename and formatted_filename ****
-      element = '    '
+      element = '     '
       element = atom
       l = index(element,' ') - 1
       psp_filename       = element(1:l)//'.psp'

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.25 2006-06-05 18:06:30 edo Exp $
+# $Id: GNUmakefile,v 1.26 2007-04-02 15:38:38 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -9,7 +9,9 @@
 		nwpw_scf_mixing.o \
 		kerker_G.o \
 		cpmd_properties.o \
+		nwpw_rdf.o \
 		pair_dist.o \
+		pair_dist2.o \
 		auto_corr.o \
 		matrix.o simp.o \
 		is_sORd.o \

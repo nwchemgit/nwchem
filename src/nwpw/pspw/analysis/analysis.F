@@ -67,10 +67,10 @@
       external control_mulliken_kawai,aorbs_init,aorbs_readall
       character   spdf_name
       external    spdf_name
-      character*2 psp_atom
-      external    psp_atom
-      integer  ion_nion,psp_npsp,ion_katm
-      external ion_nion,psp_npsp,ion_katm
+      character*4 ion_atom
+      external    ion_atom
+      integer  ion_nion,ion_katm,ion_nkatm
+      external ion_nion,ion_katm,ion_nkatm
       real*8   ion_rion
       external ion_rion
       real*8      lattice_omega,lattice_ecut,lattice_unita
@@ -81,7 +81,7 @@
       call Pack_npack(1,npack1)
       mulliken_kawai = control_mulliken_kawai()
 
-      npsp = psp_npsp()
+      npsp = ion_nkatm()
       nion = ion_nion()
       nemax = ne(1)+ne(2)
 
@@ -108,21 +108,21 @@
 *      ***********************************************
        do k=1,npsp
          DD = '                          '
-         DD = psp_atom(k)
+         DD = ion_atom(k)
          ind = index(DD,' ') - 1
          test = DD(1:ind)//'.psp1'
          if (.not.nwpw_filefind(test))
-     >      call aorbs_formatter_auto(psp_atom(k))
+     >      call aorbs_formatter_auto(ion_atom(k))
        end do
 
 *      ****************************************
 *      **** read in expansion coefficients ****
 *      ****************************************
        do k=1,npsp
-          id = 'analysis:lorb'//psp_atom(k)
+          id = 'analysis:lorb'//ion_atom(k)
           if (.not. rtdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1))) then
             DD = '                          '
-            DD = psp_atom(k)
+            DD = ion_atom(k)
             ind = index(DD,' ') - 1
             test = DD(1:ind)//'.psp1'
 
@@ -141,11 +141,11 @@
      >        'analysis: rtdb_get lorb failed', 0, RTDB_ERR)
           end if
 
-          id = 'analysis:expansion'//psp_atom(k)
+          id = 'analysis:expansion'//ion_atom(k)
           if (.not. rtdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
      >                                  dbl_mb(b0(1)+(k-1)*6))) then
             DD = '                          '
-            DD = psp_atom(k)
+            DD = ion_atom(k)
             ind = index(DD,' ') -1
             test = DD(1:ind)//'.psp1'
             call analysis_expansion_coef(test,-1,rtdb)
@@ -205,7 +205,7 @@ c     **** ouput xyz format ****
          WRITE(6,1300)
          WRITE(6,1305) 'ATOM ','S','P','D','F'
          DO k=1,npsp
-           WRITE(6,1310) psp_atom(K),
+           WRITE(6,1310) ion_atom(K),
      >                  (dbl_mb(b0(1)+l+(k-1)*6), 
      >                   l=0,int_mb(lorb(1)+k-1))
          END DO
@@ -213,7 +213,7 @@ c     **** ouput xyz format ****
          end if
  1300    FORMAT(//'== Kawai Expansion Coefficients =='/)
  1305    FORMAT(A5,6X,A,12X,A,12X,A,12X,A)
- 1310    FORMAT(A2,' : ',4E13.5)
+ 1310    FORMAT(A4,' : ',4E13.5)
       end if
  
 
@@ -291,7 +291,7 @@ c1315 FORMAT('==                    dzz, dx2-y2, dxy, dyz, dzx ==')
               if (l.eq.1) write(6,1517)
               if (l.eq.2) write(6,1518)
               if (l.eq.3) write(6,1519)
-              WRITE(6,1530) I,psp_atom(ion_katm(I)),L,SUBTTL,
+              WRITE(6,1530) I,ion_atom(ion_katm(I)),L,SUBTTL,
      >               (dbl_mb(A(1)+LL-1+(N-1)*36+(I-1)*36*nemax),
      >                        LL=L1,L2)
 
@@ -299,7 +299,7 @@ c1315 FORMAT('==                    dzz, dx2-y2, dxy, dyz, dzx ==')
           END DO
 
           WRITE(6,1540)
-          WRITE(6,1550) (I,psp_atom(ion_katm(I)),
+          WRITE(6,1550) (I,ion_atom(ion_katm(I)),
      >                   dbl_mb(TOTAL(1)+I-1),I=1,nion)
           WRITE(6,1555)
           WRITE(6,1560)  's','p','d','f'
@@ -330,10 +330,10 @@ c     >      /30x,' f1         f2        f3          f4         f5',
 c     >           '         f6         f7')
 
  1520 FORMAT(A2,2X,A4,2X,A1,2X,A10)
- 1530 FORMAT(I2,3X,A2,3X,I1,8F11.5)
+ 1530 FORMAT(I2,3X,A4,3X,I1,8F11.5)
  1531 FORMAT(8F11.5)
  1540 FORMAT(//'=== DISTRIBUTION ==='/)
- 1550 FORMAT(4(I6,'(',A2,')',F9.4))
+ 1550 FORMAT(4(I6,'(',A4,')',F9.4))
  1555 FORMAT(//'== ANGULAR MOMENTUM POPULATIONS ==='/)
  1560 FORMAT(6X,A1,3(9X,A1))
  1570 FORMAT(4F10.4)
@@ -370,14 +370,14 @@ c     >           '         f6         f7')
         DO L=0,int_mb(lorb(1)+ion_katm(I)-1)
           TTL1=TTL1+dbl_mb(SUBTL(1)+L)
         END DO
-        WRITE(6,1620) I,psp_atom(ion_katm(I)),SPN(1),TTL1,
+        WRITE(6,1620) I,ion_atom(ion_katm(I)),SPN(1),TTL1,
      >                 ( dbl_mb(SUBTL(1)+L),
      >                   L=0,int_mb(lorb(1)+ion_katm(I)-1) )
         TTL1=0.0d0
         DO L=0,int_mb(lorb(1)+ion_katm(I)-1)
           TTL1=TTL1+dbl_mb(SUBTL(1)+L+(ispin-1)*6)
         END DO
-        WRITE(6,1620) I,psp_atom(ion_katm(I)),SPN(2),TTL1,
+        WRITE(6,1620) I,ion_atom(ion_katm(I)),SPN(2),TTL1,
      >                 ( dbl_mb(SUBTL(1)+L+(ispin-1)*6),
      >                   L=0,int_mb(lorb(1)+ion_katm(I)-1) )
 
@@ -385,7 +385,7 @@ c     >           '         f6         f7')
       call util_flush(6)
 
  1610 FORMAT(A2,2X,A4,2X,A4,4X,A5,7X,A,10X,A,10X,A,10X,A)
- 1620 FORMAT(I2,3X,A2,3X,A4,5F11.5)
+ 1620 FORMAT(I2,3X,A4,3X,A4,5F11.5)
  
       DO L=0,3
         dbl_mb(SUBTL(1)+L)  =0.0d0

@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.68 2007-03-27 02:02:49 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.69 2007-04-02 15:38:40 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -39,7 +39,7 @@ c#include "rtdb.fh"
       logical     psp_semicore,pspw_charge_found,pspw_qmmm_found
       logical     control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
       logical     control_print,control_psi_tmp
-      character*2 ion_aname
+      character*4 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       integer     psi_iptr_hml
@@ -410,9 +410,9 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
 
 
 
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
- 1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
- 1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
+ 1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
+ 1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
+ 1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1300 FORMAT(//'======================')
  1301 FORMAT(//'== Energy Calculation ==')
  1302 FORMAT(  '======================')
@@ -517,7 +517,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
 *     **** external functions ****
       logical     psp_semicore,pspw_charge_found,pspw_qmmm_found
       logical     control_allow_translation,ion_q_FixIon,control_print
-      character*2 ion_aname,pspw_charge_aname
+      character*4 ion_aname,pspw_charge_aname
       integer     ion_katm,ion_nion,control_version
       integer     pspw_charge_nion
       real*8      ion_rion,pspw_charge_rion
@@ -669,11 +669,11 @@ c*     **** debug ****
 c     call dscal(3*nion,(-1.0d0),G1,1)
 
       return
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' )')
- 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - fixed')
- 1192 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) q=',F8.3)
- 1193 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) q=',F8.3,' - fixed')
- 1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
+ 1190 FORMAT(5X, I4, A5,  ' (',3F11.5,' )')
+ 1191 FORMAT(5X, I4, A5,  ' (',3F11.5,' ) - fixed')
+ 1192 FORMAT(5X, I4, A5,  ' (',3F11.5,' ) q=',F8.3)
+ 1193 FORMAT(5X, I4, A5,  ' (',3F11.5,' ) q=',F8.3,' - fixed')
+ 1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1300 FORMAT(//'========================')
  1301 FORMAT(//'== Gradient Calculation ==')
  1302 FORMAT(  '========================')

@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.14 2007-03-29 01:47:54 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.15 2007-04-02 15:38:42 bylaska Exp $
 c
 
 *     *************************
@@ -28,7 +28,7 @@ c
       character*30 rtdbname
 
 *     **** external functions ****
-      character*2 ion_atom
+      character*4 ion_atom
       integer     ion_nkatm
       integer     ion_katm
       external    ion_atom

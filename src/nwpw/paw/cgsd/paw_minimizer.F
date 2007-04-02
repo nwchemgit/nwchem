@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.13 2007-03-21 03:31:28 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.14 2007-04-02 15:38:39 bylaska Exp $
 *
 
 ***********************************************************************
@@ -70,7 +70,7 @@
       real*8      lattice_unitg
       integer     paw_mult_ncut
       character   spdf_name
-      character*2 ion_aname,ion_atom
+      character*4 ion_aname,ion_atom
       external    paw_mult_rcut,ion_amass
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
@@ -675,7 +675,7 @@ c      call paw_density_end()
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
  1140 FORMAT(/' elements involved in the cluster:')
- 1141 FORMAT(5X,I2,': ',A2,'  ion charge:',F4.1,'  core charge:',F4.1)
+ 1141 FORMAT(5X,I2,': ',A4,'  ion charge:',F4.1,'  core charge:',F4.1)
  1142 FORMAT(12x,' loggrid parameter r0        :',E10.3)
  1143 FORMAT(12x,' loggrid parameter rmax      :',E10.3)
  1144 FORMAT(12x,' loggrid parameter npoints   :',I10)
@@ -692,13 +692,13 @@ c      call paw_density_end()
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
  1159 FORMAT(/' total charge:',F8.3)
  1160 FORMAT(/' atomic composition:')
- 1170 FORMAT(7(5X,A2,':',I3))
+ 1170 FORMAT(7(5X,A4,':',I3))
  1180 FORMAT(/' position of ions (au):')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
- 1191 FORMAT(5X, I4, A3, ' (',3F11.5,
+ 1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
+ 1191 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F7.3,' - fixed')
- 1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
- 1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
+ 1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
+ 1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1219 FORMAT(/' number of active electrons: spin up=',F6.2,
      >        '  down=',F6.2,A)
  1220 FORMAT(/' number of active electrons: spin up=',I6,  

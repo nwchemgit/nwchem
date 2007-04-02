@@ -511,10 +511,10 @@ c    >     + i+1
       real*8 sum,sumi,sume
 
 *     **** external functions ****
-      character*2  psp_atom
+      character*4  ion_atom
       integer      ion_nion,ion_katm
       real*8       psp_zv
-      external     psp_atom
+      external     ion_atom
       external     ion_nion,ion_katm
       external     psp_zv
       
@@ -567,7 +567,7 @@ c    >     + i+1
            end do
            sume = sume - sum
            sumi = sumi + psp_zv(ion_katm(j))
-           write(unit,110) j,psp_atom(ion_katm(j)),
+           write(unit,110) j,ion_atom(ion_katm(j)),
      >                  (-sum),
      >                  (psp_zv(ion_katm(j))),
      >                  (psp_zv(ion_katm(j))-sum)
@@ -583,7 +583,7 @@ c    >     + i+1
      >                    ('g=',dbl_mb(gamma(1)+i-1),i=1,nga)
          write(unit,205) ('-------',i=0,nga)
          do j=1,ion_nion()
-           write(unit,210) j,psp_atom(ion_katm(j)),
+           write(unit,210) j,ion_atom(ion_katm(j)),
      >                     psp_zv(ion_katm(j)),
      >                     (-dbl_mb(q(1)+i-1+(j-1)*nga),i=1,nga)
          end do

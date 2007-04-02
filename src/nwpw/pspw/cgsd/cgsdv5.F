@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.79 2007-03-28 03:56:44 bylaska Exp $
+* $Id: cgsdv5.F,v 1.80 2007-04-02 15:38:41 bylaska Exp $
 *
 
 ***********************************************************************
@@ -70,18 +70,18 @@
       real*8      ewald_mandelung
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,ion_amass
-      integer     ewald_ncut,ewald_nshl3d,psp_npsp
+      integer     ewald_ncut,ewald_nshl3d
       integer     psp_lmmax,psp_lmax,psp_locp,ion_nkatm
       integer     psp_nprj,psp_psp_type
-      character*2 psp_atom,ion_aname
+      character*4 ion_atom,ion_aname
       external    psp_zv,psp_rc,ewald_rcut
       external    ewald_mandelung
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg,ion_amass
-      external    ewald_ncut,ewald_nshl3d,psp_npsp
+      external    ewald_ncut,ewald_nshl3d
       external    psp_lmmax,psp_lmax,psp_locp,ion_nkatm
       external    psp_nprj,psp_psp_type
-      external    psp_atom,ion_aname
+      external    ion_atom,ion_aname
 
       external      psp_comment
       character*255 psp_comment,comment
@@ -346,8 +346,8 @@ c     value = psi_initialize()
          call pspw_print_SIC(luout)
          call pspw_print_HFX(luout)
          write(luout,1140)
-         do ia = 1,psp_npsp()
-           write(luout,1150) ia,psp_atom(ia),
+         do ia = 1,ion_nkatm()
+           write(luout,1150) ia,ion_atom(ia),
      >                    psp_zv(ia),psp_lmax(ia)
            comment = psp_comment(ia)
            i = inp_strlen(comment)
@@ -381,7 +381,7 @@ c     value = psi_initialize()
          write(luout,1159) icharge
 
          write(luout,1160)
-         write(luout,1170) (psp_atom(K),ion_natm(K),K=1,psp_npsp())
+         write(luout,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
          if (hprint) then
          write(luout,1180)
          do I=1,ion_nion()
@@ -668,7 +668,7 @@ c     end if
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
  1140 FORMAT(/' elements involved in the cluster:')
- 1150 FORMAT(5X,I2,': ',A2,'  core charge:',F4.1,'  lmax=',I3)
+ 1150 FORMAT(5X,I2,': ',A4,'  core charge:',F4.1,'  lmax=',I3)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
  1152 FORMAT(12X,' highest angular component      : ',i3)
  1153 FORMAT(12X,' local potential used           : ',i3)
@@ -681,13 +681,13 @@ c     end if
 
  1159 FORMAT(/' total charge:',F8.3)
  1160 FORMAT(/' atomic composition:')
- 1170 FORMAT(7(5X,A2,':',I3))
+ 1170 FORMAT(7(5X,A4,':',I3))
  1180 FORMAT(/' position of ions (au):')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
- 1191 FORMAT(5X, I4, A3, ' (',3F11.5,
+ 1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
+ 1191 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F7.3,' - fixed')
- 1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
- 1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
+ 1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
+ 1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1219 FORMAT(/' number of electrons: spin up=',F6.2,
      >        '  down=',F6.2,A)
  1220 FORMAT(/' number of electrons: spin up=',I6,

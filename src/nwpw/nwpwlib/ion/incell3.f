@@ -5,7 +5,7 @@
 *	by the lattice vectors centered at zero.  
 *     ======================================================= 
 *
-* $Id: incell3.f,v 1.1 2001-08-30 17:56:11 bylaska Exp $
+* $Id: incell3.f,v 1.2 2007-04-02 15:38:38 bylaska Exp $
 *
       implicit none
       integer ni
@@ -63,7 +63,7 @@
 *	**** make the ion be in the cell             ****
 
    23   IF (fa1 .GT. (0.5d0)) THEN
-*          WRITE (*,*) 'a1>', I, R2A1, DA(1)/2.0d0
+c           WRITE (*,*) 'a1>', I, fa1
            r2(1,i) = r2(1,i) - lattice_unita(1,1)
            r2(2,i) = r2(2,i) - lattice_unita(2,1)
            r2(3,i) = r2(3,i) - lattice_unita(3,1)
@@ -83,7 +83,7 @@
         ENDIF
 	   
    24   IF (fa1 .LE. (-0.5d0)) THEN
-*          WRITE (*,*) 'a1<', I, R2A1, DA(1)/2.0d0
+c          WRITE (*,*) 'a1<', I, fa1
            r2(1,i) = r2(1,i) + lattice_unita(1,1)
            r2(2,i) = r2(2,i) + lattice_unita(2,1)
            r2(3,i) = r2(3,i) + lattice_unita(3,1)
@@ -103,7 +103,7 @@
         ENDIF
 
    25   IF (fa2 .GT. (0.5d0)) THEN
-*          WRITE (*,*) 'a2>', I, R2A2, DA(2)/2.0d0
+c          WRITE (*,*) 'a2>', I, fa2
            r2(1,i) = r2(1,i) - lattice_unita(1,2)
            r2(2,i) = r2(2,i) - lattice_unita(2,2)
            r2(3,i) = r2(3,i) - lattice_unita(3,2)
@@ -123,7 +123,7 @@
         ENDIF
 	   
    26   IF (fa2 .LE. (-0.5d0)) THEN
-*          WRITE (*,*) 'a2<', I, R2A2, DA(2)/2.0d0
+c          WRITE (*,*) 'a2<', I, fa2
            r2(1,i) = r2(1,i) + lattice_unita(1,2)
            r2(2,i) = r2(2,i) + lattice_unita(2,2)
            r2(3,i) = r2(3,i) + lattice_unita(3,2)
@@ -144,7 +144,7 @@
 
 
    27   IF (fa3 .GT. (0.5d0)) THEN
-*         WRITE (*,*) 'a3>', i, R2A3, DA(3)/2.0d0
+c         WRITE (*,*) 'a3>', i, fa3
           r2(1,i) = r2(1,i) - lattice_unita(1,3)
           r2(2,i) = r2(2,i) - lattice_unita(2,3)
           r2(3,i) = r2(3,i) - lattice_unita(3,3)
@@ -164,7 +164,7 @@
         ENDIF
 	   
    28   IF (fa3 .LE. (-0.5d0)) THEN
-*         WRITE (*,*) 'a3<', I, R2A3, DA(3)/2.0d0
+c         WRITE (*,*) 'a3<', I, fa3
           r2(1,i) = r2(1,i) + lattice_unita(1,3)
           r2(2,i) = r2(2,i) + lattice_unita(2,3)
           r2(3,i) = r2(3,i) + lattice_unita(3,3)

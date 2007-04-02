@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.37 2007-02-20 21:44:24 d3p708 Exp $
+* $Id: cpsp.F,v 1.38 2007-04-02 15:38:36 bylaska Exp $
 *
 
 #define TCGMSG
@@ -2018,7 +2018,7 @@ c       close(11)
       character*12 boundry
       integer tmp(2),tmp2(2),ztmp(2),ztmp2(2),ierr
       logical value,found,correct_box
-      character*4  element
+      character*5  element
       character*20 fname
 
 *     **** parallel i/o variable ****
@@ -2030,7 +2030,7 @@ c       close(11)
       integer      control_ngrid,brillioun_nbrillioun
       real*8       control_unita
       character*12 control_boundry
-      character*2  ion_atom
+      character*4  ion_atom
       external     nwpw_filefind,control_spin_orbit
       external     control_ngrid,brillioun_nbrillioun
       external     control_unita
@@ -2068,7 +2068,7 @@ c       close(11)
       do ia=1,npsp
 
 *      **** define formatted psp name ****
-       element = '    '
+       element = '     '
        element = ion_atom(ia)
        l = index(element,' ') - 1
        fname = element(1:l)//'.cpp'

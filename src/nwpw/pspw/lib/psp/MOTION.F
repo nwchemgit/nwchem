@@ -1,5 +1,5 @@
 *
-* $Id: MOTION.F,v 1.8 2007-03-22 20:46:22 bylaska Exp $
+* $Id: MOTION.F,v 1.9 2007-04-02 15:38:42 bylaska Exp $
 
 *  Note - The format of the MOTION file was changed on 5-8-2002.
 *
@@ -123,16 +123,19 @@
 
 *     **** external functions ***
       integer     ion_nion
-      real*8      ion_rion, ion_vion,lattice_omega
+      real*8      ion_rion,ion_vion,lattice_omega,lattice_unita
       external    ion_nion
-      external    ion_rion, ion_vion,lattice_omega
+      external    ion_rion,ion_vion,lattice_omega,lattice_unita
 
       call Parallel_taskid(taskid)
     
       if (taskid.eq.MASTER) then
          write(19,110) time,
      >                 ion_nion(),
-     >                 lattice_omega()
+     >                 lattice_omega(),
+     >     lattice_unita(1,1),lattice_unita(2,1),lattice_unita(3,1),
+     >     lattice_unita(1,2),lattice_unita(2,2),lattice_unita(3,2),
+     >     lattice_unita(1,3),lattice_unita(2,3),lattice_unita(3,3)
          do i=1,ion_nion()
             write(19,111) ion_rion(1,i),
      >                    ion_rion(2,i),
@@ -143,7 +146,7 @@
          end do
          call util_flush(19)
       end if
-  110 format(e14.6,I6,e14.6)
+  110 format(e14.6,I6,e14.6,9e14.6)
   111 format(6e14.6)
 
       return

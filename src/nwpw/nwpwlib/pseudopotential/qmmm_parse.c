@@ -1,5 +1,5 @@
 /*
- $Id: qmmm_parse.c,v 1.3 2007-03-22 20:46:20 bylaska Exp $
+ $Id: qmmm_parse.c,v 1.4 2007-04-02 15:38:38 bylaska Exp $
 */
 
 #include <math.h>
@@ -219,19 +219,35 @@ Integer	*n3;
 
    pspl[0] = (double *) malloc(nrl*sizeof(double));
    psil[0] = (double *) malloc(nrl*sizeof(double));
-   for (i=0; i<nrl; ++i)
+   if (Zion>0.0) 
    {
-      rr1 = 1.0; for (p=0; p<n_sigma; ++p) rr1 *= rl[i];
-      rr2 = rr1*rl[i];
-      ttt = (rc1 - rr1);
-      sss = (rc2 - rr2);
-      /* l'Hopital */
-      if (fabs(sss)<1.0e-9)
-         pspl[0][i] = (-Zion/rc) * ((double) n_sigma)/((double) (n_sigma+1));
-      else
+      for (i=0; i<nrl; ++i)
+      {
+         rr1 = 1.0; for (p=0; p<n_sigma; ++p) rr1 *= rl[i];
+         rr2 = rr1*rl[i];
+         ttt = (rc1 - rr1);
+         sss = (-rc2 - rr2);
          pspl[0][i] = -Zion*(ttt/sss);
-      psil[0][i] = 0.0;
+         psil[0][i] = 0.0;
+      }
    }
+  else
+  {
+      for (i=0; i<nrl; ++i)
+      {
+         rr1 = 1.0; for (p=0; p<n_sigma; ++p) rr1 *= rl[i];
+         rr2 = rr1*rl[i];
+         ttt = (rc1 - rr1);
+         sss = (rc2 - rr2);
+         /* l'Hopital */
+         if (fabs(sss)<1.0e-9)
+            pspl[0][i] = (-Zion/rc) * ((double) n_sigma)/((double) (n_sigma+1));
+         else
+            pspl[0][i] = -Zion*(ttt/sss);
+         psil[0][i] = 0.0;
+      }
+
+  }
 
 
    /* write outfile */

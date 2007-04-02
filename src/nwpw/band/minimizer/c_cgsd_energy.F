@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.15 2007-01-21 00:34:09 d3p708 Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.16 2007-04-02 15:38:37 bylaska Exp $                       
 *
 
 *     ***************************
@@ -31,7 +31,7 @@
 
 *     **** external functions ****
       logical     cpsp_semicore,control_out_of_time
-      character*2 ion_aname
+      character*4 ion_aname
       integer     control_it_in,control_it_out,control_minimizer
       integer     ion_nion,ion_katm,cpsi_ne,cpsi_ispin
       real*8      control_tole,control_tolc
@@ -258,9 +258,9 @@ c         write(luout,1210) GX,GY,GZ
 
 
 
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
- 1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
- 1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
+ 1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
+ 1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
+ 1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1300 FORMAT(//'======================')
  1301 FORMAT(  '= energy calculation =')
  1302 FORMAT(  '======================')

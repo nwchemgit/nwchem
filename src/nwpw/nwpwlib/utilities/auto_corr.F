@@ -1,5 +1,5 @@
 c
-c     $Id: auto_corr.F,v 1.6 2006-12-28 01:56:52 bylaska Exp $
+c     $Id: auto_corr.F,v 1.7 2007-04-02 15:38:38 bylaska Exp $
 c
 
 *     *********************************
@@ -40,6 +40,7 @@ c
       real*8  tmax
       real*8  x,y,z
       real*8  v1,v2,v3
+      real*8  unita(3,3)
       character*255 full_filename1
       character*255 full_filename2
 
@@ -64,7 +65,7 @@ c
       write(*,*)
       write(*,*) '===== Calculating velocity auto correlation ===='
       write(*,*)    
-      call MOTION_nframes(filename,nframes,natoms,volume)
+      call MOTION_nframes(filename,nframes,natoms,volume,unita)
 
       open(unit=19,file=filename,form='formatted')
 
@@ -107,7 +108,7 @@ c
       do k=1,nframes
         
          time1    = time2
-         read(19,*) time2,natoms1,volume1
+         read(19,*) time2,natoms1,volume1,unita
          do i=1,natoms
             read(19,*) x,y,z,v1,v2,v3
             dcpl_mb(vx(1)+(k-1) + (i-1)*2*nframes) = v1

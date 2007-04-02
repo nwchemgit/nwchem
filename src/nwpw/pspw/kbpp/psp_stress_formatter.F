@@ -1,5 +1,5 @@
 c
-c $Id: psp_stress_formatter.F,v 1.5 2004-10-14 00:28:42 bylaska Exp $
+c $Id: psp_stress_formatter.F,v 1.6 2007-04-02 15:38:41 bylaska Exp $
 c
 
       logical function psp_stress_formatter(rtdb)
@@ -141,21 +141,22 @@ c
 
 
 *     ***************************************
-*     *										*
-*     *		psp_stress_formatter_auto		*
-*     *										*
+*     *					    *
+*     *		psp_stress_formatter_auto   *
+*     *					    *
 *     ***************************************
       subroutine psp_stress_formatter_auto(atom)
       implicit none
+      character*4  atom
+
 #include "errquit.fh"
-      character*2  atom
 
 *     ***** local variables *****
       logical       value
       integer       i,j,l
       integer	    locp,lmax
       character*20  psp_filename,formatted_filename
-      character*4   element
+      character*5   element
       real*8        rlocal
 
 *     ***** simulation cell  variables *****
@@ -180,7 +181,7 @@ c
       rlocal = 1.0d0
 
 *     **** define psp_filename and formatted_filename ****
-      element = '    '
+      element = '     '
       element = atom
       l = index(element,' ') - 1
       psp_filename       = element(1:l)//'.psp'

@@ -1,5 +1,5 @@
 *
-* $Id: force_fd.F,v 1.1 2007-03-27 02:02:48 bylaska Exp $
+* $Id: force_fd.F,v 1.2 2007-04-02 15:38:40 bylaska Exp $
 *
       logical function force_fd(rtdb)
       implicit none
@@ -215,7 +215,7 @@
       character*(*) name
 
       integer i,k
-      character*2 ion_aname
+      character*4 ion_aname
       external    ion_aname
 
       write(*,1100) name

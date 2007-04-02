@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.98 2007-03-28 03:56:00 bylaska Exp $
+* $Id: control.F,v 1.99 2007-04-02 15:38:37 bylaska Exp $
 *
 
 *     ***********************************
@@ -2650,7 +2650,7 @@ c      end
 *     *****************************
       subroutine control_pspparameters(atom,lmax,locp,rlocal)
       implicit none
-      character*2 atom
+      character*4 atom
       integer     lmax,locp
       real*8      rlocal
 
@@ -2662,10 +2662,10 @@ c      end
       common / control_rtdb1 / rtdb
 
       integer l,k
-      character*4  element
+      character*5  element
       character*20 rtdb_name
 
-      element = '    '
+      element = '     '
       element = atom
       l = index(element,' ') - 1
       rtdb_name = '                   '

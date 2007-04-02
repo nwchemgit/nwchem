@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.47 2007-03-27 02:02:47 bylaska Exp $
+* $Id: ion.F,v 1.48 2007-04-02 15:38:38 bylaska Exp $
 *
 
 *     ***************************
@@ -190,7 +190,7 @@
       parameter (MASTER=0)
 
 *     **** external functions ****
-      character*2 ion_aname
+      character*4 ion_aname
       integer     control_code
       external    ion_aname
       external    control_code
@@ -389,7 +389,7 @@ c         eki1=0.5d0*eki1
 *     *	     ion_aname		*
 *     *				*
 *     ***************************
-      character*2 function ion_aname(i)
+      character*4 function ion_aname(i)
       implicit none
       integer i
 
@@ -401,7 +401,9 @@ c         eki1=0.5d0*eki1
       common / ION2/ geom
 
 *     **** local variables ****
+      integer k,kp,l
       character*2  symbol
+      character*4  symbol_out
       character*16 t,name
       real*8 q
 
@@ -415,11 +417,25 @@ c         eki1=0.5d0*eki1
       if (.not. geom_tag_to_element(t,symbol,name,q))
      >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
 
+      symbol_out = '    '
+      symbol_out(1:2) = symbol
       if (parseqmmm(t)) then
-         symbol = symbol(1:1)//'^'
+
+*        *** add carat tag ***
+         l = index(symbol,' ') - 1
+         symbol_out = symbol(1:l)//'^'
+
+*        *** add tag after carat ***
+         k  = index(t,'^') - 1
+         kp = index(t,' ') - 1
+         if ((kp-k).gt.1) then
+            l = index(symbol_out,' ') - 1
+            symbol_out = symbol_out(1:l)//t(kp:kp)
+         end if
+
       end if
       
-      ion_aname = symbol
+      ion_aname = symbol_out
       return
       end
 
@@ -655,11 +671,11 @@ c         eki1=0.5d0*eki1
       integer rtdb
       integer      l
       real*8       q
-      character*4  element
+      character*5  element
       character*20 name
 
 *     **** external functions ****
-      character*2 ion_aname
+      character*4 ion_aname
       integer     control_rtdb
       real*8      ion_q
       external    ion_aname
@@ -667,7 +683,7 @@ c         eki1=0.5d0*eki1
       external    ion_q
 
       rtdb   = control_rtdb()
-      element = '    '
+      element = '     '
       element = ion_aname(i)
       l = index(element,' ') - 1
       name = element(1:l)//':valence_charge'
@@ -693,11 +709,11 @@ c         eki1=0.5d0*eki1
 
 *     **** local variables ****
       logical     done
-      character*2 symbol,symbol2
+      character*4 symbol,symbol2
       integer     atn,ii
 
 *     **** external functions ****
-      character*2 ion_atom,ion_aname
+      character*4 ion_atom,ion_aname
       integer     ion_nion
       real*8      ion_q
       external    ion_atom,ion_aname
@@ -1277,7 +1293,7 @@ c         eki1=0.5d0*eki1
 *     *		ion_atom	*
 *     *				*
 *     ***************************
-      character*2 function ion_atom(i)
+      character*4 function ion_atom(i)
       implicit none
       integer i
 
@@ -1285,9 +1301,9 @@ c         eki1=0.5d0*eki1
 
 ***** ion common block ****
 #include "ion.fh"
-      character*2 aname
+      character*4 aname
 
-      call pspw_copy_atom(1,byte_mb(atom(1)+2*(i-1)),aname)
+      call pspw_copy_atom(1,byte_mb(atom(1)+4*(i-1)),aname)
       ion_atom = aname
       return
       end
@@ -1297,16 +1313,16 @@ c         eki1=0.5d0*eki1
 *     *         ion_atom_qm     *
 *     *                         *
 *     ***************************
-      character*2 function ion_atom_qm(i)
+      character*4 function ion_atom_qm(i)
       implicit none
       integer i
 
 #include "mafdecls.fh"
 #include "ion.fh"
 
-      character*2 aname
+      character*4 aname
 
-      call pspw_copy_atom(1,byte_mb(atom_qm(1)+2*(i-1)),aname)
+      call pspw_copy_atom(1,byte_mb(atom_qm(1)+4*(i-1)),aname)
       ion_atom_qm = aname
       return
       end
@@ -1324,15 +1340,15 @@ c         eki1=0.5d0*eki1
       character*(*) fname
 
 *     **** local variables ****
-      character*4 element
+      character*5 element
       integer l
 
 *     **** external functions ****
-      character*2 ion_atom
+      character*4 ion_atom
       external    ion_atom
 
 *     **** defined formatted prj name ****
-      element = '    '
+      element = '     '
       element = ion_atom(ia)
       l = index(element,' ') - 1
       fname = element(1:l)//suffix

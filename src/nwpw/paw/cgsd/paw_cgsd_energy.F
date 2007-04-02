@@ -1,4 +1,4 @@
-c     $Id: paw_cgsd_energy.F,v 1.7 2006-02-11 02:50:46 bylaska Exp $                       
+c     $Id: paw_cgsd_energy.F,v 1.8 2007-04-02 15:38:39 bylaska Exp $                       
 
 
 *     ***************************
@@ -38,7 +38,7 @@ c#include "rtdb.fh"
 *     **** external functions ****
       logical     control_out_of_time
       logical     control_print,control_psi_tmp
-      character*2 ion_aname
+      character*4 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,paw_psi_ne,paw_psi_ispin,control_rtdb
       real*8      control_tole,control_tolc
@@ -238,9 +238,9 @@ c         write(6,1321) r_charge,' (real space)'
 
 
 
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
- 1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
- 1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
+ 1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
+ 1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
+ 1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1300 FORMAT(//'======================')
  1301 FORMAT(//'== Energy Calculation ==')
  1302 FORMAT(  '======================')
@@ -341,7 +341,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
 
 *     **** external functions ****
       logical     control_allow_translation,ion_q_FixIon,control_print
-      character*2 ion_aname
+      character*4 ion_aname
       integer     ion_katm,ion_nion,control_version
       real*8      ion_rion
       external control_allow_translation,ion_q_FixIon,control_print
@@ -418,9 +418,9 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
 c     call dscal(3*nion,(-1.0d0),G1,1)
 
       return
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' )')
- 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - fixed')
- 1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
+ 1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' )')
+ 1191 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - fixed')
+ 1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1300 FORMAT(//'========================')
  1301 FORMAT(//'== Gradient Calculation ==')
  1302 FORMAT(  '========================')

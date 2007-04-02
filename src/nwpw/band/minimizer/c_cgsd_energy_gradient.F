@@ -1,5 +1,5 @@
 c
-c     $Id: c_cgsd_energy_gradient.F,v 1.5 2007-03-22 20:46:19 bylaska Exp $         c
+c     $Id: c_cgsd_energy_gradient.F,v 1.6 2007-04-02 15:38:37 bylaska Exp $         c
 
 *     *******************************
 *     *				    *
@@ -24,7 +24,7 @@ c     $Id: c_cgsd_energy_gradient.F,v 1.5 2007-03-22 20:46:19 bylaska Exp $     
 *     **** external functions ****
       logical     cpsp_semicore
       logical     control_allow_translation,ion_q_FixIon
-      character*2 ion_aname
+      character*4 ion_aname
       integer     ion_katm,ion_nion,control_version
       real*8      ion_rion
       external cpsp_semicore
@@ -92,9 +92,9 @@ c     $Id: c_cgsd_energy_gradient.F,v 1.5 2007-03-22 20:46:19 bylaska Exp $     
 c     call dscal(3*nion,(-1.0d0),G1,1)
 
       return
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' )')
- 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - fixed')
- 1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
+ 1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' )')
+ 1191 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - fixed')
+ 1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1300 FORMAT(//'========================')
  1301 FORMAT(  '= Gradient calculation =')
  1302 FORMAT(  '========================')

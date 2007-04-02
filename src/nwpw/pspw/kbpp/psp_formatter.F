@@ -1,5 +1,5 @@
 c
-c $Id: psp_formatter.F,v 1.13 2007-03-19 19:05:37 bylaska Exp $
+c $Id: psp_formatter.F,v 1.14 2007-04-02 15:38:41 bylaska Exp $
 c
 
 *     ***************************************
@@ -135,7 +135,7 @@ c
 *     ***************************************
       subroutine psp_formatter_auto(atom)
       implicit none
-      character*2  atom
+      character*4  atom
 
 #include "errquit.fh"
 
@@ -144,7 +144,7 @@ c
       integer       i,j,l
       integer	    locp,lmax
       character*20  psp_filename,formatted_filename
-      character*4   element
+      character*5   element
       real*8        rlocal
 
 *     ***** simulation cell  variables *****
@@ -169,7 +169,7 @@ c
       rlocal = 1.0d0
 
 *     **** define psp_filename and formatted_filename ****
-      element = '    '
+      element = '     '
       element = atom
       l = index(element,' ') - 1
       psp_filename       = element(1:l)//'.psp'

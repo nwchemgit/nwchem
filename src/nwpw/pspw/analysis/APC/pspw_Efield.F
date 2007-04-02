@@ -201,7 +201,7 @@ c        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
       integer i,k
 
 *     **** external functions ****
-      character*2 ion_aname
+      character*4 ion_aname
       external    ion_aname
 
       write(unit,1300)
@@ -211,7 +211,7 @@ c        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
      >                  (Ee(k,i),k=1,3),
      >                  i=1,nion)
  1300 FORMAT(//'=== Electric Field at Atoms ==='/)
- 1190 FORMAT(5X, I4, A3  ,' Atomic Electric Field =(',3F11.5,' )',
+ 1190 FORMAT(5X, I4, A4  ,' Atomic Electric Field =(',3F11.5,' )',
      >      /12X,         '        (ion)          =(',3F11.5,' )',
      >      /12X,         '        (electronic)   =(',3F11.5,' )')
 

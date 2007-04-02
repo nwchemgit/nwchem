@@ -88,16 +88,16 @@
       real*8      ewald_mandelung
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg
-      integer     ewald_ncut,ewald_nshl3d,psp_npsp
+      integer     ewald_ncut,ewald_nshl3d
       integer     psp_lmmax,psp_lmax,psp_locp,ion_nkatm
-      character*2 psp_atom,ion_aname
+      character*4 ion_atom,ion_aname
       external    psp_zv,psp_rc,ewald_rcut,ion_amass
       external    ewald_mandelung
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
-      external    ewald_ncut,ewald_nshl3d,psp_npsp
+      external    ewald_ncut,ewald_nshl3d
       external    psp_lmmax,psp_lmax,psp_locp,ion_nkatm
-      external    psp_atom,ion_aname
+      external    ion_atom,ion_aname
 
 
       real*8   control_rti,control_rte,ion_rion
@@ -606,7 +606,7 @@ c    >              dbl_mb(lmd(1)),ierr)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
  1140 FORMAT(/' elements involved in the cluster:')
- 1150 FORMAT(5X,I2,': ',A2,'  core charge:',F4.1,'  lmax=',I1)
+ 1150 FORMAT(5X,I2,': ',A4,'  core charge:',F4.1,'  lmax=',I1)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
  1152 FORMAT(12X,' highest angular component      : ',i2)
  1153 FORMAT(12X,' local potential used           : ',i2)
@@ -616,13 +616,13 @@ c    >              dbl_mb(lmd(1)),ierr)
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
  1159 FORMAT(/' total charge=',F8.3)
  1160 FORMAT(/' atomic composition:')
- 1170 FORMAT(7(5X,A2,':',I3))
+ 1170 FORMAT(7(5X,A4,':',I3))
  1180 FORMAT(/' initial position of ions:')
  1181 FORMAT(/' initial velocity of ions:')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
- 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,
+ 1190 FORMAT(5X, I4, A4  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
+ 1191 FORMAT(5X, I4, A4  ,' (',3F11.5,
      >       ' ) - atomic mass= ',F6.3,' - fixed')
- 1192 FORMAT(5X, I4, A3  ,' (',3F11.5,' )')
+ 1192 FORMAT(5X, I4, A4  ,' (',3F11.5,' )')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1219 FORMAT(/' number of electrons: spin up=',F6.2,'  down=',F6.2,A)

@@ -1,4 +1,4 @@
-c     $Id: c_cgsd_noit_energy.F,v 1.5 2007-02-09 00:04:12 d3p708 Exp $                       
+c     $Id: c_cgsd_noit_energy.F,v 1.6 2007-04-02 15:38:37 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -33,7 +33,7 @@ c      external cpsp_semicore
 c      external ion_nion,cpsi_ispin,cpsi_ne
 
       logical     cpsp_semicore,control_out_of_time
-      character*2 ion_aname
+      character*4 ion_aname
       integer     control_it_in,control_it_out,control_minimizer
       integer     ion_nion,ion_katm,cpsi_ne,cpsi_ispin
       real*8      control_tole,control_tolc

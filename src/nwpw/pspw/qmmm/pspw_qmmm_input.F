@@ -12,7 +12,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 8)
+      parameter (num_dirs = 9)
       character*30 dirs(num_dirs)
       data dirs / 'lj_ion_parameters:',
      >            'lj_ion_parameters',
@@ -21,6 +21,7 @@ c
      >            'sr_basis:',
      >            'lr_cutoff:',
      >            'fragment',
+     >            'mm_psp',
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
@@ -38,9 +39,13 @@ c
       integer       element_length,basis_length,tmp(2)
       integer       ni,nkf,nfrag,frag_size,index_start(2)
       real*8        se(2),alpha,Rin,Rout,sdist2(30),scal
-      character*255 test
+      integer       nsigma
+      real*8        charge,rcut
+      character*255 test,dir_name,sdir_name
       integer ind               ! Index of matched directive
-      integer j,jstart,jlast,jstride
+
+      integer h,i,j,k,ka,jstart,jlast,jstride
+      character*16 psp_in,psp_out
 
 *     **** external functions ****
       character*7 c_index_name
@@ -60,7 +65,7 @@ c
      >  'pspw_qmmm_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 100,100, 200, 300, 400, 500, 600,
+      goto ( 100,100, 200, 300, 400, 500, 600, 700,
      >      9999) ind
       call errquit(
      >      'pspw_qmmm_input: unimplemented directive', ind, INPUT_ERR)
@@ -307,6 +312,51 @@ c
 
 
  699  continue
+      goto 10
+
+c
+c  mm_psp
+c
+ 700  if (inp_a(element) .and.inp_f(charge)) then
+         if (.not.inp_i(nsigma)) nsigma = 4
+         if (.not.inp_f(rcut))   rcut = 0.8d0
+
+         call util_directory_name(sdir_name,.true.,0)
+         call util_directory_name(dir_name,.false.,0)
+         h = index(sdir_name,' ') - 1
+         i = index(dir_name,' ') - 1
+
+         open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='unknown')
+         close(unit=99,status='delete')
+
+         ka = index(element,'^') - 1
+         if (ka.lt.0) ka = 4
+         open(unit=99,file=sdir_name(1:h)//'/junk.inp')
+         write(99,*) '<QMMM>'
+         write(99,'(A2,E14.6,I4,E14.6)') 
+     >        element(1:ka),charge,nsigma,rcut
+         write(99,*) '<end>'
+         close(99)
+
+         k = index(element,' ') - 1
+         if (k.lt.0) k = 4
+         psp_in  = 'junk.inp'
+         psp_out = element(1:k)//".psp "
+         j = index(psp_in,' ')  - 1
+         k = index(psp_out,' ') - 1
+
+         call qmmm_parse(.false.,
+     >        -1,-1,1.0d0,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in,j,
+     >        psp_out(1:k),k,
+     >        element(1:ka),ka)
+
+         open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
+         close(unit=99,status='delete')
+      end if 
+
       goto 10
 
  9999 continue

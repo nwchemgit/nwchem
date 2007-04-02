@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.26 2007-03-28 03:57:29 bylaska Exp $
+* $Id: psp.F,v 1.27 2007-04-02 15:38:42 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1656,7 +1656,7 @@ c     logocal semicore(0:nkatmx)
       character*12 boundry
       integer tmp(2),tmp2(2),ierr
       logical value,found,correct_box
-      character*4  element
+      character*5  element
       character*20 fname
 
 *     **** parallel i/o variable ****
@@ -1668,7 +1668,7 @@ c     logocal semicore(0:nkatmx)
       integer      control_ngrid
       real*8       control_unita
       character*12 control_boundry
-      character*2  ion_atom
+      character*4  ion_atom
       external     nwpw_filefind,control_print
       external     control_ngrid
       external     control_unita
@@ -1694,7 +1694,7 @@ c     logocal semicore(0:nkatmx)
       do ia=1,npsp
 
 *      **** define formatted psp name ****
-       element = '    '
+       element = '     '
        element = ion_atom(ia)
        l = index(element,' ') - 1
        fname = element(1:l)//'.vpp'

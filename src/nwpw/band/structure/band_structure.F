@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.24 2007-02-23 17:41:03 d3p708 Exp $
+* $Id: band_structure.F,v 1.25 2007-04-02 15:38:37 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -75,7 +75,7 @@
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,ion_amass,ion_TotalCharge
       logical     cpsi_spin_orbit,control_spin_orbit
-      character*2 ion_aname
+      character*4 ion_aname
       integer     control_ispin
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg,ion_amass,ion_TotalCharge
@@ -93,8 +93,10 @@
       external cpsp_psp_type
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
+      integer  ion_nkatm
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
+      external ion_nkatm
 
       character*12 control_boundry
       external     control_boundry
@@ -121,12 +123,12 @@
       external cpsi_band_finalize
       real*8   c_cgsd_noit_energy,cpsi_1energy,cpsi_eigenvalue
       external c_cgsd_noit_energy,cpsi_1energy,cpsi_eigenvalue
-      integer  cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
-      external cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
+      integer  cpsp_lmax,cpsp_locp,cpsp_lmmax
+      external cpsp_lmax,cpsp_locp,cpsp_lmmax
       real*8   cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
       external cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
-      character*2 cpsp_atom
-      external    cpsp_atom
+      character*4 ion_atom
+      external    ion_atom
       integer  cpsi_ispin,cpsi_ne,psi_get_version
       external cpsi_ispin,cpsi_ne,psi_get_version
       logical  pspw_reformat_c_wvfnc
@@ -294,8 +296,8 @@
             call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
          write(luout,1140)
-         do ia = 1,cpsp_npsp()
-           write(luout,1150) ia,cpsp_atom(ia),
+         do ia = 1,ion_nkatm()
+           write(luout,1150) ia,ion_atom(ia),
      >                    cpsp_zv(ia),cpsp_lmax(ia)
            write(luout,2000) cpsp_psp_type(ia)
            write(luout,1152) cpsp_lmax(ia)
@@ -959,7 +961,7 @@
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
- 1150 FORMAT(5X,I2,': ',A2,'  core charge:',F4.1,'  lmax=',I1)
+ 1150 FORMAT(5X,I2,': ',A4,'  core charge:',F4.1,'  lmax=',I1)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
  1152 FORMAT(12X,' highest angular component      : ',i2)
  1153 FORMAT(12X,' local potential used           : ',i2)
@@ -969,11 +971,11 @@
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
  1159 FORMAT(/' total charge:',I2)
  1160 FORMAT(/' atomic composition:')
- 1170 FORMAT(7(5X,A2,':',I3))
+ 1170 FORMAT(7(5X,A4,':',I3))
  1180 FORMAT(/' initial position of ions:')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
- 1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
- 1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
+ 1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
+ 1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
+ 1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,' volume : ',F10.1)
