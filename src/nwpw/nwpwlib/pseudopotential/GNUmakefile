@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.9 2007-03-19 19:05:36 bylaska Exp $
+# $Id: GNUmakefile,v 1.10 2007-04-04 21:07:24 d3p708 Exp $
 #
       SUBDIRS = paw_atom
 
@@ -14,6 +14,7 @@
                 loggrid.o pred_cor.o spline.o grids.o atom.o  \
                 schrodin.o \
                 pauli.o \
+                dirac.o \
                 dft.o \
                 hartree.o \
                 dirac_exchange.o \
