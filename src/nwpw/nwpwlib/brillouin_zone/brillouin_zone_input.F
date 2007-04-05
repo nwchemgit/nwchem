@@ -1,5 +1,5 @@
 c
-c $Id: brillouin_zone_input.F,v 1.8 2005-06-24 19:24:17 bylaska Exp $
+c $Id: brillouin_zone_input.F,v 1.9 2007-04-05 20:52:05 d3p708 Exp $
 c
 
 *     *************************************************
@@ -360,7 +360,7 @@ c
      >       INPUT_ERR)
      
       call band_path_plist(pcount,plist)
-      write(*,*) "plist:",pcount,(plist(ii),ii=1,pcount)
+
 
 *     *** remove non-special points ***
       pcount2 = 0
@@ -371,7 +371,6 @@ c
           plist2(pcount2) = plist(ii)
         end if
       end do
-      write(*,*) "plist2:",pcount2,(plist2(ii),ii=1,pcount2)
 
 *     *** add segments ***
       do ii=1,pcount2-1
