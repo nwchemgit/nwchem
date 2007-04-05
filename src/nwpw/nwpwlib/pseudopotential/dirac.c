@@ -115,8 +115,8 @@ R_Dirac (int n, int l, int s2, double Z, const double *v, int *mch,
       for (i = 0; i < Ngrid; ++i)
 	{
 	  r2 = r[i] * r[i];
-	  fr[i] = log_amesh2 * r2
-	    * (-fss * (v[i] - E) * (v[i] - E)
+	  fr[i] = -log_amesh2 * r2
+	    * (fss * (v[i] - E) * (v[i] - E)
 	       +
 	       0.5 * fss * dv[i] * kappa / (r[i] *
 					    (1.0 + 0.5 * fss * (E - v[i]))));
