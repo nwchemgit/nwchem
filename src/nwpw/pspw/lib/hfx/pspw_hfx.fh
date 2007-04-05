@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.fh,v 1.5 2006-04-08 00:25:49 bylaska Exp $
+* $Id: pspw_hfx.fh,v 1.6 2007-04-05 21:25:13 bylaska Exp $
 *
 
 *     **** PSPW_HFX common block ****
@@ -22,3 +22,9 @@
       logical frac_on
       integer amatrix(2)
       common /PSPW_HFX_frac_Block/ amatrix,frac_on
+
+*     **** PSPW_HFX_rot common block ****
+      integer nr1,nr2
+      integer norb_rot(2),psiandH(2)
+      common /PSPW_HFX_rot_Block/ norb_rot,psiandH,nr1,nr2
+
