@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.23 2007-03-19 19:05:35 bylaska Exp $
+* $Id: Pneb.F,v 1.24 2007-04-05 20:47:53 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1515,7 +1515,6 @@ c     ccccc local variables ccccc
       end if
 
 
-      write(*,*) "hera"
       call Pneb_ff_trace(mb,nbb,A,A,npack1,dbl_mb(sm2(1)))
 
       gram = .false.  
@@ -1541,9 +1540,7 @@ c     ccccc local variables ccccc
 
 
       if (gram) then
-      write(*,*) "herb"
          call Pneb_makeOrtho(mb,nbb,npack1,A)
-      write(*,*) "herc"
          call Pneb_ff_trace(mb,nbb,A,A,npack1,dbl_mb(sm3(1)))
 
          if (oprint) then
