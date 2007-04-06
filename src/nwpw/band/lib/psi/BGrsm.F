@@ -1,4 +1,4 @@
-* $Id: BGrsm.F,v 1.6 2007-01-21 00:38:33 d3p708 Exp $
+* $Id: BGrsm.F,v 1.7 2007-04-06 23:00:32 bylaska Exp $
 *
 
 
@@ -388,7 +388,7 @@
       implicit none
       integer nbb
       complex*16 Y(*)
-      real*8 S(3,*)
+      real*8     S(3,*)
 
 #include "cpsi_common.fh"
 
@@ -396,9 +396,10 @@
       integer k,ms,shft,nb,nb1,nb2,indx,indx2
       real*8 s1,s2,s3,wght
       complex*16 z1
+
 *     **** external ****
-      real*8 zdotc,brillioun_weight
-      external zdotc,brillioun_weight
+      real*8   brillioun_weight
+      external brillioun_weight
 
       if (.not.spin_orbit) then
          BGrsm_f_Spins=.false.
@@ -418,7 +419,7 @@
         S(2,k)=0.0d0
         S(3,k)=0.0d0
       end do
-      call flush(6)
+      
       shft=ne(1)*npack1
       do nb=nb1,nb2
         wght=brillioun_weight(nb)
@@ -429,10 +430,11 @@
            call Cram_cc_dot(nb,Y(indx),Y(indx),s1)
            call Cram_cc_dot(nb,Y(indx2),Y(indx2),s2)
            call Cram_cc_zdot(nb,Y(indx),Y(indx2),z1)
+           indx=indx+npack1
+
            s3=s1-s2
            s1=dble(z1)
            s2=dimag(z1)
-           indx=indx+npack1
            S(1,k)=S(1,k)+s1*wght
            S(2,k)=S(2,k)+s2*wght
            S(3,k)=S(3,k)+s3*wght		

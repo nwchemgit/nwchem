@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_common.fh,v 1.5 2006-12-05 00:14:40 bylaska Exp $
+* $Id: cpsi_common.fh,v 1.6 2007-04-06 23:00:32 bylaska Exp $
 *
 
 *     ***** psi common block ****
@@ -12,10 +12,10 @@
       integer dng1(2)
       integer dng2(2)
       integer hml(2)
-      integer eig(2)
+      integer eig(2),svec(2)
       logical spin_orbit
       common / cpsi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,neq,ispin,ispinq,
+     >                     hml,eig,svec,ne,neq,ispin,ispinq,
      >                     nfft3d,npack0,npack1,nbrillioun,nbrillq,
      >                     spin_orbit
 

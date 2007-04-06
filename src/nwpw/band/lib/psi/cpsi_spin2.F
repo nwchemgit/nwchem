@@ -37,6 +37,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER).and.control_print(print_medium)
 
+
 *     ****************************
 *     ***** calculate <S^2> ******
 *     ****************************
@@ -57,15 +58,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                call Cram_cc_zdot(nb,psi(1,ii),psi(1,jj),sij)
 	       SS=dconjg(sij)*sij
                ssum = ssum + SS
-c               write(*,*)i,j,SS,(SS*SS),"sij=",sij
             end do
             end do
-c            write(*,*)"nb= ",nb," ssum =",ssum
-c            write(*,*)"delS = ",(ne(2)-ssum)
-c            call flush(6)
-            Sab=Sab+w*(ne(2)-ssum)
+            Sab=Sab+w*(dble(ne(2))-ssum)
          end do
-c         write(*,*)"Sab = ",Sab 
          Sab = Sexact + Sab
       else
          Sexact = 0.0d0

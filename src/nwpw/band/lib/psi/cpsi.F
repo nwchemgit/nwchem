@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.44 2007-04-06 01:35:15 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.45 2007-04-06 23:00:32 bylaska Exp $ *
 
 
 *     ***************************
@@ -60,8 +60,7 @@
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 
-      call BGrsm_ff_copy(dcpl_mb(psi1(1)),
-     >  dcpl_mb(psi2(1)))
+      call BGrsm_ff_Copy(dcpl_mb(psi1(1)),dcpl_mb(psi2(1)))
       return
       end
 
@@ -76,8 +75,7 @@
       implicit none
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
-      call BGrsm_ff_copy(dcpl_mb(psi2(1)),
-     >   dcpl_mb(psi1(1)))
+      call BGrsm_ff_Copy(dcpl_mb(psi2(1)),dcpl_mb(psi1(1)))
       return
       end
 
@@ -1091,6 +1089,69 @@ c     real*8 sum1,sum2
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *         cpsi_1gen_svector       *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_1gen_svector()
+      implicit none
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      logical value
+      integer nb
+      logical  BGrsm_f_Spins
+      external BGrsm_f_Spins
+
+      if (spin_orbit) then
+         do nb=1,nbrillq
+         value=BGrsm_f_Spins(nb,
+     >                       dcpl_mb(psi1(1)),
+     >                       dbl_mb(svec(1)+(nb-1)*3*ne(1)))
+         end do
+      else
+        call dcopy(3*ne(1)*nbrillq,0.0d0,0,dbl_mb(svec(1)),1)
+      end if
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         cpsi_svector            *
+*     *                                 *
+*     ***********************************
+      real*8  function cpsi_svector(nb,i,xyz)
+      implicit none
+      integer nb,ms
+      integer i,xyz
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      integer indx
+      real*8  w
+
+      if (spin_orbit) then
+         indx=svec(1) + (xyz-1) 
+     >                + 3*(i-1)
+     >                + (nb-1)*3*ne(1)
+         w = dbl_mb(indx)
+      else
+         w = 0.0d0
+      end if
+      cpsi_svector = w
+      return
+      end
+
+
+
+
 *     ***********************************
 *     *					*
 *     *		cpsi_hml		   	*
@@ -1511,6 +1572,9 @@ c     >                    'hml',hml(2),hml(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,(neall*nbrillq),
      >                    'eig',eig(2),eig(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(3*ne(1)*nbrillq),
+     >                    'svec',svec(2),svec(1))
 
       value = value.and.
      >        MA_alloc_get(mt_dbl,2*nfft3d,
@@ -1619,6 +1683,7 @@ c     *****  read initial wavefunctions into psi1  ****
       end if
     
       value = MA_free_heap(eig(2))
+      value = value.and.MA_free_heap(svec(2))
       value = value.and.Pneb_w_free(hml)
       value = value.and.MA_free_heap(dng2(2))
       value = value.and.MA_free_heap(dng1(2))
@@ -1745,61 +1810,50 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine cpsi_spins_output(nbb,outfile)
-      implicit none
-      integer outfile,nbb
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "cpsi_common.fh"
-      integer svec(2)
-      integer i,indx
-      logical value
-      real*8 ei,eiv,EV
-c    ** external **
-      logical BGrsm_f_Spins 
-      integer  brillioun_nbrillioun
-      real*8 cpsi_eigenvalue
-      real*8   brillioun_k,brillioun_ks,brillioun_weight
-      external brillioun_nbrillioun
-      external cpsi_eigenvalue
-      external brillioun_k,brillioun_ks,brillioun_weight
-      external BGrsm_f_Spins
- 
-      EV=27.2116
-      indx=3*ne(1)
-      value=MA_push_get(mt_dbl,indx,'svec',svec(2),svec(1))
-      if (.not.value) then
-        call errquit("out of stack memory",0,0)
-      end if
-      value=BGrsm_f_Spins(nbb,dcpl_mb(psi2(1)),dbl_mb(svec(1)))
-      if (.not.value) then
-        write(*,*)"Why did you call cpsi_spin_output?????"
-        call errquit("PROGRAMMER ERROR CPSI_SPIN_OUTPUT",0,0)
-      end if      
-      indx=svec(1)
-      write(outfile,*)" E(H)               (E eV)        Spin(Sz,Sy,Sx)"
-      do i=0,ne(1)-1
-         ei=cpsi_eigenvalue(nbb,1,ne(1)-i)
-         eiv=ei*EV
-         write(outfile,111)
-     >      ei,eiv,  
-     >      dbl_mb(indx+2),dbl_mb(indx+1),
-     >      dbl_mb(indx)
-         indx=indx+3 
-      end do
-      call flush(outfile)
-      value=MA_pop_stack(svec(2))
-      if (.not.value) then
-       call errquit("trouble popping stack",0,0)  
-      end if
- 108  format(/' Brillouin zone point ',i3,
-     >       /' weight = ',f10.6,
-     >       /' k      = <',3f8.3,'> . b= <b1,b2,b3> ',
-     >       /'        = <',3f8.3,'>') 
- 111  format(D16.7,' (',F8.3,' eV) (',F8.3,' zhat + ',F8.3,' yhat +',
-     > F8.3,' xhat )') 
-      return
-      end            
+c      subroutine cpsi_spins_output(nbb,outfile)
+c      implicit none
+c      integer outfile,nbb
+c
+c#include "mafdecls.fh"
+c#include "errquit.fh"
+c#include "cpsi_common.fh"
+c
+c      integer svec(2)
+c      integer i,indx
+c      logical value
+c      real*8 ei,eiv,EV
+c
+cc    ** external **
+c      integer  brillioun_nbrillioun
+c      real*8   cpsi_eigenvalue,cpsi_svector
+c      real*8   brillioun_k,brillioun_ks,brillioun_weight
+c      external brillioun_nbrillioun
+c      external cpsi_eigenvalue,cpsi_svector
+c      external brillioun_k,brillioun_ks,brillioun_weight
+c 
+c      EV=27.2116d0
+c      write(outfile,*)" E(H)               (E eV)        Spin(Sz,Sy,Sx)"
+c      do i=0,ne(1)-1
+c         ei=cpsi_eigenvalue(nbb,1,ne(1)-i)
+c         eiv=ei*EV
+c         write(outfile,111)
+c     >      ei,eiv,  
+c     >      cpsi_svector(nbb,i,3),
+c     >      cpsi_svector(nbb,i,2),
+c     >      cpsi_svector(nbb,i,1)
+c      end do
+c      call flush(outfile)
+c      if (.not.value) then
+c       call errquit("trouble popping stack",0,0)  
+c      end if
+c 108  format(/' Brillouin zone point ',i3,
+c     >       /' weight = ',f10.6,
+c     >       /' k      = <',3f8.3,'> . b= <b1,b2,b3> ',
+c     >       /'        = <',3f8.3,'>') 
+c 111  format(D16.7,' (',F8.3,' eV) (',F8.3,' zhat + ',F8.3,' yhat +',
+c     > F8.3,' xhat )') 
+c      return
+c      end            
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine cpsi_output21(outfile,nb,w,k)
       implicit none
@@ -1808,7 +1862,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
-      integer svec(2)
       integer i,indx,ii
       logical value
       real*8 ei,eiv,EV

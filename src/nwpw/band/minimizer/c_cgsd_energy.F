@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.16 2007-04-02 15:38:37 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.17 2007-04-06 23:00:46 bylaska Exp $                       
 *
 
 *     ***************************
@@ -35,19 +35,19 @@
       integer     control_it_in,control_it_out,control_minimizer
       integer     ion_nion,ion_katm,cpsi_ne,cpsi_ispin
       real*8      control_tole,control_tolc
-      real*8      ion_rion,cpsi_eigenvalue,ion_amass
+      real*8      ion_rion,cpsi_eigenvalue,ion_amass,cpsi_svector
       external cpsp_semicore,control_out_of_time
       external ion_aname
       external control_it_in,control_it_out,control_minimizer
       external ion_nion,ion_katm,cpsi_ne,cpsi_ispin
       external control_tole,control_tolc
-      external ion_rion,cpsi_eigenvalue,ion_amass
+      external ion_rion,cpsi_eigenvalue,ion_amass,cpsi_svector
       integer  brillioun_nbrillioun
       real*8   brillioun_k,brillioun_ks,brillioun_weight
       external brillioun_nbrillioun
       external brillioun_k,brillioun_ks,brillioun_weight
-      integer Pneb_ispin,Pneb_ispinq
-      external Pneb_ispin,Pneb_ispinq
+      logical  cpsi_spin_orbit
+      external cpsi_spin_orbit
 
       call Parallel_taskid(taskid)
 
@@ -176,16 +176,14 @@ C           call c_bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
 
 
 *     **** diagonalize hamiltonian and rotate psi ****
-
       call cpsi_spin_density(en)
-
       call cpsi_1gen_hml()
-
       call cpsi_diagonalize_hml()
-
       call cpsi_1rotate2()
-
       call cpsi_2to1()
+
+*     *** generate svectors ***
+      if (cpsi_spin_orbit()) call cpsi_1gen_svector()
 
 *     **** geometrical center and center of mass of the cluster ****
       call center_geom(cx,cy,cz)
@@ -223,7 +221,7 @@ c         write(luout,1210) GX,GY,GZ
          write(luout,1499) virial
 
          NN=cpsi_ne(1)-cpsi_ne(2)
-         EV=27.2116
+         EV=27.2116d0
          do nb=1,brillioun_nbrillioun()
            write(luout,1508) nb,
      >                   brillioun_weight(nb),
@@ -234,23 +232,30 @@ c         write(luout,1210) GX,GY,GZ
      >                   brillioun_k(2,nb),
      >                   brillioun_k(3,nb)
            write(luout,1500)
-           do i=0,NN-1
-             write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
-     >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
-           end do
-           if (Pneb_ispinq().eq.Pneb_ispin()) then
-
+           if (cpsi_spin_orbit()) then
+             write(luout,1511)
+             do i=0,cpsi_ne(1)-1
+               write(luout,1512) 
+     >            cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
+     >            cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV,
+     >            cpsi_svector(nb,cpsi_ne(1)-i,3),      
+     >            cpsi_svector(nb,cpsi_ne(1)-i,2),      
+     >            cpsi_svector(nb,cpsi_ne(1)-i,1)       
+             end do
+           else
+             do i=0,NN-1
+               write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
+     >                         cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
+             end do
              do i=0,cpsi_ne(2)-1
-               write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
+               write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
      >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN)*EV,
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV
              end do
-           else
-             call cpsi_spins_output(nb,luout)
            end if
+           
          end do
-
       end if
 
       c_cgsd_energy = E(1)
@@ -301,6 +306,10 @@ c         write(luout,1210) GX,GY,GZ
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')
  1510 FORMAT(4(E18.7,' (',F8.3,'eV)'))
+ 1511 FORMAT(33x,"Spin(Sz,Sy,Sz)")
+ 1512 FORMAT(E18.7,' (',F8.3,' eV) (',F8.3,' zhat + ',F8.3,' yhat +',
+     > F8.3,' xhat )')
+
 
       end
 
