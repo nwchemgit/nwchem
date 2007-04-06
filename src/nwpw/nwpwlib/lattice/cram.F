@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.19 2007-01-19 18:48:51 d3p708 Exp $
+* $Id: cram.F,v 1.20 2007-04-06 23:01:12 bylaska Exp $
 *
 
 *     ***********************************
@@ -675,6 +675,7 @@
       call Parallel_np(np)
 
       sum = zdotc(int_mb(nidb2_list(1)+nb),A,1,B,1)
+
 
       if (np.gt.1) call C3dB_Vector_SumAll(2,sum)
 
