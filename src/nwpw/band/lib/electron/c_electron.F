@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.30 2007-02-23 01:14:33 bylaska Exp $
+* $Id: c_electron.F,v 1.31 2007-04-06 23:00:09 bylaska Exp $
 *
 
 
@@ -657,7 +657,7 @@ cccccccccccccccccc
 *     **** local variables ****
  
 
-      call Pneb_ffw_multiply(0,0,
+      call Pneb_ffw_Multiply(0,0,
      >                  psi_k,
      >                  dcpl_mb(Hpsi_k(1)),
      >                  npack1,
