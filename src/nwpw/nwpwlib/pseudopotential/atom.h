@@ -25,6 +25,7 @@ extern double *r_psi_Atom (int);
 extern double *r_psi_prime_Atom (int);
 extern int n_Atom (int);
 extern int l_Atom (int);
+extern int s_Atom (int);
 extern int lmax_Atom ();
 extern double fill_Atom (int);
 extern int Ncore_Atom ();
