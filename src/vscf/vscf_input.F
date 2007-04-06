@@ -1,6 +1,6 @@
       subroutine vscf_input(rtdb)
 *
-* $Id: vscf_input.F,v 1.3 2006-02-03 02:48:11 bert Exp $
+* $Id: vscf_input.F,v 1.4 2007-04-06 16:29:19 windus Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -59,6 +59,8 @@ c
               ncoup = 1
          else if(inp_compare(.false.,'pair',field)) then
               ncoup = 2
+         else if(inp_compare(.false.,'triplet',field)) then
+              ncoup = 3
          else
               call errquit('vscf_input: unrecognized coupling type',0,
      &       INPUT_ERR)
