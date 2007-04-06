@@ -1,5 +1,5 @@
 %
-% $Id: vscf.tex,v 1.1 2006-06-01 20:22:38 bert Exp $
+% $Id: vscf.tex,v 1.2 2007-04-06 16:21:09 windus Exp $
 %
 \label{sec:vscf}
 
@@ -21,7 +21,7 @@ format has the form:
 
 \begin{verbatim}
   VSCF
-    [coupling <integer default 2  >]
+    [coupling <string couplelevel default "pair">]
     [ngrid    <integer default 16 >]
     [iexcite  <integer default 1  >]
     [vcfct    <real    default 1.0>]
@@ -32,12 +32,12 @@ The order of coupling of the harmonic normal modes included in the calculation
 is controlled by the specifying:
 
 \begin{verbatim}
-    coupling <integer default 2>
+    coupling <string couplelevel default "pair">
 \end{verbatim}
 
-For \verb+coupling=1+ a one-dimensional grid along each normal mode is computed.
-For \verb+coupling=2+ a two-dimensional grid along each pair of normal modes is computed.
-For \verb+coupling=3+ a three-dimensional grid along each triplet of normal modes is computed.
+For \verb+coupling=diagonal+ a one-dimensional grid along each normal mode is computed.
+For \verb+coupling=pair+ a two-dimensional grid along each pair of normal modes is computed.
+For \verb+coupling=triplet+ a three-dimensional grid along each triplet of normal modes is computed.
 
 The number of grid points along each normal mode, or pair of modes can be defined 
 by specifying:
