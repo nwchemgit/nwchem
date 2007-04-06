@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.24 2007-04-05 20:47:53 d3p708 Exp $
+* $Id: Pneb.F,v 1.25 2007-04-06 01:35:00 bylaska Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1420,8 +1420,6 @@ c     ** local variables ****
 
         nemax=ne(1)+ne(2)
         nbshift=npack1*nemax
-        write(*,*) "GERA, ms1,ms2=",ms1,ms2,nb1,nb2,nemax
-        write(*,*) "ne=",ne(1),ne(2),npack1
 
         do nb=nb1,nb2
         do ms=ms1,ms2
@@ -1429,7 +1427,6 @@ c     ** local variables ****
           do k=1,ne(ms)
            index1=bindex+(k-1)*npack1+1
            call Cram_cc_dot(nb,A(index1),A(index1),w)
-           write(*,*) "nb,ms,k,w=",nb,ms,k,w
            if (w.gt.1.d-9) then
              w=1.d0/dsqrt(w)
            else
@@ -1437,14 +1434,11 @@ c     ** local variables ****
             write(0,*)"Pneb_makeOrtho: < psi | psi > = 0 K= ",k,w     
             w=1.0d0
            end if
-           write(*,*) "GERB"
            call Cram_c_SMul(nb,w,A(index1),A(index1))
            do j=k+1,ne(ms)
              index3=bindex+(j-1)*npack1+1
-           write(*,*) "GERC,j,index3,k,index1=",j,index3,k,index1,nb
              call Cram_cc_zdot(nb,A(index1),A(index3),wc)
              wc=-wc
-           write(*,*) "wc=",wc
              call Cram_cc_zaxpy(nb,wc,A(index1),A(index3))
            end do
           end do
