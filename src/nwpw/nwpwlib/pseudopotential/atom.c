@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska
-   $Id: atom.c,v 1.5 2007-04-04 21:07:24 d3p708 Exp $
+   $Id: atom.c,v 1.6 2007-04-06 21:42:10 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -28,6 +28,7 @@
 static int Ncore, Nvalence, Ncv;
 static int *n;
 static int *l;
+static int *s2;
 static int lmax;
 static double *fill;
 static int *turning_point;
@@ -60,11 +61,27 @@ static int Solver_Type = Pauli;
 void
 init_Atom (char *filename)
 {
-  int i, Ngrid;
-  double *rgrid;
+  int i, Ngrid, nx, lx,ncvh;
+  double *rgrid,fillx;
   char *w;
   FILE *fp;
 
+  /* set the solver type first */
+  fp = fopen (filename, "r+");
+  w = get_word (fp);
+  while ((w != NIL) && (strcmp ("<solver>", w) != 0))
+    w = get_word (fp);
+  if (w != NIL)
+    {
+      w = get_word (fp);
+      if (strcmp ("schrodinger", w) == 0)
+	Solver_Type = Schrodinger;
+      if (strcmp ("pauli", w) == 0)
+	Solver_Type = Pauli;
+      if (strcmp ("dirac", w) == 0)
+	Solver_Type = Dirac;
+    }
+  fclose (fp);
   /* open data file */
   fp = fopen (filename, "r+");
 
@@ -89,41 +106,92 @@ init_Atom (char *filename)
   fscanf (fp, "%le", &Zion);
   fscanf (fp, "%le", &amass);
   fscanf (fp, "%d %d", &Ncore, &Nvalence);
-  Ncv = Ncore + Nvalence;
-
-  /* allocate the necessary memory for eigenvalues */
-  n = (int *) malloc ((Ncv + 2) * sizeof (int));
-  l = (int *) malloc ((Ncv + 2) * sizeof (int));
-  fill = (double *) malloc ((Ncv + 2) * sizeof (double));
-
-  /* allocate memory for outer peak and turning_point positions */
-  turning_point = (int *) malloc ((Ncv + 2) * sizeof (int));
-  peak = (double *) malloc ((Ncv + 2) * sizeof (double));
-
-  /* set eigenvalue arrays */
-  lmax = 0;
-  for (i = 0; i < Ncv; ++i)
+  if (Solver_Type != Dirac)
     {
-      fscanf (fp, "%d %d %le", &n[i], &l[i], &fill[i]);
-      lmax = Max (l[i], lmax);
+      Ncv = Ncore + Nvalence;
+
+      /* allocate the necessary memory for eigenvalues */
+      n = (int *) malloc ((Ncv + 1) * sizeof (int));
+      l = (int *) malloc ((Ncv + 1) * sizeof (int));
+      fill = (double *) malloc ((Ncv + 1) * sizeof (double));
+
+      /* allocate memory for outer peak and turning_point positions */
+      turning_point = (int *) malloc ((Ncv + 1) * sizeof (int));
+      peak = (double *) malloc ((Ncv + 1) * sizeof (double));
+
+      /* set eigenvalue arrays */
+      lmax = 0;
+      for (i = 0; i < Ncv; ++i)
+	{
+	  fscanf (fp, "%d %d %le", &n[i], &l[i], &fill[i]);
+	  lmax = Max (l[i], lmax);
+	}
+
+      /* set up logarithmic grid */
+      init_LogGrid (Zion);
+      Ngrid = N_LogGrid ();
+      rgrid = r_LogGrid ();
+
+
+      /* allocate the necessary memory */
+      eigenvalue = (double *) malloc ((Ncv + 1) * sizeof (double));
+      r_psi = (double **) malloc ((Ncv + 1) * sizeof (double *));
+      r_psi_prime = (double **) malloc ((Ncv + 1) * sizeof (double *));
+      for (i = 0; i < (Ncv + 1); ++i)
+	{
+	  r_psi[i] = alloc_LogGrid ();
+	  r_psi_prime[i] = alloc_LogGrid ();
+	}
     }
-
-  /* set up logarithmic grid */
-  init_LogGrid (Zion);
-  Ngrid = N_LogGrid ();
-  rgrid = r_LogGrid ();
-
-
-  /* allocate the necessary memory */
-  eigenvalue = (double *) malloc ((Ncv + 2) * sizeof (double));
-  r_psi = (double **) malloc ((Ncv + 2) * sizeof (double *));
-  r_psi_prime = (double **) malloc ((Ncv + 2) * sizeof (double *));
-  for (i = 0; i < (Ncv + 2); ++i)
+  else
     {
-      r_psi[i] = alloc_LogGrid ();
-      r_psi_prime[i] = alloc_LogGrid ();
-    }
 
+      Ncore = 2 * Ncore;
+      Nvalence = 2 * Nvalence;
+      Ncv = Ncore + Nvalence;
+
+      /* allocate the necessary memory for eigenvalues */
+      n = (int *) malloc ((Ncv + 2) * sizeof (int));
+      l = (int *) malloc ((Ncv + 2) * sizeof (int));
+      fill = (double *) malloc ((Ncv + 2) * sizeof (double));
+
+      /* allocate memory for outer peak and turning_point positions */
+      turning_point = (int *) malloc ((Ncv + 2) * sizeof (int));
+      peak = (double *) malloc ((Ncv + 2) * sizeof (double));
+
+      /* set eigenvalue arrays */
+      lmax = 0;
+      ncvh = Ncv/2
+      for (i = 0; i < ncvh; ++i)
+	{
+	  fscanf (fp, "%d %d %le", &nx, &lx, &fillx);
+          n[2*i]=nx;
+          n[2*i+1]=nx;
+          l[2*i]=lx;
+          l[2*i+1]=lx;
+          s2[2*i]=1;
+          s2[2*i+1]=-1;
+          fill[2*i]= fillx*0.5;
+          fill[2*i+1]= fillx*0.5;
+	  lmax = Max (l[i], lmax);
+	}
+
+      /* set up logarithmic grid */
+      init_LogGrid (Zion);
+      Ngrid = N_LogGrid ();
+      rgrid = r_LogGrid ();
+
+
+      /* allocate the necessary memory */
+      eigenvalue = (double *) malloc ((Ncv + 2) * sizeof (double));
+      r_psi = (double **) malloc ((Ncv + 2) * sizeof (double *));
+      r_psi_prime = (double **) malloc ((Ncv + 2) * sizeof (double *));
+      for (i = 0; i < (Ncv + 2); ++i)
+	{
+	  r_psi[i] = alloc_LogGrid ();
+	  r_psi_prime[i] = alloc_LogGrid ();
+	}
+    }
   rho = alloc_LogGrid ();
   rho_core = alloc_LogGrid ();
   rho_valence = alloc_LogGrid ();
@@ -135,22 +203,6 @@ init_Atom (char *filename)
     Vion[i] = -Zion / rgrid[i];
   fclose (fp);
 
-  /* set the solver type */
-  fp = fopen (filename, "r+");
-  w = get_word (fp);
-  while ((w != NIL) && (strcmp ("<solver>", w) != 0))
-    w = get_word (fp);
-  if (w != NIL)
-    {
-      w = get_word (fp);
-      if (strcmp ("schrodinger", w) == 0)
-	Solver_Type = Schrodinger;
-      if (strcmp ("pauli", w) == 0)
-	Solver_Type = Pauli;
-      if (strcmp ("dirac", w) == 0)
-	Solver_Type = Dirac;
-    }
-  fclose (fp);
 
   /* initialize DFT stuff */
   init_DFT (filename);
@@ -283,8 +335,7 @@ solve_Atom ()
 	    }
 	  else if (Solver_Type == Dirac)
 	    {
-	      sz = (2 * (i % 2) - 1);
-	      R_Dirac (n[i], l[i], sz, Zion, Vall,
+	      R_Dirac (n[i], l[i], s2[i], Zion, Vall,
 		       &turning_point[i], &Etmp, r_psi[i], r_psi_prime[i]);
 	    }
 	 /**********************************************************/
@@ -302,7 +353,7 @@ solve_Atom ()
 	{
 	  for (k = 0; k < Ngrid; ++k)
 	    rho[k] += fill[i] * pow ((r_psi[i][k] / rgrid[k]), 2.0);
-	}			/*for i */
+	}			
 
 
       /***************************************/
@@ -523,15 +574,12 @@ print_Atom (FILE * fp)
   fprintf (fp,
 	   "------------------------------------------------------------\n");
   fprintf (fp, "n\tl\tpopulation\tEigenvalue\tOuter Peak\n");
-  st = 1;
   if (Solver_Type == Dirac)
     {
       for (i = 0; i < Ncv; ++i)
 	{
-
-	  fprintf (fp, "%d\t%s\t%2d\t%.2lf\t\t%le\t%le\n", n[i],
-		   spd_Name (l[i]), st, fill[i], eigenvalue[i], peak[i]);
-	  st = -st;
+	  fprintf (fp, "%d\t%s\t%.2lf\t%.2lf\t\t%le\t%le\n", n[i],
+		   spd_Name (l[i]), 0.5*s2[i], fill[i], eigenvalue[i], peak[i]);
 	}
     }
   else
@@ -654,6 +702,8 @@ l_Atom (int i)
 {
   return l[i];
 }
+
+int s_Atom(int i) { return s2[i];};
 
 int
 lmax_Atom ()
