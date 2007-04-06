@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.43 2007-02-23 18:08:02 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.44 2007-04-06 01:35:15 bylaska Exp $ *
 
 
 *     ***************************
@@ -1584,6 +1584,7 @@ c     *****  read initial wavefunctions into psi1  ****
 *     **** Ortho Check ****
       call Pneb_orthoCheckMake(.true.,0,0,npack1,
      >                        dcpl_mb(psi1(1)))
+
       cpsi_initialize = value
       return
       end

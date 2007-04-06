@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.12 2007-02-12 20:59:43 d3p708 Exp $
+* $Id: cpsi_read.F,v 1.13 2007-04-06 01:35:15 bylaska Exp $
 *
 
 #define TCGMSG
@@ -8,10 +8,10 @@
 *     *       cpsi_read		*
 *     *             		*
 *     ***************************
-      subroutine cpsi_read(spin_orbit,ispin,ne_in,nbrillioun,psi2)
+      subroutine cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi2)
       implicit none 
       logical spin_orbit
-      integer ispin,ne_in(2),nbrillioun
+      integer ispin,ne(2),nbrillioun
       double complex psi2(*)
 
 #include "mafdecls.fh"
@@ -27,7 +27,7 @@
       integer rtdb
       integer version,l
       integer nfft3d,npack1
-      integer nfft(3),ne(2)
+      integer nfft(3)
       real*8  unita(3,3)
       character*30 filename
       character*255 full_filename
@@ -73,13 +73,13 @@ c     complex*16 tmp(*)
          write(*,1210) full_filename(1:l)
  1210    FORMAT(/' input psi filename:',A)
 
-         call openfile(65,full_filename,l,'r',l)
-         call iread(65,version,1)
-         call iread(65,nfft,3)
-         call dread(65,unita,9)
-         call iread(65,ispin,1)
-         call iread(65,ne,2)
-         call iread(65,nbrill,1)
+         call openfile(5,full_filename,l,'r',l)
+         call iread(5,version,1)
+         call iread(5,nfft,3)
+         call dread(5,unita,9)
+         call iread(5,ispin,1)
+         call iread(5,ne,2)
+         call iread(5,nbrill,1)
       end if
       
 
@@ -94,7 +94,7 @@ c     **** send header to all nodes ****
       msglen = 1
       call BRDCST(9+MSGINT,ispin,mitob(msglen),MASTER)
       msglen = 2
-      call BRDCST(9+MSGINT,ne_in,mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,ne,mitob(msglen),MASTER)
       msglen = 1
       call BRDCST(9+MSGINT,nbrill,mitob(msglen),MASTER)
 #endif 
@@ -167,9 +167,8 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 
         do nb=1,nbrill
         do n=1,(ne(1)+ne(2))
-         indx = 1 + (n-1)*npack1 + 
-     >          (nb-1)*npack1*(ne_in(1)+ne_in(2)) 
-         call C3dB_c_read(1,65,dcpl_mb(tmp2(1)),
+         indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
+         call C3dB_c_Read(1,5,dcpl_mb(tmp2(1)),
      >                        dcpl_mb(tmp(1)))
          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
          call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
@@ -182,7 +181,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
         do nb=1,nbrill
         do n=1,(ne(1)+ne(2))
          indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
-         call C3dB_c_read(1,65,dcpl_mb(tmp2(1)),
+         call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
      >                        dcpl_mb(tmp(1)))
          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
          call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
@@ -203,7 +202,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 
 *     *** close ELCIN binary file ***
       if (taskid.eq.MASTER) then
-        call closefile(65)
+        call closefile(5)
       end if
  
       value = MA_pop_stack(tmp2(2))
