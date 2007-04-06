@@ -147,8 +147,6 @@ R_Dirac (int n, int l, int s2, double Z, const double *v, int *mch,
 	    }
 	}
 
-
-
       /* set the boundry condition near zero */
       m1scale = 1.0;
       for (i = 0; i < (n - l - 1); ++i)
