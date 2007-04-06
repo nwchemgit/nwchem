@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.80 2007-04-02 15:38:41 bylaska Exp $
+* $Id: cgsdv5.F,v 1.81 2007-04-06 23:01:43 bylaska Exp $
 *
 
 ***********************************************************************
@@ -221,7 +221,7 @@
       call lattice_init()
       call G_init()
       call mask_init()
-      call Pack_init()
+      call Pack_Init()
       call D3dB_pfft_init()
 
 
