@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska
-   $Id: atom.c,v 1.6 2007-04-06 21:42:10 d3p708 Exp $
+   $Id: atom.c,v 1.7 2007-04-07 05:02:38 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -161,7 +161,7 @@ init_Atom (char *filename)
 
       /* set eigenvalue arrays */
       lmax = 0;
-      ncvh = Ncv/2
+      ncvh = Ncv/2;
       for (i = 0; i < ncvh; ++i)
 	{
 	  fscanf (fp, "%d %d %le", &nx, &lx, &fillx);
