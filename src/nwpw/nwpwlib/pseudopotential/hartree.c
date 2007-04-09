@@ -1,5 +1,5 @@
 /*
- $Id: hartree.c,v 1.2 2002-02-13 19:13:56 edo Exp $
+ $Id: hartree.c,v 1.3 2007-04-09 22:55:51 d3p708 Exp $
    Hartree.c - 6/9/95
    author - Eric Bylaska
 
@@ -32,8 +32,8 @@
 
 double  R_Hartree(n,charge,Vh)
 double 	n[],
-        charge,
-        Vh[];
+charge,
+Vh[];
 {
     int i,Ngrid;
     double log_amesh;
@@ -41,19 +41,19 @@ double 	n[],
     double r,r2,r3,tt;
     double E;
 
-   /* access the size of grid, and log(amesh) */
-   Ngrid     = N_LogGrid();
-   log_amesh = log_amesh_LogGrid();
+    /* access the size of grid, and log(amesh) */
+    Ngrid     = N_LogGrid();
+    log_amesh = log_amesh_LogGrid();
 
-   /* get access to rgrid, and a tmp grid */
-   rgrid = r_LogGrid();
-   tmp   = alloc_LogGrid();
+    /* get access to rgrid, and a tmp grid */
+    rgrid = r_LogGrid();
+    tmp   = alloc_LogGrid();
 
     for (i=0; i<Ngrid; ++i)
     {
-       r  = rgrid[i];
-       r3 = r*r*r;
-       tmp[i] = (log_amesh*r3)*n[i];
+        r  = rgrid[i];
+        r3 = r*r*r;
+        tmp[i] = (log_amesh*r3)*n[i];
     }
 
     Zero_LogGrid(Vh);
@@ -67,26 +67,26 @@ double 	n[],
     /* Integrate tmp[i] to zero */
     for (i=(Ngrid-3); i>0; --i)
     {
-       Vh[i-1] = Vh[i] + Corrector_In_F(i,tmp);
+        Vh[i-1] = Vh[i] + Corrector_In_F(i,tmp);
     }
 
     for (i=0; i<Ngrid; ++i)
     {
-       r  = rgrid[i];
-       r2 = r*r;
-       tmp[i] = (log_amesh*r2)*n[i];
+        r  = rgrid[i];
+        r2 = r*r;
+        tmp[i] = (log_amesh*r2)*n[i];
     }
 
     /* integrate tmp to zero */
     tt = 0.0;
     for (i=(Ngrid-3); i>0; --i)
     {
-       tt        = tt + Corrector_In_F(i,tmp);
-       Vh[i-1]   = Vh[i-1] - rgrid[i-1]*tt;
-   }
+        tt        = tt + Corrector_In_F(i,tmp);
+        Vh[i-1]   = Vh[i-1] - rgrid[i-1]*tt;
+    }
 
     for (i=0; i<Ngrid; ++i)
-       Vh[i] = Vh[i]/rgrid[i];
+        Vh[i] = Vh[i]/rgrid[i];
 
 
     /* calculate Eh */
@@ -95,12 +95,12 @@ double 	n[],
     /* our log grid goes from r0 to 45.0           */
     for (i=0; i<Ngrid; ++i)
     {
-      /*
-       r  = rgrid[i];
-       r3 = r*r*r;
-       tmp[i] = r3*(n[i]*Vh[i]);
-       */
-       tmp[i] = n[i]*Vh[i];
+        /*
+         r  = rgrid[i];
+         r3 = r*r*r;
+         tmp[i] = r3*(n[i]*Vh[i]);
+         */
+        tmp[i] = n[i]*Vh[i];
     }
     /*
     E = (9.0*tmp[0] + 23.0*tmp[1] + 28.0*tmp[2])/28.0;

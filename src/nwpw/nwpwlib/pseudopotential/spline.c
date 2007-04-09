@@ -1,5 +1,5 @@
 /*
- $Id: spline.c,v 1.5 2005-03-07 20:50:48 bylaska Exp $
+ $Id: spline.c,v 1.6 2007-04-09 22:55:52 d3p708 Exp $
    spline.c -
     Taken from Numerical recipies, with slight modifications as
 suggested by hamman's code.
@@ -21,49 +21,49 @@ static  int     *nl;
 
 void	init_Linear(char *filename)
 {
-   FILE	*fp;	
-   char *w;
-   
-   fp = fopen(filename,"r+");
-   w = get_word(fp);
-   while ((w != ((char *) EOF)) && (strcmp("<linear>",w) != 0))
-      w = get_word(fp);
-   if (w!=((char *) EOF))
-   {
-      fscanf(fp,"%d %lf",&nrl,&drl);
-   }
-   fclose(fp);
-   nl   = (int *) malloc(nrl*sizeof(int));
+    FILE	*fp;
+    char *w;
+
+    fp = fopen(filename,"r+");
+    w = get_word(fp);
+    while ((w != ((char *) EOF)) && (strcmp("<linear>",w) != 0))
+        w = get_word(fp);
+    if (w!=((char *) EOF))
+    {
+        fscanf(fp,"%d %lf",&nrl,&drl);
+    }
+    fclose(fp);
+    nl   = (int *) malloc(nrl*sizeof(int));
 
 
-   fp = fopen(filename,"r+");
-   w = get_word(fp);
-   while ((w != ((char *) EOF)) && (strcmp("<fixzero>",w) != 0))
-      w = get_word(fp);
-   if (w!=((char *) EOF))
-   {
-      fscanf(fp,"%d",&zeroflag);
-   }
-   fclose(fp);
+    fp = fopen(filename,"r+");
+    w = get_word(fp);
+    while ((w != ((char *) EOF)) && (strcmp("<fixzero>",w) != 0))
+        w = get_word(fp);
+    if (w!=((char *) EOF))
+    {
+        fscanf(fp,"%d",&zeroflag);
+    }
+    fclose(fp);
 
 
 }
 
 void	end_Linear()
 {
-   free(nl);
+    free(nl);
 }
 
 int	nrl_Linear()
 {
-   return nrl;
+    return nrl;
 }
 
 double	drl_Linear()
 {
-   return drl;
+    return drl;
 }
-   
+
 
 /********************************
  *				*
@@ -73,56 +73,56 @@ double	drl_Linear()
 
 void Spline(x,y,n,yp1,ypn,y2)
 double 	x[],
-       	y[];
+y[];
 int	n;
 double	yp1;
 double	ypn;
 double	y2[];
 {
-   int	i,k;
-   double sig,qn,un,p;
-   double *u;
+    int	i,k;
+    double sig,qn,un,p;
+    double *u;
 
-   u = alloc_Grid();
-   if (yp1 > 0.99e30)
-   {
-      y2[0] = 0.0;
-      u[0]  = 0.0;
-   }
-   else
-   {
-      y2[0] = -0.5;
-      u[0] = 3.0/(x[1]-x[0]) * ((y[1]-y[0])/(x[1]-x[0]) - yp1);
-   }
+    u = alloc_Grid();
+    if (yp1 > 0.99e30)
+    {
+        y2[0] = 0.0;
+        u[0]  = 0.0;
+    }
+    else
+    {
+        y2[0] = -0.5;
+        u[0] = 3.0/(x[1]-x[0]) * ((y[1]-y[0])/(x[1]-x[0]) - yp1);
+    }
 
-   for (i=1; i<(n-1); ++i)
-   {
-      sig = (x[i]-x[i-1])/(x[i+1] - x[i-1]);
-      p   = sig*y2[i-1] + 2.0;
-      y2[i] = (sig-1.0)/p;
-      u[i] = ( 6.0 * 
-                  ((y[i+1]-y[i])/(x[i+1]-x[i]) - (y[i]-y[i-1])/(x[i]-x[i-1]))
-                 /(x[i+1]-x[i-1]) 
+    for (i=1; i<(n-1); ++i)
+    {
+        sig = (x[i]-x[i-1])/(x[i+1] - x[i-1]);
+        p   = sig*y2[i-1] + 2.0;
+        y2[i] = (sig-1.0)/p;
+        u[i] = ( 6.0 *
+                 ((y[i+1]-y[i])/(x[i+1]-x[i]) - (y[i]-y[i-1])/(x[i]-x[i-1]))
+                 /(x[i+1]-x[i-1])
                  - sig*u[i-1]
-             ) / p;
-   }
+               ) / p;
+    }
 
-   if (ypn > 0.99e30)
-   {
-     qn = 0.0;
-     un = 0.0;
-   }
-   else
-   {
-      qn = 0.5;
-      un = 3.0/(x[n-1]-x[n-2]) * (ypn - (y[n-1]-y[n-2])/(x[n-1]-x[n-2]));
-   }
+    if (ypn > 0.99e30)
+    {
+        qn = 0.0;
+        un = 0.0;
+    }
+    else
+    {
+        qn = 0.5;
+        un = 3.0/(x[n-1]-x[n-2]) * (ypn - (y[n-1]-y[n-2])/(x[n-1]-x[n-2]));
+    }
 
-   y2[n-1] = (un-qn*u[n-2])/(qn*y2[n-2] + 1.0);
-   for (k=n-2; k>=0; --k)
-      y2[k] = y2[k]*y2[k+1] + u[k];
+    y2[n-1] = (un-qn*u[n-2])/(qn*y2[n-2] + 1.0);
+    for (k=n-2; k>=0; --k)
+        y2[k] = y2[k]*y2[k+1] + u[k];
 
-   dealloc_Grid(u);
+    dealloc_Grid(u);
 
 } /* Spline */
 
@@ -141,43 +141,43 @@ int	n;
 int	nx;
 double	x;
 {
-   int khi,klo;
-   double h,a,b;
-   double y;
+    int khi,klo;
+    double h,a,b;
+    double y;
 
-   khi = nx+1;
-   klo = nx;
+    khi = nx+1;
+    klo = nx;
 
-   while ( (xa[klo] > x) || ( xa[khi] < x))
-   {
-/*
-      printf("Error in Splint ");
-      printf("%d ->  %le %le %le",klo,x,xa[klo],xa[khi]);
-*/
-      if (xa[klo] > x)
-      {
-         --klo;
-         --khi;
-/*
-         printf("   <\n");
-*/
-      }
-      if (xa[khi] < x)
-      {
-         ++klo;
-         ++khi;
-/*
-         printf("   >\n");
-*/
-      }
-   }
-   h = xa[khi] - xa[klo];
-   a = (xa[khi] - x)/h;
-   b = (x - xa[klo])/h;
-   y = a*ya[klo] + b*ya[khi] 
-     + ( (a*a*a-a)*y2a[klo] + (b*b*b-b)*y2a[khi] ) * (h*h)/6.0;
+    while ( (xa[klo] > x) || ( xa[khi] < x))
+    {
+        /*
+              printf("Error in Splint ");
+              printf("%d ->  %le %le %le",klo,x,xa[klo],xa[khi]);
+        */
+        if (xa[klo] > x)
+        {
+            --klo;
+            --khi;
+            /*
+                     printf("   <\n");
+            */
+        }
+        if (xa[khi] < x)
+        {
+            ++klo;
+            ++khi;
+            /*
+                     printf("   >\n");
+            */
+        }
+    }
+    h = xa[khi] - xa[klo];
+    a = (xa[khi] - x)/h;
+    b = (x - xa[klo])/h;
+    y = a*ya[klo] + b*ya[khi]
+        + ( (a*a*a-a)*y2a[klo] + (b*b*b-b)*y2a[khi] ) * (h*h)/6.0;
 
-   return y;
+    return y;
 
 } /* Splint */
 
@@ -192,34 +192,34 @@ double	ulog[];
 double	rl[];
 double	ulin[];
 {
-   int i,Ngrid;
-   /*
-     int	nl[5000];
-   */
-   double r0,al;
-   double *r;
-   double *tmp;
+    int i,Ngrid;
+    /*
+      int	nl[5000];
+    */
+    double r0,al;
+    double *r;
+    double *tmp;
 
-   r = r_LogGrid();
-   r0 = r[0];
-   al = log_amesh_LogGrid();
+    r = r_LogGrid();
+    r0 = r[0];
+    al = log_amesh_LogGrid();
 
-   rl[0] = r[0];
-   for (i=1; i<nrl; ++i)
-   {
-     rl[i] = drl*((double) i);
-     nl[i] = rint(log(rl[i]/r0)/al -0.5);
-   }
+    rl[0] = r[0];
+    for (i=1; i<nrl; ++i)
+    {
+        rl[i] = drl*((double) i);
+        nl[i] = rint(log(rl[i]/r0)/al -0.5);
+    }
 
-   Ngrid = N_LogGrid();
-   tmp = alloc_Grid();
-   
-   Spline(r,ulog,Ngrid-4,0.0,0.0,tmp);
-   ulin[0] = ulog[0];
-   for (i=1; i<nrl; ++i)
-      ulin[i] = Splint(r,ulog,tmp,Ngrid-4,nl[i],rl[i]);
+    Ngrid = N_LogGrid();
+    tmp = alloc_Grid();
 
-   dealloc_Grid(tmp);
+    Spline(r,ulog,Ngrid-4,0.0,0.0,tmp);
+    ulin[0] = ulog[0];
+    for (i=1; i<nrl; ++i)
+        ulin[i] = Splint(r,ulog,tmp,Ngrid-4,nl[i],rl[i]);
+
+    dealloc_Grid(tmp);
 
 } /* Log_to_Linear */
 
@@ -235,40 +235,40 @@ double  ulog[];
 double  rl[];
 double  ulin[];
 {
-   int i,Ngrid;
-   /*
-     int        nl[5000];
-   */
-   double r0,al;
-   double *r;
-   double *tmp;
+    int i,Ngrid;
+    /*
+      int        nl[5000];
+    */
+    double r0,al;
+    double *r;
+    double *tmp;
 
-   r = r_LogGrid();
-   r0 = r[0];
-   al = log_amesh_LogGrid();
+    r = r_LogGrid();
+    r0 = r[0];
+    al = log_amesh_LogGrid();
 
-   rl[0] = r[0];
-   for (i=1; i<nrl; ++i)
-   {
-     rl[i] = drl*((double) i);
-     nl[i] = rint(log(rl[i]/r0)/al -0.5);
-   }
+    rl[0] = r[0];
+    for (i=1; i<nrl; ++i)
+    {
+        rl[i] = drl*((double) i);
+        nl[i] = rint(log(rl[i]/r0)/al -0.5);
+    }
 
-   Ngrid = N_LogGrid();
-   tmp = alloc_Grid();
+    Ngrid = N_LogGrid();
+    tmp = alloc_Grid();
 
-   Spline(r,ulog,Ngrid-4,0.0,0.0,tmp);
-   ulin[0] = ulog[0];
-   for (i=1; i<nrl; ++i)
-      ulin[i] = Splint(r,ulog,tmp,Ngrid-4,nl[i],rl[i]);
+    Spline(r,ulog,Ngrid-4,0.0,0.0,tmp);
+    ulin[0] = ulog[0];
+    for (i=1; i<nrl; ++i)
+        ulin[i] = Splint(r,ulog,tmp,Ngrid-4,nl[i],rl[i]);
 
-   dealloc_Grid(tmp);
+    dealloc_Grid(tmp);
 
-   if (zeroflag)
-   {
-     ulin[0] = ulin[1]
-             + (r0-rl[1])*(ulin[2]-ulin[1])/(rl[2]-rl[1]);
-   }
+    if (zeroflag)
+    {
+        ulin[0] = ulin[1]
+                  + (r0-rl[1])*(ulin[2]-ulin[1])/(rl[2]-rl[1]);
+    }
 
 
 } /* Log_to_Linear_zero */
@@ -279,31 +279,31 @@ double  ulin[];
 
 double	nm2(int n, double *y, double h)
 {
-   int k;
-   double sum,sum1,sum2;
- 
-   sum1 = 0.0;
-   sum2 = 0.0;
-   for (k=0; k<n; k=k+2)
-      sum1 += y[k]*y[k];
-   for (k=1; k<n; k=k+2)
-      sum2 += y[k]*y[k];
-   
-   sum = 2.0*sum1 + 4.0*sum2 - y[0]*y[0] - y[n-1]*y[n-1];
-   sum = sum*h/3.0;
+    int k;
+    double sum,sum1,sum2;
 
-   return sum;
+    sum1 = 0.0;
+    sum2 = 0.0;
+    for (k=0; k<n; k=k+2)
+        sum1 += y[k]*y[k];
+    for (k=1; k<n; k=k+2)
+        sum2 += y[k]*y[k];
+
+    sum = 2.0*sum1 + 4.0*sum2 - y[0]*y[0] - y[n-1]*y[n-1];
+    sum = sum*h/3.0;
+
+    return sum;
 } /* norm2 */
 
 void	normalize_Linear(double	*wl)
 {
-   int	  k;
-   double norm;
+    int	  k;
+    double norm;
 
-   norm = nm2(nrl,wl,drl);
-   norm = 1.0/sqrt(norm);
-   for (k=0; k<nrl; ++k)
-      wl[k] = norm*wl[k];
+    norm = nm2(nrl,wl,drl);
+    norm = 1.0/sqrt(norm);
+    for (k=0; k<nrl; ++k)
+        wl[k] = norm*wl[k];
 }
-   
+
 

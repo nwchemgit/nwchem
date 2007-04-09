@@ -1,5 +1,5 @@
 /*
- $Id: loggrid.c,v 1.2 2002-02-13 19:13:56 edo Exp $
+ $Id: loggrid.c,v 1.3 2007-04-09 22:55:51 d3p708 Exp $
    LogGrid.c - 6/9/95
    author - Eric Bylaska
 
@@ -35,8 +35,8 @@ with the grid points defined by:
 /*static double amesh = 1.0050;  */
 /*static double r0Z   = 0.00025; */
 
-static double Lmax  = 45.0;   
-static double amesh = 1.0050; 
+static double Lmax  = 45.0;
+static double amesh = 1.0050;
 static double r0Z   = 0.00025;
 
 
@@ -64,9 +64,9 @@ static double  *rgrid;
 void  init_LogGrid(Z)
 double  Z;
 {
-   int  i;
+    int  i;
 
-    
+
 
     /* define r0 */
     r0 = r0Z/Z;
@@ -76,18 +76,18 @@ double  Z;
 
     /* find N */
     N = log(Lmax/r0)/log_amesh;
-    
+
     /* Initialize the grids data structure */
     init_Grids(N);
 
     /* allocate rgrid and a tmp grids */
     rgrid = alloc_Grid();
-    
+
 
     /* define rgrid */
     rgrid[0] = r0;
     for (i=1; i<N; ++i)
-       rgrid[i] = amesh*rgrid[i-1];
+        rgrid[i] = amesh*rgrid[i-1];
 
 } /* init_LogGrid */
 
@@ -103,11 +103,11 @@ double  Z;
 */
 double  *alloc_LogGrid()
 {
-   double *tt;
+    double *tt;
 
-   tt = alloc_Grid();
-   Zero_LogGrid(tt);
-   return tt;
+    tt = alloc_Grid();
+    Zero_LogGrid(tt);
+    return tt;
 
 } /* alloc_LogGrid */
 
@@ -118,14 +118,14 @@ double  *alloc_LogGrid()
  *                              *
  ********************************/
 
-/* deallocates the LogGrid array 
+/* deallocates the LogGrid array
 
 */
 void  dealloc_LogGrid(grid)
 double	*grid;
 {
 
-   dealloc_Grid(grid);
+    dealloc_Grid(grid);
 
 } /* dealloc_LogGrid */
 
@@ -142,7 +142,7 @@ double	*grid;
 */
 double  *r_LogGrid()
 {
-   return rgrid;
+    return rgrid;
 
 } /* r_LogGrid */
 
@@ -156,13 +156,13 @@ double  *r_LogGrid()
 
 */
 int  index_r_LogGrid(r)
-		double r;
+double r;
 {
-   int index;
-		   
-     index = log(r/r0)/log_amesh;
-     return index;
-				 
+    int index;
+
+    index = log(r/r0)/log_amesh;
+    return index;
+
 } /* index_r_LogGrid */
 
 
@@ -179,7 +179,7 @@ int  index_r_LogGrid(r)
 
 int  N_LogGrid()
 {
-   return N;
+    return N;
 
 } /* N_LogGrid */
 
@@ -197,7 +197,7 @@ int  N_LogGrid()
 
 double log_amesh_LogGrid()
 {
-   return log_amesh;
+    return log_amesh;
 
 } /* log_amesh_LogGrid */
 
@@ -215,7 +215,7 @@ double log_amesh_LogGrid()
 
 double amesh_LogGrid()
 {
-   return(amesh);
+    return(amesh);
 
 } /* amesh_LogGrid */
 
@@ -230,26 +230,26 @@ double amesh_LogGrid()
 double	Integrate_LogGrid(f)
 double  f[];
 {
-   int    i;
-   double sum;
+    int    i;
+    double sum;
 
-/*
-   sum = (   9.0*f[0]*(rgrid[0]*rgrid[0]*rgrid[0])
-          + 23.0*f[1]*(rgrid[1]*rgrid[1]*rgrid[1])
-          + 28.0*f[2]*(rgrid[2]*rgrid[2]*rgrid[2])
-         )/28.0;
-*/
-   sum = (   9.0*f[0]*(rgrid[0]*rgrid[0]*rgrid[0])
-          + 28.0*f[1]*(rgrid[1]*rgrid[1]*rgrid[1])
-          + 23.0*f[2]*(rgrid[2]*rgrid[2]*rgrid[2])
-         )/24.0;
-   for (i=3; i<N; ++i)
-   {
-      sum += f[i]*(rgrid[i]*rgrid[i]*rgrid[i]);
-   }
-   sum = log_amesh*sum + f[0]*(rgrid[0]*rgrid[0]*rgrid[0])/3.0;
+    /*
+       sum = (   9.0*f[0]*(rgrid[0]*rgrid[0]*rgrid[0])
+              + 23.0*f[1]*(rgrid[1]*rgrid[1]*rgrid[1])
+              + 28.0*f[2]*(rgrid[2]*rgrid[2]*rgrid[2])
+             )/28.0;
+    */
+    sum = (   9.0*f[0]*(rgrid[0]*rgrid[0]*rgrid[0])
+              + 28.0*f[1]*(rgrid[1]*rgrid[1]*rgrid[1])
+              + 23.0*f[2]*(rgrid[2]*rgrid[2]*rgrid[2])
+          )/24.0;
+    for (i=3; i<N; ++i)
+    {
+        sum += f[i]*(rgrid[i]*rgrid[i]*rgrid[i]);
+    }
+    sum = log_amesh*sum + f[0]*(rgrid[0]*rgrid[0]*rgrid[0])/3.0;
 
-   return sum;
+    return sum;
 
 }
 
@@ -261,25 +261,25 @@ double  f[];
 
 double	Integrate_LogGrid_na_nb(int na, int nb, double f[])
 {
-   int    i;
-   double sum;
+    int    i;
+    double sum;
 
-   sum = (   9.0*f[na  ]*(rgrid[na  ])
-          + 28.0*f[na+1]*(rgrid[na+1])
-          + 23.0*f[na+2]*(rgrid[na+2])
-         )/24.0;
-   for (i=na+3; i<=(nb-3); ++i)
-   {
-      sum += f[i]*(rgrid[i]);
-   }
-   sum += (  23.0*f[nb-2]*(rgrid[nb-2])
-           + 28.0*f[nb-1]*(rgrid[nb-1])
-           +  9.0*f[nb  ]*(rgrid[nb  ])
+    sum = (   9.0*f[na  ]*(rgrid[na  ])
+              + 28.0*f[na+1]*(rgrid[na+1])
+              + 23.0*f[na+2]*(rgrid[na+2])
           )/24.0;
+    for (i=na+3; i<=(nb-3); ++i)
+    {
+        sum += f[i]*(rgrid[i]);
+    }
+    sum += (  23.0*f[nb-2]*(rgrid[nb-2])
+              + 28.0*f[nb-1]*(rgrid[nb-1])
+              +  9.0*f[nb  ]*(rgrid[nb  ])
+           )/24.0;
 
-   sum = log_amesh*sum;
+    sum = log_amesh*sum;
 
-   return sum;
+    return sum;
 
 }
 
@@ -292,10 +292,10 @@ double	Integrate_LogGrid_na_nb(int na, int nb, double f[])
 void	Zero_LogGrid(grid)
 double *grid;
 {
-   int i;
+    int i;
 
-   for (i=0; i<N; ++i)
-      grid[i] = 0.0;
+    for (i=0; i<N; ++i)
+        grid[i] = 0.0;
 
 } /* Zero_LogGrid */
 
@@ -308,11 +308,11 @@ double *grid;
 void Copy_LogGrid(gridnew,gridold)
 
 double *gridnew,
-       *gridold;
+*gridold;
 {
-   int i;
-   for (i=0; i<N; ++i)
-      gridnew[i] = gridold[i];
+    int i;
+    for (i=0; i<N; ++i)
+        gridnew[i] = gridold[i];
 }
 
 
@@ -334,21 +334,21 @@ int    M;
 double gamma;
 double u[];
 {
-   int	  i;
-   double r0,sum;
+    int	  i;
+    double r0,sum;
 
 
-   /* Find Integral(u**2) */
-   r0 = rgrid[0]/sqrt(amesh);
-   sum = pow(r0,(2.0*gamma+1.0))/(2.0*gamma+1.0);
-   for (i=0; i<=(M-3); ++i)
-      sum += log_amesh*rgrid[i]*(u[i]*u[i]);
+    /* Find Integral(u**2) */
+    r0 = rgrid[0]/sqrt(amesh);
+    sum = pow(r0,(2.0*gamma+1.0))/(2.0*gamma+1.0);
+    for (i=0; i<=(M-3); ++i)
+        sum += log_amesh*rgrid[i]*(u[i]*u[i]);
 
     sum += log_amesh*(  23.0*rgrid[M-2]*(u[M-2]*u[M-2])
-                      + 28.0*rgrid[M-1]*(u[M-1]*u[M-1])
-                      +  9.0*rgrid[M]  *(u[M]  *u[M]))/24.0;
+                        + 28.0*rgrid[M-1]*(u[M-1]*u[M-1])
+                        +  9.0*rgrid[M]  *(u[M]  *u[M]))/24.0;
 
-   return sum;
+    return sum;
 
 } /* Norm_LogGrid */
 
@@ -369,21 +369,21 @@ int    M;
 double nu;
 double f[];
 {
-   int	  i;
-   double r0,sum;
+    int	  i;
+    double r0,sum;
 
 
-   /* Find Integral of f */
-   r0 = rgrid[0]/sqrt(amesh);
-   sum = pow(r0,(nu+1.0))/(nu+1.0);
-   for (i=0; i<=(M-3); ++i)
-      sum += log_amesh*rgrid[i]*(f[i]);
+    /* Find Integral of f */
+    r0 = rgrid[0]/sqrt(amesh);
+    sum = pow(r0,(nu+1.0))/(nu+1.0);
+    for (i=0; i<=(M-3); ++i)
+        sum += log_amesh*rgrid[i]*(f[i]);
 
     sum += log_amesh*(  23.0*rgrid[M-2]*(f[M-2])
-                      + 28.0*rgrid[M-1]*(f[M-1])
-                      +  9.0*rgrid[M]  *(f[M]  ))/24.0;
+                        + 28.0*rgrid[M-1]*(f[M-1])
+                        +  9.0*rgrid[M]  *(f[M]  ))/24.0;
 
-   return sum;
+    return sum;
 
 } /* Integrate2_LogGrid */
 
@@ -396,27 +396,27 @@ double f[];
 void	Derivative_LogGrid(f,df)
 
 double	f[],
-	df[];
+df[];
 {
-   int i;
+    int i;
 
-      /* define dV/dr */
-      df[0] = Derivative5_1(0,f)/(log_amesh*rgrid[0]);
-      df[1] = Derivative5_2(1,f)/(log_amesh*rgrid[1]);
-      for (i=2; i<N-2; ++i)
-         df[i] = Derivative5_3(i,f)/(log_amesh*rgrid[i]);
-      df[N-2] = Derivative5_4(N-2,f)/(log_amesh*rgrid[N-2]);
-      df[N-1] = Derivative5_5(N-1,f)/(log_amesh*rgrid[N-1]);
+    /* define dV/dr */
+    df[0] = Derivative5_1(0,f)/(log_amesh*rgrid[0]);
+    df[1] = Derivative5_2(1,f)/(log_amesh*rgrid[1]);
+    for (i=2; i<N-2; ++i)
+        df[i] = Derivative5_3(i,f)/(log_amesh*rgrid[i]);
+    df[N-2] = Derivative5_4(N-2,f)/(log_amesh*rgrid[N-2]);
+    df[N-1] = Derivative5_5(N-1,f)/(log_amesh*rgrid[N-1]);
 
 } /* Derivative_LogGrid */
-      
+
 void	Plot_LogGrid(char *name, double *f)
 {
-   int i;
-   FILE *fp;
+    int i;
+    FILE *fp;
 
-   fp = fopen(name,"w+");
-   for (i=0; i<N; ++i)
-     fprintf(fp,"%le  %le\n",rgrid[i],f[i]);
-   fclose(fp);
+    fp = fopen(name,"w+");
+    for (i=0; i<N; ++i)
+        fprintf(fp,"%le  %le\n",rgrid[i],f[i]);
+    fclose(fp);
 }
