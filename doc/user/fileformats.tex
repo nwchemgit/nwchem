@@ -1,12 +1,12 @@
 %
-% $Id: fileformats.tex,v 1.6 2006-09-28 14:36:53 d3j191 Exp $
+% $Id: fileformats.tex,v 1.7 2007-04-10 23:43:18 bylaska Exp $
 %
 \label{sec:formats}
-%\section {Format fragment file}
+\section {Format fragment file}
 
 \begin{table}[h]
 \begin{center}
-\begin{tabular}{p{15mm}p{12mm}l}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
 \hline\hline
 Card & Format & Description \\ \hline
 I-1-1  & a1     & \$ to identify the start of a fragment \\ % $ for emacs
@@ -53,7 +53,7 @@ II-1-9  & i5     & polarization group\\
 II-1-10 & f12.6  & atomic partial charge\\
 II-1-11 & f12.6  & atomic polarizability\\
 \hline
-\mc{3}{l}{For each additional parameter set on card II-2}\\
+For each additional parameter set on card II-2\\
 \hline
 II-2-1  & 11x,a6     & atom type\\
 II-2-2  & a1         & dynamics type\\
@@ -70,9 +70,9 @@ connectivity} \\
 \hline
 III-1-1  & 16i5   & connectivity, duplication allowed\\
 \hline
-\mc{3}{l}{One blanc card to signal the end of the connectivity list}\\
+One blanc card to signal the end of the connectivity list\\
 \hline
-\mc{3}{l}{For each z-matrix definition one card IV}\\
+For each z-matrix definition one card IV\\
 \hline
 IV-1-1 & i5    & atom i \\
 IV-1-2 & i5    & atom j \\
@@ -82,12 +82,12 @@ IV-1-5 & f12.6 & bond length i-j\\
 IV-1-6 & f12.6 & angle i-j-k\\
 IV-1-7 & f12.6 & torson i-j-k-l\\
 \hline\hline
-\end{tabular}
+\end{tabular*}
 \caption{The format of fragment files.\label{tbl:nwmdfrg}}
 \end{center}
 \end{table}
 
-%\section {Format segment file}
+\section {Format segment file}
 
 \begin{table}[h]
 \begin{center}
@@ -112,7 +112,7 @@ I-3-6 & i5     & number of z-matrix definitions\\
 I-3-7 & i5     & number of parameter sets \\
 1-3-8 & i5     & default parameter set\\
 \hline
-\mc{3}{l}{For each prarmeter set one card I-4}\\
+For each prarmeter set one card I-4\\
 \hline
 I-4-1 & f12.6  & dipole correction energy \\
 \hline
@@ -141,7 +141,7 @@ II-1-5  & i5     & \\
 II-1-6  & i5     & charge group\\
 II-1-7  & i5     & polarization group\\
 \hline
-\mc{3}{l}{For each parameter set one card II-2}\\
+For each parameter set one card II-2\\
 \hline
 II-2-1  & 5x,a5  & atom type \\
 II-2-2  & a1     & dynamics type\\
@@ -174,7 +174,7 @@ III-1-5 & i5     & bond parameter origin\\
         &        & 0: from database, next card ignored \\
         &        & 1: from next card\\
 \hline
-\mc{3}{l}{For each parameter set one card III-2}\\
+For each parameter set one card III-2\\
 \hline
 III-2-1 & f12.6  & bond length in nm\\
 III-2-2 & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$\\
@@ -200,7 +200,7 @@ IV-1-6 & i5     & angle parameter origin\\
        &        & 0: from database, next card ignored \\
        &        & 1: from next card\\
 \hline
-\mc{3}{l}{For each parameter set one card IV-2}\\
+For each parameter set one card IV-2\\
 \hline
 IV-2-1 & f10.6  & angle in radians\\
 IV-2-2 & e12.5  & angle force constant in kJ mol$^{-1}$\\
@@ -227,7 +227,7 @@ V-1-7 & i5     & proper dihedral parameter origin\\
       &        & 0: from database, next card ignored \\
       &        & 1: from next card\\
 \hline
-\mc{3}{l}{For each parameter set one card V-2}\\
+For each parameter set one card V-2\\
 \hline
 V-2-1 & i3     & multiplicity\\
 V-2-2 & f10.6  & proper dihedral in radians\\
@@ -255,7 +255,7 @@ VI-1-7 & i5     & improper dihedral parameter origin\\
        &        & 0: from database, next card ignored \\
        &        & 1: from next card\\
 \hline
-\mc{3}{l}{For each parameter set one card VI-2}\\
+For each parameter set one card VI-2\\
 \hline
 VI-2-1 & 3x,f10.6  & improper dihedral in radians\\
 VI-2-2 & e12.5  & improper dihedral force constant in kJ mol$^{-1}$\\
@@ -269,7 +269,7 @@ VI-2-2 & e12.5  & improper dihedral force constant in kJ mol$^{-1}$\\
 \begin{center}
 \begin{tabular*}{150mm}{p{15mm}p{12mm}l}
 \hline\hline
-\mc{3}{l}{For each z-matrix definition one card VII}\\
+For each z-matrix definition one card VII\\
 \hline
 VII-1-1 & i5    & atom i \\
 VII-1-2 & i5    & atom j \\
@@ -284,7 +284,7 @@ VII-1-7 & f12.6 & torson i-j-k-l\\
 \end{center}
 \end{table}
 
-%\section {Format sequence file}
+\section {Format sequence file}
 
 \begin{table}[h]
 \begin{center}
@@ -326,7 +326,7 @@ II-2-3 & i5     & number of times to repeat cards ($ncount$)\\
 \end{center}
 \end{table}
 
-%\section {Format trajectory file}
+\section {Format trajectory file}
 
 \begin{table}[h]
 \begin{center}
@@ -392,8 +392,18 @@ II-4-8 & l1     & logical lps for solute induced dipoles \\
 II-4-5 & i10    & number of solvent molecules \\
 II-4-6 & i10    & number of solvent atoms \\
 II-4-7 & i10    & number of solute atoms \\
-\hline
-\hline
+\hline\hline
+\end{tabular*}
+\caption{Trajectory file format.\label{tbl:nwmdtrj}}
+\end{center}
+\end{table}
+
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hline
+Card & Format & Description \\ \hline
 \mc{3}{l}{For each solvent molecule one card II-5 for each atom, if stardard precision} \\
 \hline
 II-5-1 & 3f8.3  & solvent atom coordinates, if lxw or lvw \\
@@ -420,11 +430,11 @@ II-6-4 & 3e12.6  & solute atom velocities, if lvs \\
 II-6-7 & 3e12.6  & solute atom forces, if lfs (on new card if both lxs and lvs)\\
 \hline\hline
 \end{tabular*}
-\caption{Trajectory file format.\label{tbl:nwmdtrj}}
+\caption{continued trajectory file format.\label{tbl:nwmdtrj2}}
 \end{center}
 \end{table}
 
-%\section {Format free energy file}
+\section {Format free energy file}
 
 \begin{table}[h]
 \begin{center}
@@ -451,7 +461,7 @@ I-4-4  & e20.12 & average exponent forward perturbation energy at current $\lamb
 \end{center}
 \end{table}
 
-%\section {Format root mean square deviation file}
+\section {Format root mean square deviation file}
 
 \begin{table}[h]
 \begin{center}
@@ -486,7 +496,7 @@ III-2-3 & f12.6  & average segment rms deviation after superimposition \\
 \end{center}
 \end{table}
 
-%\section {Format property file}
+\section {Format property file}
 
 \begin{table}[h]
 \begin{center}

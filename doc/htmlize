@@ -161,7 +161,7 @@ foreach document ($1)
   echo "htmlize:   Compressing copies of postscript source"
   foreach file (${document}*.ps)
     if (-e $file) then
-      compress < $file > ${document}/${file}.Z
+      gzip < $file > ${document}/${file}.gz
       @ compress_stat += $status
     endif
   end
