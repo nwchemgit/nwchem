@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.15 2007-04-10 00:46:19 d3p708 Exp $
+ $Id: pspsolve.c,v 1.16 2007-04-10 18:43:01 d3p708 Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,7 +10,13 @@
 #include "spline.h"
 #include "atom.h"
 #include "psp.h"
+#include "rpsp.h"
 #include "debug.h"
+
+/** just include the source file here,it makes no sense to have a 
+ **  separate object file. 
+ **/
+#include "rpspsolve.c"
 
 #if defined(CRAY) || defined(CRAY_T3D)
 #include <fortran.h>
@@ -25,505 +31,518 @@
 
 void FATR pspsolve_
 #if defined(USE_FCD)
-(Integer *print_ptr,
- Integer *debug_ptr,
- Integer *lmax_ptr,
- Integer *locp_ptr,
- double  *rlocal_ptr,
- const _fcd fcd_sdir_name,
- Integer *n9,
- const _fcd fcd_dir_name,
- Integer *n0,
- const _fcd fcd_in_filename,
- Integer *n1,
- const _fcd fcd_out_filename,
- Integer *n2)
+ 
+  (Integer * print_ptr,
+   Integer * debug_ptr,
+   Integer * lmax_ptr,
+   Integer * locp_ptr,
+   double *rlocal_ptr,
+   const _fcd fcd_sdir_name,
+   Integer * n9,
+   const _fcd fcd_dir_name,
+   Integer * n0,
+   const _fcd fcd_in_filename,
+   Integer * n1, const _fcd fcd_out_filename, Integer * n2)
 {
-    char *sdir_name    = _fcdtocp(fcd_sdir_name);
-    char *dir_name     = _fcdtocp(fcd_dir_name);
-    char *in_filename  = _fcdtocp(fcd_in_filename);
-    char *out_filename = _fcdtocp(fcd_out_filename);
+  char *sdir_name = _fcdtocp (fcd_sdir_name);
+  char *dir_name = _fcdtocp (fcd_dir_name);
+  char *in_filename = _fcdtocp (fcd_in_filename);
+  char *out_filename = _fcdtocp (fcd_out_filename);
 
 #else
-(print_ptr,debug_ptr,lmax_ptr,locp_ptr,rlocal_ptr,
- sdir_name,n9,dir_name,n0,in_filename,n1,out_filename,n2)
-Integer	*print_ptr;
-Integer	*debug_ptr;
-Integer	*lmax_ptr;
-Integer	*locp_ptr;
-double 	*rlocal_ptr;
-char	sdir_name[];
-Integer	*n9;
-char	dir_name[];
-Integer	*n0;
-char	in_filename[];
-Integer	*n1;
-char	out_filename[];
-Integer	*n2;
+ 
+  (print_ptr, debug_ptr, lmax_ptr, locp_ptr, rlocal_ptr,
+   sdir_name, n9, dir_name, n0, in_filename, n1, out_filename, n2)
+     Integer *print_ptr;
+     Integer *debug_ptr;
+     Integer *lmax_ptr;
+     Integer *locp_ptr;
+     double *rlocal_ptr;
+     char sdir_name[];
+     Integer *n9;
+     char dir_name[];
+     Integer *n0;
+     char in_filename[];
+     Integer *n1;
+     char out_filename[];
+     Integer *n2;
 {
 
 #endif
 
-    int		i,j,k,l,p,Nlinear,Nvalence;
-    int      debug,print;
-    double	*rl,
-    *rhol,
-    **psil,
-    **pspl;
-    double   over_fourpi,c,x,y;
-    int      Ngrid;
-    double   *vall, *rgrid;
-    char     name[255];
+  int i, j, k, l, p, Nlinear, Nvalence;
+  int debug, print;
+  double *rl, *rhol, **psil, **pspl;
+  double over_fourpi, c, x, y;
+  int Ngrid;
+  double *vall, *rgrid;
+  char name[255];
 
-    int      lmax_out,locp_out;
-    double   rlocal_out;
+  int lmax_out, locp_out;
+  double rlocal_out;
 
-    FILE *fp;
+  FILE *fp;
 
-    int		m9 = ((int) (*n9));
-    int		m0 = ((int) (*n0));
-    int		m1 = ((int) (*n1));
-    int		m2 = ((int) (*n2));
-    char *infile  = (char *) malloc(m9+m1+5);
-    char *outfile = (char *) malloc(m0+m2+5);
+  int m9 = ((int) (*n9));
+  int m0 = ((int) (*n0));
+  int m1 = ((int) (*n1));
+  int m2 = ((int) (*n2));
+  char *infile = (char *) malloc (m9 + m1 + 5);
+  char *outfile = (char *) malloc (m0 + m2 + 5);
 
-    char *full_filename = (char *) malloc(m9+25+5);
+  char *full_filename = (char *) malloc (m9 + 25 + 5);
 
 
-    print = *print_ptr;
-    debug = *debug_ptr;
-    lmax_out   = *lmax_ptr;
-    locp_out   = *locp_ptr;
-    rlocal_out = *rlocal_ptr;
+  print = *print_ptr;
+  debug = *debug_ptr;
+  lmax_out = *lmax_ptr;
+  locp_out = *locp_ptr;
+  rlocal_out = *rlocal_ptr;
 
-    (void) strncpy(infile, sdir_name, m9);
-    infile[m9] = '\0';
-    strcat(infile,"/");
-    infile[m9+1] = '\0';
-    strncat(infile,in_filename,m1);
-    infile[m9+m1+1] = '\0';
+  (void) strncpy (infile, sdir_name, m9);
+  infile[m9] = '\0';
+  strcat (infile, "/");
+  infile[m9 + 1] = '\0';
+  strncat (infile, in_filename, m1);
+  infile[m9 + m1 + 1] = '\0';
 
-    (void) strncpy(outfile, dir_name, m0);
-    outfile[m0] = '\0';
-    strcat(outfile,"/");
-    outfile[m0+1] = '\0';
-    strncat(outfile,out_filename,m2);
-    outfile[m0+m2+1] = '\0';
+  (void) strncpy (outfile, dir_name, m0);
+  outfile[m0] = '\0';
+  strcat (outfile, "/");
+  outfile[m0 + 1] = '\0';
+  strncat (outfile, out_filename, m2);
+  outfile[m0 + m2 + 1] = '\0';
 
-    over_fourpi = 1.0/(16.0*atan(1.0));
+  over_fourpi = 1.0 / (16.0 * atan (1.0));
 
 
-    set_debug_print(debug);
-    init_Atom(infile);
-    solve_Atom();
-    if (debug) print_Atom(stdout);
+  set_debug_print (debug);
+  init_Atom (infile);
+  solve_Atom ();
+  if (debug)
+    print_Atom (stdout);
 
-    init_Psp(infile);
-    solve_Psp();
-    if (debug) print_Psp(stdout);
-
-    init_Linear(infile);
-
-    /* allocate linear meshes */
-    Nvalence = Nvalence_Psp();
-    Nlinear  = nrl_Linear();
-    psil = (double **) malloc(Nvalence*sizeof(double*));
-    pspl = (double **) malloc(Nvalence*sizeof(double*));
-    for (p=0; p<Nvalence; ++p)
+  if (isRelativistic_Atom ())
     {
-        psil[p] = (double *) malloc(Nlinear*sizeof(double));
-        pspl[p] = (double *) malloc(Nlinear*sizeof(double));
+      rpspsolve_ (print_ptr, debug_ptr, lmax_ptr, locp_ptr, rlocal_ptr,
+		     sdir_name, n9, dir_name, n0, in_filename, n1,
+		     out_filename, n2);
+      return;
     }
-    rl   = (double *) malloc(Nlinear*sizeof(double));
-    rhol = (double *) malloc(Nlinear*sizeof(double));
+  init_Psp (infile);
+  solve_Psp ();
+  if (debug)
+    print_Psp (stdout);
 
-    /* Norm-conserving output */
-    if (NormConserving_Psp())
+  init_Linear (infile);
+
+  /* allocate linear meshes */
+  Nvalence = Nvalence_Psp ();
+  Nlinear = nrl_Linear ();
+  psil = (double **) malloc (Nvalence * sizeof (double *));
+  pspl = (double **) malloc (Nvalence * sizeof (double *));
+  for (p = 0; p < Nvalence; ++p)
     {
-        for (p=0; p<Nvalence; ++p)
-        {
-            Log_to_Linear(r_psi_Psp(p),rl,psil[p]);
-            Log_to_Linear_zero(V_Psp(p),rl,pspl[p]);
+      psil[p] = (double *) malloc (Nlinear * sizeof (double));
+      pspl[p] = (double *) malloc (Nlinear * sizeof (double));
+    }
+  rl = (double *) malloc (Nlinear * sizeof (double));
+  rhol = (double *) malloc (Nlinear * sizeof (double));
 
-            /* normalize scattering state */
-            if (fill_Psp(p) == 0.0)
-            {
-                normalize_Linear(psil[p]);
-            }
-        }
-        Log_to_Linear(rho_Psp(),rl,rhol);
-
-        if (debug) {
-            /* output pseudowavefunctions argv[1].psw */
-            strcpy(name,name_Atom());
-            strcat(name,".psw.plt");
-            full_filename[0] = '\0';
-            strncpy(full_filename, sdir_name, m9);
-            full_filename[m9] = '\0';
-            strcat(full_filename,"/");
-            full_filename[m9+1] = '\0';
-            strcat(full_filename,name);
-
-            printf("Outputing pseudowavefunctions: %s\n",full_filename);
-            fp = fopen(full_filename,"w+");
-            for (k=0; k<Nlinear; ++k)
-            {
-                fprintf(fp,"%12.8lf", rl[k]);
-                for (p=0; p<Nvalence; ++p)
-                    fprintf(fp," %12.8lf", psil[p][k]);
-                fprintf(fp,"\n");
-            }
-            fclose(fp);
-
-
-            /* output pseudopotentials argv[1].psp */
-            strcpy(name,name_Atom());
-            strcat(name,".psp.plt");
-            full_filename[0] = '\0';
-            strncpy(full_filename, sdir_name, m9);
-            full_filename[m9] = '\0';
-            strcat(full_filename,"/");
-            full_filename[m9+1] = '\0';
-            strcat(full_filename,name);
-
-            printf("Outputing pseudopotentials: %s\n",full_filename);
-            fp = fopen(full_filename,"w+");
-            for (k=0; k<Nlinear; ++k)
-            {
-                fprintf(fp,"%12.8lf", rl[k]);
-                for (p=0; p<Nvalence; ++p)
-                    fprintf(fp," %12.8lf", pspl[p][k]);
-                fprintf(fp,"\n");
-            }
-            fclose(fp);
-
-
-            /* output pseudodensity infile.psd */
-            strcpy(name,name_Atom());
-            strcat(name,".psd.plt");
-            full_filename[0] = '\0';
-            strncpy(full_filename, sdir_name, m9);
-            full_filename[m9] = '\0';
-            strcat(full_filename,"/");
-            full_filename[m9+1] = '\0';
-            strcat(full_filename,name);
-
-            fp = fopen(full_filename,"w+");
-            for (k=0; k<Nlinear; ++k)
-                fprintf(fp,"%12.8lf %12.8lf\n", rl[k],rhol[k]);
-            fclose(fp);
-        }
-
-
-        /* output datafile to be used for Kleinman-Bylander input, argv[1].dat */
-        if (print)
-        {
-            printf(" Creating datafile for Kleinman-Bylander input: %s\n",outfile);
-        }
-        fp = fopen(outfile,"w+");
-        fprintf(fp,"%s\n",name_Atom());
-        fprintf(fp,"%lf %lf %d   %d %d %lf\n",Zion_Psp(),Amass_Atom(),lmax_Psp(),
-                lmax_out,locp_out,rlocal_out);
-        for (p=0; p<=lmax_Psp(); ++p)
-            fprintf(fp,"%lf ", rcut_Psp(p));
-        fprintf(fp,"\n");
-        fprintf(fp,"%d %lf\n",nrl_Linear(),drl_Linear());
-        fprintf(fp,"%s\n",comment_Psp());
-
-        if (print)
-        {
-            printf("  + Appending pseudopotentials:    %s thru %s\n",
-                   spd_Name(0),spd_Name(lmax_Psp()));
-        }
-        for (k=0; k<Nlinear; ++k)
-        {
-            fprintf(fp,"%12.8lf", rl[k]);
-            for (p=0; p<=lmax_Psp(); ++p)
-                fprintf(fp," %12.8lf", pspl[p][k]);
-            fprintf(fp,"\n");
-        }
-        if (print)
-        {
-            printf("  + Appending pseudowavefunctions: %s thru %s\n",
-                   spd_Name(0),spd_Name(lmax_Psp()));
-        }
-        for (k=0; k<Nlinear; ++k)
-        {
-            fprintf(fp,"%12.8lf", rl[k]);
-            for (p=0; p<=lmax_Psp(); ++p)
-                fprintf(fp," %12.8lf", psil[p][k]);
-            fprintf(fp,"\n");
-        }
-
-        /* append semicore corrections */
-        if (r_semicore_Psp() != 0.0)
-        {
-            if (print)
-            {
-                printf("  + Appending semicore density\n");
-            }
-            Log_to_Linear(rho_semicore_Psp(),rl,rhol);
-            fprintf(fp,"%lf\n",r_semicore_Psp());
-            for (k=0; k<Nlinear; ++k)
-                fprintf(fp,"%12.8lf %12.8lf\n", rl[k],
-                        fabs(rhol[k]*over_fourpi));
-
-            if (print)
-            {
-                printf("  + Appending semicore density gradient\n");
-            }
-            Log_to_Linear(drho_semicore_Psp(),rl,rhol);
-            for (k=0; k<Nlinear; ++k)
-                fprintf(fp,"%12.8lf %12.8lf\n", rl[k],
-                        (rhol[k]*over_fourpi));
-        }
-
-        fclose(fp);
-    } /* Norm-conserving PSP output */
-
-
-    /* output datafile to be used for Vanderbilt input, argv[1].vbt */
-    if (Vanderbilt_Psp())
+  /* Norm-conserving output */
+  if (NormConserving_Psp ())
     {
-        printf("Creating Vanderbilt pseudopotential input: %s\n",outfile);
-        fp = fopen(outfile,"w+");
-        fprintf(fp,"%s\n",name_Atom());
-        fprintf(fp,"%lf %lf %d\n",Zion_Psp(),Amass_Atom(),lmax_Psp());
+      for (p = 0; p < Nvalence; ++p)
+	{
+	  Log_to_Linear (r_psi_Psp (p), rl, psil[p]);
+	  Log_to_Linear_zero (V_Psp (p), rl, pspl[p]);
 
-        /* output grid parameters */
-        fprintf(fp,"%d %20.15le \n",Nlinear,drl_Linear());
+	  /* normalize scattering state */
+	  if (fill_Psp (p) == 0.0)
+	    {
+	      normalize_Linear (psil[p]);
+	    }
+	}
+      Log_to_Linear (rho_Psp (), rl, rhol);
 
-        /* output local potential */
-        Log_to_Linear(Vlocal_Psp(),rl,rhol);
-        for (k=0; k<Nlinear; ++k)
-            fprintf(fp,"%20.15le  %20.15le\n",rl[k],rhol[k]);
+      if (debug)
+	{
+	  /* output pseudowavefunctions argv[1].psw */
+	  strcpy (name, name_Atom ());
+	  strcat (name, ".psw.plt");
+	  full_filename[0] = '\0';
+	  strncpy (full_filename, sdir_name, m9);
+	  full_filename[m9] = '\0';
+	  strcat (full_filename, "/");
+	  full_filename[m9 + 1] = '\0';
+	  strcat (full_filename, name);
 
-        for (l=0; l<=lmax_Psp(); ++l)
-        {
-            /* output ns */
-            fprintf(fp,"%d\n",ns_Psp(l));
-
-            /* output rcut */
-            for (i=0; i<ns_Psp(l); ++i)
-                fprintf(fp,"%le ", rcut_il_Psp(i,l) );
-            fprintf(fp,"\n");
-
-            /* output D0   */
-            for (j=0; j<ns_Psp(l); ++j)
-                for (i=0; i<ns_Psp(l); ++i)
-                    fprintf(fp,"%20.15le ",0.5*(D0_Psp(i,j,l)+D0_Psp(j,i,l)));
-            fprintf(fp,"\n");
-
-            /* output q    */
-            for (j=0; j<ns_Psp(l); ++j)
-                for (i=0; i<ns_Psp(l); ++i)
-                    fprintf(fp,"%20.15le ",0.5*(q_Psp(i,j,l)+q_Psp(j,i,l)));
-            fprintf(fp,"\n");
-
-            /* output Beta */
-            for (i=0; i<ns_Psp(l); ++i)
-                Log_to_Linear(Beta_Psp(i,l),rl,pspl[i]);
-            for (k=0; k<Nlinear; ++k)
-            {
-                fprintf(fp,"%20.15le ",rl[k]);
-                for (i=0; i<ns_Psp(l); ++i)
-                    fprintf(fp," %20.15le",pspl[i][k]);
-                fprintf(fp,"\n");
-            }
-
-            /* output u    */
-            for (i=0; i<ns_Psp(l); ++i)
-                Log_to_Linear(r_hard_psi_il_Psp(i,l),rl,pspl[i]);
-            for (k=0; k<Nlinear; ++k)
-            {
-                fprintf(fp,"%20.15le ",rl[k]);
-                for (i=0; i<ns_Psp(l); ++i)
-                    fprintf(fp," %20.15le",pspl[i][k]);
-                fprintf(fp,"\n");
-            }
-
-            /* output w    */
-            for (i=0; i<ns_Psp(l); ++i)
-                Log_to_Linear(r_psi_il_Psp(i,l),rl,pspl[i]);
-            for (k=0; k<Nlinear; ++k)
-            {
-                fprintf(fp,"%20.15le ",rl[k]);
-                for (i=0; i<ns_Psp(l); ++i)
-                    fprintf(fp," %20.15le",pspl[i][k]);
-                fprintf(fp,"\n");
-            }
-        }
-        fclose(fp);
-
-    } /* Vanderbilt PSP output */
-
-    /******************************************************************/
-    /******************* output AE information ************************/
-    /******************************************************************/
+	  printf ("Outputing pseudowavefunctions: %s\n", full_filename);
+	  fp = fopen (full_filename, "w+");
+	  for (k = 0; k < Nlinear; ++k)
+	    {
+	      fprintf (fp, "%12.8lf", rl[k]);
+	      for (p = 0; p < Nvalence; ++p)
+		fprintf (fp, " %12.8lf", psil[p][k]);
+	      fprintf (fp, "\n");
+	    }
+	  fclose (fp);
 
 
-    if (debug) {
+	  /* output pseudopotentials argv[1].psp */
+	  strcpy (name, name_Atom ());
+	  strcat (name, ".psp.plt");
+	  full_filename[0] = '\0';
+	  strncpy (full_filename, sdir_name, m9);
+	  full_filename[m9] = '\0';
+	  strcat (full_filename, "/");
+	  full_filename[m9 + 1] = '\0';
+	  strcat (full_filename, name);
 
-        /* output all-electron wavefunctions */
-        printf("Outputing all-electron wavefunctions:");
-        Ngrid = N_LogGrid();
-        rgrid = r_LogGrid();
-        for (p=0; p<=(Ncore_Atom()+Nvalence_Atom()); ++p)
-        {
-            sprintf(name,"%s.%1d%s%c",name_Atom(),n_Atom(p),spd_Name(l_Atom(p)),spin_Name(p));
-            full_filename[0] = '\0';
-            strncpy(full_filename, sdir_name, m9);
-            full_filename[m9] = '\0';
-            strcat(full_filename,"/");
-            full_filename[m9+1] = '\0';
-            strcat(full_filename,name);
+	  printf ("Outputing pseudopotentials: %s\n", full_filename);
+	  fp = fopen (full_filename, "w+");
+	  for (k = 0; k < Nlinear; ++k)
+	    {
+	      fprintf (fp, "%12.8lf", rl[k]);
+	      for (p = 0; p < Nvalence; ++p)
+		fprintf (fp, " %12.8lf", pspl[p][k]);
+	      fprintf (fp, "\n");
+	    }
+	  fclose (fp);
 
-            printf(" %s",full_filename);
-            fp = fopen(full_filename,"w+");
-            for (k=0; k<Ngrid; ++k)
-                fprintf(fp,"%12.8lf %12.8lf\n", rgrid[k],r_psi_Atom(p)[k]);
-            fclose(fp);
-        }
-        printf("\n");
 
-        /* output density argv[1].dns */
-        Ngrid = N_LogGrid();
-        rgrid = r_LogGrid();
-        strcpy(name,name_Atom());
-        strcat(name,".dns.plt");
-        full_filename[0] = '\0';
-        strncpy(full_filename, sdir_name, m9);
-        full_filename[m9] = '\0';
-        strcat(full_filename,"/");
-        full_filename[m9+1] = '\0';
-        strcat(full_filename,name);
+	  /* output pseudodensity infile.psd */
+	  strcpy (name, name_Atom ());
+	  strcat (name, ".psd.plt");
+	  full_filename[0] = '\0';
+	  strncpy (full_filename, sdir_name, m9);
+	  full_filename[m9] = '\0';
+	  strcat (full_filename, "/");
+	  full_filename[m9 + 1] = '\0';
+	  strcat (full_filename, name);
 
-        printf("Outputing atom density: %s\n",full_filename);
-        fp = fopen(full_filename,"w+");
-        for (k=0; k<Ngrid; ++k)
-            fprintf(fp,"%12.8lf %12.8lf\n", rgrid[k],rho_Atom()[k]);
-        fclose(fp);
+	  fp = fopen (full_filename, "w+");
+	  for (k = 0; k < Nlinear; ++k)
+	    fprintf (fp, "%12.8lf %12.8lf\n", rl[k], rhol[k]);
+	  fclose (fp);
+	}
 
-        /* output core density argv[1].cdns */
-        Ngrid = N_LogGrid();
-        rgrid = r_LogGrid();
-        strcpy(name,name_Atom());
-        strcat(name,".cdns.plt");
-        full_filename[0] = '\0';
-        strncpy(full_filename, sdir_name, m9);
-        full_filename[m9] = '\0';
-        strcat(full_filename,"/");
-        full_filename[m9+1] = '\0';
-        strcat(full_filename,name);
 
-        printf("Outputing core density: %s\n",full_filename);
-        fp = fopen(full_filename,"w+");
-        for (k=0; k<Ngrid; ++k)
-            fprintf(fp,"%12.8lf %12.8lf\n", rgrid[k],rho_core_Atom()[k]);
-        fclose(fp);
+      /* output datafile to be used for Kleinman-Bylander input, argv[1].dat */
+      if (print)
+	{
+	  printf (" Creating datafile for Kleinman-Bylander input: %s\n",
+		  outfile);
+	}
+      fp = fopen (outfile, "w+");
+      fprintf (fp, "%s\n", name_Atom ());
+      fprintf (fp, "%lf %lf %d   %d %d %lf\n", Zion_Psp (), Amass_Atom (),
+	       lmax_Psp (), lmax_out, locp_out, rlocal_out);
+      for (p = 0; p <= lmax_Psp (); ++p)
+	fprintf (fp, "%lf ", rcut_Psp (p));
+      fprintf (fp, "\n");
+      fprintf (fp, "%d %lf\n", nrl_Linear (), drl_Linear ());
+      fprintf (fp, "%s\n", comment_Psp ());
 
-        /* output core density gradient argv[1].cddns */
-        vall  = alloc_LogGrid();
-        Derivative_LogGrid(rho_core_Atom(),vall);
-        Ngrid = N_LogGrid();
-        rgrid = r_LogGrid();
-        strcpy(name,name_Atom());
-        strcat(name,".cddns.plt");
-        full_filename[0] = '\0';
-        strncpy(full_filename, sdir_name, m9);
-        full_filename[m9] = '\0';
-        strcat(full_filename,"/");
-        full_filename[m9+1] = '\0';
-        strcat(full_filename,name);
+      if (print)
+	{
+	  printf ("  + Appending pseudopotentials:    %s thru %s\n",
+		  spd_Name (0), spd_Name (lmax_Psp ()));
+	}
+      for (k = 0; k < Nlinear; ++k)
+	{
+	  fprintf (fp, "%12.8lf", rl[k]);
+	  for (p = 0; p <= lmax_Psp (); ++p)
+	    fprintf (fp, " %12.8lf", pspl[p][k]);
+	  fprintf (fp, "\n");
+	}
+      if (print)
+	{
+	  printf ("  + Appending pseudowavefunctions: %s thru %s\n",
+		  spd_Name (0), spd_Name (lmax_Psp ()));
+	}
+      for (k = 0; k < Nlinear; ++k)
+	{
+	  fprintf (fp, "%12.8lf", rl[k]);
+	  for (p = 0; p <= lmax_Psp (); ++p)
+	    fprintf (fp, " %12.8lf", psil[p][k]);
+	  fprintf (fp, "\n");
+	}
 
-        printf("Outputing core density gradient: %s\n",full_filename);
-        fp = fopen(full_filename,"w+");
-        for (k=0; k<Ngrid; ++k)
-            fprintf(fp,"%12.8lf %12.8lf\n", rgrid[k],vall[k]);
-        fclose(fp);
-        dealloc_LogGrid(vall);
+      /* append semicore corrections */
+      if (r_semicore_Psp () != 0.0)
+	{
+	  if (print)
+	    {
+	      printf ("  + Appending semicore density\n");
+	    }
+	  Log_to_Linear (rho_semicore_Psp (), rl, rhol);
+	  fprintf (fp, "%lf\n", r_semicore_Psp ());
+	  for (k = 0; k < Nlinear; ++k)
+	    fprintf (fp, "%12.8lf %12.8lf\n", rl[k],
+		     fabs (rhol[k] * over_fourpi));
 
-        /* output semicore density infile.sdns */
-        Ngrid = N_LogGrid();
-        rgrid = r_LogGrid();
-        strcpy(name,name_Atom());
-        strcat(name,".sdns.plt");
-        full_filename[0] = '\0';
-        strncpy(full_filename, sdir_name, m9);
-        full_filename[m9] = '\0';
-        strcat(full_filename,"/");
-        full_filename[m9+1] = '\0';
-        strcat(full_filename,name);
+	  if (print)
+	    {
+	      printf ("  + Appending semicore density gradient\n");
+	    }
+	  Log_to_Linear (drho_semicore_Psp (), rl, rhol);
+	  for (k = 0; k < Nlinear; ++k)
+	    fprintf (fp, "%12.8lf %12.8lf\n", rl[k], (rhol[k] * over_fourpi));
+	}
 
-        printf("Outputing semicore density: %s\n",full_filename);
-        fp = fopen(full_filename,"w+");
-        for (k=0; k<Ngrid; ++k)
-            fprintf(fp,"%12.8lf %12.8lf\n", rgrid[k],rho_semicore_Psp()[k]);
-        fclose(fp);
+      fclose (fp);
+    }				/* Norm-conserving PSP output */
 
-        /* output semicore density gradient infile.sddns */
-        Ngrid = N_LogGrid();
-        rgrid = r_LogGrid();
-        strcpy(name,name_Atom());
-        strcat(name,".sddns.plt");
-        full_filename[0] = '\0';
-        strncpy(full_filename, sdir_name, m9);
-        full_filename[m9] = '\0';
-        strcat(full_filename,"/");
-        full_filename[m9+1] = '\0';
-        strcat(full_filename,name);
 
-        printf("Outputing semicore density gradient: %s\n",full_filename);
-        fp = fopen(full_filename,"w+");
-        for (k=0; k<Ngrid; ++k)
-            fprintf(fp,"%12.8lf %12.8lf\n", rgrid[k],drho_semicore_Psp()[k]);
-        fclose(fp);
+  /* output datafile to be used for Vanderbilt input, argv[1].vbt */
+  if (Vanderbilt_Psp ())
+    {
+      printf ("Creating Vanderbilt pseudopotential input: %s\n", outfile);
+      fp = fopen (outfile, "w+");
+      fprintf (fp, "%s\n", name_Atom ());
+      fprintf (fp, "%lf %lf %d\n", Zion_Psp (), Amass_Atom (), lmax_Psp ());
 
-        /* output all-electron potential infile.pot */
-        vall  = Vall_Atom();
-        Ngrid = N_LogGrid();
-        rgrid = r_LogGrid();
-        strcpy(name,name_Atom());
-        strcat(name,".pot.plt");
-        full_filename[0] = '\0';
-        strncpy(full_filename, sdir_name, m9);
-        full_filename[m9] = '\0';
-        strcat(full_filename,"/");
-        full_filename[m9+1] = '\0';
-        strcat(full_filename,name);
+      /* output grid parameters */
+      fprintf (fp, "%d %20.15le \n", Nlinear, drl_Linear ());
 
-        printf("Outputing all-electron potential(non-screened): %s\n",full_filename);
-        fp = fopen(full_filename,"w+");
+      /* output local potential */
+      Log_to_Linear (Vlocal_Psp (), rl, rhol);
+      for (k = 0; k < Nlinear; ++k)
+	fprintf (fp, "%20.15le  %20.15le\n", rl[k], rhol[k]);
 
-        c = 0.0;
-        for (k=0; k<Ngrid; ++k)
-        {
-            x = rgrid[k]/rcut_Psp(0);
-            x = pow(x,3.5);
-            x = exp(-x);
-            y = 1.0-x;
-            fprintf(fp,"%12.8lf %12.8lf %12.8lf\n", rgrid[k],vall[k],y*vall[k]+c*x);
-        }
-        fclose(fp);
+      for (l = 0; l <= lmax_Psp (); ++l)
+	{
+	  /* output ns */
+	  fprintf (fp, "%d\n", ns_Psp (l));
+
+	  /* output rcut */
+	  for (i = 0; i < ns_Psp (l); ++i)
+	    fprintf (fp, "%le ", rcut_il_Psp (i, l));
+	  fprintf (fp, "\n");
+
+	  /* output D0   */
+	  for (j = 0; j < ns_Psp (l); ++j)
+	    for (i = 0; i < ns_Psp (l); ++i)
+	      fprintf (fp, "%20.15le ",
+		       0.5 * (D0_Psp (i, j, l) + D0_Psp (j, i, l)));
+	  fprintf (fp, "\n");
+
+	  /* output q    */
+	  for (j = 0; j < ns_Psp (l); ++j)
+	    for (i = 0; i < ns_Psp (l); ++i)
+	      fprintf (fp, "%20.15le ",
+		       0.5 * (q_Psp (i, j, l) + q_Psp (j, i, l)));
+	  fprintf (fp, "\n");
+
+	  /* output Beta */
+	  for (i = 0; i < ns_Psp (l); ++i)
+	    Log_to_Linear (Beta_Psp (i, l), rl, pspl[i]);
+	  for (k = 0; k < Nlinear; ++k)
+	    {
+	      fprintf (fp, "%20.15le ", rl[k]);
+	      for (i = 0; i < ns_Psp (l); ++i)
+		fprintf (fp, " %20.15le", pspl[i][k]);
+	      fprintf (fp, "\n");
+	    }
+
+	  /* output u    */
+	  for (i = 0; i < ns_Psp (l); ++i)
+	    Log_to_Linear (r_hard_psi_il_Psp (i, l), rl, pspl[i]);
+	  for (k = 0; k < Nlinear; ++k)
+	    {
+	      fprintf (fp, "%20.15le ", rl[k]);
+	      for (i = 0; i < ns_Psp (l); ++i)
+		fprintf (fp, " %20.15le", pspl[i][k]);
+	      fprintf (fp, "\n");
+	    }
+
+	  /* output w    */
+	  for (i = 0; i < ns_Psp (l); ++i)
+	    Log_to_Linear (r_psi_il_Psp (i, l), rl, pspl[i]);
+	  for (k = 0; k < Nlinear; ++k)
+	    {
+	      fprintf (fp, "%20.15le ", rl[k]);
+	      for (i = 0; i < ns_Psp (l); ++i)
+		fprintf (fp, " %20.15le", pspl[i][k]);
+	      fprintf (fp, "\n");
+	    }
+	}
+      fclose (fp);
+
+    }				/* Vanderbilt PSP output */
+
+   /******************************************************************/
+   /******************* output AE information ************************/
+   /******************************************************************/
+
+
+  if (debug)
+    {
+
+      /* output all-electron wavefunctions */
+      printf ("Outputing all-electron wavefunctions:");
+      Ngrid = N_LogGrid ();
+      rgrid = r_LogGrid ();
+      for (p = 0; p <= (Ncore_Atom () + Nvalence_Atom ()); ++p)
+	{
+	  sprintf (name, "%s.%1d%s", name_Atom (), n_Atom (p),
+		   spd_Name (l_Atom (p)));
+	  full_filename[0] = '\0';
+	  strncpy (full_filename, sdir_name, m9);
+	  full_filename[m9] = '\0';
+	  strcat (full_filename, "/");
+	  full_filename[m9 + 1] = '\0';
+	  strcat (full_filename, name);
+
+	  printf (" %s", full_filename);
+	  fp = fopen (full_filename, "w+");
+	  for (k = 0; k < Ngrid; ++k)
+	    fprintf (fp, "%12.8lf %12.8lf\n", rgrid[k], r_psi_Atom (p)[k]);
+	  fclose (fp);
+	}
+      printf ("\n");
+
+      /* output density argv[1].dns */
+      Ngrid = N_LogGrid ();
+      rgrid = r_LogGrid ();
+      strcpy (name, name_Atom ());
+      strcat (name, ".dns.plt");
+      full_filename[0] = '\0';
+      strncpy (full_filename, sdir_name, m9);
+      full_filename[m9] = '\0';
+      strcat (full_filename, "/");
+      full_filename[m9 + 1] = '\0';
+      strcat (full_filename, name);
+
+      printf ("Outputing atom density: %s\n", full_filename);
+      fp = fopen (full_filename, "w+");
+      for (k = 0; k < Ngrid; ++k)
+	fprintf (fp, "%12.8lf %12.8lf\n", rgrid[k], rho_Atom ()[k]);
+      fclose (fp);
+
+      /* output core density argv[1].cdns */
+      Ngrid = N_LogGrid ();
+      rgrid = r_LogGrid ();
+      strcpy (name, name_Atom ());
+      strcat (name, ".cdns.plt");
+      full_filename[0] = '\0';
+      strncpy (full_filename, sdir_name, m9);
+      full_filename[m9] = '\0';
+      strcat (full_filename, "/");
+      full_filename[m9 + 1] = '\0';
+      strcat (full_filename, name);
+
+      printf ("Outputing core density: %s\n", full_filename);
+      fp = fopen (full_filename, "w+");
+      for (k = 0; k < Ngrid; ++k)
+	fprintf (fp, "%12.8lf %12.8lf\n", rgrid[k], rho_core_Atom ()[k]);
+      fclose (fp);
+
+      /* output core density gradient argv[1].cddns */
+      vall = alloc_LogGrid ();
+      Derivative_LogGrid (rho_core_Atom (), vall);
+      Ngrid = N_LogGrid ();
+      rgrid = r_LogGrid ();
+      strcpy (name, name_Atom ());
+      strcat (name, ".cddns.plt");
+      full_filename[0] = '\0';
+      strncpy (full_filename, sdir_name, m9);
+      full_filename[m9] = '\0';
+      strcat (full_filename, "/");
+      full_filename[m9 + 1] = '\0';
+      strcat (full_filename, name);
+
+      printf ("Outputing core density gradient: %s\n", full_filename);
+      fp = fopen (full_filename, "w+");
+      for (k = 0; k < Ngrid; ++k)
+	fprintf (fp, "%12.8lf %12.8lf\n", rgrid[k], vall[k]);
+      fclose (fp);
+      dealloc_LogGrid (vall);
+
+      /* output semicore density infile.sdns */
+      Ngrid = N_LogGrid ();
+      rgrid = r_LogGrid ();
+      strcpy (name, name_Atom ());
+      strcat (name, ".sdns.plt");
+      full_filename[0] = '\0';
+      strncpy (full_filename, sdir_name, m9);
+      full_filename[m9] = '\0';
+      strcat (full_filename, "/");
+      full_filename[m9 + 1] = '\0';
+      strcat (full_filename, name);
+
+      printf ("Outputing semicore density: %s\n", full_filename);
+      fp = fopen (full_filename, "w+");
+      for (k = 0; k < Ngrid; ++k)
+	fprintf (fp, "%12.8lf %12.8lf\n", rgrid[k], rho_semicore_Psp ()[k]);
+      fclose (fp);
+
+      /* output semicore density gradient infile.sddns */
+      Ngrid = N_LogGrid ();
+      rgrid = r_LogGrid ();
+      strcpy (name, name_Atom ());
+      strcat (name, ".sddns.plt");
+      full_filename[0] = '\0';
+      strncpy (full_filename, sdir_name, m9);
+      full_filename[m9] = '\0';
+      strcat (full_filename, "/");
+      full_filename[m9 + 1] = '\0';
+      strcat (full_filename, name);
+
+      printf ("Outputing semicore density gradient: %s\n", full_filename);
+      fp = fopen (full_filename, "w+");
+      for (k = 0; k < Ngrid; ++k)
+	fprintf (fp, "%12.8lf %12.8lf\n", rgrid[k], drho_semicore_Psp ()[k]);
+      fclose (fp);
+
+      /* output all-electron potential infile.pot */
+      vall = Vall_Atom ();
+      Ngrid = N_LogGrid ();
+      rgrid = r_LogGrid ();
+      strcpy (name, name_Atom ());
+      strcat (name, ".pot.plt");
+      full_filename[0] = '\0';
+      strncpy (full_filename, sdir_name, m9);
+      full_filename[m9] = '\0';
+      strcat (full_filename, "/");
+      full_filename[m9 + 1] = '\0';
+      strcat (full_filename, name);
+
+      printf ("Outputing all-electron potential(non-screened): %s\n",
+	      full_filename);
+      fp = fopen (full_filename, "w+");
+
+      c = 0.0;
+      for (k = 0; k < Ngrid; ++k)
+	{
+	  x = rgrid[k] / rcut_Psp (0);
+	  x = pow (x, 3.5);
+	  x = exp (-x);
+	  y = 1.0 - x;
+	  fprintf (fp, "%12.8lf %12.8lf %12.8lf\n", rgrid[k], vall[k],
+		   y * vall[k] + c * x);
+	}
+      fclose (fp);
     }
 
 
-    /* free malloc memory */
-    free(infile);
-    free(outfile);
-    free(full_filename);
-    for (p=0; p<Nvalence; ++p)
+  /* free malloc memory */
+  free (infile);
+  free (outfile);
+  free (full_filename);
+  for (p = 0; p < Nvalence; ++p)
     {
-        free(psil[p]);
-        free(pspl[p]);
+      free (psil[p]);
+      free (pspl[p]);
     }
-    free(psil);
-    free(pspl);
-    free(rl);
-    free(rhol);
-    end_Linear();
+  free (psil);
+  free (pspl);
+  free (rl);
+  free (rhol);
+  end_Linear ();
 
-    fflush(stdout);
+  fflush (stdout);
 
 
-} /* main */
+}				/* main */

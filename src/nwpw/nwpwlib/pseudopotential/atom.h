@@ -36,7 +36,7 @@ extern double Zion_Atom ();
 extern double Amass_Atom ();
 extern int state_Atom (int, int);
 extern char *name_Atom ();
-extern char *spin_Name(int i);
+extern int solver_Type_Atom();
 /* used for setting solver parameters */
 extern void set_Solver_Atom ();
 

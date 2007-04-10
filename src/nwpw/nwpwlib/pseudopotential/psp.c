@@ -15,7 +15,7 @@
 #include	"atom.h"
 #include	"hamann.h"
 #include	"troullier.h"
-#include    "vanderbilt.h"
+#include        "vanderbilt.h"
 #include	"generate_rho_semicore.h"
 #include	"psp.h"
 
@@ -95,10 +95,10 @@ void	init_Psp(char *filename)
 
 
     /* find the comment */
-    if (Solver_Type = Hamann)     comment = "Hamann pseudopotential"
-                                                if (Solver_Type = Troullier)  comment = "Troullier-Martins pseudopotential"
-                                                                                            if (Solver_Type = Vanderbilt) comment = "Vanderbilt pseudopotential"
-                                                                                                                                        fp = fopen(filename,"r+");
+    if (Solver_Type = Hamann)     comment = "Hamann pseudopotential";
+    if (Solver_Type = Troullier)  comment = "Troullier-Martins pseudopotential";
+    if (Solver_Type = Vanderbilt) comment = "Vanderbilt pseudopotential";
+    fp = fopen(filename,"r+");
     w = get_word(fp);
     while ((w!=NIL) && (strcmp("<comment>",w)!=0))
         w = get_word(fp);
@@ -672,7 +672,7 @@ double	Zion_Psp()
     return Zion;
 }
 
-int	state_Psp(int nt, int lt)
+int state_Psp(int nt, int lt)
 {
     int i;
     i = 0;
