@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.10 2007-04-04 21:07:24 d3p708 Exp $
+# $Id: GNUmakefile,v 1.11 2007-04-10 18:57:52 d3p708 Exp $
 #
       SUBDIRS = paw_atom
 
@@ -26,8 +26,7 @@
                 troullier.o xpansion.o gaussj.o \
                 vanderbilt.o xpansion2.o \
                 psp1d.o generate_rho_semicore.o \
-				debug.o
-       
+		debug.o rhamann.o rpsp.o        
 
 	  OBJ = 
 
