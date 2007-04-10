@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.14 2007-04-09 22:55:52 d3p708 Exp $
+ $Id: pspsolve.c,v 1.15 2007-04-10 00:46:19 d3p708 Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -370,7 +370,7 @@ Integer	*n2;
         rgrid = r_LogGrid();
         for (p=0; p<=(Ncore_Atom()+Nvalence_Atom()); ++p)
         {
-            sprintf(name,"%s.%1d%s%c",name_Atom(),n_Atom(p),spd_Name(l_Atom(p)),spin_name(s_Atom(p)));
+            sprintf(name,"%s.%1d%s%c",name_Atom(),n_Atom(p),spd_Name(l_Atom(p)),spin_Name(p));
             full_filename[0] = '\0';
             strncpy(full_filename, sdir_name, m9);
             full_filename[m9] = '\0';
