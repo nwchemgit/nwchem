@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska
-   $Id: atom.c,v 1.9 2007-04-10 00:43:12 d3p708 Exp $
+   $Id: atom.c,v 1.10 2007-04-10 00:45:17 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -729,8 +729,8 @@ Nvalence_Atom ()
     return Nvalence;
 }
 
-char * spin_name(int i) {
-	if (Sz[i]>0.) return "u";
+char * spin_Name(int i) {
+	if (s2[i]>0.) return "u";
         return "d";
 }
 
