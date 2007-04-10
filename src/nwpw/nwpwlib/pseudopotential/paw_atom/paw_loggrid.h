@@ -1,7 +1,7 @@
 #ifndef _PAW_LOG_GRID_H_
 #define _PAW_LOG_GRID_H_
 /*
-   $Id: paw_loggrid.h,v 1.2 2004-10-14 22:05:03 bylaska Exp $
+   $Id: paw_loggrid.h,v 1.3 2007-04-10 19:04:34 d3p708 Exp $
 */
 
 
@@ -30,7 +30,7 @@ extern double   paw_dot_product(double*, double*);
 extern double   paw_dot_product1(int ,double*, double*);
 extern int      paw_get_grid_index(double r);
 extern int      paw_get_grid_index(double r);
-extern void     paw_print_loggrid_information();  
+extern void     paw_print_loggrid_information();
 extern double paw_dot_product1(int n, double *f, double *g);
 
 #endif

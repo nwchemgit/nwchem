@@ -8,7 +8,6 @@
 #include "atom.h"
 #include "psp.h"
 #include "rpsp.h"
-#include "rpspsolve.h"
 #include "debug.h"
 
 #if defined(CRAY) || defined(CRAY_T3D)

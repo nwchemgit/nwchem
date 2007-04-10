@@ -1,18 +1,18 @@
 #ifndef	_PAW_BASIS_H_
 #define _PAW_BASIS_H_
 /*
-   $Id: paw_basis.h,v 1.3 2004-10-14 22:05:02 bylaska Exp $
+   $Id: paw_basis.h,v 1.4 2007-04-10 19:04:33 d3p708 Exp $
 */
 
 
 extern void paw_init_paw_basis(
-                           char*,
-                           char*,
-                           int ,
-                           int*,
-                           int*, 
-                           double*
-                           );
+        char*,
+        char*,
+        int ,
+        int*,
+        int*,
+        double*
+    );
 
 extern void paw_end_paw_basis();
 

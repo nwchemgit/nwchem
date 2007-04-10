@@ -1,5 +1,5 @@
 /*
-   $Id: paw_error_function.c,v 1.2 2004-10-14 22:05:03 bylaska Exp $
+   $Id: paw_error_function.c,v 1.3 2007-04-10 19:04:34 d3p708 Exp $
 */
 
 /************************************
@@ -14,7 +14,7 @@
 	Name    : paw_error_function.c
 
   Purpose : Erf related subroutines
-                         
+
 
 
   Created  : Marat Valiev, 7/22/98
@@ -40,28 +40,28 @@
 
 /****************************************
  Function name	  : paw_my_erf
- Description	    : to calculate error function for 
+ Description	    : to calculate error function for
                     double precision scalar argument.
- Return type		  : double  
+ Return type		  : double
  Argument         : double x
  Author     		  : Marat Valiev
- Algorithm        : original source unknown, 
+ Algorithm        : original source unknown,
                     replicated from
-                    Ryoichi Kawai's Cray Code 
+                    Ryoichi Kawai's Cray Code
  Date & Time		  : 1/8/99 1:04:47 PM
 ****************************************/
-double  paw_my_erf(double x) 
+double  paw_my_erf(double x)
 
 {
-  double f;
+    double f;
 
-  f = (1.0+x*(B1+x*(B2+x*(B3+x*(B4+x*(B5+x*B6))))));
+    f = (1.0+x*(B1+x*(B2+x*(B3+x*(B4+x*(B5+x*B6))))));
 
-  f = 1.0/pow(f,16.0);
+    f = 1.0/pow(f,16.0);
 
-  f = 1.0 - f;
+    f = 1.0 - f;
 
-  return f;
-} 
+    return f;
+}
 
 

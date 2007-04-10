@@ -2,7 +2,7 @@
 #define _PAW_SCHRODINGER_H_
 
 /*
-   $Id: paw_schrodin.h,v 1.2 2004-10-14 22:05:03 bylaska Exp $
+   $Id: paw_schrodin.h,v 1.3 2007-04-10 19:04:34 d3p708 Exp $
 */
 
 /* Schrodinger.h - 6/9/95
@@ -14,52 +14,52 @@
 */
 
 extern int   paw_R_Schrodinger(int n,
-                   int l,
-                   double* v,
-                   double *Eig,
-                   double* u,
-                   double* uprime);
+                                   int l,
+                                   double* v,
+                                   double *Eig,
+                                   double* u,
+                                   double* uprime);
 
 extern  int paw_R_Schrodinger_Fixed_E(
-   int l,
-   double *v,
-   int match,
-   double E,
-   double *u, 
-   double *uprime
-   );
+        int l,
+        double *v,
+        int match,
+        double E,
+        double *u,
+        double *uprime
+    );
 extern int paw_R_Schrodinger_Fixed_Logderiv(
-                                  int n,
-                                  int l,
-                                  double *v,
-                                  int match,
-                                  double u_logderiv,
-                                  double *Eig,
-                                  double *u,
-                                  double *uprime
-                                  );
+        int n,
+        int l,
+        double *v,
+        int match,
+        double u_logderiv,
+        double *Eig,
+        double *u,
+        double *uprime
+    );
 
 
 extern  void paw_R_Schrodinger_Fixed_E1(
-   int l,
-   double *v,
-   double *f,
-   int match,
-   double E,
-   double *u, 
-   double *uprime
-   );
+        int l,
+        double *v,
+        double *f,
+        int match,
+        double E,
+        double *u,
+        double *uprime
+    );
 
 extern int paw_R_Schrodinger_Fixed_Logderiv1(
-                                  int n,
-                                  int l,
-                                  double *v,
-                                  int match,
-                                  double u_logderiv,
-                                  double *Eig,
-                                  double *u,
-                                  double *uprime
-                                  );
+        int n,
+        int l,
+        double *v,
+        int match,
+        double u_logderiv,
+        double *Eig,
+        double *u,
+        double *uprime
+    );
 
 
 #endif
