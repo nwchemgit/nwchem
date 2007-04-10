@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska
-   $Id: atom.c,v 1.11 2007-04-10 18:43:01 d3p708 Exp $
+   $Id: atom.c,v 1.12 2007-04-10 23:30:33 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -774,6 +774,21 @@ state_Atom (int nt, int lt)
   /* Error */
   if (i > Ncv)
     printf ("Error: state_Atom\n");
+
+  return i;
+}
+
+int
+state_RelAtom (int nt, int lt, int st)
+{
+  int i;
+  i = 0;
+  while (((nt != n[i]) || (lt != l[i]) || (st!=s2[i])) && (i <= Ncv))
+    ++i;
+
+  /* Error */
+  if (i > Ncv)
+    printf ("Error: state_RelAtom\n");
 
   return i;
 }

@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.16 2007-04-10 18:43:01 d3p708 Exp $
+ $Id: pspsolve.c,v 1.17 2007-04-10 23:30:34 d3p708 Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -124,7 +124,8 @@ void FATR pspsolve_
 
   if (isRelativistic_Atom ())
     {
-      rpspsolve_ (print_ptr, debug_ptr, lmax_ptr, locp_ptr, rlocal_ptr,
+      printf("Relativstic Atom detected!\n");
+      rpspsolve_(print_ptr, debug_ptr, lmax_ptr, locp_ptr, rlocal_ptr,
 		     sdir_name, n9, dir_name, n0, in_filename, n1,
 		     out_filename, n2);
       return;
@@ -493,7 +494,7 @@ void FATR pspsolve_
       printf ("Outputing semicore density gradient: %s\n", full_filename);
       fp = fopen (full_filename, "w+");
       for (k = 0; k < Ngrid; ++k)
-	fprintf (fp, "%12.8lf %12.8lf\n", rgrid[k], drho_semicore_Psp ()[k]);
+	fprintf (fp, "%12.8lf %12.8lf\n", rgrid[k], (drho_semicore_Psp ())[k]);
       fclose (fp);
 
       /* output all-electron potential infile.pot */

@@ -106,15 +106,15 @@ void FATR rpspsolve_
 
 /* we have already solved for the Relativsitic AE wavefunctions using atom */
   set_debug_print (debug);
-  init_Psp (infile);
-  solve_Psp ();
+  init_RelPsp (infile);
+  solve_RelPsp ();
   if (debug)
-    print_Psp (stdout);
+    print_RelPsp (stdout);
 
   init_Linear (infile);
 
   /* allocate linear meshes */
-  Nvalence = Nvalence_Psp ();
+  Nvalence = Nvalence_RelPsp ();
   Nlinear = nrl_Linear ();
   psil = (double **) malloc (Nvalence * sizeof (double *));
   pspl = (double **) malloc (Nvalence * sizeof (double *));
@@ -129,16 +129,16 @@ void FATR rpspsolve_
   /* Norm-conserving output */
   for (p = 0; p < Nvalence; ++p)
     {
-      Log_to_Linear (r_psi_Psp (p), rl, psil[p]);
-      Log_to_Linear_zero (V_Psp (p), rl, pspl[p]);
+      Log_to_Linear (r_psi_RelPsp (p), rl, psil[p]);
+      Log_to_Linear_zero (V_RelPsp (p), rl, pspl[p]);
 
       /* normalize scattering state */
-      if (fill_Psp (p) == 0.0)
+      if (fill_RelPsp (p) == 0.0)
 	{
 	  normalize_Linear (psil[p]);
 	}
     }
-  Log_to_Linear (rho_Psp (), rl, rhol);
+  Log_to_Linear (rho_RelPsp (), rl, rhol);
 
   if (debug)
     {
@@ -211,23 +211,23 @@ void FATR rpspsolve_
     }
   fp = fopen (outfile, "w+");
   fprintf (fp, "%s\n", name_Atom ());
-  fprintf (fp, "%lf %lf %d   %d %d %lf\n", Zion_Psp (), Amass_Atom (),
-	   lmax_Psp (), lmax_out, locp_out, rlocal_out);
-  for (p = 0; p <= lmax_Psp (); ++p)
-    fprintf (fp, "%lf ", rcut_Psp (p));
+  fprintf (fp, "%lf %lf %d   %d %d %lf\n", Zion_RelPsp (), Amass_Atom (),
+	   lmax_RelPsp (), lmax_out, locp_out, rlocal_out);
+  for (p = 0; p <= lmax_RelPsp (); ++p)
+    fprintf (fp, "%lf ", rcut_RelPsp (p));
   fprintf (fp, "\n");
   fprintf (fp, "%d %lf\n", nrl_Linear (), drl_Linear ());
-  fprintf (fp, "%s\n", comment_Psp ());
+  fprintf (fp, "%s\n", comment_RelPsp ());
 
   if (print)
     {
       printf ("  + Appending pseudopotentials:    %s thru %s\n",
-	      spd_Name (0), spd_Name (lmax_Psp ()));
+	      spd_Name (0), spd_Name (lmax_RelPsp ()));
     }
   for (k = 0; k < Nlinear; ++k)
     {
       fprintf (fp, "%12.8lf", rl[k]);
-      for (p = 0; p <= lmax_Psp (); ++p)
+      for (p = 0; p <= lmax_RelPsp (); ++p)
 	{
 	  vx = p * pspl[2 * p][k] + (p + 1.) * pspl[2 * p + 1][k];
 	  vx *= 1. / (2. * p + 1.);
@@ -238,25 +238,25 @@ void FATR rpspsolve_
   if (print)
     {
       printf ("  + Appending pseudowavefunctions: %s thru %s\n",
-	      spd_Name (0), spd_Name (lmax_Psp ()));
+	      spd_Name (0), spd_Name (lmax_RelPsp ()));
     }
   for (k = 0; k < Nlinear; ++k)
     {
       fprintf (fp, "%12.8lf", rl[k]);
-      for (p = 0; p <= lmax_Psp (); ++p)
+      for (p = 0; p <= lmax_RelPsp (); ++p)
 	fprintf (fp, " %12.8lf", psil[p][k]);
       fprintf (fp, "\n");
     }
 
   /* append semicore corrections */
-  if (r_semicore_Psp () != 0.0)
+  if (r_semicore_RelPsp () != 0.0)
     {
       if (print)
 	{
 	  printf ("  + Appending semicore density\n");
 	}
-      Log_to_Linear (rho_semicore_Psp (), rl, rhol);
-      fprintf (fp, "%lf\n", r_semicore_Psp ());
+      Log_to_Linear (rho_semicore_RelPsp (), rl, rhol);
+      fprintf (fp, "%lf\n", r_semicore_RelPsp ());
       for (k = 0; k < Nlinear; ++k)
 	fprintf (fp, "%12.8lf %12.8lf\n", rl[k],
 		 fabs (rhol[k] * over_fourpi));
@@ -265,7 +265,7 @@ void FATR rpspsolve_
 	{
 	  printf ("  + Appending semicore density gradient\n");
 	}
-      Log_to_Linear (drho_semicore_Psp (), rl, rhol);
+      Log_to_Linear (drho_semicore_RelPsp (), rl, rhol);
       for (k = 0; k < Nlinear; ++k)
 	fprintf (fp, "%12.8lf %12.8lf\n", rl[k], (rhol[k] * over_fourpi));
     }
@@ -283,23 +283,23 @@ void FATR rpspsolve_
   strncat (soutfile, ".so", 3);
   fp = fopen (soutfile, "w+");
   fprintf (fp, "%s\n", name_Atom ());
-  fprintf (fp, "%lf %lf %d   %d %d %lf\n", Zion_Psp (), Amass_Atom (),
-	   lmax_Psp (), lmax_out, locp_out, rlocal_out);
-  for (p = 0; p <= lmax_Psp (); ++p)
-    fprintf (fp, "%lf ", rcut_Psp (p));
+  fprintf (fp, "%lf %lf %d   %d %d %lf\n", Zion_RelPsp (), Amass_Atom (),
+	   lmax_RelPsp (), lmax_out, locp_out, rlocal_out);
+  for (p = 0; p <= lmax_RelPsp (); ++p)
+    fprintf (fp, "%lf ", rcut_RelPsp (p));
   fprintf (fp, "\n");
   fprintf (fp, "%d %lf\n", nrl_Linear (), drl_Linear ());
-  fprintf (fp, "%s\n", comment_Psp ());
+  fprintf (fp, "%s\n", comment_RelPsp ());
 
   if (print)
     {
       printf ("  + Appending Spin-Orbit pseudopotentials:    %s thru %s\n",
-	      spd_Name (0), spd_Name (lmax_Psp ()));
+	      spd_Name (0), spd_Name (lmax_RelPsp ()));
     }
   for (k = 0; k < Nlinear; ++k)
     {
       fprintf (fp, "%12.8lf", rl[k]);
-      for (p = 1; p <= lmax_Psp (); ++p)
+      for (p = 1; p <= lmax_RelPsp (); ++p)
 	{
 	  vx = pspl[2 * p][k] - pspl[2 * p + 1][k];
 	  vx *= 2. / (2. * p + 1.);
@@ -413,7 +413,7 @@ void FATR rpspsolve_
       printf ("Outputing semicore density: %s\n", full_filename);
       fp = fopen (full_filename, "w+");
       for (k = 0; k < Ngrid; ++k)
-	fprintf (fp, "%12.8lf %12.8lf\n", rgrid[k], rho_semicore_Psp ()[k]);
+	fprintf (fp, "%12.8lf %12.8lf\n", rgrid[k], rho_semicore_RelPsp ()[k]);
       fclose (fp);
 
       /* output semicore density gradient infile.sddns */
@@ -431,7 +431,10 @@ void FATR rpspsolve_
       printf ("Outputing semicore density gradient: %s\n", full_filename);
       fp = fopen (full_filename, "w+");
       for (k = 0; k < Ngrid; ++k)
-	fprintf (fp, "%12.8lf %12.8lf\n", rgrid[k], drho_semicore_Psp ()[k]);
+      {
+        vx=drho_semicore_RelPsp()[k];
+	fprintf (fp, "%12.8lf %12.8lf\n", rgrid[k], vx);
+      }
       fclose (fp);
 
       /* output all-electron potential infile.pot */
@@ -454,7 +457,7 @@ void FATR rpspsolve_
       c = 0.0;
       for (k = 0; k < Ngrid; ++k)
 	{
-	  x = rgrid[k] / rcut_Psp (0);
+	  x = rgrid[k] / rcut_RelPsp (0);
 	  x = pow (x, 3.5);
 	  x = exp (-x);
 	  y = 1.0 - x;

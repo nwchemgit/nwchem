@@ -35,6 +35,7 @@ extern int turning_point_Atom (int);
 extern double Zion_Atom ();
 extern double Amass_Atom ();
 extern int state_Atom (int, int);
+extern int state_RelAtom (int, int, int);
 extern char *name_Atom ();
 extern int solver_Type_Atom();
 /* used for setting solver parameters */
