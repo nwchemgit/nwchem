@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2006-06-08 22:32:20 edo Exp $
+# $Id: GNUmakefile,v 1.6 2007-04-11 23:41:05 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = C3dB-new.o c_trans.o
@@ -38,4 +38,9 @@ endif
 #else
   LIB_DEFINES += -DTCGMSG
 #endif
+
+ifeq ($(USE_MPIF4),y)
+  LIB_DEFINES += -DMPI4
+endif
+
 

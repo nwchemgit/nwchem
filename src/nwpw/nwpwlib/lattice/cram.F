@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.20 2007-04-06 23:01:12 bylaska Exp $
+* $Id: cram.F,v 1.21 2007-04-11 23:41:15 bylaska Exp $
 *
 
 *     ***********************************
@@ -123,7 +123,7 @@
          int_mb(nidb_list(1)+nb) = nidb
       end do
 
-      call Balance_Init(maxsize,
+      call c_Balance_Init(maxsize,
      >                  int_mb(nidb_list(1)),
      >                  int_mb(nidb2_list(1)))
 
@@ -176,7 +176,7 @@
       if (.not. value) 
      >  call errquit('Cram_end:error freeing heap memory',0, MA_ERR)
 
-      call Balance_End()
+      call c_Balance_End()
       call cloak_end()
       return
       end
@@ -224,7 +224,7 @@
       if (.not.value) call errquit('Cram_c_pack:error popping stack',0,
      &       MA_ERR)
 
-      call Balance_c_balance(nb,A)
+      call c_Balance_c_balance(nb,A)
 
       call nwpw_timing_end(9)
 
@@ -272,7 +272,7 @@
       if (.not.value) 
      >  call errquit('Cram_r_pack:error popping stack',0, MA_ERR)
 
-      call Balance_t_balance(nb,A)
+      call c_Balance_t_balance(nb,A)
 
       call nwpw_timing_end(9)
       return
@@ -320,7 +320,7 @@
       if (.not.value) 
      >  call errquit('Cram_i_pack:error popping stack',1, MA_ERR)
 
-      call Balance_i_balance(nb,A)
+      call c_Balance_i_balance(nb,A)
 
       call nwpw_timing_end(9)
       return
@@ -353,7 +353,7 @@
       nidb = int_mb(nidb_list(1)+nb)
       pack = int_mb(pack_list(1)+2*nb)
 
-      call Balance_c_unbalance(nb,A)
+      call c_Balance_c_unbalance(nb,A)
 
       call C3dB_nfft3d(1,nfft3d)
       

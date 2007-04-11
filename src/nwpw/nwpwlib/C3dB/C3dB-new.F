@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.22 2006-12-13 00:36:17 bylaska Exp $
+* $Id: C3dB-new.F,v 1.23 2007-04-11 23:41:05 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -3363,16 +3363,16 @@ c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 
       subroutine C3dB_Vector_ISumAll(n,sum)
 c     implicit none
-#include "errquit.fh"
       integer n
       integer  sum(*)
 
-#include "mafdecls.fh"
 
 
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
+#include "mafdecls.fh"
+#include "errquit.fh"
 
 
       integer MASTER

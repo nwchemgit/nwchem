@@ -1,21 +1,21 @@
 *
-* $Id: balance.F,v 1.9 2007-04-11 23:41:15 bylaska Exp $
+* $Id: c_balance.F,v 1.1 2007-04-11 23:41:15 bylaska Exp $
 *
 
 *     ***********************************
 *     *               			*
-*     *           Balance_Init 	        *
+*     *         c_Balance_Init 	        *
 *     *                 		*
 *     ***********************************
 
-      subroutine Balance_Init(maxsize0,nidb,nidb_out)
+      subroutine c_Balance_Init(maxsize0,nidb,nidb_out)
       implicit none
-#include "errquit.fh"
       integer maxsize0
       integer nidb(0:maxsize0-1)
       integer nidb_out(0:maxsize0-1)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "balance_common.fh"
 
 *     **** local variables ****
@@ -26,8 +26,8 @@
 
 
       maxsize = maxsize0
-      call Parallel2d_np_i(np)
-      call Parallel2d_taskid_i(taskid)
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
 
 *     **** allocate balance memory ****
       value =  MA_alloc_get(mt_int,2*maxsize,
@@ -96,13 +96,13 @@
       end do
 
       if (.not. value) 
-     >   call errquit('Balance_init: out of heap memory',0, MA_ERR)
+     >   call errquit('c_Balance_init: out of heap memory',0, MA_ERR)
 
 
 
       do nb=0,maxsize-1
          nwave = nidb(nb)
-         call Balance_Init_a(nwave,np,taskid,nwave_out,
+         call c_Balance_Init_a(nwave,np,taskid,nwave_out,
      >      int_mb(npacket_list(1) +nb),
      >      log_mb(receiver_list(1)+nb),
      >      log_mb(sender_list(1)  +nb),
@@ -119,15 +119,15 @@
 
 
 *     ***********************************
-*     *                 				*
-*     *           Balance_End 		    *
-*     *                 				*
+*     *                 		*
+*     *          c_Balance_End 		*
+*     *                 		*
 *     ***********************************
 
-      subroutine Balance_End()
+      subroutine c_Balance_End()
       implicit none
-#include "errquit.fh"
 
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "balance_common.fh"
 
@@ -162,25 +162,24 @@
       value = value.and.MA_free_heap(receiver_list(2))
       value = value.and.MA_free_heap(sender_list(2))
       if (.not. value) 
-     >  call errquit('Balance_end: error freeing heap memory',0, MA_ERR)
+     > call errquit('c_Balance_end: error freeing heap memory',0,MA_ERR)
 
       return
       end
 
 *     ***********************************
 *     *                 		*
-*     *           Balance_Init_a	*
+*     *           c_Balance_Init_a	*
 *     *                 		*
 *     ***********************************
 *    This routine defines the balance data structure
 
-      subroutine Balance_Init_a(nwave,np,taskid,
+      subroutine c_Balance_Init_a(nwave,np,taskid,
      >                          nwave_out,
      >                          npacket,receiver,sender,
      >                          proc_to,proc_from,
      >                          packet_size,indx_start)
       implicit none
-#include "errquit.fh"
       integer nwave,np,taskid
       integer nwave_out
 
@@ -191,6 +190,7 @@
       integer indx_start(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     ***** local variables ****
       logical done,value
@@ -209,20 +209,16 @@ c      integer indx(0:(np-1))
      >        MA_push_get(mt_int,(np),
      >                     'indx',indx(2),indx(1))
       if (.not. value) 
-     >  call errquit('Balance_init_a:out of stack memory',0, MA_ERR)
+     >  call errquit('c_Balance_init_a:out of stack memory',0,MA_ERR)
    
 *     **** define nwave2 ****
       do i=0,np-1
-c        nwave2(i) = 0
          int_mb(nwave2(1)+i) = 0
       end do
-c     nwave2(taskid) = nwave
       int_mb(nwave2(1)+taskid) = nwave
-c     call D3dB_Vector_ISumAll(np,nwave2)
-      call D3dB_Vector_ISumAll(np,int_mb(nwave2(1)))
+      call C3dB_Vector_ISumAll(np,int_mb(nwave2(1)))
      
 *     **** get the sorting index ****
-c     call nwave2_sort(np,nwave2,indx)
       call nwave2_sort(np,int_mb(nwave2(1)),int_mb(indx(1)))
 
 *     ***** get the average ****
@@ -349,42 +345,21 @@ c        ave = ave + nwave2(i)
       value =           MA_pop_stack(indx(2))
       value = value.and.MA_pop_stack(nwave2(2))
       if (.not. value) 
-     > call errquit('Balance_init_a:error freeing stack memory',0,
-     &       MA_ERR)
+     > call errquit('c_Balance_init_a:error freeing stack memory',0,
+     >       MA_ERR)
   
 
       return
       end
 
-      subroutine nwave2_sort(n,f,indx)
-      integer n
-      integer f(0:(n-1))
-      integer indx(0:(n-1))
-
-      integer i,j,idum
-      do i=0,n-1
-        indx(i) = i
-      end do
-      do i=0,(n-2)
-      do j=i+1,(n-1)
-        if (f(indx(j)).lt.f(indx(i))) then
-              idum    = indx(i)
-              indx(i) = indx(j)
-              indx(j) = idum
-           end if
-      end do
-      end do
-
-      return
-      end 
 
 *     ************************************
 *     *                                  *
-*     *         Balance_c_balance        *
+*     *         c_Balance_c_balance      *
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_balance(nb,A)
+      subroutine c_Balance_c_balance(nb,A)
       implicit none
       integer nb
       complex*16 A(*)
@@ -400,8 +375,6 @@ c        ave = ave + nwave2(i)
       integer pto,pfrom,msglen,indx
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
 
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
@@ -413,7 +386,7 @@ c            send data....
                call SND(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(2*msglen),
-     >                  Parallel2d_convert_taskid_i(pto),
+     >                  pto,
      >                  1)
             end if
   
@@ -431,7 +404,7 @@ c            recieve data....
                call RCV(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(2*msglen),rcv_len,
-     >                  Parallel2d_convert_taskid_i(pfrom),
+     >                  pfrom,
      >                  rcv_proc,1)
             end if
 
@@ -444,11 +417,11 @@ c            recieve data....
 
 *     ************************************
 *     *                                  *
-*     *         Balance_t_balance        *
+*     *         c_Balance_t_balance      *
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_t_balance(nb,A)
+      subroutine c_Balance_t_balance(nb,A)
       implicit none
       integer nb
       real*8 A(*)
@@ -463,10 +436,6 @@ c            recieve data....
       integer j
       integer pto,pfrom,msglen,indx
 
-*     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
-
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
             pto    = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)    
@@ -477,7 +446,7 @@ c            send data....
                call SND(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(msglen),
-     >                  Parallel2d_convert_taskid_i(pto),
+     >                  pto,
      >                  1)
             end if
    
@@ -495,7 +464,7 @@ c            recieve data....
                call RCV(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(msglen),rcv_len,
-     >                  Parallel2d_convert_taskid_i(pfrom),
+     >                  pfrom,
      >                  rcv_proc,1)
             end if
 
@@ -509,11 +478,11 @@ c            recieve data....
 
 *     ************************************
 *     *                                  *
-*     *         Balance_c_unbalance      *
+*     *         c_Balance_c_unbalance    *
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_unbalance(nb,A)
+      subroutine c_Balance_c_unbalance(nb,A)
       implicit none
       integer nb
       complex*16 A(*)
@@ -528,11 +497,6 @@ c            recieve data....
       integer j
       integer pto,pfrom,msglen,indx
 
-*     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
-
-
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
             pfrom  = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)
@@ -543,7 +507,7 @@ c            recieve data....
                call RCV(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(2*msglen),rcv_len,
-     >                  Parallel2d_convert_taskid_i(pfrom),
+     >                  pfrom,
      >                  rcv_proc,1)
             end if
   
@@ -560,7 +524,7 @@ c            send data....
                call SND(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(2*msglen),
-     >                  Parallel2d_convert_taskid_i(pto),1)
+     >                  pto,1)
             end if
 
          end do
@@ -572,19 +536,19 @@ c            send data....
 
 *     ************************************
 *     *                                  *
-*     *         Balance_i_balance        *
+*     *         c_Balance_i_balance      *
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_i_balance(nb,A)
+      subroutine c_Balance_i_balance(nb,A)
       implicit none
       integer nb
       integer A(*)
 
-#include "mafdecls.fh"
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
+#include "mafdecls.fh"
 #include "balance_common.fh"
 
 *     **** local variables ****
@@ -606,7 +570,7 @@ c            send data....
                call SND(9+MSGINT,
      >                  A(indx),
      >                  mitob(msglen),
-     >                  Parallel2d_convert_taskid_i(pto),1)
+     >                  pto,1)
             end if
   
 
@@ -623,7 +587,7 @@ c            recieve data....
                call RCV(9+MSGINT,
      >                  A(indx),
      >                  mitob(msglen),rcv_len,
-     >                  Parallel2d_convert_taskid_i(pfrom),
+     >                  pfrom,
      >                  rcv_proc,1)
             end if
 

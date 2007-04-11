@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.19 2007-03-29 00:50:46 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.20 2007-04-11 23:41:14 bylaska Exp $
 *
 
 #ifdef MPI
@@ -33,6 +33,10 @@
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 
 *     **** indexing variables ****
@@ -74,6 +78,7 @@ c     integer i2_start(NFFT3+1)
       if (.not. value)
      > call errquit(' D3dB_c_transpose_jk:out of stack',0,MA_ERR)
 
+
 *     **** pack A(i) array ****
 #ifndef CRAY
 !DIR$ ivdep
@@ -109,11 +114,24 @@ c     integer i2_start(NFFT3+1)
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = type
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr) 
+            int_mb(request(1)+reqcnt-1) = 0
+            int_mb(request(1)+reqcnt-1) = stupid_request
+#else
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
+#endif
          end if
 
       end do
@@ -128,18 +146,38 @@ c     integer i2_start(NFFT3+1)
          msgtype   = 1
       
          if (msglen.gt.0) then
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_SEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,stupid_ierr)
+#else
             call MPI_SEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,MPI_COMM_WORLD,mpierr)
+#endif
          end if
 
       end do
 
    
 *     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,
+     >                      int_mb(request(1)),
+     >                      int_mb(request(1)))
+      stupid_msglen = reqcnt
+      call MPI_WAITALL(stupid_msglen,
+     >                 int_mb(request(1)),
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
      >                        int_mb(status(1)),mpierr)
+#endif
 
 *     **** unpack A(i) array ****
 #ifndef CRAY
@@ -189,6 +227,10 @@ c     integer i2_start(NFFT3+1)
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 
 *     **** indexing variables ****
@@ -262,11 +304,24 @@ c     integer i2_start(NFFT3+1)
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = type
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr)
+            int_mb(request(1)+reqcnt-1) = 0
+            int_mb(request(1)+reqcnt-1) = stupid_request
+#else
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr)
+#endif
          end if
 
       end do
@@ -282,18 +337,38 @@ c     integer i2_start(NFFT3+1)
          msgtype   = 1
 
          if (msglen.gt.0) then
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_SEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,stupid_ierr)
+#else
             call MPI_SEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,MPI_COMM_WORLD,mpierr)
+#endif
          end if
 
       end do
 
 
 *     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,
+     >                      int_mb(request(1)),
+     >                      int_mb(request(1)))
+      stupid_msglen = reqcnt
+      call MPI_WAITALL(stupid_msglen,
+     >                 int_mb(request(1)),
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
      >                        int_mb(status(1)),mpierr)
+#endif
 
 
 *     **** unpack A(i) array ****
@@ -351,8 +426,12 @@ c     integer i2_start(NFFT3+1)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "mpif.h"
 #include "D3dB.fh"
+#include "mpif.h"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 
 *     **** indexing variables ****
@@ -372,10 +451,7 @@ c     integer i2_start(NFFT3+1)
       integer i,nnfft3d
       integer proc_to,proc_from,it
       integer msgtype,source
-c     integer msglen,type,nbytes
-c     integer msgid
       integer msglen,type
-c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer status(2),request(2),reqcnt
       integer taskid,np
       integer mpierr
@@ -432,11 +508,24 @@ c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = type
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr) 
+            int_mb(request(1)+reqcnt-1) = 0
+            int_mb(request(1)+reqcnt-1) = stupid_request
+#else
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
+#endif
          end if
 
       end do
@@ -451,18 +540,38 @@ c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
          msgtype   = 1
       
          if (msglen.gt.0) then
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,stupid_ierr)
+#else
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,MPI_COMM_WORLD,mpierr)
+#endif
          end if
 
       end do
 
    
 *     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,
+     >                      int_mb(request(1)),
+     >                      int_mb(request(1)))
+      stupid_msglen = reqcnt
+      call MPI_WAITALL(stupid_msglen,
+     >                 int_mb(request(1)),
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
      >                        int_mb(status(1)),mpierr)
+#endif
 
 *     **** unpack A(i) array ****
       if ((op.eq.4).or.(op.eq.6)) nnfft3d = (nx(nb)/2+1)*nq1(nb)
@@ -517,6 +626,10 @@ c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 
 *     **** indexing variables ****
@@ -596,11 +709,24 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = type
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
+     >                    stupid_msglen,stupid_double,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr) 
+            int_mb(request(1)+reqcnt-1) = 0
+            int_mb(request(1)+reqcnt-1) = stupid_request
+#else
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    Parallel2d_convert_taskid_i(source),
      >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
+#endif
          end if
 
       end do
@@ -615,18 +741,38 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
          msgtype   = 1
       
          if (msglen.gt.0) then
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
+     >                     stupid_msglen,stupid_double,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,stupid_ierr)
+#else
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,MPI_COMM_WORLD,mpierr)
+#endif
          end if
 
       end do
 
    
 *     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,
+     >                      int_mb(request(1)),
+     >                      int_mb(request(1)))
+      stupid_msglen = reqcnt
+      call MPI_WAITALL(stupid_msglen,
+     >                 int_mb(request(1)),
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
      >                        int_mb(status(1)),mpierr)
+#endif
 
 *     **** unpack A(i) array ****
       if ((op.eq.4).or.(op.eq.6)) nnfft3d = (nx(nb)/2+1)*nq1(nb)
@@ -662,7 +808,11 @@ c     implicit none
       real*8  sum
 
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
 #include "mpif.h"
+#endif
 
       integer msglen,mpierr,np
       real*8 sumall
@@ -674,8 +824,14 @@ c     implicit none
       call Parallel2d_np_i(np)
       if (np.gt.1) then
          msglen = 1
+#ifdef MPI4
+         stupid_msglen = msglen
+         call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
+     >                       stupid_sum,stupid_comm_i,stupid_ierr)
+#else
          call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
      >                       MPI_SUM,Parallel2d_comm_i(),mpierr)
+#endif
          sum = sumall
       end if
 
@@ -686,7 +842,7 @@ c     implicit none
 
 *     ***********************************
 *     *                                 *
-*     *         D3dB_ISumAll             *
+*     *         D3dB_ISumAll            *
 *     *                                 *
 *     ***********************************
 
@@ -694,8 +850,11 @@ c     implicit none
 c     implicit none
       integer sum
 
-
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
 #include "mpif.h"
+#endif
 
       integer msglen,mpierr,np
       integer sumall
@@ -706,11 +865,20 @@ c     implicit none
 
       call Parallel2d_np_i(np)
       if (np.gt.1) then
-         msglen = 1
 
+#ifdef MPI4
+         stupid_msglen = 1
+         stupid_tsum = sum
+         call MPI_Allreduce(stupid_tsum,stupid_tsum2,stupid_msglen,
+     >                      stupid_integer,
+     >                      stupid_sum,stupid_comm_i,stupid_ierr)
+         sum = stupid_tsum2
+#else
+         msglen = 1
          call MPI_Allreduce(sum,sumall,msglen,MPI_INTEGER,
      >                       MPI_SUM,Parallel2d_comm_i(),mpierr)
          sum = sumall
+#endif
       end if
 
       return
@@ -732,8 +900,13 @@ c     implicit none
       real*8  sum(*)
 
 #include "mafdecls.fh"
-#include "mpif.h"
 #include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
 
 
 
@@ -756,13 +929,17 @@ c     implicit none
       value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-      msglen = n
-
-
-      call MPI_Allreduce(sum,dbl_mb(sumall(1)),msglen,
+#ifdef MPI4
+      stupid_msglen = n
+      call MPI_Allreduce(sum,dbl_mb(sumall(1)),
+     >                stupid_msglen,
+     >                stupid_double,
+     >                stupid_sum,stupid_comm_i,stupid_ierr)
+#else
+      call MPI_Allreduce(sum,dbl_mb(sumall(1)),n,
      >                MPI_DOUBLE_PRECISION,
      >                MPI_SUM,Parallel2d_comm_i(),mpierr)
-
+#endif
 
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
       value = MA_pop_stack(sumall(2))
@@ -787,19 +964,25 @@ c     implicit none
       integer  sum(*)
 
 #include "mafdecls.fh"
-#include "mpif.h"
 #include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
 
       logical value
       integer msglen,mpierr
 
 *     **** temporary workspace ****
-      integer sumall(2)
+      integer sumall(2),i,taskid
 
 *     **** external functions ****
       integer  Parallel2d_comm_i
       external Parallel2d_comm_i
 
+      call Parallel_taskid(taskid)
       call nwpw_timing_start(2)
 
       call Parallel2d_np_i(np)
@@ -809,14 +992,21 @@ c     implicit none
       value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
+#ifdef MPI4
+      stupid_msglen = n
+      call stupid_icopy8to4(n,sum,sum)
+      call MPI_Allreduce(sum,int_mb(sumall(1)),stupid_msglen,
+     >                stupid_integer,
+     >                stupid_sum,stupid_comm_i,stupid_ierr)
+      call stupid_icopy4to8(n,int_mb(sumall(1)),sum)
+#else
       msglen = n
-
-
       call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,
      >                MPI_INTEGER,
      >                MPI_SUM,Parallel2d_comm_i(),mpierr)
-
       call icopy(n,int_mb(sumall(1)),1,sum,1)
+#endif
+
       value = MA_pop_stack(sumall(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
@@ -862,6 +1052,9 @@ c     implicit none
 #include "mpif.h"
 #include "D3dB.fh"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 *     **** indexing variables ****
       integer iq_to_i1(2,0:1)
@@ -931,11 +1124,24 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = type
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr) 
+            int_mb(request(1)+reqcnt-1) = 0
+            int_mb(request(1)+reqcnt-1) = stupid_request
+#else
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
+#endif
          end if
 
       end do
@@ -950,18 +1156,38 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
          msgtype   = 1
       
          if (msglen.gt.0) then
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,stupid_ierr)
+#else
             call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,MPI_COMM_WORLD,mpierr)
+#endif
          end if
 
       end do
    
 *     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,
+     >                      int_mb(request(1)),
+     >                      int_mb(request(1)))
+      stupid_msglen = reqcnt
+      call MPI_WAITALL(stupid_msglen, 
+     >                 int_mb(request(1)),
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
      >                        int_mb(status(1)),mpierr)
 
+#endif
 *     **** unpack A(i) array ****
       call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
       call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
@@ -1009,6 +1235,10 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 #include "mpif.h"
 #include "D3dB.fh"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
 
 *     **** indexing variables ****
       integer iq_to_i1(2,0:1)
@@ -1045,7 +1275,6 @@ c     **** external functions ****
       if (.not. value)
      > call errquit(' D3dB_c_ptranspose2_jk:out of stack',0,MA_ERR)
 
-
       n1 = int_mb(i1_start(1,nbb)+np) - 1
       n2 = int_mb(i2_start(1,nbb)+np) - 1
 
@@ -1075,11 +1304,24 @@ c     **** external functions ****
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = type
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr) 
+            int_mb(request(1)+reqcnt-1) = 0
+            int_mb(request(1)+reqcnt-1) = stupid_request
+#else
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
+#endif
          end if
 
       end do
@@ -1094,17 +1336,37 @@ c     **** external functions ****
          msgtype   = 1
       
          if (msglen.gt.0) then
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,stupid_ierr)
+#else
             call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,MPI_COMM_WORLD,mpierr)
+#endif
          end if
 
       end do
    
 *     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,
+     >                      int_mb(request(1)),
+     >                      int_mb(request(1)))
+      stupid_msglen = reqcnt
+      call MPI_WAITALL(stupid_msglen,
+     >                 int_mb(request(1)),
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
      >                        int_mb(status(1)),mpierr)
+#endif
 
 *     **** unpack A(i) array ****
       call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
@@ -1154,6 +1416,10 @@ c     **** external functions ****
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 
 *     **** indexing variables ****
@@ -1232,11 +1498,24 @@ c     **** external functions ****
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = type
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr) 
+            int_mb(request(1)+reqcnt-1) = 0
+            int_mb(request(1)+reqcnt-1) = stupid_request
+#else
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
+#endif
          end if
 
       end do
@@ -1251,18 +1530,38 @@ c     **** external functions ****
          msgtype   = 1
       
          if (msglen.gt.0) then
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,stupid_ierr)
+#else
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,MPI_COMM_WORLD,mpierr)
+#endif
          end if
 
       end do
 
    
 *     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,
+     >                      int_mb(request(1)),
+     >                      int_mb(request(1)))
+      stupid_msglen = reqcnt
+      call MPI_WAITALL(stupid_msglen,
+     >                 int_mb(request(1)),
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
      >                        int_mb(status(1)),mpierr)
+#endif
 
 *     **** unpack A(i) array ****
       call D3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),tmp2,A)
@@ -1300,14 +1599,19 @@ c     **** external functions ****
 #include "mpif.h"
 #include "balance_common.fh"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
 
 *     **** local variables ****
-      integer j
+      integer j,np
       integer pto,pfrom,msglen,indx,mpierr
 
 c     **** external functions ****
       integer  Parallel2d_convert_taskid_i
       external Parallel2d_convert_taskid_i
+
 
       reqcnt = 0
       if (log_mb(sender_list(1)+nb)) then
@@ -1319,11 +1623,24 @@ c            msgtype=2
 c            send data....
             if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(pto)
+            call MPI_ISEND(A(indx),
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,
+     >                     stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
             call MPI_ISEND(A(indx),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(pto),
      >                     msgtype,MPI_COMM_WORLD,
      >                     request(reqcnt),mpierr)
+#endif
             end if
   
 
@@ -1339,11 +1656,24 @@ c            msgtype=2
 c            recieve data....
             if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(pfrom)
+            call MPI_IRECV(A(indx),
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
             call MPI_IRECV(A(indx),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(pfrom),
      >                    msgtype,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr)
+#endif
             end if
 
          end do
@@ -1374,6 +1704,9 @@ c            recieve data....
 #include "errquit.fh"
 #include "mpif.h"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 *     **** local variables ***
       logical value
@@ -1392,8 +1725,15 @@ c            recieve data....
      > call errquit('Balance_c_balance_end:out of stack',0,MA_ERR)
 
 *     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,request,request)
+      call MPI_WAITALL(stupid_msglen,
+     >                 request,
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,request,
-     >                        int_mb(status(1)),mpierr)
+     >                 int_mb(status(1)),mpierr)
+#endif
 
       !*** deallocate memory ***
       value = value.and.MA_pop_stack(status(2))
@@ -1429,13 +1769,18 @@ c            recieve data....
 #include "mpif.h"
 #include "balance_common.fh"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
 *     **** local variables ****
-      integer j
+      integer j,np
       integer pto,pfrom,msglen,indx,mpierr
 
 c     **** external functions ****
       integer  Parallel2d_convert_taskid_i
       external Parallel2d_convert_taskid_i
+
 
       reqcnt=0
       if (log_mb(sender_list(1)+nb)) then
@@ -1447,11 +1792,24 @@ c            msgtype=2
 c            recieve data....
             if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(pfrom)
+            call MPI_IRECV(A(indx),
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
             call MPI_IRECV(A(indx),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(pfrom),
      >                    msgtype,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr)
+#endif
             end if
   
          end do
@@ -1466,11 +1824,24 @@ c            msgtype=2
 c            send data....
             if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(pto)
+            call MPI_ISEND(A(indx),
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,
+     >                     stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
             call MPI_ISEND(A(indx),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(pto),
      >                     msgtype,MPI_COMM_WORLD,
      >                     request(reqcnt),mpierr)
+#endif
 
             end if
 
@@ -1500,6 +1871,10 @@ c            send data....
 #include "errquit.fh"
 #include "mpif.h"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
 *     **** local variables ***
       logical value
       integer np
@@ -1517,8 +1892,16 @@ c            send data....
 
 
       !**** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,request,request)
+      stupid_msglen = reqcnt
+      call MPI_WAITALL(stupid_msglen,
+     >                 request,
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,request,
      >                        int_mb(status(1)),mpierr)
+#endif
 
       !*** deallocate memory ***
       value = value.and.MA_pop_stack(status(2))
@@ -1568,6 +1951,10 @@ c            send data....
 #include "mpif.h"
 #include "D3dB.fh"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
 
 *     **** indexing variables ****
       integer iq_to_i1(2,0:1)
@@ -1592,8 +1979,6 @@ c     **** external functions ****
       
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
-
-
 
       n1 = int_mb(i1_start(1,nbb)+np) - 1
 
@@ -1623,11 +2008,24 @@ c         type   = 1
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr) 
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    msgtype,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr) 
+#endif
          end if
 
       end do
@@ -1643,11 +2041,24 @@ c         msgtype   = 1
       
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_ISEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,
+     >                     stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,MPI_COMM_WORLD,
      >                     request(reqcnt),mpierr)
+#endif
          end if
 
       end do
@@ -1689,6 +2100,9 @@ c         msgtype   = 1
 #include "mpif.h"
 #include "D3dB.fh"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 *     **** indexing variables ****
       integer iq_to_i1(2,0:1)
@@ -1717,8 +2131,15 @@ c         msgtype   = 1
 
 
 *     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,request,request)
+      stupid_msglen = reqcnt
+      call MPI_WAITALL(stupid_msglen,request,
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,request,
-     >                        int_mb(status(1)),mpierr)
+     >                 int_mb(status(1)),mpierr)
+#endif
 
       !*** deallocate memory ***
       value = value.and.MA_pop_stack(status(2))
@@ -1774,6 +2195,9 @@ c         msgtype   = 1
 #include "mpif.h"
 #include "D3dB.fh"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 *     **** indexing variables ****
       integer iq_to_i1(2,0:1)
@@ -1798,7 +2222,6 @@ c     **** external functions ****
       
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
-
 
 
       n1 = int_mb(i1_start(1,nbb)+np) - 1
@@ -1829,11 +2252,24 @@ c         type   = 1
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    msgtype,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr) 
+#endif
          end if
 
       end do
@@ -1849,11 +2285,24 @@ c         msgtype   = 1
       
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_ISEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,
+     >                     stupid_request,stupid_ierr)
+            request(reqcnt) = 0 
+            request(reqcnt) = stupid_request
+#else
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,MPI_COMM_WORLD,
      >                     request(reqcnt),mpierr)
+#endif
          end if
 
       end do
@@ -1895,6 +2344,9 @@ c         msgtype   = 1
 #include "mpif.h"
 #include "D3dB.fh"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 *     **** indexing variables ****
       integer iq_to_i1(2,0:1)
@@ -1923,8 +2375,15 @@ c         msgtype   = 1
 
 
 *     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,request,request)
+      stupid_msglen = reqcnt
+      call MPI_WAITALL(stupid_msglen,request,
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,request,
      >                        int_mb(status(1)),mpierr)
+#endif
 
       !*** deallocate memory ***
       value = value.and.MA_pop_stack(status(2))
@@ -1977,6 +2436,10 @@ c         msgtype   = 1
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 
 *     **** indexing variables ****
@@ -2039,11 +2502,24 @@ c         type   = 1
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr) 
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    msgtype,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr) 
+#endif
          end if
 
       end do
@@ -2059,17 +2535,28 @@ c         msgtype   = 1
       
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_ISEND(tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,
+     >                     stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
             call MPI_ISEND(tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,MPI_COMM_WORLD,
      >                     request(reqcnt),mpierr)
+#endif
          end if
 
       end do
 
-   
-      
       return
       end
 
@@ -2107,6 +2594,9 @@ c         msgtype   = 1
 #include "mpif.h"
 #include "D3dB.fh"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 *     **** indexing variables ****
       integer h_iq_to_i1(2,6,0:1)
@@ -2139,8 +2629,14 @@ c         msgtype   = 1
      > call errquit(' D3dB_c_ptranspose_ijk:out of stack',0,MA_ERR)
 
 *     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,request,request)
+      call MPI_WAITALL(stupid_msglen,request,
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,request,
      >                        int_mb(status(1)),mpierr)
+#endif
 
       !*** deallocate memory ***
       value = value.and.MA_pop_stack(status(2))
@@ -2193,6 +2689,9 @@ c         msgtype   = 1
 #include "mpif.h"
 #include "D3dB.fh"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 *     **** indexing variables ****
 c     integer iq_to_i1(2**NFFT2*NSLABS)
@@ -2260,11 +2759,24 @@ c         type   = 1
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    msgtype,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr)
+#endif
          end if
 
       end do
@@ -2281,11 +2793,24 @@ c         msgtype   = 1
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_ISEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,
+     >                     stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,MPI_COMM_WORLD,
      >                     request(reqcnt),mpierr)
+#endif
          end if
 
       end do
@@ -2324,6 +2849,10 @@ c         msgtype   = 1
 #include "mpif.h"
 #include "D3dB.fh"
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
 
 *     **** indexing variables ****
       integer iq_to_i1(2,NBLOCKS)
@@ -2352,8 +2881,15 @@ c      call Parallel_taskid(taskid)
 
 
 *     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,request,request)
+      stupid_msglen = reqcnt
+      call MPI_WAITALL(stupid_msglen,request,
+     >                 int_mb(status(1)),stupid_ierr)
+#else
       call MPI_WAITALL(reqcnt,request,
      >                        int_mb(status(1)),mpierr)
+#endif
 
 
       !*** deallocate memory ***

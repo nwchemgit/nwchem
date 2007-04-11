@@ -1,10 +1,14 @@
 #
-# $Id: GNUmakefile,v 1.5 2006-08-13 01:03:25 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2007-04-11 23:41:14 bylaska Exp $
 #
 
 
  OBJ_OPTIMIZE = Parallel.o
 	  OBJ = 
+
+ifeq ($(USE_MPIF4),y)	
+	HEADERS = stupid_mpi4.fh
+endif
 
 ifeq ($(USE_MPIF),y)
   OBJ_OPTIMIZE += Parallel-mpi.o
@@ -29,5 +33,9 @@ ifeq ($(USE_MPIF),y)
   LIB_INCLUDES += -I$(MPI_INCLUDE)
 else
   LIB_DEFINES += -DTCGMSG
+endif
+
+ifeq ($(USE_MPIF4),y)
+  LIB_DEFINES += -DMPI4
 endif
 

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2006-10-13 01:43:58 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2007-04-11 23:41:14 bylaska Exp $
 #
 
   OBJ_OPTIMIZE = DMatrix.o
@@ -35,6 +35,9 @@ else
   LIB_DEFINES += -DTCGMSG
 endif
 
+ifeq ($(USE_MPIF4),y)
+  LIB_DEFINES += -DMPI4
+endif
 
 
 

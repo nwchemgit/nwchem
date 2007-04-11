@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.11 2006-06-05 18:06:28 edo Exp $
+# $Id: GNUmakefile,v 1.12 2007-04-11 23:41:14 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = D3dB-new.o generate_map_indexes.o hilbert.o olist.o trans.o D3dB_pfft.o
@@ -33,3 +33,6 @@ else
   LIB_DEFINES += -DTCGMSG
 endif
 
+ifeq ($(USE_MPIF4),y)
+  LIB_DEFINES += -DMPI4
+endif
