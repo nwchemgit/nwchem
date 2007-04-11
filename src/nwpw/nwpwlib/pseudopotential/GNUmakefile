@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.11 2007-04-10 18:57:52 d3p708 Exp $
+# $Id: GNUmakefile,v 1.12 2007-04-11 00:11:05 d3p708 Exp $
 #
       SUBDIRS = paw_atom
 
@@ -34,7 +34,7 @@
 
     USES_BLAS = 
 
-  LIB_DEFINES = 
+  LIB_DEFINES = -g -ggdb
 
 
 include ../../../config/makefile.h

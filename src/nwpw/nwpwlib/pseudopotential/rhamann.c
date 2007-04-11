@@ -54,7 +54,7 @@ void Suggested_Param_RelHamann (int *num_states_psp,
   Nc = Ncore_Atom ();
   Nv = Nvalence_Atom ();
   lmax = lmax_Atom ();
-  npsps = lmax + 2;
+  npsps = 2*lmax + 2;
 
   for (p = 0; p < npsps; ++p)
     {

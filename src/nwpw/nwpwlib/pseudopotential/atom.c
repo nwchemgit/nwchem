@@ -1,6 +1,6 @@
 /* atom.c -
-   author - Eric Bylaska
-   $Id: atom.c,v 1.12 2007-04-10 23:30:33 d3p708 Exp $
+   author - Eric Bylaska and Patrick Nichols
+   $Id: atom.c,v 1.13 2007-04-11 00:11:05 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -113,6 +113,7 @@ init_Atom (char *filename)
       /* allocate the necessary memory for eigenvalues */
       n = (int *) malloc ((Ncv + 1) * sizeof (int));
       l = (int *) malloc ((Ncv + 1) * sizeof (int));
+      s2 = (int *) malloc ((Ncv + 1) * sizeof (int));
       fill = (double *) malloc ((Ncv + 1) * sizeof (double));
 
       /* allocate memory for outer peak and turning_point positions */
@@ -153,6 +154,7 @@ init_Atom (char *filename)
       /* allocate the necessary memory for eigenvalues */
       n = (int *) malloc ((Ncv + 2) * sizeof (int));
       l = (int *) malloc ((Ncv + 2) * sizeof (int));
+      s2 = (int *) malloc ((Ncv + 2) * sizeof (int));
       fill = (double *) malloc ((Ncv + 2) * sizeof (double));
 
       /* allocate memory for outer peak and turning_point positions */
@@ -206,7 +208,7 @@ init_Atom (char *filename)
 
   /* initialize DFT stuff */
   init_DFT (filename);
-
+  fprintf(stderr,"Init Atom done!\n");
 }				/* init_Atom */
 
 
@@ -318,6 +320,7 @@ solve_Atom ()
 	{
 
 	  Etmp = eigenvalue[i];
+/*          fprintf(stderr," %d %d %lg\n",solver_iterations,i,Etmp); */
 
 	 /**********************************************************/
 	  /*          solve radial equation(s) for state i          */
@@ -802,9 +805,10 @@ name_Atom ()
 char *
 spin_Name (int i)
 {
-  if (s2[i] > 0)
-    return "U";
-  return "D";
+  char *u="U";
+  char *d="D";
+  if (s2[i] > 0) return u;
+  return d;
 }
 
 int
