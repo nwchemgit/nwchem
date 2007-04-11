@@ -1,6 +1,6 @@
 /* psp.c -
    author - Eric Bylaska
-   $Id: rpsp.c,v 1.3 2007-04-11 00:11:06 d3p708 Exp $
+   $Id: rpsp.c,v 1.4 2007-04-11 19:37:12 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -141,7 +141,6 @@ void	init_RelPsp(char *filename)
    /* get the psp info */ 
    Suggested_Param_RelHamann(&Nvalence,n,l,spin,eigenvalue,fill,rcut);
    /* set the number psp projectors */
-/*
    fp = fopen(filename,"r+");
    w = get_word(fp);
    while ((w!=NIL) && (strcmp("<npsp-states>",w)!=0))
@@ -158,7 +157,6 @@ void	init_RelPsp(char *filename)
       }
    }
    fclose(fp);
-*/
 
       /* get rcut */
       fp = fopen(filename,"r+");

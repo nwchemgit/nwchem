@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska and Patrick Nichols
-   $Id: atom.c,v 1.13 2007-04-11 00:11:05 d3p708 Exp $
+   $Id: atom.c,v 1.14 2007-04-11 19:37:12 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -320,7 +320,7 @@ solve_Atom ()
 	{
 
 	  Etmp = eigenvalue[i];
-/*          fprintf(stderr," %d %d %lg\n",solver_iterations,i,Etmp); */
+          fprintf(stderr," %d %d %lg\n",solver_iterations,i,Etmp); 
 
 	 /**********************************************************/
 	  /*          solve radial equation(s) for state i          */

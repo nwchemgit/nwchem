@@ -207,6 +207,7 @@ solve_RelHamann (int num_psp,
 
   if (debug_print ())
     {
+      printf ("Number of Pseudopotentials = %d\n",num_psp);
       printf ("\n\nRelativistic Hamann pseudopotential check\n\n");
       printf
 	("l\trcore     rmatch    E in       E psp      norm test slope test\n");
