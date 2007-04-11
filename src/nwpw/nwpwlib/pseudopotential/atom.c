@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska and Patrick Nichols
-   $Id: atom.c,v 1.14 2007-04-11 19:37:12 d3p708 Exp $
+   $Id: atom.c,v 1.15 2007-04-11 22:24:57 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -125,7 +125,8 @@ init_Atom (char *filename)
       for (i = 0; i < Ncv; ++i)
 	{
 	  fscanf (fp, "%d %d %le", &n[i], &l[i], &fill[i]);
-	  lmax = Max (l[i], lmax);
+	  if (l[i] > lmax)
+	    lmax = l[i];
 	}
 
       /* set up logarithmic grid */
@@ -175,7 +176,8 @@ init_Atom (char *filename)
 	  s2[2 * i + 1] = -1;
 	  fill[2 * i] = fillx * 0.5;
 	  fill[2 * i + 1] = fillx * 0.5;
-	  lmax = Max (l[i], lmax);
+	  if (lx > lmax)
+	    lmax = lx;
 	}
 
       /* set up logarithmic grid */
@@ -208,7 +210,7 @@ init_Atom (char *filename)
 
   /* initialize DFT stuff */
   init_DFT (filename);
-  fprintf(stderr,"Init Atom done!\n");
+  fprintf (stderr, "Init Atom done!\n");
 }				/* init_Atom */
 
 
@@ -320,8 +322,6 @@ solve_Atom ()
 	{
 
 	  Etmp = eigenvalue[i];
-          fprintf(stderr," %d %d %lg\n",solver_iterations,i,Etmp); 
-
 	 /**********************************************************/
 	  /*          solve radial equation(s) for state i          */
 	 /**********************************************************/
@@ -513,10 +513,16 @@ solve_Scattering_State_Atom (int nt, int lt, double et, double rmax)
     }
   else if (Solver_Type == Dirac)
     {
-      R_Dirac_Fixed_E (nt, lt, 1, Zion, Vall,
-		       turning_point[Ncv - 1], et,
-		       r_psi[Ncv - 1], r_psi_prime[Ncv - 1]);
+      n[Ncv+1] = nt;
+      l[Ncv+1] = lt;
+      eigenvalue[Ncv+1] = et;
+      fill[Ncv+1] = 0.0;
+      turning_point[Ncv+1] = rint (log (rmax / r0) / al);
+      peak[Ncv+1] = rmax;
       R_Dirac_Fixed_E (nt, lt, -1, Zion, Vall,
+		       turning_point[Ncv+1], et,
+		       r_psi[Ncv+1], r_psi_prime[Ncv+1]);
+      R_Dirac_Fixed_E (nt, lt,  1, Zion, Vall,
 		       turning_point[Ncv], et, r_psi[Ncv], r_psi_prime[Ncv]);
     }
 
@@ -786,7 +792,7 @@ state_RelAtom (int nt, int lt, int st)
 {
   int i;
   i = 0;
-  while (((nt != n[i]) || (lt != l[i]) || (st!=s2[i])) && (i <= Ncv))
+  while (((nt != n[i]) || (lt != l[i]) || (st != s2[i])) && (i <= Ncv))
     ++i;
 
   /* Error */
@@ -805,9 +811,10 @@ name_Atom ()
 char *
 spin_Name (int i)
 {
-  char *u="U";
-  char *d="D";
-  if (s2[i] > 0) return u;
+  char *u = "U";
+  char *d = "D";
+  if (s2[i] > 0)
+    return u;
   return d;
 }
 

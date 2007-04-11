@@ -55,7 +55,10 @@ void Suggested_Param_RelHamann (int *num_states_psp,
   Nv = Nvalence_Atom ();
   lmax = lmax_Atom ();
   npsps = 2*lmax + 2;
-
+  fprintf(stderr,"LMAX ATOM = %d\n",lmax);
+  fprintf(stderr,"NPSPS     = %d\n",npsps);
+  fprintf(stderr,"Ncore     = %d\n",Nc);
+  fprintf(stderr,"Nvalence  = %d\n",Nv);
   for (p = 0; p < npsps; ++p)
     {
       rcut_psp[p] = 0.0;
@@ -126,7 +129,7 @@ void Suggested_Param_RelHamann (int *num_states_psp,
     {
       if (fill_psp[p] == 0.0)
 	{
-	  rcut_psp[p] = Max (rcut_psp[p], rcmax);
+          if (rcmax>rcut_psp[p]) rcut_psp[p]=rcmax;
 	  e_psp[p] = emax;
 	}
     }
@@ -156,7 +159,6 @@ void Suggested_Param_RelHamann (int *num_states_psp,
 
 */
 #define	ALAM	3.5
-
 void
 solve_RelHamann (int num_psp,
 		 int *n_psp,
@@ -181,7 +183,7 @@ solve_RelHamann (int num_psp,
   double gamma, gpr, del, nu0, nu1, nu2, r0;
   double sv, sf, sx;
   double dcl;
-  double cl[6];
+  double cl[14];
   double rpsi_match, rpsi_prime_match;
   double ldpsi_match;
   double e1l, e2l, eeig;
@@ -210,7 +212,7 @@ solve_RelHamann (int num_psp,
       printf ("Number of Pseudopotentials = %d\n",num_psp);
       printf ("\n\nRelativistic Hamann pseudopotential check\n\n");
       printf
-	("l\trcore     rmatch    E in       E psp      norm test slope test\n");
+	("l\ts\trcore     rmatch    E in       E psp      norm test slope test\n");
     }
   for (p = 0; p < num_psp; ++p)
     {

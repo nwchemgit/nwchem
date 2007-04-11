@@ -67,7 +67,7 @@ void FATR rpspsolve_
   double *vall, *rgrid;
   char name[255];
 
-  int lmax_out, locp_out;
+  int lmax_out, locp_out, nvh;
   double rlocal_out, vx;
 
   FILE *fp;
@@ -80,7 +80,6 @@ void FATR rpspsolve_
   char *outfile = (char *) malloc (m0 + m2 + 5);
   char *soutfile = (char *) malloc (m0 + m2 + 8);
   char *full_filename = (char *) malloc (m9 + 25 + 5);
-
 
   print = *print_ptr;
   debug = *debug_ptr;
@@ -116,6 +115,7 @@ void FATR rpspsolve_
   /* allocate linear meshes */
   Nvalence = Nvalence_RelPsp ();
   Nlinear = nrl_Linear ();
+  fprintf(stderr,"Number of states = %d\n",Nvalence);
   psil = (double **) malloc (Nvalence * sizeof (double *));
   pspl = (double **) malloc (Nvalence * sizeof (double *));
   for (p = 0; p < Nvalence; ++p)
@@ -224,10 +224,11 @@ void FATR rpspsolve_
       printf ("  + Appending pseudopotentials:    %s thru %s\n",
 	      spd_Name (0), spd_Name (lmax_RelPsp ()));
     }
+  nvh=Nvalence/2;
   for (k = 0; k < Nlinear; ++k)
     {
       fprintf (fp, "%12.8lf", rl[k]);
-      for (p = 0; p <= lmax_RelPsp (); ++p)
+      for (p = 0; p < nvh; ++p)
 	{
 	  vx = p * pspl[2 * p][k] + (p + 1.) * pspl[2 * p + 1][k];
 	  vx *= 1. / (2. * p + 1.);
@@ -243,7 +244,7 @@ void FATR rpspsolve_
   for (k = 0; k < Nlinear; ++k)
     {
       fprintf (fp, "%12.8lf", rl[k]);
-      for (p = 0; p <= lmax_RelPsp (); ++p)
+      for (p = 0; p < nvh; ++p)
 	fprintf (fp, " %12.8lf", psil[p][k]);
       fprintf (fp, "\n");
     }
@@ -286,7 +287,7 @@ void FATR rpspsolve_
   fprintf (fp, "%lf %lf %d   %d %d %lf\n", Zion_RelPsp (), Amass_Atom (),
 	   lmax_RelPsp (), lmax_out, locp_out, rlocal_out);
   for (p = 0; p <= lmax_RelPsp (); ++p)
-    fprintf (fp, "%lf ", rcut_RelPsp (p));
+    fprintf (fp, "%lf ", rcut_RelPsp (2*p));
   fprintf (fp, "\n");
   fprintf (fp, "%d %lf\n", nrl_Linear (), drl_Linear ());
   fprintf (fp, "%s\n", comment_RelPsp ());
@@ -299,7 +300,7 @@ void FATR rpspsolve_
   for (k = 0; k < Nlinear; ++k)
     {
       fprintf (fp, "%12.8lf", rl[k]);
-      for (p = 1; p <= lmax_RelPsp (); ++p)
+      for (p = 1; p < nvh;++p)
 	{
 	  vx = pspl[2 * p][k] - pspl[2 * p + 1][k];
 	  vx *= 2. / (2. * p + 1.);
