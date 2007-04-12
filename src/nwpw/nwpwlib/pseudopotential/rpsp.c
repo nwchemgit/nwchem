@@ -1,6 +1,6 @@
 /* psp.c -
    author - Eric Bylaska
-   $Id: rpsp.c,v 1.5 2007-04-11 22:24:58 d3p708 Exp $
+   $Id: rpsp.c,v 1.6 2007-04-12 00:04:34 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -232,10 +232,7 @@ init_RelPsp (char *filename)
   Zion = Zion_Atom ();
   for (p = 0; p < (Ncore_Atom ()); ++p)
     Zion -= fill_Atom (p);
-
-
-
-
+  
 }				/* init_RelPsp */
 
 
@@ -257,8 +254,6 @@ solve_RelPsp ()
   Ngrid = N_LogGrid ();
   rgrid = r_LogGrid ();
 
-  fprintf (stderr, "Nvalence = %d\n", Nvalence);
-  fprintf (stderr, "rgrid[0] = %lg\n", rgrid[0]);
   solve_RelHamann (Nvalence, n, l, spin, eigenvalue, fill, rcut,
 		   r_psi, r_psi_prime, rho, rho_semicore, V_psp,
 		   &Total_E,
@@ -303,7 +298,7 @@ void
 print_RelPsp (FILE * fp)
 {
   int i;
-
+  double dx;
   fprintf (fp, "\n\n");
   fprintf (fp, "PSP solver information\n\n");
   fprintf (fp, "Atom name: %s\n", name_Atom ());
@@ -321,7 +316,7 @@ print_RelPsp (FILE * fp)
 
   fprintf (fp,
 	   "----------------------------------------------------------------------------\n");
-  fprintf (fp, "n\tl\tpopulation\tEcut\t\tRcut\t\tOuter Peak\n");
+  fprintf (fp, "n\tl\ts\tpopulation\tEcut\t\tRcut\t\tOuter Peak\n");
 
   for (i = 0; i < Nvalence; ++i)
     {
@@ -341,14 +336,12 @@ print_RelPsp (FILE * fp)
 	       Integrate_LogGrid (drho_semicore));
     }
 
-  if (Solver_Type == Vanderbilt)
-    fprintf (fp, "Using AE valence density for descreening\n");
-
   fprintf (fp, "Pseudopotential ion charge       = %lf\n", Zion);
+  dx= - Integrate_LogGrid(rho);
   fprintf (fp, "Pseudopotential electronic charge= %lf\n",
-	   -Integrate_LogGrid (rho));
+	   dx);
   fprintf (fp, "Pseudopotential atom charge      = %lf\n",
-	   Zion - Integrate_LogGrid (rho));
+	   (Zion-dx));
 
   fprintf (fp, "\nTotal E       = %le\n", Total_E);
   fprintf (fp, "\n");

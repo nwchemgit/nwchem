@@ -55,10 +55,6 @@ void Suggested_Param_RelHamann (int *num_states_psp,
   Nv = Nvalence_Atom ();
   lmax = lmax_Atom ();
   npsps = 2*lmax + 2;
-  fprintf(stderr,"LMAX ATOM = %d\n",lmax);
-  fprintf(stderr,"NPSPS     = %d\n",npsps);
-  fprintf(stderr,"Ncore     = %d\n",Nc);
-  fprintf(stderr,"Nvalence  = %d\n",Nv);
   for (p = 0; p < npsps; ++p)
     {
       rcut_psp[p] = 0.0;
@@ -225,13 +221,14 @@ solve_RelHamann (int num_psp,
 
 
       /* Solve for scattering state if necessary */
-      if (fill_psp[p] == 0.0)
+      if (fill_psp[p] < 1.e-15)
 	{
 	  rmax = 2.5 * rcut_psp[p];
 	  solve_Scattering_State_Atom (n_psp[p], l_psp[p], e_psp[p], rmax);
 
 	  /* scattering state saved at the end of the atom list */
 	  i = Nvalence_Atom () + Ncore_Atom ();
+          if (p%2) ++i;
 	}
       /* find state of all-electron wavefunction */
       else
@@ -240,8 +237,8 @@ solve_RelHamann (int num_psp,
       /* find matching point stuff */
       nrc = rint (log (rcut_psp[p] / r[0]) / al);
       match = turning_point_Atom (i);
-      rpsi_match = r_psi_Atom (i)[match];
-      rpsi_prime_match = r_psi_prime_Atom (i)[match];
+      rpsi_match = (r_psi_Atom (i))[match];
+      rpsi_prime_match = (r_psi_prime_Atom (i))[match];
       ldpsi_match = rpsi_prime_match / rpsi_match;
 
       /* Form the cutoff potential */
@@ -271,8 +268,9 @@ solve_RelHamann (int num_psp,
 	  /* find w1l, and e1l */
 	  e1l = e_psp[p];
 
+          fprintf(stderr,"%12d %12d %12d %12d\n",p,mch,match,(Ngrid-1));
 	  /* psp bound state */
-	  if (fill_psp[p] > 0.0)
+	  if (fill_psp[p] > 1.e-15)
 	    {
 	      R_Schrodinger (l_psp[p] + 1, l_psp[p], V1l, &mch, &e1l, w1l,
 			     w1l_prime);
@@ -286,7 +284,7 @@ solve_RelHamann (int num_psp,
 					    ldpsi_match, &e1l, w1l,
 					    w1l_prime);
 	    }
-
+          fprintf(stderr,"%12d %12d %12d %12d\n",p,mch,match,(Ngrid-1));
 
 	  /* perform integrals */
 	  nu0 = ((double) (2 * l_psp[p] + 3));
@@ -328,9 +326,11 @@ solve_RelHamann (int num_psp,
 	  dcl = (e_psp[p] - e1l) / sv;
 	  cl[p] = cl[p] + dcl;
 	  converged = (fabs (dcl) <= SMALL);
+          fprintf(stderr,"dcl = %lg  mch= %d\n",dcl,mch);
 
 	}			/* while iteration */
 
+      fprintf(stderr,"%12d %12d %12d %12d\n",p,mch,match,(Ngrid-1));
 
       gamma = fabs (rpsi_match / w1l[match]);
       sx = sx * gamma * gamma;
@@ -346,13 +346,18 @@ solve_RelHamann (int num_psp,
 
       /* construct final psp V2l */
       for (k = 0; k < Ngrid; ++k)
-	if ((fabs (w2l[k]) > SMALL) || (r[k] < 0.1))	/* hacking */
+      {
+	if ((  fabs(w2l[k]) > SMALL) || (r[k] < 0.1))
+        {
+     	/* hacking */
 	  V2l[k] = V1l[k]
 	    + (gamma * del * pow (r[k], nu1) * Fcut[k] / (2.0 * w2l[k]))
 	    * ((ALAM * ALAM * pow (r[k] / rcut_psp[p], (2.0 * ALAM))
 		- (2.0 * ALAM * ((double) l_psp[p]) + ALAM * (ALAM + 1.0))
 		* pow (r[k] / rcut_psp[p], ALAM)) / (r[k] * r[k])
 	       + 2.0 * e_psp[p] - 2.0 * V1l[k]);
+        }
+      }
       e2l = e_psp[p];
 
 	/******************/
@@ -370,6 +375,8 @@ solve_RelHamann (int num_psp,
 	  R_Schrodinger_Fixed_Logderiv (l_psp[p] + 1, l_psp[p], V2l, mch,
 					ldpsi_match, &e2l, w2l, w2l_prime);
 	}
+      fprintf(stderr,"%4d v2l=%lg mch=%d e2l=%lg\n",l_psp[p],
+              V2l,mch,e2l);
 
       eeig += fill_psp[p] * e2l;
 

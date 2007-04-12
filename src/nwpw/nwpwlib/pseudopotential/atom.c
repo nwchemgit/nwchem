@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska and Patrick Nichols
-   $Id: atom.c,v 1.15 2007-04-11 22:24:57 d3p708 Exp $
+   $Id: atom.c,v 1.16 2007-04-12 00:04:33 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -561,6 +561,7 @@ void
 print_Atom (FILE * fp)
 {
   int i, st;
+  double *rx;
 
   fprintf (fp, "All electron atom solver\n\n");
   fprintf (fp, "Atom name: %s\n", atom_name);
@@ -633,7 +634,10 @@ print_Atom (FILE * fp)
   fprintf (fp, "E_correlation = %le\n", E_correlation);
   fprintf (fp, "<Vc>          = %le\n", P_correlation);
 
-
+  fprintf(fp,"\tTurning Points\n"); 
+  rx=r_LogGrid();
+  for (i=0;i<Ncv;++i) fprintf(fp,"%d %15.6le\n",i,rx[turning_point[i]]);
+  fprintf (fp,"\n");
 }				/* print_Atom */
 
 /********************************

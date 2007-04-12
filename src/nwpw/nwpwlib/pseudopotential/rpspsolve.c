@@ -323,7 +323,7 @@ void FATR rpspsolve_
       printf ("Outputing all-electron wavefunctions:");
       Ngrid = N_LogGrid ();
       rgrid = r_LogGrid ();
-      for (p = 0; p <= (Ncore_Atom () + Nvalence_Atom ()); ++p)
+      for (p = 0; p < (Ncore_Atom () + Nvalence_Atom ()); ++p)
 	{
 	  sprintf (name, "%s.%1d%s%s", name_Atom (), n_Atom (p),
 		   spd_Name (l_Atom (p)), spin_Name (p));
