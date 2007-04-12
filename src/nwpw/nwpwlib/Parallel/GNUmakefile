@@ -1,14 +1,11 @@
 #
-# $Id: GNUmakefile,v 1.6 2007-04-11 23:41:14 bylaska Exp $
+# $Id: GNUmakefile,v 1.7 2007-04-12 16:52:09 bylaska Exp $
 #
 
 
  OBJ_OPTIMIZE = Parallel.o
-	  OBJ = 
-
-ifeq ($(USE_MPIF4),y)	
+ 	OBJ = 
 	HEADERS = stupid_mpi4.fh
-endif
 
 ifeq ($(USE_MPIF),y)
   OBJ_OPTIMIZE += Parallel-mpi.o

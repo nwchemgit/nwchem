@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-mpi.F,v 1.6 2007-04-11 23:41:15 bylaska Exp $
+* $Id: Parallel-mpi.F,v 1.7 2007-04-12 16:52:09 bylaska Exp $
 *
 
 * Parallel.f
@@ -46,6 +46,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       stupid_integer = MPI_INTEGER
       stupid_double  = MPI_DOUBLE_PRECISION
       stupid_complex = MPI_DOUBLE_COMPLEX
+      stupid_comm_i   = MPI_COMM_WORLD
+      stupid_comm_j   = -99
 #endif
 
       np     = nnodes()
