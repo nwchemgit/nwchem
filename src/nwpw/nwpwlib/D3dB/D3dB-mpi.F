@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.20 2007-04-11 23:41:14 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.21 2007-04-12 17:10:13 bylaska Exp $
 *
 
 #ifdef MPI
@@ -1727,6 +1727,7 @@ c            recieve data....
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
       call stupid_icopy8to4(reqcnt,request,request)
+      stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,
      >                 request,
      >                 int_mb(status(1)),stupid_ierr)
@@ -2631,6 +2632,7 @@ c         msgtype   = 1
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
       call stupid_icopy8to4(reqcnt,request,request)
+      stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,request,
      >                 int_mb(status(1)),stupid_ierr)
 #else
