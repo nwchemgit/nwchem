@@ -34,6 +34,6 @@ extern double peak_RelPsp(int i);
 extern double rcut_RelPsp(int i);
 extern double rcut_il_RelPsp(int i, int l);
 extern double Zion_RelPsp(void);
-extern int state_RelPsp(int nt, int lt);
+extern int state_RelPsp(int nt, int lt, int st);
 extern char *comment_RelPsp(void);
 #endif

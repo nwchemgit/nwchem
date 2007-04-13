@@ -1,6 +1,6 @@
 /* psp.c -
    author - Eric Bylaska
-   $Id: rpsp.c,v 1.6 2007-04-12 00:04:34 d3p708 Exp $
+   $Id: rpsp.c,v 1.7 2007-04-13 21:53:46 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -81,7 +81,7 @@ init_RelPsp (char *filename)
   lmax = lmax_Atom ();
 
   /* set the number psp projectors */
-  npsp_states = 2 * lmax + 2;
+  npsp_states = 2 * lmax + 4;
   /* allocate memory for n,l,fill,rcut,peak, and eigenvalue */
   n = (int *) malloc ((npsp_states) * sizeof (int));
   l = (int *) malloc ((npsp_states) * sizeof (int));
@@ -109,7 +109,6 @@ init_RelPsp (char *filename)
 
   /* get the psp info */
   Suggested_Param_RelHamann (&Nvalence, n, l, spin, eigenvalue, fill, rcut);
-  fprintf (stderr, "suggested n states = %d\n", Nvalence);
   /* set the number psp projectors */
   fp = fopen (filename, "r+");
   w = get_word (fp);
@@ -320,7 +319,7 @@ print_RelPsp (FILE * fp)
 
   for (i = 0; i < Nvalence; ++i)
     {
-      fprintf (fp, "%d\t%s\t%.1lf\t%.2lf\t\t%le\t%le\t%le\n", l[i] + 1,
+      fprintf (fp, "%d\t%s\t%.1lf\t%.2lf\t\t%le\t%le\t%le\n", (l[i] + 1),
 	       spd_Name (l[i]), 0.5 * spin[i], fill[i], eigenvalue[i],
 	       rcut[i], peak[i]);
     }
@@ -371,6 +370,7 @@ void
 set_Solver_RelPsp (solver)
      int solver;
 {
+  fprintf (stdout," RelPsp:: Only Hamann Solver is available\n");
   fprintf (stdout, "RelPsp::Cannot set the solver yet!\n");
 }
 
@@ -556,11 +556,11 @@ Zion_RelPsp ()
 }
 
 int
-state_RelPsp (int nt, int lt)
+state_RelPsp (int nt, int lt, int st)
 {
   int i;
   i = 0;
-  while (((nt != n[i]) || (lt != l[i])) && (i < Nvalence))
+  while (((nt != n[i]) || (lt != l[i]) || st!=spin[i]) && (i < Nvalence))
     ++i;
 
   /* Error */

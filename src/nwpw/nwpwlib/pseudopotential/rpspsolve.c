@@ -103,7 +103,10 @@ void FATR rpspsolve_
 
   over_fourpi = 1.0 / (16.0 * atan (1.0));
 
-/* we have already solved for the Relativsitic AE wavefunctions using atom */
+/********************
+ *   we have already solved for the Relativsitic AE wavefunctions using atom 
+ *  in the call to pspsolve
+ *******************/
   set_debug_print (debug);
   init_RelPsp (infile);
   solve_RelPsp ();
@@ -115,7 +118,6 @@ void FATR rpspsolve_
   /* allocate linear meshes */
   Nvalence = Nvalence_RelPsp ();
   Nlinear = nrl_Linear ();
-  fprintf(stderr,"Number of states = %d\n",Nvalence);
   psil = (double **) malloc (Nvalence * sizeof (double *));
   pspl = (double **) malloc (Nvalence * sizeof (double *));
   for (p = 0; p < Nvalence; ++p)

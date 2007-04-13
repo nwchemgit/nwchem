@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska and Patrick Nichols
-   $Id: atom.c,v 1.16 2007-04-12 00:04:33 d3p708 Exp $
+   $Id: atom.c,v 1.17 2007-04-13 21:53:46 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -174,10 +174,22 @@ init_Atom (char *filename)
 	  l[2 * i + 1] = lx;
 	  s2[2 * i] = 1;
 	  s2[2 * i + 1] = -1;
-	  fill[2 * i] = fillx * 0.5;
-	  fill[2 * i + 1] = fillx * 0.5;
-	  if (lx > lmax)
-	    lmax = lx;
+/****************************************************************
+ * fill in the j=l+0.5 and j=l-0.5 states with the proper
+ * occupancy. A simple divide will give the wrong occupancies.
+ ****************************************************************/
+	  if (!lx)
+	    {
+	      fill[2 * i] = fillx * 0.5;
+	      fill[2 * i + 1] = fillx * 0.5;
+	    }
+	  else
+	    {
+	      fill[2 * i] = (2.0 * lx + 2.0) * (fillx * 0.5 / (2. * lx + 1.));
+	      fill[2 * i + 1] = (2.0 * lx) * (fillx * 0.5 / (2. * lx + 1.));
+	      if (lx > lmax)
+		lmax = lx;
+	    }
 	}
 
       /* set up logarithmic grid */
@@ -210,8 +222,7 @@ init_Atom (char *filename)
 
   /* initialize DFT stuff */
   init_DFT (filename);
-  fprintf (stderr, "Init Atom done!\n");
-}				/* init_Atom */
+}
 
 
 /********************************
@@ -264,9 +275,6 @@ solve_Atom ()
   double *Vo, *Vo1, *Vi1;
   double *Vx, *Vc;
   double *Vh;
-
-
-
 
   /* get loggrid variables */
   Ngrid = N_LogGrid ();
@@ -343,7 +351,7 @@ solve_Atom ()
 	    }
 	 /**********************************************************/
 
-	  if (eigenvalue[i] != Etmp)
+	  if (fabs (eigenvalue[i] - Etmp) > 1.e-15)
 	    converged = False;
 	  eigenvalue[i] = Etmp;
 	}			/* solving eigenstates */
@@ -513,17 +521,19 @@ solve_Scattering_State_Atom (int nt, int lt, double et, double rmax)
     }
   else if (Solver_Type == Dirac)
     {
-      n[Ncv+1] = nt;
-      l[Ncv+1] = lt;
-      eigenvalue[Ncv+1] = et;
-      fill[Ncv+1] = 0.0;
-      turning_point[Ncv+1] = rint (log (rmax / r0) / al);
-      peak[Ncv+1] = rmax;
-      R_Dirac_Fixed_E (nt, lt, -1, Zion, Vall,
-		       turning_point[Ncv+1], et,
-		       r_psi[Ncv+1], r_psi_prime[Ncv+1]);
-      R_Dirac_Fixed_E (nt, lt,  1, Zion, Vall,
+      s2[Ncv] = 1;
+      s2[Ncv + 1] = -1;
+      n[Ncv + 1] = nt;
+      l[Ncv + 1] = lt;
+      eigenvalue[Ncv + 1] = et;
+      fill[Ncv + 1] = 0.0;
+      turning_point[Ncv + 1] = rint (log (rmax / r0) / al);
+      peak[Ncv + 1] = rmax;
+      R_Dirac_Fixed_E (nt, lt, 1, Zion, Vall,
 		       turning_point[Ncv], et, r_psi[Ncv], r_psi_prime[Ncv]);
+      R_Dirac_Fixed_E (nt, lt, -1, Zion, Vall,
+		       turning_point[Ncv + 1], et, r_psi[Ncv + 1],
+		       r_psi_prime[Ncv + 1]);
     }
 
 }				/* solve_Scattering_State */
@@ -561,7 +571,6 @@ void
 print_Atom (FILE * fp)
 {
   int i, st;
-  double *rx;
 
   fprintf (fp, "All electron atom solver\n\n");
   fprintf (fp, "Atom name: %s\n", atom_name);
@@ -634,10 +643,6 @@ print_Atom (FILE * fp)
   fprintf (fp, "E_correlation = %le\n", E_correlation);
   fprintf (fp, "<Vc>          = %le\n", P_correlation);
 
-  fprintf(fp,"\tTurning Points\n"); 
-  rx=r_LogGrid();
-  for (i=0;i<Ncv;++i) fprintf(fp,"%d %15.6le\n",i,rx[turning_point[i]]);
-  fprintf (fp,"\n");
 }				/* print_Atom */
 
 /********************************
@@ -796,7 +801,7 @@ state_RelAtom (int nt, int lt, int st)
 {
   int i;
   i = 0;
-  while (((nt != n[i]) || (lt != l[i]) || (st != s2[i])) && (i <= Ncv))
+  while (((nt != n[i]) || (lt != l[i]) || (st != s2[i])) && (i <= (Ncv + 1)))
     ++i;
 
   /* Error */

@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.18 2007-04-11 19:37:12 d3p708 Exp $
+ $Id: pspsolve.c,v 1.19 2007-04-13 21:53:46 d3p708 Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -127,7 +127,7 @@ void FATR pspsolve_
       free (infile);
       free (outfile);
       free (full_filename);
-      printf("Relativstic Atom detected!\n");
+      printf("Relativstic Atom!\n");
       rpspsolve_(print_ptr, debug_ptr, lmax_ptr, locp_ptr, rlocal_ptr,
 		     sdir_name, n9, dir_name, n0, in_filename, n1,
 		     out_filename, n2);

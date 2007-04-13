@@ -41,10 +41,11 @@ values for the Hamann prescription.
 #define	CSC	1.9
 #define	CSC1	4.0
 
-void Suggested_Param_RelHamann (int *num_states_psp,
-				int n_psp[], int l_psp[], int s_psp[],
-				double e_psp[], double fill_psp[],
-				double rcut_psp[])
+void
+Suggested_Param_RelHamann (int *num_states_psp,
+			   int n_psp[], int l_psp[], int s_psp[],
+			   double e_psp[], double fill_psp[],
+			   double rcut_psp[])
 {
   int p, npsps;
   int i, l, lmax, ss, js;
@@ -54,21 +55,21 @@ void Suggested_Param_RelHamann (int *num_states_psp,
   Nc = Ncore_Atom ();
   Nv = Nvalence_Atom ();
   lmax = lmax_Atom ();
-  npsps = 2*lmax + 2;
+  npsps = 2 * lmax + 4;
   for (p = 0; p < npsps; ++p)
     {
       rcut_psp[p] = 0.0;
       fill_psp[p] = 0.0;
       n_psp[p] = 0;
       l_psp[p] = p / 2;
-      s_psp[p] = (p%2)?1:-1;
+      s_psp[p] = (p % 2) ? -1 : 1;
     }
-  emax = 0.0;
 
     /*******************************************/
-  /* iterate over core states                */
-  /* - all core states are scattering states */
+    /* iterate over core states                */
+    /* - all core states are scattering states */
     /*******************************************/
+  emax = 0.0;
   rcmax = 0.0;
   for (i = 0; i < Nc; ++i)
     {
@@ -82,9 +83,9 @@ void Suggested_Param_RelHamann (int *num_states_psp,
       else
 	rcut_psp[js] = CSC * peak_Atom (i);
 
-      rcmax = Max (rcmax, rcut_psp[js]);
+      if (rcmax<rcut_psp[js]) rcmax=rcut_psp[js];
       fill_psp[js] = 0.0;	/* all core states are scattering states */
-      n_psp[js] = Max (n_psp[js], n);
+      if (n_psp[js]<n) n_psp[js]=n;
       e_psp[js] = 0.0;
     }				/* core states */
 
@@ -95,7 +96,7 @@ void Suggested_Param_RelHamann (int *num_states_psp,
   if (Nv > 0)
     {
       rcmax = 0.0;
-      emax = -100.0;
+      emax = -10000.0;
       for (i = Nc; i < (Nc + Nv); ++i)
 	{
 	  n = n_Atom (i);
@@ -118,14 +119,17 @@ void Suggested_Param_RelHamann (int *num_states_psp,
     }				/* valence states */
 
   /* set n_psp for guarenteed scatttering state */
-  n_psp[npsps - 1] = l_psp[npsps - 1] + 1;
+
+   n_psp[npsps - 1] = l_psp[npsps - 1] + 1;
+   n_psp[npsps - 2] = l_psp[npsps - 2] + 1;
 
   /* set the rcut for the scattering states */
   for (p = 0; p < npsps; ++p)
     {
       if (fill_psp[p] == 0.0)
 	{
-          if (rcmax>rcut_psp[p]) rcut_psp[p]=rcmax;
+	  if (rcmax > rcut_psp[p])
+	    rcut_psp[p] = rcmax;
 	  e_psp[p] = emax;
 	}
     }
@@ -192,7 +196,6 @@ solve_RelHamann (int num_psp,
   Vcut = alloc_LogGrid ();
   Fcut = alloc_LogGrid ();
   f = alloc_LogGrid ();
-
   r = r_LogGrid ();
   Ngrid = N_LogGrid ();
   al = log_amesh_LogGrid ();
@@ -205,20 +208,16 @@ solve_RelHamann (int num_psp,
 
   if (debug_print ())
     {
-      printf ("Number of Pseudopotentials = %d\n",num_psp);
+      printf ("Number of Pseudopotentials = %d\n", num_psp);
       printf ("\n\nRelativistic Hamann pseudopotential check\n\n");
       printf
 	("l\ts\trcore     rmatch    E in       E psp      norm test slope test\n");
     }
   for (p = 0; p < num_psp; ++p)
     {
-      w1l = r_psi_psp[p];
-      w1l_prime = r_psi_prime_psp[p];
-      V1l = V_psp[p];
-      w2l = w1l;
-      w2l_prime = w1l_prime;
-      V2l = V1l;
-
+      w2l = w1l = r_psi_psp[p];
+      w2l_prime = w1l_prime = r_psi_prime_psp[p];
+      V2l = V1l = V_psp[p];
 
       /* Solve for scattering state if necessary */
       if (fill_psp[p] < 1.e-15)
@@ -228,14 +227,14 @@ solve_RelHamann (int num_psp,
 
 	  /* scattering state saved at the end of the atom list */
 	  i = Nvalence_Atom () + Ncore_Atom ();
-          if (p%2) ++i;
+	  i = (s_psp[p]>0) ? i:(i+1);
 	}
       /* find state of all-electron wavefunction */
       else
 	i = state_RelAtom (n_psp[p], l_psp[p], s_psp[p]);
 
       /* find matching point stuff */
-      nrc = rint (log (rcut_psp[p] / r[0]) / al);
+      nrc = (int) rint (log (rcut_psp[p] / r[0]) / al);
       match = turning_point_Atom (i);
       rpsi_match = (r_psi_Atom (i))[match];
       rpsi_prime_match = (r_psi_prime_Atom (i))[match];
@@ -268,7 +267,6 @@ solve_RelHamann (int num_psp,
 	  /* find w1l, and e1l */
 	  e1l = e_psp[p];
 
-          fprintf(stderr,"%12d %12d %12d %12d\n",p,mch,match,(Ngrid-1));
 	  /* psp bound state */
 	  if (fill_psp[p] > 1.e-15)
 	    {
@@ -284,7 +282,6 @@ solve_RelHamann (int num_psp,
 					    ldpsi_match, &e1l, w1l,
 					    w1l_prime);
 	    }
-          fprintf(stderr,"%12d %12d %12d %12d\n",p,mch,match,(Ngrid-1));
 
 	  /* perform integrals */
 	  nu0 = ((double) (2 * l_psp[p] + 3));
@@ -326,11 +323,8 @@ solve_RelHamann (int num_psp,
 	  dcl = (e_psp[p] - e1l) / sv;
 	  cl[p] = cl[p] + dcl;
 	  converged = (fabs (dcl) <= SMALL);
-          fprintf(stderr,"dcl = %lg  mch= %d\n",dcl,mch);
-
 	}			/* while iteration */
 
-      fprintf(stderr,"%12d %12d %12d %12d\n",p,mch,match,(Ngrid-1));
 
       gamma = fabs (rpsi_match / w1l[match]);
       sx = sx * gamma * gamma;
@@ -346,18 +340,18 @@ solve_RelHamann (int num_psp,
 
       /* construct final psp V2l */
       for (k = 0; k < Ngrid; ++k)
-      {
-	if ((  fabs(w2l[k]) > SMALL) || (r[k] < 0.1))
-        {
-     	/* hacking */
-	  V2l[k] = V1l[k]
-	    + (gamma * del * pow (r[k], nu1) * Fcut[k] / (2.0 * w2l[k]))
-	    * ((ALAM * ALAM * pow (r[k] / rcut_psp[p], (2.0 * ALAM))
-		- (2.0 * ALAM * ((double) l_psp[p]) + ALAM * (ALAM + 1.0))
-		* pow (r[k] / rcut_psp[p], ALAM)) / (r[k] * r[k])
-	       + 2.0 * e_psp[p] - 2.0 * V1l[k]);
-        }
-      }
+	{
+	  if ((fabs (w2l[k]) > SMALL) || (r[k] < 0.1))
+	    {
+	      /* hacking */
+	      V2l[k] +=
+		(gamma * del * pow (r[k], nu1) * Fcut[k] / (2.0 * w2l[k]))
+		* ((ALAM * ALAM * pow (r[k] / rcut_psp[p], (2.0 * ALAM))
+		    - (2.0 * ALAM * ((double) l_psp[p]) + ALAM * (ALAM + 1.0))
+		    * pow (r[k] / rcut_psp[p], ALAM)) / (r[k] * r[k])
+		   + 2.0 * e_psp[p] - 2.0 * V1l[k]);
+	    }
+	}
       e2l = e_psp[p];
 
 	/******************/
@@ -375,18 +369,24 @@ solve_RelHamann (int num_psp,
 	  R_Schrodinger_Fixed_Logderiv (l_psp[p] + 1, l_psp[p], V2l, mch,
 					ldpsi_match, &e2l, w2l, w2l_prime);
 	}
-      fprintf(stderr,"%4d v2l=%lg mch=%d e2l=%lg\n",l_psp[p],
-              V2l,mch,e2l);
 
       eeig += fill_psp[p] * e2l;
 
       /* accumulate charges */
       Zion += fill_psp[p];
+
       for (k = 0; k < Ngrid; ++k)
 	rho_psp[k] += fill_psp[p] * pow (w2l[k] / r[k], 2.0);
-
-      gamma = fabs (rpsi_match / w2l[match]);
-      gpr = fabs (rpsi_prime_match / w2l_prime[match]);
+      if (fabs (w2l_prime[match]) < 1.e-15)
+	{
+	  gamma = 1.0;
+	  gpr = 1.0;
+	}
+      else
+	{
+	  gamma = fabs (rpsi_match / w2l[match]);
+	  gpr = fabs (rpsi_prime_match / w2l_prime[match]);
+	}
       if (debug_print ())
 	{
 	  printf ("%d\t%d/2\t%lf  %lf  %lf  %lf  %lf  %lf\n", l_psp[p],
@@ -396,8 +396,8 @@ solve_RelHamann (int num_psp,
       /* Extend scattering states to Ngrid */
       if (fill_psp[p] == 0.0)
 	{
-	  R_Schrodinger_Fixed_E (l_psp[p] + 1, l_psp[p], V2l,
-				 Ngrid - 1, e2l, w2l, w2l_prime);
+	  R_Schrodinger_Fixed_E ((l_psp[p] + 1), l_psp[p], V2l,
+				 (Ngrid - 1), e2l, w2l, w2l_prime);
 	}
 
     }				/* for p */
