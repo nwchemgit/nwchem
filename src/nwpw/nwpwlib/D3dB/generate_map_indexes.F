@@ -1,6 +1,6 @@
 
 *
-* $Id: generate_map_indexes.F,v 1.6 2005-08-29 03:59:53 bylaska Exp $
+* $Id: generate_map_indexes.F,v 1.7 2007-04-16 23:28:25 bylaska Exp $
 *
 
 *     ***********************************
@@ -54,7 +54,7 @@
            q = 1
            p = p + 1
            p = mod(p,np)
-           if (p.gt.rmdr1) nq2 = nq1
+           if (p.ge.rmdr1) nq2 = nq1
         end if
       end do
 
