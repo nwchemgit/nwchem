@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.fh,v 1.8 2007-03-27 02:02:50 bylaska Exp $
+c $Id: pspw_qmmm.fh,v 1.9 2007-04-19 23:37:37 bylaska Exp $
 c
 
 *     ***** pspw_qmmm common block ************************************
@@ -7,14 +7,21 @@ c
       integer size_frag(2)
       integer kfrag(2)
       integer switch_Rin(2),switch_Rout(2)
-      integer nb_shake(2),indx_shake_start(2),dsq_shake(2)
       integer nshl3d,rcell(2)
       integer nfrag,nkfrag
       logical qmmm_found,shake_found
       common / pspw_qmmm /  indx_frag_start,
      >                      size_frag,
      >                      kfrag,switch_Rin,switch_Rout,
-     >                      nb_shake,indx_shake_start,dsq_shake,
      >                      rcell,nshl3d,
      >                      nfrag,nkfrag,qmmm_found,shake_found
+
+*     **** pspw_qmmm shake common block ****
+      integer nshake(2)
+      integer na(2),nb(2),nab_shake_start(2)
+      integer indx_shake(2),nindx_shake_start(2)
+      integer dsq_shake(2),ndsq_shake_start(2)
+      common / pspw_qmmm2 /  nshake,na,nb,nab_shake_start,
+     >                       indx_shake,nindx_shake_start,
+     >                       dsq_shake,ndsq_shake_start
 *     ******************************************************************

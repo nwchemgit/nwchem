@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.24 2007-03-29 01:47:50 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.25 2007-04-19 23:37:36 bylaska Exp $
 c
 
 ***********************************************************
@@ -38,9 +38,10 @@ c
       integer taskid,MASTER
       parameter (MASTER=0)
       logical value
-      integer i,j,ii,jj,ia,ni,nj,frag_size,shake_ptr
+      integer i,j,ii,jj,ia,ja,ni,nj,frag_size,shake_ptr,indx_ptr
       real*8  volume
       character*80 rtdb_name
+      integer natmp,nbtmp,nabsize,nindxsize,ndsqsize
 
 *     **** external functions ****
       integer     ion_nion,ion_nion_qm,ion_nion_mm,control_version
@@ -102,13 +103,22 @@ c
          value = value.and.
      >           MA_alloc_get(mt_dbl,nkfrag,'switch_Rout',
      >                        switch_Rout(2),switch_Rout(1))
+
+*        **** shake variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nb_shake',
-     >                        nb_shake(2),nb_shake(1))
+     >           MA_alloc_get(mt_int,nkfrag,'nshake',
+     >                        nshake(2),nshake(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'indx_shake_start',
-     >                        indx_shake_start(2),indx_shake_start(1))
-         if (.not.value) call errquit('cannot free heap memory',0,
+     >           MA_alloc_get(mt_int,nkfrag,'nab_shake_start',
+     >                        nab_shake_start(2),nab_shake_start(1))
+         value = value.and.
+     >           MA_alloc_get(mt_int,nkfrag,'nindx_shake_start',
+     >                        nindx_shake_start(2),nindx_shake_start(1))
+         value = value.and.
+     >           MA_alloc_get(mt_int,nkfrag,'ndsq_shake_start',
+     >                        ndsq_shake_start(2),ndsq_shake_start(1))
+         if (.not.value) 
+     >    call errquit('cannot allocate heap memory for qmmm',0,
      >       MA_ERR)
 
 
@@ -116,6 +126,9 @@ c
 *        **** set index_start and size_frag****
          ii = 0
          jj = 0
+         nabsize   = 0
+         nindxsize = 0
+         ndsqsize  = 0
          do ia=1,nkfrag
 
             rtdb_name = 'pspw_qmmm_frag_size:'//c_index_name(ia)
@@ -156,29 +169,87 @@ c
             if (.not.value) 
      >         dbl_mb(switch_Rout(1)+ia-1) =(3.1287d0/0.529177d0)
 
-*           **** shake stuff ****
-            rtdb_name = 'pspw_qmmm_frag_n_sdist:'//c_index_name(ia)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nj)) nj=0
-            int_mb(indx_shake_start(1)+ia-1) = jj+1
-            int_mb(nb_shake(1)+ia-1)         = nj
-            jj = jj + nj
+
+*           **** shake stuff  - get nshake  ****
+            int_mb(nab_shake_start(1)+ia-1) = nabsize + 1
+            rtdb_name = 'pspw_qmmm_frag_nshk:'//c_index_name(ia)
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
+     >                        int_mb(nshake(1)+ia-1))) 
+     >         int_mb(nshake(1)+ia-1) = 0
+            nabsize = nabsize + int_mb(nshake(1)+ia-1)
+
+
+*           **** shake stuff  - determine nindxsize and ndsqsize  ****
+            int_mb(nindx_shake_start(1)+ia-1) = nindxsize + 1
+            int_mb(ndsq_shake_start(1) +ia-1) = ndsqsize  + 1
+
+            do ja=1,int_mb(nshake(1)+ia-1)
+               rtdb_name = 'pspw_qmmm_frag_na:'
+     >                     //c_index_name(ia)//c_index_name(ja)
+               if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,natmp))
+     >            natmp = 0
+               nindxsize = nindxsize + natmp
+
+               rtdb_name = 'pspw_qmmm_frag_nb:'
+     >                     //c_index_name(ia)//c_index_name(ja)
+               if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nbtmp))
+     >            nbtmp = 0
+               ndsqsize = ndsqsize + nbtmp
+            end do
 
          end do
+
+
+            write(*,*) "nabsize,nindxsize,ndsqsize=",nabsize,nindxsize,
+     >                  ndsqsize
 *        *** more shake ****
-         shake_found = (jj.gt.0)
+         shake_found = (nabsize.gt.0)
          if (shake_found) then
-            value = MA_alloc_get(mt_dbl,jj,'dsq_shake',
+
+            value = MA_alloc_get(mt_int,nabsize,'na',na(2),na(1))
+            value = value.and.
+     >              MA_alloc_get(mt_int,nabsize,'nb',nb(2),nb(1))
+            value = value.and.
+     >              MA_alloc_get(mt_int,nindxsize,'indx_shake',
+     >                        indx_shake(2),indx_shake(1))
+            value = value.and.
+     >              MA_alloc_get(mt_dbl,ndsqsize,'dsq_shake',
      >                        dsq_shake(2),dsq_shake(1))
             if (.not.value) call errquit(
-     >       'cannot allocate heap memory',0,MA_ERR)
+     >       'cannot allocate heap memory for qmmm shake',0,MA_ERR)
 
+            nabsize   = 0
+            nindxsize = 0
+            ndsqsize  = 0
             do ia=1,nkfrag
-               rtdb_name = 'pspw_qmmm_frag_sdist:'//c_index_name(ia)
-               value = rtdb_get(rtdb,rtdb_name,mt_dbl,
-     >          int_mb(nb_shake(1)+ia-1),
-     >          dbl_mb(dsq_shake(1)+int_mb(indx_shake_start(1)+ia-1)-1))
-               if (.not. value) call errquit(
-     >          'pspw_qmmm_init:failed reading frag_sdist',0,RTDB_ERR)
+               do ja=1,int_mb(nshake(1)+ia-1)
+                  rtdb_name = 'pspw_qmmm_frag_na:'
+     >                        //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,natmp))
+     >               natmp = 0
+                  int_mb(na(1)+nabsize) = natmp
+                  rtdb_name = 'pspw_qmmm_frag_nb:'
+     >                        //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nbtmp))
+     >               nbtmp = 0
+                  int_mb(nb(1)+nabsize) = nbtmp
+                  nabsize = nabsize + 1
+
+                  rtdb_name = 'pspw_qmmm_frag_indx_shake:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,natmp,
+     >                int_mb(indx_shake(1)+nindxsize)))
+     >               int_mb(indx_shake(1)+nindxsize) = 0
+                  nindxsize = nindxsize + natmp
+
+                  rtdb_name = 'pspw_qmmm_frag_dsq_shake:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,nbtmp,
+     >                dbl_mb(dsq_shake(1)+ndsqsize)))
+     >               dbl_mb(dsq_shake(1)+ndsqsize) = 0.0d0
+                  ndsqsize = ndsqsize + nbtmp
+
+               end do
             end do
          end if
 
@@ -199,11 +270,21 @@ c
      >                  dbl_mb(switch_Rin(1)+ia-1),
      >                  dbl_mb(switch_Rout(1)+ia-1)
 
-             nj = int_mb(nb_shake(1)+ia-1)
+             nj = int_mb(nshake(1)+ia-1)
+             i  = int_mb(nab_shake_start(1)+ia-1)
+             ii = int_mb(nindx_shake_start(1)+ia-1)
+             jj = int_mb(ndsq_shake_start(1)+ia-1)
              if (nj.gt.0) then
-             shake_ptr = dsq_shake(1)+int_mb(indx_shake_start(1)+ia-1)-1
-             write(*,*) "  - shake                = ",
-     >                  (dsqrt(dbl_mb(shake_ptr+j-1)),j=1,nj)
+             do ja=1,nj
+                natmp = int_mb(na(1)+i-1+ja-1)
+                nbtmp = int_mb(nb(1)+i-1+ja-1)
+                indx_ptr  = indx_shake(1)+ii-1
+                shake_ptr = dsq_shake(1) +jj-1
+             write(*,'(A,10I8)')   "   - shake                = ",
+     >                  (int_mb(indx_ptr+j-1),j=1,natmp)
+             write(*,'(A,10F8.3)') "                            ",
+     >                  (dsqrt(dbl_mb(shake_ptr+j-1)),j=1,nbtmp)
+             end do
              end if
            end do
         end if
@@ -238,9 +319,17 @@ c
         value = value.and.MA_free_heap(kfrag(2))
         value = value.and.MA_free_heap(switch_Rin(2))
         value = value.and.MA_free_heap(switch_Rout(2))
-        value = value.and.MA_free_heap(nb_shake(2))
-        value = value.and.MA_free_heap(indx_shake_start(2))
-        if (shake_found) value = value.and.MA_free_heap(dsq_shake(2))
+        value = value.and.MA_free_heap(nshake(2))
+        value = value.and.MA_free_heap(nab_shake_start(2))
+        value = value.and.MA_free_heap(nindx_shake_start(2))
+        value = value.and.MA_free_heap(ndsq_shake_start(2))
+        if (shake_found) then
+          value = value.and.MA_free_heap(na(2))
+          value = value.and.MA_free_heap(nb(2))
+          value = value.and.MA_free_heap(indx_shake(2))
+          value = value.and.MA_free_heap(dsq_shake(2))
+        end if
+
         if (control_version().ne.3) then
         value = value.and.MA_free_heap(rcell(2))
         end if
@@ -647,26 +736,69 @@ c     **** external functions ***
       double precision tol
       parameter (maxit=1000,tol=1.0d-4)
 
-      integer n1,nb,w1,wk,wks,ks1
+      integer w1,wk1,ks1
+      integer nshk,ii,jj,kk
 
 *     **** external functions ****
       integer  ion_amass_ptr
       external ion_amass_ptr
 
       do w1=1,nfrag
-         wk = int_mb(kfrag(1)+w1-1)
-         nb = int_mb(nb_shake(1)+wk-1)
-         if (nb.gt.0) then
-            n1  = int_mb(size_frag(1)+w1-1)
+         wk1  = int_mb(kfrag(1)+w1-1)
+         nshk = int_mb(nshake(1)+wk1-1)
+         if (nshk.gt.0) then
             ks1 = int_mb(indx_frag_start(1)+w1-1)
-            wks = int_mb(indx_shake_start(1)+wk-1)
-            call shake_chain2(n1,nb,
-     >                        tol,maxit,
-     >                        dbl_mb(dsq_shake(1)+wks-1),
-     >                        dbl_mb(ion_amass_ptr()+ks1-1),
-     >                        r2(1,ks1),r1(1,ks1))
+            ii  = int_mb(nab_shake_start(1)  +wk1-1)
+            jj  = int_mb(nindx_shake_start(1)+wk1-1)
+            kk  = int_mb(ndsq_shake_start(1) +wk1-1)
+            call pspw_qmmm_shake_frag(nshk,
+     >                                int_mb(na(1)+ii-1),
+     >                                int_mb(nb(1)+ii-1),
+     >                                int_mb(indx_shake(1)+jj-1),
+     >                                dbl_mb(dsq_shake(1) +kk-1),
+     >                                tol,maxit,
+     >                                dbl_mb(ion_amass_ptr()+ks1-1),
+     >                                r2(1,ks1),r1(1,ks1))
+     >
          end if
       end do
+  
 
       return
       end
+
+*     ******************************
+*     *                            *
+*     *   pspw_qmmm_shake_frag     *
+*     *                            *
+*     ******************************
+*   shakes a fragment 
+*
+      subroutine pspw_qmmm_shake_frag(nshk,na,nb,indx,dsq,
+     >                                tol,maxit,
+     >                                mass,r2,r1)
+      implicit none
+      integer nshk, na(*),nb(*)
+      integer indx(*)
+      real*8  dsq(*)
+      real*8  tol
+      integer maxit
+      real*8  mass(*)
+      real*8 r2(*),r1(*)
+
+*     **** local variables ****
+      integer ii,jj,sk
+
+      ii = 1
+      jj = 1
+      do sk=1,nshk
+         call shake_chain3(na(sk),indx(ii),nb(sk),
+     >                     tol,maxit,
+     >                     dsq(jj),
+     >                     mass,r2,r1)
+         ii = ii + na(sk)
+         jj = jj + nb(sk)
+      end do
+      return
+      end
+

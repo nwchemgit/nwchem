@@ -38,7 +38,7 @@ c
       character*80  rtdb_name
       integer       element_length,basis_length,tmp(2)
       integer       ni,nkf,nfrag,frag_size,index_start(2)
-      real*8        se(2),alpha,Rin,Rout,sdist2(30),scal
+      real*8        se(2),alpha,Rin,Rout,scal
       integer       nsigma
       real*8        charge,rcut
       character*255 test,dir_name,sdir_name
@@ -46,6 +46,9 @@ c
 
       integer h,i,j,k,ka,jstart,jlast,jstride
       character*16 psp_in,psp_out
+
+      integer sindx(50),na,nb,nshk
+      real*8  sdist(50)
 
 *     **** external functions ****
       character*7 c_index_name
@@ -193,6 +196,7 @@ c
 c  fragment
 c
  600  nkf = nkf + 1
+      nshk = 0
       rtdb_name = 'pspw_qmmm_nkfrag'
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkf)
       if (.not. value)
@@ -265,29 +269,74 @@ c      end do
 c
 c shake
 c
- 630  ni = 0
-      if (inp_f(alpha)) then
+ 630  na = 0
+      if (inp_i(k)) then
          scal = 1.0d0
-         sdist2(ni+1) = (scal*alpha)**2
-         ni = ni + 1
+         sindx(na+1) = k
+         na = na + 1
       else
          call get_scalefrominput(scal)
       end if
-      do while (inp_f(alpha))
-        sdist2(ni+1) = (scal*alpha)**2
-        ni = ni + 1
+      do while (inp_i(k))
+         sindx(na+1) = k
+         na = na + 1
       end do
-      rtdb_name = 'pspw_qmmm_frag_sdist:'//c_index_name(nkf)
-      value = rtdb_put(rtdb,rtdb_name,mt_dbl,ni,sdist2)
-      if (.not. value)
-     >  call errquit(
-     > 'pspw_qmmm_input:failed writing sdist',0, RTDB_ERR)
+      if (inp_a(test)) then
+         if (inp_contains(.false.,'c',test,k)) then
+           nb = na
+         else
+           nb = na - 1 
+         end if
 
-      rtdb_name = 'pspw_qmmm_frag_n_sdist:'//c_index_name(nkf)
-      value = rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
-      if (.not. value)
-     >  call errquit(
-     > 'pspw_qmmm_input:failed writing n_sdist',0, RTDB_ERR)
+         ni = 0
+         do while (inp_f(alpha))
+           sdist(ni+1) = (scal*alpha)**2
+           ni = ni + 1
+         end do
+         if (ni.ge.nb) then
+            nshk = nshk + 1
+            rtdb_name = 'pspw_qmmm_frag_nshk:'//c_index_name(nkf)
+            value = rtdb_put(rtdb,rtdb_name,mt_int,1,nshk)
+            if (.not. value)
+     >        call errquit(
+     >       'pspw_qmmm_input:failed writing nshk',0,RTDB_ERR)
+
+            rtdb_name = 'pspw_qmmm_frag_na:'
+     >                  //c_index_name(nkf)
+     >                  //c_index_name(nshk)
+            value = rtdb_put(rtdb,rtdb_name,mt_int,1,na)
+            if (.not. value)
+     >      call errquit(
+     >      'pspw_qmmm_input:failed writing na',0,RTDB_ERR)
+
+            rtdb_name = 'pspw_qmmm_frag_nb:'
+     >                  //c_index_name(nkf)
+     >                  //c_index_name(nshk)
+            value = rtdb_put(rtdb,rtdb_name,mt_int,1,nb)
+            if (.not. value)
+     >      call errquit(
+     >      'pspw_qmmm_input:failed writing nb',0,RTDB_ERR)
+
+            rtdb_name = 'pspw_qmmm_frag_indx_shake:'
+     >                  //c_index_name(nkf)
+     >                  //c_index_name(nshk)
+            value = rtdb_put(rtdb,rtdb_name,mt_int,na,sindx)
+            if (.not. value)
+     >      call errquit(
+     >      'pspw_qmmm_input:failed writing indx_shake',0,RTDB_ERR)
+
+            rtdb_name = 'pspw_qmmm_frag_dsq_shake:'
+     >                  //c_index_name(nkf)
+     >                  //c_index_name(nshk)
+            value = rtdb_put(rtdb,rtdb_name,mt_dbl,nb,sdist)
+            if (.not. value)
+     >      call errquit(
+     >      'pspw_qmmm_input:failed writing dsq_shake',0,RTDB_ERR)
+
+         end if
+
+
+      end if
 
       goto 601
 c
