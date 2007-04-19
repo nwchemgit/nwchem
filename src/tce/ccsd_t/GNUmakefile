@@ -1,8 +1,9 @@
-#$Id: GNUmakefile,v 1.2 2005-12-20 21:19:40 edo Exp $
+#$Id: GNUmakefile,v 1.3 2007-04-19 23:50:07 d3m299 Exp $
 
-OBJ_OPTIMIZE = ccsd_t.o ccsd_t_doubles.o ccsd_t_singles.o cr_ccsd_t.o cr_ccsd_t_D.o cr_ccsd_t_E.o cr_ccsd_t_N.o \
+OBJ          = cr_ccsd_t.o lr_ccsd_t.o
+OBJ_OPTIMIZE = ccsd_t.o ccsd_t_doubles.o ccsd_t_singles.o  cr_ccsd_t_D.o cr_ccsd_t_E.o cr_ccsd_t_N.o \
                ccsd2_t.o ccsd2_t_left.o ccsd2_q.o ccsd2_q_left.o ccsd2_q_right.o ccsdt2_q.o ccsdt2_q_left.o ccsdt2_q_right.o \
-               lr_ccsd_t.o lr_ccsd_tq.o
+                lr_ccsd_tq.o
 
 LIB_INCLUDES = -I../include
 
