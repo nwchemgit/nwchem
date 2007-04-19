@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.80 2006-09-18 22:06:10 d3p307 Exp $
+$Id: INSTALL,v 1.81 2007-04-19 16:41:44 d3p307 Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -653,8 +653,10 @@ table summarize supported combinations of ARMCI_NETWORK and NWCHEM_TARGET.
   GM              LINUX         Myrinet          GM
                   LINUX64
   VIA             LINUX         Giganet/CLAN     VIA
-  MELLANOX        LINUX         Infiniband       VAPI
+  MELLANOX        LINUX         InfiniBand       VAPI
                   LINUX64
+  OPENIB          LINUX         InfiniBand       OpenIB
+                  LINUX64       
   ELAN3 or        LINUX         Quadrics/QsNet   Elan3/Shmem
   QUADRICS        DECOSF
                   LINUX64
