@@ -1,10 +1,11 @@
 #
-# $Id: GNUmakefile,v 1.6 2007-03-27 02:02:47 bylaska Exp $
+# $Id: GNUmakefile,v 1.7 2007-04-20 17:48:16 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
             	shake_chain.o \
             	shake_chain2.o \
+            	shake_chain3.o \
 		shake_analysis.o \
 		molecular.o \
 		pspw_molecule.o \
