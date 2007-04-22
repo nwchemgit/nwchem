@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.fh,v 1.9 2007-04-19 23:37:37 bylaska Exp $
+c $Id: pspw_qmmm.fh,v 1.10 2007-04-22 00:58:28 bylaska Exp $
 c
 
 *     ***** pspw_qmmm common block ************************************
@@ -24,4 +24,25 @@ c
       common / pspw_qmmm2 /  nshake,na,nb,nab_shake_start,
      >                       indx_shake,nindx_shake_start,
      >                       dsq_shake,ndsq_shake_start
+
+*     **** pspw_qmmm bond spring common block ****
+      integer nbond(2)
+      integer indx_bond(2),nindx_bond_start(2)
+      integer Kr0_bond(2), nKr0_bond_start(2)
+      logical bond_found
+      common / pspw_qmmm3 /  nbond,
+     >                       indx_bond,nindx_bond_start,
+     >                       Kr0_bond,nKr0_bond_start,
+     >                       bond_found
+
+*     **** pspw_qmmm angle spring common block ****
+      integer nangle(2)
+      integer indx_angle(2),nindx_angle_start(2)
+      integer Kr0_angle(2), nKr0_angle_start(2)
+      logical angle_found
+      common / pspw_qmmm4 /  nangle,
+     >                       indx_angle,nindx_angle_start,
+     >                       Kr0_angle,nKr0_angle_start,
+     >                       angle_found
+
 *     ******************************************************************
