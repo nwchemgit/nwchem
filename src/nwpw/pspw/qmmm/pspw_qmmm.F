@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.26 2007-04-22 00:58:24 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.27 2007-04-22 01:51:40 bylaska Exp $
 c
 
 ***********************************************************
@@ -688,7 +688,7 @@ c     **** external functions ***
 *     *                                *
 *     **********************************
 
-      real*8 function pspw_qmmm_spring_fion(fion)
+      subroutine pspw_qmmm_spring_fion(fion)
       implicit none
       real*8 fion(3,*)
 
@@ -867,7 +867,7 @@ c        dE =  2.0d0*Kr0(1,b)*(r-Kr0(2,b))/r
 *     *                                        *
 *     ******************************************
 
-      real*8 function pspw_qmmm_spring_angle_frag_fion(nangle,indx,Kr0,
+      subroutine pspw_qmmm_spring_angle_frag_fion(nangle,indx,Kr0,
      >                                                 rion,fion)
       implicit none
       integer nangle,indx(3,*)

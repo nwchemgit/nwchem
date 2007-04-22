@@ -1,5 +1,5 @@
 c
-c     $Id: nominimize.F,v 1.8 2007-03-27 02:02:49 bylaska Exp $ 
+c     $Id: nominimize.F,v 1.9 2007-04-22 01:49:57 bylaska Exp $ 
 c
 
       subroutine nominimize(E)
@@ -21,7 +21,7 @@ c
       integer neall,npack1
       !real*8 e_pol,e_vib,e_cav
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
-      real*8  e_lj,e_q
+      real*8  e_lj,e_q,e_spring
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       
 
@@ -49,9 +49,9 @@ c
 
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found
-      real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E
+      real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
       external pspw_qmmm_found
-      external pspw_qmmm_LJ_E,pspw_qmmm_Q_E
+      external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
 
 *     ***** pspw_charge external functions ****
       logical  pspw_charge_found
@@ -100,12 +100,14 @@ c      call psi_1toelectron()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
       if (pspw_qmmm_found()) then
-         e_lj = pspw_qmmm_LJ_E()
-         e_q  = pspw_qmmm_Q_E()
-         E(1)  = E(1) + e_lj + e_q
+         e_lj     = pspw_qmmm_LJ_E()
+         e_q      = pspw_qmmm_Q_E()
+         e_spring = pspw_qmmm_spring_E()
+         E(1)  = E(1) + e_lj + e_q + e_spring
 
          E(11) = e_lj
          E(12) = e_q
+         E(13) = e_spring
       end if
 
 *     **** get pspw_charge  energies ****

@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.69 2007-04-02 15:38:40 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.70 2007-04-22 01:49:56 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -280,6 +280,7 @@ c        end if
             write(luout,1701)
             write(luout,1702) E(11)
             write(luout,1703) E(12)
+            write(luout,1704) E(13)
 c
 c            write(luout,1703) E(14)+E(15)
 c            write(luout,1710) E(14)
@@ -473,8 +474,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')
  1702 FORMAT( ' LJ energy                        :',E19.10)
- 1703 FORMAT(/' Residual Coulomb energy          :',E19.10)
- 1704 FORMAT(/' MM Polarization energy           :',E19.10)
+ 1703 FORMAT( ' Residual Coulomb energy          :',E19.10)
+ 1704 FORMAT( ' MM Vibrational energy            :',E19.10)
  1705 FORMAT( ' MM Vibration energy              :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy            :',E19.10)
  1707 FORMAT( ' - MM Charge Field/QM Electron    :',E19.10)

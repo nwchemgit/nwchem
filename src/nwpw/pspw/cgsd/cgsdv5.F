@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.81 2007-04-06 23:01:43 bylaska Exp $
+* $Id: cgsdv5.F,v 1.82 2007-04-22 01:49:56 bylaska Exp $
 *
 
 ***********************************************************************
@@ -223,7 +223,6 @@
       call mask_init()
       call Pack_Init()
       call D3dB_pfft_init()
-
 
 
 *     **** read in wavefunctions and initialize psi ****
