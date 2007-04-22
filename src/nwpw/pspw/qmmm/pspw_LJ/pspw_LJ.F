@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.15 2007-04-02 15:38:42 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.16 2007-04-22 00:59:34 bylaska Exp $
 c
 
 *     *************************
@@ -272,7 +272,7 @@ c     *********************************************
       real*8  u,u6,u12,E
 
       E         = 0.0d0
-      sigma12   = dsqrt(s1*s2)
+      sigma12   = 0.5d0*(s1+s2)
       epsilon12 = dsqrt(e1*e2)
       dx = r1(1) - r2(1)
       dy = r1(2) - r2(2)
@@ -316,7 +316,7 @@ c     *********************************************
       real*8  u,u6,u12,E
 
       E         = 0.0d0
-      sigma12   = dsqrt(s1*s2)
+      sigma12   = 0.5d0*(s1+s2)
       epsilon12 = dsqrt(e1*e2)
       dx = r1(1) - r2(1)
       dy = r1(2) - r2(2)
@@ -475,7 +475,7 @@ c     *********************************************
       real*8  sigma12,epsilon12
       real*8  u,u6,u12,dVLJ
 
-      sigma12   = dsqrt(s1*s2)
+      sigma12   = 0.5d0*(s1+s2)
       epsilon12 = dsqrt(e1*e2)
       dx = r1(1) - r2(1)
       dy = r1(2) - r2(2)
@@ -524,7 +524,7 @@ c     *********************************************
       real*8  sigma12,epsilon12
       real*8  u,u6,u12,dVLJ
 
-      sigma12   = dsqrt(s1*s2)
+      sigma12   = 0.5d0*(s1+s2)
       epsilon12 = dsqrt(e1*e2)
       dx = r1(1) - r2(1)
       dy = r1(2) - r2(2)
