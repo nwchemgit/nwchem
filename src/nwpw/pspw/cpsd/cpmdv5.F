@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.60 2007-04-02 15:38:41 bylaska Exp $
+* $Id: cpmdv5.F,v 1.61 2007-04-22 02:00:33 bylaska Exp $
 *
 
 ***********************************************************************
@@ -1015,7 +1015,7 @@ c      parameter (autoatm =290.360032539d6)
             write(6,1701)
             write(6,1702) E(11)
             write(6,1703) E(12)
-c            write(6,1704) E(13)
+            write(6,1704) E(13)
 c            write(6,1705) E(14)
 c            write(6,1706) E(15)
          end if
@@ -1342,7 +1342,7 @@ c         end if
  1701 FORMAT( ' --------------------------')
  1702 FORMAT( ' LJ energy              :',E19.10)
  1703 FORMAT( ' Residual Coulomb energy:',E19.10)
- 1704 FORMAT( ' MM Polarization energy :',E19.10)
+ 1704 FORMAT( ' MM Vibration energy    :',E19.10)
  1705 FORMAT( ' MM Vibration energy    :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
 
