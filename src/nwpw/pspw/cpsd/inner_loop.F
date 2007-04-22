@@ -1,5 +1,5 @@
 *,eke
-* $Id: inner_loop.F,v 1.26 2007-03-29 00:51:21 bylaska Exp $
+* $Id: inner_loop.F,v 1.27 2007-04-22 01:50:01 bylaska Exp $
 *
 
 *  ************************************************************
@@ -53,7 +53,7 @@
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       real*8  deltamm
-      real*8  e_lj, e_q
+      real*8  e_lj, e_q, e_spring
       !real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
 
@@ -104,9 +104,9 @@ c     real*8     fion(3,natmx)
 
 *     ***** QM/MM external functions ****
       logical  pspw_charge_found,pspw_qmmm_found
-      real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E
+      real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
       external pspw_charge_found,pspw_qmmm_found
-      external pspw_qmmm_LJ_E,pspw_qmmm_Q_E
+      external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
 
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
@@ -541,12 +541,14 @@ c    >                 lmd,dbl_mb(tmp_L(1)),ierr)
       E(10) = pxc
 
       if (pspw_qmmm_found()) then
-         e_lj = pspw_qmmm_LJ_E()
-         e_q  = pspw_qmmm_Q_E()
-         E(1)  = E(1) + e_lj + e_q
+         e_lj     = pspw_qmmm_LJ_E()
+         e_q      = pspw_qmmm_Q_E()
+         e_spring = pspw_qmmm_spring_E()
+         E(1)  = E(1) + e_lj + e_q + e_spring
 
          E(11) = e_lj
          E(12) = e_q
+         E(13) = e_spring
       end if
 
 *     **** SIC corrections ****
