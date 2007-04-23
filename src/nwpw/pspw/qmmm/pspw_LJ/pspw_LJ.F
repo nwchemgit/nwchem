@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.16 2007-04-22 00:59:34 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.17 2007-04-23 16:45:06 bylaska Exp $
 c
 
 *     *************************
@@ -137,14 +137,17 @@ c     *           pspw_LJ_E               *
 c     *                                   *
 c     *************************************
       real*8 function pspw_LJ_E(nion,nion_qm,katm,
-     >                          nfrag,indx_frag_start,size_frag,
+     >                          nfrag,indx_frag_start,size_frag,kfrag,
+     >                          self_interaction,
      >                          nshl3d,rcell,
      >                          rion)
       implicit none
       integer nion,nion_qm
       integer katm(*)
       integer nfrag
-      integer indx_frag_start(*),size_frag(*) 
+      integer indx_frag_start(*),size_frag(*)
+      integer kfrag(*)
+      logical self_interaction(*)
       integer nshl3d
       real*8  rcell(nshl3d,3)
       real*8  rion(3,*)
@@ -242,6 +245,34 @@ c     **** MM/MM LJ self image energy ****
          dutask = mod(dutask+1,np)
       end do
       end if
+
+c     **** MM/MM LJ self energy ****
+      do w1=1,nfrag
+         if (self_interaction(kfrag(w1))) then
+         if (dutask.eq.taskid) then
+           k1 = indx_frag_start(w1)
+           n1 = size_frag(w1)
+           kk1 = k1
+           do a=1,n1-1
+             kk2 = kk1 + 1
+             do b=a+1,n1
+               e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
+               e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
+               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
+               s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
+               s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
+               E = E + pspw_VLJ_E_periodic(e1,s1,rion(1,kk1),
+     >                                     e2,s2,rion(1,kk2),
+     >                                     1,rcell)
+               end if
+               kk2 = kk2 + 1
+             end do
+             kk1 = kk1 + 1
+           end do
+         end if
+         dutask = mod(dutask+1,np)
+         end if
+      end do
 
       if (np.gt.1) call Parallel_SumAll(E)
       call nwpw_timing_end(40)
@@ -344,7 +375,8 @@ c     *           pspw_LJ_fion            *
 c     *                                   *
 c     *************************************
       subroutine pspw_LJ_fion(nion,nion_qm,katm,
-     >                        nfrag,indx_frag_start,size_frag,
+     >                        nfrag,indx_frag_start,size_frag,kfrag,
+     >                        self_interaction,
      >                        nshl3d,rcell,
      >                        rion,fion)
       implicit none
@@ -352,6 +384,8 @@ c     *************************************
       integer katm(*)
       integer nfrag
       integer indx_frag_start(*),size_frag(*) 
+      integer kfrag(*)
+      logical self_interaction(*)
       integer nshl3d
       real*8  rcell(nshl3d,3)
       real*8  rion(3,*)
@@ -447,6 +481,35 @@ c     **** MM/MM LJ self image energy ****
          dutask = mod(dutask+1,np)
       end do
       end if
+
+c     **** MM/MM LJ self energy ****
+      do w1=1,nfrag
+         if (self_interaction(kfrag(w1))) then
+         if (dutask.eq.taskid) then
+           k1 = indx_frag_start(w1)
+           n1 = size_frag(w1)
+           kk1 = k1
+           do a=1,n1-1
+             kk2 = kk1 + 1
+             do b=a+1,n1
+              e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
+              e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
+              if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
+              s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
+              s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
+              call pspw_VLJ_fion_periodic(e1,s1,rion(1,kk1),fion(1,kk1),
+     >                                    e2,s2,rion(1,kk2),fion(1,kk2),
+     >                                    1,rcell)
+               end if
+               kk2 = kk2 + 1
+             end do
+             kk1 = kk1 + 1
+           end do
+         end if
+         dutask = mod(dutask+1,np)
+         end if
+      end do
+
 
       call nwpw_timing_end(40)
       return

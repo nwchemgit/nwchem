@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Q.F,v 1.15 2007-03-29 01:47:57 bylaska Exp $
+c $Id: pspw_Q.F,v 1.16 2007-04-23 16:45:06 bylaska Exp $
 c
 
 
@@ -134,6 +134,7 @@ c     *************************************
      >                          nfrag,indx_frag_start,size_frag,
      >                          kfrag,
      >                          switch_Rin,switch_Rout,
+     >                          self_interaction,
      >                          nshl3d,rcell,
      >                          rion)
       implicit none
@@ -144,6 +145,7 @@ c     *************************************
       integer indx_frag_start(*),size_frag(*) 
       integer kfrag(*)
       real*8  switch_Rin(*),switch_Rout(*)
+      logical self_interaction(*)
       integer nshl3d
       real*8  rcell(nshl3d,3)
       real*8  rion(3,*)
@@ -198,6 +200,7 @@ c     *************************************
 
 c     **** take out MM/MM Coulomb self energy ****
       do w1 = 1,nfrag
+         if (.not.self_interaction(kfrag(w1))) then
          if (dutask.eq.taskid) then
          ks1 = indx_frag_start(w1)
          do a=1,size_frag(w1)
@@ -210,6 +213,7 @@ c     **** take out MM/MM Coulomb self energy ****
          end do
          end if
          dutask = mod(dutask+1,np)
+         end if
       end do
       if (np.gt.1) call Parallel_SumAll(E)
 
@@ -373,6 +377,7 @@ c     *************************************
      >                       nfrag,indx_frag_start,size_frag,
      >                       kfrag,
      >                       switch_Rin,switch_Rout,
+     >                       self_interaction,
      >                       nshl3d,rcell,
      >                       rion,fion)
       implicit none
@@ -383,6 +388,7 @@ c     *************************************
       integer indx_frag_start(*),size_frag(*) 
       integer kfrag(*)
       real*8  switch_Rin(*),switch_Rout(*)
+      logical self_interaction
       integer nshl3d
       real*8  rcell(nshl3d,3)
       real*8  rion(3,*),fion(3,*)
@@ -430,6 +436,7 @@ c     *************************************
 
 c     **** take out MM/MM Coulomb self energy ****
       do w1 = 1,nfrag
+         if (.not.self_interaction(kfrag(w1))) then
          if (dutask.eq.taskid) then
          ks1 = indx_frag_start(w1)
          do a=1,size_frag(w1)
@@ -443,6 +450,7 @@ c     **** take out MM/MM Coulomb self energy ****
          end do
          end if
          dutask = mod(dutask+1,np)
+         end if
       end do
 
       call nwpw_timing_end(41) 

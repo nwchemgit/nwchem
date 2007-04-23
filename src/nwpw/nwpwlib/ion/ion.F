@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.48 2007-04-02 15:38:38 bylaska Exp $
+* $Id: ion.F,v 1.49 2007-04-23 16:41:00 bylaska Exp $
 *
 
 *     ***************************
@@ -423,6 +423,7 @@ c         eki1=0.5d0*eki1
 
 *        *** add carat tag ***
          l = index(symbol,' ') - 1
+         if (l.le.0) l = 2
          symbol_out = symbol(1:l)//'^'
 
 *        *** add tag after carat ***
@@ -2424,4 +2425,42 @@ c
 
 
 
+
+      subroutine ion_Print_neighborlist()
+      implicit none
+
+      integer ii,jj
+      real*8 dx,dy,dz,r,K,Rcut
+
+      integer  ion_nion
+      external ion_nion
+      real*8   ion_rion
+      external ion_rion
+      character*4 ion_aname
+      external    ion_aname
+
+      K = 0.0d0
+      Rcut = 2.5d0/0.529177d0
+
+      write(*,*)
+      write(*,*) "bond spring terms:"
+      do ii=1,ion_nion()
+         do jj=ii+1,ion_nion()
+           dx = ion_rion(1,ii) - ion_rion(1,jj)
+           dy = ion_rion(2,ii) - ion_rion(2,jj)
+           dz = ion_rion(3,ii) - ion_rion(3,jj)
+           call lattice_min_difference(dx,dy,dz)
+           r = dsqrt(dx*dx + dy*dy + dz*dz)
+           if (r.le.Rcut) then
+            write(*,'(A,2I4,2F12.6,2A6)') "bond spring ",ii,jj,K,r,
+     >                                    ion_aname(ii),ion_aname(jj)
+           end if
+         end do
+      end do
+      write(*,*)
+      write(*,*) "angle spring terms:"
+      write(*,*)
+
+      return
+      end
 

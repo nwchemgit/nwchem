@@ -25,7 +25,7 @@ c
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
-      parameter (num_fdirs = 7)
+      parameter (num_fdirs = 8)
       character*30 fdirs(num_fdirs)
       data fdirs / 'size',
      >             'index_start',
@@ -33,6 +33,7 @@ c
      >             'switching',
      >             'bond_spring',
      >             'angle_spring',
+     >             'self_interaction',
      >             'end'/
 c
       logical       value
@@ -49,6 +50,7 @@ c
       integer h,i,j,k,ka,jstart,jlast,jstride
       character*16 psp_in,psp_out
 
+      logical self
       integer sindx(50),na,nb,nshk
       real*8  sdist(50)
       integer nbs,nas
@@ -216,7 +218,7 @@ c
      >  call errquit('pspw_qmmm_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 610, 620,630,640,650,660,
+      goto ( 610, 620,630,640,650,660,670,
      >       699) ind
       call errquit('pspw_qmmm_input:directive not found',ind,INPUT_ERR)
 
@@ -440,6 +442,27 @@ c
 
       goto 601
 
+c
+c  self_interaction
+c
+ 670  self = .true.
+      if (inp_a(test)) then
+        if (inp_compare(.false.,test,'on'))      self = .true.
+        if (inp_compare(.false.,test,'yes'))     self = .true.
+        if (inp_compare(.false.,test,'.true.'))  self = .true.
+        if (inp_compare(.false.,test,'T'))       self = .true.
+        if (inp_compare(.false.,test,'off'))     self = .false.
+        if (inp_compare(.false.,test,'no'))      self = .false.
+        if (inp_compare(.false.,test,'.false.')) self = .false.
+        if (inp_compare(.false.,test,'F'))       self = .false.
+      end if
+      rtdb_name = 'pspw_qmmm_frag_self_interaction:'//c_index_name(nkf)
+      value = rtdb_put(rtdb,rtdb_name,mt_log,1,self)
+      if (.not. value)
+     >  call errquit(
+     > 'pspw_qmmm_input:failed writing frag_self',0, RTDB_ERR)
+
+      goto 601
 
 
 

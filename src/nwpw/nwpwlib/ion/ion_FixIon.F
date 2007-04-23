@@ -33,8 +33,8 @@
       logical found
 
 *     **** external functions ****
-      integer  ion_nionall
-      external ion_nionall
+      integer  ion_nion
+      external ion_nion
       logical  control_zero_forces
       external control_zero_forces
 
@@ -42,7 +42,7 @@
       count = 0
 
 *     **** get the nions, including charges and qmmm ****
-      nion = ion_nionall()
+      nion = ion_nion()
 
 *     ************************************************
 *     **** all ions constraints have been imposed ****

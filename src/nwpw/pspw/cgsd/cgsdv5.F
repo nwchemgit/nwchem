@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.82 2007-04-22 01:49:56 bylaska Exp $
+* $Id: cgsdv5.F,v 1.83 2007-04-23 16:45:53 bylaska Exp $
 *
 
 ***********************************************************************
@@ -465,6 +465,7 @@ c     value = psi_initialize()
            write(luout,1294) control_ks_alpha()
          end if
          write(luout,1300)
+c         call ion_Print_neighborlist()
          call util_flush(luout)
       end if
 

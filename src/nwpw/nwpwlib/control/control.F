@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.99 2007-04-02 15:38:37 bylaska Exp $
+* $Id: control.F,v 1.100 2007-04-23 16:40:59 bylaska Exp $
 *
 
 *     ***********************************
@@ -2013,8 +2013,8 @@ c      end
       external psi_filefind
       real*8   control_TotalCharge
       external control_TotalCharge
-      real*8   ion_TotalCharge
-      external ion_TotalCharge
+      real*8   ion_TotalCharge_qm
+      external ion_TotalCharge_qm
 
 *     **** check wavefunction file ****
       if (psi_filefind()) then
@@ -2030,7 +2030,7 @@ c      end
 
 *        **** get mult and e-charge from control ****
          tcharge = control_TotalCharge()
-         icharge = ion_TotalCharge()
+         icharge = ion_TotalCharge_qm()
          t = icharge - tcharge       !** total number of electrons **
          x = NINT(t)
 

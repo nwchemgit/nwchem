@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.27 2007-04-22 01:51:40 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.28 2007-04-23 16:45:05 bylaska Exp $
 c
 
 ***********************************************************
@@ -100,6 +100,9 @@ c
          value = value.and.
      >           MA_alloc_get(mt_int,nfrag,'kfrag',kfrag(2),kfrag(1))
          value = value.and.
+     >           MA_alloc_get(mt_log,nfrag,'self_interaction',
+     >                        self_interaction(2),self_interaction(1))
+         value = value.and.
      >           MA_alloc_get(mt_dbl,nkfrag,'switch_Rin',
      >                        switch_Rin(2),switch_Rin(1))
          value = value.and.
@@ -184,6 +187,11 @@ c
      >       'pspw_qmmm_init:failed reading indx_start',0,RTDB_ERR)
             ii = ii + ni
 
+            rtdb_name = 'pspw_qmmm_frag_self_interaction:'
+     >                  //c_index_name(ia)
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,
+     >                       log_mb(self_interaction(1)+ia-1)))
+     >          log_mb(self_interaction(1)+ia-1) = .false.
 
             rtdb_name = 'pspw_qmmm_frag_switch_Rin:'//c_index_name(ia)
             value = rtdb_get(rtdb,rtdb_name,mt_dbl,1,
@@ -309,8 +317,7 @@ c
 *        *** more bond ****
          bond_found = (nbindxsize.gt.0)
          if (bond_found) then
-            value = value.and.
-     >              MA_alloc_get(mt_int,nbindxsize,'indx_bond',
+            value = MA_alloc_get(mt_int,nbindxsize,'indx_bond',
      >                        indx_bond(2),indx_bond(1))
             value = value.and.
      >              MA_alloc_get(mt_dbl,nKr0size,'Kr0_bond',
@@ -347,8 +354,7 @@ c
 *        *** more angle ****
          angle_found = (naindxsize.gt.0)
          if (angle_found) then
-            value = value.and.
-     >              MA_alloc_get(mt_int,naindxsize,'indx_angle',
+            value = MA_alloc_get(mt_int,naindxsize,'indx_angle',
      >                        indx_angle(2),indx_angle(1))
             value = value.and.
      >              MA_alloc_get(mt_dbl,nQr0size,'Kr0_angle',
@@ -393,6 +399,13 @@ c
         if (taskid.eq.MASTER) then
            do ia=1,nkfrag
              write(*,*) "fragment ",ia
+             write(*,'(1x,A,I4)') "  - fragment size = ",
+     >                         int_mb(size_frag(1)+ia-1)
+             if (log_mb(self_interaction(1)+ia-1)) then
+                write(*,*) "  - ionic fragment"
+             else
+                write(*,*) "  - covalent fragment"
+             end if
              write(*,*) "  - Switching Parameters = ",
      >                  dbl_mb(switch_Rin(1)+ia-1),
      >                  dbl_mb(switch_Rout(1)+ia-1)
@@ -485,6 +498,7 @@ c
         value =           MA_free_heap(indx_frag_start(2))
         value = value.and.MA_free_heap(size_frag(2))
         value = value.and.MA_free_heap(kfrag(2))
+        value = value.and.MA_free_heap(self_interaction(2))
         value = value.and.MA_free_heap(switch_Rin(2))
         value = value.and.MA_free_heap(switch_Rout(2))
         value = value.and.MA_free_heap(nshake(2))
@@ -581,6 +595,8 @@ c     **** external functions ***
      >                           nfrag,
      >                           int_mb(indx_frag_start(1)),
      >                           int_mb(size_frag(1)),
+     >                           int_mb(kfrag(1)),
+     >                           log_mb(self_interaction(1)),
      >                           nshl3d,dbl_mb(rcell(1)),
      >                           dbl_mb(ion_rion_ptr()))
       return
@@ -620,6 +636,7 @@ c     **** external functions ***
      >                         int_mb(kfrag(1)),
      >                         dbl_mb(switch_Rin(1)),
      >                         dbl_mb(switch_Rout(1)),
+     >                         log_mb(self_interaction(1)),
      >                         nshl3d,dbl_mb(rcell(1)),
      >                         dbl_mb(ion_rion_ptr()))
       return
@@ -641,6 +658,7 @@ c     **** external functions ***
 #include "pspw_qmmm.fh"
 
 c     **** local variables ****
+      integer dutask,taskid,np
       integer w1,wk1,ks1,nbs,nas,jj,kk
       real*8  E
 
@@ -652,8 +670,13 @@ c     **** external functions ***
       real*8   pspw_qmmm_spring_angle_frag
       external pspw_qmmm_spring_angle_frag
 
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      dutask = 0
+
       E = 0.0d0
       do w1=1,nfrag
+         if (dutask.eq.taskid) then
          ks1  = int_mb(indx_frag_start(1)+w1-1)
          wk1  = int_mb(kfrag(1)+w1-1)
          nbs  = int_mb(nbond(1)+wk1-1)
@@ -674,8 +697,11 @@ c     **** external functions ***
      >                                dbl_mb(Kr0_angle(1) +kk-1),
      >                                dbl_mb(ion_rion_ptr()+3*(ks1-1)))
          end if
+         end if
+         dutask = mod(dutask+1,np)
         
       end do
+      if (np.gt.1) call Parallel_SumAll(E)
 
       pspw_qmmm_spring_E = E
       return
@@ -697,14 +723,19 @@ c     **** external functions ***
 #include "pspw_qmmm.fh"
 
 c     **** local variables ****
+      integer dutask,taskid,np
       integer w1,wk1,ks1,nbs,nas,jj,kk
 
 c     **** external functions ***
       integer  ion_rion_ptr
       external ion_rion_ptr
 
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      dutask = 0
 
       do w1=1,nfrag
+         if (dutask.eq.taskid) then
          ks1  = int_mb(indx_frag_start(1)+w1-1)
          wk1  = int_mb(kfrag(1)+w1-1)
          nbs  = int_mb(nbond(1)+wk1-1)
@@ -727,7 +758,8 @@ c     **** external functions ***
      >                                dbl_mb(ion_rion_ptr()+3*(ks1-1)),
      >                                fion(1,ks1))
          end if
-
+         end if
+         dutask = mod(dutask+1,np)
       end do
 
       return
@@ -796,8 +828,10 @@ c     **** external functions ***
         z = rion(3,ii)-rion(3,jj)
         call lattice_min_difference(x,y,z)
         r = dsqrt( x**2 + y**2 + z**2)
-c        dE =  2.0d0*Kr0(1,b)*(r-Kr0(2,b))/r
-        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
+        dE =  2.0d0*Kr0(1,b)*(r-Kr0(2,b))/r
+c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
+
+      
 
         fion(1,ii) = fion(1,ii) - x*dE
         fion(2,ii) = fion(2,ii) - y*dE
@@ -868,7 +902,7 @@ c        dE =  2.0d0*Kr0(1,b)*(r-Kr0(2,b))/r
 *     ******************************************
 
       subroutine pspw_qmmm_spring_angle_frag_fion(nangle,indx,Kr0,
-     >                                                 rion,fion)
+     >                                            rion,fion)
       implicit none
       integer nangle,indx(3,*)
       real*8  Kr0(2,*)
@@ -972,6 +1006,8 @@ c     **** external functions ***
      >                   nfrag,
      >                   int_mb(indx_frag_start(1)),
      >                   int_mb(size_frag(1)),
+     >                   int_mb(kfrag(1)),
+     >                   log_mb(self_interaction(1)),
      >                   nshl3d,dbl_mb(rcell(1)),
      >                   dbl_mb(ion_rion_ptr()),fion)
       return
@@ -1012,6 +1048,7 @@ c     **** external functions ***
      >                 int_mb(kfrag(1)),
      >                 dbl_mb(switch_Rin(1)),
      >                 dbl_mb(switch_Rout(1)),
+     >                 log_mb(self_interaction(1)),
      >                 nshl3d,dbl_mb(rcell(1)),
      >                 dbl_mb(ion_rion_ptr()),fion)
       return
@@ -1044,6 +1081,7 @@ c     **** external functions ***
       if (np.eq.1) then
          call pspw_qmmm_LJ_fion(fion)
          call pspw_qmmm_Q_fion(fion)
+         call pspw_qmmm_spring_fion(fion)
       else
          nion3 = 3*ion_nion()
          if (.not.MA_push_get(mt_dbl,nion3,'ftmp',ftmp(2),ftmp(1)))
@@ -1052,10 +1090,10 @@ c     **** external functions ***
          call dcopy(nion3,0.0,0,dbl_mb(ftmp(1)),1)
          call pspw_qmmm_LJ_fion(dbl_mb(ftmp(1)))
          call pspw_qmmm_Q_fion(dbl_mb(ftmp(1)))
+         call pspw_qmmm_spring_fion(dbl_mb(ftmp(1)))
          call Parallel_Vector_SumAll(nion3,dbl_mb(ftmp(1)))
          call daxpy(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
-         call pspw_qmmm_spring_fion(fion)
 
          if (.not.MA_pop_stack(ftmp(2)))
      >   call errquit('pspw_qmmm_fion:cannot pop stack memory',0,MA_ERR)
