@@ -246,7 +246,7 @@ void FATR rpspsolve_
   for (k = 0; k < Nlinear; ++k)
     {
       fprintf (fp, "%12.8lf", rl[k]);
-      for (p = 0; p < nvh; ++p)
+      for (p = 0; p < Nvalence; ++p)
 	fprintf (fp, " %12.8lf", psil[p][k]);
       fprintf (fp, "\n");
     }
