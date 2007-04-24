@@ -1,5 +1,5 @@
 *
-* $Id: pbe96.f,v 1.13 2007-03-13 16:30:49 d3p708 Exp $
+* $Id: pbe96.f,v 1.14 2007-04-24 23:52:19 d3p708 Exp $
 *
 
 *    ************************************
@@ -157,12 +157,9 @@ c     **** local variables ****
       do i=1,n2ft3d
          nup     = dn_in(i,1)+ETA
          agrup   = agr_in(i,1)
-
  
          ndn     = dn_in(i,2)+ETA
          agrdn   = agr_in(i,2)
-
-         
  
 c        ****************************************************************
 c        ***** calculate polarized Exchange energies and potentials *****
@@ -188,11 +185,6 @@ c        ************
          fnxup = fourthird*(exup - ex_lda*Fs*s)
          fdnxup = fdnx_const*Fs
 
-c         exup = ex_lda
-c         fnxup = fourthird*(exup)
-c         fdnxup = 0.0d0
-
-			
 c        **************
 c        **** down ****
 c        **************
@@ -213,17 +205,13 @@ c        **************
          fnxdn  = fourthird*(exdn - ex_lda*Fs*s)
          fdnxdn = fdnx_const*Fs
 
-c         exdn   = ex_lda
-c         fnxdn  = fourthird*(exdn)
-c         fdnxdn = 0.0d0
-			
-         ex = (exup*nup+ exdn*ndn)/ (nup+ndn)
-         
-         
+         n = nup+ndn
+
+         ex = (exup*nup+ exdn*ndn)/ n
+                  
 c        *******************************************************************
 c        ***** calculate polarized correlation energies and potentials ***** 
 c        *******************************************************************
-         n     = dn_in(i,1) + dn_in(i,2) + ETA
          agr   = agr_in(i,3)
 
          zet = (nup-ndn)/n
@@ -269,12 +257,8 @@ c        **** calculate t ****
          twoksg = 2.0d0*ks*phi
        
          t  = agr/(twoksg*n)
-c        t  = 0.25d0*(pi/3.0)**onesixth*agr*(n**sevensixthm)/phi
 
 *        *** calculate n*dt/dnup, n*dt/dndn, n*dt/d|grad n| ****
-c        t_nup = sevensixthm*t/n - (phi_zet)*(zet_nup)*t/phi
-c        t_ndn = sevensixthm*t/n - (phi_zet)*(zet_ndn)*t/phi
-c        t_agr  = 1.0d0/(twoksg*n)
          t_nup = sevensixthm*t - (phi_zet)*(zet_nup)*t/phi
          t_ndn = sevensixthm*t - (phi_zet)*(zet_ndn)*t/phi
          t_agr  = 1.0d0/(twoksg)
@@ -362,11 +346,8 @@ c        ********************************************
 
          ec = ec_lda + Hpbe
 
-c        fncup  = ec + n*(ec_lda_nup + Hpbe_nup)
-c        fncdn  = ec + n*(ec_lda_ndn + Hpbe_ndn)
          fncup  = ec + (ec_lda_nup + Hpbe_nup)
          fncdn  = ec + (ec_lda_ndn + Hpbe_ndn)
-
 
          xce(i)   = x_parameter*ex     + c_parameter*ec
          fn(i,1)  = x_parameter*fnxup  + c_parameter*fncup

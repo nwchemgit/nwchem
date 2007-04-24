@@ -4,7 +4,7 @@
 
 *** File 'rkbpp_band.F'
 *
-* $Id: rkbpp_band.F,v 1.4 2007-04-24 18:38:47 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.5 2007-04-24 23:52:13 d3p708 Exp $
 *
 
 *     **************************************
@@ -301,8 +301,9 @@
   115 format(a,2E14.6)
       end if
 
+      nb=1
 
-      call init_rkbpp_nonlocal(locp,nsize,lmax,nprj,
+      call init_rkbpp_vnonlocal(locp,nsize,lmax,nprj,
      >  int_mb(l_prj_indx),int_mb(k_prj_indx),
      >  int_mb(m_alf_indx),int_mb(m_bet_indx),
      >  dbl_mb(c_alf_indx),dbl_mb(c_bet_indx),
@@ -312,7 +313,6 @@
      >  dbl_mb(vp_indx),dbl_mb(vnrm_indx),
      >  dbl_mb(f_indx),dbl_mb(sn_indx),dbl_mb(cs_indx),drho)
 
-      nb=1
 
       if ((oprint).and.(taskid.eq.MASTER))
      >      write(*,*) "generating brillioun #",nb
@@ -351,9 +351,9 @@
           call iwrite(2,int_mb(l_prj_indx),nprj)
           call iwrite(2,int_mb(k_prj_indx),nprj)
           call iwrite(2,int_mb(m_alf_indx),nprj)
-          call iwrite(2,int_mb(m_bet_indx),nprj)
-          call dwrite(2,int_mb(c_alf_indx),nprj)
-          call dwrite(2,int_mb(c_bet_indx),nprj)
+c          call iwrite(2,int_mb(m_bet_indx),nprj)
+c          call dwrite(2,int_mb(c_alf_indx),nprj)
+c          call dwrite(2,int_mb(c_bet_indx),nprj)
           call dwrite(2,dbl_mb(vnrm_indx),nprj)
         end if         
         call dwrite(2,rcore,1)
@@ -370,7 +370,7 @@
         if ((oprint).and.(taskid.eq.MASTER))
      >      write(*,*) "generating brillioun #",nb
 
-        call init_rkbpp_nonlocal(locp,nsize,lmax,nprj,
+        call init_rkbpp_vnonlocal(locp,nsize,lmax,nprj,
      >   int_mb(l_prj_indx),int_mb(k_prj_indx),
      >   int_mb(m_alf_indx),int_mb(m_bet_indx),
      >   dbl_mb(c_alf_indx),dbl_mb(c_bet_indx),
@@ -453,7 +453,7 @@
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Read in spin orbit pseudopot.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine read_rkbpp_so_band(unit,nrho,nprj,vso)
+      subroutine read_rkbpp_so(unit,nrho,nprj,vso)
       integer i,j,unit
       double precision vso(nrho,nprj)
       double precision rhox
@@ -464,7 +464,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
  9999 call errquit('Error reading psp_so_filename',0, DISK_ERR)
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine init_rel_band_vnonlocal(locp,ngsize,lmax,nprj,
+      subroutine init_rkbpp_vnonlocal(locp,ngsize,lmax,nprj,
      >  lprj,kprj,malf,mbet,calf,cbet,nrho,rho,gvecs,kvec,
      >  vnl,wp,vnlso,vp,vnrm,f,sn,cs,drho)
       implicit none

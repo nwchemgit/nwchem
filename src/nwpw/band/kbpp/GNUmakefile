@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.8 2007-04-24 17:43:51 d3p708 Exp $
+# $Id: GNUmakefile,v 1.9 2007-04-24 23:52:13 d3p708 Exp $
 #
  OBJ_OPTIMIZE = \
 		cpsp_formatter_auto.o \
@@ -29,7 +29,6 @@
                 integrate_kbpp_band_stress_nonlocal.F \
 		HGH_band_local.F HGH_band_nonlocal.F Tesseral_band.F \
 		Spherical_band.F hghpp_band.F rkbpp.F 
-                
 
   LIB_DEFINES =
 

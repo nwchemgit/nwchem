@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska and Patrick Nichols
-   $Id: atom.c,v 1.17 2007-04-13 21:53:46 d3p708 Exp $
+   $Id: atom.c,v 1.18 2007-04-24 23:52:16 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -600,15 +600,17 @@ print_Atom (FILE * fp)
   fprintf (fp, "n\tl\tpopulation\tEigenvalue\tOuter Peak\n");
   if (Solver_Type == Dirac)
     {
+      fprintf (fp, "n\tl\tspin\tpopulation\tEigenvalue\tOuter Peak\n");
       for (i = 0; i < Ncv; ++i)
 	{
-	  fprintf (fp, "%d\t%s\t%.2lf\t%.2lf\t\t%le\t%le\n", n[i],
+	  fprintf (fp, "%d\t%s\t%.1lf\t%.2lf\t\t%le\t%le\n", n[i],
 		   spd_Name (l[i]), 0.5 * s2[i], fill[i], eigenvalue[i],
 		   peak[i]);
 	}
     }
   else
     {
+      fprintf (fp, "n\tl\tpopulation\tEigenvalue\tOuter Peak\n");
       for (i = 0; i < Ncv; ++i)
 	{
 

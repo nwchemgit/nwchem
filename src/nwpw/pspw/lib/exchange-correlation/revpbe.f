@@ -1,5 +1,5 @@
 *
-* $Id: revpbe.f,v 1.3 2007-03-12 16:27:16 d3p708 Exp $
+* $Id: revpbe.f,v 1.4 2007-04-24 23:52:19 d3p708 Exp $
 *
 
 *    ************************************
@@ -156,11 +156,11 @@ c     **** local variables ****
 
       
       do i=1,n2ft3d
-         nup     = dn_in(i,1)
+         nup     = dn_in(i,1)+ETA
          agrup   = agr_in(i,1)
 
  
-         ndn     = dn_in(i,2)
+         ndn     = dn_in(i,2)+ETA
          agrdn   = agr_in(i,2)
 
          
@@ -213,12 +213,12 @@ c        **************
          fnxdn  = fourthird*(exdn - ex_lda*Fs*s)
          fdnxdn = fdnx_const*Fs
 
-         ex = (exup*nup+ exdn*ndn)/ (nup+ndn)
+         n = nup + ndn
+         ex = (exup*nup+ exdn*ndn)/n
          
 c        *******************************************************************
 c        ***** calculate polarized correlation energies and potentials ***** 
 c        *******************************************************************
-         n     = dn_in(i,1) + dn_in(i,2) 
          agr   = agr_in(i,3)
          n  = max(n,1.d-30)
          zet = (nup-ndn)/n
@@ -292,7 +292,7 @@ c        ********************************************
          phi3 = phi**3
          phi4 = phi3*phi
          PON  = -ec_lda/(phi3*GAMMA)
-         tau  = DEXP(PON)
+         tau  = dexp(PON)
 
          A = BOG/(tau-1.0d0+ETA)
          A2 = A*A

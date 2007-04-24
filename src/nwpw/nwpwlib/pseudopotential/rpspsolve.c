@@ -486,4 +486,5 @@ void FATR rpspsolve_
   free (rhol);
   end_Linear ();
   fflush (stdout);
+  return;
 }
