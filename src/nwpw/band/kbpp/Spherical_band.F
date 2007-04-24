@@ -22,14 +22,14 @@
       real*8 scof(7,0:3)
       complex*16 ihat,expm
 
-
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
       nfft3d = nfft1*nfft2*nfft3
+
       pi=4.0d0*datan(1.0d0)
       twopi=2.0d0*pi
-      forpi=4.0d0*pi
+      forpi=4.0d0*pi 
       ihat=dcmplx(0.0d0,1.0d0)
       scof(1,0)=dsqrt(1.0d0/forpi)
       scof(1,1)=dsqrt(0.75d0/pi)

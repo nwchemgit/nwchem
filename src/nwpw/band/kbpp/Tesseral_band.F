@@ -1,8 +1,6 @@
 *
-* $Id: Tesseral_band.F,v 1.7 2007-02-20 21:44:18 d3p708 Exp $
+* $Id: Tesseral_band.F,v 1.8 2007-04-24 20:59:33 d3p708 Exp $
 *
-
-
       subroutine Tesseral_band(l,m,kvec,
      >                    nfft1,nfft2,nfft3,
      >                    G,
