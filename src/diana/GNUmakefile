@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2007-02-03 00:40:51 d3j191 Exp $
+# $Id: GNUmakefile,v 1.5 2007-04-25 17:39:21 d3j191 Exp $
 #
  OBJ_OPTIMIZE = dia_alloc.o\
                 dia_angle.o\
@@ -10,6 +10,7 @@
                 dia_data.o\
                 dia_define.o\
                 dia_diel.o\
+                dia_distance.o\
                 dia_esppt.o\
                 dia_evaluate.o\
                 dia_finish.o\

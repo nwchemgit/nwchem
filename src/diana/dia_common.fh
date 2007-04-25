@@ -1,8 +1,8 @@
 c
-c $Id: dia_common.fh,v 1.10 2007-03-14 16:17:48 d3j191 Exp $
+c $Id: dia_common.fh,v 1.11 2007-04-25 17:39:21 d3j191 Exp $
 c
-      integer mxbnds,mxangs,mxtors,mximps
-      parameter(mxbnds=100)
+      integer mxdist,mxangs,mxtors,mximps
+      parameter(mxdist=100)
       parameter(mxangs=100)
       parameter(mxtors=250)
       parameter(mximps=100)
@@ -39,22 +39,22 @@ c
       integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)
       integer ngx,ngy,ngz,iesppb,ngrid,mgrd,ldist,icent,jcent,numwhb
       integer nclean,nfrtot,nfrdim,nfrndx,nfrme,ntrj,ntval,ntvec
-      integer nbnds,ibnds(mxbnds,2,3)
+      integer ndist,idist(mxdist,2,3)
       integer nangs,iangs(mxangs,3,3)
       integer ntors,itors(mxtors,4,3)
       integer nimps,iimps(mximps,4,3)
-      real*8 rbnds(mxbnds)
+      real*8 rdist(mxdist)
       real*8 rangs(mxangs)
       real*8 rtors(mxtors)
       real*8 rimps(mximps)
       real*8 valmin,valmax
       common/dia_inp/time,timr,timoff,box,spac,rcut,xmax,xmin,temp,pres,
-     + rbnds,rangs,rtors,rimps,valmin,valmax,xsmin,xsmax,scale,cpk,
+     + rdist,rangs,rtors,rimps,valmin,valmax,xsmin,xsmax,scale,cpk,
      + stick,rhbmin,rhbmax,hbdmin,hbdmax,hbamin,hbamax,rangle,irmsd,
      + lcop,lsup,ifrfr,ifrto,ifrsk,nfrtot,nfrdim,nfrndx,nfrme,ntrj,
      + iscof,icopf,isupf,mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,
      + ngrd,ngx,ngy,ngz,iesppb,ngrid,mgrd,ldist,icent,jcent,numwhb,
-     + nbnds,nangs,ntors,nimps,ibnds,iangs,itors,iimps,nclean,
+     + ndist,nangs,ntors,nimps,idist,iangs,itors,iimps,nclean,
      + ntval,ntvec
 c
       integer nfilf,iomode,ioffhd,iofffr
@@ -115,8 +115,8 @@ c
       character*3 cnum
       character*80 card
       character*6 cmd
-      character*80 cord(mord),ctors(mxtors)
-      common/dia_chr/wtag,wnam,datum,tijd,cnum,card,cmd,cord,ctors
+      character*80 cord(mord),cdist(mxdist),ctors(mxtors)
+      common/dia_chr/wtag,wnam,datum,tijd,cnum,card,cmd,cord,cdist,ctors
 c
       real*8 wval(100,2)
       common/dia_val/wval

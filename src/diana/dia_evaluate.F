@@ -1,6 +1,6 @@
       subroutine dia_evaluate()
 c
-c $Id: dia_evaluate.F,v 1.5 2007-03-24 04:26:34 d3j191 Exp $
+c $Id: dia_evaluate.F,v 1.6 2007-04-25 17:39:21 d3j191 Exp $
 c
 c     evaluate the defined properties
 c     -------------------------------
@@ -32,7 +32,7 @@ c
       if(.not.ga_destroy(ga_tval))
      + call md_abort('Failed to destroy ga_tval',0)
       endif
-      ntval=nbnds+nangs+ntors+nimps
+      ntval=ndist+nangs+ntors+nimps
 c
       if(ntval.gt.0) then
 c
@@ -45,6 +45,11 @@ c
       call ga_access(ga_tval,ilt,iht,jlt,jht,ndxt,ldt)
 c
 c     evaluate distances
+c     ------------------
+c
+      if(ndist.gt.0)
+     + call dia_evaldist(dbl_mb(ndx),dbl_mb(ndxt),itval)
+c
 c     evaluate angles
 c
 c     evaluate torsions
@@ -64,6 +69,33 @@ c     reset
 c
       ntors=0
       nord=0
+c
+      return
+      end
+      subroutine dia_evaldist(xtrj,tval,itval)
+c
+      implicit none
+c
+#include "msgids.fh"
+#include "global.fh"
+#include "dia_common.fh"
+c
+      real*8 dia_distance
+      external dia_distance
+c
+      integer itval
+      real*8 xtrj(ntrj,3,nfrdim),tval(ntval,nfrdim)
+c
+      real*8 wtrj(3)
+c
+      integer i,k
+c
+      do 1 i=1,ndist
+      do 2 k=1,nfrme
+      tval(itval+i-1,k)=dia_distance(xtrj(1,1,k),ntrj,wtrj,1,3,
+     + itors(i,1,1),itors(i,1,2),itors(i,2,1),itors(i,2,2))
+    2 continue
+    1 continue
 c
       return
       end
@@ -123,7 +155,7 @@ c
 c
       write(lfndat,1000) ntdim
  1000 format(i5,/,'Time')
-      if(nbnds.gt.0) then
+      if(ndist.gt.0) then
       endif
       if(nangs.gt.0) then
       endif

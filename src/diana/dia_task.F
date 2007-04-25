@@ -1,6 +1,6 @@
       subroutine dia_task
 c
-c $Id: dia_task.F,v 1.11 2007-03-14 16:17:48 d3j191 Exp $
+c $Id: dia_task.F,v 1.12 2007-04-25 17:39:21 d3j191 Exp $
 c
       implicit none
 c
@@ -73,6 +73,7 @@ c
 c     geometric selections
 c
       elseif(cmd.eq.'distan') then
+      call dia_adddistance()
       elseif(cmd.eq.'angle') then
       elseif(cmd.eq.'torsio') then
       call dia_addtorsion()
