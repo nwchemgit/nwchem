@@ -1,6 +1,6 @@
       subroutine dia_evaluate()
 c
-c $Id: dia_evaluate.F,v 1.7 2007-04-26 02:38:38 d3j191 Exp $
+c $Id: dia_evaluate.F,v 1.8 2007-04-26 03:07:01 d3j191 Exp $
 c
 c     evaluate the defined properties
 c     -------------------------------
@@ -32,7 +32,7 @@ c
       if(.not.ga_destroy(ga_tval))
      + call md_abort('Failed to destroy ga_tval',0)
       endif
-      ntval=ndist+nangs+ntors+nimps
+      ntval=ndist+nangl+ntors+nimps
 c
       if(ntval.gt.0) then
 c
@@ -49,14 +49,21 @@ c     ------------------
 c
       if(ndist.gt.0)
      + call dia_evaldist(dbl_mb(ndx),dbl_mb(ndxt),itval)
+      itval=itval+ndist
 c
 c     evaluate angles
+c     ---------------
+c
+      if(nangl.gt.0)
+     + call dia_evalangl(dbl_mb(ndx),dbl_mb(ndxt),itval)
+      itval=itval+nangl
 c
 c     evaluate torsions
 c     -----------------
 c
       if(ntors.gt.0)
      + call dia_evaltors(dbl_mb(ndx),dbl_mb(ndxt),itval)
+      itval=itval+ntors
 c
       endif
 c
@@ -68,7 +75,7 @@ c
 c     reset
 c
       ndist=0
-      nangs=0
+      nangl=0
       ntors=0
       nord=0
 c
@@ -91,12 +98,39 @@ c
       real*8 wtrj(3)
 c
       integer i,k
-      real*8 ddd
 c
       do 1 i=1,ndist
       do 2 k=1,nfrme
       tval(itval+i-1,k)=dia_distance(xtrj(1,1,k),ntrj,wtrj,1,3,
      + idist(i,1,1),idist(i,1,2),idist(i,2,1),idist(i,2,2),box)
+    2 continue
+    1 continue
+c
+      return
+      end
+      subroutine dia_evalangl(xtrj,tval,itval)
+c
+      implicit none
+c
+#include "msgids.fh"
+#include "global.fh"
+#include "dia_common.fh"
+c
+      real*8 dia_angle
+      external dia_angle
+c
+      integer itval
+      real*8 xtrj(ntrj,3,nfrdim),tval(ntval,nfrdim)
+c
+      real*8 wtrj(3)
+c
+      integer i,k
+c
+      do 1 i=1,nangl
+      do 2 k=1,nfrme
+      tval(itval+i-1,k)=dia_angle(xtrj(1,1,k),ntrj,wtrj,1,3,
+     + iangl(i,1,1),iangl(i,1,2),iangl(i,2,1),iangl(i,2,2),
+     + iangl(i,3,1),iangl(i,3,2))
     2 continue
     1 continue
 c
@@ -164,11 +198,15 @@ c
  1001 format(a,a)
     1 continue
       endif
-      if(nangs.gt.0) then
+      if(nangl.gt.0) then
+      do 2 i=1,nangl
+      write(lfndat,1002) 'Angle    ',cangl(i)
+ 1002 format(a,a)
+    2 continue
       endif
       if(ntors.gt.0) then
       do 3 i=1,ntors
-      write(lfndat,1003) 'Torsion ',ctors(i)
+      write(lfndat,1003) 'Torsion  ',ctors(i)
  1003 format(a,a)
     3 continue
       endif

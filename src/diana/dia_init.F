@@ -1,6 +1,6 @@
       subroutine dia_init
 c
-c $Id: dia_init.F,v 1.8 2007-04-25 17:39:21 d3j191 Exp $
+c $Id: dia_init.F,v 1.9 2007-04-26 03:07:01 d3j191 Exp $
 c
 c
 c     initialize variables
@@ -85,7 +85,7 @@ c
       ilast=0
 c
       ndist=0
-      nangs=0
+      nangl=0
       ntors=0
       nimps=0
       nord=0
@@ -295,7 +295,7 @@ c
       character*11 atom(4)
       integer i,j
 c
-      write(lfnana,1000) ndist,nangs,ntors,nimps
+      write(lfnana,1000) ndist,nangl,ntors,nimps
  1000 format(4i10)
 c
       do 1 i=1,ndist
@@ -313,14 +313,14 @@ c
  1001 format(a11,'-',a11)
     1 continue
 c
-      do 2 i=1,nangs
+      do 2 i=1,nangl
       do 21 j=1,3
-      if(iangs(i,j,2).eq.0) then
-      write(atom(j),'(a5,a,a5)') sgmnam(iangs(i,j,1))(12:16),':',
-     + sgmnam(iangs(i,j,1))(6:10)
+      if(iangl(i,j,2).eq.0) then
+      write(atom(j),'(a5,a,a5)') sgmnam(iangl(i,j,1))(12:16),':',
+     + sgmnam(iangl(i,j,1))(6:10)
       else
-      write(atom(j),'(i5,a,a5)') nsgm+iangs(i,j,1),':',
-     + wnam(iangs(i,j,2))(6:10)
+      write(atom(j),'(i5,a,a5)') nsgm+iangl(i,j,1),':',
+     + wnam(iangl(i,j,2))(6:10)
       endif
    21 continue
       write(lfnana,1002) (atom(j),j=1,3)

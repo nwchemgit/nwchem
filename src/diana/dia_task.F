@@ -1,6 +1,6 @@
       subroutine dia_task
 c
-c $Id: dia_task.F,v 1.12 2007-04-25 17:39:21 d3j191 Exp $
+c $Id: dia_task.F,v 1.13 2007-04-26 03:07:02 d3j191 Exp $
 c
       implicit none
 c
@@ -75,6 +75,7 @@ c
       elseif(cmd.eq.'distan') then
       call dia_adddistance()
       elseif(cmd.eq.'angle') then
+      call dia_addangle()
       elseif(cmd.eq.'torsio') then
       call dia_addtorsion()
       elseif(cmd.eq.'improp') then
