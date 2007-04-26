@@ -1,6 +1,6 @@
       subroutine dia_getsel
 c
-c $Id: dia_getsel.F,v 1.6 2007-04-25 17:39:21 d3j191 Exp $
+c $Id: dia_getsel.F,v 1.7 2007-04-26 02:38:39 d3j191 Exp $
 c
 c     get atom selection
 c     ------------------
@@ -291,7 +291,7 @@ c
       if(me.eq.0) then
       do 5 i=last,ndist
       write(cdist(i),1000) i,idist(i,1,3),(sgmnam(idist(i,j,1))(11:16),
-     + ':',sgmnam(idist(i,j,1))(1:10),j=1,4)
+     + ':',sgmnam(idist(i,j,1))(1:10),j=1,2)
  1000 format(2i4,4(a6,a,a10))
     5 continue
       endif

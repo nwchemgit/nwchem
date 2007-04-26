@@ -1,6 +1,6 @@
       subroutine dia_evaluate()
 c
-c $Id: dia_evaluate.F,v 1.6 2007-04-25 17:39:21 d3j191 Exp $
+c $Id: dia_evaluate.F,v 1.7 2007-04-26 02:38:38 d3j191 Exp $
 c
 c     evaluate the defined properties
 c     -------------------------------
@@ -67,6 +67,8 @@ c
 c
 c     reset
 c
+      ndist=0
+      nangs=0
       ntors=0
       nord=0
 c
@@ -89,11 +91,12 @@ c
       real*8 wtrj(3)
 c
       integer i,k
+      real*8 ddd
 c
       do 1 i=1,ndist
       do 2 k=1,nfrme
       tval(itval+i-1,k)=dia_distance(xtrj(1,1,k),ntrj,wtrj,1,3,
-     + itors(i,1,1),itors(i,1,2),itors(i,2,1),itors(i,2,2))
+     + idist(i,1,1),idist(i,1,2),idist(i,2,1),idist(i,2,2),box)
     2 continue
     1 continue
 c
@@ -156,6 +159,10 @@ c
       write(lfndat,1000) ntdim
  1000 format(i5,/,'Time')
       if(ndist.gt.0) then
+      do 1 i=1,ndist
+      write(lfndat,1001) 'Distance ',cdist(i)
+ 1001 format(a,a)
+    1 continue
       endif
       if(nangs.gt.0) then
       endif
@@ -282,6 +289,8 @@ c
  1002 format(3i5,f12.5)
       endif
     7 continue
+c
+      close(unit=lfnord,status='keep')
 c
       endif
 c

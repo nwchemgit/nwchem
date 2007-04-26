@@ -1,6 +1,6 @@
       real*8 function dia_distance(x,nx,w,nw,na,i,i2,j,j2,box)
 c
-c $Id: dia_distance.F,v 1.1 2007-04-25 17:40:28 d3j191 Exp $
+c $Id: dia_distance.F,v 1.2 2007-04-26 02:38:38 d3j191 Exp $
 c
       implicit none
 c
@@ -37,7 +37,6 @@ c
       if(dx(ix).gt.box(ix)) dx(ix)=dx(ix)-box(ix)
       if(dx(ix).lt.-box(ix)) dx(ix)=dx(ix)+box(ix)
     1 continue
-c      dia_bond=sqrt((xa(1)-xb(1))**2+(xa(2)-xb(2))**2+(xa(3)-xb(3))**2)
       dia_distance=sqrt(dx(1)**2+dx(2)**2+dx(3)**2)
 c
       return

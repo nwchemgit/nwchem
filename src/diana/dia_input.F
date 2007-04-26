@@ -1,6 +1,6 @@
       subroutine dia_input(irtdb)
 c
-c $Id: dia_input.F,v 1.9 2007-03-14 16:17:48 d3j191 Exp $
+c $Id: dia_input.F,v 1.10 2007-04-26 02:38:39 d3j191 Exp $
 c
       implicit none
 c
@@ -658,7 +658,7 @@ c
       if(.not.inp_a(atomi)) call md_abort('Error in bond',0)
       if(.not.inp_a(atomj)) call md_abort('Error in bond',0)
       write(lfncmd,1012) ibond
- 1012 format('bond   ',i5)
+ 1012 format('distan ',i5)
       write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
       write(lfncmd,1013) atomj(1:index(atomj,' ')-1)
  1013 format(a)
