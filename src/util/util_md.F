@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.46 2007-02-06 16:29:14 d3j191 Exp $
+c $Id: util_md.F,v 1.47 2007-04-26 23:24:40 d3j191 Exp $
 c
       implicit none
 c
@@ -1337,8 +1337,8 @@ c     average, drift and standard error
 c
       aver=dsum/dble(ndata)
       drift=(dble(ndata)*dtsum-dsum*tsum)/(dble(ndata)*ttsum-tsum*tsum)
-      stderr=sqrt(abs((ddsum-dsum*dsum/dble(ndata)))/
-     + (dble(ndata*(ndata-1))))
+      stderr=sqrt(abs((ddsum/dble(ndata)-dsum*dsum/dble(ndata*ndata)))/
+     + (dble(ndata-1)))
 c
       corerr=stderr
       ratio=one
