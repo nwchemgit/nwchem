@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix-mpi.F,v 1.2 2006-10-13 01:43:57 bylaska Exp $
+* $Id: DMatrix-mpi.F,v 1.3 2007-04-26 21:04:14 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -15,6 +15,329 @@ c
 c
 c
 c
+
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_dgemm1_rot      *
+*     *                                 *
+*     ***********************************
+
+      subroutine DMatrix_dgemm1_rot(m,n,k,
+     >                  alpha,
+     >                  A,lda,ma,na,
+     >                  B,ldb,mb,nb,
+     >                  beta,
+     >                  C,ldc,mc,nc,
+     >                  taskid_i,taskid_j,
+     >                  np_i,np_j,
+     >                  comm_i, comm_j,
+     >                  Bcol,Bwork,work1,work2)
+      implicit none
+      integer m,n,k
+      real*8  alpha
+
+      integer lda,ma(*),na(*)
+      real*8  A(lda,*)
+
+      integer ldb,mb(*),nb(*)
+c      real*8  B(ldb,*)
+      real*8  B(*)
+
+      real*8  beta
+
+      integer ldc,mc(*),nc(*)
+      real*8  C(ldc,*)
+
+      integer taskid_i,taskid_j
+      integer np_i,np_j
+      integer comm_i,comm_j
+
+      real*8  Bcol(*),Bwork(*)
+      real*8  work1(*),work2(*)
+
+#include "mpif.h"
+
+
+*     **** local variables ****
+      logical jeven
+      integer i,j,ii,jj,mbmax,nbmax,ne0
+      integer iwrk,jcur,ierr,bshift,iwrk2
+      integer request1,request2
+      integer bshift2(0:np_j)
+
+      bshift     = 1
+      bshift2(0) = 1
+      do jj=1,np_j
+         bshift      = bshift + na(jj)*nb(taskid_j+1)
+         bshift2(jj) = bshift
+      end do
+
+*     *** collect B into columns ***
+      ne0 = 0
+      mbmax = 0
+      do i=1,np_i
+         if (mb(i).gt.mbmax) mbmax = mb(i)
+         ne0 = ne0+mb(i)
+      end do
+      nbmax = 0
+      do j=1,np_j
+         if (nb(j).gt.nbmax) nbmax = nb(j)
+      end do
+      if (np_i.gt.1) then
+         do j=1,nb(taskid_j+1)
+            call MPI_Allgather(
+     >   B(1+(j-1)*mb(taskid_i+1)),mb(taskid_i+1),MPI_DOUBLE_PRECISION,
+     >   Bcol(1+(j-1)*ne0),mbmax,                 MPI_DOUBLE_PRECISION,
+     >      comm_i,ierr)
+         end do
+         bshift = 0
+         iwrk2 = nb(taskid_j+1)
+         ii    = 0
+         do jcur=0,np_j-1
+            iwrk  = na(jcur+1)
+            do j=1,iwrk2
+            do i=1,iwrk
+               Bwork(bshift+i+(j-1)*iwrk) = Bcol(ii+i+(j-1)*ne0)
+            end do
+            end do
+            bshift = bshift + iwrk*iwrk2
+            ii     = ii     + iwrk
+         end do
+      else
+         bshift = 0
+         iwrk2 = nb(taskid_j+1)
+         ii    = 0
+         do jcur=0,np_j-1
+            iwrk  = na(jcur+1)
+            do j=1,iwrk2
+            do i=1,iwrk
+               Bwork(bshift+i+(j-1)*iwrk) = B(ii+i+(j-1)*ne0)
+            end do
+            end do
+            bshift = bshift + iwrk*iwrk2
+            ii     = ii     + iwrk
+         end do
+      end if
+
+
+
+*     *** C = beta*C ***
+c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
+      do j=1,nc(taskid_j+1)
+         do i=1,mc(taskid_i+1)
+            C(i,j) = beta*C(i,j)
+         end do
+      end do
+
+      call Dmatrix_start_rot(1,
+     >                       taskid_j,np_j,comm_j,
+     >                       A,work1,lda,na,
+     >                       request1)
+      jcur = taskid_j
+      iwrk = na(jcur+1)
+c      bshift = 1
+c      do jj=1,jcur
+c         bshift = bshift + na(jj)*nb(taskid_j+1)
+c      end do
+      call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >                alpha,
+     >                A, ma(taskid_i+1),
+     >                Bwork(bshift2(jcur)), iwrk,
+     >                1.0d0,
+     >                C, ldc)
+      jeven = .true.
+      do j=2,np_j-1
+         if (jeven) then
+            jeven = .false.
+            jcur = mod(jcur-1+np_j,np_j)
+            iwrk = na(jcur+1)
+c            bshift = 1
+c            do jj=1,jcur
+c               bshift = bshift + na(jj)*nb(taskid_j+1)
+c            end do
+            call Dmatrix_start_rot(j,
+     >                             taskid_j,np_j,comm_j,
+     >                             A,work2,lda,na,
+     >                             request2)
+            call Dmatrix_end_rot(request1)
+            call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >                alpha,
+     >                work1, ma(taskid_i+1),
+     >                Bwork(bshift2(jcur)), iwrk,
+     >                1.0d0,
+     >                C, ldc)
+         else
+            jeven = .true.
+            jcur = mod(jcur-1+np_j,np_j)
+            iwrk = na(jcur+1)
+c            bshift = 1
+c            do jj=1,jcur
+c               bshift = bshift + na(jj)*nb(taskid_j+1)
+c            end do
+            call Dmatrix_start_rot(j,
+     >                             taskid_j,np_j,comm_j,
+     >                             A,work1,lda,na,
+     >                             request1)
+            call Dmatrix_end_rot(request2)
+            call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >                alpha,
+     >                work2, ma(taskid_i+1),
+     >                Bwork(bshift2(jcur)), iwrk,
+     >                1.0d0,
+     >                C, ldc)
+         end if 
+      end do
+      if (jeven) then
+         jcur = mod(jcur-1+np_j,np_j)
+         iwrk = na(jcur+1)
+c         bshift = 1
+c         do jj=1,jcur
+c            bshift = bshift + na(jj)*nb(taskid_j+1)
+c         end do
+         call Dmatrix_end_rot(request1)
+         call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >             alpha,
+     >             work1, ma(taskid_i+1),
+     >             Bwork(bshift2(jcur)), iwrk,
+     >             1.0d0,
+     >             C, ldc)
+      else
+         jcur = mod(jcur-1+np_j,np_j)
+         iwrk = na(jcur+1)
+c         bshift = 1
+c         do jj=1,jcur
+c            bshift = bshift + na(jj)*nb(taskid_j+1)
+c         end do
+         call Dmatrix_end_rot(request2)
+         call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >             alpha,
+     >             work2, ma(taskid_i+1),
+     >             Bwork(bshift2(jcur)), iwrk,
+     >             1.0d0,
+     >             C, ldc)
+      end if 
+      return
+      end
+
+
+      subroutine DMatrix_Bwork_copy(m,n,A,lda,ii,B,ldb)
+      implicit none
+      integer n,m
+      integer lda,ii,ldb
+      real*8 A(LDA,*)
+      real*8 B(LDB,*)
+
+*     *** local variables ***
+      integer i,j
+
+      do j=1,n
+         do i=1,m
+            B(i,j) = A(ii+i,j)
+         end do
+      end do
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_start_rot       *
+*     *                                 *
+*     ***********************************
+
+      subroutine DMatrix_start_rot(j,
+     >                             taskid_j,np_j,comm_j,
+     >                             A,W,lda,na,
+     >                             request)
+      implicit none
+      integer j
+      integer taskid_j,np_j,comm_j
+      real*8 A(*),W(*)
+      integer lda,na(*)
+      integer request(*)
+
+#include "mpif.h"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+*     **** local variables ****
+      integer proc_to,proc_from,msgtype,amsglen,wmsglen,mpierr
+
+      proc_to   = mod(taskid_j+j,np_j)
+      proc_from = mod(taskid_j-j+np_j,np_j)
+      msgtype   = j
+      amsglen = lda*na(taskid_j+1)
+      wmsglen = lda*na(proc_from+1)
+
+#ifdef MPI4
+            stupid_msglen = wmsglen
+            stupid_type   = msgtype
+            stupid_taskid = proc_from
+            call MPI_IRECV(W,
+     >                    stupid_msglen,stupid_double,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr)
+            request(1) = 0
+            request(1) = stupid_request
+
+            stupid_msglen = amsglen
+            stupid_type   = msgtype
+            stupid_taskid = proc_to
+            call MPI_ISEND(A,
+     >                     stupid_msglen,stupid_double,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_comm_j,
+     >                     stupid_request,stupid_ierr)
+            request(2) = 0
+            request(2) = stupid_request
+#else
+            call MPI_IRECV(W,wmsglen,MPI_DOUBLE_PRECISION,
+     >                    proc_from,
+     >                    msgtype,comm_j,
+     >                    request(1),mpierr)
+            call MPI_ISEND(A,amsglen,MPI_DOUBLE_PRECISION,
+     >                     proc_to,
+     >                     msgtype,comm_j,
+     >                     request(2),mpierr)
+
+#endif
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_end_rot         *
+*     *                                 *
+*     ***********************************
+
+      subroutine DMatrix_end_rot(request)
+      implicit none
+      integer request(*)
+
+#include "mpif.h"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+*     **** local variables ****
+      integer mpierr
+      integer status(2*MPI_STATUS_SIZE)
+
+*     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(2,request,request)
+      stupid_msglen = 2
+      call MPI_WAITALL(stupid_msglen,request,status,stupid_ierr)
+#else
+      call MPI_WAITALL(2,request,status,mpierr)
+#endif
+      return
+      end
+
+
+
 
 
 *     ***********************************
