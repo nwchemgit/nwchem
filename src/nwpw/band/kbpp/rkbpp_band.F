@@ -1,10 +1,4 @@
-
-*** These modified files were found in JOE when it aborted on Thu Apr 19 18:21:33 2007
-*** JOE was aborted because the terminal closed
-
-*** File 'rkbpp_band.F'
-*
-* $Id: rkbpp_band.F,v 1.5 2007-04-24 23:52:13 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.6 2007-04-26 19:49:39 d3p708 Exp $
 *
 
 *     **************************************
@@ -613,8 +607,8 @@ cccccccccccccccccccccccccccccccccccccccccccc
       call Parallel_np(np)
       call Parallel_taskid(taskid)
       forpi=16.0d0*datan(1.0d0)
-      twopi=forpi*0.5d0
-      call make_rel_band_states(lmax,n_prj,lprj,kprj,malf,mbet,
+      twopi=forpi*0.5d0 
+      call make_rel_band_states(lmax,nprj,n_prj,lprj,kprj,malf,mbet,
      > calf,cbet)
       knt=1
       locl=lprj(locp)
@@ -792,11 +786,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      > malf,mbet,calf,cbet)
       implicit none
       integer lmax
+      integer nprj
       integer n_prj(nprj),lprj(nprj),kprj(nprj)
       integer malf(nprj),mbet(nprj)
       real*8 calf(nprj),cbet(nprj)
 ccccc locals ccccccccccccccccccccccccccccccccccccccccccccccccccc
-      integer la,n3,jmax,knt,nprj,kappa
+      integer la,n3,jmax,knt,kappa
       real*8 j,jz,td,dla,ta,tb
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       nprj=lmax*2+1
