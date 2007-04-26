@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.9 2007-03-19 19:05:34 bylaska Exp $
+* $Id: Dne.F,v 1.10 2007-04-26 21:04:28 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -25,6 +25,7 @@
 *     **** local variables ****
       logical value
       integer ms,k,i,j,npack1,nida1
+      integer nework
 
 *     **** external functions ****
       integer  Parallel2d_comm_i,Parallel2d_comm_j
@@ -113,6 +114,20 @@
          value = value.and.MA_alloc_get(mt_dbl,
      >                                  2*64*int_mb(nc(1,1)+taskid_j),
      >                                  'work2',work2(2),work2(1))
+
+         value = value.and.MA_alloc_get(mt_dbl,
+     >                              ne(1)*ncq(1),
+     >                              'bcolwork',bcolwork(2),bcolwork(1))
+         value = value.and.MA_alloc_get(mt_dbl,
+     >                              ne(1)*ncq(1),
+     >                              'bwork2',bwork2(2),bwork2(1))
+         nework = int_mb(na(1,1))
+         value = value.and.MA_alloc_get(mt_dbl,
+     >                              2*nework*int_mb(ma(1,1)+taskid_i),
+     >                              'rwork1',rwork1(2),rwork1(1))
+         value = value.and.MA_alloc_get(mt_dbl,
+     >                              2*nework*int_mb(ma(1,1)+taskid_i),
+     >                              'rwork2',rwork2(2),rwork2(1))
          if (.not.value) 
      >      call errquit('Dne_init: out of heap memory',1,MA_ERR)
       end if
@@ -152,6 +167,10 @@
          end do
          value = value.and.MA_free_heap(work1(2))
          value = value.and.MA_free_heap(work2(2))
+         value = value.and.MA_free_heap(bcolwork(2))
+         value = value.and.MA_free_heap(bwork2(2))
+         value = value.and.MA_free_heap(rwork1(2))
+         value = value.and.MA_free_heap(rwork2(2))
         if (.not.value) then
            call errquit('Dne_end: error deallocating heap memory',
      >                  0,MA_ERR)
@@ -451,6 +470,98 @@ c     ****************************************
       return
       end
 
+c     ****************************************
+c     *                                      *
+c     *        Dneall_fmf_Multiply           *
+c     *                                      *
+c     ****************************************
+
+*  uses rotation algorithm
+
+      subroutine Dneall_fmf_Multiply(mb,Ain,npack1,
+     >                                   hml,alpha,
+     >                                   Aout,beta)
+      implicit none
+      integer    mb
+      complex*16 Ain(*)
+      integer    npack1
+      real*8     hml(*)
+      real*8     alpha
+      complex*16 Aout(*)
+      real*8     beta
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,n,shift,shift2,ishift2
+
+c      call Pack_npack(1,npack1)
+
+      call nwpw_timing_start(16)
+      if (parallelized) then
+       if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            shift  = 1 + (ms-1)*neq(1)*npack1
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_dgemm1_rot(npack1_all,ne(ms),ne(ms),
+     >             alpha,
+     >             Ain(shift),int_mb(ma(1,ms)+taskid_i),
+     >                        int_mb(ma(1,ms)),
+     >                        int_mb(na(1,ms)),
+     >             hml(shift2),mcq(ms),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             beta,
+     >             Aout(shift),int_mb(ma(1,ms)+taskid_i),
+     >                         int_mb(ma(1,ms)),
+     >                         int_mb(na(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(bcolwork(1)),dbl_mb(bwork2(1)),
+     >             dbl_mb(rwork1(1)),dbl_mb(rwork2(1)))
+
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            n     = ne(ms)
+            if (n.le.0) go to 30
+            shift  = 1 + (ms-1)*ne(1)*npack1
+            shift2 = 1 + (ms-1)*ishift2
+            call DGEMM('N','N',2*npack1,n,n,
+     >                (alpha),
+     >                Ain(shift),  2*npack1,
+     >                hml(shift2),    n,
+     >                (beta),
+     >                Aout(shift),2*npack1)
+   30       continue
+         end do
+      end if
+
+      call nwpw_timing_end(16)
+      return
+      end
 
 
 c     ****************************************
@@ -459,7 +570,11 @@ c     *        Dneall_fmf_Multiply          *
 c     *                                      *
 c     ****************************************
 
-      subroutine Dneall_fmf_Multiply(mb,Ain,npack1,hml,alpha,Aout,beta)
+*  uses summa algorithm
+
+      subroutine Dneall_fmf_Multiply_summa(mb,Ain,npack1,
+     >                                     hml,alpha,
+     >                                     Aout,beta)
       implicit none
       integer    mb
       complex*16 Ain(*)
@@ -477,6 +592,7 @@ c     ****************************************
 
 c      call Pack_npack(1,npack1)
 
+      call nwpw_timing_start(16)
       if (parallelized) then
        if (mb.eq.0) then
             ms1 = 1
@@ -536,6 +652,7 @@ c      call Pack_npack(1,npack1)
          end do
       end if
 
+      call nwpw_timing_end(16)
       return
       end
 
@@ -559,6 +676,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift,shift2,ishift2
 
+      call nwpw_timing_start(15)
       if (parallelized) then
          if (mb.eq.0) then
             ms1 = 1
@@ -635,6 +753,7 @@ c     ****************************************
          end do
       end if
 
+      call nwpw_timing_end(15)
       return
       end
 
@@ -658,6 +777,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift2,ishift2,shift
 
+      call nwpw_timing_start(15)
       if (parallelized) then
          if (mb.eq.0) then
             ms1 = 1
@@ -735,6 +855,7 @@ c     ****************************************
          end do
       end if
 
+      call nwpw_timing_end(15)
       return
       end
 
@@ -761,6 +882,7 @@ c     ****************************************
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,ierr
       integer tmp1(2),V(2),VV(2),Q(2),tu(2),ework(2)
 
+      call nwpw_timing_start(17)
       if (parallelized) then
          if (mb.eq.0) then
             ms1 = 1
@@ -890,6 +1012,7 @@ c     ****************************************
 
       end if
 
+      call nwpw_timing_end(17)
       return
       end
 

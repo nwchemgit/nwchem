@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_timing.F,v 1.4 2007-03-28 03:56:30 bylaska Exp $
+* $Id: nwpw_timing.F,v 1.5 2007-04-26 21:05:19 bylaska Exp $
 *
 
 * nwpw_timing.F
@@ -21,6 +21,9 @@
 *   11 - gen psi_r and dn
 *   12 - allocating memory from stack
 *   13 - miscellaneous steepest descent update
+*   15 - ffm_dgemm
+*   16 - fmf_dgemm
+*   17 - m_diagonalize
 *   20 - phase factors
 *   21 - ewald /ion-ion
 *   30 - queue fft
@@ -29,6 +32,7 @@
 *   33 - HFX
 *   40 - qmmm LJ
 *   41 - qmmm residual Q
+
 
       subroutine nwpw_timing_init()
       implicit none
@@ -95,6 +99,15 @@ c     **** external functions ****
          write(luout,1808) '  geodesic                   : ',
      >                 nwpw_timing(10),
      >                 nwpw_timing(10)/dble(counter)
+         write(luout,1808) '  ffm_dgemm                  : ',
+     >                 nwpw_timing(15),
+     >                 nwpw_timing(15)/dble(counter)
+         write(luout,1808) '  fmf_dgemm                  : ',
+     >                 nwpw_timing(16),
+     >                 nwpw_timing(16)/dble(counter)
+         write(luout,1808) '  m_diagonalize              : ',
+     >                 nwpw_timing(17),
+     >                 nwpw_timing(17)/dble(counter)
          write(luout,1808) '  exchange correlation       : ',
      >                 nwpw_timing(4),
      >                 nwpw_timing(4)/dble(counter)
