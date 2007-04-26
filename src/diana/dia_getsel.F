@@ -1,6 +1,6 @@
       subroutine dia_getsel
 c
-c $Id: dia_getsel.F,v 1.8 2007-04-26 03:07:01 d3j191 Exp $
+c $Id: dia_getsel.F,v 1.9 2007-04-26 03:13:15 d3j191 Exp $
 c
 c     get atom selection
 c     ------------------
@@ -209,8 +209,8 @@ c
       call dia_index(byte_mb(i_snam),
      + iangl(nangl,i,1),iangl(nangl,i,2))
     1 continue
-      idist(nangl,1,3)=idangl
-      idist(nangl,2,3)=1
+      iangl(nangl,1,3)=idangl
+      iangl(nangl,2,3)=1
 c
       last=nangl
 c      if(lequiv) then
