@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Q.F,v 1.16 2007-04-23 16:45:06 bylaska Exp $
+c $Id: pspw_Q.F,v 1.17 2007-04-26 21:06:43 bylaska Exp $
 c
 
 
@@ -388,7 +388,7 @@ c     *************************************
       integer indx_frag_start(*),size_frag(*) 
       integer kfrag(*)
       real*8  switch_Rin(*),switch_Rout(*)
-      logical self_interaction
+      logical self_interaction(*)
       integer nshl3d
       real*8  rcell(nshl3d,3)
       real*8  rion(3,*),fion(3,*)

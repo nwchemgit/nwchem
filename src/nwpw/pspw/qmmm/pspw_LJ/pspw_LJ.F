@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.17 2007-04-23 16:45:06 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.18 2007-04-26 21:06:34 bylaska Exp $
 c
 
 *     *************************
@@ -375,7 +375,8 @@ c     *           pspw_LJ_fion            *
 c     *                                   *
 c     *************************************
       subroutine pspw_LJ_fion(nion,nion_qm,katm,
-     >                        nfrag,indx_frag_start,size_frag,kfrag,
+     >                        nfrag,indx_frag_start,size_frag,
+     >                        kfrag,
      >                        self_interaction,
      >                        nshl3d,rcell,
      >                        rion,fion)
