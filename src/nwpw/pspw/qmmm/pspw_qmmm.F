@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.28 2007-04-23 16:45:05 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.29 2007-05-02 17:21:11 bylaska Exp $
 c
 
 ***********************************************************
@@ -99,9 +99,13 @@ c
      >                        size_frag(2),size_frag(1))
          value = value.and.
      >           MA_alloc_get(mt_int,nfrag,'kfrag',kfrag(2),kfrag(1))
+
          value = value.and.
-     >           MA_alloc_get(mt_log,nfrag,'self_interaction',
+     >           MA_alloc_get(mt_log,nkfrag,'self_interaction',
      >                        self_interaction(2),self_interaction(1))
+         value = value.and.
+     >           MA_alloc_get(mt_log,nkfrag,'incell_frag',
+     >                        incell_frag(2),incell_frag(1))
          value = value.and.
      >           MA_alloc_get(mt_dbl,nkfrag,'switch_Rin',
      >                        switch_Rin(2),switch_Rin(1))
@@ -192,6 +196,12 @@ c
             if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,
      >                       log_mb(self_interaction(1)+ia-1)))
      >          log_mb(self_interaction(1)+ia-1) = .false.
+
+            rtdb_name = 'pspw_qmmm_frag_incell:'
+     >                  //c_index_name(ia)
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,
+     >                       log_mb(incell_frag(1)+ia-1)))
+     >          log_mb(incell_frag(1)+ia-1) = .true.
 
             rtdb_name = 'pspw_qmmm_frag_switch_Rin:'//c_index_name(ia)
             value = rtdb_get(rtdb,rtdb_name,mt_dbl,1,
@@ -406,6 +416,11 @@ c
              else
                 write(*,*) "  - covalent fragment"
              end if
+             if (log_mb(incell_frag(1)+ia-1)) then
+                write(*,*) "  - incell fragment"
+             else
+                write(*,*) "  - not incell fragment"
+             end if
              write(*,*) "  - Switching Parameters = ",
      >                  dbl_mb(switch_Rin(1)+ia-1),
      >                  dbl_mb(switch_Rout(1)+ia-1)
@@ -499,6 +514,7 @@ c
         value = value.and.MA_free_heap(size_frag(2))
         value = value.and.MA_free_heap(kfrag(2))
         value = value.and.MA_free_heap(self_interaction(2))
+        value = value.and.MA_free_heap(incell_frag(2))
         value = value.and.MA_free_heap(switch_Rin(2))
         value = value.and.MA_free_heap(switch_Rout(2))
         value = value.and.MA_free_heap(nshake(2))
@@ -1176,14 +1192,17 @@ c     **** external functions ***
 #include "pspw_qmmm.fh"
 
 *     **** local variables ****
-      integer w1,n1,ks1
+      integer w1,n1,ks1,ia
       real*8  rcm(3),mtotal
 
       do w1=1,nfrag
+c        ia = int_mb(kfrag(1)+w1-1)
+c        if (log_mb(incell_frag(1)+ia-1)) then
         n1  = int_mb(size_frag(1)+w1-1)
         ks1 = int_mb(indx_frag_start(1)+w1-1)
         call pspw_qmmm_frag_cm(n1,ks1,r1,rcm,mtotal)
         call lattice_incell1_frag(rcm,n1,r1(1,ks1))
+c        end if
       end do
       return
       end 
@@ -1210,14 +1229,17 @@ c     **** external functions ***
 #include "pspw_qmmm.fh"
 
 *     **** local variables ****
-      integer w1,n1,ks1
+      integer w1,n1,ks1,ia
       real*8  rcm(3),mtotal
 
       do w1=1,nfrag
+c        ia = int_mb(kfrag(1)+w1-1)
+c        if (log_mb(incell_frag(1)+ia-1)) then
         n1  = int_mb(size_frag(1)+w1-1)
         ks1 = int_mb(indx_frag_start(1)+w1-1)
         call pspw_qmmm_frag_cm(n1,ks1,r1,rcm,mtotal)
         call lattice_incell2_frag(rcm,n1,r1(1,ks1),r2(1,ks1))
+c        end if
       end do
       return
       end
@@ -1245,15 +1267,20 @@ c     **** external functions ***
 #include "pspw_qmmm.fh"
 
 *     **** local variables ****
-      integer w1,n1,ks1
+      integer w1,n1,ks1,ia
       real*8  rcm(3),mtotal
 
+
       do w1=1,nfrag
+c        ia = int_mb(kfrag(1)+w1-1)
+c        if (log_mb(incell_frag(1)+ia-1)) then
         n1  = int_mb(size_frag(1)+w1-1)
         ks1 = int_mb(indx_frag_start(1)+w1-1)
         call pspw_qmmm_frag_cm(n1,ks1,r1,rcm,mtotal)
         call lattice_incell3_frag(rcm,n1,r1(1,ks1),r2(1,ks1),r3(1,ks1))
+c        end if
       end do
+
       return
       end
 

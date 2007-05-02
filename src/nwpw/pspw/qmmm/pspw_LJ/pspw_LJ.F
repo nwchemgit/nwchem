@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.18 2007-04-26 21:06:34 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.19 2007-05-02 17:21:15 bylaska Exp $
 c
 
 *     *************************
@@ -164,7 +164,9 @@ c     *************************************
 
 *     **** external functions ****
       real*8   pspw_VLJ_E_periodic,pspw_VLJ_E_periodic_self
+      real*8   pspw_VLJ_E_onecell,pspw_VLJ_E_periodic_image
       external pspw_VLJ_E_periodic,pspw_VLJ_E_periodic_self
+      external pspw_VLJ_E_onecell,pspw_VLJ_E_periodic_image
       
       call nwpw_timing_start(40)
       call Parallel_np(np)
@@ -190,7 +192,7 @@ c     **** QM/MM LJ energy ****
          dutask = mod(dutask+1,np)
       end do
 
-c     **** MM/MM LJ energy ****
+c     **** MM/MM LJ 1 cell energy ****
       do w1 = 1,nfrag-1
       if (dutask.eq.taskid) then
       do w2 = w1+1,nfrag
@@ -205,9 +207,8 @@ c     **** MM/MM LJ energy ****
                if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
                s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
                s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
-               E = E + pspw_VLJ_E_periodic(e1,s1,rion(1,kk1),
-     >                                     e2,s2,rion(1,kk2),
-     >                                     nshl3d,rcell)
+               E = E + pspw_VLJ_E_onecell(e1,s1,rion(1,kk1),
+     >                                    e2,s2,rion(1,kk2))
                end if
                kk2 = kk2 + 1
             end do
@@ -217,34 +218,6 @@ c     **** MM/MM LJ energy ****
       end if
       dutask = mod(dutask+1,np)
       end do
-
-c     **** MM/MM LJ self image energy ****
-      if (nshl3d.gt.1) then
-      do w1 = 1,nfrag
-         if (dutask.eq.taskid) then
-         k1 = indx_frag_start(w1)
-         n1 = size_frag(w1)
-         kk1 = k1
-         do a=1,n1
-            kk2 = k1
-            do b=1,n1
-               e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
-               e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
-               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-               s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
-               s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
-               E = E + pspw_VLJ_E_periodic_self(e1,s1,rion(1,kk1),
-     >                                          e2,s2,rion(1,kk2),
-     >                                          nshl3d,rcell)
-               end if
-               kk2 = kk2 + 1
-            end do
-            kk1 = kk1 + 1
-         end do
-         end if
-         dutask = mod(dutask+1,np)
-      end do
-      end if
 
 c     **** MM/MM LJ self energy ****
       do w1=1,nfrag
@@ -261,9 +234,8 @@ c     **** MM/MM LJ self energy ****
                if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
                s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
                s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
-               E = E + pspw_VLJ_E_periodic(e1,s1,rion(1,kk1),
-     >                                     e2,s2,rion(1,kk2),
-     >                                     1,rcell)
+               E = E + pspw_VLJ_E_onecell(e1,s1,rion(1,kk1),
+     >                                    e2,s2,rion(1,kk2))
                end if
                kk2 = kk2 + 1
              end do
@@ -274,12 +246,83 @@ c     **** MM/MM LJ self energy ****
          end if
       end do
 
+c     **** MM/MM LJ self image energy ****
+      if (nshl3d.gt.1) then
+
+      do j = nion_qm+1,nion
+       if (dutask.eq.taskid) then
+         e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
+         s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+         if ((e2.gt.1.0d-11)) then
+            E = E + pspw_VLJ_E_periodic_image(e2,s2,nshl3d,rcell)
+         end if
+       end if
+       dutask = mod(dutask+1,np)
+      end do
+
+c     **** MM/MM LJ image energy ****
+      do j = (nion_qm+1),(nion-1)
+         if (dutask.eq.taskid) then
+         e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
+         s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+         do i=j+1,nion
+            e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
+            if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
+            s1 = dbl_mb(sigma_all(1)+katm(i)-1)
+            E = E + pspw_VLJ_E_periodic_self(e1,s1,rion(1,i),
+     >                                       e2,s2,rion(1,j),
+     >                                       nshl3d,rcell)
+            end if
+         end do
+         end if
+         dutask = mod(dutask+1,np)
+      end do
+
+      end if
+
       if (np.gt.1) call Parallel_SumAll(E)
       call nwpw_timing_end(40)
 
       pspw_LJ_E = E
       return
       end
+
+
+
+c     *********************************************
+c     *                                           *
+c     *              pspw_VLJ_E_onecell          *
+c     *                                           *
+c     *********************************************
+
+      real*8 function pspw_VLJ_E_onecell(e1,s1,r1,e2,s2,r2)
+      implicit none
+      real*8 e1,s1,r1(3)
+      real*8 e2,s2,r2(3)
+      
+
+*     **** local variables ****
+      real*8  dx,dy,dz,r
+      real*8  sigma12,epsilon12
+      real*8  u,u6,u12,E
+
+      E         = 0.0d0
+      sigma12   = 0.5d0*(s1+s2)
+      epsilon12 = dsqrt(e1*e2)
+      dx = r1(1) - r2(1)
+      dy = r1(2) - r2(2)
+      dz = r1(3) - r2(3)
+      
+      r = dsqrt(dx**2 + dy**2 + dz**2)
+      u = (sigma12/r)
+      u6  = u**6
+      u12 = u6**2
+      E = E + 4.0d0*epsilon12*(u12-u6)
+
+      pspw_VLJ_E_onecell = E
+      return
+      end
+
 
 c     *********************************************
 c     *                                           *
@@ -369,6 +412,41 @@ c     *********************************************
 
 
 
+c     *********************************************
+c     *                                           *
+c     *              pspw_VLJ_E_periodic_image    *
+c     *                                           *
+c     *********************************************
+
+      real*8 function pspw_VLJ_E_periodic_image(e1,s1,nshl3d,rcell)
+      implicit none
+      real*8 e1,s1
+      integer nshl3d
+      real*8  rcell(nshl3d,3)
+
+*     **** local variables ****
+      integer l
+      real*8  x,y,z,r
+      real*8  u,u6,u12,E
+
+      E         = 0.0d0
+      do l=2,nshl3d
+         x = rcell(l,1)
+         y = rcell(l,2)
+         z = rcell(l,3)
+         r = dsqrt(x**2 + y**2 + z**2)
+         u = (s1/r)
+         u6  = u**6
+         u12 = u6**2
+c         E = E + 4.0d0*epsilon12*(u12-u6)
+         E = E + 2.0d0*e1*(u12-u6)
+      end do
+
+      pspw_VLJ_E_periodic_image = E
+      return
+      end
+
+
 c     *************************************
 c     *                                   *
 c     *           pspw_LJ_fion            *
@@ -425,7 +503,7 @@ c     **** QM/MM LJ energy ****
          dutask = mod(dutask+1,np)
       end do
 
-c     **** MM/MM LJ energy ****
+c     **** MM/MM LJ 1 cell energy ****
       do w1 = 1,nfrag-1
       if (dutask.eq.taskid) then
       do w2 = w1+1,nfrag
@@ -435,16 +513,15 @@ c     **** MM/MM LJ energy ****
          do a=1,size_frag(w1)
             kk2 = k2
             do b=1,size_frag(w2)
-              e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
-              e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
-              if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-              s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
-              s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
-              call pspw_VLJ_fion_periodic(e1,s1,rion(1,kk1),fion(1,kk1),
-     >                                    e2,s2,rion(1,kk2),fion(1,kk2),
-     >                                    nshl3d,rcell)
-              end if
-              kk2 = kk2 + 1
+               e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
+               e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
+               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
+               s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
+               s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
+               call pspw_VLJ_fion_onecell(e1,s1,rion(1,kk1),fion(1,kk1),
+     >                                    e2,s2,rion(1,kk2),fion(1,kk2))
+               end if
+               kk2 = kk2 + 1
             end do
             kk1 = kk1 + 1
          end do
@@ -452,36 +529,6 @@ c     **** MM/MM LJ energy ****
       end if
       dutask = mod(dutask+1,np)
       end do
-
-c     **** MM/MM LJ self image energy ****
-      if (nshl3d.gt.1) then
-      do w1 = 1,nfrag
-         if (dutask.eq.taskid) then
-         k1 = indx_frag_start(w1)
-         n1 = size_frag(w1)
-         kk1 = k1
-         do a=1,n1
-            kk2 = k1
-            do b=1,n1
-               e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
-               e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
-               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-               s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
-               s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
-               call pspw_VLJ_fion_periodic_self(e1,s1,rion(1,kk1),
-     >                                                fion(1,kk1),
-     >                                          e2,s2,rion(1,kk2),
-     >                                                fion(1,kk2),
-     >                                          nshl3d,rcell)
-               end if
-               kk2 = kk2 + 1
-            end do
-            kk1 = kk1 + 1
-         end do
-         end if
-         dutask = mod(dutask+1,np)
-      end do
-      end if
 
 c     **** MM/MM LJ self energy ****
       do w1=1,nfrag
@@ -493,14 +540,13 @@ c     **** MM/MM LJ self energy ****
            do a=1,n1-1
              kk2 = kk1 + 1
              do b=a+1,n1
-              e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
-              e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
-              if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-              s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
-              s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
-              call pspw_VLJ_fion_periodic(e1,s1,rion(1,kk1),fion(1,kk1),
-     >                                    e2,s2,rion(1,kk2),fion(1,kk2),
-     >                                    1,rcell)
+               e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
+               e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
+               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
+               s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
+               s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
+               call pspw_VLJ_fion_onecell(e1,s1,rion(1,kk1),fion(1,kk1),
+     >                                    e2,s2,rion(1,kk2),fion(1,kk2))
                end if
                kk2 = kk2 + 1
              end do
@@ -510,6 +556,32 @@ c     **** MM/MM LJ self energy ****
          dutask = mod(dutask+1,np)
          end if
       end do
+
+      if (nshl3d.gt.1) then
+
+c     **** MM/MM LJ self image energy - no force ****
+c     **** MM/MM LJ image energy ****
+      do j = (nion_qm+1),(nion-1)
+         if (dutask.eq.taskid) then
+         e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
+         s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+         do i=j+1,nion
+            e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
+            if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
+            s1 = dbl_mb(sigma_all(1)+katm(i)-1)
+            call pspw_VLJ_fion_periodic_self(e1,s1,rion(1,i),fion(1,i),
+     >                                       e2,s2,rion(1,j),fion(1,j),
+     >                                       nshl3d,rcell)
+            end if
+         end do
+         end if
+         dutask = mod(dutask+1,np)
+      end do
+
+      end if
+
+
+
 
 
       call nwpw_timing_end(40)
@@ -613,4 +685,42 @@ c     *********************************************
       return
       end
 
+
+
+c     *********************************************
+c     *                                           *
+c     *             pspw_VLJ_fion_onecell         *
+c     *                                           *
+c     *********************************************
+
+      subroutine pspw_VLJ_fion_onecell(e1,s1,r1,f1,
+     >                                 e2,s2,r2,f2)
+      implicit none
+      real*8 e1,s1,r1(3),f1(3)
+      real*8 e2,s2,r2(3),f2(3)
+
+*     **** local variables ****
+      real*8  x,y,z,r
+      real*8  sigma12,epsilon12
+      real*8  u,u6,u12,dVLJ
+
+      sigma12   = 0.5d0*(s1+s2)
+      epsilon12 = dsqrt(e1*e2)
+      x = r1(1) - r2(1)
+      y = r1(2) - r2(2)
+      z = r1(3) - r2(3)
+      r = dsqrt(x**2 + y**2 + z**2)
+      u = (sigma12/r)
+      u6  = u**6
+      u12 = u6**2
+      dVLJ = -(4.0d0*epsilon12/r)*(12.0d0*u12-6.0d0*u6)
+      f1(1) = f1(1) - (x/r)*dVLJ
+      f1(2) = f1(2) - (y/r)*dVLJ
+      f1(3) = f1(3) - (z/r)*dVLJ
+      f2(1) = f2(1) + (x/r)*dVLJ
+      f2(2) = f2(2) + (y/r)*dVLJ
+      f2(3) = f2(3) + (z/r)*dVLJ
+
+      return
+      end
 
