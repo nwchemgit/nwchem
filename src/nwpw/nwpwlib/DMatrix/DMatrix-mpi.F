@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix-mpi.F,v 1.3 2007-04-26 21:04:14 bylaska Exp $
+* $Id: DMatrix-mpi.F,v 1.4 2007-05-02 17:20:51 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -155,11 +155,11 @@ c            bshift = 1
 c            do jj=1,jcur
 c               bshift = bshift + na(jj)*nb(taskid_j+1)
 c            end do
+            call Dmatrix_end_rot(request1)
             call Dmatrix_start_rot(j,
      >                             taskid_j,np_j,comm_j,
      >                             A,work2,lda,na,
      >                             request2)
-            call Dmatrix_end_rot(request1)
             call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                work1, ma(taskid_i+1),
@@ -174,11 +174,11 @@ c            bshift = 1
 c            do jj=1,jcur
 c               bshift = bshift + na(jj)*nb(taskid_j+1)
 c            end do
+            call Dmatrix_end_rot(request2)
             call Dmatrix_start_rot(j,
      >                             taskid_j,np_j,comm_j,
      >                             A,work1,lda,na,
      >                             request1)
-            call Dmatrix_end_rot(request2)
             call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                work2, ma(taskid_i+1),
