@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.10 2007-04-26 21:04:28 bylaska Exp $
+* $Id: Dne.F,v 1.11 2007-05-03 19:47:53 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -25,7 +25,7 @@
 *     **** local variables ****
       logical value
       integer ms,k,i,j,npack1,nida1
-      integer nework
+      integer nework,ncqmax
 
 *     **** external functions ****
       integer  Parallel2d_comm_i,Parallel2d_comm_j
@@ -99,6 +99,11 @@
 
              mcq(ms) = int_mb(mc(1,ms)+taskid_i)
              ncq(ms) = int_mb(nc(1,ms)+taskid_j)
+             ncqmax = 0
+             do j=0,np_j-1
+                if (int_mb(nc(1,1)+j).gt.ncqmax) 
+     >             ncqmax = int_mb(nc(1,1)+j) 
+             end do
 
              npack1_all = 0
              nida1_all  = 0
@@ -116,10 +121,10 @@
      >                                  'work2',work2(2),work2(1))
 
          value = value.and.MA_alloc_get(mt_dbl,
-     >                              ne(1)*ncq(1),
+     >                              ne(1)*ncqmax,
      >                              'bcolwork',bcolwork(2),bcolwork(1))
          value = value.and.MA_alloc_get(mt_dbl,
-     >                              ne(1)*ncq(1),
+     >                              ne(1)*ncqmax,
      >                              'bwork2',bwork2(2),bwork2(1))
          nework = int_mb(na(1,1))
          value = value.and.MA_alloc_get(mt_dbl,
