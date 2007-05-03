@@ -3,7 +3,7 @@ C NAME
 C     Corr_Mk_Ref -- Create reference for correlated calculation
 C
 C REVISION
-C     $Id: corr_mk_ref.F,v 1.13 2003-10-17 22:58:34 carlfahl Exp $
+C     $Id: corr_mk_ref.F,v 1.14 2007-05-03 18:35:42 d3p307 Exp $
 C
 C SYNOPSIS
       Logical Function Corr_Mk_Ref(RTDB, Mod, Geom, Basis, DoSCF, 
@@ -131,7 +131,7 @@ C
 C LOCAL VARIABLES
 C
       Integer MLen, MyRChunk, MyCChunk, Spin, DType, Lo, Hi, Me, I
-      Character*(80) VecFil, VecTitle, VecBas, VecType
+      Character*(256) VecFil, VecTitle, VecBas, VecType
       Character*(80) Key, Key2, Type, Date
       Integer VecSpin, VecNMO(MyMxSpin), G_Vec(MyMxSpin), MxVecNMO,
      $     MxRefNMO
