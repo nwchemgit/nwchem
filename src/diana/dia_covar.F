@@ -1,6 +1,6 @@
       subroutine dia_covar()
 c
-c $Id: dia_covar.F,v 1.7 2007-03-14 16:17:48 d3j191 Exp $
+c $Id: dia_covar.F,v 1.8 2007-05-07 21:47:35 d3j191 Exp $
 c
       implicit none
 c
@@ -211,6 +211,7 @@ c
       integer ga_val,ilv,ihv,jlv,jhv,ndxv,ldv
       integer kvec,ip
       integer i_a,l_a,i_pcav,l_pcav
+      real*8 d
 c
       lesd=.true.
       read(card(8:14),'(i7)') ivec
@@ -294,12 +295,24 @@ c
      + call md_abort('Failed to allocate ipcav',0)
       write(lfnpca,1000) ivec,nfrtot
  1000 format(i5,i10)
-      do 1 ip=0,np-1
+c
+c     write the eigenvector
+c
+      ip=0
+      do 1 i=1,nsel
+      d=sqrt(dbl_mb(i_cov+ip)**2+dbl_mb(i_cov+ip+1)**2
+     + +dbl_mb(i_cov+ip+2)**2)
+      write(lfnpca,1001) dbl_mb(i_cov+ip),dbl_mb(i_cov+ip+1),
+     + dbl_mb(i_cov+ip+2),d
+ 1001 format(4f12.6)
+      ip=ip+3
+    1 continue
+      do 2 ip=0,np-1
       call ga_distribution(ga_val,ip,ilv,ihv,jlv,jhv)
       call ga_get(ga_val,1,1,jlv,jhv,dbl_mb(i_pcav+ip*nfrdim),1)
-    1 continue
-      write(lfnpca,1001) (dbl_mb(i_pcav+i-1),i=1,nfrtot)
- 1001 format(5e12.5)
+    2 continue
+      write(lfnpca,1002) (dbl_mb(i_pcav+i-1),i=1,nfrtot)
+ 1002 format(5e12.5)
       if(.not.ma_pop_stack(l_pcav))
      + call md_abort('Failed to deallocate ipcav',0)
       endif
