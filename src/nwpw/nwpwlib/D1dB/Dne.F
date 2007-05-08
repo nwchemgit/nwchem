@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.11 2007-05-03 19:47:53 bylaska Exp $
+* $Id: Dne.F,v 1.12 2007-05-08 17:55:09 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -116,8 +116,11 @@
          value = value.and.MA_alloc_get(mt_dbl,
      >                                  2*64*int_mb(ma(1,1)+taskid_i),
      >                                  'work1',work1(2),work1(1))
+
+         nework = 2*64*int_mb(nc(1,1)+taskid_j)
+         if (nework.lt.mcq(1)*ncq(1)) nework = mcq(1)*ncq(1)
          value = value.and.MA_alloc_get(mt_dbl,
-     >                                  2*64*int_mb(nc(1,1)+taskid_j),
+     >                                  nework,
      >                                  'work2',work2(2),work2(1))
 
          value = value.and.MA_alloc_get(mt_dbl,
@@ -883,9 +886,13 @@ c     ****************************************
 #include "Dne.fh"
 
 *     ***** local variables ****
+      integer taskid
       logical value
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,ierr
       integer tmp1(2),V(2),VV(2),Q(2),tu(2),ework(2)
+
+      call Parallel_taskid(taskid)
+
 
       call nwpw_timing_start(17)
       if (parallelized) then
@@ -918,7 +925,8 @@ c     ****************************************
             shift1 = 1+(ms-1)*ishift1
             shift2 = 1+(ms-1)*ishift2
 
-            
+      
+            call nwpw_timing_start(22)
             call DMatrix_tredq(ne(ms),
      >                hml(shift2),dbl_mb(Q(1)),
      >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
@@ -927,7 +935,9 @@ c     ****************************************
      >                comm_i,comm_j,
      >                dbl_mb(work1(1)),dbl_mb(work2(1)),
      >                dbl_mb(V(1)),dbl_mb(VV(1)))
+            call nwpw_timing_end(22)
 
+            call nwpw_timing_start(23)
             call DMatrix_getdiags(ne(ms),
      >                eig(shift1),dbl_mb(tu(1)),
      >                hml(shift2),
@@ -936,9 +946,10 @@ c     ****************************************
      >                np_i,np_j,
      >                comm_i,comm_j,
      >                dbl_mb(ework(1)))
-
             call dcopy(mcq(ms)*ncq(ms),dbl_mb(Q(1)),1,hml(shift2),1)
+            call nwpw_timing_end(23)
 
+            call nwpw_timing_start(24)
             call DMatrix_tqliq(ne(ms),
      >                eig(shift1),dbl_mb(tu(1)),
      >                hml(shift2),
@@ -947,7 +958,9 @@ c     ****************************************
      >                np_i,np_j,
      >                comm_i,comm_j,
      >                dbl_mb(work1(1)),dbl_mb(work2(1)))
+            call nwpw_timing_end(24)
 
+            call nwpw_timing_start(25)
             if (.not.assending)
      >      call DMatrix_eigsrtq(ne(ms),
      >              eig(shift1),
@@ -957,8 +970,12 @@ c     ****************************************
      >              np_i,np_j,
      >              comm_i,comm_j,
      >              dbl_mb(work1(1)),dbl_mb(work2(1)))
+            call nwpw_timing_end(25)
 
          end do
+
+  
+ 
 
          value =           MA_pop_stack(ework(2))
          value = value.and.MA_pop_stack(tu(2))
@@ -968,6 +985,7 @@ c     ****************************************
          if (.not. value) 
      >    call errquit('error popping stack in Dneall_m_diagonalize',
      >                 0,MA_ERR)
+
 
       else
          if (mb.eq.0) then
@@ -1118,6 +1136,7 @@ c     ****************************************
 #include "Dne.fh"
 
 *     **** local variables ****
+      integer taskid
       integer ms,ms1,ms2,n,shift,asize,j,k,indxk,indxj
       integer V(2),tmp2(2),S(2),A(2)
       real*8 sum1
@@ -1125,7 +1144,9 @@ c     ****************************************
       logical  Dneall_m_allocate,Dneall_m_free
       external Dneall_m_allocate,Dneall_m_free
  
+      call Parallel_taskid(taskid)
 
+      
       if (parallelized) then
          if (mb.eq.0) then
             ms1 = 1
@@ -1191,6 +1212,7 @@ c     ****************************************
          end do
          if (.not.MA_pop_stack(tmp2(2)))
      >     call errquit('Dneall_f_ortho: popping stack memory',3,MA_ERR)
+
 
 
 c     **** not parallized ****

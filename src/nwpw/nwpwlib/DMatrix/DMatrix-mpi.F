@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix-mpi.F,v 1.4 2007-05-02 17:20:51 bylaska Exp $
+* $Id: DMatrix-mpi.F,v 1.5 2007-05-08 17:55:17 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1078,6 +1078,7 @@ c        **** add to current rows of C ****
                end if
             end do
 
+
             if (jcur0.eq.taskid_j)
      >         call dcopy(mq(taskid_i+1),Q(1,jj0),1,work1,1)
             if (jcur1.eq.taskid_j)
@@ -1087,7 +1088,6 @@ c        **** add to current rows of C ****
      >                     jcur0,comm_j,ierr)
             call MPI_Bcast(work2,mq(taskid_i+1),MPI_DOUBLE_PRECISION,
      >                     jcur1,comm_j,ierr)
-
 
             if (jcur0.eq.taskid_j)
      >         call dcopy(mq(taskid_i+1),work2,1,Q(1,jj0),1)

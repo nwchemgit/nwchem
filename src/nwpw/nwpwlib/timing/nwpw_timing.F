@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_timing.F,v 1.5 2007-04-26 21:05:19 bylaska Exp $
+* $Id: nwpw_timing.F,v 1.6 2007-05-08 17:55:17 bylaska Exp $
 *
 
 * nwpw_timing.F
@@ -24,8 +24,16 @@
 *   15 - ffm_dgemm
 *   16 - fmf_dgemm
 *   17 - m_diagonalize
+
+*
 *   20 - phase factors
 *   21 - ewald /ion-ion
+
+*   22 - tredq
+*   23 - getdiags
+*   24 - tqliq
+*   25 - eigsrt
+
 *   30 - queue fft
 *   31 - queue fft serial
 *   32 - queue fft parallel
@@ -108,6 +116,20 @@ c     **** external functions ****
          write(luout,1808) '  m_diagonalize              : ',
      >                 nwpw_timing(17),
      >                 nwpw_timing(17)/dble(counter)
+
+         write(luout,1808) '    - m_tredq                : ',
+     >                 nwpw_timing(22),
+     >                 nwpw_timing(22)/dble(counter)
+         write(luout,1808) '    - m_getdiags             : ',
+     >                 nwpw_timing(23),
+     >                 nwpw_timing(23)/dble(counter)
+         write(luout,1808) '    - m_tqliq                : ',
+     >                 nwpw_timing(24),
+     >                 nwpw_timing(24)/dble(counter)
+         write(luout,1808) '    - m_eigsrt               : ',
+     >                 nwpw_timing(25),
+     >                 nwpw_timing(25)/dble(counter)
+
          write(luout,1808) '  exchange correlation       : ',
      >                 nwpw_timing(4),
      >                 nwpw_timing(4)/dble(counter)
