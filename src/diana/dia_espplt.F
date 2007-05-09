@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_espplt.F,v 1.1 2007-05-09 16:20:38 d3j191 Exp $
+c $Id: dia_espplt.F,v 1.2 2007-05-09 16:45:46 d3j191 Exp $
 c
       implicit none
 c
@@ -92,7 +92,7 @@ c
       external cf_anint
 #endif
 c
-      real*8 x(nsa,3),q(nsa,nq),g(ngx,ngy,ngz)
+      real*8 x(nsa,3),q(nsa),g(ngx,ngy,ngz)
       character*2 t(nsa)
       logical lprint
       integer isel(nsa)
@@ -108,6 +108,15 @@ c
       boxh(1)=0.5d0*box(1)
       boxh(2)=0.5d0*box(2)
       boxh(3)=0.5d0*box(3)
+c
+      xmin(1)=x(1,1)
+      xmin(2)=x(1,2)
+      xmin(3)=x(1,3)
+      do 11 i=1,nsa
+      xmin(1)=min(xmin(1),x(i,1))
+      xmin(2)=min(xmin(2),x(i,2))
+      xmin(3)=min(xmin(3),x(i,3))
+   11 continue
 c
       do 1 i=1,ngx
       do 2 j=1,ngy
