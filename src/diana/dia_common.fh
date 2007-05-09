@@ -1,5 +1,5 @@
 c
-c $Id: dia_common.fh,v 1.12 2007-04-26 03:07:00 d3j191 Exp $
+c $Id: dia_common.fh,v 1.13 2007-05-09 16:20:38 d3j191 Exp $
 c
       integer mxdist,mxangl,mxtors,mximps
       parameter(mxdist=100)
@@ -64,13 +64,13 @@ c
      + filchg,filplt,filxyz,filrms,filprj,filval,filmax,filmin,filepz,
      + filcov,filvec,filtop,filhis,filgrp,filram,root,filord,filloc,
      + filsel,filhba,filecc,fildie,filamp,filpin,filpou,filhol,filavg,
-     + filtcl,filpca,filexp,fildat
+     + filtcl,filpca,filexp,fildat,strplt,strepz
       character*3 fmttrj,fmtcop,fmtsup
       common/dia_txt/filnam,filana,filref,filtrj,filcop,filsup,filpov,
      + filchg,filplt,filxyz,fmttrj,fmtcop,fmtsup,filrms,filprj,filval,
      + filmax,filmin,filepz,filcov,filvec,filtop,filhis,filgrp,filram,
      + root,filord,filloc,filsel,filhba,filecc,fildie,filamp,filpin,
-     + filpou,filhol,filavg,filtcl,filpca,filexp,fildat
+     + filpou,filhol,filavg,filtcl,filpca,filexp,fildat,strplt,strepz
 c
       integer i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,l_isel,
      + i_snam,l_snam,i_xdat,l_xdat,i_idat,l_idat,i_bnd,l_bnd,

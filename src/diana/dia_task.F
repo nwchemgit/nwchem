@@ -1,6 +1,6 @@
       subroutine dia_task
 c
-c $Id: dia_task.F,v 1.13 2007-04-26 03:07:02 d3j191 Exp $
+c $Id: dia_task.F,v 1.14 2007-05-09 16:20:38 d3j191 Exp $
 c
       implicit none
 c
@@ -114,6 +114,9 @@ c
 c
       elseif(cmd.eq.'evalua') then
       call dia_evaluate()
+c
+      elseif(cmd.eq.'espplt') then
+      call dia_espplt()
       else
       goto 9
       endif
