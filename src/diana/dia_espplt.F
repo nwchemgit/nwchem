@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_espplt.F,v 1.3 2007-05-09 16:56:04 d3j191 Exp $
+c $Id: dia_espplt.F,v 1.4 2007-05-09 16:56:56 d3j191 Exp $
 c
       implicit none
 c
@@ -163,7 +163,7 @@ c
       endif
       endif
       g(ix,iy,iz)=g(ix,iy,iz)+138.9354d0*
-     + q(i,lplt)/sqrt(dx**2+dy**2+dz**2)
+     + q(i)/sqrt(dx**2+dy**2+dz**2)
       endif
     7 continue
     6 continue
