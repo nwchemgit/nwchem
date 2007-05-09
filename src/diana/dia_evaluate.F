@@ -1,6 +1,6 @@
       subroutine dia_evaluate()
 c
-c $Id: dia_evaluate.F,v 1.8 2007-04-26 03:07:01 d3j191 Exp $
+c $Id: dia_evaluate.F,v 1.9 2007-05-09 18:05:00 d3j191 Exp $
 c
 c     evaluate the defined properties
 c     -------------------------------
@@ -190,8 +190,8 @@ c
      + open(unit=lfndat, file=fildat(1:index(fildat,' ')-1),
      + form='formatted',status='unknown')
 c
-      write(lfndat,1000) ntdim
- 1000 format(i5,/,'Time')
+      write(lfndat,1000) ntdim,nfrtot
+ 1000 format(i5,i10,/,'Time')
       if(ndist.gt.0) then
       do 1 i=1,ndist
       write(lfndat,1001) 'Distance ',cdist(i)
