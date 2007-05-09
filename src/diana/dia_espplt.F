@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_espplt.F,v 1.4 2007-05-09 16:56:56 d3j191 Exp $
+c $Id: dia_espplt.F,v 1.5 2007-05-09 17:11:42 d3j191 Exp $
 c
       implicit none
 c
@@ -100,7 +100,7 @@ c
       integer ix,iy,iz,i,j,k,nxfr,nxto
       real*8 xg,yg,zg,value
       real*8 dx,dy,dz
-      real*8 boxh(3)
+      real*8 boxh(3),xd(3)
 c
       mgrd=ngx*ngy*ngz
       lplt=1
@@ -112,11 +112,41 @@ c
       xmin(1)=x(1,1)
       xmin(2)=x(1,2)
       xmin(3)=x(1,3)
+      xmax(1)=x(1,1)
+      xmax(2)=x(1,2)
+      xmax(3)=x(1,3)
       do 11 i=1,nsa
       xmin(1)=min(xmin(1),x(i,1))
       xmin(2)=min(xmin(2),x(i,2))
       xmin(3)=min(xmin(3),x(i,3))
+      xmax(1)=max(xmax(1),x(i,1))
+      xmax(2)=max(xmax(2),x(i,2))
+      xmax(3)=max(xmax(3),x(i,3))
    11 continue
+c
+      do 12 j=1,3
+      if(iesppb.eq.0.or.rcut.lt.0.0d0.or.
+     + (iesppb.eq.1.and.j.ne.3).or.
+     + (iesppb.eq.2.and.j.eq.3)) then
+      xd(j)=xmax(j)-xmin(j)+2.0d0*abs(rcut)
+      xmin(j)=xmin(j)-abs(rcut)
+      else
+      xd(j)=box(j)
+      xmin(j)=0.5d0*(xmin(j)+xmax(j)-box(j))
+      endif
+   12 continue
+c
+      do 13 j=1,3
+      spac(j)=1.0d0/(ngrid-1)
+   13 continue
+c
+      do 14 j=1,3
+      ngrd(j)=xd(j)/spac(j)+1
+   14 continue
+c
+      do 15 j=1,3
+      spac(j)=xd(j)/dble(ngrd(j))
+   15 continue
 c
       do 1 i=1,ngx
       do 2 j=1,ngy
