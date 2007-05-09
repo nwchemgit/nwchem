@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_espplt.F,v 1.2 2007-05-09 16:45:46 d3j191 Exp $
+c $Id: dia_espplt.F,v 1.3 2007-05-09 16:56:04 d3j191 Exp $
 c
       implicit none
 c
@@ -172,7 +172,6 @@ c
 c
 c     write to plt file
 c
-      if(me.eq.0) then
       open(unit=lfnplt,file=filplt(1:index(filplt,' ')-1),
      + form='formatted',status='unknown')
       rewind(lfnplt)
@@ -205,7 +204,6 @@ c
  1005 format(2f12.6)
     8 continue
       close(unit=lfnepz)
-      endif
 c
       return
       end
