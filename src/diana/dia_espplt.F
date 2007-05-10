@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_espplt.F,v 1.6 2007-05-10 00:21:03 d3j191 Exp $
+c $Id: dia_espplt.F,v 1.7 2007-05-10 03:58:13 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c
       string=card(28:80)
       i=index(string,' ')
       strplt=string(i+1:80)
-      strepz=filplt(1:index(filplt,'.'))//'epz '
+      strepz=string(i+1:80)
 c
       call ga_distribution(ga_trj,me,il,ih,jl,jh)
       call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
@@ -58,7 +58,7 @@ c
 c
       write(filplt,1000) strplt(1:index(strplt,' ')-1),
      + me*nfrdim+k,'.plt '
-      write(filepz,1000) strplt(1:index(strplt,' ')-1),
+      write(filepz,1000) strepz(1:index(strepz,' ')-1),
      + me*nfrdim+k,'.epz '
  1000 format(a,i5.5,a)
 c
