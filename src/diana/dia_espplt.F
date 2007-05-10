@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_espplt.F,v 1.5 2007-05-09 17:11:42 d3j191 Exp $
+c $Id: dia_espplt.F,v 1.6 2007-05-10 00:21:03 d3j191 Exp $
 c
       implicit none
 c
@@ -94,7 +94,6 @@ c
 c
       real*8 x(nsa,3),q(nsa),g(ngx,ngy,ngz)
       character*2 t(nsa)
-      logical lprint
       integer isel(nsa)
 c
       integer ix,iy,iz,i,j,k,nxfr,nxto
@@ -137,16 +136,8 @@ c
    12 continue
 c
       do 13 j=1,3
-      spac(j)=1.0d0/(ngrid-1)
+      spac(j)=xd(j)/(ngrid-1)
    13 continue
-c
-      do 14 j=1,3
-      ngrd(j)=xd(j)/spac(j)+1
-   14 continue
-c
-      do 15 j=1,3
-      spac(j)=xd(j)/dble(ngrd(j))
-   15 continue
 c
       do 1 i=1,ngx
       do 2 j=1,ngy
@@ -217,8 +208,6 @@ c
       write(lfnplt,1003) (((g(ix,iy,iz),ix=1,ngx),iy=1,ngy),iz=1,ngz)
  1003 format(2e20.12)
       close(unit=lfnplt)
-      if(lprint) write(*,1004) filplt(1:index(filplt,' ')-1)
- 1004 format(' Grid data written to ',a)
 c
       open(unit=lfnepz,file=filepz(1:index(filepz,' ')-1),
      + form='formatted',status='unknown')
@@ -230,7 +219,7 @@ c
       value=value+g(ix,iy,iz)
    10 continue
     9 continue
-      write(lfnepz,1005) xmin(3)+dble(iz)*spac(3),value/dble(ngx*ngy)
+      write(lfnepz,1005) xmin(3)+dble(iz-1)*spac(3),value/dble(ngx*ngy)
  1005 format(2f12.6)
     8 continue
       close(unit=lfnepz)

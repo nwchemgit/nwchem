@@ -1,6 +1,6 @@
       subroutine dia_getsel
 c
-c $Id: dia_getsel.F,v 1.9 2007-04-26 03:13:15 d3j191 Exp $
+c $Id: dia_getsel.F,v 1.10 2007-05-10 00:21:03 d3j191 Exp $
 c
 c     get atom selection
 c     ------------------
@@ -128,7 +128,8 @@ c
 #include "msgids.fh"
 #include "util.fh"
 c
-      logical lequiv,last
+      logical lequiv
+      integer last
       integer i,iddist,ndistp
       integer ndims(4)
 c
@@ -191,7 +192,8 @@ c
 #include "msgids.fh"
 #include "util.fh"
 c
-      logical lequiv,last
+      logical lequiv
+      integer last
       integer i,idangl,nanglp
       integer ndims(4)
 c
@@ -254,7 +256,8 @@ c
 #include "msgids.fh"
 #include "util.fh"
 c
-      logical lequiv,last
+      logical lequiv
+      integer last
       integer i,idtors,ntorsp
       integer ndims(4)
 c
@@ -412,7 +415,8 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      logical lequiv,last
+      logical lequiv
+      integer last
       integer i,idordr,ndordr,nordp
       integer ndims(4)
 c

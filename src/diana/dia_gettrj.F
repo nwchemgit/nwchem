@@ -1,6 +1,6 @@
       subroutine dia_gettrj
 c
-c $Id: dia_gettrj.F,v 1.7 2007-03-14 16:17:48 d3j191 Exp $
+c $Id: dia_gettrj.F,v 1.8 2007-05-10 00:21:03 d3j191 Exp $
 c
 c     read the trajectory
 c     -------------------
@@ -37,7 +37,7 @@ c
      + call md_abort('Failed to destroy ga_trt',0)
       endif
 c
-      read(card(8:37),'(3i10,l1)') ifrfr,ifrto,ifrsk,lslvnt
+      read(card(8:38),'(3i10,l1)') ifrfr,ifrto,ifrsk,lslvnt
 c
       if(me.eq.0) then
       write(*,'(/,3(a,i10))') ' Selected frames ',ifrfr,' to ',ifrto,
@@ -202,7 +202,8 @@ c
       do 102 ifr=iffram,ilfram
       if(mod(ifr-iffram+1,ifrsk).eq.0) then
       nfram=nfram+1
-      call fseek(lfntrj,ioffhd+(ifr-1)*iofffr,0,9999)
+      call fseek(lfntrj,ioffhd+(ifr-1)*iofffr,0)
+c      call fseek(lfntrj,ioffhd+(ifr-1)*iofffr,0,9999)
       call dia_preadframe(dbl_mb(i_xdat),dbl_mb(i_wdat),t)
       call ga_put(ga_trj,1,3*nsa,nfram,nfram,dbl_mb(i_xdat),nsa)
       if(lslvnt) call ga_put(ga_trw,1,3*nwm*nwa,ndata,ndata,
