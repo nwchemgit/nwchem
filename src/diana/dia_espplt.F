@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_espplt.F,v 1.10 2007-05-10 17:11:54 d3j191 Exp $
+c $Id: dia_espplt.F,v 1.11 2007-05-10 17:24:01 d3j191 Exp $
 c
       implicit none
 c
@@ -21,10 +21,8 @@ c
 
       read(string(13:16),'(i4)') iesppb
       read(string(17:28),'(f12.6)') rcut
-      string=card(29:80)
-      i=index(string,' ')
-      strplt=string(i+1:80)
-      strepz=string(i+1:80)
+      strplt=string(29:80)
+      strepz=string(29:80)
 c
       call ga_distribution(ga_trj,me,il,ih,jl,jh)
       call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
