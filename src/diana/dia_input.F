@@ -1,6 +1,6 @@
       subroutine dia_input(irtdb)
 c
-c $Id: dia_input.F,v 1.12 2007-05-10 16:50:55 d3j191 Exp $
+c $Id: dia_input.F,v 1.13 2007-05-10 17:11:54 d3j191 Exp $
 c
       implicit none
 c
@@ -12,7 +12,7 @@ c
       integer irtdb
 c
       character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml,filtop
-      character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
+      character*255 filcmd,filplt,filxyz,filref,filtrj,filcop
       character*255 filpin,filhol,filpou,filavg,filexp,filpca,filrms
       character*255 fileva
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
@@ -67,8 +67,7 @@ c
       if(.not.inp_a(prefix)) call md_abort('dia_input: error system',0)
       len=index(prefix,' ')-1
       filcmd=prefix(1:len)//'.cmd '
-      filchg=prefix(1:len)//'.q '
-      filplt=prefix(1:len)//'.plt '
+      filplt=prefix(1:len)
       filxyz=prefix(1:len)//'.xyz '
       filref=prefix(1:len)//'.rst '
       filtrj=prefix(1:len)//'.trj '
@@ -945,33 +944,17 @@ c
       endif
       if(.not.inp_f(rcut)) rcut=1.0d0
       iesppb=0
-      filplt=' '
-      filchg=' '
       if(inp_a(item)) then
       if(inp_compare(.false.,'periodic',item)) then
       if(.not.inp_i(iesppb)) iesppb=3
-      if(inp_a(filchg)) then
-      if(.not.inp_a(filplt)) filplt=' '
-      endif
+      if(inp_a(filplt)) continue
       else
-      filchg=item
-      if(.not.inp_a(filplt)) filplt=' '
+      filplt=item
       endif
       endif
-c      if(filchg(1:1).ne.' ') then
-c      if(index(filchg,'.xyzq').le.0)
-c     + filchg=filchg(1:index(filchg,' ')-1)//'.xyzq '
-c      if(filplt(1:1).eq.' ')
-c     + filplt=filchg(1:index(filchg,'.xyzq')-1)//'.plt '
-c      endif
-c      if(filplt(1:1).ne.' ') then
-c      if(index(filplt,'.plt').le.0)
-c     + filplt=filchg(1:index(filchg,'.xyzq')-1)//'.plt '
-c      endif
       write(lfncmd,1011) ngx,ngy,ngz,iesppb,rcut,
-     + filchg(1:index(filchg,' ')-1),
      + filplt(1:index(filplt,' ')-1)
- 1011 format('espplt ',3i4,i4,f12.6,a,' ',a)
+ 1011 format('espplt ',3i4,i4,f12.6,a)
       numcmd=numcmd+1
       goto 1
       endif

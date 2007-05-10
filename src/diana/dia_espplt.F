@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_espplt.F,v 1.9 2007-05-10 16:50:55 d3j191 Exp $
+c $Id: dia_espplt.F,v 1.10 2007-05-10 17:11:54 d3j191 Exp $
 c
       implicit none
 c
@@ -142,7 +142,7 @@ c
    12 continue
 c
       do 13 j=1,3
-      spac(j)=xd(j)/(ngrid-1)
+      spac(j)=xd(j)/(ngrd(j)-1)
    13 continue
 c
       do 1 i=1,ngx
