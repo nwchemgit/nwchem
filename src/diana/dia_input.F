@@ -1,6 +1,6 @@
       subroutine dia_input(irtdb)
 c
-c $Id: dia_input.F,v 1.10 2007-04-26 02:38:39 d3j191 Exp $
+c $Id: dia_input.F,v 1.11 2007-05-10 04:48:17 d3j191 Exp $
 c
       implicit none
 c
@@ -946,16 +946,16 @@ c
       if(.not.inp_a(filplt)) filplt=' '
       endif
       endif
-      if(filchg(1:1).ne.' ') then
-      if(index(filchg,'.xyzq').le.0)
-     + filchg=filchg(1:index(filchg,' ')-1)//'.xyzq '
-      if(filplt(1:1).eq.' ')
-     + filplt=filchg(1:index(filchg,'.xyzq')-1)//'.plt '
-      endif
-      if(filplt(1:1).ne.' ') then
-      if(index(filplt,'.plt').le.0)
-     + filplt=filchg(1:index(filchg,'.xyzq')-1)//'.plt '
-      endif
+c      if(filchg(1:1).ne.' ') then
+c      if(index(filchg,'.xyzq').le.0)
+c     + filchg=filchg(1:index(filchg,' ')-1)//'.xyzq '
+c      if(filplt(1:1).eq.' ')
+c     + filplt=filchg(1:index(filchg,'.xyzq')-1)//'.plt '
+c      endif
+c      if(filplt(1:1).ne.' ') then
+c      if(index(filplt,'.plt').le.0)
+c     + filplt=filchg(1:index(filchg,'.xyzq')-1)//'.plt '
+c      endif
       write(lfncmd,1011) nspac,iesppb,rcut,
      + filchg(1:index(filchg,' ')-1),
      + filplt(1:index(filplt,' ')-1)
