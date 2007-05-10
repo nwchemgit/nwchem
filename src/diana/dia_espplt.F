@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_espplt.F,v 1.7 2007-05-10 03:58:13 d3j191 Exp $
+c $Id: dia_espplt.F,v 1.8 2007-05-10 15:53:32 d3j191 Exp $
 c
       implicit none
 c
@@ -12,6 +12,7 @@ c
 c
       character*255 string
       integer i
+      integer ilt,iht,jlt,jht,ndxt,ldt
 c
       string=card(8:80)
       read(string(1:4),'(i4)') ngrid
@@ -24,12 +25,15 @@ c
 c
       call ga_distribution(ga_trj,me,il,ih,jl,jh)
       call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
+      call ga_distribution(ga_trt,me,ilt,iht,jlt,jht)
+      call ga_access(ga_trt,ilt,iht,jlt,jht,ndxt,ldt)
 c
-      call dia_pltgrd(int_mb(i_isel),dbl_mb(i_qdat),dbl_mb(ndx))
+      call dia_pltgrd(int_mb(i_isel),dbl_mb(i_qdat),
+     + dbl_mb(ndx),dbl_mb(ndxt))
 c
       return
       end
-      subroutine dia_pltgrd(isel,qs,xtrj)
+      subroutine dia_pltgrd(isel,qs,xtrj,trt)
 c
       implicit none
 c
@@ -38,7 +42,7 @@ c
 #include "msgids.fh"
 c
       integer isel(nsa)
-      real*8 qs(nsa),xtrj(ntrj,3,nfrdim)
+      real*8 qs(nsa),xtrj(ntrj,3,nfrdim),trt(6,nfrdim)
 c
       integer i,k
 c
@@ -64,7 +68,7 @@ c
 c
 c     calculate the electrostatic potential on the grid
 c
-      call dia_espgrd(isel,xtrj(1,1,k),qs,dbl_mb(i_grid))
+      call dia_espgrd(isel,xtrj(1,1,k),trt(1,k),qs,dbl_mb(i_grid))
 c
     1 continue
 c
@@ -78,7 +82,7 @@ c
       call md_abort('dia_pltgrd: error',0)
       return
       end
-      subroutine dia_espgrd(isel,x,q,g)
+      subroutine dia_espgrd(isel,x,t,q,g)
 c
       implicit none
 c
@@ -92,8 +96,7 @@ c
       external cf_anint
 #endif
 c
-      real*8 x(nsa,3),q(nsa),g(ngx,ngy,ngz)
-      character*2 t(nsa)
+      real*8 x(nsa,3),q(nsa),g(ngx,ngy,ngz),t(6)
       integer isel(nsa)
 c
       integer ix,iy,iz,i,j,k,nxfr,nxto
@@ -104,6 +107,9 @@ c
       mgrd=ngx*ngy*ngz
       lplt=1
 c
+      box(1)=t(4)
+      box(2)=t(5)
+      box(3)=t(6)
       boxh(1)=0.5d0*box(1)
       boxh(2)=0.5d0*box(2)
       boxh(3)=0.5d0*box(3)
