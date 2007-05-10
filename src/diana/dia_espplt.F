@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_espplt.F,v 1.8 2007-05-10 15:53:32 d3j191 Exp $
+c $Id: dia_espplt.F,v 1.9 2007-05-10 16:50:55 d3j191 Exp $
 c
       implicit none
 c
@@ -15,10 +15,13 @@ c
       integer ilt,iht,jlt,jht,ndxt,ldt
 c
       string=card(8:80)
-      read(string(1:4),'(i4)') ngrid
-      read(string(5:8),'(i4)') iesppb
-      read(string(9:20),'(f12.6)') rcut
-      string=card(28:80)
+      read(string(1:4),'(i4)') ngx
+      read(string(5:8),'(i4)') ngy
+      read(string(9:12),'(i4)') ngz
+
+      read(string(13:16),'(i4)') iesppb
+      read(string(17:28),'(f12.6)') rcut
+      string=card(29:80)
       i=index(string,' ')
       strplt=string(i+1:80)
       strepz=string(i+1:80)
@@ -48,12 +51,9 @@ c
 c
 c     allocate memory for grid
 c
-      ngrd(1)=ngrid
-      ngrd(2)=ngrid
-      ngrd(3)=ngrid
-      ngx=ngrd(1)
-      ngy=ngrd(2)
-      ngz=ngrd(3)
+      ngrd(1)=ngx
+      ngrd(2)=ngy
+      ngrd(3)=ngz
       mgrd=ngx*ngy*ngz
       if(.not.ma_push_get(mt_dbl,mgrd,'grid',l_grid,i_grid))
      + call md_abort('Failed to allocate memory for grid',me)

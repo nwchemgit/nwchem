@@ -1,6 +1,6 @@
       subroutine dia_input(irtdb)
 c
-c $Id: dia_input.F,v 1.11 2007-05-10 04:48:17 d3j191 Exp $
+c $Id: dia_input.F,v 1.12 2007-05-10 16:50:55 d3j191 Exp $
 c
       implicit none
 c
@@ -23,7 +23,7 @@ c
       real*8 arota,rrdf
       logical lref,lfil,lsol,lsuper,lselo,lequiv,lslvnt
       integer iesppb,lent,idpdb,indx,icent,jcent,nwhb,nclean
-      integer i,iorder,norder
+      integer i,iorder,norder,ngx,ngy,ngz
       character*8 option
 c
       if(ga_nodeid().eq.0) then
@@ -930,7 +930,19 @@ c     electrostatic potential
 c     -----------------------     
 c
       if(inp_compare(.false.,'esp',item)) then
-      if(.not.inp_i(nspac)) nspac=10
+      ngx=10
+      ngy=10
+      ngz=10
+      if(inp_i(ngx)) then
+      ngy=ngx
+      ngz=ngx
+      if(inp_i(ngy)) then
+      ngz=ngy
+      endif
+      if(.not.inp_i(ngz)) then
+      ngy=ngx
+      endif
+      endif
       if(.not.inp_f(rcut)) rcut=1.0d0
       iesppb=0
       filplt=' '
@@ -956,10 +968,10 @@ c      if(filplt(1:1).ne.' ') then
 c      if(index(filplt,'.plt').le.0)
 c     + filplt=filchg(1:index(filchg,'.xyzq')-1)//'.plt '
 c      endif
-      write(lfncmd,1011) nspac,iesppb,rcut,
+      write(lfncmd,1011) ngx,ngy,ngz,iesppb,rcut,
      + filchg(1:index(filchg,' ')-1),
      + filplt(1:index(filplt,' ')-1)
- 1011 format('espplt ',i4,i4,f12.6,a,' ',a)
+ 1011 format('espplt ',3i4,i4,f12.6,a,' ',a)
       numcmd=numcmd+1
       goto 1
       endif
