@@ -1,6 +1,6 @@
       subroutine dia_covar()
 c
-c $Id: dia_covar.F,v 1.8 2007-05-07 21:47:35 d3j191 Exp $
+c $Id: dia_covar.F,v 1.9 2007-05-10 16:52:36 d3j191 Exp $
 c
       implicit none
 c
@@ -13,6 +13,9 @@ c
       integer i,j,k
 c
       filpca=card(8:80)
+      if(index(filpca,'.pca').eq.0)
+     + filpca=filpca(1:index(filpca,' ')-1)//'.pca'
+c
       if(nsel.eq.0) call md_abort('No atoms selected',0)
 c
       if(active) call dia_edfinal()
