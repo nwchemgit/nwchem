@@ -1,6 +1,6 @@
       subroutine dia_rdref(x)
 c
-c $Id: dia_rdref.F,v 1.1 2006-12-10 01:03:22 d3j191 Exp $
+c $Id: dia_rdref.F,v 1.2 2007-05-10 21:17:40 d3j191 Exp $
 c
       implicit none
 c
@@ -84,24 +84,24 @@ c
       close(unit=lfnref)
       endif
 c
-c     broadcast coordinates to all nodes
-c
-      if(np.gt.1) then
-      call ga_brdcst(mag_d02,x(1,1),3*nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
-      endif
-c
-      do 6 i=1,nsa
-      if(i.eq.1) then
-      xsmin=x(1,3)
-      xsmax=x(1,3)
-      else
-      if(x(i,3).lt.xsmin) xsmin=x(i,3)
-      if(x(i,3).gt.xsmax) xsmax=x(i,3)
-      endif
+      do 6 j=1,3
+      xsmin(j)=x(1,j)
+      xsmax(j)=x(1,j)
+      do 6 i=2,nsa
+      xsmin(j)=min(xsmin(j),x(i,j))
+      xsmax(j)=max(xsmax(j),x(i,j))
     6 continue
 c
       xsmin=xsmin-0.5d0
       xsmax=xsmax+0.5d0
+c
+c     broadcast coordinates to all nodes
+c
+      if(np.gt.1) then
+      call ga_brdcst(mag_d02,x(1,1),3*nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
+      call ga_brdcst(mag_d03,xsmin,3*ma_sizeof(mt_dbl,1,mt_byte),0)
+      call ga_brdcst(mag_d04,xsmax,3*ma_sizeof(mt_dbl,1,mt_byte),0)
+      endif
 c
       return
 c
@@ -111,7 +111,7 @@ c
       end
       subroutine dia_center_ref(x)
 c
-c $Id: dia_rdref.F,v 1.1 2006-12-10 01:03:22 d3j191 Exp $
+c $Id: dia_rdref.F,v 1.2 2007-05-10 21:17:40 d3j191 Exp $
 c
       implicit none
 c
@@ -121,7 +121,7 @@ c
 #include "rtdb.fh"
 c
       real*8 x(nsa,3)
-      integer i
+      integer i,j
 c
 c     center and fold
 c
@@ -136,18 +136,16 @@ c
       call ga_brdcst(mag_d02,x(1,1),3*nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
       endif
 c
-      do 1 i=1,nsa
-      if(i.eq.1) then
-      xsmin=x(1,3)
-      xsmax=x(1,3)
-      else
-      if(x(i,3).lt.xsmin) xsmin=x(i,3)
-      if(x(i,3).gt.xsmax) xsmax=x(i,3)
-      endif
+      do 1 j=1,3
+      xsmin(j)=x(1,j)
+      xsmax(j)=x(1,j)
+      do 1 i=2,nsa
+      xsmin(j)=min(xsmin(j),x(i,j))
+      xsmax(j)=max(xsmax(j),x(i,j))
     1 continue
 c
-      xsmin=xsmin-0.5d0
-      xsmax=xsmax+0.5d0
+c      xsmin=xsmin-0.5d0
+c      xsmax=xsmax+0.5d0
 c
       return
       end

@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_espplt.F,v 1.11 2007-05-10 17:24:01 d3j191 Exp $
+c $Id: dia_espplt.F,v 1.12 2007-05-10 21:17:40 d3j191 Exp $
 c
       implicit none
 c
@@ -15,14 +15,11 @@ c
       integer ilt,iht,jlt,jht,ndxt,ldt
 c
       string=card(8:80)
-      read(string(1:4),'(i4)') ngx
-      read(string(5:8),'(i4)') ngy
-      read(string(9:12),'(i4)') ngz
-
-      read(string(13:16),'(i4)') iesppb
-      read(string(17:28),'(f12.6)') rcut
-      strplt=string(29:80)
-      strepz=string(29:80)
+      read(string(1:4),'(i4)') ngrid
+      read(string(5:8),'(i4)') iesppb
+      read(string(9:20),'(f12.6)') rcut
+      strplt=string(21:80)
+      strepz=string(21:80)
 c
       call ga_distribution(ga_trj,me,il,ih,jl,jh)
       call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
@@ -45,13 +42,25 @@ c
       integer isel(nsa)
       real*8 qs(nsa),xtrj(ntrj,3,nfrdim),trt(6,nfrdim)
 c
-      integer i,k
+      integer i,j,k
+      real*8 d
 c
 c     allocate memory for grid
 c
-      ngrd(1)=ngx
-      ngrd(2)=ngy
-      ngrd(3)=ngz
+      do 12 j=1,3
+      if(iesppb.eq.0.or.rcut.lt.0.0d0.or.
+     + (iesppb.eq.1.and.j.ne.3).or.
+     + (iesppb.eq.2.and.j.eq.3)) then
+      d=xsmax(j)-xsmin(j)+2.0d0*abs(rcut)
+      else
+      d=box(j)
+      endif
+      ngrd(j)=ngrid*int(d)
+   12 continue
+c
+      ngx=ngrd(1)
+      ngy=ngrd(2)
+      ngz=ngrd(3)
       mgrd=ngx*ngy*ngz
       if(.not.ma_push_get(mt_dbl,mgrd,'grid',l_grid,i_grid))
      + call md_abort('Failed to allocate memory for grid',me)

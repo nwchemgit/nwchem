@@ -1,5 +1,5 @@
 c
-c $Id: dia_common.fh,v 1.13 2007-05-09 16:20:38 d3j191 Exp $
+c $Id: dia_common.fh,v 1.14 2007-05-10 21:17:40 d3j191 Exp $
 c
       integer mxdist,mxangl,mxtors,mximps
       parameter(mxdist=100)
@@ -33,7 +33,7 @@ c
      + lfntcl,lfnpca,lfncmd,lfnexp,lfndat
 c
       real*8 time,timr,timoff,box(3),spac(3),rcut,xmax(3),xmin(3)
-      real*8 temp,pres,xsmin,xsmax,scale,cpk,stick,rangle
+      real*8 temp,pres,xsmin(3),xsmax(3),scale,cpk,stick,rangle
       real*8 rhbmin,rhbmax,hbdmin,hbdmax,hbamin,hbamax
       integer irmsd,lcop,lsup,ifrfr,ifrto,iscof,icopf,isupf,ifrsk
       integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)

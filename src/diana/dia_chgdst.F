@@ -14,9 +14,9 @@ c
       hist(2,i)=0.0d0
     1 continue
 c
-      range=xsmax-xsmin
+      range=xsmax(3)-xsmin(3)
       do 2 i=1,nsa
-      j=int((dble(ldist)*(xs(i,3)-xsmin))/range)+1
+      j=int((dble(ldist)*(xs(i,3)-xsmin(3)))/range)+1
       if(j.gt.0.and.j.le.ldist) then
       if(qs(i).lt.0.0d0) then
       hist(1,j)=hist(1,j)+qs(i)
@@ -30,7 +30,7 @@ c
       if(me.eq.0) then
       write(lfnhis,1000) time,ldist
  1000 format(f12.6,i5)
-      write(lfnhis,1001) (xsmin+(dble(i)-0.5d0)*drange,
+      write(lfnhis,1001) (xsmin(3)+(dble(i)-0.5d0)*drange,
      + hist(1,i),hist(2,i),hist(1,i)+hist(2,i),i=1,ldist)
  1001 format(4f12.6)
       endif
