@@ -1,6 +1,6 @@
       subroutine dia_rama()
 c
-c $Id: dia_rama.F,v 1.2 2007-05-11 00:05:11 d3j191 Exp $
+c $Id: dia_rama.F,v 1.3 2007-05-11 00:13:59 d3j191 Exp $
 c
       implicit none
 c
@@ -48,7 +48,7 @@ c
       logical lphi,lpsi
 c
       do 1 k=1,nfrme
-      write(lfnram,1000) strram(1:index(strram,' ')-1),
+      write(filram,1000) strram(1:index(strram,' ')-1),
      + me*nfrdim+k,'.ram '
  1000 format(a,i5.5,a)
       call dia_rama2(iram,xtrj(1,1,k),trt(1,k))
