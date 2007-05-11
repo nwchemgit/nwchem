@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.8 2007-05-11 00:02:55 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.9 2007-05-11 18:26:38 d3p708 Exp $
 *
 
 *     **************************************
@@ -660,7 +660,7 @@ cccccccccc g=0
       return 
       end
 cccccccccccccccccccccccccccc
-      subroutine rkbpp_v_nonlocal(lmax,nrho,locl,grdsize,
+      subroutine rkbpp_vnonlocal(lmax,nrho,locl,grdsize,
      >  gvec,kvec,
      >  vp,vpso,wp,vnl,
      >  cosqr,sinqr,f,rho,l_prj,k_prj,malf_prj,mbet_prj,calf_prj,
