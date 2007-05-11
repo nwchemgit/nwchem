@@ -1,6 +1,6 @@
-      subroutine dia_rama(x,iram)
+      subroutine dia_rama()
 c
-c $Id: dia_rama.F,v 1.1 2006-12-10 01:03:22 d3j191 Exp $
+c $Id: dia_rama.F,v 1.2 2007-05-11 00:05:11 d3j191 Exp $
 c
       implicit none
 c
@@ -10,25 +10,83 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
+      character*255 string
+      integer ilt,iht,jlt,jht,ndxt,ldt
+c
+      string=card(8:80)
+      strram=string
+c
+c     get access to local trajectory and time
+c
+      call ga_distribution(ga_trj,me,il,ih,jl,jh)
+      call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
+      call ga_distribution(ga_trt,me,ilt,iht,jlt,jht)
+      call ga_access(ga_trt,ilt,iht,jlt,jht,ndxt,ldt)
+c
+      call dia_rama1(int_mb(i_iram),dbl_mb(ndx),dbl_mb(ndxt))
+c
+      return
+      end
+      subroutine dia_rama1(iram,xtrj,trt)
+c
+      implicit none
+c
+#include "dia_params.fh"
+#include "dia_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer iram(msgm,7)
+      real*8 xtrj(ntrj,3,nfrdim),trt(6,nfrdim)
+c
       real*8 dia_torsion
       external dia_torsion
 c
-      real*8 x(msa,3)
-      integer iram(msgm,7)
-c
       real*8 phi,psi,rhb1,rhb2,dist
-      integer i,j,ihb1,ihb2
+      integer i,j,k,ihb1,ihb2
       logical lphi,lpsi
 c
-      if(me.eq.0) then
-      write(lfnram,1000) time,nsgm
+      do 1 k=1,nfrme
+      write(lfnram,1000) strram(1:index(strram,' ')-1),
+     + me*nfrdim+k,'.ram '
+ 1000 format(a,i5.5,a)
+      call dia_rama2(iram,xtrj(1,1,k),trt(1,k))
+    1 continue
+c
+      return
+      end
+      subroutine dia_rama2(iram,x,t)
+c
+      implicit none
+c
+#include "dia_params.fh"
+#include "dia_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer iram(msgm,7)
+      real*8 x(ntrj,3),t(6)
+c
+      real*8 dia_torsion
+      external dia_torsion
+c
+      real*8 phi,psi,rhb1,rhb2,dist
+      integer i,j,k,ihb1,ihb2
+      logical lphi,lpsi
+c
+      open(unit=lfnram,file=filram(1:index(filram,' ')-1),
+     + form='formatted',status='unknown')
+      rewind(lfnram)
+c
+      write(lfnram,1000) t(1),nsgm
  1000 format(f12.6,i7)
-      endif
 c
       rhb1=0.0d0
       rhb2=0.0d0
 c
-      do 1 i=1,nsgm
+      do 101 i=1,nsgm
       lphi=iram(i,1).gt.0
       lpsi=iram(i,5).gt.0
       phi=0.0d0
@@ -92,12 +150,9 @@ c
  1001 format(i7,1x,2l1,2f12.6,2i7,2f12.6)
       endif
       endif
-    1 continue
+  101 continue
 c
-      if(me.eq.0) then
-      write(lfnram,1002) 0
- 1002 format(i7)
-      endif
+      close(unit=lfnram)
 c
       return
       end

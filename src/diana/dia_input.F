@@ -1,6 +1,6 @@
       subroutine dia_input(irtdb)
 c
-c $Id: dia_input.F,v 1.14 2007-05-10 21:17:40 d3j191 Exp $
+c $Id: dia_input.F,v 1.15 2007-05-11 00:05:10 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,7 @@ c
       character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml,filtop
       character*255 filcmd,filplt,filxyz,filref,filtrj,filcop
       character*255 filpin,filhol,filpou,filavg,filexp,filpca,filrms
-      character*255 fileva
+      character*255 fileva,filram
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,lsel
       integer iopt,ivctr,nbatch,iomode
@@ -68,10 +68,11 @@ c
       len=index(prefix,' ')-1
       filcmd=prefix(1:len)//'.cmd '
       filplt=prefix(1:len)
+      filram=prefix(1:len)
       filxyz=prefix(1:len)//'.xyz '
       filref=prefix(1:len)//'.rst '
       filtrj=prefix(1:len)//'.trj '
-      filpca=prefix(1:len)//'.pca '
+      filpca=prefix(1:len)
       filrms=prefix(1:len)//'.rms '
       lent=index(prefix,'_')-1
       if(lent.le.0) lent=len
@@ -820,8 +821,9 @@ c     ramachandran analysis
 c     ---------------------
 c
       if(inp_compare(.false.,'ramachandran',item)) then
-      write(lfncmd,1088)
- 1088 format('rama   ')
+      if(inp_a(item)) filram=item
+      write(lfncmd,1088) filram(1:index(filram,' ')-1)
+ 1088 format('rama   ',a)
       numcmd=numcmd+1
       goto 2
       endif
