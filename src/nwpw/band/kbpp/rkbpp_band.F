@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.7 2007-05-10 23:54:33 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.8 2007-05-11 00:02:55 d3p708 Exp $
 *
 
 *     **************************************
@@ -292,10 +292,7 @@
 
       nb=1
 
-      if (locp.ne.0) then
-        locp=2*locp+1
-      end if
-      call rkbpp_vnonlocal(lmax,nrho,2*locp,nsize,
+      call rkbpp_vnonlocal(lmax,nrho,locp,nsize,
      >  dbl_mb(G_indx),kvectors(1,nb),
      >  dbl_mb(vp_indx),dbl_mb(vpso_indx),
      >  dbl_mb(wp_indx),dcpl_mb(vnl_indx),
@@ -358,7 +355,7 @@
         if ((oprint).and.(taskid.eq.MASTER))
      >      write(*,*) "generating brillioun #",nb
 
-        call rkbpp_vnonlocal(lmax,nrho,2*locp,nsize,
+        call rkbpp_vnonlocal(lmax,nrho,locp,nsize,
      >  dbl_mb(G_indx),kvectors(1,nb),
      >  dbl_mb(vp_indx),dbl_mb(vpso_indx),
      >  dbl_mb(wp_indx),dcpl_mb(vnl_indx),
@@ -590,15 +587,15 @@ ccccccccccccccccccccccccccccccccccccccccc
            ip=ip+1
          else   
            do k=1,nrho
-             vv=vp(i,lp)-(dble(lp)+1.0d0)*vpso(i,lp)
-             f(i)=vv*wp(i,ip)*wp(i,ip)            
+             vv=vp(k,lp)-(dble(lp)+1.0d0)*vpso(k,lp)
+             f(k)=vv*wp(k,lp)*wp(k,lp)            
            end do
            a=simp(nrho,f,drho) 
            vnlnrm(ip)=1.0/a
            ip=ip+1
            do k=1,nrho
-             vv=vp(i,lp)+dble(lp)*vpso(i,lp)
-             f(i)=vv*wp(i,ip)*wp(i,ip)            
+             vv=vp(k,lp)+dble(lp)*vpso(k,lp)
+             f(k)=vv*wp(k,ip)*wp(k,ip)            
            end do
            a=simp(nrho,f,drho) 
            vnlnrm(ip)=1.0/a
@@ -647,6 +644,7 @@ ccccccccccccccccccccccccccccccccccccccccc
 cccccccccc g=0
       do k=1,nrho
          f(k)=vp(k,locl)*rho(k)*rho(k)
+         vp(k,locl)=0.0d0
       end do
       vl(1)=fourpi*simp(nrho,f,drho)+0.5d0*fourpi*zv*rho(nrho)**2
       if (semicore) then
@@ -662,13 +660,13 @@ cccccccccc g=0
       return 
       end
 cccccccccccccccccccccccccccc
-      subroutine rkbpp_v_nonlocal(lmax,nrho,locprj,grdsize,
+      subroutine rkbpp_v_nonlocal(lmax,nrho,locl,grdsize,
      >  gvec,kvec,
      >  vp,vpso,wp,vnl,
      >  cosqr,sinqr,f,rho,l_prj,k_prj,malf_prj,mbet_prj,calf_prj,
      >  cbet_prj,drho,ierr)
       implicit none
-      integer lmax,locprj,nrho,grdsize,ierr
+      integer lmax,locl,nrho,grdsize,ierr
       integer malf_prj(*),mbet_prj(*),l_prj(*),k_prj(*)
       real*8 cosqr(nrho),sinqr(nrho),f(nrho),rho(nrho)
       real*8 vp(nrho,0:lmax),vpso(nrho,0:2*lmax)
@@ -678,7 +676,7 @@ cccccccccccccccccccccccccccc
       real*8 cbet_prj(2*lmax+1)
       real*8 drho,gvec(grdsize,3),kvec(3)
 cccccccc locals
-      integer taskid,nproc,tcount,i,k,ig,nnlprj
+      integer taskid,nproc,tcount,k,ig,nnlprj
       integer malfa,mbeta,kappa,l,ippot,key
       real*8 pi4,q,gx,gy,gz,a,d,vv,qr,pi
       real*8 calfa,cbeta,scof(0:3)
@@ -707,7 +705,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
          gz=gvec(ig,3)+kvec(3)
          q=dsqrt(gx*gx+gy*gy+gz*gz)
          if (dabs(q).lt.1.e-9) then 
-           if (locprj.ne.1) then
+           if (locl.ne.0) then
              do k=1,nrho
                f(k)=rho(k)*wp(k,0)*vp(k,0)
              end do
@@ -727,7 +725,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
             sinqr(k)=dsin(q*rho(k))
          end do
          do ippot=1,nnlprj
-            if (ippot.eq.locprj) cycle
             l=l_prj(ippot)
             kappa=k_prj(ippot)
             malfa=malf_prj(ippot)
