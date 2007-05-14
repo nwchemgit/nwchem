@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.7 2003-10-17 22:53:48 carlfahl Exp $
+* $Id: rel_input.F,v 1.8 2007-05-14 19:11:55 niri Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -20,15 +20,36 @@ c
       character*255 test
       double precision clight
       logical dk_run, dmd_run, status
+      logical scalar_zora_run    ! scalar_zora_run = scalar zora
+      logical so_zora_run        ! so_zora_run = spin-orbit zora 
+      integer irelKey
+
+c     Initialise relativistic approach key
+      irelKey = 0
 c
-c     Set the two relativistic approaches to .false.
+c     Set the available relativistic approaches to .false.
 c
+c     Douglas-Kroll 
       dk_run = .false.
       if (.not. rtdb_put(rtdb, 'doug_kroll', mt_log, 1, dk_run))
      $   call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
+
+c     Dyall Modified Dirac
       dmd_run = .false.
       if (.not. rtdb_put(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run))
      $   call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
+
+c     Scalar ZORA
+      scalar_zora_run = .false.
+      if (.not. rtdb_put(rtdb, 'scalar_zora', mt_log, 1, 
+     & scalar_zora_run))
+     &  call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
+
+c     Spin-Orbit ZORA
+      so_zora_run = .false.
+      if (.not. rtdb_put(rtdb, 'spin_orbit_zora', mt_log, 1, 
+     & so_zora_run))
+     &  call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
 c
 c     Set some relativistic variables we could need later on
 c
@@ -59,6 +80,14 @@ c
 c
          call dmd_input(rtdb)
 c
+      elseif (inp_compare(.false.,'scalar-zora', test)) then
+c
+c         call zora_input(rtdb)
+c
+      elseif (inp_compare(.false.,'spin-orbit-zora', test)) then
+c
+c         call zora_input(rtdb)
+c
       else if (inp_compare(.false.,'end', test)) then
 c
 c        end will be catched in while loop structure
@@ -71,20 +100,34 @@ c     End of while loop over the input
 c
       if (.not. inp_compare(.false.,'end', test)) goto 1
 c
-c     User could have set both methods by accident. Check if this is the case 
-c     stop if both methods are set to true.
+c     User could have set multiple relativistic approaches in the input file by accident. 
+c     Check if this is the case, stop if multiple methods are set to true.
 c
+      irelKey = 0
       status = rtdb_get(rtdb, 'doug_kroll', mt_log, 1, dk_run)
+      if (dk_run) irelKey = irelKey + 1
+
       status = rtdb_get(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run)
-      if (dk_run .and. dmd_run) then
+      if (dk_run) irelKey = irelKey + 1
+
+      status = rtdb_get(rtdb, 'scalar_zora', mt_log, 1, 
+     & scalar_zora_run)
+      if (scalar_zora_run) irelKey = irelKey + 1
+
+      status = rtdb_get(rtdb, 'spin_orbit_zora', mt_log, 1, 
+     & so_zora_run)
+      if (so_zora_run) irelKey = irelKey + 1
+
+c     Check if multiple approaches have been set 
+      if (irelKey .gt. 1) then
          if (ga_nodeid() .eq. 0) then
-         write(luout,20)
-  20     format(/'Input error relativistic:'/,
-     $   'Both Douglas-Kroll and Dyall-Mod-Dirac have been specified !')
+           write(luout,20)
+  20       format(/'Input error relativistic:'/,
+     & 'Multiple relativistic methods have been specified 
+     & in the input!')
          endif
          call errquit('rel_input: input error',0, INPUT_ERR)
       endif
-c
+
       return
-c       
       end
