@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.9 2007-05-14 23:22:05 niri Exp $
+* $Id: rel_input.F,v 1.10 2007-05-14 23:25:16 niri Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -19,9 +19,11 @@ c
 c     
       character*255 test
       double precision clight
-      logical dk_run, dmd_run, status
-      logical zora_run           ! zora_run = zora calculation 
-      integer irelKey
+      logical dk_run             ! Douglas-Kroll
+      logical dmd_run            ! Dyall modified Dirac
+      logical zora_run           ! ZORA
+      logical status
+      integer irelKey            ! Relativistic method keys
 
 c     Initialise relativistic approach key
       irelKey = 0
