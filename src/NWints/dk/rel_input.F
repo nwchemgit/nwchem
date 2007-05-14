@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.10 2007-05-14 23:25:16 niri Exp $
+* $Id: rel_input.F,v 1.11 2007-05-14 23:42:19 niri Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -98,7 +98,7 @@ c
       if (dk_run) irelKey = irelKey + 1
 
       status = rtdb_get(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run)
-      if (dk_run) irelKey = irelKey + 1
+      if (dmd_run) irelKey = irelKey + 1
 
       status = rtdb_get(rtdb, 'zora', mt_log, 1, zora_run)
       if (zora_run) irelKey = irelKey + 1
