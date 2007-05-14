@@ -88,6 +88,7 @@
          value = value.and.
      >     rkbpp_band(.false.,version,psp_filename,formatted_filename,
      >           ngrid,unita,lmax,dbl_mb(kv(1)))
+         call set_two_component_pseudopotential() 
       end if 
       if ((psp_type.ne.7).and.(psp_type.ne.1)) then
          value = value.and.
