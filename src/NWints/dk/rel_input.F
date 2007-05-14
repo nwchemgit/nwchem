@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.8 2007-05-14 19:11:55 niri Exp $
+* $Id: rel_input.F,v 1.9 2007-05-14 23:22:05 niri Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -20,8 +20,7 @@ c
       character*255 test
       double precision clight
       logical dk_run, dmd_run, status
-      logical scalar_zora_run    ! scalar_zora_run = scalar zora
-      logical so_zora_run        ! so_zora_run = spin-orbit zora 
+      logical zora_run           ! zora_run = zora calculation 
       integer irelKey
 
 c     Initialise relativistic approach key
@@ -39,16 +38,9 @@ c     Dyall Modified Dirac
       if (.not. rtdb_put(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run))
      $   call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
 
-c     Scalar ZORA
-      scalar_zora_run = .false.
-      if (.not. rtdb_put(rtdb, 'scalar_zora', mt_log, 1, 
-     & scalar_zora_run))
-     &  call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
-
-c     Spin-Orbit ZORA
-      so_zora_run = .false.
-      if (.not. rtdb_put(rtdb, 'spin_orbit_zora', mt_log, 1, 
-     & so_zora_run))
+c     ZORA
+      zora_run = .false.
+      if (.not. rtdb_put(rtdb, 'zora', mt_log, 1, zora_run))
      &  call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
 c
 c     Set some relativistic variables we could need later on
@@ -80,13 +72,9 @@ c
 c
          call dmd_input(rtdb)
 c
-      elseif (inp_compare(.false.,'scalar-zora', test)) then
+      elseif (inp_compare(.false.,'zora', test)) then
 c
-c         call zora_input(rtdb)
-c
-      elseif (inp_compare(.false.,'spin-orbit-zora', test)) then
-c
-c         call zora_input(rtdb)
+         call zora_input(rtdb)
 c
       else if (inp_compare(.false.,'end', test)) then
 c
@@ -110,13 +98,8 @@ c
       status = rtdb_get(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run)
       if (dk_run) irelKey = irelKey + 1
 
-      status = rtdb_get(rtdb, 'scalar_zora', mt_log, 1, 
-     & scalar_zora_run)
-      if (scalar_zora_run) irelKey = irelKey + 1
-
-      status = rtdb_get(rtdb, 'spin_orbit_zora', mt_log, 1, 
-     & so_zora_run)
-      if (so_zora_run) irelKey = irelKey + 1
+      status = rtdb_get(rtdb, 'zora', mt_log, 1, zora_run)
+      if (zora_run) irelKey = irelKey + 1
 
 c     Check if multiple approaches have been set 
       if (irelKey .gt. 1) then
