@@ -48,15 +48,26 @@
       psp_filename       = element(1:l)//'.psp'
       formatted_filename = element(1:l)//'.cpp'
 
+      write(6,*)"CAINE A"
+      call flush(6)
 *     **** generate one-dimensional pseudopotential file ****
       if (.not.nwpw_filefind(psp_filename)) then
+        write(6,*)"CAINE bxxx"
+        call flush(6)
         call psp_generator_auto(1,atom,lmax,locp,rlocal)
+        write(6,*)"CAINE bxx"
+        call flush(6)
 
 *     **** get lmax,locp,and rlocal from rtdb ****
       else
          call control_pspparameters(atom,lmax,locp,rlocal)
+        call psp_generator_auto(1,atom,lmax,locp,rlocal)
+        write(6,*)"CAINE bx"
+        call flush(6)
       end if
 
+      write(6,*)"CAINE c"
+      call flush(6)
 
 *     **** cell information ****
       version = control_version()
@@ -67,6 +78,8 @@
          end do
       end do
 
+      write(6,*)"CAINE d"
+      call flush(6)
 *     **** brillioun zone information ****
       nbrillioun = brillioun_nbrillioun()
       value = MA_push_get(mt_dbl,3*nbrillioun,'kv',kv(2),kv(1))
@@ -76,8 +89,12 @@
          dbl_mb(kv(1)+3*(nb-1)+2) = brillioun_k(3,nb)
       end do
 
+      write(6,*)"CAINE e"
+      call flush(6)
       call get_psp_type(psp_filename,psp_type)
 
+      write(6,*)"CAINE f"
+      call flush(6)
       if (psp_type.eq.1) then
          value = value.and.
      >     hghpp_band(.false.,
@@ -89,6 +106,8 @@
      >     rkbpp_band(.false.,version,psp_filename,formatted_filename,
      >           ngrid,unita,lmax,dbl_mb(kv(1)))
          call set_two_component_pseudopotential() 
+         write(6,*)"RKBPP GENERATED"
+         flush(6)
       end if 
       if ((psp_type.ne.7).and.(psp_type.ne.1)) then
          value = value.and.
@@ -96,6 +115,8 @@
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,
      >            nbrillioun,dbl_mb(kv(1)))
+         write(6,*)"KBPP GENERATED"
+         flush(6)
       end if
 
       value = value.and.MA_pop_stack(kv(2))

@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.9 2007-05-11 18:26:38 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.10 2007-05-15 23:27:20 d3p708 Exp $
 *
 
 *     **************************************
@@ -83,6 +83,8 @@
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
       oprint = (oprint_in.or.hprint)
 
+      write(6,*)"DIE KATZE a"
+      CALL FLUSH(6)
 
       value = .false.
   
@@ -102,6 +104,8 @@
         read(11,'(A)',ERR=9999,END=9999) comment
       end if
 
+      write(6,*)"DIE KATZE B"
+      CALL FLUSH(6)
       msglen = 1
       call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
       call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
@@ -126,6 +130,8 @@
       if (locp.lt.0)    locp = lmax
 
       
+      write(6,*)"DIE KATZE C"
+      CALL FLUSH(6)
 
 *     **** allocate rho, vp, and wp ****
       nprj=2*lmax+1
@@ -234,6 +240,8 @@
      >       dbl_mb(sc_k_indx),dbl_mb(sc_r_indx),
      >       dbl_mb(G_indx),semicore,zv,drho,ierr)
 
+      write(6,*)"DIE KATZE D"
+      CALL FLUSH(6)
       if ((taskid.eq.MASTER).and.(oprint)) then
       write(*,*) "     ********************************************"
       write(*,*) "     *                                          *"
@@ -292,6 +300,8 @@
 
       nb=1
 
+      write(6,*)"DIE KATZE E"
+      CALL FLUSH(6)
       call rkbpp_vnonlocal(lmax,nrho,locp,nsize,
      >  dbl_mb(G_indx),kvectors(1,nb),
      >  dbl_mb(vp_indx),dbl_mb(vpso_indx),
@@ -303,6 +313,8 @@
      >  dbl_mb(c_alf_indx),dbl_mb(c_bet_indx),
      >  drho,ierr)
 
+      write(6,*)"DIE KATZE F"
+      CALL FLUSH(6)
 
       if ((oprint).and.(taskid.eq.MASTER))
      >      write(*,*) "generating brillioun #",nb
@@ -350,6 +362,8 @@
       end if
 
 
+      write(6,*)"DIE KATZE F"
+      CALL FLUSH(6)
       do nb=2,nbrillioun
 
         if ((oprint).and.(taskid.eq.MASTER))
@@ -373,6 +387,8 @@
       end do
 
 
+      write(6,*)"DIE KATZE G"
+      CALL FLUSH(6)
 
       if (taskid.eq.MASTER) then
          if (semicore) then

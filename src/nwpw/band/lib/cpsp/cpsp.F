@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.38 2007-04-02 15:38:36 bylaska Exp $
+* $Id: cpsp.F,v 1.39 2007-05-15 23:27:23 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -10,57 +10,67 @@
 #include "mafdecls.fh"
 #include "cpsp_common.fh"
 #include "errquit.fh"
-
-      !integer nfft3d
+      integer axsize
       integer npack0,npack1,nbrillioun
       logical value
 
 *     **** external functions *****
+      logical  two_component_pseudopotential
       integer  ion_nkatm, brillioun_nbrillioun
       external ion_nkatm, brillioun_nbrillioun
+      external two_component_pseudopotential
  
-
-
       npsp = ion_nkatm()
       nbrillioun = brillioun_nbrillioun()
 
       call Cram_npack(0,npack0)
       call Cram_max_npack(npack1)
-      !call C3dB_nfft3d(1,nfft3d)
+     
+      if (two_component_pseudopotential()) then
+         ppot_stride=ljmmax_max
+         ppot_stride2=ljmmax_max
+      else
+         ppot_stride=nmax_max*lmmax_max
+         ppot_stride2=nmax_max*nmax_max*(lmax_max+1)
+      end if
 
-      value = MA_alloc_get(mt_dcpl,(nmax_max*lmmax_max*npack1),
+      axsize=ppot_stride*npack1
+      value = MA_alloc_get(mt_dcpl,axsize,
      >                    'prjtmp',prjtmp(2),prjtmp(1))
 
+      axsize=npsp*npack0
       value = value.and.
      >        MA_alloc_get(mt_dbl,(npsp*npack0),
      >                    'vl',vl(2),vl(1))
+      axsize = nmax_max*lmmax_max*npsp*npack1*nbrillioun   
       value = value.and.
      >        MA_alloc_get(mt_dbl,
-     >                    (nmax_max*lmmax_max*npsp*npack1*nbrillioun),
+     >                    axsize,
      >                    'vnl',vnl(2),vnl(1))
+      axsize= ppot_stride*npsp*npack1*nbrillioun
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,
-     >                    (nmax_max*lmmax_max*npsp*npack1*nbrillioun),
+     >        MA_alloc_get(mt_dcpl,axsize,
      >                    'vnlso',vnlso(2),vnlso(1))
-
+      axsize=npsp*(lmax_max+1)*nmax_max*nmax_max
       value = value.and.
-     >      MA_alloc_get(mt_dbl,(nmax_max*nmax_max*(lmax_max+1)*npsp),
+     >      MA_alloc_get(mt_dbl,axsize,
      >                    'Gijl',Gijl(2),Gijl(1))
-
+      axsize=npsp*ppot_stride2
       value = value.and.
-     >      MA_alloc_get(mt_dbl,(nmax_max*nmax_max*(lmax_max+1)*npsp),
+     >      MA_alloc_get(mt_dbl,axsize,
      >                    'Kijl',Kijl(2),Kijl(1))
 
       value = value.and.
      >        MA_alloc_get(mt_int,(npsp),'nprj',nprj(2),nprj(1))
+      axsize=npsp*ppot_stride
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >        MA_alloc_get(mt_int,axsize,
      >                     'n_projector',n_projector(2),n_projector(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >        MA_alloc_get(mt_int,axsize,
      >                     'l_projector',l_projector(2),l_projector(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >        MA_alloc_get(mt_int,axsize,
      >                     'm_projector',m_projector(2),m_projector(1))
 
 
@@ -86,9 +96,13 @@
       if (.not. value) 
      >   call errquit('cpsp_init:out of heap memory',0, MA_ERR)
 
-      call dcopy(npsp*npack0,          0.0d0,0,dbl_mb(vl(1)), 1)
-      call dcopy(lmmax_max*npsp*npack1*nbrillioun,
+      call dcopy(npsp*npack0,0.0d0,0,dbl_mb(vl(1)),1)
+      axsize = nmax_max*lmmax_max*npsp*npack1*nbrillioun   
+      call dcopy(axsize,
      >           0.0d0,0,dbl_mb(vnl(1)),1)
+      axsize = ppot_stride*npsp*npack1*nbrillioun   
+      call dcopy(axsize*2,
+     >           0.0d0,0,dbl_mb(vnlso(1)),1)
       call dcopy(npsp,                 0.0d0,0,dbl_mb(zv(1)),1)
       call dcopy(npsp,                 0.0d0,0,dbl_mb(amass(1)),1)
       call dcopy(npsp*(lmax_max+1),    0.0d0,0,dbl_mb(rc(1)),1)
@@ -405,8 +419,6 @@
         ia=ion_katm(ii)
 
 *       **** structure factor and local pseudopotential ****
-c        call cstrfac(ii,dcpl_mb(exi(1)))
-c        call Cram_c_pack(0,dcpl_mb(exi(1)))
         call cstrfac_pack(0,ii,dcpl_mb(exi(1)))
        
 *       **** add to local psp ****
@@ -518,7 +530,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
      >                   dcpl_mb(exi(1)),
      >                   dcpl_mb(vtmp(1)))
 
-         do i=1,npack0
+        do i=1,npack0
            dbl_mb(xtmp(1)+i-1) 
      >        = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
      >         - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
@@ -566,9 +578,9 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 
 *     *** local variables ***
       complex*16 one,mone,ione
-      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
-      parameter  (ione=(0.d0,1.0d0))
-
+      parameter  (one=dcmplx(1.0d0,0.0d0))
+      parameter  (mone=dcmplx(-1.0d0,0.0d0))
+      parameter  (ione=dcmplx(0.d0,1.0d0))
       integer nfft3d,G(3),npack1,npack
       integer i,ii,ia,l,n,nn,nb,neall,nbrill
       integer k,shift,l_prj,nproj
@@ -634,8 +646,18 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
         ia=ion_katm(ii)
 
         nproj = int_mb(nprj(1)+ia-1)
-        if (nproj.gt.0) then
-
+        if (nproj.gt.0) then 
+          if (int_mb(psp_type(1)+ia-1).eq.7) then
+            call cpsp_v_nonlocal_rel(ii,ia,nproj,npack1,nbrill,
+     >      nn,dbl_mb(xtmp(1)),dbl_mb(sum(1)),ne,
+     >      dcpl_mb(exi),dcpl_mb(prjtmp(1)),
+     >      dcpl_mb(zsw1(1)),dcpl_mb(zsw2(1)),
+     >      psi1,psi2,fion,move,
+     >      dbl_mb(Gx(1)),dbl_mb(Gy(1)),dbl_mb(Gz(1)),
+     >      dbl_mb(G(1)),scal)
+            cycle
+          end if
+         
 
         do nb=1,nbrill
            call Cram_npack(nb,npack)
@@ -688,13 +710,13 @@ c             *** current function is s or d ****
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
      >                         int_mb(n_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         int_mb(l_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         int_mb(m_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         dbl_mb(Gijl(1)
-     >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
+     >                         + (ia-1)*ppot_stride2),
      >                         dcpl_mb(zsw1(1)),
      >                         dcpl_mb(zsw2(1)))
 
@@ -1030,10 +1052,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,ppot_stride,
      >                    'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,ppot_stride,
      >                    'zsw2',zsw2(2),zsw2(1))
       if (.not.value) 
      > call errquit('cpsp_v_nonlocal_orb:pushing stack',0,MA_ERR)
@@ -1060,7 +1082,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                      +(nb-1)*npack1*nmax_max*lmmax_max
      >                      +(ia-1)*npack1*nmax_max*lmmax_max*nbrill
               l_prj = int_mb(l_projector(1)+(l-1)
-     >                                     +(ia-1)*(nmax_max*lmmax_max))
+     >                                     +(ia-1)*(ppot_stride))
 
               sd_function = ((l_prj.eq.0).or.(l_prj.eq.2))
 
@@ -1093,11 +1115,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
      >                         int_mb(n_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         int_mb(l_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         int_mb(m_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         dbl_mb(Gijl(1)
      >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
      >                         dcpl_mb(zsw1(1)),
@@ -1174,16 +1196,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,ppot_stride,
      >                    'zsw1u',zsw1u(2),zsw1u(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,ppot_stride,
      >                    'zsw2u',zsw2u(2),zsw2u(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,ppot_stride,
      >                    'zsw1d',zsw1d(2),zsw1d(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,ppot_stride,
      >                    'zsw2d',zsw2d(2),zsw2d(1))
       if (.not.value) 
      > call errquit('cpsp_v_nonlocal_orb2com:pushing stack',0,MA_ERR)
@@ -1208,10 +1230,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             do l=1,nproj
 
               shift = vnl(1)+(l-1) *npack1
-     >                      +(nb-1)*npack1*nmax_max*lmmax_max
-     >                      +(ia-1)*npack1*nmax_max*lmmax_max*nbrill
+     >                      +(nb-1)*npack1*lmmax_max*nmax_max
+     >                      +(ia-1)*npack1*lmmax_max*nmax_max*nbrill
               l_prj = int_mb(l_projector(1)+(l-1)
-     >                                     +(ia-1)*(nmax_max*lmmax_max))
+     >                                     +(ia-1)*(ppot_stride))
 
               !sd_function = .not.and(l_prj,1)
 
@@ -1251,11 +1273,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
      >                         int_mb(n_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         int_mb(l_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         int_mb(m_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         dbl_mb(Gijl(1)
      >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
      >                         dcpl_mb(zsw1u(1)),
@@ -1265,11 +1287,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
      >                         int_mb(n_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         int_mb(l_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         int_mb(m_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         dbl_mb(Gijl(1)
      >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
      >                         dcpl_mb(zsw1d(1)),
@@ -1354,10 +1376,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,nn*ppot_stride,
      >                    'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,nn*ppot_stride,
      >                    'zsw2',zsw2(2),zsw2(1))
       if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0,
      &       MA_ERR)
@@ -1397,7 +1419,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
            ia=ion_katm(ii)
            nproj = int_mb(nprj(1)+ia-1)
            if (nproj.gt.0) then
-
 *             **** structure factor ****
               call cstrfac_pack(nb,ii,dcpl_mb(exi(1)))
               call cstrfac_k(ii,nb,cxr)
@@ -1409,7 +1430,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                      +(nb-1)*npack1*nmax_max*lmmax_max
      >                      +(ia-1)*npack1*nmax_max*lmmax_max*nbrill
                  l_prj = int_mb(l_projector(1)+(l-1)
-     >                          +(ia-1)*(nmax_max*lmmax_max))
+     >                          +(ia-1)*(ppot_stride))
               
      >       
                  !sd_function = .not.and(l_prj,1)
@@ -1451,11 +1472,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                          int_mb(nmax(1)+ia-1),
      >                          int_mb(lmax(1)+ia-1),
      >                          int_mb(n_projector(1)
-     >                                 + (ia-1)*(nmax_max*lmmax_max)),
+     >                                 + (ia-1)*(ppot_stride)),
      >                          int_mb(l_projector(1)
-     >                                 + (ia-1)*(nmax_max*lmmax_max)),
+     >                                 + (ia-1)*(ppot_stride)),
      >                          int_mb(m_projector(1)
-     >                                 + (ia-1)*(nmax_max*lmmax_max)),
+     >                                 + (ia-1)*(ppot_stride)),
      >                          dbl_mb(Gijl(1)
      >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
      >                          dcpl_mb(zsw1(1)),
@@ -1542,8 +1563,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     *** local variables ***
       complex*16 one,mone
-      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
-
+      parameter  (one=dcmplx(1.0d0,0.0d0))
+      parameter  (mone=dcmplx(-1.0d0,0.0d0))
       integer nfft3d,G(3),npack1,npack
       integer i,ii,ia,l,n,nn,nb,neall,nbrill
       integer k,shift,l_prj,nproj
@@ -1573,10 +1594,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,nn*ppot_stride,
      >                    'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,nn*ppot_stride,
      >                    'zsw2',zsw2(2),zsw2(1))
       if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0,
      &       MA_ERR)
@@ -1605,7 +1626,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       omega = lattice_omega()
       scal  = 1.0d0/omega
-
       do ii=1,ion_nion()
         ia=ion_katm(ii)
 
@@ -1625,11 +1645,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *          **** generate zsw1's and projectors ****
            do 105 l=1,nproj
 
-              shift = vnlso(1)+(l-1) *npack1
-     >                      +(nb-1)*npack1*nmax_max*lmmax_max
-     >                      +(ia-1)*npack1*nmax_max*lmmax_max*nbrill
+              shift = vnlso(1)+(l-1)*npack1
+     >                      +(nb-1)*npack1*ppot_stride
+     >                      +(ia-1)*npack1*ppot_stride*nbrill
               l_prj = int_mb(l_projector(1)+(l-1)
-     >                                     +(ia-1)*(nmax_max*lmmax_max))
+     >                                     +(ia-1)*(ppot_stride))
               if (l_prj.eq.0) then
                 call dcopy(npack1*2,0.0d0,0,
      >               dcpl_mb(prjtmp(1)+(l-1)*npack1),1)
@@ -1669,13 +1689,13 @@ c             *** current function is s or d ****
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
      >                         int_mb(n_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         int_mb(l_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         int_mb(m_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         dbl_mb(Kijl(1)
-     >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
+     >                         +(ia-1)*(nmax_max*ppot_stride)),
      >                         dcpl_mb(zsw1(1)),
      >                         dcpl_mb(zsw2(1)))
 
@@ -1775,6 +1795,7 @@ c             *** current function is s or d ****
      >                       Gijl,
      >                       Kijl,
      >                       nfft3d,npack0,npack1,lmmax_max,nmax_max,
+     >                       ppot_stride1,ppot_stride2,
      >                       vl,vnl,vnlsox,
      >                       semicore,rcore,ncore,
      >                       tmp,tmp2,ztmp,ztmp2,
@@ -1788,19 +1809,17 @@ c             *** current function is s or d ****
       real*8  unita(3,3)
       character*2 atom
       real*8 amass,zv
-      integer lmmax
+      integer lmmax,ppot_stride1,ppot_stride2
       integer lmax
       integer locp
       integer nmax
       real*8 rc(*)
-
       integer nprj,n_projector(*),l_projector(*),m_projector(*)
       real*8 Gijl(*),Kijl(*)
-
       integer nfft3d,npack0,npack1,lmmax_max,nmax_max
-      real*8 vl(*)
+      real*8 vl(npack0)
       real*8 vnl(npack1,lmmax_max*nmax_max,*)
-      complex*16 vnlsox(npack1,lmmax_max*nmax_max,*)
+      complex*16 vnlsox(npack1,ppot_stride1,*)
       logical semicore
       real*8  rcore
       real*8  ncore(*)
@@ -1860,10 +1879,10 @@ c             *** current function is s or d ****
          call iread(5,n_projector,nprj)
          call iread(5,l_projector,nprj)
          call iread(5,m_projector,nprj)
-         call dread(5,Gijl,nmax*nmax*(lmax+1)) !** number of matrix elements = nmax*nmax*(lmax+1) **
-         if (psp_type.eq.1) then
-         call dread(5,Kijl,nmax*nmax*(lmax+1)) !** number of matrix elements = nmax*nmax*(lmax+1) **
-         end if
+ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
+         call dread(5,Gijl,nmax*nmax*(lmax+1)) 
+ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
+         call dread(5,Kijl,ppot_stride2) 
          end if
 
          call dread(5,rcore,1)
@@ -1924,10 +1943,14 @@ c             *** current function is s or d ****
       call BRDCST(9+MSGINT,l_projector,mitob(msglen),MASTER)
       call BRDCST(9+MSGINT,m_projector,mitob(msglen),MASTER)
 
+      if (psp_type.eq.7) then
+      msglen=nprj
+      call BRDCST(9+MSGDBL,Kijl,mdtob(msglen),MASTER)
+      else
       msglen=nmax*nmax*(lmax+1)
       call BRDCST(9+MSGDBL,Gijl,mdtob(msglen),MASTER)
       call BRDCST(9+MSGDBL,Kijl,mdtob(msglen),MASTER)
-
+      end if
       msglen=1
       call BRDCST(9+MSGDBL,rcore,mdtob(msglen),MASTER)
 
@@ -1948,22 +1971,37 @@ c             *** current function is s or d ****
       call Cram_r_Copy(0,tmp2,vl)
 
 *     **** read in vnl 3d blocks ****
-      do nb=1,brillioun_nbrillioun()
-      do n=1,nprj
-         call C3dB_r_read(1,5,tmp2,tmp)
-         call Cram_r_pack(nb,tmp2)
-         call Cram_r_Copy(nb,tmp2,vnl(1,n,nb))
-      end do
-      end do
-*     **** read in v_spin_orbit 3d blocks ****
-      if (psp_type.eq.1) then
-      do nb=1,brillioun_nbrillioun()
-      do n=1,nprj
+      if (psp_type.eq.7) then
+       do nb=1,brillioun_nbrillioun() 
+        do n=1,nprj
          call C3dB_c_read(1,5,ztmp2,ztmp)
          call Cram_c_pack(nb,ztmp2)
          call Cram_c_Copy(nb,ztmp2,vnlsox(1,n,nb))
-      end do
-      end do
+        end do
+        do n=1,nprj
+         call C3dB_c_read(1,5,ztmp2,ztmp)
+         call Cram_c_pack(nb,ztmp2)
+         call Cram_c_Copy(nb,ztmp2,vnlsox(1,n+nprj,nb))
+        end do
+       end do
+      else
+       do nb=1,brillioun_nbrillioun() 
+        do n=1,nprj
+         call C3dB_r_read(1,5,tmp2,tmp)
+         call Cram_r_pack(nb,tmp2)
+         call Cram_r_Copy(nb,tmp2,vnl(1,n,nb))
+        end do
+       end do
+*     **** read in v_spin_orbit 3d blocks ****
+       if (psp_type.eq.1) then
+        do nb=1,brillioun_nbrillioun()
+         do n=1,nprj
+          call C3dB_c_read(1,5,ztmp2,ztmp)
+          call Cram_c_pack(nb,ztmp2)
+          call Cram_c_Copy(nb,ztmp2,vnlsox(1,n,nb))
+         end do
+        end do
+       end if
       end if
 *     **** read in semicore density block ****
       if (semicore) then
@@ -1986,7 +2024,6 @@ c             *** current function is s or d ****
 
 *     *** close fname binary file ***
       if (taskid.eq.MASTER) then
-c       close(11)
          call closefile(5)
       end if
 
@@ -2008,9 +2045,6 @@ c       close(11)
 #include "c_semicore_common.fh"
 #include "stdio.fh"
 #include "errquit.fh"
-
-
-
 *     **** local variables ****
       integer ngp(3),version,nfft3d,npack0,npack1,nbrill
       integer ia,l
@@ -2092,21 +2126,22 @@ c       close(11)
      >                  dbl_mb(rc(1) + (ia-1)*(lmax_max+1)),
      >                  int_mb(nprj(1)+ia-1),
      >                  int_mb(n_projector(1)
-     >                         + (ia-1)*(nmax_max*lmmax_max)),
+     >                         + (ia-1)*(ppot_stride)),
      >                  int_mb(l_projector(1)
-     >                         + (ia-1)*(nmax_max*lmmax_max)),
+     >                         + (ia-1)*(ppot_stride)),
      >                  int_mb(m_projector(1)
-     >                         + (ia-1)*(nmax_max*lmmax_max)),
+     >                         + (ia-1)*(ppot_stride)),
      >                  dbl_mb(Gijl(1)
      >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
      >                  dbl_mb(Kijl(1)
      >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
      >                  nfft3d,npack0,npack1,lmmax_max,nmax_max,
+     >                  ppot_stride,ppot_stride2,
      >                  dbl_mb(vl(1) + (ia-1)*npack0),
      >                  dbl_mb(vnl(1)
      >                        +(ia-1)*npack1*nmax_max*lmmax_max*nbrill),
      >                  dcpl_mb(vnlso(1)
-     >                        +(ia-1)*npack1*nmax_max*lmmax_max*nbrill),
+     >                        +(ia-1)*npack1*ppot_stride*nbrill),
      >                  log_mb(semicore(1)+ia),
      >                  dbl_mb(rcore(1)+ia-1),
      >                  dbl_mb(ncore(1)+ (ia-1)*npack0*5),
@@ -2228,16 +2263,16 @@ c       close(11)
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,ppot_stride,
      >                    'zsw1u',zsw1u(2),zsw1u(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,ppot_stride,
      >                    'zsw2u',zsw2u(2),zsw2u(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,ppot_stride,
      >                    'zsw1d',zsw1d(2),zsw1d(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,ppot_stride,
      >                    'zsw2d',zsw2d(2),zsw2d(1))
       if (.not.value) 
      > call errquit('cpsp_v_spin_orbit_orb2com:pushing stack',0,MA_ERR)
@@ -2262,10 +2297,10 @@ c       close(11)
             do l=1,nproj
 
               shift = vnlso(1)+(l-1) *npack1
-     >                      +(nb-1)*npack1*nmax_max*lmmax_max
-     >                      +(ia-1)*npack1*nmax_max*lmmax_max*nbrill
+     >                      +(nb-1)*npack1*ppot_stride
+     >                      +(ia-1)*npack1*ppot_stride*nbrill
               l_prj = int_mb(l_projector(1)+(l-1)
-     >                                     +(ia-1)*(nmax_max*lmmax_max))
+     >                                     +(ia-1)*(ppot_stride))
 
               !sd_function = .not.and(l_prj,1)
 #ifdef GCC4
@@ -2309,11 +2344,11 @@ c       close(11)
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
      >                         int_mb(n_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         int_mb(l_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         int_mb(m_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                                + (ia-1)*(ppot_stride)),
      >                         dbl_mb(Kijl(1)
      >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
      >                         dcpl_mb(zsw1u(1)),dcpl_mb(zsw1d(1)),
@@ -2349,6 +2384,152 @@ c       close(11)
 
       return 
       end
+ccccccccccccccccccccc
+c
+c
+cccccccccccccccccccccccccccccccccccc
+      subroutine cpsp_v_nonlocal_rel(ii,ia,nproj,npack1,nbrill,
+     >    nn,xtmp,sum,ne,
+     >    cxr,exi,prtmp,zsw1,zsw2,psi1,psi2,fion,move,
+     >    Gx,Gy,Gz,G,bz_vol)
+#include "cpsp_common.fh"
+#include "mafdecls.fh"
+      integer nn,npack1,nproj,ia,ii,nbrill,ne(2)  
+      complex*16 prtmp(*)
+      complex*16 zsw1(*)
+      complex*16 zsw2(*)
+      complex*16 exi(*)
+      complex*16 psi1(*)
+      complex*16 psi2(*) 
+      real*8 sum(*),xtmp(*),bz_vol
+      real*8 fion(3,nkatmx)
+      logical move
+      real*8 Gx(npack1),Gy(npack1),Gz(npack1),G(3,npack1)
+cccccccccccccc locals cccccccccccccccccccccccccccccccccccccccc
+      real*8 weight,brillioun_weight
+      complex*16 one,mone,ione,ctmp,cxr
+      parameter  (one=dcmplx(1.0d0,0.0d0))
+      parameter  (mone=dcmplx(-1.0d0,0.0d0))
+      parameter  (ione=dcmplx(0.d0,1.0d0))
+      integer nb,l,ip,jk,i,n
+      integer shift,shift2,shiftx,nproj_dirac
+      logical sd_function
+      external brillioun_weight
+ccccccccccccc exec statements ccccccccccccc
+      shiftx=lmmax_max/2
+      nproj_dirac=nproj/2
+      do nb=1,nbrill
+           call Cram_npack(nb,npack)
+*       **** structure factor pseudopotential ****
+           call cstrfac_pack(nb,ii,exi)
+           call cstrfac_k(ii,nb,cxr)
+           call Cram_c_ZMul(nb,cxr,exi,exi)           
+*          **** generate zsw1's and projectors ****
+           do l=1,nproj
+
+              shift = vnlso(1)+(l-1)*npack1
+     >                       +(nb-1)*npack1*ppot_stride
+     >                       +(ia-1)*npack1*ppot_stride*nbrill
+              l_prj = int_mb(l_projector(1)+(l-1)
+     >                       +(ia-1)*(ppot_stride))
+
+              sd_function = ((l_prj.eq.0).or.(l_prj.eq.2))
+
+*             **** phase factor does not matter therefore ****
+*             **** (-i)^l is the same as (i)^l in the     ****
+*             **** Rayleigh scattering formula            ****
+
+c             *** current function is s or d ****
+              if (sd_function) then
+                 call Cram_rc_Mul(nb,dcpl_mb(shift),
+     >                               exi,
+     >                               prtmp(1+(l-1)*npack1))
+*             *** current function is p or f ****
+              else
+                 call Cram_irc_Mul(nb,dcpl_mb(shift),
+     >                                exi,
+     >                                prtmp(1+(l-1)*npack1))
+              end if
+
+*             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
+              call Cram_cc_inzdot(nb,nn,
+     >                      psi1(1+(nb-1)*nn*npack1),
+     >                      prtmp(1+(l-1)*npack1),
+     >                      zsw1(1+(l-1)*nn))
+           end do !**nproj**!
+           call C3dB_Vector_SumAll((2*nn*nproj),zsw1(1))
+
+*          **** zsw2 = Gijl*zsw1 ******
+cccccccccccccccccccccccccccccccccccccccccccccc
+cc This needs to be parallelized !!!!!!!!!!!!!!
+ccccccccccccccccccccccccccccccccccccccccccccc
+           do ip=1,nproj_dirac
+              shift=1+(ip-1)*nn
+              shift2=shift+ne(1)
+              do jk=1,npack1
+               zsw2(shift)=zsw1(shift)+zsw1(shift2)
+               zsw2(shift)=zsw2(shift)*
+     >          dbl_mb(Kijl(1)+(ia-1)*ppot_stride2+
+     >                   ip)
+	       zsw2(shift2)=zsw2(shift)
+              end do
+           end do
+
+*          **** do Kleinman-Bylander Multiplication ****
+           call dscal(2*nn*nproj,bz_vol,zsw2(1),1)
+           call ZGEMM('N','C',npack,nn,nproj,
+     >                mone,
+     >                prtmp, npack1,
+     >                zsw2(1),   nn,
+     >                one,
+     >                psi2(1+(nb-1)*nn*npack1), npack1)
 
 
+           if (move) then
+              weight = brillioun_weight(nb)
+
+              do l=1,nproj
+          
+                 do n=1,nn
+
+                    do i=1,npack
+                      ctmp = psi1(i+(n-1)*npack1
+     >                           +(nb-1)*nn*npack1)
+     >                   *dconjg(prtmp(1+(l-1)*npack1+i-1))
+     >                   *dconjg(zsw2(1+(l-1)*nn+n-1))
+                      xtmp(1+i-1)=dimag(ctmp)
+                    end do
+
+*                   **** define Gx,Gy and Gz in packed space ****
+                    call C3dB_r_Copy(1,G(1,1),Gx)
+                    call C3dB_r_Copy(1,G(2,1),Gy)
+                    call C3dB_r_Copy(1,G(3,1),Gz)
+                    call Cram_r_pack(nb,Gx)
+                    call Cram_r_pack(nb,Gy)
+                    call Cram_r_pack(nb,Gz)
+                    call Cram_rr_idot(nb,Gx,xtmp,
+     >                                sum(1+3*(n-1)))
+                    call Cram_rr_idot(nb,Gy,xtmp,
+     >                                sum(2+3*(n-1)))
+                    call Cram_rr_idot(nb,Gz,xtmp,
+     >                                sum(3+3*(n-1)))
+                 end do !**n**
+
+                 call C3dB_Vector_Sumall(3*nn,sum)
+  
+                 do n=1,nn
+                    fion(1,ii) = fion(1,ii) 
+     >                         + 2.0d0*weight*sum(1+3*(n-1))
+                    fion(2,ii) = fion(2,ii) 
+     >                         + 2.0d0*weight*sum(2+3*(n-1))
+                    fion(3,ii) = fion(3,ii) 
+     >                         + 2.0d0*weight*sum(3+3*(n-1))
+                 end do !** nn **
+
+              end do !** l **
+           end if !** move **     
+      end do !** nb **
+      return
+      end
+ccccccccccccccccccc
 

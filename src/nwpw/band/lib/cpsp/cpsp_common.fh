@@ -1,9 +1,9 @@
 *
-* $Id: cpsp_common.fh,v 1.5 2007-01-12 23:46:22 d3p708 Exp $
+* $Id: cpsp_common.fh,v 1.6 2007-05-15 23:27:23 d3p708 Exp $
 *
 
 *     **** common blocks ****
-      logical do_spin_orbit
+      logical    do_spin_orbit
       integer    prjtmp(2)
       integer    vl(2)
       integer    vnl(2)
@@ -15,14 +15,19 @@
       integer    nprj(2),n_projector(2),l_projector(2),m_projector(2)
       integer    npsp
       integer    psp_type(2)   
-      integer nkatmx,lmmax_max,lmax_max,nmax_max
+      integer    ppot_stride,ppot_stride2
+      integer    ljmmax_max
+      integer    nkatmx,lmmax_max,lmax_max,nmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16,nmax_max=3)
+      parameter (ljmmax_max=80)
       character*2  atom(nkatmx)
-      character*80 comment(nkatmx)
+      character*84 comment(nkatmx)
       common / cpsp_block / prjtmp,vl,vnl,vnlso,Gijl,Kijl,zv,amass,rc,
      >                      lmmax,lmax,locp,nmax,
      >                      nprj,n_projector,l_projector,m_projector,
-     >                      psp_type,npsp,atom,comment,do_spin_orbit
+     >                      psp_type,npsp,ppot_stride,
+     >                      ppot_stride2,do_spin_orbit,
+     >                      comment,atom
 
 *     **** common block for psp stress ****
       integer    dvl(2)
