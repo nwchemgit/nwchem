@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.69 2007-02-13 22:21:53 bert Exp $
+c     $Id: dft_main0d.F,v 1.70 2007-05-15 19:25:37 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -25,12 +25,18 @@ c
       integer ga_cholesky,ga_llt_i
       external ga_cholesky,ga_llt_i
 #endif
-c     
-c     
+     
+czora...
+#include "zora.fh"
+      integer zora_type
+czora...
+
+
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
 c
       integer g_dens(2), g_evecs(2), g_vxc(4)
+
       integer g_svecs, g_xcinv, g_oi
       integer g_s, g_fock, g_tmpb, g_tmp
       integer nvxc
@@ -45,7 +51,6 @@ c
       logical dft_scf_so 
       external dft_scf_so 
       character*80 theory
-
 c     
 c     
       dft_main0d = .false.
@@ -344,6 +349,7 @@ c
       if (.not. ga_duplicate(g_s, g_dens(1), 'alpha density'))
      &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_dens(1))
+
       if (ipol.ne.1)then
          if (.not. ga_duplicate(g_s, g_dens(2), 'beta density'))
      &        call errquit('dft_main0d: error creating ga',0,GA_ERR)
@@ -354,12 +360,15 @@ c
          if (.not. ga_duplicate(g_s, g_vxc(2), 'Vxcs'))
      &        call errquit('dft_main0d: error creating ga',0,GA_ERR)
          call ga_zero(g_Vxc(2))
+
       endif 
       nVxc = ipol
       if (.not. ga_duplicate(g_s, g_fock, 'fock matrix'))
      &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_fock)
+
       g_vxc(1) = g_fock
+
 c      lkeeps=.false.
 c
 c     keeps hardwired right now ... better something smarter
@@ -392,13 +401,33 @@ c
       if (oprint_time)
      &     call dft_tstamp(' Before call to DFT_SCF. ')
 c 
+czora...TODO
+czora...move this to a separate function
+czora...what type of zora calculation is this ?
+      do_scalar_zora = .false.
+      do_so_zora = .false.
+      if (do_zora) then
+       if (rtdb_get(rtdb, 'zora:type', mt_int, 1, zora_type)) then
+        if (zora_type .eq. 1) do_scalar_zora = .true.
+        if (zora_type .eq. 2) do_so_zora = .true.
+        if (zora_type .gt. 2 .or. zora_type .lt. 1) 
+     &  call errquit('dft_main0d: unknown zora option',0,RTDB_ERR)
+       end if
+      end if
+
+czora...initialize the relativity constants
+      if ((zora_type .eq. 1) .or. (zora_type .eq. 2)) then
+        call rel_init_con(rtdb) !initialise the relativity constants
+      end if
+
       if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
       if (odftps) call pstat_on(ps_scfdft)
       if (theory .eq. 'dft') then
          dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
      &        iter, g_dens, g_evecs, g_vxc, g_fock,
-     &        g_svecs, dbl_mb(isvals), g_xcinv, g_s, lcdft, nconstr)
+     &        g_svecs, dbl_mb(isvals), g_xcinv, g_s,
+     &        lcdft, nconstr)
       else if (theory .eq. 'sodft') then
          dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
      &        iVxc_opt, iter, g_dens, g_evecs, g_vxc, g_fock, 

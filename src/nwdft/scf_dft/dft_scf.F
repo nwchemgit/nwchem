@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.256 2007-02-15 00:07:37 bert Exp $
+c     $Id: dft_scf.F,v 1.257 2007-05-15 19:25:38 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -33,6 +33,10 @@ c
 #include "dft_conv.fh"
 #include "dftps.fh"
 #include "cosmo.fh"
+
+czora...
+#include "zora.fh"
+
 c     
       Logical movecs_write, movecs_converged, movecs_read
       External movecs_write, movecs_converged, movecs_read
@@ -747,6 +751,7 @@ c
       Exc(2) = ZERO
       rms(1) = 0.d0
       rms(2) = 0.d0
+    
       if (cosmo_on.and.cosmo_phase.eq.2) call cosmo_charges(rtdb,
      $   ao_bas_han,geom,ecosmo,odbug,ipol,g_movecs,mclosed,mopen,
      $   nbf_ao, nmo)
@@ -773,6 +778,11 @@ c
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
+
+
+czora...debugging
+         if (do_zora) write(LuOut,*)'Ekin_grid:',Ekin_grid
+
 c     
 c     Calculate the total electronic energy.
 c     
@@ -810,17 +820,20 @@ c Constrained dft
 
          goto 2000
       endif
+
       if (ipol.gt.1) then
         call ga_copy(g_fock, g_fockt)
       endif
+
       do ispin = 1, ipol
 c     
 c        Add V xc to Fock Matrix
 c     
          if (ispin.eq.2) then
-            call ga_copy(g_fockt, g_focks(ispin))
-            call ga_dadd(one, g_vxc(ispin), one, g_focks(ispin), 
-     .           g_focks(ispin))
+          call ga_copy(g_fockt, g_focks(ispin))
+          call ga_dadd(one, g_vxc(ispin), one, g_focks(ispin), 
+     &           g_focks(ispin))
+
          endif
 c     
 c        Symmetrize the Fock matrix
