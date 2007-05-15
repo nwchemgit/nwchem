@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.100 2007-04-23 16:40:59 bylaska Exp $
+* $Id: control.F,v 1.101 2007-05-15 20:30:11 d3p708 Exp $
 *
 
 *     ***********************************
@@ -810,6 +810,8 @@ c     >                  1,output_wavefunction_filename)
 *     **** set translation ***
       translation = control_allow_translation()
       
+*     **** set two component pseudopotential
+      two_comp_ppot = .false.      
       control_read = value
       return
       end
@@ -3602,12 +3604,21 @@ c      end
       control_init_velocities_temperature = value
       return
       end
-
-
-
-
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-        
-
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine set_two_component_pseudopotential()
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  this called to signal that a two_component ppot is in use
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+#include "control.fh"
+      two_comp_ppot=.true.
+      return
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc          
+      logical function two_component_pseudopotential()
+#include "control.fh"
+      two_component_pseudopotential=two_comp_ppot
+      return
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+       
 

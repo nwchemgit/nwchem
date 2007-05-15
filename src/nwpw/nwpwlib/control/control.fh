@@ -1,5 +1,5 @@
 *
-* $Id: control.fh,v 1.27 2007-01-25 00:01:22 d3p708 Exp $
+* $Id: control.fh,v 1.28 2007-05-15 20:30:11 d3p708 Exp $
 *
 
 *     **** control common block ****
@@ -28,6 +28,7 @@ c     character*20 pspnames(MAXPSP)
       integer     est_finish_time,est_step_time
       logical     move,frac_coord,SA,fei,fei_quench,gram_schmidt
       logical     rotation,translation,balance,spin_orbit
+      logical     two_comp_ppot
       integer     maxit_orb,maxit_orbs,scf_algorithm,ks_algorithm
       integer     symm_number
       common / control_block / 
@@ -45,7 +46,8 @@ c     character*20 pspnames(MAXPSP)
      >                         symm_number,
      >                         move,frac_coord,SA,fei,fei_quench,
      >                         gram_schmidt,rotation,translation,
-     >                         balance,spin_orbit
+     >                         balance,spin_orbit,
+     >                         two_comp_ppot
       common / control_blkchar / 
      >                         boutput_wavefunction_filename,
      >                         output_wavefunction_filename,
