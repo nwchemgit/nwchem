@@ -1,7 +1,8 @@
-# $Id: GNUmakefile,v 1.7 2000-02-04 01:01:15 mg201 Exp $
+# $Id: GNUmakefile,v 1.8 2007-05-15 02:34:42 niri Exp $
 
 HEADERS = rel_consts.fh \
-          rel_nwc.fh
+          rel_nwc.fh \
+          zora.fh
 
 OBJ_ENERGY = \
       rel_onel.o \
@@ -14,7 +15,8 @@ OBJ_ENERGY = \
       rel_SSLL.o \
       rel_SSSS.o \
       rel_init_con.o \
-      dmd_input.o
+      dmd_input.o \
+      zora_input.o	
 
 OBJ_GRAD = \
       rel_oneld.o \

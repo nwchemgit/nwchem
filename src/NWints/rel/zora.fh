@@ -1,0 +1,5 @@
+czora...
+      double precision Ehart_grid, Enuc_grid, Ekin_grid
+      common/gridenergies/Ehart_grid, Enuc_grid, Ekin_grid
+      logical do_scalar_zora, do_so_zora
+      common/zora/do_scalar_zora,do_so_zora
