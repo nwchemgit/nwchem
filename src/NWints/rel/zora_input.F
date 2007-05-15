@@ -12,6 +12,7 @@ c     Handles the scalar and spin-orbit ZORA inputs
 #include "rel_consts.fh"
 #include "util.fh"
 #include "errquit.fh"
+#include "zora.fh"
 c     
 c     Read input for calculations with ZORA
 c     
@@ -28,11 +29,13 @@ c
 c     Read input data beyond zora; store in rtdb.
 c     
       zora_run  = .true.
+      do_zora  = .true.
 c
   10  if (inp_a(test)) then
          if (inp_compare(.false., 'off', test)) then
             zora_run = .false.
             zora_type = 0
+            do_zora = .false.
          elseif (inp_compare(.false.,'on',test)) then
             zora_type = 1   ! perform scalar zora by default
          elseif (inp_compare(.false.,'scalar',test)) then
