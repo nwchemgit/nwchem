@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.50 2005-07-26 05:51:11 edo Exp $
+# $Id: GNUmakefile,v 1.51 2007-05-15 19:17:59 niri Exp $
 
       OBJ_OPTIMIZE= \
         grid_pscreen.o \
@@ -16,10 +16,12 @@
 	grid_quadv0.o \
 	grid_quadv0a.o \
 	grid_quadv0b.o \
+	grid_quadv0b_zora.o \
 	grid_quadvc.o \
         grid_file.o 
       OBJ= \
 	grid_sic.o \
+	grid_coulomb.o \
 	grid_checks.o \
         grid_balance.o \
 	grid_rtrunc.o \
@@ -40,8 +42,10 @@
 	grid_cleanup.o \
         grid_gaussq.o \
         grid_finpts.o \
-        grid_init.o grid_loop.o\
-        grid_xcfit.o dftg_loop.o
+        grid_init.o \
+	grid_loop.o \
+	grid_xcfit.o \
+	dftg_loop.o
 
      LIBRARY = libnwdft.a
 
@@ -50,7 +54,7 @@
 LIB_INCLUDES = -I../include
 
    USES_BLAS = grid_invariant.F grid_beckew.F grid_file.F grid_setspac.F \
- grid_quadv0a.F grid_quadv0b.F grid_quadvw.F grid_tasks.F grid_pscreen.F \
+ grid_quadv0a.F grid_quadv0b.F grid_quadv0b_zora.F grid_quadvw.F grid_tasks.F grid_pscreen.F \
 grid_quadvw1.F grid_xcfit.F grid_sympts.F grid_ssw.F grid_finpts.F
 
 include ../../config/makefile.h

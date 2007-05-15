@@ -4,13 +4,14 @@
      &                       hess, qwght, qxyz, xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
      &                       Pmat, rq, rdens_atom, cetobfr, 
-     ,     ibf_ao,rqbuf,rchi_atom,rdelchi_atom,
-     ,     Ex, Ec, amat,cmat,g_vxc,
-     ,     Amat2, Cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
-     ,     l3d,triplet,tau,Mmat)
+     ,ibf_ao,rqbuf,rchi_atom,rdelchi_atom,
+     ,Ex, Ec, amat,cmat,g_vxc,
+     ,Amat2, Cmat2,
+     ,nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat, l3d,
+     &triplet,tau,Mmat)
+
 c
-c$Id: grid_quadv0a.F,v 1.42 2007-02-19 18:52:47 edo Exp $
+c$Id: grid_quadv0a.F,v 1.43 2007-05-15 19:18:00 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -23,6 +24,10 @@ c
 #include "global.fh"
 #include "util.fh"
 #include "grid_quad.fh"
+
+czora...
+#include "zora.fh"
+
 c
       double precision rqbuf(*)
       double precision rad
@@ -45,14 +50,16 @@ c
       logical triplet
 
       double precision tau(*), Mmat(*)
+
+czora...
+      integer g_zora(2)
 c
 c     see if any Gradient Corrected Functional is not null
 c
-      grad=xc_chkgrad()
-      kske=xc_chktau()
+      grad=xc_chkgrad()   ! checks if we have a gradient xc functional
+      kske=xc_chktau()    ! checks if we have a tau xc functional
+
       if(n_rec_in_file.eq.0) goto 100
-
-
 c
 c     rewind grid pts file
 c
@@ -102,6 +109,8 @@ c
      .     ncontrset, MA_ERR)
 c
       ntot_cube=0
+ 
+      Ekin_grid = 0.d0   ! debugging
       do 200 iqsh = 1, n_rec_in_file
 c
 c     Define the current range of radial shells and integration center.
@@ -112,6 +121,7 @@ c
      '        errquit(' buffersize exceed by qpts ',nqpts, DISK_ERR)
         if(nqpts.eq.0) goto 200
         istep=0
+
         do  ncube=1,nsubb
 c     
 c        temp put buf into currently used arrays qxyz and qwght
@@ -119,6 +129,59 @@ c
          call grid_repack(rqbuf, qxyz, qwght, nqpts,
      ,          rad,istep)
          if(nqpts.ne.0) then
+
+czora...do this if this is a zora calculation 
+      if (do_zora) then
+
+czora...build the scalar contribution to the fock matrix
+      if(.not.ga_duplicate(g_vxc(1),g_zora(1),'g_zora1'))
+     &   call errquit('grid_quadv0b_zora: gaduplicate failed',1, GA_ERR)
+      call ga_zero(g_zora(1))
+
+      if(ipol.gt.1) then
+        if(.not.ga_duplicate(g_vxc(2),g_zora(2),'g_zora2')) then
+         call errquit('grid_quadv0b_zora: gaduplicate failed',1, GA_ERR)
+        end if
+        call ga_zero(g_zora(2))
+      endif
+
+      call grid_quadv0b_zora(
+     &           ictr_buf,qxyz, qwght, nqpts,rad,.true.,
+     &           g_dens, ncoef_max, natoms, 
+     &                       rho_int, nqtot, 
+     &                       iniz, ifin, rho, delrho, 
+     &                       hess,  xyz,iscr,nscr,
+     &                       expo, ccoef, Bmat, Fmat, 
+     &                       Pmat, rq, rdens_atom,  cetobfr, 
+     &           ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
+     &           int_mb(i_iscratch),
+     &           log_mb(idocset),rchi_atom,rdelchi_atom,
+     &           Ex, Ec, amat,cmat,g_zora,amat2,cmat2,
+     &           nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
+     &           l3d,triplet,
+     &           int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
+     &           log_mb(idocsetx),
+     &            tau, kske, Mmat)
+
+
+czora...add in the scalar zora contribution
+         call ga_dadd(1.d0, g_zora(1), 1.d0, g_vxc(1), g_vxc(1))
+         if (ipol.gt.1) then
+           call ga_dadd(1.d0, g_zora(2), 1.d0, g_vxc(2), g_vxc(2))
+         end if
+
+czora...deallocate g_zora
+         if (.not. ga_destroy(g_zora(1))) call errquit(
+     &    'grid_quadv0b_zora: ga_destroy failed ',0, GA_ERR)
+
+      if(ipol.gt.1) then
+         if (.not. ga_destroy(g_zora(2))) call errquit(
+     &    'grid_quadv0b_zora: ga_destroy failed ',0, GA_ERR)
+      end if
+
+czora...
+      end if   ! end do_zora  
+
             call grid_quadv0b(
      ,           ictr_buf,qxyz, qwght, nqpts,rad,grad,
      .           g_dens, ncoef_max, natoms, 
@@ -135,7 +198,8 @@ c
      ,           l3d,triplet,
      .           int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      .           log_mb(idocsetx),
-     &            tau, kske, Mmat )
+     &            tau, kske, Mmat)
+
             ntot_cube=ntot_cube+1
          endif
       enddo

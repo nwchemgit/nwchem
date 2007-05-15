@@ -13,7 +13,7 @@
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.49 2007-02-19 18:52:47 edo Exp $
+c$Id: grid_quadv0b.F,v 1.50 2007-05-15 19:18:00 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -27,6 +27,7 @@ c
 #include "grid_quad.fh"
 #include "grid_sic.fh"
 #include "dftps.fh"
+
       integer  nqpts    ! [in] no. grid points  to be processed
       integer  ictr_buf ! [in] ctr of grid
       integer bas_cent_info(3,natoms),bas_cset_info(6,*)
@@ -50,6 +51,7 @@ c
       integer lemat,iemat,lfmat,ifmat,k_scr,l_scr
 
       double precision tau(*), Mmat(*)
+
 C
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -174,11 +176,13 @@ c
 c     
 c     Evaluate the integrated charge density.
 c     
+
       nqtot = nqtot + nqpts
 c     
       rho0=rho_int
       rho_int = rho_int + 
      &     ddot(nqpts, qwght, 1, rho, 1)
+
       if(do_scf.and.abs(rho0-rho_int).lt.tol_rho) goto 2010
 c     
 c
@@ -203,6 +207,7 @@ c     add beta to 1 to get alpha+beta
          call daxpy(nqpts, 1.d0, rho(iscf_rho+2*nqpts), 1,
      &        rho(iscf_rho), 1)
       endif     
+
       if (odftps) call pstat_on(ps_excf)
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
      &     Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
@@ -211,7 +216,7 @@ c     add beta to 1 to get alpha+beta
       if (odftps) call pstat_off(ps_excf)
 
       if (sic_orb_index.eq.1) then
-         call grid_sicpot(nqpts,qxyz,qwght,rho,delrho,amat,cmat,
+         call grid_sicpot(nqpts,qxyz,qwght,rho,delrho,Amat,cmat,
      ,     dbl_mb(idelrho_sig),dbl_mb(i_vect1))
       endif
 
@@ -225,6 +230,7 @@ c     add beta to 1 to get alpha+beta
       else
 c     
          if(do_scf) then
+
          if (odftps) call pstat_on(ps_tabcd)
             call xc_tabcd(0,l3d,
      T        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
@@ -236,6 +242,7 @@ c
      &           natoms, iniz, ifin, g_vxc, ibf_ao,
      &           rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,kske,Mmat,0d0)
+
          if (odftps) call pstat_off(ps_tabcd)
          else if (do_nmrks_r) then
             if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts,
@@ -250,6 +257,7 @@ c
      &           'iFmat', l_scr,k_scr))
      &           call errquit('grid_quadv0b: cannot allocate iFmat',0,
      &          MA_ERR)
+
             call xc_tabcd(3,.true.,
      T           tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
      E           Dbl_MB(iEmat), Dbl_MB(iFmat),  qxyz,xyz,
@@ -259,6 +267,7 @@ c
      G           GRAD, AO_bas_han,natoms, iniz, ifin, 
      G           g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,kske,Mmat,dbl_mb(k_scr))
+
             if (.not.ma_chop_stack(lEmat))
      &         call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
          else if (do_cpks_l) then
@@ -270,6 +279,7 @@ c
             call xc_cpks_coeff(rho, delrho, Amat2, Cmat2, Cmat,
      &           delrho(iscf_delrho), nmat, ipol, nqpts, GRAD,
      &           triplet)
+
             call xc_tabcd(1,l3d,
      T           tol_rho,Fmat,Pmat, rho, Bmat,delrho, Dbl_MB(iDmat), 
      N           0d0,0d0,0d0,0d0,
@@ -279,6 +289,7 @@ c
      G           GRAD, AO_bas_han, natoms, iniz, ifin, 
      G           g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
      &          rdens_atom, cetobfr,.false.,0d0,0d0)
+
          else if (do_cpks_r) then
             call errquit('gridquadv0b: what do do for cpks rhs?',0,
      &       CALC_ERR)
@@ -301,12 +312,13 @@ c
      &     call errquit('grid_quadv0b: cannot pop stack', 3, MA_ERR)
       return
       end
+
       integer function grid_nbfm(basis_hand,   mcenters, 
      &     ctr_quad,  rad_quad, xyz, qxyz,nq,
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.49 2007-02-19 18:52:47 edo Exp $
+C$Id: grid_quadv0b.F,v 1.50 2007-05-15 19:18:00 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -446,7 +458,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.49 2007-02-19 18:52:47 edo Exp $
+C$Id: grid_quadv0b.F,v 1.50 2007-05-15 19:18:00 niri Exp $
 c
       implicit none
 #include "errquit.fh"
