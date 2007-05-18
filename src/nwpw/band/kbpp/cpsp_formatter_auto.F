@@ -48,20 +48,19 @@
       psp_filename       = element(1:l)//'.psp'
       formatted_filename = element(1:l)//'.cpp'
 
-      write(6,*)"CAINE A"
+      write(6,*)"CAINE A psp filename=",psp_filename
       call flush(6)
 *     **** generate one-dimensional pseudopotential file ****
       if (.not.nwpw_filefind(psp_filename)) then
         write(6,*)"CAINE bxxx"
         call flush(6)
         call psp_generator_auto(1,atom,lmax,locp,rlocal)
-        write(6,*)"CAINE bxx"
+        write(6,*)"CAINE bxxy"
         call flush(6)
 
 *     **** get lmax,locp,and rlocal from rtdb ****
       else
-         call control_pspparameters(atom,lmax,locp,rlocal)
-        call psp_generator_auto(1,atom,lmax,locp,rlocal)
+        call control_pspparameters(atom,lmax,locp,rlocal)
         write(6,*)"CAINE bx"
         call flush(6)
       end if
@@ -93,32 +92,33 @@
       call flush(6)
       call get_psp_type(psp_filename,psp_type)
 
-      write(6,*)"CAINE f"
+      write(6,*)"CAINE f", psp_type," ",psp_filename
       call flush(6)
       if (psp_type.eq.1) then
          value = value.and.
      >     hghpp_band(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            nbrillioun,dbl_mb(kv(1)))
-      end if
-      if (psp_type.eq.7) then
+         write(*,*)"HGH GENERATED"
+         CALL FLUSH(6)
+      else
+        if (psp_type.eq.7) then
          value = value.and.
      >     rkbpp_band(.false.,version,psp_filename,formatted_filename,
      >           ngrid,unita,lmax,dbl_mb(kv(1)))
          call set_two_component_pseudopotential() 
-         write(6,*)"RKBPP GENERATED"
-         flush(6)
-      end if 
-      if ((psp_type.ne.7).and.(psp_type.ne.1)) then
+         write(*,*)"RKBPP GENERATED"
+         CALL flush(6)
+	else
          value = value.and.
      >     kbpp_band(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,
      >            nbrillioun,dbl_mb(kv(1)))
-         write(6,*)"KBPP GENERATED"
-         flush(6)
+         write(*,*)"KBPP GENERATED"
+         CALL flush(6)
+        end if
       end if
-
       value = value.and.MA_pop_stack(kv(2))
 *     *** exit if error found ***
       if(.not. value) call errquit('psp_formatter_auto: error',0,
