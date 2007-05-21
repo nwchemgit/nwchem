@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.257 2007-05-15 19:25:38 niri Exp $
+c     $Id: dft_scf.F,v 1.258 2007-05-21 18:43:42 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -781,7 +781,8 @@ c
 
 
 czora...debugging
-         if (do_zora) write(LuOut,*)'Ekin_grid:',Ekin_grid
+         if (do_zora) 
+     &   write(LuOut,*)'Ezora_corr:',Ezora_corr
 
 c     
 c     Calculate the total electronic energy.
