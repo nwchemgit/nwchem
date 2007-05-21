@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.56 2006-06-07 15:57:37 edo Exp $
+C$Id: xc_getv.F,v 1.57 2007-05-21 16:48:07 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -27,6 +27,9 @@ c
 #include "sym.fh"
 #include "stdio.fh"
 c
+czora...
+#include "zora.fh"
+
       integer cetobfr(2,natoms)
       double precision rho_n, rdens_atom(ipol*natoms*natoms)
       double precision jfac(4),kfac(4)
@@ -80,6 +83,16 @@ c
       oprint_oep = util_print('oep', print_high)
       Exc(1)=0.d0
       Exc(2)=0.d0
+
+czora...
+      if (do_zora) then
+        Ekin_grid = 0.d0
+        call ga_zero(g_zora(1))
+        if (ipol .gt. 1) then
+          call ga_zero(g_zora(2))
+        end if
+      end if
+
       me=ga_nodeid()
       havehfxc=abs(xfac(1)).gt.1d-8
 c      nproc=ga_nnodes()
@@ -251,6 +264,12 @@ c
          if(ipol.eq.2)call ga_print(g_vxc(2))
       endif
 c
+
+czora...
+      if (do_zora) then 
+         Ekin_grid = Ekin_grid + ga_ddot(g_dens(1),g_zora(1)) 
+      end if
+
 c     
       return
       end
