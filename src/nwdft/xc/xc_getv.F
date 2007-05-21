@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.57 2007-05-21 16:48:07 niri Exp $
+C$Id: xc_getv.F,v 1.58 2007-05-21 18:45:09 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -86,7 +86,7 @@ c
 
 czora...
       if (do_zora) then
-        Ekin_grid = 0.d0
+        Ezora_corr = 0.d0
         call ga_zero(g_zora(1))
         if (ipol .gt. 1) then
           call ga_zero(g_zora(2))
@@ -267,9 +267,8 @@ c
 
 czora...
       if (do_zora) then 
-         Ekin_grid = Ekin_grid + ga_ddot(g_dens(1),g_zora(1)) 
+         Ezora_corr = Ezora_corr + ga_ddot(g_dens(1),g_zora(1)) 
       end if
-
 c     
       return
       end

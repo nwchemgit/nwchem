@@ -1,5 +1,6 @@
+czora...needs to be cleaned up.
 c
-C$Id: zora_tabcd.F,v 1.1 2007-05-15 19:23:09 niri Exp $
+C$Id: zora_tabcd.F,v 1.2 2007-05-21 18:45:09 niri Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
