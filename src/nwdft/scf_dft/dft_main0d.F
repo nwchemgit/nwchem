@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.70 2007-05-15 19:25:37 niri Exp $
+c     $Id: dft_main0d.F,v 1.71 2007-05-21 16:45:38 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -28,8 +28,7 @@ c
      
 czora...
 #include "zora.fh"
-      integer zora_type
-czora...
+#include "rel_consts.fh"
 
 
       integer  ga_create_atom_blocked
@@ -51,6 +50,9 @@ c
       logical dft_scf_so 
       external dft_scf_so 
       character*80 theory
+
+czora...
+      integer zora_type
 c     
 c     
       dft_main0d = .false.
@@ -90,6 +92,35 @@ c
       endif 
       iter = 0
       Etold = 0.D0
+
+c
+c     Do we need to perform a zora calculation ?
+c
+      if (.not. rtdb_get(rtdb,'zora',MT_LOG,1,do_zora)) then
+             do_zora = .false.
+             do_scalar_zora = .false.
+             do_so_zora = .false.
+             zora_type = 0
+      end if
+
+      if (do_zora) then
+c
+c        Which form of zora needs to be done ? 
+c
+         if (.not. rtdb_get(rtdb,'zora:type',MT_INT,1,
+     $      zora_type)) zora_type = 1
+
+         if (zora_type .eq. 1) then
+             do_scalar_zora = .true.
+         else
+             do_so_zora = .true.
+         end if
+      end if   ! end do_zora check
+c
+c     Get the light speed and other constants, if specified
+c
+      call rel_init_con(rtdb)
+      clight_au = cau
 c     
 c     Select method to compute the XC potential.
 c     
@@ -306,6 +337,7 @@ c     Compute the AO overlap matrix.
 c     
       if (.not. rtdb_get(rtdb, 'dft:atomblock',mt_log,1,atmblk))
      &     atmblk=.true.
+
       if(atmblk) then
          g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
       else
@@ -346,28 +378,49 @@ c
       if (.not. ga_duplicate(g_s, g_evecs(1), 'alpha evecs'))
      &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_evecs(1))
+
       if (.not. ga_duplicate(g_s, g_dens(1), 'alpha density'))
-     &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
+     & call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_dens(1))
 
-      if (ipol.ne.1)then
-         if (.not. ga_duplicate(g_s, g_dens(2), 'beta density'))
-     &        call errquit('dft_main0d: error creating ga',0,GA_ERR)
-         call ga_zero(g_dens(2))
-         if (.not. ga_duplicate(g_s, g_evecs(2), 'beta evecs'))
-     &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
-         call ga_zero(g_evecs(2))
-         if (.not. ga_duplicate(g_s, g_vxc(2), 'Vxcs'))
-     &        call errquit('dft_main0d: error creating ga',0,GA_ERR)
-         call ga_zero(g_Vxc(2))
+czora...
+      if (do_zora) then
+      if (.not. ga_duplicate(g_s, g_zora(1), 'alpha zora'))
+     & call errquit('dft_main0d: error creating ga',0,GA_ERR)
+      call ga_zero(g_zora(1))
+      end if
 
+      if (.not. ga_duplicate(g_s, g_vxc(1), 'vxc alpha'))
+     & call errquit('dft_main0d: error creating ga',0,GA_ERR)
+      call ga_zero(g_vxc(1))
+
+      if (ipol.ne.1)then
+       if (.not. ga_duplicate(g_s, g_dens(2), 'beta density'))
+     &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
+       call ga_zero(g_dens(2))
+
+czora...
+      if (do_zora) then
+       if (.not. ga_duplicate(g_s, g_dens(2), 'beta zora'))
+     &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
+       call ga_zero(g_zora(2))
+      end if
+
+       if (.not. ga_duplicate(g_s, g_evecs(2), 'beta evecs'))
+     &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
+       call ga_zero(g_evecs(2))
+
+       if (.not. ga_duplicate(g_s, g_vxc(2), 'Vxcs'))
+     &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
+       call ga_zero(g_Vxc(2))
       endif 
+
       nVxc = ipol
       if (.not. ga_duplicate(g_s, g_fock, 'fock matrix'))
      &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_fock)
 
-      g_vxc(1) = g_fock
+cold      g_vxc(1) = g_fock
 
 c      lkeeps=.false.
 c
@@ -401,25 +454,6 @@ c
       if (oprint_time)
      &     call dft_tstamp(' Before call to DFT_SCF. ')
 c 
-czora...TODO
-czora...move this to a separate function
-czora...what type of zora calculation is this ?
-      do_scalar_zora = .false.
-      do_so_zora = .false.
-      if (do_zora) then
-       if (rtdb_get(rtdb, 'zora:type', mt_int, 1, zora_type)) then
-        if (zora_type .eq. 1) do_scalar_zora = .true.
-        if (zora_type .eq. 2) do_so_zora = .true.
-        if (zora_type .gt. 2 .or. zora_type .lt. 1) 
-     &  call errquit('dft_main0d: unknown zora option',0,RTDB_ERR)
-       end if
-      end if
-
-czora...initialize the relativity constants
-      if ((zora_type .eq. 1) .or. (zora_type .eq. 2)) then
-        call rel_init_con(rtdb) !initialise the relativity constants
-      end if
-
       if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
       if (odftps) call pstat_on(ps_scfdft)
@@ -474,13 +508,27 @@ cnos      endif
      &      ('dft_main0d: could not destroy g_evecs(2)', 0, GA_ERR)
          if (.not. ga_destroy(g_dens(2))) call errquit
      &      ('dft_main0d: could not destroy g_dens(2)', 0, GA_ERR)
+
+czora...
+       if (do_zora) then 
+         if (.not. ga_destroy(g_zora(2))) call errquit
+     &      ('dft_main0d: could not destroy g_zora(2)', 0, GA_ERR)
+       end if
+
       endif
       if (.not. ga_destroy(g_evecs(1))) call errquit
      &   ('dft_main0d: could not destroy g_evecs(1)', 0, GA_ERR)
       if (.not. ga_destroy(g_dens(1))) call errquit
      &   ('dft_main0d: could not destroy g_dens(1)', 0, GA_ERR)
+
+czora...
+      if (do_zora) then 
+        if (.not. ga_destroy(g_zora(1))) call errquit
+     &   ('dft_main0d: could not destroy g_zora(1)', 0, GA_ERR)
+      end if
+
       if (.not. ga_destroy(g_svecs)) call errquit
      &   ('dft_main0d: could not destroy g_svecs', 0, GA_ERR)
-c     
+
       return
       end

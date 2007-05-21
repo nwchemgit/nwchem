@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.23 2006-06-07 15:57:36 edo Exp $
+c     $Id: dft_fockbld.F,v 1.24 2007-05-21 16:45:37 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -21,6 +21,10 @@ c
 #include "util.fh"
 #include "dftps.fh"
 #include "cosmo.fh"
+
+czora...
+#include "zora.fh"
+
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
       integer g_xcinv
       integer g_tmp,g_nq,g_wght,g_xyz
@@ -244,6 +248,14 @@ c
          call ga_dadd(-1.d0, g_vxc(1), 1.d0, g_vxc(2), g_vxc(2))
       endif
 c     
+
+czora... Add zora section
+      if (do_zora) then
+         call ga_dadd(1.d0, g_zora(1), 1.d0, g_fock, g_fock)
+      end if
+czora...
+
+
       if (oprint_time)
      &     call dft_tstamp(' End of parallel region. ')
 c     
