@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.258 2007-05-21 18:43:42 niri Exp $
+c     $Id: dft_scf.F,v 1.259 2007-05-21 21:10:15 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -778,7 +778,6 @@ c
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
-
 
 czora...debugging
          if (do_zora) 

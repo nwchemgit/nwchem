@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.71 2007-05-21 16:45:38 niri Exp $
+c     $Id: dft_main0d.F,v 1.72 2007-05-21 21:10:15 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -115,6 +115,7 @@ c
          else
              do_so_zora = .true.
          end if
+
       end if   ! end do_zora check
 c
 c     Get the light speed and other constants, if specified
@@ -385,9 +386,9 @@ c
 
 czora...
       if (do_zora) then
-      if (.not. ga_duplicate(g_s, g_zora(1), 'alpha zora'))
+       if (.not. ga_duplicate(g_s, g_zora(1), 'alpha zora'))
      & call errquit('dft_main0d: error creating ga',0,GA_ERR)
-      call ga_zero(g_zora(1))
+       call ga_zero(g_zora(1))
       end if
 
       if (.not. ga_duplicate(g_s, g_vxc(1), 'vxc alpha'))
@@ -400,11 +401,11 @@ czora...
        call ga_zero(g_dens(2))
 
 czora...
-      if (do_zora) then
-       if (.not. ga_duplicate(g_s, g_dens(2), 'beta zora'))
+       if (do_zora) then
+        if (.not. ga_duplicate(g_s, g_zora(2), 'beta zora'))
      &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
-       call ga_zero(g_zora(2))
-      end if
+        call ga_zero(g_zora(2))
+       end if
 
        if (.not. ga_duplicate(g_s, g_evecs(2), 'beta evecs'))
      &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
