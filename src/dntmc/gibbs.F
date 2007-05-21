@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.13 2007-02-14 17:08:26 windus Exp $
+C$Id: gibbs.F,v 1.14 2007-05-21 20:53:52 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -18,6 +18,10 @@ c
 #include "util_sgroup.fh" 
 #include "msgids.fh"
 #include "msgtypesf.h"
+C  added includes
+#include "inp.fh"
+C  End added includes
+
 c
       integer rtdb  ! integer
 
@@ -25,6 +29,7 @@ c
       logical util_sgstart
       external util_sgstart
       external task_energy
+      external util_get_rtdb_state
 
       double precision M,MTOT
       double precision r, rcm, rs
@@ -69,9 +74,34 @@ c
       integer myid
       integer mxnode, ld, natot, nob, iam
       integer iacceptt, iacceptr, iacceptv, iacceptpr, iacceptpi
-      integer nmols, mcstps, lmin, lmax, mprnt, i, j, node
+      integer nmols, mcstps, lmin, lmax, mprnt, i, j, kp, node
       integer ir, ii, jj, iname, ilo, ihi, jlo, jhi
       integer idbig, inodesbig, idmedium, idzero
+
+c  Variables specific to added restart
+      integer procrestart
+      integer rsmcstps
+      integer lnow
+      logical os, oc, or
+      character*256 fprefix
+      character*256 fprefixcat
+      integer groupnums
+      dimension groupnums(2000)
+      character*4 prcfil2
+c  Variables for save of old nda
+      double precision nda_old
+      dimension nda_old(100)
+C  Variables for global sync
+      integer g_stop, stoplist
+      dimension stoplist(2000)
+      logical trigger
+C Added array for configuration files
+      double precision DISTcalc(MXMOLS)
+      integer molmax
+C Variables for rweight distribution
+      logical rweight 
+C  End Variables
+
       character*4 prcfil
       CHARACTER*4 occtag
       CHARACTER*8 PREFIX
@@ -116,7 +146,7 @@ c
       COMMON/AVR/USUM,USQRDSUM
       COMMON/RMSDCOORD/RMSDSUM(MXMOLS),RMSDAVR(MXMOLS)
       COMMON/RMSDCOORDSP/RMSDSUMSP(MXSP),RMSDAVRSP(MXSP)
-      COMMON/NUMBER1/NUMBER(100)  
+      COMMON/NUMBER1/NUMBER(100)
       COMMON/NUMBER2/NUMBERSUM(100),NUMBERAVR(100)
       COMMON/ANGLES/PHI(100),PHISUM(100),PHIAVR(100)
       COMMON/COORD2/RCLCM(3)
@@ -130,7 +160,7 @@ C      DIMENSION TESTME(100,MXNODE)
       COMMON/DIST2/NDA(100),NDSIG(100)
 
       DIMENSION DIMS(2),CHUNK(2)
-      DIMENSION ld(2)  
+      DIMENSION ld(2)
       DIMENSION RINIT(MXMOLS,MXATOM,3)
       dimension bigproc(2000,1)
       dimension procnums(2000)
@@ -138,6 +168,35 @@ C      DIMENSION TESTME(100,MXNODE)
       SAVE NATOT
 
       dntmc_gibbs = .false.
+      NOB = 100
+      if (.not. rtdb_get(rtdb, 'dntmc:procrestart', MT_INT, 1,
+     &    procrestart))
+     &   procrestart = 0
+
+      if (.not. rtdb_get(rtdb, 'dntmc:rweight', MT_LOG, 1, rweight))
+     &   rweight = .false.
+
+      if (procrestart .ne. 0) then
+            write(fprefix,'(256(a))') (' ', i=1,256)
+            if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
+     &      call errquit('rtdb get file_prefix failed',0,RTDB_ERR)
+            call dntmc_getspecinfo(rtdb, nmols, natom, rinit, uspc, nspc
+     &      ,m)
+            do i=1, nmols
+              spc(i) = uspc(1) !assumes only one species
+            enddo
+        if (ga_nodeid() .eq. 0) then
+          do i=1, procrestart
+            call dntmc_build_prcfil(prcfil, i)
+          call dntmc_copy_filertdb(prcfil, rtdb, nmols, fprefix)
+          enddo
+            if(.not. rtdb_delete(rtdb, 'dntmc:procrestart'))
+     &        call errquit('rtdb failed to delete dntmc:procrestart'
+     &        ,0,RTDB_ERR)
+        endif
+        call dntmc_sync(.false.)
+        goto 9945
+      endif
 
 c
 c  get the global node id number and group handle
@@ -162,8 +221,11 @@ c     if (inodesbig.gt.1) then
      &     1, -1, g_proc))
      &   call errquit('dntmc_gibbs:g_proc create error', 0,
      &                 GA_ERR)
-      call ga_fill(g_proc, -1) 
-
+      call ga_fill(g_proc, -1)
+C  Global sync mutex creation
+      if (.not. ga_create_mutexes(1))
+     &   call errquit('dntmc_gibbs:mutex create error', 0, GA_ERR)
+C  End Global sync mutex creation
        if (.not.util_sgstart(rtdb))
      &   call errquit('dntmc_gibbs:error starting subgroups',
      &                  0, UNKNOWN_ERR)
@@ -172,36 +234,42 @@ c
 c This next part is to set up the group that is only the node 0s
 c in the medium groups
 c
-       if (ga_nodeid().eq.0) then
+
+       call ga_pgroup_set_default(idbig)
+       if (ga_pgroup_nodeid(idmedium).eq.0) then
 c
 c Only node 0s get in here and then they go to the world
 c group to form the node 0 group.
 c
           write(6,*) 'inside the ga_nodeid eq 0 clause'
           call flush(6)
-          call ga_pgroup_set_default(idbig)
-          write(6,*) 'after the set_default idbig'
-          call flush(6)
+C          call ga_pgroup_set_default(idbig)
+C          write(6,*) 'after the set_default idbig'
+C          call flush(6)
 c
 c create the proclist of only the CPU 0s
 c
           ld(1)  = 1   !must be physical dimension of local array
           ld(2)  = 1
-          call ga_put(g_proc,myid+1,myid+1,1,1,myid,ld)
-          call ga_sync()
+          call ga_put(g_proc,myid+1,myid+1,1,1,idmedium,ld)
+C         call ga_sync()
+          call dntmc_sync(.false.)
+
 c
 c all 0's get the full list
 c
           ld(1)  = 2000   !must be physical dimension of local array
           ld(2)  = 1
           call ga_get(g_proc,1,inodesbig,1,1,bigproc,ld)
+          call dntmc_sync(.false.)
           write(6,*) 'after ga_get of the node ids'
           call flush(6)
           j = 0
           do i = 1, inodesbig
              if (bigproc(i,1).ne.-1) then
                 j = j + 1
-                procnums(j) = bigproc(i,1)
+                groupnums(j) = bigproc(i,1)
+                procnums(j) = i-1
              endif
           enddo
 c
@@ -218,17 +286,27 @@ c 0 node group can be formed.
 c
           write(6,*) 'inside the ga_nodeid eq 0 else clause'
           call flush(6)
-          call ga_pgroup_set_default(idbig)
-          write(6,*) 'after the set_deafault idbig'
-          call flush(6)
-          call ga_sync()
+C          call ga_pgroup_set_default(idbig)
+C          write(6,*) 'after the set_deafault idbig'
+C          call flush(6)
+C          call ga_sync()
+          call dntmc_sync(.false.)
+          call dntmc_sync(.false.)
        endif 
 c
 c Everyone need to get the processors involved in idzero and do the create
 c
-       call ga_sync()
-       call ga_brdcst(msg_dntmc3+MSGINT, procnums, mitob(ngroups), 0)
-       call ga_sync()
+
+C       call ga_sync()
+C       call dntmc_sync(.false.)
+C       call ga_brdcst(msg_dntmc3+MSGINT, procnums, mitob(ngroups), 0)
+C       call ga_brdcst(msg_dntmc7+MSGINT, groupnums, mitob(ngroups), 0)
+       call ga_pgroup_brdcst(idmedium,msg_dntmc3+MSGINT, procnums,
+     &                       mitob(ngroups), 0)
+       call ga_pgroup_brdcst(idmedium,msg_dntmc7+MSGINT, groupnums, 
+     &                       mitob(ngroups), 0)
+C       call ga_sync()
+       call dntmc_sync(.false.)
 
        write(6,*) 'before the ga_pgroup_create idzero call',
      &    procnums(1), procnums(2), ngroups, ga_nodeid(), myid
@@ -238,10 +316,11 @@ c
 c Now set the default group to idmedium so that we can get to the node
 c zeros again!
 c
-       call ga_pgroup_set_default(idmedium)
-       if (ga_nodeid().eq.0) then
-          call ga_pgroup_set_default(idzero)
-          write(6,*) 'after the ga_pgroup_set_default idzero call'
+C       call ga_pgroup_set_default(idmedium)
+C        call ga_pgroup_set_default(idzero)
+       if (ga_pgroup_nodeid(idmedium).eq.0) then
+           call ga_pgroup_set_default(idzero)
+C          write(6,*) 'after the ga_pgroup_set_default idzero call'
 
           NOB = 100  !number of bins
 
@@ -259,14 +338,25 @@ c           dims(2) = ga_nnodes()
           call ga_set_data(g_pr,ndim,dims,MT_F_DBL)
           call ga_set_chunk(g_pr,chunk)
           status = ga_allocate(g_pr)
-          call ga_zero(g_pr) 
-       else
-          call ga_pgroup_set_default(idzero)
+          call ga_zero(g_pr)
+C  Global sync array init
+          ndim = 1
+          chunk(1) = 1 
+          g_stop = ga_create_handle()
+          call ga_set_data(g_stop,ndim,dims(2),MT_F_INT)
+          call ga_set_chunk(g_stop,chunk(1))
+          status =  ga_allocate(g_stop)
+          call ga_zero(g_stop)
+C  End Global sync array init
+          call dntmc_sync(.false.)
        endif
+          call ga_pgroup_set_default(idmedium)
+          call dntmc_sync(.false.)
 
-       call ga_pgroup_set_default(idbig)
-       call ga_sync() ! make sure that everyone is at the same place
-       call ga_pgroup_set_default(idmedium)
+C       call ga_pgroup_set_default(idbig)
+C       call ga_sync() ! make sure that everyone is at the same place
+C       call dntmc_sync(.false.)
+C       call dntmc_sync(.false.)
 c     endif
 C********************************************************
 c
@@ -274,46 +364,93 @@ c For now I am letting all of the processors run through all of this
 c it is probably better in the long term to only have the 0 node
 c on the subgroups doing this.
 
-      iam = myid
-      write(prcfil(1:4), '(i4)') iam
-      if (iam .le. 9) then 
-         prcfil(1:3) = '000'   
-      endif                   
-      if (iam .le. 99) then  
-         prcfil(1:2) = '00' 
-      endif                
-      if (iam .le. 999) then 
-         prcfil(1:1) = '0'  
-      endif
+C      iam = myid
+C  Change for subgroup only identification
+       call dntmc_write_prcfil(idmedium, groupnums, prcfil)
+       call dntmc_build_prcfil(prcfil2, myid)
+       write(6,*)'groupnums for node ',myid,' is ', groupnums(1:ngroups)
+       call flush(6) 
+C  End Change for subgroup only identification
 C*************************************************************
 C*************************************************************
 C    output files
 C*************************************************************
 
 C general output
-      OPEN(UNIT = 12,FILE ='10w2-25p888L.'//prcfil(1:4),STATUS =
-     +     'UNKNOWN')
+
+      write(fprefix,'(256(a))') (' ', i=1,256)
+      if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
+     &     call errquit('rtdb get file_prefix failed',0,RTDB_ERR)
+      write(fprefixcat,'(256(a))') (' ', i=1, 256)
+      write(fprefixcat,'(5(a))')
+     &      fprefix(1:inp_strlen(fprefix)),
+     &      '.fort12.',
+     &      prcfil(1:4), '.', prcfil2(1:4)
+
+      OPEN(UNIT = 12,FILE = fprefixcat(1:inp_strlen(fprefixcat))
+     +    ,STATUS = 'REPLACE')
+
+C  Added files for configurations
+C  Unit 10 ALL
+C  Unit 11 Accepted Only
+      write(fprefix,'(256(a))') (' ', i=1,256)
+      if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
+     &     call errquit('rtdb get file_prefix failed',0,RTDB_ERR)
+      write(fprefixcat,'(256(a))') (' ', i=1, 256)
+      write(fprefixcat,'(5(a))')
+     &      fprefix(1:inp_strlen(fprefix)),
+     &      '.fort10.',
+     &      prcfil(1:4), '.', prcfil2(1:4)
+
+      OPEN(UNIT = 10,FILE = fprefixcat(1:inp_strlen(fprefixcat))
+     +    ,STATUS = 'REPLACE')
+
+      write(fprefix,'(256(a))') (' ', i=1,256)
+      if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
+     &     call errquit('rtdb get file_prefix failed',0,RTDB_ERR)
+      write(fprefixcat,'(256(a))') (' ', i=1, 256)
+      write(fprefixcat,'(5(a))')
+     &      fprefix(1:inp_strlen(fprefix)),
+     &      '.fort11.',
+     &      prcfil(1:4), '.', prcfil2(1:4)
+
+      OPEN(UNIT = 11,FILE = fprefixcat(1:inp_strlen(fprefixcat))
+     +    ,STATUS = 'REPLACE')
+C  End Added files for configurations
+C      OPEN(UNIT = 12,FILE = file_prefix(1:inp_strlen(file_prefix))
+C     &      //'.fort12.'//prcfil(1:4),STATUS =
+C     +     'UNKNOWN')
 
 c     OPEN(UNIT = 16,FILE ='10w2-25p888L.'//prcfil(1:4)//'.xmol', 
 c    +    STATUS = 'UNKNOWN')
 
 C probability distribution function, permanent
-      OPEN(UNIT = 3, FILE = '10wh2-25p888L.'//prcfil(1:4), STATUS = 
-     +    "UNKNOWN")
+      write(fprefixcat,'(256(a))') (' ', i=1, 256)
+      write(fprefixcat,'(5(a))')
+     &      fprefix(1:inp_strlen(fprefix)),
+     &      '.fort3.',
+     &      prcfil(1:4),'.',prcfil2(1:4)
+
+      OPEN(UNIT = 3,FILE = fprefixcat(1:inp_strlen(fprefixcat))
+     +    ,STATUS = 'REPLACE')
+
+C      OPEN(UNIT = 3,FILE = file_prefix(1:inp_strlen(file_prefix))
+C     &      //'.fort3.'//prcfil(1:4),STATUS =
+C     +     'UNKNOWN')
 
 C configuration file, used for restart also, permanent
-      OPEN(UNIT = 9, FILE = '10w2-25p888Lcon.'//prcfil(1:4), 
-     +    STATUS = "UNKNOWN")
+C      OPEN(UNIT = 9, FILE = '10w2-25p888Lcon.'//prcfil(1:4), 
+C     +    STATUS = "UNKNOWN")
 
 C other distribution files, permanent
-      OPEN(UNIT = 10, FILE = '10w2-25p888Lnum.'//prcfil(1:4), 
-     +    STATUS = "UNKNOWN")
-
-      OPEN(UNIT = 11, FILE = '10w2-25p888Lnums.'//prcfil(1:4), 
-     +    STATUS = "UNKNOWN")
-
-      OPEN(UNIT = 13, FILE = '10w2-25p888Lnuma.'//prcfil(1:4), 
-     +    STATUS = "UNKNOWN")
+C      OPEN(UNIT = 10, FILE = '10w2-25p888Lnum.'//prcfil(1:4), 
+C     +    STATUS = "UNKNOWN")
+C
+C      OPEN(UNIT = 11, FILE = '10w2-25p888Lnums.'//prcfil(1:4), 
+C     +    STATUS = "UNKNOWN")
+C
+C      OPEN(UNIT = 13, FILE = '10w2-25p888Lnuma.'//prcfil(1:4), 
+C     +    STATUS = "UNKNOWN")
 
 C*************************************************************
 C*************************************************************
@@ -372,9 +509,22 @@ c     M(2,4) = 0.000
 
 
 C     THIS IS THE INITIAL INPUT
-
-      CONT1 = 0  !restart: 0 = no restart files, 1 = write restart files
+c  Defaults to writing restart information
+      CONT1 = 1  !restart: 0 = no restart files, 1 = write restart files
+c  Get norestart information from rtdb
+      if (.not. rtdb_get(rtdb, 'dntmc:norestart', MT_INT, 1, CONT1))
+     &   CONT1 = 1
+c
+c
+c  Defaults to not a restart run
       CONT2 = 0  !is this a restart run?: 0 = no, 1 = yes
+c  Get restart information from rtdb
+      call util_get_rtdb_state(rtdb, os, oc, or)
+      if (or .eq. .true.) then
+         CONT2=1
+      else
+         CONT2=0
+      endif
 c
 c Try to get the geometry related information from the rtdb
 c
@@ -393,17 +543,41 @@ c
 
       ELSE
 
-         LMIN = MCSTPS + 1
-         LMAX = 11000000     !assuming previous run is the same length
+C         LMIN = MCSTPS + 1
+C         LMAX = 11000000     !assuming previous run is the same length
+C  Change for restart handleing 
+C  Get info from rtdb
+         if (.not. rtdb_get(rtdb, 'dntmc:rsmcstps:'//prcfil(1:4),
+     &   MT_INT, 1, rsmcstps))
+     &   rsmcstps = 0
 
+         LMIN = rsmcstps
+         LMAX = rsmcstps + MCSTPS
+C  End Change
       ENDIF
         
-      MPRNT = MCSTPS/10
-      DISP = 0.03D+00
-      ALPHA = 0.08D+00
+C      MPRNT = MCSTPS/10
+C  Change for restart handleing
+      if(.not. rtdb_get(rtdb, 'dntmc:mprnt', MT_INT, 1, mprnt))
+     &  mprnt = 10
+C  End Change
+C  Define DISP and ALPHA through input directives
+C      DISP = 0.03D+00
+C      ALPHA = 0.08D+00
+      if (.not. rtdb_get(rtdb, 'dntmc:disp', MT_DBL, 1, disp))
+     &   disp = 0.03D+00
+      if (.not. rtdb_get(rtdb, 'dntmc:alpha', MT_DBL, 1, alpha))
+     &   alpha = 0.08D+00
+C  End definition of dist and alpha
       ROTF = 0
       AB = 1
       IDUM = -1
+C Define a logical for use of a rweight distribution
+      if (.not. rtdb_get(rtdb, 'dntmc:rweight', MT_LOG, 1, rweight))
+     &   rweight = .false.
+
+C End varible definition
+
 c need to set this based on the nwchem input in dntmc_getspecinfo
 c start at 1 for the species numbers
 c     USPC(1) = 2
@@ -484,55 +658,124 @@ c are doing the same thing.
 
       CALL dntmc_CONFIG(NMOLS,NODE,RMAX,rinit)
 
+C  Distribute starting configurations between rmin and rmax
+C  Center Cluster
+C center of mass
+      CALL dntmc_CLUSTERCMASS(NMOLS)
+
+C recenter
+      DO I = 1, NMOLS
+         DO J = 1, NATOM(SPC(I))
+            R(I,J,1) = R(I,J,1) - RCLCM(1)
+            R(I,J,2) = R(I,J,2) - RCLCM(2)
+            R(I,J,3) = R(I,J,3) - RCLCM(3)
+         END DO
+      END DO
+      
+C find outermost molecule and vector
+      DO I = 1, NMOLS
+         CALL dntmc_CMASS(I)
+         RX = RCM(I,1)
+         RY = RCM(I,2)
+         RZ = RCM(I,3)
+         DISTcalc(I) = RX*RX + RY*RY + RZ*RZ
+      END DO
+      DIST = DISTcalc(1)
+      molmax = 1 
+      DO I = 2, NMOLS
+         IF (DISTcalc(I) .gt. DIST) then
+            DIST = DISTcalc(I)
+            molmax = I
+         endif
+      enddo
+      NODE = -1
+      do i=1, ngroups
+        if (groupnums(i) .eq. idmedium) then
+          NODE = i
+        endif
+      enddo
+      DIST = DSQRT(DIST)
+      RX = RCM(molmax,1)/DIST
+      RY = RCM(molmax,2)/DIST
+      RZ = RCM(molmax,3)/DIST
+
+C  Manual Scanning
+      if(.not. rtdb_get(rtdb,'dntmc:node',MT_INT,1,node)) then
+      NODE = 1 
+      endif
+C
+      DIST = RMIN - DIST
+C Manual Scanning
+C      DIST = DBLE(NODE)*(RMAX-RMIN)/DBLE(ngroups+1) + DIST
+      DIST = DBLE(NODE)*(RMAX-RMIN)/100.00D+00 + DIST
+C
+      if (NMOLS .eq. 1) then
+        DIST = 0.00D+00
+      else
+        DIST = (DBLE(NMOLS)/DBLE(NMOLS -1)) * DIST
+      endif
+      NODE = idmedium
+C Translate by constant
+      DO I = 1, NATOM(SPC(molmax))
+            R(molmax,I,1) = R(molmax,I,1)+(RX * DIST)
+            R(molmax,I,2) = R(molmax,I,2)+(RY * DIST)
+            R(molmax,I,3) = R(molmax,I,3)+(RZ * DIST)
+      END DO
+
+C Recenter
+      CALL dntmc_CLUSTERCMASS(NMOLS)
+      DO I = 1, NMOLS
+         DO J = 1, NATOM(SPC(I))
+            R(I,J,1) = R(I,J,1) - RCLCM(1)
+            R(I,J,2) = R(I,J,2) - RCLCM(2)
+            R(I,J,3) = R(I,J,3) - RCLCM(3)
+         END DO
+      END DO
+
+C set rsim if rweight method
+      if(rweight) then
+      DO I = 1, NMOLS
+         CALL dntmc_CMASS(I)
+         RX = RCM(I,1)
+         RY = RCM(I,2)
+         RZ = RCM(I,3)
+         DISTcalc(I) = RX*RX + RY*RY + RZ*RZ
+      END DO
+      DIST = DISTcalc(1)
+      DO I = 2, NMOLS
+         IF (DISTcalc(I) .gt. DIST) then
+            DIST = DISTcalc(I)
+         endif
+      enddo
+      rsim = DSQRT(DIST)
+      endif
+C end of rsim setting
+
+C End Distribute configurations 
+
       WRITE(6,*)'made it through the initial config setup'
-      WRITE(6,*)'on node =',IAM
+      WRITE(6,*)'on group =',prcfil(1:4)
 
       WRITE(12,*)'made it through the initial config setup'
-      WRITE(12,*)'on node =',IAM
+      WRITE(12,*)'on group =',prcfil(1:4)
 
 
 C*********************************************************
 
       ELSE       !CONT2 = 1 restart run
-
-C input file
-         OPEN(UNIT = 4,FILE ='config',STATUS = 'UNKNOWN')
-
-         READ(4,*)SEED(1)
-         READ(4,*)UU
-         READ(4,*)USUM   
-         READ(4,*)UAVR
-         READ(4,*)USQRDSUM
-         READ(4,*)USQRD
-         READ(4,*)RSIM
-         READ(4,*)RSIMSUM
-         READ(4,*)RSIMAVR
-         READ(4,*)IACCEPTT
-         READ(4,*)IACCEPTR
-         READ(4,*)IACCEPTV
-         READ(4,*)IACCEPTPR
-         READ(4,*)IACCEPTPI
-
-         DO I = 1, NMOLS
-            DO J = 1, NATOM(SPC(I))
-               READ(4,*)(R(I,J,IR),IR = 1,3)
-            ENDDO
-         ENDDO
-
-         OPEN(UNIT = 5,FILE ='num',STATUS = 'UNKNOWN')
-         OPEN(UNIT = 7,FILE ='nums',STATUS = 'UNKNOWN')
-         OPEN(UNIT = 8,FILE ='numa',STATUS = 'UNKNOWN')
-
-         DO I = 1, NOB
-            READ(5,*)NUMBER(I)
-            READ(7,*)NUMBERSUM(I)
-            READ(8,*)RSH,NUMBERAVR(I)
-         ENDDO
-
-         CLOSE(4)
-         CLOSE(5)
-         CLOSE(7)
-         CLOSE(8)
+C  Change for restart from rtdb
+        write(6,*)'Reading Restart Information for group ',prcfil(1:4)
+        call flush(6)
+        write(12,*)'Reading Restart Information for group ',prcfil(1:4)
+        call flush(12)
+        call dntmc_readrestart(rtdb, uu, uavr, usqrd,
+     +  rsimsum, rsimavr, iacceptt, iacceptv, iacceptr, iacceptpr,
+     +  iacceptpi, rsh, prcfil, nmols, rsmcstps)
+        write(6,*)'Done with restart setup for group ',prcfil(1:4)
+        call flush(6)
+        write(12,*)'Done with restart setup for group ',prcfil(1:4)
+        call flush(12)
+C  End Change for restart
 
       ENDIF   !endif for cont2 = 1 running from restart
 
@@ -593,23 +836,41 @@ c     initialization information for rsim and rmax
 
       WRITE(12,*)'NCURR =',NCURR
 
+C Skip check for restart
+      IF(CONT2 .eq. 1) goto 101
+C Skip check for rweight
+      IF(rweight) goto 101
+C End Skip
+
+
       DO I = 1, NCURR
-         DO J = 1, NATOM(SPC(I))
-              RX = R(I,J,1)
-              RY = R(I,J,2)
-              RZ = R(I,J,3)
+         CALL dntmc_CMASS(I)
+         RX = RCM(I,1)
+         RY = RCM(I,2)
+         RZ = RCM(I,3)
+         DIST = RX*RX + RY*RY + RZ*RZ
 
-              DIST = RX*RX + RY*RY + RZ*RZ
-
-              IF(DIST.GE.RSIMSQ) goto 99
-
-         END DO
+         IF(DIST.GE.RSIMSQ) goto 99
       END DO
+
+C  Original Check
+C      DO I = 1, NCURR
+C         DO J = 1, NATOM(SPC(I))
+C              RX = R(I,J,1)
+C              RY = R(I,J,2)
+C              RZ = R(I,J,3)
+C
+C              DIST = RX*RX + RY*RY + RZ*RZ
+C
+C              IF(DIST.GE.RSIMSQ) goto 99
+C
+C         END DO
+C      END DO
 
       GOTO 101
 
   99  CONTINUE
-
+      WRITE(12,*)'dist is ',DSQRT(DIST),' mol ',i,' atom ',j
 C should never get here unless the algorithm is messed up
       WRITE(12,*)'molecule',I,' is out of the simulation volume'
       call errquit('dntmc_gibbs: should not get to 99', 1, UNKNOWN_ERR)
@@ -687,12 +948,17 @@ C recenter
       END DO
 
 C out of the sphere after recentering
+C Skip check for restart
+      IF(CONT2 .eq. 1) goto 456
+C skip chesk if rweight
+      if(rweight) goto 455
+C End Skip
+
       DO I = 1, NCURR
-
-         RX = R(I,1,1)
-         RY = R(I,1,2)
-         RZ = R(I,1,3)
-
+         CALL dntmc_CMASS(I)
+         RX = RCM(I,1)
+         RY = RCM(I,2)
+         RZ = RCM(I,3)
          DIST = RX*RX + RY*RY + RZ*RZ
 
          IF(DIST.GT.RSIMSQ)THEN
@@ -700,12 +966,36 @@ C out of the sphere after recentering
          WRITE(12,*)'DIST =',DIST
 
          WRITE(12,*)'MOLECULE ',I,' IS OUT OF SIMULATION VOLUME!'
-         call errquit('dntmc_gibbs: should not get here', 
+         call errquit('dntmc_gibbs: should not get here',
      +                 1, UNKNOWN_ERR)
 
          ENDIF
 
       END DO
+
+C  Original Code
+C      DO I = 1, NCURR
+C
+C         RX = R(I,1,1)
+C         RY = R(I,1,2)
+C         RZ = R(I,1,3)
+C
+C         DIST = RX*RX + RY*RY + RZ*RZ
+C
+C         IF(DIST.GT.RSIMSQ)THEN
+C
+C         WRITE(12,*)'DIST =',DIST
+C
+C         WRITE(12,*)'MOLECULE ',I,' IS OUT OF SIMULATION VOLUME!'
+C         call errquit('dntmc_gibbs: should not get here', 
+C     +                 1, UNKNOWN_ERR)
+C
+C         ENDIF
+C
+C      END DO
+C Skip to if rweight 
+ 455  CONTINUE
+
 c234567      
       WRITE(12,*)'The initial cluster coordinates for a fixed center'
       WRITE(12,*)'of mass at the origin are:'
@@ -725,6 +1015,9 @@ C check to make sure center of mass is origin
 
 C calculate the energy of the configuration
 c      CALL dntmc_PSUM(NCURR,UU)
+C  Added sync for groups
+C           call dntmc_sync(.false.)
+C  End added sync
       call dntmc_setcoords(rtdb, r, nmols, natom, spc)
       if (.not. task_energy(rtdb)) then
         if (.not. task_energy(rtdb)) then   ! try running the energy again
@@ -747,8 +1040,9 @@ c
 c convert to kcal/mol
 c
       uu = uu*627.5095D+00
+C Skip to if restart
+ 456  CONTINUE
       WRITE(12,*)'INITIAL UU = ',UU,' kcal/mole'
-
 
 C calculate number of atoms
       DO I = 1, NMOLS
@@ -763,6 +1057,7 @@ c	 PRINT*,'NATOT =',NATOT
       WRITE(6,*)'made it through initialization'
 
       IICOUNT = 0
+
 C beginning of MC loop
       DO L = LMIN , LMAX
 
@@ -773,9 +1068,13 @@ C beginning of MC loop
          ACCEPTPI = .FALSE.
          
 C do one move, calculate energy and return the acceptance ratios and energy
+      if(rweight) then
+         CALL dntmc_MOVE_RWEIGHT(TEMP,ACCEPTT,ACCEPTR,ACCEPTV,ACCEPTPR
+     +             ,ACCEPTPI,UU, rtdb, nmols)
+      else
          CALL dntmc_MOVE(TEMP,ACCEPTT,ACCEPTR,ACCEPTV,ACCEPTPR
      +             ,ACCEPTPI,UU, rtdb, nmols)
-
+      endif
          CALL dntmc_ROOTMEANSQUARE(L,NCURR,NSPC)
 
          IF(ACCEPTT) IACCEPTT = IACCEPTT + 1
@@ -794,8 +1093,17 @@ C calculate average of stuff
          CALL dntmc_AVERAGE(L,TEMP,UU,UAVR,Cv,RSIMAVR)
 c calculate distribution of different radii of the sphere
          CALL dntmc_NUMBERHIST(L)
-         CALL dntmc_NUMBERAVERAGE(L)
 
+       if(rweight) then
+       RINC = (RMAX - RMIN)/100.D+00
+       RSH = RMIN
+       DO I = 1, NOB
+          RSH = RSH + RINC
+          RB(I) = RSH
+       ENDDO
+       endif
+
+         CALL dntmc_NUMBERAVERAGE(L,temp,rweight)
 C***************************************************************
 
       IF (MOD(L,MPRNT).EQ.0)THEN
@@ -820,80 +1128,18 @@ C***************************************************************
 C*******************************************************************
 C*******************************************************************
 C     writing occasional restart files
-
+      lnow = L + 1
       IF(CONT1.EQ.1)THEN
-
-      IICOUNT = IICOUNT + 1      
-
-      write(occtag(1:4), '(i4)') IICOUNT
-      if (IICOUNT .le. 9) then 
-         occtag(1:3) = '000'   
-      endif                   
-      if (IICOUNT .le. 99) then  
-         occtag(1:2) = '00' 
-      endif                
-      if (IICOUNT .le. 999) then 
-         occtag(1:1) = '0'  
+      if (ga_pgroup_nodeid(idmedium) .eq. 0) then
+        call dntmc_writefiles(uu, uavr, usqrd,
+     +    rsimsum, rsimavr, iacceptt, iacceptv, iacceptr, iacceptpr,
+     +    iacceptpi, rsh, prcfil, nmols, lnow, fprefix)
+        write(6,*)' Restart files written for group ',prcfil(1:4)
+        call flush(6)
+        write(12,*)' Restart files written for group ',prcfil(1:4)
+        call flush(12)
       endif
-
-
-      OPEN(UNIT = 20, FILE = '10w2-25pOCCcon.'//occtag(1:4), 
-     +    STATUS = "UNKNOWN")
-
-      OPEN(UNIT = 21, FILE = '10w2-25pOCCnum.'//occtag(1:4), 
-     +    STATUS = "UNKNOWN")
-
-      OPEN(UNIT = 22, FILE = '10w2-25pOCCnums.'//occtag(1:4), 
-     +    STATUS = "UNKNOWN")
-
-      OPEN(UNIT = 23, FILE = '10w2-25pOCCnuma.'//occtag(1:4), 
-     +    STATUS = "UNKNOWN")
-
-         WRITE(20,*)SEED(1)
-         WRITE(20,*)UU
-         WRITE(20,*)USUM  
-         WRITE(20,*)UAVR
-         WRITE(20,*)USQRDSUM
-         WRITE(20,*)USQRD
-         WRITE(20,*)RSIM
-         WRITE(20,*)RSIMSUM
-         WRITE(20,*)RSIMAVR
-         WRITE(20,*)IACCEPTT
-         WRITE(20,*)IACCEPTR
-         WRITE(20,*)IACCEPTV
-         WRITE(20,*)IACCEPTPR
-         WRITE(20,*)IACCEPTPI
-
-         DO I = 1, NMOLS
-            DO J = 1, NATOM(SPC(I))
-               WRITE(20,*)(R(I,J,IR), IR = 1,3)
-            ENDDO
-         ENDDO
-
-         CLOSE(20)
-
-
-         RINC = (RMAX - RMIN)/100.D+00
-
-         RSH = RMIN
-
-c should NOB be an input parameter?
-         NOB = 100
-
-         DO I = 1, NOB
-            RSH = RSH + RINC
-            WRITE(21,*)NUMBER(I)
-            WRITE(22,*)NUMBERSUM(I)
-            WRITE(23,*)RSH,NUMBERAVR(I)
-         ENDDO
-
-         CLOSE(21)
-         CLOSE(22)
-         CLOSE(23)
-
-      WRITE(6,*)'Ive written occasional files for restart'
-
-          
+C  End Restart changes          
       ENDIF     !this endif is for writing restart files
 
 C*******************************************************************
@@ -914,9 +1160,35 @@ C     STORE RADIAL GRID RSH INTO RB
 
 C**********************************************************************
 C    THIS SECTION STORES THE LOCAL NUMBERAVR INTO THE GLOBAL ARRAY
-
-      if (ga_nodeid().eq.0) then
+C      call ga_pgroup_set_default(idzero)
+      if (ga_pgroup_nodeid(idmedium).eq.0) then
          call ga_pgroup_set_default(idzero)
+C  Global sync mutex
+         ld(1) = 1
+         ld(2) = 1
+         call ga_put(g_stop,ga_nodeid()+1,ga_nodeid()+1,1,1,ld(1),ld)
+         call ga_lock(0)
+         write(6,*)' I made it into mutex', ga_nodeid()
+         call flush(6)
+         trigger = .true.
+         do while (trigger)
+         ld(1) = ngroups
+         ld(2) = 1
+         call ga_get(g_stop,1,ngroups,1,1,stoplist,ld)
+         ld(1) = 0
+         do i=1, ngroups
+           ld(1) = ld(1) + stoplist(i)
+         end do
+         if (ld(1) .lt. ngroups) then
+            trigger = .true.
+         else
+            trigger = .false.
+         endif
+         end do
+         call ga_unlock(0)
+         write(6,*)' I made it out of mutex', ga_nodeid()
+         call flush(6)
+C  Global sync mutex end
          ilo = 1
          ihi = NOB
          jlo = ga_nodeid() + 1
@@ -926,10 +1198,10 @@ c      write(6,*)'jlo =',jlo
 
          ld(1)  = 100   !must be physical dimension of local array
          ld(2)  = 1
-
          call ga_put(g_pr,ilo,ihi,jlo,jhi,NUMBERAVR,ld)
-         call ga_sync
-
+C         call ga_sync
+          call dntmc_sync(.false.)
+C         call ga_pgroup_sync(idbig)
          jlo = 1
          jhi = ga_nnodes()
 
@@ -938,33 +1210,46 @@ c
 c everyone gets the full results
 
          call ga_get(g_pr,ilo,ihi,jlo,jhi,TESTME,ld)
-
+         call dntmc_sync(.false.)
 C*********************************************************************
 C     this section is for testing...
 
          RSH = RMIN
          DO I = 1, NOB
             RSH = RSH + RINC
-            WRITE(6,*)RSH,TESTME(I,ga_nodeid()+1)
+C            WRITE(6,*)RSH,TESTME(I,ga_nodeid()+1)
          ENDDO
 
 C**********************************************************************
 C    this section is averages the distributions from all nodes
 C    and finds the maximum variance and tests it against
 C    a predefined tolerance in the logical below...
-
-         CALL dntmc_AVERAGEDIST(NOB,ga_nnodes(),PERCENT)
+C  Added nda_old array
+         CALL dntmc_AVERAGEDIST(NOB,ga_nnodes(),PERCENT,nda_old)
          write(6,*) 'ga_nnodes and percent in idzero ',
      &     ga_nnodes(), percent
+C  Global sync reinit
+      call ga_zero(g_stop)
+C  End global sync reinit
       endif  ! idzero section
       call ga_pgroup_set_default(idmedium)
-      call ga_sync()
-      call ga_brdcst(msg_dntmc0+MSGINT, PERCENT, mitob(1), 0)
+C      call dntmc_sync(.false.)
+C      call ga_sync()
+C           call dntmc_sync(.false.)
+C      call ga_brdcst(msg_dntmc0+MSGINT, PERCENT, mitob(1), 0)
+      call ga_brdcst(msg_dntmc0+MSGDBL, PERCENT, mitob(1), 0)
       call ga_brdcst(msg_dntmc1+MSGDBL, NDA, mdtob(100), 0)
       call ga_brdcst(msg_dntmc2+MSGDBL, NDSIG, mdtob(100), 0)
+      call dntmc_sync(.false.)
+C  Added save of old NDA array
+         Do i=1, NOB
+         nda_old(i) = NDA(i)
+         enddo
+C  End added old save
 
       write(6,*) 'percent is ', percent, ga_nodeid(), myid
-      IF(PERCENT.LT.30.D+00)THEN
+C      IF(PERCENT.LT.30.D+00)THEN
+       IF(PERCENT.LT.(100.D+00/DBLE(NOB)))THEN
 
           WRITE(6,*)'the average distribution has converged'
           WRITE(12,*)'the average distribution has converged'
@@ -1009,10 +1294,21 @@ C**************************************************************
       WRITE(6,*)'did not converge average distribution'
 
 C    WRITING FINAL AVERAGE DISTRIBUTION WITH ERROR BARS
-      OPEN(UNIT = 30,FILE ='10wha2-25p888Lnc.'//prcfil(1:4),STATUS =
-     +     'UNKNOWN')
+      write(fprefixcat,'(256(a))') (' ', i=1, 256)
+      write(fprefixcat,'(5(a))')
+     &      fprefix(1:inp_strlen(fprefix)),
+     &      '.fort30.',
+     &      prcfil(1:4),'.',prcfil2(1:4)
 
-      DO I = 1, NOB - 1
+      OPEN(UNIT = 30,FILE = fprefixcat(1:inp_strlen(fprefixcat))
+     +    ,STATUS ='REPLACE')
+
+C      OPEN(UNIT = 30,FILE = file_prefix(1:inp_strlen(file_prefix))
+C     &      //'.fort30.'//prcfil(1:4),STATUS =
+C     +     'UNKNOWN')
+
+C      DO I = 1, NOB - 1
+       DO I = 1, NOB
          WRITE(30,*)RB(I),NDA(I),NDSIG(I)
       END DO
 
@@ -1056,13 +1352,17 @@ C     STORE NEW RADIAL GRID RSH INTO RB
        ENDDO
 
 C    re-initialize global array to zero
-
-      if(ga_nodeid().eq.0) then
+C      call ga_pgroup_set_default(idzero)
+      if(ga_pgroup_nodeid(idmedium).eq.0) then
          call ga_pgroup_set_default(idzero)
-         CALL ga_zero(g_pr) 
+         CALL ga_zero(g_pr)
+         call dntmc_sync(.false.)
       endif
+C      call dntmc_sync(.false.)
       call ga_pgroup_set_default(idmedium)
-      call ga_sync()
+      call dntmc_sync(.false.)
+C      call ga_sync()
+C           call dntmc_sync(.false.)
 
 C******************************************************************
 C     CREATE NEW INITIAL CONFIGURATION OF WATER MOLECULES
@@ -1207,9 +1507,14 @@ C    RE-INITIALIZE ACCEPTANCE RATIOS
          ACCEPTV = .FALSE.
          ACCEPTPR = .FALSE.
          ACCEPTPI = .FALSE.
-         
+
+      if(rweight) then
+         CALL dntmc_MOVE_RWEIGHT(TEMP,ACCEPTT,ACCEPTR,ACCEPTV,ACCEPTPR
+     +             ,ACCEPTPI,UU, rtdb, nmols)
+      else
          CALL dntmc_MOVE(TEMP,ACCEPTT,ACCEPTR,ACCEPTV,ACCEPTPR
      +             ,ACCEPTPI,UU, rtdb, nmols)
+      endif
 
          CALL dntmc_ROOTMEANSQUARE(L,NCURR,NSPC)
 
@@ -1227,8 +1532,17 @@ C    RE-INITIALIZE ACCEPTANCE RATIOS
 
          CALL dntmc_AVERAGE(L,TEMP,UU,UAVR,Cv,RSIMAVR)
          CALL dntmc_NUMBERHIST(L)
-         CALL dntmc_NUMBERAVERAGE(L)
 
+       if(rweight) then
+       RINC = (RMAX - RMIN)/100.D+00
+       RSH = RMIN
+       DO I = 1, NOB
+          RSH = RSH + RINC
+          RB(I) = RSH
+       ENDDO
+       endif
+
+         CALL dntmc_NUMBERAVERAGE(L,temp,rweight)
 C***************************************************************
 
       IF (MOD(L,MPRNT).EQ.0)THEN
@@ -1249,9 +1563,56 @@ C***************************************************************
       WRITE(12,*)'<Cv> =',Cv,' kcal/mole-K'
       WRITE(12,*)'*******************************'
 
+C*******************************************************************
+C*******************************************************************
+C     writing occasional restart files
+      lnow = L + 1
+      IF(CONT1.EQ.1)THEN
+      if (ga_pgroup_nodeid(idmedium) .eq. 0) then
+        call dntmc_writefiles(uu, uavr, usqrd,
+     +    rsimsum, rsimavr, iacceptt, iacceptv, iacceptr, iacceptpr,
+     +    iacceptpi, rsh, prcfil, nmols, lnow, fprefix)
+        write(6,*)' Restart files written for group ',prcfil(1:4)
+        call flush(6)
+        write(12,*)' Restart files written for group ',prcfil(1:4)
+        call flush(12)
+      endif
+C  End Restart changes          
+      ENDIF     !this endif is for writing restart files
+
+C*******************************************************************
+C*******************************************************************
+
 C**********************************************************************
-      if (ga_nodeid().eq.0) then
+C      call ga_pgroup_set_default(idzero)
+      if (ga_pgroup_nodeid(idmedium).eq.0) then
          call ga_pgroup_set_default(idzero)
+C  Global sync mutex
+         ld(1) = 1
+         ld(2) = 1
+         call ga_put(g_stop,ga_nodeid()+1,ga_nodeid()+1,1,1,ld(1),ld)
+         call ga_lock(0)
+         write(6,*)' I made it into mutex', ga_nodeid()
+         call flush(6)
+         trigger = .true.
+         do while (trigger)
+         ld(1) = ngroups
+         ld(2) = 1
+         call ga_get(g_stop,1,ngroups,1,1,stoplist,ld)
+         ld(1) = 0
+         do i=1, ngroups
+           ld(1) = ld(1) + stoplist(i)
+         end do
+         if (ld(1) .lt. ngroups) then
+            trigger = .true.
+         else
+            trigger = .false.
+         endif
+         end do
+         call ga_unlock(0)
+         write(6,*)' I made it out of mutex', ga_nodeid()
+         call flush(6)
+C  Global sync mutex end
          ilo = 1
          ihi = NOB
          jlo = ga_nodeid() + 1
@@ -1263,7 +1624,9 @@ c      write(6,*)'jlo =',jlo
          ld(2)  = 1
 
          call ga_put(g_pr,ilo,ihi,jlo,jhi,NUMBERAVR,ld)
-         call ga_sync()
+C         call ga_sync()
+           call dntmc_sync(.false.)
+C          call ga_pgroup_sync(idbig)
 
          jlo = 1
          jhi = ga_nnodes()
@@ -1271,16 +1634,28 @@ c      write(6,*)'jlo =',jlo
 c      write(6,*)'jhi =',jhi
 
          call ga_get(g_pr,ilo,ihi,jlo,jhi,TESTME,ld)
-
+         call dntmc_sync(.false.)
 C*********************************************************************
-
-         CALL dntmc_AVERAGEDIST(NOB,ga_nnodes(),PERCENT)
+C  Added nda_old array
+         CALL dntmc_AVERAGEDIST(NOB,ga_nnodes(),PERCENT,nda_old)
+C  Global sync reinit
+      call ga_zero(g_stop)
+C  End global sync reinit
       endif  ! idzero section
       call ga_pgroup_set_default(idmedium)
-      call ga_sync()
-      call ga_brdcst(msg_dntmc4+MSGINT, PERCENT, mdtob(1), 0)
+C      call dntmc_sync(.false.)
+C      call ga_sync()
+C           call dntmc_sync(.false.)
+C      call ga_brdcst(msg_dntmc0+MSGINT, PERCENT, mitob(1), 0)
+      call ga_brdcst(msg_dntmc4+MSGDBL, PERCENT, mdtob(1), 0)
       call ga_brdcst(msg_dntmc5+MSGDBL, NDA, mdtob(100), 0)
       call ga_brdcst(msg_dntmc6+MSGDBL, NDSIG, mdtob(100), 0)
+      call dntmc_sync(.false.)
+C  Added save of old NDA array
+         Do i=1, NOB
+         nda_old(i) = NDA(i)
+         enddo
+C  End added old save
 
       WRITE(6,*)'PERCENT =',PERCENT
       WRITE(12,*)'PERCENT =',PERCENT
@@ -1289,17 +1664,47 @@ C*********************************************************************
 
 c**************************************************************
 C**************************************************************
-C     THIS ENDDO IS FOR THE NEW MAIN MC LOOP      
+C     THIS ENDDO IS FOR THE NEW MAIN MC LOOP 
+       IF(PERCENT.LT.(50.D+00/DBLE(NOB)))THEN
+
+          WRITE(6,*)'the average distribution has converged'
+          WRITE(12,*)'the average distribution has converged'
+          WRITE(6,*)'PERCENT =',PERCENT
+          WRITE(12,*)'PERCENT =',PERCENT
+
+          GOTO 175
+
+      ELSE
+
+          WRITE(6,*)'the average distribution has not converged yet'
+          WRITE(12,*)'the average distribution has not converged yet'
+          WRITE(6,*)'PERCENT =',PERCENT
+          WRITE(12,*)'PERCENT =',PERCENT
+      ENDIF
 
       ENDDO
 c**************************************************************
 C**************************************************************
+C Added end of DO loop destination
+ 175  CONTINUE
+C End added destination
 
 C    WRITING FINAL AVERAGE DISTRIBUTION WITH ERROR BARS
-      OPEN(UNIT = 24,FILE ='10wha2-25p888Lc.'//prcfil(1:4),STATUS =
-     +     'UNKNOWN')
+      write(fprefixcat,'(256(a))') (' ', i=1, 256)
+      write(fprefixcat,'(5(a))')
+     &      fprefix(1:inp_strlen(fprefix)),
+     &      '.fort24.',
+     &      prcfil(1:4),'.',prcfil2(1:4)
 
-      DO I = 1, NOB - 1
+      OPEN(UNIT = 24,FILE = fprefixcat(1:inp_strlen(fprefixcat))
+     +    ,STATUS = 'REPLACE')
+
+C      OPEN(UNIT = 24,FILE = file_prefix(1:inp_strlen(file_prefix))
+C     &      //'.fort24.'//prcfil(1:4),STATUS =
+C     +     'UNKNOWN')
+
+C      DO I = 1, NOB - 1
+       DO I =1, NOB
 
          WRITE(24,*)RB(I),NDA(I),NDSIG(I)
 
@@ -1331,7 +1736,8 @@ C     NOB is defind above = number of bins
 
       RINC = (RMAX - RMIN)/100.D+00
       RSH = RMIN
-      DO I = 1, NOB - 1
+C      DO I = 1, NOB - 1
+      DO I =1, NOB
          RSH = RSH + RINC
          WRITE(3,*)RSH,NUMBERAVR(I)
       END DO
@@ -1340,70 +1746,1295 @@ C     NOB is defind above = number of bins
 
 C*******************************************************************
 C     writing restart files
-
       IF(CONT1.EQ.1)THEN
-
-
-         WRITE(9,*)SEED(1)
-         WRITE(9,*)UU
-         WRITE(9,*)USUM  
-         WRITE(9,*)UAVR
-         WRITE(9,*)USQRDSUM
-         WRITE(9,*)USQRD
-         WRITE(9,*)RSIM
-         WRITE(9,*)RSIMSUM
-         WRITE(9,*)RSIMAVR
-         WRITE(9,*)IACCEPTT
-         WRITE(9,*)IACCEPTR
-         WRITE(9,*)IACCEPTV
-         WRITE(9,*)IACCEPTPR
-         WRITE(9,*)IACCEPTPI
-
-         DO I = 1, NMOLS
-            DO J = 1, NATOM(SPC(I))
-               WRITE(9,*)(R(I,J,IR), IR = 1,3)
-            ENDDO
-         ENDDO
-
-         CLOSE(9)
-
-
-         RINC = (RMAX - RMIN)/100.D+00
-
-         RSH = RMIN
-
-         DO I = 1, NOB
-            RSH = RSH + RINC
-            WRITE(10,*)NUMBER(I)
-            WRITE(11,*)NUMBERSUM(I)
-            WRITE(13,*)RSH,NUMBERAVR(I)
-         ENDDO
-
-         CLOSE(10)
-         CLOSE(11)
-         CLOSE(13)
-
-      WRITE(6,*)'Ive written all the output files for restart'
+C  Writing final restart files
+C      call ga_pgroup_set_default(idmedium)
+      if (ga_nodeid() .eq. 0) then
+        call dntmc_writefiles(uu, uavr, usqrd,
+     +    rsimsum, rsimavr, iacceptt, iacceptv, iacceptr, iacceptpr,
+     +    iacceptpi, rsh, prcfil, nmols, L, fprefix)
+        write(6,*)' Restart files written for group ',prcfil(1:4)
+        call flush(6)
+        write(12,*)' Restart files written for group ',prcfil(1:4)
+        call flush(12)
+      endif
+C      call dntmc_sync(.false.)
+C  End Restart changes          
           
       ENDIF   !this endif is for writing the final restart files...
 
       CLOSE(12)
-
+C  Added files for configurations 10 = all 11 = accepted
+      CLOSE(10)
+      CLOSE(11)
+C  End Added files for configurations
       WRITE(6,*)'the end - Ive written everything on each node'
 
 c*************************************
       if (ga_nodeid().eq.0) then
-        call ga_pgroup_set_default(idmedium)
+C        call ga_pgroup_set_default(idmedium)
+        call ga_pgroup_set_default(idzero)
         status = ga_destroy(g_pr)
+C  Global sync array destroy
+        status = ga_destroy(g_stop)
+C  End Global sync arrey destroy
       else
-        call ga_pgroup_set_default(idmedium)
+C        call ga_pgroup_set_default(idmedium)
       endif
+      call ga_pgroup_set_default(idmedium)
+C  Global sync mutex destroy
+      status = ga_destroy_mutexes()
+C  End Global sync mutex destroy
       status = ga_destroy(g_proc)
       call util_sgend(rtdb)  ! finalize subgroup stuff
+      write(6,*) 'leaving dntmc_gibbs', myid
+
+ 9945 Continue ! How to instantly exit code
       dntmc_gibbs = .true.
       write(6,*) 'leaving dntmc_gibbs', myid
       return
       END
+
+C  Added subroutine for global sync
+C***********************************************************************
+      Subroutine dntmc_sync(global)
+C***********************************************************************
+      Implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "global.fh"
+
+      logical global ! Input triggers a global sync event
+      integer gidnow
+C      integer world
+C      integer g_sync, g_stop
+C      integer ld(2), lds(2)
+C      logical exit
+C      integer status
+C      integer synclist(2000)
+C      integer i, test
+C
+      gidnow = ga_pgroup_get_default()
+
+      call ga_sync()
+C      if (global) then
+C         world = ga_pgroup_get_world()
+C         call ga_pgroup_set_default(world)
+C      endif
+C
+C      if (.not.ga_create(MT_INT, ga_nnodes(), 1, "sync list",
+C     &     1, -1, g_sync))
+C     &   call errquit('dntmc_gibbs:g_sync create error', 0,
+C     &                 GA_ERR)
+C      if (.not.ga_create(MT_INT, ga_nnodes(), 1, "through list",
+C     &     1, -1, g_stop))
+C     &   call errquit('dntmc_gibbs:g_stop create error', 0,
+C     &                 GA_ERR)
+C      call ga_zero(g_sync)
+C      call ga_zero(g_stop) 
+C
+C      ld(1) = 1
+C      ld(2) = 1 
+C      lds(1) = ga_nnodes()
+C      lds(2) = 1
+C      exit = .false.
+C      do while (.not. exit)
+C        status = 1
+C        call ga_put(g_sync, ga_nodeid()+1, ga_nodeid()+1, 1, 1,
+C     &              status, ld) 
+C        call ga_get(g_sync, 1, ga_nnodes(), 1, 1, synclist, lds)
+C        test = 0
+C        do i = 1, ga_nnodes()
+C          test = test + synclist(i)
+C        end do
+C        if (test .lt. ga_nnodes()) then
+C          exit = .false.
+C        else
+C          exit = .true.
+C          call ga_fill(g_stop, 1)
+C        endif 
+C      end do
+C
+C         test = 0
+C      do i = 1, ga_nnodes()
+C         test = test + synclist(i)
+C      end do
+C      if (test .eq. ga_nnodes()) then
+C        exit = ga_destroy(g_sync)
+C        exit = ga_destroy(g_stop)
+C      endif
+C
+C      if (global) then
+C        call ga_pgroup_set_default(gidnow)
+C      endif
+      write(6,*)'Made it past sync', ga_nodeid(), gidnow, global
+      call flush(6)
+      return
+      end
+C***********************************************************************
+C  End of Subroutine dntmc_sync(global)
+C***********************************************************************
+C  End of added subroutine for sync
+C  Added subroutines for restart
+C***********************************************************************
+      Subroutine dntmc_copy_filertdb(prcfil, rtdb, nmols, fprefix)
+C***********************************************************************
+      Implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "gibbsP.fh"
+#include "rtdb.fh"
+#include "inp.fh"
+
+      double precision uu, usum, uavr, usqrdsum, usqrd
+      double precision rsim, rsimsum, rsimavr
+      double precision seed, r, numbersum, numberavr
+      integer number, iacceptt, iacceptv, iacceptr, iacceptpr, iacceptpi
+      integer rsmcstps, i, j, ir
+      integer natom, spc, rtdb
+      double precision rsh
+      integer nob, nmols
+      character*4 prcfil
+      character*256 fprefix
+      character*256 fprefixcat
+      integer ncent, k, rdim
+      double precision coords 
+      dimension coords(3, MXATOM*MXMOLS)
+
+      dimension R(MXMOLS,MXATOM,3)
+      dimension NUMBER(100)
+      dimension NUMBERSUM(100)
+      dimension NUMBERAVR(100)
+      dimension SEED(1)
+
+      COMMON/NNATOMS/NATOM(MXSP)
+      COMMON/SPECIES/SPC(MXMOLS)
+
+      nob = 100
+
+      write(fprefixcat,'(256(a))') (' ', i=1, 256)
+      write(fprefixcat,'(3(a))')
+     &      fprefix(1:inp_strlen(fprefix)),
+     &      '.restart.',
+     &      prcfil(1:4)
+
+      OPEN(UNIT = 20,FILE = fprefixcat(1:inp_strlen(fprefixcat))
+     +    ,STATUS = 'OLD')
+
+C
+C      OPEN(UNIT = 20, FILE = file_prefix(1:inp_strlen(file_prefix))
+C     &    //'.restart.'//prcfil(1:4),
+C     +    STATUS = "UNKNOWN")
+
+         READ(20,*)SEED(1)
+         READ(20,*)UU
+         READ(20,*)USUM
+         READ(20,*)UAVR
+         READ(20,*)USQRDSUM
+         READ(20,*)USQRD
+         READ(20,*)RSIM
+         READ(20,*)RSIMSUM
+         READ(20,*)RSIMAVR
+         READ(20,*)IACCEPTT
+         READ(20,*)IACCEPTR
+         READ(20,*)IACCEPTV
+         READ(20,*)IACCEPTPR
+         READ(20,*)IACCEPTPI
+         READ(20,*)rsmcstps
+         DO I = 1, NMOLS
+            DO J = 1, NATOM(SPC(I))
+               READ(20,*)(R(I,J,IR), IR = 1,3)
+            ENDDO
+         ENDDO
+         
+         DO I = 1, NOB
+            READ(20,*)NUMBER(I)
+            READ(20,*)NUMBERSUM(I)
+            READ(20,*)RSH,NUMBERAVR(I)
+         ENDDO
+
+         CLOSE(20)
+      
+      if (.not. rtdb_put(rtdb, 'dntmc:seed:'//prcfil(1:4), MT_DBL, 1,
+     &   SEED(1)))
+     &   call errquit('dntmc_gibbs:  rtdb error for seed(1)',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:uu:'//prcfil(1:4), MT_DBL, 1, UU))
+     &   call errquit('dntmc_gibbs:  rtdb error for UU',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:usum:'//prcfil(1:4), MT_DBL, 1,
+     &   usum))
+     &   call errquit('dntmc_gibbs:  rtdb error for usum',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:uavr:'//prcfil(1:4), MT_DBL, 1,
+     &   uavr))
+     &   call errquit('dntmc_gibbs:  rtdb error for uavr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:usqrdsum:'//prcfil(1:4), MT_DBL, 1
+     &   ,usqrdsum))
+     &   call errquit('dntmc_gibbs:  rtdb error for usqrdsum',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:usqrd:'//prcfil(1:4), MT_DBL, 1,
+     &   usqrd))
+     &   call errquit('dntmc_gibbs:  rtdb error for usqrd',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:rsim:'//prcfil(1:4), MT_DBL, 1,
+     &   rsim))
+     &   call errquit('dntmc_gibbs:  rtdb error for rsim',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:rsimsum:'//prcfil(1:4), MT_DBL, 1,
+     &   rsimsum))
+     &   call errquit('dntmc_gibbs:  rtdb error for rsimsum',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:rsimavr:'//prcfil(1:4), MT_DBL, 1,
+     &   rsimavr))
+     &   call errquit('dntmc_gibbs:  rtdb error for rsimavr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:iacceptt:'//prcfil(1:4), MT_INT, 1
+     &   ,iacceptt))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptt',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:iacceptr:'//prcfil(1:4), MT_INT, 1
+     &   ,iacceptr))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:iacceptv:'//prcfil(1:4), MT_INT, 1
+     &   ,iacceptv))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptv',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:iacceptpr:'//prcfil(1:4), MT_INT,
+     &   1, iacceptpr))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptpr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:iacceptpi:'//prcfil(1:4), MT_INT,
+     &   1, iacceptpi))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptpi',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:number:'//prcfil(1:4), MT_INT, NOB
+     &   ,number))
+     &   call errquit('dntmc_gibbs:  rtdb error for number',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:numbersum:'//prcfil(1:4), MT_DBL,
+     &   NOB,
+     &   numbersum))
+     &   call errquit('dntmc_gibbs:  rtdb error for numbersum',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:numberavr:'//prcfil(1:4), MT_DBL,
+     &   NOB,
+     &   numberavr))
+     &   call errquit('dntmc_gibbs:  rtdb error for numberavr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:rsh:'//prcfil(1:4), MT_DBL, 1, rsh
+     &   ))call errquit('dntmc_gibbs:  rtdb error for rsh',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:rsmcstps:'//prcfil(1:4), MT_INT, 1
+     &   ,rsmcstps))
+     &   call errquit('dntmc_gibbs:  rtdb error for rsmcstps',0,
+     &   RTDB_ERR)
+
+      ncent = 0
+      Do i = 1, nmols
+        Do j = 1, natom(spc(i))
+          ncent = ncent + 1
+          Do k = 1, 3
+            coords(k, ncent) = r(i, j, k)
+          end do
+        end do
+      end do
+
+      rdim = 3*ncent
+
+      if (.not. rtdb_put(rtdb, 'dntmc:r:'//prcfil(1:4), MT_DBL, rdim,
+     &   coords))
+     &   call errquit('dntmc_gibbs:  rtdb error for r',0,
+     &   RTDB_ERR)
+
+      return
+      end
+
+C***********************************************************************
+C  End of Subroutine dntmc_copy_filertdb(prcfil, rtdb, nmols, fprefix)
+C***********************************************************************
+
+C***********************************************************************
+      Subroutine dntmc_build_prcfil(prcfil, i)
+C***********************************************************************
+      Implicit none
+
+      integer i
+      character*4 prcfil
+
+      write(prcfil(1:4), '(i4)') i 
+      if (i .le. 9) then
+         prcfil(1:3) = '000'
+      endif
+      if (i .le. 99) then
+         prcfil(1:2) = '00'
+      endif
+      if (i .le. 999) then
+         prcfil(1:1) = '0'
+      endif
+
+      return
+      end
+
+C***********************************************************************
+C  End of Subroutine dntmc_build_prcfil(prcfil, i)
+C***********************************************************************
+ 
+C***********************************************************************
+      Subroutine dntmc_write_prcfil(idmedium, groupnums, prcfil)
+C***********************************************************************
+      Implicit none
+
+#include "util_sgroup.fh"
+#include "errquit.fh"
+
+      integer i
+      integer idmedium, groupnums
+      integer groupid
+      character*4 prcfil
+
+      dimension groupnums(ngroups)
+     
+      groupid = -1
+      do i=1, ngroups
+        if (groupnums(i) .eq. idmedium) then
+          groupid = i
+        endif
+      enddo
+
+      if (groupid .eq. -1)
+     & call errquit('dntmc_gibbs:  failed to allocate idgroup',0,
+     &   GA_ERR)
+ 
+       call dntmc_build_prcfil(prcfil, groupid)
+
+      return
+      end
+
+C***********************************************************************
+C  End of Subroutine dntmc_write_prcfil(idmedium, groupnums, prcfil)
+C***********************************************************************
+
+C***********************************************************************
+      Subroutine dntmc_write_dntmc_nwchem(rtdb, nmols, prcfil)
+C***********************************************************************
+      Implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "gibbsP.fh"
+#include "rtdb.fh"
+
+      integer ncent, i, j, k, nmols, natom, spc, rdim
+      integer rtdb
+      double precision r, coords, rcm, rs
+      dimension coords(3, MXATOM*MXMOLS)
+      character*4 prcfil
+
+      COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
+     +RS(MXMOLS,MXATOM,3)
+      COMMON/NNATOMS/NATOM(MXSP)
+      COMMON/SPECIES/SPC(MXMOLS)
+
+      ncent = 0
+      Do i = 1, nmols
+        Do j = 1, natom(spc(i))
+          ncent = ncent + 1
+          Do k = 1, 3
+            coords(k, ncent) = r(i, j, k)
+          end do
+        end do
+      end do
+
+      rdim = 3*ncent
+
+      if (.not. rtdb_put(rtdb, 'dntmc:r:'//prcfil(1:4), MT_DBL, rdim,
+     &   coords))
+     &   call errquit('dntmc_gibbs:  rtdb error for r',0,
+     &   RTDB_ERR)
+
+      return
+      end
+C***********************************************************************
+C  End of Subroutine dntmc_write_dntmc_nwchem(rtdb, nmols, prcfil)
+C***********************************************************************
+
+C***********************************************************************
+      Subroutine dntmc_read_dntmc_nwchem(rtdb, nmols, prcfil)
+C***********************************************************************
+      Implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "gibbsP.fh"
+#include "rtdb.fh"
+
+      integer ncent, i, j, k, nmols, natom, spc, rdim
+      integer rtdb
+      double precision r, coords, rcm, rs
+      dimension coords(3, MXATOM*MXMOLS)
+      character*4 prcfil
+
+      COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
+     +RS(MXMOLS,MXATOM,3)
+      COMMON/NNATOMS/NATOM(MXSP)
+      COMMON/SPECIES/SPC(MXMOLS)
+
+      ncent = 0
+      Do i = 1, nmols
+        Do j = 1, natom(spc(i))
+          ncent = ncent + 1
+        end do
+      end do
+
+      rdim = 3*ncent
+
+      if (.not. rtdb_get(rtdb, 'dntmc:r:'//prcfil(1:4), MT_DBL, rdim,
+     &   coords))
+     &   call errquit('dntmc_gibbs:  rtdb error for r',0,
+     &   RTDB_ERR)
+
+      ncent = 0
+      Do i = 1, nmols
+        Do j = 1, natom(spc(i))
+          ncent = ncent + 1
+          Do k = 1, 3
+            r(i, j, k) = coords(k, ncent)
+          end do
+        end do
+      end do
+
+      return
+      end
+C***********************************************************************
+C  End of Subroutine dntmc_read_dntmc_nwchem(rtdb, nmols, prcfil)
+C***********************************************************************
+
+C***********************************************************************
+      Subroutine dntmc_readrestart(rtdb, uu, uavr, usqrd,
+     +  rsimsum, rsimavr, iacceptt, iacceptv, iacceptr, iacceptpr,
+     +  iacceptpi, rsh, prcfil, nmols, rsmcstps)
+C***********************************************************************
+      Implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "gibbsP.fh"
+#include "rtdb.fh"
+
+      double precision uu, usum, uavr, usqrdsum, usqrd
+      double precision rsim, rsimsum, rsimavr
+      double precision seed, r, numbersum, numberavr
+      double precision rmax, rmin, rcm, rs
+      integer number, iacceptt, iacceptv, iacceptr, iacceptpr, iacceptpi
+      integer rsmcstps
+      double precision rsh
+      integer rtdb
+      integer nob, nmols
+      character*4 prcfil
+
+      COMMON/RADIUS/RMIN,RSIM,RMAX
+      COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
+     +RS(MXMOLS,MXATOM,3)
+      COMMON/AVR/USUM,USQRDSUM
+      COMMON/NUMBER1/NUMBER(100)
+      COMMON/NUMBER2/NUMBERSUM(100),NUMBERAVR(100)
+      COMMON/SEEDS/SEED(1)
+
+      nob = 100
+
+      if (.not. rtdb_get(rtdb, 'dntmc:seed:'//prcfil(1:4), MT_DBL, 1,
+     &   SEED(1)))
+     &   call errquit('dntmc_gibbs:  rtdb error for seed(1)',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:uu:'//prcfil(1:4), MT_DBL, 1, UU))
+     &   call errquit('dntmc_gibbs:  rtdb error for UU',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:usum:'//prcfil(1:4), MT_DBL, 1,
+     &   usum))
+     &   call errquit('dntmc_gibbs:  rtdb error for usum',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:uavr:'//prcfil(1:4), MT_DBL, 1,
+     &   uavr))
+     &   call errquit('dntmc_gibbs:  rtdb error for uavr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:usqrdsum:'//prcfil(1:4), MT_DBL, 1
+     &   ,usqrdsum))
+     &   call errquit('dntmc_gibbs:  rtdb error for usqrdsum',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:usqrd:'//prcfil(1:4), MT_DBL, 1,
+     &   usqrd))
+     &   call errquit('dntmc_gibbs:  rtdb error for usqrd',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:rsim:'//prcfil(1:4), MT_DBL, 1,
+     &   rsim))
+     &   call errquit('dntmc_gibbs:  rtdb error for rsim',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:rsimsum:'//prcfil(1:4), MT_DBL, 1,
+     &   rsimsum))
+     &   call errquit('dntmc_gibbs:  rtdb error for rsimsum',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:rsimavr:'//prcfil(1:4), MT_DBL, 1,
+     &   rsimavr))
+     &   call errquit('dntmc_gibbs:  rtdb error for rsimavr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:iacceptt:'//prcfil(1:4), MT_INT, 1
+     &   ,iacceptt))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptt',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:iacceptr:'//prcfil(1:4), MT_INT, 1
+     &   ,iacceptr))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:iacceptv:'//prcfil(1:4), MT_INT, 1
+     &   ,iacceptv))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptv',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:iacceptpr:'//prcfil(1:4), MT_INT,
+     &   1, iacceptpr))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptpr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:iacceptpi:'//prcfil(1:4), MT_INT,
+     &   1, iacceptpi))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptpi',0,
+     &   RTDB_ERR)
+
+      call dntmc_read_dntmc_nwchem(rtdb, nmols, prcfil)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:number:'//prcfil(1:4), MT_INT, NOB
+     &   ,number))
+     &   call errquit('dntmc_gibbs:  rtdb error for number',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:numbersum:'//prcfil(1:4), MT_DBL,
+     &   NOB,
+     &   numbersum))
+     &   call errquit('dntmc_gibbs:  rtdb error for numbersum',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:numberavr:'//prcfil(1:4), MT_DBL,
+     &   NOB,
+     &   numberavr))
+     &   call errquit('dntmc_gibbs:  rtdb error for numberavr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:rsh:'//prcfil(1:4), MT_DBL, 1, rsh
+     &   ))call errquit('dntmc_gibbs:  rtdb error for rsh',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb, 'dntmc:rsmcstps:'//prcfil(1:4), MT_INT, 1
+     &   ,rsmcstps))
+     &   call errquit('dntmc_gibbs:  rtdb error for rsmcstps',0,
+     &   RTDB_ERR)
+ 
+      return
+      end
+C***********************************************************************
+C  End of Subroutine dntmc_readrestart(rtdb, uu, uavr, usqrd,
+C     +  rsimsum, rsimavr, iacceptt, iacceptv, iacceptr, iacceptpr,
+C     +  iacceptpi, rsh, prcfil, nmols, rsmcstps)
+C***********************************************************************
+
+C***********************************************************************
+      Subroutine dntmc_writerestart(rtdb, uu, uavr, usqrd,
+     +  rsimsum, rsimavr, iacceptt, iacceptv, iacceptr, iacceptpr,
+     +  iacceptpi, rsh, prcfil, nmols, rsmcstps)
+C***********************************************************************
+      Implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "gibbsP.fh"
+#include "rtdb.fh"
+
+      double precision uu, usum, uavr, usqrdsum, usqrd
+      double precision rsim, rsimsum, rsimavr
+      double precision seed, r, numbersum, numberavr
+      double precision rmin, rmax, rinc, rcm, rs
+      integer number, iacceptt, iacceptv, iacceptr, iacceptpr, iacceptpi
+      integer rsmcstps
+      double precision rsh
+      integer rtdb, i
+      integer nob, nmols
+      character*4 prcfil
+
+
+      COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
+     +RS(MXMOLS,MXATOM,3)
+      COMMON/RADIUS/RMIN,RSIM,RMAX
+      COMMON/AVR/USUM,USQRDSUM
+      COMMON/NUMBER1/NUMBER(100)
+      COMMON/NUMBER2/NUMBERSUM(100),NUMBERAVR(100)
+      COMMON/SEEDS/SEED(1)
+
+      nob = 100
+
+      if (.not. rtdb_put(rtdb, 'dntmc:seed:'//prcfil(1:4), MT_DBL, 1,
+     &   SEED(1)))
+     &   call errquit('dntmc_gibbs:  rtdb error for seed(1)',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:uu:'//prcfil(1:4), MT_DBL, 1, UU))
+     &   call errquit('dntmc_gibbs:  rtdb error for UU',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:usum:'//prcfil(1:4), MT_DBL, 1,
+     &   usum))
+     &   call errquit('dntmc_gibbs:  rtdb error for usum',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:uavr:'//prcfil(1:4), MT_DBL, 1,
+     &   uavr))
+     &   call errquit('dntmc_gibbs:  rtdb error for uavr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:usqrdsum:'//prcfil(1:4), MT_DBL, 1
+     &   ,usqrdsum))
+     &   call errquit('dntmc_gibbs:  rtdb error for usqrdsum',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:usqrd:'//prcfil(1:4), MT_DBL, 1,
+     &   usqrd))
+     &   call errquit('dntmc_gibbs:  rtdb error for usqrd',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:rsim:'//prcfil(1:4), MT_DBL, 1,
+     &   rsim))
+     &   call errquit('dntmc_gibbs:  rtdb error for rsim',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:rsimsum:'//prcfil(1:4), MT_DBL, 1,
+     &   rsimsum))
+     &   call errquit('dntmc_gibbs:  rtdb error for rsimsum',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:rsimavr:'//prcfil(1:4), MT_DBL, 1,
+     &   rsimavr))
+     &   call errquit('dntmc_gibbs:  rtdb error for rsimavr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:iacceptt:'//prcfil(1:4), MT_INT, 1
+     &   ,iacceptt))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptt',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:iacceptr:'//prcfil(1:4), MT_INT, 1
+     &   ,iacceptr))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:iacceptv:'//prcfil(1:4), MT_INT, 1
+     &   ,iacceptv))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptv',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:iacceptpr:'//prcfil(1:4), MT_INT,
+     &   1, iacceptpr))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptpr',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:iacceptpi:'//prcfil(1:4), MT_INT,
+     &   1, iacceptpi))
+     &   call errquit('dntmc_gibbs:  rtdb error for iacceptpi',0,
+     &   RTDB_ERR)
+
+      call dntmc_write_dntmc_nwchem(rtdb, nmols, prcfil)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:number:'//prcfil(1:4), MT_INT, NOB
+     &   ,number))
+     &   call errquit('dntmc_gibbs:  rtdb error for number',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:numbersum:'//prcfil(1:4), MT_DBL,
+     &   NOB,
+     &   numbersum))
+     &   call errquit('dntmc_gibbs:  rtdb error for numbersum',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:numberavr:'//prcfil(1:4), MT_DBL,
+     &   NOB,
+     &   numberavr))
+     &   call errquit('dntmc_gibbs:  rtdb error for numberavr',0,
+     &   RTDB_ERR)
+
+         RINC = (RMAX - RMIN)/DBLE(NOB)
+         RSH = RMIN
+
+         DO I = 1, NOB
+            RSH = RSH + RINC
+         ENDDO
+
+      if (.not. rtdb_put(rtdb, 'dntmc:rsh:'//prcfil(1:4), MT_DBL, 1, rsh
+     &   ))call errquit('dntmc_gibbs:  rtdb error for rsh',0,
+     &   RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, 'dntmc:rsmcstps:'//prcfil(1:4), MT_INT, 1
+     &   ,rsmcstps))
+     &   call errquit('dntmc_gibbs:  rtdb error for rsmcstps',0,
+     &   RTDB_ERR)
+
+      return
+      end
+
+C***********************************************************************
+C  End of Subroutine dntmc_writerestart(rtdb, uu, uavr, usqrd,
+C     +  rsimsum, rsimavr, iacceptt, iacceptv, iacceptr, iacceptpr,
+C     +  iacceptpi, rsh, prcfil, nmols, rsmcstps)
+C***********************************************************************
+
+
+C************************************************************************
+      Subroutine dntmc_writefiles(uu, uavr, usqrd,
+     +  rsimsum, rsimavr, iacceptt, iacceptv, iacceptr, iacceptpr,
+     +  iacceptpi, rsh, prcfil, nmols, rsmcstps, fprefix)
+C***********************************************************************
+      Implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "gibbsP.fh"
+#include "inp.fh"
+
+      double precision uu, usum, uavr, usqrdsum, usqrd
+      double precision rsim, rsimsum, rsimavr
+      double precision seed, r, numbersum, numberavr
+      double precision rmin, rmax, rinc, rcm, rs
+      integer number, iacceptt, iacceptv, iacceptr, iacceptpr, iacceptpi
+      integer rsmcstps, i, j, ir
+      integer natom, spc
+      double precision rsh
+      integer nob, nmols
+      character*4 prcfil
+      character*256 fprefix
+      character*256 fprefixcat
+
+      COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
+     +RS(MXMOLS,MXATOM,3)
+      COMMON/RADIUS/RMIN,RSIM,RMAX
+      COMMON/AVR/USUM,USQRDSUM
+      COMMON/NUMBER1/NUMBER(100)
+      COMMON/NUMBER2/NUMBERSUM(100),NUMBERAVR(100)
+      COMMON/SEEDS/SEED(1)
+      COMMON/NNATOMS/NATOM(MXSP)
+      COMMON/SPECIES/SPC(MXMOLS)
+
+      nob = 100
+
+      write(fprefixcat,'(256(a))') (' ', i=1, 256)
+      write(fprefixcat,'(3(a))')
+     &      fprefix(1:inp_strlen(fprefix)),
+     &      '.restart.',
+     &      prcfil(1:4)
+
+      OPEN(UNIT = 20,FILE = fprefixcat(1:inp_strlen(fprefixcat))
+     +    ,STATUS = 'REPLACE')
+
+C
+C      OPEN(UNIT = 20, FILE = file_prefix(1:inp_strlen(file_prefix))
+C     &    //'.restart.'//prcfil(1:4),
+C     +    STATUS = "UNKNOWN")
+
+         WRITE(20,*)SEED(1)
+         WRITE(20,*)UU
+         WRITE(20,*)USUM
+         WRITE(20,*)UAVR
+         WRITE(20,*)USQRDSUM
+         WRITE(20,*)USQRD
+         WRITE(20,*)RSIM
+         WRITE(20,*)RSIMSUM
+         WRITE(20,*)RSIMAVR
+         WRITE(20,*)IACCEPTT
+         WRITE(20,*)IACCEPTR
+         WRITE(20,*)IACCEPTV
+         WRITE(20,*)IACCEPTPR
+         WRITE(20,*)IACCEPTPI
+         WRITE(20,*)rsmcstps
+         DO I = 1, NMOLS
+            DO J = 1, NATOM(SPC(I))
+               WRITE(20,*)(R(I,J,IR), IR = 1,3)
+            ENDDO
+         ENDDO
+
+         NOB = 100
+
+         RINC = (RMAX - RMIN)/DBLE(NOB)
+         RSH = RMIN
+
+         DO I = 1, NOB
+            RSH = RSH + RINC
+            WRITE(20,*)NUMBER(I)
+            WRITE(20,*)NUMBERSUM(I)
+            WRITE(20,*)RSH,NUMBERAVR(I)
+         ENDDO
+
+         CLOSE(20)
+
+      return
+      end
+
+C***********************************************************************
+C  End of Subroutine dntmc_writefiles(uu, uavr, usqrd,
+C     +  rsimsum, rsimavr, iacceptt, iacceptv, iacceptr, iacceptpr,
+C     +  iacceptpi, rsh, prcfil, nmols, rsmcstps, fprefix)
+C*********************************************************************** 
+
+C  End of Subroutines for restart
+
+C***********************************************************************
+      SUBROUTINE dntmc_MOVE_RWEIGHT(TEMP,ACCEPTT,ACCEPTR,ACCEPTV,
+     +               ACCEPTPR,ACCEPTPI,UOLD, rtdb, nmols)
+C***********************************************************************
+C        1         2         3         4         5         6         7
+C23456789012345678901234567890123456789012345678901234567890123456789012
+
+      IMPLICIT none
+#include "gibbsP.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+
+      double precision temp  ! input
+      LOGICAL ACCEPTT        ! output
+      LOGICAL ACCEPTR        ! output
+      LOGICAL ACCEPTV        ! output
+      LOGICAL ACCEPTPR       ! output
+      LOGICAL ACCEPTPI       ! output
+      double precision uold  ! input/output
+      integer rtdb           ! input
+      integer nmols          ! input
+
+      logical task_energy
+      external task_energy
+
+      double precision r, rcm, rs
+      double precision rmin, rsim, rmax
+      double precision rclcm
+      double precision e, k, esqrd, kb, pi
+      INTEGER NATOM
+      double precision disp, alpha
+      INTEGER ROTF
+      INTEGER SPC
+      INTEGER ANDX
+      INTEGER NMIN,NCURR,NMAX
+      integer l
+      double precision seed
+      double precision rnnum
+      integer idum
+
+      double precision delta
+      double precision comp2, comp3, comp2r, comp3r, press
+      double precision rsimsq, radiuss, deltar, rnew
+      double precision voli, volf, deltavol, rnewsq
+      double precision rx, ry, rz, dist, arg, tmp, rann
+      double precision unew, deltau, beta, sdbeta, cdbeta
+      integer i, j, ir, ia1, ia2, ia3
+
+      double precision dntmc_ran3
+C Added array for configuration files
+      double precision DISTcalc(MXMOLS)
+C End added array
+      COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
+     +RS(MXMOLS,MXATOM,3)
+      COMMON/RADIUS/RMIN,RSIM,RMAX
+      COMMON/COORD2/RCLCM(3)
+      COMMON/CONSTANTS/e,k,esqrd,kb,PI
+      COMMON/NNATOMS/NATOM(MXSP)
+      COMMON/TRPS/DISP,ALPHA,ROTF
+      COMMON/SPECIES/SPC(MXMOLS)          
+      COMMON/ANDX/ANDX(MXSP,MXSP)      
+      COMMON/GRAND/NMIN,NCURR,NMAX
+      COMMON/MSTP/L
+      COMMON/SEEDS/SEED(1)
+      COMMON/RNNUMS/RNNUM(1)
+      COMMON/SEED/IDUM
+
+      DIMENSION DELTA(3)
+
+      COMP2 = 0.D+00
+      COMP3 = 0.D+00
+      COMP2R = 0.D+00
+      COMP3R = 0.D+00
+
+c Do these need to more dependant on the actual temperature 
+c of the simulation?
+      PRESS = 1.7D-05   !kcal/mole/A^3  P = 888 torr  taken from UMR data
+
+      RSIMSQ = RSIM*RSIM
+
+      ACCEPTV = .FALSE.
+
+C Save original coordinates
+
+      DO I = 1, NMOLS
+           DO J = 1, NATOM(SPC(I))
+              RS(I,J,1) = R(I,J,1)
+              RS(I,J,2) = R(I,J,2)
+              RS(I,J,3) = R(I,J,3)
+           END DO
+      END DO
+
+C Lets do translation
+
+      DO I = 1, NMOLS
+C     PICK DISPLACEMENTS ALONG X,Y,Z
+         DELTA(1) = DISP*(2.D+00*dntmc_RAN3(IDUM) - 1.D+00)
+         DELTA(2) = DISP*(2.D+00*dntmc_RAN3(IDUM) - 1.D+00)
+         DELTA(3) = DISP*(2.D+00*dntmc_RAN3(IDUM) - 1.D+00)
+         DO J = 1, NATOM(SPC(I))
+            R(I,J,1) = R(I,J,1) + DELTA(1)
+            R(I,J,2) = R(I,J,2) + DELTA(2)
+            R(I,J,3) = R(I,J,3) + DELTA(3)
+         END DO
+      END DO
+
+C Center Molecule
+
+      CALL dntmc_CLUSTERCMASS(NMOLS)
+
+      DO I = 1, NMOLS
+         DO J = 1, NATOM(SPC(I))
+            R(I,J,1) = R(I,J,1) - RCLCM(1)
+            R(I,J,2) = R(I,J,2) - RCLCM(2)
+            R(I,J,3) = R(I,J,3) - RCLCM(3)
+         END DO
+      END DO
+
+C  Get new rsim
+
+      DO I = 1, NMOLS
+         CALL dntmc_CMASS(I)
+         RX = RCM(I,1)
+         RY = RCM(I,2)
+         RZ = RCM(I,3)
+         DISTcalc(I) = RX*RX + RY*RY + RZ*RZ
+      END DO
+      DIST = DISTcalc(1)
+      DO I = 2, NMOLS
+         IF (DISTcalc(I) .gt. DIST) then
+            DIST = DISTcalc(I)
+         endif
+      enddo
+
+      rnew = DSQRT(DIST)
+
+C Reject based on volume
+
+      if ((rnew .gt. rmax).or.(rnew .lt. rmin)) goto 20
+
+C Do Metropolis on translatonal move
+
+      call dntmc_setcoords(rtdb, r, nmols, natom, spc)
+      if (.not. task_energy(rtdb)) then
+        if (.not. task_energy(rtdb)) then   ! try running the energy again
+          write(12,*) 'Energy did not converge'
+          unew = -0.5                        ! set the energy arbitrarily high - H atom
+        else
+          write(12,*) 'Energy converged on the second try'
+          if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+     $      call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
+        endif
+      else
+        if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+     $     call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
+      endif
+c      if (.not. task_energy(rtdb)) call errquit
+c     $     ('dntmc_move: energy failed',0, GEOM_ERR)
+c      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+c     $     call errquit('dntmc_move: rtdb?',0, RTDB_ERR)
+
+      write(12,*) 'coordinates with an energy evaluation'
+      DO I = 1, NMOLS  ! This should be seperated into two loops, copy and print
+         DO J = 1, NATOM(SPC(I))
+            WRITE(12,*)(R(I,J,IR),IR=1,3)
+C Added write for configuration files
+            WRITE(10,*)(R(I,J,IR),IR=1,3)
+C End Added write
+         END DO
+      END DO
+c
+c convert to kcal/mol
+c
+C Added write for configuration files
+      WRITE(10,*)'Ucalc = ', Unew,' hartree'
+      WRITE(10,*)'Rsim = ', RNEW,' Angstrom'
+
+C End added write 
+      unew = unew*627.5095D+00
+      write(12,*) 'unew = ',unew
+
+c      WRITE(12,*)'after translation from psum'
+c      WRITE(12,*)'UNEW =',UNEW
+c      WRITE(12,*)'UOLD =',UOLD
+
+      ARG = 0.D+00
+
+      DELTAU = UNEW - UOLD
+
+      ARG = DELTAU/(kb*TEMP)
+
+      TMP = ((rnew/rsim)**2.D+00)*DEXP(-ARG)
+
+c      CALL dntmc_RAN(1)
+
+      RANN = dntmc_RAN3(IDUM)
+
+c      WRITE(12,*)'TMP =',TMP
+c      WRITE(12,*)'RANN =',RANN
+      
+      IF (TMP.GE.1.D+00) GOTO 15
+
+      IF (TMP.LT.RANN) GOTO 20
+
+
+C     ACCEPT
+
+  15  CONTINUE
+
+      ACCEPTT = .TRUE.
+      UOLD = UNEW
+      rsim = rnew
+
+C  Save Coordinates
+
+      DO I = 1, NMOLS
+           DO J = 1, NATOM(SPC(I))
+              RS(I,J,1) = R(I,J,1)
+              RS(I,J,2) = R(I,J,2)
+              RS(I,J,3) = R(I,J,3)
+           END DO
+      END DO
+
+      GOTO 25
+
+C  Reject
+
+  20  CONTINUE
+
+      ACCEPTT = .FALSE.
+
+C Reload Coordinates
+
+      DO I = 1, NMOLS
+           DO J = 1, NATOM(SPC(I))
+              R(I,J,1) = RS(I,J,1)
+              R(I,J,2) = RS(I,J,2)
+              R(I,J,3) = RS(I,J,3)
+           END DO
+      END DO
+
+   25  CONTINUE
+C  Lets do rotation
+
+      DO I = 1, NMOLS
+
+C     PICK AN ANGLE
+      BETA = ALPHA*(2.D+00*dntmc_RAN3(IDUM) - 1.D+00)
+
+      SDBETA = DSIN(BETA)
+      CDBETA = DCOS(BETA)
+
+C     PICK AN AXIS ABOUT WHICH TO ROTATE MOLECULE I
+      IA1 = INT(3.D+00*dntmc_RAN3(IDUM) + 1)
+      IA2 = IA1 + 1
+      IA3 = IA1 + 2
+      IF(IA2.GT.3) IA2 = IA2 - 3
+      IF(IA3.GT.3) IA3 = IA3 - 3
+
+C     ROTATE THE MOLECULE
+
+      CALL dntmc_CMASS(I)
+
+         DO J = 1, NATOM(SPC(I))
+            COMP2 = (R(I,J,IA2) - RCM(I,IA2))
+            COMP3 = (R(I,J,IA3) - RCM(I,IA3))
+
+            COMP2R=CDBETA*COMP2+SDBETA*COMP3
+            COMP3R=-SDBETA*COMP2+CDBETA*COMP3
+
+            R(I,J,IA2)= RCM(I,IA2) + COMP2R
+            R(I,J,IA3)= RCM(I,IA3) + COMP3R
+         END DO
+      END DO
+
+C Center Molecule
+
+      CALL dntmc_CLUSTERCMASS(NMOLS)
+
+      DO I = 1, NMOLS
+         DO J = 1, NATOM(SPC(I))
+            R(I,J,1) = R(I,J,1) - RCLCM(1)
+            R(I,J,2) = R(I,J,2) - RCLCM(2)
+            R(I,J,3) = R(I,J,3) - RCLCM(3)
+         END DO
+      END DO
+
+C  Get new rsim
+
+      DO I = 1, NMOLS
+         CALL dntmc_CMASS(I)
+         RX = RCM(I,1)
+         RY = RCM(I,2)
+         RZ = RCM(I,3)
+         DISTcalc(I) = RX*RX + RY*RY + RZ*RZ
+      END DO
+      DIST = DISTcalc(1)
+      DO I = 2, NMOLS
+         IF (DISTcalc(I) .gt. DIST) then
+            DIST = DISTcalc(I)
+         endif
+      enddo
+
+      rnew = DSQRT(DIST)
+
+C Reject based on volume
+
+      if ((rnew .gt. rmax).or.(rnew .lt. rmin)) goto 35
+
+C Do Metropolis on rotation
+
+      call dntmc_setcoords(rtdb, r, nmols, natom, spc)
+      if (.not. task_energy(rtdb)) then
+        if (.not. task_energy(rtdb)) then   ! try running the energy again
+          write(12,*) 'Energy did not converge'
+          unew = -0.5                        ! set the energy arbitrarily high - H atom
+        else
+          write(12,*) 'Energy converged on the second try'
+          if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+     $      call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
+        endif
+      else
+        if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+     $     call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
+      endif
+c      if (.not. task_energy(rtdb)) call errquit
+c     $     ('dntmc_move: energy failed',0, GEOM_ERR)
+c      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+c     $     call errquit('dntmc_move: rtdb?',0, RTDB_ERR)
+
+      write(12,*) 'coordinates with an energy evaluation'
+      DO I = 1, NMOLS  ! This should be seperated into two loops, copy and print
+         DO J = 1, NATOM(SPC(I))
+            WRITE(12,*)(R(I,J,IR),IR=1,3)
+C Added write for configuration files
+            WRITE(10,*)(R(I,J,IR),IR=1,3)
+C End Added write
+         END DO
+      END DO
+c
+c convert to kcal/mol
+c
+C Added write for configuration files
+      WRITE(10,*)'Ucalc = ', Unew,' hartree'
+      WRITE(10,*)'Rsim = ', RNEW,' Angstrom'
+C End added write 
+      unew = unew*627.5095D+00
+      write(12,*) 'unew = ',unew
+
+c      WRITE(12,*)'after rotation from psum'
+c      WRITE(12,*)'UNEW =',UNEW
+c      WRITE(12,*)'UOLD =',UOLD
+
+      DELTAU = UNEW - UOLD
+
+      ARG = DELTAU/(kb*TEMP)
+
+      TMP = ((rnew/rsim)**2.D+00)*DEXP(-ARG)
+
+
+      RANN = dntmc_RAN3(IDUM)
+
+      IF (TMP.GE.1.D+00) GOTO 30 
+
+      IF (TMP.LT.RANN) GOTO 35
+
+C Accept
+   30 CONTINUE
+
+      ACCEPTR = .TRUE.
+      UOLD = UNEW
+      RSIM = RNEW
+
+C  Save Coordinates
+
+      DO I = 1, NMOLS
+           DO J = 1, NATOM(SPC(I))
+              RS(I,J,1) = R(I,J,1)
+              RS(I,J,2) = R(I,J,2)
+              RS(I,J,3) = R(I,J,3)
+           END DO
+      END DO
+
+      GOTO 40
+
+C  Reject
+   35 CONTINUE
+
+      ACCEPTR = .FALSE.
+
+C  Reload Coordinates
+
+      DO I = 1, NMOLS
+           DO J = 1, NATOM(SPC(I))
+              R(I,J,1) = RS(I,J,1)
+              R(I,J,2) = RS(I,J,2)
+              R(I,J,3) = RS(I,J,3)
+           END DO
+      END DO
+
+   40 CONTINUE
+C  Finish up
+
+C Added write for configuration files
+      DO I = 1, NMOLS  ! This should be seperated into two loops, copy and print
+         DO J = 1, NATOM(SPC(I))
+            WRITE(11,*)(R(I,J,IR),IR=1,3)
+         enddo
+      enddo
+         WRITE(11,*)'Ucalc = ',(Uold/627.5095D+00),' hartree'
+         WRITE(11,*)'Rsim = ',rsim,' Angstrom'
+C  End added write
+      RETURN
+      END
+C***********************************************************************
+C  End of SUBROUTINE dntmc_MOVE_RWEIGHT(TEMP,ACCEPTT,ACCEPTR,ACCEPTV,
+C     +               ACCEPTPR,ACCEPTPI,UOLD, rtdb, nmols)
+C***********************************************************************
+
 
 C***********************************************************************
       SUBROUTINE dntmc_MOVE(TEMP,ACCEPTT,ACCEPTR,ACCEPTV,ACCEPTPR
@@ -1455,7 +3086,9 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       integer i, j, ir, ia1, ia2, ia3
 
       double precision dntmc_ran3
-
+C Added array for configuration files
+      double precision DISTcalc(MXMOLS)
+C End added array
       COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
      +RS(MXMOLS,MXATOM,3)
       COMMON/RADIUS/RMIN,RSIM,RMAX
@@ -1697,11 +3330,32 @@ c     $     call errquit('dntmc_move: rtdb?',0, RTDB_ERR)
       DO I = 1, NMOLS  ! This should be seperated into two loops, copy and print
          DO J = 1, NATOM(SPC(I))
             WRITE(12,*)(R(I,J,IR),IR=1,3)
+C Added write for configuration files
+            WRITE(10,*)(R(I,J,IR),IR=1,3)
+C End Added write
          END DO
       END DO
 c
 c convert to kcal/mol
 c
+C Added write for configuration files
+      WRITE(10,*)'Ucalc = ', Unew,' hartree'
+      WRITE(10,*)'Rsim = ', RSIM,' Angstrom'
+      DO I = 1, NMOLS
+         CALL dntmc_CMASS(I)
+         RX = RCM(I,1)
+         RY = RCM(I,2)
+         RZ = RCM(I,3)
+         DISTcalc(I) = RX*RX + RY*RY + RZ*RZ
+      END DO 
+      DIST = DISTcalc(1)
+      DO I = 2, NMOLS
+         IF (DISTcalc(I) .gt. DIST) then
+            DIST = DISTcalc(I)
+         endif
+      enddo
+      WRITE(10,*)'Rsim (Calculated) = ',DSQRT(DIST),' Angstrom'
+C End added write 
       unew = unew*627.5095D+00
       write(12,*) 'unew = ',unew
 
@@ -1887,11 +3541,32 @@ c     $     call errquit('dntmc_move: rtdb?',0, RTDB_ERR)
       DO I = 1, NMOLS  ! This should be seperated into two loops, copy and print
          DO J = 1, NATOM(SPC(I))
             WRITE(12,*)(R(I,J,IR),IR=1,3)
+C Added write for configuration files
+            WRITE(10,*)(R(I,J,IR),IR=1,3)
+C End Added write
          END DO
       END DO
 c
 c convert to kcal/mol
 c
+C Added write for configuration files
+      WRITE(10,*)'Ucalc = ', Unew,' hartree'
+      WRITE(10,*)'Rsim = ', RSIM,' Angstrom'
+      DO I = 1, NMOLS
+         CALL dntmc_CMASS(I)
+         RX = RCM(I,1)
+         RY = RCM(I,2)
+         RZ = RCM(I,3)
+         DISTcalc(I) = RX*RX + RY*RY + RZ*RZ
+      END DO 
+      DIST = DISTcalc(1)
+      DO I = 2, NMOLS
+         IF (DISTcalc(I) .gt. DIST) then
+            DIST = DISTcalc(I)
+         endif
+      enddo
+      WRITE(10,*)'Rsim (Calculated) = ',DSQRT(DIST),' Angstrom'
+C End added write 
       unew = unew*627.5095D+00
       write(12,*) 'unew = ',unew
 
@@ -1953,6 +3628,29 @@ c               WRITE(12,*)(R(I,J,IR),IR=1,3)
 
   22  CONTINUE
 
+C Added write for configuration files
+      DO I = 1, NMOLS  ! This should be seperated into two loops, copy and print
+         DO J = 1, NATOM(SPC(I))
+            WRITE(11,*)(R(I,J,IR),IR=1,3)
+         enddo
+      enddo
+      DO I = 1, NMOLS
+         CALL dntmc_CMASS(I)
+         RX = RCM(I,1)
+         RY = RCM(I,2)
+         RZ = RCM(I,3)
+         DISTcalc(I) = RX*RX + RY*RY + RZ*RZ
+      END DO
+      DIST = DISTcalc(1)
+      DO I = 2, NMOLS
+         IF (DISTcalc(I) .gt. DIST) then
+            DIST = DISTcalc(I)
+         endif
+      enddo
+         WRITE(11,*)'Ucalc = ',(Uold/627.5095D+00),' hartree'
+         WRITE(11,*)'Rsim = ',rsim,' Angstrom'
+         WRITE(11,*)'Rsim (Calculated) = ',DSQRT(DIST),' Angstrom'
+C  End added write
       RETURN
       END
       
@@ -2977,7 +4675,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
          DO I = 1, NOB
             NUMBER(I) = 0
          END DO
-      ENDIF
+      endif
 
       I = NINT(INCR*100.D+00)
 
@@ -2985,7 +4683,7 @@ c      WRITE(12,*)'RSIM =',RSIM
 c      WRITE(12,*)'INCR =',INCR
 c      WRITE(12,*)'I =',I
 
-      NUMBER(I) = NUMBER(I) + 1
+        NUMBER(I) = NUMBER(I) + 1
 
 c      WRITE(12,*)'NUMBER(',I,') =',NUMBER(I)
 
@@ -2993,7 +4691,7 @@ c      WRITE(12,*)'NUMBER(',I,') =',NUMBER(I)
       END
 
 C***********************************************************************
-      SUBROUTINE dntmc_NUMBERAVERAGE(L)
+      SUBROUTINE dntmc_NUMBERAVERAGE(L,temp,rweight)
 C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
@@ -3004,11 +4702,16 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
 
       integer number
       double precision NUMBERAVR,NUMBERSUM
-
+      double precision rb, testme
       integer nob, i
+      double precision e,k,esqrd,kb,PI    
+      double precision temp
+      logical rweight 
 
       COMMON/NUMBER1/NUMBER(100)
       COMMON/NUMBER2/NUMBERSUM(100),NUMBERAVR(100)
+      COMMON/DIST1/RB(100),TESTME(100,2000)
+      COMMON/CONSTANTS/e,k,esqrd,kb,PI
 
       NOB = 100
 
@@ -3019,10 +4722,29 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
         END DO
       ENDIF
 
+      if (rweight) then
+        DO I = 1, NOB
+          NUMBERSUM(I) = DBLE(NUMBER(I))/RB(I)**2.D+00
+          if (i .gt. 1) then
+            NUMBERSUM(I) = NUMBERSUM(I) + NUMBERSUM(I-1)
+          endif
+        enddo
+        DO I = 1, NOB
+          NUMBERSUM(I) = NUMBERSUM(I)/NUMBERSUM(NOB)
+          NUMBERSUM(I) = NUMBERSUM(I)*4.D+00*PI*RB(I)**2.D+00
+          NUMBERSUM(I) = NUMBERSUM(I)*DEXP(-1.7D-05*4.D+00/3.D+00*PI
+     &    *(RB(I)**3.D+00 - RB(NOB)**3.D+00)/kb/TEMP)
+          NUMBERAVR(I) = NUMBERSUM(I)
+        ENDDO
+      else   
       DO I = 1, NOB
-         NUMBERSUM(I) = NUMBERSUM(I) + DBLE(NUMBER(I))
+C  Don't believe this second sum is needed
+C         NUMBERSUM(I) = NUMBERSUM(I) + DBLE(NUMBER(I))
+         NUMBERSUM(I) = DBLE(NUMBER(I))
+C  End Corrected NUMERSUM
          NUMBERAVR(I) = NUMBERSUM(I)/DBLE(L)
       END DO
+      endif
 
       RETURN
       END
@@ -3516,7 +5238,8 @@ C
 
       Rest = 0.D+00
             
-      NPTS = NOB - 1
+C      NPTS = NOB - 1
+       NPTS = NOB   
 c      write(12,*) 'in dntmc_ranger npts is ',npts
 
 c    storing distribution based on volume
@@ -3667,7 +5390,8 @@ c           write(12,*) 'INSIDE J IF with JSTAR of ',jstar
       END
 
 C***********************************************************************
-      SUBROUTINE dntmc_AVERAGEDIST(NOB,NNODES,PERCENT)
+C  Added NDA_OLD array
+      SUBROUTINE dntmc_AVERAGEDIST(NOB,NNODES,PERCENT,nda_old)
 C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
@@ -3678,6 +5402,10 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       integer nob, nnodes ! input parameters
       double precision percent     ! output
       integer i, j, jstar
+C Added variables
+      double precision nda_old
+      dimension nda_old(100)
+C End Added variables
       
       COMMON/DIST1/RB(100),TESTME(100,2000)
       COMMON/DIST2/NDA(100),NDSIG(100)
@@ -3685,14 +5413,20 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
 
 C    initialize all values to zero
 
-      DO J = 1, NOB - 1
+c  prefer to do NOB  
+c      DO J = 1, NOB - 1
+       DO J = 1, NOB
          NDA(J) = 0.D+00
          NDSIG(J) = 0.D+00
+C  Added initialization of nda_old
+         nda_old(J) = 0.D+00
+C  End added initialization
       ENDDO
 
 C    find average for each bin across all nodes
 
-      DO J = 1, NOB - 1
+C      DO J = 1, NOB - 1
+       DO J = 1, NOB
          NDSUM = 0.D+00
          DO I = 1, NNODES
             NDSUM = NDSUM + TESTME(J,I)
@@ -3702,31 +5436,46 @@ C    find average for each bin across all nodes
 
 C    find variance for each bin across all nodes
 
-      DO J = 1, NOB - 1
+C      DO J = 1, NOB - 1
+       DO J = 1, NOB
          NDSIGSUM = 0.D+00
-         DO I = 1, NNODES
-            NDSIGSUM = NDSIGSUM + (TESTME(J,I) - NDA(J))**2
-         ENDDO
-         NDSIG(J) = DSQRT(NDSIGSUM/DBLE(NNODES))
+C  Change the variance calculation to use nda_old
+C         DO I = 1, NNODES
+C            NDSIGSUM = NDSIGSUM + (TESTME(J,I) - NDA(J))**2
+C         ENDDO
+         NDSIGSUM = (NDA(J) - NDA_OLD(J))**2
+C        NDSIG(J) = DSQRT(NDSIGSUM/DBLE(NNODES))
+         NDSIG(J) = NDSIGSUM
 c        NDSIG(J) = DSQRT(NDSIGSUM/DBLE(NNODES - 1))
-         WRITE(6,*)RB(J),NDA(J),NDSIG(J)
+C         WRITE(6,*)RB(J),NDA(J),NDSIG(J)
       ENDDO
+C  Change from maximum variance to average
+         NDSIGSUM = 0.D+00
+      Do J = 1, NOB
+         NDSIGSUM = NDSIGSUM + NDSIG(J)
+      enddo
+         NDSIGSUM = DSQRT(NDSIGSUM/DBLE(NOB))
+C  End changes to average variance
 
+C  Don't use maximum error
 C     FIND MAXIMUM ERROR ALONG AVERAGE DISTRIBUTION
-      
-      NDSGMX = 0.D+00
-      JSTAR = 0
-
-      DO J = 2, NOB - 1
-         IF((NDSIG(J).GT.NDSIG(J-1)).AND.(NDSIG(J).GT.NDSGMX))THEN
-            NDSGMX = NDSIG(J)
-            JSTAR = J
-         ENDIF
-      END DO
-
-      WRITE(6,*)'Maximum Error =',NDSGMX,' at J =',JSTAR
-
-      PERCENT = (NDSGMX/NDA(JSTAR))*100.D+00
+C      
+C      NDSGMX = 0.D+00
+C      JSTAR = 0
+C
+C      DO J = 2, NOB - 1
+C         IF((NDSIG(J).GT.NDSIG(J-1)).AND.(NDSIG(J).GT.NDSGMX))THEN
+C            NDSGMX = NDSIG(J)
+C            JSTAR = J
+C         ENDIF
+C      END DO
+C
+C      WRITE(6,*)'Maximum Error =',NDSGMX,' at J =',JSTAR
+C
+C      PERCENT = (NDSGMX/NDA(JSTAR))*100.D+00
+c  Change Percent to an average error as a percentage
+      PERCENT = NDSIGSUM*100.D+00
+C  End Change
 
 c     WRITE(6,*)'R =',RB(JSTAR),'NDA =',NDA(JSTAR),' Jstar =',JSTAR
 c     WRITE(6,*)'Percent of max error at value =',PERCENT,' %'

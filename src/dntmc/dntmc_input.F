@@ -1,5 +1,5 @@
       subroutine dntmc_input(rtdb)
-C     $Id: dntmc_input.F,v 1.3 2006-09-26 17:02:53 windus Exp $
+C     $Id: dntmc_input.F,v 1.4 2007-05-21 20:53:52 windus Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -8,9 +8,12 @@ C     $Id: dntmc_input.F,v 1.3 2006-09-26 17:02:53 windus Exp $
 c
       integer rtdb  ! [input]
 c
+      integer mprnt, procrestart
+      integer node
       character*255 test
       integer nspecies, mcsteps
       double precision temp, rmin, rmax
+      double precision disp, alpha
       integer i, l_nmol, k_nmol, k_spec, l_spec
 C
 C  Some defaults
@@ -106,6 +109,80 @@ c
 c
 c  No more keywords to check against
 c
+      else if (inp_compare(.false.,'norestart', test)) then
+c
+c  Turn off the production of restart information
+c
+        if (.not. rtdb_put(rtdb, 'dntmc:norestart', MT_INT, 1,
+     &     0)) call errquit
+     &     ('dntmc_input: rtdb put failed for norestart', 0,
+     &     RTDB_ERR)
+c
+      else if (inp_compare(.false.,'mprnt', test)) then
+c
+c  MPRNT int <value> (frequency of restart write)
+c
+        if (.not. inp_i(mprnt)) call errquit
+     &       ('dntmc_input: mprnt <mprnt>', 0, INPUT_ERR)
+        if (.not. rtdb_put(rtdb, 'dntmc:mprnt', MT_INT, 1,
+     &       mprnt)) call errquit
+     &     ('dntmc_input: rtdb put failed for mprnt', 0, RTDB_ERR)
+
+      else if (inp_compare(.false.,'procrestart', test)) then
+c
+c  procrestart int <ngroups> to build restart rtdb
+c
+
+       if (.not. inp_i(procrestart)) call errquit
+     &    ('dntmc_input: procrestart <ngroups>', 0, INPUT_ERR)
+       if (.not. rtdb_put(rtdb, 'dntmc:procrestart', MT_INT, 1,
+     &     procrestart)) call errquit
+     &     ('dntmc_input: rtdb put failed for procrestart', 0,
+     &     RTDB_ERR)
+
+      else if (inp_compare(.false.,'tdisp', test)) then
+c
+c  tdisp double <dist> to define translational displ.
+c
+
+       if (.not. inp_f(disp)) call errquit
+     &    ('dntmc_input: tdist <displacement>', 0, INPUT_ERR)
+       if (.not. rtdb_put(rtdb, 'dntmc:disp', MT_DBL, 1,
+     &     disp)) call errquit
+     &     ('dntmc_input: rtdb put failed for tdisp', 0,
+     &     RTDB_ERR)
+
+      else if (inp_compare(.false.,'rdisp', test)) then
+c
+c  rdisp double <dist> to define rotational displ.
+c
+
+       if (.not. inp_f(alpha)) call errquit
+     &    ('dntmc_input: rdist <displacement>', 0, INPUT_ERR)
+       if (.not. rtdb_put(rtdb, 'dntmc:alpha', MT_DBL, 1,
+     &     alpha)) call errquit
+     &     ('dntmc_input: rtdb put failed for rdisp', 0,
+     &     RTDB_ERR)
+
+      else if (inp_compare(.false.,'rweight', test)) then
+c
+c  rweight keywork to allow rsim weighting
+c
+      if (.not. rtdb_put(rtdb, 'dntmc:rweight', MT_LOG, 1, .true.))
+     &  call errquit('dntmc_input: rtdb put failed for rweight',0,
+     &  RTDB_ERR)
+
+       else if (inp_compare(.false.,'node', test)) then
+
+c
+c  node keyword to place starting structure along rsim
+c
+       if (.not. inp_i(node)) call errquit
+     &    ('dntmc_input: node <int>', 0, INPUT_ERR)
+      if (.not. rtdb_put(rtdb, 'dntmc:node', MT_INT, 1, node))
+     &  call errquit('dntmc_input: rtdb put failed for node',0,
+     &  RTDB_ERR)
+
       else
         call errquit('dntmc_input: unrecognized directive', 0, 
      &                INPUT_ERR)

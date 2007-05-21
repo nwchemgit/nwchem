@@ -1,4 +1,4 @@
-C $Id: dntmc_setgeom.F,v 1.3 2006-09-26 17:02:53 windus Exp $
+C $Id: dntmc_setgeom.F,v 1.4 2007-05-21 20:53:52 windus Exp $
 c
 c  Sets up NWChem and the DNTMC geometry information from the input
 c  information.  When come out of here should have a geometry in the rtdb
@@ -288,13 +288,16 @@ C
       double precision rinit(mxmols, mxatom, 3) ! [input/output] initial dntmc coordinates
       double precision mlocal(natom) ! [input] masses of the species
       double precision m(mxsp, mxatom) ! [input/output] masses for dntmc
+C Convert from au to Angstroms
+      double precision scale
 c
       integer i
 c
+      scale = 0.52917720832D+00
       do i = 1, natom
-         rinit(iloc, i, 1) = clocal(1, i)
-         rinit(iloc, i, 2) = clocal(2, i)
-         rinit(iloc, i, 3) = clocal(3, i)
+         rinit(iloc, i, 1) = clocal(1, i)*scale
+         rinit(iloc, i, 2) = clocal(2, i)*scale
+         rinit(iloc, i, 3) = clocal(3, i)*scale
          m(iloc, i) = mlocal(i)
       enddo
 c
@@ -424,18 +427,21 @@ c
       integer spc(mxmols) ! input - species numbers
       integer ncent ! input - total number of atoms
       double precision coords(3, ncent) ! output - NWChem coordinates
+C Convert from Angstroms to au
+      double precision scale
 c
       integer i, j, nat
 c
 c      write(6,*) 'inside dntcoordtonwchem and coords are'
+      scale = 0.52917720832D+00
       nat = 0
       do i= 1, nmols
          do j= 1, natom(spc(i))
 c           write(6,*) 'natom, spc(j), j ', natom(spc(j)), spc(j), j
             nat = nat + 1
-            coords(1, nat) = r(i, j, 1)
-            coords(2, nat) = r(i, j, 2)
-            coords(3, nat) = r(i, j, 3)
+            coords(1, nat) = r(i, j, 1)/scale
+            coords(2, nat) = r(i, j, 2)/scale
+            coords(3, nat) = r(i, j, 3)/scale
 c           write(6,*) r(i, j, 1),r(i, j, 2),r(i, j, 3)
          enddo
       enddo
