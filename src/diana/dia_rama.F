@@ -1,6 +1,6 @@
       subroutine dia_rama()
 c
-c $Id: dia_rama.F,v 1.4 2007-05-11 14:46:50 d3j191 Exp $
+c $Id: dia_rama.F,v 1.5 2007-05-21 17:58:25 d3j191 Exp $
 c
       implicit none
 c
@@ -44,18 +44,24 @@ c
       external dia_torsion
 c
       real*8 phi,psi,rhb1,rhb2,dist
-      integer i,j,k,ihb1,ihb2
+      integer i,j,k,ihb1,ihb2,ndxram
       logical lphi,lpsi
 c
       write(filram,1000) strram(1:index(strram,' ')-1),
-     + me,'.ram '
+     + '.ram '
+ 1000 format(a,a)
       open(unit=lfnram,file=filram(1:index(filram,' ')-1),
      + form='formatted',status='unknown')
       rewind(lfnram)
+      ndxram=me*nfrdim*(73*nsgm+20)
+      call fseek(lfnram,ndxram,0)
       do 1 k=1,nfrme
- 1000 format(a,i5.5,a)
+c      write(filram,1000) strram(1:index(strram,' ')-1),
+c     + me*nfrdim+k,'.ram '
+c 1000 format(a,i5.5,a)
       call dia_rama2(iram,xtrj(1,1,k),trt(1,k))
     1 continue
+c
       close(unit=lfnram)
 c
       return
@@ -83,21 +89,18 @@ c
       write(lfnram,1000) t(1),nsgm
  1000 format(f12.6,i7)
 c
+      rhb1=0.0d0
+      rhb2=0.0d0
+c
       do 101 i=1,nsgm
       lphi=iram(i,1).gt.0
       lpsi=iram(i,5).gt.0
       phi=0.0d0
       psi=0.0d0
-c
-      rhb1=0.0d0
-      rhb2=0.0d0
-      ihb1=0
-      ihb2=0
-c
-      if(lphi) phi=dia_torsion(x,msa,
+      if(lphi) phi=dia_torsion(dbl_mb(i_xdat),msa,
      + dbl_mb(i_wdat),mwm,mwa,
      + iram(i,1),0,iram(i,2),0,iram(i,3),0,iram(i,4),0)
-      if(lpsi) psi=dia_torsion(x,msa,
+      if(lpsi) psi=dia_torsion(dbl_mb(i_xdat),msa,
      + dbl_mb(i_wdat),mwm,mwa,
      + iram(i,2),0,iram(i,3),0,iram(i,4),0,iram(i,5),0)
       ihb1=0
@@ -147,9 +150,11 @@ c
       endif
       endif
 c
+      if(me.eq.0) then
       if(lphi.or.lpsi) then
       write(lfnram,1001) i,lphi,lpsi,phi,psi,ihb1,ihb2,rhb1,rhb2
  1001 format(i7,1x,2l1,2f12.6,2i7,2f12.6)
+      endif
       endif
   101 continue
 c

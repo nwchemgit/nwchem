@@ -160,9 +160,10 @@ c
 c     broadcast charges
 c
       if(np.gt.1) then
-      call ga_brdcst(mag_d02,ltop,ma_sizeof(mt_log,1,mt_byte),0)
+      call ga_brdcst(mag_d01,ltop,ma_sizeof(mt_log,1,mt_byte),0)
       if(ltop) then
-      call ga_brdcst(mag_d01,qs,nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
+      call ga_brdcst(mag_d03,qs,nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
+      call ga_brdcst(mag_d03,iram,7*msgm*ma_sizeof(mt_int,1,mt_byte),0)
       endif
       endif
 c
@@ -186,6 +187,7 @@ c
       integer nas,nbs,num
       character*5 sname,aname
       character*80 string
+      integer ibroad(10)
 c
       ltop=.false.
       nsgm=0
@@ -267,7 +269,15 @@ c
       msgm=nsgm
       ltop=.true.
       endif
-  999 continue      
+  999 continue
+c
+      if(np.gt.1) then
+      ibroad(1)=nsgm
+      ibroad(2)=msgm
+      call ga_brdcst(mag_d02,ibroad,2*ma_sizeof(mt_int,1,mt_byte),0)
+      nsgm=ibroad(1)
+      msgm=ibroad(2)
+      endif
 c
       return
       end
