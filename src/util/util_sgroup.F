@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.10 2007-02-14 17:10:49 windus Exp $
+C$Id: util_sgroup.F,v 1.11 2007-05-21 20:52:55 windus Exp $
       logical function util_sgstart(rtdb)
       implicit none
 #include "stdio.fh"
@@ -6,12 +6,20 @@ C$Id: util_sgroup.F,v 1.10 2007-02-14 17:10:49 windus Exp $
 #include "rtdb.fh"
 #include "util_sgroup.fh"
 #include "mafdecls.fh"
+C Added includes
+#include "inp.fh"
+C  End Added includes
       integer rtdb
 c
       integer nprocs, nsize, midproc, proclist(1000)
       integer i,errout
       character*256 grtdbname
       logical lstatus
+
+C added strings for fname definition
+      character*256 permdir
+      character*256 fprefix
+C End added string
 c
 c Read number of subgroups from input
 c
@@ -30,8 +38,22 @@ c
 c
 c     preliminary rtdb cloning
 c
+C  Trying to fix the 36 char cutoff for fname
       if (.not. rtdb_getfname(rtdb, rtdb_fname)) call 
      *     errquit('rtdb_fname call failed',0,0)
+C  Added to overcome 36 character limit
+      write(permdir,'(256(a))') (' ', i=1,256)
+      write(fprefix,'(256(a))') (' ', i=1,256)
+      if(.not. rtdb_cget(rtdb,'permanent_dir',1,permdir))
+     &     call errquit('rtdb get permanent_dir failed',0,0)
+      if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
+     &     call errquit('rtdb get file_prefix failed',0,0)
+      write(rtdb_fname,'(a,a,a,a)')
+     &  permdir(15:inp_strlen(permdir)),
+     &  '/',
+     &  fprefix(1:inp_strlen(fprefix)),
+     &  '.db'
+C  End of Added fix
       if (.not. rtdb_close(rtdb, 'keep')) call errquit(
      *     ' failed to close rtdb for sg ',0,0)
 c
@@ -112,6 +134,7 @@ c
       
       return
       end
+C  Added def_group argument
       subroutine util_sgrtdb(rtdb,rtdbname,grtdbname)
       implicit none
       integer rtdb
@@ -127,6 +150,7 @@ c
       character*10 pname
       integer util_system
       external util_system
+      external util_file_copy
 c
       write(luout,*) 'util_sgrtdb start'
 c
@@ -141,10 +165,17 @@ c
 c     assuming we are already in subgroups ...
 c     am I proc 0 of a subgroup ?
 c
+         write(0,*)'Entering util_sgrtdb if(node 0)',ga_nodeid(),
+     &   ga_pgroup_get_default()
+         call flush(0)
          if(ga_nodeid().eq.0) then
 c
 c     test if world rtdb is around
 c
+            write(6,*)'world rtdbname is ',
+     &      rtdbname(1:inp_strlen(rtdbname))
+            write(6,*)'group rtdbname is ',
+     &       scratchrtdb(1:inp_strlen(scratchrtdb))
             inquire(file=rtdbname(1:inp_strlen(rtdbname)),
      *       exist=status)
             if(.not.status) then
@@ -166,14 +197,32 @@ c
      *           rtdbname(1:inp_strlen(rtdbname)),
      *           scratchrtdb(1:inp_strlen(scratchrtdb))
             cmd = cmd1
-            if (util_system (cmd) .eq. 0) then
-               Write (0,*) cmd, ' OK'
+            call util_file_copy(rtdbname(1:inp_strlen(rtdbname)),
+     &        scratchrtdb(1:inp_strlen(scratchrtdb)))
+C  Trying to remove system call (Crashes MVAPICH)
+            write (0,*)'rtdb copied',ga_nodeid(),ga_pgroup_get_default()
+C  Original code
+C            if (util_system (cmd) .eq. 0) then
+C               Write (0,*) cmd, ' OK'
+C  Added Code
+            inquire(file=scratchrtdb(1:inp_strlen(scratchrtdb)),
+     *       exist=status)
+               if (status) then
+               Write (0,*)'OK', cmd
                Write (6,*) 'cmd done'
-            else
-               Write (0,*) cmd, ' failed '
+               else
+               Write (0,*)'Failed', cmd
+               Write (6,*) 'cmd failed'
                call errquit('util_sgrtdb: problem with system call',
      *              0, 0)
-            endif
+               endif
+C  Original code
+C            else
+C               Write (0,*) cmd, ' failed '
+C               call errquit('util_sgrtdb: problem with system call',
+C     *              0, 0)
+C            endif
+C  End System Call fix
          endif
          grtdbname=scratchrtdb
       return
