@@ -36,8 +36,6 @@ c     rest of routine : n_per_rec, natoms
       double precision tmat(*)
 
 czora...
-      double precision AmatHartree(n_per_rec)
-      double precision AmatNuclear(n_per_rec)
-      double precision AmatH(n_per_rec,ipol)
-      double precision AmatN(n_per_rec,ipol)
-      double precision AmatK(n_per_rec,ipol)
+      double precision amat_hart(n_per_rec)
+      double precision amat_nucl(n_per_rec)
+      double precision amat_zora(n_per_rec,ipol)

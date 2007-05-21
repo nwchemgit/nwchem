@@ -1,19 +1,20 @@
       Subroutine grid_quadv0b(
-     ,     ictr_buf,qxyz, qwght, nqpts,rad,grad,
-     .     g_dens, ncoef_max, natoms, 
-     &                       rho_int, nqtot, 
-     &                       iniz, ifin, rho, delrho, 
-     &                       hess,  xyz,iscr,nscr,
-     &                       expo, ccoef, Bmat, Fmat, 
-     &                       Pmat, rq, rdens_atom,  cetobfr, 
-     ,     ibf_ao,bas_cent_info,bas_cset_info,iscratch,docset,
-     ,     rchi_atom,rdelchi_atom,
-     ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,do_nmrks_r,tmat,
-     ,     l3d,triplet,
-     .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
+     &     ictr_buf,qxyz, qwght, nqpts,rad,grad,
+     &     g_dens, ncoef_max, natoms, 
+     &     rho_int, nqtot, 
+     &     iniz, ifin, rho, delrho, 
+     &     hess,  xyz,iscr,nscr,
+     &     expo, ccoef, Bmat, Fmat, 
+     &     Pmat, rq, rdens_atom,  cetobfr, 
+     &     ibf_ao,bas_cent_info,bas_cset_info,iscratch,docset,
+     &     rchi_atom,rdelchi_atom,
+     &     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
+     &     nmat, do_scf, do_cpks_l, do_cpks_r,do_nmrks_r,tmat,
+     &     l3d,triplet,
+     &     bas_cent_xinfo,bas_cset_xinfo,docsetx, 
+     &     tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.50 2007-05-15 19:18:00 niri Exp $
+c$Id: grid_quadv0b.F,v 1.51 2007-05-21 16:47:35 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -27,6 +28,10 @@ c
 #include "grid_quad.fh"
 #include "grid_sic.fh"
 #include "dftps.fh"
+
+czora...
+#include "zora.fh"
+#include "geom.fh"
 
       integer  nqpts    ! [in] no. grid points  to be processed
       integer  ictr_buf ! [in] ctr of grid
@@ -52,12 +57,19 @@ c
 
       double precision tau(*), Mmat(*)
 
-C
+czora...
+      integer nodeid
+      integer igrid
+      double precision fullPot, scaledPot, zoraCorr
+      logical grad_zora
+      grad_zora = .false.
+      grad_zora = grad .or. do_zora
+
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if(nqpts.eq.0) return
-      if (GRAD) then
+      if (grad_zora) then
          maxdbas = 1
       else
          maxdbas = 0
@@ -94,19 +106,16 @@ c
      &     lchi_ao, ichi_ao))
      &     call errquit('grid_quadv0b: cannot allocate chi_ao',0,
      &       MA_ERR)
-      if(GRAD) then
+      if( grad_zora ) then
          if (.not.MA_Push_Get(mt_dbl, 3*nqpts*mbf_ao,
-     .        'delchi_ao', ldelchi_ao, idelchi_ao)) then
-
-             call errquit('gridquadv0b: cant alloc delchi_ao',0,
-     &       0)
-
+     &      'delchi_ao', ldelchi_ao, idelchi_ao)) then
+           call errquit('gridquadv0b: cant alloc delchi_ao',0,0)
         endif
       endif
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicinit(nqpts,
-     ,        l_vect1,i_vect1, ldelrho_sig,idelrho_sig))
-     ,        call errquit(' grid_quadv0b: grid_sicinit failed',0,
+     &        l_vect1,i_vect1, ldelrho_sig,idelrho_sig))
+     &        call errquit(' grid_quadv0b: grid_sicinit failed',0,
      &       CALC_ERR)
       endif
 c     
@@ -123,12 +132,12 @@ c     get reduced Xi(r) and dXi(r) over atoms
 c     
       call util_rmsatbf(nqpts, natoms,iniz,ifin,
      ,     dbl_mb(ichi_ao),rchi_atom)
-      if(grad) 
+      if( grad_zora ) 
      .     call util_rmsatbf(3*nqpts, natoms,iniz,ifin,
      ,     dbl_mb(idelchi_ao),rdelchi_atom)
       call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
-     ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
+     ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad_zora,
      ,     ipol,iscratch)
          if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
      &        'Dmat', lDmat,iDmat))
@@ -142,7 +151,7 @@ c
             call xc_rhogen(0,
      T        tol_rho,AO_bas_han,g_dens,nbf_ao_mxnbf_ce, 
      N        natoms, 1,1,1,
-     I        ipol, nqpts, nbf_ao, mbf_ao, GRAD, (ipol*(ipol+1))/2,
+     I        ipol, nqpts, nbf_ao, mbf_ao, grad, (ipol*(ipol+1))/2,
      F        Fmat, Pmat, Bmat, dbl_mb(idmat),
      &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
      &           ibf_ao, iniz, ifin, rho, delrho, 
@@ -163,7 +172,7 @@ c
             call xc_rhogen(1,
      T           tol_rho, AO_bas_han, g_dens, nbf_ao_mxnbf_ce, 
      N           natoms, 1,1, nmat+1,
-     I           ipol, nqpts, nbf_ao, mbf_ao, GRAD, ipol,
+     I           ipol, nqpts, nbf_ao, mbf_ao, grad, ipol,
      F           Fmat, Pmat, Bmat, dbl_mb(idmat),
      &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
      &           ibf_ao, iniz, ifin, rho, delrho, 
@@ -211,7 +220,7 @@ c     add beta to 1 to get alpha+beta
       if (odftps) call pstat_on(ps_excf)
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
      &     Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
-     &     GRAD, .false., 0d0, do_cpks_l .or. do_cpks_r, 
+     &     grad, .false., 0d0, do_cpks_l .or. do_cpks_r, 
      &      tau, kske, Mmat)
       if (odftps) call pstat_off(ps_excf)
 
@@ -231,19 +240,59 @@ c     add beta to 1 to get alpha+beta
 c     
          if(do_scf) then
 
+czora...   calculate zora contribution
+c           nodeid = ga_nodeid()
+c           write(LuOut,*) "nodeid:",nodeid
+
+          if (do_zora) then
+
+czora...   calculate hartree potential on a grid
+           call gridHartreePotential(nqpts,qxyz,qwght,rho,delrho,
+     &      g_dens, amat_hart)
+
+czora...   calculate nuclear potential on a grid
+           call gridNuclearPotential(geom,natoms,nqpts,qxyz,qwght,
+     &      amat_nucl)
+
+czora...   assemble zora contribution
+           do igrid = 1,nqpts
+             fullPot = amat_hart(igrid) + amat_nucl(igrid)
+             scaledPot = fullPot/(clight_au*clight_au)
+             zoraCorr = 1.d0/(2.d0 - scaledPot)
+              amat_zora(igrid,1) = (zoraCorr - 0.5d0)*qwght(igrid)
+c             amat_zora(igrid,1) = ( - 0.5d0)*qwght(igrid)
+c             amat_zora(igrid,1) = zoraCorr*qwght(igrid)
+             if (ipol.gt.1) then
+               amat_zora(igrid,2) = (zoraCorr - 0.5d0)*qwght(igrid)
+             end if
+           end do
+
+           call zora_tabcd(0,l3d,
+     &      tol_rho, Fmat, Pmat, amat_zora, Bmat, Cmat, Dbl_MB(iDmat),
+     &      0d0,0d0,0d0,0d0,
+     &      Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
+     &      0d0,0,1,
+     &      ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
+     &      grad_zora, AO_bas_han,
+     &      natoms, iniz, ifin, g_zora, ibf_ao,
+     &      rchi_atom, rdelchi_atom,
+     &      rdens_atom, cetobfr,kske,Mmat,0d0)
+
+          end if   ! do_zora
+
          if (odftps) call pstat_on(ps_tabcd)
             call xc_tabcd(0,l3d,
-     T        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
-     D        0d0,0d0,0d0,0d0,
-     D        Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
-     N        0d0,0,1,
-     I        ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, 
-     G        GRAD, AO_bas_han, 
-     &           natoms, iniz, ifin, g_vxc, ibf_ao,
-     &           rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr,kske,Mmat,0d0)
-
+     &        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
+     &        0d0,0d0,0d0,0d0,
+     &        Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
+     &        0d0,0,1,
+     &        ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, 
+     &        grad, AO_bas_han, 
+     &        natoms, iniz, ifin, g_vxc, ibf_ao,
+     &        rchi_atom, rdelchi_atom,
+     &        rdens_atom, cetobfr,kske,Mmat,0d0)
          if (odftps) call pstat_off(ps_tabcd)
+
          else if (do_nmrks_r) then
             if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts,
      &           'iEmat', lEmat,iEmat))
@@ -264,7 +313,7 @@ c
      &           Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
      N           0d0,0,1,
      I           ipol,nqpts,mbf_ao,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2, 
-     G           GRAD, AO_bas_han,natoms, iniz, ifin, 
+     G           grad, AO_bas_han,natoms, iniz, ifin, 
      G           g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,kske,Mmat,dbl_mb(k_scr))
 
@@ -277,7 +326,7 @@ c     of bfn pairs in CPKS LHS - these are written back into rho and
 c     delrho
 c
             call xc_cpks_coeff(rho, delrho, Amat2, Cmat2, Cmat,
-     &           delrho(iscf_delrho), nmat, ipol, nqpts, GRAD,
+     &           delrho(iscf_delrho), nmat, ipol, nqpts, grad,
      &           triplet)
 
             call xc_tabcd(1,l3d,
@@ -286,7 +335,7 @@ c
      C           Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
      N           0d0,0,nmat, 
      I           ipol,nqpts,mbf_ao,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2, 
-     G           GRAD, AO_bas_han, natoms, iniz, ifin, 
+     G           grad, AO_bas_han, natoms, iniz, ifin, 
      G           g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
      &          rdens_atom, cetobfr,.false.,0d0,0d0)
 
@@ -304,7 +353,7 @@ c
      ,        call errquit(' grid_quadv0b: grid_sicend failed',0,
      &       CALC_ERR)
       endif
-      if(grad)then
+      if(grad_zora)then
          if (.not.ma_pop_stack(ldelchi_ao))
      &        call errquit('grid_quadv0b: cannot pop stack', 2, MA_ERR)
       endif
@@ -318,7 +367,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.50 2007-05-15 19:18:00 niri Exp $
+C$Id: grid_quadv0b.F,v 1.51 2007-05-21 16:47:35 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -458,7 +507,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.50 2007-05-15 19:18:00 niri Exp $
+C$Id: grid_quadv0b.F,v 1.51 2007-05-21 16:47:35 niri Exp $
 c
       implicit none
 #include "errquit.fh"
