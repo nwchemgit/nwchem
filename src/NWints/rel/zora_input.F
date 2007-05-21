@@ -13,6 +13,7 @@ c     Handles the scalar and spin-orbit ZORA inputs
 #include "util.fh"
 #include "errquit.fh"
 #include "zora.fh"
+
 c     
 c     Read input for calculations with ZORA
 c     
@@ -23,26 +24,24 @@ c
       integer rtdb ! [input] handle to database
 c    
       character*255 test
-      logical zora_run
       integer zora_type
+      logical zora_run
+
+      zora_run = .true.
 c
 c     Read input data beyond zora; store in rtdb.
 c     
-      zora_run  = .true.
-      do_zora  = .true.
-c
   10  if (inp_a(test)) then
          if (inp_compare(.false., 'off', test)) then
-            zora_run = .false.
             zora_type = 0
-            do_zora = .false.
+            zora_run = .false.
          elseif (inp_compare(.false.,'on',test)) then
             zora_type = 1   ! perform scalar zora by default
          elseif (inp_compare(.false.,'scalar',test)) then
             zora_type = 1
          elseif (inp_compare(.false.,'spin-orbit',test)) then
             zora_type = 2
-            call errquit('zora_input: 
+            call errquit('zora_input:
      & Spin-orbit ZORA not implemented yet.',0, UNKNOWN_ERR)
          else
             call errquit('zora_input: unknown directive',0, UNKNOWN_ERR)
@@ -71,7 +70,6 @@ c
      $   call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'zora:type', mt_int, 1, zora_type))
      $   call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
-c
+
       return
-c       
       end

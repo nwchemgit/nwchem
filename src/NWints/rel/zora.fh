@@ -1,7 +1,15 @@
-czora...zora related potentials
+czora...
+czora...zora related quantities
+czora...
+
       double precision Ehart_grid, Enuc_grid, Ekin_grid
       common/gridenergies/Ehart_grid, Enuc_grid, Ekin_grid
 
-czora...zora related flags
       logical do_zora, do_scalar_zora, do_so_zora
-      common/zora/do_zora, do_scalar_zora, do_so_zora
+      common/zoraflags/do_zora, do_scalar_zora, do_so_zora
+
+      double precision clight_au
+      common/zoraconsts/clight_au
+
+      integer g_zora(2)
+      common/zoramatrices/g_zora
