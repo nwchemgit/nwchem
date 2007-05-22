@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.260 2007-05-22 00:14:39 niri Exp $
+c     $Id: dft_scf.F,v 1.261 2007-05-22 00:47:56 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -779,10 +779,6 @@ c
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 
-czora...debugging
-         if (do_zora) 
-     &   write(LuOut,*)'Ezora_corr:',Ezora_corr
-
 c     
 c     Calculate the total electronic energy.
 c     
@@ -791,6 +787,10 @@ c
       else
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
       endif
+
+czora...
+      if (do_zora) Etnew = Etnew + Ezora_corr
+
       if (oprint_conv_details.and.me.eq.0)then
          write(LuOut,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic: ',
      &                  Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic
@@ -1302,6 +1302,9 @@ c
         Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + tdots
       endif
       if (cosmo_on.and.cosmo_phase.eq.2) etnew = etnew + ecosmo
+
+czora...
+      if (do_zora) etnew = etnew + Ezora_corr
 c    
       if (.not. ga_destroy(g_denso(1))) call errquit
      &   ('dft_scf: could not destroy g_denso', 0, GA_ERR)
@@ -1384,11 +1387,23 @@ c
          endif
          dft_time = dft_time+util_cpusec()
          if (nexc.le.1)then
+czora...
+           if (do_zora) then   ! scalar zora print
+            write(LuOut,224)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
+     &      Ezora_corr,rho_n, dft_time
+           else 
             write(LuOut,222)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
      &           rho_n, dft_time
+           end if
          else
+czora...
+          if (do_zora) then   ! scalar zora print
+           write(LuOut,225)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
+     &           enuc, Ezora_corr, rho_n, dft_time
+          else
             write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
      &           enuc, rho_n, dft_time
+          end if
          endif
          if(cosmo_on.and.cosmo_phase.eq.2) then
            write(LuOut,*) '                 COSMO solvation results'
@@ -1697,6 +1712,30 @@ c
      &     ' Nuclear repulsion energy =', f22.12//
      &     ' Numeric. integr. density =', f22.12//
      &     '     Total iterative time =', f9.1,'s'//)
+
+czora...print out the scalar zora correction
+ 224  format(//
+     &     '              Total DFT energy =', f22.12/
+     &     '           One electron energy =', f22.12/
+     &     '                Coulomb energy =', f22.12/
+     &     '         Exchange-Corr. energy =', f22.12/
+     &     '      Nuclear repulsion energy =', f22.12/
+     &     ' Scalar Zora correction energy =', f22.12//
+     &     '      Numeric. integr. density =', f22.12//
+     &     '          Total iterative time =', f9.1,'s'//)
+
+czora...print out the scalar zora correction
+ 225  format(//
+     &     '              Total DFT energy =', f22.12/
+     &     '           One electron energy =', f22.12/
+     &     '                Coulomb energy =', f22.12/
+     &     '               Exchange energy =', f22.12/
+     &     '            Correlation energy =', f22.12/
+     &     '      Nuclear repulsion energy =', f22.12/
+     &     ' Scalar Zora correction energy =', f22.12//
+     &     '      Numeric. integr. density =', f22.12//
+     &     '          Total iterative time =', f9.1,'s'//)
+
  4224 format(10x,' HOMO = ',f7.3,' LUMO = ',f7.3,
      &              ' RLSHIFT = ',f7.3,' HL_GAP = ',f7.3)
 c     
