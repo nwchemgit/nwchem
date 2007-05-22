@@ -14,7 +14,7 @@
      &     bas_cent_xinfo,bas_cset_xinfo,docsetx, 
      &     tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.52 2007-05-21 18:44:35 niri Exp $
+c$Id: grid_quadv0b.F,v 1.53 2007-05-22 00:13:22 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -60,10 +60,12 @@ czora...
 czora...
       integer nodeid
       integer igrid
-      double precision fullPot, scaledPot, zoraCorr
+      double precision totPot, scaledPot, zoraCorr
+      double precision clight_au2
       logical grad_zora
       grad_zora = .false.
       grad_zora = grad .or. do_zora
+      clight_au2 = clight_au*clight_au
 
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -256,14 +258,12 @@ czora...   calculate nuclear potential on a grid
 
 czora...   assemble zora contribution
            do igrid = 1,nqpts
-             fullPot = amat_hart(igrid) + amat_nucl(igrid) ! hartree and nuclear contributions
-             scaledPot = fullPot/(clight_au*clight_au)
-             zoraCorr = 1.d0/(2.d0 - scaledPot)
-              amat_zora(igrid,1) = (zoraCorr - 0.5d0)*qwght(igrid) ! note: the non-relativistic ke has been isolated
-czoradebug             amat_zora(igrid,1) = ( - 0.5d0)*qwght(igrid)   ! kinetic grid check
-czoradebug             amat_zora(igrid,1) = zoraCorr*qwght(igrid)     ! zora grid check
+             totPot = amat_hart(igrid) + amat_nucl(igrid) ! hartree and nuclear contributions
+             zoraCorr = totPot/(4.d0*clight_au2 - 2.d0*totPot)
+             amat_zora(igrid,1) = zoraCorr
+czoradebug             amat_zora(igrid,1) = ( - 0.5d0)   ! kinetic grid check
              if (ipol.gt.1) then
-               amat_zora(igrid,2) = (zoraCorr - 0.5d0)*qwght(igrid)
+               amat_zora(igrid,2) = zoraCorr
              end if
            end do
 
@@ -367,7 +367,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.52 2007-05-21 18:44:35 niri Exp $
+C$Id: grid_quadv0b.F,v 1.53 2007-05-22 00:13:22 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -507,7 +507,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.52 2007-05-21 18:44:35 niri Exp $
+C$Id: grid_quadv0b.F,v 1.53 2007-05-22 00:13:22 niri Exp $
 c
       implicit none
 #include "errquit.fh"
