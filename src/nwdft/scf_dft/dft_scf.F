@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.259 2007-05-21 21:10:15 niri Exp $
+c     $Id: dft_scf.F,v 1.260 2007-05-22 00:14:39 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -832,6 +832,10 @@ c
          if (ispin.eq.2) then
           call ga_copy(g_fockt, g_focks(ispin))
           call ga_dadd(one, g_vxc(ispin), one, g_focks(ispin), 
+     &           g_focks(ispin))
+
+czora...
+          call ga_dadd(one, g_zora(ispin), one, g_focks(ispin), 
      &           g_focks(ispin))
 
          endif
