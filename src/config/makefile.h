@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.543 2007-03-28 23:54:23 d3p307 Exp $
+# $Id: makefile.h,v 1.544 2007-05-23 16:50:55 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -232,7 +232,7 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
           CDEBUG = -g
               AR = ar
 
-       CORE_LIBS =  -lnwcutil -lpario -lglobal -llinalg -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
+       CORE_LIBS =  -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
 
     ifdef USE_INTEGER4
       integer4:
