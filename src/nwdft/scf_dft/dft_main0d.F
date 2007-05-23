@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.72 2007-05-21 21:10:15 niri Exp $
+c     $Id: dft_main0d.F,v 1.73 2007-05-23 23:16:19 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -104,6 +104,7 @@ c
       end if
 
       if (do_zora) then
+         Ezora_corr = 0.d0
 c
 c        Which form of zora needs to be done ? 
 c

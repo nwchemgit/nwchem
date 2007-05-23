@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.25 2007-05-23 02:46:20 niri Exp $
+c     $Id: dft_fockbld.F,v 1.26 2007-05-23 23:16:19 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -65,6 +65,7 @@ c
       Ecoul  = 0d0
       Exc(1)= 0d0
       Exc(2) = 0d0
+
 c Jorge Garza/Begin
       if (ldmix) then
         iter_ini = 1
@@ -257,8 +258,6 @@ c
 
       endif
 c     
-
-
       if (oprint_time)
      &     call dft_tstamp(' End of parallel region. ')
 c     
