@@ -1,5 +1,5 @@
 *
-* $Id: coptopt.fh,v 1.13 2005-05-17 02:04:50 bylaska Exp $
+* $Id: coptopt.fh,v 1.14 2007-05-23 22:13:12 d3p307 Exp $
 *
 c
 c     Defintions of /coptopt/ and /coptimize/
@@ -76,7 +76,7 @@ c
 c
       character*8
      $     zvarname(max_nzvar) ! name of user specified zmatrix variables
-      character*16 
+      character*60
      $     xyz                  ! [user] prefix for xyz files or blank
 c
       common/cdrv_optopt/

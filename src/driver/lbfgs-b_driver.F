@@ -1,5 +1,5 @@
 *
-* $Id: lbfgs-b_driver.F,v 1.8 2006-08-11 02:00:24 bylaska Exp $
+* $Id: lbfgs-b_driver.F,v 1.9 2007-05-23 22:13:55 d3p307 Exp $
 *
 c        Modified driver for use in NWChem (MV)
 c
@@ -54,7 +54,7 @@ c       the driver.
  
       character*60     task, csave
       character*60     pname
-      character*16     xyz
+      character*60     xyz
       character*32 theory
       logical          lsave(4)
       integer          m, iprint
