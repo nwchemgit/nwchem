@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.19 2007-04-13 21:53:46 d3p708 Exp $
+ $Id: pspsolve.c,v 1.20 2007-05-23 00:04:55 d3p708 Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -77,7 +77,7 @@ void FATR pspsolve_
   int Ngrid;
   double *vall, *rgrid;
   char name[255];
-
+  char voutfile[255];
   int lmax_out, locp_out;
   double rlocal_out;
 
@@ -89,7 +89,6 @@ void FATR pspsolve_
   int m2 = ((int) (*n2));
   char *infile = (char *) malloc (m9 + m1 + 5);
   char *outfile = (char *) malloc (m0 + m2 + 5);
-
   char *full_filename = (char *) malloc (m9 + 25 + 5);
 
 
@@ -112,9 +111,8 @@ void FATR pspsolve_
   outfile[m0 + 1] = '\0';
   strncat (outfile, out_filename, m2);
   outfile[m0 + m2 + 1] = '\0';
-
+  
   over_fourpi = 1.0 / (16.0 * atan (1.0));
-
 
   set_debug_print (debug);
   init_Atom (infile);
@@ -127,7 +125,7 @@ void FATR pspsolve_
       free (infile);
       free (outfile);
       free (full_filename);
-      printf("Relativstic Atom!\n");
+      fprintf(stderr,"Relativstic Atom!\n");
       rpspsolve_(print_ptr, debug_ptr, lmax_ptr, locp_ptr, rlocal_ptr,
 		     sdir_name, n9, dir_name, n0, in_filename, n1,
 		     out_filename, n2);
@@ -137,9 +135,7 @@ void FATR pspsolve_
   solve_Psp ();
   if (debug)
     print_Psp (stdout);
-
   init_Linear (infile);
-
   /* allocate linear meshes */
   Nvalence = Nvalence_Psp ();
   Nlinear = nrl_Linear ();
@@ -152,6 +148,10 @@ void FATR pspsolve_
     }
   rl = (double *) malloc (Nlinear * sizeof (double));
   rhol = (double *) malloc (Nlinear * sizeof (double));
+
+  fp=fopen(voutfile,"w");
+  fprintf(fp,"0 pspsolve\n");
+  fclose(fp);
 
   /* Norm-conserving output */
   if (NormConserving_Psp ())
@@ -232,6 +232,7 @@ void FATR pspsolve_
 	}
 
 
+
       /* output datafile to be used for Kleinman-Bylander input, argv[1].dat */
       if (print)
 	{
@@ -239,7 +240,7 @@ void FATR pspsolve_
 		  outfile);
 	}
       fp = fopen (outfile, "w+");
-      fprintf (fp, "%s\n", name_Atom ());
+      fprintf (fp, "0 %s\n", name_Atom ());
       fprintf (fp, "%lf %lf %d   %d %d %lf\n", Zion_Psp (), Amass_Atom (),
 	       lmax_Psp (), lmax_out, locp_out, rlocal_out);
       for (p = 0; p <= lmax_Psp (); ++p)
@@ -304,7 +305,7 @@ void FATR pspsolve_
     {
       printf ("Creating Vanderbilt pseudopotential input: %s\n", outfile);
       fp = fopen (outfile, "w+");
-      fprintf (fp, "%s\n", name_Atom ());
+      fprintf (fp, "0 %s\n", name_Atom ());
       fprintf (fp, "%lf %lf %d\n", Zion_Psp (), Amass_Atom (), lmax_Psp ());
 
       /* output grid parameters */
@@ -545,8 +546,5 @@ void FATR pspsolve_
   free (rl);
   free (rhol);
   end_Linear ();
-
   fflush (stdout);
-
-
 }				/* main */

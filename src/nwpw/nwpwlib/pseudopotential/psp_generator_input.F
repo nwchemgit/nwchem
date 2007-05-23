@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.34 2007-04-02 15:38:38 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.35 2007-05-23 00:04:55 d3p708 Exp $
 c
 
 *     ***************************************
@@ -512,6 +512,9 @@ c
      >              pseudopotential_filename(1:k),k)
       call nwpw_message(4) 
 
+      write(6,*)"done with psp gen pspsolve!"
+      call flush(6)
+
       return
       end
 
@@ -738,6 +741,8 @@ c        *** revPBE ***
       call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
       call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
       call BRDCST(9+MSGDBL,rlocal,mdtob(msglen),MASTER)
+      write(6,*)"done with psp gen nonauto!"
+      call flush(6)
 
       return
       end
@@ -941,6 +946,7 @@ c           write(99,*) '<correlation> off   <end>'
       call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
       call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
       call BRDCST(9+MSGDBL,rlocal,mdtob(msglen),MASTER)
-
+      write(6,*)"done with psp gen!"
+      call flush(6)
       return
       end

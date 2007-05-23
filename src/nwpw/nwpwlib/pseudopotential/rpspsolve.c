@@ -66,7 +66,6 @@ void FATR rpspsolve_
   int Ngrid;
   double *vall, *rgrid;
   char name[255];
-
   int lmax_out, locp_out, nvh;
   double rlocal_out, vx;
 
@@ -78,7 +77,7 @@ void FATR rpspsolve_
   int m2 = ((int) (*n2));
   char *infile = (char *) malloc (m9 + m1 + 5);
   char *outfile = (char *) malloc (m0 + m2 + 5);
-  char *soutfile = (char *) malloc (m0 + m2 + 8);
+  char *soutfile = (char *) malloc (m0 + m2 + 9);
   char *full_filename = (char *) malloc (m9 + 25 + 5);
 
   print = *print_ptr;
@@ -212,7 +211,7 @@ void FATR rpspsolve_
 	      outfile);
     }
   fp = fopen (outfile, "w+");
-  fprintf (fp, "%s\n", name_Atom ());
+  fprintf (fp, "7 %s\n", name_Atom ());
   fprintf (fp, "%lf %lf %d   %d %d %lf\n", Zion_RelPsp (), Amass_Atom (),
 	   lmax_RelPsp (), lmax_out, locp_out, rlocal_out);
   for (p = 0; p <= lmax_RelPsp (); ++p)
@@ -229,7 +228,7 @@ void FATR rpspsolve_
   nvh=Nvalence/2;
   for (k = 0; k < Nlinear; ++k)
     {
-      fprintf (fp, "%12.8lf", rl[k]);
+      fprintf (fp, "%12.8lf %12.8lf", rl[k]);
       for (p = 0; p < nvh; ++p)
 	{
 	  vx = p * pspl[2 * p][k] + (p + 1.) * pspl[2 * p + 1][k];
@@ -245,8 +244,8 @@ void FATR rpspsolve_
     }
   for (k = 0; k < Nlinear; ++k)
     {
-      fprintf (fp, "%12.8lf", rl[k]);
-      for (p = 0; p < Nvalence; ++p)
+      fprintf (fp, "%12.8lf %12.8lf", rl[k],psil[1][k]);
+      for (p = 2; p < Nvalence; ++p)
 	fprintf (fp, " %12.8lf", psil[p][k]);
       fprintf (fp, "\n");
     }
@@ -283,17 +282,8 @@ void FATR rpspsolve_
 	 outfile);
     }
   strncpy (soutfile, outfile, strlen (outfile) + 1);
-  strncat (soutfile, ".so", 3);
+  strncat (soutfile, ".so", 4);
   fp = fopen (soutfile, "w+");
-  fprintf (fp, "%s\n", name_Atom ());
-  fprintf (fp, "%lf %lf %d   %d %d %lf\n", Zion_RelPsp (), Amass_Atom (),
-	   lmax_RelPsp (), lmax_out, locp_out, rlocal_out);
-  for (p = 0; p <= lmax_RelPsp (); ++p)
-    fprintf (fp, "%lf ", rcut_RelPsp (2*p));
-  fprintf (fp, "\n");
-  fprintf (fp, "%d %lf\n", nrl_Linear (), drl_Linear ());
-  fprintf (fp, "%s\n", comment_RelPsp ());
-
   if (print)
     {
       printf ("  + Appending Spin-Orbit pseudopotentials:    %s thru %s\n",
@@ -311,7 +301,6 @@ void FATR rpspsolve_
       fprintf (fp, "\n");
     }
   fclose (fp);
-
 
    /******************************************************************/
    /******************* output AE information ************************/
