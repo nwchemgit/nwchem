@@ -14,7 +14,7 @@
      &     bas_cent_xinfo,bas_cset_xinfo,docsetx, 
      &     tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.54 2007-05-23 02:45:51 niri Exp $
+c$Id: grid_quadv0b.F,v 1.55 2007-05-23 23:14:23 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -59,13 +59,9 @@ czora...
 
 czora...
       integer nodeid
-      integer igrid
-      double precision totPot, scaledPot, zoraCorr
-      double precision clight_au2
       logical grad_zora
       grad_zora = .false.
       grad_zora = grad .or. do_zora
-      clight_au2 = clight_au*clight_au
 
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -219,6 +215,36 @@ c     add beta to 1 to get alpha+beta
      &        rho(iscf_rho), 1)
       endif     
 
+czora...calculate the zora correction 
+      if (do_zora) then
+
+c          consolidate the alpha & beta density components 
+           if (ipol .gt. 1) then
+             call ga_dadd(1d0, g_dens(1), 1d0, g_dens(2), g_dens(1))
+           end if
+
+c          calculate the zora correction (has a hartree piece => consolidated density)
+           call grid_zoracorr(nqpts,qxyz,qwght,natoms,g_dens,amat)
+
+c          separate the alpha & beta density components
+           if (ipol .gt. 1) then
+              call ga_dadd(1d0, g_dens(1), -1d0, g_dens(2), g_dens(1))
+           end if
+
+           call zora_tabcd(0,l3d,
+     &      tol_rho, Fmat, Pmat, amat, Bmat, Cmat, Dbl_MB(iDmat),
+     &      0d0,0d0,0d0,0d0,
+     &      Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
+     &      0d0,0,1,
+     &      ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
+     &      grad_zora, AO_bas_han,
+     &      natoms, iniz, ifin, g_zora, ibf_ao,
+     &      rchi_atom, rdelchi_atom,
+     &      rdens_atom, cetobfr,kske,Mmat,0d0)
+
+      end if   ! do_zora
+czora...end
+
       if (odftps) call pstat_on(ps_excf)
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
      &     Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
@@ -242,44 +268,6 @@ c     add beta to 1 to get alpha+beta
 c     
          if(do_scf) then
 
-czora...   calculate zora contribution
-czoradebug           nodeid = ga_nodeid()
-czoradebug           write(LuOut,*) "nodeid:",nodeid
-
-          if (do_zora) then
-
-           call dfill(ipol*nqpts, 0.d0, amat_zora, 1)
-
-czora...   calculate hartree potential on a grid
-           call gridHartreePotential(nqpts,qxyz,qwght,rho,delrho,
-     &      g_dens, amat_hart)
-
-czora...   calculate nuclear potential on a grid
-           call gridNuclearPotential(geom,natoms,nqpts,qxyz,qwght,
-     &      amat_nucl)
-
-czora...   assemble zora contribution
-           do igrid = 1,nqpts
-             totPot = amat_hart(igrid) + amat_nucl(igrid) ! hartree and nuclear contributions
-             zoraCorr = totPot/(4.d0*clight_au2 - 2.d0*totPot)
-             amat_zora(igrid,1) = zoraCorr
-             if (ipol.gt.1) then
-               amat_zora(igrid,2) = zoraCorr
-             end if
-           end do
-
-           call zora_tabcd(0,l3d,
-     &      tol_rho, Fmat, Pmat, amat_zora, Bmat, Cmat, Dbl_MB(iDmat),
-     &      0d0,0d0,0d0,0d0,
-     &      Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
-     &      0d0,0,1,
-     &      ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
-     &      grad_zora, AO_bas_han,
-     &      natoms, iniz, ifin, g_zora, ibf_ao,
-     &      rchi_atom, rdelchi_atom,
-     &      rdens_atom, cetobfr,kske,Mmat,0d0)
-
-          end if   ! do_zora
 
          if (odftps) call pstat_on(ps_tabcd)
             call xc_tabcd(0,l3d,
@@ -369,7 +357,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.54 2007-05-23 02:45:51 niri Exp $
+C$Id: grid_quadv0b.F,v 1.55 2007-05-23 23:14:23 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -509,7 +497,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.54 2007-05-23 02:45:51 niri Exp $
+C$Id: grid_quadv0b.F,v 1.55 2007-05-23 23:14:23 niri Exp $
 c
       implicit none
 #include "errquit.fh"
