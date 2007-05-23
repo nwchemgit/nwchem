@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.24 2007-05-21 16:45:37 niri Exp $
+c     $Id: dft_fockbld.F,v 1.25 2007-05-23 02:46:20 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -241,19 +241,22 @@ c
 c  Jorge Garza/End
 c
       call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
+
+czora... Add zora section
+      if (do_zora)
+     &  call ga_dadd(1.d0, g_zora(1), 1.d0, g_fock, g_fock)
+
       if (ipol.gt.1)then
 c     
 c     Put (-alpha+beta) in g_vxc(2)
 c     
          call ga_dadd(-1.d0, g_vxc(1), 1.d0, g_vxc(2), g_vxc(2))
+
+         if (do_zora)
+     &    call ga_dadd(-1.d0, g_zora(1), 1.d0, g_zora(2), g_zora(2))
+
       endif
 c     
-
-czora... Add zora section
-      if (do_zora) then
-         call ga_dadd(1.d0, g_zora(1), 1.d0, g_fock, g_fock)
-      end if
-czora...
 
 
       if (oprint_time)

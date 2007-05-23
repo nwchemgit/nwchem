@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.262 2007-05-22 19:30:48 niri Exp $
+c     $Id: dft_scf.F,v 1.263 2007-05-23 02:46:20 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -836,7 +836,7 @@ c
 
 czora...
          if (do_zora) then
-          call ga_dadd(one, g_zora(ispin), one, g_focks(ispin), 
+          call ga_dadd(one, g_zora(ispin), one, g_focks(ispin),
      &           g_focks(ispin))
          end if
 
