@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.39 2006-05-03 23:56:42 edo Exp $
+#$Id: GNUmakefile,v 1.40 2007-05-23 16:43:50 d3p307 Exp $
 ifdef USE_64TO32
 USE_I4FLAGS=y
 endif
@@ -7,29 +7,29 @@ include ../config/makefile.h
        LIBRARY = libblas.a
 
 #
-# Determine if single or double precision is required
+# USE both double and single now (short term solution for added single precision
+# data in GA). Still keep the original layout, in case later need to be changed
+# again.
+	VPATH = double single
+
+#       PRECISION = double single
+#  
+#ifeq ($(TARGET),KSR)
+#       PRECISION = single   
+#endif
+#ifeq ($(TARGET),CRAY-T3D)
+#       PRECISION = single
+#endif
+#ifeq ($(TARGET),CRAY-T3E)
+#       PRECISION = single
+#endif
 #
-
-     VPATH = double:single
-
-       PRECISION = double
-  
-ifeq ($(TARGET),KSR)
-       PRECISION = single   
-endif
-ifeq ($(TARGET),CRAY-T3D)
-       PRECISION = single
-endif
-ifeq ($(TARGET),CRAY-T3E)
-       PRECISION = single
-endif
-
-
-ifndef PRECISION
-error:
-	@echo BLAS makefile does not have PRECISION defined
-	@exit 1
-endif
+#
+#ifndef PRECISION
+#error:
+#	@echo BLAS makefile does not have PRECISION defined
+#	@exit 1
+#endif
 
 
 #
@@ -40,7 +40,8 @@ ifdef FVECTORIZE
        FOPTIMIZE := $(FVECTORIZE)
 endif
 
-ifeq ($(PRECISION),double)
+# xerbla and lsame are taken out from single
+#ifeq ($(PRECISION),double)
 #######################################################################
 #               ########     ########     ########     ########     
 OBJ_OPTIMIZE =  dasum.o      daxpy.o      dcopy.o      ddot.o         \
@@ -55,25 +56,23 @@ OBJ_OPTIMIZE =  dasum.o      daxpy.o      dcopy.o      ddot.o         \
                 zgerc.o      zhemm.o      zhemv.o      zher2.o        \
                 zher2k.o     zherk.o      zscal.o      zswap.o        \
                 ztrmm.o      ztrmv.o      ztrsm.o      ztrsv.o        \
-                xerbla.o     zgeru.o dzasum.o dsyr.o
-
-
-else
+                xerbla.o     zgeru.o dzasum.o dsyr.o 
+#else
 #######################################################################
 #               ########     ########     ########     ########     
-OBJ_OPTIMIZE =  sasum.o      saxpy.o      scopy.o      sdot.o         \
+OBJ_OPTIMIZE +=sasum.o      saxpy.o      scopy.o      sdot.o         \
                 sgemm.o      sgemv.o      sger.o       snrm2.o        \
                 srot.o       sscal.o      sspmv.o      sspr.o         \
                 sswap.o      ssymm.o      ssymv.o      ssyr2.o        \
                 ssyr2k.o     ssyrk.o      strmm.o      strmv.o        \
                 strsm.o      strsv.o      scnrm2.o     isamax.o       \
-                lsame.o      caxpy.o                   ccopy.o        \
+                caxpy.o      ccopy.o        \
                 cdotc.o      csscal.o     cgemm.o      cgemv.o        \
                 cgerc.o      chemm.o      chemv.o      cher2.o        \
                 cher2k.o     cherk.o      cscal.o      cswap.o        \
                 ctrmm.o      ctrmv.o      ctrsm.o      ctrsv.o        \
-                xerbla.o cgeru.o csasum.o 
-endif
+                cgeru.o scasum.o 
+#endif
 ifeq ($(TARGET),CRAY-T3D)
 OBJ_OPTIMIZE = idamax.o
 endif
