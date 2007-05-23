@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.24 2006-06-07 15:53:49 edo Exp $
+C$Id: xc_tabcd.F,v 1.25 2007-05-23 22:48:49 niri Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -8,12 +8,12 @@ c
       Subroutine xc_tabcd(what,l3d,
      ,     tol_rho, Tmat, TTmat, Amat, Bmat, Cmat, Dmat, 
      N     Emat,Fmat,qxyz,xyz,
-     &                    chi, delchi, heschi, 
+     &     chi, delchi, heschi, 
      N     curatoms,ncuratoms,nmat,
      I     ipol, nq, nbf, max_at_bf, max_at_bf2, 
      G     GRAD, basis, natoms, iniz, ifin, 
-     &                    g_vxc, ibf, rchi_atom, rdelchi_atom, 
-     &                    rdens_atom, cetobfr,kske,Mmat,scr)
+     &     g_vxc, ibf, rchi_atom, rdelchi_atom, 
+     &     rdens_atom, cetobfr,kske,Mmat,scr)
 c
 c     We're using xc_tabcd for CPKS purposes
 c

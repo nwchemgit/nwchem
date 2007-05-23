@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.58 2007-05-21 18:45:09 niri Exp $
+C$Id: xc_getv.F,v 1.59 2007-05-23 22:48:49 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -88,9 +88,7 @@ czora...
       if (do_zora) then
         Ezora_corr = 0.d0
         call ga_zero(g_zora(1))
-        if (ipol .gt. 1) then
-          call ga_zero(g_zora(2))
-        end if
+        if (ipol .gt. 1) call ga_zero(g_zora(2))
       end if
 
       me=ga_nodeid()
@@ -265,11 +263,18 @@ c
       endif
 c
 
-czora...
+czora... Calculate the scalar zora correction
       if (do_zora) then 
-         Ezora_corr = Ezora_corr + ga_ddot(g_dens(1),g_zora(1)) 
+         if (ipol .gt. 1) then
+           Ezora_corr = Ezora_corr 
+     &           + ga_ddot(g_dens(1),g_zora(1)) 
+     &           + ga_ddot(g_dens(2),g_zora(2)) 
+         else 
+           Ezora_corr = 
+     &       Ezora_corr + ga_ddot(g_dens(1),g_zora(1)) 
+         end if
+        
       end if
 c     
       return
       end
-
