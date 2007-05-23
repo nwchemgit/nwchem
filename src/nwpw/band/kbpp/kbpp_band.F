@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.11 2007-01-19 17:56:17 d3p708 Exp $
+* $Id: kbpp_band.F,v 1.12 2007-05-23 00:06:33 d3p708 Exp $
 *
 
 *     **************************************
@@ -67,7 +67,7 @@
       double precision unitg(3,3)
       integer nsize,i,l,ierr,nb,psp_type
       integer nfft1,nfft2,nfft3
-      integer nmax,nprj
+      integer nmax,nprj,pspx
 
 *     **** external functions ****
       logical  control_print
@@ -92,11 +92,12 @@ c      call Parallel_init()
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
-      read(11,'(A2)',ERR=9999,END=9999) atom
+      read(11,12,ERR=9999,END=9999) pspx,atom
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
       read(11,*,ERR=9999,END=9999) nrho,drho
       read(11,'(A)',ERR=9999,END=9999) comment
+12    format(i1,A2)
       end if
 
       msglen = 1
@@ -276,16 +277,16 @@ c      call Parallel_init()
 
 
       if (taskid.eq.MASTER) then
-      call util_file_name_noprefix(formatted_filename,
+        call util_file_name_noprefix(formatted_filename,
      >                    .false.,
      >                    .false.,
      >                    full_filename)
-      l = index(full_filename,' ') - 1
-      if (mprint) then
-        write(*,*)
-        write(*,*) "Generated formatted_filename: ",full_filename(1:l)
-      end if
-      call openfile(2,full_filename,l,'w',l)     
+          l = index(full_filename,' ') - 1
+         if (mprint) then
+         write(*,*)
+         write(*,*) "Generated formatted_filename: ",full_filename(1:l)
+         end if
+         call openfile(2,full_filename,l,'w',l)     
          call cwrite(2,comment,80)
          psp_type = 0
          call iwrite(2,psp_type,1)
