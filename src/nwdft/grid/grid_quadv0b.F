@@ -14,7 +14,7 @@
      &     bas_cent_xinfo,bas_cset_xinfo,docsetx, 
      &     tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.53 2007-05-22 00:13:22 niri Exp $
+c$Id: grid_quadv0b.F,v 1.54 2007-05-23 02:45:51 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -248,6 +248,8 @@ czoradebug           write(LuOut,*) "nodeid:",nodeid
 
           if (do_zora) then
 
+           call dfill(ipol*nqpts, 0.d0, amat_zora, 1)
+
 czora...   calculate hartree potential on a grid
            call gridHartreePotential(nqpts,qxyz,qwght,rho,delrho,
      &      g_dens, amat_hart)
@@ -261,7 +263,6 @@ czora...   assemble zora contribution
              totPot = amat_hart(igrid) + amat_nucl(igrid) ! hartree and nuclear contributions
              zoraCorr = totPot/(4.d0*clight_au2 - 2.d0*totPot)
              amat_zora(igrid,1) = zoraCorr
-czoradebug             amat_zora(igrid,1) = ( - 0.5d0)   ! kinetic grid check
              if (ipol.gt.1) then
                amat_zora(igrid,2) = zoraCorr
              end if
@@ -291,6 +292,7 @@ czoradebug             amat_zora(igrid,1) = ( - 0.5d0)   ! kinetic grid check
      &        natoms, iniz, ifin, g_vxc, ibf_ao,
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,kske,Mmat,0d0)
+
          if (odftps) call pstat_off(ps_tabcd)
 
          else if (do_nmrks_r) then
@@ -367,7 +369,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.53 2007-05-22 00:13:22 niri Exp $
+C$Id: grid_quadv0b.F,v 1.54 2007-05-23 02:45:51 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -507,7 +509,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.53 2007-05-22 00:13:22 niri Exp $
+C$Id: grid_quadv0b.F,v 1.54 2007-05-23 02:45:51 niri Exp $
 c
       implicit none
 #include "errquit.fh"
