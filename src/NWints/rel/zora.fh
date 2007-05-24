@@ -5,11 +5,14 @@ czora...
       double precision Ehart_grid, Enuc_grid
       common/gridenergies/Ehart_grid, Enuc_grid
 
-      double precision Ezora_corr
-      common/zora_corr/Ezora_corr
+      double precision Ezora_corr, Ezora_corr_tmp
+      common/zora_corr/Ezora_corr, Ezora_corr_tmp
 
-      logical do_zora, do_scalar_zora, do_so_zora
-      common/zora_flags/do_zora, do_scalar_zora, do_so_zora
+      logical do_zora, do_scalar_zora, do_so_zora, do_zora_sc
+      common/zora_flags/do_zora, do_scalar_zora, do_so_zora, do_zora_sc
+ 
+      integer zora_sc
+      common/zora_flags_int/zora_sc
 
       double precision clight_au
       common/zora_consts/clight_au
