@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.11 2007-05-14 23:42:19 niri Exp $
+* $Id: rel_input.F,v 1.12 2007-05-24 21:02:17 niri Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -21,7 +21,11 @@ c
       double precision clight
       logical dk_run             ! Douglas-Kroll
       logical dmd_run            ! Dyall modified Dirac
+
+czora...start changes
       logical zora_run           ! ZORA
+czora...end changes
+
       logical status
       integer irelKey            ! Relativistic method keys
 
@@ -40,10 +44,12 @@ c     Dyall Modified Dirac
       if (.not. rtdb_put(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run))
      $   call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
 
+czora...start changes
 c     ZORA
       zora_run = .false.
       if (.not. rtdb_put(rtdb, 'zora', mt_log, 1, zora_run))
      &  call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
+czora...end changes
 c
 c     Set some relativistic variables we could need later on
 c
@@ -74,9 +80,12 @@ c
 c
          call dmd_input(rtdb)
 c
+czora...start changes
       elseif (inp_compare(.false.,'zora', test)) then
-c
+
          call zora_input(rtdb)
+c
+czora...end changes
 c
       else if (inp_compare(.false.,'end', test)) then
 c
@@ -100,8 +109,10 @@ c
       status = rtdb_get(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run)
       if (dmd_run) irelKey = irelKey + 1
 
+czora...start changes
       status = rtdb_get(rtdb, 'zora', mt_log, 1, zora_run)
       if (zora_run) irelKey = irelKey + 1
+czora...end changes
 
 c     Check if multiple approaches have been set 
       if (irelKey .gt. 1) then
