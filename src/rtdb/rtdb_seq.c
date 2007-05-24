@@ -1,6 +1,11 @@
-/*$Id: rtdb_seq.c,v 1.22 2007-02-06 19:08:12 edo Exp $*/
+/*$Id: rtdb_seq.c,v 1.23 2007-05-24 12:43:55 edo Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
+#if defined(CATAMOUNT)
+#warning including iobufffff
+#include </opt/xt-libc/default/amd64/include/stdio.h>
+#define USE_IOBUF_MACROS
+#endif
 #include <stdio.h>
 
 #ifdef USE_HDBM

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.24 2004-10-27 22:58:50 edo Exp $
+# $Id: GNUmakefile,v 1.25 2007-05-24 12:43:55 edo Exp $
 
 include ../config/makefile.h
 
@@ -37,6 +37,12 @@ else
 endif
 
 include ../config/makelib.h
+
+ifeq ($(TARGET),CATAMOUNT)
+   LIB_DEFINES += -I$(IOBUF_INC) -I/opt/xt-libc/default/amd64/include
+#   COMM_LIBS += $(IOBUF_POST_LINK_OPTS)
+endif
+
 
 davetest:	davetest.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ davetest.o $(LIBS)

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.11 2004-02-11 02:39:55 edo Exp $
+# $Id: GNUmakefile,v 1.12 2007-05-24 12:43:55 edo Exp $
 #
 
 include ../../config/makefile.h
@@ -21,6 +21,10 @@ endif
 
 include ../../config/makelib.h
 
+ifeq ($(TARGET),CATAMOUNT)
+   LIB_DEFINES += -I$(IOBUF_INC)
+#   COMM_LIBS += $(IOBUF_POST_LINK_OPTS)
+endif
 
 test:	test.o hdbm.o
 	$(CC) $(CFLAGS) -o $@ $^
