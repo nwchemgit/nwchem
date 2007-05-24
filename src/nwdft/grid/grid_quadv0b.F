@@ -14,7 +14,7 @@
      &     bas_cent_xinfo,bas_cset_xinfo,docsetx, 
      &     tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.55 2007-05-23 23:14:23 niri Exp $
+c$Id: grid_quadv0b.F,v 1.56 2007-05-24 00:17:11 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -215,7 +215,7 @@ c     add beta to 1 to get alpha+beta
      &        rho(iscf_rho), 1)
       endif     
 
-czora...calculate the zora correction 
+czora...calculate the zora correction (hartree and nuclear potentials included in correction)
       if (do_zora) then
 
 c          consolidate the alpha & beta density components 
@@ -357,7 +357,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.55 2007-05-23 23:14:23 niri Exp $
+C$Id: grid_quadv0b.F,v 1.56 2007-05-24 00:17:11 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -497,7 +497,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.55 2007-05-23 23:14:23 niri Exp $
+C$Id: grid_quadv0b.F,v 1.56 2007-05-24 00:17:11 niri Exp $
 c
       implicit none
 #include "errquit.fh"
