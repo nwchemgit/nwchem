@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.263 2007-05-23 02:46:20 niri Exp $
+c     $Id: dft_scf.F,v 1.264 2007-05-24 21:03:26 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -34,8 +34,9 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 
-czora...
+czora...start changes
 #include "zora.fh"
+czora...end changes
 
 c     
       Logical movecs_write, movecs_converged, movecs_read
@@ -159,6 +160,9 @@ c
       logical rabuck_act,spinset
       external dft_rabuck
 
+czora...start changes
+      integer iter_zora
+czora...end changes
 
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,
@@ -199,6 +203,12 @@ c
 
       me = ga_nodeid()
       nproc = ga_nnodes()
+
+czora...start changes
+      iter_zora = 0
+      do_zora_sc = .true.
+czora...end changes
+
 c
 c !!! BGJ
 c     Store SCF hamiltonian type as DFT for use in BGJ routines
@@ -779,6 +789,17 @@ c
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 
+czora...start changes
+czora...for non-self-consistent zora
+czora...calculate the zora correction at the first iteration and keep fixed
+      iter_zora = iter_zora + 1
+      if ((iter_zora .gt. 2) .and. (zora_sc .eq. 0) ) then 
+         do_zora_sc = .false.
+      else
+         Ezora_corr = Ezora_corr_tmp
+      end if
+czora...end changes
+
 c     
 c     Calculate the total electronic energy.
 c     
@@ -788,8 +809,9 @@ c
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
       endif
 
-czora...
+czora... start changes
       if (do_zora) Etnew = Etnew + Ezora_corr
+czora... end changes
 
       if (oprint_conv_details.and.me.eq.0)then
          write(LuOut,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic: ',
@@ -834,11 +856,12 @@ c
           call ga_dadd(one, g_vxc(ispin), one, g_focks(ispin), 
      &           g_focks(ispin))
 
-czora...
+czora...start changes
          if (do_zora) then
           call ga_dadd(one, g_zora(ispin), one, g_focks(ispin),
      &           g_focks(ispin))
          end if
+czora...end changes
 
          endif
 c     
@@ -1305,8 +1328,10 @@ c
       endif
       if (cosmo_on.and.cosmo_phase.eq.2) etnew = etnew + ecosmo
 
-czora...
+czora...start changes
       if (do_zora) etnew = etnew + Ezora_corr
+czora...end changes
+
 c    
       if (.not. ga_destroy(g_denso(1))) call errquit
      &   ('dft_scf: could not destroy g_denso', 0, GA_ERR)
@@ -1389,7 +1414,8 @@ c
          endif
          dft_time = dft_time+util_cpusec()
          if (nexc.le.1)then
-czora...
+
+czora...start changes
            if (do_zora) then   ! scalar zora print
             write(LuOut,224)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
      &      Ezora_corr,rho_n, dft_time
@@ -1398,7 +1424,6 @@ czora...
      &           rho_n, dft_time
            end if
          else
-czora...
           if (do_zora) then   ! scalar zora print
            write(LuOut,225)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
      &           enuc, Ezora_corr, rho_n, dft_time
@@ -1407,6 +1432,8 @@ czora...
      &           enuc, rho_n, dft_time
           end if
          endif
+czora...end changes
+
          if(cosmo_on.and.cosmo_phase.eq.2) then
            write(LuOut,*) '                 COSMO solvation results'
            write(LuOut,*) '                 -----------------------'
@@ -1715,6 +1742,7 @@ c
      &     ' Numeric. integr. density =', f22.12//
      &     '     Total iterative time =', f9.1,'s'//)
 
+czora...start changes
 czora...print out the scalar zora correction
  224  format(//
      &     '              Total DFT energy =', f22.12/
@@ -1737,6 +1765,7 @@ czora...print out the scalar zora correction
      &     ' Scalar Zora correction energy =', f22.12//
      &     '      Numeric. integr. density =', f22.12//
      &     '          Total iterative time =', f9.1,'s'//)
+czora...end changes
 
  4224 format(10x,' HOMO = ',f7.3,' LUMO = ',f7.3,
      &              ' RLSHIFT = ',f7.3,' HL_GAP = ',f7.3)

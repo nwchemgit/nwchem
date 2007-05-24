@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.59 2007-05-23 22:48:49 niri Exp $
+C$Id: xc_getv.F,v 1.60 2007-05-24 21:04:27 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -27,8 +27,10 @@ c
 #include "sym.fh"
 #include "stdio.fh"
 c
-czora...
+
+czora...start changes
 #include "zora.fh"
+czora...end changes
 
       integer cetobfr(2,natoms)
       double precision rho_n, rdens_atom(ipol*natoms*natoms)
@@ -84,12 +86,13 @@ c
       Exc(1)=0.d0
       Exc(2)=0.d0
 
-czora...
+czora...start changes
       if (do_zora) then
-        Ezora_corr = 0.d0
+        Ezora_corr_tmp = 0.d0
         call ga_zero(g_zora(1))
         if (ipol .gt. 1) call ga_zero(g_zora(2))
       end if
+czora...end changes
 
       me=ga_nodeid()
       havehfxc=abs(xfac(1)).gt.1d-8
@@ -263,18 +266,20 @@ c
       endif
 c
 
+czora...start changes
 czora... Calculate the scalar zora correction
       if (do_zora) then 
          if (ipol .gt. 1) then
-           Ezora_corr = Ezora_corr 
+           Ezora_corr_tmp = Ezora_corr_tmp 
      &           + ga_ddot(g_dens(1),g_zora(1)) 
      &           + ga_ddot(g_dens(2),g_zora(2)) 
          else 
-           Ezora_corr = 
-     &       Ezora_corr + ga_ddot(g_dens(1),g_zora(1)) 
+           Ezora_corr_tmp = 
+     &       Ezora_corr_tmp + ga_ddot(g_dens(1),g_zora(1)) 
          end if
         
       end if
-c     
+czora...end changes
+
       return
       end

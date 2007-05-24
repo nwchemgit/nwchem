@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.73 2007-05-23 23:16:19 niri Exp $
+c     $Id: dft_main0d.F,v 1.74 2007-05-24 21:03:26 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -26,10 +26,10 @@ c
       external ga_cholesky,ga_llt_i
 #endif
      
-czora...
+czora...start changes
 #include "zora.fh"
 #include "rel_consts.fh"
-
+czora...end changes
 
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -51,9 +51,9 @@ c
       external dft_scf_so 
       character*80 theory
 
-czora...
+czora...start changes
       integer zora_type
-c     
+czora...end changes
 c     
       dft_main0d = .false.
 c     
@@ -93,31 +93,38 @@ c
       iter = 0
       Etold = 0.D0
 
-c
+czora...start changes
 c     Do we need to perform a zora calculation ?
-c
-      if (.not. rtdb_get(rtdb,'zora',MT_LOG,1,do_zora)) then
-             do_zora = .false.
-             do_scalar_zora = .false.
-             do_so_zora = .false.
-             zora_type = 0
-      end if
+      if (.not.rtdb_get(rtdb,'zora',MT_LOG,1,do_zora)) 
+     &   do_zora=.false.
 
       if (do_zora) then
          Ezora_corr = 0.d0
-c
+
 c        Which form of zora needs to be done ? 
-c
          if (.not. rtdb_get(rtdb,'zora:type',MT_INT,1,
      $      zora_type)) zora_type = 1
 
-         if (zora_type .eq. 1) then
-             do_scalar_zora = .true.
-         else
-             do_so_zora = .true.
-         end if
+         if (zora_type .eq. 1)  do_scalar_zora = .true.
+         if (zora_type .eq. 2)  do_so_zora = .true.
+
+c        Do we need to do a self-consistent zora ?
+         if (.not. rtdb_get(rtdb,'zora:sc',MT_INT,1,
+     $      zora_sc)) zora_sc = 0
+
+         if (zora_sc .eq. 0)  do_zora_sc = .false.
+         if (zora_sc .eq. 1)  do_zora_sc = .true.
 
       end if   ! end do_zora check
+
+czoradebug...
+c      write(LuOut,*) "do_zora:",do_zora
+c      write(LuOut,*) "do_scalar_zora:",do_scalar_zora
+c      write(LuOut,*) "do_so_zora:",do_so_zora
+c      write(LuOut,*) "do_zora_sc:",do_zora_sc
+c      stop
+czora...end changes
+
 c
 c     Get the light speed and other constants, if specified
 c
@@ -385,12 +392,13 @@ c
      & call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_dens(1))
 
-czora...
+czora...start changes
       if (do_zora) then
        if (.not. ga_duplicate(g_s, g_zora(1), 'alpha zora'))
      & call errquit('dft_main0d: error creating ga',0,GA_ERR)
        call ga_zero(g_zora(1))
       end if
+czora...end changes
 
       if (.not. ga_duplicate(g_s, g_vxc(1), 'vxc alpha'))
      & call errquit('dft_main0d: error creating ga',0,GA_ERR)
@@ -401,12 +409,13 @@ czora...
      &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
        call ga_zero(g_dens(2))
 
-czora...
+czora...start changes
        if (do_zora) then
         if (.not. ga_duplicate(g_s, g_zora(2), 'beta zora'))
      &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
         call ga_zero(g_zora(2))
        end if
+czora...end changes
 
        if (.not. ga_duplicate(g_s, g_evecs(2), 'beta evecs'))
      &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
@@ -511,11 +520,12 @@ cnos      endif
          if (.not. ga_destroy(g_dens(2))) call errquit
      &      ('dft_main0d: could not destroy g_dens(2)', 0, GA_ERR)
 
-czora...
+czora...start changes
        if (do_zora) then 
          if (.not. ga_destroy(g_zora(2))) call errquit
      &      ('dft_main0d: could not destroy g_zora(2)', 0, GA_ERR)
        end if
+czora...end changes
 
       endif
       if (.not. ga_destroy(g_evecs(1))) call errquit
@@ -523,11 +533,12 @@ czora...
       if (.not. ga_destroy(g_dens(1))) call errquit
      &   ('dft_main0d: could not destroy g_dens(1)', 0, GA_ERR)
 
-czora...
+czora...start changes
       if (do_zora) then 
         if (.not. ga_destroy(g_zora(1))) call errquit
      &   ('dft_main0d: could not destroy g_zora(1)', 0, GA_ERR)
       end if
+czora...end changes
 
       if (.not. ga_destroy(g_svecs)) call errquit
      &   ('dft_main0d: could not destroy g_svecs', 0, GA_ERR)

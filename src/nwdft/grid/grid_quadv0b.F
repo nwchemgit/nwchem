@@ -14,7 +14,7 @@
      &     bas_cent_xinfo,bas_cset_xinfo,docsetx, 
      &     tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.56 2007-05-24 00:17:11 niri Exp $
+c$Id: grid_quadv0b.F,v 1.57 2007-05-24 21:04:03 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -29,9 +29,10 @@ c
 #include "grid_sic.fh"
 #include "dftps.fh"
 
-czora...
+czora...start changes
 #include "zora.fh"
 #include "geom.fh"
+czora...end changes
 
       integer  nqpts    ! [in] no. grid points  to be processed
       integer  ictr_buf ! [in] ctr of grid
@@ -57,11 +58,12 @@ czora...
 
       double precision tau(*), Mmat(*)
 
-czora...
+czora...start changes
       integer nodeid
       logical grad_zora
       grad_zora = .false.
       grad_zora = grad .or. do_zora
+czora...end changes
 
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -215,8 +217,9 @@ c     add beta to 1 to get alpha+beta
      &        rho(iscf_rho), 1)
       endif     
 
+czora...start changes
 czora...calculate the zora correction (hartree and nuclear potentials included in correction)
-      if (do_zora) then
+      if (do_zora .and. do_zora_sc) then
 
 c          consolidate the alpha & beta density components 
            if (ipol .gt. 1) then
@@ -243,7 +246,7 @@ c          separate the alpha & beta density components
      &      rdens_atom, cetobfr,kske,Mmat,0d0)
 
       end if   ! do_zora
-czora...end
+czora...end changes
 
       if (odftps) call pstat_on(ps_excf)
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
@@ -357,7 +360,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.56 2007-05-24 00:17:11 niri Exp $
+C$Id: grid_quadv0b.F,v 1.57 2007-05-24 21:04:03 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -497,7 +500,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.56 2007-05-24 00:17:11 niri Exp $
+C$Id: grid_quadv0b.F,v 1.57 2007-05-24 21:04:03 niri Exp $
 c
       implicit none
 #include "errquit.fh"

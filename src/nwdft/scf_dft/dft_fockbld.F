@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.26 2007-05-23 23:16:19 niri Exp $
+c     $Id: dft_fockbld.F,v 1.27 2007-05-24 21:03:26 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -22,8 +22,9 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 
-czora...
+czora...start changes
 #include "zora.fh"
+czora...end changes
 
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
       integer g_xcinv
@@ -94,6 +95,18 @@ c
      &     '           Kinetic energy =', f20.12/)
          endif
       endif
+
+czora...start changes
+czoradebug...
+c      if (do_zora) then
+c        if(ga_nodeid().eq.0) then
+c            write(luout,2223) Ezora_corr
+c 2223        format(/
+c     &     '           Scalar zora correction =', f20.12/)
+c        endif
+c      end if
+czora...end changes
+
 c
 c     if requested separate calculation of bq-electron energy (MV)
 c     ----------------------------------------------------------- 
@@ -211,7 +224,6 @@ c
       if (ipol.eq.2)call ga_zero(g_vxc(2))
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
       if (odftps) call pstat_on(ps_xc)
-c
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &             rdens_atom, cetobfr, natoms) 
@@ -243,9 +255,11 @@ c  Jorge Garza/End
 c
       call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
 
-czora... Add zora section
+czora...start changes
+czora...add zora contribution
       if (do_zora)
      &  call ga_dadd(1.d0, g_zora(1), 1.d0, g_fock, g_fock)
+czora...end changes
 
       if (ipol.gt.1)then
 c     
@@ -253,8 +267,11 @@ c     Put (-alpha+beta) in g_vxc(2)
 c     
          call ga_dadd(-1.d0, g_vxc(1), 1.d0, g_vxc(2), g_vxc(2))
 
+czora...start changes
+czora...add zora contribution
          if (do_zora)
      &    call ga_dadd(-1.d0, g_zora(1), 1.d0, g_zora(2), g_zora(2))
+czora...end changes
 
       endif
 c     
