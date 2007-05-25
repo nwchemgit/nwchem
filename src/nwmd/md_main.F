@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.212 2006-09-18 15:42:03 d3j191 Exp $
+c $Id: md_main.F,v 1.213 2007-05-25 23:29:07 d3j191 Exp $
 c
       implicit none
 c
@@ -581,41 +581,28 @@ c
       ecrit=epot
       if(icrit.eq.1) ecrit=epot
 c
-c     changing the logic here so that bad coordinates
-c     are not preserved in the last md iteration (M.V.)
-c     ------------------------------------------------
       if(ecrit.gt.epsd) then
 c
-        call cf_restor(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),
-     +   dbl_mb(i_vw),nwmloc,dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_fs),
-     +   dbl_mb(i_vs),nsaloc)
-c
+      call cf_restor(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),
+     + dbl_mb(i_vw),nwmloc,dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_fs),
+     + dbl_mb(i_vs),nsaloc)
       if(isdit.lt.msdit.and.dxmax.gt.dxsdmx) then
-        dx=half*dx
-        if(ga_nodeid().eq.0) then
-           write(*,*) "reducing step",dx,dxmax,dxsdmx
-        end if 
-        da=half*da
-        call timer_stop(201)
-        goto 1
+      dx=half*dx
+      da=half*da
+      call timer_stop(201)
+      goto 1
       else
-c
-c       this insures the global restoration of coordinates
-c       so that the right restart file written out
-c       --------------------------------------------------
-        call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     +   dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
-     +   dbl_mb(i_xsm),dbl_mb(i_xsmp))
-        call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     +   dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
-c
-        call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     +   dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     +   epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     +   npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
-c
-        endif
-        endif
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
+      call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+      call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
+      endif
+      endif
 c
       edif=ecrit-epsd
       epsd=ecrit
@@ -2900,7 +2887,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.212 2006-09-18 15:42:03 d3j191 Exp $
+c $Id: md_main.F,v 1.213 2007-05-25 23:29:07 d3j191 Exp $
 c
       implicit none
 c
