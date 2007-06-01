@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.11 2007-05-23 00:06:33 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.12 2007-06-01 18:28:02 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -80,10 +80,7 @@
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
       oprint = (oprint_in.or.hprint)
 cccccccccccccccccccccccccccccccccccccc
-c      value=MA_set_auto_verify(.true.)
 cccccccccccccccccccccccccccccccccccccc
-c      write(6,*)"DIE KATZE a"
-c      CALL FLUSH(6)
 
       value = .false.
   
@@ -107,18 +104,10 @@ c      CALL FLUSH(6)
         read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
         read(11,*,ERR=9999,END=9999) nrho,drho
         read(11,'(A)',ERR=9999,END=9999) comment
-c        write(*,12)pspx,atom
-c        write(*,*) zv,amass,lmax0,lmax1,
-c     >    locp1,rlocal1
-c        write(*,*) (rc(i),i=0,lmax0)
-c        write(*,*) nrho,drho
-c        write(*,'(A)') comment
 12      format(i1,A2)
         call flush(6)
       end if
 
-c      write(6,*)"DIE KATZE B"
-c      CALL FLUSH(6)
       msglen = 1
       call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
       call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
@@ -330,11 +319,9 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
      >                    .false.,
      >                    full_filename)
         l = index(full_filename,' ') - 1
-c        if (mprint) then
-           write(*,*)
-           write(*,*) "Generated formatted_filename: ",
+        write(*,*)
+        write(*,*) "Generated formatted_filename: ",
      >            full_filename(1:l)
-c        end if
         call openfile(2,full_filename,l,'w',l)     
         call cwrite(2,comment,80)
         psp_type = 7
@@ -500,14 +487,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
             td=lp+lp+1.0d0
             ta= (dl+0.5d0+jz)/td
             tb= (dl+0.5d0-jz)/td
-            if (ta.gt.1.d-15) then
+            if (ta.gt.1.d-14) then
                  calfa(ip)=dsqrt(ta)
                  malfa(ip)=int(nint(jz-0.5d0))
             else
                  calfa(ip)=0.0d0
                  malfa(ip)=lp+1
             end if
-            if (tb.gt.1.d-15) then
+            if (tb.gt.1.d-14) then
                  cbeta(ip)=dsqrt(tb)
                  mbeta(ip)=int(nint(jz+0.5d0))
             else
@@ -603,6 +590,8 @@ ccccccccccccccccccccccccccccccccccccccccc
            end do
            a=simp(nrho,f,drho) 
            vnlnrm(ip)=1.0/a
+           write(*,*)lp," ",ip," ",(dble(lp)+0.5)," ",vnlnrm(ip) 
+           call flush(6)
            ip=ip+1
            do k=1,nrho
              vv=vp(k,lp)+dble(lp)*vpso(k,lp)
@@ -610,6 +599,8 @@ ccccccccccccccccccccccccccccccccccccccccc
            end do
            a=simp(nrho,f,drho) 
            vnlnrm(ip)=1.0/a
+           write(*,*)lp," ",ip," ",(dble(lp)+0.5)," ",vnlnrm(ip) 
+           call flush(6)
            ip=ip+1
          end if
 100   continue
@@ -700,7 +691,7 @@ cccccccc locals
       external sphHarm
       external simp,sjx  
 cccccccccccccccccccccccccccccccccccccccccccccccc
-      value=MA_set_auto_verify(.true.)
+cccccccccccccccccccccccccccccccccccccccccccccccc
       call Parallel_taskid(taskid)
       call Parallel_np(nproc)
       pi=4.0d0*datan(1.0d0)
@@ -717,36 +708,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
       do 200 igz=1,ngz
       do 200 igy=1,ngy
       do 200 igx=1,ngx
-C         value=MA_verify_allocator_stuff()
-C       write(*,*)"Anl TR1",igx,igy,igz
-C       CALL FLUSH(6)
          tcount=tcount+1
          key=tcount-nproc*(tcount/nproc)
          if (key.ne.taskid) goto 200
-C       write(*,*)"gvec(1)= ",gvec(igx,igy,igz,1)," kvec(1)= ",kvec(1)
-C       call flush(6)
-C       value=MA_verify_allocator_stuff()
          gx=gvec(igx,igy,igz,1)+kvec(1)
-C       value=MA_verify_allocator_stuff()
-C       write(*,*)"Anl TR2x"
-C       write(*,*)gvec(igx,igy,igz,2)," kvec(2)= ",kvec(2)
-C       call flush(6)
-C       value=MA_verify_allocator_stuff()
          gy=gvec(igx,igy,igz,2)+kvec(2)
-C       value=MA_verify_allocator_stuff()
-C       write(*,*)"Anl TR2y"
-C       write(*,*)gvec(igx,igy,igz,3)," kvec(3)= ",kvec(3)
-C       call flush(6)
-C       value=MA_verify_allocator_stuff()
          gz=gvec(igx,igy,igz,3)+kvec(3)
-C       value=MA_verify_allocator_stuff()
-C       write(*,*)"Anl TR2z"
-C       CALL FLUSH(6)
          q=dsqrt(gx*gx+gy*gy+gz*gz)
          if (dabs(q).lt.1.e-9) then 
-C      value=MA_verify_allocator_stuff()
-C      write(*,*)"Anl 0XX"
-C      CALL FLUSH(6)
            if (locl.ne.0) then
              do k=1,nrho
                f(k)=rho(k)*wp(k,0)*vp(k,0)
@@ -757,27 +726,15 @@ C      CALL FLUSH(6)
              end do
              vnl(igx,igy,igz,1,2)=simp(nrho,f,drho)*scof(0)
            end if    
-C      value=MA_verify_allocator_stuff()
-C      write(*,*)"Anl 0XY"
-C      CALL FLUSH(6)
            goto 200
          end if
          gx=gx/q
          gy=gy/q
          gz=gz/q
-C      value=MA_verify_allocator_stuff()
-C      write(*,*)"Anl TR3"
-C      CALL FLUSH(6)
          do k=1,nrho
             cosqr(k)=dcos(q*rho(k))
             sinqr(k)=dsin(q*rho(k))
          end do
-C      value=MA_verify_allocator_stuff()
-C      write(*,*)"Anl TR4"
-C      CALL FLUSH(6)
-C      value=MA_verify_allocator_stuff()
-C      write(*,*)"Anl 0XZ1"
-C      CALL FLUSH(6)
          do ippot=1,nprj
             l=l_prj(ippot)
             if (l.eq.locl) then
@@ -804,17 +761,8 @@ C      CALL FLUSH(6)
             vnl(igx,igy,igz,ippot,2)= (d*cbeta)*
      >                 sphHarm(l,mbeta,gx,gy,gz)
          end do   
-C      value=MA_verify_allocator_stuff()
-C      write(*,*)"Anl 0XZ2"
-      CALL FLUSH(6)
 200   continue 	
-      value=MA_verify_allocator_stuff()
-      write(*,*)"Anl 2"
-      CALL FLUSH(6)
       call C3db_Vector_SumAll(nprj*ngx*ngy*ngz*2,vnl)
-      value=MA_verify_allocator_stuff()
-      write(*,*)"Anl 3"
-      CALL FLUSH(6)
       ierr=0
       return
       end
