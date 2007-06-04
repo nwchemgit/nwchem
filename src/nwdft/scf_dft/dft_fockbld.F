@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.27 2007-05-24 21:03:26 niri Exp $
+c     $Id: dft_fockbld.F,v 1.28 2007-06-04 23:44:20 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -258,7 +258,7 @@ c
 czora...start changes
 czora...add zora contribution
       if (do_zora)
-     &  call ga_dadd(1.d0, g_zora(1), 1.d0, g_fock, g_fock)
+     &  call ga_dadd(1.d0, g_zora_scalar(1), 1.d0, g_fock, g_fock)
 czora...end changes
 
       if (ipol.gt.1)then
@@ -270,7 +270,8 @@ c
 czora...start changes
 czora...add zora contribution
          if (do_zora)
-     &    call ga_dadd(-1.d0, g_zora(1), 1.d0, g_zora(2), g_zora(2))
+     &    call ga_dadd(-1.d0, g_zora_scalar(1), 1.d0, 
+     & g_zora_scalar(2), g_zora_scalar(2))
 czora...end changes
 
       endif

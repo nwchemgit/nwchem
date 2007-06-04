@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.264 2007-05-24 21:03:26 niri Exp $
+c     $Id: dft_scf.F,v 1.265 2007-06-04 23:44:21 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -206,7 +206,7 @@ c
 
 czora...start changes
       iter_zora = 0
-      do_zora_sc = .true.
+      do_zora_no_sapa = .true.
 czora...end changes
 
 c
@@ -790,11 +790,11 @@ c
      ,     n_levels, act_levels, oprint_time)
 
 czora...start changes
-czora...for non-self-consistent zora
+czora...for non-self-consistent zora or APA
 czora...calculate the zora correction at the first iteration and keep fixed
       iter_zora = iter_zora + 1
-      if ((iter_zora .gt. 2) .and. (zora_sc .eq. 0) ) then 
-         do_zora_sc = .false.
+      if ((iter_zora .gt. 2) .and. (zora_no_sapa .eq. 0) ) then 
+         do_zora_no_sapa = .false.
       else
          Ezora_corr = Ezora_corr_tmp
       end if
@@ -858,7 +858,7 @@ c
 
 czora...start changes
          if (do_zora) then
-          call ga_dadd(one, g_zora(ispin), one, g_focks(ispin),
+          call ga_dadd(one, g_zora_scalar(ispin), one, g_focks(ispin),
      &           g_focks(ispin))
          end if
 czora...end changes

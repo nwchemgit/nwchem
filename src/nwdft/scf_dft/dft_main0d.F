@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.74 2007-05-24 21:03:26 niri Exp $
+c     $Id: dft_main0d.F,v 1.75 2007-06-04 23:44:21 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -108,12 +108,12 @@ c        Which form of zora needs to be done ?
          if (zora_type .eq. 1)  do_scalar_zora = .true.
          if (zora_type .eq. 2)  do_so_zora = .true.
 
-c        Do we need to do a self-consistent zora ?
-         if (.not. rtdb_get(rtdb,'zora:sc',MT_INT,1,
-     $      zora_sc)) zora_sc = 0
+c        Do we need to do a self-consistent zora or APA calculation ?
+         if (.not. rtdb_get(rtdb,'zora:no_sapa',MT_INT,1,
+     $      zora_no_sapa)) zora_no_sapa = 0
 
-         if (zora_sc .eq. 0)  do_zora_sc = .false.
-         if (zora_sc .eq. 1)  do_zora_sc = .true.
+         if (zora_no_sapa .eq. 0)  do_zora_no_sapa = .false.
+         if (zora_no_sapa .eq. 1)  do_zora_no_sapa = .true.
 
       end if   ! end do_zora check
 
@@ -121,7 +121,7 @@ czoradebug...
 c      write(LuOut,*) "do_zora:",do_zora
 c      write(LuOut,*) "do_scalar_zora:",do_scalar_zora
 c      write(LuOut,*) "do_so_zora:",do_so_zora
-c      write(LuOut,*) "do_zora_sc:",do_zora_sc
+c      write(LuOut,*) "do_zora_no_sapa:",do_zora_no_sapa
 c      stop
 czora...end changes
 
@@ -394,9 +394,9 @@ c
 
 czora...start changes
       if (do_zora) then
-       if (.not. ga_duplicate(g_s, g_zora(1), 'alpha zora'))
+       if (.not. ga_duplicate(g_s, g_zora_scalar(1), 'alpha zora'))
      & call errquit('dft_main0d: error creating ga',0,GA_ERR)
-       call ga_zero(g_zora(1))
+       call ga_zero(g_zora_scalar(1))
       end if
 czora...end changes
 
@@ -411,9 +411,9 @@ czora...end changes
 
 czora...start changes
        if (do_zora) then
-        if (.not. ga_duplicate(g_s, g_zora(2), 'beta zora'))
+        if (.not. ga_duplicate(g_s, g_zora_scalar(2), 'beta zora'))
      &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
-        call ga_zero(g_zora(2))
+        call ga_zero(g_zora_scalar(2))
        end if
 czora...end changes
 
@@ -521,10 +521,10 @@ cnos      endif
      &      ('dft_main0d: could not destroy g_dens(2)', 0, GA_ERR)
 
 czora...start changes
-       if (do_zora) then 
-         if (.not. ga_destroy(g_zora(2))) call errquit
-     &      ('dft_main0d: could not destroy g_zora(2)', 0, GA_ERR)
-       end if
+      if (do_zora) then 
+      if (.not. ga_destroy(g_zora_scalar(2))) call errquit
+     &('dft_main0d: could not destroy g_zora_scalar(2)', 0, GA_ERR)
+      end if
 czora...end changes
 
       endif
@@ -535,8 +535,8 @@ czora...end changes
 
 czora...start changes
       if (do_zora) then 
-        if (.not. ga_destroy(g_zora(1))) call errquit
-     &   ('dft_main0d: could not destroy g_zora(1)', 0, GA_ERR)
+      if (.not. ga_destroy(g_zora_scalar(1))) call errquit
+     &('dft_main0d: could not destroy g_zora_scalar(1)', 0, GA_ERR)
       end if
 czora...end changes
 

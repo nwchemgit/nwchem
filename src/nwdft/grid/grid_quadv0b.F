@@ -14,7 +14,7 @@
      &     bas_cent_xinfo,bas_cset_xinfo,docsetx, 
      &     tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.57 2007-05-24 21:04:03 niri Exp $
+c$Id: grid_quadv0b.F,v 1.58 2007-06-04 23:44:49 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -219,14 +219,14 @@ c     add beta to 1 to get alpha+beta
 
 czora...start changes
 czora...calculate the zora correction (hartree and nuclear potentials included in correction)
-      if (do_zora .and. do_zora_sc) then
+      if (do_zora .and. do_zora_no_sapa) then
 
 c          consolidate the alpha & beta density components 
            if (ipol .gt. 1) then
              call ga_dadd(1d0, g_dens(1), 1d0, g_dens(2), g_dens(1))
            end if
 
-c          calculate the zora correction (has a hartree piece => consolidated density)
+c          calculate the zora correction (consolidated density => hartree piece)
            call grid_zoracorr(nqpts,qxyz,qwght,natoms,g_dens,amat)
 
 c          separate the alpha & beta density components
@@ -241,7 +241,7 @@ c          separate the alpha & beta density components
      &      0d0,0,1,
      &      ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
      &      grad_zora, AO_bas_han,
-     &      natoms, iniz, ifin, g_zora, ibf_ao,
+     &      natoms, iniz, ifin, g_zora_scalar, ibf_ao,
      &      rchi_atom, rdelchi_atom,
      &      rdens_atom, cetobfr,kske,Mmat,0d0)
 
@@ -360,7 +360,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.57 2007-05-24 21:04:03 niri Exp $
+C$Id: grid_quadv0b.F,v 1.58 2007-06-04 23:44:49 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -500,7 +500,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.57 2007-05-24 21:04:03 niri Exp $
+C$Id: grid_quadv0b.F,v 1.58 2007-06-04 23:44:49 niri Exp $
 c
       implicit none
 #include "errquit.fh"
