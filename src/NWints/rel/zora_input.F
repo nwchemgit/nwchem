@@ -35,7 +35,7 @@ c     Preliminaries
       do_zora = .true.
       do_scalar_zora = .false.
       do_so_zora = .false.
-      zora_sc = 0  ! non self-consistent zora by default
+      zora_no_sapa = 0  ! non self-consistent zora by default or atomic potential approximation (APA)
 
 c     Read input data beyond zora; store in rtdb.
   10  if (inp_a(test)) then
@@ -48,17 +48,17 @@ c     Read input data beyond zora; store in rtdb.
          elseif (inp_compare(.false.,'on',test)) then
             zora_type = 1   ! perform scalar zora by default
             do_scalar_zora = .true.
-            if (isSelfCons(test)) zora_sc = 1
+            if (isSelfCons(test)) zora_no_sapa = 1
 
          elseif (inp_compare(.false.,'scalar',test)) then
             zora_type = 1
             do_scalar_zora = .true.
-            if (isSelfCons(test)) zora_sc = 1
+            if (isSelfCons(test)) zora_no_sapa = 1
 
          elseif (inp_compare(.false.,'spin-orbit',test)) then
             zora_type = 2
             do_so_zora = .true.
-            if (isSelfCons(test)) zora_sc = 1
+            if (isSelfCons(test)) zora_no_sapa = 1
             call errquit('zora_input:
      & Spin-orbit ZORA not implemented yet.',0, UNKNOWN_ERR)
 
@@ -72,7 +72,7 @@ c     Read input data beyond zora; store in rtdb.
 
 cdebug
 c      write(LuOut,*) "do_zora:",do_zora
-c      write(LuOut,*) "zora_sc:",zora_sc
+c      write(LuOut,*) "zora_no_sapa:",zora_no_sapa
 
 c
 c     Write out a line informing user about the calculation being performed
@@ -101,7 +101,7 @@ c
       if (.not. rtdb_put(rtdb, 'zora:type', mt_int, 1, zora_type))
      $   call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
 
-      if (.not. rtdb_put(rtdb, 'zora:sc', mt_int, 1, zora_sc))
+      if (.not. rtdb_put(rtdb, 'zora:no_sapa', mt_int, 1, zora_no_sapa))
      $   call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
 
       return
@@ -131,7 +131,7 @@ c     Preliminaries
 
 c     Is this is a self-consistent calculation ?
       if (inp_a(test)) then
-        if (inp_compare(.false., 'self-cons', test)) then
+        if (inp_compare(.false., 'no_sapa', test)) then
                 isSelfCons = .true.
         end if
       end if
