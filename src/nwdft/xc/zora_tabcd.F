@@ -1,6 +1,6 @@
 czora...needs to be cleaned up.
 c
-C$Id: zora_tabcd.F,v 1.2 2007-05-21 18:45:09 niri Exp $
+C$Id: zora_tabcd.F,v 1.3 2007-06-04 23:45:31 niri Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -13,7 +13,7 @@ c
      N     curatoms,ncuratoms,nmat,
      I     ipol, nq, nbf, max_at_bf, max_at_bf2, 
      G     GRAD, basis, natoms, iniz, ifin, 
-     &     g_zora, ibf, rchi_atom, rdelchi_atom, 
+     &     g_zora_scalar, ibf, rchi_atom, rdelchi_atom, 
      &     rdens_atom, cetobfr,kske,Mmat,scr)
 c
 c     We're using xc_tabcd for CPKS purposes
@@ -46,7 +46,7 @@ c                  ! e.g. number of perturbations for CPSCF
       integer curatoms(*) ! Mapping array for current atoms [input]
       integer jatcur,  nu, nu1,  indT
       double precision tol_rho
-      integer g_zora(2)   ! GA handle [input]
+      integer g_zora_scalar(2)   ! GA handle [input]
       double precision Tmat(*), TTmat(*)
       double precision rchi_atom(natoms)
       double precision rdelchi_atom(natoms)
@@ -106,7 +106,6 @@ c
       external dabsmax
       logical l3d
       integer jrsh,jrsh2,n3d,idir,jdir
-      integer g_update(2)
 cnmr
       double precision Rij(3) ! vector R(jat) - R(iat)
       integer inia, iq, ix, ix1, ix2
@@ -410,7 +409,7 @@ c     Monitoring
 
                   if(l3d) then
 
-                     call dft_3dacc(g_zora, ttmat,
+                     call dft_3dacc(g_zora_scalar, ttmat,
      &                    jrsh,jrsh2,
      &                 ifirst, ilast, jfirst, jlast, nbfia)
                   else
@@ -422,10 +421,10 @@ c     Monitoring
                            call endtimer( monitor_wait1)
                         endif			
                         nbfirst1=.false.
-                        call upd_atombl_nb(g_zora(ii),
+                        call upd_atombl_nb(g_zora_scalar(ii),
      &                       basis,iat,jat,ttmat,nbhandl1)
                      else
-                        call upd_atom_block(g_zora(ii),
+                        call upd_atom_block(g_zora_scalar(ii),
      &                       basis,iat,jat,ttmat)
 
 
@@ -468,7 +467,7 @@ c     Monitoring
                      
                      if(l3d) then
 
-                        call dft_3dacc(g_zora, tmat,
+                        call dft_3dacc(g_zora_scalar, tmat,
      &                       jrsh,jrsh2,
      %                       jfirst, jlast, ifirst, ilast, nbfja)
                      else
@@ -478,11 +477,11 @@ c     Monitoring
                               call ga_nbwait(nbhandl2)
                            endif			
                            nbfirst2=.false.
-                           call upd_atombl_nb(g_zora(ii),
+                           call upd_atombl_nb(g_zora_scalar(ii),
      .                          basis,jat,iat,tmat,nbhandl2)
                         else
 
-                           call upd_atom_block(g_zora(ii),basis,
+                           call upd_atom_block(g_zora_scalar(ii),basis,
      J                          jat,iat,tmat)
                         endif
                      endif
