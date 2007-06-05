@@ -27,15 +27,15 @@ c
       integer zora_type
       logical zora_run
 
-      logical isSelfCons
-      external isSelfCons
+      logical isMolecular
+      external isMolecular
 
 c     Preliminaries
       zora_run = .true.
       do_zora = .true.
       do_scalar_zora = .false.
       do_so_zora = .false.
-      zora_no_sapa = 0  ! non self-consistent zora by default or atomic potential approximation (APA)
+      zora_atomic = 1  ! default: use sum of atomic potential approximation (SAPA)
 
 c     Read input data beyond zora; store in rtdb.
   10  if (inp_a(test)) then
@@ -48,17 +48,17 @@ c     Read input data beyond zora; store in rtdb.
          elseif (inp_compare(.false.,'on',test)) then
             zora_type = 1   ! perform scalar zora by default
             do_scalar_zora = .true.
-            if (isSelfCons(test)) zora_no_sapa = 1
+            if (isMolecular(test)) zora_atomic = 0
 
          elseif (inp_compare(.false.,'scalar',test)) then
             zora_type = 1
             do_scalar_zora = .true.
-            if (isSelfCons(test)) zora_no_sapa = 1
+            if (isMolecular(test)) zora_atomic = 0
 
          elseif (inp_compare(.false.,'spin-orbit',test)) then
             zora_type = 2
             do_so_zora = .true.
-            if (isSelfCons(test)) zora_no_sapa = 1
+            if (isMolecular(test)) zora_atomic = 0
             call errquit('zora_input:
      & Spin-orbit ZORA not implemented yet.',0, UNKNOWN_ERR)
 
@@ -72,7 +72,8 @@ c     Read input data beyond zora; store in rtdb.
 
 cdebug
 c      write(LuOut,*) "do_zora:",do_zora
-c      write(LuOut,*) "zora_no_sapa:",zora_no_sapa
+c      write(LuOut,*) "zora_atomic:",zora_atomic
+cdebug
 
 c
 c     Write out a line informing user about the calculation being performed
@@ -101,15 +102,15 @@ c
       if (.not. rtdb_put(rtdb, 'zora:type', mt_int, 1, zora_type))
      $   call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
 
-      if (.not. rtdb_put(rtdb, 'zora:no_sapa', mt_int, 1, zora_no_sapa))
+      if (.not. rtdb_put(rtdb, 'zora:atomic', mt_int, 1, zora_atomic))
      $   call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
 
       return
       end
 
 
-c     check if this is a self-consistent calculation
-      logical function isSelfCons(test)
+c     check if we are not using the APA method
+      logical function isMolecular(test)
 
       implicit none
 
@@ -127,12 +128,16 @@ c     check if this is a self-consistent calculation
       character*255 test
 
 c     Preliminaries
-      isSelfCons = .false.
+      isMolecular = .false.
 
 c     Is this is a self-consistent calculation ?
       if (inp_a(test)) then
-        if (inp_compare(.false., 'no_sapa', test)) then
-                isSelfCons = .true.
+        if (inp_compare(.false., 'molecular', test)) then
+          isMolecular = .true.
+        else if (inp_compare(.false., 'atomic', test)) then
+          isMolecular = .false.
+        else
+          isMolecular = .false.
         end if
       end if
 

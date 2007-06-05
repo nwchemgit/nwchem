@@ -8,12 +8,12 @@ czora...
       double precision Ezora_corr, Ezora_corr_tmp
       common/zora_corr/Ezora_corr, Ezora_corr_tmp
 
-      logical do_zora, do_scalar_zora, do_so_zora, do_zora_no_sapa
+      logical do_zora, do_scalar_zora, do_so_zora, do_zora_atomic
       common/zora_flags/do_zora, do_scalar_zora, do_so_zora, 
-     &  do_zora_no_sapa
+     &  do_zora_atomic
  
-      integer zora_no_sapa
-      common/zora_flags_int/zora_no_sapa
+      integer zora_atomic
+      common/zora_flags_int/zora_atomic
 
       double precision clight_au
       common/zora_consts/clight_au
