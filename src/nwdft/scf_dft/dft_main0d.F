@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.75 2007-06-04 23:44:21 niri Exp $
+c     $Id: dft_main0d.F,v 1.76 2007-06-05 21:32:36 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -108,12 +108,12 @@ c        Which form of zora needs to be done ?
          if (zora_type .eq. 1)  do_scalar_zora = .true.
          if (zora_type .eq. 2)  do_so_zora = .true.
 
-c        Do we need to do a self-consistent zora or APA calculation ?
-         if (.not. rtdb_get(rtdb,'zora:no_sapa',MT_INT,1,
-     $      zora_no_sapa)) zora_no_sapa = 0
+c        Do we need to do a SAPA calculation ?
+         if (.not. rtdb_get(rtdb,'zora:atomic',MT_INT,1,
+     $      zora_atomic)) zora_atomic = 1  ! perform SAPA by default
 
-         if (zora_no_sapa .eq. 0)  do_zora_no_sapa = .false.
-         if (zora_no_sapa .eq. 1)  do_zora_no_sapa = .true.
+         if (zora_atomic .eq. 0)  do_zora_atomic = .false.
+         if (zora_atomic .eq. 1)  do_zora_atomic = .true.
 
       end if   ! end do_zora check
 
@@ -121,7 +121,7 @@ czoradebug...
 c      write(LuOut,*) "do_zora:",do_zora
 c      write(LuOut,*) "do_scalar_zora:",do_scalar_zora
 c      write(LuOut,*) "do_so_zora:",do_so_zora
-c      write(LuOut,*) "do_zora_no_sapa:",do_zora_no_sapa
+c      write(LuOut,*) "do_zora_atomic:",do_zora_atomic
 c      stop
 czora...end changes
 

@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.265 2007-06-04 23:44:21 niri Exp $
+c     $Id: dft_scf.F,v 1.266 2007-06-05 21:32:36 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -206,7 +206,7 @@ c
 
 czora...start changes
       iter_zora = 0
-      do_zora_no_sapa = .true.
+      do_zora_atomic = .false. ! keep this flag for the first iteration to get the atomic contributions
 czora...end changes
 
 c
@@ -790,11 +790,9 @@ c
      ,     n_levels, act_levels, oprint_time)
 
 czora...start changes
-czora...for non-self-consistent zora or APA
-czora...calculate the zora correction at the first iteration and keep fixed
       iter_zora = iter_zora + 1
-      if ((iter_zora .gt. 2) .and. (zora_no_sapa .eq. 0) ) then 
-         do_zora_no_sapa = .false.
+      if ((iter_zora .gt. 2) .and. (zora_atomic .eq. 1) ) then 
+         do_zora_atomic = .true.   ! switch it on and keep it fixed for SAPA
       else
          Ezora_corr = Ezora_corr_tmp
       end if
