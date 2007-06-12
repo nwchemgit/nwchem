@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.266 2007-06-05 21:32:36 niri Exp $
+c     $Id: dft_scf.F,v 1.267 2007-06-12 00:09:53 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -160,10 +160,6 @@ c
       logical rabuck_act,spinset
       external dft_rabuck
 
-czora...start changes
-      integer iter_zora
-czora...end changes
-
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,
      ,     ncanorg,g_gmovecs(2)
@@ -171,6 +167,11 @@ czora...end changes
       logical llldb,llldb_out,util_statldb,staticguess
       external util_statldb
       integer ndisrst
+
+czora...start changes
+      integer iter_zora
+czora...end changes
+
       gotsmear(ss)=abs(ss).gt.1d-9
 c
       call ecce_print_module_entry('dft')
@@ -206,7 +207,7 @@ c
 
 czora...start changes
       iter_zora = 0
-      do_zora_atomic = .false. ! keep this flag for the first iteration to get the atomic contributions
+      do_zora_so = .false. ! make sure the spin-orbit flag is not set here
 czora...end changes
 
 c
@@ -513,7 +514,7 @@ c
       if (.not. rtdb_cput(rtdb, 'dft:output vectors', 1, movecs_out))
      $     call errquit('dft_scf: DFT MO vectors not defined',0,
      &       RTDB_ERR)
-        if (oskel) call ga_symmetrize(g_dens(1))
+      if (oskel) call ga_symmetrize(g_dens(1))
          if(ipol.eq.2) then
             call ga_copy(g_dens(1),g_dens(2))
             call ga_dscal(g_dens(1),dble(ntotel-nclosed)/(ntotel))
@@ -790,12 +791,36 @@ c
      ,     n_levels, act_levels, oprint_time)
 
 czora...start changes
+
+czora...debug
+c      write(luout,*) 
+c      write(luout,*) "do_zora_first_time:",do_zora_first_time
+c      write(luout,*) "do_zora_atomic:",do_zora_atomic
+c      write(luout,*) "do_zora_scalar:",do_zora_scalar
+c      write(luout,*) "do_zora_so:",do_zora_so
+c      write(luout,*) 
+czora...debug
+
       iter_zora = iter_zora + 1
-      if ((iter_zora .gt. 2) .and. (zora_atomic .eq. 1) ) then 
-         do_zora_atomic = .true.   ! switch it on and keep it fixed for SAPA
-      else
-         Ezora_corr = Ezora_corr_tmp
+      if (do_zora_scalar) then
+        if ((do_zora_atomic) .and. (do_zora_first_time)) then
+         do_zora_first_time = .false.
+         Ezora_scalar = Ezora_scalar_tmp
+        end if
+      
+        if (.not. (do_zora_atomic)) then 
+         Ezora_scalar = Ezora_scalar_tmp
+        end if
+
       end if
+
+czora...debug
+c      write(luout,*) 
+c      write(luout,*) "Ezora_scalar:", Ezora_scalar
+c      write(luout,*) "Ezora_scalar_tmp:", Ezora_scalar_tmp
+c      write(luout,*) 
+czora...debug
+
 czora...end changes
 
 c     
@@ -807,9 +832,9 @@ c
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
       endif
 
-czora... start changes
-      if (do_zora) Etnew = Etnew + Ezora_corr
-czora... end changes
+czora...start changes
+      if (do_zora_scalar) Etnew = Etnew + Ezora_scalar
+czora...end changes
 
       if (oprint_conv_details.and.me.eq.0)then
          write(LuOut,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic: ',
@@ -855,7 +880,7 @@ c
      &           g_focks(ispin))
 
 czora...start changes
-         if (do_zora) then
+         if (do_zora_scalar) then
           call ga_dadd(one, g_zora_scalar(ispin), one, g_focks(ispin),
      &           g_focks(ispin))
          end if
@@ -1327,7 +1352,7 @@ c
       if (cosmo_on.and.cosmo_phase.eq.2) etnew = etnew + ecosmo
 
 czora...start changes
-      if (do_zora) etnew = etnew + Ezora_corr
+      if (do_zora_scalar) etnew = etnew + Ezora_scalar
 czora...end changes
 
 c    
@@ -1414,17 +1439,17 @@ c
          if (nexc.le.1)then
 
 czora...start changes
-           if (do_zora) then   ! scalar zora print
+           if (do_zora_scalar) then   ! scalar zora print
             write(LuOut,224)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
-     &      Ezora_corr,rho_n, dft_time
+     &      Ezora_scalar,rho_n, dft_time
            else 
             write(LuOut,222)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
      &           rho_n, dft_time
            end if
          else
-          if (do_zora) then   ! scalar zora print
+          if (do_zora_scalar) then   ! scalar zora print
            write(LuOut,225)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
-     &           enuc, Ezora_corr, rho_n, dft_time
+     &           enuc, Ezora_scalar, rho_n, dft_time
           else
             write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
      &           enuc, rho_n, dft_time

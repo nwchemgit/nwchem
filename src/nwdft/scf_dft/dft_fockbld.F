@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.28 2007-06-04 23:44:20 niri Exp $
+c     $Id: dft_fockbld.F,v 1.29 2007-06-12 00:09:53 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -96,16 +96,6 @@ c
          endif
       endif
 
-czora...start changes
-czoradebug...
-c      if (do_zora) then
-c        if(ga_nodeid().eq.0) then
-c            write(luout,2223) Ezora_corr
-c 2223        format(/
-c     &     '           Scalar zora correction =', f20.12/)
-c        endif
-c      end if
-czora...end changes
 
 c
 c     if requested separate calculation of bq-electron energy (MV)
@@ -223,12 +213,27 @@ c
       rho_n = 0.0d0
       if (ipol.eq.2)call ga_zero(g_vxc(2))
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
+
       if (odftps) call pstat_on(ps_xc)
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &             rdens_atom, cetobfr, natoms) 
       if (odftps) call pstat_off(ps_xc)
-c
+
+czora...start changes
+      if (do_zora_atomic) then
+        if (do_zora_first_time) then
+         call ga_copy(g_zora_scalar(1), g_first_scalar(1))
+         if (ipol.gt.1)
+     &     call ga_copy(g_zora_scalar(2), g_first_scalar(2))
+        else 
+         call ga_copy(g_first_scalar(1), g_zora_scalar(1))
+         if (ipol.gt.1)
+     &     call ga_copy(g_first_scalar(2), g_zora_scalar(2))
+        end if
+      end if
+czora...end changes
+
       if (exact_pot.eq.1) then
         call xc_exact_pot(Ecoul_aux, g_dens, g_vxc, noc, g_rho_exact,
      &                    dif_lamda, g_tmp_exact, g_addit_exact)
@@ -256,8 +261,8 @@ c
       call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
 
 czora...start changes
-czora...add zora contribution
-      if (do_zora)
+czora...add zora scalar contribution to fock matrix
+      if (do_zora_scalar)
      &  call ga_dadd(1.d0, g_zora_scalar(1), 1.d0, g_fock, g_fock)
 czora...end changes
 
@@ -268,10 +273,10 @@ c
          call ga_dadd(-1.d0, g_vxc(1), 1.d0, g_vxc(2), g_vxc(2))
 
 czora...start changes
-czora...add zora contribution
-         if (do_zora)
+czora...add zora contribution to fock matrix
+         if (do_zora_scalar)
      &    call ga_dadd(-1.d0, g_zora_scalar(1), 1.d0, 
-     & g_zora_scalar(2), g_zora_scalar(2))
+     &       g_zora_scalar(2), g_zora_scalar(2))
 czora...end changes
 
       endif
