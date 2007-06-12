@@ -29,7 +29,7 @@ czora...
       double precision clight_au2
       clight_au2 = clight_au*clight_au
 
-c     initialisation
+c     preliminaries
       call dfill(nqpts, 0.d0, amat_coul, 1)
       call dfill(nqpts, 0.d0, amat_nucl, 1)
 
@@ -51,7 +51,7 @@ c     assemble zora correction
         zoraCorr = zoraCorr*qwght(igrid)
 c                                           zoraCorr = 0.5d0*qwght(igrid)  ! pure kinetic test
         amat(igrid,1) = zoraCorr
-        if (ipol .gt. 1) amat(igrid,2) = zoraCorr
+        if (ipol.gt.1) amat(igrid,2) = zoraCorr
       end do
 
       return
@@ -66,6 +66,7 @@ czora...
       implicit none
 
 #include "geom.fh"
+#include "stdio.fh"
 
       integer iatom,natoms,geom,igrid,nqpts
       double precision nucCharge, nucCoords(3)
@@ -83,6 +84,11 @@ c     loop over the atoms
 c       get an atom (needs error handling)
         lSuccess = geom_cent_get(geom, iatom, tags, nucCoords, 
      &          nucCharge)
+
+czora...debug
+c       write(LuOut,*) iatom,nucCharge
+c       stop
+czora...debug
 
 c       loop over the grid points
         do igrid = 1,nqpts

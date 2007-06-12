@@ -14,7 +14,7 @@
      &     bas_cent_xinfo,bas_cset_xinfo,docsetx, 
      &     tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.59 2007-06-05 21:33:05 niri Exp $
+c$Id: grid_quadv0b.F,v 1.60 2007-06-12 00:13:18 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -61,8 +61,7 @@ czora...end changes
 czora...start changes
       integer nodeid
       logical grad_zora
-      grad_zora = .false.
-      grad_zora = grad .or. do_zora
+      grad_zora = .true.
 czora...end changes
 
       npol = (ipol*(ipol+1))/2
@@ -219,22 +218,23 @@ c     add beta to 1 to get alpha+beta
 
 czora...start changes
 czora...calculate the zora correction (hartree and nuclear potentials included in correction)
-      if (do_zora .and. (.not. do_zora_atomic) ) then   ! if we are not doing SAPA
+      if (do_zora_first_time) then 
 
-c          consolidate the alpha & beta density components 
+czora...consolidate the alpha & beta density components 
            if (ipol .gt. 1) then
              call ga_dadd(1d0, g_dens(1), 1d0, g_dens(2), g_dens(1))
            end if
 
-c          calculate the zora correction (consolidated density => hartree piece)
+czora...calculate the zora correction (consolidated density => hartree piece)
            call grid_zoracorr(nqpts,qxyz,qwght,natoms,g_dens,amat)
 
-c          separate the alpha & beta density components
+czora...separate the alpha & beta density components
            if (ipol .gt. 1) then
               call ga_dadd(1d0, g_dens(1), -1d0, g_dens(2), g_dens(1))
            end if
 
-           call zora_tabcd(0,l3d,
+czora...scalar zora contribution
+           call zora_tabcd_scalar(0,l3d,
      &      tol_rho, Fmat, Pmat, amat, Bmat, Cmat, Dbl_MB(iDmat),
      &      0d0,0d0,0d0,0d0,
      &      Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
@@ -244,6 +244,47 @@ c          separate the alpha & beta density components
      &      natoms, iniz, ifin, g_zora_scalar, ibf_ao,
      &      rchi_atom, rdelchi_atom,
      &      rdens_atom, cetobfr,kske,Mmat,0d0)
+
+czora...spin-orbit zora contribution
+           if (do_zora_so) then 
+
+czora...x-component: stored in g_zora_so(3)
+c           call zora_tabcd_so(0,l3d,
+c     &      tol_rho, Fmat, Pmat, amat, Bmat, Cmat, Dbl_MB(iDmat),
+c     &      0d0,0d0,0d0,0d0,
+c     &      Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
+c     &      0d0,0,1,
+c     &      ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
+c     &      grad_zora, AO_bas_han,
+c     &      natoms, iniz, ifin, g_zora_so(3), ibf_ao,
+c     &      rchi_atom, rdelchi_atom,
+c     &      rdens_atom, cetobfr,kske,Mmat,0d0, 1)
+
+czora...y-component: stored in g_zora_so(2)
+c           call zora_tabcd_so(0,l3d,
+c     &      tol_rho, Fmat, Pmat, amat, Bmat, Cmat, Dbl_MB(iDmat),
+c     &      0d0,0d0,0d0,0d0,
+c     &      Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
+c     &      0d0,0,1,
+c     &      ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
+c     &      grad_zora, AO_bas_han,
+c     &      natoms, iniz, ifin, g_zora_so(2), ibf_ao,
+c     &      rchi_atom, rdelchi_atom,
+c     &      rdens_atom, cetobfr,kske,Mmat,0d0, 2)
+
+czora...z-component: stored in g_zora_so(1)
+c           call zora_tabcd_so(0,l3d,
+c     &      tol_rho, Fmat, Pmat, amat, Bmat, Cmat, Dbl_MB(iDmat),
+c     &      0d0,0d0,0d0,0d0,
+c     &      Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
+c     &      0d0,0,1,
+c     &      ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
+c     &      grad_zora, AO_bas_han,
+c     &      natoms, iniz, ifin, g_zora_so(1), ibf_ao,
+c     &      rchi_atom, rdelchi_atom,
+c     &      rdens_atom, cetobfr,kske,Mmat,0d0, 3)
+
+           end if ! do_so_zora
 
       end if   ! do_zora
 czora...end changes
@@ -360,7 +401,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.59 2007-06-05 21:33:05 niri Exp $
+C$Id: grid_quadv0b.F,v 1.60 2007-06-12 00:13:18 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -500,7 +541,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.59 2007-06-05 21:33:05 niri Exp $
+C$Id: grid_quadv0b.F,v 1.60 2007-06-12 00:13:18 niri Exp $
 c
       implicit none
 #include "errquit.fh"
