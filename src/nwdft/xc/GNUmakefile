@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.102 2007-05-15 19:23:09 niri Exp $
+# $Id: GNUmakefile,v 1.103 2007-06-12 00:12:25 niri Exp $
 
 	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
 
@@ -20,7 +20,8 @@
 	xc_pw91lda.o \
 	xc_rhogen.o \
 	xc_tabcd.o \
-	zora_tabcd.o \
+	zora_tabcd_scalar.o \
+	zora_tabcd_so.o \
 	xc_vwn_1.o \
 	xc_vwn_1_rpa.o \
 	xc_vwn_2.o \
@@ -48,8 +49,9 @@ ifeq ($(TARGET),cray-sv2)
 endif
 
 
-   USES_BLAS = xc_fitv.F xc_dirac.F xc_tabcd.F zora_tabcd.F xc_rhogen.F xc_beckew.F xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
-xc_eval_basis.F xc_fd.F  xc_optc.F xc_atomblock.F xc_vdw.F scat_mat.F
+   USES_BLAS = xc_fitv.F xc_dirac.F xc_tabcd.F zora_tabcd_scalar.F zora_tabcd_so.F xc_rhogen.F \
+               xc_beckew.F xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
+               xc_eval_basis.F xc_fd.F  xc_optc.F xc_atomblock.F xc_vdw.F scat_mat.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
