@@ -100,7 +100,7 @@ void FATR rpspsolve_
   strncat (outfile, out_filename, m2);
   outfile[m0 + m2 + 1] = '\0';
 
-  over_fourpi = 1.0 / (16.0 * atan (1.0));
+  over_fourpi = 0.25/M_PI;
 
 /********************
  *   we have already solved for the Relativsitic AE wavefunctions using atom 
@@ -228,7 +228,7 @@ void FATR rpspsolve_
   nvh=Nvalence/2;
   for (k = 0; k < Nlinear; ++k)
     {
-      fprintf (fp, "%12.8lf %12.8lf", rl[k]);
+      fprintf (fp, "%12.8lf", rl[k]);
       for (p = 0; p < nvh; ++p)
 	{
 	  vx = p * pspl[2 * p][k] + (p + 1.) * pspl[2 * p + 1][k];
@@ -296,7 +296,7 @@ void FATR rpspsolve_
 	{
 	  vx = pspl[2 * p][k] - pspl[2 * p + 1][k];
 	  vx *= 2. / (2. * p + 1.);
-	  fprintf (fp, " %12.8lf", vx);
+	  fprintf (fp, " %15.8lf", vx);
 	}
       fprintf (fp, "\n");
     }

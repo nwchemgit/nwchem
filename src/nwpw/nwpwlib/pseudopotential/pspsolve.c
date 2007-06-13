@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.20 2007-05-23 00:04:55 d3p708 Exp $
+ $Id: pspsolve.c,v 1.21 2007-06-13 02:46:50 d3p708 Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -77,7 +77,6 @@ void FATR pspsolve_
   int Ngrid;
   double *vall, *rgrid;
   char name[255];
-  char voutfile[255];
   int lmax_out, locp_out;
   double rlocal_out;
 
@@ -148,10 +147,6 @@ void FATR pspsolve_
     }
   rl = (double *) malloc (Nlinear * sizeof (double));
   rhol = (double *) malloc (Nlinear * sizeof (double));
-
-  fp=fopen(voutfile,"w");
-  fprintf(fp,"0 pspsolve\n");
-  fclose(fp);
 
   /* Norm-conserving output */
   if (NormConserving_Psp ())
@@ -398,7 +393,7 @@ void FATR pspsolve_
 	  full_filename[m9] = '\0';
 	  strcat (full_filename, "/");
 	  full_filename[m9 + 1] = '\0';
-	  strcat (full_filename, name);
+	  strcat  (full_filename, name);
 
 	  printf (" %s", full_filename);
 	  fp = fopen (full_filename, "w+");
