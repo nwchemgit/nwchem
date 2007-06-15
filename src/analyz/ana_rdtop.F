@@ -89,7 +89,7 @@ c      print*,'TOPOLOGY FILE ',filtop(1:index(filtop,' ')-1)
       read(lfntop,1000) cdummy
    11 continue
    10 continue
-      nat=4*(nhw+ndw+now)
+      nat=(nparm+1)*(nhw+ndw+now)
       do 12 i=1,nat
       read(lfntop,1000) cdummy
    12 continue
