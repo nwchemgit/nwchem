@@ -1,6 +1,6 @@
 /* psp.c -
    author - Eric Bylaska
-   $Id: rpsp.c,v 1.7 2007-04-13 21:53:46 d3p708 Exp $
+   $Id: rpsp.c,v 1.8 2007-06-19 21:35:24 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -78,10 +78,10 @@ init_RelPsp (char *filename)
   /* find the comment */
   strcpy (comment, "Hamann pseudopotential");
   /* set lmax  */
-  lmax = lmax_Atom ();
+  lmax = lmax_Atom () + 1;
 
   /* set the number psp projectors */
-  npsp_states = 2 * lmax + 4;
+  npsp_states = 2 * lmax + 2;
   /* allocate memory for n,l,fill,rcut,peak, and eigenvalue */
   n = (int *) malloc ((npsp_states) * sizeof (int));
   l = (int *) malloc ((npsp_states) * sizeof (int));
