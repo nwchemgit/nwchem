@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.21 2007-04-11 23:41:15 bylaska Exp $
+* $Id: cram.F,v 1.22 2007-06-19 23:45:07 d3p708 Exp $
 *
 
 *     ***********************************
@@ -605,6 +605,48 @@
         shift = (n-1)*npack_max
 
         sum(n) = zdotc(int_mb(nidb2_list(1)+nb),
+     >                         A(1+shift),1,
+     >                         B(1),      1)
+      end do
+
+
+      call nwpw_timing_end(2)
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_cc_inzdotAdd      *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_cc_inzdotAdd(nb,ne,A,B,sum)
+      implicit none
+      integer    nb
+      integer    ne
+      complex*16 A(*)
+      complex*16 B(*)
+      complex*16 sum(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer n,np
+      integer shift
+
+*     **** external functions ****
+      complex*16 zdotc
+      external   zdotc
+
+
+      call nwpw_timing_start(2)
+
+      do n=1,ne
+        shift = (n-1)*npack_max
+
+        sum(n) = sum(n)+zdotc(int_mb(nidb2_list(1)+nb),
      >                         A(1+shift),1,
      >                         B(1),      1)
       end do
