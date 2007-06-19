@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.12 2007-05-23 00:06:33 d3p708 Exp $
+* $Id: kbpp_band.F,v 1.13 2007-06-19 21:07:22 d3p708 Exp $
 *
 
 *     **************************************
@@ -56,7 +56,7 @@
       integer n_prj_indx,l_prj_indx,m_prj_indx
       integer f_hndl,cs_hndl,sn_hndl
       integer n_prj_hndl,l_prj_hndl,m_prj_hndl
-
+      integer psp_t
 
 
 *     ***** ngrid data *****
@@ -92,12 +92,11 @@ c      call Parallel_init()
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
-      read(11,12,ERR=9999,END=9999) pspx,atom
+      read(11,*,ERR=9999,END=9999) pspx,atom
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
       read(11,*,ERR=9999,END=9999) nrho,drho
       read(11,'(A)',ERR=9999,END=9999) comment
-12    format(i1,A2)
       end if
 
       msglen = 1

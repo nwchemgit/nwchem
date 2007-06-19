@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_nonlocal.F,v 1.2 2007-02-09 00:05:52 d3p708 Exp $
+* $Id: integrate_kbpp_band_nonlocal.F,v 1.3 2007-06-19 21:07:22 d3p708 Exp $
 *
       subroutine integrate_kbpp_band_nonlocal(version,kvec,
      >                            nrho,drho,lmax,locp,zv,
@@ -52,10 +52,18 @@
       forpi=4.0d0*pi
 
       IF(LMMAX.GT.16) THEN
+CC  gdi AT LEAST PRINT AN ERROR MESSAGE!
+        WRITE(*,*)"LMMAX ",Lmmax," exceeds 16 "
+        WRITE(*,*)"NO NON-LOCAL POTENTIAL WILL BE GENERATED!!!!"
+        WRITE(*,*)"YOU ARE NOT IN TEXAS ANYMORE!!!!!!"
         IERR=1
         RETURN
       ENDIF
       IF((NRHO/2)*2.EQ.NRHO) THEN
+CC  gdi AT LEAST PRINT AN ERROR MESSAGE!
+        WRITE(*,*)"NRHO ",NRHO," IS NOT A MULTIPLE OF 2 !"
+        WRITE(*,*)"NO NON-LOCAL POTENTIAL WILL BE GENERATED!!!!"
+        WRITE(*,*)"YOU ARE NOT IN TEXAS ANYMORE!!!!!!"
         IERR=2
         RETURN
       ENDIF

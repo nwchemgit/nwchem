@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.12 2007-06-01 18:28:02 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.13 2007-06-19 21:07:22 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -31,7 +31,7 @@
       character*255 full_filename
       character*255 pspso_filename
       logical value,mprint,hprint,oprint
-      integer lmax,locp
+      integer lmax,locp,nprj_out
       integer taskid,MASTER,msglen
       parameter (MASTER=0)
 
@@ -40,6 +40,7 @@
       character*80 comment
       double precision zv,amass
       integer lmax0,lmmax,lmax1,locp1,nprj,ierr
+      integer lmax_out
       double precision rc(0:12),rlocal1
       integer nrho
       double precision drho
@@ -81,33 +82,30 @@
       oprint = (oprint_in.or.hprint)
 cccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccc
-
-      value = .false.
   
 *     ***** read in pseudopotential data ****
       if (taskid.eq.MASTER) then
          call util_file_name_noprefix(psp_filename,.false.,.false.,
      >                    full_filename)
          l = index(full_filename,' ') - 1
-         write(*,*)"psp FILENAME IS ",psp_filename
-         call flush(6)
-         write(*,*)"full FILENAME IS ",full_filename
-         call flush(6)
-         pspso_filename=full_filename(1:l)//'.so' 
-         write(*,*)"pspso FILENAME IS ",pspso_filename
-         call flush(6)
-        open(unit=11,file=full_filename(1:l),
+         open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
-        read(11,12,ERR=9999,END=9999)pspx,atom
-        read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,
+         read(11,*,ERR=9999,END=9999)pspx,atom
+         read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,
      >    locp1,rlocal1
-        read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
-        read(11,*,ERR=9999,END=9999) nrho,drho
-        read(11,'(A)',ERR=9999,END=9999) comment
-12      format(i1,A2)
-        call flush(6)
+         read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
+         read(11,*,ERR=9999,END=9999) nrho,drho
+         read(11,'(A)',ERR=9999,END=9999) comment
+         write(*,*)pspx,atom
+         write(*,*) zv,amass,lmax0,lmax1,locp1,rlocal1
+         write(*,*) (rc(i),i=0,lmax0)
+         write(*,*) nrho,drho
+         write(*,*)'NRHO= ',NRHO,' DRHO= ',DRHO
+         write(*,'(A)') comment
+         write(*,*)"Reading psp full filename"
+         call flush(6)
       end if
-
+       
       msglen = 1
       call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
       call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
@@ -120,46 +118,41 @@ cccccccccccccccccccccccccccccccccccccc
       call BRDCST(9+MSGINT,nrho,mitob(msglen),MASTER)
       call BRDCST(9+MSGDBL,drho,mdtob(msglen),MASTER)
 
-
 *     **** set the maximum angular momentum ****
       lmax=lmax0
-
+      lmax_out=lmax1
 *     **** set the local potential ****
       if (locp.eq.-1)   locp = locp1
-      if (locp.gt.lmax) locp = lmax
+      if (locp.gt.lmax_out) locp = lmax_out
       if (locp.lt.0)    locp = lmax
-      
-      
-      nprj=0
-      do kp=0,lmax
-        nprj=nprj+kp+1
-      end do  
-      nprj=nprj*4
+      nprj=0  
+      do kp=0,lmax-1
+         nprj=nprj+4*kp+4
+      end do
+      nprj_out=0
+      do kp=0,lmax_out-1
+         nprj_out=nprj_out+4*kp+4
+      end do
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+2),
+      value = MA_alloc_get(mt_dbl,nrho*(lmax0+1),
      >                        'vp',vp_hndl,vp_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+2),
+      value = MA_alloc_get(mt_dbl,nrho*(lmax0+1),
      >                        'vpso',vpso_hndl,vpso_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(2*lmax+3),
+      value = MA_alloc_get(mt_dbl,nrho*(2*lmax0+2),
      >                        'wp', wp_hndl,wp_indx)
       value = MA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
-     
+
 
       if (taskid.eq.MASTER) then
-       call read_rvpwp_band(11,nrho,lmax,dbl_mb(rho_indx),
+       call read_rvpwp_band(11,nrho,lmax0,dbl_mb(rho_indx),
      >                         dbl_mb(vp_indx),
      >                         dbl_mb(wp_indx))
+       call read_rkbpp_so(11,nrho,lmax0,dbl_mb(vpso_indx))
        call read_semicore_band(11,isemicore,rcore,nrho,
      > dbl_mb(sc_r_indx))
-       close(11)
-c      value=MA_verify_allocator_stuff()
-       l = index(pspso_filename,' ') - 1
-       open(unit=11,file=pspso_filename(1:l),
-     >             status='old',form='formatted')
-       call read_rkbpp_so(11,nrho,lmax,dbl_mb(vpso_indx))
        close(11)
       end if
 
@@ -167,7 +160,7 @@ c      value=MA_verify_allocator_stuff()
       call BRDCST(9+MSGDBL,dbl_mb(rho_indx),mdtob(msglen),MASTER)
       msglen = nrho*(lmax+1)
       call BRDCST(9+MSGDBL,dbl_mb(vp_indx),mdtob(msglen),MASTER)
-      msglen = nrho*(2*lmax+1)
+      msglen = nrho*(2*lmax+2)
       call BRDCST(9+MSGDBL,dbl_mb(wp_indx),mdtob(msglen),MASTER)
       msglen = nrho*(lmax+1)
       call BRDCST(9+MSGDBL,dbl_mb(vpso_indx),mdtob(msglen),MASTER)
@@ -181,7 +174,6 @@ c      value=MA_verify_allocator_stuff()
        rcore = 0.0d0
       end if
 
-
 *    **** more temporary space ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'f',f_hndl,f_indx)
@@ -189,17 +181,18 @@ c      value=MA_verify_allocator_stuff()
      >                        'cs',cs_hndl,cs_indx)
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
+
 *     **** allocate vl,vnl,vnrm G ****
       nsize = ngrid(1)*ngrid(2)*ngrid(3)
       value = MA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
-      value = MA_alloc_get(mt_dcpl,nsize*2*nprj,
+      value = MA_alloc_get(mt_dcpl,(nsize*2*nprj),
      >                        'vnl',vnl_hndl, vnl_indx)
       value = MA_alloc_get(mt_dbl,nprj,
      >                        'vnrm', vnrm_hndl, vnrm_indx)
-      value = MA_alloc_get(mt_dbl,nsize*3,
+      value = MA_alloc_get(mt_dbl,(nsize*3),
      >                        'G',G_hndl, G_indx)
-      value = MA_alloc_get(mt_dbl,4*nsize,
+      value = MA_alloc_get(mt_dbl,(4*nsize),
      >                        'sc_k',sc_k_hndl,sc_k_indx)
       value = MA_alloc_get(mt_int,nprj,
      >                        'n_prj', n_prj_hndl, n_prj_indx)
@@ -220,10 +213,12 @@ c      value=MA_verify_allocator_stuff()
      >			      'c_bet_prj',c_bet_hndl, 
      >                         c_bet_indx)
 cccccccccc assign the relativistic states ccccccccccccccccccc
-      call assign_rel_states(nprj,lmax,int_mb(n_prj_indx),
+      call rkbpp_states(lmax0,nprj,
+     > int_mb(n_prj_indx),
      > int_mb(l_prj_indx),int_mb(k_prj_indx),
      > int_mb(m_alf_indx),int_mb(m_bet_indx),
      > dbl_mb(c_alf_indx),dbl_mb(c_bet_indx))
+
 *     **** preparation of constants ****
       nfft1=ngrid(1)
       nfft2=ngrid(2)
@@ -231,9 +226,13 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
       call setup_kbpp_band(nfft1,nfft2,nfft3,unita,unitg,
      > dbl_mb(G_indx))
       nsize=nfft1*nfft2*nfft3
-      call rkbpp_vlocal(lmax,locp,nsize,nrho,
+      call rkbpp_vlocal(lmax0,locp,nsize,nrho,nprj,
+     >       dbl_mb(rho_indx),
      >       dbl_mb(vp_indx),dbl_mb(vpso_indx),
      >       dbl_mb(vnrm_indx),dbl_mb(vl_indx),
+     >       dbl_mb(wp_indx),
+     >       int_mb(l_prj_indx),
+     >       int_mb(k_prj_indx),
      >       dbl_mb(f_indx),dbl_mb(sn_indx),dbl_mb(cs_indx),
      >       dbl_mb(sc_k_indx),dbl_mb(sc_r_indx),
      >       dbl_mb(G_indx),semicore,zv,drho,ierr)
@@ -294,21 +293,22 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
   114 format(a,3F10.3)
   115 format(a,2E14.6)
       end if
+      call flush(6)
 
       nb=1
 
-      call rkbpp_vnonlocal(lmax,nrho,locp,
+      call rkbpp_vnonlocal(lmax0,nrho,locp,
      >  nfft1,nfft2,nfft3,nprj,
-     >  dbl_mb(G_indx),kvectors(1,nb),
+     >  dbl_mb(G_indx),kvectors(1,1),
      >  dbl_mb(vp_indx),dbl_mb(vpso_indx),
      >  dbl_mb(wp_indx),dcpl_mb(vnl_indx),
+     >  dbl_mb(vnrm_indx),
      >  dbl_mb(cs_indx),dbl_mb(sn_indx),dbl_mb(f_indx),
      >  dbl_mb(rho_indx),int_mb(l_prj_indx),
      >  int_mb(k_prj_indx),
      >  int_mb(m_alf_indx),int_mb(m_bet_indx),
      >  dbl_mb(c_alf_indx),dbl_mb(c_bet_indx),
      >  drho,ierr)
-
 
       if ((oprint).and.(taskid.eq.MASTER))
      >      write(*,*) "generating brillioun #",nb
@@ -338,20 +338,19 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
         call iwrite(2,nmax,1)
         call dwrite(2,rc,lmax+1)
 
-        call iwrite(2,nprj,1)
+        call iwrite(2,nprj_out,1)
         if (nprj.gt.0) then
-         call iwrite(2,int_mb(n_prj_indx),nprj)
-         call iwrite(2,int_mb(l_prj_indx),nprj)
-         call iwrite(2,int_mb(k_prj_indx),nprj)
-         call dwrite(2,dbl_mb(vnrm_indx),nprj)
+         call iwrite(2,int_mb(n_prj_indx),nprj_out)
+         call iwrite(2,int_mb(l_prj_indx),nprj_out)
+         call iwrite(2,int_mb(k_prj_indx),nprj_out)
+         call dwrite(2,dbl_mb(vnrm_indx),nprj_out)
         end if  
         call dwrite(2,rcore,1)
         call iwrite(2,nbrillioun,1)
         call dwrite(2,kvectors,3*nbrillioun)
         call dwrite(2,dbl_mb(vl_indx),nsize)
-        call dwrite(2,dcpl_mb(vnl_indx),nsize*nprj*2)
+        call dwrite(2,dcpl_mb(vnl_indx),nsize*nprj_out*4)
       end if
-
 
       do nb=2,nbrillioun
 
@@ -363,15 +362,17 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
      >  dbl_mb(G_indx),kvectors(1,nb),
      >  dbl_mb(vp_indx),dbl_mb(vpso_indx),
      >  dbl_mb(wp_indx),dcpl_mb(vnl_indx),
+     >  dbl_mb(vnrm_indx),
      >  dbl_mb(cs_indx),dbl_mb(sn_indx),dbl_mb(f_indx),
-     >  dbl_mb(rho_indx),int_mb(l_prj_indx),
+     >  dbl_mb(rho_indx),
+     >  int_mb(l_prj_indx),
      >  int_mb(k_prj_indx),
      >  int_mb(m_alf_indx),int_mb(m_bet_indx),
      >  dbl_mb(c_alf_indx),dbl_mb(c_bet_indx),
      >  drho,ierr)
 
         if (taskid.eq.MASTER) then
-          call dwrite(2,dbl_mb(vnl_indx),nsize*nprj*4)
+          call dwrite(2,dcpl_mb(vnl_indx),nsize*nprj_out*4)
         end if
 
       end do
@@ -423,21 +424,20 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 #include "errquit.fh"
       integer unit
-      integer nrho,lmax,npot,nprj
+      integer nrho,lmax,nprj
       double precision rho(nrho),rx
-      double precision vp(nrho,0:(lmax+1))
-      double precision wp(nrho,2*lmax+3)
+      double precision vp(nrho,0:lmax)
+      double precision wp(nrho,2*lmax+2)
       integer i,j
-      npot= lmax+1
-      nprj= lmax*2+3
+      nprj= lmax*2+2
       do i=1,nrho
-        read(unit,*,ERR=9999,END=9999) rho(i),(vp(i,j),j=0,npot)
+        read(unit,*,ERR=9999,END=9999) rho(i),(vp(i,j),j=0,lmax)
       end do
       do i=1,nrho
         read(unit,*,ERR=9999,END=9999) rx,(wp(i,j),j=1,nprj)
       end do
       return
- 9999 call errquit('Error reading psp_filename',0, DISK_ERR)
+ 9999 call errquit('Error reading Rel psp_filename',0, DISK_ERR)
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Read in spin orbit pseudopot.
@@ -451,94 +451,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccc
       call dcopy((lmax+1)*nrho,0.0d0,0,vso,1)
       do i=1,nrho
-        read(unit,*,ERR=9999,END=9999) rhox,(vso(i,j),j=1,(lmax+1))
+        read(unit,*,ERR=9999,END=9999) rhox,(vso(i,j),j=1,lmax)
       end do
       return
  9999 call errquit('Error reading psp_so_filename',0, DISK_ERR)
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Assing the value of l,m,kappa, c_alf, c_beta, etc.
-c  for the Dirac Atomic states.
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  note m_alfa/m_beta is set equal to lp+1 for states that are zero!
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine assign_rel_states(nprj,lmax,n_prj,l_prj,k_prj,
-     >  malfa,mbeta,calfa,cbeta)
-      implicit none
-      integer nprj,lmax,n_prj(*),l_prj(*),k_prj(*),malfa(*),mbeta(*)
-      real*8 calfa(*),cbeta(*)
-ccccccccccccc local variables cccccccccccccccccc
-      integer ip,lp,ik,n3,ns
-      real*8 dl,dk,td,ta,tb,jz,j
-cccccccccccccccccccccccccccccccccccccccccccccccc      
-      ip=1
-      do 100 lp=0,lmax
-         dk= -dble(lp)-1.0d0
-         ik= -lp-1
-         dl= dble(lp)
-         j=dl+0.5d0
-         ns=int(j+j+1.0d0)
-         do n3=0,ns
-            jz= dble(n3)-j
-            n_prj(ip)=1
-            l_prj(ip)=lp
-            k_prj(ip)=ik
-            td=lp+lp+1.0d0
-            ta= (dl+0.5d0+jz)/td
-            tb= (dl+0.5d0-jz)/td
-            if (ta.gt.1.d-14) then
-                 calfa(ip)=dsqrt(ta)
-                 malfa(ip)=int(nint(jz-0.5d0))
-            else
-                 calfa(ip)=0.0d0
-                 malfa(ip)=lp+1
-            end if
-            if (tb.gt.1.d-14) then
-                 cbeta(ip)=dsqrt(tb)
-                 mbeta(ip)=int(nint(jz+0.5d0))
-            else
-                 cbeta(ip)=0.0d0
-                 mbeta(ip)=lp+1
-            end if                
-            ip=ip+1
-         end do
-         if (lp.eq.0) goto 100
-         dk=dble(lp)
-         ik=lp
-         j=dl-0.5d0
-         ns=int(j+j+1.0d0)
-         do n3=0,ns
-            jz=dble(n3)-j
-            n_prj(ip)=1
-            l_prj(ip)=lp
-            k_prj(ip)=ik
-            td=lp+lp+1.0d0
-            ta= (dl+0.5d0-jz)/td
-            tb= (dl+0.5d0+jz)/td
-            if (ta.gt.1.d-15) then
-                 calfa(ip)= -dsqrt(ta)
-                 malfa(ip)= int(nint(jz-0.5d0))
-            else
-                 calfa(ip)=0.0d0
-                 malfa(ip)=lp+1
-            end if
-            if (tb.gt.1.d-15) then
-                 cbeta(ip)=dsqrt(tb)
-                 mbeta(ip)=int(nint(jz+0.5d0))
-            else
-                 cbeta(ip)=0.0d0
-                 mbeta(ip)=lp+1
-            end if                
-            ip=ip+1
-         end do
-100   continue
-      nprj=ip
-      return
-      end
-ccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine rkbpp_vlocal(lmax,locl,ngsize,nrho,
-     >       vp,vpso,vnlnrm,vl,
+      subroutine rkbpp_vlocal(lmax,locl,ngsize,nrho,nprj,rho,
+     >       vp,vpso,vnlnrm,vl,wp,
+     >       l_prj,k_prj,
      >       f,sinqr,cosqr,rho_sc_k,rho_sc_r,
      >       gvec,semicore,zv,drho,ierr)
       implicit none
@@ -546,7 +467,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer lmax
       integer nrho
       integer ngsize
-      integer locl,ierr
+      integer locl,ierr,nprj
+      integer l_prj(*),k_prj(*)
       double precision rho(nrho)
       double precision f(nrho)
       double precision sinqr(nrho)
@@ -554,16 +476,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       double precision vp(nrho,0:lmax)
       double precision vpso(nrho,0:lmax)
       double precision vl(ngsize)
-      double precision gvec(3,ngsize)
-      double precision wp(nrho,2*lmax+1)
-      double precision vnlnrm(2*lmax+1)
+      double precision gvec(ngsize,3)
+      double precision wp(nrho,(2*lmax+2))
+      double precision vnlnrm(nprj)
       double precision rho_sc_k(ngsize,4)
       double precision rho_sc_r(nrho,2)
       double precision zv
       double precision drho
 cccccccc locals ccccccccccccccccccccccccccccccccccccccc       
-      integer nproc,taskid,lp,ip,k,i,task_count
-      double precision fourpi,vv,a,gx,gy,gz,q
+      integer nproc,taskid,lp,ip,k,i,task_count,kappa,nw
+      double precision fourpi,vv,a,gx,gy,gz,q,sint
 cccccccc externals
       double precision simp
       external simp
@@ -577,43 +499,47 @@ ccccccccccccccccccccccccccccccccccccccccc
              vp(k,lp)=vp(k,lp)-vp(k,locl)
          end do
 10    continue
-      ip=1
-      do 100 lp=0,lmax
+ccccccccccccc assign norms to each projector
+      do 20 ip=1,nprj
+         lp=l_prj(ip)
          if (lp.eq.locl) then
-           vnlnrm(ip)=0.0d0
-           ip=ip+1 
-           goto 100
-         else   
-           do k=1,nrho
-             vv=vp(k,lp)-dble(lp+1)*vpso(k,lp)
-             f(k)=vv*wp(k,ip)*wp(k,ip)            
-           end do
-           a=simp(nrho,f,drho) 
-           vnlnrm(ip)=1.0/a
-           write(*,*)lp," ",ip," ",(dble(lp)+0.5)," ",vnlnrm(ip) 
-           call flush(6)
-           ip=ip+1
-           do k=1,nrho
-             vv=vp(k,lp)+dble(lp)*vpso(k,lp)
-             f(k)=vv*wp(k,ip)*wp(k,ip)            
-           end do
-           a=simp(nrho,f,drho) 
-           vnlnrm(ip)=1.0/a
-           write(*,*)lp," ",ip," ",(dble(lp)+0.5)," ",vnlnrm(ip) 
-           call flush(6)
-           ip=ip+1
+            vnlnrm(ip)=0.0d0
+            goto 20
          end if
-100   continue
+         kappa=k_prj(ip)
+         if (kappa.gt.0) then
+            nw= 2*lp
+         else
+            nw= 2*lp+1
+         end if
+         if ((nw.gt.(2*lmax+2)).or.(nw.lt.1)) then
+           write(*,*)"ERROR! DANGER! RUN FOR YOUR LIVES!"
+           write(*,*)"nw = ",nw," ip=",ip
+           call flush(6)
+         end if 
+         do k=1,nrho
+           vv= vp(k,lp) + dble(kappa)*vpso(k,lp)
+           f(k)=vv*wp(k,nw)*wp(k,nw)
+         end do
+         a=simp(nrho,f,drho)
+         vnlnrm(ip)=1.0d0/a;
+c         write(*,*)"ip =",ip," lp= ",lp," kp= ",kappa," nw=",nw
+c         write(*,*)" nprj = ",nprj
+c         write(*,*)"    vnrm(",ip,")=",vnlnrm(ip)
+c         call flush(6)
+20    continue  
+cccccccccc calculate local potential in q space
       call dcopy(ngsize,0.0d0,0,vl,1)
       call dcopy(4*ngsize,0.0d0,0,rho_sc_k,1)  
       task_count= -1
       do 700 i=1,ngsize
          task_count=task_count+1
-         if ( (nproc*(task_count/nproc)).ne.taskid) goto 700
-         if ( i.eq.1) goto 700
-         gx=gvec(1,i)
-         gy=gvec(2,i)
-         gz=gvec(3,i)
+         if ((i.eq.1).or.(mod(task_count,nproc).ne.taskid)) then
+            goto 700       
+         end if 
+         gx=gvec(i,1)
+         gy=gvec(i,2)
+         gz=gvec(i,3)
          q=dsqrt(gx*gx+gy*gy+gz*gz)
          gx=gx/q
          gy=gy/q
@@ -621,11 +547,10 @@ ccccccccccccccccccccccccccccccccccccccccc
          do k=1,nrho
             cosqr(k)=dcos(q*rho(k))
             sinqr(k)=dsin(q*rho(k))
+            f(k)=rho(k)*vp(k,locl)*sinqr(k)
          end do
-         do k=1,nrho
-            f(i)=rho(i)*vp(i,locl)*sinqr(i)
-         end do
-         vl(i)=simp(nrho,f,drho)*fourpi/q-zv*fourpi*cosqr(nrho)/q/q
+         sint=simp(nrho,f,drho) 
+         vl(i)=sint*fourpi/q-zv*fourpi*cosqr(nrho)/q/q
          if (semicore) then
            do k=1,nrho
               f(k) = rho(k)*dsqrt(rho_sc_r(k,1))*sinqr(k)
@@ -646,7 +571,6 @@ ccccccccccccccccccccccccccccccccccccccccc
 cccccccccc g=0
       do k=1,nrho
          f(k)=vp(k,locl)*rho(k)*rho(k)
-         vp(k,locl)=0.0d0
       end do
       vl(1)=fourpi*simp(nrho,f,drho)+0.5d0*fourpi*zv*rho(nrho)**2
       if (semicore) then
@@ -664,7 +588,7 @@ cccccccccc g=0
 cccccccccccccccccccccccccccc
       subroutine rkbpp_vnonlocal(lmax,nrho,locl,ngx,ngy,ngz,nprj,
      >  gvec,kvec,
-     >  vp,vpso,wp,vnl,
+     >  vp,vpso,wp,vnl,vnrm,
      >  cosqr,sinqr,f,rho,l_prj,k_prj,malf_prj,mbet_prj,calf_prj,
      >  cbet_prj,drho,ierr)
       implicit none
@@ -673,18 +597,19 @@ cccccccccccccccccccccccccccc
       integer ngx,ngy,ngz,nprj
       integer malf_prj(*),mbet_prj(*),l_prj(*),k_prj(*)
       real*8 cosqr(nrho),sinqr(nrho),f(nrho),rho(nrho)
-      real*8 vp(nrho,0:(lmax+1)),vpso(nrho,0:(lmax+1))
-      real*8 wp(nrho,0:(2*lmax+2))  
-      real*8 vnl(ngx,ngy,ngz,nprj,2)
+      real*8 vp(nrho,0:lmax),vpso(nrho,0:lmax)
+      real*8 wp(nrho,2*lmax+2),vnrm(*)  
+      complex*16 vnl(ngx,ngy,ngz,nprj,2)
+      complex*16 zzero
       real*8 calf_prj(nprj)
       real*8 cbet_prj(nprj)
-      real*8 drho,gvec(ngx,ngy,ngz,3),kvec(3)
+      real*8 drho,gvec(ngx,ngy,ngz,3),kvec(*)
 cccccccc locals
       integer taskid,nproc,tcount,k
-      integer igx,igy,igz
+      integer igx,igy,igz,nw
       integer malfa,mbeta,kappa,l,ippot,key
       real*8 pi4,q,gx,gy,gz,a,d,vv,qr,pi
-      real*8 calfa,cbeta,scof(0:8)
+      real*8 calfa,cbeta,scof0
       real*8 simp,sjx
       logical value
       complex*16 sphHarm
@@ -696,14 +621,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
       call Parallel_np(nproc)
       pi=4.0d0*datan(1.0d0)
       pi4=4.0d0*pi
-      scof(3)=dsqrt(pi4*105.0d0)
-      scof(2)=dsqrt(pi4*15.0d0)
-      scof(1)=dsqrt(pi4*3.0d0)
-      scof(0)=dsqrt(pi4)
+      zzero=dcmplx(0.0d0,0.0d0)
+      scof0=dsqrt(pi4)
       call dcopy(nprj*ngx*ngy*ngz*4,0.0d0,0,vnl,1)
-      value=MA_verify_allocator_stuff()
-      write(*,*)"Anl 1"
-      CALL FLUSH(6)
       tcount=-1
       do 200 igz=1,ngz
       do 200 igy=1,ngy
@@ -718,13 +638,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
          if (dabs(q).lt.1.e-9) then 
            if (locl.ne.0) then
              do k=1,nrho
-               f(k)=rho(k)*wp(k,0)*vp(k,0)
-             end do
-             vnl(igx,igy,igz,1,1)=simp(nrho,f,drho)*scof(0)
-             do k=1,nrho
                f(k)=rho(k)*wp(k,1)*vp(k,0)
              end do
-             vnl(igx,igy,igz,1,2)=simp(nrho,f,drho)*scof(0)
+             vnl(igx,igy,igz,1,1)=simp(nrho,f,drho)*scof0
+             vnl(igx,igy,igz,1,2)=vnl(igx,igy,igz,1,1)
+             vnl(igx,igy,igz,1,1)=vnl(igx,igy,igz,1,1)*vnrm(1)
+             vnl(igx,igy,igz,1,2)=vnl(igx,igy,igz,1,2)*vnrm(1)
            end if    
            goto 200
          end if
@@ -735,168 +654,278 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
             cosqr(k)=dcos(q*rho(k))
             sinqr(k)=dsin(q*rho(k))
          end do
-         do ippot=1,nprj
+         do 100 ippot=1,nprj
             l=l_prj(ippot)
             if (l.eq.locl) then
-               vnl(igx,igy,igz,ippot,1)=0.0d0
-               vnl(igx,igy,igz,ippot,2)=0.0d0
-               cycle
+              vnl(igx,igy,igz,ippot,1)=zzero
+              vnl(igx,igy,igz,ippot,2)=zzero
+              goto 100
             end if
             kappa=k_prj(ippot)
+            if (kappa.gt.0) then
+              nw= 2*l
+           else
+              nw= 2*l+1
+            end if
             malfa=malf_prj(ippot)
             mbeta=mbet_prj(ippot)
             calfa=calf_prj(ippot)
             cbeta=cbet_prj(ippot)
             f(1)=0.0d0
             do k=1,nrho
-               vv=vp(k,l)+dble(kappa)*vpso(k,ippot-1)
-    	       vv=vv*wp(k,ippot-1)
+               vv=vp(k,l)+dble(kappa)*vpso(k,l)
+    	       vv=vv*wp(k,nw)
                qr=q*rho(k)
-               a=sjx(qr,l,sinqr(k),cosqr(k))
+               a=sjx(qr,l,sinqr(k),cosqr(k))*qr
                f(k)=a*vv
             end do
-            d=simp(nrho,f,drho)*scof(l)/q
-            vnl(igx,igy,igz,ippot,1)= (d*calfa)*
+            d=simp(nrho,f,drho)*pi4/q
+            vnl(igx,igy,igz,ippot,1)=d*calfa*
      >                 sphHarm(l,malfa,gx,gy,gz)
-            vnl(igx,igy,igz,ippot,2)= (d*cbeta)*
+            vnl(igx,igy,igz,ippot,2)=d*cbeta*
      >                 sphHarm(l,mbeta,gx,gy,gz)
-         end do   
+c            write(*,*)vnl(igx,igy,igz,ippot,1),
+c     >         vnl(igx,igy,igz,ippot,2)
+c            call flush(6)
+            vnl(igx,igy,igz,ippot,1)=vnl(igx,igy,igz,ippot,1)*
+     >              vnrm(ippot)
+            vnl(igx,igy,igz,ippot,2)=vnl(igx,igy,igz,ippot,2)*
+     >              vnrm(ippot)
+100      continue
 200   continue 	
       call C3db_Vector_SumAll(nprj*ngx*ngy*ngz*2,vnl)
       ierr=0
       return
       end
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  
-      double precision function sjx(qr,L,sn,cs)
-      implicit none
-      double precision qr,sn,cs
-      integer L
-      double precision a
-      if (L.eq.3) then
-        a=sn/qr
-        sjx=15.0d0*(a-cs)/qr/qr-6.0d0*a+cs
-        return
-      end if
-      if (L.eq.2) then
-        a=sn/qr
-        sjx=3.0d0*(a-cs)-cs/qr-sn
-        return
-      end if
-      if (L.eq.1) then
-        a=sn/qr
-        sjx=a-cs
-        return
-      end if
-      sjx=sn
-      return
-      end 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc 
-      complex*16 function sphHarm(L,M,x,y,z)
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc         
+c  spherical bessel function for a given L
+c  note: no limit of L
+c  written by Patrick Nichols 6/11/2007
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC     
+      double precision function SJX(qr,L,csx,snx)
       implicit none
-      integer L,M
-      real*8 x,y,z,plm,pi,sinth,phi
-      complex*16 expm  
-      pi=3.14159265358979323846d0
-      if (M.gt.L.or.M.lt.(-L)) then
-        sphHarm=dcmplx(0.0d0,0.0d0)
-        return
-      end if
-      sinth=dsqrt(x*x+y*y)
-      phi=datan2(y,x)
-      expm=dcmplx(dcos(phi*dble(M)),dsin(phi*dble(M)))  
-      if (L.eq.3) then
-        if (m.eq.-3) then
-            plm=dsqrt(35.0d0/64.0d0/pi)*sinth*sinth*sinth
-            sphHarm=plm*expm
-            goto 100 
-        end if 
-        if (m.eq.-2) then
-            plm=dsqrt(105.0d0/32.0d0/pi)*sinth*sinth*z
-            sphHarm=plm*expm
-            goto 100 
-        end if 
-        if (m.eq.-1) then
-            plm=dsqrt(21.0d0/64.0d0/pi)*sinth*(z*z*5.0d0-1.0d0)
-            sphHarm=plm*expm
-            goto 100 
-        end if 
-        if (m.eq.0) then
-            plm=dsqrt(7.0d0/16.0d0/pi)*(5.0d0*z*z*z-3.0d0*z)
-            sphHarm=plm*expm
-            goto 100
-        end if
-        if (m.eq.1) then
-            plm=-dsqrt(21.0d0/64.0d0/pi)*sinth*(z*z*5.0d0-1.0d0)
-            sphHarm=plm*expm
-            goto 100 
-        end if 
-        if (m.eq.2) then
-            plm=dsqrt(105.0d0/32.0d0/pi)*sinth*sinth*z
-            sphHarm=plm*expm
-            goto 100 
-        end if 
-        if (m.eq.3) then
-            plm=-dsqrt(35.0d0/64.0d0/pi)*sinth*sinth*sinth
-            sphHarm=plm*expm
-            goto 100 
-        end if 
+      integer L
+      double precision qr,csx,snx
+      double precision fourpi
+      parameter(fourpi=12.566370614359172d0)
+      integer i,n
+      integer nstop,nstrt,lmax
+      real*8 rfact1,rfact2,rfact3,rfact4,factr
+      real*8 xi,hxsq,series,sj0,sj1,fact,sjl,sjlm1,sjlp1
+      REAL*8 sav,scale
+      sjx=0.0d0
+      if (QR.LT.1.D-12) THEN
+         IF (L.EQ.0) SJX=1.0D0
+         GOTO 777
+      END IF   
+      IF ( (QR.LT.0.1) .AND. (L.GE.1)) THEN
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CC SMALL X EXPANSION 
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+         RFACT1=1.0D0
+         NSTOP=L+L+1
+         DO I=1,NSTOP,2
+           RFACT1=RFACT1*DBLE(I)
+         END DO
+         HXSQ=QR*QR*0.5D0
+         RFACT2=DBLE(L+L+3)
+         RFACT3=DBLE(4*L+10)*RFACT2
+         RFACT4=DBLE(2*L+7)*3.0D0*RFACT3
+         SERIES=1.0D0-(HXSQ/RFACT2)+(HXSQ*HXSQ/RFACT3)
+         SERIES=SERIES-(HXSQ**3)/RFACT4
+         SJX=(QR**L)*SERIES/RFACT1  
+         GOTO 777
       end if 
-      if (L.eq.2) then
-        if (m.eq.-2) then
-            plm=dsqrt(15.0d0/32.0d0/pi)*sinth*sinth
-            sphHarm=plm*expm
-            goto 100 
-        end if 
-        if (m.eq.-1) then
-            plm=dsqrt(15.0d0/8.0d0/pi)*sinth*z
-            sphHarm=plm*expm
-            goto 100 
-        end if 
-        if (m.eq.0) then
-            plm=dsqrt(15.0d0/16.0d0/pi)*(3.0d0*z*z-1.0d0)
-            sphHarm=plm*expm
-            goto 100
-        end if
-        if (m.eq.1) then
-            plm= -dsqrt(15.0d0/8.0d0/pi)*sinth*z
-            sphHarm=plm*expm
-            goto 100 
-        end if 
-        if (m.eq.2) then
-            plm=dsqrt(15.0d0/32.0d0/pi)*sinth*sinth
-            sphHarm=plm*expm
-            goto 100 
-        end if 
-      end if 
-      if (L.eq.1) then
-        if (m.eq.-1) then
-            plm=dsqrt(3.0d0/8.0d0/pi)*sinth
-            sphHarm=plm*expm
-            goto 100 
-        end if 
-        if (m.eq.0) then
-            plm=dsqrt(3.0d0/4.0d0/pi)*z
-            sphHarm=plm*expm
-            goto 100
-        end if
-        if (m.eq.1) then
-            plm= -dsqrt(3.0d0/8.0d0/pi)*sinth
-            sphHarm=plm*expm
-            goto 100 
-        end if 
-      end if 
-      plm= dsqrt(0.75d0/pi)    
-      sphHarm=plm*expm
-100   return
+      xi=1.0d0/qr
+      sj0=snx*xi
+      sj1=(snx*xi-csx)*xi
+      if (L.EQ.0) THEN
+        SJX=SJ0
+        GOTO 777
+      END IF
+      IF (L.EQ.1) THEN
+        SJX=SJ1
+        GOTO 777
+      END IF
+      HXSQ=QR*QR
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CC ASCENDING RECURSE
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      IF (HXSQ.GE.DBLE(L*(L+1))) THEN
+        DO I=2,L
+          FACT=DBLE(I+I-1)
+          SJX=FACT*SJ1*XI-SJ0
+          SJ0=SJ1
+          SJ1=SJX
+        END DO
+        GOTO 777
+      END IF 
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C DOWNWARD RECURSE FOLLOWED BY SCALING
+C SEE ABRAHAMOWITZ AND STEIGUN FOR THIS..
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      LMAX=L+25
+      SJLP1=0.0D0
+      SJL=1.D-34
+      NSTRT=LMAX-1
+      NSTOP=L+1
+      DO N=(LMAX-1),(L+1),-1
+        FACTR=DBLE(N+N+1)
+        SJLM1=FACTR*SJL*XI-SJLP1
+        SJLP1=SJL
+        SJL=SJLM1
+      END DO
+      SAV=SJL
+      DO N=L,1,-1
+        FACTR=DBLE(N+N+1)
+        SJLM1=FACTR*SJL*XI-SJLP1
+        SJLP1=SJL
+        SJL=SJLM1
+      END DO
+      SCALE=SJ0/SJL
+      SJX=SCALE*SAV
+777   RETURN
+      END
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c Assign the quantum numbers for the 2component relativstic 
+c projectors. See Sakurai, Adv Quantum Mechanics for these
+c numbers...
+c               PJN
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine rkbpp_states(lmax,npr,n_prj,l_prj,k_prj,malf,mbet,
+     > calf,cbet)
+      implicit none
+cccccccc arguments cccccccc
+      integer lmax,npr
+      integer n_prj(*),l_prj(*),k_prj(*),malf(*),mbet(*)
+      real*8 calf(*),cbet(*)
+cccccccc  locals cccccccccccc
+      integer ip,lp,kp,is,ns,lpend
+      real*8 j,jz,ta,tb,td
+cccccccccccc s-states
+      ip=0 
+      lp=0 
+      ns=2
+      j=0.5d0
+      kp= -1
+      td=1.0d0
+      do is=1,ns
+          ip=ip+1
+          jz=dble(is-1)-j
+          n_prj(ip)=1
+          l_prj(ip)=lp
+          k_prj(ip)=kp
+          ta=dabs(dble(lp)+0.5+jz)
+          tb=dabs(dble(lp)+0.5-jz)
+          if (ta.lt.1.e-12) then
+             malf(ip)= lp+1
+             calf(ip)= 0.0d0
+          else
+             malf(ip)= nint(jz-0.5)
+             calf(ip)= dsqrt(ta/td)
+          end if
+          if (tb.lt.1.e-12) then
+             mbet(ip)=lp+1
+             cbet(ip)=0.0d0
+          else
+             mbet(ip)= nint(jz+0.5)
+             cbet(ip)= dsqrt(tb/td)
+          end if
+      end do
+cccccccccc do from l=1 to lmax
+      lpend=lmax-1
+      do lp=1,lpend
+        ns=2*lp
+        j=dble(lp)-0.5d0
+        kp=lp
+        td=dble(2*lp+1)
+        do is=1,ns
+          ip=ip+1
+          jz=dble(is-1)-j
+          n_prj(ip)=1
+          l_prj(ip)=lp
+          k_prj(ip)=kp
+          ta=dabs(dble(lp)+0.5-jz)
+          tb=dabs(dble(lp)+0.5+jz)
+          if (ta.lt.1.e-12) then
+             malf(ip)=lp+1
+             calf(ip)=0.0d0
+          else
+             malf(ip)=nint(jz-0.5)
+             calf(ip)= -dsqrt(ta/td)
+          end if
+          if (tb.lt.1.e-12) then
+             mbet(ip)=lp+1
+             cbet(ip)=0.0d0
+          else
+             mbet(ip)=nint(jz+0.5)
+             cbet(ip)= dsqrt(tb/td)
+          end if
+        end do
+        ns=2*lp+2
+        j=dble(lp)+0.5d0
+        kp= -lp-1
+        do is=1,ns
+          ip=ip+1
+          jz=dble(is-1)-j
+          n_prj(ip)=1
+          l_prj(ip)=lp
+          k_prj(ip)=kp
+          ta=dabs(dble(lp)+0.5+jz)
+          tb=dabs(dble(lp)+0.5-jz)
+          if (ta.lt.1.e-12) then
+             malf(ip)= lp+1
+             calf(ip)=0.0d0
+          else
+             malf(ip)= nint(jz-0.5)
+             calf(ip)= dsqrt(ta/td)
+          end if
+          if (tb.lt.1.e-12) then
+             mbet(ip)=lp+1
+             cbet(ip)=0.0d0
+          else
+             mbet(ip)= nint(jz+0.5)
+             cbet(ip)= dsqrt(tb/td)
+          end if
+        end do
+      end do
+cccccccc last state = lmax
+      lp=lmax
+      ns=2*lp
+      j=dble(lp)-0.5d0
+      kp=lp
+      td=dble(2*lp+1)
+      do is=1,ns
+          ip=ip+1
+          jz=dble(is-1)-j
+          n_prj(ip)=1
+          l_prj(ip)=lp
+          k_prj(ip)=kp
+          ta=dabs(dble(lp)+0.5-jz)
+          tb=dabs(dble(lp)+0.5+jz)
+          if (ta.lt.1.e-12) then
+             malf(ip)=lp+1
+             calf(ip)=0.0d0
+          else
+             malf(ip)=nint(jz-0.5)
+             calf(ip)= -dsqrt(ta/td)
+          end if
+          if (tb.lt.1.e-12) then
+             mbet(ip)=lp+1
+             cbet(ip)=0.0d0
+          else
+             mbet(ip)=nint(jz+0.5)
+             cbet(ip)= dsqrt(tb/td)
+          end if
+      end do
+      if (ip.ne.npr) then
+        write(*,*)"NUMEBER OF PROJECTORS GIVEN IS ",npr
+        write(*,*)"actual number is ",ip
+        write(*,*)"NUMBER OF PROJECTORS DOES NOT EQUAL REAL NUMBER"
+        call flush(6)
+      END IF
+      return
       end
-ccccccccccccccc         
-
-
-
-
-
-
-
-
-
-  
+ccccccccccccccccccccc
+          

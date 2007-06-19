@@ -169,13 +169,89 @@
 
         if ((l.eq.0).and.(m.eq.0)) 
      >    Ylm(k1,k2,k3)=scof(1,0)
-            
   700 CONTINUE
       call C3dB_Vector_Sumall(nfft3d,Ylm)
-
-
       return
       end
-
-
-
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C  Generate the value of the spherical harmonic for
+C  the unit cartesian vector (x,y,z)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      complex*16 function sphharm(L,M,x,y,z)
+      implicit none
+      integer L,M,I,AM
+      real*8 x,y,z,pleg
+      real*8 plm,fact1,fact2,sim,sre,PHI
+      external pleg
+cccccccccccccccccccccccccccccc
+      AM=ABS(M)
+      if (AM.GT.L) THEN
+        SPHHARM=DCMPLX(0.0D0,0.0D0)
+        GOTO 777
+      END IF   
+      plm=Pleg(z,L,AM)
+      fact1=1.0d0
+      do i=2,(l-AM)
+        fact1=fact1*dble(i)
+      end do
+      fact1=fact1*(2*l+1)
+      fact2=1.0d0
+      do i=2,(l+AM)
+        fact2=fact2*dble(i)
+      end do
+      fact2=fact2*16.0d0*datan(1.0d0)
+      sim=dsqrt(fact1/fact2)
+      PHI=DBLE(M)*DATAN2(Y,X)
+      sre=sim*dcos(phi)*plm
+      sim=sim*dsin(phi)*plm
+      sphharm=dcmplx(sre,sim)
+777   return
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c calculates the Associated Legendre Function
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      real*8 function pleg(x,L,M)
+      implicit none
+#include "errquit.fh"
+      real*8 x
+      integer L,M
+ccccccc locals cccccccccc
+      real*8 pmm,pmmp1,PLL,SX2,FACT
+      INTEGER LL,J
+      if (m.gt.L) then
+        CALL ERRQUIT("m>l in call assoc. legendre function",0,0)
+      end if 
+      IF ((X.GT.1.0D0).OR.(X.LT.-1.D0)) THEN
+        CALL ERRQUIT("bad x in call assoc. legendre function",0,0)
+      END IF
+      sx2=(1.0d0-x)*(1.0d0+x)
+      if (sx2.lt.0.0d0) sx2=0.0d0
+      sx2=dsqrt(sx2)
+      pmm=1.0d0
+      pll=0.0d0
+      fact=1.0d0
+      do j=1,m
+        pmm = -pmm*fact*sx2
+        fact = fact +2.0d0
+      end do
+      if (l.eq.m) then
+        pleg=pmm
+        goto 777
+      else
+        pmmp1=x*pmm*dble(2*m+1)
+        if (l.eq.(m+1)) then
+          pleg=pmmp1
+          GOTO 777
+        else
+          do ll=m+2,L
+            pll=x*dble(2*ll-1)*pmmp1
+            pll=pll-dble(ll+m-1)*pmm
+            pll=pll/dble(ll-m)
+            pmm=pmmp1
+            pmmp1=pll
+          end do
+          pleg=pll
+        end if
+      end if
+777   return
+      end
