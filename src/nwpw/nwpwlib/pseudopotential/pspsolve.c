@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.21 2007-06-13 02:46:50 d3p708 Exp $
+ $Id: pspsolve.c,v 1.22 2007-06-19 21:26:06 bylaska Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -235,7 +235,7 @@ void FATR pspsolve_
 		  outfile);
 	}
       fp = fopen (outfile, "w+");
-      fprintf (fp, "0 %s\n", name_Atom ());
+      fprintf (fp, "%s\n", name_Atom ());
       fprintf (fp, "%lf %lf %d   %d %d %lf\n", Zion_Psp (), Amass_Atom (),
 	       lmax_Psp (), lmax_out, locp_out, rlocal_out);
       for (p = 0; p <= lmax_Psp (); ++p)

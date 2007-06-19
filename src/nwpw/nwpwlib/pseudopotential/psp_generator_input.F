@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.36 2007-06-13 02:46:50 d3p708 Exp $
+c $Id: psp_generator_input.F,v 1.37 2007-06-19 21:26:06 bylaska Exp $
 c
 
 *     ***************************************
@@ -588,7 +588,6 @@ c
        
 c      if (hprint) then
       write(*,*) "Generating 1d pseudopotential for ",atom
-      write(*,*) "psp_type:",psp_type
 
 c      end if
 
@@ -742,8 +741,6 @@ c        *** revPBE ***
       call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
       call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
       call BRDCST(9+MSGDBL,rlocal,mdtob(msglen),MASTER)
-      write(*,*)"done with psp gen nonauto!"
-      call flush(6)
 
       return
       end
@@ -818,7 +815,6 @@ c
        
       if (hprint) then
       write(*,*) "Generating 1d atomic orbitals for ",atom
-      write(*,*) "psp_type:",psp_type
       end if
 
       !*** CPI pseudopotential format ***
@@ -947,7 +943,5 @@ c           write(99,*) '<correlation> off   <end>'
       call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
       call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
       call BRDCST(9+MSGDBL,rlocal,mdtob(msglen),MASTER)
-c      write(*,*)"done with psp gen!"
-c      call flush(6)
       return
       end
