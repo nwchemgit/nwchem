@@ -204,7 +204,7 @@ void FATR rpspsolve_
     }
 
 
-  /* output datafile to be used for Kleinman-Bylander input, argv[1].dat */
+  /* output datafile to be used for Kleinman-Bylander input, argv[1].psp */
   if (print)
     {
       printf (" Creating datafile for Kleinman-Bylander input: %s\n",
@@ -244,12 +244,36 @@ void FATR rpspsolve_
     }
   for (k = 0; k < Nlinear; ++k)
     {
-      fprintf (fp, "%12.8lf %12.8lf", rl[k],psil[1][k]);
-      for (p = 2; p < Nvalence; ++p)
+      fprintf (fp, "%12.8lf ", rl[k]);
+      for (p = 0; p < Nvalence; ++p)
 	fprintf (fp, " %12.8lf", psil[p][k]);
       fprintf (fp, "\n");
     }
 
+
+  /* output spin-orbit datafile to be used for Kleinman-Bylander input, argv[1].dat */
+  if (print)
+    {
+      printf
+	(" Creating spin-orbit datafile for Kleinman-Bylander input: %s\n",
+	 outfile);
+    }
+  if (print)
+    {
+      printf ("  + Appending Spin-Orbit pseudopotentials:    %s thru %s\n",
+	      spd_Name (0), spd_Name (lmax_RelPsp ()));
+    }
+  for (k = 0; k < Nlinear; ++k)
+    {
+      fprintf (fp, "%12.8lf", rl[k]);
+      for (p = 1; p < nvh;++p)
+	{
+	  vx = pspl[2 * p][k] - pspl[2 * p + 1][k];
+	  vx *= 2. / (2. * p + 1.);
+	  fprintf (fp, " %15.8lf", vx);
+	}
+      fprintf (fp, "\n");
+    }
   /* append semicore corrections */
   if (r_semicore_RelPsp () != 0.0)
     {
@@ -270,35 +294,6 @@ void FATR rpspsolve_
       Log_to_Linear (drho_semicore_RelPsp (), rl, rhol);
       for (k = 0; k < Nlinear; ++k)
 	fprintf (fp, "%12.8lf %12.8lf\n", rl[k], (rhol[k] * over_fourpi));
-    }
-
-  fclose (fp);
-
-  /* output spin-orbit datafile to be used for Kleinman-Bylander input, argv[1].dat */
-  if (print)
-    {
-      printf
-	(" Creating spin-orbit datafile for Kleinman-Bylander input: %s\n",
-	 outfile);
-    }
-  strncpy (soutfile, outfile, strlen (outfile) + 1);
-  strncat (soutfile, ".so", 4);
-  fp = fopen (soutfile, "w+");
-  if (print)
-    {
-      printf ("  + Appending Spin-Orbit pseudopotentials:    %s thru %s\n",
-	      spd_Name (0), spd_Name (lmax_RelPsp ()));
-    }
-  for (k = 0; k < Nlinear; ++k)
-    {
-      fprintf (fp, "%12.8lf", rl[k]);
-      for (p = 1; p < nvh;++p)
-	{
-	  vx = pspl[2 * p][k] - pspl[2 * p + 1][k];
-	  vx *= 2. / (2. * p + 1.);
-	  fprintf (fp, " %15.8lf", vx);
-	}
-      fprintf (fp, "\n");
     }
   fclose (fp);
 
