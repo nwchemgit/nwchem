@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska and Patrick Nichols
-   $Id: atom.c,v 1.18 2007-04-24 23:52:16 d3p708 Exp $
+   $Id: atom.c,v 1.19 2007-06-19 21:36:07 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -168,12 +168,13 @@ init_Atom (char *filename)
       for (i = 0; i < ncvh; ++i)
 	{
 	  fscanf (fp, "%d %d %le", &nx, &lx, &fillx);
+          lmax=(lmax>lx)?lmax:lx;
 	  n[2 * i] = nx;
 	  n[2 * i + 1] = nx;
 	  l[2 * i] = lx;
 	  l[2 * i + 1] = lx;
-	  s2[2 * i] = 1;
-	  s2[2 * i + 1] = -1;
+	  s2[2 * i] = -1;
+	  s2[2 * i + 1] = 1;
 /****************************************************************
  * fill in the j=l+0.5 and j=l-0.5 states with the proper
  * occupancy. A simple divide will give the wrong occupancies.
@@ -185,10 +186,8 @@ init_Atom (char *filename)
 	    }
 	  else
 	    {
-	      fill[2 * i] = (2.0 * lx + 2.0) * (fillx * 0.5 / (2. * lx + 1.));
-	      fill[2 * i + 1] = (2.0 * lx) * (fillx * 0.5 / (2. * lx + 1.));
-	      if (lx > lmax)
-		lmax = lx;
+	      fill[2 * i] = (2.0 * lx) * (fillx * 0.5 / (2. * lx + 1.));
+	      fill[2 * i + 1] = (2.0 * lx+2) * (fillx * 0.5 / (2. * lx + 1.));
 	    }
 	}
 
