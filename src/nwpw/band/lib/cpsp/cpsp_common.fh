@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_common.fh,v 1.6 2007-05-15 23:27:23 d3p708 Exp $
+* $Id: cpsp_common.fh,v 1.7 2007-06-19 21:30:34 d3p708 Exp $
 *
 
 *     **** common blocks ****
@@ -15,18 +15,23 @@
       integer    nprj(2),n_projector(2),l_projector(2),m_projector(2)
       integer    npsp
       integer    psp_type(2)   
-      integer    ppot_stride,ppot_stride2
-      integer    ljmmax_max
+      integer    kij_stride,gij_stride,vso_stride,vnl_stride
+      integer    jmmax_max,vso_shift
       integer    nkatmx,lmmax_max,lmax_max,nmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16,nmax_max=3)
-      parameter (ljmmax_max=80)
+      parameter (nkatmx=50,lmax_max=4,lmmax_max=25,nmax_max=3)
+      parameter (jmmax_max=40)
+      parameter (gij_stride=(lmax_max+1)*nmax_max*nmax_max)
+      parameter (kij_stride=(jmmax_max))
+      parameter (vnl_stride=lmmax_max*nmax_max)
+      parameter (vso_stride=2*jmmax_max)
+      parameter (vso_shift=jmmax_max)
       character*2  atom(nkatmx)
-      character*84 comment(nkatmx)
+      character*80 comment(nkatmx)
       common / cpsp_block / prjtmp,vl,vnl,vnlso,Gijl,Kijl,zv,amass,rc,
      >                      lmmax,lmax,locp,nmax,
      >                      nprj,n_projector,l_projector,m_projector,
-     >                      psp_type,npsp,ppot_stride,
-     >                      ppot_stride2,do_spin_orbit,
+     >                      psp_type,npsp,
+     >                      do_spin_orbit,
      >                      comment,atom
 
 *     **** common block for psp stress ****
