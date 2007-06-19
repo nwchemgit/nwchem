@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.12 2007-05-08 17:55:09 bylaska Exp $
+* $Id: Dne.F,v 1.13 2007-06-19 21:26:47 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -40,7 +40,7 @@
       neq(2) = 0
       call D1dB_init(1,ne(1),map_in)
       call D1dB_nq(1,neq(1))
-      if (ispin.eq.2) then
+      if ((ispin.eq.2).and.(ne(2).gt.0)) then
         call D1dB_init(2,ne(2),map_in)
         call D1dB_nq(2,neq(2))
       end if
