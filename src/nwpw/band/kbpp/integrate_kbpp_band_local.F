@@ -8,7 +8,7 @@
      >                            semicore,rho_sc_r,rho_sc_k,
      >                            ierr)
 *
-* $Id: integrate_kbpp_band_local.F,v 1.2 2007-01-02 18:36:49 bylaska Exp $
+* $Id: integrate_kbpp_band_local.F,v 1.3 2007-06-19 21:20:43 d3p708 Exp $
 *
       implicit none
       integer          version
@@ -61,6 +61,10 @@
       forpi=4.0d0*pi
 
       IF((NRHO/2)*2.EQ.NRHO) THEN
+ccccccc why don't you just shoot the user ? 
+        WRITE(*,*)"nrho not a multiple of two "
+        WRITE(*,*)"LOCAL PSEUDOPOTENTIAL WILL NOT BE COMPUTED!"
+        write(*,*)"WE SHOULD REALLY CATCH THIS EARLIER!"
         IERR=2
         RETURN
       ENDIF
