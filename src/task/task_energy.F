@@ -113,7 +113,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.45 2006-12-01 22:19:18 edo Exp $
+* $Id: task_energy.F,v 1.46 2007-06-19 23:32:30 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -153,8 +153,8 @@ c
       external dft_energy, sodft_energy, tddft_energy
       logical tce_energy_fragment
       external tce_energy_fragment
-      logical  paw_energy
-      external paw_energy
+      logical  paw_energy,ofpw_energy
+      external paw_energy,ofpw_energy
 c
       logical status
       double precision dipole(3)
@@ -299,6 +299,8 @@ cedo         prefix = 'mp2'
          status = band_energy(rtdb)
       else if (theory .eq. 'paw') then
          status = paw_energy(rtdb)
+      else if (theory .eq. 'ofpw') then
+         status = ofpw_energy(rtdb)
       else if (theory .eq. 'md') then
          status = nwmd(rtdb)
       else if (theory .eq. 'qmmm') then
