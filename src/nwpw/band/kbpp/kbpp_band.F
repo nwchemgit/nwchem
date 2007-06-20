@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.13 2007-06-19 21:07:22 d3p708 Exp $
+* $Id: kbpp_band.F,v 1.14 2007-06-20 01:59:37 bylaska Exp $
 *
 
 *     **************************************
@@ -67,7 +67,7 @@
       double precision unitg(3,3)
       integer nsize,i,l,ierr,nb,psp_type
       integer nfft1,nfft2,nfft3
-      integer nmax,nprj,pspx
+      integer nmax,nprj
 
 *     **** external functions ****
       logical  control_print
@@ -92,7 +92,7 @@ c      call Parallel_init()
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
-      read(11,*,ERR=9999,END=9999) pspx,atom
+      read(11,*,ERR=9999,END=9999) atom
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
       read(11,*,ERR=9999,END=9999) nrho,drho
