@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.225 2007-06-19 23:32:58 bylaska Exp $
+# $Id: make_nwchem_config,v 1.226 2007-06-21 22:03:27 marat Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -65,7 +65,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md classical argos alldev pnnl pnnldev smallqm
 
-EXP_all = $(filter-out uccsdt python develop oimp2 scfaux plane_wave rimp2_grad geninterface diana dntmc,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out uccsdt python develop oimp2 scfaux plane_wave rimp2_grad geninterface diana dntmc transport,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
