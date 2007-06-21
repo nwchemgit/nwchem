@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.1 2007-06-19 23:31:57 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2007-06-21 02:08:06 bylaska Exp $
 #
-      SUBDIRS = minimizer
+      SUBDIRS = minimizer cpsd lib
 
-	OBJ_OPTIMIZE = 	ofpw_energy.o 
+	OBJ_OPTIMIZE = 	ofpw_energy.o task_ofpw.o
 	
         #OBJ = ofpw_input.o
 

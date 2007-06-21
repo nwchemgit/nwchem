@@ -1,5 +1,5 @@
 *
-* $Id: ofpw_minimizer.F,v 1.1 2007-06-19 23:32:01 bylaska Exp $
+* $Id: ofpw_minimizer.F,v 1.2 2007-06-21 02:08:17 bylaska Exp $
 *
 
 ***********************************************************************
@@ -190,6 +190,7 @@
          write(luout,1041)
          write(luout,1042)
          write(luout,1043)
+         write(luout,1044)
          write(luout,1010)
          write(luout,1000)
          call nwpw_message(1)
@@ -237,13 +238,48 @@
 
 
 *     **** initialize G,mask,ke,coulomb,and ewald data structures ****
-      call ke_init()
+      !call ke_init()
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
       if (control_version().eq.3) call ewald_init()
 
 *     **** read in wavefunctions and initialize psi ****
+c      chi(r) = ifft(chi(G)
+c      loop
+c         chi(r) = ifft(chi(G))
+c         rho(r) = chi(r)*chi(r)
+c         rho(G) = fft(rho(r))
+c
+c         Hchi(r) = 0
+c
+c         *** local psp term ****
+c         Vloc(G) = Struct(I,G)*vlocal(G)
+c         Vloc(r) = ifft(Vloc(G)
+c         Hchi(r) += Vloc(r)*chi(r)
+c
+c         *** hartree term ***
+c         Vh(G) = 4pi/G2 * rho(G)
+c         Vh(r) = ifft(Vh(G))
+c         Hchi(r) += Vh(r)*chi(r)
+c
+c         *** xc term ***
+c         vxc(r) = VXC(rho(r))
+c         Hchi(r) += vxc(r)*chi(r)
+c
+c         **** KE term ****
+c         vtfvw(r) = VTFVW(rho(r))
+c         Hchi(r) += vtfvw(r)*chi(r)
+c        
+c         vwgc(G) = Kernal(G)*rho(G)
+c         Vwgc(r) = ifft(Vwgc(G))
+c         Hchi(r) += Vwgc(r)*chi(r)
+c
+c
+c         chi(r) = chi(r) +alpha*Hchi(r)
+c       end loop
+         
+
 
 *     **** Initialize 1d mappings for ne spaces ****
 
@@ -503,7 +539,7 @@ c         call ion_Print_neighborlist()
       call strfac_end()
       if (control_version().eq.3) call coulomb_end()
       if (control_version().eq.4) call coulomb2_end()
-      call ke_end()
+      !call ke_end()
       call mask_end()
       call Pack_end()
       call G_end()
