@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.83 2006-12-10 01:00:23 d3j191 Exp $
+* $Id: task.F,v 1.84 2007-06-21 02:06:22 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -44,7 +44,7 @@ c
       logical oqmmm,opes, task_python, task_thermo,task_bq
       logical task_version, task_vscf
       logical task_paw 
-      logical task_pspw,task_band
+      logical task_pspw,task_band,task_ofpw
       logical task_drdy
       logical task_et
       logical player,transport
@@ -66,7 +66,7 @@ c
       external task_version, task_python, task_thermo
       external kgdtest, task_vscf
       external task_paw 
-      external task_pspw,task_band
+      external task_pspw,task_band,task_ofpw
       external task_drdy
       external task_et
       external task_property
@@ -307,6 +307,10 @@ c     *** task_band handles band specific "operations" ***
 c     *** task_paw handles paw specific "operations" ***
       else if (inp_compare(.false.,'paw',theory)) then
         status = task_paw(rtdb)
+
+c     *** task_ofpw handles ofpw specific "operations" ***
+      else if (inp_compare(.false.,'ofpw',theory)) then
+        status = task_ofpw(rtdb)
 
       else
          call errquit('task: unknown generic operation',0, INPUT_ERR)
