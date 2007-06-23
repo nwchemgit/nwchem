@@ -1,5 +1,5 @@
 c
-c     $Id: c_bybminimize.F,v 1.3 2007-01-21 00:34:55 d3p708 Exp $                       
+c     $Id: c_bybminimize.F,v 1.4 2007-06-23 01:32:34 d3p708 Exp $                       
 c
 
 *  ************************************************************
@@ -303,7 +303,7 @@ c     >                     'rho_in',rho_in(2),rho_in(1))
 *     **** free memory ****
       call nwpw_scf_mixing_end()
 c      value =           MA_pop_stack(rho_in(2))
-      value = value.and.MA_pop_stack(vall_junk(2))
+      value = MA_pop_stack(vall_junk(2))
       value = value.and.MA_pop_stack(vall_out(2))
       value = value.and.MA_pop_stack(vall_in(2))
       if (.not. value) 
