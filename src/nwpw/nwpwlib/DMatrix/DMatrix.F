@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix.F,v 1.4 2007-02-23 01:24:49 bylaska Exp $
+* $Id: DMatrix.F,v 1.5 2007-06-25 15:11:21 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -624,4 +624,111 @@ c
       return
       end
 
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      DMatrix_HmldivideDplusD    *
+*     *                                 *
+*     ***********************************
+
+      subroutine DMatrix_HmldivideDplusD(n,D,
+     >               A,ldq,mq,nq,
+     >               taskid_i,taskid_j)
+      implicit none
+      integer n
+      real*8  D(*)
+      integer ldq,mq(*),nq(*)
+      real*8  A(ldq,*)
+      integer taskid_i,taskid_j
+
+
+*     **** local variables ****
+      integer i,j,ii,jj
+      integer icur,jcur
+
+      jj   = 1
+      jcur = 0
+      do j=1,n
+         ii   = 1
+         icur = 0
+         do i=1,n
+
+            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+                  A(ii,jj) = A(ii,jj)/(D(i)+D(j))
+            end if
+
+            ii = ii + 1
+            if (ii.gt.mq(icur+1)) then
+              icur = icur + 1
+              ii   = 1
+            end if
+         end do
+
+         jj = jj + 1
+         if (jj.gt.nq(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 1
+         end if
+      end do
+
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      DMatrix_Hmlfweightscale    *
+*     *                                 *
+*     ***********************************
+*
+*     A(i,j) = A(i,j) * (2*fw(i)/(fw(i)+fw(j)))
+
+      subroutine DMatrix_Hmlfweightscale(n,fw,
+     >               A,ldq,mq,nq,
+     >               taskid_i,taskid_j)
+      implicit none
+      integer n
+      real*8  fw(*)
+      integer ldq,mq(*),nq(*)
+      real*8  A(ldq,*)
+      integer taskid_i,taskid_j
+
+
+*     **** local variables ****
+      integer i,j,ii,jj
+      integer icur,jcur
+
+      jj   = 1
+      jcur = 0
+      do j=1,n
+         ii   = 1
+         icur = 0
+         do i=1,n
+
+            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+                  A(ii,jj) = A(ii,jj)* (2.0d0*fw(i)/(fw(i)+fw(j)))
+            end if
+
+            ii = ii + 1
+            if (ii.gt.mq(icur+1)) then
+              icur = icur + 1
+              ii   = 1
+            end if
+         end do
+
+         jj = jj + 1
+         if (jj.gt.nq(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 1
+         end if
+      end do
+
+      return
+      end
 

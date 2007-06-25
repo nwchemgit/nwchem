@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.11 2007-03-28 03:57:21 bylaska Exp $
+* $Id: ewald.F,v 1.12 2007-06-25 15:13:23 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -433,6 +433,7 @@ c     real*8     tmp3(nfft3d*2)
 c      call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
       nshl3d = ewald_nshl3d()
+      
       value = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1)) 
       value = value.and.
      >        MA_push_get(mt_dcpl,npack0,'s',s(2),s(1)) 
@@ -440,7 +441,8 @@ c      call D3dB_nfft3d(1,nfft3d)
      >        MA_push_get(mt_dbl, npack0,'tmp3',tmp3(2),tmp3(1)) 
       value = value.and.
      >        MA_push_get(mt_dbl, (3*nshl3d),'ft',ft(2),ft(1)) 
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     >  call errquit('ewald_e:out of stack memory',0,MA_ERR)
      
 *     **** get the structure factor ****
       call dcopy((2*npack0),0.0d0,0,dcpl_mb(s(1)),1)
@@ -459,7 +461,7 @@ c      call D3dB_nfft3d(1,nfft3d)
       energyG = 0.5d0*energy/lattice_omega()
       energy  = 0.5d0*energy/lattice_omega() + cewald
 
-
+      
 *     *** need to make parallel ****
       dutask = 0
       etmp = 0.0d0
@@ -495,9 +497,11 @@ c          dbl_mb(ft(1)+(l-1))=zz*erfc**4/r
 
 *     **** deallocate temp workspace ****
       value = MA_pop_stack(ft(2))
-      value = MA_pop_stack(tmp3(2))
-      value = MA_pop_stack(s(2))
-      value = MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(s(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     >  call errquit('ewald_e:popping stack memory',0,MA_ERR)
 
       call nwpw_timing_end(21)
       ewald_e = energy

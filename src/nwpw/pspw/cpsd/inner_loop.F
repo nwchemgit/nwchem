@@ -1,5 +1,6 @@
-*,eke
-* $Id: inner_loop.F,v 1.27 2007-04-22 01:50:01 bylaska Exp $
+
+*
+* $Id: inner_loop.F,v 1.28 2007-06-25 15:13:22 bylaska Exp $
 *
 
 *  ************************************************************
@@ -46,7 +47,7 @@
 *     **** local variables ****
       logical move,sic,hfx
       integer n2ft3d,np_i,np_j
-      integer i,n,n1(2),n2(2),it,ms,nn,ierr
+      integer i,n,n1(2),n2(2),it,ms,ierr
       integer nx,ny,nz
       integer gga
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
@@ -420,8 +421,6 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
         if (fractional) then
-c       call psi_lmbda3(ispin,ne,nemax,npack1,psi1,psi2,dte,
-c    >                 lmd,dbl_mb(tmp_L(1)),ierr)
         call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
      >                  dte,dbl_mb(fweight(1)),
      >                  lmd,dbl_mb(tmp_L(1)),ierr)

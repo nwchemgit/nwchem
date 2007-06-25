@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.54 2007-04-22 02:00:33 bylaska Exp $
+* $Id: cpsdv5.F,v 1.55 2007-06-25 15:13:22 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -248,6 +248,7 @@
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
       if (control_version().eq.3) call ewald_init()
+
 
 
 *     **** generate initial wavefunction if it does not exist ****
@@ -943,7 +944,8 @@ c            write(luout,1706) E(18)
      >       ' ) - atomic mass= ',F6.3,' - fixed ',A)
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
- 1219 FORMAT(/' number of electrons: spin up=',F6.2,'  down=',F6.2,A)
+ 1219 FORMAT(/' number of electrons: spin up=',F6.2, 16x,
+     >                               '  down=',F6.2,A)
  1220 FORMAT(/' number of electrons: spin up=',I6,
      >        ' (',I4,' per task)',
      >        '  down=',I6,

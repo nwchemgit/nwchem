@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.83 2007-04-23 16:45:53 bylaska Exp $
+* $Id: cgsdv5.F,v 1.84 2007-06-25 15:13:22 bylaska Exp $
 *
 
 ***********************************************************************
@@ -688,7 +688,7 @@ c     end if
      >       ' ) - atomic mass= ',F7.3,' - fixed')
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
- 1219 FORMAT(/' number of electrons: spin up=',F6.2,
+ 1219 FORMAT(/' number of electrons: spin up=',F6.2,16x,
      >        '  down=',F6.2,A)
  1220 FORMAT(/' number of electrons: spin up=',I6,
      >        ' (',I4,' per task)',

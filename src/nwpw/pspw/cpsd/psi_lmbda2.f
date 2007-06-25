@@ -26,22 +26,16 @@
 *     **** local variables ****
       logical failed
       integer taskid
-      integer n1(2),n2(2)
-      integer i,j,ii,jj,ms
-      integer n,nn,index
+      integer ms,nn
       integer st1,st2
       integer A,B,C,U,D,Ba,Bs,fnm
-      integer sl(2)
-      real*8  alpha
-
 
       call nwpw_timing_start(3)
 
+      ierr = 0
       call Parallel_taskid(taskid)
 
-      n    = ne(1)
-      nn   = n**2
-
+      call Dneall_m_size(1,nn)
       A    = 0*nn + 1
       B    = 1*nn + 1
       C    = 2*nn + 1
@@ -56,75 +50,45 @@
 
       call dcopy(8*nn,0.0d0,0,tmp,1)
 
-      sl(1)  = 0*nn + 1
-      sl(2)  = 1*nn + 1
-      call dcopy(2*nn,0.0d0,0,lmbda,1)
-
-      n1(1)=1
-      n2(1)=ne(1)
-      n1(2)=ne(1)+1
-      n2(2)=ne(1)+ne(2)
-
-
       do ms=1,ispin
         IF(ne(ms).le.0) go to 640
 
-
 *       ***** compute the overlap matrices ****
-        call Pack_ccm_sym_dot2(1,n,ne(ms),
-     >                          psi2(1,n1(ms)),
-     >                          psi2(1,n1(ms)),
-     >                          tmp(A))
-        call Pack_ccmn_dot(1,n,ne(ms),
-     >                          psi1(1,n1(ms)),
-     >                          psi2(1,n1(ms)),
-     >                          tmp(B))
-        call Pack_ccm_sym_dot2(1,n,ne(ms),
-     >                          psi1(1,n1(ms)),
-     >                          psi1(1,n1(ms)),
-     >                          tmp(C))
+        call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(A))
+        call Dneall_ffm_Multiply(ms,psi1,psi2,npack1,tmp(B))
+        call Dneall_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(C))
 
+        call psi_gen_Ba_Bs(ms,nn,tmp(B),tmp(Bs),tmp(Ba))
 
-        call psi_gen_Ba_Bs(n,ne(ms),tmp(B),tmp(Bs),tmp(Ba))
-        call psi_gen_UD(n,ne(ms),tmp(Bs),tmp(D),lmbda)
+        call psi_gen_UD(ms,tmp(Bs),tmp(D))
 
-
-        call psi_gen_X(n,ne(ms),tmp(st1),tmp(st2),
+        call psi_gen_X(ms,nn,tmp(st1),tmp(st2),
      >                     tmp(A),tmp(Ba),tmp(C),
      >                     tmp(U),tmp(D),tmp(fnm),
-     >                     fweight(1+(ms-1)*ne(1)),
+     >                     fweight,
      >                     failed)
 
         if (failed) then
           if (taskid.eq.MASTER) then
-            write(6,*)
+            write(*,*)
      >     'Warning: Lagrange Multiplier generation failed.'
-            write(6,*) '        +Try using a smaller time step'
-            write(6,*) '        +Gram-Schmidt being performed, spin:',ms
+            write(*,*) '        +Try using a smaller time step'
+            write(*,*) '        +Gram-Schmidt being performed, spin:',ms
           end if
           call Dneall_f_ortho(ms,psi2,npack1)
-c          call Grsm_g_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
+          ierr = 1
         else
-          call dcopy(n*ne(ms),tmp(st1),1,lmbda(sl(ms)),1)
-          call dscal(n*ne(ms),(1.0d0/dte),lmbda(sl(ms)),1)
-c         do j=1,ne(ms)
-c         do i=1,ne(ms)
-c          lmbda(sl(ms)+(i-1)+(j-1)*n)
-c    >      =lmbda(sl(ms)+(i-1)+(j-1)*n)*fweight(j)
-c         end do
-c         end do
-
-*         ****  correction due to the constraint ****
-          call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
-     >              (1.0d0),
-     >              psi1(1,n1(ms)),2*npack1,
-     >              tmp(st1),n,
-     >              (1.0d0),
-     >              psi2(1,n1(ms)),2*npack1)
-
+          call Dneall_fmf_Multiply(ms,
+     >                          psi1,npack1,
+     >                          tmp(st1), 1.0d0,
+     >                          psi2,1.0d0)
+          call dscal(nn,(1.0d0/dte),tmp(st1),1)
+          call Dneall_mm_Expand(ms,tmp(st1),lmbda)
         end if
+   
   640   continue
       end do !*ms*
+
       call nwpw_timing_end(3)
 
       return
@@ -136,22 +100,21 @@ c         end do
 *     *        psi_gen_Ba_Bs   	     	*
 *     *                                 *
 *     ***********************************
-      subroutine psi_gen_Ba_Bs(n_max,n,B,Bs,Ba)
+      subroutine psi_gen_Ba_Bs(ms,nn,B,Bs,Ba)
       implicit none
-      integer n_max,n
-      real*8 B(n_max,n)
-      real*8 Bs(n_max,n)
-      real*8 Ba(n_max,n)
+      integer ms,nn
+      real*8 B(*),Bs(*),Ba(*)
 
-      !*** local variables ***
-      integer i,j
 
-      do i=1,n
-      do j=1,n
-         Bs(i,j) = 0.5d0*(B(i,j)+B(j,i))
-         Ba(i,j) = 0.5d0*(B(i,j)-B(j,i))
-      end do
-      end do
+      call Dneall_mm_transpose(ms,B,Ba)
+
+      call dcopy(nn,B,1,Bs,1)
+      call daxpy(nn,1.0d0,Ba,1,Bs,1)
+      call dscal(nn,0.5d0,Bs,1)
+
+      call daxpy(nn,1.0d0,B,1,Ba,1)
+      call dscal(nn,0.5d0,Ba,1)
+
       return
       end
 
@@ -160,18 +123,14 @@ c         end do
 *     *        psi_gen_UD           	*
 *     *                                 *
 *     ***********************************
-      subroutine psi_gen_UD(n_max,n,Bs,D,work)
+      subroutine psi_gen_UD(ms,Bs,D)
       implicit none
-      integer n_max,n
-      real*8 Bs(n_max,n)
-      real*8 D(n_max,n)
-      real*8 Work(n_max,n)
+      integer ms
+      real*8 Bs(*),D(*)
 
-      !*** local variables ***
-      integer ierr
+      !call DSYEV('V','U',n,Bs,n_max, D,Work,2*n_max*n_max,ierr)
+      call Dneall_m_diagonalize(ms,Bs,D,.true.)
 
-      !call eigen(n_max,n,Bs,D,D(1,2))
-      call DSYEV('V','U',n,Bs,n_max, D,Work,2*n_max*n_max,ierr)
       return
       end
 
@@ -183,7 +142,7 @@ c         end do
 *     *        psi_gen_X            	*
 *     *                                 *
 *     ***********************************
-      subroutine psi_gen_X(n_max,n,
+      subroutine psi_gen_X(ms,nn,
      >                     X1,tmp,
      >                     A,Ba,C,
      >                     U,D,fnm,
@@ -191,16 +150,16 @@ c         end do
      >                     failed)
      
       implicit none
-      integer n_max,n
-      real*8 X1(n_max,n)
+      integer ms,nn
+      real*8 X1(*)
       real*8 tmp(*)
-      real*8 A(n_max,n)
-      real*8 Ba(n_max,n)
-      real*8 C(n_max,n)
-      real*8 U(n_max,n)
-      real*8 D(n_max,n)
-      real*8 fnm(n_max,n)
-      real*8 fweight(n)
+      real*8 A(*)
+      real*8 Ba(*)
+      real*8 C(*)
+      real*8 U(*)
+      real*8 D(*)
+      real*8 fnm(*)
+      real*8 fweight(*)
       logical failed
 
       !**** local variables ****
@@ -208,26 +167,24 @@ c         end do
       real*8  convg
       parameter (itrlmd=20, convg=1.0d-15)
 
-      integer i,it
+      integer it
       real*8  adiff
 
-      !**** external functions ****
-      integer  idamax
-      external idamax
-
+*     **** external functions ****
+      real*8   Dneall_m_dmax
+      external Dneall_m_dmax
 
       !**** A = I-A ***
-      call dscal(n_max*n,(-1.0d0),A,1)
-      do i=1,n
-         A(i,i) = A(i,i) + 1.0d0
-      end do
+       call dscal(nn,(-1.0d0),A,1)
+       call Dneall_m_eye(ms,fnm,1.0d0)
+       call daxpy(nn,1.0d0,fnm,1,A,1)
 
       !*** fnm = I-A ****
-      call dcopy(n_max*n,A,1,fnm,1)
+      call dcopy(nn,A,1,fnm,1)
 
       !*** solve U*D*Ut*X + X*U*D*Ut = fnm for X ***
-      call psi_fnm_to_X(n_max,n,fnm,U,D,fweight,tmp)
-      call dcopy(n_max*n,fnm,1,X1,1)
+      call psi_fnm_to_X(ms,fnm,U,D,fweight,tmp)
+      call dcopy(nn,fnm,1,X1,1)
 
 
       it     = 0
@@ -236,30 +193,31 @@ c         end do
         it = it + 1
 
         !*** fnm = X*C*X ***
-        call DMMUL(n_max,n,C,X1,tmp)
-        call DMMUL(n_max,n,X1,tmp,fnm)
+        call Dneall_mmm_Multiply(ms,C, X1,  1.0d0,tmp,0.0d0)
+        call Dneall_mmm_Multiply(ms,X1,tmp, 1.0d0,fnm,0.0d0)
 
 
         !*** fnm = Ba*X - X*C*X ***
-        call DMMUL(n_max,n,Ba,X1,tmp)
-        call DMSUB(n_max,n,tmp,fnm,fnm)
+        call Dneall_mmm_Multiply(ms,Ba,X1,1.0d0,fnm,-1.0d0)
 
 
         !*** fnm = Ba*X - X*Ba - X*C*X ***
-        call DMMUL(n_max,n,X1,Ba,tmp)
-        call DMSUB(n_max,n,fnm,tmp,fnm)
+        call Dneall_mmm_Multiply(ms,X1,Ba,-1.0d0,fnm,1.0d0)
 
         !*** fnm = I-A + Ba*X - X*Ba - X*C*X ***
-        call DMADD(n_max,n,fnm,A,fnm)
+        call daxpy(nn,1.0d0,A,1,fnm,1)
 
 
         !*** solve U*D*Ut*X + X*U*D*Ut = fnm for X ***
-        call psi_fnm_to_X(n_max,n,fnm,U,D,fweight,tmp)
+        call psi_fnm_to_X(ms,fnm,U,D,fweight,tmp)
 
-        call DMSUB(n_max,n,X1,fnm,tmp)
-        adiff = tmp(idamax(n_max*n,tmp,1))
-        call dcopy(n_max*n,fnm,1,X1,1)
-
+        !call DMSUB(n_max,n,X1,fnm,tmp)
+        !adiff = tmp(idamax(n_max*n,tmp,1))
+        !call dcopy(n_max*n,fnm,1,X1,1)
+        call dcopy(nn,X1,1,tmp,1)
+        call daxpy(nn,-1.0d0,fnm,1,tmp,1)
+        adiff = Dneall_m_dmax(ms,tmp)
+        call dcopy(nn,fnm,1,X1,1)
 
         if (adiff.lt.convg) failed = .false.
       end do
@@ -273,63 +231,61 @@ c         end do
 *     *        psi_fnm_to_X         *
 *     *                                 *
 *     ***********************************
-      subroutine psi_fnm_to_X(n_max,n,fnm,U,D,fweight,tmp)
+      subroutine psi_fnm_to_X(ms,fnm,U,D,fweight,tmp)
       implicit none
-      integer n_max,n
-      real*8 fnm(n_max,n)
-      real*8 U(n_max,n)
-      real*8 D(n_max,n)
-      real*8 fweight(n)
-      real*8 tmp(n_max,n)
-
-      !**** local variables ****
-      integer i,j
-      real*8  d2
+      integer ms
+      real*8 fnm(*)
+      real*8 U(*)
+      real*8 D(*)
+      real*8 fweight(*)
+      real*8 tmp(*)
 
 
       !**** fnm = Ut*fnm*U ***
-      call DGEMM('N','N',n,n,n,1.0d0,
-     >           fnm,n_max,
-     >           U,n_max,
-     >           0.0d0,
-     >           tmp,n_max)
-      call DGEMM('T','N',n,n,n,1.0d0,
-     >           U,n_max,
-     >           tmp,n_max,
-     >           0.0d0,
-     >           fnm,n_max)
-
+c      call DGEMM('N','N',n,n,n,1.0d0,
+c     >           fnm,n_max,
+c     >           U,n_max,
+c     >           0.0d0,
+c     >           tmp,n_max)
+c      call DGEMM('T','N',n,n,n,1.0d0,
+c     >           U,n_max,
+c     >           tmp,n_max,
+c     >           0.0d0,
+c     >           fnm,n_max)
+      call Dneall_mmm_Multiply(ms,fnm,U,1.0d0,tmp,0.0d0)
+      call Dneall_mmm_Multiply2(ms,U,tmp,fnm)
 
       !**** fnm = (Ut*fnm*U)_nm/(d_n+d_m) ***
-      do j=1,n
-      do i=1,n
-        d2 = D(i,1)+D(j,1)
-        fnm(i,j) = (fnm(i,j)/d2)
-      end do
-      end do
+c      do j=1,n
+c      do i=1,n
+c        d2 = D(i,1)+D(j,1)
+c        fnm(i,j) = (fnm(i,j)/d2)
+c      end do
+c      end do
+       call Dneall_m_HmldivideDplusD(ms,fnm,D)
 
       !**** fnm = X = U*{(Ut*fnm*U)_nm/(d_n+d_m)}*Ut ***
-      call DGEMM('N','N',n,n,n,1.0d0,
-     >           U,n_max,
-     >           fnm,n_max,
-     >           0.0d0,
-     >           tmp,n_max)
-      call DGEMM('N','T',n,n,n,1.0d0,
-     >           tmp,n_max,
-     >           U,n_max,
-     >           0.0d0,
-     >           fnm,n_max)
+c      call DGEMM('N','N',n,n,n,1.0d0,
+c     >           U,n_max,
+c     >           fnm,n_max,
+c     >           0.0d0,
+c     >           tmp,n_max)
+c      call DGEMM('N','T',n,n,n,1.0d0,
+c     >           tmp,n_max,
+c     >           U,n_max,
+c     >           0.0d0,
+c     >           fnm,n_max)
+      call Dneall_mmm_Multiply(ms,U,fnm,1.0d0,tmp,0.0d0)
+      call Dneall_mmm_Multiply3(ms,tmp,U,fnm)
 
-      do j=1,n
-      do i=1,n
-        fnm(i,j) = fnm(i,j)*(2.0d0*fweight(i)/(fweight(i)+fweight(j)))
-      end do
-      end do
+c      do j=1,n
+c      do i=1,n
+c        fnm(i,j) = fnm(i,j)*(2.0d0*fweight(i)/(fweight(i)+fweight(j)))
+c      end do
+c      end do
+      call Dneall_m_Hmlfweightscale(ms,fnm,fweight)
 
       return
       end
-
-
-
 
 

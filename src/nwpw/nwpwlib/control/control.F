@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.101 2007-05-15 20:30:11 d3p708 Exp $
+* $Id: control.F,v 1.102 2007-06-25 15:10:07 bylaska Exp $
 *
 
 *     ***********************************
@@ -2007,7 +2007,7 @@ c      end
 *    *** local variables ***
       logical check
       real*8  icharge,tcharge,t
-      integer mult,x,x_wf
+      integer mult,x,x_wf,nextra_orbs
       integer ispin_wf,ne_wf(2),x_f
 
 *     ***** local functions ****
@@ -2017,12 +2017,25 @@ c      end
       external control_TotalCharge
       real*8   ion_TotalCharge_qm
       external ion_TotalCharge_qm
+      integer  control_frac_occ_extra_orbitals
+      external control_frac_occ_extra_orbitals
+
+
 
 *     **** check wavefunction file ****
       if (psi_filefind()) then
 
 *        **** get mult and e-charge from wavefunction file ****
          call psi_get_ne(ispin_wf,ne_wf)
+
+         nextra_orbs = control_frac_occ_extra_orbitals()
+         if (ispin_wf.eq.1) then
+            ne_wf(1) = ne_wf(1) - nextra_orbs
+         else
+            ne_wf(1) = ne_wf(1) - nextra_orbs
+            ne_wf(2) = ne_wf(2) - nextra_orbs
+         end if
+
          x_wf = ne_wf(1)+ne_wf(2)
          mult = ne_wf(1)-ne_wf(2) + 1
          if (ispin_wf.eq.1) then
@@ -2519,6 +2532,38 @@ c      end
       control_TotalCharge = charge
       return
       end
+
+
+
+*     **************************************
+*     *                                    *
+*     *   control_frac_occ_extra_orbitals  *
+*     *                                    *
+*     **************************************
+      integer function control_frac_occ_extra_orbitals()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer norbs
+
+      norbs = 0
+      if (.not.
+     > rtdb_get(rtdb,'nwpw:frac_occ:extra_orbitals',
+     >           mt_int,1,norbs)) then
+         norbs = 0
+      end if
+
+      control_frac_occ_extra_orbitals = norbs
+      return
+      end
+
+
 
 
 *     *****************************

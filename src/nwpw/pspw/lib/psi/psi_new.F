@@ -1,5 +1,5 @@
 *
-* $Id: psi_new.F,v 1.12 2007-03-19 19:05:37 bylaska Exp $
+* $Id: psi_new.F,v 1.13 2007-06-25 15:13:23 bylaska Exp $
 *
 
 *     ***********************************
@@ -20,7 +20,7 @@
       logical success
       real*8  icharge,tcharge,t
       integer mult,x,xx
-      integer ispin,ne(2)
+      integer ispin,ne(2),nextra_orbs
       integer version,rtdb
       integer ngrid(3)
       real*8  unita(3,3)
@@ -46,6 +46,8 @@
       external lcao_wvfnc,control_print
       integer  control_rtdb,control_version
       external control_rtdb,control_version
+      integer  control_frac_occ_extra_orbitals
+      external control_frac_occ_extra_orbitals
 
       filename = control_input_psi()
       version = control_version()
@@ -64,11 +66,12 @@
 
       ispin   = control_ispin()
       mult    = control_multiplicity()
-      tcharge = control_totalcharge()
+      tcharge = control_TotalCharge()
       icharge = ion_TotalCharge_qm()
       t = icharge - tcharge       !** total number of electrons **
       x = NINT(t)
       xx = x
+
 
 *     **** reassign spin to agree with total number of electrons ****
       if ((mod(x,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
@@ -102,6 +105,15 @@
          x = mult-1
          ne(1) = (xx+x)/2
          ne(2) = (xx-x)/2
+      end if
+
+
+      nextra_orbs = control_frac_occ_extra_orbitals()
+      if (ispin.eq.1) then
+         ne(1) = ne(1) + nextra_orbs
+      else
+         ne(1) = ne(1) + nextra_orbs
+         ne(2) = ne(2) + nextra_orbs
       end if
 
       rtdb = control_rtdb()

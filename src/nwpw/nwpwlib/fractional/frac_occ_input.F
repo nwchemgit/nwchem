@@ -1,5 +1,5 @@
 c
-c $Id: frac_occ_input.F,v 1.1 2004-03-04 15:12:21 bylaska Exp $
+c $Id: frac_occ_input.F,v 1.2 2007-06-25 15:12:09 bylaska Exp $
 c
 
 *     *************************************************
@@ -18,10 +18,11 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 7)
+      parameter (num_dirs = 8)
       character*22 dirs(num_dirs)
       data dirs / 'occ', 'filling', 'occupation',
      >            'occ:','filling:','occupation:',
+     >            'extra_orbitals',
      >            'end'/
 
 
@@ -29,7 +30,7 @@ c
       character*30     rtdb_name
       integer          num_states,k,l
       double precision socc
-      integer          state
+      integer          state,norbs
       integer          s(2),  s_new(2)
       integer          occ(2),occ_new(2)
 
@@ -37,6 +38,7 @@ c
 c     
 c     **** intialize stuff ****
       num_states = 0
+      norbs = 0
 c
 c
  10   if (.not. inp_read()) 
@@ -52,7 +54,7 @@ c
      &       INPUT_ERR)
 
 
-      goto ( 200,200,200,200,200,200,
+      goto ( 200,200,200,200,200,200,300,
      >      9999) ind
       call errquit(
      >      'frac_occ_input: unimplemented directive', ind,
@@ -95,6 +97,18 @@ c
 
       goto 10
 
+c
+c extra_orbitals
+c
+ 300  if (.not. inp_i(norbs))  norbs = 1
+
+      rtdb_name = 'nwpw:frac_occ:extra_orbitals'
+      if (.not. rtdb_put(rtdb,rtdb_name,mt_int,1,norbs))
+     >  call errquit(
+     >  'frac_occ_input: rtdb_put(extra_orbitals) failed', 0,
+     >       RTDB_ERR)
+
+      goto 10
 
 *     ***** add frac_occ to rtdb ****
  9999 continue
@@ -104,7 +118,7 @@ c
       if (.not. rtdb_put(rtdb,rtdb_name,mt_int,1,num_states))
      >  call errquit(
      >  'frac_occ_input: rtdb_put(number_states) failed', 0,
-     &       RTDB_ERR)
+     >       RTDB_ERR)
 
       rtdb_name = 'nwpw:frac_occ:occupations'
       if (.not. rtdb_put(rtdb,rtdb_name,mt_dbl,
@@ -112,7 +126,7 @@ c
      >                    dbl_mb(occ(1))))
      >  call errquit(
      >  'frac_occ_input: rtdb_put(occupations) failed', 0,
-     &       RTDB_ERR)
+     >       RTDB_ERR)
 
       rtdb_name = 'nwpw:frac_occ:states'
       if (.not. rtdb_put(rtdb,rtdb_name,mt_int,
@@ -120,12 +134,12 @@ c
      >                    int_mb(s(1))))
      >  call errquit(
      >  'frac_occ_input: rtdb_put(states) failed', 0,
-     &       RTDB_ERR)
-
+     >       RTDB_ERR)
 
       if ((.not.MA_free_heap(s(2))).or.(.not.MA_free_heap(occ(2))))
      >  call errquit(
      >       'frac_occ_input: heap failed 3', 0, MA_ERR)
+
       return
       end
 

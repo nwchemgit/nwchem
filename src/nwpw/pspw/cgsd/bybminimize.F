@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.21 2007-04-22 01:49:55 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.22 2007-06-25 15:13:22 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -234,6 +234,12 @@ c
   30     call sdminimize(sd_it)
          Eold   = Enew
          Enew   = psi_1energy()
+        
+         if ((Enew.gt.Eold).or.(dabs(Enew-Eold).gt.1.0d-1)) then
+            write(*,*) "    - Eold,Enew,deltae=",Eold,Enew,Enew-Eold
+            go to 30
+         end if
+         
          !if (dabs(Enew-Eold).gt.1.0d2) go to 30
 
          call dcopy(ispin*n2ft3d,
@@ -307,7 +313,8 @@ c
          stalled = .false.
       end if
       stalled_count = stalled_count + 1
-      stalled = .false.
+c      stalled = .false.
+      if (deltae.gt.0.0d0) stalled = .true.
 
       precondition = precondition.and.(dabs(deltae).gt.1*tole)
 
