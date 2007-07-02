@@ -46,7 +46,7 @@ c
          endif
          call util_print_centered(LuOut,
      &        '(all occupied plus 10 virtual)',20,.true.)
-         call doutput(evals, 1, min(noc(1)+10,nbf_ao),
+         call output(evals, 1, min(noc(1)+10,nbf_ao),
      &        1, 1, nbf_ao, 1, 1)
          call util_print_centered(LuOut,'alpha foccs',
      &        20,.true.)
@@ -56,7 +56,7 @@ c
             write(LuOut,*)
             call util_print_centered(LuOut,'beta eigenvalues',
      &           20,.true.)
-            call doutput(evals(1+nbf_ao), 1, min(noc(1)+10,nbf_ao),
+            call output(evals(1+nbf_ao), 1, min(noc(1)+10,nbf_ao),
      &           1, 1, nbf_ao, 1, 1)
             call util_print_centered(LuOut,'beta foccs',
      &           20,.true.)

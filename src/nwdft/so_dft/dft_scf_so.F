@@ -1,9 +1,9 @@
       logical function dft_scf_so
-     &                        (rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
-     &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
-     &                         g_svecs, svals, g_xcinv,g_s)
+     &                 (rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
+     &                  iter, g_dens, g_movecs, g_vxc, g_fock, 
+     &                  g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.33 2006-01-06 01:55:37 edo Exp $
+c     $Id: dft_scf_so.F,v 1.34 2007-07-02 17:57:53 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -54,6 +54,10 @@ c
 #include "global.fh"
 #include "msgids.fh"
 #include "util.fh"
+
+czora...zora include
+#include "zora.fh"
+
 c     
       Logical movecs_write_so, movecs_converged
       External movecs_write_so, movecs_converged
@@ -161,11 +165,16 @@ c     !!! BGJ
       character*255 scftype1     ! Returns the SCF type of the vectors
       integer nbf1               ! Returns no. of functions in basis
       integer g_oep
-c      integer ijk
+c     integer ijk
 c     
+czora...spin-free and spin-orbit global arrays
+      integer g_zora_sf(4)
+      integer g_zora_so(3)
+
       logical spinor
       logical dft_mem3c
       external dft_mem3c
+
       call ecce_print_module_entry('dft')
       dft_scf_so = .false.
       nbf_mo = 2*nbf_ao
@@ -394,10 +403,14 @@ c
 cso
 cso   allocate Fock matrix and movecs 
 cso
+
+c     real molecular orbital vectors
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'Movecs Re',0,0, 
      &     g_moso(1)))     
      &     call errquit('dft_scf_so: error creating Movecs Re',0,
      &       GA_ERR)
+
+c     imaginary molecular orbital vectors
       if(.not.ga_create(mt_dbl,nbf_mo, nbf_mo,'Movecs Im',0,0, 
      &     g_moso(2)))
      &     call errquit('dft_scf_so: error creating Movecs Im',0,
@@ -405,48 +418,111 @@ cso
       call ga_zero(g_moso(1))
       call ga_zero(g_moso(2))
       call ga_sync() 
+
+c     real part of the fock matrix
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'Fock Re',0,0, 
      &     g_fockso(1)))
      &     call errquit('dft_scf_so: error creating Fock Re',0, GA_ERR)
+      call ga_zero(g_fockso(1))
+
+c     imaginary part of the fock matrix
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'Fock Im',0,0, 
      &     g_fockso(2)))
      &     call errquit('dft_scf_so: error creating Fock Im',0, GA_ERR)
+      call ga_zero(g_fockso(2))
+
+c     extra arrays
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'old re',0,0, 
      &     g_old(1)))
      &     call errquit('dft_scf_so: error creating Old Re',0, GA_ERR)
+      call ga_zero(g_old(1))
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'old Im',0,0, 
      &     g_old(2)))
      &     call errquit('dft_scf_so: error creating Old Im',0, GA_ERR)
+      call ga_zero(g_old(2))
+
+c     real part of the spin-orbit density matrix
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'DenMx Re',0,0, 
      &     g_densso(1)))
      &     call errquit('dft_scf_so: error creating DenMx Re',0, GA_ERR)
+      call ga_zero(g_densso(1))
+
+c     imaginary part of the spin-orbit density matrix
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'DenMx Im',0,0, 
      &     g_densso(2)))
      &     call errquit('dft_scf_so: error creating DenMx Im',0, GA_ERR)
+      call ga_zero(g_densso(2))
+
+c     extra arrays
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'Tmp ReIm',0,0, 
      &     g_tmp_ri))
      &     call errquit('dft_scf_so: error creating Tmp ReIm',0, GA_ERR)
+      call ga_zero(g_tmp_ri)
+
+c     spin-orbit matrices: 1->z, 2->y, 3->x
       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'so z',0,0, 
      &     g_so(1)))
      &     call errquit('dft_scf_so: error creating so z',0, GA_ERR)
+      call ga_zero(g_so(1))
       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'so y',0,0, 
      &     g_so(2)))
      &     call errquit('dft_scf_so: error creating so y',0, GA_ERR)
+      call ga_zero(g_so(2))
       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'so x',0,0, 
      &     g_so(3)))
      &     call errquit('dft_scf_so: error creating so x',0, GA_ERR)
+      call ga_zero(g_so(3))
+
+c     extra arrays
       if(.not.ga_create(mt_dbl, 2*nbf, 2*nbf,'old den', 0, 0, 
      &     g_damp_so(1)))
      &     call errquit('dft_scf_so: error creating damp ga', 0, GA_ERR)
+      call ga_zero(g_damp_so(1))
       if(.not.ga_create(mt_dbl, 2*nbf, 2*nbf,'old den', 0, 0, 
      &     g_damp_so(2)))
      &     call errquit('dft_scf_so: error creating damp ga', 0, GA_ERR)
+      call ga_zero(g_damp_so(2))
+c
+czora...create zora arrays
+      if (do_zora) then
+
+czora...spin-free arrays
+      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'zora so z',0,0,
+     & g_zora_sf(1)))
+     & call errquit('dft_scf_so: error creating zora so z',0, GA_ERR)
+      call ga_zero(g_zora_sf(1))
+
+      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'zora so z',0,0,
+     & g_zora_sf(2)))
+     & call errquit('dft_scf_so: error creating zora so z',0, GA_ERR)
+      call ga_zero(g_zora_sf(2))
+
+czora...spin-orbit arrays
+      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'zora so z',0,0,
+     & g_zora_so(1)))
+     & call errquit('dft_scf_so: error creating zora so z',0, GA_ERR)
+      call ga_zero(g_zora_so(1))
+
+      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'zora so z',0,0,
+     & g_zora_so(2)))
+     & call errquit('dft_scf_so: error creating zora so z',0, GA_ERR)
+      call ga_zero(g_zora_so(2))
+
+      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'zora so z',0,0,
+     & g_zora_so(3)))
+     & call errquit('dft_scf_so: error creating zora so z',0, GA_ERR)
+      call ga_zero(g_zora_so(3))
+
+      endif  ! do_zora
+czora...end
+c
 c
       call ga_sync()
       call ga_zero(g_densso(1))
       call ga_zero(g_densso(2))
       spinor = .false. 
       spinor=spinor_guess(movecs_in)
+
 c      if (rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
 c     &     spinor=spinor_guess(movecs_in)
       if(.not.spinor)then 
@@ -470,6 +546,7 @@ c     &     spinor=spinor_guess(movecs_in)
      &        k_ir, g_movecs, g_dens, 'density', 
      &        'dft', title, oskel, oadapt, 
      &        .true.) 
+c
          if (rtdb_get(rtdb,'sodft:fon',mt_log,1,fon))then 
             noc(1)=anoca
             noc(2)=anocb
@@ -524,7 +601,8 @@ c     $        g_moso(1),1,nbf_ao,nTotEl+1,nTotEl+nva)
 c         call ga_dadd_patch(1.d0,g_movecs(2),1,nbf_ao,noc(2)+1,nbf_ao,
 c     $        0.d0, g_moso(1),1+nbf_ao,nbf_mo,nTotEl+nva+1,nbf_mo,
 c     $        g_moso(1),1+nbf_ao,nbf_mo,nTotEl+nva+1,nbf_mo)
-      endif
+      endif  !if not spinor
+
       if(spinor)then 
 c     
 c     read spinors from files 
@@ -560,7 +638,7 @@ c
 c     
          call movecs_swap_so(rtdb,'dft',scftype,g_moso,
      &        dbl_mb(k_occ),dbl_mb(k_eval(1)))
-      endif
+      endif  !spinor
 c     
 c     Form Re and Im of density matrix
 c     
@@ -640,6 +718,40 @@ c
 c     Restore SCF parameters
 c     
       call scf_get_fock_param(rtdb, tol2e)
+czora
+czora...Calculate the zora contributions
+czora
+czora...calculate zora parts
+      if (do_zora) then
+
+czora...Initialize spin-free arrays
+         call ga_zero(g_zora_sf(1))
+         if (ipol.gt.1) call ga_zero(g_zora_sf(2))
+
+czora...Calculate the spin-free parts
+         do_zora_get_correction = .true.
+         do_zora_so = .false.
+         do_zora_sf = .true.
+         rho_n = 0
+         call zora_getv_sf(rtdb, g_dens, g_zora_sf, rho_n, nexc)
+
+czora...Initialize spin-orbit arrays
+         call ga_zero(g_zora_so(1))
+         call ga_zero(g_zora_so(2))
+         call ga_zero(g_zora_so(3))
+
+czora...Calculate the spin-orbit parts
+         do_zora_get_correction = .true.
+         do_zora_so = .true.
+         do_zora_sf = .false.
+         rho_n = 0
+         call zora_getv_so(rtdb, g_dens, g_zora_so, rho_n, nexc)
+
+      end if
+czora
+czora
+cso
+cso
 c     
 c     If open shell put the total density matrix in g_dens(1)
 c     
@@ -652,14 +764,14 @@ c
      &        (' Total Density - Mulliken Population Analysis')
          call mull_pop(geom,ao_bas_han,g_dens(1),g_s,'total')
 c     
-c     Analysis of spin density
+c     analysis of spin density
 c     
          if (me.eq.0) call dft_header
      &        (' Spin Density - Mulliken Population Analysis')
          call ga_dadd(one,g_dens(1),-2.d0,g_dens(2),g_dens(2))
          call mull_pop(geom,ao_bas_han,g_dens(2),g_s,'spin') 
 c     
-c     Restore beta density in g_dens(2)
+c     restore beta density in g_dens(2)
 c     
          call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
          call ga_dscal(g_dens(2),0.5d0)
@@ -680,6 +792,7 @@ cso   ma for complex diagonalizer
      &     call errquit('dft_scf: cannot allocate w.s',0, MA_ERR)
       if (.not.ma_push_get(mt_dbl,nbf_mo,'buff',lbuff,ibuff))
      &     call errquit('dft_scf:push_get failed', 13, MA_ERR)
+cso
 cso     
 c     
 c     Top of infinite SCF iteration loop
@@ -706,7 +819,8 @@ c
 
       det_eng = .false. 
       idet = 0 
- 1000 continue
+ 1000 continue   ! top of the scf loop
+
       if (me.eq.0 .and. oprint_conv_details)
      &   write(LuOut,124)damping, levelshifting, diising
  124  format(10x,' DAMPING=',l1,' LEVELSHIFTING=',l1,
@@ -716,12 +830,11 @@ c
  3234 format(10x,'itol2e=',i2,' iAOacc=',i2,' iXCacc=',i2)
 
       Ecoul  = ZERO
-      Exc(1)= ZERO
+      Exc(1) = ZERO
       Exc(2) = ZERO
 
       call ga_zero(g_fockso(1))
       call ga_zero(g_fockso(2))
-
 c     
 c     Accumulate core hamiltonian into Fock matrix; 
 c     compute core energy
@@ -734,17 +847,21 @@ c
 cso   Re(Dsf)=Re(Daa)+Re(Dbb)=g_dens(1) 
 cso   <Hsf> = Re(Dsf) dot T+Vsf 
       Ecore = ga_ddot(g_dens(1), g_fock)
-      call ga_zero(g_so(1))
-      call ga_zero(g_so(2))
-      call ga_zero(g_so(3))
 cso  
 cso   Accumulate s.o. contribution to fock matrix 
 cso   
       noso=Ecore 
+      call ga_zero(g_so(1))
+      call ga_zero(g_so(2))
+      call ga_zero(g_so(3))
+cso
+cso   Calculate the spin-orbit contributions from the ecp
       call int_1e_ga(ao_bas_han, ao_bas_han, g_so, 'so', oskel)
       call ga_scale(g_so(1),dble(0.5d0))
       call ga_scale(g_so(2),dble(0.5d0))
       call ga_scale(g_so(3),dble(0.5d0))
+cso
+cso   Add in the s.o. contribution to the fock matrix
       call ga_fock_so(g_so, g_fockso, nbf_ao)
 cso  
 cso   Accumulate z-component s.o. contribution
@@ -754,7 +871,11 @@ cso
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'z') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(1)) 
-!      write(*,*)"Ecore+=so(z)", ecore
+!     write(*,*)"Ecore+=so(z)", ecore
+cso
+czora...add in the spin-orbit zora contribution (z)
+      if (do_zora) Ecore = Ecore + ga_ddot(g_tmp, g_zora_so(1)) 
+czora
 cso  
 cso   Accumulate y-component s.o. contribution 
 cso   Re(Dy)=Re(Dab)-Re(Dba) 
@@ -763,16 +884,26 @@ cso
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'y') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(2)) 
-!      write(*,*)"Ecore+=so(y)", ecore
+!     write(*,*)"Ecore+=so(y)", ecore
+cso
+czora...add in the spin-orbit zora contribution (y)
+      if (do_zora) Ecore = Ecore + ga_ddot(g_tmp, g_zora_so(2)) 
+czora
 cso  
 cso   Accumulate x-component s.o. contribution 
 cso   Re(Dx)=-Im(Dab)-Im(Dba) 
 cso   <Hx>=Re(Dx) dot Vx 
+cso
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'x') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(3))
-!      write(*,*)"Ecore+=so(x)", ecore
-      noso = Ecore-noso 
+!     write(*,*)"Ecore+=so(x)", ecore
+cso
+czora...add in the spin-orbit zora contribution (x)
+      if (do_zora) Ecore = Ecore + ga_ddot(g_tmp, g_zora_so(3)) 
+czora
+cso
+       noso = Ecore-noso 
 c
 c     Pre-compute reduced total density matrices over atoms
 c 
@@ -841,7 +972,7 @@ c
      &     g_dens, ipol, dbl_mb(irdens_atom), 
      &     'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
       if (.not.ma_pop_stack(lscr))
-     &     call errquit('dft_scf: cannot pop stacklscr:',0, MA_ERR)
+     &  call errquit('dft_scf: cannot pop stacklscr:',0, MA_ERR)
 c     
 c     Compute the XC potential and energy.
 c     
@@ -849,19 +980,54 @@ c
       call ga_zero(g_vxc(1))
       rho_n = 0.0d0
       call ga_zero(g_vxc(2))
+
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
+      do_zora_get_correction = .false.
+      do_zora_so = .false.
+      do_zora_sf = .false.
       call xc_getv
-     &     (rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
-     &     g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &     dbl_mb(irdens_atom), int_mb(icetobfr), natoms,g_oep)
-c      write(*,*)"Ecoul, Exc(1)", Ecoul, Exc(1)
+     &   (rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
+     &   g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
+     &   dbl_mb(irdens_atom), int_mb(icetobfr), natoms)
+c     write(*,*)"Ecoul, Exc(1)", Ecoul, Exc(1)
+
+czora...start
+      if (do_zora) then 
+
+czora...calculate spin-free energy
+         Ezora_sf = 0.d0
+         if (ipol.gt.1) then
+          Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
+     &      + ga_ddot(g_dens(2),g_zora_sf(2))
+         else
+          Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
+         end if
+
+czora...debug printing
+c         if(ga_nodeid().eq.0) then
+c           write(luout,*) "Ezora_sf:",Ezora_sf
+c         endif
+
+czora...add in the spin-free energy to the core energy
+        Ecore = Ecore + Ezora_sf
+
+czora...combine spin-free parts with the exchange-correlation matrices
+        call ga_dadd(1.d0,g_vxc(1),1.d0,g_zora_sf(1),g_vxc(1))
+        if (ipol.gt.1)
+     &   call ga_dadd(1.d0,g_vxc(2),1.d0,g_zora_sf(2),g_vxc(2))
+
+      end if  ! do_zora
+czora...end 
+c
+c     add in the exchange-correlation to the fock matrix
+c
       call ga_sync
       call ga_dadd_patch( 1.d0, g_fockso(1), 1, nbf_ao, 
-     &                                     1, nbf_ao, 
-     &                    1.0d0, g_vxc(1),  1, nbf_ao, 
-     &                                     1, nbf_ao,
-     &                          g_fockso(1), 1, nbf_ao, 
-     &                                     1, nbf_ao) 
+     &     1, nbf_ao, 
+     &     1.0d0, g_vxc(1),  1, nbf_ao, 
+     &     1, nbf_ao,
+     &     g_fockso(1), 1, nbf_ao, 
+     &     1, nbf_ao) 
       call ga_dadd_patch( 1.d0, g_fockso(1), 1+nbf_ao, nbf_mo, 
      &     1+nbf_ao, nbf_mo,
      &     1.0d0, g_vxc(2),  1, nbf_ao, 
@@ -885,6 +1051,7 @@ c
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
          if(det_eng)goto 2001
       endif
+
       if (last_time_energy)then
 c     
 c     If open shell put the total density matrix back in 
@@ -907,6 +1074,7 @@ c
      &   call sym_symmetrize(geom, AO_bas_han, .false., g_fock)
 c
       call ga_symmetrize(g_fock)
+c
       if (diising)then
 c     
 c     DIIS step taken here.
@@ -918,6 +1086,14 @@ c
             derr(2)=derr(1)
          endif
       endif
+
+czora...start
+czora...add in the spin-orbit part after the diis
+      if (do_zora) then 
+         call ga_fock_so(g_zora_so, g_fockso, nbf_ao)
+      end if
+czora...end
+c
 c     
       g_scr = ga_create_atom_blocked(geom, AO_bas_han, 'ga scr')
 c     
@@ -1177,7 +1353,7 @@ c
       endif
 cso
 cso   g_dens(1)=Re(Daa)+Re(Dbb) and g_dens(2)=Re(Dbb)
-cso   For coulum and xc potentials only the alpha, Re(Daa), and  
+cso   For coulomb and xc potentials only the alpha, Re(Daa), and  
 cso   beta, Re(Dbb) densities are needed 
 cso
       call ga_zero(g_dens(1))
@@ -1865,8 +2041,28 @@ c
      &     call errquit('dft_scf_so: error destroy so y',0, GA_ERR)
       if(.not.ga_destroy(g_so(3)))     
      &     call errquit('dft_scf_so: error destroy so x',0, GA_ERR)
+c
+czora...remove zora arrays
+      if (do_zora) then
 
-      
+czora...spin-free part
+      if (.not. ga_destroy(g_zora_sf(1))) 
+     & call errquit('dft_scf_so: ga_destroy failed ',0, GA_ERR)
+      if(ipol.gt.1) then
+       if (.not. ga_destroy(g_zora_sf(2))) call errquit(
+     &   'dft_scf_so: ga_destroy failed ',0, GA_ERR)
+      endif
+
+czora...spin-orbit part
+      if(.not.ga_destroy(g_zora_so(1)))     
+     &     call errquit('dft_scf_so: error destroy so z',0, GA_ERR)
+      if(.not.ga_destroy(g_zora_so(2)))     
+     &     call errquit('dft_scf_so: error destroy so y',0, GA_ERR)
+      if(.not.ga_destroy(g_zora_so(3)))     
+     &     call errquit('dft_scf_so: error destroy so x',0, GA_ERR)
+
+      end if  !do_zora
+c
       dft_scf_so = converged
 c
 c !!! BGJ

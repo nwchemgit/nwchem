@@ -46,12 +46,15 @@ c     assemble zora correction
       zoraCorr = 0.d0
       totPot = 0.d0
       do igrid = 1,nqpts
-        totPot = -amat_coul(igrid) + amat_nucl(igrid)
-        zoraCorr = totPot/(4.d0*clight_au2 - 2.d0*totPot)
-        zoraCorr = zoraCorr*qwght(igrid)
-c                                           zoraCorr = 0.5d0*qwght(igrid)  ! pure kinetic test
-        amat(igrid,1) = zoraCorr
-        if (ipol.gt.1) amat(igrid,2) = zoraCorr
+         totPot = -amat_coul(igrid) + amat_nucl(igrid)
+         zoraCorr = totPot/(4.d0*clight_au2 - 2.d0*totPot)
+         zoraCorr = zoraCorr*qwght(igrid)
+
+c        Kinetic test
+c        zoraCorr = 0.5d0*qwght(igrid)  ! pure kinetic test
+
+         amat(igrid,1) = zoraCorr
+         if (ipol.gt.1) amat(igrid,2) = zoraCorr
       end do
 
       return

@@ -1,7 +1,7 @@
       subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.52 2007-05-15 19:18:00 niri Exp $
+C$Id: grid_quadv0.F,v 1.53 2007-07-02 17:53:02 niri Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -53,6 +53,11 @@ c
 #include "util.fh"
 #include "rtdb.fh"
 #include "dft2drv.fh"
+
+czora...start
+#include "zora.fh"
+czora...end
+
 c
       logical lsa ! Qin
       integer me, nproc, nxyz, nctrs, 

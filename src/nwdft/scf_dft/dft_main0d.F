@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.77 2007-06-12 00:09:53 niri Exp $
+c     $Id: dft_main0d.F,v 1.78 2007-07-02 17:56:17 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -26,10 +26,10 @@ c
       external ga_cholesky,ga_llt_i
 #endif
      
-czora...start changes
+czora...start
 #include "zora.fh"
 #include "rel_consts.fh"
-czora...end changes
+czora...end
 
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -51,15 +51,7 @@ c
       external dft_scf_so 
       character*80 theory
 
-czora...start changes
-      logical do_zora
-czora...end changes
-
       dft_main0d = .false.
-
-
-
-
 c     
       me = ga_nodeid()
       nproc = ga_nnodes()
@@ -97,38 +89,27 @@ c
       iter = 0
       Etold = 0.D0
 
-czora...start changes
+czora...start
 czora...do we need to get the zora correction ?
-      if (.not.rtdb_get(rtdb,'zora:calc',mt_log,1,do_zora_first_time)) 
-     &    do_zora_first_time=.false.
+      if (.not.rtdb_get(rtdb,'zora:calc',mt_log,1,
+     &    do_zora_get_correction)) 
+     &    do_zora_get_correction=.false.
 
-czora...scalar zora
-      if (.not.rtdb_get(rtdb,'zora:scalar',mt_log,1,do_zora_scalar)) 
-     &    do_zora_scalar=.false.
+czora...spin-free zora
+      if (.not.rtdb_get(rtdb,'zora:sf',mt_log,1,do_zora_sf)) 
+     &    do_zora_sf = .false.
 
 czora...spin-orbit zora
       if (.not.rtdb_get(rtdb,'zora:so',mt_log,1,do_zora_so)) 
-     &    do_zora_so=.false.
-
-czora...sum of atomic potentials (sapa)
-      if (.not. rtdb_get(rtdb,'zora:atomic',mt_log,1,do_zora_atomic)) 
-     &    do_zora_atomic = .false.
-
-czora...energy: scalar part
-      if ((do_zora_scalar) .or. (do_zora_so)) then
-          Ezora_scalar = 0.d0
-      end if
+     &    do_zora_so = .false.
 
 czora...true if either is on
-      do_zora = (do_zora_scalar) .or. (do_zora_so)
+      do_zora = (do_zora_sf) .or. (do_zora_so)
+
+czora...energy: spin-free
+      if (do_zora) Ezora_sf = 0.d0
        
-czora...debug
-c      write(LuOut,*) "do_zora_first_time:",do_zora_first_time
-c      write(LuOut,*) "do_zora_scalar:",do_zora_scalar
-c      write(LuOut,*) "do_zora_so:",do_zora_so
-c      write(LuOut,*) "do_zora_atomic:",do_zora_atomic
-czora...debug
-czora...end changes
+czora...end
 
 c
 c     Get the light speed and other constants, if specified
@@ -397,34 +378,10 @@ c
      & call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_dens(1))
 
-czora...start changes
-      if (do_zora) then
-       if (.not. ga_duplicate(g_s, g_zora_scalar(1),'alpha zora'))
-     & call errquit('dft_main0d: error creating ga',0,GA_ERR)
-       call ga_zero(g_zora_scalar(1))
-       if (.not. ga_duplicate(g_s, g_first_scalar(1),
-     &  'first scalar 1'))
-     & call errquit('dft_main0d: error creating ga',0,GA_ERR)
-       call ga_zero(g_first_scalar(1))
-      end if
-czora...end changes
-
       if (ipol.ne.1)then
        if (.not. ga_duplicate(g_s, g_dens(2), 'beta density'))
      &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
        call ga_zero(g_dens(2))
-
-czora...start changes
-       if (do_zora) then
-       if (.not. ga_duplicate(g_s, g_zora_scalar(2), 'beta zora'))
-     &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
-        call ga_zero(g_zora_scalar(2))
-       if (.not. ga_duplicate(g_s, g_first_scalar(2),
-     &  'first scalar 2'))
-     & call errquit('dft_main0d: error creating ga',0,GA_ERR)
-       call ga_zero(g_first_scalar(2))
-       end if
-czora...end changes
 
        if (.not. ga_duplicate(g_s, g_evecs(2), 'beta evecs'))
      &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
@@ -433,6 +390,7 @@ czora...end changes
        if (.not. ga_duplicate(g_s, g_vxc(2), 'Vxcs'))
      &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
        call ga_zero(g_Vxc(2))
+
       endif 
 
       nVxc = ipol
@@ -528,30 +486,12 @@ cnos      endif
          if (.not. ga_destroy(g_dens(2))) call errquit
      &      ('dft_main0d: could not destroy g_dens(2)', 0, GA_ERR)
 
-czora...start changes
-         if (.not. ga_destroy(g_zora_scalar(2))) call errquit
-     &       ('dft_main0d: could not destroy g_zora_scalar(2)', 
-     &         0, GA_ERR)
-         if (.not. ga_destroy(g_first_scalar(2))) call errquit
-     &       ('dft_main0d: could not destroy g_first_scalar(2)', 
-     &         0, GA_ERR)
-czora...end changes
-
       endif   ! ipol
 
       if (.not. ga_destroy(g_evecs(1))) call errquit
      &   ('dft_main0d: could not destroy g_evecs(1)', 0, GA_ERR)
       if (.not. ga_destroy(g_dens(1))) call errquit
      &   ('dft_main0d: could not destroy g_dens(1)', 0, GA_ERR)
-
-czora...start changes
-      if (.not. ga_destroy(g_zora_scalar(1))) call errquit
-     &      ('dft_main0d: could not destroy g_zora_scalar(1)', 
-     &     0, GA_ERR)
-      if (.not. ga_destroy(g_first_scalar(1))) call errquit
-     &      ('dft_main0d: could not destroy g_first_scalar(1)', 
-     &     0, GA_ERR)
-czora...end changes
 
       if (.not. ga_destroy(g_svecs)) call errquit
      &   ('dft_main0d: could not destroy g_svecs', 0, GA_ERR)

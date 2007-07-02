@@ -11,7 +11,7 @@
      &triplet,tau,Mmat)
 
 c
-c$Id: grid_quadv0a.F,v 1.44 2007-05-21 16:47:35 niri Exp $
+c$Id: grid_quadv0a.F,v 1.45 2007-07-02 17:53:02 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -24,6 +24,11 @@ c
 #include "global.fh"
 #include "util.fh"
 #include "grid_quad.fh"
+
+czora...start
+#include "zora.fh"
+czora...end
+
 c
       double precision rqbuf(*)
       double precision rad

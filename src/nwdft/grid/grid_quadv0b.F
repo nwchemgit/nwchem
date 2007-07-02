@@ -14,7 +14,7 @@
      &     bas_cent_xinfo,bas_cset_xinfo,docsetx, 
      &     tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.60 2007-06-12 00:13:18 niri Exp $
+c$Id: grid_quadv0b.F,v 1.61 2007-07-02 17:53:02 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -29,10 +29,10 @@ c
 #include "grid_sic.fh"
 #include "dftps.fh"
 
-czora...start changes
+czora...start
 #include "zora.fh"
 #include "geom.fh"
-czora...end changes
+czora...end
 
       integer  nqpts    ! [in] no. grid points  to be processed
       integer  ictr_buf ! [in] ctr of grid
@@ -58,17 +58,11 @@ czora...end changes
 
       double precision tau(*), Mmat(*)
 
-czora...start changes
-      integer nodeid
-      logical grad_zora
-      grad_zora = .true.
-czora...end changes
-
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if(nqpts.eq.0) return
-      if (grad_zora) then
+      if (grad) then
          maxdbas = 1
       else
          maxdbas = 0
@@ -105,7 +99,7 @@ c
      &     lchi_ao, ichi_ao))
      &     call errquit('grid_quadv0b: cannot allocate chi_ao',0,
      &       MA_ERR)
-      if( grad_zora ) then
+      if( grad ) then
          if (.not.MA_Push_Get(mt_dbl, 3*nqpts*mbf_ao,
      &      'delchi_ao', ldelchi_ao, idelchi_ao)) then
            call errquit('gridquadv0b: cant alloc delchi_ao',0,0)
@@ -131,12 +125,12 @@ c     get reduced Xi(r) and dXi(r) over atoms
 c     
       call util_rmsatbf(nqpts, natoms,iniz,ifin,
      ,     dbl_mb(ichi_ao),rchi_atom)
-      if( grad_zora ) 
+      if( grad ) 
      .     call util_rmsatbf(3*nqpts, natoms,iniz,ifin,
      ,     dbl_mb(idelchi_ao),rdelchi_atom)
       call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
-     ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad_zora,
+     ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
      ,     ipol,iscratch)
          if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
      &        'Dmat', lDmat,iDmat))
@@ -216,78 +210,36 @@ c     add beta to 1 to get alpha+beta
      &        rho(iscf_rho), 1)
       endif     
 
-czora...start changes
+czora...start
 czora...calculate the zora correction (hartree and nuclear potentials included in correction)
-      if (do_zora_first_time) then 
+       if (do_zora_get_correction) then 
 
-czora...consolidate the alpha & beta density components 
-           if (ipol .gt. 1) then
-             call ga_dadd(1d0, g_dens(1), 1d0, g_dens(2), g_dens(1))
-           end if
+czora...combine the alpha & beta density components (to calculate the hartree contribution)
+         if (ipol.gt.1)
+     &    call ga_dadd(1.d0, g_dens(1), 1.d0, g_dens(2), g_dens(1))
 
 czora...calculate the zora correction (consolidated density => hartree piece)
-           call grid_zoracorr(nqpts,qxyz,qwght,natoms,g_dens,amat)
+         call grid_zoracorr(nqpts,qxyz,qwght,natoms,g_dens,amat)
 
 czora...separate the alpha & beta density components
-           if (ipol .gt. 1) then
-              call ga_dadd(1d0, g_dens(1), -1d0, g_dens(2), g_dens(1))
-           end if
+         if (ipol.gt.1)
+     &    call ga_dadd(1.d0, g_dens(1), -1.d0, g_dens(2), g_dens(1))
 
-czora...scalar zora contribution
-           call zora_tabcd_scalar(0,l3d,
+czora...evaluate zora contributions
+          call zora_tabcd(0,l3d,
      &      tol_rho, Fmat, Pmat, amat, Bmat, Cmat, Dbl_MB(iDmat),
      &      0d0,0d0,0d0,0d0,
      &      Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
      &      0d0,0,1,
      &      ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
-     &      grad_zora, AO_bas_han,
-     &      natoms, iniz, ifin, g_zora_scalar, ibf_ao,
+     &      grad, AO_bas_han,
+     &      natoms, iniz, ifin, g_vxc, ibf_ao,
      &      rchi_atom, rdelchi_atom,
      &      rdens_atom, cetobfr,kske,Mmat,0d0)
-
-czora...spin-orbit zora contribution
-           if (do_zora_so) then 
-
-czora...x-component: stored in g_zora_so(3)
-c           call zora_tabcd_so(0,l3d,
-c     &      tol_rho, Fmat, Pmat, amat, Bmat, Cmat, Dbl_MB(iDmat),
-c     &      0d0,0d0,0d0,0d0,
-c     &      Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
-c     &      0d0,0,1,
-c     &      ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
-c     &      grad_zora, AO_bas_han,
-c     &      natoms, iniz, ifin, g_zora_so(3), ibf_ao,
-c     &      rchi_atom, rdelchi_atom,
-c     &      rdens_atom, cetobfr,kske,Mmat,0d0, 1)
-
-czora...y-component: stored in g_zora_so(2)
-c           call zora_tabcd_so(0,l3d,
-c     &      tol_rho, Fmat, Pmat, amat, Bmat, Cmat, Dbl_MB(iDmat),
-c     &      0d0,0d0,0d0,0d0,
-c     &      Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
-c     &      0d0,0,1,
-c     &      ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
-c     &      grad_zora, AO_bas_han,
-c     &      natoms, iniz, ifin, g_zora_so(2), ibf_ao,
-c     &      rchi_atom, rdelchi_atom,
-c     &      rdens_atom, cetobfr,kske,Mmat,0d0, 2)
-
-czora...z-component: stored in g_zora_so(1)
-c           call zora_tabcd_so(0,l3d,
-c     &      tol_rho, Fmat, Pmat, amat, Bmat, Cmat, Dbl_MB(iDmat),
-c     &      0d0,0d0,0d0,0d0,
-c     &      Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
-c     &      0d0,0,1,
-c     &      ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
-c     &      grad_zora, AO_bas_han,
-c     &      natoms, iniz, ifin, g_zora_so(1), ibf_ao,
-c     &      rchi_atom, rdelchi_atom,
-c     &      rdens_atom, cetobfr,kske,Mmat,0d0, 3)
-
-           end if ! do_so_zora
-
-      end if   ! do_zora
-czora...end changes
+    
+            goto 2010 ! clean up and return
+       end if   ! do_zora_get_correction
+czora...end 
 
       if (odftps) call pstat_on(ps_excf)
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
@@ -311,7 +263,6 @@ czora...end changes
       else
 c     
          if(do_scf) then
-
 
          if (odftps) call pstat_on(ps_tabcd)
             call xc_tabcd(0,l3d,
@@ -379,15 +330,17 @@ c
          endif
 
       endif
+
  2010 continue
-         if (.not.ma_pop_stack(lDmat))
+
+      if (.not.ma_pop_stack(lDmat))
      &      call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicend(l_vect1,ldelrho_sig))
      ,        call errquit(' grid_quadv0b: grid_sicend failed',0,
      &       CALC_ERR)
       endif
-      if(grad_zora)then
+      if(grad)then
          if (.not.ma_pop_stack(ldelchi_ao))
      &        call errquit('grid_quadv0b: cannot pop stack', 2, MA_ERR)
       endif
@@ -396,12 +349,15 @@ c
       return
       end
 
+c
+c     function grid_nbfm
+c
       integer function grid_nbfm(basis_hand,   mcenters, 
      &     ctr_quad,  rad_quad, xyz, qxyz,nq,
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.60 2007-06-12 00:13:18 niri Exp $
+C$Id: grid_quadv0b.F,v 1.61 2007-07-02 17:53:02 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -541,7 +497,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.60 2007-06-12 00:13:18 niri Exp $
+C$Id: grid_quadv0b.F,v 1.61 2007-07-02 17:53:02 niri Exp $
 c
       implicit none
 #include "errquit.fh"

@@ -1,6 +1,6 @@
       Subroutine scat_mat(TT,T,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
 
-C$Id: scat_mat.F,v 1.8 2005-10-08 05:00:37 edo Exp $
+C$Id: scat_mat.F,v 1.9 2007-07-02 17:55:37 niri Exp $
       implicit none
       integer mi,mj,Ni,Nj
       integer ifirst,jfirst
@@ -20,6 +20,7 @@ c
         enddo
       enddo
       end
+
       subroutine scat_matup(TT,T,Ni,Nj,mi,mj,
      I     ifirst,jfirst,ibf,jbf)
       implicit none
@@ -109,6 +110,7 @@ c
       
       return
       end
+
       Subroutine transp_mat3(n3d,TT,T,Ni,Nj)
 
       implicit none

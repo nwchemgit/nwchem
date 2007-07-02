@@ -7,9 +7,10 @@
      ,     cetobfr, iter, ecore, ecoul,exc,noc, rho_n,ldmix,
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
-     ,     n_levels, act_levels, oprint_time)
+     ,     n_levels, act_levels, oprint_time,
+     ,     g_zora_sf )
 c     
-c     $Id: dft_fockbld.F,v 1.29 2007-06-12 00:09:53 niri Exp $
+c     $Id: dft_fockbld.F,v 1.30 2007-07-02 17:56:17 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -22,9 +23,9 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 
-czora...start changes
+czora...start
 #include "zora.fh"
-czora...end changes
+czora...end
 
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
       integer g_xcinv
@@ -59,6 +60,10 @@ c
 c
       double precision Ebq
 c
+czora...start
+      integer g_zora_sf(*)
+czora...end
+
       me=ga_nodeid()
       if (odftps) call pstat_on(ps_fockb)
 c
@@ -214,25 +219,39 @@ c
       if (ipol.eq.2)call ga_zero(g_vxc(2))
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
 
+
       if (odftps) call pstat_on(ps_xc)
+      do_zora_get_correction = .false.  ! set the zora correction flag to false
+                                        ! as the lowest level routine is shared by the 
+                                        ! exchange-correlation calculation
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &             rdens_atom, cetobfr, natoms) 
       if (odftps) call pstat_off(ps_xc)
 
-czora...start changes
-      if (do_zora_atomic) then
-        if (do_zora_first_time) then
-         call ga_copy(g_zora_scalar(1), g_first_scalar(1))
-         if (ipol.gt.1)
-     &     call ga_copy(g_zora_scalar(2), g_first_scalar(2))
-        else 
-         call ga_copy(g_first_scalar(1), g_zora_scalar(1))
-         if (ipol.gt.1)
-     &     call ga_copy(g_first_scalar(2), g_zora_scalar(2))
+czora...start
+      if (do_zora) then
+
+        Ezora_sf =0.d0
+        if (ipol.gt.1) then
+          Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
+     &      + ga_ddot(g_dens(2),g_zora_sf(2))
+        else
+          Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
         end if
-      end if
-czora...end changes
+        Ecore = Ecore + Ezora_sf
+
+c        if(ga_nodeid().eq.0) then
+c          write(luout,*) "Ezora_sf:",Ezora_sf
+c        endif
+
+czora...combine spin-free part with the exchange-correlation parts
+        call ga_dadd(1.d0,g_vxc(1),1.d0,g_zora_sf(1),g_vxc(1))
+        if (ipol.gt.1) 
+     &   call ga_dadd(1.d0,g_vxc(2),1.d0,g_zora_sf(2),g_vxc(2))
+
+      end if  ! do_zora
+czora...end
 
       if (exact_pot.eq.1) then
         call xc_exact_pot(Ecoul_aux, g_dens, g_vxc, noc, g_rho_exact,
@@ -258,26 +277,14 @@ c
 c
 c  Jorge Garza/End
 c
-      call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
 
-czora...start changes
-czora...add zora scalar contribution to fock matrix
-      if (do_zora_scalar)
-     &  call ga_dadd(1.d0, g_zora_scalar(1), 1.d0, g_fock, g_fock)
-czora...end changes
+      call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
 
       if (ipol.gt.1)then
 c     
 c     Put (-alpha+beta) in g_vxc(2)
 c     
-         call ga_dadd(-1.d0, g_vxc(1), 1.d0, g_vxc(2), g_vxc(2))
-
-czora...start changes
-czora...add zora contribution to fock matrix
-         if (do_zora_scalar)
-     &    call ga_dadd(-1.d0, g_zora_scalar(1), 1.d0, 
-     &       g_zora_scalar(2), g_zora_scalar(2))
-czora...end changes
+        call ga_dadd(-1.d0, g_vxc(1), 1.d0, g_vxc(2), g_vxc(2))
 
       endif
 c     
@@ -287,6 +294,8 @@ c
       if (odftps) call pstat_off(ps_fockb)
       return
       end
+
+
       double precision function dft_fant(geom,natoms,a,d)
 C     Bonacic-Kouteck, V.; Cespiva, L.; Fantucci, P.; Pittner, J.; Kouteck, J. J. 
 C     Chem. Phys. 1994, 98, 490.

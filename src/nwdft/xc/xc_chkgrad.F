@@ -1,10 +1,14 @@
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.36 2007-02-13 23:19:46 bert Exp $
+* $Id: xc_chkgrad.F,v 1.37 2007-07-02 17:55:37 niri Exp $
 *
       implicit none
 #include "cdft.fh"
-      
+
+czora...start
+#include "zora.fh"
+czora...end
+
 c
 c     see if any Gradient Corrected Functional is not null
 c
@@ -27,9 +31,12 @@ c
 c    +     cfac(28) + cfac(36)
       if (abs(tot).gt.eps.or.lb94.or.cs00)then
          xc_chkgrad = .true.
+      else if (do_zora) then    ! turn on gradients for zora
+         xc_chkgrad = .true.
       else
          xc_chkgrad = .false.
-      endif
+      end if
+
       return
       end
 
