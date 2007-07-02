@@ -1,4 +1,4 @@
-c     Handles the scalar and spin-orbit ZORA inputs
+c     Handles the spin-free and spin-orbit ZORA inputs
 
       subroutine zora_input(rtdb)
 
@@ -19,7 +19,7 @@ c     Read input for calculations with ZORA
 c     
 c     All input is of the form:
 c     <keyword> <on||off>          or
-c     <keyword> <scalar||spin-orbit> 
+c     <keyword> <sf||so> 
 c     
       integer rtdb ! [input] handle to database
 c    
@@ -29,80 +29,53 @@ c
       external isMolecular
 
 c     Preliminaries
-      do_zora_first_time = .false.
-      do_zora_scalar = .false.
+      do_zora_get_correction = .false.
+      do_zora_sf = .false.
       do_zora_so = .false.
-      do_zora_atomic = .true.
+      do_zora = .false.
 
 c     Read input data beyond zora; store in rtdb.
   10  if (inp_a(test)) then
-         if (inp_compare(.false., 'off', test)) then
-            do_zora_atomic = .false.
-
-         elseif (inp_compare(.false.,'scalar',test)) then
-            do_zora_first_time = .true.
-            do_zora_scalar = .true.
-            if (isMolecular(test)) do_zora_atomic = .false.
-
-         elseif (inp_compare(.false.,'spin-orbit',test)) then
-            do_zora_first_time = .true.
+       if (inp_compare(.false.,'sf',test)) then
+            do_zora_get_correction = .true.
+            do_zora_sf = .true.
+       elseif (inp_compare(.false.,'so',test)) then
+            do_zora_get_correction = .true.
             do_zora_so = .true.
-            if (isMolecular(test)) do_zora_atomic = .false.
-
-         else
+       else
             call errquit('zora_input: unknown directive',0, UNKNOWN_ERR)
-
-         endif
-         goto 10
-
+       endif
+       goto 10
       endif
-
-czora...debug
-c      write(LuOut,*) "do_zora_first_time:",do_zora
-c      write(LuOut,*) "do_zora_atomic:",do_zora_atomic
-c      write(LuOut,*) "do_zora_scalar:",do_zora_scalar
-c      write(LuOut,*) "do_zora_so:",do_zora_so
-czora...debug
-
 c
 c     Write out a line informing user about the calculation being performed
 c
-c      if ((ga_nodeid() .eq. 0) .and. do_zora .and. 
-c     &     util_print('zora', print_low)) then
-c         write(luout,20)
-c  20     format(/'ZORA calculations will be performed')
-c
-c         if (do_zora_scalar) then
-c            write(luout,21)
-c  21        format(/'Performing scalar ZORA calculations.'/)
-c         elseif (do_zora_so) then
-c            write(luout,22)
-c  22        format(/'Performing spin-orbit ZORA calculations.'/)
-c         endif
-c      endif
+      if (do_zora_sf) then
+        write(luout,21)
+  21    format(/'Performing spin-free ZORA calculations.'/)
+      elseif (do_zora_so) then
+        write(luout,22)
+  22    format(/'Performing spin-orbit ZORA calculations.'/)
+      endif
 c
 c     Put zora parameters in rtdb
 c       
       if (.not. rtdb_put(rtdb, 'zora:calc', mt_log, 1, 
-     & do_zora_first_time))
+     & do_zora_get_correction))
      & call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
 
-      if (.not. rtdb_put(rtdb, 'zora:scalar', mt_log, 1, 
-     & do_zora_scalar))
+      if (.not. rtdb_put(rtdb, 'zora:sf', mt_log, 1,do_zora_sf))
      & call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
 
-      if (.not. rtdb_put(rtdb, 'zora:so', mt_log, 1, 
-     & do_zora_so))
-     & call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
-
-      if (.not. rtdb_put(rtdb, 'zora:atomic', mt_log, 1, 
-     & do_zora_atomic))
+      if (.not. rtdb_put(rtdb, 'zora:so', mt_log, 1,do_zora_so))
      & call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
 
       return
       end
 
+c
 c     check if we are not using the SAPA method
+c
       logical function isMolecular(test)
 
       implicit none

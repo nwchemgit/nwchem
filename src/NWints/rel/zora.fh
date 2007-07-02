@@ -2,27 +2,20 @@ czora...
 czora...zora related quantities
 czora...
 
-czora...energy contributions
-        double precision Ehart_grid, Enuc_grid
-        common/gridenergies/Ehart_grid, Enuc_grid
-
-        double precision Ezora_scalar, Ezora_scalar_tmp
-        common/zora_corr/Ezora_scalar, Ezora_scalar_tmp
+czora...spin-free energy
+        double precision Ezora_sf, Ezora_sf_tmp
+        common/zora_corr/Ezora_sf, Ezora_sf_tmp
 
 czora...zora flags
-        logical do_zora_first_time, do_zora_scalar, do_zora_so, 
-     &     do_zora_atomic
-        common/zora_flags/do_zora_first_time, do_zora_scalar, 
-     &     do_zora_so, do_zora_atomic
+        logical do_zora, do_zora_get_correction, do_zora_sf, 
+     &    do_zora_so
+        common/zora_flags/do_zora, do_zora_get_correction, 
+     &    do_zora_sf, do_zora_so
+
+czora...spin-orbit control (1=z, 2=y, 3=x)
+        integer so_term
+        common/zora_so_term/so_term
 
 czora...constants
         double precision clight_au
         common/zora_consts/clight_au
-
-czora...scalar matrices
-        integer g_zora_scalar(2),g_first_scalar(2)
-        common/zora_scalar_mats/g_zora_scalar,g_first_scalar
-
-czora...spin-orbit matrices
-        integer g_zora_so(3),g_first_so(3)
-        common/zora_so_mats/g_zora_so,g_first_so
