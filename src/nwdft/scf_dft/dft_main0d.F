@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.78 2007-07-02 17:56:17 niri Exp $
+c     $Id: dft_main0d.F,v 1.79 2007-07-10 21:45:17 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -91,26 +91,17 @@ c
 
 czora...start
 czora...do we need to get the zora correction ?
-      if (.not.rtdb_get(rtdb,'zora:calc',mt_log,1,
+      do_zora_get_correction=.false.
+      if (rtdb_get(rtdb,'zora:calc',mt_log,1,
      &    do_zora_get_correction)) 
-     &    do_zora_get_correction=.false.
+     &    do_zora_get_correction=.true.
 
-czora...spin-free zora
-      if (.not.rtdb_get(rtdb,'zora:sf',mt_log,1,do_zora_sf)) 
-     &    do_zora_sf = .false.
+czora...zora
+      do_zora = .false.
+      if (rtdb_get(rtdb,'zora:on',mt_log,1,do_zora)) 
+     &     do_zora = .true.
 
-czora...spin-orbit zora
-      if (.not.rtdb_get(rtdb,'zora:so',mt_log,1,do_zora_so)) 
-     &    do_zora_so = .false.
-
-czora...true if either is on
-      do_zora = (do_zora_sf) .or. (do_zora_so)
-
-czora...energy: spin-free
-      if (do_zora) Ezora_sf = 0.d0
-       
 czora...end
-
 c
 c     Get the light speed and other constants, if specified
 c

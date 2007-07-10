@@ -95,6 +95,7 @@ c
 
       if(dosympts) call grid_sympts0(geom,nops,k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,nqmax)
+
       do 111 i_a =1,ncenters
          iang_done=-1
          nwrbuf=1
@@ -147,7 +148,7 @@ c
      ,                    dbl_mb(k_gridscr),
      .                    int_mb(k_iscr),dbl_mb(k_symops(1)),
      .                    dbl_mb(k_symops(2)),
-     ,                   qsh, aqbuf,rij, 
+     ,                    qsh, aqbuf,rij, 
      ,                    g_dens, ncoef_max, natoms, 
      &                    rho_int,
      &                    iniz, ifin, rho, delrho, 
@@ -168,7 +169,7 @@ c
      I                       nbf_ao_mxnbf_ce2,nactive)
                         nqtot=nqtotc
                      else
-                     call grid_quadvw1(ncu,nq_out,iqsh,irsh,rad_sh,
+                        call grid_quadvw1(ncu,nq_out,iqsh,irsh,rad_sh,
      ,                    dosympts,
      ,                    fnxyz,nxyz,nops,grad,
      ,                    nq_cube,nqtotc,rmax,symfact,
@@ -190,10 +191,10 @@ c
      ,                    do_nmrks_r, tmat,
      ,                    l3d,triplet,
      &                    tau, kske,Mmat)
-                    endif
-
+                     endif
                   endif
                enddo            ! end loop over angular shells
+
                if(nq_cube.ne.0) then
                   cube_done=.true.
                   ictr = qsh(2,iqsh)
@@ -216,7 +217,7 @@ c
      ,     do_nmrks_r, tmat,l3d,
      ,     triplet,
      &      tau, kske,Mmat )
-                  endif
+                   endif
                   ncubenz=ncubenz+1
                endif
                n1 = n1 + 1
@@ -227,6 +228,7 @@ c
          enddo                  ! end loop over cubes
  111  continue                  ! end loop over atoms
       n1 = nxtask(-nproc,icount)
+
       if(oprint.and.ncubenz.ne.0) write(LuOut,16) ' me ',me,
      ,     ' NQTOTC NQ/cube',nqtotc,nqtotc/ncubenz
       if(dosympts)call grid_sympts2(l_symops,l_gridscr)
@@ -241,6 +243,5 @@ c
       call grid_file_write(nq, n_tot_tasks, rad, aqbuf,0)
       grid_written=.true.
 c
-
       return
       end

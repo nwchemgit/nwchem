@@ -10,7 +10,7 @@
      ,     n_levels, act_levels, oprint_time,
      ,     g_zora_sf )
 c     
-c     $Id: dft_fockbld.F,v 1.30 2007-07-02 17:56:17 niri Exp $
+c     $Id: dft_fockbld.F,v 1.31 2007-07-10 21:45:17 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -62,6 +62,7 @@ c
 c
 czora...start
       integer g_zora_sf(*)
+      double precision Ezora_sf
 czora...end
 
       me=ga_nodeid()
@@ -240,10 +241,6 @@ czora...start
           Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
         end if
         Ecore = Ecore + Ezora_sf
-
-c        if(ga_nodeid().eq.0) then
-c          write(luout,*) "Ezora_sf:",Ezora_sf
-c        endif
 
 czora...combine spin-free part with the exchange-correlation parts
         call ga_dadd(1.d0,g_vxc(1),1.d0,g_zora_sf(1),g_vxc(1))

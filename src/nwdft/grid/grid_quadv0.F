@@ -1,7 +1,7 @@
       subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.53 2007-07-02 17:53:02 niri Exp $
+C$Id: grid_quadv0.F,v 1.54 2007-07-10 21:45:08 niri Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -56,9 +56,11 @@ c
 
 czora...start
 #include "zora.fh"
+
+      logical rtdb_status       
+
 czora...end
 
-c
       logical lsa ! Qin
       integer me, nproc, nxyz, nctrs, 
      &        nbf_ao_mxnbf_ce2, nqtot, 
@@ -89,6 +91,7 @@ c
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
       integer ii,isp
       equivalence (dummy(1),Ex), (dummy(2),Ec), (dummy(3),rho_int)
+
 #ifdef SOLARIS
 c     needed for -stackvar option
       save ex, dummy, ec, rho_int
@@ -399,6 +402,7 @@ c
      ,           l3d,triplet,
      ,         dbl_mb(itau), dbl_mb(immat))
 
+
          if (.not. MA_chop_Stack(lqs))
      &        call errquit('gridv0: pop stack failed.',1, MA_ERR)
 c Qin
@@ -411,6 +415,7 @@ c Qin
      &       call errquit('rtdb_put lsa failed', 0, RTDB_ERR)
          endif
 c end Qin
+
       endif
 c     
       if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,.false.)) call
@@ -421,11 +426,26 @@ c
      &   call errquit('grid_den: cannot pop stack',0, MA_ERR)
       call ga_sync()
       if(do_scf.and.(.not.l3d)) then
+c
 c         write(0,*) ' symmetr scf l r',do_scf,do_cpks_l,do_cpks_r,
 c     A        calc_type
 c         call ga_print(g_vxc(1))
-         call ga_symmetrize(g_vxc(1))
-         if(ipol.eq.2) call ga_symmetrize(g_vxc(2))
+c
+czora...start
+czora...only symmetrize the zora spin-free term 
+          if (do_zora) then
+            if (so_term.eq.0) then
+              call ga_symmetrize(g_vxc(1))
+              if(ipol.gt.1) call ga_symmetrize(g_vxc(2))
+            end if
+            call ga_sync()
+            call util_flush(LuOut)
+          else 
+            call ga_symmetrize(g_vxc(1))
+            if(ipol.gt.1) call ga_symmetrize(g_vxc(2))
+          end if
+czora...end
+c
 c         call ga_print(g_vxc(1))
       endif
 c
@@ -459,8 +479,10 @@ c
          else
             rho_err=abs(rho_int-1d0)
          endif
-         if(.not.do_cpks_l.and.rho_err.gt.job_grid_acc.and.me.eq.0)
-     *        write(LuOut,123) rho_err,job_grid_acc
+         if (me.eq.0) then
+           if(.not.do_cpks_l.and.rho_err.gt.job_grid_acc.and.me.eq.0)
+     &        write(LuOut,123) rho_err,job_grid_acc
+         end if
       endif
 
       rho_n = rho_int
@@ -478,5 +500,6 @@ c
 c
  123  format(' WARNING: error on integrated density =',
      , d10.2,/' greater than required accuracy of',d10.2)
+
       return
       end

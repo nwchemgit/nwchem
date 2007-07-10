@@ -14,7 +14,7 @@
      &     bas_cent_xinfo,bas_cset_xinfo,docsetx, 
      &     tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.61 2007-07-02 17:53:02 niri Exp $
+c$Id: grid_quadv0b.F,v 1.62 2007-07-10 21:45:08 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -212,34 +212,23 @@ c     add beta to 1 to get alpha+beta
 
 czora...start
 czora...calculate the zora correction (hartree and nuclear potentials included in correction)
-       if (do_zora_get_correction) then 
-
-czora...combine the alpha & beta density components (to calculate the hartree contribution)
-         if (ipol.gt.1)
-     &    call ga_dadd(1.d0, g_dens(1), 1.d0, g_dens(2), g_dens(1))
+      if (do_scf .and. do_zora_get_correction) then 
 
 czora...calculate the zora correction (consolidated density => hartree piece)
-         call grid_zoracorr(nqpts,qxyz,qwght,natoms,g_dens,amat)
-
-czora...separate the alpha & beta density components
-         if (ipol.gt.1)
-     &    call ga_dadd(1.d0, g_dens(1), -1.d0, g_dens(2), g_dens(1))
+        call grid_zoracorr(nqpts,qxyz,qwght,natoms,g_dens,amat)
 
 czora...evaluate zora contributions
-          call zora_tabcd(0,l3d,
-     &      tol_rho, Fmat, Pmat, amat, Bmat, Cmat, Dbl_MB(iDmat),
-     &      0d0,0d0,0d0,0d0,
-     &      Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
-     &      0d0,0,1,
-     &      ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
-     &      grad, AO_bas_han,
-     &      natoms, iniz, ifin, g_vxc, ibf_ao,
-     &      rchi_atom, rdelchi_atom,
-     &      rdens_atom, cetobfr,kske,Mmat,0d0)
-    
-            goto 2010 ! clean up and return
-       end if   ! do_zora_get_correction
-czora...end 
+           call zora_tabcd(0,l3d,
+     T        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
+     &        0d0,0d0,0d0,0d0,
+     &        Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
+     N        0d0,0,1,
+     I        ipol,nqpts,mbf_ao,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2, 
+     G        grad, AO_bas_han,natoms, iniz, ifin, 
+     G        g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
+     &        rdens_atom, cetobfr,kske,Mmat,dbl_mb(k_scr))
+
+      else  ! do_zora_get_correction
 
       if (odftps) call pstat_on(ps_excf)
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
@@ -329,6 +318,7 @@ c
      &       CALC_ERR)
          endif
 
+      end if ! do_zora_get_correction
       endif
 
  2010 continue
@@ -357,7 +347,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.61 2007-07-02 17:53:02 niri Exp $
+C$Id: grid_quadv0b.F,v 1.62 2007-07-10 21:45:08 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -497,7 +487,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.61 2007-07-02 17:53:02 niri Exp $
+C$Id: grid_quadv0b.F,v 1.62 2007-07-10 21:45:08 niri Exp $
 c
       implicit none
 #include "errquit.fh"

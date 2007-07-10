@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.268 2007-07-02 17:56:17 niri Exp $
+c     $Id: dft_scf.F,v 1.269 2007-07-10 21:45:17 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -170,6 +170,7 @@ c
 
 czora...start
       integer g_zora_sf(4)
+      integer g_zora(2)
 czora...end
 
       gotsmear(ss)=abs(ss).gt.1d-9
@@ -617,6 +618,9 @@ c
 czora...Get the zora contributions
       if (do_zora) then
 
+        if (ga_nodeid().eq.0) 
+     &        call dft_header('Spin-Free Zora Calculation')
+
 czora...Create spin-free correction arrays
        if(.not.ga_duplicate(g_vxc(1),g_zora_sf(1),'g vxc 1'))
      &  call errquit('xcgetv: gaduplicate failed',1, GA_ERR)
@@ -627,16 +631,39 @@ czora...Create spin-free correction arrays
          call ga_zero(g_zora_sf(2))
         endif
 
-czora...Initialize
+       if(.not.ga_duplicate(g_vxc(1),g_zora(1),'zora'))
+     &  call errquit('xcgetv: gaduplicate failed',1, GA_ERR)
+        call ga_zero(g_zora(1))
+        if(ipol.gt.1) then
+         if(.not.ga_duplicate(g_vxc(2),g_zora(2),'gv21'))
+     &   call errquit('xcgetv: gaduplicate failed',1, GA_ERR)
+         call ga_zero(g_zora(2))
+        endif
+
+czora...Preliminaries
         call ga_zero(g_zora_sf(1))
         if (ipol.gt.1) call ga_zero(g_zora_sf(2))
+        do_zora_get_correction = .true.
+        so_term = 0
+        call ga_zero(g_zora(1))
+        if (ipol.gt.1) call ga_zero(g_zora(2))
+
+czora...Combine the alpha & beta density components 
+        if (ipol.gt.1)
+     &    call ga_dadd(1.d0, g_dens(1), 1.d0, g_dens(2), g_dens(1))
 
 czora...Get the spin-free corrections
-        do_zora_get_correction = .true.
-        do_zora_so = .false.
-        do_zora_sf = .true.
-        rho_n = 0.d0
-        call zora_getv_sf(rtdb, g_dens, g_zora_sf, rho_n, nexc)
+        call zora_getv(rtdb, nbf_ao, ipol, g_dens, g_zora, nexc)
+
+czora...Separate the alpha & beta density components
+        if (ipol.gt.1)
+     &    call ga_dadd(1.d0, g_dens(1), -1.d0, g_dens(2), g_dens(1))
+
+czora...Fill the zora arrays
+        call ga_dadd(1d0,g_zora_sf(1),1d0,g_zora(1), g_zora_sf(1))
+        if (ipol.gt.1) then
+         call ga_dadd(1d0,g_zora_sf(2),1d0,g_zora(2),g_zora_sf(2))
+        end if
 
       end if  ! do_zora
 czora...end
@@ -647,7 +674,7 @@ c
          call ga_dadd(one,g_dens(1),one,g_dens(2),g_dens(1))
       endif
 c     
-c     Call to Mulliken Pop Ananlysis for initial density
+c     Call to Mulliken Population Analysis for initial density
 c     
       if (mulliken) call dft_mulwrap(me,g_dens,g_s)
 c
@@ -1693,8 +1720,12 @@ czora...remove spin-free correction arrays
       if (do_zora) then
         if (.not. ga_destroy(g_zora_sf(1))) call errquit(
      &          ' xc_getv: ga_destroy failed ',0, GA_ERR)
+        if (.not. ga_destroy(g_zora(1))) call errquit(
+     &          ' xc_getv: ga_destroy failed ',0, GA_ERR)
         if(ipol.gt.1) then
          if (.not. ga_destroy(g_zora_sf(2))) call errquit(
+     &        ' xc_getv: ga_destroy failed ',0, GA_ERR)
+         if (.not. ga_destroy(g_zora(2))) call errquit(
      &        ' xc_getv: ga_destroy failed ',0, GA_ERR)
         end if
       end if
