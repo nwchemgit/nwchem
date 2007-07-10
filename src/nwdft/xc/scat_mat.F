@@ -1,14 +1,17 @@
       Subroutine scat_mat(TT,T,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
 
-C$Id: scat_mat.F,v 1.9 2007-07-02 17:55:37 niri Exp $
+C$Id: scat_mat.F,v 1.10 2007-07-10 21:43:02 niri Exp $
       implicit none
+
+#include "stdio.fh"
+#include "zora.fh"
+
       integer mi,mj,Ni,Nj
       integer ifirst,jfirst
       integer ibf(mi),jbf(mj)
       double precision T(mi,mj),TT(Ni,Nj)
 c
       integer i,j,jj
-
 c
 c     scatter into matrix
 c     
@@ -19,21 +22,23 @@ c
           TT((ibf(i)-ifirst+1),jj)=T(i,j)
         enddo
       enddo
+
+      return
       end
 
       subroutine scat_matup(TT,T,Ni,Nj,mi,mj,
      I     ifirst,jfirst,ibf,jbf)
       implicit none
+
       integer mi,mj,Ni,Nj
       integer ifirst,jfirst
       integer ibf(mi),jbf(mj)
       double precision T(mi,mj),TT(Ni,Nj)
 c
       integer i,j,jj
-
 c
 c     scatter into matrix
-c     prepare for ga_symm
+c     prepare for ga_symmetrize
 c     
       call dcopy(Ni*Nj,0.d0,0,TT,1)
       if(ifirst.eq.jfirst) then

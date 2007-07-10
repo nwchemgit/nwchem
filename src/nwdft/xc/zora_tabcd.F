@@ -1,5 +1,4 @@
-czora...needs to be cleaned up.
-czora...the spin-free part
+czora...TODO:needs to be cleaned up.
 c
       subroutine zora_tabcd(what,l3d,
      ,     tol_rho, Tmat, TTmat, Amat, Bmat, Cmat, Dmat, 
@@ -216,19 +215,19 @@ c
 
                   Bmat(n,mu) = 0.d0
 
-                  if (so_term .eq. 3) then
+                  if (so_term .eq. 1) then        ! z-component
                     Dmat(n,1,mu) = delchi(n,1,mu1)*Amat(n,ii,imat)
                     Dmat(n,2,mu) = delchi(n,2,mu1)*Amat(n,ii,imat)
                     Dmat(n,3,mu) = 0.d0
-                  else if (so_term .eq. 2) then
+                  else if (so_term .eq. 2) then   ! y-component
                     Dmat(n,3,mu) = delchi(n,3,mu1)*Amat(n,ii,imat)
                     Dmat(n,1,mu) = delchi(n,1,mu1)*Amat(n,ii,imat)
                     Dmat(n,2,mu) = 0.d0
-                  else if (so_term .eq. 1) then
+                  else if (so_term .eq. 3) then   ! x-component
                     Dmat(n,2,mu) = delchi(n,2,mu1)*Amat(n,ii,imat)
                     Dmat(n,3,mu) = delchi(n,3,mu1)*Amat(n,ii,imat)
                     Dmat(n,1,mu) = 0.d0
-                  else if (so_term .eq. 0) then
+                  else if (so_term .eq. 0) then   ! spin-free
                     Dmat(n,1,mu) = delchi(n,1,mu1)*Amat(n,ii,imat)
                     Dmat(n,2,mu) = delchi(n,2,mu1)*Amat(n,ii,imat)
                     Dmat(n,3,mu) = delchi(n,3,mu1)*Amat(n,ii,imat)
@@ -355,19 +354,19 @@ c
 
 czora...               build Tmat
 
-                      if (so_term .eq. 3) then
+                      if (so_term .eq. 1) then       ! z-component
                        Tmat(indT) = 
      &                   ddot(nq,Dmat(1,1,mu),1,delchi(1,2,nu1),1)
      &                 - ddot(nq,Dmat(1,2,mu),1,delchi(1,1,nu1),1)
-                      else if (so_term .eq. 2) then
+                      else if (so_term .eq. 2) then  ! y-component
                        Tmat(indT) = 
      &                   ddot(nq,Dmat(1,3,mu),1,delchi(1,1,nu1),1)
      &                 - ddot(nq,Dmat(1,1,mu),1,delchi(1,3,nu1),1)
-                      else if (so_term .eq. 1) then
+                      else if (so_term .eq. 3) then  ! x-component
                        Tmat(indT) = 
      &                   ddot(nq,Dmat(1,2,mu),1,delchi(1,3,nu1),1)
      &                 - ddot(nq,Dmat(1,3,mu),1,delchi(1,2,nu1),1)
-                      else if (so_term .eq. 0) then
+                      else if (so_term .eq. 0) then  ! spin-free
                        Tmat(indT) =
      &                   ddot(nq,Dmat(1,1,mu),1,delchi(1,1,nu1),1)
      &                 + ddot(nq,Dmat(1,2,mu),1,delchi(1,2,nu1),1)
@@ -383,10 +382,15 @@ czora...               build Tmat
                      call dfill(max_at_bf2, 0.d0, TTmat, 1)
                      if(dofull) then
                         call scat_mat(TTmat, Tmat, nbfia, nbfja, nnia,
-     &                       nnja,ifirst,jfirst,ibf(inizia),ibf(inizja))
+     &                     nnja,ifirst,jfirst,ibf(inizia),ibf(inizja))
                      else
+                      if (so_term.eq.0) then
                         call scat_matup(TTmat, Tmat, nbfia, nbfja, nnia,
-     &                       nnja,ifirst,jfirst,ibf(inizia),ibf(inizja))
+     &                     nnja,ifirst,jfirst,ibf(inizia),ibf(inizja))
+                      else
+                        call scat_mat(TTmat, Tmat, nbfia, nbfja, nnia,
+     &                     nnja,ifirst,jfirst,ibf(inizia),ibf(inizja))
+                      end if
                      endif
                   else
                      call scat_mat3(n3d,jdir,

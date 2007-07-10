@@ -1,6 +1,6 @@
-# $Id: GNUmakefile,v 1.104 2007-07-02 17:55:37 niri Exp $
+# $Id: GNUmakefile,v 1.105 2007-07-10 21:43:01 niri Exp $
 
-	OBJ=xc_getv.o zora_getv_sf.o zora_getv_so.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
+	OBJ=xc_getv.o zora_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
 
 	OBJ_OPTIMIZE = xc_eval_basis.o  \
 	a_dist.o \
