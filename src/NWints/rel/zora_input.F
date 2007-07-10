@@ -13,66 +13,46 @@ c     Handles the spin-free and spin-orbit ZORA inputs
 #include "util.fh"
 #include "errquit.fh"
 #include "zora.fh"
-
+c
 c     
 c     Read input for calculations with ZORA
 c     
 c     All input is of the form:
-c     <keyword> <on||off>          or
-c     <keyword> <sf||so> 
+c     <keyword> <on||off>
 c     
       integer rtdb ! [input] handle to database
 c    
       character*255 test
-
+c
       logical isMolecular
       external isMolecular
-
+c
 c     Preliminaries
       do_zora_get_correction = .false.
-      do_zora_sf = .false.
-      do_zora_so = .false.
       do_zora = .false.
-
+c
 c     Read input data beyond zora; store in rtdb.
   10  if (inp_a(test)) then
-       if (inp_compare(.false.,'sf',test)) then
-            do_zora_get_correction = .true.
-            do_zora_sf = .true.
-       elseif (inp_compare(.false.,'so',test)) then
-            do_zora_get_correction = .true.
-            do_zora_so = .true.
+       if (inp_compare(.false.,'on',test)) then
+        do_zora = .true.
+       else if (inp_compare(.false.,'off',test)) then
+        do_zora = .false.
        else
-            call errquit('zora_input: unknown directive',0, UNKNOWN_ERR)
+        call errquit('zora_input: unknown directive',0, UNKNOWN_ERR)
        endif
        goto 10
       endif
 c
-c     Write out a line informing user about the calculation being performed
-c
-      if (do_zora_sf) then
-        write(luout,21)
-  21    format(/'Performing spin-free ZORA calculations.'/)
-      elseif (do_zora_so) then
-        write(luout,22)
-  22    format(/'Performing spin-orbit ZORA calculations.'/)
-      endif
-c
 c     Put zora parameters in rtdb
-c       
-      if (.not. rtdb_put(rtdb, 'zora:calc', mt_log, 1, 
+      if (.not. rtdb_put(rtdb, 'zora:calc', mt_log, 1,
      & do_zora_get_correction))
      & call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
 
-      if (.not. rtdb_put(rtdb, 'zora:sf', mt_log, 1,do_zora_sf))
-     & call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
-
-      if (.not. rtdb_put(rtdb, 'zora:so', mt_log, 1,do_zora_so))
+      if (.not. rtdb_put(rtdb, 'zora:on', mt_log, 1,do_zora))
      & call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
 
       return
       end
-
 c
 c     check if we are not using the SAPA method
 c

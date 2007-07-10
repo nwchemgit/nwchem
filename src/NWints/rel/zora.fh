@@ -1,18 +1,11 @@
 czora...
 czora...zora related quantities
 czora...
-
-czora...spin-free energy
-        double precision Ezora_sf, Ezora_sf_tmp
-        common/zora_corr/Ezora_sf, Ezora_sf_tmp
-
 czora...zora flags
-        logical do_zora, do_zora_get_correction, do_zora_sf, 
-     &    do_zora_so
-        common/zora_flags/do_zora, do_zora_get_correction, 
-     &    do_zora_sf, do_zora_so
+        logical do_zora, do_zora_get_correction
+        common/zora_flags/do_zora, do_zora_get_correction
 
-czora...spin-orbit control (1=z, 2=y, 3=x)
+czora...spin-orbit control (1=z, 2=y, 3=x, 0=spin-free)
         integer so_term
         common/zora_so_term/so_term
 
