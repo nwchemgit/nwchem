@@ -14,7 +14,7 @@
      &     bas_cent_xinfo,bas_cset_xinfo,docsetx, 
      &     tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.62 2007-07-10 21:45:08 niri Exp $
+c$Id: grid_quadv0b.F,v 1.63 2007-07-11 01:01:35 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -182,8 +182,7 @@ c
       nqtot = nqtot + nqpts
 c     
       rho0=rho_int
-      rho_int = rho_int + 
-     &     ddot(nqpts, qwght, 1, rho, 1)
+      rho_int = rho_int + ddot(nqpts, qwght, 1, rho, 1)
 
       if(do_scf.and.abs(rho0-rho_int).lt.tol_rho) goto 2010
 c     
@@ -347,7 +346,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.62 2007-07-10 21:45:08 niri Exp $
+C$Id: grid_quadv0b.F,v 1.63 2007-07-11 01:01:35 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -487,7 +486,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.62 2007-07-10 21:45:08 niri Exp $
+C$Id: grid_quadv0b.F,v 1.63 2007-07-11 01:01:35 niri Exp $
 c
       implicit none
 #include "errquit.fh"

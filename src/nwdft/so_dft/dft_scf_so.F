@@ -3,7 +3,7 @@
      &                  iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                  g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.35 2007-07-10 21:45:20 niri Exp $
+c     $Id: dft_scf_so.F,v 1.36 2007-07-11 01:01:40 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -739,13 +739,6 @@ czora...calculate zora parts
 
          call ga_sync()
 
-czora...combine the density components
-         call ga_dadd(one,g_dens(1),one,g_dens(2),g_dens(1))
-
-czora...Print the header
-         if (ga_nodeid().eq.0)
-     &     call dft_header('Spin-Orbit ZORA calculation')
-
          do_zora_get_correction = .true.
 
 czora...Calculate the spin-orbit parts
@@ -753,22 +746,22 @@ czora...Calculate the spin-orbit parts
          call ga_zero(g_zora_so(1))
          call ga_zero(g_zora(1))
          call ga_zero(g_zora(2))
-         call zora_getv(rtdb, nbf_ao, ipol, g_dens, g_zora, nexc)
+         call zora_getv(rtdb, g_dens, g_zora, nexc)
          call ga_dadd(1d0,g_zora_so(1),1d0,g_zora(1),g_zora_so(1))
 
          so_term = 2
          call ga_zero(g_zora_so(2))
          call ga_zero(g_zora(1))
          call ga_zero(g_zora(2))
-         call zora_getv(rtdb, nbf_ao, ipol, g_dens, g_zora, nexc)
-         call ga_dadd(1d0,g_zora_so(2),1d0,g_zora(1),g_zora_so(2))
+         call zora_getv(rtdb, g_dens, g_zora, nexc)
+         call ga_dadd(1d0,g_zora_so(1),1d0,g_zora(1),g_zora_so(2))
 
          so_term = 3
          call ga_zero(g_zora_so(3))
          call ga_zero(g_zora(1))
          call ga_zero(g_zora(2))
-         call zora_getv(rtdb, nbf_ao, ipol,g_dens,g_zora, nexc)
-         call ga_dadd(1d0,g_zora_so(3),1d0,g_zora(1),g_zora_so(3))
+         call zora_getv(rtdb, g_dens, g_zora, nexc)
+         call ga_dadd(1d0,g_zora_so(1),1d0,g_zora(1),g_zora_so(3))
 
 czora...Calculate the spin-free parts
          so_term = 0
@@ -776,7 +769,7 @@ czora...Calculate the spin-free parts
          call ga_zero(g_zora_sf(2))
          call ga_zero(g_zora(1))
          call ga_zero(g_zora(2))
-         call zora_getv(rtdb, nbf_ao, ipol, g_dens, g_zora, nexc)
+         call zora_getv(rtdb, g_dens, g_zora, nexc)
          call ga_dadd(1d0,g_zora_sf(1),1d0,g_zora(1),g_zora_sf(1))
          call ga_dadd(1d0,g_zora_sf(2),1d0,g_zora(2),g_zora_sf(2))
 
@@ -786,14 +779,9 @@ czora...so_term = 0 (spin-free and the matrices are symmetric)
          do_zora_get_correction = .false.
          so_term = 0
 
-czora...separate the density components
-         call ga_dadd(1.d0, g_dens(1), -1.d0, g_dens(2), g_dens(1))
-
       end if
 czora
 czora
-cso
-cso
 c     
 c     If open shell put the total density matrix in g_dens(1)
 c     

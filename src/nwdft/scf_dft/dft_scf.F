@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.269 2007-07-10 21:45:17 niri Exp $
+c     $Id: dft_scf.F,v 1.270 2007-07-11 01:01:37 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -618,9 +618,6 @@ c
 czora...Get the zora contributions
       if (do_zora) then
 
-        if (ga_nodeid().eq.0) 
-     &        call dft_header('Spin-Free Zora Calculation')
-
 czora...Create spin-free correction arrays
        if(.not.ga_duplicate(g_vxc(1),g_zora_sf(1),'g vxc 1'))
      &  call errquit('xcgetv: gaduplicate failed',1, GA_ERR)
@@ -648,16 +645,8 @@ czora...Preliminaries
         call ga_zero(g_zora(1))
         if (ipol.gt.1) call ga_zero(g_zora(2))
 
-czora...Combine the alpha & beta density components 
-        if (ipol.gt.1)
-     &    call ga_dadd(1.d0, g_dens(1), 1.d0, g_dens(2), g_dens(1))
-
 czora...Get the spin-free corrections
-        call zora_getv(rtdb, nbf_ao, ipol, g_dens, g_zora, nexc)
-
-czora...Separate the alpha & beta density components
-        if (ipol.gt.1)
-     &    call ga_dadd(1.d0, g_dens(1), -1.d0, g_dens(2), g_dens(1))
+        call zora_getv(rtdb, g_dens, g_zora, nexc)
 
 czora...Fill the zora arrays
         call ga_dadd(1d0,g_zora_sf(1),1d0,g_zora(1), g_zora_sf(1))
