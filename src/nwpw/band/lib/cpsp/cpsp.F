@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.40 2007-06-19 21:29:52 d3p708 Exp $
+* $Id: cpsp.F,v 1.41 2007-07-12 20:21:59 bylaska Exp $
 *
 
 #define TCGMSG
@@ -582,9 +582,9 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 
 *     *** local variables ***
       complex*16 one,mone,ione
-      parameter  (one=dcmplx(1.0d0,0.0d0))
-      parameter  (mone=dcmplx(-1.0d0,0.0d0))
-      parameter  (ione=dcmplx(0.d0,1.0d0))
+c      parameter  (one=dcmplx(1.0d0,0.0d0))
+c      parameter  (mone=dcmplx(-1.0d0,0.0d0))
+c      parameter  (ione=dcmplx(0.d0,1.0d0))
       integer nfft3d,G(3),npack1,npack
       integer i,ii,ia,l,n,nn,nb,neall,nbrill
       integer shift,l_prj,nproj
@@ -602,6 +602,9 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       external ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
       external lattice_omega,brillioun_weight
 
+      one  = dcmplx( 1.0d0,0.0d0)
+      mone = dcmplx(-1.0d0,0.0d0)
+      ione = dcmplx( 0.0d0,1.0d0)
       call nwpw_timing_start(6)
       
 *     **** allocate local memory ****
@@ -2052,8 +2055,8 @@ c          end do
 
 *     *** local variables ***
       complex*16 one,mone
-      parameter  (one=dcmplx(1.0d0,0.0d0))
-      parameter  (mone=dcmplx(-1.0d0,0.0d0))
+c      parameter  (one=dcmplx(1.0d0,0.0d0))
+c      parameter  (mone=dcmplx(-1.0d0,0.0d0))
       integer nfft3d,G(3),npack1,npack
       integer i,ii,ia,l,n,nn,nb,neall,nbrill
       integer shift,l_prj,nproj
@@ -2070,6 +2073,9 @@ c          end do
       external is_sORd
       external ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
       external lattice_omega,brillioun_weight
+
+      one  = dcmplx( 1.0d0,0.0d0)
+      mone = dcmplx(-1.0d0,0.0d0)
 
       if (.not.do_spin_orbit) return
       call nwpw_timing_start(6)
@@ -2469,14 +2475,17 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccc locals cccccccccccccccccccccccccccccccccccccccc
       real*8 weight,brillioun_weight
       complex*16 one,mone,ione,ctmp,cxr,ddx
-      parameter  (one=dcmplx(1.0d0,0.0d0))
-      parameter  (mone=dcmplx(-1.0d0,0.0d0))
-      parameter  (ione=dcmplx(0.d0,1.0d0))
+c      parameter  (one=dcmplx(1.0d0,0.0d0))
+c      parameter  (mone=dcmplx(-1.0d0,0.0d0))
+c      parameter  (ione=dcmplx(0.d0,1.0d0))
       integer nb,l,ip,jk,i,n,shifts,shiftx,shift,l_prj,npack,
      > ne1,vshift
       logical sd_function
       external brillioun_weight 
 cccccccccccccccccccccccccccccccccccccccccc
+      one  = dcmplx( 1.0d0,0.0d0)
+      mone = dcmplx(-1.0d0,0.0d0)
+      ione = dcmplx( 0.0d0,1.0d0)
       ne1=ne(1)
       shifts=npack1*ne1
       do nb=1,nbrill
