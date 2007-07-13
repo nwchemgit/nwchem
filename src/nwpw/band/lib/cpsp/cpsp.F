@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.41 2007-07-12 20:21:59 bylaska Exp $
+* $Id: cpsp.F,v 1.42 2007-07-13 17:28:25 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -582,9 +582,6 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 
 *     *** local variables ***
       complex*16 one,mone,ione
-c      parameter  (one=dcmplx(1.0d0,0.0d0))
-c      parameter  (mone=dcmplx(-1.0d0,0.0d0))
-c      parameter  (ione=dcmplx(0.d0,1.0d0))
       integer nfft3d,G(3),npack1,npack
       integer i,ii,ia,l,n,nn,nb,neall,nbrill
       integer shift,l_prj,nproj
@@ -1031,8 +1028,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     *** local variables ***
       complex*16 one,mone,ione
-      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
-      parameter  (ione=(0.0d0,1.0d0))
+c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
+c      parameter  (ione=(0.0d0,1.0d0))
       integer nfft3d,npack1,npack,nbrill
       integer ii,ia,l
       integer shift,l_prj,nproj
@@ -1048,6 +1045,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       external is_sORd,cpsi_spin_orbit
       external ion_nion,ion_katm,brillioun_nbrillioun
       external lattice_omega
+
+      one=dcmplx(1.0d0,0.0d0)
+      mone=dcmplx(-1.0d0,0.d0)
+      ione=dcmplex(0.0d0,1.d0)
 
       if (cpsi_spin_orbit()) then
         call cpsp_v_nonlocal_orb_2com(nb,psi1,psi2)
@@ -1182,7 +1183,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     *** local variables ***
       complex*16 one,mone
-      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
+c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
 
       integer nfft3d,npack1,npack,nbrill
       integer ii,ia,l,prj_shift
@@ -1201,8 +1202,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       external ion_nion,ion_katm,brillioun_nbrillioun
       external lattice_omega,cpsi_ne
 
-      call nwpw_timing_start(6)
+      one=dcmplx(1.0d0,0.0d0)
+      mone=dcmplx(-1.0d0,0.0d0)
       
+      call nwpw_timing_start(6)
+         
       prj_shift=vso_shift
 *     **** allocate local memory ****
       call C3dB_nfft3d(1,nfft3d)
@@ -2055,8 +2059,6 @@ c          end do
 
 *     *** local variables ***
       complex*16 one,mone
-c      parameter  (one=dcmplx(1.0d0,0.0d0))
-c      parameter  (mone=dcmplx(-1.0d0,0.0d0))
       integer nfft3d,G(3),npack1,npack
       integer i,ii,ia,l,n,nn,nb,neall,nbrill
       integer shift,l_prj,nproj
@@ -2475,14 +2477,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccc locals cccccccccccccccccccccccccccccccccccccccc
       real*8 weight,brillioun_weight
       complex*16 one,mone,ione,ctmp,cxr,ddx
-c      parameter  (one=dcmplx(1.0d0,0.0d0))
-c      parameter  (mone=dcmplx(-1.0d0,0.0d0))
-c      parameter  (ione=dcmplx(0.d0,1.0d0))
       integer nb,l,ip,jk,i,n,shifts,shiftx,shift,l_prj,npack,
      > ne1,vshift
       logical sd_function
       external brillioun_weight 
 cccccccccccccccccccccccccccccccccccccccccc
+c These should be declared as parameters
+c however there seems to be no "standard"
+c way to declare a complex parameter that
+c works with all compilers...
+ccccccccccccccccccccccccccccccccccccccccc
       one  = dcmplx( 1.0d0,0.0d0)
       mone = dcmplx(-1.0d0,0.0d0)
       ione = dcmplx( 0.0d0,1.0d0)
@@ -2501,7 +2505,7 @@ cccccccccccccccccccccccccccccccccccccccccc
            do 105 l=1,nproj
 
               l_prj = int_mb(l_projector(1)+(l-1)
-     >                                     +(ia-1)*jmmax_max)
+     >                          +(ia-1)*jmmax_max)
 ***************** we have s,d,g so we changed this!
               sd_function=.true.
               if (mod(l_prj,2).ne.0) then
@@ -2559,7 +2563,7 @@ c             *** current function is s or d ****
            
  105       continue 
            call C3dB_Vector_SumAll((2*ne1*nproj),zsw1)
-           call dscal(2*ne1*nproj,bz_vol,zsw1,1)
+           call dscal(4*ne1*nproj,bz_vol,zsw1,1)
          
            call ZGEMM('N','C',npack,ne1,nproj,
      >                mone,
