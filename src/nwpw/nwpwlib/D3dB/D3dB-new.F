@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.49 2007-03-29 23:19:04 bylaska Exp $
+* $Id: D3dB-new.F,v 1.50 2007-07-13 22:29:10 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -3840,8 +3840,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
          do j=1,ny(nb)
 
             do k=1,nz(nb)
-              call D3dB_ijktoindex2p(nb,i,j,k,index,p_from)
-              
+              call D3dB_ijktoindex2p(nb,i,j,k,index,p_here)
               if (p_here.eq.taskid) then
 
                  tmp(1) = A(index)
