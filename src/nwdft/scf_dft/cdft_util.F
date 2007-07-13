@@ -153,7 +153,7 @@ c convert charge to number of electrons
 
       subroutine lowd_pop( geom, basis, iga_dens,iga_s, g_tmp )
 
-C$Id: cdft_util.F,v 1.2 2007-02-15 00:07:37 bert Exp $
+C$Id: cdft_util.F,v 1.3 2007-07-13 23:15:28 bylaska Exp $
       Implicit none
 #include "errquit.fh"
       integer geom,basis
@@ -254,7 +254,7 @@ c
 #if defined(PARALLEL_DIAG)
       call ga_diag_std(g_m, g_vecs, evals)
 #else
-      call ga_diag_std_seq(g_m, g_vecs, evals))
+      call ga_diag_std_seq(g_m, g_vecs, evals)
 #endif
 
       g_tmp = ga_create_atom_blocked(geom, bas_han, 'tmp')
