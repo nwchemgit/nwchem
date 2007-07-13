@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.17 2004-05-24 14:50:03 bylaska Exp $
+* $Id: pspw_dplot.F,v 1.18 2007-07-13 22:31:00 bylaska Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -20,7 +20,7 @@
 
       integer count
       integer ngrid(3)
-      integer nfft3d,n2ft3d,npack1,mapping
+      integer nfft3d,n2ft3d,npack1,mapping,mapping1d
       integer ispin,ne(2),nemax
       integer psi2(2),dn(2),psir(2)
       real*8  cpu1,cpu2
@@ -28,16 +28,18 @@
       character*8 tag
 
 *     **** external functions ****
-      logical      control_read,ion_init
-      integer      pack_nwave_all,control_mapping
+      logical      control_read,ion_init,control_balance
+      integer      pack_nwave_all,control_mapping,control_np_orbital
       integer      control_ngrid,pack_nwave,control_version
+      integer      control_mapping1d
       real*8       lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8       lattice_unitg
       character*12 control_boundry
 
-      external     control_read,ion_init
-      external     pack_nwave_all,control_mapping
+      external     control_read,ion_init,control_balance
+      external     pack_nwave_all,control_mapping,control_np_orbital
       external     control_ngrid,pack_nwave,control_version
+      external     control_mapping1d
       external     lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external     lattice_unitg
       external     control_boundry
@@ -98,81 +100,6 @@
 
 
 
-
-      !**** Make sure ngrid is consistent with mapping ***
-      if (mapping.eq.1) then
-        if ((np.gt.ngrid(3)).or.(ngrid(2).ne.ngrid(3))) then
-          if (taskid.eq.MASTER) then
-            write(6,*) 'Error: the number of processors must ',
-     >                 ' be in the range ( 1 ...ngrid(3)=',
-     >                   ngrid(3),')'
-           write(6,*) ' and ngrid(2) == ngrid(3), ',
-     >                ' ngrid(2)=',ngrid(2),
-     >                ' ngrid(3)=',ngrid(3)
-          end if
-          call errquit('PSPW:Bad number of processors:',np, INPUT_ERR)
-        end if
-        if (mod(ngrid(1),2).ne.0) then
-          if (taskid.eq.MASTER) then
-           write(6,*)
-     >      'Error: ngrid(1) must be even (ngrid(1) mod 2 == 0)'
-           write(6,*) 'Error: ngrid(1)=',ngrid(1)
-          end if
-          call errquit('PSPW:Bad grid',ngrid(1), INPUT_ERR)
-        end if
-
-
-      end if
-      if (mapping.eq.2) then
-        if (np.gt.(ngrid(2)*ngrid(3))) then
-          if (taskid.eq.MASTER) then
-           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
-     >                ' (ngrid(1)/2+1)*ngrid(2),',
-     >                ' (ngrid(1)/2+1)*ngrid(3))'
-           write(6,*) 'Error: np > ngrid(2)*ngrid(3)'
-           write(6,*) 'Error: the number of processors must ',
-     >                 ' be in the range ( 1 ...',
-     >                   ngrid(2)*ngrid(3),')'
-          end if
-          call errquit('PSPW:Bad number of processors:',np, INPUT_ERR)
-        end if
-        if (np.gt.((ngrid(1)/2+1)*ngrid(2))) then
-          if (taskid.eq.MASTER) then
-           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
-     >                ' (ngrid(1)/2+1)*ngrid(2),',
-     >                ' (ngrid(1)/2+1)*ngrid(3))'
-           write(6,*) 'Error: np > (ngrid(1)/2+1)*ngrid(2)'
-           write(6,*) 'Error: the number of processors must ',
-     >                 ' be in the range ( 1 ...',
-     >                   (ngrid(1)/2+1)*ngrid(2),')'
-          end if
-          call errquit('PSPW:Bad number of processors:',np, INPUT_ERR)
-        end if
-        if (np.gt.((ngrid(1)/2+1)*ngrid(3))) then
-          if (taskid.eq.MASTER) then
-           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
-     >                ' (ngrid(1)/2+1)*ngrid(2),',
-     >                ' (ngrid(1)/2+1)*ngrid(3))'
-           write(6,*) 'Error: np > (ngrid(1)/2+1)*ngrid(3)'
-           write(6,*) 'Error: the number of processors must ',
-     >                 ' be in the range ( 1 ...',
-     >                   (ngrid(1)/2+1)*ngrid(3),')'
-          end if
-          call errquit('PSPW:Bad number of processors:',np, INPUT_ERR)
-        end if
-        if (mod(ngrid(1),2).ne.0) then
-          if (taskid.eq.MASTER) then
-           write(6,*)
-     >      'Error: ngrid(1) must be even (ngrid(1) mod 2 == 0)'
-           write(6,*) 'Error: ngrid(1)=',ngrid(1)
-          end if
-          call errquit('PSPW:Bad grid',ngrid(1), INPUT_ERR)
-        end if
-
-      end if
-
-
-
 *     **** initialize D3dB data structure ****
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call D3dB_nfft3d(1,nfft3d)
@@ -180,7 +107,7 @@
 
 *     ***** Initialize double D3dB data structure ****
       if (control_version().eq.4)
-     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),1)
+     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),mapping)
 
 *     **** initialize lattice and packing data structure ****
       call lattice_init()
@@ -200,10 +127,11 @@
      >                     'psi2',psi2(2),psi2(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
+      mapping1d   = control_mapping1d()
+      call Dne_init(ispin,ne,mapping1d)
 
 *     *****  read psi2 wavefunctions ****
       call psi_read(ispin,ne,dcpl_mb(psi2(1)))
-
 
 *     **** allocate other variables *****
       value = value.and.
@@ -228,6 +156,13 @@
 
       if (taskid.eq.MASTER) then
          write(6,1111) np
+         if (mapping.eq.1) write(6,1112)
+         if (mapping.eq.2) write(6,1113)
+         if (control_balance()) then
+           write(6,1114)
+         else
+           write(6,1116)
+         end if
          write(6,1115)
          write(6,1121) control_boundry(),control_version()
          write(6,1220) ne(1),ne(ispin),' ( fourier space)'
@@ -323,6 +258,7 @@
       value = value.and.MA_free_heap(psi2(2))
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
+      call Dne_end()
 
       if (.not. value) call errquit('pspw_dplot:freeing heap memory',0,
      &       MA_ERR)
@@ -337,6 +273,7 @@
          write(6,*) 
          call nwpw_message(4)
       end if
+      call Parallel_Finalize()
 
       pspw_dplot = value
 
@@ -352,7 +289,11 @@
  1100 FORMAT(//)
  1110 FORMAT(10X,'============ PSPW DPLOT input data =================')
  1111 FORMAT(/' number of processors used:',I3)
+ 1112 FORMAT( ' parallel mapping         :      slab')
+ 1113 FORMAT( ' parallel mapping         :   hilbert')
+ 1114 FORMAT( ' parallel mapping         :  balanced')
  1115 FORMAT(/' options:')
+ 1116 FORMAT( ' parallel mapping         : not balanced')
  1121 FORMAT(5X,' boundary conditions   = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
@@ -771,9 +712,9 @@ c     character*16 t
       integer nfft3d,tmp1(2),tmp2(2)
 
 *     **** external functions ****
-      integer  ion_nion      
+      integer  ion_nion,control_mapping
       real*8   lattice_unita,ion_rion,ion_q
-      external ion_nion
+      external ion_nion,control_mapping
       external lattice_unita,ion_rion,ion_q
 
       call parallel_taskid(taskid)
@@ -870,7 +811,8 @@ c        if (.not. value) call errquit('reading geometry',0)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** transpose grid ****
-      call D3dB_c_transpose_jk(1,rho,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
+      if (control_mapping().eq.1) 
+     > call D3dB_c_transpose_jk(1,rho,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
 *     **** write grid ****
       call D3dB_r_FormatWrite_reverse(1,unit_id,rho,dcpl_mb(tmp1(1)))
