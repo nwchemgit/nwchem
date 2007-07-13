@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.42 2007-07-13 17:28:25 d3p708 Exp $
+* $Id: cpsp.F,v 1.43 2007-07-13 17:34:20 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -1048,7 +1048,7 @@ c      parameter  (ione=(0.0d0,1.0d0))
 
       one=dcmplx(1.0d0,0.0d0)
       mone=dcmplx(-1.0d0,0.d0)
-      ione=dcmplex(0.0d0,1.d0)
+      ione=dcmplx(0.0d0,1.d0)
 
       if (cpsi_spin_orbit()) then
         call cpsp_v_nonlocal_orb_2com(nb,psi1,psi2)
