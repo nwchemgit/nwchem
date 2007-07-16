@@ -1,5 +1,5 @@
 *
-* $Id: psi_read.F,v 1.14 2007-05-08 17:55:18 bylaska Exp $
+* $Id: psi_read.F,v 1.15 2007-07-16 17:20:44 bylaska Exp $
 *
 
 #define TCGMSG
@@ -11,12 +11,13 @@
 
       subroutine psi_read(ispin,ne,psi2)
       implicit none 
-#include "errquit.fh"
       integer ispin,ne(2)
       double complex psi2(*)
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "util.fh"
+#include "errquit.fh"
 
 #ifdef MPI
       include 'mpif.h'
@@ -42,7 +43,7 @@
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value,psi_nolattice
+      logical value,psi_nolattice,lprint
 
 *     ***** local functions ****
       character*30 control_input_psi
@@ -51,12 +52,16 @@ c     complex*16 tmp(*)
       external         control_unita
       integer  control_ngrid,control_rtdb
       external control_ngrid,control_rtdb
+      logical  control_print
+      external control_print
       
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
+
+      lprint= ((taskid.eq.MASTER).and.control_print(print_low))
 
 
 
@@ -76,7 +81,7 @@ c    >                                .false.,
 c    >                        full_filename)
 
          l = index(full_filename,' ') -1
-         write(*,1210) full_filename(1:l)
+         if (lprint) write(*,1210) full_filename(1:l)
  1210    FORMAT(/' input psi filename:',A)
 
          call openfile(5,full_filename,l,'r',l)

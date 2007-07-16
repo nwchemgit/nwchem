@@ -1,5 +1,5 @@
 *
-* $Id: psi_write.F,v 1.12 2007-03-19 19:05:37 bylaska Exp $
+* $Id: psi_write.F,v 1.13 2007-07-16 17:20:44 bylaska Exp $
 *
 
 *     ***********************************
@@ -14,6 +14,7 @@
       double complex psi2(*)
 
 #include "mafdecls.fh"
+#include "util.fh"
 #include "errquit.fh"
 
 
@@ -31,7 +32,7 @@
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value
+      logical value,lprint
 
 *     ***** local functions ****
       character*30 control_output_psi
@@ -40,11 +41,14 @@ c     complex*16 tmp(*)
       external         control_unita
       integer  control_ngrid,control_version
       external control_ngrid,control_version
+      logical  control_print
+      external control_print
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
+      lprint= ((taskid.eq.MASTER).and.control_print(print_low))
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -76,7 +80,7 @@ c        call util_file_name_noprefix(filename,.false.,
 c    >                                .false.,
 c    >                       full_filename)
          l = index(full_filename,' ') -1
-         write(*,1210) full_filename(1:l)
+         if (lprint) write(*,1210) full_filename(1:l)
  1210    FORMAT(/' output psi filename:',A)
 
          call openfile(6,full_filename,l,'w',l)
@@ -120,11 +124,12 @@ c    >                       full_filename)
 
       subroutine epsi_write(ispin,ne,psi2)
       implicit none 
-#include "errquit.fh"
       integer ispin,ne(2)
       double complex psi2(*)
 
 #include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
 
 
 *    *** local variables ***
@@ -141,7 +146,7 @@ c    >                       full_filename)
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value
+      logical value,lprint
 
 *     ***** local functions ****
       character*30 control_output_epsi
@@ -150,11 +155,16 @@ c     complex*16 tmp(*)
       external         control_unita
       integer  control_ngrid,control_version
       external control_ngrid,control_version
+      logical  control_print
+      external control_print
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
+
+      lprint= ((taskid.eq.MASTER).and.control_print(print_low))
+
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -184,7 +194,7 @@ c     complex*16 tmp(*)
          call util_file_name_resolve(full_filename, .false.)
 
          l = index(full_filename,' ') -1
-         write(*,1220) full_filename(1:l)
+         if (lprint) write(*,1220) full_filename(1:l)
  1220    FORMAT(/' output epsi filename:',A)
          call openfile(6,full_filename,l,'w',l)
          call iwrite(6,version,1)
