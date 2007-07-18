@@ -3,7 +3,7 @@
      &                       g_tmp, g_svecs, svals, diis, nodiis,
      .     g_diis,keeps,g_s12m,g_s12p,reset,nconstr, mult, mult_diis)
 c
-C$Id: diis_driver.F,v 1.31 2007-02-13 22:21:53 bert Exp $
+C$Id: diis_driver.F,v 1.32 2007-07-18 20:26:50 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -35,7 +35,7 @@ c
 #include "dftps.fh"
 c
 c
-      integer g_s12m, g_s12p, me, nproc, g_tmp2,g_rr
+      integer g_s12m, g_s12p, me, nproc, g_tmp2,g_tmp1
       integer lfwght, ifwght
 c     
       logical diis, nodiis,keeps
@@ -43,6 +43,9 @@ c
       integer n_n2_objs,i
       double precision one, zero
       parameter (one = 1.d0, zero = 0.d0)
+
+c     Preliminaries
+      call ga_zero(g_tmp)
 c
 c
 c     Use the DIIS scheme to accelerate convergence.
@@ -132,24 +135,35 @@ c     Construct a temporary global array.
 c       
       if (.not. ga_duplicate(g_diis(1), g_tmp2, 'gtmp2'))
      &     call errquit('diis_driver: error creating ga',0,GA_ERR)
-      if (.not. ga_duplicate(g_diis(1), g_rr, 'grr'))
+      call ga_zero(g_tmp2)
+
+      if (.not. ga_duplicate(g_diis(1), g_tmp1, 'gtmp1'))
      &     call errquit('diis_driver: error creating ga',0,GA_ERR)
+      call ga_zero(g_tmp1)
+
       if (odftps) call pstat_on(ps_bld12)
       if(.not.keeps) then
+c
+c     get S^(-1/2)
+c
          if (.not. ga_duplicate(g_diis(1), g_s12m, 'gs12m'))
      &        call errquit('diis_driver: error creating ga',0,GA_ERR)
+         call diis_bld12(toll_s, svals, g_svecs, g_s12m, g_tmp,2)
 c
-c     get s-1/2
+c     get S^(+1/2)
 c
-         call diis_bld12(toll_s, svals, g_svecs, g_s12m, 
-     .        g_tmp,2)
+         if (.not. ga_duplicate(g_diis(1), g_s12p, 'gs12p'))
+     &        call errquit('diis_driver: error creating ga',0,GA_ERR)
+
+         call diis_bld12(toll_s, svals, g_svecs,  g_s12p, g_tmp2, 3)
       endif
+      if (odftps) call pstat_off(ps_bld12)
 c
-c     Mat mult Fock * s-1/2
+c     Mat mult: F * S^(-1/2)
 c
       if (odftps) call pstat_on(ps_dgemm)
       call ga_dgemm('N','N',nbf,nbf,nbf,one,g_focks(ispin),
-     .     g_s12m,zero,g_rr)
+     .     g_s12m,zero,g_tmp1)
       if (odftps) call pstat_off(ps_dgemm)
       if(.not.keeps) then
          if (.not. ga_destroy(g_s12m)) call errquit
@@ -157,17 +171,7 @@ c
       endif
 
 c
-c     get s+1/2
-c
-      if(.not.keeps) then
-         if (.not. ga_duplicate(g_diis(1), g_s12p, 'gs12p'))
-     &        call errquit('diis_driver: error creating ga',0,GA_ERR)
-         call diis_bld12(toll_s, svals, g_svecs,  g_s12p, 
-     .     g_tmp2, 3)
-      endif
-      if (odftps) call pstat_off(ps_bld12)
-c
-c     Mat mult S+1/2*P (transp)
+c     Mat mult: S^(+1/2) * D
 c
       if (odftps) call pstat_on(ps_dgemm)
       call ga_dgemm('N','N',nbf,nbf,nbf,one,g_s12p,g_dens(ispin),
@@ -178,14 +182,17 @@ c
      &        ('diis_driver: could not destroy g_s12p', 0, GA_ERR)
       endif
 c
-C     Mat mult (S+*P(transp))*(F*S-)
+C     Mat mult:  (S^(+1/2) * D) * (F * S^(-1/2))
 c
       if (odftps) call pstat_on(ps_dgemm)
-      call ga_dgemm('N','N',nbf,nbf,nbf,one,g_tmp2,g_rr,zero,g_tmp)
+      call ga_zero(g_tmp)
+      call ga_dgemm('N','N',nbf,nbf,nbf,one,g_tmp2,g_tmp1,zero,g_tmp)
       if (odftps) call pstat_off(ps_dgemm)
-      if (.not. ga_destroy(g_rr)) call errquit
-     &     ('diis_driver: could not destroy g_rr', 0, GA_ERR)
+      if (.not. ga_destroy(g_tmp1)) call errquit
+     &     ('diis_driver: could not destroy g_tmp1', 0, GA_ERR)
       
+c
+c     Assemble: S^(-1/2)*F*D*S^(1/2) - S^(1/2)*D*F*S^(-1/2)
 c
       call ga_transpose(g_tmp,g_tmp2)
       call ga_add(-1d0,g_tmp,1d0,g_tmp2,g_tmp)
@@ -197,8 +204,7 @@ c
 c     Compute Pulays B matrix.
 c
       call diis_core(derr(ispin), Dbl_MB(ipulay), MXhist, nhist,
-     .     icall(ispin), 
-     &               ispin, ipol, g_diis, g_tmp)
+     &     icall(ispin), ispin, ipol, g_diis, g_tmp)
 c
       enddo
 c
@@ -216,5 +222,9 @@ c
      &   call errquit('diis_driver: cannot pop stack',0, MA_ERR)
 c
       if (odftps) call pstat_off(ps_diis)
+
+c     Clean up and leave
+      call ga_zero(g_tmp)
+
       return
       end
