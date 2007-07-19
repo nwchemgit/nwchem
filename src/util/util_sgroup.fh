@@ -1,4 +1,4 @@
-C$Id: util_sgroup.fh,v 1.4 2005-09-30 19:16:35 yuri Exp $
+C$Id: util_sgroup.fh,v 1.5 2007-07-19 00:28:30 d3p307 Exp $
 	integer maxgroups,maxcpus
 	parameter(maxgroups=512)
         parameter(maxcpus=512)
@@ -7,10 +7,10 @@ C$Id: util_sgroup.fh,v 1.4 2005-09-30 19:16:35 yuri Exp $
 	integer mygroup
 	integer ngroups
 	integer luout_0
-	logical sgactive, gosmp
+	logical sgactive, gosmp, sgprint
         character*256 rtdb_fname
 	common /sgroup/ grouplist,
      *	  ngroups, mygroup,sgactive, gosmp, luout_0,
-     *    cpusperg_array
+     *    cpusperg_array, sgprint
 	common /sgroupchr/rtdb_fname
 
