@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.11 2007-05-21 20:52:55 windus Exp $
+C$Id: util_sgroup.F,v 1.12 2007-07-19 00:27:31 d3p307 Exp $
       logical function util_sgstart(rtdb)
       implicit none
 #include "stdio.fh"
@@ -8,6 +8,7 @@ C$Id: util_sgroup.F,v 1.11 2007-05-21 20:52:55 windus Exp $
 #include "mafdecls.fh"
 C Added includes
 #include "inp.fh"
+#include "util.fh"
 C  End Added includes
       integer rtdb
 c
@@ -19,22 +20,22 @@ c
 C added strings for fname definition
       character*256 permdir
       character*256 fprefix
+      integer myproc,nproc
 C End added string
 c
 c Read number of subgroups from input
 c
+c util_sginit is rewritten to allow creating non uniform size of procs 
+c in subgroups on both SMP and cluster of SMP machines !DW
+
+      myproc=ga_nodeid()
+      nproc=ga_nnodes()
+c this is added here to print out sub groups info. !DW
+      sgprint = util_print('sgroup info', print_debug)
+
       if (.not.rtdb_get(rtdb, 'subgroups_number', mt_int, 1,
      &   ngroups))ngroups=1
-      gosmp=.false.
-      if (ngroups.eq.ga_cluster_nnodes()) then
-       gosmp=.true.
-       ngroups=ga_cluster_nnodes()
-      endif
-      if (ngroups.gt.ga_cluster_nnodes()) then
-       call errquit('Too many subgroups are requested',0,0)
-      endif
 
-      write (6,*) 'ngroups=',ngroups,' gosmp=',gosmp
 c
 c     preliminary rtdb cloning
 c
@@ -59,51 +60,35 @@ C  End of Added fix
 c
 c    Create groups
 c   
-      write(luout,*) 'Creating groups'
-      if(gosmp) then
-         call util_sginit()
-         call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
-         util_sgstart=.true.
-      else
-c        call util_sginit_irreg()
-         call util_sginit()
-         call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
-         util_sgstart=.true.
-      endif
+      if(myproc.eq.0) write(luout,*) 'Creating groups'
+
+
+c initialize sub groups using one general method
+      call util_sginit()
+      call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
+      util_sgstart=.true.
       sgactive=util_sgstart
       if (.not. rtdb_open(grtdbname, 'old', rtdb)) call errquit
      (     (' rtdb_open old failed ',0,0)
+
+      if(myproc.eq.0.and.sgprint) then
       write(6,*) ga_nodeid(),' of group',mygroup,
      *     'active = ',sgactive, 'rtdbname ',grtdbname
+      endif
 c
 c     Create movecs for each subgroup
 c
+      if(myproc.eq.0.and.sgprint) then
       write (6,*) 'mygroup=',mygroup,' rtdb=',rtdb,
      $            ' grtdbname=',grtdbname
+      endif
       call util_sgmovecs(rtdb)
 c
-c     nasty hack stdoutput redirect to fort.90+group for 
-c     groupid gt 0
 c
       luout_0=luout
-c      if(mygroup.ne.1.and.gosmp) then
-c        luout=90+mygroup
-c        write(6,*) mygroup,'new value for luout',luout
-c        if(ga_nodeid().eq.0) then
-c           inquire(luout, exist=lstatus,iostat=errout)
-c           write(6,*) 'lstatus=',lstatus
-c           if(lstatus) then
-c              open(luout,  status='old',iostat=errout)
-c              if(errout.eq.0)close(luout, status='delete')
-c           else
-c              write(6,*) ' fort.9x not there'
-c           endif
-c           open(luout, status='new')
-c           write(6,*) 'after the open statement'
-c        endif
-c        call ga_sync()
-c      endif
+      if(myproc.eq.0.and.sgprint) then
       write(6,*) 'everyone should have an open file at this point'
+      endif
       return
       end
 
@@ -113,18 +98,23 @@ c      endif
 #include "global.fh"
 #include "rtdb.fh"
 #include "util_sgroup.fh"
-      integer rtdb
+      integer rtdb,myproc
 c
+	myproc=ga_nodeid()
       if(sgactive) then
+	if(myproc.eq.0.and.sgprint) then
          write(0,*) ga_nodeid(),' deleting cloned rtdb '
+	endif
          if (.not. rtdb_close(rtdb, 'delete'))call errquit
      (        (' sgend: rtdb_close and delete failed ',0,0)
       endif
       if(mygroup.ne.1) then
         close(luout, status='keep')
       endif
-      luout=luout_0
-      write(luout,*) 'end of subgroups call '
+      luout=luout_0	
+      if(myproc.eq.0) then
+        write(luout,*) 'end of subgroups call '
+      endif
       call ga_pgroup_set_default(ga_pgroup_get_world())
 c
 c     reopen world rtdb
@@ -151,8 +141,13 @@ C  Added def_group argument
       integer util_system
       external util_system
       external util_file_copy
+      integer myproc
 c
+	myproc=ga_nodeid()
+
+      if(myproc.eq.0.and.sgprint) then
       write(luout,*) 'util_sgrtdb start'
+      endif
 c
 c     do a copy of rtdb to scratch_dir for each SMP node
 c
@@ -165,17 +160,22 @@ c
 c     assuming we are already in subgroups ...
 c     am I proc 0 of a subgroup ?
 c
+      if(myproc.eq.0.and.sgprint) then
          write(0,*)'Entering util_sgrtdb if(node 0)',ga_nodeid(),
      &   ga_pgroup_get_default()
+      endif
          call flush(0)
          if(ga_nodeid().eq.0) then
 c
 c     test if world rtdb is around
 c
+	
+      if(myproc.eq.0.and.sgprint) then
             write(6,*)'world rtdbname is ',
      &      rtdbname(1:inp_strlen(rtdbname))
             write(6,*)'group rtdbname is ',
      &       scratchrtdb(1:inp_strlen(scratchrtdb))
+      endif
             inquire(file=rtdbname(1:inp_strlen(rtdbname)),
      *       exist=status)
             if(.not.status) then
@@ -200,7 +200,9 @@ c
             call util_file_copy(rtdbname(1:inp_strlen(rtdbname)),
      &        scratchrtdb(1:inp_strlen(scratchrtdb)))
 C  Trying to remove system call (Crashes MVAPICH)
+      if(myproc.eq.0.and.sgprint) then
             write (0,*)'rtdb copied',ga_nodeid(),ga_pgroup_get_default()
+      endif
 C  Original code
 C            if (util_system (cmd) .eq. 0) then
 C               Write (0,*) cmd, ' OK'
@@ -208,8 +210,10 @@ C  Added Code
             inquire(file=scratchrtdb(1:inp_strlen(scratchrtdb)),
      *       exist=status)
                if (status) then
+      if(myproc.eq.0.and.sgprint) then
                Write (0,*)'OK', cmd
                Write (6,*) 'cmd done'
+      endif
                else
                Write (0,*)'Failed', cmd
                Write (6,*) 'cmd failed'
@@ -225,6 +229,7 @@ C            endif
 C  End System Call fix
          endif
          grtdbname=scratchrtdb
+	if(myproc.eq.0) print*,'rtdb copied'
       return
       end
 
@@ -323,24 +328,81 @@ c          if (proclist(i,j).eq.myprocid) mygroup=group_counter
       subroutine util_sginit()
       implicit none
 c
-c     Create subgroups
+c     Create subgroups, this has been rewritten to work for 
+c     general cases ! DW
 c
 #include "stdio.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "util_sgroup.fh"
-      integer cur_mygroup,def_group,me
+      integer nproc,myproc,nchunkq,nremainq,npsize,i,j,n,numprocs,
+     $ ncountq,meafter
+      integer num_proc(0:maxgroups-1),proclist(maxgroups),
+     $proc_group(0:maxgroups-1)
 
-      def_group = ga_pgroup_get_default()
-      cur_mygroup=ga_pgroup_split(def_group,ngroups)
-      if (cur_mygroup.eq.-1) then
-         call errquit('Died in ga_pgroup_split',0,0)
+		
+c  on either smp or cluster of smp, ga_nnodes is consistent value, 
+c  so ga_nnodes as starting base
+      nproc = ga_nnodes()
+      myproc = ga_nodeid()
+
+c split number of procs into groups, starting group index:0
+      num_proc(0)=0
+      nchunkq=nproc/ngroups
+      nremainq=mod(nproc,ngroups)
+
+c for irregualr distribution, this part make sure the lower groups have 
+c more procs
+c for example, for 5 procs on 3 groups, 1st group  has 2 procs, 2nd has 2,
+c and 3rd has 1
+      if(nremainq.ne.0) then
+         npsize=nchunkq+1
+      else
+         npsize=nchunkq
       endif
-      call ga_pgroup_set_default(cur_mygroup)
-      mygroup=ga_pgroup_get_default()
 
-      me=ga_nodeid()
-      write (6,*) 'me=',me,' is the part of subg=',mygroup
+c assign chunk of procs to sub groups--the  position of the chunk 
+c procs in  groups
+      do i=1,ngroups-1
+
+        if(i.lt.nremainq) then
+          ncountq=nchunkq+1
+        else
+          ncountq=nchunkq
+        end if
+         num_proc(i)=npsize
+         npsize=npsize+ncountq
+
+      enddo
+      num_proc(ngroups)=nproc
+
+c assign each proc to individual group , then create individual group
+      do i=1,ngroups
+
+       do j=num_proc(i-1),num_proc(i)-1
+          n=j-num_proc(i-1)+1
+          proclist(n)=j
+       end do
+
+       numprocs=num_proc(i)-num_proc(i-1)
+       proc_group(i-1)=ga_pgroup_create(proclist, numprocs)
+      enddo
+
+c set default individual group
+      do i=1,ngroups
+
+        if(num_proc(i-1).le.myproc.and.myproc.le.num_proc(i)-1) then
+          call ga_pgroup_set_default(proc_group(i-1))
+        endif
+ 
+      enddo	
+
+      meafter=ga_nodeid()
+      mygroup= ga_pgroup_get_default()
+      
+      write(*,"(2x,'proc.',I4,' now is proc.',I4,' in group',I4)")
+     $myproc,meafter,mygroup
+      
 
       return
       end
@@ -356,6 +418,7 @@ c
 #include "util_sgroup.fh"
       character*255 movecs_in,sg_movecs_out,tag,theory
       logical movecs_out_l
+	integer myproc
 c
 c Tested only for the case when movecs are created
 c
@@ -363,6 +426,8 @@ c
 c
 c Read movecs filename with path
 c
+	myproc=ga_nodeid()
+
        if (.not.(rtdb_cget(rtdb,'scf:input vectors',1,movecs_in).or.
      $           rtdb_cget(rtdb,'dft:input vectors',1, movecs_in)))
      $ movecs_in = 'atomic'
@@ -373,9 +438,11 @@ c Create movecs.mygroup
 c
         call util_pname0(movecs_in,sg_movecs_out,mygroup,ngroups)
   
+	if(myproc.eq.0.and.sgprint) then
         write(6,*) 'mygroup=',mygroup,
      $             ' movecs_in',movecs_in,
      $             ' sg_movecs_out=',sg_movecs_out
+	endif
 c
 c Set output movecs
 c
