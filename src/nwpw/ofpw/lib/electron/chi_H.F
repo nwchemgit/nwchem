@@ -1,5 +1,5 @@
 *
-* $Id: chi_H.F,v 1.1 2007-06-21 02:08:15 bylaska Exp $
+* $Id: chi_H.F,v 1.2 2007-07-24 01:42:46 bylaska Exp $
 *
 
 *     *************************************
@@ -20,6 +20,7 @@
 *           v_field,field_exist - external fields (e.g. QM/MM)
 *           vc                  - coulomb potential in k-space
 *           xcp                 - xc potential in r-space
+*           v_tf                - TF kinetic energy potential in r-space
 *           move                - flag to compute ionic forces
 *   Exit - Hpsi_k - gradient in k-space
 *          fion   - ionic forces
@@ -28,7 +29,7 @@
      >                 psi_k,psi_r,
      >                 vl,
      >                 v_field,field_exist,
-     >                 vc,xcp,Hpsi_k,
+     >                 vc,xcp,v_tf,Hpsi_k,
      >                 move,fion)
       implicit none
       integer    ispin,ne(2)
@@ -39,6 +40,7 @@
       logical    field_exist
       complex*16 vc(*)
       real*8     xcp(*)
+      real*8     v_tf(*)
       complex*16 Hpsi_k(*)
       logical    move
       real*8     fion(3,*)
@@ -91,12 +93,8 @@ c     complex*16 vpsi(nfft3d)
       n1(2) = ne(1) + 1
       n2(2) = ne(1) + ne(2)
 
-*     *********************************************************
-*     **** add kinetic energy - Hpsi_k = Ke*psi_k ****
-*     *********************************************************
-      !call ke(ispin,ne,psi_k,Hpsi_k)
-      call dcopy(ispin*npack1,0.0d0,0,Hpsi_k,1)
 
+      call dcopy(ispin*npack1,0.0d0,0,Hpsi_k,1)
 
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
@@ -127,9 +125,12 @@ c     complex*16 vpsi(nfft3d)
          if (indx1.le.ispin) then
             ms = indx1
 
-*           **** vpsi_r = (vall_r+xcp)*psi_r + Hpsi_r****
+*           **** vpsi_r = (vall_r+xcp+v_tf)*psi_r + Hpsi_r****
             call D3dB_rr_Sum(1,dcpl_mb(vall(1)),
      >                       xcp(1+(ms-1)*n2ft3d),
+     >                       dcpl_mb(vpsi(1)))
+            call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
+     >                       v_tf(1+(ms-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
             call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
      >                       psi_r(1+(indx1-1)*n2ft3d),
