@@ -1,6 +1,6 @@
 
 *
-* $Id: ofpwsd.F,v 1.1 2007-06-21 02:08:09 bylaska Exp $
+* $Id: ofpwsd.F,v 1.2 2007-07-24 01:42:37 bylaska Exp $
 *
 
 ***********************************************************************
@@ -556,24 +556,24 @@ c*     *****  read psi2 wavefunctions ****
 *********** produce CHECK file and diagonalize hml *****************
 *         |****************************************|
 
-c*     **** produce CHECK FILE ****
-c      if (taskid.eq.MASTER) then
-c         call util_file_name('CHECK',.true.,
-c     >                               .false.,
-c     >                        full_filename)
-c         open(unit=17,file=full_filename,form='formatted')
-c      end if
-c
-c*     **** check total number of electrons ****
-c      do ms =1,ispin
-c         call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),sumall)
-c         en(ms) = sumall*lattice_omega()
-c     >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
-c      end do
-c      if (taskid.eq.MASTER) then
-c         write(17,1320) (en(ms),ms=1,ispin)
-c      end if
-c
+*     **** produce CHECK FILE ****
+      if (taskid.eq.MASTER) then
+         call util_file_name('CHECK',.true.,
+     >                               .false.,
+     >                        full_filename)
+         open(unit=17,file=full_filename,form='formatted')
+      end if
+
+*     **** check total number of electrons ****
+      do ms =1,ispin
+         call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),sumall)
+         en(ms) = sumall*lattice_omega()
+     >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
+      end do
+      if (taskid.eq.MASTER) then
+         write(17,1320) (en(ms),ms=1,ispin)
+      end if
+
 c*     **** comparison between hamiltonian an lambda matrix ****
 c      if (taskid.eq.MASTER) write(17,1330)
 c      do ms=1,ispin
@@ -605,10 +605,11 @@ c         end do
 c         end do
 c      end do
 c
-c*     **** close check file ****
-c      if (taskid.eq.MASTER) then
-c         close(17)
-c      end if
+
+*     **** close check file ****
+      if (taskid.eq.MASTER) then
+         close(17)
+      end if
 
 *     ***** do not diagonalize the hamiltonian matrix *****
 
@@ -648,11 +649,12 @@ c      end if
      >                    (E(1)-E(11))/ion_nion()
          end if
          write(6,1440) E(2),E(2)/n2(ispin)
+         write(6,1445) E(6),E(6)/n2(ispin)
          write(6,1450) E(3),E(3)/n2(ispin)
          write(6,1460) E(4),E(4)/n2(ispin)
-
          write(6,1470) E(5),E(5)/ion_nion()
-         write(6,1480) E(6),E(6)/n2(ispin)
+
+         write(6,1480) E(14),E(14)/n2(ispin)
          write(6,1490) E(7),E(7)/n2(ispin)
          write(6,1495) E(8),E(8)/n2(ispin)
          write(6,1496) E(9),E(9)/n2(ispin)
@@ -865,6 +867,7 @@ c      end if
  1432 FORMAT( '------------')
  1433 FORMAT( ' total  QM energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
+ 1445 FORMAT( ' kinetic   energy    :',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
  1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')
  1456 FORMAT( ' SIC-exc-corr energy :',E19.10,' (',E15.5,'/electron)')

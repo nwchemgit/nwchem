@@ -1,5 +1,5 @@
 *,eke
-* $Id: inner_loop_ofpw.F,v 1.1 2007-06-21 02:08:09 bylaska Exp $
+* $Id: inner_loop_ofpw.F,v 1.2 2007-07-24 01:42:36 bylaska Exp $
 *
 
 *  ************************************************************
@@ -39,6 +39,7 @@
       integer gga
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
+      real*8  etf,etf2,ptf,ptf2
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       real*8  deltamm
       real*8  e_lj, e_q, e_spring
@@ -62,7 +63,7 @@ c     real*8     fion(3,natmx)
       integer vl(2),vc(2),dng(2)
       integer vlr_l(2),rho(2),r_grid(2)
       integer v_field(2)
-      integer xcp(2),xce(2),dnall(2)
+      integer xcp(2),xce(2),dnall(2),v_tf(2),e_tf(2)
       integer natmx,fion(2),ftest(2)
       integer sumi(2)
       integer npack0
@@ -140,6 +141,12 @@ c     real*8     fion(3,natmx)
      >        MA_push_get(mt_dbl,(4*nfft3d),'xcp',xcp(2), xcp(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(4*nfft3d),'xce',xce(2), xce(1))
+
+      value = value.and.
+     >        MA_push_get(mt_dbl,(4*nfft3d),'v_tf',v_tf(2), v_tf(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(2*nfft3d),'e_tf',e_tf(2), e_tf(1))
+
       value = value.and.
      >        MA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
       natmx = ion_nion()
@@ -302,6 +309,14 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >                      dbl_mb(xce(1)))
 
         end if
+
+*       *************************************************
+*       **** generate Kinetic  potentials            ****
+*       *************************************************
+       call v_thomasfermi(n2ft3d,ispin,
+     >                    dbl_mb(dnall(1)),
+     >                    dbl_mb(v_tf(1)),
+     >                    dbl_mb(e_tf(1)))
      
 *       *******************************************
 *       ***** generate other real-space fields ****
@@ -324,13 +339,14 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 
 
 *       ******************
-*       **** get Hpsi ****
+*       **** get Hchi ****
 *       ******************
         if (control_version().eq.3) 
      >     call chi_H(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),
      >             dbl_mb(v_field(1)),field_exist,
-     >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
+     >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),dbl_mb(v_tf(1)),
+     >             Hpsi,
      >             move,dbl_mb(fion(1)))
 
         if (control_version().eq.4) 
@@ -395,11 +411,13 @@ c        nedum(2) = 1
 c        call psi_lmbda(ispin,nedum,ispin,npack1,psi1,psi2,dte,
 c     >                 lmd,dbl_mb(tmp_L(1)),ierr)
 c        end if
-c        do n=1,ispin
-c           call Pack_cc_dot(1,psi2(1,ms),psi2(1,ms),sum)
-c           sum = dsqrt(dble(ne(ms))/sum)
-c           call Pack_c_SMul(1,sum,psi2(1,ms),psi2(1,ms))
-c        end do
+
+        do ms=1,ispin
+           call Pack_cc_dot(1,psi2(1,ms),psi2(1,ms),sum)
+           sum = dsqrt(dble(ne(ms))/sum)
+          call Pack_c_SMul(1,sum,psi2(1,ms),psi2(1,ms))
+        end do
+
 
       end do
 
@@ -411,7 +429,13 @@ c        end do
       call Parallel2d_np_j(np_j)
 
 *     *** get orbital energies ****
-      eorbit = 0.0d0
+      call Pack_cc_dot(1,psi1(1,1),Hpsi(1,1),eorbit)
+      if (ispin.eq.2) then
+         call Pack_cc_dot(1,psi1(1,2),Hpsi(1,2),sum)
+         eorbit = eorbit + sum
+      else
+        eorbit = eorbit + eorbit
+      end if
 
 *     **** get ewald energy ****
       eion = 0.0d0
@@ -447,7 +471,20 @@ c        end do
         
   
 *     ***** average Kohn-Sham kinetic energy ****
-c      call ke_ave(ispin,ne,psi1,eke)
+      call D3dB_rr_dot(1,dbl_mb(dnall(1)),dbl_mb(e_tf(1)),etf)
+      call D3dB_rr_dot(1,dn(1,1),dbl_mb(v_tf(1)),ptf)
+      if (ispin.eq.1) then
+         etf= etf + etf 
+         ptf= ptf + ptf 
+      else
+         call D3dB_rr_dot(1,dbl_mb(dnall(1)+n2ft3d),
+     >                      dbl_mb(e_tf(1)),etf2)
+         call D3dB_rr_dot(1,dn(1,2),dbl_mb(v_tf(1)+n2ft3d),ptf2)
+         etf= etf + etf2
+         ptf= ptf + ptf2
+      end if
+      etf = etf*dv
+      ptf = ptf*dv
 
 
 *     **** average Kohn-Sham v_local energy ****
@@ -473,16 +510,17 @@ c      call ke_ave(ispin,ne,psi1,eke)
 
 *     **** total energy ****
       Eold=E(1)
-      E(1) = eorbit + eion + exc - ehartr - pxc
+      E(1) = eorbit + eion + exc + etf - ehartr - pxc - ptf
       E(2) = eorbit
       E(3) = ehartr
       E(4) = exc
       E(5) = eion
-      E(6) = eke
+      E(6) = etf
       E(7) = elocal
       E(8) = enlocal
       E(9) = 2.0d0*ehartr
       E(10) = pxc
+      E(14) = ptf
 
       if (pspw_qmmm_found()) then
          e_lj     = pspw_qmmm_LJ_E()
@@ -537,6 +575,8 @@ c      call ke_ave(ispin,ne,psi1,eke)
       value = value.and.MA_pop_stack(ftest(2))
       value = value.and.MA_pop_stack(fion(2))
       value = value.and.MA_pop_stack(dnall(2))
+      value = value.and.MA_pop_stack(e_tf(2))
+      value = value.and.MA_pop_stack(v_tf(2))
       value = value.and.MA_pop_stack(xce(2))
       value = value.and.MA_pop_stack(xcp(2))
       value = value.and.MA_pop_stack(dng(2))
