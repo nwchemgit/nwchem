@@ -1,5 +1,5 @@
 *
-* $Id: chi_H.F,v 1.2 2007-07-24 01:42:46 bylaska Exp $
+* $Id: chi_H.F,v 1.3 2007-07-25 01:29:54 bylaska Exp $
 *
 
 *     *************************************
@@ -94,7 +94,7 @@ c     complex*16 vpsi(nfft3d)
       n2(2) = ne(1) + ne(2)
 
 
-      call dcopy(ispin*npack1,0.0d0,0,Hpsi_k,1)
+      call dcopy(2*ispin*npack1,0.0d0,0,Hpsi_k,1)
 
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****

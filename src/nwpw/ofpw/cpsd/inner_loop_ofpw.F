@@ -1,5 +1,5 @@
 *,eke
-* $Id: inner_loop_ofpw.F,v 1.2 2007-07-24 01:42:36 bylaska Exp $
+* $Id: inner_loop_ofpw.F,v 1.3 2007-07-25 01:29:51 bylaska Exp $
 *
 
 *  ************************************************************
@@ -38,6 +38,7 @@
       integer nx,ny,nz
       integer gga
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
+      real*8  A,B,C,x
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  etf,etf2,ptf,ptf2
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
@@ -215,7 +216,7 @@ c        end do
         call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
         do ms=1,ispin
            do i=1,n2ft3d
-              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,ms)**2)
+              dn(i,ms) = dn(i,ms) + ne(ms)*scal2*(psi_r(i,ms)**2)
            end do
            call D3dB_r_Zero_Ends(1,dn(1,ms))
         end do
@@ -229,6 +230,7 @@ c        end do
 c        call mask_C(0,dcpl_mb(dng(1)))
         call Pack_c_pack(0,dcpl_mb(tmp1(1)))
         call Pack_c_Copy(0,dcpl_mb(tmp1(1)),dcpl_mb(dng(1)))
+
 
 
 
@@ -317,6 +319,14 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >                    dbl_mb(dnall(1)),
      >                    dbl_mb(v_tf(1)),
      >                    dbl_mb(e_tf(1)))
+
+        !call dcopy(n2ft3d*ispin,0.0d0,0,dbl_mb(v_tf(1)),1)
+        !call dcopy(n2ft3d,0.0d0,0,dbl_mb(e_tf(1)),1)
+
+        !call dcopy(n2ft3d*ispin,0.0d0,0,dbl_mb(xcp(1)),1)
+        !call dcopy(n2ft3d*ispin,0.0d0,0,dbl_mb(xce(1)),1)
+        !call dcopy(2*npack0,0.0d0,0,dcpl_mb(vc(1)),1)
+        !call dcopy(2*npack0,0.0d0,0,dcpl_mb(vl(1)),1)
      
 *       *******************************************
 *       ***** generate other real-space fields ****
@@ -335,7 +345,6 @@ c        call mask_C(0,dcpl_mb(dng(1)))
         end if
 
         call nwpw_timing_start(13)
-
 
 
 *       ******************
@@ -396,28 +405,14 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
-c        if (fractional) then
-cc       call psi_lmbda3(ispin,ne,nemax,npack1,psi1,psi2,dte,
-cc    >                 lmd,dbl_mb(tmp_L(1)),ierr)
-c        call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
-c     >                  dte,dbl_mb(fweight(1)),
-c     >                  lmd,dbl_mb(tmp_L(1)),ierr)
-c        else if (sic.or.hfx) then
-c        call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte,
-c     >                 lmd,dbl_mb(tmp_L(1)),ierr)
-c        else
-c        nedum(1) = 1
-c        nedum(2) = 1
-c        call psi_lmbda(ispin,nedum,ispin,npack1,psi1,psi2,dte,
-c     >                 lmd,dbl_mb(tmp_L(1)),ierr)
-c        end if
-
         do ms=1,ispin
-           call Pack_cc_dot(1,psi2(1,ms),psi2(1,ms),sum)
-           sum = dsqrt(dble(ne(ms))/sum)
-          call Pack_c_SMul(1,sum,psi2(1,ms),psi2(1,ms))
+           call Pack_cc_dot(1,psi2(1,ms),psi2(1,ms),A)
+           call Pack_cc_dot(1,psi1(1,ms),psi2(1,ms),B)
+           call Pack_cc_dot(1,psi1(1,ms),psi1(1,ms),C)
+           x =  2.0d0*B - dsqrt(4.0d0*B*B -4.0d0*C*(A-1.0d0))
+           x = -x/(2.0d0*C)
+          call Pack_cc_daxpy(1,x,psi1(1,ms),psi2(1,ms))
         end do
-
 
       end do
 
@@ -430,12 +425,14 @@ c        end if
 
 *     *** get orbital energies ****
       call Pack_cc_dot(1,psi1(1,1),Hpsi(1,1),eorbit)
+      eorbit = -dble(ne(1))*eorbit
       if (ispin.eq.2) then
          call Pack_cc_dot(1,psi1(1,2),Hpsi(1,2),sum)
+         sum = -sum*dble(ne(2))
          eorbit = eorbit + sum
       else
-        eorbit = eorbit + eorbit
-      end if
+         eorbit = eorbit + eorbit
+      endif
 
 *     **** get ewald energy ****
       eion = 0.0d0
@@ -510,6 +507,7 @@ c        end if
 
 *     **** total energy ****
       Eold=E(1)
+      !E(1) = elocal + eion + exc + etf + ehartr 
       E(1) = eorbit + eion + exc + etf - ehartr - pxc - ptf
       E(2) = eorbit
       E(3) = ehartr

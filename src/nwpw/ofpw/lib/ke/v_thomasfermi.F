@@ -1,5 +1,5 @@
 *
-* $Id: v_thomasfermi.F,v 1.1 2007-07-24 01:42:50 bylaska Exp $
+* $Id: v_thomasfermi.F,v 1.2 2007-07-25 01:29:57 bylaska Exp $
 *
 
 *  Computes the Thomas-Fermi potential and energy density
@@ -26,7 +26,7 @@
       if (ispin.eq.1) then
          do k=1,n2ft3d
             xcp(k,1) = CTF*five3rd*(dn(k,1)**two3rd)
-            xce(k)   = CTF*(dn(k,1)+dn(k,ispin))**five3rd
+            xce(k)   = CTF*(dn(k,1)+dn(k,ispin))**two3rd
          end do
 
       else
@@ -34,7 +34,7 @@
          do ms=1,ispin
          do k=1,n2ft3d
             xcp(k,ms) = twotwothirds*CTF*five3rd*(dn(k,ms)**two3rd)
-            xce(k) = xce(k) + twotwothirds*CTF*(dn(k,ms))**five3rd
+            xce(k) = xce(k) + twotwothirds*CTF*(dn(k,ms))**two3rd
          end do
          end do
 

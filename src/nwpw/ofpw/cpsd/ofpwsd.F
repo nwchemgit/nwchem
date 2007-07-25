@@ -1,6 +1,6 @@
 
 *
-* $Id: ofpwsd.F,v 1.2 2007-07-24 01:42:37 bylaska Exp $
+* $Id: ofpwsd.F,v 1.3 2007-07-25 01:29:51 bylaska Exp $
 *
 
 ***********************************************************************
@@ -325,7 +325,8 @@ c*     *****  read psi2 wavefunctions ****
       nemax = ne(1)+ne(2)
 
 *     **** Ortho Check ****
-      sum1 = dble(ne(1))
+      !sum1 = dble(ne(1))
+      sum1 = 1.0d0
       call Pack_cc_dot(1,dcpl_mb(psi2(1)),dcpl_mb(psi2(1)),sum2)
       write(*,*) "sum1,sum2=",sum1,sum2
       if (dabs(sum2-sum1).gt.1.0d-10) then
@@ -337,7 +338,8 @@ c*     *****  read psi2 wavefunctions ****
       end if
 
       if (ispin.eq.2) then
-         sum1 = dble(ne(1))
+         !sum1 = dble(ne(1))
+         sum1 = 1.0d0
          call Pack_cc_dot(1,dcpl_mb(psi2(1)+npack1),
      >                      dcpl_mb(psi2(1)+npack1),sum2)
          if (dabs(sum2-sum1).gt.1.0d-10) then
