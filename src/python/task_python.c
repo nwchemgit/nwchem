@@ -1,5 +1,5 @@
 /*
- $Id: task_python.c,v 1.11 2006-10-10 23:47:45 d3p307 Exp $
+ $Id: task_python.c,v 1.12 2007-07-26 21:05:03 d3p852 Exp $
 */
 #include "macdecls.h"
 #include "global.h"
@@ -49,6 +49,11 @@ int FATR task_python_(Integer *rtdb_ptr)
    ret += PyRun_SimpleString(pbuf);
    sprintf(pbuf, "LOGICAL = %d", MT_BASE + 11); 
    ret += PyRun_SimpleString(pbuf);
+   sprintf(pbuf, "taskid = %d", ga_nodeid_());
+   ret += PyRun_SimpleString(pbuf);
+   sprintf(pbuf, "np = %d", ga_nnodes_());
+   ret += PyRun_SimpleString(pbuf);
+
    if (ret) {
      fprintf(stderr,"setting RTDB types failed\n");
      return 0;
