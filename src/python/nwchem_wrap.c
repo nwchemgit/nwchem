@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.22 2005-02-22 02:07:48 edo Exp $
+ $Id: nwchem_wrap.c,v 1.23 2007-07-26 21:05:31 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -832,7 +832,7 @@ static PyObject *wrap_ga_nodeid(PyObject *self, PyObject *args)
 {
     int nodeid = ga_nodeid_();
     if (args) {
-	PyErr_SetString(PyExc_TypeError, "Usage: nodeid()");
+	PyErr_SetString(PyExc_TypeError, "Usage: ga_nodeid()");
 	return NULL;
     }
 
