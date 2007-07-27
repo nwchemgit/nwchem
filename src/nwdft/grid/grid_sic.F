@@ -1,7 +1,7 @@
       logical function grid_sicinit(nqpts,
      ,    l_vect1,i_vect1, ldelrho_sig,idelrho_sig)
 c
-C$Id: grid_sic.F,v 1.7 2003-10-17 22:55:37 carlfahl Exp $
+C$Id: grid_sic.F,v 1.8 2007-07-27 19:39:14 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -72,6 +72,8 @@ c
      &     tau, kske)
       implicit none
 #include "cdft.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
       integer nqpts,mbf_ao ! [in]
       logical grad ! [in]
       double precision wmax ! [in]
@@ -87,19 +89,30 @@ c
       integer iniz(*),ifin(*),ibf_ao(*)
       double precision vect1(*),delrho_sig(*)
 c
+      integer idmat,ldmat
+c
       call read_vect(rho, vect1, nqpts, 2, 
      &     sic_orb_spin)
       call read_delrho(delrho, delrho_sig, nqpts, ipol,
      &     sic_orb_spin)
 !      if (do_scf) then
-         call xc_rhogen(tol_rho, AO_bas_han, g_sic_dens,
-     &        nbf_ao_mxnbf_ce, ncenters, ipol, nqpts, nbf_ao,
-     &        mbf_ao, .false., GRAD, Fmat, Pmat, Bmat,
-     &        chi_ao, delchi_ao,
-     &        ibf_ao, iniz, ifin, rho, delrho,
-     &        rchi_atom, rdelchi_atom,
-     &        rdens_atom, cetobfr,wmax,
+      if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
+     &     'Dmat', lDmat,iDmat))
+     &     call errquit('grid_sicr: cannot allocate Dmat',0,
+     &       MA_ERR)
+         call xc_rhogen(0,
+     T     tol_rho, AO_bas_han, g_sic_dens, nbf_ao_mxnbf_ce, 
+     &     ncenters, 1, 1, 1,
+     I     ipol, nqpts, nbf_ao, mbf_ao, GRAD, 
+     P     (ipol*(ipol+1))/2,
+     F     Fmat, Pmat, Bmat,dbl_mb(idmat),
+     &        chi_ao, delchi_ao,0d0,
+     &        ibf_ao, iniz, ifin, 
+     R     rho, delrho, rchi_atom, 
+     R     rdelchi_atom,  rdens_atom, cetobfr,wmax,
      &         tau,kske )
+         if (.not.ma_pop_stack(lDmat))
+     &        call errquit('grid_iscrho: cannot pop stack', 1, MA_ERR)
 !      endif
       return
       end
