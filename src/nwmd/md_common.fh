@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.86 2005-09-14 22:15:54 d3j191 Exp $
+c $Id: md_common.fh,v 1.87 2007-07-31 23:58:24 d3j191 Exp $
 c
 c     parameters
 c
@@ -61,8 +61,8 @@ c
       parameter(lqlink=32)
       parameter(lqzone=64)
 c
-      integer me,np,mew,npw,irtdb
-      common/md_mpp/me,np,mew,npw,irtdb
+      integer me,np,mew,npw,irtdb,ipg
+      common/md_mpp/me,np,mew,npw,irtdb,ipg
 c
       integer npx,npy,npz,npg,nbx,nby,nbz
       common/md_inp0/npx,npy,npz,npg,nbx,nby,nbz
