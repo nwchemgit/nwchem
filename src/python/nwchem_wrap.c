@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.23 2007-07-26 21:05:31 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.24 2007-08-01 16:42:05 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -858,6 +858,53 @@ static PyObject *wrap_nw_inp_from_string(PyObject *self, PyObject *args)
    return Py_None;
 }
 
+static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
+{
+   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
+   return NULL;
+}
+
+
+static PyObject *do_pgroup_destroy(PyObject *self, PyObject *args)
+{
+   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
+   return NULL;
+}
+
+
+static PyObject *do_pgroup_sync(PyObject *self, PyObject *args)
+{
+   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
+   return NULL;
+}
+
+
+static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
+{
+   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
+   return NULL;
+}
+
+
+static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
+{
+   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
+   return NULL;
+}
+
+
+static PyObject *do_pgroup_size(PyObject *self, PyObject *args)
+{
+   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
+   return NULL;
+}
+
+
+static PyObject *do_pgroup_nodeid(PyObject *self, PyObject *args)
+{
+   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
+   return NULL;
+}
 
 /******************************************************************************/
 /******************************************************************************/
@@ -885,6 +932,13 @@ static struct PyMethodDef nwchem_methods[] = {
    {"task_coulomb_ref",    wrap_task_coulomb_ref, 0}, 
    {"input_parse",     wrap_nw_inp_from_string, 0}, 
    {"ga_nodeid",       wrap_ga_nodeid, 0}, 
+   {"pgroup_create",   do_pgroup_create, 0},
+   {"pgroup_destroy",  do_pgroup_destroy, 0},
+   {"pgroup_sync",     do_pgroup_sync, 0},
+   {"pgroup_global_op",do_pgroup_global_op, 0},
+   {"pgroup_broadcast",do_pgroup_broadcast, 0},
+   {"pgroup_size",     do_pgroup_size, 0},
+   {"pgroup_nodeid",   do_pgroup_nodeid,0},
    {NULL, NULL}
 };
 
