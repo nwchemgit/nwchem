@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.25 2007-08-01 20:58:59 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.26 2007-08-01 21:56:01 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -882,7 +882,7 @@ static PyObject *do_pgroup_sync(PyObject *self, PyObject *args)
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_sync()");
       return NULL;
    }
-   ga_pgroup_sync_((Integer*)my_group);
+   ga_pgroup_sync_(&my_group);
    Py_INCREF(Py_None);
    return Py_None;
 }
@@ -942,7 +942,7 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
            PyArg_Parse(obj, "d", array+i);
       }
 
-      ga_pgroup_dgop_((Integer*) my_group,9,array,nelem,pchar);
+      ga_pgroup_dgop_(&my_group,9,array,nelem,pchar);
 
       returnObj =  nwwrap_doubles(nelem, array);
       free(array);
@@ -962,7 +962,7 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
            PyArg_Parse(obj, "i", array+i);
       }
       
-      ga_pgroup_igop_((Integer*) my_group,9,array,nelem,pchar);
+      ga_pgroup_igop_(&my_group,9,array,nelem,pchar);
       
       returnObj =  nwwrap_integers(nelem, array);
       free(array);
@@ -976,7 +976,7 @@ static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
    Integer my_group = ga_pgroup_get_default_() ;
    Integer message_id = 10;
    Integer size = sizeof(args);
-   ga_pgroup_brdcst_((Integer*)my_group,&message_id,args,&size,0);
+   ga_pgroup_brdcst_(&my_group,&message_id,args,&size,0);
    return args;
 }
 
@@ -984,7 +984,7 @@ static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
 static PyObject *do_pgroup_size(PyObject *self, PyObject *args)
 {
    Integer my_group = ga_pgroup_get_default_() ;
-   int nnodes = ga_pgroup_nnodes_((Integer*)my_group);
+   int nnodes = ga_pgroup_nnodes_(&my_group);
    if (args) {
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_size()");
       return NULL;
@@ -996,7 +996,7 @@ static PyObject *do_pgroup_size(PyObject *self, PyObject *args)
 static PyObject *do_pgroup_nodeid(PyObject *self, PyObject *args)
 {
    Integer my_group = ga_pgroup_get_default_() ;
-   int nodeid = ga_pgroup_nodeid_((Integer*)my_group);
+   int nodeid = ga_pgroup_nodeid_(&my_group);
    if (args) {
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_nodeid()");
       return NULL;
