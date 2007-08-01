@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.26 2007-08-01 21:56:01 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.27 2007-08-01 23:14:42 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -929,6 +929,7 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
 
     if (is_double) {
       double *array = 0;
+      int message_id = 10 ;
       if (!(array = malloc(MA_sizeof(MT_F_DBL, nelem, MT_CHAR)))) {
             PyErr_SetString(PyExc_MemoryError,
                             "global_op() failed allocating work array");
@@ -942,13 +943,14 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
            PyArg_Parse(obj, "d", array+i);
       }
 
-      ga_pgroup_dgop_(&my_group,9,array,nelem,pchar);
+      ga_pgroup_dgop_(&my_group,&message_id,array,&nelem,pchar);
 
       returnObj =  nwwrap_doubles(nelem, array);
       free(array);
     }
     else {
       Integer *array = 0;
+      int message_id = 11 ;
       if (!(array = malloc(MA_sizeof(MT_F_INT, nelem, MT_CHAR)))) {
             PyErr_SetString(PyExc_MemoryError,
                             "global_op() failed allocating work array");
@@ -962,7 +964,7 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
            PyArg_Parse(obj, "i", array+i);
       }
       
-      ga_pgroup_igop_(&my_group,9,array,nelem,pchar);
+      ga_pgroup_igop_(&my_group,&message_id,array,&nelem,pchar);
       
       returnObj =  nwwrap_integers(nelem, array);
       free(array);
@@ -974,10 +976,13 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
 static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
 {
    Integer my_group = ga_pgroup_get_default_() ;
-   Integer message_id = 10;
-   Integer size = sizeof(args);
-   ga_pgroup_brdcst_(&my_group,&message_id,args,&size,0);
-   return args;
+   Integer message_id = 12;
+   // This is not done yet
+   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
+   return NULL;
+   //Integer size = unknown.
+   //ga_pgroup_brdcst_(&my_group,&message_id,args,&size,0);
+   //return args;
 }
 
 
