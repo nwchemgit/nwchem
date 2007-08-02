@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.31 2007-08-02 23:07:11 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.32 2007-08-02 23:23:16 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -873,11 +873,13 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
    ///  This routines splits the current group up into subgroups
    int my_group;
    Integer num_groups;
+   int input;
 
-   if (!PyArg_Parse(args, "i", &num_groups)) {
+   if (!PyArg_Parse(args, "i", &input)) {
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_create(integer)");
       return NULL;
    }
+   num_groups = input;
 
 #ifdef USE_SUBGROUPS
    util_sgstart2_(&num_groups,&rtdb_handle);
