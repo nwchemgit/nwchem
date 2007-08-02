@@ -1,4 +1,36 @@
-C$Id: util_sgroup.F,v 1.12 2007-07-19 00:27:31 d3p307 Exp $
+C$Id: util_sgroup.F,v 1.13 2007-08-02 21:06:44 d3p852 Exp $
+
+C
+C TODO:  Need to be able to subdivide existing groups
+C TODO:  Need to reset the number of groups in sgend
+C TODO:  Need to clean up  references to world
+C        Right now, if you have python generate groups and then have
+C          a method that uses groups, you are hosed, and very strange
+C          things will happen (hopefully you with crash).
+C
+
+      subroutine util_sgstart2(groups_want,rtdb)
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "util_sgroup.fh"
+#include "mafdecls.fh"
+C Added includes
+#include "inp.fh"
+#include "util.fh"
+C  End Added includes
+      integer rtdb, groups_want
+      logical util_sgstart
+      external util_sgstart
+      logical ignore
+
+      ignore=rtdb_put(rtdb, 'subgroups_number', mt_int, 1, groups_want)
+      ignore=util_sgstart(rtdb)
+
+      end 
+
+
       logical function util_sgstart(rtdb)
       implicit none
 #include "stdio.fh"
@@ -27,6 +59,15 @@ c Read number of subgroups from input
 c
 c util_sginit is rewritten to allow creating non uniform size of procs 
 c in subgroups on both SMP and cluster of SMP machines !DW
+
+C TODO: At some point this would be nice to be able to do
+      if (ga_pgroup_get_default() .ne. ga_pgroup_get_world()) then
+         write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+         write(0,*) ' ! Cannot create groups when already  !'
+         write(0,*) ' ! broken into groups                 !'
+         write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+         call errquit(' util_sgstart: failed to make groups',0,0)
+      end if
 
       myproc=ga_nodeid()
       nproc=ga_nnodes()
@@ -111,7 +152,7 @@ c
       if(mygroup.ne.1) then
         close(luout, status='keep')
       endif
-      luout=luout_0	
+      luout=luout_0
       if(myproc.eq.0) then
         write(luout,*) 'end of subgroups call '
       endif
