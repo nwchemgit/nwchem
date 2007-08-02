@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.27 2007-08-01 23:14:42 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.28 2007-08-02 00:00:44 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -892,7 +892,8 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
 {
     Integer my_group = ga_pgroup_get_default_() ;
     int is_double ;
-    int i,nelem,list,size;
+    int i,list,size;
+    Integer nelem ;
     PyObject *obj, *returnObj;
     char *pchar;
 
@@ -929,7 +930,7 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
 
     if (is_double) {
       double *array = 0;
-      int message_id = 10 ;
+      Integer message_id = 10 ;
       if (!(array = malloc(MA_sizeof(MT_F_DBL, nelem, MT_CHAR)))) {
             PyErr_SetString(PyExc_MemoryError,
                             "global_op() failed allocating work array");
@@ -950,7 +951,7 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
     }
     else {
       Integer *array = 0;
-      int message_id = 11 ;
+      Integer message_id = 11 ;
       if (!(array = malloc(MA_sizeof(MT_F_INT, nelem, MT_CHAR)))) {
             PyErr_SetString(PyExc_MemoryError,
                             "global_op() failed allocating work array");
@@ -975,14 +976,78 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
 
 static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
 {
-   Integer my_group = ga_pgroup_get_default_() ;
-   Integer message_id = 12;
-   // This is not done yet
-   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
-   return NULL;
-   //Integer size = unknown.
-   //ga_pgroup_brdcst_(&my_group,&message_id,args,&size,0);
-   //return args;
+    Integer my_group = ga_pgroup_get_default_() ;
+    Integer node0 = 0 ;
+
+    int is_double ;
+    int i,list;
+    Integer nelem, size ;
+    PyObject *obj, *returnObj;
+
+    obj  = args;
+
+    if (PyList_Check(obj)){
+      list = 1;
+      nelem = PyList_Size(obj);
+    }
+    else{
+      list = 0;
+      nelem = 1;
+    }
+
+    {
+       double temp = 0;
+       if (list)
+         is_double = PyArg_Parse(PyList_GetItem(obj, i), "d", &temp);
+       else
+         is_double = PyArg_Parse(obj, "d", &temp);
+    }
+
+    if (is_double) {
+      double *array = 0;
+      Integer message_id = 12 ;
+      size = MA_sizeof(MT_F_DBL, nelem, MT_CHAR) ;
+      if (!(array = malloc(size))) {
+            PyErr_SetString(PyExc_MemoryError,
+                            "global_op() failed allocating work array");
+         return NULL;
+      }
+
+      for (i = 0; i < nelem; i++) {
+         if (list)
+           PyArg_Parse(PyList_GetItem(obj, i), "d", array+i);
+         else
+           PyArg_Parse(obj, "d", array+i);
+      }
+
+      ga_pgroup_brdcst_(&my_group,&message_id,array,&size,&node0);
+
+      returnObj =  nwwrap_doubles(nelem, array);
+      free(array);
+    }
+    else {
+      Integer *array = 0;
+      Integer message_id = 13 ;
+      size = MA_sizeof(MT_F_INT, nelem, MT_CHAR);
+      if (!(array = malloc(size))) {
+            PyErr_SetString(PyExc_MemoryError,
+                            "global_op() failed allocating work array");
+         return NULL;
+      }
+      
+      for (i = 0; i < nelem; i++) {
+         if (list)
+           PyArg_Parse(PyList_GetItem(obj, i), "i", array+i);
+         else
+           PyArg_Parse(obj, "i", array+i);
+      }
+      
+      ga_pgroup_brdcst_(&my_group,&message_id,array,&size,&node0);
+      
+      returnObj =  nwwrap_integers(nelem, array);
+      free(array);
+    }
+    return returnObj;
 }
 
 
