@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.30 2007-08-02 22:44:49 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.31 2007-08-02 23:07:11 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -874,7 +874,7 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
    int my_group;
    Integer num_groups;
 
-   if (!PyArg_Parse(args, "i", num_groups)) {
+   if (!PyArg_Parse(args, "i", &num_groups)) {
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_create(integer)");
       return NULL;
    }
