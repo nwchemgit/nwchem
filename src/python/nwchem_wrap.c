@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.28 2007-08-02 00:00:44 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.29 2007-08-02 16:43:41 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -859,10 +859,11 @@ static PyObject *wrap_nw_inp_from_string(PyObject *self, PyObject *args)
 }
 
 ////  PGroup python routines follow //////////
+////  If you have not done any group work, then these are global (and work!) ///
 
 static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
 {
-   // This needs done elsewhere, since it messes with the run-time database
+   // TODO:  This needs done elsewhere, since it messes with the run-time database
    PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
    return NULL;
 }
@@ -870,13 +871,15 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
 
 static PyObject *do_pgroup_destroy(PyObject *self, PyObject *args)
 {
-   // This needs done elsewhere, since it messes with the run-time database
+   // TODO:  This needs done elsewhere, since it messes with the run-time database
    PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
    return NULL;
 }
 
 static PyObject *do_pgroup_sync(PyObject *self, PyObject *args)
 {
+   ///  This is a generic barrier that forces all members of a group to 
+   ///  sync up before moving on
    Integer my_group = ga_pgroup_get_default_() ;
    if (args) {
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_sync()");
@@ -890,6 +893,14 @@ static PyObject *do_pgroup_sync(PyObject *self, PyObject *args)
 
 static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
 {
+    ///  This is like the MPI DGOP/IGOP commands.  The determination
+    ///  of int vs. double is done based upon the first element, and
+    ///  all must be the same on all nodes.
+    ///  If no operation is included then "+" is assumed.
+    ///  TODO:  Handle ints found in a double array (just need to cast them
+    ///  after reading them as ints instead of reals -- the reading
+    ///  as a double should return an error which is then caught.
+    ///  TODO:  Catch errors, such as a string found (or double found in int array).
     Integer my_group = ga_pgroup_get_default_() ;
     int is_double ;
     int i,list,size;
@@ -976,6 +987,16 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
 
 static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
 {
+    ///  This is like the MPI brdcst command.  The determination
+    ///  of int vs. double is done based upon the first element.
+    ///  Node zero of the group always does the talking.
+    ///  All elements of the array must be the same type on all nodes.
+    ///  TODO:  Handle ints found in a double array (just need to cast them
+    ///  after reading them as ints instead of reals -- the reading
+    ///  as a double should return an error which is then caught.
+    ///  TODO:  Catch errors, such as a string found in number array (or double found in int array).
+    ///  TODO:  Add support for broadcasting strings.
+
     Integer my_group = ga_pgroup_get_default_() ;
     Integer node0 = 0 ;
 
@@ -1030,11 +1051,10 @@ static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
       Integer message_id = 13 ;
       size = MA_sizeof(MT_F_INT, nelem, MT_CHAR);
       if (!(array = malloc(size))) {
-            PyErr_SetString(PyExc_MemoryError,
-                            "global_op() failed allocating work array");
+        PyErr_SetString(PyExc_MemoryError,"global_op() failed allocating work array");
          return NULL;
       }
-      
+
       for (i = 0; i < nelem; i++) {
          if (list)
            PyArg_Parse(PyList_GetItem(obj, i), "i", array+i);
@@ -1053,6 +1073,7 @@ static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
 
 static PyObject *do_pgroup_size(PyObject *self, PyObject *args)
 {
+   /// Returns the number of nodes in a group
    Integer my_group = ga_pgroup_get_default_() ;
    int nnodes = ga_pgroup_nnodes_(&my_group);
    if (args) {
@@ -1065,6 +1086,8 @@ static PyObject *do_pgroup_size(PyObject *self, PyObject *args)
 
 static PyObject *do_pgroup_nodeid(PyObject *self, PyObject *args)
 {
+   /// This returns the node number (within the group, not global)
+   /// Nodes are numbered, 0 to NumNodes-1
    Integer my_group = ga_pgroup_get_default_() ;
    int nodeid = ga_pgroup_nodeid_(&my_group);
    if (args) {
