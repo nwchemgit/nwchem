@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.13 2007-08-02 21:06:44 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.14 2007-08-02 23:50:20 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -141,11 +141,11 @@ c
 #include "util_sgroup.fh"
       integer rtdb,myproc
 c
-	myproc=ga_nodeid()
+      myproc=ga_nodeid()
       if(sgactive) then
-	if(myproc.eq.0.and.sgprint) then
+      if(myproc.eq.0.and.sgprint) then
          write(0,*) ga_nodeid(),' deleting cloned rtdb '
-	endif
+      endif
          if (.not. rtdb_close(rtdb, 'delete'))call errquit
      (        (' sgend: rtdb_close and delete failed ',0,0)
       endif
@@ -184,7 +184,7 @@ C  Added def_group argument
       external util_file_copy
       integer myproc
 c
-	myproc=ga_nodeid()
+      myproc=ga_nodeid()
 
       if(myproc.eq.0.and.sgprint) then
       write(luout,*) 'util_sgrtdb start'
@@ -210,7 +210,7 @@ c
 c
 c     test if world rtdb is around
 c
-	
+
       if(myproc.eq.0.and.sgprint) then
             write(6,*)'world rtdbname is ',
      &      rtdbname(1:inp_strlen(rtdbname))
@@ -248,19 +248,17 @@ C  Original code
 C            if (util_system (cmd) .eq. 0) then
 C               Write (0,*) cmd, ' OK'
 C  Added Code
-            inquire(file=scratchrtdb(1:inp_strlen(scratchrtdb)),
-     *       exist=status)
-               if (status) then
-      if(myproc.eq.0.and.sgprint) then
-               Write (0,*)'OK', cmd
-               Write (6,*) 'cmd done'
-      endif
-               else
-               Write (0,*)'Failed', cmd
-               Write (6,*) 'cmd failed'
-               call errquit('util_sgrtdb: problem with system call',
-     *              0, 0)
-               endif
+      inquire(file=scratchrtdb(1:inp_strlen(scratchrtdb)), exist=status)
+      if (status) then
+          if(myproc.eq.0.and.sgprint) then
+            Write (0,*)'OK', cmd
+            Write (6,*) 'cmd done'
+          endif
+       else
+          Write (0,*)'Failed', cmd
+          Write (6,*) 'cmd failed'
+          call errquit('util_sgrtdb: problem with system call', 0, 0)
+       endif
 C  Original code
 C            else
 C               Write (0,*) cmd, ' failed '
@@ -268,9 +266,9 @@ C               call errquit('util_sgrtdb: problem with system call',
 C     *              0, 0)
 C            endif
 C  End System Call fix
-         endif
-         grtdbname=scratchrtdb
-	if(myproc.eq.0) print*,'rtdb copied'
+      endif
+      grtdbname=scratchrtdb
+      if(myproc.eq.0) print*,'rtdb copied'
       return
       end
 
@@ -381,7 +379,7 @@ c
       integer num_proc(0:maxgroups-1),proclist(maxgroups),
      $proc_group(0:maxgroups-1)
 
-		
+
 c  on either smp or cluster of smp, ga_nnodes is consistent value, 
 c  so ga_nnodes as starting base
       nproc = ga_nnodes()
@@ -436,7 +434,7 @@ c set default individual group
           call ga_pgroup_set_default(proc_group(i-1))
         endif
  
-      enddo	
+      enddo
 
       meafter=ga_nodeid()
       mygroup= ga_pgroup_get_default()
@@ -459,7 +457,7 @@ c
 #include "util_sgroup.fh"
       character*255 movecs_in,sg_movecs_out,tag,theory
       logical movecs_out_l
-	integer myproc
+      integer myproc
 c
 c Tested only for the case when movecs are created
 c
@@ -467,7 +465,7 @@ c
 c
 c Read movecs filename with path
 c
-	myproc=ga_nodeid()
+      myproc=ga_nodeid()
 
        if (.not.(rtdb_cget(rtdb,'scf:input vectors',1,movecs_in).or.
      $           rtdb_cget(rtdb,'dft:input vectors',1, movecs_in)))
@@ -479,11 +477,11 @@ c Create movecs.mygroup
 c
         call util_pname0(movecs_in,sg_movecs_out,mygroup,ngroups)
   
-	if(myproc.eq.0.and.sgprint) then
+      if(myproc.eq.0.and.sgprint) then
         write(6,*) 'mygroup=',mygroup,
      $             ' movecs_in',movecs_in,
      $             ' sg_movecs_out=',sg_movecs_out
-	endif
+      endif
 c
 c Set output movecs
 c
