@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.29 2007-08-02 16:43:41 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.30 2007-08-02 22:44:49 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -31,6 +31,8 @@ static Integer rtdb_handle;            /* handle to the rtdb */
 #define task_saddle_ TASK_SADDLE
 #define task_freq_ TASK_FREQ
 #define task_hessian_ TASK_HESSIAN
+#define util_sgstart2_ UTIL_SGSTART2
+#define util_sgend_ UTIL_SGEND
 #endif
 
 extern int nw_inp_from_string(int, const char *);
@@ -43,6 +45,8 @@ extern Integer FATR task_coulomb_ref_(const Integer *);
 extern Integer FATR task_saddle_(const Integer *);
 extern Integer FATR task_freq_(const Integer *);
 extern Integer FATR task_hessian_(const Integer *);
+extern void FATR util_sgstart2_(const Integer *, const Integer *);
+extern void FATR util_sgend_(const Integer *);
 
 static PyObject *nwwrap_integers(int n, Integer a[])
 {
@@ -861,19 +865,48 @@ static PyObject *wrap_nw_inp_from_string(PyObject *self, PyObject *args)
 ////  PGroup python routines follow //////////
 ////  If you have not done any group work, then these are global (and work!) ///
 
+// TODO: util_sgend_ and util_sgstart2_ routines are not as good as we want
+// See util/util_sgroup.F for the problems with it, such as no subgrouping
+// and use of commons.
 static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
 {
-   // TODO:  This needs done elsewhere, since it messes with the run-time database
+   ///  This routines splits the current group up into subgroups
+   int my_group;
+   Integer num_groups;
+
+   if (!PyArg_Parse(args, "i", num_groups)) {
+      PyErr_SetString(PyExc_TypeError, "Usage: pgroup_create(integer)");
+      return NULL;
+   }
+
+#ifdef USE_SUBGROUPS
+   util_sgstart2_(&num_groups,&rtdb_handle);
+   my_group = ga_pgroup_get_default_();
+   return Py_BuildValue("i", my_group);
+#else
    PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
    return NULL;
+#endif
 }
 
 
 static PyObject *do_pgroup_destroy(PyObject *self, PyObject *args)
 {
-   // TODO:  This needs done elsewhere, since it messes with the run-time database
+   /// This merges the subgroups back into their former bigger group
+   int my_group;
+   if (args) {
+      PyErr_SetString(PyExc_TypeError, "Usage: pgroup_destroy()");
+      return NULL;
+   }
+
+#ifdef USE_SUBGROUPS
+   util_sgend_(&rtdb_handle);
+   my_group = ga_pgroup_get_default_();
+   return Py_BuildValue("i", my_group);
+#else
    PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
    return NULL;
+#endif
 }
 
 static PyObject *do_pgroup_sync(PyObject *self, PyObject *args)
