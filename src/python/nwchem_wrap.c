@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.33 2007-08-03 19:21:27 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.34 2007-08-03 19:42:44 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -1049,21 +1049,19 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
 static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
 {
     ///  This is like the MPI brdcst command.  The determination
-    ///  of int vs. double is done based upon the first element.
+    ///  of int vs. double is done based upon the whole array.
     ///  Node zero of the group always does the talking.
-    ///  All elements of the array must be the same type on all nodes.
-    ///  TODO:  Handle ints found in a double array (just need to cast them
-    ///  after reading them as ints instead of reals -- the reading
-    ///  as a double should return an error which is then caught.
-    ///  TODO:  Catch errors, such as a string found in number array (or double found in int array).
-    ///  TODO:  Add support for broadcasting strings.
-
+    ///  All nodes must have same size object
     Integer my_group = ga_pgroup_get_default_() ;
     Integer node0 = 0 ;
-
-    int is_double ;
+    int is_double = 0 ;
+    int is_int = 0;
+    int is_double_array = 0;
     int i,list;
-    Integer nelem, size ;
+    Integer size;
+    int tmp_int = 0;
+    double tmp_double = 0;
+    Integer nelem ;
     PyObject *obj, *returnObj;
 
     obj  = args;
@@ -1077,29 +1075,52 @@ static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
       nelem = 1;
     }
 
-    {
-       double temp = 0;
-       if (list)
-         is_double = PyArg_Parse(PyList_GetItem(obj, i), "d", &temp);
-       else
-         is_double = PyArg_Parse(obj, "d", &temp);
+    for (i = 0; i < nelem; i++) {
+       if (list) {
+         is_double = PyFloat_Check(PyList_GetItem(obj, i));
+         is_int    = PyInt_Check(PyList_GetItem(obj, i));
+       } else {
+         is_double = PyFloat_Check(obj);
+         is_int    = PyInt_Check(obj);
+       }
+       if (!is_double && !is_int) {
+           PyErr_SetString(PyExc_TypeError,"global_broadcast() found non-numerical value");
+           return NULL;
+       }
+       if (!is_int) {
+         is_double_array++;
+       }
     }
 
-    if (is_double) {
+    if (is_double_array > 0) { // Has at least one double
       double *array = 0;
       Integer message_id = 12 ;
       size = MA_sizeof(MT_F_DBL, nelem, MT_CHAR) ;
       if (!(array = malloc(size))) {
-            PyErr_SetString(PyExc_MemoryError,
-                            "pgroup_broadcast() failed allocating work array");
+            PyErr_SetString(PyExc_MemoryError,"pgroup_broadcast() failed allocating work array");
          return NULL;
       }
 
       for (i = 0; i < nelem; i++) {
-         if (list)
-           PyArg_Parse(PyList_GetItem(obj, i), "d", array+i);
-         else
-           PyArg_Parse(obj, "d", array+i);
+         if (list) {
+           is_int    = PyInt_Check(PyList_GetItem(obj, i));
+         } else {
+           is_int    = PyInt_Check(obj);
+         }
+         if (!is_int) {
+           if (list) {
+             PyArg_Parse(PyList_GetItem(obj, i), "d", array+i);
+           } else {
+             PyArg_Parse(obj, "d", array+i);
+           }
+         } else {
+           if (list) {
+             PyArg_Parse(PyList_GetItem(obj, i), "i", &tmp_int);
+           } else {
+             PyArg_Parse(obj, "i", &tmp_int);
+           }
+           array[i] = (double) tmp_int;
+         }
       }
 
       ga_pgroup_brdcst_(&my_group,&message_id,array,&size,&node0);
@@ -1107,20 +1128,21 @@ static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
       returnObj =  nwwrap_doubles(nelem, array);
       free(array);
     }
-    else {
+    else { // Pure integer array
       Integer *array = 0;
       Integer message_id = 13 ;
-      size = MA_sizeof(MT_F_INT, nelem, MT_CHAR);
+      size = MA_sizeof(MT_F_INT, nelem, MT_CHAR) ;
       if (!(array = malloc(size))) {
-        PyErr_SetString(PyExc_MemoryError,"pgroup_broadcast() failed allocating work array");
+            PyErr_SetString(PyExc_MemoryError,"pgroup_broadcast() failed allocating work array");
          return NULL;
       }
-
+      
       for (i = 0; i < nelem; i++) {
-         if (list)
+         if (list) {
            PyArg_Parse(PyList_GetItem(obj, i), "i", array+i);
-         else
+         } else {
            PyArg_Parse(obj, "i", array+i);
+         }
       }
       
       ga_pgroup_brdcst_(&my_group,&message_id,array,&size,&node0);
