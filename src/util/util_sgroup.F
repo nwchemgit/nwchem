@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.17 2007-08-03 17:59:31 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.18 2007-08-03 20:19:38 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -10,16 +10,15 @@ C          things will happen (hopefully you with crash).
 C
 
       subroutine util_sgstart2(groups_want,rtdb)
+C     This is a python interface routine
       implicit none
 #include "stdio.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "util_sgroup.fh"
 #include "mafdecls.fh"
-C Added includes
 #include "inp.fh"
 #include "util.fh"
-C  End Added includes
       integer rtdb, groups_want
       logical util_sgstart
       external util_sgstart
@@ -38,10 +37,8 @@ C  End Added includes
 #include "rtdb.fh"
 #include "util_sgroup.fh"
 #include "mafdecls.fh"
-C Added includes
 #include "inp.fh"
 #include "util.fh"
-C  End Added includes
       integer rtdb
 c
       integer nprocs, nsize, midproc, proclist(1000)
@@ -49,11 +46,10 @@ c
       character*256 grtdbname
       logical lstatus
 
-C added strings for fname definition
+C strings for fname definition
       character*256 permdir
       character*256 fprefix
       integer myproc,nproc
-C End added string
 c
 c Read number of subgroups from input
 c
@@ -110,7 +106,7 @@ c initialize sub groups using one general method
       util_sgstart=.true.
       sgactive=util_sgstart
       if (.not. rtdb_open(grtdbname, 'old', rtdb)) call errquit
-     (     (' rtdb_open old failed ',0,0)
+     *     (' rtdb_open old failed ',0,0)
 
       if(myproc.eq.0.and.sgprint) then
         write(6,*) ga_nodeid(),' of group',mygroup,
@@ -121,7 +117,7 @@ c     Create movecs for each subgroup
 c
       if(myproc.eq.0.and.sgprint) then
         write (6,*) 'mygroup=',mygroup,' rtdb=',rtdb,
-     $            ' grtdbname=',grtdbname
+     *            ' grtdbname=',grtdbname
       endif
       call util_sgmovecs(rtdb)
 c
@@ -172,7 +168,8 @@ c
       
       return
       end
-C  Added def_group argument
+
+
       subroutine util_sgrtdb(rtdb,rtdbname,grtdbname)
       implicit none
       integer rtdb
@@ -184,7 +181,7 @@ C  Added def_group argument
 #include "util_sgroup.fh"
       integer ii
       logical ortdbstate,ortdbstate2,status
-      character*256 scratchrtdb,cmd,cmd1
+      character*256 scratchrtdb
       character*10 pname
       integer util_system
       external util_system
@@ -235,41 +232,22 @@ c
            write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
            call errquit(' util_sgrtdb: failed to open rtdb',0,0)
         endif
-        cmd = 'cp -f '
-        write(cmd1,'(a,'' '',a,'' '',a)')
-     *           cmd(1:inp_strlen(cmd)),
-     *           rtdbname(1:inp_strlen(rtdbname)),
-     *           scratchrtdb(1:inp_strlen(scratchrtdb))
-        cmd = cmd1
         call util_file_copy(rtdbname(1:inp_strlen(rtdbname)),
      &        scratchrtdb(1:inp_strlen(scratchrtdb)))
 C  Trying to remove system call (Crashes MVAPICH)
         if(myproc.eq.0.and.sgprint) then
             write (0,*)'rtdb copied',ga_nodeid(),ga_pgroup_get_default()
         endif
-C  Original code
-C            if (util_system (cmd) .eq. 0) then
-C               Write (0,*) cmd, ' OK'
-C  Added Code
         inquire(file=scratchrtdb(1:inp_strlen(scratchrtdb)),
      &          exist=status)
         if (status) then
           if(myproc.eq.0.and.sgprint) then
-            Write (0,*)'OK', cmd
-            Write (6,*) 'cmd done'
+            Write (0,*)'copy OK'
           endif
         else
-          Write (0,*)'Failed', cmd
-          Write (6,*) 'cmd failed'
+          Write (0,*) 'copy failed'
           call errquit('util_sgrtdb: problem with system call', 0, 0)
         endif
-C  Original code
-C            else
-C               Write (0,*) cmd, ' failed '
-C               call errquit('util_sgrtdb: problem with system call',
-C     *              0, 0)
-C            endif
-C  End System Call fix
       endif
       grtdbname=scratchrtdb
       if(myproc.eq.0) print*,'rtdb copied'
