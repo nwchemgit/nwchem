@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.35 2007-08-03 20:01:48 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.36 2007-08-03 22:33:32 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -831,19 +831,6 @@ static PyObject *wrap_task_saddle(PyObject *self, PyObject *args)
     return returnObj;
 }
 
-
-static PyObject *wrap_ga_nodeid(PyObject *self, PyObject *args)
-{
-    int nodeid = ga_nodeid_();
-    if (args) {
-        PyErr_SetString(PyExc_TypeError, "Usage: ga_nodeid()");
-        return NULL;
-    }
-
-    return Py_BuildValue("i", nodeid);
-}
-    
-
 static PyObject *wrap_nw_inp_from_string(PyObject *self, PyObject *args)
 {
    char *pchar;
@@ -1239,7 +1226,7 @@ static struct PyMethodDef nwchem_methods[] = {
    {"task_coulomb",    wrap_task_coulomb, 0}, 
    {"task_coulomb_ref",    wrap_task_coulomb_ref, 0}, 
    {"input_parse",     wrap_nw_inp_from_string, 0}, 
-   {"ga_nodeid",       wrap_ga_nodeid, 0}, 
+   {"ga_nodeid",       do_pgroup_nodeid, 0},  // This is the same as do_pgroup_nodeid
    {"pgroup_create",   do_pgroup_create, 0},
    {"pgroup_destroy",  do_pgroup_destroy, 0},
    {"pgroup_sync",     do_pgroup_sync, 0},
