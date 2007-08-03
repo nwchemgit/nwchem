@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.16 2007-08-03 17:12:24 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.17 2007-08-03 17:59:31 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -286,19 +286,29 @@ c
 #include "util_sgroup.fh"
       integer me,inode,nnodes
       integer i,j,proclist(maxgroups)
-c
+
+c setup
+
       me=ga_nodeid()
       inode = ga_cluster_nodeid()
       nnodes = ga_cluster_nprocs(inode)
       if(ga_cluster_nnodes().gt.maxgroups) call 
-     g     errquit('sggosmp: increase maxgroups',0,0) 
+     *     errquit('sggosmp: increase maxgroups',0,0) 
+
+c make each smp node into a group
+
       do i=0,ga_cluster_nnodes()-1
          do j=0,ga_cluster_nprocs(i)-1
             proclist(j+1)=ga_cluster_procid(i,j)
          enddo
          grouplist(i+1)=ga_pgroup_create(proclist,ga_cluster_nprocs(i))
       enddo
+
+C TODO: group sync only
       call ga_sync()
+
+C Set the group
+
       do i = 0, ga_cluster_nnodes()-1
          if (i.eq.inode) then
             mygroup=grouplist(inode+1)
@@ -323,27 +333,19 @@ c
 c
       me=ga_nodeid()
       inode = ga_cluster_nodeid()
-!      nnodes = ga_cluster_nprocs(inode)
 
-      write(6,*) 'me in util_sginit_irreg is ', me
+C This code loops over processes and divides them into groups based 
+C upon cpusperg_array() and stores this information in proclist().
+C At the same time, it figures out which group the local process is in
+C and stores this information in mygroup.
       proc_counter=1
       group_counter=1
-      write(6,*) 'ga_cluster_nnodes ',ga_cluster_nnodes()
       do i=0,ga_cluster_nnodes()-1
-         write(6,*) 'ga_cluster_nprocs(i) is ',ga_cluster_nprocs(i),i
          do j=0,ga_cluster_nprocs(i)-1
-           write(6,*) 'i and j ', i, j
-           write(6,*) 'group_counter,proc_counter,i,j,ga_clus_procid'
-     $       , group_counter,proc_counter,i,j,ga_cluster_procid(i,j)
            proclist(group_counter,proc_counter)=ga_cluster_procid(i,j)
            myprocid=ga_cluster_procid(inode,j)
-           write(6,*) 'myprocid,proclist ',myprocid,
-     $        proclist(group_counter,proc_counter),
-     &        group_counter,proc_counter
-c          if (proclist(i,j).eq.myprocid) mygroup=group_counter
            if (proclist(group_counter,proc_counter).eq.myprocid) 
      $          mygroup=group_counter
-
            if (cpusperg_array(group_counter).eq.proc_counter) then
              group_counter=group_counter+1
              proc_counter=0
@@ -352,8 +354,6 @@ c          if (proclist(i,j).eq.myprocid) mygroup=group_counter
          enddo
       enddo
 
-      write(6,*) 'mygroup,cpusperg_array ',mygroup,
-     $     cpusperg_array(mygroup)
       grouplist(mygroup)=
      $  ga_pgroup_create(proclist(mygroup,1),cpusperg_array(mygroup))
 
