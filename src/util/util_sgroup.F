@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.22 2007-08-03 23:25:14 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.23 2007-08-03 23:38:17 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -43,7 +43,7 @@ C     This is a python interface routine
 #include "util.fh"
       integer rtdb
 c
-      integer nprocs, nsize, midproc, proclist(1000)
+      integer nprocs, nsize, midproc
       integer i,errout
       character*256 grtdbname
       logical lstatus
@@ -264,7 +264,7 @@ c
 #include "global.fh"
 #include "util_sgroup.fh"
       integer me,inode,nnodes
-      integer i,j,proclist(maxgroups)
+      integer i,j,proclist(maxcpus)
       integer grouplist(maxgroups)
 
 c setup
@@ -304,7 +304,7 @@ c
 #include "global.fh"
 #include "util_sgroup.fh"
       integer inode,nnodes
-      integer i,j,proclist(maxgroups,maxcpus), myprocid,
+      integer i,j,proclist(maxcpus), myprocid,
      $ proc_counter,group_counter
       integer grouplist(maxgroups)
 c
@@ -318,21 +318,18 @@ C and stores this information in mygroup.
       group_counter=1
       do i=0,ga_cluster_nnodes()-1
          do j=0,ga_cluster_nprocs(i)-1
-           proclist(group_counter,proc_counter)=ga_cluster_procid(i,j)
+           proclist(proc_counter)=ga_cluster_procid(i,j)
            myprocid=ga_cluster_procid(inode,j)
-           if (proclist(group_counter,proc_counter).eq.myprocid) 
+           if (proclist(proc_counter).eq.myprocid) 
      $          mygroup=group_counter
            if (cpusperg_array(group_counter).eq.proc_counter) then
+             grouplist(i)=ga_pgroup_create(proclist,proc_counter)
              group_counter=group_counter+1
              proc_counter=0
            end if
            proc_counter=proc_counter+1
          enddo
       enddo
-
-      do i=1, group_counter - 1
-         grouplist(i)= ga_pgroup_create(proclist(i,1),cpusperg_array(i))
-      end do
 
       call ga_sync(ga_pgroup_get_default())
       call ga_pgroup_set_default(grouplist(mygroup))
@@ -354,7 +351,7 @@ c
 #include "util_sgroup.fh"
       integer nproc,myproc,nchunkq,nremainq,npsize,i,j,n,numprocs,
      $  ncountq,meafter
-      integer num_proc(0:maxgroups-1),proclist(maxgroups),
+      integer num_proc(0:maxgroups-1),proclist(maxcpus),
      $  proc_group(0:maxgroups-1)
 
 
