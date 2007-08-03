@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.15 2007-08-03 21:21:33 d3p852 Exp $
+C$Id: gibbs.F,v 1.16 2007-08-03 23:01:19 d3p852 Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -15,7 +15,6 @@ c
 #include "errquit.fh"
 #include "gibbsP.fh"
 #include "rtdb.fh"
-#include "util_sgroup.fh" 
 #include "msgids.fh"
 #include "msgtypesf.h"
 C  added includes
@@ -61,6 +60,11 @@ c
       double precision rnnum
       double precision rb, testme
       integer bigproc, procnums
+      integer ngroups
+#ifdef USE_SUBGROUPS
+      integer util_sgroup_numgroups
+      external util_sgroup_numgroups
+#endif
       double precision NDA,NDSIG
 
       double precision temp, uu, uavr, usqrd, rsimsum, rsimavr
@@ -230,6 +234,11 @@ C  End Global sync mutex creation
      &   call errquit('dntmc_gibbs:error starting subgroups',
      &                  0, UNKNOWN_ERR)
        idmedium = ga_pgroup_get_default()
+#ifdef USE_SUBGROUPS
+       ngroups = util_sgroup_numgroups()
+#else
+       ngroups = 1
+#endif
 c
 c This next part is to set up the group that is only the node 0s
 c in the medium groups
