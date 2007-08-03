@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.34 2007-08-03 19:42:44 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.35 2007-08-03 20:01:48 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -911,28 +911,38 @@ static PyObject *do_pgroup_destroy(PyObject *self, PyObject *args)
 #endif
 }
 
-static PyObject *do_pgroup_sync(PyObject *self, PyObject *args)
-{
    ///  This is a generic barrier that forces all members of a group to 
    ///  sync up before moving on
-   Integer my_group = ga_pgroup_get_default_() ;
+static PyObject *do_pgroup_sync_work(PyObject *args, Integer my_group)
+{
    if (args) {
-      PyErr_SetString(PyExc_TypeError, "Usage: pgroup_sync()");
+      PyErr_SetString(PyExc_TypeError, "Usage: pgroup_sync() or pgroup_sync_all()");
       return NULL;
    }
    ga_pgroup_sync_(&my_group);
    Py_INCREF(Py_None);
    return Py_None;
 }
-
-
-static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
+static PyObject *do_pgroup_sync(PyObject *self, PyObject *args)
 {
+   Integer my_group = ga_pgroup_get_default_() ;
+   PyObject *returnObj = do_pgroup_sync_work(args,my_group);
+   return returnObj ;
+}
+static PyObject *do_pgroup_sync_all(PyObject *self, PyObject *args)
+{
+   Integer my_group = ga_pgroup_get_world_() ;
+   PyObject *returnObj = do_pgroup_sync_work(args,my_group);
+   return returnObj ;
+}
+
+
     ///  This is like the MPI DGOP/IGOP commands.  The determination
     ///  of int vs. double is done based upon all elements, and
     ///  all must be the same on all nodes.
     ///  If no operation is included then "+" is assumed.
-    Integer my_group = ga_pgroup_get_default_() ;
+static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
+{
     int is_double = 0 ;
     int is_int = 0;
     int is_double_array = 0;
@@ -1044,15 +1054,26 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
     }
     return returnObj;
 }
-
-
-static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
+static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
+{          
+   Integer my_group = ga_pgroup_get_default_() ;
+   PyObject *returnObj = do_pgroup_global_op_work(args,my_group);
+   return returnObj ;
+}      
+static PyObject *do_pgroup_global_op_all(PyObject *self, PyObject *args)
 {
+   Integer my_group = ga_pgroup_get_world_() ;
+   PyObject *returnObj = do_pgroup_global_op_work(args,my_group);
+   return returnObj ;
+}
+
+
     ///  This is like the MPI brdcst command.  The determination
     ///  of int vs. double is done based upon the whole array.
     ///  Node zero of the group always does the talking.
     ///  All nodes must have same size object
-    Integer my_group = ga_pgroup_get_default_() ;
+static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
+{
     Integer node0 = 0 ;
     int is_double = 0 ;
     int is_int = 0;
@@ -1152,6 +1173,19 @@ static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
     }
     return returnObj;
 }
+static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
+{     
+   Integer my_group = ga_pgroup_get_default_() ;
+   PyObject *returnObj = do_pgroup_broadcast_work(args,my_group);
+   return returnObj ;
+}
+static PyObject *do_pgroup_broadcast_all(PyObject *self, PyObject *args)
+{
+   Integer my_group = ga_pgroup_get_world_() ;
+   PyObject *returnObj = do_pgroup_broadcast_work(args,my_group);
+   return returnObj ;
+}
+
 
 
 static PyObject *do_pgroup_size(PyObject *self, PyObject *args)
@@ -1185,7 +1219,6 @@ static PyObject *do_pgroup_nodeid(PyObject *self, PyObject *args)
 /******************************************************************************/
 
 
-// TODO:  Add support for "all" operations that are worldwide
 static struct PyMethodDef nwchem_methods[] = {
    {"rtdb_open",       wrap_rtdb_open, 0}, 
    {"rtdb_close",      wrap_rtdb_close, 0}, 
@@ -1214,6 +1247,9 @@ static struct PyMethodDef nwchem_methods[] = {
    {"pgroup_broadcast",do_pgroup_broadcast, 0},
    {"pgroup_size",     do_pgroup_size, 0},
    {"pgroup_nodeid",   do_pgroup_nodeid,0},
+   {"pgroup_sync_all",     do_pgroup_sync_all, 0},
+   {"pgroup_global_op_all",do_pgroup_global_op_all, 0},
+   {"pgroup_broadcast_all",do_pgroup_broadcast_all, 0},
    {NULL, NULL}
 };
 
