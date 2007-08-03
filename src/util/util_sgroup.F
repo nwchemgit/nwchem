@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.19 2007-08-03 21:01:14 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.20 2007-08-03 22:47:11 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -471,3 +471,15 @@ c
 c
       return
       end
+
+c     Hokey functions to keep others away from my common blocks
+
+      integer function util_sgroup_mygroup()
+#include "util_sgroup.fh"
+      util_sgroup_mygroup = mygroup
+      end
+      integer function util_sgroup_numgroups()
+#include "util_sgroup.fh"
+      util_sgroup_numgroups = ngroups
+      end
+

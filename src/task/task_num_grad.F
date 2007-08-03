@@ -5,7 +5,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.35 2005-09-30 19:17:08 yuri Exp $
+* $Id: task_num_grad.F,v 1.36 2007-08-03 22:47:51 d3p852 Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -74,9 +74,6 @@ c
 #include "mafdecls.fh"
 #include "util.fh"
 #include "inp.fh"
-#ifdef USE_SUBGROUPS
-#include "util_sgroup.fh"
-#endif
       integer rtdb              ! [input] 
       logical func              ! [input]
       external func
@@ -121,17 +118,22 @@ c
       logical util_sgstart
       external util_sgstart
       integer ncpus
+      integer mygroup
+      integer num_groups
+      integer util_sgroup_mygroup
+      external util_sgroup_mygroup
+      integer util_sgroup_numgroups
+      external util_sgroup_numgroups
 
       ncpus=ga_nnodes()
       write (6,*) 'In USE_SUBGROUPS: ncpus=',ncpus
       if (ncpus.eq.1) then
        write (6,*) 'SUBGROUPS code is deactivated'
       else 
-       gosmp=.true.
-c       cpusperg_array(1)=2
-c       cpusperg_array(2)=4
        if(.not.util_sgstart(rtdb)) 
      $  call errquit('Error in SUBGROUPS init', 0, RTDB_ERR) 
+       mygroup = util_sgroup_mygroup()
+       num_groups = util_sgroup_numgroups()
        ipcount=mygroup-2
        write(6,*) 'mygroup and ipcount is ', mygroup, ipcount
       endif
@@ -257,7 +259,7 @@ c
 #ifdef USE_SUBGROUPS
        if (ncpus.gt.1) then
          ipcount=ipcount+1
-         if (mod(ipcount,ngroups).ne.0) goto 1234
+         if (mod(ipcount,num_groups).ne.0) goto 1234
          write (6,*) 'mygroup=',mygroup,' ivec=',ivec
        endif
 #endif
