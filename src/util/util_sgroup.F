@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.21 2007-08-03 23:15:02 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.22 2007-08-03 23:25:14 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -106,13 +106,12 @@ c initialize sub groups using one general method
       call util_sginit()
       call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
       util_sgstart=.true.
-      sgactive=util_sgstart
+      sgactive=.true.
       if (.not. rtdb_open(grtdbname, 'old', rtdb)) call errquit
      *     (' rtdb_open old failed ',0,0)
 
       if(myproc.eq.0.and.sgprint) then
-        write(6,*) ga_nodeid(),' of group',mygroup,
-     *     'active = ',sgactive, 'rtdbname ',grtdbname
+        write(6,*) ga_nodeid(),' of group',mygroup,'rtdbname ',grtdbname
       endif
 c
 c     Create movecs for each subgroup
@@ -266,6 +265,7 @@ c
 #include "util_sgroup.fh"
       integer me,inode,nnodes
       integer i,j,proclist(maxgroups)
+      integer grouplist(maxgroups)
 
 c setup
 
@@ -306,6 +306,7 @@ c
       integer inode,nnodes
       integer i,j,proclist(maxgroups,maxcpus), myprocid,
      $ proc_counter,group_counter
+      integer grouplist(maxgroups)
 c
       inode = ga_cluster_nodeid()
 

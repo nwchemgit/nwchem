@@ -1,15 +1,14 @@
-C$Id: util_sgroup.fh,v 1.7 2007-08-03 21:12:52 d3p852 Exp $
+C$Id: util_sgroup.fh,v 1.8 2007-08-03 23:25:14 d3p852 Exp $
        integer maxgroups,maxcpus
        parameter(maxgroups=512)
        parameter(maxcpus=512)
-       integer grouplist(maxgroups)! sgroup handle
        integer cpusperg_array(maxgroups)
        integer mygroup ! NOT the same as the GA group number
        integer ngroups
        integer luout_0
        logical sgactive, gosmp, sgprint
        character*256 rtdb_fname
-       common /sgroup/ grouplist,
+       common /sgroup/ 
      *   ngroups, mygroup,sgactive, gosmp, luout_0,
      *   cpusperg_array, sgprint
        common /sgroupchr/rtdb_fname
