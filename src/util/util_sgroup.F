@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.14 2007-08-02 23:50:20 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.15 2007-08-03 16:38:08 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -113,14 +113,14 @@ c initialize sub groups using one general method
      (     (' rtdb_open old failed ',0,0)
 
       if(myproc.eq.0.and.sgprint) then
-      write(6,*) ga_nodeid(),' of group',mygroup,
+        write(6,*) ga_nodeid(),' of group',mygroup,
      *     'active = ',sgactive, 'rtdbname ',grtdbname
       endif
 c
 c     Create movecs for each subgroup
 c
       if(myproc.eq.0.and.sgprint) then
-      write (6,*) 'mygroup=',mygroup,' rtdb=',rtdb,
+        write (6,*) 'mygroup=',mygroup,' rtdb=',rtdb,
      $            ' grtdbname=',grtdbname
       endif
       call util_sgmovecs(rtdb)
@@ -128,7 +128,7 @@ c
 c
       luout_0=luout
       if(myproc.eq.0.and.sgprint) then
-      write(6,*) 'everyone should have an open file at this point'
+        write(6,*) 'everyone should have an open file at this point'
       endif
       return
       end
@@ -140,14 +140,15 @@ c
 #include "rtdb.fh"
 #include "util_sgroup.fh"
       integer rtdb,myproc
+      logical ignore
 c
       myproc=ga_nodeid()
       if(sgactive) then
-      if(myproc.eq.0.and.sgprint) then
-         write(0,*) ga_nodeid(),' deleting cloned rtdb '
-      endif
-         if (.not. rtdb_close(rtdb, 'delete'))call errquit
-     (        (' sgend: rtdb_close and delete failed ',0,0)
+        if(myproc.eq.0.and.sgprint) then
+          write(0,*) ga_nodeid(),' deleting cloned rtdb '
+        endif
+        if (.not. rtdb_close(rtdb, 'delete'))call errquit
+     $        (' sgend: rtdb_close and delete failed ',0,0)
       endif
       if(mygroup.ne.1) then
         close(luout, status='keep')
@@ -157,6 +158,12 @@ c
         write(luout,*) 'end of subgroups call '
       endif
       call ga_pgroup_set_default(ga_pgroup_get_world())
+      if (ga_pgroup_get_default() .ne. mygroup) then
+        ignore = ga_pgroup_destroy(mygroup)
+      endif
+      mygroup = ga_pgroup_get_default()
+      ngroups = 1
+      sgactive = .false.
 c
 c     reopen world rtdb
 c
@@ -187,16 +194,15 @@ c
       myproc=ga_nodeid()
 
       if(myproc.eq.0.and.sgprint) then
-      write(luout,*) 'util_sgrtdb start'
+        write(luout,*) 'util_sgrtdb start'
       endif
 c
 c     do a copy of rtdb to scratch_dir for each SMP node
 c
-         write(pname,333) mygroup
- 333       format('sg_db.',i4.4)
+      write(pname,333) mygroup
+ 333     format('sg_db.',i4.4)
 
-            call util_file_name(pname, .true., .false., 
-     $           scratchrtdb)
+      call util_file_name(pname, .true., .false., scratchrtdb)
 c
 c     assuming we are already in subgroups ...
 c     am I proc 0 of a subgroup ?
@@ -205,60 +211,58 @@ c
          write(0,*)'Entering util_sgrtdb if(node 0)',ga_nodeid(),
      &   ga_pgroup_get_default()
       endif
-         call flush(0)
-         if(ga_nodeid().eq.0) then
+      call flush(0)
+      if(ga_nodeid().eq.0) then
 c
 c     test if world rtdb is around
 c
-
-      if(myproc.eq.0.and.sgprint) then
-            write(6,*)'world rtdbname is ',
-     &      rtdbname(1:inp_strlen(rtdbname))
-            write(6,*)'group rtdbname is ',
+        if(myproc.eq.0.and.sgprint) then
+           write(6,*)'world rtdbname is ',
+     &       rtdbname(1:inp_strlen(rtdbname))
+           write(6,*)'group rtdbname is ',
      &       scratchrtdb(1:inp_strlen(scratchrtdb))
-      endif
-            inquire(file=rtdbname(1:inp_strlen(rtdbname)),
-     *       exist=status)
-            if(.not.status) then
+        endif
+        inquire(file=rtdbname(1:inp_strlen(rtdbname)),exist=status)
+        if(.not.status) then
 c
 c     most likely cause of error: permdir not available on 
 c     this node
 c
-               write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-               write(0,*) ' ! please change permanent_dir to a   !'
-               write(0,*) ' ! filesystem available to all the    !'
-               write(0,*) ' ! processors (e.g. NFS, GPFS, Lustre)!'
-               write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-               call errquit(
-     *              ' util_sgrtdb: failed to open rtdb',0,0)
-            endif
-            cmd = 'cp -f '
-            write(cmd1,'(a,'' '',a,'' '',a)')
+           write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+           write(0,*) ' ! please change permanent_dir to a   !'
+           write(0,*) ' ! filesystem available to all the    !'
+           write(0,*) ' ! processors (e.g. NFS, GPFS, Lustre)!'
+           write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+           call errquit(' util_sgrtdb: failed to open rtdb',0,0)
+        endif
+        cmd = 'cp -f '
+        write(cmd1,'(a,'' '',a,'' '',a)')
      *           cmd(1:inp_strlen(cmd)),
      *           rtdbname(1:inp_strlen(rtdbname)),
      *           scratchrtdb(1:inp_strlen(scratchrtdb))
-            cmd = cmd1
-            call util_file_copy(rtdbname(1:inp_strlen(rtdbname)),
+        cmd = cmd1
+        call util_file_copy(rtdbname(1:inp_strlen(rtdbname)),
      &        scratchrtdb(1:inp_strlen(scratchrtdb)))
 C  Trying to remove system call (Crashes MVAPICH)
-      if(myproc.eq.0.and.sgprint) then
+        if(myproc.eq.0.and.sgprint) then
             write (0,*)'rtdb copied',ga_nodeid(),ga_pgroup_get_default()
-      endif
+        endif
 C  Original code
 C            if (util_system (cmd) .eq. 0) then
 C               Write (0,*) cmd, ' OK'
 C  Added Code
-      inquire(file=scratchrtdb(1:inp_strlen(scratchrtdb)), exist=status)
-      if (status) then
+        inquire(file=scratchrtdb(1:inp_strlen(scratchrtdb)),
+     &          exist=status)
+        if (status) then
           if(myproc.eq.0.and.sgprint) then
             Write (0,*)'OK', cmd
             Write (6,*) 'cmd done'
           endif
-       else
+        else
           Write (0,*)'Failed', cmd
           Write (6,*) 'cmd failed'
           call errquit('util_sgrtdb: problem with system call', 0, 0)
-       endif
+        endif
 C  Original code
 C            else
 C               Write (0,*) cmd, ' failed '
@@ -297,9 +301,8 @@ c
       call ga_sync()
       do i = 0, ga_cluster_nnodes()-1
          if (i.eq.inode) then
-                  mygroup=grouplist(inode+1)
-            write(0,'(I4,A,I4)') me,' joining group',
-     ,          grouplist(inode+1)
+            mygroup=grouplist(inode+1)
+            write(0,'(I4,A,I4)') me,' joining group',grouplist(inode+1)
             call ga_pgroup_set_default(mygroup)
          endif
       enddo
@@ -332,8 +335,7 @@ c
            write(6,*) 'i and j ', i, j
            write(6,*) 'group_counter,proc_counter,i,j,ga_clus_procid'
      $       , group_counter,proc_counter,i,j,ga_cluster_procid(i,j)
-           proclist(group_counter,proc_counter)=
-     $     ga_cluster_procid(i,j)
+           proclist(group_counter,proc_counter)=ga_cluster_procid(i,j)
            myprocid=ga_cluster_procid(inode,j)
            write(6,*) 'myprocid,proclist ',myprocid,
      $        proclist(group_counter,proc_counter),
@@ -353,7 +355,7 @@ c          if (proclist(i,j).eq.myprocid) mygroup=group_counter
       write(6,*) 'mygroup,cpusperg_array ',mygroup,
      $     cpusperg_array(mygroup)
       grouplist(mygroup)=
-     $ga_pgroup_create(proclist(mygroup,1),cpusperg_array(mygroup))
+     $  ga_pgroup_create(proclist(mygroup,1),cpusperg_array(mygroup))
 
       call ga_sync()
       call ga_pgroup_set_default(grouplist(mygroup))
@@ -375,9 +377,9 @@ c
 #include "rtdb.fh"
 #include "util_sgroup.fh"
       integer nproc,myproc,nchunkq,nremainq,npsize,i,j,n,numprocs,
-     $ ncountq,meafter
+     $  ncountq,meafter
       integer num_proc(0:maxgroups-1),proclist(maxgroups),
-     $proc_group(0:maxgroups-1)
+     $  proc_group(0:maxgroups-1)
 
 
 c  on either smp or cluster of smp, ga_nnodes is consistent value, 
@@ -409,8 +411,8 @@ c procs in  groups
         else
           ncountq=nchunkq
         end if
-         num_proc(i)=npsize
-         npsize=npsize+ncountq
+        num_proc(i)=npsize
+        npsize=npsize+ncountq
 
       enddo
       num_proc(ngroups)=nproc
@@ -469,13 +471,13 @@ c
 
        if (.not.(rtdb_cget(rtdb,'scf:input vectors',1,movecs_in).or.
      $           rtdb_cget(rtdb,'dft:input vectors',1, movecs_in)))
-     $ movecs_in = 'atomic'
-        if (movecs_in.eq.'atomic')
-     $  call util_file_name('movecs',.true.,.false.,movecs_in)
+     $     movecs_in = 'atomic'
+       if (movecs_in.eq.'atomic')
+     $     call util_file_name('movecs',.true.,.false.,movecs_in)
 c
 c Create movecs.mygroup
 c
-        call util_pname0(movecs_in,sg_movecs_out,mygroup,ngroups)
+       call util_pname0(movecs_in,sg_movecs_out,mygroup,ngroups)
   
       if(myproc.eq.0.and.sgprint) then
         write(6,*) 'mygroup=',mygroup,
@@ -493,8 +495,7 @@ c
        tag='scf:output vectors'
       endif
 c
-      if (.not. rtdb_cput(rtdb,tag,1,
-     $    sg_movecs_out)) then
+      if (.not. rtdb_cput(rtdb,tag,1,sg_movecs_out)) then
        write (6,*) 'error in rtdb_cput'
       endif
 c
