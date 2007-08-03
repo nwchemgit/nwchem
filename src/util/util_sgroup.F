@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.20 2007-08-03 22:47:11 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.21 2007-08-03 23:15:02 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -329,8 +329,9 @@ C and stores this information in mygroup.
          enddo
       enddo
 
-      grouplist(mygroup)=
-     $  ga_pgroup_create(proclist(mygroup,1),cpusperg_array(mygroup))
+      do i=1, group_counter - 1
+         grouplist(i)= ga_pgroup_create(proclist(i,1),cpusperg_array(i))
+      end do
 
       call ga_sync(ga_pgroup_get_default())
       call ga_pgroup_set_default(grouplist(mygroup))
