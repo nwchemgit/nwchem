@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.36 2006-09-18 15:42:14 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.37 2007-08-03 19:16:45 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -431,7 +431,7 @@ c
       call md_abort('Failed to open topology file',0)
       return
       end
-      subroutine cf_topol_init()
+      subroutine cf_topol_init(lfnout)
 c
       implicit none
 c
@@ -439,7 +439,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer numbi
+      integer numbi,lfnout
 c
       numbi=ma_sizeof(mt_int,1,mt_byte)
 c
@@ -450,18 +450,18 @@ c
       endif
       call ga_brdcst(mcf_69,iffld,numbi,0)
 c
-      if(iffld.eq.1) then
-      if(me.eq.0) write(*,1001)
- 1001 format(' Force field is amber')
-      endif
-      if(iffld.eq.2) then
-      if(me.eq.0) write(*,1002)
- 1002 format(' Force field is charmm')
-      endif
-      if(iffld.eq.3) then
-      if(me.eq.0) write(*,1003)
- 1003 format(' Force field is gromos')
-      endif
+c      if(iffld.eq.1) then
+c      if(me.eq.0) write(lfnout,1001)
+c 1001 format(' Force field is amber')
+c      endif
+c      if(iffld.eq.2) then
+c      if(me.eq.0) write(lfnout,1002)
+c 1002 format(' Force field is charmm')
+c      endif
+c      if(iffld.eq.3) then
+c      if(me.eq.0) write(lfnout,1003)
+c 1003 format(' Force field is gromos')
+c      endif
 c
       return
       end

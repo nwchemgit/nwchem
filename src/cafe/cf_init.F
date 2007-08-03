@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
      + ipbtpi,lfnhopi,iradgi,nbgeti,npreci)
-c $Id: cf_init.F,v 1.109 2006-09-18 15:42:14 d3j191 Exp $
+c $Id: cf_init.F,v 1.110 2007-08-03 19:16:45 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -246,7 +246,7 @@ c
       call cf_rdgeom(byte_mb(i_snam))
       else
       call cf_rdtop(lfntop,filtop,byte_mb(i_snam))
-      call cf_topol_init()
+      call cf_topol_init(lfnout)
       endif
 c
 c     distance restraints
@@ -318,7 +318,7 @@ c
       if(.not.ma_push_get(mt_int,8*numpmf,'ipmf',l_ipmf,i_ipmf))
      + call md_abort('Failed to allocate ipmf',0)
       if(.not.ma_push_get(mt_int,4*numpmf*npmfa,'jpmf',l_jpmf,i_jpmf))
-     + call md_abort('Failed to allocate jpmf',0)
+     + call md_abort('Failed to allocate jpmf',npmfa)
       if(.not.ma_push_get(mt_dbl,18*numpmf,'rpmf',l_rpmf,i_rpmf))
      + call md_abort('Failed to allocate rpmf',0)
       if(.not.ma_push_get(mt_dbl,16*numpmf,'xpmf',l_xpmf,i_xpmf))
