@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.18 2007-08-03 20:19:38 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.19 2007-08-03 21:01:14 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -7,6 +7,8 @@ C TODO:  Need to clean up  references to world
 C        Right now, if you have python generate groups and then have
 C          a method that uses groups, you are hosed, and very strange
 C          things will happen (hopefully you with crash).
+C WARNING:  mygroup is NOT the GA group, but rather a 1 to N
+C           numbering scheme.
 C
 
       subroutine util_sgstart2(groups_want,rtdb)
@@ -137,6 +139,7 @@ c
 #include "util_sgroup.fh"
       integer rtdb,myproc
       logical ignore
+      integer mypgroup_old
 c
       myproc=ga_nodeid()
       if(sgactive) then
@@ -153,11 +156,10 @@ c
       if(myproc.eq.0) then
         write(luout,*) 'end of subgroups call '
       endif
+      mypgroup_old = ga_pgroup_get_default()
       call ga_pgroup_set_default(ga_pgroup_get_world())
-      if (ga_pgroup_get_default() .ne. mygroup) then
-        ignore = ga_pgroup_destroy(mygroup)
-      endif
-      mygroup = ga_pgroup_get_default()
+      ignore = ga_pgroup_destroy(mypgroup_old)
+      mygroup = 1
       ngroups = 1
       sgactive = .false.
 c
@@ -282,18 +284,14 @@ c make each smp node into a group
          grouplist(i+1)=ga_pgroup_create(proclist,ga_cluster_nprocs(i))
       enddo
 
-C TODO: group sync only
-      call ga_sync()
+      call ga_pgroup_sync(ga_pgroup_get_default())
 
 C Set the group
 
-      do i = 0, ga_cluster_nnodes()-1
-         if (i.eq.inode) then
-            mygroup=grouplist(inode+1)
-            write(0,'(I4,A,I4)') me,' joining group',grouplist(inode+1)
-            call ga_pgroup_set_default(mygroup)
-         endif
-      enddo
+      mygroup=inode+1
+      write(0,'(I4,A,I4)') me,' joining group',grouplist(inode+1)
+      call ga_pgroup_set_default(grouplist(inode+1))
+
       return
       end
 
@@ -305,11 +303,10 @@ c
 #include "stdio.fh"
 #include "global.fh"
 #include "util_sgroup.fh"
-      integer me,inode,nnodes
+      integer inode,nnodes
       integer i,j,proclist(maxgroups,maxcpus), myprocid,
      $ proc_counter,group_counter
 c
-      me=ga_nodeid()
       inode = ga_cluster_nodeid()
 
 C This code loops over processes and divides them into groups based 
@@ -335,12 +332,10 @@ C and stores this information in mygroup.
       grouplist(mygroup)=
      $  ga_pgroup_create(proclist(mygroup,1),cpusperg_array(mygroup))
 
-C     TODO: group sync, no GA sync
-      call ga_sync()
+      call ga_sync(ga_pgroup_get_default())
       call ga_pgroup_set_default(grouplist(mygroup))
 
-      me=ga_nodeid()
-      write (6,*) 'me=',me,' is the part of subg=',mygroup
+      write (6,*) 'me=',ga_nodeid(),' is the part of subg=',mygroup
 
       return
       end
@@ -363,7 +358,6 @@ c
 
 c  on either smp or cluster of smp, ga_nnodes is consistent value, 
 c  so ga_nnodes as starting base
-C  TODO: group based
       nproc = ga_nnodes()
       myproc = ga_nodeid()
 
@@ -399,27 +393,23 @@ c procs in  groups
 
 c assign each proc to individual group , then create individual group
       do i=1,ngroups
-
-       do j=num_proc(i-1),num_proc(i)-1
-          n=j-num_proc(i-1)+1
-          proclist(n)=j
-       end do
-
-       numprocs=num_proc(i)-num_proc(i-1)
-       proc_group(i-1)=ga_pgroup_create(proclist, numprocs)
+         do j=num_proc(i-1),num_proc(i)-1
+            n=j-num_proc(i-1)+1
+            proclist(n)=j
+         end do
+         numprocs=num_proc(i)-num_proc(i-1)
+         proc_group(i-1)=ga_pgroup_create(proclist, numprocs)
       enddo
 
 c set default individual group
       do i=1,ngroups
-
         if(num_proc(i-1).le.myproc.and.myproc.le.num_proc(i)-1) then
           call ga_pgroup_set_default(proc_group(i-1))
+          mygroup = i
         endif
- 
       enddo
 
       meafter=ga_nodeid()
-      mygroup= ga_pgroup_get_default()
       
       write(*,"(2x,'proc.',I4,' now is proc.',I4,' in group',I4)")
      $myproc,meafter,mygroup
