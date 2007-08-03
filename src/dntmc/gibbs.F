@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.14 2007-05-21 20:53:52 windus Exp $
+C$Id: gibbs.F,v 1.15 2007-08-03 21:21:33 d3p852 Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -366,7 +366,7 @@ c on the subgroups doing this.
 
 C      iam = myid
 C  Change for subgroup only identification
-       call dntmc_write_prcfil(idmedium, groupnums, prcfil)
+       call dntmc_write_prcfil(idmedium, groupnums, prcfil,ngroups)
        call dntmc_build_prcfil(prcfil2, myid)
        write(6,*)'groupnums for node ',myid,' is ', groupnums(1:ngroups)
        call flush(6) 
@@ -2103,15 +2103,14 @@ C  End of Subroutine dntmc_build_prcfil(prcfil, i)
 C***********************************************************************
  
 C***********************************************************************
-      Subroutine dntmc_write_prcfil(idmedium, groupnums, prcfil)
+      Subroutine dntmc_write_prcfil(idmedium, groupnums, prcfil,ngroups)
 C***********************************************************************
       Implicit none
 
-#include "util_sgroup.fh"
 #include "errquit.fh"
 
       integer i
-      integer idmedium, groupnums
+      integer idmedium, groupnums, ngroups
       integer groupid
       character*4 prcfil
 
@@ -2134,7 +2133,7 @@ C***********************************************************************
       end
 
 C***********************************************************************
-C  End of Subroutine dntmc_write_prcfil(idmedium, groupnums, prcfil)
+C  End of Subroutine dntmc_write_prcfil(idmedium, groupnums, prcfil,ngroups)
 C***********************************************************************
 
 C***********************************************************************
