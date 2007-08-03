@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.32 2007-08-02 23:23:16 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.33 2007-08-03 19:21:27 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -863,7 +863,7 @@ static PyObject *wrap_nw_inp_from_string(PyObject *self, PyObject *args)
 }
 
 ////  PGroup python routines follow //////////
-////  If you have not done any group work, then these are global (and work!) ///
+////  If you have not done any group work, then these are global
 
 // TODO: util_sgend_ and util_sgstart2_ routines are not as good as we want
 // See util/util_sgroup.F for the problems with it, such as no subgrouping
@@ -929,16 +929,16 @@ static PyObject *do_pgroup_sync(PyObject *self, PyObject *args)
 static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
 {
     ///  This is like the MPI DGOP/IGOP commands.  The determination
-    ///  of int vs. double is done based upon the first element, and
+    ///  of int vs. double is done based upon all elements, and
     ///  all must be the same on all nodes.
     ///  If no operation is included then "+" is assumed.
-    ///  TODO:  Handle ints found in a double array (just need to cast them
-    ///  after reading them as ints instead of reals -- the reading
-    ///  as a double should return an error which is then caught.
-    ///  TODO:  Catch errors, such as a string found (or double found in int array).
     Integer my_group = ga_pgroup_get_default_() ;
-    int is_double ;
+    int is_double = 0 ;
+    int is_int = 0;
+    int is_double_array = 0;
     int i,list,size;
+    int tmp_int = 0;
+    double tmp_double = 0;
     Integer nelem ;
     PyObject *obj, *returnObj;
     char *pchar;
@@ -966,28 +966,53 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
       nelem = 1;
     }
 
-    {
-       double temp = 0;
-       if (list)
-         is_double = PyArg_Parse(PyList_GetItem(obj, i), "d", &temp);
-       else
-         is_double = PyArg_Parse(obj, "d", &temp);
+    for (i = 0; i < nelem; i++) {
+       if (list) {
+         is_double = PyFloat_Check(PyList_GetItem(obj, i));
+         is_int    = PyInt_Check(PyList_GetItem(obj, i));
+       } else {
+         is_double = PyFloat_Check(obj);
+         is_int    = PyInt_Check(obj);
+       }
+       if (!is_double && !is_int) {
+           PyErr_SetString(PyExc_TypeError,
+                          "global_op() found non-numerical value");
+           return NULL;
+       }
+       if (!is_int) {
+         is_double_array++;
+       }
     }
 
-    if (is_double) {
+    if (is_double_array > 0) { // Has at least one double
       double *array = 0;
       Integer message_id = 10 ;
       if (!(array = malloc(MA_sizeof(MT_F_DBL, nelem, MT_CHAR)))) {
             PyErr_SetString(PyExc_MemoryError,
-                            "global_op() failed allocating work array");
+                            "pgroup_global_op() failed allocating work array");
          return NULL;
       }
 
       for (i = 0; i < nelem; i++) {
-         if (list)
-           PyArg_Parse(PyList_GetItem(obj, i), "d", array+i);
-         else
-           PyArg_Parse(obj, "d", array+i);
+         if (list) {
+           is_int    = PyInt_Check(PyList_GetItem(obj, i));
+         } else {
+           is_int    = PyInt_Check(obj);
+         }
+         if (!is_int) {
+           if (list) {
+             PyArg_Parse(PyList_GetItem(obj, i), "d", array+i);
+           } else {
+             PyArg_Parse(obj, "d", array+i);
+           }
+         } else {
+           if (list) {
+             PyArg_Parse(PyList_GetItem(obj, i), "i", &tmp_int);
+           } else {
+             PyArg_Parse(obj, "i", &tmp_int);
+           }
+           array[i] = (double) tmp_int;
+         }
       }
 
       ga_pgroup_dgop_(&my_group,&message_id,array,&nelem,pchar);
@@ -995,20 +1020,21 @@ static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
       returnObj =  nwwrap_doubles(nelem, array);
       free(array);
     }
-    else {
+    else { // Pure integer array
       Integer *array = 0;
       Integer message_id = 11 ;
       if (!(array = malloc(MA_sizeof(MT_F_INT, nelem, MT_CHAR)))) {
             PyErr_SetString(PyExc_MemoryError,
-                            "global_op() failed allocating work array");
+                            "pgroup_global_op() failed allocating work array");
          return NULL;
       }
       
       for (i = 0; i < nelem; i++) {
-         if (list)
+         if (list) {
            PyArg_Parse(PyList_GetItem(obj, i), "i", array+i);
-         else
+         } else {
            PyArg_Parse(obj, "i", array+i);
+         }
       }
       
       ga_pgroup_igop_(&my_group,&message_id,array,&nelem,pchar);
@@ -1065,7 +1091,7 @@ static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
       size = MA_sizeof(MT_F_DBL, nelem, MT_CHAR) ;
       if (!(array = malloc(size))) {
             PyErr_SetString(PyExc_MemoryError,
-                            "global_op() failed allocating work array");
+                            "pgroup_broadcast() failed allocating work array");
          return NULL;
       }
 
@@ -1086,7 +1112,7 @@ static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
       Integer message_id = 13 ;
       size = MA_sizeof(MT_F_INT, nelem, MT_CHAR);
       if (!(array = malloc(size))) {
-        PyErr_SetString(PyExc_MemoryError,"global_op() failed allocating work array");
+        PyErr_SetString(PyExc_MemoryError,"pgroup_broadcast() failed allocating work array");
          return NULL;
       }
 
@@ -1137,6 +1163,7 @@ static PyObject *do_pgroup_nodeid(PyObject *self, PyObject *args)
 /******************************************************************************/
 
 
+// TODO:  Add support for "all" operations that are worldwide
 static struct PyMethodDef nwchem_methods[] = {
    {"rtdb_open",       wrap_rtdb_open, 0}, 
    {"rtdb_close",      wrap_rtdb_close, 0}, 
