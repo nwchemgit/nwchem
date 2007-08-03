@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.15 2007-08-03 16:38:08 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.16 2007-08-03 17:12:24 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -357,6 +357,7 @@ c          if (proclist(i,j).eq.myprocid) mygroup=group_counter
       grouplist(mygroup)=
      $  ga_pgroup_create(proclist(mygroup,1),cpusperg_array(mygroup))
 
+C     TODO: group sync, no GA sync
       call ga_sync()
       call ga_pgroup_set_default(grouplist(mygroup))
 
@@ -384,6 +385,7 @@ c
 
 c  on either smp or cluster of smp, ga_nnodes is consistent value, 
 c  so ga_nnodes as starting base
+C  TODO: group based
       nproc = ga_nnodes()
       myproc = ga_nodeid()
 
@@ -501,4 +503,3 @@ c
 c
       return
       end
-

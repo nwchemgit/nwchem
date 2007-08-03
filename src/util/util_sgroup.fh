@@ -1,16 +1,16 @@
-C$Id: util_sgroup.fh,v 1.5 2007-07-19 00:28:30 d3p307 Exp $
-	integer maxgroups,maxcpus
-	parameter(maxgroups=512)
-        parameter(maxcpus=512)
-	integer grouplist(maxgroups)! sgroup handle
-        integer cpusperg_array(maxgroups)
-	integer mygroup
-	integer ngroups
-	integer luout_0
-	logical sgactive, gosmp, sgprint
-        character*256 rtdb_fname
-	common /sgroup/ grouplist,
-     *	  ngroups, mygroup,sgactive, gosmp, luout_0,
-     *    cpusperg_array, sgprint
-	common /sgroupchr/rtdb_fname
+C$Id: util_sgroup.fh,v 1.6 2007-08-03 17:12:24 d3p852 Exp $
+       integer maxgroups,maxcpus
+       parameter(maxgroups=512)
+       parameter(maxcpus=512)
+       integer grouplist(maxgroups)! sgroup handle
+       integer cpusperg_array(maxgroups)
+       integer mygroup
+       integer ngroups
+       integer luout_0
+       logical sgactive, gosmp, sgprint
+       character*256 rtdb_fname
+       common /sgroup/ grouplist,
+     *   ngroups, mygroup,sgactive, gosmp, luout_0,
+     *   cpusperg_array, sgprint
+       common /sgroupchr/rtdb_fname
 
