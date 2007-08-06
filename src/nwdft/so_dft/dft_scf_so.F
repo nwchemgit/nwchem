@@ -3,7 +3,7 @@
      &                  iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                  g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.36 2007-07-11 01:01:40 niri Exp $
+c     $Id: dft_scf_so.F,v 1.37 2007-08-06 22:13:27 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -754,14 +754,14 @@ czora...Calculate the spin-orbit parts
          call ga_zero(g_zora(1))
          call ga_zero(g_zora(2))
          call zora_getv(rtdb, g_dens, g_zora, nexc)
-         call ga_dadd(1d0,g_zora_so(1),1d0,g_zora(1),g_zora_so(2))
+         call ga_dadd(1d0,g_zora_so(2),1d0,g_zora(1),g_zora_so(2))
 
          so_term = 3
          call ga_zero(g_zora_so(3))
          call ga_zero(g_zora(1))
          call ga_zero(g_zora(2))
          call zora_getv(rtdb, g_dens, g_zora, nexc)
-         call ga_dadd(1d0,g_zora_so(1),1d0,g_zora(1),g_zora_so(3))
+         call ga_dadd(1d0,g_zora_so(3),1d0,g_zora(1),g_zora_so(3))
 
 czora...Calculate the spin-free parts
          so_term = 0
