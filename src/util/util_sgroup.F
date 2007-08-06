@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.27 2007-08-06 18:53:31 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.28 2007-08-06 19:21:03 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -66,13 +66,13 @@ c this is added here to print out sub groups info. !DW
       sgprint = util_print('sgroup info', print_debug)
 
       if (.not.rtdb_get(rtdb, 'subgroups_number', mt_int, 1,
-     &   ngroups))ngroups=1
+     &   ngroups(depth)))ngroups(depth)=1
 
 c
 c     preliminary rtdb cloning
 c
 C  Trying to fix the 36 char cutoff for fname
-      if (.not. rtdb_getfname(rtdb, rtdb_fname)) call 
+      if (.not. rtdb_getfname(rtdb, rtdb_fname(depth))) call 
      *     errquit('rtdb_fname call failed',0,0)
 C  Added to overcome 36 character limit
       write(permdir,'(256(a))') (' ', i=1,256)
@@ -81,7 +81,7 @@ C  Added to overcome 36 character limit
      &     call errquit('rtdb get permanent_dir failed',0,0)
       if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
      &     call errquit('rtdb get file_prefix failed',0,0)
-      write(rtdb_fname,'(a,a,a,a)')
+      write(rtdb_fname(depth),'(a,a,a,a)')
      &  permdir(15:inp_strlen(permdir)),
      &  '/',
      &  fprefix(1:inp_strlen(fprefix)),
@@ -100,14 +100,14 @@ c initialize sub groups using one general method
 C     call util_sginit_smp()
 C     call util_sginit_irreg(cpusperg_array)
 
-      call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
+      call util_sgrtdb(rtdb,rtdb_fname(depth),grtdbname)
       util_sgstart=.true.
       if (.not. rtdb_open(grtdbname, 'old', rtdb)) call errquit
      *     (' rtdb_open old failed ',0,0)
 
       if(myproc.eq.0.and.sgprint) then
-        write(6,*) ga_nodeid(),' of group',mygroup,'rtdbname ',grtdbname
-        write(6,*) ' rtdb=',rtdb
+        write(6,*) ga_nodeid(),' of group',mygroup(depth),'rtdbname '
+     *           ,grtdbname, ' rtdb=',rtdb
       endif
 c
 c     Create movecs for each subgroup
@@ -115,7 +115,7 @@ c
       call util_sgmovecs(rtdb)
 c
 c
-      luout_0=luout
+      luout_0(depth)=luout
       if(myproc.eq.0.and.sgprint) then
         write(6,*) 'everyone should have an open file at this point'
       endif
@@ -138,22 +138,22 @@ c
       endif
       if (.not. rtdb_close(rtdb, 'delete'))call errquit
      $        (' sgend: rtdb_close and delete failed ',0,0)
-      if(mygroup.ne.1) then
+      if(mygroup(depth).ne.1) then
         close(luout, status='keep')
       endif
-      luout=luout_0
+      luout=luout_0(depth)
       if(myproc.eq.0) then
         write(luout,*) 'end of subgroups call '
       endif
       mypgroup_old = ga_pgroup_get_default()
       call ga_pgroup_set_default(ga_pgroup_get_world())
       ignore = ga_pgroup_destroy(mypgroup_old)
-      mygroup = 1
-      ngroups = 1
+      mygroup(depth) = 1
+      ngroups(depth) = 1
 c
 c     reopen world rtdb
 c
-      if (.not. rtdb_open(rtdb_fname, 'old', rtdb))
+      if (.not. rtdb_open(rtdb_fname(depth), 'old', rtdb))
      $     call errquit('sgend: rtdb_open old failed ', 0, 0)
       
       return
@@ -186,7 +186,7 @@ c
 c
 c     do a copy of rtdb to scratch_dir for each SMP node
 c
-      write(pname,333) mygroup
+      write(pname,333) mygroup(depth)
  333     format('sg_db.',i4.4)
 
       call util_file_name(pname, .true., .false., scratchrtdb)
@@ -258,14 +258,14 @@ c
 c setup
 
       inode = ga_cluster_nodeid()
-      ngroups = ga_cluster_nnodes()
+      ngroups(depth) = ga_cluster_nnodes()
 
-      if(ngroups .gt.maxgroups) call 
+      if(ngroups(depth) .gt.maxgroups) call 
      *     errquit('sggosmp: increase maxgroups',0,0) 
 
 c make each smp node into a group
 
-      do i=0,ngroups-1
+      do i=0,ngroups(depth)-1
          do j=0,ga_cluster_nprocs(i)-1
             proclist(j+1)=ga_cluster_procid(i,j)
          enddo
@@ -274,10 +274,10 @@ c make each smp node into a group
 
 C Set the group
 
-      mygroup=inode+1
+      mygroup(depth)=inode+1
       write(0,'(I4,A,I4)')ga_nodeid(),' joining group',
-     *             grouplist(mygroup)
-      call ga_pgroup_set_default(grouplist(mygroup))
+     *             grouplist(mygroup(depth))
+      call ga_pgroup_set_default(grouplist(mygroup(depth)))
 
       return
       end
@@ -299,7 +299,7 @@ c
 C This code loops over processes and divides them into groups based 
 C upon cpusperg_array() and stores this information in proclist().
 C At the same time, it figures out which group the local process is in
-C and stores this information in mygroup.
+C and stores this information in mygroup(depth).
       proc_counter=1
       group_counter=1
       do i=0,ga_cluster_nnodes()-1
@@ -307,7 +307,7 @@ C and stores this information in mygroup.
            proclist(proc_counter)=ga_cluster_procid(i,j)
            myprocid=ga_cluster_procid(inode,j)
            if (proclist(proc_counter).eq.myprocid) 
-     $          mygroup=group_counter
+     $          mygroup(depth)=group_counter
            if (cpusperg_array(group_counter).eq.proc_counter) then
              grouplist(i)=ga_pgroup_create(proclist,proc_counter)
              group_counter=group_counter+1
@@ -317,10 +317,11 @@ C and stores this information in mygroup.
          enddo
       enddo
 
-      ngroups = group_counter - 1
-      call ga_pgroup_set_default(grouplist(mygroup))
+      ngroups(depth) = group_counter - 1
+      call ga_pgroup_set_default(grouplist(mygroup(depth)))
 
-      write (6,*) 'me=',ga_nodeid(),' is the part of subg=',mygroup
+      write (6,*) 'me=',ga_nodeid(),' is the part of subgroup=',
+     *            mygroup(depth)
 
       return
       end
@@ -341,30 +342,30 @@ c  so ga_nnodes as starting base
       myproc = ga_nodeid()
 
 c split number of procs into groups, starting group index:0
-      nchunkq=nproc/ngroups
-      nremainq=mod(nproc,ngroups)
+      nchunkq=nproc/ngroups(depth)
+      nremainq=mod(nproc,ngroups(depth))
 
 c for irregular distribution, make sure the lower groups have more procs
 c assign each proc to individual group, then create individual group
       n = 0
-      do i=1,ngroups
+      do i=1,ngroups(depth)
          num_proc = nchunkq
          if(i .le. nremainq) num_proc = num_proc + 1
          do j=1,num_proc
             proclist(j)=n
-            if (n .eq. myproc) mygroup = i
+            if (n .eq. myproc) mygroup(depth) = i
             n=n+1
          enddo
          grouplist(i)=ga_pgroup_create(proclist, num_proc)
       enddo
 
 c set default individual group
-      call ga_pgroup_set_default(grouplist(mygroup))
+      call ga_pgroup_set_default(grouplist(mygroup(depth)))
 
       meafter=ga_nodeid()
       
       write(*,"(2x,'proc.',I4,' now is proc.',I4,' in group',I4)")
-     $myproc,meafter,mygroup
+     $myproc,meafter,mygroup(depth)
 
       return
       end
@@ -396,12 +397,13 @@ c
        if (movecs_in.eq.'atomic')
      $     call util_file_name('movecs',.true.,.false.,movecs_in)
 c
-c Create movecs.mygroup
+c Create movecs.mygroup(depth)
 c
-       call util_pname0(movecs_in,sg_movecs_out,mygroup,ngroups)
+      call util_pname0(movecs_in,sg_movecs_out,mygroup(depth),
+     *     ngroups(depth))
   
       if(myproc.eq.0.and.sgprint) then
-        write(6,*) 'mygroup=',mygroup,
+        write(6,*) 'mygroup=',mygroup(depth),
      $             ' movecs_in',movecs_in,
      $             ' sg_movecs_out=',sg_movecs_out
       endif
@@ -427,10 +429,10 @@ c     Hokey functions to keep others away from my common blocks
 
       integer function util_sgroup_mygroup()
 #include "util_sgroup.fh"
-      util_sgroup_mygroup = mygroup
+      util_sgroup_mygroup = mygroup(depth)
       end
       integer function util_sgroup_numgroups()
 #include "util_sgroup.fh"
-      util_sgroup_numgroups = ngroups
+      util_sgroup_numgroups = ngroups(depth)
       end
 
