@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.33 2007-08-06 20:46:22 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.34 2007-08-06 21:00:22 d3p852 Exp $
 
 C
       subroutine util_sgstart2(groups_want,rtdb)
@@ -250,13 +250,15 @@ c setup
       inode = ga_cluster_nodeid()
       ngroups(depth) = ga_cluster_nnodes()
 
-      if(ngroups(depth) .gt.maxgroups) call 
-     *     errquit('sggosmp: increase maxgroups',0,0) 
+      if(ngroups(depth) .gt.maxgroups)
+     *      call errquit('increase maxgroups',0,0) 
 
 c make each smp node into a group
 
       do i=0,ngroups(depth)-1
          do j=0,ga_cluster_nprocs(i)-1
+           if(j+1 .gt. maxcpus)
+     *            call errquit('increase maxcpus',0,0)
             proclist(j+1)=ga_cluster_procid(i,j)
          enddo
          grouplist(i+1)=ga_pgroup_create(proclist,ga_cluster_nprocs(i))
@@ -294,11 +296,15 @@ C and stores this information in mygroup(depth).
       group_counter=1
       do i=0,ga_cluster_nnodes()-1
          do j=0,ga_cluster_nprocs(i)-1
+           if(proc_counter .gt. maxcpus)
+     *            call errquit('increase maxcpus',0,0)
            proclist(proc_counter)=ga_cluster_procid(i,j)
            myprocid=ga_cluster_procid(inode,j)
            if (proclist(proc_counter).eq.myprocid) 
      $          mygroup(depth)=group_counter
            if (cpusperg_array(group_counter).eq.proc_counter) then
+             if(group_counter.gt.maxgroups) 
+     *                 call errquit('increase maxgroups',0,0) 
              grouplist(i)=ga_pgroup_create(proclist,proc_counter)
              group_counter=group_counter+1
              proc_counter=0
@@ -335,6 +341,15 @@ c  so ga_nnodes as starting base
 c split number of procs into groups, starting group index:0
       nchunkq=nproc/ngroups(depth)
       nremainq=mod(nproc,ngroups(depth))
+      if (nremainq .eq. 0) then
+        if(nchunkq .gt. maxcpus)
+     *      call errquit('increase maxcpus',0,0)
+      else
+        if(nchunkq+1 .gt. maxcpus)
+     *      call errquit('increase maxcpus',0,0)
+      end if
+      if(ngroups(depth).gt.maxgroups)
+     *      call errquit('increase maxgroups',0,0)
 
 c for irregular distribution, make sure the lower groups have more procs
 c assign each proc to individual group, then create individual group
