@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.34 2007-08-06 21:00:22 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.35 2007-08-06 21:39:40 d3p852 Exp $
 
 C
       subroutine util_sgstart2(groups_want,rtdb)
@@ -330,7 +330,7 @@ C and stores this information in mygroup(depth).
 c
 c     Create subgroups of a constant size
 c
-      integer nproc,myproc,nchunkq,nremainq,i,j,n,meafter
+      integer nproc,myproc,nchunkq,nremainq,i,j,n,meafter,meinworld
       integer num_proc,proclist(maxcpus), grouplist(maxgroups)
 
 c  on either smp or cluster of smp, ga_nnodes is consistent value, 
@@ -370,10 +370,17 @@ c set default individual group
       call ga_pgroup_set_default(my_ga_grp(depth))
 
       meafter=ga_nodeid()
-      
-      write(*,"(2x,'proc.',I4,' now is proc.',I4,' in group',I4)")
-     $myproc,meafter,mygroup(depth)
+      meinworld = ga_pgroup_nodeid(ga_pgroup_get_world())
 
+      write(*,
+     * "(' proc ',I4,' was (',
+     *     I4,' ',I4,' ',I4,
+     *     ') now is (',
+     *     I4,' ',I4,' ',I4,
+     *     ')')")
+     * meinworld,
+     * myproc,mygroup(depth-1),my_ga_grp(depth-1),
+     * meafter,mygroup(depth),my_ga_grp(depth)
       return
       end
 c
