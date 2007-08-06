@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.25 2007-08-06 17:56:58 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.26 2007-08-06 18:17:58 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -50,8 +50,6 @@ C strings for fname definition
 c
 c Read number of subgroups from input
 c
-c util_sginit is rewritten to allow creating non uniform size of procs 
-c in subgroups on both SMP and cluster of SMP machines !DW
 
 C TODO: At some point this would be nice to be able to do
       if (ga_pgroup_get_default() .ne. ga_pgroup_get_world()) then
@@ -96,10 +94,12 @@ c    Create groups
 c   
       if(myproc.eq.0) write(luout,*) 'Creating groups'
 
-
 c initialize sub groups using one general method
 
       call util_sginit()
+C     call util_sginit_smp()
+C     call util_sginit_irreg()
+
       call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
       util_sgstart=.true.
       sgactive=.true.
@@ -108,14 +108,11 @@ c initialize sub groups using one general method
 
       if(myproc.eq.0.and.sgprint) then
         write(6,*) ga_nodeid(),' of group',mygroup,'rtdbname ',grtdbname
+        write(6,*) ' rtdb=',rtdb
       endif
 c
 c     Create movecs for each subgroup
 c
-      if(myproc.eq.0.and.sgprint) then
-        write (6,*) 'mygroup=',mygroup,' rtdb=',rtdb,
-     *            ' grtdbname=',grtdbname
-      endif
       call util_sgmovecs(rtdb)
 c
 c
@@ -265,12 +262,14 @@ c
 c setup
 
       inode = ga_cluster_nodeid()
-      if(ga_cluster_nnodes().gt.maxgroups) call 
+      ngroups = ga_cluster_nnodes()
+
+      if(ngroups .gt.maxgroups) call 
      *     errquit('sggosmp: increase maxgroups',0,0) 
 
 c make each smp node into a group
 
-      do i=0,ga_cluster_nnodes()-1
+      do i=0,ngroups-1
          do j=0,ga_cluster_nprocs(i)-1
             proclist(j+1)=ga_cluster_procid(i,j)
          enddo
@@ -321,6 +320,7 @@ C and stores this information in mygroup.
          enddo
       enddo
 
+      ngroups = group_counter - 1
       call ga_pgroup_set_default(grouplist(mygroup))
 
       write (6,*) 'me=',ga_nodeid(),' is the part of subg=',mygroup
