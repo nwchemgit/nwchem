@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.24 2007-08-06 17:40:29 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.25 2007-08-06 17:56:58 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -14,13 +14,8 @@ C
       subroutine util_sgstart2(groups_want,rtdb)
 C     This is a python interface routine
       implicit none
-#include "stdio.fh"
-#include "global.fh"
 #include "rtdb.fh"
-#include "util_sgroup.fh"
 #include "mafdecls.fh"
-#include "inp.fh"
-#include "util.fh"
       integer rtdb, groups_want
       logical util_sgstart
       external util_sgstart
@@ -103,6 +98,7 @@ c
 
 
 c initialize sub groups using one general method
+
       call util_sginit()
       call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
       util_sgstart=.true.
@@ -255,22 +251,20 @@ C  Trying to remove system call (Crashes MVAPICH)
       return
       end
 
-      subroutine util_sggosmp()
+      subroutine util_sginit_smp()
       implicit none
 c
 c     creates one subgroup for each smp
 c
-#include "stdio.fh"
 #include "global.fh"
 #include "util_sgroup.fh"
-      integer inode,nnodes
+      integer inode
       integer i,j,proclist(maxcpus)
       integer grouplist(maxgroups)
 
 c setup
 
       inode = ga_cluster_nodeid()
-      nnodes = ga_cluster_nprocs(inode)
       if(ga_cluster_nnodes().gt.maxgroups) call 
      *     errquit('sggosmp: increase maxgroups',0,0) 
 
@@ -283,14 +277,12 @@ c make each smp node into a group
          grouplist(i+1)=ga_pgroup_create(proclist,ga_cluster_nprocs(i))
       enddo
 
-      call ga_pgroup_sync(ga_pgroup_get_default())
-
 C Set the group
 
       mygroup=inode+1
       write(0,'(I4,A,I4)')ga_nodeid(),' joining group',
-     *             grouplist(inode+1)
-      call ga_pgroup_set_default(grouplist(inode+1))
+     *             grouplist(mygroup)
+      call ga_pgroup_set_default(grouplist(mygroup))
 
       return
       end
@@ -298,12 +290,11 @@ C Set the group
       subroutine util_sginit_irreg()
       implicit none
 c
-c     creates custom subgroups
+c     creates custom subgroups using cpusperg_array()
 c
-#include "stdio.fh"
 #include "global.fh"
 #include "util_sgroup.fh"
-      integer inode,nnodes
+      integer inode
       integer i,j,proclist(maxcpus), myprocid,proc_counter,group_counter
       integer grouplist(maxgroups)
 c
@@ -330,7 +321,6 @@ C and stores this information in mygroup.
          enddo
       enddo
 
-      call ga_sync(ga_pgroup_get_default())
       call ga_pgroup_set_default(grouplist(mygroup))
 
       write (6,*) 'me=',ga_nodeid(),' is the part of subg=',mygroup
@@ -343,7 +333,7 @@ C and stores this information in mygroup.
 #include "global.fh"
 #include "util_sgroup.fh"
 c
-c     Create subgroups
+c     Create subgroups of a constant size
 c
       integer nproc,myproc,nchunkq,nremainq,i,j,n,meafter
       integer num_proc,proclist(maxcpus), grouplist(maxgroups)
