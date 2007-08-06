@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.28 2007-08-06 19:21:03 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.29 2007-08-06 20:01:21 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -50,7 +50,11 @@ C strings for fname definition
 c
 c Read number of subgroups from input
 c
-
+       if (ga_pgroup_get_default() .eq. ga_pgroup_get_world()) then
+         depth = 0;
+         mygroup(depth) = 1
+         ngroups(depth) = 1
+       end if
 C TODO: At some point this would be nice to be able to do
       if (ga_pgroup_get_default() .ne. ga_pgroup_get_world()) then
          write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
@@ -59,6 +63,7 @@ C TODO: At some point this would be nice to be able to do
          write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
          call errquit(' util_sgstart: failed to make groups',0,0)
       end if
+      depth = depth+1
 
       myproc=ga_nodeid()
       nproc=ga_nnodes()
