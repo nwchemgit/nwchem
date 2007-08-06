@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.23 2007-08-03 23:38:17 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.24 2007-08-06 17:40:29 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -263,13 +263,12 @@ c
 #include "stdio.fh"
 #include "global.fh"
 #include "util_sgroup.fh"
-      integer me,inode,nnodes
+      integer inode,nnodes
       integer i,j,proclist(maxcpus)
       integer grouplist(maxgroups)
 
 c setup
 
-      me=ga_nodeid()
       inode = ga_cluster_nodeid()
       nnodes = ga_cluster_nprocs(inode)
       if(ga_cluster_nnodes().gt.maxgroups) call 
@@ -289,7 +288,8 @@ c make each smp node into a group
 C Set the group
 
       mygroup=inode+1
-      write(0,'(I4,A,I4)') me,' joining group',grouplist(inode+1)
+      write(0,'(I4,A,I4)')ga_nodeid(),' joining group',
+     *             grouplist(inode+1)
       call ga_pgroup_set_default(grouplist(inode+1))
 
       return
@@ -304,8 +304,7 @@ c
 #include "global.fh"
 #include "util_sgroup.fh"
       integer inode,nnodes
-      integer i,j,proclist(maxcpus), myprocid,
-     $ proc_counter,group_counter
+      integer i,j,proclist(maxcpus), myprocid,proc_counter,group_counter
       integer grouplist(maxgroups)
 c
       inode = ga_cluster_nodeid()
@@ -341,19 +340,13 @@ C and stores this information in mygroup.
 
       subroutine util_sginit()
       implicit none
-c
-c     Create subgroups, this has been rewritten to work for 
-c     general cases ! DW
-c
-#include "stdio.fh"
 #include "global.fh"
-#include "rtdb.fh"
 #include "util_sgroup.fh"
-      integer nproc,myproc,nchunkq,nremainq,npsize,i,j,n,numprocs,
-     $  ncountq,meafter
-      integer num_proc(0:maxgroups-1),proclist(maxcpus),
-     $  proc_group(0:maxgroups-1)
-
+c
+c     Create subgroups
+c
+      integer nproc,myproc,nchunkq,nremainq,i,j,n,meafter
+      integer num_proc,proclist(maxcpus), grouplist(maxgroups)
 
 c  on either smp or cluster of smp, ga_nnodes is consistent value, 
 c  so ga_nnodes as starting base
@@ -361,58 +354,30 @@ c  so ga_nnodes as starting base
       myproc = ga_nodeid()
 
 c split number of procs into groups, starting group index:0
-      num_proc(0)=0
       nchunkq=nproc/ngroups
       nremainq=mod(nproc,ngroups)
 
-c for irregualr distribution, this part make sure the lower groups have 
-c more procs
-c for example, for 5 procs on 3 groups, 1st group  has 2 procs, 2nd has 2,
-c and 3rd has 1
-      if(nremainq.ne.0) then
-         npsize=nchunkq+1
-      else
-         npsize=nchunkq
-      endif
-
-c assign chunk of procs to sub groups--the  position of the chunk 
-c procs in  groups
-      do i=1,ngroups-1
-
-        if(i.lt.nremainq) then
-          ncountq=nchunkq+1
-        else
-          ncountq=nchunkq
-        end if
-        num_proc(i)=npsize
-        npsize=npsize+ncountq
-
-      enddo
-      num_proc(ngroups)=nproc
-
-c assign each proc to individual group , then create individual group
+c for irregular distribution, make sure the lower groups have more procs
+c assign each proc to individual group, then create individual group
+      n = 0
       do i=1,ngroups
-         do j=num_proc(i-1),num_proc(i)-1
-            n=j-num_proc(i-1)+1
-            proclist(n)=j
-         end do
-         numprocs=num_proc(i)-num_proc(i-1)
-         proc_group(i-1)=ga_pgroup_create(proclist, numprocs)
+         num_proc = nchunkq
+         if(i .le. nremainq) num_proc = num_proc + 1
+         do j=1,num_proc
+            proclist(j)=n
+            if (n .eq. myproc) mygroup = i
+            n=n+1
+         enddo
+         grouplist(i)=ga_pgroup_create(proclist, num_proc)
       enddo
 
 c set default individual group
-      do i=1,ngroups
-        if(num_proc(i-1).le.myproc.and.myproc.le.num_proc(i)-1) then
-          call ga_pgroup_set_default(proc_group(i-1))
-          mygroup = i
-        endif
-      enddo
+      call ga_pgroup_set_default(grouplist(mygroup))
 
       meafter=ga_nodeid()
       
       write(*,"(2x,'proc.',I4,' now is proc.',I4,' in group',I4)")
      $myproc,meafter,mygroup
-      
 
       return
       end
