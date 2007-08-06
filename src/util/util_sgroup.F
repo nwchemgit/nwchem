@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.31 2007-08-06 20:20:55 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.32 2007-08-06 20:30:17 d3p852 Exp $
 
 C
       subroutine util_sgstart2(groups_want,rtdb)
@@ -146,14 +146,14 @@ c
       mypgroup_old = ga_pgroup_get_default()
       call ga_pgroup_set_default(ga_pgroup_get_world())
       ignore = ga_pgroup_destroy(mypgroup_old)
-      mygroup(depth) = 1
-      ngroups(depth) = 1
 c
 c     reopen world rtdb
 c
       if (.not. rtdb_open(rtdb_fname(depth), 'old', rtdb))
      $     call errquit('sgend: rtdb_open old failed ', 0, 0)
       
+      depth = depth - 1
+
       return
       end
 
