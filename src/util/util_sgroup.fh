@@ -1,16 +1,13 @@
-C$Id: util_sgroup.fh,v 1.9 2007-08-03 23:38:17 d3p852 Exp $
-       integer maxgroups,maxcpus
+C$Id: util_sgroup.fh,v 1.10 2007-08-06 18:53:31 d3p852 Exp $
+       integer maxgroups,maxcpus,maxdeep
        parameter(maxgroups=512)  ! Maximum number of groups
        parameter(maxcpus=2048)   ! Maximum number of CPU's in a group
-       integer cpusperg_array(maxgroups) ! A custom CPU layout
+       parameter(maxdeep=512)    ! Maximum depth of groups
        integer mygroup ! NOT the same as the GA group number
        integer ngroups ! number of groups
        integer luout_0 ! save luout
-       logical sgactive! are we doing groups
        logical sgprint ! debug printout?
        character*256 rtdb_fname  ! Runtime database file name
-       common /sgroup/ 
-     *   ngroups, mygroup,sgactive, luout_0,
-     *   cpusperg_array, sgprint
+       common /sgroup/ ngroups, mygroup,luout_0, sgprint
        common /sgroupchr/rtdb_fname
 

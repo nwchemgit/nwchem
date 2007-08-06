@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.26 2007-08-06 18:17:58 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.27 2007-08-06 18:53:31 d3p852 Exp $
 
 C
 C TODO:  Need to be able to subdivide existing groups
@@ -98,11 +98,10 @@ c initialize sub groups using one general method
 
       call util_sginit()
 C     call util_sginit_smp()
-C     call util_sginit_irreg()
+C     call util_sginit_irreg(cpusperg_array)
 
       call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
       util_sgstart=.true.
-      sgactive=.true.
       if (.not. rtdb_open(grtdbname, 'old', rtdb)) call errquit
      *     (' rtdb_open old failed ',0,0)
 
@@ -134,13 +133,11 @@ c
       integer mypgroup_old
 c
       myproc=ga_nodeid()
-      if(sgactive) then
-        if(myproc.eq.0.and.sgprint) then
-          write(0,*) ga_nodeid(),' deleting cloned rtdb '
-        endif
-        if (.not. rtdb_close(rtdb, 'delete'))call errquit
-     $        (' sgend: rtdb_close and delete failed ',0,0)
+      if(myproc.eq.0.and.sgprint) then
+        write(0,*) ' deleting cloned rtdb '
       endif
+      if (.not. rtdb_close(rtdb, 'delete'))call errquit
+     $        (' sgend: rtdb_close and delete failed ',0,0)
       if(mygroup.ne.1) then
         close(luout, status='keep')
       endif
@@ -153,7 +150,6 @@ c
       ignore = ga_pgroup_destroy(mypgroup_old)
       mygroup = 1
       ngroups = 1
-      sgactive = .false.
 c
 c     reopen world rtdb
 c
@@ -286,7 +282,7 @@ C Set the group
       return
       end
 
-      subroutine util_sginit_irreg()
+      subroutine util_sginit_irreg(cpusperg_array)
       implicit none
 c
 c     creates custom subgroups using cpusperg_array()
@@ -296,6 +292,7 @@ c
       integer inode
       integer i,j,proclist(maxcpus), myprocid,proc_counter,group_counter
       integer grouplist(maxgroups)
+      integer cpusperg_array(maxgroups)
 c
       inode = ga_cluster_nodeid()
 
