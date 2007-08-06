@@ -1,23 +1,26 @@
-C$Id: util_sgroup.F,v 1.35 2007-08-06 21:39:40 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.36 2007-08-06 23:21:42 d3p852 Exp $
 
+C TODO: fix rtdb naming
 C
-      subroutine util_sgstart2(groups_want,rtdb)
-C     This is a python interface routine
-      implicit none
-#include "rtdb.fh"
-#include "mafdecls.fh"
-      integer rtdb, groups_want
-      logical util_sgstart
-      external util_sgstart
-      logical ignore
-
-      ignore=rtdb_put(rtdb, 'subgroups_number', mt_int, 1, groups_want)
-      ignore=util_sgstart(rtdb)
-
-      end 
-
-
       logical function util_sgstart(rtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+      integer rtdb
+      integer groups_want
+c
+c Read number of subgroups from input
+c
+      if (.not.rtdb_get(rtdb, 'subgroups_number', mt_int, 1,
+     &   groups_want))groups_want=1
+
+      call util_sggo(rtdb,groups_want)
+
+      util_sgstart=.true.
+      return
+      end
+
+      subroutine util_sggo(rtdb,groups_want)
       implicit none
 #include "stdio.fh"
 #include "global.fh"
@@ -26,7 +29,7 @@ C     This is a python interface routine
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "util.fh"
-      integer rtdb
+      integer rtdb, groups_want
 c
       integer nprocs, nsize, midproc
       integer i,errout
@@ -37,8 +40,6 @@ C strings for fname definition
       character*256 permdir
       character*256 fprefix
       integer myproc,nproc
-c
-c Read number of subgroups from input
 c
       if (ga_pgroup_get_default() .eq. ga_pgroup_get_world()) then
         depth = 0;
@@ -52,11 +53,8 @@ c
 
       myproc=ga_nodeid()
       nproc=ga_nnodes()
-c this is added here to print out sub groups info. !DW
       sgprint = util_print('sgroup info', print_debug)
-
-      if (.not.rtdb_get(rtdb, 'subgroups_number', mt_int, 1,
-     &   ngroups(depth)))ngroups(depth)=1
+      ngroups(depth) = groups_want
 
 c
 c     preliminary rtdb cloning
@@ -91,7 +89,6 @@ C     call util_sginit_smp()
 C     call util_sginit_irreg(cpusperg_array)
 
       call util_sgrtdb(rtdb,rtdb_fname(depth),grtdbname)
-      util_sgstart=.true.
       if (.not. rtdb_open(grtdbname, 'old', rtdb)) call errquit
      *     (' rtdb_open old failed ',0,0)
 

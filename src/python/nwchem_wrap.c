@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.36 2007-08-03 22:33:32 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.37 2007-08-06 23:21:42 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -31,7 +31,7 @@ static Integer rtdb_handle;            /* handle to the rtdb */
 #define task_saddle_ TASK_SADDLE
 #define task_freq_ TASK_FREQ
 #define task_hessian_ TASK_HESSIAN
-#define util_sgstart2_ UTIL_SGSTART2
+#define util_sggo_ UTIL_SGGO
 #define util_sgend_ UTIL_SGEND
 #endif
 
@@ -45,7 +45,7 @@ extern Integer FATR task_coulomb_ref_(const Integer *);
 extern Integer FATR task_saddle_(const Integer *);
 extern Integer FATR task_freq_(const Integer *);
 extern Integer FATR task_hessian_(const Integer *);
-extern void FATR util_sgstart2_(const Integer *, const Integer *);
+extern void FATR util_sggo_(const Integer *, const Integer *);
 extern void FATR util_sgend_(const Integer *);
 
 static PyObject *nwwrap_integers(int n, Integer a[])
@@ -852,9 +852,6 @@ static PyObject *wrap_nw_inp_from_string(PyObject *self, PyObject *args)
 ////  PGroup python routines follow //////////
 ////  If you have not done any group work, then these are global
 
-// TODO: util_sgend_ and util_sgstart2_ routines are not as good as we want
-// See util/util_sgroup.F for the problems with it, such as no subgrouping
-// and use of commons.
 static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
 {
    ///  This routines splits the current group up into subgroups
@@ -869,7 +866,7 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
    num_groups = input;
 
 #ifdef USE_SUBGROUPS
-   util_sgstart2_(&num_groups,&rtdb_handle);
+   util_sggo_(&rtdb_handle,&num_groups);
    my_group = ga_pgroup_get_default_();
    return Py_BuildValue("i", my_group);
 #else
