@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.32 2007-08-06 20:30:17 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.33 2007-08-06 20:46:22 d3p852 Exp $
 
 C
       subroutine util_sgstart2(groups_want,rtdb)
@@ -45,14 +45,6 @@ c
         mygroup(depth) = 1
         ngroups(depth) = 1
         my_ga_grp(depth) = ga_pgroup_get_world()
-      end if
-C TODO: At some point this would be nice to be able to do
-      if (ga_pgroup_get_default() .ne. ga_pgroup_get_world()) then
-         write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-         write(0,*) ' ! Cannot create groups when already  !'
-         write(0,*) ' ! broken into groups                 !'
-         write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-         call errquit(' util_sgstart: failed to make groups',0,0)
       end if
       depth = depth + 1
       if (depth .gt. maxdeep) 
@@ -144,7 +136,7 @@ c
         write(luout,*) 'end of subgroups call '
       endif
       mypgroup_old = ga_pgroup_get_default()
-      call ga_pgroup_set_default(ga_pgroup_get_world())
+      call ga_pgroup_set_default(my_ga_grp(depth-1))
       ignore = ga_pgroup_destroy(mypgroup_old)
 c
 c     reopen world rtdb

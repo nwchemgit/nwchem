@@ -1,4 +1,4 @@
-C$Id: util_sgroup.fh,v 1.13 2007-08-06 20:20:55 d3p852 Exp $
+C$Id: util_sgroup.fh,v 1.14 2007-08-06 20:46:23 d3p852 Exp $
 
 C      Parameters
        integer maxgroups,maxcpus,maxdeep
@@ -16,6 +16,6 @@ C      DATA
        integer depth                     ! How deep am I
 
 C      That are all in common
-       common /sgroup/ ngroups, mygroup,luout_0, sgprint,depth
+       common /sgroup/ ngroups,mygroup,my_ga_grp,depth,luout_0,sgprint
        common /sgroupchr/rtdb_fname
 
