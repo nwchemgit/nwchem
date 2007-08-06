@@ -1,4 +1,4 @@
-C$Id: util_sgroup.fh,v 1.12 2007-08-06 20:01:21 d3p852 Exp $
+C$Id: util_sgroup.fh,v 1.13 2007-08-06 20:20:55 d3p852 Exp $
 
 C      Parameters
        integer maxgroups,maxcpus,maxdeep
@@ -8,6 +8,7 @@ C      Parameters
 
 C      DATA
        integer mygroup(0:maxdeep)        ! NOT the same as the GA group number
+       integer my_ga_grp(0:maxdeep)      ! My GA Group number
        integer ngroups(0:maxdeep)        ! number of groups, at this level
        integer luout_0(maxdeep)          ! save luout from next higher level
        logical sgprint                   ! debug printout?

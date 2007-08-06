@@ -1,16 +1,6 @@
-C$Id: util_sgroup.F,v 1.30 2007-08-06 20:07:01 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.31 2007-08-06 20:20:55 d3p852 Exp $
 
 C
-C TODO:  Need to be able to subdivide existing groups
-C TODO:  Need to reset the number of groups in sgend
-C TODO:  Need to clean up  references to world
-C        Right now, if you have python generate groups and then have
-C          a method that uses groups, you are hosed, and very strange
-C          things will happen (hopefully you with crash).
-C WARNING:  mygroup is NOT the GA group, but rather a 1 to N
-C           numbering scheme.
-C
-
       subroutine util_sgstart2(groups_want,rtdb)
 C     This is a python interface routine
       implicit none
@@ -54,6 +44,7 @@ c
         depth = 0;
         mygroup(depth) = 1
         ngroups(depth) = 1
+        my_ga_grp(depth) = ga_pgroup_get_world()
       end if
 C TODO: At some point this would be nice to be able to do
       if (ga_pgroup_get_default() .ne. ga_pgroup_get_world()) then
@@ -282,9 +273,9 @@ c make each smp node into a group
 C Set the group
 
       mygroup(depth)=inode+1
-      write(0,'(I4,A,I4)')ga_nodeid(),' joining group',
-     *             grouplist(mygroup(depth))
-      call ga_pgroup_set_default(grouplist(mygroup(depth)))
+      my_ga_grp(depth) = grouplist(mygroup(depth))
+      write(0,'(I4,A,I4)')ga_nodeid(),' joining group', my_ga_grp(depth)
+      call ga_pgroup_set_default(my_ga_grp(depth))
 
       return
       end
@@ -325,7 +316,8 @@ C and stores this information in mygroup(depth).
       enddo
 
       ngroups(depth) = group_counter - 1
-      call ga_pgroup_set_default(grouplist(mygroup(depth)))
+      my_ga_grp(depth) = grouplist(mygroup(depth))
+      call ga_pgroup_set_default(my_ga_grp(depth))
 
       write (6,*) 'me=',ga_nodeid(),' is the part of subgroup=',
      *            mygroup(depth)
@@ -367,7 +359,8 @@ c assign each proc to individual group, then create individual group
       enddo
 
 c set default individual group
-      call ga_pgroup_set_default(grouplist(mygroup(depth)))
+      my_ga_grp(depth) = grouplist(mygroup(depth))
+      call ga_pgroup_set_default(my_ga_grp(depth))
 
       meafter=ga_nodeid()
       
