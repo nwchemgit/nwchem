@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.37 2007-08-07 19:27:36 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.38 2007-08-07 19:35:03 d3p852 Exp $
 
 C###############################################################################
       logical function util_sgstart(rtdb)
@@ -99,6 +99,7 @@ c
       luout_0(depth)=luout
       if(myproc.eq.0.and.sgprint) then
         write(6,*) 'everyone should have an open file at this point'
+        call flush(6)
       endif
       return
       end
@@ -167,6 +168,7 @@ c
 
       if(myproc.eq.0.and.sgprint) then
         write(luout,*) 'util_sgrtdb start'
+        call flush(luout)
       endif
 c
 c     do a copy of rtdb to permanent_dir for each group
@@ -217,7 +219,7 @@ c          most likely cause of error: permdir not available on this node
         if (.not. status) then
           write (0,*) 'copy failed'
           call errquit('util_sgrtdb: problem with system call', 0, 0)
-        else if (sgprint)
+        else if (sgprint) then
           write(6,*) ' rtdb copied ', ga_pgroup_get_default()
           call flush(6)
         endif
