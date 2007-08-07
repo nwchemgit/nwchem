@@ -1,19 +1,19 @@
-C$Id: util_sgroup.fh,v 1.14 2007-08-06 20:46:23 d3p852 Exp $
+C$Id: util_sgroup.fh,v 1.15 2007-08-07 19:27:36 d3p852 Exp $
 
 C      Parameters
        integer maxgroups,maxcpus,maxdeep
-       parameter(maxgroups=512)          ! Maximum number of groups
-       parameter(maxcpus=2048)           ! Maximum number of CPU's in a group
-       parameter(maxdeep=512)            ! Maximum depth of groups
+       parameter(maxgroups=512)          ! Max number of groups at each level
+       parameter(maxcpus=2048)           ! Max number of CPU's in a group
+       parameter(maxdeep=512)            ! Max depth of groups
 
 C      DATA
-       integer mygroup(0:maxdeep)        ! NOT the same as the GA group number
-       integer my_ga_grp(0:maxdeep)      ! My GA Group number
-       integer ngroups(0:maxdeep)        ! number of groups, at this level
-       integer luout_0(maxdeep)          ! save luout from next higher level
-       logical sgprint                   ! debug printout?
-       character*256 rtdb_fname(maxdeep) ! Runtime database name at this level
-       integer depth                     ! How deep am I
+       integer mygroup(0:maxdeep)          ! NOT the same as the GA group number
+       integer my_ga_grp(0:maxdeep)        ! My GA Group number
+       integer ngroups(0:maxdeep)          ! number of groups, at this level
+       integer luout_0(maxdeep)            ! save luout from next higher level
+       logical sgprint                     ! debug printout?
+       character*256 rtdb_fname(0:maxdeep) ! Runtime database name at this level
+       integer depth                       ! How deep am I
 
 C      That are all in common
        common /sgroup/ ngroups,mygroup,my_ga_grp,depth,luout_0,sgprint

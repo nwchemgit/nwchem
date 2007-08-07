@@ -1,7 +1,6 @@
-C$Id: util_sgroup.F,v 1.36 2007-08-06 23:21:42 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.37 2007-08-07 19:27:36 d3p852 Exp $
 
-C TODO: fix rtdb naming
-C
+C###############################################################################
       logical function util_sgstart(rtdb)
       implicit none
 #include "mafdecls.fh"
@@ -19,7 +18,7 @@ c
       util_sgstart=.true.
       return
       end
-
+C###############################################################################
       subroutine util_sggo(rtdb,groups_want)
       implicit none
 #include "stdio.fh"
@@ -33,7 +32,6 @@ c
 c
       integer nprocs, nsize, midproc
       integer i,errout
-      character*256 grtdbname
       logical lstatus
 
 C strings for fname definition
@@ -46,7 +44,25 @@ c
         mygroup(depth) = 1
         ngroups(depth) = 1
         my_ga_grp(depth) = ga_pgroup_get_world()
+c       preliminary rtdb cloning
+C       Work around the 36 char cutoff for fname
+        if (.not. rtdb_getfname(rtdb, rtdb_fname(depth))) call
+     *     errquit('rtdb_fname call failed',0,0)
+        write(permdir,'(256(a))') (' ', i=1,256)
+        write(fprefix,'(256(a))') (' ', i=1,256)
+        if(.not. rtdb_cget(rtdb,'permanent_dir',1,permdir))
+     &     call errquit('rtdb get permanent_dir failed',0,0)
+        if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
+     &     call errquit('rtdb get file_prefix failed',0,0)
+        write(rtdb_fname(depth),'(a,a,a,a)')
+     &    permdir(15:inp_strlen(permdir)),
+     &    '/',
+     &    fprefix(1:inp_strlen(fprefix)),
+     &    '.db'
       end if
+      if (.not. rtdb_close(rtdb, 'keep')) call errquit(
+     *     ' failed to close rtdb for sg ',0,0)
+
       depth = depth + 1
       if (depth .gt. maxdeep) 
      *     call errquit('depth is greater than maxdeep',0,0)
@@ -55,28 +71,6 @@ c
       nproc=ga_nnodes()
       sgprint = util_print('sgroup info', print_debug)
       ngroups(depth) = groups_want
-
-c
-c     preliminary rtdb cloning
-c
-C  Trying to fix the 36 char cutoff for fname
-      if (.not. rtdb_getfname(rtdb, rtdb_fname(depth))) call 
-     *     errquit('rtdb_fname call failed',0,0)
-C  Added to overcome 36 character limit
-      write(permdir,'(256(a))') (' ', i=1,256)
-      write(fprefix,'(256(a))') (' ', i=1,256)
-      if(.not. rtdb_cget(rtdb,'permanent_dir',1,permdir))
-     &     call errquit('rtdb get permanent_dir failed',0,0)
-      if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
-     &     call errquit('rtdb get file_prefix failed',0,0)
-      write(rtdb_fname(depth),'(a,a,a,a)')
-     &  permdir(15:inp_strlen(permdir)),
-     &  '/',
-     &  fprefix(1:inp_strlen(fprefix)),
-     &  '.db'
-C  End of Added fix
-      if (.not. rtdb_close(rtdb, 'keep')) call errquit(
-     *     ' failed to close rtdb for sg ',0,0)
 c
 c    Create groups
 c   
@@ -88,13 +82,13 @@ c initialize sub groups using one general method
 C     call util_sginit_smp()
 C     call util_sginit_irreg(cpusperg_array)
 
-      call util_sgrtdb(rtdb,rtdb_fname(depth),grtdbname)
-      if (.not. rtdb_open(grtdbname, 'old', rtdb)) call errquit
+      call util_sgrtdb(rtdb,rtdb_fname(depth-1),rtdb_fname(depth))
+      if (.not. rtdb_open(rtdb_fname(depth), 'old', rtdb)) call errquit
      *     (' rtdb_open old failed ',0,0)
 
       if(myproc.eq.0.and.sgprint) then
         write(6,*) ga_nodeid(),' of group',mygroup(depth),'rtdbname '
-     *           ,grtdbname, ' rtdb=',rtdb
+     *           ,rtdb_fname(depth), ' rtdb=',rtdb
       endif
 c
 c     Create movecs for each subgroup
@@ -108,7 +102,7 @@ c
       endif
       return
       end
-
+C###############################################################################
       subroutine util_sgend(rtdb)
       implicit none
 #include "stdio.fh"
@@ -118,11 +112,19 @@ c
       integer rtdb,myproc
       logical ignore
       integer mypgroup_old
-c
+
+      mypgroup_old = ga_pgroup_get_default()
+      myproc=ga_nodeid()
+      if (mypgroup_old .eq. ga_pgroup_get_world()) then
+        write(0,*) ' Node ',myproc,' tried to close world group '
+        return
+      endif
       myproc=ga_nodeid()
       if(myproc.eq.0.and.sgprint) then
         write(0,*) ' deleting cloned rtdb '
       endif
+C     Make sure all nodes are done using RTDB file
+      call ga_pgroup_sync(mypgroup_old)
       if (.not. rtdb_close(rtdb, 'delete'))call errquit
      $        (' sgend: rtdb_close and delete failed ',0,0)
       if(mygroup(depth).ne.1) then
@@ -130,39 +132,35 @@ c
       endif
       luout=luout_0(depth)
       if(myproc.eq.0) then
-        write(luout,*) 'end of subgroups call '
+        write(luout,*) 'Closing subgroup '
       endif
-      mypgroup_old = ga_pgroup_get_default()
+      if (sgprint) call flush(luout)
       call ga_pgroup_set_default(my_ga_grp(depth-1))
       ignore = ga_pgroup_destroy(mypgroup_old)
 c
-c     reopen world rtdb
+c     reopen higher up rtdb
 c
+      depth = depth - 1
       if (.not. rtdb_open(rtdb_fname(depth), 'old', rtdb))
      $     call errquit('sgend: rtdb_open old failed ', 0, 0)
-      
-      depth = depth - 1
 
       return
       end
 
-
-      subroutine util_sgrtdb(rtdb,rtdbname,grtdbname)
+C###############################################################################
+      subroutine util_sgrtdb(rtdb,name_in,name_out)
       implicit none
       integer rtdb
-      character*(*) rtdbname,grtdbname
+      character*256 name_in,name_out
 #include "stdio.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util_sgroup.fh"
-      integer ii
+      integer ii, iend, ibegin
       logical ortdbstate,ortdbstate2,status
-      character*256 scratchrtdb
-      character*10 pname
-      integer util_system
-      external util_system
-      external util_file_copy
+      character*256 grouprtdb
+      character*256 groupname
       integer myproc
 c
       myproc=ga_nodeid()
@@ -171,37 +169,40 @@ c
         write(luout,*) 'util_sgrtdb start'
       endif
 c
-c     do a copy of rtdb to scratch_dir for each SMP node
+c     do a copy of rtdb to permanent_dir for each group
 c
-      write(pname,333) mygroup(depth)
- 333     format('sg_db.',i4.4)
+      ibegin = 1
+      iend   = ibegin + (6-1)
+      write(groupname(ibegin:iend),'(6A)') 'sg_db.'
+      do ii=1,depth
+        ibegin = iend + 1
+        iend   = ibegin + (4-1)
+C       9999 is largest 4 digit number, and 256 is just plain long (used above)
+C       Of course a long group name will most likely fail long before
+C       it gets to that long - other limitations on file name length exist
+        if (iend .gt. 256 .or. mygroup(ii) .gt. 9999)
+     *    call errquit(' util_sgrtdb: groups too deep',0,0)
+        write(groupname(ibegin:iend),'(i4.4)') mygroup(ii)
+      end do
 
-      call util_file_name(pname, .true., .false., scratchrtdb)
-c
-c     assuming we are already in subgroups ...
-c     am I proc 0 of a subgroup ?
-c
-      if(myproc.eq.0.and.sgprint) then
-         write(0,*)'Entering util_sgrtdb if(node 0)',ga_nodeid(),
-     &   ga_pgroup_get_default()
-      endif
+      call util_file_name(groupname(1:iend),.false.,.false.,grouprtdb)
       call flush(0)
-      if(ga_nodeid().eq.0) then
-c
-c     test if world rtdb is around
-c
-        if(myproc.eq.0.and.sgprint) then
+C     Do not want to have other nodes to be using old RTDB file anymore
+      call ga_pgroup_sync(ga_pgroup_get_default())
+C
+C     Node 0 of the group now copies the original RTDB to a group specific one
+C
+      if (myproc .eq. 0) then
+        if(sgprint) then
            write(6,*)'world rtdbname is ',
-     &       rtdbname(1:inp_strlen(rtdbname))
+     &       name_in(1:inp_strlen(name_in))
            write(6,*)'group rtdbname is ',
-     &       scratchrtdb(1:inp_strlen(scratchrtdb))
+     &       grouprtdb(1:inp_strlen(grouprtdb))
+           call flush(6)
         endif
-        inquire(file=rtdbname(1:inp_strlen(rtdbname)),exist=status)
+        inquire(file=name_in(1:inp_strlen(name_in)),exist=status)
         if(.not.status) then
-c
-c     most likely cause of error: permdir not available on 
-c     this node
-c
+c          most likely cause of error: permdir not available on this node
            write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
            write(0,*) ' ! please change permanent_dir to a   !'
            write(0,*) ' ! filesystem available to all the    !'
@@ -209,28 +210,24 @@ c
            write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
            call errquit(' util_sgrtdb: failed to open rtdb',0,0)
         endif
-        call util_file_copy(rtdbname(1:inp_strlen(rtdbname)),
-     &        scratchrtdb(1:inp_strlen(scratchrtdb)))
-C  Trying to remove system call (Crashes MVAPICH)
-        if(myproc.eq.0.and.sgprint) then
-            write (0,*)'rtdb copied',ga_nodeid(),ga_pgroup_get_default()
-        endif
-        inquire(file=scratchrtdb(1:inp_strlen(scratchrtdb)),
+        call util_file_copy(name_in(1:inp_strlen(name_in)),
+     &        grouprtdb(1:inp_strlen(grouprtdb)))
+        inquire(file=grouprtdb(1:inp_strlen(grouprtdb)),
      &          exist=status)
-        if (status) then
-          if(myproc.eq.0.and.sgprint) then
-            Write (0,*)'copy OK'
-          endif
-        else
-          Write (0,*) 'copy failed'
+        if (.not. status) then
+          write (0,*) 'copy failed'
           call errquit('util_sgrtdb: problem with system call', 0, 0)
+        else if (sgprint)
+          write(6,*) ' rtdb copied ', ga_pgroup_get_default()
+          call flush(6)
         endif
       endif
-      grtdbname=scratchrtdb
-      if(myproc.eq.0) print*,'rtdb copied'
+      name_out=grouprtdb
+C     Do not want to have other nodes using new RTDB before it exists
+      call ga_pgroup_sync(ga_pgroup_get_default())
       return
       end
-
+C###############################################################################
       subroutine util_sginit_smp()
       implicit none
 c
@@ -270,7 +267,7 @@ C Set the group
 
       return
       end
-
+C###############################################################################
       subroutine util_sginit_irreg(cpusperg_array)
       implicit none
 c
@@ -319,7 +316,7 @@ C and stores this information in mygroup(depth).
 
       return
       end
-
+C###############################################################################
       subroutine util_sginit()
       implicit none
 #include "global.fh"
@@ -334,7 +331,11 @@ c  on either smp or cluster of smp, ga_nnodes is consistent value,
 c  so ga_nnodes as starting base
       nproc = ga_nnodes()
       myproc = ga_nodeid()
-
+C     Can't create that many groups
+      if (nproc .lt. ngroups(depth)) then 
+         if(myproc .eq. 0) write(*,*) ' Will only create group of',nproc
+         ngroups(depth) = nproc
+      endif
 c split number of procs into groups, starting group index:0
       nchunkq=nproc/ngroups(depth)
       nremainq=mod(nproc,ngroups(depth))
@@ -380,7 +381,7 @@ c set default individual group
      * meafter,mygroup(depth),my_ga_grp(depth)
       return
       end
-c
+C###############################################################################
       subroutine util_sgmovecs(rtdb)
       implicit none
       integer rtdb
@@ -395,9 +396,7 @@ c
       integer myproc
 c
 c Tested only for the case when movecs are created
-c
-
-c
+C
 c Read movecs filename with path
 c
       myproc=ga_nodeid()
@@ -409,6 +408,7 @@ c
      $     call util_file_name('movecs',.true.,.false.,movecs_in)
 c
 c Create movecs.mygroup(depth)
+C This just keeps appending to the end
 c
       call util_pname0(movecs_in,sg_movecs_out,mygroup(depth),
      *     ngroups(depth))
@@ -437,13 +437,14 @@ c
       end
 
 c     Hokey functions to keep others away from my common blocks
-
+C###############################################################################
       integer function util_sgroup_mygroup()
 #include "util_sgroup.fh"
       util_sgroup_mygroup = mygroup(depth)
       end
+C###############################################################################
       integer function util_sgroup_numgroups()
 #include "util_sgroup.fh"
       util_sgroup_numgroups = ngroups(depth)
       end
-
+C###############################################################################
