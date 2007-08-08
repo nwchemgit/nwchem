@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.37 2007-08-06 23:21:42 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.38 2007-08-08 16:33:02 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -33,6 +33,8 @@ static Integer rtdb_handle;            /* handle to the rtdb */
 #define task_hessian_ TASK_HESSIAN
 #define util_sggo_ UTIL_SGGO
 #define util_sgend_ UTIL_SGEND
+#define util_sgroup_numgroups_ UTIL_SGROUP_NUMGROUPS
+#define util_sgroup_mygroup_ UTIL_SGROUP_MYGROUP
 #endif
 
 extern int nw_inp_from_string(int, const char *);
@@ -47,6 +49,8 @@ extern Integer FATR task_freq_(const Integer *);
 extern Integer FATR task_hessian_(const Integer *);
 extern void FATR util_sggo_(const Integer *, const Integer *);
 extern void FATR util_sgend_(const Integer *);
+extern Integer FATR util_sgroup_numgroups_(void);
+extern Integer FATR util_sgroup_mygroup_(void);
 
 static PyObject *nwwrap_integers(int n, Integer a[])
 {
@@ -118,8 +122,7 @@ static PyObject *nwwrap_strings(int n, char *a[])
 }
 
 
-static PyObject *
-wrap_rtdb_open(PyObject *self, PyObject *args)
+static PyObject *wrap_rtdb_open(PyObject *self, PyObject *args)
 {
    const char *filename, *mode;
    int inthandle;
@@ -852,12 +855,22 @@ static PyObject *wrap_nw_inp_from_string(PyObject *self, PyObject *args)
 ////  PGroup python routines follow //////////
 ////  If you have not done any group work, then these are global
 
+/** TODO: 
+Allow array of numbers to define the group
+Allow array of arrays to define what nodes go where in the group
+**/
 static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
 {
    ///  This routines splits the current group up into subgroups
-   int my_group;
    Integer num_groups;
    int input;
+   PyObject *returnObj;
+   // Things returned as a tuple of five items
+   Integer mygroup ; // My group number (they are 1 to ngroups)
+   Integer ngroups ; // Number of groups at this level
+   int nodeid ;      // Node ID in this group (they are 0 to nnodes-1)
+   int nnodes ;      // Number of nodes in this group
+   Integer my_ga_group ; // The Global Arrays group ID - useful for debug only at this time
 
    if (!PyArg_Parse(args, "i", &input)) {
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_create(integer)");
@@ -867,8 +880,22 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
 
 #ifdef USE_SUBGROUPS
    util_sggo_(&rtdb_handle,&num_groups);
-   my_group = ga_pgroup_get_default_();
-   return Py_BuildValue("i", my_group);
+   if (!(returnObj = PyTuple_New(5))) {
+       PyErr_SetString(NwchemError, "do_pgroup_create failed with pyobj");
+       return NULL;
+   }
+   my_ga_group = ga_pgroup_get_default_() ;
+   nnodes = ga_pgroup_nnodes_(&my_ga_group);
+   nodeid = ga_pgroup_nodeid_(&my_ga_group);
+   ngroups = util_sgroup_numgroups_() ;
+   mygroup = util_sgroup_mygroup_() ;
+
+   PyTuple_SET_ITEM(returnObj, 0, PyInt_FromLong((long) mygroup ));
+   PyTuple_SET_ITEM(returnObj, 1, PyInt_FromLong((long) ngroups));
+   PyTuple_SET_ITEM(returnObj, 2, PyInt_FromLong((long) nodeid));
+   PyTuple_SET_ITEM(returnObj, 3, PyInt_FromLong((long) nnodes));
+   PyTuple_SET_ITEM(returnObj, 4, PyInt_FromLong((long) my_ga_group));
+   return returnObj ;
 #else
    PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
    return NULL;
@@ -879,16 +906,35 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
 static PyObject *do_pgroup_destroy(PyObject *self, PyObject *args)
 {
    /// This merges the subgroups back into their former bigger group
-   int my_group;
+   PyObject *returnObj;
+   // Things returned as a tuple of five items
+   Integer mygroup ; // My group number (they are 1 to ngroups)
+   Integer ngroups ; // Number of groups at this level
+   int nodeid ;      // Node ID in this group (they are 0 to nnodes-1)
+   int nnodes ;      // Number of nodes in this group
+   Integer my_ga_group ; // The Global Arrays group ID - useful for debug only at this time
    if (args) {
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_destroy()");
       return NULL;
    }
-
 #ifdef USE_SUBGROUPS
    util_sgend_(&rtdb_handle);
-   my_group = ga_pgroup_get_default_();
-   return Py_BuildValue("i", my_group);
+   my_ga_group = ga_pgroup_get_default_() ;
+   nnodes = ga_pgroup_nnodes_(&my_ga_group);
+   nodeid = ga_pgroup_nodeid_(&my_ga_group);
+   ngroups = util_sgroup_numgroups_() ;
+   mygroup = util_sgroup_mygroup_() ;
+
+   if (!(returnObj = PyTuple_New(5))) {
+       PyErr_SetString(NwchemError, "do_pgroup_destroy failed with pyobj");
+       return NULL;
+   }
+   PyTuple_SET_ITEM(returnObj, 0, PyInt_FromLong((long) mygroup ));
+   PyTuple_SET_ITEM(returnObj, 1, PyInt_FromLong((long) ngroups));
+   PyTuple_SET_ITEM(returnObj, 2, PyInt_FromLong((long) nodeid));
+   PyTuple_SET_ITEM(returnObj, 3, PyInt_FromLong((long) nnodes));
+   PyTuple_SET_ITEM(returnObj, 4, PyInt_FromLong((long) my_ga_group));
+   return returnObj ;
 #else
    PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
    return NULL;
@@ -1170,15 +1216,13 @@ static PyObject *do_pgroup_broadcast_all(PyObject *self, PyObject *args)
    return returnObj ;
 }
 
-
-
-static PyObject *do_pgroup_size(PyObject *self, PyObject *args)
+static PyObject *do_pgroup_nnodes(PyObject *self, PyObject *args)
 {
    /// Returns the number of nodes in a group
    Integer my_group = ga_pgroup_get_default_() ;
    int nnodes = ga_pgroup_nnodes_(&my_group);
    if (args) {
-      PyErr_SetString(PyExc_TypeError, "Usage: pgroup_size()");
+      PyErr_SetString(PyExc_TypeError, "Usage: pgroup_nnodes()");
       return NULL;
    }
    return Py_BuildValue("i", nnodes);
@@ -1198,9 +1242,55 @@ static PyObject *do_pgroup_nodeid(PyObject *self, PyObject *args)
    return Py_BuildValue("i", nodeid);
 }
 
+static PyObject *do_pgroup_ngroups(PyObject *self, PyObject *args)
+{
+   /// Returns the number of groups at the current groups level
+#ifdef USE_SUBGROUPS
+   Integer ngroups = util_sgroup_numgroups_() ;
+   if (args) {
+      PyErr_SetString(PyExc_TypeError, "Usage: pgroup_ngroups()");
+      return NULL;
+   }
+   return Py_BuildValue("i", ngroups);
+#else
+   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
+   return NULL;
+#endif
+}
+
+static PyObject *do_pgroup_groupid(PyObject *self, PyObject *args)
+{
+   /// Returns the ID of group at the current groups level 
+#ifdef USE_SUBGROUPS
+   Integer mygroup = util_sgroup_mygroup_() ;
+   if (args) {
+      PyErr_SetString(PyExc_TypeError, "Usage: pgroup_groupid()");
+      return NULL;
+   }
+   return Py_BuildValue("i", mygroup);
+#else
+   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
+   return NULL;
+#endif
+}
+
+static PyObject *do_ga_groupid(PyObject *self, PyObject *args)
+{
+   /// The returns the GA group ID
+   Integer my_group = ga_pgroup_get_default_() ;
+   if (args) {
+      PyErr_SetString(PyExc_TypeError, "Usage: ga_groupid()");
+      return NULL;
+   }  
+   return Py_BuildValue("i", my_group);
+}  
+
+
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
+
+
 
 
 static struct PyMethodDef nwchem_methods[] = {
@@ -1223,17 +1313,20 @@ static struct PyMethodDef nwchem_methods[] = {
    {"task_coulomb",    wrap_task_coulomb, 0}, 
    {"task_coulomb_ref",    wrap_task_coulomb_ref, 0}, 
    {"input_parse",     wrap_nw_inp_from_string, 0}, 
-   {"ga_nodeid",       do_pgroup_nodeid, 0},  // This is the same as do_pgroup_nodeid
+   {"ga_nodeid",       do_pgroup_nodeid, 0},  // This is the same as pgroup_nodeid
+   {"ga_groupid",      do_ga_groupid, 0},    // This is NOT the same as pgroup_groupid
    {"pgroup_create",   do_pgroup_create, 0},
    {"pgroup_destroy",  do_pgroup_destroy, 0},
    {"pgroup_sync",     do_pgroup_sync, 0},
    {"pgroup_global_op",do_pgroup_global_op, 0},
    {"pgroup_broadcast",do_pgroup_broadcast, 0},
-   {"pgroup_size",     do_pgroup_size, 0},
-   {"pgroup_nodeid",   do_pgroup_nodeid,0},
    {"pgroup_sync_all",     do_pgroup_sync_all, 0},
    {"pgroup_global_op_all",do_pgroup_global_op_all, 0},
    {"pgroup_broadcast_all",do_pgroup_broadcast_all, 0},
+   {"pgroup_nnodes",   do_pgroup_nnodes, 0},
+   {"pgroup_nodeid",   do_pgroup_nodeid, 0},
+   {"pgroup_groupid",  do_pgroup_groupid, 0},
+   {"pgroup_ngroups",  do_pgroup_ngroups, 0},
    {NULL, NULL}
 };
 
