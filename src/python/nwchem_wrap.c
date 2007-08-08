@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.38 2007-08-08 16:33:02 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.39 2007-08-08 21:52:39 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -47,7 +47,7 @@ extern Integer FATR task_coulomb_ref_(const Integer *);
 extern Integer FATR task_saddle_(const Integer *);
 extern Integer FATR task_freq_(const Integer *);
 extern Integer FATR task_hessian_(const Integer *);
-extern void FATR util_sggo_(const Integer *, const Integer *);
+extern void FATR util_sggo_(const Integer *, const Integer *, const Integer *, const Integer*);
 extern void FATR util_sgend_(const Integer *);
 extern Integer FATR util_sgroup_numgroups_(void);
 extern Integer FATR util_sgroup_mygroup_(void);
@@ -855,16 +855,15 @@ static PyObject *wrap_nw_inp_from_string(PyObject *self, PyObject *args)
 ////  PGroup python routines follow //////////
 ////  If you have not done any group work, then these are global
 
-/** TODO: 
-Allow array of numbers to define the group
-Allow array of arrays to define what nodes go where in the group
-**/
 static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
 {
    ///  This routines splits the current group up into subgroups
    Integer num_groups;
+   Integer method;
    int input;
    PyObject *returnObj;
+   PyObject *obj, *obj2;
+   int i,j,k,size ;
    // Things returned as a tuple of five items
    Integer mygroup ; // My group number (they are 1 to ngroups)
    Integer ngroups ; // Number of groups at this level
@@ -872,14 +871,75 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
    int nnodes ;      // Number of nodes in this group
    Integer my_ga_group ; // The Global Arrays group ID - useful for debug only at this time
 
-   if (!PyArg_Parse(args, "i", &input)) {
-      PyErr_SetString(PyExc_TypeError, "Usage: pgroup_create(integer)");
-      return NULL;
+   if (PyArg_Parse(args, "i", &input)) { // Single integer of number of groups
+      num_groups = input;
+      method = 1 ;
+   } else {
+      size = PyTuple_Size(args);
+      if (size < 1) { // Not a tuple
+        PyErr_SetString(PyExc_TypeError, " pgroup_create() input error 1");
+        return NULL;
+      }
+      obj = PyTuple_GetItem(args, 0);
+      size = PyTuple_Size(obj);
+      if (size < 1) { // not a tuple of tuples
+        method = 3 ; // List of group sizes
+      } else { // tuple of tuples
+        method = 4 ; // List of nodes in groups
+      }
    }
-   num_groups = input;
-
 #ifdef USE_SUBGROUPS
-   util_sggo_(&rtdb_handle,&num_groups);
+   if (method == 1) {
+      util_sggo_(&rtdb_handle,&num_groups,&method,NULL);
+   } else if (method == 3) {
+      Integer *node_list ;
+      num_groups = PyTuple_Size(args);
+      if (!(node_list = malloc(MA_sizeof(MT_F_INT, num_groups, MT_CHAR)))) {
+         PyErr_SetString(PyExc_MemoryError, "pgroup_create() failed allocating array");
+         return NULL;
+      } 
+      for (i = 0; i < num_groups; i++ ) {
+         obj = PyTuple_GetItem(args, i);
+         if(!PyArg_Parse(obj, "i", &input)) {
+            PyErr_SetString(PyExc_TypeError, " pgroup_create() input error 2");
+            return NULL;
+         }
+         node_list[i] = (Integer) input ;
+      }
+      util_sggo_(&rtdb_handle,&num_groups,&method, node_list); 
+      free(node_list);
+   } else if (method == 4) {
+      Integer *node_list ;
+      num_groups = PyTuple_Size(args);
+      my_ga_group = ga_pgroup_get_default_() ;
+      nnodes = ga_pgroup_nnodes_(&my_ga_group);
+      if (!(node_list = malloc(MA_sizeof(MT_F_INT, num_groups+nnodes, MT_CHAR)))) {
+         PyErr_SetString(PyExc_MemoryError, "pgroup_create() failed allocating array");
+         return NULL;
+      } 
+      k = -1 ;
+      for (i = 0; i < num_groups; i++ ) {
+         obj = PyTuple_GetItem(args, i);
+         size = PyTuple_Size(obj);
+         k++;
+         node_list[k] = size ;
+         if (size < 1) {  // Not a tuple
+           PyErr_SetString(PyExc_TypeError, " pgroup_create() input error 3");
+           return NULL;
+         }
+         for (j = 0; j< size ; j++) {
+           obj2 = PyTuple_GetItem(obj,j);
+           if(!PyArg_Parse(obj2, "i", &input)) {
+              PyErr_SetString(PyExc_TypeError, " pgroup_create() input error 4");
+              return NULL;
+           }
+           k++;
+           node_list[k] = (Integer) input ;
+        }
+      }
+      util_sggo_(&rtdb_handle,&num_groups,&method, node_list);
+      free(node_list);
+   }
    if (!(returnObj = PyTuple_New(5))) {
        PyErr_SetString(NwchemError, "do_pgroup_create failed with pyobj");
        return NULL;

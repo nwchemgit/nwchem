@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.38 2007-08-07 19:35:03 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.39 2007-08-08 21:52:16 d3p852 Exp $
 
 C###############################################################################
       logical function util_sgstart(rtdb)
@@ -7,19 +7,22 @@ C###############################################################################
 #include "rtdb.fh"
       integer rtdb
       integer groups_want
+      integer dum(1)
+      integer method
 c
 c Read number of subgroups from input
 c
       if (.not.rtdb_get(rtdb, 'subgroups_number', mt_int, 1,
      &   groups_want))groups_want=1
 
-      call util_sggo(rtdb,groups_want)
+      method = 1
+      call util_sggo(rtdb,groups_want,method,dum)
 
       util_sgstart=.true.
       return
       end
 C###############################################################################
-      subroutine util_sggo(rtdb,groups_want)
+      subroutine util_sggo(rtdb,groups_want,method,array_cpu)
       implicit none
 #include "stdio.fh"
 #include "global.fh"
@@ -28,10 +31,22 @@ C###############################################################################
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "util.fh"
-      integer rtdb, groups_want
+c
+c Input
+c
+      integer rtdb, groups_want, method, array_cpu(*)
+c
+c     rtdb is the runtime database file
+c
+c     method is:
+c     1 -- use groups_want to generate equal sized groups (array_cpu ignored)
+c     2 -- turn each SMP box into a group (array_cpu and groups_want ignored)
+c     3 -- use array_cpu(groups_want) to define number of nodes per group
+c     4 -- use array_cpu(groups_want+nnodes) to define which nodes per group
 c
       integer nprocs, nsize, midproc
       integer i,errout
+      integer meinworld, meafter
       logical lstatus
 
 C strings for fname definition
@@ -40,7 +55,7 @@ C strings for fname definition
       integer myproc,nproc
 c
       if (ga_pgroup_get_default() .eq. ga_pgroup_get_world()) then
-        depth = 0;
+        depth = 0
         mygroup(depth) = 1
         ngroups(depth) = 1
         my_ga_grp(depth) = ga_pgroup_get_world()
@@ -70,17 +85,38 @@ C       Work around the 36 char cutoff for fname
       myproc=ga_nodeid()
       nproc=ga_nnodes()
       sgprint = util_print('sgroup info', print_debug)
-      ngroups(depth) = groups_want
 c
 c    Create groups
 c   
       if(myproc.eq.0) write(luout,*) 'Creating groups'
 
-c initialize sub groups using one general method
+c initialize sub groups using a method
 
-      call util_sginit()
-C     call util_sginit_smp()
-C     call util_sginit_irreg(cpusperg_array)
+      if (method .eq. 1) then
+        call util_sginit(groups_want)
+      else if (method .eq. 2) then
+        call util_sginit_smp()
+      else if (method .eq. 3) then
+        call util_sginit_irreg(array_cpu,groups_want)
+      else if (method .eq. 4) then
+        call util_sginit_power(array_cpu,groups_want+nproc)
+      else
+        call errquit('util_sggo: bad method',0,0)
+      endif
+
+      if (sgprint .or. .true.) then  ! Still working on code so .true.
+        meafter=ga_nodeid()
+        meinworld = ga_pgroup_nodeid(ga_pgroup_get_world())
+        write(*,
+     *   "(' proc ',I4,' was (',
+     *       I4,' ',I4,' ',I4,
+     *       ') now is (',
+     *       I4,' ',I4,' ',I4,
+     *       ')')")
+     *   meinworld,
+     *   myproc,mygroup(depth-1),my_ga_grp(depth-1),
+     *   meafter,mygroup(depth),my_ga_grp(depth)
+       endif
 
       call util_sgrtdb(rtdb,rtdb_fname(depth-1),rtdb_fname(depth))
       if (.not. rtdb_open(rtdb_fname(depth), 'old', rtdb)) call errquit
@@ -237,17 +273,16 @@ c     creates one subgroup for each smp
 c
 #include "global.fh"
 #include "util_sgroup.fh"
-      integer inode
       integer i,j,proclist(maxcpus)
-      integer grouplist(maxgroups)
+      integer grouplist
 
 c setup
-
-      inode = ga_cluster_nodeid()
+      if (depth .ne. 1) then
+        call errquit(' util_sginit_smp: bad depth',0,0)
+      endif
       ngroups(depth) = ga_cluster_nnodes()
-
-      if(ngroups(depth) .gt.maxgroups)
-     *      call errquit('increase maxgroups',0,0) 
+      mygroup(depth) = 1 + ga_cluster_nodeid()
+      my_ga_grp(depth) = -99
 
 c make each smp node into a group
 
@@ -257,99 +292,167 @@ c make each smp node into a group
      *            call errquit('increase maxcpus',0,0)
             proclist(j+1)=ga_cluster_procid(i,j)
          enddo
-         grouplist(i+1)=ga_pgroup_create(proclist,ga_cluster_nprocs(i))
+         grouplist=ga_pgroup_create(proclist,ga_cluster_nprocs(i))
+         if (j+1 .eq. mygroup(depth)) then
+            my_ga_grp(depth) = grouplist
+         endif
       enddo
 
 C Set the group
 
-      mygroup(depth)=inode+1
-      my_ga_grp(depth) = grouplist(mygroup(depth))
-      write(0,'(I4,A,I4)')ga_nodeid(),' joining group', my_ga_grp(depth)
       call ga_pgroup_set_default(my_ga_grp(depth))
 
       return
       end
 C###############################################################################
-      subroutine util_sginit_irreg(cpusperg_array)
+      subroutine util_sginit_irreg(cpusperg_array,length)
       implicit none
 c
 c     creates custom subgroups using cpusperg_array()
 c
 #include "global.fh"
 #include "util_sgroup.fh"
-      integer inode
-      integer i,j,proclist(maxcpus), myprocid,proc_counter,group_counter
-      integer grouplist(maxgroups)
-      integer cpusperg_array(maxgroups)
-c
-      inode = ga_cluster_nodeid()
+      integer nproc, myproc
+      integer i,j,proclist(maxcpus), proc_counter,group_counter
+      integer grouplist
+      integer length,cpusperg_array(length)
 
-C This code loops over processes and divides them into groups based 
-C upon cpusperg_array() and stores this information in proclist().
-C At the same time, it figures out which group the local process is in
-C and stores this information in mygroup(depth).
+c setup
+
+      nproc = ga_nnodes()
+      myproc = ga_nodeid()
+      my_ga_grp(depth) = -99
+      mygroup(depth)=-99
+      ngroups(depth)=length
+
+C verify input all at once instead of constantly in loops
+
+      proc_counter = 0
+      do i=1,length
+        if(cpusperg_array(i) .le. 0) then
+          call errquit(' util_sginit_irreg: zero cpusperg_array',0,0)
+        endif
+        if(cpusperg_array(i) .gt. maxcpus) then
+          call errquit(' util_sginit_irreg:increase maxcpus',0,0)
+        endif
+        proc_counter = proc_counter + cpusperg_array(i)
+      enddo
+      if (proc_counter .ne. nproc) then
+        call errquit(' util_sginit_irreg:bad cpusperg_array',0,0)
+      end if
+
+C make groups
       proc_counter=1
       group_counter=1
-      do i=0,ga_cluster_nnodes()-1
-         do j=0,ga_cluster_nprocs(i)-1
-           if(proc_counter .gt. maxcpus)
-     *            call errquit('increase maxcpus',0,0)
-           proclist(proc_counter)=ga_cluster_procid(i,j)
-           myprocid=ga_cluster_procid(inode,j)
-           if (proclist(proc_counter).eq.myprocid) 
-     $          mygroup(depth)=group_counter
+      do i=0,nproc-1
+           proclist(proc_counter) = i
+           if (i.eq.myproc) then
+             mygroup(depth)=group_counter
+           endif
            if (cpusperg_array(group_counter).eq.proc_counter) then
-             if(group_counter.gt.maxgroups) 
-     *                 call errquit('increase maxgroups',0,0) 
-             grouplist(i)=ga_pgroup_create(proclist,proc_counter)
+             grouplist=ga_pgroup_create(proclist,proc_counter)
+             if(mygroup(depth) .eq. group_counter) then
+               my_ga_grp(depth) = grouplist
+             endif 
              group_counter=group_counter+1
              proc_counter=0
            end if
            proc_counter=proc_counter+1
-         enddo
       enddo
 
-      ngroups(depth) = group_counter - 1
-      my_ga_grp(depth) = grouplist(mygroup(depth))
+C Set the group
+
       call ga_pgroup_set_default(my_ga_grp(depth))
-
-      write (6,*) 'me=',ga_nodeid(),' is the part of subgroup=',
-     *            mygroup(depth)
-
       return
       end
 C###############################################################################
-      subroutine util_sginit()
+      subroutine util_sginit_power(cpu_array,length)
+      implicit none
+c
+c     creates custom highly custom subgroups using cpu_array()
+c     is is of the form G1,n1,n2,n3,...,nn,G2,n1,n2,n3,...,nn,...
+c     Where the G's are the size of the groups, and the n's
+c     are the specific nodes in the groups
+c     length = nnodes + ngroups
+c
+#include "global.fh"
+#include "util_sgroup.fh"
+      integer nproc, myproc
+      integer i,j,proclist(maxcpus), proc_counter,group_counter
+      integer grouplist, pos_counter, group_size
+      integer length, cpu_array(length)
+
+c setup
+
+      nproc = ga_nnodes()
+      myproc = ga_nodeid()
+      my_ga_grp(depth) = -99
+      mygroup(depth)=-99
+      ngroups(depth)=-99
+
+C make groups
+      group_counter=0
+      pos_counter=0
+      do while (pos_counter .lt. length)
+        group_counter = group_counter + 1
+        pos_counter = pos_counter + 1
+        group_size = cpu_array(pos_counter)
+        proc_counter = 0
+        do i=1,group_size
+           pos_counter = pos_counter + 1
+           proc_counter=proc_counter+1
+           if (proc_counter .gt. maxcpus) then
+             call errquit('increase maxcpus',0,0)
+           end if
+           proclist(proc_counter) = cpu_array(pos_counter)
+           if (proclist(proc_counter) .eq. myproc) then
+             mygroup(depth)=group_counter
+           endif
+        end do
+        grouplist=ga_pgroup_create(proclist,proc_counter)
+        if(mygroup(depth) .eq. group_counter) then
+            my_ga_grp(depth) = grouplist
+        endif
+      end do
+      ngroups(depth)=group_counter
+
+C Set the group
+
+      call ga_pgroup_set_default(my_ga_grp(depth))
+      return
+      end
+
+
+C###############################################################################
+      subroutine util_sginit(groups_want)
       implicit none
 #include "global.fh"
 #include "util_sgroup.fh"
 c
 c     Create subgroups of a constant size
 c
-      integer nproc,myproc,nchunkq,nremainq,i,j,n,meafter,meinworld
-      integer num_proc,proclist(maxcpus), grouplist(maxgroups)
+      integer groups_want
+      integer nproc,myproc,nchunkq,nremainq,i,j,n
+      integer num_proc,proclist(maxcpus), grouplist
 
-c  on either smp or cluster of smp, ga_nnodes is consistent value, 
-c  so ga_nnodes as starting base
+C setup
+
+      ngroups(depth) = groups_want
       nproc = ga_nnodes()
       myproc = ga_nodeid()
-C     Can't create that many groups
+      mygroup(depth) = -99
+      my_ga_grp(depth) = -99
+
       if (nproc .lt. ngroups(depth)) then 
          if(myproc .eq. 0) write(*,*) ' Will only create group of',nproc
          ngroups(depth) = nproc
       endif
-c split number of procs into groups, starting group index:0
       nchunkq=nproc/ngroups(depth)
       nremainq=mod(nproc,ngroups(depth))
-      if (nremainq .eq. 0) then
-        if(nchunkq .gt. maxcpus)
-     *      call errquit('increase maxcpus',0,0)
-      else
-        if(nchunkq+1 .gt. maxcpus)
-     *      call errquit('increase maxcpus',0,0)
+      if ((nchunkq .gt. maxcpus) .or.
+     *     (nchunkq+1 .gt. maxcpus .and. nremainq .ne. 0)) then
+        call errquit('increase maxcpus',0,0)
       end if
-      if(ngroups(depth).gt.maxgroups)
-     *      call errquit('increase maxgroups',0,0)
 
 c for irregular distribution, make sure the lower groups have more procs
 c assign each proc to individual group, then create individual group
@@ -362,25 +465,15 @@ c assign each proc to individual group, then create individual group
             if (n .eq. myproc) mygroup(depth) = i
             n=n+1
          enddo
-         grouplist(i)=ga_pgroup_create(proclist, num_proc)
+         grouplist=ga_pgroup_create(proclist, num_proc)
+         if (mygroup(depth) .eq. i) then
+            my_ga_grp(depth) = grouplist
+         endif
       enddo
 
-c set default individual group
-      my_ga_grp(depth) = grouplist(mygroup(depth))
+c set the group
+
       call ga_pgroup_set_default(my_ga_grp(depth))
-
-      meafter=ga_nodeid()
-      meinworld = ga_pgroup_nodeid(ga_pgroup_get_world())
-
-      write(*,
-     * "(' proc ',I4,' was (',
-     *     I4,' ',I4,' ',I4,
-     *     ') now is (',
-     *     I4,' ',I4,' ',I4,
-     *     ')')")
-     * meinworld,
-     * myproc,mygroup(depth-1),my_ga_grp(depth-1),
-     * meafter,mygroup(depth),my_ga_grp(depth)
       return
       end
 C###############################################################################
