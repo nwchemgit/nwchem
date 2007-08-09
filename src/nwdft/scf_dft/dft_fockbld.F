@@ -10,7 +10,7 @@
      ,     n_levels, act_levels, oprint_time,
      ,     g_zora_sf )
 c     
-c     $Id: dft_fockbld.F,v 1.31 2007-07-10 21:45:17 niri Exp $
+c     $Id: dft_fockbld.F,v 1.32 2007-08-09 22:26:13 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -222,9 +222,12 @@ c
 
 
       if (odftps) call pstat_on(ps_xc)
-      do_zora_get_correction = .false.  ! set the zora correction flag to false
-                                        ! as the lowest level routine is shared by the 
-                                        ! exchange-correlation calculation
+
+czora...We have the correction, turn off the correction
+czora...so_term is set via a common block (zora.fh)
+czora...so_term = 0 (spin-free and the matrices are symmetric)
+      do_zora_get_correction = .false.
+      so_term = 0
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &             rdens_atom, cetobfr, natoms) 

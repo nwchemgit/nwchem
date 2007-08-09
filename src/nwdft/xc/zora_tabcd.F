@@ -1,4 +1,7 @@
-czora...TODO:needs to be cleaned up.
+czora...Build the zora contribution to the fock matrix
+czora...This is routine is analogous to the xc_tabcd routine that
+czora...contructs the exchange-correlation contribution
+czora...TODO: Clean up and more comments
 c
       subroutine zora_tabcd(what,l3d,
      ,     tol_rho, Tmat, TTmat, Amat, Bmat, Cmat, Dmat, 
@@ -7,10 +10,8 @@ c
      N     curatoms,ncuratoms,nmat,
      I     ipol, nq, nbf, max_at_bf, max_at_bf2, 
      G     GRAD, basis, natoms, iniz, ifin, 
-     &     g_vxc, ibf, rchi_atom, rdelchi_atom, 
+     &     g_zora, ibf, rchi_atom, rdelchi_atom, 
      &     rdens_atom, cetobfr,kske,Mmat,scr)
-c
-c     We're using xc_tabcd for CPKS purposes
 c
       implicit none
 #include "mafdecls.fh"
@@ -49,11 +50,10 @@ c                  ! e.g. number of perturbations for CPSCF
       double precision rdelchi_atom(natoms)
       double precision rdens_atom(natoms,natoms,ipol)
       integer cetobfr(2,natoms)
-
+c
 czora...start
-      integer g_vxc(*)
+      integer g_zora(*)
 czora...end
-
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
@@ -315,12 +315,6 @@ c
                         enddo
                         if (GRAD) then
                            do iq = 1, nq
-
-czora...
-!                              Emat(iq,inia) = Emat(iq,inia)+
-!     &                             (raa*Dmat(iq,ix2,inia)
-!     &                             -  rbb*Dmat(iq,ix1,inia))
-czora...
                                Emat(iq,inia) = 0.d0
                            enddo
                         endif
@@ -328,18 +322,9 @@ czora...
                      if (GRAD) then
                         do inia = 1, nnia
                               do iq = 1, nq
-
-czora...
-!                                 Fmat(iq,1,inia) = scr(iq)
-!     &                                * Dmat(iq,1,inia)
-!                                 Fmat(iq,2,inia) = scr(iq)
-!     &                                * Dmat(iq,2,inia)
-!                                 Fmat(iq,3,inia) = scr(iq)
-!     &                                * Dmat(iq,3,inia)
-czora...
-                                 Fmat(iq,1,inia) = 0.d0
-                                 Fmat(iq,2,inia) = 0.d0
-                                 Fmat(iq,3,inia) = 0.d0
+                               Fmat(iq,1,inia) = 0.d0
+                               Fmat(iq,2,inia) = 0.d0
+                               Fmat(iq,3,inia) = 0.d0
                            enddo
                         enddo
                      endif
@@ -429,7 +414,7 @@ c     Monitoring
                call starttimer( monitor_comm_ga_acc1)
 
                   if(l3d) then
-                     call dft_3dacc(g_vxc, ttmat,
+                     call dft_3dacc(g_zora, ttmat,
      &                    jrsh,jrsh2,
      &                 ifirst, ilast, jfirst, jlast, nbfia)
                   else
@@ -441,10 +426,10 @@ c     Monitoring
                            call endtimer( monitor_wait1)
                         endif			
                         nbfirst1=.false.
-                        call upd_atombl_nb(g_vxc(ii),
+                        call upd_atombl_nb(g_zora(ii),
      &                       basis,iat,jat,ttmat,nbhandl1)
                      else
-                        call upd_atom_block(g_vxc(ii),
+                        call upd_atom_block(g_zora(ii),
      &                       basis,iat,jat,ttmat)
 
 
@@ -491,7 +476,7 @@ c     Monitoring
                      
                      if(l3d) then
 
-                        call dft_3dacc(g_vxc, tmat,
+                        call dft_3dacc(g_zora, tmat,
      &                       jrsh,jrsh2,
      %                       jfirst, jlast, ifirst, ilast, nbfja)
                      else
@@ -501,11 +486,11 @@ c     Monitoring
                               call ga_nbwait(nbhandl2)
                            endif			
                            nbfirst2=.false.
-                           call upd_atombl_nb(g_vxc(ii),
+                           call upd_atombl_nb(g_zora(ii),
      .                          basis,jat,iat,tmat,nbhandl2)
                         else
 
-                           call upd_atom_block(g_vxc,basis,
+                           call upd_atom_block(g_zora,basis,
      J                          jat,iat,tmat)
                         endif
                      endif
