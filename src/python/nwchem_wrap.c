@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.39 2007-08-08 21:52:39 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.40 2007-08-09 17:33:30 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -871,21 +871,20 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
    int nnodes ;      // Number of nodes in this group
    Integer my_ga_group ; // The Global Arrays group ID - useful for debug only at this time
 
-   if (PyArg_Parse(args, "i", &input)) { // Single integer of number of groups
+   if (!PyTuple_Check(args)) { // Not a tuple
+      if (!PyArg_Parse(args, "i", &input)) {
+        PyErr_SetString(PyExc_TypeError, " pgroup_create() input error 1");
+        return NULL;
+      }
       num_groups = input;
       method = 1 ;
    } else {
       size = PyTuple_Size(args);
-      if (size < 1) { // Not a tuple
-        PyErr_SetString(PyExc_TypeError, " pgroup_create() input error 1");
-        return NULL;
-      }
       obj = PyTuple_GetItem(args, 0);
-      size = PyTuple_Size(obj);
-      if (size < 1) { // not a tuple of tuples
+      if(PyTuple_Check(obj)) {
+        method = 4 ; // List of nodes in groups of tuples
+      } else {
         method = 3 ; // List of group sizes
-      } else { // tuple of tuples
-        method = 4 ; // List of nodes in groups
       }
    }
 #ifdef USE_SUBGROUPS
@@ -1043,7 +1042,11 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
     PyObject *obj, *returnObj;
     char *pchar;
 
-    size = PyTuple_Size(args);
+    if(PyTuple_Check(args)) {
+      size = PyTuple_Size(args);
+    } else {
+      size = -1;
+    }
     if (size <  1) {
        obj  = args;
        *pchar = '+';
