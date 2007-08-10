@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.40 2007-08-09 17:33:30 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.41 2007-08-10 20:51:21 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -1041,6 +1041,7 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
     Integer nelem ;
     PyObject *obj, *returnObj;
     char *pchar;
+    char plus = '+' ;
 
     if(PyTuple_Check(args)) {
       size = PyTuple_Size(args);
@@ -1049,14 +1050,15 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
     }
     if (size <  1) {
        obj  = args;
-       *pchar = '+';
+       pchar = &plus; 
     }
     else if (size ==  1) {
        obj  = PyTuple_GetItem(args, 0);
+       pchar = &plus;
     }
     else {
        obj = PyTuple_GetItem(args, 1);
-       if (!PyArg_Parse(obj, "s", &pchar)) *pchar = '+';
+       if (!PyArg_Parse(obj, "s", &pchar)) pchar = &plus;
        obj  = PyTuple_GetItem(args, 0);
     }
 
