@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.39 2007-08-08 21:52:16 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.40 2007-08-13 19:40:32 d3p852 Exp $
 
 C###############################################################################
       logical function util_sgstart(rtdb)
@@ -273,8 +273,7 @@ c     creates one subgroup for each smp
 c
 #include "global.fh"
 #include "util_sgroup.fh"
-      integer i,j,proclist(maxcpus)
-      integer grouplist
+      integer i,j,proclist(maxcpus),num_proc
 
 c setup
       if (depth .ne. 1) then
@@ -287,15 +286,14 @@ c setup
 c make each smp node into a group
 
       do i=0,ngroups(depth)-1
-         do j=0,ga_cluster_nprocs(i)-1
-           if(j+1 .gt. maxcpus)
-     *            call errquit('increase maxcpus',0,0)
-            proclist(j+1)=ga_cluster_procid(i,j)
-         enddo
-         grouplist=ga_pgroup_create(proclist,ga_cluster_nprocs(i))
-         if (j+1 .eq. mygroup(depth)) then
-            my_ga_grp(depth) = grouplist
-         endif
+        num_proc = ga_cluster_nprocs(i)
+        if (num_proc .gt. maxcpus) call errquit('increase maxcpus',0,0)
+        do j=0,num_proc - 1
+          proclist(j+1)=ga_cluster_procid(i,j)
+        enddo
+        if (i+1 .eq. mygroup(depth)) then
+          my_ga_grp(depth) = ga_pgroup_create(proclist,num_proc)
+        endif
       enddo
 
 C Set the group
@@ -314,7 +312,6 @@ c
 #include "util_sgroup.fh"
       integer nproc, myproc
       integer i,j,proclist(maxcpus), proc_counter,group_counter
-      integer grouplist
       integer length,cpusperg_array(length)
 
 c setup
@@ -345,19 +342,18 @@ C make groups
       proc_counter=1
       group_counter=1
       do i=0,nproc-1
-           proclist(proc_counter) = i
-           if (i.eq.myproc) then
-             mygroup(depth)=group_counter
-           endif
-           if (cpusperg_array(group_counter).eq.proc_counter) then
-             grouplist=ga_pgroup_create(proclist,proc_counter)
-             if(mygroup(depth) .eq. group_counter) then
-               my_ga_grp(depth) = grouplist
-             endif 
-             group_counter=group_counter+1
-             proc_counter=0
-           end if
-           proc_counter=proc_counter+1
+        proclist(proc_counter) = i
+        if (i.eq.myproc) then
+          mygroup(depth)=group_counter
+        endif
+        if (cpusperg_array(group_counter).eq.proc_counter) then
+          if(mygroup(depth) .eq. group_counter) then
+            my_ga_grp(depth)=ga_pgroup_create(proclist,proc_counter)
+          endif 
+          group_counter=group_counter+1
+          proc_counter=0
+        end if
+        proc_counter=proc_counter+1
       enddo
 
 C Set the group
@@ -379,7 +375,7 @@ c
 #include "util_sgroup.fh"
       integer nproc, myproc
       integer i,j,proclist(maxcpus), proc_counter,group_counter
-      integer grouplist, pos_counter, group_size
+      integer pos_counter, group_size
       integer length, cpu_array(length)
 
 c setup
@@ -409,9 +405,8 @@ C make groups
              mygroup(depth)=group_counter
            endif
         end do
-        grouplist=ga_pgroup_create(proclist,proc_counter)
         if(mygroup(depth) .eq. group_counter) then
-            my_ga_grp(depth) = grouplist
+            my_ga_grp(depth)=ga_pgroup_create(proclist,proc_counter)
         endif
       end do
       ngroups(depth)=group_counter
@@ -433,7 +428,7 @@ c     Create subgroups of a constant size
 c
       integer groups_want
       integer nproc,myproc,nchunkq,nremainq,i,j,n
-      integer num_proc,proclist(maxcpus), grouplist
+      integer num_proc,proclist(maxcpus)
 
 C setup
 
@@ -465,9 +460,8 @@ c assign each proc to individual group, then create individual group
             if (n .eq. myproc) mygroup(depth) = i
             n=n+1
          enddo
-         grouplist=ga_pgroup_create(proclist, num_proc)
          if (mygroup(depth) .eq. i) then
-            my_ga_grp(depth) = grouplist
+            my_ga_grp(depth) = ga_pgroup_create(proclist, num_proc)
          endif
       enddo
 
