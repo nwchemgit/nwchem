@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.41 2007-08-14 16:17:43 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.42 2007-08-14 23:37:03 d3p852 Exp $
 
 C###############################################################################
       logical function util_sgstart(rtdb)
@@ -49,6 +49,7 @@ c
       integer meinworld, meafter
       logical lstatus
       integer X0(1)
+      integer idum
 
 C strings for fname definition
       character*256 permdir
@@ -73,8 +74,14 @@ C       Work around the 36 char cutoff for fname
      &     call errquit('rtdb get permanent_dir failed',0,0)
         if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
      &     call errquit('rtdb get file_prefix failed',0,0)
+        idum = 15
+ 747    if(permdir(idum:idum).eq. ' ' .and. idum.lt.inp_strlen(permdir))
+     &                then
+          idum = idum + 1
+          goto 747
+        endif
         write(rtdb_fname(depth),'(a,a,a,a)')
-     &    permdir(15:inp_strlen(permdir)),
+     &    permdir(idum:inp_strlen(permdir)),
      &    '/',
      &    fprefix(1:inp_strlen(fprefix)),
      &    '.db'
