@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.67 2004-12-03 22:34:31 bert Exp $
+c $Id: int_init.F,v 1.68 2007-08-14 22:50:11 niri Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -52,8 +52,14 @@ c
       if (rtdb_get(rtdb,'int:acc_std',mt_dbl,1,val_int_acc_std)) then
          ouseracc = .true.
       else
-cedo         val_int_acc_std = 1d-15
-         val_int_acc_std = 1d-12
+c
+cniri Reinstate the tighter tolerance. We encountered a subtle problem with a large system where 
+cniri a rather diffuse augmented basis set was used. There were a number of dependencies.
+cniri We managed to address the issue by ramping up this tolerance.
+cniri val_int_acc_std = 1d-12
+      val_int_acc_std = 1d-15
+
+
       end if
       if (rtdb_get(rtdb,'int:acc_high',mt_dbl,1,val_int_acc_high)) then 
          ouseracc = .true.
