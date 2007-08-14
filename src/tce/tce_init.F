@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.34 2007-08-14 17:06:28 jhammond Exp $
+c $Id: tce_init.F,v 1.35 2007-08-14 17:19:42 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -271,7 +271,6 @@ c
         if (.not.rtdb_put(rtdb,'tce:respaxis',mt_log,3,respaxis))
      1    call errquit('tce_init: failed to write respaxis',0,RTDB_ERR)
       endif
-      print*,"respaxis ",respaxis(1),respaxis(2),respaxis(3)
 c
 c     End of response property input section
 c
