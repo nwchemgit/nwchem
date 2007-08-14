@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.41 2007-08-10 20:51:21 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.42 2007-08-14 16:17:57 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -35,6 +35,7 @@ static Integer rtdb_handle;            /* handle to the rtdb */
 #define util_sgend_ UTIL_SGEND
 #define util_sgroup_numgroups_ UTIL_SGROUP_NUMGROUPS
 #define util_sgroup_mygroup_ UTIL_SGROUP_MYGROUP
+#define util_sgroup_zero_group_ UTIL_SGROUP_ZERO_GROUP
 #endif
 
 extern int nw_inp_from_string(int, const char *);
@@ -51,6 +52,7 @@ extern void FATR util_sggo_(const Integer *, const Integer *, const Integer *, c
 extern void FATR util_sgend_(const Integer *);
 extern Integer FATR util_sgroup_numgroups_(void);
 extern Integer FATR util_sgroup_mygroup_(void);
+extern Integer FATR util_sgroup_zero_group_(void);
 
 static PyObject *nwwrap_integers(int n, Integer a[])
 {
@@ -1161,7 +1163,16 @@ static PyObject *do_pgroup_global_op_all(PyObject *self, PyObject *args)
    PyObject *returnObj = do_pgroup_global_op_work(args,my_group);
    return returnObj ;
 }
-
+static PyObject *do_pgroup_global_op_zero(PyObject *self, PyObject *args)
+{
+   if (ga_nodeid_() != 0) {
+     Py_INCREF(Py_None); 
+     return Py_None;
+   }
+   Integer my_group = util_sgroup_zero_group_();
+   PyObject *returnObj = do_pgroup_global_op_work(args,my_group);
+   return returnObj ;
+}
 
     ///  This is like the MPI brdcst command.  The determination
     ///  of int vs. double is done based upon the whole array.
@@ -1280,6 +1291,16 @@ static PyObject *do_pgroup_broadcast_all(PyObject *self, PyObject *args)
    PyObject *returnObj = do_pgroup_broadcast_work(args,my_group);
    return returnObj ;
 }
+static PyObject *do_pgroup_broadcast_zero(PyObject *self, PyObject *args)
+{
+   Integer my_group = util_sgroup_zero_group_();
+   if (ga_nodeid_() != 0) {
+     Py_INCREF(Py_None);
+     return Py_None;
+   }
+   PyObject *returnObj = do_pgroup_broadcast_work(args,my_group);
+   return returnObj ;
+}
 
 static PyObject *do_pgroup_nnodes(PyObject *self, PyObject *args)
 {
@@ -1388,6 +1409,8 @@ static struct PyMethodDef nwchem_methods[] = {
    {"pgroup_sync_all",     do_pgroup_sync_all, 0},
    {"pgroup_global_op_all",do_pgroup_global_op_all, 0},
    {"pgroup_broadcast_all",do_pgroup_broadcast_all, 0},
+   {"pgroup_global_op_zero",do_pgroup_global_op_zero, 0},
+   {"pgroup_broadcast_zero",do_pgroup_broadcast_zero, 0},
    {"pgroup_nnodes",   do_pgroup_nnodes, 0},
    {"pgroup_nodeid",   do_pgroup_nodeid, 0},
    {"pgroup_groupid",  do_pgroup_groupid, 0},

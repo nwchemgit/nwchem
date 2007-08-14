@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.40 2007-08-13 19:40:32 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.41 2007-08-14 16:17:43 d3p852 Exp $
 
 C###############################################################################
       logical function util_sgstart(rtdb)
@@ -48,6 +48,7 @@ c
       integer i,errout
       integer meinworld, meafter
       logical lstatus
+      integer X0(1)
 
 C strings for fname definition
       character*256 permdir
@@ -59,6 +60,9 @@ c
         mygroup(depth) = 1
         ngroups(depth) = 1
         my_ga_grp(depth) = ga_pgroup_get_world()
+        x0(1) = 0
+        my_ga_0_grp(depth) = ga_pgroup_create(x0,1)
+
 c       preliminary rtdb cloning
 C       Work around the 36 char cutoff for fname
         if (.not. rtdb_getfname(rtdb, rtdb_fname(depth))) call
@@ -173,6 +177,7 @@ C     Make sure all nodes are done using RTDB file
       endif
       if (sgprint) call flush(luout)
       call ga_pgroup_set_default(my_ga_grp(depth-1))
+      ignore = ga_pgroup_destroy(my_ga_0_grp(depth))
       ignore = ga_pgroup_destroy(mypgroup_old)
 c
 c     reopen higher up rtdb
@@ -296,6 +301,15 @@ c make each smp node into a group
         endif
       enddo
 
+c create the zero group
+     
+      num_proc = ngroups(depth)
+      if(num_proc .gt. maxcpus)call errquit('increase maxcpus',0,0)
+      do i=0, num_proc - 1
+        proclist(i+1)=ga_cluster_procid(i,0)
+      enddo
+      my_ga_0_grp(depth) = ga_pgroup_create(proclist,num_proc)
+
 C Set the group
 
       call ga_pgroup_set_default(my_ga_grp(depth))
@@ -356,9 +370,27 @@ C make groups
         proc_counter=proc_counter+1
       enddo
 
+c create the zero group
+
+      if(ngroups(depth).gt.maxcpus)call errquit('increase maxcpus',0,0)
+      proc_counter=1
+      group_counter=1
+      do i=0,nproc-1
+        if (proc_counter .eq. 1) then
+          proclist(group_counter) = i
+        end if
+        if (cpusperg_array(group_counter).eq.proc_counter) then
+          group_counter=group_counter+1
+          proc_counter=0
+        end if
+        proc_counter=proc_counter+1
+      enddo
+      my_ga_0_grp(depth) = ga_pgroup_create(proclist,ngroups(depth))
+
 C Set the group
 
       call ga_pgroup_set_default(my_ga_grp(depth))
+
       return
       end
 C###############################################################################
@@ -411,9 +443,24 @@ C make groups
       end do
       ngroups(depth)=group_counter
 
+c create the zero group
+
+      if(ngroups(depth).gt.maxcpus)call errquit('increase maxcpus',0,0)
+      group_counter=0
+      pos_counter=1
+      do while (pos_counter .lt. length)
+        group_counter = group_counter + 1
+        group_size = cpu_array(pos_counter)
+        pos_counter = pos_counter + 1
+        proclist(group_counter) = cpu_array(pos_counter)
+        pos_counter = pos_counter + group_size
+      end do
+      my_ga_0_grp(depth) = ga_pgroup_create(proclist,ngroups(depth))
+
 C Set the group
 
       call ga_pgroup_set_default(my_ga_grp(depth))
+
       return
       end
 
@@ -451,6 +498,7 @@ C setup
 
 c for irregular distribution, make sure the lower groups have more procs
 c assign each proc to individual group, then create individual group
+
       n = 0
       do i=1,ngroups(depth)
          num_proc = nchunkq
@@ -465,9 +513,22 @@ c assign each proc to individual group, then create individual group
          endif
       enddo
 
+c create the zero group
+
+      if(ngroups(depth).gt.maxcpus)call errquit('increase maxcpus',0,0)
+      n = 0
+      do i=1,ngroups(depth)
+         num_proc = nchunkq
+         if(i .le. nremainq) num_proc = num_proc + 1
+         proclist(i) = n
+         n = n + num_proc
+      enddo
+      my_ga_0_grp(depth) = ga_pgroup_create(proclist,ngroups(depth))
+
 c set the group
 
       call ga_pgroup_set_default(my_ga_grp(depth))
+
       return
       end
 C###############################################################################
@@ -537,3 +598,9 @@ C###############################################################################
       util_sgroup_numgroups = ngroups(depth)
       end
 C###############################################################################
+      integer function util_sgroup_zero_group()
+#include "util_sgroup.fh"
+      util_sgroup_zero_group = my_ga_0_grp(depth)
+      end
+C###############################################################################
+
