@@ -1,15 +1,15 @@
-#$Id: GNUmakefile,v 1.1 2007-08-11 01:21:37 jhammond Exp $
+#$Id: GNUmakefile,v 1.2 2007-08-14 17:08:08 jhammond Exp $
 
 OBJ_OPTIMIZE = \
 ccsd_o1.o \
-second_ccsd_o2.o \
+ccsd_o2.o \
 ccsdt_o1.o \
-second_ccsdt_o2.o \
-second_ccsdt_o3.o \
+ccsdt_o2.o \
+ccsdt_o3.o \
 ccsdtq_o1.o \
-second_ccsdtq_o2.o \
-second_ccsdtq_o3.o \
-third_ccsdtq_o4.o
+ccsdtq_o2.o \
+ccsdtq_o3.o \
+ccsdtq_o4.o
 
 LIB_INCLUDES = -I../include
 
@@ -17,14 +17,14 @@ LIBRARY = libtce.a
 
 USES_BLAS = \
 ccsd_o1.F \
-second_ccsd_o2.F \
+ccsd_o2.F \
 ccsdt_o1.F \
-second_ccsdt_o2.F \
-second_ccsdt_o3.F \
+ccsdt_o2.F \
+ccsdt_o3.F \
 ccsdtq_o1.F \
-second_ccsdtq_o2.F \
-second_ccsdtq_o3.F \
-third_ccsdtq_o4.F 
+ccsdtq_o2.F \
+ccsdtq_o3.F \
+ccsdtq_o4.F 
             
 LIB_DEFINES = -DDEBUG_PRINT
 #

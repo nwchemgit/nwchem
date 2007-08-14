@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.33 2007-02-06 19:04:44 edo Exp $
+c $Id: tce_init.F,v 1.34 2007-08-14 17:06:28 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -49,6 +49,8 @@ c
       character*8 multchar(8)
       data multchar/'singlet ','doublet ','triplet ','quartet ',
      1              'quintet ','sextet  ','septet  ','octet   '/
+       character*26 date
+       integer ma_type
 c
 c
       nodezero=(ga_nodeid().eq.0)
@@ -228,6 +230,51 @@ c
         if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
      1  call errquit('tce_init: failed to write left',0,RTDB_ERR)
       endif
+c
+c    Beginning of response property input section
+c
+      if (.not.rtdb_get(rtdb,'tce:lineresp',mt_log,1,lineresp)) then
+        lineresp=.false.
+        if (.not.rtdb_put(rtdb,'tce:lineresp',mt_log,1,lineresp))
+     1  call errquit('tce_init: failed to write lineresp',0,RTDB_ERR)
+      endif
+c
+      if (.not.rtdb_get(rtdb,'tce:leftresp',mt_log,1,leftresp)) then
+        leftresp=.false.
+        if (.not.rtdb_put(rtdb,'tce:leftresp',mt_log,1,leftresp))
+     1  call errquit('tce_init: failed to write leftresp',0,RTDB_ERR)
+      endif
+c
+      if (.not.rtdb_get(rtdb,'tce:quadresp',mt_log,1,quadresp)) then
+        quadresp=.false.
+        if (.not.rtdb_put(rtdb,'tce:quadresp',mt_log,1,quadresp))
+     1  call errquit('tce_init: failed to write quadresp',0,RTDB_ERR)
+      endif
+c
+      if (.not.rtdb_get_info(rtdb,'tce:afreq',ma_type,anumfreq,
+     1  date)) then
+        anumfreq = 1
+        if (.not.rtdb_put(rtdb,'tce:anumfreq',mt_int,1,anumfreq))
+     1   call errquit('tce_init: failed to write anumfreq',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:afreq',mt_dbl,anumfreq,
+     1  afreq)) then
+        afreq(1) = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:afreq',mt_dbl,anumfreq,afreq))
+     1    call errquit('tce_init: failed to write afreq',0,RTDB_ERR)
+      endif
+c
+      if (.not.rtdb_get(rtdb,'tce:respaxis',mt_log,3,respaxis)) then
+        respaxis(1) = .true.
+        respaxis(2) = .true.
+        respaxis(3) = .true.
+        if (.not.rtdb_put(rtdb,'tce:respaxis',mt_log,3,respaxis))
+     1    call errquit('tce_init: failed to write respaxis',0,RTDB_ERR)
+      endif
+      print*,"respaxis ",respaxis(1),respaxis(2),respaxis(3)
+c
+c     End of response property input section
+c
       if ((symmetry).and.(targetsym.eq.'none')) then
         symmetry=.false.
         if (.not.rtdb_put(rtdb,'tce:symmetry',mt_log,1,symmetry))
