@@ -1,5 +1,5 @@
 /*
- $Id: nw_inp_from_string.c,v 1.11 2005-02-22 01:48:22 edo Exp $
+ $Id: nw_inp_from_string.c,v 1.12 2007-08-14 23:34:13 d3p852 Exp $
 */
 #include "global.h"
 #include <stdio.h>
@@ -17,6 +17,9 @@
 
 #if defined(CRAY_T3E)  || defined(WIN32)
 #define nw_inp_from_file_ NW_INP_FROM_FILE
+#define util_sgroup_mygroup_ UTIL_SGROUP_MYGROUP
+#define ga_pgroup_get_default_ GA_PGROUP_GET_DEFAULT
+#define ga_pgroup_get_world_ GA_PGROUP_GET_WORLD
 #endif
 
 #if defined(CRAY_T3E) || defined(USE_FCD) || defined(WIN32)
@@ -24,10 +27,13 @@ extern Integer FATR nw_inp_from_file_(Integer *rtdb, _fcd filename);
 #else
 extern Integer FATR nw_inp_from_file_(Integer *rtdb, char *filename, int flen);
 #endif
+extern Integer FATR util_sgroup_mygroup_(void);
+extern Integer FATR ga_pgroup_get_default_(void);
+extern Integer FATR ga_pgroup_get_world_(void);
 
 int nw_inp_from_string(Integer rtdb, const char *input)
 {
-    char *filename = "temp.nw";
+    char filename[30];
     FILE *file;
 #if defined(USE_FCD) || defined(CRAY_T3E) || defined(WIN32)
     _fcd fstring;
@@ -35,16 +41,26 @@ int nw_inp_from_string(Integer rtdb, const char *input)
     char fstring[255];
 #endif
     int status;
+    const char base[] = "temp";
+    const char ending[] = ".nw";
+    int number ;
 
+// This is bad, not 100% sure to be unique, since could be subgroup
+    if (ga_pgroup_get_world_() != ga_pgroup_get_default_()) {
+       number = (int) util_sgroup_mygroup_() ;
+    } else {
+       number = 0 ;
+    }
+    sprintf(filename, "%s%d%s", base,number,ending);
     if (ga_nodeid_() == 0) {
       if (!(file = fopen(filename,"w"))) {
-	ga_error("nw_inp_from_string: failed to open temp.nw\n",0);
+        ga_error("nw_inp_from_string: failed to open temp.nw\n",0);
       }
       if (fwrite(input, 1, strlen(input), file) != strlen(input)) {
-	ga_error("nw_inp_from_string: failed to write to temp.nw\n",0);
+        ga_error("nw_inp_from_string: failed to write to temp.nw\n",0);
       }
       if (fwrite("\n", 1, 1, file) != 1) {
-	ga_error("nw_inp_from_string: failed to write to temp.nw\n",0);
+        ga_error("nw_inp_from_string: failed to write to temp.nw\n",0);
       }
       (void) fclose(file);
     }
