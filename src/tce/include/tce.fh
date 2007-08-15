@@ -1,4 +1,4 @@
-c $Id: tce.fh,v 1.4 2006-05-31 23:26:05 kowalski Exp $
+c $Id: tce.fh,v 1.5 2007-08-15 17:02:55 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -26,12 +26,21 @@ c
       character*10 model       ! CC model
       character*10 perturbative! PT model
       logical left             ! Dipole moments & dipole transition moments
+      logical lineresp
+      logical leftresp
+      logical quadresp
+      logical respaxis(3)
       integer maxiter          ! Maximum number of Davidson iterations
       integer l_evl(2),k_evl(2)! MA handles for eigenvalues (AB)
       integer l_occ(2),k_occ(2)! MA handles for occupancies (AB)
       integer mult             ! Ground state spin multiplicity
       integer nirreps          ! Number of irreducible representations
+c
+      integer anumfreq         ! number of frequencies for alpha (dipole polarizability tensor)
+      double precision afreq(9)! frequencies for alpha (maximum that can be done is 20)
+c
       double precision thresh  ! Convergence threshold for amplitude equation
+      double precision ampthresh
       double precision zlshift ! Level Shift
       integer l_irs(2),k_irs(2)! Irreps of MO's
       integer nmix(2)          ! Number of symmetry contaminations
@@ -184,11 +193,21 @@ c ------------------------------------
       parameter (irrep_t2 = 0)
       integer irrep_t3         ! Totally symmetric
       parameter (irrep_t3 = 0)
-      integer irrep_c          ! Totally symmetric
-cccx      parameter (irrep_c = 0)
       integer irrep_x          ! Irreducible representation of X vector
       integer irrep_y          ! Irreducible representation of Y vector
       integer irrep_d          ! Irreducible representation of D vector
+      integer irrep_a
+      integer irrep_b
+      integer irrep_c
+      integer irrep_o
+      integer irrep_oa
+      integer irrep_ob
+      integer irrep_oc
+      integer irrep_tr
+      integer irrep_tra
+      integer irrep_trb
+      integer irrep_trc
+      integer irrep_trd
       integer target           ! Target root
       character*4 targetsym    ! Irrep of target root
       logical symmetry         ! True if only roots with targetsym are sought
@@ -206,20 +225,21 @@ c
      8  t3_diis,r3_diis,t4_diis,r4_diis,t1_pointer,r1_pointer,
      9  t2_pointer,r2_pointer,t3_pointer,r3_pointer,t4_pointer,
      1  r4_pointer,nroots,nroots_reduced,nxtrials,nytrials,x1,y1,x2,y2,
-     2  x3,y3,x4,y4,xp1,yp1,xp2,yp2,xp3,yp3,xp4,yp4,
-     3  irrep_x,irrep_y,irrep_d,target,filesizes,xc1,xc2,xc3,xc4,
-     4  yc1,yc2,yc3,yc4,oactive,vactive,oatiles,vatiles,
-     5  l_active,k_active,numact,irrep_c,l_b2am,k_b2am,d_v2orb,
-     6  l_spin_alpha,k_spin_alpha,l_sym_alpha,k_sym_alpha,
-     7  l_range_alpha,k_range_alpha,l_offset_alpha,k_offset_alpha,
-     8  l_o2o_offset,k_o2o_offset,l_o2ot_offset,k_o2ot_offset,
-     9  l_v2_alpha_offset,k_v2_alpha_offset,l_v2spin_offset,
-     1  k_v2spin_offset
+     2  x3,y3,x4,y4,xp1,yp1,xp2,yp2,xp3,yp3,xp4,yp4,irrep_x,irrep_y,
+     3  irrep_d,irrep_a,irrep_b,irrep_c,irrep_o,irrep_oa,irrep_ob,
+     4  irrep_oc,irrep_tr,irrep_tra,irrep_trb,irrep_trc,irrep_trd,
+     5  target,filesizes,xc1,xc2,xc3,xc4,yc1,yc2,yc3,yc4,oactive,
+     6  vactive,oatiles,vatiles,l_active,k_active,numact,l_b2am,k_b2am,
+     7  d_v2orb,l_spin_alpha,k_spin_alpha,l_sym_alpha,k_sym_alpha,
+     8  l_range_alpha,k_range_alpha,l_offset_alpha,k_offset_alpha,
+     9  l_o2o_offset,k_o2o_offset,l_o2ot_offset,k_o2ot_offset,
+     1  l_v2_alpha_offset,k_v2_alpha_offset,l_v2spin_offset,
+     2  k_v2spin_offset,anumfreq
 c
 c     Doubles
 c
       common /tcedouble/
-     1  thresh,tol2e,cpusecs,zlshift
+     1  thresh,ampthresh,tol2e,cpusecs,zlshift,afreq
 c
 c     Characters
 c
@@ -229,10 +249,11 @@ c
 c     Logicals
 c
       common /tcelogical/
-     1  oskel,oadapt,left,restricted,t1_diis_exist,r1_diis_exist,
-     2  t2_diis_exist,r2_diis_exist,t3_diis_exist,r3_diis_exist,
-     3  t4_diis_exist,r4_diis_exist,x1_exist,y1_exist,x2_exist,y2_exist,
-     4  x3_exist,y3_exist,x4_exist,y4_exist,xp1_exist,yp1_exist,
-     5  xp2_exist,yp2_exist,xp3_exist,yp3_exist,xp4_exist,yp4_exist,
-     6  symmetry,fileisga,xc1_exist,xc2_exist,xc3_exist,xc4_exist,
-     7  yc1_exist,yc2_exist,yc3_exist,yc4_exist,activecalc,intorb
+     1  oskel,oadapt,left,lineresp,leftresp,quadresp,respaxis,
+     2  restricted,t1_diis_exist,r1_diis_exist,
+     3  t2_diis_exist,r2_diis_exist,t3_diis_exist,r3_diis_exist,
+     4  t4_diis_exist,r4_diis_exist,x1_exist,y1_exist,x2_exist,y2_exist,
+     5  x3_exist,y3_exist,x4_exist,y4_exist,xp1_exist,yp1_exist,
+     6  xp2_exist,yp2_exist,xp3_exist,yp3_exist,xp4_exist,yp4_exist,
+     7  symmetry,fileisga,xc1_exist,xc2_exist,xc3_exist,xc4_exist,
+     8  yc1_exist,yc2_exist,yc3_exist,yc4_exist,activecalc,intorb
