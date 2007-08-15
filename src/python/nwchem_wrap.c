@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.43 2007-08-15 23:39:01 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.44 2007-08-15 23:43:50 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -1222,7 +1222,7 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
     }
 
     if (is_double_array > 0) { // Has at least one double
-      double *array = 0;
+      DoublePrecision *array = 0;
       Integer message_id = 12 ;
       size = MA_sizeof(MT_F_DBL, nelem, MT_CHAR) ;
       if (!(array = malloc(size))) {
@@ -1238,17 +1238,18 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
          }
          if (!is_int) {
            if (list) {
-             PyArg_Parse(PyList_GetItem(obj, i), "d", array+i);
+             PyArg_Parse(PyList_GetItem(obj, i), "d", &tmp_double);
            } else {
-             PyArg_Parse(obj, "d", array+i);
+             PyArg_Parse(obj, "d", &tmp_double);
            }
+           array[i] = (DoublePrecision) tmp_double;
          } else {
            if (list) {
              PyArg_Parse(PyList_GetItem(obj, i), "i", &tmp_int);
            } else {
              PyArg_Parse(obj, "i", &tmp_int);
            }
-           array[i] = (double) tmp_int;
+           array[i] = (DoublePrecision) tmp_int;
          }
       }
 
@@ -1268,10 +1269,11 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
       
       for (i = 0; i < nelem; i++) {
          if (list) {
-           PyArg_Parse(PyList_GetItem(obj, i), "i", array+i);
+           PyArg_Parse(PyList_GetItem(obj, i), "i", &tmp_int);
          } else {
-           PyArg_Parse(obj, "i", array+i);
+           PyArg_Parse(obj, "i", &tmp_int);
          }
+         array[i] = (Integer) tmp_int;
       }
       
       ga_pgroup_brdcst_(&my_group,&message_id,array,&size,&node0);
