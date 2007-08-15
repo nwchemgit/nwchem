@@ -11,9 +11,23 @@
 c
       logical nw_inp_from_file
       external nw_inp_from_file
+      integer util_sgroup_mygroup
+      external util_sgroup_mygroup
       character*(255) filename
+      character*(255) unique_name
+      integer number
 
-      call util_file_name('temp.nw', .true., .false., filename)
+C     This is bad, not 100% sure to be unique, since could be subgroup
+      if (ga_pgroup_get_world() .ne. ga_pgroup_get_default()) then
+        number = util_sgroup_mygroup()
+      else
+        number = 0
+      end if
+
+      write(unique_name,737) "temp",number,".nw"
+ 737       format(A4,I4.4,A3)
+      call util_file_name(unique_name(1:inp_strlen(unique_name)),
+     &            .true., .false., filename)
 
 c      write (6,*) 'filename=',filename
 c
@@ -32,7 +46,7 @@ c
       end
       logical function nw_inp_from_file(rtdb, filename)
 *
-* $Id: nw_inp_from_file.F,v 1.10 2004-10-19 19:33:05 marat Exp $
+* $Id: nw_inp_from_file.F,v 1.11 2007-08-15 18:47:38 d3p852 Exp $
 *
       implicit none
 #include "errquit.fh"
