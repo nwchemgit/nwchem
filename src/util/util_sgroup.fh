@@ -1,4 +1,4 @@
-C$Id: util_sgroup.fh,v 1.17 2007-08-14 16:17:43 d3p852 Exp $
+C$Id: util_sgroup.fh,v 1.18 2007-08-16 19:30:31 d3p852 Exp $
 
 C      Parameters
        integer maxcpus,maxdeep
@@ -10,13 +10,12 @@ C      DATA
        integer my_ga_grp(0:maxdeep)        ! My GA Group number
        integer my_ga_0_grp(0:maxdeep)      ! GA group number for group of all 0s
        integer ngroups(0:maxdeep)          ! number of groups, at this level
-       integer luout_0(maxdeep)            ! save luout from next higher level
        logical sgprint                     ! debug printout?
        character*256 rtdb_fname(0:maxdeep) ! Runtime database name at this level
        integer depth                       ! How deep am I
 
 C      That are all in common
        common /sgroup/ ngroups,mygroup,my_ga_grp,my_ga_0_grp,
-     *                 depth,luout_0,sgprint
+     *                 depth,sgprint
        common /sgroupchr/rtdb_fname
 

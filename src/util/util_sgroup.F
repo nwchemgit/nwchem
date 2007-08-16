@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.42 2007-08-14 23:37:03 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.43 2007-08-16 19:30:31 d3p852 Exp $
 
 C###############################################################################
       logical function util_sgstart(rtdb)
@@ -143,7 +143,6 @@ c
       call util_sgmovecs(rtdb)
 c
 c
-      luout_0(depth)=luout
       if(myproc.eq.0.and.sgprint) then
         write(6,*) 'everyone should have an open file at this point'
         call flush(6)
@@ -175,10 +174,6 @@ C     Make sure all nodes are done using RTDB file
       call ga_pgroup_sync(mypgroup_old)
       if (.not. rtdb_close(rtdb, 'delete'))call errquit
      $        (' sgend: rtdb_close and delete failed ',0,0)
-      if(mygroup(depth).ne.1) then
-        close(luout, status='keep')
-      endif
-      luout=luout_0(depth)
       if(myproc.eq.0) then
         write(luout,*) 'Closing subgroup '
       endif

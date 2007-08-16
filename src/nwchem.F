@@ -23,7 +23,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.159 2007-02-06 19:08:11 edo Exp $
+c     $Id: nwchem.F,v 1.160 2007-08-16 19:30:56 d3p852 Exp $
 *---------------------------------------------------------------------*
 *        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
 *                  2000, 2001, 2002, 2003, 2004, 2005, 2006           *
@@ -382,9 +382,6 @@ c
       character*10 cstart
       Character*40 GStatus
 c
-#ifdef USE_SUBGROUPS
-      luout=6
-#endif
 #ifdef CATAMOUNT
       istatus=setvbuf3f(luout, 0, 4096)
       istatus=setvbuf3f(0, 0, 4096)
