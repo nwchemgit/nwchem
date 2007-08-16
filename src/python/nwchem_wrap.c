@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.44 2007-08-15 23:43:50 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.45 2007-08-16 18:41:09 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -889,6 +889,10 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
         method = 3 ; // List of group sizes
       }
    }
+   if (!(returnObj = PyTuple_New(5))) {
+       PyErr_SetString(NwchemError, "do_pgroup_create failed with pyobj");
+       return NULL;
+   }
 #ifdef USE_SUBGROUPS
    if (method == 1) {
       util_sggo_(&rtdb_handle,&num_groups,&method,NULL);
@@ -941,26 +945,24 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
       util_sggo_(&rtdb_handle,&num_groups,&method, node_list);
       free(node_list);
    }
-   if (!(returnObj = PyTuple_New(5))) {
-       PyErr_SetString(NwchemError, "do_pgroup_create failed with pyobj");
-       return NULL;
-   }
    my_ga_group = ga_pgroup_get_default_() ;
    nnodes = ga_pgroup_nnodes_(&my_ga_group);
    nodeid = ga_pgroup_nodeid_(&my_ga_group);
    ngroups = util_sgroup_numgroups_() ;
    mygroup = util_sgroup_mygroup_() ;
-
+#else
+   my_ga_group = ga_pgroup_get_default_() ;
+   nnodes = ga_pgroup_nnodes_(&my_ga_group);
+   nodeid = ga_pgroup_nodeid_(&my_ga_group);
+   ngroups = 1;
+   mygroup = 1;
+#endif
    PyTuple_SET_ITEM(returnObj, 0, PyInt_FromLong((long) mygroup ));
    PyTuple_SET_ITEM(returnObj, 1, PyInt_FromLong((long) ngroups));
    PyTuple_SET_ITEM(returnObj, 2, PyInt_FromLong((long) nodeid));
    PyTuple_SET_ITEM(returnObj, 3, PyInt_FromLong((long) nnodes));
    PyTuple_SET_ITEM(returnObj, 4, PyInt_FromLong((long) my_ga_group));
    return returnObj ;
-#else
-   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
-   return NULL;
-#endif
 }
 
 
@@ -978,6 +980,10 @@ static PyObject *do_pgroup_destroy(PyObject *self, PyObject *args)
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_destroy()");
       return NULL;
    }
+   if (!(returnObj = PyTuple_New(5))) {
+       PyErr_SetString(NwchemError, "do_pgroup_destroy failed with pyobj");
+       return NULL;
+   }
 #ifdef USE_SUBGROUPS
    util_sgend_(&rtdb_handle);
    my_ga_group = ga_pgroup_get_default_() ;
@@ -985,21 +991,19 @@ static PyObject *do_pgroup_destroy(PyObject *self, PyObject *args)
    nodeid = ga_pgroup_nodeid_(&my_ga_group);
    ngroups = util_sgroup_numgroups_() ;
    mygroup = util_sgroup_mygroup_() ;
-
-   if (!(returnObj = PyTuple_New(5))) {
-       PyErr_SetString(NwchemError, "do_pgroup_destroy failed with pyobj");
-       return NULL;
-   }
+#else
+   my_ga_group = ga_pgroup_get_default_() ;
+   nnodes = ga_pgroup_nnodes_(&my_ga_group);
+   nodeid = ga_pgroup_nodeid_(&my_ga_group);
+   ngroups = 1;
+   mygroup = 1;
+#endif
    PyTuple_SET_ITEM(returnObj, 0, PyInt_FromLong((long) mygroup ));
    PyTuple_SET_ITEM(returnObj, 1, PyInt_FromLong((long) ngroups));
    PyTuple_SET_ITEM(returnObj, 2, PyInt_FromLong((long) nodeid));
    PyTuple_SET_ITEM(returnObj, 3, PyInt_FromLong((long) nnodes));
    PyTuple_SET_ITEM(returnObj, 4, PyInt_FromLong((long) my_ga_group));
    return returnObj ;
-#else
-   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
-   return NULL;
-#endif
 }
 
    ///  This is a generic barrier that forces all members of a group to 
@@ -1343,8 +1347,7 @@ static PyObject *do_pgroup_ngroups(PyObject *self, PyObject *args)
    }
    return Py_BuildValue("i", ngroups);
 #else
-   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
-   return NULL;
+   return Py_BuildValue("i", 1);
 #endif
 }
 
@@ -1359,8 +1362,7 @@ static PyObject *do_pgroup_groupid(PyObject *self, PyObject *args)
    }
    return Py_BuildValue("i", mygroup);
 #else
-   PyErr_SetString(PyExc_TypeError, "Usage: NOT IMPLEMENTED YET");
-   return NULL;
+   return Py_BuildValue("i", 1);
 #endif
 }
 
