@@ -1,4 +1,4 @@
-c $Id: vscf.F,v 1.13 2006-09-05 15:16:49 bert Exp $
+c $Id: vscf.F,v 1.14 2007-08-16 23:42:27 d3p852 Exp $
       subroutine vscfm(NGRID,DMDR,NCOUP,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
       implicit double precision(a-h,o-z)
@@ -655,9 +655,9 @@ c     point and we need to skip one more
 c
                   if (im.eq.nfin(2).and.il.eq.nfin(3)) then
                      nfin(2)=0
-                     goto 199
+                     goto  99
                   else if (nfin(2).gt.0) then
-                     goto 199
+                     goto  99
                   endif
 c
             if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
@@ -855,9 +855,9 @@ c
      &                il.eq.nfin(3).and.jl.eq.nfin(5).and.
      &                km.eq.nfin(6).and.kl.eq.nfin(7)) then
                      nfin(2)=0
-                     goto 199
+                     goto 299
                   else if (nfin(2).gt.0) then
-                     goto 199
+                     goto 299
                   endif
 c
                   if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
