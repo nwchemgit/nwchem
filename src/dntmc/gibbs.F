@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.16 2007-08-03 23:01:19 d3p852 Exp $
+C$Id: gibbs.F,v 1.17 2007-08-16 22:50:29 d3p852 Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -5108,9 +5108,7 @@ C     ROTATE THE CHOSEN MOLECULE ABOUT CENTER OF MASS
 
       CALL dntmc_STRUCT2(K,IMLW,ACCP)            
   
-c      IF (ACCP) GOTO 12
-      IF (ACCP) then
-      GOTO 12
+      IF (ACCP) GOTO 12
       
   11  CONTINUE
   
@@ -5123,8 +5121,6 @@ c      IF (ACCP) GOTO 12
                RC(K,I,J) = RSAVE(I,J)
            END DO
       END DO
-
-      endif
       
   12  CONTINUE
 
