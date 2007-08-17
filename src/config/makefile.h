@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.544 2007-05-23 16:50:55 d3p307 Exp $
+# $Id: makefile.h,v 1.545 2007-08-17 22:33:59 d3p852 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1597,7 +1597,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
          FOPTIONS+= -align
        endif	
         DEFINES  +=   -DIFCLINUX
-        FVECTORIZE =  -noalign -O3 -pad  -mP2OPT_hlo_level=2  -tpp1
+        FVECTORIZE =  -noalign -O3 -pad  -mP2OPT_hlo_level=2
         FOPTIMIZE =  -O3 -pad -mP2OPT_hlo_level=2  #-mP2OPT_align_array_to_cache_line=TRUE 
        ifeq ($(_IFCV81),Y)
 #         FOPTIMIZE+= -IPF_fp_relaxed # breaks nwdft/xc/xc_pw91lda
