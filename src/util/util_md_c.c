@@ -1,12 +1,15 @@
 /*
-$Id: util_md_c.c,v 1.1 2000-07-24 17:46:58 d3j191 Exp $
+$Id: util_md_c.c,v 1.2 2007-08-17 22:36:35 d3p852 Exp $
 */
 #include <time.h>
 #include <sys/types.h>
 #include <string.h>
 #if defined(NEED_LOC)
-int *loc_(int var)
-/* Return address of var */
+void *loc_(void* var)
+/* This routine is called by Fortran which passes by address (ie. pointer).
+   we then pass that back by value so that Fortran can learn the "location"
+   of that variable in memory.  The size of the Integer than Fortran expects
+   as the return value need to match the pointer's size  */
 {return var;}
 #endif
 #if defined(LINUX)
