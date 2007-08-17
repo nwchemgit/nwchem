@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.45 2007-08-16 18:41:09 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.46 2007-08-17 20:24:12 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -1171,11 +1171,17 @@ static PyObject *do_pgroup_global_op_all(PyObject *self, PyObject *args)
 }
 static PyObject *do_pgroup_global_op_zero(PyObject *self, PyObject *args)
 {
+   Integer my_group;
    if (ga_nodeid_() != 0) {
      Py_INCREF(Py_None); 
      return Py_None;
    }
-   Integer my_group = util_sgroup_zero_group_();
+#ifdef USE_SUBGROUPS
+   my_group = util_sgroup_zero_group_();
+#else
+   PyErr_SetString(PyExc_TypeError,"Groups not compiled in");
+   return NULL;
+#endif
    PyObject *returnObj = do_pgroup_global_op_work(args,my_group);
    return returnObj ;
 }
@@ -1301,7 +1307,13 @@ static PyObject *do_pgroup_broadcast_all(PyObject *self, PyObject *args)
 }
 static PyObject *do_pgroup_broadcast_zero(PyObject *self, PyObject *args)
 {
-   Integer my_group = util_sgroup_zero_group_();
+   Integer my_group;
+#ifdef USE_SUBGROUPS
+   my_group = util_sgroup_zero_group_();
+#else
+   PyErr_SetString(PyExc_TypeError,"Groups not compiled in");
+   return NULL;
+#endif
    if (ga_nodeid_() != 0) {
      Py_INCREF(Py_None);
      return Py_None;
