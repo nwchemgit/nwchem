@@ -1,12 +1,10 @@
-/*$Id: rtdb.c,v 1.22 2004-08-26 22:26:54 edo Exp $*/
+/*$Id: rtdb.c,v 1.23 2007-08-17 22:32:40 d3p852 Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
 #include "macdecls.h"
 #include "global.h"
 #include "hdbm.h"
-
-typedef long integer;		/* Equivalent C type to FORTRAN integer */
 
 #define TYPE_RTDB_HANDLE  30001
 #define TYPE_RTDB_STATUS  30002
@@ -350,14 +348,14 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
 	     the TCGMSG error routine */
 
 	  ga_error("rtdb_get_ma: rtdb_get_ma: MA_alloc failed, nelem=",
-		(int) nelem);
+		(Integer) nelem);
 	}
         *ma_handle = (int) ma_handle_buf;
       }
       
       if (!MA_get_pointer((Integer) *ma_handle, &ma_data)) {
 	ga_error("rtdb_get_ma: rtdb_get_ma: MA_get_ptr failed, nelem=",
-	      (int) nelem);
+	      (Integer) nelem);
       }
 
       rtdb_broadcast(TYPE_RTDB_ARRAY, *ma_type, *nelem, (void *) ma_data);
