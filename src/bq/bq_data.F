@@ -1,10 +1,8 @@
-c $Id: bq_data.F,v 1.10 2005-11-15 22:51:06 bylaska Exp $
+c $Id: bq_data.F,v 1.11 2007-08-17 22:33:21 d3p852 Exp $
       block data initial_bq_data
-C$Id: bq_data.F,v 1.10 2005-11-15 22:51:06 bylaska Exp $
       implicit none
 #include "bq_data.fh"
 c     
-      integer i             
       data bq_active /max_bq*.false./
       data bq_mem /max_bq*.false./
       data bq_ncent /max_bq*0/
