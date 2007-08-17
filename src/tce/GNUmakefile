@@ -1,13 +1,11 @@
-#$Id: GNUmakefile,v 1.29 2006-06-01 02:33:11 kowalski Exp $
+#$Id: GNUmakefile,v 1.30 2007-08-17 16:45:22 jhammond Exp $
 #
-# CCSDTQ, CCSDTQ_LAMBDA, EOM-CCSDTQ will not be compiled by default.
-# To include these, setenv CCSDTQ yes; make realclean; make.
 
- SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
-           cisd cisdt cisdtq mbpt1 mbpt2 mbpt3 mbpt4 \
-           ccsd_lambda ccsdt_lambda ccsdtq_lambda \
-           eomccsd eomccsdt eomccsdtq ccsd_t cr-eomccsd_t \
-           
+SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
+          mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
+          ccsd_lambda ccsdt_lambda ccsdtq_lambda \
+          eomccsd eomccsdt eomccsdtq ccsd_t cr-eomccsd_t \
+          diis2 response ccsd_lr ccsdt_alpha_offdiag
 
 OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o gatodra.o gatoeaf.o \
@@ -44,7 +42,7 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_eom_xdiagon.F dscalfile.F tce_eom_ydiagon.F\
             tce_ao1e.F tce_aod1.F tce_mo1e.F
 
-LIB_DEFINES = -DDEBUG_PRINT
+LIB_DEFINES = -DDEBUG_PRINT -DFULLTENSOR
 #
 # Possible #defines
 #
