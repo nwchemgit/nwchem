@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau, kske,Mmat)
 c
-c     $Id: xc_eval_fnl.F,v 1.58 2007-02-13 23:19:46 bert Exp $
+c     $Id: xc_eval_fnl.F,v 1.59 2007-08-20 23:11:11 niri Exp $
 c
       implicit none
 c
@@ -627,7 +627,18 @@ c
          endif
       endif
 
-
+c
+c BNL 2007 Exchange 
+c
+      if (abs(xfac(38)).gt.eps)then
+       if (.not. do_2nd) then
+        call xc_rodaes_erf(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
+     &    rho, Amat, nq, ipol, Ex, qwght, ldew, func)
+       else
+        call xc_rodaes_erf_d2(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
+     &    rho, Amat, Amat2, nq, ipol, Ex, qwght, .false., func)
+       endif
+      endif
 c
 c     cpw6b95 is special in that the GGA part is
 c     defined to be dependent on

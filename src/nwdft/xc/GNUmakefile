@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.105 2007-07-10 21:43:01 niri Exp $
+# $Id: GNUmakefile,v 1.106 2007-08-20 23:11:11 niri Exp $
 
 	OBJ=xc_getv.o zora_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
 
@@ -11,6 +11,7 @@
 	xc_becke88.o \
 	xc_beckew.o \
 	xc_dirac.o \
+	xc_rodaes_erf.o \
 	xc_dirac_screened.o \
 	xc_fitv.o \
 	xc_lebedev.o \
@@ -48,9 +49,9 @@ ifeq ($(TARGET),cray-sv2)
 endif
 
 
-   USES_BLAS = xc_fitv.F xc_dirac.F xc_tabcd.F zora_tabcd.F xc_rhogen.F \
+   USES_BLAS = xc_fitv.F xc_dirac.F xc_rodaes_erf.F xc_tabcd.F zora_tabcd.F xc_rhogen.F \
                xc_beckew.F xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
-               xc_eval_basis.F xc_fd.F  xc_optc.F xc_atomblock.F xc_vdw.F scat_mat.F
+               xc_eval_basis.F xc_fd.F xc_optc.F xc_atomblock.F xc_vdw.F scat_mat.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
