@@ -1,5 +1,5 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.51 2007-02-13 23:19:43 bert Exp $
+C$Id: xc_inp.F,v 1.52 2007-08-20 23:23:39 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -77,12 +77,10 @@ c     cm06     => 7800
 c     m06-2x   => 7900
 c     xm06-2x  => 8000
 c     cm06-2x  => 8100
-c
-
-
+c     xbnl07   => 8200
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs=89 , numfunc=40)
+      parameter (num_dirs=90 , numfunc=41)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -115,8 +113,7 @@ c
      &     'xpw6b95','cpw6b95','xpwb6k','cpwb6k','xm05','cm05',
      &     'xm05-2x','cm05-2x','vs98','xvs98','cvs98','m06-L',
      &     'xm06-L','cm06-L','m06-hf','xm06-hf','cm06-hf','m06',
-     &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x'/
-
+     &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x','xbnl07'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -151,7 +148,7 @@ c
      &  5000,5100,5200,5300,5400,5500,5600,5700,5800,
      &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
      &  7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,
-     ,     1999) ind
+     &  8200,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -2280,10 +2277,15 @@ c
       endif
 c
       goto 10
-
-
-
 c
+c     xbnl07: Baer-Neuhauser-Livshits (BNL) 2007 exchange functional
+c     
+ 8200 xfac(38)= 1.0d0
+      lxfac(38)=.true.
+      nlxfac(38)=.false.
+c
+      goto 10
+c     
 c     gill96; Gill '96 functional for exchange
 c     
  2300  if (inp_a(test)) then
