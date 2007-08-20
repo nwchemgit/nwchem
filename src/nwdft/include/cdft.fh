@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.70 2007-02-15 00:07:49 bert Exp $
+C$Id: cdft.fh,v 1.71 2007-08-20 23:12:41 niri Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -44,7 +44,7 @@ c
      ,     g_cdinv, g_2ceri, sic_orb_spin, sic_orb_occ, sic_orb_index,
      ,     g_sic_dens(2), aux_ik, g_s12m,g_s12p
 c
-      parameter(numfunc=40)
+      parameter(numfunc=41)
       character*256 movecs_in, movecs_out
       character*8 movecs_guess
       common /cdft/
