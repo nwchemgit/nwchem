@@ -82,16 +82,20 @@ c
 
             f(n) = fA * rhoA + fB * rhoB
             Amat(n,1) = Amat(n,1) + (fpA*RhoA2+fA)*fac
-            Amat(n,2) = Amat(n,2) + (fpB*RhoB2+fB)*fac
+            if (ipol.gt.1) then
+              Amat(n,2) = Amat(n,2) + (fpB*RhoB2+fB)*fac
+            end if
 
 #ifdef SECOND_DERIV
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 
      &        ((fppA*rhoA+fpA)*4)*fac
 c
 c           Guard against case of no beta electrons, e.g. H atom
-            if (rho(n,3).gt.tol_rho) then
+            if (ipol.gt.1) then
+             if (rho(n,3).gt.tol_rho) then
               Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + 
      &          ((fppB*rhoB+fpB)*4)*fac
+             end if
             end if
 #endif
             if (ldew) func(n) = func(n) + f(n)*fac 

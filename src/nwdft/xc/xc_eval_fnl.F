@@ -9,12 +9,13 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau, kske,Mmat)
 c
-c     $Id: xc_eval_fnl.F,v 1.59 2007-08-20 23:11:11 niri Exp $
+c     $Id: xc_eval_fnl.F,v 1.60 2007-08-21 17:36:51 niri Exp $
 c
       implicit none
 c
 #include "cdft.fh"
 #include "dft2drv.fh"
+#include "stdio.fh"
 c
       integer nq
       double precision rho(*), delrho(*)
@@ -426,7 +427,6 @@ c     meta GGA
             call xc_xpkzb99_d2()
          endif
       endif
-
 c
 c     LB94 or CS00 correction is added to xc potential only
 c     (xc functional and functional 2nds are unchanged)
@@ -437,7 +437,6 @@ c
       else if (lb94) then
          call xc_lb94(tol_rho, xfac(1), rho, delrho, Amat, nq, ipol)
       endif
-
 c     
 c     PKZB99-COR is special in that the GGA part is
 c     defined to be  PBE COR GGA  and also is dependent on
@@ -466,9 +465,6 @@ c   TPSS  meta GGA
             call xc_xtpss03_d2()
          endif
       endif
-
-
-
 c     
 c     TPSS03-COR is special in that the GGA part is
 c     defined to be  PBE COR GGA  and also is dependent on
@@ -487,8 +483,6 @@ c
             call xc_ctpss03_d2()
          endif
       endif
-
-
 c     
 c     Bc95-COR is special in that the GGA part is
 c     defined to be dependent on
@@ -509,7 +503,6 @@ c
             call xc_bc95_d2()
          endif
       endif
-
 c   
 c   PW6B95 Exchange part
 c
@@ -550,7 +543,6 @@ c
             call xc_xm05_d2()
          endif
       endif
-
 c
 c M05-2X   meta GGA Exchange
 c      
@@ -587,7 +579,6 @@ c
             call xc_xvs98_d2()
          endif
       endif
-
 c
 c M06-HF   meta GGA Exchange
 c
@@ -600,7 +591,6 @@ c
             call xc_xm06_d2()
          endif
       endif
-
 c
 c M06   meta GGA Exchange
 c
@@ -613,7 +603,6 @@ c
             call xc_xm06_d2()
          endif
       endif
-
 c
 c M06-2X  meta GGA Exchange
 c
@@ -626,7 +615,6 @@ c
             call xc_xm06_d2()
          endif
       endif
-
 c
 c BNL 2007 Exchange 
 c
@@ -636,7 +624,7 @@ c
      &    rho, Amat, nq, ipol, Ex, qwght, ldew, func)
        else
         call xc_rodaes_erf_d2(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
-     &    rho, Amat, Amat2, nq, ipol, Ex, qwght, .false., func)
+     &    rho, Amat, Amat2, nq, ipol, Ex, qwght, ldew, func)
        endif
       endif
 c
@@ -658,7 +646,7 @@ c
             call xc_bc95_d2()
          endif
       endif
-
+c
 c     cpwb6k is special in that the GGA part is
 c     defined to be dependent on
 c     the E(LDA) ...
@@ -677,7 +665,7 @@ c
             call xc_bc95_d2()
          endif
       endif
-
+c
 c     cm05 is special in that the GGA part is
 c     defined to be dependent on
 c     the E(LDA) ...
@@ -695,7 +683,7 @@ c
             call xc_cm05_d2()
          endif
       endif
-
+c
 c     cm05-2x is special in that the GGA part is
 c     defined to be dependent on
 c     the E(LDA) ...
@@ -713,7 +701,7 @@ c
             call xc_cm05_d2()
          endif
       endif
-
+c
 c     cvs98 is special in that the GGA part is
 c     defined to be dependent on
 c     the E(LDA) ...
@@ -731,7 +719,7 @@ c
             call xc_cvs98_d2()
          endif
       endif
-
+c
 c     cm06-L is special in that the GGA part is
 c     defined to be dependent on
 c     the E(LDA) ...
@@ -749,6 +737,7 @@ c
             call xc_cm06_d2()
          endif
       endif
+c
 c     cm06-hf is special in that the GGA part is
 c     defined to be dependent on
 c     the E(LDA) ...
@@ -766,7 +755,7 @@ c
             call xc_cm06_d2()
          endif
       endif
-
+c
 c     cm06 is special in that the GGA part is
 c     defined to be dependent on
 c     the E(LDA) ...
@@ -784,6 +773,7 @@ c
             call xc_cm06_d2()
          endif
       endif
+c
 c     cm06-2x is special in that the GGA part is
 c     defined to be dependent on
 c     the E(LDA) ...
@@ -801,9 +791,6 @@ c
             call xc_cm06_d2()
          endif
       endif
-
-
-
 c
 c     Combine with quadrature weights
 c
