@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.17 2007-08-16 22:50:29 d3p852 Exp $
+C$Id: gibbs.F,v 1.18 2007-08-21 17:31:08 d3p852 Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -61,10 +61,8 @@ c
       double precision rb, testme
       integer bigproc, procnums
       integer ngroups
-#ifdef USE_SUBGROUPS
       integer util_sgroup_numgroups
       external util_sgroup_numgroups
-#endif
       double precision NDA,NDSIG
 
       double precision temp, uu, uavr, usqrd, rsimsum, rsimavr
