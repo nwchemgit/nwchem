@@ -1,4 +1,14 @@
-C$Id: util_sgroup.F,v 1.43 2007-08-16 19:30:31 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.44 2007-08-21 17:11:49 d3p852 Exp $
+      block data groups
+#include "util_sgroup.fh"
+C     Make sure that the group code works even if groups are not set up yet
+      data mygroup(0) /1/
+      data my_ga_grp(0)/-1/
+      data my_ga_0_grp(0)/-999/ ! Bogus
+      data ngroups(0) /1/
+      data sgprint /.false./
+      data depth /0/
+      end
 
 C###############################################################################
       logical function util_sgstart(rtdb)
@@ -587,7 +597,6 @@ c
 c
       return
       end
-
 c     Hokey functions to keep others away from my common blocks
 C###############################################################################
       integer function util_sgroup_mygroup()

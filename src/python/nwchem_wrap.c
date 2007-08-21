@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.46 2007-08-17 20:24:12 d3p852 Exp $
+ $Id: nwchem_wrap.c,v 1.47 2007-08-21 17:16:06 d3p852 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -893,7 +893,6 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
        PyErr_SetString(NwchemError, "do_pgroup_create failed with pyobj");
        return NULL;
    }
-#ifdef USE_SUBGROUPS
    if (method == 1) {
       util_sggo_(&rtdb_handle,&num_groups,&method,NULL);
    } else if (method == 3) {
@@ -950,13 +949,6 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
    nodeid = ga_pgroup_nodeid_(&my_ga_group);
    ngroups = util_sgroup_numgroups_() ;
    mygroup = util_sgroup_mygroup_() ;
-#else
-   my_ga_group = ga_pgroup_get_default_() ;
-   nnodes = ga_pgroup_nnodes_(&my_ga_group);
-   nodeid = ga_pgroup_nodeid_(&my_ga_group);
-   ngroups = 1;
-   mygroup = 1;
-#endif
    PyTuple_SET_ITEM(returnObj, 0, PyInt_FromLong((long) mygroup ));
    PyTuple_SET_ITEM(returnObj, 1, PyInt_FromLong((long) ngroups));
    PyTuple_SET_ITEM(returnObj, 2, PyInt_FromLong((long) nodeid));
@@ -984,20 +976,12 @@ static PyObject *do_pgroup_destroy(PyObject *self, PyObject *args)
        PyErr_SetString(NwchemError, "do_pgroup_destroy failed with pyobj");
        return NULL;
    }
-#ifdef USE_SUBGROUPS
    util_sgend_(&rtdb_handle);
    my_ga_group = ga_pgroup_get_default_() ;
    nnodes = ga_pgroup_nnodes_(&my_ga_group);
    nodeid = ga_pgroup_nodeid_(&my_ga_group);
    ngroups = util_sgroup_numgroups_() ;
    mygroup = util_sgroup_mygroup_() ;
-#else
-   my_ga_group = ga_pgroup_get_default_() ;
-   nnodes = ga_pgroup_nnodes_(&my_ga_group);
-   nodeid = ga_pgroup_nodeid_(&my_ga_group);
-   ngroups = 1;
-   mygroup = 1;
-#endif
    PyTuple_SET_ITEM(returnObj, 0, PyInt_FromLong((long) mygroup ));
    PyTuple_SET_ITEM(returnObj, 1, PyInt_FromLong((long) ngroups));
    PyTuple_SET_ITEM(returnObj, 2, PyInt_FromLong((long) nodeid));
@@ -1176,12 +1160,7 @@ static PyObject *do_pgroup_global_op_zero(PyObject *self, PyObject *args)
      Py_INCREF(Py_None); 
      return Py_None;
    }
-#ifdef USE_SUBGROUPS
    my_group = util_sgroup_zero_group_();
-#else
-   PyErr_SetString(PyExc_TypeError,"Groups not compiled in");
-   return NULL;
-#endif
    PyObject *returnObj = do_pgroup_global_op_work(args,my_group);
    return returnObj ;
 }
@@ -1308,12 +1287,7 @@ static PyObject *do_pgroup_broadcast_all(PyObject *self, PyObject *args)
 static PyObject *do_pgroup_broadcast_zero(PyObject *self, PyObject *args)
 {
    Integer my_group;
-#ifdef USE_SUBGROUPS
    my_group = util_sgroup_zero_group_();
-#else
-   PyErr_SetString(PyExc_TypeError,"Groups not compiled in");
-   return NULL;
-#endif
    if (ga_nodeid_() != 0) {
      Py_INCREF(Py_None);
      return Py_None;
@@ -1351,31 +1325,23 @@ static PyObject *do_pgroup_nodeid(PyObject *self, PyObject *args)
 static PyObject *do_pgroup_ngroups(PyObject *self, PyObject *args)
 {
    /// Returns the number of groups at the current groups level
-#ifdef USE_SUBGROUPS
    Integer ngroups = util_sgroup_numgroups_() ;
    if (args) {
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_ngroups()");
       return NULL;
    }
    return Py_BuildValue("i", ngroups);
-#else
-   return Py_BuildValue("i", 1);
-#endif
 }
 
 static PyObject *do_pgroup_groupid(PyObject *self, PyObject *args)
 {
    /// Returns the ID of group at the current groups level 
-#ifdef USE_SUBGROUPS
    Integer mygroup = util_sgroup_mygroup_() ;
    if (args) {
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_groupid()");
       return NULL;
    }
    return Py_BuildValue("i", mygroup);
-#else
-   return Py_BuildValue("i", 1);
-#endif
 }
 
 static PyObject *do_ga_groupid(PyObject *self, PyObject *args)

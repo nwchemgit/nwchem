@@ -1,5 +1,5 @@
 /*
- $Id: nw_inp_from_string.c,v 1.13 2007-08-17 20:24:12 d3p852 Exp $
+ $Id: nw_inp_from_string.c,v 1.14 2007-08-21 17:20:40 d3p852 Exp $
 */
 #include "global.h"
 #include <stdio.h>
@@ -46,15 +46,11 @@ int nw_inp_from_string(Integer rtdb, const char *input)
     int number ;
 
 // This is bad, not 100% sure to be unique, since could be subgroup
-#ifdef USE_SUBGROUPS
     if (ga_pgroup_get_world_() != ga_pgroup_get_default_()) {
        number = (int) util_sgroup_mygroup_() ;
     } else {
        number = 0 ;
     }
-#else
-    number = 0;
-#endif
     sprintf(filename, "%s%d%s", base,number,ending);
     if (ga_nodeid_() == 0) {
       if (!(file = fopen(filename,"w"))) {
