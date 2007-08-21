@@ -1,5 +1,5 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.52 2007-08-20 23:23:39 niri Exp $
+C$Id: xc_inp.F,v 1.53 2007-08-21 21:48:38 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -2280,9 +2280,31 @@ c
 c
 c     xbnl07: Baer-Neuhauser-Livshits (BNL) 2007 exchange functional
 c     
- 8200 xfac(38)= 1.0d0
-      lxfac(38)=.true.
-      nlxfac(38)=.false.
+ 8200 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            lxfac(38) = .true.
+         elseif (inp_compare(.false.,'nonlocal', test)) then
+            nlxfac(38) = .false.
+            write(LuOut,*)' BNL is a local functional;',
+     &                ' "nonlocal" descriptor is ignored. '
+         else
+c
+c           assume total wanted
+c
+            lxfac(38) = .true.
+            nlxfac(38) = .false.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(38) = .true.
+         nlxfac(38) = .false.
+      endif
+      if (.not. inp_f(xfac(38))) then
+         xfac(38) = 1.0d0
+      endif
 c
       goto 10
 c     
