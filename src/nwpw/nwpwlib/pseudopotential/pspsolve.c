@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.22 2007-06-19 21:26:06 bylaska Exp $
+ $Id: pspsolve.c,v 1.23 2007-08-21 21:05:54 d3p708 Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -228,7 +228,7 @@ void FATR pspsolve_
 
 
 
-      /* output datafile to be used for Kleinman-Bylander input, argv[1].dat */
+      /* output datafile to be used for Kleinman-Bylander input, argv[1].psp */
       if (print)
 	{
 	  printf (" Creating datafile for Kleinman-Bylander input: %s\n",
