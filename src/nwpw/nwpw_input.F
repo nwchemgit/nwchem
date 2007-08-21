@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.38 2006-12-05 00:14:39 bylaska Exp $
+c $Id: nwpw_input.F,v 1.39 2007-08-21 18:53:41 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -776,7 +776,10 @@ c
 c
 c  SCF minimizer
 c
- 4800 if (.not.inp_a(zone_name)) goto 4801
+ 4800 nx = 8 !default is density mixing
+      if (.not.inp_a(zone_name)) goto 4801
+       if (inp_compare(.false.,zone_name,'potential')) nx = 5
+       if (inp_compare(.false.,zone_name,'density'))   nx = 8
        if (inp_compare(.false.,zone_name,'cg')) then
          if(.not.rtdb_put(rtdb,'nwpw:ks_algorithm',mt_int,1,0))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
@@ -824,7 +827,7 @@ c
 
       goto 4800
 
- 4801 if (.not.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,5))
+ 4801 if (.not.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,nx))
      >  call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
 
       goto 10
