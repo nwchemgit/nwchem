@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.13 2007-06-19 21:07:22 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.14 2007-08-21 19:48:23 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -107,6 +107,7 @@ cccccccccccccccccccccccccccccccccccccc
       end if
        
       msglen = 1
+      call BRDCST(9+MSGINT,pspx,mitob(msglen),MASTER)
       call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
       call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
       call BRDCST(9+MSGINT,lmax0,mitob(msglen),MASTER)

@@ -1,5 +1,5 @@
 *
-* $Id: hghpp_band.F,v 1.12 2007-02-08 23:59:58 d3p708 Exp $
+* $Id: hghpp_band.F,v 1.13 2007-08-21 19:48:23 d3p708 Exp $
 *
 
 *     **************************************
@@ -110,7 +110,7 @@
          end do
       end if
 
-
+c      psp_type=1
       msglen = 1
       call BRDCST(9+MSGINT,psp_type,mitob(msglen),MASTER)
       call BRDCST(9+MSGINT,Zion,mitob(msglen),MASTER)

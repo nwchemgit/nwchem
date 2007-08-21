@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.14 2007-06-20 01:59:37 bylaska Exp $
+* $Id: kbpp_band.F,v 1.15 2007-08-21 19:48:23 d3p708 Exp $
 *
 
 *     **************************************
@@ -100,6 +100,8 @@ c      call Parallel_init()
       end if
 
       msglen = 1
+      psp_type=0
+      call BRDCST(9+MSGINT,psp_type,mitob(msglen),MASTER)
       call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
       call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
       call BRDCST(9+MSGINT,lmax0,mitob(msglen),MASTER)
@@ -287,7 +289,6 @@ c      call Parallel_init()
          end if
          call openfile(2,full_filename,l,'w',l)     
          call cwrite(2,comment,80)
-         psp_type = 0
          call iwrite(2,psp_type,1)
          call iwrite(2,version,1)
          call iwrite(2,ngrid,3)
