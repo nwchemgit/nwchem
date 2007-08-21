@@ -32,7 +32,7 @@ c
       double precision rho(nq,(ipol*(ipol+1))/2) ! charge density
       double precision qwght(nq)                 ! quadrature weights
       double precision Amat(nq,ipol)             ! partial first derivatives  
-      double precision F(nq),RA(nq),RB(nq),MAX
+      double precision F(nq),RA(nq),RB(nq)
       double precision rhoA, rhoB, rhoTotal, rhoA2, rhoB2
       double precision gamma,omega
       double precision fA, fB, fpA, fpB, fppA, fppB
@@ -49,14 +49,13 @@ c     Preliminaries
 c     -----------------------------------------------------------------------
 c
       gamma = 0.5d0
-      omega = 0.1d0
 c
       do n = 1,nq
          if (ipol.eq.1) then   ! spin-restricted
-            rA(n) = rho(n,1) 
+            rA(n) = rho(n,1)
             rB(n) = 0.d0
          else                  ! spin-unrestricted
-            rA(n) = rho(n,2) 
+            rA(n) = rho(n,2)
             rB(n) = rho(n,3)
          end if
       end do
@@ -67,18 +66,18 @@ c     -----------------------------------------------------------------------
 c
       total = 0.d0
       do n = 1,nq
-         rhoA = MAX(rA(n),0D0)
-         rhoB = MAX(rB(n),0D0)
+         rhoA = rA(n)
+         rhoB = rB(n)
          rhoTotal  = rhoA + rhoB   ! total density at point
          if (rhoTotal.gt.tol_rho) then
             rhoA2 = rhoA*2
             rhoB2 = rhoB*2
-            fA = (1.d0 - omega)*EpsX(rhoA2,gamma)
-            fB = (1.d0 - omega)*EpsX(rhoB2,gamma)
-            fpA = (1.d0 - omega)*EpsXprime(rhoA2,gamma)
-            fpB = (1.d0 - omega)*EpsXprime(rhoB2,gamma)
-            fppA = (1.d0 - omega)*EpsTwoXprime(rhoA2,gamma)
-            fppB = (1.d0 - omega)*EpsTwoXprime(rhoB2,gamma)
+            fA   = EpsX(rhoA2,gamma)
+            fB   = EpsX(rhoB2,gamma)
+            fpA  = EpsXprime(rhoA2,gamma)
+            fpB  = EpsXprime(rhoB2,gamma)
+            fppA = EpsTwoXprime(rhoA2,gamma)
+            fppB = EpsTwoXprime(rhoB2,gamma)
 
             f(n) = fA * rhoA + fB * rhoB
             Amat(n,1) = Amat(n,1) + (fpA*RhoA2+fA)*fac
