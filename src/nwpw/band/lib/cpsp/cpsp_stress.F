@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.5 2007-08-21 02:16:27 d3p708 Exp $
+* $Id: cpsp_stress.F,v 1.6 2007-08-21 17:46:00 d3p708 Exp $
 *
 
 
@@ -679,7 +679,7 @@ c       close(11)
 *     **** external functions ****
       logical      nwpw_filefind
       integer      control_ngrid,brillioun_nbrillioun
-      integer      psp_lmmax
+      integer      psp_lmmax,cpsp_nprj
       real*8       control_unita
       character*12 control_boundry
       character*4  ion_atom
@@ -689,7 +689,7 @@ c       close(11)
       external     control_unita
       external     control_boundry
       external     ion_atom
-      external     cpsp_nproj      
+      external     cpsp_nprj      
 
       call Parallel_taskid(taskid)
 
