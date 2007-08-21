@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.25 2007-04-06 01:35:00 bylaska Exp $
+* $Id: Pneb.F,v 1.26 2007-08-21 21:06:22 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2535,7 +2535,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer mbb,nbb
       complex*16 A(*),B(*)
 #include "Pneb.fh"
-      integer ms,ms1,ms2,bshift,indx2,indx1,ie,je       
+      integer ms,ms1,ms2,bshift,indx2,indx1       
       if (mbb.eq.0) then
          ms1=1
          ms2=ispinq
