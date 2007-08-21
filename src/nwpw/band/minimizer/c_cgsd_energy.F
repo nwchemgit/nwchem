@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.17 2007-04-06 23:00:46 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.18 2007-08-21 02:02:04 d3p708 Exp $                       
 *
 
 *     ***************************
@@ -113,10 +113,10 @@
          else if (minimizer.eq.2) then
            bfgscount = bfgscount + 1
 
-           write(*,*) "Bundled BFGS minimizer not implemented"
-           stop
+c           write(*,*) "Bundled BFGS minimizer not implemented"
+c           stop
 
-C           call c_bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
+           call c_bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
 
          else if (minimizer.eq.3) then
            bfgscount = bfgscount + 1
