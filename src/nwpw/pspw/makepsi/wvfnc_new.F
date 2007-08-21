@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_new.F,v 1.8 2003-10-17 22:57:45 carlfahl Exp $
+* $Id: wvfnc_new.F,v 1.9 2007-08-21 18:53:04 bylaska Exp $
 *
 
       subroutine wvfnc_new(wavefunction_filename,
@@ -32,7 +32,8 @@
       if (taskid.eq.MASTER) then
         value = MA_push_get(mt_int,8*NMAX,
      >                    'filling',filling(2),filling(1))
-        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+        if (.not. value) 
+     >    call errquit('wvfnc_new:out of stack memory',0,MA_ERR)
 
 
         call sub_wvfnc_new(NMAX,int_mb(filling(1)),

@@ -1,6 +1,6 @@
 
 *
-* $Id: aorbs.F,v 1.4 2006-08-13 01:03:27 bylaska Exp $
+* $Id: aorbs.F,v 1.5 2007-08-21 18:52:58 bylaska Exp $
 *
 
 #define TCGMSG
@@ -492,7 +492,7 @@ c       close(11)
       integer      control_ngrid
       real*8       control_unita
       character*12 control_boundry
-      character*2  ion_atom
+      character*4  ion_atom
       external     nwpw_filefind
       external     control_ngrid
       external     control_unita

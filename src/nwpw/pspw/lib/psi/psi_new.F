@@ -1,5 +1,5 @@
 *
-* $Id: psi_new.F,v 1.14 2007-07-16 17:20:44 bylaska Exp $
+* $Id: psi_new.F,v 1.15 2007-08-21 18:53:01 bylaska Exp $
 *
 
 *     ***********************************
@@ -106,8 +106,8 @@
          ne(1) = (xx+x)/2
          ne(2) = (xx-x)/2
       end if
-      write(*,*) "ispin,ne=",ispin,ne
-      write(*,*) "mult=",mult
+      !write(*,*) "ispin,ne=",ispin,ne
+      !write(*,*) "mult=",mult
 
 
       nextra_orbs = control_frac_occ_extra_orbitals()

@@ -1,5 +1,5 @@
 c
-c $Id: aorbs_formatter.F,v 1.6 2004-03-03 23:26:54 bylaska Exp $
+c $Id: aorbs_formatter.F,v 1.7 2007-08-21 18:52:55 bylaska Exp $
 c
 
 *     ***************************************
@@ -9,8 +9,9 @@ c
 *     ***************************************
       subroutine aorbs_formatter_auto(atom)
       implicit none
+      character*4  atom
+
 #include "errquit.fh"
-      character*2  atom
 
 *     ***** local variables *****
       logical       value
@@ -47,6 +48,7 @@ c
       l = index(element,' ') - 1
       psp_filename       = element(1:l)//'.psp1'
       formatted_filename = element(1:l)//'.aorb'
+
 
 *     **** generate one-dimensional pseudopotential file ****
       if (.not.nwpw_filefind(psp_filename)) then
