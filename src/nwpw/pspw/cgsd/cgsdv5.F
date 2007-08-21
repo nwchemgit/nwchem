@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.84 2007-06-25 15:13:22 bylaska Exp $
+* $Id: cgsdv5.F,v 1.85 2007-08-21 18:52:42 bylaska Exp $
 *
 
 ***********************************************************************
@@ -448,7 +448,7 @@ c     value = psi_initialize()
          write(luout,1290) control_tole(),control_tolc()
          write(luout,1281) control_it_in()*control_it_out(),
      >                 control_it_in(),control_it_out()
-         if (minimizer.eq.5) then
+         if ((minimizer.eq.5).or.(minimizer.eq.8)) then
            write(luout,1291)
            if (control_ks_algorithm().eq.0) 
      >       write(luout,1292) "conjugate gradient"
@@ -462,6 +462,8 @@ c     value = psi_initialize()
      >       write(luout,1293) "Anderson mixing"
            if (control_scf_algorithm().eq.2) 
      >       write(luout,1293) "Johnson-Pulay mixing"
+           if (minimizer.eq.5) write(luout,1296) "potential"
+           if (minimizer.eq.8) write(luout,1296) "density"
            write(luout,1294) control_ks_alpha()
          end if
          write(luout,1300)
@@ -731,6 +733,7 @@ c     end if
  1294 FORMAT(5X, ' SCF mixing parameter =',F7.4)
  1295 FORMAT(5X, ' Kohn-Sham iterations = ',I3,
      >           ' (',I3,' outer)')
+ 1296 FORMAT(5X, ' SCF mixing type      = ',A)
  1300 FORMAT(//)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)

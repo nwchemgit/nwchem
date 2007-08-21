@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.17 2006-07-19 00:38:54 bylaska Exp $
+# $Id: GNUmakefile,v 1.18 2007-08-21 18:52:41 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 		cgsd_input.o \
@@ -20,6 +20,7 @@
                 bfgsminimize2.o  \
                 bfgsminimize3.o \
                 bybminimize.o \
+                bybminimize2.o \
                 sdminimize.o \
 		nominimize.o
 
@@ -30,7 +31,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = cgsdv5.F cgmdv5.F cgsd_energy.F bybminimize.F pspw_bq_gradient.F
+    USES_BLAS = cgsdv5.F cgmdv5.F cgsd_energy.F bybminimize.F bybminimize2.F pspw_bq_gradient.F
 
   LIB_DEFINES = 
   LIB_INCLUDES = -I../../nwpwlib/include

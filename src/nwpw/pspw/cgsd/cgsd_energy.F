@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.70 2007-04-22 01:49:56 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.71 2007-08-21 18:52:42 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -89,6 +89,7 @@ c#include "rtdb.fh"
          if (minimizer.eq.5) write(luout,1309)
          if (minimizer.eq.6) write(luout,1311)
          if (minimizer.eq.7) write(luout,1312)
+         if (minimizer.eq.8) write(luout,1313)
          call util_flush(luout)
       end if
 
@@ -145,6 +146,9 @@ c#include "rtdb.fh"
          else if (minimizer.eq.7) then
            bfgscount = bfgscount + 1
            call bfgsminimize2(E,deltae,deltac,bfgscount,minimizer)
+         else if (minimizer.eq.8) then
+           bfgscount = bfgscount + 1
+           call bybminimize2(E,deltae,deltac,bfgscount,.false.,1)
          end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
@@ -160,7 +164,7 @@ c#include "rtdb.fh"
             call psi_tmp_write()
          end if
 
-         if ((oprint).and.(minimizer.ne.5)) then 
+         if ((oprint).and.(minimizer.ne.5).and.(minimizer.ne.8)) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac
            call util_flush(luout)
          end if
@@ -202,14 +206,13 @@ c#include "rtdb.fh"
 
       call psi_diagonalize_hml()
 
-      if (.not.pspw_SIC()) then
-       !call psi_diagonalize_hml()
-       call psi_1rotate2()
-       call psi_2to1()
-      else
-       call psi_1gen_hml_g()
+      if (pspw_SIC()) then
+         call psi_1gen_hml_g()
+      else if (.not.fractional) then
+         call psi_1rotate2()
+         call psi_2to1()
       end if
- 
+
 
 *     **** geometrical center and center of mass of the cluster ****
       call center_geom(cx,cy,cz)
@@ -422,10 +425,11 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1306 FORMAT(10X,'============ Grassmann lmbfgs iteration ============')
  1307 FORMAT(10X,'============ Grassmann diis iteration ==============')
  1308 FORMAT(10X,'======= Stiefel conjugate gradient iteration =======')
- 1309 FORMAT(10X,'============= Kohn-Sham scf iteration ==============')
+ 1309 FORMAT(10X,'======= Kohn-Sham scf iteration (potential) ========')
  1310 FORMAT(I8,E20.10,3E15.5)
  1311 FORMAT(10X,'======= Projected Grassmann lmbfgs iteration =======')
  1312 FORMAT(10X,'============= Stiefel lmbfgs iteration =============')
+ 1313 FORMAT(10X,'======== Kohn-Sham scf iteration (density) =========')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted)')

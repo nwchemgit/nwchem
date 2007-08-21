@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.55 2007-06-25 15:13:22 bylaska Exp $
+* $Id: cpsdv5.F,v 1.56 2007-08-21 18:52:47 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -651,27 +651,27 @@ c         end if
      >             dcpl_mb(psi1(1)),1,
      >             dcpl_mb(psi2(1)),1)
 
-*     ***** diagonalize the hamiltonian matrix ****
+*     ***** diagonalize the hamiltonian matrix but don't rotate ****
+      else if (fractional) then
+         n = ne(1)
+         call Dneall_m_HmltimesSA(0,dbl_mb(hml(1)),dbl_mb(fweight(1)))
+         call Dneall_m_diagonalize(0,dbl_mb(hml(1)),
+     >                              dbl_mb(eig(1)),.false.)
+         do ms=1,ispin
+         do ii=1,ne(ms)
+            dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
+     >      =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
+     >      /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
+         end do
+         end do
+         call dcopy(2*npack1*nemaxq,
+     >             dcpl_mb(psi1(1)),1,
+     >             dcpl_mb(psi2(1)),1)
+
+*     ***** diagonalize and rotate the hamiltonian matrix ****
       else
-        n = ne(1)
-        nn = n*n
-
-        if (fractional) then
-          call Dneall_m_HmltimesSA(0,dbl_mb(hml(1)),dbl_mb(fweight(1)))
-        end if
-
         call Dneall_m_diagonalize(0,dbl_mb(hml(1)),
      >                              dbl_mb(eig(1)),.false.)
-
-        if (fractional) then
-          do ms=1,ispin
-          do ii=1,ne(ms)
-            dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
-     >       =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
-     >       /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
-          end do
-          end do
-        end if
 
         call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
      >                            dbl_mb(hml(1)),  1.0d0,
