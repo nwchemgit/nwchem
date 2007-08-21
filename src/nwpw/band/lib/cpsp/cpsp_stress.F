@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.4 2007-04-02 15:38:37 bylaska Exp $
+* $Id: cpsp_stress.F,v 1.5 2007-08-21 02:16:27 d3p708 Exp $
 *
 
 
@@ -689,7 +689,7 @@ c       close(11)
       external     control_unita
       external     control_boundry
       external     ion_atom
-      
+      external     cpsp_nproj      
 
       call Parallel_taskid(taskid)
 
@@ -713,8 +713,10 @@ ccc corrected to complex by pjn 11-7-06
          element = ion_atom(ia)
          l = index(element,' ') - 1
          fname = element(1:l)//'.cpp2'
-         !nproj = psp_lmmax(ia)
-         nproj=int_mb(lmmax(1)+ia-1)
+ccccccccccccc possible error here!!!!!! CCCCCCCCCCCCCCCCCCc
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c         !nproj = psp_lmmax(ia)
+         nproj=cpsp_nprj(ia)
     
 
 *        **** not finished ****
