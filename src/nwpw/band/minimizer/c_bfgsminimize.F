@@ -1,5 +1,5 @@
 c
-c     $Id: c_bfgsminimize.F,v 1.3 2007-01-21 00:35:19 d3p708 Exp $                       
+c     $Id: c_bfgsminimize.F,v 1.4 2007-08-21 20:59:26 d3p708 Exp $                       
 c
 
 *  ************************************************************
@@ -130,12 +130,11 @@ c     dte = 1.0d0
       if (current_iteration.eq.1) then
 
 *        ***** use the initial gradient for the direction ****
-         write(0,*)"lmbfgs_size= ",control_lmbfgs_size() 
+c         write(0,*)"lmbfgs_size= ",control_lmbfgs_size() 
          call band_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
          
-         write(0,*)"ar"
-         call Pneb_ff_copy(0,0,npack1,
-     >                      dcpl_mb(G0(1)),
+c         write(0,*)"ar"
+         call BGrsm_ff_Copy(dcpl_mb(G0(1)),
      >                      dcpl_mb(S0(1)))
          tmin  = 10*deltat_min
       else

@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.43 2007-07-13 17:34:20 d3p708 Exp $
+* $Id: cpsp.F,v 1.44 2007-08-21 20:59:54 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -1636,6 +1636,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
      >                       full_filename)
          l = index(full_filename,' ') - 1
          call openfile(5,full_filename,l,'r',l)
+         write(*,*)"all work and no play makes a psychotic hacker!"
+         call flush(6)
          call cread(5,comment,80)
          call iread(5,psp_type,1)
          call iread(5,version,1)
@@ -1647,6 +1649,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
          call iread(5,lmax,1)
          call iread(5,locp,1)
          call iread(5,nmax,1)
+         write(6,*)"nmax= ",nmax
+         call flush(6)
          lmmax=(lmax+1)**2 - (2*locp+1)
          amass = amass*1822.89d0
          call dread(5,rc,(lmax+1))
@@ -1660,6 +1664,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
            else
 ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
              rsize=nmax*nmax*(lmax+1)
+             write(6,*)"nmax= ",nmax," rsize =",rsize," lmax+1 ",
+     $           (lmax+1)
+             call flush(6)
              call dread(5,Gijl,rsize)
 ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
            end if
@@ -2005,7 +2012,7 @@ c          end do
               if (taskid.eq.MASTER) then
               write(luout,*)
               write(luout,*) 
-     >        "pseudopotential is not correctly formatted:",fname
+     >        "pseudopotential is not correctly formatted:--",fname
               end if
            end if
            if (correct_box) found = .true.
@@ -2014,7 +2021,7 @@ c          end do
               if (taskid.eq.MASTER) then
               write(luout,*)
               write(luout,*) 
-     >        "pseudopotential is not correctly formatted-",
+     >        "pseudopotential is not correctly formatted---",
      >         "bad brillioun zone:",fname
               end if
            end if

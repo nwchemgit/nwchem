@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.48 2007-04-02 15:38:37 bylaska Exp $
+* $Id: band_minimizer.F,v 1.49 2007-08-21 20:59:26 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -205,8 +205,14 @@ c      external      cpsp_comment
       call center_mass(gx,gy,gz)
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
+      write(6,*)"JKL 1"
+      call flush(6) 
       call cpsp_init()
+      write(6,*)"JKL 2"
+      call flush(6) 
       call cpsp_readall()
+      write(6,*)"JKL 3"
+      call flush(6) 
       if (cpsp_semicore(0)) call c_semicore_check()
 
 
