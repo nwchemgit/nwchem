@@ -1,5 +1,5 @@
 *
-*     $Id: band_lmbfgs.F,v 1.2 2006-11-29 02:33:29 d3p708 Exp $                       
+*     $Id: band_lmbfgs.F,v 1.3 2007-08-21 19:23:21 d3p708 Exp $                       
 *
 
       subroutine band_lmbfgs_init(max_m0,g)
@@ -25,10 +25,10 @@
       call band_Grsm_list_init('lmbfgs',2*max_m,2*nsize)
       write(0,*)"band_Grsm_init ",nsize,max_m,neall,ne(1),nbrill
       m = 1
-      call Stfl_gg_dScale(ispin,ne,npack1,neall,nbrill,(-1.0d0),g,g)
+      call BGrsm_ff_dScale(-1.0d0,g,g)
       call band_Grsm_list_store(2*m-1,g)
       call band_Grsm_list_store(2*m,g)
-      call Stfl_gg_dScale(ispin,ne,npack1,neall,nbrill,(-1.0d0),g,g)
+      call BGrsm_ff_dScale(-1.0d0,g,g)
       return
       end
 
@@ -91,16 +91,16 @@
 c      casa1=yy(2)-yy(1)
 c      casa2=ss(2)-ss(1)
       write(0,*)"Doing first trace in band_lmbfgs",casa2,casa1
-      call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
+      call Pneb_ff_traceall(0,0,
      >                   dbl_mb(yy(1)),
-     >                   dbl_mb(ss(1)),
+     >                   dbl_mb(ss(1)),npack1,
      >                   sum)
       write(0,*)"did my trace"
       rho(m) = 1.0d0/sum
       write(0,*)"Doing 2nd trace in band_lmbfgs"
-      call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
+      call Pneb_ff_traceall(0,0,
      >                   dbl_mb(ss(1)),
-     >                   s,
+     >                   s,npack1,
      >                   sum)
       alpha(m) = rho(m)*sum
       call daxpy(ngras,(-alpha(m)),dbl_mb(yy(1)),1,s,1)
@@ -124,9 +124,9 @@ c      casa2=ss(2)-ss(1)
          end if
 
          write(0,*)"Doing traceall in band_lmbfgs",k
-         call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
+         call Pneb_ff_traceall(0,0,
      >                   dbl_mb(ss(1)),
-     >                   s,
+     >                   s,npack1,
      >                   sum)
          alpha(k) = rho(k)*sum
          write(0,*)"Doing  daxpy in band_lmbfgs",k
@@ -140,9 +140,9 @@ c      casa2=ss(2)-ss(1)
       do k=1,(m-1)
 
          write(0,*)"Doing traceall in band_lmbfgs",k
-         call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
+         call Pneb_ff_traceall(0,0,
      >                   dbl_mb(yy(1)),
-     >                   s,
+     >                   s,npack1,
      >                   sum)
          beta = rho(k)*sum
          sum = alpha(k) - beta
@@ -159,9 +159,9 @@ c      casa2=ss(2)-ss(1)
 
       end do
          write(0,*)"Doing  daxpy in band_lmbfgs"
-      call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
+      call Pneb_ff_traceall(0,0,
      >                dbl_mb(yy(1)),
-     >                s,
+     >                s,npack1,
      >                sum)
       beta = rho(m)*sum
       sum = alpha(m) - beta
