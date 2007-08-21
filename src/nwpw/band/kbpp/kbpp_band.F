@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.15 2007-08-21 19:48:23 d3p708 Exp $
+* $Id: kbpp_band.F,v 1.16 2007-08-21 20:32:47 d3p708 Exp $
 *
 
 *     **************************************
@@ -312,10 +312,8 @@ c      call Parallel_init()
          end if
          
          call dwrite(2,rcore,1)
-
          call iwrite(2,nbrillioun,1)
          call dwrite(2,kvectors,3*nbrillioun)
-
          call dwrite(2,dbl_mb(vl_indx),nsize)
       end if
 
@@ -381,7 +379,7 @@ c      call Parallel_Finalize()
  9999 call errquit('Error reading psp_filename',0, DISK_ERR)
 
       END
-
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine read_vpwp_band(unit,nrho,lmax,rho,vp,wp)
       implicit none
 #include "errquit.fh"

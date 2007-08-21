@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band_stress.F,v 1.3 2007-08-21 19:27:41 d3p708 Exp $
+* $Id: kbpp_band_stress.F,v 1.4 2007-08-21 20:32:47 d3p708 Exp $
 *
 
 
@@ -60,7 +60,7 @@
 
 *     **** other variables ****
       double precision unitg(3,3)
-      integer nsize,i,l,ierr
+      integer nsize,i,l,ierr,psp_type
       integer nfft1,nfft2,nfft3
 
 *     **** external functions ****
@@ -71,6 +71,7 @@
 c      call Parallel_init()
       call Parallel_taskid(taskid)
 
+      call get_psp_type(psp_filename,psp_type)
       value = .false.
   
 *     ***** read in pseudopotential data ****
@@ -80,7 +81,11 @@ c      call Parallel_init()
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
+      if (psp_type.ne.0) then
       read(11, * ,ERR=9999,END=9999) psp_tx
+      else
+      psp_tx=0
+      end if
       read(11,'(A2)',ERR=9999,END=9999) atom
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
@@ -128,7 +133,7 @@ c      call Parallel_init()
      >                        'sc', sc_r_hndl, sc_r_indx)
 
       if (taskid.eq.MASTER) then
-      call read_vpwp(11,nrho,lmax,dbl_mb(rho_indx),
+      call read_vpwp_band(11,nrho,lmax,dbl_mb(rho_indx),
      >                         dbl_mb(vp_indx),
      >                         dbl_mb(wp_indx))
       call read_semicore(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))

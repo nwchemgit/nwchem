@@ -1,5 +1,5 @@
 *
-* $Id: hghpp_band.F,v 1.13 2007-08-21 19:48:23 d3p708 Exp $
+* $Id: hghpp_band.F,v 1.14 2007-08-21 20:32:47 d3p708 Exp $
 *
 
 *     **************************************
@@ -468,7 +468,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
 
       hghpp_band = value
-
 
       return
  9999 call errquit('hghpp_band:Error reading psp_filename',0, DISK_ERR)
