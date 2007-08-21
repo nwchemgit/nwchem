@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band_stress.F,v 1.2 2006-12-05 00:14:40 bylaska Exp $
+* $Id: kbpp_band_stress.F,v 1.3 2007-08-21 19:27:41 d3p708 Exp $
 *
 
 
@@ -46,7 +46,7 @@
       double precision drho
       integer rho_indx,vp_indx,wp_indx,sc_r_indx,sc_k_indx
       integer rho_hndl,vp_hndl,wp_hndl,sc_r_hndl,sc_k_hndl
-
+      integer psp_tx
       integer          isemicore
       logical          semicore
       double precision rcore
@@ -80,6 +80,7 @@ c      call Parallel_init()
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
+      read(11, * ,ERR=9999,END=9999) psp_tx
       read(11,'(A2)',ERR=9999,END=9999) atom
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
@@ -88,6 +89,7 @@ c      call Parallel_init()
       end if
 
       msglen = 1
+      call BRDCST(9+MSGINT,psp_tx,mitob(msglen),MASTER)
       call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
       call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
       call BRDCST(9+MSGINT,lmax0,mitob(msglen),MASTER)
@@ -99,7 +101,10 @@ c      call Parallel_init()
       call BRDCST(9+MSGINT,nrho,mitob(msglen),MASTER)
       call BRDCST(9+MSGDBL,drho,mdtob(msglen),MASTER)
 
-
+      if (psp_tx.eq.7) then
+         call errquit("ERROR STRESS HAS NOT BEEN IMPLEMENTED FOR REL",
+     %     0)
+      end if
 *     **** set the maximum angular momentum ****
       if (lmax.eq.-1)    lmax = lmax1
       if (lmax.gt.lmax0) lmax = lmax0
