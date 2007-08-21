@@ -1,6 +1,6 @@
       logical function tddft_energy(rtdb)
 c
-c $Id: tddft_energy.F,v 1.9 2006-01-26 20:13:05 edo Exp $
+c $Id: tddft_energy.F,v 1.10 2007-08-21 21:54:04 niri Exp $
 c 
 c Main routine for TDDFT excitation energy calculations.
 c
@@ -47,7 +47,7 @@ c
       integer nmo(2)           ! Number of alpha, beta orbitals
       integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       integer numfunc          ! Number of functionals implemented
-      parameter (numfunc=40)   ! Must be consistent with "cdft.fh"
+      parameter (numfunc=41)   ! Must be consistent with "cdft.fh"
       character*255 movecs_out ! MO vector file name
       character*255 civecs_tmp ! CI vector file name
       character*40 xname(numfunc)       ! Names of X functionals
