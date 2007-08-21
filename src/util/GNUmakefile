@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.195 2007-02-24 17:33:40 edo Exp $
+# $Id: GNUmakefile,v 1.196 2007-08-21 17:11:49 d3p852 Exp $
 
 include ../config/makefile.h
 
@@ -129,10 +129,8 @@ endif
  OBJ_OPTIMIZE =  ga_matpow.o util_pack.o dabssum.o dabsmax.o $(BLAS) \
                  ga_it_lsolve.o ga_it_orth.o ga_orthog.o idamin.o \
                  util_jacobi.o stpr_sjacobi.o util_memcpy.o ga_accback.o \
-                 ga_asymmetr.o util_gnxtval.o nxtask.o util_mirror.o
- ifdef USE_SUBGROUPS
-   OBJ_OPTIMIZE +=   util_sgroup.o
- endif
+                 ga_asymmetr.o util_gnxtval.o nxtask.o util_mirror.o  \
+                 util_sgroup.o
 
   SUBDIRS = md5
 
