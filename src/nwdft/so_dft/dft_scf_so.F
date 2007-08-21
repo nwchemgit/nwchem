@@ -3,7 +3,7 @@
      &                  iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                  g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.37 2007-08-06 22:13:27 niri Exp $
+c     $Id: dft_scf_so.F,v 1.38 2007-08-21 21:57:05 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -45,6 +45,10 @@ c
 c     so
       double precision rho_n, toll_s
 c     
+czora
+      character*255 vecs_in
+czora
+c
 #include "bas.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -486,8 +490,15 @@ c     extra arrays
      &     call errquit('dft_scf_so: error creating damp ga', 0, GA_ERR)
       call ga_zero(g_damp_so(2))
 c
-czora...create zora arrays
+czora...section for zora arrays
       if (do_zora) then
+
+czora...announce to the world that spin-orbit zora calculations are being performed
+        if (me.eq.0) then 
+          write(luout,*) 
+          write(luout,*) "Performing spin-orbit zora calculations"
+          write(luout,*)
+        end if
 
 czora...spin-free arrays
       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'zora sf 1',0,0,
@@ -526,16 +537,26 @@ czora...spin-orbit arrays
      & call errquit('dft_scf_so: error creating zora',0, GA_ERR)
       call ga_zero(g_zora(2))
 
+czora...force an atomic guess for zora calculations
+czora...this is inefficient for geometry optimizations and restarts
+      vecs_in = "atomic"
+      call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
+     &        basis_trans, vecs_in, movecs_out, 
+     &        movecs_guess, scftype, nclosed, nopen, 
+     &        nbf, nbf, noc(1), noc(2),  k_eval, k_occ, 
+     &        k_ir, g_movecs, g_dens, 'density', 
+     &        'dft', title, oskel, oadapt, 
+     &        .true.) 
+c
       endif  ! do_zora
 czora...end
-c
 c
       call ga_sync()
       call ga_zero(g_densso(1))
       call ga_zero(g_densso(2))
       spinor = .false. 
       spinor=spinor_guess(movecs_in)
-
+c
 c      if (rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
 c     &     spinor=spinor_guess(movecs_in)
       if(.not.spinor)then 
