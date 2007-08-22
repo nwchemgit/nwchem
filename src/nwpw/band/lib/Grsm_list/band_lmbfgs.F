@@ -1,5 +1,5 @@
 *
-*     $Id: band_lmbfgs.F,v 1.3 2007-08-21 19:23:21 d3p708 Exp $                       
+*     $Id: band_lmbfgs.F,v 1.4 2007-08-22 20:12:34 bylaska Exp $                       
 *
 
       subroutine band_lmbfgs_init(max_m0,g)
@@ -23,7 +23,6 @@
       nbrill = brillioun_nbrillioun()
       nsize = neall*npack1*nbrill
       call band_Grsm_list_init('lmbfgs',2*max_m,2*nsize)
-      write(0,*)"band_Grsm_init ",nsize,max_m,neall,ne(1),nbrill
       m = 1
       call BGrsm_ff_dScale(-1.0d0,g,g)
       call band_Grsm_list_store(2*m-1,g)

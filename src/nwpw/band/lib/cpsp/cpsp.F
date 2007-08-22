@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.44 2007-08-21 20:59:54 d3p708 Exp $
+* $Id: cpsp.F,v 1.45 2007-08-22 20:12:37 bylaska Exp $
 *
 
 #define TCGMSG
@@ -742,7 +742,8 @@ c             *** current function is s or d ****
 
            if (move) then
               weight = brillioun_weight(nb)
-              if (ispin.eq.1) call dscal(2*nn*nproj,dcpl_mb(zsw2(1)),1)
+              if (ispin.eq.1) 
+     >           call dscal(2*nn*nproj,2.0d0,dcpl_mb(zsw2(1)),1)
           
               do l=1,nproj
           
@@ -1500,7 +1501,8 @@ c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
      >                          dcpl_mb(zsw2(1)))
 
               call dscal(2*nn*nproj,scal,dcpl_mb(zsw2(1)),1)
-              if (ispin.eq.1) call dscal(2*nn*nproj,dcpl_mb(zsw2(1)),1)
+              if (ispin.eq.1) 
+     >           call dscal(2*nn*nproj,2.0d0,dcpl_mb(zsw2(1)),1)
 
               do l=1,nproj
 
@@ -1897,7 +1899,7 @@ c          end do
       call Parallel_taskid(taskid)
       nbrill = brillioun_nbrillioun()
 
-      call cpsp_init()
+      !call cpsp_init()
 
 *     *** set semicore(0) *****
       log_mb(semicore(1)) = .false.
@@ -2219,7 +2221,8 @@ c             *** current function is s or d ****
 
            if (move) then
               weight = brillioun_weight(nb)
-              if (ispin.eq.1) call dscal(2*nn*nproj,dcpl_mb(zsw2(1)),1)
+              if (ispin.eq.1) 
+     >           call dscal(2*nn*nproj,2.0d0,dcpl_mb(zsw2(1)),1)
           
               do l=1,nproj
           

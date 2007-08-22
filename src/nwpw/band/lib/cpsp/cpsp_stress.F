@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.6 2007-08-21 17:46:00 d3p708 Exp $
+* $Id: cpsp_stress.F,v 1.7 2007-08-22 20:12:37 bylaska Exp $
 *
 
 
@@ -298,7 +298,8 @@
       value = value.and.
      >        MA_push_get(mt_dcpl,9*nn,
      >                    'zsw3',zsw3(2),zsw3(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cpsp_v_nonlocal_euv_2:out of stack',0,MA_ERR)
 
       
       
@@ -388,7 +389,7 @@
      >                         dcpl_mb(zsw1(1)),
      >                         dcpl_mb(zsw2(1)))
 
-        if (ispin.eq.1) call dscal(2*nn*nproj,2.0d0,dbl_mb(zsw2(1)),1)
+        if (ispin.eq.1) call dscal(2*nn*nproj,2.0d0,dcpl_mb(zsw2(1)),1)
         do n=1,nn*nproj
           dcpl_mb(zsw1(1)+n-1) = dconjg(dcpl_mb(zsw1(1)+n-1))
         end do
