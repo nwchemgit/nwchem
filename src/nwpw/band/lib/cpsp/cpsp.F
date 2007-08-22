@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.45 2007-08-22 20:12:37 bylaska Exp $
+* $Id: cpsp.F,v 1.46 2007-08-22 20:28:03 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -1638,8 +1638,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
      >                       full_filename)
          l = index(full_filename,' ') - 1
          call openfile(5,full_filename,l,'r',l)
-         write(*,*)"all work and no play makes a psychotic hacker!"
-         call flush(6)
          call cread(5,comment,80)
          call iread(5,psp_type,1)
          call iread(5,version,1)
@@ -1651,8 +1649,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
          call iread(5,lmax,1)
          call iread(5,locp,1)
          call iread(5,nmax,1)
-         write(6,*)"nmax= ",nmax
-         call flush(6)
          lmmax=(lmax+1)**2 - (2*locp+1)
          amass = amass*1822.89d0
          call dread(5,rc,(lmax+1))
@@ -1666,9 +1662,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
            else
 ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
              rsize=nmax*nmax*(lmax+1)
-             write(6,*)"nmax= ",nmax," rsize =",rsize," lmax+1 ",
-     $           (lmax+1)
-             call flush(6)
              call dread(5,Gijl,rsize)
 ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
            end if
@@ -1899,7 +1892,6 @@ c          end do
       call Parallel_taskid(taskid)
       nbrill = brillioun_nbrillioun()
 
-      !call cpsp_init()
 
 *     *** set semicore(0) *****
       log_mb(semicore(1)) = .false.
