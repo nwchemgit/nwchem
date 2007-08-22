@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.7 2007-08-22 20:12:37 bylaska Exp $
+* $Id: cpsp_stress.F,v 1.8 2007-08-22 20:37:22 d3p708 Exp $
 *
 
 
@@ -133,7 +133,7 @@
       call cpsp_v_local(dcpl_mb(vll(1)),.false.,dng,ftmp)
       call Cram_cc_dot(0,dng,dcpl_mb(vll(1)),elocal)
       value = MA_pop_stack(vll(2))
-      if (.not. value) call errquit('error poping stack memory',0,
+      if (.not. value) call errquit('error popping stack memory',0,
      &       MA_ERR)
 
 
@@ -203,7 +203,7 @@
       value = value.and.MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) call errquit('error poping stack memory',0,
+      if (.not. value) call errquit('error popping stack memory',0,
      &       MA_ERR)
 
       do u=1,3
@@ -347,11 +347,11 @@
            l_prj = int_mb(l_projector(1)+(l-1)
      >                                  +(ia-1)*(nmax_max*lmmax_max))
            !sd_function = .not.and(l_prj,1)
-#ifdef GCC4
-           k = iand(l_prj,1)
-#else
-           k = and(l_prj,1)
-#endif
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccccccccccc change this for actinides where we might have g's ccccc
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+           k=l_prj/2
+           k=2*k-l_prj
            sd_function = (k.eq.0)
 
 
@@ -472,7 +472,7 @@
       value = value.and.MA_pop_stack(vtmp(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not. value) 
-     >  call errquit('cpsp_v_nonlocal_euv_2:error poping stack',0,
+     >  call errquit('cpsp_v_nonlocal_euv_2:error popping stack',0,
      &       MA_ERR)
 
 
@@ -787,7 +787,9 @@ c         !nproj = psp_lmmax(ia)
  
       end do
  9000 value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
-
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not. value) 
+     >  call errquit('cpsp_stress_readall:error popping stack',0,
+     &       MA_ERR)
       return
       end
