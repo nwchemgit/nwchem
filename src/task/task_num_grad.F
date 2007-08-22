@@ -5,7 +5,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.37 2007-08-21 17:40:05 d3p852 Exp $
+* $Id: task_num_grad.F,v 1.38 2007-08-22 18:13:49 d3p852 Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -124,21 +124,16 @@ c
       integer util_sgroup_numgroups
       external util_sgroup_numgroups
 
-#ifdef USE_SUBGROUPS
       ncpus=ga_nnodes()
+#ifdef USE_SUBGROUPS
       if (ncpus.ne.1) then
        if(.not.util_sgstart(rtdb)) 
      $  call errquit('Error in SUBGROUPS init', 0, RTDB_ERR) 
-       mygroup = util_sgroup_mygroup()
-       num_groups = util_sgroup_numgroups()
-       ipcount=mygroup-2
-       write(6,*) 'mygroup and ipcount is ', mygroup, ipcount
       endif
-#else
-       mygroup = 1
-       num_groups = 1
-       ipcount=mygroup-2
 #endif
+      mygroup = util_sgroup_mygroup()
+      num_groups = util_sgroup_numgroups()
+      ipcount=mygroup-2
 c
       num_grad = .false.
       osaved = .false.
