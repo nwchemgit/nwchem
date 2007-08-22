@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.46 2007-08-22 20:28:03 d3p708 Exp $
+* $Id: cpsp.F,v 1.47 2007-08-22 20:46:51 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -1663,6 +1663,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
 ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
              rsize=nmax*nmax*(lmax+1)
              call dread(5,Gijl,rsize)
+             if (psp_type.eq.1) then
+               call dread(5,Kijl,rsize)
+             end if
 ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
            end if
          end if  
