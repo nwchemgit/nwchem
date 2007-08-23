@@ -1,5 +1,5 @@
 *
-*     $Id: band_lmbfgs.F,v 1.4 2007-08-22 20:12:34 bylaska Exp $                       
+*     $Id: band_lmbfgs.F,v 1.5 2007-08-23 23:00:25 d3p708 Exp $                       
 *
 
       subroutine band_lmbfgs_init(max_m0,g)
@@ -180,12 +180,12 @@ c      casa2=ss(2)-ss(1)
       call band_Grsm_list_store(2*m,s)
       call dscal(ngras, (-1.0d0),g,1)
 
-c      if (ondisk) then
+      if (ondisk) then
         value = MA_pop_stack(ss(2))
         value = value.and.
      >          MA_pop_stack(yy(2))
         if (.not.value) call errquit('band_lmbfgs:pop stack',2,0)
-c      end if
+      end if
 
       write(0,*)'out of band_lmbfgs'
       return 
