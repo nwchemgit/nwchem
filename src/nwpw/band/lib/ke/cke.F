@@ -1,5 +1,5 @@
 *
-* $Id: cke.F,v 1.10 2007-01-23 01:06:37 d3p708 Exp $
+* $Id: cke.F,v 1.11 2007-08-23 23:49:50 bylaska Exp $
 *
       subroutine cke_init()
       implicit none 
@@ -32,10 +32,12 @@ c     real*8 G(nfft3d,3)
 
       value = MA_alloc_get(mt_dbl,npack1*nbrillioun,
      >                     'tg',tg_hndl,tg_indx)
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cke_init:out of heap memory',0,MA_ERR)
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cke_init:out of stack memory',0,MA_ERR)
 
 
       do nb=1,nbrillioun
@@ -170,7 +172,8 @@ c     real*8 G(nfft3d,3)
       call Parallel_np(np)
       call Cram_max_npack(npack1)
       value = MA_push_get(mt_dcpl,npack1,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cke_ave:out of stack memory',0,MA_ERR)
 
 
       n1(1) = 1
@@ -257,19 +260,24 @@ c     real*8 G(nfft3d,3)
       
       value = MA_push_get(mt_dbl,nfft3d,
      >                     'G1',G(2,1),G(1,1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cke_euv:out of stack memory',0,MA_ERR)
       value = MA_push_get(mt_dbl,nfft3d,
      >                     'G2',G(2,2),G(1,2))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cke_euv:out of stack memory',0,MA_ERR)
       value = MA_push_get(mt_dbl,nfft3d,
      >                     'G3',G(2,3),G(1,3))
-      if (.not. value) call errquit('out of stack  memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cke_euv:out of stack  memory',0,MA_ERR)
 
       value = MA_push_get(mt_dbl,npack1,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cke_euv:out of stack memory',0,MA_ERR)
 
       value = MA_push_get(mt_dcpl,npack1,'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cke_euv:out of stack memory',0,MA_ERR)
 
     
 

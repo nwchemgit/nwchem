@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.16 2007-08-21 20:32:47 d3p708 Exp $
+* $Id: kbpp_band.F,v 1.17 2007-08-23 23:49:39 bylaska Exp $
 *
 
 *     **************************************
@@ -124,17 +124,17 @@ c      call Parallel_init()
       if (locp.gt.lmax) locp = lmax
       if (locp.lt.0)    locp = lmax
 
-      
-
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'vp',vp_hndl, vp_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'wp', wp_hndl, wp_indx)
-      value = MA_alloc_get(mt_dbl,2*nrho,
+      value = value.and.MA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
+      if (.not.value)
+     > call errquit("kbpp_band: out of stack memory",0,MA_ERR)
 
       if (taskid.eq.MASTER) then
       call read_vpwp_band(11,nrho,lmax,dbl_mb(rho_indx),
@@ -168,6 +168,8 @@ c      call Parallel_init()
      >                        'cs',cs_hndl,cs_indx)
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
+      if (.not.value)
+     > call errquit("kbpp_band: out of stack memory",0,MA_ERR)
 
 *     **** allocate vl,vnl,vnlnrm G ****
       lmmax = (lmax+1)**2 - (2*locp+1)
@@ -175,21 +177,22 @@ c      call Parallel_init()
       nsize = (ngrid(1))*ngrid(2)*ngrid(3)
       value = MA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
-      value = MA_alloc_get(mt_dbl,nsize*(lmmax),
+      value = value.and.MA_alloc_get(mt_dbl,nsize*(lmmax),
      >                        'vnl',vnl_hndl, vnl_indx)
-      value = MA_alloc_get(mt_dbl,lmmax,
+      value = value.and.MA_alloc_get(mt_dbl,(lmax+1),
      >                        'vnlnrm', vnlnrm_hndl, vnlnrm_indx)
-      value = MA_alloc_get(mt_dbl,nsize*(3),
+      value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
-      value = MA_alloc_get(mt_dbl,4*nsize,
+      value = value.and.MA_alloc_get(mt_dbl,4*nsize,
      >                        'sc_k',sc_k_hndl,sc_k_indx)
-      value = MA_alloc_get(mt_int,nprj,
+      value = value.and.MA_alloc_get(mt_int,nprj,
      >                        'n_prj', n_prj_hndl, n_prj_indx)
-      value = MA_alloc_get(mt_int,nprj,
+      value = value.and.MA_alloc_get(mt_int,nprj,
      >                        'l_prj', l_prj_hndl, l_prj_indx)
-      value = MA_alloc_get(mt_int,nprj,
+      value = value.and.MA_alloc_get(mt_int,nprj,
      >                        'm_prj', m_prj_hndl, m_prj_indx)
-
+      if (.not.value)
+     > call errquit("kbpp_band: out of stack memory",0,MA_ERR)
 
 
 
@@ -198,7 +201,7 @@ c      call Parallel_init()
       nfft2=ngrid(2)
       nfft3=ngrid(3)
       call setup_kbpp_band(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
-
+     
       call integrate_kbpp_band_local(version,
      >                      nrho,drho,lmax,locp,zv,
      >                                dbl_mb(vp_indx),
@@ -218,7 +221,6 @@ c      call Parallel_init()
      >                                dbl_mb(sc_r_indx),
      >                                dbl_mb(sc_k_indx),
      >                      ierr)
-
 
       if ((taskid.eq.MASTER).and.(oprint)) then
       write(*,*) "     ********************************************"
@@ -352,33 +354,32 @@ c      call Parallel_init()
 
 *     **** free heap space ****
       value = MA_free_heap(rho_hndl)
-      value = MA_free_heap(vp_hndl)
-      value = MA_free_heap(wp_hndl)
-      value = MA_free_heap(sc_r_hndl)
-      value = MA_free_heap(sc_k_hndl)
-      value = MA_free_heap(f_hndl)
-      value = MA_free_heap(cs_hndl)
-      value = MA_free_heap(sn_hndl)
+      value = value.and.MA_free_heap(vp_hndl)
+      value = value.and.MA_free_heap(wp_hndl)
+      value = value.and.MA_free_heap(sc_r_hndl)
+      value = value.and.MA_free_heap(sc_k_hndl)
+      value = value.and.MA_free_heap(f_hndl)
+      value = value.and.MA_free_heap(cs_hndl)
+      value = value.and.MA_free_heap(sn_hndl)
 
-      value = MA_free_heap(vl_hndl)
-      value = MA_free_heap(vnl_hndl)
-      value = MA_free_heap(vnlnrm_hndl)
-      value = MA_free_heap(G_hndl)
-      value = MA_free_heap(n_prj_hndl)
-      value = MA_free_heap(l_prj_hndl)
-      value = MA_free_heap(m_prj_hndl)
-
-
+      value = value.and.MA_free_heap(vl_hndl)
+      value = value.and.MA_free_heap(vnl_hndl)
+      value = value.and.MA_free_heap(vnlnrm_hndl)
+      value = value.and.MA_free_heap(G_hndl)
+      value = value.and.MA_free_heap(n_prj_hndl)
+      value = value.and.MA_free_heap(l_prj_hndl)
+      value = value.and.MA_free_heap(m_prj_hndl)
+      if (.not.value)
+     > call errquit("kbpp_band: error popping stack",0,MA_ERR)
 
 c      call Parallel_Finalize()
       
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
       kbpp_band = value
       return
-
  9999 call errquit('Error reading psp_filename',0, DISK_ERR)
-
       END
+
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine read_vpwp_band(unit,nrho,lmax,rho,vp,wp)
       implicit none

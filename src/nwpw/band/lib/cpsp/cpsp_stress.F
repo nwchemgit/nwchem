@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.8 2007-08-22 20:37:22 d3p708 Exp $
+* $Id: cpsp_stress.F,v 1.9 2007-08-23 23:49:45 bylaska Exp $
 *
 
 
@@ -38,7 +38,8 @@
      >                    (3*nmax_max*lmmax_max*npsp*npack1*nbrillioun),
      >                    'dvnl',dvnl(2),dvnl(1))
 
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cpsp_stress_init:out of heap memory',0,MA_ERR)
 
       call dcopy(npsp*npack0,0.0d0,0,dbl_mb(dvl(1)),1)
       call dcopy(3*nmax_max*lmmax_max*npsp*npack1*nbrillioun,
@@ -129,12 +130,13 @@
 
 *     **** average Kohn-Sham v_local energy ****
       value = MA_push_get(mt_dcpl,npack0,'vll',vll(2),vll(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cpsp_v_local_euv:out of stack memory',0,MA_ERR)
       call cpsp_v_local(dcpl_mb(vll(1)),.false.,dng,ftmp)
       call Cram_cc_dot(0,dng,dcpl_mb(vll(1)),elocal)
       value = MA_pop_stack(vll(2))
-      if (.not. value) call errquit('error popping stack memory',0,
-     &       MA_ERR)
+      if (.not. value) 
+     > call errquit('cpsp_v_local_euv:error popping stack',0,MA_ERR)
 
 
       value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
@@ -148,7 +150,8 @@
      >        MA_push_get(mt_dbl, nfft3d,'G2',G(2,2),G(1,2))
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'G3',G(2,3),G(1,3))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cpsp_v_local_euv:out of stack memory',0,MA_ERR)
 
 *     **** define Gx,Gy and Gz in packed space ****
       call C3dB_r_Copy(1,dbl_mb(c_G_indx(1)),dbl_mb(G(1,1)))
@@ -701,10 +704,12 @@ c       close(11)
 
 ccc corrected to complex by pjn 11-7-06
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cpsp_stress_readall:out of stack memory',0,MA_ERR)
 
       value = MA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('cpsp_stress_readall:out of stack memory',0,MA_ERR)
 
 *     **** read pseudopotentials ****
       do ia=1,npsp

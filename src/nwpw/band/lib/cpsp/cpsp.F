@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.47 2007-08-22 20:46:51 d3p708 Exp $
+* $Id: cpsp.F,v 1.48 2007-08-23 23:49:45 bylaska Exp $
 *
 
 #define TCGMSG
@@ -653,6 +653,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         nproj = int_mb(nprj(1)+ia-1)
         if (nproj.gt.0) then 
+
           if (int_mb(psp_type(1)+ia-1).eq.7) then
             call cpsp_v_nonlocal_rel(ii,ia,nproj,npack1,nbrill,
      >      nn,dbl_mb(xtmp(1)),dbl_mb(sum(1)),ne,
@@ -1618,7 +1619,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       integer msglen,rsize
       integer iatom(2)
       character*255 full_filename
-      real*8 kv(3)
+      real*8 kv(3),sum1
       integer nbrillioun,k
       logical val
 
@@ -1777,33 +1778,22 @@ c Relativistic Non-Local PPot.
 c spin-orbit included...
 cccccccccccccccccccc
         do nb=1,brillioun_nbrillioun() 
-c          write(*,*)"ABOUT TO READ VNLX 1 ",NB
-c          CALL FLUSH(6)
           do n=1,nprj
             call C3dB_c_read(1,5,ztmp2,ztmp)
             call Cram_c_pack(nb,ztmp2)
             call Cram_c_Copy(nb,ztmp2,vnlsox(1,n,nb))
           end do
-c          write(*,*)"ABOUT TO READ VNLX 2 ",NB
-c          CALL FLUSH(6)
           do n=1,nprj
             call C3dB_c_read(1,5,ztmp2,ztmp)
             call Cram_c_pack(nb,ztmp2)
             call Cram_c_Copy(nb,ztmp2,
      >                   vnlsox(1,n+vso_shft,nb))
           end do
-c          write(*,*)"READ VNL ",NB,"showing:"
-c          CALL FLUSH(6)
-c          do ii=1,npack1
-c            do n=1,nprj
-c              write(*,*)vnlsox(ii,n,nb),vnlsox(ii,n+vso_shft,nb)
-c              call flush(6)
-c            end do
-c          end do
         end do
+
       else
         do nb=1,brillioun_nbrillioun() 
-          do n=1,NPRJ
+          do n=1,nprj
             call C3dB_r_read(1,5,tmp2,tmp)
             call Cram_r_pack(nb,tmp2)
             call Cram_r_Copy(nb,tmp2,vnl(1,n,nb))
@@ -1812,7 +1802,7 @@ c          end do
 *     **** read in v_spin_orbit 3d blocks ****
         if (psp_type.eq.1) then
           do nb=1,brillioun_nbrillioun()
-            do n=1,NPRJ
+            do n=1,nprj
               call C3dB_c_read(1,5,ztmp2,ztmp)
               call Cram_c_pack(nb,ztmp2)
               call Cram_c_Copy(nb,ztmp2,vnlsox(1,n,nb))
@@ -1900,20 +1890,20 @@ c          end do
       log_mb(semicore(1)) = .false.
 
       value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0,
-     &       MA_ERR)
+      if (.not. value) 
+     > call errquit('cpsp_readall:out of stack memory',0,MA_ERR)
 
       value = MA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0,
-     &       MA_ERR)
+      if (.not. value) 
+     > call errquit('cpsp_readall:out of stack memory',0,MA_ERR)
 
       value = MA_push_get(mt_dcpl,(2*nfft3d),'ztmp',ztmp(2),ztmp(1))
-      if (.not. value) call errquit('out of stack memory',0,
-     &       MA_ERR)
+      if (.not. value) 
+     > call errquit('cpsp_readall:out of stack memory',0,MA_ERR)
 
       value = MA_push_get(mt_dcpl,(nfft3d),'ztmp2',ztmp2(2),ztmp2(1))
-      if (.not. value) call errquit('out of stack memory',0,
-     &       MA_ERR)
+      if (.not. value) 
+     > call errquit('cpsp_readall:out of stack memory',0,MA_ERR)
 
       do_spin_orbit=.false.
 
@@ -2036,9 +2026,12 @@ c          end do
       end do
 
  9000 value = MA_pop_stack(ztmp2(2))
-      value = MA_pop_stack(ztmp(2)) 
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(ztmp(2)) 
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not. value) 
+     > call errquit('cpsp_readall:error popping stack',0,MA_ERR)
+
       return
       end
 

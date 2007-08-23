@@ -1,5 +1,5 @@
 *
-* $Id: c_ewald.F,v 1.6 2004-11-29 16:05:16 bylaska Exp $
+* $Id: c_ewald.F,v 1.7 2007-08-23 23:49:48 bylaska Exp $
 *
       integer function c_ewald_ncut()
       implicit none 
@@ -80,9 +80,9 @@
  
       subroutine c_ewald_init()
       implicit none 
-#include "errquit.fh"
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 
 *     **** common block for ewald.f ****
@@ -118,7 +118,8 @@
 *     **** allocate vg memory ****
       call C3dB_nfft3d(1,nfft3d)
       value = MA_alloc_get(mt_dbl,nfft3d,'vg',vg(2),vg(1))
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_ewald_init:out of heap memory',0,MA_ERR)
 
       G(1) = c_G_indx(1)
       G(2) = c_G_indx(2)
@@ -215,7 +216,8 @@ c    >     + i+1
       nshl3d=(2*ncut+1)**3
       value = MA_alloc_get(mt_dbl,(3*nshl3d),'rcell',rcell(2),
      >                                           rcell(1))
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_ewald_init:out of heap memory',0,MA_ERR)
 
       
 *     **** get lattice vectors in real space ****
@@ -252,11 +254,9 @@ c    >     + i+1
 *     ***********************************
       real*8 function c_ewald_e()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
-
-
+#include "errquit.fh"
 
 *     **** common block for ewald.f ****
       integer    ncut
@@ -299,7 +299,8 @@ c     real*8     tmp3(nfft3d*2)
      >        MA_push_get(mt_dbl, nfft3d,'tmp3',tmp3(2),tmp3(1)) 
       value = value.and.
      >        MA_push_get(mt_dbl, (3*nshl3d),'ft',ft(2),ft(1)) 
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_ewald_e:out of stack memory',0,MA_ERR)
      
 *     **** get the structure factor ****
       call dcopy((2*nfft3d),0.0d0,0,dcpl_mb(s(1)),1)
@@ -350,10 +351,12 @@ c          dbl_mb(ft(1)+(l-1))=zz*erfc**4/r
       
 
 *     **** deallocate temp workspace ****
-      value = MA_pop_stack(ft(2))
-      value = MA_pop_stack(tmp3(2))
-      value = MA_pop_stack(s(2))
-      value = MA_pop_stack(exi(2))
+      value =           MA_pop_stack(ft(2))
+      value = value.and.MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(s(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     > call errquit('c_ewald_e:error popping stack',0,MA_ERR)
 
       c_ewald_e = energy
       return
@@ -361,17 +364,17 @@ c          dbl_mb(ft(1)+(l-1))=zz*erfc**4/r
 
 
 *     ***********************************
-*     *				        			*
-*     *				c_ewald_f				*
-*     *				        			*
+*     *	        			*
+*     *		c_ewald_f		*
+*     *			    		*
 *     ***********************************
 
       subroutine c_ewald_f(fion)
       implicit none
-#include "errquit.fh"
       real*8  fion(3,*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** common block for ewald.f ****
       integer    ncut
@@ -428,7 +431,8 @@ c     real*8     tmp3(nfft3d*2)
      >        MA_push_get(mt_dbl, (nion),'fy',fy(2),fy(1)) 
       value = value.and.
      >        MA_push_get(mt_dbl, (nion),'fz',fz(2),fz(1)) 
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_ewald_f:out of stack memory',0,MA_ERR)
 
 
       scal2 = 1.0d0/lattice_omega()
@@ -532,13 +536,15 @@ c          erfc = 1.0d0/erfc**4
       end do
       
 *     **** deallocate temp workspace ****
-      value = MA_pop_stack(fz(2))
-      value = MA_pop_stack(fy(2))
-      value = MA_pop_stack(fx(2))
-      value = MA_pop_stack(ft(2))
-      value = MA_pop_stack(tmp3(2))
-      value = MA_pop_stack(s(2))
-      value = MA_pop_stack(exi(2))
+      value =           MA_pop_stack(fz(2))
+      value = value.and.MA_pop_stack(fy(2))
+      value = value.and.MA_pop_stack(fx(2))
+      value = value.and.MA_pop_stack(ft(2))
+      value = value.and.MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(s(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     > call errquit('c_ewald_f:error popping stack memory',0,MA_ERR)
 
       return
       end
@@ -644,7 +650,8 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
       value = value.and.MA_push_get(mt_dcpl,nfft3d,'exi',exi(2),exi(1))
       value = value.and.
      >      MA_push_get(mt_dcpl,npack0,'strf',strf(2),strf(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_ewald_stress:out of stack memory',0, MA_ERR)
 
       call dcopy((2*npack0),0.0d0,0,dcpl_mb(strf(1)),1)
       do ii=1,ion_nion()
@@ -656,12 +663,13 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
       call Cram_cr_Sqr(0,dcpl_mb(strf(1)),dbl_mb(H(1)))
       value = MA_pop_stack(strf(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) call errquit('error popping stack memory',0,
-     &       MA_ERR)
+      if (.not. value) 
+     > call errquit('c_ewald_stress:error popping stack',0,MA_ERR)
 
 *     **** calculate the ewald energy ****
       value = MA_push_get(mt_dbl,nfft3d,'F',F(2),F(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_ewald_stress:out of stack memory',0,MA_ERR)
       call dcopy(nfft3d,dbl_mb(vg(1)),    1,dbl_mb(F(1)),  1)
       call Cram_r_Pack(0,dbl_mb(F(1)))
 
@@ -679,7 +687,8 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
       value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
       value = value.and.
      >        MA_push_get(mt_dbl,npack0,'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_ewald_stress:out of stack memory',0,MA_ERR)
 
       call Cram_rr_Mul(0,dbl_mb(F(1)),
      >                   dbl_mb(H(1)),
@@ -705,7 +714,8 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
      >                     'G2',G(2,2),G(1,2))
       value = value.and.MA_push_get(mt_dbl,nfft3d,
      >                     'G3',G(2,3),G(1,3))
-      if (.not. value) call errquit('out of stack  memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_ewald_stress:out of stack  memory',0,MA_ERR)
       call dcopy(nfft3d,dbl_mb(c_G_indx(1)),1,dbl_mb(G(1,1)),1)
       call dcopy(nfft3d,dbl_mb(c_G_indx(2)),1,dbl_mb(G(1,2)),1)
       call dcopy(nfft3d,dbl_mb(c_G_indx(3)),1,dbl_mb(G(1,3)),1)
@@ -745,8 +755,8 @@ c     ss = -1.0d0/lattice_omega()
       value = value.and.MA_pop_stack(tmp1(2))
       value = value.and.MA_pop_stack(F(2))
       value = value.and.MA_Pop_stack(H(2))
-      if (.not. value) call errquit('error popping stack memory',0,
-     &       MA_ERR)
+      if (.not. value) 
+     > call errquit('c_ewald_stress:error popping stack',0,MA_ERR)
 
 
 *     **** R-space contributions ****

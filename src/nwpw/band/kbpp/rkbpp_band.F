@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.14 2007-08-21 19:48:23 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.15 2007-08-23 23:49:39 bylaska Exp $
 *
 *     **************************************
 *     *                                    *
@@ -567,8 +567,8 @@ cccccccccc calculate local potential in q space
            rho_sc_k(i,4)=a*gz
          end if
   700 continue
-      call D3dB_Vector_SumAll(4*ngsize,rho_sc_k)
-      call D3dB_Vector_SumAll(ngsize,VL)
+      call Parallel_Vector_SumAll(4*ngsize,rho_sc_k)
+      call Parallel_Vector_SumAll(ngsize,VL)
 cccccccccc g=0
       do k=1,nrho
          f(k)=vp(k,locl)*rho(k)*rho(k)

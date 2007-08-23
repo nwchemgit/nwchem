@@ -72,6 +72,9 @@
 *     **** brillioun zone information ****
       nbrillioun = brillioun_nbrillioun()
       value = MA_push_get(mt_dbl,3*nbrillioun,'kv',kv(2),kv(1))
+      if(.not. value) 
+     > call errquit('psp_formatter_auto: out of stack memory',0,MA_ERR)
+
       do nb=1,nbrillioun
          dbl_mb(kv(1)+3*(nb-1))   = brillioun_k(1,nb)
          dbl_mb(kv(1)+3*(nb-1)+1) = brillioun_k(2,nb)
@@ -101,8 +104,8 @@
       end if
       value = MA_pop_stack(kv(2))
 *     *** exit if error found ***
-      if(.not. value) call errquit('psp_formatter_auto: error',0,
-     &       MA_ERR)
+      if(.not. value) 
+     > call errquit('psp_formatter_auto: error popping stack',0,MA_ERR)
 
       return
       end

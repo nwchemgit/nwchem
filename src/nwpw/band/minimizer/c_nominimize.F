@@ -1,5 +1,5 @@
 c
-c     $Id: c_nominimize.F,v 1.3 2007-01-21 00:33:03 d3p708 Exp $ 
+c     $Id: c_nominimize.F,v 1.4 2007-08-23 23:49:53 bylaska Exp $ 
 c
 
       subroutine c_nominimize(E)
@@ -51,9 +51,8 @@ c
 *     **** allocate G1 ****
       value = MA_alloc_get(mt_dcpl,npack1*neall*nbrill,
      >                     'G1',G1(2),G1(1))
-      if (.not. value) call errquit('nominimize:out of heap memory',0,
-     &       MA_ERR)
-
+      if (.not. value) 
+     > call errquit('c_nominimize:out of heap memory',0,MA_ERR)
 
       call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
       Enew = E0

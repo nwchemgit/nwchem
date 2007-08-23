@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_nonlocal.F,v 1.3 2007-06-19 21:07:22 d3p708 Exp $
+* $Id: integrate_kbpp_band_nonlocal.F,v 1.4 2007-08-23 23:49:39 bylaska Exp $
 *
       subroutine integrate_kbpp_band_nonlocal(version,kvec,
      >                            nrho,drho,lmax,locp,zv,
@@ -42,6 +42,8 @@
 *     **** external functions ****
       double precision dsum,simp
       external         dsum,simp
+      logical value
+#include "mafdecls.fh"
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -52,18 +54,12 @@
       forpi=4.0d0*pi
 
       IF(LMMAX.GT.16) THEN
-CC  gdi AT LEAST PRINT AN ERROR MESSAGE!
-        WRITE(*,*)"LMMAX ",Lmmax," exceeds 16 "
-        WRITE(*,*)"NO NON-LOCAL POTENTIAL WILL BE GENERATED!!!!"
-        WRITE(*,*)"YOU ARE NOT IN TEXAS ANYMORE!!!!!!"
+        WRITE(*,*)"non-local psp not generated: lmmax exceeds 16"
         IERR=1
         RETURN
       ENDIF
       IF((NRHO/2)*2.EQ.NRHO) THEN
-CC  gdi AT LEAST PRINT AN ERROR MESSAGE!
-        WRITE(*,*)"NRHO ",NRHO," IS NOT A MULTIPLE OF 2 !"
-        WRITE(*,*)"NO NON-LOCAL POTENTIAL WILL BE GENERATED!!!!"
-        WRITE(*,*)"YOU ARE NOT IN TEXAS ANYMORE!!!!!!"
+        WRITE(*,*)"non-local psp not generated: nrho is not odd"
         IERR=2
         RETURN
       ENDIF
@@ -73,8 +69,10 @@ CC  gdi AT LEAST PRINT AN ERROR MESSAGE!
       P2=DSQRT(15.0d0*FORPI)
       P3=DSQRT(105.0d0*FORPI)
 
+
 *======================  Fourier transformation  ======================
       call dcopy(lmmax*nfft3d,0.0d0,0,VNL,1)
+
       task_count = -1
       DO 700 k3=1,nfft3
       DO 700 k2=1,nfft2
@@ -206,7 +204,7 @@ c     >                          /(2.0d0*dsqrt(3.0d0))
     
   700 CONTINUE
 
-      call C3dB_Vector_Sumall(lmmax*nfft3d,VNL)
+      call Parallel_Vector_SumAll(lmmax*nfft3d,VNL)
 
 
       IERR=0

@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.23 2007-04-11 23:41:05 bylaska Exp $
+* $Id: C3dB-new.F,v 1.24 2007-08-23 23:49:55 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -3311,10 +3311,10 @@ c     integer i2_start(NFFT3+1)
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_Vector_SumAll(n,sum)
+      subroutine C3dB_Vector_SumAll(n,sum1)
 c     implicit none
       integer n
-      real*8  sum(*)
+      real*8  sum1(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -3336,19 +3336,20 @@ c     implicit none
 
 *     ***** allocate temporary space ****
       value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('C3dB_Vector_SumAll:out of stack memory',0, MA_ERR)
 
       msglen = n
 
-
-
-      call dcopy(n,sum,1,dbl_mb(sumall(1)),1)
+      call dcopy(n,sum1,1,dbl_mb(sumall(1)),1)
       call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 
+      call dcopy(n,dbl_mb(sumall(1)),1,sum1,1)
 
-      call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
       value = MA_pop_stack(sumall(2))
+      if (.not. value) 
+     > call errquit('C3dB_Vector_SumAll:error popping stack',0, MA_ERR)
 
       call nwpw_timing_end(2)
       return

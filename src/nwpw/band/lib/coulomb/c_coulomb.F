@@ -1,5 +1,5 @@
 *
-* $Id: c_coulomb.F,v 1.5 2004-11-29 16:05:16 bylaska Exp $
+* $Id: c_coulomb.F,v 1.6 2007-08-23 23:49:42 bylaska Exp $
 *
       subroutine c_coulomb_init()
       implicit none 
@@ -32,10 +32,12 @@
 
 *     **** allocate vc memory ****
       value = MA_alloc_get(mt_dbl,npack0,'vc',vc_hndl,vc_indx)
-      if (.not. value) call errquit('out of heap memory',0,0)
+      if (.not. value) 
+     > call errquit('c_coulomb_init:out of heap memory',0,0)
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0,0)
+      if (.not. value) 
+     > call errquit('c_coulomb_init:out of stack memory',0,0)
 
       call Parallel_taskid(taskid)
       call C3dB_nx(1,nx)
@@ -131,7 +133,8 @@ c     real*8  tmp1(*)
      
       call Cram_npack(0,npack0)
       value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0,0)
+      if (.not. value) 
+     > call errquit('c_coulomb_e:out of stack memory',0,0)
       
       call Cram_cr_Sqr(0,dng,dbl_mb(tmp1(1)))
       call Cram_rr_dot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
@@ -195,19 +198,24 @@ c     real*8  tmp1(*)
 
       value = MA_push_get(mt_dbl,nfft3d,
      >                     'G1',G(2,1),G(1,1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_coulomb_euv:out of stack memory',0,MA_ERR)
       value = MA_push_get(mt_dbl,nfft3d,
      >                     'G2',G(2,2),G(1,2))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_coulomb_euv:out of stack memory',0,MA_ERR)
       value = MA_push_get(mt_dbl,nfft3d,
      >                     'G3',G(2,3),G(1,3))
-      if (.not. value) call errquit('out of stack  memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_coulomb_euv:out of stack  memory',0,MA_ERR)
 
       value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_coulomb_euv:out of stack memory',0,MA_ERR)
 
       value = MA_push_get(mt_dbl,npack0,'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('c_coulomb_euv:out of stack memory',0,MA_ERR)
 
       call dcopy(nfft3d,dbl_mb(c_G_indx(1)),1,dbl_mb(G(1,1)),1)
       call dcopy(nfft3d,dbl_mb(c_G_indx(2)),1,dbl_mb(G(1,2)),1)

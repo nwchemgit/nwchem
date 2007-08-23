@@ -1,3 +1,6 @@
+*
+* $Id: integrate_kbpp_band_local.F,v 1.4 2007-08-23 23:49:39 bylaska Exp $
+*
 
       subroutine integrate_kbpp_band_local(version,
      >                            nrho,drho,lmax,locp,zv,
@@ -7,9 +10,6 @@
      >                            n_prj,l_prj,m_prj,vnlnrm,
      >                            semicore,rho_sc_r,rho_sc_k,
      >                            ierr)
-*
-* $Id: integrate_kbpp_band_local.F,v 1.3 2007-06-19 21:20:43 d3p708 Exp $
-*
       implicit none
       integer          version
       integer          nrho
@@ -52,6 +52,9 @@
       double precision dsum,simp
       external         dsum,simp
 
+#include "mafdecls.fh"
+      logical value
+
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
@@ -61,10 +64,7 @@
       forpi=4.0d0*pi
 
       IF((NRHO/2)*2.EQ.NRHO) THEN
-ccccccc why don't you just shoot the user ? 
-        WRITE(*,*)"nrho not a multiple of two "
-        WRITE(*,*)"LOCAL PSEUDOPOTENTIAL WILL NOT BE COMPUTED!"
-        write(*,*)"WE SHOULD REALLY CATCH THIS EARLIER!"
+        WRITE(*,*)"local pseudopotential not computed: nrho is not odd"
         IERR=2
         RETURN
       ENDIF
@@ -77,7 +77,7 @@ ccccccc why don't you just shoot the user ?
 *::::::::::::::::::  Define non-local pseudopotential  ::::::::::::::::
       do l=0,lmax
         if (l.ne.locp) then
-          do I=1,nrho
+          do i=1,nrho
             vp(i,l)=vp(i,l)-vp(i,locp)
           end do
         end if
@@ -88,7 +88,7 @@ ccccccc why don't you just shoot the user ?
       do l=0,lmax
         if (l.ne.locp) then
           do i=1,nrho
-            f(I)=vp(I,L)*wp(I,L)**2
+            f(i)=vp(i,l)*wp(i,l)**2
           end do
           a=simp(nrho,f,drho)
           vnlnrm(l) = 1.0d0/a
@@ -96,9 +96,6 @@ ccccccc why don't you just shoot the user ?
         vnlnrm(l) = 0.0d0
         end if
       end do
-
-
-
 
 *======================  Fourier transformation  ======================
       call dcopy(nfft3d,0.0d0,0,VL,1)
@@ -153,8 +150,9 @@ ccccccc why don't you just shoot the user ?
     
   700 CONTINUE
 
-      call D3dB_Vector_SumAll(4*nfft3d,rho_sc_k)
-      call D3dB_Vector_SumAll(nfft3d,VL)
+      call Parallel_Vector_SumAll(4*nfft3d,rho_sc_k)
+      call Parallel_Vector_SumAll(nfft3d,VL)
+
 *:::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
 
       DO I=1,NRHO
@@ -172,8 +170,6 @@ ccccccc why don't you just shoot the user ?
          rho_sc_k(1,1,1,3) = 0.0d0
          rho_sc_k(1,1,1,4) = 0.0d0
       end if
-
-
 
 
 *     ********************************
@@ -280,7 +276,6 @@ ccccccc why don't you just shoot the user ?
           l_prj(lcount) = 0
           m_prj(lcount) = 0
         end if
-
 
       IERR=0
       RETURN

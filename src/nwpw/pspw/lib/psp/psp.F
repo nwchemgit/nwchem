@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.27 2007-04-02 15:38:42 bylaska Exp $
+* $Id: psp.F,v 1.28 2007-08-23 23:49:58 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1428,6 +1428,7 @@ c      value = value.and.MA_pop_stack(Gx(2))
       integer msglen
       integer iatom(2)
       character*255 full_filename
+      real*8 sum1
 
 
       call Parallel_taskid(taskid)
