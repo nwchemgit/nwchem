@@ -1,5 +1,5 @@
 *
-*     $Id: band_lmbfgs.F,v 1.5 2007-08-23 23:00:25 d3p708 Exp $                       
+*     $Id: band_lmbfgs.F,v 1.6 2007-08-23 23:48:21 bylaska Exp $                       
 *
 
       subroutine band_lmbfgs_init(max_m0,g)
@@ -55,8 +55,6 @@
       ondisk = control_lmbfgs_ondisk()
       ngras = 2*npack1*neall*nbrill
 
-      write(0,*)"In band_lmbfgs " ,nsize
-      write(0,*)ngras,ondisk
       call dscal(ngras,(-1.0d0),g,1)
 
 *     **** allocate yy and ss ****
@@ -89,23 +87,18 @@
      
 c      casa1=yy(2)-yy(1)
 c      casa2=ss(2)-ss(1)
-      write(0,*)"Doing first trace in band_lmbfgs",casa2,casa1
       call Pneb_ff_traceall(0,0,
      >                   dbl_mb(yy(1)),
      >                   dbl_mb(ss(1)),npack1,
      >                   sum)
-      write(0,*)"did my trace"
       rho(m) = 1.0d0/sum
-      write(0,*)"Doing 2nd trace in band_lmbfgs"
       call Pneb_ff_traceall(0,0,
      >                   dbl_mb(ss(1)),
      >                   s,npack1,
      >                   sum)
       alpha(m) = rho(m)*sum
       call daxpy(ngras,(-alpha(m)),dbl_mb(yy(1)),1,s,1)
-      write(0,*)"Doing loop in band_lmbfgs"
       do k=(m-1),1, -1
-        write(0,*)"Doing load band_lmbfgs",k
          if (ondisk) then
            call band_Grsm_list_load(2*k-1,dbl_mb(yy(1)))
            call band_Grsm_list_load(2*k,  dbl_mb(ss(1)))
@@ -113,22 +106,18 @@ c      casa2=ss(2)-ss(1)
            call band_Grsm_list_ptr(2*k-1,yy(1))
            call band_Grsm_list_ptr(2*k,  ss(1))
          end if
-         write(0,*)"Doing Gtransport in band_lmbfgs",k
          call cpsi_1geodesic_Gtransport(tmin,dbl_mb(yy(1)))
-         write(0,*)"Doing Gtransport in band_lmbfgs",k
          call cpsi_1geodesic_Gtransport(tmin,dbl_mb(ss(1)))
          if (ondisk) then
            call band_Grsm_list_store(2*k-1,dbl_mb(yy(1)))
            call band_Grsm_list_store(2*k,  dbl_mb(ss(1)))
          end if
 
-         write(0,*)"Doing traceall in band_lmbfgs",k
          call Pneb_ff_traceall(0,0,
      >                   dbl_mb(ss(1)),
      >                   s,npack1,
      >                   sum)
          alpha(k) = rho(k)*sum
-         write(0,*)"Doing  daxpy in band_lmbfgs",k
          call daxpy(ngras,(-alpha(k)),dbl_mb(yy(1)),1,s,1)
       end do
 
@@ -138,7 +127,6 @@ c      casa2=ss(2)-ss(1)
 
       do k=1,(m-1)
 
-         write(0,*)"Doing traceall in band_lmbfgs",k
          call Pneb_ff_traceall(0,0,
      >                   dbl_mb(yy(1)),
      >                   s,npack1,
@@ -146,7 +134,6 @@ c      casa2=ss(2)-ss(1)
          beta = rho(k)*sum
          sum = alpha(k) - beta
       
-         write(0,*)"Doing  daxpy in band_lmbfgs",k
          call daxpy(ngras,sum,dbl_mb(ss(1)),1,s,1)
          if (ondisk) then
            call band_Grsm_list_load(2*(k+1)-1,dbl_mb(yy(1)))
@@ -157,7 +144,6 @@ c      casa2=ss(2)-ss(1)
          end if
 
       end do
-         write(0,*)"Doing  daxpy in band_lmbfgs"
       call Pneb_ff_traceall(0,0,
      >                dbl_mb(yy(1)),
      >                s,npack1,
@@ -187,7 +173,6 @@ c      casa2=ss(2)-ss(1)
         if (.not.value) call errquit('band_lmbfgs:pop stack',2,0)
       end if
 
-      write(0,*)'out of band_lmbfgs'
       return 
       end
 
