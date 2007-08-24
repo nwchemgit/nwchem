@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.102 2007-06-25 15:10:07 bylaska Exp $
+* $Id: control.F,v 1.103 2007-08-24 16:51:18 bylaska Exp $
 *
 
 *     ***********************************
@@ -445,29 +445,34 @@ c
          gga = 0
       end if
 
-      value = value.and.
-     >        rtdb_get(rtdb,'band:fake_mass',mt_dbl,1,fake_mass)
-      value = value.and.
-     >        rtdb_get(rtdb,'band:time_step',mt_dbl,1,time_step)
-      value = value.and.
-     >        rtdb_get(rtdb,'band:loop',mt_int,2,loop)
-      value = value.and.
-     >        rtdb_get(rtdb,'band:tolerances',mt_dbl,3,tolerances)
+      if (.not.rtdb_get(rtdb,'band:fake_mass',mt_dbl,1,fake_mass))
+     >  fake_mass = 400000.0d0
+      if (.not.rtdb_get(rtdb,'band:time_step',mt_dbl,1,time_step))
+     >   time_step = 5.8d0
+      if (.not.rtdb_get(rtdb,'band:loop',mt_int,2,loop)) then
+         loop(1) = 10
+         loop(2) = 100
+      end if
+      if(.not.rtdb_get(rtdb,'band:tolerances',mt_dbl,3,tolerances)) then
+         tolerances(1) = 1.0d-7
+         tolerances(2) = 1.0d-7
+         tolerances(3) = 1.0d-4
+      end if
       scaling(1) = 0.0d0
       scaling(2) = 0.0d0
 
-      value = value.and.
-     >        rtdb_get(rtdb,'band:ecut',mt_dbl,1,ecut)
-      value = value.and.
-     >        rtdb_get(rtdb,'band:wcut',mt_dbl,1,wcut)
-      value = value.and.
-     >        rtdb_get(rtdb,'band:rcut',mt_dbl,1,rcut)     
-      value = value.and.
-     >        rtdb_get(rtdb,'band:ncut',mt_int,1,ncut)
-      value = value.and.
-     >        rtdb_get(rtdb,'band:mult',mt_int,1,multiplicity)
-      value = value.and.
-     >        rtdb_get(rtdb,'band:ispin',mt_int,1,ispin)
+      if (.not.rtdb_get(rtdb,'band:ecut',mt_dbl,1,ecut))
+     >  ecut = 9000.0d0
+      if (.not.rtdb_get(rtdb,'band:wcut',mt_dbl,1,wcut))
+     >  wcut = ecut
+      if (.not.rtdb_get(rtdb,'band:rcut',mt_dbl,1,rcut))
+     >  rcut = 0.0d0
+      if (.not.rtdb_get(rtdb,'band:ncut',mt_int,1,ncut))
+     >  ncut = 1
+      if (.not.rtdb_get(rtdb,'band:mult',mt_int,1,multiplicity))
+     >   multiplicity = 1
+      if (.not.rtdb_get(rtdb,'band:ispin',mt_int,1,ispin))
+     >   ispin = 1
 
       if (.not.rtdb_get(rtdb,'band:spin_orbit',mt_log,1,spin_orbit))
      > spin_orbit=.false.
@@ -532,31 +537,33 @@ c
 
       value = value.and.
      >        rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp)
-      value = value.and.
-     >        rtdb_get(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass)
-      value = value.and.
-     >        rtdb_get(rtdb,'cgsd:time_step',mt_dbl,1,time_step)
-      value = value.and.
-     >        rtdb_get(rtdb,'cgsd:loop',mt_int,2,loop)
-      value = value.and.
-     >        rtdb_get(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances)
+      if (.not.rtdb_get(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass))
+     >   fake_mass = 400000.0d0
+      if (.not.rtdb_get(rtdb,'cgsd:time_step',mt_dbl,1,time_step))
+     >   time_step = 5.8d0
+      if (.not.rtdb_get(rtdb,'cgsd:loop',mt_int,2,loop)) then
+         loop(1) = 10
+         loop(2) = 100
+      end if
+      if(.not.rtdb_get(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances)) then
+         tolerances(1) = 1.0d-7
+         tolerances(2) = 1.0d-7
+         tolerances(3) = 1.0d-4
+      end if
       scaling(1) = 0.0d0
       scaling(2) = 0.0d0
-      value = value.and.
-     >        rtdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut)
-      value = value.and.
-     >        rtdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
-
-      value = value.and.
-     >        rtdb_get(rtdb,'cgsd:rcut',mt_dbl,1,rcut)
-      value = value.and.
-     >        rtdb_get(rtdb,'cgsd:ncut',mt_int,1,ncut)
-      value = value.and.
-     >        rtdb_get(rtdb,'cgsd:mult',mt_int,1,multiplicity)
-      value = value.and.
-     >        rtdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin)
-
-
+      if (.not.rtdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut))
+     >  ecut = 9000.0d0
+      if (.not.rtdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut))
+     >  wcut = ecut
+      if (.not.rtdb_get(rtdb,'cgsd:rcut',mt_dbl,1,rcut))
+     >  rcut = 0.0d0
+      if (.not.rtdb_get(rtdb,'cgsd:ncut',mt_int,1,ncut))
+     >  ncut = 1
+      if (.not.rtdb_get(rtdb,'cgsd:mult',mt_int,1,multiplicity))
+     >  multiplicity = 1
+      if (.not.rtdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin))
+     >  ispin = 1
 
 
 *     **** paw_cpmd: stuff ****
@@ -605,33 +612,36 @@ c
       end if
 
 
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:fractional_coordinates',
-     >                 mt_log,1,frac_coord)
+      if (.not.rtdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move))
+     >   move = .false.
+      if (.not.rtdb_get(rtdb,'cpmd:fractional_coordinates',
+     >                 mt_log,1,frac_coord))
+     >   frac_coord = .false.
       value = value.and.
      >        rtdb_get(rtdb,'cpmd:npsp',mt_int,1,npsp)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:fake_mass',mt_dbl,1,fake_mass)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:time_step',mt_dbl,1,time_step)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:loop',mt_int,2,loop)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:scaling',mt_dbl,2,scaling)
+      if (.not.rtdb_get(rtdb,'cpmd:fake_mass',mt_dbl,1,fake_mass))
+     >  fake_mass = 800.0d0
+      if (.not.rtdb_get(rtdb,'cpmd:time_step',mt_dbl,1,time_step))
+     >  time_step = 5.0d0
+      if (.not.rtdb_get(rtdb,'cpmd:loop',mt_int,2,loop)) then
+         loop(1) = 10
+         loop(2) = 100
+      end if
+      if (.not.rtdb_get(rtdb,'cpmd:scaling',mt_dbl,2,scaling)) then
+         scaling(1) = 1.0d0
+         scaling(2) = 1.0d0
+      end if
       tolerances(1) = 0.0d0
       tolerances(2) = 0.0d0
       tolerances(3) = 0.0d0
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:ecut',mt_dbl,1,ecut)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:wcut',mt_dbl,1,wcut)
-
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:rcut',mt_dbl,1,rcut)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:ncut',mt_int,1,ncut)
+      if (.not.rtdb_get(rtdb,'cpmd:ecut',mt_dbl,1,ecut))
+     >  ecut = 9000.0d0
+      if (.not.rtdb_get(rtdb,'cpmd:wcut',mt_dbl,1,wcut))
+     >  wcut = ecut
+      if (.not.rtdb_get(rtdb,'cpmd:rcut',mt_dbl,1,rcut))
+     >  rcut = 0.0d0
+      if (.not.rtdb_get(rtdb,'cpmd:ncut',mt_int,1,ncut))
+     >   ncut = 1
 
       SA = .true.
       if (.not.rtdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,sa_decay)) then
@@ -655,8 +665,6 @@ c
       value = value .and. rtdb_get(rtdb,'cpmd:Te',mt_dbl,1,Te)
       value = value .and. rtdb_get(rtdb,'cpmd:Pr',mt_dbl,1,Pr)
       value = value .and. rtdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr)
-
-
 
 
 
