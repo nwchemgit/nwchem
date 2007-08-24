@@ -1,5 +1,5 @@
 *
-* $Id: hghpp_band.F,v 1.14 2007-08-21 20:32:47 d3p708 Exp $
+* $Id: hghpp_band.F,v 1.15 2007-08-24 00:01:44 d3p708 Exp $
 *
 
 *     **************************************
@@ -110,7 +110,7 @@
          end do
       end if
 
-c      psp_type=1
+      psp_type=1
       msglen = 1
       call BRDCST(9+MSGINT,psp_type,mitob(msglen),MASTER)
       call BRDCST(9+MSGINT,Zion,mitob(msglen),MASTER)
@@ -349,7 +349,6 @@ c      psp_type=1
      >          full_filename(1:l)
          end if
          call openfile(2,full_filename,l,'w',l)     
-
          call cwrite(2,comment,80)
          call iwrite(2,psp_type,1)
          call iwrite(2,version,1)
@@ -359,7 +358,8 @@ c      psp_type=1
          call dwrite(2,amass,1)
          call dwrite(2,zv,1)
          call iwrite(2,lmax,1)
-         call iwrite(2,locp,1)     
+         call iwrite(2,locp,1)    
+         nmax=3 
          call iwrite(2,nmax,1)
          call dwrite(2,r,lmax+1)
 
