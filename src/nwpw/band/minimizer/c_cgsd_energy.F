@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.18 2007-08-21 02:02:04 d3p708 Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.19 2007-08-24 02:25:05 bylaska Exp $                       
 *
 
 *     ***************************
@@ -62,13 +62,12 @@
 
 *     :::::::::::  begin electron iteration  :::::::::::::::::::::::
       if (taskid.eq.MASTER) then
-         write(luout,1300)
          write(luout,1301)
-         write(luout,1302)
          write(luout,1304)
          if (minimizer.eq.1) write(luout,1305)
          if (minimizer.eq.2) write(luout,1306)
          if (minimizer.eq.5) write(luout,1309)
+         if (minimizer.eq.8) write(luout,1311)
          call util_flush(luout)
       end if
 
@@ -82,7 +81,7 @@
       tolc   = control_tolc()
       E(1)=0.0d0
       if (taskid.eq.MASTER) then
-        if (minimizer.eq.5) then
+        if ((minimizer.eq.5).or.(minimizer.eq.8)) then
           call nwpw_message(7)
         else
           call nwpw_message(2)
@@ -90,7 +89,7 @@
       end if
       if (taskid.eq.MASTER) call util_flush(luout)
       if (minimizer.eq.2) call band_Grsm_list_start()
-      if (minimizer.eq.5) it_out = 1
+      if ((minimizer.eq.5).or.(minimizer.eq.8)) it_out = 1
 
 
       if (newpsi) call c_sdminimize(5)
@@ -126,10 +125,21 @@ c           stop
            bfgscount = bfgscount + 1
            write(*,*) "Bundled Stiefel minimizer not implemented"
            stop
-
          else if (minimizer.eq.5) then
            bfgscount = bfgscount + 1
            call c_bybminimize(E,deltae,deltac,bfgscount,.false.,1)
+         else if (minimizer.eq.6) then
+           bfgscount = bfgscount + 1
+           write(*,*) "minimizer 6 not implemented"
+           stop
+         else if (minimizer.eq.7) then
+           bfgscount = bfgscount + 1
+           write(*,*) "minimizer 7 not implemented"
+           stop
+         else if (minimizer.eq.8) then
+           bfgscount = bfgscount + 1
+           call c_bybminimize2(E,deltae,deltac,bfgscount,.false.,1)
+
          end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
@@ -140,7 +150,8 @@ c           stop
             stalled = .false.
          end if
 
-         if ((taskid.eq.MASTER).and.(minimizer.ne.5)) then 
+         if ((taskid.eq.MASTER).and.(minimizer.ne.5)
+     >                         .and.(minimizer.ne.8)) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac
            call util_flush(luout)
          end if
@@ -274,8 +285,9 @@ c         write(luout,1210) GX,GY,GZ
  1306 FORMAT(10X,'======== bundled Grassmann lmbfgs iteration ========')
  1307 FORMAT(10X,'============ Grassmann diis iteration ==============')
  1308 FORMAT(10X,'=== bundled Stiefel conjugate gradient iteration ===')
- 1309 FORMAT(10X,'=========== band by band diis iteration ============')
+ 1309 FORMAT(10X,'=========== scf minimization (potential) ===========')
  1310 FORMAT(I8,E20.10,3E15.5)
+ 1311 FORMAT(10X,'=========== scf minimization (density)  ============')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)

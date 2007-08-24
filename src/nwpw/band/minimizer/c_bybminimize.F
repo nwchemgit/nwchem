@@ -1,5 +1,5 @@
 c
-c     $Id: c_bybminimize.F,v 1.4 2007-06-23 01:32:34 d3p708 Exp $                       
+c     $Id: c_bybminimize.F,v 1.5 2007-08-24 02:25:05 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -139,7 +139,6 @@ c     >                     'rho_in',rho_in(2),rho_in(1))
 *     **********************
 *     **** bybminimizer ****
 *     **********************
-
 
 *     **** set the initial density ****
       if (current_iteration.eq.1) then

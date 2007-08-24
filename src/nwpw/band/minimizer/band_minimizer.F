@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.50 2007-08-22 20:12:43 bylaska Exp $
+* $Id: band_minimizer.F,v 1.51 2007-08-24 02:25:05 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -124,6 +124,10 @@
       external control_scf_algorithm
       real*8   control_ks_alpha
       external control_ks_alpha
+      integer  control_ks_maxit_orb,control_ks_maxit_orbs
+      external control_ks_maxit_orb,control_ks_maxit_orbs
+
+
 c      character*255 cpsp_comment,comment
 c      external      cpsp_comment
 
@@ -384,15 +388,22 @@ c           write(luout,1154) cpsp_lmmax(ia)
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc()
-         if (minimizer.eq.5) then
+         write(luout,1281) control_it_in()*control_it_out(),
+     >                 control_it_in(),control_it_out()
+
+         if ((minimizer.eq.5).or.(minimizer.eq.8)) then
            write(6,1291)
            write(6,1292)
+           write(luout,1295) control_ks_maxit_orb(),
+     >                       control_ks_maxit_orbs()
            if (control_scf_algorithm().eq.0)
      >       write(6,1293) "simple mixing"
            if (control_scf_algorithm().eq.1)
      >       write(6,1293) "Anderson mixing"
            if (control_scf_algorithm().eq.2)
      >       write(6,1293) "Johnson-Pulay mixing"
+           if (minimizer.eq.5) write(luout,1296) "potential"
+           if (minimizer.eq.8) write(luout,1296) "density"
            write(6,1294) control_ks_alpha()
          end if
          write(luout,1300)
@@ -666,12 +677,17 @@ c           write(luout,1154) cpsp_lmmax(ia)
  
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
+ 1281 FORMAT(5X, ' maximum iterations =',I8,
+     >           ' ( ',I4,' inner ',I4,' outer )')
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)')
  1291 FORMAT(/' Kohn-Sham scf parameters:')
  1292 FORMAT(5X, ' Kohn-Sham algorithm  = conjugate gradient')
  1293 FORMAT(5X, ' scf algorithm        = ',A)
  1294 FORMAT(5X, ' scf mixing parameter =',F7.4)
+ 1295 FORMAT(5X, ' Kohn-Sham iterations = ',I3,
+     >           ' (',I3,' outer)')
+ 1296 FORMAT(5X, ' SCF mixing type      = ',A)
  1300 FORMAT(//)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)

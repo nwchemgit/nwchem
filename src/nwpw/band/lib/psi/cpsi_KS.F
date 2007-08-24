@@ -1,7 +1,12 @@
-* $Id: cpsi_KS.F,v 1.14 2007-03-14 20:35:52 d3p708 Exp $
+* $Id: cpsi_KS.F,v 1.15 2007-08-24 02:25:01 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.14  2007/03/14 20:35:52  d3p708
+* pjn
+*    in cpsi_spin2 we should have cram_cc_zdot not cram_cc_dot. The overlap
+* matrix is _complex_ for different complex wavefunctions.
+*
 * Revision 1.13  2007/02/23 01:18:11  bylaska
 * ...EJB
 *
@@ -91,6 +96,89 @@
 * KS minimizer updates.
 * ...EJB
 *
+
+
+
+*     ***************************
+*     *                         *
+*     *      cpsi_set_density   *
+*     *                         *
+*     ***************************
+
+*    This routine sets the densities and potentials in psi and electron.
+* This routine is needed for a band by band minimizer.
+*
+      subroutine cpsi_set_density(psi_number,rho)
+      implicit none
+      integer psi_number
+      real*8 rho(*)
+
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+#include "rhoall_common.fh"
+
+
+*     **** local variables ****
+      integer rho_ptr,dng_ptr,rho_all_ptr
+
+      if (psi_number.eq.1) then
+        rho_ptr     = rho1(1)
+        dng_ptr     = dng1(1)
+        rho_all_ptr = rho1_all(1)
+      else
+        rho_ptr     = rho2(1)
+        dng_ptr     = dng2(1)
+        rho_all_ptr = rho2_all(1)
+      end if
+
+      call dcopy(2*nfft3d,
+     >           rho, 1,
+     >           dbl_mb(rho_ptr),1)
+      call c_electron_gen_dng_dnall(dbl_mb(rho_ptr),
+     >                            dcpl_mb(dng_ptr),
+     >                            dbl_mb(rho_all_ptr))
+      call c_electron_gen_scf_potentials(dbl_mb(rho_ptr),
+     >                            dcpl_mb(dng_ptr),
+     >                            dbl_mb(rho_all_ptr))
+      call c_electron_gen_vall()
+      return
+      end
+
+
+
+*     ***************************
+*     *                         *
+*     *      cpsi_get_density   *
+*     *                         *
+*     ***************************
+
+*    This routine gets the densities in psi.
+* This routine is needed for a band by band minimizer.
+*
+      subroutine cpsi_get_density(psi_number,rho)
+      implicit none
+      integer psi_number
+      real*8 rho(*)
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer rho_ptr
+
+      if (psi_number.eq.1) then
+        rho_ptr = rho1(1)
+      else
+        rho_ptr = rho2(1)
+      end if
+
+      call dcopy(2*nfft3d,
+     >           dbl_mb(rho_ptr),1,
+     >           rho,1)
+      return
+      end
+
 
 
 

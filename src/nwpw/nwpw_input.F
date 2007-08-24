@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.39 2007-08-21 18:53:41 bylaska Exp $
+c $Id: nwpw_input.F,v 1.40 2007-08-24 02:24:55 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -109,7 +109,7 @@ c
        integer npoints
        logical mulliken,allow_translation
        integer ispin,multiplicity
-       integer nx,ny,nz
+       integer nx,ny,nz,minimizer
        
 
 *     ***** initializations ****
@@ -776,10 +776,10 @@ c
 c
 c  SCF minimizer
 c
- 4800 nx = 8 !default is density mixing
-      if (.not.inp_a(zone_name)) goto 4801
-       if (inp_compare(.false.,zone_name,'potential')) nx = 5
-       if (inp_compare(.false.,zone_name,'density'))   nx = 8
+ 4800 minimizer = 8 !default is density mixing
+ 4801 if (.not.inp_a(zone_name)) goto 4802
+       if (inp_compare(.false.,zone_name,'potential')) minimizer = 5
+       if (inp_compare(.false.,zone_name,'density'))   minimizer = 8
        if (inp_compare(.false.,zone_name,'cg')) then
          if(.not.rtdb_put(rtdb,'nwpw:ks_algorithm',mt_int,1,0))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
@@ -825,9 +825,9 @@ c
      >                 4800,RTDB_ERR)
        end if
 
-      goto 4800
+      goto 4801
 
- 4801 if (.not.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,nx))
+ 4802 if (.not.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,minimizer))
      >  call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
 
       goto 10

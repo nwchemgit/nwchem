@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.71 2007-08-21 18:52:42 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.72 2007-08-24 02:25:10 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -103,7 +103,7 @@ c#include "rtdb.fh"
       tolc   = control_tolc()
       E(1)=0.0d0
       if (oprint) then
-        if (minimizer.eq.5) then
+        if ((minimizer.eq.5).or.(minimizer.eq.8)) then
           call nwpw_message(7)
         else
           call nwpw_message(2)
@@ -113,6 +113,7 @@ c#include "rtdb.fh"
       if (oprint) call util_flush(luout)
       if (minimizer.gt.1) call pspw_Grsm_list_start()
       if (minimizer.eq.5) it_out = 1
+      if (minimizer.eq.8) it_out = 1
       if (newpsi) then
         call sdminimize(15)
         !call bybminimize(E,deltae,deltac,1,.true.,2)

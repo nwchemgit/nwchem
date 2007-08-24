@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.15 2007-02-23 01:14:33 bylaska Exp $
+* $Id: cpsi_H.F,v 1.16 2007-08-24 02:24:59 bylaska Exp $
 *
 
       subroutine cpsi_H(ispin,ne,
@@ -354,7 +354,7 @@ c      value=MA_set_auto_verify(.true.)
      >                   orb_r(shiftr+1),
      >                   dcpl_mb(vpsi(1)+nfft3d))
 
-      value=MA_verify_allocator_stuff()
+c      value=MA_verify_allocator_stuff()
 *     **** put vpsi_r in k-space ****
       call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
       call Cram_c_pack(nb,dcpl_mb(vpsi(1)))

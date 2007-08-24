@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.31 2007-04-06 23:00:09 bylaska Exp $
+* $Id: c_electron.F,v 1.32 2007-08-24 02:24:59 bylaska Exp $
 *
 
 
@@ -944,6 +944,82 @@ cccccccccccccccccc
      &       MA_ERR)
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *     c_electron_gen_dng_dnall    *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_electron_gen_dng_dnall(dn,dng,dnall)
+      implicit none
+      real*8     dn(*)
+      complex*16 dng(*)
+      real*8     dnall(*)
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+#include "errquit.fh"
+
+
+*     **** local variables ****
+      integer ms,nx,ny,nz,neall
+      real*8  scal1
+      integer tmp1(2)
+      logical value
+
+*     ***** external functions *****
+      logical  cpsp_semicore
+      real*8   lattice_omega
+      external cpsp_semicore
+      external lattice_omega
+
+      neall = ne(1)+ne(2)
+
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+
+
+*     **********************
+*     **** generate dng ****
+*     **********************
+      value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
+         if (.not. value) call errquit(
+     >     'electron_gen_dng_dnall: out of stack memory',0, MA_ERR)
+
+      call C3dB_rrc_Sum(1,dn,dn(1+(ispin-1)*nfft3d),dcpl_mb(tmp1(1)))
+      call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+      call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
+      call Cram_c_pack(0,dcpl_mb(tmp1(1)))
+      call Cram_c_Copy(0,dcpl_mb(tmp1(1)),dng)
+
+
+*     ********************************************************
+*     **** generate dnall - used for semicore corrections ****
+*     ********************************************************
+      if (cpsp_semicore(0)) then
+         call c_semicore_density(dcpl_mb(tmp1(1)))
+         call C3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+      else
+         call C3dB_r_Zero(1,dcpl_mb(tmp1(1)))
+      end if
+      do ms=1,ispin
+        call C3dB_rr_Sum(1,dn(1+(ms-1)*nfft3d),
+     >                     dcpl_mb(tmp1(1)),
+     >                     dnall(1+(ms-1)*nfft3d))
+      end do
+
+      value = MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit(
+     >     'c_electron_gen_dng_dnall: error popping stack memory',0,
+     &       MA_ERR)
+      return
+      end
+
+
 
 
 *     ***********************************
