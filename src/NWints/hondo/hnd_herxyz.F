@@ -1,5 +1,5 @@
 c
-c $Id: hnd_herxyz.F,v 1.1 2004-12-03 22:36:10 bert Exp $
+c $Id: hnd_herxyz.F,v 1.2 2007-08-24 17:27:15 d3p852 Exp $
 c
       subroutine hnd_hermxyz
       implicit none
@@ -9,7 +9,7 @@ c
 #include "hnd_whermt.fh"
 c
       common/hnd_xyzher/xint,yint,zint,t,x0,y0,z0,xi,yi,zi,xj,yj,zj,
-     &                  ni,nj,xc,yc,zc,nc,xd,yd,zd,nd
+     &                  xd,yd,zd,ni,nj,xc,yc,zc,nc,nd
       double precision xint, yint, zint, t, x0, y0, z0, xi, yi, zi
       double precision xj, yj, zj, zero, dum, px, py, pz, xd, yd, zd
       double precision cx, cy, cz, dx, dy, dz, xc, yc, zc

@@ -2,7 +2,7 @@
      1  xyzj,expj,coefj,j_nprim,j_ngen,Lj,nint,dso,scr,lscr,
      2  xyzpt, npairs)
 c
-c $Id: hnd_dso.F,v 1.1 2004-12-03 22:36:10 bert Exp $
+c $Id: hnd_dso.F,v 1.2 2007-08-24 17:27:15 d3p852 Exp $
 c
       implicit double precision (a-h,o-z)
 #include "hnd_pointers.fh"
@@ -29,7 +29,7 @@ c
 #include "stdio.fh"
 #include "hnd_tol.fh"
       common/hnd_xyzher/xint,yint,zint,tx,x0,y0,z0,xi,yi,zi,xj,yj,zj,
-     1                  ni,nj,cx,cy,cz,nc,dx,dy,dz,nd
+     1                  dx,dy,dz,ni,nj,cx,cy,cz,nc,nd
       dimension w2(maxrys)
       dimension Nxyz(3),xyzi(3),xyzj(3),expi(i_nprim),expj(j_nprim)
       dimension coefi(i_nprim,i_ngen),coefj(j_nprim,j_ngen)
