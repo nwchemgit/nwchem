@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.40 2007-08-24 02:24:55 bylaska Exp $
+c $Id: nwpw_input.F,v 1.41 2007-08-24 15:06:04 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 81)
+      parameter (num_dirs = 82)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -95,6 +95,7 @@ c
      >            'np_orbital',
      >            'spin_orbit',
      >            'spin-orbit',
+     >            'cutoff',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -145,6 +146,7 @@ c
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5700,5800,5900,6000,6000,
+     >       2750,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -478,6 +480,7 @@ c
       value = rtdb_put(rtdb,'cgsd:ecut',mt_dbl,1,ecut)
      >   .and.rtdb_put(rtdb,'band:ecut',mt_dbl,1,ecut)
      >   .and.rtdb_put(rtdb,'cpsd:ecut',mt_dbl,1,ecut)
+     >   .and.rtdb_put(rtdb,'cpmd:ecut',mt_dbl,1,ecut)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 2600, RTDB_ERR)
@@ -492,10 +495,32 @@ c
       value = rtdb_put(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
      >   .and.rtdb_put(rtdb,'band:wcut',mt_dbl,1,wcut)
      >   .and.rtdb_put(rtdb,'cpsd:wcut',mt_dbl,1,wcut)
+     >   .and.rtdb_put(rtdb,'cpmd:wcut',mt_dbl,1,wcut)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 2700, RTDB_ERR)
       goto 10
+
+c
+c  cutoff
+c
+ 2750 if (.not. inp_f(wcut))
+     >     call errquit(
+     >          'nwpw_nwpwt: failed to read ndown', 0, INPUT_ERR)
+      value = rtdb_put(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
+     >   .and.rtdb_put(rtdb,'band:wcut',mt_dbl,1,wcut)
+     >   .and.rtdb_put(rtdb,'cpsd:wcut',mt_dbl,1,wcut)
+     >   .and.rtdb_put(rtdb,'cpmd:wcut',mt_dbl,1,wcut)
+     >   .and.rtdb_put(rtdb,'cgsd:ecut',mt_dbl,1,2.0d0*wcut)
+     >   .and.rtdb_put(rtdb,'band:ecut',mt_dbl,1,2.0d0*wcut)
+     >   .and.rtdb_put(rtdb,'cpsd:ecut',mt_dbl,1,2.0d0*wcut)
+     >   .and.rtdb_put(rtdb,'cpmd:ecut',mt_dbl,1,2.0d0*wcut)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 2750, RTDB_ERR)
+      goto 10
+
+
 c
 c  ewald_rcut
 c 
