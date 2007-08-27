@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.26 2007-08-21 20:59:56 d3p708 Exp $
+* $Id: band_structure.F,v 1.27 2007-08-27 16:54:15 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -215,7 +215,7 @@
       call center_mass(gx,gy,gz)
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
-c      call cpsp_init()
+      call cpsp_init()
       call cpsp_readall()
       if (cpsp_semicore(0)) call c_semicore_check()
 
@@ -539,7 +539,7 @@ c      call cpsp_init()
       call Cram_init()
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
-c      call cpsp_init()
+      call cpsp_init()
       call cpsp_readall()
       if (cpsp_semicore(0)) call c_semicore_check()
 
