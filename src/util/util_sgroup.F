@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.44 2007-08-21 17:11:49 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.45 2007-08-27 17:23:17 d3p852 Exp $
       block data groups
 #include "util_sgroup.fh"
 C     Make sure that the group code works even if groups are not set up yet
@@ -72,7 +72,9 @@ c
         ngroups(depth) = 1
         my_ga_grp(depth) = ga_pgroup_get_world()
         x0(1) = 0
-        my_ga_0_grp(depth) = ga_pgroup_create(x0,1)
+        if (my_ga_0_grp(0) .eq. -999) then
+          my_ga_0_grp(depth) = ga_pgroup_create(x0,1)
+        end if
 
 c       preliminary rtdb cloning
 C       Work around the 36 char cutoff for fname
@@ -191,6 +193,8 @@ C     Make sure all nodes are done using RTDB file
       call ga_pgroup_set_default(my_ga_grp(depth-1))
       ignore = ga_pgroup_destroy(my_ga_0_grp(depth))
       ignore = ga_pgroup_destroy(mypgroup_old)
+      my_ga_0_grp(depth) = -999
+      my_ga_grp(depth) = -999
 c
 c     reopen higher up rtdb
 c
