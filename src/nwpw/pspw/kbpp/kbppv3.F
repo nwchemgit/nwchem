@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.15 2007-03-21 03:31:28 bylaska Exp $
+* $Id: kbppv3.F,v 1.16 2007-08-27 15:31:33 bylaska Exp $
 *
 
 *     **************************************
@@ -45,7 +45,7 @@
 
       integer          isemicore
       logical          semicore
-      double precision rcore,core_charge
+      double precision rcore,core_charge,sum
 
       integer f_indx,cs_indx,sn_indx
       integer n_prj_indx,l_prj_indx,m_prj_indx
@@ -278,8 +278,6 @@ c      call Parallel_Init()
   114 format(a,3F10.3)
   115 format(a,2E14.6)
       end if
-
-
 
       if (taskid.eq.MASTER) then
       call util_file_name_noprefix(formatted_filename,
