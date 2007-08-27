@@ -286,7 +286,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.37 2006-10-04 18:29:22 edo Exp $
+C$Id: util_file_name.F,v 1.38 2007-08-27 17:01:15 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -307,6 +307,7 @@ c
       logical bad_permanent_dir, bad_scratch_dir
       integer nkeys, istart, iend
       parameter (nkeys = 7)
+      logical iocheckk
       character*16 keys(nkeys), field
       data keys/'start','restart','continue',
      &    'scratch_dir','permanent_dir', 'ecce_print',
@@ -328,6 +329,11 @@ c     Only process 0 reads ... everyone else jumps to the broadcast
 c
       scratch_dir = ' '
       permanent_dir = ' '
+      iocheckk=.true.
+#ifdef CRAYXT
+c     only catamount all fs are parallel, therefore we need only node0
+      iocheckk=ga_nodeid().eq.0
+#endif     
 c
       if (nodeid() .gt. 0) goto 10000
 c
@@ -418,6 +424,7 @@ c
 *
       call ga_sync()
 *check permanent directory
+      if(iocheckk) then
       call util_file_name('dir_check_p',.false.,.true.,a_temporary_file)
       open(unit=42,file=a_temporary_file,status='new',err=91101)
       close(unit=42,status='delete')
@@ -435,6 +442,10 @@ c
       goto 91122
 91102 bad_scratch_dir = .true.
 91122 continue
+      else
+         bad_permanent_dir=.false.
+         bad_scratch_dir=.false.
+      endif
 *
       if (bad_permanent_dir) then
         iend = inp_strlen(permanent_dir)
@@ -599,7 +610,7 @@ c
      &       DISK_ERR)
       call ga_sync()
       ierr = eaf_stat(mine, avail0, fstype)
-#ifdef CATAMOUNT
+#ifdef CRAYXT
       nuse=ga_nnodes()
       avail1=-16d0*nuse+avail0
       ierr=eaf_delete(mine)

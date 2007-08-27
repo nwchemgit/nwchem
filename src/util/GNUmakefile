@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.197 2007-08-21 17:19:55 d3p852 Exp $
+# $Id: GNUmakefile,v 1.198 2007-08-27 17:01:15 edo Exp $
 
 include ../config/makefile.h
 
@@ -107,13 +107,17 @@ ifeq ($(_CPU),x86_64)
   ifeq ($(FC),pathf90)
     EXTRA_OBJ += util_cflush.o
   endif
+ifeq ($(FC),ftn)
+  EXTRA_OBJ += util_allocga.o
+endif
 endif
 ifeq ($(_CPU),ppc64)
   EXTRA_OBJ = linux_cpu.o linux_random.o # linux_setfpucw.o
 endif
 endif                                                                           
 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
-  EXTRA_OBJ += util_allocga.o
+   LIB_DEFINES += -I/opt/xt-catamount/default/catamount/linux/include/ -I/opt/xt-catamount/default/catamount/linux/include/amd64/
+  EXTRA_OBJ += util_allocga.o xt3_dclock.o  util_fullbuff.o util_sigprof.o
 endif
 ifeq ($(TARGET),FUJITSU_VPP)
    LIB_DEFINES = \
