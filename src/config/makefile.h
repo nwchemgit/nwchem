@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.545 2007-08-17 22:33:59 d3p852 Exp $
+# $Id: makefile.h,v 1.546 2007-08-27 17:03:46 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1154,6 +1154,7 @@ endif
         LINK.f = gfortran  $(LDFLAGS) 
         FOPTIONS   = -Wextra -Wunused #-ffast-math
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
+       DEFINES  += -DGFORTRAN
         ifeq ($(_CPU),ppc970)
 #G5
          FVECTORIZE = -ffast-math  -O2 -ftree-vectorize 
@@ -1353,6 +1354,7 @@ ifeq ($(LINUXCPU),x86)
  endif
  ifeq ($(FC),gfortran)
    _FC=gfortran
+       DEFINES  += -DGFORTRAN
   endif
   ifeq ($(_FC),ifc)
   FOPTIONS   =  -align    -mp1 -w -g -vec_report3
@@ -1661,6 +1663,13 @@ endif
 	@echo 
 	@exit 1
       endif
+      ifeq ($(FC),ftn)
+        _FC=pgf90
+        _CC=pgcc
+      endif
+      ifeq ($(CC),pgcc)
+        _CC=pgcc
+      endif
       ifeq ($(FC),pgf90)
         _FC=pgf90
       endif
@@ -1675,6 +1684,7 @@ endif
       endif
       ifeq ($(FC),gfortran)
        _FC=gfortran
+       DEFINES  += -DGFORTRAN
       endif
       ifeq ($(_FC),ifc)
      _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
@@ -1721,9 +1731,12 @@ endif
         FVECTORIZE   = -fast  -fastsse  -O3   -Mipa=fast
         FDEBUG = -g -O2
         DEFINES  += -DCHKUNDFLW -DPGLINUX
+       ifeq ($(FC),ftn)
+          DEFINES  += -DCRAYXT
+          LINK.f = ftn  $(LDFLAGS) $(FOPTIONS)
+       endif
        ifeq ($(NWCHEM_TARGET),CATAMOUNT)
-         LDFLAGS=-O -g
-          LINK.f = mpif90 -O $(LDFLAGS) $(FOPTIONS)
+          LINK.f = ftn  $(LDFLAGS) $(FOPTIONS)
        endif
       endif
       ifeq ($(FC),pathf90)
@@ -1739,7 +1752,11 @@ endif
         FDEBUG = -g -O2
         LDOPTIONS = -Wl,--warn-once   -Wl,--relax
       endif
-      COPTIONS   =   -O3 -funroll-loops -ffast-math  
+      ifeq ($(_CC),pgcc)
+        COPTIONS   =   -O
+      else
+        COPTIONS   =   -O3 -funroll-loops -ffast-math  
+      endif
       ifdef USE_GCC34
         COPTIONS  +=   -march=k8 -mtune=k8
       endif
