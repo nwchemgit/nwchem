@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.26 2007-04-02 15:38:38 bylaska Exp $
+# $Id: GNUmakefile,v 1.27 2007-08-27 15:29:43 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -7,6 +7,7 @@
 		nwpw_scratch.o \
 		nwpw_list.o \
 		nwpw_scf_mixing.o \
+		nwpw_spline.o \
 		kerker_G.o \
 		cpmd_properties.o \
 		nwpw_rdf.o \
