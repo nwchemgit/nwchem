@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3-stress.F,v 1.7 2003-12-02 19:17:10 bylaska Exp $
+* $Id: kbppv3-stress.F,v 1.8 2007-08-28 21:00:18 bylaska Exp $
 *
 
 
@@ -54,14 +54,22 @@
       integer vl_indx,vnl_indx,G_indx
       integer vl_hndl,vnl_hndl,G_hndl
 
+*     **** ray data ****
+      integer nray,G_ray_hndl,tmp_ray_hndl
+      integer rho_sc_k_ray_hndl,dvnl_ray_hndl,dvl_ray_hndl
+      integer G_ray_indx,tmp_ray_indx
+      integer rho_sc_k_ray_indx,dvnl_ray_indx,dvl_ray_indx
+
 *     **** other variables ****
       double precision unitg(3,3)
       integer nsize,i,l,ierr
       integer nfft1,nfft2,nfft3
 
 *     **** external functions ****
-      double precision simp
-      external         simp
+      logical  control_print,control_kbpp_ray,control_kbpp_filter
+      external control_print,control_kbpp_ray,control_kbpp_filter
+      integer  kbpp_calc_nray
+      external kbpp_calc_nray
 
 
       call Parallel_init()
@@ -111,12 +119,14 @@
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'vp',vp_hndl, vp_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'wp', wp_hndl, wp_indx)
-      value = MA_alloc_get(mt_dbl,2*nrho,
+      value = value.and.MA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
+      if (.not.value)
+     >  call errquit('kbppv3_stress: out of heap memory',0,MA_ERR)
 
       if (taskid.eq.MASTER) then
       call read_vpwp(11,nrho,lmax,dbl_mb(rho_indx),
@@ -146,22 +156,26 @@
 *    **** more temporary space ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'f',f_hndl,f_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = value.and.MA_alloc_get(mt_dbl,nrho,
      >                        'cs',cs_hndl,cs_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = value.and.MA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
+      if (.not.value)
+     >  call errquit('kbppv3_stress: out of heap memory',0,MA_ERR)
 
 *     **** allocate vl,vnl,vnlnrm G ****
       lmmax = (lmax+1)**2 - (2*locp+1)
       nsize = (ngrid(1)/2+1)*ngrid(2)*ngrid(3)
       value = MA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
-      value = MA_alloc_get(mt_dbl,nsize*(lmmax)*3,
+      value = value.and.MA_alloc_get(mt_dbl,nsize*(lmmax)*3,
      >                        'vnl',vnl_hndl, vnl_indx)
-      value = MA_alloc_get(mt_dbl,nsize*(3),
+      value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
-      value = MA_alloc_get(mt_dbl,4*nsize,
+      value = value.and.MA_alloc_get(mt_dbl,4*nsize,
      >                        'sc_k',sc_k_hndl,sc_k_indx)
+      if (.not.value)
+     >  call errquit('kbppv3_stress: out of heap memory',0,MA_ERR)
 
 
 *     **** preparation of constants ****
@@ -170,6 +184,60 @@
       nfft3=ngrid(3)
       call setup_kbpp(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
 
+      if (control_kbpp_ray()) then
+        !**** allocate memory for rays ****
+        nray = kbpp_calc_nray(nfft1,nfft2,nfft3,dbl_mb(G_indx))
+
+        value =           MA_alloc_get(mt_dbl,nray,
+     >                  'G_ray',G_ray_hndl,G_ray_indx)
+        value = value.and.MA_alloc_get(mt_dbl,2*nray,
+     >                  'dvl_ray',dvl_ray_hndl,dvl_ray_indx)
+        value = value.and.MA_alloc_get(mt_dbl,4*nray*(lmax+1),
+     >                  'dvnl_ray',dvnl_ray_hndl,dvnl_ray_indx)
+        value = value.and.MA_alloc_get(mt_dbl,2*nray,
+     >              'rho_sc_k_ray',rho_sc_k_ray_hndl,rho_sc_k_ray_indx)
+        value = value.and.MA_alloc_get(mt_dbl,nray,
+     >                  'tmp_ray',tmp_ray_hndl,tmp_ray_indx)
+        if (.not.value)
+     >   call errquit('kbppv3_stress:out of heap memory',0,MA_ERR)
+
+        call kbpp_generate_G_ray(nfft1,nfft2,nfft3,
+     >                         dbl_mb(G_indx),
+     >                         dbl_mb(G_ray_indx))
+
+        call integrate_stress_new(version,rlocal,
+     >                      nrho,drho,lmax,locp,zv,
+     >                                dbl_mb(vp_indx),
+     >                                dbl_mb(wp_indx),
+     >                                dbl_mb(rho_indx),
+     >                                dbl_mb(f_indx),
+     >                                dbl_mb(cs_indx),
+     >                                dbl_mb(sn_indx),
+     >                      nfft1,nfft2,nfft3,lmmax,
+     >                                dbl_mb(G_indx),
+     >                                dbl_mb(vl_indx),
+     >                                dbl_mb(vnl_indx),
+     >                                semicore,
+     >                                dbl_mb(sc_r_indx),
+     >                                dbl_mb(sc_k_indx),
+     >                      nray,
+     >                                dbl_mb(G_ray_indx),
+     >                                dbl_mb(dvl_ray_indx),
+     >                                dbl_mb(dvnl_ray_indx),
+     >                                dbl_mb(rho_sc_k_ray_indx),
+     >                                dbl_mb(tmp_ray_indx),
+     >                                control_kbpp_filter(),
+     >                      ierr)
+        value = MA_free_heap(tmp_ray_hndl)
+        value = value.and.MA_free_heap(rho_sc_k_ray_hndl)
+        value = value.and.MA_free_heap(dvnl_ray_hndl)
+        value = value.and.MA_free_heap(dvl_ray_hndl)
+        value = value.and.MA_free_heap(G_ray_hndl)
+        if (.not.value)
+     >   call errquit('kbppv3_stress:Error freeing memory',0,MA_ERR)
+
+
+      else
 
       call integrate_stress(version,rlocal,
      >                      nrho,drho,lmax,locp,zv,
@@ -187,7 +255,7 @@
      >                                dbl_mb(sc_r_indx),
      >                                dbl_mb(sc_k_indx),
      >                      ierr)
-
+      end if
 
 
       if ((taskid.eq.MASTER).and.(oprint)) then
@@ -267,6 +335,8 @@
       value = value.and.MA_free_heap(vl_hndl)
       value = value.and.MA_free_heap(vnl_hndl)
       value = value.and.MA_free_heap(G_hndl)
+      if (.not.value)
+     >  call errquit('kbppv3_stress: error freeing heap',0,MA_ERR)
 
       
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)

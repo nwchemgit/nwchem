@@ -1,5 +1,5 @@
 *
-* $Id: integrate_stress_new.F,v 1.3 2007-08-28 20:50:34 bylaska Exp $
+* $Id: integrate_stress_new.F,v 1.4 2007-08-28 21:00:18 bylaska Exp $
 *
 
 *     **********************************
@@ -60,7 +60,7 @@
       integer lcount,task_count,nfft3d
       integer k1,k2,k3,i,l,nx
       double precision p,pp
-      double precision gx,gy,gz,a,q,d,dd
+      double precision gx,gy,gz,q,d,dd
       double precision duxdGx,duxdGy,duxdGz
       double precision duydGx,duydGy,duydGz
       double precision duzdGx,duzdGy,duzdGz
