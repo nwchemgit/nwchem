@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.14 2007-04-02 15:38:39 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.15 2007-08-28 19:34:37 bylaska Exp $
 *
 
 ***********************************************************************
@@ -456,9 +456,11 @@ c     write(*,*) "time10:",t2-t1
            if (control_scf_algorithm().eq.0) 
      >       write(6,1293) "simple mixing"
            if (control_scf_algorithm().eq.1) 
-     >       write(6,1293) "Anderson mixing"
+     >       write(6,1293) "Anderson potential mixing"
            if (control_scf_algorithm().eq.2) 
      >       write(6,1293) "Johnson-Pulay mixing"
+           if (control_scf_algorithm().eq.3) 
+     >       write(6,1293) "Anderson density mixing"
            write(6,1294) control_ks_alpha()
          end if
          write(6,1300)

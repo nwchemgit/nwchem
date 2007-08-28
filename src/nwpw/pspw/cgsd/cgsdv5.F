@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.86 2007-08-28 19:30:09 bylaska Exp $
+* $Id: cgsdv5.F,v 1.87 2007-08-28 19:33:06 bylaska Exp $
 *
 
 ***********************************************************************
@@ -459,11 +459,11 @@ c     value = psi_initialize()
            if (control_scf_algorithm().eq.0) 
      >       write(luout,1293) "simple mixing"
            if (control_scf_algorithm().eq.1) 
-     >       write(luout,1293) "Anderson2 mixing"
+     >       write(luout,1293) "Anderson potential mixing"
            if (control_scf_algorithm().eq.2) 
      >       write(luout,1293) "Johnson-Pulay mixing"
            if (control_scf_algorithm().eq.3) 
-     >       write(luout,1293) "Anderson mixing"
+     >       write(luout,1293) "Anderson density mixing"
            if (minimizer.eq.5) write(luout,1296) "potential"
            if (minimizer.eq.8) write(luout,1296) "density"
            write(luout,1294) control_ks_alpha()

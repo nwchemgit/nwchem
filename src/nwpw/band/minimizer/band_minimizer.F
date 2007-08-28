@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.52 2007-08-28 19:30:46 bylaska Exp $
+* $Id: band_minimizer.F,v 1.53 2007-08-28 19:33:41 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -399,11 +399,11 @@ c           write(luout,1154) cpsp_lmmax(ia)
            if (control_scf_algorithm().eq.0)
      >       write(6,1293) "simple mixing"
            if (control_scf_algorithm().eq.1)
-     >       write(6,1293) "Anderson2 mixing"
+     >       write(6,1293) "Anderson potential mixing"
            if (control_scf_algorithm().eq.2)
      >       write(6,1293) "Johnson-Pulay mixing"
            if (control_scf_algorithm().eq.3)
-     >       write(6,1293) "Anderson mixing"
+     >       write(6,1293) "Anderson density mixing"
            if (minimizer.eq.5) write(luout,1296) "potential"
            if (minimizer.eq.8) write(luout,1296) "density"
            write(6,1294) control_ks_alpha()
