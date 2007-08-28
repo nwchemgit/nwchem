@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.41 2007-08-24 15:06:04 bylaska Exp $
+c $Id: nwpw_input.F,v 1.42 2007-08-28 19:28:40 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -817,7 +817,7 @@ c
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,0))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
-       if (inp_compare(.false.,zone_name,'anderson')) then
+       if (inp_compare(.false.,zone_name,'anderson2')) then
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,1))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
@@ -825,6 +825,11 @@ c
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,2))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
+       if (inp_compare(.false.,zone_name,'anderson')) then
+         if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,3))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
+
        if (inp_compare(.false.,zone_name,'alpha')) then
           if (.not.inp_f(alpha)) 
      >      call errquit('nwpw_input: error reading scf alpha',
