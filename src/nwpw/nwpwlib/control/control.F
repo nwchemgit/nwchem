@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.103 2007-08-24 16:51:18 bylaska Exp $
+* $Id: control.F,v 1.104 2007-08-28 01:05:56 bylaska Exp $
 *
 
 *     ***********************************
@@ -535,8 +535,8 @@ c
          gga = 0
       end if
 
-      value = value.and.
-     >        rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp)
+      if (.not.rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp))
+     >   npsp = 0
       if (.not.rtdb_get(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass))
      >   fake_mass = 400000.0d0
       if (.not.rtdb_get(rtdb,'cgsd:time_step',mt_dbl,1,time_step))
@@ -617,8 +617,8 @@ c
       if (.not.rtdb_get(rtdb,'cpmd:fractional_coordinates',
      >                 mt_log,1,frac_coord))
      >   frac_coord = .false.
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:npsp',mt_int,1,npsp)
+      if (.not.rtdb_get(rtdb,'cpmd:npsp',mt_int,1,npsp))
+     >  npsp = 0
       if (.not.rtdb_get(rtdb,'cpmd:fake_mass',mt_dbl,1,fake_mass))
      >  fake_mass = 800.0d0
       if (.not.rtdb_get(rtdb,'cpmd:time_step',mt_dbl,1,time_step))
@@ -796,7 +796,12 @@ c     >                  1,output_wavefunction_filename)
 
 *     **** define ngrid based on unita and ecut ****
       if (.not.rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
-         if (ecut.gt.5000.0d0) ecut = 30.0d0
+         if ((ecut.gt.5000.0d0).and.(wcut.gt.5000.0d0)) then
+            call control_ecut_wcut_default(rtdb,ecut,wcut)
+         else if ((ecut.gt.5000.0d0).and.(wcut.lt.5000.0d0)) then
+            ecut = 2.0d0*wcut
+         end if
+            
          call control_ngrid_default(rtdb,unita,ecut,mapping,ngrid)
          !ngrid(1) = 32
          !ngrid(2) = 32
@@ -3631,6 +3636,61 @@ c      end
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *      control_kbpp_ray           *
+*     *                                 *
+*     ***********************************
+      logical function control_kbpp_ray()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.rtdb_get(rtdb,'nwpw:kbpp_ray',
+     >     mt_log,1,value))
+     >   value = .false.
+
+      control_kbpp_ray = value
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      control_kbpp_filter        *
+*     *                                 *
+*     ***********************************
+      logical function control_kbpp_filter()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.rtdb_get(rtdb,'nwpw:kbpp_filter',
+     >     mt_log,1,value))
+     >   value = .false.
+
+      control_kbpp_filter = value
+      return
+      end
+
+
 
 
 *     **********************************************
@@ -3674,4 +3734,114 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
        
+
+
+
+*     ***********************************
+*     *                                 *
+*     *    control_ecut_wcut_default    *
+*     *                                 *
+*     ***********************************
+      subroutine control_ecut_wcut_default(rtdb,ecut,wcut)
+      implicit none
+      integer rtdb
+      real*8 ecut,wcut
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical value
+      integer geom,ii,nion,l,h
+      real*8 wcut_max,wcut_atom,q,rion(3)
+      character*4 aname
+      character*16 t,rtdbname
+      character*255 sdir_name
+
+
+*     **** external functions ****
+      real*8      nwpw_libgcutoff
+      external    nwpw_libgcutoff
+      character*4 ion_aname_geom
+      external    ion_aname_geom
+      logical     parsepointcharge
+      external    parsepointcharge
+
+      !*** parse psp information on rtdb ***
+      if (.not.rtdb_get(rtdb,'nwpw:psp:cutoff',mt_dbl,1,wcut_max)) then 
+         call Parallel_taskid(taskid)
+         wcut_max = -1.0d0
+         value = geom_create(geom,'geometry')
+         value = value.and.geom_rtdb_load(rtdb,geom,'geometry')
+         value = value.and.geom_ncent(geom,nion)
+         if (.not. value) 
+     >   call errquit('control_ecut_wcut_default:cannot load geometry',
+     >              0,GEOM_ERR)
+
+         do ii=1,nion
+           if (.not.geom_cent_get(geom,ii,t,rion,q))
+     >     call errquit('control_ecut_wcut_default:error reading ions',
+     >                  0,GEOM_ERR)
+           if (.not.parsepointcharge(t)) then
+              aname = ion_aname_geom(geom,ii)
+              l = index(aname,' ') - 1
+              if (l.le.0) l = 4
+              rtdbname = aname(1:l)//':cutoff'
+              l = l+7
+              if (.not.rtdb_get(rtdb,rtdbname(1:l),mt_dbl,1,wcut_atom)) 
+     >         then
+
+                 !*** define wcut_atom from psplibrary ***
+                 value = rtdb_parallel(.false.)
+                 if (taskid.eq.MASTER) then
+                    call util_directory_name(sdir_name,.true.,0)
+                    h = index(sdir_name,' ') - 1
+                    open(unit=99,file=sdir_name(1:h)//'/junk.inp',
+     >                   status='unknown')
+                   close(unit=99,status='delete')
+
+                   call nwpw_libgeninp(1,aname,
+     >                  sdir_name(1:h)//'/junk.inp')
+                   wcut_atom=nwpw_libgcutoff(aname)
+
+                   if(.not.rtdb_put(rtdb,rtdbname(1:l),
+     >                              mt_dbl,1,wcut_atom))
+     >             call errquit(
+     >           'control_ecut_wcut_default:cannot write wcut_atom',0,0)
+
+                 end if
+                 value = rtdb_parallel(.true.)
+                 call Parallel_Brdcst_value(MASTER,wcut_atom)
+
+              end if
+
+              !*** reset wcut_max ***
+              if (wcut_atom.gt.wcut_max) then
+                 wcut_max = wcut_atom
+                 value = rtdb_parallel(.false.)
+                 if (taskid.eq.MASTER) then
+                 if (.not.rtdb_put(rtdb,'nwpw:psp:cutoff',
+     >                             mt_dbl,1,wcut_max)) 
+     >           call errquit(
+     >          'control_ecut_wcut_default:cannot write wcut_max',0,0)
+                 end if
+                 value = rtdb_parallel(.true.)
+              end if
+           end if
+         end do
+         if (.not. geom_destroy(geom))
+     >   call errquit('control_ecut_wcut_default:cannot destroy geom',
+     >                0,GEOM_ERR)
+      end if
+
+      wcut = wcut_max
+      ecut = 2.0d0*wcut
+
+      return
+      end
 

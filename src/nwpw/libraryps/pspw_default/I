@@ -1,5 +1,5 @@
 #
-# $Id: I,v 1.2 2006-07-05 23:48:03 bylaska Exp $
+# $Id: I,v 1.3 2007-08-28 01:05:53 bylaska Exp $
 #
 Comment: I pseudopotential parameters
 Comment: Fitted 12-28-04
@@ -10,6 +10,8 @@ Comment: relativistic TM, quadratic semicore
 [lmax] 1
 [locp] 0
 [rlocal] 1.0
+[cutoff] 20.0
+
 <atom>
 I 
 53.0 127.0 9 2

@@ -1,6 +1,6 @@
 
 c
-c $Id: nwpw_library.F,v 1.9 2004-12-20 05:18:57 bylaska Exp $
+c $Id: nwpw_library.F,v 1.10 2007-08-28 01:05:48 bylaska Exp $
 c
 	subroutine nwpw_libgeninp(iopt,element,filename)
 	implicit none
@@ -87,6 +87,14 @@ c
 	return
 	end
 
+	double precision function nwpw_libgcutoff(atom)
+	implicit none
+#include "nwpw_inp.fh"
+	character*(*) atom
+	nwpw_libgcutoff = cutoff_read
+	return
+	end
+
 	subroutine nwpw_libparse(library_type,u_library,u_psp_inp)
 	implicit none
 #include "errquit.fh"
@@ -108,6 +116,7 @@ c
 	locp_read=-1
 	rlocal_read=1.d0
         psp_type=0
+        cutoff_read = 30.0d0
 
         if      (library_type.eq.2) then
           psp_type = 2
@@ -144,6 +153,8 @@ c       lmax
 	      read(line(sqptr_r+1:l_lgth),*) locp_read
 	   elseif(keyread(1:k_lgth).eq.'rlocal') then
 	      read(line(sqptr_r+1:l_lgth),*) rlocal_read
+	   elseif(keyread(1:k_lgth).eq.'cutoff') then
+	      read(line(sqptr_r+1:l_lgth),*) cutoff_read
 	   elseif(keyread(1:k_lgth).eq.'psp_type') then
 	      read(line(sqptr_r+1:l_lgth),*) psp_type
 	   else

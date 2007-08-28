@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.49 2007-04-23 16:41:00 bylaska Exp $
+* $Id: ion.F,v 1.50 2007-08-28 01:05:59 bylaska Exp $
 *
 
 *     ***************************
@@ -437,6 +437,60 @@ c         eki1=0.5d0*eki1
       end if
       
       ion_aname = symbol_out
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *      ion_aname_geom     *
+*     *                         *
+*     ***************************
+      character*4 function ion_aname_geom(geom,i)
+      implicit none
+      integer geom,i
+
+#include "stdio.fh"
+#include "geom.fh"
+#include "errquit.fh"
+
+
+*     **** local variables ****
+      integer k,kp,l
+      character*2  symbol
+      character*4  symbol_out
+      character*16 t,name
+      real*8 q
+
+*     **** external functions ****
+      logical  parseqmmm
+      external parseqmmm
+
+      if (.not. geom_cent_tag(geom,i,t))
+     >        call errquit(' ion_aname_geom  failed ',i, GEOM_ERR)
+
+      if (.not. geom_tag_to_element(t,symbol,name,q))
+     >        call errquit(' ion_aname_geom  failed ',i, GEOM_ERR)
+
+      symbol_out = '    '
+      symbol_out(1:2) = symbol
+      if (parseqmmm(t)) then
+
+*        *** add carat tag ***
+         l = index(symbol,' ') - 1
+         if (l.le.0) l = 2
+         symbol_out = symbol(1:l)//'^'
+
+*        *** add tag after carat ***
+         k  = index(t,'^') - 1
+         kp = index(t,' ') - 1
+         if ((kp-k).gt.1) then
+            l = index(symbol_out,' ') - 1
+            symbol_out = symbol_out(1:l)//t(kp:kp)
+         end if
+
+      end if
+
+      ion_aname_geom = symbol_out
       return
       end
 

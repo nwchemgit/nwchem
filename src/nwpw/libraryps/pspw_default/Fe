@@ -1,6 +1,8 @@
 [lmax] 2
 [locp] 0
 [rlocal] 1.0
+[cutoff] 50.0
+
  <atom>
  Fe
   0.260000E+02  0.560000E+02   5   2
