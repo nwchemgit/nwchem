@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3-stress.F,v 1.8 2007-08-28 21:00:18 bylaska Exp $
+* $Id: kbppv3-stress.F,v 1.9 2007-08-28 22:02:12 bylaska Exp $
 *
 
 
@@ -72,7 +72,7 @@
       external kbpp_calc_nray
 
 
-      call Parallel_init()
+c      call Parallel_init()
       call Parallel_taskid(taskid)
 
       value = .false.
