@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.17 2007-08-28 01:05:21 bylaska Exp $
+* $Id: kbppv3.F,v 1.18 2007-08-28 16:09:45 bylaska Exp $
 *
 
 *     **************************************
@@ -294,6 +294,7 @@ c      call Parallel_Init()
      >                      ierr)
       end if
 
+*     **** set up integration ray ****
 
 
       if ((taskid.eq.MASTER).and.(oprint)) then

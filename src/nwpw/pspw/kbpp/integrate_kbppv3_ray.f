@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3_ray.f,v 1.2 2007-08-28 01:05:20 bylaska Exp $
+* $Id: integrate_kbppv3_ray.f,v 1.3 2007-08-28 16:09:45 bylaska Exp $
 *
 
       subroutine integrate_kbppv3_ray(version,rlocal,
@@ -70,7 +70,7 @@
 *======================  Fourier transformation  ======================
       call dcopy(nray,0.0d0,0,vl_ray,1)
       call dcopy((lmax+1)*nray,0.0d0,0,vnl_ray,1)
-      call dcopy(4*nray,0.0d0,0,rho_sc_k_ray,1)
+      call dcopy(2*nray,0.0d0,0,rho_sc_k_ray,1)
       task_count = -1
       DO 700 k1=2,nray
         task_count = task_count + 1

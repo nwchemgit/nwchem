@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3_new.f,v 1.2 2007-08-28 01:05:20 bylaska Exp $
+* $Id: integrate_kbppv3_new.f,v 1.3 2007-08-28 16:09:45 bylaska Exp $
 *
       subroutine integrate_kbppv3_new(version,rlocal,
      >                            nrho,drho,lmax,locp,zv,
@@ -237,6 +237,7 @@
   500   CONTINUE
         if (locp.ne.0) then
           P = nwpw_splint(G_ray,vnl_ray(1,0,1),vnl_ray(1,0,2),nray,nx,Q)
+          lcount = lcount-1
           vnl(k1,k2,k3,lcount)=P
         end if
 *       ::::::::::::::::::::::::::::::  local  :::::::::::::::::::::::::::::::
