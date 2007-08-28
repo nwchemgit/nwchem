@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3_ray.f,v 1.3 2007-08-28 16:09:45 bylaska Exp $
+* $Id: integrate_kbppv3_ray.f,v 1.4 2007-08-28 16:39:54 bylaska Exp $
 *
 
       subroutine integrate_kbppv3_ray(version,rlocal,
@@ -165,7 +165,7 @@
         end if
     
   700 CONTINUE
-      call Parallel_Vector_SumAll(4*nray,rho_sc_k_ray)
+      call Parallel_Vector_SumAll(2*nray,rho_sc_k_ray)
       call Parallel_Vector_SumAll(nray,vl_ray)
       call Parallel_Vector_Sumall((lmax+1)*nray,vnl_ray)
 
