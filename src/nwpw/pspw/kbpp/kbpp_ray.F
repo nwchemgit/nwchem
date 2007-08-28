@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_ray.F,v 1.1 2007-08-28 04:25:28 bylaska Exp $
+* $Id: kbpp_ray.F,v 1.2 2007-08-28 20:22:38 bylaska Exp $
 *
 
 *     *********************************************
@@ -125,8 +125,6 @@
 
       dG   = kbpp_calc_dGmin(nfft1,nfft2,nfft3,G)
       nray = kbpp_calc_nray(nfft1,nfft2,nfft3,G)
-      write(*,*) "dG,Gmax=",dG,kbpp_calc_Gmax(nfft1,nfft2,nfft3,G)
-
       do i=1,nray
        G_ray(i) = dG*dble(i-1)
       end do

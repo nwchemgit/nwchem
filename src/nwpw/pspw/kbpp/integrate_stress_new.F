@@ -1,22 +1,24 @@
 *
-* $Id: integrate_stress_new.F,v 1.1 2007-08-28 16:12:53 bylaska Exp $
+* $Id: integrate_stress_new.F,v 1.2 2007-08-28 20:22:38 bylaska Exp $
 *
 
 *     **********************************
 *     *                                *
-*     *        integrate_stress        *
+*     *        integrate_stress_new    *
 *     *                                *
 *     **********************************
 
-      subroutine integrate_stress(version,rlocal,
+      subroutine integrate_stress_new(version,rlocal,
      >                            nrho,drho,lmax,locp,zv,
      >                            vp,wp,rho,f,cs,sn,
      >                            nfft1,nfft2,nfft3,lmmax,
      >                            G,dvl,dvnl,
      >                            semicore,rho_sc_r,rho_sc_k,
+     >                            nray,G_ray,vl_ray,vnl_ray,
+     >                            rho_sc_k_ray,tmp_ray,
+     >                            filter,
      >                            ierr)
       implicit none
-#include "errquit.fh"
       integer          version
       double precision rlocal
       integer          nrho
@@ -40,12 +42,21 @@
       double precision rho_sc_r(nrho,2)
       double precision rho_sc_k(nfft1/2+1,nfft2,nfft3,4)
 
+      integer nray
+      double precision G_ray(nray)
+      double precision vl_ray(nray,2)
+      double precision vnl_ray(nray,2,0:lmax,2)
+      double precision rho_sc_k_ray(nray,2)
+      double precision tmp_ray(nray)
+      logical filter
       integer ierr
 
+#include "errquit.fh"
+
+*     *** local variables ****
       integer np,taskid,MASTER
       parameter (MASTER=0)
 
-*     *** local variables ****
       integer lcount,task_count,nfft3d
       integer k1,k2,k3,i,l
       double precision pi,twopi,forpi
@@ -61,31 +72,30 @@
       double precision dsum,simp,util_erf
       external         dsum,simp,util_erf
 
-      if (version.ne.3) then
-         call errquit('integrate_stress - unit cell is aperiodic',0,
-     &       INPUT_ERR)
-      end if
       call Parallel_np(np)
       call Parallel_taskid(taskid)
+
+      if (version.ne.3) then
+         call errquit('integrate_stress_new - unit cell is aperiodic',0,
+     &       INPUT_ERR)
+      end if
+      if(lmmax.gt.16) then
+         call errquit('integrate_stress_new - lmax > f',0,
+     >       INPUT_ERR)
+      end if
+      if((nrho/2)*2.eq.nrho) then
+        call errquit('integrate_stress_new - psp grid not odd',0,
+     >       INPUT_ERR)
+      end if
 
       nfft3d = (nfft1/2+1)*nfft2*nfft3
       pi=4.0d0*datan(1.0d0)
       twopi=2.0d0*pi
       forpi=4.0d0*pi
-
-      IF(LMMAX.GT.16) THEN
-        IERR=1
-        RETURN
-      ENDIF
-      IF((nrho/2)*2.Eq.nrho) THEN
-        IERR=2
-        RETURN
-      ENDIF
-
-      P0=dsqrt(forpi)
-      P1=dsqrt(3.0d0*forpi)
-      P2=dsqrt(15.0d0*forpi)
-      P3=dsqrt(105.0d0*forpi)
+      p0=dsqrt(forpi)
+      p1=dsqrt(3.0d0*forpi)
+      p2=dsqrt(15.0d0*forpi)
+      p3=dsqrt(105.0d0*forpi)
 
 *::::::::::::::::::  Define non-local pseudopotential  ::::::::::::::::
       do l=0,lmax
@@ -95,6 +105,52 @@
           end do
         end if
       end do
+
+
+*     ************* compute ray fourier transforms *********************
+      call integrate_stress_ray(version,rlocal,
+     >                            nrho,drho,lmax,locp,zv,
+     >                            vp,wp,rho,f,cs,sn,
+     >                            nray,
+     >                            G_ray,dvl_ray,dvnl_ray,
+     >                            semicore,rho_sc_r,rho_sc_k_ray,
+     >                            ierr)
+
+*     **** filter the rays ****
+      if (filter) then
+         write(*,*) "---- filtering psp ----"
+         ecut = control_ecut()
+         wcut = control_wcut()
+         call kbpp_filter_ray(nray,G_ray,ecut,dvl_ray)
+         do l=0,lmax
+            if (l.ne.locp) then
+              call kbpp_filter_ray(nray,G_ray,wcut,dvnl_ray(1,1,l,1))
+              call kbpp_filter_ray(nray,G_ray,wcut,dvnl_ray(1,2,l,1))
+            end if
+         end do
+         if (semicore) then
+           call kbpp_filter_ray(nray,G_ray,ecut,rho_sc_k_ray)
+         end if
+      end if
+
+*     **** setup cubic bsplines ****
+      dG = G_ray(3)-G_ray(2)
+      call nwpw_spline(G_ray,dvl_ray(1,1),nray,0.0d0,0.0d0,
+     >                       dvl_ray(1,2),tmp_ray)
+      do l=0,lmax
+         if (l.ne.locp) then
+            call nwpw_spline(G_ray,dvnl_ray(1,1,l,1),nray,0.0d0,0.0d0,
+     >                             dvnl_ray(1,1,l,2),tmp_ray)
+            call nwpw_spline(G_ray,dvnl_ray(1,2,l,1),nray,0.0d0,0.0d0,
+     >                             dvnl_ray(1,2,l,2),tmp_ray)
+         end if
+      end do
+      if (semicore) then
+         call nwpw_spline(G_ray,rho_sc_k_ray(1,1),nray,0.0d0,0.0d0,
+     >                          rho_sc_k_ray(1,2),tmp_ray)
+      end if
+
+
 
 *======================  Fourier transformation  ======================
       call dcopy(nfft3d,0.0d0,0,dvl,1)
@@ -107,9 +163,10 @@
         task_count = task_count + 1
         if (mod(task_count,np).ne.taskid) go to 700
 
-        q=DSqRT(G(k1,k2,k3,1)**2
+        q=DSQRT(G(k1,k2,k3,1)**2
      >         +G(k1,k2,k3,2)**2
      >         +G(k1,k2,k3,3)**2)
+        nx = (q/dG) + 1.0d0
 
         if ((k1.eq.1).and.(k2.eq.1).and.(k3.eq.1)) go to 700
 
@@ -142,24 +199,10 @@
 *::::::::::::::::::::::::::::::  f-wave  ::::::::::::::::::::::::::::::
   200   CONTINUE
         if (locp.ne.3) then
-           F(1)=0.0d0
-           do i=2,nrho
-             A=sn(i)/(q*rho(i))
-             A=15.0d0*(A-cs(i))/(q*rho(i))**2 - 6*A + cs(i)
-             f(i)=A*wp(i,3)*vp(i,3)
-           end do
-           D=P3*SIMP(nrho,F,drho)/q
-
-           F(1)=0.0d0
-           do i=2,nrho
-             A= -60.0d0*sn(i)/(rho(i)**3 * q**5)
-     >        +  60.0d0*cs(i)/(rho(i)**2 * q**4)
-     >        +  27.0d0*sn(i)/(rho(i)    * q**3)
-     >        -   7.0d0*cs(i)/(q**2)
-     >        -   rho(i)*sn(i)/q
-             f(i)=A*wp(i,3)*vp(i,3)
-           end do
-           DD=P3*SIMP(nrho,F,drho)
+           D  = nwpw_splint(G_ray,vnl_ray(1,1,3,1),
+     >                            vnl_ray(1,1,3,2),nray,nx,Q)
+           DD = nwpw_splint(G_ray,vnl_ray(1,2,3,1),
+     >                            vnl_ray(1,2,3,2),nray,nx,Q)
 
            lcount = lcount-1
            T = gx*(4.0d0*gx*gx - 3.0d0*(1.0d0-gz*gz))/dsqrt(24.0d0)

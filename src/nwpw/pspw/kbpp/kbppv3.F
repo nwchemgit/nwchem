@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.18 2007-08-28 16:09:45 bylaska Exp $
+* $Id: kbppv3.F,v 1.19 2007-08-28 20:22:38 bylaska Exp $
 *
 
 *     **************************************
@@ -207,10 +207,8 @@ c      call Parallel_Init()
 
 
       if (control_kbpp_ray()) then
-        write(*,*) "in kbpp_ray"
         !**** allocate memory for rays ****
         nray = kbpp_calc_nray(nfft1,nfft2,nfft3,dbl_mb(G_indx))
-        write(*,*) "nray=",nray
 
         value =           MA_alloc_get(mt_dbl,nray,
      >                  'G_ray',G_ray_hndl,G_ray_indx)
@@ -255,14 +253,6 @@ c      call Parallel_Init()
      >                                dbl_mb(tmp_ray_indx),
      >                                control_kbpp_filter(),
      >                      ierr)
-        write(*,*) "out integrate_kbppv3_new"
-        do i=1,nray
-            write(26,*) dbl_mb(G_ray_indx+i-1),dbl_mb(vl_ray_indx+i-1)
-            write(27,*) dbl_mb(G_ray_indx+i-1),dbl_mb(vnl_ray_indx+i-1)
-            write(28,*) dbl_mb(G_ray_indx+i-1),
-     >                  dbl_mb(vnl_ray_indx+i-1+nray)
-        end do
-
         value = MA_free_heap(tmp_ray_hndl)
         value = value.and.MA_free_heap(rho_sc_k_ray_hndl)
         value = value.and.MA_free_heap(vnl_ray_hndl)
@@ -294,7 +284,6 @@ c      call Parallel_Init()
      >                      ierr)
       end if
 
-*     **** set up integration ray ****
 
 
       if ((taskid.eq.MASTER).and.(oprint)) then

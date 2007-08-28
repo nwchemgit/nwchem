@@ -1,14 +1,17 @@
 *
-* $Id: integrate_kbpp_band_local_new.F,v 1.1 2007-08-28 16:23:48 bylaska Exp $
+* $Id: integrate_kbpp_band_local_new.F,v 1.2 2007-08-28 20:22:32 bylaska Exp $
 *
 
-      subroutine integrate_kbpp_band_local(version,
+      subroutine integrate_kbpp_band_local_new(version,
      >                            nrho,drho,lmax,locp,zv,
      >                            vp,wp,rho,f,cs,sn,
      >                            nfft1,nfft2,nfft3,lmmax,
      >                            G,vl,
      >                            n_prj,l_prj,m_prj,vnlnrm,
      >                            semicore,rho_sc_r,rho_sc_k,
+     >                            nray,G_ray,vl_ray,vnl_ray,
+     >                            rho_sc_k_ray,tmp_ray,
+     >                            filter,
      >                            ierr)
       implicit none
       integer          version
@@ -35,24 +38,33 @@
       double precision rho_sc_r(nrho,2)
       double precision rho_sc_k(nfft1,nfft2,nfft3,4)
 
+      integer nray
+      double precision G_ray(nray)
+      double precision vl_ray(nray,2)
+      double precision vnl_ray(nray,0:lmax,2)
+      double precision rho_sc_k_ray(nray,2,2)
+      double precision tmp_ray(nray)
+      logical filter
+
       integer ierr
 
+#include "mafdecls.fh"
+
+*     *** local variables ****
       integer np,taskid,MASTER
       parameter (MASTER=0)
 
-*     *** local variables ****
       integer lcount,task_count,nfft3d
-      integer k1,k2,k3,i,l
-      double precision pi,twopi,forpi
+      integer k1,k2,k3,i,l,nx
+      double precision pi,twopi,forpi,ecut,wcut
       double precision p0,p1,p2,p3,p
       double precision gx,gy,gz,a,q,d
 
 
 *     **** external functions ****
-      double precision dsum,simp
-      external         dsum,simp
+      double precision dsum,simp,control_ecut,control_wcut,nwpw_splint
+      external         dsum,simp,control_ecut,control_wcut,nwpw_splint
 
-#include "mafdecls.fh"
       logical value
 
       call Parallel_np(np)
@@ -69,10 +81,10 @@
         RETURN
       ENDIF
 
-      P0=DSQRT(FORPI)
-      P1=DSQRT(3.0d0*FORPI)
-      P2=DSQRT(15.0d0*FORPI)
-      P3=DSQRT(105.0d0*FORPI)
+      p0=DSQRT(forpi)
+      p1=DSQRT(3.0d0*forpi)
+      p2=DSQRT(15.0d0*forpi)
+      p3=DSQRT(105.0d0*forpi)
 
 *::::::::::::::::::  Define non-local pseudopotential  ::::::::::::::::
       do l=0,lmax
@@ -97,8 +109,51 @@
         end if
       end do
 
+*     ************* compute ray fourier transforms *********************
+      call integrate_kbppv3_ray(version,rlocal,
+     >                            nrho,drho,lmax,locp,zv,
+     >                            vp,wp,rho,f,cs,sn,
+     >                            nray,
+     >                            G_ray,vl_ray,vnl_ray,
+     >                            semicore,rho_sc_r,rho_sc_k_ray,
+     >                            ierr)
+
+*     **** filter the rays ****
+      if (filter) then
+         write(*,*) "---- filtering psp ----"
+         ecut = control_ecut()
+         wcut = control_wcut()
+         call kbpp_filter_ray(nray,G_ray,ecut,vl_ray)
+         do l=0,lmax
+            if (l.ne.locp)
+     >        call kbpp_filter_ray(nray,G_ray,wcut,vnl_ray(1,l,1))
+         end do
+         if (semicore) then
+           call kbpp_filter_ray(nray,G_ray,ecut,rho_sc_k_ray(1,1,1))
+           call kbpp_filter_ray(nray,G_ray,ecut,rho_sc_k_ray(1,2,1))
+         end if
+      end if
+
+*     **** setup cubic bsplines ****
+      dG = G_ray(3)-G_ray(2)
+      yp1 = (vl_ray(3,1)-vl_ray(2,1))/dG
+      call nwpw_spline(G_ray(2),vl_ray(2,1),nray-1,yp1,0.0d0,
+     >                          vl_ray(2,2),tmp_ray)
+      do l=0,lmax
+         if (l.ne.locp)
+     >      call nwpw_spline(G_ray,vnl_ray(1,l,1),nray,0.0d0,0.0d0,
+     >                             vnl_ray(1,l,2),tmp_ray)
+      end do
+      if (semicore) then
+         call nwpw_spline(G_ray,rho_sc_k_ray(1,1,1),nray,0.0d0,0.0d0,
+     >                          rho_sc_k_ray(1,1,2),tmp_ray)
+         call nwpw_spline(G_ray,rho_sc_k_ray(1,2,1),nray,0.0d0,0.0d0,
+     >                          rho_sc_k_ray(1,2,2),tmp_ray)
+      end if
+
+
 *======================  Fourier transformation  ======================
-      call dcopy(nfft3d,0.0d0,0,VL,1)
+      call dcopy(nfft3d,0.0d0,0,vl,1)
       call dcopy(4*nfft3d,0.0d0,0,rho_sc_k,1)
       task_count = -1
       DO 700 k3=1,nfft3
@@ -110,6 +165,7 @@
         Q=DSQRT(G(k1,k2,k3,1)**2
      >         +G(k1,k2,k3,2)**2
      >         +G(k1,k2,k3,3)**2)
+        nx = (Q/dG) + 1.0d0
 
         if ((k1.eq.1).and.(k2.eq.1).and.(k3.eq.1)) go to 700
 
@@ -117,60 +173,48 @@
         GX=G(k1,k2,k3,1)/Q
         GY=G(k1,k2,k3,2)/Q
         GZ=G(k1,k2,k3,3)/Q
-        DO I=1,NRHO
-          CS(I)=DCOS(Q*RHO(I))
-          SN(I)=DSIN(Q*RHO(I))
-        END DO
+        do i=1,nrho
+          cs(i)=DCOS(Q*rho(i))
+          sn(i)=DSIN(Q*rho(i))
+        end do
 
 *::::::::::::::::::::::::::::::  local  :::::::::::::::::::::::::::::::
   600   CONTINUE
 
-        DO  I=1,NRHO
-          F(I)=RHO(I)*VP(I,locp)*SN(I)
-        END DO
-        VL(k1,k2,k3)=SIMP(NRHO,F,DRHO)*FORPI/Q-ZV*FORPI*CS(NRHO)/(Q*Q)
- 
+        vl(k1,k2,k3)= nwpw_splint(G_ray(2),vl_ray(2,1),
+     >                                     vl_ray(2,2),nray-1,nx-1,Q)
 
+ 
 *::::::::::::::::::::: semicore density :::::::::::::::::::::::::::::::
         if (semicore) then
-           do i=1,nrho
-              f(i) = rho(i)*dsqrt(rho_sc_r(i,1))*sn(i)
-           end do
-           rho_sc_k(k1,k2,k3,1) = SIMP(nrho,f,drho)*forpi/Q
+           p = nwpw_splint(G_ray,rho_sc_k_ray(1,1,1),
+     >                           rho_sc_k_ray(1,1,2),nray,nx,Q)
+           rho_sc_k(k1,k2,k3,1) = p
 
-           do i=1,nrho
-             f(i)=(sn(i)/(Q*rho(i))-cs(i))*rho_sc_r(i,2)*rho(i)
-           end do
-           P = SIMP(nrho,f,drho)*forpi/Q
-           rho_sc_k(k1,k2,k3,2)=P*GX
-           rho_sc_k(k1,k2,k3,3)=P*GY
-           rho_sc_k(k1,k2,k3,4)=P*GZ
+           p = nwpw_splint(G_ray,rho_sc_k_ray(1,2,1),
+     >                           rho_sc_k_ray(1,2,2),nray,nx,Q)
+           rho_sc_k(k1,k2,k3,2)=p*GX
+           rho_sc_k(k1,k2,k3,3)=p*GY
+           rho_sc_k(k1,k2,k3,4)=p*GZ
 
         end if
     
   700 CONTINUE
-
       call Parallel_Vector_SumAll(4*nfft3d,rho_sc_k)
-      call Parallel_Vector_SumAll(nfft3d,VL)
+      call Parallel_Vector_SumAll(nfft3d,vl)
 
 *:::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
 
-      DO I=1,NRHO
-        F(I)=VP(I,locp)*RHO(I)**2
-      END DO
-      VL(1,1,1)=FORPI*SIMP(NRHO,F,DRHO)+TWOPI*ZV*RHO(NRHO)**2
+*     **** local potential ****
+      vl(1,1,1)=vl_ray(1,1)
 
 *     **** semicore density ****
       if (semicore) then
-         do i=1,nrho
-            f(i) = dsqrt(rho_sc_r(i,1))*rho(i)**2
-         end do
-         rho_sc_k(1,1,1,1) = forpi*SIMP(nrho,f,drho)
+         rho_sc_k(1,1,1,1) = rho_sc_k_ray(1,1,1)
          rho_sc_k(1,1,1,2) = 0.0d0
          rho_sc_k(1,1,1,3) = 0.0d0
          rho_sc_k(1,1,1,4) = 0.0d0
       end if
-
 
 *     ********************************
 *     **** define n_prj and l_prj ****

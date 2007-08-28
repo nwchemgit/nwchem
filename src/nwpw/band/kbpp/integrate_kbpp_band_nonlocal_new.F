@@ -1,11 +1,12 @@
 *
-* $Id: integrate_kbpp_band_nonlocal_new.F,v 1.1 2007-08-28 16:23:48 bylaska Exp $
+* $Id: integrate_kbpp_band_nonlocal_new.F,v 1.2 2007-08-28 20:22:32 bylaska Exp $
 *
-      subroutine integrate_kbpp_band_nonlocal(version,kvec,
+      subroutine integrate_kbpp_band_nonlocal_new(version,kvec,
      >                            nrho,drho,lmax,locp,zv,
      >                            vp,wp,rho,f,cs,sn,
      >                            nfft1,nfft2,nfft3,lmmax,
      >                            G,vnl,
+     >                            nray,G_ray,vnl_ray,
      >                            ierr)
       implicit none
       integer          version
@@ -26,16 +27,22 @@
       double precision G(nfft1,nfft2,nfft3,3)
       double precision vnl(nfft1,nfft2,nfft3,lmmax)
 
+      integer nray
+      double precision G_ray(nray)
+      double precision vnl_ray(nray,0:lmax,2)
+
       integer ierr
 
+#include "mafdecls.fh"
+
+*     *** local variables ****
       integer np,taskid,MASTER
       parameter (MASTER=0)
 
-*     *** local variables ****
       integer lcount,task_count,nfft3d
       integer k1,k2,k3,i,l
       double precision pi,twopi,forpi
-      double precision p0,p1,p2,p3,p
+      double precision p
       double precision gx,gy,gz,a,q,d
 
 
@@ -43,7 +50,6 @@
       double precision dsum,simp
       external         dsum,simp
       logical value
-#include "mafdecls.fh"
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -53,26 +59,20 @@
       twopi=2.0d0*pi
       forpi=4.0d0*pi
 
-      IF(LMMAX.GT.16) THEN
+      IF(lmmax.GT.16) THEN
         WRITE(*,*)"non-local psp not generated: lmmax exceeds 16"
-        IERR=1
-        RETURN
-      ENDIF
-      IF((NRHO/2)*2.EQ.NRHO) THEN
+        ierr=1
+        return
+      end if
+      if((nrho/2)*2.EQ.nrho) then
         WRITE(*,*)"non-local psp not generated: nrho is not odd"
-        IERR=2
-        RETURN
-      ENDIF
-
-      P0=DSQRT(FORPI)
-      P1=DSQRT(3.0d0*FORPI)
-      P2=DSQRT(15.0d0*FORPI)
-      P3=DSQRT(105.0d0*FORPI)
+        ierr=2
+        return
+      end if
 
 
 *======================  Fourier transformation  ======================
-      call dcopy(lmmax*nfft3d,0.0d0,0,VNL,1)
-
+      call dcopy(lmmax*nfft3d,0.0d0,0,vnl,1)
       task_count = -1
       DO 700 k3=1,nfft3
       DO 700 k2=1,nfft2
@@ -83,104 +83,85 @@
         gy=G(k1,k2,k3,2)+kvec(2)
         gz=G(k1,k2,k3,3)+kvec(3)
 
-        Q=DSQRT(gx**2 + gy**2 + gz**2)
+        Q  =DSQRT(gx**2 + gy**2 + gz**2)
+        nx = (Q/dG) + 1.0d0
 
         if (dabs(Q).gt.1.0d-9) then
 
            gx=gx/Q
            gy=gy/Q
            gz=gz/Q
-           DO I=1,NRHO
-             CS(I)=DCOS(Q*RHO(I))
-             SN(I)=DSIN(Q*RHO(I))
-           END DO
+           do i=1,nrho
+             cs(i)=DCOS(Q*rho(i))
+             sn(i)=DSIN(Q*rho(i))
+           end do
 
            lcount = lmmax+1
-           GO TO (500,400,300,200), LMAX+1
-
+           GO TO (500,400,300,200), lmax+1
 
 *::::::::::::::::::::::::::::::  f-wave  ::::::::::::::::::::::::::::::
   200      CONTINUE
            if (locp.ne.3) then
-              F(1)=0.0d0
-              do I=2,NRHO
-                A=SN(I)/(Q*RHO(I))
-                A=15.0d0*(A-CS(I))/(Q*RHO(I))**2 - 6*A + CS(I)
-                F(I)=A*WP(I,3)*VP(I,3)
-              end do
-              D=P3*SIMP(NRHO,F,DRHO)/Q
+           D = nwpw_splint(G_ray,vnl_ray(1,3,1),
+     >                           vnl_ray(1,3,2),nray,nx,Q)
               lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
+           vnl(k1,k2,k3,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
      >                          /dsqrt(24.0d0)
               lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
+           vnl(k1,k2,k3,lcount)=D*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
      >                          /dsqrt(24.0d0)
               lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GZ*(GX*GX - GY*GY)
+           vnl(k1,k2,k3,lcount)=D*GZ*(GX*GX - GY*GY)
      >                          /2.0d0
               lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GX*GY*GZ
+           vnl(k1,k2,k3,lcount)=D*GX*GY*GZ
               lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GX*(5.0d0*GZ*GZ-1.0d0)
+           vnl(k1,k2,k3,lcount)=D*GX*(5.0d0*GZ*GZ-1.0d0)
      >                          /dsqrt(40.0d0)
               lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GY*(5.0d0*GZ*GZ-1.0d0)
+           vnl(k1,k2,k3,lcount)=D*GY*(5.0d0*GZ*GZ-1.0d0)
      >                          /dsqrt(40.0d0)
               lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=D*GZ*(5.0d0*GZ*GZ-3.0d0)
+           vnl(k1,k2,k3,lcount)=D*GZ*(5.0d0*GZ*GZ-3.0d0)
      >                          /dsqrt(60.0d0)
            end if
-
-
-
 *::::::::::::::::::::::::::::::  d-wave  ::::::::::::::::::::::::::::::
   300      CONTINUE
            if (locp.ne.2) then
-             F(1)=0.0d0
-             DO I=2,NRHO
-               A=3.0d0*(SN(I)/(Q*RHO(I))-CS(I))/(Q*RHO(I))-SN(I)
-               F(I)=A*WP(I,2)*VP(I,2)
-             END DO
-             D=P2*SIMP(NRHO,F,DRHO)/Q
+           D = nwpw_splint(G_ray,vnl_ray(1,2,1),
+     >                           vnl_ray(1,2,2),nray,nx,Q)
              lcount = lcount-1
-c          VNL(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
+c          vnl(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
 c     >                          /(2.0d0*dsqrt(3.0d0))
-           VNL(k1,k2,k3,lcount)=D*(2.0d0*GZ*GZ-GX*GX-GY*GY)
+           vnl(k1,k2,k3,lcount)=D*(2.0d0*GZ*GZ-GX*GX-GY*GY)
      >                          /(2.0d0*dsqrt(3.0d0))
              lcount = lcount-1
-          VNL(k1,k2,k3,lcount)=D*GX*GY
+           vnl(k1,k2,k3,lcount)=D*GX*GY
              lcount = lcount-1
-          VNL(k1,k2,k3,lcount)=D*GY*GZ
+           vnl(k1,k2,k3,lcount)=D*GY*GZ
              lcount = lcount-1
-          VNL(k1,k2,k3,lcount)=D*GZ*GX
+           vnl(k1,k2,k3,lcount)=D*GZ*GX
              lcount = lcount-1
-          VNL(k1,k2,k3,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
+           vnl(k1,k2,k3,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
            end if
-
 *::::::::::::::::::::::::::::::  p-wave  ::::::::::::::::::::::::::::::
   400      CONTINUE
            if (locp.ne.1) then
-              F(1)=0.0d0
-              DO I=2,NRHO
-                F(I)=(SN(I)/(Q*RHO(I))-CS(I))*WP(I,1)*VP(I,1)
-              END DO
-              P=P1*SIMP(NRHO,F,DRHO)/Q
+           P = nwpw_splint(G_ray,vnl_ray(1,1,1),
+     >                           vnl_ray(1,1,2),nray,nx,Q)
               lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=P*GX
+           vnl(k1,k2,k3,lcount)=P*GX
               lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=P*GY
+           vnl(k1,k2,k3,lcount)=P*GY
               lcount = lcount-1
-           VNL(k1,k2,k3,lcount)=P*GZ
+           vnl(k1,k2,k3,lcount)=P*GZ
            end if
-
 *::::::::::::::::::::::::::::::  s-wave  :::::::::::::::::::::::::::::::
   500      CONTINUE
            if (locp.ne.0) then
-             DO I=1,NRHO
-               F(I)=SN(I)*WP(I,0)*VP(I,0)
-             END DO
              lcount = lcount-1
-          VNL(k1,k2,k3,lcount)=P0*SIMP(NRHO,F,DRHO)/Q
+           vnl(k1,k2,k3,lcount)= nwpw_splint(G_ray,vnl_ray(1,0,1),
+     >                                       vnl_ray(1,0,2),nray,nx,Q)
            end if
 
   600      CONTINUE
@@ -193,10 +174,7 @@ c     >                          /(2.0d0*dsqrt(3.0d0))
          end do
 *        *** only j0 is non-zero at zero ****
          if (locp.ne.0) then
-            DO  I=1,NRHO
-              F(I)=RHO(I)*WP(I,0)*VP(I,0)
-            END DO
-            VNL(k1,k2,k3,1)=P0*SIMP(NRHO,F,DRHO)
+            vnl(k1,k2,k3,1)=vnl_ray(1,0,1)
          end if
 
       end if
@@ -204,12 +182,12 @@ c     >                          /(2.0d0*dsqrt(3.0d0))
     
   700 CONTINUE
 
-      call Parallel_Vector_SumAll(lmmax*nfft3d,VNL)
+      call Parallel_Vector_SumAll(lmmax*nfft3d,vnl)
 
 
-      IERR=0
-      RETURN
-      END
+      ierr=0
+      return
+      end
 
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3_new.f,v 1.3 2007-08-28 16:09:45 bylaska Exp $
+* $Id: integrate_kbppv3_new.f,v 1.4 2007-08-28 20:22:38 bylaska Exp $
 *
       subroutine integrate_kbppv3_new(version,rlocal,
      >                            nrho,drho,lmax,locp,zv,
@@ -140,8 +140,13 @@
 
 *     **** setup cubic bsplines ****
       dG = G_ray(3)-G_ray(2)
-      yp1 = (vl_ray(3,1)-vl_ray(2,1))/dG
-      write(*,*) "yp1=",yp1,dG
+      !yp1 = (vl_ray(3,1)-vl_ray(2,1))/dG
+      !**** five point formula ***
+      yp1 = ( -50.0d0*vl_ray(2,1)
+     >       + 96.0d0*vl_ray(3,1)
+     >       - 72.0d0*vl_ray(4,1)
+     >       + 32.0d0*vl_ray(5,1)
+     >       -  6.0d0*vl_ray(6,1))/(24.0d0*dG)
       call nwpw_spline(G_ray(2),vl_ray(2,1),nray-1,yp1,0.0d0,
      >                          vl_ray(2,2),tmp_ray)
       do l=0,lmax
@@ -244,10 +249,6 @@
   600   CONTINUE
         P = nwpw_splint(G_ray(2),vl_ray(2,1),vl_ray(2,2),nray-1,nx-1,Q)
         vl(k1,k2,k3)=P
-        if (Q.lt.2.0d0) then
-          write(29,*) Q,vl(k1,k2,k3),ZV
-        end if
-
        
 *       ::::::::::::::::::::: semicore density :::::::::::::::::::::::::::::::
         if (semicore) then
@@ -267,7 +268,6 @@
       call Parallel_Vector_SumAll(4*nfft3d,rho_sc_k)
       call Parallel_Vector_SumAll(nfft3d,vl)
       call Parallel_Vector_Sumall(lmmax*nfft3d,vnl)
-      write(*,*) "done k1,k2,k3 loop"
 
 *     :::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
 

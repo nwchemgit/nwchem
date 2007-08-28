@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_scf_mixing.F,v 1.4 2006-07-18 00:42:38 bylaska Exp $                       
+*     $Id: nwpw_scf_mixing.F,v 1.5 2007-08-28 20:22:35 bylaska Exp $                       
 *
 
 *     *****************************************
@@ -38,8 +38,10 @@
         call nwpw_scf_mixing_reset(rho_in)
         w0 = 0.01d0
       end if
-
-
+      if (algorithm.eq.3) then
+        call nwpw_list_start(1,3,nsize)
+        call nwpw_scf_mixing_reset(rho_in)
+      end if
 
       return
       end
@@ -58,16 +60,8 @@
 #include "nwpw_scf_mixing.fh"
 
       call nwpw_list_end(1)
-      
-
       return
       end
-
-
-
-
-
-
 
 
 *     *****************************************
@@ -108,10 +102,10 @@
 *     **** local variables ****
       logical value
       integer i,j,info,k,ipiv
-      integer rr_ptr,ff_ptr
+      integer rr_ptr,ff_ptr,tt_ptr
       integer V0,V1,Vout0,Vout1,F0,F1,Vbar0,Vbar1
       integer dV,U,dF,dFi
-      real*8 sum0,sum1,beta
+      real*8 sum0,sum1,beta,p00,p01,p11
       real*8 BB(40,40),BBB(40,40)
 
 *     **** external functions ****
@@ -137,7 +131,7 @@
          call dcopy(nsize,vnew,1,dbl_mb(rr_ptr),1)            !vm=vnew
       end if
 
-*     **** Anderson mixing ****
+*     **** Anderson potential mixing ****
       if (algorithm.eq.1) then
          call nwpw_list_ptr(1,1,V0)
          call nwpw_list_ptr(1,2,V1)
@@ -360,9 +354,58 @@
 
          end if
 
-
       end if
 
+
+*     **** Anderson density mixing ****
+      if (algorithm.eq.3) then
+
+         if (m.eq.1) then
+            call nwpw_list_ptr(1,1,rr_ptr)
+            call nwpw_list_ptr(1,2,ff_ptr)
+            call dcopy(nsize,dbl_mb(rr_ptr),1,dbl_mb(ff_ptr),1)  ! f = vm
+            call daxpy(nsize,(-1.0d0),vout, 1,dbl_mb(ff_ptr),1)  ! f = f-vout = vm-vout
+            call dscal(nsize,(-1.0d0),dbl_mb(ff_ptr),1)          ! f = -f = vout-vm
+
+            scf_error = ddot(nsize,dbl_mb(ff_ptr),1,dbl_mb(ff_ptr),1)
+            call D3dB_SumAll(scf_error)
+            scf_error = dsqrt(scf_error)                         ! scf_error = sqrt(<f|f>)
+
+            call dcopy(nsize,dbl_mb(rr_ptr),1,vnew,1)            !vnew = vm
+            call daxpy(nsize,alpha,dbl_mb(ff_ptr),1,vnew,1)      !vnew = vnew+alpha*f
+            call dcopy(nsize,vnew,1,dbl_mb(rr_ptr),1)            !vm=vnew
+         else
+            call nwpw_list_ptr(1,1,rr_ptr)
+            call nwpw_list_ptr(1,2,ff_ptr)
+            call nwpw_list_ptr(1,3,tt_ptr)
+
+            call dcopy(nsize,vout,1,vnew,1)
+            call daxpy(nsize,(-1.0d0),dbl_mb(rr_ptr),1,vout,1)  ! vout = vout - rr_ptr
+
+            call dcopy(nsize,dbl_mb(rr_ptr),1,dbl_mb(tt_ptr),1) ! tt_ptr = rr_ptr - ff_ptr
+            call daxpy(nsize,(-1.0d0),dbl_mb(ff_ptr),1,dbl_mb(tt_ptr),1)
+
+*           ***** generate beta ****
+            p00 = ddot(nsize,vout,1,vout,1)                     ! p00 = <vout|vout>
+            p01 = ddot(nsize,vout,1,dbl_mb(tt_ptr),1)           ! p01 = <vout|tt_ptr>
+            p11 = ddot(nsize,dbl_mb(tt_ptr),1,dbl_mb(tt_ptr),1) ! p11 = <tt_ptr|tt_ptr>
+            call D3dB_SumAll(p00)
+            call D3dB_SumAll(p01)
+            call D3dB_SumAll(p11)
+            beta = (p00-p11)/(p00-2.0d0*p01+p11)
+            if (beta.lt.1.0d-3) beta = 1.0d-3
+            if (beta.gt.1.5d0)  beta = 1.5d0
+
+            call dcopy(nsize,dbl_mb(rr_ptr),1,dbl_mb(ff_ptr),1) ! ff_ptr =rr_ptr
+            call dcopy(nsize,vnew,1,dbl_mb(rr_ptr),1)           ! rr_ptr =vnew
+
+            call dscal(nsize,beta,vnew,1)                       ! vnew = beta*vnew + (1-beta)*ff_ptr
+            call daxpy(nsize,(1.0d0-beta),dbl_mb(ff_ptr),1,vnew,1)
+            scf_error = dsqrt(p00)
+         end if
+         m = m + 1
+
+      end if
 
       return 
       end
