@@ -1,5 +1,5 @@
 *
-* $Id: integrate_stress_new.F,v 1.2 2007-08-28 20:22:38 bylaska Exp $
+* $Id: integrate_stress_new.F,v 1.3 2007-08-28 20:50:34 bylaska Exp $
 *
 
 *     **********************************
@@ -14,7 +14,7 @@
      >                            nfft1,nfft2,nfft3,lmmax,
      >                            G,dvl,dvnl,
      >                            semicore,rho_sc_r,rho_sc_k,
-     >                            nray,G_ray,vl_ray,vnl_ray,
+     >                            nray,G_ray,dvl_ray,dvnl_ray,
      >                            rho_sc_k_ray,tmp_ray,
      >                            filter,
      >                            ierr)
@@ -44,8 +44,8 @@
 
       integer nray
       double precision G_ray(nray)
-      double precision vl_ray(nray,2)
-      double precision vnl_ray(nray,2,0:lmax,2)
+      double precision dvl_ray(nray,2)
+      double precision dvnl_ray(nray,2,0:lmax,2)
       double precision rho_sc_k_ray(nray,2)
       double precision tmp_ray(nray)
       logical filter
@@ -58,19 +58,18 @@
       parameter (MASTER=0)
 
       integer lcount,task_count,nfft3d
-      integer k1,k2,k3,i,l
-      double precision pi,twopi,forpi
-      double precision p0,p1,p2,p3,p,pp
+      integer k1,k2,k3,i,l,nx
+      double precision p,pp
       double precision gx,gy,gz,a,q,d,dd
       double precision duxdGx,duxdGy,duxdGz
       double precision duydGx,duydGy,duydGz
       double precision duzdGx,duzdGy,duzdGz
-      double precision sumx,sumy,sumz
+      double precision sumx,sumy,sumz,ecut,wcut,dG
       double precision T,dTdux,dTduy,dTduz
 
 *     **** external functions ****
-      double precision dsum,simp,util_erf
-      external         dsum,simp,util_erf
+      double precision dsum,simp,control_ecut,control_wcut,nwpw_splint
+      external         dsum,simp,control_ecut,control_wcut,nwpw_splint
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -89,13 +88,6 @@
       end if
 
       nfft3d = (nfft1/2+1)*nfft2*nfft3
-      pi=4.0d0*datan(1.0d0)
-      twopi=2.0d0*pi
-      forpi=4.0d0*pi
-      p0=dsqrt(forpi)
-      p1=dsqrt(3.0d0*forpi)
-      p2=dsqrt(15.0d0*forpi)
-      p3=dsqrt(105.0d0*forpi)
 
 *::::::::::::::::::  Define non-local pseudopotential  ::::::::::::::::
       do l=0,lmax
@@ -106,7 +98,6 @@
         end if
       end do
 
-
 *     ************* compute ray fourier transforms *********************
       call integrate_stress_ray(version,rlocal,
      >                            nrho,drho,lmax,locp,zv,
@@ -115,7 +106,6 @@
      >                            G_ray,dvl_ray,dvnl_ray,
      >                            semicore,rho_sc_r,rho_sc_k_ray,
      >                            ierr)
-
 *     **** filter the rays ****
       if (filter) then
          write(*,*) "---- filtering psp ----"
@@ -150,12 +140,10 @@
      >                          rho_sc_k_ray(1,2),tmp_ray)
       end if
 
-
-
 *======================  Fourier transformation  ======================
       call dcopy(nfft3d,0.0d0,0,dvl,1)
       call dcopy(3*lmmax*nfft3d,0.0d0,0,dvnl,1)
-      call dcopy(4*nfft3d,0.0d0,0,rho_sc_k,1)
+      call dcopy(nfft3d,0.0d0,0,rho_sc_k,1)
       task_count = -1
       DO 700 k3=1,nfft3
       DO 700 k2=1,nfft2
@@ -193,16 +181,15 @@
         duzdGz = 1.0d0/q - gz*gz/q
 
         lcount = lmmax+1
-        GO TO (500,400,300,200), LMAX+1
-
+        GO TO (500,400,300,200), lmax+1
 
 *::::::::::::::::::::::::::::::  f-wave  ::::::::::::::::::::::::::::::
   200   CONTINUE
         if (locp.ne.3) then
-           D  = nwpw_splint(G_ray,vnl_ray(1,1,3,1),
-     >                            vnl_ray(1,1,3,2),nray,nx,Q)
-           DD = nwpw_splint(G_ray,vnl_ray(1,2,3,1),
-     >                            vnl_ray(1,2,3,2),nray,nx,Q)
+           D  = nwpw_splint(G_ray,dvnl_ray(1,1,3,1),
+     >                            dvnl_ray(1,1,3,2),nray,nx,Q)
+           DD = nwpw_splint(G_ray,dvnl_ray(1,2,3,1),
+     >                            dvnl_ray(1,2,3,2),nray,nx,Q)
 
            lcount = lcount-1
            T = gx*(4.0d0*gx*gx - 3.0d0*(1.0d0-gz*gz))/dsqrt(24.0d0)
@@ -288,28 +275,14 @@
            dvnl(k1,k2,k3,2,lcount)=DD*T*gy + D*sumy
            dvnl(k1,k2,k3,3,lcount)=DD*T*gz + D*sumz
         end if
-
-
-
 *::::::::::::::::::::::::::::::  d-wave  ::::::::::::::::::::::::::::::
   300   CONTINUE
         if (locp.ne.2) then
-          F(1)=0.0d0
-          DO i=2,nrho
-            A=3.0d0*(sn(i)/(q*rho(i))-cs(i))/(q*rho(i))-sn(i)
-            f(i)=A*wp(i,2)*vp(i,2)
-          END DO
-          D=P2*SIMP(nrho,F,drho)/q
 
-          F(1)=0.0d0
-          DO i=2,nrho
-            A= -9.0d0*sn(i)/(rho(i)**2 * q**4)
-     >       +  9.0d0*cs(i)/(rho(i)    * q**3)
-     >       +  4.0d0*sn(i)/(q**2)
-     >       -  rho(i)*cs(i)/q
-            f(i)=A*wp(i,2)*vp(i,2)
-          END DO
-          DD=P2*SIMP(nrho,F,drho)
+           D  = nwpw_splint(G_ray,dvnl_ray(1,1,2,1),
+     >                            dvnl_ray(1,1,2,2),nray,nx,Q)
+           DD = nwpw_splint(G_ray,dvnl_ray(1,2,2,1),
+     >                            dvnl_ray(1,2,2,2),nray,nx,Q)
 
           lcount = lcount-1
           T = (3.0d0*gz*gz-1.0d0)/(2.0d0*dsqrt(3.0d0)) 
@@ -371,24 +344,13 @@
           dvnl(k1,k2,k3,2,lcount)=DD*T*gy + D*sumy
           dvnl(k1,k2,k3,3,lcount)=DD*T*gz + D*sumz
         end if
-
 *::::::::::::::::::::::::::::::  p-wave  ::::::::::::::::::::::::::::::
   400   CONTINUE
         if (locp.ne.1) then
-           F(1)=0.0d0
-           DO i=2,nrho
-             f(i)=(sn(i)/(q*rho(i)) - cs(i)) * wp(i,1)*vp(i,1)
-           END DO
-           P=P1*SIMP(nrho,F,drho)/q
-
-           F(1)=0.0d0
-           DO i=2,nrho
-             f(i)=wp(i,1)*vp(i,1)* ( -2.0d0*sn(i)/(rho(i) * q**3)
-     >                              + 2.0d0*cs(i)/(q**2)
-     >                              + rho(i)*sn(i)/q)
-           END DO
-           PP=P1*SIMP(nrho,F,drho)
-
+           P  = nwpw_splint(G_ray,dvnl_ray(1,1,1,1),
+     >                            dvnl_ray(1,1,1,2),nray,nx,Q)
+           PP = nwpw_splint(G_ray,dvnl_ray(1,2,1,1),
+     >                            dvnl_ray(1,2,1,2),nray,nx,Q)
            lcount = lcount-1
            T = gx
            dTdux = 1.0d0
@@ -400,7 +362,6 @@
            dvnl(k1,k2,k3,1,lcount)= PP*T*gx + P*sumx
            dvnl(k1,k2,k3,2,lcount)= PP*T*gy + P*sumy
            dvnl(k1,k2,k3,3,lcount)= PP*T*gz + P*sumz
-
 
            lcount = lcount-1
            T = gy
@@ -426,59 +387,43 @@
            dvnl(k1,k2,k3,2,lcount)= PP*T*gy + P*sumy
            dvnl(k1,k2,k3,3,lcount)= PP*T*gz + P*sumz
         end if
-
 *::::::::::::::::::::::::::::::  s-wave  :::::::::::::::::::::::::::::::
   500   CONTINUE
         if (locp.ne.0) then
-          DO i=1,nrho
-            f(i)=wp(i,0)*vp(i,0) * ( -sn(i)/(q**2) 
-     >                              + rho(i)*cs(i)/q)
-          END DO
-          P = P0*SIMP(nrho,F,drho)
+          P  = nwpw_splint(G_ray,dvnl_ray(1,1,0,1),
+     >                           dvnl_ray(1,1,0,2),nray,nx,Q)
           lcount = lcount-1
           dvnl(k1,k2,k3,1,lcount) = P *gx
           dvnl(k1,k2,k3,2,lcount) = P *gy
           dvnl(k1,k2,k3,3,lcount) = P *gz
         end if
-
 *::::::::::::::::::::::::::::::  local  :::::::::::::::::::::::::::::::
   600   CONTINUE
-
-        do  i=1,nrho
-          f(i)=rho(i)*vp(i,locp)*(rho(i)*cs(i)-sn(i)/q)
-        end do
-        dvl(k1,k2,k3)= SIMP(nrho,f,drho)*forpi/q
-     >   + zv*forpi/(q*q)*(2.0d0*cs(nrho)/q + rho(nrho)*sn(nrho))
- 
-
-
+        dvl(k1,k2,k3)= nwpw_splint(G_ray(1),dvl_ray(1,1),
+     >                                      dvl_ray(1,2),nray,nx,Q)
 *::::::::::::::::::::: semicore density :::::::::::::::::::::::::::::::
         if (semicore) then
-           
-           do  i=1,nrho
-             f(i)=rho(i)*dsqrt(rho_sc_r(i,1))*(rho(i)*cs(i)-sn(i)/q)
-           end do
-           rho_sc_k(k1,k2,k3,1)= SIMP(nrho,f,drho)*forpi/q
+           rho_sc_k(k1,k2,k3,1) = nwpw_splint(G_ray,
+     >                                rho_sc_k_ray(1,1),
+     >                                rho_sc_k_ray(1,2),nray,nx,Q)
         end if
-    
   700 CONTINUE
-
-      call Parallel_Vector_SumAll(4*nfft3d,rho_sc_k)
+      call Parallel_Vector_SumAll(nfft3d,rho_sc_k)
       call Parallel_Vector_SumAll(nfft3d,dvl)
       call Parallel_Vector_Sumall(3*lmmax*nfft3d,dvnl)
 
 *:::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
-      dvl(1,1,1)= 0.0d0
+      dvl(1,1,1)        = 0.0d0
+      rho_sc_k(1,1,1,1) = 0.0d0
       do l=1,lmmax
         dvnl(1,1,1,1,l)=0.0d0
         dvnl(1,1,1,2,l)=0.0d0
         dvnl(1,1,1,3,l)=0.0d0
       end do
 
-
-      IERR=0
-      RETURN
-      END
+      ierr=0
+      return
+      end
 
 
 
