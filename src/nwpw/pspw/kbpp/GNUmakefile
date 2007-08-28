@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.8 2007-08-27 15:31:33 bylaska Exp $
+# $Id: GNUmakefile,v 1.9 2007-08-28 01:05:20 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
                 psp_formatter_input.o \
@@ -12,6 +12,7 @@
 	      		kbppv3.o \
 	      		kbppv3-stress.o \
                 setup_kbpp.o \
+		kbpp_ray.o \
                 integrate_kbppv3.o \
                 integrate_kbppv3_new.o \
                 integrate_kbppv3_ray.o \

@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3_new.f,v 1.1 2007-08-27 15:31:33 bylaska Exp $
+* $Id: integrate_kbppv3_new.f,v 1.2 2007-08-28 01:05:20 bylaska Exp $
 *
       subroutine integrate_kbppv3_new(version,rlocal,
      >                            nrho,drho,lmax,locp,zv,
@@ -10,6 +10,7 @@
      >                            semicore,rho_sc_r,rho_sc_k,
      >                            nray,G_ray,vl_ray,vnl_ray,
      >                            rho_sc_k_ray,tmp_ray,
+     >                            filter,
      >                            ierr)
       implicit none
       integer          version
@@ -43,6 +44,7 @@
       double precision vnl_ray(nray,0:lmax,2)
       double precision rho_sc_k_ray(nray,2,2)
       double precision tmp_ray(nray)
+      logical filter
 
 
       integer ierr
@@ -56,7 +58,7 @@
       double precision pi,twopi,forpi
       double precision p0,p1,p2,p3,p
       double precision gx,gy,gz,a,q,d
-      double precision ecut,wcut,dG
+      double precision ecut,wcut,dG,yp1
 
 *     **** external functions ****
       double precision dsum,simp,util_erf,control_ecut,control_wcut
@@ -89,7 +91,7 @@
 *::::::::::::::::::  Define non-local pseudopotential  ::::::::::::::::
       do l=0,lmax
         if (l.ne.locp) then
-          do I=1,nrho
+          do i=1,nrho
             vp(i,l)=vp(i,l)-vp(i,locp)
           end do
         end if
@@ -115,19 +117,33 @@
       call integrate_kbppv3_ray(version,rlocal,
      >                            nrho,drho,lmax,locp,zv,
      >                            vp,wp,rho,f,cs,sn,
-     >                            nray,lmax,
+     >                            nray,
      >                            G_ray,vl_ray,vnl_ray,
      >                            semicore,rho_sc_r,rho_sc_k_ray,
      >                            ierr)
-      dG = G_ray(2)-G_ray(1)
 
 *     **** filter the rays ****
-      ecut = control_ecut()
-      wcut = control_wcut()
+      if (filter) then
+         write(*,*) "---- filtering psp ----"
+         ecut = control_ecut()
+         wcut = control_wcut()
+         call kbpp_filter_ray(nray,G_ray,ecut,vl_ray)
+         do l=0,lmax
+            if (l.ne.locp)
+     >        call kbpp_filter_ray(nray,G_ray,wcut,vnl_ray(1,l,1))
+         end do
+         if (semicore) then
+           call kbpp_filter_ray(nray,G_ray,ecut,rho_sc_k_ray(1,1,1))
+           call kbpp_filter_ray(nray,G_ray,ecut,rho_sc_k_ray(1,2,1))
+         end if
+      end if
 
 *     **** setup cubic bsplines ****
-      call nwpw_spline(G_ray,vl_ray(1,1),nray,0.0d0,0.0d0,
-     >                       vl_ray(1,2),tmp_ray)
+      dG = G_ray(3)-G_ray(2)
+      yp1 = (vl_ray(3,1)-vl_ray(2,1))/dG
+      write(*,*) "yp1=",yp1,dG
+      call nwpw_spline(G_ray(2),vl_ray(2,1),nray-1,yp1,0.0d0,
+     >                          vl_ray(2,2),tmp_ray)
       do l=0,lmax
          if (l.ne.locp)
      >      call nwpw_spline(G_ray,vnl_ray(1,l,1),nray,0.0d0,0.0d0,
@@ -225,8 +241,13 @@
         end if
 *       ::::::::::::::::::::::::::::::  local  :::::::::::::::::::::::::::::::
   600   CONTINUE
-        P = nwpw_splint(G_ray,vl_ray(1,1),vl_ray(1,2),nray,nx,Q)
+        P = nwpw_splint(G_ray(2),vl_ray(2,1),vl_ray(2,2),nray-1,nx-1,Q)
         vl(k1,k2,k3)=P
+        if (Q.lt.2.0d0) then
+          write(29,*) Q,vl(k1,k2,k3),ZV
+        end if
+
+       
 *       ::::::::::::::::::::: semicore density :::::::::::::::::::::::::::::::
         if (semicore) then
            P = nwpw_splint(G_ray,rho_sc_k_ray(1,1,1),
@@ -245,6 +266,7 @@
       call Parallel_Vector_SumAll(4*nfft3d,rho_sc_k)
       call Parallel_Vector_SumAll(nfft3d,vl)
       call Parallel_Vector_Sumall(lmmax*nfft3d,vnl)
+      write(*,*) "done k1,k2,k3 loop"
 
 *     :::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
 

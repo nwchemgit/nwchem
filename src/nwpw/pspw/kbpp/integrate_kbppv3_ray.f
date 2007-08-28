@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3_ray.f,v 1.1 2007-08-27 15:31:33 bylaska Exp $
+* $Id: integrate_kbppv3_ray.f,v 1.2 2007-08-28 01:05:20 bylaska Exp $
 *
 
       subroutine integrate_kbppv3_ray(version,rlocal,
@@ -37,7 +37,7 @@
       parameter (MASTER=0)
 
 *     *** local variables ****
-      integer lcount,task_count
+      integer task_count
       integer k1,i,l
       double precision pi,twopi,forpi
       double precision p0,p1,p2,p3,p
@@ -125,7 +125,6 @@
           DO I=1,NRHO
             F(I)=SN(I)*WP(I,0)*VP(I,0)
           END DO
-          lcount = lcount-1
           vnl_ray(k1,0)=P0*SIMP(NRHO,F,DRHO)/Q
         end if
 

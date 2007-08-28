@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3.f,v 1.6 2007-02-23 01:24:14 bylaska Exp $
+* $Id: integrate_kbppv3.f,v 1.7 2007-08-28 01:05:20 bylaska Exp $
 *
 
 
@@ -227,6 +227,9 @@ c     parameter (c6=0.00004306380d0)
           F(I)=RHO(I)*VP(I,locp)*SN(I)
         END DO
         vl(k1,k2,k3)=SIMP(NRHO,F,DRHO)*FORPI/Q-ZV*FORPI*CS(NRHO)/(Q*Q)
+        end if
+        if (Q.lt.2.0d0) then
+          write(39,*) Q,vl(k1,k2,k3),ZV
         end if
  
         if (version.eq.4) then

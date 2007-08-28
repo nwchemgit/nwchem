@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.16 2007-08-27 15:31:33 bylaska Exp $
+* $Id: kbppv3.F,v 1.17 2007-08-28 01:05:21 bylaska Exp $
 *
 
 *     **************************************
@@ -45,7 +45,7 @@
 
       integer          isemicore
       logical          semicore
-      double precision rcore,core_charge,sum
+      double precision rcore,core_charge
 
       integer f_indx,cs_indx,sn_indx
       integer n_prj_indx,l_prj_indx,m_prj_indx
@@ -56,6 +56,13 @@
       integer vl_indx,vnl_indx,vnlnrm_indx,G_indx
       integer vl_hndl,vnl_hndl,vnlnrm_hndl,G_hndl
 
+*     **** ray data ****
+      integer nray,G_ray_hndl,tmp_ray_hndl
+      integer rho_sc_k_ray_hndl,vnl_ray_hndl,vl_ray_hndl
+      integer G_ray_indx,tmp_ray_indx
+      integer rho_sc_k_ray_indx,vnl_ray_indx,vl_ray_indx
+
+
 *     **** other variables ****
       double precision unitg(3,3)
       integer nsize,i,l,ierr,psp_type
@@ -63,10 +70,12 @@
       integer nmax,nprj
 
 *     **** external functions ****
-      logical  control_print
-      external control_print
+      logical  control_print,control_kbpp_ray,control_kbpp_filter
+      external control_print,control_kbpp_ray,control_kbpp_filter
       double precision simp
       external         simp
+      integer  kbpp_calc_nray
+      external kbpp_calc_nray
 
 
 c      call Parallel_Init()
@@ -122,12 +131,14 @@ c      call Parallel_Init()
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'vp',vp_hndl, vp_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'wp', wp_hndl, wp_indx)
-      value = MA_alloc_get(mt_dbl,2*nrho,
+      value = value.and.MA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
+      if (.not.value) 
+     > call errquit('kbppv3:out of heap memory',0,MA_ERR)
 
       if (taskid.eq.MASTER) then
       call read_vpwp(11,nrho,lmax,dbl_mb(rho_indx),
@@ -157,10 +168,12 @@ c      call Parallel_Init()
 *    **** more temporary space ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'f',f_hndl,f_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = value.and.MA_alloc_get(mt_dbl,nrho,
      >                        'cs',cs_hndl,cs_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = value.and.MA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
+      if (.not.value) 
+     > call errquit('kbppv3:out of heap memory',0,MA_ERR)
 
 *     **** allocate vl,vnl,vnlnrm G ****
       lmmax = (lmax+1)**2 - (2*locp+1)
@@ -168,20 +181,22 @@ c      call Parallel_Init()
       nsize = (ngrid(1)/2+1)*ngrid(2)*ngrid(3)
       value = MA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
-      value = MA_alloc_get(mt_dbl,nsize*(lmmax),
+      value = value.and.MA_alloc_get(mt_dbl,nsize*(lmmax),
      >                        'vnl',vnl_hndl, vnl_indx)
-      value = MA_alloc_get(mt_dbl,(lmax+1),
+      value = value.and.MA_alloc_get(mt_dbl,(lmax+1),
      >                        'vnlnrm', vnlnrm_hndl, vnlnrm_indx)
-      value = MA_alloc_get(mt_dbl,nsize*(3),
+      value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
-      value = MA_alloc_get(mt_dbl,4*nsize,
+      value = value.and.MA_alloc_get(mt_dbl,4*nsize,
      >                        'sc_k',sc_k_hndl,sc_k_indx)
-      value = MA_alloc_get(mt_int,nprj,
+      value = value.and.MA_alloc_get(mt_int,nprj,
      >                        'n_prj', n_prj_hndl, n_prj_indx)
-      value = MA_alloc_get(mt_int,nprj,
+      value = value.and.MA_alloc_get(mt_int,nprj,
      >                        'l_prj', l_prj_hndl, l_prj_indx)
-      value = MA_alloc_get(mt_int,nprj,
+      value = value.and.MA_alloc_get(mt_int,nprj,
      >                        'm_prj', m_prj_hndl, m_prj_indx)
+      if (.not.value) 
+     > call errquit('kbppv3:out of heap memory',0,MA_ERR)
 
 
 *     **** preparation of constants ****
@@ -191,7 +206,73 @@ c      call Parallel_Init()
       call setup_kbpp(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
 
 
-      call integrate_kbppv3(version,rlocal,
+      if (control_kbpp_ray()) then
+        write(*,*) "in kbpp_ray"
+        !**** allocate memory for rays ****
+        nray = kbpp_calc_nray(nfft1,nfft2,nfft3,dbl_mb(G_indx))
+        write(*,*) "nray=",nray
+
+        value =           MA_alloc_get(mt_dbl,nray,
+     >                  'G_ray',G_ray_hndl,G_ray_indx)
+        value = value.and.MA_alloc_get(mt_dbl,2*nray,
+     >                  'vl_ray',vl_ray_hndl,vl_ray_indx)
+        value = value.and.MA_alloc_get(mt_dbl,2*nray*(lmax+1),
+     >                  'vnl_ray',vnl_ray_hndl,vnl_ray_indx)
+        value = value.and.MA_alloc_get(mt_dbl,2*nray*2,
+     >              'rho_sc_k_ray',rho_sc_k_ray_hndl,rho_sc_k_ray_indx)
+        value = value.and.MA_alloc_get(mt_dbl,nray,
+     >                  'tmp_ray',tmp_ray_hndl,tmp_ray_indx)
+        if (.not.value) 
+     >   call errquit('kbppv3:out of heap memory',0,MA_ERR)
+
+        call kbpp_generate_G_ray(nfft1,nfft2,nfft3,
+     >                         dbl_mb(G_indx),
+     >                         dbl_mb(G_ray_indx))
+        call integrate_kbppv3_new(version,rlocal,
+     >                      nrho,drho,lmax,locp,zv,
+     >                                dbl_mb(vp_indx),
+     >                                dbl_mb(wp_indx),
+     >                                dbl_mb(rho_indx),
+     >                                dbl_mb(f_indx),
+     >                                dbl_mb(cs_indx),
+     >                                dbl_mb(sn_indx),
+     >                      nfft1,nfft2,nfft3,lmmax,
+     >                                dbl_mb(G_indx),
+     >                                dbl_mb(vl_indx),
+     >                                dbl_mb(vnl_indx),
+     >                                int_mb(n_prj_indx),
+     >                                int_mb(l_prj_indx),
+     >                                int_mb(m_prj_indx),
+     >                                dbl_mb(vnlnrm_indx),
+     >                                semicore,
+     >                                dbl_mb(sc_r_indx),
+     >                                dbl_mb(sc_k_indx),
+     >                      nray,
+     >                                dbl_mb(G_ray_indx),
+     >                                dbl_mb(vl_ray_indx),
+     >                                dbl_mb(vnl_ray_indx),
+     >                                dbl_mb(rho_sc_k_ray_indx),
+     >                                dbl_mb(tmp_ray_indx),
+     >                                control_kbpp_filter(),
+     >                      ierr)
+        write(*,*) "out integrate_kbppv3_new"
+        do i=1,nray
+            write(26,*) dbl_mb(G_ray_indx+i-1),dbl_mb(vl_ray_indx+i-1)
+            write(27,*) dbl_mb(G_ray_indx+i-1),dbl_mb(vnl_ray_indx+i-1)
+            write(28,*) dbl_mb(G_ray_indx+i-1),
+     >                  dbl_mb(vnl_ray_indx+i-1+nray)
+        end do
+
+        value = MA_free_heap(tmp_ray_hndl)
+        value = value.and.MA_free_heap(rho_sc_k_ray_hndl)
+        value = value.and.MA_free_heap(vnl_ray_hndl)
+        value = value.and.MA_free_heap(vl_ray_hndl)
+        value = value.and.MA_free_heap(G_ray_hndl)
+        if (.not.value) 
+     >   call errquit('kbppv3:Error freeing memory',0,MA_ERR)
+
+      else
+        call integrate_kbppv3(version,rlocal,
      >                      nrho,drho,lmax,locp,zv,
      >                                dbl_mb(vp_indx),
      >                                dbl_mb(wp_indx),
@@ -211,6 +292,7 @@ c      call Parallel_Init()
      >                                dbl_mb(sc_r_indx),
      >                                dbl_mb(sc_k_indx),
      >                      ierr)
+      end if
 
 
 
@@ -256,10 +338,6 @@ c      call Parallel_Init()
          core_charge=16.0d0*datan(1.0d0)*SIMP(nrho,dbl_mb(f_indx),drho)
          write(*,115) "  Semi-core charge gradient       :",
      >                core_charge
-
-
-
-
 
       end if
       write(*,*)
@@ -333,28 +411,33 @@ c      call Parallel_Init()
 
 *     **** free heap space ****
       value = MA_free_heap(rho_hndl)
-      value = MA_free_heap(vp_hndl)
-      value = MA_free_heap(wp_hndl)
-      value = MA_free_heap(sc_r_hndl)
-      value = MA_free_heap(sc_k_hndl)
-      value = MA_free_heap(f_hndl)
-      value = MA_free_heap(cs_hndl)
-      value = MA_free_heap(sn_hndl)
+      value = value.and.MA_free_heap(vp_hndl)
+      value = value.and.MA_free_heap(wp_hndl)
+      value = value.and.MA_free_heap(sc_r_hndl)
+      value = value.and.MA_free_heap(sc_k_hndl)
+      value = value.and.MA_free_heap(f_hndl)
+      value = value.and.MA_free_heap(cs_hndl)
+      value = value.and.MA_free_heap(sn_hndl)
 
-      value = MA_free_heap(vl_hndl)
-      value = MA_free_heap(vnl_hndl)
-      value = MA_free_heap(vnlnrm_hndl)
-      value = MA_free_heap(G_hndl)
-      value = MA_free_heap(n_prj_hndl)
-      value = MA_free_heap(l_prj_hndl)
-      value = MA_free_heap(m_prj_hndl)
+      value = value.and.MA_free_heap(vl_hndl)
+      value = value.and.MA_free_heap(vnl_hndl)
+      value = value.and.MA_free_heap(vnlnrm_hndl)
+      value = value.and.MA_free_heap(G_hndl)
+      value = value.and.MA_free_heap(n_prj_hndl)
+      value = value.and.MA_free_heap(l_prj_hndl)
+      value = value.and.MA_free_heap(m_prj_hndl)
+      if (.not.value) 
+     > call errquit('kbppv3:Error freeing memory',0,MA_ERR)
 
       
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
+
       kbppv3 = value
       return
 
  9999 call errquit('kbppv3:Error reading psp_filename',0, DISK_ERR)
+      kbppv3 = value
+      return
 
       END
 
