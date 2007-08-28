@@ -1,5 +1,5 @@
 *
-* $Id: cgmdv5.F,v 1.6 2007-04-02 15:38:40 bylaska Exp $
+* $Id: cgmdv5.F,v 1.7 2007-08-28 19:33:06 bylaska Exp $
 *
 
 ***********************************************************************
@@ -493,9 +493,11 @@ c      end if
            if (control_scf_algorithm().eq.0) 
      >       write(6,1293) "simple mixing"
            if (control_scf_algorithm().eq.1) 
-     >       write(6,1293) "Anderson mixing"
+     >       write(6,1293) "Anderson potential mixing"
            if (control_scf_algorithm().eq.2) 
      >       write(6,1293) "Johnson-Pulay mixing"
+           if (control_scf_algorithm().eq.3) 
+     >       write(6,1293) "Anderson density mixing"
            write(6,1294) control_ks_alpha()
          end if
          write(6,1310)
