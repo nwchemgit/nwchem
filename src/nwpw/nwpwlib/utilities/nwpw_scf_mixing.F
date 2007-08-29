@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_scf_mixing.F,v 1.5 2007-08-28 20:22:35 bylaska Exp $                       
+*     $Id: nwpw_scf_mixing.F,v 1.6 2007-08-29 01:03:24 d3p708 Exp $                       
 *
 
 *     *****************************************
@@ -132,6 +132,7 @@
       end if
 
 *     **** Anderson potential mixing ****
+cccccccccc Actually this is Broyden mixing ....
       if (algorithm.eq.1) then
          call nwpw_list_ptr(1,1,V0)
          call nwpw_list_ptr(1,2,V1)
@@ -359,22 +360,28 @@
 
 *     **** Anderson density mixing ****
       if (algorithm.eq.3) then
-
-         if (m.eq.1) then
+         
+         if ((m.eq.2).or.(m.eq.1)) then
             call nwpw_list_ptr(1,1,rr_ptr)
             call nwpw_list_ptr(1,2,ff_ptr)
-            call dcopy(nsize,dbl_mb(rr_ptr),1,dbl_mb(ff_ptr),1)  ! f = vm
-            call daxpy(nsize,(-1.0d0),vout, 1,dbl_mb(ff_ptr),1)  ! f = f-vout = vm-vout
-            call dscal(nsize,(-1.0d0),dbl_mb(ff_ptr),1)          ! f = -f = vout-vm
+            call nwpw_list_ptr(1,3,tt_ptr)
+ccccccccccccccccccc ff=rr
+            call dcopy(nsize,dbl_mb(rr_ptr),1,dbl_mb(tt_ptr),1)  ! f = vm
+ccccccccccccccccccc ff=ff-vout= vout_old - vout
+            call daxpy(nsize,(-1.0d0),vout, 1,dbl_mb(tt_ptr),1)  ! f = f-vout = vm-vout
+            call dscal(nsize,(-0.5d0),dbl_mb(tt_ptr),1)          ! f = -f = vout-vm
 
-            scf_error = ddot(nsize,dbl_mb(ff_ptr),1,dbl_mb(ff_ptr),1)
+            scf_error = ddot(nsize,dbl_mb(tt_ptr),1,dbl_mb(tt_ptr),1)
             call D3dB_SumAll(scf_error)
-            scf_error = dsqrt(scf_error)                         ! scf_error = sqrt(<f|f>)
-
-            call dcopy(nsize,dbl_mb(rr_ptr),1,vnew,1)            !vnew = vm
-            call daxpy(nsize,alpha,dbl_mb(ff_ptr),1,vnew,1)      !vnew = vnew+alpha*f
-            call dcopy(nsize,vnew,1,dbl_mb(rr_ptr),1)            !vm=vnew
+            scf_error = 4.0*dsqrt(scf_error)                     ! scf_error = sqrt(<f|f>)
+        
+           call dcopy(nsize,dbl_mb(rr_ptr),1,dbl_mb(ff_ptr),1)
+           call dcopy(nsize,dbl_mb(rr_ptr),1,vnew,1)            !vnew = vm
+           call daxpy(nsize,alpha,dbl_mb(tt_ptr),1,vnew,1)      !vnew = vnew+alpha*f
+           call dcopy(nsize,vnew,1,dbl_mb(rr_ptr),1)            !vm=vnew       
+ 
          else
+     
             call nwpw_list_ptr(1,1,rr_ptr)
             call nwpw_list_ptr(1,2,ff_ptr)
             call nwpw_list_ptr(1,3,tt_ptr)
@@ -392,7 +399,7 @@
             call D3dB_SumAll(p00)
             call D3dB_SumAll(p01)
             call D3dB_SumAll(p11)
-            beta = (p00-p11)/(p00-2.0d0*p01+p11)
+            beta = (p00-p01)/(p00-2.0d0*p01+p11)
             if (beta.lt.1.0d-3) beta = 1.0d-3
             if (beta.gt.1.5d0)  beta = 1.5d0
 
