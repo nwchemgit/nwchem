@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.72 2007-08-24 02:25:10 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.73 2007-08-29 21:30:43 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -516,7 +516,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       parameter (MASTER=0)
       integer i,k,taskid,nion,nion1
       integer i1
-      real*8  GG
+      real*8  GG,fmax,fatom
       real*8  fmx,fmy,fmz
       real*8  fmx2,fmy2,fmz2
 
@@ -601,8 +601,11 @@ c*     **** debug ****
       call center_F_mass(G1,fmx2,fmy2,fmz2)
 
       GG = 0.0d0
+      fmax = 0.0d0
       do i=1,nion
          GG = GG + G1(1,i)**2 + G1(2,i)**2 + G1(3,i)**2
+         fatom = dsqrt(G1(1,i)**2+G1(2,i)**2 +G1(3,i)**2)
+         if (fatom.gt.fmax)  fmax = fatom
       end do
 
       call Parallel_taskid(taskid)
@@ -668,7 +671,9 @@ c*     **** debug ****
 
         write(luout,1210) fmx2,fmy2,fmz2  
         write(luout,1425)
-        write(luout,1426) dsqrt(GG)
+        write(luout,1426) dsqrt(GG),
+     >                    dsqrt(GG)/dble(nion),
+     >                    fmax,fmax*(27.2116d0/0.529177d0)
         end if
       end if
 
@@ -687,7 +692,9 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
  1400 FORMAT('Translation force removed: (',3F11.5,')')
  1410 FORMAT(10X,'=============  Ion Gradients =================')
  1425 FORMAT(10X,'===============================================')
- 1426 FORMAT(10X,'|F|=',E21.10//)
+ 1426 FORMAT(10X,'|F|       =',E15.6,
+     >      /10x,'|F|/nion  =',E15.6,
+     >      /10x,'max|Fatom|=',E15.6,1x,'(',F8.3,'eV/Angstrom)'//)
  1420 FORMAT( ' Ion Positions:')
  1421 FORMAT( ' Ion Forces:')
       end
