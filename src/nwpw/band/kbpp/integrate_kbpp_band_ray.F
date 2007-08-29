@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_ray.F,v 1.2 2007-08-28 16:39:03 bylaska Exp $
+* $Id: integrate_kbpp_band_ray.F,v 1.3 2007-08-29 00:56:54 bylaska Exp $
 *
       subroutine integrate_kbpp_band_ray(version,
      >                            nrho,drho,lmax,locp,zv,
@@ -31,41 +31,40 @@
       double precision rho_sc_k_ray(nray,2)
       integer ierr
 
+#include "errquit.fh"
 
+*     *** local variables ****
       integer np,taskid,MASTER
       parameter (MASTER=0)
 
-*     *** local variables ****
-      integer lcount,task_count,nfft3d
-      integer k1,k2,k3,i,l
+      integer lcount,task_count
+      integer k1,i,l
       double precision pi,twopi,forpi
       double precision p0,p1,p2,p3,p
-      double precision gx,gy,gz,a,q,d
+      double precision a,q
 
 
 *     **** external functions ****
       double precision dsum,simp
       external         dsum,simp
-      logical value
-#include "mafdecls.fh"
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
+      if((nrho/2)*2.eq.nrho) then
+        call errquit('integrate_kbpp_band_ray - psp grid not odd',0,
+     >       INPUT_ERR)
+        ierr = 2
+        return
+      end if
+
       pi=4.0d0*datan(1.0d0)
       twopi=2.0d0*pi
       forpi=4.0d0*pi
-
-      IF((NRHO/2)*2.EQ.NRHO) THEN
-        WRITE(*,*)"non-local psp not generated: nrho is not odd"
-        IERR=2
-        RETURN
-      ENDIF
-
-      P0=DSQRT(FORPI)
-      P1=DSQRT(3.0d0*FORPI)
-      P2=DSQRT(15.0d0*FORPI)
-      P3=DSQRT(105.0d0*FORPI)
+      p0=DSQRT(forpi)
+      p1=DSQRT(3.0d0*forpi)
+      p2=DSQRT(15.0d0*forpi)
+      p3=DSQRT(105.0d0*forpi)
 
 
 *======================  Fourier transformation  ======================

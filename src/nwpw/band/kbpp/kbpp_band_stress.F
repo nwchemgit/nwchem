@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band_stress.F,v 1.5 2007-08-21 20:35:40 d3p708 Exp $
+* $Id: kbpp_band_stress.F,v 1.6 2007-08-29 00:56:54 bylaska Exp $
 *
 
 
@@ -74,18 +74,19 @@ c      call Parallel_init()
       value = .false.
   
 *     ***** read in pseudopotential data ****
+      call get_psp_type(psp_filename,psp_type) !*** this routine does a broadcast ***
+
       if (taskid.eq.MASTER) then
-      call get_psp_type(psp_filename,psp_type)
       call util_file_name_noprefix(psp_filename,.false.,.false.,
      >                    full_filename)
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
-      if (psp_type.ne.0) then
+        if (psp_type.ne.0) then
         read(11, * ,ERR=9999,END=9999) psp_tx
-      else
+        else
         psp_tx=0
-      end if
+        end if
       read(11,'(A2)',ERR=9999,END=9999) atom
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
@@ -120,17 +121,17 @@ c      call Parallel_init()
       if (locp.gt.lmax) locp = lmax
       if (locp.lt.0)    locp = lmax
 
-      
-
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'vp',vp_hndl, vp_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'wp', wp_hndl, wp_indx)
-      value = MA_alloc_get(mt_dbl,2*nrho,
+      value = value.and.MA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
+      if (.not.value)
+     > call errquit('kbpp_band_stress:out of heap memory',0,MA_ERR)
 
       if (taskid.eq.MASTER) then
       call read_vpwp_band(11,nrho,lmax,dbl_mb(rho_indx),
@@ -160,22 +161,26 @@ c      call Parallel_init()
 *    **** more temporary space ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'f',f_hndl,f_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = value.and.MA_alloc_get(mt_dbl,nrho,
      >                        'cs',cs_hndl,cs_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = value.and.MA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
+      if (.not.value)
+     > call errquit('kbpp_band_stress:out of heap memory',0,MA_ERR)
 
 *     **** allocate vl,vnl,vnlnrm G ****
       lmmax = (lmax+1)**2 - (2*locp+1)
       nsize = ngrid(1)*ngrid(2)*ngrid(3)
       value = MA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
-      value = MA_alloc_get(mt_dbl,nsize*(lmmax)*3,
+      value = value.and.MA_alloc_get(mt_dbl,nsize*(lmmax)*3,
      >                        'vnl',vnl_hndl, vnl_indx)
-      value = MA_alloc_get(mt_dbl,nsize*(3),
+      value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
-      value = MA_alloc_get(mt_dbl,4*nsize,
+      value = value.and.MA_alloc_get(mt_dbl,4*nsize,
      >                        'sc_k',sc_k_hndl,sc_k_indx)
+      if (.not.value)
+     > call errquit('kbpp_band_stress:out of heap memory',0,MA_ERR)
 
 
 *     **** preparation of constants ****
@@ -183,8 +188,6 @@ c      call Parallel_init()
       nfft2=ngrid(2)
       nfft3=ngrid(3)
       call setup_kbpp_band(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
-
-
 
       call integrate_kbpp_band_stress_local(version,
      >                      nrho,drho,lmax,locp,zv,
@@ -201,8 +204,6 @@ c      call Parallel_init()
      >                                dbl_mb(sc_r_indx),
      >                                dbl_mb(sc_k_indx),
      >                      ierr)
-
-
 
 
       if ((taskid.eq.MASTER).and.(oprint)) then
@@ -314,6 +315,8 @@ c      call Parallel_init()
       value = value.and.MA_free_heap(vl_hndl)
       value = value.and.MA_free_heap(vnl_hndl)
       value = value.and.MA_free_heap(G_hndl)
+      if (.not.value)
+     > call errquit('kbpp_band_stress:Error freeing heap',0,MA_ERR)
 
 c      call Parallel_Finalize()
       
@@ -323,7 +326,8 @@ c      call Parallel_Finalize()
       return
 
  9999 kbpp_band_stress = .false.
-      call errquit('Error reading psp_filename',0, DISK_ERR)
+      call errquit('kbpp_band_stress:Error reading psp_filename',
+     > 0,DISK_ERR)
       END
 
 

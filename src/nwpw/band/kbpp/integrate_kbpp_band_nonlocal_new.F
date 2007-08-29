@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_nonlocal_new.F,v 1.2 2007-08-28 20:22:32 bylaska Exp $
+* $Id: integrate_kbpp_band_nonlocal_new.F,v 1.3 2007-08-29 00:56:54 bylaska Exp $
 *
       subroutine integrate_kbpp_band_nonlocal_new(version,kvec,
      >                            nrho,drho,lmax,locp,zv,
@@ -33,31 +33,24 @@
 
       integer ierr
 
-#include "mafdecls.fh"
-
 *     *** local variables ****
       integer np,taskid,MASTER
       parameter (MASTER=0)
 
       integer lcount,task_count,nfft3d
-      integer k1,k2,k3,i,l
-      double precision pi,twopi,forpi
+      integer k1,k2,k3,i,l,nx
       double precision p
-      double precision gx,gy,gz,a,q,d
+      double precision gx,gy,gz,q,d,dG
 
 
 *     **** external functions ****
-      double precision dsum,simp
-      external         dsum,simp
-      logical value
+      double precision dsum,simp,nwpw_splint
+      external         dsum,simp,nwpw_splint
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
       nfft3d = (nfft1)*nfft2*nfft3
-      pi=4.0d0*datan(1.0d0)
-      twopi=2.0d0*pi
-      forpi=4.0d0*pi
 
       IF(lmmax.GT.16) THEN
         WRITE(*,*)"non-local psp not generated: lmmax exceeds 16"
@@ -70,8 +63,8 @@
         return
       end if
 
-
 *======================  Fourier transformation  ======================
+      dG = G_ray(3)-G_ray(2)
       call dcopy(lmmax*nfft3d,0.0d0,0,vnl,1)
       task_count = -1
       DO 700 k3=1,nfft3

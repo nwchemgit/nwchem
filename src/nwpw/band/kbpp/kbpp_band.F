@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.17 2007-08-23 23:49:39 bylaska Exp $
+* $Id: kbpp_band.F,v 1.18 2007-08-29 00:56:54 bylaska Exp $
 *
 
 *     **************************************
@@ -32,8 +32,6 @@
 *     **** local variables ****
       character*255 full_filename
 
-      logical value,mprint,hprint,oprint
-
       integer taskid,MASTER,msglen
       parameter (MASTER=0)
 
@@ -56,14 +54,19 @@
       integer n_prj_indx,l_prj_indx,m_prj_indx
       integer f_hndl,cs_hndl,sn_hndl
       integer n_prj_hndl,l_prj_hndl,m_prj_hndl
-      integer psp_t
-
 
 *     ***** ngrid data *****
       integer vl_indx,vnl_indx,vnlnrm_indx,G_indx
       integer vl_hndl,vnl_hndl,vnlnrm_hndl,G_hndl
 
+*     **** ray data ****
+      integer nray,G_ray_hndl,tmp_ray_hndl
+      integer rho_sc_k_ray_hndl,vnl_ray_hndl,vl_ray_hndl
+      integer G_ray_indx,tmp_ray_indx
+      integer rho_sc_k_ray_indx,vnl_ray_indx,vl_ray_indx
+
 *     **** other variables ****
+      logical value,mprint,hprint,oprint,filter,kray
       double precision unitg(3,3)
       integer nsize,i,l,ierr,nb,psp_type
       integer nfft1,nfft2,nfft3
@@ -72,9 +75,12 @@
 *     **** external functions ****
       logical  control_print
       external control_print
-      double precision simp
-      external         simp
-
+      logical  control_kbpp_ray,control_kbpp_filter
+      external control_kbpp_ray,control_kbpp_filter
+      double precision SIMP
+      external         SIMP
+      integer  kbpp_band_calc_nray
+      external kbpp_band_calc_nray
 
 c      call Parallel_init()
       call Parallel_taskid(taskid)
@@ -201,7 +207,56 @@ c      call Parallel_init()
       nfft2=ngrid(2)
       nfft3=ngrid(3)
       call setup_kbpp_band(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
+      filter = control_kbpp_filter()
+      kray   = control_kbpp_ray()
      
+      if (kray) then
+        !**** allocate memory for rays ****
+        nray = kbpp_band_calc_nray(nfft1,nfft2,nfft3,dbl_mb(G_indx))
+
+        value =           MA_alloc_get(mt_dbl,nray,
+     >                  'G_ray',G_ray_hndl,G_ray_indx)
+        value = value.and.MA_alloc_get(mt_dbl,2*nray,
+     >                  'vl_ray',vl_ray_hndl,vl_ray_indx)
+        value = value.and.MA_alloc_get(mt_dbl,2*nray*(lmax+1),
+     >                  'vnl_ray',vnl_ray_hndl,vnl_ray_indx)
+        value = value.and.MA_alloc_get(mt_dbl,2*nray*2,
+     >              'rho_sc_k_ray',rho_sc_k_ray_hndl,rho_sc_k_ray_indx)
+        value = value.and.MA_alloc_get(mt_dbl,nray,
+     >                  'tmp_ray',tmp_ray_hndl,tmp_ray_indx)
+        if (.not.value)
+     >   call errquit('kbpp_band:out of heap memory',0,MA_ERR)
+
+        call kbpp_band_generate_G_ray(nfft1,nfft2,nfft3,
+     >                         dbl_mb(G_indx),
+     >                         dbl_mb(G_ray_indx))
+        call integrate_kbpp_band_local_new(version,
+     >                      nrho,drho,lmax,locp,zv,
+     >                                dbl_mb(vp_indx),
+     >                                dbl_mb(wp_indx),
+     >                                dbl_mb(rho_indx),
+     >                                dbl_mb(f_indx),
+     >                                dbl_mb(cs_indx),
+     >                                dbl_mb(sn_indx),
+     >                      nfft1,nfft2,nfft3,lmmax,
+     >                                dbl_mb(G_indx),
+     >                                dbl_mb(vl_indx),
+     >                                int_mb(n_prj_indx),
+     >                                int_mb(l_prj_indx),
+     >                                int_mb(m_prj_indx),
+     >                                dbl_mb(vnlnrm_indx),
+     >                                semicore,
+     >                                dbl_mb(sc_r_indx),
+     >                                dbl_mb(sc_k_indx),
+     >                      nray,
+     >                                dbl_mb(G_ray_indx),
+     >                                dbl_mb(vl_ray_indx),
+     >                                dbl_mb(vnl_ray_indx),
+     >                                dbl_mb(rho_sc_k_ray_indx),
+     >                                dbl_mb(tmp_ray_indx),
+     >                                filter,
+     >                      ierr)
+      else
       call integrate_kbpp_band_local(version,
      >                      nrho,drho,lmax,locp,zv,
      >                                dbl_mb(vp_indx),
@@ -221,6 +276,7 @@ c      call Parallel_init()
      >                                dbl_mb(sc_r_indx),
      >                                dbl_mb(sc_k_indx),
      >                      ierr)
+      end if
 
       if ((taskid.eq.MASTER).and.(oprint)) then
       write(*,*) "     ********************************************"
@@ -288,6 +344,8 @@ c      call Parallel_init()
          if (mprint) then
          write(*,*)
          write(*,*) "Generated formatted_filename: ",full_filename(1:l)
+         if (kray)write(*,'(A,I5,A)')" - Spline fitted, nray=",nray," -"
+         if (filter) write(*,'(A)') " - filtered -"
          end if
          call openfile(2,full_filename,l,'w',l)     
          call cwrite(2,comment,80)
@@ -324,6 +382,24 @@ c      call Parallel_init()
          if ((oprint).and.(taskid.eq.MASTER))
      >      write(*,*) "generating brillioun #",nb
 
+            if (kray) then 
+            call integrate_kbpp_band_nonlocal_new(version,
+     >                      kvectors(1,nb),
+     >                      nrho,drho,lmax,locp,zv,
+     >                                dbl_mb(vp_indx),
+     >                                dbl_mb(wp_indx),
+     >                                dbl_mb(rho_indx),
+     >                                dbl_mb(f_indx),
+     >                                dbl_mb(cs_indx),
+     >                                dbl_mb(sn_indx),
+     >                      nfft1,nfft2,nfft3,lmmax,
+     >                                dbl_mb(G_indx),
+     >                                dbl_mb(vnl_indx),
+     >                      nray,
+     >                                dbl_mb(G_ray_indx),
+     >                                dbl_mb(vnl_ray_indx),
+     >                      ierr)
+            else
             call integrate_kbpp_band_nonlocal(version,
      >                      kvectors(1,nb),
      >                      nrho,drho,lmax,locp,zv,
@@ -337,6 +413,7 @@ c      call Parallel_init()
      >                                dbl_mb(G_indx),
      >                                dbl_mb(vnl_indx),
      >                      ierr)
+            end if
 
          if (taskid.eq.MASTER) 
      >     call dwrite(2,dbl_mb(vnl_indx),nsize*lmmax)
@@ -351,6 +428,16 @@ c      call Parallel_init()
       call closefile(2)
       end if
      
+*     **** free ray heap space ****
+      if (kray) then
+        value = MA_free_heap(tmp_ray_hndl)
+        value = value.and.MA_free_heap(rho_sc_k_ray_hndl)
+        value = value.and.MA_free_heap(vnl_ray_hndl)
+        value = value.and.MA_free_heap(vl_ray_hndl)
+        value = value.and.MA_free_heap(G_ray_hndl)
+        if (.not.value)
+     >   call errquit('kbpp_band:Error freeing memory',0,MA_ERR)
+      end if
 
 *     **** free heap space ****
       value = MA_free_heap(rho_hndl)
@@ -370,14 +457,16 @@ c      call Parallel_init()
       value = value.and.MA_free_heap(l_prj_hndl)
       value = value.and.MA_free_heap(m_prj_hndl)
       if (.not.value)
-     > call errquit("kbpp_band: error popping stack",0,MA_ERR)
+     > call errquit("kbpp_band: error freeing memory",0,MA_ERR)
 
 c      call Parallel_Finalize()
       
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
       kbpp_band = value
       return
- 9999 call errquit('Error reading psp_filename',0, DISK_ERR)
+
+ 9999 call errquit('kbpp_band:Error reading psp_filename',0,DISK_ERR)
+      kbpp_band = value
       END
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

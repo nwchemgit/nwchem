@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_local.F,v 1.4 2007-08-23 23:49:39 bylaska Exp $
+* $Id: integrate_kbpp_band_local.F,v 1.5 2007-08-29 00:56:54 bylaska Exp $
 *
 
       subroutine integrate_kbpp_band_local(version,
@@ -128,7 +128,7 @@
         DO  I=1,NRHO
           F(I)=RHO(I)*VP(I,locp)*SN(I)
         END DO
-        VL(k1,k2,k3)=SIMP(NRHO,F,DRHO)*FORPI/Q-ZV*FORPI*CS(NRHO)/(Q*Q)
+        vl(k1,k2,k3)=SIMP(nrho,f,drho)*forpi/Q-ZV*forpi*cs(nrho)/(Q*Q)
  
 
 *::::::::::::::::::::: semicore density :::::::::::::::::::::::::::::::

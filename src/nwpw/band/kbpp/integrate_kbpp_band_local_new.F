@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_local_new.F,v 1.2 2007-08-28 20:22:32 bylaska Exp $
+* $Id: integrate_kbpp_band_local_new.F,v 1.3 2007-08-29 00:56:54 bylaska Exp $
 *
 
       subroutine integrate_kbpp_band_local_new(version,
@@ -56,24 +56,18 @@
 
       integer lcount,task_count,nfft3d
       integer k1,k2,k3,i,l,nx
-      double precision pi,twopi,forpi,ecut,wcut
-      double precision p0,p1,p2,p3,p
-      double precision gx,gy,gz,a,q,d
-
+      double precision ecut,wcut
+      double precision p
+      double precision gx,gy,gz,a,q,dG,yp1
 
 *     **** external functions ****
       double precision dsum,simp,control_ecut,control_wcut,nwpw_splint
       external         dsum,simp,control_ecut,control_wcut,nwpw_splint
 
-      logical value
-
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
       nfft3d = (nfft1)*nfft2*nfft3
-      pi=4.0d0*datan(1.0d0)
-      twopi=2.0d0*pi
-      forpi=4.0d0*pi
 
       IF((NRHO/2)*2.EQ.NRHO) THEN
         WRITE(*,*)"local pseudopotential not computed: nrho is not odd"
@@ -81,10 +75,6 @@
         RETURN
       ENDIF
 
-      p0=DSQRT(forpi)
-      p1=DSQRT(3.0d0*forpi)
-      p2=DSQRT(15.0d0*forpi)
-      p3=DSQRT(105.0d0*forpi)
 
 *::::::::::::::::::  Define non-local pseudopotential  ::::::::::::::::
       do l=0,lmax
@@ -110,7 +100,7 @@
       end do
 
 *     ************* compute ray fourier transforms *********************
-      call integrate_kbppv3_ray(version,rlocal,
+      call integrate_kbpp_band_ray(version,
      >                            nrho,drho,lmax,locp,zv,
      >                            vp,wp,rho,f,cs,sn,
      >                            nray,
@@ -120,23 +110,28 @@
 
 *     **** filter the rays ****
       if (filter) then
-         write(*,*) "---- filtering psp ----"
          ecut = control_ecut()
          wcut = control_wcut()
-         call kbpp_filter_ray(nray,G_ray,ecut,vl_ray)
+         call kbpp_band_filter_ray(nray,G_ray,ecut,vl_ray)
          do l=0,lmax
             if (l.ne.locp)
-     >        call kbpp_filter_ray(nray,G_ray,wcut,vnl_ray(1,l,1))
+     >       call kbpp_band_filter_ray(nray,G_ray,wcut,vnl_ray(1,l,1))
          end do
          if (semicore) then
-           call kbpp_filter_ray(nray,G_ray,ecut,rho_sc_k_ray(1,1,1))
-           call kbpp_filter_ray(nray,G_ray,ecut,rho_sc_k_ray(1,2,1))
+         call kbpp_band_filter_ray(nray,G_ray,ecut,rho_sc_k_ray(1,1,1))
+         call kbpp_band_filter_ray(nray,G_ray,ecut,rho_sc_k_ray(1,2,1))
          end if
       end if
 
 *     **** setup cubic bsplines ****
       dG = G_ray(3)-G_ray(2)
-      yp1 = (vl_ray(3,1)-vl_ray(2,1))/dG
+      !yp1 = (vl_ray(3,1)-vl_ray(2,1))/dG
+      !**** five point formula ***
+      yp1 = ( -50.0d0*vl_ray(2,1)
+     >       + 96.0d0*vl_ray(3,1)
+     >       - 72.0d0*vl_ray(4,1)
+     >       + 32.0d0*vl_ray(5,1)
+     >       -  6.0d0*vl_ray(6,1))/(24.0d0*dG)
       call nwpw_spline(G_ray(2),vl_ray(2,1),nray-1,yp1,0.0d0,
      >                          vl_ray(2,2),tmp_ray)
       do l=0,lmax
