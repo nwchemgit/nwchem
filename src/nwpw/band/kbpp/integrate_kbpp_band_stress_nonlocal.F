@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_stress_nonlocal.F,v 1.1 2005-09-07 23:55:02 bylaska Exp $
+* $Id: integrate_kbpp_band_stress_nonlocal.F,v 1.2 2007-08-29 00:59:37 bylaska Exp $
 *
 
 *     ******************************************
@@ -398,8 +398,7 @@
     
   700 CONTINUE
 
-      call C3dB_Vector_Sumall(3*lmmax*nfft3d,dvnl)
-
+      call Parallel_Vector_Sumall(3*lmmax*nfft3d,dvnl)
 
       IERR=0
       RETURN

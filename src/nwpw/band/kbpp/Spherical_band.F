@@ -170,7 +170,7 @@
         if ((l.eq.0).and.(m.eq.0)) 
      >    Ylm(k1,k2,k3)=scof(1,0)
   700 CONTINUE
-      call C3dB_Vector_Sumall(nfft3d,Ylm)
+      call Parallel_Vector_Sumall(nfft3d,Ylm)
       return
       end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC

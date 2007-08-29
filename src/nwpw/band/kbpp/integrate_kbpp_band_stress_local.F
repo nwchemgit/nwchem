@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_stress_local.F,v 1.1 2005-09-07 23:55:02 bylaska Exp $
+* $Id: integrate_kbpp_band_stress_local.F,v 1.2 2007-08-29 00:59:37 bylaska Exp $
 *
 
 *     **************************************
@@ -120,8 +120,8 @@
 
   700 CONTINUE
 
-      call C3dB_Vector_SumAll(4*nfft3d,rho_sc_k)
-      call C3dB_Vector_SumAll(nfft3d,dvl)
+      call Parallel_Vector_SumAll(4*nfft3d,rho_sc_k)
+      call Parallel_Vector_SumAll(nfft3d,dvl)
 *:::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
 
       dvl(1,1,1)= 0.0d0

@@ -1,5 +1,5 @@
 *
-* $Id: Tesseral_band.F,v 1.8 2007-04-24 20:59:33 d3p708 Exp $
+* $Id: Tesseral_band.F,v 1.9 2007-08-29 00:59:37 bylaska Exp $
 *
       subroutine Tesseral_band(l,m,kvec,
      >                    nfft1,nfft2,nfft3,
@@ -153,7 +153,7 @@ c     >                          /(2.0d0*dsqrt(3.0d0))
 
 
   700 CONTINUE
-      call C3dB_Vector_Sumall(nfft3d,Ylm)
+      call Parallel_Vector_Sumall(nfft3d,Ylm)
 
 
       return

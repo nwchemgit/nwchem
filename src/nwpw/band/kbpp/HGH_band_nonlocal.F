@@ -1,5 +1,5 @@
 *
-* $Id: HGH_band_nonlocal.F,v 1.5 2007-02-08 22:43:17 bylaska Exp $
+* $Id: HGH_band_nonlocal.F,v 1.6 2007-08-29 00:59:37 bylaska Exp $
 *
 
 
@@ -128,7 +128,7 @@ cccccc formula in paper is wrong! this should be 8 not sqrt(8) *******
         vnl(k1,k2,k3)=coef*a*poly
 
   700 CONTINUE
-      call C3dB_Vector_Sumall(nfft3d,vnl)
+      call Parallel_Vector_Sumall(nfft3d,vnl)
       return
       end
 
