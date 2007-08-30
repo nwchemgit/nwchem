@@ -1,5 +1,5 @@
 c
-c     $Id: c_cgsd_energy_gradient.F,v 1.6 2007-04-02 15:38:37 bylaska Exp $         c
+c     $Id: c_cgsd_energy_gradient.F,v 1.7 2007-08-30 00:58:17 bylaska Exp $         c
 
 *     *******************************
 *     *				    *
@@ -17,7 +17,7 @@ c     $Id: c_cgsd_energy_gradient.F,v 1.6 2007-04-02 15:38:37 bylaska Exp $     
       integer MASTER
       parameter (MASTER=0)
       integer i,k,taskid,nion
-      real*8  GG
+      real*8  GG,fmax,fatom
       real*8  fmx,fmy,fmz
       real*8  fmx2,fmy2,fmz2
 
@@ -58,9 +58,12 @@ c     $Id: c_cgsd_energy_gradient.F,v 1.6 2007-04-02 15:38:37 bylaska Exp $     
       end if
       call center_F_mass(G1,fmx2,fmy2,fmz2)
 
-      GG = 0.0d0
+      GG   = 0.0d0
+      fmax = 0.0d0
       do i=1,nion
          GG = GG + G1(1,i)**2 + G1(2,i)**2 + G1(3,i)**2
+         fatom= dsqrt(G1(1,i)**2 + G1(2,i)**2 + G1(3,i)**2)
+         if (fatom.gt.fmax) fmax = fatom
       end do
 
       call Parallel_taskid(taskid)
@@ -86,7 +89,9 @@ c     $Id: c_cgsd_energy_gradient.F,v 1.6 2007-04-02 15:38:37 bylaska Exp $     
 
         write(luout,1210) fmx2,fmy2,fmz2  
         write(luout,1425)
-        write(luout,1426) dsqrt(GG)
+        write(luout,1426) dsqrt(GG),
+     >                    dsqrt(GG)/dble(nion),
+     >                    fmax,fmax*(27.2116d0/0.529177d0)
       end if
 
 c     call dscal(3*nion,(-1.0d0),G1,1)
@@ -102,7 +107,9 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
  1400 FORMAT('Translation force removed: (',3F11.5,')')
  1410 FORMAT(10X,'=============  Ion Gradients =================')
  1425 FORMAT(10X,'===============================================')
- 1426 FORMAT(10X,'|F|=',E21.10//)
+ 1426 FORMAT(10X,'|F|       =',E15.6,
+     >      /10x,'|F|/nion  =',E15.6,
+     >      /10x,'max|Fatom|=',E15.6,1x,'(',F8.3,'eV/Angstrom)'//)
  1420 FORMAT( ' Ion Positions:')
  1421 FORMAT( ' Ion Forces:')
       end

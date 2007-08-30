@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_stress_local.F,v 1.2 2007-08-29 00:59:37 bylaska Exp $
+* $Id: integrate_kbpp_band_stress_local.F,v 1.3 2007-08-30 00:58:02 bylaska Exp $
 *
 
 *     **************************************
@@ -44,10 +44,10 @@
       parameter (MASTER=0)
 
 *     *** local variables ****
-      integer lcount,task_count,nfft3d
+      integer task_count,nfft3d
       integer k1,k2,k3,i,l
       double precision pi,twopi,forpi
-      double precision a,q,d
+      double precision q
 
 
 *     **** external functions ****

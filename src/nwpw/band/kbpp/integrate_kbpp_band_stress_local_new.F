@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_stress_local_new.F,v 1.1 2007-08-29 00:56:54 bylaska Exp $
+* $Id: integrate_kbpp_band_stress_local_new.F,v 1.2 2007-08-30 00:58:02 bylaska Exp $
 *
 
 *     *****************************************
@@ -34,7 +34,6 @@
       integer nfft1,nfft2,nfft3,lmmax
       double precision G(nfft1,nfft2,nfft3,3)
       double precision dvl(nfft1,nfft2,nfft3)
-
 
       logical semicore
       double precision rho_sc_r(nrho,2)
