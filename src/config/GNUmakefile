@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.12 2006-09-07 16:57:46 d3p307 Exp $
+# $Id: GNUmakefile,v 1.13 2007-09-01 22:26:48 d3p307 Exp $
 #
 
 include makefile.h
@@ -40,10 +40,11 @@ ifeq ($(TARGET),HPUX)
 endif
 
 ifeq ($(TARGET),LINUX)
- ifeq ($(LINUXCPU),ppc)
-# mainly for Blue Gene/L 
   CC = gcc
- endif
+endif
+
+ifeq ($(TARGET),BGL)
+ CC=gcc
 endif
 
 
