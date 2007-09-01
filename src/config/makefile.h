@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.546 2007-08-27 17:03:46 edo Exp $
+# $Id: makefile.h,v 1.547 2007-09-01 19:48:36 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1983,7 +1983,33 @@ ifeq ($(TARGET),cray-sv2)
 #end of sv2
 endif
 
+ifeq ($(TARGET),BGL)
+#
+    CORE_SUBDIRS_EXTRA = lapack blas
+         FC = blrts_xlf
+         CC     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-gcc
+         AR     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ar
+         AS     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-as
+         RANLIB = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ranlib
 
+   ARFLAGS = urs
+   INSTALL = @echo $@ is built
+
+   DEFINES =  -DBGL -DBLRTS -DBGML -DEXTNAME
+   FOPTIONS = -q32 -qEXTNAME -qfixed  -qxlf77=leadzero
+   FOPTIMIZE = -O3 -qstrict -qarch=440 -qtune=440
+   FOPTIMIZE = -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qipa=level=2
+   COPTIMIZE  = -g -O2
+   LDOPTIONS = -O2 -qmaxmem=8192
+
+
+CORE_LIBS +=  -llapack -lblas
+
+
+  EXPLICITF = TRUE
+  CPP=gcc -E -nostdinc -undef -P
+  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+endif
 
 
 ###################################################################
