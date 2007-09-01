@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_common.fh,v 1.7 2007-06-19 21:30:34 d3p708 Exp $
+* $Id: cpsp_common.fh,v 1.8 2007-09-01 00:07:54 d3p708 Exp $
 *
 
 *     **** common blocks ****
@@ -21,7 +21,7 @@
       parameter (nkatmx=50,lmax_max=4,lmmax_max=25,nmax_max=3)
       parameter (jmmax_max=40)
       parameter (gij_stride=(lmax_max+1)*nmax_max*nmax_max)
-      parameter (kij_stride=(jmmax_max))
+      parameter (kij_stride=(lmax_max+1)*nmax_max*nmax_max)
       parameter (vnl_stride=lmmax_max*nmax_max)
       parameter (vso_stride=2*jmmax_max)
       parameter (vso_shift=jmmax_max)
