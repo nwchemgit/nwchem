@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.198 2007-08-27 17:01:15 edo Exp $
+# $Id: GNUmakefile,v 1.199 2007-09-01 19:42:07 d3p307 Exp $
 
 include ../config/makefile.h
 
@@ -65,7 +65,7 @@ ifeq ($(TARGET),MACX)
   EXTRA_OBJ += macx_trapfpe.o
 endif
 
-ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGWIN CYGNUS INTERIX))
+ifeq ($(TARGET),$(findstring $(TARGET),BGL LINUX CYGWIN CYGNUS INTERIX))
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  
   ifeq ($(LINUXCPU),x86)
     ifneq ($(TARGET),INTERIX)
@@ -205,6 +205,9 @@ DEFINES += -DNEED_LOC
 endif
 ifeq ($(TARGET),LINUX64)
 DEFINES += -DNEED_LOC
+endif
+ifeq ($(TARGET),BGL)
+DEFINES += -DNEED_LOC -DEAF_STATS -DLARGE_FILES
 endif
 
 ifeq ($(TARGET),SGI)
