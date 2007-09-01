@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.547 2007-09-01 19:48:36 d3p307 Exp $
+# $Id: makefile.h,v 1.548 2007-09-01 22:28:02 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1998,7 +1998,7 @@ ifeq ($(TARGET),BGL)
    DEFINES =  -DBGL -DBLRTS -DBGML -DEXTNAME
    FOPTIONS = -q32 -qEXTNAME -qfixed  -qxlf77=leadzero
    FOPTIMIZE = -O3 -qstrict -qarch=440 -qtune=440
-   FOPTIMIZE = -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qipa=level=2
+   FOPTIMIZE += -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qipa=level=2
    COPTIMIZE  = -g -O2
    LDOPTIONS = -O2 -qmaxmem=8192
 
