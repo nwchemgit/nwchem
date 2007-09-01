@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.25 2007-05-24 12:43:55 edo Exp $
+# $Id: GNUmakefile,v 1.26 2007-09-01 20:07:20 d3p307 Exp $
 
 include ../config/makefile.h
 
@@ -8,7 +8,7 @@ include ../config/makefile.h
     OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o rtdb_seq.o \
                    context.o context_f2c.o
 # BEGIN_WIN32_IGNORE
-ifeq ($(TARGET),LINUX)
+ifeq ($(TARGET),$(findstring $(TARGET),BGL LINUX))
     OBJ = rtdb_seq.o
     OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o context.o context_f2c.o
 endif
