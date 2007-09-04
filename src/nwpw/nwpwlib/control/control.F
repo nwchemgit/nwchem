@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.104 2007-08-28 01:05:56 bylaska Exp $
+* $Id: control.F,v 1.105 2007-09-04 14:49:00 bylaska Exp $
 *
 
 *     ***********************************
@@ -3691,6 +3691,33 @@ c      end
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *    control_brillioun_ondisk     *
+*     *                                 *
+*     ***********************************
+      logical function control_brillioun_ondisk()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.rtdb_get(rtdb,'nwpw:brillioun_ondisk',
+     >     mt_log,1,value))
+     >   value = .false.
+
+      control_brillioun_ondisk = value
+      return
+      end
+
+
 
 
 *     **********************************************
@@ -3717,6 +3744,9 @@ c      end
       control_init_velocities_temperature = value
       return
       end
+
+
+
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine set_two_component_pseudopotential()
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
