@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-tcgmsg.F,v 1.4 2007-03-19 19:05:34 bylaska Exp $
+* $Id: Parallel-tcgmsg.F,v 1.5 2007-09-04 23:26:49 bylaska Exp $
 *
 
 * Parallel.f
@@ -263,4 +263,55 @@ c     implicit none
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_Brdcst_values     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Brdcst_values(psend,nsize,sum)
+      implicit none
+      integer psend,nsize
+      real*8  sum(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+
+      if (np.gt.1) then
+         call BRDCST(9+MSGDBL,sum,mdtob(nsize),psend)
+      end if
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_Brdcst_ivalues     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Brdcst_ivalues(psend,nsize,isum)
+      implicit none
+      integer psend,nsize
+      integer  isum(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+      if (np.gt.1) then
+         call BRDCST(9+MSGINT,isum,mitob(nsize),psend)
+      end if
+      return
+      end
+
 

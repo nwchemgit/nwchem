@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-mpi.F,v 1.7 2007-04-12 16:52:09 bylaska Exp $
+* $Id: Parallel-mpi.F,v 1.8 2007-09-04 23:26:49 bylaska Exp $
 *
 
 * Parallel.f
@@ -458,6 +458,101 @@ c     implicit none
 
       if (np.gt.1) then
          call MPI_Bcast(sum,1,MPI_DOUBLE_PRECISION,
+     >                  psend,MPI_COMM_WORLD,ierr)
+      end if
+#endif
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_Brdcst_values     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Brdcst_values(psend,nsize,sum)
+      implicit none
+      integer psend,nsize
+      real*8  sum(*)
+
+#include "Parallel.fh"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+
+#ifdef MPI4
+      integer*4 tpsend
+
+      if (np.gt.1) then
+         stupid_msglen = nsize
+         tpsend        = psend
+         call MPI_Bcast(sum,stupid_msglen,stupid_double,
+     >                  tpsend,stupid_world,stupid_ierr)
+      end if
+#else
+      integer ierr
+
+      if (np.gt.1) then
+         call MPI_Bcast(sum,nsize,MPI_DOUBLE_PRECISION,
+     >                  psend,MPI_COMM_WORLD,ierr)
+      end if
+#endif
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_Brdcst_ivalues    *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Brdcst_ivalues(psend,nsize,isum)
+      implicit none
+      integer psend,nsize
+      integer isum(*)
+
+#include "Parallel.fh"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+
+#ifdef MPI4
+      integer*4 tpsend
+      integer   sumall(2)
+
+      if (np.gt.1) then
+         stupid_msglen = nsize
+         tpsend        = psend
+         value = MA_push_get(mt_int,nsize,'sumall',sumall(2),sumall(1))
+         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+         call stupid_icopy8to4(nsize,isum,int_mb(sumall(1)))
+         call MPI_Bcast(int_mb(sumall(1)),stupid_msglen,stupid_integer,
+     >                  tpsend,stupid_world,stupid_ierr)
+         call stupid_icopy4to8(nsize,int_mb(sumall(1)),isum)
+
+         value = MA_pop_stack(sumall(2))
+         if (.not. value) call errquit('error popping stack',0, MA_ERR)
+      end if
+#else
+      integer ierr
+
+      if (np.gt.1) then
+         call MPI_Bcast(isum,nsize,MPI_INTEGER,
      >                  psend,MPI_COMM_WORLD,ierr)
       end if
 #endif
