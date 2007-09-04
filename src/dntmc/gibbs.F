@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.18 2007-08-21 17:31:08 d3p852 Exp $
+C$Id: gibbs.F,v 1.19 2007-09-04 19:33:47 d3p852 Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -228,9 +228,11 @@ C  Global sync mutex creation
       if (.not. ga_create_mutexes(1))
      &   call errquit('dntmc_gibbs:mutex create error', 0, GA_ERR)
 C  End Global sync mutex creation
+#ifdef USE_SUBGROUPS
        if (.not.util_sgstart(rtdb))
      &   call errquit('dntmc_gibbs:error starting subgroups',
      &                  0, UNKNOWN_ERR)
+#endif
        idmedium = ga_pgroup_get_default()
 #ifdef USE_SUBGROUPS
        ngroups = util_sgroup_numgroups()
@@ -1793,7 +1795,9 @@ C  Global sync mutex destroy
       status = ga_destroy_mutexes()
 C  End Global sync mutex destroy
       status = ga_destroy(g_proc)
+#ifdef USE_SUBGROUPS
       call util_sgend(rtdb)  ! finalize subgroup stuff
+#endif
       write(6,*) 'leaving dntmc_gibbs', myid
 
  9945 Continue ! How to instantly exit code

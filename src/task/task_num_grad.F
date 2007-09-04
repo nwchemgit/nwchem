@@ -5,7 +5,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.38 2007-08-22 18:13:49 d3p852 Exp $
+* $Id: task_num_grad.F,v 1.39 2007-09-04 19:37:51 d3p852 Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -127,12 +127,18 @@ c
       ncpus=ga_nnodes()
 #ifdef USE_SUBGROUPS
       if (ncpus.ne.1) then
+#else
+      if (.false.)then
+#endif
        if(.not.util_sgstart(rtdb)) 
      $  call errquit('Error in SUBGROUPS init', 0, RTDB_ERR) 
-      endif
-#endif
-      mygroup = util_sgroup_mygroup()
-      num_groups = util_sgroup_numgroups()
+       mygroup = util_sgroup_mygroup()
+       num_groups = util_sgroup_numgroups()
+       if (num_groups .eq. 1) call util_sgend(rtdb) ! Not really doing groups
+      else ! Do not want to grab any python group info
+       mygroup = 1
+       num_groups = 1
+      end if
       ipcount=mygroup-2
 c
       num_grad = .false.
