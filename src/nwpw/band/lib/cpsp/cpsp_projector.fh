@@ -1,0 +1,17 @@
+*
+* $Id: cpsp_projector.fh,v 1.1 2007-09-04 15:56:16 bylaska Exp $
+*
+
+*     **** common block for cpsp projector  ****
+      integer indx_prj(2)
+      integer nsize_prj(2)
+      integer nprj_prj(2)
+      integer nbrill_prj(2)
+      integer hndl_prj(2)
+      integer npsp,tagmax
+      integer curr_nb
+      logical brill_ondisk
+      common / cpsp_projector_block / indx_prj,nsize_prj,nprj_prj,
+     >                                nbrill_prj,hndl_prj,npsp,tagmax,
+     >                                curr_nb,brill_ondisk
+
