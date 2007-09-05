@@ -65,7 +65,8 @@
       int_mb(nprj_prj(1)+tag)   = nprj
       int_mb(nsize_prj(1)+tag)  = nsize
 
-      value = MA_alloc_get(mt_dbl,nbrill*nprj*nsize,hndl,indx)
+      value = MA_alloc_get(mt_dbl,nbrill*nprj*nsize,
+     >                     'prj_alloc',hndl,indx)
       if (.not.value) 
      > call errquit('cpsp_projector_alloc: out of heap memory',0,MA_ERR)
 

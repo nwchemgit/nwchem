@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.49 2007-09-04 15:56:16 bylaska Exp $
+* $Id: cpsp.F,v 1.50 2007-09-05 01:49:56 bylaska Exp $
 *
 
 #define TCGMSG
@@ -36,22 +36,9 @@
 *     **** allocate projector datastructure ****
       call cpsp_projector_init(5*npsp)
 
-cccccc
-c  set the default extra size
-cccccccccc
-
+*     ***** allocate local potentitals *****
       value = MA_alloc_get(mt_dbl,(npsp*npack0),'vl',vl(2),vl(1))
 
-c      bxsize=npack1*nbrillioun*npsp
-c      axsize = vnl_stride*bxsize   
-c      value = value.and.
-c     >        MA_alloc_get(mt_dbl,
-c     >                    axsize,
-c     >                    'vnl',vnl(2),vnl(1))
-c      axsize= vso_stride*bxsize
-c      value = value.and.
-c     >        MA_alloc_get(mt_dcpl,axsize,
-c     >                    'vnlso',vnlso(2),vnlso(1))
 
 *     ***** allocate projector tag lists *****
       value = value.and.
@@ -66,7 +53,6 @@ c     >                    'vnlso',vnlso(2),vnlso(1))
       axsize=npsp*kij_stride
       value = value.and.
      >      MA_alloc_get(mt_dbl,axsize,'Kijl',Kijl(2),Kijl(1))
-
 
       value = value.and.
      >        MA_alloc_get(mt_int,(npsp),'nprj',nprj(2),nprj(1))
@@ -105,16 +91,8 @@ c     >                    'vnlso',vnlso(2),vnlso(1))
      >   call errquit('cpsp_init:out of heap memory',0, MA_ERR)
 
       call dcopy(npsp*npack0,0.0d0,0,dbl_mb(vl(1)),1)
-
-c      axsize = bxsize*vnl_stride
-c      call dcopy(axsize,
-c     >           0.0d0,0,dbl_mb(vnl(1)),1)
-c      axsize= 2*bxsize*vso_stride
-c      call dcopy(axsize,
-c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
-
-      call dcopy(npsp,                 0.0d0,0,dbl_mb(zv(1)),1)
-      call dcopy(npsp,                 0.0d0,0,dbl_mb(amass(1)),1)
+      call dcopy(npsp,       0.0d0,0,dbl_mb(zv(1)),1)
+      call dcopy(npsp,       0.0d0,0,dbl_mb(amass(1)),1)
       call dcopy(npsp*(lmax_max+1),    0.0d0,0,dbl_mb(rc(1)),1)
 
 *     **** allocate semicore data ****
@@ -152,7 +130,6 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 
       return
       end
-
 
 *     ******************************************
 *     *                                        *
@@ -197,11 +174,8 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
       if (.not. value)
      >  call errquit('cpsp_end:error freeing heap memory',0,MA_ERR)
 
-
-
       return
       end
-
 
 
 *     ***********************************
@@ -209,7 +183,6 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 *     *	 	   cpsp_zv		*
 *     *					*
 *     ***********************************
-
       real*8 function cpsp_zv(ia)
       implicit none
       integer ia
@@ -228,7 +201,6 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 *     *	 	   cpsp_amass		*
 *     *					*
 *     ***********************************
-
       real*8 function cpsp_amass(ia)
       implicit none
       integer ia
@@ -246,7 +218,6 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 *     *	 	   cpsp_rc		*
 *     *					*
 *     ***********************************
-
       real*8 function cpsp_rc(i,ia)
       implicit none
       integer i,ia
@@ -263,7 +234,6 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 *     *	 	   cpsp_atom		*
 *     *					*
 *     ***********************************
-
       character*2 function cpsp_atom(ia)
       implicit none
       integer  ia
@@ -280,7 +250,6 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 *     *            psp_comment          *
 *     *                                 *
 *     ***********************************
-
       character*(*) function cpsp_comment(ia)
       implicit none
       integer  ia
@@ -300,7 +269,6 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 *     *	 	   cpsp_lmmax		*
 *     *					*
 *     ***********************************
-
       integer function cpsp_lmmax(ia)
       implicit none
       integer  ia
@@ -340,12 +308,13 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 #include "mafdecls.fh"
 #include "cpsp_common.fh"
 
-      integer ia,nprjmax
+      integer ia,nprjmax,nprjtmp
 
       nprjmax = 0
       do ia=1,npsp
-         if (int_mb(nprj(1)+ia-1).gt.nprjmax) 
-     >      nprjmax = int_mb(nprj(1)+ia-1)
+         nprjtmp = (int_mb(nprj(1)+ia-1))
+         if (int_mb(psp_type(1)+ia-1).eq.7) nprjtmp = 2*nprjtmp
+         if (nprjtmp.gt.nprjmax)            nprjmax = nprjtmp
       end do
 
       cpsp_nprj_max  = nprjmax
@@ -357,7 +326,6 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 *     *            cpsp_psp_type        *
 *     *                                 *
 *     ***********************************
-
       integer function cpsp_psp_type(ia)
       implicit none
       integer  ia
@@ -375,7 +343,6 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 *     *	 	   cpsp_lmax		*
 *     *					*
 *     ***********************************
-
       integer function cpsp_lmax(ia)
       implicit none
       integer  ia
@@ -393,7 +360,6 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 *     *	 	   cpsp_locp		*
 *     *					*
 *     ***********************************
-
       integer function cpsp_locp(ia)
       implicit none
       integer  ia
@@ -411,7 +377,6 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 *     *	 	   cpsp_npsp		*
 *     *					*
 *     ***********************************
-
       integer function cpsp_npsp()
       implicit none
 
@@ -428,7 +393,6 @@ c     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
 *     *	 	   cpsp_v_local         *
 *     *					*
 *     ***********************************
-
       subroutine cpsp_v_local(vl_out,move,dng,fion)
       implicit none
       complex*16 vl_out(*)
@@ -1445,24 +1409,18 @@ ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
       end if
 
       msglen = 1
-      !call BRDCST(9+MSGINT,ierr,mitob(msglen),MASTER)
       call Parallel_Brdcst_ivalues(MASTER,msglen,ierr)
       if (ierr.ne.0) then
          return
       end if
 
 *     **** send header data to all processors ****
-#ifdef TCGMSG
       msglen = 1
-      !call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
-      !call BRDCST(9+MSGINT,psp_type,mitob(msglen),MASTER)
       call Parallel_Brdcst_ivalues(MASTER,msglen,version)
       call Parallel_Brdcst_ivalues(MASTER,msglen,psp_type)
       msglen = 3
-      !call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
       call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
       msglen = 9
-      !call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
       call Parallel_Brdcst_values(MASTER,msglen,unita)
 
       iatom(1) = ichar(atom(1:1))
@@ -1473,16 +1431,10 @@ ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
       atom(2:2) = char(iatom(2))
 
       msglen = 1
-      !call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
       call Parallel_Brdcst_values(MASTER,msglen,amass)
       msglen = 1
-      !call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
       call Parallel_Brdcst_values(MASTER,msglen,zv)
       msglen = 1
-      !call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
-      !call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
-      !call BRDCST(9+MSGINT,nmax,mitob(msglen),MASTER)
-      !call BRDCST(9+MSGINT,nprj,mitob(msglen),MASTER)
       call Parallel_Brdcst_ivalues(MASTER,msglen,lmax)
       call Parallel_Brdcst_ivalues(MASTER,msglen,locp)
       call Parallel_Brdcst_ivalues(MASTER,msglen,nmax)
@@ -1490,36 +1442,24 @@ ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
       lmmax=(lmax+1)**2 - (2*locp+1)
 
       msglen=lmax+1
-      !call BRDCST(9+MSGDBL,rc,mdtob(msglen),MASTER)
       call Parallel_Brdcst_values(MASTER,msglen,rc)
 
       msglen=nprj
-      !call BRDCST(9+MSGINT,n_projector,mitob(msglen),MASTER)
-      !call BRDCST(9+MSGINT,l_projector,mitob(msglen),MASTER)
-      !call BRDCST(9+MSGINT,m_projector,mitob(msglen),MASTER)
       call Parallel_Brdcst_ivalues(MASTER,msglen,n_projector)
       call Parallel_Brdcst_ivalues(MASTER,msglen,l_projector)
       call Parallel_Brdcst_ivalues(MASTER,msglen,m_projector)
 
       if (psp_type.eq.7) then
        msglen=nprj
-       !call BRDCST(9+MSGDBL,Kijl,mdtob(msglen),MASTER)
        call Parallel_Brdcst_values(MASTER,msglen,Kijl)
       else
        msglen=nmax*nmax*(lmax+1)
-
-       !call BRDCST(9+MSGDBL,Gijl,mdtob(msglen),MASTER)
        call Parallel_Brdcst_values(MASTER,msglen,Gijl)
-       if (psp_type.eq.1) then 
-        !call BRDCST(9+MSGDBL,Kijl,mdtob(msglen),MASTER)
-        call Parallel_Brdcst_values(MASTER,msglen,Kijl)
-       end if
+       if(psp_type.eq.1) call Parallel_Brdcst_values(MASTER,msglen,Kijl)
       end if
       msglen=1
-      !call BRDCST(9+MSGDBL,rcore,mdtob(msglen),MASTER)
       call Parallel_Brdcst_values(MASTER,msglen,rcore)
 
-#endif
 
 *     **** determine semicore value ****
       if (rcore.gt.0.0d0) then
@@ -1528,15 +1468,11 @@ ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
          semicore = .false.
       end if
 
- 
 *     *** read in vl 3d block ***
       call C3dB_r_read(1,5,tmp2,tmp)
       call Cram_r_pack(0,tmp2)
       call Cram_r_Copy(0,tmp2,vl)
-c      do ii=1,npack0
-c         write(*,*)vl(ii)
-c         call flush(6)
-c      end do
+
 
 *     **** read in vnl 3d blocks ****
 

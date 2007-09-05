@@ -1,78 +1,6 @@
 *
-* $Id: cpsp_relativistic.F,v 1.1 2007-09-04 15:56:16 bylaska Exp $
+* $Id: cpsp_relativistic.F,v 1.2 2007-09-05 01:49:56 bylaska Exp $
 *
-#define TCGMSG
-
-*     *******************************************
-*     *                                         *
-*     *             cpsp_rel_init               *
-*     *                                         *
-*     *******************************************
-      subroutine cpsp_rel_init()      
-      implicit none
-#include "mafdecls.fh"
-#include "cpsp_common.fh"
-#include "errquit.fh"
-
-      integer axsize,bxsize
-      integer npack0,npack1,nbrillioun
-      logical value
-
-*     **** external functions *****
-      integer  ion_nkatm, brillioun_nbrillioun
-      external ion_nkatm, brillioun_nbrillioun
- 
-      npsp       = ion_nkatm()
-      nbrillioun = brillioun_nbrillioun()
-
-      call Cram_npack(0,npack0)
-      call Cram_max_npack(npack1)
-
-      bxsize=npack1*nbrillioun*npsp
-
-      axsize=npack1*vso_stride
-      value = MA_alloc_get(mt_dcpl,axsize,
-     >                    'prjtmp',prjtmp(2),prjtmp(1))
-
-      axsize= vso_stride*bxsize
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,axsize,
-     >                    'vnlso',vnlso(2),vnlso(1))
-      axsize=npsp*kij_stride
-      value = value.and.
-     >      MA_alloc_get(mt_dbl,axsize,
-     >                    'Kijl',Kijl(2),Kijl(1))
-      if (.not. value) 
-     >   call errquit('cpsp_init:out of heap memory',0, MA_ERR)
-
-      axsize= 2*bxsize*vso_stride
-      call dcopy(axsize,
-     >           0.0d0,0,dcpl_mb(vnlso(1)),1)
-
-
-      return
-      end
-
-*     *******************************************
-*     *                                         *
-*     *             cpsp_rel_end                *
-*     *                                         *
-*     *******************************************
-      subroutine cpsp_rel_end()      
-      implicit none
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "cpsp_common.fh"
-
-*     **** local variables ****
-      logical value
-
-      value =           MA_free_heap(vnlso(2))
-      value = value.and.MA_free_heap(Kijl(2))
-      if (.not. value)
-     >  call errquit('cpsp_rel_end:error freeing heap memory',0,MA_ERR)
-      return
-      end
 
 
 
@@ -464,14 +392,17 @@ c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
       logical  is_sORd
       integer  ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
       real*8   lattice_omega,brillioun_weight
+      integer  cpsp_projector_get_ptr
+      external cpsp_projector_get_ptr
       external is_sORd
       external ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
       external lattice_omega,brillioun_weight
 
+      if (.not.do_spin_orbit) return
+
       one  = dcmplx( 1.0d0,0.0d0)
       mone = dcmplx(-1.0d0,0.0d0)
 
-      if (.not.do_spin_orbit) return
       call nwpw_timing_start(6)
       
 *     **** allocate local memory ****
@@ -483,10 +414,10 @@ c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*vso_stride,
+     >        MA_push_get(mt_dcpl,nn*nprj_max,
      >                    'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*vso_stride,
+     >        MA_push_get(mt_dcpl,nn*nprj_max,
      >                    'zsw2',zsw2(2),zsw2(1))
       if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0,
      &       MA_ERR)
@@ -534,9 +465,12 @@ c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
 *          **** generate zsw1's and projectors ****
            do 105 l=1,nproj
 
-              shift = vnlso(1)+(l-1)*npack1
-     >                      +(nb-1)*npack1*vso_stride
-     >                      +(ia-1)*npack1*vso_stride*nbrill
+c              shift = vnlso(1)+(l-1)*npack1
+c     >                      +(nb-1)*npack1*vso_stride
+c     >                      +(ia-1)*npack1*vso_stride*nbrill
+              shift = cpsp_projector_get_ptr(
+     >                     int_mb(vnlso(1)+ia-1),nb,l)
+
               l_prj = int_mb(l_projector(1)+(l-1)
      >                                     +(ia-1)*jmmax_max)
               if (l_prj.eq.0) then
@@ -556,12 +490,12 @@ c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
 
 c             *** current function is s or d ****
                 if (sd_function) then
-                  call Cram_cc_Mul(nb,dcpl_mb(shift),
+                  call Cram_cc_Mul(nb,dbl_mb(shift),
      >                               dcpl_mb(exi(1)),
      >                               dcpl_mb(prjtmp(1)+(l-1)*npack1))
 *             *** current function is p or f ****
                 else
-                  call Cram_icc_Mul(nb,dcpl_mb(shift),
+                  call Cram_icc_Mul(nb,dbl_mb(shift),
      >                                dcpl_mb(exi(1)),
      >                                dcpl_mb(prjtmp(1)+(l-1)*npack1))
                 end if
@@ -871,10 +805,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccc locals cccccccccccccccccccccccccccccccccccccccc
       real*8 weight,brillioun_weight
       complex*16 one,mone,ione,ctmp,cxr,ddx
-      integer nb,l,ip,jk,i,n,shifts,shiftx,shift,l_prj,npack,
-     > ne1,vshift
+      integer nb,l,ip,jk,i,n,shifts,shiftxu,shiftxd,shift,l_prj,npack,
+     > ne1,vshiftu,vshiftd
       logical sd_function
       external brillioun_weight 
+      integer  cpsp_projector_get_ptr
+      external cpsp_projector_get_ptr
 cccccccccccccccccccccccccccccccccccccccccc
 c These should be declared as parameters
 c however there seems to be no "standard"
@@ -908,51 +844,60 @@ ccccccccccccccccccccccccccccccccccccccccc
 *             **** phase factor does not matter therefore ****
 *             **** (-i)^l is the same as (i)^l in the     ****
 *             **** Rayleigh scattering formula            ****
+               vshiftu = cpsp_projector_get_ptr(
+     >                     int_mb(vnl(1)+ia-1),nb,l)
+               vshiftd = cpsp_projector_get_ptr(
+     >                     int_mb(vnlso(1)+ia-1),nb,l)
+               shiftxu=1 + (l-1)*npack1 
+               shiftxd=shiftxu + nproj*npack1
 
 c             *** current function is s or d ****
                 if (sd_function) then
 
-                  vshift=vnlso(1)+(l-1)*npack1+
-     >                (nb-1)*npack1*vso_stride+
-     >                (ia-1)*npack1*vso_stride*nbrill 
-                  shiftx=1+(l-1)*npack1 
-                  call Cram_cc_Mul(nb,dcpl_mb(vshift),
+c                  vshift=vnlso(1)+(l-1)*npack1+
+c     >                (nb-1)*npack1*vso_stride+
+c     >                (ia-1)*npack1*vso_stride*nbrill 
+c                  shiftx=1+(l-1)*npack1 
+
+
+                  call Cram_cc_Mul(nb,dcpl_mb(vshiftu),
      >                               exi,
-     >                               prtmp(shiftx))
+     >                               prtmp(shiftxu))
                 
-                  vshift=vshift+npack1*vso_shift
-                  shiftx=shiftx+npack1*vso_shift
-                  call Cram_cc_Mul(nb,dcpl_mb(vshift),
+c                  vshift=vshift+npack1*vso_shift
+c                  shiftx=shiftx+npack1*vso_shift
+                  call Cram_cc_Mul(nb,dcpl_mb(vshiftd),
      >                               exi,
-     >                               prtmp(shiftx))
+     >                               prtmp(shiftxd))
 *             *** current function is p or f ****
                 else
-                  shiftx=1+(l-1)*npack1
-                  vshift=vnlso(1)+(l-1)*npack1+
-     >                (nb-1)*npack1*vso_stride+
-     >                (ia-1)*npack1*vso_stride*nbrill 
-                  call Cram_icc_Mul(nb,dcpl_mb(vshift),
-     >                                exi,
-     >                                prtmp(shiftx))
 
-                  vshift=vshift+npack1*vso_shift
-                  shiftx=shiftx+npack1*vso_shift
-                  call Cram_icc_Mul(nb,dcpl_mb(vshift),
+c                  shiftx=1+(l-1)*npack1
+c                  vshift=vnlso(1)+(l-1)*npack1+
+c     >                (nb-1)*npack1*vso_stride+
+c     >                (ia-1)*npack1*vso_stride*nbrill 
+c
+                  call Cram_icc_Mul(nb,dcpl_mb(vshiftu),
+     >                                exi,
+     >                                prtmp(shiftxu))
+c                  vshift=vshift+npack1*vso_shift
+c                  shiftx=shiftx+npack1*vso_shift
+                  call Cram_icc_Mul(nb,dcpl_mb(vshiftd),
      >                               exi,
-     >                               prtmp(shiftx))
+     >                               prtmp(shiftxd))
                 end if
          
 
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
-                shiftx=1+(l-1)*npack1
+c                shiftx=1+(l-1)*npack1
                 call Cram_cc_inzdot(nb,ne1,
      >                      psi1(1+(nb-1)*nn*npack1),
-     >                      prtmp(shiftx),
+     >                      prtmp(shiftxu),
      >                      zsw1(1+(l-1)*ne1))
-                shiftx=shiftx+npack1*vso_shift
+c                shiftx=shiftx+npack1*vso_shift
                 call Cram_cc_inzdotAdd(nb,ne1,
      >                      psi1(1+(nb-1)*nn*npack1+shifts),
-     >                      prtmp(shiftx),
+     >                      prtmp(shiftxd),
      >                      zsw1(1+(l-1)*ne1))
            
  105       continue 
