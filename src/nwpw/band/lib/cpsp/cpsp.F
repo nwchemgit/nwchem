@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.51 2007-09-05 06:24:36 bylaska Exp $
+* $Id: cpsp.F,v 1.52 2007-09-05 20:23:25 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1485,8 +1485,10 @@ cccccccccccccccccccc
 c Relativistic Non-Local PPot.
 c spin-orbit included...
 cccccccccccccccccccc
-        vnl_tag  = cpsp_projector_alloc(nbrillioun,nprj,2*npack1)
-        vnl2_tag = cpsp_projector_alloc(nbrillioun,nprj,2*npack1)
+        vnl_tag  = cpsp_projector_alloc(brillioun_nbrillioun(),
+     >                                  nprj,2*npack1)
+        vnl2_tag = cpsp_projector_alloc(brillioun_nbrillioun(),
+     >                                  nprj,2*npack1)
         do nb=1,brillioun_nbrillioun() 
           do n=1,nprj
             call C3dB_c_read(1,5,tmp2,tmp)
@@ -1503,7 +1505,8 @@ cccccccccccccccccccc
         end do
 
       else
-        vnl_tag = cpsp_projector_alloc(nbrillioun,nprj,npack1)
+        vnl_tag = cpsp_projector_alloc(brillioun_nbrillioun(),
+     >                                 nprj,npack1)
         do nb=1,brillioun_nbrillioun() 
           do n=1,nprj
             call C3dB_r_read(1,5,tmp2,tmp)
@@ -1514,7 +1517,8 @@ cccccccccccccccccccc
         end do
 *     **** read in v_spin_orbit 3d blocks ****
         if (psp_type.eq.1) then
-          vnl2_tag = cpsp_projector_alloc(nbrillioun,nprj,2*npack1)
+          vnl2_tag = cpsp_projector_alloc(brillioun_nbrillioun(),
+     >                                    nprj,2*npack1)
           do nb=1,brillioun_nbrillioun()
             do n=1,nprj
               call C3dB_c_read(1,5,tmp2,tmp)

@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.9 2007-08-23 23:49:45 bylaska Exp $
+* $Id: cpsp_stress.F,v 1.10 2007-09-05 20:23:25 bylaska Exp $
 *
 
 
@@ -30,21 +30,15 @@
       call Cram_max_npack(npack1)
       nbrillioun = brillioun_nbrillioun()
 
-
       value = MA_alloc_get(mt_dbl,(npsp*npack0),
      >                    'dvl',dvl(2),dvl(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,
-     >                    (3*nmax_max*lmmax_max*npsp*npack1*nbrillioun),
-     >                    'dvnl',dvnl(2),dvnl(1))
+     >        MA_alloc_get(mt_int,npsp,'dvnl',dvnl(2),dvnl(1))
 
       if (.not. value) 
      > call errquit('cpsp_stress_init:out of heap memory',0,MA_ERR)
 
       call dcopy(npsp*npack0,0.0d0,0,dbl_mb(dvl(1)),1)
-      call dcopy(3*nmax_max*lmmax_max*npsp*npack1*nbrillioun,
-     >           0.0d0,0,
-     >           dbl_mb(dvnl(1)),1)
       return
       end
 
@@ -261,12 +255,12 @@
 *     **** external functions ****
       logical  is_sORd
       integer  ion_nion,ion_katm,c_G_indx
-      integer  brillioun_nbrillioun
+      integer  brillioun_nbrillioun,cpsp_projector_get_ptr
       real*8   brillioun_weight,brillioun_k
       real*8   lattice_omega,lattice_unitg
       external is_sORd
       external ion_nion,ion_katm,c_G_indx
-      external brillioun_nbrillioun
+      external brillioun_nbrillioun,cpsp_projector_get_ptr
       external brillioun_weight,brillioun_k
       external lattice_omega,lattice_unitg
 
@@ -293,10 +287,10 @@
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'Gz',G(2,3),G(1,3))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,nn*nprj_max,
      >                    'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*nmax_max*lmmax_max,
+     >        MA_push_get(mt_dcpl,nn*nprj_max,
      >                    'zsw2',zsw2(2),zsw2(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,9*nn,
@@ -344,17 +338,19 @@
 *       **** calculate F^(lm)_I = <psi|vnl(nlm)> ****
 *       *********************************************
         do l=1,nproj
-           shift = vnl(1)+(l-1)*npack1
-     >           + (nb-1)*npack1*nmax_max*lmmax_max
-     >           + (ia-1)*npack1*nmax_max*lmmax_max*nbrillioun
-           l_prj = int_mb(l_projector(1)+(l-1)
-     >                                  +(ia-1)*(nmax_max*lmmax_max))
-           !sd_function = .not.and(l_prj,1)
+c           shift = vnl(1)+(l-1)*npack1
+c     >           + (nb-1)*npack1*nmax_max*lmmax_max
+c     >           + (ia-1)*npack1*nmax_max*lmmax_max*nbrillioun
+           shift = cpsp_projector_get_ptr(int_mb(vnl(1)+ia-1),nb,l)
+           l_prj = int_mb(l_projector(1)+(l-1)+(ia-1)*jmmax_max)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccc change this for actinides where we might have g's ccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-           k=l_prj/2
-           k=2*k-l_prj
+#ifdef GCC4
+           k = iand(l_prj,1)
+#else
+           k = and(l_prj,1)
+#endif
            sd_function = (k.eq.0)
 
 
@@ -381,20 +377,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                         nproj,
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
-     >                         int_mb(n_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
-     >                         int_mb(l_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
-     >                         int_mb(m_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
-     >                         dbl_mb(Gijl(1)
-     >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
+     >                         int_mb(n_projector(1)+(ia-1)*jmmax_max),
+     >                         int_mb(l_projector(1)+(ia-1)*jmmax_max),
+     >                         int_mb(m_projector(1)+(ia-1)*jmmax_max),
+     >                         dbl_mb(Gijl(1)+(ia-1)*gij_stride),
      >                         dcpl_mb(zsw1(1)),
      >                         dcpl_mb(zsw2(1)))
 
         if (ispin.eq.1) call dscal(2*nn*nproj,2.0d0,dcpl_mb(zsw2(1)),1)
         do n=1,nn*nproj
-          dcpl_mb(zsw1(1)+n-1) = dconjg(dcpl_mb(zsw1(1)+n-1))
+          dcpl_mb(zsw1(1)+n-1) = dconjg(dcpl_mb(zsw2(1)+n-1))
         end do
 
 
@@ -402,11 +394,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *       **** calculate dF^(lm)_I/dhus ****
 *       **********************************
         do l=1,nproj
-           shift = vnl(1)+(l-1)*npack1
-     >           + (nb-1)*npack1*nmax_max*lmmax_max
-     >           + (ia-1)*npack1*nmax_max*lmmax_max*nbrillioun
-           l_prj = int_mb(l_projector(1)+(l-1)
-     >                                  +(ia-1)*(nmax_max*lmmax_max))
+           l_prj = int_mb(l_projector(1)+(l-1)+(ia-1)*jmmax_max)
 #ifdef GCC4
            k = iand(l_prj,1)
 #else
@@ -416,12 +404,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
            do s=1,3
            do u=1,3
-              shift2 = dvnl(1) 
-     >               + (s-1)*npack1
-     >               + (l-1)*3*npack1
-     >               + (nb-1)*3*npack1*nmax_max*lmmax_max
-     >               + (ia-1)*3*npack1*nmax_max*lmmax_max*nbrillioun
-
+c              shift2 = dvnl(1) 
+c     >               + (s-1)*npack1
+c     >               + (l-1)*3*npack1
+c     >               + (nb-1)*3*npack1*nmax_max*lmmax_max
+c     >               + (ia-1)*3*npack1*nmax_max*lmmax_max*nbrillioun
+              shift2 = cpsp_projector_get_ptr(
+     >                      int_mb(dvnl(1)+ia-1),nb,(3*(l-1)+s))
               call Cram_rr_Mul(nb,dbl_mb(shift2),
      >                         dbl_mb(G(1,u)),
      >                         dbl_mb(tmp1(1)))
@@ -515,7 +504,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                       version,
      >                       nfft,unita,
      >                       npack0,dvl,
-     >                       npack1,lmmax,lmmax_max,dvnl,
+     >                       npack1,lmmax,lmmax_max,dvnl_tag,
      >                       semicore,dncore,
      >                       tmp,tmp2,
      >                       ierr)
@@ -527,7 +516,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer npack0
       real*8 dvl(*)
       integer npack1,lmmax,lmmax_max
-      real*8 dvnl(npack1,3,lmmax_max,*)
+      integer dvnl_tag
       logical semicore
       real*8 dncore(*)
       complex*16 tmp(*)
@@ -553,12 +542,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 kv(3)
       integer nbrillioun,nb
 
-      integer  brillioun_nbrillioun
+      integer  brillioun_nbrillioun,cpsp_projector_alloc
       real*8   brillioun_k
-      external brillioun_nbrillioun
+      external brillioun_nbrillioun,cpsp_projector_alloc
       external brillioun_k
-
-
 
       call Parallel_taskid(taskid)
   
@@ -587,32 +574,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end if
 
       msglen = 1
-      call BRDCST(9+MSGINT,ierr,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ierr)
       if (ierr.ne.0) then
          return
       end if
 
 
 *     **** send header data to all processors ****
-#ifdef MPI
       msglen = 1
-      call MPI_BCAST(version,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
       msglen = 3
-      call MPI_BCAST(nfft,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
       msglen = 9
-      call MPI_BCAST(unita,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
-      msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
-      msglen = 3
-      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
-      msglen = 9
-      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
-#endif
+      call Parallel_Brdcst_values(MASTER,msglen,unita)
 
  
 *     *** read in dvl 3d block ***
@@ -621,12 +595,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call Cram_r_Copy(0,tmp2,dvl)
 
 *     **** read in dvnl 3d blocks ****
+      dvnl_tag = cpsp_projector_alloc(brillioun_nbrillioun(),
+     >                                3*lmmax,npack1)
       do nb=1,brillioun_nbrillioun()
       do n=1,lmmax
       do i=1,3
          call C3dB_r_read(1,5,tmp2,tmp)
          call Cram_r_pack(nb,tmp2)
-         call Cram_r_Copy(nb,tmp2,dvnl(1,i,n,nb))
+         !call Cram_r_Copy(nb,tmp2,dvnl(1,i,n,nb))
+         call cpsp_projector_add(dvnl_tag,nb,(3*(n-1)+i),tmp2)
       end do
       end do
       end do
@@ -735,8 +712,7 @@ c         !nproj = psp_lmmax(ia)
      >                  npack0,
      >                  dbl_mb(dvl(1) + (ia-1)*npack0),
      >                  npack1,nproj,lmmax_max,
-     >                  dbl_mb(dvnl(1) 
-     >                      +(ia-1)*3*npack1*nmax_max*lmmax_max*nbrill),
+     >                  int_mb(dvnl(1)+ia-1),
      >                  log_mb(semicore(1)+ia),
      >                  dbl_mb(ncore(1) + npack0 + (ia-1)*5*npack0),
      >                  dcpl_mb(tmp(1)),dbl_mb(tmp2(1)),
