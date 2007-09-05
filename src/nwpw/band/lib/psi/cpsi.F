@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.46 2007-08-22 20:12:40 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.47 2007-09-05 20:23:12 bylaska Exp $ *
 
 
 *     ***************************
@@ -825,12 +825,10 @@ c     real*8 sum1,sum2
 
 *     *** what about semicore???****
       call cpsp_f_vlocal(dcpl_mb(dng1(1)),fion)
-      write(*,*) "into nonlocal force"
       call cpsp_f_vnonlocal(ispin,
      >                 ne,
      >                 dcpl_mb(psi1(1)),
      >                 fion)
-      write(*,*) "out nonlocal force"
       return
       end
 
