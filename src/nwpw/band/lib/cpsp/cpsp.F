@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.50 2007-09-05 01:49:56 bylaska Exp $
+* $Id: cpsp.F,v 1.51 2007-09-05 06:24:36 bylaska Exp $
 *
 
 #define TCGMSG
@@ -952,10 +952,10 @@ c      parameter  (ione=(0.0d0,1.0d0))
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,vso_stride,
+     >        MA_push_get(mt_dcpl,nprj_max,
      >                    'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,vso_stride,
+     >        MA_push_get(mt_dcpl,nprj_max,
      >                    'zsw2',zsw2(2),zsw2(1))
       if (.not.value) 
      > call errquit('cpsp_v_nonlocal_orb:pushing stack',0,MA_ERR)
@@ -978,10 +978,11 @@ c      parameter  (ione=(0.0d0,1.0d0))
 
             do l=1,nproj
 
-              shift = vnl(1)+(l-1) *npack1
-     >                      +(nb-1)*npack1*vnl_stride
-     >                      +(ia-1)*npack1*vnl_stride*nbrill
-              !shift = cpsp_projector_get_ptr(vnl(ia),nb,l)
+c              shift = vnl(1)+(l-1) *npack1
+c     >                      +(nb-1)*npack1*vnl_stride
+c     >                      +(ia-1)*npack1*vnl_stride*nbrill
+              shift = cpsp_projector_get_ptr(
+     >                     int_mb(vnl(1)+ia-1),nb,l)
               l_prj = int_mb(l_projector(1)+(l-1)
      >                                     +(ia-1)*jmmax_max)
 
@@ -1083,9 +1084,11 @@ c      parameter  (ione=(0.0d0,1.0d0))
 *     **** external functions ****
       logical  is_sORd
       integer  ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
+      integer  cpsp_projector_get_ptr
       real*8   lattice_omega,brillioun_weight
       external is_sORd
       external ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
+      external cpsp_projector_get_ptr
       external lattice_omega,brillioun_weight
 
 
@@ -1100,10 +1103,10 @@ c      parameter  (ione=(0.0d0,1.0d0))
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*vso_stride,
+     >        MA_push_get(mt_dcpl,nn*nprj_max,
      >                    'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*vso_stride,
+     >        MA_push_get(mt_dcpl,nn*nprj_max,
      >                    'zsw2',zsw2(2),zsw2(1))
       if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0,
      &       MA_ERR)
@@ -1149,15 +1152,15 @@ c      parameter  (ione=(0.0d0,1.0d0))
               call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
 
               do l=1,nproj
-                 shift = vnl(1)
-     >                      +(l-1) *npack1
-     >                      +(nb-1)*npack1*vnl_stride
-     >                      +(ia-1)*npack1*vnl_stride*nbrill
+c                 shift = vnl(1)
+c     >                      +(l-1) *npack1
+c     >                      +(nb-1)*npack1*vnl_stride
+c     >                      +(ia-1)*npack1*vnl_stride*nbrill
+                 shift = cpsp_projector_get_ptr(
+     >                     int_mb(vnl(1)+ia-1),nb,l)
                  l_prj = int_mb(l_projector(1)+(l-1)
      >                          +(ia-1)*jmmax_max)
               
-     >       
-
                 sd_function=.true.
                 if (mod(l_prj,2).ne.0) then
                   sd_function=.false.

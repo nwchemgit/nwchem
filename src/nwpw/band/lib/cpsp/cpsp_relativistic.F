@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.2 2007-09-05 01:49:56 bylaska Exp $
+* $Id: cpsp_relativistic.F,v 1.3 2007-09-05 06:24:36 bylaska Exp $
 *
 
 
@@ -204,11 +204,11 @@ c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
 *     **** external functions ****
       logical  is_sORd
       integer  ion_nion,ion_katm,brillioun_nbrillioun
-      integer  cpsi_ne
+      integer  cpsi_ne,cpsp_projector_get_ptr
       real*8   lattice_omega
       external is_sORd
       external ion_nion,ion_katm,brillioun_nbrillioun
-      external lattice_omega,cpsi_ne
+      external lattice_omega,cpsi_ne,cpsp_projector_get_ptr
 
       one=dcmplx(1.0d0,0.0d0)
       mone=dcmplx(-1.0d0,0.0d0)
@@ -223,16 +223,16 @@ c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,vso_stride,
+     >        MA_push_get(mt_dcpl,nprj_max,
      >                    'zsw1u',zsw1u(2),zsw1u(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,vso_stride,
+     >        MA_push_get(mt_dcpl,nprj_max,
      >                    'zsw2u',zsw2u(2),zsw2u(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,vso_stride,
+     >        MA_push_get(mt_dcpl,nprj_max,
      >                    'zsw1d',zsw1d(2),zsw1d(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,vso_stride,
+     >        MA_push_get(mt_dcpl,nprj_max,
      >                    'zsw2d',zsw2d(2),zsw2d(1))
       if (.not.value) 
      > call errquit('cpsp_v_nonlocal_orb2com:pushing stack',0,MA_ERR)
@@ -256,9 +256,12 @@ c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
 
             do l=1,nproj
 
-              shift = vnl(1)+(l-1) *npack1
-     >                      +(nb-1)*npack1*vnl_stride
-     >                      +(ia-1)*npack1*vnl_stride*nbrill
+c              shift = vnl(1)+(l-1) *npack1
+c     >                      +(nb-1)*npack1*vnl_stride
+c     >                      +(ia-1)*npack1*vnl_stride*nbrill
+              shift = cpsp_projector_get_ptr(
+     >                     int_mb(vnl(1)+ia-1),nb,l)
+
               l_prj = int_mb(l_projector(1)+(l-1)
      >                                     +(ia-1)*jmmax_max)
 
@@ -644,11 +647,11 @@ c             *** current function is s or d ****
 *     **** external functions ****
       logical  is_sORd
       integer  ion_nion,ion_katm,brillioun_nbrillioun
-      integer  cpsi_ne
+      integer  cpsi_ne,cpsp_projector_get_ptr
       real*8   lattice_omega
       external is_sORd
       external ion_nion,ion_katm,brillioun_nbrillioun
-      external lattice_omega,cpsi_ne
+      external lattice_omega,cpsi_ne,cpsp_projector_get_ptr
 
       call nwpw_timing_start(6)
       
@@ -659,16 +662,16 @@ c             *** current function is s or d ****
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,vso_stride,
+     >        MA_push_get(mt_dcpl,nprj_max,
      >                    'zsw1u',zsw1u(2),zsw1u(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,vso_stride,
+     >        MA_push_get(mt_dcpl,nprj_max,
      >                    'zsw2u',zsw2u(2),zsw2u(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,vso_stride,
+     >        MA_push_get(mt_dcpl,nprj_max,
      >                    'zsw1d',zsw1d(2),zsw1d(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,vso_stride,
+     >        MA_push_get(mt_dcpl,nprj_max,
      >                    'zsw2d',zsw2d(2),zsw2d(1))
       if (.not.value) 
      > call errquit('cpsp_v_spin_orbit_orb2com:pushing stack',0,MA_ERR)
@@ -692,9 +695,12 @@ c             *** current function is s or d ****
 
             do l=1,nproj
 
-              shift = vnlso(1)+(l-1) *npack1
-     >                      +(nb-1)*npack1*vso_stride
-     >                      +(ia-1)*npack1*vso_stride*nbrill
+c              shift = vnlso(1)+(l-1) *npack1
+c     >                      +(nb-1)*npack1*vso_stride
+c     >                      +(ia-1)*npack1*vso_stride*nbrill
+              shift = cpsp_projector_get_ptr(
+     >                     int_mb(vnlso(1)+ia-1),nb,l)
+
               l_prj = int_mb(l_projector(1)+(l-1)
      >                                     +(ia-1)*jmmax_max)
 
@@ -708,12 +714,12 @@ c             *** current function is s or d ****
 *             **** Rayleigh scattering formula            ****
 *             *** current function is s or d ****
               if (sd_function) then
-                 call Cram_cc_Mul(nb,dcpl_mb(shift),
+                 call Cram_cc_Mul(nb,dbl_mb(shift),
      >                               dcpl_mb(exi(1)),
      >                               dcpl_mb(prjtmp(1)+(l-1)*npack1))
 *             *** current function is p or f ****
               else
-                 call Cram_icc_Mul(nb,dcpl_mb(shift),
+                 call Cram_icc_Mul(nb,dbl_mb(shift),
      >                                dcpl_mb(exi(1)),
      >                                dcpl_mb(prjtmp(1)+(l-1)*npack1))
               end if
