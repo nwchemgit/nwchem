@@ -1,5 +1,5 @@
 *
-* $Id: hghpp_band.F,v 1.15 2007-08-24 00:01:44 d3p708 Exp $
+* $Id: hghpp_band.F,v 1.16 2007-09-06 00:22:36 bylaska Exp $
 *
 
 *     **************************************
@@ -359,7 +359,6 @@
          call dwrite(2,zv,1)
          call iwrite(2,lmax,1)
          call iwrite(2,locp,1)    
-         nmax=3 
          call iwrite(2,nmax,1)
          call dwrite(2,r,lmax+1)
 
