@@ -33,22 +33,33 @@ c
       double precision qwght(nq)                 ! quadrature weights
       double precision Amat(nq,ipol)             ! partial first derivatives  
       double precision F(nq),RA(nq),RB(nq)
-      double precision rhoA, rhoB, rhoTotal, rhoA2, rhoB2
+      double precision rhoA, rhoB, rhoTotal, rhoA1, rhoB1
       double precision gamma,omega
       double precision fA, fB, fpA, fpB, fppA, fppB
       double precision EpsX
       double precision EpsXprime
       double precision EpsTwoXprime
+      double precision ValueOfPi
 c
 #ifdef SECOND_DERIV
       double precision Amat2(nq,*)               ! partial second derivatives
 #endif
+
+cnxg...start
+      double precision screening_omega
+      logical do_screening
+      common /coul_screening/ screening_omega, do_screening
+cnxg...end
 c
 c     -----------------------------------------------------------------------
 c     Preliminaries
 c     -----------------------------------------------------------------------
 c
-      gamma = 0.5d0
+      gamma = screening_omega
+c      write(luout,*) "screening_omega:",screening_omega
+c      write(luout,*) "Value of pi:",ValueOfPi()
+c      write(luout,*) "fac:",fac
+c      write(luout,*) "do_screening:",do_screening
 c
       do n = 1,nq
          if (ipol.eq.1) then   ! spin-restricted
@@ -70,22 +81,30 @@ c
          rhoB = rB(n)
          rhoTotal  = rhoA + rhoB   ! total density at point
          if (rhoTotal.gt.tol_rho) then
-            rhoA2 = rhoA*2
-            rhoB2 = rhoB*2
-            fA   = EpsX(rhoA2,gamma)
-            fB   = EpsX(rhoB2,gamma)
-            fpA  = EpsXprime(rhoA2,gamma)
-            fpB  = EpsXprime(rhoB2,gamma)
-            fppA = EpsTwoXprime(rhoA2,gamma)
-            fppB = EpsTwoXprime(rhoB2,gamma)
+
+            if (ipol.eq.1) then    ! spin-restricted
+              rhoA1 = rhoA
+              rhoB1 = rhoB
+            else                   ! spin-unrestricted
+              rhoA1 = rhoA*2
+              rhoB1 = rhoB*2
+            end if
+
+            fA   = EpsX(rhoA1,gamma)
+            fB   = EpsX(rhoB1,gamma)
+            fpA  = EpsXprime(rhoA1,gamma)
+            fpB  = EpsXprime(rhoB1,gamma)
 
             f(n) = fA * rhoA + fB * rhoB
-            Amat(n,1) = Amat(n,1) + (fpA*RhoA2+fA)*fac
+            Amat(n,1) = Amat(n,1) + (fpA*rhoA1+fA)*fac
             if (ipol.gt.1) then
-              Amat(n,2) = Amat(n,2) + (fpB*RhoB2+fB)*fac
+              Amat(n,2) = Amat(n,2) + (fpB*rhoB1+fB)*fac
             end if
 
 #ifdef SECOND_DERIV
+            fppA = EpsTwoXprime(rhoA1,gamma)
+            fppB = EpsTwoXprime(rhoB1,gamma)
+
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 
      &        ((fppA*rhoA+fpA)*4)*fac
 c
@@ -142,7 +161,7 @@ c
 
       Pi = ValueOfPi()     ! calculate the value of pi
       OneOverQ = 1.0d0/q
-      TwoSqrtPi = 2.0d0*sqrt(Pi)
+      TwoSqrtPi = 2.0d0*dsqrt(Pi)
       q2 = q**2.0d0
 
       if (q .lt. 1D-15) then
@@ -180,7 +199,7 @@ c
 
       Pi = ValueOfPi()     ! calculate the value of pi
       F13 = 1.0D0 / 3.0D0
-      FermiK = (3d0*Pi**2.0d0*den)**F13
+      FermiK = (3.d0*Pi*Pi*den)**F13
 
 C     print *, FermiK 
 
@@ -232,16 +251,16 @@ c
       q3 = q**3.0d0
 
       if (q .lt. 0.1d0) then
-        HqBNLPrime = -4.0d0/3.0d0*(sqrt(Pi)+2.0d0*q3-3.0d0*q)
-C       HqBNLPrime = q-(sqrt(Pi)+2.0d0*q3)/3.0d0
+        HqBNLPrime = -4.0d0/3.0d0*(dsqrt(Pi)+2.0d0*q3-3.0d0*q)
+C       HqBNLPrime = q-(dsqrt(Pi)+2.0d0*q3)/3.0d0
         return
       end if
 
       HqBNLPrime = 4.0d0/3.0d0*(q*(exp(-OneOverQ*OneOverQ)*(2.0d0*q2
-     $     -1.0d0)+(3.0d0-2.0d0*q2))-sqrt(Pi)*DERF(OneOverQ))
+     $     -1.0d0)+(3.0d0-2.0d0*q2))-dsqrt(Pi)*DERF(OneOverQ))
 
 C      HqBNLPrime = 1.0d0/3.0d0*(q*(exp(-OneOverQ*OneOverQ)*(2.0d0*q2
-C     $     -1.0d0)+(3.0d0-2.0d0*q2))-sqrt(Pi)*DERF(OneOverQ))
+C     $     -1.0d0)+(3.0d0-2.0d0*q2))-dsqrt(Pi)*DERF(OneOverQ))
 
 C     print*, HqBNL, DERF(1d0/q),q 
 
