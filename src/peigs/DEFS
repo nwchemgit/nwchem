@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.115 2007-09-01 20:13:10 d3p307 Exp $
+# $Id: DEFS,v 1.116 2007-09-07 00:01:45 d3p307 Exp $
 #
 #======================================================================
 #
@@ -663,16 +663,15 @@ endif
 
 ifeq ($(peigs_TARGET),BGL)
 #bluegene
-        peigs_COMM =TCGMSG
-        peigs_CPU = RS6000
-        peigs_CODEOBJ=DBLE
-        peigs_CC  += -DSTD_INT -DSTD_DBL -DRS6000 -O2 -g
-        peigs_CC += -DBGL -DBLRTS -DBGML -I$(peigs_HDIR) -DRS6000 -D$(peigs_COMM)
-        peigs_FC  = $(FC) -O3 -g -qextname -qstrict   -I$(peigs_HDIR)  \
-       -WF,-Iinclude,-DBGL,-DBLRTS,-DBGML,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM)
-        peigs_FC += -qtune=440 -qarch=440 -qipa -NQ40000 -NT80000
-        peigs_FC += -NS2048 -qmaxmem=8192 -qxlf77=leadzero -qfloat=rsqrt:fltint
-
+     peigs_COMM =TCGMSG
+     peigs_CPU = RS6000
+     peigs_CODEOBJ=DBLE
+     peigs_CC += -DSTD_INT -DSTD_DBL -g -O2
+     peigs_FC += -WF,-Iinclude,-DSTD_DBL,-DSTD_INT,-DRS6000,-D$(peigs_COMM)
+     peigs_CPP += -DBGL -DRS6000 -DSTD_INT -DSTD_DBL -I$(peigs_HDIR) -P
+     peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+     peigs_BLASLIB   = -lesslbg
+     peigs_LAPACKLIB = -llapack -lesslbg
 endif
 
 
