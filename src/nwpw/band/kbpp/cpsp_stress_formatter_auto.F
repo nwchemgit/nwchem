@@ -1,5 +1,5 @@
 c
-c $Id: cpsp_stress_formatter_auto.F,v 1.2 2007-04-02 15:38:36 bylaska Exp $
+c $Id: cpsp_stress_formatter_auto.F,v 1.3 2007-09-07 20:21:22 d3p708 Exp $
 c
 
 *     ***************************************
@@ -57,7 +57,6 @@ c
 *     **** generate one-dimensional pseudopotential file ****
       if (.not.nwpw_filefind(psp_filename)) then
          call psp_generator_auto(1,atom,lmax,locp,rlocal)
-
 *     **** get lmax,locp,and rlocal from rtdb ****
       else
          call control_pspparameters(atom,lmax,locp,rlocal)
@@ -87,7 +86,6 @@ c
      >              version,psp_filename,formatted_filename,ngrid,unita,
      >              locp,lmax,
      >              nbrillioun,dbl_mb(kv(1)))
-
       value = value.and.MA_pop_stack(kv(2))
 
 *     *** exit if error found ***

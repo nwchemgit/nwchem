@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.15 2007-08-23 23:49:39 bylaska Exp $
+* $Id: rkbpp_band.F,v 1.16 2007-09-07 20:21:22 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -29,7 +29,6 @@
 
 *     **** local variables ****
       character*255 full_filename
-      character*255 pspso_filename
       logical value,mprint,hprint,oprint
       integer lmax,locp,nprj_out
       integer taskid,MASTER,msglen
@@ -39,7 +38,7 @@
       character*2 atom
       character*80 comment
       double precision zv,amass
-      integer lmax0,lmmax,lmax1,locp1,nprj,ierr
+      integer lmax0,lmax1,locp1,nprj,ierr
       integer lmax_out
       double precision rc(0:12),rlocal1
       integer nrho
@@ -335,6 +334,7 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
         call dwrite(2,zv,1)
         call iwrite(2,lmax,1)
         call iwrite(2,locp,1)
+c  nmax = 1 since we have 1 projector per (kappa) states
         nmax = 1
         call iwrite(2,nmax,1)
         call dwrite(2,rc,lmax+1)
@@ -612,7 +612,7 @@ cccccccc locals
       real*8 pi4,q,gx,gy,gz,a,d,vv,qr,pi
       real*8 calfa,cbeta,scof0
       real*8 simp,sjx
-      logical value
+
       complex*16 sphHarm
       external sphHarm
       external simp,sjx  

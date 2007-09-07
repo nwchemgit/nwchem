@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band_stress.F,v 1.7 2007-08-30 00:58:02 bylaska Exp $
+* $Id: kbpp_band_stress.F,v 1.8 2007-09-07 20:21:22 d3p708 Exp $
 *
 
 
@@ -88,17 +88,16 @@ c      call Parallel_init()
 *     ***** read in pseudopotential data ****
       call get_psp_type(psp_filename,psp_type) !*** this routine does a broadcast ***
 
+      if (psp_type.ne.0) then
+        call errquit("STRESS NOT IMPLEMENTED FOR RTC OR HGH PPOT",0,0)
+      end if
+
       if (taskid.eq.MASTER) then
       call util_file_name_noprefix(psp_filename,.false.,.false.,
      >                    full_filename)
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
-        if (psp_type.ne.0) then
-        read(11, * ,ERR=9999,END=9999) psp_tx
-        else
-        psp_tx=0
-        end if
       read(11,'(A2)',ERR=9999,END=9999) atom
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)

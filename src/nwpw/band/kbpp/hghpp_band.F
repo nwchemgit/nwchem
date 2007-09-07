@@ -1,5 +1,5 @@
 *
-* $Id: hghpp_band.F,v 1.16 2007-09-06 00:22:36 bylaska Exp $
+* $Id: hghpp_band.F,v 1.17 2007-09-07 20:21:22 d3p708 Exp $
 *
 
 *     **************************************
@@ -69,7 +69,6 @@
       external control_print
 
 
-      !call Parallel_init()
       call Parallel_taskid(taskid)
       hprint = (taskid.eq.MASTER).and.control_print(print_high)
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
@@ -141,12 +140,10 @@
       !**** determine nprj ****
       nprj= 0
       do l=0,lmax
-            !write(*,*) "???H :",l,(H(i,l),i=1,3)
       do i=1,3 
         if ( dabs(H(i,l)).gt.1.0d-14) nprj = nprj + (2*l+1)
       end do
       end do
-      !write(*,*) "???nprj:", nprj
         
 
 
@@ -154,10 +151,10 @@
 *  HGH does not give coefficients for i .ne. j
 *  we must use their formula
 *******************************************
-      call dcopy(9*4,0.0d0,0,Gtmp,1)
-      call dcopy(9*4,0.0d0,0,Gijl,1)
-      call dcopy(9*4,0.0d0,0,Ktmp,1)
-      call dcopy(9*4,0.0d0,0,Kijl,1)
+      call dcopy(36,0.0d0,0,Gtmp,1)
+      call dcopy(36,0.0d0,0,Gijl,1)
+      call dcopy(36,0.0d0,0,Ktmp,1)
+      call dcopy(36,0.0d0,0,Kijl,1)
       Gtmp(1,1,0) = H(1,0)
       Gtmp(2,2,0) = H(2,0)
       Gtmp(3,3,0) = H(3,0)
@@ -414,15 +411,14 @@
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     **** generate and write out spin_orbit psp **************************
 *     spin orbit is Hermitian complex. it saves us nothing to 
-*     use real harmonics
+*     use real harmonics...
 ***************************************************************************
-
       do nb=1,nbrillioun
         do i=1,nprj
            n=int_mb(n_prj_indx+i-1)
            l=int_mb(l_prj_indx+i-1)
            m=int_mb(m_prj_indx+i-1)
-           call spherical_band(l,m,kvectors(1,nb),
+           call Spherical_band(l,m,kvectors(1,nb),
      >                   nfft1,nfft2,nfft3,
      >                   dbl_mb(G_indx),
      >                   dcpl_mb(Ylm_indx))
