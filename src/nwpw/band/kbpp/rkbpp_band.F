@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.16 2007-09-07 20:21:22 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.17 2007-09-07 23:55:56 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -338,7 +338,6 @@ c  nmax = 1 since we have 1 projector per (kappa) states
         nmax = 1
         call iwrite(2,nmax,1)
         call dwrite(2,rc,lmax+1)
-
         call iwrite(2,nprj_out,1)
         if (nprj.gt.0) then
          call iwrite(2,int_mb(n_prj_indx),nprj_out)
@@ -600,7 +599,7 @@ cccccccccccccccccccccccccccc
       real*8 cosqr(nrho),sinqr(nrho),f(nrho),rho(nrho)
       real*8 vp(nrho,0:lmax),vpso(nrho,0:lmax)
       real*8 wp(nrho,2*lmax+2),vnrm(*)  
-      complex*16 vnl(ngx,ngy,ngz,nprj,2)
+      complex*16 vnl(ngx,ngy,ngz,2,nprj)
       complex*16 zzero
       real*8 calf_prj(nprj)
       real*8 cbet_prj(nprj)
@@ -611,8 +610,8 @@ cccccccc locals
       integer malfa,mbeta,kappa,l,ippot,key
       real*8 pi4,q,gx,gy,gz,a,d,vv,qr,pi
       real*8 calfa,cbeta,scof0
+cccccc external
       real*8 simp,sjx
-
       complex*16 sphHarm
       external sphHarm
       external simp,sjx  
@@ -642,9 +641,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
                f(k)=rho(k)*wp(k,1)*vp(k,0)
              end do
              vnl(igx,igy,igz,1,1)=simp(nrho,f,drho)*scof0
-             vnl(igx,igy,igz,1,2)=vnl(igx,igy,igz,1,1)
+             vnl(igx,igy,igz,2,1)=vnl(igx,igy,igz,1,1)*vnrm(1)
              vnl(igx,igy,igz,1,1)=vnl(igx,igy,igz,1,1)*vnrm(1)
-             vnl(igx,igy,igz,1,2)=vnl(igx,igy,igz,1,2)*vnrm(1)
            end if    
            goto 200
          end if
@@ -658,15 +656,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
          do 100 ippot=1,nprj
             l=l_prj(ippot)
             if (l.eq.locl) then
-              vnl(igx,igy,igz,ippot,1)=zzero
-              vnl(igx,igy,igz,ippot,2)=zzero
+              vnl(igx,igy,igz,1,ippot)=zzero
+              vnl(igx,igy,igz,2,ippot)=zzero
               goto 100
             end if
             kappa=k_prj(ippot)
             if (kappa.gt.0) then
-              nw= 2*l
-           else
-              nw= 2*l+1
+               nw= 2*l
+            else
+               nw= 2*l+1
             end if
             malfa=malf_prj(ippot)
             mbeta=mbet_prj(ippot)
@@ -681,16 +679,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
                f(k)=a*vv
             end do
             d=simp(nrho,f,drho)*pi4/q
-            vnl(igx,igy,igz,ippot,1)=d*calfa*
+            vnl(igx,igy,igz,1,ippot)=d*calfa*
      >                 sphHarm(l,malfa,gx,gy,gz)
-            vnl(igx,igy,igz,ippot,2)=d*cbeta*
+            vnl(igx,igy,igz,2,ippot)=d*cbeta*
      >                 sphHarm(l,mbeta,gx,gy,gz)
-c            write(*,*)vnl(igx,igy,igz,ippot,1),
-c     >         vnl(igx,igy,igz,ippot,2)
-c            call flush(6)
-            vnl(igx,igy,igz,ippot,1)=vnl(igx,igy,igz,ippot,1)*
+            vnl(igx,igy,igz,1,ippot)=vnl(igx,igy,igz,1,ippot)*
      >              vnrm(ippot)
-            vnl(igx,igy,igz,ippot,2)=vnl(igx,igy,igz,ippot,2)*
+            vnl(igx,igy,igz,2,ippot)=vnl(igx,igy,igz,2,ippot)*
      >              vnrm(ippot)
 100      continue
 200   continue 	
