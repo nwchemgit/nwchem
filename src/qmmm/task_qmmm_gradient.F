@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.54 2006-05-30 22:20:40 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.55 2007-09-10 02:37:31 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -104,6 +104,7 @@ c
       integer nact
       logical ignore
       logical frozen_density,esp
+      logical numerical
       double precision ebq
       character*30 pname
 
@@ -117,6 +118,9 @@ c
          end if
       end if
       status = .true.
+
+      if (.not. rtdb_get(rtdb, 'task:numerical', mt_log, 1,
+     $     numerical)) numerical = .false.
 
       call qmmm_bq_data_update_active()
 
@@ -181,7 +185,11 @@ c     -------------------------
       qm_energy=0.0d0
       call dfill(3*nfg,0,dbl_mb(i_g),1)
       if(nact.ne.0) then
+        if(numerical)
+     >  call qmmm_geom_init_aux(rtdb,"geometry")
         status = task_gradient_doit(rtdb,theory,qm_energy,dbl_mb(i_g))
+        if(numerical)
+     >  call qmmm_geom_aux_end(rtdb)
         if(.not.bq_nuc_energy(rtdb,ebq))
      >    call errquit('failed bq energy',0, RTDB_ERR)
         if (.not. rtdb_put(rtdb,'qmmm:bq_nuc_energy',mt_dbl,1,ebq))
