@@ -1,0 +1,10 @@
+[lmax] -1
+[locp] -1
+[rlocal] 1.0
+[psp_type] 5
+[cutoff] 20.0
+
+<QMMM>
+H  0.4238 4 0.40
+<end>
+
