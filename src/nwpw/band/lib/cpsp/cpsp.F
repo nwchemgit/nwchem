@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.53 2007-09-12 17:27:52 bylaska Exp $
+* $Id: cpsp.F,v 1.54 2007-09-12 19:34:50 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -930,7 +930,7 @@ cccccccccccccccccccc
 c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
 c      parameter  (ione=(0.0d0,1.0d0))
       integer nfft3d,npack1,npack
-      integer ii,ia,l
+      integer ii,ia,l,ne1
       integer shift,l_prj,nproj
       real*8  omega,scal
       complex*16 cxr
@@ -941,12 +941,13 @@ c      parameter  (ione=(0.0d0,1.0d0))
       logical  is_sORd,cpsi_spin_orbit
       integer  ion_nion,ion_katm
       integer  cpsp_projector_get_ptr
+      integer  cpsi_ne
       real*8   lattice_omega
       external is_sORd,cpsi_spin_orbit
       external ion_nion,ion_katm
       external cpsp_projector_get_ptr
       external lattice_omega
-
+      external cspi_ne
       one=dcmplx(1.0d0,0.0d0)
       mone=dcmplx(-1.0d0,0.d0)
       ione=dcmplx(0.0d0,1.d0)
@@ -962,7 +963,7 @@ c      parameter  (ione=(0.0d0,1.0d0))
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
 c      nbrill = brillioun_nbrillioun()
-
+      ne1=cpsi_ne(1)
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nprj_max,
@@ -977,11 +978,19 @@ c      nbrill = brillioun_nbrillioun()
       omega = lattice_omega()
       scal  = 1.0d0/omega
 
-      do ii=1,ion_nion()
+      do 500 ii=1,ion_nion()
          ia=ion_katm(ii)
          nproj = int_mb(nprj(1)+ia-1)
 
          if (nproj.gt.0) then
+
+            if ( int_mb(psp_type(1)+ia-1) .eq. 7) then
+              call cpsp_v_nonlocal_rel_orb(nb,orb1,orb2,dcpl_mb(exi(1)),
+     >             dcpl_mb(exi(1)),nfft3d,ia,ii,ne1,
+     >             npack1,nproj)
+              goto 500
+            end if
+
 
 *           **** structure factor ****
             call Cram_npack(nb,npack)
@@ -1053,7 +1062,7 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
      >                 orb2, npack1)
 
          end if !** nproj>0 **
-      end do !** ii***
+500   continue !** ii ****
 
       value =           MA_pop_stack(zsw2(2))
       value = value.and.MA_pop_stack(zsw1(2))
