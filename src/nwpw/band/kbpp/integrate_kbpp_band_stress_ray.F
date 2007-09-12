@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_stress_ray.F,v 1.1 2007-08-29 00:56:54 bylaska Exp $
+* $Id: integrate_kbpp_band_stress_ray.F,v 1.2 2007-09-12 17:10:17 bylaska Exp $
 *
 
 *     ********************************************
@@ -8,7 +8,7 @@
 *     *                                          *
 *     ********************************************
 
-      subroutine integrate_kbpp_band_stress_ray(version,rlocal,
+      subroutine integrate_kbpp_band_stress_ray(version,
      >                            nrho,drho,lmax,locp,zv,
      >                            vp,wp,rho,f,cs,sn,
      >                            nray,G_ray,dvl_ray,dvnl_ray,
@@ -16,7 +16,6 @@
      >                            ierr)
       implicit none
       integer          version
-      double precision rlocal
       integer          nrho
       double precision drho
       integer          lmax
