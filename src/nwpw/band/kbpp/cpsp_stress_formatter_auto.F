@@ -1,5 +1,5 @@
 c
-c $Id: cpsp_stress_formatter_auto.F,v 1.3 2007-09-07 20:21:22 d3p708 Exp $
+c $Id: cpsp_stress_formatter_auto.F,v 1.4 2007-09-12 17:25:11 bylaska Exp $
 c
 
 *     ***************************************
@@ -28,7 +28,7 @@ c
 
 *     ***** simulation cell  variables *****
       double precision unita(3,3)
-      integer          ngrid(3),version
+      integer          ngrid(3),version,psp_type
 
 *     ***** external functions *****
       integer      control_version
@@ -57,6 +57,7 @@ c
 *     **** generate one-dimensional pseudopotential file ****
       if (.not.nwpw_filefind(psp_filename)) then
          call psp_generator_auto(1,atom,lmax,locp,rlocal)
+
 *     **** get lmax,locp,and rlocal from rtdb ****
       else
          call control_pspparameters(atom,lmax,locp,rlocal)
@@ -81,11 +82,23 @@ c
          dbl_mb(kv(1)+3*(nb-1)+2) = brillioun_k(3,nb)
       end do
 
+      call get_psp_type(psp_filename,psp_type)
+
+      if (psp_type.eq.0) then
       value = value.and.
      >       kbpp_band_stress(.false.,
      >              version,psp_filename,formatted_filename,ngrid,unita,
      >              locp,lmax,
      >              nbrillioun,dbl_mb(kv(1)))
+      else if (psp_type.eq.1) then
+        call errquit('cpsp_stress_formatter_auto: unknown psp_type',
+     >              psp_type,INPUT_ERR)
+
+      else if (psp_type.eq.7) then
+        call errquit('cpsp_stress_formatter_auto: unknown psp_type',
+     >              psp_type,INPUT_ERR)
+      end if
+
       value = value.and.MA_pop_stack(kv(2))
 
 *     *** exit if error found ***

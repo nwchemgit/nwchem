@@ -1,5 +1,5 @@
 *
-* $Id: integrate_stress_new.F,v 1.4 2007-08-28 21:00:18 bylaska Exp $
+* $Id: integrate_stress_new.F,v 1.5 2007-09-12 17:31:27 bylaska Exp $
 *
 
 *     **********************************
@@ -108,7 +108,6 @@
      >                            ierr)
 *     **** filter the rays ****
       if (filter) then
-         write(*,*) "---- filtering psp ----"
          ecut = control_ecut()
          wcut = control_wcut()
          call kbpp_filter_ray(nray,G_ray,ecut,dvl_ray)

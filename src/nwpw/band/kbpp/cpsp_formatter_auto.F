@@ -83,25 +83,29 @@
 
       call get_psp_type(psp_filename,psp_type)
 
-      if (psp_type.eq.1) then
-         value = value.and.
-     >     hghpp_band(.false.,
-     >            version,psp_filename,formatted_filename,ngrid,unita,
-     >            nbrillioun,dbl_mb(kv(1)))
-      else
-        if (psp_type.eq.7) then
-         value = value.and.
-     >     rkbpp_band(.false.,version,psp_filename,formatted_filename,
-     >           ngrid,unita,nbrillioun,dbl_mb(kv(1)))
-         call set_two_component_pseudopotential() 
-	else
+      if (psp_type.eq.0) then
          value = value.and.
      >     kbpp_band(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,
      >            nbrillioun,dbl_mb(kv(1)))
-        end if
+
+      else if (psp_type.eq.1) then
+         value = value.and.
+     >     hghpp_band(.false.,
+     >            version,psp_filename,formatted_filename,ngrid,unita,
+     >            nbrillioun,dbl_mb(kv(1)))
+
+      else if (psp_type.eq.7) then
+         value = value.and.
+     >     rkbpp_band(.false.,version,psp_filename,formatted_filename,
+     >           ngrid,unita,nbrillioun,dbl_mb(kv(1)))
+         call set_two_component_pseudopotential() 
+      else
+       call errquit('psp_formatter_auto: unknown psp_type',
+     >              psp_type,INPUT_ERR)
       end if
+ 
       value = MA_pop_stack(kv(2))
 *     *** exit if error found ***
       if(.not. value) 

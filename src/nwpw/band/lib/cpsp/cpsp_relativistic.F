@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.3 2007-09-05 06:24:36 bylaska Exp $
+* $Id: cpsp_relativistic.F,v 1.4 2007-09-12 17:27:52 bylaska Exp $
 *
 
 
@@ -178,11 +178,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     *						*
 *     *******************************************
 
-      subroutine cpsp_v_nonlocal_orb_2com(nb,psi1,psi2)
+      subroutine cpsp_v_nonlocal_orb_2com(nb,orb1,orb2)
       implicit none
       integer    nb
-      complex*16 psi1(*)
-      complex*16 psi2(*)
+      complex*16 orb1(*)
+      complex*16 orb2(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -238,7 +238,7 @@ c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
      > call errquit('cpsp_v_nonlocal_orb2com:pushing stack',0,MA_ERR)
 
       ne1=cpsi_ne(1)
-      shifts = npack1*ne1
+      shifts = npack1*ne1 + 1
       omega = lattice_omega()
       scal  = 1.0d0/omega
 
@@ -284,13 +284,13 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
      >                                dcpl_mb(prjtmp(1)+(l-1)*npack1))
               end if
 
-*             **** compute 1Xnproj matrix zsw1 = <psi1|prj> ****
+*             **** compute 1Xnproj matrix zsw1 = <orb1|prj> ****
               call Cram_cc_izdot(nb,
-     >                      psi1,
+     >                      orb1,
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dcpl_mb(zsw1u(1)+(l-1)))
               call Cram_cc_izdot(nb,
-     >                      psi1(shifts+1),
+     >                      orb1(shifts),
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dcpl_mb(zsw1d(1)+(l-1)))
             end do !**l**
@@ -335,13 +335,13 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 dcpl_mb(zsw2u(1)),   1,
      >                 one,
-     >                 psi2, npack1)
+     >                 orb2, npack1)
             call ZGEMM('N','C',npack1,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 dcpl_mb(zsw2d(1)),   1,
      >                 one,
-     >                 psi2(1+shifts), npack1)
+     >                 orb2(shifts), npack1)
 
          end if !** nproj>0 **
       end do !** ii***
@@ -368,11 +368,11 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
 *     ***********************************
 
       subroutine cpsp_v_spin_orbit(ispin,ne,
-     >                           psi1,psi2,move,fion)
+     >                           psi1_tag,psi2_tag,move,fion)
       implicit none
       integer    ispin,ne(2)
-      complex*16 psi1(*)
-      complex*16 psi2(*)
+      integer    psi1_tag
+      integer    psi2_tag
       logical move
       real*8 fion(3,*)
 
@@ -383,22 +383,23 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
 *     *** local variables ***
       complex*16 one,mone
       integer nfft3d,G(3),npack1,npack
-      integer i,ii,ia,l,n,nn,nb,neall,nbrill
+      integer ii,ia,l,n,nn,nb,nbq,nbrill
       integer shift,l_prj,nproj
+      integer psi1_shift,psi2_shift,psi_shift,nshift
       real*8  omega,weight,scal
-      complex*16 ctmp,cxr
+      complex*16 cxr
       integer exi(2),xtmp(2),zsw1(2),zsw2(2),sum(2)
       integer Gx(2),Gy(2),Gz(2)
       logical value,sd_function
 
 *     **** external functions ****
       logical  is_sORd
-      integer  ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
+      integer  ion_nion,ion_katm,c_G_indx,Pneb_nbrillq,Pneb_convert_nb
+      integer  cpsp_projector_get_ptr,cpsi_data_get_chnk
       real*8   lattice_omega,brillioun_weight
-      integer  cpsp_projector_get_ptr
-      external cpsp_projector_get_ptr
       external is_sORd
-      external ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
+      external ion_nion,ion_katm,c_G_indx,Pneb_nbrillq,Pneb_convert_nb
+      external cpsp_projector_get_ptr,cpsi_data_get_chnk
       external lattice_omega,brillioun_weight
 
       if (.not.do_spin_orbit) return
@@ -410,10 +411,10 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
       
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
-      neall = ne(1)+ne(2)
-      nbrill = brillioun_nbrillioun()
+      nbrill = Pneb_nbrillq()
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
+      nshift = 2*npack1
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
@@ -456,7 +457,10 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
         if (nproj.gt.0) then
 
 
-        do nb=1,nbrill
+        do nbq=1,nbrill
+           nb = Pneb_convert_nb(nbq)
+           psi1_shift = cpsi_data_get_chnk(psi1_tag,nbq)
+           psi2_shift = cpsi_data_get_chnk(psi2_tag,nbq)
            call Cram_npack(nb,npack)
 
 *       **** structure factor pseudopotential ****
@@ -505,7 +509,7 @@ c             *** current function is s or d ****
 
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
                 call Cram_cc_inzdot(nb,nn,
-     >                      psi1(1+(nb-1)*nn*npack1),
+     >                      dbl_mb(psi1_shift),
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dcpl_mb(zsw1(1)+(l-1)*nn))
            
@@ -528,7 +532,6 @@ c             *** current function is s or d ****
      >                         dcpl_mb(zsw1(1)),
      >                         dcpl_mb(zsw2(1)))
 
-
 *          **** do Kleinman-Bylander Multiplication ****
            call dscal(2*nn*nproj,scal,dcpl_mb(zsw2(1)),1)
            call ZGEMM('N','C',npack,nn,nproj,
@@ -536,7 +539,7 @@ c             *** current function is s or d ****
      >                dcpl_mb(prjtmp(1)), npack1,
      >                dcpl_mb(zsw2(1)),   nn,
      >                one,
-     >                psi2(1+(nb-1)*nn*npack1), npack1)
+     >                dbl_mb(psi2_shift), npack1)
 
 
            if (move) then
@@ -546,15 +549,23 @@ c             *** current function is s or d ****
           
               do l=1,nproj
           
+                 psi_shift = psi1_shift
                  do n=1,nn
 
-                    do i=1,npack
-                    ctmp = psi1(i+(n-1)*npack1
-     >                           +(nb-1)*neall*npack1)
-     >                   *dconjg(dcpl_mb(prjtmp(1)+(l-1)*npack1+i-1))
-     >                   *dconjg(dcpl_mb(zsw2(1)+(l-1)*nn+n-1))
-                    dbl_mb(xtmp(1)+i-1) = dimag(ctmp)
-                    end do
+                    call Cram_zccr_Multiply2(nb,
+     >                                 dcpl_mb(zsw2(1)+(l-1)*nn+n-1),
+     >                                 dbl_mb(psi_shift),
+     >                                 dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                                 dbl_mb(xtmp(1)))
+                    psi_shift = psi_shift + nshift
+
+c                    do i=1,npack
+c                    ctmp = psi1(i+(n-1)*npack1
+c     >                           +(nb-1)*neall*npack1)
+c     >                   *dconjg(dcpl_mb(prjtmp(1)+(l-1)*npack1+i-1))
+c     >                   *dconjg(dcpl_mb(zsw2(1)+(l-1)*nn+n-1))
+c                    dbl_mb(xtmp(1)+i-1) = dimag(ctmp)
+c                    end do
 
 *                   **** define Gx,Gy and Gz in packed space ****
                     call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
@@ -621,24 +632,23 @@ c             *** current function is s or d ****
 *     *						*
 *     *******************************************
 
-      subroutine cpsp_v_spin_orbit_orb(nb,psi1,psi2)
+      subroutine cpsp_v_spin_orbit_orb(nb,orb1,orb2)
       implicit none
       integer    nb
-      complex*16 psi1(*)
-      complex*16 psi2(*)
+      complex*16 orb1(*)
+      complex*16 orb2(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "cpsp_common.fh"
 
-
 *     *** local variables ***
       complex*16 one,mone
       parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
 
-      integer nfft3d,npack1,npack,nbrill
+      integer nfft3d,npack1,npack
       integer ii,ia,l
-      integer k,shift,l_prj,nproj,shifts,ne1
+      integer shift,l_prj,nproj,shifts,ne1
       real*8  omega,scal
       complex*16 cxr
       integer exi(2),zsw1u(2),zsw2u(2),zsw1d(2),zsw2d(2)
@@ -646,11 +656,11 @@ c             *** current function is s or d ****
 
 *     **** external functions ****
       logical  is_sORd
-      integer  ion_nion,ion_katm,brillioun_nbrillioun
+      integer  ion_nion,ion_katm
       integer  cpsi_ne,cpsp_projector_get_ptr
       real*8   lattice_omega
       external is_sORd
-      external ion_nion,ion_katm,brillioun_nbrillioun
+      external ion_nion,ion_katm
       external lattice_omega,cpsi_ne,cpsp_projector_get_ptr
 
       call nwpw_timing_start(6)
@@ -658,7 +668,7 @@ c             *** current function is s or d ****
 *     **** allocate local memory ****
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
-      nbrill = brillioun_nbrillioun()
+c      nbrill = brillioun_nbrillioun()
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
@@ -677,7 +687,7 @@ c             *** current function is s or d ****
      > call errquit('cpsp_v_spin_orbit_orb2com:pushing stack',0,MA_ERR)
 
       ne1=cpsi_ne(1)
-      shifts = npack1*ne1
+      shifts = npack1*ne1 + 1
       omega = lattice_omega()
       scal  = 1.0d0/omega
 
@@ -726,11 +736,11 @@ c     >                      +(ia-1)*npack1*vso_stride*nbrill
 
 *             **** compute 1Xnproj matrix zsw1 = <psi1|prj> ****
               call Cram_cc_izdot(nb,
-     >                      psi1,
+     >                      orb1,
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dcpl_mb(zsw1u(1)+(l-1)))
               call Cram_cc_izdot(nb,
-     >                      psi1(shifts+1),
+     >                      orb1(shifts),
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dcpl_mb(zsw1d(1)+(l-1)))
             end do !**l**
@@ -760,13 +770,13 @@ c     >                      +(ia-1)*npack1*vso_stride*nbrill
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 dcpl_mb(zsw2u(1)),   1,
      >                 one,
-     >                 psi2, npack1)
+     >                 orb2, npack1)
             call ZGEMM('N','C',npack1,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 dcpl_mb(zsw2d(1)),   1,
      >                 one,
-     >                 psi2(1+shifts), npack1)
+     >                 orb2(shifts), npack1)
 
          end if !** nproj>0 **
       end do !** ii***
@@ -790,14 +800,14 @@ c   Non-Local Pseudopotential
 c    pjn --- use at your own peril
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine cpsp_v_nonlocal_rel(
-     >    ii,ia,nproj,npack1,nbrill,
+     >    nb,ii,ia,nproj,npack1,nbrill,
      >    nn,xtmp,sum,ne,
      >    exi,prtmp,zsw1,zsw2,psi1,psi2,fion,move,
      >    Gx,Gy,Gz,G,bz_vol)
       implicit none
 #include "cpsp_common.fh"
 #include "mafdecls.fh"
-      integer nn,npack1,nproj,ia,ii,nbrill,ne(2)  
+      integer nb,nn,npack1,nproj,ia,ii,nbrill,ne(2)  
       complex*16 prtmp(*)
       complex*16 zsw1(*)
       complex*16 zsw2(*)
@@ -809,12 +819,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical move
       real*8 Gx(npack1),Gy(npack1),Gz(npack1),G(npack1,3)
 cccccccccccccc locals cccccccccccccccccccccccccccccccccccccccc
-      real*8 weight,brillioun_weight
-      complex*16 one,mone,ione,ctmp,cxr,ddx
-      integer nb,l,ip,jk,i,n,shifts,shiftxu,shiftxd,shift,l_prj,npack,
-     > ne1,vshiftu,vshiftd
+      complex*16 one,mone,ione,cxr
+      integer l,shifts,shiftxu,shiftxd,l_prj,npack,ne1,vshiftu,vshiftd
       logical sd_function
-      external brillioun_weight 
+
+c      real*8   brillioun_weight
+c      external brillioun_weight 
       integer  cpsp_projector_get_ptr
       external cpsp_projector_get_ptr
 cccccccccccccccccccccccccccccccccccccccccc
@@ -828,7 +838,7 @@ ccccccccccccccccccccccccccccccccccccccccc
       ione = dcmplx( 0.0d0,1.0d0)
       ne1=ne(1)
       shifts=npack1*ne1
-      do nb=1,nbrill
+c      do nb=1,nbrill
            call Cram_npack(nb,npack)
 
 *       **** structure factor pseudopotential ****
@@ -897,12 +907,12 @@ c                  shiftx=shiftx+npack1*vso_shift
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
 c                shiftx=1+(l-1)*npack1
                 call Cram_cc_inzdot(nb,ne1,
-     >                      psi1(1+(nb-1)*nn*npack1),
+     >                      psi1(1),
      >                      prtmp(shiftxu),
      >                      zsw1(1+(l-1)*ne1))
 c                shiftx=shiftx+npack1*vso_shift
                 call Cram_cc_inzdotAdd(nb,ne1,
-     >                      psi1(1+(nb-1)*nn*npack1+shifts),
+     >                      psi1(1+shifts),
      >                      prtmp(shiftxd),
      >                      zsw1(1+(l-1)*ne1))
            
@@ -915,15 +925,15 @@ c                shiftx=shiftx+npack1*vso_shift
      >                prtmp, npack1,
      >                zsw1, ne1,
      >                one,
-     >                psi2(1+(nb-1)*nn*npack1), npack1)
+     >                psi2(1), npack1)
            call ZGEMM('N','C',npack,ne1,nproj,
      >                mone,
      >                prtmp(1+npack1*nproj), npack1,
      >                zsw1, ne1,
      >                one,
-     >                psi2(1+(nb-1)*nn*npack1+ne1*npack1), npack1)
+     >                psi2(1+ne1*npack1), npack1)
 
-      end do
+c      end do
       return
       end
 ccccccccccc

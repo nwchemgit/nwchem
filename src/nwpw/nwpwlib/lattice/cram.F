@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.22 2007-06-19 23:45:07 d3p708 Exp $
+* $Id: cram.F,v 1.23 2007-09-12 17:29:43 bylaska Exp $
 *
 
 *     ***********************************
@@ -864,11 +864,10 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 #include "cram_common.fh"
 
 *     **** local variables ****
-      integer np,npack1
+      integer npack1
 
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
       npack1 = int_mb(nidb2_list(1)+nb)
 
       call ZGEMM('C','N',n,m,npack1,
@@ -878,6 +877,50 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
      >           beta,
      >           hml,n)
 
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_ccm_sym_izgemm    *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_ccm_sym_izgemm(nb,n,A,B,alpha,beta,hml)
+      implicit none
+      integer    nb,n
+      complex*16 A(*)
+      complex*16 B(*)
+      complex*16 alpha,beta
+      complex*16 hml(n,n)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer j,k
+      integer npack1
+
+      call nwpw_timing_start(2)
+      npack1 = int_mb(nidb2_list(1)+nb)
+
+      do k=1,n
+        call ZGEMM('C','N',k,1,npack1,
+     >           alpha,
+     >           A, npack_max,
+     >           B(1+(k-1)*npack_max), npack_max,
+     >           beta,
+     >           hml(1,k),k)
+      end do
+
+      do k=1,n
+      do j=k+1,n
+        hml(j,k) = dconjg(hml(k,j))
+      end do
+      end do
 
       call nwpw_timing_end(2)
       return
@@ -1625,4 +1668,37 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_zccr_Mulitply2    *
+*     *                                 *
+*     ***********************************
+*
+*   This routine used by cpsp force routines  computes 
+*     C(i) = Imag (alpha*A(i)*dconjg(B(i)))
+*
+      subroutine Cram_zccr_Multiply2(nb,alpha,A,B,C)
+      implicit none
+      integer    nb
+      complex*16 alpha
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     C(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(int_mb(nidb2_list(1)+nb))
+        C(i) = dimag(alpha*A(i)*dconjg(B(i)))
+      end do
+
+      return
+      end
+
+
 

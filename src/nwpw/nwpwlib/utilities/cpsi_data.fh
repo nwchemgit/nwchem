@@ -1,0 +1,21 @@
+*
+* $Id: cpsi_data.fh,v 1.1 2007-09-12 17:30:15 bylaska Exp $
+*
+
+*     **** common block for cpsi data  ****
+      integer indx_psi(2)
+      integer nsize_psi(2)
+      integer neall_psi(2)
+      integer nbrill_psi(2)
+      integer hndl_psi(2)
+      integer curnb_psi(2)
+      integer update_psi(2)
+      integer list_psi(2)
+      integer npsi,tagmax,tagmin
+      logical brill_ondisk
+      common / cpsi_data_block / indx_psi,nsize_psi,neall_psi,
+     >                           nbrill_psi,hndl_psi,
+     >                           update_psi,curnb_psi,list_psi,
+     >                           npsi,tagmax,tagmin,
+     >                           brill_ondisk
+

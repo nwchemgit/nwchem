@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.19 2007-08-28 20:22:38 bylaska Exp $
+* $Id: kbppv3.F,v 1.20 2007-09-12 17:31:27 bylaska Exp $
 *
 
 *     **************************************
@@ -27,7 +27,6 @@
       real*8  rlocal
       character*255 full_filename
 
-      logical value,mprint,hprint,oprint
 
       integer taskid,MASTER,msglen
       parameter (MASTER=0)
@@ -64,6 +63,7 @@
 
 
 *     **** other variables ****
+      logical value,mprint,hprint,oprint,filter
       double precision unitg(3,3)
       integer nsize,i,l,ierr,psp_type
       integer nfft1,nfft2,nfft3
@@ -204,7 +204,7 @@ c      call Parallel_Init()
       nfft2=ngrid(2)
       nfft3=ngrid(3)
       call setup_kbpp(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
-
+      filter = control_kbpp_filter()
 
       if (control_kbpp_ray()) then
         !**** allocate memory for rays ****
@@ -251,7 +251,7 @@ c      call Parallel_Init()
      >                                dbl_mb(vnl_ray_indx),
      >                                dbl_mb(rho_sc_k_ray_indx),
      >                                dbl_mb(tmp_ray_indx),
-     >                                control_kbpp_filter(),
+     >                                filter,
      >                      ierr)
         value = MA_free_heap(tmp_ray_hndl)
         value = value.and.MA_free_heap(rho_sc_k_ray_hndl)
@@ -356,6 +356,7 @@ c      call Parallel_Init()
       if (mprint) then
       write(*,*)
       write(*,*) "Generated formatted_filename: ",full_filename(1:l)
+      if (filter) write(*,*) "- filtering pseudopotential -"
       !write(*,*)
       end if
       call openfile(2,full_filename,l,'w',l)     

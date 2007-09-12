@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3_new.f,v 1.4 2007-08-28 20:22:38 bylaska Exp $
+* $Id: integrate_kbppv3_new.f,v 1.5 2007-09-12 17:31:27 bylaska Exp $
 *
       subroutine integrate_kbppv3_new(version,rlocal,
      >                            nrho,drho,lmax,locp,zv,
@@ -124,7 +124,6 @@
 
 *     **** filter the rays ****
       if (filter) then
-         write(*,*) "---- filtering psp ----"
          ecut = control_ecut()
          wcut = control_wcut()
          call kbpp_filter_ray(nray,G_ray,ecut,vl_ray)

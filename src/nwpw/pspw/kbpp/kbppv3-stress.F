@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3-stress.F,v 1.9 2007-08-28 22:02:12 bylaska Exp $
+* $Id: kbppv3-stress.F,v 1.10 2007-09-12 17:31:27 bylaska Exp $
 *
 
 
@@ -9,7 +9,7 @@
 *     *                                    *
 *     **************************************
 
-      logical function kbppv3_stress(oprint,version,
+      logical function kbppv3_stress(oprint_in,version,
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
       implicit none
@@ -17,8 +17,9 @@
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
+#include "util.fh"
 
-      logical          oprint
+      logical          oprint_in
       integer          version
       character*25     psp_filename,formatted_filename
       integer          ngrid(3)
@@ -26,8 +27,6 @@
       integer locp,lmax
       real*8  rlocal
       character*255 full_filename
-
-      logical value
 
       integer taskid,MASTER,msglen
       parameter (MASTER=0)
@@ -61,6 +60,7 @@
       integer rho_sc_k_ray_indx,dvnl_ray_indx,dvl_ray_indx
 
 *     **** other variables ****
+      logical value,mprint,hprint,oprint,filter
       double precision unitg(3,3)
       integer nsize,i,l,ierr
       integer nfft1,nfft2,nfft3
@@ -74,6 +74,9 @@
 
 c      call Parallel_init()
       call Parallel_taskid(taskid)
+      hprint = (taskid.eq.MASTER).and.control_print(print_high)
+      mprint = (taskid.eq.MASTER).and.control_print(print_medium)
+      oprint = (oprint_in.or.hprint)
 
       value = .false.
   
@@ -183,6 +186,7 @@ c      call Parallel_init()
       nfft2=ngrid(2)
       nfft3=ngrid(3)
       call setup_kbpp(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
+      filter = control_kbpp_filter()
 
       if (control_kbpp_ray()) then
         !**** allocate memory for rays ****
@@ -226,7 +230,7 @@ c      call Parallel_init()
      >                                dbl_mb(dvnl_ray_indx),
      >                                dbl_mb(rho_sc_k_ray_indx),
      >                                dbl_mb(tmp_ray_indx),
-     >                                control_kbpp_filter(),
+     >                                filter,
      >                      ierr)
         value = MA_free_heap(tmp_ray_hndl)
         value = value.and.MA_free_heap(rho_sc_k_ray_hndl)
@@ -298,17 +302,21 @@ c      call Parallel_init()
       end if
 
 
-
       if (taskid.eq.MASTER) then
       call util_file_name_noprefix(formatted_filename,
      >                    .false.,
      >                    .false.,
      >                    full_filename)
       l = index(full_filename,' ') - 1
+      if (mprint) then
       write(*,*)
       write(*,*) "Outputing formatted_stress_filename: ",
-     > full_filename(1:l)
-      write(*,*)
+     >            full_filename(1:l)
+      if (filter) write(*,*) "- filtering pseudopotential -"
+      !write(*,*)
+      end if
+
+      
       call openfile(2,full_filename,l,'w',l)     
          call iwrite(2,version,1)
          call iwrite(2,ngrid,3)
