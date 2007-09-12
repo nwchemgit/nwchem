@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.4 2007-09-12 17:27:52 bylaska Exp $
+* $Id: cpsp_relativistic.F,v 1.5 2007-09-12 20:52:36 d3p708 Exp $
 *
 
 
@@ -819,8 +819,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical move
       real*8 Gx(npack1),Gy(npack1),Gz(npack1),G(npack1,3)
 cccccccccccccc locals cccccccccccccccccccccccccccccccccccccccc
+<<<<<<< cpsp_relativistic.F
+      real*8 weight,brillioun_weight
+      complex*16 one,mone,ione,cxr
+      integer nb,l,ip,jk,i,n,shifts,shiftxu,shiftxd,shift,l_prj,npack,
+     > ne1,vshiftu,vshiftd
+=======
       complex*16 one,mone,ione,cxr
       integer l,shifts,shiftxu,shiftxd,l_prj,npack,ne1,vshiftu,vshiftd
+>>>>>>> 1.4
       logical sd_function
 
 c      real*8   brillioun_weight
@@ -837,7 +844,7 @@ ccccccccccccccccccccccccccccccccccccccccc
       mone = dcmplx(-1.0d0,0.0d0)
       ione = dcmplx( 0.0d0,1.0d0)
       ne1=ne(1)
-      shifts=npack1*ne1
+      shifts=1+npack1*ne1
 c      do nb=1,nbrill
            call Cram_npack(nb,npack)
 
@@ -870,34 +877,21 @@ c      do nb=1,nbrill
 c             *** current function is s or d ****
                 if (sd_function) then
 
-c                  vshift=vnlso(1)+(l-1)*npack1+
-c     >                (nb-1)*npack1*vso_stride+
-c     >                (ia-1)*npack1*vso_stride*nbrill 
-c                  shiftx=1+(l-1)*npack1 
-
 
                   call Cram_cc_Mul(nb,dcpl_mb(vshiftu),
      >                               exi,
      >                               prtmp(shiftxu))
                 
-c                  vshift=vshift+npack1*vso_shift
-c                  shiftx=shiftx+npack1*vso_shift
                   call Cram_cc_Mul(nb,dcpl_mb(vshiftd),
      >                               exi,
      >                               prtmp(shiftxd))
 *             *** current function is p or f ****
                 else
 
-c                  shiftx=1+(l-1)*npack1
-c                  vshift=vnlso(1)+(l-1)*npack1+
-c     >                (nb-1)*npack1*vso_stride+
-c     >                (ia-1)*npack1*vso_stride*nbrill 
-c
                   call Cram_icc_Mul(nb,dcpl_mb(vshiftu),
      >                                exi,
      >                                prtmp(shiftxu))
-c                  vshift=vshift+npack1*vso_shift
-c                  shiftx=shiftx+npack1*vso_shift
+
                   call Cram_icc_Mul(nb,dcpl_mb(vshiftd),
      >                               exi,
      >                               prtmp(shiftxd))
@@ -905,19 +899,17 @@ c                  shiftx=shiftx+npack1*vso_shift
          
 
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
-c                shiftx=1+(l-1)*npack1
                 call Cram_cc_inzdot(nb,ne1,
      >                      psi1(1),
      >                      prtmp(shiftxu),
      >                      zsw1(1+(l-1)*ne1))
-c                shiftx=shiftx+npack1*vso_shift
                 call Cram_cc_inzdotAdd(nb,ne1,
-     >                      psi1(1+shifts),
+     >                      psi1(shifts),
      >                      prtmp(shiftxd),
      >                      zsw1(1+(l-1)*ne1))
            
  105       continue 
-           call C3dB_Vector_SumAll((2*ne1*nproj),zsw1)
+           call C3dB_Vector_SumAll((4*ne1*nproj),zsw1)
            call dscal(4*ne1*nproj,bz_vol,zsw1,1)
          
            call ZGEMM('N','C',npack,ne1,nproj,
@@ -931,9 +923,128 @@ c                shiftx=shiftx+npack1*vso_shift
      >                prtmp(1+npack1*nproj), npack1,
      >                zsw1, ne1,
      >                one,
-     >                psi2(1+ne1*npack1), npack1)
+     >                psi2(shifts), npack1)
 
 c      end do
       return
       end
 ccccccccccc
+*     ***********************************
+*     *					*
+*     *	 	 cpsp_v_nonlocal_orb  	*
+*     *					*
+*     ***********************************
+
+      subroutine cpsp_v_nonlocal_rel_orb(nb,orb1,orb2,
+     >  zsw1,exi,nfft3d,ia,ii,ne1,npack1,nproj)
+      implicit none
+      integer    nb
+      complex*16 orb1(*)
+      complex*16 orb2(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsp_common.fh"
+
+
+*     *** local variables ***
+      complex*16 one,mone,ione
+      integer nfft3d,npack1,npack
+      integer ii,ia,l,ne1
+      integer shift,l_prj,nproj
+      integer shiftu,shiftd,shiftux,shiftdx,shifts
+      real*8  omega,scal
+      complex*16 cxr
+      complex*16 exi(*)
+      complex*16 zsw1(*)
+      logical value,sd_function
+
+*     **** external functions ****
+      logical  is_sORd,cpsi_spin_orbit
+      integer  ion_nion,ion_katm
+      integer  cpsp_projector_get_ptr
+      real*8   lattice_omega
+      external is_sORd,cpsi_spin_orbit
+      external ion_nion,ion_katm
+      external cpsp_projector_get_ptr
+      external lattice_omega
+
+      one=dcmplx(1.0d0,0.0d0)
+      mone=dcmplx(-1.0d0,0.d0)
+      ione=dcmplx(0.0d0,1.d0)
+
+      omega = lattice_omega()
+      scal  = 1.0d0/omega
+      shifts= ne1*npack1+1
+*           **** structure factor ****
+      
+      call Cram_npack(nb,npack)
+      call cstrfac_pack(nb,ii,exi)
+      call cstrfac_k(ii,nb,cxr)
+      call Cram_c_ZMul(nb,cxr,exi,exi)
+
+      do l=1,nproj
+              shiftu = cpsp_projector_get_ptr(
+     >                     int_mb(vnlso(1)+ia-1),nb,l)
+              shiftd = cpsp_projector_get_ptr(
+     >                     int_mb(vnlso(1)+ia-1),nb,l)
+              l_prj = int_mb(l_projector(1)+(l-1)
+     >                                     +(ia-1)*jmmax_max)
+              shiftux=(l-1)*npack1+1;
+              shiftdx=shiftux+npack1*nproj
+              sd_function=.true.
+              if (mod(l_prj,2).ne.0) then
+                sd_function=.false.
+              end if
+
+*             **** phase factor does not matter therefore ****
+*             **** (-i)^l is the same as (i)^l in the     ****
+*             **** Rayleigh scattering formula            ****
+*             *** current function is s or d ****
+              if (sd_function) then
+                 call Cram_cc_Mul(nb,dbl_mb(shiftu),exi,
+     >                     dcpl_mb(prjtmp(1)+shiftux))
+                 call Cram_cc_Mul(nb,dbl_mb(shiftd),exi,
+     >                     dcpl_mb(prjtmp(1)+shiftdx))
+
+*             *** current function is p or f ****
+              else
+                 call Cram_icc_Mul(nb,dbl_mb(shiftu),exi,
+     >                     dcpl_mb(prjtmp(1)+shiftux))
+                 call Cram_icc_Mul(nb,dbl_mb(shiftd),exi,
+     >                     dcpl_mb(prjtmp(1)+shiftdx))
+              end if
+
+*             **** compute 1Xnproj matrix zsw1 = <psi1|prj> ****
+              call Cram_cc_izdot(nb,
+     >                      orb1,
+     >                      dcpl_mb(prjtmp(1)+shiftux),
+     >                      zsw1(1+(l-1)))
+              call Cram_cc_izdotAdd(nb,
+     >                      orb1(shifts),
+     >                      dcpl_mb(prjtmp(1)+shiftdx),
+     >                      zsw1(1+(l-1)))
+      end do !**l**
+            call C3dB_Vector_SumAll((4*nproj),zsw1)
+
+*           **** zsw2 = Gijl*zsw1 ******
+*           **** do Kleinman-Bylander Multiplication ****
+            call dscal(4*nproj,scal,zsw1,1)
+            call ZGEMM('N','C',npack1,1,nproj,
+     >                 mone,
+     >                 dcpl_mb(prjtmp(1)+shiftux), npack1,
+     >                 zsw1,   1,
+     >                 one,
+     >                 orb2, npack1)
+            call ZGEMM('N','C',npack1,1,nproj,
+     >                 mone,
+     >                 dcpl_mb(prjtmp(1)+shiftdx), npack1,
+     >                 zsw1,   1,
+     >                 one,
+     >                 orb2(shifts), npack1)
+
+      return 
+      end
+
+
+
