@@ -1,5 +1,5 @@
 c
-c     $Id: c_nominimize.F,v 1.4 2007-08-23 23:49:53 bylaska Exp $ 
+c     $Id: c_nominimize.F,v 1.5 2007-09-12 17:28:23 bylaska Exp $ 
 c
 
       subroutine c_nominimize(E)
@@ -10,19 +10,14 @@ c
 #include "errquit.fh"
 
 *     **** local variables ****
-      integer G1(2)
-      real*8  E0
+      integer neall,npack1,nbrillq
+      integer G1_tag
+      real*8  ehartree,eorbit,exc,pxc,eion
+      real*8  E0,Enew
 
-      real*8     ehartree,eorbit,exc,pxc,eion
-      real*8     Enew
-
-
-      logical value
-      integer neall,npack1,nbrill
-      
 
 *     **** external functions ****
-      integer  cpsi_ne,brillioun_nbrillioun
+      integer  cpsi_neq,Pneb_nbrillq,cpsi_data_alloc
       real*8   c_dng_1ehartree
       real*8   cpsi_1ke
       real*8   cpsi_1vl
@@ -32,7 +27,7 @@ c
       real*8   c_ewald_e
       real*8   cpsi_1eorbit
       real*8   cpsi_1vnlso 
-      external cpsi_ne,brillioun_nbrillioun
+      external cpsi_neq,Pneb_nbrillq,cpsi_data_alloc
       external c_dng_1ehartree
       external cpsi_1ke
       external cpsi_1vl
@@ -44,17 +39,14 @@ c
       external cpsi_1vnlso
 
       call Cram_max_npack(npack1)
-      neall  = cpsi_ne(1)+cpsi_ne(2)
-      nbrill = brillioun_nbrillioun()
+      neall  = cpsi_neq(1)+cpsi_neq(2)
+      nbrillq = Pneb_nbrillq()
 
 
 *     **** allocate G1 ****
-      value = MA_alloc_get(mt_dcpl,npack1*neall*nbrill,
-     >                     'G1',G1(2),G1(1))
-      if (.not. value) 
-     > call errquit('c_nominimize:out of heap memory',0,MA_ERR)
+      G1_tag = cpsi_data_alloc(nbrillq,neall,2*npack1)
 
-      call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
+      call cpsi_1get_Tgradient(G1_tag,E0)
       Enew = E0
 
 c      call cpsi_1toelectron() 
@@ -78,9 +70,7 @@ c      call cpsi_1toelectron()
       E(10) = pxc
       E(11) = cpsi_1vnlso()
 
-      value = MA_free_heap(G1(2))
-      if (.not. value) 
-     >  call errquit('c_nominimize:error freeing heap memory',0, MA_ERR)
+      call cpsi_data_dealloc(G1_tag)
 
   
       return

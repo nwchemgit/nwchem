@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.53 2007-08-28 19:33:41 bylaska Exp $
+* $Id: band_minimizer.F,v 1.54 2007-09-12 17:28:22 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -188,6 +188,8 @@ c      external      cpsp_comment
       call C3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call C3dB_nfft3d(1,nfft3d)
        
+      call cpsi_data_init(20)
+
 *     **** initialize lattice data structure ****
       call lattice_init()
       call c_G_init()
@@ -201,6 +203,7 @@ c      external      cpsp_comment
       call G_init()
       call mask_init()
       end if
+
 
 
 *     **** read ions ****
@@ -257,7 +260,6 @@ c      external      cpsp_comment
 
 *     **** electron and geodesic data structures ****
       call c_electron_init()
-
       call c_geodesic_init()
 
 *     **** initialize FixIon constraint ****
@@ -529,6 +531,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
       call brillioun_end()
       call ion_end()
       call ion_end_FixIon()
+      call cpsi_data_end()
       call C3dB_end(1)
       IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
       call mask_end()

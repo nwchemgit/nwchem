@@ -1,12 +1,12 @@
 
 *
-* $Id: c_geodesic_common.fh,v 1.2 2002-01-11 18:26:00 bylaska Exp $
+* $Id: c_geodesic_common.fh,v 1.3 2007-09-12 17:28:19 bylaska Exp $
 *
 
 *     **** geodesic common block ***
-      integer U(2)
-      integer Vt(2)
-      integer S(2)
-      common / c_geodesic_block / U,Vt,S
+      integer U_tag
+      integer Vt_tag
+      integer S_tag
+      common / c_geodesic_block / U_tag,Vt_tag,S_tag
 
 

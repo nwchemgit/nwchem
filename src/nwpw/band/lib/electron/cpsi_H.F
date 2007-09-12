@@ -1,44 +1,51 @@
 *
-* $Id: cpsi_H.F,v 1.16 2007-08-24 02:24:59 bylaska Exp $
+* $Id: cpsi_H.F,v 1.17 2007-09-12 17:28:15 bylaska Exp $
 *
 
+*     **********************************************
+*     *                                            *
+*     *              cpsi_H                        *
+*     *                                            *
+*     **********************************************
+
       subroutine cpsi_H(ispin,ne,
-     >                 psi_k,psi_r,vl,vc,xcp,Hpsi_k,
+     >                 psi_k_tag,psi_r_tag,vl,vc,xcp,Hpsi_k_tag,
      >                 move,fion)
       implicit none
-#include "errquit.fh"
       integer    ispin,ne(2)
-      complex*16 psi_k(*)
-      complex*16 psi_r(*)
+      integer    psi_k_tag
+      integer    psi_r_tag
       complex*16 vl(*)
       complex*16 vc(*)
       real*8     xcp(*)
-      complex*16 Hpsi_k(*)
+      integer    Hpsi_k_tag
       logical    move
       real*8     fion(3,*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
+      integer psi_shift,Hpsi_shift,nshift1,nshift2
       real*8  scal1,scal2
 
 *     **** tempory space ****
-      integer nfft3d,npack1,nb,neall,indx,indx2,nbrill
+      integer nfft3d,npack1,nb,nbq,neall,nbrill
       integer vall(2),vpsi(2)
       logical value
 
 
 *     **** external functions ****
-      integer  brillioun_nbrillioun
-      real*8   lattice_omega
       logical  cpsi_spin_orbit
+      integer  Pneb_nbrillq,Pneb_convert_nb
+      integer  cpsi_data_get_chnk,cpsi_data_nsize
+      real*8   lattice_omega
       external cpsi_spin_orbit
-      external brillioun_nbrillioun
+      external Pneb_nbrillq,Pneb_convert_nb
+      external cpsi_data_get_chnk,cpsi_data_nsize
       external lattice_omega
-
-
       
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
@@ -46,12 +53,10 @@
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
 
-      call nwpw_timing_start(12)
       value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      call nwpw_timing_end(12)
       
 
       scal2 = 1.0d0/lattice_omega()
@@ -61,19 +66,21 @@
       n1(2) = ne(1) + 1
       n2(2) = ne(1) + ne(2)
       neall = ne(1) + ne(2)
-      nbrill = brillioun_nbrillioun()
+      nbrill = Pneb_nbrillq()
+      nshift1 = cpsi_data_nsize(psi_r_tag)
+      nshift2 = cpsi_data_nsize(Hpsi_k_tag)
        
 
 *     ****************************
 *     **** add kinetic energy ****
 *     ****************************
-      call cke(ispin,ne,psi_k,Hpsi_k)
+      call cke(ispin,ne,psi_k_tag,Hpsi_k_tag)
 
 *     **************************
 *     **** add non-local psp ***
 *     **************************
-      call cpsp_v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
-      call cpsp_v_spin_orbit(ispin,ne,psi_k,Hpsi_k,move,fion)
+      call cpsp_v_nonlocal(  ispin,ne,psi_k_tag,Hpsi_k_tag,move,fion)
+      call cpsp_v_spin_orbit(ispin,ne,psi_k_tag,Hpsi_k_tag,move,fion)
 
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
@@ -87,12 +94,15 @@
 *     **********************************************
       call C3dB_cr_fft3b(1,dcpl_mb(vall(1)))
 
-      do nb=1,nbrill
-      do ms=1,ispin
+      do nbq=1,nbrill
+         nb = Pneb_convert_nb(nbq)
+         psi_shift   = cpsi_data_get_chnk(psi_r_tag,nbq)
+         Hpsi_shift  = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
+         do ms=1,ispin
          do n=n1(ms),n2(ms)
 
-            indx  = 1 + (n-1)*nfft3d + (nb-1)*nfft3d*neall
-            indx2 = 1 + (n-1)*npack1 + (nb-1)*npack1*neall
+c            indx  = 1 + (n-1)*nfft3d + (nb-1)*nfft3d*neall
+c            indx2 = 1 + (n-1)*npack1 + (nb-1)*npack1*neall
 *           *************************************
 *           **** vpsi_r = (vall_r+xcp)*psi_r ****
 *           *************************************
@@ -101,7 +111,7 @@
      >                       dcpl_mb(vall(1)),
      >                       dcpl_mb(vpsi(1)))
             call C3dB_cc_Mul(1,dcpl_mb(vpsi(1)),
-     >                       psi_r(indx),
+     >                       dbl_mb(psi_shift),
      >                       dcpl_mb(vpsi(1)))
 
 *           *******************************
@@ -113,54 +123,51 @@
 *           ***********************
 *           **** add to Hpsi_k ****
 *           ***********************
-
             call Cram_cc_daxpy(nb,(-scal1),
      >                         dcpl_mb(vpsi(1)),
-     >                         Hpsi_k(indx2))
+     >                         dbl_mb(Hpsi_shift))
+
+            psi_shift  = psi_shift  + nshift1
+            Hpsi_shift = Hpsi_shift + nshift2
+         end do
          end do
       end do
-      end do
 
 
-      call nwpw_timing_start(12)
-      
-      value = MA_pop_stack(vpsi(2))
-      value = MA_pop_stack(vall(2))
+      value =           MA_pop_stack(vpsi(2))
+      value = value.and.MA_pop_stack(vall(2))
+      if (.not.value)
+     >  call errquit('cpsi_H: error popping stack',0,MA_ERR)
 
-      call nwpw_timing_end(12)
       return
       end
 
 
-
-
 *     *************************************
 *     *                                   *
-*     *             cpsi_Horb              *
+*     *             cpsi_Horb             *
 *     *                                   *
 *     *************************************
 *
 *  This routine calculates
 *
-*       Hpsi_k = KE*psi_k + Vnl*psi_k + + FFT[(vall+xcp)*psi_r]
+*       Horb_k = KE*orb_k + Vnl*orb_k + + FFT[(vall+xcp)*orb_r]
 *
 *  where vall = iFFT[Vl+Vc]
 *
 *   Entry - ispin,ne            - spin and number of electrons in each spin
 *           ms,n                - spin and electron number
-*           psi_k,psi_r         - orbitals in k-space and r-space
+*           orb_k,orb_r         - orbitals in k-space and r-space
 *           vall                  - local +external fields+coulomb in r-space
 *           xcp                 - xc potential in r-space
-*   Exit - Hpsi_k - gradient in k-space
+*   Exit - Horb_k - gradient in k-space
 *
       subroutine cpsi_Horb(nb,ispin,ms,
-     >                 psi_r,
      >                 vall,
      >                 orb_k,orb_r,
      >                 Horb_k)
       implicit none
       integer    nb,ispin,ms
-      complex*16 psi_r(*)
       complex*16 vall(*)
       complex*16 orb_k(*)
       complex*16 orb_r(*)
@@ -190,7 +197,6 @@
 
       if (control_spin_orbit()) then
         call cpsi_Horb2com(nb,ispin,ms,
-     >                 psi_r,
      >                 vall,
      >                 orb_k,orb_r,
      >                 Horb_k)
@@ -203,11 +209,10 @@
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
       call C3dB_nfft3d(1,nfft3d)
-      call nwpw_timing_start(12)
+
       value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not. value)
      >  call errquit('cpsi_Horb:out of stack memory',0, MA_ERR)
-      call nwpw_timing_end(12)
 
       shiftk=npack1*ne1
       scal1 = 1.0d0/dble(nx*ny*nz)
@@ -243,13 +248,9 @@
      >                   dcpl_mb(vpsi(1)),
      >                   Horb_k)
 
-
-      call nwpw_timing_start(12)
-      value = .true.
-      value = value.and.MA_pop_stack(vpsi(2))
+      value = MA_pop_stack(vpsi(2))
       if (.not.value)
-     >  call errquit('psi_Horb: popping stack',1, MA_ERR)
-      call nwpw_timing_end(12)
+     >  call errquit('cpsi_Horb: popping stack',0,MA_ERR)
 
       return
       end
@@ -262,25 +263,23 @@
 *
 *  This routine calculates
 *
-*       Hpsi_k = KE*psi_k + Vnl*psi_k + + FFT[(vall+xcp)*psi_r]
+*       Horb_k = KE*orb_k + Vnl*orb_k + + FFT[(vall+xcp)*orb_r]
 *
 *  where vall = iFFT[Vl+Vc]
 *
 *   Entry - ispin,ne            - spin and number of electrons in each spin
 *           ms,n                - spin and electron number
-*           psi_k,psi_r         - orbitals in k-space and r-space
+*           orb_k,orb_r         - orbitals in k-space and r-space
 *           vall                  - local +external fields+coulomb in r-space
 *           xcp                 - xc potential in r-space
-*   Exit - Hpsi_k - gradient in k-space
+*   Exit - Horb_k - gradient in k-space
 *
       subroutine cpsi_Horb2com(nb,ispin,ms,
-     >                 psi_r,
      >                 vall,
      >                 orb_k,orb_r,
      >                 Horb_k)
       implicit none
       integer    nb,ispin,ms
-      complex*16 psi_r(*)
       complex*16 vall(*)
       complex*16 orb_k(*)
       complex*16 orb_r(*)
@@ -306,21 +305,18 @@
       external lattice_omega
       external cpsi_ne
 
-      
-c      value=MA_set_auto_verify(.true.)
       ne1=cpsi_ne(1)
       call Cram_max_npack(npack1)
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
       call C3dB_nfft3d(1,nfft3d)
-      shiftr=ne1*nfft3d
-      shiftk=ne1*npack1
-      call nwpw_timing_start(12)
+      shiftr=ne1*nfft3d + 1
+      shiftk=ne1*npack1 + 1
+
       value = MA_push_get(mt_dcpl,2*nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not. value)
      >  call errquit('cpsi_Horb2com:out of stack memory',0, MA_ERR)
-      call nwpw_timing_end(12)
 
 
       scal1 = 1.0d0/dble(nx*ny*nz)
@@ -351,7 +347,7 @@ c      value=MA_set_auto_verify(.true.)
      >                   orb_r,
      >                   dcpl_mb(vpsi(1)))
       call C3dB_cc_Mul(1,vall(1+nfft3d),
-     >                   orb_r(shiftr+1),
+     >                   orb_r(shiftr),
      >                   dcpl_mb(vpsi(1)+nfft3d))
 
 c      value=MA_verify_allocator_stuff()
@@ -368,17 +364,12 @@ c      value=MA_verify_allocator_stuff()
      >                   Horb_k)
       call Cram_cc_daxpy(nb,(-scal1),
      >                   dcpl_mb(vpsi(1)+nfft3d),
-     >                   Horb_k(shiftk+1))
+     >                   Horb_k(shiftk))
 
 
-      
-      call nwpw_timing_start(12)
-      value = .true.
-      value = value.and.MA_pop_stack(vpsi(2))
+      value = MA_pop_stack(vpsi(2))
       if (.not.value)
      >  call errquit('psi_Horb2com: popping stack',1, MA_ERR)
-      call nwpw_timing_end(12)
-      call nwpw_timing_start(12)
 
       return
       end
@@ -390,14 +381,14 @@ c      value=MA_verify_allocator_stuff()
 *     *                 cpsi_H_vall                     *
 *     *                                                 *
 *     ***************************************************
-
-      subroutine cpsi_H_vall(ispin,ne,psi_k,psi_r,vall,Hpsi_k)
+      subroutine cpsi_H_vall(ispin,ne,psi_k_tag,psi_r_tag,vall,
+     >                       Hpsi_k_tag)
       implicit none
       integer    ispin,ne(2)
-      complex*16 psi_k(*)
-      complex*16 psi_r(*)
+      integer    psi_k_tag
+      integer    psi_r_tag
       complex*16 vall(*)
-      complex*16 Hpsi_k(*)
+      integer    Hpsi_k_tag
 
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -405,34 +396,32 @@ c      value=MA_verify_allocator_stuff()
 *     **** local variables ****
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
+      integer psi_shift,Hpsi_shift,nshift1,nshift2
       real*8  scal1,scal2,fion(3)
 
 *     **** tempory space ****
-      integer nfft3d,npack1,nb,neall,indx,indx2,nbrill
+      integer nfft3d,nb,nbq,nbrill
       integer vpsi(2)
       logical value
 
-
 *     **** external functions ****
-      integer  brillioun_nbrillioun
+      integer  Pneb_nbrillq,Pneb_convert_nb
+      integer  cpsi_data_get_chnk,cpsi_data_nsize
       real*8   lattice_omega
+      external Pneb_nbrillq,Pneb_convert_nb
+      external cpsi_data_get_chnk,cpsi_data_nsize
+      external lattice_omega
       !logical  cpsi_spin_orbit
       !external cpsi_spin_orbit
-      external brillioun_nbrillioun
-      external lattice_omega
-
-
       
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
       call C3dB_nfft3d(1,nfft3d)
-      call Cram_max_npack(npack1)
+c      call Cram_max_npack(npack1)
 
-      call nwpw_timing_start(12)
       value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not.value) call errquit('cpsi_H_vall:out of stack',0,MA_ERR)
-      call nwpw_timing_end(12)
       
 
       scal2 = 1.0d0/lattice_omega()
@@ -441,35 +430,38 @@ c      value=MA_verify_allocator_stuff()
       n2(1) = ne(1)
       n1(2) = ne(1) + 1
       n2(2) = ne(1) + ne(2)
-      neall = ne(1) + ne(2)
-      nbrill = brillioun_nbrillioun()
+      nbrill = Pneb_nbrillq()
+      nshift1 = cpsi_data_nsize(psi_r_tag)
+      nshift2 = cpsi_data_nsize(Hpsi_k_tag)
        
 
 *     ****************************
 *     **** add kinetic energy ****
 *     ****************************
-      call cke(ispin,ne,psi_k,Hpsi_k)
+      call cke(ispin,ne,psi_k_tag,Hpsi_k_tag)
 
 *     **************************
 *     **** add non-local psp ***
 *     **************************
-      call cpsp_v_nonlocal(ispin,ne,psi_k,Hpsi_k,  .false.,fion)
-      call cpsp_v_spin_orbit(ispin,ne,psi_k,Hpsi_k,.false.,fion)
+      call cpsp_v_nonlocal(  ispin,ne,psi_k_tag,Hpsi_k_tag,.false.,fion)
+      call cpsp_v_spin_orbit(ispin,ne,psi_k_tag,Hpsi_k_tag,.false.,fion)
 
 *     **************************************************
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+)*psi_r]    ****
 *     **************************************************
-      do nb=1,nbrill
-      do ms=1,ispin
+      do nbq=1,nbrill
+         nb = Pneb_convert_nb(nbq)
+         psi_shift  = cpsi_data_get_chnk( psi_r_tag,nbq)
+         Hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
+    
+         do ms=1,ispin
          do n=n1(ms),n2(ms)
 
-            indx  = 1 + (n-1)*nfft3d + (nb-1)*nfft3d*neall
-            indx2 = 1 + (n-1)*npack1 + (nb-1)*npack1*neall
 *           *************************************
 *           **** vpsi_r = (vall_r)*psi_r ****
 *           *************************************
             call C3dB_cc_Mul(1,vall(1+(ms-1)*nfft3d),
-     >                         psi_r(indx),
+     >                         dbl_mb(psi_shift),
      >                         dcpl_mb(vpsi(1)))
 
 *           *******************************
@@ -483,16 +475,17 @@ c      value=MA_verify_allocator_stuff()
 *           ***********************
             call Cram_cc_daxpy(nb,(-scal1),
      >                         dcpl_mb(vpsi(1)),
-     >                         Hpsi_k(indx2))
+     >                         dbl_mb(Hpsi_shift))
+
+            psi_shift  = psi_shift  + nshift1
+            Hpsi_shift = Hpsi_shift + nshift2
+         end do
          end do
       end do
-      end do
 
-
-      call nwpw_timing_start(12)
       value = MA_pop_stack(vpsi(2))
       if(.not.value) call errquit('cpsi_H_vall:popping stack',0,MA_ERR)
-      call nwpw_timing_end(12)
+
       return
       end
 

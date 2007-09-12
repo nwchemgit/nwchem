@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.17 2007-01-21 00:34:35 d3p708 Exp $                       
+*     $Id: c_cgminimize.F,v 1.18 2007-09-12 17:28:22 bylaska Exp $                       
 *
 
 
@@ -29,7 +29,7 @@
        
 c      complex*16 H0(nfft3d,nemax)
 c      complex*16 G1(nfft3d,nemax)
-      integer H0(2),G0(2),G1(2)
+      integer H0_tag,G0_tag,G1_tag
       real*8  E0,dE0
 
       real*8     sum0,sum1,scale,tole,tolc
@@ -41,14 +41,12 @@ c      complex*16 G1(nfft3d,nemax)
       real*8 tmin,deltat
       real*8 max_sigma
 
-      logical value
       integer ispin,ne(2)
       integer neall,nfft3d,npack1,nbrill
 
-
 *     **** external functions ****
-      integer  brillioun_nbrillioun
       integer  cpsi_neq,control_version,cpsi_ispinq,cpsi_nbrillq
+      integer  cpsi_data_push_stack
       real*8   control_tole,control_tolc
       real*8   cpsi_geodesic_energy
       real*8   cpsi_geodesic_denergy
@@ -63,9 +61,8 @@ c      complex*16 G1(nfft3d,nemax)
       real*8   c_ewald_e
       real*8   cpsi_1eorbit
       real*8   linesearch
-      logical  cpsi_spin_orbit
-      external brillioun_nbrillioun
       external cpsi_neq,control_version,cpsi_ispinq,cpsi_nbrillq
+      external cpsi_data_push_stack
       external control_tole,control_tolc
       external cpsi_geodesic_energy
       external cpsi_geodesic_denergy
@@ -79,7 +76,6 @@ c      complex*16 G1(nfft3d,nemax)
       external c_ewald_e
       external cpsi_1eorbit
       external linesearch
-      external cpsi_spin_orbit  
        
   
       call C3dB_nfft3d(1,nfft3d)
@@ -92,33 +88,19 @@ c      complex*16 G1(nfft3d,nemax)
 
 
 *     **** allocate H0, G0, and G1 ****
-      value = MA_push_get(mt_dcpl,npack1*neall*nbrill,
-     >                     'H0',H0(2),H0(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,npack1*neall*nbrill,
-     >                     'G0',G0(2),G0(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,npack1*neall*nbrill,
-     >                     'G1',G1(2),G1(1))
-      if (.not. value) call errquit('c_cgminimize:out of heap memory',0,
-     &       MA_ERR)
-
+      H0_tag = cpsi_data_push_stack(nbrill,neall,2*npack1)
+      G0_tag = cpsi_data_push_stack(nbrill,neall,2*npack1)
+      G1_tag = cpsi_data_push_stack(nbrill,neall,2*npack1)
 
       Estart = Enew
-      Eold= Enew
+      Eold   = Enew
 
 *     ***** get the initial gradient and direction ****
-      call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
+      call cpsi_1get_Tgradient(G1_tag,E0)
 
-      call Pneb_ff_traceall(0,0,
-     >                      dcpl_mb(G1(1)),
-     >                      dcpl_mb(G1(1)),
-     >                      npack1,sum1)
-c      write(*,*)"trace all sum1= ",sum1
-c      call flush(6)
+      call Pneb_ff_traceall_tag(0,0,G1_tag,G1_tag,sum1)
 
-      call BGrsm_ff_Copy(dcpl_mb(G1(1)),
-     >                   dcpl_mb(H0(1)))
+      call BGrsm_ff_Copy_tag(G1_tag,H0_tag)
 
 
 *     ******************************************
@@ -134,7 +116,7 @@ c      call flush(6)
       do it=2,it_in
 
 *        **** initialize the geoedesic line data structure ****
-         call c_geodesic_start(dcpl_mb(H0(1)),max_sigma,dE0)
+         call c_geodesic_start(H0_tag,max_sigma,dE0)
 
 
 *        ******* line search *********
@@ -164,29 +146,22 @@ c         call flush(6)
    
 
 *        **** transport the previous search directions ****
-         call BGrsm_ff_Copy(dcpl_mb(G1(1)),
-     >                      dcpl_mb(G0(1)))
+         call BGrsm_ff_Copy_tag(G1_tag,G0_tag)
 
-
-         call cpsi_1geodesic_transport(tmin,dcpl_mb(H0(1)))
-         call cpsi_1geodesic_Gtransport(tmin,dcpl_mb(G0(1)))
+         call cpsi_1geodesic_transport( tmin,H0_tag)
+         call cpsi_1geodesic_Gtransport(tmin,G0_tag)
 
 *        **** make psi1 <--- psi2(tmin) ****
          call cpsi_2to1()
 
 *        **** get the new gradient - also updates densities****
-         call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
+         call cpsi_1get_Tgradient(G1_tag,E0)
 
-         call BGrsm_fff_Sub(dcpl_mb(G1(1)),
-     >                      dcpl_mb(G0(1)),
-     >                      dcpl_mb(G0(1)))
+         call BGrsm_fff_Sub_tag(G1_tag,G0_tag,G0_tag)
 
          sum0  = sum1
 
-         call Pneb_ff_traceall(0,0,
-     >                        dcpl_mb(G1(1)),
-     >                        dcpl_mb(G1(1)),npack1,
-     >                        sum1)
+         call Pneb_ff_traceall_tag(0,0,G1_tag,G1_tag,sum1)
 
 *        **** the new direction using Fletcher-Reeves ****
          if (dabs(deltae).le.(1.0d-2).and.(tmin.gt.0.0d0)) then
@@ -197,18 +172,13 @@ c         call flush(6)
               scale = 0.0d0
            end if
 
-           call BGrsm_ff_dscale(scale,
-     >                          dcpl_mb(H0(1)),
-     >                          dcpl_mb(H0(1)))
+           call BGrsm_f_dscale_tag(scale,H0_tag)
 
-           call BGrsm_fff_sum(dcpl_mb(G1(1)),
-     >                        dcpl_mb(H0(1)),
-     >                        dcpl_mb(H0(1)))
+           call BGrsm_fff_sum_tag(G1_tag,H0_tag,H0_tag)
 
 *        **** the new direction using steepest-descent ****
          else
-              call BGrsm_ff_Copy(dcpl_mb(G1(1)),
-     >                           dcpl_mb(H0(1)))
+              call BGrsm_ff_Copy_tag(G1_tag,H0_tag)
 
          end if
 
@@ -216,7 +186,7 @@ c         call flush(6)
 
 *     **** initialize the geoedesic line data structure ****
 
-      call c_geodesic_start(dcpl_mb(H0(1)),max_sigma,dE0)
+      call c_geodesic_start(H0_tag,max_sigma,dE0)
 
 *     ******* line search *********
       if (tmin.gt.0.0d0) then
@@ -235,31 +205,18 @@ c         call flush(6)
       deltac = c_rho_error()
 
 *     **** free memory ****
- 30   value = MA_pop_stack(G1(2))
-      value = value.and.MA_pop_stack(G0(2))
-      value = value.and.MA_pop_stack(H0(2))
-      if (.not. value) 
-     >  call errquit('c_cgminimize:error freeing stack memory',0,
-     &       MA_ERR)
-      
-      
+  30  call cpsi_data_pop_stack(G1_tag)
+      call cpsi_data_pop_stack(G0_tag)
+      call cpsi_data_pop_stack(H0_tag)
 
       call cpsi_2to1()
-
-
       call cpsi_1toelectron() 
-
-
       call cpsi_check()
 
-      eion = c_ewald_e()
-
+      eion     = c_ewald_e()
       eorbit   = cpsi_1eorbit()
-
       ehartree = c_dng_1ehartree()
-
       exc      = c_rho_1exc()
-
       pxc      = c_rho_1pxc()
 
       E(1)  = Enew + eion

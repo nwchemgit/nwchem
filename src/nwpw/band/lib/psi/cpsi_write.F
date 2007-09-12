@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_write.F,v 1.10 2007-02-12 20:59:44 d3p708 Exp $
+* $Id: cpsi_write.F,v 1.11 2007-09-12 17:28:20 bylaska Exp $
 *
 
 *     ***************************
@@ -8,18 +8,18 @@
 *     *             		*
 *     ***************************
 
-      subroutine cpsi_write(spin_orbit,ispin,ne,nbrillioun,psi2)
+      subroutine cpsi_write(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
       implicit none 
       logical spin_orbit
       integer ispin,ne(2),nbrillioun
-      double complex psi2(*)
+      integer psi2_tag
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 
 *    *** local variables ***
       integer version,l,ispin0
-      integer nfft3d,npack1
+      integer nfft3d
       integer nfft(3)
       real*8  unita(3,3)
       character*30 filename
@@ -38,12 +38,11 @@ c     complex*16 tmp(*)
       external     control_output_psi
       double precision control_unita
       external         control_unita
-      integer  control_ngrid
-      external control_ngrid
+      integer  control_ngrid,cpsi_data_get_ptr
+      external control_ngrid,cpsi_data_get_ptr
 
       call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
-      call Cram_max_npack(npack1)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -93,8 +92,8 @@ c     complex*16 tmp(*)
 *     *** write out 3d blocks ***
       do nb=1,nbrillioun
       do n=1,(ne(1)+ne(2))
-         indx = 1+(n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2))
-         call Cram_c_Copy(nb,psi2(indx),dcpl_mb(tmp2(1)))
+         indx = cpsi_data_get_ptr(psi2_tag,nb,n)
+         call Cram_c_Copy(nb,dbl_mb(indx),dcpl_mb(tmp2(1)))
          call Cram_c_unpack(nb,dcpl_mb(tmp2(1)))          
          call C3dB_c_write(1,6,dcpl_mb(tmp2(1)),
      >                         dcpl_mb(tmp(1)))
@@ -106,8 +105,9 @@ c     complex*16 tmp(*)
         call closefile(6)
       end if
 
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not. value) call errquit('error popping stack',0, MA_ERR)
       return
       end
 
@@ -121,12 +121,12 @@ c     complex*16 tmp(*)
 *     ***********************************
 
       subroutine cpsi_write_filename(filename,
-     >                              spin_orbit,ispin,ne,nbrillioun,psi2)
+     >                spin_orbit,ispin,ne,nbrillioun,psi2_tag)
       implicit none 
       character*(*) filename
       logical spin_orbit
       integer ispin,ne(2),nbrillioun
-      double complex psi2(*)
+      integer psi2_tag
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -134,7 +134,7 @@ c     complex*16 tmp(*)
 
 *    *** local variables ***
       integer version,l,ispin0
-      integer nfft3d,npack1
+      integer nfft3d
       integer nfft(3)
       real*8  unita(3,3)
       character*255 full_filename
@@ -150,12 +150,11 @@ c     complex*16 tmp(*)
 *     ***** local functions ****
       double precision control_unita
       external         control_unita
-      integer  control_ngrid
-      external control_ngrid
+      integer  control_ngrid,cpsi_data_get_ptr
+      external control_ngrid,cpsi_data_get_ptr
 
       call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
-      call Cram_max_npack(npack1)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -204,8 +203,8 @@ c     complex*16 tmp(*)
 *     *** write out 3d blocks ***
       do nb=1,nbrillioun
       do n=1,(ne(1)+ne(2))
-         indx = 1+(n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2))
-         call Cram_c_Copy(nb,psi2(indx),dcpl_mb(tmp2(1)))
+         indx = cpsi_data_get_ptr(psi2_tag,nb,n)
+         call Cram_c_Copy(nb,dbl_mb(indx),dcpl_mb(tmp2(1)))
          call Cram_c_unpack(nb,dcpl_mb(tmp2(1)))          
          call C3dB_c_write(1,6,dcpl_mb(tmp2(1)),
      >                         dcpl_mb(tmp(1)))
@@ -217,8 +216,9 @@ c     complex*16 tmp(*)
         call closefile(6)
       end if
 
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not. value) call errquit('error popping stack',0, MA_ERR)
       return
       end
 
@@ -229,23 +229,22 @@ c     complex*16 tmp(*)
 *     *             		*
 *     ***************************
 
-      subroutine cpsi_write2(spin_orbit,ispin,ne,nbrillioun,psi2)
+      subroutine cpsi_write2(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
       implicit none 
       logical spin_orbit
       integer ispin,ne(2),nbrillioun
-      double complex psi2(*)
+      integer psi2_tag
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 
 *    *** local variables ***
       integer version,l,ispin0,l2
-      integer nfft3d,npack1
+      integer nfft3d
       integer nfft(3)
       real*8  unita(3,3)
       character*30 filename
       character*255 full_filename
-      character*30 bfilename
       character*255 bfull_filename
       integer MASTER,taskid
       parameter(MASTER=0)
@@ -260,12 +259,11 @@ c     complex*16 tmp(*)
       external     control_output_psi
       double precision control_unita
       external         control_unita
-      integer  control_ngrid
-      external control_ngrid
+      integer  control_ngrid,cpsi_data_get_ptr
+      external control_ngrid,cpsi_data_get_ptr
 
       call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
-      call Cram_max_npack(npack1)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -325,13 +323,13 @@ c     complex*16 tmp(*)
 *     *** write out 3d blocks ***
       do nb=1,nbrillioun
       do n=1,(ne(1)+ne(2))
-         indx = 1+(n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2))
-         call Cram_c_Copy(nb,psi2(indx),dcpl_mb(tmp2(1)))
+         indx = cpsi_data_get_ptr(psi2_tag,nb,n)
+         call Cram_c_Copy(nb,dbl_mb(indx),dcpl_mb(tmp2(1)))
          call Cram_c_unpack(nb,dcpl_mb(tmp2(1)))          
          call C3dB_c_write(1,6,dcpl_mb(tmp2(1)),
      >                         dcpl_mb(tmp(1)))
          call C3dB_c_write(1,37,dcpl_mb(tmp2(1)),
-     >                         dcpl_mb(tmp(1)))
+     >                          dcpl_mb(tmp(1)))
       end do
       end do
 
@@ -340,8 +338,9 @@ c     complex*16 tmp(*)
         call closefile(6)
         call closefile(37)
       end if
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not. value) call errquit('error popping stack',0, MA_ERR)
       return
       end
 

@@ -1,5 +1,5 @@
 c
-c     $Id: c_bfgsminimize.F,v 1.5 2007-08-22 20:12:43 bylaska Exp $                       
+c     $Id: c_bfgsminimize.F,v 1.6 2007-09-12 17:28:22 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -25,7 +25,7 @@ c
       real*8  deltat_min
       parameter (deltat_min=1.0d-2)
        
-      integer G0(2),S0(2)
+      integer G0_tag,S0_tag
       real*8  E0,dE0
 
       logical    precondition
@@ -43,15 +43,12 @@ c
       real*8 deltat
       real*8 max_sigma,dt
 
-      logical value
-      integer ispin,ne(2),neall,npack1,nbrill
-
-
+      integer ispin,neq(2),neall,npack1,nbrillq
 
 
 *     **** external functions ****
-      integer  brillioun_nbrillioun
-      integer  control_it_in,cpsi_ne,cpsi_ispin
+      integer  control_it_in,cpsi_neq,cpsi_ispin,cpsi_nbrillq
+      integer  cpsi_data_push_stack
       real*8   control_tole,control_tolc
       real*8   cpsi_geodesic_energy
       real*8   cpsi_geodesic_denergy
@@ -67,8 +64,8 @@ c
       real*8   cpsi_1eorbit
       real*8   linesearch
    
-      external brillioun_nbrillioun
-      external control_it_in,cpsi_ne,cpsi_ispin
+      external control_it_in,cpsi_neq,cpsi_ispin,cpsi_nbrillq
+      external cpsi_data_push_stack
       external control_tole,control_tolc
       external cpsi_geodesic_energy
       external cpsi_geodesic_denergy
@@ -104,35 +101,36 @@ c     dte = 1.0d0
   
       call Cram_max_npack(npack1)
       ispin = cpsi_ispin()
-      ne(1) = cpsi_ne(1)
-      ne(2) = cpsi_ne(2)
-      neall = ne(1)+ne(2)
-      nbrill = brillioun_nbrillioun()
+      neq(1) = cpsi_neq(1)
+      neq(2) = cpsi_neq(2)
+      neall = neq(1)+neq(2)
+      nbrillq = cpsi_nbrillq()
 
 
 *     **** allocate G0, S0 ****
-      value = MA_push_get(mt_dcpl,npack1*neall*nbrill,
-     >                     'S0',S0(2),S0(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,npack1*neall*nbrill,
-     >                     'G0',G0(2),G0(1))
-      if (.not. value) 
-     > call errquit('c_bfgsminimize:out of heap memory',0,MA_ERR)
+      S0_tag = cpsi_data_push_stack(nbrillq,neall,2*npack1)
+      G0_tag = cpsi_data_push_stack(nbrillq,neall,2*npack1)
+c      value = MA_push_get(mt_dcpl,npack1*neall*nbrill,
+c     >                     'S0',S0(2),S0(1))
+c      value = value.and.
+c     >        MA_push_get(mt_dcpl,npack1*neall*nbrill,
+c     >                     'G0',G0(2),G0(1))
+c      if (.not. value) 
+c     > call errquit('c_bfgsminimize:out of heap memory',0,MA_ERR)
 
 
 
 *     ***** get the initial direction ****
-      call cpsi_1get_Tgradient(dcpl_mb(G0(1)),E0)
+      call cpsi_1get_Tgradient(G0_tag,E0)
 
       if (current_iteration.eq.1) then
 
 *        ***** use the initial gradient for the direction ****
-         call band_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
-         call BGrsm_ff_Copy(dcpl_mb(G0(1)),
-     >                      dcpl_mb(S0(1)))
+         call band_lmbfgs_init(control_lmbfgs_size(),G0_tag)
+         call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
          tmin  = 10*deltat_min
       else
-         call band_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+         call band_lmbfgs(tmin,G0_tag,S0_tag)
       end if
      
 
@@ -148,7 +146,7 @@ c     dte = 1.0d0
 
 
 *        **** initialize the geoedesic line data structure ****
-         call c_geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
+         call c_geodesic_start(S0_tag,max_sigma,dE0)
 
 *        ******* line search *********
          if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
@@ -171,8 +169,8 @@ c         deltat = 1.0d0  !** debug **
          end if
      
 *        **** get the new gradient - also updates densities****
-         call cpsi_2get_Tgradient(2,dcpl_mb(G0(1)),E0)
-         call band_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+         call cpsi_2get_Tgradient(2,G0_tag,E0)
+         call band_lmbfgs(tmin,G0_tag,S0_tag)
 
 
 *        **** make psi1 <--- psi2(tmin) ****
@@ -183,7 +181,7 @@ c        call c_dng_2to1()
       end do
 
 *     **** initialize the geoedesic line data structure ****
-      call c_geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
+      call c_geodesic_start(S0_tag,max_sigma,dE0)
 
 *     ******* line search *********
       if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
@@ -199,12 +197,14 @@ c        call c_dng_2to1()
       deltac = c_rho_error()
 
 *     **** free memory ****
- 30   value = MA_pop_stack(G0(2))
-      value = value.and.
-     >        MA_pop_stack(S0(2))
-      if (.not. value) 
-     > call errquit('c_bfgsminimize:error freeing heap',0,MA_ERR)
-
+ 30   call cpsi_data_pop_stack(G0_tag)
+      call cpsi_data_pop_stack(S0_tag)
+c 30   value = MA_pop_stack(G0(2))
+c      value = value.and.
+c     >        MA_pop_stack(S0(2))
+c      if (.not. value) 
+c     > call errquit('c_bfgsminimize:error freeing heap',0,MA_ERR)
+ 
       call cpsi_2to1()
       call cpsi_1toelectron() 
 c     call c_rho_2to1()

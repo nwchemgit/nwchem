@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.32 2007-08-24 02:24:59 bylaska Exp $
+* $Id: c_electron.F,v 1.33 2007-09-12 17:28:15 bylaska Exp $
 *
 
 
@@ -10,14 +10,15 @@
 *     **********************************
       integer function c_electron_iptr_psir()
       implicit none
-      integer i
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
       integer iptr
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
 
-      iptr = psi_r(1)
+      iptr = cpsi_data_get_chnk(psi_r_tag,1)
       c_electron_iptr_psir = iptr
       return
       end
@@ -38,47 +39,53 @@
 
 *     **** local variables ****
       logical value
+      integer neall
 
 *     **** external functions ****
-      integer  cpsi_ispin,cpsi_ne,brillioun_nbrillioun
+      integer  cpsi_ispin,cpsi_ne
+      integer  cpsi_data_alloc,Pneb_ispinq,Pneb_nbrillq
       logical  cpsi_spin_orbit
-      external cpsi_ispin,cpsi_ne,brillioun_nbrillioun
+      external cpsi_ispin,cpsi_ne
+      external cpsi_data_alloc,Pneb_ispinq,Pneb_nbrillq
       external cpsi_spin_orbit
 
       counter = 0
 
-      ispin = cpsi_ispin()
-      ne(1) = cpsi_ne(1)
-      ne(2) = cpsi_ne(2)
+      ispin  = cpsi_ispin()
+      ne(1)  = cpsi_ne(1)
+      ne(2)  = cpsi_ne(2)
       spin_orbit= cpsi_spin_orbit()
+
+      ispinq  = Pneb_ispinq()
+      call Pneb_neq(neq)
+      nbrillq = Pneb_nbrillq()
 
 *     **** get nfft3d, and npack0 and nbrill****
       call Cram_npack(0,npack0)
       call Cram_max_npack(npack1)
       call C3dB_nfft3d(1,nfft3d)
-      nbrill = brillioun_nbrillioun()
+
+      neall  = neq(1)+neq(2)
+      
 
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,nbrill*npack1*(ne(1)+ne(2)),
-     >                     'Hpsi_k',Hpsi_k(2),Hpsi_k(1))
+c      value = MA_alloc_get(mt_dcpl,nbrill*npack1*(ne(1)+ne(2)),
+c     >                     'Hpsi_k',Hpsi_k(2),Hpsi_k(1))
+c      value = value.and.
+c     >        MA_alloc_get(mt_dcpl,nbrill*nfft3d*(ne(1)+ne(2)),
+c     >                     'psi_r',psi_r(2),psi_r(1))
+      Hpsi_k_tag = cpsi_data_alloc(nbrillq,neall,2*npack1)
+      psi_r_tag  = cpsi_data_alloc(nbrillq,neall,2*nfft3d)
+
+      value = MA_alloc_get(mt_dcpl,npack0,'vl2',vl(2),vl(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nbrill*nfft3d*(ne(1)+ne(2)),
-     >                     'psi_r',psi_r(2),psi_r(1))
+     >        MA_alloc_get(mt_dcpl,npack0,'vc',vc(2),vc(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack0,
-     >                     'vl2',vl(2),vl(1))
+     >        MA_alloc_get(mt_dcpl,2*nfft3d,'vall',vall(2),vall(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack0,
-     >                     'vc',vc(2),vc(1))
+     >        MA_alloc_get(mt_dbl,2*nfft3d,'xcp',xcp(2),xcp(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,2*nfft3d,
-     >                     'vall',vall(2),vall(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nfft3d,
-     >                     'xcp',xcp(2),xcp(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nfft3d,
-     >                     'xce',xce(2),xce(1))
+     >        MA_alloc_get(mt_dbl,2*nfft3d,'xce',xce(2),xce(1))
       if (.not. value) 
      >  call errquit('c_electron_init: out of heap memory',0, MA_ERR)
 
@@ -103,19 +110,18 @@
       logical value
 
 *     **** free heap  memory ****
-      value = MA_free_heap(Hpsi_k(2))
-      value = value.and.
-     >        MA_free_heap(psi_r(2))
-      value = value.and.
-     >        MA_free_heap(vl(2))
-      value = value.and.
-     >        MA_free_heap(vall(2))
-      value = value.and.
-     >        MA_free_heap(vc(2))
-      value = value.and.
-     >        MA_free_heap(xcp(2))
-      value = value.and.
-     >        MA_free_heap(xce(2))
+c      value = MA_free_heap(Hpsi_k(2))
+c      value = value.and.
+c     >        MA_free_heap(psi_r(2))
+
+      call cpsi_data_dealloc(Hpsi_k_tag)
+      call cpsi_data_dealloc(psi_r_tag)
+
+      value =           MA_free_heap(vl(2))
+      value = value.and.MA_free_heap(vall(2))
+      value = value.and.MA_free_heap(vc(2))
+      value = value.and.MA_free_heap(xcp(2))
+      value = value.and.MA_free_heap(xce(2))
       if (.not. value) 
      >  call errquit(
      >   'c_electron_finalize: error freeing heap memory',0, MA_ERR)
@@ -141,9 +147,10 @@
 *     *		c_electron_run_noscf	*
 *     *					*
 *     ***********************************
-      subroutine c_electron_run_noscf(psi_k,dn,dng,dnall)
+      subroutine c_electron_run_noscf(psi_k_tag,dn,dng,dnall)
       implicit none
-      complex*16 psi_k(*)
+c      complex*16 psi_k(*)
+      integer    psi_k_tag
       real*8     dn(*)
       complex*16 dng(*)
       real*8     dnall(*)
@@ -153,9 +160,9 @@
       counter = counter+1
 
 
-      call c_electron_gen_psi_r(psi_k)
-      call c_electron_gen_densities(psi_k,dn,dng,dnall)
-      call c_electron_gen_Hpsi_k_vall(psi_k)
+      call c_electron_gen_psi_r(psi_k_tag)
+      call c_electron_gen_densities(psi_k_tag,dn,dng,dnall)
+      call c_electron_gen_Hpsi_k_vall(psi_k_tag)
 
       return
       end
@@ -165,9 +172,10 @@
 *     *		c_electron_run		*
 *     *					*
 *     ***********************************
-      subroutine c_electron_run(psi_k,dn,dng,dnall)
+      subroutine c_electron_run(psi_k_tag,dn,dng,dnall)
       implicit none
-      complex*16 psi_k(*)
+c      complex*16 psi_k(*)
+      integer    psi_k_tag
       real*8     dn(*)
       complex*16 dng(*)
       real*8     dnall(*)
@@ -176,30 +184,27 @@
 
       counter = counter+1
 
-
-      call c_electron_gen_psi_r(psi_k)
-
-      call c_electron_gen_densities(psi_k,dn,dng,dnall)
-
+      call c_electron_gen_psi_r(psi_k_tag)
+      call c_electron_gen_densities(dn,dng,dnall)
       call c_electron_gen_scf_potentials(dn,dng,dnall)
-
-      call c_electron_gen_Hpsi_k(psi_k)
+      call c_electron_gen_Hpsi_k(psi_k_tag)
 
       return
       end
 
 *     ***********************************
 *     *                                 *
-*     *         c_electron_run_orb        *
+*     *         c_electron_run_orb      *
 *     *                                 *
 *     ***********************************
-      subroutine c_electron_run_orb(nb,i,psi_k)
+      subroutine c_electron_run_orb(nb,i,psi_k_tag)
       implicit none
       integer    nb,i
-      complex*16 psi_k(*)
+c      complex*16 psi_k(*)
+      integer    psi_k_tag
 
-      call c_electron_gen_psi_r_orb(nb,i,psi_k)    
-      call c_electron_gen_Hpsi_k_orb(nb,i,psi_k)
+      call c_electron_gen_psi_r_orb(nb, i,psi_k_tag)
+      call c_electron_gen_Hpsi_k_orb(nb,i,psi_k_tag)
 
       return
       end
@@ -213,21 +218,25 @@
 
       subroutine c_electron_get_gradient_orb(nb,i,Horb)
       implicit none
-      integer nb,i,indx
+      integer nb,i
       complex*16 Horb(*)
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-      indx=Hpsi_k(1)+(i-1)*npack1+(nb-1)*(ne(1)+ne(2))*npack1
-      call Cram_c_Copy(nb,
-     >                 dcpl_mb(indx),
-     >                 Horb)
+*     **** local variables ****
+      integer Hpsi_shift
+
+*     **** external functions ****
+      integer  cpsi_data_get_ptr
+      external cpsi_data_get_ptr
+
+      Hpsi_shift = cpsi_data_get_ptr(Hpsi_k_tag,nb,i)
+      call Cram_c_Copy(nb,dbl_mb(Hpsi_shift),Horb)
+
       if (spin_orbit) then
-        indx=indx+ne(1)*npack1
-        call Cram_c_Copy(nb,
-     >                 dcpl_mb(indx),
-     >                 Horb(npack1+1))
+        Hpsi_shift = cpsi_data_get_ptr(Hpsi_k_tag,nb,i+neq(1))
+        call Cram_c_Copy(nb,dbl_mb(Hpsi_shift),Horb(npack1+1))
       end if
       return
       end
@@ -239,43 +248,53 @@
 *     *					*
 *     ***********************************
 *     ***********************************
-      subroutine c_electron_sd_update(psi1,psi2,dte)
+      subroutine c_electron_sd_update(psi1_tag,psi2_tag,dte)
       implicit none
-      complex*16 psi1(*),psi2(*)
+      integer    psi1_tag,psi2_tag
       real*8     dte
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
+*     **** local variables ****
+      integer nb,psi1_shift,psi2_shift,Hpsi_shift
 
-      call c_electron_sd_subupdate(npack1,(ne(1)+ne(2)),nbrill,
-     >                           psi1,psi2,dcpl_mb(Hpsi_k(1)),
+*     ***** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+      call cpsi_data_update(psi2_tag)
+      do nb=1,nbrillq
+         psi1_shift = cpsi_data_get_chnk(  psi1_tag,nb)
+         psi2_shift = cpsi_data_get_chnk(  psi2_tag,nb)
+         Hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nb)
+         call c_electron_sd_subupdate(nb,npack1,(neq(1)+neq(2)),
+     >                           dbl_mb(psi1_shift),
+     >                           dbl_mb(psi2_shift),
+     >                           dbl_mb(Hpsi_shift),
      >                           dte)
+      end do
+      call cpsi_data_noupdate(psi2_tag)
       return
       end
 
-
-      subroutine c_electron_sd_subupdate(nfft3d,nn,nbrill,
-     >                                 psi1,psi2,Hpsi,dte)
+      subroutine c_electron_sd_subupdate(nb,nfft3d,nn,
+     >              psi1,psi2,Hpsi,dte)
       implicit none
-      integer    nfft3d,nn,nbrill
-      complex*16 psi1(nfft3d,nn,nbrill)
-      complex*16 psi2(nfft3d,nn,nbrill)
-      complex*16 Hpsi(nfft3d,nn,nbrill)
+      integer    nb,nfft3d,nn
+      complex*16 psi1(nfft3d,nn)
+      complex*16 psi2(nfft3d,nn)
+      complex*16 Hpsi(nfft3d,nn)
       real*8     dte
 
-      integer n,nb
-
+      integer n
 *     ************************************
 *     **** do a steepest descent step ****
 *     ************************************
-      do nb=1,nbrill
       do n=1,nn
-        call Cram_c_SMul(nb,(-dte),Hpsi(1,n,nb),psi2(1,n,nb))
-        call Cram_cc_Sum(nb,psi2(1,n,nb),psi1(1,n,nb),psi2(1,n,nb))
+        call Cram_c_SMul(nb,(-dte),Hpsi(1,n),psi2(1,n))
+        call Cram_cc_Sum(nb,psi2(1,n),psi1(1,n),psi2(1,n))
       end do
-      end do
-
       return
       end
 
@@ -287,9 +306,9 @@ cccccccccccccccccc
 *     *		c_electron_energy	*
 *     *					*
 *     ***********************************
-      real*8 function c_electron_energy(psi_k,dn,dng,dnall)
+      real*8 function c_electron_energy(psi_k_tag,dn,dng,dnall)
       implicit none
-      complex*16 psi_k(*)
+      integer    psi_k_tag
       real*8     dn(*)
       complex*16 dng(*)
       real*8     dnall(*)
@@ -299,42 +318,43 @@ cccccccccccccccccc
 
 
 *     **** local variables ****
-      integer nb,ii,ms,n1(2),n2(2),nx,ny,nz,indx,neall
+      integer nbq,ii,nx,ny,nz,neall
+      integer psi_shift,Hpsi_shift,nshift1,nshift2
       real*8  sum,eorbit,ehartr,exc,pxc,exc2,pxc2,dv,weight
 
 *     **** external functions *****
+      integer  cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
       real*8   lattice_omega,c_coulomb_e,brillioun_weight
+      external cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
       external lattice_omega,c_coulomb_e,brillioun_weight
       
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
-     
-
       dv = lattice_omega()/dble(nx*ny*nz)
 
-      n1(1) = 1
-      n1(2) = ne(1) + 1
-      n2(1) = ne(1)
-      n2(2) = ne(1) + ne(2)
-      neall = ne(1) + ne(2)
+      neall = neq(1) + neq(2)
+      nshift1 = cpsi_data_nsize(psi_k_tag)
+      nshift2 = cpsi_data_nsize(Hpsi_k_tag)
+
 *     *** get orbital energies ****
       eorbit = 0.0d0
-      do nb=1,nbrill
-        weight = brillioun_weight(nb)
+      do nbq=1,nbrillq
+        weight = brillioun_weight(Pneb_convert_nb(nbq))
+        psi_shift  = cpsi_data_get_chnk( psi_k_tag,nbq)
+        Hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
 
-        do ms=1,ispin
-           do ii=n1(ms),n2(ms)
-             indx = (ii-1)*npack1 + (nb-1)*npack1*neall
-             call Cram_cc_idot(nb,
-     >                         psi_k(1+indx),
-     >                         dcpl_mb(Hpsi_k(1)+indx),
-     >                         sum)
-             eorbit = eorbit + sum*weight
-           end do
+        do ii=1,neall
+           call Cram_cc_idot(nbq,
+     >                       dbl_mb(psi_shift),
+     >                       dbl_mb(Hpsi_shift),
+     >                       sum)
+           eorbit = eorbit + sum*weight
+           psi_shift  = psi_shift  + nshift1
+           Hpsi_shift = Hpsi_shift + nshift2
         end do
       end do
-      call C3dB_SumAll(eorbit)
+      call Parallel_SumAll(eorbit)
       if (ispin.eq.1) eorbit = eorbit+eorbit
 
            
@@ -364,8 +384,6 @@ cccccccccccccccccc
       end if
       exc = exc*dv
       pxc = pxc*dv
-          
-
 
 *     **** total energy ****
       c_electron_energy = eorbit + exc - ehartr - pxc
@@ -378,18 +396,46 @@ cccccccccccccccccc
 *     *		c_electron_eorbit	*
 *     *					*
 *     ***********************************
-      real*8 function c_electron_eorbit(psi_k)
+      real*8 function c_electron_eorbit(psi_k_tag)
       implicit none
-      complex*16 psi_k(*)
+      integer psi_k_tag
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
-      real*8  eorbit
+      integer nbq,ii,neall
+      integer psi_shift,Hpsi_shift,nshift1,nshift2
+      real*8  sum,eorbit,weight
 
-      call Pneb_ff_traceall(0,0,psi_k,dcpl_mb(Hpsi_k(1)),npack1,
-     >eorbit)
+*     **** external functions *****
+      integer  cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      real*8   brillioun_weight
+      external cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      external brillioun_weight
+
+      neall = neq(1) + neq(2)
+      nshift1 = cpsi_data_nsize(psi_k_tag)
+      nshift2 = cpsi_data_nsize(Hpsi_k_tag)
+
+*     *** get orbital energies ****
+      eorbit = 0.0d0
+      do nbq=1,nbrillq
+        weight = brillioun_weight(Pneb_convert_nb(nbq))
+        psi_shift  = cpsi_data_get_chnk( psi_k_tag,nbq)
+        Hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
+
+        do ii=1,neall
+           call Cram_cc_idot(nbq,
+     >                       dbl_mb(psi_shift),
+     >                       dbl_mb(Hpsi_shift),
+     >                       sum)
+           eorbit = eorbit + sum*weight
+           psi_shift  = psi_shift  + nshift1
+           Hpsi_shift = Hpsi_shift + nshift2
+        end do
+      end do
+      call Parallel_SumAll(eorbit)
       if (ispin.eq.1) eorbit = eorbit+eorbit
 
       c_electron_eorbit = eorbit 
@@ -559,15 +605,14 @@ cccccccccccccccccc
 *     *		c_electron_get_Hpsi_k	*
 *     *					*
 *     ***********************************
-      subroutine c_electron_get_Hpsi_k(Hpsi_k_new)
+      subroutine c_electron_get_Hpsi_k(Hpsi_k_new_tag)
       implicit none
-      complex*16 Hpsi_k_new(*)
+      integer  Hpsi_k_new_tag
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-      call BGrsm_ff_Copy(dcpl_mb(Hpsi_k(1)),
-     >                   Hpsi_k_new)
+      call cpsi_data_copyall(Hpsi_k_tag,Hpsi_k_new_tag)
       return
       end
 
@@ -610,11 +655,11 @@ cccccccccccccccccc
 *     *					*
 *     ***********************************
 
-      subroutine c_electron_get_Tgradient(psi_k,hml,THpsi_k)
+      subroutine c_electron_get_Tgradient(psi_k_tag,hml_tag,THpsi_k_tag)
       implicit none
-      complex*16 psi_k(*)
-      complex*16     hml(*)
-      complex*16 THpsi_k(*)
+      integer    psi_k_tag
+      integer    hml_tag
+      integer    THpsi_k_tag
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
@@ -623,20 +668,54 @@ cccccccccccccccccc
       complex*16 zero,one
       parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
 
-      call Pneb_fwf_Multiply(0,0,
+      integer nb,nsize,psi_shift,hpsi_shift,tpsi_shift,hml_shift
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+      nsize = 2*(neq(1)+neq(2))*npack1
+
+      call cpsi_data_update(THpsi_k_tag)
+      do nb=1,nbrillq
+         psi_shift  = cpsi_data_get_chnk(psi_k_tag,nb)
+         hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nb)
+         tpsi_shift = cpsi_data_get_chnk(THpsi_k_tag,nb)
+         hml_shift  = cpsi_data_get_chnk(hml_tag,nb)
+
+         call Pneb_fwf_Multiply(0,nb,
      >                       one,
-     >                       psi_k,npack1,
-     >                       hml,
+     >                       dbl_mb(psi_shift),npack1,
+     >                       dbl_mb(hml_shift),
      >                       zero,
-     >                       THpsi_k)
+     >                       dbl_mb(tpsi_shift))
+         call c_electron_fff_sub(nsize,
+     >                          dbl_mb(tpsi_shift),
+     >                          dbl_mb(hpsi_shift),
+     >                          dbl_mb(tpsi_shift))
+c         call BGrsm_fff_Sub(dcpl_mb(Hpsi_k(1)),
+c     >                   THpsi_k,
+c     >                   THpsi_k)
+c
+c         call BGrsm_ff_dScale(-1.0d0,
+c     >                     THpsi_k,
+c     >                     THpsi_k)
 
-      call BGrsm_fff_sub(dcpl_mb(Hpsi_k(1)),
-     >                   THpsi_k,
-     >                   THpsi_k)
+      end do
+      call cpsi_data_noupdate(THpsi_k_tag)
+      return
+      end
 
-      call BGrsm_ff_dScale(-1.0d0,
-     >                     THpsi_k,
-     >                     THpsi_k)
+      subroutine c_electron_fff_sub(nsize,A,B,C)
+      implicit none
+      integer nsize
+      real*8 A(*)
+      real*8 B(*)
+      real*8 C(*)
+      integer i
+      do i=1,nsize
+         C(i) = A(i) - B(i)
+      end do
       return
       end
 
@@ -645,23 +724,32 @@ cccccccccccccccccc
 *     *	    c_electron_gen_hml 	*
 *     *				*
 *     ***************************
-
-      subroutine c_electron_gen_hml(psi_k,hml)
+      subroutine c_electron_gen_hml(psi_k_tag,hml_tag)
       implicit none
-      complex*16 psi_k(*)
-      complex*16 hml(*)
+      integer psi_k_tag
+      integer hml_tag
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
- 
+      integer nb,psi_shift,hpsi_shift,hml_shift
 
-      call Pneb_ffw_Multiply(0,0,
-     >                  psi_k,
-     >                  dcpl_mb(Hpsi_k(1)),
-     >                  npack1,
-     >                  hml)
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+ 
+      call cpsi_data_update(hml_tag)
+      do nb=1,nbrillq
+         psi_shift  = cpsi_data_get_chnk(psi_k_tag,nb)
+         hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nb)
+         hml_shift  = cpsi_data_get_chnk(hml_tag,nb)
+         call Pneb_ffw_Multiply(0,nb,
+     >                  dbl_mb(psi_shift),
+     >                  dbl_mb(hpsi_shift),npack1,
+     >                  dbl_mb(hml_shift))
+      end do
+      call cpsi_data_noupdate(hml_tag)
 
       return
       end
@@ -678,9 +766,9 @@ cccccccccccccccccc
 *     *					*
 *     ***********************************
 
-      subroutine c_electron_gen_Hpsi_k(psi_k)
+      subroutine c_electron_gen_Hpsi_k(psi_k_tag)
       implicit none
-      complex*16 psi_k(*)
+      integer  psi_k_tag
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
@@ -688,29 +776,33 @@ cccccccccccccccccc
 
 *     **** local variables ****
       logical move
+      integer nb,hpsi_shift,nsize
       real*8  fion(3,1)
 
 *     **** external functions ****
-      integer  control_version
-      external control_version
+      integer  control_version,cpsi_data_get_chnk
+      external control_version,cpsi_data_get_chnk
 
       move = .false.
 *     ******************
 *     **** get Hpsi ****
 *     ******************
-      call cpsi_H(ispin,ne,
-     >           psi_k,
-     >           dcpl_mb(psi_r(1)),
+      call cpsi_H(ispin,neq,
+     >           psi_k_tag,
+     >           psi_r_tag,
      >           dcpl_mb(vl(1)),
      >           dcpl_mb(vc(1)),
      >           dbl_mb(xcp(1)),
-     >           dcpl_mb(Hpsi_k(1)),
+     >           Hpsi_k_tag,
      >           move,
      >           fion)
 
-      call BGrsm_ff_dScale((-1.0d0),
-     >                     dcpl_mb(Hpsi_k(1)),
-     >                     dcpl_mb(Hpsi_k(1)))
+      nsize = 2*(neq(1)+neq(2))*npack1
+      do nb=1,nbrillq
+        hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nb)
+        call dscal(nsize,(-1.0d0),dbl_mb(hpsi_shift),1)
+      end do
+
       return
       end
 
@@ -720,32 +812,36 @@ cccccccccccccccccc
 *     *                                 *
 *     ***********************************
 
-      subroutine c_electron_gen_Hpsi_k_vall(psi_k)
+      subroutine c_electron_gen_Hpsi_k_vall(psi_k_tag)
       implicit none
-      complex*16 psi_k(*)
+      integer psi_k_tag
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
+
+*     **** local variables ****
+      integer nb,hpsi_shift,nsize
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
 
 *     ******************
 *     **** get Hpsi ****
 *     ******************
       call cpsi_H_vall(ispin,ne,
-     >           psi_k,
-     >           dcpl_mb(psi_r(1)),
+     >           psi_k_tag,
+     >           psi_r_tag,
      >           dcpl_mb(vall(1)),
-     >           dcpl_mb(Hpsi_k(1)))
+     >           Hpsi_k_tag)
 
-      call BGrsm_ff_dScale((-1.0d0),
-     >                     dcpl_mb(Hpsi_k(1)),
-     >                     dcpl_mb(Hpsi_k(1)))
+      nsize = 2*(neq(1)+neq(2))*npack1
+      do nb=1,nbrillq
+        hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nb)
+        call dscal(nsize,(-1.0d0),dbl_mb(hpsi_shift),1)
+      end do
       return
       end
-
-
-
-
-
 
 
 *     ***********************************
@@ -754,46 +850,52 @@ cccccccccccccccccc
 *     *                                 *
 *     ***********************************
 
-      subroutine c_electron_gen_Hpsi_k_orb(nb,n,psi_k)
+      subroutine c_electron_gen_Hpsi_k_orb(nb,n,psi_k_tag)
       implicit none
       integer nb,n
-      complex*16 psi_k(*)
+      integer psi_k_tag
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
 
 *     **** local variables ****
-      integer ms,index1,index2
+      integer ms
+      integer psir_shift,psik_shift,hpsi_shift
+
+*     **** external functions ****
+      integer  cpsi_data_get_ptr
+      external cpsi_data_get_ptr
 
       if (n.le.ne(1)) then
         ms=1
       else
         ms=2
       end if
-      index1  = (n-1)*nfft3d  + (nb-1)*(ne(1)+ne(2))*nfft3d
-      index2  = (n-1)*npack1  + (nb-1)*(ne(1)+ne(2))*npack1
+      psir_shift = cpsi_data_get_ptr( psi_r_tag,nb,n)
+      psik_shift = cpsi_data_get_ptr( psi_k_tag,nb,n)
+      hpsi_shift = cpsi_data_get_ptr(Hpsi_k_tag,nb,n)
 
+      call cpsi_data_update(Hpsi_k_tag)
 *     ******************
 *     **** get Hpsi ****
 *     ******************
       call cpsi_Horb(nb,ispin,ms,
-     >              dcpl_mb(psi_r(1)),
      >              dcpl_mb(vall(1)),
-     >              psi_k(index2+1),
-     >              dcpl_mb(psi_r(1)+index1),
-     >              dcpl_mb(Hpsi_k(1)+index2))
+     >              dbl_mb(psik_shift),
+     >              dbl_mb(psir_shift),
+     >              dbl_mb(hpsi_shift))
 
       call Cram_c_SMul(nb,(-1.0d0),
-     >                 dcpl_mb(Hpsi_k(1)+index2),
-     >                 dcpl_mb(Hpsi_k(1)+index2))
-
+     >                 dbl_mb(hpsi_shift),
+     >                 dbl_mb(hpsi_shift))
       if (spin_orbit) then
-        index2=index2+ne(1)*npack1
-        call Cram_c_SMul(nb,(-1.0d0),
-     >                 dcpl_mb(Hpsi_k(1)+index2),
-     >                 dcpl_mb(Hpsi_k(1)+index2))
+         hpsi_shift = cpsi_data_get_ptr(Hpsi_k_tag,nb,n+neq(1))
+         call Cram_c_SMul(nb,(-1.0d0),
+     >                 dbl_mb(hpsi_shift),
+     >                 dbl_mb(hpsi_shift))
       end if               
+      call cpsi_data_noupdate(Hpsi_k_tag)
       return
       end
 
@@ -808,15 +910,41 @@ cccccccccccccccccc
 *     *				    *
 *     *******************************
 
-      subroutine c_electron_gen_psi_r(psi_k)
+      subroutine c_electron_gen_psi_r(psi_k_tag)
       implicit none
-      complex*16 psi_k(*)
+      integer psi_k_tag
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-      call BGrsm_fh_fftb(psi_k,
-     >                   dcpl_mb(psi_r(1)))
+c     **** local variables ****
+      integer k,neall,nb,nbq
+      integer shiftA,nshiftA
+      integer shiftB,nshiftB
+
+c     **** external functions ***
+      integer  Pneb_convert_nb,cpsi_data_get_chnk
+      external Pneb_convert_nb,cpsi_data_get_chnk
+
+c      call BGrsm_fh_fftb(psi_k,
+c     >                   dcpl_mb(psi_r(1)))
+
+      neall   = neq(1)+neq(2)
+      nshiftA = 2*npack1
+      nshiftB = 2*nfft3d
+      do nbq=1,nbrillq
+         nb = Pneb_convert_nb(nbq)
+         shiftA = cpsi_data_get_chnk(psi_k_tag,nbq)
+         shiftB = cpsi_data_get_chnk(psi_r_tag,nbq)
+         do k=1,neall
+            call Cram_c_Copy(nb,dbl_mb(shiftA),dbl_mb(shiftB))
+            call Cram_c_unpack(nb,dbl_mb(shiftB))
+            call C3dB_cr_fft3b(1,dbl_mb(shiftB))
+            shiftA = shiftA + nshiftA
+            shiftB = shiftB + nshiftB
+         end do
+      end do
+
       return
       end
 
@@ -827,10 +955,10 @@ cccccccccccccccccc
 *     *                                 *
 *     ***********************************
 
-      subroutine c_electron_gen_psi_r_orb(nb,n,psi_k)
+      subroutine c_electron_gen_psi_r_orb(nb,n,psi_k_tag)
       implicit none
       integer    nb,n
-      complex*16 psi_k(*)
+      integer    psi_k_tag
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
@@ -838,23 +966,27 @@ cccccccccccccccccc
 *     **** local variables ****
       integer shiftk,shiftr
 
-      shiftk =        1 + (n-1)*npack1 + (nb-1)*(ne(1)+ne(2))*npack1
-      shiftr = psi_r(1) + (n-1)*nfft3d + (nb-1)*(ne(1)+ne(2))*nfft3d
+*     ***** external functions ****
+      integer  cpsi_data_get_ptr
+      external cpsi_data_get_ptr
 
-      call Cram_c_Copy(nb,psi_k(shiftk),
-     >                    dcpl_mb(shiftr))
+      call cpsi_data_update(psi_r_tag)
+      shiftk = cpsi_data_get_ptr(psi_k_tag,nb,n)
+      shiftr = cpsi_data_get_ptr(psi_r_tag,nb,n)
 
-      call Cram_c_unpack(nb, dcpl_mb(shiftr))
-      call C3dB_cr_fft3b(1,  dcpl_mb(shiftr))
+      call Cram_c_Copy(nb,dbl_mb(shiftk),dbl_mb(shiftr))
+
+      call Cram_c_unpack(nb, dbl_mb(shiftr))
+      call C3dB_cr_fft3b(1,  dbl_mb(shiftr))
 
       if (spin_orbit) then
-        shiftk=shiftk+ne(1)*npack1
-        shiftr=shiftr+ne(1)*nfft3d
-        call Cram_c_Copy(nb,psi_k(shiftk),
-     >                    dcpl_mb(shiftr))
-        call Cram_c_unpack(nb, dcpl_mb(shiftr))
-        call C3dB_cr_fft3b(1,  dcpl_mb(shiftr))
+        shiftk = cpsi_data_get_ptr(psi_k_tag,nb,n+neq(1))
+        shiftr = cpsi_data_get_ptr(psi_r_tag,nb,n+neq(1))
+        call Cram_c_Copy(nb,dbl_mb(shiftk),dbl_mb(shiftr))
+        call Cram_c_unpack(nb, dbl_mb(shiftr))
+        call C3dB_cr_fft3b(1,  dbl_mb(shiftr))
       end if                                   
+      call cpsi_data_noupdate(psi_r_tag)
       return
       end
 
@@ -865,31 +997,33 @@ cccccccccccccccccc
 *     *				        *
 *     ***********************************
 
-      subroutine c_electron_gen_densities(psi_k,dn,dng,dnall)
+      subroutine c_electron_gen_densities(dn,dng,dnall)
       implicit none
-      complex*16 psi_k(*)
-      real*8     dn(*)
-      complex*16 dng(*)
-      real*8     dnall(*)
-
 #include "mafdecls.fh"
-#include "c_electron_common.fh"
 #include "errquit.fh"
+#include "c_electron_common.fh"
+
+      real*8     dn(nfft3d,*)
+      complex*16 dng(*)
+      real*8     dnall(nfft3d,*)
 
      
 *     **** local variables ****
-      integer ms,nx,ny,nz,neall
-      real*8  scal1,scal2
+      integer ms,nx,ny,nz,neall,n,n1(2),n2(2)
+      integer shiftA,nshiftA,nbq,nb
+      real*8  scal1,scal2,weight
       integer tmp1(2)
       logical value
 
 *     ***** external functions *****
       logical  cpsp_semicore
-      real*8   lattice_omega
+      integer  cpsi_data_get_chnk,Pneb_convert_nb
+      real*8   lattice_omega,brillioun_weight
       external cpsp_semicore
-      external lattice_omega
+      external cpsi_data_get_chnk,Pneb_convert_nb
+      external lattice_omega,brillioun_weight
 
-      neall = ne(1)+ne(2)
+      neall = neq(1)+neq(2)
 
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
@@ -897,15 +1031,37 @@ cccccccccccccccccc
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
 
-
 *     *********************
 *     **** generate dn ****
 *     *********************
-      call BGrsm_hr_SumSqr(dcpl_mb(psi_r(1)),
-     >                     dn)
+      call C3dB_r_Zero(1,dn)
+      if (ispin.gt.1) call C3dB_r_Zero(1,dn(1,ispin))
+
+c      call BGrsm_hr_SumSqr(dcpl_mb(psi_r(1)),
+c     >                     dn)
+      n1(1) = 1
+      n2(1) = neq(1)
+      n1(2) = neq(1)+1
+      n2(2) = neq(1)+neq(2)
+      nshiftA = 2*nfft3d
+      do nbq=1,nbrillq
+        nb = Pneb_convert_nb(nbq)
+        weight = brillioun_weight(nb)
+        shiftA = cpsi_data_get_chnk(psi_r_tag,nbq)
+        do ms=1,ispin
+        do n=n1(ms),n2(ms)
+           call C3dB_cr_aSqrpy(1,weight,dbl_mb(shiftA),dn(1,ms))
+           shiftA = shiftA + nshiftA
+        end do
+        end do
+      end do
+      !do ms=1,ispin
+      ! call C1dB_Vector_SumAll(nfft3d,dn(1,ms))
+      !end do
+
       call C3dB_r_SMul(1,scal2,dn,dn)
       if (ispin.gt.1) 
-     >  call C3dB_r_SMul(1,scal2,dn(1+nfft3d),dn(1+nfft3d))
+     >  call C3dB_r_SMul(1,scal2,dn(1,ispin),dn(1,ispin))
 
 
         
@@ -916,7 +1072,7 @@ cccccccccccccccccc
          if (.not. value) call errquit(
      >     'electron_gen_densities: out of stack memory',0, MA_ERR)
 
-      call C3dB_rrc_Sum(1,dn,dn(1+(ispin-1)*nfft3d),dcpl_mb(tmp1(1)))
+      call C3dB_rrc_Sum(1,dn,dn(1,ispin),dcpl_mb(tmp1(1)))
       call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
       call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
       call Cram_c_pack(0,dcpl_mb(tmp1(1)))
@@ -933,9 +1089,9 @@ cccccccccccccccccc
          call C3dB_r_Zero(1,dcpl_mb(tmp1(1)))
       end if
       do ms=1,ispin
-        call C3dB_rr_Sum(1,dn(1+(ms-1)*nfft3d),
+        call C3dB_rr_Sum(1,dn(1,ms),
      >                     dcpl_mb(tmp1(1)),
-     >                     dnall(1+(ms-1)*nfft3d))
+     >                     dnall(1,ms))
       end do
 
       value = MA_pop_stack(tmp1(2)) 
@@ -954,13 +1110,14 @@ cccccccccccccccccc
 
       subroutine c_electron_gen_dng_dnall(dn,dng,dnall)
       implicit none
-      real*8     dn(*)
-      complex*16 dng(*)
-      real*8     dnall(*)
-
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 #include "errquit.fh"
+
+      real*8     dn(nfft3d,*)
+      complex*16 dng(*)
+      real*8     dnall(nfft3d,*)
+
 
 
 *     **** local variables ****
@@ -990,7 +1147,7 @@ cccccccccccccccccc
          if (.not. value) call errquit(
      >     'electron_gen_dng_dnall: out of stack memory',0, MA_ERR)
 
-      call C3dB_rrc_Sum(1,dn,dn(1+(ispin-1)*nfft3d),dcpl_mb(tmp1(1)))
+      call C3dB_rrc_Sum(1,dn,dn(1,ispin),dcpl_mb(tmp1(1)))
       call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
       call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
       call Cram_c_pack(0,dcpl_mb(tmp1(1)))
@@ -1007,9 +1164,9 @@ cccccccccccccccccc
          call C3dB_r_Zero(1,dcpl_mb(tmp1(1)))
       end if
       do ms=1,ispin
-        call C3dB_rr_Sum(1,dn(1+(ms-1)*nfft3d),
+        call C3dB_rr_Sum(1,dn(1,ms),
      >                     dcpl_mb(tmp1(1)),
-     >                     dnall(1+(ms-1)*nfft3d))
+     >                     dnall(1,ms))
       end do
 
       value = MA_pop_stack(tmp1(2))
@@ -1116,13 +1273,14 @@ cccccccccccccccccc
 
       subroutine c_electron_gen_scf_potentials(dn,dng,dnall)
       implicit none
-      real*8     dn(*)
-      complex*16 dng(*)
-      real*8     dnall(*)
-
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 #include "errquit.fh"
+
+      real*8     dn(nfft3d,*)
+      complex*16 dng(*)
+      real*8     dnall(nfft3d,*)
+
 
 
 *     ***** local variables ****
@@ -1158,11 +1316,6 @@ cccccccccccccccccc
       !*** this code needs to be optimized!!! ****
       !*** GGA calculation ****
       else
-         !call D3dB_nx(1,nx)
-         !call D3dB_ny(1,ny)
-         !call D3dB_nz(1,nz)
-         !call D3dB_nq(1,nq)
-         !n2ft3d = (nx+2)*ny*nq
          call D3dB_n2ft3d(1,n2ft3d)
          value = MA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
          value = value.and.
@@ -1172,28 +1325,8 @@ cccccccccccccccccc
          if (.not. value) call errquit(
      >     'electron_gen_scf_potentials: out of stack memory',1, MA_ERR)
 
-         !call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(trho(1)),1)
-
-c         do ms=1,ispin
-c         do q=1,nq
-c         do j=1,ny
-c         do i=1,nx
-c            indx1 = (i-1) 
-c     >            + (j-1)*nx     
-c     >            + (q-1)*nx*ny     
-c     >            + (ms-1)*nfft3d
-c            indx2 = (i-1) 
-c     >            + (j-1)*(nx+2) 
-c     >            + (q-1)*(nx+2)*ny 
-c     >            + (ms-1)*n2ft3d
-c            dbl_mb(trho(1)+indx2) = dnall(indx1+1)
-c         end do
-c         end do
-c         end do
-c         end do
-
          do ms=1,ispin
-           call C3dB_D3dB_r_Copy(1,dnall(1+(ms-1)*nfft3d),
+           call C3dB_D3dB_r_Copy(1,dnall(1,ms),
      >                             dbl_mb(trho(1)+(ms-1)*n2ft3d))
          end do
 
@@ -1209,38 +1342,6 @@ c         end do
          end do
          call D3dB_C3dB_r_Copy(1,dbl_mb(txce(1)),
      >                           dbl_mb(xce(1)))
-
-c         do ms=1,ispin
-c         do q=1,nq
-c         do j=1,ny
-c         do i=1,nx
-c            indx1 = (i-1) 
-c     >            + (j-1)*nx     
-c     >            + (q-1)*nx*ny     
-c     >            + (ms-1)*nfft3d
-c            indx2 = (i-1) 
-c     >            + (j-1)*(nx+2) 
-c     >            + (q-1)*(nx+2)*ny 
-c     >            + (ms-1)*n2ft3d
-c            dbl_mb(xcp(1)+indx1) = dbl_mb(txcp(1)+indx2)
-c         end do
-c         end do
-c         end do
-c         end do
-c
-c         do q=1,nq
-c         do j=1,ny
-c         do i=1,nx
-c            indx1 = (i-1) 
-c     >            + (j-1)*nx     
-c     >            + (q-1)*nx*ny     
-c            indx2 = (i-1) 
-c     >            + (j-1)*(nx+2) 
-c     >            + (q-1)*(nx+2)*ny 
-c            dbl_mb(xce(1)+indx1) = dbl_mb(txce(1)+indx2)
-c         end do
-c         end do
-c         end do
 
          value =           MA_pop_stack(txce(2))
          value = value.and.MA_pop_stack(txcp(2))
@@ -1261,9 +1362,9 @@ c         end do
 *     ***********************************
       subroutine c_electron_gen_vl_potential()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
@@ -1273,11 +1374,10 @@ c         end do
      
 
       value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dbl,(3),'tmp2',tmp2(2),tmp2(1))
+      value = value.and.MA_push_get(mt_dbl,(3),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call 
-     >   errquit('electron_gen_vl_potential: out of stack memory',0,
-     &       MA_ERR)
+     >   errquit('c_electron_gen_vl_potential: out of stack memory',0,
+     >       MA_ERR)
 
       move = .false.
       call cpsp_v_local(dcpl_mb(vl(1)),
@@ -1285,12 +1385,11 @@ c         end do
      >                  dcpl_mb(tmp1(1)),
      >                   dbl_mb(tmp2(1)))
 
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.
-     >        MA_pop_stack(tmp1(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) call errquit(
      >  'c_electron_gen_vl_potential: error popping stack memory',0,
-     &       MA_ERR)
+     >       MA_ERR)
 
       return
       end
@@ -1303,24 +1402,26 @@ c         end do
 *     *					*
 *     ***********************************
 
-      real*8 function c_electron_psi_vl_ave(psi1)
+      real*8 function c_electron_psi_vl_ave(psi1_tag)
       implicit none
-#include "errquit.fh"
-      complex*16 psi1(*)
+      integer psi1_tag
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "c_electron_common.fh"
 
 
 *     **** local variables ****
       logical value
-      integer n,ms,n1(2),n2(2),nb,indx
-      integer nx,ny,nz,np,neall
+      integer n,nb
+      integer nx,ny,nz,np,neall,psi_shift,nshift
       real*8 elocal,sum,scal1,scal2,weight
       integer tmp1(2),tmp2(2)
 
 *     **** external functions ***
+      integer  cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
       real*8   lattice_omega,brillioun_weight
+      external cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
       external lattice_omega,brillioun_weight
 
       call Parallel_np(np)
@@ -1335,11 +1436,8 @@ c         end do
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
-      n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1) + 1
-      n2(2) = ne(1) + ne(2)
-      neall = ne(1) + ne(2)
+      neall = neq(1) + neq(2)
+      nshift= cpsi_data_nsize(psi_r_tag)
 
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
@@ -1350,34 +1448,30 @@ c         end do
       call Cram_c_unpack(0,dcpl_mb(tmp1(1)))
       call C3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
       elocal = 0.0d0
-      do nb=1,nbrill
-         weight = brillioun_weight(nb)
-         do ms=1,ispin
-         do n=n1(ms),n2(ms)
-            indx = (n-1)*nfft3d + (nb-1)*nfft3d*neall
+      do nb=1,nbrillq
+         weight = brillioun_weight(Pneb_convert_nb(nb))
+         psi_shift = cpsi_data_get_chnk(psi_r_tag,nb)
+             
+         do n=1,neall
             call C3dB_cc_Mul(1,
      >                       dcpl_mb(tmp1(1)),
-     >                       dcpl_mb(psi_r(1)+indx),
+     >                       dbl_mb(psi_shift),
      >                       dcpl_mb(tmp2(1)))
-
             call C3dB_cc_idot(1,
-     >                       dcpl_mb(psi_r(1)+indx),
+     >                       dbl_mb(psi_shift),
      >                       dcpl_mb(tmp2(1)),
      >                       sum)
-
+            psi_shift = psi_shift + nshift
             elocal = elocal + sum*scal1*scal2*weight
          end do
-         end do
       end do
-      if (np.gt.1) call C3dB_SumAll(elocal)
+      if (np.gt.1) call Parallel_SumAll(elocal)
       if (ispin.eq.1) elocal = 2.0d0*elocal
  
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.
-     >        MA_pop_stack(tmp1(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) call errquit(
-     >           'electron_psi_vl_ave: error popping stack memory',0,
-     &       MA_ERR)
+     >   'c_electron_psi_vl_ave: error popping stack memory',0,MA_ERR)
 
       c_electron_psi_vl_ave = elocal
       return
@@ -1390,73 +1484,59 @@ c         end do
 *     *					*
 *     ***********************************
 
-      real*8 function c_electron_psi_vnl_ave(psi1)
+      real*8 function c_electron_psi_vnl_ave(psi1_tag)
       implicit none
-#include "errquit.fh"
-      complex*16 psi1(*)
+      integer psi1_tag
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
+#include "errquit.fh"
 
 
 *     **** local variables ****
-      logical value
-      integer n,ms,n1(2),n2(2),np,nb
-      integer neall,indx
-      real*8 enlocal,sum,weight
-      integer tmp1(2),tmp2(2)
+      integer n,np,nb
+      integer neall,nshift,psi1_shift,tmp1_shift
+      real*8 enlocal,sum,weight,fion(3)
+      integer tmp1_tag
 
 *     **** external functions ****
+      integer  cpsi_data_push_stack,cpsi_data_get_chnk
       real*8   brillioun_weight
+      external cpsi_data_push_stack,cpsi_data_get_chnk
       external brillioun_weight
 
       call Parallel_np(np)
 
-      n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1) + 1
-      n2(2) = ne(1) + ne(2)
-      neall = ne(1) + ne(2)
+      neall = neq(1) + neq(2)
+      nshift = 2*npack1
 
-      value = MA_push_get(mt_dcpl,(npack1*neall*nbrill),
-     >                    'tmp1',tmp1(2),tmp1(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit(
-     >            'electron_psi_vl_ave: out of stack memory',0,
-     &       MA_ERR)
-
+      tmp1_tag = cpsi_data_push_stack(nbrillq,neall,nshift)
 
 *     **** average Kohn-Sham v_nonlocal energy ****
-      call BGrsm_f_Zero(dcpl_mb(tmp1(1)))
+      call BGrsm_f_Zero_tag(tmp1_tag)
       call cpsp_v_nonlocal(ispin,ne,
-     >                     psi1,
-     >                     dcpl_mb(tmp1(1)),
-     >                    .false.,dcpl_mb(tmp2(1)))
+     >                     psi1_tag,
+     >                     tmp1_tag,
+     >                    .false.,fion)
       enlocal = 0.0d0
-      do nb=1,nbrill
+      do nb=1,nbrillq
          weight = brillioun_weight(nb)
-         do ms=1,ispin
-         do n=n1(ms),n2(ms)
-         indx = (n-1)*npack1 + (nb-1)*npack1*neall
-
-            call Cram_cc_idot(nb,psi1(1+indx),
-     >                         dcpl_mb(tmp1(1)+indx),
-     >                         sum)
+         psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+         tmp1_shift = cpsi_data_get_chnk(tmp1_tag,nb)
+         do n=1,neall
+            call Cram_cc_idot(nb,
+     >                        dbl_mb(psi1_shift),
+     >                        dbl_mb(tmp1_shift),
+     >                        sum)
             enlocal = enlocal - sum*weight
-         end do
+            psi1_shift = psi1_shift + nshift
+            tmp1_shift = tmp1_shift + nshift
          end do
       end do
       if (np.gt.1) call C3dB_SumAll(enlocal)
       if (ispin.eq.1) enlocal = 2.0d0*enlocal
-
  
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.
-     >        MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit(
-     >           'electron_psi_vl_ave: error popping stack memory',0,
-     &       MA_ERR)
+      call cpsi_data_pop_stack(tmp1_tag)
 
       c_electron_psi_vnl_ave = enlocal
       return
@@ -1472,11 +1552,11 @@ c         end do
 
       real*8 function c_electron_psi_vnlso_ave(psi1)
       implicit none
-#include "errquit.fh"
       complex*16 psi1(*)
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
+#include "errquit.fh"
 
 
 *     **** local variables ****
@@ -1571,9 +1651,6 @@ c         end do
       end
 
 
-
-
-
 *     ******************************************
 *     *                                        *
 *     *     c_electron_gen_weighted_density    *
@@ -1590,13 +1667,15 @@ c         end do
 #include "c_electron_common.fh"
 
 *     **** local variables ****
-      integer ishift
+      integer psi_shift
+      integer  cpsi_data_get_ptr
+      external cpsi_data_get_ptr
 
 *     **** generate weighted rho ****
-      ishift = (ms-1)*ne(1)*nfft3d
+      psi_shift = cpsi_data_get_ptr(psi_r_tag,1,1+(ms-1)*ne(1))
       call BGrsm_hr_aSqrpy(nfft3d,ne(ms),
      >                      weight,
-     >                      dcpl_mb(psi_r(1)+ishift),
+     >                      dbl_mb(psi_shift),
      >                      rho)
       return
       end

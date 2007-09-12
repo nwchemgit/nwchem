@@ -1,5 +1,5 @@
 c
-c     $Id: c_bybminimize.F,v 1.5 2007-08-24 02:25:05 bylaska Exp $                       
+c     $Id: c_bybminimize.F,v 1.6 2007-09-12 17:28:22 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -31,20 +31,20 @@ c
       real*8  deltat_min
       parameter (deltat_min=1.0d-3)
        
-      integer vall_in(2),vall_out(2),vall_junk(2),rho_in(2)
-      real*8  E0,dE0,deltae_old,Ein,deltae_history(10)
+      integer vall_in(2),vall_out(2),vall_junk(2)
+      real*8  Ein,deltae_history(10)
       real*8  ks_deltae,deltav,dV,deltav_old,diis_error
       integer nx,ny,nz,stalled_count
 
 
-      real*8     sum0,sum1,sum3,scale,tole,tolc
+      real*8     tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
       real*8     Enew,Eold,alpha
       !common / cgsd_block / Enew,Eold,alpha
 
-      integer it,it_in,i,ispin,bfgscount,icount,sd_it,cg_it
+      integer it,it_in,ispin,sd_it,cg_it
 
-      logical value,precondition,done,stalled,deltav_bad(4),oprint
+      logical value,precondition,done,stalled,oprint
       integer nfft3d
       
 
@@ -52,7 +52,7 @@ c
 *     **** external functions ****
       logical  control_print,control_precondition
       integer  control_ispin,control_scf_algorithm
-      integer  control_it_in,control_it_out,psi_ne,control_version
+      integer  control_it_in,control_it_out,control_version
       real*8   control_tole,control_tolc,control_ks_alpha
       real*8   c_rho_error,cpsi_1energy
       real*8   c_dng_1ehartree,lattice_omega
@@ -67,7 +67,7 @@ c
    
       external control_print,control_precondition
       external control_ispin,control_scf_algorithm
-      external control_it_in,control_it_out,psi_ne,control_version
+      external control_it_in,control_it_out,control_version
       external control_tole,control_tolc,control_ks_alpha
       external c_rho_error,cpsi_1energy
       external c_dng_1ehartree,lattice_omega
@@ -155,6 +155,7 @@ c     >                     'rho_in',rho_in(2),rho_in(1))
          call cpsi_1rotate2()
          call cpsi_2to1()
       else
+         Enew   = cpsi_1energy()
          call c_electron_get_vall(dcpl_mb(vall_out(1)))
          call c_electron_get_vall(dcpl_mb(vall_in(1))) 
          !call psi_get_density(1,dcpl_mb(rho_in(1)))

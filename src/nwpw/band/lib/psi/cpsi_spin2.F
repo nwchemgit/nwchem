@@ -8,29 +8,32 @@ c  This is defined as (see Szabo and Ostlund auf seite 107)
 c     DeltaS= N(down) - sum (i,j) dconjg(S(i,j))*(Si,j)
 C  Note that S(i,j) is _complex_!
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine Calculate_cpsi_spin2(nbrill,ispin,ne,nfft3d,psi,Sab)
+      subroutine Calculate_cpsi_spin2(nbrillq,ispin,ne,nfft3d,
+     >                                psi_tag,Sab)
       implicit none
-      integer nbrill,ispin,ne(2)
+      integer nbrillq,ispin,ne(2)
       integer nfft3d
-      complex*16 psi(nfft3d,*)
+      integer psi_tag
       real*8 Sab
 
 #include "util.fh"
 #include "mafdecls.fh"
 
 *     **** local variables ****
-      logical oprint
-      integer i,j,nb
-      integer ii,jj
-      real*8  Sexact,SS,en(2),w,ssum
-      complex*16 sij
       integer taskid,MASTER
       parameter (MASTER=0)
+      logical oprint
+      integer i,j,nb
+      integer psii_shift,psij_shift
+      real*8  Sexact,SS,w,ssum
+      complex*16 sij
 
 *     **** external functions ****
       logical  control_print
+      integer  cpsi_data_get_ptr
       real*8   brillioun_weight
       external control_print
+      external cpsi_data_get_ptr
       external brillioun_weight
 
 
@@ -46,16 +49,17 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          Sexact = ((ne(1)-ne(2))/2.0d0)
      >          * (((ne(1)-ne(2))/2.0d0)+1.0d0)
          Sab = 0.0d0
-         do nb=1,nbrill
+         do nb=1,nbrillq
             w = brillioun_weight(nb)
 	    ssum=0.0d0
             do i=1,ne(1)
             do j=1,ne(2)
-               ii = i      +(nb-1)*(ne(1)+ne(2))
-               jj = j+ne(1)+(nb-1)*(ne(1)+ne(2))
+               psii_shift = cpsi_data_get_ptr(psi_tag,nb,i)
+               psij_shift = cpsi_data_get_ptr(psi_tag,nb,j+ne(1))
  
 *              *** SS =  GCDOTC(nida,nidb,c2(1,i),c2(1,j+ne(1))) ****
-               call Cram_cc_zdot(nb,psi(1,ii),psi(1,jj),sij)
+               call Cram_cc_zdot(nb,dbl_mb(psii_shift),
+     >                              dbl_mb(psij_shift),sij)
 	       SS=dconjg(sij)*sij
                ssum = ssum + SS
             end do

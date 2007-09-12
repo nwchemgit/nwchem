@@ -1,4 +1,4 @@
-* $Id: BGrsm.F,v 1.7 2007-04-06 23:00:32 bylaska Exp $
+* $Id: BGrsm.F,v 1.8 2007-09-12 17:28:19 bylaska Exp $
 *
 
 
@@ -29,9 +29,7 @@
 *     *        BGrsm_ff_Copy  	 *
 *     *                		 *
 *     ****************************
-*
 *     C = A 
-
       subroutine BGrsm_ff_Copy(A,C)
       implicit none
       complex*16 A(*)
@@ -47,14 +45,30 @@
       return
       end
 
+
+
+*     ****************************
+*     *                          *
+*     *     BGrsm_ff_Copy_tag    *
+*     *                          *
+*     ****************************
+*     C = A
+      subroutine BGrsm_ff_Copy_tag(A_tag,C_tag)
+      implicit none
+      integer A_tag,C_tag
+      call cpsi_data_copyall(A_tag,C_tag)
+      return
+      end
+
+
+
+
 *     ****************************
 *     *                		 *
 *     *    	BGrsm_f_Zero  	 *
 *     *                		 *
 *     ****************************
-*
-*     C = A 
-
+*     A = 0 
       subroutine BGrsm_f_Zero(A)
       implicit none
       complex*16 A(*)
@@ -68,6 +82,38 @@
       call dcopy(nsize,0.0d0,0,A,1)
       return
       end 
+
+
+
+*     ****************************
+*     *                          *
+*     *      BGrsm_f_Zero_tag    *
+*     *                          *
+*     ****************************
+*     A = 0
+      subroutine BGrsm_f_Zero_tag(A_tag)
+      implicit none
+      integer A_tag
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer nb,nsize,a_shift
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+      call cpsi_data_update(A_tag)
+      nsize = 2*(neq(1)+neq(2))*npack1
+      do nb=1,nbrillq
+         a_shift = cpsi_data_get_chnk(A_tag,nb)
+         call dcopy(nsize,0.0d0,0,dbl_mb(a_shift),1)
+      end do
+      call cpsi_data_noupdate(A_tag)
+      return
+      end
 
 *     ****************************
 *     *                		 *
@@ -118,15 +164,63 @@
 
       return
       end
+
+
+*     ****************************
+*     *                          *
+*     *      BGrsm_fff_Sum_tag   *
+*     *                          *
+*     ****************************
+*     C = A + B
+      subroutine BGrsm_fff_sum_sub(nsize,A,B,C)
+      implicit none
+      integer nsize
+      real*8 A(*),B(*),C(*)
+      integer i
+      do i=1,nsize
+         C(i) = A(i) + B(i)
+      end do
+      return
+      end
+      subroutine BGrsm_fff_Sum_tag(A_tag,B_tag,C_tag)
+      implicit none
+      integer    A_tag
+      integer    B_tag
+      integer    C_tag
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer nb,nsize
+      integer A_shift,B_shift,C_shift
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+      call cpsi_data_update(C_tag)
+      nsize = 2*(neq(1)+neq(2))*npack1
+      do nb=1,nbrillq
+         A_shift  = cpsi_data_get_chnk(A_tag,nb)
+         B_shift  = cpsi_data_get_chnk(B_tag,nb)
+         C_shift  = cpsi_data_get_chnk(C_tag,nb)
+         call BGrsm_fff_sum_sub(nsize,dbl_mb(A_shift),
+     >                                dbl_mb(B_shift),
+     >                                dbl_mb(C_shift))
+      end do
+      call cpsi_data_noupdate(C_tag)
+      return
+      end
+
+
        
 *     ****************************
 *     *                		 *
 *     *      BGrsm_fff_Sub   	 *
 *     *                		 *
 *     ****************************
-*
 *     C = A - B
-
       subroutine BGrsm_fff_Sub(A,B,C)
       implicit none
       real*8     A(*)
@@ -142,11 +236,59 @@
       do i=1,nsize
          C(i) = A(i) - B(i)
       end do
-
       return
       end
-       
-       
+
+*     ****************************
+*     *                          *
+*     *      BGrsm_fff_Sub_tag   *
+*     *                          *
+*     ****************************
+*
+*     C = A - B
+      subroutine BGrsm_fff_sub_sub(nsize,A,B,C)
+      implicit none
+      integer nsize
+      real*8 A(*),B(*),C(*)
+      integer i
+      do i=1,nsize
+         C(i) = A(i) - B(i)
+      end do
+      return
+      end
+      subroutine BGrsm_fff_Sub_tag(A_tag,B_tag,C_tag)
+      implicit none
+      integer    A_tag
+      integer    B_tag
+      integer    C_tag
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer nb,nsize
+      integer A_shift,B_shift,C_shift
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+      nsize = 2*(neq(1)+neq(2))*npack1
+      call cpsi_data_update(C_tag)
+      do nb=1,nbrillq
+         A_shift  = cpsi_data_get_chnk(A_tag,nb)
+         B_shift  = cpsi_data_get_chnk(B_tag,nb)
+         C_shift  = cpsi_data_get_chnk(C_tag,nb)
+         call BGrsm_fff_sub_sub(nsize,dbl_mb(A_shift),
+     >                                dbl_mb(B_shift),
+     >                                dbl_mb(C_shift))
+      end do
+      call cpsi_data_noupdate(C_tag)
+      return
+      end
+
+
+
 *     ****************************
 *     *                		 *
 *     *    	BGrsm_hhh_Sum  	 *
@@ -261,9 +403,7 @@
 *     *     BGrsm_ff_dScale 	 *
 *     *                		 *
 *     ****************************
-*
 *     C = scale*A
-
       subroutine BGrsm_ff_dScale(scale,A,C)
       implicit none
       real*8     scale
@@ -274,13 +414,46 @@
 
 *     **** local variables ****
       integer i,nsize
-
       nsize = 2*nbrillq*(neq(1)+neq(2))*npack1
       do i=1,nsize
          C(i) = scale*A(i) 
       end do
       return
       end
+
+
+*     ****************************
+*     *                          *
+*     *      BGrsm_f_dScale_tag  *
+*     *                          *
+*     ****************************
+*     A = alpha*A
+      subroutine BGrsm_f_dScale_tag(scale,A_tag)
+      implicit none
+      real*8 scale
+      integer    A_tag
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer nb,nsize
+      integer A_shift
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+      nsize = 2*(neq(1)+neq(2))*npack1
+      call cpsi_data_update(A_tag)
+      do nb=1,nbrillq
+         A_shift  = cpsi_data_get_chnk(A_tag,nb)
+         call dscal(nsize,scale,dbl_mb(A_shift),1)
+      end do
+      call cpsi_data_noupdate(A_tag)
+      return
+      end
+
 
 
 *     ****************************
@@ -384,6 +557,7 @@
 *     *      Returns the  	 *
 *     *  Spin Amplitudes         *
 *     ****************************
+*     ******** check this routine!!!!!!!!!!
       logical function BGrsm_f_Spins(nbb,Y,S)
       implicit none
       integer nbb
@@ -393,7 +567,7 @@
 #include "cpsi_common.fh"
 
 *     **** local variables ****
-      integer k,ms,shft,nb,nb1,nb2,indx,indx2
+      integer k,shft,nb,nb1,nb2,indx,indx2
       real*8 s1,s2,s3,wght
       complex*16 z1
 
@@ -424,7 +598,7 @@
       do nb=nb1,nb2
         wght=brillioun_weight(nb)
         if (nb1.eq.nb2) wght=1.0d0
-        indx=((nb-1)*shft*2)+1
+        indx=((nb-nb1)*shft*2)+1
         do k=1,ne(1)
            indx2=indx+shft
            call Cram_cc_dot(nb,Y(indx),Y(indx),s1)

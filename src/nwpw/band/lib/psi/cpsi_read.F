@@ -1,27 +1,21 @@
 *
-* $Id: cpsi_read.F,v 1.13 2007-04-06 01:35:15 bylaska Exp $
+* $Id: cpsi_read.F,v 1.14 2007-09-12 17:28:20 bylaska Exp $
 *
 
-#define TCGMSG
 *     ***************************
 *     *          	   	*
 *     *       cpsi_read		*
 *     *             		*
 *     ***************************
-      subroutine cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi2)
+      subroutine cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
       implicit none 
       logical spin_orbit
       integer ispin,ne(2),nbrillioun
-      double complex psi2(*)
+      integer psi2_tag
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
-
-#ifdef TCGMSG
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#endif
 
 *    *** local variables ***
       integer rtdb
@@ -37,7 +31,7 @@
       parameter(MASTER=0)
       logical brillioun_check,psi_nolattice
       integer n,nb,nbrill
-      integer msglen,indx,indx1
+      integer msglen
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
@@ -84,20 +78,18 @@ c     complex*16 tmp(*)
       
 
 c     **** send header to all nodes ****
-#ifdef TCGMSG
       msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
       msglen = 3
-      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
       msglen = 9
-      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,unita)
       msglen = 1
-      call BRDCST(9+MSGINT,ispin,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
       msglen = 2
-      call BRDCST(9+MSGINT,ne,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
       msglen = 1
-      call BRDCST(9+MSGINT,nbrill,mitob(msglen),MASTER)
-#endif 
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nbrill)
 
 
 c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
@@ -167,11 +159,12 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 
         do nb=1,nbrill
         do n=1,(ne(1)+ne(2))
-         indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
+         !indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
          call C3dB_c_Read(1,5,dcpl_mb(tmp2(1)),
      >                        dcpl_mb(tmp(1)))
          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-         call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
+         !call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
+         call cpsi_data_add(psi2_tag,nb,n,dcpl_mb(tmp2(1)))
         end do
         end do
 
@@ -180,23 +173,25 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 
         do nb=1,nbrill
         do n=1,(ne(1)+ne(2))
-         indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
+         !indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
          call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
      >                        dcpl_mb(tmp(1)))
          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-         call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
+         !call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
+         call cpsi_data_add(psi2_tag,nb,n,dcpl_mb(tmp2(1)))
         end do
         end do
 *       **** use the last zone for filling in unknown zones ****
         do nb=nbrill+1,nbrillioun
-        do n=1,(ne(1)+ne(2))
-         indx1 = 1 + (n-1)*npack1 + (nbrill-1)*npack1*(ne(1)+ne(2)) 
-         indx  = 1 + (n-1)*npack1 + (nb-1)*    npack1*(ne(1)+ne(2)) 
-         call Cram_c_Copy(nbrill,psi2(indx1),dcpl_mb(tmp2(1)))
-         call Cram_c_unpack(nbrill,dcpl_mb(tmp2(1)))
-         call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-         call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
-        end do
+          call cpsi_data_copy_brill(psi2_tag,nbrill,nb)
+c        do n=1,(ne(1)+ne(2))
+c         indx1 = 1 + (n-1)*npack1 + (nbrill-1)*npack1*(ne(1)+ne(2)) 
+c         indx  = 1 + (n-1)*npack1 + (nb-1)*    npack1*(ne(1)+ne(2)) 
+c         call Cram_c_Copy(nbrill,psi2(indx1),dcpl_mb(tmp2(1)))
+c         call Cram_c_unpack(nbrill,dcpl_mb(tmp2(1)))
+c         call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
+c         call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
+c        end do
         end do
       end if
 
@@ -205,8 +200,8 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
         call closefile(5)
       end if
  
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp(2))
 *     end if
 
       return
@@ -221,21 +216,16 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 *     *             			*
 *     ***********************************
       subroutine cpsi_read_filename(filename,
-     >                              spin_orbit,ispin,ne,nbrillioun,psi2)
+     >                spin_orbit,ispin,ne,nbrillioun,psi2_tag)
       implicit none 
       character*(*) filename
       logical spin_orbit
       integer ispin,ne(2),nbrillioun
-      double complex psi2(*)
+      integer psi2_tag
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
-
-#ifdef TCGMSG
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#endif
 
 *    *** local variables ***
       integer rtdb
@@ -250,7 +240,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       parameter(MASTER=0)
       logical brillioun_check,psi_nolattice
       integer n,nb,nbrill
-      integer msglen,indx,indx1
+      integer msglen
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
@@ -292,20 +282,18 @@ c     complex*16 tmp(*)
       end if
 
 c     **** send header to all nodes ****
-#ifdef TCGMSG
       msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
       msglen = 3
-      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
       msglen = 9
-      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,unita)
       msglen = 1
-      call BRDCST(9+MSGINT,ispin,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
       msglen = 2
-      call BRDCST(9+MSGINT,ne,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
       msglen = 1
-      call BRDCST(9+MSGINT,nbrill,mitob(msglen),MASTER)
-#endif 
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nbrill)
 
 c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       if (ispin.eq.3) then
@@ -373,11 +361,12 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 
         do nb=1,nbrill
         do n=1,(ne(1)+ne(2))
-         indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
+         !indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
          call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
      >                        dcpl_mb(tmp(1)))
          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-         call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
+         !call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
+         call cpsi_data_add(psi2_tag,nb,n,dcpl_mb(tmp2(1)))
         end do
         end do
 
@@ -386,24 +375,26 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 
         do nb=1,nbrill
         do n=1,(ne(1)+ne(2))
-         indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
+         !indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
          call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
      >                        dcpl_mb(tmp(1)))
          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-         call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
+         !call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
+         call cpsi_data_add(psi2_tag,nb,n,dcpl_mb(tmp2(1)))
         end do
         end do
 
 *       **** use the last zone for filling in unknown zones ****
         do nb=nbrill+1,nbrillioun
-        do n=1,(ne(1)+ne(2))
-         indx1 = 1 + (n-1)*npack1 + (nbrill-1)*npack1*(ne(1)+ne(2)) 
-         indx  = 1 + (n-1)*npack1 + (nb-1)*    npack1*(ne(1)+ne(2)) 
-         call Cram_c_Copy(nbrill,psi2(indx1),dcpl_mb(tmp2(1)))
-         call Cram_c_unpack(nbrill,dcpl_mb(tmp2(1)))
-         call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-         call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
-        end do
+          call cpsi_data_copy_brill(psi2_tag,nbrill,nb)
+c        do n=1,(ne(1)+ne(2))
+c         indx1 = 1 + (n-1)*npack1 + (nbrill-1)*npack1*(ne(1)+ne(2)) 
+c         indx  = 1 + (n-1)*npack1 + (nb-1)*    npack1*(ne(1)+ne(2)) 
+c         call Cram_c_Copy(nbrill,psi2(indx1),dcpl_mb(tmp2(1)))
+c         call Cram_c_unpack(nbrill,dcpl_mb(tmp2(1)))
+c         call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
+c         call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
+c        end do
         end do
 
       end if
@@ -413,8 +404,8 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
         call closefile(5)
       end if
  
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp(2))
 
 *     end if
 
