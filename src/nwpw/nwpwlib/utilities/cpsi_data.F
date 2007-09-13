@@ -43,6 +43,9 @@
      >                               update_psi(2),update_psi(1))
       value = value.and.MA_alloc_get(mt_int,npsi,'list_psi',
      >                               list_psi(2),list_psi(1))
+      value = value.and.MA_alloc_get(mt_int,npsi,'next_psi',
+     >                               next_psi(2),next_psi(1))
+
       call icopy(npsi,0,0,int_mb(update_psi(1)),1)
       do ltag=0,npsi-1
          int_mb(list_psi(1)+ltag) = ltag
@@ -85,6 +88,7 @@
       value = value.and.MA_free_heap(curnb_psi(2))
       value = value.and.MA_free_heap(update_psi(2))
       value = value.and.MA_free_heap(list_psi(2))
+      value = value.and.MA_free_heap(next_psi(2))
       if (.not.value)
      > call errquit('cpsi_data_end:error freeing heap',0,MA_ERR)
 
@@ -118,6 +122,7 @@
       int_mb(nsize_psi(1) +tag) = nsize
       int_mb(curnb_psi(1) +tag) = 1
       int_mb(update_psi(1)+tag) = 0
+      int_mb(next_psi(1)+tag)   = -1
 
       value = MA_alloc_get(mt_dbl,nbrill*neall*nsize,
      >                     'cpsi_alloc',hndl,indx)
@@ -198,6 +203,7 @@
       int_mb(nsize_psi(1) +tag) = nsize
       int_mb(curnb_psi(1) +tag) = 1
       int_mb(update_psi(1)+tag) = 0
+      int_mb(next_psi(1)+tag)   = -1
 
       value = MA_push_get(mt_dbl,nbrill*neall*nsize,
      >                     'cpsi_stack',hndl,indx)
@@ -324,6 +330,42 @@ c      end if
       int_mb(update_psi(1)+tag) = 0
       return
       end
+
+
+*     ************************************************
+*     *                                              *
+*     *               cpsi_data_set_next             *
+*     *                                              *
+*     ************************************************
+      subroutine cpsi_data_set_next(tag,nexttag)
+      implicit none
+      integer tag,nexttag
+
+#include "mafdecls.fh"
+#include "cpsi_data.fh"
+
+      int_mb(next_psi(1)+tag) = nexttag
+      return
+      end
+
+
+
+*     ************************************************
+*     *                                              *
+*     *               cpsi_data_get_next             *
+*     *                                              *
+*     ************************************************
+      integer function cpsi_data_get_next(tag)
+      implicit none
+      integer tag
+
+#include "mafdecls.fh"
+#include "cpsi_data.fh"
+
+      cpsi_data_get_next = int_mb(next_psi(1)+tag)
+      return
+      end
+
 
 
 *     ************************************************
