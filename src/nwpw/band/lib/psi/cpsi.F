@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.49 2007-09-13 02:31:01 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.50 2007-09-13 20:38:12 bylaska Exp $ *
 
 
 *     ***************************
@@ -1142,6 +1142,44 @@ c     &       MA_ERR)
 
 *     ***********************************
 *     *                                 *
+*     *         cpsi_occupation         *
+*     *                                 *
+*     ***********************************
+      real*8  function cpsi_occupation(nb,ms,i)
+      implicit none
+      integer nb,ms
+      integer i
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer indx,occ_shift,occ_tag
+      real*8  occupation
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk,cpsi_data_get_next
+      external cpsi_data_get_chnk,cpsi_data_get_next
+
+      occ_tag   = cpsi_data_get_next(psi1_tag)
+      if (occ_tag.ge.0) then
+         occ_shift = cpsi_data_get_chnk(occ_tag,nb)
+         if (spin_orbit) then
+        indx=occ_shift+i-1
+         else
+        indx=occ_shift+i-1+(ms-1)*ne(1)
+         end if
+         occupation = dbl_mb(indx)
+      else
+         occupation = 1.0d0
+      end if
+      cpsi_occupation = occupation
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
 *     *         cpsi_1gen_svector       *
 *     *                                 *
 *     ***********************************
@@ -1595,7 +1633,7 @@ c     &       MA_ERR)
       integer taskid,MASTER
       parameter (MASTER=0)
       logical value,psi_nogrid
-      integer neall,n,vers
+      integer neall,n,vers,occupation
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
       integer rtdb,ind
@@ -1622,7 +1660,7 @@ c     &       MA_ERR)
 
 
 *     ***** get ispin, and ne, and nfft3d ****
-      call psi_get_ne(ispin,ne)  !** only ne is used 
+      call psi_get_ne_occupation(ispin,ne,occupation)  !** only ne and occupation are used 
       nbrillioun = brillioun_nbrillioun()
 
       call Pneb_neq(neq)
@@ -1653,6 +1691,12 @@ c     >        MA_alloc_get(mt_dcpl,npack1*neall*nbrillq,
 c     >                     'psi1',psi1(2),psi1(1))
       psi2_tag = cpsi_data_alloc(nbrillq,neall,2*npack1)
       psi1_tag = cpsi_data_alloc(nbrillq,neall,2*npack1)
+      if (occupation.gt.0) then
+        call cpsi_data_set_next(psi2_tag,
+     >                 cpsi_data_alloc(nbrillq,neall,1))
+        call cpsi_data_set_next(psi1_tag,
+     >                 cpsi_data_alloc(nbrillq,neall,1))
+      end if
 
       value = MA_alloc_get(mt_dbl,2*nfft3d,'rho1',rho1(2),rho1(1))
       value = value.and.
@@ -1773,10 +1817,13 @@ c     *****  read initial wavefunctions into psi1  ****
 
 *     **** local variables ****
       logical value
+      integer next1,next2
 
 *     **** external functions ****
       logical  Pneb_w_free
+      integer  cpsi_data_get_next
       external Pneb_w_free
+      external cpsi_data_get_next
 
 *     ***** write psi1 wavefunctions ****
       if (wpsi) then
@@ -1788,8 +1835,14 @@ c      value = value.and.MA_free_heap(svec(2))
 c      value = value.and.Pneb_w_free(hml)
 c      value = value.and.MA_free_heap(psi2(2))
 c      value = value.and.MA_free_heap(psi1(2))
+      next1 = cpsi_data_get_next(psi1_tag)
+      if (next1.ge.0) call cpsi_data_dealloc(next1)
       call cpsi_data_dealloc(psi1_tag)
+
+      next2 = cpsi_data_get_next(psi1_tag)
+      if (next2.ge.0) call cpsi_data_dealloc(next2)
       call cpsi_data_dealloc(psi2_tag)
+
       call cpsi_data_dealloc(eig_tag)
       call cpsi_data_dealloc(svec_tag)
       call cpsi_data_dealloc(hml_tag)

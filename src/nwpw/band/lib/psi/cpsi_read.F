@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.14 2007-09-12 17:28:20 bylaska Exp $
+* $Id: cpsi_read.F,v 1.15 2007-09-13 20:38:13 bylaska Exp $
 *
 
 *     ***************************
@@ -30,7 +30,7 @@
       integer MASTER,taskid
       parameter(MASTER=0)
       logical brillioun_check,psi_nolattice
-      integer n,nb,nbrill
+      integer n,nb,nbrill,occupation
       integer msglen
 
 c     complex*16 tmp(*)
@@ -74,6 +74,7 @@ c     complex*16 tmp(*)
          call iread(5,ispin,1)
          call iread(5,ne,2)
          call iread(5,nbrill,1)
+         call iread(5,occupation,1)
       end if
       
 
@@ -90,6 +91,7 @@ c     **** send header to all nodes ****
       call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
       msglen = 1
       call Parallel_Brdcst_ivalues(MASTER,msglen,nbrill)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,occupation)
 
 
 c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
@@ -239,7 +241,7 @@ c        end do
       integer MASTER,taskid
       parameter(MASTER=0)
       logical brillioun_check,psi_nolattice
-      integer n,nb,nbrill
+      integer n,nb,nbrill,occupation
       integer msglen
 
 c     complex*16 tmp(*)
@@ -279,6 +281,7 @@ c     complex*16 tmp(*)
          call iread(5,ispin,1)
          call iread(5,ne,2)
          call iread(5,nbrill,1)
+         call iread(5,occupation,1)
       end if
 
 c     **** send header to all nodes ****
@@ -294,6 +297,7 @@ c     **** send header to all nodes ****
       call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
       msglen = 1
       call Parallel_Brdcst_ivalues(MASTER,msglen,nbrill)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,occupation)
 
 c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       if (ispin.eq.3) then

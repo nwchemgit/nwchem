@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_new.F,v 1.10 2007-02-20 21:44:50 d3p708 Exp $
+* $Id: c_wvfnc_new.F,v 1.11 2007-09-13 20:38:15 bylaska Exp $
 *
 
 *     **********************************************
@@ -102,7 +102,7 @@
       integer nfft1,nfft2,nfft3,nfft3d
       integer inc2c,inc3c
       integer cfull_indx,cfull_hndl,l,l1,l2
-      integer i,j,k,ms,n,nb,ispin0,neh
+      integer i,j,k,ms,n,nb,ispin0,neh,occupation
 
       double precision p,scale,rx,ry
       double complex cc,cx,sx,zx
@@ -169,6 +169,8 @@
       call iwrite(66,ispin0,1)
       call iwrite(66,ne,2)
       call iwrite(66,nbrillioun,1)
+      occupation = -1
+      call iwrite(66,occupation,1)
  
  
       do nb=1,nbrillioun

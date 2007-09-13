@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_write.F,v 1.11 2007-09-12 17:28:20 bylaska Exp $
+* $Id: cpsi_write.F,v 1.12 2007-09-13 20:38:13 bylaska Exp $
 *
 
 *     ***************************
@@ -27,7 +27,7 @@
 
       integer MASTER,taskid
       parameter(MASTER=0)
-      integer n,nb,indx
+      integer n,nb,indx,occupation
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
@@ -38,11 +38,12 @@ c     complex*16 tmp(*)
       external     control_output_psi
       double precision control_unita
       external         control_unita
-      integer  control_ngrid,cpsi_data_get_ptr
-      external control_ngrid,cpsi_data_get_ptr
+      integer  control_ngrid,cpsi_data_get_ptr,cpsi_data_get_next
+      external control_ngrid,cpsi_data_get_ptr,cpsi_data_get_next
 
       call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
+      occupation = cpsi_data_get_next(psi2_tag)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -87,6 +88,7 @@ c     complex*16 tmp(*)
          call iwrite(6,ispin0,1)
          call iwrite(6,ne,2)
          call iwrite(6,nbrillioun,1)
+         call iwrite(6,occupation,1)
       end if
 
 *     *** write out 3d blocks ***
@@ -144,17 +146,18 @@ c     complex*16 tmp(*)
       integer n,nb,indx
 
 c     complex*16 tmp(*)
-      integer tmp(2),tmp2(2)
+      integer tmp(2),tmp2(2),occupation
       logical value
 
 *     ***** local functions ****
       double precision control_unita
       external         control_unita
-      integer  control_ngrid,cpsi_data_get_ptr
-      external control_ngrid,cpsi_data_get_ptr
+      integer  control_ngrid,cpsi_data_get_ptr,cpsi_data_get_next
+      external control_ngrid,cpsi_data_get_ptr,cpsi_data_get_next
 
       call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
+      occupation = cpsi_data_get_next(psi2_tag)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -198,6 +201,7 @@ c     complex*16 tmp(*)
          call iwrite(6,ispin0,1)
          call iwrite(6,ne,2)
          call iwrite(6,nbrillioun,1)
+         call iwrite(6,occupation,1)
       end if
 
 *     *** write out 3d blocks ***
@@ -251,7 +255,7 @@ c     complex*16 tmp(*)
       integer n,nb,indx
 
 c     complex*16 tmp(*)
-      integer tmp(2),tmp2(2)
+      integer tmp(2),tmp2(2),occupation
       logical value
 
 *     ***** local functions ****
@@ -259,11 +263,12 @@ c     complex*16 tmp(*)
       external     control_output_psi
       double precision control_unita
       external         control_unita
-      integer  control_ngrid,cpsi_data_get_ptr
-      external control_ngrid,cpsi_data_get_ptr
+      integer  control_ngrid,cpsi_data_get_ptr,cpsi_data_get_next
+      external control_ngrid,cpsi_data_get_ptr,cpsi_data_get_next
 
       call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
+      occupation = cpsi_data_get_next(psi2_tag)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -312,12 +317,14 @@ c     complex*16 tmp(*)
          call iwrite(6,ispin0,1)
          call iwrite(6,ne,2)
          call iwrite(6,nbrillioun,1)
+         call iwrite(6,occupation,1)
          call iwrite(37,version,1)
          call iwrite(37,nfft,3)
          call dwrite(37,unita,9)         
          call iwrite(37,ispin0,1)
          call iwrite(37,ne,2)
          call iwrite(37,nbrillioun,1)
+         call iwrite(37,occupation,1)
       end if
 
 *     *** write out 3d blocks ***
