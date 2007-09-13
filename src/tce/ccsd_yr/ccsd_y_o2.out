@@ -1,0 +1,5 @@
+[ - 1.0 + 1.0 * P( h3 h4 p2 p1 => h3 h4 p1 p2 ) + 1.0 * P( h3 h4 p2 p1 => h4 h3 p2 p1 ) - 1.0 * P( h3 h4 p2 p1 => h4 h3 p1 p2 ) ] * o ( h3 p2 ) * y ( h4 p1 )
+[ - 1.0 + 1.0 * P( h3 h4 p1 p2 => h4 h3 p1 p2 ) ] * Sum ( h5 ) * o ( h3 h5 ) * y ( h5 h4 p1 p2 )
+[ - 1.0 + 1.0 * P( h3 h4 p2 p1 => h3 h4 p1 p2 ) ] * Sum ( p5 ) * o ( p5 p2 ) * y ( h3 h4 p5 p1 )
+[ - 1.0 + 1.0 * P( h3 h4 p1 p2 => h4 h3 p1 p2 ) ] * Sum ( p5 h6 ) * o ( h3 p5 ) * t ( p5 h6 ) * y ( h6 h4 p1 p2 )
+[ + 1.0 - 1.0 * P( h3 h4 p2 p1 => h3 h4 p1 p2 ) ] * Sum ( h5 p6 ) * o ( h5 p2 ) * t ( p6 h5 ) * y ( h3 h4 p6 p1 )

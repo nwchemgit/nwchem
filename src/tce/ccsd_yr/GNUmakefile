@@ -1,0 +1,37 @@
+#$Id: GNUmakefile,v 1.1 2007-09-13 03:15:22 jhammond Exp $
+
+OBJ_OPTIMIZE = \
+ccsd_y_o1.o \
+ccsd_y_o2.o \
+ccsd_yr1.o \
+ccsd_yr2.o \
+ccsd_y_tr1.o \
+ccsd_y_tr2.o 
+
+LIB_INCLUDES = -I../include
+
+LIBRARY = libtce.a
+
+USES_BLAS = \
+ccsd_y_o1.F \
+ccsd_y_o2.F \
+ccsd_yr1.F \
+ccsd_yr2.F \
+ccsd_y_tr1.F \
+ccsd_y_tr2.F
+            
+LIB_DEFINES = -DDEBUG_PRINT
+#
+# Possible #defines
+#
+#              -DDEBUG_PRINT          /* Debug printing routines */
+#	       -DNOCOMMS              /* Turn off ALL communication calls */
+#              -DBLOCK_TRANSF         /* Use block-transfer for comms calls */
+#              -DOLD_AOBLOCK          /* Recover original AO blocking scheme */
+#
+
+HEADERS = 
+
+include ../../config/makefile.h
+include ../../config/makelib.h
+
