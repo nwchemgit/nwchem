@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.1 2007-09-13 03:15:22 jhammond Exp $
+#$Id: GNUmakefile,v 1.2 2007-09-13 17:26:27 jhammond Exp $
 
 OBJ_OPTIMIZE = \
 ccsd_y_o1.o \
@@ -6,7 +6,8 @@ ccsd_y_o2.o \
 ccsd_yr1.o \
 ccsd_yr2.o \
 ccsd_y_tr1.o \
-ccsd_y_tr2.o 
+ccsd_y_tr2.o \
+alpha_2_yr.o
 
 LIB_INCLUDES = -I../include
 
@@ -18,7 +19,8 @@ ccsd_y_o2.F \
 ccsd_yr1.F \
 ccsd_yr2.F \
 ccsd_y_tr1.F \
-ccsd_y_tr2.F
+ccsd_y_tr2.F \
+alpha_2_yr.F
             
 LIB_DEFINES = -DDEBUG_PRINT
 #
