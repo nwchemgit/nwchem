@@ -4,7 +4,7 @@
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4)
 c
-c $Id: tce_diis2.F,v 1.1 2007-08-11 01:21:27 jhammond Exp $
+c $Id: tce_diis2.F,v 1.2 2007-09-13 03:16:09 jhammond Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -121,10 +121,10 @@ c
  8000 format(1x,'cpu & wall time in seconds for ',A,2f20.1)
       if (diis .le. 0) then
         if (transpose) then
-          if (t1) call tce_jacobi_yr1(d_r1,d_t1,k_t1_offset)
-          if (t2) call tce_jacobi_yr2(d_r2,d_t2,k_t2_offset)
-          if (t3) call tce_jacobi_yr3(d_r3,d_t3,k_t3_offset)
-          if (t4) call tce_jacobi_yr4(d_r4,d_t4,k_t4_offset)
+          if (t1) call tce_jacobi_lr1(d_r1,d_t1,k_t1_offset)
+          if (t2) call tce_jacobi_lr2(d_r2,d_t2,k_t2_offset)
+          if (t3) call tce_jacobi_lr3(d_r3,d_t3,k_t3_offset)
+          if (t4) call tce_jacobi_lr4(d_r4,d_t4,k_t4_offset)
         else
           if (t1) call tce_jacobi_tr1(d_r1,d_t1,k_t1_offset,iter)
           if (t2) call tce_jacobi_tr2(d_r2,d_t2,k_t2_offset,iter)
@@ -374,10 +374,10 @@ ccc      order = tce_diis_switch(iter)
       
       IF (r1_pointer .lt. diis) THEN
         if (transpose) then
-          if (t1) call tce_jacobi_yr1(d_r1,d_t1,k_t1_offset)
-          if (t2) call tce_jacobi_yr2(d_r2,d_t2,k_t2_offset)
-          if (t3) call tce_jacobi_yr3(d_r3,d_t3,k_t3_offset)
-          if (t4) call tce_jacobi_yr4(d_r4,d_t4,k_t4_offset)
+          if (t1) call tce_jacobi_lr1(d_r1,d_t1,k_t1_offset)
+          if (t2) call tce_jacobi_lr2(d_r2,d_t2,k_t2_offset)
+          if (t3) call tce_jacobi_lr3(d_r3,d_t3,k_t3_offset)
+          if (t4) call tce_jacobi_lr4(d_r4,d_t4,k_t4_offset)
         else
           if (t1) call tce_jacobi_tr1(d_r1,d_t1,k_t1_offset,iter)
           if (t2) call tce_jacobi_tr2(d_r2,d_t2,k_t2_offset,iter)
