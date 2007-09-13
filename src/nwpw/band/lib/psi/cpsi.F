@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.48 2007-09-12 17:28:19 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.49 2007-09-13 02:31:01 bylaska Exp $ *
 
 
 *     ***************************
@@ -222,7 +222,7 @@
 *     *         c_dng_swap12    *
 *     *                         *
 *     ***************************
-      subroutine c_rho_swap12()
+      subroutine c_dng_swap12()
       implicit none
 #include "mafdecls.fh"
 #include "cpsi_common.fh"

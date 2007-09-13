@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.5 2007-09-12 20:52:36 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.6 2007-09-13 02:22:34 bylaska Exp $
 *
 
 
@@ -819,15 +819,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical move
       real*8 Gx(npack1),Gy(npack1),Gz(npack1),G(npack1,3)
 cccccccccccccc locals cccccccccccccccccccccccccccccccccccccccc
-<<<<<<< cpsp_relativistic.F
-      real*8 weight,brillioun_weight
-      complex*16 one,mone,ione,cxr
-      integer nb,l,ip,jk,i,n,shifts,shiftxu,shiftxd,shift,l_prj,npack,
-     > ne1,vshiftu,vshiftd
-=======
       complex*16 one,mone,ione,cxr
       integer l,shifts,shiftxu,shiftxd,l_prj,npack,ne1,vshiftu,vshiftd
->>>>>>> 1.4
       logical sd_function
 
 c      real*8   brillioun_weight
@@ -951,13 +944,13 @@ ccccccccccc
       complex*16 one,mone,ione
       integer nfft3d,npack1,npack
       integer ii,ia,l,ne1
-      integer shift,l_prj,nproj
-      integer shiftu,shiftd,shiftux,shiftdx,shifts
+      integer l_prj,nproj
+      integer shiftu,shiftd,shifts,shiftux,shiftdx
       real*8  omega,scal
       complex*16 cxr
       complex*16 exi(*)
       complex*16 zsw1(*)
-      logical value,sd_function
+      logical sd_function
 
 *     **** external functions ****
       logical  is_sORd,cpsi_spin_orbit
@@ -990,7 +983,7 @@ ccccccccccc
      >                     int_mb(vnlso(1)+ia-1),nb,l)
               l_prj = int_mb(l_projector(1)+(l-1)
      >                                     +(ia-1)*jmmax_max)
-              shiftux=(l-1)*npack1+1;
+              shiftux=(l-1)*npack1+1
               shiftdx=shiftux+npack1*nproj
               sd_function=.true.
               if (mod(l_prj,2).ne.0) then
@@ -1032,13 +1025,13 @@ ccccccccccc
             call dscal(4*nproj,scal,zsw1,1)
             call ZGEMM('N','C',npack1,1,nproj,
      >                 mone,
-     >                 dcpl_mb(prjtmp(1)+shiftux), npack1,
+     >                 dcpl_mb(prjtmp(1)), npack1,
      >                 zsw1,   1,
      >                 one,
      >                 orb2, npack1)
             call ZGEMM('N','C',npack1,1,nproj,
      >                 mone,
-     >                 dcpl_mb(prjtmp(1)+shiftdx), npack1,
+     >                 dcpl_mb(prjtmp(1)+nproj*npack1), npack1,
      >                 zsw1,   1,
      >                 one,
      >                 orb2(shifts), npack1)

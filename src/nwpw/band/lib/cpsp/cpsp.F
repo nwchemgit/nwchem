@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.54 2007-09-12 19:34:50 d3p708 Exp $
+* $Id: cpsp.F,v 1.55 2007-09-13 02:26:31 bylaska Exp $
 *
 
 #define TCGMSG
@@ -591,7 +591,6 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 
 
 
-
 *     ***********************************
 *     *					*
 *     *	 	 cpsp_v_nonlocal  	*
@@ -941,13 +940,13 @@ c      parameter  (ione=(0.0d0,1.0d0))
       logical  is_sORd,cpsi_spin_orbit
       integer  ion_nion,ion_katm
       integer  cpsp_projector_get_ptr
-      integer  cpsi_ne
+      integer  cpsi_neq
       real*8   lattice_omega
       external is_sORd,cpsi_spin_orbit
       external ion_nion,ion_katm
       external cpsp_projector_get_ptr
       external lattice_omega
-      external cspi_ne
+      external cpsi_neq
       one=dcmplx(1.0d0,0.0d0)
       mone=dcmplx(-1.0d0,0.d0)
       ione=dcmplx(0.0d0,1.d0)
@@ -963,7 +962,7 @@ c      parameter  (ione=(0.0d0,1.0d0))
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
 c      nbrill = brillioun_nbrillioun()
-      ne1=cpsi_ne(1)
+      ne1=cpsi_neq(1)
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nprj_max,
