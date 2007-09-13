@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.27 2007-08-27 16:54:15 d3p708 Exp $
+* $Id: band_structure.F,v 1.28 2007-09-13 02:54:31 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -191,6 +191,7 @@
       call C3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call C3dB_nfft3d(1,nfft3d)
 
+      call cpsi_data_init(20)
 
  
 *     **** initialize lattice data structure ****
@@ -889,6 +890,7 @@
       
       call ion_write(rtdb)
       call ion_end()
+      call cpsi_data_end()
       call C3dB_end(1)
       IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
       call mask_end()
