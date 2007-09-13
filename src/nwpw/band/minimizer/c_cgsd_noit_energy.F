@@ -1,4 +1,4 @@
-c     $Id: c_cgsd_noit_energy.F,v 1.7 2007-04-06 23:00:46 bylaska Exp $                       
+c     $Id: c_cgsd_noit_energy.F,v 1.8 2007-09-13 20:38:23 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -36,13 +36,13 @@ c      external ion_nion,cpsi_ispin,cpsi_ne
       character*4 ion_aname
       integer     control_it_in,control_it_out,control_minimizer
       integer     ion_nion,ion_katm,cpsi_ne,cpsi_ispin
-      real*8      control_tole,control_tolc
+      real*8      control_tole,control_tolc,cpsi_occupation
       real*8      ion_rion,cpsi_eigenvalue,cpsi_svector,ion_amass
       external cpsp_semicore,control_out_of_time,cpsi_spin_orbit
       external ion_aname
       external control_it_in,control_it_out,control_minimizer
       external ion_nion,ion_katm,cpsi_ne,cpsi_ispin
-      external control_tole,control_tolc
+      external control_tole,control_tolc,cpsi_occupation
       external ion_rion,cpsi_eigenvalue,cpsi_svector,ion_amass
       integer  brillioun_nbrillioun
       real*8   brillioun_k,brillioun_ks,brillioun_weight
@@ -117,18 +117,22 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
      >            cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV,
      >            cpsi_svector(nb,cpsi_ne(1)-i,3),
      >            cpsi_svector(nb,cpsi_ne(1)-i,2),
-     >            cpsi_svector(nb,cpsi_ne(1)-i,1)
+     >            cpsi_svector(nb,cpsi_ne(1)-i,1),
+     >            cpsi_occupation(nb,cpsi_ne(1)-i,1)
              end do
            else
              do i=0,NN-1
                write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
-     >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
+     >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV,
+     >                     cpsi_occupation(nb,1,cpsi_ne(1)-i)
              end do
              do i=0,cpsi_ne(2)-1
                write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
      >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN)*EV,
+     >                      cpsi_occupation(nb,1,cpsi_ne(1)-i-NN),
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
-     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV
+     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV,
+     >                      cpsi_occupation(nb,2,cpsi_ne(2)-i)
              end do
            end if
          end do
@@ -203,10 +207,10 @@ c     call psi_2to1()
      >       /'    weight=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')
- 1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
+ 1510 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F5.3))
  1511 FORMAT(33x,"Spin(Sz,Sy,Sz)")
  1512 FORMAT(E18.7,' (',F8.3,' eV) (',F8.3,' zhat + ',F8.3,' yhat +',
-     > F8.3,' xhat )')
+     > F8.3,' xhat ) occ=',F5.3)
 
 
       end

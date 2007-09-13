@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.77 2007-03-27 02:02:49 bylaska Exp $
+* $Id: psi.F,v 1.78 2007-09-13 20:38:36 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.77  2007/03/27 02:02:49  bylaska
+* more qmmm_updates....EJB
+*
 * Revision 1.76  2007/03/22 20:46:22  bylaska
 * New implementation of QM/MM.
 * ....EJB
@@ -4973,11 +4976,11 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
       logical function psi_initialize()
       implicit none 
-#include "errquit.fh"
 
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "errquit.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****

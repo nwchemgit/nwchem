@@ -1,5 +1,5 @@
 *
-* $Id: band_reformat_c_wvfnc.F,v 1.1 2007-01-02 19:02:52 bylaska Exp $
+* $Id: band_reformat_c_wvfnc.F,v 1.2 2007-09-13 20:38:39 bylaska Exp $
 *
       logical function  band_reformat_c_wvfnc()
       implicit none
@@ -18,7 +18,7 @@
       integer ngrid(3)
       integer cfull(2),cfull_in(2)
       integer nfft3d,n2ft3d,nfft3d_in
-      integer n,l,nb,nbrill
+      integer n,l,nb,nbrill,occupation
 
       double precision unita(3,3)
 
@@ -51,6 +51,7 @@
       call iread(5,ispin,1)
       call iread(5,ne,2)
       call iread(5,nbrill,1)
+      call iread(5,occupation,1)
  
       version = 3  ! or 4
       filename = "junk.wvfnc"
