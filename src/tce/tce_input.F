@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.20 2006-05-31 23:23:17 kowalski Exp $
+c $Id: tce_input.F,v 1.21 2007-09-14 18:53:17 kowalski Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -95,9 +95,12 @@ c ------------------
       logical left
       logical recompf
       character*10 perturbative
+      character*10 ccsd_var 
       integer oactive(2)
       integer vactive(2)
       integer numact
+c --- 4 index transform. ---
+      integer maxs,ichopx,i4im,idiskx
 c
 c -------------------------------------
 c What input block are we dealing with?
@@ -176,6 +179,28 @@ c     2e STORAGE
 c
         model2e='2espin'
       if (.not.rtdb_cput(rtdb,'tce:model2e',1,model2e))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+c 4ind. transfromation
+c
+       maxs=30
+      if (.not.rtdb_put(rtdb,'tce:maxs',mt_int,1,maxs))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR) 
+c
+       ichopx=1
+      if (.not.rtdb_put(rtdb,'tce:ichopx',mt_int,1,ichopx))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+       i4im=1
+      if (.not.rtdb_put(rtdb,'tce:i4im',mt_int,1,i4im))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+      idiskx=0
+      if (.not.rtdb_put(rtdb,'tce:idiskx',mt_int,1,idiskx))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
@@ -369,6 +394,34 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
+      else if (inp_compare(.false.,test,'cc2')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        ccsd_var='cc2'
+        if (.not.rtdb_cput(rtdb,'tce:ccsdvar',1,ccsd_var))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'lr-ccsd')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        ccsd_var='lr-ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:ccsdvar',1,ccsd_var))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
       else if (inp_compare(.false.,test,'ccsd(t)')) then
         if (module.eq.'tce') then
         model='ccsd'
@@ -432,6 +485,34 @@ c
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
         perturbative='creom_(t)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'r-creom1(t)')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='emb1'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'r-creom2(t)')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='emb2'
         if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
@@ -721,6 +802,48 @@ c
           nroots=0
         endif
         if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c     2e STORAGE
+c
+      else if (inp_compare(.false.,test,'attilesize')) then
+        if (.not.inp_i(maxs)) then
+          write(LuOut,*) 'tce_input: attilesize value not found; ',
+     1      'default value of 30 will be used'
+          maxs=30
+        endif
+        if (.not.rtdb_put(rtdb,'tce:maxs',mt_int,1,maxs))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+      else if (inp_compare(.false.,test,'split')) then
+        if (.not.inp_i(ichopx)) then
+          write(LuOut,*) 'tce_input: split value not found; ',
+     1      'default value of 1 will be used'
+          ichopx=1
+        endif
+        if (.not.rtdb_put(rtdb,'tce:ichopx',mt_int,1,ichopx))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+      else if (inp_compare(.false.,test,'2emet')) then
+        if (.not.inp_i(i4im)) then
+          write(LuOut,*) 'tce_input: 2emet value not found; ',
+     1      'default value of 1 will be used'
+          i4im=1
+        endif
+        if (.not.rtdb_put(rtdb,'tce:i4im',mt_int,1,i4im))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+      else if (inp_compare(.false.,test,'idiskx')) then
+        if (.not.inp_i(idiskx)) then
+          write(LuOut,*) 'tce_input: idiskx value not found; ',
+     1      'default value of 0 will be used'
+          idiskx=0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:idiskx',mt_int,1,idiskx))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
