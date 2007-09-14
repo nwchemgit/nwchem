@@ -10,7 +10,7 @@
      ,     n_levels, act_levels, oprint_time,
      ,     g_zora_sf )
 c     
-c     $Id: dft_fockbld.F,v 1.32 2007-08-09 22:26:13 niri Exp $
+c     $Id: dft_fockbld.F,v 1.33 2007-09-14 18:21:01 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -26,6 +26,10 @@ c
 czora...start
 #include "zora.fh"
 czora...end
+
+ccase...start
+#include "case.fh"
+ccase...end
 
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
       integer g_xcinv
@@ -64,6 +68,14 @@ czora...start
       integer g_zora_sf(*)
       double precision Ezora_sf
 czora...end
+c
+ccase...start
+c     check if the CASE attenuation is needed and get the necessary parameters
+      if (.not.rtdb_get(rtdb, 'dft:screen_exch', mt_log, 1,
+     &   screen_exch)) screen_exch=.false.
+      if (.not.rtdb_get(rtdb, 'dft:screen_omega', mt_dbl, 1,
+     &   screen_omega)) screen_omega=0.d0
+ccase...end
 
       me=ga_nodeid()
       if (odftps) call pstat_on(ps_fockb)
@@ -153,7 +165,11 @@ c
      &   call errquit('dft_scf: cannot pop stack',0, MA_ERR)
 c
       if (CDFIT)then
-c     
+c
+ccase...start
+        call case_setflags(.false.)  ! turn off the attenution for J
+ccase...end
+c
 c        Fit the electron charge density.
 c     
          if (.not.MA_Push_Get(MT_Dbl,nbf_cd,'cd_coef',lcd_coef,
@@ -161,14 +177,14 @@ c
      &        call errquit('dft_scf: cannot allocate cd_coef',0, MA_ERR)
          if (oprint_time)
      &        call dft_tstamp(' Before call to FITCD.   ')
-      if (odftps) call pstat_on(ps_fitcd)
+         if (odftps) call pstat_on(ps_fitcd)
          call dft_fitcd(1,Dbl_MB(icd_coef),dd3cERI,Ecoul,
      &                  g_dens, nTotEl, n_batch, n3c_int,
      &                  ii3cwhat, n3c_dbl, iwhat_max, 
      &                  n_semi_bufs, fd, IOLGC, 
      .        natoms,
      &                  .false., 0d0, .false.)
-      if (odftps) call pstat_off(ps_fitcd)
+         if (odftps) call pstat_off(ps_fitcd)
       endif
 c     
       if (oprint_time)
@@ -188,6 +204,7 @@ c
          if (.not.ma_pop_stack(lcd_coef))
      &        call errquit('dft_scf: cannot pop stack',0, MA_ERR)
       endif
+c
 c     
       if (ipol.gt.1)then
 c     
@@ -228,9 +245,20 @@ czora...so_term is set via a common block (zora.fh)
 czora...so_term = 0 (spin-free and the matrices are symmetric)
       do_zora_get_correction = .false.
       so_term = 0
+c
+ccase...start
+        call case_setflags(.true.)   ! turn on the attenuation for K
+ccase...end
+c
+c     Calculate the HF exchange (exact Coulomb), DFT exchange-correlation
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &             rdens_atom, cetobfr, natoms) 
+c
+ccase...start
+        call case_setflags(.false.)  ! reset the flag
+ccase...end
+c
       if (odftps) call pstat_off(ps_xc)
 
 czora...start

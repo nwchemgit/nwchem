@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.12 2007-05-24 21:02:17 niri Exp $
+* $Id: rel_input.F,v 1.13 2007-09-14 18:14:55 niri Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -80,12 +80,12 @@ c
 c
          call dmd_input(rtdb)
 c
-czora...start changes
+czora...start
       elseif (inp_compare(.false.,'zora', test)) then
-
+c
          call zora_input(rtdb)
 c
-czora...end changes
+czora...end
 c
       else if (inp_compare(.false.,'end', test)) then
 c

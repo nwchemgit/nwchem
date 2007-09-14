@@ -23,6 +23,10 @@ c
 #include "errquit.fh"
 #include "stdio.fh"
 c
+ccase...start
+#include "case.fh"
+ccase...end
+c
       integer nq, ipol, n
       double precision fac, Ex, total
       logical ldew, lfac, nlfac
@@ -34,7 +38,7 @@ c
       double precision Amat(nq,ipol)             ! partial first derivatives  
       double precision F(nq),RA(nq),RB(nq)
       double precision rhoA, rhoB, rhoTotal, rhoA1, rhoB1
-      double precision gamma,omega
+      double precision gamma
       double precision fA, fB, fpA, fpB, fppA, fppB
       double precision EpsX
       double precision EpsXprime
@@ -44,23 +48,17 @@ c
 #ifdef SECOND_DERIV
       double precision Amat2(nq,*)               ! partial second derivatives
 #endif
-
-cnxg...start
-      double precision screening_omega
-      logical do_screening
-      common /coul_screening/ screening_omega, do_screening
-cnxg...end
 c
 c     -----------------------------------------------------------------------
 c     Preliminaries
 c     -----------------------------------------------------------------------
 c
-      gamma = screening_omega
-c      write(luout,*) "screening_omega:",screening_omega
-c      write(luout,*) "Value of pi:",ValueOfPi()
-c      write(luout,*) "fac:",fac
-c      write(luout,*) "do_screening:",do_screening
-c
+      gamma = screen_omega
+
+c      write(luout,*) "In xc_rodaes_erf"
+c      write(luout,*) "screen_omega:",screen_omega
+c      write(luout,*) "gamma:",gamma
+
       do n = 1,nq
          if (ipol.eq.1) then   ! spin-restricted
             rA(n) = rho(n,1)
@@ -171,17 +169,11 @@ c
 
       if (q .lt. 0.1d0) then
          HqBNL=1.0d0-q*2.0d0/3.0d0*(TwoSqrtPi-q+q*(q2-2.0d0))
-C        HqBNL=0.25d0-q/6.0d0*(TwoSqrtPi-q+q*(q2-2.0d0))
          return
       end if
 
       HqBNL=1.0d0-q*2.0d0/3.0d0*(TwoSqrtPi*DERF(OneOverQ)-q+
      $     q*(q2-2.0d0)*(1.0d0-exp(-OneOverQ*OneOverQ)))
-
-C      HqBNL=0.25d0-q/6.0d0*(TwoSqrtPi*DERF(OneOverQ)-q+
-C     $     q*(q2-2.0d0)*(1.0d0-exp(-OneOverQ*OneOverQ)))
-
-C      print*, q 
 
       return
       end
@@ -200,8 +192,6 @@ c
       Pi = ValueOfPi()     ! calculate the value of pi
       F13 = 1.0D0 / 3.0D0
       FermiK = (3.d0*Pi*Pi*den)**F13
-
-C     print *, FermiK 
 
       return
       end
@@ -229,8 +219,6 @@ c
       Cs = -3.0D0/(4.0d0*Pi)
       EpsX = Cs * kF * HqBNL(gamma/kF)
 
-C     print*, EpsX
-
       return
       end      
 c
@@ -252,17 +240,11 @@ c
 
       if (q .lt. 0.1d0) then
         HqBNLPrime = -4.0d0/3.0d0*(dsqrt(Pi)+2.0d0*q3-3.0d0*q)
-C       HqBNLPrime = q-(dsqrt(Pi)+2.0d0*q3)/3.0d0
         return
       end if
 
       HqBNLPrime = 4.0d0/3.0d0*(q*(exp(-OneOverQ*OneOverQ)*(2.0d0*q2
      $     -1.0d0)+(3.0d0-2.0d0*q2))-dsqrt(Pi)*DERF(OneOverQ))
-
-C      HqBNLPrime = 1.0d0/3.0d0*(q*(exp(-OneOverQ*OneOverQ)*(2.0d0*q2
-C     $     -1.0d0)+(3.0d0-2.0d0*q2))-dsqrt(Pi)*DERF(OneOverQ))
-
-C     print*, HqBNL, DERF(1d0/q),q 
 
       return
       end
@@ -282,8 +264,6 @@ c
       F23 = 2.0D0 / 3.0D0
       FermiKPrime = (Pi/(3.0d0*den))**F23
 
-C     print *, FermiK 
-
       return
       end
 c
@@ -299,8 +279,6 @@ c
 
       FermiK2 = kF**2.0d0
       QPrime = -gamma/FermiK2
-
-C     print *, FermiK 
 
       return
       end
@@ -336,9 +314,6 @@ c
       EpsXprime = FermiKPrime(Rho)*(CsPrime*HqBNL(gamma/kF)+
      $     QPrime(gamma,kF)*HqBNLPrime(gamma/kF)*Cs)
 
-C      print*,'  Rho=  ', Rho,' dy/dx=  ', EpsXprime 
-C      print*, EpsXprime
-
       return
       end
 c
@@ -365,10 +340,6 @@ c
       HqBNLTwoPrime = exp(-OneOverQ*OneOverQ)*(4.0d0+8.0d0*q2)
      $     -8.0d0*q2+4.0d0
 
-C      HqBNLTwoPrime = exp(-OneOverQ*OneOverQ)*(1d0+2d0*q2)
-C     $     -2d0*q2+1d0
-C      print*,  
-
       return
       end
 c
@@ -387,8 +358,6 @@ c
       F13 = 1.0D0/3.0D0
       FermiKTwoPrime =  -(8.0d0*Pi**2.0d0/(243.0d0*den**5.0d0))**F13
 
-C     print *, FermiK 
-
       return
       end
 c
@@ -404,7 +373,6 @@ c
 
       FermiK3 = kF**3.0d0
       QTwoPrime = (2.0d0*gamma)/FermiK3
-C     print *, FermiK 
 
       return
       end
@@ -458,13 +426,6 @@ c
      $     kFPrim2*(2.0d0*CsPrim*gprim*qprim
      $     +Cs*(QPrim2*g2prim+gprim*Q2Prim))
      $     +kF2Prim*(g*CsPrim+Cs*gprim*qprim)
-
-C      print*, q, gamma
-c      EpsTwoXprime = kFPrime2*(2d0*CsPrime*HqBNLPrime(gamma/kF)
-c     $     *QPrime(gamma,Rho)+Cs*QPrime2*HqBNLTwoPrime(gamma/kF)
-c     $     +Cs*HqBNLPrime(gamma/kF)*QTwoPrime(gamma,Rho))
-c     $     +FermiKTwoPrime(Rho)*(HqBNL(gamma/kF)*CsPrime
-c     $     +Cs*HqBNLPrime(gamma/kF)*QPrime(gamma,Rho))
 
       return
       end

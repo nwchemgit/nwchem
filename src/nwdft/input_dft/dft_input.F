@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.41 2007-02-15 13:33:26 edo Exp $
+c     $Id: dft_input.F,v 1.42 2007-09-14 18:20:55 niri Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -14,6 +14,11 @@ c
 #include "inp.fh"
 #include "stdio.fh"
 #include "cdft.fh"
+
+ccase...start
+#include "case.fh"
+ccase...end
+
 c     
 c     read input for DFT calculation.  All input is of the form:
 c     <keyword>  or   <keyword> <value>  or   <keyword> <value><units>
@@ -23,7 +28,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 27)
+      parameter (num_dirs = 28)
       character*12 dirs(num_dirs)
       character*255 test
       integer nopen
@@ -36,8 +41,8 @@ c
      $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
      $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'sic', 
-     $           'smear','fon','lb94','cs00','cdft',
-     &           'end'/
+     $           'smear','fon','lb94','cs00','cdft','cam',
+     $           'end'/
 c Qin / cdft
       integer nconstr
       integer dtype(max_constr), iatms1(max_constr), fatms1(max_constr)
@@ -70,7 +75,8 @@ c
 c     
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
-     $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 9999) ind
+     $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
+     $     2700, 9999) ind
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
 c
@@ -305,13 +311,30 @@ c
 c
  2600 lcdft = .true.
       if (.not. rtdb_put(rtdb,'dft:lcdft', mt_log, 1, lcdft))
-     &   call errquit('dft_input: rtdb_put failed', 2800, RTDB_ERR)
+     &   call errquit('dft_input: rtdb_put failed', 2600, RTDB_ERR)
       nconstr = nconstr + 1
       call cdft_input(rtdb, nconstr, dtype, iatms1, iatms2, fatms1,
      $                fatms2, constr)
 c
       goto 10
-c             
+c
+c     Coulomb attenuation for Exchange
+c
+ 2700 screen_exch = .true.
+      
+c     persist the information in the runtime database
+      if (.not.rtdb_put(rtdb,'dft:screen_exch', mt_log, 1, screen_exch)) 
+     &   call errquit('dft_input: rtdb_put failed', 2700, RTDB_ERR)
+      if (.not.inp_f(screen_omega)) then
+        write(LuOut,*)'Screening factor not found;', ' 
+     & Defaulting to 0.5.'
+        screen_omega = 0.5d0
+      endif
+      if (.not.rtdb_put(rtdb,'dft:screen_omega',mt_dbl,1,screen_omega))
+     &   call errquit('dft_inp: rtdb_put failed', 2700, RTDB_ERR)
+c
+      goto 10
+c
 c     end;
 c             
  9999 continue

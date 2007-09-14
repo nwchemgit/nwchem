@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.270 2007-07-11 01:01:37 niri Exp $
+c     $Id: dft_scf.F,v 1.271 2007-09-14 18:21:01 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -33,11 +33,10 @@ c
 #include "dft_conv.fh"
 #include "dftps.fh"
 #include "cosmo.fh"
-
+c
 czora...start
 #include "zora.fh"
 czora...end
-
 c     
       Logical movecs_write, movecs_converged, movecs_read
       External movecs_write, movecs_converged, movecs_read

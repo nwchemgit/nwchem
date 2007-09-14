@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.50 2004-05-14 15:55:12 edo Exp $
+# $Id: GNUmakefile,v 1.51 2007-09-14 18:14:21 niri Exp $
  
 include ../../config/makefile.h
 
@@ -50,7 +50,8 @@ endif
                  derivat.o \
                  convert.o \
                  test_calc2.o \
-                 screened_op.o
+                 screened_op.o \
+		 case_impl.o      
 else
       OBJ = texas_stubs.o 
       OBJ_OPTIMIZE = 
@@ -61,7 +62,8 @@ endif
                   trobsa.F  getmem.F
 
        LIBRARY = libnwints.a
-       HEADERS = screened_op.fh
+       HEADERS = screened_op.fh \
+		 case.fh
 
 include ../../config/makelib.h
 ifeq ($(FC),efc)

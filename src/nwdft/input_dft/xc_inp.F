@@ -1,11 +1,12 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.53 2007-08-21 21:48:38 niri Exp $
+C$Id: xc_inp.F,v 1.54 2007-09-14 18:20:55 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
+
       integer rtdb
       character*(*) module
 c     
