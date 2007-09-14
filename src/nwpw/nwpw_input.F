@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.42 2007-08-28 19:28:40 bylaska Exp $
+c $Id: nwpw_input.F,v 1.43 2007-09-14 04:29:20 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 82)
+      parameter (num_dirs = 83)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -96,6 +96,7 @@ c
      >            'spin_orbit',
      >            'spin-orbit',
      >            'cutoff',
+     >            'fractional_orbitals',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -146,7 +147,7 @@ c
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5700,5800,5900,6000,6000,
-     >       2750,
+     >       2750,6100,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1012,6 +1013,20 @@ c
      >  call errquit('nwpw_input: error writing to rtdb',6000,RTDB_ERR)
          
       goto 10
+
+
+c
+c fractional_orbitals 
+c
+ 6100 if (.not. inp_i(nx)) nx = 1
+      if (.not. inp_i(ny)) ny = nx
+      loop(1) = nx
+      loop(2) = ny
+      if (.not.rtdb_put(rtdb,'nwpw:fractional_orbitals',mt_int,2,loop))
+     >  call errquit('nwpw_input: error writing to rtdb',6100,RTDB_ERR)
+      goto 10
+
+
 
 ************************************************************************
 c
