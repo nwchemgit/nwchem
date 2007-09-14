@@ -1,5 +1,5 @@
 c
-c     $Id: c_bybminimize2.F,v 1.2 2007-09-12 17:28:22 bylaska Exp $                       
+c     $Id: c_bybminimize2.F,v 1.3 2007-09-14 21:17:11 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -201,7 +201,7 @@ c
      >    (.not.stalled          ))) then
 
          call nwpw_scf_mixing(dbl_mb(rho_in(1)),dbl_mb(rho_out(1)),
-     >                        diis_error)
+     >                        deltae,diis_error)
 
 *     **** bad convergence - try fixed step steepest descent ****
       else
