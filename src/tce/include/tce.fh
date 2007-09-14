@@ -1,4 +1,4 @@
-c $Id: tce.fh,v 1.5 2007-08-15 17:02:55 jhammond Exp $
+c $Id: tce.fh,v 1.6 2007-09-14 18:57:46 kowalski Exp $
 c
 c Include file for TCE module
 c
@@ -25,6 +25,7 @@ c
       integer numact           !Active excitation level
       character*10 model       ! CC model
       character*10 perturbative! PT model
+      character*10 ccsd_var    ! variants of CCSD
       logical left             ! Dipole moments & dipole transition moments
       logical lineresp
       logical leftresp
@@ -91,6 +92,12 @@ c --- relevant if intorb = .true. ----
       integer k_v2_alpha_offset  ! Offset for 2e integrals if intorb=.true. 
       integer l_v2spin_offset
       integer k_v2spin_offset
+      integer tile_dim
+      integer idisk,fast2e,ichop,imaxsize
+c
+      integer atpart   !number of groups teh atomic orbitals are divided to
+      integer nalength(200) !number of elements in each group
+      integer a2length(200) !pointers to the last nshell in a given group
 c
 c ------------------------------------
       integer t1_diis(maxdiis) ! T1 files for DIIS
@@ -234,7 +241,8 @@ c
      8  l_range_alpha,k_range_alpha,l_offset_alpha,k_offset_alpha,
      9  l_o2o_offset,k_o2o_offset,l_o2ot_offset,k_o2ot_offset,
      1  l_v2_alpha_offset,k_v2_alpha_offset,l_v2spin_offset,
-     2  k_v2spin_offset,anumfreq
+     2  k_v2spin_offset,anumfreq,atpart,nalength,a2length,tile_dim,
+     3  idisk,fast2e,ichop,imaxsize
 c
 c     Doubles
 c
@@ -244,7 +252,7 @@ c
 c     Characters
 c
       common /tcechar/
-     1  model,perturbative,filenames,targetsym,model2e
+     1  model,perturbative,filenames,targetsym,model2e,ccsd_var
 c
 c     Logicals
 c
