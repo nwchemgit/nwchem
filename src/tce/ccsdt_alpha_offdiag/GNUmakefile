@@ -1,6 +1,6 @@
-#$Id: GNUmakefile,v 1.2 2007-09-14 00:55:05 jhammond Exp $
+#$Id: GNUmakefile,v 1.3 2007-09-14 01:46:34 jhammond Exp $
 
-ifndef CCSDTQ
+ifndef CCSDTLR
 OBJ_OPTIMIZE = \
 ccsdt_lr_alpha_offdiag.o
 else
@@ -1522,7 +1522,7 @@ ccsdt_lr_alpha_offdiag_9.F \
 ccsdt_lr_alpha_offdiag.F
 endif
 
-ifndef
+ifndef CCSDTLR
 LIB_DEFINES = -DDEBUG_PRINT
 else
 LIB_DEFINES = -DDEBUG_PRINT -DCCSDTLR
