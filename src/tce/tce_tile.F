@@ -1,6 +1,6 @@
       subroutine tce_tile(rtdb)
 c
-c $Id: tce_tile.F,v 1.17 2006-05-31 23:23:44 kowalski Exp $
+c $Id: tce_tile.F,v 1.18 2007-09-14 18:57:12 kowalski Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -200,6 +200,7 @@ c
       endif
       if (nodezero) write(LuOut,*)
       if (rtdb_get(rtdb,'tce:tilesize',mt_int,1,jsize)) then
+        tile_dim = jsize
         isize = jsize
         if (nodezero) write(LuOut,9050)
       endif
