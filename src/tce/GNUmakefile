@@ -1,11 +1,11 @@
-#$Id: GNUmakefile,v 1.30 2007-08-17 16:45:22 jhammond Exp $
+#$Id: GNUmakefile,v 1.31 2007-09-14 19:04:47 kowalski Exp $
 #
 
 SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
           ccsd_lambda ccsdt_lambda ccsdtq_lambda \
           eomccsd eomccsdt eomccsdtq ccsd_t cr-eomccsd_t \
-          diis2 response ccsd_lr ccsdt_alpha_offdiag
+          diis2 response ccsd_lr ccsdt_alpha_offdiag lrh emb
 
 OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o gatodra.o gatoeaf.o \
@@ -30,7 +30,9 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_residual_t3a.o tce_t3a_offset.o tce_jacobi_t3a.o \
       tce_x3a_offset.o tce_jacobi_x3a.o \
       e2_offset_2_offset.o get_block_ind.o tce_hash_ind.o \
-      tce_mo2e_offset_intorb.o tce_mo2e_offset_size.o tce_mo2e_trans.o 
+      tce_mo2e_offset_intorb.o tce_mo2e_offset_size.o tce_mo2e_trans.o \
+      atpart_nalength.o tce_mo2e_zones_4a_disk_ga.o tce_mo2e_zones_4a_disk_ga_chop.o \
+      tce_mo2e_zones_4a_disk_2s_new.o
 
 LIB_INCLUDES = -I./include
 
@@ -40,7 +42,9 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_residual_t3.F tce_residual_t4.F tce_residual_t3a.F \
             tce_ao2e.F tce_mo2e.F tce_guess_t1.F tce_diis.F tce_mod1.F \
             tce_eom_xdiagon.F dscalfile.F tce_eom_ydiagon.F\
-            tce_ao1e.F tce_aod1.F tce_mo1e.F
+            tce_ao1e.F tce_aod1.F tce_mo1e.F\
+            tce_mo2e_zones_4a_disk_ga.F tce_mo2e_zones_4a_disk_ga_chop.F\
+            tce_mo2e_zones_4a_disk_2s_new.F 
 
 LIB_DEFINES = -DDEBUG_PRINT -DFULLTENSOR
 #
