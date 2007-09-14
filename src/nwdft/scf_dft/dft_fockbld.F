@@ -10,7 +10,7 @@
      ,     n_levels, act_levels, oprint_time,
      ,     g_zora_sf )
 c     
-c     $Id: dft_fockbld.F,v 1.33 2007-09-14 18:21:01 niri Exp $
+c     $Id: dft_fockbld.F,v 1.34 2007-09-14 19:06:34 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -69,18 +69,9 @@ czora...start
       double precision Ezora_sf
 czora...end
 c
-ccase...start
-c     check if the CASE attenuation is needed and get the necessary parameters
-      if (.not.rtdb_get(rtdb, 'dft:screen_exch', mt_log, 1,
-     &   screen_exch)) screen_exch=.false.
-      if (.not.rtdb_get(rtdb, 'dft:screen_omega', mt_dbl, 1,
-     &   screen_omega)) screen_omega=0.d0
-ccase...end
-
       me=ga_nodeid()
       if (odftps) call pstat_on(ps_fockb)
 c
-
       Ecoul  = 0d0
       Exc(1)= 0d0
       Exc(2) = 0d0

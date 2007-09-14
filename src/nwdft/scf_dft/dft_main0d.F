@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.79 2007-07-10 21:45:17 niri Exp $
+c     $Id: dft_main0d.F,v 1.80 2007-09-14 19:06:34 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -30,7 +30,11 @@ czora...start
 #include "zora.fh"
 #include "rel_consts.fh"
 czora...end
-
+c
+ccase...start
+#include "case.fh"
+ccase...end
+c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
 c
@@ -96,7 +100,6 @@ czora...do we need to get the zora correction ?
      &    do_zora_get_correction)) 
      &    do_zora_get_correction=.true.
 
-czora...zora
       do_zora = .false.
       if (rtdb_get(rtdb,'zora:on',mt_log,1,do_zora)) 
      &     do_zora = .true.
@@ -107,6 +110,16 @@ c     Get the light speed and other constants, if specified
 c
       call rel_init_con(rtdb)
       clight_au = cau
+c
+ccase...start
+c
+c     Is Coulomb attenuation needed ? If so, get the necessary parameters
+c
+      if (.not.rtdb_get(rtdb, 'dft:screen_exch', mt_log, 1,
+     &   screen_exch)) screen_exch=.false.
+      if (.not.rtdb_get(rtdb, 'dft:screen_omega', mt_dbl, 1,
+     &   screen_omega)) screen_omega=0.d0
+ccase...end
 c     
 c     Select method to compute the XC potential.
 c     
@@ -198,7 +211,16 @@ c
          iVcoul_opt = 1
          CDFIT      = .TRUE.
       endif
-
+c
+ccase...start
+c     Is Coulomb attenuation (CAM) true without CDFIT ?
+c
+      if (screen_exch .and. (.not.CDFIT) ) then
+          call errquit ('dft_scf_so: Coulomb attenuation is
+     & only available with charge density fitting.',0, RTDB_ERR)
+      end if
+ccase...end
+c
       if (CDFIT)then
 c     
 c        Determine the characteristics of the CD Gaussian basis set.

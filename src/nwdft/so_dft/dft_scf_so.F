@@ -3,7 +3,7 @@
      &                  iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                  g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.38 2007-08-21 21:57:05 niri Exp $
+c     $Id: dft_scf_so.F,v 1.39 2007-09-14 19:06:37 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -45,9 +45,9 @@ c
 c     so
       double precision rho_n, toll_s
 c     
-czora
+czora...start
       character*255 vecs_in
-czora
+czora...end
 c
 #include "bas.fh"
 #include "geom.fh"
@@ -62,7 +62,10 @@ c
 czora...start
 #include "zora.fh"
 czora...end
-
+c
+ccase...start
+#include "case.fh"
+ccase...end
 c     
       Logical movecs_write_so, movecs_converged
       External movecs_write_so, movecs_converged
@@ -181,7 +184,7 @@ czora...spin-free and spin-orbit global arrays
       logical spinor
       logical dft_mem3c
       external dft_mem3c
-
+c
       call ecce_print_module_entry('dft')
       dft_scf_so = .false.
       nbf_mo = 2*nbf_ao
@@ -213,7 +216,7 @@ czora...spin-free and spin-orbit global arrays
 c     !!! BGJ
 c     Store SCF hamiltonian type as DFT for use in BGJ routines
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
-     $     call errquit('dft_scf: put of bgj:scf_type failed',0,
+     $     call errquit('dft_scf_so: put of bgj:scf_type failed',0,
      &       RTDB_ERR)
 c     !!! BGJ
 c     
@@ -225,9 +228,10 @@ c
       endif
 c     
       if (.not. geom_ncent(geom, natoms))
-     &     call errquit('dft_scf: geom_ncent failed',73, GEOM_ERR)
+     &     call errquit('dft_scf_so: geom_ncent failed',73, GEOM_ERR)
       if (.not. geom_nuc_charge(geom, anucl_charg))
-     &     call errquit('dft_scf: geom_nuc_charge failed', 0, GEOM_ERR)
+     &     call errquit('dft_scf_so: geom_nuc_charge failed', 
+     & 0, GEOM_ERR)
 c     
       anel = int(anucl_charg) - rcharge
 c     
@@ -235,13 +239,13 @@ c     Pre-compute mapping vectors
 c     
       if (.not.ma_push_get
      &     (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
-     &     call errquit('dft_scf:push_get failed', 13, MA_ERR)
+     &     call errquit('dft_scf_so:push_get failed', 13, MA_ERR)
       if (.not.ma_push_get
      &     (mt_int,nshells_ao*2,'cntoce map',lcntobfr,icntobfr))
-     &     call errquit('dft_scf:push_get failed', 13, MA_ERR)
+     &     call errquit('dft_scf_so:push_get failed', 13, MA_ERR)
       if (.not.ma_push_get
      &     (mt_int,natoms*2,'cntoce map',lcetobfr,icetobfr))
-     &     call errquit('dft_scf:push_get failed', 13, MA_ERR)
+     &     call errquit('dft_scf_so:push_get failed', 13, MA_ERR)
 c     
       call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      &     int_mb(icetobfr), natoms, nshells_ao)
@@ -250,19 +254,21 @@ c     Set aside some memory for reduced density matrix
 c     
       if (.not.MA_Push_Get(MT_Dbl,2*natoms*natoms,'rdens_atom',
      &     lrdens_atom,irdens_atom))
-     &     call errquit('dft_scf: cannot allocate rdens_atom',0, MA_ERR)
+     &     call errquit('dft_scf_so: cannot allocate rdens_atom',
+     & 0, MA_ERR)
 c     
 c     determine pattern of orbitals' occupancy
 c     
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &     call errquit('dft_scf: rtdb_get of noc failed', 0, RTDB_ERR)
+     &     call errquit('dft_scf_so: rtdb_get of noc failed', 
+     & 0, RTDB_ERR)
       if (.not. MA_Push_Get(MT_Dbl,nbf_ao*2,'mo occ',l_occ,k_occ))
-     &     call errquit('dft_scf: failed to alloc',999, MA_ERR)
+     &     call errquit('dft_scf_so: failed to alloc',999, MA_ERR)
 c     
 c     get orbital overlap tolerance
 c     
       if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
-     .     call errquit('dftscf: lost toll_s ',0, RTDB_ERR)
+     .     call errquit('dft_scf_so: lost toll_s ',0, RTDB_ERR)
 c     
       nTotEl = noc(1) + noc(2)
       nmo(1) = nbf_ao
@@ -289,7 +295,7 @@ c
       if (iVcoul_opt.eq.1)CDFIT = .TRUE.
       XCFIT = .FALSE.
       if (iVxc_opt.eq.1)XCFIT = .TRUE.
-c     
+c
 c     Define various constants.
 c     
       npol = (ipol*(ipol+1))/2
@@ -376,7 +382,7 @@ c     allocate eigenvalue array
 c     
       leneval = 4*nbf_ao 
       if (.not.MA_Push_Get(MT_Dbl,leneval,'eval',l_eval,k_eval(1)))
-     &     call errquit('dft_scf: cannot allocate eval',0, MA_ERR)
+     &     call errquit('dft_scf_so: cannot allocate eval',0, MA_ERR)
       k_eval(2) = k_eval(1) + nbf_mo
 c     
 c     Dump DFT parameters (if debugging) to see if they make sense
@@ -392,12 +398,12 @@ c
 c     allocate array for irreps
 c     
       if (.not.MA_Push_Get(mt_int,2*nbf_ao,'dft:irreps',l_ir,k_ir))
-     &     call errquit('dft_scf: cannot allocate irreps',0, MA_ERR)
+     &     call errquit('dft_scf_so: cannot allocate irreps',0, MA_ERR)
       nopen = mult - 1
       nclosed = (nTotEl - nopen) / 2
 c     
       if (.not. bas_name(ao_bas_han, basis_name, basis_trans))
-     $     call errquit('dft_scf: bas_name?', 0, BASIS_ERR)
+     $     call errquit('dft_scf_so: bas_name?', 0, BASIS_ERR)
 c     
 c     get info for int2e_ and set sleazy tolerance
 c     
@@ -974,6 +980,10 @@ c     &     (dbl_mb(irdens_atom+i),i=0,ipol*natoms*natoms-1)
 c
 c
       if (CDFIT)then
+c
+ccase...start
+        call case_setflags(.false.)  ! turn off the attenution for J
+ccase...end
 c     
 c        Fit the electron charge density.
 c     
@@ -1033,13 +1043,22 @@ c
       call ga_zero(g_vxc(1))
       rho_n = 0.0d0
       call ga_zero(g_vxc(2))
-
+c
+ccase...start
+        call case_setflags(.true.)   ! turn on the attenuation for K
+ccase...end
+c
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
       call xc_getv
      &   (rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &   g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &   dbl_mb(irdens_atom), int_mb(icetobfr), natoms)
 c     write(*,*)"Ecoul, Exc(1)", Ecoul, Exc(1)
+c
+ccase...start
+        call case_setflags(.false.)   ! reset the flag
+ccase...end
+c
 
 czora...start
       if (do_zora) then 
