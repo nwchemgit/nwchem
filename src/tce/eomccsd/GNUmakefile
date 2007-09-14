@@ -1,6 +1,6 @@
-#$Id: GNUmakefile,v 1.3 2005-12-20 21:19:40 edo Exp $
+#$Id: GNUmakefile,v 1.4 2007-09-14 18:40:19 kowalski Exp $
 
-OBJ_OPTIMIZE = eomccsd_x1.o eomccsd_x2.o eomccsd_y1.o eomccsd_y2.o eomccsd_density1.o eomccsd_denominator.o
+OBJ_OPTIMIZE = eomccsd_x1.o eomccsd_x2.o eomccsd_y1.o eomccsd_y2.o eomccsd_density1.o eomccsd_denominator.o cc2_x1.o cc2_x2.o
 
 LIB_INCLUDES = -I../include
 
@@ -11,7 +11,9 @@ eomccsd_density1.F \
 eomccsd_x1.F \
 eomccsd_x2.F \
 eomccsd_y1.F \
-eomccsd_y2.F
+eomccsd_y2.F \
+cc2_x1.F \
+cc2_x2.F
 
 
 LIB_DEFINES = -DDEBUG_PRINT

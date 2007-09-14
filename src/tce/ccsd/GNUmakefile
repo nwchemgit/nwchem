@@ -1,12 +1,12 @@
-#$Id: GNUmakefile,v 1.2 2005-12-20 21:19:40 edo Exp $
+#$Id: GNUmakefile,v 1.3 2007-09-14 18:41:34 kowalski Exp $
 
-OBJ_OPTIMIZE = ccsd_e.o ccsd_t1.o ccsd_t2.o
+OBJ_OPTIMIZE = ccsd_e.o ccsd_t1.o ccsd_t2.o cc2_t1.o cc2_t2.o
 
 LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
-USES_BLAS = ccsd_e.F ccsd_t1.F ccsd_t2.F
+USES_BLAS = ccsd_e.F ccsd_t1.F ccsd_t2.F cc2_t1.F cc2_t2.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 #
