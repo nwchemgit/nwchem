@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.2 2005-12-20 21:19:40 edo Exp $
+#$Id: GNUmakefile,v 1.3 2007-09-14 18:40:57 kowalski Exp $
 
 OBJ_OPTIMIZE = c1_c1.o  c2_c2.o  cr_eomccsd_t.o cr_eomccsd_t_gr.o t2t12.o  \
                nr0.o c1excit2.o c2excit2.o q3rexpt2.o cr_s_m3.o \
@@ -111,7 +111,8 @@ cr_eomccsd_t_n2_6_3.o\
 cr_eomccsd_t_n2_6_3_1.o\
 offset_cr_eomccsd_t_n2_6_3_1.o\
 cr_eomccsd_t_n2_6_3_2.o\
-cr_eomccsd_t_n2_6_4.o
+cr_eomccsd_t_n2_6_4.o\
+creomccsd_t_n2_mem.o
 
 LIB_INCLUDES = -I../include
 
@@ -186,7 +187,8 @@ cr_eomccsd_t_n2_6.F \
 cr_s_m3.F \
 nr0.F \
 q3rexpt2.F \
-t2t12.F
+t2t12.F \
+creomccsd_t_n2_mem.F
 
 
 LIB_DEFINES = -DDEBUG_PRINT

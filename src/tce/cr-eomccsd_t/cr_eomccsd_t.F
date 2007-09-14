@@ -8,7 +8,7 @@
      7                        d_c2,k_c2_offset,size_c2,
      8                        excit,energy1,energy2)
 C
-C     $Id: cr_eomccsd_t.F,v 1.1 2005-12-16 21:54:43 kowalski Exp $
+C     $Id: cr_eomccsd_t.F,v 1.2 2007-09-14 18:40:57 kowalski Exp $
 C 
 c from this point on we assume that corresponding one- and two-
 c body components of R(d_x1,d_x2) and T(d_t1,d_t2) operators,
@@ -271,13 +271,20 @@ c     &l_i1_offset_2,l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
 c     &1)
       end if
 c
-      call cr_eomccsd_t_N2(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,d_i2_3,
-     &d_i2_4,d_i2_5,d_i2_6,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,
-     &k_i2_offset_1,k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,
-     &k_i2_offset_5,k_i2_offset_6,k_t1_offset,k_t2_offset,k_v2_offset,
-     &k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,l_i2_offset_3,
-     &l_i2_offset_4,l_i2_offset_5,l_i2_offset_6,t_h1b,t_h2b,t_h3b,t_p4b,
-     &t_p5b,t_p6b,1)
+ccx      call cr_eomccsd_t_N2(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,d_i2_3,
+ccx     &d_i2_4,d_i2_5,d_i2_6,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,
+ccx     &k_i2_offset_1,k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,
+ccx     &k_i2_offset_5,k_i2_offset_6,k_t1_offset,k_t2_offset,k_v2_offset,
+ccx     &k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,l_i2_offset_3,
+ccx     &l_i2_offset_4,l_i2_offset_5,l_i2_offset_6,t_h1b,t_h2b,t_h3b,t_p4b,
+ccx     &t_p5b,t_p6b,1)
+c
+      call creomsd_t_n2_mem(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,
+     &d_i2_3,d_i2_4,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,k_i2_offset_1,
+     &k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,k_t1_offset,k_t2_offset,
+     &k_v2_offset,k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,
+     &l_i2_offset_3,l_i2_offset_4,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
+c
 c
 cccx      call cr_s_m3(dbl_mb(k_right3),d_v2,d_x2,k_v2_offset,k_x2_offset,
 cccx     &t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
@@ -396,13 +403,19 @@ c     &l_i1_offset_2,l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
 c     &2)
       end if
 c
-      call cr_eomccsd_t_N2(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,d_i2_3,
-     &d_i2_4,d_i2_5,d_i2_6,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,
-     &k_i2_offset_1,k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,
-     &k_i2_offset_5,k_i2_offset_6,k_t1_offset,k_t2_offset,k_v2_offset,
-     &k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,l_i2_offset_3,
-     &l_i2_offset_4,l_i2_offset_5,l_i2_offset_6,t_h1b,t_h2b,t_h3b,t_p4b,
-     &t_p5b,t_p6b,2)
+c      call cr_eomccsd_t_N2(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,d_i2_3,
+c     &d_i2_4,d_i2_5,d_i2_6,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,
+c     &k_i2_offset_1,k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,
+c     &k_i2_offset_5,k_i2_offset_6,k_t1_offset,k_t2_offset,k_v2_offset,
+c     &k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,l_i2_offset_3,
+c     &l_i2_offset_4,l_i2_offset_5,l_i2_offset_6,t_h1b,t_h2b,t_h3b,t_p4b,
+c     &t_p5b,t_p6b,2)
+c
+      call creomsd_t_n2_mem(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,
+     &d_i2_3,d_i2_4,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,k_i2_offset_1,
+     &k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,k_t1_offset,k_t2_offset,
+     &k_v2_offset,k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,
+     &l_i2_offset_3,l_i2_offset_4,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
 c
 cccx      call cr_s_m3(dbl_mb(k_right3),d_v2,d_x2,k_v2_offset,k_x2_offset,
 cccx     &t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
@@ -631,13 +644,20 @@ c
 cccx      call cr_s_m3(dbl_mb(k_right3),d_v2,d_x2,k_v2_offset,k_x2_offset,
 cccx     &t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
 c
-      call cr_eomccsd_t_N2(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,d_i2_3,
-     &d_i2_4,d_i2_5,d_i2_6,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,
-     &k_i2_offset_1,k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,
-     &k_i2_offset_5,k_i2_offset_6,k_t1_offset,k_t2_offset,k_v2_offset,
-     &k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,l_i2_offset_3,
-     &l_i2_offset_4,l_i2_offset_5,l_i2_offset_6,t_h1b,t_h2b,t_h3b,t_p4b,
-     &t_p5b,t_p6b,3)
+c      call cr_eomccsd_t_N2(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,d_i2_3,
+c     &d_i2_4,d_i2_5,d_i2_6,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,
+c     &k_i2_offset_1,k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,
+c     &k_i2_offset_5,k_i2_offset_6,k_t1_offset,k_t2_offset,k_v2_offset,
+c     &k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,l_i2_offset_3,
+c     &l_i2_offset_4,l_i2_offset_5,l_i2_offset_6,t_h1b,t_h2b,t_h3b,t_p4b,
+c     &t_p5b,t_p6b,3)
+c
+      call creomsd_t_n2_mem(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,
+     &d_i2_3,d_i2_4,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,k_i2_offset_1,
+     &k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,k_t1_offset,k_t2_offset,
+     &k_v2_offset,k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,
+     &l_i2_offset_3,l_i2_offset_4,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
+c
 c
       if(lr0) then
       call cr_ccsd_t_N(dbl_mb(k_right1),d_f1,d_i1_1,d_i1_2,
@@ -697,3 +717,4 @@ c
       return
       end
 c
+
