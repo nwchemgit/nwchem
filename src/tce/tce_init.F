@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.35 2007-08-14 17:19:42 jhammond Exp $
+c $Id: tce_init.F,v 1.36 2007-09-14 18:53:53 kowalski Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -175,6 +175,12 @@ c
      1  call errquit('tce_init: failed to write perturbative',0,
      2  RTDB_ERR)
       endif
+      if (.not.rtdb_cget(rtdb,'tce:ccsdvar',1,ccsd_var)) then
+        ccsd_var = 'none'
+        if (.not.rtdb_cput(rtdb,'tce:ccsdvar',1,ccsd_var))
+     1  call errquit('tce_init: failed to write ccsdvar',0,
+     2  RTDB_ERR)
+      endif
       if (.not.rtdb_get(rtdb,'tce:thresh',mt_dbl,1,thresh)) then
         thresh = 1.0d-6
         if (.not.rtdb_put(rtdb,'tce:thresh',mt_dbl,1,thresh))
@@ -210,6 +216,34 @@ c
         if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
      1  call errquit('tce_init: failed to write nroots',0,RTDB_ERR)
       endif
+c 4index trans.
+      if (.not.rtdb_get(rtdb,'tce:maxs',mt_int,1,imaxsize)) then
+        imaxsize = 30 
+        if (.not.rtdb_put(rtdb,'tce:maxs',mt_int,1,imaxsize))
+     1  call errquit('tce_init: failed to write maxs',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:ichopx',mt_int,1,ichop)) then
+        ichop = 1 
+        if (.not.rtdb_put(rtdb,'tce:ichopx',mt_int,1,ichop))
+     1  call errquit('tce_init: failed to write ichop',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:i4im',mt_int,1,fast2e)) then
+        fast2e = 1
+        if (.not.rtdb_put(rtdb,'tce:i4im',mt_int,1,fast2e))
+     1  call errquit('tce_init: failed to write i4im',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:idiskx',mt_int,1,idisk)) then
+        idisk = 0
+        if (.not.rtdb_put(rtdb,'tce:idiskx',mt_int,1,idisk))
+     1  call errquit('tce_init: failed to write idiskx',0,RTDB_ERR)
+      endif
+c CC2 and LR-CCSD
+      if (.not.rtdb_cget(rtdb,'tce:ccsdvar',1,ccsd_var)) then
+        ccsd_var='none'
+        if (.not.rtdb_cput(rtdb,'tce:ccsdvar',1,ccsd_var))
+     1  call errquit('tce_init: failed to write ccsdvar',0,RTDB_ERR)
+      endif
+c
       if (.not.rtdb_get(rtdb,'tce:target',mt_int,1,target)) then
          target=1
         if (.not.rtdb_put(rtdb,'tce:target',mt_int,1,target))
@@ -362,10 +396,25 @@ c
         else if (perturbative.eq.'2_tq') then
           ctype='Coupled-cluster singles & doubles w/ perturbation'
           cperturbative = '(2) triples & quadruples (nonfactorized)'
+        else if (perturbative.eq.'emb1') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'reduced completely renorm. EOMCCSD(T)-I'
+        else if (perturbative.eq.'emb2') then
+         ctype='Coupled-cluster singles & doubles w/ perturbation'
+         cperturbative = 'reduced completely renormalized EOMCCSD(T)-II'
         else if (perturbative.eq.'creom_(t)') then
           ctype='Coupled-cluster singles & doubles w/ perturbation'
           cperturbative = 'completely renormalized EOMCCSD(T)'
         endif
+        if (model.eq.'ccsd') then
+         if(ccsd_var.eq.'cc2') then
+          ctype='CC2 calculations'
+         end if
+         if(ccsd_var.eq.'lr-ccsd') then
+          ctype='Locally renormalized CCSD calculations'
+         end if
+        end if
+c
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
      2      (module.ne.'uccsd').and.
@@ -376,6 +425,8 @@ c
      6      (module.ne.'lrsd(tq1p)').and.
      6      (module.ne.'lrsd(tq)-1').and.
      6      (module.ne.'creom_(t)').and.
+     6      (module.ne.'emb1').and.
+     6      (module.ne.'emb2').and.
      7      (module.ne.'cr-ccsd[t]'))
      8    call errquit('tce_init: ucc/uccsd module overridden',0,
      9    UNKNOWN_ERR)
