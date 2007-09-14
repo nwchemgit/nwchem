@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.3 2007-09-14 01:46:34 jhammond Exp $
+#$Id: GNUmakefile,v 1.4 2007-09-14 03:19:58 jhammond Exp $
 
 ifndef CCSDTLR
 OBJ_OPTIMIZE = \
@@ -908,11 +908,13 @@ offset_ccsdt_lr_alpha_offdiag_9_4_1.o \
 offset_ccsdt_lr_alpha_offdiag_9_5_1.o \
 offset_ccsdt_lr_alpha_offdiag_9_6_1.o \
 offset_ccsdt_lr_alpha_offdiag_9_7_1.o
+endif
 
 LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
+ifdef CCSDTLR
 USES_BLAS = \
 ccsdt_lr_alpha_offdiag_10_1_1.F \
 ccsdt_lr_alpha_offdiag_10_1.F \
