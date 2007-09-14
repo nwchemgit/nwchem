@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.28 2007-09-12 17:30:00 bylaska Exp $
+# $Id: GNUmakefile,v 1.29 2007-09-14 21:15:34 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -25,13 +25,14 @@
 		spdf_name.o \
 		cell.o \
 		cellgeometry.o\
-		cpsi_data.o
+		cpsi_data.o \
+		psi_data.o
 
 	  OBJ = 
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F cellgeometry.F nwpw_list.F cpsi_data.F
+    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F cellgeometry.F nwpw_list.F cpsi_data.F psi_data.F
 
   LIB_DEFINES = 
 

@@ -1,0 +1,18 @@
+*
+* $Id: psi_data.fh,v 1.1 2007-09-14 21:15:35 bylaska Exp $
+*
+
+*     **** common block for psi data  ****
+      integer indx_psi(2)
+      integer nsize_psi(2)
+      integer neall_psi(2)
+      integer hndl_psi(2)
+      integer update_psi(2)
+      integer list_psi(2)
+      integer next_psi(2)
+      integer npsi,tagmax,tagmin
+      common / psi_data_block / indx_psi,nsize_psi,neall_psi,
+     >                          hndl_psi,update_psi,list_psi,
+     >                          next_psi,
+     >                          npsi,tagmax,tagmin
+

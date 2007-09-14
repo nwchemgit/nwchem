@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_scf_mixing.F,v 1.6 2007-08-29 01:03:24 d3p708 Exp $                       
+*     $Id: nwpw_scf_mixing.F,v 1.7 2007-09-14 21:15:35 bylaska Exp $                       
 *
 
 *     *****************************************
@@ -89,10 +89,11 @@
 *     *                                       *
 *     *****************************************
 
-      subroutine nwpw_scf_mixing(vout,vnew,scf_error)
+      subroutine nwpw_scf_mixing(vout,vnew,deltae,scf_error)
       implicit none
       real*8 vout(*)
       real*8 vnew(*)
+      real*8 deltae
       real*8 scf_error
 
 
@@ -105,14 +106,18 @@
       integer rr_ptr,ff_ptr,tt_ptr
       integer V0,V1,Vout0,Vout1,F0,F1,Vbar0,Vbar1
       integer dV,U,dF,dFi
-      real*8 sum0,sum1,beta,p00,p01,p11
+      real*8 sum0,sum1,beta,p00,p01,p11,alpha1
       real*8 BB(40,40),BBB(40,40)
 
 *     **** external functions ****
       real*8   ddot
       external ddot
 
-      
+      if ((deltae.ge.0.0d0)) then
+         alpha1 = alpha 
+      else
+         alpha1 = 1.0d0
+      end if
 
 *     **** simple mixing ****
       if (algorithm.eq.0) then
@@ -127,11 +132,11 @@
          scf_error = dsqrt(scf_error)                         ! scf_error = sqrt(<f|f>)
 
          call dcopy(nsize,dbl_mb(rr_ptr),1,vnew,1)            !vnew = vm
-         call daxpy(nsize,alpha,dbl_mb(ff_ptr),1,vnew,1)      !vnew = vnew+alpha*f
+         call daxpy(nsize,alpha1,dbl_mb(ff_ptr),1,vnew,1)     !vnew = vnew+alpha*f
          call dcopy(nsize,vnew,1,dbl_mb(rr_ptr),1)            !vm=vnew
       end if
 
-*     **** Anderson potential mixing ****
+*     **** Broyden potential mixing ****
 cccccccccc Actually this is Broyden mixing ....
       if (algorithm.eq.1) then
          call nwpw_list_ptr(1,1,V0)
@@ -154,7 +159,7 @@ cccccccccc Actually this is Broyden mixing ....
 
            !**** V1 = V0 + alpha*F0 ****
            call dcopy(nsize,dbl_mb(V0),1,dbl_mb(V1),1)
-           call daxpy(nsize,alpha,dbl_mb(F0),1,dbl_mb(V1),1)   
+           call daxpy(nsize,alpha1,dbl_mb(F0),1,dbl_mb(V1),1)   
 
            !**** vnew = V1 ****
            call dcopy(nsize,dbl_mb(V1),1,vnew,1)
@@ -203,8 +208,8 @@ cccccccccc Actually this is Broyden mixing ....
 
            !**** V1 = (1-alpha)*Vbar0 + alpha*Vbar1 ****
            call dcopy(nsize,dbl_mb(Vbar1),1,dbl_mb(V1),1)
-           call dscal(nsize,(alpha),dbl_mb(V1),1)
-           call daxpy(nsize,(1.0d0-alpha),dbl_mb(Vbar0),1,dbl_mb(V1),1)
+           call dscal(nsize,(alpha1),dbl_mb(V1),1)
+           call daxpy(nsize,(1.0d0-alpha1),dbl_mb(Vbar0),1,dbl_mb(V1),1)
           
 
            !**** vnew = V1 ****
@@ -239,7 +244,7 @@ cccccccccc Actually this is Broyden mixing ....
            !**** V1 = V0 + alpha*F0 ****
            call dcopy(nsize,dbl_mb(V0),1,dbl_mb(V1),1)
 
-           call daxpy(nsize,alpha,dbl_mb(F0),1,dbl_mb(V1),1)   
+           call daxpy(nsize,alpha1,dbl_mb(F0),1,dbl_mb(V1),1)   
 
            !**** vnew = V1 ****
            call dcopy(nsize,dbl_mb(V1),1,vnew,1)
@@ -274,7 +279,7 @@ cccccccccc Actually this is Broyden mixing ....
            !**** U  = alpha*dF + dV ****
            call dcopy(nsize,dbl_mb(dV),1,dbl_mb(U),1)
 
-           call daxpy(nsize,(alpha),dbl_mb(dF),1,dbl_mb(U),1)
+           call daxpy(nsize,(alpha1),dbl_mb(dF),1,dbl_mb(U),1)
 
            !**** Define A,c and B ****
            do i=1,m-1
@@ -327,7 +332,7 @@ cccccccccc Actually this is Broyden mixing ....
 
 
            !**** V1 = V0 + alpha*F0 - Sum(i=1,m-1) d(i)*U(i) ****
-           call daxpy(nsize,alpha,dbl_mb(F0),1,dbl_mb(V1),1)   
+           call daxpy(nsize,alpha1,dbl_mb(F0),1,dbl_mb(V1),1)   
 
            do i=1,m-1
               call nwpw_list_ptr(1,(5+max_m +i),U)
@@ -361,7 +366,7 @@ cccccccccc Actually this is Broyden mixing ....
 *     **** Anderson density mixing ****
       if (algorithm.eq.3) then
          
-         if ((m.eq.2).or.(m.eq.1)) then
+         if ((m.eq.2).or.(m.eq.1).or.(deltae.lt.0.0d0)) then
             call nwpw_list_ptr(1,1,rr_ptr)
             call nwpw_list_ptr(1,2,ff_ptr)
             call nwpw_list_ptr(1,3,tt_ptr)
@@ -377,7 +382,7 @@ ccccccccccccccccccc ff=ff-vout= vout_old - vout
         
            call dcopy(nsize,dbl_mb(rr_ptr),1,dbl_mb(ff_ptr),1)
            call dcopy(nsize,dbl_mb(rr_ptr),1,vnew,1)            !vnew = vm
-           call daxpy(nsize,alpha,dbl_mb(tt_ptr),1,vnew,1)      !vnew = vnew+alpha*f
+           call daxpy(nsize,alpha1,dbl_mb(tt_ptr),1,vnew,1)     !vnew = vnew+alpha*f
            call dcopy(nsize,vnew,1,dbl_mb(rr_ptr),1)            !vm=vnew       
  
          else
