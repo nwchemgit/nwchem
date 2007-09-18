@@ -1,0 +1,58 @@
+title "c20_cage"
+echo
+start c20_cage
+
+memory stack 230 mb heap 40 mb global 230 mb noverify
+
+geometry print xyz units bohr
+   symmetry c2
+   C      -0.761732  -1.112760   3.451966
+   C       0.761732   1.112760   3.451966
+   C       0.543308  -3.054565   2.168328
+   C      -0.543308   3.054565   2.168328
+   C       3.190553   0.632819   2.242986
+   C      -3.190553  -0.632819   2.242986
+   C       2.896910  -1.982251   1.260270
+   C      -2.896910   1.982251   1.260270
+   C      -0.951060  -3.770169   0.026589
+   C       0.951060   3.770169   0.026589
+   C       3.113776   2.128908   0.076756
+   C      -3.113776  -2.128908   0.076756
+   C       3.012003  -2.087494  -1.347695
+   C      -3.012003   2.087494  -1.347695
+   C       0.535910  -2.990532  -2.103427
+   C      -0.535910   2.990532  -2.103427
+   C       3.334106   0.574125  -2.322563
+   C      -3.334106  -0.574125  -2.322563
+   C      -0.764522  -1.081362  -3.453211
+   C       0.764522   1.081362  -3.453211
+end
+
+basis spherical
+   * library "Sadlej pVTZ"
+end
+
+scf
+   triplet
+   rohf
+   thresh 1.e-8
+   maxiter 200
+end
+
+tce
+   scf
+   ccsd(t)
+   maxiter 100
+   diis 5
+   thresh 1.e-3
+   io ga
+   2eorb
+   2emet 3
+   attilesize 40
+   tilesize 15
+   freeze atomic
+end
+
+task tce energy
+
+
