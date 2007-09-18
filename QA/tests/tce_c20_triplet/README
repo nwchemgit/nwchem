@@ -2,7 +2,7 @@
 2-e fully transformed ===> 17GB
 tilesize = 15
 (tilesize)^4 => 0.5 MB
-(tilesize)^  => 91 MB
+(tilesize)^6  => 91 MB
 
 attilesize = 40
 (attilesize)^4 => 2.5 MB
