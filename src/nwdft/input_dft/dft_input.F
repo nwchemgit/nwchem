@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.42 2007-09-14 18:20:55 niri Exp $
+c     $Id: dft_input.F,v 1.43 2007-09-18 13:57:01 niri Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -41,7 +41,7 @@ c
      $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
      $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'sic', 
-     $           'smear','fon','lb94','cs00','cdft','cam',
+     $           'smear','fon','lb94','cs00','cdft','attenuation',
      $           'end'/
 c Qin / cdft
       integer nconstr
