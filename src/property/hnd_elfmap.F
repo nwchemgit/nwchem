@@ -1,9 +1,8 @@
       subroutine hnd_elfmap(rtdb,basis,geom)
 c
-c $Id: hnd_elfmap.F,v 1.4 2005-04-27 00:08:11 marat Exp $
 c
 c     This routine calculates the electric field
-c     for a given density at the atomic positions.
+c     for a given cc density at the atomic positions.
 c
       implicit none
 #include "errquit.fh"
@@ -37,6 +36,12 @@ c     property grid points variables (MV)
       character*26 prp_date
       logical do_points
       integer l_tefld,k_tefld
+c->d3p975
+      character*30 theory
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+c<-d3p975
+c
 c
 c     Initialize integrals
 c
@@ -45,8 +50,33 @@ c
 c
 c     Get density matrix
 c
-      call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
+      if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
+     + call errquit('task: no task input for theory?',0, RTDB_ERR)
+c
+      if(theory.eq.'dft') then
+        call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
      &                      nclosed,nopen,nvirt)
+      endif
+c
+c->d3p975
+c
+c    reading g_dens from a file   
+c    1. allocate the memory
+      if(theory.eq.'tce') then
+         ndens = 1
+c
+        do i = 1, ndens
+         g_dens(i) = ga_create_atom_blocked(geom,basis,'density matrix')
+         call ga_zero(g_dens(i))
+        enddo
+c
+c    2. read the data 
+c
+        call ao_rdm_read(basis,g_dens)
+      endif
+c 
+c<-d3p975
+c
 c
 c     ----- calculate electric field -----
 c
