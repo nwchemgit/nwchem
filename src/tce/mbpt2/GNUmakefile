@@ -1,6 +1,6 @@
-#$Id: GNUmakefile,v 1.2 2005-12-20 21:19:40 edo Exp $
+#$Id: GNUmakefile,v 1.3 2007-09-19 22:13:48 d3p975 Exp $
 
-OBJ_OPTIMIZE = mbpt2_e.o mbpt2_t1.o mbpt2_t2.o mbpt2_t2_b.o mbpt2_t3.o mbpt2_t4.o
+OBJ_OPTIMIZE = mbpt2_e.o mbpt2_t1.o mbpt2_t2.o mbpt2_t2_b.o mbpt2_t3.o
 
 LIB_INCLUDES = -I../include
 
@@ -10,8 +10,7 @@ USES_BLAS = mbpt2_e.F \
 mbpt2_t1.F \
 mbpt2_t2_b.F \
 mbpt2_t2.F \
-mbpt2_t3.F \
-mbpt2_t4.F
+mbpt2_t3.F 
 
 
 LIB_DEFINES = -DDEBUG_PRINT
