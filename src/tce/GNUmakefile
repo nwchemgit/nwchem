@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.31 2007-09-14 19:04:47 kowalski Exp $
+#$Id: GNUmakefile,v 1.32 2007-09-19 22:14:30 d3p975 Exp $
 #
 
 SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
@@ -32,7 +32,11 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       e2_offset_2_offset.o get_block_ind.o tce_hash_ind.o \
       tce_mo2e_offset_intorb.o tce_mo2e_offset_size.o tce_mo2e_trans.o \
       atpart_nalength.o tce_mo2e_zones_4a_disk_ga.o tce_mo2e_zones_4a_disk_ga_chop.o \
-      tce_mo2e_zones_4a_disk_2s_new.o
+      tce_mo2e_zones_4a_disk_2s_new.o \
+      tce_dens_hh_offset.o tce_dens_hp_offset.o tce_dens_pp_offset.o tce_dens_ph_offset.o \
+      get_mo_rdm_hh.o get_mo_rdm_hp.o get_mo_rdm_ph.o get_mo_rdm_pp.o \
+      ao_rdm_write.o
+      
 
 LIB_INCLUDES = -I./include
 
