@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.26 2006-11-16 18:23:01 jochen Exp $
+# $Id: GNUmakefile,v 1.27 2007-09-19 22:26:59 d3p975 Exp $
 #
 
 
@@ -34,7 +34,8 @@
          int_mpole_1ega.o \
          aoresponse.o \
          CalcPerturbedTDPmat1.o \
-         aoresponse_giao_rhs.o
+         aoresponse_giao_rhs.o \
+         ao_rdm_read.o
 
    LIBRARY = libproperty.a
    LIB_DEFINES = 
