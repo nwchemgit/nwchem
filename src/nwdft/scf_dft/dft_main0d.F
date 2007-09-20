@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.80 2007-09-14 19:06:34 niri Exp $
+c     $Id: dft_main0d.F,v 1.81 2007-09-20 17:32:33 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -216,7 +216,7 @@ ccase...start
 c     Is Coulomb attenuation (CAM) true without CDFIT ?
 c
       if (screen_exch .and. (.not.CDFIT) ) then
-          call errquit ('dft_scf_so: Coulomb attenuation is
+          call errquit ('dft_main0d: Coulomb attenuation is
      & only available with charge density fitting.',0, RTDB_ERR)
       end if
 ccase...end
