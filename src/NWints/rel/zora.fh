@@ -12,3 +12,11 @@ czora...spin-orbit control (1=z, 2=y, 3=x, 0=spin-free)
 czora...constants
         double precision clight_au
         common/zora_consts/clight_au
+
+czora...calculation control
+czora...0 = pure kinetic calculated on a grid (for testing)
+czora...1 = zora correction to the kinetic energy
+czora...2 = zora energy scaling
+
+        integer zora_calc_type
+        common/zora_calc/zora_calc_type
