@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.105 2007-09-04 14:49:00 bylaska Exp $
+* $Id: control.F,v 1.106 2007-09-24 17:56:23 bylaska Exp $
 *
 
 *     ***********************************
@@ -2895,6 +2895,37 @@ c      end
       control_excited_ne = ne(ii)
       return
       end
+
+
+
+*     *************************************
+*     *                                   *
+*     *    control_fractional_orbitals    *
+*     *                                   *
+*     *************************************
+      integer function control_fractional_orbitals(ii)
+      implicit none
+      integer ii
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer ne(2)
+
+      if (.not.
+     > rtdb_get(rtdb,'nwpw:fractional_orbitals',mt_int,2,ne)) then
+         ne(1) = 0
+         ne(2) = 0
+      end if
+
+      control_fractional_orbitals = ne(ii)
+      return
+      end
+
 
 
 *     *****************************

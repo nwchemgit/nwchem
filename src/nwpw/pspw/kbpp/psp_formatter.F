@@ -1,5 +1,5 @@
 c
-c $Id: psp_formatter.F,v 1.15 2007-09-24 16:58:13 bylaska Exp $
+c $Id: psp_formatter.F,v 1.16 2007-09-24 17:56:26 bylaska Exp $
 c
 
 *     ***************************************
@@ -159,7 +159,7 @@ c
       external     control_version
       external     control_ngrid
       external     control_unita
-      external     kbppv3,hgpppv1,pawppv1,nwpw_filefind
+      external     kbppv3,hghppv1,pawppv1,nwpw_filefind
 
 
 *     **** get lmax,locp,and rlocal from psp library ****
