@@ -1,5 +1,5 @@
 *
-* $Id: v_wvfnc_new.F,v 1.1 2001-11-28 22:15:22 bylaska Exp $
+* $Id: v_wvfnc_new.F,v 1.2 2007-09-24 16:58:15 bylaska Exp $
 *
 
       subroutine v_wvfnc_new(v_wavefunction_filename,
@@ -23,7 +23,7 @@
       logical value
       character*255 full_filename
       integer nfft1,nfft2,nfft3,nfft3d,n2ft3d
-      integer inc2c,inc3c
+      integer inc2c,inc3c,occupation
       integer cfull_indx,cfull_hndl,l
       integer ms,n,ierr
 
@@ -61,6 +61,8 @@
       call dwrite(6,unita,9)
       call iwrite(6,ispin,1)
       call iwrite(6,ne,2)
+      occupation = -1
+      call iwrite(6,occupation,1)
  
       call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
 

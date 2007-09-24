@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.29 2007-09-14 21:15:34 bylaska Exp $
+# $Id: GNUmakefile,v 1.30 2007-09-24 16:58:11 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -26,7 +26,8 @@
 		cell.o \
 		cellgeometry.o\
 		cpsi_data.o \
-		psi_data.o
+		psi_data.o \
+		log_integrate.o
 
 	  OBJ = 
 

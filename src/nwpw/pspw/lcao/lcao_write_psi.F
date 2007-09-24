@@ -1,5 +1,5 @@
 *
-* $Id: lcao_write_psi.F,v 1.7 2007-01-02 18:36:51 bylaska Exp $
+* $Id: lcao_write_psi.F,v 1.8 2007-09-24 16:58:13 bylaska Exp $
 *
 
 *     *******************************************
@@ -14,7 +14,6 @@
      >                          ispin,ne,
      >                          psimatrix,phi)
       implicit none
-#include "errquit.fh"
       character*(*) filename
       integer      version
       integer      ngrid(3)
@@ -26,12 +25,13 @@
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
       logical value,oprint
-      integer n,l,nbasis,ms,nfft3d
+      integer n,l,nbasis,ms,nfft3d,occupation
       integer psi(2),tmp(2),coef(2)
       character*255 full_filename
 
@@ -74,6 +74,8 @@
          call dwrite(6,unita,9)
          call iwrite(6,ispin,1)
          call iwrite(6,ne,2)
+         occupation = -1
+         call iwrite(6,occupation,1)
       end if
 
 *     *** write out 3d blocks ***
@@ -123,7 +125,6 @@
      >                          ispin,ne,ne_excited,
      >                          psimatrix,phi)
       implicit none
-#include "errquit.fh"
       character*(*) filename
       integer      version
       integer      ngrid(3)
@@ -135,12 +136,13 @@
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
       logical value,oprint
-      integer n,l,nbasis,ms,nfft3d
+      integer n,l,nbasis,ms,nfft3d,occupation
       integer psi(2),tmp(2),coef(2)
       character*255 full_filename
 
@@ -183,6 +185,8 @@
          call dwrite(6,unita,9)
          call iwrite(6,ispin,1)
          call iwrite(6,ne_excited,2)
+         occupation = -1
+         call iwrite(6,occupation,1)
       end if
 
 *     *** write out 3d blocks ***
@@ -207,11 +211,9 @@
         call closefile(6)
       end if
 
-      value = MA_pop_stack(coef(2))
-      value = value.and.
-     >        MA_pop_stack(tmp(2))
-      value = value.and.
-     >        MA_pop_stack(psi(2))
+      value =           MA_pop_stack(coef(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(psi(2))
       if (.not. value)
      >  call errquit('lcao_write_epsi:popping stack memory',0,0)
       return

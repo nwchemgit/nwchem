@@ -1,8 +1,9 @@
 Comment: 
 Comment: PAW basis set generation file for Silicon
 Comment: 
-
 [psp_type] 4
+
+<comment> paw generation hello world <end>
 
 <atom_charge> 14.0
 <orbitals>

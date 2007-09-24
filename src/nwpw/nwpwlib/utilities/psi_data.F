@@ -1,5 +1,5 @@
 *
-* $Id: psi_data.F,v 1.1 2007-09-14 21:15:35 bylaska Exp $
+* $Id: psi_data.F,v 1.2 2007-09-24 16:58:11 bylaska Exp $
 *
 
 *     ************************************************
@@ -254,7 +254,6 @@
       integer indx,neall,nsize,shift
 
       indx  = int_mb(indx_psi(1) +tag)
-      neall = int_mb(neall_psi(1)+tag)
       nsize = int_mb(nsize_psi(1)+tag)
 
 
@@ -362,10 +361,9 @@
 #include "psi_data.fh"
 
 *     ***** local variables ****
-      integer indx,neall,nsize
+      integer indx,nsize
 
       indx  = int_mb(indx_psi(1) +tag)
-      neall = int_mb(neall_psi(1)+tag)
       nsize = int_mb(nsize_psi(1)+tag)
 
       psi_data_get_ptr = indx +(n-1)*nsize
@@ -387,7 +385,7 @@
 #include "psi_data.fh"
 
 *     ***** local variables ****
-      integer indx,neall,nsize
+      integer indx,nsize
 
       indx  = int_mb(indx_psi(1) +tag)
 

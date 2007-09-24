@@ -1,5 +1,5 @@
 *
-* $Id: psi_write.F,v 1.13 2007-07-16 17:20:44 bylaska Exp $
+* $Id: psi_write.F,v 1.14 2007-09-24 16:58:14 bylaska Exp $
 *
 
 *     ***********************************
@@ -12,11 +12,11 @@
       implicit none 
       integer ispin,ne(2)
       double complex psi2(*)
+      integer occupation
 
 #include "mafdecls.fh"
 #include "util.fh"
 #include "errquit.fh"
-
 
 *    *** local variables ***
       integer version,l
@@ -51,9 +51,10 @@ c     complex*16 tmp(*)
       lprint= ((taskid.eq.MASTER).and.control_print(print_low))
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) 
+     > call errquit('psi_write:out of stack memory',0,MA_ERR)
 
       version = control_version()
       nfft(1) = control_ngrid(1)
@@ -89,6 +90,8 @@ c    >                       full_filename)
          call dwrite(6,unita,9)
          call iwrite(6,ispin,1)
          call iwrite(6,ne,2)
+         occupation = -1
+         call iwrite(6,occupation,1)
       end if
 
 *     *** write out 3d blocks ***
@@ -107,9 +110,10 @@ c    >                       full_filename)
         call closefile(6)
       end if
 
-
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not. value) 
+     > call errquit('psi_write:error popping stack',0,MA_ERR)
       return
       end
 
@@ -126,6 +130,7 @@ c    >                       full_filename)
       implicit none 
       integer ispin,ne(2)
       double complex psi2(*)
+      integer occupation
 
 #include "mafdecls.fh"
 #include "util.fh"
@@ -167,9 +172,10 @@ c     complex*16 tmp(*)
 
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) 
+     > call errquit('epsi_write:out of stack memory',0,MA_ERR)
 
       version = control_version()
       nfft(1) = control_ngrid(1)
@@ -202,6 +208,8 @@ c     complex*16 tmp(*)
          call dwrite(6,unita,9)
          call iwrite(6,ispin,1)
          call iwrite(6,ne,2)
+         occupation = -1
+         call iwrite(6,occupation,1)
       end if
 
 *     *** read in 3d blocks ***
@@ -220,8 +228,10 @@ c     complex*16 tmp(*)
         call closefile(6)
       end if
 
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not. value) 
+     > call errquit('epsi_write:error popping stack',0,MA_ERR)
       return
       end
 

@@ -1,5 +1,5 @@
 /*
-   $Id: paw_atom.c,v 1.6 2007-04-10 19:04:33 d3p708 Exp $
+   $Id: paw_atom.c,v 1.7 2007-09-24 16:58:10 bylaska Exp $
 */
 
 
@@ -21,6 +21,7 @@
 #include   "paw_kinetic_energy.h"
 #include   "paw_sdir.h"
 
+static char     comment[80];
 static char     *atom_name;
 static double   Zion;
 
@@ -45,7 +46,9 @@ static double   E_correlation;
 void   paw_init_atom(char* atom, char *infile)
 {
 
+    int p,p1;
     char input[50];
+    char *w,*tc;
     FILE *fp;
 
 
@@ -93,6 +96,31 @@ void   paw_init_atom(char* atom, char *infile)
     paw_init_orbitals_from_file(fp);
 
     fclose(fp);
+
+   strcpy(comment,"PAW Hamann pseudopotential");
+   fp = fopen(infile,"r+");
+   w = get_word(fp);
+   while ((w!=NIL) && (strcmp("<comment>",w)!=0))
+      w = get_word(fp);
+
+   if(w!=NIL)
+   {
+      w = get_word(fp);
+      p  = 0;
+      tc = comment;
+      while ((w!=NIL)&&(strcmp("<end>",w) != 0))
+      {
+        p = (strlen(w));
+        strcpy(tc, w);
+        for(p1=0;p1<p; ++p1) ++tc;
+        strcpy(tc, " ");
+        ++tc;
+
+        w = get_word(fp);
+      }
+   }
+   fclose(fp);
+
 
 }
 
@@ -228,6 +256,12 @@ char* paw_get_atom_name()
 {
 
     return atom_name;
+
+}
+char* paw_get_comment()
+{
+
+    return comment;
 
 }
 

@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.24 2007-09-13 02:35:43 bylaska Exp $
+* $Id: cram.F,v 1.25 2007-09-24 16:58:10 bylaska Exp $
 *
 
 *     ***********************************
@@ -497,8 +497,8 @@
       integer shift
 
 *     **** external functions ****
-      complex*16 zdotc
-      external   zdotc
+      complex*16 tzdotc
+      external   tzdotc
 
 
       call nwpw_timing_start(2)
@@ -507,7 +507,7 @@
       do n=1,ne
         shift = (n-1)*npack_max
 
-        sum(n) = zdotc(int_mb(nidb2_list(1)+nb),
+        sum(n) = tzdotc(int_mb(nidb2_list(1)+nb),
      >                         A(1+shift),1,
      >                         B(1),      1)
       end do
@@ -544,8 +544,8 @@
       integer shift,shift2
 
 *     **** external functions ****
-      complex*16 zdotc
-      external   zdotc
+      complex*16 tzdotc
+      external   tzdotc
 
 
       call nwpw_timing_start(2)
@@ -554,10 +554,10 @@
       do n=1,ne
         shift = (n-1)*npack_max
         shift2 = ne1*npack_max
-        sum(n) = zdotc(int_mb(nidb2_list(1)+nb),
+        sum(n) = tzdotc(int_mb(nidb2_list(1)+nb),
      >                         A(1+shift),1,
      >                         B(1),      1)
-        sum(n) = sum(n) + zdotc(int_mb(nidb2_list(1)+nb),
+        sum(n) = sum(n) + tzdotc(int_mb(nidb2_list(1)+nb),
      >                         A(1+shift+shift2),1,
      >                         B(1+shift2),1)			    	
       end do
@@ -595,8 +595,8 @@
       integer shift
 
 *     **** external functions ****
-      complex*16 zdotc
-      external   zdotc
+      complex*16 tzdotc
+      external   tzdotc
 
 
       call nwpw_timing_start(2)
@@ -604,7 +604,7 @@
       do n=1,ne
         shift = (n-1)*npack_max
 
-        sum(n) = zdotc(int_mb(nidb2_list(1)+nb),
+        sum(n) = tzdotc(int_mb(nidb2_list(1)+nb),
      >                         A(1+shift),1,
      >                         B(1),      1)
       end do
@@ -637,8 +637,8 @@
       integer shift
 
 *     **** external functions ****
-      complex*16 zdotc
-      external   zdotc
+      complex*16 tzdotc
+      external   tzdotc
 
 
       call nwpw_timing_start(2)
@@ -646,7 +646,7 @@
       do n=1,ne
         shift = (n-1)*npack_max
 
-        sum(n) = sum(n)+zdotc(int_mb(nidb2_list(1)+nb),
+        sum(n) = sum(n)+tzdotc(int_mb(nidb2_list(1)+nb),
      >                         A(1+shift),1,
      >                         B(1),      1)
       end do
@@ -676,12 +676,12 @@
 
 
 *     **** external functions ****
-      complex*16 zdotc
-      external   zdotc
+      complex*16 tzdotc
+      external   tzdotc
 
       call nwpw_timing_start(2)
 
-      sum = zdotc(int_mb(nidb2_list(1)+nb),A,1,B,1)
+      sum = tzdotc(int_mb(nidb2_list(1)+nb),A,1,B,1)
 
       call nwpw_timing_end(2)
 
@@ -710,13 +710,13 @@
       integer shift
 
 *     **** external functions ****
-      complex*16 zdotc
-      external   zdotc
+      complex*16 tzdotc
+      external   tzdotc
 
 
       call nwpw_timing_start(2)
 
-      sum = sum+zdotc(int_mb(nidb2_list(1)+nb),A,1,B,1)
+      sum = sum+tzdotc(int_mb(nidb2_list(1)+nb),A,1,B,1)
 
       call nwpw_timing_end(2)
 
@@ -731,37 +731,50 @@
 *     *				    *
 *     *******************************
 
-      subroutine Cram_cc_zdot(nb,A,B,sum)
+      subroutine Cram_cc_zdot(nb,A,B,tsum)
       implicit none
       integer    nb
       complex*16 A(*)
       complex*16 B(*)
-      complex*16 sum
+      complex*16 tsum
 
 #include "mafdecls.fh"
 #include "cram_common.fh"
-
 
 *     **** local variables ****
       integer np
 
 *     **** external functions ****
-      complex*16   zdotc
-      external     zdotc
+      complex*16   tzdotc
+      external     tzdotc
 
+      integer i
       call nwpw_timing_start(2)
 
       call Parallel_np(np)
 
-      sum = zdotc(int_mb(nidb2_list(1)+nb),A,1,B,1)
+      tsum = tzdotc(int_mb(nidb2_list(1)+nb),A,1,B,1)
 
-
-      if (np.gt.1) call C3dB_Vector_SumAll(2,sum)
+      if (np.gt.1) call C3dB_Vector_SumAll(2,tsum)
 
       call nwpw_timing_end(2)
 
       return
       end 
+
+      complex*16 function tzdotc(n,x,incx,y,incy)
+      implicit none
+      integer n,incx,incy
+      complex*16 x(*),y(*)
+      integer i
+      complex*16 tsum
+      tsum = dcmplx(0.0d0,0.0d0)
+      do i=1,n
+         tsum = tsum + dconjg(x(i))*y(i)
+      end do
+      tzdotc = tsum
+      return
+      end
 
 
 *     ***********************************

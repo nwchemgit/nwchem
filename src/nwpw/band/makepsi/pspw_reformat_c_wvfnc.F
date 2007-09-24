@@ -1,5 +1,5 @@
 *
-* $Id: pspw_reformat_c_wvfnc.F,v 1.11 2007-09-13 20:38:15 bylaska Exp $
+* $Id: pspw_reformat_c_wvfnc.F,v 1.12 2007-09-24 16:58:09 bylaska Exp $
 *
 
       logical function  pspw_reformat_c_wvfnc(nbrill)
@@ -54,6 +54,7 @@
       call dread(5,unita,9)
       call iread(5,ispin,1)
       call iread(5,ne,2)
+      call iread(5,occupation,1)
  
       version = 5
       filename = "junk.wvfnc"
@@ -70,7 +71,6 @@
       call iwrite(6,ispin,1)
       call iwrite(6,ne,2)
       call iwrite(6,nbrill,1)
-      occupation = -1
       call iwrite(6,occupation,1)
        
        nfft3d = ( ngrid(1)/2+1)*ngrid(2)*ngrid(3)

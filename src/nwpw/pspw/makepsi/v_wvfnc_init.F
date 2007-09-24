@@ -1,5 +1,5 @@
 *
-* $Id: v_wvfnc_init.F,v 1.3 2002-10-15 21:24:01 bylaska Exp $
+* $Id: v_wvfnc_init.F,v 1.4 2007-09-24 16:58:15 bylaska Exp $
 *
 
       logical function v_wvfnc_init(rtdb)
@@ -10,7 +10,7 @@
 #include "rtdb.fh"
 
       logical value
-      integer version
+      integer version,occupation
  
       integer ierr
 
@@ -91,6 +91,8 @@
       call dwrite(6,unita,9)
       call iwrite(6,ispin,1)
       call iwrite(6,ne,2)
+      occupation = -1
+      call iwrite(6,occupation,1)
  
       call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
 

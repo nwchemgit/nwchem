@@ -1,5 +1,5 @@
 c
-c $Id: psp_formatter.F,v 1.14 2007-04-02 15:38:41 bylaska Exp $
+c $Id: psp_formatter.F,v 1.15 2007-09-24 16:58:13 bylaska Exp $
 c
 
 *     ***************************************
@@ -155,13 +155,12 @@ c
       integer      control_version
       integer      control_ngrid
       real*8       control_unita
-      logical      kbppv3, nwpw_filefind,hghppv1
+      logical      kbppv3,hghppv1,pawppv1,nwpw_filefind
       external     control_version
       external     control_ngrid
       external     control_unita
-      external     kbppv3, nwpw_filefind,hghppv1
+      external     kbppv3,hgpppv1,pawppv1,nwpw_filefind
 
-      value  = .true.
 
 *     **** get lmax,locp,and rlocal from psp library ****
       lmax  = -1
@@ -196,22 +195,27 @@ c
 
       call get_psp_type(psp_filename,psp_type)
 
-      if (psp_type .eq.1) then
-         value = value.and.
-     >     hghppv1(.false.,
-     >            version,psp_filename,formatted_filename,ngrid,unita,
-     >            rlocal)
-      else
-         value = value.and.
-     >     kbppv3(.false.,
+      if (psp_type.eq.0) then
+         value = kbppv3(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,rlocal)
+      else if (psp_type .eq.1) then
+         value = hghppv1(.false.,
+     >            version,psp_filename,formatted_filename,ngrid,unita,
+     >            rlocal)
+      else if (psp_type.eq.4) then
+         write(*,*) "format PAW"
+         value = pawppv1(.false.,
+     >            version,psp_filename,formatted_filename,ngrid,unita,
+     >            locp,lmax,rlocal)
+      else 
+         value = .false.
       end if
 
 
 *     *** exit if error found ***
       if(.not. value) call errquit('psp_formatter_auto: error',0,
-     &       UNKNOWN_ERR)
+     >       UNKNOWN_ERR)
 
       return
       end

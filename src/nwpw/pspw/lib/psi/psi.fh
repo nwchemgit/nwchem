@@ -1,14 +1,15 @@
 *
-* $Id: psi.fh,v 1.3 2006-08-13 01:03:28 bylaska Exp $
+* $Id: psi.fh,v 1.4 2007-09-24 16:58:14 bylaska Exp $
 *
 
 *     ***** psi common block ****
       integer ispin,ne(2),neq(2),nfft3d,npack1,npack0
+      logical occupation_on
       integer ne_excited(2),neq_excited(2)
       integer psi1_excited(2)
       integer psi2_excited(2)
-      integer psi1(2)
-      integer psi2(2)
+      integer psi1(2),occ1(2)
+      integer psi2(2),occ2(2)
       integer rho1(2)
       integer rho2(2)
       integer dng1(2)
@@ -16,8 +17,9 @@
       integer hml(2)
       integer eig(2)
       integer eig_excited(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,neq,ispin,nfft3d,npack1,npack0
+      common / psi_block / psi1,occ1,psi2,occ2,rho1,rho2,dng1,dng2,
+     >                     hml,eig,ne,neq,ispin,nfft3d,npack1,npack0,
+     >                     occupation_on
 
       common / epsi_block / psi1_excited,psi2_excited,
      >                      eig_excited,ne_excited,neq_excited

@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop.F,v 1.42 2006-02-11 02:50:46 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.43 2007-09-24 16:58:12 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.42  2006/02/11 02:50:46  bylaska
+* GGA's using 1st derivative formulas have been added in core part of PAW....EJB
+*
 * Revision 1.41  2005/02/09 02:38:57  bylaska
 * ..............EJB
 *
@@ -747,8 +750,8 @@ c     if (ispin.eq.1) enlocal = 2.0d0*enlocal
       do i=2,10
        E(1) = E(1) + E(i)
       end do
-      
 
+      E(11) = eorbit      
 
 *     **** set convergence variables ****
       deltae = (E(1)-Eold)/(dt*dble(it_in))

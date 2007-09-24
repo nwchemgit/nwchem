@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.29 2007-03-29 00:50:53 bylaska Exp $
+* $Id: pack.F,v 1.30 2007-09-24 16:58:10 bylaska Exp $
 *
 
 *     ***********************************
@@ -1093,13 +1093,13 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 
 *     **** external functions ****
-      complex*16 zdotc
-      external   zdotc
+      complex*16 tzdotc
+      external   tzdotc
 
       call nwpw_timing_start(2)
 
-      sum =         zdotc(nida(nb),A,1,B,1)
-      sum = sum + 2*zdotc(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
+      sum =         tzdotc(nida(nb),A,1,B,1)
+      sum = sum + 2*tzdotc(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
 
       call nwpw_timing_end(2)
 

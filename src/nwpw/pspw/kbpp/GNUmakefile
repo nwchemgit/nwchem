@@ -1,16 +1,17 @@
 #
-# $Id: GNUmakefile,v 1.11 2007-08-28 20:50:34 bylaska Exp $
+# $Id: GNUmakefile,v 1.12 2007-09-24 16:58:13 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
                 psp_formatter_input.o \
                 psp_formatter.o \
                 psp_stress_formatter.o \
-	      		hghppv1.o \
-			HGH_local.o \
-			HGH_nonlocal.o \
-			Tesseral.o \
-	      		kbppv3.o \
-	      		kbppv3-stress.o \
+		pawppv1.o \
+	      	hghppv1.o \
+		HGH_local.o \
+		HGH_nonlocal.o \
+		Tesseral.o \
+	      	kbppv3.o \
+	      	kbppv3-stress.o \
                 setup_kbpp.o \
 		kbpp_ray.o \
                 integrate_kbppv3.o \
@@ -21,14 +22,16 @@
                 integrate_stress_ray.o \
                 aorbs_formatter.o \
 	      		kbpp_orb.o \
-                integrate_kbpp_orb.o 
+                integrate_kbpp_orb.o  \
+                integrate_pawppv1.o \
+                integrate_paw_ray.o 
 
 
 	  OBJ = 
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = setup_kbpp.f integrate_kbppv3.f integrate_kbpp_orb.F integrate_stress.F HGH_local.F HGH_nonlocal.F Tesseral.F hghppv1.F  
+    USES_BLAS = setup_kbpp.f integrate_kbppv3.f integrate_kbpp_orb.F integrate_stress.F HGH_local.F HGH_nonlocal.F Tesseral.F hghppv1.F  pawppv1.F
 
   LIB_DEFINES = 
 

@@ -1,4 +1,4 @@
-c     $Id: paw_cgsd_energy.F,v 1.8 2007-04-02 15:38:39 bylaska Exp $                       
+c     $Id: paw_cgsd_energy.F,v 1.9 2007-09-24 16:58:11 bylaska Exp $                       
 
 
 *     ***************************
@@ -25,14 +25,14 @@ c#include "rtdb.fh"
       logical stalled,value,oprint,psitmp
       integer taskid
       integer minimizer
-      integer i,j,ms,neall,NN
+      integer i,j,ms,neall,NN,ispin
       integer it_in,it_out,icount,bfgscount
       real*8  EV,virial
       real*8  tole,tolc,deltae,deltac,deltae_old
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2),en1(2),en2(2),r_charge
-      real*8  E(30)
+      real*8  E(30),eorb,ecoul,exc
       integer rtdb
 
 *     **** external functions ****
@@ -213,7 +213,8 @@ c         write(6,1321) r_charge,' (real space)'
          write(6,1320) en(1), en(paw_psi_ispin()),' (real space)'
          write(6,1322) en1(1),en1(paw_psi_ispin()),' (real space)'
          write(6,1323) en2(1),en2(paw_psi_ispin()),' (real space)'
-         call paw_energy_output(6,ion_nion(),neall,E)
+
+         call paw_energy_output(luout,ion_nion(),neall,E)
 
 *        **** write out KS eigenvalues ****
          write(6,1500)

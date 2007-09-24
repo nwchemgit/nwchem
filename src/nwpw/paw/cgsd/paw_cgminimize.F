@@ -1,5 +1,5 @@
 c
-c     $Id: paw_cgminimize.F,v 1.3 2004-09-04 17:56:20 bylaska Exp $                       
+c     $Id: paw_cgminimize.F,v 1.4 2007-09-24 16:58:11 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -301,6 +301,7 @@ c              scale = sum3/sum0
        E(1) = E(1) + E(i)
       end do
 
+      E(11) = eorbit
 
 
       value = MA_free_heap(R1(2))

@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_expand_cell.F,v 1.1 2004-03-11 15:46:16 bylaska Exp $
+* $Id: wvfnc_expand_cell.F,v 1.2 2007-09-24 16:58:15 bylaska Exp $
 *
 
 *     *******************************************
@@ -33,7 +33,7 @@
       integer cfull(2),dcfull(2)
       integer nfft3d,n2ft3d
       integer dnfft3d,dn2ft3d
-      integer ms,n,l
+      integer ms,n,l,occupation
 
 
       double precision unita(3,3)
@@ -62,6 +62,7 @@
       call dread(5,unita,9)
       call iread(5,ispin,1)
       call iread(5,ne,2)
+      call iread(5,occupation,1)
  
       dngrid(1) = cell_expand(1)*ngrid(1)
       dngrid(2) = cell_expand(2)*ngrid(2)
@@ -88,6 +89,7 @@
       call dwrite(6,unita,9)
       call iwrite(6,ispin,1)
       call iwrite(6,dne,2)
+      call iwrite(6,occupation,1)
 
        
        nfft3d = ( ngrid(1)/2+1)* ngrid(2)* ngrid(3)

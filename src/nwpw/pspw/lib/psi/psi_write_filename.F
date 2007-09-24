@@ -1,22 +1,22 @@
 *
-* $Id: psi_write_filename.F,v 1.4 2006-08-13 01:03:28 bylaska Exp $
+* $Id: psi_write_filename.F,v 1.5 2007-09-24 16:58:14 bylaska Exp $
 *
 
 *     ***********************************
-*     *             					*
+*     *             			*
 *     *           psi_write_filename	*
-*     *             					*
+*     *             			*
 *     ***********************************
 
       subroutine psi_write_filename(filename,ispin,ne,psi2)
       implicit none 
-#include "errquit.fh"
       character*(*) filename
       integer ispin,ne(2)
       double complex psi2(*)
+      integer occupation
 
 #include "mafdecls.fh"
-
+#include "errquit.fh"
 
 *    *** local variables ***
       integer version,l
@@ -45,9 +45,10 @@ c     complex*16 tmp(*)
       call Pack_npack(1,npack1)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) 
+     > call errquit('psi_write_filename:out of stack',0,MA_ERR)
 
       version = control_version()
       nfft(1) = control_ngrid(1)
@@ -76,6 +77,8 @@ c     complex*16 tmp(*)
          call dwrite(6,unita,9)
          call iwrite(6,ispin,1)
          call iwrite(6,ne,2)
+         occupation = -1
+         call iwrite(6,occupation,1)
       end if
 
 *     *** read in 3d blocks ***
@@ -94,8 +97,10 @@ c     complex*16 tmp(*)
         call closefile(6)
       end if
 
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not. value) 
+     > call errquit('psi_write_filename:error popping stack',0,MA_ERR)
       return
       end
 

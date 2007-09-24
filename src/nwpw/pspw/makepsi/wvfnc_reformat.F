@@ -1,13 +1,14 @@
 *
-* $Id: wvfnc_reformat.F,v 1.4 2003-10-17 22:57:45 carlfahl Exp $
+* $Id: wvfnc_reformat.F,v 1.5 2007-09-24 16:58:15 bylaska Exp $
 *
 
       logical function wvfnc_reformat(rtdb)
       implicit none
+      integer rtdb
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-      integer rtdb
+
       logical value
       integer version
  
@@ -20,11 +21,10 @@
       character*255 full_filename,full_filename2
       character*30 cell_name,rtdb_unita
 
-
       integer ngrid(3)
       integer cfull(2)
       integer nfft3d,n2ft3d
-      integer ms,n,l
+      integer ms,n,l,occupation
 
       double precision unita(3,3)
       double precision unita2(3,3)
@@ -68,6 +68,7 @@
       call dread(5,unita,9)
       call iread(5,ispin,1)
       call iread(5,ne,2)
+      call iread(5,occupation,1)
  
       call util_file_name('wvfnc_reformat',
      >                    .true.,
@@ -80,6 +81,7 @@
       call dwrite(6,unita2,9)
       call iwrite(6,ispin,1)
       call iwrite(6,ne,2)
+      call iwrite(6,occupation,1)
        
        nfft3d = ( ngrid(1)/2+1)* ngrid(2)* ngrid(3)
        n2ft3d = 2* nfft3d

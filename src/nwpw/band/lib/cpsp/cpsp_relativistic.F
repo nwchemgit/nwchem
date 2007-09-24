@@ -1,7 +1,6 @@
 *
-* $Id: cpsp_relativistic.F,v 1.6 2007-09-13 02:22:34 bylaska Exp $
+* $Id: cpsp_relativistic.F,v 1.7 2007-09-24 16:58:09 bylaska Exp $
 *
-
 
 
 *     *******************************************

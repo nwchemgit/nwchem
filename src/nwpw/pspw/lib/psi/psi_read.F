@@ -1,8 +1,7 @@
 *
-* $Id: psi_read.F,v 1.15 2007-07-16 17:20:44 bylaska Exp $
+* $Id: psi_read.F,v 1.16 2007-09-24 16:58:14 bylaska Exp $
 *
 
-#define TCGMSG
 *     ***********************************
 *     *             			*
 *     *           psi_read		*
@@ -13,20 +12,12 @@
       implicit none 
       integer ispin,ne(2)
       double complex psi2(*)
+      integer occupation
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 #include "errquit.fh"
-
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#endif
 
 *    *** local variables ***
       integer version,l,rtdb
@@ -64,7 +55,6 @@ c     complex*16 tmp(*)
       lprint= ((taskid.eq.MASTER).and.control_print(print_low))
 
 
-
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
@@ -90,38 +80,20 @@ c    >                        full_filename)
          call dread(5,unita,9)
          call iread(5,ispin,1)
          call iread(5,ne,2)
+         call iread(5,occupation,1)
       end if
 
 c     **** send header to all nodes ****
-#ifdef MPI
       msglen = 1
-      call MPI_BCAST(version,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
       msglen = 3
-      call MPI_BCAST(nfft,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
       msglen = 9
-      call MPI_BCAST(unita,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_values(MASTER,msglen,unita)
       msglen = 1
-      call MPI_BCAST(ispin,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
       msglen = 2
-      call MPI_BCAST(ne,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif 
-#ifdef TCGMSG
-      msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
-      msglen = 3
-      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
-      msglen = 9
-      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
-      msglen = 1
-      call BRDCST(9+MSGINT,ispin,mitob(msglen),MASTER)
-      msglen = 2
-      call BRDCST(9+MSGINT,ne,mitob(msglen),MASTER)
-#endif 
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
 
 
 *     ***** Error checking ****
@@ -200,21 +172,14 @@ c     **** send header to all nodes ****
 
       subroutine epsi_read(ispin,ne,psi2)
       implicit none 
-#include "errquit.fh"
       integer ispin,ne(2)
       double complex psi2(*)
+      integer occupation
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "errquit.fh"
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#endif
 
 *    *** local variables ***
       integer version,l,rtdb
@@ -270,38 +235,20 @@ c     complex*16 tmp(*)
          call dread(5,unita,9)
          call iread(5,ispin,1)
          call iread(5,ne,2)
+         call iread(5,occupation,1)
       end if
 
 c     **** send header to all nodes ****
-#ifdef MPI
       msglen = 1
-      call MPI_BCAST(version,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
       msglen = 3
-      call MPI_BCAST(nfft,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
       msglen = 9
-      call MPI_BCAST(unita,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_values(MASTER,msglen,unita)
       msglen = 1
-      call MPI_BCAST(ispin,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
       msglen = 2
-      call MPI_BCAST(ne,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif 
-#ifdef TCGMSG
-      msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
-      msglen = 3
-      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
-      msglen = 9
-      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
-      msglen = 1
-      call BRDCST(9+MSGINT,ispin,mitob(msglen),MASTER)
-      msglen = 2
-      call BRDCST(9+MSGINT,ne,mitob(msglen),MASTER)
-#endif 
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
 
 
 *     ***** Error checking ****

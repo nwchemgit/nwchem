@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_convert_restricted.F,v 1.1 2004-06-16 18:02:50 bylaska Exp $
+* $Id: wvfnc_convert_restricted.F,v 1.2 2007-09-24 16:58:15 bylaska Exp $
 *
 
 *     *******************************************
@@ -33,7 +33,7 @@
       integer cfull(2),dcfull(2)
       integer nfft3d,n2ft3d
       integer dnfft3d,dn2ft3d
-      integer ms,n,l,ma_type
+      integer ms,n,l,ma_type,occupation
 
 
       double precision unita(3,3)
@@ -61,6 +61,7 @@
       call dread(5,unita,9)
       call iread(5,ispin,1)
       call iread(5,ne,2)
+      call iread(5,occupation,1)
  
       iispin = 2
       nne(1) = ne(1)
@@ -76,6 +77,7 @@
       call dwrite(6,unita,9)
       call iwrite(6,iispin,1)
       call iwrite(6,nne,2)
+      call iwrite(6,occupation,1)
 
        
        nfft3d = ( ngrid(1)/2+1)* ngrid(2)* ngrid(3)

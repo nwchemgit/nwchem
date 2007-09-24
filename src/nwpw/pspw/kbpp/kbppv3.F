@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.20 2007-09-12 17:31:27 bylaska Exp $
+* $Id: kbppv3.F,v 1.21 2007-09-24 16:58:13 bylaska Exp $
 *
 
 *     **************************************
@@ -12,12 +12,6 @@
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
       implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#include "util.fh"
-
       logical          oprint_in
       integer          version
       character*25     psp_filename,formatted_filename
@@ -25,8 +19,10 @@
       double precision unita(3,3)
       integer locp,lmax
       real*8  rlocal
-      character*255 full_filename
 
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "util.fh"
 
       integer taskid,MASTER,msglen
       parameter (MASTER=0)
@@ -68,6 +64,7 @@
       integer nsize,i,l,ierr,psp_type
       integer nfft1,nfft2,nfft3
       integer nmax,nprj
+      character*255 full_filename
 
 *     **** external functions ****
       logical  control_print,control_kbpp_ray,control_kbpp_filter
@@ -101,17 +98,18 @@ c      call Parallel_Init()
       end if
 
       msglen = 1
-      call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
-      call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
-      call BRDCST(9+MSGINT,lmax0,mitob(msglen),MASTER)
-      call BRDCST(9+MSGINT,lmax1,mitob(msglen),MASTER)
-      call BRDCST(9+MSGINT,locp1,mitob(msglen),MASTER)
-      call BRDCST(9+MSGDBL,rlocal1,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,zv)
+      call Parallel_Brdcst_values(MASTER,msglen,amass)
+      call Parallel_Brdcst_values(MASTER,msglen,rlocal1)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,lmax0)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,lmax1)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,locp1)
+
       msglen = lmax0+1
-      call BRDCST(9+MSGDBL,rc,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,rc)
       msglen = 1
-      call BRDCST(9+MSGINT,nrho,mitob(msglen),MASTER)
-      call BRDCST(9+MSGDBL,drho,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nrho)
+      call Parallel_Brdcst_values(MASTER,msglen,drho)
 
 
 *     **** set the maximum angular momentum ****
@@ -149,17 +147,17 @@ c      call Parallel_Init()
       end if
 
       msglen = nrho
-      call BRDCST(9+MSGDBL,dbl_mb(rho_indx),mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(rho_indx))
       msglen = nrho*(lmax+1)
-      call BRDCST(9+MSGDBL,dbl_mb(vp_indx),mdtob(msglen),MASTER)
-      call BRDCST(9+MSGDBL,dbl_mb(wp_indx),mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(vp_indx))
+      call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(wp_indx))
 
       msglen = 1
-      call BRDCST(9+MSGINT,isemicore,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,isemicore)
       semicore = (isemicore.eq.1)
       if (semicore) then
       msglen = 2*nrho
-      call BRDCST(9+MSGDBL,dbl_mb(sc_r_indx),mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(sc_r_indx))
       else
          rcore = 0.0d0
       end if

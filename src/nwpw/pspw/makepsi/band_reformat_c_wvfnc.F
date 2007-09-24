@@ -1,5 +1,5 @@
 *
-* $Id: band_reformat_c_wvfnc.F,v 1.2 2007-09-13 20:38:39 bylaska Exp $
+* $Id: band_reformat_c_wvfnc.F,v 1.3 2007-09-24 16:58:15 bylaska Exp $
 *
       logical function  band_reformat_c_wvfnc()
       implicit none
@@ -68,6 +68,7 @@
       call iwrite(6,ispin,1)
       call iwrite(6,ne,2)
 c      call iwrite(6,nbrill,1)
+      call iwrite(6,occupation,1)
        
        nfft3d = ( ngrid(1)/2+1)*ngrid(2)*ngrid(3)
        n2ft3d = 2* nfft3d

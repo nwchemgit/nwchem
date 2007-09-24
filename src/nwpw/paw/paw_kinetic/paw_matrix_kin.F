@@ -1,5 +1,5 @@
 c
-c $Id: paw_matrix_kin.F,v 1.6 2005-01-30 07:16:17 bylaska Exp $
+c $Id: paw_matrix_kin.F,v 1.7 2007-09-24 16:58:12 bylaska Exp $
 c
 
 !**************************************************
@@ -159,7 +159,7 @@ c
             dbl_mb(i_f+ig-1) =  
      >          0.5d0*(phi_ae_prime(igg,i)*phi_ae_prime(igg,j)- 
      >          phi_ps_prime(igg,i)*phi_ps_prime(igg,j))+ 
-     >          0.5*l*(l+1)*(phi_ae(igg,i)*phi_ae(igg,j) -  
+     >          0.5d0*l*(l+1)*(phi_ae(igg,i)*phi_ae(igg,j) -  
      >          phi_ps(igg,i)*phi_ps(igg,j))/r(igg)**2
 
             end do

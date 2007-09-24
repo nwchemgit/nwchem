@@ -1,8 +1,7 @@
 *
-* $Id: psp.F,v 1.28 2007-08-23 23:49:58 bylaska Exp $
+* $Id: psp.F,v 1.29 2007-09-24 16:58:14 bylaska Exp $
 *
 
-#define TCGMSG
 
 *     ***********************************
 *     *					*
@@ -35,19 +34,17 @@
       call Pack_npack(0,npack0)
       npsp = ion_nkatm()
 
-      value = MA_alloc_get(mt_dcpl,(nmax_max*lmmax_max*npack1),
-     >                    'prjtmp',prjtmp(2),prjtmp(1))
-
-      value = value.and.
-     >         MA_alloc_get(mt_dbl,(npsp*npack0),
-     >                    'vl',vl(2),vl(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,(nmax_max*lmmax_max*npsp*npack1),
-     >                    'vnl',vnl(2),vnl(1))
+c      value = MA_alloc_get(mt_dcpl,(nmax_max*lmmax_max*npack1),
+c     >                    'prjtmp',prjtmp(2),prjtmp(1))
+c      value = value.and.
+c     >        MA_alloc_get(mt_dbl,(nmax_max*lmmax_max*npsp*npack1),
+c     >                    'vnl',vnl(2),vnl(1))
 c     value = value.and.
 c    >         MA_alloc_get(mt_dbl,(lmmax_max*npsp),
 c    >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
 
+      value = MA_alloc_get(mt_dbl,(npsp*npack0),'vl',vl(2),vl(1))
+      value = value.and.MA_alloc_get(mt_int,npsp,'vnl',vnl(2),vnl(1))
       value = value.and.
      >      MA_alloc_get(mt_dbl,(nmax_max*nmax_max*(lmax_max+1)*npsp),
      >                    'Gijl',Gijl(2),Gijl(1))
@@ -89,9 +86,6 @@ c    >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
      >   call errquit('psp_init:out of heap memory',0, MA_ERR)
 
       call dcopy(npsp*npack0,          0.0d0,0,dbl_mb(vl(1)), 1)
-      call dcopy(nmax_max*lmmax_max*npsp*npack1,
-     >           0.0d0,0,dbl_mb(vnl(1)),1)
-c     call dcopy(lmmax_max*npsp,       0.0d0,0,dbl_mb(vnlnrm(1)),1)
       call dcopy(npsp,                 0.0d0,0,dbl_mb(zv(1)),1)
       call dcopy(npsp,                 0.0d0,0,dbl_mb(amass(1)),1)
       call dcopy(npsp*(lmax_max+1),    0.0d0,0,dbl_mb(rc(1)),1)
@@ -103,6 +97,34 @@ c     call dcopy(lmmax_max*npsp,       0.0d0,0,dbl_mb(vnlnrm(1)),1)
       return
       end
 
+*     ****************************************************
+*     *                                                  *
+*     *                psp_proj_init                     *
+*     *                                                  *
+*     ****************************************************
+      subroutine psp_proj_init()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     ***** local variables ****
+      logical value
+      integer npack1
+
+*     ***** external functions *****
+      integer  psp_nprj_max
+      external psp_nprj_max
+
+      call Pack_npack(1,npack1)
+      nprj_max = psp_nprj_max()
+      value = MA_alloc_get(mt_dcpl,npack1*nprj_max,
+     >                     'prjtmp',prjtmp(2),prjtmp(1))
+      if (.not. value)
+     >   call errquit('psp_proj_init:out of heap memory',0,MA_ERR)
+      return
+      end
 
 
 *     ***********************************
@@ -124,11 +146,17 @@ c     call dcopy(lmmax_max*npsp,       0.0d0,0,dbl_mb(vnlnrm(1)),1)
 
 
       logical value
+      integer ia
 
 *     **** external functions ****
 
 *     **** deallocate semicore data ****
       call semicore_end()
+
+*     **** deallocate nonlocal pspw data ****
+      do ia=1,npsp
+        call psi_data_dealloc(int_mb(vnl(1)+ia-1))
+      end do
 
       value = MA_free_heap(prjtmp(2))
       value = value.and.MA_free_heap(vl(2))
@@ -321,6 +349,31 @@ c     psp_rc = rc(i,ia)
       psp_nprj  = int_mb(nprj(1)+ia-1)
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *            psp_nprj_max         *
+*     *                                 *
+*     ***********************************
+      integer function psp_nprj_max()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      integer ia,nprjmax,nprjtmp
+
+      nprjmax = 0
+      do ia=1,npsp
+         nprjtmp = (int_mb(nprj(1)+ia-1))
+         if (nprjtmp.gt.nprjmax) nprjmax = nprjtmp
+      end do
+
+      psp_nprj_max  = nprjmax
+      return
+      end
+
 
 *     ***********************************
 *     *                                 *
@@ -598,7 +651,6 @@ c             vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       integer nfft3d,npack0
       integer i,ii,ia
       integer exi(2),vtmp(2),xtmp(2),G(3)
-c      integer Gx(2),Gy(2),Gz(2)
       logical value
 
 *     **** external functions ****
@@ -606,7 +658,6 @@ c      integer Gx(2),Gy(2),Gz(2)
       external Pack_G_indx,ion_nion,ion_katm
 
       call nwpw_timing_start(5)
-c      call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
 
       value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
@@ -614,24 +665,12 @@ c      call D3dB_nfft3d(1,nfft3d)
      >        MA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
      >        MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
-c      value = value.and.
-c     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
-c      value = value.and.
-c     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
-c      value = value.and.
-c     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+c*     **** define Gx,Gy and Gz in packed space ****
       G(1)  = Pack_G_indx(0,1)
       G(2)  = Pack_G_indx(0,2)
       G(3)  = Pack_G_indx(0,3)
-
-c*     **** define Gx,Gy and Gz in packed space ****
-c      call D3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-c      call D3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-c      call D3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-c      call Pack_t_pack(0,dbl_mb(Gx(1)))
-c      call Pack_t_pack(0,dbl_mb(Gy(1)))
-c      call Pack_t_pack(0,dbl_mb(Gz(1)))
 
       call dcopy((2*npack0),0.0d0,0,vl_out,1)
       do ii=1,ion_nion()
@@ -666,12 +705,9 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
         
 
       end do
-c      value = MA_pop_stack(Gz(2))
-c      value = MA_pop_stack(Gy(2))
-c      value = MA_pop_stack(Gx(2))
-      value = MA_pop_stack(xtmp(2))
-      value = MA_pop_stack(vtmp(2))
-      value = MA_pop_stack(exi(2))
+      value =           MA_pop_stack(xtmp(2))
+      value = value.and.MA_pop_stack(vtmp(2))
+      value = value.and.MA_pop_stack(exi(2))
 
       call nwpw_timing_end(5)
       return 
@@ -686,11 +722,11 @@ c      value = MA_pop_stack(Gx(2))
 
       subroutine f_vlocal(dng,fion)
       implicit none
-#include "errquit.fh"
       complex*16 dng(*)
       real*8     fion(3,*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "psp.fh"
 
 
@@ -706,31 +742,19 @@ c      integer Gx(2),Gy(2),Gz(2)
       external Pack_G_indx,ion_nion,ion_katm
 
       call nwpw_timing_start(5)
-c      call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
+
       value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
      >        MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
-c      value = value.and.
-c     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
-c      value = value.and.
-c     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
-c      value = value.and.
-c     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+c     **** define Gx,Gy and Gz in packed space ****
       G(1)  = Pack_G_indx(0,1)
       G(2)  = Pack_G_indx(0,2)
       G(3)  = Pack_G_indx(0,3)
-
-c*     **** define Gx,Gy and Gz in packed space ****
-c      call D3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-c      call D3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-c      call D3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-c      call Pack_t_pack(0,dbl_mb(Gx(1)))
-c      call Pack_t_pack(0,dbl_mb(Gy(1)))
-c      call Pack_t_pack(0,dbl_mb(Gz(1)))
 
       do ii=1,ion_nion()
         ia=ion_katm(ii)
@@ -759,12 +783,9 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
         call Pack_tt_dot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fion(3,ii))
  
       end do
-c      value = MA_pop_stack(Gz(2))
-c      value = MA_pop_stack(Gy(2))
-c      value = MA_pop_stack(Gx(2))
-      value = MA_pop_stack(xtmp(2))
-      value = MA_pop_stack(vtmp(2))
-      value = MA_pop_stack(exi(2))
+      value =           MA_pop_stack(xtmp(2))
+      value = value.and.MA_pop_stack(vtmp(2))
+      value = value.and.MA_pop_stack(exi(2))
 
       call nwpw_timing_end(5)
       return 
@@ -806,15 +827,16 @@ c      value = MA_pop_stack(Gx(2))
       real*8  omega,scal,ff(3)
       complex*16 ctmp
       integer exi(2),xtmp(2),sw1(2),sw2(2),sum(2)
-c      integer Gx(2),Gy(2),Gz(2)
       logical value,sd_function
 
 *     **** external functions ****
       logical  is_sORd
       integer  ion_nion,ion_katm,Pack_G_indx
+      integer  psi_data_get_ptr
       real*8   lattice_omega
       external is_sORd
       external ion_nion,ion_katm,Pack_G_indx
+      external psi_data_get_ptr
       external lattice_omega
 
       call nwpw_timing_start(6) 
@@ -822,43 +844,26 @@ c      integer Gx(2),Gy(2),Gz(2)
 *     **** allocate local memory ****
       nion = ion_nion()
       nn = ne(1)+ne(2)
-c      call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nmax_max*lmmax_max,
-     >                    'sw1',sw1(2),sw1(1))
+     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nmax_max*lmmax_max,
-     >                    'sw2',sw2(2),sw2(1))
+     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('v_nonlocal: out of stack',0, MA_ERR)
 
       if (move) then
-       value = value.and.
-     >        MA_push_get(mt_dbl, npack1,'xtmp',xtmp(2),xtmp(1))
-c       value = value.and.
-c     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
-c       value = value.and.
-c     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
-c       value = value.and.
-c     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
-       value = value.and.
-     >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
-       if (.not. value) call errquit('v_nonlocal:out of stack memory',1,
-     &       MA_ERR)
+       value = value.and.MA_push_get(mt_dbl,npack1,
+     >                               'xtmp',xtmp(2),xtmp(1))
+       value = value.and.MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
+       if (.not. value) 
+     >  call errquit('v_nonlocal:out of stack memory',1,MA_ERR)
+
        G(1)  = Pack_G_indx(1,1)
        G(2)  = Pack_G_indx(1,2)
        G(3)  = Pack_G_indx(1,3)
-
-c*      **** define Gx,Gy and Gz in packed space ****
-c       call D3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-c       call D3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-c       call D3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-c       call Pack_t_pack(1,dbl_mb(Gx(1)))
-c       call Pack_t_pack(1,dbl_mb(Gy(1)))
-c       call Pack_t_pack(1,dbl_mb(Gz(1)))
       end if
 
       omega = lattice_omega()
@@ -880,7 +885,8 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 *       **** generate sw1's and projectors ****
         do l=1,nproj
 
-           shift = vnl(1)+(l-1)*npack1+(ia-1)*npack1*nmax_max*lmmax_max
+           !shift = vnl(1)+(l-1)*npack1+(ia-1)*npack1*nmax_max*lmmax_max
+           shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
            l_prj = int_mb(l_projector(1)+(l-1) 
      >                                  + (ia-1)*(nmax_max*lmmax_max))
 
@@ -900,25 +906,31 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 *          *** current function is s or d ****
            if (sd_function) then
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-              do k=0,npack1-1
-               dcpl_mb(prjtmp(1)+(l-1)*npack1 + k) 
-     >           = dbl_mb(k+shift)*dcpl_mb(exi(1)+k)
-              end do
+              call Pack_tc_Mul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
+cc#ifndef CRAY
+c!DIR$ ivdep
+cc#endif
+c              do k=0,npack1-1
+c               dcpl_mb(prjtmp(1)+(l-1)*npack1 + k) 
+c     >           = dbl_mb(k+shift)*dcpl_mb(exi(1)+k)
+c              end do
 
 *          *** current function is p or f ****
            else
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-              do k=0,npack1-1
-               dcpl_mb(prjtmp(1)+(l-1)*npack1 + k) 
-     >                = dbl_mb(k+shift)
-     >                 *dcmplx(-dimag(dcpl_mb(exi(1)+k)),
-     >                           dble(dcpl_mb(exi(1)+k)))
-              end do
+              call Pack_tc_iMul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
+cc#ifndef CRAY
+c!DIR$ ivdep
+cc#endif
+c              do k=0,npack1-1
+c               dcpl_mb(prjtmp(1)+(l-1)*npack1 + k) 
+c     >                = dbl_mb(k+shift)
+c     >                 *dcmplx(-dimag(dcpl_mb(exi(1)+k)),
+c     >                           dble(dcpl_mb(exi(1)+k)))
+c              end do
 
            end if
            call Pack_cc_indot(1,nn,
@@ -928,7 +940,6 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
         end do
         call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
- 
 
 
 *       **** sw2 = Gijl*sw1 ******
@@ -1031,9 +1042,6 @@ c     >              psi2,                    (2*npack1))
       value = .true.
       if (move) then
       value = value.and.MA_pop_stack(sum(2))
-c      value = value.and.MA_pop_stack(Gz(2))
-c      value = value.and.MA_pop_stack(Gy(2))
-c      value = value.and.MA_pop_stack(Gx(2))
       value = value.and.MA_pop_stack(xtmp(2))
       end if
       value = value.and.MA_pop_stack(sw2(2))
@@ -1113,10 +1121,10 @@ c      integer Gx(2),Gy(2),Gz(2)
 
 *     **** external functions ****
       logical  is_sORd
-      integer  ion_nion,ion_katm,Pack_G_indx
+      integer  ion_nion,ion_katm,Pack_G_indx,psi_data_get_ptr
       real*8   lattice_omega
       external is_sORd
-      external ion_nion,ion_katm,Pack_G_indx
+      external ion_nion,ion_katm,Pack_G_indx,psi_data_get_ptr
       external lattice_omega
 
       call nwpw_timing_start(6)
@@ -1130,34 +1138,19 @@ c      call D3dB_nfft3d(1,nfft3d)
      >        MA_push_get(mt_dcpl,npack1,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
      >        MA_push_get(mt_dbl, npack1,'xtmp',xtmp(2),xtmp(1))
-c      value = value.and.
-c     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
-c      value = value.and.
-c     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
-c      value = value.and.
-c     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nmax_max*lmmax_max,
-     >                    'sw1',sw1(2),sw1(1))
+     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nmax_max*lmmax_max,
-     >                    'sw2',sw2(2),sw2(1))
+     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       value = value.and.
      >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
       if (.not. value) 
      >  call errquit('f_vnonlocal: out of stack memory',0, MA_ERR)
 
+c     **** define Gx,Gy and Gz in packed space ****
       G(1)  = Pack_G_indx(1,1)
       G(2)  = Pack_G_indx(1,2)
       G(3)  = Pack_G_indx(1,3)
-
-c*     **** define Gx,Gy and Gz in packed space ****
-c      call D3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-c      call D3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-c      call D3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-c      call Pack_t_pack(1,dbl_mb(Gx(1)))
-c      call Pack_t_pack(1,dbl_mb(Gy(1)))
-c      call Pack_t_pack(1,dbl_mb(Gz(1)))
 
       omega = lattice_omega()
 
@@ -1168,13 +1161,12 @@ c      call Pack_t_pack(1,dbl_mb(Gz(1)))
         if (nproj.gt.0) then
 
 *       **** structure factor and local pseudopotential ****
-c        call strfac(ii,dcpl_mb(exi(1)))
-c        call Pack_c_pack(1,dcpl_mb(exi(1)))
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
 
         do l=1,nproj
 
-           shift = vnl(1)+(l-1)*npack1+(ia-1)*npack1*nmax_max*lmmax_max
+           !shift = vnl(1)+(l-1)*npack1+(ia-1)*npack1*nmax_max*lmmax_max
+           shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
            l_prj = int_mb(l_projector(1)+(l-1) 
      >                                  +(ia-1)*(nmax_max*lmmax_max))
 
@@ -1193,24 +1185,15 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 *          *** current function is s or d ****
            if (sd_function) then
-              call Pack_tc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
-     >                           +(ia-1)*npack1*nmax_max*lmmax_max),
-     >                        dcpl_mb(exi(1)),
-     >                        dcpl_mb(vtmp(1)))
+              call Pack_tc_Mul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(vtmp(1)))
 
 *          *** current function is p or f ****
            else
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-              do i=1,npack1
-                 dcpl_mb(vtmp(1)+i-1) 
-     >                     = dbl_mb(vnl(1) + (i-1)
-     >                                     + (l-1)*npack1
-     >                          + (ia-1)*npack1*nmax_max*lmmax_max)
-     >                * dcmplx(-dimag(dcpl_mb(exi(1)+i-1)),
-     >                          dble(dcpl_mb(exi(1)+i-1)))
-              end do
+              call Pack_tc_iMul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(vtmp(1)))
            end if
 
            call Pack_cc_indot(1,nn,
@@ -1245,7 +1228,8 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
         do l=1,nproj
 
 
-           shift = vnl(1)+(l-1)*npack1+(ia-1)*npack1*nmax_max*lmmax_max
+           !shift = vnl(1)+(l-1)*npack1+(ia-1)*npack1*nmax_max*lmmax_max
+           shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
            l_prj = int_mb(l_projector(1)+(l-1) 
      >                                  + (ia-1)*(nmax_max*lmmax_max))
 
@@ -1264,25 +1248,15 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 *          *** current function is s or d ****
            if (sd_function) then
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-              do k=0,npack1-1
-               dcpl_mb(vtmp(1)+k) = dbl_mb(k+shift)*dcpl_mb(exi(1)+k)
-              end do
-
+              call Pack_tc_Mul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(vtmp(1)))
 
 *          *** current function is p or f ****
            else
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-              do k=0,npack1-1
-               dcpl_mb(vtmp(1)+k) 
-     >                = dbl_mb(k+shift)
-     >                 *dcmplx(-dimag(dcpl_mb(exi(1)+k)),
-     >                           dble(dcpl_mb(exi(1)+k)))
-              end do
+              call Pack_tc_iMul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(vtmp(1)))
            end if
 
 
@@ -1352,9 +1326,6 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       value = MA_pop_stack(sum(2))
       value = value.and.MA_pop_stack(sw2(2))
       value = value.and.MA_pop_stack(sw1(2))
-c      value = value.and.MA_pop_stack(Gz(2))
-c      value = value.and.MA_pop_stack(Gy(2))
-c      value = value.and.MA_pop_stack(Gx(2))
       value = value.and.MA_pop_stack(xtmp(2))
       value = value.and.MA_pop_stack(vtmp(2))
       value = value.and.MA_pop_stack(exi(2))
@@ -1367,8 +1338,11 @@ c      value = value.and.MA_pop_stack(Gx(2))
       end
 
 
-
-
+*     ********************************************
+*     *                                          *
+*     *             psp_read                     *
+*     *                                          *
+*     ********************************************
       subroutine psp_read(fname, comment,
      >                       psp_type,
      >                       version,
@@ -1379,13 +1353,13 @@ c      value = value.and.MA_pop_stack(Gx(2))
      >                       Gijl,
      >                       rlocal,
      >                       nfft3d,npack1,npack0,
-     >                       vl,vnl,
+     >                       vl,vnl_tag,
      >                       semicore,rcore,ncore,
      >                       tmp,tmp2,
      >                       ierr)
       implicit none 
-      character*(*) comment
       character*20 fname
+      character*(*) comment
       integer psp_type
       integer version
       integer nfft(3)
@@ -1404,7 +1378,7 @@ c      value = value.and.MA_pop_stack(Gx(2))
       real*8 rlocal
       integer nfft3d,npack1,npack0
       real*8 vl(*)
-      real*8 vnl(npack1,*)
+      integer vnl_tag
       logical semicore
       real*8  rcore
       real*8  ncore(*)
@@ -1412,14 +1386,8 @@ c      value = value.and.MA_pop_stack(Gx(2))
       real*8     tmp2(*)
       integer ierr
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#endif
+#include "mafdecls.fh"
+#include "util.fh"
 
 *    *** local variables ***
       integer MASTER,taskid
@@ -1430,6 +1398,9 @@ c      value = value.and.MA_pop_stack(Gx(2))
       character*255 full_filename
       real*8 sum1
 
+*     **** external functions ****
+      integer  psi_data_alloc
+      external psi_data_alloc
 
       call Parallel_taskid(taskid)
       rlocal = 0.0d0
@@ -1463,6 +1434,7 @@ c      value = value.and.MA_pop_stack(Gx(2))
          call iread(5,l_projector,nprj)
          call iread(5,m_projector,nprj)
          call dread(5,Gijl,nmax*nmax*(lmax+1)) !** number of matrix elements = nmax*nmax*(lmax+1) **
+         write(*,*) "Gijl=",Gijl(1),Gijl(2)
          end if
 
          !call dread(5,vnlnrm,lmmax)
@@ -1472,107 +1444,50 @@ c      value = value.and.MA_pop_stack(Gx(2))
          call dread(5,rcore,1)
       end if
 
-
 *     **** send header data to all processors ****
-#ifdef MPI
       msglen = 1
-      call MPI_BCAST(version,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-      call MPI_BCAST(psp_type,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,psp_type)
       msglen = 3
-      call MPI_BCAST(nfft,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
       msglen = 9
-      call MPI_BCAST(unita,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-      msglen = 2
-      call MPI_BCAST(atom,msglen,MPI_CHARACTER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-      msglen = 1
-      call MPI_BCAST(amass,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-      msglen = 1
-      call MPI_BCAST(zv,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-      msglen = 1
-      call MPI_BCAST(lmax,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-      call MPI_BCAST(locp,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-      call MPI_BCAST(nmax,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-      call MPI_BCAST(nprj,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-      lmmax=(lmax+1)**2 - (2*locp+1)
-
-      msglen=lmax+1
-      call MPI_BCAST(rc,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-
-      msglen = nprj
-      call MPI_BCAST(n_projector,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-      call MPI_BCAST(l_projector,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-      call MPI_BCAST(m_projector,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-
-      msglen=nmax*nmax*(lmax+1)
-      call MPI_BCAST(Gijl,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-
-      msglen=1
-      call MPI_BCAST(rlocal,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-      msglen=1
-      call MPI_BCAST(rcore,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
-      msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
-      call BRDCST(9+MSGINT,psp_type,mitob(msglen),MASTER)
-      msglen = 3
-      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
-      msglen = 9
-      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,unita)
 
       iatom(1) = ichar(atom(1:1))
       iatom(2) = ichar(atom(2:2))
       msglen = 2
-      call BRDCST(9+MSGCHR,iatom,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,iatom)
       atom(1:1) = char(iatom(1))
       atom(2:2) = char(iatom(2))
 
       msglen = 1
-      call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,amass)
       msglen = 1
-      call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,zv)
       msglen = 1
-      call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
-      call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
-      call BRDCST(9+MSGINT,nmax,mitob(msglen),MASTER)
-      call BRDCST(9+MSGINT,nprj,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,lmax)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,locp)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nmax)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nprj)
       lmmax=(lmax+1)**2 - (2*locp+1)
 
       msglen=lmax+1
-      call BRDCST(9+MSGDBL,rc,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,rc)
+      msglen = 1
 
       msglen=nprj
-      call BRDCST(9+MSGINT,n_projector,mitob(msglen),MASTER)
-      call BRDCST(9+MSGINT,l_projector,mitob(msglen),MASTER)
-      call BRDCST(9+MSGINT,m_projector,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,n_projector)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,l_projector)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,m_projector)
 
       msglen=nmax*nmax*(lmax+1)
-      call BRDCST(9+MSGDBL,Gijl,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,Gijl)
 
       msglen=1
-      call BRDCST(9+MSGDBL,rlocal,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,rlocal)
       msglen=1
-      call BRDCST(9+MSGDBL,rcore,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,rcore)
 
-#endif
 
 *     **** determine semicore value ****
       if (rcore.gt.0.0d0) then
@@ -1587,11 +1502,14 @@ c      value = value.and.MA_pop_stack(Gx(2))
       call Pack_t_pack(0,tmp2)
       call Pack_t_Copy(0,tmp2,vl)
 
+      vnl_tag = psi_data_alloc(nprj,npack1)
+
 *     **** read in vnl 3d blocks ****
       do n=1,nprj
          call D3dB_t_read(1,5,tmp2,tmp,-1)
          call Pack_t_pack(1,tmp2)
-         call Pack_t_Copy(1,tmp2,vnl(1,n))
+         !call Pack_t_Copy(1,tmp2,vnl(1,n))
+         call psi_data_add(vnl_tag,n,tmp2)
       end do
 
 *     **** read in semicore density block ****
@@ -1729,8 +1647,7 @@ c     logocal semicore(0:nkatmx)
      >                  dbl_mb(rlocal(1) + (ia-1)),
      >                  nfft3d,npack1,npack0,
      >                  dbl_mb(vl(1) + (ia-1)*npack0),
-     >                  dbl_mb(vnl(1)
-     >                         +(ia-1)*npack1*nmax_max*lmmax_max),
+     >                  int_mb(vnl(1)+ (ia-1)),
      >                  log_mb(semicore(1)+ia),
      >                  dbl_mb(rcore(1)+ia-1),
      >                  dbl_mb(ncore(1)+ (ia-1)*npack0*5),
@@ -1781,8 +1698,14 @@ c     logocal semicore(0:nkatmx)
 
 
       end do
- 9000 value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
+ 9000 value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not. value)
+     > call errquit('psp_readall:error popping stack',0,MA_ERR)
+
+
+*     **** done reading set nprj_max and prjtmp for nonlocal psp operator ****
+      call psp_proj_init()
 
       return
       end

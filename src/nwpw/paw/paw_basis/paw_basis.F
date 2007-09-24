@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.33 2007-04-02 15:38:39 bylaska Exp $
+* $Id: paw_basis.F,v 1.34 2007-09-24 16:58:12 bylaska Exp $
 *
 
 !**************************************************
@@ -197,11 +197,12 @@ c     >             paw_basis_npoints(it)
 
 *     !*** local variables ***
       integer     fp
-      double precision dummy_r1
+      double precision dummy_r1,zv
       double precision dummy_rmax
       integer MASTER,taskid
       parameter (MASTER=0)
-      integer msglen
+      integer msglen,psp_type
+      character*2 atom
 
 *     !*** external functions ****
       logical  assert_file
@@ -217,6 +218,10 @@ c     >             paw_basis_npoints(it)
       end if
 
       call open_file(filename,"r",fp)
+        read(fp,*) psp_type
+        read(fp,'(A)') atom
+        read(fp,*) zv
+
         READ(fp,*) dummy_r1,dummy_rmax,ng,nb
       close(fp)
       endif
@@ -291,9 +296,14 @@ c     >             paw_basis_npoints(it)
 *     !*** local variables
       integer MASTER,taskid
       parameter (MASTER=0)
-      integer i,j,msglen
+      integer i,j,msglen,idum
       integer fp
       !character*255 filename
+
+      integer psp_type
+      real*8  zv,rc(25)
+      character*2  atom
+      character*80 comment
 
 *     !*** external functions ***
       logical  assert_file
@@ -309,8 +319,18 @@ c     >             paw_basis_npoints(it)
       end if
 
       call open_file(aname,"r",fp)
+        read(fp,*) psp_type
+        read(fp,'(A)') atom
+        read(fp,*) zv
+
         READ(fp,*) r1,rmax,ngrid,nbasis
+
+        read(fp,*) (rc(i),i=1,nbasis)
+
         READ(fp,*) i_cut
+
+        read(fp,'(A)') comment
+
         READ(fp,*) core_kin_energy
         READ(fp,*) (prin_n(i),eig(i),
      >              prin_n_ps(i),orb_l(i),i=1,nbasis)

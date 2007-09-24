@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.28 2007-09-12 17:29:32 bylaska Exp $
+* $Id: Pneb.F,v 1.29 2007-09-24 16:58:09 bylaska Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1460,8 +1460,8 @@ c     ** local variables ****
         nb1=1
         nb2=nbrill
       else
-        nb1=nb
-        nb2=nb
+        nb1=nbb
+        nb2=nbb
       end if
       if (spin_orbit) then
         nemax=ne(1)

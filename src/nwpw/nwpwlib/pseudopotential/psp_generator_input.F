@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.37 2007-06-19 21:26:06 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.38 2007-09-24 16:58:10 bylaska Exp $
 c
 
 *     ***************************************
@@ -704,7 +704,7 @@ c        *** revPBE ***
          print = 0
          if (control_print(print_debug)) debug = 1
          if (control_print(print_high)) print  = 1
-         call paw_atom_driver(debug,    
+         call paw_atom_driver(debug,
      >        lmax,locp,rlocal,
      >        sdir_name(1:h),h,
      >        dir_name(1:i),i,

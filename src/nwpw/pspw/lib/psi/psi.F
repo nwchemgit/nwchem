@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.78 2007-09-13 20:38:36 bylaska Exp $
+* $Id: psi.F,v 1.79 2007-09-24 16:58:14 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.78  2007/09/13 20:38:36  bylaska
+* occupation template added to band...EJB
+*
 * Revision 1.77  2007/03/27 02:02:49  bylaska
 * more qmmm_updates....EJB
 *
@@ -4264,6 +4267,28 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***********************************
 *     *                                 *
+*     *         psi_occupation          *
+*     *                                 *
+*     ***********************************
+      real*8  function psi_occupation(ms,i)
+      implicit none
+      integer ms
+      integer i
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      if (occupation_on) then
+         psi_occupation = dbl_mb(occ1(1)+(i-1)+(ms-1)*ne(1))
+      else
+         psi_occupation = 1.0d0
+      end if
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
 *     *          psi_virtual            *
 *     *                                 *
 *     ***********************************
@@ -5025,6 +5050,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       call Pack_npack(1,npack1)
       call Pack_npack(0,npack0)
       nemax = ne(1)+ne(2)
+      occupation_on = .false.
 
 
 *     **** allocate memory ****

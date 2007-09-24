@@ -1,8 +1,7 @@
 *
-* $Id: get_psp_type.F,v 1.2 2006-08-13 01:03:25 bylaska Exp $
+* $Id: get_psp_type.F,v 1.3 2007-09-24 16:58:10 bylaska Exp $
 *
 
-#define TCGMSG
 *     ***********************************
 *     *             			*
 *     *           get_psp_type		*
@@ -13,16 +12,6 @@
       implicit none 
       character*(*) psp_filename
       integer psp_type
-
-
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#endif
 
 *    *** local variables ***
       logical found
@@ -51,18 +40,9 @@
         close(11)
       end if
 
-
 c     **** send header to all nodes ****
-#ifdef MPI
       msglen = 1
-      call MPI_BCAST(psp_type,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif
-
-#ifdef TCGMSG
-      msglen = 1
-      call BRDCST(9+MSGINT,psp_type,mitob(msglen),MASTER)
-#endif
+      call Parallel_Brdcst_ivalues(MASTER,msglen,psp_type)
 
       return
       end

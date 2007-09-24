@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.43 2007-09-14 04:29:20 bylaska Exp $
+c $Id: nwpw_input.F,v 1.44 2007-09-24 16:58:04 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -818,7 +818,7 @@ c
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,0))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
-       if (inp_compare(.false.,zone_name,'anderson2')) then
+       if (inp_compare(.false.,zone_name,'broyden')) then
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,1))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if

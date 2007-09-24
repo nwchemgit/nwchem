@@ -1,13 +1,14 @@
 *
-* $Id: wvfnc_init.F,v 1.4 2003-07-30 18:16:49 bylaska Exp $
+* $Id: wvfnc_init.F,v 1.5 2007-09-24 16:58:15 bylaska Exp $
 *
 
 
       logical function wvfnc_init(rtdb)
       implicit none
+      integer rtdb
 #include "mafdecls.fh"
 #include "rtdb.fh"
-      integer rtdb
+
       logical value
       integer version
  
@@ -28,7 +29,7 @@
       integer nfft1,nfft2,nfft3,nfft3d,n2ft3d
       integer inc2c,inc3c
       integer cfull_indx,cfull_hndl,l,l1,l2
-      integer i,j,k,ms,n
+      integer i,j,k,ms,n,occupation
 
       double precision unita(3,3),p,scale
       double complex cc,cx,sx,zx
@@ -114,6 +115,8 @@
       call dwrite(6,unita,9)
       call iwrite(6,ispin,1)
       call iwrite(6,ne,2)
+      occupation = -1
+      call iwrite(6,occupation,1)
  
       call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
 

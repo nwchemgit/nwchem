@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_new.F,v 1.9 2007-08-21 18:53:04 bylaska Exp $
+* $Id: wvfnc_new.F,v 1.10 2007-09-24 16:58:15 bylaska Exp $
 *
 
       subroutine wvfnc_new(wavefunction_filename,
@@ -9,7 +9,6 @@
      >						ispin,
      >						ne)
       implicit none
-#include "errquit.fh"
       character*30 wavefunction_filename
       integer      version
       integer      ngrid(3)
@@ -17,6 +16,7 @@
       integer      ispin,ne(2)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
  
 *     **** local variables ****
       logical value
@@ -82,7 +82,7 @@
       integer nfft1,nfft2,nfft3,nfft3d,n2ft3d
       integer inc2c,inc3c
       integer cfull_indx,cfull_hndl,l,l1,l2
-      integer i,j,k,ms,n
+      integer i,j,k,ms,n,occupation
 
       double precision p,scale
       double complex cc,cx,sx,zx,zc
@@ -142,6 +142,8 @@
       call dwrite(6,unita,9)
       call iwrite(6,ispin,1)
       call iwrite(6,ne,2)
+      occupation = -1
+      call iwrite(6,occupation,1)
  
       call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
 

@@ -1,8 +1,7 @@
 *
-* $Id: psi_read_filename.F,v 1.3 2006-08-13 01:03:28 bylaska Exp $
+* $Id: psi_read_filename.F,v 1.4 2007-09-24 16:58:14 bylaska Exp $
 *
 
-#define TCGMSG
 *     ***********************************
 *     *             			*
 *     *           psi_read_filename		*
@@ -11,21 +10,13 @@
 
       subroutine psi_read_filename(filename,ispin,ne,psi2)
       implicit none 
-#include "errquit.fh"
       character*(*) filename
       integer ispin,ne(2)
       double complex psi2(*)
+      integer occupation
 
 #include "mafdecls.fh"
-
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#endif
+#include "errquit.fh"
 
 *    *** local variables ***
       integer version,l
@@ -56,10 +47,10 @@ c     complex*16 tmp(*)
 
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
-       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) 
+     >    call errquit('psi_read_filename:out of stack',0,MA_ERR)
 
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
@@ -73,38 +64,20 @@ c     complex*16 tmp(*)
          call dread(5,unita,9)
          call iread(5,ispin,1)
          call iread(5,ne,2)
+         call iread(5,occupation,1)
       end if
 
 c     **** send header to all nodes ****
-#ifdef MPI
       msglen = 1
-      call MPI_BCAST(version,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
       msglen = 3
-      call MPI_BCAST(nfft,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
       msglen = 9
-      call MPI_BCAST(unita,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_values(MASTER,msglen,unita)
       msglen = 1
-      call MPI_BCAST(ispin,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
       msglen = 2
-      call MPI_BCAST(ne,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif 
-#ifdef TCGMSG
-      msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
-      msglen = 3
-      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
-      msglen = 9
-      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
-      msglen = 1
-      call BRDCST(9+MSGINT,ispin,mitob(msglen),MASTER)
-      msglen = 2
-      call BRDCST(9+MSGINT,ne,mitob(msglen),MASTER)
-#endif 
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
 
 
 *     ***** Error checking ****
@@ -144,8 +117,10 @@ c     **** send header to all nodes ****
         call closefile(5)
       end if
  
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not. value) 
+     >  call errquit('psi_read_filename:error popping stack',0,MA_ERR)
 
 *     end if
 

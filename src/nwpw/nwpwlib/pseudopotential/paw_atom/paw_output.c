@@ -1,5 +1,5 @@
 /*
-   $Id: paw_output.c,v 1.4 2007-04-10 19:04:34 d3p708 Exp $
+   $Id: paw_output.c,v 1.5 2007-09-24 16:58:11 bylaska Exp $
 */
 
 #include   <stdio.h>
@@ -74,6 +74,9 @@ void paw_generate_basis_file(char *outfile)
     if (paw_debug()) printf("paw basis file generated: %s\n",outfile);
     fp = fopen(outfile, "w+");
 
+    fprintf(fp,"4\n"); /*dummy tag*/    /* new*/
+    fprintf(fp,"%s\n",atom_name);    /* new*/
+    fprintf(fp,"%lf\n",paw_get_Zvalence());    /* new*/
     fprintf(fp,"%15.11e\n",rgrid[0]);
 
     fprintf(fp,"%15.11e\n",rgrid[Ngrid-1]);
@@ -82,7 +85,12 @@ void paw_generate_basis_file(char *outfile)
 
     fprintf(fp,"%d\n",nbasis);
 
+    /* printout cutoff radii */    /* new*/
+    for (i=0; i<nbasis; ++i) fprintf(fp,"%le ",paw_get_r_orbital(i));    /* new*/
+    fprintf(fp,"\n");    /* new*/
+
     fprintf(fp,"%d\n",paw_get_max_i_r_orbital());
+    fprintf(fp,"%s\n",paw_get_comment());    /* new*/
 
     fprintf(fp,"%15.11e\n",paw_get_core_kinetic_energy());
 

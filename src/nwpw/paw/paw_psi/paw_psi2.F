@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.11 2006-06-05 17:34:26 edo Exp $
+* $Id: paw_psi2.F,v 1.12 2007-09-24 16:58:12 bylaska Exp $
 *
 
 
@@ -2734,8 +2734,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       character*30 filename
       character*30 control_input_psi
       external     control_input_psi
-      logical  wvfnc_expander
-      external wvfnc_expander
+      logical  wvfnc_expander,Dneall_m_allocate
+      external wvfnc_expander,Dneall_m_allocate
       real*8   paw_psi_CheckOrtho
       external paw_psi_CheckOrtho
 
@@ -2744,16 +2744,17 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne(ispin,ne)
+      call Dneall_neq(neq)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
       call Pack_npack(0,npack0)
       nemax = ne(1)+ne(2)
 
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,4*nfft3d,
@@ -2767,8 +2768,10 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack0,
      >                     'dng2',dng2(2),dng2(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
+c      value = value.and.
+c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
+      value = value.and.Dneall_m_allocate(0,hml)
+
       value = value.and.
      >        MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
 
@@ -2840,7 +2843,6 @@ c     >                      dcpl_mb(psi2(1)))
      
       call paw_ovlp_coeff_set(dcpl_mb(psi1(1)))
       call paw_ovlp_weights_set()
-
 
       !**** Ortho Check ****
       do ms=1,ispin

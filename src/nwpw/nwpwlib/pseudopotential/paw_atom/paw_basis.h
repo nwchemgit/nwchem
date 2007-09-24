@@ -1,7 +1,7 @@
 #ifndef	_PAW_BASIS_H_
 #define _PAW_BASIS_H_
 /*
-   $Id: paw_basis.h,v 1.4 2007-04-10 19:04:33 d3p708 Exp $
+   $Id: paw_basis.h,v 1.5 2007-09-24 16:58:11 bylaska Exp $
 */
 
 
@@ -35,8 +35,10 @@ extern double* paw_get_pointer_paw_ps_density();
 extern double* paw_get_pointer_paw_density();
 
 extern double paw_get_paw_kinetic_energy();
+extern double paw_get_r_orbital();
 
 extern int paw_get_nbasis();
+extern double paw_get_Zvalence();
 
 extern int* paw_get_pointer_paw_l_array();
 

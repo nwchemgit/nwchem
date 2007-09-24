@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.50 2007-09-13 20:38:12 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.51 2007-09-24 16:58:09 bylaska Exp $ *
 
 
 *     ***************************
@@ -1666,6 +1666,7 @@ c     &       MA_ERR)
       call Pneb_neq(neq)
       ispinq     = Pneb_ispinq()
       nbrillq    = Pneb_nbrillq()
+
 
       vers = psi_get_version()
       if ((vers.eq.3).or.(vers.eq.4)) then

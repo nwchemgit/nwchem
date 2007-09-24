@@ -1,5 +1,5 @@
 /*
-   $Id: paw_basis.c,v 1.8 2007-04-10 19:04:33 d3p708 Exp $
+   $Id: paw_basis.c,v 1.9 2007-09-24 16:58:11 bylaska Exp $
 */
 
 /************************************
@@ -79,6 +79,8 @@ static int *delta_ekin;
 
 static double *scaling_factor;
 static double **tr_matrix;
+
+static double Zvalence;
 
 /****************************************
  Function name	  : paw_init_paw_orbitals
@@ -195,11 +197,13 @@ void paw_init_paw_basis(
     }
 
 
+    Zvalence = 0.0;
     for (i=0;i<=nbasis-1;i++)
     {
         index = paw_get_orbital_index(prin_n[i],orb_l[i]);
 
         fill[i]      = paw_get_fill(index);
+        Zvalence    += fill[i];
         e[i]         = paw_get_e(index);
         e_ps[i]      = e[i];
         orb_type[i]  = paw_get_orb_type(index);
@@ -1305,6 +1309,9 @@ void paw_print_basis_test_to_file(char* atom_name)
     }
 }
 
+double paw_get_Zvalence() { return Zvalence; }
+
+
 int paw_get_nbasis()
 {
 
@@ -1385,6 +1392,11 @@ int paw_get_max_i_r_orbital()
     return max_i_r_orbital;
 
 }
+double paw_get_r_orbital(int i)
+{
+    return r_orbital[i];
+}
+
 
 int paw_projectors_are_done()
 {

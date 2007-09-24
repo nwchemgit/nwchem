@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.87 2007-08-28 19:33:06 bylaska Exp $
+* $Id: cgsdv5.F,v 1.88 2007-09-24 16:58:13 bylaska Exp $
 *
 
 ***********************************************************************
@@ -205,6 +205,8 @@
       minimizer = control_minimizer()
       mapping   = control_mapping()
 
+*     **** initialize psi_data ****
+      call psi_data_init(10)
 
 *     **** initialize D3dB data structure ****
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
@@ -614,6 +616,7 @@ c     end if
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
       call Dne_end()
+      call psi_data_end()
 
 *                |***************************|
 ****************** report consumed cputime   **********************

@@ -1,5 +1,5 @@
 c
-c     $Id: paw_nominimize.F,v 1.1 2004-11-29 16:05:19 bylaska Exp $                       
+c     $Id: paw_nominimize.F,v 1.2 2007-09-24 16:58:11 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -138,6 +138,8 @@ c
       do i=2,10
        E(1) = E(1) + E(i)
       end do
+
+      E(11) = eorbit
 
       value = MA_free_heap(R1(2))
       value = value.and.MA_free_heap(G1(2))

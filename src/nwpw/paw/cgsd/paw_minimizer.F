@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.15 2007-08-28 19:34:37 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.16 2007-09-24 16:58:11 bylaska Exp $
 *
 
 ***********************************************************************
@@ -61,7 +61,7 @@
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       real*8  icharge
-      integer i,k,ia,nion,minimizer,mapping,lmax
+      integer i,k,ia,nion,minimizer,mapping,lmax,mapping1d
   
 
 *     **** external functions ****
@@ -110,8 +110,8 @@
       external     psi_filefind
       real*8       paw_psi_CheckOrtho
       external     paw_psi_CheckOrtho
-      integer      control_mapping
-      external     control_mapping
+      integer      control_mapping,control_mapping1d
+      external     control_mapping,control_mapping1d
 
       integer  paw_electron_count,linesearch_count
       external paw_electron_count,linesearch_count
@@ -303,6 +303,9 @@ c     call current_second(t1)
 
 *     *** intialize overlap coefficient data structure ***
       call psi_get_ne(ispin,ne)
+      mapping1d   = control_mapping1d()
+      call Dne_init(ispin,ne,mapping1d)
+
       call phafac()
       call paw_ovlp_init(ispin,ne)
       call paw_nonlocal_init(ispin,ne)
@@ -587,6 +590,7 @@ c      call paw_density_end()
       call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
+      call Dne_end()
 
 *                |***************************|
 ****************** report consumed cputime   **********************
