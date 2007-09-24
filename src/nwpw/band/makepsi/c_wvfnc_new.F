@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_new.F,v 1.11 2007-09-13 20:38:15 bylaska Exp $
+* $Id: c_wvfnc_new.F,v 1.12 2007-09-24 17:51:50 bylaska Exp $
 *
 
 *     **********************************************
@@ -33,9 +33,16 @@
 
       integer NMAX
       integer filling(2)
+      integer fractional_orbitals(2)
+
+*     **** external functions ****
+      integer  control_fractional_orbitals
+      external control_fractional_orbitals
+
+      fractional_orbitals(1) = control_fractional_orbitals(1)
+      fractional_orbitals(2) = control_fractional_orbitals(2)
 
       NMAX = ne(1)+ne(2)
-
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
         value = MA_push_get(mt_int,8*(NMAX+1),
@@ -51,7 +58,8 @@
      >                       spin_orbit,
      >                       ispin,
      >                       ne,
-     >                       nbrillioun)
+     >                       nbrillioun,
+     >                       fractional_orbitals)
         write(*,*) "random planewave guess, initial psi:",
      >             wavefunction_filename
         if (spin_orbit) then
@@ -81,7 +89,8 @@
      >                      spin_orbit,
      >                      ispin,
      >                      ne,
-     >                      nbrillioun)
+     >                      nbrillioun,
+     >                      frac_orb)
       implicit none
       integer NMAX
       integer filling(4,(NMAX+1),2)
@@ -91,6 +100,7 @@
       real*8       unita(3,3)
       logical      spin_orbit
       integer      ispin,ne(2),nbrillioun
+      integer      frac_orb(2)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -169,7 +179,12 @@
       call iwrite(66,ispin0,1)
       call iwrite(66,ne,2)
       call iwrite(66,nbrillioun,1)
-      occupation = -1
+
+      if ((frac_orb(1)+frac_orb(2)).gt.0) then
+         occupation = ispin0
+      else
+         occupation = -1
+      end if
       call iwrite(66,occupation,1)
  
  
@@ -240,6 +255,23 @@ c           END IF
   150   CONTINUE
  
       end do
+
+c     **** add occupation ****
+      if (occupation.ge.0) then
+      do nb=1,nbrillioun
+         rx = 1.0d0
+         ry = 0.0d0
+         do ms=1,ispin
+           do n=1,ne(ms)
+             call dwrite(66,rx,1)
+           end do
+           do n=1,frac_orb(ms)
+             call dwrite(66,ry,1)
+           end do
+         end do
+      end do
+      end if
+
       call closefile(66)
       IERR=0
       GO TO 9999
