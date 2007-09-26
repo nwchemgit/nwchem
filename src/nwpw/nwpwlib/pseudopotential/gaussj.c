@@ -1,6 +1,7 @@
 /*
- $Id: gaussj.c,v 1.2 2007-04-09 22:55:51 d3p708 Exp $
+ $Id: gaussj.c,v 1.3 2007-09-26 18:40:55 d3p708 Exp $
 */
+#include        <stdlib.h>
 #include	<math.h>
 #include	<stdio.h>
 #include	"gaussj.h"
