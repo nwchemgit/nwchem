@@ -65,7 +65,6 @@ c     call pend()
       parameter (m = 2*n)
       integer a(n,n)
       integer g_a, g_b, d_a
-      integer ga_idot
       integer i,j, req, err, dim1, dim2, type
       integer me, nproc
       logical status
