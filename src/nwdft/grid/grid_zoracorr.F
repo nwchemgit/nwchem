@@ -25,6 +25,7 @@ czora...
       character*16 tags(natoms)
       logical lSuccess
       double precision rx,ry,rz,dist
+      double precision denomFac
 
       double precision clight_au2
       clight_au2 = clight_au*clight_au
@@ -50,7 +51,6 @@ c     calculate the hartree potential on a supplied list of points
      &     qxyz, amat_coul(1,2), tol)
       end if
 
-
 c     calculate the total nuclear potential on the grid
       call gridNuclearPotential(geom,natoms,nqpts,qxyz,qwght,
      &    amat_nucl)
@@ -67,19 +67,30 @@ c     assemble zora correction
         totPot = - amat_coul(igrid,1) + amat_nucl(igrid)
        end if
 
-       zoraCorr = totPot/(4.d0*clight_au2 - 2.d0*totPot)
+c      assemble the appropriate correction
+       if (zora_calc_type.eq.0) then  ! pure kinetic test
+          zoraCorr = 0.5d0
+       else if (zora_calc_type.eq.1) then ! zora correction
+          zoraCorr = totPot/(4.d0*clight_au2 - 2.d0*totPot)
+       else if (zora_calc_type.eq.2) then ! zora energy scaling
+          denomFac = (2.d0*clight_au2 - totPot)
+          zoraCorr = clight_au2/denomFac/denomFac
+       else
+          zoraCorr = 0.d0
+       end if
+
+c      multiply by the integration weight
        zoraCorr = zoraCorr*qwght(igrid)
 
-c      Kinetic test
-c      zoraCorr = 0.5d0*qwght(igrid)  ! pure kinetic test
-
+c      fill array
        amat(igrid,1) = zoraCorr
        if (ipol.gt.1) amat(igrid,2) = zoraCorr
+
       end do
 
       return
       end
-
+c
 czora...
 czora...Calculate the nuclear potential on the grid
 czora...
