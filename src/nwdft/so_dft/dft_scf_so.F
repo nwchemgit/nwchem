@@ -3,7 +3,7 @@
      &                  iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                  g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.39 2007-09-14 19:06:37 niri Exp $
+c     $Id: dft_scf_so.F,v 1.40 2007-09-28 00:52:29 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -46,7 +46,7 @@ c     so
       double precision rho_n, toll_s
 c     
 czora...start
-      character*255 vecs_in
+      character*255 atomic_vecs_in
 czora...end
 c
 #include "bas.fh"
@@ -177,6 +177,7 @@ c     integer ijk
 c     
 czora...spin-free and spin-orbit global arrays
       integer g_zora_sf(4)
+      integer g_zora_scal(4)
       integer g_zora_so(3)
       integer g_zora(2)
       double precision Ezora_sf
@@ -517,6 +518,17 @@ czora...spin-free arrays
      & call errquit('dft_scf_so: error creating zora so z',0, GA_ERR)
       call ga_zero(g_zora_sf(2))
 
+czora...energy scaling arrays
+      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'zora scal 1',0,0,
+     & g_zora_scal(1)))
+     & call errquit('dft_scf_so: error creating zora scal 1',0, GA_ERR)
+      call ga_zero(g_zora_scal(1))
+
+      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'zora scal 2',0,0,
+     & g_zora_scal(2)))
+     & call errquit('dft_scf_so: error creating zora scal 2',0, GA_ERR)
+      call ga_zero(g_zora_scal(2))
+
 czora...spin-orbit arrays
       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'zora so z',0,0,
      & g_zora_so(1)))
@@ -545,9 +557,9 @@ czora...spin-orbit arrays
 
 czora...force an atomic guess for zora calculations
 czora...this is inefficient for geometry optimizations and restarts
-      vecs_in = "atomic"
+      atomic_vecs_in = "atomic"
       call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
-     &        basis_trans, vecs_in, movecs_out, 
+     &        basis_trans, atomic_vecs_in, movecs_out, 
      &        movecs_guess, scftype, nclosed, nopen, 
      &        nbf, nbf, noc(1), noc(2),  k_eval, k_occ, 
      &        k_ir, g_movecs, g_dens, 'density', 
@@ -767,6 +779,7 @@ czora...calculate zora parts
          call ga_sync()
 
          do_zora_get_correction = .true.
+         zora_calc_type = 1   ! zora correction
 
 czora...Calculate the spin-orbit parts
          so_term = 1
@@ -799,6 +812,14 @@ czora...Calculate the spin-free parts
          call zora_getv(rtdb, g_dens, g_zora, nexc)
          call ga_dadd(1d0,g_zora_sf(1),1d0,g_zora(1),g_zora_sf(1))
          call ga_dadd(1d0,g_zora_sf(2),1d0,g_zora(2),g_zora_sf(2))
+
+czora...Calculate the scaling 
+c         zora_calc_type = 2
+c         call ga_zero(g_zora(1))
+c         call ga_zero(g_zora(2))
+c         call zora_getv(rtdb, g_dens, g_zora, nexc)
+c         call ga_dadd(1d0,g_zora_scal(1),1d0,g_zora(1),g_zora_scal(1))
+c         call ga_dadd(1d0,g_zora_scal(2),1d0,g_zora(2),g_zora_scal(2))
 
 czora...We have the correction, turn off the correction 
 czora...so_term is set via a common block (zora.fh)
@@ -2099,6 +2120,12 @@ czora...spin-free part
       if (.not. ga_destroy(g_zora_sf(1))) 
      & call errquit('dft_scf_so: ga_destroy failed ',0, GA_ERR)
       if (.not. ga_destroy(g_zora_sf(2))) call errquit(
+     &   'dft_scf_so: ga_destroy failed ',0, GA_ERR)
+c
+czora...scaling part
+      if (.not. ga_destroy(g_zora_scal(1))) 
+     & call errquit('dft_scf_so: ga_destroy failed ',0, GA_ERR)
+      if (.not. ga_destroy(g_zora_scal(2))) call errquit(
      &   'dft_scf_so: ga_destroy failed ',0, GA_ERR)
 c
 czora...spin-orbit part
