@@ -10,7 +10,7 @@
      ,     n_levels, act_levels, oprint_time,
      ,     g_zora_sf )
 c     
-c     $Id: dft_fockbld.F,v 1.34 2007-09-14 19:06:34 niri Exp $
+c     $Id: dft_fockbld.F,v 1.35 2007-09-28 00:52:05 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -238,7 +238,7 @@ czora...so_term = 0 (spin-free and the matrices are symmetric)
       so_term = 0
 c
 ccase...start
-        call case_setflags(.true.)   ! turn on the attenuation for K
+      call case_setflags(.true.)   ! turn on the 1/r attenuation for K
 ccase...end
 c
 c     Calculate the HF exchange (exact Coulomb), DFT exchange-correlation
@@ -247,7 +247,7 @@ c     Calculate the HF exchange (exact Coulomb), DFT exchange-correlation
      &             rdens_atom, cetobfr, natoms) 
 c
 ccase...start
-        call case_setflags(.false.)  ! reset the flag
+      call case_setflags(.false.)  ! reset 1/r attenuation flag
 ccase...end
 c
       if (odftps) call pstat_off(ps_xc)
@@ -255,6 +255,7 @@ c
 czora...start
       if (do_zora) then
 
+czora...calculate the zora energy correction
         Ezora_sf =0.d0
         if (ipol.gt.1) then
           Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
@@ -262,7 +263,9 @@ czora...start
         else
           Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
         end if
-        Ecore = Ecore + Ezora_sf
+
+czora...add zora energy correction to core
+        Ecore = Ecore + Ezora_sf 
 
 czora...combine spin-free part with the exchange-correlation parts
         call ga_dadd(1.d0,g_vxc(1),1.d0,g_zora_sf(1),g_vxc(1))
