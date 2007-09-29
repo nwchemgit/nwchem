@@ -1,7 +1,10 @@
 *
-* $Id: paw_proj.F,v 1.34 2006-08-13 01:00:32 bylaska Exp $
+* $Id: paw_proj.F,v 1.35 2007-09-29 00:34:15 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.34  2006/08/13 01:00:32  bylaska
+* ...EJB
+*
 * Revision 1.32  2006/01/13 02:05:26  marat
 * accelerating projector construction
 *
@@ -480,6 +483,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       character*20  fname
       character*255 full_filename
       integer tmp1(2),tmp2(2)
+      complex*16 sum1
 
       call Parallel_taskid(taskid)
 
@@ -522,6 +526,9 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
          call D3dB_c_read(1,5,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)),-1)
          call Pack_c_pack(1,dcpl_mb(tmp1(1)))
          call Pack_c_Copy(1,dcpl_mb(tmp1(1)),prj(1,ii))
+
+       call Pack_cc_izdot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum1)
+       write(*,*) " prj=",ii,sum1
       end do
 
 *     **** read in local potential ****

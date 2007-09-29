@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.14 2007-06-25 15:09:16 bylaska Exp $
+* $Id: Dne.F,v 1.15 2007-09-29 00:33:59 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -2915,4 +2915,133 @@ c     ****************************************
       end
 
 
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_f_Sortho               *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_f_Sortho(mb,U,SU,npack1)
+      integer mb
+      complex*16 U(*),SU(*)
+      integer    npack1      
+
+#include "mafdecls.fh"           
+#include "errquit.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer taskid
+      integer ms,ms1,ms2,n,shift,asize,j,k,indxk,indxj
+      integer V(2),tmp2(2),S(2),A(2)
+      real*8 sum1
+
+      logical  Dneall_m_allocate,Dneall_m_free
+      external Dneall_m_allocate,Dneall_m_free
+ 
+      call Parallel_taskid(taskid)
+
+      
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            asize = (neq(1)+neq(2))*npack1
+         else
+            ms1 = mb
+            ms2 = mb
+            asize = neq(mb)*npack1
+         end if
+
+      
+         if (.not.MA_push_get(mt_dcpl,asize,'A',A(2),A(1)))
+     >   call errquit('Dneall_f_ortho:out of stack memory',0,MA_ERR)
+         if (.not.Dneall_m_allocate(mb,V))
+     >   call errquit('Dneall_f_ortho:out of stack memory',1,MA_ERR)
+         if (.not.MA_push_get(mt_dbl,(ne(1)+ne(2)),'S',S(2),S(1)))
+     >   call errquit('Dneall_f_ortho:out of stack memory',2,MA_ERR)
+
+
+*        **** generate V and Sigma^2 ****
+         call Dneall_ffm_sym_Multiply(mb,U,SU,npack1,dbl_mb(V(1)))
+         call Dneall_m_diagonalize(mb,dbl_mb(V(1)),dbl_mb(S(1)),.false.)
+         if (.not.MA_pop_stack(S(2)))
+     >   call errquit('Dneall_f_ortho: popping stack memory',2,MA_ERR)
+
+*        **** generate U*Sigma ****
+         call dcopy(2*asize,U,1,dcpl_mb(A(1)),1)
+         call Dneall_fmf_Multiply(mb,dcpl_mb(A(1)),npack1,
+     >                         dbl_mb(V(1)),1.0d0,U,0.0d0)
+
+*        **** deallocate tmp space ****
+         if (.not.Dneall_m_free(V))
+     >     call errquit('Dneall_f_ortho: popping stack memory',0,MA_ERR)
+         if (.not.Ma_pop_stack(A(2)))
+     >     call errquit('Dneall_f_ortho: popping stack memory',1,MA_ERR)
+
+
+*        **** normalize U*sigma ****
+         if (.not. MA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
+     >      call errquit('Dneall_f_ortho:out of stack memory',3,MA_ERR)
+
+         do ms=ms1,ms2
+            if (neq(ms).le.0) go to 30
+            shift = 1+(ms-1)*neq(1)*npack1
+            do n=1,neq(ms)
+             call Pack_cc_idot(1,U(shift),SU(shift),dbl_mb(tmp2(1)+n-1))
+             shift = shift + npack1
+            end do
+            call D3dB_Vector_SumAll(neq(ms),dbl_mb(tmp2(1)))
+
+            do n=1,neq(ms)
+               dbl_mb(tmp2(1)+n-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+n-1))
+            end do
+
+            shift = 1+(ms-1)*neq(1)*npack1
+            do n=1,neq(ms)
+               call dscal(2*npack1,dbl_mb(tmp2(1)+n-1),U(shift),1)
+               shift = shift + npack1
+            end do
+
+ 30        continue
+         end do
+         if (.not.MA_pop_stack(tmp2(2)))
+     >    call errquit('Dneall_f_Sortho: popping stack memory',3,MA_ERR)
+
+
+
+c     **** not parallized ****
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+         else
+            ms1 = mb
+            ms2 = mb
+         end if
+         shift = ne(1)*npack1
+
+         !**** orthogonalize from the bottom -> up ****
+         do ms=ms1,ms2
+         do k=ne(ms),1,-1
+            indxk = 1+(k-1)*npack1 + (ms-1)*shift
+            call Pack_cc_dot(1,U(indxk),SU(indxk),sum1)
+            sum1 = 1.0d0/dsqrt(sum1)
+            call Pack_c_SMul(1,sum1,U(indxk),U(indxk))
+
+            do j=k-1,1,-1
+               indxj = 1+(j-1)*npack1 + (ms-1)*shift
+               call Pack_cc_dot(1,U(indxk),SU(indxj),sum1)
+               sum1 = -sum1
+               call Pack_cc_daxpy(1,sum1,U(indxk),U(indxj))
+            end do
+         end do
+         end do
+
+      end if
+
+      return
+      end 
 

@@ -1,5 +1,5 @@
 *
-* $Id: integrate_paw_ray.F,v 1.1 2007-09-24 17:00:36 bylaska Exp $
+* $Id: integrate_paw_ray.F,v 1.2 2007-09-29 00:33:34 bylaska Exp $
 *
 
 *     *************************************************
@@ -42,7 +42,7 @@
 
 *     *** local variables ****
       integer task_count
-      integer k1,i,l,ib,la
+      integer k1,i,l,ib,la,power_f
       double precision pi,twopi,forpi
       double precision p0,p1,p2,p3,p
       double precision a,q,d
@@ -53,6 +53,7 @@
 *     **** external functions ****
       double precision log_integrate_def,util_erf
       external         log_integrate_def,util_erf
+
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -82,47 +83,51 @@
         end do
 
         do ib=1,nbasis
-          la=l_ps(i)
+          la=l_ps(ib)
 
 *         ::::::::::::::::::::::::::::::  h-wave  ::::::::::::::::::::::::::::::
 *         ::::::::::::::::::::::::::::::  g-wave  ::::::::::::::::::::::::::::::
 *         ::::::::::::::::::::::::::::::  f-wave  ::::::::::::::::::::::::::::::
           if (la.eq.3) then
+             power_f = 8
              f(1)=0.0d0
              do i=2,nrho
                a=sn(i)/(Q*rho(i))
                a=15.0d0*(a-cs(i))/(Q*rho(i))**2 - 6*a + cs(i)
                f(i)=A*prj_ps(i,ib)
              end do
-             d=p3*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
+             d=p3*log_integrate_def(power_f,f,0,rho,log_amesh,nrho)/Q
              vnl_ray(k1,ib)=d
           end if
 *         ::::::::::::::::::::::::::::::  d-wave  ::::::::::::::::::::::::::::::
           if (la.eq.2) then
+             power_f = 6
              f(1)=0.0d0
              do i=2,nrho
                a=3.0d0*(sn(i)/(Q*rho(i))-cs(i))/(Q*rho(i))-sn(i)
                f(i)=A*prj_ps(i,ib)
              end do
-             d=p2*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
+             d=p2*log_integrate_def(power_f,f,0,rho,log_amesh,nrho)/Q
              vnl_ray(k1,ib)=D
           end if
 *         ::::::::::::::::::::::::::::::  p-wave  ::::::::::::::::::::::::::::::
           if (la.eq.1) then
+             power_f = 4
              f(1)=0.0d0
              do i=2,nrho
                f(i)=(sn(i)/(Q*rho(i))-cs(i))*prj_ps(i,ib)
              end do
-             p=p1*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
+             p=p1*log_integrate_def(power_f,f,0,rho,log_amesh,nrho)/Q
              vnl_ray(k1,ib)=p
           end if
 *         ::::::::::::::::::::::::::::::  s-wave  ::::::::::::::::::::::::::::::
           if (la.eq.0) then
+            power_f = 2
             do i=1,nrho
               f(i)=sn(i)*prj_ps(i,ib)
             end do
             vnl_ray(k1,ib)=
-     >       p0*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
+     >       p0*log_integrate_def(power_f,f,0,rho,log_amesh,nrho)/Q
           end if
 
         end do
@@ -145,7 +150,7 @@ ccccc        vl_ray(k1)=SIMP(NRHO,F,DRHO)*forpi/Q-zv*forpi*CS(NRHO)/(Q*Q)
           !yerf = util_erf(xerf)
           !f(i)=(rho(i)*vlocal(i)+zv*yerf)*sn(i)
           f(i)=(rho(i)*vlocal(i))*sn(i)
-        END DO
+        end do
 cccc        vl_ray(k1)=SIMP(NRHO,F,DRHO)*forpi/Q
         vl_ray(k1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
         end if
@@ -176,6 +181,20 @@ cccc        vl_ray(k1)=SIMP(NRHO,F,DRHO)*forpi/Q
       end do
       vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
       end if
+
+*     *** only j0 is non-zero at zero ****
+      power_f = 2
+      do ib=1,nbasis
+        la=l_ps(ib)
+        vnl_ray(1,ib)=0.0d0
+        if (la.eq.0) then
+           do i=1,nrho
+             f(i)=rho(i)*prj_ps(i,ib)
+           end do
+           vnl_ray(1,ib)=
+     >      p0*log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
+        end if
+      end do
 
       ierr=0
       return

@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.29 2007-09-24 16:58:14 bylaska Exp $
+* $Id: psp.F,v 1.30 2007-09-29 00:33:16 bylaska Exp $
 *
 
 
@@ -45,9 +45,10 @@ c    >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
 
       value = MA_alloc_get(mt_dbl,(npsp*npack0),'vl',vl(2),vl(1))
       value = value.and.MA_alloc_get(mt_int,npsp,'vnl',vnl(2),vnl(1))
-      value = value.and.
-     >      MA_alloc_get(mt_dbl,(nmax_max*nmax_max*(lmax_max+1)*npsp),
-     >                    'Gijl',Gijl(2),Gijl(1))
+c      value = value.and.
+c     >      MA_alloc_get(mt_dbl,(nmax_max*nmax_max*(lmax_max+1)*npsp),
+c     >                    'Gijl',Gijl(2),Gijl(1))
+      value = value.and.MA_alloc_get(mt_int,npsp,'Gijl',Gijl(2),Gijl(1))
 
       value = value.and.
      >        MA_alloc_get(mt_int,(npsp),'nprj',nprj(2),nprj(1))
@@ -82,6 +83,9 @@ c    >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,(npsp),'rlocal',rlocal(2),rlocal(1))
 
+      value = value.and.
+     >  MA_alloc_get(mt_dbl,(npsp),'core_kin',core_kin(2),core_kin(1))
+
       if (.not. value) 
      >   call errquit('psp_init:out of heap memory',0, MA_ERR)
 
@@ -90,9 +94,13 @@ c    >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
       call dcopy(npsp,                 0.0d0,0,dbl_mb(amass(1)),1)
       call dcopy(npsp*(lmax_max+1),    0.0d0,0,dbl_mb(rc(1)),1)
       call dcopy(npsp,                 0.0d0,0,dbl_mb(rlocal(1)),1)
+      call dcopy(npsp,                 0.0d0,0,dbl_mb(core_kin(1)),1)
 
 *     **** allocate semicore data ****
       call semicore_init()
+
+*     *** set pawexist ****
+      pawexist = .false.
 
       return
       end
@@ -156,6 +164,7 @@ c    >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
 *     **** deallocate nonlocal pspw data ****
       do ia=1,npsp
         call psi_data_dealloc(int_mb(vnl(1)+ia-1))
+        call psi_data_dealloc(int_mb(Gijl(1)+ia-1))
       end do
 
       value = MA_free_heap(prjtmp(2))
@@ -176,6 +185,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       value = value.and.MA_free_heap(nmax(2))
       value = value.and.MA_free_heap(psp_type(2))
       value = value.and.MA_free_heap(rlocal(2))
+      value = value.and.MA_free_heap(core_kin(2))
       if (.not. value) 
      >  call errquit('psp_end:error freeing heap memory',0,MA_ERR)
 
@@ -449,6 +459,22 @@ c     psp_rc = rc(i,ia)
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *            psp_pawexist         *
+*     *                                 *
+*     ***********************************
+
+      logical function psp_pawexist()
+      implicit none
+
+#include "psp.fh"
+
+      psp_pawexist = pawexist
+      return
+      end
+
+
 
 *     **********************************
 *     *                                *
@@ -648,7 +674,7 @@ c             vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 
 
 *     *** local variables ***
-      integer nfft3d,npack0
+      integer npack0
       integer i,ii,ia
       integer exi(2),vtmp(2),xtmp(2),G(3)
       logical value
@@ -732,7 +758,7 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
 
 *     *** local variables ***
       logical value
-      integer nfft3d,npack0
+      integer npack0
       integer i,ii,ia
       integer exi(2),vtmp(2),xtmp(2),G(3)
 c      integer Gx(2),Gy(2),Gz(2)
@@ -821,9 +847,9 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
 
 
 *     *** local variables ***
-      integer nfft3d,G(3),npack1,nion
+      integer G(3),npack1,nion
       integer i,ii,ia,l,n,nn
-      integer k,shift,l_prj,nproj
+      integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,ff(3)
       complex*16 ctmp
       integer exi(2),xtmp(2),sw1(2),sw2(2),sum(2)
@@ -937,12 +963,12 @@ c              end do
      >                      psi1,
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dbl_mb(sw1(1)+(l-1)*nn))
-
         end do
         call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
 
 
 *       **** sw2 = Gijl*sw1 ******
+        Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),1)
         call Multiply_Gijl_sw1(nn,
      >                         nproj,
      >                         int_mb(nmax(1)+ia-1),
@@ -953,8 +979,7 @@ c              end do
      >                                + (ia-1)*(nmax_max*lmmax_max)),
      >                         int_mb(m_projector(1)
      >                                + (ia-1)*(nmax_max*lmmax_max)),
-     >                         dbl_mb(Gijl(1) 
-     >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
+     >                         dbl_mb(Gijl_indx),
      >                         dbl_mb(sw1(1)),
      >                         dbl_mb(sw2(1)))
         
@@ -1111,7 +1136,7 @@ c     >              psi2,                    (2*npack1))
 #include "frac_occ.fh"
 
 *     *** local variables ***
-      integer nfft3d,G(3),npack1,shift
+      integer G(3),npack1,shift,Gijl_indx
       integer i,ii,ia,k,l,n,nn,l_prj,nproj
       real*8  omega,scal,ff(3)
       complex*16 ctmp
@@ -1131,7 +1156,6 @@ c      integer Gx(2),Gy(2),Gz(2)
       
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
-c      call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
@@ -1206,6 +1230,7 @@ c     **** define Gx,Gy and Gz in packed space ****
  
 
 *       **** sw2 = Gijl*sw1 ******
+        Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),1)
         call Multiply_Gijl_sw1(nn,
      >                         nproj,
      >                         int_mb(nmax(1)+ia-1),
@@ -1216,8 +1241,7 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                                + (ia-1)*(nmax_max*lmmax_max)),
      >                         int_mb(m_projector(1)
      >                                + (ia-1)*(nmax_max*lmmax_max)),
-     >                         dbl_mb(Gijl(1) 
-     >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
+     >                         dbl_mb(Gijl_indx),
      >                         dbl_mb(sw1(1)),
      >                         dbl_mb(sw2(1)))
 
@@ -1350,11 +1374,12 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                       atom,amass,zv,lmmax,lmax,locp,nmax,
      >                       rc,
      >                       nprj,n_projector,l_projector,m_projector,
-     >                       Gijl,
+     >                       Gijl_tag,
      >                       rlocal,
      >                       nfft3d,npack1,npack0,
      >                       vl,vnl_tag,
      >                       semicore,rcore,ncore,
+     >                       core_kin_energy,
      >                       tmp,tmp2,
      >                       ierr)
       implicit none 
@@ -1373,7 +1398,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       real*8 rc(*)
 
       integer nprj,n_projector(*),l_projector(*),m_projector(*)
-      real*8 Gijl(*)
+      integer Gijl_tag
 
       real*8 rlocal
       integer nfft3d,npack1,npack0
@@ -1382,6 +1407,9 @@ c     **** define Gx,Gy and Gz in packed space ****
       logical semicore
       real*8  rcore
       real*8  ncore(*)
+
+      real*8  core_kin_energy
+
       complex*16 tmp(*)
       real*8     tmp2(*)
       integer ierr
@@ -1394,13 +1422,15 @@ c     **** define Gx,Gy and Gz in packed space ****
       parameter(MASTER=0)
       integer n,l
       integer msglen
-      integer iatom(2)
+      integer iatom(2),Gijl_indx
       character*255 full_filename
       real*8 sum1
 
 *     **** external functions ****
-      integer  psi_data_alloc
-      external psi_data_alloc
+      integer  psi_data_alloc,psi_data_get_chnk
+      external psi_data_alloc,psi_data_get_chnk
+      real*8   lattice_omega
+      external lattice_omega
 
       call Parallel_taskid(taskid)
       rlocal = 0.0d0
@@ -1433,17 +1463,9 @@ c     **** define Gx,Gy and Gz in packed space ****
          call iread(5,n_projector,nprj)
          call iread(5,l_projector,nprj)
          call iread(5,m_projector,nprj)
-         call dread(5,Gijl,nmax*nmax*(lmax+1)) !** number of matrix elements = nmax*nmax*(lmax+1) **
-         write(*,*) "Gijl=",Gijl(1),Gijl(2)
          end if
-
-         !call dread(5,vnlnrm,lmmax)
-
-
-         if (version.eq.4) call dread(5,rlocal,1)
-         call dread(5,rcore,1)
       end if
-
+ 
 *     **** send header data to all processors ****
       msglen = 1
       call Parallel_Brdcst_ivalues(MASTER,msglen,version)
@@ -1480,9 +1502,28 @@ c     **** define Gx,Gy and Gz in packed space ****
       call Parallel_Brdcst_ivalues(MASTER,msglen,l_projector)
       call Parallel_Brdcst_ivalues(MASTER,msglen,m_projector)
 
-      msglen=nmax*nmax*(lmax+1)
-      call Parallel_Brdcst_values(MASTER,msglen,Gijl)
 
+*     ***** read in Gijl's ****
+      if (nprj.gt.0) then
+         if (psp_type.eq.4) then
+           n = 5 !*** paw atom  ***
+         else
+           n = 1 !*** pspw atom ***
+         end if
+         msglen    = nmax*nmax*(lmax+1)
+         Gijl_tag  = psi_data_alloc(n,msglen)
+         Gijl_indx = psi_data_get_chnk(Gijl_tag)
+         if (taskid.eq.MASTER) then
+         call dread(5,dbl_mb(Gijl_indx),n*msglen)      !** number of matrix elements = n*nmax*nmax*(lmax+1) **
+         end if
+         call Parallel_Brdcst_values(MASTER,n*msglen,dbl_mb(Gijl_indx))
+      end if
+
+*     ***** read in rlocal and rcore  ****
+      if (taskid.eq.MASTER) then
+         if (version.eq.4) call dread(5,rlocal,1)
+         call dread(5,rcore,1)
+      end if
       msglen=1
       call Parallel_Brdcst_values(MASTER,msglen,rlocal)
       msglen=1
@@ -1510,6 +1551,9 @@ c     **** define Gx,Gy and Gz in packed space ****
          call Pack_t_pack(1,tmp2)
          !call Pack_t_Copy(1,tmp2,vnl(1,n))
          call psi_data_add(vnl_tag,n,tmp2)
+
+         call Pack_tt_dot(1,tmp2,tmp2,sum1)
+         write(*,*) atom," prj=",n,sum1,sum1/lattice_omega()
       end do
 
 *     **** read in semicore density block ****
@@ -1529,6 +1573,13 @@ c     **** define Gx,Gy and Gz in packed space ****
          call D3dB_t_read(1,5,tmp2,tmp,-1)
          call Pack_t_pack(0,tmp2)
          call Pack_t_Copy(0,tmp2,ncore(1+4*npack0))
+      end if
+
+*     ***** Miscellaneous paw energies ****
+      if (psp_type.eq.4) then
+        if (taskid.eq.MASTER) call dread(5,core_kin_energy,1)
+        msglen=1
+        call Parallel_Brdcst_values(MASTER,msglen,core_kin_energy)
       end if
 
 *     *** close fname binary file ***
@@ -1642,8 +1693,7 @@ c     logocal semicore(0:nkatmx)
      >                         + (ia-1)*(nmax_max*lmmax_max)),
      >                  int_mb(m_projector(1) 
      >                         + (ia-1)*(nmax_max*lmmax_max)),
-     >                  dbl_mb(Gijl(1) 
-     >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
+     >                  int_mb(Gijl(1)+(ia-1)), 
      >                  dbl_mb(rlocal(1) + (ia-1)),
      >                  nfft3d,npack1,npack0,
      >                  dbl_mb(vl(1) + (ia-1)*npack0),
@@ -1651,12 +1701,16 @@ c     logocal semicore(0:nkatmx)
      >                  log_mb(semicore(1)+ia),
      >                  dbl_mb(rcore(1)+ia-1),
      >                  dbl_mb(ncore(1)+ (ia-1)*npack0*5),
+     >                  dbl_mb(core_kin(1)+ia-1),
      >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
      >                  ierr)
 
 *          **** set semicore(0) ****
            if (log_mb(semicore(1)+ia)) log_mb(semicore(1)) = .true.
            if (ierr.gt.0) go to 9000
+
+*          **** set pawexist ****
+           if (int_mb(psp_type(1)+ia-1).eq.4) pawexist = .true.
 
 *          **************************************************************
 *          ***** logic for finding out if psp is correctly formatted ****

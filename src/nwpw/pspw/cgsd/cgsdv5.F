@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.88 2007-09-24 16:58:13 bylaska Exp $
+* $Id: cgsdv5.F,v 1.89 2007-09-29 00:33:31 bylaska Exp $
 *
 
 ***********************************************************************
@@ -245,6 +245,7 @@ c     value = psi_initialize()
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
+      call phafac()
       if (control_version().eq.3) call ewald_init()
 
 *     **** read in wavefunctions and initialize psi ****
@@ -261,6 +262,7 @@ c     value = psi_initialize()
       call Dne_init(ispin,ne,mapping1d)
 
 
+*     **** read in wavefunctions and initialize psi ****
       value = psi_initialize()
 
       !call D3dB_n_fft_init(1,psi_ne(1)+psi_ne(2))

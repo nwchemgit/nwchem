@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.73 2007-08-29 21:30:43 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.74 2007-09-29 00:33:31 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -457,12 +457,12 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
- 1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
- 1490 FORMAT( ' K.S. V_l  energy    :',E19.10,' (',E15.5,'/electron)')
- 1491 FORMAT( ' K.S. Vl+Vqm/mm      :',E19.10,' (',E15.5,'/electron)')
- 1495 FORMAT( ' K.S. V_nl energy    :',E19.10,' (',E15.5,'/electron)')
- 1496 FORMAT( ' K.S. V_Hart energy  :',E19.10,' (',E15.5,'/electron)')
- 1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
+ 1480 FORMAT(/' kinetic (planewave) :',E19.10,' (',E15.5,'/electron)')
+ 1490 FORMAT( ' V_local (planewave) :',E19.10,' (',E15.5,'/electron)')
+ 1491 FORMAT( ' Vl+Vqm/mm           :',E19.10,' (',E15.5,'/electron)')
+ 1495 FORMAT( ' V_nl    (planewave) :',E19.10,' (',E15.5,'/electron)')
+ 1496 FORMAT( ' V_Coul  (planewave) :',E19.10,' (',E15.5,'/electron)')
+ 1497 FORMAT( ' V_xc.   (planewave) :',E19.10,' (',E15.5,'/electron)')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1499 FORMAT( ' K.S. SIC-hartree energy  :',E19.10,
      >        ' (',E15.5,'/electron)')
@@ -475,6 +475,11 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))
  1512 FORMAT(2(E18.7,' (',F8.3,'eV)',A4))
  1513 FORMAT(2(E18.7,' (',F8.3,'eV)',A4,' occ=',F5.3))
+
+ 1680 FORMAT(/' kinetic (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1690 FORMAT( ' V_local (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1696 FORMAT( ' coulomb (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1697 FORMAT( ' exc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')

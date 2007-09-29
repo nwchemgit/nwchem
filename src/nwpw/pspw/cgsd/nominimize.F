@@ -1,13 +1,17 @@
 c
-c     $Id: nominimize.F,v 1.9 2007-04-22 01:49:57 bylaska Exp $ 
+c     $Id: nominimize.F,v 1.10 2007-09-29 00:33:31 bylaska Exp $ 
 c
-
+*     ******************************************
+*     *                                        *
+*     *             nominimize                 *
+*     *                                        *
+*     ******************************************
       subroutine nominimize(E)
       implicit none
-#include "errquit.fh"
       real*8     E(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       integer G1(2)
@@ -63,6 +67,11 @@ c
       logical  pspw_SIC,pspw_HFX
       external pspw_SIC,pspw_HFX
 
+*     ***** PAW functions ****
+      logical  psp_pawexist
+      real*8   psp_kinetic_core,psi_1ke_atom
+      external psp_pawexist
+      external psp_kinetic_core,psi_1ke_atom
 
       call Pack_npack(1,npack1)
       neall = psi_neq(1)+psi_neq(2)
@@ -108,6 +117,12 @@ c      call psi_1toelectron()
          E(11) = e_lj
          E(12) = e_q
          E(13) = e_spring
+      end if
+
+*     **** paw energies ****
+      if (psp_pawexist()) then
+         E(14) = psi_1ke_atom()      !*** kinetic atom ***
+         E(15) = psp_kinetic_core()  !*** kinetic core ***
       end if
 
 *     **** get pspw_charge  energies ****

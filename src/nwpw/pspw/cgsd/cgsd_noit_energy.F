@@ -1,4 +1,4 @@
-c     $Id: cgsd_noit_energy.F,v 1.6 2007-08-21 18:52:42 bylaska Exp $                       
+c     $Id: cgsd_noit_energy.F,v 1.7 2007-09-29 00:33:31 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *	   cgsd_noit_energy	*
@@ -56,6 +56,8 @@ c     $Id: cgsd_noit_energy.F,v 1.6 2007-08-21 18:52:42 bylaska Exp $
       external    psi_ab_irrep_name
       integer     control_symmetry
       external    control_symmetry
+      logical  psp_pawexist
+      external psp_pawexist
 
 
 
@@ -123,14 +125,7 @@ c     $Id: cgsd_noit_energy.F,v 1.6 2007-08-21 18:52:42 bylaska Exp $
          write(luout,1470) E(5),E(5)/ion_nion()
 
          write(luout,1480) E(6),E(6)/neall
-
-c        if (pspw_qmmm_found()) then
-c           write(luout,1491) E(7),E(7)/neall
-c        else
-c           write(luout,1490) E(7),E(7)/neall
-c        end if
          write(luout,1490) E(7),E(7)/neall
-
          write(luout,1495) E(8),E(8)/neall
          write(luout,1496) E(9),E(9)/neall
          write(luout,1497) E(10),E(10)/neall
@@ -145,6 +140,11 @@ c        end if
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
 
+c        **** paw energies ****
+         if (psp_pawexist()) then
+         write(luout,1680) E(14),E(14)/ion_nion()
+         write(luout,1681) E(15),E(15)/ion_nion()
+         end if
 
         if (pspw_qmmm_found()) then
             write(luout,1700)
@@ -335,12 +335,12 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
- 1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
- 1490 FORMAT( ' K.S. V_l  energy    :',E19.10,' (',E15.5,'/electron)')
+ 1480 FORMAT(/' kinetic (planewave) :',E19.10,' (',E15.5,'/electron)')
+ 1490 FORMAT( ' V_local (planewave) :',E19.10,' (',E15.5,'/electron)')
  1491 FORMAT( ' K.S. Vl+Vqm/mm      :',E19.10,' (',E15.5,'/electron)')
- 1495 FORMAT( ' K.S. V_nl energy    :',E19.10,' (',E15.5,'/electron)')
- 1496 FORMAT( ' K.S. V_Hart energy  :',E19.10,' (',E15.5,'/electron)')
- 1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
+ 1495 FORMAT( ' V_nl    (planewave) :',E19.10,' (',E15.5,'/electron)')
+ 1496 FORMAT( ' V_coul  (planewave) :',E19.10,' (',E15.5,'/electron)')
+ 1497 FORMAT( ' V_xc    (planewave) :',E19.10,' (',E15.5,'/electron)')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1499 FORMAT( ' K.S. SIC-hartree energy  :',E19.10,
      >        ' (',E15.5,'/electron)')
@@ -353,6 +353,15 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))
  1512 FORMAT(2(E18.7,' (',F8.3,'eV)',A4))
  1513 FORMAT(2(E18.7,' (',F8.3,'eV)',A4,' occ=',F5.3))
+
+ 1680 FORMAT(/' kinetic (loc. basis):',E19.10,' (',E15.5,'/ion)')
+ 1681 FORMAT( ' kinetic       (core):',E19.10,' (',E15.5,'/ion)')
+ 1690 FORMAT( ' V_local (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1696 FORMAT( ' coulomb (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1697 FORMAT( ' exc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
+
+
+
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')
  1702 FORMAT( ' LJ energy                        :',E19.10)

@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.15 2005-01-30 07:16:18 bylaska Exp $
+c $Id: paw_overlap_matrix.F,v 1.16 2007-09-29 00:34:13 bylaska Exp $
 c
 
 !**************************************************
@@ -183,6 +183,7 @@ c     >                        log_amesh,ic)
         
              matrix(i,j) = tmp
              matrix(j,i) = tmp
+          write(*,*) "Sijl=",i,j,tmp
            else
              matrix(i,j) = 0.0d0
              matrix(j,i) = 0.0d0

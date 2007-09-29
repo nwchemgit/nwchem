@@ -1,5 +1,5 @@
 *
-* $Id: pawppv1.F,v 1.1 2007-09-24 17:00:36 bylaska Exp $
+* $Id: pawppv1.F,v 1.2 2007-09-29 00:33:34 bylaska Exp $
 *
 
 *     **************************************
@@ -45,7 +45,7 @@
       integer nmaxl(2)
 
 *     **** matrix data ****
-      integer Gijl(2),Tijl(2)
+      integer Gijl(2)
 
 *     ***** ngrid data *****
       integer nproj,nsize,nfft1,nfft2,nfft3
@@ -114,15 +114,6 @@
       call Parallel_Brdcst_values(MASTER,msglen,rc)
 
 
-      write(*,*) "psp_type=",psp_type
-      write(*,*) "atom=",atom
-      write(*,*) "zv=",zv
-      write(*,*) "r1,rmax=",r1,rmax
-      write(*,*) "n1dgrid,nbasis,icut=",n1dgrid,nbasis,icut
-      write(*,*) "comment=",comment
-      write(*,*) "core_kin_energy=",core_kin_energy
-
-
 *     **** define rgrid ****
       log_amesh = dlog(rmax/r1)/dble(n1dgrid-1)
       amesh     = dexp(log_amesh)
@@ -164,12 +155,6 @@
      >                                 dbl_mb(eig(1)+j),
      >                                 int_mb(nps(1)+j),
      >                                 int_mb(lps(1)+j),j=0,nbasis-1)
-          do j=0,nbasis-1
-             int_mb(nps(1)+j) = int_mb(nps(1)+j) - int_mb(lps(1)+j)
-             write(*,*) "nae,nps,lps=",int_mb(nae(1)+j),
-     >                                 int_mb(nps(1)+j),
-     >                                 int_mb(lps(1)+j)
-          end do
          read(11,*,ERR=9999,END=9999) ((dbl_mb(phi_ae(1)+i+j*n1dgrid),
      >                                  i=0,n1dgrid-1),
      >                                  j=0,nbasis-1)
@@ -247,12 +232,11 @@
       if(.not.MA_pop_stack(nmaxl(2)))
      > call errquit('pawppv1:error popping stack',0,MA_ERR)
 
-      write(*,*) "nproj,nmax,lmax=",nproj,nmax,lmax
 
-*     **** allocate Gijl,Tijl, ****
+*     **** allocate Gijl,Sijl,Tijl,VSRCZ,Vpseuo ****
       l = nmax*nmax*(lmax+1)
-      value=          MA_alloc_get(mt_dbl,l,'Gijl',Gijl(2),Gijl(1))
-      value=value.and.MA_alloc_get(mt_dbl,l,'Tijl',Tijl(2),Tijl(1))
+      value=          MA_alloc_get(mt_dbl,5*l,'Gijl',Gijl(2),Gijl(1))
+      !value=value.and.MA_alloc_get(mt_dbl,l,'Tijl',Tijl(2),Tijl(1))
 
 *     **** allocate nprj,lprj,mprj ****
       value=value.and.MA_alloc_get(mt_int,nproj,'nprj',nprj(2),nprj(1))
@@ -282,11 +266,9 @@
       call setup_kbpp(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
       filter = control_kbpp_filter()
 
-      write(*,*) "hera,nbasis=",nbasis
       !**** allocate memory for rays ****
       nray = kbpp_calc_nray(nfft1,nfft2,nfft3,dbl_mb(G_indx))
 
-      write(*,*) "nray=",nray
       value =           MA_alloc_get(mt_dbl,nray,
      >                  'G_ray',G_ray_hndl,G_ray_indx)
       value = value.and.MA_alloc_get(mt_dbl,2*nray,
@@ -302,9 +284,9 @@
      >                         dbl_mb(G_indx),
      >                         dbl_mb(G_ray_indx))
 
-      write(*,*) "herb,sigma=",sigma
+        zcore = zion - zv
         call integrate_pawppv1(version,rlocal,
-     >                     n1dgrid,log_amesh,nbasis,nmax,lmax,zv,
+     >                     n1dgrid,log_amesh,nbasis,nmax,lmax,zv,zcore,
      >                     int_mb(nps(1)),int_mb(lps(1)),
      >                                dbl_mb(v_ps(1)),
      >                                dbl_mb(prj_ps(1)),
@@ -331,7 +313,6 @@
      >                                dbl_mb(tmp_ray_indx),
      >                                filter,
      >                      ierr)
-      write(*,*) "herc"
         value = MA_free_heap(tmp_ray_hndl)
         value = value.and.MA_free_heap(vl_ray_hndl)
         value = value.and.MA_free_heap(vnl_ray_hndl)
@@ -339,7 +320,6 @@
         if (.not.value)
      >   call errquit('pawppv1:Error freeing memory',0,MA_ERR)
 
-      write(*,*) "herd"
 
 
 
@@ -389,7 +369,7 @@ c      if (filter) write(*,*) "- filtering pseudopotential -"
          call iwrite(2,int_mb(nprj(1)),nproj)
          call iwrite(2,int_mb(lprj(1)),nproj)
          call iwrite(2,int_mb(mprj(1)),nproj)
-         call dwrite(2,dbl_mb(Gijl(1)),nmax*nmax*(lmax+1))
+         call dwrite(2,dbl_mb(Gijl(1)),5*nmax*nmax*(lmax+1))
          end if
 
          if (version.eq.4) call dwrite(2,rlocal,1)
@@ -400,6 +380,9 @@ c      if (filter) write(*,*) "- filtering pseudopotential -"
          if (nproj.gt.0) then
             call dwrite(2,dbl_mb(vnl(1)),nsize*nproj)
          end if
+
+*        **** miscelaneous PAW energies ****
+         call dwrite(2,core_kin_energy,1)
 
       call closefile(2)
       end if
@@ -415,7 +398,6 @@ c      if (filter) write(*,*) "- filtering pseudopotential -"
       value = value.and.MA_free_heap(f(2))
 
       value = value.and.MA_free_heap(Gijl(2))
-      value = value.and.MA_free_heap(Tijl(2))
 
       value = value.and.MA_free_heap(mprj(2))
       value = value.and.MA_free_heap(lprj(2))

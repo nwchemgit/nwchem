@@ -1,9 +1,17 @@
 *
-* $Id: psi.F,v 1.79 2007-09-24 16:58:14 bylaska Exp $
+* $Id: psi.F,v 1.80 2007-09-29 00:33:37 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.79  2007/09/24 16:58:14  bylaska
+* ...preliminary PAW modifications...
+*   - basis file format changed
+*   - .vpp formatting routines added to pspw
+*
+* - zdotc routines currently modified to tzdotc.
+* ...EJB
+*
 * Revision 1.78  2007/09/13 20:38:36  bylaska
 * occupation template added to band...EJB
 *
@@ -2571,6 +2579,34 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 
+
+
+*     ***********************************
+*     *                                 *
+*     *         psi_1ke_atom            *
+*     *                                 *
+*     ***********************************
+      real*8 function psi_1ke_atom()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ***
+      real*8 ave
+
+*     **** external functions ****
+      real*8   psp_kinetic_atom
+      external psp_kinetic_atom
+
+      ave =  psp_kinetic_atom(ispin,neq,dcpl_mb(psi1(1)))
+      call D1dB_SumAll(ave)
+
+      psi_1ke_atom = ave
+      return
+      end
+
+
 *     ***********************************
 *     *					*
 *     *		psi_1vl 		*
@@ -5018,7 +5054,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       parameter (MASTER=0)
       logical value,psi_nogrid
       integer nemax
-      real*8 sum1,sum2
+      real*8 sum1,sum2,sum3
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
       integer rtdb,ind,vers
@@ -5031,7 +5067,11 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       external     control_input_psi
       logical  wvfnc_expander,Dneall_m_allocate,band_reformat_c_wvfnc
       external wvfnc_expander,Dneall_m_allocate,band_reformat_c_wvfnc
+      logical  psp_pawexist
+      external psp_pawexist
 
+      integer i,j
+      real*8 S(16,16)
 
 *     **** reformat wavefunction if it is a band wavefunction ****
       vers = psi_get_version()
@@ -5165,29 +5205,50 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       end if 
 
 *     **** Ortho Check ****
-      call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
+      if (psp_pawexist()) then
+         call psp_overlap_S(ispin,neq,dcpl_mb(psi1(1)),dcpl_mb(psi2(1)))
+         call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
      >                        dcpl_mb(psi1(1)),
-     >                        dcpl_mb(psi1(1)),
+     >                        dcpl_mb(psi2(1)),
      >                        sum2)
-      call D1dB_SumAll(sum2)
-
-      sum1 = dble(ne(1) + ne(2))
-      if (dabs(sum2-sum1).gt.1.0d-10) then
-         call Parallel_taskid(taskid)
-         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
-c         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi1(1)))
-c         if (ispin.gt.1) then
-c           call Grsm_g_MakeOrtho(npack1,ne(2),
-c     >                           dcpl_mb(psi1(1) + ne(1)*npack1))
-c         end if
+      else
          call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
      >                        dcpl_mb(psi1(1)),
      >                        dcpl_mb(psi1(1)),
      >                        sum2)
-         call D1dB_SumAll(sum2)
+      end if
+      call D1dB_SumAll(sum2)
+      write(*,*) "sum2=",sum2
+
+      call psp_overlap(ispin,ne,dcpl_mb(psi1(1)),S)
+      write(*,*) "paw S="
+      do i=1,16
+        write(*,*) (S(i,j), j=1,16) 
+      end do
+
+      sum1 = dble(ne(1) + ne(2))
+      if (dabs(sum2-sum1).gt.1.0d-10) then
+         call Parallel_taskid(taskid)
+         if (psp_pawexist()) then
+         call Dneall_f_Sortho(0,dcpl_mb(psi1(1)),
+     >                          dcpl_mb(psi2(1)),npack1)
+         call psp_overlap_S(ispin,neq,dcpl_mb(psi1(1)),
+     >                                dcpl_mb(psi2(1)))
+         call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
+     >                        dcpl_mb(psi1(1)),
+     >                        dcpl_mb(psi2(1)),
+     >                        sum3)
+         else
+         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
+         call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
+     >                        dcpl_mb(psi1(1)),
+     >                        dcpl_mb(psi1(1)),
+     >                        sum3)
+         end if
+         call D1dB_SumAll(sum3)
          if (taskid.eq.MASTER)
      >    write(*,*) "Warning - Gram-Schmidt being performed on psi:",
-     >               dabs(sum2-sum1)
+     >               sum1,sum2,sum3,dabs(sum2-sum1)
 
 
       end if
