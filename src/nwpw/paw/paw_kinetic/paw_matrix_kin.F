@@ -1,5 +1,5 @@
 c
-c $Id: paw_matrix_kin.F,v 1.8 2007-09-29 00:34:10 bylaska Exp $
+c $Id: paw_matrix_kin.F,v 1.9 2007-10-01 23:02:13 bylaska Exp $
 c
 
 !**************************************************
@@ -169,7 +169,6 @@ c     >                       log_amesh,ic)
      >                       log_amesh,ic,istart)
             matrix(i,j) = tmp
             matrix(j,i) = tmp
-          write(*,*) "Tijl=",i,j,orb_l(i),tmp
           else
             matrix(i,j) = 0.0d0
             matrix(j,i) = 0.0d0
