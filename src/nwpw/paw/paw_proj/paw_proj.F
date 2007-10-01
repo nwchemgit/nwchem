@@ -1,7 +1,10 @@
 *
-* $Id: paw_proj.F,v 1.35 2007-09-29 00:34:15 bylaska Exp $
+* $Id: paw_proj.F,v 1.36 2007-10-01 23:02:26 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.35  2007/09/29 00:34:15  bylaska
+* ...EJB
+*
 * Revision 1.34  2006/08/13 01:00:32  bylaska
 * ...EJB
 *
@@ -113,7 +116,6 @@
       do ia=1,prj_nkatm
         prj_ntot = prj_ntot + int_mb(prj_nbasis(1)+ia-1)
       end do
-c      write(*,*) "paw_proj:prj_ntot",prj_ntot
 
       do ia=1,prj_nkatm
         value = MA_alloc_get(mt_int,(int_mb(prj_nbasis(1)+ia-1)),
@@ -526,9 +528,6 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
          call D3dB_c_read(1,5,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)),-1)
          call Pack_c_pack(1,dcpl_mb(tmp1(1)))
          call Pack_c_Copy(1,dcpl_mb(tmp1(1)),prj(1,ii))
-
-       call Pack_cc_izdot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum1)
-       write(*,*) " prj=",ii,sum1
       end do
 
 *     **** read in local potential ****
