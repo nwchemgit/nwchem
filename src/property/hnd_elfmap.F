@@ -53,10 +53,6 @@ c
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      + call errquit('task: no task input for theory?',0, RTDB_ERR)
 c
-      if(theory.eq.'dft') then
-        call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
-     &                      nclosed,nopen,nvirt)
-      endif
 c
 c->d3p975
 c
@@ -73,6 +69,9 @@ c
 c    2. read the data 
 c
         call ao_rdm_read(basis,g_dens)
+      else 
+         call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
+     &                      nclosed,nopen,nvirt)
       endif
 c 
 c<-d3p975
