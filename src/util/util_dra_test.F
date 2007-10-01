@@ -64,12 +64,14 @@ c     call pend()
       parameter (n = 100)
       parameter (m = 2*n)
       integer a(n,n)
+      integer ga_idot
       integer g_a, g_b, d_a
       integer i,j, req, err, dim1, dim2, type
       integer me, nproc
       logical status
       character*1 filename(200)
       character*80 name
+      external ga_idot
 c    
       nproc = ga_nnodes()
       me    = ga_nodeid()
