@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.80 2007-09-29 00:33:37 bylaska Exp $
+* $Id: psi.F,v 1.81 2007-10-01 23:02:46 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.80  2007/09/29 00:33:37  bylaska
+* ...EJB
+*
 * Revision 1.79  2007/09/24 16:58:14  bylaska
 * ...preliminary PAW modifications...
 *   - basis file format changed
@@ -5218,13 +5221,7 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
      >                        sum2)
       end if
       call D1dB_SumAll(sum2)
-      write(*,*) "sum2=",sum2
 
-      call psp_overlap(ispin,ne,dcpl_mb(psi1(1)),S)
-      write(*,*) "paw S="
-      do i=1,16
-        write(*,*) (S(i,j), j=1,16) 
-      end do
 
       sum1 = dble(ne(1) + ne(2))
       if (dabs(sum2-sum1).gt.1.0d-10) then

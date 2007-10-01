@@ -1,5 +1,5 @@
 *
-* $Id: integrate_pawppv1.F,v 1.2 2007-09-29 00:33:34 bylaska Exp $
+* $Id: integrate_pawppv1.F,v 1.3 2007-10-01 23:02:41 bylaska Exp $
 *
 *     *****************************************************
 *     *                                                   *
@@ -93,8 +93,8 @@ c      P3=dsqrt(105.0d0*forpi)
 
 *     **** overlap ***
       do i=1,nbasis
-         na = n_ps(i)
          la = l_ps(i)
+         na = n_ps(i) - la
          power_f = 2*la + 2
          do k=1,nrho
            f(k) = phi_ae(k,i)*phi_ae(k,i)
@@ -102,11 +102,10 @@ c      P3=dsqrt(105.0d0*forpi)
          end do
          d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
          Gijl(na,na,la,2) = Gijl(na,na,la,2) + d
-         write(*,*) "na,la,Sijl=",na,la,d
 
          do j=1,i-1
-            nb = n_ps(j)
             lb = l_ps(j)
+            nb = n_ps(j) - lb
             if (la.eq.lb) then
               do k=1,nrho
                 f(k) = phi_ae(k,i)*phi_ae(k,j)
@@ -115,7 +114,6 @@ c      P3=dsqrt(105.0d0*forpi)
               d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
               Gijl(na,nb,la,2) = Gijl(na,nb,la,2) + d
               Gijl(nb,na,la,2) = Gijl(nb,na,la,2) + d
-           write(*,*) "na,la,nb,lb,Sijl=",na,la,nb,lb,d
             end if
          end do
       end do
@@ -124,8 +122,8 @@ c      P3=dsqrt(105.0d0*forpi)
 
 *     **** add kinetic ***
       do i=1,nbasis
-         na = n_ps(i)
          la = l_ps(i)
+         na = n_ps(i) - la
          power_f = 2*la
          do k=1,nrho
            f(k) = 0.5d0*(dphi_ae(k,i)*dphi_ae(k,i)
@@ -135,11 +133,10 @@ c      P3=dsqrt(105.0d0*forpi)
          end do
          d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
          Gijl(na,na,la,3) = Gijl(na,na,la,3) + d
-         write(*,*) "na,la,Tijl=",na,la,d
 
          do j=1,i-1
-            nb = n_ps(j)
             lb = l_ps(j)
+            nb = n_ps(j) - lb
             if (la.eq.lb) then
               do k=1,nrho
                 f(k) = 0.5d0*(dphi_ae(k,i)*dphi_ae(k,j)
@@ -150,17 +147,15 @@ c      P3=dsqrt(105.0d0*forpi)
               d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
               Gijl(na,nb,la,3) = Gijl(na,nb,la,3) + d
               Gijl(nb,na,la,3) = Gijl(nb,na,la,3) + d
-           write(*,*) "na,la,nb,lb,Gijl=",na,la,nb,lb,d
             end if
          end do
       end do
 
-      write(*,*) "HERA"
 
 *     **** add pseudo ***
       do i=1,nbasis
-         na = n_ps(i)
          la = l_ps(i)
+         na = n_ps(i) - la
          power_f = 2*la + 2
          do k=1,nrho
            xerf = rho(k)/rlocal
@@ -169,11 +164,10 @@ c      P3=dsqrt(105.0d0*forpi)
          end do
          d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
          Gijl(na,na,la,4) = Gijl(na,na,la,4) + d
-         write(*,*) "na,la,Vijl=",na,la,d
 
          do j=1,i-1
-            nb = n_ps(j)
             lb = l_ps(j)
+            nb = n_ps(j) - lb
             if (la.eq.lb) then
               do k=1,nrho
                 xerf = rho(k)/rlocal
@@ -183,12 +177,9 @@ c      P3=dsqrt(105.0d0*forpi)
               d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
               Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
               Gijl(nb,na,la,4) = Gijl(nb,na,la,4) + d
-           write(*,*) "na,la,nb,lb,Vijl=",na,la,nb,lb,d
             end if
          end do
       end do
-
-      write(*,*) "HERD"
 
       l = nmax*nmax*(lmax+1)
       call dcopy(l,      Gijl(1,1,0,3),1,Gijl(1,1,0,1),1)  !** kinetic **
@@ -339,8 +330,8 @@ c      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)
 *     ***************************************
       lcount = 0
       do i=1,nbasis
-        na=n_ps(i)
         la=l_ps(i)
+        na=n_ps(i) - la
 
         !::::::  f-wave  :::::::
         if (la.eq.3) then

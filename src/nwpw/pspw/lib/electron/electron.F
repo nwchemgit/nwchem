@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.49 2007-03-22 20:46:22 bylaska Exp $
+* $Id: electron.F,v 1.50 2007-10-01 23:02:44 bylaska Exp $
 *
 
 
@@ -2201,7 +2201,7 @@ c    >                         sum)
       end do
       if (np_i.gt.1) call D3dB_SumAll(enlocal)
       if (np_j.gt.1) call D1dB_SumAll(enlocal)
-      if (ispin.eq.1) enlocal = 2.0d0*enlocal
+      if (ispin.eq.1) enlocal = enlocal+enlocal
 
  
       value = MA_pop_stack(tmp2(2))

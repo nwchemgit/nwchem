@@ -1,5 +1,5 @@
 *
-* $Id: pawppv1.F,v 1.2 2007-09-29 00:33:34 bylaska Exp $
+* $Id: pawppv1.F,v 1.3 2007-10-01 23:02:41 bylaska Exp $
 *
 
 *     **************************************
@@ -80,7 +80,6 @@
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
       oprint = (oprint_in.or.hprint)
 
-      write(*,*) "hello world"
 
       if (taskid.eq.MASTER) then
       call util_file_name_noprefix(psp_filename,.false.,.false.,
@@ -323,16 +322,16 @@
 
 
 
-*     *** integrate core density ***
-      fourpi = 16.0d0*datan(1.0d0)
-      zcore = fourpi*log_integrate_def(0,
-     >                         dbl_mb(core_ae(1)),
-     >                         2,dbl_mb(rgrid(1)),log_amesh,n1dgrid)
-      write(*,*) "Zcore=",zcore,rmax,dbl_mb(rgrid(1)+n1dgrid-1)
-      zcore = fourpi*log_integrate_def(0,
-     >                         dbl_mb(core_ps(1)),
-     >                         2,dbl_mb(rgrid(1)),log_amesh,n1dgrid)
-      write(*,*) "Zcoreps=",zcore
+c*     *** integrate core density ***
+c      fourpi = 16.0d0*datan(1.0d0)
+c      zcore = fourpi*log_integrate_def(0,
+c     >                         dbl_mb(core_ae(1)),
+c     >                         2,dbl_mb(rgrid(1)),log_amesh,n1dgrid)
+c      write(*,*) "Zcore=",zcore,rmax,dbl_mb(rgrid(1)+n1dgrid-1)
+c      zcore = fourpi*log_integrate_def(0,
+c     >                         dbl_mb(core_ps(1)),
+c     >                         2,dbl_mb(rgrid(1)),log_amesh,n1dgrid)
+c      write(*,*) "Zcoreps=",zcore
 
 
       if (taskid.eq.MASTER) then

@@ -1,5 +1,5 @@
 *
-* $Id: paw.F,v 1.1 2007-09-29 00:33:16 bylaska Exp $
+* $Id: paw.F,v 1.2 2007-10-01 23:02:49 bylaska Exp $
 *
 
 *     ***********************************
@@ -514,7 +514,7 @@
 
       kinetic_atom = 0.0d0
 
-      nn = ne(1)+ne(1)
+      nn = ne(1)+ne(2)
 
 *     **** allocate local memory ****
       nion = ion_nion()
@@ -612,7 +612,7 @@
      &       MA_ERR)
 
       if (ispin.eq.1) kinetic_atom = kinetic_atom+kinetic_atom
-      kinetic_atom = kinetic_atom*scalsqr
+      kinetic_atom = kinetic_atom*scal
 
       psp_kinetic_atom = kinetic_atom
       return 

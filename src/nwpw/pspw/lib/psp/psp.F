@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.30 2007-09-29 00:33:16 bylaska Exp $
+* $Id: psp.F,v 1.31 2007-10-01 23:02:49 bylaska Exp $
 *
 
 
@@ -1551,9 +1551,6 @@ c     **** define Gx,Gy and Gz in packed space ****
          call Pack_t_pack(1,tmp2)
          !call Pack_t_Copy(1,tmp2,vnl(1,n))
          call psi_data_add(vnl_tag,n,tmp2)
-
-         call Pack_tt_dot(1,tmp2,tmp2,sum1)
-         write(*,*) atom," prj=",n,sum1,sum1/lattice_omega()
       end do
 
 *     **** read in semicore density block ****
