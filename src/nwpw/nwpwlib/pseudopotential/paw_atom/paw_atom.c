@@ -1,5 +1,5 @@
 /*
-   $Id: paw_atom.c,v 1.7 2007-09-24 16:58:10 bylaska Exp $
+   $Id: paw_atom.c,v 1.8 2007-10-02 17:38:05 d3p708 Exp $
 */
 
 
@@ -461,7 +461,7 @@ void paw_solve_paw_atom(char *infile)
     paw_generate_matrix_elements();
     paw_solve_pseudo_orbitals();
 
-    if (paw_debug)
+    if (paw_debug())
     {
         paw_print_paw_atom();
         paw_print_basis_to_file(atom_name);
