@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.61 2007-02-13 22:21:53 bert Exp $
+# $Id: GNUmakefile,v 1.62 2007-10-02 00:19:14 niri Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -21,7 +21,10 @@
 	diis_bsolve.o \
 	diis_core.o \
 	diis_driver.o \
-	diis_hamwgt.o  dft_fdist_init.o cdft_util.o
+	diis_hamwgt.o \
+	dft_fdist_init.o \
+	cdft_util.o \
+	dft_zora_scale.o       
 	OBJ=\
 	dft_swapab.o \
 	dft_main0d.o \
