@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.31 2007-10-01 23:02:49 bylaska Exp $
+* $Id: psp.F,v 1.32 2007-10-02 20:15:46 bylaska Exp $
 *
 
 
@@ -163,8 +163,10 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 
 *     **** deallocate nonlocal pspw data ****
       do ia=1,npsp
+        if (int_mb(nprj(1)+ia-1).gt.0) then
         call psi_data_dealloc(int_mb(vnl(1)+ia-1))
         call psi_data_dealloc(int_mb(Gijl(1)+ia-1))
+        end if
       end do
 
       value = MA_free_heap(prjtmp(2))
@@ -1543,15 +1545,18 @@ c     **** define Gx,Gy and Gz in packed space ****
       call Pack_t_pack(0,tmp2)
       call Pack_t_Copy(0,tmp2,vl)
 
-      vnl_tag = psi_data_alloc(nprj,npack1)
 
 *     **** read in vnl 3d blocks ****
-      do n=1,nprj
-         call D3dB_t_read(1,5,tmp2,tmp,-1)
-         call Pack_t_pack(1,tmp2)
-         !call Pack_t_Copy(1,tmp2,vnl(1,n))
-         call psi_data_add(vnl_tag,n,tmp2)
-      end do
+      if (nprj.gt.0) then
+         vnl_tag = psi_data_alloc(nprj,npack1)
+
+         do n=1,nprj
+            call D3dB_t_read(1,5,tmp2,tmp,-1)
+            call Pack_t_pack(1,tmp2)
+            !call Pack_t_Copy(1,tmp2,vnl(1,n))
+            call psi_data_add(vnl_tag,n,tmp2)
+         end do
+      end if
 
 *     **** read in semicore density block ****
       if (semicore) then
