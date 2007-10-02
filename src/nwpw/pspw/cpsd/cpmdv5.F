@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.61 2007-04-22 02:00:33 bylaska Exp $
+* $Id: cpmdv5.F,v 1.62 2007-10-02 21:39:09 bylaska Exp $
 *
 
 ***********************************************************************
@@ -231,6 +231,9 @@ c      parameter (autoatm =290.360032539d6)
       ngrid(3) = control_ngrid(3)
       nwave = 0
       mapping = control_mapping()
+
+*     **** initialize psi_data ****
+      call psi_data_init(20)
 
 
 *     **** initialize D3dB data structure ****
@@ -1155,6 +1158,7 @@ c         end if
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
       call Dne_end()
+      call psi_data_end()
 
 *     **** do anaylysis on MOTION files ****
       call cpmd_properties(rtdb)
