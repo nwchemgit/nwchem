@@ -1,5 +1,5 @@
 /*
-   $Id: paw_atom.c,v 1.8 2007-10-02 17:38:05 d3p708 Exp $
+   $Id: paw_atom.c,v 1.9 2007-10-02 17:40:46 d3p708 Exp $
 */
 
 
@@ -99,13 +99,13 @@ void   paw_init_atom(char* atom, char *infile)
 
    strcpy(comment,"PAW Hamann pseudopotential");
    fp = fopen(infile,"r+");
-   w = get_word(fp);
+   w = paw_get_word(fp);
    while ((w!=NIL) && (strcmp("<comment>",w)!=0))
-      w = get_word(fp);
+      w = paw_get_word(fp);
 
    if(w!=NIL)
    {
-      w = get_word(fp);
+      w = paw_get_word(fp);
       p  = 0;
       tc = comment;
       while ((w!=NIL)&&(strcmp("<end>",w) != 0))
@@ -116,7 +116,7 @@ void   paw_init_atom(char* atom, char *infile)
         strcpy(tc, " ");
         ++tc;
 
-        w = get_word(fp);
+        w = paw_get_word(fp);
       }
    }
    fclose(fp);
