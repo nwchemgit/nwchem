@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.116 2007-09-07 00:01:45 d3p307 Exp $
+# $Id: DEFS,v 1.117 2007-10-03 23:24:04 d3p307 Exp $
 #
 #======================================================================
 #
@@ -666,7 +666,7 @@ ifeq ($(peigs_TARGET),BGL)
      peigs_COMM =TCGMSG
      peigs_CPU = RS6000
      peigs_CODEOBJ=DBLE
-     peigs_CC += -DSTD_INT -DSTD_DBL -g -O2
+     peigs_CC += -DSTD_INT -DSTD_DBL -g -O3
      peigs_FC += -WF,-Iinclude,-DSTD_DBL,-DSTD_INT,-DRS6000,-D$(peigs_COMM)
      peigs_CPP += -DBGL -DRS6000 -DSTD_INT -DSTD_DBL -I$(peigs_HDIR) -P
      peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
