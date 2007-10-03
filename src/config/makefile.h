@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.551 2007-09-06 23:53:32 d3p307 Exp $
+# $Id: makefile.h,v 1.552 2007-10-03 23:25:26 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1986,29 +1986,26 @@ endif
 ifeq ($(TARGET),BGL)
 #
    CORE_SUBDIRS_EXTRA = lapack blas
-         FC = blrts_xlf
-         CC     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-gcc
-         AR     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ar
-         AS     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-as
-         RANLIB = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ranlib
+   FC = blrts_xlf
+   CC     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-gcc
+   AR     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ar
+   AS     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-as
+   RANLIB = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ranlib
 
    ARFLAGS = urs
    INSTALL = @echo $@ is built
 
-   DEFINES =  -DBGL 
+   DEFINES +=  -DBGL 
    FOPTIONS = -qEXTNAME -qxlf77=leadzero
-   FOPTIONS = -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 
+   FOPTIONS += -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 
    FOPTIMIZE = -O5 -qarch=440 -qtune=440 -qfloat=rsqrt:fltint
    COPTIMIZE  = -g -O2
    LDOPTIONS =  -Wl,--relax
 
-
-CORE_LIBS +=  -llapack -lblas
-
-
   EXPLICITF = TRUE
   CPP=/usr/bin/cpp  -P -C -traditional
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+  CORE_LIBS +=  -llapack -lblas
 endif
 
 
