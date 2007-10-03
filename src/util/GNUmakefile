@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.199 2007-09-01 19:42:07 d3p307 Exp $
+# $Id: GNUmakefile,v 1.200 2007-10-03 23:02:35 d3p307 Exp $
 
 include ../config/makefile.h
 
@@ -207,7 +207,7 @@ ifeq ($(TARGET),LINUX64)
 DEFINES += -DNEED_LOC
 endif
 ifeq ($(TARGET),BGL)
-DEFINES += -DNEED_LOC -DEAF_STATS -DLARGE_FILES
+DEFINES += -DNEED_LOC 
 endif
 
 ifeq ($(TARGET),SGI)
