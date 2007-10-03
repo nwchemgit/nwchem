@@ -8,7 +8,7 @@ c jochen: Further extended this subroutine to deal with
 c         finite-lifetime damping. Arrays dealing with imaginary
 c         parts have been added, indicated by suffix "_im"
 *
-* $Id: cphf_solve3.F,v 1.1 2006-11-16 18:22:50 jochen Exp $
+* $Id: cphf_solve3.F,v 1.2 2007-10-03 21:49:47 jochen Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -509,7 +509,7 @@ c        g_grad is the constant rhs vector
 
          if (.not.lifetime) then
            if (debug) write (6,*) 'calling ga_lkain_2cpl3'
-           call ga_lkain_2cpl3(
+           call ga_lkain_2cpl3(rtdb,
      &        g_work, g_grad, g_work_im, g_grad_im, rohf_hessv3,
      &        rohf_hessv_precond3,
      $        precond_tol, 10*nvec, 20, .false., oprint_solve, omega,
@@ -517,7 +517,7 @@ c        g_grad is the constant rhs vector
            if (debug) write (6,*) 'exiting ga_lkain_2cpl3'
          else
            if (debug) write (6,*) 'calling ga_lkain_2cpl3_damp'
-           call ga_lkain_2cpl3_damp(
+           call ga_lkain_2cpl3_damp(rtdb,
      &        g_work, g_grad, g_work_im, g_grad_im, rohf_hessv3,
      &        rohf_hessv_precond3_damp,
      $        precond_tol, 10*nvec, 20, .false., oprint_solve, omega,
