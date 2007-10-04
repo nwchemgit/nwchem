@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.20 2006-11-16 18:23:01 jochen Exp $
+* $Id: hnd_property.F,v 1.21 2007-10-04 16:07:04 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -39,7 +39,7 @@ c
       character*255 title, vectors_in
       character*3 theory
       character*8 gridtype
-      integer giao, spinspin, geomold
+      integer giao, spinspin, geomold, noaoresponse
       double precision ithresh, tthresh, e_conv, tol_rho, tol_rho_rd
       double precision job_grid_acc
 c
@@ -88,9 +88,11 @@ c     have to remove symmetry from the geometry.
 c
       giao = 0
       spinspin = 0
+      noaoresponse = 0 
       status=rtdb_get(rtdb,'prop:giao',MT_INT,1,giao)             
       status=rtdb_get(rtdb,'prop:spinspin',MT_INT,1,spinspin)     
-      usec1 = giao.eq.0 .or. spinspin.eq.0
+      status=rtdb_get(rtdb,'prop:aoresponse',MT_INT,1,noaoresponse)
+      usec1 = giao.eq.0 .or. spinspin.eq.0 .or. noaoresponse.eq.0
 c
 c     Get geometry and make C1 if necessary
 c
@@ -147,7 +149,6 @@ c
      $    call errquit('hnd_property: rtdb_put failed',ithresh,
      &                 RTDB_ERR)
       if (theory.eq.'dft' .and. .not. nocheck) then
-         ithresh = 1.0d-8
          if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
      $       tthresh = 1.0d-4
          if (tthresh.lt.ithresh) ithresh = tthresh
