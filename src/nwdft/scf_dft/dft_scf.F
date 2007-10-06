@@ -1,10 +1,10 @@
 
       logical function dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
-     &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
-     &                         g_svecs, svals, g_xcinv, g_s,
+     &                         iter, g_dens, g_dens_at, g_movecs, g_vxc, 
+     &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.273 2007-10-02 00:19:14 niri Exp $
+c     $Id: dft_scf.F,v 1.274 2007-10-06 01:22:08 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -17,6 +17,9 @@ c
       integer g_dens(2), g_movecs(2), g_vxc(4), 
      &        g_fock, g_svecs, 
      &        g_xcinv
+c
+      integer g_dens_at(2) 
+c
       double precision  toll_s
       double precision svals(*) ! [in] S evals
 c     
@@ -169,8 +172,8 @@ c
 
 czora...spin-free global arrays
       integer g_zora(2)
-      integer g_zora_sf(4)
-      integer g_zora_scal_sf(4)
+      integer g_zora_sf(2)
+      integer g_zora_scal_sf(2)
       double precision ener_scal
 
       gotsmear(ss)=abs(ss).gt.1d-9
@@ -622,7 +625,7 @@ c
 
 czora...Get the zora contributions
       if (do_zora) then
-
+c
 czora...scratch array
        if(.not.ga_duplicate(g_vxc(1),g_zora(1),'scratch 1'))
      &  call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
@@ -632,7 +635,7 @@ czora...scratch array
      &   call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
          call ga_zero(g_zora(2))
         endif
-
+c
 czora...Create zora correction arrays
        if(.not.ga_duplicate(g_vxc(1),g_zora_sf(1),'sf 1'))
      &  call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
@@ -642,7 +645,7 @@ czora...Create zora correction arrays
      &   call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
          call ga_zero(g_zora_sf(2))
         endif
-
+c
 czora...Energy scaling arrays
        if(.not.ga_duplicate(g_vxc(1),g_zora_scal_sf(1),'scal 1'))
      &  call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
@@ -652,36 +655,44 @@ czora...Energy scaling arrays
      &   call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
          call ga_zero(g_zora_scal_sf(2))
         endif
-
+c
 czora...Preliminaries
         do_zora_get_correction = .true.
         so_term = 0
-
+c
+czora...Capture the atomic density
+        call ga_zero(g_dens_at(1))
+        call ga_dadd(1d0,g_dens_at(1),1d0,g_dens(1), g_dens_at(1))
+        if (ipol.gt.1) then
+          call ga_zero(g_dens_at(2))
+          call ga_dadd(1d0,g_dens_at(2),1d0,g_dens(2), g_dens_at(2))
+        end if
+c
 czora...Get the spin-free corrections
         zora_calc_type = 1  ! zora corrections
         call ga_zero(g_zora(1))
         if (ipol.gt.1) call ga_zero(g_zora(2))
-        call zora_getv(rtdb, g_dens, g_zora, nexc)
+        call zora_getv(rtdb, g_dens_at, g_zora, nexc)
         call ga_dadd(1d0,g_zora_sf(1),1d0,g_zora(1), g_zora_sf(1))
         if (ipol.gt.1) then
          call ga_dadd(1d0,g_zora_sf(2),1d0,g_zora(2),g_zora_sf(2))
         end if
-
+c
 czora...Get the spin-free energy scaling corrections
         zora_calc_type = 2  ! energy scaling
         call ga_zero(g_zora(1))
         if (ipol.gt.1) call ga_zero(g_zora(2))
-        call zora_getv(rtdb, g_dens, g_zora, nexc)
+        call zora_getv(rtdb, g_dens_at, g_zora, nexc)
         call ga_dadd(1d0,g_zora_scal_sf(1),1d0,g_zora(1), 
      &     g_zora_scal_sf(1))
         if (ipol.gt.1) then
          call ga_dadd(1d0,g_zora_scal_sf(2),1d0,g_zora(2),
      &     g_zora_scal_sf(2))
         end if
-
+c
 czora...Reset
         do_zora_get_correction = .false.
-
+c
       end if  ! do_zora
 czora...end
 c     
@@ -1445,6 +1456,7 @@ c
       call ga_sync()
 c
 czora...Scale the zora eigenvalues and energy
+c
       ener_scal = 0.d0
       if (do_zora) then
         call dft_zora_scale(geom, 

@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.81 2007-09-20 17:32:33 niri Exp $
+c     $Id: dft_main0d.F,v 1.82 2007-10-06 01:22:08 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -39,7 +39,9 @@ c
       external ga_create_atom_blocked
 c
       integer g_dens(2), g_evecs(2), g_vxc(4)
-
+c
+      integer g_dens_at(2)
+c
       integer g_svecs, g_xcinv, g_oi
       integer g_s, g_fock, g_tmpb, g_tmp
       integer nvxc
@@ -386,24 +388,32 @@ c
       if (.not. ga_duplicate(g_s, g_evecs(1), 'alpha evecs'))
      &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_evecs(1))
-
+c
       if (.not. ga_duplicate(g_s, g_dens(1), 'alpha density'))
      & call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_dens(1))
-
-      if (ipol.ne.1)then
+c
+      if (.not. ga_duplicate(g_s, g_dens_at(1), 'alpha atomic density'))
+     & call errquit('dft_main0d: error creating ga',0,GA_ERR)
+      call ga_zero(g_dens_at(1))
+c
+      if (ipol.ne.1) then
        if (.not. ga_duplicate(g_s, g_dens(2), 'beta density'))
      &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
        call ga_zero(g_dens(2))
-
+c
+       if (.not. ga_duplicate(g_s, g_dens_at(2), 'beta atomic density'))
+     &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
+       call ga_zero(g_dens_at(2))
+c
        if (.not. ga_duplicate(g_s, g_evecs(2), 'beta evecs'))
      &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
        call ga_zero(g_evecs(2))
-
+c
        if (.not. ga_duplicate(g_s, g_vxc(2), 'Vxcs'))
      &  call errquit('dft_main0d: error creating ga',0,GA_ERR)
        call ga_zero(g_Vxc(2))
-
+c
       endif 
 
       nVxc = ipol
@@ -449,12 +459,12 @@ c
       if (odftps) call pstat_on(ps_scfdft)
       if (theory .eq. 'dft') then
          dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
-     &        iter, g_dens, g_evecs, g_vxc, g_fock,
+     &        iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
      &        g_svecs, dbl_mb(isvals), g_xcinv, g_s,
      &        lcdft, nconstr)
       else if (theory .eq. 'sodft') then
          dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
-     &        iVxc_opt, iter, g_dens, g_evecs, g_vxc, g_fock, 
+     &        iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock, 
      &        g_svecs, dbl_mb(isvals), g_xcinv,g_s)
       endif 
       if (odftps) call pstat_off(ps_scfdft)
@@ -498,13 +508,16 @@ cnos      endif
      &      ('dft_main0d: could not destroy g_evecs(2)', 0, GA_ERR)
          if (.not. ga_destroy(g_dens(2))) call errquit
      &      ('dft_main0d: could not destroy g_dens(2)', 0, GA_ERR)
-
+         if (.not. ga_destroy(g_dens_at(2))) call errquit
+     &      ('dft_main0d: could not destroy g_dens_at(2)', 0, GA_ERR)
       endif   ! ipol
 
       if (.not. ga_destroy(g_evecs(1))) call errquit
      &   ('dft_main0d: could not destroy g_evecs(1)', 0, GA_ERR)
       if (.not. ga_destroy(g_dens(1))) call errquit
      &   ('dft_main0d: could not destroy g_dens(1)', 0, GA_ERR)
+      if (.not. ga_destroy(g_dens_at(1))) call errquit
+     &   ('dft_main0d: could not destroy g_dens_at(1)', 0, GA_ERR)
 
       if (.not. ga_destroy(g_svecs)) call errquit
      &   ('dft_main0d: could not destroy g_svecs', 0, GA_ERR)

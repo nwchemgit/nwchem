@@ -1,6 +1,6 @@
-czora...
+c
 czora...Scale zora eigenvalues and energy
-czora...
+c
           subroutine dft_zora_scale(geom, 
      &                   ao_bas_han,
      &                   nbf,
@@ -28,13 +28,12 @@ czora...
       integer g_dens(2)
       integer g_movecs(2)
       integer g_s
-      integer g_zora_scal_sf(4)
+      integer g_zora_scal_sf(2)
 
       double precision numelecs, ener_kin
       integer g_orb
-      integer g_orb_dens
-      integer orb_mem_hndl
-      integer orb_mem_indx
+      integer g_dens_sf
+      integer l_vecs,k_vecs
       integer iorb
       double precision eval_scal
       double precision ener_scal
@@ -75,39 +74,39 @@ c     call ga_dadd(1.d0,g_dens(1),1.d0,g_dens(2),g_dens(1))
 c
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-c     allocate the necessary arrays
+c     allocate memory
       if (.not.MA_Push_Get(MT_Dbl, nbf_ao, 'vec aux',
-     &            orb_mem_hndl, orb_mem_indx))
+     &            l_vecs, k_vecs))
      &     call errquit('xc_sic: cannot allocate vec aux',0, MA_ERR)
       g_orb = ga_create_atom_blocked(geom, ao_bas_han, 'orbs')
-      g_orb_dens = ga_create_atom_blocked(geom, ao_bas_han,'orbs dens')
+      g_dens_sf = ga_create_atom_blocked(geom, ao_bas_han,'orbs dens')
 c
 c     scale the eigenvalues and energy
       ener_scal = 0.d0
       do ispin=1,ipol
        do iorb = 1,nbf
-
+c
         call ga_get(g_movecs(ispin), 1, nbf, iorb, iorb,
-     &                      dbl_mb(orb_mem_indx), nbf)
+     &                      dbl_mb(k_vecs), 1)
         call ga_zero(g_orb)
         call ga_put(g_orb, 1, nbf, iorb, iorb,
-     &                    dbl_mb(orb_mem_indx), nbf)
-
-        call ga_zero(g_orb_dens)
+     &                    dbl_mb(k_vecs), 1)
+c
+        call ga_zero(g_dens_sf)
         call ga_dgemm('n', 't', nbf, nbf, noc(ispin), 1.0d00,
-     &                      g_orb, g_orb, 0.d00, g_orb_dens)
-
+     &                      g_orb, g_orb, 0.d00, g_dens_sf)
+c
         eval_scal = evals(iorb)
         if (ispin.gt.1) eval_scal = evals(iorb + nbf)
-
+c
         eval_scal 
-     &    = eval_scal/(1.d0 + ga_ddot(g_orb_dens,g_zora_scal_sf(ispin)))
-
+     &    = eval_scal/(1.d0 + ga_ddot(g_dens_sf,g_zora_scal_sf(ispin)))
+c
         ener_scal = ener_scal
-     &     - eval_scal*ga_ddot(g_orb_dens,g_zora_scal_sf(ispin))
-
+     &     - eval_scal*ga_ddot(g_dens_sf,g_zora_scal_sf(ispin))
+c
 c       ener_scal = ener_scal + ga_ddot(g_orb_dens,g_zora_scal_sf(ispin))
-
+c
         if (ispin.le.1) then
             evals(iorb) = eval_scal
 c            write(luout,*) iorb,evals(iorb),eval_scal
@@ -115,7 +114,7 @@ c            write(luout,*) iorb,evals(iorb),eval_scal
             evals(iorb+nbf) = eval_scal
 c            write(luout,*) iorb,evals(iorb+nbf),eval_scal
         end if
-
+c
        end do ! orbital loop
       end do ! polarization loop
 c
@@ -124,13 +123,15 @@ c     double the energy for closed-shell calculations
       
 c      write(luout,*) "scaled_energy:",ener_scal
 
-c     deallocate the memory
-      if (.not.ma_pop_stack(orb_mem_hndl))
+c     deallocate emory
+      if (.not.ma_pop_stack(l_vecs))
      &   call errquit('dft_scf: cannot pop stack',0, MA_ERR)
       if (.not. ga_destroy(g_orb)) call errquit(
      &  'zora_scale_evals: ga_destroy failed ',0, GA_ERR)
-      if (.not. ga_destroy(g_orb_dens)) call errquit(
+      if (.not. ga_destroy(g_dens_sf)) call errquit(
      &  'zora_scale_evals: ga_destroy failed ',0, GA_ERR)
+
+c      stop
 
       return
       end
