@@ -3,7 +3,7 @@
      &                  iter, g_dens, g_dens_at, g_movecs, g_vxc, 
      &                  g_fock, g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.41 2007-10-06 01:23:04 niri Exp $
+c     $Id: dft_scf_so.F,v 1.42 2007-10-06 01:40:29 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -185,9 +185,6 @@ czora...spin-free and spin-orbit global arrays
       integer g_zora_scal_so(3)
       integer g_zora(2)
       double precision Ezora_sf
-      double precision Ezora_so_x
-      double precision Ezora_so_y
-      double precision Ezora_so_z
 
       logical spinor
       logical dft_mem3c
@@ -1000,10 +997,7 @@ cso
 !     write(*,*)"Ecore+=so(z)", ecore
 cso
 czora...add in the spin-orbit zora contribution (z)
-      if (do_zora) then
-       Ezora_so_z = ga_ddot(g_tmp, g_zora_so(1))
-       Ecore = Ecore + Ezora_so_z
-      end if
+      if (do_zora) Ecore = Ecore + ga_ddot(g_tmp, g_zora_so(1))
 czora
 cso  
 cso   Accumulate y-component s.o. contribution 
@@ -1016,10 +1010,7 @@ cso
 !     write(*,*)"Ecore+=so(y)", ecore
 cso
 czora...add in the spin-orbit zora contribution (y)
-      if (do_zora) then
-       Ezora_so_y = ga_ddot(g_tmp, g_zora_so(2))
-       Ecore = Ecore + Ezora_so_y
-      end if
+      if (do_zora) Ecore = Ecore + ga_ddot(g_tmp, g_zora_so(2))
 czora
 cso  
 cso   Accumulate x-component s.o. contribution 
@@ -1032,10 +1023,7 @@ cso
 !     write(*,*)"Ecore+=so(x)", ecore
 cso
 czora...add in the spin-orbit zora contribution (x)
-      if (do_zora) then
-       Ezora_so_x = ga_ddot(g_tmp, g_zora_so(3)) 
-       Ecore = Ecore + Ezora_so_x 
-      end if
+      if (do_zora) Ecore = Ecore + ga_ddot(g_tmp, g_zora_so(3))
 czora
 cso
        noso = Ecore-noso 
