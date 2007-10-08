@@ -8,7 +8,7 @@ c
      &                   g_dens,
      &                   g_s,
      &                   g_movecs,
-     &                   g_zora_scal_sf,
+     &                   g_zora_scale_sf,
      &                   evals,
      &                   focc,
      &                   noc,
@@ -28,7 +28,7 @@ c
       integer g_dens(2)
       integer g_movecs(2)
       integer g_s
-      integer g_zora_scal_sf(2)
+      integer g_zora_scale_sf(2)
 
       double precision numelecs, ener_kin
       integer g_orb
@@ -62,10 +62,10 @@ c       write(luout,*) "Number of spin down electrons:",numelecs
 c      end if
 c
 c     kinetic energy test
-c      ener_kin = ga_ddot(g_dens(1),g_zora_scal_sf(1))   
+c      ener_kin = ga_ddot(g_dens(1),g_zora_scale_sf(1))   
 c      write(luout,*) "Kinetic energy spin up:",ener_kin
 c      if (ipol.gt.1) then
-c        ener_kin = ga_ddot(g_dens(2),g_zora_scal_sf(2))
+c        ener_kin = ga_ddot(g_dens(2),g_zora_scale_sf(2))
 c        write(luout,*) "Kinetic energy spin down:",ener_kin
 c      end if
 c
@@ -100,12 +100,12 @@ c
         if (ispin.gt.1) eval_scal = evals(iorb + nbf)
 c
         eval_scal 
-     &    = eval_scal/(1.d0 + ga_ddot(g_dens_sf,g_zora_scal_sf(ispin)))
+     &    = eval_scal/(1.d0 + ga_ddot(g_dens_sf,g_zora_scale_sf(ispin)))
 c
         ener_scal = ener_scal
-     &     - eval_scal*ga_ddot(g_dens_sf,g_zora_scal_sf(ispin))
+     &     - eval_scal*ga_ddot(g_dens_sf,g_zora_scale_sf(ispin))
 c
-c       ener_scal = ener_scal + ga_ddot(g_orb_dens,g_zora_scal_sf(ispin))
+c       ener_scal = ener_scal + ga_ddot(g_orb_dens,g_zora_scale_sf(ispin))
 c
         if (ispin.le.1) then
             evals(iorb) = eval_scal

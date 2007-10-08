@@ -9,8 +9,8 @@ czora...
      &                   g_dens,
      &                   g_s,
      &                   g_moso,
-     &                   g_zora_scal_sf,
-     &                   g_zora_scal_so,
+     &                   g_zora_scale_sf,
+     &                   g_zora_scale_so,
      &                   evals,
      &                   focc,
      &                   noc,
@@ -33,8 +33,8 @@ czora...
       integer g_dens_so(2)
       integer g_scr(2)
       integer g_s
-      integer g_zora_scal_sf(2)
-      integer g_zora_scal_so(3)
+      integer g_zora_scale_sf(2)
+      integer g_zora_scale_so(3)
 
       double precision numelecs, ener_kin
 
@@ -107,10 +107,10 @@ c      call dft_densm_so(g_dens_so, g_moso, nbf_ao, noc)
 c      call ga_zero(g_scratch(1))
 c      call ga_zero(g_scratch(2))
 c      call ga_dens_sf(g_scratch, g_dens_so(1), nbf_ao)
-c      ener_kin = ga_ddot(g_scratch(1),g_zora_scal_sf(1))
+c      ener_kin = ga_ddot(g_scratch(1),g_zora_scale_sf(1))
 c      write(luout,*) "Kinetic energy spin up again:",ener_kin
 c      if (ipol.gt.1) then
-c        ener_kin = ga_ddot(g_scratch(2),g_zora_scal_sf(2))
+c        ener_kin = ga_ddot(g_scratch(2),g_zora_scale_sf(2))
 c        write(luout,*) "Kinetic energy spin down again:",ener_kin
 c      end if
 czora...debug
@@ -132,20 +132,20 @@ c      write(luout,*) iorb, evals(iorb)
        call ga_zero(g_scr(2))
        call ga_dens_sf(g_scr, g_dens_so(1), nbf_ao)
 
-       ener_sf = ga_ddot(g_scr(1),g_zora_scal_sf(1)) +
-     &        ga_ddot(g_scr(2),g_zora_scal_sf(2))
+       ener_sf = ga_ddot(g_scr(1),g_zora_scale_sf(1)) +
+     &        ga_ddot(g_scr(2),g_zora_scale_sf(2))
 
        call ga_zero(g_scr(1))
        call ga_dens_so(g_scr(1), g_dens_so, nbf_ao, 'z')
-       ener_so_z = ga_ddot(g_scr(1), g_zora_scal_so(1)) 
+       ener_so_z = ga_ddot(g_scr(1), g_zora_scale_so(1)) 
 
        call ga_zero(g_scr(1))
        call ga_dens_so(g_scr(1), g_dens_so, nbf_ao, 'y')
-       ener_so_y = ga_ddot(g_scr(1), g_zora_scal_so(2)) 
+       ener_so_y = ga_ddot(g_scr(1), g_zora_scale_so(2)) 
 
        call ga_zero(g_scr(1))
        call ga_dens_so(g_scr(1), g_dens_so, nbf_ao, 'x')
-       ener_so_x = ga_ddot(g_scr(1), g_zora_scal_so(3)) 
+       ener_so_x = ga_ddot(g_scr(1), g_zora_scale_so(3)) 
 
        ener_tot = ener_sf + ener_so_z + ener_so_y + ener_so_x
        eval_scal = evals(iorb)
