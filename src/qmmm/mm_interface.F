@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.90 2006-05-29 06:51:20 marat Exp $
+c $Id: mm_interface.F,v 1.91 2007-10-09 17:11:21 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -3643,7 +3643,7 @@ c       title or not read coordinates now
         do i=1,ns
          read(fn,*) buf, (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
      +               int_mb(i_itmp+i-1)
-         write(luout,'(A,3F12.6,I)') buf, 
+         write(luout,'(A,3F12.6,I5)') buf, 
      +              (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
      +               int_mb(i_itmp+i-1)
 
