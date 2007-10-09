@@ -1,4 +1,4 @@
-c $Id: vscf.F,v 1.14 2007-08-16 23:42:27 d3p852 Exp $
+c $Id: vscf.F,v 1.15 2007-10-09 17:06:13 bert Exp $
       subroutine vscfm(NGRID,DMDR,NCOUP,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
       implicit double precision(a-h,o-z)
@@ -861,18 +861,21 @@ c
                   endif
 c
                   if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
-     *              call errquit('vgrid: geom_rtdb_store failed',555)
+     *              call errquit('vgrid: geom_rtdb_store failed',555,
+     *                           RTDB_ERR)
                   if(ga_nodeid().eq.0) 
      *              write(LuOut,9085) il,jl,kl,i,j,k
                   status = task_energy(rtdb)
                   if (theory.eq.'dft') then
                   if (.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,e))
      *              call errquit
-     *                ('vgrid: failed to get energy from rtdb',555)
+     *                ('vgrid: failed to get energy from rtdb',555,
+     *                 RTDB_ERR)
                   else
                   if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,e))
      *              call errquit
-     *                ('vgrid: failed to get energy from rtdb',555)
+     *                ('vgrid: failed to get energy from rtdb',555,
+     *                 RTDB_ERR)
                   endif
                   IF(.not.status .AND. ga_nodeid().eq.0) 
      *              WRITE(LuOut,9000)
@@ -1168,12 +1171,12 @@ C
          Etot=Etot+emp2
          emppt(index+1)=Etot
          if (ga_nodeid().eq.0) then
-            write(LuOut,*) ""
+            write(LuOut,*) 
             write(LuOut,*) "E(DIAG) :",ediag(index+1)*cm,
      &                     " cm-1 (without mode coupling)"
             write(LuOut,*) "E(VSCF) :", (Etot-emp2)*cm, 'cm-1'
             if (ncoup.gt.1) write(LuOut,*) "E(VMP2) :", Etot*cm, 'cm-1'
-            write(LuOut,*) ""
+            write(LuOut,*) 
          endif
   100    continue
 C
