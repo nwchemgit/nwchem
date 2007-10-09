@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.20 2006-03-20 20:12:01 marat Exp $
+c $Id: qmmm_utils.F,v 1.21 2007-10-09 17:20:41 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -256,7 +256,7 @@ c
       integer nf
       integer ns
 
-      call util_file_prefix("",filename)
+      call util_file_prefix(" ",filename)
       nf=inp_strlen(filename)-1
       ns=inp_strlen(myname)
       filename = filename(1:nf)//myname(1:ns)
@@ -298,7 +298,7 @@ c
       integer nf
       integer ns
 
-      call util_file_prefix("",filename)
+      call util_file_prefix(" ",filename)
       nf=inp_strlen(filename)-1
       ns=inp_strlen(myname)
       filename = filename(1:nf)//myname(1:ns)
