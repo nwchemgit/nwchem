@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.32 2007-09-19 22:14:30 d3p975 Exp $
+#$Id: GNUmakefile,v 1.33 2007-10-10 19:20:39 jhammond Exp $
 #
 
 SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
@@ -64,4 +64,12 @@ HEADERS =
 
 include ../config/makefile.h
 include ../config/makelib.h
+
+#
+# -O4 makes tce_energy.F work incorrectly on bassi.nersc.gov (LAPI64 with XLF 8)
+#
+ifeq ($(TARGET),LAPI64)
+ FOPTIONS+=-qstrict
+endif
+
 
