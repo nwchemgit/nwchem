@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.57 2007-08-21 00:26:52 niri Exp $
+C $Id: hess_init.F,v 1.58 2007-10-11 17:31:12 bert Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -461,7 +461,7 @@ c
      &       RTDB_ERR)
         if (theory.eq.'scf') then
         else
-        ithresh = 1.0d-8
+        ithresh = 1.0d-6
           if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
      $       tthresh = 1.0d-4
           if (tthresh.lt.ithresh) ithresh = tthresh
