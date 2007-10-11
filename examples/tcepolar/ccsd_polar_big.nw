@@ -1,0 +1,62 @@
+echo
+
+#
+# This job runs in under an hour on 32 processors (MPP2).
+#
+
+start ccsd_polar_big
+
+#
+# Experimental geometry.  See J. Chem. Phys. 127, 144105 (2007) for details.
+#
+geometry units angstrom
+ symmetry d2h
+ C               0.000    1.390    0.000
+ H               0.000    2.470    0.000
+ C               1.204    0.695    0.000
+ H               2.139    1.235    0.000
+ C               0.000   -1.390    0.000
+ H               0.000   -2.470    0.000
+ C              -1.204   -0.695    0.000
+ H              -2.139   -1.235    0.000
+ C               1.204   -0.695    0.000
+ H               2.139   -1.235    0.000
+ C              -1.204    0.695    0.000
+ H              -2.139    1.235    0.000
+end
+
+basis spherical
+  * library "Sadlej pVTZ"
+end
+
+scf
+  singlet
+  rhf
+  thresh 1.0e-10
+end
+
+tce
+  scf
+  ccsd
+  thresh 1.0e-8
+  io ga
+  2eorb
+  tilesize 15
+end
+
+set tce:lineresp T
+set tce:respaxis T T T
+set tce:afreq 0.0
+
+task tce energy
+
+#
+# This is what you should get...
+#
+# CCSD Linear Response static polarizability / au
+#       X              Y              Z
+# -----------------------------------------------
+# X      80.4975139      0.0000000      0.0000000
+# Y       0.0000000     80.5049719      0.0000000
+# Z       0.0000000      0.0000000     44.6021469
+# -----------------------------------------------

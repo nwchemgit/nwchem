@@ -1,0 +1,89 @@
+echo
+
+start ccsdt_polar_small
+
+#
+# R = 2.068 bohr
+#
+geometry units au
+ symmetry d2h
+ N  0  0 -1.034
+ N  0  0  1.034
+end
+
+basis spherical
+ * library aug-cc-pVDZ
+end
+
+scf
+  singlet
+  rhf
+  thresh 1e-8
+end
+
+tce
+  scf
+  ccsdt
+  io ga
+  2eorb
+end
+
+#
+# This turns on linear response
+#
+set tce:lineresp T
+#
+# Calculate T(1) w.r.t. X and Z only
+#
+set tce:respaxis T F T
+#
+# Dynamic polarizability frequencies in atomic units
+#
+set tce:afreq 0.00000000 0.08855851 0.104551063 0.12977315 0.15187784 # INF, 514.5, 435.8, 351.1, and 300 nm, respectively 
+
+task tce energy
+
+#
+# This is what you should get...
+#
+# CCSDT Linear Response polarizability / au
+# Frequency = 0.00000 / au
+#       X              Y              Z
+# -----------------------------------------------
+# X      10.0685452      0.0000000      0.0000000
+# Y       0.0000000      0.0000000      0.0000000
+# Z       0.0000000      0.0000000     14.8683994
+# -----------------------------------------------
+# CCSDT Linear Response polarizability / au
+# Frequency = 0.08856 / au
+#       X              Y              Z
+# -----------------------------------------------
+# X      10.2552920      0.0000000      0.0000000
+# Y       0.0000000      0.0000000      0.0000000
+# Z       0.0000000      0.0000000     15.1993712
+# -----------------------------------------------
+# CCSDT Linear Response polarizability / au
+# Frequency = 0.10455 / au
+#       X              Y              Z
+# -----------------------------------------------
+# X      10.3316407      0.0000000      0.0000000
+# Y       0.0000000      0.0000000      0.0000000
+# Z       0.0000000      0.0000000     15.3348558
+# -----------------------------------------------
+# CCSDT Linear Response polarizability / au
+# Frequency = 0.12977 / au
+#       X              Y              Z
+# -----------------------------------------------
+# X      10.4824866      0.0000000      0.0000000
+# Y       0.0000000      0.0000000      0.0000000
+# Z       0.0000000      0.0000000     15.6028058
+# -----------------------------------------------
+# CCSDT Linear Response polarizability / au
+# Frequency = 0.15188 / au
+#       X              Y              Z
+# -----------------------------------------------
+# X      10.6485561      0.0000000      0.0000000
+# Y       0.0000000      0.0000000      0.0000000
+# Z       0.0000000      0.0000000     15.8981696
+# -----------------------------------------------
+
