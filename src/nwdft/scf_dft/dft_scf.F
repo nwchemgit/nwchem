@@ -4,7 +4,7 @@
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.275 2007-10-08 20:50:18 niri Exp $
+c     $Id: dft_scf.F,v 1.276 2007-10-12 00:05:41 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -46,7 +46,6 @@ c
 c
       external dft_lindep
       integer dft_lindep
-c
 c
       integer g_s ! [in]
 c
@@ -169,13 +168,17 @@ c
       logical llldb,llldb_out,util_statldb,staticguess
       external util_statldb
       integer ndisrst
+c
+czora...zora essentials
+c
+      Logical dft_zora_read, dft_zora_write
+      External dft_zora_read, dft_zora_write
 
-czora...spin-free global arrays
+      character*255 zorafilename
       integer g_zora_sf(2), g_zora_scale_sf(2)
       integer g_zora_scr(2)
       double precision ener_scal
-czora...end
-
+c
       gotsmear(ss)=abs(ss).gt.1d-9
 c
       call ecce_print_module_entry('dft')
@@ -622,11 +625,13 @@ c
 c     Restore SCF parameters
 c
       call scf_get_fock_param(rtdb, tol2e)
-
+c
 czora...Get the zora contributions
+c
       if (do_zora) then
 c
 czora...scratch array
+c
        if(.not.ga_duplicate(g_vxc(1),g_zora_scr(1),'scratch 1'))
      &  call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
         call ga_zero(g_zora_scr(1))
@@ -637,6 +642,7 @@ czora...scratch array
         endif
 c
 czora...Create zora correction arrays
+c
        if(.not.ga_duplicate(g_vxc(1),g_zora_sf(1),'sf 1'))
      &  call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
         call ga_zero(g_zora_sf(1))
@@ -647,6 +653,7 @@ czora...Create zora correction arrays
         endif
 c
 czora...Energy scaling arrays
+c
        if(.not.ga_duplicate(g_vxc(1),g_zora_scale_sf(1),'scale 1'))
      &  call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
         call ga_zero(g_zora_scale_sf(1))
@@ -657,30 +664,50 @@ czora...Energy scaling arrays
         endif
 c
 czora...Preliminaries
+c
         do_zora_get_correction = .true.
 c
 czora...Capture the atomic density
+c
         call ga_zero(g_dens_at(1))
         if (ipol.gt.1) call ga_zero(g_dens_at(2))
         call ga_copy(g_dens(1),g_dens_at(1))
         if (ipol.gt.1) call ga_copy(g_dens(1),g_dens_at(1))
 c
-czora...Get the spin-free corrections
-        so_term = 0
-        zora_calc_type = 1  ! zora corrections
-        call ga_zero(g_zora_scr(1))
-        if (ipol.gt.1) call ga_zero(g_zora_scr(2))
-        call zora_getv(rtdb, g_dens, g_zora_scr, nexc)
-        call ga_copy(g_zora_scr(1),g_zora_sf(1))
-        if (ipol.gt.1) call ga_copy(g_zora_scr(2),g_zora_sf(2))
+czora...Get a filename for the zora data
+        call util_file_name('zora_sf',.false.,.false.,zorafilename)
 c
-czora...Get the spin-free energy scaling corrections
-        zora_calc_type = 2  ! energy scaling
-        call ga_zero(g_zora_scr(1))
-        if (ipol.gt.1) call ga_zero(g_zora_scr(2))
-        call zora_getv(rtdb, g_dens, g_zora_scr, nexc)
-        call ga_copy(g_zora_scr(1),g_zora_scale_sf(1))
-        if (ipol.gt.1) call ga_copy(g_zora_scr(2),g_zora_scale_sf(2))
+czora...Try reading in the zora atomic corrections from file
+c
+        if (.not.dft_zora_read(zorafilename, nbf_ao, ipol, nmo, 
+     &            g_zora_sf, g_zora_scale_sf)) then 
+c
+czora...Calculate the zora spin-free atomic corrections
+c
+          so_term = 0
+          zora_calc_type = 1  ! zora corrections
+          call ga_zero(g_zora_scr(1))
+          if (ipol.gt.1) call ga_zero(g_zora_scr(2))
+          call zora_getv(rtdb, g_dens, g_zora_scr, nexc)
+          call ga_copy(g_zora_scr(1),g_zora_sf(1))
+          if (ipol.gt.1) call ga_copy(g_zora_scr(2),g_zora_sf(2))
+c
+czora...Calculate the zora spin-free energy scaling corrections
+c
+          zora_calc_type = 2  ! energy scaling
+          call ga_zero(g_zora_scr(1))
+          if (ipol.gt.1) call ga_zero(g_zora_scr(2))
+          call zora_getv(rtdb, g_dens, g_zora_scr, nexc)
+          call ga_copy(g_zora_scr(1),g_zora_scale_sf(1))
+          if (ipol.gt.1) call ga_copy(g_zora_scr(2),g_zora_scale_sf(2))
+c
+czora...Write out the atomic zora corrections to file
+c
+          if (.not.dft_zora_write(rtdb, ao_bas_han, zorafilename, 
+     &     nbf_ao, ipol, nmo, g_zora_sf, g_zora_scale_sf))
+     &    call errquit('dft_scf: dft_zora_write failed', 0, DISK_ERR)
+c
+        end if   ! zora file read
 c
 czora...Reset
         do_zora_get_correction = .false.
@@ -1271,6 +1298,9 @@ c
      &                      nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
      &                      dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &   call errquit('dft_scf: movec_write failed', 0, DISK_ERR)
+c
+c     print out the eigenvalues
+c
       call dft_prevals('inter',me,oprint_eval,oprint_vecs,noc,
      ,     g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
 c     

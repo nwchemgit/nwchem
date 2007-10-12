@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.62 2007-10-02 00:19:14 niri Exp $
+# $Id: GNUmakefile,v 1.63 2007-10-12 00:05:41 niri Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -24,7 +24,8 @@
 	diis_hamwgt.o \
 	dft_fdist_init.o \
 	cdft_util.o \
-	dft_zora_scale.o       
+	dft_zora_scale.o \
+	dft_zora_readwrite.o      
 	OBJ=\
 	dft_swapab.o \
 	dft_main0d.o \
