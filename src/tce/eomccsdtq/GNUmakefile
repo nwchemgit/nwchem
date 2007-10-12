@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.5 2006-02-06 19:18:45 edo Exp $
+#$Id: GNUmakefile,v 1.6 2007-10-12 14:29:32 jhammond Exp $
 
 ifndef CCSDTQ
 OBJ_OPTIMIZE = \
@@ -2503,13 +2503,15 @@ eomccsdtq_y4_8_3.F eomccsdtq_y4_8_4_1.F eomccsdtq_y4_8_4.F \
 eomccsdtq_y4_8.F eomccsdtq_y4_9.F
 endif
 
- 
 LIB_INCLUDES = -I../include
  
 LIBRARY = libtce.a
  
- 
+ifndef CCSDTQ
 LIB_DEFINES = -DDEBUG_PRINT
+else
+LIB_DEFINES = -DDEBUG_PRINT -DCCSDTQ
+endif
 #
 # Possible #defines
 #
