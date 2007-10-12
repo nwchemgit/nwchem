@@ -3,7 +3,7 @@
      &                  iter, g_dens, g_dens_at, g_movecs, g_vxc, 
      &                  g_fock, g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.43 2007-10-08 20:49:48 niri Exp $
+c     $Id: dft_scf_so.F,v 1.44 2007-10-12 01:15:01 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -178,12 +178,17 @@ c     !!! BGJ
       integer g_oep
 c     integer ijk
 c     
-czora...spin-free and spin-orbit global arrays
+czora...zora essentials
+c
+      Logical dft_zora_read_so, dft_zora_write_so
+      External dft_zora_read_so, dft_zora_write_so
+
+      character*255 zorafilename
+
       integer g_zora_sf(2), g_zora_scale_sf(2)
       integer g_zora_so(3), g_zora_scale_so(3)
       integer g_zora_scr(2)
       double precision Ezora_sf
-czora...end
 c
       logical spinor
       logical dft_mem3c
@@ -792,9 +797,19 @@ c
          call ga_sync()
          do_zora_get_correction = .true.
 c
+czora...Get a filename for the zora data
+c
+        call util_file_name('zora_so',.false.,.false.,zorafilename)
+c
+czora...Try reading in the zora atomic corrections from file
+c
+        if (.not.dft_zora_read_so(zorafilename, nbf_ao, ipol, nmo,
+     &     g_zora_sf, g_zora_scale_sf, g_zora_so, g_zora_scale_so)) then
+c
 czora...Calculate the spin-free and spin-orbit parts
 c
-c        ===============================================================
+c        spin-free component ===========================================
+c
          so_term = 0   ! spin-free component
          zora_calc_type = 1   ! zora correction
          call ga_zero(g_zora_sf(1))
@@ -814,7 +829,8 @@ c
          call ga_copy(g_zora_scr(1), g_zora_scale_sf(1))
          call ga_copy(g_zora_scr(2), g_zora_scale_sf(2))
 c
-c        ===============================================================
+c        z-component ==================================================
+c
          so_term = 1  ! z-component
          zora_calc_type = 1   ! zora correction
          call ga_zero(g_zora_so(1))
@@ -830,7 +846,8 @@ c
          call zora_getv(rtdb, g_dens, g_zora_scr, nexc)
          call ga_copy(g_zora_scr(1), g_zora_scale_so(1))
 c
-c        ===============================================================
+c        y-component ==================================================
+c
          so_term = 2  ! y-component 
          zora_calc_type = 1   ! zora correction
          call ga_zero(g_zora_so(2))
@@ -846,7 +863,8 @@ c
          call zora_getv(rtdb, g_dens, g_zora_scr, nexc)
          call ga_copy(g_zora_scr(1), g_zora_scale_so(2))
 c
-c        ===============================================================
+c        x-component ==================================================
+c
          so_term = 3  ! x-component
          zora_calc_type = 1   ! zora correction
          call ga_zero(g_zora_so(3))
@@ -862,8 +880,16 @@ c
          call zora_getv(rtdb, g_dens, g_zora_scr, nexc)
          call ga_copy(g_zora_scr(1), g_zora_scale_so(3))
 c
-c        ===============================================================
-czora...Reset. Turn off the correction 
+czora...Write out the atomic zora corrections to file
+c
+         if (.not.dft_zora_write_so(rtdb, ao_bas_han, zorafilename,
+     &     nbf_ao, ipol, nmo, 
+     &     g_zora_sf, g_zora_scale_sf, g_zora_so, g_zora_scale_so))
+     &    call errquit('dft_scf: dft_zora_write failed', 0, DISK_ERR)
+c
+        end if   ! zora file read
+c
+czora...Reset
 c
          so_term = 0
          do_zora_get_correction = .false.

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.11 2007-10-06 01:23:04 niri Exp $
+# $Id: GNUmakefile,v 1.12 2007-10-12 01:15:01 niri Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -20,7 +20,8 @@
 	movecs_anal_so.o \
 	sym_mo_adapt_so.o sym_char_tab_so.o scf_sym_adap_so.o \
 	sym_mo_ap_op_so.o sym_op_clsfy_so.o ga_orth_mos_so.o  \
-	ga_orthog_so.o sym_op_cname_so.o grad_dens_so2.o dft_zora_scale_so.o
+	ga_orthog_so.o sym_op_cname_so.o grad_dens_so2.o \
+	dft_zora_scale_so.o dft_zora_readwrite_so.o
 	OBJ_OPTIMIZE = ga_compl.o
 
 
