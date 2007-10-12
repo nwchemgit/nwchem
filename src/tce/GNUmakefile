@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.33 2007-10-10 19:20:39 jhammond Exp $
+#$Id: GNUmakefile,v 1.34 2007-10-12 18:12:38 jhammond Exp $
 #
 
 SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
@@ -50,7 +50,7 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_mo2e_zones_4a_disk_ga.F tce_mo2e_zones_4a_disk_ga_chop.F\
             tce_mo2e_zones_4a_disk_2s_new.F 
 
-LIB_DEFINES = -DDEBUG_PRINT -DFULLTENSOR
+LIB_DEFINES = -DDEBUG_PRINT
 #
 # Possible #defines
 #
@@ -64,12 +64,4 @@ HEADERS =
 
 include ../config/makefile.h
 include ../config/makelib.h
-
-#
-# -O4 makes tce_energy.F work incorrectly on bassi.nersc.gov (LAPI64 with XLF 8)
-#
-ifeq ($(TARGET),LAPI64)
- FOPTIONS+=-qstrict
-endif
-
 
