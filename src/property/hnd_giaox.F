@@ -1,5 +1,5 @@
       subroutine hnd_giaox(rtdb,basis,geom)
-c $Id: hnd_giaox.F,v 1.9 2005-07-05 19:27:10 bert Exp $
+c $Id: hnd_giaox.F,v 1.10 2007-10-15 23:31:27 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -274,6 +274,10 @@ c
       endif
       call shell_fock_build(geom, basis, 0, 3,
      $     jfac, kfac,tol2e, g_d1, g_fock,.false.)
+      if(use_theory.eq.'dft') then
+         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, 0))
+     $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
+      endif
 c
 c     Transform to the occ-virt MO basis and add to RHS
 c
@@ -358,9 +362,9 @@ c
 c     Remaining term is Perturbed (GIAO) two-electron term times Unperturbed density
 c     Calculate Sum(r,s) D0(r,s) * G10(m,n,r,s) in AO basis
 c
-      alo(1) = nbf
+      alo(1) = -1 
       alo(2) = -1
-      alo(3) = -1
+      alo(3) = 1
       ahi(1) = nbf
       ahi(2) = nbf
       ahi(3) = 3
