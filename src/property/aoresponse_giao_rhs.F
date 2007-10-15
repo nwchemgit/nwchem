@@ -2,7 +2,7 @@
      &   ncomp, g_rhs,
      &   g_vectors, g_smat1, g_sket1, g_dens, g_amat,
      &   nocc, nvir, nmo, nbf, froct, epst, omega)
-c $Id: aoresponse_giao_rhs.F,v 1.1 2006-11-16 18:23:01 jochen Exp $ 
+c $Id: aoresponse_giao_rhs.F,v 1.2 2007-10-15 23:30:26 bert Exp $ 
 
 c     ==================================================================
 c     
@@ -293,6 +293,14 @@ c
       endif
       call shell_fock_build(geom, basis, 0, 3,
      $   jfac, kfac,tol2e, g_d1, g_fock,.false.)
+      if(use_theory.eq.'dft') then
+        ifld = 0
+        if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
+     $     call errquit('aorgiao: rtdb_put failed',0,RTDB_ERR)
+        if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
+     $     call errquit('aorgiao: rtdb_put of xc_active failed',0,
+     &     RTDB_ERR)
+      endif
 
       if (debug) write(6,*) 'call to shell_fock_build complete'
 c     
@@ -376,6 +384,9 @@ c
      &   errquit('aorgiao: nga_create failed g_fock',0,GA_ERR)
       call ga_zero(g_fock)
       if(use_theory.eq.'dft') then
+        if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
+     $     call errquit('aorgiao: rtdb_put of xc_active failed',0,
+     &     RTDB_ERR)
         ifld = 4
         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
      $     call errquit('aorgiao: rtdb_put failed',0,RTDB_ERR)
