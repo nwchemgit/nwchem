@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.69 2006-05-28 00:18:00 marat Exp $
+c $Id: qmmm.F,v 1.70 2007-10-15 15:32:42 bert Exp $
 c
 c
       function task_qmmm_generic(rtdb,operation)
@@ -192,7 +192,6 @@ c
 c
       if (.not. rtdb_get(rtdb,'qmmm:init',mt_log,1,oinit))
      $     oinit = .false.
-      write(*,*) "oinit",oinit
 c
       if(oinit) then
         call mm_end()
