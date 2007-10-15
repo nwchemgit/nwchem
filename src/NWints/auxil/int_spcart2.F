@@ -2,7 +2,7 @@
      &    use_ma,use_ga,basis)
       implicit none
 *
-* $Id: int_spcart2.F,v 1.6 2003-10-17 22:53:46 carlfahl Exp $
+* $Id: int_spcart2.F,v 1.7 2007-10-15 23:39:11 bert Exp $
 *
 *
 *::include files::
@@ -257,7 +257,7 @@ c::statement function ----- start
      &           + iic - 1)
 c::statement function ----- end
 c
-      call dfill((ncart*nsph),0.0d00,matrx,1)
+      call dcopy((ncart*nsph),0.0d00,0,matrx,1)
 c
       if (debug) then
         write(luout,*)' number of shells    :2:',numcont
@@ -350,7 +350,7 @@ c::statement function ----- start
      &           + iic - 1)
 c::statement function ----- end
 c
-      call dfill((ncart*nsph),0.0d00,matrx,1)
+      call dcopy((ncart*nsph),0.0d00,0,matrx,1)
 c
       if (debug) then
         write(luout,*)' number of shells    :2:',numcont
@@ -442,7 +442,7 @@ c::statement function ----- start
      &    (iic-1)*(2*iil+1)+iis+iil)
 c::statement function ----- end
 c
-      call dfill((ncart*nsph),0.0d00,matrx,1)
+      call dcopy((ncart*nsph),0.0d00,0,matrx,1)
 c
       if (debug) then
         write(luout,*)' number of shells    :2:',numcont
@@ -529,8 +529,8 @@ c
       integer ig, ilo, ihi, jlo, jhi, ld
       integer ma_index_ptr
 *      
-      call dfill((4*4),0.0d00,ident4,1)
-      call dfill((3*3),0.0d00,ident3,1)
+      call dcopy((4*4),0.0d00,0,ident4,1)
+      call dcopy((3*3),0.0d00,0,ident3,1)
       do ig = 1,3
         ident4(ig,ig)=1.0d00
         ident3(ig,ig)=1.0d00

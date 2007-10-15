@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.39 2004-10-01 00:51:11 bert Exp $
+c $Id: int_spcart.F,v 1.40 2007-10-15 23:39:11 bert Exp $
 *::cr::7
 *--------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 *
@@ -76,7 +76,7 @@ c
       if (.not.active_sp2c)  call errquit
      &      ('spcart_init: alloc_get failed for size',size_sp2c,
      &       MEM_ERR)
-      call dfill(size_sp2c,0.0d00,dbl_mb(k_sp2c),1)
+      call dcopy(size_sp2c,0.0d00,0,dbl_mb(k_sp2c),1)
 c
 * generate transformation matricies by recursion
       call xlmcoeff(lmaxin,dbl_mb(k_sp2c),normalize)
@@ -110,7 +110,7 @@ c
      &      h_sp2c_cmp,k_sp2c_cmp)
       if (.not. active_sp2c_cmp) call errquit
      &      ('spcart_init: alloc_get failed (array cmp) ',911, MEM_ERR)
-      call dfill(l_block_size,0.0d00,dbl_mb(k_sp2c_cmp),1)
+      call dcopy(l_block_size,0.0d00,0,dbl_mb(k_sp2c_cmp),1)
 * allocate memory for compressed inverse transformation arrays
       active_invsp2c_cmp = ma_alloc_get
      &      (mt_dbl,l_block_size,'sph 2 cart trans array cmp',
@@ -118,7 +118,7 @@ c
       if (.not. active_invsp2c_cmp) call errquit
      &      ('spcart_init: alloc_get failed (inv array cmp) ',911,
      &      MEM_ERR)
-      call dfill(l_block_size,0.0d00,dbl_mb(k_invsp2c_cmp),1)
+      call dcopy(l_block_size,0.0d00,0,dbl_mb(k_invsp2c_cmp),1)
 * allocate memory for scale vector
       active_cart_norm_scale= ma_alloc_get
      &      (mt_dbl,(2*lmaxin+1)*(lmaxin+1),
@@ -127,7 +127,7 @@ c
       if (.not. active_cart_norm_scale) call errquit
      &      ('spcart_init: alloc_get failed (array scale) ',911,
      &      MEM_ERR)
-      call dfill(((2*lmaxin+1)*(lmaxin+1)),0.0d00,
+      call dcopy(((2*lmaxin+1)*(lmaxin+1)),0.0d00,0,
      &    dbl_mb(k_cart_norm_scale),1)
 * set normalize scale vector so cartesian vectors of transformation 
 * matrix are normalized to unity
@@ -321,11 +321,11 @@ c
       if (.not.ma_push_get(mt_dbl,ld2s*ld2s,
      &    'xlm_ptrsinv overlap',h_ov,k_ov)) call errquit
      &    ('xlm_ptrsinv: could not allocate overlap',911, MEM_ERR)
-      call dfill((ld2s*ld2s),0.0d00,dbl_mb(k_ov),1)
+      call dcopy((ld2s*ld2s),0.0d00,0,dbl_mb(k_ov),1)
       if (.not.ma_push_get(mt_dbl,ld2s*(2*ld+1),
      &    'xlm_ptrsinv scratch',h_scr,k_scr)) call errquit
      &    ('xlm_ptrsinv: could not allocate scratch',911, MEM_ERR)
-      call dfill((ld2s*(2*ld+1)),0.0d00,dbl_mb(k_scr),1)
+      call dcopy((ld2s*(2*ld+1)),0.0d00,0,dbl_mb(k_scr),1)
       icount = 1
       do 00100 lval = 0,Ld
         Dindex(lval) =
@@ -411,7 +411,7 @@ c::passed
 c::local
       integer l,c,s,l2s
       double precision norm
-      call dfill ((2*Ld+1)*(Ld+1),0.0d00,cart_scale,1)
+      call dcopy ((2*Ld+1)*(Ld+1),0.0d00,0,cart_scale,1)
 
       do l = 0,Ld
         l2s = (l+1)*(l+2)/2
@@ -652,8 +652,8 @@ c
 c...        ((ls+1)*(ls+2)/2)) = 2*ls + 1
         call dcopy((ndima*(2*ls+1)*ngls),blockin,1,blockout,1)
         return
-      else
-        call dfill((ndima*(2*ls+1)*ngls),0.0d00,blockout,1)
+CBERT else
+CBERT   call dcopy((ndima*(2*ls+1)*ngls),0.0d00,0,blockout,1)
       endif
 c
       if (in_place) then
@@ -701,7 +701,7 @@ c
 c  blockout(ndima,2l+1,ngls) = 
 *                       blockin(ndima,l2s,ngls)*d_spcart(l2s,2l+1,lp=ls)
 c      
-      call dfill((ndima*(2*ls+1)*ngls),0.0d00,blockout,1)
+      call dcopy((ndima*(2*ls+1)*ngls),0.0d00,0,blockout,1)
       L2s = ((ls+1)*(ls+2)/2)
       do g = 1,ngls
         do j=(-ls),ls
@@ -765,8 +765,8 @@ c
 c...        ((ls+1)*(ls+2)/2)) = 2*ls + 1
         call dcopy((ndima*(2*ls+1)*ngls),blockin,1,blockout,1)
         return
-      else
-        call dfill((ndima*(2*ls+1)*ngls),0.0d00,blockout,1)
+CBERT else
+CBERT   call dcopy((ndima*(2*ls+1)*ngls),0.0d00,0,blockout,1)
       endif
 c
       if (in_place) then
@@ -810,7 +810,7 @@ c blockout(2l+1,ngls,ndima) =
 *                       blockin(l2s,ngls,ndima)*d_spcart(l2s,2l+1,lp=ls)
 c      
       L2s = ((ls+1)*(ls+2)/2)
-      call dfill((ndima*(2*ls+1)*ngls),0.0d00,blockout,1)
+      call dcopy((ndima*(2*ls+1)*ngls),0.0d00,0,blockout,1)
       do j=1,ndima
         do g=1,ngls
           do i=(-ls),ls
@@ -879,8 +879,8 @@ c
 c...        ((ls+1)*(ls+2)/2)) = 2*ls + 1
         call dcopy((ndima*ndimb*(2*ls+1)*ngls),blockin,1,blockout,1)
         return
-      else
-        call dfill((ndima*ndimb*(2*ls+1)*ngls),0.0d00,blockout,1)
+CBERT else
+CBERT   call dcopy((ndima*ndimb*(2*ls+1)*ngls),0.0d00,0,blockout,1)
       endif
 c
       if (in_place) then
@@ -921,7 +921,7 @@ c
         return
       endif
 c
-      call dfill((ndima*ndimb*(2*ls+1)*ngls),0.0d00,blockout,1)
+      call dcopy((ndima*ndimb*(2*ls+1)*ngls),0.0d00,0,blockout,1)
       L2s = ((ls+1)*(ls+2)/2)
       do  m = 1,ndimb
         do  g=1,ngls
@@ -2998,7 +2998,7 @@ c
       write(luout,*)' sliced matrix output ',msg
       write(luout,*)na,' slices to be printed ',msg
       do a=1,na
-        call dfill((ni*nj),0.0d00,dbl_mb(k_slice),1)
+        call dcopy((ni*nj),0.0d00,0,dbl_mb(k_slice),1)
         cnt = k_slice
         do i=1,ni
           do j=1,nj
@@ -3061,7 +3061,7 @@ c
       write(luout,*)(na*nb),' slices to be printed ',msg
       do a=1,na
         do b=1,nb
-          call dfill((ni*nj),0.0d00,dbl_mb(k_slice),1)
+          call dcopy((ni*nj),0.0d00,0,dbl_mb(k_slice),1)
           cnt = k_slice
           do i=1,ni
             do j=1,nj
@@ -3103,7 +3103,7 @@ c
 *     &      ' rankov = ',rankov
 *      if (.not. ma_verify_allocator_stuff())
 *     &    stop ' spcart_cart_overlap '
-      call dfill (3,0.0d00,xyz,1)  ! do it at the origin
+      call dcopy (3,0.0d00,0,xyz,1)  ! do it at the origin
       zeta  = 1.2345d00
       coef = 1.0d00
 *
@@ -3134,12 +3134,12 @@ c
      &    h_scr,k_scr)) call errquit
      &    ('spcart_cart_overlap: could not allocate scratch buffer',
      &    911, MEM_ERR)
-      call dfill(scr_size,0.0d00,dbl_mb(k_scr),1)
+      call dcopy(scr_size,0.0d00,0,dbl_mb(k_scr),1)
 *      write(6,*)' spcart_cart_overlap verify 4',' lval   = ',lval,
 *     &      ' rankov = ',rankov
 *      if (.not. ma_verify_allocator_stuff())
 *     &    stop ' spcart_cart_overlap '
-      call dfill((rankov*rankov),0.0d00,overlap,1)
+      call dcopy((rankov*rankov),0.0d00,0,overlap,1)
 *      write(6,*)' spcart_cart_overlap verify 5',' lval   = ',lval,
 *     &      ' rankov = ',rankov
 *      if (.not. ma_verify_allocator_stuff())

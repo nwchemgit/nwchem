@@ -1,5 +1,5 @@
       program spherical
-* $Id: spherical.F,v 1.6 2004-07-21 16:15:42 bert Exp $
+* $Id: spherical.F,v 1.7 2007-10-15 23:39:11 bert Exp $
       implicit none
       integer memgot
       parameter (memgot=10000)
@@ -19,7 +19,7 @@ c
       call xlmcoeff_test(lmax,dd,.true.)
       end
       subroutine xlmcoeff_test(lmax, d, normalize)
-* $Id: spherical.F,v 1.6 2004-07-21 16:15:42 bert Exp $
+* $Id: spherical.F,v 1.7 2007-10-15 23:39:11 bert Exp $
 * 
 * Note that the routine assumes that d is dimensioned in a
 * very specific fashion that actually consumes twice as
@@ -62,8 +62,9 @@ c::local
       itri(i,j)  = (i*(i-1))/2 + j
       ind(i,j,l) = itri(l-i+1,l-i-j+1) ! Index of x^i*y^j*z^(l-i-j)
 c
-      call dfill((((lmax+1)*(lmax+2))/2)*(2*lmax+1)*(lmax+1),
-     $     0.0d0, d, 1)
+      call dcopy((((lmax+1)*(lmax+2))/2)*(2*lmax+1)*(lmax+1),
+
+     $     0.0d0, 0, d, 1)
 c
       d(1, 0,0) = 1.0d0         ! Constant
 c

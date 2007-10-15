@@ -1,5 +1,5 @@
       subroutine nwints_xlm_norm(qn,e,D,Ld)
-* $Id: xlm_norm.F,v 1.4 1999-02-01 23:13:54 d3g681 Exp $
+* $Id: xlm_norm.F,v 1.5 2007-10-15 23:39:11 bert Exp $
       implicit none
 #include "mafdecls.fh"
 c
@@ -33,7 +33,7 @@ c... initialize e and qn
 
 *rak:      write(6,*)' ma 1'
 *rak:      if (.not.ma_verify_allocator_stuff()) stop ' ma ver'
-      call dfill((2*Ld+1)*(Ld+1),0.0d00,qn,1)
+      call dcopy((2*Ld+1)*(Ld+1),0.0d00,0,qn,1)
 *rak:      write(6,*)' ma 2'
 *rak:      if (.not.ma_verify_allocator_stuff()) stop ' ma ver'
 *rak:      write(6,*) Ld
@@ -89,7 +89,7 @@ c... form qn values via recursion
       pi = 2.0d0*dacos(0.0d00)
       pi2x = 2*pi
       write(6,*) 'pi =',pi
-      call dfill((2*Ld+1)*(Ld+1),0.0d00,qn,1)
+      call dcopy((2*Ld+1)*(Ld+1),0.0d00,0,qn,1)
       do l = 0, Ld
         do m = -l,l
           call dofact(resultlmm,(l-abs(m)))

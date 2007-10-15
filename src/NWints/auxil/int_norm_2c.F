@@ -1,5 +1,5 @@
       logical function int_norm_2c(rtdb,basisin)
-c $Id: int_norm_2c.F,v 1.8 2003-10-17 22:53:46 carlfahl Exp $
+c $Id: int_norm_2c.F,v 1.9 2007-10-15 23:39:11 bert Exp $
 c::assumptions
 *..   MA_init has been called
 c
@@ -53,7 +53,7 @@ c
       lscr = maxg2c + mem2c
       int_norm_2c =
      &    MA_push_get(mt_dbl,lscr,'int_norm_2c:scr',h_scr,i_scr)
-      call dfill(lscr,0.0d00,dbl_mb(i_scr),1)
+      call dcopy(lscr,0.0d00,0,dbl_mb(i_scr),1)
 c
 c... define xyz for angular momentum      
       if (.not.bas_high_angular(basisin,maxang)) call errquit
