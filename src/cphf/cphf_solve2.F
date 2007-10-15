@@ -1,6 +1,6 @@
       subroutine cphf_solve2(rtdb)
 *
-* $Id: cphf_solve2.F,v 1.11 2007-02-27 16:14:48 bert Exp $
+* $Id: cphf_solve2.F,v 1.12 2007-10-15 23:35:57 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -140,7 +140,7 @@ c
       if (.not. rtdb_get(rtdb, 'cphf:thresh', mt_dbl, 1, 
      $     precond_tol)) precond_tol=1d-4
       if (.not. rtdb_get(rtdb, 'cphf:maxiter', mt_int, 1,
-     $     max_precond_iter)) max_precond_iter = 100
+     $     max_precond_iter)) max_precond_iter = 20
 c
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)         
       if (.not. file_read_ga_info(cphf_rhs, rhs_title, ncol, nvec))
@@ -270,7 +270,7 @@ c     $        call errquit('cphf did not converge',precond_iter)
          call ga_copy(g_grad, g_work)
          call uhf_precond(g_work,0.0d0)
          call ga_lkain(g_work, g_grad, uhf_hessv2, uhf_precond,
-     $        precond_tol, 10*nvec, 20, .false., oprint_solve)
+     $        precond_tol, 10*nvec, maxiter, .false., oprint_solve)
          noskew_uhf = .true.
       else 
 c$$$         if(.not.ga_iter_lsolve(vlen, max_precond_iter,
@@ -288,7 +288,7 @@ c
          call ga_copy(g_grad, g_work)
          call rohf_hessv_precond(g_work,0.0d0)
          call ga_lkain(g_work, g_grad, rohf_hessv2, rohf_hessv_precond,
-     $        precond_tol, 10*nvec, 20, .false., oprint_solve)
+     $        precond_tol, 10*nvec, maxiter, .false., oprint_solve)
          noskew = .true.
       endif
 c !!! BGJ
