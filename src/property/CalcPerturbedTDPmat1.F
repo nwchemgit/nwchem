@@ -2,7 +2,7 @@
      &   (ncomp, g_pmats, g_pmata, g_amat, g_vectors, naos, nocc,
      &   nvir, nmo, lantisym, lstatic, imag, haveocc)
 
-* $Id: CalcPerturbedTDPmat1.F,v 1.1 2006-11-16 18:23:01 jochen Exp $
+* $Id: CalcPerturbedTDPmat1.F,v 1.2 2007-10-15 23:28:28 bert Exp $
 
 c     ==================================================================
 
@@ -155,6 +155,7 @@ c     -------------------------------------------------------------
       call ga_zero(g_ptmp)
       call ga_zero(g_work)
       call ga_zero(g_eig1)
+      call ga_sync()
 
 c     ----------------------------
 c     First step:  C n C(-,dagger)
@@ -175,6 +176,7 @@ c     calculate C(-,dagger)
      &   g_amat(im),1,nmo,1,nocc,
      &   g_eig1,1,naos,1,nocc)
       endif ! .not.haveocc
+      call ga_sync()
 
       if (debug) write (6,*) '1'
 
@@ -186,6 +188,7 @@ c     calculate C(0)C(-,dagger), store in g_ptmp
      &   g_vectors,1,naos,1,nocc,
      &   g_eig1,1,nocc,1,naos,
      &   g_ptmp,1,naos,1,naos)  
+      call ga_sync()
 
       if (debug) write (6,*) '2'   
       
@@ -206,6 +209,7 @@ c     calculate C(+)
      &   g_amat(ip),1,nmo,1,nocc,
      &   g_eig1,1,naos,1,nocc)
       endif
+      call ga_sync()
 
       if (debug) write (6,*) '3'
       
@@ -214,22 +218,29 @@ c     calculate C(+)C(0,dagger), store in g_work
      &   g_eig1,1,naos,1,nocc,
      &   g_vectors,1,nocc,1,naos,
      &   g_work,1,naos,1,naos)
+      call ga_sync()
 
       if (debug) write (6,*) '4'
 
 c     add the two terms together and transpose the density matrix
       call ga_add(1d0,g_ptmp,1d0,g_work,g_work)
+      call ga_sync()
       call ga_transpose(g_work, g_ptmp)
+      call ga_sync()
 
 c     calculate symmetrized and antisymmetrized part (+ component)
 c     if requested on input:
 
       if (lantisym) then
         call ga_transpose(g_ptmp,g_work)
+        call ga_sync()
         call ga_add(half,g_ptmp,half,g_work,g_pmats(1))
+        call ga_sync()
         call ga_add(half,g_ptmp,-half,g_work,g_pmata(1))
+        call ga_sync()
       else
         call ga_copy(g_ptmp, g_pmats(1))
+        call ga_sync()
       endif
 
       if (debug) write (6,*) '4a'
@@ -247,6 +258,7 @@ c     -----------------------------------------
       call ga_zero(g_ptmp)
       call ga_zero(g_work)
       call ga_zero(g_eig1)
+      call ga_sync()
 
 c     ----------------------------
 c     First step:  C n C(+,dagger)
@@ -266,6 +278,7 @@ c     calculate C(+,dagger)
      &   g_amat(ip),1,nmo,1,nocc,
      &   g_eig1,1,naos,1,nocc)
       endif
+      call ga_sync()
 
       if (debug) write (6,*) '5'
 
@@ -274,6 +287,7 @@ c     calculate C(0)C(+,dagger), store in g_ptmp
      &   g_vectors,1,naos,1,nocc,
      &   g_eig1,1,nocc,1,naos,
      &   g_ptmp,1,naos,1,naos)
+      call ga_sync()
 
       if (debug) write (6,*) '6'
       
@@ -293,8 +307,8 @@ c     calculate C(-)
      &   g_vectors,1,naos,1,nmo,
      &   g_amat(im),1,nmo,1,nocc,
      &   g_eig1,1,naos,1,nocc)
-
       endif
+      call ga_sync()
 
       if (debug) write (6,*) '7'
 
@@ -303,21 +317,28 @@ c     calculate C(-)C(0,dagger), store in g_work
      &   g_eig1,1,naos,1,nocc,
      &   g_vectors,1,nocc,1,naos,
      &   g_work,1,naos,1,naos)
+      call ga_sync()
 
       if (debug) write (6,*) '8'
 
 c     add the two terms together and transpose
       call ga_add(1d0,g_ptmp,1d0,g_work,g_work)
+      call ga_sync()
       call ga_transpose(g_work, g_ptmp)
+      call ga_sync()
 
 c     calculate symmetrized and antisymmetrized part (- component)
 
       if (lantisym) then
         call ga_transpose(g_ptmp,g_work)
+        call ga_sync()
         call ga_add(half,g_ptmp,half,g_work,g_pmats(2))
+        call ga_sync()
         call ga_add(half,g_ptmp,-half,g_work,g_pmata(2))
+        call ga_sync()
       else
         call ga_copy(g_ptmp, g_pmats(2))
+        call ga_sync()
       endif
 
       if (debug) write (6,*) '8a'
