@@ -1,5 +1,5 @@
 *
-* $Id: paw_output.F,v 1.4 2007-09-24 16:58:12 bylaska Exp $
+* $Id: paw_output.F,v 1.5 2007-10-15 15:46:44 d3p307 Exp $
 *
 
 *     ***********************************
@@ -26,17 +26,17 @@
       write(un,1460) etmp,etmp/nel
 
 
-      write(un,1530), E(2),E(2)/nel
-      write(un,1531), E(4),E(4)/nel
-      write(un,1532), E(7),E(7)/nel
-      write(un,1533), E(9),E(9)/nel
+      write(un,1530) E(2),E(2)/nel
+      write(un,1531) E(4),E(4)/nel
+      write(un,1532) E(7),E(7)/nel
+      write(un,1533) E(9),E(9)/nel
   
-      write(un,1540), E(3),E(3)/nel
-      write(un,1541), E(5),E(5)/nel
-      write(un,1542), E(8),E(8)/nel
-      write(un,1543), E(10),E(10)/nel
+      write(un,1540) E(3),E(3)/nel
+      write(un,1541) E(5),E(5)/nel
+      write(un,1542) E(8),E(8)/nel
+      write(un,1543) E(10),E(10)/nel
 
-      write(un,1550), E(6),E(6)/nion
+      write(un,1550) E(6),E(6)/nion
 
 c*     *** kinetic energy ***
 c      write(un,1431) E(2)+E(3),(E(2)+E(3))/nel
