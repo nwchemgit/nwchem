@@ -1,4 +1,4 @@
-c $Id: hnd_giao_2emem.F,v 1.1 2004-07-21 16:24:34 bert Exp $
+c $Id: hnd_giao_2emem.F,v 1.2 2007-10-15 23:37:24 bert Exp $
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : 2e- giao memory routine
@@ -13,7 +13,8 @@ c
 
       maxnum = ((maxang+1)*(maxang+2))/2
       modtyp = maxang+2
-      maxxyz = 255 / 3
+      maxxyz = 255 
+c     maxxyz = 255 / 3
 c
 c     ----- size of gijkl =
 c                         1   if s  shells
@@ -42,17 +43,15 @@ c
       igijkl=1
       ignkl =igijkl+( modtyp**2       * modtyp**2       )*maxxyz*3*3
       ignm  =ignkl +( modtyp**2       *(modtyp+modtyp-1))*maxxyz*3
-      idij  =ignm  +((modtyp+modtyp-1)*(modtyp+modtyp-1))*maxxyz*3
-      idkl  =idij  +( modtyp**2                         )*maxxyz*3
-      ib00  =idkl  +((modtyp+modtyp-1)                  )*maxxyz*3
-      ib01  =ib00  +((modtyp+modtyp-1)                  )*maxxyz*3
-      ib10  =ib01  +((modtyp+modtyp-1)                  )*maxxyz*3
-      ic00  =ib10  +((modtyp+modtyp-1)                  )*maxxyz*3
+      ib00  =ignm  +((modtyp+modtyp-1)*(modtyp+modtyp-1))*maxxyz*3
+      ib01  =ib00  +((modtyp+modtyp-1)                  )*maxxyz
+      ib10  =ib01  +((modtyp+modtyp-1)                  )*maxxyz
+      ic00  =ib10  +((modtyp+modtyp-1)                  )*maxxyz
       id00  =ic00  +(  1                                )*maxxyz*3
       if00  =id00  +(  1                                )*maxxyz*3
-      iabv  =if00  +(  1                                )*maxxyz*3
+      iabv  =if00  +(  1                                )*maxxyz
       icv   =iabv  +(  5                                )*maxxyz
-      irw   =icv   +( 18                                )*maxxyz
+      irw   =icv   +( 12                                )*maxxyz
       iscrln=irw   +(  2                                )*maxxyz
 c
       return

@@ -1,7 +1,7 @@
-      subroutine hnd_jkbcdf(b00,b01,b10,c00,d00,f00,dij,dkl,
+      subroutine hnd_jkbcdf(b00,b01,b10,c00,d00,f00,
      1                  abv,cv,rwv,numg)
 c
-c $Id: hnd_jkbcdf.F,v 1.1 2004-07-21 16:24:35 bert Exp $
+c $Id: hnd_jkbcdf.F,v 1.2 2007-10-15 23:37:24 bert Exp $
 c
       implicit double precision (a-h,o-z)
 c
@@ -10,11 +10,11 @@ c
 #include "hnd_giao.fh"
 #include "hnd_rys.fh"
 c
-      dimension b00(numg,nroots,3),b01(numg,nroots,3),b10(numg,nroots,3)
+      dimension b00(numg,nroots),b01(numg,nroots),b10(numg,nroots)
       dimension c00(numg,nroots,3)
       dimension d00(numg,nroots,3)
-      dimension f00(numg,nroots,3),dij(numg,nroots,3),dkl(numg,nroots,3)
-      dimension abv(5,numg),cv(18,numg)
+      dimension f00(numg,nroots)
+      dimension abv(5,numg),cv(12,numg)
       dimension rwv(2,numg,nroots)
       data pt5,one /0.5d+00,1.0d+00/
 c
@@ -28,22 +28,14 @@ c
       ww =    rwv(2,ng,nr)
       aauu=aa+uu
       bbuu=bb+uu
-      f00(ng,nr,1)=ww*qab
-      f00(ng,nr,2)=one
-      f00(ng,nr,3)=one
+      f00(ng,nr)=ww*qab
       dum2=pt5/(aa*bb+uu*(aa+bb))
       audum=aauu*dum2
       budum=bbuu*dum2
        udum=  uu*dum2
-      b00(ng,nr,1)= udum
-      b00(ng,nr,2)= udum
-      b00(ng,nr,3)= udum
-      b01(ng,nr,1)=audum
-      b01(ng,nr,2)=audum
-      b01(ng,nr,3)=audum
-      b10(ng,nr,1)=budum
-      b10(ng,nr,2)=budum
-      b10(ng,nr,3)=budum
+      b00(ng,nr)= udum
+      b01(ng,nr)=audum
+      b10(ng,nr)=budum
        udum= udum+ udum
       if(mmaxs) go to 10
       audum=audum+audum
@@ -59,17 +51,6 @@ c
 c
    30 continue
    40 continue
-c
-      do 60 nr=1,nroots
-      do 50 ng=1,numg
-      dij(ng,nr,1)=cv(13,ng)
-      dij(ng,nr,2)=cv(14,ng)
-      dij(ng,nr,3)=cv(15,ng)
-      dkl(ng,nr,1)=cv(16,ng)
-      dkl(ng,nr,2)=cv(17,ng)
-      dkl(ng,nr,3)=cv(18,ng)
-   50 continue
-   60 continue
 c
       return
       end

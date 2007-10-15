@@ -2,7 +2,7 @@
      & expj,coefj,j_nprim,j_ngen,Lj,catms,nat,nint,e11,scr,lscr, 
      & para,dia)
 c
-c $Id: hnd_giaoh11.F,v 1.2 2004-12-03 22:36:10 bert Exp $
+c $Id: hnd_giaoh11.F,v 1.3 2007-10-15 23:37:24 bert Exp $
 c
 c     ----- Wrapper routine that sets the sizes of scratch blocks -----
 c
@@ -280,7 +280,7 @@ c
                transx=0.0d0
                transy=0.0d0
                transz=0.0d0
-               call dfill(21,0.0d0,tm,1)
+               call dcopy(21,0.0d0,0,tm,1)
                do ir=1,nroots
 c
                 if(kat.eq.1) then

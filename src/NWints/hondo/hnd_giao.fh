@@ -10,13 +10,15 @@ c
       double precision xi,yi,zi,xj,yj,zj,xk,yk,zk,xl,yl,zl
       double precision tijx,tijy,tijz,tklx,tkly,tklz
       double precision qijx,qijy,qijz,qklx,qkly,qklz
+      double precision xc,yc,zc,dxij,dyij,dzij
+      double precision xd,yd,zd,dxkl,dykl,dzkl
       logical expndi,expndk,iieqjj,kkeqll
       logical nmaxs,nmaxp,mmaxs,mmaxp
       integer nij,nkl,lit,ljt,lkt,lmt,ijkl
       integer numi,numj,numk,numl
 c
-      common/hnd_ijchrg/acharg(11,mxgsh2),nij
-      common/hnd_klchrg/bcharg(11,mxgsh2),nkl
+      common/hnd_ijchrg/acharg(5,mxgsh2),xc,yc,zc,dxij,dyij,dzij,nij
+      common/hnd_klchrg/bcharg(5,mxgsh2),xd,yd,zd,dxkl,dykl,dzkl,nkl
       common/hnd_atmgia/xi,yi,zi,xj,yj,zj,xk,yk,zk,xl,yl,zl,
      1                  tijx,tijy,tijz,tklx,tkly,tklz,
      2                  qijx,qijy,qijz,qklx,qkly,qklz

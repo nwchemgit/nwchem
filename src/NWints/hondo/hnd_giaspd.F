@@ -1,7 +1,7 @@
       subroutine hnd_giaspd(gint,gijkl,gnkl,gnm,b00,b01,b10,c00,d00,
-     1                      f00,dij,dkl,abv,cv,rwv)
+     1                      f00,abv,cv,rwv)
 c
-c $Id: hnd_giaspd.F,v 1.1 2004-07-21 16:24:35 bert Exp $
+c $Id: hnd_giaspd.F,v 1.2 2007-10-15 23:37:24 bert Exp $
 c
       implicit none
 #include "nwc_const.fh"
@@ -10,13 +10,17 @@ c
 #include "hnd_giao.fh"
 #include "hnd_pointers.fh"
 #include "hnd_rys.fh"
+#include "util.fh"
+#include "global.fh"
+      common/testdata/timing(20),irepeat
+      double precision timing
+      integer irepeat
 c
 c     Input parameters
 c
       double precision gint(*),gijkl(*),gnkl(*),gnm(*)
       double precision b00(*),b01(*),b10(*),c00(*),d00(*),f00(*)
-      double precision dij(*),dkl(*)
-      double precision abv(5,*),cv(18,*),rwv(2,*)
+      double precision abv(5,*),cv(12,*),rwv(2,*)
 c
 c     Local variabels
 c
@@ -26,9 +30,8 @@ c
       logical last,testy
       integer klg,ijg,numg,i,j,k
       double precision dtol2,q4,dtol
-      double precision db,bb,xb,yb,zb,xd,yd,zd,dxkl,dykl,dzkl,q4db
+      double precision db,bb,xb,yb,zb,q4db
       double precision da,aa,xa,ya,za,aandb1,q4dbda,dum,rho,xx
-      double precision xc,yc,zc,dxij,dyij,dzij
 c
       numi = lit*(lit+1)/2
       numj = ljt*(ljt+1)/2
@@ -41,9 +44,7 @@ c
       nmax =lit+ljt
       mmax =lkt+lmt
       nmaxs=nmax.eq.1
-      nmaxp=nmax.le.2
       mmaxs=mmax.eq.1
-      mmaxp=mmax.le.2
 c
 c     Doing integrals in subblocks to save memory
 c
@@ -62,12 +63,6 @@ c
          xb=bcharg( 3,klg)
          yb=bcharg( 4,klg)
          zb=bcharg( 5,klg)
-         xd=bcharg( 6,klg)
-         yd=bcharg( 7,klg)
-         zd=bcharg( 8,klg)
-         dxkl=bcharg( 9,klg)
-         dykl=bcharg(10,klg)
-         dzkl=bcharg(11,klg)
          q4db=q4*db
 c
 c     ----- pair of i,j primitives -----
@@ -75,15 +70,15 @@ c
          do 20 ijg = 1, nij
             da=acharg( 1,ijg)
             aa=acharg( 2,ijg)
-            xa=acharg( 3,ijg)
-            ya=acharg( 4,ijg)
-            za=acharg( 5,ijg)
             aandb1=1.0d0/(aa+bb)
             q4dbda=q4db*da
             dum   =q4dbda*q4dbda*aandb1
             if(dum.le.dtol2) go to 20
             q4dbda=q4dbda* sqrt(aandb1)
             rho   =aa*bb*aandb1
+            xa=acharg( 3,ijg)
+            ya=acharg( 4,ijg)
+            za=acharg( 5,ijg)
             xx=rho*((xa-xb)**2+(ya-yb)**2+(za-zb)**2)
 c
             ng=ng+1
@@ -92,13 +87,6 @@ c
             abv(3,ng)=rho
             abv(4,ng)=q4dbda
             abv(5,ng)=xx
-c
-            xc=acharg( 6,ijg)
-            yc=acharg( 7,ijg)
-            zc=acharg( 8,ijg)
-            dxij=acharg( 9,ijg)
-            dyij=acharg(10,ijg)
-            dzij=acharg(11,ijg)
 c
             if(mmaxs) go to 21
             cv( 1,ng)=aa*(xa-xd)
@@ -115,12 +103,6 @@ c
             cv(11,ng)=aa*(za-zc)
             cv(12,ng)=bb*(zb-zc)
    22       continue
-            cv(13,ng)=dxij
-            cv(14,ng)=dyij
-            cv(15,ng)=dzij
-            cv(16,ng)=dxkl
-            cv(17,ng)=dykl
-            cv(18,ng)=dzkl
 c
             last = (klg.eq.nkl).and.(ijg.eq.nij)
             if (ng.lt.maxg.and.(.not.last)) goto 20 
@@ -130,31 +112,43 @@ c
 c
 c     ----- compute roots and weights for quadrature -----
 c
+c           timing(3)=timing(3)-util_wallsec()
             call hnd_jkwrys(rwv,abv,numg)
+c           timing(3)=timing(3)+util_wallsec()
 c
 c     ----- compute coefficients for recursion formulae -----
 c
-            call hnd_jkbcdf(b00,b01,b10,c00,d00,f00,dij,dkl,
+c           timing(4)=timing(4)-util_wallsec()
+            call hnd_jkbcdf(b00,b01,b10,c00,d00,f00,
      1                      abv,cv,rwv,numg)
+c           timing(4)=timing(4)+util_wallsec()
 c
 c     ----- compute -x- , -y- , -z- integrals ( 2 centers,2-d ) -----
 c
-            call hnd_giagnm(gnm,numg*nroots*3,nmax,mmax,
+c           timing(5)=timing(5)-util_wallsec()
+            call hnd_giagnm(gnm,numg*nroots,nmax,mmax,
      1                      b00,b01,b10,c00,d00,f00)
+c           timing(5)=timing(5)+util_wallsec()
 c
 c     ----- compute -x- , -y- , -z- integrals ( 4 centers,2-d ) -----
 c
+c           timing(6)=timing(6)-util_wallsec()
             call hnd_giaxyz(gijkl,gijkl,gnkl,gnkl,gnkl,gnm,
-     1                      numg*nroots*3,nmax,mmax,nimax,njmax,
-     2                      nkmax,nlmax,dij,dkl)
+     1                      numg*nroots,nmax,mmax,nimax,njmax,
+     2                      nkmax,nlmax)
+c           timing(6)=timing(6)+util_wallsec()
 c
 c     ----- -giao- specific -----
 c
+c           timing(7)=timing(7)-util_wallsec()
             call hnd_xyzgia(gijkl,numg*nroots,nimax,njmax,nkmax,nlmax)
+c           timing(7)=timing(7)+util_wallsec()
 c
 c     ----- compute  - (i,j/k,l) -  integrals -----
 c
+c           timing(8)=timing(8)-util_wallsec()
             call hnd_spdgia(numg,nroots,gint,gijkl)
+c           timing(8)=timing(8)+util_wallsec()
 c
    20    continue
    10 continue

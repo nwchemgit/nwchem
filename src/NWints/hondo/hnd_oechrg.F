@@ -3,7 +3,7 @@
      &                      kxyz,kprim,kcoef,k_prim,k_gen,lk,
      &                      lxyz,lprim,lcoef,l_prim,l_gen,ll)
 c
-c $Id: hnd_oechrg.F,v 1.1 2004-07-21 16:24:36 bert Exp $
+c $Id: hnd_oechrg.F,v 1.2 2007-10-15 23:37:24 bert Exp $
 c
       implicit none
 c
@@ -25,7 +25,7 @@ c
 c     Local variables
 c
       integer ia,jb,jbmax
-      double precision xc,yc,zc,dxij,dyij,dzij,ai,aj,arri,aa1,dum
+      double precision ai,aj,arri,aa1,dum
       double precision daexpa,cci,axi,ayi,azi,dtol,rtol,rri,aa,rrk
 c
       rtol = 2.30258d00*itol
@@ -100,12 +100,6 @@ c
             acharg( 3,nij)=(axi+aj*xj)*aa1
             acharg( 4,nij)=(ayi+aj*yj)*aa1
             acharg( 5,nij)=(azi+aj*zj)*aa1
-            acharg( 6,nij)= xc
-            acharg( 7,nij)= yc
-            acharg( 8,nij)= zc
-            acharg( 9,nij)= dxij
-            acharg(10,nij)= dyij
-            acharg(11,nij)= dzij
 c
    30    continue
    40 continue
@@ -123,19 +117,19 @@ c
       rri=((xk-xl)**2+(yk-yl)**2+(zk-zl)**2)
       expndk = lkt.ge.lmt
       if (lkt.ge.lmt) then
-         xc=xk
-         yc=yk
-         zc=zk
-         dxij=xk-xl
-         dyij=yk-yl
-         dzij=zk-zl
+         xd=xk
+         yd=yk
+         zd=zk
+         dxkl=xk-xl
+         dykl=yk-yl
+         dzkl=zk-zl
       else
-         xc=xl
-         yc=yl
-         zc=zl
-         dxij=xl-xk
-         dyij=yl-yk
-         dzij=zl-zk
+         xd=xl
+         yd=yl
+         zd=zl
+         dxkl=xl-xk
+         dykl=yl-yk
+         dzkl=zl-zk
       endif
 c
 c     ----- -giao- factors -----
@@ -179,12 +173,6 @@ c
             bcharg( 3,nkl)=(axi+aj*xl)*aa1
             bcharg( 4,nkl)=(ayi+aj*yl)*aa1
             bcharg( 5,nkl)=(azi+aj*zl)*aa1
-            bcharg( 6,nkl)= xc
-            bcharg( 7,nkl)= yc
-            bcharg( 8,nkl)= zc
-            bcharg( 9,nkl)= dxij
-            bcharg(10,nkl)= dyij
-            bcharg(11,nkl)= dzij
 c
    50    continue
    60 continue
