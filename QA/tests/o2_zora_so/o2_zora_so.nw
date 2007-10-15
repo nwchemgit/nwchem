@@ -1,0 +1,28 @@
+start
+
+geometry noautoz units angstrom
+ O 0 0 -0.60000000
+ O 0 0  0.60000000
+end
+
+basis spherical
+ * library "DZVP (DFT Orbital)"
+end
+
+dft
+ grid fine
+ iterations 100
+ XC b3lyp
+ odft
+ mult 3
+end
+
+driver
+ maxiter 100
+end
+
+relativistic
+   zora on
+end
+
+task sodft optimize

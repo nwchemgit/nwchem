@@ -1,0 +1,27 @@
+start
+
+geometry noautoz units au
+ I 0 0 -2.52247277
+ I 0 0  2.52247277
+end
+
+basis spherical
+ I library "DZVP (DFT Orbital)"
+end
+
+dft
+ grid fine
+ iterations 100
+ XC xpbe96 cpbe96
+ odft
+end
+
+driver
+ maxiter 100
+end
+
+relativistic
+   zora on
+end
+
+task sodft optimize

@@ -1,0 +1,20 @@
+start
+
+geometry noautoz units au
+  Xe 0 0 0
+end
+
+basis spherical
+ xe library "DZVP (DFT Orbital)"
+end
+
+dft
+ grid medium
+ iterations 100
+end
+
+relativistic
+   zora on
+end
+
+task dft energy
