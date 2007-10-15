@@ -1,4 +1,4 @@
-c $Id: int_giao_2e.F,v 1.1 2004-07-21 16:13:46 bert Exp $
+c $Id: int_giao_2e.F,v 1.2 2007-10-15 23:36:52 bert Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
@@ -32,6 +32,10 @@ c
 #include "stdio.fh"
 #include "rel_nwc.fh"
 #include "util.fh"
+#include "global.fh"
+      common/testdata/timing(20),irepeat
+      double precision timing
+      integer irepeat
 c
 c::external subroutines used
 c errquit
@@ -42,13 +46,6 @@ c::functions
       external cando_nw
       external cando_sp
       external cando_txs
-#define PERF_NORMAL
-#if defined(PERF_NORMAL)
-      logical int_chk_sh
-      logical int_chk_init
-      external int_chk_sh
-      external int_chk_init
-#endif
 c:: passed
 c:tex-\begin{verbatim}
       integer brain ! [input] bra basis set handle
@@ -59,8 +56,8 @@ c:tex-\begin{verbatim}
       integer lsh   ! [input] shell/contraction index
       integer lscr  ! [input] length of scratch array
       double precision scr(lscr) ! [scratch] array
-      integer leri  ! [input] length of integral array
-      double precision eri(leri,6) ! [output] 2e4c integrals
+      integer leri  ! [input|output] length of integral array
+      double precision eri(*) ! [output] 2e4c integrals
 c:tex-\end{verbatim}
 c:: local
       integer bra, ket 
@@ -73,7 +70,7 @@ c
       double precision roff(3)
       double precision q4
       integer nint
-      logical dum_log
+      logical dum_log, do_bra, do_ket
       logical status_sp, status_nw, status_txs, status_gen
       integer texas_ang_limit
       logical ieqj, keql
@@ -84,64 +81,16 @@ c
       integer a_nbf_s, b_nbf_s, c_nbf_s, d_nbf_s
       integer ab_gen, ab_cmp, cd_gen, cd_cmp,i,j
 c
-#if defined(PERF_NORMAL)
-      logical shells_ok
-      logical inline_chk_sh
-c
-      integer WarnP
-      save WarnP
-      data WarnP /0/
-c... statement function for int_chk_sh
-      inline_chk_sh(bra,ish) =
-     $     ((ish.gt.0) .and. (ish.le.ncont_tot_gb(bra)))
-#endif
-c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
-#if defined(PERF_NORMAL)
-c
-c check initialization
-c
-      if (.not.int_chk_init('int_giao_2e'))
-     &       call errquit('int_giao_2e: int_init was not called' ,0,
-     &       INT_ERR)
-c
-c     define center information required 
-c
-      if (.not. bas_check_handle(brain,'int_giao_2e:bra')) call errquit
-     $     ('int_giao_2e: invalid bra basis handle', brain, BASIS_ERR)
-      if (.not. bas_check_handle(ketin,'int_giao_2e:ket')) call errquit
-     $     ('int_giao_2e: invalid ket basis handle', ketin, BASIS_ERR)
-#endif
-*
+c     timing(10)=timing(10)-util_wallsec()
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
       bras = bra
       kets = ket
       ab_geom = ibs_geom(bra)
       cd_geom = ibs_geom(ket)
-#if defined(PERF_NORMAL)
-c
-c     check input shell ranges
-c
-      shells_ok = inline_chk_sh(bra,ish)
-      shells_ok = shells_ok .and. inline_chk_sh(bra,jsh)
-      shells_ok = shells_ok .and. inline_chk_sh(ket,ksh)
-      shells_ok = shells_ok .and. inline_chk_sh(ket,lsh)
-      if (.not.shells_ok)
-     &       call errquit('int_giao_2e: invalid contraction/shell',0,
-     &       BASIS_ERR)
-c
-      if (ab_geom.ne.cd_geom.and.WarnP.eq.0) then
-        write(luout,*)
-     &      'int_giao_2e: WARNING: possible geometry inconsistency'
-        write(luout,*)'bra geometry handle:',ab_geom
-        write(luout,*)'ket geometry handle:',cd_geom
-        WarnP = 1
-      endif
-c
-#endif
       a_cent  = (sf_ibs_cn2ce(ish,bra))
       b_cent  = (sf_ibs_cn2ce(jsh,bra))
       c_cent  = (sf_ibs_cn2ce(ksh,ket))
@@ -156,7 +105,7 @@ c
         ieqj = ish.eq.jsh
         keql = ksh.eq.lsh
 c
-        ucont   = (sf_ibs_cn2ucn(ish,bra))
+        ucont   = sf_ibs_cn2ucn(ish,bra)
         La      = infbs_cont(CONT_TYPE ,ucont,bra)
         a_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
         a_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
@@ -164,7 +113,7 @@ c
         a_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
         a_icfps = infbs_cont(CONT_ICFP ,ucont,bras)
 c
-        ucont   = (sf_ibs_cn2ucn(jsh,bra))
+        ucont   = sf_ibs_cn2ucn(jsh,bra)
         Lb      = infbs_cont(CONT_TYPE ,ucont,bra)
         b_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
         b_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
@@ -172,7 +121,7 @@ c
         b_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
         b_icfps = infbs_cont(CONT_ICFP ,ucont,bras)
 c      
-        ucont   = (sf_ibs_cn2ucn(ksh,ket))
+        ucont   = sf_ibs_cn2ucn(ksh,ket)
         Lc      = infbs_cont(CONT_TYPE ,ucont,ket)
         c_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
         c_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
@@ -180,13 +129,19 @@ c
         c_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
         c_icfps = infbs_cont(CONT_ICFP ,ucont,kets)
 c
-        ucont   = (sf_ibs_cn2ucn(lsh,ket))
+        ucont   = sf_ibs_cn2ucn(lsh,ket)
         Ld      = infbs_cont(CONT_TYPE ,ucont,ket)
         d_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
         d_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
         d_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
         d_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
         d_icfps = infbs_cont(CONT_ICFP ,ucont,kets)
+c
+        a_nbf = int_nbf_x(La)
+        b_nbf = int_nbf_x(Lb)
+        c_nbf = int_nbf_x(Lc)
+        d_nbf = int_nbf_x(Ld)
+        leri=a_nbf*b_nbf*c_nbf*d_nbf*a_gen*b_gen*c_gen*d_gen
         call hnd_giahnd(
      &      coords(1,a_cent,ab_geom), dbl_mb(mb_exndcf(a_iexp,bra)),
      &      dbl_mb(mb_exndcf(a_icfp,bra)), a_prim, a_gen, La,
@@ -198,45 +153,23 @@ c
      &      dbl_mb(mb_exndcf(d_icfp,ket)), d_prim,d_gen,Ld,
      &      ieqj, keql, eri, leri, scr, lscr)
 c
-c
-c
 c eri has cartesian block of integrals (llo:lhi,klo:khi,jlo:jhi,ilo:ihi,6)
 c
-        if (any_spherical)then
-c
-          a_nbf = int_nbf_x(La)
-          b_nbf = int_nbf_x(Lb)
-          c_nbf = int_nbf_x(Lc)
-          d_nbf = int_nbf_x(Ld)
+        if (any_spherical) then
+          a_nbf_s = int_nbf_s(La)
+          b_nbf_s = int_nbf_s(Lb)
+          c_nbf_s = int_nbf_s(Lc)
+          d_nbf_s = int_nbf_s(Ld)
           cd_gen = c_gen*d_gen
           ab_gen = a_gen*b_gen
           ab_cmp = a_nbf*b_nbf
           cd_cmp = c_nbf*d_nbf
-          if (bas_spherical(bra)) then
-             a_nbf_s = int_nbf_s(La)
-             b_nbf_s = int_nbf_s(Lb)
-             do ityp = 1, 6
-                call spcart_bra2etran(eri(1,ityp),scr,
-     &               b_nbf,a_nbf,b_nbf_s,a_nbf_s,
-     &               Lb, La, b_gen, a_gen,
-     &               cd_gen*cd_cmp,.false.)
-             enddo
-             a_nbf = a_nbf_s
-             b_nbf = b_nbf_s
-             ab_cmp = a_nbf*b_nbf
-          endif
-          if (bas_spherical(ket)) then
-             c_nbf_s = int_nbf_s(Lc)
-             d_nbf_s = int_nbf_s(Ld)
-             do ityp = 1, 6
-                call spcart_ket2etran(eri(1,ityp),scr,
-     &               d_nbf,c_nbf,d_nbf_s,c_nbf_s,
-     &               Ld, Lc, d_gen, c_gen,
-     &               ab_gen*ab_cmp,.false.)
-             enddo
-             c_nbf = c_nbf_s
-             d_nbf = d_nbf_s
-          endif
+          do_bra=bas_spherical(bra)
+          do_ket=bas_spherical(ket)
+          call giao_to_sph(eri,leri,scr,La,Lb,Lc,Ld,a_nbf,b_nbf,c_nbf,
+     &                     d_nbf,a_nbf_s,b_nbf_s,c_nbf_s,d_nbf_s,
+     &                     a_gen,b_gen,c_gen,d_gen,ab_gen,ab_cmp,
+     &                     cd_gen,cd_cmp,do_bra,do_ket)
         endif
       else
         write(luout,*)'int_giao_2e: cannot do sp integrals'
@@ -249,3 +182,36 @@ c
         call errquit('int_giao_2e: fatal error ',0, INT_ERR)
       endif
       end
+c
+      subroutine giao_to_sph(eri,leri,scr,La,Lb,Lc,Ld,a_nbf,b_nbf,c_nbf,
+     &                     d_nbf,a_nbf_s,b_nbf_s,c_nbf_s,d_nbf_s,
+     &                     a_gen,b_gen,c_gen,d_gen,ab_gen,ab_cmp,
+     &                     cd_gen,cd_cmp,do_bra,do_ket)
+      implicit none
+c
+      integer leri
+      double precision eri(leri,6), scr(*)
+      integer La,Lb,Lc,Ld,a_nbf,b_nbf,c_nbf,d_nbf
+      integer a_nbf_s,b_nbf_s,c_nbf_s,d_nbf_s,a_gen,b_gen,c_gen,d_gen
+      integer ab_gen,ab_cmp,cd_gen,cd_cmp
+      logical do_bra,do_ket
+c
+      integer ityp
+c
+      ab_cmp = a_nbf_s*b_nbf_s
+      do ityp = 1, 6
+         call spcart_bra2etran(eri(1,ityp),scr,
+     &        b_nbf,a_nbf,b_nbf_s,a_nbf_s,
+     &        Lb, La, b_gen, a_gen,
+     &        cd_gen*cd_cmp,.false.)
+         call spcart_ket2etran(eri(1,ityp),scr,
+     &        d_nbf,c_nbf,d_nbf_s,c_nbf_s,
+     &        Ld, Lc, d_gen, c_gen,
+     &        ab_gen*ab_cmp,.false.)
+      enddo
+      a_nbf = a_nbf_s
+      b_nbf = b_nbf_s
+      c_nbf = c_nbf_s
+      d_nbf = d_nbf_s
+      end
+c
