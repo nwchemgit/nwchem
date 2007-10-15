@@ -1,5 +1,5 @@
       subroutine ga_orthog(g_vecs, g_over, ometric)
-C$Id: ga_orthog.F,v 1.13 2006-01-19 19:44:54 edo Exp $
+C$Id: ga_orthog.F,v 1.14 2007-10-15 23:32:44 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -166,8 +166,10 @@ c
 c
          if (si .eq. 0.0d0) call errquit('ga_orthog: hard zero', i,
      &       0)
-         if (si .lt. 0.0d0) call errquit('ga_orthog: negative', i,
-     &       0)
+         if (si .lt. 0.0d0) then
+            write(6,*) 'Negative value orthog: ',si
+            call errquit('ga_orthog: negative', i, 0)
+         endif
          scale = 1.0d0/sqrt(si)
          do u = ulo, uhi
             vecs(u,i) = vecs(u,i) * scale
