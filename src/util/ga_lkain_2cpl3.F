@@ -3,7 +3,7 @@
      $   tol, mmaxsub, maxiter, odiff, oprint, omega, limag,
      &   lifetime, gamwidth, ncomp)
 
-c     $Id: ga_lkain_2cpl3.F,v 1.2 2007-01-25 02:10:39 jochen Exp $
+c     $Id: ga_lkain_2cpl3.F,v 1.3 2007-10-15 23:34:51 bert Exp $
 
       implicit none
 #include "errquit.fh"
@@ -95,7 +95,9 @@ c
 c     
       odebug = util_print('debug lsolve', print_never) .and. 
      $   ga_nodeid().eq.0
-      acc = 0.01d0*tol
+      if (.not. rtdb_get(rtdb, 'cphf:acc',    mt_dbl, 1,
+     &                            acc)) acc = 0.01d0*tol
+      if (ga_nodeid().eq.0) write(luout,*) 'CPHF:ACC',acc
 c     
       call ga_inquire(g_x(1), type, n, nvec)
 
@@ -171,6 +173,7 @@ c     the number of components
       call ga_zero(g_y)
       call ga_zero(g_Ay)
       call ga_zero(g_r2)
+      call ga_sync()
 c     
       if (oprint .and. ga_nodeid().eq.0) then
         write(6,2)
@@ -198,6 +201,7 @@ c
           do ipm = 1,ncomp   
             call ga_add(1.0d0, g_x(ipm), -1.0d0,
      &         g_xold(ipm),  g_x(ipm))
+            call ga_sync()
           enddo
         endif
 c       
@@ -207,6 +211,7 @@ c       solution vector: g_x and g_Ax MUST have two components here
         if (debug) write (6,*) 'calling product from ga_lkain_2cpl'
         call product(acc, g_x, g_Ax, g_x_im, g_Ax_im, omega, limag,
      &     lifetime, gamwidth, ncomp)
+        call ga_sync()
         if (debug) write (6,*) 'returning product from ga_lkain_2cpl'
 
 c       g_r is zeroed below so we should make sure to do the same
@@ -220,18 +225,21 @@ c       with g_r2 here
      &         g_Axold(ipm), g_Ax(ipm))
             call ga_add(1.0d0, g_x(ipm),  1.0d0,
      &         g_xold(ipm),  g_x(ipm))
+            call ga_sync()
             call ga_copy(g_x(ipm), g_xold(ipm))
             call ga_copy(g_Ax(ipm), g_Axold(ipm))
           end if
           call ga_zero(g_r(ipm))
+          call ga_sync()
 c
 c         g_Ax = g_b if the system is solved. During the first cycle,
 c         g_Ax is calculated from the initial guess
           call ga_add(1.0d0, g_b(ipm),
      &       -1.0d0, g_Ax(ipm), g_r(ipm)) ! The residual
+          call ga_sync()
 c         
         enddo                   ! ipm = 1,ncomp
-
+        call ga_sync()
 
 c       convergence checking:
 c       find the largest element of the residual either 
@@ -275,12 +283,14 @@ c       in case converge_precond is .false.
           call precond(g_Ax(2),  omega)
           if (.not.converge_precond) call precond(g_r(2), omega)
         endif       
+        call ga_sync()
         
 c       Copy the vectors to the subspace work area
 c       
         call ga_copy_patch('n', 
      $     g_Ax(1), 1, n, 1, nvec, 
      $     g_Ay, 1, n, nsub+1, nsub+nvec)
+        call ga_sync()
         if (ncomp.gt.1) then
           call ga_copy_patch('n', 
      $       g_Ax(2), 1, n, 1, nvec, 
@@ -289,6 +299,7 @@ c
         call ga_copy_patch('n', 
      $     g_x(1), 1, n, 1, nvec, 
      $     g_y, 1, n, nsub+1, nsub+nvec)
+        call ga_sync()
         if (ncomp.gt.1) then
           call ga_copy_patch('n', 
      $       g_x(2), 1, n, 1, nvec, 
@@ -325,7 +336,6 @@ c
         call ga_sync()
         call ga_dgemm('t','n',nsub,nsub,n2,1.0d0,
      &     g_y,g_Ay,0.0d0,g_a)
-        call ga_sync()
         call ga_dgemm('t','n',nsub,nvec,n2,1.0d0,
      &     g_y,g_r2,0.0d0,g_bb)
         call ga_sync()
@@ -355,6 +365,8 @@ c
         end if
 c       
 c       copy components of g_r2 into g_r before adding g_r to  g_x
+c
+        call ga_sync()
         call ga_copy_patch('n', 
      $     g_r2, 1, n, 1, nvec, 
      $     g_r(1), 1, n, 1,nvec)
@@ -363,20 +375,23 @@ c       copy components of g_r2 into g_r before adding g_r to  g_x
      $       g_r2, n+1, n2, 1, nvec, 
      $       g_r(2), 1, n, 1,nvec)
         endif
-        
+        call ga_sync()
+c       
         do ipm = 1,ncomp
           call ga_add(1.0d0, g_r(ipm), 1.0d0, g_x(ipm), g_x(ipm))
         enddo
         
+        call ga_sync()
         call ga_dgemm('n','n',n2,nvec,nsub,1.0d0,
      &     g_y,g_c,0.0d0,g_r2)
+        call ga_sync()
         if (odebug) then
           write(6,*) ' The update in the subspace '
           call ga_print(g_r2)
         end if
-        
 c       
 c       copy components of g_r2 into g_r before adding g_r to  g_x
+c
         call ga_copy_patch('n', 
      $     g_r2, 1, n, 1, nvec, 
      $     g_r(1), 1, n, 1,nvec)
@@ -385,9 +400,11 @@ c       copy components of g_r2 into g_r before adding g_r to  g_x
      $       g_r2, n+1, n2, 1, nvec, 
      $       g_r(2), 1, n, 1,nvec)
         endif
+        call ga_sync()
         do ipm = 1,ncomp
           call ga_add(1.0d0, g_r(ipm), 1.0d0, g_x(ipm), g_x(ipm))
         enddo
+        call ga_sync()
 c        
         if (.not. ga_destroy(g_a)) call errquit
      &     ('lkain_2cpl: a',0, GA_ERR)
@@ -404,34 +421,42 @@ c           component 1:
             call ga_copy_patch('n', 
      $         g_Ay,    1, n, isub, isub+nvec-1, 
      $         g_Ax(1), 1, n, 1, nvec)
+            call ga_sync()
             call ga_copy_patch('n', 
      $         g_Ax(1), 1, n, 1, nvec,
      $         g_Ay,    1, n, isub-nvec, isub-1)
+            call ga_sync()
 c           component 2: 
             if (ncomp.gt.1) then
               call ga_copy_patch('n', 
      $           g_Ay,    n+1, n2, isub, isub+nvec-1, 
      $           g_Ax(2), 1,   n,  1, nvec)
+              call ga_sync()
               call ga_copy_patch('n', 
      $           g_Ax(2), 1,   n,  1, nvec,
      $           g_Ay,    n+1, n2, isub-nvec, isub-1)            
+              call ga_sync()
             endif
 c           
 c           component 1:
             call ga_copy_patch('n', 
      $         g_y,     1, n, isub, isub+nvec-1, 
      $         g_Ax(1), 1, n, 1, nvec)
+            call ga_sync()
             call ga_copy_patch('n', 
      $         g_Ax(1), 1, n, 1, nvec,
      $         g_y,     1, n, isub-nvec, isub-1)            
+            call ga_sync()
 c           component 2:
             if (ncomp.gt.1) then
               call ga_copy_patch('n', 
      $           g_y,     n+1, n2, isub, isub+nvec-1, 
      $           g_Ax(2), 1,   n,  1, nvec)
+              call ga_sync()
               call ga_copy_patch('n', 
      $           g_Ax(2), 1,   n,  1, nvec,
      $           g_y,     n+1, n2, isub-nvec, isub-1)
+              call ga_sync()
             endif
 c           
           end do                ! isub = nvec+1, maxsub, nvec
@@ -697,6 +722,7 @@ c     all necessary components simultaneously
       call ga_zero(g_y)
       call ga_zero(g_Ay)
       call ga_zero(g_r2)
+      call ga_sync()
 c     
       if (oprint .and. ga_nodeid().eq.0) then
         write(6,2)
@@ -724,6 +750,7 @@ c
           do ipm = 1,ncomp   
             call ga_add(1.0d0, g_x(ipm), -1.0d0,
      &         g_xold(ipm),  g_x(ipm))
+            call ga_sync()
           enddo
         endif
 c       
@@ -741,6 +768,7 @@ c       even if only one of them is used
 c       g_r is zeroed below so we should make sure to do the same
 c       with g_r2 here
         call ga_zero(g_r2)
+        call ga_sync()
         
         do ipm = 1,ncomp
           
@@ -750,6 +778,7 @@ c           jochen: odiff stuff presently ignored
      &         g_Axold(ipm), g_Ax(ipm))
             call ga_add(1.0d0, g_x(ipm),  1.0d0,
      &         g_xold(ipm),  g_x(ipm))
+            call ga_sync()
             call ga_copy(g_x(ipm), g_xold(ipm))
             call ga_copy(g_Ax(ipm), g_Axold(ipm))
           end if                ! odiff
@@ -767,6 +796,7 @@ c         we have divided the perturbation matrix elements by orbital
 c         energy denominators, including the frequency term, 
 c         and assigned real and imaginary parts accordingly)
 
+          call ga_sync()
           call ga_add(1.0d0, g_b(ipm),
      &       -1.0d0, g_Ax(ipm), g_r(ipm)) ! The residual, Real part
 
@@ -776,6 +806,7 @@ c         and assigned real and imaginary parts accordingly)
           endif
 c         
         enddo                   ! ipm = 1,ncomp
+        call ga_sync()
 
 c       convergence checking:
 c       find the largest element of the residual either 
@@ -787,7 +818,8 @@ c       before or after the call to the preconditioner
             call precond(g_r(2),  g_r_im(2),   omega, gamwidth)
           endif          
         endif
-
+        call ga_sync()
+c
         call ga_maxelt(g_r(1), rmax1)
         if (ncomp.gt.1) then
           call ga_maxelt(g_r(2), rmax2)
@@ -830,6 +862,7 @@ c       in case converge_precond is .false.
           if (.not.converge_precond) 
      &       call precond(g_r(2),  g_r_im(2),   omega, gamwidth)
         endif
+        call ga_sync()
         if (debug) write (6,*) 'lkain3_damp: back from precond'
                 
 c       Copy the vectors to the subspace work area
@@ -862,6 +895,7 @@ c
      $       g_x_im(2), 1, n, 1, nvec, 
      $       g_y, n3+1, n4, nsub+1, nsub+nvec)
         endif                   ! lifetime
+        call ga_sync()
         if (debug) write (6,*) 'lkain3_damp: vec to sub complete'
 
 c       g_r2 is needed below for multiplication
@@ -879,6 +913,7 @@ c       g_r2 is needed below for multiplication
      $       g_r_im(2), 1, n, 1, nvec, 
      $       g_r2, n3+1, n4, 1, nvec)
         endif                   ! lifetime
+        call ga_sync()
         if (debug) write (6,*) 'lkain3_damp: r2 complete'
         
         nsub = nsub + nvec
@@ -925,6 +960,7 @@ c
         call ga_sync()
         call ga_dgemm('n','n',n4,nvec,nsub,-1.0d0,
      &     g_Ay,g_c,1.0d0,g_r2)
+        call ga_sync()
         if (odebug) then
           write(6,*) ' The update in the complement '
           call ga_print(g_r2)
@@ -946,17 +982,20 @@ c       copy components of g_r2 into g_r before adding g_r to  g_x
      $       g_r2, n3+1, n4, 1, nvec, 
      $       g_r_im(2), 1, n, 1,nvec)
         endif                   ! lifetime
+        call ga_sync()
         if (debug) write (6,*) 'lkain3_damp: r2 copied'
-                
+c               
         do ipm = 1,ncomp
           call ga_add(1.0d0, g_r(ipm), 1.0d0, g_x(ipm), g_x(ipm))
           if (lifetime)
      &       call ga_add(1.0d0, g_r_im(ipm),
      &       1.0d0, g_x_im(ipm), g_x_im(ipm))
         enddo
-        
+        call ga_sync()
+c       
         call ga_dgemm('n','n',n4,nvec,nsub,1.0d0,
      &     g_y,g_c,0.0d0,g_r2)
+        call ga_sync()
         if (odebug) then
           write(6,*) ' The update in the subspace '
           call ga_print(g_r2)
@@ -979,12 +1018,14 @@ c       copy components of g_r2 into g_r before adding g_r to  g_x
      $       g_r2, n3+1, n4, 1, nvec, 
      $       g_r_im(2), 1, n, 1,nvec)
         endif                   ! lifetime
+        call ga_sync()
         do ipm = 1,ncomp
           call ga_add(1.0d0, g_r(ipm), 1.0d0, g_x(ipm), g_x(ipm))
           if (lifetime)
      &       call ga_add(1.0d0, g_r_im(ipm),
      &       1.0d0, g_x_im(ipm), g_x_im(ipm))
         enddo
+        call ga_sync()
         if (debug) write (6,*) 'lkain3_damp: gr to gx complete'
 c        
         if (.not. ga_destroy(g_a)) call errquit
@@ -1003,6 +1044,7 @@ c           component 1:
             call ga_copy_patch('n', 
      $         g_Ay,    1, n, isub, isub+nvec-1, 
      $         g_Ax(1), 1, n, 1, nvec)
+            call ga_sync()
             call ga_copy_patch('n', 
      $         g_Ax(1), 1, n, 1, nvec,
      $         g_Ay,    1, n, isub-nvec, isub-1)
@@ -1011,6 +1053,7 @@ c           component 2:
               call ga_copy_patch('n', 
      $           g_Ay,    n+1, n2, isub, isub+nvec-1, 
      $           g_Ax(2), 1,   n,  1, nvec)
+              call ga_sync()
               call ga_copy_patch('n', 
      $           g_Ax(2), 1,   n,  1, nvec,
      $           g_Ay,    n+1, n2, isub-nvec, isub-1)  
@@ -1021,6 +1064,7 @@ c             component 1:
               call ga_copy_patch('n', 
      $           g_Ay,    n2+1, n3, isub, isub+nvec-1, 
      $           g_Ax_im(1), 1, n, 1, nvec)
+              call ga_sync()
               call ga_copy_patch('n', 
      $           g_Ax_im(1), 1, n, 1, nvec,
      $           g_Ay,    n2+1, n3, isub-nvec, isub-1)
@@ -1029,6 +1073,7 @@ c             component 2:
                 call ga_copy_patch('n', 
      $             g_Ay,    n3+1, n4, isub, isub+nvec-1, 
      $             g_Ax_im(2), 1,   n,  1, nvec)
+                call ga_sync()
                 call ga_copy_patch('n', 
      $             g_Ax_im(2), 1,   n,  1, nvec,
      $             g_Ay,    n3+1, n4, isub-nvec, isub-1)         
@@ -1037,9 +1082,11 @@ c             component 2:
 c             
 c           Real part:
 c           component 1:
+            call ga_sync()
             call ga_copy_patch('n', 
      $         g_y,     1, n, isub, isub+nvec-1, 
      $         g_Ax(1), 1, n, 1, nvec)
+            call ga_sync()
             call ga_copy_patch('n', 
      $         g_Ax(1), 1, n, 1, nvec,
      $         g_y,     1, n, isub-nvec, isub-1)
@@ -1048,6 +1095,7 @@ c           component 2:
               call ga_copy_patch('n', 
      $           g_y,     n+1, n2, isub, isub+nvec-1, 
      $           g_Ax(2), 1,   n,  1, nvec)
+              call ga_sync()
               call ga_copy_patch('n', 
      $           g_Ax(2), 1,   n,  1, nvec,
      $           g_y,     n+1, n2, isub-nvec, isub-1)
@@ -1059,6 +1107,7 @@ c             component 1:
               call ga_copy_patch('n', 
      $           g_y,     n2+1, n3, isub, isub+nvec-1, 
      $           g_Ax_im(1), 1, n, 1, nvec)
+              call ga_sync()
               call ga_copy_patch('n', 
      $           g_Ax_im(1), 1, n, 1, nvec,
      $           g_y,     n2+1, n3, isub-nvec, isub-1)
@@ -1067,6 +1116,7 @@ c             component 2:
                 call ga_copy_patch('n', 
      $             g_y,     n3+1, n4, isub, isub+nvec-1, 
      $             g_Ax_im(2), 1,   n,  1, nvec)
+                call ga_sync()
                 call ga_copy_patch('n', 
      $             g_Ax_im(2), 1,   n,  1, nvec,
      $             g_y,     n3+1, n4, isub-nvec, isub-1)
