@@ -1,4 +1,4 @@
-c $Id: ga_it2.F,v 1.9 2004-12-03 22:42:37 bert Exp $
+c $Id: ga_it2.F,v 1.10 2007-10-15 23:35:11 bert Exp $
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc
@@ -220,6 +220,7 @@ c
       call ga_zero(g_Ay)
       call ga_zero(g_Ax)
       call ga_zero(g_r)
+      call ga_sync()
 c
       if (oprint .and. ga_nodeid().eq.0) then
          write(6,2)
@@ -242,7 +243,9 @@ c
             call ga_copy(g_Ax, g_Axold)
          end if
          call ga_zero(g_r)
+         call ga_sync()
          call ga_add(1.0d0, g_b, -1.0d0, g_Ax, g_r) ! The residual
+         call ga_sync()
          call ga_maxelt(g_r, rmax)
          if (oprint .and. ga_nodeid().eq.0) then
             write(6,3) iter, nsub+nvec, rmax, util_wallsec()
@@ -255,6 +258,7 @@ c
          end if
          call precond(g_Ax,0.0d0)
          call precond(g_r,0.0d0)
+         call ga_sync()
 c
 c     Copy the vectors to the subspace work area
 c
@@ -305,13 +309,17 @@ c
             write(6,*) ' The update in the complement '
             call ga_print(g_r)
          end if
+         call ga_sync()
          call ga_add(1.0d0, g_r, 1.0d0, g_x, g_x)
+         call ga_sync()
          call ga_dgemm('n','n',n,nvec,nsub,1.0d0,g_y,g_c,0.0d0,g_r)
          if (odebug) then
             write(6,*) ' The update in the subspace '
             call ga_print(g_r)
          end if
+         call ga_sync()
          call ga_add(1.0d0, g_r, 1.0d0, g_x, g_x)
+         call ga_sync()
 c
          if (.not. ga_destroy(g_a)) call errquit('lkain: a',0, GA_ERR)
          if (.not. ga_destroy(g_bb))call errquit('lkain: b',0, GA_ERR)
@@ -336,6 +344,7 @@ c
      $              g_y, 1, n, isub-nvec, isub-1)
             end do
             nsub = nsub - nvec
+            call ga_sync()
          end if
 c
       end do
