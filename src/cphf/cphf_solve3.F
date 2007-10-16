@@ -8,7 +8,7 @@ c jochen: Further extended this subroutine to deal with
 c         finite-lifetime damping. Arrays dealing with imaginary
 c         parts have been added, indicated by suffix "_im"
 *
-* $Id: cphf_solve3.F,v 1.2 2007-10-03 21:49:47 jochen Exp $
+* $Id: cphf_solve3.F,v 1.3 2007-10-16 15:51:17 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -183,9 +183,9 @@ c
 c
 c note: the original default value for "tol" was 1d-4
       if (.not. rtdb_get(rtdb, 'cphf:thresh', mt_dbl, 1, 
-     $     precond_tol)) precond_tol=1d-5
+     $     precond_tol)) precond_tol=1d-4
       if (.not. rtdb_get(rtdb, 'cphf:maxiter', mt_int, 1,
-     $     max_precond_iter)) max_precond_iter = 100
+     $     max_precond_iter)) max_precond_iter = 20
 c
 c ... jochen: open second rhs file first and check if it has data
       if (ncomp.gt.1) then
@@ -512,7 +512,7 @@ c        g_grad is the constant rhs vector
            call ga_lkain_2cpl3(rtdb,
      &        g_work, g_grad, g_work_im, g_grad_im, rohf_hessv3,
      &        rohf_hessv_precond3,
-     $        precond_tol, 10*nvec, 20, .false., oprint_solve, omega,
+     $        precond_tol,10*nvec,maxiter,.false., oprint_solve, omega,
      &        limag, lifetime, gamwidth, ncomp)
            if (debug) write (6,*) 'exiting ga_lkain_2cpl3'
          else
@@ -520,7 +520,7 @@ c        g_grad is the constant rhs vector
            call ga_lkain_2cpl3_damp(rtdb,
      &        g_work, g_grad, g_work_im, g_grad_im, rohf_hessv3,
      &        rohf_hessv_precond3_damp,
-     $        precond_tol, 10*nvec, 20, .false., oprint_solve, omega,
+     $        precond_tol,10*nvec,maxiter,.false., oprint_solve, omega,
      &        limag, lifetime, gamwidth, ncomp)
            if (debug) write (6,*) 'exiting ga_lkain_2cpl3_damp'
          endif
