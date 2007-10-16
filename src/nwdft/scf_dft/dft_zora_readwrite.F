@@ -17,12 +17,12 @@ c
 #include "util.fh"
 #include "stdio.fh"
 c
+      integer nsets             ! restricted or unrestricted
       character*(*) filename
       integer iset              ! restricted or unrestricted
       integer g_zora_sf(nsets)
       integer g_zora_scale_sf(nsets)
 c
-      integer nsets             ! restricted or unrestricted
       integer nbf               ! No. of functions in basis
       integer nmo(nsets)       
       integer ok, jset, i, j
@@ -32,7 +32,8 @@ c
       parameter (unitno = 777)
       integer inntsize,ddblsize
 c     
-      l_zora = -1               ! An invalid MA handle
+c     Initialise to invalid MA handle
+      l_zora = -1
 c
       inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       ddblsize=MA_sizeof(MT_DBL,1,MT_BYTE)
