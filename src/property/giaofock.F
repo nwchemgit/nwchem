@@ -1,7 +1,7 @@
 cedo#define NBACC 1
 cedo#define NBGET 1
       subroutine new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,kfac)
-c $Id: giaofock.F,v 1.9 2007-10-15 23:31:27 bert Exp $
+c $Id: giaofock.F,v 1.10 2007-10-17 15:59:18 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "errquit.fh"
@@ -364,6 +364,7 @@ c
 c
       integer blen
       integer leri
+      integer idim, jdim, kdim, ldim,integ
       double precision eri(leri,6)
       double precision tol2e, kfac
       double precision
@@ -376,7 +377,6 @@ c
      $     f_il(idim,ldim,3), f_jk(jdim,kdim,3)
       double precision fac,er2fac,errsum,errdif,
      V     erif,erif3,facij
-      integer idim, jdim, kdim, ldim,integ0
       logical ieqj, keql,doik,dojk
       double precision eps
       parameter(eps=1d-12)
