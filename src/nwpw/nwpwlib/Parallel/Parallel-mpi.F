@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-mpi.F,v 1.8 2007-09-04 23:26:49 bylaska Exp $
+* $Id: Parallel-mpi.F,v 1.9 2007-10-19 18:37:05 bylaska Exp $
 *
 
 * Parallel.f
@@ -522,7 +522,10 @@ c     implicit none
       integer psend,nsize
       integer isum(*)
 
+#include "mafdecls.fh"
+#include "errquit.fh"
 #include "Parallel.fh"
+
 #ifdef MPI4
 #include "stupid_mpi4.fh"
 #else
@@ -531,6 +534,7 @@ c     implicit none
 
 
 #ifdef MPI4
+      logical   value
       integer*4 tpsend
       integer   sumall(2)
 
