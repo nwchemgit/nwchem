@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests.mpi,v 1.18 2007-10-18 20:11:32 niri Exp $
+# $Id: doqmtests.mpi,v 1.19 2007-10-22 18:36:55 jhammond Exp $
 #
 #---   small tests
 ./runtests.mpi.unix procs $1 auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
@@ -57,6 +57,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $1 tce_lr_ccsd_t
 ./runtests.mpi.unix procs $1 tce_lr_ccsd_tq
 ./runtests.mpi.unix procs $1 tce_ozone_2eorb
+./runtests.mpi.unix procs $1 tce_polar_ccsd_small
 ./runtests.mpi.unix procs $1 oniom1
 ./runtests.mpi.unix procs $1 c60_ecp
 ./runtests.mpi.unix procs $1 h2o_vscf
@@ -90,3 +91,7 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $1 oniom3
 ./runtests.mpi.unix procs $1 cytosine_ccsd
 ./runtests.mpi.unix procs $1 h2o_selci
+./runtests.mpi.unix procs $1 tce_polar_ccsdt_small
+echo 'This test requires 16 processors to run quickly'
+./runtests.mpi.unix procs $1 tce_polar_ccsd_big
+

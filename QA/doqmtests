@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests,v 1.60 2007-10-18 20:11:31 niri Exp $
+# $Id: doqmtests,v 1.61 2007-10-22 18:36:54 jhammond Exp $
 #
 #---   small tests
 set np = 1
@@ -63,6 +63,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.unix procs $np tce_lr_ccsd_t
 ./runtests.unix procs $np tce_lr_ccsd_tq
 ./runtests.unix procs $np tce_ozone_2eorb
+./runtests.unix procs $np tce_polar_ccsd_small
 ./runtests.unix procs $np oniom1
 ./runtests.unix procs $np c60_ecp
 ./runtests.unix procs $np h2o_vscf
@@ -94,3 +95,4 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.unix procs $np oniom3
 ./runtests.unix procs $np cytosine_ccsd
 ./runtests.unix procs $np h2o_selci
+./runtests.unix procs $np tce_polar_ccsdt_small
