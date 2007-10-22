@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests,v 1.61 2007-10-22 18:36:54 jhammond Exp $
+# $Id: doqmtests,v 1.62 2007-10-22 18:39:34 jhammond Exp $
 #
 #---   small tests
 set np = 1
@@ -95,4 +95,3 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.unix procs $np oniom3
 ./runtests.unix procs $np cytosine_ccsd
 ./runtests.unix procs $np h2o_selci
-./runtests.unix procs $np tce_polar_ccsdt_small

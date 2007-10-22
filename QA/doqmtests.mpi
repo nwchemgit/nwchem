@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests.mpi,v 1.19 2007-10-22 18:36:55 jhammond Exp $
+# $Id: doqmtests.mpi,v 1.20 2007-10-22 18:39:34 jhammond Exp $
 #
 #---   small tests
 ./runtests.mpi.unix procs $1 auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
@@ -91,7 +91,6 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $1 oniom3
 ./runtests.mpi.unix procs $1 cytosine_ccsd
 ./runtests.mpi.unix procs $1 h2o_selci
-./runtests.mpi.unix procs $1 tce_polar_ccsdt_small
 echo 'This test requires 16 processors to run quickly'
 ./runtests.mpi.unix procs $1 tce_polar_ccsd_big
 

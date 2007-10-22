@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests.tcg5,v 1.6 2007-10-22 18:36:55 jhammond Exp $
+# $Id: doqmtests.tcg5,v 1.7 2007-10-22 18:39:34 jhammond Exp $
 #
 #---   small tests
 set np = 1
@@ -80,7 +80,6 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.tcg5.unix procs $np oniom3
 ./runtests.tcg5.unix procs $np cytosine_ccsd
 ./runtests.tcg5.unix procs $np h2o_selci
-./runtests.tcg5.unix procs $np tce_polar_ccsdt_small
 echo 'This test requires 16 processors to run quickly'
 ./runtests.tcg5.unix procs $np tce_polar_ccsd_big
 
