@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.43 2007-09-18 13:57:01 niri Exp $
+c     $Id: dft_input.F,v 1.44 2007-10-24 15:25:00 edo Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -309,6 +309,7 @@ c
       if (.not.rtdb_put(rtdb,'dft:delta_ac',mt_dbl,1,shift))
      &   call errquit('dft_inp: rtdb_put failed', 2500, RTDB_ERR)
 c
+      goto 10
  2600 lcdft = .true.
       if (.not. rtdb_put(rtdb,'dft:lcdft', mt_log, 1, lcdft))
      &   call errquit('dft_input: rtdb_put failed', 2600, RTDB_ERR)
