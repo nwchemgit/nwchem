@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.50 2006-06-14 19:21:10 windus Exp $
+# $Id: makelib.h,v 1.51 2007-10-24 16:33:24 d3p852 Exp $
 
 #
 # A makefile for a library should
@@ -377,5 +377,5 @@ dependencies:	$(wildcard *.c) $(wildcard *.F) $(BINDIR)/depend.x
 	$(BINDIR)/depend.x $(LIB_INCLUDES) $(INCPATH) > dependencies
 
 
-include dependencies
+-include dependencies
 
