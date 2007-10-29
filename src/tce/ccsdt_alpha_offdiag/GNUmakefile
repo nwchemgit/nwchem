@@ -1,6 +1,6 @@
-#$Id: GNUmakefile,v 1.5 2007-09-24 22:38:20 jhammond Exp $
+#$Id: GNUmakefile,v 1.6 2007-10-29 02:32:50 jhammond Exp $
 
-ifndef CCSDT
+ifndef CCSDTLR
 OBJ_OPTIMIZE = \
 ccsdt_lr_alpha_offdiag.o
 else
@@ -908,13 +908,7 @@ offset_ccsdt_lr_alpha_offdiag_9_4_1.o \
 offset_ccsdt_lr_alpha_offdiag_9_5_1.o \
 offset_ccsdt_lr_alpha_offdiag_9_6_1.o \
 offset_ccsdt_lr_alpha_offdiag_9_7_1.o
-endif
 
-LIB_INCLUDES = -I../include
-
-LIBRARY = libtce.a
-
-ifdef CCSDT
 USES_BLAS = \
 ccsdt_lr_alpha_offdiag_10_1_1.F \
 ccsdt_lr_alpha_offdiag_10_1.F \
@@ -1524,10 +1518,14 @@ ccsdt_lr_alpha_offdiag_9.F \
 ccsdt_lr_alpha_offdiag.F
 endif
 
-ifndef CCSDT
+LIB_INCLUDES = -I../include
+
+LIBRARY = libtce.a
+
+ifndef CCSDTLR
 LIB_DEFINES = -DDEBUG_PRINT
 else
-LIB_DEFINES = -DDEBUG_PRINT -DCCSDT
+LIB_DEFINES = -DDEBUG_PRINT -DCCSDTLR
 endif
 #
 # Possible #defines
