@@ -1,11 +1,12 @@
-#$Id: GNUmakefile,v 1.34 2007-10-12 18:12:38 jhammond Exp $
+#$Id: GNUmakefile,v 1.35 2007-10-29 02:25:17 jhammond Exp $
 #
 
 SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
           ccsd_lambda ccsdt_lambda ccsdtq_lambda \
           eomccsd eomccsdt eomccsdtq ccsd_t cr-eomccsd_t \
-          diis2 response ccsd_lr ccsdt_alpha_offdiag lrh emb
+          diis2 response ccsd_alpha ccsd_beta lrh emb \
+          ccsdt_alpha_offdiag ccsdtq_alpha_offdiag
 
 OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o gatodra.o gatoeaf.o \
