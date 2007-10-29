@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.82 2007-10-11 19:12:13 d3p307 Exp $
+$Id: INSTALL,v 1.83 2007-10-29 17:53:46 d3p307 Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -664,9 +664,10 @@ table summarize supported combinations of ARMCI_NETWORK and NWCHEM_TARGET.
                   LINUX64
   ELAN4           LINUX64       Quadrics/QsNetII Elan4
 
-  BGMLMPI         BGL           3Dtorus/GlobalCollective
-                                JTAG
-                                Giganet
+  BGMLMPI         BGL           IBM BlueGene Torus
+                                Global Tree/Interrupt 
+                                
+                                
 
 For more information/support, you are referred to the ARMCI support page at
 section 2.1.2 of the following URL
