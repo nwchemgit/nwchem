@@ -1,9 +1,9 @@
-#$Id: GNUmakefile,v 1.1 2007-10-29 02:25:22 jhammond Exp $
+#$Id: GNUmakefile,v 1.2 2007-10-30 00:13:15 jhammond Exp $
 
 ifndef CCSDTQ
 OBJ_OPTIMIZE = ccsdtq_lr_alpha.o
-else
 
+else
 OBJ_OPTIMIZE = \
 ccsdtq_lr_alpha_10_1_1.o\
 ccsdtq_lr_alpha_10_1.o\
