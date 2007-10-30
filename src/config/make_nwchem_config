@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.228 2007-09-03 03:29:36 d3p307 Exp $
+# $Id: make_nwchem_config,v 1.229 2007-10-30 21:33:11 bylaska Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -31,7 +31,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lcphf -lscfaux -lesp -lddscf -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze -ldiana -lqhop\
-                    -lpfft -ldplot -loimp2 -lpython -ldrdy -lvscf -lqmmm -lqmd -letrans\
+                    -lpfft -ldplot -loimp2 -lnwpython -ldrdy -lvscf -lqmmm -lqmd -letrans\
                     -lpspw -ltddft -ltce -lgeninterface -lbq -lcons -lperfm -lneb -ldntmc -ltransport
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
@@ -185,7 +185,7 @@ EXCLUDED_SUBDIRS = $(filter-out $(MODULES),$(KNOWN_MODULE_SUBDIRS))
 MOD_LIBS = $(MODULES)
 
 MOD_LIBS := $(patsubst geninterface,-lgeninterface,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst python,-lpython,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst python,-lnwpython,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst selci,-lselci,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst mp2_grad,-lmp2,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst NWints,-lnwints,$(MOD_LIBS) )
