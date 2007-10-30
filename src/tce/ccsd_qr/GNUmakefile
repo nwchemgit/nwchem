@@ -1,16 +1,14 @@
-#$Id: GNUmakefile,v 1.1 2007-10-30 16:48:23 jhammond Exp $
+#$Id: GNUmakefile,v 1.2 2007-10-30 17:20:50 jhammond Exp $
 
 OBJ_OPTIMIZE = ccsd_quad_ot1.o ccsd_quad_ot2.o \
-               ccsd_quad_xy1.o ccsd_quad_xy2_1.o \
-               ccsd_quad_xy2_2.o  ccsd_quad_xy2_3.o
+               ccsd_quad_xy1.o ccsd_quad_xy2.o
 
 LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
 USES_BLAS = ccsd_quad_ot1.F ccsd_quad_ot2.F \
-            ccsd_quad_xy1.F ccsd_quad_xy2_1.F \
-            ccsd_quad_xy2_2.F  ccsd_quad_xy2_3.F
+            ccsd_quad_xy1.F ccsd_quad_xy2.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 #
