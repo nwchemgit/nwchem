@@ -107,6 +107,7 @@ c
       external dabsmax
       logical l3d
       integer jrsh,jrsh2,n3d,idir,jdir
+      integer g_update(2)
 cnmr
       double precision Rij(3) ! vector R(jat) - R(iat)
       integer inia, iq, ix, ix1, ix2
@@ -188,7 +189,13 @@ c
 c
 c     repl stuff
 c
-
+      if(xcreplicated.and.dorepxc) then
+         g_update(1)=k_repxc(1)
+         g_update(2)=k_repxc(2)
+      else
+         g_update(1)=g_zora(1)
+         g_update(2)=g_zora(2)
+      endif
       do 430 iat0=1,natleft
          call starttimer(monitor_screen2)
          iat=nonzero(iat0)
@@ -426,10 +433,10 @@ c     Monitoring
                            call endtimer( monitor_wait1)
                         endif			
                         nbfirst1=.false.
-                        call upd_atombl_nb(g_zora(ii),
+                        call upd_atombl_nb(g_update(ii),
      &                       basis,iat,jat,ttmat,nbhandl1)
                      else
-                        call upd_atom_block(g_zora(ii),
+                        call upd_atom_block(g_update(ii),
      &                       basis,iat,jat,ttmat)
 
 
@@ -486,11 +493,11 @@ c     Monitoring
                               call ga_nbwait(nbhandl2)
                            endif			
                            nbfirst2=.false.
-                           call upd_atombl_nb(g_zora(ii),
+                           call upd_atombl_nb(g_update(ii),
      .                          basis,jat,iat,tmat,nbhandl2)
                         else
 
-                           call upd_atom_block(g_zora,basis,
+                           call upd_atom_block(g_update(ii),basis,
      J                          jat,iat,tmat)
                         endif
                      endif
