@@ -1,4 +1,4 @@
-c $Id: util_ga_test.F,v 1.1 2003-03-08 01:58:13 sohirata Exp $
+c $Id: util_ga_test.F,v 1.2 2007-10-30 18:15:34 d3p307 Exp $
 c vector boxes lack arithmetic precision 
 #ifdef CRAY_YMP
 # define THRESH 1d-10
@@ -1416,7 +1416,7 @@ c
          enddo
       endif 
 c
-      call ga_locate_region(g_a, 1, n, 1,n, map,np)
+      status = ga_locate_region(g_a, 1, n, 1,n, map,np)
       found = 0
       do j=1,n
          do i=1,n
