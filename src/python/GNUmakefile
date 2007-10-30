@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.6 2001-11-29 22:19:46 bert Exp $
+# $Id: GNUmakefile,v 1.7 2007-10-30 21:32:03 bylaska Exp $
 #
 
-LIBRARY = libpython.a
+LIBRARY = libnwpython.a
 
 OBJ = python_input.o task_python.o nwchem_wrap.o nw_inp_from_string.o 
 
