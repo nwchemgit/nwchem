@@ -1,4 +1,4 @@
-c $Id: ga_it2.F,v 1.12 2007-10-31 19:12:01 bert Exp $
+c $Id: ga_it2.F,v 1.13 2007-10-31 19:16:30 bert Exp $
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc
@@ -123,7 +123,7 @@ c
       call errquit('done',0, MEM_ERR)
 c
       end
-      subroutine ga_lkain(g_x, g_b, product, precond, 
+      subroutine ga_lkain(rtdb,g_x, g_b, product, precond, 
      $     tol, mmaxsub, maxiter, odiff, oprint)
       implicit none
 #include "errquit.fh"
@@ -141,6 +141,7 @@ c
       integer maxiter           ! [input] maximum no. of iterations
       logical odiff             ! [input] use differences in product
       logical oprint            ! [input] print flag
+      integer rtdb
 c
 c     Solves the linear equations A(X)=0 for multiple vectors.
 c
