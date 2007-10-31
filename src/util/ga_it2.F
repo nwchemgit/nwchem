@@ -1,4 +1,4 @@
-c $Id: ga_it2.F,v 1.11 2007-10-31 19:04:04 bert Exp $
+c $Id: ga_it2.F,v 1.12 2007-10-31 19:12:01 bert Exp $
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc
@@ -130,6 +130,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
+#include "rtdb.fh"
 c
       integer g_x               ! [input/output] Initial guess/solution
       integer g_b               ! [input] Right-hand side vectors
