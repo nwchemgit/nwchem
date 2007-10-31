@@ -16,7 +16,7 @@ c     have an imaginary part, too
 #include "util.fh"
 #include "global.fh"
 c     
-c     $Id: rohf_hessv3.F,v 1.3 2007-10-31 19:02:06 bert Exp $
+c     $Id: rohf_hessv3.F,v 1.4 2007-10-31 22:23:31 d3p852 Exp $
 c
 c ... jochen: these two arrays now have two components:
       integer g_x(2)  ! [input]  A-matrix elements for density matrix
@@ -80,9 +80,10 @@ c     tight convergence.
 c
 c ... jochen: screen components
       do ipm = 1,ncomp
-        call ga_screen(g_ax(ipm), max(min(acc*acc,acc*0.01d0,1d-12),1d-16))
+        call ga_screen(g_ax(ipm),
+     &       max(min(acc*acc,acc*0.01d0,1d-12),1d-16))
         if (lifetime) call ga_screen(g_ax_im(ipm), 
-     &                            max(min(acc*acc,acc*0.01d0,1d-12),1d-16))
+     &       max(min(acc*acc,acc*0.01d0,1d-12),1d-16))
       enddo
 c
       end
@@ -95,7 +96,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax, g_x_im, g_Ax_im, omega, limag,
      &   lifetime, gamwidth, ncomp)
-C     $Id: rohf_hessv3.F,v 1.3 2007-10-31 19:02:06 bert Exp $
+C     $Id: rohf_hessv3.F,v 1.4 2007-10-31 22:23:31 d3p852 Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -245,7 +246,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       subroutine rohf_hessv_2e3( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, noskew, g_x, acc, g_ax, limag)
-C     $Id: rohf_hessv3.F,v 1.3 2007-10-31 19:02:06 bert Exp $
+C     $Id: rohf_hessv3.F,v 1.4 2007-10-31 22:23:31 d3p852 Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
