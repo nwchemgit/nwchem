@@ -1,6 +1,6 @@
       subroutine cphf_solve2(rtdb)
 *
-* $Id: cphf_solve2.F,v 1.12 2007-10-15 23:35:57 bert Exp $
+* $Id: cphf_solve2.F,v 1.13 2007-10-31 19:17:21 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -269,7 +269,7 @@ c     $        g_grad, g_work, precond_acc, precond_iter))
 c     $        call errquit('cphf did not converge',precond_iter)
          call ga_copy(g_grad, g_work)
          call uhf_precond(g_work,0.0d0)
-         call ga_lkain(g_work, g_grad, uhf_hessv2, uhf_precond,
+         call ga_lkain(rtdb,g_work, g_grad, uhf_hessv2, uhf_precond,
      $        precond_tol, 10*nvec, maxiter, .false., oprint_solve)
          noskew_uhf = .true.
       else 
