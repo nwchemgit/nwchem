@@ -1,4 +1,4 @@
-c $Id: ga_it2.F,v 1.10 2007-10-15 23:35:11 bert Exp $
+c $Id: ga_it2.F,v 1.11 2007-10-31 19:04:04 bert Exp $
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc
@@ -170,7 +170,8 @@ c
 c
       odebug = util_print('debug lsolve', print_never) .and. 
      $     ga_nodeid().eq.0
-      acc = 0.01d0*tol
+      if (.not. rtdb_get(rtdb, 'cphf:acc',    mt_dbl, 1,
+     &                            acc)) acc = 0.01d0*tol
 c
       call ga_inquire(g_x, type, n, nvec)
       maxsub = mmaxsub          ! So don't modify input scalar arg
