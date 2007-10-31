@@ -3,7 +3,7 @@
      $   tol, mmaxsub, maxiter, odiff, oprint, omega, limag,
      &   lifetime, gamwidth, ncomp)
 
-c     $Id: ga_lkain_2cpl3.F,v 1.3 2007-10-15 23:34:51 bert Exp $
+c     $Id: ga_lkain_2cpl3.F,v 1.4 2007-10-31 18:58:18 bert Exp $
 
       implicit none
 #include "errquit.fh"
@@ -97,7 +97,6 @@ c
      $   ga_nodeid().eq.0
       if (.not. rtdb_get(rtdb, 'cphf:acc',    mt_dbl, 1,
      &                            acc)) acc = 0.01d0*tol
-      if (ga_nodeid().eq.0) write(luout,*) 'CPHF:ACC',acc
 c     
       call ga_inquire(g_x(1), type, n, nvec)
 
@@ -618,8 +617,10 @@ c     make sure odiff is false (never tested for odiff = .true.)
 c     
       odebug = util_print('debug lsolve', print_never) .and. 
      $   ga_nodeid().eq.0
-      acc = 0.01d0*tol
 c     
+      if (.not. rtdb_get(rtdb, 'cphf:acc',    mt_dbl, 1,
+     &                            acc)) acc = 0.01d0*tol
+
       call ga_inquire(g_x(1), type, n, nvec)
 
       if (ncomp.gt.1) then
