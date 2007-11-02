@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.12 2006-10-06 00:49:16 marat Exp $
+* $Id: cosmo.F,v 1.13 2007-11-02 17:13:58 d3p307 Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -460,7 +460,8 @@ c
       enddo
 c
       if(.not.ma_pop_stack(l_coszan))
-     & call errquit('cosmo_initialize,ma_pop_stack of l_zan failed',911)
+     & call errquit('cosmo_initialize,ma_pop_stack of l_zan failed',
+     & 911,MA_ERR)
 c
 c     ----- create boundary elements of cavity -----
 c
@@ -476,7 +477,8 @@ c
       if(me.eq.0) call util_flush(Luout)
 c
       if(.not.ma_pop_stack(l_coscoor)) call
-     & errquit('cosmo_initialize,ma_pop_stack l_coor failed',911,MA_ERR)
+     & errquit('cosmo_initialize,ma_pop_stack l_coor failed',
+     & 911,MA_ERR)
       if(.not.ma_pop_stack(l_rad)) call
      & errquit('cosmo_initialize,ma_pop_stack l_rad failed',911,MA_ERR)
 c
@@ -566,10 +568,10 @@ c
 c
       if(ificos.eq.0.and.maxbem.gt.6) then
          write(luout,*) '-maxbem- too large for parameters in -cosset-'
-         call errquit('hnd_cosset, -maxbem- too large',911)
+         call errquit('hnd_cosset, -maxbem- too large',911,0)
       elseif(ificos.ne.0.and.maxbem.gt.7) then
          write(luout,*) '-maxbem- too large for parameters in -cosset-'
-         call errquit('hnd_cosset, -maxbem- too large',911)
+         call errquit('hnd_cosset, -maxbem- too large',911,0)
       endif
 c
 c     ----- partition memory -----

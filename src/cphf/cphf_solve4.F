@@ -1,6 +1,6 @@
       subroutine cphf_solve4(rtdb)
 *
-* $Id: cphf_solve4.F,v 1.1 2007-02-27 00:21:30 bert Exp $
+* $Id: cphf_solve4.F,v 1.2 2007-11-02 17:12:08 d3p307 Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -266,7 +266,7 @@ c
      $        max_precond_sub, precond_tol, 
      $        uhf_precond, uhf_hessv2, .false., oprint_solve, 
      $        g_grad2, g_work2, precond_acc, precond_iter))
-     $        call errquit('cphf did not converge',precond_iter)
+     $        call errquit('cphf did not converge',precond_iter,0)
          call ga_copy_patch('N',g_work2,1,vlen,1,1,
      &                           g_work,1,vlen,ivec,ivec)
          enddo
@@ -279,7 +279,7 @@ c
          if(.not.ga_iter_lsolve(vlen, 20, 10, precond_tol,
      $        rohf_hessv_precond, rohf_hessv2, .false., oprint_solve, 
      $        g_grad2, g_work2, precond_acc,precond_iter))
-     $        call errquit('cphf did not converge', precond_iter)
+     $        call errquit('cphf did not converge', precond_iter,0)
          call ga_copy_patch('N',g_work2,1,vlen,1,1,
      &                           g_work,1,vlen,ivec,ivec)
          enddo
