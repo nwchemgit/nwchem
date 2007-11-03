@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.54 2007-09-12 17:28:22 bylaska Exp $
+* $Id: band_minimizer.F,v 1.55 2007-11-03 19:57:13 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -51,8 +51,9 @@
 *     **** local variables ****
       logical newpsi
       real*8  gx,gy,gz,cx,cy,cz
-      real*8  EV,pi
-      integer i,k,ia,nion,vers,nbrillioun,icharge
+      real*8  EV,pi,weight
+      real*8  icharge,en(2)
+      integer i,k,ia,nion,vers,nbrillioun,nb,ms
       integer mapping,minimizer 
 
 *     **** external functions ****
@@ -126,6 +127,14 @@
       external control_ks_alpha
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
+      real*8   cpsi_occupation,control_fractional_temperature
+      external cpsi_occupation,control_fractional_temperature
+      logical  control_fractional
+      external control_fractional
+      integer  control_fractional_smeartype
+      external control_fractional_smeartype
+      real*8   control_fractional_kT
+      external control_fractional_kT
 
 
 c      character*255 cpsp_comment,comment
@@ -321,11 +330,26 @@ c           write(luout,1154) cpsp_lmmax(ia)
 
 
          if (.not.control_spin_orbit()) then
-         icharge = -(cpsi_ne(1)+cpsi_ne(cpsi_ispin()))
-     >           + ion_TotalCharge()
+           icharge = 0.0d0
+           en(1) = 0.0d0
+           en(2) = 0.0d0
+           b = dble(3-cpsi_ispin())
+           do nb=1,brillioun_nbrillioun()
+           weight = brillioun_weight(nb)
+           do ms=1,cpsi_ispin()
+             do i=1,ne(ms)
+               a = cpsi_occupation(nb,ms,i)
+               icharge = icharge - b*a*weight
+               en(ms)  = en(ms) + a*weight
+             end do
+           end do
+           end do
          else
-         icharge = -cpsi_ne(1) + ion_TotalCharge()
+           icharge          = -cpsi_ne(1)
+           en(1)            =  cpsi_ne(1)
+           en(cpsi_ispin()) =  cpsi_ne(cpsi_ispin())
          end if
+         icharge = icharge + ion_TotalCharge()
          write(luout,1159) icharge
 
 
@@ -341,7 +365,9 @@ c           write(luout,1154) cpsp_lmmax(ia)
          end do
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
-         write(luout,1220) cpsi_ne(1),cpsi_ne(cpsi_ispin()),
+         write(luout,1220) en(1),en(cpsi_ispin()),
+     >                 ' (fourier space)'
+         write(luout,1221) cpsi_ne(1),cpsi_ne(cpsi_ispin()),
      >                 ' (fourier space)'
 
          write(luout,1230)
@@ -409,6 +435,17 @@ c           write(luout,1154) cpsp_lmmax(ia)
            if (minimizer.eq.5) write(luout,1296) "potential"
            if (minimizer.eq.8) write(luout,1296) "density"
            write(6,1294) control_ks_alpha()
+         end if
+         if (control_fractional()) then
+           write(6,1297)
+           if (control_fractional_smeartype().eq.0)
+     >       write(6,1298) "step function"
+           if (control_fractional_smeartype().eq.1)
+     >       write(6,1298) "Fermi-Dirac"
+           if (control_fractional_smeartype().eq.2)
+     >       write(6,1298) "Gaussian"
+           write(6,1299) control_fractional_kT(),
+     >                   control_fractional_temperature()
          end if
          write(luout,1300)
          call util_flush(luout)
@@ -645,7 +682,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
  1157 FORMAT(12X,' comment    : ',A)
  1158 FORMAT(12X,' pseudpotential type            : ',i3)
 
- 1159 FORMAT(/' total charge:',I2)
+ 1159 FORMAT(/' total charge:',F8.3)
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A4,':',I3))
  1180 FORMAT(/' initial position of ions:')
@@ -654,7 +691,10 @@ c           write(luout,1154) cpsp_lmmax(ia)
      >       ' ) - atomic mass= ',F7.3,' - fixed')
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
- 1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
+ 1220 FORMAT(/' number of electrons: spin up=',F8.2,
+     >                          '  spin down=',F8.2,A)
+ 1221 FORMAT( ' number of orbitals:  spin up=',I8,
+     >                          '  spin down=',I8,A)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,' volume : ',F10.1)
  1232 FORMAT(/5x,' lattice:    a=',f8.3,'    b=',f8.3,'     c=',f8.3,
@@ -693,6 +733,9 @@ c           write(luout,1154) cpsp_lmmax(ia)
  1295 FORMAT(5X, ' Kohn-Sham iterations = ',I3,
      >           ' (',I3,' outer)')
  1296 FORMAT(5X, ' SCF mixing type      = ',A)
+ 1297 FORMAT(/' fractional smearing parameters:')
+ 1298 FORMAT(5X, ' smearing algorithm   = ',A)
+ 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)')
  1300 FORMAT(//)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)

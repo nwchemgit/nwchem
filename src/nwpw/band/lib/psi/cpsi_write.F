@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_write.F,v 1.12 2007-09-13 20:38:13 bylaska Exp $
+* $Id: cpsi_write.F,v 1.13 2007-11-03 19:57:05 bylaska Exp $
 *
 
 *     ***************************
@@ -101,6 +101,19 @@ c     complex*16 tmp(*)
      >                         dcpl_mb(tmp(1)))
       end do
       end do
+
+*     **** write the occupations - needs to be reworked for parallel nbrill,ne ****
+      if (taskid.eq.MASTER) then
+      if (occupation.gt.0) then
+         l = cpsi_data_get_next(psi2_tag)
+         do nb=1,nbrillioun
+         do n=1,(ne(1)+ne(2))
+           call dwrite(6,dbl_mb(cpsi_data_get_ptr(l,nb,n)),1)
+         end do
+         end do
+      end if
+      end if
+
 
 *     *** close ELCIN binary file ***
       if (taskid.eq.MASTER) then

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.89 2007-09-29 00:33:31 bylaska Exp $
+* $Id: cgsdv5.F,v 1.90 2007-11-03 19:57:28 bylaska Exp $
 *
 
 ***********************************************************************
@@ -206,7 +206,7 @@
       mapping   = control_mapping()
 
 *     **** initialize psi_data ****
-      call psi_data_init(10)
+      call psi_data_init(20)
 
 *     **** initialize D3dB data structure ****
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
@@ -372,7 +372,7 @@ c     value = psi_initialize()
          if (fractional) then
             icharge = 0
             do ms=1,psi_ispin()
-            en(ms) =0.0
+            en(ms) =0.0d0
             do i=1,ne(ms)
               k = fweight(1)+(i-1)+(ms-1)*ne(1)
               icharge = icharge - (3-psi_ispin())*dbl_mb(k)

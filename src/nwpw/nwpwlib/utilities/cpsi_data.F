@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_data.F,v 1.3 2007-09-14 21:15:34 bylaska Exp $
+* $Id: cpsi_data.F,v 1.4 2007-11-03 19:57:24 bylaska Exp $
 *
 
 *     ************************************************
@@ -418,6 +418,25 @@ c      end if
       cpsi_data_get_chnk = indx +(nb-1)*neall*nsize
       return
       end
+
+
+*     ************************************************
+*     *                                              *
+*     *               cpsi_data_get_allptr           *
+*     *                                              *
+*     ************************************************
+*
+      integer function cpsi_data_get_allptr(tag)
+      implicit none
+      integer tag
+
+#include "mafdecls.fh"
+#include "cpsi_data.fh"
+
+      cpsi_data_get_allptr = int_mb(indx_psi(1) +tag)
+      return
+      end
+
 
 *     ************************************************
 *     *                                              *

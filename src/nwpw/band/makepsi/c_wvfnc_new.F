@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_new.F,v 1.12 2007-09-24 17:51:50 bylaska Exp $
+* $Id: c_wvfnc_new.F,v 1.13 2007-11-03 19:57:10 bylaska Exp $
 *
 
 *     **********************************************
@@ -13,7 +13,7 @@
      >                       unita,
      >                       spin_orbit,
      >                       ispin,
-     >                       ne,
+     >                       nein,
      >                       nbrillioun)
       implicit none
       character*30 wavefunction_filename
@@ -21,26 +21,35 @@
       integer      ngrid(3)
       real*8       unita(3,3)
       logical      spin_orbit
-      integer      ispin,ne(2),nbrillioun
+      integer      ispin,nein(2),nbrillioun
 
 #include "mafdecls.fh"
 #include "errquit.fh"
  
 *     **** local variables ****
-      logical value
+      logical value,fractional
       integer MASTER,taskid
       parameter (MASTER=0)
 
       integer NMAX
       integer filling(2)
-      integer fractional_orbitals(2)
+      integer fractional_orbitals(2),ne(2)
 
 *     **** external functions ****
-      integer  control_fractional_orbitals
-      external control_fractional_orbitals
+      integer  control_fractional,control_fractional_orbitals
+      external control_fractional,control_fractional_orbitals
 
-      fractional_orbitals(1) = control_fractional_orbitals(1)
-      fractional_orbitals(2) = control_fractional_orbitals(2)
+      ne(1) = nein(1)
+      ne(2) = nein(2)
+      fractional = control_fractional()
+      if (fractional) then
+         fractional_orbitals(1) = control_fractional_orbitals(1)
+         ne(1) = nein(1) + fractional_orbitals(1)
+         if (ispin.eq.2) then
+           fractional_orbitals(2) = control_fractional_orbitals(2)
+           ne(2) = nein(2) + fractional_orbitals(2)
+         end if
+      end if
 
       NMAX = ne(1)+ne(2)
       call Parallel_taskid(taskid)
@@ -59,6 +68,7 @@
      >                       ispin,
      >                       ne,
      >                       nbrillioun,
+     >                       fractional,
      >                       fractional_orbitals)
         write(*,*) "random planewave guess, initial psi:",
      >             wavefunction_filename
@@ -90,7 +100,7 @@
      >                      ispin,
      >                      ne,
      >                      nbrillioun,
-     >                      frac_orb)
+     >                      fractional,frac_orb)
       implicit none
       integer NMAX
       integer filling(4,(NMAX+1),2)
@@ -100,6 +110,7 @@
       real*8       unita(3,3)
       logical      spin_orbit
       integer      ispin,ne(2),nbrillioun
+      logical      fractional
       integer      frac_orb(2)
 
 #include "mafdecls.fh"
@@ -180,7 +191,7 @@
       call iwrite(66,ne,2)
       call iwrite(66,nbrillioun,1)
 
-      if ((frac_orb(1)+frac_orb(2)).gt.0) then
+      if (fractional) then
          occupation = ispin0
       else
          occupation = -1
@@ -257,16 +268,17 @@ c           END IF
       end do
 
 c     **** add occupation ****
-      if (occupation.ge.0) then
+      if (fractional) then
       do nb=1,nbrillioun
          rx = 1.0d0
          ry = 0.0d0
          do ms=1,ispin
            do n=1,ne(ms)
-             call dwrite(66,rx,1)
-           end do
-           do n=1,frac_orb(ms)
-             call dwrite(66,ry,1)
+             if (n.le.(ne(ms)-frac_orb(ms))) then
+                call dwrite(66,rx,1)
+             else
+                call dwrite(66,ry,1)
+             end if
            end do
          end do
       end do

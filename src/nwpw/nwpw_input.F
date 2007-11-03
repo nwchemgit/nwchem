@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.44 2007-09-24 16:58:04 bylaska Exp $
+c $Id: nwpw_input.F,v 1.45 2007-11-03 19:56:54 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 83)
+      parameter (num_dirs = 85)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -97,6 +97,8 @@ c
      >            'spin-orbit',
      >            'cutoff',
      >            'fractional_orbitals',
+     >            'tetrahedron',
+     >            'smear',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -147,7 +149,7 @@ c
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5700,5800,5900,6000,6000,
-     >       2750,6100,
+     >       2750,6100,1809,6200,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -334,6 +336,20 @@ c
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 1808, RTDB_ERR)
       goto 10
+
+c
+c tetrahedron
+c
+ 1809 if (.not. inp_i(cell_expand(1))) cell_expand(1) = 2
+      if (.not. inp_i(cell_expand(2))) cell_expand(2) = 2
+      if (.not. inp_i(cell_expand(3))) cell_expand(3) = 2
+      if (.not. inp_a(zone_name)) zone_name    = 'zone_default'
+
+      call dos_states_set(rtdb,zone_name,cell_expand(1),
+     >                                   cell_expand(2),
+     >                                   cell_expand(3))
+      goto 10
+
 
 cc
 cc DOS-structure
@@ -531,6 +547,7 @@ c
       value = rtdb_put(rtdb,'cgsd:rcut',mt_dbl,1,rcut)
      >   .and.rtdb_put(rtdb,'band:rcut',mt_dbl,1,rcut)
      >   .and.rtdb_put(rtdb,'cpsd:rcut',mt_dbl,1,rcut)
+     >   .and.rtdb_put(rtdb,'cpmd:rcut',mt_dbl,1,rcut)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 2800, RTDB_ERR)
@@ -544,6 +561,7 @@ c
       value = rtdb_put(rtdb,'cgsd:ncut',mt_int,1,ncut)
      >   .and.rtdb_put(rtdb,'band:ncut',mt_int,1,ncut)
      >   .and.rtdb_put(rtdb,'cpsd:ncut',mt_int,1,ncut)
+     >   .and.rtdb_put(rtdb,'cpmd:ncut',mt_int,1,ncut)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 2900, RTDB_ERR)
@@ -1026,6 +1044,33 @@ c
      >  call errquit('nwpw_input: error writing to rtdb',6100,RTDB_ERR)
       goto 10
 
+c
+c smear temperature
+c
+ 6200 alpha = 1000.0d0 !* temperature
+      nz = 1  !* smeartype
+      loop(1) = 4  !* frac_orb(1)
+      loop(2) = 4  !* frac_orb(2)
+ 6201 if (.not.inp_a(zone_name)) goto 6202
+      if (inp_compare(.false.,zone_name,'temperature')) then
+         if (.not.inp_f(alpha)) 
+     >   call errquit(
+     >    'nwpw_input:error reading smear temperature',6200,INPUT_ERR)
+      end if
+      if (inp_compare(.false.,zone_name,'type')) then
+         if (.not.inp_i(nz)) nz = 1
+      end if
+      if (inp_compare(.false.,zone_name,'orbitals')) then
+         if (.not.inp_i(loop(1))) loop(1) = 4
+         if (.not.inp_i(loop(2))) loop(2) = loop(1)
+      end if
+ 6202 if (.not.
+     > (rtdb_put(rtdb,'nwpw:fractional_orbitals',mt_int,2,loop)    .and.
+     >  rtdb_put(rtdb,'nwpw:fractional_temperature',mt_dbl,1,alpha).and.
+     >  rtdb_put(rtdb,'nwpw:fractional_smeartype',mt_int,1,nz)))
+     >  call errquit('nwpw_input: error writing to rtdb',6200,RTDB_ERR)
+
+      go to 10
 
 
 ************************************************************************

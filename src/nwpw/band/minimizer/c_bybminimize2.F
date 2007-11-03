@@ -1,5 +1,5 @@
 c
-c     $Id: c_bybminimize2.F,v 1.3 2007-09-14 21:17:11 bylaska Exp $                       
+c     $Id: c_bybminimize2.F,v 1.4 2007-11-03 19:57:13 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -50,7 +50,7 @@ c
 
 
 *     **** external functions ****
-      logical  control_print,control_precondition
+      logical  control_print,control_precondition,control_fractional
       integer  control_ispin,control_scf_algorithm
       integer  control_it_in,control_it_out,control_version
       real*8   control_tole,control_tolc,control_ks_alpha
@@ -63,9 +63,9 @@ c
       real*8   c_rho_1exc
       real*8   c_rho_1pxc
       real*8   c_ewald_e
-      real*8   cpsi_1eorbit
+      real*8   cpsi_1eorbit,cpsi_smearfermi,cpsi_smearcorrection
    
-      external control_print,control_precondition
+      external control_print,control_precondition,control_fractional
       external control_ispin,control_scf_algorithm
       external control_it_in,control_it_out,control_version
       external control_tole,control_tolc,control_ks_alpha
@@ -78,7 +78,7 @@ c
       external c_rho_1exc
       external c_rho_1pxc
       external c_ewald_e
-      external cpsi_1eorbit
+      external cpsi_1eorbit,cpsi_smearfermi,cpsi_smearcorrection
 
       real*8   cpsi_1_noupdate_energy,cpsi_eigenvalue
       external cpsi_1_noupdate_energy,cpsi_eigenvalue
@@ -148,10 +148,8 @@ c
          call cpsi_get_density(1,dbl_mb(rho_in(1)))
          call cpsi_get_density(1,dbl_mb(rho_out(1)))
 
-         call cpsi_1gen_hml()
-         call cpsi_diagonalize_hml()
-         call cpsi_1rotate2()
-         call cpsi_2to1()
+         !Enew   = cpsi_1energy()
+
       else
          Enew   = cpsi_1energy()
          call cpsi_get_density(1,dbl_mb(rho_in(1)))
@@ -169,8 +167,17 @@ c
       
 *     **** diaganolize KS matrix ****
       call cpsi_KS_update(1,precondition,ks_deltae)
-
       call c_rho_1to2()
+
+*     **** rotate orbitals ****
+      call cpsi_1gen_hml()
+      call cpsi_diagonalize_hml()
+      call cpsi_1rotate2()
+      call cpsi_2to1()
+
+*     **** define fractional occupation ****
+      call cpsi_1define_occupation(.false.)
+
       Eold = Enew
       Enew = cpsi_1energy()
 
@@ -302,7 +309,7 @@ c
       if (.not. value) 
      >  call errquit('c_bybminimize: popping stack',1,0)
 
-      call cpsi_check()
+c      call cpsi_check()
 
 
 *     **** set return energies **** - This is duplicate code
@@ -323,6 +330,12 @@ c
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
       E(11) = cpsi_1vnlso()
+
+      if (control_fractional()) then
+        E(12) = cpsi_smearcorrection()
+        E(1)  = E(1) + E(12)
+      end if
+
       return
       end
  

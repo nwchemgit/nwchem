@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.29 2007-09-24 16:58:09 bylaska Exp $
+* $Id: Pneb.F,v 1.30 2007-11-03 19:57:17 bylaska Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2181,7 +2181,7 @@ c     ****************************************
 
 *     **** local variables ****
       integer nb,nb1,nb2,ms,ms1,ms2,nemax,nsize
-      integer j,k,indx1,indx2,indexm
+      integer k,indx1,indexm
       integer nbshift,msshift,soshift
       integer np
       real*8 m1,m2,sum
@@ -2205,22 +2205,17 @@ c     ***** spin-orbit dft *****
          indexm=1
          do nb = nb1,nb2
             nbshift = ((nb-nb1))*2*soshift
-            indx2 = 1 + nbshift
+            indx1 = 1 + nbshift
             sum=0.0d0
             do k=1,ne(1)
-               indx1 = 1 + nbshift
-               do j=1,ne(1)
-                  call Cram_cc_idot(nb,Y1(indx1),
-     >                                 Y2(indx2),
-     >                                 m1)
-                  call Cram_cc_idot(nb,Y1(indx1+soshift),
-     >                                 Y2(indx2+soshift),
-     >                                 m2)
-                  sum = sum + m1 + m2
-
-                  indx1 = indx1 + npack1
-               end do
-               indx2 = indx2 + npack1
+              call Cram_cc_idot(nb,Y1(indx1),
+     >                             Y2(indx1),
+     >                             m1)
+              call Cram_cc_idot(nb,Y1(indx1+soshift),
+     >                             Y2(indx1+soshift),
+     >                             m2)
+               sum = sum + m1 + m2
+               indx1 = indx1 + npack1
             end do
             hml(indexm)=sum
             indexm=indexm+1
@@ -2239,22 +2234,16 @@ c     **** restricted and unrestricted dft ****
          do nb = nb1,nb2
             nbshift = ((nb-nb1))*nemax*npack1
             do ms = ms1,ms2
-               msshift = (ms-1)*ne(1)*npack1
-               indx2 = 1 + msshift + nbshift
-               sum=0.0d0
-               do k = 1,ne(ms)
-                  indx1 = 1 + msshift + nbshift
-                  do j = 1,ne(ms)
-                     call Cram_cc_idot(nb,Y1(indx1),
-     >                                    Y2(indx2),
-     >                                    m1)
-                     sum=sum+m1
-                     indx1 = indx1 + npack1
-                  end do
-                  indx2 = indx2 + npack1
-               end do
-               hml(indexm)=sum
-               indexm=indexm+1
+              msshift = (ms-1)*ne(1)*npack1
+              indx1 = 1 + msshift + nbshift
+              sum=0.0d0
+              do k = 1,ne(ms)
+                call Cram_cc_idot(nb,Y1(indx1),Y2(indx1),m1)
+                sum = sum + m1
+                indx1 = indx1 + npack1
+              end do
+              hml(indexm)=sum
+              indexm=indexm+1
             end do
          end do
       end if

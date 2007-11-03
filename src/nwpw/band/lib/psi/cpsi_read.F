@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.15 2007-09-13 20:38:13 bylaska Exp $
+* $Id: cpsi_read.F,v 1.16 2007-11-03 19:57:05 bylaska Exp $
 *
 
 *     ***************************
@@ -46,6 +46,8 @@ c     complex*16 tmp(*)
       external         control_unita
       integer  control_ngrid,control_rtdb
       external control_ngrid,control_rtdb
+      integer  cpsi_data_get_allptr,cpsi_data_get_next
+      external cpsi_data_get_allptr,cpsi_data_get_next
 
       call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
@@ -195,6 +197,22 @@ c         call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
 c         call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
 c        end do
         end do
+      end if
+
+*     **** read the occupations - needs to be reworked for parallel ****
+      if (occupation.gt.0) then
+         l = cpsi_data_get_next(psi2_tag)
+         do nb=1,nbrill
+           do n=1,(ne(1)+ne(2))
+              if (taskid.eq.MASTER) then
+                 call dread(5,unita,1)
+                 call cpsi_data_add(l,nb,n,unita)
+              end if
+           end do
+         end do
+         call Parallel_Brdcst_values(MASTER,
+     >                 nbrill*(ne(1)+ne(2)),
+     >                 dbl_mb(cpsi_data_get_allptr(l)))
       end if
 
 *     *** close ELCIN binary file ***

@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.18 2007-09-12 17:28:22 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.19 2007-11-03 19:57:13 bylaska Exp $                       
 *
 
 
@@ -89,7 +89,7 @@ c      complex*16 G1(nfft3d,nemax)
 
 *     **** allocate H0, G0, and G1 ****
       H0_tag = cpsi_data_push_stack(nbrill,neall,2*npack1)
-      G0_tag = cpsi_data_push_stack(nbrill,neall,2*npack1)
+c      G0_tag = cpsi_data_push_stack(nbrill,neall,2*npack1)
       G1_tag = cpsi_data_push_stack(nbrill,neall,2*npack1)
 
       Estart = Enew
@@ -146,10 +146,10 @@ c         call flush(6)
    
 
 *        **** transport the previous search directions ****
-         call BGrsm_ff_Copy_tag(G1_tag,G0_tag)
+c         call BGrsm_ff_Copy_tag(G1_tag,G0_tag)
 
          call cpsi_1geodesic_transport( tmin,H0_tag)
-         call cpsi_1geodesic_Gtransport(tmin,G0_tag)
+c         call cpsi_1geodesic_Gtransport(tmin,G0_tag)
 
 *        **** make psi1 <--- psi2(tmin) ****
          call cpsi_2to1()
@@ -157,7 +157,7 @@ c         call flush(6)
 *        **** get the new gradient - also updates densities****
          call cpsi_1get_Tgradient(G1_tag,E0)
 
-         call BGrsm_fff_Sub_tag(G1_tag,G0_tag,G0_tag)
+c         call BGrsm_fff_Sub_tag(G1_tag,G0_tag,G0_tag)
 
          sum0  = sum1
 
@@ -206,7 +206,7 @@ c         call flush(6)
 
 *     **** free memory ****
   30  call cpsi_data_pop_stack(G1_tag)
-      call cpsi_data_pop_stack(G0_tag)
+c      call cpsi_data_pop_stack(G0_tag)
       call cpsi_data_pop_stack(H0_tag)
 
       call cpsi_2to1()

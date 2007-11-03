@@ -1,5 +1,5 @@
 *
-* $Id: control.fh,v 1.28 2007-05-15 20:30:11 d3p708 Exp $
+* $Id: control.fh,v 1.29 2007-11-03 19:57:20 bylaska Exp $
 *
 
 *     **** control common block ****
@@ -61,3 +61,10 @@ c     character*20 pspnames(MAXPSP)
       common / control_blktime / cpu1_time,cpu2_time,
      >                           est_finish_time,
      >                           est_step_time
+*     **** control fractional block ****
+      logical fractional
+      integer frac_ne(2),frac_smeartype
+      real*8  frac_temperature
+      common / control_fracblk /  frac_temperature,
+     >                            frac_ne,
+     >                            frac_smeartype,fractional

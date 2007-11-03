@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_common.fh,v 1.7 2007-09-12 17:28:19 bylaska Exp $
+* $Id: cpsi_common.fh,v 1.8 2007-11-03 19:57:05 bylaska Exp $
 *
 
 *     ***** psi common block ****
@@ -20,4 +20,8 @@
      >                     nfft3d,npack0,npack1,nbrillioun,nbrillq,
      >                     spin_orbit
 
-
+*     **** psi smearing block ****
+      integer smearoccupation,smeartype
+      real*8 smearfermi,smearcorrection,smearkT
+      common / cpsi_block23 / smearfermi,smearcorrection,smearkT,
+     >                        smearoccupation,smeartype

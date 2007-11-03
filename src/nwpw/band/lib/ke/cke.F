@@ -1,5 +1,5 @@
 *
-* $Id: cke.F,v 1.12 2007-09-12 17:28:17 bylaska Exp $
+* $Id: cke.F,v 1.13 2007-11-03 19:57:01 bylaska Exp $
 *
       subroutine cke_init()
       implicit none 
@@ -172,13 +172,15 @@ c     real*8 G(nfft3d,3)
 
 *     **** local variables ****
       integer npack1,np,nb,nbq,nbrillq,shift1,nshift1
-      integer ms,n,n1(2),n2(2),tmp1(2)
+      integer ms,n,n1(2),n2(2),tmp1(2),occ1_tag,shift2
       real*8  sum
 
 *     **** external functions ****
       integer  Pneb_nbrillq,Pneb_convert_nb,cpsi_data_get_chnk
+      integer  cpsi_data_get_next
       real*8   brillioun_weight
       external Pneb_nbrillq,Pneb_convert_nb,cpsi_data_get_chnk
+      external cpsi_data_get_next
       external brillioun_weight
      
       call Parallel_np(np)
@@ -193,13 +195,31 @@ c     real*8 G(nfft3d,3)
       n2(1) = ne(1)
       n1(2) = ne(1) + 1
       n2(2) = ne(1) + ne(2)
+      occ1_tag = cpsi_data_get_next(psi1_tag)
 
       ave = 0.0d0
       do nbq=1,nbrillq
         nb = Pneb_convert_nb(nbq)
         shift1 = cpsi_data_get_chnk(psi1_tag,nbq)
+        if (occ1_tag.gt.0) then
+         shift2 = cpsi_data_get_chnk(occ1_tag,nbq)
+         do ms=1,ispin
+         do n=n1(ms),n2(ms)
+            call Cram_rc_Mul(nb,
+     >                       dbl_mb(tg_indx+(nb-1)*npack1),
+     >                       dbl_mb(shift1),
+     >                       dcpl_mb(tmp1(1)))
+            call Cram_cc_idot(nb,dbl_mb(shift1),
+     >                       dcpl_mb(tmp1(1)),
+     >                       sum)
+            ave = ave + sum*brillioun_weight(nb)*dbl_mb(shift2)
+            shift1 = shift1 + nshift1
+            shift2 = shift2 + 1
+         end do
+         end do
 
-        do ms=1,ispin
+        else
+         do ms=1,ispin
          do n=n1(ms),n2(ms)
             call Cram_rc_Mul(nb,
      >                       dbl_mb(tg_indx+(nb-1)*npack1),
@@ -211,7 +231,9 @@ c     real*8 G(nfft3d,3)
             ave = ave + sum*brillioun_weight(nb)
             shift1 = shift1 + nshift1
          end do
-      end do
+         end do
+        end if
+
       end do
       if (np.gt.1) call Parallel_SumAll(ave)
       if (ispin.eq.1) ave = 2.0d0*ave

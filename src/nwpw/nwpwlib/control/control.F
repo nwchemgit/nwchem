@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.106 2007-09-24 17:56:23 bylaska Exp $
+* $Id: control.F,v 1.107 2007-11-03 19:57:20 bylaska Exp $
 *
 
 *     ***********************************
@@ -806,6 +806,23 @@ c     >                  1,output_wavefunction_filename)
          !ngrid(1) = 32
          !ngrid(2) = 32
          !ngrid(3) = 32
+      end if
+
+
+*     **** set fractional (smearing) parameters ****
+      if (.not.
+     > rtdb_get(rtdb,'nwpw:fractional_orbitals',mt_int,2,frac_ne)) then
+         frac_ne(1) = 0
+         frac_ne(2) = 0
+      end if
+      fractional = (frac_ne(1).gt.0).or.(frac_ne(2).gt.0)
+      if (.not.rtdb_get(rtdb,'nwpw:fractional_temperature',
+     >                  mt_dbl,1,frac_temperature)) then
+         frac_temperature = 0.0d0
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:fractional_smeartype',
+     >                  mt_int,1,frac_smeartype)) then
+         frac_smeartype = 0
       end if
 
 
@@ -2906,23 +2923,55 @@ c      end
       integer function control_fractional_orbitals(ii)
       implicit none
       integer ii
-
-#include "mafdecls.fh"
-#include "rtdb.fh"
-
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-      integer ne(2)
-
-      if (.not.
-     > rtdb_get(rtdb,'nwpw:fractional_orbitals',mt_int,2,ne)) then
-         ne(1) = 0
-         ne(2) = 0
-      end if
-
-      control_fractional_orbitals = ne(ii)
+#include "control.fh"
+      control_fractional_orbitals = frac_ne(ii)
+      return
+      end
+*     *************************************
+*     *                                   *
+*     *  control_fractional_kT            *
+*     *                                   *
+*     *************************************
+      real*8 function control_fractional_kT()
+      implicit none
+#include "control.fh"
+*     *** local variables and parameters ****
+      double precision kb
+      parameter (kb=3.16679d-6)
+      control_fractional_kT = kb*frac_temperature
+      return
+      end
+*     *************************************
+*     *                                   *
+*     *  control_fractional_temperature   *
+*     *                                   *
+*     *************************************
+      real*8 function control_fractional_temperature()
+      implicit none
+#include "control.fh"
+      control_fractional_temperature = frac_temperature
+      return
+      end
+*     *************************************
+*     *                                   *
+*     *  control_fractional_smeartype     *
+*     *                                   *
+*     *************************************
+      integer function control_fractional_smeartype()
+      implicit none
+#include "control.fh"
+      control_fractional_smeartype = frac_smeartype
+      return
+      end
+*     *************************************
+*     *                                   *
+*     *         control_fractional        *
+*     *                                   *
+*     *************************************
+      logical function control_fractional()
+      implicit none
+#include "control.fh"
+      control_fractional = fractional
       return
       end
 

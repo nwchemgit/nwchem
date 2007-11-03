@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.21 2007-09-13 20:38:23 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.22 2007-11-03 19:57:13 bylaska Exp $                       
 *
 
 *     ***************************
@@ -48,8 +48,10 @@
       real*8   brillioun_k,brillioun_ks,brillioun_weight
       external brillioun_nbrillioun
       external brillioun_k,brillioun_ks,brillioun_weight
-      logical  cpsi_spin_orbit
-      external cpsi_spin_orbit
+      logical  cpsi_spin_orbit,control_fractional
+      external cpsi_spin_orbit,control_fractional
+      real*8   cpsi_smearfermi
+      external cpsi_smearfermi
 
       call Parallel_taskid(taskid)
 
@@ -221,6 +223,7 @@ c         write(luout,1210) GX,GY,GZ
          write(luout,1450) E(3),E(3)/neall
          write(luout,1460) E(4),E(4)/neall
          write(luout,1470) E(5),E(5)/ion_nion()
+         if (control_fractional()) write(luout,1471) E(12),E(12)/neall
 
          write(luout,1480) E(6),E(6)/neall
          write(luout,1490) E(7),E(7)/neall
@@ -233,6 +236,9 @@ c         write(luout,1210) GX,GY,GZ
 
          NN=cpsi_ne(1)-cpsi_ne(2)
          EV=27.2116d0
+         if (control_fractional()) then
+           write(luout,1507) cpsi_smearfermi(),cpsi_smearfermi()*EV
+         end if
          do nb=1,brillioun_nbrillioun()
            write(luout,1508) nb,
      >                   brillioun_weight(nb),
@@ -308,6 +314,7 @@ c         write(luout,1210) GX,GY,GZ
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
+ 1471 FORMAT( ' smearing  energy    :',E19.10,' (',E15.5,'/ion)')
  1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
  1490 FORMAT( ' K.S. V_l  energy    :',E19.10,' (',E15.5,'/electron)')
  1491 FORMAT( ' K.S. Vl+Vqm/mm      :',E19.10,' (',E15.5,'/electron)')
@@ -317,6 +324,7 @@ c         write(luout,1210) GX,GY,GZ
  1498 FORMAT( ' K.S. V_so energy    :',E19.10,' (',E15.5,'/electron)')
  1499 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
+ 1507 FORMAT(/' Fermi energy =',E18.7,' (',F8.3,'eV)')
  1508 FORMAT(/' Brillouin zone point: ',i3,
      >       /'    weight=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
