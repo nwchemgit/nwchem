@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_expander.F,v 1.2 2006-12-05 00:14:40 bylaska Exp $
+* $Id: c_wvfnc_expander.F,v 1.3 2007-11-05 17:35:15 bylaska Exp $
 *
 
 *     *******************************************
@@ -30,10 +30,10 @@
       integer cfull(2),dcfull(2)
       integer nfft3d,n2ft3d
       integer dnfft3d,dn2ft3d
-      integer ms,n,l,nb,ispin0
+      integer ms,n,l,nb,ispin0,occupation
 
 
-      double precision unita(3,3)
+      double precision unita(3,3),rx
 
       value = .false.
       version = 3
@@ -65,6 +65,7 @@
       end if
       call iread(5,ne,2)
       call iread(5,nbrillioun,1)
+      call iread(5,occupation,1)
  
       call util_file_name('c_wvfnc_expander',
      >                    .true.,
@@ -78,6 +79,7 @@
       call iwrite(6,ispin0,1)
       call iwrite(6,ne,2)
       call iwrite(6,nbrillioun,1)
+      call iwrite(6,occupation,1)
 
        
        nfft3d =  ngrid(1)* ngrid(2)* ngrid(3)
@@ -115,6 +117,16 @@
         end do
       end do
       end do
+      if (occupation.gt.0) then
+        do nb=1,nbrillioun
+        do ms=1,ispin
+        do n=1,ne(ms)
+          call dread(5,rx,1)
+          call dwrite(6,rx,1)
+        end do
+        end do
+        end do
+      end if
       call closefile(5)
       call closefile(6)
 

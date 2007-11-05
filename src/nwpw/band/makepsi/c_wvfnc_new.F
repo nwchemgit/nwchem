@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_new.F,v 1.13 2007-11-03 19:57:10 bylaska Exp $
+* $Id: c_wvfnc_new.F,v 1.14 2007-11-05 17:35:15 bylaska Exp $
 *
 
 *     **********************************************
@@ -36,8 +36,10 @@
       integer fractional_orbitals(2),ne(2)
 
 *     **** external functions ****
-      integer  control_fractional,control_fractional_orbitals
-      external control_fractional,control_fractional_orbitals
+      logical  control_fractional
+      integer  control_fractional_orbitals
+      external control_fractional
+      external control_fractional_orbitals
 
       ne(1) = nein(1)
       ne(2) = nein(2)
@@ -126,7 +128,7 @@
       integer i,j,k,ms,n,nb,ispin0,neh,occupation
 
       double precision p,scale,rx,ry
-      double complex cc,cx,sx,zx
+      double complex cc,cx,sx,zx,zc
 
 *     **** external functions ****
       double precision gcdot,util_random
@@ -219,6 +221,20 @@
           if (filling(4,n,ms).eq.0) cc=zx
           if (filling(4,n,ms).gt.0) cc=cx
           dcpl_mb(cfull_indx+l1) = cc
+          do k=0,nfft3d-1
+            rx = (0.5d0-util_random(0))/dsqrt(dble(nfft3d))
+            ry = (0.5d0-util_random(0))/dsqrt(dble(nfft3d))
+            dcpl_mb(cfull_indx+k) = dcpl_mb(cfull_indx+k)
+     >                            + dcmplx(rx,ry)
+          end do
+          zc = dcpl_mb(cfull_indx)
+          dcpl_mb(cfull_indx) = dcmplx(dble(zc),0.0d0)
+          p=gcdot(nfft1,nfft2,nfft3,
+     >            dcpl_mb(cfull_indx),
+     >            dcpl_mb(cfull_indx))
+          p=1.0d0/dsqrt(p)
+          call dscal(2*nfft3d,p,dcpl_mb(cfull_indx),1)
+
           call dwrite(66,dcpl_mb(cfull_indx),2*nfft3d)
           dcpl_mb(cfull_indx+l1)=dcmplx(0.0d0,0.0d0)
         end if
@@ -249,6 +265,8 @@ c           IF((ABS(filling(4,n,ms)).gt.1)) THEN
                 dcpl_mb(cfull_indx+k) = dcpl_mb(cfull_indx+k)
      >                              + dcmplx(rx,ry)
   125         continue
+              zc = dcpl_mb(cfull_indx)
+              dcpl_mb(cfull_indx) = dcmplx(dble(zc),0.0d0)
               p=gcdot(nfft1,nfft2,nfft3,
      >                 dcpl_mb(cfull_indx),
      >                 dcpl_mb(cfull_indx))

@@ -1,5 +1,5 @@
 c
-c $Id: brillouin_zone_input.F,v 1.9 2007-04-05 20:52:05 d3p708 Exp $
+c $Id: brillouin_zone_input.F,v 1.10 2007-11-05 17:35:16 bylaska Exp $
 c
 
 *     *************************************************
@@ -165,13 +165,28 @@ c
 #include "rtdb.fh"
 
       !**** local variables ****
+      logical timereverse
       character*30 rtdb_name
       integer i1,i2,i3,k,l,num_kvectors
       integer kvs(2)
-      real*8  kx,ky,kz,xx,yy,zz,xxx,yyy,zzz
+      real*8  kx,ky,kz,xx,yy,zz,xxx,yyy,zzz,weight
 
+      timereverse = .true.
+      if (nx.lt.0) then
+         nx = -nx
+         timereverse = .false.
+      end if
+      if (ny.lt.0) then
+         ny = -ny
+         timereverse = .false.
+      end if
+      if (nz.lt.0) then
+         nz = -nz
+         timereverse = .false.
+      end if
 
       num_kvectors = nx*ny*nz
+      weight       = 1.0d0/dble(num_kvectors)
 
       if(.not.MA_alloc_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
      >     call errquit(
@@ -196,12 +211,16 @@ c
          dbl_mb(kvs(1) + 4*(k))   = kx
          dbl_mb(kvs(1) + 4*(k)+1) = ky
          dbl_mb(kvs(1) + 4*(k)+2) = kz
-         dbl_mb(kvs(1) + 4*(k)+3) = -1.0d0
+         dbl_mb(kvs(1) + 4*(k)+3) = weight
 
          k = k + 1
       end do
       end do
       end do
+
+      if (timereverse) 
+     > call monkhorst_pack_timereversal_prune(num_kvectors,
+     >                                        dbl_mb(kvs(1)))
 
 
 *     ***** add brillouin_zone to rtdb ****
@@ -227,6 +246,59 @@ c
      >       'monkhorst_pack_set: heap failed 3', 0, MA_ERR)
 
       return 
+      end
+
+*     *************************************************
+*     *                                               *
+*     *        monkhorst_pack_timereversal_prune      *
+*     *                                               *
+*     *************************************************
+      subroutine monkhorst_pack_timereversal_prune(nks,ks)
+      implicit none
+      integer nks
+      real*8 ks(4,*)
+      integer i,j,nks2
+      real*8 norm
+      
+      do i=1,nks-1
+         if (ks(4,i).gt.0.0d0) then
+         do j=i+1,nks
+           if ((dabs(ks(1,i)+ks(1,j)).lt.1.0d-9).and.
+     >         (dabs(ks(2,i)+ks(2,j)).lt.1.0d-9).and.
+     >         (dabs(ks(3,i)+ks(3,j)).lt.1.0d-9)) then
+              ks(4,i) = ks(4,i) + ks(4,j)
+              ks(4,j) = 0.0d0
+           end if
+         end do
+         end if
+      end do
+      nks2 = 0
+      do i=1,nks
+         if (ks(4,i).gt.0.0d0) nks2 = nks2+1
+      end do
+      i = 1
+      do while (i.lt.nks2)
+         if (ks(4,i).eq.0.0d0) then
+            do j=i+1,nks
+               ks(1,j-1) = ks(1,j)
+               ks(2,j-1) = ks(2,j)
+               ks(3,j-1) = ks(3,j)
+               ks(4,j-1) = ks(4,j)
+            end do
+         else
+           i = i+1
+         end if
+      end do
+      do i=1,nks2
+        norm = ks(1,i) + ks(2,i) + ks(3,i)
+        if (norm.lt.0.0d0) then
+           ks(1,i) = -ks(1,i)
+           ks(2,i) = -ks(2,i)
+           ks(3,i) = -ks(3,i)
+        end if
+      end do
+      nks = nks2
+      return
       end
 
 

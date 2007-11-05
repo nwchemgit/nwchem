@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.22 2007-11-03 19:57:13 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.23 2007-11-05 17:35:15 bylaska Exp $                       
 *
 
 *     ***************************
@@ -95,7 +95,7 @@
       if (minimizer.eq.2) call band_Grsm_list_start()
       if ((minimizer.eq.5).or.(minimizer.eq.8)) it_out = 1
 
-      if (newpsi) call c_sdminimize(5)
+      if (newpsi) call c_sdminimize(10)
 
    2  continue
          icount = icount + 1
