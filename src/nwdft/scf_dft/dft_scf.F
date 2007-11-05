@@ -4,7 +4,7 @@
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.276 2007-10-12 00:05:41 niri Exp $
+c     $Id: dft_scf.F,v 1.277 2007-11-05 21:24:07 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -171,8 +171,8 @@ c
 c
 czora...zora essentials
 c
-      Logical dft_zora_read, dft_zora_write
-      External dft_zora_read, dft_zora_write
+      Logical dft_zora_read, dft_zora_write, dft_zora_inquire_file
+      External dft_zora_read, dft_zora_write, dft_zora_inquire_file
 
       character*255 zorafilename
       integer g_zora_sf(2), g_zora_scale_sf(2)
@@ -481,11 +481,19 @@ c
 !c
       call fock_force_direct(rtdb)
 c
-czora...force an atomic guess for zora calculations
-czora...this is inefficient for geometry optimizations and restarts
-      if (do_zora) movecs_in = "atomic"
+czora...force an atomic guess only if the zora correction file is absent
+      if (do_zora) then
+c
+czora...get a filename for the zora data
+        call util_file_name('zora_sf',.false.,.false.,zorafilename)
+c
+        if (.not.dft_zora_inquire_file(zorafilename)) then
+            movecs_in = "atomic"
+        end if
+c
+      end if
 czora...
-
+c
       call dft_guessin(movecs_in,ldmix,ncanorg,fon,
      ,     vecs_or_dens,
      ,     ipol,nbf_ao,g_movecs,g_gmovecs,
@@ -673,9 +681,6 @@ c
         if (ipol.gt.1) call ga_zero(g_dens_at(2))
         call ga_copy(g_dens(1),g_dens_at(1))
         if (ipol.gt.1) call ga_copy(g_dens(1),g_dens_at(1))
-c
-czora...Get a filename for the zora data
-        call util_file_name('zora_sf',.false.,.false.,zorafilename)
 c
 czora...Try reading in the zora atomic corrections from file
 c

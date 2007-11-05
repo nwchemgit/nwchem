@@ -3,7 +3,7 @@
      &                  iter, g_dens, g_dens_at, g_movecs, g_vxc, 
      &                  g_fock, g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.44 2007-10-12 01:15:01 niri Exp $
+c     $Id: dft_scf_so.F,v 1.45 2007-11-05 21:24:12 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -182,6 +182,9 @@ czora...zora essentials
 c
       Logical dft_zora_read_so, dft_zora_write_so
       External dft_zora_read_so, dft_zora_write_so
+
+      Logical dft_zora_inquire_file_so
+      External dft_zora_inquire_file_so
 
       character*255 zorafilename
 
@@ -425,13 +428,13 @@ c
 cso
 cso   allocate Fock matrix and movecs 
 cso
-
+c
 c     real molecular orbital vectors
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'Movecs Re',0,0, 
      &     g_moso(1)))     
      &     call errquit('dft_scf_so: error creating Movecs Re',0,
      &       GA_ERR)
-
+c
 c     imaginary molecular orbital vectors
       if(.not.ga_create(mt_dbl,nbf_mo, nbf_mo,'Movecs Im',0,0, 
      &     g_moso(2)))
@@ -440,19 +443,19 @@ c     imaginary molecular orbital vectors
       call ga_zero(g_moso(1))
       call ga_zero(g_moso(2))
       call ga_sync() 
-
+c
 c     real part of the fock matrix
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'Fock Re',0,0, 
      &     g_fockso(1)))
      &     call errquit('dft_scf_so: error creating Fock Re',0, GA_ERR)
       call ga_zero(g_fockso(1))
-
+c
 c     imaginary part of the fock matrix
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'Fock Im',0,0, 
      &     g_fockso(2)))
      &     call errquit('dft_scf_so: error creating Fock Im',0, GA_ERR)
       call ga_zero(g_fockso(2))
-
+c
 c     extra arrays
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'old re',0,0, 
      &     g_old(1)))
@@ -462,25 +465,25 @@ c     extra arrays
      &     g_old(2)))
      &     call errquit('dft_scf_so: error creating Old Im',0, GA_ERR)
       call ga_zero(g_old(2))
-
+c
 c     real part of the spin-orbit density matrix
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'DenMx Re',0,0, 
      &     g_densso(1)))
      &     call errquit('dft_scf_so: error creating DenMx Re',0, GA_ERR)
       call ga_zero(g_densso(1))
-
+c
 c     imaginary part of the spin-orbit density matrix
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'DenMx Im',0,0, 
      &     g_densso(2)))
      &     call errquit('dft_scf_so: error creating DenMx Im',0, GA_ERR)
       call ga_zero(g_densso(2))
-
+c
 c     extra arrays
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'Tmp ReIm',0,0, 
      &     g_tmp_ri))
      &     call errquit('dft_scf_so: error creating Tmp ReIm',0, GA_ERR)
       call ga_zero(g_tmp_ri)
-
+c
 c     spin-orbit matrices: 1->z, 2->y, 3->x
       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'so z',0,0, 
      &     g_so(1)))
@@ -494,7 +497,7 @@ c     spin-orbit matrices: 1->z, 2->y, 3->x
      &     g_so(3)))
      &     call errquit('dft_scf_so: error creating so x',0, GA_ERR)
       call ga_zero(g_so(3))
-
+c
 c     extra arrays
       if(.not.ga_create(mt_dbl, 2*nbf, 2*nbf,'old den', 0, 0, 
      &     g_damp_so(1)))
@@ -508,12 +511,15 @@ c
 czora...section for zora arrays
       if (do_zora) then
 c
+czora...get a filename for the zora data
+       call util_file_name('zora_so',.false.,.false.,zorafilename)
+c
 czora...announce that spin-orbit zora calculations are being performed
-        if (me.eq.0) then 
+       if (me.eq.0) then 
           write(luout,*) 
           write(luout,*) "Performing spin-orbit zora calculations"
           write(luout,*)
-        end if
+       end if
 c
 czora...scratch arrays
        if(.not.ga_duplicate(g_vxc(1),g_zora_scr(1),'zora scratch 1'))
@@ -555,7 +561,7 @@ czora...zora spin-orbit parts
      & g_zora_so(3)))
      & call errquit('dft_scf_so: error creating zora so x',0, GA_ERR)
       call ga_zero(g_zora_so(3))
-
+c
       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'zora scale z',0,0,
      & g_zora_scale_so(1)))
      & call errquit('dft_scf_so: error creating zora scale z',0, GA_ERR)
@@ -569,16 +575,17 @@ czora...zora spin-orbit parts
      & call errquit('dft_scf_so: error creating zora scale x',0, GA_ERR)
       call ga_zero(g_zora_scale_so(3))
 c
-czora...zora corrections are calculated on atoms
-czora...this is inefficient for geometry optimizations and restarts
-      atomic_vecs_in = "atomic"
-      call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
+czora...force an atomic guess only if the zora correction file is absent
+      if (.not.dft_zora_inquire_file_so(zorafilename)) then
+        atomic_vecs_in = "atomic"
+        call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &        basis_trans, atomic_vecs_in, movecs_out, 
      &        movecs_guess, scftype, nclosed, nopen, 
      &        nbf, nbf, noc(1), noc(2),  k_eval, k_occ, 
      &        k_ir, g_movecs, g_dens, 'density', 
      &        'dft', title, oskel, oadapt, 
      &        .true.) 
+      end if
 c
       endif  ! do_zora
 czora...end
@@ -796,10 +803,6 @@ c
 c
          call ga_sync()
          do_zora_get_correction = .true.
-c
-czora...Get a filename for the zora data
-c
-        call util_file_name('zora_so',.false.,.false.,zorafilename)
 c
 czora...Try reading in the zora atomic corrections from file
 c

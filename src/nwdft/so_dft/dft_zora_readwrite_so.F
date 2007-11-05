@@ -1,4 +1,35 @@
 c
+czora...Inquire if the zora correction file is present
+c
+      logical function dft_zora_inquire_file_so(filename)
+c
+      implicit none
+c
+#include "errquit.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "cscfps.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "stdio.fh"
+c
+      character*(*) filename
+      logical found
+c
+      call ga_sync()
+c
+c     Inquire if file is present
+      inquire(file=filename,exist=found)
+      dft_zora_inquire_file_so = found
+c
+      call ga_sync()
+c
+      return
+      end
+c
 czora...Read in the zora atomic corrections from disk
 c
       logical function dft_zora_read_so(filename, nbf, nsets, nmo, 
