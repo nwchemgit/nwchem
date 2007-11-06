@@ -153,7 +153,7 @@ c convert charge to number of electrons
 
       subroutine lowd_pop( geom, basis, iga_dens,iga_s, g_tmp )
 
-C$Id: cdft_util.F,v 1.3 2007-07-13 23:15:28 bylaska Exp $
+C$Id: cdft_util.F,v 1.4 2007-11-06 21:23:30 d3p307 Exp $
       Implicit none
 #include "errquit.fh"
       integer geom,basis
@@ -388,7 +388,7 @@ c g_sx = g_s * g_sblock12m * g_r12m
      $    .and. rtdb_get(rtdb, 'dft:iatms2', mt_int, nconstr, iatms2(1))
      $    .and. rtdb_get(rtdb, 'dft:fatms2', mt_int, nconstr, fatms2(1))
      $    ) )
-     &  call errquit('grid_make_sa: atm not found', 0)
+     &  call errquit('grid_make_sa: atm not found', 0, RTDB_ERR)
       if (.not. rtdb_get(rtdb,'dft:gconstr',mt_int,nconstr,g_constr(1)))
      $  call errquit('grid_make_sa get g_constr failed',0, RTDB_ERR)
 
