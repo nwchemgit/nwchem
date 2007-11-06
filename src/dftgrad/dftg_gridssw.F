@@ -4,7 +4,7 @@
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     lscreen)
 c
-C$Id: dftg_gridssw.F,v 1.13 2006-03-16 00:58:36 edo Exp $
+C$Id: dftg_gridssw.F,v 1.14 2007-11-06 18:23:36 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -28,7 +28,7 @@ c
      &                 dzeta(3,nq_orig,*)
       integer i, j,  ij
       integer iind,jind,   AA,NN
-      double precision mu, nu,radwgh
+      double precision mu, radwgh
       double precision x, y, z, x0i, y0i, z0i
       double precision sk
       double precision  toll,rag 
@@ -37,11 +37,11 @@ c
       logical inotA,jnota
 c
       integer n
-      double precision ass,distnc,distnn,wsum
+      double precision ass,distnc,distnn,wsum,dist2
       double precision damuab(3), dbmuba(3)
       double precision dBPA(3)
       double precision xi, yi, zi, dmu1, dmu2, dmu3
-      double precision tmu, tmu1,mu1,mu14,dmu1dmu,dskdmu1,asqrtpi
+      double precision tmu, tmu1,mu1,dmu1dmu,dskdmu1,asqrtpi
       double precision xa,ya,za,alpha_erf,murij
       integer A,B,n1,n2
 c 20 digits ln(10)=2.3025
@@ -117,10 +117,10 @@ c     all inside
       return
  31   continue
 
-      distnn=asse*sqrt(distnn)*4d0
+      dist2=asse*sqrt(distnn)*4d0
       n2=nq
       do n=nq,n1,-1
-         if ((rq(n,AA)-rq(n,nn)).gt.distnn) then
+         if ((rq(n,AA)-rq(n,nn)).gt.dist2) then
             qwght(n)=0d0
          else
             n2=n
