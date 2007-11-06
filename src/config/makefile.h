@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.554 2007-11-05 20:35:51 d3p307 Exp $
+# $Id: makefile.h,v 1.555 2007-11-06 19:01:12 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1688,8 +1688,8 @@ endif
       endif
       ifeq ($(_FC),ifc)
      _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
-       _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /EM64T/ {print "Y";exit};')
-       _IFCV81= $(shell ifc -v  2>&1|egrep "Version "|head -n 1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}')
+       _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
+       _IFCV81= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
 # Intel EM64T is required
       ifneq ($(_IFCE),Y)
         defineFCE: 
