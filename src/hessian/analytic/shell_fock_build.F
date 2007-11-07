@@ -1,6 +1,6 @@
-#define NBACC 1
+c#define NBACC 1
 c
-c $Id: shell_fock_build.F,v 1.37 2006-03-15 22:52:18 d3p307 Exp $
+c $Id: shell_fock_build.F,v 1.38 2007-11-07 20:24:44 d3p307 Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
