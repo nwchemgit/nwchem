@@ -65,7 +65,7 @@ c
       integer l_zora, k_zora
 c
       integer unitno
-      parameter (unitno = 777)
+      parameter (unitno = 77)
       integer inntsize,ddblsize
 c     
       integer nsets_read
@@ -222,7 +222,7 @@ c
       integer g_zora_scale_so(3)  
 c
       integer unitno
-      parameter (unitno = 777)
+      parameter (unitno = 77)
 c
       integer lentit
       integer lenbas

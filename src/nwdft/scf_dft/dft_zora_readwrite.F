@@ -61,7 +61,7 @@ c
       integer l_zora, k_zora
 c
       integer unitno
-      parameter (unitno = 777)
+      parameter (unitno = 77)
       integer inntsize,ddblsize
 c
       integer nsets_read       ! No. of sets  from file
@@ -203,7 +203,7 @@ c
       integer g_zora_scale_sf(nsets)  
 c
       integer unitno
-      parameter (unitno = 777)
+      parameter (unitno = 77)
 c
       integer lentit
       integer lenbas
