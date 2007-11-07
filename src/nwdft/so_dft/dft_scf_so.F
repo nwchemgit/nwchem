@@ -3,7 +3,7 @@
      &                  iter, g_dens, g_dens_at, g_movecs, g_vxc, 
      &                  g_fock, g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.45 2007-11-05 21:24:12 niri Exp $
+c     $Id: dft_scf_so.F,v 1.46 2007-11-07 03:57:52 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -806,7 +806,7 @@ c
 c
 czora...Try reading in the zora atomic corrections from file
 c
-        if (.not.dft_zora_read_so(zorafilename, nbf_ao, ipol, nmo,
+        if (.not.dft_zora_read_so(zorafilename, nbf_ao, ipol, nmo, mult,
      &     g_zora_sf, g_zora_scale_sf, g_zora_so, g_zora_scale_so)) then
 c
 czora...Calculate the spin-free and spin-orbit parts
@@ -886,7 +886,7 @@ c
 czora...Write out the atomic zora corrections to file
 c
          if (.not.dft_zora_write_so(rtdb, ao_bas_han, zorafilename,
-     &     nbf_ao, ipol, nmo, 
+     &     nbf_ao, ipol, nmo, mult, 
      &     g_zora_sf, g_zora_scale_sf, g_zora_so, g_zora_scale_so))
      &    call errquit('dft_scf: dft_zora_write failed', 0, DISK_ERR)
 c

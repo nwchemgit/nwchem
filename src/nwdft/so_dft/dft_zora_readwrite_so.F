@@ -33,7 +33,7 @@ c
 czora...Read in the zora atomic corrections from disk
 c
       logical function dft_zora_read_so(filename, nbf, nsets, nmo, 
-     &               g_zora_sf, g_zora_scale_sf, 
+     &               mult, g_zora_sf, g_zora_scale_sf, 
      &               g_zora_so, g_zora_scale_so) 
 c
       implicit none
@@ -60,6 +60,7 @@ c
       integer nsets             ! restricted or unrestricted
       integer nbf               ! No. of functions in basis
       integer nmo(nsets)       
+      integer mult
       integer ok, jset, i, j
       integer l_zora, k_zora
 c
@@ -67,6 +68,10 @@ c
       parameter (unitno = 777)
       integer inntsize,ddblsize
 c     
+      integer nsets_read
+      integer nbf_read
+      integer mult_read
+c
       l_zora = -1               ! An invalid MA handle
 c
       inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
@@ -76,9 +81,24 @@ c
       ok = 0
       if (ga_nodeid() .eq. 0) then
 c
+c     Print a message indicating the file being read
+      write(6,22) filename(1:inp_strlen(filename))
+ 22   format(/' Read atomic ZORA corrections from ',a/)
+      call util_flush(luout)
+c
 c     Open the file
       open(unitno, status='old', form='unformatted', file=filename,
      $        err=1000)
+c
+c      Read in some basics to check if they are consistent with the calculation
+       read(unitno, err=1001, end=1001) nsets_read
+       read(unitno, err=1001, end=1001) nbf_read
+       read(unitno, err=1001, end=1001) mult_read
+c
+c      Error checks
+       if ((nsets_read .ne. nsets) 
+     &  .or. (nbf_read .ne. nbf) 
+     &  .or. (mult_read .ne. mult) ) goto 1003
 c
 c     Allocate the temporary buffer
       if (.not.ma_push_get(mt_dbl,nbf,'dft_zora_read_so',l_zora,k_zora))
@@ -133,11 +153,6 @@ c     Broadcast status to other nodes
       call ga_sync()
 c
       dft_zora_read_so = ok .eq. 1
-      if (ga_nodeid() .eq. 0) then
-         write(6,22) filename(1:inp_strlen(filename))
- 22      format(/' Read atomic ZORA corrections from ',a/)
-         call util_flush(luout)
-      end if
       return
 c
  1000 write(6,*) 'dft_zora_read_so: failed to open ',
@@ -147,6 +162,13 @@ c
       goto 10
 c
  1001 write(6,*) 'dft_zora_read_so: failed to read ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+c
+ 1003 write(6,*) 'dft_zora_read_so: file inconsistent with calculation',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
@@ -164,7 +186,7 @@ c
 czora...Write out the zora atomic corrections to disk
 c
       logical function dft_zora_write_so(rtdb, basis, filename,
-     &     nbf, nsets, nmo, 
+     &     nbf, nsets, nmo, mult, 
      &     g_zora_sf, g_zora_scale_sf,
      &     g_zora_so, g_zora_scale_so)
 c
@@ -192,6 +214,7 @@ c
       integer nbf               ! [input] No. of functions in basis
       integer nsets             ! [input] No. of sets of matrices
       integer nmo(nsets)        ! [input] No. of mos in each set
+      integer mult
 c
       integer g_zora_sf(2)    
       integer g_zora_scale_sf(2)  
@@ -229,6 +252,11 @@ c
 c     Open the file
       open(unitno, status='unknown', form='unformatted',
      $        file=filename, err=1000)
+c
+c     Write out the number of sets and basis functions
+      write(unitno, err=1001) nsets
+      write(unitno, err=1001) nbf
+      write(unitno, err=1001) mult
 c
 c     Allocate the temporary buffer
       if (.not.ma_push_get(mt_dbl,nbf,'dft_zora_write_so',
