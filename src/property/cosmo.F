@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.13 2007-11-02 17:13:58 d3p307 Exp $
+* $Id: cosmo.F,v 1.14 2007-11-08 23:45:30 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -202,7 +202,7 @@ c
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
       double precision vdwr(103)
-      double precision vander(36)
+      double precision vander(103)
 c
       integer i
       integer atn(203)
@@ -235,13 +235,31 @@ C
      1   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,1.65,
      2   0.00,0.00,0.00/
 c
+c    updated vdw radii 
+      data (vander(i),i=1,103)
+     1 /1.30d0,2.20d0,1.22d0,0.63d0,1.55d0,2.00d0,1.83d0,
+     2  1.72d0,1.72d0,2.02d0,2.20d0,1.50d0,1.50d0,2.20d0,
+     3  2.12d0,2.16d0,2.05d0,2.77d0,2.39d0,1.95d0,1.32d0,
+     4  1.95d0,1.06d0,1.13d0,1.19d0,1.95d0,1.13d0,1.24d0,
+     5  1.15d0,1.15d0,1.55d0,2.72d0,0.83d0,0.90d0,2.16d0,
+     6  1.90d0,2.65d0,2.02d0,1.61d0,1.42d0,1.33d0,1.75d0,
+     7  1.80d0,1.20d0,1.22d0,1.44d0,1.55d0,1.75d0,1.46d0,
+     8  1.67d0,1.12d0,1.26d0,2.32d0,2.10d0,3.01d0,2.41d0, 
+     9  1.83d0,1.40d0,1.22d0,1.26d0,1.30d0,1.58d0,1.22d0, 
+     1  1.55d0,1.45d0,1.98d0,1.71d0,2.16d0,1.73d0,1.21d0,
+     2  1.12d0,2.30d0,3.24d0,2.57d0,2.12d0,1.86d0,1.62d0, 
+     3  1.79d0,1.76d0,1.74d0,1.96d0,1.69d0,1.66d0,1.63d0, 
+     4  1.61d0,1.59d0,1.57d0,1.54d0,1.53d0,1.84d0,1.60d0, 
+     5  1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,
+     6  1.75d0,1.75d0,1.75d0,1.75d0,1.75d0/
+c
 c     vdw radii from Merz/Kollman/Singh
 c
-      data (vander(i),i=1,36)
-     1                  /1.20D+00,1.20D+00,1.37D+00,1.45D+00,
-     2 1.45D+00,1.50D+00,1.50D+00,1.40D+00,1.35D+00,1.30D+00,
-     3 1.57D+00,1.36D+00,1.24D+00,1.17D+00,1.80D+00,1.75D+00,
-     4 1.70D+00,19*0.0D+00/
+c      data (vander(i),i=1,36)
+c     1                  /1.20D+00,1.20D+00,1.37D+00,1.45D+00,
+c     2 1.45D+00,1.50D+00,1.50D+00,1.40D+00,1.35D+00,1.30D+00,
+c     3 1.57D+00,1.36D+00,1.24D+00,1.17D+00,1.80D+00,1.75D+00,
+c     4 1.70D+00,19*0.0D+00/
 c
 c     VDW RADII FROM GAVEZZOTTI (J.AM.CHEM.SOC. 105, 5220 (1983))
 c     SUPPLEMENTED BY VALUES FOR BORON AND THIRD AND FOURTH ROWS
@@ -270,7 +288,7 @@ c
          write(Luout,*) 'in cosmo_initialize ...'
       endif
 c
-      do i=1,36
+      do i=1,103
          vdwr(i)=vander(i) 
       enddo
 c
