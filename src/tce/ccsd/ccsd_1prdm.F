@@ -105,24 +105,24 @@ c
      1     call errquit('ccsd_1prdm: ma problem',00,ma_err)
 c     
 c     particle alpha
-c     
+c    
       if(.not.ma_push_get(mt_dbl,dim_mo_p,'mo_p_tmp',
      1     l_mo_p_tmp,k_mo_p_tmp))
      2     call errquit('ccsd_1prdm: ma problem', 2, ma_err)
       do i=1,dim_mo_p
          dbl_mb(k_mo_p_tmp+i-1)=0.d0
       enddo
-c     
+c
       do particle=nocc(1)+1, nmo(1)
-         i=2*(particle-nocc(1))-1
+         i=2*particle-nh-1
          call ga_get(g_movecs(1),1,nbf,particle,particle,
      1        dbl_mb(k_mo_p_tmp+(i-1)*nbf),nbf)
       enddo
 c     
 c     particle beta
-c     
+c
       do particle=nocc(ipol)+1,nmo(ipol)
-         i=2*(particle-nocc(ipol))
+         i=2*particle-nh
          call ga_get(g_movecs(ipol),1,nbf,particle,particle,
      1        dbl_mb(k_mo_p_tmp+(i-1)*nbf),nbf)
       enddo
@@ -161,7 +161,7 @@ c      endif
 c<-debug
 c     
 c     allocate memory for intermediates
-c     
+c
       dim_mu_h = nbf*nh
       dim_mu_p = nbf*np
       if(.not.ma_push_get(mt_dbl,dim_mu_h,'mu_h',
@@ -180,6 +180,7 @@ c
 c     ccsd_1prdm_hh
 c     
 c     allocate memory for hh block
+c
       dim_rdm_mo_hh = nh*nh
       if(.not.ma_push_get(mt_dbl,dim_rdm_mo_hh,'rdm_mo_hh',
      1     l_rdm_mo_hh,k_rdm_mo_hh))
@@ -252,6 +253,7 @@ c<-debug
 c     
 c     release hh block memory
 c     
+c
       if(.not.ma_pop_stack(l_rdm_mo_hh))
      1     call errquit('ccsd_1prdm: ma problem',6,ma_err)
       do i=1,dim_mu_h
@@ -263,6 +265,7 @@ c
 c     
 c     allocate memory for hp block
 c     
+c
       dim_rdm_mo_hp = nh*np
       if(.not.ma_push_get(mt_dbl,dim_rdm_mo_hp,'rdm_mo_hp',
      1     l_rdm_mo_hp,k_rdm_mo_hp))
