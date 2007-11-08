@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.29 2005-09-17 04:33:43 edo Exp $
+* $Id: dplot.F,v 1.30 2007-11-08 15:20:19 edo Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -390,13 +390,11 @@ c
 *------- Form the final density
          Call GA_dAdd(1.d0,g_Dns(1),-1.d0,g_Dns2(1),g_Dns(1))
 *------- Deallocate memory
-c         If (nSet.eq.2) Call GADest(g_Dns2(2))
          If (nSet.eq.2)then
-            if (.not. ga_destroy(g_Dns(2))) call errquit
+            if (.not. ga_destroy(g_Dns2(2))) call errquit
      &         ('dplot: could not destroy g_Dns(2)', 0,0)
          endif
-c         Call GADest(g_Dns2(1))
-         if (.not. ga_destroy(g_Dns(1))) call errquit
+         if (.not. ga_destroy(g_Dns2(1))) call errquit
      &      ('dplot: could not destroy g_Dns(1)', 0,0)
       End If
 *
