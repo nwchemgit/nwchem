@@ -1,5 +1,5 @@
 *
-* $Id: cke.F,v 1.13 2007-11-03 19:57:01 bylaska Exp $
+* $Id: cke.F,v 1.14 2007-11-08 23:42:08 bylaska Exp $
 *
       subroutine cke_init()
       implicit none 
@@ -269,11 +269,14 @@ c     real*8 G(nfft3d,3)
       real*8 pi,scal,sum,kx,ky,kz,weight
       real*8 hm(3,3),Aus(3,3)
       integer tmp1(2),tmp2(2)
+      integer occ_tag,occ_shift,shift2
 
 *     **** external functions ****
       integer  c_G_indx,Pneb_nbrillq,Pneb_convert_nb,cpsi_data_get_chnk
+      integer  cpsi_data_get_next
       real*8   brillioun_k,brillioun_weight
       external c_G_indx,Pneb_nbrillq,Pneb_convert_nb,cpsi_data_get_chnk
+      external cpsi_data_get_next
       external brillioun_k,brillioun_weight
 
       real*8   lattice_unitg,lattice_omega,lattice_unita
@@ -283,6 +286,7 @@ c     real*8 G(nfft3d,3)
       n2(1) = ne(1)
       n1(2) = ne(1) + 1
       n2(2) = ne(1) + ne(2)
+      occ_tag = cpsi_data_get_next(psi_tag)
 
       pi   = 4.0d0*datan(1.0d0)
       scal = 1.0d0/(2.0d0*pi)
@@ -342,27 +346,56 @@ c     real*8 G(nfft3d,3)
         call Cram_r_pack(nb,dbl_mb(G(1,2)))
         call Cram_r_pack(nb,dbl_mb(G(1,3)))
 
-        do u=1,3
-        do s=u,3
-          call Cram_rr_Mul(nb,dbl_mb(G(1,u)),
+*       **** fractional occupation ****
+        if (occ_tag.gt.0) then
+          shift2 = cpsi_data_get_chnk(occ_tag,nbq)
+          do u=1,3
+          do s=u,3
+            call Cram_rr_Mul(nb,dbl_mb(G(1,u)),
      >                        dbl_mb(G(1,s)),
      >                        dbl_mb(tmp1(1)))
-          psi_shift = shift1
-          do ms=1,ispin
-          do n=n1(ms),n2(ms)    
-            call Cram_rc_Mul(nb,dbl_mb(tmp1(1)),
-     >                       dbl_mb(psi_shift),
-     >                       dcpl_mb(tmp2(1)))
-            call Cram_cc_dot(nb,dbl_mb(psi_shift),
-     >                       dcpl_mb(tmp2(1)),
-     >                       sum)
-           
-             psi_shift = psi_shift + nshift1
-             Aus(u,s)  = Aus(u,s) + sum*weight
+            psi_shift = shift1
+            occ_shift = shift2
+            do ms=1,ispin
+            do n=n1(ms),n2(ms)    
+              call Cram_rc_Mul(nb,dbl_mb(tmp1(1)),
+     >                         dbl_mb(psi_shift),
+     >                         dcpl_mb(tmp2(1)))
+              call Cram_cc_dot(nb,dbl_mb(psi_shift),
+     >                         dcpl_mb(tmp2(1)),
+     >                         sum)
+               Aus(u,s)  = Aus(u,s) + sum*weight*dbl_mb(occ_shift)
+               psi_shift = psi_shift + nshift1
+               occ_shift = occ_shift + 1
+            end do
+            end do
           end do
           end do
-        end do
-        end do
+
+*       **** no fractional occupation ****
+        else
+          do u=1,3
+          do s=u,3
+            call Cram_rr_Mul(nb,dbl_mb(G(1,u)),
+     >                        dbl_mb(G(1,s)),
+     >                        dbl_mb(tmp1(1)))
+            psi_shift = shift1
+            do ms=1,ispin
+            do n=n1(ms),n2(ms)
+              call Cram_rc_Mul(nb,dbl_mb(tmp1(1)),
+     >                         dbl_mb(psi_shift),
+     >                         dcpl_mb(tmp2(1)))
+              call Cram_cc_dot(nb,dbl_mb(psi_shift),
+     >                         dcpl_mb(tmp2(1)),
+     >                         sum)
+               Aus(u,s)  = Aus(u,s) + sum*weight
+               psi_shift = psi_shift + nshift1
+            end do
+            end do
+          end do
+          end do
+        end if
+
       end do
 
       do u=1,3
