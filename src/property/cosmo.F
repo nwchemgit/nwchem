@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.17 2007-11-09 17:56:20 niri Exp $
+* $Id: cosmo.F,v 1.18 2007-11-09 20:27:57 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -208,7 +208,7 @@ c
       integer atn(203)
       double precision arad(203)
       character*16 aname,symb,elem
-      integer fn
+      integer fn,gn
       character*255 map
       logical util_io_unit
       external util_io_unit
@@ -380,9 +380,10 @@ c
       do iat=1,nat
          rad=vdwr(nint(dbl_mb(k_coszan+iat-1)))
          if (geom_any_ecp(geom).and.geom_ecp_get(geom,iat)) then
-            rad = zero
-            status=geom_tag_to_default_mass(byte_mb(k_costag+16*(iat-1))
-     $                                      ,rad)
+            if (.not.geom_tag_to_element(byte_mb(k_costag+16*(iat-1)), 
+     &         symb, elem, gn))
+     &          call errquit('cosmo_init:geom_tag_to_element',0,0)
+            rad=vdwr(gn)
          endif
          if(rad.eq.zero) then
             rad=def
