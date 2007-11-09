@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.15 2007-11-09 01:14:26 niri Exp $
+* $Id: cosmo.F,v 1.16 2007-11-09 02:18:09 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -235,7 +235,10 @@ C
      1   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,1.65,
      2   0.00,0.00,0.00/
 c
-c    updated vdw radii 
+c    vdw radii: Bondi radii + 15%  (J. Phys. Chem., 68, 441, 1964)
+c
+c    vdw radii for H, C, N, O, Cl 
+c    (Klamt et al, J. Phys. Chem. A, 102, 5074 (1998)
       data (vander(i),i=1,103)
      1 /1.30d0,2.20d0,1.22d0,0.63d0,1.55d0,2.00d0,1.83d0,
      2  1.72d0,1.72d0,2.02d0,2.20d0,1.50d0,1.50d0,2.20d0,
