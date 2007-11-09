@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.14 2007-11-08 23:45:30 niri Exp $
+* $Id: cosmo.F,v 1.15 2007-11-09 01:14:26 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -250,7 +250,7 @@ c    updated vdw radii
      2  1.12d0,2.30d0,3.24d0,2.57d0,2.12d0,1.86d0,1.62d0, 
      3  1.79d0,1.76d0,1.74d0,1.96d0,1.69d0,1.66d0,1.63d0, 
      4  1.61d0,1.59d0,1.57d0,1.54d0,1.53d0,1.84d0,1.60d0, 
-     5  1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,
+     5  2.00d0,1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,1.75d0,
      6  1.75d0,1.75d0,1.75d0,1.75d0,1.75d0/
 c
 c     vdw radii from Merz/Kollman/Singh
