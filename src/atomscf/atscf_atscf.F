@@ -1,9 +1,9 @@
       subroutine atscf_atomic_scf(geom, basis, iat, oprint,
      $     nl_out, ncsh_out, nosh_out, nccup_out, nbc_out,
-     $     cc_out, energy_out, eps_out)
+     $     cc_out, energy_out, eps_out,spec)
       implicit none
 #include "errquit.fh"
-* $Id: atscf_atscf.F,v 1.7 2003-10-17 22:54:15 carlfahl Exp $
+* $Id: atscf_atscf.F,v 1.8 2007-11-13 22:15:58 bert Exp $
 #include "geom.fh"
 #include "bas.fh"
 #include "cguess.fh"
@@ -15,7 +15,7 @@
 #include "stdio.fh"
       integer geom, basis       ! [input] Handles
       integer iat               ! [input] Atom number in NWChem numbering
-      logical oprint            ! [input] If true the SCF prints stuff
+      logical oprint,spec       ! [input] If true the SCF prints stuff
       integer nl_out            ! [output] No. of angular momenta (= sym)
       integer ncsh_out(*)       ! [output] No. of closed shells per sym
       integer nosh_out(*)       ! [output] No. of open shells per sym
@@ -84,7 +84,7 @@ c..
      +     dbl_mb(it), dbl_mb(ih), dbl_mb(idc), dbl_mb(idos), 
      $     dbl_mb(idt), dbl_mb(idold), dbl_mb(iss) ,
      +     dbl_mb(ic), dbl_mb(icopn), dbl_mb(ismin), dbl_mb(iqmin), 
-     $     dbl_mb(itransf), dbl_mb(icc), nb)
+     $     dbl_mb(itransf), dbl_mb(icc), nb,spec)
 c
 c     Copy stuff into output arguments
 c
@@ -142,7 +142,7 @@ c
       subroutine atscf_do_atscf(geom, basis, iat,
      $     hatom, oprin,
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
-     +     cvec, copn, smin, qmin, transf, cc, nbb)
+     +     cvec, copn, smin, qmin, transf, cc, nbb,spec)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -158,7 +158,7 @@ c
       real *8 pcap(*), qcap(*), fc(*), fo(*), s(*), u(*), t(*)
       real *8 h(*), dc(*), dos(*), dt(*), dold(*), ss(*)
       real *8 cvec(*), copn(*), smin(nbb,*), qmin(nbb,*),transf(*),cc(*)
-      logical oprin
+      logical oprin,spec
       integer iwrite
       character*16 tag, element
 c
@@ -176,6 +176,6 @@ c
       call atomd(oprin,iwrite,znps,ic,isymax,hatom,
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb,
-     +     element, tag)
+     +     element, tag,spec)
 c
       end

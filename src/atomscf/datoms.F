@@ -1,15 +1,15 @@
       subroutine datoms(geom, basis, hatom, g_dens, oprin,
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
-     $     odens, eatom)
-C     $Id: datoms.F,v 1.26 2006-01-12 00:29:48 edo Exp $
+     $     odens, eatom,spec)
+C     $Id: datoms.F,v 1.27 2007-11-13 22:15:59 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "stdio.fh"
       integer geom, basis
-      logical odens             ! If true make the global density
+      logical odens,spec        ! If true make the global density
       double precision eatom    ! Return sum of atomic energies
 c     
 *rak: wrapper routine now.  doatoms_do does the actual work
@@ -41,7 +41,7 @@ c
       call datoms_do(geom, basis, hatom, g_dens, oprin,
      &     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      &     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
-     &     odens, eatom, byte_mb(k_tags), log_mb(k_odone), nat_dim)
+     &     odens, eatom, byte_mb(k_tags), log_mb(k_odone), nat_dim,spec)
       status_ma = .true.
       status_ma = status_ma .and. ma_pop_stack(h_tags)
       status_ma = status_ma .and. ma_pop_stack(h_odone)
@@ -51,7 +51,7 @@ c
       subroutine datoms_do(geom, basis, hatom, g_dens, oprin,
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
-     $     odens, eatom, tags, odone, nat_dim)
+     $     odens, eatom, tags, odone, nat_dim,spec)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -61,7 +61,7 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
       integer geom, basis
-      logical odens             ! If true make the global density
+      logical odens,spec        ! If true make the global density
       double precision eatom    ! Return sum of atomic energies
 c     
 c...  subroutine to coordinate atom-scf calls and d-matrix gathering
@@ -154,7 +154,7 @@ c
                goto 1010
             endif
 c     
-*      write(6,*) me,' doing ', iat, ' ', tag, element
+*       write(6,*) me,' doing ', iat, ' ', tag, element
 c     
             call atscf_bas_gather(geom, basis, iat, ic, iiloc,
      $           isymax, hatom, znps, element, tag, ospherical)
@@ -162,7 +162,7 @@ c
             call atomd(oprin,luout,znps,ic,isymax,hatom,
      +           pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +           cvec, copn, smin, qmin, transf, cc, nbb,
-     +           element, tag)
+     +           element, tag,spec)
 c
 *ZIJING      call atom_eig_vec(znps,iat,cc,nsym,ncsh,nosh,nccup,nbc)
 c     

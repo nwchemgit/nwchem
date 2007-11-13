@@ -1,7 +1,9 @@
-      subroutine atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps) 
-* $Id: atcond.F,v 1.9 2003-10-17 22:54:15 carlfahl Exp $
+      subroutine atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps,spec) 
+* $Id: atcond.F,v 1.10 2007-11-13 22:15:58 bert Exp $
       implicit none
 #include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
 c.......................................................................
 c
 c     for atom of nuclear charge zn find electron configuration
@@ -26,6 +28,8 @@ c
       integer nshell, nelec, isymm
       integer ncore
       double precision t, f
+c
+      logical spec
 c
 c...  Begin ECP-data
 c
@@ -66,6 +70,16 @@ c.......................................................................
 c.......................................................................
       nz = zn + 0.1d0
       nzps = znps + 0.1d0
+c
+      if (nz.ge.58.and.nz.le.71.and.spec) then
+         ncsh(1)=1
+         ncsh(2)=1
+         ncsh(3)=0
+         ncsh(4)=0
+         nsym=2
+         return 
+      endif
+c
       idiff = nz - nzps
       ncore = idiff
       ihw = 0

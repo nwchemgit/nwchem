@@ -1,12 +1,12 @@
       subroutine atomd(oprin,iwr,znps,ic,isymax,hatom,
      + pcap,qcap,fc,fo,s,u,t,h,dc,dos,dt,dold,ss,
-     + c, copn, smin, qmin, transf, cc , nbb, element, tag)
-C$Id: atomd.F,v 1.14 2005-07-25 18:40:25 edo Exp $
+     + c, copn, smin, qmin, transf, cc , nbb, element, tag,spec)
+C$Id: atomd.F,v 1.15 2007-11-13 22:15:59 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
 c
-      logical oprin
+      logical oprin,spec
       integer iwr, nbb, isymax
       integer ic(4,*)
       real *8  pcap(*), qcap(*), fc(*), fo(*), s(*), u(*), t(*)
@@ -44,10 +44,11 @@ c     nbct      = total number of cont. basis functions.
 c.......................................................................
       if (dabs(zn).ge.1.d-8) then
 c.......................................................................
+         call atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps,spec)
 c
 c     distribute electrons according to aufbau
 c.......................................................................
-         call atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps)
+
 crz
 c     fix for use of pseudopotentials
          znsave = zn

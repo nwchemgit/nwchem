@@ -11,7 +11,7 @@ c
 c
       end
       subroutine guess_dens_gen(rtdb, geom, basis, odens, g_dens, eatom)
-C$Id: denat.F,v 1.18 2003-10-17 22:54:15 carlfahl Exp $
+C$Id: denat.F,v 1.19 2007-11-13 22:15:59 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "geom.fh"
@@ -46,7 +46,7 @@ c..
 c...  start all types after one cycle closed shell in routine denscf
 c
       integer iwrite
-      logical oprint_dens, oprint_scf, oprint_ener, oprint_mod_z
+      logical oprint_dens, oprint_scf, oprint_ener, oprint_mod_z,spec
       integer l2, iii, iiilen
       integer ntr, nsq
       integer i10, ipcap, iqcap, ifc, ifo, is, iu, it
@@ -118,6 +118,9 @@ c..
 *      if (.not.rtdb_get(rtdb,'atomscf:num_z',mt_int,1,num_z))
 *     &    num_z = 0
 c
+      if (.not. rtdb_get(rtdb, 'atomscf:special', mt_log, 1, spec))
+     $     spec = .false.
+c
       if (.not. rtdb_get_info(rtdb, 'atomscf:z', ma_type, num_z, date))
      $     num_z = 0
 c
@@ -154,7 +157,7 @@ c..
      $     dbl_mb(idt), dbl_mb(idold), dbl_mb(iss) ,
      +     dbl_mb(ic), dbl_mb(icopn), dbl_mb(ismin), dbl_mb(iqmin), 
      $     dbl_mb(itransf), dbl_mb(icc), nb, oprint_ener,
-     $     odens, eatom) 
+     $     odens, eatom,spec) 
 c
 c..   print if requested
 c
@@ -167,16 +170,17 @@ c
      $     call errquit('guess_dens: pop_stack failed', 0, MEM_ERR)
 c     
       if (util_print('debugatscf',print_never))
-     $     call atscf_debug(geom,basis)
+     $     call atscf_debug(geom,basis,spec)
 c
       return
  6020 format (//30x,28('-'),/,30x,'   initial guess density   ',/,30x,
      +        28('-')//)
       end
-      subroutine atscf_debug(geom,basis)
+      subroutine atscf_debug(geom,basis,spec)
       implicit none
 #include "errquit.fh"
       integer geom,basis
+      logical spec
 #include "geom.fh"
 c
       integer nl_out, iat, nat
@@ -188,7 +192,7 @@ c
       do iat = 1, nat
          call atscf_atomic_scf(geom, basis, iat, .true.,
      $        nl_out, ncsh_out, nosh_out, nccup_out, nbc_out,
-     $        cc_out, energy_out, eps_out)
+     $        cc_out, energy_out, eps_out,spec)
       enddo
 c
       end
