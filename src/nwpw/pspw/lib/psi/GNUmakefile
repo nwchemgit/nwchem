@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.16 2004-12-06 20:03:25 bylaska Exp $
+# $Id: GNUmakefile,v 1.17 2007-11-16 22:26:50 d3p708 Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -19,14 +19,15 @@
 		v_psi_new.o \
 		psi_history.o \
 		psi_write_filename.o \
-		psi_read_filename.o 
+		psi_read_filename.o \
+		berry_phase_pol.o
 
 
 
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = psi.F geodesic.F geodesic2.F Grassman.F dipole.F psi_history.F skew.F geodesic1.F
+    USES_BLAS = psi.F geodesic.F geodesic2.F Grassman.F dipole.F psi_history.F skew.F geodesic1.F berry_phase_pol.F
 
   LIB_DEFINES = 
 
