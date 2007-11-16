@@ -5,7 +5,7 @@ C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,g_vxc,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.32 2006-05-19 23:42:56 edo Exp $
+C$Id: xc_replicated.F,v 1.33 2007-11-16 22:34:36 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -18,6 +18,7 @@ c
 #include "global.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "dftps.fh"
       integer nbf_ao,ipol
       logical goforit
       logical dograd ! true if just gradient (not energy)
@@ -28,16 +29,22 @@ c
       logical xcreplicated_l,oprint,xcrepirrg,xcrep_ga
       logical util_mirrmat
       external util_mirrmat
+c
       integer plist,dims(2),nblock(2)
       integer l_map,k_map,procsmp
       integer gnblock(2), membyte
       integer idum,g_ndim,idumm(10),dm_ndim,xc_ndim
+      integer ntwo12,howmanyrr,memrylft,memigop
 c
       oprint = util_print('xcreplicated', print_high)
 
       k_repxc(1)=-1
-c     nonblocking
 c     non blocking
+      if (.not. rtdb_get(rtdb, 'dft:truerepdm', mt_log, 1,
+     N  truerepdm)) truerepdm=.false.
+      if (.not. rtdb_get(rtdb, 'dft:truerepxc', mt_log, 1,
+     N  truerepxc)) truerepxc=.false.
+      truerep=truerepdm.or.truerepxc
       if (.not. rtdb_get(rtdb, 'dft:nbacc', mt_log, 1,
      N  dftnbacc)) dftnbacc=.false.
       if (.not. rtdb_get(rtdb, 'dft:nbget', mt_log, 1,
@@ -50,7 +57,7 @@ c     we do not mirror 3D GAs for now
 
       xcreplicated=.false.
 c  Check number of nodes to decide to use Mirror Array
-      if(ga_cluster_nnodes().eq.1) return
+      if(ga_cluster_nnodes().eq.1.and.(.not.truerep)) return
         
 
       if (.not. rtdb_get(rtdb, 'dft:dorepdm', mt_log, 1, 
@@ -59,7 +66,6 @@ c  Check number of nodes to decide to use Mirror Array
       if (.not. rtdb_get(rtdb, 'dft:dorepxc', mt_log, 1, 
      .     dorepxc))
      &     dorepxc=.true.
-      if(dorepxc) dorepxc=xc_ndim.eq.2
       if (rtdb_get(rtdb, 'dft:xcreplicated', mt_log, 1, 
      .     xcreplicated_l)) then
          if(.not.xcreplicated_l) return
@@ -68,10 +74,77 @@ c  Check number of nodes to decide to use Mirror Array
       endif
       if (.not. rtdb_get(rtdb, 'dft:xcrepirrg', mt_log, 1, 
      .     xcrepirrg)) xcrepirrg=.false.
+      if(dorepxc) dorepxc=xc_ndim.eq.2
+      if(dograd) truerepxc=.false.
+      if(truerepxc) truerepxc=xc_ndim.eq.2
 
          xcreplicated_l=.false.
 	 xcrep_ga=.false.
+         if(truerep) then
+c
+c     true replicated data aka no mirroring
+c
+            howmanyrr=0
+c     no xc bit in the gradients
+            if(truerepxc) howmanyrr=howmanyrr+1
+            if(truerepdm) howmanyrr=howmanyrr+2
+            ntwo12=(nbf_ao*(nbf_ao+1))/2*ipol
+            memrylft=nint(0.92d0*MA_inquire_avail(mt_dbl)-
+     -           howmanyrr*ntwo12)
+            memigop=0
+            if(memrylft.lt.0) memigop=-memrylft
+            call ga_igop(374,memigop,1, 'max')
+            if(memigop.gt.0) then
+                  truerep=.false.
+                  truerepxc=.false.
+                  truerepdm=.false.
+                  xcreplicated=.false.
+               if(ga_nodeid().eq.0) then
+                  write(luout,*) ' not enough MA memory for Repl.Data'
+                  write(luout,1235) int((memigop*
+     *                 MA_sizeof(MT_DBL,1,MT_BYTE)*17)/10000000)
+                  call util_flush(luout)
+ 1235             format(' add ',I6,' MBytes')
+               endif
+               return
+            endif
+          dorepdm=.false.
+          dorepxc=.false.
+          dftnbacc=.false.
+          dftnbget=.false.
+          nbf_ld=nbf_ao
+          if(truerepdm) then
+c     
+c     allocate replicated D matrix
+c
+             truerepdm=ma_push_get(MT_Dbl,ntwo12,
+     .            'dmat',l_repdm(1),k_repdm(1))
+             if(truerepdm) then
+                k_repdm(2)=k_repdm(1)+nbf_ao*nbf_ao
+                if (odftps) call pstat_on(ps_xcopy)
+                do ii=1,ipol
+                   call xc_bcastdm(geom,basis,nbf_ao,
+     A                  g_dens(ii),dbl_mb(k_repdm(ii)))
+                enddo
+                if (odftps) call pstat_off(ps_xcopy)
+             endif
+          endif
+          if(truerepxc) then
+c     
+c     allocate replicated Fock matrix
+c
+             truerepxc=ma_push_get(MT_Dbl,ntwo12,
+     .            'xcmat',l_repxc(1),k_repxc(1))
+             if(truerepxc) then
+                call dcopy(ntwo12,0d0,0,
+     D               dbl_mb(k_repxc(1)),1)
+                k_repxc(2)=k_repxc(1)+nbf_ao*(nbf_ao+1)/2
+             endif
+          endif
+          truerep=truerepdm.or.truerepxc
+          xcreplicated_l=truerep
 
+         else
 c     
 c     use of ga_mirror
 c
@@ -115,23 +188,10 @@ c
 	         if(.not.xcrep_ga) goto 1984
                  call ga_zero(k_repxc(ii))
             else
-c check available memory before creat mirrored arroy for Fock matrix
-#ifdef DEBUG
-            membyte=ga_memory_avail()
-            call ga_igop(1,membyte,1,'+')
-	    if(ga_nodeid().eq.0)print*,membyte/1000000, 'MB ENTER K_REP'
-#endif
                  xcrep_ga=util_mirrmat(1,g_dens(ii),k_repxc(ii),
      .                                  .false.,.true.)
 
                if(.not.xcrep_ga) goto 1984
-c check available memory after array being created(or not created)
-#ifdef DEBUG
-            if(ga_nodeid().eq.0) print*,'xcrep_ga',xcrep_ga
-            membyte=ga_memory_avail()
-            call ga_igop(1,membyte,1,'+')
-            if(ga_nodeid().eq.0)print*,membyte/1000000, 'MB LEFT K_REP'
-#endif
                   endif
                endif
             endif
@@ -147,26 +207,11 @@ c check available memory after array being created(or not created)
                   call ga_mask_sync(.true.,.false.)
                   call ga_copy(g_dens(ii),g_repdm(ii))
                else
-c check memory availability before creat mirrored array(density M)
-#ifdef DEBUG
-	       call ga_sync()
-               membyte=ga_memory_avail()
-               call ga_igop(1,membyte,1,'+')
-               if(ga_nodeid().eq.0)print*,membyte/1000000, 'MB ENTER grep'
-#endif
                   xcreplicated_l=
      X                 util_mirrmat(1,g_dens(ii),g_repdm(ii),
      T                 .true.,.false.)
 
                  if(.not.xcreplicated_l) goto 1984
-c check memory after
-#ifdef DEBUG
-	      call ga_sync()
-              if(ga_nodeid().eq.0) print*, 'xcid', xcreplicated_l
-              membyte=ga_memory_avail()
-              call ga_igop(1,membyte,1,'+')
-              if(ga_nodeid().eq.0)print*,membyte/1000000, 'MB LEFT grep'
-#endif  
 
             endif
           end if
@@ -181,7 +226,7 @@ c
      &           call errquit('xc_rep_init: cannot pop stack',11,
      &       MA_ERR)
          endif
-
+      endif
       xcrep_glob=0
       if(xcreplicated_l) xcrep_glob=1
       call ga_igop(375,xcrep_glob,1, '+')
@@ -215,18 +260,12 @@ c Destroy the ones that are allocated
 	 end if
 	end do
       endif
-#ifdef DEBUG1
-	if(ga_nodeid().eq.0) call ga_summarize(0)
-        call ma_summarize_allocated_blocks()
-      write(0,*) ga_nodeid(),' XC DM tot', 
-     A       dorepxc,dorepdm,xcreplicated
-#endif
       return
       end
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.32 2006-05-19 23:42:56 edo Exp $
+C$Id: xc_replicated.F,v 1.33 2007-11-16 22:34:36 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -240,39 +279,134 @@ c
       integer g_vxc(2),ipol,nbf_ao
       logical dograd ! true if just gradient (not energy)
 c
-      integer i
+      integer i,j,ilo,ihi,jlo,jhi,numi,numj,icount
+      integer idim,jdim,istart
 c
       xc_rep_close=.true.
+cedo      if(ga_nodeid().eq.0) then
+cedo         write(0,*) 'xcrep ',xcreplicated
+cedo         write(0,*) ' t x d ',truerep,truerepxc,truerepdm
+cedo      endif
       if(xcreplicated) then
-         do i = 1, ipol
-            if(.not.dograd) then
-               if(dorepxc) then
-      if (odftps) call pstat_on(ps_xmrge)
-                    call ga_mask_sync(.true.,.false.)
-                  call ga_merge_mirrored(k_repxc(i))
-      if (odftps) call pstat_off(ps_xmrge)
-      if (odftps) call pstat_on(ps_xcopy)
-                    call ga_mask_sync(.true.,.false.)
-                  call ga_copy(k_repxc(i),g_vxc(i))
-      if (odftps) call pstat_off(ps_xcopy)
-                  if (.not.ga_destroy(k_repxc(i)))
-     &              call errquit('xc_rep_close: cannot gadestr',i,
-     &       GA_ERR)
+         if(truerep) then
+            if(truerepxc) then
+               if (odftps) call pstat_on(ps_xmrge)
+               call ga_dgop(374,dbl_mb(k_repxc(1)),
+     N              (nbf_ao*(nbf_ao+1))/2*ipol,'+')
+               do i = 1, ipol
+                  call ga_zero(g_vxc(i))
+                  call ga_distribution(g_vxc(i),
+     .                 ga_nodeid(), ilo, ihi, jlo, jhi)
+                  if (ilo.gt.0 .and. ilo.le.ihi.and.jlo.le.ihi) then
+c     lower triangle
+                     idim =  ihi-ilo+1
+                     jdim =  jhi-jlo+1
+                     if (idim.gt.0 .and. jdim.gt.0) then
+                        do j=jlo,jhi
+                           if(j.le.ihi) then
+                              istart=max(ilo,j)
+                              icount=k_repxc(i)+
+     G                             ((j-1)*(2*(nbf_ao+1)-j)+1)/2+
+     P                             istart-j
+                              call ga_put(g_vxc(i),istart,
+     N                             nbf_ao,j,j, 
+     $                             dbl_mb(icount),nbf_ao)
+                           endif
+                        enddo
+                     endif
+                  endif
+               end do
+            endif
+            if(.not.truerepxc) l_repxc(1)=l_repdm(1)
+            xc_rep_close=ma_chop_stack(l_repxc(1))
+            if(ga_nodeid().eq.0.and.(.not.xc_rep_close)) then
+               write(0,*) ' lrepxc handle no. ',l_repxc(1)
+               write(0,*) ' lrepdm handle no. ',l_repdm(1)
+               call ma_summarize_allocated_blocks()
+            endif
+            if(truerepxc) then
+               call ga_sync()
+               if (odftps) call pstat_off(ps_xmrge)
+            endif
+         else
+            do i = 1, ipol
+               if(.not.dograd) then
+                  if(dorepxc) then
+                     if (odftps) call pstat_on(ps_xmrge)
+                     call ga_mask_sync(.true.,.false.)
+                     call ga_merge_mirrored(k_repxc(i))
+                     if (odftps) call pstat_off(ps_xmrge)
+                     if (odftps) call pstat_on(ps_xcopy)
+                     call ga_mask_sync(.true.,.false.)
+                     call ga_copy(k_repxc(i),g_vxc(i))
+                     if (odftps) call pstat_off(ps_xcopy)
+                     if (.not.ga_destroy(k_repxc(i))) call 
+     E                    errquit('xc_rep_close: cannot gadestr',i,
+     &                    GA_ERR)
+                  endif
                endif
-            endif
-            if(dorepdm) then
-               if (.not.ga_destroy(g_repdm(i)))
-     &              call errquit('xc_rep_close: cannot gadestr',i,
-     &       GA_ERR)
-            endif
-         enddo
-c	if(ga_nodeid().eq.0) print*,'**',dorepxc,dorepdm
-	call ga_sync()
+               if(dorepdm) then
+                  if (.not.ga_destroy(g_repdm(i)))
+     &                 call errquit('xc_rep_close: cannot gadestr',i,
+     &                 GA_ERR)
+               endif
+            enddo
+         endif
+         
+         if(.not.truerepxc) call ga_sync()
 c     
 c     avoid getting things out of control
-c
-      xcreplicated=.false.
+c     
+         xcreplicated=.false.
       endif
       return
       end
+      subroutine xc_bcastdm(geom,basis,nbf,
+     A              g_a,a)
+      implicit none
+#define T12 1
+#include "mafdecls.fh"
+#include "global.fh"
+      integer geom,basis,nbf,g_a,mysize,nnn
+#ifdef T12
+      double precision a(*)
+#else
+      double precision a(nbf,*)
+#endif
+      integer l_acopy,k_acopy,i,j,idim,icount,ica
+c
+c
+#ifdef T12
+      nnn=(nbf*(nbf+1))/2
+      if(.not.ma_push_get(MT_Dbl,nbf*nbf,'acopy',l_acopy,k_acopy))
+     A     call errquit('xc bcastdmL out of mem ',0,0)
+      if(ga_nodeid().eq.0) then
+         call ga_get(g_a, 1, nbf, 1, nbf,
+     $        dbl_mb(k_acopy), nbf)
+!      else
+!         call dcopy(idim,0d0,0,dbl_mb(k_acopy),1)
+      icount=k_acopy
+      ica=1
+      idim=nbf
+      do j=1,nbf
+         call dcopy(idim,dbl_mb(icount),1,a(ica),1)
+         ica=ica+idim
+         icount=icount+nbf+1
+         idim=idim-1
+      enddo
+      endif
+      if(.not.ma_chop_stack(l_acopy)) call
+     E     errquit(' xcbcdm: chp failed ',0,0)
+      mysize=MA_sizeof(MT_DBL,1,MT_BYTE)*nnn
+#else
+      if(ga_nodeid().eq.0) then
+         call ga_get(g_a, 1, nbf, 1, nbf,
+     $        a, nbf)
+      endif
+      mysize=MA_sizeof(MT_DBL,1,MT_BYTE)*nbf*nbf
+#endif
+      call ga_brdcst(1964, a, mysize, 0)
+c      call ga_sync()
 
+      return
+      end

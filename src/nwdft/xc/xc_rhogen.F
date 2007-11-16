@@ -1,5 +1,5 @@
 #define NEWSC
-* $Id: xc_rhogen.F,v 1.36 2006-05-23 17:03:18 edo Exp $
+* $Id: xc_rhogen.F,v 1.37 2007-11-16 22:34:36 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -97,7 +97,6 @@ c     points
 c     to keep compilers quiet
       iatcur=1
       jatcur=1
-
 
       if(what.eq.0) then
          call dcopy(nq*npol,0.D0,0,rho,1)
@@ -243,8 +242,14 @@ c
      .              dabsmax(sizeblk,Pmat).lt.tol_rho)goto 210
                else
                   call starttimer(monitor_gaget)
+                  if(truerepdm) then
+                  call xc_dmget(dbl_mb(k_repdm(ipert+(ii-1)*npert)), 
+     &                    nbf_ld,
+     %                 ifirst, ilast, jfirst, jlast, Pmat,nbfia)
+                  else
                   call ga_get(g_dens(ipert+(ii-1)*npert), 
      %                 ifirst, ilast, jfirst, jlast, Pmat,nbfia)
+                  endif
                   call endtimer(monitor_gaget)
                if (wmax*FUNC_MAXI*FUNC_MAXJ*
      .              dabsmax(sizeblk,Pmat).lt.tol_rho)goto 210
@@ -580,18 +585,52 @@ c
       jfirst = cetobfr(1,jat0)
       jlast = cetobfr(2,jat0)
       nbfia= ilast-ifirst+1
-#ifdef DEBUG
-      if(ifirst.gt.nbf.or.jfirst.gt.nbf.or.
-     O     ifirst.le.0.or.jfirst.le.0.or.
-     O     iniz(iat0).eq.0.or.iniz(jat0).eq.0) then
-         write(0,*) ' nonzero ',nonzero
-         write(0,*) '# ij i j',ij0,iat0,jat0
-         write(0,*) '# hilos',ifirst,ilast,jfirst,jlast
-      endif
-#endif
       call starttimer(monitor_ganbget)
       call ga_nbget(g_dens, 
      %     ifirst, ilast, jfirst, jlast, Pmat,nbfia,nbhandl)
       call endtimer(monitor_ganbget)
+      return
+      end
+#define T12 1
+      subroutine xc_dmget(repdm, nbf_ld,
+     %                 ilo, ihi, jlo, jhi, Pmat,nbfia)
+      implicit none
+      integer  ilo, ihi, jlo, jhi, nbfia,nbf_ld
+      double precision pmat(nbfia,*)
+#ifdef T12
+      double precision repdm(*)
+      integer ij,nnn
+#else
+      double precision repdm(nbf_ld,*)
+#endif
+c
+      integer i,j
+c
+#ifdef T12
+      nnn=nbfia
+      if(ilo.ne.jlo) then
+         do j=jlo,jhi
+            ij=((j-1)*(2*(nbf_ld+1)-j)+1)/2+ilo-j+1
+            call dcopy(nnn,repdm(ij),1,pmat(1,j-jlo+1),1)
+         enddo
+      else
+c diag block: copy only lower tr
+         do j=jlo,jhi
+            ij=((j-1)*(2*(nbf_ld+1)-j)+1)/2+1
+            call dcopy(nnn,repdm(ij),1,pmat(j-jlo+1,j-jlo+1),1)
+            nnn=nnn-1
+         enddo
+c     copy offdiag terms (aka transp)
+         do j=1,nbfia
+            do i=j+1,nbfia
+               pmat(j,i)=pmat(i,j)
+            enddo
+         enddo
+      endif
+#else
+      call dlacpy('a',ihi-ilo+1,jhi-jlo+1,
+     , repdm(ilo,jlo),nbf_ld,
+     , pmat,nbfia)
+#endif
       return
       end

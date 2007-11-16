@@ -1,11 +1,12 @@
 c
-C$Id: dftpara.fh,v 1.5 2005-10-07 19:48:06 edo Exp $
+C$Id: dftpara.fh,v 1.6 2007-11-16 22:34:36 edo Exp $
 c
-      logical xcreplicated
-      integer k_repxc(2),l_repxc(2)
+      logical xcreplicated,truerep,truerepdm,truerepxc
+      integer k_repxc(2),l_repxc(2),k_repdm(2),l_repdm(2)
       integer g_repdm(2)
       integer nbf_ld
       logical dorepxc, dorepdm, dftnbget,dftnbacc
       common /xcpara/ xcreplicated,k_repxc,l_repxc,nbf_ld,
      ,  dorepxc, dorepdm,
-     ,	g_repdm, dftnbget,dftnbacc
+     ,	g_repdm, dftnbget,dftnbacc,
+     ,	truerepdm,truerepxc,truerep,k_repdm,l_repdm

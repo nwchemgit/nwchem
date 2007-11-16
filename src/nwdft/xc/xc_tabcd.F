@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.25 2007-05-23 22:48:49 niri Exp $
+C$Id: xc_tabcd.F,v 1.26 2007-11-16 22:34:36 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -432,8 +432,18 @@ c     Monitoring
                         call upd_atombl_nb(g_update(ii),
      .                       basis,iat,jat,ttmat,nbhandl1)
                      else
+                        if(truerepxc) then
+                           call xc_atom_blockd(dbl_mb(k_repxc(ii)),
+     N                          nbf_ld,basis,iat,jat,ttmat)
+                        else
+                        if(truerepxc) then
+                           call xc_atom_block(dbl_mb(k_repxc(ii)),
+     N                          nbf_ld,basis,jat,iat,tmat)
+                        else
                         call upd_atom_block(g_update(ii),
      .                       basis,iat,jat,ttmat)
+                        endif
+                        endif
                      endif
                   endif
 c     Monitoring
