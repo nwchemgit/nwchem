@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2001-08-28 00:54:38 edo Exp $
+# $Id: GNUmakefile,v 1.7 2007-11-16 22:53:57 edo Exp $
 #
 
 
@@ -10,6 +10,9 @@
 
 include ../../config/makefile.h
 include ../../config/makelib.h
+
+            COPTIMIZE += -O0 -g
+            COPTIONS += -O0 -g
 
 ftest:	ftest.o $(OBJ)
 	$(LINK.f) -o $@ $^ $(LIBS) $(LIBS) $(LIBS) -lm
