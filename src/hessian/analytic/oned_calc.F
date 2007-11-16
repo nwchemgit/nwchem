@@ -1,5 +1,5 @@
 c
-c $Id: oned_calc.F,v 1.10 2001-10-03 23:49:52 windus Exp $
+c $Id: oned_calc.F,v 1.11 2007-11-16 22:35:17 edo Exp $
 c
       subroutine oned_calc(nxyz,g_rhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,geom,basis,nat)
@@ -103,7 +103,8 @@ c
                   do icart1 = 1, 3 
                     lo(1) = (idatom(i)-1) * 3 + icart1
                     hi(1) = (idatom(i)-1) * 3 + icart1
-                    call nga_acc(g_rhs, lo, hi, Ibuf(ic), ld, 1.0d0)
+cedo                    call nga_acc(g_rhs, lo, hi, Ibuf(ic), ld, 1.0d0)
+                    call nga_put(g_rhs, lo, hi, Ibuf(ic), ld)
                     ic = ic + nint
                   enddo
                   enddo
@@ -119,7 +120,8 @@ c
                  do atx = 1, nxyz
                    lo(1) = atx
                    hi(1) = atx
-                   call nga_acc(g_rhs, lo, hi, Ibuf(ic), ld, 1.0d0)
+!                   call nga_acc(g_rhs, lo, hi, Ibuf(ic), ld, 1.0d0)
+                   call nga_put(g_rhs, lo, hi, Ibuf(ic), ld)
                    ic = ic + nint
                  enddo
                 endif   ! doV and doT
