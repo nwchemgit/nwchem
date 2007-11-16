@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.81 2007-10-01 23:02:46 bylaska Exp $
+* $Id: psi.F,v 1.82 2007-11-16 22:32:53 d3p708 Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.81  2007/10/01 23:02:46  bylaska
+* PAW changes..EJB
+*
 * Revision 1.80  2007/09/29 00:33:37  bylaska
 * ...EJB
 *
@@ -5752,6 +5755,29 @@ c     end if
 
       return
       end
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine psi_polariz()
+#include "psi.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "util.fh"
+      integer psirx(2)
+      logical val
+      write(*,*)"calculating polarization"
+      call flush(6)
+      val=MA_PUSH_GET(mt_dbl,2*nfft3d,"psir",psirx(2),psirx(1))
+      if (.not.val) then
+        call errquit("psi_polariz stack empty",0,0)
+      end if
+      call berry_phase_pol(psi2,psirx)
+      val=MA_POP_STACK(psirx(2))
+      if (.not.val) then
+        call errquit("psi_polariz failed pop stack",0,0)
+      end if
+      return
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
