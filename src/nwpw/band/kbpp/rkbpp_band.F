@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.17 2007-09-07 23:55:56 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.18 2007-11-17 01:24:11 bylaska Exp $
 *
 *     **************************************
 *     *                                    *
@@ -522,7 +522,7 @@ ccccccccccccc assign norms to each projector
            f(k)=vv*wp(k,nw)*wp(k,nw)
          end do
          a=simp(nrho,f,drho)
-         vnlnrm(ip)=1.0d0/a;
+         vnlnrm(ip)=1.0d0/a
 c         write(*,*)"ip =",ip," lp= ",lp," kp= ",kappa," nw=",nw
 c         write(*,*)" nprj = ",nprj
 c         write(*,*)"    vnrm(",ip,")=",vnlnrm(ip)

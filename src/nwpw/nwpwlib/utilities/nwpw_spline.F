@@ -1,5 +1,5 @@
 c
-c     $Id: nwpw_spline.F,v 1.1 2007-08-27 15:29:44 bylaska Exp $
+c     $Id: nwpw_spline.F,v 1.2 2007-11-17 01:26:10 bylaska Exp $
 c
 
 *     *********************************************
@@ -68,7 +68,7 @@ c
 
 *     **** local variables ****
       integer khi,klo
-      real*8 a,b,h,y;
+      real*8 a,b,h,y
 
       khi = nx+1
       klo = nx
