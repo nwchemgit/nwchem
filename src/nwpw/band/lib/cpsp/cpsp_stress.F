@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.10 2007-09-05 20:23:25 bylaska Exp $
+* $Id: cpsp_stress.F,v 1.11 2007-11-17 00:05:40 bylaska Exp $
 *
 
 
@@ -229,10 +229,10 @@
 *     *					*
 *     ***********************************
 
-      subroutine cpsp_v_nonlocal_euv_2(ispin,ne,psi1,euv)
+      subroutine cpsp_v_nonlocal_euv_2(ispin,ne,psi1_tag,euv)
       implicit none
       integer    ispin,ne(2)
-      complex*16 psi1(*)
+      integer psi1_tag
       real*8 euv(3,3)
 
 #include "mafdecls.fh"
@@ -242,7 +242,7 @@
 
 *     *** local variables ***
       integer nfft3d,npack1,npack,shift,shift2,nbrillioun,nb
-      integer nproj,l_prj
+      integer nproj,l_prj,psi1_shift,occ1_tag,occ1_shift,occ_shift
       integer i,ii,ia,k,l,n,nn
       integer s,u,v
       real*8  omega,Bus(3,3),hm(3,3),kx,ky,kz
@@ -256,16 +256,19 @@
       logical  is_sORd
       integer  ion_nion,ion_katm,c_G_indx
       integer  brillioun_nbrillioun,cpsp_projector_get_ptr
+      integer  cpsi_data_get_chnk,cpsi_data_get_next
       real*8   brillioun_weight,brillioun_k
       real*8   lattice_omega,lattice_unitg
       external is_sORd
       external ion_nion,ion_katm,c_G_indx
       external brillioun_nbrillioun,cpsp_projector_get_ptr
+      external cpsi_data_get_chnk,cpsi_data_get_next
       external brillioun_weight,brillioun_k
       external lattice_omega,lattice_unitg
 
       call nwpw_timing_start(6)
       
+      occ1_tag = cpsi_data_get_next(psi1_tag)
       
       omega = lattice_omega()
 
@@ -312,6 +315,9 @@
 
         do nb=1,nbrillioun
 
+          psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+          if (occ1_tag.gt.0) 
+     >       occ1_shift = cpsi_data_get_chnk(occ1_tag,nb)
           call Cram_npack(nb,npack)
           kx = brillioun_k(1,nb)
           ky = brillioun_k(2,nb)
@@ -366,7 +372,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                        dcpl_mb(vtmp(1)))
            end if
            call Cram_cc_inzdot(nb,nn,
-     >                        psi1(1+(nb-1)*nn*npack1),
+     >                        dbl_mb(psi1_shift), 
      >                        dcpl_mb(vtmp(1)),
      >                        dcpl_mb(zsw1(1)+(l-1)*nn))
         end do
@@ -427,26 +433,44 @@ c     >               + (ia-1)*3*npack1*nmax_max*lmmax_max*nbrillioun
      >                        dcpl_mb(vtmp(1)))
               end if
               call Cram_cc_nzdot(nb,nn,
-     >                        psi1(1+(nb-1)*nn*npack1),
+     >                        dbl_mb(psi1_shift),
      >                        dcpl_mb(vtmp(1)),
      >                        dcpl_mb(zsw3(1)+(u-1)*nn
      >                                       +(s-1)*nn*3))
           end do
           end do
 
-          do i=1,nn
-            do s=1,3
-            do u=1,3
-             ctmp = dcpl_mb(zsw1(1)+(i-1)+(l-1)*nn)
-     >             *dcpl_mb(zsw3(1)+(i-1)
-     >                             +(u-1)*nn
-     >                             +(s-1)*nn*3)
+          if (occ1_tag.gt.0) then
+             occ_shift = occ1_shift
+             do i=1,nn
+               do s=1,3
+               do u=1,3
+                ctmp = dcpl_mb(zsw1(1)+(i-1)+(l-1)*nn)
+     >                *dcpl_mb(zsw3(1)+(i-1)
+     >                                +(u-1)*nn
+     >                                +(s-1)*nn*3)
 
-             Bus(u,s) = Bus(u,s) 
-     >         - weight*2.0d0*dble(ctmp)/(omega)
-            end do
-            end do
-          end do
+                Bus(u,s) = Bus(u,s)
+     >            - dbl_mb(occ_shift)*weight*2.0d0*dble(ctmp)/(omega)
+               end do
+               end do
+               occ_shift = occ_shift + 1
+             end do
+          else
+             do i=1,nn
+               do s=1,3
+               do u=1,3
+                ctmp = dcpl_mb(zsw1(1)+(i-1)+(l-1)*nn)
+     >                *dcpl_mb(zsw3(1)+(i-1)
+     >                                +(u-1)*nn
+     >                                +(s-1)*nn*3)
+
+                Bus(u,s) = Bus(u,s) 
+     >            - weight*2.0d0*dble(ctmp)/(omega)
+               end do
+               end do
+             end do
+          end if
 
         end do !** l **
         end do  !** nb **

@@ -1,5 +1,5 @@
 c
-c     $Id: c_bfgsminimize.F,v 1.6 2007-09-12 17:28:22 bylaska Exp $                       
+c     $Id: c_bfgsminimize.F,v 1.7 2007-11-17 00:05:54 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -12,20 +12,20 @@ c
      >                        current_iteration,
      >                        minimizer)
       implicit none
-#include "errquit.fh"
       real*8     E(*)
       real*8     deltae,deltac
       integer    current_iteration
       integer    minimizer
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
 
       real*8  deltat_min
       parameter (deltat_min=1.0d-2)
        
-      integer G0_tag,S0_tag
+      integer G0_tag,S0_tag,G0_shift,S0_shift
       real*8  E0,dE0
 
       logical    precondition
@@ -48,7 +48,7 @@ c
 
 *     **** external functions ****
       integer  control_it_in,cpsi_neq,cpsi_ispin,cpsi_nbrillq
-      integer  cpsi_data_push_stack
+      integer  cpsi_data_push_stack,cpsi_data_get_allptr
       real*8   control_tole,control_tolc
       real*8   cpsi_geodesic_energy
       real*8   cpsi_geodesic_denergy
@@ -65,7 +65,7 @@ c
       real*8   linesearch
    
       external control_it_in,cpsi_neq,cpsi_ispin,cpsi_nbrillq
-      external cpsi_data_push_stack
+      external cpsi_data_push_stack,cpsi_data_get_allptr
       external control_tole,control_tolc
       external cpsi_geodesic_energy
       external cpsi_geodesic_denergy
@@ -110,6 +110,8 @@ c     dte = 1.0d0
 *     **** allocate G0, S0 ****
       S0_tag = cpsi_data_push_stack(nbrillq,neall,2*npack1)
       G0_tag = cpsi_data_push_stack(nbrillq,neall,2*npack1)
+      S0_shift = cpsi_data_get_allptr(S0_tag)
+      G0_shift = cpsi_data_get_allptr(G0_tag)
 c      value = MA_push_get(mt_dcpl,npack1*neall*nbrill,
 c     >                     'S0',S0(2),S0(1))
 c      value = value.and.
@@ -126,11 +128,11 @@ c     > call errquit('c_bfgsminimize:out of heap memory',0,MA_ERR)
       if (current_iteration.eq.1) then
 
 *        ***** use the initial gradient for the direction ****
-         call band_lmbfgs_init(control_lmbfgs_size(),G0_tag)
+         call band_lmbfgs_init(control_lmbfgs_size(),dbl_mb(G0_shift))
          call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
          tmin  = 10*deltat_min
       else
-         call band_lmbfgs(tmin,G0_tag,S0_tag)
+         call band_lmbfgs(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
       end if
      
 
@@ -170,7 +172,7 @@ c         deltat = 1.0d0  !** debug **
      
 *        **** get the new gradient - also updates densities****
          call cpsi_2get_Tgradient(2,G0_tag,E0)
-         call band_lmbfgs(tmin,G0_tag,S0_tag)
+         call band_lmbfgs(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
 
 
 *        **** make psi1 <--- psi2(tmin) ****
@@ -229,6 +231,7 @@ c     call c_dng_2to1()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
       E(11) = cpsi_1vnlso()
+
       return
       end
  

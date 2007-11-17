@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.107 2007-11-03 19:57:20 bylaska Exp $
+* $Id: control.F,v 1.108 2007-11-17 00:06:00 bylaska Exp $
 *
 
 *     ***********************************
@@ -2047,8 +2047,10 @@ c      end
       external control_TotalCharge
       real*8   ion_TotalCharge_qm
       external ion_TotalCharge_qm
-      integer  control_frac_occ_extra_orbitals
-      external control_frac_occ_extra_orbitals
+      !integer  control_frac_occ_extra_orbitals
+      !external control_frac_occ_extra_orbitals
+      integer  control_fractional_orbitals
+      external control_fractional_orbitals
 
 
 
@@ -2058,12 +2060,12 @@ c      end
 *        **** get mult and e-charge from wavefunction file ****
          call psi_get_ne(ispin_wf,ne_wf)
 
-         nextra_orbs = control_frac_occ_extra_orbitals()
+         !nextra_orbs = control_frac_occ_extra_orbitals()
          if (ispin_wf.eq.1) then
-            ne_wf(1) = ne_wf(1) - nextra_orbs
+            ne_wf(1) = ne_wf(1) - control_fractional_orbitals(1)
          else
-            ne_wf(1) = ne_wf(1) - nextra_orbs
-            ne_wf(2) = ne_wf(2) - nextra_orbs
+            ne_wf(1) = ne_wf(1) - control_fractional_orbitals(1)
+            ne_wf(2) = ne_wf(2) - control_fractional_orbitals(2)
          end if
 
          x_wf = ne_wf(1)+ne_wf(2)

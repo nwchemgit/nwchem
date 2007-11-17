@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.30 2007-11-03 19:57:17 bylaska Exp $
+* $Id: Pneb.F,v 1.31 2007-11-17 00:05:57 bylaska Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -976,7 +976,9 @@ c     ****************************************
       complex*16 Y1(*),Y2(*),hml(*)
       integer npack1
       complex*16 alpha,beta
-   
+
+      logical value
+#include "mafdecls.fh"   
 #include "Pneb.fh"
 
 *     **** local variables ****
@@ -1446,6 +1448,7 @@ c     ccccccccccccccccccccccccccccccccccccccccc
       integer mb,nbb,npack1
       complex*16 A(*)
 
+#include "mafdecls.fh"
 #include "errquit.fh"
 #include "Pneb.fh"
 
@@ -1455,6 +1458,7 @@ c     ** local variables ****
       integer bindex,nbshift,soshift
       complex*16 wc,wc1,wc2       
       real*8 w,w1,w2
+      logical value
 
       if (nbb.eq.0) then
         nb1=1
@@ -1513,7 +1517,7 @@ c     ** local variables ****
 
         do nb=nb1,nb2
         do ms=ms1,ms2
-          bindex=((nb-nb1))*nbshift+(ms-1)*ne(1)*npack1
+          bindex=(nb-nb1)*nbshift+(ms-1)*ne(1)*npack1
           do k=1,ne(ms)
            index1=bindex+(k-1)*npack1+1
            call Cram_cc_dot(nb,A(index1),A(index1),w)
@@ -1525,6 +1529,7 @@ c     ** local variables ****
             w=1.0d0
            end if
            call Cram_c_SMul(nb,w,A(index1),A(index1))
+
            do j=k+1,ne(ms)
              index3=bindex+(j-1)*npack1+1
              call Cram_cc_zdot(nb,A(index1),A(index3),wc)
@@ -1695,9 +1700,9 @@ c     ccccc local variables ccccc
       integer taskid,MASTER
       PARAMETER(MASTER=0)
 
-      logical oprint
+      logical oprint,value
       integer nb,nb1,nb2,ms,ms1,ms2
-      integer a_shift,nshift
+      integer a_shift,nshift,l
       real*8  sum1,sum2,sum3
 
 *     **** external functions ****
@@ -1708,6 +1713,8 @@ c     ccccc local variables ccccc
 
       call Parallel_taskid(taskid)
       oprint = ((taskid.eq.MASTER).and.control_print(print_high))
+      oprint = (taskid.eq.MASTER)
+
       if (nbb.eq.0) then
          nb1=1
          nb2=nbrillq
@@ -1749,7 +1756,7 @@ c     ccccc local variables ccccc
                write(*,1403) dabs(sum3-sum1),sum3
               end if
             end if
-            a_shift = a_shift + nshift
+c            !a_shift = a_shift + nshift
          end do
       end do
  1400 FORMAT(
@@ -2839,8 +2846,8 @@ c     **** local variables ****
          do k=1,ne(ms)
             indx1 = shift1
             do j=1,ne(ms)
-               A(indx2)=SA(indx1)*A(indx2) 
-               B(indx2)=SB(indx1)*B(indx2)
+               A(indx2)=SA(indx1)*Vt(indx2) 
+               B(indx2)=SB(indx1)*Vt(indx2)
                indx2 = indx2 + 1
                indx1 = indx1 + 1
             end do

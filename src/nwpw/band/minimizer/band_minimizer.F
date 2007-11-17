@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.55 2007-11-03 19:57:13 bylaska Exp $
+* $Id: band_minimizer.F,v 1.56 2007-11-17 00:05:54 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -117,8 +117,8 @@
 
       integer  cpsi_ispin,cpsi_ne,psi_get_version
       external cpsi_ispin,cpsi_ne,psi_get_version
-      logical  pspw_reformat_c_wvfnc
-      external pspw_reformat_c_wvfnc
+      logical  pspw_reformat_c_wvfnc,control_check_charge_multiplicity
+      external pspw_reformat_c_wvfnc,control_check_charge_multiplicity
       integer  control_mapping,control_minimizer
       external control_mapping,control_minimizer
       integer  control_scf_algorithm
@@ -238,7 +238,7 @@ c      external      cpsp_comment
 
 
 *     **** read in wavefunctions and initialize psi ****
-      if (.not.psi_filefind()) then
+      if (.not.control_check_charge_multiplicity()) then
          call cpsi_new()
          newpsi = .true.
       else
@@ -265,7 +265,6 @@ c      external      cpsp_comment
       nbrillioun = brillioun_nbrillioun()
       call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       value = cpsi_initialize(.true.)
-
 
 *     **** electron and geodesic data structures ****
       call c_electron_init()

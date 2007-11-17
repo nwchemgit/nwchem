@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_common.fh,v 1.8 2007-11-03 19:57:05 bylaska Exp $
+* $Id: cpsi_common.fh,v 1.9 2007-11-17 00:05:48 bylaska Exp $
 *
 
 *     ***** psi common block ****
@@ -22,6 +22,6 @@
 
 *     **** psi smearing block ****
       integer smearoccupation,smeartype
-      real*8 smearfermi,smearcorrection,smearkT
+      real*8 smearfermi(2),smearcorrection,smearkT
       common / cpsi_block23 / smearfermi,smearcorrection,smearkT,
      >                        smearoccupation,smeartype

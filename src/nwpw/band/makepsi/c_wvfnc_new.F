@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_new.F,v 1.14 2007-11-05 17:35:15 bylaska Exp $
+* $Id: c_wvfnc_new.F,v 1.15 2007-11-17 00:05:51 bylaska Exp $
 *
 
 *     **********************************************
@@ -316,7 +316,7 @@ c     **** add occupation ****
       return 
       end
 
-      double precision FUNCTION gcdot(NFFT1,NFFT2,NFFT3,A,B)
+      double precision function gcdot(NFFT1,NFFT2,NFFT3,A,B)
       implicit none
       integer nfft1,nfft2,nfft3
       complex*16 A(*),B(*)
@@ -329,15 +329,17 @@ c     **** add occupation ****
       double precision sum
       integer k1,k2,k3,inc2,inc3,index
 
-      inc2 = nfft1
-      inc3 = inc2*nfft2
+      !inc2 = nfft1
+      !inc3 = inc2*nfft2
 
       sum  = 0.0d0
+      index = 1
       do k3=1,nfft3
       do k2=1,nfft2
       do k1=1,nfft1
-         index = (k3-1)*inc3 + (k2-1)*inc2 + k1
+         !index = (k3-1)*inc3 + (k2-1)*inc2 + k1
          sum = sum + dconjg(A(index))*B(index)
+         index = index + 1
       end do
       end do
       end do

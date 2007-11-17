@@ -1,5 +1,5 @@
 *
-*     $Id: band_lmbfgs.F,v 1.6 2007-08-23 23:48:21 bylaska Exp $                       
+*     $Id: band_lmbfgs.F,v 1.7 2007-11-17 00:05:37 bylaska Exp $                       
 *
 
       subroutine band_lmbfgs_init(max_m0,g)
@@ -74,8 +74,9 @@
         call band_Grsm_list_ptr(2*m-1,yy(1))
         call band_Grsm_list_ptr(2*m,  ss(1))
       end if
-      call cpsi_1geodesic_Gtransport(tmin,dbl_mb(yy(1)))
-      call cpsi_1geodesic_transport(tmin,dbl_mb(ss(1)))
+
+      call cpsi_1geodesic_Gtransport_junk(tmin,dbl_mb(yy(1)))
+      call cpsi_1geodesic_transport_junk(tmin,dbl_mb(ss(1)))
       
       call daxpy(ngras,(-1.0d0),g,1,dbl_mb(yy(1)),1)
       call dscal(ngras,(-1.0d0),dbl_mb(yy(1)),1)
@@ -106,8 +107,8 @@ c      casa2=ss(2)-ss(1)
            call band_Grsm_list_ptr(2*k-1,yy(1))
            call band_Grsm_list_ptr(2*k,  ss(1))
          end if
-         call cpsi_1geodesic_Gtransport(tmin,dbl_mb(yy(1)))
-         call cpsi_1geodesic_Gtransport(tmin,dbl_mb(ss(1)))
+         call cpsi_1geodesic_Gtransport_junk(tmin,dbl_mb(yy(1)))
+         call cpsi_1geodesic_Gtransport_junk(tmin,dbl_mb(ss(1)))
          if (ondisk) then
            call band_Grsm_list_store(2*k-1,dbl_mb(yy(1)))
            call band_Grsm_list_store(2*k,  dbl_mb(ss(1)))
@@ -148,6 +149,7 @@ c      casa2=ss(2)-ss(1)
      >                dbl_mb(yy(1)),
      >                s,npack1,
      >                sum)
+
       beta = rho(m)*sum
       sum = alpha(m) - beta
       call daxpy(ngras,sum,dbl_mb(ss(1)),1,s,1)

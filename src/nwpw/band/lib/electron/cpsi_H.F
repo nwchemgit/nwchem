@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.17 2007-09-12 17:28:15 bylaska Exp $
+* $Id: cpsi_H.F,v 1.18 2007-11-17 00:05:44 bylaska Exp $
 *
 
 *     **********************************************
@@ -350,7 +350,7 @@ c            indx2 = 1 + (n-1)*npack1 + (nb-1)*npack1*neall
      >                   orb_r(shiftr),
      >                   dcpl_mb(vpsi(1)+nfft3d))
 
-c      value=MA_verify_allocator_stuff()
+
 *     **** put vpsi_r in k-space ****
       call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
       call Cram_c_pack(nb,dcpl_mb(vpsi(1)))

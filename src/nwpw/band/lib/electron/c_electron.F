@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.34 2007-11-03 19:56:59 bylaska Exp $
+* $Id: c_electron.F,v 1.35 2007-11-17 00:05:43 bylaska Exp $
 *
 
 
@@ -67,13 +67,13 @@
 
       neall  = neq(1)+neq(2)
       
-
 *     **** allocate memory ****
 c      value = MA_alloc_get(mt_dcpl,nbrill*npack1*(ne(1)+ne(2)),
 c     >                     'Hpsi_k',Hpsi_k(2),Hpsi_k(1))
 c      value = value.and.
 c     >        MA_alloc_get(mt_dcpl,nbrill*nfft3d*(ne(1)+ne(2)),
 c     >                     'psi_r',psi_r(2),psi_r(1))
+
       Hpsi_k_tag = cpsi_data_alloc(nbrillq,neall,2*npack1)
       psi_r_tag  = cpsi_data_alloc(nbrillq,neall,2*nfft3d)
 
@@ -343,7 +343,8 @@ cccccccccccccccccc
 *     *** get orbital energies ****
       eorbit = 0.0d0
       do nbq=1,nbrillq
-        weight = brillioun_weight(Pneb_convert_nb(nbq))
+        !weight = brillioun_weight(Pneb_convert_nb(nbq))
+        weight = brillioun_weight(nbq)
         psi_shift  = cpsi_data_get_chnk( psi_k_tag,nbq)
         Hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
 
@@ -442,7 +443,8 @@ cccccccccccccccccc
 *     *** get orbital energies ****
       eorbit = 0.0d0
       do nbq=1,nbrillq
-        weight = brillioun_weight(Pneb_convert_nb(nbq))
+        !weight = brillioun_weight(Pneb_convert_nb(nbq))
+        weight = brillioun_weight(nbq)
         psi_shift  = cpsi_data_get_chnk( psi_k_tag,nbq)
         Hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
         if (occ_tag.gt.0) then
@@ -1476,11 +1478,14 @@ c     >                     dn)
       integer nx,ny,nz,np,neall,psi_shift,nshift
       real*8 elocal,sum,scal1,scal2,weight
       integer tmp1(2),tmp2(2)
+      integer occ_tag,occ_shift
 
 *     **** external functions ***
       integer  cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      integer  cpsi_data_get_next
       real*8   lattice_omega,brillioun_weight
       external cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      external cpsi_data_get_next
       external lattice_omega,brillioun_weight
 
       call Parallel_np(np)
@@ -1497,6 +1502,7 @@ c     >                     dn)
       call C3dB_nz(1,nz)
       neall = neq(1) + neq(2)
       nshift= cpsi_data_nsize(psi_r_tag)
+      occ_tag = cpsi_data_get_next(psi1_tag)
 
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
@@ -1506,24 +1512,49 @@ c     >                     dn)
       call Cram_c_Copy(0,dcpl_mb(vl(1)),dcpl_mb(tmp1(1)))
       call Cram_c_unpack(0,dcpl_mb(tmp1(1)))
       call C3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
-      elocal = 0.0d0
-      do nb=1,nbrillq
-         weight = brillioun_weight(Pneb_convert_nb(nb))
-         psi_shift = cpsi_data_get_chnk(psi_r_tag,nb)
-             
-         do n=1,neall
-            call C3dB_cc_Mul(1,
-     >                       dcpl_mb(tmp1(1)),
-     >                       dbl_mb(psi_shift),
-     >                       dcpl_mb(tmp2(1)))
-            call C3dB_cc_idot(1,
-     >                       dbl_mb(psi_shift),
-     >                       dcpl_mb(tmp2(1)),
-     >                       sum)
-            psi_shift = psi_shift + nshift
-            elocal = elocal + sum*scal1*scal2*weight
+      if (occ_tag.gt.0) then
+         elocal = 0.0d0
+         do nb=1,nbrillq
+            weight = brillioun_weight(Pneb_convert_nb(nb))
+            psi_shift = cpsi_data_get_chnk(psi_r_tag,nb)
+            occ_shift = cpsi_data_get_chnk(occ_tag,nb)
+
+            do n=1,neall
+               call C3dB_cc_Mul(1,
+     >                          dcpl_mb(tmp1(1)),
+     >                          dbl_mb(psi_shift),
+     >                          dcpl_mb(tmp2(1)))
+               call C3dB_cc_idot(1,
+     >                          dbl_mb(psi_shift),
+     >                          dcpl_mb(tmp2(1)),
+     >                          sum)
+               elocal = elocal 
+     >                + sum*scal1*scal2*weight*dbl_mb(occ_shift)
+
+               psi_shift = psi_shift + nshift
+               occ_shift = occ_shift + 1
+            end do
          end do
-      end do
+      else
+         elocal = 0.0d0
+         do nb=1,nbrillq
+            weight = brillioun_weight(Pneb_convert_nb(nb))
+            psi_shift = cpsi_data_get_chnk(psi_r_tag,nb)
+             
+            do n=1,neall
+               call C3dB_cc_Mul(1,
+     >                          dcpl_mb(tmp1(1)),
+     >                          dbl_mb(psi_shift),
+     >                          dcpl_mb(tmp2(1)))
+               call C3dB_cc_idot(1,
+     >                          dbl_mb(psi_shift),
+     >                          dcpl_mb(tmp2(1)),
+     >                          sum)
+               psi_shift = psi_shift + nshift
+               elocal = elocal + sum*scal1*scal2*weight
+            end do
+         end do
+      end if
       if (np.gt.1) call Parallel_SumAll(elocal)
       if (ispin.eq.1) elocal = 2.0d0*elocal
  
@@ -1554,14 +1585,16 @@ c     >                     dn)
 
 *     **** local variables ****
       integer n,np,nb
-      integer neall,nshift,psi1_shift,tmp1_shift
+      integer neall,nshift,psi1_shift,tmp1_shift,occ1_shift
       real*8 enlocal,sum,weight,fion(3)
-      integer tmp1_tag
+      integer tmp1_tag,occ1_tag
 
 *     **** external functions ****
       integer  cpsi_data_push_stack,cpsi_data_get_chnk
+      integer  cpsi_data_get_next
       real*8   brillioun_weight
       external cpsi_data_push_stack,cpsi_data_get_chnk
+      external cpsi_data_get_next
       external brillioun_weight
 
       call Parallel_np(np)
@@ -1569,6 +1602,7 @@ c     >                     dn)
       neall = neq(1) + neq(2)
       nshift = 2*npack1
 
+      occ1_tag = cpsi_data_get_next(psi1_tag)
       tmp1_tag = cpsi_data_push_stack(nbrillq,neall,nshift)
 
 *     **** average Kohn-Sham v_nonlocal energy ****
@@ -1577,21 +1611,41 @@ c     >                     dn)
      >                     psi1_tag,
      >                     tmp1_tag,
      >                    .false.,fion)
-      enlocal = 0.0d0
-      do nb=1,nbrillq
-         weight = brillioun_weight(nb)
-         psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
-         tmp1_shift = cpsi_data_get_chnk(tmp1_tag,nb)
-         do n=1,neall
-            call Cram_cc_idot(nb,
-     >                        dbl_mb(psi1_shift),
-     >                        dbl_mb(tmp1_shift),
-     >                        sum)
-            enlocal = enlocal - sum*weight
-            psi1_shift = psi1_shift + nshift
-            tmp1_shift = tmp1_shift + nshift
+      if (occ1_tag.gt.0) then
+         enlocal = 0.0d0
+         do nb=1,nbrillq
+            weight = brillioun_weight(nb)
+            psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+            tmp1_shift = cpsi_data_get_chnk(tmp1_tag,nb)
+            occ1_shift = cpsi_data_get_chnk(occ1_tag,nb)
+            do n=1,neall
+               call Cram_cc_idot(nb,
+     >                           dbl_mb(psi1_shift),
+     >                           dbl_mb(tmp1_shift),
+     >                           sum)
+               enlocal = enlocal - sum*weight*dbl_mb(occ1_shift)
+               psi1_shift = psi1_shift + nshift
+               tmp1_shift = tmp1_shift + nshift
+               occ1_shift = occ1_shift + 1
+            end do
          end do
-      end do
+      else
+         enlocal = 0.0d0
+         do nb=1,nbrillq
+            weight = brillioun_weight(nb)
+            psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+            tmp1_shift = cpsi_data_get_chnk(tmp1_tag,nb)
+            do n=1,neall
+               call Cram_cc_idot(nb,
+     >                           dbl_mb(psi1_shift),
+     >                           dbl_mb(tmp1_shift),
+     >                           sum)
+               enlocal = enlocal - sum*weight
+               psi1_shift = psi1_shift + nshift
+               tmp1_shift = tmp1_shift + nshift
+            end do
+         end do
+      end if
       if (np.gt.1) call C3dB_SumAll(enlocal)
       if (ispin.eq.1) enlocal = 2.0d0*enlocal
  

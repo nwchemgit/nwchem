@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.16 2007-11-03 19:57:05 bylaska Exp $
+* $Id: cpsi_read.F,v 1.17 2007-11-17 00:05:48 bylaska Exp $
 *
 
 *     ***************************
@@ -30,8 +30,8 @@
       integer MASTER,taskid
       parameter(MASTER=0)
       logical brillioun_check,psi_nolattice
-      integer n,nb,nbrill,occupation
-      integer msglen
+      integer n,nb,nbrill,occupation,ms
+      integer msglen,psiold,psiold1
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
@@ -44,10 +44,12 @@ c     complex*16 tmp(*)
       external     control_input_psi
       double precision control_unita
       external         control_unita
-      integer  control_ngrid,control_rtdb
-      external control_ngrid,control_rtdb
+      integer  control_ngrid,control_rtdb,control_fractional_orbitals
+      external control_ngrid,control_rtdb,control_fractional_orbitals
       integer  cpsi_data_get_allptr,cpsi_data_get_next
+      integer  cpsi_data_get_chnk
       external cpsi_data_get_allptr,cpsi_data_get_next
+      external cpsi_data_get_chnk
 
       call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
@@ -161,7 +163,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 *     * file may contain more data then necessary *
       if (nbrillioun.le.nbrill) then
 
-        do nb=1,nbrill
+        do nb=1,nbrillioun
         do n=1,(ne(1)+ne(2))
          !indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
          call C3dB_c_Read(1,5,dcpl_mb(tmp2(1)),
@@ -186,32 +188,48 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
         end do
         end do
 *       **** use the last zone for filling in unknown zones ****
+        psiold1 = cpsi_data_get_chnk(psi2_tag,nbrill)
         do nb=nbrill+1,nbrillioun
-          call cpsi_data_copy_brill(psi2_tag,nbrill,nb)
-c        do n=1,(ne(1)+ne(2))
-c         indx1 = 1 + (n-1)*npack1 + (nbrill-1)*npack1*(ne(1)+ne(2)) 
-c         indx  = 1 + (n-1)*npack1 + (nb-1)*    npack1*(ne(1)+ne(2)) 
-c         call Cram_c_Copy(nbrill,psi2(indx1),dcpl_mb(tmp2(1)))
-c         call Cram_c_unpack(nbrill,dcpl_mb(tmp2(1)))
-c         call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-c         call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
-c        end do
+         psiold = psiold1
+         do n=1,(ne(1)+ne(2))
+          call Cram_c_Copy(nbrill,dbl_mb(psiold),dcpl_mb(tmp2(1)))
+          call Cram_c_unpack(nbrill,dcpl_mb(tmp2(1)))
+          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
+          call cpsi_data_add(psi2_tag,nb,n,dcpl_mb(tmp2(1)))
+          psiold = psiold + 2*npack1
+         end do
         end do
       end if
 
 *     **** read the occupations - needs to be reworked for parallel ****
       if (occupation.gt.0) then
          l = cpsi_data_get_next(psi2_tag)
-         do nb=1,nbrill
-           do n=1,(ne(1)+ne(2))
-              if (taskid.eq.MASTER) then
-                 call dread(5,unita,1)
-                 call cpsi_data_add(l,nb,n,unita)
-              end if
-           end do
-         end do
+         if (taskid.eq.MASTER) then
+            if (nbrillioun.eq.nbrill) then
+              do nb=1,nbrillioun
+              do n=1,(ne(1)+ne(2))
+                call dread(5,unita,1)
+                call cpsi_data_add(l,nb,n,unita)
+              end do
+              end do
+*           **** reset to zeros and ones ****
+            else
+              do nb=1,nbrillioun
+              do ms=1,ispin
+              do n=1,ne(ms)
+                if (n.le.(ne(ms)-control_fractional_orbitals(ms))) then
+                  unita(1,1) = 1.0d0  
+                else
+                  unita(1,1) = 0.0d0  
+                end if
+                call cpsi_data_add(l,nb,(n+(ms-1)*ne(1)),unita)
+              end do
+              end do
+              end do
+            end if
+         end if
          call Parallel_Brdcst_values(MASTER,
-     >                 nbrill*(ne(1)+ne(2)),
+     >                 nbrillioun*(ne(1)+ne(2)),
      >                 dbl_mb(cpsi_data_get_allptr(l)))
       end if
 
@@ -228,7 +246,6 @@ c        end do
       end
 
 *
-
 
 *     ***********************************
 *     *          	   		*
@@ -260,7 +277,7 @@ c        end do
       parameter(MASTER=0)
       logical brillioun_check,psi_nolattice
       integer n,nb,nbrill,occupation
-      integer msglen
+      integer msglen,psiold,psiold1
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
@@ -269,8 +286,8 @@ c     complex*16 tmp(*)
 *     ***** local functions ****
       double precision control_unita
       external         control_unita
-      integer  control_ngrid,control_rtdb
-      external control_ngrid,control_rtdb
+      integer  control_ngrid,control_rtdb,cpsi_data_get_chnk
+      external control_ngrid,control_rtdb,cpsi_data_get_chnk
 
       call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
@@ -381,7 +398,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 *     * file may contain more data then necessary *
       if (nbrillioun.le.nbrill) then
 
-        do nb=1,nbrill
+        do nb=1,nbrillioun
         do n=1,(ne(1)+ne(2))
          !indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
          call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
@@ -407,16 +424,18 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
         end do
 
 *       **** use the last zone for filling in unknown zones ****
+        psiold1 = cpsi_data_get_chnk(psi2_tag,nbrill)
         do nb=nbrill+1,nbrillioun
-          call cpsi_data_copy_brill(psi2_tag,nbrill,nb)
-c        do n=1,(ne(1)+ne(2))
-c         indx1 = 1 + (n-1)*npack1 + (nbrill-1)*npack1*(ne(1)+ne(2)) 
-c         indx  = 1 + (n-1)*npack1 + (nb-1)*    npack1*(ne(1)+ne(2)) 
-c         call Cram_c_Copy(nbrill,psi2(indx1),dcpl_mb(tmp2(1)))
-c         call Cram_c_unpack(nbrill,dcpl_mb(tmp2(1)))
-c         call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-c         call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
-c        end do
+
+         psiold = psiold1
+         do n=1,(ne(1)+ne(2))
+          call Cram_c_Copy(nbrill,dbl_mb(psiold),dcpl_mb(tmp2(1)))
+          call Cram_c_unpack(nbrill,dcpl_mb(tmp2(1)))
+          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
+          call cpsi_data_add(psi2_tag,nb,n,dcpl_mb(tmp2(1)))
+          psiold = psiold + 2*npack1
+         end do
+
         end do
 
       end if

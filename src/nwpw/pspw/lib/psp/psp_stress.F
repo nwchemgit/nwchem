@@ -1,5 +1,5 @@
 *
-* $Id: psp_stress.F,v 1.14 2007-04-02 15:38:42 bylaska Exp $
+* $Id: psp_stress.F,v 1.15 2007-11-17 00:06:05 bylaska Exp $
 *
 
 
@@ -250,13 +250,13 @@
       real*8  omega,Bus(3,3),hm(3,3)
       real*8  pi,scal
       integer exi(2),vtmp(2),tmp1(2),sw1(2),sw2(2),sw3(2)
-      integer G(2,3)
+      integer G(2,3),Gijl_indx
       logical value,sd_function
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm,G_indx
+      integer  ion_nion,ion_katm,G_indx,psi_data_get_ptr
       real*8   lattice_omega,lattice_unitg
-      external ion_nion,ion_katm,G_indx
+      external ion_nion,ion_katm,G_indx,psi_data_get_ptr
       external lattice_omega,lattice_unitg
 
       call nwpw_timing_start(6)
@@ -323,7 +323,8 @@
 *       *********************************************
         do l=1,nproj
 
-           shift = vnl(1)+(l-1)*npack1+(ia-1)*npack1*nmax_max*lmmax_max
+           !shift = vnl(1)+(l-1)*npack1+(ia-1)*npack1*nmax_max*lmmax_max
+           shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
            l_prj = int_mb(l_projector(1)+(l-1)
      >                                  + (ia-1)*(nmax_max*lmmax_max))
            !sd_function = .not.and(l_prj,1)
@@ -357,6 +358,7 @@
 
       
 *       **** sw2 = Gijl*sw1 ******
+        Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),1)
         call Multiply_Gijl_sw1(nn,
      >                         nproj,
      >                         int_mb(nmax(1)+ia-1),
@@ -367,8 +369,7 @@
      >                                + (ia-1)*(nmax_max*lmmax_max)),
      >                         int_mb(m_projector(1)
      >                                + (ia-1)*(nmax_max*lmmax_max)),
-     >                         dbl_mb(Gijl(1)
-     >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
+     >                         dbl_mb(Gijl_indx),
      >                         dbl_mb(sw1(1)),
      >                         dbl_mb(sw2(1)))
       

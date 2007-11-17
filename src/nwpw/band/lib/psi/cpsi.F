@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.52 2007-11-03 19:57:05 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.53 2007-11-17 00:05:48 bylaska Exp $ *
 
 
 *     ***************************
@@ -655,6 +655,44 @@ c     &       MA_ERR)
       end
 
 
+*     ****************************************
+*     *                                      *
+*     *     cpsi_1geodesic_transport_junk    *
+*     *                                      *
+*     ****************************************
+      subroutine cpsi_1geodesic_transport_junk(t,H0)
+      implicit none
+      real*8 t
+      complex*16 H0(*)
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      call c_geodesic_transport_junk(t,psi1_tag,H0)
+
+      return
+      end
+
+
+
+*     ****************************************
+*     *                                      *
+*     *     cpsi_1geodesic_Gtransport_junk   *
+*     *                                      *
+*     ****************************************
+      subroutine cpsi_1geodesic_Gtransport_junk(t,G0)
+      implicit none
+      real*8 t
+      complex*16 G0(*)
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      call c_geodesic_Gtransport_junk(t,psi1_tag,G0)
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*
@@ -752,12 +790,14 @@ c     &       MA_ERR)
       integer tmp_L(2)
       integer psi1_shift,psi2_shift
       real*8 tsum
+      complex*16 tttc(16,16)
+      integer i,j
 
 *     **** external functions ****
       logical  Pneb_w_push_get,Pneb_w_push_get_block,Pneb_w_pop_stack
-      integer  cpsi_data_get_ptr
+      integer  cpsi_data_get_chnk
       external Pneb_w_push_get,Pneb_w_push_get_block,Pneb_w_pop_stack
-      external cpsi_data_get_ptr
+      external cpsi_data_get_chnk
 
       call c_electron_run(psi1_tag,
      >                     dbl_mb(rho1(1)),
@@ -774,17 +814,20 @@ c     &       MA_ERR)
      >  call errquit('psi1to2_sd_update: stack failure',0,MA_ERR)
 
       do nb=1,nbrillq
-      do ms=1,ispinq
+        psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+        psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
+        do ms=1,ispinq
         if (neq(ms).gt.0) then
-           psi1_shift = cpsi_data_get_ptr(psi1_tag,nb,1+(ms-1)*neq(1))
-           psi2_shift = cpsi_data_get_ptr(psi2_tag,nb,1+(ms-1)*neq(1))
+           !psi1_shift = cpsi_data_get_ptr(psi1_tag,nb,1+(ms-1)*neq(1))
+           !psi2_shift = cpsi_data_get_ptr(psi2_tag,nb,1+(ms-1)*neq(1))
            call cpsi_lmbda(ms,nb,npack1,
      >                 dbl_mb(psi1_shift),
      >                 dbl_mb(psi2_shift),
      >                 dte,
      >                 dcpl_mb(tmp_L(1)),ierr)
+
         end if
-      end do
+        end do
       end do
 
       if (.not.Pneb_w_pop_stack(tmp_L))
@@ -792,7 +835,6 @@ c     &       MA_ERR)
 
       return
       end
-
 
 
 *     ***********************************
@@ -816,9 +858,9 @@ c     &       MA_ERR)
 
 *     **** external functions ****
       logical  Pneb_w_push_get,Pneb_w_push_get_block,Pneb_w_pop_stack
-      integer  cpsi_data_get_ptr
+      integer  cpsi_data_get_chnk
       external Pneb_w_push_get,Pneb_w_push_get_block,Pneb_w_pop_stack
-      external cpsi_data_get_ptr
+      external cpsi_data_get_chnk
 
 
       call c_electron_run_noscf(psi1_tag,
@@ -838,9 +880,11 @@ c     &       MA_ERR)
      >          'psi1to2_sd_update_noscf: stack failure',0,MA_ERR)
 
       do nb=1,nbrillq
-      do ms=1,ispinq
-         psi1_shift = cpsi_data_get_ptr(psi1_tag,nb,1+(ms-1)*neq(1))
-         psi2_shift = cpsi_data_get_ptr(psi2_tag,nb,1+(ms-1)*neq(1))
+        psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+        psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
+        do ms=1,ispinq
+         !psi1_shift = cpsi_data_get_ptr(psi1_tag,nb,1+(ms-1)*neq(1))
+         !psi2_shift = cpsi_data_get_ptr(psi2_tag,nb,1+(ms-1)*neq(1))
          call cpsi_lmbda(ms,nb,npack1,
      >                 dbl_mb(psi1_shift),
      >                 dbl_mb(psi2_shift),
@@ -1194,17 +1238,19 @@ c     &       MA_ERR)
       integer it,itmax
       parameter (itmax=50)
 
-      integer ms,nb,n,shift1,shift2,occ1_tag
+      integer ms,nb,n,shift1,shift2,occ1_tag,ndiff
       real*8 e,x,kT,f,g,wb,alpha,pi
-      real*8 Z,Zlower,Zmid,Zupper,elower,emid,eupper
+      real*8 ZZ,Z(2),Zlower,Zmid,Zupper,elower,emid,eupper
       real*8 flower,fmid,fupper
 
 *     **** external functions ****
       integer  cpsi_data_get_next,cpsi_data_get_chnk
+      integer  control_multiplicity
       real*8   brillioun_weight
       real*8   control_TotalCharge,ion_TotalCharge_qm
       real*8   cpsi_occ_distribution,control_ks_alpha
       external cpsi_data_get_next,cpsi_data_get_chnk
+      external control_multiplicity
       external brillioun_weight
       external control_TotalCharge,ion_TotalCharge_qm
       external cpsi_occ_distribution,control_ks_alpha
@@ -1216,118 +1262,116 @@ c     &       MA_ERR)
       if (occ1_tag.gt.0) then
          alpha = control_ks_alpha()
          kT    = smearkT
-         Z     = ion_TotalCharge_qm() - control_TotalCharge()
+         ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
+         if (ispin.eq.2) then
+            ndiff = control_multiplicity() - 1
+            Z(1) = 0.5d0*(ZZ+ndiff)
+            Z(2) = 0.5d0*(ZZ-ndiff)
+         else
+            Z(1) = 0.5d0*ZZ
+            Z(2) = 0.0d0
+         end if
+       
          pi    = 4.0d0*datan(1.0d0)
          if (initial) alpha = 1.0d0
 
-*        **** find eupper and elower ****
-         elower =  9.9d12
-         eupper = -9.9d12
-         do nb=1,nbrillq
-            shift1 = cpsi_data_get_chnk(eig_tag, nb)
-            do ms =1,ispin
-            do n=1,(ne(1)+ne(2))
-              e       = dbl_mb(shift1)
-              if (e.lt.elower) elower = e
-              if (e.gt.eupper) eupper = e
-              shift1  = shift1 + 1
-            end do
-            end do
-         end do
-
-*        **** find fermi level ****
-  10     Zlower = 0.0d0
-         Zupper = 0.0d0
-         do nb=1,nbrillq
-            shift1 = cpsi_data_get_chnk(eig_tag, nb)
-            wb = brillioun_weight(nb)
-            do ms =1,ispin
-            do n=1,(ne(1)+ne(2))
-              e = dbl_mb(shift1)
-              Zlower = Zlower 
-     >               + wb*cpsi_occ_distribution(smeartype,(e-elower)/kT)
-              Zupper = Zupper 
-     >               + wb*cpsi_occ_distribution(smeartype,(e-eupper)/kT)
-              shift1  = shift1 + 1
-            end do
-            end do
-         end do
-         if (ispin.eq.1) then
-           Zlower = Zlower+Zlower
-           Zupper = Zupper+Zupper
-         end if
-         flower = Zlower - Z
-         fupper = Zupper - Z
-
-         if (flower*fupper.ge.0.0d0) 
-     >    call errquit(
-     >         'cpsi_1define_occupation:Fermi energy not found',0,0)
-
-         it = 0
-  20     it = it + 1
-         emid = 0.5d0*(elower + eupper)
-         Zmid = 0.0d0
-         do nb=1,nbrillq
-            shift1 = cpsi_data_get_chnk(eig_tag, nb)
-            wb = brillioun_weight(nb)
-            do ms =1,ispin
-            do n=1,(ne(1)+ne(2))
-              e = dbl_mb(shift1)
-              Zmid = Zmid 
-     >             + wb*cpsi_occ_distribution(smeartype,(e-emid)/kT)
-              shift1  = shift1 + 1
-            end do
-            end do
-         end do
-         if (ispin.eq.1) Zmid = Zmid + Zmid
-         fmid = Zmid - Z
-         if (fmid.lt.0.0d0) then
-            flower = fmid
-            elower = emid
-         else 
-            fupper = fmid
-            eupper = emid
-         end if
-         if ( (dabs(fmid)     .gt.1.0d-11) .and.
-     >        ((eupper-elower).gt.1.0d-11) .and.
-     >        (it.lt.itmax))   goto 20
-
-         smearfermi = emid
-
-*        **** determine filling and correction ****
+*        **** outer loop over spins ****
          smearcorrection = 0.0d0
-         do nb=1,nbrillq
-            shift1 = cpsi_data_get_chnk(eig_tag, nb)
-            shift2 = cpsi_data_get_chnk(occ1_tag,nb)
-            wb = brillioun_weight(nb)
-            do ms =1,ispin
-            do n=1,(ne(1)+ne(2))
-              e = dbl_mb(shift1)
-              x = (e - smearfermi)/kT
-              f = cpsi_occ_distribution(smeartype,x)
-              dbl_mb(shift2) = (1.0d0-alpha)*dbl_mb(shift2) + alpha*f
+         do ms=1,ispin
 
-              if (smeartype.eq.1) then
-                 if (  (dbl_mb(shift2)       .gt.1.0d-6) .and. 
-     >               ( (1.0d0-dbl_mb(shift2)).gt.1.0d-6)) then
-                smearcorrection = smearcorrection  
+*           **** find eupper and elower ****
+            elower =  9.9d12
+            eupper = -9.9d12
+            do nb=1,nbrillq
+               shift1 = cpsi_data_get_chnk(eig_tag, nb) + (ms-1)*ne(1)
+               do n=1,ne(ms)
+                 e       = dbl_mb(shift1)
+                 if (e.lt.elower) elower = e
+                 if (e.gt.eupper) eupper = e
+                 shift1  = shift1 + 1
+               end do
+            end do
+
+*           **** find fermi level ****
+  10        Zlower = 0.0d0
+            Zupper = 0.0d0
+            do nb=1,nbrillq
+               shift1 = cpsi_data_get_chnk(eig_tag, nb) + (ms-1)*ne(1)
+               wb = brillioun_weight(nb)
+               do n=1,ne(ms)
+                 e = dbl_mb(shift1)
+                 Zlower = Zlower 
+     >            + wb*cpsi_occ_distribution(smeartype,(e-elower)/kT)
+                 Zupper = Zupper 
+     >            + wb*cpsi_occ_distribution(smeartype,(e-eupper)/kT)
+                 shift1  = shift1 + 1
+               end do
+            end do
+            flower = Zlower - Z(ms)
+            fupper = Zupper - Z(ms)
+
+            if (flower*fupper.ge.0.0d0) 
+     >       call errquit(
+     >            'cpsi_1define_occupation:Fermi energy not found',ms,0)
+
+            it = 0
+  20        it = it + 1
+            emid = 0.5d0*(elower + eupper)
+            Zmid = 0.0d0
+            do nb=1,nbrillq
+               shift1 = cpsi_data_get_chnk(eig_tag, nb) + (ms-1)*ne(1)
+               wb = brillioun_weight(nb)
+               do n=1,ne(ms)
+                 e = dbl_mb(shift1)
+                 Zmid = Zmid 
+     >                + wb*cpsi_occ_distribution(smeartype,(e-emid)/kT)
+                 shift1  = shift1 + 1
+               end do
+            end do
+            fmid = Zmid - Z(ms)
+            if (fmid.lt.0.0d0) then
+               flower = fmid
+               elower = emid
+            else 
+               fupper = fmid
+               eupper = emid
+            end if
+            if ( (dabs(fmid)     .gt.1.0d-11) .and.
+     >           ((eupper-elower).gt.1.0d-11) .and.
+     >           (it.lt.itmax))   goto 20
+   
+            smearfermi(ms) = emid
+
+*           **** determine filling and correction ****
+            do nb=1,nbrillq
+               shift1 = cpsi_data_get_chnk(eig_tag, nb) + (ms-1)*ne(1)
+               shift2 = cpsi_data_get_chnk(occ1_tag,nb) + (ms-1)*ne(1)
+               wb = brillioun_weight(nb)
+               do n=1,ne(ms)
+                 e = dbl_mb(shift1)
+                 x = (e - smearfermi(ms))/kT
+                 f = cpsi_occ_distribution(smeartype,x)
+                 dbl_mb(shift2) = (1.0d0-alpha)*dbl_mb(shift2) + alpha*f
+
+                 if (smeartype.eq.1) then
+                    if (  (dbl_mb(shift2)       .gt.1.0d-6) .and. 
+     >                  ( (1.0d0-dbl_mb(shift2)).gt.1.0d-6)) then
+                   smearcorrection = smearcorrection  
      >              + kT*wb*( dbl_mb(shift2)*log(dbl_mb(shift2)) 
      >              + (1.0d0-dbl_mb(shift2))*log(1.0d0-dbl_mb(shift2)) )
+                    end if
+                 else if (smeartype.eq.2) then
+                   smearcorrection 
+     >                 = smearcorrection 
+     >                 - kT*wb*dexp(-x*x)/(4.0d0*dsqrt(pi))
                  end if
-              else if (smeartype.eq.2) then
-                smearcorrection 
-     >              = smearcorrection 
-     >              - kT*wb*dexp(-x*x)/(4.0d0*dsqrt(pi))
-              end if
-              shift1  = shift1 + 1
-              shift2  = shift2 + 1
+                 shift1  = shift1 + 1
+                 shift2  = shift2 + 1
+               end do
             end do
-            end do
-         end do
-         if (ispin.eq.1) then
-          smearcorrection = smearcorrection
-     >                    + smearcorrection
-         end if
+
+         end do !** ms***
+         if (ms.eq.1) smearcorrection=smearcorrection+smearcorrection
 
       end if
 
@@ -1367,10 +1411,11 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       return
       end
 
-      real*8 function cpsi_smearfermi()
+      real*8 function cpsi_smearfermi(ms)
       implicit none
+      integer ms
 #include "cpsi_common.fh"
-      cpsi_smearfermi = smearfermi
+      cpsi_smearfermi = smearfermi(ms)
       return
       end
       real*8 function cpsi_smearcorrection()
@@ -1863,6 +1908,10 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       external cpsi_data_alloc,control_fractional_smeartype
       external util_random,control_fractional_kT
 
+      integer  cpsi_data_get_ptr,l
+      external cpsi_data_get_ptr
+      real*8   w
+
 
 
 *     ***** get ispin, and ne, and nfft3d ****
@@ -1999,7 +2048,6 @@ c     *****  read initial wavefunctions into psi1  ****
 
 *     *****  read initial wavefunctions into psi1  ****
       call cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi1_tag)
-
 
 *     **** Ortho Check ****
       call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,

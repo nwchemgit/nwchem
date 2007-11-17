@@ -1,4 +1,4 @@
-* $Id: c_geodesic.F,v 1.18 2007-09-12 17:28:19 bylaska Exp $
+* $Id: c_geodesic.F,v 1.19 2007-11-17 00:05:48 bylaska Exp $
 *
 
 
@@ -422,7 +422,7 @@
      >                   mone,
      >                   dbl_mb(yoldshift),npack1,
      >                   dcpl_mb(tmp2(1)),
-     >                   zero,
+     >                   one,
      >                   dbl_mb(tGshift))
          call Pneb_fwf_Multiply(0,nb,
      >                   mone,
@@ -445,3 +445,217 @@
 
       return
       end
+
+
+*     *******************************************
+*     *						*
+*     *		c_geodesic_transport_junk	*
+*     *						*
+*     *******************************************
+*
+*   Temporary code until BGrsm_list fixed
+*     Uses - geodesic common block
+*
+
+      subroutine c_geodesic_transport_junk(t,Yold_tag,Ynew)
+      implicit none
+      real*8   t
+      integer Yold_tag
+      complex*16  Ynew(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "c_geodesic_common.fh"
+
+*     **** local variables ****
+      complex*16 zero,one,mone
+      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
+      parameter (mone=(-1.0d0,0.0d0))
+
+      logical    value
+      integer    nb,npack1,nemax,nbrillq
+      integer    tmp1(2),tmp2(2),tmp3(2),tmpC(2),tmpS(2)
+c      integer    yoldshift,ynewshift,ushift,sshift,vtshift
+      integer    yoldshift,ushift,sshift,vtshift
+      integer    nbshift
+
+*     **** external functions ****
+      logical  Pneb_w_push_get,Pneb_w_pop_stack
+      integer  cpsi_ne,cpsi_nbrillq,cpsi_data_get_chnk
+      external Pneb_w_push_get,Pneb_w_pop_stack
+      external cpsi_ne,cpsi_nbrillq,cpsi_data_get_chnk
+
+      call nwpw_timing_start(10)
+      call Cram_max_npack(npack1)
+      nemax   = cpsi_ne(1)+cpsi_ne(2)
+      nbrillq = cpsi_nbrillq()
+      nbshift = nemax*npack1
+
+*     **** allocate tmp space ****
+      value =           Pneb_w_push_get(0,1,tmp1)
+      value = value.and.Pneb_w_push_get(0,1,tmp2)
+      value = value.and.Pneb_w_push_get(0,1,tmp3)
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      if (.not. value) 
+     > call errquit('c_geodesic_transport:out of stack memory',0,MA_ERR)
+
+      do nb=1,nbrillq
+         yoldshift = cpsi_data_get_chnk(Yold_tag,nb)
+c         ynewshift = cpsi_data_get_chnk(Ynew_tag,nb)
+         ushift    = cpsi_data_get_chnk(   U_tag,nb)
+         sshift    = cpsi_data_get_chnk(   S_tag,nb)
+         vtshift   = cpsi_data_get_chnk(  Vt_tag,nb)
+
+         call Pneb_SCVtrans2(0,nb,t,
+     >                   dbl_mb(sshift),
+     >                   dbl_mb(vtshift),
+     >                   dcpl_mb(tmp1(1)),
+     >                   dcpl_mb(tmp3(1)),
+     >                   dbl_mb(tmpC(1)),
+     >                   dbl_mb(tmpS(1)))
+         call Pneb_www_Multiply2(0,nb,
+     >                   one,
+     >                   dbl_mb(vtshift),
+     >                   dcpl_mb(tmp1(1)),
+     >                   zero,
+     >                   dcpl_mb(tmp2(1)))
+
+         call Pneb_fwf_Multiply(0,nb,
+     >                   mone,
+     >                   dbl_mb(yoldshift),npack1,
+     >                   dcpl_mb(tmp2(1)),
+     >                   zero,
+     >                   Ynew(1+(nb-1)*nbshift))
+
+         call Pneb_fwf_Multiply(0,nb,
+     >                   one,
+     >                   dbl_mb(ushift),npack1,
+     >                   dcpl_mb(tmp3(1)),
+     >                   one,
+     >                   Ynew(1+(nb-1)*nbshift))
+      end do
+*     **** deallocate tmp space ****     
+      value =           MA_pop_stack(tmpS(2))
+      value = value.and.MA_pop_stack(tmpC(2))
+      value = value.and.Pneb_w_pop_stack(tmp3)
+      value = value.and.Pneb_w_pop_stack(tmp2)
+      value = value.and.Pneb_w_pop_stack(tmp1)
+      if (.not. value) 
+     > call errquit('c_geodesic_transport:error popping stack',0,MA_ERR)
+
+      call nwpw_timing_end(10)
+
+      return
+      end
+
+
+*     *******************************************
+*     *						*
+*     *		c_geodesic_Gtransport_junk	*
+*     *						*
+*     *******************************************
+*
+*   Temporary code until BGrsm_list fixed
+
+*     Uses - geodesic common block
+*
+
+      subroutine c_geodesic_Gtransport_junk(t,Yold_tag,tG)
+      implicit none
+      real*8   t
+      integer   Yold_tag
+      complex*16 tG(*)
+c      integer  tG_tag
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "c_geodesic_common.fh"
+
+*     **** local variables ****
+      complex*16 zero,one,mone
+      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
+      parameter (mone=(-1.0d0,0.0d0))
+
+      logical  value
+      integer  nb,npack1,nemax,nbrillq
+      integer  tmp1(2),tmp2(2),tmp3(2),tmpC(2),tmpS(2)
+c      integer  yoldshift,tGshift,ushift,sshift,vtshift
+      integer  yoldshift,ushift,sshift,vtshift
+      integer  nbshift
+
+*     **** external functions ****
+      logical  Pneb_w_push_get,Pneb_w_pop_stack
+      integer  cpsi_ne,cpsi_nbrillq,cpsi_data_get_chnk
+      external Pneb_w_push_get,Pneb_w_pop_stack
+      external cpsi_ne,cpsi_nbrillq,cpsi_data_get_chnk
+
+      call nwpw_timing_start(10)
+      call Cram_max_npack(npack1)
+      nemax   = cpsi_ne(1)+cpsi_ne(2)
+      nbrillq = cpsi_nbrillq()
+      nbshift = nemax*npack1
+
+
+*     **** allocate tmp space ****
+      value =           Pneb_w_push_get(0,1,tmp1)
+      value = value.and.Pneb_w_push_get(0,1,tmp2)
+      value = value.and.Pneb_w_push_get(0,1,tmp3)
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      if (.not. value)
+     > call errquit('c_geodesic_transport:out of stack memory',0,MA_ERR)
+
+
+      do nb=1,nbrillq
+         yoldshift = cpsi_data_get_chnk(Yold_tag,nb)
+c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
+         ushift    = cpsi_data_get_chnk(   U_tag,nb)
+         sshift    = cpsi_data_get_chnk(   S_tag,nb)
+         vtshift   = cpsi_data_get_chnk(  Vt_tag,nb)
+         
+         call Pneb_ffw_Multiply(0,nb,
+     >                   dbl_mb(ushift),
+     >                   tG(1+(nb-1)*nbshift),npack1,
+     >                   dcpl_mb(tmp2(1)))
+         call Pneb_SCVtrans3(0,nb,t,
+     >                   dbl_mb(sshift),
+     >                   dcpl_mb(tmp2(1)),
+     >                   dcpl_mb(tmp1(1)),
+     >                   dcpl_mb(tmp3(1)),
+     >                   dbl_mb(tmpC(1)),
+     >                   dbl_mb(tmpS(1)))
+         call Pneb_www_Multiply2(0,nb,
+     >                   one,
+     >                   dbl_mb(vtshift),
+     >                   dcpl_mb(tmp1(1)),
+     >                   zero,
+     >                   dcpl_mb(tmp2(1)))
+         call Pneb_fwf_Multiply(0,nb,
+     >                   mone,
+     >                   dbl_mb(yoldshift),npack1,
+     >                   dcpl_mb(tmp2(1)),
+     >                   one,
+     >                   tG(1+(nb-1)*nbshift))
+         call Pneb_fwf_Multiply(0,nb,
+     >                   mone,
+     >                   dbl_mb(ushift),npack1,
+     >                   dcpl_mb(tmp3(1)),
+     >                   one,
+     >                   tG(1+(nb-1)*nbshift))
+      end do
+
+*     **** deallocate tmp space ****
+      value =           MA_pop_stack(tmpS(2))
+      value = value.and.MA_pop_stack(tmpC(2))
+      value = value.and.Pneb_w_pop_stack(tmp3)
+      value = value.and.Pneb_w_pop_stack(tmp2)
+      value = value.and.Pneb_w_pop_stack(tmp1)
+      if (.not. value)
+     > call errquit('c_geodesic_transport:error popping stack',0,MA_ERR)
+
+      call nwpw_timing_end(10)
+
+      return
+      end
+

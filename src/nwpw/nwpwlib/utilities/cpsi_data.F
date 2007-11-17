@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_data.F,v 1.4 2007-11-03 19:57:24 bylaska Exp $
+* $Id: cpsi_data.F,v 1.5 2007-11-17 00:06:03 bylaska Exp $
 *
 
 *     ************************************************
@@ -118,6 +118,7 @@
       logical value
       integer tag,hndl,indx
 
+
       tag = int_mb(list_psi(1)+tagmax)
       int_mb(nbrill_psi(1)+tag) = nbrill
       int_mb(neall_psi(1) +tag) = neall
@@ -126,10 +127,11 @@
       int_mb(update_psi(1)+tag) = 0
       int_mb(next_psi(1)+tag)   = -1
 
-      value = MA_alloc_get(mt_dbl,nbrill*neall*nsize,
+      value = MA_alloc_get(mt_dbl,(nbrill*neall*nsize),
      >                     'cpsi_alloc',hndl,indx)
       if (.not.value) 
      > call errquit('cpsi_data_alloc: out of heap memory',0,MA_ERR)
+
 
       int_mb(indx_psi(1)+tag)  = indx
       int_mb(hndl_psi(1)+tag)  = hndl

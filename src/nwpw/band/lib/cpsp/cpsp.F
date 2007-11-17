@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.55 2007-09-13 02:26:31 bylaska Exp $
+* $Id: cpsp.F,v 1.56 2007-11-17 00:05:40 bylaska Exp $
 *
 
 #define TCGMSG
@@ -615,7 +615,8 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       integer ii,ia,l,n,nn,nb,nbq,neall,nbrill
       integer shift,l_prj,nproj
       integer psi1_shift,psi2_shift,psi_shift,nshift
-      real*8  omega,weight,scal
+      integer occ_tag,occ_shift,occ1_shift
+      real*8  omega,weight,scal,wfrac
       complex*16 cxr
       integer exi(2),xtmp(2),zsw1(2),zsw2(2),sum(2)
       integer Gx(2),Gy(2),Gz(2)
@@ -625,10 +626,12 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       logical  is_sORd,cpsi_spin_orbit
       integer  ion_nion,ion_katm,c_G_indx,Pneb_nbrillq,Pneb_convert_nb
       integer  cpsp_projector_get_ptr,cpsi_data_get_chnk
+      integer  cpsi_data_get_next
       real*8   lattice_omega,brillioun_weight
       external is_sORd,cpsi_spin_orbit
       external ion_nion,ion_katm,c_G_indx,Pneb_nbrillq,Pneb_convert_nb
       external cpsp_projector_get_ptr,cpsi_data_get_chnk
+      external cpsi_data_get_next
       external lattice_omega,brillioun_weight
 
       one  = dcmplx( 1.0d0,0.0d0)
@@ -654,6 +657,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 
 ccccccccccccccc if move we do this ccccccccccccccccccccccccc
       if (move) then
+        occ_tag = cpsi_data_get_next(psi1_tag)
         value = MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
         value = value.and.
      >          MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
@@ -778,6 +782,8 @@ c             *** current function is s or d ****
 
            if (move) then
               weight = brillioun_weight(nb)
+              if (occ_tag.gt.0) 
+     >           occ1_shift = cpsi_data_get_chnk(occ_tag,nb)
               if (ispin.eq.1) 
      >           call dscal(2*nn*nproj,2.0d0,dcpl_mb(zsw2(1)),1)
           
@@ -818,16 +824,22 @@ c                    end do
                  end do !**n**
 
                  call C3dB_Vector_Sumall(3*(nn),dbl_mb(sum(1)))
-  
+
+                 wfrac = 1.0d0
+                 if (occ_tag.gt.0) occ_shift = occ1_shift
                  do n=1,nn
+                    if (occ_tag.gt.0) then
+                       wfrac = dbl_mb(occ_shift)
+                       occ_shift = occ_shift+1
+                    end if
                     fion(1,ii) = fion(1,ii) 
-     >                         + 2.0d0*weight
+     >                         + 2.0d0*weight*wfrac
      >                                *dbl_mb(sum(1)+3*(n-1))
                     fion(2,ii) = fion(2,ii) 
-     >                         + 2.0d0*weight
+     >                         + 2.0d0*weight*wfrac
      >                                *dbl_mb(sum(1)+1+3*(n-1))
                     fion(3,ii) = fion(3,ii) 
-     >                         + 2.0d0*weight
+     >                         + 2.0d0*weight*wfrac
      >                                *dbl_mb(sum(1)+2+3*(n-1))
                  end do !** nn **
 
@@ -1097,20 +1109,23 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
       integer nfft3d,G(3),npack1,npack,nbrill,neall
       integer ii,ia,l,n,nn,nb,nbq,l_prj,nproj,shift
       integer psi1_shift,psi_shift,nshift
-      real*8  omega,weight,scal
+      real*8  omega,weight,scal,wfrac
       complex*16 cxr
       integer exi(2),xtmp(2),zsw1(2),zsw2(2),sum(2)
       integer Gx(2),Gy(2),Gz(2)
+      integer occ1_tag,occ1_shift,occ_shift
       logical value,sd_function
 
 *     **** external functions ****
       logical  is_sORd
       integer  ion_nion,ion_katm,c_G_indx,Pneb_nbrillq,Pneb_convert_nb
       integer  cpsp_projector_get_ptr,cpsi_data_get_chnk
+      integer  cpsi_data_get_next
       real*8   lattice_omega,brillioun_weight
       external is_sORd
       external ion_nion,ion_katm,c_G_indx,Pneb_nbrillq,Pneb_convert_nb
       external cpsp_projector_get_ptr,cpsi_data_get_chnk
+      external cpsi_data_get_next
       external lattice_omega,brillioun_weight
 
       call nwpw_timing_start(6)
@@ -1122,6 +1137,7 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
       nshift = 2*npack1
+      occ1_tag = cpsi_data_get_next(psi1_tag)
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
@@ -1157,6 +1173,9 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
         call Cram_npack(nb,npack)
         weight = brillioun_weight(nb)
         psi1_shift = cpsi_data_get_chnk(psi1_tag,nbq)
+        if (occ1_tag.gt.0) 
+     >     occ1_shift = cpsi_data_get_chnk(occ1_tag,nb)
+
 
 *       **** define Gx,Gy and Gz in packed space ****
         call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
@@ -1262,13 +1281,22 @@ c                    end do
                  end do
                  call C3dB_Vector_Sumall(3*(nn),dbl_mb(sum(1)))
   
+                 wfrac = 1.0d0
+                 if (occ1_tag.gt.0) occ_shift = occ1_shift
                  do n=1,nn
+                    if (occ1_tag.gt.0) then
+                       wfrac = dbl_mb(occ_shift)
+                       occ_shift = occ_shift+1
+                    end if
                     fion(1,ii) = fion(1,ii) 
-     >                         + 2.0d0*weight*dbl_mb(sum(1)+3*(n-1))
+     >                         + 2.0d0*wfrac*weight
+     >                           *dbl_mb(sum(1)+3*(n-1))
                     fion(2,ii) = fion(2,ii) 
-     >                         + 2.0d0*weight*dbl_mb(sum(1)+1+3*(n-1))
+     >                         + 2.0d0*wfrac*weight
+     >                           *dbl_mb(sum(1)+1+3*(n-1))
                     fion(3,ii) = fion(3,ii) 
-     >                         + 2.0d0*weight*dbl_mb(sum(1)+2+3*(n-1))
+     >                         + 2.0d0*wfrac*weight
+     >                          *dbl_mb(sum(1)+2+3*(n-1))
                  end do
         
               end do !** l **

@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.45 2007-11-03 19:56:54 bylaska Exp $
+c $Id: nwpw_input.F,v 1.46 2007-11-17 00:05:34 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -101,6 +101,8 @@ c
      >            'smear',
      >            'end'/
 
+       double precision kb
+       parameter (kb=3.16679d-6)
        logical      value,move,mulliken_kawai
        character*30 cell_name,zone_name
        character*30 input_wavefunction_filename
@@ -1047,23 +1049,35 @@ c
 c
 c smear temperature
 c
- 6200 alpha = 1000.0d0 !* temperature
-      nz = 1  !* smeartype
+ 6200 alpha = 0.001d0/kb !* use same default as gaussian dft
+      nz      = 2  !* smeartype  !* use same default as gaussian dft
       loop(1) = 4  !* frac_orb(1)
       loop(2) = 4  !* frac_orb(2)
+      if (inp_f(ecut)) then
+         alpha = ecut/kb
+      else
+         call inp_prev_field()
+      end if
  6201 if (.not.inp_a(zone_name)) goto 6202
       if (inp_compare(.false.,zone_name,'temperature')) then
          if (.not.inp_f(alpha)) 
      >   call errquit(
      >    'nwpw_input:error reading smear temperature',6200,INPUT_ERR)
       end if
-      if (inp_compare(.false.,zone_name,'type')) then
-         if (.not.inp_i(nz)) nz = 1
-      end if
+      if (inp_compare(.false.,zone_name,'fermi'))    nz = 1
+      if (inp_compare(.false.,zone_name,'gaussian')) nz = 2
+     
       if (inp_compare(.false.,zone_name,'orbitals')) then
-         if (.not.inp_i(loop(1))) loop(1) = 4
-         if (.not.inp_i(loop(2))) loop(2) = loop(1)
+         if (.not.inp_i(loop(1))) then
+            loop(1) = 4
+            call inp_prev_field()
+         end if
+         if (.not.inp_i(loop(2))) then
+            loop(2) = loop(1)
+            call inp_prev_field()
+         end if
       end if
+      go to 6201
  6202 if (.not.
      > (rtdb_put(rtdb,'nwpw:fractional_orbitals',mt_int,2,loop)    .and.
      >  rtdb_put(rtdb,'nwpw:fractional_temperature',mt_dbl,1,alpha).and.

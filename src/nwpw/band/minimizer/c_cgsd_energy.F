@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.23 2007-11-05 17:35:15 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.24 2007-11-17 00:05:54 bylaska Exp $                       
 *
 
 *     ***************************
@@ -237,7 +237,12 @@ c         write(luout,1210) GX,GY,GZ
          NN=cpsi_ne(1)-cpsi_ne(2)
          EV=27.2116d0
          if (control_fractional()) then
-           write(luout,1507) cpsi_smearfermi(),cpsi_smearfermi()*EV
+           if (cpsi_ispin().eq.1) then
+             write(luout,1507) cpsi_smearfermi(1),cpsi_smearfermi(1)*EV
+           else
+             write(luout,1507) cpsi_smearfermi(1),cpsi_smearfermi(1)*EV,
+     >                         cpsi_smearfermi(2),cpsi_smearfermi(2)*EV
+           end if
          end if
          do nb=1,brillioun_nbrillioun()
            write(luout,1508) nb,
@@ -324,7 +329,7 @@ c         write(luout,1210) GX,GY,GZ
  1498 FORMAT( ' K.S. V_so energy    :',E19.10,' (',E15.5,'/electron)')
  1499 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
- 1507 FORMAT(/' Fermi energy =',E18.7,' (',F8.3,'eV)')
+ 1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
  1508 FORMAT(/' Brillouin zone point: ',i3,
      >       /'    weight=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',

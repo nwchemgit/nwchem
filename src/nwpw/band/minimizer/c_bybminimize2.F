@@ -1,5 +1,5 @@
 c
-c     $Id: c_bybminimize2.F,v 1.4 2007-11-03 19:57:13 bylaska Exp $                       
+c     $Id: c_bybminimize2.F,v 1.5 2007-11-17 00:05:54 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -161,7 +161,7 @@ c
      >                5,ispin,nfft3d,dbl_mb(rho_out(1)))
 
 
-*     ***** diis loop ****
+*     ***** scf loop ****
       it   = 0
  2    it   = it + 1
       
