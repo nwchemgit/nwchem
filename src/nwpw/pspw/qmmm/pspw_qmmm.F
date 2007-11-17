@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.29 2007-05-02 17:21:11 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.30 2007-11-17 01:39:00 bylaska Exp $
 c
 
 ***********************************************************
@@ -898,8 +898,8 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
         denom = r1*r2
         if (denom.gt.1.0d-11) then
            ctheta = (x1*x2+y1*y2+z1*z2)/(denom)
-           if (ctheta >  1.0d0) ctheta = 1.0d0
-           if (ctheta < -1.0d0) ctheta = -1.0d0
+           if (ctheta .gt.  1.0d0) ctheta = 1.0d0
+           if (ctheta .lt. -1.0d0) ctheta = -1.0d0
            q      = dacos(ctheta)-Kr0(2,a)
            E      = E + Kr0(1,a)*q*q
         end if
@@ -954,10 +954,10 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
         denom = r1*r2
         if (denom.gt.1.0d-11) then
            ctheta = (x1*x2+y1*y2+z1*z2)/(denom)
-           if (ctheta >  1.0d0) ctheta =  1.0d0
-           if (ctheta < -1.0d0) ctheta = -1.0d0
+           if (ctheta .gt.  1.0d0) ctheta =  1.0d0
+           if (ctheta .lt. -1.0d0) ctheta = -1.0d0
            stheta = dsqrt(1.0d0 - ctheta*ctheta)
-           if (stheta < 0.001d0) stheta = 0.001d0
+           if (stheta .lt. 0.001d0) stheta = 0.001d0
            stheta = 1.0d0/stheta
 
            q      = dacos(ctheta) - Kr0(2,a)
