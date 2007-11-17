@@ -4,7 +4,7 @@
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.278 2007-11-07 03:57:48 niri Exp $
+c     $Id: dft_scf.F,v 1.279 2007-11-17 01:12:59 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -1754,13 +1754,6 @@ c
          if (.not. ga_destroy(g_fockt)) call errquit
      &      ('dft_scf: could not destroy g_fockt', 0, GA_ERR)
       endif
-c Qin
-      if (lcdft)then
-         if (.not. ga_destroy(g_fockv(1))) call errquit
-     &      ('dft_scf: could not destroy g_fockv', 0, GA_ERR)
-         if (ipol.gt.1 .and. .not. ga_destroy(g_fockv(2))) call errquit
-     &      ('dft_scf: could not destroy g_fockv', 0, GA_ERR)
-      endif
 c
       if(lkeeps) then
       if (.not. ga_destroy(g_s12p)) call errquit
@@ -1798,14 +1791,23 @@ c !!! BGJ
 c !!! BGJ
       if (.not. ga_destroy(g_tmp)) call errquit
      &   ('dft_scf: could not destroy g_tmp', 0, GA_ERR)
-
+c
+cdft...Deallocate cdft arrays
       if(lcdft) then
         do i = 1, nconstr
          if (.not. ga_destroy(g_constr(i))) call errquit
      &      ('dft_scf: could not destroy g_constr', 0, GA_ERR)
         enddo
-      endif
 
+        if (.not. ga_destroy(g_fockv(1))) call errquit
+     &      ('dft_scf: could not destroy g_fockv', 0, GA_ERR)
+
+        if(ipol.gt.1) then
+         if (.not. ga_destroy(g_fockv(2))) call errquit
+     &      ('dft_scf: could not destroy g_fockv', 0, GA_ERR)
+        endif
+      endif
+c
 czora...Deallocate zora related arrays
       if (do_zora) then
        if (.not. ga_destroy(g_zora_scr(1))) call errquit(
