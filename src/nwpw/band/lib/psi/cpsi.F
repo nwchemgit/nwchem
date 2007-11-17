@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.53 2007-11-17 00:05:48 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.54 2007-11-17 01:39:50 bylaska Exp $ *
 
 
 *     ***************************
@@ -1256,7 +1256,8 @@ c     &       MA_ERR)
       external cpsi_occ_distribution,control_ks_alpha
 
 
-      smearfermi      = 0.0d0
+      smearfermi(1)      = 0.0d0
+      smearfermi(2)      = 0.0d0
       smearcorrection = 0.0d0
       occ1_tag = cpsi_data_get_next(psi1_tag)
       if (occ1_tag.gt.0) then
