@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.44 2007-10-24 15:25:00 edo Exp $
+c     $Id: dft_input.F,v 1.45 2007-11-17 00:21:01 niri Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -310,12 +310,31 @@ c
      &   call errquit('dft_inp: rtdb_put failed', 2500, RTDB_ERR)
 c
       goto 10
+c
+c     constrained dft
+c
  2600 lcdft = .true.
       if (.not. rtdb_put(rtdb,'dft:lcdft', mt_log, 1, lcdft))
      &   call errquit('dft_input: rtdb_put failed', 2600, RTDB_ERR)
       nconstr = nconstr + 1
       call cdft_input(rtdb, nconstr, dtype, iatms1, iatms2, fatms1,
      $                fatms2, constr)
+c
+c Qin
+      if (.not. rtdb_put(rtdb,'dft:nconstr', mt_int, 1, nconstr))
+     &   call errquit('dft_input: rtdb_put failed', 2600, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'dft:dtype', mt_int, nconstr, dtype(1)))
+     &   call errquit('dft_input: rtdb_put failed', 2600, RTDB_ERR)
+      if (.not. (
+     $          rtdb_put(rtdb,'dft:iatms1', mt_int, nconstr, iatms1(1))
+     $    .and. rtdb_put(rtdb,'dft:iatms2', mt_int, nconstr, iatms2(1))
+     $    .and. rtdb_put(rtdb,'dft:fatms1', mt_int, nconstr, fatms1(1))
+     $    .and. rtdb_put(rtdb,'dft:fatms2', mt_int, nconstr, fatms2(1))
+     $    ) )
+     &   call errquit('dft_input: rtdb_put atms failed', 2600, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'dft:constr', mt_dbl, nconstr, constr(1)))
+     &   call errquit('dft_input: rtdb_put failed', 2600, RTDB_ERR)
+c Qin/end
 c
       goto 10
 c
@@ -339,21 +358,7 @@ c
 c     end;
 c             
  9999 continue
-c Qin
-      if (.not. rtdb_put(rtdb,'dft:nconstr', mt_int, 1, nconstr))
-     &   call errquit('dft_input: rtdb_put failed', 3000, RTDB_ERR)
-      if (.not. rtdb_put(rtdb,'dft:dtype', mt_int, nconstr, dtype(1)))
-     &   call errquit('dft_input: rtdb_put failed', 3000, RTDB_ERR)
-      if (.not. (
-     $          rtdb_put(rtdb,'dft:iatms1', mt_int, nconstr, iatms1(1))
-     $    .and. rtdb_put(rtdb,'dft:iatms2', mt_int, nconstr, iatms2(1))
-     $    .and. rtdb_put(rtdb,'dft:fatms1', mt_int, nconstr, fatms1(1))
-     $    .and. rtdb_put(rtdb,'dft:fatms2', mt_int, nconstr, fatms2(1))
-     $    ) )
-     &   call errquit('dft_input: rtdb_put atms failed', 3000, RTDB_ERR)
-      if (.not. rtdb_put(rtdb,'dft:constr', mt_dbl, nconstr, constr(1)))
-     &   call errquit('dft_input: rtdb_put failed', 3000, RTDB_ERR)
-c Qin/end
+c
       if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
      &   call errquit('dft_input: rtdb_put failed', 300, RTDB_ERR)
       return 
