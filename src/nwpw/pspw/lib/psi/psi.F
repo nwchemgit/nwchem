@@ -1,9 +1,13 @@
 *
-* $Id: psi.F,v 1.82 2007-11-16 22:32:53 d3p708 Exp $
+* $Id: psi.F,v 1.83 2007-11-17 00:19:09 d3p708 Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.82  2007/11/16 22:32:53  d3p708
+* pjn
+*    stuff for berry phase dipole
+*
 * Revision 1.81  2007/10/01 23:02:46  bylaska
 * PAW changes..EJB
 *
@@ -5762,11 +5766,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
-      integer psirx(2)
+      integer psirx(2),asize
       logical val
-      write(*,*)"calculating polarization"
-      call flush(6)
-      val=MA_PUSH_GET(mt_dbl,2*nfft3d,"psir",psirx(2),psirx(1))
+      asize=(ne(1)+ne(2))*nfft3d*2
+      val=MA_PUSH_GET(mt_dbl,asize,"psir",psirx(2),psirx(1))
       if (.not.val) then
         call errquit("psi_polariz stack empty",0,0)
       end if
