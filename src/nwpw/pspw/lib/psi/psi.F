@@ -1,9 +1,13 @@
 *
-* $Id: psi.F,v 1.83 2007-11-17 00:19:09 d3p708 Exp $
+* $Id: psi.F,v 1.84 2007-11-17 00:25:26 d3p708 Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.83  2007/11/17 00:19:09  d3p708
+* pjn
+*    bugfix
+*
 * Revision 1.82  2007/11/16 22:32:53  d3p708
 * pjn
 *    stuff for berry phase dipole
@@ -5080,8 +5084,6 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       logical  psp_pawexist
       external psp_pawexist
 
-      integer i,j
-      real*8 S(16,16)
 
 *     **** reformat wavefunction if it is a band wavefunction ****
       vers = psi_get_version()
@@ -5762,6 +5764,7 @@ c     end if
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine psi_polariz()
+      implicit none
 #include "psi.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
