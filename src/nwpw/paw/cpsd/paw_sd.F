@@ -1,7 +1,14 @@
 *
-* $Id: paw_sd.F,v 1.81 2007-04-02 15:38:39 bylaska Exp $
+* $Id: paw_sd.F,v 1.82 2007-11-18 00:35:05 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.81  2007/04/02 15:38:39  bylaska
+* Symbol names increased to length 4 instead of 2.
+* standalone  rdf calculation added.
+* lattice vectors added to ion_motion files
+* changed the qmmm psp to have short range repulsion for positive mm charges
+* ...EJB
+*
 * Revision 1.80  2006/06/05 17:34:26  edo
 * added USES_BLAS
 *
@@ -193,7 +200,7 @@
 
 
 *     **** parallel variables ****
-      integer  taskid,np
+      integer  taskid,np,np_i,np_j
       integer  MASTER
       parameter(MASTER=0)
 
@@ -209,7 +216,7 @@
 *     **** electronic variables ****
       logical first_iteration,psi_nogrid
       integer ispin
-      integer ne(2),n1(2),n2(2),nemax
+      integer ne(2),n1(2),n2(2),nemax,neq(2),nemaxq
       real*8  r_charge,r_charge1,r_charge2
       real*8  dipole(3)
       real*8  icharge
@@ -247,7 +254,7 @@
       integer ii,jj,indx
       integer icount,it_in,it_out
       real*8 w,sumall,virial
-      integer nfft3,mapping
+      integer nfft3,mapping,mapping1d
       parameter (nfft3=32)
       character*255 full_filename
       character*30 filename
@@ -307,8 +314,8 @@
       external     psi_filefind
       real*8       nwpw_timing,paw_psi_CheckOrtho
       external     nwpw_timing,paw_psi_CheckOrtho
-      integer      control_mapping
-      external     control_mapping
+      integer      control_np_orbital,control_mapping,control_mapping1d
+      external     control_np_orbital,control_mapping,control_mapping1d
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -365,6 +372,10 @@
       end if
       
       value = control_read(6,rtdb)
+      call Parallel2d_Init(control_np_orbital())
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
+
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
@@ -454,10 +465,15 @@ c      call paw_vloc_init()
 
 *     ***** allocate psi2,and psi1 wavefunctions ****
       call psi_get_ne(ispin,ne)
-      value = MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+      mapping1d = control_mapping1d()
+      call Dne_init(ispin,ne,mapping1d)
+      call Dneall_neq(neq)
+      nemaxq = neq(1)+neq(2)
+
+      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
       if (.not. value) call errquit('paw_sd:out of heap memory',0,
      &       MA_ERR)
@@ -610,6 +626,7 @@ c      call init_paw_density(ispin,lmax)
 
       if (taskid.eq.MASTER) then
          write(6,1111) np
+         write(6,1117) np_i,np_j
          if (mapping.eq.1) write(6,1112)
          if (mapping.eq.2) write(6,1113)
          write(6,1115)
@@ -1021,11 +1038,11 @@ c      call paw_density_end()
       if (.not. value) call errquit('paw_sd:error freeing heap',2,
      &       MA_ERR)
 
-
       call D3dB_pfft_end()
 
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
+      call Dne_end()
 
 *                |***************************|
 ****************** report consumed cputime   **********************
@@ -1105,6 +1122,7 @@ c      call paw_density_end()
  1112 FORMAT( ' parallel mapping         : slab')
  1113 FORMAT( ' parallel mapping         : hilbert')
  1115 FORMAT(/' options:')
+ 1117 FORMAT( ' processor grid           :',I4,' x',I4)
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
