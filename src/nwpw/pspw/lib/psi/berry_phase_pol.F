@@ -11,8 +11,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "util.fh"
       integer i,npack1,nfft3d,n2fft,nesq,idir,ms,ispin,ne(2)
       integer pivs(2),smat(2),nemax,info,n
-      real*8 pol(3),tx,ty,tz,ex,ey,ez,dx,dy,dz
-      real*8 gs,g(3)
+      real*8 pol(3,3),tx,ty,tz,ex,ey,ez,dx,dy,dz
+      real*8 gs,g(3),tmp
       complex*16 det
       logical val
 ccccc external ccccccccccccccccccccccccccc
@@ -63,11 +63,15 @@ ccccccccccccccccccccccccccccccccccccccccccc
               det=det*dcpl_mb(smat(1)+(i-1)*ne(ms)+i-1)
             end do
          end do
-         pol(idir)= -datan2(dimag(det),dble(det))*gs  
+         tmp= -datan2(dimag(det),dble(det))
+         pol(1,idir)= tmp*g(1)*gs
+         pol(2,idir)= tmp*g(2)*gs
+         pol(3,idir)= tmp*g(3)*gs
       end do
       dx=0.0d0
       dy=0.0d0
       dz=0.0d0
+      tmp=0.0d0
       do i=1,ion_nion()
         dx=dx+psp_zv(ion_katm(i))*ion_rion(1,i)
         dy=dy+psp_zv(ion_katm(i))*ion_rion(2,i)
@@ -77,20 +81,9 @@ ccccccccccccccccccccccccccccccccccccccccccc
       ey=0.0d0
       ez=0.0d0
       do i=1,3
-         g(1)=lattice_unitg(1,i)
-         g(2)=lattice_unitg(2,i)
-         g(3)=lattice_unitg(3,i)      
-         gs=dsqrt(g(1)*g(1)+g(2)*g(2)+g(3)*g(3))
-         if (dabs(gs).lt.1.d-12) then
-           call errquit("g too small!",0,0)
-         end if
-         gs=1.d0/gs
-         g(1)=g(1)*gs
-         g(2)=g(2)*gs
-         g(3)=g(3)*gs
-         ex=ex-pol(i)*g(1)
-         ey=ey-pol(i)*g(2)
-         ez=ez-pol(i)*g(3)
+         ex=ex+pol(1,i)
+         ey=ey+pol(2,i)
+         ez=ez+pol(3,i)
       end do
       tx=dx+ex
       ty=dy+ey
