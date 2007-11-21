@@ -1,5 +1,5 @@
 *
-* $Id: berry_phase_pol.F,v 1.5 2007-11-21 00:40:45 d3p708 Exp $
+* $Id: berry_phase_pol.F,v 1.6 2007-11-21 00:42:32 d3p708 Exp $
 *
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Polarization calculated through Berry's Phase Approach
@@ -93,7 +93,7 @@ ccccccccccccccccccccccccccccccccccccccccccc
       end do
       tx=dx+ex
       ty=dy+ey
-      tz=tz+ez
+      tz=dz+ez
       tmp=lattice_omega()
       do i=1,3
       do j=1,3
