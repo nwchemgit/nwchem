@@ -1,11 +1,10 @@
 *
-* $Id: berry_phase_pol.F,v 1.6 2007-11-21 00:42:32 d3p708 Exp $
+* $Id: berry_phase_pol.F,v 1.7 2007-11-21 02:00:35 d3p708 Exp $
 *
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Polarization calculated through Berry's Phase Approach
 c  This is really simple since we have the Silvestrelli Overlap
 c  Matrix routine from pspw_wannier. 
-c
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine berry_phase_pol(psi,psir)
       implicit none
@@ -16,7 +15,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer i,npack1,nfft3d,n2fft,nesq,idir,ms,ispin,ne(2)
       integer pivs(2),smat(2),nemax,info,n,ik,j
       real*8 pol(3,3),tx,ty,tz,ex,ey,ez,dx,dy,dz,tmp
-      real*8 gs,g(3)
+      real*8 gs,g(3),dv
       complex*16 det
       logical val
 ccccc external ccccccccccccccccccccccccccc
@@ -67,7 +66,10 @@ ccccccccccccccccccccccccccccccccccccccccccc
               det=det*dcpl_mb(smat(1)+(i-1)*ne(ms)+i-1)
             end do
          end do
-         tmp= -datan2(dimag(det),dble(det)) 
+         tmp= -datan2(dimag(det),dble(det))
+         if (ispin.eq.1) then 
+           tmp=tmp*2.0d0
+         end if 
          pol(1,idir)= tmp*g(1)*gs
          pol(2,idir)= tmp*g(2)*gs
          pol(3,idir)= tmp*g(3)*gs 
@@ -75,10 +77,8 @@ ccccccccccccccccccccccccccccccccccccccccccc
       dx=0.0d0
       dy=0.0d0
       dz=0.0d0
-      tmp=0.0
       do i=1,ion_nion()
         ik=ion_katm(i)
-        tmp=tmp+psp_zv(ik)
         dx=dx+psp_zv(ik)*ion_rion(1,i)
         dy=dy+psp_zv(ik)*ion_rion(2,i)
         dz=dz+psp_zv(ik)*ion_rion(3,i)
@@ -91,25 +91,18 @@ ccccccccccccccccccccccccccccccccccccccccccc
          ey=ey+pol(2,i)
          ez=ez+pol(3,i)
       end do
-      tx=dx+ex
-      ty=dy+ey
-      tz=dz+ez
-      tmp=lattice_omega()
-      do i=1,3
-      do j=1,3
-         pol(i,j)=pol(i,j)/tmp
-      end do
-      end do
-
+      tx=dx-ex
+      ty=dy-ey
+      tz=dz-ez
 c      if (nodeid.eq.MASTER) then
       write(6,*)"--------------------------------"
-      write(6,*)"Berry Phase Results for dipole (P*Omega)"
+      write(6,*)"Berry Phase Results for the"
       write(6,*)"Components of the Polarization Tensor"
       write(6,1000)pol(1,1),pol(2,1),pol(3,1) 
       write(6,1000)pol(1,2),pol(2,2),pol(3,2) 
       write(6,1000)pol(1,3),pol(2,3),pol(3,3) 
       write(6,*)"--------------------------------"
-      write(6,*)"Electronic Dipole Along Unit Cell vectors"
+      write(6,*)"Electronic DelP = P Omega in"
       write(6,*)"Cartesian Cooridinates"
       write(6,*)"--------------------------------"
       write(6,*)"Nuclear"
