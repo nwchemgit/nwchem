@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.65 2006-03-29 00:57:58 edo Exp $
+c $Id: bas_input.F,v 1.66 2007-11-26 19:11:36 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -718,6 +718,11 @@ c
 c check to make sure any contraction is not all zero's
 c
 c
+      if (oIs_ecp.and.nprim.eq.1.and.ngen.eq.1.and.coeff(1,1).eq.0) then
+         write(luout,*) 'Local ECP potential is zero and ignored'
+         write(luout,*) ' ' 
+         return
+      endif
       call bas_check_contractions(nprim,ngen,prim_max,coeff,expnt)
 c
 c   Now have tag, contraction type, no. of contractions, no. of prims,
