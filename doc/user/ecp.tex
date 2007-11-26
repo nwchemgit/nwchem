@@ -1,5 +1,5 @@
 %
-% $Id: ecp.tex,v 1.24 2004-04-22 04:50:28 edo Exp $
+% $Id: ecp.tex,v 1.25 2007-11-26 19:19:52 bert Exp $
 %
 \label{sec:ecp}
 \def\ell{l}
@@ -202,6 +202,16 @@ It defines an ECP for the carbon and oxygen atoms in the molecule.
             2       52.3427019       27.97790770
             2       30.7220233      -16.49630500
   end
+\end{verbatim}
+
+Various ECPs without a local function are available, including those of 
+the Stuttgart group. For those, no "ul" part needs to be defined. To 
+define the absence of the local potential, simply specify one contraction
+with a zero coefficient:
+
+\begin{verbatim}
+     <string tag> ul
+     2     1.00000     0.00000
 \end{verbatim}
 
 \section{Spin-orbit ECPs}
