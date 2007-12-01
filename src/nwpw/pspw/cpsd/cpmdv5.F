@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.62 2007-10-02 21:39:09 bylaska Exp $
+* $Id: cpmdv5.F,v 1.63 2007-12-01 22:29:58 bylaska Exp $
 *
 
 ***********************************************************************
@@ -317,6 +317,8 @@ c      parameter (autoatm =290.360032539d6)
 *     **** read ions ****
       value = ion_init(rtdb)
 
+*     **** initialize FixIon constraint ****
+      call ion_init_FixIon(rtdb)
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
@@ -400,8 +402,6 @@ c      parameter (autoatm =290.360032539d6)
       call pspw_init_SIC(rtdb,ne)
       call pspw_init_HFX(rtdb,ispin,ne)
 
-*     **** initialize FixIon constraint ****
-      call ion_init_FixIon(rtdb)
 
 *     **** initialize pressure ****
       calc_pressure = control_pressure().and.(control_version().eq.3)
