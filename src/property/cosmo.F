@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.18 2007-11-09 20:27:57 bert Exp $
+* $Id: cosmo.F,v 1.19 2007-12-03 22:53:08 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -1458,7 +1458,7 @@ c
      1           6, 1, 2, 6, 2, 3, 6, 3, 4, 6, 4, 1/
 c
       out=.false.
-      out=out.and.ga_nodeid().eq.0
+      out = util_print('cosmo', print_high)
 c
       if(out) then
          write(luout,9997)
@@ -1538,7 +1538,7 @@ c
       data five /5.0d+00/
 c
       out=.false.
-      out=out.and.ga_nodeid().eq.0
+      out = util_print('cosmo', print_high)
 c
       if(out) then
          write(luout,9997)
@@ -1621,7 +1621,7 @@ c
       dist(x1,y1,z1,x2,y2,z2)=sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)
 c
       out=.false.
-      out=out.and.ga_nodeid().eq.0
+      out = util_print('cosmo', print_high)
 c
 c     ----- create mid-point of the 3 edges -----
 c
@@ -1936,8 +1936,8 @@ c
       more=.false.
       dbug=.false.
       dbug=dbug.or.more
-      out =.true.
-      out =out.or.dbug
+      out =.false.
+      out = util_print('cosmo', print_high)
 c
       dbug=dbug.and.ga_nodeid().eq.0
       more=more.and.ga_nodeid().eq.0
