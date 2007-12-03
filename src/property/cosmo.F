@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.19 2007-12-03 22:53:08 niri Exp $
+* $Id: cosmo.F,v 1.20 2007-12-03 23:10:57 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -2525,7 +2525,7 @@ c     -------------------------------------
      +       0)
 
         open(unit=fn,form="formatted",file=cosmo_file)
-        write(*,*) "priniting cosmo charges fro bq module",
+        write(*,*) "printing cosmo charges for bq module",
      +     cosmo_file
 
         do ief=1,nefc
