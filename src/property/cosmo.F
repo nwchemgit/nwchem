@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.20 2007-12-03 23:10:57 niri Exp $
+* $Id: cosmo.F,v 1.21 2007-12-04 18:54:16 d3p307 Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -1444,6 +1444,7 @@ c
       implicit double precision (a-h,o-z)
 #include "global.fh"
 #include "stdio.fh"
+#include "util.fh"
 c
       logical out
       dimension    xyz(3,6)
@@ -1508,6 +1509,7 @@ c
       implicit double precision (a-h,o-z)
 #include "global.fh"
 #include "stdio.fh"
+#include "util.fh"
 c
       logical out
       dimension      c(3,12)
@@ -1598,6 +1600,7 @@ c
       implicit double precision (a-h,o-z)
 #include "global.fh"
 #include "stdio.fh"
+#include "util.fh"
 c
       logical out
       logical duplic
