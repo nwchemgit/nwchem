@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.555 2007-11-06 19:01:12 edo Exp $
+# $Id: makefile.h,v 1.556 2007-12-04 17:06:15 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1361,7 +1361,7 @@ ifeq ($(LINUXCPU),x86)
   ifdef  USE_GPROF
     FOPTIONS += -qp
   endif
-    _IFCV8= $(shell ifc -v  2>&1|egrep "Version "|head -n 1|awk ' /8\./  {print "Y";exit}; /9./ {print "Y"; exit}')
+    _IFCV8= $(shell ifc -v  2>&1|egrep "Version "|head -n 1|awk ' /8\./  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
     ifeq ($(_IFCV8),Y)
       DEFINES+= -DIFCV8
       ifeq ($(FC),ifc)
