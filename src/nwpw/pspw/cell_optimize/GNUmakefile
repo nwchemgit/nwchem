@@ -1,16 +1,23 @@
 
-# $Id: GNUmakefile,v 1.8 2007-03-27 02:02:48 bylaska Exp $
+# $Id: GNUmakefile,v 1.9 2007-12-04 18:21:52 d3p307 Exp $
 #
  OBJ_OPTIMIZE = \
 		cell_optimize_input.o \
                 cell_optimize.o \
                 update_unitcell.o \
 		pspw_stress_numerical.o \
-		stress_fd.o \
 		pspw_force_numerical.o \
 		force_fd.o
 
-	  OBJ =  
+ifeq ($(NWCHEM_TARGET),LINUX)
+  ifeq ($(FC),ifort)
+          OBJ = stress_fd.o
+  else
+          OBJ_OPTIMIZE += stress_fd.o
+  endif
+else
+          OBJ_OPTIMIZE += stress_fd.o
+endif
 
       LIBRARY = libpspw.a
 
