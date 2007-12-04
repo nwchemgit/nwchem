@@ -1,5 +1,5 @@
 %
-% $Id: tce.tex,v 1.10 2007-01-22 20:18:19 bert Exp $
+% $Id: tce.tex,v 1.11 2007-12-04 02:43:35 jhammond Exp $
 %
 \label{sec:tce}
 
@@ -933,3 +933,103 @@ END
 TASK TCE ENERGY
 
 \end{verbatim} 
+
+
+\section{TCE Response Properties}
+
+\subsection{Introduction}
+
+Response properties can be calculated within the TCE.  The current functionality is limited to ground-state dipole polarizabilities for the CCSD and CCSDT levels of theory.  Like the rest of the TCE, properties can be calculated with RHF, UHF, ROHF and DFT reference wavefunctions.
+
+Specific details about the implementation can be found in the following papers:
+\begin{itemize}
+\item J. R. Hammond, M. Valiev, W. A. deJong and K. Kowalski, \textit{J. Phys. Chem. A}, \textbf{111}, 5492 (2007).
+\item J. R. Hammond, K. Kowalski and W. A. de Jong, \textit{J. Chem. Phys.}, \textbf{127}, 144105 (2007).
+\end{itemize}
+An appropriate background on coupled-cluster linear response (CC-LR) can be found in the references of those papers.
+
+\subsection{Performance}
+
+The coupled-cluster response codes were generated in the same manner as the rest of the TCE, thus all previous comments on performance apply here as well.  The improved offsets available in the CCSD and EOM-CCSD codes is now also available in the CCSD-$\Lambda$ and CCSD-LR codes.  The bottleneck for CCSD-LR is the same as EOM-CCSD, likewise for CCSDT-LR and EOM-CCSDT.  The CCSD-LR code has been run on as many as 720 processors for systems with more than 1000 spin-orbitals, while the CCSDT-LR code has been demonstrated on as many as 128 processors.
+
+\subsection{Input}
+
+The input commands for TCE response properties exclusively use set directives (see Section 5.7) instead of TCE input block keywords.  There are currently only three commands available:
+
+\begin{verbatim}
+set tce:lineresp <logical lineresp default: F>
+set tce:afreq <double precision afreq(9) default: 0.0>
+set tce:respaxis <logical respaxis(3) default: T T T>
+\end{verbatim}
+
+The boolean variable lineresp involves the linear response equations for the corresponding coupled-cluster method (only CCSD and CCSDT possess this feature) and evaluates the dipole polarizability.  When \verb+lineresp+ is true, the $\Lambda$-equations will also be solved, so the dipole moment is also calculated.  If no other options are set, the complete dipole polarizability tensor will be calculated at zero frequency (static). Up to nine real frequencies can be set; adding more should not crash the code but it will calculate meaningless quanities.  If one desires to calculate more frequencies at one time, merely change the line \verb+double precision afreq(9)+ in \verb+$(NWCHEM_TOP)/src/tce/include/tce.fh+ appropriately and recompile.
+
+The user can choose to calculate response amplitudes only for certain axis, either because of redundancy due to symmetry or because of memory limitations.  The boolean vector of length three \verb+respaxis+ is used to determine whether or not a given set of response amplitudes are allocated, solved for, and used in the polarizability tensor evaluation.  The logical variables represent the X, Y, Z axes, respectively.  If respaxis is set to \verb+T F T+, for example, the responses with respect to the X and Z dipoles will be calculated, and the four (three unique) tensor components will be evaluated.  This feature is also useful for conserving memory.  By calculating only one axis at a time, memory requirements can be reduced by $25\%$ or more, depending on the number of DIIS vectors used.  Reducing the number of DIIS vectors also reduces the memory requirements.
+
+It is strongly advised that when calculating polarizabilities at high-frequencies, that user set the frequencies in increasing order, preferably starting with zero or other small value.  This approach is computationally efficient (the initial guess for subsequent responses is the previously converged value) and mitigates starting from a zero vector for the response amplitudes.
+
+\subsection{Examples}
+
+This example runs in-core on a large workstation.
+
+\begin{verbatim}
+geometry units angstrom
+ symmetry d2h
+ C               0.000    1.390    0.000
+ H               0.000    2.470    0.000
+ C               1.204    0.695    0.000
+ H               2.139    1.235    0.000
+ C               0.000   -1.390    0.000
+ H               0.000   -2.470    0.000
+ C              -1.204   -0.695    0.000
+ H              -2.139   -1.235    0.000
+ C               1.204   -0.695    0.000
+ H               2.139   -1.235    0.000
+ C              -1.204    0.695    0.000
+ H              -2.139    1.235    0.000
+end
+
+basis spherical
+  * library aug-cc-pvdz
+end
+
+tce
+  freeze atomic
+  ccsd
+  io ga
+  2eorb
+  tilesize 16
+end
+
+set tce:lineresp T
+set tce:afreq 0.000 0.072
+set tce:respaxis T T T
+
+task tce energy
+\end{verbatim}
+
+This is a relatively simple example for CCSDT-LR.
+
+\begin{verbatim}
+geometry units au
+  symmetry c2v
+  H 0       0        0
+  F 0       0        1.7328795
+end
+
+basis spherical
+  * library aug-cc-pvdz
+end
+
+tce
+  ccsdt
+  io ga
+  2eorb
+end
+
+set tce:lineresp T
+set tce:afreq 0.0 0.1 0.2 0.3 0.4
+set tce:respaxis T F T
+
+task tce energy
+\end{verbatim}
