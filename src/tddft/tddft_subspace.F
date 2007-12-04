@@ -2,7 +2,7 @@
      1  g_prod_p,g_prod_m,g_buffer1,g_buffer2,d_trials,d_prod_p,
      2  d_prod_m,ntrials,tda,apb,amb,algorithm)
 c
-c $Id: tddft_subspace.F,v 1.6 2003-10-17 22:58:29 carlfahl Exp $
+c $Id: tddft_subspace.F,v 1.7 2007-12-04 16:31:30 hvd Exp $
 c
 c Form subspace representation of (A+B) and (A-B) matrices
 c using trial and product vectors.  The elements of (A+B)
@@ -72,7 +72,12 @@ c Incore algorithms
 c =================
 c
       if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-        maxnov=max(nov(1),nov(2))
+        iproc=ga_nodeid()
+        maxnov=0
+        do i=1,ipol
+          call ga_distribution(g_trials(i),iproc,ilo,ihi,jlo,jhi)
+          maxnov=max(maxnov,ihi-ilo+1)
+        enddo
         if (.not.ma_push_get(mt_dbl,maxnov*ntrials,'trial',
      1    l_trial,k_trial)) call errquit
      2    ('tddft_subspace: failed to allocate trial',0, MA_ERR)
@@ -90,7 +95,6 @@ c
             if (.not.tda) amb(m,n)=0.0d0
           enddo
         enddo
-        iproc=ga_nodeid()
         call ga_sync()
         do i=1,ipol
           call ga_distribution(g_trials(i),iproc,ilo,ihi,jlo,jhi)
