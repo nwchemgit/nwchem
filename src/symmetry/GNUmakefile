@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.40 2004-05-14 15:39:42 edo Exp $
+#$Id: GNUmakefile,v 1.41 2007-12-04 18:20:23 d3p307 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libnwcutil.a
@@ -8,8 +8,6 @@ USES_BLAS = sym_bs_irrep.F sym_g_sym.F    sym_geom_prj.F sym_mo_adapt.F sym_op_c
 
 HEADERS = sym.fh ../NWints/auxil/spcartP.fh
 
-OBJ_OPTIMIZE = sym_sh_pair.o sym_sym.o \
-               sym_mo_ap_op.o sym_bas_op.o
 OBJ =     dosymops.o \
           gensym.o \
           sym_vec_sym.o \
@@ -47,6 +45,18 @@ OBJ =     dosymops.o \
           sym_irrepname.o \
           sym_abelian.o
 
+OBJ_OPTIMIZE = sym_sym.o \
+               sym_mo_ap_op.o sym_bas_op.o
+
+ifneq ($(NWCHEM_TARGET),LINUX)
+OBJ_OPTIMIZE += sym_sh_pair.o
+else
+ ifeq ($(FC),ifort)
+ OBJ += sym_sh_pair.o
+ else
+ OBJ_OPTIMIZE += sym_sh_pair.o
+ endif
+endif
 
 include ../config/makefile.h
 include ../config/makelib.h
