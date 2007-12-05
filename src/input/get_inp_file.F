@@ -1,5 +1,5 @@
       subroutine get_input_filename(input_filename)
-C     $Id: get_inp_file.F,v 1.16 2005-05-26 00:25:59 edo Exp $
+C     $Id: get_inp_file.F,v 1.17 2007-12-05 01:31:40 d3p307 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -45,7 +45,7 @@ c
 c     hack to get nwchem.nw to be read with mpi
 c
          if(inp_strlen(test).eq.0.and.arg.eq.1) 
-     .        input_filename(1:1)='-'
+     $        input_filename(1:1)='-'
  1       format(' argument',i3,' = ',a)
       enddo
  2    continue
