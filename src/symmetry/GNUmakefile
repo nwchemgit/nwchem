@@ -1,5 +1,7 @@
-#$Id: GNUmakefile,v 1.41 2007-12-04 18:20:23 d3p307 Exp $
+#$Id: GNUmakefile,v 1.42 2007-12-07 01:09:38 d3p307 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
+
+include ../config/makefile.h
 
 LIBRARY = libnwcutil.a
 
@@ -48,17 +50,16 @@ OBJ =     dosymops.o \
 OBJ_OPTIMIZE = sym_sym.o \
                sym_mo_ap_op.o sym_bas_op.o
 
-ifneq ($(NWCHEM_TARGET),LINUX)
+ifneq ($(TARGET),LINUX)
 OBJ_OPTIMIZE += sym_sh_pair.o
 else
- ifeq ($(FC),ifort)
+ ifeq ($(_IFCV10),Y)
  OBJ += sym_sh_pair.o
  else
  OBJ_OPTIMIZE += sym_sh_pair.o
  endif
 endif
 
-include ../config/makefile.h
 include ../config/makelib.h
   ifeq ($(FC),efc)
             FOPTIONS += -save
