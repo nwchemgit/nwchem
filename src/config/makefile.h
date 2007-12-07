@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.558 2007-12-07 01:10:04 d3p307 Exp $
+# $Id: makefile.h,v 1.559 2007-12-07 01:23:23 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1381,7 +1381,7 @@ ifeq ($(LINUXCPU),x86)
     endif
     ifeq ($(_CPU),i786)
       ifeq ($(_PENTIUM_M),Y)
-        ifeq ($(_IFCV8),Y)
+        ifneq ($(_IFCV7),Y)
           FOPTIMIZE +=  -tpp7 -xB    # this are for Pentium M (aka Centrino)
         else
           FOPTIMIZE +=  -tpp7 -xW    # this are for PentiumIV
@@ -1391,7 +1391,7 @@ ifeq ($(LINUXCPU),x86)
       endif
     endif
     DEFINES   += -DIFCLINUX
-    ifeq ($(_IFCV8),Y)
+    ifneq ($(_IFCV7),Y)
       FOPTIMIZE += -ansi_alias-
     endif
   endif
@@ -1487,7 +1487,7 @@ ifeq ($(LINUXCPU),x86)
    EXTRA_LIBS += -lm
   else
     ifeq ($(_FC),ifc)
-    ifeq ($(_IFCV8),Y)
+    ifneq ($(_IFCV7),Y)
       EXTRA_LIBS +=  
     else
       EXTRA_LIBS +=   -Vaxlib  
