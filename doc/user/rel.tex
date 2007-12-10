@@ -1,5 +1,5 @@
 %
-% $Id: rel.tex,v 1.16 2004-04-22 04:50:29 edo Exp $
+% $Id: rel.tex,v 1.17 2007-12-10 20:39:27 niri Exp $
 %
 \label{sec:rel}
 All methods which include treatment of relativistic effects are ultimately
@@ -22,17 +22,21 @@ and Kroll\footnote{M.~Douglas and N.~M.~Kroll, Ann. Phys. (N.Y.)  {\bf 82},
 89 (1974)} and developed by Hess\footnote{B.A.~Hess, Phys.~Rev.~A~{\bf 32},
 756 (1985); {\bf 33}, 3742 (1986)}. This approach decouples the positive and
 negative energy parts to second order in the external potential (and also
-fourth order in the fine structure constant, $\alpha$). Another approach is
-based on a modification of the Dirac equation by Dyall\footnote{K.~G.~Dyall,
+fourth order in the fine structure constant, $\alpha$). Other approaches include 
+the Zeroth Order Regular Approximation (ZORA)\footnote{C.~Chang, M.~Pelissier, 
+M.~Durand, Physica Scripta ~{\bf 34}, 294 (1986); E.~van Lenthe, ~{\it The ZORA Equation}, 
+doctoral thesis, Vrije Universiteit, Amsterdam (1996); S.~Faas, J.G.~Snijders, 
+J.H.~van Lenthe, E.~van Lenthe, and E.J.~Baerends, Chem.~Phys.~ Lett.~{\bf 246}, 632 (1995).}
+and modification of the Dirac equation by Dyall\footnote{K.~G.~Dyall,
 J.~Chem.~Phys.~{\bf 100}, 2118 (1994)}, and involves an exact FW
 transformation on the atomic basis set level\footnote{K.~G.~Dyall,
 J.~Chem.~Phys.~{\bf 106}, 9618 (1997); K.~G.~Dyall and T.~Enevoldsen,
 J.~Chem.~Phys.~{\bf 111}, 10000 (1999).}.
 
 Since these approximations only modify the integrals, they can in principle
-be used at all levels of theory. At present the Douglas-Kroll implementation
-can be used at all levels of theory whereas Dyall's approach is currently
-available at the Hartree-Fock level. 
+be used at all levels of theory. At present the Douglas-Kroll and ZORA 
+implementations can be used at all levels of theory whereas 
+Dyall's approach is currently available at the Hartree-Fock level. 
 The derivatives have been implemented, allowing both methods to be used in 
 geometry optimizations and frequency calculations.
 
@@ -43,6 +47,7 @@ specific to the approximations:
   RELATIVISTIC
    [DOUGLAS-KROLL [<string (ON||OFF) default ON> \
                  <string (FPP||DKH||DKFULL||DK3||DK3FULL) default DKH>]  ||
+    ZORA [ (ON || OFF) default ON ] || 
     DYALL-MOD-DIRAC [ (ON || OFF) default ON ] 
                   [ (NESC1E || NESC2E) default NESC1E ] ]
    [CLIGHT <real clight default 137.0359895>]
@@ -64,10 +69,9 @@ can be specified within the \verb+RELATIVISTIC+ block.
 \section{Douglas-Kroll approximation}
 \label{sec:douglas-kroll}
 
-
-The (spin-free) one-electron Douglas-Kroll approximation has been
-implemented. The use of relativistic effects from this Douglas-Kroll
-approximation can be invoked by specifying:
+The spin-free and spin-orbit one-electron Douglas-Kroll 
+approximation have been implemented. The use of relativistic effects 
+from this Douglas-Kroll approximation can be invoked by specifying:
 
 \begin{verbatim}
   DOUGLAS-KROLL [<string (ON||OFF) default ON> \
@@ -119,9 +123,28 @@ the user by explicitly specifying a Douglas-Kroll fitting basis
 set. This basis set must be named {\tt "D-K basis"} (see Chapter
 \ref{sec:basis}).
 
+\section{Zeroth Order regular approximation (ZORA)}
+\label{sec:zora}
+
+The spin-free and spin-orbit one-electron zeroth-order regular approximation (ZORA) 
+have been implemented. The use of relativistic effects with ZORA 
+can be invoked by specifying:
+
+\begin{verbatim}
+  ZORA [<string (ON||OFF) default ON>
+\end{verbatim}
+
+The \verb+ON|OFF+ string is used to turn on or off ZORA.  
+By default, if the \verb+ZORA+ keyword is found, the approximation 
+will be used in the calculation. If the user wishes to calculate 
+a non-relativistic quantity after turning on ZORA, the user 
+will need to define a new \verb+RELATIVISTIC+ block and turn 
+the approximation \verb+OFF+.  The user can also simply put 
+a blank \verb+RELATIVISTIC+ block in the input file and all options 
+will be turned off.
+
 \section{Dyall's Modified Dirac Hamitonian approximation}
 \label{sec:dyall-mod-dir}
-
 
 The approximate methods described in this section are all based on Dyall's
 modified Dirac Hamiltonian. This Hamiltonian is entirely equivalent to the
@@ -162,7 +185,7 @@ The syntax is as follows.
 \end{verbatim}
 
 The \verb+ON|OFF+ string is used to turn on or off the
-Dyall's modified Dirac approximation.  By default, if the \verb+DYALL-MOD-DIRAC+
+Dyall's modified Dirac approximation. By default, if the \verb+DYALL-MOD-DIRAC+
 keyword is found, the approximation will be used in the calculation.
 If the user wishes to calculate a non-relativistic quantity after turning
 on Dyall's modified Dirac, the user will need to define a new 
