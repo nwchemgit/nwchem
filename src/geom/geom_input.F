@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.185 2006-06-06 01:30:37 edo Exp $
+C     $Id: geom_input.F,v 1.186 2007-12-11 19:15:12 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -20,6 +20,7 @@ c
       logical status            ! scratch for return codes
       logical oadjust
       logical oprint
+      logical ofile
       logical ozmatrix
       logical oautoz
       logical oautosym
@@ -41,6 +42,7 @@ c     .                           and for forcing symmetry
       character*16 tags(max_center)
       character*2 symbol
       character*16 element
+      character*72 filename
       logical osymmetry
       logical old_format_input, is_atom
       logical found_ang2au_conv
@@ -52,6 +54,8 @@ c     .                           and for forcing symmetry
       external geom_zmtmak
       external geom_data        ! What is this?
       external geom_impose_initial_values_on_q
+      logical geom_create_from_file
+      external geom_create_from_file
 c     
 c     read a geometry from the input deck and output it
 c     to the rtdb.
@@ -88,6 +92,7 @@ c
       old_format_input = .false.
       units = 'angstroms'        ! The new default
       name  = ' '
+      ofile = .false.
       oprint = .true.           ! Default is to print the geometry
       ozmatrix = .false.        ! Default is cartesian input
       oautoz   = .true.         ! Default is try -autoz-
@@ -141,6 +146,12 @@ c
             ocenter = .false.
          else if (inp_compare(.false.,'adjust', field)) then
             oadjust = .true.
+c         else if (inp_compare(.false.,'file', field)) then
+c            write(*,*)"field",field
+c            ofile = .true.
+c            if (.not. inp_a(filename)) call errquit
+c     $           ('geom_input: file <filename>?', 0,
+c     &       INPUT_ERR)
          else if (inp_compare(.false.,'print', field)) then
             oprint = .true.
 c     
@@ -186,6 +197,12 @@ c
          end if
          goto 10
       end if
+c
+c      if(ofile) then
+c       if(.not.geom_create_from_file(filename,rtdb)) call errquit
+c     $     ('geom_input: geom_create from file !', 0, GEOM_ERR)
+c       return
+c      end if
 c     
       if (name .eq. ' ') name = 'geometry'
       if (.not. geom_create(geom, name)) call errquit
@@ -251,6 +268,14 @@ c
          status = inp_a(field)
          if (inp_compare(.false., 'end', field)) then
             goto 30
+         else if (inp_compare(.false.,'file', field)) then
+            ofile = .true.
+            if (.not. inp_a(filename)) call errquit
+     $           ('geom_input: file <filename>?', 0,
+     &       INPUT_ERR)
+           if(.not.geom_create_from_file(filename,rtdb)) call errquit
+     $         ('geom_input: geom_create from file !', 0, GEOM_ERR)
+            goto 20
          else if (inp_compare(.false.,'symmetry',field)) then
             osymmetry = .true.
             call geom_sym_input(geom, oprint_sym, threquiv)
@@ -379,6 +404,8 @@ c     For molecules, apply requested conversion of units after we have
 c     all of the information
 c     
  30   continue
+c
+      if(ofile) return
 c
       if (ncenter .eq. 1) then ! Keep atoms as simple as possible
          oautoz = .false. ! No point for atoms
