@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.186 2007-12-11 19:15:12 marat Exp $
+C     $Id: geom_input.F,v 1.187 2007-12-11 20:08:24 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -48,6 +48,7 @@ c     .                           and for forcing symmetry
       logical found_ang2au_conv
       logical found_au2ang_conv
       double precision ang2au, au2ang
+      integer nf
       integer atn, isys, fcent
       character*16 format, nucmodel
       logical geom_zmtmak
@@ -56,6 +57,8 @@ c     .                           and for forcing symmetry
       external geom_impose_initial_values_on_q
       logical geom_create_from_file
       external geom_create_from_file
+      logical geom_create_from_trj
+      external geom_create_from_trj
 c     
 c     read a geometry from the input deck and output it
 c     to the rtdb.
@@ -197,12 +200,6 @@ c
          end if
          goto 10
       end if
-c
-c      if(ofile) then
-c       if(.not.geom_create_from_file(filename,rtdb)) call errquit
-c     $     ('geom_input: geom_create from file !', 0, GEOM_ERR)
-c       return
-c      end if
 c     
       if (name .eq. ' ') name = 'geometry'
       if (.not. geom_create(geom, name)) call errquit
@@ -273,7 +270,16 @@ c
             if (.not. inp_a(filename)) call errquit
      $           ('geom_input: file <filename>?', 0,
      &       INPUT_ERR)
-           if(.not.geom_create_from_file(filename,rtdb)) call errquit
+c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
+           if(inp_n_field().lt.3) then
+            nf = 1
+           else
+             if (.not. inp_i(nf)) call errquit
+     $           ('geom_input: file <filename> nf?', 0,
+     &       INPUT_ERR)
+           end if
+           write(*,*) "nf=",nf,inp_n_field()
+           if(.not.geom_create_from_trj(filename,nf,rtdb)) call errquit
      $         ('geom_input: geom_create from file !', 0, GEOM_ERR)
             goto 20
          else if (inp_compare(.false.,'symmetry',field)) then
