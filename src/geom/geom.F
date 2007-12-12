@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.139 2007-12-11 20:08:24 marat Exp $
+C$Id: geom.F,v 1.140 2007-12-12 17:54:11 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -6103,6 +6103,7 @@ c
 c     we assume that xyz file has a title
 c     -----------------------------------
       otitle = .true.
+      geom_create_from_file = .false.
 c
       xyzfile = in_xyz(1:inp_strlen(in_xyz))
       call util_file_name_resolve(xyzfile, .false.)
@@ -6218,6 +6219,7 @@ c
      &       MA_ERR)
 
       close(fn_xyz)
+      geom_create_from_file = .true.
       return
 
  133  call errquit(pname//'error opening/closing '//filename,0, 0)
@@ -6276,7 +6278,8 @@ c     local variables
       external geom_rtdb_store,geom_destroy
  
 
-      pname = "geom_create_from_file"
+      pname = "geom_create_from_trj"
+      geom_create_from_trj = .false.
 c
 c     we assume that xyz file has a title
 c     -----------------------------------
@@ -6406,6 +6409,7 @@ c
      &       MA_ERR)
 
       close(fn_xyz)
+      geom_create_from_trj = .true.
       return
 
  133  call errquit(pname//'error opening/closing '//filename,0, 0)
