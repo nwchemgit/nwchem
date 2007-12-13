@@ -1934,7 +1934,7 @@ c
       more=.false.
       dbug=.false.
       dbug=dbug.or.more
-      out =.true.
+      out =.false.
       out =out.or.dbug
 c
       dbug=dbug.and.ga_nodeid().eq.0
@@ -2523,7 +2523,7 @@ c     -------------------------------------
      +       0)
 
         open(unit=fn,form="formatted",file=cosmo_file)
-        write(*,*) "printing cosmo charges fro bq module",
+        write(*,*) "printing cosmo charges for bq module",
      +     cosmo_file
 
         do ief=1,nefc
