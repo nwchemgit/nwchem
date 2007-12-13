@@ -1,7 +1,5 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.21 2007-12-04 18:54:16 d3p307 Exp $
-*
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -1444,7 +1442,6 @@ c
       implicit double precision (a-h,o-z)
 #include "global.fh"
 #include "stdio.fh"
-#include "util.fh"
 c
       logical out
       dimension    xyz(3,6)
@@ -1459,7 +1456,7 @@ c
      1           6, 1, 2, 6, 2, 3, 6, 3, 4, 6, 4, 1/
 c
       out=.false.
-      out = util_print('cosmo', print_high)
+      out=out.and.ga_nodeid().eq.0
 c
       if(out) then
          write(luout,9997)
@@ -1509,7 +1506,6 @@ c
       implicit double precision (a-h,o-z)
 #include "global.fh"
 #include "stdio.fh"
-#include "util.fh"
 c
       logical out
       dimension      c(3,12)
@@ -1540,7 +1536,7 @@ c
       data five /5.0d+00/
 c
       out=.false.
-      out = util_print('cosmo', print_high)
+      out=out.and.ga_nodeid().eq.0
 c
       if(out) then
          write(luout,9997)
@@ -1600,7 +1596,6 @@ c
       implicit double precision (a-h,o-z)
 #include "global.fh"
 #include "stdio.fh"
-#include "util.fh"
 c
       logical out
       logical duplic
@@ -1624,7 +1619,7 @@ c
       dist(x1,y1,z1,x2,y2,z2)=sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)
 c
       out=.false.
-      out = util_print('cosmo', print_high)
+      out=out.and.ga_nodeid().eq.0
 c
 c     ----- create mid-point of the 3 edges -----
 c
@@ -1939,8 +1934,8 @@ c
       more=.false.
       dbug=.false.
       dbug=dbug.or.more
-      out =.false.
-      out = util_print('cosmo', print_high)
+      out =.true.
+      out =out.or.dbug
 c
       dbug=dbug.and.ga_nodeid().eq.0
       more=more.and.ga_nodeid().eq.0
@@ -2528,7 +2523,7 @@ c     -------------------------------------
      +       0)
 
         open(unit=fn,form="formatted",file=cosmo_file)
-        write(*,*) "printing cosmo charges for bq module",
+        write(*,*) "printing cosmo charges fro bq module",
      +     cosmo_file
 
         do ief=1,nefc
