@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.214 2007-05-26 03:53:27 d3j191 Exp $
+c $Id: md_main.F,v 1.215 2007-12-13 21:53:30 marat Exp $
 c
       implicit none
 c
@@ -387,9 +387,15 @@ c
       character*1 cqrs
       real*8 angle,o(3),p(3),x(3),y(3)
 c
+      double precision grms(2)
+      integer nrms(2)
+c
       damsd=-1.1d0
       if(imembr.gt.0) call md_membrane_init(ismol,mm,xs,xsm,fm)
 c
+      if(lqmmm) then
+        if(me.eq.0) write(6,601) "@","@"
+      end if
 601   format(
      $     /,a1,' Step       Energy      Delta E   SGrms',
      $     '     WGrms     Xmax',
@@ -570,28 +576,41 @@ c
       ecrit=epot
       if(icrit.eq.1) ecrit=epot
 c
+c     changing the logic here so that bad coordinates
+c     are not preserved in the last md iteration (M.V.)
+c     ------------------------------------------------
       if(ecrit.gt.epsd) then
 c
       call cf_restor(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),
      + dbl_mb(i_vw),nwmloc,dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_fs),
      + dbl_mb(i_vs),nsaloc)
+c
       if(isdit.lt.msdit.and.dxmax.gt.dxsdmx) then
-      dx=half*dx
-      da=half*da
-      call timer_stop(201)
-      goto 1
+        dx=half*dx
+        if(ga_nodeid().eq.0) then
+           write(*,*) "reducing step",dx,dxmax,dxsdmx
+        end if 
+        da=half*da
+        call timer_stop(201)
+        if(dx.gt.dxsdmx) goto 1
       else
-      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
-     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
-      call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
-      call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
-      endif
-      endif
+c
+c       this insures the global restoration of coordinates
+c       so that the right restart file written out
+c       --------------------------------------------------
+        call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     +   dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     +   dbl_mb(i_xsm),dbl_mb(i_xsmp))
+        call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     +   dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+c
+        call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
+     +   dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     +   epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     +   npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
+c
+        endif
+        endif
 c
       edif=ecrit-epsd
       epsd=ecrit
@@ -634,6 +653,53 @@ c
       call util_flush(lfnout)
       endif
 c
+      if(lqmmm) then
+      nrms(2) = 0
+      grms(2) = 0.0d0 
+      if(nwmloc.gt.0) then
+        do j=1,nwa
+          do i=1,nwmloc
+            if(iand(iwdt(i),mfixed).ne.lfixed) then
+              nrms(2) = nrms(2) + 1
+              grms(2) = grms(2) + 
+     +               fw(i,1,j)*fw(i,1,j) +
+     +               fw(i,2,j)*fw(i,2,j) + 
+     +               fw(i,3,j)*fw(i,3,j) 
+            endif
+          end do
+        end do
+      endif
+c
+      nrms(1) = 0
+      grms(1) = 0.0d0
+      do i=1,nsaloc
+        if(iand(isdt(i),mfixed).ne.lfixed) then
+          nrms(1) = nrms(1) + 1
+          grms(1) = grms(1) + 
+     +           fs(i,1)*fs(i,1)+
+     +           fs(i,2)*fs(i,2)+
+     +           fs(i,3)*fs(i,3)
+        endif
+      end do
+      call ga_dgop(msg_qmmm_force,grms,2,'+')
+      call ga_igop(msg_qmmm_nat1,nrms,2,'+')
+
+      do i=1,2
+      if(nrms(i).ne.0) then
+        grms(i) = sqrt(grms(i)/dble(nrms(i)))
+        grms(i) = grms(i)*5.29177249d-02/2.625499962d+03
+      end if
+      end do
+      if(me.eq.0)    
+     $  write(6,602) "@", isdit, epsd/2.625499962d+03,
+     $  edif/2.625499962d+03,
+     $  grms(1), grms(2), 
+     $  dxmax/5.29177249d-02
+602   format(a1,i5,f17.8,1p,d9.1,0p,3f9.5)
+
+      end if
+c
+
       if(itest.gt.0) call md_test()
 c
       dx=min(1.2d0*dx,dxmsd)
