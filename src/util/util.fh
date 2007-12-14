@@ -1,7 +1,7 @@
 #include "printlevels.fh"
 c      
       logical util_print
-C$Id: util.fh,v 1.11 2007-12-12 17:47:48 marat Exp $
+C$Id: util.fh,v 1.12 2007-12-14 00:16:14 marat Exp $
       double precision ddot
       double precision util_cpusec
       double precision util_wallsec
@@ -17,6 +17,9 @@ C$Id: util.fh,v 1.11 2007-12-12 17:47:48 marat Exp $
       external util_batch_job_time_remaining
       external util_time_remaining
       external util_test_time_remaining
+c
+      logical util_xyz_nframes
+      external util_xyz_nframes
 c
       logical util_get_io_unit
       external util_get_io_unit
