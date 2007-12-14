@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.187 2007-12-11 20:08:24 marat Exp $
+C     $Id: geom_input.F,v 1.188 2007-12-14 00:44:50 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -48,7 +48,7 @@ c     .                           and for forcing symmetry
       logical found_ang2au_conv
       logical found_au2ang_conv
       double precision ang2au, au2ang
-      integer nf
+      integer istart,iend,irate
       integer atn, isys, fcent
       character*16 format, nucmodel
       logical geom_zmtmak
@@ -271,15 +271,40 @@ c
      $           ('geom_input: file <filename>?', 0,
      &       INPUT_ERR)
 c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
-           if(inp_n_field().lt.3) then
-            nf = 1
-           else
-             if (.not. inp_i(nf)) call errquit
-     $           ('geom_input: file <filename> nf?', 0,
+           istart = 1
+           iend   = 1
+           irate  = 1 
+           if(inp_n_field().ge.3) then
+             if (.not. inp_i(istart)) call errquit
+     $           ('geom_input: file <filename> istart?', 0,
      &       INPUT_ERR)
            end if
-           write(*,*) "nf=",nf,inp_n_field()
-           if(.not.geom_create_from_trj(filename,nf,rtdb)) call errquit
+           if(inp_n_field().ge.4) then
+             if (.not. inp_i(iend)) call errquit
+     $           ('geom_input: file <filename> istart?', 0,
+     &       INPUT_ERR)
+           end if
+           if(inp_n_field().eq.5) then
+             if (.not. inp_i(irate)) call errquit
+     $           ('geom_input: file <filename> istart?', 0,
+     &       INPUT_ERR)
+           end if
+           write(*,*) " istart,iend , irate",istart,iend , irate
+           if (.not.rtdb_put(rtdb,'geom:istart',MT_INT,1,istart)) then
+             call errquit("geom:istart",0,0)
+           end if
+           if (.not.rtdb_put(rtdb,'geom:iend',MT_INT,1,istart)) then
+             call errquit("geom:iend",0,0)
+           end if
+           if (.not.rtdb_put(rtdb,'geom:irate',MT_INT,1,istart)) then
+             call errquit("geom:iend",0,0)
+           end if
+           if(istart.ne.iend) then
+              if (.not. rtdb_put(rtdb, 'geom:traj', MT_LOG, 1,.true.)) 
+     $       call errquit("geom:traj",0,0)
+           end if
+           if(.not.geom_create_from_trj(filename,istart,rtdb)) 
+     $        call errquit
      $         ('geom_input: geom_create from file !', 0, GEOM_ERR)
             goto 20
          else if (inp_compare(.false.,'symmetry',field)) then

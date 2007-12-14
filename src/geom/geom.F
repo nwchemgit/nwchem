@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.140 2007-12-12 17:54:11 marat Exp $
+C$Id: geom.F,v 1.141 2007-12-14 00:44:50 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -6285,6 +6285,10 @@ c     we assume that xyz file has a title
 c     -----------------------------------
       otitle = .true.
 c
+c      if(.not.util_xyz_nframes(in_xyz,fn_xyz))
+c     >       call errquit("cannot get number of frames",0,0)
+c      write(*,*) "number of frames ", fn_xyz
+
       xyzfile = in_xyz(1:inp_strlen(in_xyz))
       call util_file_name_resolve(xyzfile, .false.)
 c
@@ -6303,11 +6307,17 @@ c     ---------------------------------
       open(fn_xyz,file=filename,form='formatted',status='old',
      $          err=133)
 c
+c
+c     seek frame
+c     ----------
+      if(.not.util_xyz_seek(fn_xyz,nf))
+     >       call errquit("cannot get frame",0,0)
+
+c
 c     get number of atoms
 c     ------------------
       message = " number of atoms "
       read(fn_xyz,*,err=134) ns
-      rewind(fn_xyz)
 c
 c     temporary stack memory
 c     ----------------------
@@ -6327,18 +6337,9 @@ c     ----------------------
      + call errquit('qmmm: Failed to allocate memory for m',ns,
      &       MA_ERR)
 
-c
-c     seek frame
-c     ----------
-      message = " seek frame"
-      do i=1,(ns+2)*(nf-1)
-        read(fn_xyz,*,err=134,end=135) buf 
-      end do
-c
+
 c     read the coords 
 c     --------------------------------
-      message = " number of atoms "
-      read(fn_xyz,*,err=134) ns
       message = " title field"
       if(otitle) 
      +  read(fn_xyz,*,err=134,end=135) title
