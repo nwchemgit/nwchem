@@ -63,3 +63,50 @@ c        read(fn_xyz,*,err=134,end=135) buf
  135  call errquit(pname//'error end of file at'//message,0, 0)
 
       end
+
+      function util_xyz_seek(fn_xyz,nf)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "inp.fh"
+      integer fn_xyz
+      integer nf
+      logical util_xyz_seek
+c     local variables
+      integer sf
+      character*32 pname
+      integer i,ns
+      character*16 buf
+      character*255 message
+
+      pname = "util_xyz_seek"
+      util_xyz_seek = .false.
+c
+c     prepare files for reading/writing
+c     ---------------------------------
+      rewind(fn_xyz)
+      sf = 0
+c
+c     get number of atoms
+c     ------------------
+  9   continue
+      message = " number of atoms "
+      read(fn_xyz,*,err=10,end=10) ns
+c
+c     seek frame
+c     ----------
+      message = " seek frame"
+      do i=1,ns+1
+        read(fn_xyz,*,err=10,end=10) buf 
+      end do
+      sf = sf + 1
+      if(sf.eq.(nf-1)) then
+        util_xyz_seek = .true.
+        return
+      end if 
+      goto 9
+ 10   continue 
+      return
+
+      end
