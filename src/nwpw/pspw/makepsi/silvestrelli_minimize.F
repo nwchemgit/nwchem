@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.6 2004-04-25 19:12:05 edo Exp $
+* $Id: silvestrelli_minimize.F,v 1.7 2007-12-17 21:08:52 d3p708 Exp $
 *
 
 
@@ -12,10 +12,11 @@
 *   This routine minimizes
 *
 
-      subroutine silvestrelli_minimize(n,X,Y,Z,A)
+      subroutine silvestrelli_minimize(n,rank,wts,X1,X2,X3,X4,X5,X6,A)
       implicit none
-      integer n
-      complex*16 X(n,n),Y(n,n),Z(n,n)
+      integer n,rank
+      real*8 wts(*)
+      complex*16 X1(N,N),X2(N,N),X3(N,N),X4(N,N),X5(N,N),X6(N,N)
       complex*16 A(n,n)
 
 #include "mafdecls.fh"
@@ -84,12 +85,23 @@
 
          do i=1,n
          do j=1,n
-           A(i,j)= X(j,i)        *(dconjg(X(j,j))-dconjg(X(i,i))) 
-     >	         - dconjg(X(i,j))*(X(i,i)-X(j,j)) 
-     >           + Y(j,i)        *(dconjg(Y(j,j))-dconjg(Y(i,i))) 
-     >           - dconjg(Y(i,j))*(Y(i,i)-Y(j,j)) 
-     >           + Z(j,i)        *(dconjg(Z(j,j))-dconjg(Z(i,i))) 
-     >           - dconjg(Z(i,j))*(Z(i,i)-Z(j,j))      
+           A(i,j)= wts(1)*( 
+     >             X1(j,i)* (dconjg(X1(j,j))-dconjg(X1(i,i)) ) 
+     >	         - dconjg(X1(i,j))*( X1(i,i)-X1(j,j))) 
+     >           + wts(2)*(X2(j,i)*(dconjg(X2(j,j))-dconjg(X2(i,i))) 
+     >           - dconjg(X2(i,j))*(X2(i,i)-X2(j,j))) 
+     >           + wts(3)*(X3(j,i)*(dconjg(X3(j,j))-dconjg(X3(i,i))) 
+     >           - dconjg(X3(i,j))*(X3(i,i)-X3(j,j)))
+           if (rank.gt.3) then
+           A(i,j)= A(i,j)+
+     >             wts(4)*( X4(j,i)*(dconjg(X4(j,j))-dconjg(X4(i,i))) 
+     >	         - dconjg(X4(i,j))*(X4(i,i)-X4(j,j))) 
+     >           + wts(5)*(X5(j,i)*(dconjg(X5(j,j))-dconjg(X5(i,i))) 
+     >           - dconjg(X5(i,j))*(X5(i,i)-X5(j,j))) 
+     >           + wts(6)*(X6(j,i)*(dconjg(X6(j,j))-dconjg(X6(i,i))) 
+     >           - dconjg(X6(i,j))*(X6(i,i)-X6(j,j)))
+
+           end if      
          end do
          end do
 
@@ -136,7 +148,7 @@
          !Z = matmul(expminusA , matmul(Z , expplusA))
 
          call ZGEMM('N','N',n,n,n,one,
-     >              X,n,
+     >              X1,n,
      >              dcpl_mb(expplusA(1)),n,
      >              zero,
      >              dcpl_mb(At(1)),n)
@@ -144,10 +156,10 @@
      >              dcpl_mb(expminusA(1)),n,
      >              dcpl_mb(At(1)),n,
      >              zero,
-     >              X,n)
+     >              X1,n)
 
          call ZGEMM('N','N',n,n,n,one,
-     >              Y,n,
+     >              X2,n,
      >              dcpl_mb(expplusA(1)),n,
      >              zero,
      >              dcpl_mb(At(1)),n)
@@ -155,10 +167,10 @@
      >              dcpl_mb(expminusA(1)),n,
      >              dcpl_mb(At(1)),n,
      >              zero,
-     >              Y,n)
+     >              X2,n)
 
          call ZGEMM('N','N',n,n,n,one,
-     >              Z,n,
+     >              X3,n,
      >              dcpl_mb(expplusA(1)),n,
      >              zero,
      >              dcpl_mb(At(1)),n)
@@ -166,9 +178,43 @@
      >              dcpl_mb(expminusA(1)),n,
      >              dcpl_mb(At(1)),n,
      >              zero,
-     >              Z,n)
+     >              X3,n)
 
+         if (rank.gt.3) then
+         call ZGEMM('N','N',n,n,n,one,
+     >              X4,n,
+     >              dcpl_mb(expplusA(1)),n,
+     >              zero,
+     >              dcpl_mb(At(1)),n)
+         call ZGEMM('N','N',n,n,n,one,
+     >              dcpl_mb(expminusA(1)),n,
+     >              dcpl_mb(At(1)),n,
+     >              zero,
+     >              X4,n)
 
+         call ZGEMM('N','N',n,n,n,one,
+     >              X5,n,
+     >              dcpl_mb(expplusA(1)),n,
+     >              zero,
+     >              dcpl_mb(At(1)),n)
+         call ZGEMM('N','N',n,n,n,one,
+     >              dcpl_mb(expminusA(1)),n,
+     >              dcpl_mb(At(1)),n,
+     >              zero,
+     >              X5,n)
+
+         call ZGEMM('N','N',n,n,n,one,
+     >              X6,n,
+     >              dcpl_mb(expplusA(1)),n,
+     >              zero,
+     >              dcpl_mb(At(1)),n)
+         call ZGEMM('N','N',n,n,n,one,
+     >              dcpl_mb(expminusA(1)),n,
+     >              dcpl_mb(At(1)),n,
+     >              zero,
+     >              X6,n)
+
+         end if 
 
          !expminusAtotal = matmul(expminusA,expminusAtotal)
 	 call ZGEMM('N','N',n,n,n,one,
@@ -190,10 +236,16 @@
 
          omega=0.d0
          do i=1,n
-            wx = dble(X(i,i))**2 + dimag(X(i,i))**2
-            wy = dble(Y(i,i))**2 + dimag(Y(i,i))**2
-            wz = dble(Z(i,i))**2 + dimag(Z(i,i))**2
+            wx = wts(1)*(dble(X1(i,i))**2 + dimag(X1(i,i))**2)
+            wy = wts(2)*(dble(X2(i,i))**2 + dimag(X2(i,i))**2)
+            wz = wts(3)*(dble(X3(i,i))**2 + dimag(X3(i,i))**2)
             omega = omega + (wx+wy+wz)
+            if (rank.gt.3) then
+             wx = wts(4)*(dble(X4(i,i))**2 + dimag(X4(i,i))**2)
+             wy = wts(5)*(dble(X5(i,i))**2 + dimag(X5(i,i))**2)
+             wz = wts(6)*(dble(X6(i,i))**2 + dimag(X6(i,i))**2)
+             omega = omega + (wx+wy+wz) 
+            end if
          end do
 
          crit = dabs(omega-omega1)/omega
