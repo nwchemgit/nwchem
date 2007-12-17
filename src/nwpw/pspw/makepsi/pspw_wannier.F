@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.13 2007-12-17 20:18:23 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.14 2007-12-17 21:09:54 d3p708 Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -11,28 +11,34 @@
 
 
 *     **** local variables ****
-      integer MASTER,taskid
-      parameter (MASTER=0)
+      integer MASTER,taskid,tmp_len
+      parameter (MASTER=0,tmp_len=140)
 
-      logical value,oprint
-      integer version,mapping,mapping1d
+      logical value,oprint,maval
+      integer mapping,mapping1d
       integer i,j,ms,n,ne(2),ispin,ngrid(3),nemax
-      integer neq(2),nemaxq
+      integer neq(2),nemaxq,shift,rank
       integer nfft3d,n2ft3d,npack1
-      integer indx
+      integer info
       integer np
 
       integer psi(2),psi2(2),psi_r(2)
-      integer X(2),Y(2),Z(2)
+      integer X(2,6)
       integer A(2)
+      real*8 bv(3,6),wrk(6,6),wts(6),bmat(3,3)
+      real*8 b(3),ixmat(3,6)
+      real*8 xx,yy,zz,tmp1(tmp_len)
+      real*8 dx,dy,dz
+      complex*16 arg,wx
+      character*2 labels(6)
 
-      double precision unita(3,3),b(3),alpha
+c      double precision unita(3,3),b(3),alpha
 
-      complex*16 wx,wy,wz
+c      complex*16 wx,wy,wz
 
-      character*30 new_wavefunction_filename
-      character*30 old_wavefunction_filename
-      character*255 full_filename,full_filename2
+c      character*30 new_wavefunction_filename
+c      character*30 old_wavefunction_filename
+c      character*255 full_filename,full_filename2
 
 *     **** external functions ****
       logical      control_read
@@ -54,7 +60,7 @@
 
       value = .true.
 
-
+      value=MA_set_auto_verify(value) 
 *     **** get parallel variables ****
       call Parallel_Init()
       call Parallel_np(np)
@@ -253,143 +259,203 @@
 
 
 *     ***** allocate X,Y,Z  ****
-      value = MA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
-     >                     'X',X(2),X(1))      
+      labels(1)='X1'
+      labels(2)='X2'
+      labels(3)='X3'
+      labels(4)='X4'
+      labels(5)='X5'
+      labels(6)='X6'
+      n=ne(1)
+      if (n.lt.ne(2)) n=ne(2)
+      value=.true.
+      do j=1,6
+      value = value.and.MA_alloc_get(mt_dcpl,
+     >                     n*n,
+     >                     labels(j),X(2,j),X(1,j))      
+      end do
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
-     >                     'Y',Y(2),Y(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
-     >                     'Z',Z(2),Z(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
+     >        MA_alloc_get(mt_dcpl,n*n,
      >                     'A',A(2),A(1))
       if (.not. value) 
      >   call errquit('pspw_wannier:out of heap memory',1,0)
 
+      ixmat(1,1)=1.0d0
+      ixmat(2,1)=0.0d0
+      ixmat(3,1)=0.0d0
+
+      ixmat(1,2)=1.0d0
+      ixmat(2,2)=1.0d0
+      ixmat(3,2)=0.0d0
+
+      ixmat(1,3)=1.0d0
+      ixmat(2,3)=0.0d0
+      ixmat(3,3)=1.0d0
+
+      ixmat(1,4)=0.0d0
+      ixmat(2,4)=1.0d0
+      ixmat(3,4)=0.0d0
+
+      ixmat(1,5)=0.0d0
+      ixmat(2,5)=1.0d0
+      ixmat(3,5)=1.0d0
+
+      ixmat(1,6)=0.0d0
+      ixmat(2,6)=0.0d0
+      ixmat(3,6)=1.0d0
+      write(*,*)"ne = ",ne(1),ne(2)," ispin = ",ispin
+      write(*,*)"B MATRIX"
+      call flush(6)
+      do i=1,3
+         bmat(i,1)=lattice_unitg(1,i)
+         bmat(i,2)=lattice_unitg(2,i)
+         bmat(i,3)=lattice_unitg(3,i)
+         write(*,*)bmat(i,1),bmat(i,2),bmat(i,3)
+         call flush(6)
+      end do
+      write(*,*)"string vectors"
+      call flush(6)
+      do i=1,6
+         xx=0.0d0
+         yy=0.0d0
+         zz=0.0d0
+         do j=1,3
+           xx=xx+bmat(j,1)*ixmat(j,i)
+           yy=yy+bmat(j,2)*ixmat(j,i)
+           zz=zz+bmat(j,3)*ixmat(j,i)
+         end do
+         bv(1,i)=xx
+         bv(2,i)=yy
+         bv(3,i)=zz
+         write(*,*)bv(1,i),bv(2,i),bv(3,i)
+         call flush(6)
+      end do
+      write(*,*)"metric vectors"
+      call flush(6)
+      do i=1,6
+         wrk(1,i)=bv(1,i)*bv(1,i)
+         wrk(2,i)=bv(1,i)*bv(2,i)
+         wrk(3,i)=bv(1,i)*bv(3,i)
+         wrk(4,i)=bv(2,i)*bv(2,i)
+         wrk(5,i)=bv(2,i)*bv(3,i)
+         wrk(6,i)=bv(3,i)*bv(3,i)
+         wts(i)=0.0d0
+         write(*,*)wrk(1,i),wrk(2,i),wrk(3,i)
+         write(*,*)"   ",wrk(4,i),wrk(5,i),wrk(6,i)
+         call flush(6)
+      end do
+      wts(1)=1.0d0
+      wts(4)=1.0d0
+      wts(6)=1.0d0
+      call dgels('N',6,6,1,wrk,6,wts,6,tmp1,tmp_len,info)
+      if (info.ne.0) then
+        write(*,*)"Illegal argument in call to dgels"
+        call flush(6)
+      end if
+      rank=0
+      do i=1,6
+         if (dabs(wts(i)).gt.1.e-6) then
+           rank=rank+1
+           wrk(1,rank)=bv(1,i)
+           wrk(2,rank)=bv(2,i)
+           wrk(3,rank)=bv(3,i)
+           wrk(4,rank)=wts(i)
+         end if
+      end do
+      write(*,*)"The final string vectors and weight"
+      call flush(6)
+      do i=1,rank
+         bv(1,i)=wrk(1,i)
+         bv(2,i)=wrk(2,i)
+         bv(3,i)=wrk(3,i)
+         wts(i)=wrk(4,i)
+         write(*,*)wrk(1,i),wrk(2,i),wrk(3,i),wrk(4,i)
+         call flush(6)
+      end do
+      maval=MA_VERIFY_ALLOCATOR_STUFF()
+      write(*,*)"rank =",rank," ",maval
+      call flush(6)
+
+      dx=0.0d0
+      dy=0.0d0
+      dz=0.0d0
       
       do ms=1,ispin
 
         if ((oprint).and.(ms.eq.1)) write(6,1300)
         if ((oprint).and.(ms.eq.2)) write(6,1301)
-       
-        b(1) = lattice_unitg(1,1)
-        b(2) = 0.0d0
-        b(3) = 0.0d0
-        call silvestrelli_overlap(
+
+
+        do i=1,rank
+          b(1) = bv(1,i)
+          b(2) = bv(2,i)
+          b(3) = bv(3,i)
+          call silvestrelli_overlap(
      >                  b,
      >                  ne(ms),
      >                  dbl_mb(psi_r(1)+(ms-1)*n2ft3d*ne(1)),
-     >                  dcpl_mb(X(1)+(ms-1)*ne(1)*ne(1)))       
-        b(1) = 0.0d0
-        b(2) = lattice_unitg(2,2)
-        b(3) = 0.0d0
-        call silvestrelli_overlap(
-     >                  b,
-     >                  ne(ms),
-     >                  dbl_mb(psi_r(1)+(ms-1)*n2ft3d*ne(1)),
-     >                  dcpl_mb(Y(1)+(ms-1)*ne(1)*ne(1)))
-        b(1) = 0.0d0
-        b(2) = 0.0d0
-        b(3) = lattice_unitg(3,3)
-        call silvestrelli_overlap(
-     >                  b,
-     >                  ne(ms),
-     >                  dbl_mb(psi_r(1)+(ms-1)*n2ft3d*ne(1)),
-     >                  dcpl_mb(Z(1)+(ms-1)*ne(1)*ne(1)))
+     >                  dcpl_mb(X(1,i)))
+      maval=MA_VERIFY_ALLOCATOR_STUFF()
+      write(*,*)"string =",i," ",maval
+      call flush(6)
+        end do
 
-
-c        if (oprint) then       
-c          write(*,*)
-c          write(*,*) "X:"
-c          do j=1,ne(ms)
-c             write(*,'(20("[",E10.3," + i",E10.3,"]"))') (dcpl_mb(X(1)
-c     >                          +(ms-1)*ne(1)*ne(1)
-c     >                          + (j-1) + (i-1)*ne(ms)),i=1,ne(ms))
-c          end do
-c          write(*,*)
-c          write(*,*)
-c          write(*,*) "Y:"
-c          do j=1,ne(ms)
-c             write(*,'(20("[",E10.3," + i",E10.3,"]"))') (dcpl_mb(Y(1)
-c     >                          +(ms-1)*ne(1)*ne(1)
-c     >                          + (j-1) + (i-1)*ne(ms)),i=1,ne(ms))
-c          end do
-c          write(*,*)      
-c          write(*,*)
-c          write(*,*) "Z:"
-c          do j=1,ne(ms)
-c             write(*,'(20("[",E10.3," + i",E10.3,"]"))') (dcpl_mb(Z(1)
-c     >                          +(ms-1)*ne(1)*ne(1)
-c     >                          + (j-1) + (i-1)*ne(ms)),i=1,ne(ms))
-c          end do
-c          write(*,*)
-c        end if
-
-        if (oprint) then       
+        if (oprint) then
           write(6,1380)
           do i=1,ne(ms)
-            wx = dcpl_mb(X(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
-            wy = dcpl_mb(Y(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
-            wz = dcpl_mb(Z(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
+            shift=(i-1)*ne(ms)+(i-1)
+            xx=0.0d0
+            yy=0.0d0
+            zz=0.0d0
+            do j=1,rank
+               arg=dcpl_mb(X(1,j)+shift)
+               arg= -wts(j)*datan2(dimag(arg),dble(arg))
+               xx=xx+bv(1,j)*arg
+               yy=yy+bv(2,j)*arg
+               zz=zz+bv(3,j)*arg
+            end do
 
             if (ms.eq.1)
-     >        write(6,1390) i,
-     >        datan2(dimag(wx),dble(wx))/lattice_unitg(1,1),
-     >        datan2(dimag(wy),dble(wy))/lattice_unitg(2,2),
-     >        datan2(dimag(wz),dble(wz))/lattice_unitg(3,3)
+     >        write(6,1390) i,xx,yy,zz
+
 
             if (ms.eq.2)
-     >        write(6,1391) i+ne(1),
-     >        datan2(dimag(wx),dble(wx))/lattice_unitg(1,1),
-     >        datan2(dimag(wy),dble(wy))/lattice_unitg(2,2),
-     >        datan2(dimag(wz),dble(wz))/lattice_unitg(3,3)
-
-          end do	
+     >        write(6,1391) i+ne(1),xx,yy,zz
+          end do
         end if
 
-        call silvestrelli_minimize(ne(ms),
-     >                             dcpl_mb(X(1)+(ms-1)*ne(1)*ne(1)),
-     >                             dcpl_mb(Y(1)+(ms-1)*ne(1)*ne(1)),
-     >                             dcpl_mb(Z(1)+(ms-1)*ne(1)*ne(1)),
-     >                             dcpl_mb(A(1)+(ms-1)*ne(1)*ne(1)))
-   
+        call silvestrelli_minimize(ne(ms),rank,wts,
+     >                             dcpl_mb(X(1,1)),dcpl_mb(X(1,2)),
+     >                             dcpl_mb(X(1,3)),dcpl_mb(X(1,4)),
+     >                             dcpl_mb(X(1,5)),dcpl_mb(X(1,6)),
+     >                             dcpl_mb(A(1)))
 
         if (oprint) then
           write(6,1381)
           do i=1,ne(ms)
-            wx = dcpl_mb(X(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
-            wy = dcpl_mb(Y(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
-            wz = dcpl_mb(Z(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
-
+            shift=i-1
+            shift=shift*ne(ms)+shift
+            xx=0.0d0
+            yy=0.0d0
+            zz=0.0d0
+            do j=1,rank
+               arg=dcpl_mb(X(1,j)+shift)
+               arg= -wts(j)*datan2(dimag(arg),dble(arg))
+               xx=xx+bv(1,j)*arg
+               yy=yy+bv(2,j)*arg
+               zz=zz+bv(3,j)*arg
+            end do
+            dx=dx+xx
+            dy=dy+yy
+            dz=dz+zz
             if (ms.eq.1)
-     >        write(6,1390) i,
-     >        datan2(dimag(wx),dble(wx))/lattice_unitg(1,1),
-     >        datan2(dimag(wy),dble(wy))/lattice_unitg(2,2),
-     >        datan2(dimag(wz),dble(wz))/lattice_unitg(3,3)
+     >        write(6,1390) i,xx,yy,zz
+
 
             if (ms.eq.2)
-     >        write(6,1391)  i+ne(1),
-     >        datan2(dimag(wx),dble(wx))/lattice_unitg(1,1),
-     >        datan2(dimag(wy),dble(wy))/lattice_unitg(2,2),
-     >        datan2(dimag(wz),dble(wz))/lattice_unitg(3,3)
-
-
+     >        write(6,1391) i+ne(1),xx,yy,zz
           end do
         end if
 
-
-
-c        if (oprint) then       
-c          write(*,*)
-c          write(*,*) "A:"
-c          do j=1,ne(ms)
-c             write(*,'(20("[",E10.3," + i",E10.3,"]"))') (dcpl_mb(A(1)
-c     >                          +(ms-1)*ne(1)*ne(1)
-c     >                          + (j-1) + (i-1)*ne(ms)),i=1,ne(ms))
-c          end do
-c          write(*,*)
-c        end if
 
 
 
@@ -401,9 +467,9 @@ c        end if
           do j=1,ne(ms)
               wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms) 
      >                            +(ms-1)*ne(1)*ne(1))
-              alpha = dble(wx)
+c              alpha = dble(wx)
 
-              call Pack_cc_daxpy(1,alpha,
+              call Pack_cc_zaxpy(1,wx,
      >                           dcpl_mb(psi(1) +(j-1)*npack1
      >                                          +(ms-1)*npack1*ne(1)),
      >                           dcpl_mb(psi2(1)+(i-1)*npack1
@@ -412,6 +478,11 @@ c        end if
         end do
 
       end do !* ms *
+cccccccccccccccccccccccccccccccccccccccccccccc
+c  Molecular dipoles from Resta's theory!
+ccccccccccccccccccccccccccccccccccccccccccccc
+      WRITE(6,1776)
+      WRITE(6,1777)dx,dy,dz
 
 *     ***** write psi2 wavefunctions ****
       call psi_write(ispin,ne,dcpl_mb(psi2(1)))
@@ -425,10 +496,10 @@ c        end if
       call D3dB_end(1)
       call Dne_end()
 
-      value =           MA_free_heap(A(2))      
-      value = value.and.MA_free_heap(X(2))
-      value = value.and.MA_free_heap(Y(2))
-      value = value.and.MA_free_heap(Z(2))
+      value =  MA_free_heap(A(2))
+      do j=1,6
+        value=value.and.MA_free_heap(X(2,j))
+      end do
       value = value.and.MA_free_heap(psi_r(2))
       value = value.and.MA_free_heap(psi2(2))
       value = value.and.MA_free_heap(psi(2))
@@ -478,4 +549,6 @@ c        end if
  1381 FORMAT(/' final position of Wannier centers:')
  1390 FORMAT(5X,'psi',I5,' (',3F11.5,' ) - spin up orbital')
  1391 FORMAT(5X,'psi',I5,' (',3F11.5,' ) - spin down orbital')
+ 1776 FORMAT("MOLECULAR DIPOLES")
+ 1777 FORMAT("DX =",F11.5," DY= ",F11.5," DZ= ",F11.5)
       end
