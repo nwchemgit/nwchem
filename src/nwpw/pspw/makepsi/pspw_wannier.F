@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.12 2007-03-19 19:05:38 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.13 2007-12-17 20:18:23 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -15,8 +15,9 @@
       parameter (MASTER=0)
 
       logical value,oprint
-      integer version,mapping
+      integer version,mapping,mapping1d
       integer i,j,ms,n,ne(2),ispin,ngrid(3),nemax
+      integer neq(2),nemaxq
       integer nfft3d,n2ft3d,npack1
       integer indx
       integer np
@@ -36,6 +37,7 @@
 *     **** external functions ****
       logical      control_read
       integer      control_ngrid,control_ispin,control_mapping
+      integer      control_mapping1d
       integer      pack_nwave,pack_nwave_all
       integer      control_np_orbital
       real*8       lattice_unita,lattice_unitg
@@ -43,6 +45,7 @@
       character*30 control_input_psi,control_output_psi
       external     control_read
       external     control_ngrid,control_ispin,control_mapping
+      external     control_mapping1d
       external     pack_nwave,pack_nwave_all
       external     control_np_orbital
       external     lattice_unita,lattice_unitg
@@ -183,13 +186,19 @@
 
 *     ***** allocate psi and psi_r wavefunctions ****
       call psi_get_ne(ispin,ne)
-      value = MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+      mapping1d = control_mapping1d()
+      call Dne_init(ispin,ne,mapping1d)
+      call Dneall_neq(neq)
+      nemaxq = neq(1)+neq(2)
+
+      
+      value = MA_alloc_get(mt_dcpl,npack1*nemaxq,
      >                     'psi',psi(2),psi(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dcpl,npack1*nemaxq,
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dbl,n2ft3d*nemaxq,
      >                     'psi_r',psi_r(2),psi_r(1))
       if (.not. value) 
      >   call errquit('pspw_wannier:out of heap memory',0,0)
@@ -408,13 +417,13 @@ c        end if
       call psi_write(ispin,ne,dcpl_mb(psi2(1)))
 
 
-
 *     **** deallocate heap memory ****
       call mask_end()
       call Pack_end()
       call G_end()
       call D3dB_pfft_end()
       call D3dB_end(1)
+      call Dne_end()
 
       value =           MA_free_heap(A(2))      
       value = value.and.MA_free_heap(X(2))
