@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.14 2007-12-17 21:09:54 d3p708 Exp $
+* $Id: pspw_wannier.F,v 1.15 2007-12-17 21:20:21 d3p708 Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -14,7 +14,7 @@
       integer MASTER,taskid,tmp_len
       parameter (MASTER=0,tmp_len=140)
 
-      logical value,oprint,maval
+      logical value,oprint
       integer mapping,mapping1d
       integer i,j,ms,n,ne(2),ispin,ngrid(3),nemax
       integer neq(2),nemaxq,shift,rank
@@ -60,7 +60,6 @@ c      character*255 full_filename,full_filename2
 
       value = .true.
 
-      value=MA_set_auto_verify(value) 
 *     **** get parallel variables ****
       call Parallel_Init()
       call Parallel_np(np)
@@ -302,18 +301,13 @@ c      character*255 full_filename,full_filename2
       ixmat(1,6)=0.0d0
       ixmat(2,6)=0.0d0
       ixmat(3,6)=1.0d0
-      write(*,*)"ne = ",ne(1),ne(2)," ispin = ",ispin
-      write(*,*)"B MATRIX"
-      call flush(6)
+
       do i=1,3
          bmat(i,1)=lattice_unitg(1,i)
          bmat(i,2)=lattice_unitg(2,i)
          bmat(i,3)=lattice_unitg(3,i)
-         write(*,*)bmat(i,1),bmat(i,2),bmat(i,3)
-         call flush(6)
       end do
-      write(*,*)"string vectors"
-      call flush(6)
+
       do i=1,6
          xx=0.0d0
          yy=0.0d0
@@ -326,11 +320,8 @@ c      character*255 full_filename,full_filename2
          bv(1,i)=xx
          bv(2,i)=yy
          bv(3,i)=zz
-         write(*,*)bv(1,i),bv(2,i),bv(3,i)
-         call flush(6)
       end do
-      write(*,*)"metric vectors"
-      call flush(6)
+
       do i=1,6
          wrk(1,i)=bv(1,i)*bv(1,i)
          wrk(2,i)=bv(1,i)*bv(2,i)
@@ -339,9 +330,6 @@ c      character*255 full_filename,full_filename2
          wrk(5,i)=bv(2,i)*bv(3,i)
          wrk(6,i)=bv(3,i)*bv(3,i)
          wts(i)=0.0d0
-         write(*,*)wrk(1,i),wrk(2,i),wrk(3,i)
-         write(*,*)"   ",wrk(4,i),wrk(5,i),wrk(6,i)
-         call flush(6)
       end do
       wts(1)=1.0d0
       wts(4)=1.0d0
@@ -361,19 +349,12 @@ c      character*255 full_filename,full_filename2
            wrk(4,rank)=wts(i)
          end if
       end do
-      write(*,*)"The final string vectors and weight"
-      call flush(6)
       do i=1,rank
          bv(1,i)=wrk(1,i)
          bv(2,i)=wrk(2,i)
          bv(3,i)=wrk(3,i)
          wts(i)=wrk(4,i)
-         write(*,*)wrk(1,i),wrk(2,i),wrk(3,i),wrk(4,i)
-         call flush(6)
       end do
-      maval=MA_VERIFY_ALLOCATOR_STUFF()
-      write(*,*)"rank =",rank," ",maval
-      call flush(6)
 
       dx=0.0d0
       dy=0.0d0
@@ -394,9 +375,6 @@ c      character*255 full_filename,full_filename2
      >                  ne(ms),
      >                  dbl_mb(psi_r(1)+(ms-1)*n2ft3d*ne(1)),
      >                  dcpl_mb(X(1,i)))
-      maval=MA_VERIFY_ALLOCATOR_STUFF()
-      write(*,*)"string =",i," ",maval
-      call flush(6)
         end do
 
         if (oprint) then

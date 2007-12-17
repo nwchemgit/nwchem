@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.7 2007-12-17 21:08:52 d3p708 Exp $
+* $Id: silvestrelli_minimize.F,v 1.8 2007-12-17 21:20:22 d3p708 Exp $
 *
 
 
@@ -95,11 +95,20 @@
            if (rank.gt.3) then
            A(i,j)= A(i,j)+
      >             wts(4)*( X4(j,i)*(dconjg(X4(j,j))-dconjg(X4(i,i))) 
-     >	         - dconjg(X4(i,j))*(X4(i,i)-X4(j,j))) 
+     >	         - dconjg(X4(i,j))*(X4(i,i)-X4(j,j)))
+
+            if (rank.gt.4) then 
+            A(i,j)= A(i,j)+
      >           + wts(5)*(X5(j,i)*(dconjg(X5(j,j))-dconjg(X5(i,i))) 
-     >           - dconjg(X5(i,j))*(X5(i,i)-X5(j,j))) 
+     >           - dconjg(X5(i,j))*(X5(i,i)-X5(j,j)))
+           
+             if (rank.eq.6) then
+             A(i,j)=A(i,j)+ 
      >           + wts(6)*(X6(j,i)*(dconjg(X6(j,j))-dconjg(X6(i,i))) 
      >           - dconjg(X6(i,j))*(X6(i,i)-X6(j,j)))
+             end if
+
+            end if
 
            end if      
          end do
@@ -191,7 +200,7 @@
      >              dcpl_mb(At(1)),n,
      >              zero,
      >              X4,n)
-
+          if (rank.gt.4) then
          call ZGEMM('N','N',n,n,n,one,
      >              X5,n,
      >              dcpl_mb(expplusA(1)),n,
@@ -202,7 +211,7 @@
      >              dcpl_mb(At(1)),n,
      >              zero,
      >              X5,n)
-
+           if (rank.gt.5) then
          call ZGEMM('N','N',n,n,n,one,
      >              X6,n,
      >              dcpl_mb(expplusA(1)),n,
@@ -213,7 +222,8 @@
      >              dcpl_mb(At(1)),n,
      >              zero,
      >              X6,n)
-
+           end if
+          end if
          end if 
 
          !expminusAtotal = matmul(expminusA,expminusAtotal)
@@ -242,9 +252,15 @@
             omega = omega + (wx+wy+wz)
             if (rank.gt.3) then
              wx = wts(4)*(dble(X4(i,i))**2 + dimag(X4(i,i))**2)
-             wy = wts(5)*(dble(X5(i,i))**2 + dimag(X5(i,i))**2)
-             wz = wts(6)*(dble(X6(i,i))**2 + dimag(X6(i,i))**2)
-             omega = omega + (wx+wy+wz) 
+             omega=omega+wx
+            if (rank.gt.4) then
+             wx = wts(5)*(dble(X5(i,i))**2 + dimag(X5(i,i))**2)
+             omega=omega+wx
+            if (rank.gt.5) then 
+             wx = wts(6)*(dble(X6(i,i))**2 + dimag(X6(i,i))**2)
+             omega = omega + wx
+            end if
+            end if 
             end if
          end do
 
