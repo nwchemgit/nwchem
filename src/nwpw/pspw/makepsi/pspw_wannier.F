@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.16 2007-12-17 21:46:01 d3p708 Exp $
+* $Id: pspw_wannier.F,v 1.17 2007-12-17 21:57:16 d3p708 Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -76,6 +76,8 @@ c      character*255 full_filename,full_filename2
          write(6,1030)
          write(6,1010)
          write(6,1035)
+         write(6,1010)
+         write(6,1037)
          write(6,1010)
          write(6,1040)
          write(6,1010)
@@ -501,11 +503,11 @@ ccccccccccccccccccccccccccccccccccccccccccccc
  1020 FORMAT(10X,'*              PSPW Wannier Generation             *')
  1030 FORMAT(10X,'*     [        Silvestrelli Algorithm      ]       *')
  1035 FORMAT(10x,'*     [ NorthWest Chemistry implementation ]       *')
+ 1037 FORMAT(10x,'*     Maximally Localized General Symmetry         *')
  1040 FORMAT(10X,'*            version #5.00   10/01/02              *')
  1041 FORMAT(10X,'*    Developed by Eric C. Brown, Kiril Tsemekhman  *')
  1042 FORMAT(10X,'*    (Jonsson group, U. Washington), Eric J.       *')
  1043 FORMAT(10X,'*    Bylaska and Patrick Nichols                   *')
- 1044 FORMAT(10X,
  1100 FORMAT(//)
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
  1230 FORMAT(/' supercell:')
