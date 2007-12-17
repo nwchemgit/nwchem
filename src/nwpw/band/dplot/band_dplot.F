@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot.F,v 1.8 2007-01-30 23:43:25 d3p708 Exp $
+* $Id: band_dplot.F,v 1.9 2007-12-17 18:25:01 bylaska Exp $
 *
       logical function band_dplot(rtdb)
       implicit none
@@ -255,6 +255,8 @@
       call brillioun_end()
       call Cram_end()
       call c_G_end()
+      call Parallel_Finalize()
+
 
 
       value = MA_free_heap(psir(2))
