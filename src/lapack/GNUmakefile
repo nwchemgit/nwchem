@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.56 2006-08-28 22:36:17 edo Exp $
+#$Id: GNUmakefile,v 1.57 2007-12-17 17:42:48 d3p708 Exp $
 ifdef USE_64TO32
 USE_I4FLAGS=y
 endif
@@ -30,7 +30,7 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dgesvd.o      dgetf2.o      dgetrf.o       dgetrs.o     \
                dlabrd.o      dlacon.o      dlacpy.o       dladiv.o     \
                dlae2.o       dlaev2.o      dlagtf.o       dlagts.o     \
-                             dlange.o      dlansp.o       dtrti2.o     \
+		dgels.o       dlange.o      dlansp.o       dtrti2.o     \
                dlanst.o      dlansy.o      dlapy2.o       dlapy3.o     \
                dlarf.o       dlarfb.o      dlarfg.o       dlarft.o     \
                dlarnv.o      dlartg.o      dlaruv.o       dlas2.o      \
