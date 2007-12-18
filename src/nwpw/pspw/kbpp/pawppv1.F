@@ -1,5 +1,5 @@
 *
-* $Id: pawppv1.F,v 1.3 2007-10-01 23:02:41 bylaska Exp $
+* $Id: pawppv1.F,v 1.4 2007-12-18 02:26:23 bylaska Exp $
 *
 
 *     **************************************
@@ -118,7 +118,7 @@
       amesh     = dexp(log_amesh)
       value = MA_alloc_get(mt_dbl,n1dgrid,'rgrid',rgrid(2),rgrid(1))
       if (.not.value)  call errquit('pawppv1:out of heap',0,MA_ERR)
-      dbl_mb(rgrid(1)) = r1;
+      dbl_mb(rgrid(1)) = r1
       do i=1,n1dgrid-1
         dbl_mb(rgrid(1)+i) = dbl_mb(rgrid(1)+i-1)*amesh
       end do
