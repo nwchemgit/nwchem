@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.559 2007-12-07 01:23:23 d3p307 Exp $
+# $Id: makefile.h,v 1.560 2007-12-19 22:44:54 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1560,7 +1560,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
          LINK.f = fort $(LDFLAGS)  
 # this creates a static executable
 #  LINK.f = fort $(LDFLAGS)   -Wl,-Bstatic
-         CORE_LIBS += -llapack $(BLASOPT) -lblas
+#         CORE_LIBS += -llapack $(BLASOPT) -lblas
      endif
 
     ifeq ($(_CPU),ia64)
@@ -1644,7 +1644,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
         COPTIONS += -fPIC
       endif
 
-     CORE_LIBS +=  $(BLASOPT) -llapack -lblas
+#     CORE_LIBS +=  $(BLASOPT) -llapack -lblas
 endif # end of ia32 bit
     ifeq ($(_CPU),x86_64)
 #
@@ -1761,7 +1761,7 @@ endif
       ifdef USE_GCC34
         COPTIONS  +=   -march=k8 -mtune=k8
       endif
-     CORE_LIBS +=  $(BLASOPT) -llapack -lblas
+#     CORE_LIBS +=  $(BLASOPT) -llapack -lblas
      ifdef  USE_GPROF
         ifeq ($(NWCHEM_TARGET),CATAMOUNT)
           FOPTIONS   += -Mprof=func#,lines
@@ -1839,7 +1839,7 @@ endif
           FOPTIONS += -qintsize=8
         endif
       endif
-     CORE_LIBS +=  $(BLASOPT) -llapack -lblas
+#     CORE_LIBS +=  $(BLASOPT) -llapack -lblas
 #     EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
     endif
 
