@@ -1,5 +1,5 @@
 %
-% $Id: pspw.tex,v 1.42 2006-09-28 19:48:08 bylaska Exp $
+% $Id: pspw.tex,v 1.43 2007-12-21 18:48:11 bylaska Exp $
 %
 \label{sec:pspw}
 
@@ -118,6 +118,7 @@ PSPW
   TIME_STEP <real time_step default 5.8>
   LOOP <integer inner_iteration outer_iteration default 10 100>
   TOLERANCES <real tole tolc default 1.0e-7 1.0e-7>
+  CUTOFF              <real cutoff>
   ENERGY_CUTOFF       <real ecut default (see input description)>
   WAVEFUNCTION_CUTOFF <real wcut default (see input description)>
   EWALD_NCUT <integer ncut default 1>]
@@ -170,7 +171,10 @@ The following list describes the keywords contained in the PSPW input block.
         \item $<$outer\_iteration$>$ - number of outer iterations
         \item $<$tole$>$ - value for the energy tolerance.
         \item $<$tolc$>$ - value for the one-electron orbital tolerance.
-        \item $<$edit$>$ - value for the cutoff energy used
+        \item $<$cutoff$>$ - value for the cutoff energy used to define the wavefunction.  In addition
+                             using the CUTOFF keyword automatically sets the cutoff energy for the density
+                             to be twice the wavefunction cutoff.
+        \item $<$ecut$>$ - value for the cutoff energy used
                            to define the density. Default is set
                            to be the maximum value that will fit
                            within the simulation\_cell $<$cell\_name$>$.
@@ -765,6 +769,117 @@ center of mass shifting. This can be done by the following \verb+SET+ directive.
   set nwpw:com_shift .false.
 \end{verbatim}
 
+\subsection{\tt QM/MM}
+\label{sec:pspw_qmmm}
+A preliminary QM/MM capability that can run Car-Parrinello molecular dynamics  has been integrated 
+into the PSPW module.  Currently, the input is  not very robust but it is straightforward.  The first 
+step to run a QM/MM simulations is to define the MM atoms in the geometry block.  The MM atoms must be
+at the end of the geometry and a carat, " \^\ ", must be appended to the end of the atom name, e.g.
+\begin{verbatim}
+geometry units angstrom nocenter noautosym noautoz print xyz
+C       -0.000283    0.000106    0.000047
+Cl      -0.868403    1.549888    0.254229
+Cl       0.834043   -0.474413    1.517103
+Cl      -1.175480   -1.275747   -0.460606
+Cl       1.209940    0.200235   -1.310743
+
+O^       0.3226E+01 -0.4419E+01 -0.5952E+01 
+H^       0.3193E+01 -0.4836E+01 -0.5043E+01 
+H^       0.4167E+01 -0.4428E+01 -0.6289E+01
+O^       0.5318E+01 -0.3334E+01 -0.1220E+01
+H^       0.4978E+01 -0.3040E+01 -0.2113E+01
+H^       0.5654E+01 -0.2540E+01 -0.7127E+00
+end
+\end{verbatim}
+Next the pseudopotentials have be defined for the every type of MM atom contained in the geometry blocks.  The
+following local pseudopotential suggested by Laio, VandeVondele and Rothlisberger can be automatically generated.
+\begin{eqnarray}
+V(\vec{r}) = -Z_{ion}\frac{{r_c}^{n_{\sigma}} - r^{n_{\sigma}}}{-sign(Z_{ion})*{r_c}^{n_{\sigma}+1}-r^{n_{\sigma}+1}}
+\end{eqnarray}
+The following input To define this pseudopo the O\^\ MM atom using the following input
+\begin{verbatim}
+NWPW
+   QMMM
+     mm_psp O^ -0.8476 4 0.70
+   END
+END
+\end{verbatim}
+defines the local pseudopotential for the O\^\  MM atom , where $Z_{ion}=-0.8476$, $n_{\sigma}=4$, and $r_c=0.7$.  
+The following input can be used to define the local pseudopotentials for all the MM atoms in the geometry
+block defined above
+\begin{verbatim}
+NWPW
+   QMMM
+     mm_psp O^ -0.8476 4 0.70
+     mm_psp H^  0.4238 4 0.40
+   END
+END
+\end{verbatim}
+Next the Lenard-Jones potentials for the QM and MM atoms need to be defined.  This is done as as follows
+\begin{verbatim}
+NWPW
+   QMMM
+      lj_ion_parameters C  3.41000000d0 0.10d0
+      lj_ion_parameters Cl 3.45000000d0 0.16d0
+      lj_ion_parameters O^ 3.16555789d0 0.15539425d0
+   END
+END
+\end{verbatim}
+Note that the Lenard-Jones potential is not defined for the MM H atoms in this example.  
+The final step is to define the MM fragments in the simulation.  MM fragments are a set of 
+atoms in which bonds and angle harmonic potentials are defined, or alternatively shake constraints are defined.  
+The following input defines the fragments for the two water molecules in the above geometry,
+\begin{verbatim}
+NWPW
+   QMMM
+      fragment spc
+         size 3                  #size of fragment
+         index_start 6:9:3       #atom index list that defines the start of 
+                                 # the fragments (start:final:stride)
+
+         bond_spring 1 2    0.467307856 1.889726878  #bond i j    Kspring r0
+         bond_spring 1 3    0.467307856 1.889726878  #bond i j    Kspring r0
+         angle_spring 2 1 3 0.07293966  1.910611932  #angle i j k Kspring theta0
+      end
+   END
+END
+\end{verbatim}
+The fragments can be defined using shake constraints as
+\begin{verbatim}
+NWPW
+   QMMM
+      fragment spc
+         size 3                  #size of fragment
+         index_start 6:9:3       #atom index list that defines the start of 
+                                 # the fragments (start:final:stride)
+
+         shake units angstroms 1 2 3 cyclic 1.0 1.632993125 1.0
+      end
+   END
+END
+\end{verbatim}
+Alternatively, each water could be defined independently as follows.
+\begin{verbatim}
+NWPW
+   QMMM
+      fragment spc1
+         size 3                  #size of fragment
+         index_start 6           #atom index list that defines the start of 
+                                 #the fragments 
+
+         bond_spring 1 2    0.467307856 1.889726878  #bond i j    Kspring r0
+         bond_spring 1 3    0.467307856 1.889726878  #bond i j    Kspring r0
+         angle_spring 2 1 3 0.07293966  1.910611932  #angle i j k Kspring theta0
+      end
+      fragment spc2
+         size 3                 #size of fragment
+         index_start 9          #atom index list that defines the start of 
+                                #the fragments
+         shake units angstroms 1 2 3 cyclic 1.0 1.632993125 1.0
+      end
+   END
+END
+\end{verbatim}
 
 
 \subsection{\tt PSP\_GENERATOR}
@@ -1268,6 +1383,7 @@ NWPW
   TIME_STEP <real time_step default 5.8>
   LOOP <integer inner_iteration outer_iteration default 10 100>
   TOLERANCES <real tole tolc default 1.0e-7 1.0e-7>
+  CUTOFF              <real cutoff>
   ENERGY_CUTOFF       <real ecut default (see input description)>
   WAVEFUNCTION_CUTOFF <real wcut default (see input description)>
   EWALD_NCUT <integer ncut default 1>]
@@ -1283,6 +1399,8 @@ NWPW
   BAND_DPLOT    ... (see input description) END
 
   MAPPING <integer mapping default 1>
+  SMEAR <sigma default 0.001> [TEMPERATURE <temperature>] [FERMI || GAUSSIAN default FERMI] 
+                              [ORBITALS <integer orbitals default 4>]
 
 END 
 \end{verbatim}
@@ -1305,6 +1423,9 @@ The following list describes these keywords.
         \item $<$outer\_iteration$>$ - number of outer iterations
         \item $<$tole$>$ - value for the energy tolerance.
         \item $<$tolc$>$ - value for the one-electron orbital tolerance.
+        \item $<$cutoff$>$ - value for the cutoff energy used to define the wavefunction.  In addition
+                             using the CUTOFF keyword automatically sets the cutoff energy for the density
+                             to be twice the wavefunction cutoff.
         \item $<$ecut$>$ - value for the cutoff energy used
                            to define the density. Default is set
                            to be the maximum value that will fit
@@ -1329,6 +1450,8 @@ The following list describes these keywords.
         \item BRILLOUIN\_ZONE  (see section \ref{sec:band_brillouin_zone})
         \item MONKHORST-PACK - Alternatively, the MONKHORST-PACK keyword can be used 
                                to enter a MONKHORST-PACK sampling of the Brillouin zone.
+        \item $<$smear$>$ - value for smearing broadending
+        \item $<$temperature$>$ - same as smear but in units of K.
 
 \end{itemize}
 
@@ -1438,7 +1561,19 @@ This sub-directive specifies the molecular orbital number that is to be plotted.
 \end{verbatim}
 By default the grid spacing and the limits of the cell to be plotted are defined by the input wavefunctions.  Alternatively the user can use the LIMITXYZ sub-directive to specify other limits.  The grid is generated using No\_Of\_Spacings + 1 points along each direction. The known names for Units are angstroms, au and bohr.
 
-
+\subsection{SMEAR - Fractional Occupation of the Molecular Orbitals}
+\label{sec:band_smear}
+The smear keyword to turn on fractional occupation of the molecular orbitals
+\begin{verbatim}
+  SMEAR <sigma default 0.001> [TEMPERATURE <temperature>] [FERMI || GAUSSIAN default FERMI] 
+                              [ORBITALS <integer orbitals default 4>]
+\end{verbatim}
+Both Fermi-Dirac (FERMI) and Gaussian broadening functions are available.  The ORBITALS keyword is used to change
+the number of virtual orbitals to be used in the calculation.  Note to use this option the user must currently use the
+SCF minimizer.  The following SCF option is recommended for running fractional occupation
+\begin{verbatim}
+  SCF Anderson
+\end{verbatim}
 
 
 \section{PAW Tasks}
@@ -1485,6 +1620,7 @@ NWPW
   TIME_STEP <real time_step default 5.8>
   LOOP <integer inner_iteration outer_iteration default 10 100>
   TOLERANCES <real tole tolc default 1.0e-7 1.0e-7>
+  CUTOFF              <real cutoff>
   ENERGY_CUTOFF       <real ecut default (see input description)>
   WAVEFUNCTION_CUTOFF <real wcut default (see input description)>
   EWALD_NCUT <integer ncut default 1>]
@@ -1526,6 +1662,9 @@ The following list describes these keywords.
         \item $<$outer\_iteration$>$ - number of outer iterations
         \item $<$tole$>$ - value for the energy tolerance.
         \item $<$tolc$>$ - value for the one-electron orbital tolerance.
+        \item $<$cutoff$>$ - value for the cutoff energy used to define the wavefunction.  In addition
+                             using the CUTOFF keyword automatically sets the cutoff energy for the density
+                             to be twice the wavefunction cutoff.
         \item $<$ecut$>$ - value for the cutoff energy used
                            to define the density. Default is set
                            to be the maximum value that will fit
@@ -2177,6 +2316,283 @@ task pspw optimize
 
 \end{verbatim}
 
+\normalsize
+\section{PSPW Tutorial 4: QM/MM simulation for CCl$_4$ + 64H$_2$O}
+\label{sec:pspw_qmmm_simulation}
+
+In this section we show how use the PSPW module to perform a Car-Parrinello
+QM/MM simulation for a CCl$_4$ molecule in a box of 64 H$_2$O.
+Before running a PSPW Car-Parrinello  simulation the system should be
+on the Born-Oppenheimer surface, i.e. the one-electron orbitals should be minimized
+with respect to the total energy (i.e. task pspw energy).  
+
+In the following example we show the input needed to run a Car-Parrinello 
+QM/MM simulation for a CCl$_4$ molecule in a box of 64 H$_2$O. 
+In this example, default pseudopotentials from the pseudopotential library are used 
+for C, Cl, O\^\ and H\^\, exchange correlation functional is PBE96, The boundary condition is periodic, and
+with a side length of 23.577 Bohrs and has a cutoff energy is 50 Ry).  The time step and fake mass
+for the Car-Parrinello run are specified to be 5.0 au and 600.0 au, respectively.
+\normalsize
+\begin{verbatim}
+title "CCl4 + water64 QM/MM simulation- 195 atom cell"
+
+memory 1500 mb
+start CCl4-water64
+
+#scratch_dir   ./perm
+#permanent_dir ./perm
+\end{verbatim}
+\tiny
+\begin{verbatim}
+geometry nocenter noautoz noautosym
+C        0.7804E-02 -0.2897E-02  0.1420E-02 -0.2910E-07 -0.1055E-07 -0.2001E-07
+Cl      -0.8603E+00  0.1547E+01  0.2556E+00 -0.2910E-07 -0.1055E-07 -0.2001E-07
+Cl       0.8421E+00 -0.4774E+00  0.1518E+01 -0.2910E-07 -0.1055E-07 -0.2001E-07
+Cl      -0.1167E+01 -0.1279E+01 -0.4592E+00 -0.2910E-07 -0.1055E-07 -0.2001E-07
+Cl       0.1218E+01  0.1972E+00 -0.1309E+01 -0.2910E-07 -0.1055E-07 -0.2001E-07
+
+O^       0.1545E+01 -0.3640E+01 -0.2558E+01  0.1675E-03 -0.2134E-03  0.2608E-03
+H^       0.6377E+00 -0.4054E+01 -0.2486E+01 -0.8467E-05 -0.6710E-04 -0.1101E-02
+H^       0.1860E+01 -0.3690E+01 -0.3506E+01  0.9734E-03  0.1042E-02  0.4566E-03
+O^      -0.6138E+01 -0.4627E+01 -0.1181E+01 -0.1477E-03 -0.1616E-03 -0.1670E-03
+H^      -0.7068E+01 -0.4458E+01 -0.8549E+00 -0.6948E-03 -0.5435E-03 -0.1521E-02
+H^      -0.5628E+01 -0.5133E+01 -0.4858E+00 -0.8855E-03  0.2768E-03  0.6961E-03
+O^       0.3808E+01  0.2935E+01  0.2147E+01 -0.6374E-04  0.1081E-03 -0.3184E-04
+H^       0.4187E+01  0.2253E+01  0.2772E+01  0.5832E-03  0.5155E-03  0.2134E-04
+H^       0.4511E+01  0.3612E+01  0.1926E+01 -0.4943E-03  0.3230E-03 -0.7034E-03
+O^      -0.6210E+00 -0.5260E+01 -0.2842E+01  0.1727E-03  0.9623E-04  0.8184E-04
+H^      -0.2750E+00 -0.5523E+01 -0.3742E+01  0.1119E-03  0.7072E-03 -0.1203E-03
+H^      -0.7042E+00 -0.6073E+01 -0.2266E+01 -0.6331E-03 -0.4150E-03 -0.7442E-03
+O^       0.2760E+01  0.2730E+01 -0.4774E+01 -0.1327E-03  0.3354E-03 -0.1366E-03
+H^       0.3676E+01  0.2570E+01 -0.5142E+01 -0.5941E-04  0.5145E-03 -0.3057E-04
+H^       0.2828E+01  0.2989E+01 -0.3811E+01 -0.2370E-03  0.1001E-02 -0.3029E-03
+O^      -0.2387E+01  0.5716E+01  0.3965E+01 -0.6296E-04 -0.1405E-04 -0.2853E-04
+H^      -0.1694E+01  0.5121E+01  0.3558E+01  0.5787E-04 -0.5014E-03  0.9024E-03
+H^      -0.1939E+01  0.6465E+01  0.4453E+01 -0.2046E-03  0.6948E-04 -0.2150E-04
+O^      -0.3456E+01  0.5123E+01 -0.2154E+01 -0.3714E-04 -0.1948E-03  0.4699E-05
+H^      -0.3043E+01  0.4342E+01 -0.2622E+01 -0.1119E-05 -0.3220E-03  0.2734E-03
+H^      -0.3693E+01  0.5826E+01 -0.2825E+01 -0.2085E-03 -0.4813E-03 -0.2351E-03
+O^       0.5940E+00  0.1399E+01  0.3463E+01 -0.1288E-03 -0.9776E-04 -0.1409E-03
+H^       0.1245E+01  0.1913E+01  0.2904E+01 -0.3790E-03 -0.4010E-03 -0.6948E-03
+H^      -0.3201E+00  0.1790E+01  0.3355E+01 -0.1070E-03  0.6148E-04  0.3431E-03
+O^       0.4845E+01  0.4936E+01  0.4088E+01  0.2876E-03 -0.2625E-03 -0.7661E-04
+H^       0.4098E+01  0.5168E+01  0.3465E+01 -0.1301E-03 -0.5756E-04  0.4909E-03
+H^       0.4740E+01  0.3991E+01  0.4397E+01  0.1202E-02 -0.7660E-03 -0.1345E-02
+O^      -0.7209E+00  0.4285E+01  0.1237E+01 -0.1519E-03  0.6569E-04  0.1096E-03
+H^       0.1958E-01  0.4499E+01  0.6000E+00 -0.5731E-04 -0.2919E-03  0.9929E-04
+H^      -0.1597E+01  0.4541E+01  0.8281E+00 -0.1117E-03 -0.3977E-03 -0.2666E-03
+O^       0.3836E+01  0.2390E-01 -0.6670E+00  0.2697E-04 -0.6474E-05 -0.4852E-03
+H^       0.4335E+01 -0.5028E+00  0.2166E-01 -0.1127E-02  0.1144E-02  0.1230E-02
+H^       0.2962E+01 -0.4225E+00 -0.8598E+00 -0.1721E-03  0.3171E-03 -0.3321E-03
+O^      -0.7034E+00 -0.2120E+01 -0.3538E+01  0.1292E-03 -0.1072E-03 -0.1333E-03
+H^      -0.7567E+00 -0.3086E+01 -0.3284E+01  0.5037E-03 -0.2660E-03 -0.6455E-03
+H^       0.2369E+00 -0.1894E+01 -0.3793E+01  0.2452E-03  0.6329E-03  0.9344E-03
+O^       0.1465E+01 -0.4009E+01  0.4737E+01  0.3828E-03 -0.5067E-04  0.2649E-03
+H^       0.4923E+00 -0.3944E+01  0.4958E+01  0.3572E-03  0.1205E-02 -0.2187E-03
+H^       0.1582E+01 -0.4544E+01  0.3901E+01  0.1254E-03 -0.4486E-03  0.4761E-03
+O^      -0.3224E+01 -0.3091E+00  0.1701E+01 -0.2499E-03 -0.2643E-03 -0.1442E-03
+H^      -0.2950E+01 -0.9626E+00  0.9949E+00 -0.4237E-03 -0.8809E-04 -0.3749E-03
+H^      -0.3005E+01  0.6188E+00  0.1398E+01 -0.6682E-03 -0.1587E-03 -0.1246E-03
+O^       0.5321E+01  0.3728E+01 -0.5992E+01  0.1243E-03  0.1407E-03  0.3011E-04
+H^       0.5383E+01  0.3541E+01 -0.5012E+01  0.2175E-03 -0.4499E-04  0.4888E-05
+H^       0.5850E+01  0.3045E+01 -0.6496E+01 -0.1043E-03  0.1021E-03 -0.1441E-03
+O^      -0.3365E+01 -0.2780E+01  0.3200E+01  0.2012E-03 -0.1310E-03 -0.1047E-04
+H^      -0.4036E+01 -0.2193E+01  0.3653E+01 -0.5141E-03 -0.4867E-03 -0.6379E-03
+H^      -0.3029E+01 -0.2327E+01  0.2375E+01  0.8564E-03  0.1057E-03  0.3940E-03
+O^      -0.6115E+01  0.4096E+01 -0.1385E+01 -0.2067E-03 -0.2544E-03  0.9568E-04
+H^      -0.6740E+01  0.3315E+01 -0.1402E+01 -0.7231E-04 -0.3492E-03 -0.2122E-03
+H^      -0.5445E+01  0.4002E+01 -0.2121E+01 -0.1573E-03  0.1356E-03  0.9095E-04
+O^      -0.1742E+01  0.5855E+01 -0.5125E+01 -0.4122E-03 -0.4759E-04 -0.3874E-04
+H^      -0.1849E+01  0.6848E+01 -0.5063E+01  0.6007E-03  0.8115E-04 -0.2854E-03
+H^      -0.9641E+00  0.5640E+01 -0.5716E+01 -0.3814E-03 -0.9778E-03  0.3468E-03
+O^       0.3739E+01  0.4907E+01 -0.2428E+00 -0.1192E-05 -0.2368E-03  0.6724E-04
+H^       0.3792E+01  0.3995E+01  0.1643E+00 -0.1132E-02 -0.3235E-03  0.1695E-04
+H^       0.4347E+01  0.4954E+01 -0.1035E+01 -0.9395E-03 -0.1354E-02 -0.7298E-03
+O^       0.2987E+00 -0.5628E+01 -0.8431E-01 -0.1166E-03  0.1187E-03 -0.7732E-04
+H^       0.1276E+01 -0.5804E+01  0.3260E-01 -0.1801E-03  0.3589E-04  0.3022E-03
+H^       0.5558E-01 -0.4777E+01  0.3824E+00 -0.2238E-03  0.1517E-03 -0.1903E-03
+O^       0.1671E+01 -0.3048E+00 -0.4287E+01 -0.8597E-04  0.3502E-04  0.1369E-03
+H^       0.2286E+01 -0.1088E+01 -0.4380E+01  0.2453E-03  0.3302E-03 -0.1838E-03
+H^       0.1079E+01 -0.2489E+00 -0.5091E+01  0.4959E-03  0.6558E-03 -0.2504E-03
+O^      -0.2941E-01  0.2661E+01 -0.4082E+01  0.1756E-03 -0.5742E-04 -0.1573E-03
+H^      -0.8858E+00  0.2586E+01 -0.3571E+01  0.9848E-03 -0.7154E-04  0.1212E-02
+H^       0.2989E+00  0.1746E+01 -0.4318E+01  0.2778E-03 -0.9530E-04  0.1150E-03
+O^      -0.1659E+01  0.3915E+00 -0.2844E+01 -0.1270E-04 -0.1120E-03 -0.9166E-04
+H^      -0.1204E+01  0.8157E+00 -0.2061E+01 -0.1351E-02  0.1320E-02 -0.9371E-04
+H^      -0.1101E+01 -0.3654E+00 -0.3184E+01  0.1361E-02  0.3184E-03  0.1229E-02
+O^       0.2089E+01  0.5535E+01 -0.3917E+01  0.1204E-04 -0.7803E-04  0.8825E-04
+H^       0.2792E+01  0.6204E+01 -0.4157E+01  0.3230E-03 -0.4625E-03 -0.6275E-04
+H^       0.2250E+01  0.4687E+01 -0.4423E+01 -0.8063E-03 -0.1769E-04 -0.2737E-03
+O^      -0.3593E+01  0.4433E+01  0.9266E+00  0.1739E-03 -0.3290E-04 -0.3843E-04
+H^      -0.4481E+01  0.4653E+01  0.1330E+01  0.7439E-04  0.3872E-03 -0.4940E-03
+H^      -0.3441E+01  0.5007E+01  0.1217E+00  0.4864E-03 -0.6984E-03 -0.4424E-03
+O^       0.5367E+01 -0.2126E+01 -0.1991E+01 -0.2551E-03  0.1323E-04  0.1464E-03
+H^       0.4615E+01 -0.2084E+01 -0.1333E+01 -0.9232E-03 -0.8571E-03 -0.5616E-03
+H^       0.6028E+01 -0.2817E+01 -0.1698E+01 -0.9047E-03 -0.8682E-03 -0.4681E-03
+O^      -0.5302E+01  0.2831E+01  0.3682E+01 -0.8660E-05  0.1412E-03  0.1894E-06
+H^      -0.5277E+01  0.3688E+01  0.3167E+01  0.1207E-02  0.1614E-03  0.9149E-04
+H^      -0.5660E+01  0.2102E+01  0.3099E+01 -0.2688E-03  0.5247E-03 -0.3316E-03
+O^      -0.4788E+01 -0.5922E+01 -0.4919E+01 -0.3929E-03 -0.9853E-05  0.3585E-03
+H^      -0.4466E+01 -0.4994E+01 -0.5108E+01  0.2628E-03 -0.1497E-03  0.8332E-03
+H^      -0.5586E+01 -0.6120E+01 -0.5489E+01 -0.1623E-03  0.6350E-03 -0.1750E-03
+O^       0.2449E+01  0.5722E+01  0.2217E+01  0.1955E-03  0.6679E-06  0.1909E-03
+H^       0.1457E+01  0.5804E+01  0.2318E+01  0.1783E-03 -0.2907E-03  0.2435E-03
+H^       0.2696E+01  0.4757E+01  0.2130E+01  0.5892E-03 -0.2071E-04  0.1586E-02
+O^       0.5651E+01  0.8176E+00 -0.2769E+01 -0.5866E-04 -0.1602E-04 -0.5855E-04
+H^       0.4741E+01  0.1046E+01 -0.2421E+01 -0.1450E-04 -0.4401E-03  0.3128E-03
+H^       0.5700E+01 -0.1641E+00 -0.2953E+01  0.2489E-03  0.4500E-04 -0.2890E-03
+O^       0.2231E+01 -0.2461E+01 -0.6899E-01 -0.1876E-04  0.7416E-04  0.1305E-03
+H^       0.2029E+01 -0.2779E+01 -0.9952E+00  0.1240E-02 -0.7506E-03  0.1383E-03
+H^       0.1687E+01 -0.2982E+01  0.5886E+00  0.7330E-03 -0.8484E-03  0.8706E-05
+O^       0.2294E+01  0.3375E+01  0.4716E+01 -0.1652E-03  0.2400E-03 -0.1586E-04
+H^       0.1550E+01  0.2835E+01  0.5111E+01  0.4246E-03 -0.1052E-02 -0.6720E-03
+H^       0.3160E+01  0.3107E+01  0.5138E+01  0.1669E-04  0.1270E-02  0.2646E-03
+O^       0.7453E+00  0.4511E+01 -0.1428E+01  0.3864E-05  0.1202E-03 -0.1956E-04
+H^       0.1116E+01  0.5421E+01 -0.1241E+01  0.2420E-03  0.3195E-06  0.1360E-03
+H^       0.4066E+00  0.4476E+01 -0.2368E+01  0.5441E-03  0.1747E-03 -0.2138E-03
+O^       0.3229E+01  0.2523E+01 -0.1702E+01  0.8684E-04  0.1770E-03 -0.1302E-03
+H^       0.2367E+01  0.3024E+01 -0.1626E+01  0.1473E-03  0.2022E-03  0.3857E-03
+H^       0.3259E+01  0.1803E+01 -0.1008E+01  0.2618E-03 -0.1686E-03 -0.4964E-03
+O^      -0.4696E+01  0.1761E+01 -0.5781E+01 -0.1399E-03  0.5263E-04 -0.1977E-04
+H^      -0.4285E+01  0.1469E+01 -0.4918E+01 -0.2145E-03  0.4890E-03  0.1638E-03
+H^      -0.4401E+01  0.2692E+01 -0.5993E+01  0.4905E-03 -0.3279E-03 -0.8519E-03
+O^      -0.1324E+01  0.8348E+00  0.5926E+01 -0.4021E-03 -0.2283E-03  0.1866E-03
+H^      -0.9165E+00  0.1419E+01  0.5224E+01  0.6640E-03 -0.3537E-03  0.7015E-03
+H^      -0.1446E+01 -0.8850E-01  0.5561E+01  0.6728E-04 -0.2690E-03  0.1331E-03
+O^       0.3599E+01 -0.4806E+01  0.5923E+01  0.2240E-03  0.1057E-03 -0.1705E-06
+H^       0.2749E+01 -0.4798E+01  0.5396E+01  0.7639E-03  0.1003E-02 -0.8568E-03
+H^       0.3835E+01 -0.5749E+01  0.6158E+01 -0.8554E-03 -0.1746E-03 -0.3717E-04
+O^       0.3944E+01  0.1279E+01  0.4873E+01 -0.1309E-04  0.2875E-03 -0.3979E-03
+H^       0.4210E+01  0.1174E+01  0.5831E+01  0.1066E-02  0.1745E-02 -0.5234E-03
+H^       0.3429E+01  0.4734E+00  0.4579E+01 -0.2975E-03 -0.1943E-03  0.1395E-02
+O^       0.5483E+01 -0.7180E+00 -0.5757E+01  0.1312E-03  0.1083E-03  0.7991E-04
+H^       0.6244E+01 -0.1590E+00 -0.6085E+01 -0.2745E-03  0.5021E-03 -0.1907E-03
+H^       0.5629E+01 -0.9484E+00 -0.4795E+01  0.4035E-03  0.4934E-03  0.1307E-03
+O^      -0.3287E+00  0.3790E+01  0.5524E+01 -0.7176E-05  0.1175E-03  0.2084E-04
+H^       0.3281E+00  0.3309E+01  0.4943E+01  0.4936E-04  0.5155E-04  0.1453E-03
+H^      -0.5608E+00  0.3217E+01  0.6310E+01  0.1927E-03  0.3956E-03  0.2736E-03
+O^      -0.4527E+01 -0.7948E+00 -0.3582E+01 -0.5240E-04  0.1526E-03  0.1337E-03
+H^      -0.3613E+01 -0.3987E+00 -0.3669E+01 -0.1226E-03  0.1632E-03 -0.5451E-03
+H^      -0.4999E+01 -0.3775E+00 -0.2804E+01  0.5636E-03  0.5893E-04  0.5571E-03
+O^      -0.6007E+01 -0.5060E+01  0.4881E+01 -0.1087E-04  0.3392E-03  0.9991E-04
+H^      -0.5573E+01 -0.4743E+01  0.4038E+01 -0.1440E-03 -0.6469E-03 -0.3565E-03
+H^      -0.6934E+01 -0.4690E+01  0.4939E+01 -0.3791E-03 -0.4391E-03 -0.7065E-03
+O^       0.2677E+01 -0.3981E+01  0.2476E+01  0.1089E-03 -0.1054E-03  0.1375E-03
+H^       0.3493E+01 -0.3506E+01  0.2147E+01 -0.6883E-04  0.1734E-03  0.8114E-04
+H^       0.2947E+01 -0.4819E+01  0.2949E+01  0.4465E-03  0.2834E-03  0.6339E-03
+O^      -0.5289E+01  0.1887E+01  0.8394E+00  0.9633E-04 -0.1890E-04 -0.1561E-03
+H^      -0.5106E+01  0.1824E+01 -0.1418E+00  0.5279E-03 -0.4110E-03 -0.5213E-04
+H^      -0.5189E+01  0.9829E+00  0.1255E+01  0.4782E-03  0.2522E-03  0.3444E-03
+O^      -0.2867E+01 -0.3827E+01 -0.4340E+01  0.3624E-03 -0.4131E-03 -0.1321E-03
+H^      -0.2075E+01 -0.3938E+01 -0.3739E+01  0.3156E-03  0.3721E-03  0.8843E-04
+H^      -0.3635E+01 -0.3461E+01 -0.3814E+01  0.6431E-03  0.1311E-02 -0.9227E-03
+O^      -0.3108E+01 -0.5334E+01 -0.4502E+00  0.1643E-03  0.8922E-04 -0.6109E-04
+H^      -0.3192E+01 -0.5798E+01 -0.1332E+01 -0.7280E-03  0.6552E-03 -0.2814E-03
+H^      -0.3767E+01 -0.4583E+01 -0.4035E+00 -0.1942E-04 -0.1519E-03  0.1222E-02
+O^      -0.4554E+01 -0.2685E+01 -0.1490E+01 -0.1628E-03  0.1207E-03 -0.5201E-04
+H^      -0.4735E+01 -0.2235E+01 -0.2365E+01 -0.7933E-03  0.5578E-04  0.5343E-04
+H^      -0.5002E+01 -0.2175E+01 -0.7554E+00 -0.7371E-03 -0.5704E-03  0.7546E-04
+O^       0.3475E+01 -0.4761E+01 -0.1158E+01  0.4877E-04  0.1059E-04 -0.5547E-04
+H^       0.3973E+01 -0.5628E+01 -0.1186E+01  0.4343E-03  0.2527E-03 -0.6376E-03
+H^       0.2590E+01 -0.4871E+01 -0.1610E+01  0.9492E-04 -0.8052E-04 -0.1260E-03
+O^       0.3854E+01 -0.3250E+01 -0.4023E+01  0.1560E-03 -0.1082E-03  0.5321E-04
+H^       0.3588E+01 -0.3599E+01 -0.4922E+01  0.9956E-03 -0.1719E-03 -0.1793E-03
+H^       0.4732E+01 -0.2777E+01 -0.4097E+01  0.5500E-03 -0.7001E-03  0.9756E-03
+O^       0.5345E+01 -0.2101E+01  0.4132E+01 -0.2089E-03 -0.2574E-03  0.1618E-04
+H^       0.6127E+01 -0.2332E+01  0.4711E+01 -0.9618E-03 -0.1658E-03  0.1067E-02
+H^       0.4498E+01 -0.2226E+01  0.4648E+01 -0.8397E-03  0.5189E-03 -0.8292E-03
+O^       0.1412E+00 -0.6149E+01  0.3138E+01  0.2892E-03  0.5036E-03  0.3292E-04
+H^      -0.7153E+00 -0.6083E+01  0.2626E+01  0.1289E-03  0.4802E-03  0.3119E-03
+H^      -0.2587E-01 -0.6612E+01  0.4008E+01  0.3628E-03  0.1494E-02  0.5832E-03
+O^      -0.3946E+00 -0.1042E+01  0.4471E+01 -0.1576E-04 -0.2368E-03  0.1489E-03
+H^       0.9542E-03 -0.3942E+00  0.3820E+01 -0.3498E-03  0.1869E-03  0.3694E-03
+H^      -0.1312E+01 -0.1300E+01  0.4169E+01  0.4445E-03 -0.1244E-02 -0.3945E-03
+O^       0.5287E+01 -0.5793E+01  0.1490E+01 -0.7884E-04 -0.1027E-03 -0.2446E-03
+H^       0.5544E+01 -0.5748E+01  0.2455E+01  0.2712E-03 -0.1871E-03 -0.3382E-03
+H^       0.4354E+01 -0.5449E+01  0.1377E+01  0.1098E-03  0.5129E-03  0.2576E-04
+O^      -0.1759E+01  0.2460E+01  0.3320E+01 -0.7676E-04 -0.2161E-03 -0.1200E-03
+H^      -0.2739E+01  0.2657E+01  0.3343E+01 -0.8392E-04 -0.2861E-03 -0.1401E-03
+H^      -0.1350E+01  0.2896E+01  0.2518E+01  0.1772E-03  0.9790E-03  0.6584E-03
+O^      -0.3269E+01  0.3863E+01 -0.6091E+01 -0.1391E-03  0.5335E-04  0.6947E-04
+H^      -0.3641E+01  0.4123E+01 -0.6982E+01 -0.1000E-02  0.3166E-03  0.5059E-03
+H^      -0.2735E+01  0.4622E+01 -0.5719E+01 -0.3032E-03  0.1718E-03  0.6328E-04
+O^      -0.1995E+01 -0.3980E+01  0.5500E+01 -0.2062E-03  0.5484E-04 -0.1547E-03
+H^      -0.1956E+01 -0.3408E+01  0.6320E+01  0.2765E-03 -0.4418E-03  0.1804E-03
+H^      -0.2256E+01 -0.3419E+01  0.4714E+01 -0.9111E-03  0.4974E-03  0.3954E-03
+O^       0.4884E+01  0.6075E+01 -0.3080E+01  0.7152E-05  0.2327E-03 -0.1652E-05
+H^       0.5552E+01  0.5525E+01 -0.2578E+01 -0.1376E-04 -0.1713E-03 -0.4170E-03
+H^       0.5056E+01  0.7045E+01 -0.2906E+01  0.7043E-03  0.1266E-03 -0.1535E-03
+O^       0.2615E+01 -0.1474E+01  0.4779E+01  0.2480E-03  0.2773E-03  0.6476E-04
+H^       0.3294E+01 -0.7726E+00  0.4997E+01  0.6977E-03 -0.5022E-03  0.1176E-02
+H^       0.2248E+01 -0.1858E+01  0.5626E+01 -0.5883E-03 -0.2609E-03 -0.5399E-03
+O^      -0.3116E+01 -0.1271E+01  0.5862E+01  0.4484E-04 -0.4921E-03 -0.2958E-03
+H^      -0.3824E+01 -0.1292E+01  0.6568E+01  0.4160E-03 -0.1014E-02  0.6119E-04
+H^      -0.3115E+01 -0.3749E+00  0.5417E+01  0.2101E-03  0.3728E-04  0.7720E-03
+O^      -0.3732E+01  0.4587E+00 -0.1024E+01  0.1530E-04  0.1409E-03  0.2144E-03
+H^      -0.3291E+01  0.6710E+00 -0.1521E+00  0.4425E-03  0.2528E-04  0.2437E-04
+H^      -0.3039E+01  0.3972E+00 -0.1742E+01 -0.2884E-03 -0.8982E-04 -0.6985E-04
+O^      -0.6022E+01 -0.2054E+01  0.9880E+00  0.1148E-03  0.2240E-04 -0.6860E-04
+H^      -0.5613E+01 -0.2820E+01  0.1483E+01 -0.8247E-03 -0.3674E-03  0.1037E-03
+H^      -0.6561E+01 -0.1498E+01  0.1621E+01 -0.9049E-03 -0.3507E-03 -0.6107E-03
+O^       0.5388E+01 -0.6596E-01  0.2375E+01  0.1300E-03  0.7636E-04  0.9649E-04
+H^       0.4393E+01  0.2216E-01  0.2323E+01  0.8852E-05 -0.9209E-03  0.5667E-03
+H^       0.5638E+01 -0.5050E+00  0.3238E+01  0.9431E-03 -0.1611E-03 -0.2704E-03
+O^      -0.3777E+00 -0.3378E+01  0.1384E+01 -0.1187E-03  0.6597E-04 -0.9305E-04
+H^       0.3137E+00 -0.3344E+01  0.2106E+01  0.6941E-04 -0.1725E-03 -0.2510E-03
+H^      -0.2333E+00 -0.2620E+01  0.7483E+00 -0.1763E-03  0.1878E-03  0.5338E-04
+O^      -0.5167E+01  0.9137E-01  0.4518E+01 -0.7764E-04 -0.2549E-04  0.4651E-03
+H^      -0.4490E+01  0.2494E+00  0.3799E+01 -0.5003E-03 -0.3149E-03  0.3790E-05
+H^      -0.5695E+01  0.9276E+00  0.4669E+01 -0.8687E-03 -0.3647E-03 -0.4836E-03
+end
+\end{verbatim}
+\normalsize
+\begin{verbatim}
+#set up the QM/MM simulation and cell
+NWPW
+   SIMULATION_CELL
+      SC 23.577
+   END
+   QMMM
+      lj_ion_parameters C  3.41000000d0 0.10000000d0
+      lj_ion_parameters Cl  3.45000000d0 0.16d0
+      lj_ion_parameters O^ 3.16555789d0 0.15539425d0
+
+      # new input format
+      fragment spc
+         size 3
+         index_start 6:195:3
+         shake units angstroms 1 2 3 cyclic 1.0 1.632993125 1.0
+      end
+   END
+END
+
+#***** Setup conjugate gradient code ****
+nwpw
+   cutoff 25.0
+   xc pbe96
+   lmbfgs
+   ewald_ncut 1
+end
+set nwpw:lcao_skip .true.
+task pspw energy
+
+
+#***** Setup Car-Parrinello code ****
+nwpw
+   car-parrinello
+      Nose-Hoover 1200.0 300.0 1200.0 300.0
+      time_step 5.00
+      fake_mass 750.0
+      loop 10 2000
+      xyz_filename         ccl4.00.xyz
+      ion_motion_filename  ccl4.00.ion_motion
+      emotion_filename     ccl4.00.emotion
+    end
+end
+task pspw car-parrinello
+
+\end{verbatim}
+
 
 
 
@@ -2276,21 +2692,71 @@ nwpw
    end
    ewald_ncut 8
    monkhorst-pack 2 2 2 
+   lmbfgs
 end
-set nwpw:minimizer 2
 
 driver
   clear
   maxiter 40
 end
 set includestress .true.          # this option tells driver to optimize the unit cell
-set nwpw:stress_numerical .true.  #currently only numerical stresses are working with band
+#set nwpw:stress_numerical .true.  #option to use numerical stresses 
 
 task band optimize
 
 \end{verbatim}
 
 
+\normalsize
+\section{BAND Tutorial 3: optimizing a unit cell and geometry for Aluminum with fractional occupation}
+\label{sec:band_unitcell_optimization}
+
+The following example demonstrates how to uses the BAND module to optimize the unit cell
+and geometry for a Aluminum.
+
+\begin{verbatim}
+title "Aluminum optimization with fractional occupation"
+
+start aluminumfrac
+
+memory 900 mb
+
+geometry noautoz
+   system crystal
+     lat_a 3.0
+     lat_b 3.0
+     lat_c 3.0
+     alpha 90.0
+     beta  90.0
+     gamma 90.0
+   end
+Al  0.0 0.0 0.0
+Al  0.0 0.5 0.5
+Al  0.5 0.5 0.0
+Al  0.5 0.0 0.5
+end
+set nwpw:cif_filename aluminum
+
+nwpw
+   scf anderson
+   mult 1
+   smear  temperature 3500.0 fermi
+   cutoff 15.0
+   monkhorst-pack 3 3 3
+   ewald_ncut 8
+   mapping 2
+end
+set nwpw:lcao_skip .true.
+
+set includestress .true.
+#set nwpw:stress_numerical .true.
+
+driver
+   clear
+end
+task band optimize ignore
+
+\end{verbatim}
 
 
 
