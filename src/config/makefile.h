@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.560 2007-12-19 22:44:54 d3p307 Exp $
+# $Id: makefile.h,v 1.561 2007-12-21 21:59:47 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -2007,7 +2007,7 @@ ifeq ($(TARGET),BGL)
   EXPLICITF = TRUE
   CPP=/usr/bin/cpp  -P -C -traditional
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-  CORE_LIBS +=  -llapack -lblas
+#  CORE_LIBS +=  -llapack -lblas
 endif
 
 
