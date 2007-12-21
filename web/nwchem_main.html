@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
     "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- $Id: nwchem_main.html,v 1.1 2006-01-12 20:19:10 edo Exp $ -->
+<!-- $Id: nwchem_main.html,v 1.2 2007-12-21 20:29:05 d3p307 Exp $ -->
 <head>
    <meta http-equiv="Content-Type" content="text/html">
    <meta name="Author" content="Mahin Hackler">
@@ -37,7 +37,64 @@ group of the Environmental Molecular Sciences Laboratory (EMSL) at the
 Pacific Northwest National Laboratory (PNNL). Most of the implementation
 has been funded by the EMSL Construction Project.
 <br>
+<hr><hr>
+<B>Anncouncing NWChem-5.1
+</b>
+<br><br>
+
+The NWChem development team is pleased to announce the release of NWChem version
+5.1. This release includes a number of new capabilities, new supported platforms
+and bug fixes.  Major highlights in this release include:
 <br>
+<br>
+
+<h3> Available on latest platforms: </h3>
+<ul>
+NWChem supports the IBM BlueGene/L and the Cray XT3/XT4 (Compute Node Linux)
+platforms, with computational scalability of up to at least 1024 processors. In
+addition, NWChem now supports Infiniband/OpenIB network.
+</ul>
+
+<h3> New accurate energetics and properties calculations: </h3>
+<ul>
+a coupled-cluster linear response is now available using both restricted and
+unrestricted references. Ground-state dynamic polarizabilities at the
+coupled-cluster singles, doubles, and triples levels of theory are now
+available. Second order approximate coupled-cluster model with singles and
+doubles (CC2) is available for excited states. In addition, performance
+improvements have been made in both time-to-solution and memory usage.
+</ul>
+
+<h3> Better modeling of heavy element chemistry: </h3>
+<ul>
+The new spin-orbit zeroth-order relativistic approximation (ZORA) is available
+in both the Gaussian and plane wave density functional theory modules, providing
+a framework for heavy element chemistry simulations. In addition, the spin-orbit
+Douglas-Kroll approach is now available.
+</ul>
+
+<h3> New science possible with plane wave module: </h3>
+<ul>
+Users of NWChem’s plane wave code can now use Fermi smearing to model metals. In
+addition, the plane wave module can now handle any general pseudopotential, and
+performance improvements enable faster time-to-solution and improved scalability.
+</ul>
+
+<h3> Users contribute new capabilities to NWChem: </h3>
+<ul>
+The constrained density functional theory method developed by the Van Voorhis
+Group is now available. In addition, the Truhlar group has made their latest M06
+density functional available in NWChem.
+</ul>
+
+A full list of new capabilities and changes is available in the release notes
+<a href="http://www.emsl.pnl.gov/docs/nwchem/release-notes/release.notes.5.1.html"> release-notes-5.1 </a>
+
+
+<br><hr><hr>
+
+<br>
+
 The suite utilizes parallel-programming tools developed by PNNL staff.
 Most of the tool and scalable algorithm development has been funded by the
 High Performance Computing and Communications Initiative (HPCCI)
