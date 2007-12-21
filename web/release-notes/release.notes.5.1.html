@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>NWChem Version 5.1 Release Notes</title>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650">
+<tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../nwchem_main.html">NWChem Home</a> |
+<a href="../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>NWChem Version 5.1 Notes</h1>
+
+<p>
+<font color="red">NOTE:</font> These release notes are not a substitute for reading the
+<a href="../doc/user/userpdf.pdf">User Manual</a>! They are meant to give a
+thumbnail sketch of the new capabilities and bug fixes that are available in
+NWChem version 5.1. When there is a conflict between the release notes and the
+<a href="../doc/user/userpdf.pdf">User Manual</a>, the User Manual takes precedence.
+
+<p>
+
+<b><h2>Several new major capabilities are available in NWChem:</h2></b>
+
+<ul>
+<li>New spin-orbit zeroth-order relativistic approximation (ZORA) for Gaussian and plane wave DFT
+<li>Constrained DFT (CDFT)
+<li>Fermi smearing to model metals in plane wave DFT
+<li>Car-Parrinello QM/MM added to plane wave DFT
+<li>Coupled-cluster linear response available using both restricted and unrestricted references
+<li>Ground-state dynamic polarizabilities at the coupled-cluster singles,
+    doubles, and triples levels of theory
+<li>Second order approximate coupled-cluster model with singles and
+doubles (CC2) for excited states in TCE
+</ul>
+<p>
+
+<p>Listed below are the other major and many minor changes for each module
+with significant changes. These descriptions are somewhat terse and more
+information is generally available in the <a href="../doc/user/userpdf.pdf">User Manual</a>.</p>
+
+
+<p>
+<p>
+<h3>DFT:</h3>
+  <ul>
+  <li>New XC functionals
+<A HREF="dft_functionals.html">Click for the full list.</A></li>
+  <li>Spin-free and spin-orbit zeroth-order relativistic approximation (ZORA)
+  <li>Constrained DFT (CDFT)
+  </ul>
+
+
+<p>
+<p>
+<h3>NWPW:</h3>
+<ul>
+  <li> Fermi smearing added to BAND
+  <li> Two-component wavefunctions added to BAND
+  <li> HGH spin-orbit potentials added to BAND
+  <li> Hilbert decomposed parallel FFT added to BAND
+  <li> Car-Parrinello QM/MM added to PSPW
+  <li> Wannier orbital generation now works with non-cubic cells
+  <li> New parallel decomposition in which both the FFT grid and orbitals are
+    distributed has been implemented in PSPW
+</ul>
+
+<p>
+<p>
+<h3>Properties:</h3>
+  <ul>
+  <li>Coupled-cluster linear response available using both restricted
+(RHF/ROHF) and unrestricted (UHF/KS) references
+  <li>Ground-state dynamic polarizabilities at the CCSD and CCSDT levels of
+theory using the linear response formalism
+  </ul>
+
+
+<p>
+<p>
+<h3>TCE:</h3>
+<ul>
+  <li> New variants of 4-index transformation
+  <li> CC2 - second order approximate coupled-cluster model with singles and doubles (for excited-state calculations)
+  <li> locally renormalized EOMCCSD approach
+  <li> Memory efficient version of CR-EOMCCSD(T) formalism
+
+</ul>
+
+
+
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../nwchem_main.html">NWChem</a> |
+<a href="../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../platforms/platforms.html">Platforms</a> |
+<a href="../download.html">Download</a> |
+<a href="../doc/user/index.html">User's Manual</a> |
+<a href="../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../release-notes/index.html">Release Notes</a> |
+<a href="../support/faq/NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../support/known_bugs.html">Known Bugs</a> |
+<a href="../support/support.html">Support</a> |
+<a href="../training/training.html">Tutorial</a> |
+<a href="../contributors.html">Contributors</a> |
+<a href="../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html">Mol Sci. Soft. Group</a> |
+<a href="../citation.html">Citation</a>
+</center>
+</font>
+<hr>
+Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: March 10, 2005
+
+</td></tr></table>
+</body>
+</html>
+
+
