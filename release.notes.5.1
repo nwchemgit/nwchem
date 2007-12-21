@@ -1,0 +1,59 @@
+NWChem Version 5.1 Release Notes
+(Also available at 
+http://www.emsl.pnl.gov/docs/nwchem/release-notes/release.notes.5.1.html)
+
+NOTE: These release notes are not a substitute for reading the User Manual!
+
+They are meant to give a thumbnail sketch of the new capabilities and bug
+fixes that are available in NWChem Version 5.1. When there is a conflict
+between the release notes and the User Manual, the User Manual takes
+precedence. 
+
+Several new major capabilities are available in NWChem:
+  o New spin-orbit zeroth-order relativistic approximation (ZORA) for Gaussian 
+    and plane wave DFT 
+  o Constrained DFT (CDFT)
+  o Fermi smearing to model metals in plane wave DFT
+  o Car-Parrinello QM/MM added to plane wave DFT
+  o 
+  o Coupled-cluster linear response available using both restricted and 
+    unrestricted references
+  o Ground-state dynamic polarizabilities at the coupled-cluster singles, 
+    doubles, and triples levels of theory
+  o Second order approximate coupled-cluster model with singles and
+    doubles (CC2) for excited states in TCE 
+  o 
+ 
+Listed below are the major and many minor changes for each module
+with significant changes. These descriptions are somewhat terse and more
+information is generally available in the User Manual. 
+
+DFT:
+  o Spin-free and spin-orbit zeroth-order relativistic approximation (ZORA) 
+  o Constrained DFT (CDFT)
+
+NWPW:
+  o Fermi smearing added to BAND
+  o Two-component wavefunctions added to BAND
+  o HGH spin-orbit potentials added to BAND
+  o Hilbert decomposed parallel FFT added to BAND
+  o Car-Parrinello QM/MM added to PSPW
+  o Wannier orbital generation now works with non-cubic cells
+  o New parallel decomposition in which both the FFT grid and orbitals are
+    distributed has been implemented in PSPW
+
+TCE:
+  o New variants of 4-index transformation
+  o CC2 - second order approximate coupled-cluster model with singles and 
+    doubles(for excited-state calculations)
+  o locally renormalized EOMCCSD approach
+  o Memory efficient version of CR-EOMCCSD(T) formalism
+
+Properties:
+  o Coupled-cluster linear response available using both restricted
+    (RHF/ROHF) and unrestricted (UHF/KS) references 
+  o Ground-state dynamic polarizabilities at the CCSD and CCSDT levels of
+    theory using the linear response formalism
+
+A general FAQ is available at
+http://www.emsl.pnl.gov/docs/nwchem/support/faq/NWChem_FAQ.html
