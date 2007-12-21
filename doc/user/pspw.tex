@@ -1,5 +1,5 @@
 %
-% $Id: pspw.tex,v 1.43 2007-12-21 18:48:11 bylaska Exp $
+% $Id: pspw.tex,v 1.44 2007-12-21 19:43:30 bylaska Exp $
 %
 \label{sec:pspw}
 
@@ -133,6 +133,14 @@ PSPW
   MULLIKEN
   EFIELD
   ALLOW_TRANSLATION
+  CG
+  LMBFGS
+  SCF [Anderson|| simple || Broyden] 
+      [CG || RMM-DIIS]
+      [density || potential] 
+      [ALPHA real alpha default 0.25] 
+      [ITERATIONS integer inner_iterations default 5]
+      [OUTER_ITERATIONS integer outer_iterations default 0]
 
   SIMULATION_CELL            ... (see input description) END
   DPLOT                      ... (see input description) END
@@ -202,7 +210,11 @@ The following list describes the keywords contained in the PSPW input block.
         \item ALLOW\_TRANSLATION - By default the the center of mass forces are projected out of the 
                                   computed forces. This optional keyword if specified allows the 
                                   center of mass forces to not be zero.
-
+        \item CG - optional keyword which sets the minimizer to 1
+        \item LMBFGS - optional keyword which sets the minimizer to 2
+        \item SCF - optional keyword which sets the minimizer to be a band by band minimizer.  Several
+                    options are available for setting the density or potential mixing, and the type of
+                    Kohn-Sham minimizer.
         \item SIMULATION\_CELL (see section \ref{sec:pspw_cell})
         \item DPLOT (see section \ref{sec:pspw_dplot})
         \item WANNIER (see section \ref{sec:pspw_wannier})
@@ -1391,6 +1403,15 @@ NWPW
   XC (Vosko || PBE96  || revPBE default Vosko)
   DFT||ODFT||RESTRICTED||UNRESTRICTED
   MULT <integer mult default 1>
+  CG
+  LMBFGS
+  SCF [Anderson|| simple || Broyden]
+      [CG || RMM-DIIS]
+      [density || potential]
+      [ALPHA real alpha default 0.25]
+      [ITERATIONS integer inner_iterations default 5]
+      [OUTER_ITERATIONS integer outer_iterations default 0]
+
   
   SIMULATION_CELL ... (see input description) END
   BRILLOUIN_ZONE  ... (see input description) END
@@ -1452,7 +1473,11 @@ The following list describes these keywords.
                                to enter a MONKHORST-PACK sampling of the Brillouin zone.
         \item $<$smear$>$ - value for smearing broadending
         \item $<$temperature$>$ - same as smear but in units of K.
-
+        \item CG - optional keyword which sets the minimizer to 1
+        \item LMBFGS - optional keyword which sets the minimizer to 2
+        \item SCF - optional keyword which sets the minimizer to be a band by band minimizer.  Several
+                    options are available for setting the density or potential mixing, and the type of
+                    Kohn-Sham minimizer.
 \end{itemize}
 
 
@@ -2921,11 +2946,10 @@ task paw Car-Parrinello
 \normalsize
 
 \begin{itemize}
-\item For BAND simulations you cannot use more processors than the size of the third dimension 
-  (e.g. a 64x64x64 FFT grid can use at most 64 processors).
-\item For BAND simulations the second and third dimensions of the FFT grid must be the same 
-  (i.e. the parameters na2 and na3 must be the same for each simulation cell).
-\item Wannier orbital generation only works with cubic unit cells ($\alpha=\beta=\gamma=90^o$)
+
+\item Hybrid Functionals (e.g. PBE0, LDA-SIC) only work in PSPW.
+\item Car-Parrinello QM/MM simulation only work with PSPW.
+\item Fractional occupations only work for BAND simulations.
 \end{itemize}
 
 
