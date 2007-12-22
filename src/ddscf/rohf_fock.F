@@ -3,7 +3,7 @@
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel, iter)
 *
-* $Id: rohf_fock.F,v 1.21 2004-07-23 20:34:44 bert Exp $
+* $Id: rohf_fock.F,v 1.22 2007-12-22 00:46:14 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -181,6 +181,11 @@ C     Dyalls method for RHF
 c     
 c     Energy evaluation
 c     
+c     FIXME
+c     g_cfock has more that the 2e present. it is consistent for HF
+c     but includes the dft xc for dft. so etwo_closed is a bit incorrect.
+c     this needs to be split up
+c     the potential is constructed correctly in fock_2e
       etwo_closed = 0.5d0*ga_ddot(g_cdens,g_cfock)
       etwo_open = 0.0d0
       if (nopen .gt. 0) etwo_open = 
