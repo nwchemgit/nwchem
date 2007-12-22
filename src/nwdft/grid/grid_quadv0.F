@@ -1,7 +1,7 @@
       subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.54 2007-07-10 21:45:08 niri Exp $
+C$Id: grid_quadv0.F,v 1.55 2007-12-22 00:44:46 niri Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -110,8 +110,16 @@ c
 c
 c     Open grid pts file
 c     
-      if(.not.grid_written) call grid_packing_info
+      if (.not. grid_written .or. n_per_rec .le. 0) then
+         call grid_packing_info
+      end if
 c
+      if (oprint) then      
+        write(*,*) " *** grid_quadv0: calc_type:",calc_type 
+        write(*,*) " *** grid_quadv0: grid_written:",grid_written 
+        write(*,*) " *** grid_quadv0: grad:",grad 
+        write(*,*) " *** grid_quadv0: kske:",kske 
+      end if
 c
 c     Set up logicals denoting calculation type
 c
@@ -124,9 +132,14 @@ c
          call errquit('grid_quadv0_gen: illegal calculation type',1,
      &       INPUT_ERR)
       endif
-
-         len_tau = 1
-         len_mmat = 1
+c
+      if (oprint) then
+        write(*,*) " *** grid_quadv0: do_scf:",do_scf 
+        write(*,*) " *** grid_quadv0: n_per_rec:",n_per_rec
+      end if
+c
+      len_tau = 1
+      len_mmat = 1
 
       if (do_scf .or. do_nmrks_r) then
          len_rho = npol*n_per_rec
@@ -342,11 +355,20 @@ c
       Ex=0d0
       Ec=0d0
       call ga_sync()
-      call xc_rep_init(rtdb, geom, ao_bas_han,g_dens,g_vxc,
+      if(.not.do_cpks_l)
+     *  call xc_rep_init(rtdb, geom, ao_bas_han,g_dens,g_vxc,
      &     nbf_ao,ipol,do_scf.and.(.not.l3d),.false.)
-      
+c      
       if(grid_written) then
 
+         if (iAOacc .le. 0) then
+          if (.not. rtdb_get(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc))then
+             iAOacc=-nint(log(e_conv))
+          else
+             iAOacc=max(iAOacc,-nint(log(e_conv)))
+          endif
+         end if
+c
          call grid_quadv0a(g_dens,ncoef_max,nctrs,rho_int,nqtot, 
      &        int_mb(iniz), int_mb(ifin), 
      &        dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ihess), 
