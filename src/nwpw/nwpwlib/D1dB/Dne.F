@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.15 2007-09-29 00:33:59 bylaska Exp $
+* $Id: Dne.F,v 1.16 2007-12-26 19:33:38 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -155,7 +155,6 @@
 
 #include "mafdecls.fh"
 #include "errquit.fh"
-
 #include "Dne.fh"
 
 *     ***** local variables ****
@@ -163,7 +162,7 @@
       integer ms
 
       call D1dB_end(1)
-      if (ispin.eq.2) call D1dB_end(2)
+      if ((ispin.eq.2).and.(ne(2).gt.0)) call D1dB_end(2)
       if (parallelized) then
          value = .true.
          do ms=1,ispin
