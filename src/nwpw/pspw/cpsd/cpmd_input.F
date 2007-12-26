@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.16 2006-12-28 19:24:27 bylaska Exp $
+c $Id: cpmd_input.F,v 1.17 2007-12-26 19:44:00 bylaska Exp $
 c
 
 
@@ -15,7 +15,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 54)
+      parameter (num_dirs = 55)
  
       character*32 dirs(num_dirs)
       character*255 test, id
@@ -73,6 +73,7 @@ c
      >            'Fei',
      >            'Fei_quench',
      >            'pressure',
+     >            'cutoff',
      >            'end'/
 
        character*30 cell_name
@@ -117,7 +118,7 @@ c
      >       1200,1200, 1300,1300, 1400,1400, 1500,1500, 1600,1600,
      >       1700,1700,1700, 1800, 1900,1900, 2000,2000, 2100,2100,
      >       2200,2200, 2300,2300, 2400,2400,
-     >       2500,2600,2700,2800,2900,3000,
+     >       2500,2600,2700,2800,2900,3000,1150,
      >      9999) ind
       call errquit(
      >      'psp_formatter_input: unimplemented directive', ind,
@@ -252,6 +253,19 @@ c
       if (.not.value)
      > call errquit('cpmd_input: writing ', 1100, RTDB_ERR)
       goto 10
+
+c
+c  cutoff
+c
+ 1150 if (.not. inp_f(wcut))
+     >     call errquit(
+     >          'cpmd_input: failed to read wcut', 0, INPUT_ERR)
+      value = rtdb_put(rtdb,'cpmd:wcut',mt_dbl,1,wcut)
+      value = rtdb_put(rtdb,'cpmd:ecut',mt_dbl,1,2.0d0*wcut)
+      if (.not.value)
+     > call errquit('cpmd_input: writing ', 1150, RTDB_ERR)
+      goto 10
+
 c
 c  input_v_wavefunction_filename
 c 
