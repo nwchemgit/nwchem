@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.561 2007-12-21 21:59:47 d3p307 Exp $
+# $Id: makefile.h,v 1.562 2007-12-27 20:58:34 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1690,7 +1690,8 @@ endif
       ifeq ($(_FC),ifc)
      _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
        _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
-       _IFCV81= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
+       _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
+       _IFCV10= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /10\.1/ {print "Y"; exit}')
 # Intel EM64T is required
       ifneq ($(_IFCE),Y)
         defineFCE: 
@@ -1700,7 +1701,7 @@ endif
 	@echo
 	@exit 1
       endif
-       ifeq ($(_IFCV81),Y)
+       ifneq ($(_IFCV7),Y)
 # to get EM64T
 # Intel 8.1 is required
        else
