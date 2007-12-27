@@ -1,5 +1,5 @@
 *
-* $Id: berry_phase_pol.F,v 1.7 2007-11-21 02:00:35 d3p708 Exp $
+* $Id: berry_phase_pol.F,v 1.8 2007-12-27 16:53:41 d3p307 Exp $
 *
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Polarization calculated through Berry's Phase Approach
@@ -60,7 +60,7 @@ ccccccccccccccccccccccccccccccccccccccccccc
             call zgetrf(ne(ms),ne(ms),dcpl_mb(smat(1)),
      &         ne(ms),int_mb(pivs(1)),info)
             if (info.ne.0) then
-              call errquit("berry_phase_pol:failed");
+              call errquit("berry_phase_pol:failed",0,0)
             end if
             do i=1,ne(ms)
               det=det*dcpl_mb(smat(1)+(i-1)*ne(ms)+i-1)
