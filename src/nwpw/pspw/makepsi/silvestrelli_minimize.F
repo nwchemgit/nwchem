@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.8 2007-12-17 21:20:22 d3p708 Exp $
+* $Id: silvestrelli_minimize.F,v 1.9 2007-12-27 20:18:45 d3p307 Exp $
 *
 
 
@@ -99,12 +99,12 @@
 
             if (rank.gt.4) then 
             A(i,j)= A(i,j)+
-     >           + wts(5)*(X5(j,i)*(dconjg(X5(j,j))-dconjg(X5(i,i))) 
+     >            wts(5)*(X5(j,i)*(dconjg(X5(j,j))-dconjg(X5(i,i))) 
      >           - dconjg(X5(i,j))*(X5(i,i)-X5(j,j)))
            
              if (rank.eq.6) then
              A(i,j)=A(i,j)+ 
-     >           + wts(6)*(X6(j,i)*(dconjg(X6(j,j))-dconjg(X6(i,i))) 
+     >            wts(6)*(X6(j,i)*(dconjg(X6(j,j))-dconjg(X6(i,i))) 
      >           - dconjg(X6(i,j))*(X6(i,i)-X6(j,j)))
              end if
 
