@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.84 2007-06-21 02:06:22 bylaska Exp $
+* $Id: task.F,v 1.85 2007-12-28 01:11:48 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -44,7 +44,7 @@ c
       logical oqmmm,opes, task_python, task_thermo,task_bq
       logical task_version, task_vscf
       logical task_paw 
-      logical task_pspw,task_band,task_ofpw
+      logical task_pspw,task_band,task_ofpw,task_smd
       logical task_drdy
       logical task_et
       logical player,transport
@@ -66,7 +66,7 @@ c
       external task_version, task_python, task_thermo
       external kgdtest, task_vscf
       external task_paw 
-      external task_pspw,task_band,task_ofpw
+      external task_pspw,task_band,task_ofpw,task_smd
       external task_drdy
       external task_et
       external task_property
@@ -177,6 +177,8 @@ c
             status = jvltest2(rtdb)
          else if (inp_compare(.false.,'python', theory)) then
             status = task_python(rtdb)
+         else if (inp_compare(.false.,'smd', theory)) then
+            status = task_smd(rtdb)
          else if (inp_compare(.false.,'raktest', theory)) then
             status = raktest(rtdb)
          else if (inp_compare(.false.,'kgdtest', theory)) then
@@ -311,6 +313,10 @@ c     *** task_paw handles paw specific "operations" ***
 c     *** task_ofpw handles ofpw specific "operations" ***
       else if (inp_compare(.false.,'ofpw',theory)) then
         status = task_ofpw(rtdb)
+
+c     *** task_smd handles smd specific "operations" ***
+      else if (inp_compare(.false.,'smd',theory)) then
+        status = task_smd(rtdb)
 
       else
          call errquit('task: unknown generic operation',0, INPUT_ERR)
