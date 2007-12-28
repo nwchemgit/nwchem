@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.84 2007-01-15 23:09:43 d3j191 Exp $
+C     $Id: input_parse.F,v 1.85 2007-12-28 01:11:32 bylaska Exp $
       implicit none
 #include "errquit.fh"
       integer rtdb              ! [input]
@@ -148,6 +148,8 @@ c
                call nwpw_input(rtdb)
             else if (inp_compare(.false.,test,'nwpw')) then
                call nwpw_input(rtdb)
+            else if (inp_compare(.false.,test,'smd')) then
+               call smd_input(rtdb)
             else if (inp_compare(.false.,test,'pause')) then
 	       call util_sleep(60)
             else if (inp_compare(.false.,test,'qmmm')) then

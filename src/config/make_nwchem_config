@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.229 2007-10-30 21:33:11 bylaska Exp $
+# $Id: make_nwchem_config,v 1.230 2007-12-28 01:12:08 bylaska Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -18,7 +18,7 @@
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver dftgrad scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop\
-        property nwpw fft rimp2_grad python analyz diana nwmd cafe space \
+        property nwpw smd fft rimp2_grad python analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm qmd etrans tddft tce geninterface bq cons \
         perfm neb dntmc transport
 
@@ -30,7 +30,8 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lesp -lddscf -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
-		    -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze -ldiana -lqhop\
+		    -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lsmd \
+                    -lcafe -lspace -lanalyze -ldiana -lqhop\
                     -lpfft -ldplot -loimp2 -lnwpython -ldrdy -lvscf -lqmmm -lqmd -letrans\
                     -lpspw -ltddft -ltce -lgeninterface -lbq -lcons -lperfm -lneb -ldntmc -ltransport
 
@@ -65,7 +66,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md classical argos alldev pnnl pnnldev smallqm
 
-EXP_all = $(filter-out uccsdt python develop oimp2 scfaux plane_wave rimp2_grad geninterface diana dntmc transport,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out smd uccsdt python develop oimp2 scfaux plane_wave rimp2_grad geninterface diana dntmc transport,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -77,7 +78,7 @@ EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons
 EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz diana
 #plane_wave ... broken? RJH
-EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
+EXP_qmandpw = nwpw smd NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft vscf transport
 EXP_argos = prepar nwmd analyz diana ddscf nwdft gradients esp
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
@@ -231,6 +232,7 @@ MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cons,-lcons,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst bq,-lbq,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwpw,-lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst smd,-lsmd,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst perfm,-lperfm,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst neb,-lneb,$(MOD_LIBS) )
@@ -283,6 +285,7 @@ STUBROUTINES := $(patsubst property,property prop_input cosmo_input cosmo_initia
 STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dntmc,task_dntmc dntmc_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input ofpw_energy paw_energy paw_gradient task_paw task_pspw task_ofpw pspw_input pspw_energy pspw_gradient band_energy band_gradient task_band,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst smd,task_smd,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
 #STUBROUTINES := $(patsubst cons, cons_end cons_input cons_add_egrad cons_add_energy cons_init cons_print_summary cons_active,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
