@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.17 2007-12-17 21:57:16 d3p708 Exp $
+* $Id: pspw_wannier.F,v 1.18 2008-01-03 00:31:51 d3p708 Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -20,7 +20,7 @@
       integer neq(2),nemaxq,shift,rank
       integer nfft3d,n2ft3d,npack1
       integer info
-      integer np
+      integer np,nion
 
       integer psi(2),psi2(2),psi_r(2)
       integer X(2,6)
@@ -28,7 +28,7 @@
       real*8 bv(3,6),wrk(6,6),wts(6),bmat(3,3)
       real*8 b(3),ixmat(3,6)
       real*8 xx,yy,zz,tmp1(tmp_len)
-      real*8 dx,dy,dz
+      real*8 dx,dy,dz,nx,ny,nz,tx,ty,tz
       complex*16 arg,wx
       character*2 labels(6)
 
@@ -41,6 +41,8 @@ c      character*30 old_wavefunction_filename
 c      character*255 full_filename,full_filename2
 
 *     **** external functions ****
+      integer ion_katm,ion_nion
+      real*8 ion_rion,psp_zv
       logical      control_read
       integer      control_ngrid,control_ispin,control_mapping
       integer      control_mapping1d
@@ -57,6 +59,8 @@ c      character*255 full_filename,full_filename2
       external     lattice_unita,lattice_unitg
       external     lattice_ecut,lattice_wcut,lattice_omega
       external     control_input_psi,control_output_psi
+      external     ion_katm,ion_nion
+      external     ion_rion,psp_zv
 
       value = .true.
 
@@ -97,7 +101,7 @@ c      character*255 full_filename,full_filename2
 
       call Parallel2d_Init(control_np_orbital())
 
-
+      call ion_init(rtdb)
 
       !**** Make sure ngrid is consistent with mapping ***
       if (mapping.eq.1) then
@@ -358,6 +362,17 @@ c      character*255 full_filename,full_filename2
          wts(i)=wrk(4,i)
       end do
 
+      nx=0.0d0
+      ny=0.0d0
+      nz=0.0d0
+      nion=ion_nion()
+      do i=1,nion
+        j=ion_katm(i)
+        nx=nx+psp_zv(j)*ion_rion(1,i)
+        ny=ny+psp_zv(j)*ion_rion(2,i)
+        nz=nz+psp_zv(j)*ion_rion(3,i)
+      end do   
+
       dx=0.0d0
       dy=0.0d0
       dz=0.0d0
@@ -434,6 +449,23 @@ c      character*255 full_filename,full_filename2
             if (ms.eq.2)
      >        write(6,1391) i+ne(1),xx,yy,zz
           end do
+          if (ispin.eq.1) then
+             dx=dx*2.0d0
+             dy=dy*2.0d0
+             dz=dz*2.0d0
+          end if
+cccccccccccccccccccccccccccccccccccccccccccccc
+c  Molecular dipoles from Resta's theory!
+ccccccccccccccccccccccccccccccccccccccccccccc
+          WRITE(6,1776)
+          WRITE(6,1777)dx,dy,dz
+          WRITE(6,1780)
+          WRITE(6,1777)nx,ny,nz
+          tx=nx-dx
+          ty=ny-dy
+          tz=nz-dz
+          WRITE(6,1785)
+          WRITE(6,1777)tx,ty,tz
         end if
 
 
@@ -458,15 +490,14 @@ c              alpha = dble(wx)
         end do
 
       end do !* ms *
-cccccccccccccccccccccccccccccccccccccccccccccc
-c  Molecular dipoles from Resta's theory!
-ccccccccccccccccccccccccccccccccccccccccccccc
-      WRITE(6,1776)
-      WRITE(6,1777)dx,dy,dz
+
+
+
 
 *     ***** write psi2 wavefunctions ****
       call psi_write(ispin,ne,dcpl_mb(psi2(1)))
 
+      call ion_end()
 
 *     **** deallocate heap memory ****
       call mask_end()
@@ -530,6 +561,8 @@ ccccccccccccccccccccccccccccccccccccccccccccc
  1381 FORMAT(/' final position of Wannier centers:')
  1390 FORMAT(5X,'psi',I5,' (',3F11.5,' ) - spin up orbital')
  1391 FORMAT(5X,'psi',I5,' (',3F11.5,' ) - spin down orbital')
- 1776 FORMAT("MOLECULAR DIPOLES")
+ 1776 FORMAT("ELECTRONIC DIPOLES")
  1777 FORMAT("DX =",F11.5," DY= ",F11.5," DZ= ",F11.5)
+ 1780 FORMAT("NUCLEAR DIPOLES")
+ 1785 FORMAT("TOTAL DIPOLES")
       end

@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.9 2007-12-27 20:18:45 d3p307 Exp $
+* $Id: silvestrelli_minimize.F,v 1.10 2008-01-03 00:31:51 d3p708 Exp $
 *
 
 
@@ -99,12 +99,12 @@
 
             if (rank.gt.4) then 
             A(i,j)= A(i,j)+
-     >            wts(5)*(X5(j,i)*(dconjg(X5(j,j))-dconjg(X5(i,i))) 
+     >           + wts(5)*(X5(j,i)*(dconjg(X5(j,j))-dconjg(X5(i,i))) 
      >           - dconjg(X5(i,j))*(X5(i,i)-X5(j,j)))
            
              if (rank.eq.6) then
              A(i,j)=A(i,j)+ 
-     >            wts(6)*(X6(j,i)*(dconjg(X6(j,j))-dconjg(X6(i,i))) 
+     >           + wts(6)*(X6(j,i)*(dconjg(X6(j,j))-dconjg(X6(i,i))) 
      >           - dconjg(X6(i,j))*(X6(i,i)-X6(j,j)))
              end if
 
@@ -200,7 +200,7 @@
      >              dcpl_mb(At(1)),n,
      >              zero,
      >              X4,n)
-          if (rank.gt.4) then
+         if (rank.gt.4) then
          call ZGEMM('N','N',n,n,n,one,
      >              X5,n,
      >              dcpl_mb(expplusA(1)),n,
@@ -211,7 +211,7 @@
      >              dcpl_mb(At(1)),n,
      >              zero,
      >              X5,n)
-           if (rank.gt.5) then
+         if (rank.gt.5) then
          call ZGEMM('N','N',n,n,n,one,
      >              X6,n,
      >              dcpl_mb(expplusA(1)),n,
@@ -222,8 +222,8 @@
      >              dcpl_mb(At(1)),n,
      >              zero,
      >              X6,n)
-           end if
-          end if
+         end if
+         end if
          end if 
 
          !expminusAtotal = matmul(expminusA,expminusAtotal)
