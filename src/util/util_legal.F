@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.47 2007-10-16 23:53:09 d3p307 Exp $
+* $Id: util_legal.F,v 1.48 2008-01-03 01:22:18 niri Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,                  *
 *           2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007           *
@@ -167,46 +167,48 @@ c
      &    'Richland, Washington 99352-0999, USA.'
      &    /,/)
 10001 format(
-     &    /,12x,
+     &    /,10x,
      &    'Please use the following citation when publishing results',
-     &    /,12x,
+     &    /,10x,
      &    'obtained with NWChem:'
      &    /,/,
-     + 12x,'E. Apra, T. L. Windus, T. P. Straatsma,',
-     + ' E. J. Bylaska, W. de Jong,',/,
-     + 12x,'K. Kowalski, S. Hirata, M. Valiev, D. Wang,', 
-     + ' M. T. Hackler,',/,
-     + 12x,'Y. Zhao,'
-     + ' R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha,',/,
-     + 12x,'V. Tipparaju, M. Krishnan, A. A. Auer, E. Brown,',
-     + ' G. Cisneros,',/,
-     + 12x,'G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. Kendall,',/,
-     + 12x,'J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,',
-     + ' D. Bernholdt,',/,
-     + 12x,'P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,',
-     + ' K. Dyall,',/,
-     + 12x,'D. Elwood, E. Glendening, M. Gutowski, A. Hess,',
+     + 10x,'E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,',
+     + ' T. P. Straatsma,',/,
+     + 10x,'M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond,',
+     + ' P. Nichols,' ,/,
+     + 10x,'S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,'
+     + ' R. J. Harrison,',/,
+     + 10x,'M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju,',
+     + ' M. Krishnan,',/,
+     + 10x,'Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,',/,
+     + 10x,'E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,',
+     + ' K. Hirao,',/,
+     + 10x,'R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski,',
+     + ' J. Anchell,',/,
+     + 10x,'D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel,',
+     + ' M. Deegan,',/,
+     + 10x,'K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess,',
      + ' J. Jaffe,',/,
-     + 12x,'B. Johnson,',
-     + ' J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,',/,
-     + 12x,'X. Long,',
+     + 10x,'B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,',
+     + ' R. Littlefield,',/,
+     + 10x,'X. Long,',
      + ' B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,',/,
-     + 12x,'G. Sandrone,',
+     + 10x,'G. Sandrone,',
      + ' M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong,',/,
-     + 12x,'and Z. Zhang,',/,
-     + 12x,'"NWChem, A Computational Chemistry Package for Parallel ',
+     + 10x,'and Z. Zhang,',/,
+     + 10x,'"NWChem, A Computational Chemistry Package for Parallel ',
      &    'Computers, ',
-     &    /,12x,
+     &    /,10x,
      &    'Version 5.1" (2007),',
      &    /,22x,'Pacific Northwest National Laboratory,',
      &    /,22x,'Richland, Washington 99352-0999, USA.'
      &    /,/)
 10002 format(
-     &    /,12x,
+     &    /,10x,
      &    'Where appropriate, please cite the following reference(s) ',
-     &    /,12x,
+     &    /,10x,
      &    'when publishing results obtained with NWChem:'
-     &    /,/,12x)
+     &    /,/,10x)
 10101 format(1x,i5,'.',1x,
      &    'D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, ',
      &    'R. J. Harrison, ',/,8x,'R. A. Kendall, R. A. Kutteh, ',
