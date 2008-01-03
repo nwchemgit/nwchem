@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.562 2007-12-27 20:58:34 d3p307 Exp $
+# $Id: makefile.h,v 1.563 2008-01-03 17:04:59 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1398,7 +1398,7 @@ ifeq ($(LINUXCPU),x86)
       ifeq ($(_FC),gfortran)
 #gcc version 4.1.0 20050525 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS   = -Wextra -Wunused -malign-double -ffast-math
+        FOPTIONS   = -Wextra -Wunused  -ffast-math
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
           FOPTIONS += -march=pentium4 -mtune=pentium4
