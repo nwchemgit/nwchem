@@ -3,7 +3,7 @@
      &                  iter, g_dens, g_dens_at, g_movecs, g_vxc, 
      &                  g_fock, g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.46 2007-11-07 03:57:52 niri Exp $
+c     $Id: dft_scf_so.F,v 1.47 2008-01-07 21:21:59 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -21,7 +21,8 @@ c
 c     so
       integer g_densso(2), g_tmp_ri,   
      &     g_moso(2), g_old(2),
-     &     g_fockso(2), g_scr2, g_damp_so(2)
+     &     g_fockso(2), g_scr2, g_damp_so(2), g_gmovecs(2)
+c
       integer la, ia            ! complex*16 a(nbf_ao, nbf_ao)
       integer lw, iw            ! double precision w(nbf_ao)
       integer llwork 
@@ -50,6 +51,8 @@ czora...zora
       character*255 atomic_vecs_in
       double precision ener_scal, ener_kin
       double precision numelecs
+      integer ncanorg
+      logical ldmix
 czora...end
 c
 #include "bas.fh"
@@ -434,14 +437,26 @@ c     real molecular orbital vectors
      &     g_moso(1)))     
      &     call errquit('dft_scf_so: error creating Movecs Re',0,
      &       GA_ERR)
+      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'Movecs Re',0,0, 
+     &     g_gmovecs(1)))     
+     &     call errquit('dft_scf_so: error creating Movecs Re',0,
+     &       GA_ERR)
 c
 c     imaginary molecular orbital vectors
       if(.not.ga_create(mt_dbl,nbf_mo, nbf_mo,'Movecs Im',0,0, 
      &     g_moso(2)))
      &     call errquit('dft_scf_so: error creating Movecs Im',0,
      &       GA_ERR)
+      if(.not.ga_create(mt_dbl,nbf_ao, nbf_ao,'Movecs Im',0,0, 
+     &     g_gmovecs(2)))
+     &     call errquit('dft_scf_so: error creating Movecs Im',0,
+     &       GA_ERR)
+c
       call ga_zero(g_moso(1))
       call ga_zero(g_moso(2))
+      call ga_zero(g_gmovecs(1))
+      call ga_zero(g_gmovecs(2))
+c
       call ga_sync() 
 c
 c     real part of the fock matrix
@@ -577,14 +592,7 @@ c
 c
 czora...force an atomic guess only if the zora correction file is absent
       if (.not.dft_zora_inquire_file_so(zorafilename)) then
-        atomic_vecs_in = "atomic"
-        call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
-     &        basis_trans, atomic_vecs_in, movecs_out, 
-     &        movecs_guess, scftype, nclosed, nopen, 
-     &        nbf, nbf, noc(1), noc(2),  k_eval, k_occ, 
-     &        k_ir, g_movecs, g_dens, 'density', 
-     &        'dft', title, oskel, oadapt, 
-     &        .true.) 
+        movecs_in = "atomic"
       end if
 c
       endif  ! do_zora
@@ -612,13 +620,20 @@ c     &     spinor=spinor_guess(movecs_in)
             noc(1)=(noc(1)+noc(2)-nel_fon)/2
             noc(2)=(noc(1)+noc(2)-nel_fon)/2
          endif
+c
+         call dft_guessin(movecs_in,ldmix,ncanorg,fon,
+     &     'density', ipol,nbf_ao,g_movecs,g_gmovecs,
+     &     toll_s,svals)
+
          call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &        basis_trans, movecs_in, movecs_out, 
      &        movecs_guess, scftype, nclosed, nopen, 
-     &        nbf, nbf, noc(1), noc(2),  k_eval, k_occ, 
-     &        k_ir, g_movecs, g_dens, 'density', 
+     &        nbf, nmo, noc(1), noc(2),  k_eval, k_occ, 
+     &        k_ir, g_gmovecs, g_dens, 'density', 
      &        'dft', title, oskel, oadapt, 
      &        .true.) 
+c
+         call dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
 c
          if (rtdb_get(rtdb,'sodft:fon',mt_log,1,fon))then 
             noc(1)=anoca
