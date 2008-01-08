@@ -1,3 +1,7 @@
+/*
+ $Id: rpspsolve.c,v 1.12 2008-01-08 19:14:49 d3p708 Exp $
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
