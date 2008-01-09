@@ -1,12 +1,12 @@
-#$Id: GNUmakefile,v 1.36 2007-10-30 23:03:10 jhammond Exp $
+#$Id: GNUmakefile,v 1.37 2008-01-09 01:21:29 jhammond Exp $
 #
 
-SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
+SUBDIRS = include #ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
           ccsd_lambda ccsdt_lambda ccsdtq_lambda \
           eomccsd eomccsdt eomccsdtq ccsd_t cr-eomccsd_t \
           lrh emb diis2 response \
-          ccsd_yr ccsd_alpha ccsd_beta \
+          ccsd_yr ccsd_alpha ccsd_beta cc3 \
           ccsdt_alpha_offdiag ccsdtq_alpha_offdiag
 
 OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
@@ -37,7 +37,7 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_mo2e_zones_4a_disk_2s_new.o \
       tce_dens_hh_offset.o tce_dens_hp_offset.o tce_dens_pp_offset.o tce_dens_ph_offset.o \
       get_mo_rdm_hh.o get_mo_rdm_hp.o get_mo_rdm_ph.o get_mo_rdm_pp.o \
-      ao_rdm_write.o
+      ao_rdm_write.o tce_prop_start.o tce_property.o
       
 
 LIB_INCLUDES = -I./include
