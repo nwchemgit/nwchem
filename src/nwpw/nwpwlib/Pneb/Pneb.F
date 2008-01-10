@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.31 2007-11-17 00:05:57 bylaska Exp $
+* $Id: Pneb.F,v 1.32 2008-01-10 02:12:03 bylaska Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1483,9 +1483,9 @@ c     ** local variables ****
            if (w.gt.1.d-9) then
              w=1.d0/dsqrt(w)
            else
-             write(0,*)"Pneb SO make ortho"
-             write(0,*)"Pneb_makeOrtho::this should not happen"
-             write(0,*)"Pneb_makeOrtho: < psi | psi > = 0 K= ",k,w     
+             write(*,*)"Pneb SO make ortho"
+             write(*,*)"Pneb_makeOrtho::this should not happen"
+             write(*,*)"Pneb_makeOrtho: < psi | psi > = 0 K= ",k,w     
              w=1.d0/dsqrt(2.0d0*w1)
              call Cram_c_copy(nb,A(index1),A(index2))
            end if
@@ -1521,11 +1521,12 @@ c     ** local variables ****
           do k=1,ne(ms)
            index1=bindex+(k-1)*npack1+1
            call Cram_cc_dot(nb,A(index1),A(index1),w)
-           if (w.gt.1.d-9) then
-             w=1.d0/dsqrt(w)
+
+           if (w.gt.1.0d-9) then
+             w=1.0d0/dsqrt(w)
            else
-            write(0,*)"Pneb_makeOrtho::this should not happen"
-            write(0,*)"Pneb_makeOrtho: < psi | psi > = 0 K= ",k,w     
+            write(*,*)"Pneb_makeOrtho::this should not happen"
+            write(*,*)"Pneb_makeOrtho: < psi | psi > = 0 K= ",k,w     
             w=1.0d0
            end if
            call Cram_c_SMul(nb,w,A(index1),A(index1))
@@ -1626,7 +1627,6 @@ c     ccccc local variables ccccc
          end do
          end do
       end if
-
 
       if (gram) then
          call Pneb_makeOrtho(mb,nbb,npack1,A)
@@ -2160,8 +2160,8 @@ c     *** external functions ***
      >                       dbl_mb(y2_shift),npack1,
      >                       tmp)
           sum=sum+brillioun_weight(nb)*tmp
-          y1_shift = y1_shift + nshift1
-          y2_shift = y2_shift + nshift1
+          !y1_shift = y1_shift + nshift1
+          !y2_shift = y2_shift + nshift1
         end do
       end do
 
