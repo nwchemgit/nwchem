@@ -73,7 +73,8 @@
       nbrillioun = brillioun_nbrillioun()
       value = MA_push_get(mt_dbl,3*nbrillioun,'kv',kv(2),kv(1))
       if(.not. value) 
-     > call errquit('psp_formatter_auto: out of stack memory',0,MA_ERR)
+     > call errquit('cpsp_formatter_auto: out of stack memory',0,
+     >       MA_ERR)
 
       do nb=1,nbrillioun
          dbl_mb(kv(1)+3*(nb-1))   = brillioun_k(1,nb)
@@ -82,34 +83,38 @@
       end do
 
       call get_psp_type(psp_filename,psp_type)
-
+      write(*,*)"psp type = ",psp_type
+      call flush(6)
       if (psp_type.eq.0) then
          value = value.and.
      >     kbpp_band(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,
      >            nbrillioun,dbl_mb(kv(1)))
-
-      else if (psp_type.eq.1) then
+         goto 50
+      end if
+      if (psp_type.eq.1) then
          value = value.and.
      >     hghpp_band(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            nbrillioun,dbl_mb(kv(1)))
-
-      else if (psp_type.eq.7) then
+         goto 50
+      end if         
+      if (psp_type.eq.7) then
          value = value.and.
      >     rkbpp_band(.false.,version,psp_filename,formatted_filename,
      >           ngrid,unita,nbrillioun,dbl_mb(kv(1)))
-         call set_two_component_pseudopotential() 
-      else
-       call errquit('psp_formatter_auto: unknown psp_type',
-     >              psp_type,INPUT_ERR)
+         call set_two_component_pseudopotential()
+         goto 50
       end if
- 
+      call errquit('cpsp_formatter_auto: unknown psp_type',
+     >              psp_type,INPUT_ERR)
+     
+ 50   continue
       value = MA_pop_stack(kv(2))
 *     *** exit if error found ***
       if(.not. value) 
-     > call errquit('psp_formatter_auto: error popping stack',0,MA_ERR)
+     > call errquit('cpsp_formatter_auto: error popping stack',0,MA_ERR)
 
       return
       end
