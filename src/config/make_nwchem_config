@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.231 2008-01-04 23:00:18 niri Exp $
+# $Id: make_nwchem_config,v 1.232 2008-01-10 00:54:15 jhammond Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -276,7 +276,7 @@ STUBROUTINES := $(patsubst esp,esp esp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst etrans,etrans et_calc et_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst transport,transport player transp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst tddft,tddft_energy tddft_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst tce,tce_energy_fragment tce_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst tce,tce_energy_fragment tce_input tce_prop_start tce_property,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmd,qmd_setup qmd_start qmd_wrttrj qmd_forces,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmmm, qmmm_input task_qmmm_fep task_qmmm_abc qmmm_print_energy1 qmmm_forces qmmm_init qmmm_end task_qmmm_energy task_qmmm_gradient task_qmmm_optimize task_qmmm_dynamics task_qmmm_esp task_qmmm_pes task_qmmm_thermo,$(STUBROUTINES) )
