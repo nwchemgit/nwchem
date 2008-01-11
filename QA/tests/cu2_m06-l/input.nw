@@ -1,0 +1,25 @@
+echo
+title "M06-L/LanL2DZ ECP Cu2  "
+
+start cu2
+
+geometry
+Cu 0.0 0.0 0.0
+Cu 0.0 0.0 2.259
+end
+
+basis
+* library "LANL2DZ ECP"
+end
+ecp
+* library "LANL2DZ ECP"
+end
+
+dft
+xc m06-L
+mult 1
+grid fine
+ tolerances tight
+end
+
+task dft
