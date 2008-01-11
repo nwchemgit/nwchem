@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.35 2007-11-17 00:05:43 bylaska Exp $
+* $Id: c_electron.F,v 1.36 2008-01-11 00:45:31 d3p708 Exp $
 *
 
 
@@ -1674,7 +1674,7 @@ c     >                     dn)
 
 *     **** local variables ****
       logical value
-      integer n,ms,n1(2),n2(2),np,nb
+      integer n,ms,n1(2),n2(2),np,nb,tsize
       integer neall,indx
       real*8 enlocal,sum,weight
       integer tmp1(2),tmp2(2)
@@ -1696,7 +1696,8 @@ c     >                     dn)
       n2(2) = ne(1) + ne(2)
       neall = ne(1) + ne(2)
 
-      value = MA_push_get(mt_dcpl,(npack1*neall*nbrill),
+      tsize=npack1*neall*nbrill
+      value = MA_push_get(mt_dcpl,tsize,
      >                    'tmp1',tmp1(2),tmp1(1)) 
       value = value.and.
      >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
@@ -1706,7 +1707,10 @@ c     >                     dn)
 
 
 *     **** average Kohn-Sham v_nonlocal energy ****
-      call BGrsm_f_Zero(dcpl_mb(tmp1(1)))
+c      call BGrsm_f_Zero(dcpl_mb(tmp1(1)))
+
+      call dcopy(tsize*2,0.0d0,0,dcpl_mb(tmp1(1)))
+  
       call cpsp_v_spin_orbit(ispin,ne,
      >                     psi1,
      >                     dcpl_mb(tmp1(1)),
