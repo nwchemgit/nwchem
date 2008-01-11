@@ -1,0 +1,22 @@
+echo
+title "VS98/6-31+G* h2o gradient "
+
+start h2o
+
+geometry
+   O                    -0.091502   -0.000000   -0.071590
+   H                    -0.108430   -0.000000    0.892753
+   H                     0.840442    0.000000   -0.320034
+end
+
+basis
+* library 6-31+G*
+end
+
+dft
+xc vs98
+mult 1
+grid fine
+end
+
+task dft gradient
