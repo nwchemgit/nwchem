@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.7 2007-09-24 16:58:09 bylaska Exp $
+* $Id: cpsp_relativistic.F,v 1.8 2008-01-11 00:32:32 d3p708 Exp $
 *
 
 
@@ -367,11 +367,12 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
 *     ***********************************
 
       subroutine cpsp_v_spin_orbit(ispin,ne,
-     >                           psi1_tag,psi2_tag,move,fion)
+     >                           psi1,psi2,move,fion)
       implicit none
       integer    ispin,ne(2)
-      integer    psi1_tag
-      integer    psi2_tag
+c      integer    psi1_tag
+c      integer    psi2_tag
+      complex*16 psi1(*),psi2(*)
       logical move
       real*8 fion(3,*)
 
@@ -458,8 +459,8 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
 
         do nbq=1,nbrill
            nb = Pneb_convert_nb(nbq)
-           psi1_shift = cpsi_data_get_chnk(psi1_tag,nbq)
-           psi2_shift = cpsi_data_get_chnk(psi2_tag,nbq)
+c           psi1_shift = cpsi_data_get_chnk(psi1_tag,nbq)
+c           psi2_shift = cpsi_data_get_chnk(psi2_tag,nbq)
            call Cram_npack(nb,npack)
 
 *       **** structure factor pseudopotential ****
@@ -507,8 +508,12 @@ c             *** current function is s or d ****
                 end if
 
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
+c                call Cram_cc_inzdot(nb,nn,
+c     >                      dbl_mb(psi1_shift),
+c     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
+c     >                      dcpl_mb(zsw1(1)+(l-1)*nn))
                 call Cram_cc_inzdot(nb,nn,
-     >                      dbl_mb(psi1_shift),
+     >                      psi1,
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dcpl_mb(zsw1(1)+(l-1)*nn))
            
@@ -538,8 +543,8 @@ c             *** current function is s or d ****
      >                dcpl_mb(prjtmp(1)), npack1,
      >                dcpl_mb(zsw2(1)),   nn,
      >                one,
-     >                dbl_mb(psi2_shift), npack1)
-
+     >                psi2,npack1)
+c     >                dbl_mb(psi2_shift), npack1)
 
            if (move) then
               weight = brillioun_weight(nb)
