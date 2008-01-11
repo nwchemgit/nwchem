@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.32 2008-01-10 02:12:03 bylaska Exp $
+* $Id: Pneb.F,v 1.33 2008-01-11 19:57:52 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2005,7 +2005,7 @@ c     ccccccccc first line ccccccccc
               index21=a_shift+bindex+(j-1)*2*npack1
               call Cram_cc_zdot(nb,dbl_mb(index11),dbl_mb(index21),w)
               if (k.eq.j) then
-                 error=dabs(1.-dble(w))+dabs(imag(w))
+                 error=dabs(1.-dble(w))+dabs(dimag(w))
               else
                  error=dabs(dble(w))+dabs(dimag(w))
               end if
