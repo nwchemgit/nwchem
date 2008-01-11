@@ -1,0 +1,23 @@
+echo
+title "M06-HF/6-31+G* CH3 force "
+
+start ch3
+
+geometry
+     C     0.000000    0.000000    0.000000
+     H     0.000000    1.078410    0.000000
+     H     0.933930   -0.539205    0.000000
+     H    -0.933930   -0.539205    0.000000
+end
+
+basis
+* library 6-31+G*
+end
+
+dft
+xc  m06-hf
+mult 2
+grid fine
+end
+
+task dft  gradient
