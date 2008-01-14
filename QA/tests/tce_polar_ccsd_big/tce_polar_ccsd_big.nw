@@ -1,0 +1,46 @@
+echo
+
+start tce_polar_ccsd_big
+
+#
+# Experimental geometry.  See J. Chem. Phys. 127, 144105 (2007) for details.
+#
+geometry units angstrom
+ symmetry d2h
+ C               0.000    1.390    0.000
+ H               0.000    2.470    0.000
+ C               1.204    0.695    0.000
+ H               2.139    1.235    0.000
+ C               0.000   -1.390    0.000
+ H               0.000   -2.470    0.000
+ C              -1.204   -0.695    0.000
+ H              -2.139   -1.235    0.000
+ C               1.204   -0.695    0.000
+ H               2.139   -1.235    0.000
+ C              -1.204    0.695    0.000
+ H              -2.139    1.235    0.000
+end
+
+basis spherical
+  * library 6-31G*
+end
+
+scf
+  singlet
+  rhf
+  thresh 1.0e-10
+end
+
+tce
+  scf
+  freeze core
+  ccsd
+  io ga
+  2eorb
+end
+
+set tce:lineresp T
+set tce:respaxis T T T
+set tce:afreq 0.0
+
+task tce energy

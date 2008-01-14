@@ -1,0 +1,25 @@
+echo
+
+start tce_polar_ccsdt_small
+
+geometry units au
+ symmetry d2h
+ Ne  0  0  0
+end
+
+basis spherical
+ * library aug-cc-pVDZ
+end
+
+tce
+  freeze core
+  ccsdt
+  io ga
+  2eorb
+end
+
+set tce:lineresp T
+set tce:respaxis F F T
+set tce:afreq 0.0 0.1
+
+task tce energy
