@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.18 2007-11-17 01:24:11 bylaska Exp $
+* $Id: rkbpp_band.F,v 1.19 2008-01-14 18:19:00 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -89,13 +89,13 @@ cccccccccccccccccccccccccccccccccccccc
          l = index(full_filename,' ') - 1
          open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
-         read(11,*,ERR=9999,END=9999)pspx,atom
+         read(11,*,ERR=9999,END=9999) pspx,atom
          read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,
      >    locp1,rlocal1
          read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
          read(11,*,ERR=9999,END=9999) nrho,drho
          read(11,'(A)',ERR=9999,END=9999) comment
-         write(*,*)pspx,atom
+         write(*,*) pspx,atom
          write(*,*) zv,amass,lmax0,lmax1,locp1,rlocal1
          write(*,*) (rc(i),i=0,lmax0)
          write(*,*) nrho,drho
@@ -697,7 +697,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc         
 c  spherical bessel function for a given L
 c  note: no limit of L
+c  but L<50 if x is small ....blows up
 c  written by Patrick Nichols 6/11/2007
+c  based upon subroutine version in patscat 2000
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC     
       double precision function SJX(qr,L,csx,snx)
       implicit none
