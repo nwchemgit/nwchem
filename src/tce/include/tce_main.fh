@@ -1,4 +1,4 @@
-c $Id: tce_main.fh,v 1.1 2008-01-14 14:23:16 jhammond Exp $
+c $Id: tce_main.fh,v 1.2 2008-01-14 17:17:23 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -149,7 +149,7 @@ c
      4  l_spin_sorted,k_spin_sorted,l_movecs_sorted,k_movecs_sorted,
      6  available,nfiles,idisk,fast2e,ichop,imaxsize,
      7  reference,atpart,ioalg,filehandles,filesizes,
-     4  target,oactive,
+     4  target,oactive,l_mo_index, k_mo_index,
      5  vactive,oatiles,vatiles,l_active,k_active,numact,l_b2am,k_b2am,
      6  d_v2orb,l_spin_alpha,k_spin_alpha,l_sym_alpha,k_sym_alpha,
      7  l_range_alpha,k_range_alpha,l_offset_alpha,k_offset_alpha,
