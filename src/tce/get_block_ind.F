@@ -1,7 +1,7 @@
       subroutine get_block_ind(d_file,array,size,key_ix,indexc)
 c      subroutine get_block_ind(d_file,array,size,offset,indexc)
 c
-c $Id: get_block_ind.F,v 1.4 2006-07-14 19:13:02 kowalski Exp $
+c $Id: get_block_ind.F,v 1.5 2008-01-14 15:20:32 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -12,6 +12,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
 #include "sym.fh"
       integer d_file
 cccx      integer d_f
@@ -627,7 +628,7 @@ c
      &                         w2b,w1b,w4b,w3b)
 c      subroutine get_block_ind(d_file,array,size,offset,indexc)
 c
-c $Id: get_block_ind.F,v 1.4 2006-07-14 19:13:02 kowalski Exp $
+c $Id: get_block_ind.F,v 1.5 2008-01-14 15:20:32 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -638,6 +639,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
 #include "sym.fh"
       integer d_file
 cccx      integer d_f

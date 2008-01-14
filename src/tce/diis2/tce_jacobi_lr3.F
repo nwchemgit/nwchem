@@ -1,6 +1,6 @@
       subroutine tce_jacobi_lr3(d_r3,d_l3,k_l3_offset)
 c
-c $Id: tce_jacobi_lr3.F,v 1.1 2007-09-13 03:16:09 jhammond Exp $
+c $Id: tce_jacobi_lr3.F,v 1.2 2008-01-14 15:20:41 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -10,6 +10,8 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
       integer d_r3
       integer d_l3
       integer p1b
@@ -33,8 +35,8 @@ c
       integer next
       integer nxtval
       external nxtval
-      logical nodezero
       logical noloadbalance
+      logical nodezero         ! True if node 0
 c
       nodezero = (ga_nodeid().eq.0)
       noloadbalance = ((ioalg.eq.4).or.

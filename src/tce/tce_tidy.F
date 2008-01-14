@@ -1,6 +1,6 @@
       subroutine tce_tidy(rtdb)
 c
-c $Id: tce_tidy.F,v 1.10 2005-12-16 22:16:05 kowalski Exp $
+c $Id: tce_tidy.F,v 1.11 2008-01-14 15:20:35 jhammond Exp $
 c
 c     Terminate TCE modulem.
 c
@@ -16,6 +16,7 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 #include "tce.fh"
+#include "tce_main.fh"
 #include "errquit.fh"
 #include "dra.fh"
 c

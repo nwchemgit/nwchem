@@ -1,11 +1,11 @@
       subroutine tce_eom_init
 c
-c $Id: tce_eom_init.F,v 1.2 2003-10-19 00:52:06 sohirata Exp $
+c $Id: tce_eom_init.F,v 1.3 2008-01-14 15:20:33 jhammond Exp $
 c
 c     Initializes file handle holders
 c
       implicit none
-#include "tce.fh"
+#include "tce_diis.fh"
       integer i
 c
       do i = 1,maxtrials

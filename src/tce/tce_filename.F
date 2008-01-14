@@ -1,6 +1,6 @@
       subroutine tce_filename(stub,filename)
 c
-c $Id: tce_filename.F,v 1.4 2003-10-19 00:52:07 sohirata Exp $
+c $Id: tce_filename.F,v 1.5 2008-01-14 15:20:33 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -9,6 +9,7 @@ c
 #include "sf.fh"
 #include "stdio.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       character*(*) stub
       character*(*) filename
 c
@@ -36,7 +37,7 @@ c
 
       subroutine tce_filenameindexed(index,stub,filename)
 c
-c $Id: tce_filename.F,v 1.4 2003-10-19 00:52:07 sohirata Exp $
+c $Id: tce_filename.F,v 1.5 2008-01-14 15:20:33 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -45,6 +46,7 @@ c
 #include "sf.fh"
 #include "stdio.fh"
 #include "tce.fh"
+#include "tce_main.fh"
 #include "errquit.fh"
 #include "inp.fh"
       integer index

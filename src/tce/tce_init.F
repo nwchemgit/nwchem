@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.36 2007-09-14 18:53:53 kowalski Exp $
+c $Id: tce_init.F,v 1.37 2008-01-14 15:20:33 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -17,6 +17,9 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "tce_prop.fh"
 #include "dra.fh"
 c
       integer rtdb             ! RTDB handle

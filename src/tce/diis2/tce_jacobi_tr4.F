@@ -1,6 +1,6 @@
       subroutine tce_jacobi_tr4(d_r4,d_t4,k_t4_offset)
 c
-c $Id: tce_jacobi_tr4.F,v 1.1 2007-08-11 01:21:27 jhammond Exp $
+c $Id: tce_jacobi_tr4.F,v 1.2 2008-01-14 15:20:41 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -10,6 +10,8 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
       integer d_r4
       integer d_t4
       integer p1b
@@ -37,8 +39,8 @@ c
       integer next
       integer nxtval
       external nxtval
-      logical nodezero
       logical noloadbalance
+      logical nodezero         ! True if node 0
 c
 c     ================
 c     Loop over blocks

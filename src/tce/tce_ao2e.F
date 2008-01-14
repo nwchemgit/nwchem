@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.14 2005-12-16 22:16:04 kowalski Exp $
+c $Id: tce_ao2e.F,v 1.15 2008-01-14 15:20:33 jhammond Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -15,6 +15,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer rtdb                 ! Run-time database
       logical nodezero             ! True if node zero
       integer d_ao2e               ! AO integrals

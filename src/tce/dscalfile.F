@@ -1,6 +1,6 @@
       subroutine dscalfile(scale,d_1,size)
 c
-c $Id: dscalfile.F,v 1.4 2003-10-19 00:52:04 sohirata Exp $
+c $Id: dscalfile.F,v 1.5 2008-01-14 15:20:32 jhammond Exp $
 c
 c     Multiply a file by a constant
 c
@@ -12,6 +12,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       double precision scale
       integer d_1
       integer size

@@ -1,6 +1,6 @@
       subroutine tce_zero(d_sf,size)
 c
-c $Id: tce_zero.F,v 1.12 2003-10-19 00:52:11 sohirata Exp $
+c $Id: tce_zero.F,v 1.13 2008-01-14 15:20:35 jhammond Exp $
 c
 c     Zero scratch a file
 c
@@ -12,6 +12,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_sf
       integer size
       integer nblocks,blocksize

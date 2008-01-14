@@ -1,6 +1,6 @@
       subroutine tce_loc_j1(d_r1,k_r1_offset,d_t1,k_t1_offset)
 c
-c $Id: tce_loc_j1.F,v 1.1 2007-09-18 20:22:25 kowalski Exp $
+c $Id: tce_loc_j1.F,v 1.2 2008-01-14 15:20:42 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -10,6 +10,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_r1
       integer p1b
       integer h2b
@@ -124,7 +125,7 @@ c
 c
       subroutine tce_loc_j1_one(d_r1,k_r1_offset)
 c
-c $Id: tce_loc_j1.F,v 1.1 2007-09-18 20:22:25 kowalski Exp $
+c $Id: tce_loc_j1.F,v 1.2 2008-01-14 15:20:42 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -134,6 +135,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_r1
       integer p1b
       integer h2b
@@ -199,7 +201,7 @@ c
 c
       subroutine tce_loc_j1_inv(d_r1,k_r1_offset)
 c
-c $Id: tce_loc_j1.F,v 1.1 2007-09-18 20:22:25 kowalski Exp $
+c $Id: tce_loc_j1.F,v 1.2 2008-01-14 15:20:42 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -209,6 +211,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_r1
       integer p1b
       integer h2b
@@ -277,7 +280,7 @@ c
 c
       subroutine tce_j1_x1_scaling(d_r1,k_r1_offset,d_j1,k_j1_offset)
 c
-c $Id: tce_loc_j1.F,v 1.1 2007-09-18 20:22:25 kowalski Exp $
+c $Id: tce_loc_j1.F,v 1.2 2008-01-14 15:20:42 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -287,6 +290,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_r1
       integer p1b
       integer h2b

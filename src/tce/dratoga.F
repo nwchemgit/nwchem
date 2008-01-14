@@ -1,6 +1,6 @@
       subroutine dratoga(d_sf)
 c
-c $Id: dratoga.F,v 1.4 2003-10-19 00:52:04 sohirata Exp $
+c $Id: dratoga.F,v 1.5 2008-01-14 15:20:32 jhammond Exp $
 c
 c     Load data from DRA to GA
 c
@@ -14,6 +14,7 @@ c
 #include "dra.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_sf
       integer d_ga
       integer d_dra

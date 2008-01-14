@@ -1,6 +1,6 @@
       subroutine gatoeaf(d_sf)
 c
-c $Id: gatoeaf.F,v 1.2 2003-10-19 00:52:04 sohirata Exp $
+c $Id: gatoeaf.F,v 1.3 2008-01-14 15:20:32 jhammond Exp $
 c
 c     Unload data from GA to EAF
 c
@@ -14,6 +14,7 @@ c
 #include "dra.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_sf
       integer d_temp
       integer i

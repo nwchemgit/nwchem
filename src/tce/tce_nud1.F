@@ -1,6 +1,6 @@
       subroutine tce_nud1(dipole)
 c
-c $Id: tce_nud1.F,v 1.2 2003-10-19 00:52:09 sohirata Exp $
+c $Id: tce_nud1.F,v 1.3 2008-01-14 15:20:35 jhammond Exp $
 c
 c     Computes nuclear contributions of dipole moments
 c
@@ -14,6 +14,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       double precision dipole(3)       ! Total dipole moments
       integer natoms                   ! Number of atoms
       double precision center(3,10000) ! Nuclear positions

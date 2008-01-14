@@ -15,6 +15,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer rtdb                 ! Run-time database
       logical nodezero             ! True if node zero
       integer d_v2                 ! MO integrals

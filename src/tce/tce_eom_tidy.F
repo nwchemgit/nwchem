@@ -1,11 +1,11 @@
       subroutine tce_eom_tidy
 c
-c $Id: tce_eom_tidy.F,v 1.2 2003-10-19 00:52:06 sohirata Exp $
+c $Id: tce_eom_tidy.F,v 1.3 2008-01-14 15:20:33 jhammond Exp $
 c
 c     Delete files for trial and product vectors
 c
       implicit none
-#include "tce.fh"
+#include "tce_diis.fh"
       integer i
 c
       do i = 1,maxtrials
@@ -25,12 +25,12 @@ c
 
       subroutine tce_eom_xtidy
 c
-c $Id: tce_eom_tidy.F,v 1.2 2003-10-19 00:52:06 sohirata Exp $
+c $Id: tce_eom_tidy.F,v 1.3 2008-01-14 15:20:33 jhammond Exp $
 c
 c     Delete files for trial and product vectors
 c
       implicit none
-#include "tce.fh"
+#include "tce_diis.fh"
       integer i
 c
       do i = 1,maxtrials
@@ -50,12 +50,12 @@ c
 
       subroutine tce_eom_ytidy
 c
-c $Id: tce_eom_tidy.F,v 1.2 2003-10-19 00:52:06 sohirata Exp $
+c $Id: tce_eom_tidy.F,v 1.3 2008-01-14 15:20:33 jhammond Exp $
 c
 c     Delete files for trial and product vectors
 c
       implicit none
-#include "tce.fh"
+#include "tce_diis.fh"
       integer i
 c
       do i = 1,maxtrials

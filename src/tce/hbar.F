@@ -1,6 +1,6 @@
       logical function hbar_restore(ivec,jvec,hbar)
 c
-c $Id: hbar.F,v 1.2 2003-10-26 18:08:13 sohirata Exp $
+c $Id: hbar.F,v 1.3 2008-01-14 15:20:32 jhammond Exp $
 c
 c     Read (if exist) hbar(ivec,jvec)
 c
@@ -14,6 +14,7 @@ c
 #include "eaf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       character*255 filename
       integer ivec
       integer jvec
@@ -57,7 +58,7 @@ c           write(LuOut,*) 'Restoring H bar(',ivec,jvec,') = ',hbar
       end
       subroutine hbar_store(ivec,jvec,hbar)
 c
-c $Id: hbar.F,v 1.2 2003-10-26 18:08:13 sohirata Exp $
+c $Id: hbar.F,v 1.3 2008-01-14 15:20:32 jhammond Exp $
 c
 c     Write hbar(ivec,jvec)
 c
@@ -71,6 +72,7 @@ c
 #include "eaf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       character*255 filename
       integer ivec
       integer jvec
@@ -109,7 +111,7 @@ c     write(LuOut,*) 'Storing H bar(',ivec,jvec,') = ',hbar
       end
       subroutine hbar_init
 c
-c $Id: hbar.F,v 1.2 2003-10-26 18:08:13 sohirata Exp $
+c $Id: hbar.F,v 1.3 2008-01-14 15:20:32 jhammond Exp $
 c
 c     Initialize hbar file
 c
@@ -123,6 +125,7 @@ c
 #include "eaf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       character*255 filename
       integer d_temp
       double precision dn
@@ -139,7 +142,7 @@ c
       end
       subroutine hbar_tidy
 c
-c $Id: hbar.F,v 1.2 2003-10-26 18:08:13 sohirata Exp $
+c $Id: hbar.F,v 1.3 2008-01-14 15:20:32 jhammond Exp $
 c
 c     Terminate hbar file
 c
@@ -153,6 +156,7 @@ c
 #include "eaf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       character*255 filename
 c
       call tce_filename('hbar',filename)

@@ -10,6 +10,7 @@
 #include "util.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       double precision omega
       integer d_f1,d_v2
       integer k_f1_offset,k_v2_offset

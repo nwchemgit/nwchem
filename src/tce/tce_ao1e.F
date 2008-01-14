@@ -1,6 +1,6 @@
       subroutine tce_ao1e_shellfockbuild(rtdb,g_ao1e)
 c
-c $Id: tce_ao1e.F,v 1.6 2003-10-19 00:52:05 sohirata Exp $
+c $Id: tce_ao1e.F,v 1.7 2008-01-14 15:20:32 jhammond Exp $
 c
 c     Returns a GA handle for AO Fock matrix.
 c
@@ -15,6 +15,7 @@ c
 #include "sym.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer rtdb               ! Run-time database
       integer g_ao1e(2)          ! GA handle for AO Fock matrices
       integer g_dens(2)          ! GA handle for AO density matrices
@@ -193,6 +194,7 @@ c
 #include "sym.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer rtdb               ! Run-time database
       integer g_ao1e(2)          ! GA handle for AO Fock matrices
       integer g_dens(4)          ! GA handle for AO density matrices

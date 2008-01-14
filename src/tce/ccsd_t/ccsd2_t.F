@@ -3,7 +3,7 @@
      2                   d_y1,k_y1_offset,d_y2,k_y2_offset,
      3                   d_e,k_e_offset,energy)
 C
-C     $Id: ccsd2_t.F,v 1.1 2005-12-16 21:57:03 kowalski Exp $
+C     $Id: ccsd2_t.F,v 1.2 2008-01-14 15:20:39 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -11,6 +11,7 @@ C
 #include "util.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_t1
       integer k_t1_offset
       integer d_t2

@@ -1,9 +1,10 @@
       subroutine get_hash_block(d_file,array,size,hash,key)
 c
-c $Id: get_hash_block.F,v 1.3 2006-07-14 19:13:15 kowalski Exp $
+c $Id: get_hash_block.F,v 1.4 2008-01-14 15:20:32 jhammond Exp $
 c
       implicit none
 #include "tce.fh"
+#include "tce_main.fh"
 c
       integer d_file
       integer size
@@ -34,10 +35,11 @@ c
       subroutine get_hash_block_i(d_file,array,size,hash,key,
      &                            g2b,g1b,g4b,g3b)
 c
-c $Id: get_hash_block.F,v 1.3 2006-07-14 19:13:15 kowalski Exp $
+c $Id: get_hash_block.F,v 1.4 2008-01-14 15:20:32 jhammond Exp $
 c
       implicit none
 #include "tce.fh"
+#include "tce_main.fh"
 c
       integer d_file
       integer size

@@ -16,7 +16,7 @@ c     $     nbf, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
 #include "geom.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
-#include "tce.fh"
+#include "tce_main.fh"
 c
 c     Temporary routine
 c

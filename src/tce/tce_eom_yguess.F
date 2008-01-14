@@ -2,7 +2,7 @@
      1  size_y1,size_y2,size_y3,size_y4,
      2  k_y1_offset,k_y2_offset,k_y3_offset,k_y4_offset)
 c
-c $Id: tce_eom_yguess.F,v 1.4 2005-12-16 22:16:04 kowalski Exp $
+c $Id: tce_eom_yguess.F,v 1.5 2008-01-14 15:20:33 jhammond Exp $
 c
 c     Generates initial trial vectors that are all singly excited 
 c     determinants within the same irrep_y
@@ -13,6 +13,8 @@ c
 #include "mafdecls.fh"
 #include "sym.fh"
 #include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
 #include "errquit.fh"
 #include "util.fh"
       logical needy1

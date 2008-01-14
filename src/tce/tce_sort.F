@@ -1,15 +1,15 @@
       subroutine tce_sort_0(unsorted,sorted,factor)
 c
-c $Id: tce_sort.F,v 1.1 2005-12-16 22:16:05 kowalski Exp $
+c $Id: tce_sort.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
 c
       implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-#include "sym.fh"
-#include "util.fh"
-#include "stdio.fh"
-#include "errquit.fh"
-#include "tce.fh"
+c#include "global.fh"
+c#include "mafdecls.fh"
+c#include "sym.fh"
+c#include "util.fh"
+c#include "stdio.fh"
+c#include "errquit.fh"
+c#include "tce.fh"
       double precision sorted
       double precision unsorted
       double precision factor
@@ -22,16 +22,16 @@ c
       subroutine tce_sort_2(unsorted,sorted,a,b,
      1                      i,j,factor)
 c
-c $Id: tce_sort.F,v 1.1 2005-12-16 22:16:05 kowalski Exp $
+c $Id: tce_sort.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
 c
       implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-#include "sym.fh"
+c#include "global.fh"
+c#include "mafdecls.fh"
+c#include "sym.fh"
 #include "util.fh"
-#include "stdio.fh"
-#include "errquit.fh"
-#include "tce.fh"
+c#include "stdio.fh"
+c#include "errquit.fh"
+#include "tce_main.fh"
       integer a,b
       integer i,j
       integer id(2),jd(2),ia,ib,j1,j2
@@ -62,16 +62,16 @@ c
       subroutine tce_sort_4(unsorted,sorted,a,b,c,d,
      1                      i,j,k,l,factor)
 c
-c $Id: tce_sort.F,v 1.1 2005-12-16 22:16:05 kowalski Exp $
+c $Id: tce_sort.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
 c
       implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-#include "sym.fh"
+c#include "global.fh"
+c#include "mafdecls.fh"
+c#include "sym.fh"
 #include "util.fh"
-#include "stdio.fh"
-#include "errquit.fh"
-#include "tce.fh"
+c#include "stdio.fh"
+c#include "errquit.fh"
+#include "tce_main.fh"
       integer a,b,c,d
       integer i,j,k,l
       integer id(4),jd(4),ia,ib,j1,j2,j3,j4
@@ -143,16 +143,16 @@ c
       subroutine tce_sort_6(unsorted,sorted,a,b,c,d,e,f,
      1                      i,j,k,l,m,n,factor)
 c
-c $Id: tce_sort.F,v 1.1 2005-12-16 22:16:05 kowalski Exp $
+c $Id: tce_sort.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
 c
       implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-#include "sym.fh"
+c#include "global.fh"
+c#include "mafdecls.fh"
+c#include "sym.fh"
 #include "util.fh"
-#include "stdio.fh"
-#include "errquit.fh"
-#include "tce.fh"
+c#include "stdio.fh"
+c#include "errquit.fh"
+#include "tce_main.fh"
       integer a,b,c,d,e,f
       integer i,j,k,l,m,n
       integer id(6),jd(6),ia,ib,j1,j2,j3,j4,j5,j6
@@ -303,16 +303,16 @@ c     write(*,*) cpu
       subroutine tce_sort_8(unsorted,sorted,a,b,c,d,e,f,g,h,
      1                      i,j,k,l,m,n,o,p,factor)
 c
-c $Id: tce_sort.F,v 1.1 2005-12-16 22:16:05 kowalski Exp $
+c $Id: tce_sort.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
 c
       implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-#include "sym.fh"
+c#include "global.fh"
+c#include "mafdecls.fh"
+c#include "sym.fh"
 #include "util.fh"
-#include "stdio.fh"
-#include "errquit.fh"
-#include "tce.fh"
+c#include "stdio.fh"
+c#include "errquit.fh"
+#include "tce_main.fh"
       integer a,b,c,d,e,f,g,h
       integer i,j,k,l,m,n,o,p
       integer id(8),jd(8),ia,ib,j1,j2,j3,j4,j5,j6,j7,j8

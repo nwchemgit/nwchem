@@ -3,7 +3,7 @@
      2  k_y1_offset,k_y2_offset,k_y3_offset,k_y4_offset,
      3  d_r1,d_r2,d_r3,d_r4,omega,residual)
 c
-c $Id: tce_eom_ydiagon.F,v 1.2 2003-10-19 00:52:06 sohirata Exp $
+c $Id: tce_eom_ydiagon.F,v 1.3 2008-01-14 15:20:33 jhammond Exp $
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -13,6 +13,8 @@ c
 #include "mafdecls.fh"
 #include "sym.fh"
 #include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
 #include "errquit.fh"
 #include "util.fh"
       logical needy1

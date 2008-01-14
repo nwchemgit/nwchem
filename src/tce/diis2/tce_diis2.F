@@ -4,7 +4,7 @@
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4)
 c
-c $Id: tce_diis2.F,v 1.2 2007-09-13 03:16:09 jhammond Exp $
+c $Id: tce_diis2.F,v 1.3 2008-01-14 15:20:41 jhammond Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -17,8 +17,10 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+      logical nodezero         ! True if node 0
       logical transpose
-      integer iter
       logical t1, t2, t3, t4
       integer d_r1
       integer d_t1
@@ -103,7 +105,6 @@ c      external tce_diis_switch
      2   'tr4.d10','tr4.d11','tr4.d12','tr4.d13',
      3   'tr4.d14','tr4.d15','tr4.d16','tr4.d17',
      4   'tr4.d18','tr4.d19','tr4.d20'/
-      logical nodezero
 c
 c     =====================
 c     Jacobi if DIIS is off

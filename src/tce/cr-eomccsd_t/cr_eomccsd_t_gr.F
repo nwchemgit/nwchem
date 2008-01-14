@@ -6,7 +6,7 @@
      7                        d_c2,k_c2_offset,size_c2,
      8                        energy1)
 C
-C     $Id: cr_eomccsd_t_gr.F,v 1.1 2005-12-16 21:54:44 kowalski Exp $
+C     $Id: cr_eomccsd_t_gr.F,v 1.2 2008-01-14 15:20:40 jhammond Exp $
 C 
 c 
 c
@@ -18,6 +18,7 @@ c
 #include "util.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_t1
       integer k_t1_offset
       integer d_t2

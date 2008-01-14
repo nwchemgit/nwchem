@@ -1,6 +1,6 @@
       subroutine add_block(d_file,array,size,offset)
 c
-c $Id: add_block.F,v 1.11 2003-10-26 18:08:13 sohirata Exp $
+c $Id: add_block.F,v 1.12 2008-01-14 15:20:31 jhammond Exp $
 c
 c     This subroutine reads a section of a file and adds
 c     the content of an array to it and write it back to
@@ -18,6 +18,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_file
       integer d_f
       integer size

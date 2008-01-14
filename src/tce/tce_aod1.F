@@ -1,6 +1,6 @@
       subroutine tce_aod1(rtdb,g_aod1,dipole)
 c
-c $Id: tce_aod1.F,v 1.2 2003-10-19 00:52:06 sohirata Exp $
+c $Id: tce_aod1.F,v 1.3 2008-01-14 15:20:33 jhammond Exp $
 c
 c     Returns a GA handle for AO Fock matrix.
 c
@@ -15,6 +15,7 @@ c
 #include "sym.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer rtdb               ! Run-time database
       integer g_aod1(3)          ! GA handle for AO dipole matrices
       integer g_dens(2)          ! GA handle for density matrices

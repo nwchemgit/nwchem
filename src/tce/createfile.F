@@ -1,6 +1,6 @@
       subroutine createfile(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.16 2003-10-19 00:52:03 sohirata Exp $
+c $Id: createfile.F,v 1.17 2008-01-14 15:20:32 jhammond Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -14,6 +14,7 @@ c
 #include "dra.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       character*(*) filename
       integer d_sf
       integer d_temp

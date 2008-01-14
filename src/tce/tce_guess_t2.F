@@ -1,7 +1,7 @@
       subroutine tce_guess_t2(d_mo2e,k_2e_offset,
      1                        d_t2,k_t2_offset)
 c
-c $Id: tce_guess_t2.F,v 1.9 2006-07-14 19:14:03 kowalski Exp $
+c $Id: tce_guess_t2.F,v 1.10 2008-01-14 15:20:33 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -11,6 +11,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_mo2e
       integer d_t2
       integer p1b

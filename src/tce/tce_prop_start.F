@@ -1,8 +1,8 @@
       logical function tce_prop_start(rtdb)
 c
-c $Id: tce_prop_start.F,v 1.1 2008-01-08 18:19:21 jhammond Exp $
+c $Id: tce_prop_start.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
 c
-c Wrapper for tce_property for fragment MO calculations.
+c Wrapper for tce_property
 c
 c Written by Jeff Hammond
 c

@@ -1,6 +1,6 @@
       subroutine tce_mo1e(g_ao1e,d_mo1e)
 c
-c $Id: tce_mo1e.F,v 1.10 2003-10-19 00:52:08 sohirata Exp $
+c $Id: tce_mo1e.F,v 1.11 2008-01-14 15:20:34 jhammond Exp $
 c
 c     Spin-spatial-symmetry blocked Fock matrix transformations.
 c
@@ -14,6 +14,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer g_ao1e(2)           ! AO Fock matrices
       integer l_ao1e,k_ao1e       ! AO Fock matrices
       integer l_mo1e,k_mo1e       ! MO Fock matrices
@@ -132,6 +133,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer l_mo1e,k_mo1e       ! MO Fock matrices
       integer sf_size,sf_offset   ! SF size and offset
       integer d_mo1e              ! File handle

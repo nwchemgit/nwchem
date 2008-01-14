@@ -6,6 +6,7 @@ c
 #include "util.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER p1b
       INTEGER iocc_v
       acolo_1p = .false.

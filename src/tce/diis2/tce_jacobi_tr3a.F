@@ -1,6 +1,6 @@
       subroutine tce_jacobi_tr3a(d_r3,d_t3,k_t3_offset)
 c
-c $Id: tce_jacobi_tr3a.F,v 1.1 2007-08-11 01:21:27 jhammond Exp $
+c $Id: tce_jacobi_tr3a.F,v 1.2 2008-01-14 15:20:41 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -10,6 +10,8 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
       integer d_r3
       integer d_t3
       integer p1b
@@ -33,7 +35,6 @@ c
       integer next
       integer nxtval
       external nxtval
-      logical nodezero
       logical noloadbalance
       logical acolo
 c

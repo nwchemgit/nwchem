@@ -1,6 +1,6 @@
       subroutine sf_test
 c
-c $Id: sf_test.F,v 1.12 2003-10-19 00:52:05 sohirata Exp $
+c $Id: sf_test.F,v 1.13 2008-01-14 15:20:32 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -13,6 +13,7 @@ c
 #include "msgids.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_test
       integer size
       integer l_sf,k_sf

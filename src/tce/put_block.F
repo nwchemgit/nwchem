@@ -1,6 +1,6 @@
       subroutine put_block(d_file,array,size,offset)
 c
-c $Id: put_block.F,v 1.13 2003-10-19 00:52:05 sohirata Exp $
+c $Id: put_block.F,v 1.14 2008-01-14 15:20:32 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -11,6 +11,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_file
       integer d_f
       integer size

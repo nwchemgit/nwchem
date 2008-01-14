@@ -1,6 +1,6 @@
       subroutine tce_tile(rtdb)
 c
-c $Id: tce_tile.F,v 1.19 2007-09-19 22:05:14 d3p975 Exp $
+c $Id: tce_tile.F,v 1.20 2008-01-14 15:20:35 jhammond Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -19,6 +19,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
 c
 c
 c THINGS TO DO 

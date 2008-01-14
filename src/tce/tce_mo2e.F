@@ -1,6 +1,6 @@
       subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e.F,v 1.12 2005-12-16 22:16:05 kowalski Exp $
+c $Id: tce_mo2e.F,v 1.13 2008-01-14 15:20:34 jhammond Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -16,6 +16,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer rtdb                 ! Run-time database
       logical nodezero             ! True if node zero
       integer d_ao2e               ! Half MO integrals

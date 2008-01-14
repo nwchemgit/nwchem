@@ -1,6 +1,6 @@
       subroutine sf_print(sf_handle,size)
 c
-c $Id: sf_print.F,v 1.9 2003-10-19 00:52:05 sohirata Exp $
+c $Id: sf_print.F,v 1.10 2008-01-14 15:20:32 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -10,6 +10,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer sf_handle
       integer size
       integer l_sf,k_sf

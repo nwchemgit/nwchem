@@ -1,6 +1,6 @@
       subroutine tce_jacobi_tr1(d_r1,d_t1,k_t1_offset,iter)
 c
-c $Id: tce_jacobi_tr1.F,v 1.1 2007-08-11 01:21:27 jhammond Exp $
+c $Id: tce_jacobi_tr1.F,v 1.2 2008-01-14 15:20:41 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -10,6 +10,8 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
       integer d_r1
       integer d_t1
       integer p1b
@@ -24,12 +26,9 @@ c
       integer count
       integer next
       integer nxtval
-c
-      integer iter
-c
       external nxtval
-      logical nodezero
       logical noloadbalance
+      logical nodezero         ! True if node 0
 c *** shift ***
       double precision shift
 c *************
@@ -103,7 +102,7 @@ c
 c
       subroutine tce_rr1_divide(d_r1,k_t1_offset)
 c
-c $Id: tce_jacobi_tr1.F,v 1.1 2007-08-11 01:21:27 jhammond Exp $
+c $Id: tce_jacobi_tr1.F,v 1.2 2008-01-14 15:20:41 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -113,6 +112,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_r1
       integer p1b
       integer h2b
@@ -127,8 +127,8 @@ c
       integer next
       integer nxtval
       external nxtval
-      logical nodezero
       logical noloadbalance
+      logical nodezero         ! True if node 0
 c
 c     ================
 c     Loop over blocks

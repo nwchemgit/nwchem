@@ -1,6 +1,6 @@
       subroutine copyfile(d_1,d_2,size)
 c
-c $Id: copyfile.F,v 1.6 2003-10-19 00:52:03 sohirata Exp $
+c $Id: copyfile.F,v 1.7 2008-01-14 15:20:32 jhammond Exp $
 c
 c     Duplicate a file
 c
@@ -12,6 +12,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_1
       integer d_2
       integer size

@@ -1,59 +1,3 @@
-c $Id: tce.fh,v 1.7 2007-09-19 22:06:10 d3p975 Exp $
-c
-c Include file for TCE module
-c
-c Written by So Hirata (c) Battelle, PNNL (2002).
-c
-      integer bytes            ! Number of bytes in a double
-      integer max_size         ! A large number
-      parameter (max_size = 10000)
-      integer max_files        ! Maximum number of files
-      parameter (max_files = 131072)
-      integer geom             ! Geometry handle
-      integer ao_bas_han       ! AO basis set handle
-      logical oskel,oadapt     ! Symmetry control parameters
-      integer nbf,nshells      ! Number of AO basis functions and shells
-      integer ipol             ! =1 (restricted), =2 (unrestricted)
-      integer nocc(2)          ! Number of alpha, beta electrons
-      integer nmo(2)           ! Number of alpha, beta orbitals
-      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
-      integer oactive(2)       ! Number of active occupieds
-      integer vactive(2)       ! Number of active virtuals
-      integer oatiles(2)       ! Number of active occupied tiles
-      integer vatiles(2)       ! Number of active unoccupied tiles
-      integer l_active,k_active ! Active tiles (0-inactive, 1 otherwise)
-      integer numact           !Active excitation level
-      character*10 model       ! CC model
-      character*10 perturbative! PT model
-      character*10 ccsd_var    ! variants of CCSD
-      logical left             ! Dipole moments & dipole transition moments
-      logical lineresp
-      logical leftresp
-      logical quadresp
-      logical respaxis(3)
-      integer maxiter          ! Maximum number of Davidson iterations
-      integer l_evl(2),k_evl(2)! MA handles for eigenvalues (AB)
-      integer l_occ(2),k_occ(2)! MA handles for occupancies (AB)
-      integer mult             ! Ground state spin multiplicity
-      integer nirreps          ! Number of irreducible representations
-c
-      integer anumfreq         ! number of frequencies for alpha (dipole polarizability tensor)
-      double precision afreq(9)! frequencies for alpha (maximum that can be done is 20)
-c
-      double precision thresh  ! Convergence threshold for amplitude equation
-      double precision ampthresh
-      double precision zlshift ! Level Shift
-      integer l_irs(2),k_irs(2)! Irreps of MO's
-      integer nmix(2)          ! Number of symmetry contaminations
-      double precision tol2e   ! 2-e integral tolerance
-      integer g_movecs(2)      ! GA handle for MO vectors
-      integer l_irs_sorted,k_irs_sorted ! MA handles for irreps
-      integer l_evl_sorted,k_evl_sorted ! MA handles for eigenvalues
-      integer l_spin_sorted,k_spin_sorted ! MA handles for eigenvalues
-      integer l_movecs_sorted,k_movecs_sorted ! MA handles for MO coeffs
-c->pf
-      integer l_mo_index,k_mo_index     ! MA handles for MO index
-c<-pf
       integer l_spin, k_spin   ! Spins of blocks
       integer l_sym, k_sym     ! Symmetry of blocks
       integer l_range, k_range ! Length of blocks
@@ -61,132 +5,6 @@ c<-pf
       integer l_alpha,k_alpha  ! Alpha-izer of beta orbitals (for restricted case)
       integer noa,nob,nva,nvb  ! Number of blocks
       integer noab,nvab        ! Number of blocks
-      integer available        ! Available memory in doubles
-      character*255 filenames(max_files) ! File name holder
-      integer filehandles(max_files)     ! File handle holder
-      integer filesizes(max_files)       ! File size holder
-      logical fileisga(max_files)        ! True if a file is a GA
-      logical activecalc       !True for CCSDt, CCSDtq, EOMCCSDt,EOMCCSDtq
-      integer nfiles           ! Number of files
-      integer ioalg            ! 0 = Fortran Direct Access 
-                               ! 1 = C Low-Level I/O
-                               ! 2 = Global Array Incore
-                               ! 3 = Shared File Library
-                               ! 4 = Replicated C Low-Level I/O
-      integer reference        ! 0 = DFT
-                               ! 1 = HF/SCF
-      integer diis             ! DIIS vector space size
-      integer maxdiis          ! Maximum allowed value for diis
-      parameter (maxdiis = 20)
-c --- relevant if intorb = .true. ----
-      character*10 model2e
-      logical intorb 
-      integer l_b2am,k_b2am
-      integer l_spin_alpha,k_spin_alpha
-      integer l_sym_alpha,k_sym_alpha
-      integer l_range_alpha,k_range_alpha
-      integer l_offset_alpha,k_offset_alpha
-      integer d_v2orb
-      integer l_o2o_offset       ! Offset for offset to offset table
-      integer k_o2o_offset       ! Offset for offset to offset table
-      integer l_o2ot_offset      ! orbitals for offset to offset tables
-      integer k_o2ot_offset      ! orbitals for offset to offset tables
-      integer l_v2_alpha_offset  ! Offset for 2e integrals if intorb=.true.
-      integer k_v2_alpha_offset  ! Offset for 2e integrals if intorb=.true. 
-      integer l_v2spin_offset
-      integer k_v2spin_offset
-      integer tile_dim
-      integer idisk,fast2e,ichop,imaxsize
-c
-      integer atpart   !number of groups teh atomic orbitals are divided to
-      integer nalength(200) !number of elements in each group
-      integer a2length(200) !pointers to the last nshell in a given group
-c
-c ------------------------------------
-      integer t1_diis(maxdiis) ! T1 files for DIIS
-      integer r1_diis(maxdiis) ! R1 files for DIIS
-      integer t2_diis(maxdiis) ! T2 files for DIIS
-      integer r2_diis(maxdiis) ! R2 files for DIIS
-      integer t3_diis(maxdiis) ! T3 files for DIIS
-      integer r3_diis(maxdiis) ! R3 files for DIIS
-      integer t4_diis(maxdiis) ! T4 files for DIIS
-      integer r4_diis(maxdiis) ! R4 files for DIIS
-      integer t1_pointer       ! Pointer to open T1 file for DIIS
-      integer r1_pointer       ! Pointer to open R1 file for DIIS
-      integer t2_pointer       ! Pointer to open T2 file for DIIS
-      integer r2_pointer       ! Pointer to open R2 file for DIIS
-      integer t3_pointer       ! Pointer to open T3 file for DIIS
-      integer r3_pointer       ! Pointer to open R3 file for DIIS
-      integer t4_pointer       ! Pointer to open T4 file for DIIS
-      integer r4_pointer       ! Pointer to open R4 file for DIIS
-      logical t1_diis_exist(maxdiis) ! True if T1 DIIS file exist
-      logical r1_diis_exist(maxdiis) ! True if R1 DIIS file exist
-      logical t2_diis_exist(maxdiis) ! True if T2 DIIS file exist
-      logical r2_diis_exist(maxdiis) ! True if R2 DIIS file exist
-      logical t3_diis_exist(maxdiis) ! True if T3 DIIS file exist
-      logical r3_diis_exist(maxdiis) ! True if R3 DIIS file exist
-      logical t4_diis_exist(maxdiis) ! True if T4 DIIS file exist
-      logical r4_diis_exist(maxdiis) ! True if R4 DIIS file exist
-      integer max_clocks
-      parameter (max_clocks = 100)
-      double precision cpusecs(max_clocks)  ! Multipurpose clock counter
-      integer buffer_size      ! Buffer size for tce_zero & reconcilefile
-      parameter (buffer_size = 3000000)
-      logical restricted
-      integer nroots           ! No. of excited state roots
-      integer nroots_reduced   ! Adjusted no. of excited state roots
-      integer nxtrials         ! No. of RHS trial vectors
-      integer nytrials         ! No. of LHS trial vectors
-      integer maxtrials        ! Max No. of trial vectors
-      parameter (maxtrials = 10000)
-      integer xc1(maxtrials)   ! Converged RHS1 vectors
-      integer yc1(maxtrials)   ! Converged LHS1 vectors
-      integer xc2(maxtrials)   ! Converged RHS2 vectors
-      integer yc2(maxtrials)   ! Converged LHS2 vectors
-      integer xc3(maxtrials)   ! Converged RHS3 vectors
-      integer yc3(maxtrials)   ! Converged LHS3 vectors
-      integer xc4(maxtrials)   ! Converged RHS4 vectors
-      integer yc4(maxtrials)   ! Converged LHS4 vectors
-      integer x1(maxtrials)    ! Trial RHS1 vectors
-      integer y1(maxtrials)    ! Trial LHS1 vectors
-      integer x2(maxtrials)    ! Trial RHS2 vectors
-      integer y2(maxtrials)    ! Trial LHS2 vectors
-      integer x3(maxtrials)    ! Trial RHS3 vectors
-      integer y3(maxtrials)    ! Trial LHS3 vectors
-      integer x4(maxtrials)    ! Trial RHS4 vectors
-      integer y4(maxtrials)    ! Trial LHS4 vectors
-      integer xp1(maxtrials)   ! Product RHS1 vectors
-      integer yp1(maxtrials)   ! Product LHS1 vectors
-      integer xp2(maxtrials)   ! Product RHS2 vectors
-      integer yp2(maxtrials)   ! Product LHS2 vectors
-      integer xp3(maxtrials)   ! Product RHS3 vectors
-      integer yp3(maxtrials)   ! Product LHS3 vectors
-      integer xp4(maxtrials)   ! Product RHS4 vectors
-      integer yp4(maxtrials)   ! Product LHS4 vectors
-      logical xc1_exist(maxtrials) ! True if XC1 file exist
-      logical yc1_exist(maxtrials) ! True if YC1 file exist
-      logical xc2_exist(maxtrials) ! True if XC2 file exist
-      logical yc2_exist(maxtrials) ! True if YC2 file exist
-      logical xc3_exist(maxtrials) ! True if XC3 file exist
-      logical yc3_exist(maxtrials) ! True if YC3 file exist
-      logical xc4_exist(maxtrials) ! True if XC4 file exist
-      logical yc4_exist(maxtrials) ! True if YC4 file exist
-      logical x1_exist(maxtrials)  ! True if X1 file exist
-      logical y1_exist(maxtrials)  ! True if Y1 file exist
-      logical x2_exist(maxtrials)  ! True if X2 file exist
-      logical y2_exist(maxtrials)  ! True if Y2 file exist
-      logical x3_exist(maxtrials)  ! True if X3 file exist
-      logical y3_exist(maxtrials)  ! True if Y3 file exist
-      logical x4_exist(maxtrials)  ! True if X4 file exist
-      logical y4_exist(maxtrials)  ! True if Y4 file exist
-      logical xp1_exist(maxtrials) ! True if XP1 file exist
-      logical yp1_exist(maxtrials) ! True if YP1 file exist
-      logical xp2_exist(maxtrials) ! True if XP2 file exist
-      logical yp2_exist(maxtrials) ! True if YP2 file exist
-      logical xp3_exist(maxtrials) ! True if XP3 file exist
-      logical yp3_exist(maxtrials) ! True if YP3 file exist
-      logical xp4_exist(maxtrials) ! True if XP4 file exist
-      logical yp4_exist(maxtrials) ! True if YP4 file exist
       integer irrep_e          ! Totally symmetric
       parameter (irrep_e = 0)
       integer irrep_e2         ! Totally symmetric
@@ -218,53 +36,29 @@ c ------------------------------------
       integer irrep_trb
       integer irrep_trc
       integer irrep_trd
-      integer target           ! Target root
-      character*4 targetsym    ! Irrep of target root
-      logical symmetry         ! True if only roots with targetsym are sought
-c
-c     Integers
-c 
+      logical restricted
+      logical intorb
+c      integer max_files        ! Maximum number of files
+c      parameter (max_files = 131072)
+c      character*255 filenames(max_files) ! File name holder
+c      integer filehandles(max_files)     ! File handle holder
+c      integer filesizes(max_files)       ! File size holder
+c      logical fileisga(max_files)        ! True if a file is a GA
+c      integer ioalg            ! 0 = Fortran Direct Access
+c                               ! 1 = C Low-Level I/O
+c                               ! 2 = Global Array Incore
+c                               ! 3 = Shared File Library
+c                               ! 4 = Replicated C Low-Level I/O
+
+
+
       common /tceinteger/
-     1  bytes,geom,ao_bas_han,nbf,nshells,ipol,nocc,nmo,nfc,nfv,maxiter,
-     2  l_evl,k_evl,l_occ,k_occ,mult,nirreps,l_irs,k_irs,nmix,g_movecs,
-     3  l_irs_sorted,k_irs_sorted,l_evl_sorted,k_evl_sorted,
-     4  l_spin_sorted,k_spin_sorted,l_movecs_sorted,k_movecs_sorted,
-     5  l_spin,k_spin,l_sym,k_sym,l_range,k_range,l_offset,k_offset,
-     6  noa,nob,nva,nvb,noab,nvab,available,nfiles,filehandles,ioalg,
-     7  reference,l_alpha,k_alpha,diis,t1_diis,r1_diis,t2_diis,r2_diis,
-     8  t3_diis,r3_diis,t4_diis,r4_diis,t1_pointer,r1_pointer,
-     9  t2_pointer,r2_pointer,t3_pointer,r3_pointer,t4_pointer,
-     1  r4_pointer,nroots,nroots_reduced,nxtrials,nytrials,x1,y1,x2,y2,
-     2  x3,y3,x4,y4,xp1,yp1,xp2,yp2,xp3,yp3,xp4,yp4,irrep_x,irrep_y,
-     3  irrep_d,irrep_a,irrep_b,irrep_c,irrep_o,irrep_oa,irrep_ob,
-     4  irrep_oc,irrep_tr,irrep_tra,irrep_trb,irrep_trc,irrep_trd,
-     5  target,filesizes,xc1,xc2,xc3,xc4,yc1,yc2,yc3,yc4,oactive,
-     6  vactive,oatiles,vatiles,l_active,k_active,numact,l_b2am,k_b2am,
-     7  d_v2orb,l_spin_alpha,k_spin_alpha,l_sym_alpha,k_sym_alpha,
-     8  l_range_alpha,k_range_alpha,l_offset_alpha,k_offset_alpha,
-     9  l_o2o_offset,k_o2o_offset,l_o2ot_offset,k_o2ot_offset,
-     1  l_v2_alpha_offset,k_v2_alpha_offset,l_v2spin_offset,
-     2  k_v2spin_offset,anumfreq,atpart,nalength,a2length,tile_dim,
-     3  idisk,fast2e,ichop,imaxsize,l_mo_index, k_mo_index
-c
-c     Doubles
-c
-      common /tcedouble/
-     1  thresh,ampthresh,tol2e,cpusecs,zlshift,afreq
-c
-c     Characters
-c
-      common /tcechar/
-     1  model,perturbative,filenames,targetsym,model2e,ccsd_var
-c
-c     Logicals
-c
+     1  noa,nob,nva,nvb,noab,nvab,l_alpha,k_alpha,
+     2  l_spin,k_spin,l_sym,k_sym,l_range,k_range,l_offset,k_offset,
+     4  irrep_x,irrep_y,irrep_d,
+     5  irrep_a,irrep_b,irrep_c,
+     6  irrep_o,irrep_oa,irrep_ob,irrep_oc,
+     7  irrep_tr,irrep_tra,irrep_trb,irrep_trc,irrep_trd
+
       common /tcelogical/
-     1  oskel,oadapt,left,lineresp,leftresp,quadresp,respaxis,
-     2  restricted,t1_diis_exist,r1_diis_exist,
-     3  t2_diis_exist,r2_diis_exist,t3_diis_exist,r3_diis_exist,
-     4  t4_diis_exist,r4_diis_exist,x1_exist,y1_exist,x2_exist,y2_exist,
-     5  x3_exist,y3_exist,x4_exist,y4_exist,xp1_exist,yp1_exist,
-     6  xp2_exist,yp2_exist,xp3_exist,yp3_exist,xp4_exist,yp4_exist,
-     7  symmetry,fileisga,xc1_exist,xc2_exist,xc3_exist,xc4_exist,
-     8  yc1_exist,yc2_exist,yc3_exist,yc4_exist,activecalc,intorb
+     1  restricted,intorb

@@ -6,6 +6,7 @@
 #include "util.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
 c
       integer d_t1,d_t2,d_lambda1,d_lambda2
       integer k_t1_offset,k_t2_offset

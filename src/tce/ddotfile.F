@@ -1,6 +1,6 @@
       double precision function ddotfile(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.3 2003-10-19 00:52:03 sohirata Exp $
+c $Id: ddotfile.F,v 1.4 2008-01-14 15:20:32 jhammond Exp $
 c
 c     Vector inner product of two files of the same size
 c
@@ -13,6 +13,7 @@ c
 #include "msgids.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_1
       integer d_2
       integer size

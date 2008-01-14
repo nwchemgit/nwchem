@@ -1,6 +1,6 @@
       subroutine daxpyfile(n,coefficients,d_in,d_out,size)
 c
-c $Id: daxpyfile.F,v 1.5 2003-10-19 00:52:03 sohirata Exp $
+c $Id: daxpyfile.F,v 1.6 2008-01-14 15:20:32 jhammond Exp $
 c
 c     A linear combination of files added to the original
 c
@@ -12,6 +12,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer n
       integer d_in(*)
       integer d_out

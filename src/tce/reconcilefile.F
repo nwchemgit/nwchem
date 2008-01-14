@@ -1,6 +1,6 @@
       subroutine reconcilefile(d_sf,size)
 c
-c $Id: reconcilefile.F,v 1.8 2003-10-19 00:52:05 sohirata Exp $
+c $Id: reconcilefile.F,v 1.9 2008-01-14 15:20:32 jhammond Exp $
 c
 c     Accumulate local distributed files and update all files
 c     with the one accumulated file
@@ -15,6 +15,7 @@ c
 #include "dra.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_sf
       integer d_temp
       integer size
@@ -130,6 +131,7 @@ c
 #include "sf.fh"
 #include "eaf.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer i
       logical nodezero
       nodezero = (ga_nodeid().eq.0)

@@ -10,6 +10,7 @@ c
 #include "util.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER p4b
       INTEGER p5b
       INTEGER p6b

@@ -1,11 +1,11 @@
       subroutine tce_diis2_init
 c
-c $Id: tce_diis2_init.F,v 1.1 2007-08-11 01:21:27 jhammond Exp $
+c $Id: tce_diis2_init.F,v 1.2 2008-01-14 15:20:41 jhammond Exp $
 c
 c     Initializes file handle holders
 c
       implicit none
-#include "tce.fh"
+#include "tce_diis.fh"
       integer i
 c
       t1_pointer = 0

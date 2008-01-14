@@ -8,7 +8,7 @@
      7                        d_c2,k_c2_offset,size_c2,
      8                        excit,energy1,energy2)
 C
-C     $Id: emb1.F,v 1.1 2007-09-14 19:03:13 kowalski Exp $
+C     $Id: emb1.F,v 1.2 2008-01-14 15:20:41 jhammond Exp $
 C 
 c from this point on we assume that corresponding one- and two-
 c body components of R(d_x1,d_x2) and T(d_t1,d_t2) operators,
@@ -28,6 +28,7 @@ c
 #include "util.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_t1
       integer k_t1_offset
       integer d_t2
