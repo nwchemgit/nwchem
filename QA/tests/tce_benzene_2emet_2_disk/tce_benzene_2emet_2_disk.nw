@@ -2,6 +2,9 @@ echo
 
 start tce_benzene_2emet_2_disk
 
+# You must set to something globally accessible
+permanent_dir /dtemp/jhammond
+
 #memory stack 1700 mb heap 300 mb global 1700 mb
 
 geometry units angstrom
