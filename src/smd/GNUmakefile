@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2008-01-12 00:44:39 marat Exp $
+# $Id: GNUmakefile,v 1.4 2008-01-15 18:48:23 marat Exp $
 #
 
        SUBDIRS = 
@@ -17,8 +17,9 @@
 		md_frce.o tool_randm.o tool_volme.o \
 		ewald_recp.o frce_bond.o list_bonds.o  \
 		md_init.o read_line.o verlt_test.o  \
-                smd_init.o smd_res_data.o \
-                smd_pdb.o smd_atom_data.o
+                smd_init.o smd_end.o smd_param.o \
+                smd_pdb.o  smd_atom.o \
+                smd_res.o smd_data.o smd_paramfile.o
 
       LIBRARY = libsmd.a
 
