@@ -2,10 +2,7 @@ echo
 
 start tce_benzene_2emet_4
 
-permanent_dir /home/jeff/scratch/nwchem
-scratch_dir /home/jeff/scratch/nwchem
-
-memory stack 1700 mb heap 300 mb global 1700 mb
+#memory stack 1700 mb heap 300 mb global 1700 mb
 
 geometry units angstrom
  symmetry d2h
