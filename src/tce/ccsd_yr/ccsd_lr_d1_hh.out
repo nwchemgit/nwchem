@@ -1,0 +1,3 @@
+[ - 1.0 ] * Sum ( p3 ) * tr ( p3 h1 ) * y ( h2 p3 )
+[ - 0.5 ] * Sum ( p3 p4 h5 ) * tr ( p3 p4 h5 h1 ) * y ( h5 h2 p3 p4 )
+[ - 1.0 ] * Sum ( p3 ) * t ( p3 h1 ) * yr ( h2 p3 )
