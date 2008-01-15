@@ -1,4 +1,4 @@
-c $Id: tce_main.fh,v 1.2 2008-01-14 17:17:23 jhammond Exp $
+c $Id: tce_main.fh,v 1.3 2008-01-15 13:48:03 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -6,8 +6,8 @@ c Written by So Hirata (c) Battelle, PNNL (2002).
 c
 c      integer rtdb
 c      logical nodezero         ! True if node 0
-c      double precision cpu     ! CPU sec counter
-c      double precision wall    ! WALL sec counter
+c tce.fh < double precision cpu     ! CPU sec counter
+c tce.fh < double precision wall    ! WALL sec counter
 c      integer iter             ! Iteration counter
 c      integer dummy            ! Dummy argument for DIIS
 c      double precision residual! Largest residual
@@ -51,13 +51,13 @@ c
       integer l_evl_sorted,k_evl_sorted ! MA handles for eigenvalues
       integer l_spin_sorted,k_spin_sorted ! MA handles for eigenvalues
       integer l_movecs_sorted,k_movecs_sorted ! MA handles for MO coeffs
-c      integer l_spin, k_spin   ! Spins of blocks
-c      integer l_sym, k_sym     ! Symmetry of blocks
-c      integer l_range, k_range ! Length of blocks
-c      integer l_offset, k_offset ! Offset of blocks
-c      integer l_alpha,k_alpha  ! Alpha-izer of beta orbitals (for restricted case)
-c      integer noa,nob,nva,nvb  ! Number of blocks
-c      integer noab,nvab        ! Number of blocks
+c tce.fh < integer l_spin, k_spin   ! Spins of blocks
+c tce.fh < integer l_sym, k_sym     ! Symmetry of blocks
+c tce.fh < integer l_range, k_range ! Length of blocks
+c tce.fh < integer l_offset, k_offset ! Offset of blocks
+c tce.fh < integer l_alpha,k_alpha  ! Alpha-izer of beta orbitals (for restricted case)
+c tce.fh < integer noa,nob,nva,nvb  ! Number of blocks
+c tce.fh < integer noab,nvab        ! Number of blocks
       integer available        ! Available memory in doubles
       character*255 filenames(max_files) ! File name holder
       integer filehandles(max_files)     ! File handle holder
@@ -75,7 +75,7 @@ c      integer noab,nvab        ! Number of blocks
       integer l_mo_index,k_mo_index     ! MA handles for MO index
 c --- relevant if intorb = .true. ----
       character*10 model2e
-c      logical intorb 
+c tce.fh < logical intorb 
       integer l_b2am,k_b2am
       integer l_spin_alpha,k_spin_alpha
       integer l_sym_alpha,k_sym_alpha
@@ -103,39 +103,10 @@ c
       double precision cpusecs(max_clocks)  ! Multipurpose clock counter
       integer buffer_size      ! Buffer size for tce_zero & reconcilefile
       parameter (buffer_size = 3000000)
-c      logical restricted
+c tce.fh < logical restricted
 c
-c      integer irrep_e          ! Totally symmetric
-c      parameter (irrep_e = 0)
-c      integer irrep_e2         ! Totally symmetric
-c      parameter (irrep_e2 = 0)
-c      integer irrep_f          ! Totally symmetric
-c      parameter (irrep_f = 0)
-c      integer irrep_v          ! Totally symmetric
-c      parameter (irrep_v = 0)
-c      integer irrep_t          ! Totally symmetric
-c      parameter (irrep_t = 0)
-c      integer irrep_t1         ! Totally symmetric
-c      parameter (irrep_t1 = 0)
-c      integer irrep_t2         ! Totally symmetric
-c      parameter (irrep_t2 = 0)
-c      integer irrep_t3         ! Totally symmetric
-c      parameter (irrep_t3 = 0)
-c      integer irrep_x          ! Irreducible representation of X vector
-c      integer irrep_y          ! Irreducible representation of Y vector
-c      integer irrep_d          ! Irreducible representation of D vector
-c      integer irrep_a
-c      integer irrep_b
-c      integer irrep_c
-c      integer irrep_o
-c      integer irrep_oa
-c      integer irrep_ob
-c      integer irrep_oc
-c      integer irrep_tr
-c      integer irrep_tra
-c      integer irrep_trb
-c      integer irrep_trc
-c      integer irrep_trd
+c     ALL IRREPS MOVED TO tce.fh
+c
       integer target           ! Target root
       character*4 targetsym    ! Irrep of target root
       logical symmetry         ! True if only roots with targetsym are sought
@@ -147,15 +118,16 @@ c
      2  l_evl,k_evl,l_occ,k_occ,mult,nirreps,l_irs,k_irs,nmix,g_movecs,
      3  l_irs_sorted,k_irs_sorted,l_evl_sorted,k_evl_sorted,
      4  l_spin_sorted,k_spin_sorted,l_movecs_sorted,k_movecs_sorted,
-     6  available,nfiles,idisk,fast2e,ichop,imaxsize,
-     7  reference,atpart,ioalg,filehandles,filesizes,
-     4  target,oactive,l_mo_index, k_mo_index,
-     5  vactive,oatiles,vatiles,l_active,k_active,numact,l_b2am,k_b2am,
-     6  d_v2orb,l_spin_alpha,k_spin_alpha,l_sym_alpha,k_sym_alpha,
-     7  l_range_alpha,k_range_alpha,l_offset_alpha,k_offset_alpha,
-     8  l_o2o_offset,k_o2o_offset,l_o2ot_offset,k_o2ot_offset,
-     9  l_v2_alpha_offset,k_v2_alpha_offset,l_v2spin_offset,
-     1  k_v2spin_offset
+     6  available,nfiles,filehandles,ioalg,
+     7  reference,
+     5  target,filesizes,oactive,
+     6  vactive,oatiles,vatiles,l_active,k_active,numact,l_b2am,k_b2am,
+     7  d_v2orb,l_spin_alpha,k_spin_alpha,l_sym_alpha,k_sym_alpha,
+     8  l_range_alpha,k_range_alpha,l_offset_alpha,k_offset_alpha,
+     9  l_o2o_offset,k_o2o_offset,l_o2ot_offset,k_o2ot_offset,
+     1  l_v2_alpha_offset,k_v2_alpha_offset,l_v2spin_offset,
+     2  k_v2spin_offset,atpart,nalength,a2length,tile_dim,
+     3  idisk,fast2e,ichop,imaxsize,l_mo_index, k_mo_index
 c
 c     Doubles
 c
@@ -165,10 +137,11 @@ c
 c     Characters
 c
       common /tcemainchar/
-     1  model,perturbative,targetsym,model2e,filenames
+     1  model,perturbative,targetsym,model2e,filenames,ccsd_var
 c
 c     Logicals
 c
       common /tcemainlogical/
      1  oskel,oadapt,left,fileisga,
      2  symmetry,activecalc
+
