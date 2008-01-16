@@ -61,11 +61,13 @@ c     OTHER RESPONSE STUFF
       double precision gamm2        ! Dipole second hyperpolarizability term 2
       double precision gamm3        ! Dipole second hyperpolarizability term 3
       double precision gamm4        ! Dipole second hyperpolarizability term 4
-c
-c     Logicals
-c
-      common /tceproplogical/
-     1  lineresp,leftresp,quadresp,respaxis
+
+      common /tcepropdouble/
+     1 afreq,bfreq,gfreq,lr_thresh,yr_thresh,qr_thresh
 
       common /tcepropinteger/
      1 dynaxis,anumfreq,bnumfreq,gnumfreq
+
+      common /tceproplogical/
+     1  lineresp,leftresp,quadresp,respaxis,beta_shg,beta_or,beta_eope
+
