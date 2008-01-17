@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.8 2008-01-11 00:32:32 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.9 2008-01-17 18:59:30 d3p708 Exp $
 *
 
 
@@ -367,12 +367,12 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
 *     ***********************************
 
       subroutine cpsp_v_spin_orbit(ispin,ne,
-     >                           psi1,psi2,move,fion)
+     >                           psi1_tag,psi2_tag,move,fion)
       implicit none
       integer    ispin,ne(2)
-c      integer    psi1_tag
-c      integer    psi2_tag
-      complex*16 psi1(*),psi2(*)
+      integer    psi1_tag
+      integer    psi2_tag
+c      complex*16 psi1(*),psi2(*)
       logical move
       real*8 fion(3,*)
 
@@ -459,8 +459,8 @@ c      integer    psi2_tag
 
         do nbq=1,nbrill
            nb = Pneb_convert_nb(nbq)
-c           psi1_shift = cpsi_data_get_chnk(psi1_tag,nbq)
-c           psi2_shift = cpsi_data_get_chnk(psi2_tag,nbq)
+           psi1_shift = cpsi_data_get_chnk(psi1_tag,nbq)
+           psi2_shift = cpsi_data_get_chnk(psi2_tag,nbq)
            call Cram_npack(nb,npack)
 
 *       **** structure factor pseudopotential ****
@@ -508,14 +508,14 @@ c             *** current function is s or d ****
                 end if
 
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
-c                call Cram_cc_inzdot(nb,nn,
-c     >                      dbl_mb(psi1_shift),
-c     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
-c     >                      dcpl_mb(zsw1(1)+(l-1)*nn))
                 call Cram_cc_inzdot(nb,nn,
-     >                      psi1,
+     >                      dbl_mb(psi1_shift),
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dcpl_mb(zsw1(1)+(l-1)*nn))
+c                call Cram_cc_inzdot(nb,nn,
+c     >                      psi1,
+c     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
+c     >                      dcpl_mb(zsw1(1)+(l-1)*nn))
            
  105       continue 
            call C3dB_Vector_SumAll((2*nn*nproj),dcpl_mb(zsw1(1)))
@@ -543,8 +543,7 @@ c     >                      dcpl_mb(zsw1(1)+(l-1)*nn))
      >                dcpl_mb(prjtmp(1)), npack1,
      >                dcpl_mb(zsw2(1)),   nn,
      >                one,
-     >                psi2,npack1)
-c     >                dbl_mb(psi2_shift), npack1)
+     >                dbl_mb(psi2_shift), npack1)
 
            if (move) then
               weight = brillioun_weight(nb)
@@ -835,7 +834,8 @@ cccccccccccccccccccccccccccccccccccccccccc
 c These should be declared as parameters
 c however there seems to be no "standard"
 c way to declare a complex parameter that
-c works with all compilers...
+c works with all compilers...gfortran,ifort,
+c pf90,etc.
 ccccccccccccccccccccccccccccccccccccccccc
       one  = dcmplx( 1.0d0,0.0d0)
       mone = dcmplx(-1.0d0,0.0d0)
