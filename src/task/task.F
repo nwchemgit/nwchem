@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.85 2007-12-28 01:11:48 bylaska Exp $
+* $Id: task.F,v 1.86 2008-01-17 18:01:55 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -52,6 +52,9 @@ c
       logical qmmm_end
       logical cons_active
       logical task_property
+c
+      logical task_pes
+      external task_pes
 c
       external qmmm_init
       external cons_active
@@ -158,7 +161,12 @@ c
          call ga_sync()
          goto 99999
       endif
-
+c
+      if(opes.and.(.not.oqmmm)) then
+         status = task_pes(rtdb)
+         call ga_sync()
+         goto 99999
+      endif
 c
 c Look for speciallized routine tasks here 
 c
@@ -177,8 +185,8 @@ c
             status = jvltest2(rtdb)
          else if (inp_compare(.false.,'python', theory)) then
             status = task_python(rtdb)
-         else if (inp_compare(.false.,'smd', theory)) then
-            status = task_smd(rtdb)
+c         else if (inp_compare(.false.,'smd', theory)) then
+c            status = task_smd(rtdb)
          else if (inp_compare(.false.,'raktest', theory)) then
             status = raktest(rtdb)
          else if (inp_compare(.false.,'kgdtest', theory)) then

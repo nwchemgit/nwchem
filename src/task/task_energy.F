@@ -28,7 +28,9 @@ cc
       logical task_bsse
       logical bsse_energy
       external bsse_energy
+      logical oecce
 cc
+      oecce = .true.
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
@@ -100,8 +102,10 @@ c
 c
       call ecce_print1('cpu time', mt_dbl, cpu, 1)
       call ecce_print1('wall time', mt_dbl, wall, 1)
+      if (theory .eq. 'md')  oecce=.false.
+      if (theory .eq. 'smd') oecce=.false.
       if (status) then
-         if (theory .ne. 'md') call geom_print_rtdb_ecce(rtdb)
+         if (oecce) call geom_print_rtdb_ecce(rtdb)
          call ecce_print1('total energy', mt_dbl, energy, 1)
          call ecce_print_module_exit('task energy', 'ok')
       else
@@ -113,7 +117,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.46 2007-06-19 23:32:30 bylaska Exp $
+* $Id: task_energy.F,v 1.47 2008-01-17 18:01:55 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -155,6 +159,8 @@ c
       external tce_energy_fragment
       logical  paw_energy,ofpw_energy
       external paw_energy,ofpw_energy
+      logical task_smd_energy
+      external task_smd_energy
 c
       logical status
       double precision dipole(3)
@@ -178,6 +184,8 @@ c
       prefix = theory           ! Most common scenario
       if (theory .eq. 'scf') then
          status = scf(rtdb)
+      else if (theory .eq. 'smd') then
+         status = task_smd_energy(rtdb)
       else if (theory .eq. 'dft') then
          status = dft_energy(rtdb)
       else if (theory .eq. 'sodft')then 
