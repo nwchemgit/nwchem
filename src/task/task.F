@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.86 2008-01-17 18:01:55 marat Exp $
+* $Id: task.F,v 1.87 2008-01-17 23:32:00 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -53,8 +53,8 @@ c
       logical cons_active
       logical task_property
 c
-      logical task_pes
-      external task_pes
+c      logical task_pes
+c      external task_pes
 c
       external qmmm_init
       external cons_active
@@ -162,11 +162,11 @@ c
          goto 99999
       endif
 c
-      if(opes.and.(.not.oqmmm)) then
-         status = task_pes(rtdb)
-         call ga_sync()
-         goto 99999
-      endif
+c      if(opes.and.(.not.oqmmm)) then
+c         status = task_pes(rtdb)
+c         call ga_sync()
+c         goto 99999
+c      endif
 c
 c Look for speciallized routine tasks here 
 c
