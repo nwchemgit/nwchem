@@ -116,13 +116,12 @@ R_Dirac (int n, int l, int s2, double Z, const double *v, int *mch,
         {
             r2 = r[i] * r[i];
             fr[i] = -log_amesh2 * r2
-                    * (fss * (v[i] - E) * (v[i] - E)
-                       +
+                    * (fss * (v[i] - E) * (v[i] - E) +
                        0.5 * fss * dv[i] * kappa / (r[i] *
-                                                    (1.0 + 0.5 * fss * (E - v[i]))));
+                       (1.0 + 0.5 * fss * (E - v[i]))));
             frp[i] =
-                -log_amesh * r[i] * 0.5 * fss * dv[i] / (1.0 +
-                        0.5 * fss * (E - v[i]));
+                -log_amesh * r[i] * 0.5 * fss * dv[i] / 
+                       (1.0 + 0.5 * fss * (E - v[i]));
         }
 
         /* find the classical turning point, */
@@ -243,9 +242,6 @@ R_Dirac (int n, int l, int s2, double Z, const double *v, int *mch,
             /* Find Integral(u**2) */
             sum = Norm_LogGrid (Ninf, gamma, u);
 
-
-
-
             sum = 1.0 / sqrt (sum);
             uout = sum * uout;
             upout = sum * upout;
@@ -291,7 +287,7 @@ R_Dirac (int n, int l, int s2, double Z, const double *v, int *mch,
         }			/* nodes ok */
     }				/* while */
 
-    printf ("Error R_Pauli: More than %d iterations\n", Max_Iterations);
+    printf ("Error R_Dirac: More than %d iterations\n", Max_Iterations);
     *mch = match;
     *Eig = E;
 
@@ -361,78 +357,77 @@ R_Dirac_Fixed_E (int n, int l, int s2, double Z, const double *v, int match,
         upp[i] = 0.0;
     }
 
-        /* define f_upp */
-        for (i = 0; i < Ngrid; ++i)
+    /* define f_upp */
+    for (i = 0; i < Ngrid; ++i)
+    {
+        r2 = r[i];
+        r2 = r2 * r2;
+        f_upp[i] = log_amesh2 * (L2 + 2.0 * (v[i] - E) * r2);
+    }
+    /* define dV/dr */
+    Derivative_LogGrid (v, dv);
+    for (i = 0; i < Ngrid; ++i)
+    {
+        r2 = r[i] * r[i];
+        fr[i] = -log_amesh2 * r2
+                * (fss * (v[i] - E) * (v[i] - E) +
+                   0.5 * fss * dv[i] * kappa / (r[i] *
+                   (1.0 + 0.5 * fss * (E - v[i]))));
+        frp[i] =
+            -log_amesh * r[i] * 0.5 * fss * dv[i] / (1.0 +
+                    0.5 * fss * (E - v[i]));
+    }
+
+
+    /* set the boundry condition near zero */
+    m1scale = 1.0;
+    for (i = 0; i < (n - l - 1); ++i)
+        m1scale *= -1.0;
+    for (i = 0; i < 4; ++i)
+    {
+        u[i] = m1scale * pow (r[i], gamma);
+        uprime[i] = log_amesh * gamma * u[i];
+        upp[i] = (log_amesh + frp[i]) * uprime[i]
+                 + (f_upp[i] + fr[i]) * u[i];
+    }
+
+    /* integrate from 0 to match */
+    node = 0;
+    for (i = 3; i < match; ++i)
+    {
+        /* predictors */
+        u[i + 1] = Predictor_Out (i, u, uprime);
+        uprime[i + 1] = Predictor_Out (i, uprime, upp);
+
+        /* correctors */
+        for (j = 0; j < Corrector_Iterations; ++j)
         {
-            r2 = r[i];
-            r2 = r2 * r2;
-            f_upp[i] = log_amesh2 * (L2 + 2.0 * (v[i] - E) * r2);
-        }
-        /* define dV/dr */
-        Derivative_LogGrid (v, dv);
-        for (i = 0; i < Ngrid; ++i)
-        {
-            r2 = r[i] * r[i];
-            fr[i] = -log_amesh2 * r2
-                    * (fss * (v[i] - E) * (v[i] - E)
-                       +
-                       0.5 * fss * dv[i] * kappa / (r[i] *
-                                                    (1.0 + 0.5 * fss * (E - v[i]))));
-            frp[i] =
-                -log_amesh * r[i] * 0.5 * fss * dv[i] / (1.0 +
-                        0.5 * fss * (E - v[i]));
-        }
-
-
-        /* set the boundry condition near zero */
-        m1scale = 1.0;
-        for (i = 0; i < (n - l - 1); ++i)
-            m1scale *= -1.0;
-        for (i = 0; i < 4; ++i)
-        {
-            u[i] = m1scale * pow (r[i], gamma);
-            uprime[i] = log_amesh * gamma * u[i];
-            upp[i] = (log_amesh + frp[i]) * uprime[i]
-                     + (f_upp[i] + fr[i]) * u[i];
-        }
-
-        /* integrate from 0 to match */
-        node = 0;
-        for (i = 3; i < match; ++i)
-        {
-            /* predictors */
-            u[i + 1] = Predictor_Out (i, u, uprime);
-            uprime[i + 1] = Predictor_Out (i, uprime, upp);
-
-            /* correctors */
-            for (j = 0; j < Corrector_Iterations; ++j)
-            {
-                upp[i + 1] = (log_amesh + frp[i + 1]) * uprime[i + 1]
-                             + (f_upp[i + 1] + fr[i + 1]) * u[i + 1];
-                uprime[i + 1] = Corrector_Out (i, uprime, upp);
-                u[i + 1] = Corrector_Out (i, u, uprime);
-            }
-
-            /* finding nodes */
-            if (u[i + 1] * u[i] <= 0)
-                node = node + 1;
+            upp[i + 1] = (log_amesh + frp[i + 1]) * uprime[i + 1]
+                         + (f_upp[i + 1] + fr[i + 1]) * u[i + 1];
+            uprime[i + 1] = Corrector_Out (i, uprime, upp);
+            u[i + 1] = Corrector_Out (i, u, uprime);
         }
 
+        /* finding nodes */
+        if (u[i + 1] * u[i] <= 0)
+            node = node + 1;
+    }
 
-            /* Find Integral(u**2) */
-            sum = Norm_LogGrid (match, gamma, u);
 
-            sum = 1.0 / sqrt (sum);
-            for (i = 0; i <= match; ++i)
-            {
-                u[i] = sum * u[i];
-                uprime[i] = sum * uprime[i];
-            }
-            for (i = match + 1; i < Ngrid; ++i)
-            {
-                u[i] = 0.0;
-                uprime[i] = 0.0;
-            }
+    /* Find Integral(u**2) */
+    sum = Norm_LogGrid (match, gamma, u);
+
+    sum = 1.0 / sqrt (sum);
+    for (i = 0; i <= match; ++i)
+    {
+        u[i] = sum * u[i];
+        uprime[i] = sum * uprime[i];
+    }
+    for (i = match + 1; i < Ngrid; ++i)
+    {
+        u[i] = 0.0;
+        uprime[i] = 0.0;
+    }
 
 
     /* deallocate memory */
