@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.18 2007-11-17 00:05:44 bylaska Exp $
+* $Id: cpsi_H.F,v 1.19 2008-01-17 19:01:59 d3p708 Exp $
 *
 
 *     **********************************************
@@ -46,7 +46,9 @@
       external Pneb_nbrillq,Pneb_convert_nb
       external cpsi_data_get_chnk,cpsi_data_nsize
       external lattice_omega
-      
+
+      write(*,*)"J1"
+      CALL FLUSH(6) 
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
@@ -59,6 +61,8 @@
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       
 
+      write(*,*)"J2"
+      CALL FLUSH(6) 
       scal2 = 1.0d0/lattice_omega()
       scal1 = 1.0d0/dble(nx*ny*nz)
       n1(1) = 1
@@ -69,6 +73,8 @@
       nbrill = Pneb_nbrillq()
       nshift1 = cpsi_data_nsize(psi_r_tag)
       nshift2 = cpsi_data_nsize(Hpsi_k_tag)
+      write(*,*)"J3"
+      CALL FLUSH(6) 
        
 
 *     ****************************
@@ -76,11 +82,18 @@
 *     ****************************
       call cke(ispin,ne,psi_k_tag,Hpsi_k_tag)
 
+      write(*,*)"J4"
+      CALL FLUSH(6) 
 *     **************************
 *     **** add non-local psp ***
 *     **************************
       call cpsp_v_nonlocal(  ispin,ne,psi_k_tag,Hpsi_k_tag,move,fion)
-      call cpsp_v_spin_orbit(ispin,ne,psi_k_tag,Hpsi_k_tag,move,fion)
+      write(*,*)"J5"
+      CALL FLUSH(6) 
+      call cpsp_v_spin_orbit(ispin,ne,psi_k_tag,Hpsi_k_tag,
+     >  move,fion)
+      write(*,*)"J6"
+      CALL FLUSH(6) 
 
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
@@ -88,12 +101,16 @@
       call Cram_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
       call Cram_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
       call Cram_c_unpack(0,dcpl_mb(vall(1)))
+      write(*,*)"J7"
+      CALL FLUSH(6) 
 
 *     **********************************************
 *     **** fourier transform k-space potentials ****
 *     **********************************************
       call C3dB_cr_fft3b(1,dcpl_mb(vall(1)))
 
+      write(*,*)"J8"
+      CALL FLUSH(6) 
       do nbq=1,nbrill
          nb = Pneb_convert_nb(nbq)
          psi_shift   = cpsi_data_get_chnk(psi_r_tag,nbq)
@@ -133,6 +150,8 @@ c            indx2 = 1 + (n-1)*npack1 + (nb-1)*npack1*neall
          end do
       end do
 
+      write(*,*)"J9"
+      CALL FLUSH(6) 
 
       value =           MA_pop_stack(vpsi(2))
       value = value.and.MA_pop_stack(vall(2))

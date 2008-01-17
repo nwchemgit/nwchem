@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.36 2008-01-11 00:45:31 d3p708 Exp $
+* $Id: c_electron.F,v 1.37 2008-01-17 19:01:59 d3p708 Exp $
 *
 
 
@@ -839,7 +839,6 @@ c     >                     THpsi_k)
         hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nb)
         call dscal(nsize,(-1.0d0),dbl_mb(hpsi_shift),1)
       end do
-
       return
       end
 
@@ -1656,16 +1655,15 @@ c     >                     dn)
       end
 
 
-
 *     ***********************************
 *     *					*
 *     *   c_electron_psi_vnlso_ave 	*
 *     *					*
 *     ***********************************
 
-      real*8 function c_electron_psi_vnlso_ave(psi1)
+      real*8 function c_electron_psi_vnlso_ave(psi1_tag)
       implicit none
-      complex*16 psi1(*)
+      integer psi1_tag
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
@@ -1673,78 +1671,76 @@ c     >                     dn)
 
 
 *     **** local variables ****
-      logical value
-      integer n,ms,n1(2),n2(2),np,nb,tsize
-      integer neall,indx
-      real*8 enlocal,sum,weight
-      integer tmp1(2),tmp2(2)
+      integer n,np,nb
+      integer neall,nshift,psi1_shift,tmp1_shift,occ1_shift
+      real*8 enlocal,sum,weight,fion(3)
+      integer tmp1_tag,occ1_tag
 
 *     **** external functions ****
+      integer  cpsi_data_push_stack,cpsi_data_get_chnk
+      integer  cpsi_data_get_next
       real*8   brillioun_weight
+      external cpsi_data_push_stack,cpsi_data_get_chnk
+      external cpsi_data_get_next
       external brillioun_weight
-
-      if (.not.spin_orbit) then
-         c_electron_psi_vnlso_ave=0.0d0
-         return
-      end if
 
       call Parallel_np(np)
 
-      n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1) + 1
-      n2(2) = ne(1) + ne(2)
-      neall = ne(1) + ne(2)
+      neall = neq(1) + neq(2)
+      nshift = 2*npack1
 
-      tsize=npack1*neall*nbrill
-      value = MA_push_get(mt_dcpl,tsize,
-     >                    'tmp1',tmp1(2),tmp1(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit(
-     >            'electron_psi_vl_ave: out of stack memory',0,
-     &       MA_ERR)
-
+      occ1_tag = cpsi_data_get_next(psi1_tag)
+      tmp1_tag = cpsi_data_push_stack(nbrillq,neall,nshift)
 
 *     **** average Kohn-Sham v_nonlocal energy ****
-c      call BGrsm_f_Zero(dcpl_mb(tmp1(1)))
-
-      call dcopy(tsize*2,0.0d0,0,dcpl_mb(tmp1(1)))
-  
+      call BGrsm_f_Zero_tag(tmp1_tag)
       call cpsp_v_spin_orbit(ispin,ne,
-     >                     psi1,
-     >                     dcpl_mb(tmp1(1)),
-     >                    .false.,dcpl_mb(tmp2(1)))
-
-      enlocal = 0.0d0
-      do nb=1,nbrill
-         weight = brillioun_weight(nb)
-         do ms=1,ispin
-         do n=n1(ms),n2(ms)
-            indx = (n-1)*npack1 + (nb-1)*npack1*neall
-
-            call Cram_cc_idot(nb,psi1(1+indx),
-     >                         dcpl_mb(tmp1(1)+indx),
-     >                         sum)
-            enlocal = enlocal - sum*weight
+     >                     psi1_tag,
+     >                     tmp1_tag,
+     >                    .false.,fion)
+      if (occ1_tag.gt.0) then
+         enlocal = 0.0d0
+         do nb=1,nbrillq
+            weight = brillioun_weight(nb)
+            psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+            tmp1_shift = cpsi_data_get_chnk(tmp1_tag,nb)
+            occ1_shift = cpsi_data_get_chnk(occ1_tag,nb)
+            do n=1,neall
+               call Cram_cc_idot(nb,
+     >                           dbl_mb(psi1_shift),
+     >                           dbl_mb(tmp1_shift),
+     >                           sum)
+               enlocal = enlocal - sum*weight*dbl_mb(occ1_shift)
+               psi1_shift = psi1_shift + nshift
+               tmp1_shift = tmp1_shift + nshift
+               occ1_shift = occ1_shift + 1
+            end do
          end do
+      else
+         enlocal = 0.0d0
+         do nb=1,nbrillq
+            weight = brillioun_weight(nb)
+            psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+            tmp1_shift = cpsi_data_get_chnk(tmp1_tag,nb)
+            do n=1,neall
+               call Cram_cc_idot(nb,
+     >                           dbl_mb(psi1_shift),
+     >                           dbl_mb(tmp1_shift),
+     >                           sum)
+               enlocal = enlocal - sum*weight
+               psi1_shift = psi1_shift + nshift
+               tmp1_shift = tmp1_shift + nshift
+            end do
          end do
-      end do
+      end if
       if (np.gt.1) call C3dB_SumAll(enlocal)
-      
-
+      if (ispin.eq.1) enlocal = 2.0d0*enlocal
  
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.
-     >        MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit(
-     >           'electron_psi_vl_ave: error popping stack memory',0,
-     &       MA_ERR)
+      call cpsi_data_pop_stack(tmp1_tag)
 
       c_electron_psi_vnlso_ave = enlocal
       return
       end
-
 
 
 
