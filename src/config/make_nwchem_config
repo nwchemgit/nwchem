@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.232 2008-01-10 00:54:15 jhammond Exp $
+# $Id: make_nwchem_config,v 1.233 2008-01-17 17:41:06 marat Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -18,9 +18,9 @@
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver dftgrad scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop\
-        property nwpw smd fft rimp2_grad python analyz diana nwmd cafe space \
-        drdy vscf uccsdt qmmm qmd etrans tddft tce geninterface bq cons \
-        perfm neb dntmc transport
+        property nwpw fft rimp2_grad python analyz diana nwmd cafe space \
+        drdy vscf uccsdt qmmm qmd etrans tddft tce pes geninterface bq cons \
+        perfm neb dntmc transport smd
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -33,7 +33,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
 		    -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lsmd \
                     -lcafe -lspace -lanalyze -ldiana -lqhop\
                     -lpfft -ldplot -loimp2 -lnwpython -ldrdy -lvscf -lqmmm -lqmd -letrans\
-                    -lpspw -ltddft -ltce -lgeninterface -lbq -lcons -lperfm -lneb -ldntmc -ltransport
+                    -lpspw -ltddft -ltce -lpes -lgeninterface -lbq  -lcons -lperfm -lneb -ldntmc -ltransport
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -71,7 +71,7 @@ EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft tce vscf transport
+          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft tce pes vscf transport
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           stepper driver vib mcscf property dftgrad selci dplot \
            mp2_grad esp etrans tddft vscf
@@ -157,6 +157,7 @@ MODULES := $(patsubst transport, transport dftgrad dplot gradients driver,$(MODU
 
 MODULES := $(patsubst tddft,tddft nwdft hessian ddscf NWints,$(MODULES) )
 MODULES := $(patsubst tce,tce nwdft ddscf NWints  hessian  dftgrad gradients  ,$(MODULES) )
+MODULES := $(patsubst pes,pes ,$(MODULES) )
 
 MODULES := $(patsubst nwmd,nwmd cafe space fft qhop,$(MODULES) )
 
@@ -217,6 +218,7 @@ MOD_LIBS := $(patsubst etrans,-letrans,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst transport,-ltransport,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst tddft,-ltddft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst tce,-ltce,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst pes,-lpes,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cafe,-lcafe,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst space,-lspace,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst qhop,-lqhop,$(MOD_LIBS) )
@@ -285,7 +287,7 @@ STUBROUTINES := $(patsubst property,property prop_input cosmo_input cosmo_initia
 STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dntmc,task_dntmc dntmc_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input ofpw_energy paw_energy paw_gradient task_paw task_pspw task_ofpw pspw_input pspw_energy pspw_gradient band_energy band_gradient task_band,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst smd,task_smd smd_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst smd,task_smd smd_input smd_energy,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
 #STUBROUTINES := $(patsubst cons, cons_end cons_input cons_add_egrad cons_add_energy cons_init cons_print_summary cons_active,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
