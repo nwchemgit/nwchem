@@ -1,3 +1,11 @@
+c
+c     These four cannot be activated yet...
+c
+c      integer d_e              ! SF handle for e file
+c      integer l_e_offset       ! Offset for e file
+c      integer k_e_offset       ! Offset for e file
+c      integer size_e           ! File size in doubles
+c
 c     INPUT PARAMETERS - SEE tce_init_property.F for details
       logical lineresp
       logical leftresp

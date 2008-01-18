@@ -1,0 +1,99 @@
+c     =====================================================
+c               CC Integral and Energy Amplitudes
+c     =====================================================
+      integer d_e              ! SF handle for e file
+      integer l_e_offset       ! Offset for e file
+      integer k_e_offset       ! Offset for e file
+      integer size_e           ! File size in doubles
+      integer g_ao1e(2)        ! GA handle for AO Fock matrices
+      integer d_ao2e           ! SF handle for AO 2e integrals
+      integer d_f1             ! SF handle for MO 1e integrals
+      integer l_f1_offset      ! Offset for 1e integral file
+      integer k_f1_offset      ! Offset for 1e integral file
+      integer size_1e          ! File size in doubles
+      integer d_v2             ! SF handle for MO 2e integrals
+      integer l_v2_offset      ! Offset for 2e integral file
+      integer k_v2_offset      ! Offset for 2e integral file
+      integer size_2e          ! File size in doubles
+c     =====================================================
+c               Old Dipole Stuff
+c     =====================================================
+      integer g_aod1(3)        ! GA handle for AO dipole matrices
+      integer d_d1(3)          ! MO dipole integral file
+      integer l_d1_offset(3)   ! Offset for d1 integral file
+      integer k_d1_offset(3)   ! Offset for d1 integral file
+      integer size_d1(3)       ! File size in doubles
+      character*3 dfilename(3) ! File name stub
+      data dfilename/'d1x','d1y','d1z'/
+      character*1 axisname(3)  ! Axis
+      data axisname/'X','Y','Z'/
+c      double precision debye   ! Hartree to Debye
+c      parameter (debye=-2.541766d0)
+      integer d_d0             ! Dipole moment
+      integer l_d0_offset      ! Offset for d0 file
+      integer k_d0_offset      ! Offset for d0 file
+      integer size_d0          ! File size in doubles
+      integer axis             ! X=1, Y=2, & Z=3
+c     =====================================================
+c               New Multipole Stuff
+c     =====================================================
+c     Conventions:
+c
+c          L = 1      L = 2        L = 3         L = 4
+c
+c      (1,1) = X  (2,1) = XX  (2,1)  = XXX  (4,1)  = XXXX
+c      (1,2) = Y  (2,2) = XY  (3,2)  = XXY  (4,2)  = XXXY
+c      (1,3) = Z  (2,3) = XZ  (3,3)  = XXZ  (4,3)  = XXXZ
+c                 (2,4) = YY  (3,4)  = XYY  (4,4)  = XXYY
+c                 (2,5) = YZ  (3,5)  = XYZ  (4,5)  = XXYZ
+c                 (2,6) = ZZ  (3,6)  = XZZ  (4,6)  = XXZZ
+c                             (3,7)  = YYY  (4,7)  = XYYY
+c                             (3,8)  = YYZ  (4,8)  = XYYZ
+c                             (3,9)  = YZZ  (4,9)  = XYZZ
+c                             (3,10) = ZZZ  (4,10) = XZZZ
+c                                           (4,11) = YYYY
+c                                           (4,12) = YYYZ
+c                                           (4,13) = YYZZ
+c                                           (4,14) = YZZZ
+c                                           (4,15) = ZZZZ
+c
+c     =====================================================
+      integer irrep_mp(4,15)           ! This is setup somewhere else
+      integer g_ao_mp1(4,15)           ! GA handle for AO dipole matrices
+      integer d_mo_mp1(4,15)           ! MO dipole integral file
+      integer l_mo_mp1_offset(4,15)    ! Offset for d1 integral file
+      integer k_mo_mp1_offset(4,15)    ! Offset for d1 integral file
+      integer size_mo_mp1(4,15)        ! File size in doubles
+      character*6 mpfilename(4,15)     ! File name stub
+      double precision mp_moments_scf(4,15)
+      double precision mp_moments_cor(4,15)
+      double precision debye,buck,octo
+      parameter (octo=0.711688d0)
+      parameter (buck=1.344911d0)
+      parameter (debye=2.54176568d0)
+      integer d_mp0                    ! Multipole moment
+      integer l_mp0_offset             ! Offset for mp0 file
+      integer k_mp0_offset             ! Offset for mp0 file
+      integer size_mp0                 ! File size in doubles
+c     =====================================================
+c
+c     Integers
+c
+c      common /tceintsinteger/
+c     1 
+c
+c     Doubles
+c
+c      common /tceintsdouble/
+c     1  
+c
+c     Characters
+c
+c      common /tceintschar/
+c     1  
+c
+c     Logicals
+c
+c      common /tceintslogical/
+c     1 
+

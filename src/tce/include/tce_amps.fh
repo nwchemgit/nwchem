@@ -1,0 +1,306 @@
+c     =====================================================
+c               CC-T(0) Amplitudes
+c     =====================================================
+      integer d_t1             ! SF handle for t1 amplitudes
+      integer l_t1_offset      ! Offset for t1 file
+      integer k_t1_offset      ! Offset for t1 file
+      integer size_t1          ! File size in doubles
+      integer d_t2             ! SF handle for t2 amplitudes
+      integer l_t2_offset      ! Offset for t2 file
+      integer k_t2_offset      ! Offset for t2 file
+      integer size_t2          ! File size in doubles
+      integer d_t3             ! SF handle for t3 amplitudes
+      integer l_t3_offset      ! Offset for t3 file
+      integer k_t3_offset      ! Offset for t3 file
+      integer size_t3          ! File size in doubles
+      integer d_t4             ! SF handle for t4 amplitudes
+      integer l_t4_offset      ! Offset for t4 file
+      integer k_t4_offset      ! Offset for t4 file
+      integer size_t4          ! File size in doubles
+c     =====================================================
+c               CC-T(0) Residual Amplitudes
+c     =====================================================
+      integer d_r1             ! SF handle for r1 amplitudes
+      integer l_r1_offset      ! Offset for r1 file
+      integer k_r1_offset      ! Offset for r1 file
+      integer size_r1          ! File size in doubles
+      integer d_r2             ! SF handle for r2 amplitudes
+      integer l_r2_offset      ! Offset for r2 file
+      integer k_r2_offset      ! Offset for r2 file
+      integer size_r2          ! File size in doubles
+      integer d_r3             ! SF handle for r3 amplitudes
+      integer l_r3_offset      ! Offset for r3 file
+      integer k_r3_offset      ! Offset for r3 file
+      integer size_r3          ! File size in doubles
+      integer d_r4             ! SF handle for r4 amplitudes
+      integer l_r4_offset      ! Offset for r4 file
+      integer k_r4_offset      ! Offset for r4 file
+      integer size_r4          ! File size in doubles
+c     =====================================================
+c               MBPT Amplitudes
+c     =====================================================
+      integer d_u1             ! SF handle for u1 file
+      integer l_u1_offset      ! Offset for u1 file
+      integer k_u1_offset      ! Offset for u1 file
+      integer size_u1          ! File size in doubles
+      integer d_u2             ! SF handle for u2 file
+      integer l_u2_offset      ! Offset for u2 file
+      integer k_u2_offset      ! Offset for u2 file
+      integer size_u2          ! File size in doubles
+      integer d_w1             ! SF handle for w1 file
+      integer l_w1_offset      ! Offset for w1 file
+      integer k_w1_offset      ! Offset for w1 file
+      integer size_w1          ! File size in doubles
+      integer d_w2             ! SF handle for w2 file
+      integer l_w2_offset      ! Offset for w2 file
+      integer k_w2_offset      ! Offset for w2 file
+      integer size_w2          ! File size in doubles
+      integer d_w3             ! SF handle for w3 file
+      integer l_w3_offset      ! Offset for w3 file
+      integer k_w3_offset      ! Offset for w3 file
+      integer size_w3          ! File size in doubles
+      integer d_w4             ! SF handle for w4 file
+      integer l_w4_offset      ! Offset for w4 file
+      integer k_w4_offset      ! Offset for w4 file
+      integer size_w4          ! File size in doubles
+      integer d_e2             ! SF handle for e2 file
+      integer l_e2_offset      ! Offset for e2 file
+      integer k_e2_offset      ! Offset for e2 file
+      integer size_e2          ! File size in doubles
+c     =====================================================
+c               Amplitude Logicals
+c     =====================================================
+      logical needt1
+      logical needt2
+      logical needt3
+      logical needt3a
+      logical needt4
+      logical needu1
+      logical needu2
+      logical needw1
+      logical needw2
+      logical needw3
+      logical needw4
+      logical neede2
+c     =====================================================
+c               CC-Lambda(0) Amplitudes
+c     =====================================================
+      integer d_lambda1        ! Lambda 1 file
+      integer d_lambda2        ! Lambda 2 file
+      integer d_lambda3        ! Lambda 3 file
+      integer d_lambda4        ! Lambda 4 file
+      integer d_lr1            ! Lambda 1 residual file
+      integer d_lr2            ! Lambda 2 residual file
+      integer d_lr3            ! Lambda 3 residual file
+      integer d_lr4            ! Lambda 4 residual file
+      integer l_l1_offset      ! Offset for Lambda 1 file
+      integer k_l1_offset      ! Offset for Lambda 1 file
+      integer size_l1          ! File size in doubles
+      integer l_l2_offset      ! Offset for Lambda 2 file
+      integer k_l2_offset      ! Offset for Lambda 2 file
+      integer size_l2          ! File size in doubles
+      integer l_l3_offset      ! Offset for Lambda 3 file
+      integer k_l3_offset      ! Offset for Lambda 3 file
+      integer size_l3          ! File size in doubles
+      integer l_l4_offset      ! Offset for Lambda 4 file
+      integer k_l4_offset      ! Offset for Lambda 4 file
+      integer size_l4          ! File size in doubles
+c     =====================================================
+c     FILE NAMES
+c          Conventions (Y = Lambda):
+c          rrN  -  T(1) residual amplitudes
+c          trN  -  T(1) amplitudes
+c          yrrN -  Y(1) residual amplitudes
+c          yrN  -  Y(1) amplitudes
+c          tqrN -  T(2) residual amplitudes
+c          tqN  -  T(2) amplitudes
+c     =====================================================
+c               CC-T(1) Amplitudes and Residual Amplitudes
+c     =====================================================
+      integer d_tr1(12)            ! SF handle for tr1 amplitudes
+      integer l_tr1_offset(3)      ! Offset for tr1 file
+      integer k_tr1_offset(3)      ! Offset for tr1 file
+      integer size_tr1(3)          ! File size in doubles
+      integer d_tr2(12)            ! SF handle for tr2 amplitudes
+      integer l_tr2_offset(3)      ! Offset for tr2 file
+      integer k_tr2_offset(3)      ! Offset for tr2 file
+      integer size_tr2(3)          ! File size in doubles
+      integer d_tr3(12)            ! SF handle for tr3 amplitudes
+      integer l_tr3_offset(3)      ! Offset for tr3 file
+      integer k_tr3_offset(3)      ! Offset for tr3 file
+      integer size_tr3(3)          ! File size in doubles
+      integer d_tr4(12)            ! SF handle for tr4 amplitudes
+      integer l_tr4_offset(3)      ! Offset for tr4 file
+      integer k_tr4_offset(3)      ! Offset for tr4 file
+      integer size_tr4(3)          ! File size in doubles
+      integer d_rr1(3)             ! SF handle for rr1 amplitudes
+      integer d_rr2(3)             ! SF handle for rr2 amplitudes
+      integer d_rr3(3)             ! SF handle for rr3 amplitudes
+      integer d_rr4(3)             ! SF handle for rr4 amplitudes
+      character*6 rr1filename(3) ! File name stub
+      data rr1filename/'rr1x  ','rr1y  ','rr1z  '/
+      character*6 rr2filename(3) ! File name stub
+      data rr2filename/'rr2x  ','rr2y  ','rr2z  '/
+      character*6 rr3filename(3) ! File name stub
+      data rr3filename/'rr3x  ','rr3y  ','rr3z  '/
+      character*6 rr4filename(3) ! File name stub
+      data rr4filename/'rr4x  ','rr4y  ','rr4z  '/
+      character*6 tr1filename(12) ! File name stub
+      data tr1filename/'tr1x+ ','tr1y+ ','tr1z+ ',
+     &                 'tr1x- ','tr1y- ','tr1z- ',
+     &                 'tr1x++','tr1y++','tr1z++',
+     &                 'tr1x--','tr1y--','tr1z--'/
+      character*6 tr2filename(12) ! File name stub
+      data tr2filename/'tr2x+ ','tr2y+ ','tr1z+ ',
+     &                 'tr2x- ','tr2y- ','tr2z- ',
+     &                 'tr2x++','tr2y++','tr2z++',
+     &                 'tr2x--','tr2y--','tr2z--'/
+      character*6 tr3filename(12) ! File name stub
+      data tr3filename/'tr3x+ ','tr3y+ ','tr3z+ ',
+     &                 'tr3x- ','tr3y- ','tr3z- ',
+     &                 'tr3x++','tr3y++','tr3z++',
+     &                 'tr3x--','tr3y--','tr3z--'/
+      character*6 tr4filename(12) ! File name stub
+      data tr4filename/'tr4x+ ','tr4y+ ','tr4z+ ',
+     &                 'tr4x- ','tr4y- ','tr4z- ',
+     &                 'tr4x++','tr4y++','tr4z++',
+     &                 'tr4x--','tr4y--','tr4z--'/
+c     =====================================================
+c               CC-Lambda(1) Amplitudes and Residual Amplitudes
+c     =====================================================
+      integer d_yr1(12)            ! SF handle for yr1 amplitudes
+      integer l_yr1_offset(3)      ! Offset for yr1 file
+      integer k_yr1_offset(3)      ! Offset for yr1 file
+      integer size_yr1(3)          ! File size in doubles
+      integer d_yr2(12)            ! SF handle for yr2 amplitudes
+      integer l_yr2_offset(3)      ! Offset for yr2 file
+      integer k_yr2_offset(3)      ! Offset for yr2 file
+      integer size_yr2(3)          ! File size in doubles
+      integer d_yr3(12)            ! SF handle for yr3 amplitudes
+      integer l_yr3_offset(3)      ! Offset for yr3 file
+      integer k_yr3_offset(3)      ! Offset for yr3 file
+      integer size_yr3(3)          ! File size in doubles
+      integer d_yr4(12)            ! SF handle for yr4 amplitudes
+      integer l_yr4_offset(3)      ! Offset for yr4 file
+      integer k_yr4_offset(3)      ! Offset for yr4 file
+      integer size_yr4(3)          ! File size in doubles
+      integer d_yrr1(3)            ! SF handle for yrr1 amplitudes
+      integer d_yrr2(3)            ! SF handle for yrr2 amplitudes
+      integer d_yrr3(3)            ! SF handle for yrr3 amplitudes
+      integer d_yrr4(3)            ! SF handle for yrr4 amplitudes
+      character*6 yrr1filename(3) ! File name stub
+      data yrr1filename/'yrr1x ','yrr1y ','yrr1z '/
+      character*6 yrr2filename(3) ! File name stub
+      data yrr2filename/'yrr2x ','yrr2y ','yrr2z '/
+      character*6 yrr3filename(3) ! File name stub
+      data yrr3filename/'yrr3x ','yrr3y ','yrr3z '/
+      character*6 yrr4filename(3) ! File name stub
+      data yrr4filename/'yrr4x ','yrr4y ','yrr4z '/
+      character*6 yr1filename(12) ! File name stub
+      data yr1filename/'yr1x+ ','yr1y+ ','yr1z+ ',
+     &                 'yr1x- ','yr1y- ','yr1z- ',
+     &                 'yr1x++','yr1y++','yr1z++',
+     &                 'yr1x--','yr1y--','yr1z--'/
+      character*6 yr2filename(12) ! File name stub
+      data yr2filename/'yr2x+ ','yr2y+ ','yr1z+ ',
+     &                 'yr2x- ','yr2y- ','yr2z- ',
+     &                 'yr2x++','yr2y++','yr2z++',
+     &                 'yr2x--','yr2y--','yr2z--'/
+      character*6 yr3filename(12) ! File name stub
+      data yr3filename/'yr3x+ ','yr3y+ ','yr3z+ ',
+     &                 'yr3x- ','yr3y- ','yr3z- ',
+     &                 'yr3x++','yr3y++','yr3z++',
+     &                 'yr3x--','yr3y--','yr3z--'/
+      character*6 yr4filename(12) ! File name stub
+      data yr4filename/'yr4x+ ','yr4y+ ','yr4z+ ',
+     &                 'yr4x- ','yr4y- ','yr4z- ',
+     &                 'yr4x++','yr4y++','yr4z++',
+     &                 'yr4x--','yr4y--','yr4z--'/
+c     =====================================================
+c               CC-T(2) Amplitudes and Residual Amplitudes
+c     =====================================================
+      integer d_tq1(36)            ! SF handle for tr1 amplitudes
+      integer l_tq1_offset(3)      ! Offset for tr1 file
+      integer k_tq1_offset(3)      ! Offset for tr1 file
+      integer size_tq1(3)          ! File size in doubles
+      integer d_tq2(36)            ! SF handle for tr2 amplitudes
+      integer l_tq2_offset(3)      ! Offset for tr2 file
+      integer k_tq2_offset(3)      ! Offset for tr2 file
+      integer size_tq2(3)          ! File size in doubles
+      integer d_tq3(36)            ! SF handle for tr3 amplitudes
+      integer l_tq3_offset(3)      ! Offset for tr3 file
+      integer k_tq3_offset(3)      ! Offset for tr3 file
+      integer size_tq3(3)          ! File size in doubles
+      integer d_tq4(36)            ! SF handle for tr4 amplitudes
+      integer l_tq4_offset(3)      ! Offset for tr4 file
+      integer k_tq4_offset(3)      ! Offset for tr4 file
+      integer size_tq4(3)          ! File size in doubles
+      character*8 tqr1filename(36) ! File name stub
+      data tqr1filename/'tqr1xx+ ','tqr1yx+ ','tqr1zx+ ',
+     &                  'tqr1xy+ ','tqr1yy+ ','tqr1zy+ ',
+     &                  'tqr1xz+ ','tqr1yz+ ','tqr1zz+ ',
+     &                  'tqr1xx- ','tqr1yx- ','tqr1zx- ',
+     &                  'tqr1xy- ','tqr1yy- ','tqr1zy- ',
+     &                  'tqr1xz- ','tqr1yz- ','tqr1zz- ',
+     &                  'tqr1xx++','tqr1yx++','tqr1zx++',
+     &                  'tqr1xy++','tqr1yy++','tqr1zy++',
+     &                  'tqr1xz++','tqr1yz++','tqr1zz++',
+     &                  'tqr1xx--','tqr1yx--','tqr1zx--',
+     &                  'tqr1xy--','tqr1yy--','tqr1zy--',
+     &                  'tqr1xz--','tqr1yz--','tqr1zz--'/
+      character*8 tqr2filename(36) ! File name stub
+      data tqr2filename/'tqr2xx+ ','tqr2yx+ ','tqr2zx+ ',
+     &                  'tqr2xy+ ','tqr2yy+ ','tqr2zy+ ',
+     &                  'tqr2xz+ ','tqr2yz+ ','tqr2zz+ ',
+     &                  'tqr2xx- ','tqr2yx- ','tqr2zx- ',
+     &                  'tqr2xy- ','tqr2yy- ','tqr2zy- ',
+     &                  'tqr2xz- ','tqr2yz- ','tqr2zz- ',
+     &                  'tqr2xx++','tqr2yx++','tqr2zx++',
+     &                  'tqr2xy++','tqr2yy++','tqr2zy++',
+     &                  'tqr2xz++','tqr2yz++','tqr2zz++',
+     &                  'tqr2xx--','tqr2yx--','tqr2zx--',
+     &                  'tqr2xy--','tqr2yy--','tqr2zy--',
+     &                  'tqr2xz--','tqr2yz--','tqr2zz--'/
+c     =====================================================
+c                 Excited-State Amplitudes
+c     =====================================================
+      integer d_rx1            ! RHS residual file
+      integer d_rx2            ! RHS residual file
+      integer d_rx3            ! RHS residual file
+      integer d_rx4            ! RHS residual file
+      integer d_ry1            ! LHS residual file
+      integer d_ry2            ! LHS residual file
+      integer d_ry3            ! LHS residual file
+      integer d_ry4            ! LHS residual file
+      integer d_x0             ! Offset for x0 file
+      integer l_x0_offset      ! Offset for x0 file
+      integer k_x0_offset      ! Offset for x0 file
+      integer size_x0          ! File size in doubles
+      integer l_x1_offset      ! Offset for x1 file
+      integer k_x1_offset      ! Offset for x1 file
+      integer size_x1          ! File size in doubles
+      integer l_x2_offset      ! Offset for x2 file
+      integer k_x2_offset      ! Offset for x2 file
+      integer size_x2          ! File size in doubles
+      integer l_x3_offset      ! Offset for x3 file
+      integer k_x3_offset      ! Offset for x3 file
+      integer size_x3          ! File size in doubles
+      integer l_x4_offset      ! Offset for x4 file
+      integer k_x4_offset      ! Offset for x4 file
+      integer size_x4          ! File size in doubles
+      integer d_y0             ! Offset for y0 file
+      integer l_y0_offset      ! Offset for y0 file
+      integer k_y0_offset      ! Offset for y0 file
+      integer size_y0          ! File size in doubles
+      integer l_y1_offset      ! Offset for y1 file
+      integer k_y1_offset      ! Offset for y1 file
+      integer size_y1          ! File size in doubles
+      integer l_y2_offset      ! Offset for y2 file
+      integer k_y2_offset      ! Offset for y2 file
+      integer size_y2          ! File size in doubles
+      integer l_y3_offset      ! Offset for y3 file
+      integer k_y3_offset      ! Offset for y3 file
+      integer size_y3          ! File size in doubles
+      integer l_y4_offset      ! Offset for y4 file
+      integer k_y4_offset      ! Offset for y4 file
+      integer size_y4          ! File size in doubles

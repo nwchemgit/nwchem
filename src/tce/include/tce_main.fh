@@ -1,4 +1,4 @@
-c $Id: tce_main.fh,v 1.3 2008-01-15 13:48:03 jhammond Exp $
+c $Id: tce_main.fh,v 1.4 2008-01-18 19:29:56 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -36,6 +36,7 @@ c
       character*10 perturbative! PT model
       character*10 ccsd_var
       logical left             ! Dipole moments & dipole transition moments
+      integer multipole        ! Multipole moments
       integer maxiter          ! Maximum number of Davidson iterations
       integer l_evl(2),k_evl(2)! MA handles for eigenvalues (AB)
       integer l_occ(2),k_occ(2)! MA handles for occupancies (AB)
@@ -119,7 +120,7 @@ c
      3  l_irs_sorted,k_irs_sorted,l_evl_sorted,k_evl_sorted,
      4  l_spin_sorted,k_spin_sorted,l_movecs_sorted,k_movecs_sorted,
      6  available,nfiles,filehandles,ioalg,
-     7  reference,
+     7  reference,multipole,
      5  target,filesizes,oactive,
      6  vactive,oatiles,vatiles,l_active,k_active,numact,l_b2am,k_b2am,
      7  d_v2orb,l_spin_alpha,k_spin_alpha,l_sym_alpha,k_sym_alpha,
