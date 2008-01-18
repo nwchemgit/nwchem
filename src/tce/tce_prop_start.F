@@ -1,6 +1,6 @@
       logical function tce_prop_start(rtdb)
 c
-c $Id: tce_prop_start.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
+c $Id: tce_prop_start.F,v 1.3 2008-01-18 19:32:19 jhammond Exp $
 c
 c Wrapper for tce_property
 c
@@ -18,31 +18,26 @@ c
       double precision energy
       integer iter, nfrags
       double precision r
-      integer maxiter
-      parameter (maxiter = 40)
-      double precision residual
-      double precision max_residual
-      double precision damping
-      double precision thresh
       logical nodezero
       logical tce_property
       external tce_property
 c
       nodezero = (ga_nodeid().eq.0)
-      if (.not.rtdb_get(rtdb,'tce:fragment',mt_int,1,fragment))
-     1  call errquit('tce_prop_start',0,RTDB_ERR)
-      if (fragment.eq.-1) then
+c      if (.not.rtdb_get(rtdb,'tce:fragment',mt_int,1,fragment))
+c     1  call errquit('tce_prop_start',0,RTDB_ERR)
+c      if (fragment.eq.-1) then
+        if(nodezero) write(LuOut,*) 'tce_prop_start'
         tce_prop_start = tce_property(rtdb,.true.)
         return
-      else
-        tce_prop_start = .false.
-        call geom_fragment(rtdb,nfrags)
-        if (nfrags.eq.1) then
-          tce_prop_start = tce_property(rtdb,.true.)
-          return
-        else
-          call errquit('tce_prop: no fragments!',0,RTDB_ERR)
-        endif
-      endif
- 9000 format(1x,'@ Fragment energies')
+c      else
+c        tce_prop_start = .false.
+c        call geom_fragment(rtdb,nfrags)
+c        if (nfrags.eq.1) then
+c          tce_prop_start = tce_property(rtdb,.true.)
+c          return
+c        else
+c          call errquit('tce_prop: no fragments!',0,RTDB_ERR)
+c        endif
+c      endif
+c 9000 format(1x,'@ Fragment energies')
       end
