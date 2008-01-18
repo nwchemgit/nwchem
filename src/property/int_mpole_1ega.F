@@ -1,5 +1,5 @@
       subroutine int_mpole_1ega(ibas,jbas,g,integ_type,xyzpt,oskel)
-C$Id: int_mpole_1ega.F,v 1.1 2006-11-16 18:23:01 jochen Exp $
+C$Id: int_mpole_1ega.F,v 1.2 2008-01-18 01:58:40 jhammond Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -69,9 +69,13 @@ c
       else if (inp_compare(.false., integ_type, 'quadrupole'))then 
          type = 2
          nblocks = 6
+      else if (inp_compare(.false., integ_type, 'octupole'))then
+         type = 3
+         nblocks = 10
       else
          write(6,*) ' integ_type = ', integ_type,ga_nodeid()
          call errquit('int_mpole_1ega: unknown integ_type', 0, INT_ERR)
+         nblocks = 0 ! meaningless, but makes silences gfortran error message
       end if
 c     
 c     Get info about the basis sets
@@ -91,6 +95,7 @@ c     l_scr ... workspace for integral routines
 c     
 c     k_* are the offsets corrsponding to the l_* handles
 c     
+c     There might be something wrong here because it's not getting enough buf/scr for larger multipoles with smaller basis sets
 c
       call int_init_1emtpl(max1e,mem1,ibas,type)
       mem1 = max(mem1,max1e)
@@ -127,13 +132,19 @@ c
 c     
 c     Generate the integrals
 c     
-                  if (type .eq. 1) then      ! 3
-                     call int_mpolel(jbas,jshell,ibas,ishell,1,xyzpt,
-     &                    mem1,dbl_mb(k_scr),max1e,dbl_mb(k_buf),mtpint)
-                  else
-                     call errquit('int_mpl_1ega: invalid type?', type,
-     &                            GA_ERR)
-                  end if
+c                  if (type .eq. 1) then      ! 3
+c                     call int_mpolel(jbas,jshell,ibas,ishell,1,xyzpt,
+c     &                    mem1,dbl_mb(k_scr),max1e,dbl_mb(k_buf),mtpint)
+c                  else
+c                     call errquit('int_mpl_1ega: invalid type?', type,
+c     &                            GA_ERR)
+c                  end if
+c
+c                  No type logic is necessary and it wastes cycles.
+c                  The type has already been checked and an error is called if type>3.
+c
+                   call int_mpolel(jbas,jshell,ibas,ishell,type,xyzpt,
+     &                  mem1,dbl_mb(k_scr),max1e,dbl_mb(k_buf),mtpint)
 c     
 c     Add the integrals into the global array
 c    
