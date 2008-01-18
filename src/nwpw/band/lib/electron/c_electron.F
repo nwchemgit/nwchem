@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.37 2008-01-17 19:01:59 d3p708 Exp $
+* $Id: c_electron.F,v 1.38 2008-01-18 23:57:38 d3p708 Exp $
 *
 
 
@@ -277,7 +277,7 @@ c      complex*16 psi_k(*)
       call cpsi_data_noupdate(psi2_tag)
       return
       end
-
+cccccccccccc
       subroutine c_electron_sd_subupdate(nb,nfft3d,nn,
      >              psi1,psi2,Hpsi,dte)
       implicit none
