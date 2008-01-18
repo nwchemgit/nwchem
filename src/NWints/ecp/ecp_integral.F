@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.21 2008-01-18 21:57:55 bert Exp $
+C $Id: ecp_integral.F,v 1.22 2008-01-18 22:31:10 bert Exp $
 ************************************************************************
 *                                                                      *
 c:tex-% this is part of the API Standard Integral routines.
@@ -379,8 +379,7 @@ C        end if
           write (LuOut,*) 'n_intt',n_intt
           write (LuOut,*) 'lscr',lscr
         end if
-c     else if (debug_arrays) then
-      else
+      else if (debug_arrays) then
         n = 1
         do j = 1,n_blk
           call ecp_matpr (ecp_ints(n),1,n_all_b,1,n_all_a,
