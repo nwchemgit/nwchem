@@ -1,7 +1,7 @@
-#$Id: GNUmakefile,v 1.39 2008-01-18 19:23:05 jhammond Exp $
+#$Id: GNUmakefile,v 1.40 2008-01-18 19:23:56 jhammond Exp $
 #
 
-SUBDIRS = include #ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
+SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
           ccsd_lambda ccsdt_lambda ccsdtq_lambda \
           eomccsd eomccsdt eomccsdtq ccsd_t cr-eomccsd_t \
