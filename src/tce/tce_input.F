@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.21 2007-09-14 18:53:17 kowalski Exp $
+c $Id: tce_input.F,v 1.22 2008-01-18 19:23:04 jhammond Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -93,6 +93,7 @@ c ------------------
       character*4 targetsym
       logical symmetry
       logical left
+      integer multipole
       logical recompf
       character*10 perturbative
       character*10 ccsd_var 
@@ -229,6 +230,13 @@ c     DIPOLE (dipole moments & dipole transition moments)
 c
       left=.false.
       if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+c     MULTIPOLE LMAX (multipole moments highest angular momentum)
+c
+      multipole=0
+      if (.not.rtdb_put(rtdb,'tce:multipole',mt_log,1,multipole))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
@@ -888,6 +896,21 @@ c
         if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
+c
+c     MULTIPOLE (multipole moments)
+c
+      print*,'A multipole = ',multipole
+      else if (inp_compare(.false.,test,'multipole')) then
+        if (.not.inp_i(multipole)) then
+          write(LuOut,*) 'tce_input: multipole value not found; ',
+     1      'default value of 1 will be used'
+          multipole=1
+        print*,'B multipole = ',multipole
+        endif
+        if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        print*,'C multipole = ',multipole
 c
 c     TILESIZE (the maximum tile size)
 c

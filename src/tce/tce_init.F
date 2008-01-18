@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.37 2008-01-14 15:20:33 jhammond Exp $
+c $Id: tce_init.F,v 1.38 2008-01-18 19:23:04 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -266,6 +266,11 @@ c
         left=.false.
         if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
      1  call errquit('tce_init: failed to write left',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:multipole',mt_int,1,multipole)) then
+        multipole=0
+        if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
+     1  call errquit('tce_init: failed to write multipole',0,RTDB_ERR)
       endif
 c
 c    Beginning of response property input section
