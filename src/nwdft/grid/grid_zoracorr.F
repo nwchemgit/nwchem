@@ -110,7 +110,7 @@ czora...
       double precision rx,ry,rz,dist
       double precision amat_nucl(nqpts)
       double precision smalldist
-      parameter (smalldist=1.0d-06)
+      parameter (smalldist=1.0d-04)
 
 c     get the total nuclear potential on the grid
 
