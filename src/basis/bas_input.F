@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.66 2007-11-26 19:11:36 bert Exp $
+c $Id: bas_input.F,v 1.67 2008-01-18 22:01:14 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -754,7 +754,9 @@ c     simple shell or all ecp/so shells
                   rex_okay =
      &                ((abs(rex(j)-0.0d00)).lt.1.0d-9).or.
      &                ((abs(rex(j)-1.0d00)).lt.1.0d-9).or.
-     &                ((abs(rex(j)-2.0d00)).lt.1.0d-9)
+     &                ((abs(rex(j)-2.0d00)).lt.1.0d-9).or.
+     &                ((abs(rex(j)-3.0d00)).lt.1.0d-9).or.
+     &                ((abs(rex(j)-4.0d00)).lt.1.0d-9)
                   if (rex_okay) then
                     rex_tmp(nptmp) = rex(j)
                   else

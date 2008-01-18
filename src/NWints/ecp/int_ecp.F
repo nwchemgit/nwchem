@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.31 2005-03-07 23:52:19 edo Exp $
+* $Id: int_ecp.F,v 1.32 2008-01-18 21:57:55 bert Exp $
       implicit none
 *::cr::7
 *--------------------------------------------------*
@@ -248,13 +248,13 @@ c... determine maximum angular momentum of ecp basis
 c
       l_ecp_sz = l_ecp + 2       !    (-1->Lval)
 c
-c... allocate space for n_prim_C(0:2,-1:l_ecp_max,n_C*2),
+c... allocate space for n_prim_C(0:4,-1:l_ecp_max,n_C*2),
       if (.not.ma_alloc_get(mt_int,
-     &    (3*l_ecp_sz*n_ecp*2),
+     &    (5*l_ecp_sz*n_ecp*2),
      &    'ecp n_prim_C',
      &    h_ecp_nprim_c, k_ecp_nprim_c)) call errquit
      &    (' int_ecp: ecp nprim_c ma failed ',911, BASIS_ERR)
-      call ifill((3*l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_nprim_c),1)
+      call ifill((5*l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_nprim_c),1)
 c... allocate space for n_coef_C(-1:l_ecp_max,n_C*2)
       if (.not.ma_alloc_get(mt_int,
      &    (l_ecp_sz*n_ecp*2),
@@ -552,7 +552,7 @@ c
       integer n_ecp    ! [input] number of ecp centers
       integer l_ecp    ! [input] maximum angular momentum in ecp basis
       integer nz_ecp   ! [input] number of prims/coeffs in stored data structure. 
-      integer n_prim_C(0:2,-1:l_ecp,n_ecp,2) ! [output] 
+      integer n_prim_C(0:4,-1:l_ecp,n_ecp,2) ! [output] 
       integer n_coef_C(-1:l_ecp,n_ecp,2)     ! [output] 
       integer ind_C(-1:l_ecp,n_ecp,2)        ! [output] 
       integer ind_z(-1:l_ecp,n_ecp,2)        ! [output] 
@@ -579,6 +579,7 @@ c
       integer icfp        ! pointer into exndcf for coefficients
       integer irexp       ! pointer into exndcf for r-exponents
       integer n0,n1,n2    ! r-exponent count 
+      integer n3,n4       ! r-exponent count 
       integer ie          ! ecp/so counter
 c
 #include "bas_exndcf_sfn.fh"
@@ -588,7 +589,7 @@ c
       ecpid = ecpidin + BASIS_HANDLE_OFFSET
       soid  = soidin  + BASIS_HANDLE_OFFSET
 c... zero arrays
-      call ifill((3*(l_ecp+2)*n_ecp*2),0,n_prim_C,1)
+      call ifill((5*(l_ecp+2)*n_ecp*2),0,n_prim_C,1)
       call ifill(((l_ecp+2)*n_ecp*2),0,n_coef_C,1)
       call ifill(((l_ecp+2)*n_ecp*2),0,ind_C,1)
       call ifill(((l_ecp+2)*n_ecp*2),0,ind_z,1)
@@ -652,10 +653,12 @@ c
      &          c_coef((p_nprim+1)),
      &          dbl_mb(mb_exndcf(icfp,ecpid)),
      &          dbl_mb(mb_exndcf(irexp,ecpid)),
-     &          nprim,n0,n1,n2)
+     &          nprim,n0,n1,n2,n3,n4)
             n_prim_C(0,type,ie,1) = n0
             n_prim_C(1,type,ie,1) = n1
             n_prim_C(2,type,ie,1) = n2
+            n_prim_C(3,type,ie,1) = n3
+            n_prim_C(4,type,ie,1) = n4
             ind_C(type,ie,1)      = p_nprim+1
             ind_Z(type,ie,1)      = p_nprim+1
             n_coef_c(type,ie,1)   = nprim
@@ -692,6 +695,8 @@ c
             n_prim_C(0,type,ie,2) = n0
             n_prim_C(1,type,ie,2) = n1
             n_prim_C(2,type,ie,2) = n2
+            n_prim_C(3,type,ie,2) = n3
+            n_prim_C(4,type,ie,2) = n4
             ind_C(type,ie,2)      = p_nprim+1
             ind_Z(type,ie,2)      = p_nprim+1
             n_coef_c(type,ie,2)   = nprim
@@ -726,7 +731,7 @@ c
       integer n_ecp    ! [input] number of ecp centers
       integer l_ecp    ! [input] maximum angular momentum in ecp basis
       integer nz_ecp   ! [input] number of prims/coeffs in stored data structure. 
-      integer n_prim_C(0:2,-1:l_ecp,n_ecp,2) ! [output] 
+      integer n_prim_C(0:4,-1:l_ecp,n_ecp,2) ! [output] 
       integer n_coef_C(-1:l_ecp,n_ecp,2)     ! [output] 
       integer ind_C(-1:l_ecp,n_ecp,2)        ! [output] 
       integer ind_Z(-1:l_ecp,n_ecp,2)        ! [output] 
@@ -757,7 +762,7 @@ c
      &          ind_C(j,i,l)
             write(6,*)' ind_z(',j,',',i,',',l,') = ',
      &          ind_z(j,i,l)
-            do k = 0,2
+            do k = 0,4
               write(6,*)' n_prim_C(',
      &            k,',',j,',',i,',',l,') =',
      &            n_prim_C(k,j,i,l)
@@ -793,6 +798,16 @@ c
               pek = pe + k
               write(6,*)' 2 ',c_exp(pek),c_coef(pek)
             enddo
+            pe = pe + n_prim_C(2,j,i,l)
+            do k=1,n_prim_C(3,j,i,l)
+              pek = pe + k
+              write(6,*)' 3 ',c_exp(pek),c_coef(pek)
+            enddo
+            pe = pe + n_prim_C(3,j,i,l)
+            do k=1,n_prim_C(4,j,i,l)
+              pek = pe + k
+              write(6,*)' 4 ',c_exp(pek),c_coef(pek)
+            enddo
             write(6,*)' '
           enddo
           write(6,*)' '
@@ -806,7 +821,7 @@ c
      &    c_coef,
      &    ecp_coef,
      &    grexp,
-     &    nprim,new0,new1,new2)
+     &    nprim,new0,new1,new2,new3,new4)
       implicit none
 #include "errquit.fh"
 c
@@ -814,7 +829,7 @@ c data structures in the ecp code assume all 0 exponents, all 1 exponents
 c and all 2 exponents are contiguous.  Not enforced in the input.
 c 
 c
-      integer nprim, new0, new1, new2
+      integer nprim, new0, new1, new2, new3, new4
       double precision c_exp(nprim)
       double precision ecp_exp(nprim)
       double precision c_coef(nprim)
@@ -822,7 +837,7 @@ c
       double precision grexp(nprim)
 c
       integer i, j, ival, iptr
-      integer new(0:2)
+      integer new(0:4)
 c
 c assumes no general contraction in the ecp basis
 c
@@ -834,17 +849,17 @@ c
 *:debugn3:      call output (ecp_coef,1,nprim,1,1,nprim,1,1)
 *:debugn3:      write(6,*)' grexp '
 *:debugn3:      call output (grexp,1,nprim,1,1,nprim,1,1)
-      call ifill(3,0,new,1)
+      call ifill(5,0,new,1)
       iptr = 0
-      do i = 0,2
+      do i = 0,4
         do j = 1,nprim
           ival = int(grexp(j) + 0.00002d00)
 *:debugn3:          write(6,*)' i, j, ival ',i, j, ival
-          if (ival.lt.0.or.ival.gt.2) then
+          if (ival.lt.0.or.ival.gt.4) then
             write(6,*)' ival    = ',ival
             write(6,*)' grexp(j) = ',grexp(j)
             call errquit
-     &          ('ecp_get_n3: r-exponent not equal to 0,1,2',911,
+     &          ('ecp_get_n3: r-exponent not equal to 0,1,2,3,4',911,
      &       BASIS_ERR)
           endif
           if (ival.eq.i) then
@@ -860,6 +875,8 @@ c
       new0 = new(0)
       new1 = new(1)
       new2 = new(2)
+      new3 = new(3)
+      new4 = new(4)
 *:debugn3:      write(6,*)' c_exp  '
 *:debugn3:      call output (c_exp,1,nprim,1,1,nprim,1,1)
 *:debugn3:      write(6,*)' c_coef  '

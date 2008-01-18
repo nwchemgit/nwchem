@@ -1,4 +1,4 @@
-* $Id: atscf_ecp.F,v 1.12 2003-10-17 22:54:15 carlfahl Exp $
+* $Id: atscf_ecp.F,v 1.13 2008-01-18 22:00:07 bert Exp $
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
 *
@@ -142,7 +142,7 @@ c.. n_zeta_c number of exponents, need a max
 c.1. zeta_c = exponents of ecp      (flat for all ecp info)
 c.2. coef_c = contraction coeefs    (flat for all ecp info)
 c.3. n_prim_c = info about primitives rval, type and center 
-*               (0:2,-1:lmax,necp=1)
+*               (0:4,-1:lmax,necp=1)
 c.4. n_coef_c = info about prims summed over rval just type 
 *               and center (-1:lmax,necp=1)
 c.5. ind_c    = first coeff/exponent for each type (-1:lmax,necp=1)
@@ -187,12 +187,12 @@ c.. get lmax for all basis set
 
 c.. allocate memory for n_prim_c array (see ecp_integral for def)
       if (.not.
-     &    ma_alloc_get(mt_int,(3*(lmax_all_ecp+2)),
+     &    ma_alloc_get(mt_int,(5*(lmax_all_ecp+2)),
      &    'atscf ecp nprimc',
      &    h_nprimc,k_nprimc)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911,
      &       MA_ERR)
-      call ifill((3*(lmax_all_ecp+2)),0,int_mb(k_nprimc),1)
+      call ifill((5*(lmax_all_ecp+2)),0,int_mb(k_nprimc),1)
 
 c.. allocate memory for n_coef_c array (see ecp_integral for def)
       if (.not.
@@ -295,7 +295,7 @@ c::-passed
       double precision zeta_c(sz_zetac) ! [s] ecp exponent array
       double precision coef_c(sz_zetac) ! [s] ecp coefs array
       integer lmax_all                  ! [i] ecp max angular momentum
-      integer n_prim_c(0:2,-1:lmax_all) ! [s] ecp code pointer array
+      integer n_prim_c(0:4,-1:lmax_all) ! [s] ecp code pointer array
       integer n_coef_c(-1:lmax_all)     ! [s] ecp code pointer array
       integer ind_c(-1:lmax_all)        ! [s] ecp code pointer array
       integer lscr     ! [input] length of scratch buffer
@@ -315,6 +315,7 @@ c::-local
       integer ecp            ! lexical basis set index for ecpis
       integer atscf_n_zetac  ! size of n_zeta_c in reality
       integer n0, n1, n2     ! dummy r exponent indecies
+      integer n3, n4         ! dummy r exponent indecies
       integer iexp,icfp,irexp ! private basis set pointer info
       integer l_c            ! max ang on ecp center
 * for atomic code the next three are the same = 1
@@ -389,10 +390,12 @@ c
      &      dbl_mb(mb_exndcf(iexp,ecp)),
      &      coef_c(nn_off),
      &      dbl_mb(mb_exndcf(icfp,ecp)),
-     &      dbl_mb(mb_exndcf(irexp,ecp)),nprim,n0,n1,n2)
+     &      dbl_mb(mb_exndcf(irexp,ecp)),nprim,n0,n1,n2,n3,n4)
         n_prim_c(0,type) = n0
         n_prim_c(1,type) = n1
         n_prim_c(2,type) = n2
+        n_prim_c(3,type) = n3
+        n_prim_c(4,type) = n4
         ind_c(type)      = nn_off
         n_coef_c(type)   = nprim
         l_c              = max(type,l_c)

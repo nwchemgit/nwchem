@@ -1,4 +1,4 @@
-C $Id: ecp_int2.F,v 1.14 2003-10-17 22:53:51 carlfahl Exp $
+C $Id: ecp_int2.F,v 1.15 2008-01-18 21:57:55 bert Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
@@ -110,6 +110,7 @@ C $Id: ecp_int2.F,v 1.14 2003-10-17 22:53:51 carlfahl Exp $
       if (debug_gen) then
         write (LuOut,'(//A,/)') 'Entering ecp_int2 ...'
         write (LuOut,*) 'l_a,l_b',l_a,l_b
+        write(LuOut,*) 'p_min,p_max', p_min,p_max,l_ecp_max
       end if
       if (DryRun) mem_max = 0
 *

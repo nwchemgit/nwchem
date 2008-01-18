@@ -1,4 +1,4 @@
-C $Id: ecp_radint1.F,v 1.5 2003-10-17 22:53:51 carlfahl Exp $
+C $Id: ecp_radint1.F,v 1.6 2008-01-18 21:57:55 bert Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_radint1 (p_min,p_max,l_lo,l_min,l_max,m_count,
@@ -93,7 +93,13 @@ C $Id: ecp_radint1.F,v 1.5 2003-10-17 22:53:51 carlfahl Exp $
           n_abp = n_ab*n_p
           if (debug_addresses) write (LuOut,'(3I5)') p,n_p,n_abp
           if (n_abp .gt. 0) then
-            if (p .eq. 2) then
+            if (p .eq. 4) then
+              call ecp_t1_Q4int (n_abp,l,x(ind_p),a_sqrt(ind_p),
+     &            Qabc(ind_p))
+            else if (p .eq. 3) then
+              call ecp_t1_Q3int (n_abp,l,x(ind_p),a_sqrt(ind_p),
+     &            Qabc(ind_p),temp,ind,tol)
+            else if (p .eq. 2) then
               call ecp_t1_Q2int (n_abp,l,x(ind_p),a_sqrt(ind_p),
      &            Qabc(ind_p))
             else if (p .eq. 1) then

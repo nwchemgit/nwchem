@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.32 2004-09-30 18:50:59 edo Exp $
+# $Id: GNUmakefile,v 1.33 2008-01-18 21:57:55 bert Exp $
 # 
 
 HEADERS   = ecp_nwc.fh
@@ -59,6 +59,14 @@ OBJ_ENERGY = \
       ecp_local2.o   \
       ecp_locint1.o  \
       ecp_skipint.o  \
+      ecp_t1_Q3asy.o \
+      ecp_t1_Q3int.o \
+      ecp_t1_Q3pow.o \
+      ecp_t1_Q4int.o \
+      ecp_t2_init3.o \
+      ecp_t2_init4.o \
+      ecp_t2_p3pow.o \
+      ecp_t2_p4pow.o \
       ecp_ind_var.o  
 
 #   ecp_local.o    \
@@ -80,6 +88,8 @@ USES_BLAS = ecp_bess_pow.f \
       ecp_int0.F     \
       ecp_int1.F     \
       ecp_int2.F     \
+      ecp_int3.F     \
+      ecp_int4.F     \
       ecp_integral.F \
       ecp_local0.F   \
       ecp_local1.F   \
@@ -91,10 +101,14 @@ USES_BLAS = ecp_bess_pow.f \
       ecp_s2ccoef.f  \
       ecp_so_ang.F   \
       ecp_t1_Q0asy.F \
+      ecp_t1_Q3asy.F \
       ecp_t1_Q0pow.F \
       ecp_t1_Q1pow.F \
+      ecp_t1_Q3pow.F \
       ecp_t2_p0pow.F \
       ecp_t2_p1pow.F \
+      ecp_t2_p3pow.F \
+      ecp_t2_p4pow.F \
       ecp_skipint.F  \
       int_ecp.F      
 

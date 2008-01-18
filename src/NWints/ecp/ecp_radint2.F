@@ -1,4 +1,4 @@
-C $Id: ecp_radint2.F,v 1.5 2003-10-17 22:53:51 carlfahl Exp $
+C $Id: ecp_radint2.F,v 1.6 2008-01-18 21:57:55 bert Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_radint2 (p_min,p_max,
@@ -144,7 +144,15 @@ C $Id: ecp_radint2.F,v 1.5 2003-10-17 22:53:51 carlfahl Exp $
         n_abp = n_ab*n_prim_c(p)
         if (debug_addresses) write (LuOut,*) 'p =',p
         if (debug_addresses) write (LuOut,*) n_abp,n_ab,n_prim_c(p)
-        if (p .eq. 2) then
+        if (p .eq. 4) then
+          if (n_abp .gt. 0) call ecp_t2_init4 (n_abp,n_abc,m_min,m_max,
+     &        j,h,tol,ai,bi,alpha(ind_p),beta(ind_p),gamma(ind_p),
+     &        prefactor(ind_p),temp(1,2),temp(1,1),Qabc(ind_p,1,1))
+        else if (p .eq. 3) then
+          if (n_abp .gt. 0) call ecp_t2_init3 (n_abp,n_abc,m_min,m_max,
+     &        j,h,tol,ai,bi,alpha(ind_p),beta(ind_p),gamma(ind_p),
+     &        prefactor(ind_p),temp(1,2),temp(1,1),Qabc(ind_p,1,1))
+        else if (p .eq. 2) then
           if (n_abp .gt. 0) call ecp_t2_init2 (n_abp,n_abc,m_min,m_max,
      &        h,tol,alpha(ind_p),beta(ind_p),gamma(ind_p),
      &        prefactor(ind_p),temp,temp(1,6),temp(1,7),Qabc(ind_p,1,1))
@@ -159,7 +167,7 @@ C $Id: ecp_radint2.F,v 1.5 2003-10-17 22:53:51 carlfahl Exp $
         else
           call errquit(
      &        'Illegal p value in routine ecp_radint2',
-     &        99, BASIS_ERR)
+     &        p, BASIS_ERR)
         end if
         if (debug_addresses) write (LuOut,*) 'end p loop'
         ind_p = ind_p+n_abp

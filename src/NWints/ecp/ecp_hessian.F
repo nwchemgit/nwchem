@@ -1,4 +1,4 @@
-C $Id: ecp_hessian.F,v 1.13 2004-04-27 22:03:02 bert Exp $
+C $Id: ecp_hessian.F,v 1.14 2008-01-18 21:57:55 bert Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_hessian (
@@ -81,7 +81,7 @@ C $Id: ecp_hessian.F,v 1.13 2004-04-27 22:03:02 bert Exp $
      &    n_prim_B,n_cont_B,l_B,i_c_B,
      &    n_zeta_C,n_coef_C,n_C,i_c_C,l_ecp_max,
      &    n_int,n_blk,n_cent,sphcart,lscr,ibug
-      integer n_prim_C(0:2,-1:l_ecp_max,n_C*2),
+      integer n_prim_C(0:4,-1:l_ecp_max,n_C*2),
      &    n_colc_C(-1:l_ecp_max,n_C*2),
      &    ind_z(-1:l_ecp_max,n_C*2),ind_c(-1:l_ecp_max,n_C*2),
      &    l_C(n_C),i_cent_C(n_C)
@@ -266,7 +266,7 @@ c     n_cartm2_B = n_cartm1_B-l_B-2
 *
 C        if (debug_arrays) then
 C          write (LuOut,*) 'Parameters of ECP'
-C          call ecp_matpi (n_prim_C,0,2,-1,l_ecp_max,0,2,0,l_C,
+C          call ecp_matpi (n_prim_C,0,4,-1,l_ecp_max,0,2,0,l_C,
 C     &        'n_prim_C',81,15)
 C          call ecp_matpi (ind_C,-1,l_ecp_max,1,1,0,l_C,1,1,
 C     &        'ind_C',81,15)
@@ -296,7 +296,7 @@ C        end if
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,
      &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          zeta_c(i_zeta),coef_c(i_coef),0,4,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpbb,.false.,ibug/10)
@@ -308,7 +308,7 @@ C        end if
      &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpbb,n_blk,.false.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
@@ -319,7 +319,7 @@ C        end if
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,
      &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          zeta_C(i_zeta),coef_C(i_coef),0,4,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpbb,ibug/10)
@@ -331,7 +331,7 @@ C        end if
      &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpbb,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -346,7 +346,7 @@ C        end if
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,
      &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          zeta_c(i_zeta),coef_c(i_coef),0,4,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,.false.,ibug/10)
@@ -358,7 +358,7 @@ C        end if
      &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,n_blk,.false.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
@@ -369,7 +369,7 @@ C        end if
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,
      &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          zeta_C(i_zeta),coef_C(i_coef),0,4,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,ibug/10)
@@ -381,7 +381,7 @@ C        end if
      &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -407,7 +407,7 @@ C        end if
      &            R_AC,X_AC,Y_AC,Z_AC,l_A,
      &            n_prim_A,n_cont_A,coef_A,zeta_A,
      &            n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &            zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &            zeta_c(i_zeta),coef_c(i_coef),0,4,
      &            tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmbb,.false.,ibug/10)
@@ -419,7 +419,7 @@ C        end if
      &            n_prim_A,n_cont_A,coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &            zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmbb,n_blk,.false.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
@@ -430,7 +430,7 @@ C        end if
      &            R_AC,X_AC,Y_AC,Z_AC,l_A,
      &            n_prim_A,n_cont_A,coef_A,zeta_A,
      &            n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &            zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &            zeta_C(i_zeta),coef_C(i_coef),0,4,
      &            tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmbb,ibug/10)
@@ -442,7 +442,7 @@ C        end if
      &            n_prim_A,n_cont_A,coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &            zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmbb,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
@@ -507,7 +507,7 @@ C        end if
      &          R_BC,X_BC,Y_BC,Z_BC,l_B,
      &          n_prim_B,n_cont_B,coef_B,zeta_B,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          zeta_c(i_zeta),coef_c(i_coef),0,4,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpaa,.true.,ibug/10)
@@ -519,7 +519,7 @@ C        end if
      &          n_prim_B,n_cont_B,coef_B,zeta_B,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpaa,n_blk,.true.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
@@ -530,7 +530,7 @@ C        end if
      &          R_AC,X_AC,Y_AC,Z_AC,l_A+2,
      &          n_prim_A,n_cont_A,scr(i_xxca),zeta_A,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          zeta_C(i_zeta),coef_C(i_coef),0,4,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpaa,ibug/10)
@@ -542,7 +542,7 @@ C        end if
      &          n_prim_A,n_cont_A,scr(i_xxca),zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpaa,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -557,7 +557,7 @@ C        end if
      &          R_BC,X_BC,Y_BC,Z_BC,l_B,
      &          n_prim_B,n_cont_B,coef_B,zeta_B,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          zeta_c(i_zeta),coef_c(i_coef),0,4,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,.true.,ibug/10)
@@ -569,7 +569,7 @@ C        end if
      &          n_prim_B,n_cont_B,coef_B,zeta_B,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,n_blk,.true.,ibug/10)
             if (DryRun) max_type1 = max(mem,max_type1)
@@ -580,7 +580,7 @@ C        end if
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,
      &          n_prim_A,n_cont_A,scr(i_xca),zeta_A,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          zeta_C(i_zeta),coef_C(i_coef),0,4,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,ibug/10)
@@ -592,7 +592,7 @@ C        end if
      &          n_prim_A,n_cont_A,scr(i_xca),zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_ab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -618,7 +618,7 @@ C        end if
      &            R_BC,X_BC,Y_BC,Z_BC,l_B,
      &            n_prim_B,n_cont_B,coef_B,zeta_B,
      &            n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &            zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &            zeta_c(i_zeta),coef_c(i_coef),0,4,
      &            tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmaa,.true.,ibug/10)
@@ -630,7 +630,7 @@ C        end if
      &            n_prim_B,n_cont_B,coef_B,zeta_B,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &            zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmaa,n_blk,.true.,ibug/10)
               if (DryRun) max_type1 = max(mem,max_type1)
@@ -641,7 +641,7 @@ C        end if
      &            R_AC,X_AC,Y_AC,Z_AC,l_A-2,
      &            n_prim_A,n_cont_A,coef_A,zeta_A,
      &            n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &            zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &            zeta_C(i_zeta),coef_C(i_coef),0,4,
      &            tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmaa,ibug/10)
@@ -653,7 +653,7 @@ C        end if
      &            n_prim_A,n_cont_A,coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &            zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lp),n_intmaa,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)
@@ -716,7 +716,7 @@ C        end if
      &        R_AC,X_AC,Y_AC,Z_AC,l_A+1,
      &        n_prim_A,n_cont_A,scr(i_xca),zeta_A,
      &        n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &        zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &        zeta_C(i_zeta),coef_C(i_coef),0,4,
      &        tol,0,scr(i_scr),l_scr,
      &        csco,lcsco,
      &        scr(i_lp),n_intppab,ibug/10)
@@ -728,7 +728,7 @@ C        end if
      &        n_prim_A,n_cont_A,scr(i_xca),zeta_A,
      &        l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &        ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &        zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &        zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &        csco,lcsco,
      &        scr(i_lp),n_intppab,n_blk,ibug/10)
           if (DryRun) max_type2 = max(mem,max_type2)
@@ -744,7 +744,7 @@ C        end if
      &          R_AC,X_AC,Y_AC,Z_AC,l_A-1,
      &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          zeta_C(i_zeta),coef_C(i_coef),0,4,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_intmpab,ibug/10)
@@ -756,7 +756,7 @@ C        end if
      &          n_prim_A,n_cont_A,coef_A,zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lm),n_intmpab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -784,7 +784,7 @@ C        end if
      &          R_AC,X_AC,Y_AC,Z_AC,l_A+1,
      &          n_prim_A,n_cont_A,scr(i_xca),zeta_A,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          zeta_C(i_zeta),coef_C(i_coef),0,4,
      &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpmab,ibug/10)
@@ -796,7 +796,7 @@ C        end if
      &          n_prim_A,n_cont_A,scr(i_xca),zeta_A,
      &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &          zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
      &          scr(i_lp),n_intpmab,n_blk,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
@@ -810,7 +810,7 @@ C        end if
      &            R_AC,X_AC,Y_AC,Z_AC,l_A-1,
      &            n_prim_A,n_cont_A,coef_A,zeta_A,
      &            n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &            zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &            zeta_C(i_zeta),coef_C(i_coef),0,4,
      &            tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lm),n_intmmab,ibug/10)
@@ -822,7 +822,7 @@ C        end if
      &            n_prim_A,n_cont_A,coef_A,zeta_A,
      &            l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &            ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &            zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &            zeta_C,coef_C,0,4,tol,0,scr(i_scr),l_scr,
      &            csco,lcsco,
      &            scr(i_lm),n_intmmab,n_blk,ibug/10)
               if (DryRun) max_type2 = max(mem,max_type2)

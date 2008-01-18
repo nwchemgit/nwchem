@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.20 2004-07-22 16:31:41 edo Exp $
+C $Id: ecp_integral.F,v 1.21 2008-01-18 21:57:55 bert Exp $
 ************************************************************************
 *                                                                      *
 c:tex-% this is part of the API Standard Integral routines.
@@ -101,7 +101,7 @@ c:tex-\end{verbatim}
      &    n_prim_B,n_cont_B,l_B,i_c_B,
      &    n_zeta_C,n_coef_C,n_C,i_c_C,l_ecp_max,
      &    n_int,n_blk,sphcart,lscr,ibug
-      integer n_prim_C(0:2,-1:l_ecp_max,n_C*2),
+      integer n_prim_C(0:4,-1:l_ecp_max,n_C*2),
      &    n_colc_C(-1:l_ecp_max,n_C*2),
      &    ind_z(-1:l_ecp_max,n_C*2),ind_c(-1:l_ecp_max,n_C*2),
      &    l_C(n_C),i_cent_C(n_C)
@@ -224,7 +224,7 @@ c:tex-\end{verbatim}
         if (debug_gen) write (LuOut,*) 'starting integrals'
 C        if (debug_arrays) then
 C          write (LuOut,*) 'Parameters of ECP'
-C          call ecp_matpi (n_prim_C,0,2,-1,l_ecp_max,0,2,0,l_C,
+C          call ecp_matpi (n_prim_C,0,4,-1,l_ecp_max,0,2,0,l_C,
 C     &        'n_prim_C',81,15)
 C          call ecp_matpi (ind_C,-1,l_ecp_max,1,2*n_C,0,l_C,1,2*n_C,
 C     &        'ind_C',81,15)
@@ -249,7 +249,7 @@ C        end if
      &          l_B,n_prim_B,n_cont_B,coef_B,zeta_B,n_cart_b,
      &          l_A,n_prim_A,n_cont_A,coef_A,zeta_A,n_cart_a,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          zeta_c(i_zeta),coef_c(i_coef),0,4,
      &          tol,sphcart,scr(i_scr),memscr,
      &          csco,lcsco,
      &          scr,ibug/10)
@@ -263,7 +263,7 @@ C        end if
      &        l_A,n_prim_A,n_cont_A,coef_A,zeta_A,n_cart_a,
      &        l_C(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &        ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &        zeta_C,coef_C,0,2,tol,sphcart,
+     &        zeta_C,coef_C,0,4,tol,sphcart,
      &        scr(i_scr),memscr,csco,lcsco,
      &        scr,n_blk,ibug/10)
           if (DryRun) max_type0 = max(mem,max_type0)
@@ -278,7 +278,7 @@ C        end if
      &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          zeta_c(i_zeta),coef_c(i_coef),0,4,
      &          tol,sphcart,scr(i_scr),memscr,
      &          csco,lcsco,
      &          scr,n_intt,.false.,ibug/10)
@@ -292,7 +292,7 @@ C        end if
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &        l_C(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &        ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &        zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),memscr,
+     &        zeta_C,coef_C,0,4,tol,sphcart,scr(i_scr),memscr,
      &        csco,lcsco,
      &        scr,n_intt,n_blk,.false.,ibug/10)
           if (DryRun) max_type1 = max(mem,max_type1)
@@ -307,7 +307,7 @@ C        end if
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_c(i_zeta),coef_c(i_coef),0,2,
+     &          zeta_c(i_zeta),coef_c(i_coef),0,4,
      &          tol,sphcart,scr(i_scr),memscr,
      &          csco,lcsco,
      &          scr,n_intt,.true.,ibug/10)
@@ -321,7 +321,7 @@ C        end if
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        l_C(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &        ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &        zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),memscr,
+     &        zeta_C,coef_C,0,4,tol,sphcart,scr(i_scr),memscr,
      &        csco,lcsco,
      &        scr,n_intt,n_blk,.true.,ibug/10)
           if (DryRun) max_type1 = max(mem,max_type1)
@@ -336,7 +336,7 @@ C        end if
      &          R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &          R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &          n_prim_C(0,-1,i),n_colc_C(-1,i),
-     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          zeta_C(i_zeta),coef_C(i_coef),0,4,
      &          tol,sphcart,scr(i_scr),memscr,
      &          csco,lcsco,
      &          scr,n_intt,ibug/10)
@@ -350,7 +350,7 @@ C        end if
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &        l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
      &        ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &        zeta_C,coef_C,0,2,tol,sphcart,scr(i_scr),memscr,
+     &        zeta_C,coef_C,0,4,tol,sphcart,scr(i_scr),memscr,
      &        csco,lcsco,
      &        scr,n_intt,n_blk,ibug/10)
           if (DryRun) max_type2 = max(mem,max_type2)
@@ -379,7 +379,8 @@ C        end if
           write (LuOut,*) 'n_intt',n_intt
           write (LuOut,*) 'lscr',lscr
         end if
-      else if (debug_arrays) then
+c     else if (debug_arrays) then
+      else
         n = 1
         do j = 1,n_blk
           call ecp_matpr (ecp_ints(n),1,n_all_b,1,n_all_a,
