@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska and Patrick Nichols
-   $Id: atom.c,v 1.19 2007-06-19 21:36:07 d3p708 Exp $
+   $Id: atom.c,v 1.20 2008-01-19 00:11:48 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -596,7 +596,6 @@ print_Atom (FILE * fp)
   fprintf (fp, "Ngrid    : %d\n", N_LogGrid ());
   fprintf (fp,
 	   "------------------------------------------------------------\n");
-  fprintf (fp, "n\tl\tpopulation\tEigenvalue\tOuter Peak\n");
   if (Solver_Type == Dirac)
     {
       fprintf (fp, "n\tl\tspin\tpopulation\tEigenvalue\tOuter Peak\n");
