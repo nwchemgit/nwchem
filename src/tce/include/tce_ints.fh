@@ -59,7 +59,7 @@ c                                           (4,15) = ZZZZ
 c
 c     =====================================================
       integer irrep_mp(4,15)           ! This is setup somewhere else
-      integer g_ao_mp1(4,15)           ! GA handle for AO dipole matrices
+      integer g_ao_mp1(4)              ! GA handle for AO dipole matrices
       integer d_mo_mp1(4,15)           ! MO dipole integral file
       integer l_mo_mp1_offset(4,15)    ! Offset for d1 integral file
       integer k_mo_mp1_offset(4,15)    ! Offset for d1 integral file
