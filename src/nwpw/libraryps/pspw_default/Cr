@@ -1,5 +1,5 @@
 #
-# $Id: Cr,v 1.2 2006-07-05 23:48:03 bylaska Exp $
+# $Id: Cr,v 1.3 2008-01-22 20:02:55 bylaska Exp $
 #
 Comment: Cr pseudopotential parameters
 Comment: Fitted 12-27-04
@@ -10,6 +10,9 @@ Comment: relativistic TM, quadratic semicore
 [lmax] 2
 [locp] 0
 [rlocal] 1.0
+[cutoff] 50.0
+
+
 <atom>
 Cr
 24.0 52.0 5 2
