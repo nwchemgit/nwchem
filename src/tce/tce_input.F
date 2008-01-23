@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.22 2008-01-18 19:23:04 jhammond Exp $
+c $Id: tce_input.F,v 1.23 2008-01-23 18:07:24 kowalski Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -102,6 +102,8 @@ c ------------------
       integer numact
 c --- 4 index transform. ---
       integer maxs,ichopx,i4im,idiskx
+c --- EOM solver
+      integer hbard
 c
 c -------------------------------------
 c What input block are we dealing with?
@@ -166,6 +168,13 @@ c     DIIS (the vector space size in DIIS)
 c
       diis=5
       if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+c     DIMENSION OF THE EOM ITERATIVE SPACE
+c
+      hbard=500
+      if (.not.rtdb_put(rtdb,'tce:hbard',mt_int,1,hbard))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
@@ -798,6 +807,18 @@ c
           diis=5
         endif
         if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c DIMENSION OF EOMCC ITERATIVE SPACE
+c
+      else if (inp_compare(.false.,test,'hbard')) then
+        if (.not.inp_i(hbard)) then
+          write(LuOut,*) 'tce_input: hbard value not found; ',
+     1      'default value of 500 will be used'
+          hbard=500
+        endif
+        if (.not.rtdb_put(rtdb,'tce:hbard',mt_int,1,hbard))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
