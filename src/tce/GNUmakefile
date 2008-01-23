@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.40 2008-01-18 19:23:56 jhammond Exp $
+#$Id: GNUmakefile,v 1.41 2008-01-23 18:03:30 kowalski Exp $
 #
 
 SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
@@ -51,7 +51,7 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_eom_xdiagon.F dscalfile.F tce_eom_ydiagon.F\
             tce_ao1e.F tce_aod1.F tce_mo1e.F tce_ao_mp1.F tce_mo_mp1.F\
             tce_mo2e_zones_4a_disk_ga.F tce_mo2e_zones_4a_disk_ga_chop.F\
-            tce_mo2e_zones_4a_disk_2s_new.F tce_diagnose_t1.F 
+            tce_mo2e_zones_4a_disk_2s_new.F tce_diagnose_t1.F ddotfile.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 #
