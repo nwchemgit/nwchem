@@ -1,9 +1,9 @@
       subroutine tce_eom_xdiagon(needx1,needx2,needx3,needx4,
      1  size_x1,size_x2,size_x3,size_x4,
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
-     3  d_r1,d_r2,d_r3,d_r4,omega,residual)
+     3  d_r1,d_r2,d_r3,d_r4,omega,residual,k_hbar)
 c
-c $Id: tce_eom_xdiagon.F,v 1.4 2008-01-14 15:20:33 jhammond Exp $
+c $Id: tce_eom_xdiagon.F,v 1.5 2008-01-23 18:00:12 kowalski Exp $
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -39,14 +39,15 @@ c
       logical nodezero
       integer ivec, jvec
       integer l_hbar, k_hbar
+      integer l_shbar,k_shbar
       integer l_vr, k_vr
       integer l_vl, k_vl
       integer l_ei, k_ei
       integer l_wk, k_wk
       integer info
       integer newnxtrials
-      double precision ddotfile
-      external ddotfile
+      double precision ddotfile,ddotfile_1,ddotfile_2
+      external ddotfile,ddotfile_1,ddotfile_2
       double precision au2ev   ! Conversion factor from a.u. to eV
       parameter (au2ev=27.2113961d0)
       character*255 filename
@@ -61,9 +62,9 @@ c
 c
 c     Allocate
 c
-c
+c Little change here - little matrxi l_shbar is introduced
       if (.not.ma_push_get(mt_dbl,nxtrials*nxtrials,'hbar',
-     1  l_hbar,k_hbar)) call errquit('tce_eom_xdiagon: MA problem',0,
+     1  l_shbar,k_shbar)) call errquit('tce_eom_xdiagon: MA problem',0,
      2  MA_ERR)
       if (.not.ma_push_get(mt_dbl,nxtrials*nxtrials,'vr',
      1  l_vr,k_vr)) call errquit('tce_eom_xdiagon: MA problem',1,
@@ -78,6 +79,11 @@ c
      1  l_wk,k_wk)) call errquit('tce_eom_xdiagon: MA problem',5,
      2  MA_ERR)
 c
+c --------NEW SOLVER----------------------------------
+        if(nxtrials.gt.hbard) 
+     &    call errquit('tce_eom_xdiagon: nxtrails too big',4,MA_ERR)
+c ----------------------------------------------------
+c
 c     Form similarity transformed Hamiltonian subspace matrix
 c
 c     cpu = - util_cpusec()
@@ -86,18 +92,15 @@ c     wall = - util_wallsec()
       wall1 = 0.0d0
       cpu2 = 0.0d0
       wall2 = 0.0d0
-      do ivec = 1, nxtrials
-        do jvec = 1, nxtrials
-c         if (hbar_restore(ivec,jvec,hbar)) then
-c           cpu = - util_cpusec()
-c           wall = - util_wallsec()
-c           dbl_mb(k_hbar+(ivec-1)*nxtrials+jvec-1) = hbar
-c           cpu1 = cpu1 + cpu + util_cpusec()
-c           wall1 = wall1 + wall + util_wallsec()
-c         else
+c
+c declare smaller matrix nxtrials*nxtrials and copy 
+c whatever need to be copied from k_hbar
+c
+       do ivec = nxtrials-nroots_reduced+1,nxtrials !-- ivec column
+        do jvec = 1, nxtrials !--------------- jvec row
             cpu = - util_cpusec()
             wall = - util_wallsec()
-            dbl_mb(k_hbar+(ivec-1)*nxtrials+jvec-1) = 0.0d0
+            dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 0.0d0
             if (needx1) then
               if (.not.x1_exist(ivec))
      1          call errquit('tce_eom_xdiagon: x1 not found',ivec,
@@ -105,9 +108,9 @@ c         else
               if (.not.xp1_exist(jvec))
      1          call errquit('tce_eom_xdiagon: xp1 not found',jvec,
      2          UNKNOWN_ERR)
-              dbl_mb(k_hbar+(ivec-1)*nxtrials+jvec-1) = 
-     1        dbl_mb(k_hbar+(ivec-1)*nxtrials+jvec-1) + 
-     2        ddotfile(x1(jvec),xp1(ivec),size_x1)
+              dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 
+     1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) + 
+     2        ddotfile_1(x1(jvec),xp1(ivec),size_x1)
             endif
             if (needx2) then
               if (.not.x2_exist(ivec))
@@ -116,9 +119,9 @@ c         else
               if (.not.xp2_exist(jvec))
      1          call errquit('tce_eom_xdiagon: xp2 not found',jvec,
      2          UNKNOWN_ERR)
-              dbl_mb(k_hbar+(ivec-1)*nxtrials+jvec-1) = 
-     1        dbl_mb(k_hbar+(ivec-1)*nxtrials+jvec-1) + 
-     2        ddotfile(x2(jvec),xp2(ivec),size_x2)
+              dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 
+     1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) + 
+     2        ddotfile_2(x2(jvec),xp2(ivec),size_x2)
             endif
             if (needx3) then
               if (.not.x3_exist(ivec))
@@ -127,8 +130,8 @@ c         else
               if (.not.xp3_exist(jvec))
      1          call errquit('tce_eom_xdiagon: xp3 not found',jvec,
      2          UNKNOWN_ERR)
-              dbl_mb(k_hbar+(ivec-1)*nxtrials+jvec-1) = 
-     1        dbl_mb(k_hbar+(ivec-1)*nxtrials+jvec-1) + 
+              dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 
+     1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) + 
      2        ddotfile(x3(jvec),xp3(ivec),size_x3)
             endif
             if (needx4) then
@@ -138,17 +141,81 @@ c         else
               if (.not.xp4_exist(jvec))
      1          call errquit('tce_eom_xdiagon: xp4 not found',jvec,
      2          UNKNOWN_ERR)
-              dbl_mb(k_hbar+(ivec-1)*nxtrials+jvec-1) = 
-     1        dbl_mb(k_hbar+(ivec-1)*nxtrials+jvec-1) + 
+              dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 
+     1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) + 
      2        ddotfile(x4(jvec),xp4(ivec),size_x4)
             endif
-c           call hbar_store(ivec,jvec,
-c    1        dbl_mb(k_hbar+(ivec-1)*nxtrials+jvec-1))
-c           cpu2 = cpu2 + cpu + util_cpusec()
-c           wall2 = wall2 + wall + util_wallsec()
-c         endif
+        enddo ! -------------------------- jvec - row
+       enddo   ! -------------------------- ivec - column
+c
+c
+c
+c
+c
+       do ivec = 1, nxtrials-nroots_reduced !---------- ivec column
+       do jvec = nxtrials-nroots_reduced+1,nxtrials  
+            cpu = - util_cpusec()
+            wall = - util_wallsec()
+            dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 0.0d0
+            if (needx1) then
+              if (.not.x1_exist(ivec))
+     1          call errquit('tce_eom_xdiagon: x1 not found',ivec,
+     2          UNKNOWN_ERR)
+              if (.not.xp1_exist(jvec))
+     1          call errquit('tce_eom_xdiagon: xp1 not found',jvec,
+     2          UNKNOWN_ERR)
+              dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 
+     1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) + 
+     2        ddotfile_1(x1(jvec),xp1(ivec),size_x1)
+            endif
+            if (needx2) then
+              if (.not.x2_exist(ivec))
+     1          call errquit('tce_eom_xdiagon: x2 not found',ivec,
+     2          UNKNOWN_ERR)
+              if (.not.xp2_exist(jvec))
+     1          call errquit('tce_eom_xdiagon: xp2 not found',jvec,
+     2          UNKNOWN_ERR)
+              dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 
+     1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) + 
+     2        ddotfile_2(x2(jvec),xp2(ivec),size_x2)
+            endif
+            if (needx3) then
+              if (.not.x3_exist(ivec))
+     1          call errquit('tce_eom_xdiagon: x3 not found',ivec,
+     2          UNKNOWN_ERR)
+              if (.not.xp3_exist(jvec))
+     1          call errquit('tce_eom_xdiagon: xp3 not found',jvec,
+     2          UNKNOWN_ERR)
+              dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 
+     1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) + 
+     2        ddotfile(x3(jvec),xp3(ivec),size_x3)
+            endif
+            if (needx4) then
+              if (.not.x4_exist(ivec))
+     1          call errquit('tce_eom_xdiagon: x4 not found',ivec,
+     2          UNKNOWN_ERR)
+              if (.not.xp4_exist(jvec))
+     1          call errquit('tce_eom_xdiagon: xp4 not found',jvec,
+     2          UNKNOWN_ERR)
+              dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 
+     1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) + 
+     2        ddotfile(x4(jvec),xp4(ivec),size_x4)
+            endif
+        enddo ! -------------------------- jvec - row
+       enddo   ! -------------------------- ivec - column
+c
+c
+c
+c  copy from l_hbar to l_shbar
+c
+        do ivec=1,nxtrials !row
+        do jvec=1,nxtrials !column
+         dbl_mb(k_shbar+(jvec-1)*nxtrials+ivec-1)=
+     &   dbl_mb(k_hbar+(jvec-1)*hbard+ivec-1)
         enddo
-      enddo
+        enddo
+c
+c
 c     if (nodezero.and.util_print('eomtime',print_debug)) then
 c       write(LuOut,9020) 'HBAR_RESTORE',cpu1, wall1
 c       write(LuOut,9020) 'HBAR_STORE',cpu2, wall2
@@ -171,7 +238,12 @@ c     Diagonalize the non-Hermitian matrix
 c
       cpu = - util_cpusec()
       wall = - util_wallsec()
-      call tddft_dgeev('n','v',nxtrials,dbl_mb(k_hbar),nxtrials,
+c
+c
+c  DIAGONALIZE l_shbar
+c
+c
+      call tddft_dgeev('n','v',nxtrials,dbl_mb(k_shbar),nxtrials,
      1  omega,dbl_mb(k_ei),dbl_mb(k_vl),1,dbl_mb(k_vr),nxtrials,
      2  dbl_mb(k_wk),4*nxtrials,info)
       if (info.ne.0) call errquit('tce_eom_xdiagon: dgeev failed',info,
@@ -214,7 +286,7 @@ c
           call daxpyfile(nxtrials,dbl_mb(k_ei),
      1      x1,d_r1,size_x1)
           residual(ivec) = residual(ivec) 
-     1                   + ddotfile(d_r1,d_r1,size_x1)
+     1                   + ddotfile_1(d_r1,d_r1,size_x1)
           if (nodezero.and.util_print('residual',print_debug)) then
             write(LuOut,*) ' X1: vector',ivec
             write(LuOut,*) ' X1: residual',residual(ivec)
@@ -231,7 +303,7 @@ c
           call daxpyfile(nxtrials,dbl_mb(k_ei),
      1      x2,d_r2,size_x2)
           residual(ivec) = residual(ivec) 
-     1                   + ddotfile(d_r2,d_r2,size_x2)
+     1                   + ddotfile_2(d_r2,d_r2,size_x2)
           if (nodezero.and.util_print('residual',print_debug)) then
             write(LuOut,*) ' X2: vector',ivec
             write(LuOut,*) ' X2: residual',residual(ivec)
@@ -307,8 +379,8 @@ c
           if (needx4) call dscalfile(1.0d0/residual(ivec),d_r4,size_x4)
           do jvec = 1, newnxtrials
             overlap = 0.0d0
-            if (needx1) overlap=overlap+ddotfile(d_r1,x1(jvec),size_x1)
-            if (needx2) overlap=overlap+ddotfile(d_r2,x2(jvec),size_x2)
+          if (needx1) overlap=overlap+ddotfile_1(d_r1,x1(jvec),size_x1)
+          if (needx2) overlap=overlap+ddotfile_2(d_r2,x2(jvec),size_x2)
             if (needx3) overlap=overlap+ddotfile(d_r3,x3(jvec),size_x3)
             if (needx4) overlap=overlap+ddotfile(d_r4,x4(jvec),size_x4)
             if (needx1) call daxpyfile(1,-overlap,x1(jvec),d_r1,size_x1)
@@ -317,8 +389,8 @@ c
             if (needx4) call daxpyfile(1,-overlap,x4(jvec),d_r4,size_x4)
           enddo
           overlap = 0.0d0
-          if (needx1) overlap=overlap+ddotfile(d_r1,d_r1,size_x1)
-          if (needx2) overlap=overlap+ddotfile(d_r2,d_r2,size_x2)
+          if (needx1) overlap=overlap+ddotfile_1(d_r1,d_r1,size_x1)
+          if (needx2) overlap=overlap+ddotfile_2(d_r2,d_r2,size_x2)
           if (needx3) overlap=overlap+ddotfile(d_r3,d_r3,size_x3)
           if (needx4) overlap=overlap+ddotfile(d_r4,d_r4,size_x4)
           overlap = dsqrt(overlap)
@@ -434,7 +506,7 @@ c
      1  call errquit('tce_eom_xdiagon: MA problem',9,MA_ERR)
       if (.not.ma_pop_stack(l_vr))
      1  call errquit('tce_eom_xdiagon: MA problem',10,MA_ERR)
-      if (.not.ma_pop_stack(l_hbar))
+      if (.not.ma_pop_stack(l_shbar))
      1  call errquit('tce_eom_xdiagon: MA problem',11,MA_ERR)
  9000 format(1x,f20.10,' hartree ',f20.10,' eV')
  9010 format(1x,'Root ',i3,' converged')
