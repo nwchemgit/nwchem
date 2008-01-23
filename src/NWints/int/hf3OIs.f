@@ -3,7 +3,7 @@
      &                  Cxyz,Cprims,Ccoef,NPC,Lc,
      &                  b3OI,Nint,TriDiag,
      &                  DryRun,W0,maxW0)
-c $Id: hf3OIs.f,v 1.3 2000-10-25 22:50:06 windus Exp $
+c $Id: hf3OIs.f,v 1.4 2008-01-23 17:22:19 bert Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -36,7 +36,7 @@ c Assign pointers to scratch space.
       i_alpha = 1
       i_top   = i_alpha + (NPA*NPB*NPC)*4 - 1
 
-      if( i_top .gt. maxW0 )then
+      if( i_top .gt. maxW0 .and. .not.Dryrun)then
 
        write(*,*) 'HF3CTR:  Insufficient scratch space.'
        write(*,*) '         needed    ',i_top
@@ -72,7 +72,7 @@ c Assign pointers to scratch space.
       i_G   = i_E     + NABC*3*(La+Lb+Lc+1)*(La+1)*(Lb+1)*(Lc+1)
       i_top = i_G     + NABC*3 - 1
 
-      if( i_top .gt. maxW0 )then
+      if( i_top .gt. maxW0 .and. .not.Dryrun)then
 
        write(*,*) 'HF3CTR:  Insufficient scratch space.'
        write(*,*) '         needed    ',i_top
@@ -104,7 +104,7 @@ c Assign pointers to scratch space.
       i_ABC2I = i_GT    + NABC*3
       i_top   = i_ABC2I + NABC*3 - 1
 
-      if( i_top .gt. maxW0 )then
+      if( i_top .gt. maxW0 .and. .not.Dryrun)then
 
        write(*,*) 'HF3CTR:  Insufficient scratch space.'
        write(*,*) '         needed    ',i_top
