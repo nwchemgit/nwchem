@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.19 2008-01-14 18:19:00 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.20 2008-01-23 18:35:41 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -95,6 +95,10 @@ cccccccccccccccccccccccccccccccccccccc
          read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
          read(11,*,ERR=9999,END=9999) nrho,drho
          read(11,'(A)',ERR=9999,END=9999) comment
+         if (pspx.ne.7) then
+            write(*,*)"Read psptype = ",pspx," but psptype = 7"
+            call flush(6)
+         end if
          write(*,*) pspx,atom
          write(*,*) zv,amass,lmax0,lmax1,locp1,rlocal1
          write(*,*) (rc(i),i=0,lmax0)
@@ -788,142 +792,135 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Assign the quantum numbers for the 2component relativstic 
 c projectors. See Sakurai, Adv Quantum Mechanics for these
-c numbers...
-c               PJN
+c numbers...pages 124,128
+c               Patrick Jay Nichols
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine rkbpp_states(lmax,npr,n_prj,l_prj,k_prj,malf,mbet,
-     > calf,cbet)
+      subroutine rkbpp_states(lmax,nprj,np,lp,kp,ma,mb,ca,cb)
       implicit none
-cccccccc arguments cccccccc
-      integer lmax,npr
-      integer n_prj(*),l_prj(*),k_prj(*),malf(*),mbet(*)
-      real*8 calf(*),cbet(*)
-cccccccc  locals cccccccccccc
-      integer ip,lp,kp,is,ns,lpend
-      real*8 j,jz,ta,tb,td
-cccccccccccc s-states
-      ip=0 
-      lp=0 
-      ns=2
-      j=0.5d0
-      kp= -1
+      integer nprj,lmax,np(*),lp(*),kp(*),ma(*),mb(*)
+      real*8 ca(*),cb(*)
+cccccccc locals
+      integer kappa,j2,nz,iz,l,cnt
+      real*8 ta,tb,td,dj,djz,dl
+cccccccccccc
+      cnt=0
+ccccc do initial l=0 kappa=-1 state j=1/2
       td=1.0d0
-      do is=1,ns
-          ip=ip+1
-          jz=dble(is-1)-j
-          n_prj(ip)=1
-          l_prj(ip)=lp
-          k_prj(ip)=kp
-          ta=dabs(dble(lp)+0.5+jz)
-          tb=dabs(dble(lp)+0.5-jz)
-          if (ta.lt.1.e-12) then
-             malf(ip)= lp+1
-             calf(ip)= 0.0d0
-          else
-             malf(ip)= nint(jz-0.5)
-             calf(ip)= dsqrt(ta/td)
-          end if
-          if (tb.lt.1.e-12) then
-             mbet(ip)=lp+1
-             cbet(ip)=0.0d0
-          else
-             mbet(ip)= nint(jz+0.5)
-             cbet(ip)= dsqrt(tb/td)
-          end if
+      kappa=-1
+      j2=1
+      dj=0.5d0
+      dl=0.0d0
+      do iz=1,2
+        djz=dble(iz-1)-dj
+        cnt=cnt+1   
+        np(cnt)=  1
+        lp(cnt)=  0
+        kp(cnt)= -1
+        ma(cnt)= int(nint(djz-0.5d0))
+        mb(cnt)= int(nint(djz+0.5d0))
+        ta=dl+0.5+djz
+        tb=dl+0.5-djz
+        if (ta.gt.1.d-12) then
+           ca(cnt)= dsqrt(ta*td)
+        else
+           ca(cnt)= 0.0d0
+        end if    
+        if (tb.gt.1.d-12) then
+           cb(cnt)= dsqrt(tb*td)
+        else
+           cb(cnt)= 0.0d0
+        end if    
       end do
-cccccccccc do from l=1 to lmax
-      lpend=lmax-1
-      do lp=1,lpend
-        ns=2*lp
-        j=dble(lp)-0.5d0
-        kp=lp
-        td=dble(2*lp+1)
-        do is=1,ns
-          ip=ip+1
-          jz=dble(is-1)-j
-          n_prj(ip)=1
-          l_prj(ip)=lp
-          k_prj(ip)=kp
-          ta=dabs(dble(lp)+0.5-jz)
-          tb=dabs(dble(lp)+0.5+jz)
-          if (ta.lt.1.e-12) then
-             malf(ip)=lp+1
-             calf(ip)=0.0d0
-          else
-             malf(ip)=nint(jz-0.5)
-             calf(ip)= -dsqrt(ta/td)
-          end if
-          if (tb.lt.1.e-12) then
-             mbet(ip)=lp+1
-             cbet(ip)=0.0d0
-          else
-             mbet(ip)=nint(jz+0.5)
-             cbet(ip)= dsqrt(tb/td)
-          end if
-        end do
-        ns=2*lp+2
-        j=dble(lp)+0.5d0
-        kp= -lp-1
-        do is=1,ns
-          ip=ip+1
-          jz=dble(is-1)-j
-          n_prj(ip)=1
-          l_prj(ip)=lp
-          k_prj(ip)=kp
-          ta=dabs(dble(lp)+0.5+jz)
-          tb=dabs(dble(lp)+0.5-jz)
-          if (ta.lt.1.e-12) then
-             malf(ip)= lp+1
-             calf(ip)=0.0d0
-          else
-             malf(ip)= nint(jz-0.5)
-             calf(ip)= dsqrt(ta/td)
-          end if
-          if (tb.lt.1.e-12) then
-             mbet(ip)=lp+1
-             cbet(ip)=0.0d0
-          else
-             mbet(ip)= nint(jz+0.5)
-             cbet(ip)= dsqrt(tb/td)
-          end if
-        end do
+ccccccccccccccccccccccccc
+      do l=1,lmax-1
+         td=1.0d0/dble(l+l+1)
+         kappa=l
+         j2=l+l-1
+         nz=j2+1
+         dj=dble(j2)*0.5d0 
+         dl=dble(l) 
+         do iz=1,nz
+            djz=dble(iz-1)-dj
+            cnt=cnt+1   
+            np(cnt)=1
+            lp(cnt)=l
+            kp(cnt)=kappa
+            ma(cnt)= int(nint(djz-0.5d0))
+            mb(cnt)= int(nint(djz+0.5d0))
+            ta=dl+0.5-djz
+            tb=dl+0.5+djz
+            if (ta.gt.1.d-12) then
+                 ca(cnt)= -dsqrt(ta*td)
+            else
+                 ca(cnt)= 0.0d0
+            end if    
+            if (tb.gt.1.d-12) then
+                 cb(cnt)= dsqrt(tb*td)
+            else
+                 cb(cnt)= 0.0d0
+            end if    
+         end do
+         kappa= -(l+1)
+         j2=l+l+1
+         nz=j2+1
+         dj=dble(j2)*0.5d0  
+         do iz=1,nz
+            djz=dble(iz-1)-dj
+            cnt=cnt+1   
+            np(cnt)=1
+            lp(cnt)=l
+            kp(cnt)=kappa
+            ma(cnt)= int(nint(djz-0.5d0))
+            mb(cnt)= int(nint(djz+0.5d0))
+            ta=dl+0.5+djz
+            tb=dl+0.5-djz
+            if (ta.gt.1.d-12) then
+                 ca(cnt)= dsqrt(ta*td)
+            else
+                 ca(cnt)= 0.0d0
+            end if    
+            if (tb.gt.1.d-12) then
+                 cb(cnt)= dsqrt(tb*td)
+            else
+                 cb(cnt)= 0.0d0
+            end if    
+         end do
       end do
-cccccccc last state = lmax
-      lp=lmax
-      ns=2*lp
-      j=dble(lp)-0.5d0
-      kp=lp
-      td=dble(2*lp+1)
-      do is=1,ns
-          ip=ip+1
-          jz=dble(is-1)-j
-          n_prj(ip)=1
-          l_prj(ip)=lp
-          k_prj(ip)=kp
-          ta=dabs(dble(lp)+0.5-jz)
-          tb=dabs(dble(lp)+0.5+jz)
-          if (ta.lt.1.e-12) then
-             malf(ip)=lp+1
-             calf(ip)=0.0d0
-          else
-             malf(ip)=nint(jz-0.5)
-             calf(ip)= -dsqrt(ta/td)
-          end if
-          if (tb.lt.1.e-12) then
-             mbet(ip)=lp+1
-             cbet(ip)=0.0d0
-          else
-             mbet(ip)=nint(jz+0.5)
-             cbet(ip)= dsqrt(tb/td)
-          end if
+cccccccccc final lmax state
+cccccccccc kappa= lmax, j=lmax-1/2
+      td=1.0d0/dble(l+l+1)
+      kappa=l
+      j2=l+l-1
+      nz=j2+1
+      dj=dble(j2)*0.5d0
+      dl=dble(lmax)  
+      do iz=1,nz
+        djz=dble(iz-1)-dj
+        cnt=cnt+1   
+        np(cnt)=1
+        lp(cnt)=l
+        kp(cnt)=kappa
+        ma(cnt)= int(nint(djz-0.5d0))
+        mb(cnt)= int(nint(djz+0.5d0))
+        ta=dl+0.5-djz
+        tb=dl+0.5+djz
+        if (ta.gt.1.d-12) then
+          ca(cnt)= -dsqrt(ta*td)
+        else
+          ca(cnt)= 0.0d0
+        end if    
+        if (tb.gt.1.d-12) then
+          cb(cnt)= dsqrt(tb*td)
+        else
+          cb(cnt)= 0.0d0
+        end if    
       end do
-      if (ip.ne.npr) then
-        write(*,*)"NUMEBER OF PROJECTORS GIVEN IS ",npr
-        write(*,*)"actual number is ",ip
-        write(*,*)"NUMBER OF PROJECTORS DOES NOT EQUAL REAL NUMBER"
+      if (nprj.ne.cnt) then
+        write(*,*)"NUMBER OF PROJECTORS GIVEN IS ",nprj
+        write(*,*)"NUMBER OF PROJECTORS       IS ",cnt
         call flush(6)
-      END IF
+      end if
       return
       end
-ccccccccccccccccccccc
-          
+cccccccccccccccccccccccccccccccccc
+
