@@ -1,6 +1,6 @@
       subroutine tce_tile(rtdb)
 c
-c $Id: tce_tile.F,v 1.20 2008-01-14 15:20:35 jhammond Exp $
+c $Id: tce_tile.F,v 1.21 2008-01-23 18:00:48 kowalski Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -72,6 +72,8 @@ c dynamically frozen virtuals
       double precision xxx
       double precision vcut
       double precision bignumx
+c for tile_dim
+      integer max_tile
 c
 c     For orbital rotation test
 c
@@ -905,6 +907,14 @@ c
         int_mb(k_offset+i-1)=j
         j = j + range_tmp(i)
       enddo
+c max_tile_size => tile_dim --------
+        max_tile=0
+        do i = 1,noa+nob+nva+nvb
+          if(int_mb(k_range+i-1).gt.max_tile)
+     &     max_tile=int_mb(k_range+i-1)
+        enddo
+        tile_dim=max_tile
+c ----------------------------------
       if (restricted) then
         do i = 1,noa
           int_mb(k_alpha+i-1) = i
@@ -944,6 +954,14 @@ c        int_mb(k_active+i-1)=active_tiles(i) !l_active will not be used
         int_mb(k_offset+i-1)=j
         j = j + range_tmp(i)
       enddo
+c max_tile_size => tile_dim --------
+        max_tile=0
+        do i = 1,noa+nob+nva+nvb
+          if(int_mb(k_range+i-1).gt.max_tile)
+     &     max_tile=int_mb(k_range+i-1)
+        enddo
+        tile_dim=max_tile
+c ----------------------------------
       if (restricted) then
         do i = 1,noa
           int_mb(k_alpha+i-1) = i
@@ -1003,6 +1021,10 @@ c
       end if  ! intorb 
 c
 c
+      if(nodezero) then
+       write(LuOut,9080) tile_dim
+      end if
+c
       if (nodezero.and.util_print('tile',print_debug)) then
         write(LuOut,*) "Sorted"
         do any = 1,nmo(1)-nfv(1)-nfc(1)+nmo(ipol)-nfv(ipol)-nfc(ipol)
@@ -1024,6 +1046,7 @@ c
  9070 format(/,1x,'Block   Spin    Irrep     Size     Offset   Alpha',/,
      1         1x,'-------------------------------------------------')
  9060 format(1x,i3,4x,a5,5x,a4,i4,' doubles',i8,i8)
+ 9080 format(/,1x,'tile_dim = ',2x,i4)
 c
 c     =============================================
 c     Test for a unitary transformation of orbitals
