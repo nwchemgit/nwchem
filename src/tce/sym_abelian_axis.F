@@ -1,32 +1,41 @@
       integer function sym_abelian_axis(geom,axis)
 c
-c $Id: sym_abelian_axis.F,v 1.1 2003-07-25 17:56:55 sohirata Exp $
+c $Id: sym_abelian_axis.F,v 1.2 2008-01-24 00:30:09 bert Exp $
 c
-c Returns irrep of a given axis (x=1, y=2, or z=3) if real Abelian,
+c Returns irrep of a given axis if real Abelian,
 c otherwise returns -1.
+c
+c Dipole:
+c x=1 y=2 z=3
+c
+c Quadrupole:
+c xx=4 yy=5 zz=6 xy=7 xz=8 yz=9
+c
+c Octupole:
+c xxx=10 yyy=11 zzz=12 xxy=13 xxz=14 yyx=15 yyz=16 zzx=17 zzy=18 xyz=19
 c
 c Move this to symmetry directory!
 c
       implicit none
 #include "inp.fh"
       integer geom              ! [input]
-      integer axis              ! [input] 1 = x, 2 = y, 3 = z
+      integer axis              ! [input] 
       character*8 group
       integer nab, ind
       parameter (nab = 8)
       character*4 ab(nab)
-      integer air(3,8)
+      integer air(19,8)
       data ab/'C1','Cs','Ci','C2','D2','C2v','C2h','D2h'/
-      data air/0,0,0,
-     1         0,0,1,
-     2         1,1,1,
-     3         1,1,0,
-     4         3,2,1,
-     5         2,3,0,
-     6         3,3,1,
-     7         7,5,3/
+      data air/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+     1         0,0,1,0,0,0,0,1,1,0,0,0,0,1,0,1,0,0,1,
+     2         1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,
+     3         1,1,0,0,0,0,0,1,1,1,1,0,1,0,1,0,1,1,0,
+     4         3,2,1,0,0,0,1,2,3,3,2,1,2,1,3,1,3,2,0,
+     5         2,3,0,0,0,0,1,2,3,2,3,0,3,0,2,0,2,3,1,
+     6         3,3,1,0,0,0,0,2,2,3,3,1,3,1,3,1,3,3,1,
+     7         7,5,3,0,0,0,2,4,6,7,5,3,5,3,7,3,7,5,1/
 c
-      if ((axis.lt.1).or.(axis.gt.3)) then
+      if ((axis.lt.1).or.(axis.gt.19)) then
          sym_abelian_axis = -1
          return
       endif
