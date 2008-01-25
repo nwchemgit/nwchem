@@ -1,7 +1,7 @@
 import java.io.*;
 public class Segment{
 
-    public int numAtoms, numBonds, numAngles, numTorsions, numImpropers, numZmatrix;
+    public int numAtoms, numBonds, numAngles, numTorsions, numImpropers, numZmatrix, numParms, iParms;
 
     public AtomDefinition[] atom;
     public BondDefinition[] bond;
@@ -15,54 +15,78 @@ public class Segment{
     };
 
     void read(String fileName){
-	//	System.out.println("Reading file "+fileName);
+	// System.out.println("Reading file "+fileName);
 	try{
 	    BufferedReader br = new BufferedReader(new FileReader(fileName));
 	    String card1;
 	    String card2;
+	    String card3;
+	    String card4;
 	    card1=br.readLine();
 	    while(card1.startsWith("$") || card1.startsWith("#")){
 		if(card1.startsWith("#")) title=card1;
 		card1=br.readLine();
 	    };
+            card1=br.readLine();
 	    numAtoms=Integer.parseInt(card1.substring(0,5).trim());
 	    numBonds=Integer.parseInt(card1.substring(5,10).trim());
 	    numAngles=Integer.parseInt(card1.substring(10,15).trim());
 	    numTorsions=Integer.parseInt(card1.substring(15,20).trim());
 	    numImpropers=Integer.parseInt(card1.substring(20,25).trim());
-	    try{
-		numZmatrix=Integer.parseInt(card1.substring(61,66).trim());
-	    } catch(Exception ez) {numZmatrix=0;};
+	    numZmatrix=Integer.parseInt(card1.substring(25,30).trim());
+	    numParms=Integer.parseInt(card1.substring(30,35).trim());
+	    iParms=Integer.parseInt(card1.substring(35,40).trim());
 	    atom = new AtomDefinition[numAtoms];
 	    bond = new BondDefinition[numBonds];
 	    angle = new AngleDefinition[numAngles];
 	    torsion = new TorsionDefinition[numTorsions];
 	    improper = new ImproperDefinition[numImpropers];
 	    zmatrix = new ZmatrixDefinition[numZmatrix];
+            card1=br.readLine();
 	    for(int i=0; i<numAtoms; i++){
 		card1=br.readLine();
 		card2=br.readLine();
-		atom[i] = new AtomDefinition(card1,card2);
+                card3=card2;
+                card4=card2;
+		if(numParms>1){card3=br.readLine();};
+		if(numParms>2){card4=br.readLine();};
+		atom[i] = new AtomDefinition(card1,card2,card3,card4);
 	    };
 	    for(int i=0; i<numBonds; i++){
 		card1=br.readLine();
 		card2=br.readLine();
-		bond[i] = new BondDefinition(card1,card2);
+                card3=card2;
+                card4=card2;
+		if(numParms>1){card3=br.readLine();};
+		if(numParms>2){card4=br.readLine();};
+		bond[i] = new BondDefinition(card1,card2,card3,card4);
 	    };
 	    for(int i=0; i<numAngles; i++){
 		card1=br.readLine();
 		card2=br.readLine();
-		angle[i] = new AngleDefinition(card1,card2);
+                card3=card2;
+                card4=card2;
+		if(numParms>1){card3=br.readLine();};
+		if(numParms>2){card4=br.readLine();};
+		angle[i] = new AngleDefinition(card1,card2,card3,card4);
 	    };
 	    for(int i=0; i<numTorsions; i++){
 		card1=br.readLine();
 		card2=br.readLine();
-		torsion[i] = new TorsionDefinition(card1,card2);
+                card3=card2;
+                card4=card2;
+		if(numParms>1){card3=br.readLine();};
+		if(numParms>2){card4=br.readLine();};
+		torsion[i] = new TorsionDefinition(card1,card2,card3,card4);
 	    };
 	    for(int i=0; i<numImpropers; i++){
 		card1=br.readLine();
 		card2=br.readLine();
-		improper[i] = new ImproperDefinition(card1,card2);
+                card3=card2;
+                card4=card2;
+		if(numParms>1){card3=br.readLine();};
+		if(numParms>2){card4=br.readLine();};
+		improper[i] = new ImproperDefinition(card1,card2,card3,card4);
 	    };
 	    for(int i=0; i<numZmatrix; i++){
 		card1=br.readLine();
@@ -138,28 +162,35 @@ public class Segment{
 	try{
 	    PrintfWriter file = new PrintfWriter(new FileWriter(filename));
 	    file.println(title);
+	    file.println("   4.600000");
 	    file.printf("%5d",numAtoms);
 	    file.printf("%5d",numBonds);
 	    file.printf("%5d",numAngles);
 	    file.printf("%5d",numTorsions);
 	    file.printf("%5d",numImpropers);
-	    file.printf("%41d",numZmatrix);
+	    file.printf("%5d",numZmatrix);
+	    file.printf("%5d",3);
+	    file.printf("%5d",1);
 	    file.println();
+	    file.println("    0.000000");
 	    for(int i=0; i<numAtoms; i++){
 		file.printf("%5d",i+1);
 		file.print(atom[i].Name+" ");
-		file.print(atom[i].Type1);
-		file.print(atom[i].Type2);
-		file.print(atom[i].Type3);
-		file.printf("%4d",atom[i].cgroup);
-		file.printf("%4d",atom[i].pgroup);
-		file.printf("%4d",atom[i].link);
-		file.printf("%4d",atom[i].type);
+		file.printf("%5d",atom[i].link);
+		file.printf("%5d",atom[i].type);
+		file.printf("%5d",0);
+		file.printf("%5d",atom[i].cgroup);
+		file.printf("%5d",atom[i].pgroup);
 		file.println();
+		file.print("     "+atom[i].Type1);
 		file.printf("%12.6f",atom[i].q1);
 		file.printf("%12.5E",atom[i].p1);
+		file.println();
+		file.print("     "+atom[i].Type2);
 		file.printf("%12.6f",atom[i].q2);
 		file.printf("%12.5E",atom[i].p2);
+		file.println();
+		file.print("     "+atom[i].Type3);
 		file.printf("%12.6f",atom[i].q3);
 		file.printf("%12.5E",atom[i].p3);
 		file.println();
@@ -175,8 +206,10 @@ public class Segment{
 		file.println();
 		file.printf("%12.6f",bond[i].bond1);
 		file.printf("%12.5E",bond[i].force1);
+		file.println();
 		file.printf("%12.6f",bond[i].bond2);
 		file.printf("%12.5E",bond[i].force2);
+		file.println();
 		file.printf("%12.6f",bond[i].bond3);
 		file.printf("%12.5E",bond[i].force3);
 		file.println();
@@ -235,9 +268,11 @@ public class Segment{
 		file.printf("%3d",improper[i].multi1);
 		file.printf("%10.6f",improper[i].improper1);
 		file.printf("%12.5E",improper[i].force1);
+		file.println();
 		file.printf("%3d",improper[i].multi2);
 		file.printf("%10.6f",improper[i].improper2);
 		file.printf("%12.5E",improper[i].force2);
+		file.println();
 		file.printf("%3d",improper[i].multi3);
 		file.printf("%10.6f",improper[i].improper3);
 		file.printf("%12.5E",improper[i].force3);

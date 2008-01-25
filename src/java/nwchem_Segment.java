@@ -309,6 +309,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	    try{
 		PrintfWriter sgmFile = new PrintfWriter(new FileWriter("TEMP.sgm"));
 		sgmFile.println("# Merged Segment File for "+frName+" to "+toName);
+		sgmFile.println("    4.600000");
 		sgmFile.printf("%5d",atmNumber);
 		// count new number of bonds
 		int number=0;
@@ -450,8 +451,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		    };
 		    if(!found) number++;
 		};
-		sgmFile.printf("%41d",number);
+		sgmFile.printf("%5d",number);
+		sgmFile.printf("%5d",3);
+		sgmFile.printf("%5d",1);
 		sgmFile.println();
+		sgmFile.println("    0.000000");
 		int polgrp= 1;
 		int chgrp = 1;
 		double charge1 = 0.0;
@@ -461,24 +465,25 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		    sgmFile.printf("%5d",k+1);
 		    if(id[k][0]>=0){
 			sgmFile.print(FrSgm.atom[id[k][0]].Name+" ");
-			sgmFile.print(FrSgm.atom[id[k][0]].Type1);
-			sgmFile.print(FrSgm.atom[id[k][0]].Type1);
-			if(id[k][1]>=0){
-			    sgmFile.print(ToSgm.atom[id[k][1]].Type1);
-			} else {
-			    sgmFile.print(FrSgm.atom[id[k][0]].Type1.substring(0,5)+"D");
-			};
-			sgmFile.printf("%4d",chgrp);
-			sgmFile.printf("%4d",polgrp);
-			// sgmFile.printf("%4d",FrSgm.atom[id[k][0]].cgroup);
-			// sgmFile.printf("%4d",FrSgm.atom[id[k][0]].pgroup);
-			sgmFile.printf("%4d",FrSgm.atom[id[k][0]].link);
-			sgmFile.printf("%4d",FrSgm.atom[id[k][0]].type);
+			sgmFile.printf("%5d",FrSgm.atom[id[k][0]].link);
+			sgmFile.printf("%5d",FrSgm.atom[id[k][0]].type);
+			sgmFile.printf("%5d",0);
+			sgmFile.printf("%5d",chgrp);
+			sgmFile.printf("%5d",polgrp);
 			sgmFile.println();
+			sgmFile.print("     "+FrSgm.atom[id[k][0]].Type1);
 			sgmFile.printf("%12.6f",FrSgm.atom[id[k][0]].q1);
 			sgmFile.printf("%12.5E",FrSgm.atom[id[k][0]].p1);
+			sgmFile.println();
+			sgmFile.print("     "+FrSgm.atom[id[k][0]].Type1);
 			sgmFile.printf("%12.6f",FrSgm.atom[id[k][0]].q1);
 			sgmFile.printf("%12.5E",FrSgm.atom[id[k][0]].p1);
+			sgmFile.println();
+			if(id[k][1]>=0){
+			    sgmFile.print("     "+ToSgm.atom[id[k][1]].Type1);
+			} else {
+			    sgmFile.print("     "+FrSgm.atom[id[k][0]].Type1.substring(0,5)+"D");
+			};
 			charge1=charge1+FrSgm.atom[id[k][0]].q1;
 			if(id[k][1]>=0){
 			    sgmFile.printf("%12.6f",ToSgm.atom[id[k][1]].q1);
@@ -491,20 +496,21 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.println();
 		    } else {
 			sgmFile.print(ToSgm.atom[id[k][1]].Name+" ");
-			sgmFile.print(ToSgm.atom[id[k][1]].Type1.substring(0,5)+"D");
-			sgmFile.print(ToSgm.atom[id[k][1]].Type1.substring(0,5)+"D");
-			sgmFile.print(ToSgm.atom[id[k][1]].Type1);
-			sgmFile.printf("%4d",chgrp);
-			sgmFile.printf("%4d",polgrp);
-			// sgmFile.printf("%4d",ToSgm.atom[id[k][1]].cgroup);
-			// sgmFile.printf("%4d",ToSgm.atom[id[k][1]].pgroup);
-			sgmFile.printf("%4d",ToSgm.atom[id[k][1]].link);
-			sgmFile.printf("%4d",ToSgm.atom[id[k][1]].type);
+			sgmFile.printf("%5d",ToSgm.atom[id[k][1]].link);
+			sgmFile.printf("%5d",ToSgm.atom[id[k][1]].type);
+			sgmFile.printf("%5d",0);
+			sgmFile.printf("%5d",chgrp);
+			sgmFile.printf("%5d",polgrp);
 			sgmFile.println();
+			sgmFile.print("     "+ToSgm.atom[id[k][1]].Type1.substring(0,5)+"D");
 			sgmFile.printf("%12.6f",0.0);
 			sgmFile.printf("%12.5E",0.0);
+			sgmFile.println();
+			sgmFile.print("     "+ToSgm.atom[id[k][1]].Type1.substring(0,5)+"D");
 			sgmFile.printf("%12.6f",0.0);
 			sgmFile.printf("%12.5E",0.0);
+			sgmFile.println();
+			sgmFile.print("     "+ToSgm.atom[id[k][1]].Type1);
 			sgmFile.printf("%12.6f",ToSgm.atom[id[k][1]].q1);
 			sgmFile.printf("%12.5E",ToSgm.atom[id[k][1]].p1);
 			charge3=charge3+ToSgm.atom[id[k][1]].q1;
@@ -539,8 +545,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%1d",ToSgm.bond[jfound].source); sgmFile.println();
 			    sgmFile.printf("%12.6f",FrSgm.bond[i].bond1);
 			    sgmFile.printf("%12.5E",FrSgm.bond[i].force1);
+			    sgmFile.println();
 			    sgmFile.printf("%12.6f",FrSgm.bond[i].bond2);
 			    sgmFile.printf("%12.5E",FrSgm.bond[i].force2);
+			    sgmFile.println();
 			    sgmFile.printf("%12.6f",ToSgm.bond[jfound].bond1);
 			    sgmFile.printf("%12.5E",ToSgm.bond[jfound].force1);
 			} else {
@@ -554,8 +562,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.println();
 			    sgmFile.printf("%12.6f",FrSgm.bond[i].bond1);
 			    sgmFile.printf("%12.5E",FrSgm.bond[i].force1);
+			    sgmFile.println();
 			    sgmFile.printf("%12.6f",FrSgm.bond[i].bond2);
 			    sgmFile.printf("%12.5E",FrSgm.bond[i].force2);
+			    sgmFile.println();
 			    sgmFile.printf("%12.6f",FrSgm.bond[i].bond3);
 			    if(id[ida[number][0]][1]>=0 && id[ida[number][1]][1]>=0) {
 				sgmFile.printf("%12.5E",0.0);
@@ -585,6 +595,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%1d",ToSgm.bond[i].source); sgmFile.println();
 			    sgmFile.printf("%12.6f",ToSgm.bond[i].bond1);
 			    sgmFile.printf("%12.5E",0.0);
+			    sgmFile.println();
 			    sgmFile.printf("%12.6f",ToSgm.bond[i].bond2);
 			    sgmFile.printf("%12.5E",0.0);
 			} else {
@@ -592,9 +603,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%1d",ToSgm.bond[i].source); sgmFile.println();
 			    sgmFile.printf("%12.6f",ToSgm.bond[i].bond1);
 			    sgmFile.printf("%12.5E",ToSgm.bond[i].force1);
+			    sgmFile.println();
 			    sgmFile.printf("%12.6f",ToSgm.bond[i].bond2);
 			    sgmFile.printf("%12.5E",ToSgm.bond[i].force2);
 			};
+			sgmFile.println();
 			sgmFile.printf("%12.6f",ToSgm.bond[i].bond3);
 			sgmFile.printf("%12.5E",ToSgm.bond[i].force3);
 			sgmFile.println();
@@ -632,8 +645,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%1d",ToSgm.angle[jfound].source); sgmFile.println();
 			    sgmFile.printf("%10.6f",FrSgm.angle[i].angle1);
 			    sgmFile.printf("%12.5E",FrSgm.angle[i].force1);
+			    sgmFile.println();
 			    sgmFile.printf("%10.6f",FrSgm.angle[i].angle2);
 			    sgmFile.printf("%12.5E",FrSgm.angle[i].force2);
+			    sgmFile.println();
 			    sgmFile.printf("%10.6f",ToSgm.angle[jfound].angle1);
 			    sgmFile.printf("%12.5E",ToSgm.angle[jfound].force1);
 			} else {
@@ -647,8 +662,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.println();
 			    sgmFile.printf("%10.6f",FrSgm.angle[i].angle1);
 			    sgmFile.printf("%12.5E",FrSgm.angle[i].force1);
+			    sgmFile.println();
 			    sgmFile.printf("%10.6f",FrSgm.angle[i].angle2);
 			    sgmFile.printf("%12.5E",FrSgm.angle[i].force2);
+			    sgmFile.println();
 			    sgmFile.printf("%10.6f",FrSgm.angle[i].angle3);
 			    if(id[ida[number][0]][1]>=0 && id[ida[number][1]][1]>=0 && id[ida[number][2]][1]>=0) {
 				sgmFile.printf("%12.5E",0.0);
@@ -680,6 +697,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%1d",ToSgm.angle[i].source); sgmFile.println();
 			    sgmFile.printf("%10.6f",ToSgm.angle[i].angle1);
 			    sgmFile.printf("%12.5E",0.0);
+			    sgmFile.println();
 			    sgmFile.printf("%10.6f",ToSgm.angle[i].angle2);
 			    sgmFile.printf("%12.5E",0.0);
 			} else {
@@ -687,9 +705,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%1d",ToSgm.angle[i].source); sgmFile.println();
 			    sgmFile.printf("%10.6f",ToSgm.angle[i].angle1);
 			    sgmFile.printf("%12.5E",ToSgm.angle[i].force1);
+			    sgmFile.println();
 			    sgmFile.printf("%10.6f",ToSgm.angle[i].angle2);
 			    sgmFile.printf("%12.5E",ToSgm.angle[i].force2);
 			};
+			sgmFile.println();
 			sgmFile.printf("%10.6f",ToSgm.angle[i].angle3);
 			sgmFile.printf("%12.5E",ToSgm.angle[i].force3);
 			sgmFile.println();
@@ -730,9 +750,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%3d",FrSgm.torsion[i].multi1);
 			    sgmFile.printf("%10.6f",FrSgm.torsion[i].torsion1);
 			    sgmFile.printf("%12.5E",FrSgm.torsion[i].force1);
+			    sgmFile.println();
 			    sgmFile.printf("%3d",FrSgm.torsion[i].multi2);
 			    sgmFile.printf("%10.6f",FrSgm.torsion[i].torsion2);
 			    sgmFile.printf("%12.5E",FrSgm.torsion[i].force2);
+			    sgmFile.println();
 			    sgmFile.printf("%3d",ToSgm.torsion[jfound].multi1);
 			    sgmFile.printf("%10.6f",ToSgm.torsion[jfound].torsion1);
 			    sgmFile.printf("%12.5E",ToSgm.torsion[jfound].force1);
@@ -748,9 +770,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%3d",FrSgm.torsion[i].multi1);
 			    sgmFile.printf("%10.6f",FrSgm.torsion[i].torsion1);
 			    sgmFile.printf("%12.5E",FrSgm.torsion[i].force1);
+			    sgmFile.println();
 			    sgmFile.printf("%3d",FrSgm.torsion[i].multi2);
 			    sgmFile.printf("%10.6f",FrSgm.torsion[i].torsion2);
 			    sgmFile.printf("%12.5E",FrSgm.torsion[i].force2);
+			    sgmFile.println();
 			    sgmFile.printf("%3d",FrSgm.torsion[i].multi3);
 			    sgmFile.printf("%10.6f",FrSgm.torsion[i].torsion3);
 			    if(id[ida[number][0]][1]>=0 && id[ida[number][1]][1]>=0 && id[ida[number][2]][1]>=0 && id[ida[number][3]][1]>=0) {
@@ -786,6 +810,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%3d",ToSgm.torsion[i].multi1);
 			    sgmFile.printf("%10.6f",ToSgm.torsion[i].torsion1);
 			    sgmFile.printf("%12.5E",0.0);
+			    sgmFile.println();
 			    sgmFile.printf("%3d",ToSgm.torsion[i].multi2);
 			    sgmFile.printf("%10.6f",ToSgm.torsion[i].torsion2);
 			    sgmFile.printf("%12.5E",0.0);
@@ -795,10 +820,12 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%3d",ToSgm.torsion[i].multi1);
 			    sgmFile.printf("%10.6f",ToSgm.torsion[i].torsion1);
 			    sgmFile.printf("%12.5E",ToSgm.torsion[i].force1);
+			    sgmFile.println();
 			    sgmFile.printf("%3d",ToSgm.torsion[i].multi2);
 			    sgmFile.printf("%10.6f",ToSgm.torsion[i].torsion2);
 			    sgmFile.printf("%12.5E",ToSgm.torsion[i].force2);
 			};
+			sgmFile.println();
 			sgmFile.printf("%3d",ToSgm.torsion[i].multi3);
 			sgmFile.printf("%10.6f",ToSgm.torsion[i].torsion3);
 			sgmFile.printf("%12.5E",ToSgm.torsion[i].force3);
@@ -852,9 +879,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%3d",FrSgm.improper[i].multi1);
 			    sgmFile.printf("%10.6f",FrSgm.improper[i].improper1);
 			    sgmFile.printf("%12.5E",FrSgm.improper[i].force1);
+			    sgmFile.println();
 			    sgmFile.printf("%3d",FrSgm.improper[i].multi2);
 			    sgmFile.printf("%10.6f",FrSgm.improper[i].improper2);
 			    sgmFile.printf("%12.5E",FrSgm.improper[i].force2);
+			    sgmFile.println();
 			    sgmFile.printf("%3d",ToSgm.improper[jfound].multi1);
 			    sgmFile.printf("%10.6f",ToSgm.improper[jfound].improper1);
 			    sgmFile.printf("%12.5E",ToSgm.improper[jfound].force1);
@@ -870,9 +899,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%3d",FrSgm.improper[i].multi1);
 			    sgmFile.printf("%10.6f",FrSgm.improper[i].improper1);
 			    sgmFile.printf("%12.5E",FrSgm.improper[i].force1);
+			    sgmFile.println();
 			    sgmFile.printf("%3d",FrSgm.improper[i].multi2);
 			    sgmFile.printf("%10.6f",FrSgm.improper[i].improper2);
 			    sgmFile.printf("%12.5E",FrSgm.improper[i].force2);
+			    sgmFile.println();
 			    sgmFile.printf("%3d",FrSgm.improper[i].multi3);
 			    sgmFile.printf("%10.6f",FrSgm.improper[i].improper3);
 			    if(id[ida[number][0]][1]>=0 && id[ida[number][1]][1]>=0 && id[ida[number][2]][1]>=0 && id[ida[number][3]][1]>=0) {
@@ -912,6 +943,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%3d",ToSgm.improper[i].multi1);
 			    sgmFile.printf("%10.6f",ToSgm.improper[i].improper1);
 			    sgmFile.printf("%12.5E",0.0);
+			    sgmFile.println();
 			    sgmFile.printf("%3d",ToSgm.improper[i].multi2);
 			    sgmFile.printf("%10.6f",ToSgm.improper[i].improper2);
 			    sgmFile.printf("%12.5E",0.0);
@@ -921,10 +953,12 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%3d",ToSgm.improper[i].multi1);
 			    sgmFile.printf("%10.6f",ToSgm.improper[i].improper1);
 			    sgmFile.printf("%12.5E",ToSgm.improper[i].force1);
+			    sgmFile.println();
 			    sgmFile.printf("%3d",ToSgm.improper[i].multi2);
 			    sgmFile.printf("%10.6f",ToSgm.improper[i].improper2);
 			    sgmFile.printf("%12.5E",ToSgm.improper[i].force2);
 			};
+			sgmFile.println();
 			sgmFile.printf("%3d",ToSgm.improper[i].multi3);
 			sgmFile.printf("%10.6f",ToSgm.improper[i].improper3);
 			sgmFile.printf("%12.5E",ToSgm.improper[i].force3);
