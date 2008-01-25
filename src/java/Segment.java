@@ -226,8 +226,10 @@ public class Segment{
 		file.println();
 		file.printf("%10.6f",angle[i].angle1);
 		file.printf("%12.5E",angle[i].force1);
+		file.println();
 		file.printf("%10.6f",angle[i].angle2);
 		file.printf("%12.5E",angle[i].force2);
+		file.println();
 		file.printf("%10.6f",angle[i].angle3);
 		file.printf("%12.5E",angle[i].force3);
 		file.println();
@@ -246,9 +248,11 @@ public class Segment{
 		file.printf("%3d",torsion[i].multi1);
 		file.printf("%10.6f",torsion[i].torsion1);
 		file.printf("%12.5E",torsion[i].force1);
+		file.println();
 		file.printf("%3d",torsion[i].multi2);
 		file.printf("%10.6f",torsion[i].torsion2);
 		file.printf("%12.5E",torsion[i].force2);
+		file.println();
 		file.printf("%3d",torsion[i].multi3);
 		file.printf("%10.6f",torsion[i].torsion3);
 		file.printf("%12.5E",torsion[i].force3);
