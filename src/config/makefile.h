@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.563 2008-01-03 17:04:59 d3p307 Exp $
+# $Id: makefile.h,v 1.564 2008-01-25 20:19:45 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1006,6 +1006,7 @@ LARGE_FILES = YES
   endif
   COPTIMIZE = -O
     XLF8= $(shell /usr/bin/lslpp -l xlfcmp  2>&1|grep COMM|head -1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
+    XLF10 = $(shell xlf -qversion  2>&1|grep Version|head -1| awk ' / 10./ {print "Y"}')
   ifdef XLF8
     FVECTORIZE= -O3 -qstrict -qtune=auto -qarch=auto -qcache=auto -qalign=natural -qnozerosize -qlargepage -qnozerosize -qipa=level=2
     FOPTIMIZE = -O4  -NQ40000 -NT80000  -qarch=auto -qtune=auto
