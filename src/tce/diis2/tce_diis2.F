@@ -4,7 +4,7 @@
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4)
 c
-c $Id: tce_diis2.F,v 1.3 2008-01-14 15:20:41 jhammond Exp $
+c $Id: tce_diis2.F,v 1.4 2008-01-25 00:39:22 kowalski Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -55,8 +55,8 @@ c
       integer i,j
 c      integer tce_diis_switch
 c      external tce_diis_switch
-      double precision ddotfile
-      external ddotfile
+      double precision ddotfile,ddotfile_1,ddotfile_2
+      external ddotfile,ddotfile_1,ddotfile_2
       character*7 r1suffixes(maxdiis)
       data r1suffixes/'rr1.d1','rr1.d2','rr1.d3','rr1.d4',
      1   'rr1.d5','rr1.d6','rr1.d7','rr1.d8','rr1.d9',
@@ -399,9 +399,9 @@ c
           do j = i, diis
             a(i,j) = 0.0d0
             if (t1) a(i,j) = a(i,j)
-     1      + ddotfile(r1_diis(i),r1_diis(j),size_t1)
+     1      + ddotfile_1(r1_diis(i),r1_diis(j),size_t1)
             if (t2) a(i,j) = a(i,j)
-     1      + ddotfile(r2_diis(i),r2_diis(j),size_t2)
+     1      + ddotfile_2(r2_diis(i),r2_diis(j),size_t2)
             if (t3) a(i,j) = a(i,j)
      1      + ddotfile(r3_diis(i),r3_diis(j),size_t3)
             if (t4) a(i,j) = a(i,j)
