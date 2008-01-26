@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.46 2007-11-17 00:05:34 bylaska Exp $
+c $Id: nwpw_input.F,v 1.47 2008-01-26 04:08:16 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 85)
+      parameter (num_dirs = 87)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -99,6 +99,8 @@ c
      >            'fractional_orbitals',
      >            'tetrahedron',
      >            'smear',
+     >            'lcao_skip',
+     >            'lcao',
      >            'end'/
 
        double precision kb
@@ -151,7 +153,7 @@ c
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5700,5800,5900,6000,6000,
-     >       2750,6100,1809,6200,
+     >       2750,6100,1809,6200,6300,6400,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1085,6 +1087,20 @@ c
      >  call errquit('nwpw_input: error writing to rtdb',6200,RTDB_ERR)
 
       go to 10
+
+c
+c lcao_skip
+c
+ 6300 if (.not.rtdb_put(rtdb,'nwpw:lcao_skip',mt_log,1,.true.))
+     >  call errquit('nwpw_input: error writing to rtdb',6300,RTDB_ERR)
+      goto 10
+c
+c lcao
+c
+ 6400 if (.not.rtdb_put(rtdb,'nwpw:lcao_skip',mt_log,1,.false.))
+     >  call errquit('nwpw_input: error writing to rtdb',6400,RTDB_ERR)
+      goto 10
+
 
 
 ************************************************************************
