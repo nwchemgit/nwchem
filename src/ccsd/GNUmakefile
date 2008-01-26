@@ -1,5 +1,6 @@
-#     $Id: GNUmakefile,v 2.17 2004-12-16 02:40:46 edo Exp $
+#     $Id: GNUmakefile,v 2.18 2008-01-26 00:46:58 d3p307 Exp $
 
+include ../config/makefile.h
  OBJ = 		ccden_driver.o \
 		ccden_interm2.o \
 		ccden_1pdm.o \
@@ -40,10 +41,15 @@
 		ccsd_zsig1.o \
 		ccsd_zsig2.o \
 		ccsd_z2pm.o \
-		ccsd_aosig.o \
 		ccsd_tzinta.o \
 		ccsd_tzintb.o \
                 ccsd_mem.o ccsd_pstat.o
+
+ifdef XLF10
+  OBJ += ccsd_aosig.o
+else
+  OBJ_OPTIMIZE += ccsd_aosig.o
+endif
 
     LIBRARY = libccsd.a
 
@@ -78,5 +84,4 @@ LIB_DEFINES =
 #
 
 
-include ../config/makefile.h
 include ../config/makelib.h
