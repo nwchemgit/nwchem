@@ -4,7 +4,7 @@ c     making multiple XC matrices for CPKS
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_cpks_coeff.F,v 1.9 2005-02-23 04:58:02 edo Exp $
+c     $Id: xc_cpks_coeff.F,v 1.10 2008-01-26 00:45:02 niri Exp $
 c
 c     2/02 So Hirata --- added a code for triplet excitation or
 c     instability calculation and the corresponding logical argu-
@@ -43,7 +43,15 @@ c
       double precision delrho(nq,3,ipol)
 c
       integer ipert, n ! Loop indices
-      double precision pz(5), pdra(3), pdrb(3), t(2)
+c
+      double precision pz(5),t(2)
+      double precision pdra(3), pdrb(3)
+      double precision term_g,term_rr,term_rg,term_gg
+      double precision gaa,gbb,gab
+      double precision rara,rarb,rbra,rbrb
+      double precision ragaa, ragab, ragbb, rbgaa, rbgab, rbgbb
+      double precision gaagaa,gaagab,gaagbb,gabgab,gabgbb,gbbgbb
+c
 c
       if (ipol.eq.1) then
 c
@@ -175,129 +183,91 @@ c
 c
          else if (TRIPLET) then
 c
-c           Restricted triplet case
-c           (TDDFT triplet excitation energies)
-c           (DFT triplet instability check ... NYI)
+c          --------------------------------------------------------------
+c          Restricted triplet case
+c          (TDDFT triplet excitation energies)
+c          (DFT triplet instability check ... NYI)
+c          --------------------------------------------------------------
 c
-            if (.not. GRAD) then
+            if (.not. GRAD) then                                    ! local functionals
 c
                do n = 1, nq
-                  prho(n,1,ipert) =(Amat2(n,D2_RA_RA)-Amat2(n,D2_RA_RB))
-     &                            * prho(n,1,ipert)
+                 pz(1) = prho(n,1,ipert)                            ! perturbed density
+                 term_rr = Amat2(n,D2_RA_RA) - Amat2(n,D2_RA_RB)    ! rara - rarb
+                 prho(n,1,ipert) =term_rr*pz(1)
                enddo
 c
-            else
+            else                                                    ! gradient dependent functionals
 c
                do n = 1, nq
 c
-c                 Perturbed functional parameters
+                pz(1) = prho(n,1,ipert)                             ! perturbed density
+                pz(2) = delrho(n,1,1)*pdelrho(n,1,1,ipert)             ! delrho*perturbed density 
+     &             + delrho(n,2,1)*pdelrho(n,2,1,ipert)
+     &             + delrho(n,3,1)*pdelrho(n,3,1,ipert)
 c
-                  pz(1) = prho(n,1,ipert)
-                  pz(3) =(delrho(n,1,1)*pdelrho(n,1,1,ipert)
-     &                  + delrho(n,2,1)*pdelrho(n,2,1,ipert)
-     &                  + delrho(n,3,1)*pdelrho(n,3,1,ipert))*2d0
+                term_g  = Cmat(n,D1_GAA)*2.0d0 - Cmat(n,D1_GAB)      ! gaa - gab
+                term_rr = Amat2(n,D2_RA_RA)    - Amat2(n,D2_RA_RB)   ! rara - rarb
+                term_rg = Cmat2(n,D2_RA_GAA)   - Cmat2(n,D2_RA_GBB)  ! ragaa - ragbb
+                term_gg = Cmat2(n,D2_GAA_GAA)  - Cmat2(n,D2_GAA_GBB) ! gaagaa - gaagbb
 c
-c                 Local CPKS coefficient
+                prho(n,1,ipert) = term_rr*pz(1) + term_rg*pz(2)*2.d0
 c
-                  prho(n,1,ipert) =(Amat2(n,D2_RA_RA)
-     &                            - Amat2(n,D2_RA_RB)) *pz(1)
-     &                            +(Cmat2(n,D2_RA_GAA)
-     &                            - Cmat2(n,D2_RA_GBB))*pz(3)
+                pdelrho(n,1,1,ipert) = term_g*pdelrho(n,1,1,ipert) +
+     &          (term_rg*pz(1) + term_gg*pz(2)*2.d0)*delrho(n,1,1)*2.d0
+                pdelrho(n,2,1,ipert) = term_g*pdelrho(n,2,1,ipert) +
+     &          (term_rg*pz(1) + term_gg*pz(2)*2.d0)*delrho(n,2,1)*2.d0
+                pdelrho(n,3,1,ipert) = term_g*pdelrho(n,3,1,ipert) +
+     &          (term_rg*pz(1) + term_gg*pz(2)*2.d0)*delrho(n,3,1)*2.d0
 c
-c                 GC CPKS coefficients
-c
-                  pdra(1) = pdelrho(n,1,1,ipert)
-                  pdra(2) = pdelrho(n,2,1,ipert)
-                  pdra(3) = pdelrho(n,3,1,ipert)
-c
-c                 Perturbed density gradient contribution
-c
-                  pdelrho(n,1,1,ipert) =(Cmat(n,D1_GAA)*2d0
-     &                                 - Cmat(n,D1_GAB))*pdra(1)
-                  pdelrho(n,2,1,ipert) =(Cmat(n,D1_GAA)*2d0
-     &                                 - Cmat(n,D1_GAB))*pdra(2)
-                  pdelrho(n,3,1,ipert) =(Cmat(n,D1_GAA)*2d0
-     &                                 - Cmat(n,D1_GAB))*pdra(3)
-c
-c                 Perturbed functional argument contribution
-c
-                  t(1) =((Cmat2(n,D2_RA_GAA)
-     &                 -  Cmat2(n,D2_RA_GBB)) *pz(1)
-     &                 + (Cmat2(n,D2_GAA_GAA)
-     &                 -  Cmat2(n,D2_GAA_GBB))*pz(3))*2d0
-                  pdelrho(n,1,1,ipert) = pdelrho(n,1,1,ipert)
-     &                 + delrho(n,1,1)*t(1)
-                  pdelrho(n,2,1,ipert) = pdelrho(n,2,1,ipert)
-     &                 + delrho(n,2,1)*t(1)
-                  pdelrho(n,3,1,ipert) = pdelrho(n,3,1,ipert)
-     &                 + delrho(n,3,1)*t(1)
                enddo
             endif
 c
          else
 c
-c           Restricted case
-c           (DFT analytic hessian)
-c           (TDDFT singlet excitation energies)
-c           (DFT singlet instability check ... NYI)
+c          --------------------------------------------------------------
+c          Restricted case
+c          (DFT analytic hessian)
+c          (TDDFT singlet excitation energies)
+c          (DFT singlet instability check ... NYI)
+c          --------------------------------------------------------------
 c
-            if (.not. GRAD) then
+            if (.not. GRAD) then                                   ! local functionals
 c
                do n = 1, nq
-                  prho(n,1,ipert) =(Amat2(n,D2_RA_RA)+Amat2(n,D2_RA_RB))
-     &                            * prho(n,1,ipert)
+                 pz(1) = prho(n,1,ipert)                              ! perturbed density
+                 term_rr = Amat2(n,D2_RA_RA) + Amat2(n,D2_RA_RB)   ! rara + rarb
+                 prho(n,1,ipert) =term_rr*pz(1)
                enddo
 c
-            else
+            else                                                   ! gradient dependent functionals
 c
                do n = 1, nq
 c
-c                 Perturbed functional parameters
+                pz(1) = prho(n,1,ipert)                               ! perturbed density
+                pz(2) = delrho(n,1,1)*pdelrho(n,1,1,ipert)            ! delrho*perturbed density 
+     &             + delrho(n,2,1)*pdelrho(n,2,1,ipert)
+     &             + delrho(n,3,1)*pdelrho(n,3,1,ipert)
 c
-                  pz(1) = prho(n,1,ipert)
-                  pz(3) =(delrho(n,1,1)*pdelrho(n,1,1,ipert)
-     &                  + delrho(n,2,1)*pdelrho(n,2,1,ipert)
-     &                  + delrho(n,3,1)*pdelrho(n,3,1,ipert))*2d0
+                term_g  = Cmat(n,D1_GAA)*2.0d0 + Cmat(n,D1_GAB)    ! gaa + gab
+                term_rr = Amat2(n,D2_RA_RA)    + Amat2(n,D2_RA_RB) ! rara + rarb
+                term_rg = Cmat2(n,D2_RA_GAA)                       ! ragaa + ragbb + ragab
+     &                  + Cmat2(n,D2_RA_GBB)                      
+     &                  + Cmat2(n,D2_RA_GAB)                      
+                term_gg = Cmat2(n,D2_GAA_GAA)                      ! gaagaa + gaagbb + gaagab + gabgab
+     &                  + Cmat2(n,D2_GAA_GBB)
+     &                  + Cmat2(n,D2_GAA_GAB)*2.0d0
+     &                  + Cmat2(n,D2_GAB_GAB)*0.5d0
 c
-c                 Local CPKS coefficient
+                prho(n,1,ipert) = term_rr*pz(1) + term_rg*pz(2)*2.d0
 c
-                  prho(n,1,ipert) =(Amat2(n,D2_RA_RA)
-     &                            + Amat2(n,D2_RA_RB)) *pz(1)
-     &                            +(Cmat2(n,D2_RA_GAA)
-     &                            + Cmat2(n,D2_RA_GAB)
-     &                            + Cmat2(n,D2_RA_GBB))*pz(3)
+                pdelrho(n,1,1,ipert) = term_g*pdelrho(n,1,1,ipert) +
+     &          (term_rg*pz(1) + term_gg*pz(2)*2.d0)*delrho(n,1,1)*2.d0
+                pdelrho(n,2,1,ipert) = term_g*pdelrho(n,2,1,ipert) +
+     &          (term_rg*pz(1) + term_gg*pz(2)*2.d0)*delrho(n,2,1)*2.d0
+                pdelrho(n,3,1,ipert) = term_g*pdelrho(n,3,1,ipert) +
+     &          (term_rg*pz(1) + term_gg*pz(2)*2.d0)*delrho(n,3,1)*2.d0
 c
-c                 GC CPKS coefficients
-c
-                  pdra(1) = pdelrho(n,1,1,ipert)
-                  pdra(2) = pdelrho(n,2,1,ipert)
-                  pdra(3) = pdelrho(n,3,1,ipert)
-c
-c                 Perturbed density gradient contribution
-c
-                  pdelrho(n,1,1,ipert) =(Cmat(n,D1_GAA)*2d0
-     &                                 + Cmat(n,D1_GAB))*pdra(1)
-                  pdelrho(n,2,1,ipert) =(Cmat(n,D1_GAA)*2d0
-     &                                 + Cmat(n,D1_GAB))*pdra(2)
-                  pdelrho(n,3,1,ipert) =(Cmat(n,D1_GAA)*2d0
-     &                                 + Cmat(n,D1_GAB))*pdra(3)
-c
-c                 Perturbed functional argument contribution
-c
-                  t(1) =((Cmat2(n,D2_RA_GAA)
-     &                 +  Cmat2(n,D2_RA_GBB)) *pz(1)
-     &                 + (Cmat2(n,D2_GAA_GAA)
-     &                 +  Cmat2(n,D2_GAA_GAB)
-     &                 +  Cmat2(n,D2_GAA_GBB))*pz(3))*2d0
-                  t(2) = Cmat2(n,D2_RA_GAB)*2d0*pz(1)
-     &                 +(Cmat2(n,D2_GAA_GAB)*2d0
-     &                 + Cmat2(n,D2_GAB_GAB))*pz(3)
-                  pdelrho(n,1,1,ipert) = pdelrho(n,1,1,ipert)
-     &                 + delrho(n,1,1)*(t(1) + t(2))
-                  pdelrho(n,2,1,ipert) = pdelrho(n,2,1,ipert)
-     &                 + delrho(n,2,1)*(t(1) + t(2))
-                  pdelrho(n,3,1,ipert) = pdelrho(n,3,1,ipert)
-     &                 + delrho(n,3,1)*(t(1) + t(2))
                enddo
             endif
 c
