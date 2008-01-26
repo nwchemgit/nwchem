@@ -3,7 +3,7 @@
      2  k_y1_offset,k_y2_offset,k_y3_offset,k_y4_offset,
      3  d_r1,d_r2,d_r3,d_r4,omega,residual)
 c
-c $Id: tce_eom_ydiagon.F,v 1.3 2008-01-14 15:20:33 jhammond Exp $
+c $Id: tce_eom_ydiagon.F,v 1.4 2008-01-26 00:26:18 kowalski Exp $
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -45,8 +45,8 @@ c
       integer l_wk, k_wk
       integer info
       integer newnytrials
-      double precision ddotfile
-      external ddotfile
+      double precision ddotfile,ddotfile_1,ddotfile_2
+      external ddotfile,ddotfile_1,ddotfile_2
       double precision au2ev   ! Conversion factor from a.u. to eV
       parameter (au2ev=27.2113961d0)
       character*255 filename
@@ -91,7 +91,7 @@ c         else
      2          UNKNOWN_ERR)
               dbl_mb(k_hbar+(ivec-1)*nytrials+jvec-1) = 
      1        dbl_mb(k_hbar+(ivec-1)*nytrials+jvec-1) + 
-     2        ddotfile(y1(jvec),yp1(ivec),size_y1)
+     2        ddotfile_1(y1(jvec),yp1(ivec),size_y1)
             endif
             if (needy2) then
               if (.not.y2_exist(ivec))
@@ -102,7 +102,7 @@ c         else
      2          UNKNOWN_ERR)
               dbl_mb(k_hbar+(ivec-1)*nytrials+jvec-1) = 
      1        dbl_mb(k_hbar+(ivec-1)*nytrials+jvec-1) + 
-     2        ddotfile(y2(jvec),yp2(ivec),size_y2)
+     2        ddotfile_2(y2(jvec),yp2(ivec),size_y2)
             endif
             if (needy3) then
               if (.not.y3_exist(ivec))
@@ -171,7 +171,7 @@ c
           call daxpyfile(nytrials,dbl_mb(k_ei),
      1      y1,d_r1,size_y1)
           residual(ivec) = residual(ivec) 
-     1                   + ddotfile(d_r1,d_r1,size_y1)
+     1                   + ddotfile_1(d_r1,d_r1,size_y1)
           if (nodezero.and.util_print('residual',print_debug)) then
             write(LuOut,*) ' Y1: vector',ivec
             write(LuOut,*) ' Y1: residual',residual(ivec)
@@ -188,7 +188,7 @@ c
           call daxpyfile(nytrials,dbl_mb(k_ei),
      1      y2,d_r2,size_y2)
           residual(ivec) = residual(ivec) 
-     1                   + ddotfile(d_r2,d_r2,size_y2)
+     1                   + ddotfile_2(d_r2,d_r2,size_y2)
           if (nodezero.and.util_print('residual',print_debug)) then
             write(LuOut,*) ' Y2: vector',ivec
             write(LuOut,*) ' Y2: residual',residual(ivec)
@@ -250,8 +250,8 @@ c
           if (needy4) call dscalfile(1.0d0/residual(ivec),d_r4,size_y4)
           do jvec = 1, newnytrials
             overlap = 0.0d0
-            if (needy1) overlap=overlap+ddotfile(d_r1,y1(jvec),size_y1)
-            if (needy2) overlap=overlap+ddotfile(d_r2,y2(jvec),size_y2)
+            if(needy1) overlap=overlap+ddotfile_1(d_r1,y1(jvec),size_y1)
+            if(needy2) overlap=overlap+ddotfile_2(d_r2,y2(jvec),size_y2)
             if (needy3) overlap=overlap+ddotfile(d_r3,y3(jvec),size_y3)
             if (needy4) overlap=overlap+ddotfile(d_r4,y4(jvec),size_y4)
             if (needy1) call daxpyfile(1,-overlap,y1(jvec),d_r1,size_y1)
@@ -260,8 +260,8 @@ c
             if (needy4) call daxpyfile(1,-overlap,y4(jvec),d_r4,size_y4)
           enddo
           overlap = 0.0d0
-          if (needy1) overlap=overlap+ddotfile(d_r1,d_r1,size_y1)
-          if (needy2) overlap=overlap+ddotfile(d_r2,d_r2,size_y2)
+          if (needy1) overlap=overlap+ddotfile_1(d_r1,d_r1,size_y1)
+          if (needy2) overlap=overlap+ddotfile_2(d_r2,d_r2,size_y2)
           if (needy3) overlap=overlap+ddotfile(d_r3,d_r3,size_y3)
           if (needy4) overlap=overlap+ddotfile(d_r4,d_r4,size_y4)
           overlap = dsqrt(overlap)
