@@ -4,7 +4,7 @@ c     making multiple XC matrices for CPKS
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_cpks_coeff.F,v 1.10 2008-01-26 00:45:02 niri Exp $
+c     $Id: xc_cpks_coeff.F,v 1.11 2008-01-26 02:03:15 niri Exp $
 c
 c     2/02 So Hirata --- added a code for triplet excitation or
 c     instability calculation and the corresponding logical argu-
@@ -165,6 +165,7 @@ c
      &                 + delrho(n,2,1)*t(1) + delrho(n,2,2)*t(2)
                   pdelrho(n,3,1,ipert) = pdelrho(n,3,1,ipert)
      &                 + delrho(n,3,1)*t(1) + delrho(n,3,2)*t(2)
+c
                   t(1) = t(2)
                   t(2) =(Cmat2(n,D2_RA_GBB) *pz(1)
      &                 + Cmat2(n,D2_RB_GBB) *pz(2)
@@ -189,27 +190,31 @@ c          (TDDFT triplet excitation energies)
 c          (DFT triplet instability check ... NYI)
 c          --------------------------------------------------------------
 c
-            if (.not. GRAD) then                                    ! local functionals
+            if (.not. GRAD) then                                     ! local functionals
 c
                do n = 1, nq
-                 pz(1) = prho(n,1,ipert)                            ! perturbed density
-                 term_rr = Amat2(n,D2_RA_RA) - Amat2(n,D2_RA_RB)    ! rara - rarb
+                 pz(1) = prho(n,1,ipert)                             ! perturbed density
+                 term_rr = Amat2(n,D2_RA_RA) - Amat2(n,D2_RA_RB)     ! rara - rarb
                  prho(n,1,ipert) =term_rr*pz(1)
                enddo
 c
-            else                                                    ! gradient dependent functionals
+            else                                                     ! gradient dependent functionals
 c
                do n = 1, nq
 c
-                pz(1) = prho(n,1,ipert)                             ! perturbed density
-                pz(2) = delrho(n,1,1)*pdelrho(n,1,1,ipert)             ! delrho*perturbed density 
-     &             + delrho(n,2,1)*pdelrho(n,2,1,ipert)
-     &             + delrho(n,3,1)*pdelrho(n,3,1,ipert)
+                pz(1) = prho(n,1,ipert)                              ! perturbed density
+                pz(2) = delrho(n,1,1)*pdelrho(n,1,1,ipert) +         ! delrho*perturbed density 
+     &                  delrho(n,2,1)*pdelrho(n,2,1,ipert) +
+     &                  delrho(n,3,1)*pdelrho(n,3,1,ipert)
 c
                 term_g  = Cmat(n,D1_GAA)*2.0d0 - Cmat(n,D1_GAB)      ! gaa - gab
                 term_rr = Amat2(n,D2_RA_RA)    - Amat2(n,D2_RA_RB)   ! rara - rarb
                 term_rg = Cmat2(n,D2_RA_GAA)   - Cmat2(n,D2_RA_GBB)  ! ragaa - ragbb
                 term_gg = Cmat2(n,D2_GAA_GAA)  - Cmat2(n,D2_GAA_GBB) ! gaagaa - gaagbb
+cmeta-gga terms
+c               term_rt = Mmat2(n,D2_RA_TA)  - Mmat2(n,D2_RA_TB)     ! rata - ratb
+c               term_gt = Mmat2(n,D2_TA_GAA) - Mmat2(n,D2_TA_GBB)    ! gaata - gbbta
+c               term_tt = Mmat2(n,D2_TA_TA)  - Mmat2(n,D2_TA_TB)     ! tata - tatb
 c
                 prho(n,1,ipert) = term_rr*pz(1) + term_rg*pz(2)*2.d0
 c
@@ -235,7 +240,7 @@ c
             if (.not. GRAD) then                                   ! local functionals
 c
                do n = 1, nq
-                 pz(1) = prho(n,1,ipert)                              ! perturbed density
+                 pz(1) = prho(n,1,ipert)                           ! perturbed density
                  term_rr = Amat2(n,D2_RA_RA) + Amat2(n,D2_RA_RB)   ! rara + rarb
                  prho(n,1,ipert) =term_rr*pz(1)
                enddo
@@ -244,20 +249,27 @@ c
 c
                do n = 1, nq
 c
-                pz(1) = prho(n,1,ipert)                               ! perturbed density
-                pz(2) = delrho(n,1,1)*pdelrho(n,1,1,ipert)            ! delrho*perturbed density 
-     &             + delrho(n,2,1)*pdelrho(n,2,1,ipert)
-     &             + delrho(n,3,1)*pdelrho(n,3,1,ipert)
+                pz(1) = prho(n,1,ipert)                            ! perturbed density
+                pz(2) = delrho(n,1,1)*pdelrho(n,1,1,ipert) +       ! delrho*perturbed density 
+     &                  delrho(n,2,1)*pdelrho(n,2,1,ipert) +
+     &                  delrho(n,3,1)*pdelrho(n,3,1,ipert)
 c
                 term_g  = Cmat(n,D1_GAA)*2.0d0 + Cmat(n,D1_GAB)    ! gaa + gab
                 term_rr = Amat2(n,D2_RA_RA)    + Amat2(n,D2_RA_RB) ! rara + rarb
-                term_rg = Cmat2(n,D2_RA_GAA)                       ! ragaa + ragbb + ragab
-     &                  + Cmat2(n,D2_RA_GBB)                      
-     &                  + Cmat2(n,D2_RA_GAB)                      
-                term_gg = Cmat2(n,D2_GAA_GAA)                      ! gaagaa + gaagbb + gaagab + gabgab
-     &                  + Cmat2(n,D2_GAA_GBB)
-     &                  + Cmat2(n,D2_GAA_GAB)*2.0d0
-     &                  + Cmat2(n,D2_GAB_GAB)*0.5d0
+                term_rg = Cmat2(n,D2_RA_GAA) +                     ! ragaa + ragbb + ragab
+     &                    Cmat2(n,D2_RA_GBB) +                     
+     &                    Cmat2(n,D2_RA_GAB)                      
+                term_gg = Cmat2(n,D2_GAA_GAA) +                    ! gaagaa + gaagbb + gaagab + gabgab
+     &                    Cmat2(n,D2_GAA_GBB) + 
+     &                    Cmat2(n,D2_GAA_GAB)*2.0d0 +
+     &                    Cmat2(n,D2_GAB_GAB)*0.5d0
+c
+cmeta-gga terms
+c               term_rt = Mmat2(n,D2_RA_TA)  + Mmat2(n,D2_RA_TB)   ! rata + ratb
+c               term_gt = Mmat2(n,D2_TA_GAA) +                     ! gaata + gabta + gbbta
+c                         Mmat2(n,D2_TA_GAB) + 
+c                         Mmat2(n,D2_TA_GBB)
+c               term_tt = Mmat2(n,D2_TA_TA)  + Mmat2(n,D2_TA_TB)   ! tata + tatb
 c
                 prho(n,1,ipert) = term_rr*pz(1) + term_rg*pz(2)*2.d0
 c
