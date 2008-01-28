@@ -1,5 +1,5 @@
 /*
- $Id: paw_atom_driver.c,v 1.3 2007-04-10 19:04:33 d3p708 Exp $
+ $Id: paw_atom_driver.c,v 1.4 2008-01-28 22:49:55 d3p708 Exp $
 */
 
 #include <math.h>
@@ -9,6 +9,11 @@
 #include "typesf2c.h"
 
 
+#include "paw_atom.h"
+#include "paw_sdir.h"
+#include "paw_output.h"
+#include "paw_basis.h"
+#include "paw_scattering.h"
 
 #if defined(CRAY) || defined(CRAY_T3D)
 #include <fortran.h>
