@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.50 2006-12-01 22:19:18 edo Exp $
+* $Id: task_gradient.F,v 1.51 2008-01-28 21:57:50 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -159,7 +159,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.50 2006-12-01 22:19:18 edo Exp $
+* $Id: task_gradient.F,v 1.51 2008-01-28 21:57:50 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -265,10 +265,6 @@ c
            status=task_num_grad(rtdb)
          else
            status = dft_energy_gradient(rtdb)
-           if(.not.status.and.xc_chktau()) then
-              numerical = .true.
-              status=task_num_grad(rtdb)
-           endif
          endif
       else if (theory .eq. 'sodft') then
          if (numerical) then
