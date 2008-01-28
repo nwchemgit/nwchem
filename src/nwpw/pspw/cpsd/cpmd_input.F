@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.17 2007-12-26 19:44:00 bylaska Exp $
+c $Id: cpmd_input.F,v 1.18 2008-01-28 21:50:11 bylaska Exp $
 c
 
 
@@ -98,7 +98,7 @@ c
         
 
 *     ***** initializations ****
-      call cpmd_input_default(rtdb)
+c      call cpmd_input_default(rtdb)
       npsp = 0
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.108 2007-11-17 00:06:00 bylaska Exp $
+* $Id: control.F,v 1.109 2008-01-28 21:49:44 bylaska Exp $
 *
 
 *     ***********************************
@@ -235,12 +235,16 @@ c    >          rtdb_cget(rtdb,id,1,pspnames(i))
 c     end do
 
 *     **** get thermostat information ****
-      value = value .and. rtdb_get(rtdb,'cpmd:nose',mt_log,1,nose)
-      value = value .and. rtdb_get(rtdb,'cpmd:Pe',mt_dbl,1,Pe)
-      value = value .and. rtdb_get(rtdb,'cpmd:Te',mt_dbl,1,Te)
-      value = value .and. rtdb_get(rtdb,'cpmd:Pr',mt_dbl,1,Pr)
-      value = value .and. rtdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr)
-
+      if (.not.rtdb_get(rtdb,'cpmd:nose',mt_log,1,nose))
+     >   nose = .false.
+      if (.not.rtdb_get(rtdb,'cpmd:Pe',mt_dbl,1,Pe))
+     >   Pe = 1000.0d0
+      if (.not.rtdb_get(rtdb,'cpmd:Te',mt_dbl,1,Te))
+     >   Te = 298.15d0
+      if (.not.rtdb_get(rtdb,'cpmd:Pr',mt_dbl,1,Pr))
+     >   Pr = 1000.0d0
+      if (.not.rtdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr))
+     >   Tr = 298.15d0
 
 *     **** cgsd: stuff or  paw: stuff ****
       else if ((code.eq.3).or.(code.eq.8).or.(code.eq.11)) then
