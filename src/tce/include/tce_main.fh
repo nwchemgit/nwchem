@@ -1,4 +1,4 @@
-c $Id: tce_main.fh,v 1.4 2008-01-18 19:29:56 jhammond Exp $
+c $Id: tce_main.fh,v 1.5 2008-01-28 14:47:41 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -36,6 +36,8 @@ c
       character*10 perturbative! PT model
       character*10 ccsd_var
       logical left             ! Dipole moments & dipole transition moments
+      logical ampnorms         ! Calculate and print amplitude norms
+      logical diagnt1          ! Calculate the T1 diagnostic
       integer multipole        ! Multipole moments
       integer maxiter          ! Maximum number of Davidson iterations
       integer l_evl(2),k_evl(2)! MA handles for eigenvalues (AB)
@@ -143,6 +145,6 @@ c
 c     Logicals
 c
       common /tcemainlogical/
-     1  oskel,oadapt,left,fileisga,
+     1  oskel,oadapt,left,fileisga,ampnorms,diagnt1,
      2  symmetry,activecalc
 
