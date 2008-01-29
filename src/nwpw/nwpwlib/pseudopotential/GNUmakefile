@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.13 2007-10-22 18:29:59 jhammond Exp $
+# $Id: GNUmakefile,v 1.14 2008-01-29 19:55:56 d3p708 Exp $
 #
       SUBDIRS = paw_atom
 
- OBJ_OPTIMIZE = \
+      OBJ = \
                 psp_generator_input.o \
                 pspsolve.o \
                 hgh_parse.o \
@@ -28,13 +28,11 @@
                 psp1d.o generate_rho_semicore.o \
 		debug.o rhamann.o rpsp.o        
 
-	  OBJ = 
-
       LIBRARY = libnwpwlib.a
 
     USES_BLAS = 
 
-  LIB_DEFINES = -g #-ggdb
+  LIB_DEFINES = -g
 
 
 include ../../../config/makefile.h
