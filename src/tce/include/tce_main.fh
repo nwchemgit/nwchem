@@ -1,4 +1,4 @@
-c $Id: tce_main.fh,v 1.5 2008-01-28 14:47:41 jhammond Exp $
+c $Id: tce_main.fh,v 1.6 2008-01-29 18:26:55 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -8,7 +8,7 @@ c      integer rtdb
 c      logical nodezero         ! True if node 0
 c tce.fh < double precision cpu     ! CPU sec counter
 c tce.fh < double precision wall    ! WALL sec counter
-c      integer iter             ! Iteration counter
+      integer iter             ! Iteration counter
 c      integer dummy            ! Dummy argument for DIIS
 c      double precision residual! Largest residual
 c      character*255 filename
@@ -45,6 +45,7 @@ c
       integer mult             ! Ground state spin multiplicity
       integer nirreps          ! Number of irreducible representations
       double precision thresh  ! Convergence threshold for amplitude equation
+      double precision pthresh ! Amplitude printing threshold
       double precision zlshift ! Level Shift
       integer l_irs(2),k_irs(2)! Irreps of MO's
       integer nmix(2)          ! Number of symmetry contaminations
@@ -135,7 +136,7 @@ c
 c     Doubles
 c
       common /tcemaindouble/
-     1  thresh,tol2e,cpusecs,zlshift
+     1  thresh,pthresh,tol2e,cpusecs,zlshift
 c
 c     Characters
 c
