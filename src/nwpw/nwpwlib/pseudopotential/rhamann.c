@@ -47,13 +47,13 @@ Suggested_Param_RelHamann (int *num_states_psp,
 			   double e_psp[], double fill_psp[],
 			   double rcut_psp[])
 {
-  int p, npsps;
+  int p, npsps, itmp;
   int i, l, lmax, ss, js;
   int Nc, Nv, n;
   double rcmax, emax;
 
   Nc = Ncore_Atom ();
-  Nv = Nvalence_Atom ();
+  Nv = Nvalence_Atom();
   lmax = lmax_Atom ();
   npsps = 2 * lmax + 4;
   for (p = 0; p < npsps; ++p)
@@ -62,7 +62,7 @@ Suggested_Param_RelHamann (int *num_states_psp,
       fill_psp[p] = 0.0;
       n_psp[p] = 0;
       l_psp[p] = p / 2;
-      s_psp[p] = (p % 2) ? -1 : 1;
+      s_psp[p] = (p % 2) ?  1 : -1;
     }
 
     /*******************************************/
@@ -76,7 +76,7 @@ Suggested_Param_RelHamann (int *num_states_psp,
       n = n_Atom (i);
       l = l_Atom (i);
       ss = s_Atom (i);
-      js = l + l + ((1 - ss) / 2);
+      js = l + l + ((1+ss)/2);
       /* lowest l state, i.e. 1s, 2p, 3d, ... */
       if (n == (l + 1))
 	rcut_psp[js] = CSC1 * peak_Atom (i);
@@ -84,14 +84,13 @@ Suggested_Param_RelHamann (int *num_states_psp,
 	rcut_psp[js] = CSC * peak_Atom (i);
 
       if (rcmax<rcut_psp[js]) rcmax=rcut_psp[js];
-      fill_psp[js] = 0.0;	/* all core states are scattering states */
       if (n_psp[js]<n) n_psp[js]=n;
       e_psp[js] = 0.0;
     }				/* core states */
 
     /***********************************/
-  /* iterate over valence states     */
-  /* - remove core scattering states */
+    /* iterate over valence states     */
+    /* - remove core scattering states */
     /***********************************/
   if (Nv > 0)
     {
@@ -102,7 +101,7 @@ Suggested_Param_RelHamann (int *num_states_psp,
 	  n = n_Atom (i);
 	  l = l_Atom (i);
 	  ss = s_Atom (i);
-	  js = l + l + ((1 - ss) / 2);
+	  js = l + l + ((1 + ss) / 2);
 	  /* lowest l state, i.e. 1s, 2p, 3d, ... */
 	  if (n == (l + 1))
 	    rcut_psp[js] = VSC1 * peak_Atom (i);
@@ -256,7 +255,7 @@ solve_RelHamann (int num_psp,
       iteration = 0;
       cl[p] = Vall[nrc];
       converged = False;
-      while ((iteration <= 30) && (!converged))
+      while ((iteration <= 50) && (!converged))
 	{
 	  ++iteration;
 
@@ -444,5 +443,4 @@ solve_RelHamann (int num_psp,
   dealloc_LogGrid (Vcut);
   dealloc_LogGrid (Fcut);
   dealloc_LogGrid (f);
-
 }

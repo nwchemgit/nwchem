@@ -1,11 +1,12 @@
 /*
- $Id: dft.c,v 1.5 2007-04-09 22:55:51 d3p708 Exp $
+ $Id: dft.c,v 1.6 2008-01-29 23:09:15 d3p708 Exp $
    dft.c -
    Author - Eric Bylaska
 
 */
 
 #include	<stdio.h>
+#include 	<string.h>
 #include	"loggrid.h"
 #include	"get_word.h"
 #include	"dft.h"

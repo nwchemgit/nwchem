@@ -1,5 +1,5 @@
 /*
- $Id: rpspsolve.c,v 1.12 2008-01-08 19:14:49 d3p708 Exp $
+ $Id: rpspsolve.c,v 1.13 2008-01-29 23:09:15 d3p708 Exp $
 */
 
 #include <stdlib.h>
@@ -111,10 +111,17 @@ void FATR rpspsolve_
  *  in the call to pspsolve
  *******************/
   set_debug_print (debug);
+
+
   init_RelPsp (infile);
+
+
   solve_RelPsp ();
+
+
   if (debug)
     print_RelPsp (stdout);
+
 
   init_Linear (infile);
 
@@ -131,6 +138,7 @@ void FATR rpspsolve_
   rl = (double *) malloc (Nlinear * sizeof (double));
   rhol = (double *) malloc (Nlinear * sizeof (double));
 
+
   /* Norm-conserving output */
   for (p = 0; p < Nvalence; ++p)
     {
@@ -143,7 +151,9 @@ void FATR rpspsolve_
 	  normalize_Linear (psil[p]);
 	}
     }
+
   Log_to_Linear (rho_RelPsp (), rl, rhol);
+
 
   if (debug)
     {
@@ -168,8 +178,7 @@ void FATR rpspsolve_
 	}
       fclose (fp);
 
-
-      /* output pseudopotentials argv[1].psp */
+      /* output pseudopotentials argv[1].psp.plt */
       strcpy (name, name_Atom ());
       strcat (name, ".psp.plt");
       full_filename[0] = '\0';
@@ -190,8 +199,7 @@ void FATR rpspsolve_
 	}
       fclose (fp);
 
-
-      /* output pseudodensity infile.psd */
+      /* output pseudodensity infile.psd.plt */
       strcpy (name, name_Atom ());
       strcat (name, ".psd.plt");
       full_filename[0] = '\0';
@@ -207,13 +215,16 @@ void FATR rpspsolve_
       fclose (fp);
     }
 
-
   /* output datafile to be used for Kleinman-Bylander input, argv[1].psp */
   if (print)
     {
       printf (" Creating datafile for Kleinman-Bylander input: %s\n",
 	      outfile);
     }
+
+
+  locp_out=0;
+  rlocal_out=1.0;
   fp = fopen (outfile, "w+");
   fprintf (fp, "7 %s\n", name_Atom ());
   fprintf (fp, "%lf %lf %d   %d %d %lf\n", Zion_RelPsp (), Amass_Atom (),
@@ -229,6 +240,7 @@ void FATR rpspsolve_
       printf ("  + Appending pseudopotentials:    %s thru %s\n",
 	      spd_Name (0), spd_Name (lmax_RelPsp ()));
     }
+
   nvh=Nvalence/2;
   for (k = 0; k < Nlinear; ++k)
     {
@@ -246,6 +258,8 @@ void FATR rpspsolve_
       printf ("  + Appending pseudowavefunctions: %s thru %s\n",
 	      spd_Name (0), spd_Name (lmax_RelPsp ()));
     }
+
+
   for (k = 0; k < Nlinear; ++k)
     {
       fprintf (fp, "%12.8lf ", rl[k]);
@@ -253,7 +267,6 @@ void FATR rpspsolve_
 	fprintf (fp, " %12.8lf", psil[p][k]);
       fprintf (fp, "\n");
     }
-
 
   /* output spin-orbit datafile to be used for Kleinman-Bylander input, argv[1].dat */
   if (print)
@@ -278,6 +291,8 @@ void FATR rpspsolve_
 	}
       fprintf (fp, "\n");
     }
+
+
   /* append semicore corrections */
   if (r_semicore_RelPsp () != 0.0)
     {
@@ -381,7 +396,6 @@ void FATR rpspsolve_
       strcat (full_filename, "/");
       full_filename[m9 + 1] = '\0';
       strcat (full_filename, name);
-
       printf ("Outputing core density gradient: %s\n", full_filename);
       fp = fopen (full_filename, "w+");
       for (k = 0; k < Ngrid; ++k)
@@ -457,7 +471,6 @@ void FATR rpspsolve_
 	}
       fclose (fp);
     }
-
 
   /* free malloc memory */
   free (infile);

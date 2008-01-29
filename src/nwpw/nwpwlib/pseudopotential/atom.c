@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska and Patrick Nichols
-   $Id: atom.c,v 1.20 2008-01-19 00:11:48 d3p708 Exp $
+   $Id: atom.c,v 1.21 2008-01-29 23:09:15 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -17,7 +17,7 @@
 #include	"dft.h"
 #include	"atom.h"
 
-#define Max_Iterations	100
+#define Max_Iterations	400
 #define	False	0
 #define	True	1
 #define	Max(x,y)	((x>y) ? x : y)
@@ -106,6 +106,9 @@ init_Atom (char *filename)
   fscanf (fp, "%le", &Zion);
   fscanf (fp, "%le", &amass);
   fscanf (fp, "%d %d", &Ncore, &Nvalence);
+  fprintf(stderr,"Zion = %le",Zion);
+  fprintf(stderr,"Ncore    = %d",Ncore);
+  fprintf(stderr,"Nvalence = %d",Nvalence);
   if (Solver_Type != Dirac)
     {
       Ncv = Ncore + Nvalence;
@@ -187,7 +190,8 @@ init_Atom (char *filename)
 	  else
 	    {
 	      fill[2 * i] = (2.0 * lx) * (fillx * 0.5 / (2. * lx + 1.));
-	      fill[2 * i + 1] = (2.0 * lx+2) * (fillx * 0.5 / (2. * lx + 1.));
+	      fill[2 * i + 1] = (2.0 * lx+ 2.0) * 
+			(fillx * 0.5 / (2. * lx + 1.));
 	    }
 	}
 

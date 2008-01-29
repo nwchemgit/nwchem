@@ -1,6 +1,6 @@
 /* psp.c -
    author - Eric Bylaska
-   $Id: rpsp.c,v 1.8 2007-06-19 21:35:24 d3p708 Exp $
+   $Id: rpsp.c,v 1.9 2008-01-29 23:09:15 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -340,7 +340,7 @@ print_RelPsp (FILE * fp)
   fprintf (fp, "Pseudopotential electronic charge= %lf\n",
 	   dx);
   fprintf (fp, "Pseudopotential atom charge      = %lf\n",
-	   (Zion-dx));
+	   (Zion+dx));
 
   fprintf (fp, "\nTotal E       = %le\n", Total_E);
   fprintf (fp, "\n");
@@ -538,16 +538,18 @@ peak_RelPsp (int i)
 }
 
 double
-rcut_RelPsp (int i)
+rcut_RelPsp (int l)
 {
-  return rcut[i];
+  return rcut[2*l];
 }
+
 
 double
 rcut_il_RelPsp (int i, int l)
 {
   return rcut[indx_il[i][l]];
 }
+
 
 double
 Zion_RelPsp ()
