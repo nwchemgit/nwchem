@@ -1,13 +1,13 @@
-#$Id: GNUmakefile,v 1.41 2008-01-23 18:03:30 kowalski Exp $
+#$Id: GNUmakefile,v 1.42 2008-01-29 18:28:52 jhammond Exp $
 #
 
-SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
+SUBDIRS = include ccsd ccsd_lambda eomccsd \
+          ccsd_t cr-eomccsd_t lrh emb diis2 #\
+          response ccsd_yr ccsd_alpha ccsd_beta \
+          ccd lccd lccsd qcisd cc3 \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
-          ccsd_lambda ccsdt_lambda ccsdtq_lambda \
-          eomccsd eomccsdt eomccsdtq ccsd_t cr-eomccsd_t \
-          lrh emb diis2 response \
-          ccsd_yr ccsd_alpha ccsd_beta cc3 \
-          ccsdt_alpha_offdiag ccsdtq_alpha_offdiag
+          ccsdt ccsdt_lambda eomccsdt ccsdt_alpha_offdiag \
+          ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag
 
 OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o gatodra.o gatoeaf.o \
@@ -38,7 +38,16 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_dens_hh_offset.o tce_dens_hp_offset.o tce_dens_pp_offset.o tce_dens_ph_offset.o \
       get_mo_rdm_hh.o get_mo_rdm_hp.o get_mo_rdm_ph.o get_mo_rdm_pp.o \
       ao_rdm_write.o tce_prop_start.o tce_property.o tce_diagnose_t1.o \
-      tce_ao_mp1.o tce_mo_mp1.o tce_mp_filenames.o tce_mp_irreps.o tce_mo_mp1_offsets.o
+      tce_ao_mp1.o tce_mo_mp1.o tce_mp_filenames.o tce_mp_irreps.o tce_mo_mp1_offsets.o \
+      tce_fourindex_driver.o tce_fock_driver.o tce_multipole_driver.o tce_reference_check.o \
+      tce_create_t1.o tce_create_t2.o tce_create_t3.o tce_create_t4.o \
+      tce_create_x1.o tce_create_x2.o tce_create_x3.o tce_create_x4.o \
+      tce_create_y1.o tce_create_y2.o tce_create_y3.o tce_create_y4.o \
+      tce_clone_x1.o tce_clone_x2.o tce_clone_x3.o tce_clone_x4.o \
+      tce_clone_y1.o tce_clone_y2.o tce_clone_y3.o tce_clone_y4.o \
+      tce_t1_offset_new.o tce_t2_offset_new.o tce_t3_offset_new.o tce_t4_offset_new.o \
+      tce_x1_offset_new.o tce_x2_offset_new.o tce_x3_offset_new.o tce_x4_offset_new.o \
+      tce_y1_offset_new.o tce_y2_offset_new.o tce_y3_offset_new.o tce_y4_offset_new.o
       
 
 LIB_INCLUDES = -I./include
