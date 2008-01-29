@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.74 2007-09-29 00:33:31 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.75 2008-01-29 02:08:18 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -168,6 +168,12 @@ c#include "rtdb.fh"
          if ((oprint).and.(minimizer.ne.5).and.(minimizer.ne.8)) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac
            call util_flush(luout)
+
+           call ecce_print1('iteration counter', mt_int,icount*it_in,1)
+           call ecce_print1('iterative total energy difference',
+     >                      mt_dbl, deltae, 1)
+           call ecce_print1('iterative total density difference',
+     >                      mt_dbl,deltac, 1)
          end if
          if (deltae.gt.0.0d0) then
             if (oprint) 
@@ -409,6 +415,12 @@ c      value = value.and.rtdb_put(rtdb,'pspw:E_local',   mt_dbl,1,E(7))
 c      value = value.and.rtdb_put(rtdb,'pspw:E_nonlocal',mt_dbl,1,E(8))
 c      if (.not. value) call errquit(
 c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
+      call ecce_print1 ('total energy', mt_dbl, E(1), 1)
+      call ecce_print1 ('nuclear repulsion energy', mt_dbl, E(5), 1)
+      call ecce_print1 ('coulomb energy', mt_dbl, E(3), 1)
+      call ecce_print1 ('exchange energy', mt_dbl, E(4), 1)
+      call ecce_print1 ('correlation energy', mt_dbl, E(4), 1)
+
 
       cgsd_energy = E(1)
       return
