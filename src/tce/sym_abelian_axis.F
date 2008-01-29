@@ -1,6 +1,6 @@
       integer function sym_abelian_axis(geom,axis)
 c
-c $Id: sym_abelian_axis.F,v 1.2 2008-01-24 00:30:09 bert Exp $
+c $Id: sym_abelian_axis.F,v 1.3 2008-01-29 18:26:11 jhammond Exp $
 c
 c Returns irrep of a given axis if real Abelian,
 c otherwise returns -1.
@@ -26,6 +26,9 @@ c
       character*4 ab(nab)
       integer air(19,8)
       data ab/'C1','Cs','Ci','C2','D2','C2v','C2h','D2h'/
+c              x y z x y z x x y x y z x x y y z z x 
+c                    x y z y z z x y z x x y y z z y
+c                                x y z y z x z x y z
       data air/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
      1         0,0,1,0,0,0,0,1,1,0,0,0,0,1,0,1,0,0,1,
      2         1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,

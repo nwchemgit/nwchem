@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.40 2008-01-28 14:48:09 jhammond Exp $
+c $Id: tce_init.F,v 1.41 2008-01-29 18:26:13 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -284,7 +284,7 @@ c
       endif
       if (.not.rtdb_get(rtdb,'tce:ampnorms',mt_log,1,ampnorms)) then
         ampnorms=.false.
-        if (.not.rtdb_put(rtdb,'tce:ampnorms',mt_log,1,))
+        if (.not.rtdb_put(rtdb,'tce:ampnorms',mt_log,1,ampnorms))
      1  call errquit('tce_init: failed to write ampnorms',0,RTDB_ERR)
       endif
 c
@@ -294,6 +294,11 @@ c
         lineresp=.false.
         if (.not.rtdb_put(rtdb,'tce:lineresp',mt_log,1,lineresp))
      1  call errquit('tce_init: failed to write lineresp',0,RTDB_ERR)
+      endif
+      if (lineresp) then
+        left=.true.
+        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1  call errquit('tce_init: failed to write left',0,RTDB_ERR)
       endif
 c
       if (.not.rtdb_get(rtdb,'tce:leftresp',mt_log,1,leftresp)) then
