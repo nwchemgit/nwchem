@@ -177,7 +177,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C  Generate the value of the spherical harmonic for
 C  the unit cartesian vector (x,y,z)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      complex*16 function sphharm(L,M,x,y,z)
+      complex*16 function sphharm2(L,M,x,y,z)
       implicit none
       integer L,M,I,AM
       real*8 x,y,z,pleg
@@ -186,7 +186,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 cccccccccccccccccccccccccccccc
       AM=ABS(M)
       if (AM.GT.L) THEN
-        SPHHARM=DCMPLX(0.0D0,0.0D0)
+        SPHHARM2=DCMPLX(0.0D0,0.0D0)
         GOTO 777
       END IF   
       plm=Pleg(z,L,AM)
@@ -204,7 +204,7 @@ cccccccccccccccccccccccccccccc
       PHI=DBLE(M)*DATAN2(Y,X)
       sre=sim*dcos(phi)*plm
       sim=sim*dsin(phi)*plm
-      sphharm=dcmplx(sre,sim)
+      sphharm2=dcmplx(sre,sim)
 777   return
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -254,4 +254,163 @@ ccccccc locals cccccccccc
         end if
       end if
 777   return
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
+      complex*16 function sphharm(l,m,gx,gy,gz)
+      implicit none
+      integer l,m
+      real*8 gx,gy,gz     
+*     *** local variables ****
+      real*8 pi,twopi,forpi
+      real*8 psin,pcos,gsin
+      real*8 q,tmp
+      real*8 scof(7,0:3)
+      complex*16 ihat,expm
+      integer am
+
+      am=abs(m)
+      if (am.gt.l) then
+        sphharm=dcmplx(0.d0,0.d0)
+        return
+      end if
+      pi=4.0d0*datan(1.0d0)
+      twopi=2.0d0*pi
+      forpi=4.0d0*pi 
+      ihat=dcmplx(0.0d0,1.0d0)
+      scof(1,0)=dsqrt(1.0d0/forpi)
+      scof(1,1)=dsqrt(0.75d0/pi)
+      scof(2,1)=dsqrt(0.75/2.0d0/forpi)
+      scof(3,1)= -scof(1,1)
+      scof(1,2)=dsqrt(15.0d0/32.0d0/pi)
+      scof(2,2)=dsqrt(15.0d0/8.0d0/pi)     
+      scof(3,2)=dsqrt(5.0d0/16.0d0/pi)
+      scof(4,2)=-scof(2,2)
+      scof(5,2)=scof(2,1)
+      scof(1,3)=dsqrt(35.0d0/64.0d0/pi)
+      scof(2,3)=dsqrt(105.d0/32.0d0/pi)
+      scof(3,3)=dsqrt(21.0d0/64.0d0/pi)
+      scof(4,3)=dsqrt(7.0d0/16.0d0/pi)
+      scof(5,3)= -scof(3,3)
+      scof(6,3)=scof(3,2)
+      scof(7,3)= -scof(3,1)
+
+*======================  Fourier transformation  ======================
+        gsin=dsqrt(gx*gx+gy*gy)
+        if (dabs(gsin).lt.1.e-9) then
+           psin=0.0d0
+           pcos=1.0d0
+        else
+           psin=gy/gsin
+           pcos=gx/gsin
+        end if
+
+*::::::::::::::::::::::::::::::  f-wave  ::::::::::::::::::::::::::::::
+      if (l.eq.3) then
+        if ((m.eq.-3)) then 
+          if (pcos.lt.1.e-15) then 
+            tmp=pi*0.5
+          else
+            tmp=datan(psin/pcos)
+          end if
+          expm=dcmplx(dcos(3.0d0*tmp),-dsin(3.0d0*tmp))
+          sphharm=scof(1,3)*gsin*gsin*gsin*expm
+          return
+        end if
+        if ((m.eq.-2)) then
+           expm=dcmplx(pcos*pcos-psin*psin,-2.0d0*pcos*psin) 
+           sphharm=scof(2,3)*gz*gsin*gsin*expm
+           return
+        end if  
+        if ((m.eq.-1)) then
+           expm=dcmplx(pcos,-psin)
+           sphharm=scof(3,3)*gsin*(5.0d0*gz*gz-1.0d0)*expm
+           return
+        end if           
+
+        if ((m.eq.0)) then
+           sphharm=scof(4,3)*(5.0d0*gz*gz*gz-3.0d0*gz)
+           return
+        end if
+    
+        if ((m.eq.1)) then 
+           expm=dcmplx(pcos,psin)
+           sphharm=scof(5,3)*gsin*(5.0d0*gz*gz-1.0d0)*expm
+           return
+        end if
+
+        if ((m.eq.2)) then
+           expm=dcmplx(pcos*pcos-psin*psin,2.0d0*pcos*psin) 
+           sphharm=scof(6,3)*expm*gsin*gsin*gz 
+           return
+        end if
+
+        if ((m.eq.3)) then 
+          if (pcos.lt.1.e-15) then 
+            tmp=pi*0.5
+          else
+           tmp=datan(psin/pcos)
+          end if
+          expm=dcmplx(dcos(3.0d0*tmp),dsin(3.0d0*tmp))
+          sphharm=scof(7,3)*gsin*gsin*gsin*expm
+          return
+        end if
+      end if
+
+*::::::::::::::::::::::::::::::  d-wave  ::::::::::::::::::::::::::::::
+
+      if (l.eq.2) then
+        if ((m.eq.-2)) then
+          expm=dcmplx(pcos*pcos-psin*psin,-psin*pcos*2.0d0) 
+          sphharm=scof(1,2)*expm*gsin*gsin
+          return
+        end if
+
+        if ((m.eq.-1)) then
+          expm=dcmplx(pcos,-psin)
+          sphharm=scof(2,2)*expm*gsin*gz
+          return
+        end if
+
+        if ((m.eq.0)) then
+          sphharm=scof(3,2)*(3.0d0*gz*gz-1.0d0)
+          return
+        end if
+
+        if ((m.eq.1)) then
+          expm=dcmplx(pcos,psin)
+          sphharm=scof(4,2)*expm*gsin*gz
+          return
+        end if
+
+        if ((m.eq.2)) then
+          expm=dcmplx(pcos*pcos-psin*psin,2.0d0*pcos*psin)
+          sphharm=scof(5,2)*expm*gsin*gsin
+          return
+        end if
+      end if
+*::::::::::::::::::::::::::::::  p-wave  ::::::::::::::::::::::::::::::
+      if (l.eq.1) then
+        if ((m.eq.-1)) then
+          sphharm=scof(1,1)*gsin*dcmplx(pcos,-psin)
+          return
+        end if
+        if ((m.eq.0)) then
+          sphharm=scof(2,1)*gz
+          return
+        end if
+        if ((m.eq.1)) then
+          sphharm=scof(3,1)*gsin*dcmplx(pcos,psin)
+          return
+        end if
+      end if  
+*::::::::::::::::::::::::::::::  s-wave  :::::::::::::::::::::::::::::::
+      if ((l.eq.0).and.(m.eq.0)) then 
+          sphharm=scof(1,0)
+          return
+      end if
+      write(*,*)"Error did not find l or m in list"
+      write(*,*)"l = ",l," m= ",m
+      call flush(6)
+      sphharm=dcmplx(0.0d0,0.0d0)
+      return 
       end

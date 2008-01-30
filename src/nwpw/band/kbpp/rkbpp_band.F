@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.20 2008-01-23 18:35:41 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.21 2008-01-30 00:41:24 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -38,7 +38,7 @@
       character*2 atom
       character*80 comment
       double precision zv,amass
-      integer lmax0,lmax1,locp1,nprj,ierr
+      integer lmax0,lmax1,locp1,nprj,ierr,nsph
       integer lmax_out
       double precision rc(0:12),rlocal1
       integer nrho
@@ -95,10 +95,7 @@ cccccccccccccccccccccccccccccccccccccc
          read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
          read(11,*,ERR=9999,END=9999) nrho,drho
          read(11,'(A)',ERR=9999,END=9999) comment
-         if (pspx.ne.7) then
-            write(*,*)"Read psptype = ",pspx," but psptype = 7"
-            call flush(6)
-         end if
+         write(*,*)"pspstype = ",pspx," should equal 7"
          write(*,*) pspx,atom
          write(*,*) zv,amass,lmax0,lmax1,locp1,rlocal1
          write(*,*) (rc(i),i=0,lmax0)
@@ -125,36 +122,46 @@ cccccccccccccccccccccccccccccccccccccc
 *     **** set the maximum angular momentum ****
       lmax=lmax0
       lmax_out=lmax1
+      if (lmax_out.gt.3) lmax_out=3
 *     **** set the local potential ****
-      if (locp.eq.-1)   locp = locp1
-      if (locp.gt.lmax_out) locp = lmax_out
-      if (locp.lt.0)    locp = lmax
-      nprj=0  
+c      if (locp.eq.-1)   locp = locp1
+c      if (locp.gt.lmax_out) locp = lmax_out
+c      if (locp.lt.0)    locp = lmax
+      locp=0
+      nprj=0
       do kp=0,lmax-1
-         nprj=nprj+4*kp+4
+         nprj=nprj+4*kp+2
       end do
+      nprj=nprj+2*lmax
       nprj_out=0
       do kp=0,lmax_out-1
-         nprj_out=nprj_out+4*kp+4
+         nprj_out=nprj_out+4*kp+2
       end do
+      nprj_out=nprj_out+2*lmax_out
+      write(*,*)"lmax= ",lmax," nprj =",nprj," nsph = ",2*lmax+2
+      write(*,*)"lmaxo= ",lmax_out," nprjo =",nprj_out," nsph = ",
+     >  2*lmax_out+2
+      call flush(6)
+******* number of central force relativistic components
+      nsph=2*lmax+2
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax0+1),
+      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'vp',vp_hndl,vp_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax0+1),
+      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'vpso',vpso_hndl,vpso_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(2*lmax0+2),
+      value = MA_alloc_get(mt_dbl,nrho*(2*lmax+2),
      >                        'wp', wp_hndl,wp_indx)
       value = MA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
 
 
       if (taskid.eq.MASTER) then
-       call read_rvpwp_band(11,nrho,lmax0,dbl_mb(rho_indx),
+       call read_rvpwp_band(11,nrho,lmax,dbl_mb(rho_indx),
      >                         dbl_mb(vp_indx),
      >                         dbl_mb(wp_indx))
-       call read_rkbpp_so(11,nrho,lmax0,dbl_mb(vpso_indx))
+       call read_rkbpp_so(11,nrho,lmax,dbl_mb(vpso_indx))
        call read_semicore_band(11,isemicore,rcore,nrho,
      > dbl_mb(sc_r_indx))
        close(11)
@@ -190,34 +197,34 @@ cccccccccccccccccccccccccccccccccccccc
       nsize = ngrid(1)*ngrid(2)*ngrid(3)
       value = MA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
-      value = MA_alloc_get(mt_dcpl,(nsize*2*nprj),
+      value = MA_alloc_get(mt_dcpl,(nsize*2*nprj_out),
      >                        'vnl',vnl_hndl, vnl_indx)
-      value = MA_alloc_get(mt_dbl,nprj,
+      value = MA_alloc_get(mt_dbl,nprj_out,
      >                        'vnrm', vnrm_hndl, vnrm_indx)
       value = MA_alloc_get(mt_dbl,(nsize*3),
      >                        'G',G_hndl, G_indx)
       value = MA_alloc_get(mt_dbl,(4*nsize),
      >                        'sc_k',sc_k_hndl,sc_k_indx)
-      value = MA_alloc_get(mt_int,nprj,
+      value = MA_alloc_get(mt_int,nprj_out,
      >                        'n_prj', n_prj_hndl, n_prj_indx)
-      value = MA_alloc_get(mt_int,nprj,
+      value = MA_alloc_get(mt_int,nprj_out,
      >                        'l_prj', l_prj_hndl, l_prj_indx)
-      value = MA_alloc_get(mt_int,nprj,
+      value = MA_alloc_get(mt_int,nprj_out,
      >                        'm_alf_prj', m_alf_hndl, 
      >                         m_alf_indx)
-      value = MA_alloc_get(mt_int,nprj,
+      value = MA_alloc_get(mt_int,nprj_out,
      >                        'm_bet_prj', m_bet_hndl, 
      >                         m_bet_indx)
-      value = MA_alloc_get(mt_int,nprj,
+      value = MA_alloc_get(mt_int,nprj_out,
      >			      'k_prj',k_prj_hndl, k_prj_indx)
-      value = MA_alloc_get(mt_dbl,nprj,
+      value = MA_alloc_get(mt_dbl,nprj_out,
      >                        'c_alf_prj', c_alf_hndl, 
      >                         c_alf_indx)
-      value = MA_alloc_get(mt_dbl,nprj,
+      value = MA_alloc_get(mt_dbl,nprj_out,
      >			      'c_bet_prj',c_bet_hndl, 
      >                         c_bet_indx)
 cccccccccc assign the relativistic states ccccccccccccccccccc
-      call rkbpp_states(lmax0,nprj,
+      call rkbpp_states(lmax_out,nprj_out,
      > int_mb(n_prj_indx),
      > int_mb(l_prj_indx),int_mb(k_prj_indx),
      > int_mb(m_alf_indx),int_mb(m_bet_indx),
@@ -230,7 +237,7 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
       call setup_kbpp_band(nfft1,nfft2,nfft3,unita,unitg,
      > dbl_mb(G_indx))
       nsize=nfft1*nfft2*nfft3
-      call rkbpp_vlocal(lmax0,locp,nsize,nrho,nprj,
+      call rkbpp_vlocal(lmax_out,locp,nsize,nrho,nprj_out,
      >       dbl_mb(rho_indx),
      >       dbl_mb(vp_indx),dbl_mb(vpso_indx),
      >       dbl_mb(vnrm_indx),dbl_mb(vl_indx),
@@ -300,9 +307,8 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
       call flush(6)
 
       nb=1
-
-      call rkbpp_vnonlocal(lmax0,nrho,locp,
-     >  nfft1,nfft2,nfft3,nprj,
+      call rkbpp_vnonlocal(lmax_out,nrho,locp,
+     >  nfft1,nfft2,nfft3,nprj_out,
      >  dbl_mb(G_indx),kvectors(1,1),
      >  dbl_mb(vp_indx),dbl_mb(vpso_indx),
      >  dbl_mb(wp_indx),dcpl_mb(vnl_indx),
@@ -361,8 +367,8 @@ c  nmax = 1 since we have 1 projector per (kappa) states
         if ((oprint).and.(taskid.eq.MASTER))
      >      write(*,*) "generating brillioun #",nb
 
-        call rkbpp_vnonlocal(lmax,nrho,locp,
-     >  nfft1,nfft2,nfft3,nprj,
+        call rkbpp_vnonlocal(lmax_out,nrho,locp,
+     >  nfft1,nfft2,nfft3,nprj_out,
      >  dbl_mb(G_indx),kvectors(1,nb),
      >  dbl_mb(vp_indx),dbl_mb(vpso_indx),
      >  dbl_mb(wp_indx),dcpl_mb(vnl_indx),
@@ -421,6 +427,7 @@ c  nmax = 1 since we have 1 projector per (kappa) states
  9999 call errquit('Error reading rel psp_filename',0, DISK_ERR)
 
       END
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Read in pseudowavefunction and pseudopotential
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -527,10 +534,10 @@ ccccccccccccc assign norms to each projector
          end do
          a=simp(nrho,f,drho)
          vnlnrm(ip)=1.0d0/a
-c         write(*,*)"ip =",ip," lp= ",lp," kp= ",kappa," nw=",nw
-c         write(*,*)" nprj = ",nprj
-c         write(*,*)"    vnrm(",ip,")=",vnlnrm(ip)
-c         call flush(6)
+         write(*,*)"ip =",ip," lp= ",lp," kp= ",kappa," nw=",nw
+         write(*,*)" nprj = ",nprj
+         write(*,*)"    vnrm(",ip,")=",vnlnrm(ip)
+         call flush(6)
 20    continue  
 cccccccccc calculate local potential in q space
       call dcopy(ngsize,0.0d0,0,vl,1)
@@ -545,10 +552,11 @@ cccccccccc calculate local potential in q space
          gy=gvec(i,2)
          gz=gvec(i,3)
          q=dsqrt(gx*gx+gy*gy+gz*gz)
+         if (i.eq.1) goto 700 
          gx=gx/q
          gy=gy/q
          gz=gz/q
-         do k=1,nrho
+         do k=1,nrho  
             cosqr(k)=dcos(q*rho(k))
             sinqr(k)=dsin(q*rho(k))
             f(k)=rho(k)*vp(k,locl)*sinqr(k)
@@ -640,14 +648,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
          gz=gvec(igx,igy,igz,3)+kvec(3)
          q=dsqrt(gx*gx+gy*gy+gz*gz)
          if (dabs(q).lt.1.e-9) then 
-           if (locl.ne.0) then
-             do k=1,nrho
-               f(k)=rho(k)*wp(k,1)*vp(k,0)
-             end do
-             vnl(igx,igy,igz,1,1)=simp(nrho,f,drho)*scof0
-             vnl(igx,igy,igz,2,1)=vnl(igx,igy,igz,1,1)*vnrm(1)
-             vnl(igx,igy,igz,1,1)=vnl(igx,igy,igz,1,1)*vnrm(1)
-           end if    
+c
+c           if (locl.ne.0) then
+c             do k=1,nrho
+c               f(k)=rho(k)*wp(k,1)*vp(k,0)
+c             end do
+c             vnl(igx,igy,igz,1,1)=simp(nrho,f,drho)*scof0
+c             vnl(igx,igy,igz,1,2)=vnl(igx,igy,igz,1,1)*vnrm(1)
+c             vnl(igx,igy,igz,1,1)=vnl(igx,igy,igz,1,1)*vnrm(1)
+c           end if    
            goto 200
          end if
          gx=gx/q
@@ -659,21 +668,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
          end do
          do 100 ippot=1,nprj
             l=l_prj(ippot)
+            kappa=k_prj(ippot)
+            malfa=malf_prj(ippot)
+            mbeta=mbet_prj(ippot)
+            calfa=calf_prj(ippot)
+            cbeta=cbet_prj(ippot)
             if (l.eq.locl) then
-              vnl(igx,igy,igz,1,ippot)=zzero
-              vnl(igx,igy,igz,2,ippot)=zzero
+              vnl(igx,igy,igz,ippot,1)=zzero
+              vnl(igx,igy,igz,ippot,2)=zzero
               goto 100
             end if
-            kappa=k_prj(ippot)
             if (kappa.gt.0) then
                nw= 2*l
             else
                nw= 2*l+1
             end if
-            malfa=malf_prj(ippot)
-            mbeta=mbet_prj(ippot)
-            calfa=calf_prj(ippot)
-            cbeta=cbet_prj(ippot)
             f(1)=0.0d0
             do k=1,nrho
                vv=vp(k,l)+dble(kappa)*vpso(k,l)
@@ -683,14 +692,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
                f(k)=a*vv
             end do
             d=simp(nrho,f,drho)*pi4/q
-            vnl(igx,igy,igz,1,ippot)=d*calfa*
-     >                 sphHarm(l,malfa,gx,gy,gz)
-            vnl(igx,igy,igz,2,ippot)=d*cbeta*
-     >                 sphHarm(l,mbeta,gx,gy,gz)
-            vnl(igx,igy,igz,1,ippot)=vnl(igx,igy,igz,1,ippot)*
-     >              vnrm(ippot)
-            vnl(igx,igy,igz,2,ippot)=vnl(igx,igy,igz,2,ippot)*
-     >              vnrm(ippot)
+            vnl(igx,igy,igz,ippot,1)=dcmplx(d*calfa,0.0d0)*
+     >                 dcmplx(vnrm(ippot),0.0d0)*
+     >                 sphharm(l,malfa,gx,gy,gz)       
+            vnl(igx,igy,igz,ippot,2)=dcmplx(d*cbeta,0.0d0)*
+     >                 dcmplx(vnrm(ippot),0.0d0)*
+     >                 sphharm(l,mbeta,gx,gy,gz)       
 100      continue
 200   continue 	
       call C3db_Vector_SumAll(nprj*ngx*ngy*ngz*2,vnl)
