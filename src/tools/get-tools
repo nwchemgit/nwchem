@@ -1,7 +1,25 @@
 #!/bin/csh
 #
-# $Id: get-tools,v 1.11 2008-01-16 18:54:58 d3p307 Exp $
+# $Id: get-tools,v 1.12 2008-01-31 23:10:11 d3p307 Exp $
 #
+
+unalias mv
+unalias rm
+
+set TOOLDIR = `pwd`
+if (-e $TOOLDIR/armci) then
+echo "You have an old copy of the ga tools, deleting it now"
+   rm -rf $TOOLDIR/armci
+   rm -rf $TOOLDIR/cca
+   rm -rf $TOOLDIR/config
+   rm -rf $TOOLDIR/ga++
+   rm -rf $TOOLDIR/global
+   rm -rf $TOOLDIR/LinAlg
+   rm -rf $TOOLDIR/ma
+   rm -rf $TOOLDIR/pario
+   rm -rf $TOOLDIR/tcgmsg
+   rm -rf $TOOLDIR/tcgmsg-mpi
+endif
 
 svn checkout https://svn.pnl.gov/svn/hpctools/trunk/ga
 cd ga
@@ -9,7 +27,6 @@ rm -f README
 rm -f license.txt
 rm -f INSTALL
 rm -f NOTES
-mv * ..
+mv -u * ..
 cd ..
 rm -rf ga
-
