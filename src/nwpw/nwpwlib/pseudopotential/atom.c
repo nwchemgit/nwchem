@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska and Patrick Nichols
-   $Id: atom.c,v 1.22 2008-01-31 00:33:17 d3p708 Exp $
+   $Id: atom.c,v 1.23 2008-01-31 00:34:07 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -106,9 +106,7 @@ init_Atom (char *filename)
   fscanf (fp, "%le", &Zion);
   fscanf (fp, "%le", &amass);
   fscanf (fp, "%d %d", &Ncore, &Nvalence);
-c  fprintf(stderr,"Zion = %le",Zion);
-c  fprintf(stderr,"Ncore    = %d",Ncore);
-c  fprintf(stderr,"Nvalence = %d",Nvalence);
+
   if (Solver_Type != Dirac)
     {
       Ncv = Ncore + Nvalence;
