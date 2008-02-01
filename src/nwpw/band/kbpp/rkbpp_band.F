@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.21 2008-01-30 00:41:24 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.22 2008-02-01 23:33:57 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -266,7 +266,7 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
       write(*,*) "  charge   :",zv
       write(*,*) "  mass no. :",amass
       write(*,*) "  highest angular component      :",lmax0
-      write(*,*) "  highest angular component used :",lmax
+      write(*,*) "  highest angular component used :",lmax_out
       write(*,*) "  local potential used           :",locp
       write(*,111) "  cutoffs: ",(rc(i), i=0,lmax)
       if (semicore) then
@@ -342,18 +342,18 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
         call cwrite(2,atom,2)
         call dwrite(2,amass,1)
         call dwrite(2,zv,1)
-        call iwrite(2,lmax,1)
+        call iwrite(2,lmax_out,1)
         call iwrite(2,locp,1)
 c  nmax = 1 since we have 1 projector per (kappa) states
         nmax = 1
         call iwrite(2,nmax,1)
-        call dwrite(2,rc,lmax+1)
+        call dwrite(2,rc,lmax_out+1)
         call iwrite(2,nprj_out,1)
-        if (nprj.gt.0) then
-         call iwrite(2,int_mb(n_prj_indx),nprj_out)
-         call iwrite(2,int_mb(l_prj_indx),nprj_out)
-         call iwrite(2,int_mb(k_prj_indx),nprj_out)
-         call dwrite(2,dbl_mb(vnrm_indx),nprj_out)
+        if (nprj_out.gt.0) then
+          call iwrite(2,int_mb(n_prj_indx),nprj_out)
+          call iwrite(2,int_mb(l_prj_indx),nprj_out)
+          call iwrite(2,int_mb(k_prj_indx),nprj_out)
+          call dwrite(2,dbl_mb(vnrm_indx),nprj_out)
         end if  
         call dwrite(2,rcore,1)
         call iwrite(2,nbrillioun,1)
@@ -480,25 +480,25 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer ngsize
       integer locl,ierr,nprj
       integer l_prj(*),k_prj(*)
-      double precision rho(nrho)
-      double precision f(nrho)
-      double precision sinqr(nrho)
-      double precision cosqr(nrho)
-      double precision vp(nrho,0:lmax)
-      double precision vpso(nrho,0:lmax)
-      double precision vl(ngsize)
-      double precision gvec(ngsize,3)
-      double precision wp(nrho,(2*lmax+2))
-      double precision vnlnrm(nprj)
-      double precision rho_sc_k(ngsize,4)
-      double precision rho_sc_r(nrho,2)
-      double precision zv
-      double precision drho
+      real*8 rho(nrho)
+      real*8 f(nrho)
+      real*8 sinqr(nrho)
+      real*8 cosqr(nrho)
+      real*8 vp(nrho,*)
+      real*8 vpso(nrho,*)
+      real*8 vl(*)
+      real*8 gvec(ngsize,3)
+      real*8 wp(nrho,*)
+      real*8 vnlnrm(nprj)
+      real*8 rho_sc_k(ngsize,4)
+      real*8 rho_sc_r(nrho,2)
+      real*8 zv
+      real*8 drho
 cccccccc locals ccccccccccccccccccccccccccccccccccccccc       
       integer nproc,taskid,lp,ip,k,i,task_count,kappa,nw
-      double precision fourpi,vv,a,gx,gy,gz,q,sint
+      real*8 fourpi,vv,a,gx,gy,gz,q,sint
 cccccccc externals
-      double precision simp
+      real*8 simp
       external simp
 ccccccccccccccccccccccccccccccccccccccccc
       call Parallel_np(nproc)
@@ -542,17 +542,16 @@ ccccccccccccc assign norms to each projector
 cccccccccc calculate local potential in q space
       call dcopy(ngsize,0.0d0,0,vl,1)
       call dcopy(4*ngsize,0.0d0,0,rho_sc_k,1)  
-      task_count= -1
-      do 700 i=1,ngsize
+      task_count= 0
+      do 700 i=2,ngsize
          task_count=task_count+1
-         if ((i.eq.1).or.(mod(task_count,nproc).ne.taskid)) then
+         if (mod(task_count,nproc).ne.taskid) then
             goto 700       
          end if 
          gx=gvec(i,1)
          gy=gvec(i,2)
          gz=gvec(i,3)
          q=dsqrt(gx*gx+gy*gy+gz*gz)
-         if (i.eq.1) goto 700 
          gx=gx/q
          gy=gy/q
          gz=gz/q
@@ -563,6 +562,9 @@ cccccccccc calculate local potential in q space
          end do
          sint=simp(nrho,f,drho) 
          vl(i)=sint*fourpi/q-zv*fourpi*cosqr(nrho)/q/q
+c         if (dabs(vl(i)).gt.100d0) then
+c            write(*,*)i," ",vl(i)," ",zv," ",q," ",sint
+c         end if
          if (semicore) then
            do k=1,nrho
               f(k) = rho(k)*dsqrt(rho_sc_r(k,1))*sinqr(k)
@@ -587,9 +589,13 @@ cccccccccc g=0
       vl(1)=fourpi*simp(nrho,f,drho)+0.5d0*fourpi*zv*rho(nrho)**2
       if (semicore) then
          do k=1,nrho
-           f(k)=dsqrt(rho_sc_r(k,1))*rho(k)*rho(k)
+           f(k)=rho(k)*rho(k)*dsqrt(rho_sc_r(k,1))
          end do
-         rho_sc_k(1,1)=fourpi*simp(nrho,f,drho)
+         rho_sc_k(1,1)=simp(nrho,f,drho)*fourpi/q
+         do k=1,nrho
+           f(k)=(sinqr(k)/(q*rho(k))-cosqr(k))*rho_sc_r(k,2)*rho(k)
+         end do
+         a=fourpi*simp(nrho,f,drho)
          rho_sc_k(1,2)=0.0d0
          rho_sc_k(1,3)=0.0d0
          rho_sc_k(1,4)=0.0d0
@@ -604,7 +610,7 @@ cccccccccccccccccccccccccccc
      >  cosqr,sinqr,f,rho,l_prj,k_prj,malf_prj,mbet_prj,calf_prj,
      >  cbet_prj,drho,ierr)
       implicit none
-#include "mafdecls.fh"
+#include "mafdecls.fh
       integer lmax,locl,nrho,ierr
       integer ngx,ngy,ngz,nprj
       integer malf_prj(*),mbet_prj(*),l_prj(*),k_prj(*)
@@ -674,8 +680,8 @@ c           end if
             calfa=calf_prj(ippot)
             cbeta=cbet_prj(ippot)
             if (l.eq.locl) then
-              vnl(igx,igy,igz,ippot,1)=zzero
-              vnl(igx,igy,igz,ippot,2)=zzero
+              vnl(igx,igy,igz,ippot,1)=dcmplx(0.0d0,0.0d0)
+              vnl(igx,igy,igz,ippot,2)=dcmplx(0.0d0,0.0d0)
               goto 100
             end if
             if (kappa.gt.0) then
@@ -684,14 +690,14 @@ c           end if
                nw= 2*l+1
             end if
             f(1)=0.0d0
-            do k=1,nrho
+            do k=2,nrho
                vv=vp(k,l)+dble(kappa)*vpso(k,l)
     	       vv=vv*wp(k,nw)
                qr=q*rho(k)
-               a=sjx(qr,l,sinqr(k),cosqr(k))*qr
+               a=sjx(qr,l,cosqr(k),sinqr(k))*rho(k)
                f(k)=a*vv
             end do
-            d=simp(nrho,f,drho)*pi4/q
+            d=simp(nrho,f,drho)*pi4
             vnl(igx,igy,igz,ippot,1)=dcmplx(d*calfa,0.0d0)*
      >                 dcmplx(vnrm(ippot),0.0d0)*
      >                 sphharm(l,malfa,gx,gy,gz)       
@@ -712,90 +718,90 @@ c  but L<50 if x is small ....blows up
 c  written by Patrick Nichols 6/11/2007
 c  based upon subroutine version in patscat 2000
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC     
-      double precision function SJX(qr,L,csx,snx)
+      real*8 function sjx(x,l,cosx,sinx)
       implicit none
-      integer L
-      double precision qr,csx,snx
-      double precision fourpi
-      parameter(fourpi=12.566370614359172d0)
-      integer i,n
-      integer nstop,nstrt,lmax
-      real*8 rfact1,rfact2,rfact3,rfact4,factr
-      real*8 xi,hxsq,series,sj0,sj1,fact,sjl,sjlm1,sjlp1
-      REAL*8 sav,scale
-      sjx=0.0d0
-      if (QR.LT.1.D-12) THEN
-         IF (L.EQ.0) SJX=1.0D0
-         GOTO 777
-      END IF   
-      IF ( (QR.LT.0.1) .AND. (L.GE.1)) THEN
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CC SMALL X EXPANSION 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-         RFACT1=1.0D0
-         NSTOP=L+L+1
-         DO I=1,NSTOP,2
-           RFACT1=RFACT1*DBLE(I)
-         END DO
-         HXSQ=QR*QR*0.5D0
-         RFACT2=DBLE(L+L+3)
-         RFACT3=DBLE(4*L+10)*RFACT2
-         RFACT4=DBLE(2*L+7)*3.0D0*RFACT3
-         SERIES=1.0D0-(HXSQ/RFACT2)+(HXSQ*HXSQ/RFACT3)
-         SERIES=SERIES-(HXSQ**3)/RFACT4
-         SJX=(QR**L)*SERIES/RFACT1  
-         GOTO 777
+      integer l
+      real*8 x,cosx,sinx
+cccccccccc local variables cccccccccccc
+      integer n,lstop,lmax
+      real*8 tmp,ltest,tnp3,xinv,rho,xfact,xp,c0,c1,c2,c3,c4,c5,c6
+      real*8 j0,j1,a1,a2
+cccccccccccccccccccccccccccccccccccc   
+      if (x.lt.0.1D0) then
+        if (x.lt.1.0D-12) then
+          sjx=0.0d0
+          if (l.eq.0) sjx=1.0d0
+          return
+        end if
+        xfact=x*x*0.5d0
+        if (l.eq.0) then
+            c1=-xfact*0.3333333333333333d0
+            c2=-c1*xfact*0.1000000000000000d0
+            c3=-c2*xfact*0.0238095238095238d0
+            c4=-c3*xfact*0.0046296296296296d0
+            c5=-c4*xfact*0.0007575757575758d0
+            c6=-c5*xfact*0.0001068376068376d0
+            sjx=(1.0d0+c1+c2+c3+c4+c5+c6)
+            return
+        end if  
+        xp=x**l
+        lstop=l+l+1
+        c0=1.0d0
+        do n=3,lstop,2
+            c0=c0*dble(n)
+        end do
+        c1=-xfact/dble(2*l+3)
+        c2=-c1*xfact*0.5d0/dble(2*l+5)
+        c3=-c2*xfact*0.1666666666666667d0/dble(2*l+7)
+        c4=-c3*xfact*0.0416666666666667d0/dble(2*l+9)
+        c5=-c4*xfact*0.0083333333333333d0/dble(2*l+11)
+        c6=-c5*xfact*0.0013888888888889d0/dble(2*l+13)
+        sjx=xp*(1.0d0+c1+c2+c3+c4+c5+c6)/c0;
+        return  
       end if 
-      xi=1.0d0/qr
-      sj0=snx*xi
-      sj1=(snx*xi-csx)*xi
-      if (L.EQ.0) THEN
-        SJX=SJ0
-        GOTO 777
-      END IF
-      IF (L.EQ.1) THEN
-        SJX=SJ1
-        GOTO 777
-      END IF
-      HXSQ=QR*QR
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CC ASCENDING RECURSE
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      IF (HXSQ.GE.DBLE(L*(L+1))) THEN
-        DO I=2,L
-          FACT=DBLE(I+I-1)
-          SJX=FACT*SJ1*XI-SJ0
-          SJ0=SJ1
-          SJ1=SJX
-        END DO
-        GOTO 777
-      END IF 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C DOWNWARD RECURSE FOLLOWED BY SCALING
-C SEE ABRAHAMOWITZ AND STEIGUN FOR THIS..
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      LMAX=L+25
-      SJLP1=0.0D0
-      SJL=1.D-34
-      NSTRT=LMAX-1
-      NSTOP=L+1
-      DO N=(LMAX-1),(L+1),-1
-        FACTR=DBLE(N+N+1)
-        SJLM1=FACTR*SJL*XI-SJLP1
-        SJLP1=SJL
-        SJL=SJLM1
-      END DO
-      SAV=SJL
-      DO N=L,1,-1
-        FACTR=DBLE(N+N+1)
-        SJLM1=FACTR*SJL*XI-SJLP1
-        SJLP1=SJL
-        SJL=SJLM1
-      END DO
-      SCALE=SJ0/SJL
-      SJX=SCALE*SAV
-777   RETURN
-      END
+      xinv=1.0d0/x       
+      j0=sinx*xinv
+      j1=(sinx*xinv-cosx)*xinv
+      if (l.eq.0) then
+         sjx=j0
+         return
+      end if
+      if (l.eq.1) then
+         sjx=j1
+         return
+      end if    
+      ltest=dble((l*(l+1)))
+      if ((x*x).ge.ltest) then
+         tnp3=3.0d0
+         do n=2,l
+           sjx=tnp3*xinv*j1-j0
+           j0=j1
+           j1=sjx
+           tnp3=tnp3+2.0d0
+         end do
+         return
+      end if
+      lmax=l+40
+      a2=0.0d0
+      a1=1.0d0
+      tnp3=2.0d0*dble(lmax)+3.0d0
+      do n=lmax,l,-1
+         sjx=tnp3*xinv*a1-a2
+         a2=a1
+         a1=sjx
+         tnp3=tnp3-2.0d0
+      end do
+      tmp=sjx
+      do n=l-1,0,-1
+         sjx=tnp3*xinv*a1-a2
+         a2=a1
+         a1=sjx
+         tnp3=tnp3-2.0d0
+      end do
+      rho=j0/sjx
+      sjx=rho*tmp
+      return
+      end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Assign the quantum numbers for the 2component relativstic 
 c projectors. See Sakurai, Adv Quantum Mechanics for these
@@ -809,7 +815,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccc locals
       integer kappa,j2,nz,iz,l,cnt
       real*8 ta,tb,td,dj,djz,dl
-cccccccccccc
+ccccccccccccccccccccccccc
+c initialize counter
+ccccccccccccccccccccccccc
       cnt=0
 ccccc do initial l=0 kappa=-1 state j=1/2
       td=1.0d0
