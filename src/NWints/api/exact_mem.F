@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.47 2008-02-01 17:17:26 jhammond Exp $
+c $Id: exact_mem.F,v 1.48 2008-02-01 17:27:40 jhammond Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -276,8 +276,9 @@ c
      &            dbl_mb(mb_exndcf(1,1)),k_prim,k_type,
      &            dbl_mb(mb_exndcf(1,1)),1,.false.,
      &            .true.,dbl_mb(mb_exndcf(1,1)),memdum)
-            memsize = 150+max(memsize,memdum) ! Jeff: needs a little (150) extra to do higher multipoles with tiny (3-21G) basis sets
-c                                             ! if it fails for another case, just increase 150 by the amount the error message says you are short
+c           Jeff: needs a little (150) extra to do higher multipoles with tiny (3-21G) basis sets,
+c                 if it still fails just increase 150 by the amount the error message says you are short
+            memsize = max(1024,max(memsize,memdum))
 00300     continue
 00200   continue
 00100 continue
