@@ -6,10 +6,10 @@ c
 c     BGJ (8/98)
 c
       Subroutine xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
-     &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
-     &                       do_2nd,tau, kske,Mmat)
+     &                       nq, Ex, Ec, qwght, grad, ldew, func,
+     &                       do_2nd, tau, ttau, kske, Mmat, Mmat2)
 c
-c     $Id: xc_eval_fnl.F,v 1.60 2007-08-21 17:36:51 niri Exp $
+c     $Id: xc_eval_fnl.F,v 1.61 2008-02-01 22:27:55 niri Exp $
 c
       implicit none
 c
@@ -19,14 +19,13 @@ c
 c
       integer nq
       double precision rho(*), delrho(*)
-
-      double precision tau(*), Mmat(*)
-
-
-      double precision Amat(*), Cmat(*), Amat2(*), Cmat2(*)
+c
+      double precision tau(*), Mmat(*), ttau(*)
+c
+      double precision Amat(*), Cmat(*), Amat2(*), Cmat2(*), Mmat2(*)
       double precision Ex, Ec
       double precision qwght(nq), func(nq)
-      logical GRAD, ldew, do_2nd, kske
+      logical grad, ldew, do_2nd, kske
       logical dohcth
       character*4 whichf
 c
@@ -41,7 +40,8 @@ c
       if(kske) call dfill(nq*ipol, 0.d0, Mmat, 1)
       if (do_2nd) then
          call dfill(nq*NCOL_AMAT2, 0.d0, Amat2, 1)
-         if (GRAD) call dfill(nq*NCOL_CMAT2, 0.d0, Cmat2, 1)
+         if (grad) call dfill(nq*NCOL_CMAT2, 0.d0, Cmat2, 1)
+         if (kske) call dfill(nq*NCOL_MMAT2, 0.d0, Mmat2, 1)
       endif
       if (ldew) call dfill(nq, 0.d0, func, 1)
 c
@@ -59,6 +59,7 @@ c
      &           .false., func)
          endif
       endif
+c
       if (abs(xfac(3)).gt.eps)then
          if (.not. do_2nd) then
             call xc_becke88(tol_rho, xfac(3), lxfac(3), nlxfac(3), 
@@ -70,6 +71,7 @@ c
      &           Ex, qwght,ldew,func)
          endif
       endif
+c
       if (abs(xfac(16)).gt.eps)then
          call xc_optx(tol_rho, xfac(16), 2,
      &        rho, delrho, Amat, Cmat, nq, ipol, 
@@ -382,7 +384,7 @@ c
      &           Ex, qwght,ldew,func)
          endif
       endif
-
+c
       if (abs(xfac(25)).gt.eps.or.abs(cfac(24)).gt.eps)then
          if (.not. do_2nd) then
             call xc_ft97(tol_rho,xfac(25),lxfac(25),nlxfac(25), 
@@ -390,11 +392,12 @@ c
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, Ec, qwght,ldew,func)
          else
-            call errquit('2nds not available ',0,0)
-!            call xc_ft97_d2()
+            call errquit('2nd derivative not available 
+     &for this xc functional',0,0)
+!           call xc_ft97_d2()
          endif
       endif
-
+c
       if ((abs(cfac(36)).gt.eps).or.(abs(cfac(37)).gt.eps))then
          if(abs(cfac(36)).gt.eps) then
             nc=36
@@ -410,19 +413,19 @@ c
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ec, qwght,ldew,func)
          else
-            call errquit('2nds not available ',0,0)
-!            call xc_op_d2()
+            call errquit('2nd derivative not available 
+     &for this xc functional',0,0)
+!           call xc_op_d2()
          endif
       endif
-
-
-
+c
 c     meta GGA
+c
       if (abs(xfac(18)).gt.eps)then
          if (.not. do_2nd) then
             call xc_xpkzb99(tol_rho, xfac(18), lxfac(18), nlxfac(18), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
-     &           Ex, qwght,ldew,func,tau,Mmat)
+     &           Ex, qwght,ldew,func,tau, Mmat)
          else
             call xc_xpkzb99_d2()
          endif
@@ -454,8 +457,9 @@ c
             call xc_cpkzb99_d2()
          endif
       endif
-
+c
 c   TPSS  meta GGA
+c
       if (abs(xfac(21)).gt.eps)then
          if (.not. do_2nd) then
             call xc_xtpss03(tol_rho, xfac(21),  
@@ -795,11 +799,11 @@ c
 c     Combine with quadrature weights
 c
       if (.not. do_2nd) then
-         call setACmat(delrho, Amat, Cmat, qwght, ipol, nq, GRAD,
-     &                 .not. do_2nd,kske,Mmat)
+         call setACmat(delrho, Amat, Cmat, qwght, ipol, nq, grad,
+     &         (.not. do_2nd), kske, Mmat)
       else
          call setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght, ipol,
-     &                    nq, GRAD, .not. do_2nd)
+     &         nq, grad, (.not. do_2nd), kske, Mmat2)
       endif
 c
       return

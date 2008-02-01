@@ -14,11 +14,12 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
-     ,     l3d,triplet, tau, kske,Mmat)
+     ,     l3d, triplet, tau, ttau, kske, Mmat, Mmat2)
 c
-c$Id: grid_quadvw1.F,v 1.20 2007-02-19 18:52:47 edo Exp $
+c$Id: grid_quadvw1.F,v 1.21 2008-02-01 22:27:45 niri Exp $
 c
       implicit none
+c
 #define USE_BP
 #include "cgridfile.fh"
 #include "stdio.fh"
@@ -29,6 +30,7 @@ c
 #include "sym.fh"
 #include "grid_quad.fh"
 #include "grid_cube.fh"
+c
       double precision rad_sh  ! [in]
       integer irsh,iqsh ! [in]
       logical dosympts ! [in]
@@ -53,10 +55,8 @@ c
       external grid_nxyz
       logical l3d
       logical triplet
-
+c
       logical kske
-      double precision tau(*), Mmat(*)
-
 c
       save nq_left
 c
@@ -66,14 +66,15 @@ c
       nq = npts_per_ang
 c
       call grid_finpts(dosympts,
-     .        rad_sh,xyz, ictr, 
-     .        irsh, iang, iang_done,nq_left,
-     ,        aqbuf, nq, fnxyz,nxyz,
-     ,        gridscr,nops,symops,gops,
-     .        iscr_loc,
+     .     rad_sh,xyz, ictr, 
+     .     irsh, iang, iang_done,nq_left,
+     ,     aqbuf, nq, fnxyz,nxyz,
+     ,     gridscr,nops,symops,gops,
+     .     iscr_loc,
      .     ncenters, rij,
      .     rq,bp,expo,
      .     oskel,symfact)
+c
       if(nq.ne.0) then
 c     
 c     copy to buffer for XC stuff and compute if needed
@@ -92,11 +93,10 @@ c
      &        expo, ccoef, Bmat, Fmat, 
      &        Pmat, rq, rdens_atom, cetobfr, 
      ,        ibf_ao,rchi_atom,rdelchi_atom,
-     ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
+     ,        Ex, Ec, Amat,Cmat,g_vxc,Amat2,Cmat2,
      ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
-     ,        l3d,triplet,
-     &         tau, kske,Mmat)
-         
+     ,        l3d, triplet,
+     &        tau, ttau, kske, Mmat, Mmat2)
 c     
 c     now pack this aqbuf into the write buffer 
 c     (write and update task counter as needed)
@@ -106,5 +106,6 @@ c
      ,        rad_write, aqbuf,  ncu)
          
       endif
+c
       return
       end

@@ -1,22 +1,22 @@
-      Subroutine dftg_gridv0b(nqpts,rad,ictr_buf,iga_dens,
-     &                         max_at_bf,
-     &                         rho_int, nqtot, iniz, ifin, rho, delrho,
-     &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
-     &                         iandex, expo, Amat, Amat2, Cmat,
-     &                         Cmat2, Bmat, Fmat, Pmat, rq,
-     &                         rq0, hh, 
-     .     ibf_ao,bas_cent_info,bas_cset_info,docset,
-     .     curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
-     .     drhonuc,ddelrhonuc,d2scr,
-     ,     force, hess, g_rhs, do_force,
-     ,     nbf_ao_mxnbf_ce2,
-     ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
-     &                         do_hess, do_cpks_r, natoms, oactive,
-     &                         nactive, rdens_atom, 
-     &                         cetobfr, tau, kske, Mmat,
-     $                         ldbw, fact, dtype, nconstr)  ! Qin
+      subroutine dftg_gridv0b(nqpts,rad,ictr_buf,iga_dens,
+     &     max_at_bf,
+     &     rho_int, nqtot, iniz, ifin, rho, delrho,
+     &     func, d_qwght, qwght, qxyz, xyz, xyzm,
+     &     iandex, expo, Amat, Amat2, Cmat,
+     &     Cmat2, Bmat, Fmat, Pmat, rq,
+     &     rq0, hh, 
+     &     ibf_ao,bas_cent_info,bas_cset_info,docset,
+     &     curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
+     &     drhonuc,ddelrhonuc,d2scr,
+     &     force, hess, g_rhs, do_force,
+     &     nbf_ao_mxnbf_ce2,
+     &     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
+     &     do_hess, do_cpks_r, natoms, oactive,
+     &     nactive, rdens_atom, 
+     &     cetobfr, tau, dttau, kske, Mmat, Mmat2,
+     &     ldbw, fact, dtype, nconstr)  ! Qin
 c      
-c     $Id: dftg_gridv0b.F,v 1.37 2007-02-19 18:52:47 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.38 2008-02-01 22:28:17 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -40,7 +40,7 @@ c !!! temporary !!!
       integer ispin, i, ii, nconstr
       double precision fact(nconstr)
       integer dtype(nconstr)          ! Qin
-
+c
       integer nqpts, ictr_buf ! [in]
       double precision rad ! [in]
       integer natoms
@@ -59,17 +59,21 @@ c
       double precision hh(*)
       double precision rho(n_per_rec,ipol*(ipol+1)/2)
       double precision delrho(n_per_rec,3,ipol)
-
+c
       double precision tau(n_per_rec,3,ipol)
+      double precision dttau(*)
       double precision Mmat(*)
- 
-
+c
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
      &                 Bmat(n_per_rec,*)
+c
       double precision Amat2(n_per_rec,NCOL_AMAT2)
       double precision Cmat2(n_per_rec,NCOL_CMAT2)
+      double precision Mmat2(n_per_rec,NCOL_MMAT2)
+c
       double precision Pmat(max_at_bf*max_at_bf),
      &                 Fmat(max_at_bf*max_at_bf)
+c
       double precision func(n_per_rec)
       double precision d_qwght(3,n_per_rec,*)
       double precision qwght(*), qxyz(3,*)
@@ -114,9 +118,11 @@ c
       integer natoms_l ! atoms left after xc_sig
 c
       integer ncuratoms
-      integer l_Acof2, k_Acof2, l_Ccof2, k_Ccof2
+      integer l_Acof2, k_Acof2
+      integer l_Ccof2, k_Ccof2
+      integer l_Mcof2, k_Mcof2
       integer i_ccdel,l_ccdel,idmat,ldmat
-
+      logical do_2nd
 c     
 c           Evaluate the AO basis set at each of the quad. points.
 c           allocate arrays for exponents and contraction coefficients
@@ -143,8 +149,6 @@ c
      &           ibf_ao, docset, iniz, ifin, expo, 
      .           minexp,ldiff, acc_AO_gauss,iatype_pt_chg)
             if (mbf_ao .eq. 0) return
-            
-            
 c
                if (.not. MA_Push_Get(MT_Dbl, nqpts*mbf_ao, 'chi_ao',
      &            lchi_ao, ichi_ao))call errquit
@@ -153,9 +157,7 @@ c
      &            'gradchi_ao', lgradchi_ao,idelchi_ao))call errquit
      &            (' exiting in dftg_gridv0b: insuff stack',9, MA_ERR)
 c         
-c              hessian is used only for derivatives; set array to length 1
-c              here
-c         
+c              hessian is used only for derivatives; set array to length 1 here
 c
                if (hesschi)then
                   m4 = 6*nqpts*mbf_ao
@@ -201,7 +203,6 @@ c
      &        call errquit(' exiting in dftg_gridv0: insuff stack',131,
      &       MA_ERR)
       endif
-         
 c
                wmax= dabsmax(nqpts,qwght)
                if (odftps) call pstat_on(ps_xcrho)
@@ -214,7 +215,8 @@ c
      &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao),0d0,
      &              ibf_ao, iniz, ifin, rho, delrho,
      &              rchi_atom, rdelchi_atom,
-     &              rdens_atom, cetobfr,wmax, tau, kske)
+     &              rdens_atom, cetobfr,wmax, 
+     &              tau, dttau, kske)
                if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
 c
                if (do_hess .or. do_cpks_r) then
@@ -233,13 +235,12 @@ c
      &                 dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &                 dbl_mb(iheschi_ao), ibf_ao, iniz, ifin,
      &                 drhonuc, ddelrhonuc,
-     &                 rchi_atom,
-     &                 rdelchi_atom, rdens_atom, cetobfr,1d0,
-     D                 0d0,.false.)
+     &                 rchi_atom, rdelchi_atom, 
+     &                 rdens_atom, cetobfr,1d0,
+     D                 tau, dttau, kske)
                endif
                if (odftps) call pstat_off(ps_xcrho)
 c
-c         
 c              Evaluate the integrated charge density.
 c         
                nqtot = nqtot + nqpts
@@ -270,16 +271,14 @@ c to count for the contribution of Becke population of contrained atoms
                 enddo
                endif
 c Qin end
-
                if (odftps) call pstat_on(ps_ebf)
+               do_2nd = (do_hess .or. do_cpks_r)
                call xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
-     &              nqpts, Ex, Ec, qwght, GRAD, ldew, func,
-     &              do_hess .or. do_cpks_r, tau, kske,Mmat)
+     &            nqpts, Ex, Ec, qwght, GRAD, ldew, func, do_2nd,
+     &            tau, dttau, kske, Mmat, Mmat2)
                if (odftps) call pstat_off(ps_ebf)
-
 c     
-c              exchange-correlation contribution, with or without gradient
-c              terms
+c              exchange-correlation contribution, with or without gradient terms
 c     
                if (do_force) then
 c 
@@ -324,22 +323,36 @@ c
      &                    errquit('dftg_gridv0b: cant alloc Ccof2',1,
      &       MA_ERR)
                   endif
+                  if (kske) then
+                     if (.not.MA_push_get(MT_DBL, ipol*3*nqpts, 'MCof2',
+     &                    l_Mcof2, k_Mcof2)) call
+     &                    errquit('dftg_gridv0b: cant alloc Mcof2',1,
+     &       MA_ERR)
+                  end if
+c
                   call xc_d2expl(tol_rho, 
      D                 d2scr(3*nqpts*nbf_ao_mxnbf_ce+1),
-     A                 Amat, Amat2,
-     &                 dbl_mb(k_Acof2), Cmat, Cmat2, dbl_mb(k_Ccof2),
+     A                 Amat, Amat2, dbl_mb(k_Acof2), 
+     &                 Cmat, Cmat2, dbl_mb(k_Ccof2),
+     &                 Mmat, Mmat2, dbl_mb(k_Mcof2),
      &                 Fmat, Pmat, d2scr, 
      D                 d2scr(3*nqpts*nbf_ao_mxnbf_ce+1),
      &                 dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &                 dbl_mb(iheschi_ao), dbl_mb(id3chi_ao),
      &                 curatoms, ncuratoms, ipol, nqpts,
      &                 nbf_ao, mbf_ao, grad, AO_bas_han, natoms, iniz,
-     &                 ifin, drhonuc, ddelrhonuc,
+     &                 ifin, drhonuc, ddelrhonuc, dttau,
      &                 delrho, iga_dens, hess, ibf_ao,
      &                 rchi_atom, rdelchi_atom,
-     &                 rdens_atom, cetobfr)
+     &                 rdens_atom, cetobfr, kske)
+c
                   if (grad) then
                      if (.not.ma_pop_stack(l_Ccof2))
+     &                    call errquit('dftg_gridv0b: cannot pop CCof2',
+     &                    0, MA_ERR)
+                  endif
+                  if (kske) then
+                     if (.not.ma_pop_stack(l_Mcof2))
      &                    call errquit('dftg_gridv0b: cannot pop CCof2',
      &                    0, MA_ERR)
                   endif
@@ -361,9 +374,11 @@ c     Combine derivs of functional with deriv densities to get coeffs
 c     of bfn pairs in CPKS LHS - these are written back into rho and
 c     delrho
 c
-                  call xc_cpks_coeff(drhonuc,
-     &                 ddelrhonuc, Amat2, Cmat2, Cmat, delrho,
-     &                 3*ncuratoms, ipol, nqpts, GRAD, .false.)
+                  call xc_cpks_coeff(drhonuc, ddelrhonuc, dttau,
+     &                 Amat2, Cmat2, Cmat, delrho,
+     &                 3*ncuratoms, ipol, nqpts, grad, .false., ! kske = false 
+     &                 .false.)
+c
                   if (odftps) call pstat_on(ps_tabcd)
                   call xc_tabcd(1,.true.,
      T                 tol_rho, Fmat, Pmat, drhonuc, Bmat, ddelrhonuc,
@@ -375,7 +390,8 @@ c
      N                 nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, 
      G                 GRAD,AO_bas_han, natoms, iniz, ifin, 
      G                 g_rhs, ibf_ao, rchi_atom, rdelchi_atom, 
-     R                 rdens_atom, cetobfr,.false.,0d0,0d0)
+     R                 rdens_atom, cetobfr,
+     &                 .false., dttau, 0d0)  ! kske = false
 c
 c     Second part: Basis function derivative contribution
 c
@@ -397,7 +413,8 @@ c
      &                 nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, 
      G                 GRAD, AO_bas_han, natoms, iniz, ifin, 
      G                 g_rhs, ibf_ao, rchi_atom, rdelchi_atom, 
-     R                 rdens_atom, cetobfr,.false.,0d0,0d0)
+     R                 rdens_atom, cetobfr,
+     &                 .false.,Mmat,0d0)  ! kske = false
 c
                   if (odftps) call pstat_off(ps_tabcd)
                endif
@@ -421,7 +438,5 @@ c
                   if (odftps) call pstat_off(ps_ssw)
                endif
 c         
-c
       return 
-c     
       end

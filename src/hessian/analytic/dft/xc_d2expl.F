@@ -3,15 +3,16 @@ c     Computes explicit nuclear 2nd derivatives of the XC energy
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_d2expl.F,v 1.13 2005-11-12 00:32:49 edo Exp $
+c     $Id: xc_d2expl.F,v 1.14 2008-02-01 22:27:00 niri Exp $
 c
-      Subroutine xc_d2expl(tol_rho, scr, Amat, Amat2, Acof2, Cmat,
-     &     Cmat2, Ccof2, F, Pmat, ff, s, chi, delchi, heschi, d3chi,
+      Subroutine xc_d2expl(tol_rho, scr, 
+     &     Amat, Amat2, Acof2, Cmat, Cmat2, Ccof2, Mmat, Mmat2, Mcof2, 
+     &     F, Pmat, ff, s, 
+     &     chi, delchi, heschi, d3chi,
      &     curatoms, ncuratoms, ipol, nq, nbf, max_at_bf, GRAD, basis,
-     &     natoms, iniz, ifin, drho, ddelrho, delrho, g_dens, hess, 
-     &     ibf,
-     &     rchi_atom, rdelchi_atom, rdens_atom, cetobfr)
-c
+     &     natoms, iniz, ifin, drho, ddelrho, dttau, 
+     &     delrho, g_dens, hess, ibf,
+     &     rchi_atom, rdelchi_atom, rdens_atom, cetobfr, kske)
 c
       implicit none
 #include "dft2drv.fh"
@@ -19,6 +20,7 @@ c
 #include "util.fh"
 #include "global.fh"
 c
+      logical kske
       integer basis
       integer max_at_bf ! [input]
       integer ipol  ! [input]
@@ -32,13 +34,15 @@ c
 c
 c     Explicit first derivatives of density wrt current nuclei [input]
 c
-      double precision drho(nq,ipol,3,ncuratoms),
-     &                 ddelrho(nq,3,ipol,3,ncuratoms)
+      double precision drho(nq,ipol,3,ncuratoms)
+      double precision ddelrho(nq,3,ipol,3,ncuratoms)
+      double precision dttau(nq,ipol,3,ncuratoms)
 c
 c     Space for separable coefficients of first derivatives of density
 c
-      double precision Acof2(nq,ipol,3), Ccof2(nq,3,ipol,3)
-c
+      double precision Acof2(nq,ipol,3)
+      double precision Ccof2(nq,3,ipol,3)
+      double precision Mcof2(nq,ipol,3)
 c
 c     Spin density gradients
 c
@@ -62,8 +66,13 @@ c
 c
 c     Sampling Matrices for the XC Functional Derivatives
 c
-      double precision Amat(nq,ipol), Cmat(nq,3,ipol)
-      double precision Amat2(nq,NCOL_AMAT2), Cmat2(nq,NCOL_CMAT2)
+      double precision Amat(nq,ipol)
+      double precision Cmat(nq,3,ipol)
+      double precision Mmat(nq,ipol)
+c
+      double precision Amat2(nq,NCOL_AMAT2)
+      double precision Cmat2(nq,NCOL_CMAT2)
+      double precision Mmat2(nq,NCOL_MMAT2)
 c
 c     Sampling Matrices for [Products of] Basis Functions & Gradients
 c
@@ -78,8 +87,7 @@ c
 c
 c     local declarations
 c
-      double precision A_MAX, C_MAX, AC_MAX, FUNC_MAXI,
-     &                 FUNC_MAXJ
+      double precision A_MAX, C_MAX, AC_MAX, FUNC_MAXI, FUNC_MAXJ
       double precision FUNC_MAX, DELFUNC_MAX, tol_rho_tmp
       integer iatcur, jatcur
       integer iat, inizia, ifinia, nbfia, nnia, ifirst, ilast, idim
@@ -140,9 +148,13 @@ c
          if (grad) then
             call dcopy(nq*ipol*9,ddelrho(1,1,1,1,iatcur),1,Ccof2,1)
          endif
-         call xc_cpks_coeff(Acof2,Ccof2,Amat2,Cmat2,Cmat,delrho,3,
-     I        ipol,
-     &        nq,GRAD,.false.)
+         if (kske) then
+            call dcopy(nq*ipol*3,dttau(1,1,1,iatcur),1,Mcof2,1)
+         end if
+c
+         call xc_cpks_coeff(Acof2, Ccof2, Mcof2,
+     &        Amat2, Cmat2, Cmat, Mmat2,
+     &        delrho,3, ipol, nq, grad, kske, .false.)
 c
          do 20 jat = 1, iat
             jatcur = curatoms(jat)
@@ -568,5 +580,6 @@ c
          write(luout,*) ' xc_d2expl: hess '
          call output(hess,1,3*natoms,1,3*natoms,3*natoms,3*natoms,1)
       endif
+c
       return
       end

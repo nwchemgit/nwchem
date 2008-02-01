@@ -5,13 +5,13 @@ c     BGJ - 8/98
 c
 #ifndef SECOND_DERIV
       Subroutine setACmat(delrho, Amat, Cmat, qwght, ipol, nq, GRAD,
-     &                    xform_Cmat,kske,Mmat)
+     &            xform_Cmat, kske, Mmat)
 #else
       Subroutine setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght,
-     &                       ipol, nq, GRAD, xform_Cmat)
+     &            ipol, nq, GRAD, xform_Cmat, kske, Mmat, Mmat2)
 #endif
 c
-C$Id: setACmat.F,v 1.16 2004-01-19 18:25:18 edo Exp $
+C$Id: setACmat.F,v 1.17 2008-02-01 22:27:55 niri Exp $
 c
       implicit none
 c
@@ -30,13 +30,15 @@ c
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision Amat(nq,ipol),Cmat(nq,3,ipol)
-
+      double precision Amat(nq,ipol)
+      double precision Cmat(nq,3,ipol)
       double precision Mmat(nq,ipol)
       logical kske    
- 
+c 
 #ifdef SECOND_DERIV
-      double precision Amat2(nq,NCOL_AMAT2),Cmat2(nq,NCOL_CMAT2)
+      double precision Amat2(nq,NCOL_AMAT2)
+      double precision Cmat2(nq,NCOL_CMAT2)
+      double precision Mmat2(nq,NCOL_MMAT2)
 #endif
 c
 c     Quadrature Weights
@@ -55,27 +57,15 @@ c
 c
 c     Combine derivatives of functional with quadrature weights
 c
-#ifdef SECOND_DERIV
-      kske=.false.
-#endif
       if (GRAD)then
          if (xform_Cmat) then
             do ii = 1, ipol
                do jj = 1, nq
-
-                  if(kske) then
                   Amat(jj,ii) = Amat(jj,ii)*qwght(jj)
                   Cmat(jj,1,ii) = Cmat(jj,1,ii)*qwght(jj)
                   Cmat(jj,2,ii) = Cmat(jj,2,ii)*qwght(jj)
                   Cmat(jj,3,ii) = Cmat(jj,3,ii)*qwght(jj)
-                  Mmat(jj,ii) = Mmat(jj,ii)*qwght(jj)
-
-                  else
-                  Amat(jj,ii) = Amat(jj,ii)*qwght(jj)
-                  Cmat(jj,1,ii) = Cmat(jj,1,ii)*qwght(jj)
-                  Cmat(jj,2,ii) = Cmat(jj,2,ii)*qwght(jj)
-                  Cmat(jj,3,ii) = Cmat(jj,3,ii)*qwght(jj)
-                  endif
+                  if(kske) Mmat(jj,ii) = Mmat(jj,ii)*qwght(jj)
                enddo
             enddo
          else
@@ -102,6 +92,7 @@ c
             enddo
          enddo
       endif
+c
 #if 0
       if (bgj_print() .gt. 1) then
       write(LuOut,*) ' setACmat: AMAT out'
@@ -112,6 +103,7 @@ c
       endif
       endif
 #endif
+c
 #ifdef SECOND_DERIV
       do ii = 1, NCOL_AMAT2
          do jj = 1, nq
@@ -122,6 +114,13 @@ c
          do ii = 1, NCOL_CMAT2
             do jj = 1, nq
                Cmat2(jj,ii) = Cmat2(jj,ii)*qwght(jj)
+            enddo
+         enddo
+      endif
+      if (kske)then
+         do ii = 1, NCOL_MMAT2
+            do jj = 1, nq
+               Mmat2(jj,ii) = Mmat2(jj,ii)*qwght(jj)
             enddo
          enddo
       endif
@@ -138,6 +137,7 @@ c
 #endif
       return
       end
+c
 #ifndef SECOND_DERIV
 c
 c     Transform Cmat from gamma form to delrho form

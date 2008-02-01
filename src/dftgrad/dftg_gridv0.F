@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.30 2007-02-19 18:52:46 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.31 2008-02-01 22:28:17 niri Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.30 2007-02-19 18:52:46 edo Exp $
+c $Id: dftg_gridv0.F,v 1.31 2008-02-01 22:28:17 niri Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -77,7 +77,8 @@ c
       double precision rho_int
       integer me, nproc, NXprim, nbf_max, nqstep,
      &        npol, nxyz, max_at_bf,  nqtot,
-     &        nd_qwght, mA, mA2, mC, mC2, ncoef_max, max_at_bf2, nelem, 
+     &        nd_qwght, len_Amat, len_Amat2, len_Cmat, 
+     &        len_Cmat2, ncoef_max, max_at_bf2, nelem, 
      &        n1, icount, ilo, ihi, iatom, nd_func
       integer lxyz, ixyz, l_xyzm,k_xyzm,lcharge, icharge,  lAmat, iAmat, 
      &        lCmat, iCmat, lqxyz, iqxyz, lqwght, iqwght, ld_qwght, 
@@ -86,9 +87,10 @@ c
      &        lPmat, iPmat, lrho, irho, lBmat, iBmat,
      &        lhh, ihh,  landex, iandex, idelrho, ldelrho,
      &        ltags, itags,
-     &        itau, ltau, iMmat, lMmat
+     &        itau, ltau, iMmat, lMmat, ittau, lttau
       logical do_force, do_hess, do_cpks_r
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, len_Bmat
+      integer l_Mmat2, k_Mmat2
       integer lzzz,  izzz, lff, iff, lppp, ippp
       integer libf_ao, iibf_ao,k_curatoms,l_curatoms
       integer lrchi_atom, irchi_atom,
@@ -98,7 +100,8 @@ c
       integer nscr,icrad,iprad,iang
       integer llmax, MXcont, max_elem_ang_scr,nxang
       integer nbf_ao_mxnbf_ce
-      integer lgthpmat,nelem_tau,nelem_mmat
+      integer lgthpmat
+      integer len_tau,len_Mmat,len_ttau,len_Mmat2
       integer lscr,iscr
       integer nxtask
       external nxtask
@@ -199,23 +202,30 @@ c
       nqtot = 0
       rho_int = 0.D0
 c
-      mC=3*n_per_rec*ipol
-      mA = ipol*n_per_rec
-      mA2 = n_per_rec*NCOL_AMAT2
-      mC2 = n_per_rec*NCOL_CMAT2
-      if (.not.MA_Push_Get(mt_dbl,mA,'Amat',lAmat,iAmat))
+      len_Cmat = 3*n_per_rec*ipol
+      len_Amat = ipol*n_per_rec
+      len_Amat2 = n_per_rec*NCOL_AMAT2
+      len_Cmat2 = n_per_rec*NCOL_CMAT2
+      len_Mmat2 = n_per_rec*NCOL_MMAT2
+c
+      if (.not.MA_Push_Get(mt_dbl,len_Amat,'Amat',lAmat,iAmat))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',8, MA_ERR)
       if (do_hess .or. do_cpks_r) then
-         if (.not.MA_Push_Get(mt_dbl,mA2,'Amat2',l_Amat2,k_Amat2))
-     &      call errquit(' exiting in dftg_gridv0: insuff stack',108,
+       if (.not.MA_Push_Get(mt_dbl,len_Amat2,'Amat2',l_Amat2,k_Amat2))
+     &  call errquit(' exiting in dftg_gridv0: insuff stack',108,MA_ERR)
+        if (grad) then
+         if (.not.MA_Push_Get(mt_dbl,len_Cmat2,'Cmat2',l_Cmat2,k_Cmat2))
+     &     call errquit(' exiting in dftg_gridv0: insuff stack',109,
      &       MA_ERR)
-         if (grad) then
-            if (.not.MA_Push_Get(mt_dbl,mC2,'Cmat2',l_Cmat2,k_Cmat2))
-     &         call errquit(' exiting in dftg_gridv0: insuff stack',109,
+        endif
+        if (kske) then
+         if (.not.MA_Push_Get(mt_dbl,len_Mmat2,'Mmat2',l_Mmat2,k_Mmat2))
+     &     call errquit(' exiting in dftg_gridv0: insuff stack',109,
      &       MA_ERR)
-         endif
+        endif
       endif
-      if (.not.MA_Push_Get(mt_dbl,mC,'Cmat',lCmat,iCmat))
+c
+      if (.not.MA_Push_Get(mt_dbl,len_Cmat,'Cmat',lCmat,iCmat))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',9, MA_ERR)
       if (.not.MA_Push_get(mt_dbl,3*n_per_rec,'qxyz',lqxyz,iqxyz))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',10,
@@ -269,28 +279,25 @@ c
      &       MA_ERR)
 c
       nelem = 3*npol*n_per_rec
-c 
       if (.not.MA_Push_Get(MT_Dbl,nelem,'delrho',ldelrho,idelrho))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
      &       MA_ERR)
-
 c
-c    not used for the moment, neither tau nor Mmat
-c	
-      if (kske) then
-         nelem_tau  = 3*ipol*n_per_rec
-         nelem_mmat = ipol*n_per_rec
-      else
-         nelem_tau  = 1
-         nelem_mmat = 1
-      endif
-c      nelem_tau=3*npol*n_per_rec
-
-      if (.not.MA_Push_Get(MT_Dbl,nelem_tau,'tau',ltau,itau))
+      len_tau = 1
+      if (kske) len_tau = 3*ipol*n_per_rec
+      if (.not.MA_Push_Get(MT_Dbl,len_tau,'tau',ltau,itau))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
      &       MA_ERR)
-
-      if (.not.MA_Push_Get(MT_Dbl,nelem_mmat,'Mmat',lMmat,iMmat))
+c
+      len_ttau = 1
+      if (kske) len_ttau = ipol*n_per_rec
+      if (.not.MA_Push_Get(MT_Dbl,len_ttau,'ttau',lttau,ittau))
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
+     &       MA_ERR)
+c
+      len_Mmat = 1
+      if (kske) len_Mmat = ipol*n_per_rec
+      if (.not.MA_Push_Get(MT_Dbl,len_Mmat,'Mmat',lMmat,iMmat))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',
      &   13, MA_ERR)
 c
@@ -440,51 +447,53 @@ c
 c
       if(grid_written) then
       call dftg_gridv0a(rtdb,iga_dens,ldew,
-     &                   max_at_bf,
-     &                   rho_int, nqtot, int_mb(iniz), int_mb(ifin),
-     &                   dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ifunc),
-     &                   dbl_mb(id_qwght), dbl_mb(iqwght),
-     &                   dbl_mb(iqxyz), dbl_mb(ixyz),dbl_mb(k_xyzm), 
-     &                   int_mb(iandex), dbl_mb(iexpo),
-     &                   dbl_mb(iAmat), dbl_mb(k_Amat2),
-     &                   dbl_mb(iCmat), dbl_mb(k_Cmat2),
-     &                   dbl_mb(iBmat), 
-     &                   dbl_mb(iFmat), dbl_mb(iPmat),
-     &                   dbl_mb(irq), dbl_mb(irq0), dbl_mb(ihh),
+     &     max_at_bf,
+     &     rho_int, nqtot, int_mb(iniz), int_mb(ifin),
+     &     dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ifunc),
+     &     dbl_mb(id_qwght), dbl_mb(iqwght),
+     &     dbl_mb(iqxyz), dbl_mb(ixyz),dbl_mb(k_xyzm), 
+     &     int_mb(iandex), dbl_mb(iexpo),
+     &     dbl_mb(iAmat), dbl_mb(k_Amat2),
+     &     dbl_mb(iCmat), dbl_mb(k_Cmat2),
+     &     dbl_mb(iBmat), 
+     &     dbl_mb(iFmat), dbl_mb(iPmat),
+     &     dbl_mb(irq), dbl_mb(irq0), dbl_mb(ihh),
      ,     int_mb(iibf_ao),int_mb(k_curatoms),
      ,     dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),dbl_mb(ippp),
      ,     dbl_mb(iff),dbl_mb(izzz),
      .     dbl_mb(k_drhonuc),dbl_mb(k_ddelrhonuc),dbl_mb(k_d2scr),
      .     nscr,
-     &                   force, hess, g_rhs, do_force, do_hess,
-     &                   do_cpks_r, natoms, oactive, nactive,
-     &                   rdens_atom,  cetobfr,
-     &                    dbl_mb(itau), dbl_mb(iMmat) )
+     &     force, hess, g_rhs, do_force, do_hess,
+     &     do_cpks_r, natoms, oactive, nactive,
+     &     rdens_atom,  cetobfr,
+     &     dbl_mb(itau), dbl_mb(ittau), 
+     &     dbl_mb(iMmat), dbl_mb(k_Mmat2))
       else
        if (.not.MA_Push_Get(mt_dbl, nscr, 'scrCD', lscr, iscr))
      &     call errquit
      &     (' dftg_gridv0: insuff stack',12, MA_ERR)
       call dftg_griddo(rtdb,
      &     iga_dens,ldew,
-     &                         ncoef_max, max_at_bf,
-     &        rho_int, nqtot, int_mb(iniz), int_mb(ifin),
-     &                   dbl_mb(irho), dbl_mb(idelrho), 
-     &        dbl_mb(ifunc), dbl_mb(id_qwght), dbl_mb(iqwght),
-     &                   dbl_mb(iqxyz), dbl_mb(ixyz),
-     &        int_mb(iandex), dbl_mb(iexpo), dbl_mb(icoef),
-     &          dbl_mb(iAmat), dbl_mb(k_Amat2),dbl_mb(iCmat), 
-     &        dbl_mb(k_Cmat2), dbl_mb(iBmat), 
-     &      dbl_mb(iFmat), dbl_mb(iPmat),dbl_mb(irq), 
-     &        dbl_mb(irq0), dbl_mb(ihh),
-     ,        int_mb(iibf_ao),int_mb(k_curatoms),dbl_mb(irchi_atom),
-     ,           dbl_mb(irdelchi_atom),dbl_mb(ippp),
-     ,           dbl_mb(iff),dbl_mb(izzz),
-     .        dbl_mb(k_drhonuc),dbl_mb(k_ddelrhonuc),dbl_mb(k_d2scr),
+     &     ncoef_max, max_at_bf,
+     &     rho_int, nqtot, int_mb(iniz), int_mb(ifin),
+     &     dbl_mb(irho), dbl_mb(idelrho), 
+     &     dbl_mb(ifunc), dbl_mb(id_qwght), dbl_mb(iqwght),
+     &     dbl_mb(iqxyz), dbl_mb(ixyz),
+     &     int_mb(iandex), dbl_mb(iexpo), dbl_mb(icoef),
+     &     dbl_mb(iAmat), dbl_mb(k_Amat2),dbl_mb(iCmat), 
+     &     dbl_mb(k_Cmat2), dbl_mb(iBmat), 
+     &     dbl_mb(iFmat), dbl_mb(iPmat),dbl_mb(irq), 
+     &     dbl_mb(irq0), dbl_mb(ihh),
+     ,     int_mb(iibf_ao),int_mb(k_curatoms),dbl_mb(irchi_atom),
+     ,     dbl_mb(irdelchi_atom),dbl_mb(ippp),
+     ,     dbl_mb(iff),dbl_mb(izzz),
+     .     dbl_mb(k_drhonuc),dbl_mb(k_ddelrhonuc),dbl_mb(k_d2scr),
      .     dbl_mb(iscr),nscr,
-     &                   force, hess, g_rhs, do_force, do_hess,
-     &                   do_cpks_r, natoms, oactive, nactive,
-     &                   rdens_atom,  cetobfr,
-     &                    dbl_mb(itau), dbl_mb(iMmat) )
+     &     force, hess, g_rhs, do_force, do_hess,
+     &     do_cpks_r, natoms, oactive, nactive,
+     &     rdens_atom,  cetobfr,
+     &     dbl_mb(itau), dbl_mb(ittau), 
+     &     dbl_mb(iMmat), dbl_mb(k_Mmat2))
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dftg_gridv0: cannot pop stack',21, MA_ERR)
       endif

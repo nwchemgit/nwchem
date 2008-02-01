@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.26 2007-11-16 22:34:36 edo Exp $
+C$Id: xc_tabcd.F,v 1.27 2008-02-01 22:27:56 niri Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -54,7 +54,8 @@ c
 c     Sampling Matrices for the XC Potential & Energy
 c
       double precision Amat(nq,ipol,*), Cmat(nq,3,ipol,*)
-      double precision Mmat(nq,ipol) 
+      double precision Mmat(nq,ipol,*) 
+c
 c     nmr
       double precision Emat(nq,max_at_bf)
       double precision Fmat(nq,3,max_at_bf)
@@ -226,11 +227,11 @@ c
                      
                      if(kske) then 
                         Dmat(n,1,mu) = Dmat(n,1,mu) +
-     &                       Mmat(n,ii)*delchi(n,1,mu1)
+     &                       Mmat(n,ii,imat)*delchi(n,1,mu1)
                         Dmat(n,2,mu) = Dmat(n,2,mu) +
-     &                       Mmat(n,ii)*delchi(n,2,mu1)
+     &                       Mmat(n,ii,imat)*delchi(n,2,mu1)
                         Dmat(n,3,mu) = Dmat(n,3,mu) +
-     &                       Mmat(n,ii)*delchi(n,3,mu1)
+     &                       Mmat(n,ii,imat)*delchi(n,3,mu1)
                      endif
                      
                   enddo

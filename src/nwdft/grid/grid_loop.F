@@ -2,19 +2,18 @@
      ,     nops,
      ,     oprint,grad,g_dens,
      ,     dosympts,sub4,largenode,grid_written,
-     , ncoef_max,natoms,
-     ,     nqtot,
-     &                       iniz, ifin, rho, delrho, 
-     &                       hess, qwght, qxyz, xyz,iscr,nscr,
-     &                    expo, ccoef, Bmat, Fmat, 
-     &                    Pmat, rq,  rdens_atom, cetobfr, 
-     ,                    ibf_ao,bp,rchi_atom,rdelchi_atom,
-     ,                    Ex, Ec, amat,cmat,g_vxc,
-     ,                    Amat2, Cmat2,
-     ,                    nmat, do_scf, do_cpks_l, do_cpks_r,
-     ,                    do_nmrks_r, tmat,
-     ,                    l3d,triplet,
-     &                    tau, kske,Mmat,
+     ,     ncoef_max,natoms,
+     ,     nqtot,iniz, ifin, rho, delrho, 
+     &     hess, qwght, qxyz, xyz,iscr,nscr,
+     &     expo, ccoef, Bmat, Fmat, 
+     &     Pmat, rq,  rdens_atom, cetobfr, 
+     ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
+     ,     Ex, Ec, amat,cmat,g_vxc,
+     ,     Amat2, Cmat2,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,
+     ,     do_nmrks_r, tmat,
+     ,     l3d,triplet,
+     &     tau, ttau, kske, Mmat, Mmat2,
      ,     iqat,
      ,     qsh,aqbuf,rij,rho_int,
      D     func,d_qwght,rq0,hh,ppp,ff,zzz,
@@ -52,7 +51,8 @@
      ,     rchi_atom(*),rdelchi_atom(*),
      ,     Ex, Ec, amat(*),cmat(*),
      ,     Amat2(*), Cmat2(*),bp(*),
-     ,     tmat(*), tau(*), Mmat(*)
+     ,     tmat(*), tau(*), Mmat(*), 
+     &     ttau(*), Mmat2(*)
 CA
       double precision func(*),d_qwght(*),
      D     rq0(*),hh(*),ppp(*),ff(*),zzz(*),force(*)
@@ -140,7 +140,7 @@ c
                   if(rad_sh.ge.rmin.and.rad_sh.le.rmax) then
                      if(dogradient) then
                         call dftg_loop(
-     ,     nq_out,iqsh,irsh,rad_sh,
+     ,                    nq_out,iqsh,irsh,rad_sh,
      ,                    dosympts,
      ,                    fnxyz,nxyz,nops,grad,
      ,                    nq_cube,nqtotc,symfact,
@@ -159,16 +159,18 @@ c
      ,                    Ex, Ec, amat,cmat,g_vxc,
      ,                    Amat2, Cmat2,
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     &                    tau, kske,Mmat,
-     D                       func,d_qwght,hh,ppp,ff,zzz,
-     D                       drhonuc,ddelrhonuc,d2scr,force,
-     D                       acc_ao_gauss,
-     L                       do_force,do_hess,ldew,gradchi,hesschi,
-     L                       der3chi,oactive,
-     I                       iandex,max_at_bf,curatoms,g_rhs,
-     I                       nbf_ao_mxnbf_ce2,nactive)
+     &                    tau, ttau, kske, Mmat, Mmat2,
+     D                    func,d_qwght,hh,ppp,ff,zzz,
+     D                    drhonuc,ddelrhonuc,d2scr,force,
+     D                    acc_ao_gauss,
+     L                    do_force,do_hess,ldew,gradchi,hesschi,
+     L                    der3chi,oactive,
+     I                    iandex,max_at_bf,curatoms,g_rhs,
+     I                    nbf_ao_mxnbf_ce2,nactive)
+c
                         nqtot=nqtotc
                      else
+c
                         call grid_quadvw1(ncu,nq_out,iqsh,irsh,rad_sh,
      ,                    dosympts,
      ,                    fnxyz,nxyz,nops,grad,
@@ -190,7 +192,7 @@ c
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,
      ,                    do_nmrks_r, tmat,
      ,                    l3d,triplet,
-     &                    tau, kske,Mmat)
+     &                    tau, ttau, kske, Mmat, Mmat2)
                      endif
                   endif
                enddo            ! end loop over angular shells
@@ -213,10 +215,10 @@ c
      &                 Pmat, rq, rdens_atom, cetobfr, 
      ,                 ibf_ao,rchi_atom,rdelchi_atom,
      ,                 Ex, Ec, amat,cmat,g_vxc, amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,
-     ,     do_nmrks_r, tmat,l3d,
-     ,     triplet,
-     &      tau, kske,Mmat )
+     ,                 nmat, do_scf, do_cpks_l, do_cpks_r,
+     ,                 do_nmrks_r, tmat,l3d,
+     ,                 triplet,
+     &                 tau, ttau, kske,Mmat, Mmat2 )
                    endif
                   ncubenz=ncubenz+1
                endif
@@ -228,7 +230,7 @@ c
          enddo                  ! end loop over cubes
  111  continue                  ! end loop over atoms
       n1 = nxtask(-nproc,icount)
-
+c
       if(oprint.and.ncubenz.ne.0) write(LuOut,16) ' me ',me,
      ,     ' NQTOTC NQ/cube',nqtotc,nqtotc/ncubenz
       if(dosympts)call grid_sympts2(l_symops,l_gridscr)

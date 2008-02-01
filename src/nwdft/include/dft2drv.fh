@@ -5,7 +5,7 @@ c     Useful macros for DFT 2nd derivatives
 c
 c     BGJ - 8/98
 c
-c     $Id: dft2drv.fh,v 1.4 1998-12-31 18:18:06 bjohnson Exp $
+c     $Id: dft2drv.fh,v 1.5 2008-02-01 22:27:52 niri Exp $
 c
 c     Array columns for XC functional 1st and 2nd partial derivatives
 c     for use by 2nd derivative code
@@ -40,5 +40,17 @@ c
 #define D1_GAA   1
 #define D1_GAB   2
 #define D1_GBB   3
+c
+c     For meta-gga
+c
+#define NCOL_MMAT2 7
+c
+#define D2_RA_TA   1
+#define D2_RA_TB   2
+#define D2_TA_GAA  3
+#define D2_TA_GAB  4
+#define D2_TA_GBB  5
+#define D2_TA_TA   6
+#define D2_TA_TB   7
 c
 #endif

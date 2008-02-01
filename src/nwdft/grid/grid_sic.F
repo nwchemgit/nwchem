@@ -1,9 +1,11 @@
+c     -----------------------------------------------------------------
       logical function grid_sicinit(nqpts,
      ,    l_vect1,i_vect1, ldelrho_sig,idelrho_sig)
 c
-C$Id: grid_sic.F,v 1.8 2007-07-27 19:39:14 edo Exp $
+C$Id: grid_sic.F,v 1.9 2008-02-01 22:27:45 niri Exp $
 c
       implicit none
+c
 #include "mafdecls.fh"
 #include "grid_sic.fh"
       integer nqpts ! [in]
@@ -20,21 +22,31 @@ c
       call dfill(len_delrho_sig, 0.0d0, dbl_mb(idelrho_sig), 1)
       return
       end
+c
+c     -----------------------------------------------------------------
       logical function grid_sicend(l_vect1,ldelrho_sig)
+c
       implicit none
+c
 #include "mafdecls.fh"
 #include "grid_sic.fh"
+c
       grid_sicend= ma_pop_stack(ldelrho_sig)
       grid_sicend=grid_sicend.and.ma_pop_stack(l_vect1)
       return
       end
+c
+c     -----------------------------------------------------------------
       subroutine grid_sicpot(nqpts,qxyz,qwght,rho,delrho,amat,cmat,
      ,     delrho_sig,vect1)
+c
       implicit none
+c
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "cdft.fh"
 !#include "grid_sic.fh"
+c
       integer nqpts
       double precision rho(*),delrho(*),qxyz(*),qwght(*)![in]
       double precision amat(*),cmat(*) ! [in/out]
@@ -62,18 +74,22 @@ c
      &     sic_orb_spin,aux_ik)
       return
       end
-
+c
+c     -----------------------------------------------------------------
       subroutine grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
      ,     rho,delrho,grad,ibf_ao, iniz, ifin,
      ,     chi_ao, delchi_ao,   rchi_atom, rdelchi_atom,
      ,     rdens_atom,
      ,     Fmat, Pmat, Bmat,
      ,     vect1,delrho_sig,
-     &     tau, kske)
+     &     tau, ttau, kske)
+c
       implicit none
+c
 #include "cdft.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
+c
       integer nqpts,mbf_ao ! [in]
       logical grad ! [in]
       double precision wmax ! [in]
@@ -81,7 +97,7 @@ c
       double precision Fmat(*), Pmat(*), Bmat(*)
       double precision rho(*),delrho(*) ! [in]
 
-      double precision tau(*)
+      double precision tau(*), ttau(*)
       logical kske
 
       double precision chi_ao(*), delchi_ao(*),
@@ -110,7 +126,7 @@ c
      &        ibf_ao, iniz, ifin, 
      R     rho, delrho, rchi_atom, 
      R     rdelchi_atom,  rdens_atom, cetobfr,wmax,
-     &         tau,kske )
+     &         tau,ttau,kske )
          if (.not.ma_pop_stack(lDmat))
      &        call errquit('grid_iscrho: cannot pop stack', 1, MA_ERR)
 !      endif

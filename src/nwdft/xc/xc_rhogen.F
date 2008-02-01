@@ -1,5 +1,5 @@
 #define NEWSC
-* $Id: xc_rhogen.F,v 1.37 2007-11-16 22:34:36 edo Exp $
+* $Id: xc_rhogen.F,v 1.38 2008-02-01 22:27:55 niri Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -8,12 +8,12 @@ c     BGJ - 8/98
      T     tol_rho, basis, g_dens, max_at_bf, 
      N     natoms, curatoms, ncuratoms, npert,       
      I     ipol, nq, nbf, mbf, GRAD, ipol2,
-     &                     F, Pmat, ff, ffd,
+     &     F, Pmat, ff, ffd,
      C     chi, delchi, heschi,
      I     ibf, iniz, ifin, 
-     &                     rho, delrho,  rchi_atom,
-     &                     rdelchi_atom, rdens_atom, cetobfr,wmax, 
-     &                     tau, kske)
+     &     rho, delrho, rchi_atom,
+     &     rdelchi_atom, rdens_atom, cetobfr, wmax, 
+     &     tau, ttau, kske)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -49,7 +49,10 @@ c what=2 nucder
       double precision chi(nq,mbf)     ! function values [input]
       double precision delchi(nq,3,mbf)! function gradients [input]
       double precision heschi(nq,6,mbf)! function hessians [input]
-      double precision tau(nq,3,ipol)   ! KohnSham K.E.density [output]
+c
+      double precision tau(nq,3,ipol,*)   ! Kohn-Sham K.E.density (components) [output]
+      double precision ttau(nq,ipol,*)   !  Total Kohn-Sham K.E.density [output]
+c
       double precision delrho(nq,3,ipol,*)
       double precision Pmat(*) ! scratch vector
       double precision F(max_at_bf*max_at_bf)    ! scratch vector
@@ -90,18 +93,19 @@ c
 c
 c     Evaluate the charge density and its gradient at each of the sampling 
 c     points 
-      doffd=(what.eq.2.and.grad).or.
-     W     (what.eq.0.and.kske)
+      doffd=(what.eq.2.and.grad).or.(what.eq.0.and.kske).or.
+     & (what.eq.1.and.kske)
       
       npol = (ipol*(ipol+1))/2
 c     to keep compilers quiet
       iatcur=1
       jatcur=1
-
+c
       if(what.eq.0) then
          call dcopy(nq*npol,0.D0,0,rho,1)
-         if (grad)call dcopy(3*nq*ipol,0.D0,0,delrho,1)
-         if (kske)call dfill(3*nq*ipol,0.D0,tau,1)
+         if (grad) call dcopy(3*nq*ipol,0.D0,0,delrho,1)
+         if (kske) call dfill(3*nq*ipol,0.D0,tau,1) ! components
+         if (kske) call dfill(nq*ipol,0.D0,ttau,1)  ! total
 c
 c     repl stuff
 c
@@ -113,7 +117,9 @@ c
          endif
       elseif(what.eq.1) then
          call dfill(nq*ipol*npert,0.D0,rho,1)
-         if (grad)call dfill(3*nq*ipol*npert,0.D0,delrho,1)
+         if (grad) call dfill(3*nq*ipol*npert,0.D0,delrho,1)
+         if (kske) call dfill(3*nq*ipol*npert,0.D0,tau,1)  ! components
+         if (kske) call dfill(nq*ipol*npert,0.D0,ttau,1)   ! total
       elseif(what.eq.2) then
          call dfill(nq*ipol*3*ncuratoms,0.D0,rho,1)
          if (grad)call dfill(3*nq*ipol*3*ncuratoms,0.D0,delrho,1)
@@ -278,20 +284,29 @@ c
                if(doffd) then
                   call dgemm('n','n',nq*3,nnja,nnia,1d0,
      A                 delchi(1,1,inizia),nq*3,F,nnia,0d0,ffd,nq*3)
+c
+c              build tau for meta GGA
+c
                   if(kske) then
-c     build tau for meta GGA
                      do mu=inizja,ifinja
                         do n=1,nq
-                           tau(n,1,ii) = tau(n,1,ii)+
-     P                       0.5d0*delchi(n,1,mu)*ffd(n,1,mu-inizja+1)
-                           tau(n,2,ii) = tau(n,2,ii)+
-     P                       0.5d0*delchi(n,2,mu)*ffd(n,2,mu-inizja+1)
-                           tau(n,3,ii) = tau(n,3,ii)+
-     P                       0.5d0*delchi(n,3,mu)*ffd(n,3,mu-inizja+1)
+                           ! components
+                           tau(n,1,ii,ipert) = tau(n,1,ii,ipert)+
+     &                       0.5d0*delchi(n,1,mu)*ffd(n,1,mu-inizja+1)
+                           tau(n,2,ii,ipert) = tau(n,2,ii,ipert)+
+     &                       0.5d0*delchi(n,2,mu)*ffd(n,2,mu-inizja+1)
+                           tau(n,3,ii,ipert) = tau(n,3,ii,ipert)+
+     &                       0.5d0*delchi(n,3,mu)*ffd(n,3,mu-inizja+1)
+
+                           ! total
+                           ttau(n,ii,ipert) = tau(n,1,ii,ipert) +
+     &                                        tau(n,2,ii,ipert) +
+     &                                        tau(n,3,ii,ipert)
                         enddo
                      enddo
                   endif
                endif
+c
                if((what.eq.2.and.jatcur.ne.0).or.
 c
 c     We need the "grad" code at zero order in the nuclear deriv case,
@@ -315,7 +330,8 @@ c
      I                       ii,jat)
                      endif
                   endif
-            endif
+               endif
+c
                if((what.eq.2.and.iatcur.ne.0).or.
      O              (what.ne.2.and.grad)) then
 c

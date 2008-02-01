@@ -1,7 +1,6 @@
-      subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
-     ,     tmat)
+      subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,tmat)
 c
-C$Id: grid_quadv0.F,v 1.55 2007-12-22 00:44:46 niri Exp $
+C$Id: grid_quadv0.F,v 1.56 2008-02-01 22:27:45 niri Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -62,29 +61,32 @@ czora...start
 czora...end
 
       logical lsa ! Qin
+c
       integer me, nproc, nxyz, nctrs, 
      &        nbf_ao_mxnbf_ce2, nqtot, 
      &        ncoef_max,
      &        npol
+c
       integer lxyz, ixyz, lcharge, icharge, 
      &        lqxyz, iqxyz, lqwght, iqwght, 
      &        lniz, iniz, lexpo, iexpo, lcoef, icoef, lFmat, iFmat, 
      &        lPmat, iPmat, lrho, irho, ldelrho, idelrho, lBmat, iBmat,
      &        lhess, ihess, lrq, irq, 
      &        lfin, ifin, ltags, itags,
-     &        ltau, itau,  lmmat, immat
+     &        ltau, itau,  lmmat, immat, lttau, ittau
+c
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
      &        nscr, lscr, iscr,lamat,iamat,icmat,lcmat,
-     ,     noc(2),nelec
-
+     ,        noc(2),nelec
+c
       integer libf_ao,iibf_ao,irqbuf,lrqbuf,lbp,ibp,
      .     irchi_atom,irdelchi_atom,lrchi_atom,lrdelchi_atom
       integer iqs,lqs,nqlen,mxnrad,
      , laqbuf, iaqbuf,lRij,iRij,ndbl,l_qat,k_qat,irqlen
-      integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2
-      integer len_rho, len_delrho, len_Amat2, len_Cmat2
-      integer len_tau, len_mmat
+      integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, l_Mmat2, k_Mmat2
+      integer len_rho, len_delrho, len_Amat2, len_Cmat2, len_Mmat2
+      integer len_tau, len_mmat, len_ttau
       logical do_scf, do_cpks_l, do_cpks_r, do_nmrks_r
       integer max_elem_ang_scr, max_component
       integer nexpo,nibf
@@ -140,20 +142,25 @@ c
 c
       len_tau = 1
       len_mmat = 1
-
+      len_ttau = 1
+      len_Amat2 = 1
+      len_Cmat2 = 1
+      len_Mmat2 = 1
+c
       if (do_scf .or. do_nmrks_r) then
          len_rho = npol*n_per_rec
          len_delrho = 3*ipol*n_per_rec
-         if(kske) len_tau = 3*ipol*n_per_rec
-         if(kske) len_mmat =ipol*n_per_rec  
-
-         len_Amat2 = 1
-         len_Cmat2 = 1
+         if (kske) len_tau = 3*ipol*n_per_rec
+         if (kske) len_ttau = npol*n_per_rec
+         if (kske) len_mmat =ipol*n_per_rec  
       elseif (do_cpks_l) then
          len_rho = ipol*n_per_rec*(nmat+1)+n_per_rec
          len_delrho = 3*ipol*n_per_rec*(nmat+1)+3*n_per_rec
+         if (kske) len_tau = 3*ipol*n_per_rec*(nmat+1)+3*n_per_rec
+         if (kske) len_ttau = ipol*n_per_rec*(nmat+1)+n_per_rec
          len_Amat2 = n_per_rec*NCOL_AMAT2
          len_Cmat2 = n_per_rec*NCOL_CMAT2
+         if (kske) len_Mmat2 = n_per_rec*NCOL_MMAT2
       elseif (do_cpks_r) then
          call errquit('grid_quadv0: what for do_cpks_r?',0,
      &       UNKNOWN_ERR)
@@ -204,8 +211,7 @@ c
      &   call errquit('grid_den: cannot allocate expo',0, MA_ERR)
 c
       ncoef_max = nbf_ao_mxnbf_cn * nbf_ao_mxprim
-      if(xcfit) ncoef_max=max(ncoef_max,
-     ,     nbf_xc_mxnbf_cn * nbf_xc_mxprim)
+      if(xcfit) ncoef_max=max(ncoef_max,nbf_xc_mxnbf_cn * nbf_xc_mxprim)
 c
       if (.not.MA_Push_Get(MT_Dbl,ncoef_max,'coef',lcoef,icoef))
      &   call errquit('grid_den: cannot allocate coef',0, MA_ERR)
@@ -213,23 +219,22 @@ c
      &   call errquit('grid_den: cannot allocate DENSF',0, MA_ERR)
       if (.not.MA_Push_Get(MT_dbl,nbf_ao_mxnbf_ce2,'DENS',lPmat,iPmat))
      &   call errquit('grid_den: cannot allocate DENS',0, MA_ERR)
+c
       if (.not.MA_Push_Get(MT_Dbl,len_rho,'rho',lrho,irho))
      &   call errquit('grid_den: cannot allocate rho',0, MA_ERR)
-      if (.not.MA_Push_Get(MT_Dbl,len_delrho,'delrho',ldelrho,
-     &   idelrho))call errquit('grid_den: cannot allocate delrho',0,
-     &       MA_ERR)
-
-      if (.not.MA_Push_Get(MT_Dbl,len_tau,'tau',ltau,
-     &   itau))call errquit('grid_den: cannot allocate tau',0,
-     &       MA_ERR)
-
-
+      if (.not.MA_Push_Get(MT_Dbl,len_delrho,'delrho',ldelrho, idelrho))
+     &   call errquit('grid_den: cannot allocate delrho',0, MA_ERR)
+c
+      if (.not.MA_Push_Get(MT_Dbl,len_tau,'tau',ltau, itau))
+     &    call errquit('grid_den: cannot allocate tau',0, MA_ERR)
+      if (.not.MA_Push_Get(MT_Dbl,len_ttau,'ttau',lttau, ittau))
+     &   call errquit('grid_den: cannot allocate ttau',0, MA_ERR)
+c
       if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*n_per_rec,'Bmat',
      &   lBmat,iBmat))call errquit('grid_den: cannot allocate Bmat',0,
      &       MA_ERR)
       if (.not.MA_Push_Get(MT_dbl,1,'hesdum',lhess,ihess))
-     &   call errquit('grid_den: cannot allocate hesdum',0,
-     &       MA_ERR)
+     &   call errquit('grid_den: cannot allocate hesdum',0, MA_ERR)
 c
 c     Assume this numerical density routine can be called from anywhere.
 c     -compute mapping vectors
@@ -278,27 +283,29 @@ c
 
       if (.not.ma_pop_stack(lscr))
      &     call errquit('grid_den: cannot pop stack',0, MA_ERR)
-
+c
       if (.not.MA_Push_Get(mt_dbl,ipol*n_per_rec,'Amat',lamat,iamat))
      &   call errquit('grid_quadv0: cannot allocate Amat',0, MA_ERR)
-
+c
       if (.not.MA_Push_Get(mt_dbl,len_Amat2,'Amat2',l_Amat2,k_Amat2))
      &   call errquit('grid_quadv0: cannot allocate Amat2',0, MA_ERR)
       call dfill(len_Amat2, 0.0d0, dbl_mb(k_Amat2), 1)
-
+c
       if (.not.MA_Push_Get(
      .     mt_dbl,3*n_per_rec*ipol,'Cmat',lcmat,icmat))
      &   call errquit('grid_quadv0: cannot allocate Cmat',0, MA_ERR)
-
+c
       if (.not.MA_Push_Get(mt_dbl,len_Cmat2,'Cmat2',l_Cmat2,k_Cmat2))
      &   call errquit('grid_quadv0: cannot allocate Cmat2',0, MA_ERR)
       call dfill(len_Cmat2, 0.0d0, dbl_mb(k_Cmat2), 1)
-
+c
       if (.not.MA_Push_Get(
      .     mt_dbl,len_mmat,'Mmat',lmmat,immat))
      &   call errquit('grid_quadv0: cannot allocate Mmat',0, MA_ERR)
-
-
+c
+      if (.not.MA_Push_Get(mt_dbl,len_Mmat2,'Mmat2',l_Mmat2,k_Mmat2))
+     &   call errquit('grid_quadv0: cannot allocate Mmat2',0, MA_ERR)
+      call dfill(len_Mmat2, 0.0d0, dbl_mb(k_Mmat2), 1)
 c
 c     allocate scratch array for grid compression
 c
@@ -378,16 +385,16 @@ c
      &        dbl_mb(iBmat), dbl_mb(iFmat), 
      &        dbl_mb(iPmat), dbl_mb(irq), 
      &        dbl_mb(irdens_atom), int_mb(icetobfr),
-     ,        int_mb(iibf_ao),dbl_mb(irqbuf),
-     ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
-     ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
-     ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
+     ,        int_mb(iibf_ao), dbl_mb(irqbuf),
+     ,        dbl_mb(irchi_atom), dbl_mb(irdelchi_atom),
+     ,        ex,ec,dbl_mb(iamat), dbl_mb(icmat),g_vxc,
+     ,        dbl_mb(k_amat2), dbl_mb(k_cmat2),
+     ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,        l3d,triplet,
-     ,        dbl_mb(itau), dbl_mb(immat))
-
+     ,        dbl_mb(itau), dbl_mb(ittau), 
+     &        dbl_mb(immat), dbl_mb(k_mmat2))
       else
-
+c
          if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
      &        call errquit('gridv0: rtdb_get failed', 119, RTDB_ERR)
          nqlen = ncenters*mxnrad
@@ -403,11 +410,11 @@ c
      &        call errquit('grid_v0: cannot allocate Rij',0, MA_ERR)
          if (.not.MA_Push_get(mt_int,nqshells,'qshat',l_qat,k_qat))
      &        call errquit('gridv0: cannot allocate qat',5, MA_ERR)
-
+c
          call grid_quadvw(rtdb,
-     ,     int_mb(iqs),dbl_mb(iaqbuf),
+     ,        int_mb(iqs),dbl_mb(iaqbuf),
      ,        dbl_mb(irij),int_mb(k_qat),
-     ,     g_dens,ncoef_max,nctrs,rho_int,nqtot, 
+     ,        g_dens,ncoef_max,nctrs,rho_int,nqtot, 
      &        int_mb(iniz), int_mb(ifin), 
      &        dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ihess), 
      &        dbl_mb(iqwght), dbl_mb(iqxyz), dbl_mb(ixyz), 
@@ -420,11 +427,11 @@ c
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
-     ,           l3d,triplet,
-     ,         dbl_mb(itau), dbl_mb(immat))
-
-
+     ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
+     ,        l3d,triplet,
+     ,        dbl_mb(itau), dbl_mb(ittau), 
+     &        dbl_mb(immat), dbl_mb(k_mmat2))
+c
          if (.not. MA_chop_Stack(lqs))
      &        call errquit('gridv0: pop stack failed.',1, MA_ERR)
 c Qin

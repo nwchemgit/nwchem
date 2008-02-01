@@ -16,7 +16,7 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     tau, kske,Mmat,
+     ,     tau, ttau, kske, Mmat, Mmat2,
      D     func,d_qwght,rq0,hh,ppp,ff,zzz,
      D     drhonuc,ddelrhonuc,d2scr,force,
      D     acc_ao_gauss,
@@ -24,7 +24,7 @@
      I     iandex,max_at_bf,curatoms,g_rhs,
      I     nbf_ao_mxnbf_ce2,nactive)
 c
-c$Id: dftg_loop.F,v 1.4 2007-02-19 18:52:47 edo Exp $
+c$Id: dftg_loop.F,v 1.5 2008-02-01 22:27:45 niri Exp $
 c
       implicit none
 #define USE_BP
@@ -60,10 +60,9 @@ c
       integer nq_out
       integer grid_nxyz
       external grid_nxyz
-
+c
       logical kske
-      double precision tau(*), Mmat(*)
-CA
+c
       double precision func(*),d_qwght(*),
      D     rq0(*),hh(*),ppp(*),ff(*),zzz(*),force(*)
       double precision drhonuc(*),ddelrhonuc(*),d2scr(*),
@@ -77,8 +76,6 @@ c
      &        lbas_cset_info, ibas_cset_info,
      &        ldocset, idocset
       integer ncontrset,n
-
-
 c
       save nq_left
 c
@@ -102,6 +99,7 @@ c
          qxyz(3,n) = aqbuf(3,n)
          qwght(n) = aqbuf(4,n)
       enddo
+c
       if(nq.ne.0) then
       if (.not.bas_numcont(AO_bas_han, ncontrset))
      &     call errquit('Exiting in dftg_gridv0a',0, BASIS_ERR)
@@ -126,32 +124,30 @@ c
          nq_cube=nq_cube+nq
          nq_out=nq
          call dftg_gridv0b(nq_out,rad_sh,ictr,g_dens,
-     &                         max_at_bf,
-     &                         rho_int, nq, iniz, ifin, rho, delrho,
-     &                         func, d_qwght, qwght, qxyz, xyz, bp,
-     &                         iandex, expo, Amat, Amat2, Cmat,
-     &                         Cmat2, Bmat, Fmat, Pmat,  rq,
-     &                         rq0, hh, 
+     &     max_at_bf,
+     &     rho_int, nq, iniz, ifin, rho, delrho,
+     &     func, d_qwght, qwght, qxyz, xyz, bp,
+     &     iandex, expo, Amat, Amat2, Cmat,
+     &     Cmat2, Bmat, Fmat, Pmat,  rq,
+     &     rq0, hh, 
      .     ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      .     log_mb(idocset),curatoms,rchi_atom,rdelchi_atom,ppp,
      .     ff,zzz,drhonuc,ddelrhonuc,d2scr,
      ,     force, hess, g_rhs, do_force,
      ,     nbf_ao_mxnbf_ce2,
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
-     &                         do_hess, do_cpks_r, natoms, oactive,
-     &                         nactive, rdens_atom, 
-     &                         cetobfr,
-     &                         tau,kske,Mmat )
-         
+     &     do_hess, do_cpks_r, natoms, oactive,
+     &     nactive, rdens_atom, 
+     &     cetobfr,
+     &     tau, ttau, kske, Mmat, Mmat2)
+c         
          if (.not.MA_Pop_Stack(lbas_cset_info))
      &        call errquit('dftg_gridv0a: pop stack failed.',2, MA_ERR)
          if (.not.MA_Pop_Stack(lbas_cent_info))
      &        call errquit('dftg_gridv0a: pop stack failed.',3, MA_ERR)
-      if (.not.MA_Pop_Stack(ldocset))
-     &     call errquit('dftg_gridv0a: pop stack failed.',4, MA_ERR)
+         if (.not.MA_Pop_Stack(ldocset))
+     &        call errquit('dftg_gridv0a: pop stack failed.',4, MA_ERR)
       endif
+c
       return
       end
-
-
-

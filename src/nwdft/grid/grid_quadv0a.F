@@ -5,13 +5,13 @@
      &                       expo, ccoef, Bmat, Fmat, 
      &                       Pmat, rq, rdens_atom, cetobfr, 
      ,ibf_ao,rqbuf,rchi_atom,rdelchi_atom,
-     ,Ex, Ec, amat,cmat,g_vxc,
+     ,Ex, Ec, Amat,Cmat,g_vxc,
      ,Amat2, Cmat2,
      ,nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat, l3d,
-     &triplet,tau,Mmat)
+     &triplet,tau,ttau,Mmat,Mmat2)
 
 c
-c$Id: grid_quadv0a.F,v 1.45 2007-07-02 17:53:02 niri Exp $
+c$Id: grid_quadv0a.F,v 1.46 2008-02-01 22:27:45 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -28,7 +28,6 @@ c
 czora...start
 #include "zora.fh"
 czora...end
-
 c
       double precision rqbuf(*)
       double precision rad
@@ -49,8 +48,6 @@ c
       external xc_chkgrad, xc_chktau
       logical l3d
       logical triplet
-
-      double precision tau(*), Mmat(*)
 c
 c     see if any Gradient Corrected Functional is not null
 c
@@ -123,10 +120,8 @@ c
 c     
 c        temp put buf into currently used arrays qxyz and qwght
 c     
-         call grid_repack(rqbuf, qxyz, qwght, nqpts,
-     &          rad,istep)
+         call grid_repack(rqbuf, qxyz, qwght, nqpts, rad,istep)
          if(nqpts.ne.0) then
-
             call grid_quadv0b(
      &       ictr_buf,qxyz, qwght, nqpts,rad,grad,
      &       g_dens, ncoef_max, natoms, 
@@ -138,13 +133,13 @@ c
      &       ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      &       int_mb(i_iscratch),
      &       log_mb(idocset),rchi_atom,rdelchi_atom,
-     &       Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
+     &       Ex, Ec, Amat,Cmat,g_vxc,Amat2,Cmat2,
      &       nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      &       l3d,triplet,
      &       int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      &       log_mb(idocsetx),
-     &       tau, kske, Mmat)
-
+     &       tau, ttau, kske, Mmat, Mmat2)
+c
             ntot_cube=ntot_cube+1
          endif
       enddo

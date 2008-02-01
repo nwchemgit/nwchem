@@ -1,18 +1,19 @@
       Subroutine dftg_griddo(rtdb,
      &     g_dens,ldew,
-     &                         ncoef_max, max_at_bf,
-     &                         rho_int, nqtot, iniz, ifin, rho, delrho,
-     &                         func, d_qwght, qwght, qxyz, xyz,
-     &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
-     &                         Cmat2, Bmat,  Fmat, Pmat, rq,
-     &                         rq0, hh,  
+     &     ncoef_max, max_at_bf,
+     &     rho_int, nqtot, iniz, ifin, rho, delrho,
+     &     func, d_qwght, qwght, qxyz, xyz,
+     &     iandex, expo, ccoef, Amat, Amat2, Cmat,
+     &     Cmat2, Bmat,  Fmat, Pmat, rq,
+     &     rq0, hh,  
      .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
      .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,
      ,     force, hess, g_rhs, do_force,
-     &                         do_hess, do_cpks_r, natoms, oactive,
-     &               nactive, rdens_atom, cetobfr, tau,Mmat)
+     &     do_hess, do_cpks_r, natoms, oactive,
+     &     nactive, rdens_atom, cetobfr, tau, ttau, 
+     &     Mmat, Mmat2)
 c      
-c     $Id: dftg_griddo.F,v 1.7 2007-02-19 18:52:46 edo Exp $
+c     $Id: dftg_griddo.F,v 1.8 2008-02-01 22:28:17 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -51,13 +52,15 @@ c
       double precision rho(n_per_rec,ipol*(ipol+1)/2)
       double precision delrho(n_per_rec,3,ipol)
 
-c      double precision tau(n_per_rec,3,ipol)
-       double precision tau(*), Mmat(*)
+      double precision tau(*), Mmat(*), ttau(*)
 
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
      &                 Bmat(n_per_rec,*)
+c
       double precision Amat2(n_per_rec,NCOL_AMAT2)
       double precision Cmat2(n_per_rec,NCOL_CMAT2)
+      double precision Mmat2(n_per_rec,NCOL_MMAT2)
+c
       double precision Pmat(max_at_bf*max_at_bf),
      &                 Fmat(max_at_bf*max_at_bf)
       double precision func(n_per_rec)
@@ -182,18 +185,17 @@ c
      ,     nops,
      ,     oprint,grad,g_dens,
      ,     dosympts,sub4,largenode,grid_written,
-     , ncoef_max,natoms,
-     ,     nqtot,
-     &                       iniz, ifin, rho, delrho, 
-     &                       hess, qwght, qxyz, xyz,iscr,nscr,
-     &                    expo, ccoef, Bmat, Fmat, 
-     &                    Pmat, rq,  rdens_atom, cetobfr, 
-     ,                    ibf_ao,dbl_mb(ibp),rchi_atom,rdelchi_atom,
-     ,                    Ex, Ec, amat,cmat,idum1,
-     ,                    Amat2, Cmat2,
-     ,                    idum1, ldum1, ldum1, do_cpks_r,ldum1,ddum1,
-     ,                    ldum1,ldum1,
-     &                    tau, kske,Mmat,
+     ,     ncoef_max,natoms,
+     ,     nqtot,iniz, ifin, rho, delrho, 
+     &     hess, qwght, qxyz, xyz,iscr,nscr,
+     &     expo, ccoef, Bmat, Fmat, 
+     &     Pmat, rq,  rdens_atom, cetobfr, 
+     ,     ibf_ao,dbl_mb(ibp),rchi_atom,rdelchi_atom,
+     ,     Ex, Ec, amat,cmat,idum1,
+     ,     Amat2, Cmat2,
+     ,     idum1, ldum1, ldum1, do_cpks_r,ldum1,ddum1,
+     ,     ldum1,ldum1,
+     &     tau, ttau, kske, Mmat, Mmat2,
      ,     int_mb(k_qat),
      ,     int_mb(k_qsh),dbl_mb(irqbuf),dbl_mb(irij),rho_int,
      D     func,d_qwght,rq0,hh,ppp,ff,zzz,

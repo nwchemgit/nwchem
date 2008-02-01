@@ -9,10 +9,11 @@
      &     expo, ccoef, Bmat, Fmat, 
      &     Pmat, rq, rdens_atom, cetobfr, 
      ,     ibf_ao,rchi_atom,rdelchi_atom,
-     ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
+     ,     Ex, Ec, Amat,Cmat,g_vxc,Amat2,Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
-     ,     l3d,triplet, tau, kske,Mmat)
-C$Id: grid_quadvc.F,v 1.26 2007-02-19 18:52:47 edo Exp $
+     ,     l3d, triplet, 
+     &     tau, ttau, kske, Mmat, Mmat2)
+C$Id: grid_quadvc.F,v 1.27 2008-02-01 22:27:45 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "cdft.fh"
@@ -21,6 +22,7 @@ C$Id: grid_quadvc.F,v 1.26 2007-02-19 18:52:47 edo Exp $
 #include "cgridfile.fh"
 #include "grid_quad.fh"
 #include "global.fh"
+#include "stdio.fh"
 c
 c     copy to buffer for XC and compute XC if npts=buff_size
 c
@@ -42,9 +44,7 @@ c
       logical buffwrite
       logical l3d
       logical triplet
-
       logical kske
-      double precision tau(*), Mmat(*)
 c
 c     Allocate and create info for new basis function evaluator
 c
@@ -111,12 +111,12 @@ c
      ,        ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      .        int_mb(i_iscratch),
      '        log_mb(idocset),rchi_atom,rdelchi_atom,
-     ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
+     ,        Ex, Ec, Amat,Cmat,g_vxc,Amat2,Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,        l3d,triplet,
      .     int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      .        log_mb(idocsetx),
-     &        tau, kske,Mmat )
+     &        tau, ttau, kske, Mmat, Mmat2)
          ntot_cube=ntot_cube+1
          if(cube_done) then
             nwrbuf=nwrbuf+1

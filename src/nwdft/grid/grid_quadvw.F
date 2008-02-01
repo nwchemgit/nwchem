@@ -2,18 +2,18 @@
      ,     qsh,aqbuf,
      ,     rij, iqat,
      ,     g_dens, ncoef_max, natoms, 
-     &                       rho_int, nqtot, 
-     &                       iniz, ifin, rho, delrho, 
-     &                       hess, qwght, qxyz, xyz,iscr,nscr,
-     &                       expo, ccoef, Bmat, Fmat, 
-     &                       Pmat, rq,  rdens_atom, cetobfr, 
+     &     rho_int, nqtot, 
+     &     iniz, ifin, rho, delrho, 
+     &     hess, qwght, qxyz, xyz,iscr,nscr,
+     &     expo, ccoef, Bmat, Fmat, 
+     &     Pmat, rq,  rdens_atom, cetobfr, 
      ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
-     .     l3d,triplet, tau,Mmat)
+     .     l3d,triplet, tau, ttau, Mmat, Mmat2)
 c
-c$Id: grid_quadvw.F,v 1.45 2007-02-19 18:52:47 edo Exp $
+c$Id: grid_quadvw.F,v 1.46 2008-02-01 22:27:45 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -48,9 +48,7 @@ c
       logical oprint
       logical l3d
       logical triplet
-
-      double precision tau(*), Mmat(*)
-C
+c
       double precision ddum1
       integer idum1
       logical ldum1
@@ -75,19 +73,18 @@ c
       call grid_loop(.false.,nops,
      ,     oprint,grad,g_dens,
      ,     dosympts,sub4,largenode,grid_written,
-     , ncoef_max,natoms,
-     ,     nqtot,
-     &                       iniz, ifin, rho, delrho, 
-     &                       hess, qwght, qxyz, xyz,iscr,nscr,
-     &                    expo, ccoef, Bmat, Fmat, 
-     &                    Pmat, rq,  rdens_atom, cetobfr, 
-     ,                    ibf_ao,bp,rchi_atom,rdelchi_atom,
-     ,                    Ex, Ec, amat,cmat,g_vxc,
-     ,                    Amat2, Cmat2,
-     ,                    nmat, do_scf, do_cpks_l, do_cpks_r,
-     ,                    do_nmrks_r, tmat,
-     ,                    l3d,triplet,
-     &                    tau, kske,Mmat,
+     ,     ncoef_max,natoms,
+     ,     nqtot, iniz, ifin, rho, delrho, 
+     &     hess, qwght, qxyz, xyz,iscr,nscr,
+     &     expo, ccoef, Bmat, Fmat, 
+     &     Pmat, rq,  rdens_atom, cetobfr, 
+     ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
+     ,     Ex, Ec, Amat,Cmat,g_vxc,
+     ,     Amat2, Cmat2,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,
+     ,     do_nmrks_r, tmat,
+     ,     l3d,triplet,
+     &     tau, ttau, kske, Mmat, Mmat2,
      ,     iqat,
      ,     qsh, aqbuf,rij,rho_int,
      D     ddum1,ddum1,ddum1,ddum1,ddum1,ddum1,ddum1,
@@ -96,7 +93,6 @@ c
      L     ldum1,ldum1,ldum1,ldum1,ldum1,ldum1,ldum1,
      I     idum1,idum1,idum1,idum1,
      I     idum1,idum1,idum1)
-
 c
       return
       end
