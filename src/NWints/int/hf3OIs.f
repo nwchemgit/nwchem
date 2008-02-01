@@ -3,7 +3,7 @@
      &                  Cxyz,Cprims,Ccoef,NPC,Lc,
      &                  b3OI,Nint,TriDiag,
      &                  DryRun,W0,maxW0)
-c $Id: hf3OIs.f,v 1.4 2008-01-23 17:22:19 bert Exp $
+c $Id: hf3OIs.f,v 1.5 2008-02-01 17:18:15 jhammond Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -36,13 +36,16 @@ c Assign pointers to scratch space.
       i_alpha = 1
       i_top   = i_alpha + (NPA*NPB*NPC)*4 - 1
 
-      if( i_top .gt. maxW0 .and. .not.Dryrun)then
+      if((i_top.gt.maxW0).and.(.not.Dryrun))then
 
        write(*,*) 'HF3CTR:  Insufficient scratch space.'
        write(*,*) '         needed    ',i_top
        write(*,*) '         allocated ',maxW0
 
        write(*,*) 'alpha   :  ',i_alpha
+
+       write(*,*) 'if you get this error doing higher multipoles with',
+     & 'a small basis set, try modifying NWints/api/exact_mem.F:279' ! Jeff
 
        stop
 
@@ -72,7 +75,7 @@ c Assign pointers to scratch space.
       i_G   = i_E     + NABC*3*(La+Lb+Lc+1)*(La+1)*(Lb+1)*(Lc+1)
       i_top = i_G     + NABC*3 - 1
 
-      if( i_top .gt. maxW0 .and. .not.Dryrun)then
+      if((i_top.gt.maxW0).and.(.not.Dryrun)) then
 
        write(*,*) 'HF3CTR:  Insufficient scratch space.'
        write(*,*) '         needed    ',i_top
@@ -81,6 +84,9 @@ c Assign pointers to scratch space.
        write(*,*) 'alpha   :  ',i_alpha
        write(*,*) 'E       :  ',i_E
        write(*,*) 'G       :  ',i_G
+
+       write(*,*) 'if you get this error doing higher multipoles with',
+     & 'a small basis set, try modifying NWints/api/exact_mem.F:279' ! Jeff
 
        stop
 
@@ -115,6 +121,9 @@ c Assign pointers to scratch space.
        write(*,*) 'G       :  ',i_G
        write(*,*) 'GT      :  ',i_GT
        write(*,*) 'ABC2I   :  ',i_ABC2I
+
+       write(*,*) 'if you get this error doing higher multipoles with',
+     & 'a small basis set, try modifying NWints/api/exact_mem.F:279' ! Jeff
 
        stop
 
