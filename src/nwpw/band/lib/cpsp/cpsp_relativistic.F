@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.9 2008-01-17 18:59:30 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.10 2008-02-04 18:32:06 d3p708 Exp $
 *
 
 
@@ -806,7 +806,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >    nb,ii,ia,nproj,npack1,nbrill,
      >    nn,xtmp,sum,ne,
      >    exi,prtmp,zsw1,zsw2,psi1,psi2,fion,move,
-     >    Gx,Gy,Gz,G,bz_vol)
+     >    Gij,Gx,Gy,Gz,G,bz_vol)
       implicit none
 #include "cpsp_common.fh"
 #include "mafdecls.fh"
@@ -817,14 +817,14 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       complex*16 exi(*)
       complex*16 psi1(*)
       complex*16 psi2(*) 
-      real*8 sum(*),xtmp(*),bz_vol
+      real*8 sum(*),xtmp(*),bz_vol,Gij(*)
       real*8 fion(3,nkatmx)
       logical move
       real*8 Gx(npack1),Gy(npack1),Gz(npack1),G(npack1,3)
 cccccccccccccc locals cccccccccccccccccccccccccccccccccccccccc
       complex*16 one,mone,ione,cxr
       integer l,shifts,shiftxu,shiftxd,l_prj,npack,ne1,vshiftu,vshiftd
-      logical sd_function
+      logical sd_function,val
 
 c      real*8   brillioun_weight
 c      external brillioun_weight 
@@ -837,22 +837,30 @@ c way to declare a complex parameter that
 c works with all compilers...gfortran,ifort,
 c pf90,etc.
 ccccccccccccccccccccccccccccccccccccccccc
+      val=MA_set_auto_verify(.TRUE.)
       one  = dcmplx( 1.0d0,0.0d0)
       mone = dcmplx(-1.0d0,0.0d0)
       ione = dcmplx( 0.0d0,1.0d0)
       ne1=ne(1)
       shifts=1+npack1*ne1
-c      do nb=1,nbrill
-           call Cram_npack(nb,npack)
+      call Cram_npack(nb,npack)
+
+      val=MA_verify_allocator_stuff()
+      write(*,*)"A1"
+      call flush(6)
 
 *       **** structure factor pseudopotential ****
            call cstrfac_pack(nb,ii,exi)
            call cstrfac_k(ii,nb,cxr)
            call Cram_c_ZMul(nb,cxr,exi,exi)
 
+      val=MA_verify_allocator_stuff()
+      write(*,*)"A2"
+      call flush(6)
 
+      call dcopy(2*nproj*ne1,0.0d0,0,zsw2,1)
 *          **** generate zsw1's and projectors ****
-           do 105 l=1,nproj
+      do 105 l=1,nproj
 
               l_prj = int_mb(l_projector(1)+(l-1)
      >                          +(ia-1)*jmmax_max)
@@ -904,24 +912,44 @@ c             *** current function is s or d ****
      >                      psi1(shifts),
      >                      prtmp(shiftxd),
      >                      zsw1(1+(l-1)*ne1))
-           
- 105       continue 
-           call C3dB_Vector_SumAll((4*ne1*nproj),zsw1)
-           call dscal(4*ne1*nproj,bz_vol,zsw1,1)
-         
+                call daxpy(4*ne1,Gij(l),zsw1(1+(l-1)*ne1),1,
+     >                      zsw2(1+(l-1)*ne1),1)
+ 105  continue 
+
+
+      val=MA_verify_allocator_stuff()
+      write(*,*)"A3"
+      call flush(6)
+
+      call C3dB_Vector_SumAll((4*ne1*nproj),zsw2)
+      call dscal(4*ne1*nproj,bz_vol,zsw2,1)
+
+      val=MA_verify_allocator_stuff()
+      write(*,*)"A4"
+      call flush(6)
+          
            call ZGEMM('N','C',npack,ne1,nproj,
      >                mone,
      >                prtmp, npack1,
-     >                zsw1, ne1,
+     >                zsw2, ne1,
      >                one,
      >                psi2(1), npack1)
+
+      val=MA_verify_allocator_stuff()
+      write(*,*)"A5"
+      call flush(6)
+
            call ZGEMM('N','C',npack,ne1,nproj,
      >                mone,
      >                prtmp(1+npack1*nproj), npack1,
-     >                zsw1, ne1,
+     >                zsw2, ne1,
      >                one,
      >                psi2(shifts), npack1)
 
+
+      val=MA_verify_allocator_stuff()
+      write(*,*)"A6"
+      call flush(6)
 c      end do
       return
       end
@@ -931,11 +959,11 @@ ccccccccccc
 *     *	 	 cpsp_v_nonlocal_orb  	*
 *     *					*
 *     ***********************************
-
       subroutine cpsp_v_nonlocal_rel_orb(nb,orb1,orb2,
-     >  zsw1,exi,nfft3d,ia,ii,ne1,npack1,nproj)
+     >  zsw1,Gij,exi,nfft3d,ia,ii,ne1,npack1,nproj)
       implicit none
       integer    nb
+      real*8 Gij(*)
       complex*16 orb1(*)
       complex*16 orb2(*)
 
@@ -1021,7 +1049,9 @@ ccccccccccc
      >                      orb1(shifts),
      >                      dcpl_mb(prjtmp(1)+shiftdx),
      >                      zsw1(1+(l-1)))
+              zsw1(1+(l-1))=zsw1(1+(l-1))*Gij(l)
       end do !**l**
+
             call C3dB_Vector_SumAll((4*nproj),zsw1)
 
 *           **** zsw2 = Gijl*zsw1 ******
