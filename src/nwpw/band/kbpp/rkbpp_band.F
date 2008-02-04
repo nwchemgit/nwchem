@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.22 2008-02-01 23:33:57 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.23 2008-02-04 18:06:38 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -127,7 +127,7 @@ cccccccccccccccccccccccccccccccccccccc
 c      if (locp.eq.-1)   locp = locp1
 c      if (locp.gt.lmax_out) locp = lmax_out
 c      if (locp.lt.0)    locp = lmax
-      locp=0
+      locp=lmax_out
       nprj=0
       do kp=0,lmax-1
          nprj=nprj+4*kp+2
@@ -236,7 +236,8 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
       nfft3=ngrid(3)
       call setup_kbpp_band(nfft1,nfft2,nfft3,unita,unitg,
      > dbl_mb(G_indx))
-      nsize=nfft1*nfft2*nfft3
+      write(*,*)"nsz = ",nsize
+      call flush(6)
       call rkbpp_vlocal(lmax_out,locp,nsize,nrho,nprj_out,
      >       dbl_mb(rho_indx),
      >       dbl_mb(vp_indx),dbl_mb(vpso_indx),
@@ -347,7 +348,7 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
 c  nmax = 1 since we have 1 projector per (kappa) states
         nmax = 1
         call iwrite(2,nmax,1)
-        call dwrite(2,rc,lmax_out+1)
+        call dwrite(2,rc,(lmax_out+1))
         call iwrite(2,nprj_out,1)
         if (nprj_out.gt.0) then
           call iwrite(2,int_mb(n_prj_indx),nprj_out)
@@ -496,7 +497,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 drho
 cccccccc locals ccccccccccccccccccccccccccccccccccccccc       
       integer nproc,taskid,lp,ip,k,i,task_count,kappa,nw
-      real*8 fourpi,vv,a,gx,gy,gz,q,sint
+      real*8 fourpi,vv,a,gx,gy,gz,q,sint,qr
 cccccccc externals
       real*8 simp
       external simp
@@ -504,12 +505,16 @@ ccccccccccccccccccccccccccccccccccccccccc
       call Parallel_np(nproc)
       call Parallel_taskid(taskid)
       fourpi=16.0*datan(1.0d0)
+      write(*,*)"locl = ",locl
       do 10 lp=0,lmax
          if (lp.eq.locl) goto 10
+c         write(*,*)"lp    = ",lp
+c         write(*,*)"local = ",locl
          do k=1,nrho
              vp(k,lp)=vp(k,lp)-vp(k,locl)
          end do
 10    continue
+      call flush(6)
 ccccccccccccc assign norms to each projector
       do 20 ip=1,nprj
          lp=l_prj(ip)
@@ -523,21 +528,21 @@ ccccccccccccc assign norms to each projector
          else
             nw= 2*lp+1
          end if
-         if ((nw.gt.(2*lmax+2)).or.(nw.lt.1)) then
-           write(*,*)"ERROR! DANGER! RUN FOR YOUR LIVES!"
-           write(*,*)"nw = ",nw," ip=",ip
-           call flush(6)
-         end if 
+c         if ((nw.gt.(2*lmax+2)).or.(nw.lt.1)) then
+c           write(*,*)"ERROR! DANGER! RUN FOR YOUR LIVES!"
+c           write(*,*)"nw = ",nw," ip=",ip
+c           call flush(6)
+c         end if 
          do k=1,nrho
            vv= vp(k,lp) + dble(kappa)*vpso(k,lp)
            f(k)=vv*wp(k,nw)*wp(k,nw)
          end do
          a=simp(nrho,f,drho)
          vnlnrm(ip)=1.0d0/a
-         write(*,*)"ip =",ip," lp= ",lp," kp= ",kappa," nw=",nw
-         write(*,*)" nprj = ",nprj
-         write(*,*)"    vnrm(",ip,")=",vnlnrm(ip)
-         call flush(6)
+c         write(*,*)"ip =",ip," lp= ",lp," kp= ",kappa," nw=",nw
+c         write(*,*)" nprj = ",nprj
+c         write(*,*)"    vnrm(",ip,")=",vnlnrm(ip)
+c         call flush(6)
 20    continue  
 cccccccccc calculate local potential in q space
       call dcopy(ngsize,0.0d0,0,vl,1)
@@ -551,19 +556,22 @@ cccccccccc calculate local potential in q space
          gx=gvec(i,1)
          gy=gvec(i,2)
          gz=gvec(i,3)
-         q=dsqrt(gx*gx+gy*gy+gz*gz)
+         q=dsqrt(gx**2+gy**2+gz**2)
          gx=gx/q
          gy=gy/q
          gz=gz/q
-         do k=1,nrho  
-            cosqr(k)=dcos(q*rho(k))
-            sinqr(k)=dsin(q*rho(k))
+         do k=1,nrho
+            qr=q*rho(k)  
+            cosqr(k)=dcos(qr)
+            sinqr(k)=dsin(qr)
+         end do
+         do k=1,nrho
             f(k)=rho(k)*vp(k,locl)*sinqr(k)
          end do
          sint=simp(nrho,f,drho) 
-         vl(i)=sint*fourpi/q-zv*fourpi*cosqr(nrho)/q/q
-c         if (dabs(vl(i)).gt.100d0) then
-c            write(*,*)i," ",vl(i)," ",zv," ",q," ",sint
+         vl(i)=(sint-(zv*cosqr(nrho))/q)*fourpi/q
+c         if (dabs(vl(i)).gt.1000d0) then
+c            write(*,*)i," ",vl(i)," ",sint," ",q," ",sint
 c         end if
          if (semicore) then
            do k=1,nrho
@@ -584,18 +592,14 @@ c         end if
       call Parallel_Vector_SumAll(ngsize,VL)
 cccccccccc g=0
       do k=1,nrho
-         f(k)=vp(k,locl)*rho(k)*rho(k)
+         f(k)=vp(k,locl)*rho(k)**2
       end do
-      vl(1)=fourpi*simp(nrho,f,drho)+0.5d0*fourpi*zv*rho(nrho)**2
+      vl(1)=fourpi*(simp(nrho,f,drho)+0.5d0*zv*rho(nrho)**2)
       if (semicore) then
          do k=1,nrho
-           f(k)=rho(k)*rho(k)*dsqrt(rho_sc_r(k,1))
+           f(k)=dsqrt(rho_sc_r(k,1))*(rho(k)**2)
          end do
-         rho_sc_k(1,1)=simp(nrho,f,drho)*fourpi/q
-         do k=1,nrho
-           f(k)=(sinqr(k)/(q*rho(k))-cosqr(k))*rho_sc_r(k,2)*rho(k)
-         end do
-         a=fourpi*simp(nrho,f,drho)
+         rho_sc_k(1,1)=simp(nrho,f,drho)*fourpi
          rho_sc_k(1,2)=0.0d0
          rho_sc_k(1,3)=0.0d0
          rho_sc_k(1,4)=0.0d0
@@ -694,15 +698,13 @@ c           end if
                vv=vp(k,l)+dble(kappa)*vpso(k,l)
     	       vv=vv*wp(k,nw)
                qr=q*rho(k)
-               a=sjx(qr,l,cosqr(k),sinqr(k))*rho(k)
-               f(k)=a*vv
+               a=sjx(qr,l,cosqr(k),sinqr(k))
+               f(k)=a*vv*rho(k)
             end do
-            d=simp(nrho,f,drho)*pi4
+            d=simp(nrho,f,drho)
             vnl(igx,igy,igz,ippot,1)=dcmplx(d*calfa,0.0d0)*
-     >                 dcmplx(vnrm(ippot),0.0d0)*
      >                 sphharm(l,malfa,gx,gy,gz)       
             vnl(igx,igy,igz,ippot,2)=dcmplx(d*cbeta,0.0d0)*
-     >                 dcmplx(vnrm(ippot),0.0d0)*
      >                 sphharm(l,mbeta,gx,gy,gz)       
 100      continue
 200   continue 	
