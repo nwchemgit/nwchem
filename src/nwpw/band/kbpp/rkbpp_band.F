@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.26 2008-02-05 17:48:32 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.27 2008-02-05 19:56:17 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -81,7 +81,8 @@
       oprint = (oprint_in.or.hprint)
 cccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccc
-  
+      write(*,*)"AAA1"
+      call flush(6)
 *     ***** read in pseudopotential data ****
       if (taskid.eq.MASTER) then
          call util_file_name_noprefix(psp_filename,.false.,.false.,
@@ -402,6 +403,10 @@ c  nmax = 1 since we have 1 projector per (kappa) states
 
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
       rkbpp_band = value
+      write(*,*)"AAA2"
+      call flush(6)
+
+
       return
 
  9999 call errquit('Error reading rel psp_filename',0, DISK_ERR)
@@ -535,7 +540,7 @@ cccccccccc calculate local potential in q space
             f(k)=rho(k)*vp(k,locl)*sinqr(k)
          end do
          sint=SIMP(nrho,f,drho)
-         vl(i)=sint*fourpi/Q-(ZV*fourpi*cosqr(nrho)/(Q*Q))
+         vl(i)=(sint*fourpi/Q)-(ZV*fourpi*cosqr(nrho)/(Q*Q))
          if (semicore) then
            do k=1,nrho
               f(k) = rho(k)*dsqrt(rho_sc_r(k,1))*sinqr(k)
@@ -580,15 +585,15 @@ cccccccccccccccccccccccccccc
 #include "mafdecls.fh"
       integer lmax,locl,nrho,ierr
       integer ngx,ngy,ngz,nprj
-      integer malf_prj(*),mbet_prj(*),l_prj(*),k_prj(*)
-      real*8 cosqr(*),sinqr(*),f(*),rho(*)
+      integer malf_prj(nprj),mbet_prj(nprj),l_prj(nprj),k_prj(nprj)
+      real*8 cosqr(nrho),sinqr(nrho),f(nrho),rho(nrho)
       real*8 vp(nrho,0:lmax),vpso(nrho,0:lmax)
-      real*8 wp(nrho,2*lmax+2),vnrm(*)  
+      real*8 wp(nrho,2*lmax+2),vnrm(nprj)  
       complex*16 vnl(ngx,ngy,ngz,nprj,2)
       complex*16 zzero
       real*8 calf_prj(nprj)
       real*8 cbet_prj(nprj)
-      real*8 drho,gvec(ngx,ngy,ngz,3),kvec(*)
+      real*8 drho,gvec(ngx,ngy,ngz,3),kvec(3)
 cccccccc locals
       integer taskid,nproc,tcount,k
       integer igx,igy,igz,nw
@@ -626,7 +631,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
              do k=1,nrho
                f(k)=rho(k)*wp(k,1)*vp(k,0)
              end do
-             vnl(igx,igy,igz,1,1)=DCMPLX(simp(nrho,f,drho),0.0D0)*
+             d=simp(nrho,f,drho)*pi4
+             vnl(igx,igy,igz,1,1)=DCMPLX(d,0.0D0)*
      >          SPHHARM(0,0,GX,GY,GZ)
              vnl(igx,igy,igz,1,2)=vnl(igx,igy,igz,1,1)
            end if    
@@ -664,7 +670,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
                a=sjx(qr,l,cosqr(k),sinqr(k))
                f(k)=a*vv*rho(k)
             end do
-            d=simp(nrho,f,drho)
+            d=simp(nrho,f,drho)*pi4
             vnl(igx,igy,igz,ippot,1)=dcmplx(d*calfa,0.0d0)*
      >                 sphharm(l,malfa,gx,gy,gz)       
             vnl(igx,igy,igz,ippot,2)=dcmplx(d*cbeta,0.0d0)*
