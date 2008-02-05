@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.23 2008-02-04 18:06:38 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.24 2008-02-05 02:16:04 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -621,7 +621,7 @@ cccccccccccccccccccccccccccc
       real*8 cosqr(nrho),sinqr(nrho),f(nrho),rho(nrho)
       real*8 vp(nrho,0:lmax),vpso(nrho,0:lmax)
       real*8 wp(nrho,2*lmax+2),vnrm(*)  
-      complex*16 vnl(ngx,ngy,ngz,2,nprj)
+      complex*16 vnl(ngx,ngy,ngz,nprj,2)
       complex*16 zzero
       real*8 calf_prj(nprj)
       real*8 cbet_prj(nprj)
@@ -658,15 +658,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
          gz=gvec(igx,igy,igz,3)+kvec(3)
          q=dsqrt(gx*gx+gy*gy+gz*gz)
          if (dabs(q).lt.1.e-9) then 
-c
-c           if (locl.ne.0) then
-c             do k=1,nrho
-c               f(k)=rho(k)*wp(k,1)*vp(k,0)
-c             end do
-c             vnl(igx,igy,igz,1,1)=simp(nrho,f,drho)*scof0
-c             vnl(igx,igy,igz,1,2)=vnl(igx,igy,igz,1,1)*vnrm(1)
-c             vnl(igx,igy,igz,1,1)=vnl(igx,igy,igz,1,1)*vnrm(1)
-c           end if    
+           if (locl.ne.0) then
+             do k=1,nrho
+               f(k)=rho(k)*wp(k,1)*vp(k,0)
+             end do
+             vnl(igx,igy,igz,1,1)=simp(nrho,f,drho)*scof0
+             vnl(igx,igy,igz,1,2)=vnl(igx,igy,igz,1,1)
+           end if    
            goto 200
          end if
          gx=gx/q
