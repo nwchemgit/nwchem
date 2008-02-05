@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.25 2008-02-05 02:51:32 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.26 2008-02-05 17:48:32 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -95,15 +95,6 @@ cccccccccccccccccccccccccccccccccccccc
          read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
          read(11,*,ERR=9999,END=9999) nrho,drho
          read(11,'(A)',ERR=9999,END=9999) comment
-         write(*,*)"pspstype = ",pspx," should equal 7"
-         write(*,*) pspx,atom
-         write(*,*) zv,amass,lmax0,lmax1,locp1,rlocal1
-         write(*,*) (rc(i),i=0,lmax0)
-         write(*,*) nrho,drho
-         write(*,*)'NRHO= ',NRHO,' DRHO= ',DRHO
-         write(*,'(A)') comment
-         write(*,*)"Reading psp full filename"
-         call flush(6)
       end if
        
       msglen = 1
@@ -124,9 +115,6 @@ cccccccccccccccccccccccccccccccccccccc
       lmax_out=lmax1
       if (lmax_out.gt.3) lmax_out=3
 *     **** set the local potential ****
-c      if (locp.eq.-1)   locp = locp1
-c      if (locp.gt.lmax_out) locp = lmax_out
-c      if (locp.lt.0)    locp = lmax
       locp=0
       nprj=0
       do kp=0,lmax-1
@@ -138,10 +126,6 @@ c      if (locp.lt.0)    locp = lmax
          nprj_out=nprj_out+4*kp+2
       end do
       nprj_out=nprj_out+2*lmax_out
-      write(*,*)"lmax= ",lmax," nprj =",nprj," nsph = ",2*lmax+2
-      write(*,*)"lmaxo= ",lmax_out," nprjo =",nprj_out," nsph = ",
-     >  (2*lmax_out+2)
-      call flush(6)
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
@@ -234,8 +218,6 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
       nfft3=ngrid(3)
       call setup_kbpp_band(nfft1,nfft2,nfft3,unita,unitg,
      > dbl_mb(G_indx))
-      write(*,*)"nsz = ",nsize
-      call flush(6)
       call rkbpp_vlocal(lmax_out,locp,nsize,nrho,nprj_out,
      >       dbl_mb(rho_indx),
      >       dbl_mb(vp_indx),dbl_mb(vpso_indx),
@@ -246,8 +228,6 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
      >       dbl_mb(f_indx),dbl_mb(sn_indx),dbl_mb(cs_indx),
      >       dbl_mb(sc_k_indx),dbl_mb(sc_r_indx),
      >       dbl_mb(G_indx),semicore,zv,drho,ierr)
-      write(*,*)"Diditz local"
-      call flush(6)
 
       if ((taskid.eq.MASTER).and.(oprint)) then
       write(*,*) "     ********************************************"
@@ -305,11 +285,8 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
   114 format(a,3F10.3)
   115 format(a,2E14.6)
       end if
-      call flush(6)
-        
-      write(*,*)"ENTERING NONLOCAL!"
-      CALL FLUSH(6)
 
+        
       nb=1
       call rkbpp_vnonlocal(lmax_out,nrho,locp,
      >  nfft1,nfft2,nfft3,nprj_out,
@@ -323,8 +300,6 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
      >  int_mb(m_alf_indx),int_mb(m_bet_indx),
      >  dbl_mb(c_alf_indx),dbl_mb(c_bet_indx),
      >  drho,ierr)
-      write(*,*)"Diditz nonlocal"
-      call flush(6)
 
       if ((oprint).and.(taskid.eq.MASTER))
      >      write(*,*) "generating brillioun #",nb
@@ -350,20 +325,6 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
         call dwrite(2,zv,1)
         call iwrite(2,lmax_out,1)
         call iwrite(2,locp,1)
-         write(*,*)"psp_type =",psp_type
-         write(*,*)"version  =",version
-         write(*,*)"amass    =",amass
-         write(*,*)"lmax     =",lmax_out
-         write(*,*)"locp     =",locp
-         write(*,*)"nmax     =",nmax
-         do l=0,lmax_out
-           write(*,*)"rc(",l,")=",rc(l)
-         end do
-         write(*,*)"zv = ",zv
-         write(*,*)"nprj=",nprj_out
-         write(*,*)"nsize= ",(ngrid(1)*ngrid(2)*ngrid(3))
-         call flush(6)
-
 c  nmax = 1 since we have 1 projector per (kappa) states
         nmax = 1
         call iwrite(2,nmax,1)
@@ -380,15 +341,6 @@ c  nmax = 1 since we have 1 projector per (kappa) states
         call dwrite(2,kvectors,3*nbrillioun)
         call dwrite(2,dbl_mb(vl_indx),nsize)
         call dwrite(2,dcpl_mb(vnl_indx),nsize*nprj_out*4)
-           do l=1,nprj_out
-              write(*,*)l,int_mb(n_prj_indx+l-1)
-              write(*,*)" ",int_mb(l_prj_indx+l-1)
-              write(*,*)" ",int_mb(k_prj_indx+l-1)
-           end do
-           do l=1,nprj_out
-                write(*,*)l," ",dbl_mb(vnrm_indx+l-1)
-           end do
-
       end if
 
       do nb=2,nbrillioun
@@ -424,8 +376,6 @@ c  nmax = 1 since we have 1 projector per (kappa) states
       call closefile(2)
       end if
      
-      write(*,*)"RKBPP DONE!!!!"
-      call flush(6)
 *     **** free heap space ****
       value = MA_free_heap(rho_hndl)
       value = MA_free_heap(vp_hndl)
@@ -473,7 +423,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       nprj= lmax*2+2
       do i=1,nrho
         read(unit,*,ERR=9999,END=9999) rho(i),(vp(i,j),j=0,lmax)
-        write(*,*)rho(i),(vp(i,j),j=1,lmax)
       end do
       do i=1,nrho
         read(unit,*,ERR=9999,END=9999) rx,(wp(i,j),j=1,nprj)
@@ -539,13 +488,10 @@ ccccccccccccccccccccccccccccccccccccccccc
       write(*,*)"locl = ",locl
       do 10 lp=0,lmax
          if (lp.eq.locl) goto 10
-c         write(*,*)"lp    = ",lp
-c         write(*,*)"local = ",locl
          do k=1,nrho
              vp(k,lp)=vp(k,lp)-vp(k,locl)
          end do
 10    continue
-      call flush(6)
 ccccccccccccc assign norms to each projector
       do 20 ip=1,nprj
          lp=l_prj(ip)
@@ -559,27 +505,17 @@ ccccccccccccc assign norms to each projector
          else
             nw= 2*lp+1
          end if
-         if ((nw.gt.(2*lmax+2)).or.(nw.lt.1)) then
-           write(*,*)"ERROR! DANGER! RUN FOR YOUR LIVES!"
-           write(*,*)"nw = ",nw," ip=",ip
-           call flush(6)
-         end if 
          do k=1,nrho
            vv= vp(k,lp) + dble(kappa)*vpso(k,lp)
            f(k)=vv*wp(k,nw)*wp(k,nw)
          end do
          a=simp(nrho,f,drho)
          vnlnrm(ip)=1.0d0/a
-         write(*,*)"ip =",ip," lp= ",lp," kp= ",kappa," nw=",nw
-         write(*,*)" nprj = ",nprj
-         write(*,*)" vnrm(",ip,")=",vnlnrm(ip)
-         call flush(6)
 20    continue  
 cccccccccc calculate local potential in q space
       call dcopy(ngsize,0.0d0,0,vl,1)
       call dcopy(4*ngsize,0.0d0,0,rho_sc_k,1)  
       task_count= 0
-      write(*,*)"NGSIZE IN LOCAL = ",ngsize
       do 700 i=2,ngsize
          task_count=task_count+1
          if (mod(task_count,nproc).ne.taskid) then
@@ -596,18 +532,10 @@ cccccccccc calculate local potential in q space
             qr=q*rho(k)  
             cosqr(k)=dcos(qr)
             sinqr(k)=dsin(qr)
-         end do
-         do k=1,nrho
-            write(*,*)rho(k),"  ",vp(k,locl)," ",vp(k,1)
             f(k)=rho(k)*vp(k,locl)*sinqr(k)
          end do
-         sint=SIMP(nrho,f,drho)*fourpi/Q
-         vl(i)= -(ZV*fourpi*cosqr(nrho)/(Q*Q))
-         if (dabs(vl(i)).gt.1000d0) then
-            write(*,*)i," ",vl(i)," ",sint
-            write(*,*)"  ",q
-            write(*,*)"  ",(zv*fourpi*cosqr(nrho)/(q*q))       
-         end if
+         sint=SIMP(nrho,f,drho)
+         vl(i)=sint*fourpi/Q-(ZV*fourpi*cosqr(nrho)/(Q*Q))
          if (semicore) then
            do k=1,nrho
               f(k) = rho(k)*dsqrt(rho_sc_r(k,1))*sinqr(k)
@@ -649,7 +577,7 @@ cccccccccccccccccccccccccccc
      >  cosqr,sinqr,f,rho,l_prj,k_prj,malf_prj,mbet_prj,calf_prj,
      >  cbet_prj,drho,ierr)
       implicit none
-#include "mafdecls.fh
+#include "mafdecls.fh"
       integer lmax,locl,nrho,ierr
       integer ngx,ngy,ngz,nprj
       integer malf_prj(*),mbet_prj(*),l_prj(*),k_prj(*)
@@ -745,8 +673,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
 200   continue 	
 210   continue
 220   continue
-      write(*,*)"WE DID IT PAT!"
-      CALL FLUSH(6)
       call C3db_Vector_SumAll(nprj*ngx*ngy*ngz*2,vnl)
       ierr=0
       return
@@ -974,6 +900,7 @@ cccccccccc kappa= lmax, j=lmax-1/2
       if (nprj.ne.cnt) then
         write(*,*)"NUMBER OF PROJECTORS GIVEN IS ",nprj
         write(*,*)"NUMBER OF PROJECTORS       IS ",cnt
+        write(*,*)"POSSIBLE ERROR IN CODE!!!!!!!!"
         call flush(6)
       end if
       return
