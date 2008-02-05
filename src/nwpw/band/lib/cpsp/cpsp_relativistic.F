@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.11 2008-02-05 17:56:02 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.12 2008-02-05 19:53:27 d3p708 Exp $
 *
 
 
@@ -820,6 +820,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 Gx(npack1),Gy(npack1),Gz(npack1),G(npack1,3)
 cccccccccccccc locals cccccccccccccccccccccccccccccccccccccccc
       complex*16 one,mone,ione,cxr
+      real*8 xx
       integer l,shifts,shiftxu,shiftxd,l_prj,npack,ne1,vshiftu,vshiftd
       logical sd_function,val
       integer  cpsp_projector_get_ptr
@@ -838,13 +839,14 @@ ccccccccccccccccccccccccccccccccccccccccc
       shifts=1+npack1*ne1
       call Cram_npack(nb,npack)
 
-
 *       **** structure factor pseudopotential ****
       call cstrfac_pack(nb,ii,exi)
       call cstrfac_k(ii,nb,cxr)
       call Cram_c_ZMul(nb,cxr,exi,exi)
-      call dcopy(4*nproj*ne1,0.0d0,0,zsw2,1)
+      call dcopy(2*nproj*ne1,0.0d0,0,zsw2,1)
+
 *          **** generate zsw1's and projectors ****
+
       do 105 l=1,nproj
               l_prj = int_mb(l_projector(1)+(l-1)
      >                          +(ia-1)*jmmax_max)
@@ -896,12 +898,17 @@ c             *** current function is s or d ****
      >                      psi1(shifts),
      >                      prtmp(shiftxd),
      >                      zsw1(1+(l-1)*ne1))
-                call daxpy(4*ne1,Gij(l),zsw1(1+(l-1)*ne1),1,
+
+                xx=Gij(l)*bz_vol
+                call daxpy(2*ne1,xx,zsw1(1+(l-1)*ne1),1,
      >                      zsw2(1+(l-1)*ne1),1)
+
+
  105  continue 
-      call C3dB_Vector_SumAll((4*ne1*nproj),zsw2)
-      call dscal(4*ne1*nproj,bz_vol,zsw2,1)
-          
+
+      call C3dB_Vector_SumAll((2*ne1*nproj),zsw2)
+
+
       call ZGEMM('N','C',npack,ne1,nproj,
      >                mone,
      >                prtmp, npack1,
@@ -1014,14 +1021,13 @@ ccccccccccc
      >                      orb1(shifts),
      >                      dcpl_mb(prjtmp(1)+shiftdx),
      >                      zsw1(1+(l-1)))
-              zsw1(1+(l-1))=zsw1(1+(l-1))*Gij(l)
+              zsw1(1+(l-1))=zsw1(1+(l-1))*Gij(l)*scal
       end do !**l**
 
             call C3dB_Vector_SumAll((4*nproj),zsw1)
 
 *           **** zsw2 = Gijl*zsw1 ******
 *           **** do Kleinman-Bylander Multiplication ****
-            call dscal(4*nproj,scal,zsw1,1)
             call ZGEMM('N','C',npack1,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)), npack1,

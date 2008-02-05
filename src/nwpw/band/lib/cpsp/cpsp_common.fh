@@ -1,8 +1,8 @@
 *
-* $Id: cpsp_common.fh,v 1.9 2007-09-04 15:56:16 bylaska Exp $
+* $Id: cpsp_common.fh,v 1.10 2008-02-05 19:53:27 d3p708 Exp $
 *
 *     **** common block for psp ****
-      integer    prjtmp(2),nprj_max
+      integer    prjtmp(2)
       integer    vl(2)
       integer    vnl(2)
       integer    Gijl(2)
@@ -13,11 +13,10 @@
       integer    psp_type(2)   
 
       integer    nkatmx,lmmax_max,lmax_max,nmax_max
-      integer    gij_stride,vnl_stride
+      integer    gij_stride,vnl_stride,nprj_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=25,nmax_max=3)
       parameter (gij_stride=(lmax_max+1)*nmax_max*nmax_max)
       parameter (vnl_stride=lmmax_max*nmax_max)
-
       character*2  atom(nkatmx)
       character*80 comment(nkatmx)
       common / cpsp_block / prjtmp,vl,vnl,Gijl,zv,amass,rc,
