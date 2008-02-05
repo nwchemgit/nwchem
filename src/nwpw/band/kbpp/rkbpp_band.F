@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.24 2008-02-05 02:16:04 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.25 2008-02-05 02:51:32 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -127,7 +127,7 @@ cccccccccccccccccccccccccccccccccccccc
 c      if (locp.eq.-1)   locp = locp1
 c      if (locp.gt.lmax_out) locp = lmax_out
 c      if (locp.lt.0)    locp = lmax
-      locp=lmax_out
+      locp=0
       nprj=0
       do kp=0,lmax-1
          nprj=nprj+4*kp+2
@@ -140,10 +140,8 @@ c      if (locp.lt.0)    locp = lmax
       nprj_out=nprj_out+2*lmax_out
       write(*,*)"lmax= ",lmax," nprj =",nprj," nsph = ",2*lmax+2
       write(*,*)"lmaxo= ",lmax_out," nprjo =",nprj_out," nsph = ",
-     >  2*lmax_out+2
+     >  (2*lmax_out+2)
       call flush(6)
-******* number of central force relativistic components
-      nsph=2*lmax+2
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
@@ -248,6 +246,8 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
      >       dbl_mb(f_indx),dbl_mb(sn_indx),dbl_mb(cs_indx),
      >       dbl_mb(sc_k_indx),dbl_mb(sc_r_indx),
      >       dbl_mb(G_indx),semicore,zv,drho,ierr)
+      write(*,*)"Diditz local"
+      call flush(6)
 
       if ((taskid.eq.MASTER).and.(oprint)) then
       write(*,*) "     ********************************************"
@@ -306,6 +306,9 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
   115 format(a,2E14.6)
       end if
       call flush(6)
+        
+      write(*,*)"ENTERING NONLOCAL!"
+      CALL FLUSH(6)
 
       nb=1
       call rkbpp_vnonlocal(lmax_out,nrho,locp,
@@ -320,6 +323,8 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
      >  int_mb(m_alf_indx),int_mb(m_bet_indx),
      >  dbl_mb(c_alf_indx),dbl_mb(c_bet_indx),
      >  drho,ierr)
+      write(*,*)"Diditz nonlocal"
+      call flush(6)
 
       if ((oprint).and.(taskid.eq.MASTER))
      >      write(*,*) "generating brillioun #",nb
@@ -345,6 +350,20 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
         call dwrite(2,zv,1)
         call iwrite(2,lmax_out,1)
         call iwrite(2,locp,1)
+         write(*,*)"psp_type =",psp_type
+         write(*,*)"version  =",version
+         write(*,*)"amass    =",amass
+         write(*,*)"lmax     =",lmax_out
+         write(*,*)"locp     =",locp
+         write(*,*)"nmax     =",nmax
+         do l=0,lmax_out
+           write(*,*)"rc(",l,")=",rc(l)
+         end do
+         write(*,*)"zv = ",zv
+         write(*,*)"nprj=",nprj_out
+         write(*,*)"nsize= ",(ngrid(1)*ngrid(2)*ngrid(3))
+         call flush(6)
+
 c  nmax = 1 since we have 1 projector per (kappa) states
         nmax = 1
         call iwrite(2,nmax,1)
@@ -361,6 +380,15 @@ c  nmax = 1 since we have 1 projector per (kappa) states
         call dwrite(2,kvectors,3*nbrillioun)
         call dwrite(2,dbl_mb(vl_indx),nsize)
         call dwrite(2,dcpl_mb(vnl_indx),nsize*nprj_out*4)
+           do l=1,nprj_out
+              write(*,*)l,int_mb(n_prj_indx+l-1)
+              write(*,*)" ",int_mb(l_prj_indx+l-1)
+              write(*,*)" ",int_mb(k_prj_indx+l-1)
+           end do
+           do l=1,nprj_out
+                write(*,*)l," ",dbl_mb(vnrm_indx+l-1)
+           end do
+
       end if
 
       do nb=2,nbrillioun
@@ -396,7 +424,8 @@ c  nmax = 1 since we have 1 projector per (kappa) states
       call closefile(2)
       end if
      
-
+      write(*,*)"RKBPP DONE!!!!"
+      call flush(6)
 *     **** free heap space ****
       value = MA_free_heap(rho_hndl)
       value = MA_free_heap(vp_hndl)
@@ -444,11 +473,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       nprj= lmax*2+2
       do i=1,nrho
         read(unit,*,ERR=9999,END=9999) rho(i),(vp(i,j),j=0,lmax)
+        write(*,*)rho(i),(vp(i,j),j=1,lmax)
       end do
       do i=1,nrho
         read(unit,*,ERR=9999,END=9999) rx,(wp(i,j),j=1,nprj)
       end do
       return
+ 8000 FORMAT(10(1X,D15.7))
  9999 call errquit('Error reading Rel psp_filename',0, DISK_ERR)
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -485,11 +516,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 f(nrho)
       real*8 sinqr(nrho)
       real*8 cosqr(nrho)
-      real*8 vp(nrho,*)
-      real*8 vpso(nrho,*)
-      real*8 vl(*)
+      real*8 vp(nrho,0:lmax)
+      real*8 vpso(nrho,0:lmax)
+      real*8 vl(ngsize)
       real*8 gvec(ngsize,3)
-      real*8 wp(nrho,*)
+      real*8 wp(nrho,nprj)
       real*8 vnlnrm(nprj)
       real*8 rho_sc_k(ngsize,4)
       real*8 rho_sc_r(nrho,2)
@@ -528,26 +559,27 @@ ccccccccccccc assign norms to each projector
          else
             nw= 2*lp+1
          end if
-c         if ((nw.gt.(2*lmax+2)).or.(nw.lt.1)) then
-c           write(*,*)"ERROR! DANGER! RUN FOR YOUR LIVES!"
-c           write(*,*)"nw = ",nw," ip=",ip
-c           call flush(6)
-c         end if 
+         if ((nw.gt.(2*lmax+2)).or.(nw.lt.1)) then
+           write(*,*)"ERROR! DANGER! RUN FOR YOUR LIVES!"
+           write(*,*)"nw = ",nw," ip=",ip
+           call flush(6)
+         end if 
          do k=1,nrho
            vv= vp(k,lp) + dble(kappa)*vpso(k,lp)
            f(k)=vv*wp(k,nw)*wp(k,nw)
          end do
          a=simp(nrho,f,drho)
          vnlnrm(ip)=1.0d0/a
-c         write(*,*)"ip =",ip," lp= ",lp," kp= ",kappa," nw=",nw
-c         write(*,*)" nprj = ",nprj
-c         write(*,*)"    vnrm(",ip,")=",vnlnrm(ip)
-c         call flush(6)
+         write(*,*)"ip =",ip," lp= ",lp," kp= ",kappa," nw=",nw
+         write(*,*)" nprj = ",nprj
+         write(*,*)" vnrm(",ip,")=",vnlnrm(ip)
+         call flush(6)
 20    continue  
 cccccccccc calculate local potential in q space
       call dcopy(ngsize,0.0d0,0,vl,1)
       call dcopy(4*ngsize,0.0d0,0,rho_sc_k,1)  
       task_count= 0
+      write(*,*)"NGSIZE IN LOCAL = ",ngsize
       do 700 i=2,ngsize
          task_count=task_count+1
          if (mod(task_count,nproc).ne.taskid) then
@@ -566,13 +598,16 @@ cccccccccc calculate local potential in q space
             sinqr(k)=dsin(qr)
          end do
          do k=1,nrho
+            write(*,*)rho(k),"  ",vp(k,locl)," ",vp(k,1)
             f(k)=rho(k)*vp(k,locl)*sinqr(k)
          end do
-         sint=simp(nrho,f,drho) 
-         vl(i)=(sint-(zv*cosqr(nrho))/q)*fourpi/q
-c         if (dabs(vl(i)).gt.1000d0) then
-c            write(*,*)i," ",vl(i)," ",sint," ",q," ",sint
-c         end if
+         sint=SIMP(nrho,f,drho)*fourpi/Q
+         vl(i)= -(ZV*fourpi*cosqr(nrho)/(Q*Q))
+         if (dabs(vl(i)).gt.1000d0) then
+            write(*,*)i," ",vl(i)," ",sint
+            write(*,*)"  ",q
+            write(*,*)"  ",(zv*fourpi*cosqr(nrho)/(q*q))       
+         end if
          if (semicore) then
            do k=1,nrho
               f(k) = rho(k)*dsqrt(rho_sc_r(k,1))*sinqr(k)
@@ -618,7 +653,7 @@ cccccccccccccccccccccccccccc
       integer lmax,locl,nrho,ierr
       integer ngx,ngy,ngz,nprj
       integer malf_prj(*),mbet_prj(*),l_prj(*),k_prj(*)
-      real*8 cosqr(nrho),sinqr(nrho),f(nrho),rho(nrho)
+      real*8 cosqr(*),sinqr(*),f(*),rho(*)
       real*8 vp(nrho,0:lmax),vpso(nrho,0:lmax)
       real*8 wp(nrho,2*lmax+2),vnrm(*)  
       complex*16 vnl(ngx,ngy,ngz,nprj,2)
@@ -647,12 +682,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
       scof0=dsqrt(pi4)
       call dcopy(nprj*ngx*ngy*ngz*4,0.0d0,0,vnl,1)
       tcount=-1
-      do 200 igz=1,ngz
-      do 200 igy=1,ngy
+      WRITE(*,*)"HERE WE GO!"
+      CALL FLUSH(6)
+      do 220 igz=1,ngz
+      do 210 igy=1,ngy
       do 200 igx=1,ngx
          tcount=tcount+1
-         key=tcount-nproc*(tcount/nproc)
-         if (key.ne.taskid) goto 200
+         if (mod(tcount,nproc).ne.taskid) goto 200
          gx=gvec(igx,igy,igz,1)+kvec(1)
          gy=gvec(igx,igy,igz,2)+kvec(2)
          gz=gvec(igx,igy,igz,3)+kvec(3)
@@ -662,7 +698,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
              do k=1,nrho
                f(k)=rho(k)*wp(k,1)*vp(k,0)
              end do
-             vnl(igx,igy,igz,1,1)=simp(nrho,f,drho)*scof0
+             vnl(igx,igy,igz,1,1)=DCMPLX(simp(nrho,f,drho),0.0D0)*
+     >          SPHHARM(0,0,GX,GY,GZ)
              vnl(igx,igy,igz,1,2)=vnl(igx,igy,igz,1,1)
            end if    
            goto 200
@@ -704,8 +741,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
      >                 sphharm(l,malfa,gx,gy,gz)       
             vnl(igx,igy,igz,ippot,2)=dcmplx(d*cbeta,0.0d0)*
      >                 sphharm(l,mbeta,gx,gy,gz)       
-100      continue
+100   continue
 200   continue 	
+210   continue
+220   continue
+      write(*,*)"WE DID IT PAT!"
+      CALL FLUSH(6)
       call C3db_Vector_SumAll(nprj*ngx*ngy*ngz*2,vnl)
       ierr=0
       return
