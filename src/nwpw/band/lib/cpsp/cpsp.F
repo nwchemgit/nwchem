@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.56 2007-11-17 00:05:40 bylaska Exp $
+* $Id: cpsp.F,v 1.57 2008-02-05 19:39:50 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -696,11 +696,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         if (nproj.gt.0) then 
 
           if (int_mb(psp_type(1)+ia-1).eq.7) then
+
             call cpsp_v_nonlocal_rel(nb,ii,ia,nproj,npack1,nbrill,
      >      nn,dbl_mb(xtmp(1)),dbl_mb(sum(1)),ne,
      >      dcpl_mb(exi(1)),dcpl_mb(prjtmp(1)),
      >      dcpl_mb(zsw1(1)),dcpl_mb(zsw2(1)),
      >      dbl_mb(psi1_shift),dbl_mb(psi2_shift),fion,move,
+     >      dbl_mb(Kijl(1)+(ia-1)*kij_stride),
      >      dbl_mb(Gx(1)),dbl_mb(Gy(1)),dbl_mb(Gz(1)),
      >      dbl_mb(G(1)),scal)
             goto 500
