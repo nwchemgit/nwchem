@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.28 2008-02-06 22:38:57 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.29 2008-02-06 22:50:38 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -609,8 +609,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
       scof0=dsqrt(pi4)
       call dcopy(nprj*ngx*ngy*ngz*4,0.0d0,0,vnl,1)
       tcount=-1
-      WRITE(*,*)"HERE WE GO!"
-      CALL FLUSH(6)
       do 220 igz=1,ngz
       do 210 igy=1,ngy
       do 200 igx=1,ngx

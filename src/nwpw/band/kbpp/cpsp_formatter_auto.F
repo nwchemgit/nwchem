@@ -83,8 +83,8 @@
       end do
 
       call get_psp_type(psp_filename,psp_type)
-      write(*,*)"psp type = ",psp_type
-      call flush(6)
+c      write(*,*)"psp type = ",psp_type
+c      call flush(6)
       if (psp_type.eq.0) then
          value = value.and.
      >     kbpp_band(.false.,
