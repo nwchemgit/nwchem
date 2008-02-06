@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.27 2008-02-05 19:56:17 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.28 2008-02-06 22:38:57 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -81,8 +81,6 @@
       oprint = (oprint_in.or.hprint)
 cccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccc
-      write(*,*)"AAA1"
-      call flush(6)
 *     ***** read in pseudopotential data ****
       if (taskid.eq.MASTER) then
          call util_file_name_noprefix(psp_filename,.false.,.false.,
@@ -403,9 +401,6 @@ c  nmax = 1 since we have 1 projector per (kappa) states
 
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
       rkbpp_band = value
-      write(*,*)"AAA2"
-      call flush(6)
-
 
       return
 
@@ -490,7 +485,6 @@ ccccccccccccccccccccccccccccccccccccccccc
       call Parallel_np(nproc)
       call Parallel_taskid(taskid)
       fourpi=16.0*datan(1.0d0)
-      write(*,*)"locl = ",locl
       do 10 lp=0,lmax
          if (lp.eq.locl) goto 10
          do k=1,nrho
