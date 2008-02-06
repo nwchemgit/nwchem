@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.58 2008-02-05 19:53:27 d3p708 Exp $
+* $Id: cpsp.F,v 1.59 2008-02-06 00:59:07 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -123,7 +123,7 @@
       nprj_max = cpsp_nprj_max()
       call Cram_max_npack(npack1)
 
-      axsize=npack1*nprj_max
+      axsize=npack1*nprj_max*2
       value = MA_alloc_get(mt_dcpl,axsize,'prjtmp',prjtmp(2),prjtmp(1))
       if (.not. value) 
      >   call errquit('cpsp_proj_init:out of heap memory',0,MA_ERR)
@@ -313,8 +313,7 @@
       nprjmax = 0
       do ia=1,npsp
          nprjtmp = (int_mb(nprj(1)+ia-1))
-         if (int_mb(psp_type(1)+ia-1).eq.7) nprjtmp = 2*nprjtmp
-         if (nprjtmp.gt.nprjmax)            nprjmax = nprjtmp
+         if (nprjtmp.gt.nprjmax) nprjmax = nprjtmp
       end do
 
       cpsp_nprj_max  = nprjmax
