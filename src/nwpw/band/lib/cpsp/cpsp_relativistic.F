@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.13 2008-02-06 00:58:37 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.14 2008-02-06 17:47:19 d3p708 Exp $
 *
 
 
@@ -846,11 +846,9 @@ ccccccccccccccccccccccccccccccccccccccccc
       call dcopy(2*nproj*ne1,0.0d0,0,zsw2,1)
 
 *          **** generate zsw1's and projectors ****
-
       do 105 l=1,nproj
               l_prj = int_mb(l_projector(1)+(l-1)
      >                          +(ia-1)*jmmax_max)
-***************** we have s,d,g so we changed this!
               sd_function=.true.
               if (mod(l_prj,2).ne.0) then
                 sd_function=.false.
@@ -888,7 +886,6 @@ c             *** current function is s or d ****
      >                               prtmp(shiftxd))
                 end if
          
-
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
                 call Cram_cc_inzdot(nb,ne1,
      >                      psi1(1),
@@ -900,14 +897,10 @@ c             *** current function is s or d ****
      >                      zsw1(1+(l-1)*ne1))
 
                 xx=Gij(l)*bz_vol
-c                call daxpy(2*ne1,xx,zsw1(1+(l-1)*ne1),1,
-c     >                      zsw2(1+(l-1)*ne1),1)
-                 call dscal(2*ne,xx,zsw1(1+(l-1)*ne1),1)
-
+                call dscal(2*ne1,xx,zsw1(1+(l-1)*ne1),1)
  105  continue 
 
       call C3dB_Vector_SumAll((2*ne1*nproj),zsw1)
-
 
       call ZGEMM('N','C',npack,ne1,nproj,
      >                mone,
@@ -915,14 +908,12 @@ c     >                      zsw2(1+(l-1)*ne1),1)
      >                zsw1, ne1,
      >                one,
      >                psi2(1), npack1)
-
       call ZGEMM('N','C',npack,ne1,nproj,
      >                mone,
      >                prtmp(1+npack1*nproj), npack1,
      >                zsw1, ne1,
      >                one,
      >                psi2(shifts), npack1)
-
       return
       end
 ccccccccccc
