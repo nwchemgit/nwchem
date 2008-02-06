@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.12 2008-02-05 19:53:27 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.13 2008-02-06 00:58:37 d3p708 Exp $
 *
 
 
@@ -869,21 +869,21 @@ c             *** current function is s or d ****
                 if (sd_function) then
 
 
-                  call Cram_cc_Mul(nb,dcpl_mb(vshiftu),
+                  call Cram_cc_Mul(nb,dbl_mb(vshiftu),
      >                               exi,
      >                               prtmp(shiftxu))
                 
-                  call Cram_cc_Mul(nb,dcpl_mb(vshiftd),
+                  call Cram_cc_Mul(nb,dbl_mb(vshiftd),
      >                               exi,
      >                               prtmp(shiftxd))
 *             *** current function is p or f ****
                 else
 
-                  call Cram_icc_Mul(nb,dcpl_mb(vshiftu),
+                  call Cram_icc_Mul(nb,dbl_mb(vshiftu),
      >                                exi,
      >                                prtmp(shiftxu))
 
-                  call Cram_icc_Mul(nb,dcpl_mb(vshiftd),
+                  call Cram_icc_Mul(nb,dbl_mb(vshiftd),
      >                               exi,
      >                               prtmp(shiftxd))
                 end if
@@ -900,26 +900,26 @@ c             *** current function is s or d ****
      >                      zsw1(1+(l-1)*ne1))
 
                 xx=Gij(l)*bz_vol
-                call daxpy(2*ne1,xx,zsw1(1+(l-1)*ne1),1,
-     >                      zsw2(1+(l-1)*ne1),1)
-
+c                call daxpy(2*ne1,xx,zsw1(1+(l-1)*ne1),1,
+c     >                      zsw2(1+(l-1)*ne1),1)
+                 call dscal(2*ne,xx,zsw1(1+(l-1)*ne1),1)
 
  105  continue 
 
-      call C3dB_Vector_SumAll((2*ne1*nproj),zsw2)
+      call C3dB_Vector_SumAll((2*ne1*nproj),zsw1)
 
 
       call ZGEMM('N','C',npack,ne1,nproj,
      >                mone,
      >                prtmp, npack1,
-     >                zsw2, ne1,
+     >                zsw1, ne1,
      >                one,
      >                psi2(1), npack1)
 
       call ZGEMM('N','C',npack,ne1,nproj,
      >                mone,
      >                prtmp(1+npack1*nproj), npack1,
-     >                zsw2, ne1,
+     >                zsw1, ne1,
      >                one,
      >                psi2(shifts), npack1)
 
