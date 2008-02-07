@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.109 2008-01-28 21:49:44 bylaska Exp $
+* $Id: control.F,v 1.110 2008-02-07 02:22:37 d3p708 Exp $
 *
 
 *     ***********************************
@@ -2083,7 +2083,7 @@ c      end
          tcharge = control_TotalCharge()
          icharge = ion_TotalCharge_qm()
          t = icharge - tcharge       !** total number of electrons **
-         x = NINT(t)
+         x = int(NINT(t))
 
 
 *        **** reassign spin to agree with total number of electrons ****
@@ -2115,6 +2115,10 @@ c      end
      >            (x_wf.eq.x)           .and.
      >            (ispin.eq.ispin_wf))
 
+         if (ispin_wf.eq.3) then
+            check=((ne_wf(1).eq.ne_wf(2)).and.
+     >             (x.eq.ne_wf(1) ) )
+         end if
 *     **** no wavefunction file ***
       else
          check = .false.
