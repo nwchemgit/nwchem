@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.59 2008-02-06 00:59:07 d3p708 Exp $
+* $Id: cpsp.F,v 1.60 2008-02-08 18:05:27 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -1116,7 +1116,7 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
       real*8  omega,weight,scal,wfrac
       complex*16 cxr
       integer exi(2),xtmp(2),zsw1(2),zsw2(2),sum(2)
-      integer Gx(2),Gy(2),Gz(2)
+      integer Gx(2),Gy(2),Gz(2),it
       integer occ1_tag,occ1_shift,occ_shift
       logical value,sd_function
 
@@ -1189,10 +1189,23 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
         call Cram_r_pack(nb,dbl_mb(Gy(1)))
         call Cram_r_pack(nb,dbl_mb(Gz(1)))
 
-        do ii=1,ion_nion()
+        do 100 ii=1,ion_nion()
            ia=ion_katm(ii)
+           it=int_mb(psp_type(1)+ia-1)
            nproj = int_mb(nprj(1)+ia-1)
            if (nproj.gt.0) then
+              if (it.eq.7) then 
+                call cpsp_f_nonlocal_rel(nb,ii,ia,nproj,npack1,ne(1),
+     >          dcpl_mb(exi(1)),dcpl_mb(zsw1(1)),
+     >          dbl_mb(psi1_shift),dcpl_mb(prjtmp(1)),
+     >          dbl_mb(xtmp(1)),dbl_mb(sum(1)),
+     >          dbl_mb(Kijl(1)+(ia-1)*kij_stride),
+     >          dbl_mb(Gx(1)),dbl_mb(Gy(1)),dbl_mb(Gz(1)),
+     >          fion(1,ii),fion(2,ii),fion(3,ii),
+     >          weight,scal)
+                goto 100 
+              end if
+
 *             **** structure factor ****
               call cstrfac_pack(nb,ii,dcpl_mb(exi(1)))
               call cstrfac_k(ii,nb,cxr)
@@ -1306,7 +1319,7 @@ c                    end do
               end do !** l **
 
            end if !** nproj>0) ***
-        end do !** ii **
+100      continue !** ii **
 
       end do !** nb ***
 

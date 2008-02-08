@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.14 2008-02-06 17:47:19 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.15 2008-02-08 18:05:27 d3p708 Exp $
 *
 
 
@@ -821,7 +821,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccc locals cccccccccccccccccccccccccccccccccccccccc
       complex*16 one,mone,ione,cxr
       real*8 xx
-      integer l,shifts,shiftxu,shiftxd,l_prj,npack,ne1,vshiftu,vshiftd
+      integer l,shifts,shiftxu,shiftxd,l_prj,npack,ne1
+      integer zshft,vshiftu,vshiftd
       logical sd_function,val
       integer  cpsp_projector_get_ptr
       external cpsp_projector_get_ptr
@@ -847,6 +848,13 @@ ccccccccccccccccccccccccccccccccccccccccc
 
 *          **** generate zsw1's and projectors ****
       do 105 l=1,nproj
+              vshiftu = cpsp_projector_get_ptr(
+     >                     int_mb(vnl(1)+ia-1),nb,l)
+              vshiftd = cpsp_projector_get_ptr(
+     >                     int_mb(vnlso(1)+ia-1),nb,l)
+              shiftxu=1 + (l-1)*npack1 
+              shiftxd=shiftxu + nproj*npack1
+              zshft=1+(l-1)*ne1
               l_prj = int_mb(l_projector(1)+(l-1)
      >                          +(ia-1)*jmmax_max)
               sd_function=.true.
@@ -856,48 +864,42 @@ ccccccccccccccccccccccccccccccccccccccccc
 *             **** phase factor does not matter therefore ****
 *             **** (-i)^l is the same as (i)^l in the     ****
 *             **** Rayleigh scattering formula            ****
-               vshiftu = cpsp_projector_get_ptr(
-     >                     int_mb(vnl(1)+ia-1),nb,l)
-               vshiftd = cpsp_projector_get_ptr(
-     >                     int_mb(vnlso(1)+ia-1),nb,l)
-               shiftxu=1 + (l-1)*npack1 
-               shiftxd=shiftxu + nproj*npack1
 
 c             *** current function is s or d ****
-                if (sd_function) then
+              if (sd_function) then
 
 
-                  call Cram_cc_Mul(nb,dbl_mb(vshiftu),
+                call Cram_cc_Mul(nb,dbl_mb(vshiftu),
      >                               exi,
      >                               prtmp(shiftxu))
                 
-                  call Cram_cc_Mul(nb,dbl_mb(vshiftd),
+                call Cram_cc_Mul(nb,dbl_mb(vshiftd),
      >                               exi,
      >                               prtmp(shiftxd))
 *             *** current function is p or f ****
-                else
+              else
 
-                  call Cram_icc_Mul(nb,dbl_mb(vshiftu),
+                call Cram_icc_Mul(nb,dbl_mb(vshiftu),
      >                                exi,
      >                                prtmp(shiftxu))
 
-                  call Cram_icc_Mul(nb,dbl_mb(vshiftd),
+                call Cram_icc_Mul(nb,dbl_mb(vshiftd),
      >                               exi,
      >                               prtmp(shiftxd))
-                end if
+              end if
          
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
-                call Cram_cc_inzdot(nb,ne1,
+              call Cram_cc_inzdot(nb,ne1,
      >                      psi1(1),
      >                      prtmp(shiftxu),
-     >                      zsw1(1+(l-1)*ne1))
-                call Cram_cc_inzdotAdd(nb,ne1,
+     >                      zsw1(zshft))
+              call Cram_cc_inzdotAdd(nb,ne1,
      >                      psi1(shifts),
      >                      prtmp(shiftxd),
-     >                      zsw1(1+(l-1)*ne1))
+     >                      zsw1(zshft))
 
-                xx=Gij(l)*bz_vol
-                call dscal(2*ne1,xx,zsw1(1+(l-1)*ne1),1)
+              xx=Gij(l)*bz_vol
+              call dscal(2*ne1,xx,zsw1(zshft),1)
  105  continue 
 
       call C3dB_Vector_SumAll((2*ne1*nproj),zsw1)
@@ -1034,6 +1036,105 @@ ccccccccccc
 
       return 
       end
+ccccccccccccccccc
+      subroutine cpsp_f_nonlocal_rel(nb,ii,ia,nproj,npack1,ne1,
+     >  exi,zsw1,psi,prtmp,xtmp,sum1,Gij,Gx,Gy,Gz,
+     >  fx,fy,fz,weight,scal)
+      implicit none
+      integer ia,ii,nproj,ne1,npack1,nb
+      complex*16 exi(*),zsw1(*),psi(*),prtmp(*),cxr
+      real*8 xtmp(*),sum1(*),fx,fy,fz,xx
+      real*8 weight,scal,Gij(*),Gx(*),Gy(*),Gz(*)
+#include "cpsp_common.fh"
+#include "mafdecls.fh"
+ccccccccccc locals
+      integer shiftxu,shiftxd,vshiftu,vshiftd,zshft
+      integer l_prj,l,n,pshftu,pshftd,sshft,shifts
+      logical sd_function
+ccccccccccc external
+      integer cpsp_projector_get_ptr
+      external cpsp_projector_get_ptr
+cccccccccccccccccccccccccccccccccccccccccccc
+*             **** structure factor ****
+      call cstrfac_pack(nb,ii,exi)
+      call cstrfac_k(ii,nb,cxr)
+      call Cram_c_ZMul(nb,cxr,exi,exi)
+      shifts=1+npack1*ne1
+      do l=1,nproj
+         vshiftu = cpsp_projector_get_ptr(
+     >       int_mb(vnl(1)+ia-1),nb,l)
+         vshiftd = cpsp_projector_get_ptr(
+     >       int_mb(vnlso(1)+ia-1),nb,l)
+         shiftxu=1 + (l-1)*npack1 
+         shiftxd=shiftxu + nproj*npack1
+         l_prj = int_mb(l_projector(1)+(l-1)
+     >      +(ia-1)*jmmax_max)
 
+         sd_function=.true.
+         if (mod(l_prj,2).ne.0) then
+           sd_function=.false.
+         end if
+
+*       **** phase factor does not matter therefore ****
+*       **** (-i)^l is the same as (i)^l in the     ****
+*       **** Rayleigh scattering formula            ****
+*       *** current function is s or d ****
+         if (sd_function) then
+           call Cram_cc_Mul(nb,dbl_mb(vshiftu),exi,prtmp(shiftxu))
+           call Cram_cc_Mul(nb,dbl_mb(vshiftd),exi,prtmp(shiftxd))
+         else
+           call Cram_icc_Mul(nb,dbl_mb(vshiftu),exi,prtmp(shiftxu))
+           call Cram_icc_Mul(nb,dbl_mb(vshiftd),exi,prtmp(shiftxd))
+         end if
+         zshft=1+(l-1)*npack1
+         call Cram_cc_inzdot(nb,ne1,psi,prtmp(shiftxu),
+     >      zsw1(zshft))
+         call Cram_cc_inzdotAdd(nb,ne1,psi(shifts),prtmp(shiftxd),
+     >      zsw1(zshft))
+         xx=Gij(l)*scal
+         call dscal(ne1*2,xx,zsw1(zshft),1)
+      end do
+      call C3db_Vector_SumAll(2*ne1*nproj,zsw1)
+      do l=1,nproj
+         shiftxu=1+(l-1)*npack1
+         shiftxd=shiftxu+nproj*npack1
+         do n=1,ne1
+           zshft=(l-1)*ne1+n
+           pshftu=1+(n-1)*npack1
+           pshftd=pshftu+ne1*npack1
+           call Cram_zccr_Multiply2(nb,
+     >         zsw1(zshft),
+     >         psi(pshftu),
+     >         prtmp(shiftxu),
+     >         xtmp)
+           call Cram_zccr_Multiply2Add(nb,
+     >         zsw1(zshft),
+     >         psi(pshftd),
+     >         prtmp(shiftxd),
+     >         xtmp)
+           
+           sshft=1+3*(n-1)
+           call Cram_rr_idot(nb,Gx,xtmp,sum1(sshft))
+           call Cram_rr_idot(nb,Gy,xtmp,sum1(sshft+1))
+           call Cram_rr_idot(nb,Gz,xtmp,sum1(sshft+2))
+         end do
+         call C3db_Vector_Sumall(3*ne1,sum1)
+         do n=1,ne1
+            sshft=1+3*(n-1)
+            fx=fx+2.0d0*weight*sum1(sshft)
+            fy=fy+2.0d0*weight*sum1(sshft+1)
+            fz=fz+2.0d0*weight*sum1(sshft+2)
+         end do
+      end do
+      return
+      end
+ccccccccccccccccccccccccc    
+ 
+
+
+   
+
+
+  
 
 
