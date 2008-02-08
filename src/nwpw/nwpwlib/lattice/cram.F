@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.25 2007-09-24 16:58:10 bylaska Exp $
+* $Id: cram.F,v 1.26 2008-02-08 18:06:31 d3p708 Exp $
 *
 
 *     ***********************************
@@ -1745,6 +1745,36 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
       do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = dimag(alpha*A(i)*dconjg(B(i)))
+      end do
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_zccr_Mulitply2Add *
+*     *                                 *
+*     ***********************************
+*
+*   This routine used by cpsp force routines  computes 
+*     C(i) = Imag (alpha*A(i)*dconjg(B(i)))
+*
+      subroutine Cram_zccr_Multiply2Add(nb,alpha,A,B,C)
+      implicit none
+      integer    nb
+      complex*16 alpha
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     C(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(int_mb(nidb2_list(1)+nb))
+        C(i) = C(i)+dimag(alpha*A(i)*dconjg(B(i)))
       end do
 
       return
