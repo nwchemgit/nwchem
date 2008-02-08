@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.15 2008-02-08 18:05:27 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.16 2008-02-08 22:42:04 d3p708 Exp $
 *
 
 
@@ -802,7 +802,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine cpsp_v_nonlocal_rel(
      >    nb,ii,ia,nproj,npack1,nbrill,
      >    nn,xtmp,sum,ne,
-     >    exi,prtmp,zsw1,zsw2,psi1,psi2,fion,move,
+     >    exi,prtmp,zsw1,psi1,psi2,fion,move,
      >    Gij,Gx,Gy,Gz,G,bz_vol)
       implicit none
 #include "cpsp_common.fh"
@@ -810,7 +810,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer nb,nn,npack1,nproj,ia,ii,nbrill,ne(2)  
       complex*16 prtmp(*)
       complex*16 zsw1(*)
-      complex*16 zsw2(*)
       complex*16 exi(*)
       complex*16 psi1(*)
       complex*16 psi2(*) 
@@ -844,8 +843,6 @@ ccccccccccccccccccccccccccccccccccccccccc
       call cstrfac_pack(nb,ii,exi)
       call cstrfac_k(ii,nb,cxr)
       call Cram_c_ZMul(nb,cxr,exi,exi)
-      call dcopy(2*nproj*ne1,0.0d0,0,zsw2,1)
-
 *          **** generate zsw1's and projectors ****
       do 105 l=1,nproj
               vshiftu = cpsp_projector_get_ptr(
@@ -1019,7 +1016,6 @@ ccccccccccc
 
             call C3dB_Vector_SumAll((4*nproj),zsw1)
 
-*           **** zsw2 = Gijl*zsw1 ******
 *           **** do Kleinman-Bylander Multiplication ****
             call ZGEMM('N','C',npack1,1,nproj,
      >                 mone,

@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.60 2008-02-08 18:05:27 d3p708 Exp $
+* $Id: cpsp.F,v 1.61 2008-02-08 22:42:04 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -618,7 +618,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       real*8  omega,weight,scal,wfrac
       complex*16 cxr
       integer exi(2),xtmp(2),zsw1(2),zsw2(2),sum(2)
-      integer Gx(2),Gy(2),Gz(2)
+      integer Gx(2),Gy(2),Gz(2),shfts,shftd
       logical value,sd_function
 
 *     **** external functions ****
@@ -676,6 +676,9 @@ ccccccccccccccc if move we do this ccccccccccccccccccccccccc
         call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
         call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
         call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+        call Cram_r_pack(nb,dbl_mb(Gx(1)))
+        call Cram_r_pack(nb,dbl_mb(Gy(1)))
+        call Cram_r_pack(nb,dbl_mb(Gz(1)))
       end if
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -699,12 +702,65 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             call cpsp_v_nonlocal_rel(nb,ii,ia,nproj,npack1,nbrill,
      >      nn,dbl_mb(xtmp(1)),dbl_mb(sum(1)),ne,
      >      dcpl_mb(exi(1)),dcpl_mb(prjtmp(1)),
-     >      dcpl_mb(zsw1(1)),dcpl_mb(zsw2(1)),
+     >      dcpl_mb(zsw1(1)),
      >      dbl_mb(psi1_shift),dbl_mb(psi2_shift),fion,move,
      >      dbl_mb(Kijl(1)+(ia-1)*kij_stride),
      >      dbl_mb(Gx(1)),dbl_mb(Gy(1)),dbl_mb(Gz(1)),
      >      dbl_mb(G(1)),scal)
+            if (move) then
+              shftd=nproj*npack1
+              shfts=ne(1)*npack1
+              weight = brillioun_weight(nb)
+              if (occ_tag.gt.0) 
+     >           occ1_shift = cpsi_data_get_chnk(occ_tag,nb)
+              do l=1,nproj          
+                 psi_shift = psi1_shift
+                 do n=1,nn
+*                   **** routine should be vectorized!!!****
+                    call Cram_zccr_Multiply2(nb,
+     >                     dcpl_mb(zsw1(1)+(l-1)*nn+n-1),
+     >                     dbl_mb(psi_shift),
+     >                     dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                     dbl_mb(xtmp(1)))
+                    call Cram_zccr_Multiply2Add(nb,
+     >                     dcpl_mb(zsw1(1)+(l-1)*nn+n-1),
+     >                     dbl_mb(psi_shift+shfts),
+     >                     dcpl_mb(prjtmp(1)+(l-1)*npack1+shftd),
+     >                     dbl_mb(xtmp(1)))
+                    psi_shift = psi_shift + nshift
+*                   **** define Gx,Gy and Gz in packed space ****
+                    call Cram_rr_idot(nb,dbl_mb(Gx(1)),dbl_mb(xtmp(1)),
+     >                                dbl_mb(sum(1)+3*(n-1)))
+                    call Cram_rr_idot(nb,dbl_mb(Gy(1)),dbl_mb(xtmp(1)),
+     >                                dbl_mb(sum(1)+1+3*(n-1)))
+                    call Cram_rr_idot(nb,dbl_mb(Gz(1)),dbl_mb(xtmp(1)),
+     >                                dbl_mb(sum(1)+2+3*(n-1)))
+                 end do !**n**
+
+                 call C3dB_Vector_Sumall(3*(nn),dbl_mb(sum(1)))
+
+                 wfrac = 1.0d0
+                 if (occ_tag.gt.0) occ_shift = occ1_shift
+                 do n=1,nn
+                    if (occ_tag.gt.0) then
+                       wfrac = dbl_mb(occ_shift)
+                       occ_shift = occ_shift+1
+                    end if
+                    fion(1,ii) = fion(1,ii) 
+     >                         + 2.0d0*weight*wfrac
+     >                                *dbl_mb(sum(1)+3*(n-1))
+                    fion(2,ii) = fion(2,ii) 
+     >                         + 2.0d0*weight*wfrac
+     >                                *dbl_mb(sum(1)+1+3*(n-1))
+                    fion(3,ii) = fion(3,ii) 
+     >                         + 2.0d0*weight*wfrac
+     >                                *dbl_mb(sum(1)+2+3*(n-1))
+                 end do !** nn **
+
+              end do !** l **
+            end if !** move **
             goto 500
+
           end if
 
 *       **** structure factor pseudopotential ****
@@ -810,12 +866,6 @@ c                    end do
 
 
 *                   **** define Gx,Gy and Gz in packed space ****
-                    call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-                    call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-                    call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-                    call Cram_r_pack(nb,dbl_mb(Gx(1)))
-                    call Cram_r_pack(nb,dbl_mb(Gy(1)))
-                    call Cram_r_pack(nb,dbl_mb(Gz(1)))
                     call Cram_rr_idot(nb,dbl_mb(Gx(1)),dbl_mb(xtmp(1)),
      >                                dbl_mb(sum(1)+3*(n-1)))
                     call Cram_rr_idot(nb,dbl_mb(Gy(1)),dbl_mb(xtmp(1)),
