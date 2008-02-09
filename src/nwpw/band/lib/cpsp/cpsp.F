@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.61 2008-02-08 22:42:04 d3p708 Exp $
+* $Id: cpsp.F,v 1.62 2008-02-09 20:13:32 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -672,13 +672,6 @@ ccccccccccccccc if move we do this ccccccccccccccccccccccccc
         G(2)  = c_G_indx(2)
         G(3)  = c_G_indx(3)
 
-*       **** define Gx,Gy and Gz in packed space ****
-        call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-        call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-        call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-        call Cram_r_pack(nb,dbl_mb(Gx(1)))
-        call Cram_r_pack(nb,dbl_mb(Gy(1)))
-        call Cram_r_pack(nb,dbl_mb(Gz(1)))
       end if
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -729,6 +722,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                     dbl_mb(xtmp(1)))
                     psi_shift = psi_shift + nshift
 *                   **** define Gx,Gy and Gz in packed space ****
+*       **** define Gx,Gy and Gz in packed space ****
+        call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+        call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+        call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+        call Cram_r_pack(nb,dbl_mb(Gx(1)))
+        call Cram_r_pack(nb,dbl_mb(Gy(1)))
+        call Cram_r_pack(nb,dbl_mb(Gz(1)))
+
                     call Cram_rr_idot(nb,dbl_mb(Gx(1)),dbl_mb(xtmp(1)),
      >                                dbl_mb(sum(1)+3*(n-1)))
                     call Cram_rr_idot(nb,dbl_mb(Gy(1)),dbl_mb(xtmp(1)),
@@ -866,6 +867,14 @@ c                    end do
 
 
 *                   **** define Gx,Gy and Gz in packed space ****
+*       **** define Gx,Gy and Gz in packed space ****
+        call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+        call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+        call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+        call Cram_r_pack(nb,dbl_mb(Gx(1)))
+        call Cram_r_pack(nb,dbl_mb(Gy(1)))
+        call Cram_r_pack(nb,dbl_mb(Gz(1)))
+
                     call Cram_rr_idot(nb,dbl_mb(Gx(1)),dbl_mb(xtmp(1)),
      >                                dbl_mb(sum(1)+3*(n-1)))
                     call Cram_rr_idot(nb,dbl_mb(Gy(1)),dbl_mb(xtmp(1)),
