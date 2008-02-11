@@ -1,6 +1,6 @@
       subroutine tce_fourindex_driver(rtdb,d_v2,l_v2_offset,k_v2_offset)
 c
-c $Id: tce_fourindex_driver.F,v 1.1 2008-01-29 18:26:13 jhammond Exp $
+c $Id: tce_fourindex_driver.F,v 1.2 2008-02-11 17:08:24 jhammond Exp $
 c 
 c Written by Jeff Hammond, January 2008.
 c
@@ -152,7 +152,7 @@ c -------------
      1                                size_2e)
        else
         write(LuOut,9123)fast2e 
-        call errquit('tce_property: wrong 2emet',iter,CALC_ERR)
+        call errquit('tce_property: wrong 2emet',fast2e,CALC_ERR)
        end if      
 
 
@@ -202,82 +202,11 @@ c
  9110 format(1x,'MBPT(0) energy / hartree             = ',f25.15)
  9030 format(/,1x,'MBPT(2) correlation energy / hartree = ',f25.15)
  9040 format(1x,'MBPT(2) total energy / hartree       = ',f25.15)
- 9050 format(/,1x,A,' iterations',/,
-     1  1x,'--------------------------------------------------------',/
-     2  1x,'Iter          Residuum       Correlation     Cpu    Wall',/
-     3  1x,'--------------------------------------------------------')
- 9060 format(
-     1  1x,'--------------------------------------------------------',/
-     2  1x,'Iterations converged')
- 9070 format(1x,A,' correlation energy / hartree = ',f25.15)
- 9080 format(1x,A,' total energy / hartree       = ',f25.15)
- 9085 format(1x,A,' excitation energy (eV)       = ',f12.5)
  9100 format(1x,i4,2f18.13,2f8.1)
  9120 format(1x,A)
  9123 format(1x,'4-index algorithm nr.',i4,1x,'is used') 
  9124 format(1x,'imaxsize = ',2x,i6)
  9125 format(1x,'imaxsize ichop = ',2x,2i6)
- 9250 format(1x,'Ground-state symmetry is ',A4)
- 9200 format(1x,'=========================================',/,
-     1       1x,'Excited-state calculation ( ',A4,'symmetry)',/,
-     2       1x,'=========================================')
- 9210 format(/,1x,'Iteration ',i3,' using ',i4,' trial vectors')
- 9220 format(/,1x,A,' iterations',/,1x,
-     1'--------------------------------------------------------------'
-     2,/,1x,
-     3'     Residuum       Omega / hartree  Omega / eV    Cpu    Wall'
-     4,/,1x,
-     5'--------------------------------------------------------------')
  9230 format(1x,f17.13,f18.13,f11.5,2f8.1)
- 9240 format(1x,
-     1'--------------------------------------------------------------'
-     2,/,1x,'Iterations converged')
- 9300 format(' Target root     =',i3)
- 9340 format(' Target symmetry =',1x,a4)
- 9310 format(1x,A,' ground state energy / hartree  =',f25.15)
- 9320 format(1x,A,' excitation energy / hartree    =',f25.15)
- 9330 format(1x,A,' excited state energy / hartree =',f25.15)
- 9400 format(/,1x,A,' iterations',/,
-     1  1x,'--------------------------------------',/
-     2  1x,'Iter          Residuum     Cpu    Wall',/
-     3  1x,'--------------------------------------')
- 9410 format(
-     1  1x,'--------------------------------------',/
-     2  1x,'Iterations converged')
  9420 format(1x,i4,f18.13,2f8.1)
- 9430 format(/,1x,A,' dipole moments / hartree & Debye',/,
-     1  1x,'--------------------------------',/
-     2  1x,'X ',2f15.7,/
-     3  1x,'Y ',2f15.7,/
-     4  1x,'Z ',2f15.7,/
-     5  1x,'--------------------------------')
- 9431 format(/,1x,'Frequency = ',f7.5,' / au')
- 9434 format(/,1x,A,' polarizability / au ',/
-     1  1x,'Frequency = ',f7.5,' / au',/
-     2  1x,'      X              Y              Z',/
-     3  1x,'-----------------------------------------------',/
-     4  1x,'X ',3f15.7,/
-     5  1x,'Y ',3f15.7,/
-     6  1x,'Z ',3f15.7,/
-     7  1x,'-----------------------------------------------')
- 9440 format(1x,A1,' axis ( ',A4,'symmetry)')
- 9450 format(1x,'(T) & [T] code has been provided by ',
-     1  'A.A.Auer (Waterloo)')
- 9460 format(/,1x,'Excited state root',i3,/
-     1       1x,'Excitation energy / hartree =',f25.15,/
-     2       1x,'                  / eV      =',f25.15)
- 9470 format(/,1x,A,' transition moments / hartree',/
-     1  1x,'--------------------------------------------',/
-     2  1x,'X',f13.7,' Y',f13.7,' Z',f13.7,/
-     3  1x,'Oscillator Strength            ',f13.7,/
-     4  1x,'--------------------------------------------')
- 9501 format(/,1x,A,' hyperpolarizability / au ')
-c Use 9431 for frequency
- 9502 format(1x,'-----------------------------------------------')
- 9503 format(1x,'beta(',a1,',',a1,',',a1,') = ',f13.7,a)
- 9504 format(1x,'Static Hyperpolarizability')
- 9505 format(1x,'Second Harmonic Generation (SHG)')
- 9506 format(1x,'Optical Rectification (OR)')
- 9507 format(1x,'Electro-Optic Pockels Effect (EOPE)')
- 9508 format(1x,'beta(',f1.5,',',f1.5,',',f1.5,')')
       end
