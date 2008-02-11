@@ -1,9 +1,9 @@
       subroutine tce_eom_xdiagon(needx1,needx2,needx3,needx4,
      1  size_x1,size_x2,size_x3,size_x4,
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
-     3  d_r1,d_r2,d_r3,d_r4,omega,residual,k_hbar)
+     3  d_r1,d_r2,d_r3,d_r4,omega,residual,k_hbar,iteration)
 c
-c $Id: tce_eom_xdiagon.F,v 1.5 2008-01-23 18:00:12 kowalski Exp $
+c $Id: tce_eom_xdiagon.F,v 1.6 2008-02-11 16:26:32 jhammond Exp $
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -58,6 +58,8 @@ c
       external hbar_restore
       double precision hbar
 c
+      integer iteration
+c
       nodezero = (ga_nodeid().eq.0)
 c
 c     Allocate
@@ -96,8 +98,62 @@ c
 c declare smaller matrix nxtrials*nxtrials and copy 
 c whatever need to be copied from k_hbar
 c
-       do ivec = nxtrials-nroots_reduced+1,nxtrials !-- ivec column
-        do jvec = 1, nxtrials !--------------- jvec row
+      if(iteration.eq.1) then
+         do ivec = 1, nxtrials
+         do jvec = 1, nxtrials
+            cpu = - util_cpusec()
+            wall = - util_wallsec()
+            dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 0.0d0
+            if (needx1) then
+              if (.not.x1_exist(ivec))
+     1          call errquit('tce_eom_xdiagon: x1 not found',ivec,
+     2          UNKNOWN_ERR)
+              if (.not.xp1_exist(jvec))
+     1          call errquit('tce_eom_xdiagon: xp1 not found',jvec,
+     2          UNKNOWN_ERR)
+              dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) =
+     1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) +
+     2        ddotfile_1(x1(jvec),xp1(ivec),size_x1)
+            endif
+            if (needx2) then
+              if (.not.x2_exist(ivec))
+     1          call errquit('tce_eom_xdiagon: x2 not found',ivec,
+     2          UNKNOWN_ERR)
+              if (.not.xp2_exist(jvec))
+     1          call errquit('tce_eom_xdiagon: xp2 not found',jvec,
+     2          UNKNOWN_ERR)
+              dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) =
+     1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) +
+     2        ddotfile_2(x2(jvec),xp2(ivec),size_x2)
+            endif
+            if (needx3) then
+              if (.not.x3_exist(ivec))
+     1          call errquit('tce_eom_xdiagon: x3 not found',ivec,
+     2          UNKNOWN_ERR)
+              if (.not.xp3_exist(jvec))
+     1          call errquit('tce_eom_xdiagon: xp3 not found',jvec,
+     2          UNKNOWN_ERR)
+              dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) =
+     1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) +
+     2        ddotfile(x3(jvec),xp3(ivec),size_x3)
+            endif
+            if (needx4) then
+              if (.not.x4_exist(ivec))
+     1          call errquit('tce_eom_xdiagon: x4 not found',ivec,
+     2          UNKNOWN_ERR)
+              if (.not.xp4_exist(jvec))
+     1          call errquit('tce_eom_xdiagon: xp4 not found',jvec,
+     2          UNKNOWN_ERR)
+              dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) =
+     1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) +
+     2        ddotfile(x4(jvec),xp4(ivec),size_x4)
+            endif
+         enddo
+         enddo
+      else
+c
+         do ivec = nxtrials-nroots_reduced+1,nxtrials !-- ivec column
+         do jvec = 1, nxtrials !--------------- jvec row
             cpu = - util_cpusec()
             wall = - util_wallsec()
             dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 0.0d0
@@ -145,15 +201,11 @@ c
      1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) + 
      2        ddotfile(x4(jvec),xp4(ivec),size_x4)
             endif
-        enddo ! -------------------------- jvec - row
-       enddo   ! -------------------------- ivec - column
+         enddo ! -------------------------- jvec - row
+         enddo ! -------------------------- ivec - column
 c
-c
-c
-c
-c
-       do ivec = 1, nxtrials-nroots_reduced !---------- ivec column
-       do jvec = nxtrials-nroots_reduced+1,nxtrials  
+         do ivec = 1, nxtrials-nroots_reduced !---------- ivec column
+         do jvec = nxtrials-nroots_reduced+1,nxtrials
             cpu = - util_cpusec()
             wall = - util_wallsec()
             dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) = 0.0d0
@@ -201,8 +253,9 @@ c
      1        dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1) + 
      2        ddotfile(x4(jvec),xp4(ivec),size_x4)
             endif
-        enddo ! -------------------------- jvec - row
-       enddo   ! -------------------------- ivec - column
+         enddo ! -------------------------- jvec - row
+         enddo ! -------------------------- ivec - column
+      endif
 c
 c
 c
@@ -210,8 +263,8 @@ c  copy from l_hbar to l_shbar
 c
         do ivec=1,nxtrials !row
         do jvec=1,nxtrials !column
-         dbl_mb(k_shbar+(jvec-1)*nxtrials+ivec-1)=
-     &   dbl_mb(k_hbar+(jvec-1)*hbard+ivec-1)
+           dbl_mb(k_shbar+(ivec-1)*nxtrials+jvec-1)=
+     &     dbl_mb(k_hbar+(ivec-1)*hbard+jvec-1)
         enddo
         enddo
 c
