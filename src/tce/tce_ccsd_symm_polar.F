@@ -7,7 +7,7 @@
      &  d_tr1ap,d_tr1am,k_tr1a_offset,d_tr2ap,d_tr2am,k_tr2a_offset,
      &  d_tr1bp,d_tr1bm,k_tr1b_offset,d_tr2bp,d_tr2bm,k_tr2b_offset)
 c
-c $Id: tce_ccsd_symm_polar.F,v 1.2 2008-02-12 03:07:43 jhammond Exp $
+c $Id: tce_ccsd_symm_polar.F,v 1.3 2008-02-12 17:19:27 jhammond Exp $
 c 
 c Written by Jeff Hammond, January 2008.
 c
@@ -74,6 +74,9 @@ c#include "tce_diis.fh"
       alpha5=0.0d0
       alpha6=0.0d0
       call tce_e_offset(l_a0_offset,k_a0_offset,size_a0)
+#if defined(DEBUG_PRINT)
+        if(nodezero) write(LuOut,*) 'l_a0_offset = ',l_a0_offset
+#endif
       call tce_filename('a0',filename)
       call createfile(filename,d_a0,size_a0)
 c
@@ -162,7 +165,8 @@ c
       wall=wall+util_wallsec()
       if (nodezero) write(LuOut,9020) cpu, wall
       if (.not.ma_pop_stack(l_a0_offset))
-     1     call errquit("tce_energy: MA problem",24,MA_ERR)
+     1     call errquit("tce_ccsd_symm_polar: MA problem",
+     2                  l_a0_offset,MA_ERR)
       tce_ccsd_symm_polar=alpha0
       return  
 c

@@ -1,7 +1,7 @@
       subroutine tce_create_t1(d_t1,l_t1_offset,k_t1_offset,size_t1,
      &                         irrep,title)
 c
-c $Id: tce_create_t1.F,v 1.1 2008-01-29 18:26:12 jhammond Exp $
+c $Id: tce_create_t1.F,v 1.2 2008-02-12 17:19:27 jhammond Exp $
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -34,6 +34,9 @@ c
       cpu = - util_cpusec()
       call tce_filename(title,filename)
       call tce_t1_offset_new(l_t1_offset,k_t1_offset,size_t1,irrep)
+#if defined(DEBUG_PRINT)
+        if(nodezero) write(LuOut,*) 'l_t1_offset = ',l_t1_offset
+#endif
 c -------
       if(nodezero) then
        write(LuOut,*)'T1-number-of-tasks',int_mb(k_t1_offset)

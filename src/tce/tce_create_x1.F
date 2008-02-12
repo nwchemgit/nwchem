@@ -1,7 +1,7 @@
       subroutine tce_create_x1(d_x1,l_x1_offset,k_x1_offset,size_x1,
      &                       irrep,title)
 c
-c $Id: tce_create_x1.F,v 1.1 2008-01-29 18:26:12 jhammond Exp $
+c $Id: tce_create_x1.F,v 1.2 2008-02-12 17:19:27 jhammond Exp $
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -33,6 +33,9 @@ c
       nodezero=(ga_nodeid().eq.0)
 c
       call tce_x1_offset_new(l_x1_offset,k_x1_offset,size_x1,irrep)
+#if defined(DEBUG_PRINT)
+        if(nodezero) write(LuOut,*) 'l_x1_offset = ',l_x1_offset
+#endif
       call tce_filename(title,filename)
       call createfile(filename,d_x1,size_x1)
       call gatoeaf(d_x1)

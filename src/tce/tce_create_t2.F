@@ -5,7 +5,7 @@
      &                         d_v2,k_v2_offset,size_2e,
      &                         ref,needt1)
 c
-c $Id: tce_create_t2.F,v 1.1 2008-01-29 18:26:12 jhammond Exp $
+c $Id: tce_create_t2.F,v 1.2 2008-02-12 17:19:27 jhammond Exp $
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -40,6 +40,9 @@ c
       cpu = - util_cpusec()
       call tce_filename(title,filename)
       call tce_t2_offset_new(l_t2_offset,k_t2_offset,size_t2,irrep)
+#if defined(DEBUG_PRINT)
+        if(nodezero) write(LuOut,*) 'l_t2_offset = ',l_t2_offset
+#endif
 c ------------
       if(nodezero) then
        write(LuOut,*)'T2-number-of-boxes',int_mb(k_t2_offset)

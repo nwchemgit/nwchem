@@ -6,7 +6,7 @@
      &  d_tr1,k_tr1_offset,d_tr2,k_tr2_offset,
      &  d_yr1,k_yr1_offset,d_yr2,k_yr2_offset)
 c
-c $Id: tce_ccsd_hyperpolar.F,v 1.2 2008-02-12 03:07:43 jhammond Exp $
+c $Id: tce_ccsd_hyperpolar.F,v 1.3 2008-02-12 17:19:27 jhammond Exp $
 c 
 c Written by Jeff Hammond, January 2008.
 c
@@ -75,6 +75,18 @@ c      integer size_b0           ! File size in doubles
       cpu=-util_cpusec()
       wall=-util_wallsec()
       irrep_g=0
+c
+      print*,'d_d1,offset',d_d1,k_d1_offset
+      print*,'d_f1,offset',d_f1,k_f1_offset
+      print*,'d_v2,offset',d_v2,k_v2_offset
+      print*,'d_t1,offset',d_t1,k_t1_offset
+      print*,'d_t2,offset',d_t2,k_t2_offset
+      print*,'d_y1,offset',d_y1,k_y1_offset
+      print*,'d_y2,offset',d_y2,k_y2_offset
+      print*,'d_tr1,offset',d_tr1,k_tr1_offset
+      print*,'d_tr2,offset',d_tr2,k_tr2_offset
+      print*,'d_yr1,offset',d_yr1,k_yr1_offset
+      print*,'d_yr2,offset',d_yr2,k_yr2_offset
 c
       do axisA = 1, 3
         do axisB = 1, 3
@@ -173,7 +185,7 @@ c
      &  d_tr1c,k_tr1c_offset,d_tr2c,k_tr2c_offset,
      &  d_yr1a,k_yr1a_offset,d_yr2a,k_yr2a_offset)
 c
-c $Id: tce_ccsd_hyperpolar.F,v 1.2 2008-02-12 03:07:43 jhammond Exp $
+c $Id: tce_ccsd_hyperpolar.F,v 1.3 2008-02-12 17:19:27 jhammond Exp $
 c 
 c Written by Jeff Hammond, February 2008.
 c
@@ -238,9 +250,12 @@ c
       character*255 filename
       character*20 title
       character*4 irrepname
-c      nodezero=(ga_nodeid().eq.0)
+      nodezero=(ga_nodeid().eq.0)
 c
       call tce_e_offset(l_b0_offset,k_b0_offset,size_b0)
+#if defined(DEBUG_PRINT)
+        if(nodezero) write(LuOut,*) 'l_b0_offset = ',l_b0_offset
+#endif
       call tce_filename('b0',filename)
       call createfile(filename,d_b0,size_b0)
 c
@@ -304,7 +319,8 @@ c
 c
       call deletefile(d_b0)
       if (.not.ma_pop_stack(l_b0_offset))
-     1     call errquit("tce_energy: MA problem",24,MA_ERR)
+     1     call errquit("tce_ccsd_hyperpolar: MA problem",
+     2                  l_b0_offset,MA_ERR)
 c
       return  
       end

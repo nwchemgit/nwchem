@@ -6,7 +6,7 @@
      &  d_tr1,k_tr1_offset,d_tr2,k_tr2_offset,
      &  d_yr1,k_yr1_offset,d_yr2,k_yr2_offset)
 c
-c $Id: tce_ccsd_asym_polar.F,v 1.2 2008-02-12 03:07:43 jhammond Exp $
+c $Id: tce_ccsd_asym_polar.F,v 1.3 2008-02-12 17:19:27 jhammond Exp $
 c 
 c Written by Jeff Hammond, January 2008.
 c
@@ -97,6 +97,9 @@ c      alpha6=0.0d0
       irrep_g=0
 c
       call tce_e_offset(l_a0_offset,k_a0_offset,size_a0)
+#if defined(DEBUG_PRINT)
+        if(nodezero) write(LuOut,*) 'l_a0_offset = ',l_a0_offset
+#endif
       call tce_filename('a0',filename)
       call createfile(filename,d_a0,size_a0)
 c
@@ -129,7 +132,8 @@ c
       wall=wall+util_wallsec()
       if (nodezero) write(LuOut,9020) cpu, wall
       if (.not.ma_pop_stack(l_a0_offset))
-     1     call errquit("tce_energy: MA problem",24,MA_ERR)
+     1     call errquit("tce_ccsd_asym_polar: MA problem",
+     2                  l_a0_offset,MA_ERR)
       tce_ccsd_asym_polar=alpha0
       return  
 c

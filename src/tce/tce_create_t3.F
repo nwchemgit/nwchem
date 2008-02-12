@@ -1,7 +1,7 @@
       subroutine tce_create_t3(d_t3,l_t3_offset,k_t3_offset,size_t3,
      &                         irrep,title)
 c
-c $Id: tce_create_t3.F,v 1.1 2008-01-29 18:26:12 jhammond Exp $
+c $Id: tce_create_t3.F,v 1.2 2008-02-12 17:19:27 jhammond Exp $
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -34,6 +34,9 @@ c
       cpu = - util_cpusec()
       call tce_filename(title,filename)
       call tce_t3_offset_new(l_t3_offset,k_t3_offset,size_t3,irrep)
+#if defined(DEBUG_PRINT)
+        if(nodezero) write(LuOut,*) 'l_t3_offset = ',l_t3_offset
+#endif
       call createfile(filename,d_t3,size_t3)
       call gatoeaf(d_t3)
       cpu = cpu + util_cpusec()

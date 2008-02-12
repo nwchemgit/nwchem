@@ -1,7 +1,7 @@
       subroutine tce_create_y2(d_y2,l_y2_offset,k_y2_offset,size_y2,
      &                       irrep,title)
 c
-c $Id: tce_create_y2.F,v 1.1 2008-01-29 18:26:13 jhammond Exp $
+c $Id: tce_create_y2.F,v 1.2 2008-02-12 17:19:27 jhammond Exp $
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -33,6 +33,9 @@ c
       nodezero=(ga_nodeid().eq.0)
 c
       call tce_y2_offset_new(l_y2_offset,k_y2_offset,size_y2,irrep)
+#if defined(DEBUG_PRINT)
+        if(nodezero) write(LuOut,*) 'l_y2_offset = ',l_y2_offset
+#endif
       call tce_filename(title,filename)
       call createfile(filename,d_y2,size_y2)
       call gatoeaf(d_y2)
