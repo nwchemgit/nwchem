@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.45 2008-02-12 02:27:36 jhammond Exp $
+#$Id: GNUmakefile,v 1.46 2008-02-12 03:07:43 jhammond Exp $
 #
 
 SUBDIRS = include #ccsd ccsd_lambda eomccsd \
@@ -50,6 +50,7 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_x1_offset_new.o tce_x2_offset_new.o tce_x3_offset_new.o tce_x4_offset_new.o \
       tce_y1_offset_new.o tce_y2_offset_new.o tce_y3_offset_new.o tce_y4_offset_new.o \
       tce_ccsd_driver.o tce_ccsdt_driver.o tce_ccsdtq_driver.o \
+      tce_ccsd_perturbative.o \
       tce_ccsd_lambda_driver.o tce_ccsdt_lambda_driver.o tce_ccsdtq_lambda_driver.o \
       tce_ccsd_response_driver.o tce_ccsdt_response_driver.o tce_ccsdtq_response_driver.o \
       tce_ccsd_symm_polar.o tce_ccsdt_symm_polar.o tce_ccsdtq_symm_polar.o \

@@ -6,7 +6,7 @@
      &  d_tr1,k_tr1_offset,d_tr2,k_tr2_offset,
      &  d_yr1,k_yr1_offset,d_yr2,k_yr2_offset)
 c
-c $Id: tce_ccsd_hyperpolar.F,v 1.1 2008-02-12 02:27:37 jhammond Exp $
+c $Id: tce_ccsd_hyperpolar.F,v 1.2 2008-02-12 03:07:43 jhammond Exp $
 c 
 c Written by Jeff Hammond, January 2008.
 c
@@ -93,6 +93,12 @@ c
             if ( ( respaxis(axisA).and.respaxis(axisB) )
      &                            .and.respaxis(axisC) ) then
 c
+              if (debugprint) then
+                write(LuOut,*) "axisA = ",axisA
+                write(LuOut,*) "axisB = ",axisB
+                write(LuOut,*) "axisC = ",axisC
+              endif
+c
               call tce_ccsd_hyperpolar_eval(beta1,beta2,beta3,beta4,
      1             d_d1(axisA),k_d1_offset(axisA),
      2             d_d1(axisB),k_d1_offset(axisB),d_f1,k_f1_offset,
@@ -167,7 +173,7 @@ c
      &  d_tr1c,k_tr1c_offset,d_tr2c,k_tr2c_offset,
      &  d_yr1a,k_yr1a_offset,d_yr2a,k_yr2a_offset)
 c
-c $Id: tce_ccsd_hyperpolar.F,v 1.1 2008-02-12 02:27:37 jhammond Exp $
+c $Id: tce_ccsd_hyperpolar.F,v 1.2 2008-02-12 03:07:43 jhammond Exp $
 c 
 c Written by Jeff Hammond, February 2008.
 c
@@ -249,7 +255,7 @@ c
       irrep_tra=irrep_a
       irrep_trb=irrep_b
       irrep_trc=irrep_c
-c      write(LuOut,*) "beta_1"
+      write(LuOut,*) "beta_1"
       call beta_1(d_b0,d_t1,d_tr1a,d_tr2a,
      1     d_tr1b,d_tr2b,d_tr1c,d_tr2c,
      2     d_v2,d_y1,d_y2,k_b0_offset,k_t1_offset,
@@ -266,7 +272,7 @@ c
       irrep_d=irrep_a
       irrep_tra=irrep_b
       irrep_trb=irrep_c
-c      write(LuOut,*) "beta_2"
+      write(LuOut,*) "beta_2"
       call beta_2(d_a1,d_b0,d_tr1b,d_tr2b, d_tr1c,d_tr2c,d_y1,d_y2,
      1     k_a1_offset,k_b0_offset,k_tr1b_offset,k_tr2b_offset,
      2     k_tr1c_offset,k_tr2c_offset,k_y1_offset,k_y2_offset)
@@ -277,7 +283,7 @@ c
       irrep_y=irrep_a
       irrep_tra=irrep_b
       irrep_trb=irrep_c
-c      write(LuOut,*) "beta_3"
+      write(LuOut,*) "beta_3"
       call beta_3(d_f1,d_b0,d_t1,d_t2,d_tr1b,d_tr2b,d_tr1c,d_tr2c,d_v2,
      1     d_yr1a,d_yr2a,k_f1_offset,k_b0_offset,k_t1_offset,
      2     k_t2_offset,k_tr1b_offset,k_tr2b_offset,k_tr1c_offset,
@@ -289,7 +295,7 @@ c
       irrep_y=irrep_a
       irrep_d=irrep_b
       irrep_tr=irrep_c
-c      write(LuOut,*) "beta_4"
+      write(LuOut,*) "beta_4"
       call beta_4(d_b1,d_b0,d_t1,d_t2,d_tr1c,d_tr2c,d_yr1a,d_yr2a,
      1     k_b1_offset,k_b0_offset,k_t1_offset,k_t2_offset,
      2     k_tr1c_offset,k_tr2c_offset,k_yr1a_offset,k_yr2a_offset)
@@ -297,6 +303,8 @@ c      write(LuOut,*) "beta_4"
       call get_block(d_b0,beta4,1,0)
 c
       call deletefile(d_b0)
+      if (.not.ma_pop_stack(l_b0_offset))
+     1     call errquit("tce_energy: MA problem",24,MA_ERR)
 c
       return  
       end
