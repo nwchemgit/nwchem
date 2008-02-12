@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.16 2008-02-08 22:42:04 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.17 2008-02-12 19:06:41 d3p708 Exp $
 *
 
 
@@ -972,12 +972,12 @@ ccccccccccc
 
       do l=1,nproj
               shiftu = cpsp_projector_get_ptr(
-     >                     int_mb(vnlso(1)+ia-1),nb,l)
+     >                     int_mb(vnl(1)+ia-1),nb,l)
               shiftd = cpsp_projector_get_ptr(
      >                     int_mb(vnlso(1)+ia-1),nb,l)
               l_prj = int_mb(l_projector(1)+(l-1)
      >                                     +(ia-1)*jmmax_max)
-              shiftux=(l-1)*npack1+1
+              shiftux=(l-1)*npack1
               shiftdx=shiftux+npack1*nproj
               sd_function=.true.
               if (mod(l_prj,2).ne.0) then
