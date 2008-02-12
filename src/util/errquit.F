@@ -1,6 +1,6 @@
       subroutine errquit(string, icode, errcode)
       implicit none
-C$Id: errquit.F,v 1.20 2006-02-22 00:39:56 edo Exp $
+C$Id: errquit.F,v 1.21 2008-02-12 17:56:24 marat Exp $
 #include "errquit.fh"
 #include "global.fh"
 #include "util.fh"
@@ -143,5 +143,24 @@ c
 
       call util_flush(LuOut)
       call ga_error(string, icode)
+c
+      end
+
+      subroutine util_warning(string, icode, errcode)
+      implicit none
+C$Id: errquit.F,v 1.21 2008-02-12 17:56:24 marat Exp $
+#include "errquit.fh"
+#include "global.fh"
+#include "util.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+      character*(*) string
+      character*255 man_sec
+      integer icode
+      integer errcode
+
+      if (ga_nodeid() .eq. 0) 
+     >    write(LuOut,*) string
+      call util_flush(LuOut)
 c
       end

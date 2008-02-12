@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.202 2007-12-14 00:16:14 marat Exp $
+# $Id: GNUmakefile,v 1.203 2008-02-12 17:56:24 marat Exp $
 
 include ../config/makefile.h
 
@@ -176,7 +176,7 @@ endif
               util_test.o util_ga_test.o util.o util_patch_test.o \
               util_ndim_test.o util_perf_test.o util_test_lu.o util_test_eig.o \
               util_dra_test.o util_eaf_test.o util_sf_test.o \
-              ga_lkain_2cpl3.o util_io.o util_xyz.o \
+              ga_lkain_2cpl3.o util_io.o util_xyz.o util_ma.o \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
               OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o
