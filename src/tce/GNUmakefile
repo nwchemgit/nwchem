@@ -1,9 +1,9 @@
-#$Id: GNUmakefile,v 1.44 2008-02-11 17:24:39 jhammond Exp $
+#$Id: GNUmakefile,v 1.45 2008-02-12 02:27:36 jhammond Exp $
 #
 
-SUBDIRS = include ccsd ccsd_lambda eomccsd \
+SUBDIRS = include #ccsd ccsd_lambda eomccsd \
           ccsd_t cr-eomccsd_t lrh emb diis2 \
-          response ccsd_yr ccsd_alpha ccsd_beta \
+          response  ccsd_yr ccsd_alpha ccsd_beta #\
           ccd lccd lccsd qcisd cc3 \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
           ccsdt ccsdt_lambda eomccsdt ccsdt_alpha_offdiag \
@@ -49,7 +49,11 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_t1_offset_new.o tce_t2_offset_new.o tce_t3_offset_new.o tce_t4_offset_new.o \
       tce_x1_offset_new.o tce_x2_offset_new.o tce_x3_offset_new.o tce_x4_offset_new.o \
       tce_y1_offset_new.o tce_y2_offset_new.o tce_y3_offset_new.o tce_y4_offset_new.o \
-      tce_ccsd_driver.o tce_ccsd_lambda_driver.o tce_ccsd_response_driver.o tce_ccsd_polar_driver.o \
+      tce_ccsd_driver.o tce_ccsdt_driver.o tce_ccsdtq_driver.o \
+      tce_ccsd_lambda_driver.o tce_ccsdt_lambda_driver.o tce_ccsdtq_lambda_driver.o \
+      tce_ccsd_response_driver.o tce_ccsdt_response_driver.o tce_ccsdtq_response_driver.o \
+      tce_ccsd_symm_polar.o tce_ccsdt_symm_polar.o tce_ccsdtq_symm_polar.o \
+      tce_ccsd_lambda_response_driver.o tce_ccsd_asym_polar.o tce_ccsd_hyperpolar.o \
       tce_ao2e_new.o #tce_mo2e_new.o tce_tile_new.o
       
 
