@@ -6,7 +6,7 @@
      &                        ipol,              ! input
      &                        d_ao2e)            ! output
 c
-c $Id: tce_ao2e_new.F,v 1.1 2008-02-11 17:08:23 jhammond Exp $
+c $Id: tce_ao2e_new.F,v 1.2 2008-02-12 17:17:30 jhammond Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -125,22 +125,22 @@ c
      1                            * dfloat(int_mb(k_range+g2b-1))
         enddo
       enddo
-#if !defined(EXT_INT)
-      if ((dbl_size .gt. 16.0d0*1024.0d0**3).and.(ioalg.eq.0)) then
-        write(LuOut,*) '--------------------------------------------'
-        write(LuOut,*) 'Abort: 2 GB file size limit will be exceeded'
-        write(LuOut,*) 'Use GA/SF scheme or OS large file support'
-        write(LuOut,*) '--------------------------------------------'
-        call errquit('tce_ao2e: abort',0,UNKNOWN_ERR)
-      endif
-      if (dbl_size .gt. 2.0d0*1024.0d0**3) then
-        write(LuOut,*) '---------------------------------------------'
-        write(LuOut,*) 'Abort: 32 bit integer overflow is anticipated'
-        write(LuOut,*) 'Use a machine with a 64 bit operating system'
-        write(LuOut,*) '---------------------------------------------'
-        call errquit('tce_ao2e: abort',0,UNKNOWN_ERR)
-      endif
-#endif
+c#if !defined(EXT_INT)
+c      if ((dbl_size .gt. 16.0d0*1024.0d0**3).and.(ioalg.eq.0)) then
+c        write(LuOut,*) '--------------------------------------------'
+c        write(LuOut,*) 'Abort: 2 GB file size limit will be exceeded'
+c        write(LuOut,*) 'Use GA/SF scheme or OS large file support'
+c        write(LuOut,*) '--------------------------------------------'
+c        call errquit('tce_ao2e: abort',0,UNKNOWN_ERR)
+c      endif
+c      if (dbl_size .gt. 2.0d0*1024.0d0**3) then
+c        write(LuOut,*) '---------------------------------------------'
+c        write(LuOut,*) 'Abort: 32 bit integer overflow is anticipated'
+c        write(LuOut,*) 'Use a machine with a 64 bit operating system'
+c        write(LuOut,*) '---------------------------------------------'
+c        call errquit('tce_ao2e: abort',0,UNKNOWN_ERR)
+c      endif
+c#endif
       sf_size_kl = nbf**2
       if (nodezero.and.util_print('ao2e',print_default)) then
         write(LuOut,*)
