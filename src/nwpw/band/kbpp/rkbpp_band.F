@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.29 2008-02-06 22:50:38 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.30 2008-02-12 19:01:12 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -662,7 +662,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
                a=sjx(qr,l,cosqr(k),sinqr(k))
                f(k)=a*vv*rho(k)
             end do
-            d=simp(nrho,f,drho)*pi4
+            d=simp(nrho,f,drho)
             vnl(igx,igy,igz,ippot,1)=dcmplx(d*calfa,0.0d0)*
      >                 sphharm(l,malfa,gx,gy,gz)       
             vnl(igx,igy,igz,ippot,2)=dcmplx(d*cbeta,0.0d0)*
