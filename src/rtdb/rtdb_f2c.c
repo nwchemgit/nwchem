@@ -1,4 +1,4 @@
-/*$Id: rtdb_f2c.c,v 1.23 2004-09-08 19:26:54 edo Exp $*/
+/*$Id: rtdb_f2c.c,v 1.24 2008-02-14 23:42:44 d3p307 Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -347,7 +347,7 @@ Logical FATR rtdb_ma_get_(const Integer *handle, const char *name, Integer *ma_t
 Logical FATR rtdb_print_(const Integer *handle, const Logical *print_values)
 {
   int hbuf = (int) *handle;
-  int pbuf = (*print_values == FORTRAN_TRUE);
+  int pbuf = (int) *print_values;
 
   if (rtdb_print(hbuf, pbuf))
     return FORTRAN_TRUE;
