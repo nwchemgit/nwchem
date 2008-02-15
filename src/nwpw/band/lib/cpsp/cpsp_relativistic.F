@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.17 2008-02-12 19:06:41 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.18 2008-02-15 18:51:26 d3p708 Exp $
 *
 
 
@@ -801,9 +801,9 @@ c    pjn --- use at your own peril
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine cpsp_v_nonlocal_rel(
      >    nb,ii,ia,nproj,npack1,nbrill,
-     >    nn,xtmp,sum,ne,
-     >    exi,prtmp,zsw1,psi1,psi2,fion,move,
-     >    Gij,Gx,Gy,Gz,G,bz_vol)
+     >    nn,ne,
+     >    exi,prtmp,zsw1,psi1,psi2,
+     >    Gij,bz_vol)
       implicit none
 #include "cpsp_common.fh"
 #include "mafdecls.fh"
@@ -813,10 +813,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       complex*16 exi(*)
       complex*16 psi1(*)
       complex*16 psi2(*) 
-      real*8 sum(*),xtmp(*),bz_vol,Gij(*)
-      real*8 fion(3,nkatmx)
-      logical move
-      real*8 Gx(npack1),Gy(npack1),Gz(npack1),G(npack1,3)
+      real*8 bz_vol,Gij(*)
 cccccccccccccc locals cccccccccccccccccccccccccccccccccccccccc
       complex*16 one,mone,ione,cxr
       real*8 xx
@@ -887,7 +884,7 @@ c             *** current function is s or d ****
          
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
               call Cram_cc_inzdot(nb,ne1,
-     >                      psi1(1),
+     >                      psi1,
      >                      prtmp(shiftxu),
      >                      zsw1(zshft))
               call Cram_cc_inzdotAdd(nb,ne1,
@@ -1014,16 +1011,16 @@ ccccccccccc
               zsw1(1+(l-1))=zsw1(1+(l-1))*Gij(l)*scal
       end do !**l**
 
-            call C3dB_Vector_SumAll((4*nproj),zsw1)
+      call C3dB_Vector_SumAll((4*nproj),zsw1)
 
 *           **** do Kleinman-Bylander Multiplication ****
-            call ZGEMM('N','C',npack1,1,nproj,
+      call ZGEMM('N','C',npack1,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 zsw1,   1,
      >                 one,
      >                 orb2, npack1)
-            call ZGEMM('N','C',npack1,1,nproj,
+      call ZGEMM('N','C',npack1,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)+nproj*npack1), npack1,
      >                 zsw1,   1,
@@ -1052,6 +1049,9 @@ ccccccccccc external
       external cpsp_projector_get_ptr
 cccccccccccccccccccccccccccccccccccccccccccc
 *             **** structure factor ****
+      fx=0.0d0
+      fy=0.0d0
+      fz=0.0d0
       call cstrfac_pack(nb,ii,exi)
       call cstrfac_k(ii,nb,cxr)
       call Cram_c_ZMul(nb,cxr,exi,exi)

@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.62 2008-02-09 20:13:32 d3p708 Exp $
+* $Id: cpsp.F,v 1.63 2008-02-15 18:51:25 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -693,13 +693,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           if (int_mb(psp_type(1)+ia-1).eq.7) then
 
             call cpsp_v_nonlocal_rel(nb,ii,ia,nproj,npack1,nbrill,
-     >      nn,dbl_mb(xtmp(1)),dbl_mb(sum(1)),ne,
+     >      nn,ne,
      >      dcpl_mb(exi(1)),dcpl_mb(prjtmp(1)),
      >      dcpl_mb(zsw1(1)),
-     >      dbl_mb(psi1_shift),dbl_mb(psi2_shift),fion,move,
-     >      dbl_mb(Kijl(1)+(ia-1)*kij_stride),
-     >      dbl_mb(Gx(1)),dbl_mb(Gy(1)),dbl_mb(Gz(1)),
-     >      dbl_mb(G(1)),scal)
+     >      dbl_mb(psi1_shift),dbl_mb(psi2_shift),
+     >      dbl_mb(Kijl(1)+(ia-1)*kij_stride),scal)
             if (move) then
               shftd=nproj*npack1
               shfts=ne(1)*npack1
@@ -723,13 +721,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                     psi_shift = psi_shift + nshift
 *                   **** define Gx,Gy and Gz in packed space ****
 *       **** define Gx,Gy and Gz in packed space ****
-        call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-        call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-        call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-        call Cram_r_pack(nb,dbl_mb(Gx(1)))
-        call Cram_r_pack(nb,dbl_mb(Gy(1)))
-        call Cram_r_pack(nb,dbl_mb(Gz(1)))
-
+                    call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+                    call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+                    call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+                    call Cram_r_pack(nb,dbl_mb(Gx(1)))
+                    call Cram_r_pack(nb,dbl_mb(Gy(1)))
+                    call Cram_r_pack(nb,dbl_mb(Gz(1)))
                     call Cram_rr_idot(nb,dbl_mb(Gx(1)),dbl_mb(xtmp(1)),
      >                                dbl_mb(sum(1)+3*(n-1)))
                     call Cram_rr_idot(nb,dbl_mb(Gy(1)),dbl_mb(xtmp(1)),
@@ -868,12 +865,12 @@ c                    end do
 
 *                   **** define Gx,Gy and Gz in packed space ****
 *       **** define Gx,Gy and Gz in packed space ****
-        call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-        call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-        call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-        call Cram_r_pack(nb,dbl_mb(Gx(1)))
-        call Cram_r_pack(nb,dbl_mb(Gy(1)))
-        call Cram_r_pack(nb,dbl_mb(Gz(1)))
+                    call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+                    call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+                    call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+                    call Cram_r_pack(nb,dbl_mb(Gx(1)))
+                    call Cram_r_pack(nb,dbl_mb(Gy(1)))
+                    call Cram_r_pack(nb,dbl_mb(Gz(1)))
 
                     call Cram_rr_idot(nb,dbl_mb(Gx(1)),dbl_mb(xtmp(1)),
      >                                dbl_mb(sum(1)+3*(n-1)))
