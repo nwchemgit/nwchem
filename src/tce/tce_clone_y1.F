@@ -1,6 +1,6 @@
       subroutine tce_clone_y1(d_y1,size_y1,irrep,title)
 c
-c $Id: tce_clone_y1.F,v 1.1 2008-01-29 18:26:11 jhammond Exp $
+c $Id: tce_clone_y1.F,v 1.2 2008-02-16 02:42:54 jhammond Exp $
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -36,10 +36,12 @@ c      call tce_y1_offset(l_y1_offset,k_y1_offset,size_y1,irrep)
       call createfile(filename,d_y1,size_y1)
       call gatoeaf(d_y1)
       if (nodezero.and.util_print(title,print_default)) then
-        write(LuOut,*)
+c        write(LuOut,*)
         write(LuOut,9000) title,size_y1
         write(LuOut,9010) title,filename(1:120)
-c       write(LuOut,9090) title,d_y1
+#if defined(DEBUG_PRINT)
+        write(LuOut,9090) title,d_y1
+#endif
 c       write(LuOut,9020) cpu
         call util_flush(LuOut)
       endif

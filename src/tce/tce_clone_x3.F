@@ -1,6 +1,6 @@
       subroutine tce_clone_x3(d_x3,size_x3,irrep,title)
 c
-c $Id: tce_clone_x3.F,v 1.1 2008-01-29 18:26:11 jhammond Exp $
+c $Id: tce_clone_x3.F,v 1.2 2008-02-16 02:42:53 jhammond Exp $
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -36,10 +36,12 @@ c      call tce_x3_offset(l_x3_offset,k_x3_offset,size_x3,irrep)
       call createfile(filename,d_x3,size_x3)
       call gatoeaf(d_x3)
       if (nodezero.and.util_print(title,print_default)) then
-        write(LuOut,*)
+c        write(LuOut,*)
         write(LuOut,9000) title,size_x3
         write(LuOut,9010) title,filename(1:120)
-c       write(LuOut,9090) title,d_x3
+#if defined(DEBUG_PRINT)
+        write(LuOut,9090) title,d_x3
+#endif
 c       write(LuOut,9020) cpu
         call util_flush(LuOut)
       endif

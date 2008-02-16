@@ -3,9 +3,9 @@
      &                         d_t1,k_t1_offset,size_t1,
      &                         d_f1,k_f1_offset,size_1e,
      &                         d_v2,k_v2_offset,size_2e,
-     &                         ref,needt1)
+     &                         ref,needt1,ioalg,model)
 c
-c $Id: tce_create_t2.F,v 1.2 2008-02-12 17:19:27 jhammond Exp $
+c $Id: tce_create_t2.F,v 1.3 2008-02-16 02:42:54 jhammond Exp $
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -20,12 +20,38 @@ c#include "rtdb.fh"
 #include "msgids.fh"
 #include "stdio.fh"
 #include "errquit.fh"
-#include "tce.fh"
-#include "tce_main.fh"
+c#include "tce.fh"
+c#include "tce_main.fh"
 c#include "tce_prop.fh"
-#include "tce_ints.fh"
-#include "tce_amps.fh"
+c#include "tce_ints.fh"
+c#include "tce_amps.fh"
 c#include "tce_diis.fh"
+      logical needt1
+      integer ioalg
+      integer d_t1             ! SF handle for t1 amplitudes
+      integer l_t1_offset      ! Offset for t1 file
+      integer k_t1_offset      ! Offset for t1 file
+      integer size_t1          ! File size in doubles
+      integer d_t2             ! SF handle for t2 amplitudes
+      integer l_t2_offset      ! Offset for t2 file
+      integer k_t2_offset      ! Offset for t2 file
+      integer size_t2          ! File size in doubles
+      integer d_t3             ! SF handle for t3 amplitudes
+      integer l_t3_offset      ! Offset for t3 file
+      integer k_t3_offset      ! Offset for t3 file
+      integer size_t3          ! File size in doubles
+      integer d_t4             ! SF handle for t4 amplitudes
+      integer l_t4_offset      ! Offset for t4 file
+      integer k_t4_offset      ! Offset for t4 file
+      integer size_t4          ! File size in doubles
+      integer d_f1             ! SF handle for MO 1e integrals
+      integer l_f1_offset      ! Offset for 1e integral file
+      integer k_f1_offset      ! Offset for 1e integral file
+      integer size_1e          ! File size in doubles
+      integer d_v2             ! SF handle for MO 2e integrals
+      integer l_v2_offset      ! Offset for 2e integral file
+      integer k_v2_offset      ! Offset for 2e integral file
+      integer size_2e          ! File size in doubles
       logical nodezero         ! True if node 0
       double precision cpu     ! CPU sec counter
       double precision wall    ! WALL sec counter
@@ -33,9 +59,11 @@ c#include "tce_diis.fh"
       double precision corr    ! Correlation energy
       integer irrep
       character*8 title
+      character*10 model
       character*255 filename
 c
       nodezero=(ga_nodeid().eq.0)
+      if (nodezero) write(LuOut,*) '============================='
 c
       cpu = - util_cpusec()
       call tce_filename(title,filename)
@@ -44,10 +72,10 @@ c
         if(nodezero) write(LuOut,*) 'l_t2_offset = ',l_t2_offset
 #endif
 c ------------
-      if(nodezero) then
-       write(LuOut,*)'T2-number-of-boxes',int_mb(k_t2_offset)
-       call util_flush(LuOut)
-      end if
+c      if(nodezero) then
+c       write(LuOut,*)'T2-number-of-boxes',int_mb(k_t2_offset)
+c       call util_flush(LuOut)
+c      end if
 c -------------
       call createfile(filename,d_t2,size_t2)
 c     if(nodezero) then
@@ -62,7 +90,8 @@ c       call util_flush(LuOut)
 c     end if
 c starts for t1 amplitudes t1(in the second order of MBPT)
 c (only if ga option is used)
-      if(needt1.and.(model.eq.'ccsd')) then
+ccccc      if(needt1.and.(model.eq.'ccsd')) then
+      if(needt1) then ! fix problem with CCSDT?
         if(ioalg.eq.2) then
           call t1mp2(d_f1,d_t1,d_t2,d_v2,k_f1_offset,k_t1_offset,
      &    k_t2_offset,k_v2_offset)
@@ -81,10 +110,12 @@ c -----
       endif
       cpu = cpu + util_cpusec()
       if (nodezero.and.util_print(title,print_default)) then
-        write(LuOut,*)
+c        write(LuOut,*)
         write(LuOut,9000) title,size_t2
         write(LuOut,9010) title,filename(1:120)
-c       write(LuOut,9090) title,d_t2
+#if defined(DEBUG_PRINT)
+        write(LuOut,9090) title,d_t2
+#endif
 c       write(LuOut,9020) cpu
         call util_flush(LuOut)
       endif

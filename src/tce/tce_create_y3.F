@@ -1,7 +1,7 @@
       subroutine tce_create_y3(d_y3,l_y3_offset,k_y3_offset,size_y3,
      &                       irrep,title)
 c
-c $Id: tce_create_y3.F,v 1.2 2008-02-12 17:19:27 jhammond Exp $
+c $Id: tce_create_y3.F,v 1.3 2008-02-16 02:42:55 jhammond Exp $
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -17,11 +17,27 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 c#include "tce.fh"
-#include "tce_main.fh"
+c#include "tce_main.fh"
 c#include "tce_prop.fh"
 c#include "tce_ints.fh"
-#include "tce_amps.fh"
+c#include "tce_amps.fh"
 c#include "tce_diis.fh"
+      integer d_y1             ! Left 1 file
+      integer d_y2             ! Left 2 file
+      integer d_y3             ! Left 3 file
+      integer d_y4             ! Left 4 file
+      integer l_y1_offset      ! Offset for  1 file
+      integer k_y1_offset      ! Offset for  1 file
+      integer size_y1          ! File size in doubles
+      integer l_y2_offset      ! Offset for  2 file
+      integer k_y2_offset      ! Offset for  2 file
+      integer size_y2          ! File size in doubles
+      integer l_y3_offset      ! Offset for  3 file
+      integer k_y3_offset      ! Offset for  3 file
+      integer size_y3          ! File size in doubles
+      integer l_y4_offset      ! Offset for  4 file
+      integer k_y4_offset      ! Offset for  4 file
+      integer size_y4          ! File size in doubles
       integer rtdb
       logical nodezero         ! True if node 0
       double precision cpu     ! CPU sec counter
@@ -31,6 +47,7 @@ c#include "tce_diis.fh"
       character*255 filename
 c
       nodezero=(ga_nodeid().eq.0)
+      if (nodezero) write(LuOut,*) '============================='
 c
       call tce_y3_offset_new(l_y3_offset,k_y3_offset,size_y3,irrep)
 #if defined(DEBUG_PRINT)
@@ -40,10 +57,12 @@ c
       call createfile(filename,d_y3,size_y3)
       call gatoeaf(d_y3)
       if (nodezero.and.util_print(title,print_default)) then
-        write(LuOut,*)
+c        write(LuOut,*)
         write(LuOut,9000) title,size_y3
         write(LuOut,9010) title,filename(1:120)
-c       write(LuOut,9090) title,d_y3
+#if defined(DEBUG_PRINT)
+        write(LuOut,9090) title,d_y3
+#endif
 c       write(LuOut,9020) cpu
         call util_flush(LuOut)
       endif

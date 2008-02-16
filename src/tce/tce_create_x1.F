@@ -1,7 +1,7 @@
       subroutine tce_create_x1(d_x1,l_x1_offset,k_x1_offset,size_x1,
      &                       irrep,title)
 c
-c $Id: tce_create_x1.F,v 1.2 2008-02-12 17:19:27 jhammond Exp $
+c $Id: tce_create_x1.F,v 1.3 2008-02-16 02:42:54 jhammond Exp $
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -17,11 +17,27 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 c#include "tce.fh"
-#include "tce_main.fh"
+c#include "tce_main.fh"
 c#include "tce_prop.fh"
 c#include "tce_ints.fh"
-#include "tce_amps.fh"
+c#include "tce_amps.fh"
 c#include "tce_diis.fh"
+      integer d_x1             ! Right 1 file
+      integer d_x2             ! Right 2 file
+      integer d_x3             ! Right 3 file
+      integer d_x4             ! Right 4 file
+      integer l_x1_offset      ! Offset for  1 file
+      integer k_x1_offset      ! Offset for  1 file
+      integer size_x1          ! File size in doubles
+      integer l_x2_offset      ! Offset for  2 file
+      integer k_x2_offset      ! Offset for  2 file
+      integer size_x2          ! File size in doubles
+      integer l_x3_offset      ! Offset for  3 file
+      integer k_x3_offset      ! Offset for  3 file
+      integer size_x3          ! File size in doubles
+      integer l_x4_offset      ! Offset for  4 file
+      integer k_x4_offset      ! Offset for  4 file
+      integer size_x4          ! File size in doubles
       integer rtdb
       logical nodezero         ! True if node 0
       double precision cpu     ! CPU sec counter
@@ -31,6 +47,7 @@ c#include "tce_diis.fh"
       character*255 filename
 c
       nodezero=(ga_nodeid().eq.0)
+      if (nodezero) write(LuOut,*) '============================='
 c
       call tce_x1_offset_new(l_x1_offset,k_x1_offset,size_x1,irrep)
 #if defined(DEBUG_PRINT)
@@ -40,10 +57,12 @@ c
       call createfile(filename,d_x1,size_x1)
       call gatoeaf(d_x1)
       if (nodezero.and.util_print(title,print_default)) then
-        write(LuOut,*)
+c        write(LuOut,*)
         write(LuOut,9000) title,size_x1
         write(LuOut,9010) title,filename(1:120)
-c       write(LuOut,9090) title,d_x1
+#if defined(DEBUG_PRINT)
+        write(LuOut,9090) title,d_x1
+#endif
 c       write(LuOut,9020) cpu
         call util_flush(LuOut)
       endif
