@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.23 2008-01-23 18:07:24 kowalski Exp $
+c $Id: tce_input.F,v 1.24 2008-02-16 04:54:20 jhammond Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -245,7 +245,7 @@ c
 c     MULTIPOLE LMAX (multipole moments highest angular momentum)
 c
       multipole=0
-      if (.not.rtdb_put(rtdb,'tce:multipole',mt_log,1,multipole))
+      if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
