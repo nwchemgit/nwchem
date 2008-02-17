@@ -1,9 +1,12 @@
+c
+c    Main spin-orbit DFT driver
+c
       logical function dft_scf_so
      &                 (rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                  iter, g_dens, g_dens_at, g_movecs, g_vxc, 
      &                  g_fock, g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.47 2008-01-07 21:21:59 niri Exp $
+c     $Id: dft_scf_so.F,v 1.48 2008-02-17 06:39:14 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -48,7 +51,6 @@ c     so
       double precision rho_n, toll_s
 c     
 czora...zora
-      character*255 atomic_vecs_in
       double precision ener_scal, ener_kin
       double precision numelecs
       integer ncanorg
