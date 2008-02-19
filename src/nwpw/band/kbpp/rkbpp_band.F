@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.30 2008-02-12 19:01:12 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.31 2008-02-19 01:41:16 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -590,10 +590,10 @@ cccccccccccccccccccccccccccc
       real*8 drho,gvec(ngx,ngy,ngz,3),kvec(3)
 cccccccc locals
       integer taskid,nproc,tcount,k
-      integer igx,igy,igz,nw
-      integer malfa,mbeta,kappa,l,ippot,key
+      integer igx,igy,igz,nw,lp
+      integer malfa,mbeta,kappa,ippot,key
       real*8 pi4,q,gx,gy,gz,a,d,vv,qr,pi
-      real*8 calfa,cbeta,scof0
+      real*8 calfa,cbeta,dkappa
 cccccc external
       real*8 simp,sjx
       complex*16 sphHarm
@@ -603,10 +603,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccc
       call Parallel_taskid(taskid)
       call Parallel_np(nproc)
-      pi=4.0d0*datan(1.0d0)
-      pi4=4.0d0*pi
+      pi4=16.0d0*datan(1.0d0)
       zzero=dcmplx(0.0d0,0.0d0)
-      scof0=dsqrt(pi4)
       call dcopy(nprj*ngx*ngy*ngz*4,0.0d0,0,vnl,1)
       tcount=-1
       do 220 igz=1,ngz
@@ -621,12 +619,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
          if (dabs(q).lt.1.e-9) then 
            if (locl.ne.0) then
              do k=1,nrho
-               f(k)=rho(k)*wp(k,1)*vp(k,0)
+                f(k)=rho(k)*wp(k,1)*vp(k,0)
              end do
-             d=simp(nrho,f,drho)*pi4
-             vnl(igx,igy,igz,1,1)=DCMPLX(d,0.0D0)*
-     >          SPHHARM(0,0,GX,GY,GZ)
-             vnl(igx,igy,igz,1,2)=vnl(igx,igy,igz,1,1)
+             d=simp(nrho,f,drho)*dsqrt(pi4)
+             vnl(igx,igy,igz,1,1)=dcmplx(d,0.0d0)
+             vnl(igx,igy,igz,1,2)=dcmplx(d,0.0d0)
            end if    
            goto 200
          end if
@@ -638,35 +635,41 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
             sinqr(k)=dsin(q*rho(k))
          end do
          do 100 ippot=1,nprj
-            l=l_prj(ippot)
+            lp=l_prj(ippot)
+            if (lp.eq.locl) then
+              vnl(igx,igy,igz,ippot,1)=dcmplx(0.0d0,0.0d0)
+              vnl(igx,igy,igz,ippot,2)=dcmplx(0.0d0,0.0d0)
+              goto 100
+            end if
             kappa=k_prj(ippot)
             malfa=malf_prj(ippot)
             mbeta=mbet_prj(ippot)
             calfa=calf_prj(ippot)
             cbeta=cbet_prj(ippot)
-            if (l.eq.locl) then
-              vnl(igx,igy,igz,ippot,1)=dcmplx(0.0d0,0.0d0)
-              vnl(igx,igy,igz,ippot,2)=dcmplx(0.0d0,0.0d0)
-              goto 100
-            end if
             if (kappa.gt.0) then
-               nw= 2*l
+               nw= 2*lp
             else
-               nw= 2*l+1
+               nw= 2*lp+1
             end if
             f(1)=0.0d0
+            if (lp.eq.0) then
+               vv=vp(1,0)
+               vv=vv*wp(1,1)
+               f(1)=vv*sinqr(1)/q
+            end if
+            dkappa=dble(kappa)
             do k=2,nrho
-               vv=vp(k,l)+dble(kappa)*vpso(k,l)
+               vv=vp(k,lp)+dkappa*vpso(k,lp)
     	       vv=vv*wp(k,nw)
                qr=q*rho(k)
-               a=sjx(qr,l,cosqr(k),sinqr(k))
+               a=sjx(qr,lp,cosqr(k),sinqr(k))
                f(k)=a*vv*rho(k)
             end do
-            d=simp(nrho,f,drho)
+            d=simp(nrho,f,drho)*pi4
             vnl(igx,igy,igz,ippot,1)=dcmplx(d*calfa,0.0d0)*
-     >                 sphharm(l,malfa,gx,gy,gz)       
+     >                 sphharm(lp,malfa,gx,gy,gz)       
             vnl(igx,igy,igz,ippot,2)=dcmplx(d*cbeta,0.0d0)*
-     >                 sphharm(l,mbeta,gx,gy,gz)       
+     >                 sphharm(lp,mbeta,gx,gy,gz)
 100   continue
 200   continue 	
 210   continue
@@ -692,8 +695,8 @@ cccccccccc local variables cccccccccccc
       real*8 tmp,ltest,tnp3,xinv,rho,xfact,xp,c0,c1,c2,c3,c4,c5,c6
       real*8 j0,j1,a1,a2
 cccccccccccccccccccccccccccccccccccc   
-      if (x.lt.0.1D0) then
-        if (x.lt.1.0D-12) then
+      if (x.lt.0.1d0) then
+        if (x.lt.1.0d-12) then
           sjx=0.0d0
           if (l.eq.0) sjx=1.0d0
           return
@@ -868,9 +871,9 @@ ccccccccccccccccccccccccc
       end do
 cccccccccc final lmax state
 cccccccccc kappa= lmax, j=lmax-1/2
-      td=1.0d0/dble(l+l+1)
-      kappa=l
-      j2=l+l-1
+      td=1.0d0/dble(lmax+lmax+1)
+      kappa=lmax
+      j2=lmax+lmax-1
       nz=j2+1
       dj=dble(j2)*0.5d0
       dl=dble(lmax)  
@@ -878,7 +881,7 @@ cccccccccc kappa= lmax, j=lmax-1/2
         djz=dble(iz-1)-dj
         cnt=cnt+1   
         np(cnt)=1
-        lp(cnt)=l
+        lp(cnt)=lmax
         kp(cnt)=kappa
         ma(cnt)= int(nint(djz-0.5d0))
         mb(cnt)= int(nint(djz+0.5d0))
