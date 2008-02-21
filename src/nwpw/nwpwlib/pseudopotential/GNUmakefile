@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.14 2008-01-29 19:55:56 d3p708 Exp $
+# $Id: GNUmakefile,v 1.15 2008-02-21 22:09:56 d3p708 Exp $
 #
       SUBDIRS = paw_atom
 
@@ -15,6 +15,7 @@
                 schrodin.o \
                 pauli.o \
                 dirac.o \
+		zora.o \
                 dft.o \
                 hartree.o \
                 dirac_exchange.o \
@@ -26,7 +27,7 @@
                 troullier.o xpansion.o gaussj.o \
                 vanderbilt.o xpansion2.o \
                 psp1d.o generate_rho_semicore.o \
-		debug.o rhamann.o rpsp.o        
+		debug.o rhamann.o rtroullier.o rpsp.o        
 
       LIBRARY = libnwpwlib.a
 
