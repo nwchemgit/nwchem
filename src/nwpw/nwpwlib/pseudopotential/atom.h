@@ -10,7 +10,7 @@
 #define	Schrodinger	-8001
 #define Pauli		-8002
 #define Dirac		-8003
-
+#define ZORA            -8004
 /* atom.c */
 extern void init_Atom(char *filename);
 extern void Thomas_Fermi(double Z, double Vtmp[]);

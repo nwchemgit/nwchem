@@ -1,6 +1,6 @@
 /* psp.c -
-   author - Eric Bylaska
-   $Id: rpsp.c,v 1.9 2008-01-29 23:09:15 d3p708 Exp $
+   author - Patrick Nichols
+   $Id: rpsp.c,v 1.10 2008-02-21 20:01:53 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -13,6 +13,7 @@
 
 #include	"dft.h"
 #include	"atom.h"
+#include        "rtroullier.h"
 #include	"rhamann.h"
 #include	"troullier.h"
 #include        "vanderbilt.h"
@@ -75,8 +76,28 @@ init_RelPsp (char *filename)
   char *w, *tc;
   FILE *fp;
 
-  /* find the comment */
-  strcpy (comment, "Hamann pseudopotential");
+
+    /* find the psp type */
+    fp = fopen(filename,"r+");
+    w = get_word(fp);
+    while ((w!=NIL) && (strcmp("<pseudopotential>",w)!=0))
+        w = get_word(fp);
+    if (w!=NIL)
+    {
+        w = get_word(fp);
+        if (strcmp("hamann",w)==0)            Solver_Type = Hamann;
+        if (strcmp("troullier-martins",w)==0) Solver_Type = Troullier;
+    }else{
+        Solver_Type = Hamann;
+    }
+    fclose(fp);
+
+
+
+    /* find the comment */  
+    if (Solver_Type == Hamann)    strcpy(comment,"Hamann pseudopotential");
+    if (Solver_Type == Troullier) strcpy(comment,"Troullier-Martins pseudopotential");
+
   /* set lmax  */
   lmax = lmax_Atom () + 1;
 
@@ -108,7 +129,11 @@ init_RelPsp (char *filename)
 
 
   /* get the psp info */
-  Suggested_Param_RelHamann (&Nvalence, n, l, spin, eigenvalue, fill, rcut);
+  if (Solver_Type==Troullier) {
+	  Suggested_Param_RelTroullier(&Nvalence, n, l, spin, eigenvalue, fill, rcut);
+  }else{
+	  Suggested_Param_RelHamann (&Nvalence, n, l, spin, eigenvalue, fill, rcut);
+  }
   /* set the number psp projectors */
   fp = fopen (filename, "r+");
   w = get_word (fp);
@@ -253,11 +278,19 @@ solve_RelPsp ()
   Ngrid = N_LogGrid ();
   rgrid = r_LogGrid ();
 
-  solve_RelHamann (Nvalence, n, l, spin, eigenvalue, fill, rcut,
+  if (Solver_Type==Troullier) {
+  solve_RelTroullier(Nvalence, n, l, spin, eigenvalue, fill, rcut,
 		   r_psi, r_psi_prime, rho, rho_semicore, V_psp,
 		   &Total_E,
 		   &E_Hartree, &P_Hartree,
 		   &E_exchange, &P_exchange, &E_correlation, &P_correlation);
+  }else{
+  solve_RelHamann(Nvalence, n, l, spin, eigenvalue, fill, rcut,
+		   r_psi, r_psi_prime, rho, rho_semicore, V_psp,
+		   &Total_E,
+		   &E_Hartree, &P_Hartree,
+		   &E_exchange, &P_exchange, &E_correlation, &P_correlation);
+  }
    /******************************************************/
   /* find the outermost peak of the pseudowavefunctions */
    /******************************************************/
@@ -288,7 +321,11 @@ char *
 solver_Name_RelPsp ()
 {
   char *s;
-  s = "Hamann";
+  if (Solver_Type==Troullier) {
+	s="TroullierMartins";
+  }else{
+        s = "Hamann";
+  }
   return s;
 }
 
@@ -370,8 +407,9 @@ void
 set_Solver_RelPsp (solver)
      int solver;
 {
-  fprintf (stdout," RelPsp:: Only Hamann Solver is available\n");
-  fprintf (stdout, "RelPsp::Cannot set the solver yet!\n");
+  Solver_Type=solver; 
+  fprintf (stdout," RelPsp:: Only Hamann or TM Solver is available\n");
+  fprintf (stdout, "RelPsp::Cannot really set the solver yet!\n");
 }
 
 

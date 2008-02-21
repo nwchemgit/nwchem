@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska and Patrick Nichols
-   $Id: atom.c,v 1.23 2008-01-31 00:34:07 d3p708 Exp $
+   $Id: atom.c,v 1.24 2008-02-21 20:01:52 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -14,6 +14,7 @@
 #include	"schrodin.h"
 #include	"pauli.h"
 #include        "dirac.h"
+#include        "zora.h"
 #include	"dft.h"
 #include	"atom.h"
 
@@ -80,6 +81,8 @@ init_Atom (char *filename)
 	Solver_Type = Pauli;
       if (strcmp ("dirac", w) == 0)
 	Solver_Type = Dirac;
+      if (strcmp ("zora", w) == 0)
+	Solver_Type = ZORA;
     }
   fclose (fp);
   /* open data file */
@@ -107,7 +110,7 @@ init_Atom (char *filename)
   fscanf (fp, "%le", &amass);
   fscanf (fp, "%d %d", &Ncore, &Nvalence);
 
-  if (Solver_Type != Dirac)
+  if (Solver_Type != Dirac && Solver_Type!=ZORA)
     {
       Ncv = Ncore + Nvalence;
 
@@ -350,6 +353,11 @@ solve_Atom ()
 	      R_Dirac (n[i], l[i], s2[i], Zion, Vall,
 		       &turning_point[i], &Etmp, r_psi[i], r_psi_prime[i]);
 	    }
+	  else if (Solver_Type == ZORA)
+	    {
+	      R_ZORA (n[i], l[i], s2[i], Zion, Vall,
+		       &turning_point[i], &Etmp, r_psi[i], r_psi_prime[i]);
+	    }
 	 /**********************************************************/
 
 	  if (fabs (eigenvalue[i] - Etmp) > 1.e-15)
@@ -536,6 +544,22 @@ solve_Scattering_State_Atom (int nt, int lt, double et, double rmax)
 		       turning_point[Ncv + 1], et, r_psi[Ncv + 1],
 		       r_psi_prime[Ncv + 1]);
     }
+  else if (Solver_Type == ZORA)
+    {
+      s2[Ncv] = 1;
+      s2[Ncv + 1] = -1;
+      n[Ncv + 1] = nt;
+      l[Ncv + 1] = lt;
+      eigenvalue[Ncv + 1] = et;
+      fill[Ncv + 1] = 0.0;
+      turning_point[Ncv + 1] = rint (log (rmax / r0) / al);
+      peak[Ncv + 1] = rmax;
+      R_ZORA_Fixed_E (nt, lt, 1, Zion, Vall,
+		       turning_point[Ncv], et, r_psi[Ncv], r_psi_prime[Ncv]);
+      R_ZORA_Fixed_E (nt, lt, -1, Zion, Vall,
+		       turning_point[Ncv + 1], et, r_psi[Ncv + 1],
+		       r_psi_prime[Ncv + 1]);
+    }
 
 }				/* solve_Scattering_State */
 
@@ -556,6 +580,8 @@ solver_Name_Atom ()
     s = "Pauli";
   else if (Solver_Type == Dirac)
     s = "Dirac";
+  else if (Solver_Type == ZORA)
+    s = "ZORA";
   else
     s = "unknown?";
 
@@ -598,7 +624,7 @@ print_Atom (FILE * fp)
   fprintf (fp, "Ngrid    : %d\n", N_LogGrid ());
   fprintf (fp,
 	   "------------------------------------------------------------\n");
-  if (Solver_Type == Dirac)
+  if (Solver_Type == Dirac || Solver_Type==ZORA)
     {
       fprintf (fp, "n\tl\tspin\tpopulation\tEigenvalue\tOuter Peak\n");
       for (i = 0; i < Ncv; ++i)
@@ -832,7 +858,7 @@ spin_Name (int i)
 int
 isRelativistic_Atom ()
 {
-  if (Solver_Type == Dirac)
+  if (Solver_Type == Dirac || Solver_Type==ZORA)
     return 1;
   return 0;
 }
