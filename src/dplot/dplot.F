@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.30 2007-11-08 15:20:19 edo Exp $
+* $Id: dplot.F,v 1.31 2008-02-21 02:27:36 niri Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -115,14 +115,20 @@ c
 *
       if (inp_compare(.false.,File_Vec,' ')) then
         tag = 'scf:input  vectors'
-        write(0,*) ' trying scf '
+        if (iproc.eq.0) then
+         write(luout,*) ' trying scf '
+        end if
         if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) then
-        write(0,*) ' trying dft '
+        if (iproc.eq.0) then
+           write(luout,*) ' trying dft '
+        end if
            tag = 'dft:input  vectors'
            if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) 
      .          call util_file_name('movecs',.false.,.false.,File_Vec)
 !     &        File_Vec  = 'movecs'
-           write(0,*) ' File vec is ',File_Vec
+           if (iproc.eq.0) then
+             write(luout,*) ' File vec is ',File_Vec
+           end if
         endif
       endif
       Lth_Vec = Inp_StrLen(File_Vec)

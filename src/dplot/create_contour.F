@@ -4,7 +4,7 @@
      .     no_of_spacings,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.32 2005-09-29 22:48:13 edo Exp $
+* $Id: create_contour.F,v 1.33 2008-02-21 02:27:36 niri Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -75,8 +75,6 @@
 *
       call dfill(ngrid, 0.0d0, values, 1)
       call int_init(rtdb,1,AO_Bas_Han)
-
-
 *
 *---- Evaluate distances between each center and the grid points (use
 *     QDist from the NWDFT module)
@@ -148,7 +146,7 @@ c
      &   call errquit('grid_quadv0a: cannot allocate bas_cset_info',0,0)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natom)
-
+c
       LResult = MA_Push_Get(MT_int,2*nAtom,'cet',l_cetofbr,
      .     k_cetobfr)
       Call ErrMem(LResult,'C_C: Failed to allocate cetof',0)
@@ -160,7 +158,7 @@ c
      &   call errquit('cre_cont:push_get failed', 13,0)
       call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      &     int_mb(k_cetobfr), natom, nshells_ao)
-
+c
       If (What.eq.'DENSITY') Then
          if(.not.MA_Push_Get(MT_dbl,natom*natom,'cet',l_rdat,
      .        k_rdat)) call errquit('cc: cant alloc rdat',0,0)
@@ -268,7 +266,7 @@ c
      &                  Values(iOffg),0,
      &              dbl_mb(irchi_atom), 0,
      &              dbl_mb(k_rdat), int_mb(k_cetobfr),1d0,
-     &               0, .false. )
+     &               0, 0, .false. )
 
 
 *------- Deallocate Scratch memory needed by xc_rhogen
