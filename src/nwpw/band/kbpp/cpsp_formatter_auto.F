@@ -102,8 +102,9 @@ c      call flush(6)
       end if         
       if (psp_type.eq.7) then
          value = value.and.
-     >     rkbpp_band(.false.,version,psp_filename,formatted_filename,
-     >           ngrid,unita,nbrillioun,dbl_mb(kv(1)))
+     >     rkbpp_band(.false.,
+     >           version,psp_filename,formatted_filename,
+     >           ngrid,unita,locp,lmax,nbrillioun,dbl_mb(kv(1)))
          call set_two_component_pseudopotential()
          goto 50
       end if

@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.31 2008-02-19 01:41:16 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.32 2008-02-22 23:10:35 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -9,7 +9,7 @@
 *     **************************************
       logical function rkbpp_band(oprint_in,version,
      >                  psp_filename,formatted_filename,
-     >                  ngrid,unita,nbrillioun,
+     >                  ngrid,unita,locp_in,lmax_in,nbrillioun,
      >                  kvectors)
       implicit none
 #include "errquit.fh"
@@ -21,7 +21,7 @@
       logical          oprint_in
       integer          version
       character*25     psp_filename,formatted_filename
-      integer          ngrid(3)
+      integer          ngrid(3),lmax_in,locp_in
       double precision unita(3,3)
       integer nbrillioun
       real*8  kvectors(3,nbrillioun)
@@ -109,14 +109,19 @@ cccccccccccccccccccccccccccccccccccccc
       call BRDCST(9+MSGINT,nrho,mitob(msglen),MASTER)
       call BRDCST(9+MSGDBL,drho,mdtob(msglen),MASTER)
 
+
 *     **** set the maximum angular momentum ****
-      lmax=lmax0
       lmax_out=lmax1
-      if (lmax_out.gt.3) lmax_out=3
+      if (lmax_in.lt.0) lmax_out=lmax1
+      if (lmax_out.gt.lmax0) lmax_out=lmax0       
+
 *     **** set the local potential ****
-      locp=0
+      locp=locp1
+      if (locp.gt.lmax1) locp = lmax1
+      if (locp.lt.0)    locp = lmax1
+
       nprj=0
-      do kp=0,lmax-1
+      do kp=0,lmax0-1
          nprj=nprj+4*kp+2
       end do
       nprj=nprj+2*lmax
@@ -128,21 +133,21 @@ cccccccccccccccccccccccccccccccccccccc
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = MA_alloc_get(mt_dbl,nrho*(lmax0+1),
      >                        'vp',vp_hndl,vp_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = MA_alloc_get(mt_dbl,nrho*(lmax0+1),
      >                        'vpso',vpso_hndl,vpso_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(2*lmax+2),
+      value = MA_alloc_get(mt_dbl,nrho*(2*lmax0+2),
      >                        'wp', wp_hndl,wp_indx)
       value = MA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
 
 
       if (taskid.eq.MASTER) then
-       call read_rvpwp_band(11,nrho,lmax,dbl_mb(rho_indx),
+       call read_rvpwp_band(11,nrho,lmax0,dbl_mb(rho_indx),
      >                         dbl_mb(vp_indx),
      >                         dbl_mb(wp_indx))
-       call read_rkbpp_so(11,nrho,lmax,dbl_mb(vpso_indx))
+       call read_rkbpp_so(11,nrho,lmax0,dbl_mb(vpso_indx))
        call read_semicore_band(11,isemicore,rcore,nrho,
      > dbl_mb(sc_r_indx))
        close(11)
