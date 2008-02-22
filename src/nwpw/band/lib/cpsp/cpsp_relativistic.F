@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.18 2008-02-15 18:51:26 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.19 2008-02-22 23:11:10 d3p708 Exp $
 *
 
 
@@ -1063,6 +1063,7 @@ cccccccccccccccccccccccccccccccccccccccccccc
      >       int_mb(vnlso(1)+ia-1),nb,l)
          shiftxu=1 + (l-1)*npack1 
          shiftxd=shiftxu + nproj*npack1
+
          l_prj = int_mb(l_projector(1)+(l-1)
      >      +(ia-1)*jmmax_max)
 
@@ -1082,13 +1083,17 @@ cccccccccccccccccccccccccccccccccccccccccccc
            call Cram_icc_Mul(nb,dbl_mb(vshiftu),exi,prtmp(shiftxu))
            call Cram_icc_Mul(nb,dbl_mb(vshiftd),exi,prtmp(shiftxd))
          end if
-         zshft=1+(l-1)*npack1
+
+         zshft=1+(l-1)*ne1
+
          call Cram_cc_inzdot(nb,ne1,psi,prtmp(shiftxu),
      >      zsw1(zshft))
          call Cram_cc_inzdotAdd(nb,ne1,psi(shifts),prtmp(shiftxd),
      >      zsw1(zshft))
+
          xx=Gij(l)*scal
          call dscal(ne1*2,xx,zsw1(zshft),1)
+
       end do
       call C3db_Vector_SumAll(2*ne1*nproj,zsw1)
       do l=1,nproj
