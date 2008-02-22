@@ -1,5 +1,5 @@
 /*
- $Id: rpspsolve.c,v 1.14 2008-02-15 18:01:40 d3p708 Exp $
+ $Id: rpspsolve.c,v 1.15 2008-02-22 23:08:01 d3p708 Exp $
 */
 
 #include <stdlib.h>
@@ -223,8 +223,6 @@ void FATR rpspsolve_
     }
 
 
-  locp_out=0;
-  rlocal_out=1.0;
   fp = fopen (outfile, "w+");
   fprintf (fp, "7 %s\n", name_Atom ());
   fprintf (fp, "%lf %lf %d   %d %d %lf\n", Zion_RelPsp (), Amass_Atom (),
