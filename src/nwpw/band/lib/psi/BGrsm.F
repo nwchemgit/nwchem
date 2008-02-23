@@ -1,4 +1,4 @@
-* $Id: BGrsm.F,v 1.8 2007-09-12 17:28:19 bylaska Exp $
+* $Id: BGrsm.F,v 1.9 2008-02-23 23:25:12 d3p708 Exp $
 *
 
 
@@ -557,18 +557,17 @@
 *     *      Returns the  	 *
 *     *  Spin Amplitudes         *
 *     ****************************
-*     ******** check this routine!!!!!!!!!!
       logical function BGrsm_f_Spins(nbb,Y,S)
       implicit none
       integer nbb
       complex*16 Y(*)
-      real*8     S(3,*)
+      real*8     S(*)
 
 #include "cpsi_common.fh"
 
 *     **** local variables ****
-      integer k,shft,nb,nb1,nb2,indx,indx2
-      real*8 s1,s2,s3,wght
+      integer k,shft,nb,nb1,nb2,indx,indx2,sindx
+      real*8 sx,sy,sz,wght,ssum,s12,s1,s2
       complex*16 z1
 
 *     **** external ****
@@ -588,30 +587,37 @@
         nb1=nbb
         nb2=nbb 
       end if
+cccccccccccccccccccccccccccccccccccccc
+c Should this be done separately for
+c each BZ point? Now we are averaging
+c over k-points...
+cccccccccccccccccccccccccccccccccccccc
+      sindx=1
       do k=1,ne(1)
-        S(1,k)=0.0d0
-        S(2,k)=0.0d0
-        S(3,k)=0.0d0
+         S(sindx)=0.0d0
+         S(sindx+1)=0.0d0
+         S(sindx+2)=0.0d0
+         sindx=sindx+3
       end do
-      
       shft=ne(1)*npack1
       do nb=nb1,nb2
         wght=brillioun_weight(nb)
         if (nb1.eq.nb2) wght=1.0d0
         indx=((nb-nb1)*shft*2)+1
+        sindx=1
         do k=1,ne(1)
            indx2=indx+shft
            call Cram_cc_dot(nb,Y(indx),Y(indx),s1)
            call Cram_cc_dot(nb,Y(indx2),Y(indx2),s2)
            call Cram_cc_zdot(nb,Y(indx),Y(indx2),z1)
            indx=indx+npack1
-
-           s3=s1-s2
-           s1=dble(z1)
-           s2=dimag(z1)
-           S(1,k)=S(1,k)+s1*wght
-           S(2,k)=S(2,k)+s2*wght
-           S(3,k)=S(3,k)+s3*wght		
+           sz=s1-s2
+           sx=dble(z1)
+           sy=dimag(z1)
+           S(sindx+2)=S(sindx)+sz*wght
+           S(sindx+1)=S(sindx+1)+sy*wght
+           S(sindx)=S(sindx+2)+sx*wght
+           sindx=sindx+3		
         end do
       end do
       return

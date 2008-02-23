@@ -60,7 +60,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *              *** SS =  GCDOTC(nida,nidb,c2(1,i),c2(1,j+ne(1))) ****
                call Cram_cc_zdot(nb,dbl_mb(psii_shift),
      >                              dbl_mb(psij_shift),sij)
-	       SS=dconjg(sij)*sij
+	       SS=dble(dconjg(sij)*sij)
                ssum = ssum + SS
             end do
             end do

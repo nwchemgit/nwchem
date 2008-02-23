@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.54 2007-11-17 01:39:50 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.55 2008-02-23 23:25:12 d3p708 Exp $ *
 
 
 *     ***************************
@@ -1494,13 +1494,12 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       integer  cpsi_data_get_chnk
       external cpsi_data_get_chnk
 
+      w=0.0d0
       if (spin_orbit) then
          svec_shift = cpsi_data_get_chnk(svec_tag,nb)
          indx=svec_shift + (xyz-1) 
      >                   + 3*(i-1)
          w = dbl_mb(indx)
-      else
-         w = 0.0d0
       end if
       cpsi_svector = w
       return
