@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.11 2008-02-22 12:52:34 jhammond Exp $
+* $Id: silvestrelli_minimize.F,v 1.12 2008-02-23 23:30:59 d3p708 Exp $
 *
 
 
@@ -93,23 +93,19 @@
      >           + wts(3)*(X3(j,i)*(dconjg(X3(j,j))-dconjg(X3(i,i))) 
      >           - dconjg(X3(i,j))*(X3(i,i)-X3(j,j)))
            if (rank.gt.3) then
-           A(i,j)= A(i,j)+
+            A(i,j)= A(i,j)+
      >             wts(4)*( X4(j,i)*(dconjg(X4(j,j))-dconjg(X4(i,i))) 
      >	         - dconjg(X4(i,j))*(X4(i,i)-X4(j,j)))
-
             if (rank.gt.4) then 
-            A(i,j)= A(i,j)
-     >           + wts(5)*(X5(j,i)*(dconjg(X5(j,j))-dconjg(X5(i,i))) 
+             A(i,j)= A(i,j)+
+     >             wts(5)*(X5(j,i)*(dconjg(X5(j,j))-dconjg(X5(i,i))) 
      >           - dconjg(X5(i,j))*(X5(i,i)-X5(j,j)))
-           
              if (rank.eq.6) then
-             A(i,j)=A(i,j) 
-     >           + wts(6)*(X6(j,i)*(dconjg(X6(j,j))-dconjg(X6(i,i))) 
+              A(i,j)=A(i,j)+ 
+     >             wts(6)*(X6(j,i)*(dconjg(X6(j,j))-dconjg(X6(i,i))) 
      >           - dconjg(X6(i,j))*(X6(i,i)-X6(j,j)))
              end if
-
             end if
-
            end if      
          end do
          end do
