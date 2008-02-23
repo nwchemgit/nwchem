@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.26 2008-02-08 18:06:31 d3p708 Exp $
+* $Id: cram.F,v 1.27 2008-02-23 23:43:22 d3p708 Exp $
 *
 
 *     ***********************************
@@ -761,17 +761,29 @@
 
       return
       end 
-
+ccccccccccccccccccccccccccccccccccccccccccccccccccccc
       complex*16 function tzdotc(n,x,incx,y,incy)
       implicit none
       integer n,incx,incy
       complex*16 x(*),y(*)
-      integer i
+      integer i,ix,iy
       complex*16 tsum
       tsum = dcmplx(0.0d0,0.0d0)
-      do i=1,n
+      if ((incx.eq.1).and.(incy.eq.1)) then
+       do i=1,n
          tsum = tsum + dconjg(x(i))*y(i)
-      end do
+       end do
+      else
+       ix=1
+       iy=1
+       if (incx.lt.0) ix=1+(-n+1)*incx
+       if (incy.lt.0) iy=1+(-n+1)*incy
+       do i=1,n
+         tsum = tsum + dconjg(x(ix))*y(iy)
+         ix=ix+incx
+         iy=iy+incy
+       end do
+      end if
       tzdotc = tsum
       return
       end
