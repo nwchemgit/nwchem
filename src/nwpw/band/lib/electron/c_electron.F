@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.38 2008-01-18 23:57:38 d3p708 Exp $
+* $Id: c_electron.F,v 1.39 2008-02-23 23:25:59 d3p708 Exp $
 *
 
 
@@ -1443,7 +1443,7 @@ c     >                     dn)
       call cpsp_v_local(dcpl_mb(vl(1)),
      >                  move,
      >                  dcpl_mb(tmp1(1)),
-     >                   dbl_mb(tmp2(1)))
+     >                  dbl_mb(tmp2(1)))
 
       value =           MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
@@ -1475,7 +1475,7 @@ c     >                     dn)
       logical value
       integer n,nb
       integer nx,ny,nz,np,neall,psi_shift,nshift
-      real*8 elocal,sum,scal1,scal2,weight
+      real*8 elocal,sum,scal1,scal2,weight,scal
       integer tmp1(2),tmp2(2)
       integer occ_tag,occ_shift
 
@@ -1499,13 +1499,14 @@ c     >                     dn)
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
-      neall = neq(1) + neq(2)
+c      neall = neq(1) + neq(2)
+      neall=ne(1)+ne(2)
       nshift= cpsi_data_nsize(psi_r_tag)
       occ_tag = cpsi_data_get_next(psi1_tag)
 
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
-
+      scal=scal1*scal2
 
 *     **** average Kohn-Sham v_local energy ****
       call Cram_c_Copy(0,dcpl_mb(vl(1)),dcpl_mb(tmp1(1)))
@@ -1528,7 +1529,7 @@ c     >                     dn)
      >                          dcpl_mb(tmp2(1)),
      >                          sum)
                elocal = elocal 
-     >                + sum*scal1*scal2*weight*dbl_mb(occ_shift)
+     >                + sum*scal*weight*dbl_mb(occ_shift)
 
                psi_shift = psi_shift + nshift
                occ_shift = occ_shift + 1
@@ -1550,7 +1551,7 @@ c     >                     dn)
      >                          dcpl_mb(tmp2(1)),
      >                          sum)
                psi_shift = psi_shift + nshift
-               elocal = elocal + sum*scal1*scal2*weight
+               elocal = elocal + sum*scal*weight
             end do
          end do
       end if
