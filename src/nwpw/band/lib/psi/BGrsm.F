@@ -1,4 +1,4 @@
-* $Id: BGrsm.F,v 1.9 2008-02-23 23:25:12 d3p708 Exp $
+* $Id: BGrsm.F,v 1.10 2008-02-23 23:51:59 d3p708 Exp $
 *
 
 
@@ -614,9 +614,9 @@ cccccccccccccccccccccccccccccccccccccc
            sz=s1-s2
            sx=dble(z1)
            sy=dimag(z1)
-           S(sindx+2)=S(sindx)+sz*wght
+           S(sindx+2)=S(sindx+2)+sz*wght
            S(sindx+1)=S(sindx+1)+sy*wght
-           S(sindx)=S(sindx+2)+sx*wght
+           S(sindx)=S(sindx)+sx*wght
            sindx=sindx+3		
         end do
       end do
