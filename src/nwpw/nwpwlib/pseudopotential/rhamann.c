@@ -55,7 +55,10 @@ Suggested_Param_RelHamann (int *num_states_psp,
   Nc = Ncore_Atom ();
   Nv = Nvalence_Atom();
   lmax = lmax_Atom ();
-  npsps = 2 * lmax + 4;
+/*****
+ * count the s state twice...
+ ****/
+  npsps=2*lmax+2;
   for (p = 0; p < npsps; ++p)
     {
       rcut_psp[p] = 0.0;

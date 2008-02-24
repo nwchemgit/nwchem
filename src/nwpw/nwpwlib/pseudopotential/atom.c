@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska and Patrick Nichols
-   $Id: atom.c,v 1.24 2008-02-21 20:01:52 d3p708 Exp $
+   $Id: atom.c,v 1.25 2008-02-24 20:59:44 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -532,12 +532,13 @@ solve_Scattering_State_Atom (int nt, int lt, double et, double rmax)
     {
       s2[Ncv] = 1;
       s2[Ncv + 1] = -1;
-      n[Ncv + 1] = nt;
-      l[Ncv + 1] = lt;
+      n[Ncv]=n[Ncv+1]=nt;
+      l[Ncv]=l[Ncv+1]=lt;
+      eigenvalue[Ncv]=et;
       eigenvalue[Ncv + 1] = et;
-      fill[Ncv + 1] = 0.0;
-      turning_point[Ncv + 1] = rint (log (rmax / r0) / al);
-      peak[Ncv + 1] = rmax;
+      fill[Ncv]=fill[Ncv + 1] = 0.0;
+      turning_point[Ncv]=turning_point[Ncv + 1] = rint (log (rmax / r0) / al);
+      peak[Ncv]=peak[Ncv + 1] = rmax;
       R_Dirac_Fixed_E (nt, lt, 1, Zion, Vall,
 		       turning_point[Ncv], et, r_psi[Ncv], r_psi_prime[Ncv]);
       R_Dirac_Fixed_E (nt, lt, -1, Zion, Vall,
@@ -548,12 +549,13 @@ solve_Scattering_State_Atom (int nt, int lt, double et, double rmax)
     {
       s2[Ncv] = 1;
       s2[Ncv + 1] = -1;
-      n[Ncv + 1] = nt;
-      l[Ncv + 1] = lt;
+      n[Ncv]=n[Ncv+1]=nt;
+      l[Ncv]=l[Ncv+1]=lt;
+      eigenvalue[Ncv]=et;
       eigenvalue[Ncv + 1] = et;
-      fill[Ncv + 1] = 0.0;
-      turning_point[Ncv + 1] = rint (log (rmax / r0) / al);
-      peak[Ncv + 1] = rmax;
+      fill[Ncv]=fill[Ncv + 1] = 0.0;
+      turning_point[Ncv]=turning_point[Ncv + 1] = rint (log (rmax / r0) / al);
+      peak[Ncv]=peak[Ncv + 1] = rmax;
       R_ZORA_Fixed_E (nt, lt, 1, Zion, Vall,
 		       turning_point[Ncv], et, r_psi[Ncv], r_psi_prime[Ncv]);
       R_ZORA_Fixed_E (nt, lt, -1, Zion, Vall,

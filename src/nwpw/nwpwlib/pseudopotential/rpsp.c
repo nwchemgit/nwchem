@@ -1,6 +1,6 @@
 /* psp.c -
    author - Patrick Nichols
-   $Id: rpsp.c,v 1.10 2008-02-21 20:01:53 d3p708 Exp $
+   $Id: rpsp.c,v 1.11 2008-02-24 20:59:48 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -99,7 +99,7 @@ init_RelPsp (char *filename)
     if (Solver_Type == Troullier) strcpy(comment,"Troullier-Martins pseudopotential");
 
   /* set lmax  */
-  lmax = lmax_Atom () + 1;
+  lmax = lmax_Atom ();
 
   /* set the number psp projectors */
   npsp_states = 2 * lmax + 2;
