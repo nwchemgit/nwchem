@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.19 2008-02-22 23:11:10 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.20 2008-02-26 22:21:27 d3p708 Exp $
 *
 
 
@@ -1011,7 +1011,7 @@ ccccccccccc
               zsw1(1+(l-1))=zsw1(1+(l-1))*Gij(l)*scal
       end do !**l**
 
-      call C3dB_Vector_SumAll((4*nproj),zsw1)
+      call C3dB_Vector_SumAll((2*nproj),zsw1)
 
 *           **** do Kleinman-Bylander Multiplication ****
       call ZGEMM('N','C',npack1,1,nproj,
@@ -1047,11 +1047,10 @@ ccccccccccc locals
 ccccccccccc external
       integer cpsp_projector_get_ptr
       external cpsp_projector_get_ptr
+
 cccccccccccccccccccccccccccccccccccccccccccc
 *             **** structure factor ****
-      fx=0.0d0
-      fy=0.0d0
-      fz=0.0d0
+cccccccccccccccccccccccccccccccccccccccccccc
       call cstrfac_pack(nb,ii,exi)
       call cstrfac_k(ii,nb,cxr)
       call Cram_c_ZMul(nb,cxr,exi,exi)
