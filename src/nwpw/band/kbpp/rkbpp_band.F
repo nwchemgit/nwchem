@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.33 2008-02-26 16:37:50 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.34 2008-02-26 22:19:03 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -114,7 +114,7 @@ cccccccccccccccccccccccccccccccccccccc
       lmax_out=lmax1
       if (lmax_in.lt.0) lmax_out=lmax1
       if (lmax_out.gt.lmax0) lmax_out=lmax0       
-
+        
 *     **** set the local potential ****
       locp=locp1
       if (locp.gt.lmax1) locp = lmax1
@@ -253,7 +253,7 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
       write(*,*) "  highest angular component      :",lmax0
       write(*,*) "  highest angular component used :",lmax_out
       write(*,*) "  local potential used           :",locp
-      write(*,111) "  cutoffs: ",(rc(i), i=0,lmax0)
+      write(*,111) "  cutoffs: ",(rc(i), i=0,lmax_out)
       if (semicore) then
         write(*,*)
         write(*,115) "  semi-core charge included, rcore:",rcore
@@ -595,7 +595,7 @@ cccccccccccccccccccccccccccc
       real*8 drho,gvec(ngx,ngy,ngz,3),kvec(3)
 cccccccc locals
       integer taskid,nproc,tcount,k
-      integer igx,igy,igz,nw,lp
+      integer igx,igy,igz,nw,lp,icnt
       integer malfa,mbeta,kappa,ippot,key
       real*8 pi4,q,gx,gy,gz,a,d,vv,qr,pi
       real*8 calfa,cbeta,dkappa
@@ -616,7 +616,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
       do 210 igy=1,ngy
       do 200 igx=1,ngx
          tcount=tcount+1
-         if (mod(tcount,nproc).ne.taskid) goto 200
+         icnt=tcount-(nproc*(tcount/nproc))
+         if (icnt.ne.taskid) goto 200
          gx=gvec(igx,igy,igz,1)+kvec(1)
          gy=gvec(igx,igy,igz,2)+kvec(2)
          gz=gvec(igx,igy,igz,3)+kvec(3)
@@ -679,7 +680,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
 200   continue 	
 210   continue
 220   continue
-      call Parallel_Vector_SumAll(nprj*ngx*ngy*ngz*4,vnl)
+      call Parallel_Vector_SumAll(ngx*ngy*ngz*4*nprj,vnl)
       ierr=0
       return
       end
