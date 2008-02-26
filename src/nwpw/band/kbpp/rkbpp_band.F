@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.32 2008-02-22 23:10:35 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.33 2008-02-26 16:37:50 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -30,7 +30,7 @@
 *     **** local variables ****
       character*255 full_filename
       logical value,mprint,hprint,oprint
-      integer lmax,locp,nprj_out
+      integer locp,nprj_out
       integer taskid,MASTER,msglen
       parameter (MASTER=0)
 
@@ -124,7 +124,7 @@ cccccccccccccccccccccccccccccccccccccc
       do kp=0,lmax0-1
          nprj=nprj+4*kp+2
       end do
-      nprj=nprj+2*lmax
+      nprj=nprj+2*lmax0
       nprj_out=0
       do kp=0,lmax_out-1
          nprj_out=nprj_out+4*kp+2
@@ -155,11 +155,11 @@ cccccccccccccccccccccccccccccccccccccc
 
       msglen = nrho
       call BRDCST(9+MSGDBL,dbl_mb(rho_indx),mdtob(msglen),MASTER)
-      msglen = nrho*(lmax+1)
+      msglen = nrho*(lmax0+1)
       call BRDCST(9+MSGDBL,dbl_mb(vp_indx),mdtob(msglen),MASTER)
-      msglen = nrho*(2*lmax+2)
+      msglen = nrho*(2*lmax0+2)
       call BRDCST(9+MSGDBL,dbl_mb(wp_indx),mdtob(msglen),MASTER)
-      msglen = nrho*(lmax+1)
+      msglen = nrho*(lmax0+1)
       call BRDCST(9+MSGDBL,dbl_mb(vpso_indx),mdtob(msglen),MASTER)
       msglen = 1
       call BRDCST(9+MSGINT,isemicore,mitob(msglen),MASTER)
@@ -253,7 +253,7 @@ cccccccccc assign the relativistic states ccccccccccccccccccc
       write(*,*) "  highest angular component      :",lmax0
       write(*,*) "  highest angular component used :",lmax_out
       write(*,*) "  local potential used           :",locp
-      write(*,111) "  cutoffs: ",(rc(i), i=0,lmax)
+      write(*,111) "  cutoffs: ",(rc(i), i=0,lmax0)
       if (semicore) then
         write(*,*)
         write(*,115) "  semi-core charge included, rcore:",rcore
@@ -451,7 +451,7 @@ ccccccccccccccccccc
         read(unit,*,ERR=9999,END=9999) rhox,(vso(i,j),j=1,lmax)
       end do
       return
- 9999 call errquit('Error reading psp_so_filename',0, DISK_ERR)
+ 9999 call errquit('Error reading Rel psp_so_filename',0, DISK_ERR)
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine rkbpp_vlocal(lmax,locl,ngsize,nrho,nprj,rho,
@@ -679,7 +679,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
 200   continue 	
 210   continue
 220   continue
-      call C3db_Vector_SumAll(nprj*ngx*ngy*ngz*2,vnl)
+      call Parallel_Vector_SumAll(nprj*ngx*ngy*ngz*4,vnl)
       ierr=0
       return
       end
