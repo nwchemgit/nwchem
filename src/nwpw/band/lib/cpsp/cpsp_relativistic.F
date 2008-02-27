@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.20 2008-02-26 22:21:27 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.21 2008-02-27 17:31:47 d3p708 Exp $
 *
 
 
@@ -447,12 +447,13 @@ c      complex*16 psi1(*),psi2(*)
 
       omega = lattice_omega()
       scal  = 1.0d0/omega
-      do ii=1,ion_nion()
+      do 200 ii=1,ion_nion()
         ia=ion_katm(ii)
-
+cccccccccc if this atom is not HGH PPOT skip it....
+        if (int_mb(psp_type(1)+ia-1).ne.1) goto 200
+cccccccccccccccccccccccccccccccccccccccccccc
         nproj = int_mb(nprj(1)+ia-1)
         if (nproj.gt.0) then
-
 
         do nbq=1,nbrill
            nb = Pneb_convert_nb(nbq)
@@ -509,10 +510,6 @@ c             *** current function is s or d ****
      >                      dbl_mb(psi1_shift),
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dcpl_mb(zsw1(1)+(l-1)*nn))
-c                call Cram_cc_inzdot(nb,nn,
-c     >                      psi1,
-c     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
-c     >                      dcpl_mb(zsw1(1)+(l-1)*nn))
            
  105       continue 
            call C3dB_Vector_SumAll((2*nn*nproj),dcpl_mb(zsw1(1)))
@@ -602,7 +599,7 @@ c                    end do
         end do !** nb **
         end if !** nproj>0**
 
-      end do !**ii**
+200   continue !**ii**
 
       if (move) then
         value = MA_pop_stack(sum(2))
@@ -668,7 +665,6 @@ c                    end do
 *     **** allocate local memory ****
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
-c      nbrill = brillioun_nbrillioun()
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
@@ -691,8 +687,11 @@ c      nbrill = brillioun_nbrillioun()
       omega = lattice_omega()
       scal  = 1.0d0/omega
 
-      do ii=1,ion_nion()
+      do 200 ii=1,ion_nion()
          ia=ion_katm(ii)
+
+         if (int_mb(psp_type(1)+ia-1).ne.1) goto 200
+
          nproj = int_mb(nprj(1)+ia-1)
 
          if (nproj.gt.0) then
@@ -779,7 +778,7 @@ c     >                      +(ia-1)*npack1*vso_stride*nbrill
      >                 orb2(shifts), npack1)
 
          end if !** nproj>0 **
-      end do !** ii***
+200   continue !** ii***
 
       value =           MA_pop_stack(zsw2d(2))
       value = value.and.MA_pop_stack(zsw1d(2))
@@ -1020,6 +1019,7 @@ ccccccccccc
      >                 zsw1,   1,
      >                 one,
      >                 orb2, npack1)
+
       call ZGEMM('N','C',npack1,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)+nproj*npack1), npack1,
@@ -1047,10 +1047,8 @@ ccccccccccc locals
 ccccccccccc external
       integer cpsp_projector_get_ptr
       external cpsp_projector_get_ptr
-
 cccccccccccccccccccccccccccccccccccccccccccc
 *             **** structure factor ****
-cccccccccccccccccccccccccccccccccccccccccccc
       call cstrfac_pack(nb,ii,exi)
       call cstrfac_k(ii,nb,cxr)
       call Cram_c_ZMul(nb,cxr,exi,exi)
@@ -1062,7 +1060,7 @@ cccccccccccccccccccccccccccccccccccccccccccc
      >       int_mb(vnlso(1)+ia-1),nb,l)
          shiftxu=1 + (l-1)*npack1 
          shiftxd=shiftxu + nproj*npack1
-
+         
          l_prj = int_mb(l_projector(1)+(l-1)
      >      +(ia-1)*jmmax_max)
 
