@@ -1,6 +1,6 @@
 /* psp.c -
    author - Patrick Nichols
-   $Id: rpsp.c,v 1.11 2008-02-24 20:59:48 d3p708 Exp $
+   $Id: rpsp.c,v 1.12 2008-02-27 23:28:11 d3p708 Exp $
 */
 
 #include	<stdio.h>
@@ -102,7 +102,7 @@ init_RelPsp (char *filename)
   lmax = lmax_Atom ();
 
   /* set the number psp projectors */
-  npsp_states = 2 * lmax + 2;
+  npsp_states = 2 * lmax + 4;
   /* allocate memory for n,l,fill,rcut,peak, and eigenvalue */
   n = (int *) malloc ((npsp_states) * sizeof (int));
   l = (int *) malloc ((npsp_states) * sizeof (int));
