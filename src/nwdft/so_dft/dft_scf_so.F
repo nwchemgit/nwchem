@@ -6,7 +6,7 @@ c
      &                  iter, g_dens, g_dens_at, g_movecs, g_vxc, 
      &                  g_fock, g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.48 2008-02-17 06:39:14 niri Exp $
+c     $Id: dft_scf_so.F,v 1.49 2008-02-28 22:09:06 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -55,6 +55,7 @@ czora...zora
       double precision numelecs
       integer ncanorg
       logical ldmix
+      character*7 vecs_or_dens
 czora...end
 c
 #include "bas.fh"
@@ -624,9 +625,9 @@ c     &     spinor=spinor_guess(movecs_in)
          endif
 c
          call dft_guessin(movecs_in,ldmix,ncanorg,fon,
-     &     'density', ipol,nbf_ao,g_movecs,g_gmovecs,
+     &     vecs_or_dens, ipol,nbf_ao,g_movecs,g_gmovecs,
      &     toll_s,svals)
-
+c
          call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &        basis_trans, movecs_in, movecs_out, 
      &        movecs_guess, scftype, nclosed, nopen, 
