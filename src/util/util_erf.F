@@ -1,4 +1,12 @@
 #if  defined(HPUX)
+      double precision function derf(x)
+      implicit none
+      double precision x,util_erf,derf
+      external util_erf
+      derf=util_erf(x)
+      return
+      end
+
       double precision function derfc(x)
       implicit none
       double precision x,util_erfc,derfc
@@ -16,7 +24,6 @@ c
       end
 c
 #endif                                                                          
-
 
       real*8 function util_erf(x) 
       implicit none
