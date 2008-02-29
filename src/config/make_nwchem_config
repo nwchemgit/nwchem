@@ -9,14 +9,14 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.235 2008-01-17 23:30:28 marat Exp $
+# $Id: make_nwchem_config,v 1.236 2008-02-29 19:29:17 niri Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
 # directories.
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
-	rimp2 stepper driver dftgrad scfaux cphf ccsd vib mcscf prepar \
+	rimp2 stepper driver optim dftgrad scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop\
         property nwpw fft rimp2_grad python analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm qmd etrans tddft tce geninterface bq cons \
@@ -27,7 +27,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 # be too hard to come up with.  These should be platform-independent.
 
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
-                    -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
+                    -lstepper -ldriver -loptim -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lesp -lddscf -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lsmd \
@@ -71,15 +71,15 @@ EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft tce vscf transport
+          optim stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft tce vscf transport
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          stepper driver vib mcscf property dftgrad selci dplot \
+          optim stepper driver vib mcscf property dftgrad selci dplot \
            mp2_grad esp etrans tddft vscf
 EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
-           driver analyz diana
+           optim driver analyz diana
 #plane_wave ... broken? RJH
 EXP_qmandpw = nwpw smd NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft vscf transport
+          optim stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft vscf transport
 EXP_argos = prepar nwmd analyz diana ddscf nwdft gradients esp
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
 EXP_classical  = prepar nwmd analyz
@@ -129,8 +129,8 @@ MODULES := $(patsubst property,property ddscf,$(MODULES) )
 MODULES := $(patsubst plane_wave,plane_wave nwdft,$(MODULES) )
 MODULES := $(patsubst oimp2,oimp2 rimp2 moints,$(MODULES) )
 
-MODULES := $(patsubst vib,vib stepper driver gradients,$(MODULES) )
-MODULES := $(patsubst driver, driver stepper gradients,$(MODULES) )
+MODULES := $(patsubst vib,vib stepper driver optim gradients,$(MODULES) )
+MODULES := $(patsubst driver, driver stepper optim gradients,$(MODULES) )
 MODULES := $(patsubst stepper,stepper gradients,$(MODULES) )
 MODULES := $(patsubst dftgrad,dftgrad gradients ddscf nwdft,$(MODULES) )
 MODULES := $(patsubst gradients,gradients ddscf dftgrad,$(MODULES) )
@@ -153,7 +153,7 @@ MODULES := $(patsubst esp,esp NWints,$(MODULES) )
 
 MODULES := $(patsubst etrans, etrans ddscf NWints,$(MODULES) )
 
-MODULES := $(patsubst transport, transport dftgrad dplot gradients driver,$(MODULES) )
+MODULES := $(patsubst transport, transport dftgrad dplot gradients driver optim,$(MODULES) )
 
 MODULES := $(patsubst tddft,tddft nwdft hessian ddscf NWints,$(MODULES) )
 MODULES := $(patsubst tce,tce nwdft ddscf NWints  hessian  dftgrad gradients  ,$(MODULES) )
@@ -228,6 +228,7 @@ MOD_LIBS := $(patsubst diana,-ldiana,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dplot,-ldplot,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst property,-lproperty,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vscf,-lvscf,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst optim,-loptim,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cons,-lcons,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst bq,-lbq,$(MOD_LIBS) )
