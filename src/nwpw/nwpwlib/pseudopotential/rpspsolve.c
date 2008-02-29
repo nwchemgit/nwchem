@@ -1,5 +1,5 @@
 /*
- $Id: rpspsolve.c,v 1.16 2008-02-27 17:02:02 d3p708 Exp $
+ $Id: rpspsolve.c,v 1.17 2008-02-29 22:57:44 d3p708 Exp $
 */
 
 #include <stdlib.h>
@@ -247,9 +247,9 @@ void FATR rpspsolve_
 	{
 /**************************************************************
  *  Here we output the v average
- *     v_avg(l,r)=((l+1)*v(l-1/2) + l*v(l+1/2))/(2*l+1)
+ *     v_avg(l,r)=((l*v(l-1/2) + (l+1)*v(l+1/2))/(2*l+1)
  *************************************************************/
-	  vx = (p+1) * pspl[2 * p][k] + p * pspl[2 * p + 1][k];
+	  vx = (p) * pspl[2 * p][k] + (p+1) * pspl[2 * p + 1][k];
 	  vx *= 1. / (2. * p + 1.);
 	  fprintf (fp, " %12.8lf", vx);
 	}
@@ -288,10 +288,13 @@ void FATR rpspsolve_
 /**************************************************************
  *  Here we output the v spin orbit
  *     v_spin_orbit(l,r)=(v(l-1/2) - v(l+1/2))/(2*l+1)
+ *
+ *   so that V_spin_orbit|Psi>= (1+kappa)*v_spin_orbit|Psi>
+ *   its confusing because L*S -> - (1+kappa)
  *************************************************************/
       for (p = 1; p < nvh;++p)
 	{
-	  vx = pspl[2 * p][k] - pspl[2 * p + 1][k];
+	  vx = pspl[2 * p][k] - pspl[2 * p+1][k];
 	  vx *= 1. / (2. * p + 1.);
 	  fprintf (fp, " %15.8lf", vx);
 	}
