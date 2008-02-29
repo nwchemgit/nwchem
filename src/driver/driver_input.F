@@ -1,6 +1,6 @@
       subroutine driver_input(rtdb)
 *
-* $Id: driver_input.F,v 1.12 2005-07-27 23:05:13 marat Exp $
+* $Id: driver_input.F,v 1.13 2008-02-29 19:27:43 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -71,6 +71,10 @@ c
 c
       else if (inp_compare(.false.,'lbfgs', field)) then
          if (.not. rtdb_put(rtdb,'driver:lbfgs',mt_log,1,.true.))
+     $        call errquit('driver_input: rtdb put failed',0, RTDB_ERR)
+c
+      else if (inp_compare(.false.,'deloc', field)) then
+         if (.not. rtdb_put(rtdb,'driver:deloc',mt_log,1,.true.))
      $        call errquit('driver_input: rtdb put failed',0, RTDB_ERR)
 c
       else if (inp_compare(.false.,'loose', field)) then
