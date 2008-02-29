@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.34 2008-02-26 22:19:03 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.35 2008-02-29 01:20:34 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -628,8 +628,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
                 f(k)=rho(k)*wp(k,1)*vp(k,0)
              end do
              d=simp(nrho,f,drho)*dsqrt(pi4)
-             vnl(igx,igy,igz,1,1)=dcmplx(d,0.0d0)
              vnl(igx,igy,igz,1,2)=dcmplx(d,0.0d0)
+             vnl(igx,igy,igz,2,1)=dcmplx(d,0.0d0)
            end if    
            goto 200
          end if
