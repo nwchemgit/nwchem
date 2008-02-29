@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.39 2008-02-23 23:25:59 d3p708 Exp $
+* $Id: c_electron.F,v 1.40 2008-02-29 01:23:08 d3p708 Exp $
 *
 
 
@@ -1499,8 +1499,7 @@ c     >                     dn)
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
-c      neall = neq(1) + neq(2)
-      neall=ne(1)+ne(2)
+      neall = neq(1) + neq(2)
       nshift= cpsi_data_nsize(psi_r_tag)
       occ_tag = cpsi_data_get_next(psi1_tag)
 
