@@ -440,3 +440,196 @@ R_Dirac_Fixed_E (int n, int l, int s2, double Z, const double *v, int match,
     return;
 
 }
+
+void
+R_Dirac_FixedLogDeriv (int n, int l, int s2, double Z, const double *v, int match,
+         double u_logderiv,
+         double *Eig, double *u, double *uprime)
+{
+    int i, j, iteration, node, Ninf, Ngrid;
+
+    double E, de, kappa,
+    Emax,
+    Emin,
+    log_amesh,
+    log_amesh2,
+    fss, gamma,
+    L2, L0,
+    r2,
+    sum, a, scale, m1scale,
+    uout, upout, upin, *r, *f_upp, *dv, *frp, *fr, *upp;
+
+    /* define eigenvalues */
+    E = *Eig;
+    L2 = ((double) (l * (l + 1)));
+    fss = 1.0 / 137.03602;
+    fss = fss * fss;
+    kappa = -1;
+    if (l)
+    {
+        if (s2 > 0)
+        {
+            kappa = -(l + 1);
+        }
+        else
+        {
+            kappa = l;
+        }
+    }
+    gamma = sqrt (kappa * kappa - fss * Z * Z);
+
+    /* define log grid parameters */
+    Ngrid = N_LogGrid ();
+    log_amesh = log_amesh_LogGrid ();
+    log_amesh2 = log_amesh * log_amesh;
+
+    r = r_LogGrid ();
+    f_upp = alloc_LogGrid ();
+    upp = alloc_LogGrid ();
+    fr = alloc_LogGrid ();
+    frp = alloc_LogGrid ();
+    dv = alloc_LogGrid ();
+
+
+    /* set up bounds for eigenvalue */
+    Emax=E+20.0;
+    Emin=E-20.0;
+ 
+    iteration = 0;
+    while (iteration < Max_Iterations)
+    {
+        ++iteration;
+        /* define f_upp */
+        for (i = 0; i < Ngrid; ++i)
+        {
+            r2 = r[i];
+            r2 = r2 * r2;
+            f_upp[i] = log_amesh2 * (L2 + 2.0 * (v[i] - E) * r2);
+        }
+        /* define dV/dr */
+        Derivative_LogGrid (v, dv);
+        for (i = 0; i < Ngrid; ++i)
+        {
+            r2 = r[i] * r[i];
+            fr[i] = -log_amesh2 * r2
+                    * (fss * (v[i] - E) * (v[i] - E) +
+                       0.5 * fss * dv[i] * kappa / (r[i] *
+                       (1.0 + 0.5 * fss * (E - v[i]))));
+            frp[i] =
+                -log_amesh * r[i] * 0.5 * fss * dv[i] / 
+                       (1.0 + 0.5 * fss * (E - v[i]));
+        }
+
+        /* set the boundry condition near zero */
+        m1scale = 1.0;
+        for (i = 0; i < (n - l - 1); ++i)
+            m1scale *= -1.0;
+        for (i = 0; i < 4; ++i)
+        {
+            u[i] = m1scale * pow (r[i], gamma);
+            uprime[i] = log_amesh * gamma * u[i];
+            upp[i] = (log_amesh + frp[i]) * uprime[i]
+                     + (f_upp[i] + fr[i]) * u[i];
+        }
+
+        /* integrate from 0 to match */
+        node = 0;
+        for (i = 3; i < match; ++i)
+        {
+            /* predictors */
+            u[i + 1] = Predictor_Out (i, u, uprime);
+            uprime[i + 1] = Predictor_Out (i, uprime, upp);
+
+            /* correctors */
+            for (j = 0; j < Corrector_Iterations; ++j)
+            {
+                upp[i + 1] = (log_amesh + frp[i + 1]) * uprime[i + 1]
+                             + (f_upp[i + 1] + fr[i + 1]) * u[i + 1];
+                uprime[i + 1] = Corrector_Out (i, uprime, upp);
+                u[i + 1] = Corrector_Out (i, u, uprime);
+            }
+
+            /* finding nodes */
+            if (u[i + 1] * u[i] <= 0)
+                node = node + 1;
+        }
+        uout = u[match];
+        upout = uprime[match];
+
+        /* not enough nodes in u */
+        if ((node - n + l + 1) < 0)
+        {
+            Emin = E;
+            E = 0.5 * (Emin + Emax);
+        }
+        /* too many nodes in u */
+        else if ((node - n + l + 1) > 0)
+        {
+            Emax = E;
+            E = 0.5 * (Emin + Emax);
+        }
+        /* number of nodes ok, start integration inward */
+        else
+        {
+            upin=u_logderiv*uout;
+            /* Find Integral(u**2) */
+            sum = Norm_LogGrid (match, gamma, u);
+
+            sum = 1.0 / sqrt (sum);
+            uout = sum * uout;
+            upout = sum * upout;
+            upin = sum * upin;
+            for (i = 0; i <= match; ++i)
+            {
+                u[i] = sum * u[i];
+                uprime[i] = sum * uprime[i];
+            }
+            for (i = match + 1; i < Ngrid; ++i)
+            {
+                u[i] = 0.0;
+                uprime[i] = 0.0;
+            }
+
+            /* figure out new eigenvalue */
+            de = 0.5 * uout * (upout - upin) / (log_amesh * r[match]);
+
+            /* eigenvalue is converged, exit */
+            if (fabs (de) < (Max (fabs (E), 0.2) * tolerance))
+            {
+                *Eig = E;
+
+                /* deallocate memory */
+                dealloc_LogGrid (f_upp);
+                dealloc_LogGrid (upp);
+                dealloc_LogGrid (fr);
+                dealloc_LogGrid (frp);
+                dealloc_LogGrid (dv);
+
+                return;
+            }
+
+            if (de > 0.0)
+                Emin = E;
+            else
+                Emax = E;
+            E = E + de;
+            if ((E > Emax) || (E < Emin))
+                E = 0.5 * (Emin + Emax);
+
+        }			/* nodes ok */
+    }				/* while */
+
+    fprintf (stderr,
+"Error R_Dirac_Fixed_LogDeriv: More than %d iterations\n", Max_Iterations);
+    *Eig = E;
+
+    /* deallocate memory */
+    dealloc_LogGrid (f_upp);
+    dealloc_LogGrid (upp);
+    dealloc_LogGrid (fr);
+    dealloc_LogGrid (frp);
+    dealloc_LogGrid (dv);
+
+    return;
+}
+
