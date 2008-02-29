@@ -1,6 +1,9 @@
+c
+c     /* Main DFT driver */
+c
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.82 2007-10-06 01:22:08 niri Exp $
+c     $Id: dft_main0d.F,v 1.83 2008-02-29 19:30:48 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
