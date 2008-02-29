@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.28 2005-07-27 23:03:16 marat Exp $
+c     $Id: task_optimize.F,v 1.29 2008-02-29 19:27:01 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -34,23 +34,46 @@ c
 c     
       logical ousedriver, status, ts, omin
       logical ouselbfgs
+      logical ousedeloc
 c     
       character*32 theory
 c     
-      logical  task_gradient, stpr_walk_task, driver, nwmd
-      external task_gradient, stpr_walk_task, driver, nwmd
+      logical  task_gradient, stpr_walk_task, nwmd
+      external task_gradient, stpr_walk_task, nwmd
+c
+c     default optimizer (bfgs) driver
+      logical  driver
+      external driver
+c
+c     lbfgs optimizer optimizer driver
       logical lbfgsb_driver
       external lbfgsb_driver
+c
+c     delocalized internals optimizer driver
+      logical deloc_driver
+      external deloc_driver
 c     
       call ecce_print_module_entry('task optimize')
 c     
+c     default optimizer
       if (.not. rtdb_get(rtdb, 'opt:driver', mt_log, 1, ousedriver))
      $     ousedriver = .true.
 c
+c     bfgs optimizer
       if (.not. rtdb_get(rtdb, 'driver:lbfgs', mt_log, 1, ouselbfgs))
      $     ouselbfgs = .false.
+c
+c     delocalized internals optimizer
+      if (.not. rtdb_get(rtdb, 'driver:deloc', mt_log, 1, ousedeloc))
+     $     ousedeloc = .false.
+c
+c     turn off the other options if one is set
       if(ouselbfgs) then
           ousedriver = .false.
+          ousedeloc = .false.
+      else if (ousedeloc) then
+          ousedriver = .false.
+          ouselbfgs = .false.
       end if
 c     
       cpu  = util_cpusec()
@@ -89,9 +112,11 @@ c
          if (ousedriver) then
             if (.not. rtdb_put(rtdb,'driver:modsad',mt_int, 1, 0))
      $           call errquit('task_optimize: rtdb?',0, RTDB_ERR)
-            status = driver(rtdb)
+            status = driver(rtdb)           ! default optimizer
          else if(ouselbfgs) then
-            status =  lbfgsb_driver(rtdb)
+            status =  lbfgsb_driver(rtdb)   ! lbfgs optimizer
+         else if(ousedeloc) then
+            status =  deloc_driver(rtdb)    ! delocalized internals optimizer
          else
             ts   = .false.
             omin = .true.
@@ -138,8 +163,9 @@ c
       task_optimize = status
 c     
       end
+c
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.28 2005-07-27 23:03:16 marat Exp $
+c     $Id: task_optimize.F,v 1.29 2008-02-29 19:27:01 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -271,8 +297,9 @@ c
       task_saddle = status
 c     
       end
+c
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.28 2005-07-27 23:03:16 marat Exp $
+c     $Id: task_optimize.F,v 1.29 2008-02-29 19:27:01 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -356,8 +383,7 @@ c$$$c
 c$$$      task_lst = status
 c$$$c
       end
-
-
+c
       logical function task_neb(rtdb)
       implicit none
 #include "mafdecls.fh"
