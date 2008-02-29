@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.35 2008-02-29 01:20:34 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.36 2008-02-29 22:58:29 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -482,7 +482,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 drho
 cccccccc locals ccccccccccccccccccccccccccccccccccccccc       
       integer nproc,taskid,lp,ip,k,i,task_count,kappa,nw
-      real*8 fourpi,vv,a,gx,gy,gz,q,sint,qr
+      real*8 fourpi,vv,a,gx,gy,gz,q,sint,qr,dls
 cccccccc externals
       real*8 simp
       external simp
@@ -509,8 +509,9 @@ ccccccccccccc assign norms to each projector
          else
             nw= 2*lp+1
          end if
+         dls=dble(kappa)+1.0d0
          do k=1,nrho
-           vv= vp(k,lp) + dble(kappa)*vpso(k,lp)
+           vv= vp(k,lp) + dls*vpso(k,lp)
            f(k)=vv*wp(k,nw)*wp(k,nw)
          end do
          a=simp(nrho,f,drho)
@@ -598,7 +599,7 @@ cccccccc locals
       integer igx,igy,igz,nw,lp,icnt
       integer malfa,mbeta,kappa,ippot,key
       real*8 pi4,q,gx,gy,gz,a,d,vv,qr,pi
-      real*8 calfa,cbeta,dkappa
+      real*8 calfa,cbeta,dldots
 cccccc external
       real*8 simp,sjx
       complex*16 sphHarm
@@ -663,9 +664,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
                vv=vv*wp(1,1)
                f(1)=vv*sinqr(1)/q
             end if
-            dkappa=dble(kappa)
+ccccccccccccccc L*S = 1 + kappa
+            dldots=dble(kappa)+1.0d0
+cccccccccccccccc
             do k=2,nrho
-               vv=vp(k,lp)+dkappa*vpso(k,lp)
+               vv=vp(k,lp)+dldots*vpso(k,lp)
     	       vv=vv*wp(k,nw)
                qr=q*rho(k)
                a=sjx(qr,lp,cosqr(k),sinqr(k))
