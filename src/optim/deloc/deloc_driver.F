@@ -32,6 +32,7 @@ c
       integer i_grad,h_grad     ! gradients
       integer i_atsymb,h_atsymb ! atomic symbols
       integer i_covrad,h_covrad ! covalent radii
+      integer i_atnum,h_atnum   ! atomic numbers
 c
       double precision energy
       character*16 atsymb       ! atomic symbol of one atom
@@ -43,6 +44,8 @@ c     == external functions ==
       external task_gradient
       logical getcovalentradii  ! get the covalent radii
       external getcovalentradii
+      logical getatomicnumbers  ! get the atomic numbers
+      external getatomicnumbers
 c
 c     == algorithm related ==
       integer maxiter, igeomiter, itype, ierror
@@ -88,6 +91,11 @@ c     == allocate the covalent radii ==
      & call errquit( pname//'Failed to allocate memory for cov. radii',
      & natom, MA_ERR)
 c
+c     == allocate the atomic numbers ==
+      if(.not.ma_alloc_get(mt_int,natom,'at. nums',h_atnum,i_atnum))
+     & call errquit( pname//'Failed to allocate memory for at. nums',
+     & natom, MA_ERR)
+c
 c     == determine system type: molecular (itype = 0) or periodic (itype > 0) ==
       periodic = .false.
       if(.not. geom_systype_get(igeom,itype)) itype = 0  ! molecular by default
@@ -97,8 +105,13 @@ c     == get the number of iterations ==
       if(.not.rtdb_get(irtdb,'driver:nptopt',mt_int,1,maxiter))
      &  maxiter = 20
 c
-c     == get the covalent radii == MOVE TO UTILITY
-      returnstatus = getcovalentradii(igeom, natom, dbl_mb(i_covrad))
+c     == get the covalent radii ==
+      if (.not. getcovalentradii(igeom, natom, dbl_mb(i_covrad)))
+     & call errquit(pname//'Failed to get cov. radii',0, GEOM_ERR)
+c
+c     == get the atomic numbers ==
+      if (.not. getatomicnumbers(igeom, natom, int_mb(i_atnum)))
+     & call errquit(pname//'Failed to get atomic. nums',0, GEOM_ERR)
 c
 c     == test print out ==
 c      write(luout,*) "natom:",natom
@@ -106,8 +119,10 @@ c      do iatom = 1,natom
 c       write(luout,*) dbl_mb(i_coord+3*(iatom-1)),
 c     &                dbl_mb(i_coord+3*(iatom-1)+1),
 c     &                dbl_mb(i_coord+3*(iatom-1)+2),
-c     &                dbl_mb(i_covrad+iatom-1)
+c     &                dbl_mb(i_covrad+iatom-1),
+c     &                dbl_mb(i_atnum+iatom-1)
 c      end do
+c      stop
 c       
 c     == start optimization loop ==
       igeomiter = 0  ! initialize iteration counter
@@ -135,6 +150,7 @@ c     == call the main delocalized internals driver
      &           dbl_mb(i_coord),   ! coordinates
      &           dbl_mb(i_grad),    ! gradients
      &           dbl_mb(i_covrad),  ! covalent radii
+     &           int_mb(i_atnum),   ! atomic numbers
      &           converged, ierror)
 
       stop
@@ -177,8 +193,12 @@ c
      & call errquit(pname//'Failed to deallocate stack cov. radii',0,
      &       MA_ERR)
 c
+      if(.not.ma_free_heap(h_atnum))
+     & call errquit(pname//'Failed to deallocate stack atomic. nums',0,
+     &       MA_ERR)
+c
        if(.not.geom_destroy(igeom))
-     & call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+     & call errquit(pname//'Failed to destroy geometry',0, GEOM_ERR)
 c
       return
       end
