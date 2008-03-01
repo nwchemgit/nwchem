@@ -1,0 +1,7 @@
+c
+c     ================================
+c     == Delocalized internals data == 
+c     ================================
+c
+      double precision smallvalue
+      parameter (smallvalue = 1.0d-7)

@@ -6,6 +6,7 @@ c
 c
       implicit none
 c
+c     == general includes ==
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "geom.fh"
@@ -13,23 +14,35 @@ c
 #include "global.fh"
 #include "stdio.fh"
 c
+c     == delocalized internals includes ==
+#include "deloc_data.fh"
+c
 c     == general ==
-      integer irtdb
+      integer irtdb   ! input: handle to the runtime database
       integer master
       logical returnstatus
       character*32 pname
 c
 c     == geometry related ==
-      integer i
-      integer igeom
-      integer natom
-      integer i_coord,h_coord ! coordinates
-      integer i_grad,h_grad ! gradients
+      integer igeom  ! local handle to the main geometry object
+c
+      integer iatom, natom, ndim
+c
+      integer i_coord,h_coord   ! coordinates
+      integer i_grad,h_grad     ! gradients
+      integer i_atsymb,h_atsymb ! atomic symbols
+      integer i_covrad,h_covrad ! covalent radii
+c
       double precision energy
+      character*16 atsymb       ! atomic symbol of one atom
+      double precision xloc(3)  ! coordinate of one atom
+      double precision qloc(3)  ! charge on one atom
 c
 c     == external functions ==
-      logical task_gradient  ! energy/gradient driver
+      logical task_gradient     ! energy/gradient driver
       external task_gradient
+      logical getcovalentradii  ! get the covalent radii
+      external getcovalentradii
 c
 c     == algorithm related ==
       integer maxiter, igeomiter, itype, ierror
@@ -37,8 +50,14 @@ c     == algorithm related ==
       logical periodic
 c
 c     == preliminaries ==
-      pname ="deloc_driver" ! name of the driver
-      master=ga_nodeid()  ! get the master node
+      pname ="deloc_driver"     ! name of this driver
+      master=ga_nodeid()        ! get the master node
+      if (master.eq.0) then
+        write(luout,*)
+        write(luout,*) 
+     & "Geometry optimization using delocalized internal coordinates"
+        write(luout,*)
+      end if
 c
 c     == allocate necessary memory ==
 c
@@ -64,9 +83,10 @@ c     == allocate the gradients ==
      & call errquit( pname//'Failed to allocate memory for gradients',
      & 3*natom, MA_ERR)
 c
-c     == get the coordinates from the geometry object ==
-      if(.not.geom_cart_coords_get(igeom,dbl_mb(i_coord)))
-     & call errquit( pname//'Failed to get coordinates',0, GEOM_ERR)
+c     == allocate the covalent radii ==
+      if(.not.ma_alloc_get(mt_dbl,natom,'cov. radii',h_covrad,i_covrad))
+     & call errquit( pname//'Failed to allocate memory for cov. radii',
+     & natom, MA_ERR)
 c
 c     == determine system type: molecular (itype = 0) or periodic (itype > 0) ==
       periodic = .false.
@@ -77,16 +97,25 @@ c     == get the number of iterations ==
       if(.not.rtdb_get(irtdb,'driver:nptopt',mt_int,1,maxiter))
      &  maxiter = 20
 c
+c     == get the covalent radii == MOVE TO UTILITY
+      returnstatus = getcovalentradii(igeom, natom, dbl_mb(i_covrad))
+c
 c     == test print out ==
 c      write(luout,*) "natom:",natom
-c      do i = 1,natom
-c       write(luout,*) dbl_mb(i_coord+3*(i-1)),dbl_mb(i_coord+3*(i-1)+1),
-c     &                dbl_mb(i_coord+3*(i-1)+2)
+c      do iatom = 1,natom
+c       write(luout,*) dbl_mb(i_coord+3*(iatom-1)),
+c     &                dbl_mb(i_coord+3*(iatom-1)+1),
+c     &                dbl_mb(i_coord+3*(iatom-1)+2),
+c     &                dbl_mb(i_covrad+iatom-1)
 c      end do
 c       
 c     == start optimization loop ==
       igeomiter = 0  ! initialize iteration counter
   20  continue 
+c
+c     == get the coordinates from the geometry object ==
+      if(.not.geom_cart_coords_get(igeom,dbl_mb(i_coord)))
+     & call errquit( pname//'Failed to get coordinates',0, GEOM_ERR)
 c
 c     == calculate the energy/gradient ==
       if (.not. task_gradient(irtdb)) 
@@ -102,7 +131,13 @@ c
 c     == call the main delocalized internals driver
       converged = .false.
       ierror = 0
-      call deloc_main(periodic, converged, ierror)
+      call deloc(periodic, natom, ndim, 
+     &           dbl_mb(i_coord),   ! coordinates
+     &           dbl_mb(i_grad),    ! gradients
+     &           dbl_mb(i_covrad),  ! covalent radii
+     &           converged, ierror)
+
+      stop
 c
 c     == decide what to do if ierror > 0 == will handle later
 c     switch to another scheme after updating the database with the 
@@ -131,11 +166,17 @@ c     == end optimization loop ==
 c
 c     == deallocate necessary memory ==
       if(.not.ma_free_heap(h_grad))
-     & call errquit(pname//'Failed to deallocate stack grad',natom,
+     & call errquit(pname//'Failed to deallocate stack gradients',0,
      &       MA_ERR)
+c
       if(.not.ma_free_heap(h_coord))
-     & call errquit(pname//'Failed to deallocate stack coords',natom,
+     & call errquit(pname//'Failed to deallocate stack coords',0,
      &       MA_ERR)
+c
+      if(.not.ma_free_heap(h_covrad))
+     & call errquit(pname//'Failed to deallocate stack cov. radii',0,
+     &       MA_ERR)
+c
        if(.not.geom_destroy(igeom))
      & call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 c
