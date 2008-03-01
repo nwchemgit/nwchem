@@ -73,14 +73,14 @@ c     == initial checks ==
       end if
       if (natom.le.0) getatomicnumbers = .false.
 c
-      write(luout,*) "natoms:",natom
+c      write(luout,*) "natoms:",natom
 c     == loop over the atoms and get the atomic numbers ==
       do iatom = 1,natom
         atnum(iatom) = 0    ! default atomic number
         if (geom_cent_get(igeom, iatom, tag, xtmp, qtmp)) then
           if (geom_tag_to_element(tag, tag_symb, tag_elem, atn)) then
              atnum(iatom) = atn
-             write(luout,*) iatom, atnum(iatom)
+c             write(luout,*) iatom, atnum(iatom)
           end if
         end if
       end do

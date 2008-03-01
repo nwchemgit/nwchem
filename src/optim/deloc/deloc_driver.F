@@ -152,8 +152,6 @@ c     == call the main delocalized internals driver
      &           dbl_mb(i_covrad),  ! covalent radii
      &           int_mb(i_atnum),   ! atomic numbers
      &           converged, ierror)
-
-      stop
 c
 c     == decide what to do if ierror > 0 == will handle later
 c     switch to another scheme after updating the database with the 
