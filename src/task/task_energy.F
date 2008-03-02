@@ -117,7 +117,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.47 2008-01-17 18:01:55 marat Exp $
+* $Id: task_energy.F,v 1.48 2008-03-02 04:47:11 windus Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -320,6 +320,8 @@ cedo         prefix = 'mp2'
      &         'n = energy>] [numerical || analytic] [ignore]'
          endif
          status = .false.
+      else if (theory .eq. 'dangchang') then
+         status = dc_energy(rtdb)
       else
          call errquit('task_energy: unknown theory',0, INPUT_ERR)
       endif
