@@ -1,0 +1,82 @@
+$Id: readme,v 1.1 2008-03-02 05:06:26 windus Exp $
+****************************************************************
+      Program averagehist_5
+
+      Reads in multiple *.MCdata files created by the DNTMC module.  Produces a file *.fdist.average.(tempfinal)K which contains some property distributions obtained from the *.MCdata files.  This code is specific to water clusters in generall.  However, it may be modified to obtain properties of other systems.
+      The properties include:  1.)   Oxygen - Oxygen distances  , 2.)  Hydrogen Bond Lengths, 3.)  Hydrogen Bond Angles measured as the bending angle (0 is linear) centered at the hydrogen atom., 4.)  Hydrogen Bond Angles measured as the bending angle (0 is linear) centered at the oxygen atom.,  5.)  Total Energy, 6.)  Energy decomposed into portions which come from structures with differing amounts of hydrogen bonding,  6.)  Estimated Dipole interaction energy, and 7.)  Absolute Dipole Moments projected onto principal rotational axies.
+     The thermal averages of these properties along with other information is output to file *.fdist.average.(tempfinal)K.  This code is also capable of performing temperature scaling of the input data from the *.MCdata files which would allow the reading of *.MCdata files obtained at one temperature and producing properties at another temperature.
+
+     Input information
+
+     Input is read from std input.  These can be put in file and directed to the binary via the following syntax:  binary < file
+The input file contains the following fields.  These fields are separated by spaces or by newlines as in the following list.
+
+      'file name prefix' ! defines the prefix for files which are both read and written
+      'Tempinit and Temp' !inital and final temperature (K) for scaled distributions
+      'rmin and rmax' !grid min and max for O-O distance (Ang.)
+      'natoms, nmcchains' !number of atoms per configuration and markov chains (files)
+      'rcut' !cutoff of RConfig (All values .le.)
+      'emin and emax' !grid min and max for Energies (kcal/mole)
+      'maximum dipole moment' !grid max for Dipole Moments(au)
+      'number of monomers' !number of distinct water monomers
+      'Array of oxygen atom numbers' !atom numbers of oxygen atoms of each monomer
+      'Array of atomic masses' !Atomic masses (amu or g/mol)
+
+     Compilation
+
+     Standard fortran compilers should work.  The code does require blas and lapack libraries to be linked to.
+
+     Running
+
+     The resulting binary should be run in the same location as the input and output files.  If a file is prepaired as input named inputfile.inp and the binary is named averagehist_5.x, the syntax to run this program is averagehist_5.x < inputfile.inp
+
+****************************************************************
+      Program refinedistribution_5
+
+      Reads in multiple *.MCdata files created by the DNTMC module.  Produces a file *.fdist.output.(tempfinal)K which contains a new distribution determined by data read in from the *.MCdata files.  This new distribution has been scaled according to a change in temperature.  Temp is the temperature at which the *.MCdata files where obtained.  Final Temp is the temperature at which the new distribution is output in the *.fdist.output.(tempfinal)K file.
+
+     Input information
+
+     Input is read from std input.  These can be put in file and directed to the binary via the following syntax:  binary < file
+The input file contains the following fields.  These fields are separated by spaces or by newlines as in the following list.
+
+     'file name prefix' ! defines the prefix for files which are both read and written
+     'Init. Temp  and Final Temp' !inital and final temperature (K) for scaled distributions
+     'rmin and rmax' !grid min and max for distribution (Ang.)
+     'natoms and nmcchains' !number of atoms per configuration and markov chains (files)
+
+     Compilation
+
+     Standard fortran compilers should work. No special instructions
+
+     Running
+
+      The resulting binary should be run in the same location as the input and output files.  If a file is prepaired as input named inputfile.inp and the binary is named refinedistribution_5.x, the syntax to run this program is refinedistribution_5.x < inputfile.inp
+
+****************************************************************
+      Program Data_Analysis5
+
+      Reads in a distribution file (*.fdist) created by the DNTMC module.  This program wants this file to be names data_analysis.inp.  The results of the data_analysis are output to std output.  This code only supports homogenious nucleation, however, can be altered to include the possibility of different monomers.  For each entry in the (*.fdist) input file, 1.)  the number of configurations  2.)  Rcut  (Ang.)  3.)  Error in Rcut (Ang.)  4.)  Evaporation Rate constant (s^-1)  5.)  Error in Evaporation Rate Constant (s^-1)  6.)  Internal pressure (atm.)  7.)  Density (moles[cluster]/ml)
+
+      Input Information
+
+      Input is read from std input.  These can be put in file and directed to the binary via the following syntax:  binary < file
+The input file contains the following fields.  These fields are separated by spaces or by newlines as in the following list.
+
+      'rconfig and temp' !  A logical .true. or .false. which defines if the data to be read was obtained via the rconfig methodology
+                                !  Also the temperature in (K) that the data to be read was obtained.
+
+except for some variables in the code itself which must be set.  They are as follows:
+
+      mtot = 18.02D+00 ! Mass of monomers (amu)
+
+     Compilation
+
+     Standard fortran compilers should work. No special instructions
+
+     Running
+
+      The resulting binary should be run in the same location as the input files.  If a file is prepaired as input named inputfile.inp and the binary is named data_analysis5.x, the syntax to run this program is data_analysis5.x < inputfile.inp.  If the output needs to be saved to a file, this can be done with an output file named outputfile.out via: data_analysis5.x < inputfile.inp > outputfile.out
+
+
+
