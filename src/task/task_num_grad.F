@@ -5,7 +5,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.39 2007-09-04 19:37:51 d3p852 Exp $
+* $Id: task_num_grad.F,v 1.40 2008-03-03 20:09:05 niri Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -583,17 +583,14 @@ cedo  integer info
       integer maxat, nwork, maxat3
       parameter (maxat = 100, nwork=12) ! Nwork must be at least 6
       parameter (maxat3 = 3*maxat)
-      logical oactive(maxat)
+      logical oactive(natoms)
       integer nactive
-      double precision work(maxat3,nwork), eval(maxat3)
+      double precision work(natoms3,nwork), eval(natoms3)
       double precision centroid(3), x, y, z, xx, yy, zz, fx
       integer ifirstmax
       external ifirstmax
       double precision ddot
       external ddot
-c
-      if (natoms.gt.maxat) call errquit('fd_make_vec: hard dim', natoms,
-     &       INPUT_ERR)
 c
 c     Get list of active atoms.  If there are ANY frozen atoms then
 c     we cannot use or translational, or rotational invariance

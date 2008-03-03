@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.29 2008-02-29 19:27:01 niri Exp $
+c     $Id: task_optimize.F,v 1.30 2008-03-03 20:09:05 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -32,9 +32,10 @@ c     geometry             - final geometry from optimization
 c     
       double precision cpu, wall
 c     
-      logical ousedriver, status, ts, omin
-      logical ouselbfgs
-      logical ousedeloc
+      logical status, ts, omin
+      logical ousedriver ! use driver (default)
+      logical ouselbfgs  ! use lbfgs
+      logical ousedeloc  ! use delocalized internals
 c     
       character*32 theory
 c     
@@ -59,7 +60,7 @@ c     default optimizer
       if (.not. rtdb_get(rtdb, 'opt:driver', mt_log, 1, ousedriver))
      $     ousedriver = .true.
 c
-c     bfgs optimizer
+c     lbfgs optimizer
       if (.not. rtdb_get(rtdb, 'driver:lbfgs', mt_log, 1, ouselbfgs))
      $     ouselbfgs = .false.
 c
@@ -165,7 +166,7 @@ c
       end
 c
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.29 2008-02-29 19:27:01 niri Exp $
+c     $Id: task_optimize.F,v 1.30 2008-03-03 20:09:05 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -299,7 +300,7 @@ c
       end
 c
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.29 2008-02-29 19:27:01 niri Exp $
+c     $Id: task_optimize.F,v 1.30 2008-03-03 20:09:05 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
