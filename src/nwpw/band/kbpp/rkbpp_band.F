@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.36 2008-02-29 22:58:29 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.37 2008-03-03 19:02:32 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -509,7 +509,7 @@ ccccccccccccc assign norms to each projector
          else
             nw= 2*lp+1
          end if
-         dls=dble(kappa)+1.0d0
+         dls= -0.5*(dble(kappa)+1.0d0)
          do k=1,nrho
            vv= vp(k,lp) + dls*vpso(k,lp)
            f(k)=vv*wp(k,nw)*wp(k,nw)
@@ -599,7 +599,7 @@ cccccccc locals
       integer igx,igy,igz,nw,lp,icnt
       integer malfa,mbeta,kappa,ippot,key
       real*8 pi4,q,gx,gy,gz,a,d,vv,qr,pi
-      real*8 calfa,cbeta,dldots
+      real*8 calfa,cbeta,dls
 cccccc external
       real*8 simp,sjx
       complex*16 sphHarm
@@ -665,10 +665,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
                f(1)=vv*sinqr(1)/q
             end if
 ccccccccccccccc L*S = 1 + kappa
-            dldots=dble(kappa)+1.0d0
+            dls= -0.5*(dble(kappa)+1.0d0)
 cccccccccccccccc
             do k=2,nrho
-               vv=vp(k,lp)+dldots*vpso(k,lp)
+               vv=vp(k,lp)+dls*vpso(k,lp)
     	       vv=vv*wp(k,nw)
                qr=q*rho(k)
                a=sjx(qr,lp,cosqr(k),sinqr(k))
