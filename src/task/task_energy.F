@@ -117,7 +117,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.48 2008-03-02 04:47:11 windus Exp $
+* $Id: task_energy.F,v 1.49 2008-03-03 12:57:48 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -161,6 +161,8 @@ c
       external paw_energy,ofpw_energy
       logical task_smd_energy
       external task_smd_energy
+      logical dc_energy
+      external dc_energy
 c
       logical status
       double precision dipole(3)
