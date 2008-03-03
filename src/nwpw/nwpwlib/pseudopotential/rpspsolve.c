@@ -1,5 +1,5 @@
 /*
- $Id: rpspsolve.c,v 1.17 2008-02-29 22:57:44 d3p708 Exp $
+ $Id: rpspsolve.c,v 1.18 2008-03-03 19:03:04 d3p708 Exp $
 */
 
 #include <stdlib.h>
@@ -249,8 +249,7 @@ void FATR rpspsolve_
  *  Here we output the v average
  *     v_avg(l,r)=((l*v(l-1/2) + (l+1)*v(l+1/2))/(2*l+1)
  *************************************************************/
-	  vx = (p) * pspl[2 * p][k] + (p+1) * pspl[2 * p + 1][k];
-	  vx *= 1. / (2. * p + 1.);
+	  vx = ((p) * pspl[2 * p][k] + (p+1) * pspl[2 * p + 1][k])/(p+p+1);
 	  fprintf (fp, " %12.8lf", vx);
 	}
       fprintf (fp, "\n");
@@ -294,8 +293,8 @@ void FATR rpspsolve_
  *************************************************************/
       for (p = 1; p < nvh;++p)
 	{
-	  vx = pspl[2 * p][k] - pspl[2 * p+1][k];
-	  vx *= 1. / (2. * p + 1.);
+	  vx = (pspl[2 * p+1][k] - pspl[2 * p][k]);
+	  vx *= 2. / (2. * p + 1.);
 	  fprintf (fp, " %15.8lf", vx);
 	}
       fprintf (fp, "\n");
