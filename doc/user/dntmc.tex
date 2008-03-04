@@ -1,0 +1,334 @@
+%\chapter{Dynamic Nucleation Theory Monte Carlo}
+
+% $Id: dntmc.tex,v 1.1 2008-03-04 17:48:26 windus Exp $
+%
+\label{sec:dntmc} 1.)  Schenter, G. K.; Kathmann, S. M.; Garrett, B.
+C. {\it J. Chem. Phys.} ({\bf 1999}), {\it 110}, 7951. 2.)Crosby, L.
+D.; Kathmann, S. M.; Windus, T. L. ({\bf 2008}) in preparation.
+
+ The Dynamical Nucleation Theory/Monte Carlo
+(DNTMC) module utilizes Dynamical Nucleation Theory to compute monomer
+evaporation rate constants at a given temperature.  The reactant is
+a molecular cluster of $i$ rigid monomers while the product is a
+molecular cluster with $i-1$ monomers plus a free monomer.  A
+Metropolis Monte Carlo methodology is utilized to sample the
+configurational space of these $i$ rigid monomers.  At present only
+homogenous clusters are supported by this module.  The input does
+allow for the definition of heterogeneous clusters, however, the
+underlying code does not correctly extend to these systems.
+
+\section{SubGroups}
+
+The DNTMC module supports the use of subgroups in the MC
+simulations.  The number of subgroups is defined in the input
+through a set directive:
+\begin{verbatim}
+     set subgroup_number <integer number>
+\end{verbatim}
+,where the number of subgroups requested is the argument.  The
+number of processors that each subgroup has access to is determined
+by Total/subgroup\_number.  A separate MC simulation is performed
+within each subgroup.  To use this functionality, NWChem must be
+compiled with the USE\_SUBGROUPS environmental variable set to yes.
+
+Each MC simulation starts at a different starting configuration,
+which is equally spaced along the reaction coordinate.  The
+statistical distributions which these MC simulations produce are
+averaged to form the final statistical distribution.  Output from
+these subgroups consists of various files whose names are of the
+form (*.\#num). These files include restart files and other data
+files.  The RTDB is used as input for these subgroups and must be
+globally accessible (set through the Permanent\_Dir directive) to
+all processes.
+
+\newpage
+\section{Input Syntax}
+
+The input block has the following form:
+
+\begin{verbatim}
+DNTMC
+     [nspecies <integer number>]
+     [species  <list of strings name[nspecies]]
+     [nmol     <list of integers number[nspecies]>]
+
+     [temp     <real temperature>]
+     [rmin     <real rmin>]
+     [rmax     <real rmax>]
+     [mcsteps  <integer number>]
+     [tdisp    <real disp>]
+     [rdisp    <real rot>]
+     [rsim || rconfig]
+     [mprnt    <integer number>]
+     [convergence <real limit>]
+     [norestart]
+     [dntmc_dir <string directory>]
+
+     [print &&|| noprint]
+
+     [procrestart <integer number>]
+END
+\end{verbatim}
+
+\section{Definition of Monomers}
+
+Geometry informaion is required for each unique monomer (species).
+See the geometry input section \ref{sec:geom} for more information.
+A unique label must be given for each monomer geometry.
+
+\begin{verbatim}
+  GEOMETRY [<string name species_1>] ...
+      ...
+  END
+
+  GEOMETRY [<string name species_2>] ...
+      ...
+  END
+
+  ...
+\end{verbatim}
+
+The molecular cluster is defined by the number of unique monomers
+(nspecies).  The geometry labels for each unique monomer is given in
+a space delimited list (species).  Also required are the number of
+each unique monomer in the molecular cluster given as a space
+delimited list (nmol).  These keywords are required and thus have no
+default values.
+
+\begin{verbatim}
+     [nspecies <integer number>]
+     [species  <list of strings name[nspecies]]
+     [nmol     <list of integers number[nspecies]>]
+\end{verbatim}
+
+\section{DNTMC runtime options}
+
+Several options control the behavior of the DNTMC method.  Some
+required options such as simulation temperature (temp), cluster
+radius (rmin and rmax), and maximum number of Monte Carlo steps
+(mcsteps) are used to control the MC simulation.
+
+\begin{verbatim}
+     [temp     <real temperature>]
+\end{verbatim}
+This required option gives the simulation temperature in which the
+MC simulation is run.  Temperature is given in kelvin.
+
+\begin{verbatim}
+     [rmin     <real rmin>]
+     [rmax     <real rmax>]
+\end{verbatim}
+These required options define the minimum and maximum extent of the
+projected reaction coordinate (The radius of a sphere centered at
+the center of mass).  Rmin should be large enough to contain the
+entire molecular cluster of monomers and Rmax should be large enough
+to include any relevant configurational space (such as the position
+of the reaction bottleneck).  These values are given in Angstroms.
+
+\begin{verbatim}
+     [mcsteps  <integer number>]
+     [tdisp    <real disp default 0.04>]
+     [rdisp    <real rot default 0.06>]
+     [convergence <real limit default 0.00>]
+\end{verbatim}
+These options define some characteristics of the MC simulations. The
+maximum number of MC steps (mcsteps) to take in the course of the
+calculation run is a required option.  Once the MC simulation has
+performed this number of steps the calculation will end.  The
+maximum translational step size (tdisp) and rotational step size
+(rdisp) are optional inputs with defaults set at 0.04 Angstroms and
+0.06 radians, respectively.  The convergence keyword allows the
+convergence threshold to be set.  The default is 0.00 which
+effectively turns off this checking.  Once the measure of
+convergence goes below this threshold the calculation will end.
+
+\begin{verbatim}
+     [rsim || rconfig]
+\end{verbatim}
+These optional keywords allow the selection of two different MC
+sampling methods.  rsim selects a Metropolis MC methodology which
+samples configurations according to a Canonical ensemble.  The
+rconfig keyword selects a MC methodology which samples
+configurations according to a derivative of the Canonical ensemble
+with respect to the projected reaction coordinate.  These keywords
+are optional with the default method being rconfig.
+
+\begin{verbatim}
+     [mprnt    <integer number default 10>]
+     [dntmc_dir <string directory default ./>]
+     [norestart]
+\end{verbatim}
+These three options define some of the output and data analysis
+behavior. mprnt is an option which controls how often data analysis
+occurs during the simulation.  Currently, every mprnt*100 MC steps
+data analysis is performed and results are output to files and/or to
+the log file.  Restart files are also written every mprnt number of
+MC steps during the simulation.  The default value is 10. The
+keyword dntmc\_dir allows the definition of an alternate directory
+to place DNTMC specific ouputfiles.  These files can be very large
+so be sure enough space is available.  This directory should be
+accessible by every process (although not necessarily globally
+accessible).  The defualt is to place these files in the directory
+which NWChem is run (./).  The keyword norestart turns off the
+production of restart files. By default restart files are produced
+every mprnt number of MC steps.
+
+\section{Print Control}
+The DNTMC module supports the use of PRINT and NOPRINT Keywords. The
+specific labels which DNTMC recognizes are included below.
+
+\begin{table}[htbp!]
+\begin{center}
+\begin{tabular}{lcc}
+  {\bf Name}          & {\bf Print Level} & {\bf Description} \\
+``debug'' &      debug & \begin{minipage}{0.6\textwidth}Some debug
+information written in Output
+file.\end{minipage} \\
+\\
+``information'' & none & \begin{minipage}{0.6\textwidth}Some
+information such as energies and
+geometries.\end{minipage}\\
+\\
+``mcdata'' & low & \begin{minipage}{0.6\textwidth} Production of a
+set of files (Prefix.MCdata.\#num). These files are a concatenated
+list of structures, Energies, and Dipole Moments for each accepted
+configuration sampled in the MC run.\end{minipage}\\
+\\
+``alldata'' & low & \begin{minipage}{0.6\textwidth}Production of a
+set of files (Prefix.Alldata.\#num).  These files include the same
+information as MCdata files.  However, they include ALL
+configurations (accepted or
+rejected).\end{minipage}\\
+\\
+``mcout'' & debug -- low  &
+\begin{minipage}{0.6\textwidth}Production of a set of files
+(Prefix.MCout.\#num).  These files contain a set of informative and
+debug information.  Also included is the set of information which
+mirrors the Alldata files.\end{minipage}\\
+\\
+``fdist'' & low & \begin{minipage}{0.6\textwidth}Production of a
+file (Prefix.fdist) which contains
+a concatenated list of distributions every mprnt*100 MC steps.\end{minipage}\\
+\\
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{DNTMC Restart}
+
+\begin{verbatim}
+     [procrestart <integer number>]
+\end{verbatim}
+Flag to indicate restart postprocessing.  In order to restart a
+DNTMC run postprocessing is required to put required information
+into the runtime database (RTDB).  During a run restart information
+is written to files (Prefix.restart.\#num) every mprnt MC steps.
+This information must be read and deposited into the RTDB before a
+restart run can be done.  The number taken as an argument is the
+number of files to read and must also equal the number of subgroups
+the calculation utilizes.  The start directive must also be set to
+restart for this to work properly.  All input is read as usual.
+However, values from the restart files take precedence over input
+values. Some keywords such as mcsteps are not defined in the restart
+files.  Task directives are ignored. You must have a RTDB present in
+your permanent directory.
+
+Once postprocessing is done a standard restart can be done from the
+RTDB by removing the procrestart keyword and including the restart
+directive.
+
+\section{Task Directives}
+The DNTMC module can be used with any level of theory which can
+produce energies.  Gradients and Hessians are not required within
+this methodology.  If dipole moments are available, they are also
+utilized.  The task directive for the DNTMC module is shown below:
+\begin{verbatim}
+     task <string theory> dntmc
+\end{verbatim}
+
+\section{Example}
+This example is for a molecular cluster of 10 monomers.  A 50/50
+mixture of water and ammonia.  The energies are done at the
+SCF/6-31++G** level of theory.
+
+\begin{verbatim}
+    start
+    # start or restart directive if a restart run
+    MEMORY 1000 mb
+
+    PERMANENT_DIR /home/bill
+    # Globally accessible directory which the
+    # rtdb (*.db) file will/does reside.
+
+    basis "ao basis" spherical noprint
+        * library 6-31++G**
+    end
+    # basis set directive for scf energies
+
+    scf
+        singlet
+        rhf
+        tol2e 1.0e-12
+        vectors input atomic
+        thresh 1.0e-06
+        maxiter 200
+        print none
+    end
+    # scf directive for scf energies
+
+    geometry geom1 units angstroms noautosym nocenter noprint
+    O  0.393676503613369      -1.743794626956820      -0.762291912129271
+    H -0.427227157125777      -1.279138812526320      -0.924898279781319
+    H  1.075463952717060      -1.095883929075060      -0.940073459864222
+    symmetry c1
+    end
+    # geometry of a monomer with title "geom1"
+
+    geometry geom2 units angstroms noautosym nocenter noprint
+    N     6.36299e-08     0.00000     -0.670378
+    H     0.916275     0.00000     -0.159874
+    H     -0.458137     0.793517     -0.159874
+    H     -0.458137     -0.793517     -0.159874
+    symmetry c1
+    end
+    # geometry of another monomer with title "geom2"
+    # other monomers may be included with different titles
+
+    set subgroups_number 8
+    # set directive which gives the number of subgroups
+    # each group runs a separate MC simulation
+
+    dntmc
+    # DNTMC input block
+        nspecies 2
+        # The number of unique species (number of titled geometries
+        # above)
+        species geom1 geom2
+        # An array of geometry titles (one for each
+        # nspecies/geometry)
+        nmol    5  5
+        # An array stating the number of each
+        # monomer/nspecies/geometry in simulation.
+        temp  243.0
+        mcsteps 1000000
+        rmin 3.25
+        rmax 12.25
+        mprnt 10
+        tdisp 0.04
+        rdisp 0.06
+        print none fdist mcdata
+        # this print line first sets the print-level to none
+        # then it states that the *.fdist and *.mcdata.(#num)
+        # files are to be written
+        rconfig
+        dntmc_dir /home/bill/largefile
+        # An accessible directory which to place the *.fdist,
+        # *.mcdata.(#num), and *.restart.(#num) files.
+        convergence 1.0D+00
+    end
+
+    task scf dntmc
+    # task directive stating that energies are to be done at the scf
+    #level of theory.
+\end{verbatim}
+
