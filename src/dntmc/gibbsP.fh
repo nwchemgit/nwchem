@@ -1,9 +1,13 @@
-C$Id: gibbsP.fh,v 1.1 2006-03-10 01:23:36 windus Exp $
+C$Id: gibbsP.fh,v 1.2 2008-03-04 17:55:12 windus Exp $
 c
 c First attemp to put some of this information into an include file
 c
+C     version 5.0  Dec. 20, 2007 full release version (lcrosby)
+
       INTEGER MXATOM,MXMOLS,MXSP
+      integer NOB ! put in gibbsP.fh
 c
       PARAMETER (MXATOM = 5)
       PARAMETER (MXMOLS = 40)
       PARAMETER (MXSP   = 6)
+      PARAMETER (NOB = 100)

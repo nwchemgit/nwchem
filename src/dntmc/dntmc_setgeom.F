@@ -1,4 +1,4 @@
-C $Id: dntmc_setgeom.F,v 1.4 2007-05-21 20:53:52 windus Exp $
+C $Id: dntmc_setgeom.F,v 1.5 2008-03-04 17:55:12 windus Exp $
 c
 c  Sets up NWChem and the DNTMC geometry information from the input
 c  information.  When come out of here should have a geometry in the rtdb
@@ -7,8 +7,10 @@ c  the same species), masses, total number of molecules, number of species,
 c  number of atoms in a species, and list of unique species numbers will be
 c  populated.
 c  
+C     version 5.0  Dec. 20, 2007 full release version (lcrosby)
+
       subroutine dntmc_getspecinfo(rtdb, nmols, natom, rinit, uspc, 
-     &            nspecies, m)
+     &            nspecies, m, SPC, tag)
 
       implicit none
 #include "gibbsP.fh"
@@ -24,9 +26,10 @@ c
       double precision rinit(mxmols, mxatom, 3)   ! [output] coordinates
       integer uspc(mxsp) ! [output] list of unique species numbers
       double precision m(mxsp, mxatom)   ! [output] masses
-
+      integer spc(mxmols)  ! [output] list of species numbers for molecules
+      character*16 tag(mxatom*mxmols) ![output] contains atom tags
       integer nmolunique(mxsp)  ! contains the number of molecules for each species
-      integer l_spec, k_spec, i
+      integer l_spec, k_spec, i, j, k
 c
 c  Get the number of species and molecules off the rtdb
 c
@@ -47,6 +50,16 @@ c
       do i = 1, nspecies
          nmols = nmols + nmolunique(i)
       enddo
+
+C Setup list of species numbers for each molecule (done in blocks)
+      K = 1
+      DO I = 1, nspecies
+        DO J = K, K+nmolunique(I)-1
+          SPC(J) = I
+        END DO
+        K = J
+      END DO
+
 c     write(6,*) 'in getspecinfo nmols is ', nmols
 c
 c  Get the geometry names out of the rtdb and load the geometries
@@ -56,7 +69,7 @@ c
      &    ('dntmc_getspecgeom: cannot allocate species', 0, MA_ERR)
       call dntmc_getspecgeomnames(rtdb, nspecies, byte_mb(k_spec))
       call dntmc_getspecgeom(rtdb, nspecies, byte_mb(k_spec),
-     &      uspc, natom, rinit, m, nmolunique)
+     &      uspc, natom, rinit, m, nmolunique, tag)
       if (.not.ma_pop_stack(l_spec)) call errquit
      &    ('dntmc_getspecgeom: ma pop failed for species', 1, MA_ERR)
 
@@ -91,7 +104,7 @@ C Get information from the geometries that are stored on the rtdb
 C This is really the routine that does most of the heavy lifting
 C
       subroutine dntmc_getspecgeom(rtdb, nspecies, species, uspc, natom,
-     &            rinit, m, nmolunique)
+     &            rinit, m, nmolunique, tag)
 
       implicit none
 #include "gibbsP.fh"
@@ -108,6 +121,7 @@ C
       double precision rinit(mxmols, mxatom, 3)   ! [output] coordinates
       integer uspc(nspecies) ! [output] list of unique species numbers
       double precision m(mxsp, mxatom)   ! [output] masses
+      character*16 tag(mxatom*mxmols) ![output] contains atom labels
 c
       integer i, nattotal, istart, geom
       integer l_ct, k_ct, l_qt, k_qt, l_mt, k_mt, l_tt, k_tt ! cluster indices
@@ -206,7 +220,8 @@ c        write(6,*) 'before the dntmc_speciestocluster call'
          call dntmc_speciestocluster(istart, nmolunique(i), natom(i),
      &         nattotal,
      &         dbl_mb(k_c), dbl_mb(k_ct), dbl_mb(k_q), dbl_mb(k_qt),
-     &         dbl_mb(k_m), dbl_mb(k_mt), byte_mb(k_t), byte_mb(k_tt))
+     &         dbl_mb(k_m), dbl_mb(k_mt), byte_mb(k_t), byte_mb(k_tt),
+     &         tag)
 c        write(6,*) 'after the dntmc_speciestocluster call'
 c
 c get rid of local memory for next round
@@ -240,7 +255,7 @@ C Copy the species geometry information to the cluster information
 C
       subroutine dntmc_speciestocluster(iloc, nmols, natom, nattotal, 
      &     clocal, ccluster, qlocal, qcluster, mlocal, mcluster,
-     &     tlocal, tcluster)
+     &     tlocal, tcluster, tag)
 
       implicit none
 
@@ -256,6 +271,7 @@ C
       double precision mcluster(nattotal) ! [input/output] masses of the cluster
       character*16 tlocal(natom) ! [input] tags for the species
       character*16 tcluster(nattotal) ! [input/output] tags for the cluster
+      character*16 tag(nattotal) ! [output] tags for cluster
 c
       integer i, j
 c
@@ -267,6 +283,7 @@ c
             qcluster(iloc) = qlocal(j)
             mcluster(iloc) = mlocal(j)
             tcluster(iloc) = tlocal(j)
+            tag(iloc) = tlocal(j)
             iloc = iloc + 1
          enddo
       enddo

@@ -1,10 +1,13 @@
       subroutine dntmc_input(rtdb)
-C     $Id: dntmc_input.F,v 1.4 2007-05-21 20:53:52 windus Exp $
+C     $Id: dntmc_input.F,v 1.5 2008-03-04 17:55:12 windus Exp $
+C     version 5.0  Dec. 20, 2007 full release version (lcrosby)
+
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "util.fh"
 c
       integer rtdb  ! [input]
 c
@@ -15,6 +18,8 @@ c
       double precision temp, rmin, rmax
       double precision disp, alpha
       integer i, l_nmol, k_nmol, k_spec, l_spec
+      double precision conv
+      character*256 directory
 C
 C  Some defaults
 C
@@ -164,24 +169,56 @@ c
      &     ('dntmc_input: rtdb put failed for rdisp', 0,
      &     RTDB_ERR)
 
-      else if (inp_compare(.false.,'rweight', test)) then
+      else if (inp_compare(.false.,'rconfig', test)) then
 c
 c  rweight keywork to allow rsim weighting
 c
-      if (.not. rtdb_put(rtdb, 'dntmc:rweight', MT_LOG, 1, .true.))
-     &  call errquit('dntmc_input: rtdb put failed for rweight',0,
+      if (.not. rtdb_put(rtdb, 'dntmc:rconf', MT_LOG, 1, .true.))
+     &  call errquit('dntmc_input: rtdb put failed for rconf',0,
      &  RTDB_ERR)
 
-       else if (inp_compare(.false.,'node', test)) then
-
+      else if (inp_compare(.false.,'rsim',test)) then
 c
-c  node keyword to place starting structure along rsim
+c  rweight keywork to allow rsim weighting
 c
-       if (.not. inp_i(node)) call errquit
-     &    ('dntmc_input: node <int>', 0, INPUT_ERR)
-      if (.not. rtdb_put(rtdb, 'dntmc:node', MT_INT, 1, node))
-     &  call errquit('dntmc_input: rtdb put failed for node',0,
+      if (.not. rtdb_put(rtdb, 'dntmc:rconf', MT_LOG, 1, .false.))
+     &  call errquit('dntmc_input: rtdb put failed for rconf',0,
      &  RTDB_ERR)
+      
+
+      else if (inp_compare(.false.,'print', test)) then
+C
+C  Setup print control
+C
+      call util_print_input(rtdb,'dntmc')
+
+      else if (inp_compare(.false.,'noprint', test)) then
+C
+C  Setup print control
+C
+      call util_print_input(rtdb,'dntmc')
+
+
+      else if (inp_compare(.false.,'convergence',test)) then
+C
+C  Define convergence criterion
+C
+       if (.not. inp_f(conv)) call errquit
+     &    ('dntmc_input: convergence <limit>', 0, INPUT_ERR)
+       if (.not. rtdb_put(rtdb, 'dntmc:convergence', MT_DBL, 1,
+     &     conv)) call errquit
+     &     ('dntmc_input: rtdb put failed for convergence', 0,
+     &     RTDB_ERR)
+
+      else if (inp_compare(.false.,'dntmc_dir',test)) then
+C
+C  Define directory for files
+C
+      if (.not. inp_a(directory)) call errquit
+     &   ('dntmc_input: error reading dntmc_directory',0, INPUT_ERR)
+      if (.not. rtdb_cput(rtdb,'dntmc:directory', 1, directory)) 
+     &   call errquit
+     &   ('dntmc_input: rtdb put failed for dntmc_dir',0,RTDB_ERR)
 
       else
         call errquit('dntmc_input: unrecognized directive', 0, 
