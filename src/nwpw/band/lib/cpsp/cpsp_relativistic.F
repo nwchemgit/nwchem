@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.21 2008-02-27 17:31:47 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.22 2008-03-07 23:54:55 d3p708 Exp $
 *
 
 
@@ -454,7 +454,6 @@ cccccccccc if this atom is not HGH PPOT skip it....
 cccccccccccccccccccccccccccccccccccccccccccc
         nproj = int_mb(nprj(1)+ia-1)
         if (nproj.gt.0) then
-
         do nbq=1,nbrill
            nb = Pneb_convert_nb(nbq)
            psi1_shift = cpsi_data_get_chnk(psi1_tag,nbq)
