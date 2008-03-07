@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.37 2008-03-03 19:02:32 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.38 2008-03-07 23:53:37 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -125,11 +125,13 @@ cccccccccccccccccccccccccccccccccccccc
          nprj=nprj+4*kp+2
       end do
       nprj=nprj+2*lmax0
+      if (nprj.lt.2) nprj=2
       nprj_out=0
       do kp=0,lmax_out-1
          nprj_out=nprj_out+4*kp+2
       end do
       nprj_out=nprj_out+2*lmax_out
+      if (nprj_out.lt.2) nprj_out=2
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
