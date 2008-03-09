@@ -4,10 +4,12 @@
      &  d_f1,k_f1_offset,d_v2,k_v2_offset,
      &  d_t1,k_t1_offset,d_t2,k_t2_offset,
      &  d_y1,k_y1_offset,d_y2,k_y2_offset,
-     &  d_tr1ap,d_tr1am,k_tr1a_offset,d_tr2ap,d_tr2am,k_tr2a_offset,
-     &  d_tr1bp,d_tr1bm,k_tr1b_offset,d_tr2bp,d_tr2bm,k_tr2b_offset)
+     &  d_tr1ap,d_tr1am,k_tr1a_offset,
+     &  d_tr2ap,d_tr2am,k_tr2a_offset,
+     &  d_tr1bp,d_tr1bm,k_tr1b_offset,
+     &  d_tr2bp,d_tr2bm,k_tr2b_offset)
 c
-c $Id: tce_ccsd_symm_polar.F,v 1.4 2008-03-07 04:34:11 jhammond Exp $
+c $Id: tce_ccsd_symm_polar.F,v 1.5 2008-03-09 01:34:25 jhammond Exp $
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -65,6 +67,25 @@ c#include "tce_diis.fh"
       nodezero=(ga_nodeid().eq.0)
       cpu=-util_cpusec()
       wall=-util_wallsec()
+! #if defined(DEBUG_PRINT)
+!         if(nodezero) then
+!         write(LuOut,*) '================================='
+!         write(LuOut,*) 'irrep=',irrep_a1,irrep_b1
+!         write(LuOut,*) 'd_d1=',d_a1,d_b1
+!         write(LuOut,*) 'k_d1=',k_a1_offset,k_b1_offset
+!         write(LuOut,*) 'f1=',d_f1,k_f1_offset
+!         write(LuOut,*) 'v2=',d_v2,k_v2_offset
+!         write(LuOut,*) 't1=',d_t1,k_t1_offset
+!         write(LuOut,*) 't2=',d_t2,k_t2_offset
+!         write(LuOut,*) 'y1=',d_y1,k_y1_offset
+!         write(LuOut,*) 'y2=',d_y2,k_y2_offset
+!         write(LuOut,*) 'tr1a=',d_tr1ap, d_tr1am,k_tr1a_offset
+!         write(LuOut,*) 'tr2a=',d_tr2ap,d_tr2am,k_tr2a_offset
+!         write(LuOut,*) 'tr1b=',d_tr1bp,d_tr1bm,k_tr1b_offset
+!         write(LuOut,*) 'tr2b=',d_tr2bp,d_tr2bm,k_tr2b_offset
+!         write(LuOut,*) '================================='
+!         endif
+! #endif
       alpha1=0.0d0
       alpha2=0.0d0
       alpha3=0.0d0

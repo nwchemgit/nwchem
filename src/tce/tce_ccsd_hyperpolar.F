@@ -1,4 +1,4 @@
-      subroutine tce_ccsd_hyperpolar(beta,debugprint,
+      subroutine tce_ccsd_hyperpolar(beta,
      &  respaxis,irrep_d1,d_d1,k_d1_offset,
      &  d_f1,k_f1_offset,d_v2,k_v2_offset,
      &  d_t1,k_t1_offset,d_t2,k_t2_offset,
@@ -6,8 +6,8 @@
      &  d_tr1,k_tr1_offset,d_tr2,k_tr2_offset,
      &  d_yr1,k_yr1_offset,d_yr2,k_yr2_offset)
 c
-c $Id: tce_ccsd_hyperpolar.F,v 1.3 2008-02-12 17:19:27 jhammond Exp $
-c 
+c $Id: tce_ccsd_hyperpolar.F,v 1.4 2008-03-09 01:34:25 jhammond Exp $
+c
 c Written by Jeff Hammond, January 2008.
 c
       implicit none
@@ -61,7 +61,7 @@ c      integer size_b0           ! File size in doubles
       integer k_y1_offset      ! Offset for Lambda 1 file
       integer d_y2             ! Lambda 2 file
       integer k_y2_offset      ! Offset for Lambda 2 file
-      logical nodezero,debugprint,respaxis(3)
+      logical nodezero,respaxis(3)
       double precision cpu
       double precision wall
       double precision omega
@@ -105,11 +105,11 @@ c
             if ( ( respaxis(axisA).and.respaxis(axisB) )
      &                            .and.respaxis(axisC) ) then
 c
-              if (debugprint) then
+#if defined(DEBUG_PRINT)
                 write(LuOut,*) "axisA = ",axisA
                 write(LuOut,*) "axisB = ",axisB
                 write(LuOut,*) "axisC = ",axisC
-              endif
+#endif
 c
               call tce_ccsd_hyperpolar_eval(beta1,beta2,beta3,beta4,
      1             d_d1(axisA),k_d1_offset(axisA),
@@ -125,12 +125,12 @@ c
      2             d_yr1(axisA),k_yr1_offset(axisA),
      3             d_yr2(axisA),k_yr2_offset(axisA))
 c
-              if (debugprint) then
+#if defined(DEBUG_PRINT)
                 write(LuOut,*) "beta1 = ",beta1
                 write(LuOut,*) "beta2 = ",beta2
                 write(LuOut,*) "beta3 = ",beta3
                 write(LuOut,*) "beta4 = ",beta4
-              endif
+#endif
 c
 c             This term contributes to only one component
 c
@@ -163,7 +163,7 @@ c
       cpu=cpu+util_cpusec()
       wall=wall+util_wallsec()
       if (nodezero) write(LuOut,9020) cpu, wall
-      return  
+      return
 c
 c     ======
 c     Format
@@ -185,8 +185,8 @@ c
      &  d_tr1c,k_tr1c_offset,d_tr2c,k_tr2c_offset,
      &  d_yr1a,k_yr1a_offset,d_yr2a,k_yr2a_offset)
 c
-c $Id: tce_ccsd_hyperpolar.F,v 1.3 2008-02-12 17:19:27 jhammond Exp $
-c 
+c $Id: tce_ccsd_hyperpolar.F,v 1.4 2008-03-09 01:34:25 jhammond Exp $
+c
 c Written by Jeff Hammond, February 2008.
 c
       implicit none
@@ -225,7 +225,7 @@ c
       integer k_yr1a_offset     ! Offset for yr1 file
       integer d_yr2a            ! SF handle for yr2 amplitudes
       integer k_yr2a_offset     ! Offset for yr2 file
-      integer d_tr1a,d_tr1b,d_tr1c          
+      integer d_tr1a,d_tr1b,d_tr1c
       integer k_tr1a_offset,k_tr1b_offset,k_tr1c_offset
       integer d_tr2a,d_tr2b,d_tr2c
       integer k_tr2a_offset,k_tr2b_offset,k_tr2c_offset
@@ -241,7 +241,7 @@ c
       integer k_y1_offset       ! Offset for Lambda 1 file
       integer d_y2              ! Lambda 2 file
       integer k_y2_offset       ! Offset for Lambda 2 file
-      logical nodezero,debugprint
+      logical nodezero
       double precision cpu
       double precision wall
       double precision omega
@@ -322,5 +322,5 @@ c
      1     call errquit("tce_ccsd_hyperpolar: MA problem",
      2                  l_b0_offset,MA_ERR)
 c
-      return  
+      return
       end

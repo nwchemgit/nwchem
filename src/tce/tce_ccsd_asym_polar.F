@@ -1,4 +1,4 @@
-      double precision function tce_ccsd_asym_polar(omega,debugprint,
+      double precision function tce_ccsd_asym_polar(omega,
      &  irrep_a1,d_a1,k_a1_offset,irrep_b1,
      &  d_f1,k_f1_offset,d_v2,k_v2_offset,
      &  d_t1,k_t1_offset,d_t2,k_t2_offset,
@@ -6,8 +6,8 @@
      &  d_tr1,k_tr1_offset,d_tr2,k_tr2_offset,
      &  d_yr1,k_yr1_offset,d_yr2,k_yr2_offset)
 c
-c $Id: tce_ccsd_asym_polar.F,v 1.3 2008-02-12 17:19:27 jhammond Exp $
-c 
+c $Id: tce_ccsd_asym_polar.F,v 1.4 2008-03-09 01:34:25 jhammond Exp $
+c
 c Written by Jeff Hammond, January 2008.
 c
       implicit none
@@ -76,7 +76,7 @@ c
       integer size_y1          ! File size in doubles
       integer k_y2_offset      ! Offset for Lambda 2 file
       integer size_y2          ! File size in doubles
-      logical nodezero,debugprint
+      logical nodezero
       double precision cpu
       double precision wall
       double precision omega
@@ -135,7 +135,7 @@ c
      1     call errquit("tce_ccsd_asym_polar: MA problem",
      2                  l_a0_offset,MA_ERR)
       tce_ccsd_asym_polar=alpha0
-      return  
+      return
 c
 c     ======
 c     Format
