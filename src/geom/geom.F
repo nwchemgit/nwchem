@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.141 2007-12-14 00:44:50 marat Exp $
+C$Id: geom.F,v 1.142 2008-03-11 20:22:01 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -1308,6 +1308,54 @@ c
       call dcopy(3*ncenter(geom), velocities(1,1,geom), 1, vel, 1)
 c
       end
+      function geom_cart_set1(geom, i0,ncent,nt, t, c, q)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "stdio.fh"
+c     
+      logical geom_cart_set1
+      integer geom              ! [input]
+      integer i0                ! [input]
+      integer ncent             ! [input]
+      integer nt             ! [input]
+      character*16 t(nt)     ! [input]
+      double precision c(nt,3) ! [input]
+      double precision q(nt) ! [input]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i,j
+      double precision scale
+c
+      write(*,*) "coordinates out"
+      do i=1,ncent
+        write(*,*) c(i,1),c(i,2),c(i,3)
+      end do
+      geom_cart_set1 = geom_check_handle(geom, 'geom_cart_set')
+      if (.not. geom_cart_set1) return
+c
+      if (ncent.le.0 .or. ncent.gt.max_cent) then
+         write(LuOut,*) ' geom_cart_set: too many centers ',ncent,
+     $        names(geom)(1:lenn(geom))
+         return
+      end if
+c
+      if (ncenter(geom).ne.ncent) then
+         ncenter_unique(geom) = ncent ! Assume symmetry is unchanged !!!!!
+      endif
+      ncenter(geom) = ncent
+      scale = angstrom_to_au
+      do i = 1, ncent
+         j = i0+i-1
+         tags(i,geom) = t(j)
+         charge(i,geom) = q(j)
+         coords(1,i,geom) = scale*c(j,1)
+         coords(2,i,geom) = scale*c(j,2)
+         coords(3,i,geom) = scale*c(j,3)
+         unique_cent(i,geom) = i
+      end do
+c
+      end
       logical function geom_cart_set(geom, ncent, t, c, q)
       implicit none
 #include "nwc_const.fh"
@@ -2247,6 +2295,251 @@ c
       symbol = ' '
       element = ' '
       atn = 0
+      return
+c
+      end
+      function geom_tag_to_charge(nt,tag,q)
+      implicit none
+#include "inp.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+      logical geom_tag_to_charge
+      integer nt
+      integer i
+      logical match
+      character*2 symbols(nelements)
+      character*16 elements(nelements)
+      character*16 tag(nt)                  ! [input]
+      double precision  q(nt)            ! [output]
+c
+c     attempt to figure out which element a tag refers to
+c     and return the symbol, name and atomic no.
+c
+      integer lbuf, ind
+      character*16 buf
+      character*1 sym1(14)      ! 1 character atomic symbols+atomic no.s
+      integer atn1(14)
+      data symbols/
+     $     'H ', 'He', 'Li', 'Be', 'B ', 'C ', 'N ', 'O ', 'F ', 'Ne',
+     $     'Na', 'Mg', 'Al', 'Si', 'P ', 'S ', 'Cl', 'Ar', 'K ', 'Ca',
+     $     'Sc', 'Ti', 'V ', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
+     $     'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y ', 'Zr',
+     $     'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn',
+     $     'Sb', 'Te', 'I ', 'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd',
+     $     'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb',
+     $     'Lu', 'Hf', 'Ta', 'W ', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
+     $     'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
+     $     'Pa', 'U ', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
+     $     'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt'/
+      data elements/
+     $     'Hydrogen', 'Helium', 'Lithium', 'Beryllium', 'Boron',
+     $     'Carbon', 'Nitrogen', 'Oxygen', 'Fluorine', 'Neon', 'Sodium',
+     $     'Magnesium', 'Aluminium', 'Silicon', 'Phosphorous',
+     $     'Sulphur', 'Chlorine', 'Argon', 'Potassium', 'Calcium',
+     $     'Scandium', 'Titanium', 'Vanadium', 'Chromium', 'Manganese',
+     $     'Iron', 'Cobalt', 'Nickel', 'Copper', 'Zinc', 'Gallium',
+     $     'Germanium', 'Arsenic', 'Selenium', 'Bromine', 'Krypton',
+     $     'Rubidium', 'Strontium', 'Yttrium', 'Zirconium', 'Niobium',
+     $     'Molybdenum', 'Technetium', 'Ruthenium', 'Rhodium',
+     $     'Palladium', 'Silver', 'Cadmium', 'Indium', 'Tin',
+     $     'Antinomy', 'Tellurium', 'Iodine', 'Xenon', 'Caesium',
+     $     'Barium', 'Lanthanum', 'Cerium', 'Praseodymium', 'Neodymium',
+     $     'Promethium', 'Samarium', 'Europium', 'Gadolinium',
+     $     'Terbium', 'Dysprosium', 'Holmium', 'Erbium', 'Thulium',
+     $     'Ytterbium', 'Lutetium', 'Hafnium', 'Tantalum', 'Tungsten',
+     $     'Rhenium', 'Osmium', 'Iridium', 'Platinum', 'Gold',
+     $     'Mercury', 'Thallium', 'Lead', 'Bismuth', 'Polonium',
+     $     'Astatine', 'Radon', 'Francium', 'Radium', 'Actinium',
+     $     'Thorium', 'Protoactinium', 'Uranium', 'Neptunium',
+     $     'Plutonium', 'Americium', 'Curium', 'Berkelium',
+     $     'Californium', 'Einsteinium', 'Fermium', 'Mendelevium',
+     $     'Nobelium', 'Lawrencium','Rutherfordium','Dubnium',
+     $     'Seaborgium','Bohrium','Hassium','Meitnerium'/
+      data sym1/'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
+      data atn1/ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
+
+      geom_tag_to_charge = .false.
+c
+c     eliminate conventions that refer to centers used for
+c     computation purposes .. just bq and x for now
+c
+      do i=1,nt
+        match = .false.
+        buf = tag(i)
+        lbuf = inp_strlen(buf)
+        if (lbuf .eq. 0) goto 100 
+c
+        write(*,*) "buf",buf
+        call inp_lcase(buf)
+        if (buf(1:2) .eq. 'bq' .or. 
+     $       ((buf(1:1).eq.'x') .and. (buf(2:2).ne.'e'))) then ! X but not Xe
+           q(i)   = 0.0
+           match = .true.
+           goto 100
+        end if
+c
+c       Attempt to match the first 4 characters of the
+c       full names of the elements
+c
+        q(i) = 0.0
+        if (lbuf .ge. 4) then
+          do ind = 1,nelements
+            if (inp_compare(.false.,buf(1:4),elements(ind)(1:4))) then
+              q(i)    = dble(ind)
+              match = .true.
+              goto 100
+            endif
+          enddo
+        end if
+c
+c       Failed ... attempt to match the first two characters
+c       against two character element names
+c
+        if (buf(2:2) .ne. ' ') then
+           if (inp_match(nelements,.false.,buf(1:2),symbols,ind)) then
+              q(i)    = dble(ind)
+              match = .true.
+              goto 100
+           end if
+        end if
+c
+c       Last ditch attempt ... match against 1 character symbols
+c
+        if (inp_match(14, .false., buf(1:1), sym1, ind)) then
+           ind = atn1(ind)
+           q(i)   = dble(ind)
+           match = .true.
+           goto 100
+        end if
+100     continue
+        if(.not.match) goto 101
+      end do
+101   continue
+      
+      geom_tag_to_charge = match
+
+      return
+c
+      end
+      function geom_tag_to_atn(nt,tag,atn)
+      implicit none
+#include "inp.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+      logical geom_tag_to_atn
+      integer nt
+      integer i
+      logical match
+      character*2 symbols(nelements)
+      character*16 elements(nelements)
+      character(*) tag(nt)         ! [input]
+      integer atn(nt)            ! [output]
+c
+c     attempt to figure out which element a tag refers to
+c     and return the symbol, name and atomic no.
+c
+      integer lbuf, ind
+      character*16 buf
+      character*1 sym1(14)      ! 1 character atomic symbols+atomic no.s
+      integer atn1(14)
+      data symbols/
+     $     'H ', 'He', 'Li', 'Be', 'B ', 'C ', 'N ', 'O ', 'F ', 'Ne',
+     $     'Na', 'Mg', 'Al', 'Si', 'P ', 'S ', 'Cl', 'Ar', 'K ', 'Ca',
+     $     'Sc', 'Ti', 'V ', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
+     $     'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y ', 'Zr',
+     $     'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn',
+     $     'Sb', 'Te', 'I ', 'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd',
+     $     'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb',
+     $     'Lu', 'Hf', 'Ta', 'W ', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
+     $     'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
+     $     'Pa', 'U ', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
+     $     'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt'/
+      data elements/
+     $     'Hydrogen', 'Helium', 'Lithium', 'Beryllium', 'Boron',
+     $     'Carbon', 'Nitrogen', 'Oxygen', 'Fluorine', 'Neon', 'Sodium',
+     $     'Magnesium', 'Aluminium', 'Silicon', 'Phosphorous',
+     $     'Sulphur', 'Chlorine', 'Argon', 'Potassium', 'Calcium',
+     $     'Scandium', 'Titanium', 'Vanadium', 'Chromium', 'Manganese',
+     $     'Iron', 'Cobalt', 'Nickel', 'Copper', 'Zinc', 'Gallium',
+     $     'Germanium', 'Arsenic', 'Selenium', 'Bromine', 'Krypton',
+     $     'Rubidium', 'Strontium', 'Yttrium', 'Zirconium', 'Niobium',
+     $     'Molybdenum', 'Technetium', 'Ruthenium', 'Rhodium',
+     $     'Palladium', 'Silver', 'Cadmium', 'Indium', 'Tin',
+     $     'Antinomy', 'Tellurium', 'Iodine', 'Xenon', 'Caesium',
+     $     'Barium', 'Lanthanum', 'Cerium', 'Praseodymium', 'Neodymium',
+     $     'Promethium', 'Samarium', 'Europium', 'Gadolinium',
+     $     'Terbium', 'Dysprosium', 'Holmium', 'Erbium', 'Thulium',
+     $     'Ytterbium', 'Lutetium', 'Hafnium', 'Tantalum', 'Tungsten',
+     $     'Rhenium', 'Osmium', 'Iridium', 'Platinum', 'Gold',
+     $     'Mercury', 'Thallium', 'Lead', 'Bismuth', 'Polonium',
+     $     'Astatine', 'Radon', 'Francium', 'Radium', 'Actinium',
+     $     'Thorium', 'Protoactinium', 'Uranium', 'Neptunium',
+     $     'Plutonium', 'Americium', 'Curium', 'Berkelium',
+     $     'Californium', 'Einsteinium', 'Fermium', 'Mendelevium',
+     $     'Nobelium', 'Lawrencium','Rutherfordium','Dubnium',
+     $     'Seaborgium','Bohrium','Hassium','Meitnerium'/
+      data sym1/'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
+      data atn1/ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
+
+      geom_tag_to_atn = .false.
+c
+c     eliminate conventions that refer to centers used for
+c     computation purposes .. just bq and x for now
+c
+      do i=1,nt
+        match = .false.
+        buf = tag(nt)
+        lbuf = inp_strlen(buf)
+        if (lbuf .eq. 0) goto 100 
+c
+        call inp_lcase(buf)
+        if (buf(1:2) .eq. 'bq' .or. 
+     $       ((buf(1:1).eq.'x') .and. (buf(2:2).ne.'e'))) then ! X but not Xe
+           atn(i)   = 0
+           match = .true.
+           goto 100
+        end if
+c
+c       Attempt to match the first 4 characters of the
+c       full names of the elements
+c
+        atn(i) = 0
+        if (lbuf .ge. 4) then
+          do ind = 1,nelements
+            if (inp_compare(.false.,buf(1:4),elements(ind)(1:4))) then
+              atn(i)    = ind
+              match = .true.
+              goto 100
+            endif
+          enddo
+        end if
+c
+c       Failed ... attempt to match the first two characters
+c       against two character element names
+c
+        if (buf(2:2) .ne. ' ') then
+           if (inp_match(nelements,.false.,buf(1:2),symbols,ind)) then
+              atn(i)    = ind
+              match = .true.
+              goto 100
+           end if
+        end if
+c
+c       Last ditch attempt ... match against 1 character symbols
+c
+        if (inp_match(14, .false., buf(1:1), sym1, ind)) then
+           ind = atn1(ind)
+           atn(i)   = ind
+           match = .true.
+           goto 100
+        end if
+100     continue
+        if(.not.match) goto 101
+      end do
+101   continue
+      
+      geom_tag_to_atn = match
+
       return
 c
       end
