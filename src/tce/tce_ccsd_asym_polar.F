@@ -1,12 +1,11 @@
-      double precision function tce_ccsd_asym_polar(omega,
+      double precision function tce_ccsd_asym_polar(
      &  irrep_a1,d_a1,k_a1_offset,irrep_b1,
-     &  d_f1,k_f1_offset,d_v2,k_v2_offset,
      &  d_t1,k_t1_offset,d_t2,k_t2_offset,
      &  d_y1,k_y1_offset,d_y2,k_y2_offset,
      &  d_tr1,k_tr1_offset,d_tr2,k_tr2_offset,
      &  d_yr1,k_yr1_offset,d_yr2,k_yr2_offset)
 c
-c $Id: tce_ccsd_asym_polar.F,v 1.4 2008-03-09 01:34:25 jhammond Exp $
+c $Id: tce_ccsd_asym_polar.F,v 1.5 2008-03-12 21:34:17 jhammond Exp $
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -130,7 +129,9 @@ c
 c
       cpu=cpu+util_cpusec()
       wall=wall+util_wallsec()
+#if defined(DEBUG_PRINT)
       if (nodezero) write(LuOut,9020) cpu, wall
+#endif
       if (.not.ma_pop_stack(l_a0_offset))
      1     call errquit("tce_ccsd_asym_polar: MA problem",
      2                  l_a0_offset,MA_ERR)

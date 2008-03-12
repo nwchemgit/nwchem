@@ -240,7 +240,7 @@ c     =====================================================
      &                 'yr1x++','yr1y++','yr1z++',
      &                 'yr1x--','yr1y--','yr1z--'/
       character*8 yr2filename(12) ! File name stub
-      data yr2filename/'yr2x+ ','yr2y+ ','yr1z+ ',
+      data yr2filename/'yr2x+ ','yr2y+ ','yr2z+ ',
      &                 'yr2x- ','yr2y- ','yr2z- ',
      &                 'yr2x++','yr2y++','yr2z++',
      &                 'yr2x--','yr2y--','yr2z--'/
