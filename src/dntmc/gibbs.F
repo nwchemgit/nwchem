@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.20 2008-03-04 17:55:12 windus Exp $
+C$Id: gibbs.F,v 1.21 2008-03-13 17:07:04 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -18,10 +18,10 @@ C Include Statements
 #include "global.fh"
 #include "msgids.fh"
 #include "msgtypesf.h"
-#include "util_sgroup.fh"
-#include "util.fh"
 #include "gibbsP.fh"
+#include "util.fh"
 #include "inp.fh"
+#include "util_sgroup.fh"
 
 C Variable declarations
       integer rtdb
@@ -58,11 +58,11 @@ C Variable declarations for common block
 
 C Common Blocks
       COMMON/MSTP/L
-      COMMON/DIST1/RB(NOB),TESTME(NOB,maxgroups)
+      COMMON/DIST1/RB(NOB),TESTME(NOB,maxcpus)
       COMMON/DIST2/NDA(NOB),NDSIG(NOB)
 
 C Dimensions
-      dimension groupnums(maxgroups)
+      dimension groupnums(maxcpus)
       dimension nda_old(NOB)
 
 C Main Program
@@ -153,7 +153,7 @@ C      conv_perc = 0.D+00 ! Never converge
       if(util_print('Information',print_none)) then
         if(ga_pgroup_nodeid(idzero) .eq. 0) then
           WRITE(6,"(A30, ES12.3E3)")'Max MC configurations are:'
-     &         ,(DBLE(lmax*ngroups))
+     &         ,(DBLE(lmax*util_sgroup_numgroups()))
           WRITE(6,"(A30, F12.3)")'Convergence criteria is below:'
      &         ,conv_perc
           WRITE(6,"(A7,A16, A12, A16, A16, A16, A16, A16)")
@@ -199,7 +199,7 @@ C End of Monte Carlo Loop 1st.
 C Finish up MC Loop 
       if(ga_pgroup_nodeid(idbig) .eq. 0) then
       if (util_print('fdist',print_low)) then
-      WRITE(3,*)((L-1)*ngroups), 'Total Configurations'
+      WRITE(3,*)((L-1)*util_sgroup_numgroups()), 'Total Configurations'
       DO I=1, NOB
       WRITE(3,*)RB(I),NDA(I),NDSIG(I)
       ENDDO
@@ -251,7 +251,7 @@ C Finish up Job (Not Converged)
 
       if(ga_pgroup_nodeid(idbig) .eq. 0) then
       if(util_print('fdist',print_low)) then
-      WRITE(3,*)(L*ngroups), 'Total Configurations'
+      WRITE(3,*)(L*util_sgroup_numgroups()), 'Total Configurations'
       DO I=1, NOB
       WRITE(3,*)RB(I),NDA(I),NDSIG(I)
       ENDDO
@@ -411,7 +411,6 @@ C***********************************************************************
       Implicit none
 C Include Statements
 #include "gibbsP.fh"
-#include "util_sgroup.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "mafdecls.fh"
@@ -419,6 +418,7 @@ C Include Statements
 #include "msgtypesf.h"
 #include "util.fh"
 #include "rtdb.fh"
+#include "util_sgroup.fh"
 
 C Variable Declarations
       double precision temp  !input
@@ -476,7 +476,7 @@ C Common Blocks
       COMMON/MSTP/L
       COMMON/GRAND/NMIN,NCURR,NMAX
       COMMON/RADIUS/RMIN,RSIM,RMAX
-      COMMON/DIST1/RB(NOB),TESTME(NOB,maxgroups)
+      COMMON/DIST1/RB(NOB),TESTME(NOB,maxcpus)
       COMMON/NUMBER2/NUMBERSUM(NOB),NUMBERAVR(NOB)
       COMMON/DIST2/NDA(NOB),NDSIG(NOB)
       COMMON/CONSTANTS/e,k,esqrd,kb,PI
@@ -634,7 +634,7 @@ C Grouping Together Group Information
 
       if(ga_pgroup_nodeid(idzero) .eq. 0) then
       if(util_print('fdist',print_low)) then
-      WRITE(3,*)(L*ngroups), 'Total Configurations'
+      WRITE(3,*)(L*util_sgroup_numgroups()), 'Total Configurations'
       endif
       if(util_print('fdist',print_low)) then
       DO I=1, NOB
@@ -645,7 +645,7 @@ C Grouping Together Group Information
       endif
 C      if(util_print('information',print_none)) then
 C      WRITE(6,*)''
-C      WRITE(6,*)(L*ngroups), 'Total Configurations Done'
+C      WRITE(6,*)(L*util_sgroup_numgroups()), 'Total Configurations Done'
 C      call flush(6)
 C      endif
       endif
@@ -857,8 +857,8 @@ C Print Results
         if(ga_pgroup_nodeid(idzero) .eq. 0) then
           WRITE(6,"(A7,I16, F12.3, ES16.3E3, ES16.3E3, F16.3, F16.3,
      &    F16.3)")
-     &    '   @   ',(L*ngroups), rbf, ratef, errrate,aratiott,aratiotr,
-     &    percent
+     &    '   @   ',(L*util_sgroup_numgroups()), rbf, ratef, errrate
+     &    ,aratiott,aratiotr, percent
           call flush(6)
         endif
       endif
@@ -1126,10 +1126,10 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
 C
       IMPLICIT none
 #include "gibbsP.fh"
-#include "util_sgroup.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "util.fh"
+#include "util_sgroup.fh"
 
       double precision rest ! output
 
@@ -1144,7 +1144,7 @@ C
 
       DIMENSION Pv(NOB),S(NOB),SI(NOB)
 
-      COMMON/DIST1/RB(NOB),TESTME(NOB,maxgroups)
+      COMMON/DIST1/RB(NOB),TESTME(NOB,maxcpus)
       COMMON/DIST2/NDA(NOB),NDSIG(NOB)
 
 
@@ -1356,6 +1356,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
 #include "gibbsP.fh"
 #include "util_sgroup.fh"
 
+
       double precision NDSUM,NDA,NDSIGSUM,NDSIG,NDSGMX
       double precision rb, testme
       integer nnodes ! input parameters
@@ -1364,11 +1365,11 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
 C Added variables
       double precision nda_old
       dimension nda_old(NOB)
-      double precision meandist(maxgroups+1)
-      double precision sumdist(maxgroups+1)
+      double precision meandist(maxcpus+1)
+      double precision sumdist(maxcpus+1)
 C End Added variables
 
-      COMMON/DIST1/RB(NOB),TESTME(NOB,maxgroups)
+      COMMON/DIST1/RB(NOB),TESTME(NOB,maxcpus)
       COMMON/DIST2/NDA(NOB),NDSIG(NOB)
 
 
@@ -1381,7 +1382,7 @@ c      DO J = 1, NOB - 1
          NDSIG(J) = 0.D+00
       ENDDO
 
-       Do J = 1, maxgroups+1
+       Do J = 1, maxcpus+1
          meandist(J) = 0.00D+00
          sumdist(J) = 0.00D+00
        EndDo
@@ -1410,20 +1411,20 @@ C     find mean of distribution along coordinate
       Do J = 1, NNODES
         meandist(J) = meandist(J)/sumdist(J)
       EndDo
-      sumdist(maxgroups+1) = 0.00D+00
-      meandist(maxgroups+1) = 0.00D+00
+      sumdist(maxcpus+1) = 0.00D+00
+      meandist(maxcpus+1) = 0.00D+00
       if(NNODES .eq. 1) then
       Do I = 1, NOB
-        sumdist(maxgroups+1) = sumdist(maxgroups+1) +NDA_OLD(I)
-        meandist(maxgroups+1) = meandist(maxgroups+1)+(NDA_OLD(I)*RB(I))
+        sumdist(maxcpus+1) = sumdist(maxcpus+1) +NDA_OLD(I)
+        meandist(maxcpus+1) = meandist(maxcpus+1)+(NDA_OLD(I)*RB(I))
       EndDo
       else
       Do I = 1, NOB
-        sumdist(maxgroups+1) = sumdist(maxgroups+1) + NDA(I)
-        meandist(maxgroups+1) = meandist(maxgroups+1) + (NDA(I)*RB(I))
+        sumdist(maxcpus+1) = sumdist(maxcpus+1) + NDA(I)
+        meandist(maxcpus+1) = meandist(maxcpus+1) + (NDA(I)*RB(I))
       EndDo
       endif
-      meandist(maxgroups+1) = meandist(maxgroups+1)/sumdist(maxgroups+1)
+      meandist(maxcpus+1) = meandist(maxcpus+1)/sumdist(maxcpus+1)
 
 C    find variance for each bin across all nodes
 C      DO J = 1, NOB - 1
@@ -1455,7 +1456,7 @@ C  Change the variance calculation to use nda_old
 C     FInd Variance in the distribution means
       NDSIGSUM = 0.00D+00
       Do J = 1, NNODES
-       NDSIGSUM = NDSIGSUM + (meandist(J)-meandist(maxgroups+1))**2.D+00
+       NDSIGSUM = NDSIGSUM + (meandist(J)-meandist(maxcpus+1))**2.D+00
       EndDo
       if (NNODES .gt. 1) then
        NDSIGSUM = NDSIGSUM/DBLE(NNODES-1)
@@ -1568,7 +1569,7 @@ C***********************************************************************
 
       COMMON/NUMBER1/NUMBER(NOB)
       COMMON/NUMBER2/NUMBERSUM(NOB),NUMBERAVR(NOB)
-      COMMON/DIST1/RB(NOB),TESTME(NOB,maxgroups)
+      COMMON/DIST1/RB(NOB),TESTME(NOB,maxcpus)
       COMMON/CONSTANTS/e,k,esqrd,kb,PI
 
       IF(L.EQ.1)THEN
@@ -3849,8 +3850,8 @@ C Include Statements
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "gibbsP.fh"
-#include "util_sgroup.fh"
 #include "util.fh"
+#include "util_sgroup.fh"
 
 C Variable Declartations
       integer iacceptt, iacceptr, iacceptv, iacceptpr, iacceptpi
@@ -3875,7 +3876,7 @@ C Variable Declartations
       dimension distcalc(MXMOLS) ! internal use only
       integer molmax, IR, natot ! internal use only
       integer groupnums ! input
-      dimension groupnums(maxgroups)
+      dimension groupnums(maxcpus)
       character*4 prcfil ! input
       double precision rsh, rsimsq, rmaxsq ! internal use only
       double precision uu, uavr, usqrd, rsimsum, rsimavr
@@ -3946,8 +3947,9 @@ C Some constants
       ROTF = 0
       AB = 1
       IDUM = -1
-      do i=1, ngroups
-        if (groupnums(i) .eq. idmedium) then
+      do i=1, util_sgroup_numgroups()
+C        if (groupnums(i) .eq. idmedium) then
+        if (groupnums(i) .eq. util_sgroup_mygroup()) then
           IDUM = i
         endif
       enddo
@@ -4045,7 +4047,7 @@ C      write(6,*)'RMIN =',RMIN
 C      write(6,*)'RMAX =',RMAX
 C      if (rconf) write(6,*)'R-Config Methodology'
 C      if (.not. rconf) write(6,*)'R-Sim Methodology'
-C      write(6,*)'NGROUPS =',ngroups
+C      write(6,*)'NGROUPS =',util_sgroup_numgroups()
 C      WRITE(6,*)NSPC,NMOLS,MCSTPS,MPRNT,TEMP,DISP,ALPHA,ROTF
 C      WRITE(6,*)AB
 C      WRITE(6,*)'CONT1 =',CONT1
@@ -4077,18 +4079,22 @@ C Generate Initial Configuration if 1st run
       IF(CONT2 .eq. 0) then
 
       NODE = -1
-      do i=1, ngroups
-        if (groupnums(i) .eq. idmedium) then
+      do i=1, util_sgroup_numgroups()
+C        if (groupnums(i) .eq. idmedium) then
+        if (groupnums(i) .eq. util_sgroup_mygroup()) then
+
           NODE = i
         endif
       enddo
       radiuscube = RMIN
-      radiuscube = (DBLE(NODE)*(RMAX-RMIN)/DBLE(ngroups+1)) + radiuscube
+      radiuscube = (DBLE(NODE)*(RMAX-RMIN)/DBLE(util_sgroup_numgroups()
+     & +1)) + radiuscube
       rplace = radiuscube
 C      CALL dntmc_CONFIG(NMOLS,NODE,RMAX,rinit)
 C      CALL dntmc_initialstate(nmols, rinit)
       CALL dntmc_initialstate2(nmols, rinit, radiuscube)
-      NODE = idmedium
+C      NODE = idmedium
+       NODE = util_sgroup_mygroup()
 C Center on COM
       CALL dntmc_CLUSTERCMASS(NMOLS)
       DO I = 1, NMOLS
@@ -4115,8 +4121,10 @@ C find outermost molecule and vector
          endif
       enddo
       NODE = -1
-      do i=1, ngroups
-        if (groupnums(i) .eq. idmedium) then
+      do i=1, util_sgroup_numgroups()
+C        if (groupnums(i) .eq. idmedium) then
+        if (groupnums(i) .eq. util_sgroup_mygroup()) then
+
           NODE = i
         endif
       enddo
@@ -4129,9 +4137,11 @@ C find outermost molecule and vector
       if (.not. DIST .gt. rplace) then
 C Distribute Evenly 100%
       DIST = RMIN - DIST
-      DIST = (DBLE(NODE)*(RMAX-RMIN)/DBLE(ngroups+1)) + DIST
+      DIST = (DBLE(NODE)*(RMAX-RMIN)/DBLE(util_sgroup_numgroups()+1)) 
+     &       + DIST
       DIST = DIST / (1.00D+00 - (MTOT(SPC(molmax))/MTOTALL))
-      NODE = idmedium
+C      NODE = idmedium
+      NODE = util_sgroup_mygroup()
 
 C Translate by constant
       DO I = 1, NATOM(SPC(molmax))
@@ -4270,7 +4280,7 @@ C            molmax = I
 C         endif
 C      enddo
 C      NODE = -1
-C      do i=1, ngroups
+C      do i=1, util_sgroup_numgroups()
 C        if (groupnums(i) .eq. idmedium) then
 C          NODE = i
 C        endif
@@ -4281,9 +4291,9 @@ C      RY = RCM(molmax,2)/DIST
 C      RZ = RCM(molmax,3)/DIST
 CC Distribute Evenly 100%
 C      DIST = RMIN - DIST
-C      DIST = (DBLE(NODE)*(RMAX-RMIN)/DBLE(ngroups+1)) + DIST
+C      DIST = (DBLE(NODE)*(RMAX-RMIN)/DBLE(util_sgroup_numgroups()+1)) + DIST
 CC      DIST = ((RMAX+RMIN)/2.D+00) - DIST
-CC      DIST = (DBLE(NODE)*(RMAX-RMIN)/2.D+00/DBLE(ngroups+1)) + DIST
+CC      DIST = (DBLE(NODE)*(RMAX-RMIN)/2.D+00/DBLE(util_sgroup_numgroups()+1)) + DIST
 C      if (NMOLS .eq. 1) then
 C        DIST = 0.00D+00
 C      else
@@ -4392,7 +4402,7 @@ C Write Initial Conditions
       write(6,'(a,F10.2)')'RMAX =',RMAX
       if (rconf) write(6,'(a)')'R-Config Methodology'
       if (.not. rconf) write(6,'(a)')'R-Sim Methodology'
-      write(6,'(a,i10)')'NGROUPS =',ngroups
+      write(6,'(a,i10)')'NGROUPS =',util_sgroup_numgroups()
 C      WRITE(6,*)NSPC,NMOLS,MCSTPS,MPRNT,TEMP,DISP,ALPHA,ROTF
 C      WRITE(6,*)AB
 C      WRITE(6,*)'CONT1 =',CONT1
@@ -4552,8 +4562,9 @@ C Include Statements
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "inp.fh"
-#include "util_sgroup.fh"
+#include "gibbsP.fh"
 #include "util.fh"
+#include "util_sgroup.fh"
 
 C Variable declarations
       integer rtdb ! input
@@ -4567,7 +4578,7 @@ C Indect output of file units
       character*256 fprefix2, dntmc_dir
 
 C Dimensions
-      dimension groupnums(maxgroups)
+      dimension groupnums(maxcpus)
 
 C Begin Main Program
       call dntmc_write_prcfil(idmedium, groupnums, prcfil)
@@ -4658,26 +4669,33 @@ C Include Files
 #include "global.fh"
 #include "msgids.fh"
 #include "msgtypesf.h"
-#include "util_sgroup.fh"
 #include "gibbsP.fh"
 #include "util.fh"
+#include "util_sgroup.fh"
 
 C Variable Declarations
       integer rtdb ! input
       integer myid, idbig, inodesbig ! input
-      logical util_sgstart
+C Depreciated
+C      logical util_sgstart
       logical status ! internal use
-      external util_sgstart
+C Depreciated
+C      external util_sgstart
       integer idmedium
       integer ld(2)! internal use
       integer g_proc, procnums, groupnums, bigproc !p_proc is internal
 C     procnums is internal
       integer i, j, idzero ! i and j are internal indexes
       integer ndim, dims(2), chunk(2), g_pr !n(dim)s and chunck are internal
+C Replacement for util_sgstart
+      external util_sggo
+C Additional variables
+      integer groups_want, array_cpu(1), method
+C End Additions
 
 C Dimensions
-      dimension procnums(maxgroups)
-      dimension groupnums(maxgroups)
+      dimension procnums(maxcpus)
+      dimension groupnums(maxcpus)
       dimension bigproc(maxcpus,1)
 
 C Begin main program
@@ -4689,14 +4707,36 @@ C Create big GAs
       call ga_fill(g_proc, -1)
 
 C Create Subgroups
-      if (.not.util_sgstart(rtdb))
-     &  call errquit('dntmc_setup_ga:error starting subgroups',
-     &                  0, UNKNOWN_ERR)
+C Depreciated
+C      if (.not.util_sgstart(rtdb))
+C     &  call errquit('dntmc_setup_ga:error starting subgroups',
+C     &                  0, UNKNOWN_ERR)
+C Replacement for util_sgstart
+      if (.not.rtdb_get(rtdb, 'subgroups_number', mt_int, 1,
+     &   groups_want))groups_want=1
+C Setting Method = 1
+c     1 -- use groups_want to generate equal sized groups (array_cpu ignored)
+C     Simplest. 
+c     2 -- turn each SMP box into a group (array_cpu and groups_want ignored)
+C     This uses GA to tell it about the cluster.
+c     3 -- use array_cpu(groups_want) to define number of nodes per group
+c     4 -- use array_cpu(groups_want+nnodes) to define which nodes per group
+C     This is just option 3, but you get to lay the groups out exactly.
+      method = 1
+C Setting array_cpu(1) = 0
+C Ignored in methods 1 and 2, otherwise must change
+      array_cpu(1) = 0
+C Replacement call for util_sgstart
+      call util_sggo(rtdb,groups_want,method,array_cpu)
+C End of changes for util_sgstart depreciation
+
       if (util_print('debug',print_debug)) then
         write(6,*)'Now in Subgroups'
         call flush(6)
       endif
       idmedium = ga_pgroup_get_default() ! Now in Subgroups
+C New version also sets up zero group (util_sgstart)
+      idzero = util_sgroup_zero_group()
 
 C Get Back to Big Group
       call ga_pgroup_set_default(idbig) ! Now in Big Group
@@ -4705,7 +4745,8 @@ C Create Processor Zero and Group Processor Lists
       if (ga_pgroup_nodeid(idmedium).eq.0) then
         ld(1)  = 1   !must be physical dimension of local array
         ld(2)  = 1
-        call ga_put(g_proc,myid+1,myid+1,1,1,idmedium,ld)
+C        call ga_put(g_proc,myid+1,myid+1,1,1,idmedium,ld)
+        call ga_put(g_proc,myid+1,myid+1,1,1,util_sgroup_mygroup(),ld)
         call ga_sync()
         ld(1)  = maxcpus  !must be physical dimension of local array
         ld(2)  = 1
@@ -4718,7 +4759,7 @@ C Create Processor Zero and Group Processor Lists
             procnums(j) = i-1
           endif
         enddo
-        if (j.ne.ngroups)
+        if (j.ne.util_sgroup_numgroups())
      &    call errquit('dntmc_setup_ga:zero node creation problem',
      &      j, UNKNOWN_ERR)
       else
@@ -4727,23 +4768,24 @@ C Create Processor Zero and Group Processor Lists
 
 C Broadcase Results
       call ga_pgroup_brdcst(idmedium,msg_dntmc3+MSGINT, procnums,
-     &     mitob(maxgroups), 0)
+     &     mitob(maxcpus), 0)
       call ga_pgroup_brdcst(idmedium,msg_dntmc7+MSGINT, groupnums,
-     &     mitob(maxgroups), 0)
+     &     mitob(maxcpus), 0)
 
 C Destroy GA "proc list"
       if (.not. ga_destroy(g_proc)) call errquit('dntmc_setup_ga:
      &ga_destroy(g_proc) failed', GA_ERR)
 
+C Is done by the new version of util_sgstart
 C Create Zero Group
-      idzero = ga_pgroup_create(procnums, ngroups)
+C      idzero = ga_pgroup_create(procnums, util_sgroup_numgroups())
 
 C Create Zeros GAs
       if (ga_pgroup_nodeid(idmedium).eq.0) then
         call ga_pgroup_set_default(idzero)
           ndim = 2
           dims(1) = NOB
-          dims(2) = ngroups
+          dims(2) = util_sgroup_numgroups()
           chunk(1) = dims(1)
           chunk(2) = 0
           g_pr = ga_create_handle()
@@ -4756,6 +4798,17 @@ C Create Zeros GAs
 C Start Subgroups
        call ga_pgroup_set_default(idmedium) ! Now in Subgroups
        call ga_sync()
+C Test write
+C       write(6,*) '@ I am proc ',myid,' in group ',idmedium
+C     & ,' with group proc ',ga_nodeid()
+C       write(6,*) '@ I am proc ',myid,' in group2 ',my_ga_grp(depth),
+C     & ' with zero group ',util_sgroup_zero_group()
+C       if (myid .eq. 0) then
+C           write(6,*)'@ group and proc arrays'
+C         Do i=1,inodesbig
+C           write(6,*)'@ ',groupnums(i),procnums(i)
+C         EndDo
+C       endif
 
 C End Routine
        return
@@ -4773,20 +4826,23 @@ C***********************************************************************
       Implicit none
 
 C Include Statements
-#include "util_sgroup.fh"
+#include "gibbsP.fh"
 #include "errquit.fh"
+#include "util_sgroup.fh"
 
 C Variable Declarations
       integer i
       integer idmedium, groupnums
       integer groupid
       character*4 prcfil ! only output
-      dimension groupnums(maxgroups)
+      dimension groupnums(maxcpus)
 
 C Main Program
       groupid = -1
-      do i=1, ngroups
-        if (groupnums(i) .eq. idmedium) then
+      do i=1, util_sgroup_numgroups()
+C        if (groupnums(i) .eq. idmedium) then
+        if (groupnums(i) .eq. util_sgroup_mygroup()) then
+
           groupid = i
         endif
       enddo
@@ -4836,6 +4892,7 @@ C Main Program
       if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
      &  call errquit('dntmc_restart_post:rtdb get file_prefix failed',0
      &  ,RTDB_ERR)
+      write(dntmc_dir,'(256(a))') (' ', i=1,256)
       if(.not. rtdb_cget(rtdb,'dntmc:directory',1,dntmc_dir))
      &  dntmc_dir(1:2)='./'
       call dntmc_getspecinfo(rtdb, nmols, natom, rinit, uspc, nspc,
@@ -4933,6 +4990,11 @@ C Everything internal
       character*256 dntmc_dir
 
 C  Main Program
+      write(6,*)'starting write on file name'
+      write(6,*)'dntmc_dir ',dntmc_dir(1:inp_strlen(dntmc_dir))
+      write(6,*)'fprefix ',fprefix(1:inp_strlen(fprefix))
+      write(6,*)'.restart.'
+      write(6,*)'prcfil ',prcfil(1:4)
       write(fprefixcat,'(256(a))') (' ', i=1, 256)
       write(fprefixcat,'(5(a))')
      &      dntmc_dir(1:inp_strlen(dntmc_dir)),
@@ -4940,6 +5002,7 @@ C  Main Program
      &      fprefix(1:inp_strlen(fprefix)),
      &      '.restart.',
      &      prcfil(1:4)
+      write(6,*)'done with filename write'
 
       OPEN(UNIT = 20,FILE = fprefixcat(1:inp_strlen(fprefixcat))
      +    ,STATUS = 'OLD')
