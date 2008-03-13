@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.142 2008-03-11 20:22:01 marat Exp $
+C$Id: geom.F,v 1.143 2008-03-13 17:00:54 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -1327,10 +1327,6 @@ c
       integer i,j
       double precision scale
 c
-      write(*,*) "coordinates out"
-      do i=1,ncent
-        write(*,*) c(i,1),c(i,2),c(i,3)
-      end do
       geom_cart_set1 = geom_check_handle(geom, 'geom_cart_set')
       if (.not. geom_cart_set1) return
 c
@@ -1446,11 +1442,35 @@ c
       geom_efc_cart_set = .true.
 c
       end
-      logical function geom_cart_get(geom, ncent, t, c, q)
+      function geom_cart_get_charges(geom, ncent,q)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
+      logical geom_cart_get_charges
+      integer geom              ! [input]
+      integer ncent             ! [output]
+      double precision q(ncent) ! [output]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i
+c
+      geom_cart_get_charges = geom_check_handle(geom, 'geom_cart_get')
+      if (.not. geom_cart_get_charges) return
+c
+      ncent = ncenter(geom)
+      do i = 1, ncent
+         q(i) = charge(i,geom)
+      end do
+c
+      end
+c
+      function geom_cart_get(geom, ncent, t, c, q)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c     
+      logical geom_cart_get
       integer geom              ! [input]
       integer ncent             ! [output]
       character*16 t(ncent)     ! [output]
@@ -2369,7 +2389,6 @@ c
         lbuf = inp_strlen(buf)
         if (lbuf .eq. 0) goto 100 
 c
-        write(*,*) "buf",buf
         call inp_lcase(buf)
         if (buf(1:2) .eq. 'bq' .or. 
      $       ((buf(1:1).eq.'x') .and. (buf(2:2).ne.'e'))) then ! X but not Xe
