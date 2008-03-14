@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.3 2005-12-20 21:19:40 edo Exp $
+#$Id: GNUmakefile,v 1.4 2008-03-14 00:12:30 jhammond Exp $
 
 OBJ_OPTIMIZE = cisdtq_e.o cisdtq_c1.o cisdtq_c2.o cisdtq_c3.o cisdtq_c4.o
 
@@ -12,8 +12,12 @@ cisdtq_c3.F \
 cisdtq_c4.F \
 cisdtq_e.F
 
-
+ifndef CCSDTQ
 LIB_DEFINES = -DDEBUG_PRINT
+else
+LIB_DEFINES = -DDEBUG_PRINT -DCCSDTQ
+endif
+
 #
 # Possible #defines
 #
