@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3-stress.F,v 1.10 2007-09-12 17:31:27 bylaska Exp $
+* $Id: kbppv3-stress.F,v 1.11 2008-03-17 17:53:58 bylaska Exp $
 *
 
 
@@ -190,7 +190,7 @@ c      call Parallel_init()
 
       if (control_kbpp_ray()) then
         !**** allocate memory for rays ****
-        nray = kbpp_calc_nray(nfft1,nfft2,nfft3,dbl_mb(G_indx))
+        nray = kbpp_calc_nray(nfft1,nfft2,nfft3,unita)
 
         value =           MA_alloc_get(mt_dbl,nray,
      >                  'G_ray',G_ray_hndl,G_ray_indx)
@@ -206,7 +206,7 @@ c      call Parallel_init()
      >   call errquit('kbppv3_stress:out of heap memory',0,MA_ERR)
 
         call kbpp_generate_G_ray(nfft1,nfft2,nfft3,
-     >                         dbl_mb(G_indx),
+     >                         unita,
      >                         dbl_mb(G_ray_indx))
 
         call integrate_stress_new(version,rlocal,

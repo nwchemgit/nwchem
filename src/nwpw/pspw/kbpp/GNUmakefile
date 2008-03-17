@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.12 2007-09-24 16:58:13 bylaska Exp $
+# $Id: GNUmakefile,v 1.13 2008-03-17 17:53:57 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
                 psp_formatter_input.o \
@@ -24,14 +24,16 @@
 	      		kbpp_orb.o \
                 integrate_kbpp_orb.o  \
                 integrate_pawppv1.o \
-                integrate_paw_ray.o 
-
+                integrate_paw_ray.o \
+		kbppv3d.o kbppv3d_stress.o \
+		integrate_kbppv3d.o integrate_d_stress.o \
+		integrate_kbppv3d_new.o integrate_d_stress_new.o
 
 	  OBJ = 
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = setup_kbpp.f integrate_kbppv3.f integrate_kbpp_orb.F integrate_stress.F HGH_local.F HGH_nonlocal.F Tesseral.F hghppv1.F  pawppv1.F
+    USES_BLAS = setup_kbpp.f integrate_kbppv3.f integrate_kbppv3d.f integrate_kbpp_orb.F integrate_stress.F integrate_d_stress.F HGH_local.F HGH_nonlocal.F Tesseral.F hghppv1.F  pawppv1.F integrate_kbppv3d_new.f integrate_kbppv3_new.f integrate_d_stress_new.F
 
   LIB_DEFINES = 
 

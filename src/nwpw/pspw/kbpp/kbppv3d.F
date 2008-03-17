@@ -1,14 +1,14 @@
 *
-* $Id: kbppv3.F,v 1.22 2008-03-17 17:53:58 bylaska Exp $
+* $Id: kbppv3d.F,v 1.1 2008-03-17 17:53:58 bylaska Exp $
 *
 
 *     **************************************
 *     *                                    *
-*     *           kbppv3                   *
+*     *              kbppv3d               *
 *     *                                    *
 *     **************************************
 
-      logical function kbppv3(oprint_in,version,
+      logical function kbppv3d(oprint_in,version,
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
       implicit none
@@ -48,8 +48,8 @@
       integer n_prj_hndl,l_prj_hndl,m_prj_hndl
 
 *     ***** ngrid data *****
-      integer vl_indx,vnl_indx,vnlnrm_indx,G_indx
-      integer vl_hndl,vnl_hndl,vnlnrm_hndl,G_hndl
+      integer vl_indx,vnl_indx,vnlnrm_indx,tmp(2)
+      integer vl_hndl,vnl_hndl,vnlnrm_hndl
 
 *     **** ray data ****
       integer nray,G_ray_hndl,tmp_ray_hndl
@@ -60,7 +60,6 @@
 
 *     **** other variables ****
       logical value,mprint,hprint,oprint,filter
-      double precision unitg(3,3)
       integer nsize,i,l,ierr,psp_type
       integer nfft1,nfft2,nfft3
       integer nmax,nprj
@@ -73,6 +72,8 @@
       external         simp
       integer  kbpp_calc_nray
       external kbpp_calc_nray
+      integer  G_indx
+      external G_indx
 
 
 c      call Parallel_Init()
@@ -136,7 +137,7 @@ c      call Parallel_Init()
       value = value.and.MA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
       if (.not.value) 
-     > call errquit('kbppv3:out of heap memory',0,MA_ERR)
+     > call errquit('kbppv3d:out of heap memory',0,MA_ERR)
 
       if (taskid.eq.MASTER) then
       call read_vpwp(11,nrho,lmax,dbl_mb(rho_indx),
@@ -171,20 +172,18 @@ c      call Parallel_Init()
       value = value.and.MA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
       if (.not.value) 
-     > call errquit('kbppv3:out of heap memory',0,MA_ERR)
+     > call errquit('kbppv3d:out of heap memory',0,MA_ERR)
 
 *     **** allocate vl,vnl,vnlnrm G ****
+      call D3dB_nfft3d(1,nsize)
       lmmax = (lmax+1)**2 - (2*locp+1)
       nprj  = lmmax
-      nsize = (ngrid(1)/2+1)*ngrid(2)*ngrid(3)
       value = MA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
       value = value.and.MA_alloc_get(mt_dbl,nsize*(lmmax),
      >                        'vnl',vnl_hndl, vnl_indx)
       value = value.and.MA_alloc_get(mt_dbl,(lmax+1),
      >                        'vnlnrm', vnlnrm_hndl, vnlnrm_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
-     >                        'G',G_hndl, G_indx)
       value = value.and.MA_alloc_get(mt_dbl,4*nsize,
      >                        'sc_k',sc_k_hndl,sc_k_indx)
       value = value.and.MA_alloc_get(mt_int,nprj,
@@ -193,16 +192,14 @@ c      call Parallel_Init()
      >                        'l_prj', l_prj_hndl, l_prj_indx)
       value = value.and.MA_alloc_get(mt_int,nprj,
      >                        'm_prj', m_prj_hndl, m_prj_indx)
+      value = value.and.MA_alloc_get(mt_dcpl,nsize,'tmp',tmp(2),tmp(1))
       if (.not.value) 
-     > call errquit('kbppv3:out of heap memory',0,MA_ERR)
+     > call errquit('kbppv3d:out of heap memory',0,MA_ERR)
 
-
-*     **** preparation of constants ****
+      filter = control_kbpp_filter()
       nfft1=ngrid(1)
       nfft2=ngrid(2)
       nfft3=ngrid(3)
-      call setup_kbpp(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
-      filter = control_kbpp_filter()
 
       if (control_kbpp_ray()) then
         !**** allocate memory for rays ****
@@ -218,13 +215,13 @@ c      call Parallel_Init()
      >              'rho_sc_k_ray',rho_sc_k_ray_hndl,rho_sc_k_ray_indx)
         value = value.and.MA_alloc_get(mt_dbl,nray,
      >                  'tmp_ray',tmp_ray_hndl,tmp_ray_indx)
-        if (.not.value) 
-     >   call errquit('kbppv3:out of heap memory',0,MA_ERR)
+        if (.not.value)
+     >   call errquit('kbppv3d:out of heap memory',0,MA_ERR)
 
         call kbpp_generate_G_ray(nfft1,nfft2,nfft3,
      >                         unita,
      >                         dbl_mb(G_ray_indx))
-        call integrate_kbppv3_new(version,rlocal,
+        call integrate_kbppv3d_new(version,rlocal,
      >                      nrho,drho,lmax,locp,zv,
      >                                dbl_mb(vp_indx),
      >                                dbl_mb(wp_indx),
@@ -232,8 +229,8 @@ c      call Parallel_Init()
      >                                dbl_mb(f_indx),
      >                                dbl_mb(cs_indx),
      >                                dbl_mb(sn_indx),
-     >                      nfft1,nfft2,nfft3,lmmax,
-     >                                dbl_mb(G_indx),
+     >                      nsize,lmmax,
+     >                                dbl_mb(G_indx(1)),
      >                                dbl_mb(vl_indx),
      >                                dbl_mb(vnl_indx),
      >                                int_mb(n_prj_indx),
@@ -256,11 +253,11 @@ c      call Parallel_Init()
         value = value.and.MA_free_heap(vnl_ray_hndl)
         value = value.and.MA_free_heap(vl_ray_hndl)
         value = value.and.MA_free_heap(G_ray_hndl)
-        if (.not.value) 
-     >   call errquit('kbppv3:Error freeing memory',0,MA_ERR)
+        if (.not.value)
+     >   call errquit('kbppv3d:Error freeing memory',0,MA_ERR)
 
       else
-        call integrate_kbppv3(version,rlocal,
+        call integrate_kbppv3d(version,rlocal,
      >                      nrho,drho,lmax,locp,zv,
      >                                dbl_mb(vp_indx),
      >                                dbl_mb(wp_indx),
@@ -268,8 +265,8 @@ c      call Parallel_Init()
      >                                dbl_mb(f_indx),
      >                                dbl_mb(cs_indx),
      >                                dbl_mb(sn_indx),
-     >                      nfft1,nfft2,nfft3,lmmax,
-     >                                dbl_mb(G_indx),
+     >                      nsize,lmmax,
+     >                                dbl_mb(G_indx(1)),
      >                                dbl_mb(vl_indx),
      >                                dbl_mb(vnl_indx),
      >                                int_mb(n_prj_indx),
@@ -287,7 +284,7 @@ c      call Parallel_Init()
       if ((taskid.eq.MASTER).and.(oprint)) then
       write(*,*) "     ********************************************"
       write(*,*) "     *                                          *"
-      write(*,*) "     *     KBPPV3 - Pseudopotential Formatter   *"
+      write(*,*) "     *     KBPPV3d - Pseudopotential Formatter  *"
       write(*,*) "     *                                          *"
       write(*,*) "     *      version last updated 4/15/99        *"
       write(*,*) "     *                                          *"
@@ -385,15 +382,32 @@ c      call Parallel_Init()
 
          if (version.eq.4) call dwrite(2,rlocal,1)
          call dwrite(2,rcore,1)
+      endif
 
-         call dwrite(2,dbl_mb(vl_indx),nsize)
-         if (nprj.gt.0) then
-            call dwrite(2,dbl_mb(vnl_indx),nsize*lmmax)
-         end if
+c         call dwrite(2,dbl_mb(vl_indx),nsize)
+c         if (nprj.gt.0) then
+c            call dwrite(2,dbl_mb(vnl_indx),nsize*lmmax)
+c         end if
+c         if (semicore) then
+c           call dwrite(2,dbl_mb(sc_k_indx),4*nsize)
+c         end if
+      call D3dB_t_write(1,2,dbl_mb(vl_indx),dcpl_mb(tmp(1)))
+      do i=1,nprj
+         call D3dB_t_write(1,2,
+     >                     dbl_mb(vnl_indx+(i-1)*nsize),
+     >                     dcpl_mb(tmp(1)))
 
-         if (semicore) then
-           call dwrite(2,dbl_mb(sc_k_indx),4*nsize)
-         end if
+      end do
+
+      if (semicore) then
+       call D3dB_t_write(1,2,dbl_mb(sc_k_indx),        dcpl_mb(tmp(1)))
+       call D3dB_t_write(1,2,dbl_mb(sc_k_indx+nsize),  dcpl_mb(tmp(1)))
+       call D3dB_t_write(1,2,dbl_mb(sc_k_indx+2*nsize),dcpl_mb(tmp(1)))
+       call D3dB_t_write(1,2,dbl_mb(sc_k_indx+3*nsize),dcpl_mb(tmp(1)))
+      end if
+      
+
+      if (taskid.eq.MASTER) then
       call closefile(2)
       end if
      
@@ -411,87 +425,25 @@ c      call Parallel_Init()
       value = value.and.MA_free_heap(vl_hndl)
       value = value.and.MA_free_heap(vnl_hndl)
       value = value.and.MA_free_heap(vnlnrm_hndl)
-      value = value.and.MA_free_heap(G_hndl)
       value = value.and.MA_free_heap(n_prj_hndl)
       value = value.and.MA_free_heap(l_prj_hndl)
       value = value.and.MA_free_heap(m_prj_hndl)
+      value = value.and.MA_free_heap(tmp(2))
       if (.not.value) 
      > call errquit('kbppv3:Error freeing memory',0,MA_ERR)
 
       
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
 
-      kbppv3 = value
+      kbppv3d = value
       return
 
- 9999 call errquit('kbppv3:Error reading psp_filename',0, DISK_ERR)
-      kbppv3 = value
+ 9999 call errquit('kbppv3d:Error reading psp_filename',0, DISK_ERR)
+      kbppv3d = value
       return
 
       END
 
-      subroutine read_vpwp(unit,nrho,lmax,rho,vp,wp)
-      implicit none
-#include "errquit.fh"
-      integer unit
-      integer nrho,lmax
-      double precision rho(nrho)
-      double precision vp(nrho,0:lmax)
-      double precision wp(nrho,0:lmax)
-      integer i,j
 
-
-      do i=1,nrho
-        read(unit,*,ERR=9999,END=9999) rho(i),(vp(i,j),j=0,lmax)
-      end do
-      do i=1,nrho
-        read(unit,*,ERR=9999,END=9999) rho(i),(wp(i,j),j=0,lmax)
-      end do
-
-c     read(unit,*,ERR=9999,END=9999)(rho(i),(vp(i,j),j=0,lmax),i=1,nrho)
-c     read(unit,*,ERR=9999,END=9999)(rho(i),(wp(i,j),j=0,lmax),i=1,nrho)
-
-c     read(11,*,ERR=9116,END=9117)(RHO(I),(VP(I,J),J=0,LMAX),I=1,NRHO)
-c     read(11,*,ERR=9116,END=9117)(RHO(I),(WP(I,J),J=0,LMAX),I=1,NRHO)
-
-      
-      return
-
- 9999 call errquit('kbppv3:Error reading psp_filename',0, DISK_ERR)
-      end
-
-      subroutine read_semicore(unit,isemicore,rcore,nrho,rho_sc)
-      implicit none
-#include "errquit.fh"
-      integer unit
-      integer isemicore
-      double precision rcore
-      integer nrho
-      double precision rho_sc(nrho,2),rr
-      integer i
-
-
-      read(unit,*,ERR=8887,END=8887) rcore
-
-*     **** read density ****
-      do i=1,nrho
-        read(unit,*,ERR=8889,END=8889) rr,rho_sc(i,1)
-      end do
-
-*     **** read density gradient ****
-      do i=1,nrho
-        read(unit,*,ERR=8889,END=8889) rr,rho_sc(i,2)
-      end do
-
-      isemicore = 1
-      return
-
- 8887 isemicore = 0
-      rcore = 0.0d0
-      return
-
- 8889 call errquit('kbppv3:Error reading psp_filename, in semicore',0,
-     &       DISK_ERR)
-      end
 
 

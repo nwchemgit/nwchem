@@ -1,5 +1,5 @@
 c
-c $Id: psp_stress_formatter.F,v 1.6 2007-04-02 15:38:41 bylaska Exp $
+c $Id: psp_stress_formatter.F,v 1.7 2008-03-17 17:53:58 bylaska Exp $
 c
 
       logical function psp_stress_formatter(rtdb)
@@ -167,11 +167,11 @@ c
       integer      control_version
       integer      control_ngrid
       real*8       control_unita
-      logical      kbppv3_stress, nwpw_filefind
+      logical      kbppv3d_stress, nwpw_filefind
       external     control_version
       external     control_ngrid
       external     control_unita
-      external     kbppv3_stress, nwpw_filefind
+      external     kbppv3d_stress, nwpw_filefind
 
       value  = .true.
 
@@ -208,7 +208,7 @@ c
 
       if (version .eq.3) then
         value = value.and.
-     >       kbppv3_stress(.false.,
+     >       kbppv3d_stress(.false.,
      >              version,psp_filename,formatted_filename,ngrid,unita,
      >              locp,lmax,rlocal)
       else

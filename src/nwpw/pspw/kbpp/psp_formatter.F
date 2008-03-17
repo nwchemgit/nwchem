@@ -1,5 +1,5 @@
 c
-c $Id: psp_formatter.F,v 1.16 2007-09-24 17:56:26 bylaska Exp $
+c $Id: psp_formatter.F,v 1.17 2008-03-17 17:53:58 bylaska Exp $
 c
 
 *     ***************************************
@@ -155,11 +155,11 @@ c
       integer      control_version
       integer      control_ngrid
       real*8       control_unita
-      logical      kbppv3,hghppv1,pawppv1,nwpw_filefind
+      logical      kbppv3d,hghppv1,pawppv1,nwpw_filefind
       external     control_version
       external     control_ngrid
       external     control_unita
-      external     kbppv3,hghppv1,pawppv1,nwpw_filefind
+      external     kbppv3d,hghppv1,pawppv1,nwpw_filefind
 
 
 *     **** get lmax,locp,and rlocal from psp library ****
@@ -196,7 +196,7 @@ c
       call get_psp_type(psp_filename,psp_type)
 
       if (psp_type.eq.0) then
-         value = kbppv3(.false.,
+         value = kbppv3d(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,rlocal)
       else if (psp_type .eq.1) then
