@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.52 2008-03-12 23:46:12 jhammond Exp $
+#$Id: GNUmakefile,v 1.53 2008-03-17 16:19:56 jhammond Exp $
 #
 
 SUBDIRS = include ccsd ccsd_lambda eomccsd \
@@ -35,6 +35,7 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_mo2e_offset_intorb.o tce_mo2e_offset_size.o tce_mo2e_trans.o \
       atpart_nalength.o tce_mo2e_zones_4a_disk_ga.o tce_mo2e_zones_4a_disk_ga_chop.o \
       tce_mo2e_zones_4a_disk_2s_new.o tce_mo2e_zones_4a_disk_4s_new_patch.o\
+      tce_mo2e_zones_4a_disk_4s_new_patch_m2.o \
       tce_dens_hh_offset.o tce_dens_hp_offset.o tce_dens_pp_offset.o tce_dens_ph_offset.o \
       get_mo_rdm_hh.o get_mo_rdm_hp.o get_mo_rdm_ph.o get_mo_rdm_pp.o \
       ao_rdm_write.o tce_prop_start.o tce_property.o tce_diagnose_t1.o \
@@ -69,7 +70,8 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_ao1e.F tce_aod1.F tce_mo1e.F tce_ao_mp1.F tce_mo_mp1.F\
             tce_mo2e_zones_4a_disk_ga.F tce_mo2e_zones_4a_disk_ga_chop.F\
             tce_mo2e_zones_4a_disk_4s_new_patch.F\
-            tce_mo2e_zones_4a_disk_2s_new.F tce_diagnose_t1.F ddotfile.F
+            tce_mo2e_zones_4a_disk_2s_new.F tce_mo2e_zones_4a_disk_4s_new_patch_m2.F\
+            tce_diagnose_t1.F ddotfile.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 #
