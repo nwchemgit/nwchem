@@ -1,4 +1,4 @@
-* $Id: rkbpp_band.F,v 1.38 2008-03-07 23:53:37 d3p708 Exp $
+* $Id: rkbpp_band.F,v 1.39 2008-03-18 16:28:25 d3p708 Exp $
 *
 *     **************************************
 *     *                                    *
@@ -501,23 +501,32 @@ ccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccc assign norms to each projector
       do 20 ip=1,nprj
          lp=l_prj(ip)
-         if (lp.eq.locl) then
-            vnlnrm(ip)=0.0d0
-            goto 20
-         end if
          kappa=k_prj(ip)
          if (kappa.gt.0) then
             nw= 2*lp
          else
             nw= 2*lp+1
          end if
-         dls= -0.5*(dble(kappa)+1.0d0)
-         do k=1,nrho
-           vv= vp(k,lp) + dls*vpso(k,lp)
-           f(k)=vv*wp(k,nw)*wp(k,nw)
-         end do
-         a=simp(nrho,f,drho)
-         vnlnrm(ip)=1.0d0/a
+         dls=-0.5d0*(dble(kappa)+1.0d0)
+         if (lp.eq.locl) then
+            do k=1,nrho
+               vv=dls*vpso(k,lp)  
+               f(k)= vv*wp(k,nw)*wp(k,nw) 
+            end do
+            a=simp(nrho,f,drho)
+            if (a.lt.1.d-12) then
+              vnlnrm(ip)=0.0d0
+            else
+              vnlnrm(ip)=1.0d0/a
+            end if
+         else
+            do k=1,nrho
+              vv= vp(k,lp) + dls*vpso(k,lp)
+              f(k)=vv*wp(k,nw)*wp(k,nw)
+            end do
+            a=simp(nrho,f,drho)
+            vnlnrm(ip)=1.0d0/a
+         end if
 20    continue  
 cccccccccc calculate local potential in q space
       call dcopy(ngsize,0.0d0,0,vl,1)
@@ -645,11 +654,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
          end do
          do 100 ippot=1,nprj
             lp=l_prj(ippot)
-            if (lp.eq.locl) then
-              vnl(igx,igy,igz,ippot,1)=dcmplx(0.0d0,0.0d0)
-              vnl(igx,igy,igz,ippot,2)=dcmplx(0.0d0,0.0d0)
-              goto 100
-            end if
             kappa=k_prj(ippot)
             malfa=malf_prj(ippot)
             mbeta=mbet_prj(ippot)
@@ -660,22 +664,30 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
             else
                nw= 2*lp+1
             end if
+            dls= -0.5d0*(dble(kappa)+1.0d0)
             f(1)=0.0d0
-            if (lp.eq.0) then
-               vv=vp(1,0)
-               vv=vv*wp(1,1)
-               f(1)=vv*sinqr(1)/q
+            if (lp.eq.locl) then
+               do k=2,nrho
+                 vv=dls*vpso(k,lp)
+                 vv=vv*wp(k,nw)
+                 qr=q*rho(k)
+                 a=sjx(qr,lp,cosqr(k),sinqr(k))
+                 f(k)=a*vv*rho(k)
+               end do        
+            else
+               if (lp.eq.0) then
+                 vv=vp(1,0)
+                 vv=vv*wp(1,1)
+                 f(1)=vv*sinqr(1)/q
+               end if
+               do k=2,nrho
+                 vv=vp(k,lp)+dls*vpso(k,lp)
+      	         vv=vv*wp(k,nw)
+                 qr=q*rho(k)
+                 a=sjx(qr,lp,cosqr(k),sinqr(k))
+                 f(k)=a*vv*rho(k)
+               end do
             end if
-ccccccccccccccc L*S = 1 + kappa
-            dls= -0.5*(dble(kappa)+1.0d0)
-cccccccccccccccc
-            do k=2,nrho
-               vv=vp(k,lp)+dls*vpso(k,lp)
-    	       vv=vv*wp(k,nw)
-               qr=q*rho(k)
-               a=sjx(qr,lp,cosqr(k),sinqr(k))
-               f(k)=a*vv*rho(k)
-            end do
             d=simp(nrho,f,drho)*pi4
             vnl(igx,igy,igz,ippot,1)=dcmplx(d*calfa,0.0d0)*
      >                 sphharm(lp,malfa,gx,gy,gz)       
