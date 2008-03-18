@@ -1,4 +1,4 @@
-# $Id: d-aug-cc-pvdz_diffuse,v 1.1 2002-01-03 23:41:05 mhackler Exp $
+# $Id: d-aug-cc-pvdz_diffuse,v 1.2 2008-03-18 13:22:44 jhammond Exp $
 basis "H_d-aug-cc-pVDZ_Diffuse" SPHERICAL
    H   S
     0.72500000000E-02   1.0000000000    
@@ -59,3 +59,12 @@ basis "Ne_d-aug-cc-pVDZ_Diffuse" SPHERICAL
    Ne  D
   0.18100000000       1.0000000000    
 end
+basis "Cl_d-aug-cc-pVDZ_Diffuse" SPHERICAL
+   Cl   S
+    0.19100000000E-01   1.0000000000
+   Cl   P
+    0.13400000000E-01   1.0000000000
+   Cl   D
+    0.64000000000E-01   1.0000000000
+end
+
