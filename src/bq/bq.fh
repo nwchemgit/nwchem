@@ -56,6 +56,9 @@
        external bq_nuc_energy
 
 
+       logical  bq_alloc
+       external bq_alloc
+
        logical  bq_get_handle
        external bq_get_handle
 

@@ -1,4 +1,4 @@
-c $Id: bq_data.F,v 1.11 2007-08-17 22:33:21 d3p852 Exp $
+c $Id: bq_data.F,v 1.12 2008-03-18 18:10:11 marat Exp $
       block data initial_bq_data
       implicit none
 #include "bq_data.fh"
@@ -182,6 +182,57 @@ c      local variables
 
        do i=1,3*n
          dbl_mb(i_c+i-1) = c(i)
+       end do 
+
+       bq_ncent(handle)  = n
+       bq_charge(handle) = h_q
+       bq_coord(handle)  = h_c
+       bq_mem(handle)    = .true.
+
+       return
+       end
+
+      function bq_alloc(handle,n)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       integer handle
+       integer n
+       logical bq_alloc
+c      local variables
+       integer i
+       integer h_c,i_c
+       integer h_q,i_q
+       character*(32) pname
+
+       pname = "bq_alloc"
+
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+         bq_alloc = .false.
+         return
+       else
+         bq_alloc = .true.
+       end if
+
+       if(.not.ma_alloc_get(MT_DBL, 3*n, 'bqdata c',
+     &      h_c, i_c) ) call errquit(
+     &      pname//' unable to allocate heap space',
+     &      3*n, MA_ERR)
+
+       if(.not.ma_alloc_get(MT_DBL, n, 'bqdata q',
+     &      h_q, i_q) ) call errquit(
+     &      pname//' unable to allocate heap space',
+     &      n, MA_ERR)
+
+      
+       do i=1,n
+         dbl_mb(i_q+i-1) = 0.0d0
+       end do 
+
+       do i=1,3*n
+         dbl_mb(i_c+i-1) = 0.0d0
        end do 
 
        bq_ncent(handle)  = n
