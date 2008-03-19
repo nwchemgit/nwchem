@@ -1,6 +1,6 @@
       subroutine tce_filename(stub,filename)
 c
-c $Id: tce_filename.F,v 1.6 2008-03-17 16:41:55 jhammond Exp $
+c $Id: tce_filename.F,v 1.7 2008-03-19 01:00:13 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -37,7 +37,7 @@ c
 
       subroutine tce_filenameindexed(index,stub,filename)
 c
-c $Id: tce_filename.F,v 1.6 2008-03-17 16:41:55 jhammond Exp $
+c $Id: tce_filename.F,v 1.7 2008-03-19 01:00:13 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -46,6 +46,7 @@ c
 #include "sf.fh"
 #include "stdio.fh"
 #include "tce.fh"
+#include "tce_main.fh"
 #include "errquit.fh"
 #include "inp.fh"
       integer index
@@ -72,7 +73,7 @@ c
 
       subroutine tce_filename_4ind(index,stub,filename)
 c
-c $Id: tce_filename.F,v 1.6 2008-03-17 16:41:55 jhammond Exp $
+c $Id: tce_filename.F,v 1.7 2008-03-19 01:00:13 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -81,6 +82,7 @@ c
 #include "sf.fh"
 #include "stdio.fh"
 #include "tce.fh"
+#include "tce_main.fh"
 #include "errquit.fh"
 #include "inp.fh"
       integer index
@@ -90,13 +92,13 @@ c
       character*(*) filename
 c
       if ((index.lt.1).or.(index.gt.999))
-     1  call errquit('tce_filename_4ind: illegal index',index,
+     1  call errquit('tce_filenameindexed: illegal index',index,
      2  UNKNOWN_ERR)
 ccx      call tce_filename(stub,temporary)
       call util_file_name(stub,.false.,.false.,temporary)
       length = inp_strlen(temporary)
       if (length+4.gt.len(filename))
-     1  call errquit('tce_filename_4ind: name too long',length,
+     1  call errquit('tce_filenameindexed: name too long',length,
      2  UNKNOWN_ERR)
       filename = temporary
       write(filename(length+1:length+4),1000) index
