@@ -3,7 +3,7 @@ c     /* Main DFT driver */
 c
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.84 2008-03-20 02:06:05 niri Exp $
+c     $Id: dft_main0d.F,v 1.85 2008-03-20 17:14:44 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -109,9 +109,9 @@ c
       if (rtdb_get(rtdb,'zora:on',mt_log,1,do_zora)) 
      &     do_zora = .true.
 c
-c     == Get the grid cutoff ==
+c     == Get the grid cutoff or set default ==
       if(.not.rtdb_get(rtdb,'zora:cutoff',mt_dbl,1,zoracutoff))
-     &  zoracutoff = 1.0d-06
+     &  zoracutoff = 1.0d-04
 c
 czora...end
 c

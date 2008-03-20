@@ -72,18 +72,10 @@ c      == assemble the appropriate correction ==
        if (zora_calc_type.eq.0) then  ! pure kinetic test
           zoraCorr = 0.5d0
        else if (zora_calc_type.eq.1) then ! zora correction
-          if (closegridpts(igrid).gt.0) then
-             zoraCorr = -0.5d0   ! replace value with limiting value
-          else
              zoraCorr = totPot/(4.d0*clight_au2 - 2.d0*totPot)
-          end if
        else if (zora_calc_type.eq.2) then ! zora energy scaling
-          if (closegridpts(igrid).gt.0) then
-             zoraCorr = 0.0d0       ! replace with limiting value
-          else
              denomFac = (2.d0*clight_au2 - totPot)
              zoraCorr = clight_au2/denomFac/denomFac
-          end if
        else
           zoraCorr = 0.d0
        end if
