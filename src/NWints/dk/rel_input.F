@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.13 2007-09-14 18:14:55 niri Exp $
+* $Id: rel_input.F,v 1.14 2008-03-20 02:04:15 niri Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -12,6 +12,7 @@
 #include "stdio.fh"
 #include "rel_consts.fh"
 #include "errquit.fh"
+#include "zora.fh"
 c     
 c     Read input for the relativistic block
 c     
@@ -21,10 +22,7 @@ c
       double precision clight
       logical dk_run             ! Douglas-Kroll
       logical dmd_run            ! Dyall modified Dirac
-
-czora...start changes
       logical zora_run           ! ZORA
-czora...end changes
 
       logical status
       integer irelKey            ! Relativistic method keys
@@ -38,18 +36,16 @@ c     Douglas-Kroll
       dk_run = .false.
       if (.not. rtdb_put(rtdb, 'doug_kroll', mt_log, 1, dk_run))
      $   call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
-
+c
 c     Dyall Modified Dirac
       dmd_run = .false.
       if (.not. rtdb_put(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run))
      $   call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
-
-czora...start changes
+c
 c     ZORA
       zora_run = .false.
       if (.not. rtdb_put(rtdb, 'zora', mt_log, 1, zora_run))
      &  call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
-czora...end changes
 c
 c     Set some relativistic variables we could need later on
 c
@@ -73,19 +69,18 @@ c
      $               'calculations is ',F16.10, 'au.'/)
 c
       elseif (inp_compare(.false.,'douglas-kroll', test)) then
-c
          call dk_input(rtdb)
 c
       elseif (inp_compare(.false.,'dyall-mod-dirac', test)) then
-c
          call dmd_input(rtdb)
 c
-czora...start
       elseif (inp_compare(.false.,'zora', test)) then
-c
          call zora_input(rtdb)
 c
-czora...end
+      elseif(inp_compare(.false.,'zora:cutoff',test)) then
+         if(.not. inp_f(zoracutoff)) zoracutoff = 1.0d-04  ! set a default cutoff
+         if (.not. rtdb_put(rtdb,'zora:cutoff',mt_dbl,1,zoracutoff))
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)
 c
       else if (inp_compare(.false.,'end', test)) then
 c
@@ -105,15 +100,13 @@ c
       irelKey = 0
       status = rtdb_get(rtdb, 'doug_kroll', mt_log, 1, dk_run)
       if (dk_run) irelKey = irelKey + 1
-
+c
       status = rtdb_get(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run)
       if (dmd_run) irelKey = irelKey + 1
-
-czora...start changes
+c
       status = rtdb_get(rtdb, 'zora', mt_log, 1, zora_run)
       if (zora_run) irelKey = irelKey + 1
-czora...end changes
-
+c
 c     Check if multiple approaches have been set 
       if (irelKey .gt. 1) then
          if (ga_nodeid() .eq. 0) then
