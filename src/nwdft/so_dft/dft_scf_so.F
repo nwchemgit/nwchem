@@ -6,7 +6,7 @@ c
      &                  iter, g_dens, g_dens_at, g_movecs, g_vxc, 
      &                  g_fock, g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.49 2008-02-28 22:09:06 niri Exp $
+c     $Id: dft_scf_so.F,v 1.50 2008-03-20 02:06:33 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -610,14 +610,19 @@ c
 c      if (rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
 c     &     spinor=spinor_guess(movecs_in)
       if(.not.spinor)then 
-         if (rtdb_get(rtdb,'sodft:fon',mt_log,1,fon))then 
-            if (.not.rtdb_get(rtdb,'sodft:nmo_fon',mt_int,1,nmo_fon))
-     &           write(LuOut,*)"Warning: fractional occupation 
-     &           calculation specified without nmo_fon"
-            
-            if(.not. rtdb_get(rtdb,'sodft:nel_fon',mt_int,1,nel_fon))
-     &           write(LuOut,*)"Warning: fractional occupation 
-     &           calculation specified without nel_fon"  
+         if (rtdb_get(rtdb,'sodft:fon',mt_log,1,fon)) then 
+          if (.not.rtdb_get(rtdb,'sodft:nmo_fon',mt_int,1,nmo_fon)) then
+             if (me.eq.0) then
+                write(LuOut,*)"Warning: fractional occupation 
+     &          calculation specified without nmo_fon"
+             end if
+          end if
+          if (.not.rtdb_get(rtdb,'sodft:nel_fon',mt_int,1,nel_fon)) then
+             if (me.eq.0) then
+                write(LuOut,*)"Warning: fractional occupation 
+     &          calculation specified without nel_fon"  
+             end if
+          end if
             anoca = noc(1)
             anocb = noc(2)
             noc(1)=(noc(1)+noc(2)-nel_fon)/2
@@ -1008,18 +1013,7 @@ c     compute core energy
 c     
       call ga_zero(g_fock)
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'kinetic', oskel)
-
-czora...debug
-c      ener_kin = ga_ddot(g_dens(1),g_fock)
-c      write(luout,*) "Total kinetic energy:",ener_kin
 c
-c      numelecs = ga_ddot(g_dens(1),g_s)
-c      write(luout,*) "Number of electrons:",numelecs
-c
-c      ener_kin = ga_ddot(g_dens(1),g_zora_scal_sf(1))
-c      write(luout,*) "Total kinetic energy:",ener_kin
-czora...debug
-
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'potential', oskel)
       call ga_fock_sf(g_fock, g_fockso(1), nbf_ao) 
 cso
