@@ -24,9 +24,6 @@ c
 c    
       character*255 test
 c
-      logical isMolecular
-      external isMolecular
-c
 c     Preliminaries
       do_zora_get_correction = .false.
       do_zora = .false.
@@ -50,42 +47,6 @@ c     Put zora parameters in rtdb
 
       if (.not. rtdb_put(rtdb, 'zora:on', mt_log, 1,do_zora))
      & call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
-
+c
       return
       end
-c
-c     check if we are not using the SAPA method
-c
-      logical function isMolecular(test)
-
-      implicit none
-
-#include "rtdb.fh"
-#include "context.fh"
-#include "global.fh"
-#include "mafdecls.fh"
-#include "inp.fh"
-#include "stdio.fh"
-#include "rel_consts.fh"
-#include "util.fh"
-#include "errquit.fh"
-#include "zora.fh"
-
-      character*255 test
-
-c     Preliminaries
-      isMolecular = .false.
-
-c     Is this is a self-consistent calculation ?
-      if (inp_a(test)) then
-
-        if (inp_compare(.false., 'molecular', test)) then
-          isMolecular = .true.
-        else if (inp_compare(.false., 'atomic', test)) then
-          isMolecular = .false.
-        end if
-
-      end if
-
-      return
-      end 

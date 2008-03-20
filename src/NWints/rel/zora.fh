@@ -4,15 +4,15 @@ czora...
 czora...zora flags
         logical do_zora, do_zora_get_correction
         common/zora_flags/do_zora, do_zora_get_correction
-
+c
 czora...spin-orbit control (1=z, 2=y, 3=x, 0=spin-free)
         integer so_term
         common/zora_so_term/so_term
-
+c
 czora...constants
         double precision clight_au
         common/zora_consts/clight_au
-
+c
 czora...calculation control
 czora...0 = pure kinetic calculated on a grid (for testing)
 czora...1 = zora correction to the kinetic energy
@@ -20,3 +20,7 @@ czora...2 = zora energy scaling
 
         integer zora_calc_type
         common/zora_calc/zora_calc_type
+c
+czora...zora cutoff
+        double precision zoracutoff
+        common/zora_tols/zoracutoff
