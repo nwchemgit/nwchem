@@ -1,7 +1,7 @@
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                  d_v2,k_v2_offset,energy1,energy2)
 C
-C     $Id: ccsd_t.F,v 1.2 2008-01-14 15:20:39 jhammond Exp $
+C     $Id: ccsd_t.F,v 1.3 2008-03-22 19:32:11 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -73,10 +73,10 @@ C
      3           * int_mb(k_range+t_h1b-1)
      4           * int_mb(k_range+t_h2b-1)
      5           * int_mb(k_range+t_h3b-1)
-            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',
-     1        l_singles,k_singles)) call errquit('ccsd_t',1,MA_ERR)
-            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',
-     1        l_doubles,k_doubles)) call errquit('ccsd_t',2,MA_ERR)
+            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
+     1        k_singles)) call errquit('ccsd_t: MA error',1,MA_ERR)
+            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
+     1        k_doubles)) call errquit('ccsd_t: MA error',2,MA_ERR)
             do i = 1, size
              dbl_mb(k_singles+i-1) = 0.0d0
              dbl_mb(k_doubles+i-1) = 0.0d0
