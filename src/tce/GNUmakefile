@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.54 2008-03-21 21:46:58 jhammond Exp $
+#$Id: GNUmakefile,v 1.55 2008-03-24 16:09:59 jhammond Exp $
 #
 
 SUBDIRS = include ccsd ccsd_lambda eomccsd \
@@ -55,12 +55,8 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_ccsd_response_driver.o tce_ccsdt_response_driver.o tce_ccsdtq_response_driver.o \
       tce_ccsd_symm_polar.o tce_ccsdt_symm_polar.o tce_ccsdtq_symm_polar.o \
       tce_ccsd_lambda_response_driver.o tce_ccsd_asym_polar.o tce_ccsd_hyperpolar.o \
-      tce_ao2e_new.o tce_tile_new.o tce_init_new.o #tce_mo2e_new.o
-      
-ifdef NEW_PARIO
-      OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_4s_new_patch.o\
-                      tce_mo2e_zones_4a_disk_4s_new_patch_m2.o 
-endif
+      tce_ao2e_new.o tce_tile_new.o tce_init_new.o \
+      tce_mo2e_zones_4a_disk_4s_new_patch.o tce_mo2e_zones_4a_disk_4s_new_patch_m2.o 
 
 LIB_INCLUDES = -I./include
 
