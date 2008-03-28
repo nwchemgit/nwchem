@@ -1,5 +1,4 @@
-#define NEWSC
-* $Id: xc_rhogen.F,v 1.38 2008-02-01 22:27:55 niri Exp $
+* $Id: xc_rhogen.F,v 1.39 2008-03-28 18:47:17 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -607,22 +606,15 @@ c
       call endtimer(monitor_ganbget)
       return
       end
-#define T12 1
       subroutine xc_dmget(repdm, nbf_ld,
      %                 ilo, ihi, jlo, jhi, Pmat,nbfia)
       implicit none
       integer  ilo, ihi, jlo, jhi, nbfia,nbf_ld
       double precision pmat(nbfia,*)
-#ifdef T12
       double precision repdm(*)
       integer ij,nnn
-#else
-      double precision repdm(nbf_ld,*)
-#endif
-c
       integer i,j
 c
-#ifdef T12
       nnn=nbfia
       if(ilo.ne.jlo) then
          do j=jlo,jhi
@@ -643,10 +635,5 @@ c     copy offdiag terms (aka transp)
             enddo
          enddo
       endif
-#else
-      call dlacpy('a',ihi-ilo+1,jhi-jlo+1,
-     , repdm(ilo,jlo),nbf_ld,
-     , pmat,nbfia)
-#endif
       return
       end

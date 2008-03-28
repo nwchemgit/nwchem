@@ -5,7 +5,7 @@ C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,g_vxc,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.33 2007-11-16 22:34:36 edo Exp $
+C$Id: xc_replicated.F,v 1.34 2008-03-28 18:47:17 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -87,7 +87,7 @@ c
             howmanyrr=0
 c     no xc bit in the gradients
             if(truerepxc) howmanyrr=howmanyrr+1
-            if(truerepdm) howmanyrr=howmanyrr+2
+            if(truerepdm) howmanyrr=howmanyrr+1
             ntwo12=(nbf_ao*(nbf_ao+1))/2*ipol
             memrylft=nint(0.92d0*MA_inquire_avail(mt_dbl)-
      -           howmanyrr*ntwo12)
@@ -117,10 +117,10 @@ c     no xc bit in the gradients
 c     
 c     allocate replicated D matrix
 c
-             truerepdm=ma_push_get(MT_Dbl,ntwo12,
+             truerepdm=ma_push_get(MT_Dbl,ntwo12*ipol,
      .            'dmat',l_repdm(1),k_repdm(1))
              if(truerepdm) then
-                k_repdm(2)=k_repdm(1)+nbf_ao*nbf_ao
+                k_repdm(2)=k_repdm(1)+ntwo12/ipol
                 if (odftps) call pstat_on(ps_xcopy)
                 do ii=1,ipol
                    call xc_bcastdm(geom,basis,nbf_ao,
@@ -138,7 +138,7 @@ c
              if(truerepxc) then
                 call dcopy(ntwo12,0d0,0,
      D               dbl_mb(k_repxc(1)),1)
-                k_repxc(2)=k_repxc(1)+nbf_ao*(nbf_ao+1)/2
+                k_repxc(2)=k_repxc(1)+ntwo12/ipol
              endif
           endif
           truerep=truerepdm.or.truerepxc
@@ -265,7 +265,7 @@ c Destroy the ones that are allocated
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.33 2007-11-16 22:34:36 edo Exp $
+C$Id: xc_replicated.F,v 1.34 2008-03-28 18:47:17 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -283,10 +283,6 @@ c
       integer idim,jdim,istart
 c
       xc_rep_close=.true.
-cedo      if(ga_nodeid().eq.0) then
-cedo         write(0,*) 'xcrep ',xcreplicated
-cedo         write(0,*) ' t x d ',truerep,truerepxc,truerepdm
-cedo      endif
       if(xcreplicated) then
          if(truerep) then
             if(truerepxc) then
@@ -295,26 +291,8 @@ cedo      endif
      N              (nbf_ao*(nbf_ao+1))/2*ipol,'+')
                do i = 1, ipol
                   call ga_zero(g_vxc(i))
-                  call ga_distribution(g_vxc(i),
-     .                 ga_nodeid(), ilo, ihi, jlo, jhi)
-                  if (ilo.gt.0 .and. ilo.le.ihi.and.jlo.le.ihi) then
-c     lower triangle
-                     idim =  ihi-ilo+1
-                     jdim =  jhi-jlo+1
-                     if (idim.gt.0 .and. jdim.gt.0) then
-                        do j=jlo,jhi
-                           if(j.le.ihi) then
-                              istart=max(ilo,j)
-                              icount=k_repxc(i)+
-     G                             ((j-1)*(2*(nbf_ao+1)-j)+1)/2+
-     P                             istart-j
-                              call ga_put(g_vxc(i),istart,
-     N                             nbf_ao,j,j, 
-     $                             dbl_mb(icount),nbf_ao)
-                           endif
-                        enddo
-                     endif
-                  endif
+                  call xc_putget12('put',g_vxc(i),
+     N                 ga_nodeid(),nbf_ao,dbl_mb(k_repxc(i)))
                end do
             endif
             if(.not.truerepxc) l_repxc(1)=l_repdm(1)
@@ -364,49 +342,64 @@ c
       subroutine xc_bcastdm(geom,basis,nbf,
      A              g_a,a)
       implicit none
-#define T12 1
 #include "mafdecls.fh"
 #include "global.fh"
       integer geom,basis,nbf,g_a,mysize,nnn
-#ifdef T12
       double precision a(*)
-#else
-      double precision a(nbf,*)
-#endif
       integer l_acopy,k_acopy,i,j,idim,icount,ica
+      integer proc, myproc, ilo, ihi, jlo, jhi,jj
 c
-c
-#ifdef T12
+      myproc = ga_nodeid() 
+      proc   = ga_nnodes()
       nnn=(nbf*(nbf+1))/2
-      if(.not.ma_push_get(MT_Dbl,nbf*nbf,'acopy',l_acopy,k_acopy))
-     A     call errquit('xc bcastdmL out of mem ',0,0)
-      if(ga_nodeid().eq.0) then
-         call ga_get(g_a, 1, nbf, 1, nbf,
-     $        dbl_mb(k_acopy), nbf)
-!      else
-!         call dcopy(idim,0d0,0,dbl_mb(k_acopy),1)
-      icount=k_acopy
-      ica=1
-      idim=nbf
-      do j=1,nbf
-         call dcopy(idim,dbl_mb(icount),1,a(ica),1)
-         ica=ica+idim
-         icount=icount+nbf+1
-         idim=idim-1
-      enddo
+      call dcopy(nnn,0d0,0,a,1)
+      call xc_putget12('get',g_a,
+     N     myproc,nbf,a)
+      call ga_dgop(374,a, nnn,'+')
+      return
+      end
+      subroutine xc_putget12(what,g_a,me,nbf_ao,a)
+      implicit none
+      character*3 what
+      double precision a(*)
+      integer g_a, me,nbf_ao
+c
+      integer ilo, ihi, jlo, jhi
+      integer idim,jdim,j,istart,icount
+c      
+      call ga_distribution(g_a,
+     .     me, ilo, ihi, jlo, jhi)
+      if (ilo.gt.0 .and.jlo.gt.0.and.
+     A    ilo.le.ihi.and.jlo.le.ihi) then
+c     lower triangle
+         idim =  ihi-ilo+1
+         jdim =  jhi-jlo+1
+         if (idim.gt.0 .and. jdim.gt.0) then
+            do j=jlo,jhi
+               if(j.le.ihi) then
+c     lower triangle
+coffdiag
+                  if(j.lt.ilo) then
+                     istart=ilo
+                     icount=((j-1)*(2*(nbf_ao+1)-j))/2+
+     P                    istart-j+1
+                  else
+c     diag
+                     istart=j
+                     icount=((j-1)*(2*(nbf_ao+1)-j))/2+1
+                  endif
+                  if(what.eq.'get') then
+                     call ga_get(g_a,istart,
+     N                    ihi,j,j, 
+     $                    a(icount),1)
+                  else
+                     call ga_put(g_a,istart,
+     N                    ihi,j,j, 
+     $                    a(icount),1)
+                  endif
+               endif
+            enddo
+         endif
       endif
-      if(.not.ma_chop_stack(l_acopy)) call
-     E     errquit(' xcbcdm: chp failed ',0,0)
-      mysize=MA_sizeof(MT_DBL,1,MT_BYTE)*nnn
-#else
-      if(ga_nodeid().eq.0) then
-         call ga_get(g_a, 1, nbf, 1, nbf,
-     $        a, nbf)
-      endif
-      mysize=MA_sizeof(MT_DBL,1,MT_BYTE)*nbf*nbf
-#endif
-      call ga_brdcst(1964, a, mysize, 0)
-c      call ga_sync()
-
       return
       end
