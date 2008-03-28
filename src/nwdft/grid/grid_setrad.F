@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.35 2004-03-25 00:39:43 edo Exp $
+c$Id: grid_setrad.F,v 1.36 2008-03-28 18:20:18 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -67,7 +67,6 @@ c
       elseif(radgrid.eq.'legendre') then
          wradgrid=8
       else
-         write(0,*) ' radgrid eq ',radgrid
          call errquit('grid_setrad: unknown radial grid type', 0,
      &       INPUT_ERR)
       endif
@@ -104,7 +103,6 @@ c
      *     braggmult=2d0
       if (.not. rtdb_get(rtdb,'dft:ndivide', mt_int, 1, ndivide)) 
      *     ndivide=11
-         
 
       do 100 itype = 1, ntypes
 c
@@ -118,8 +116,7 @@ c
          if (bsrad_atom_type(itype).gt.EPS)then
            if(wradgrid.eq.1) then
               call eumac(bsrad_atom_type(itype), rpts(1,itype), 
-     &             rwghts(1,itype), nrad(itype), rm)
-
+     &             rwghts(1,itype), nrad(itype), 2d0)
            elseif(wradgrid.eq.6) then
                if(tol_reset) then
                   range_mk=range_max
