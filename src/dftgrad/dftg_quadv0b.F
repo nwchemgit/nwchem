@@ -5,7 +5,7 @@
      P     PPP, F, zzz, hh, g_dens, force, 
      &                         oactive)
 *
-* $Id: dftg_quadv0b.F,v 1.12 2006-04-20 00:13:23 edo Exp $
+* $Id: dftg_quadv0b.F,v 1.13 2008-03-28 18:52:37 edo Exp $
 *
       Implicit none
 #include "errquit.fh"
@@ -87,8 +87,13 @@ c
                call ga_nbget(g_dens(ispin), 
      %              ifirst, ilast, 1, nbf_ao, PPP,nbfia, nbhand)
             else
-               call ga_get(g_dens(ispin), 
-     %              ifirst, ilast, 1, nbf_ao, PPP,nbfia)
+               if(truerepdm) then
+                  call dftg_dmget(dbl_mb(k_repdm(ispin)),nbf_ld,
+     %                 ifirst, ilast, PPP,nbfia)
+               else
+                  call ga_get(g_dens(ispin), 
+     %                 ifirst, ilast, 1, nbf_ao, PPP,nbfia)
+               endif
             endif
                do mu = inizia,ifinia
                   mu1=mu-inizia+1
@@ -188,3 +193,49 @@ c
       return 
       end 
 c     
+      subroutine dftg_dmget(repdm, nbf_ld,
+     %                 ilo, ihi,  Pmat,nbfia)
+      implicit none
+#include "mafdecls.fh"
+      integer  ilo, ihi,  nbfia,nbf_ld
+      double precision pmat(nbfia,*)
+      double precision repdm(*)
+      integer ij,nnn
+      integer i,j
+c
+c     3blocks
+c
+c     full block ilo,ihi;1,ilo-1
+      if(ilo.gt.1) then
+         do j=1,ilo-1
+            ij=((j-1)*(2*(nbf_ld+1)-j)+1)/2+ilo-j+1
+            nnn=nbfia
+            call dcopy(nnn,repdm(ij),1,pmat(1,j),1)
+         enddo
+      endif
+c     diag block ilo,ihi;ilo,ihi
+      nnn=nbfia
+      do j=ilo,ihi
+         ij=((j-1)*(2*(nbf_ld+1)-j)+1)/2+1
+         call dcopy(nnn,repdm(ij),1,pmat(j-ilo+1,j),1)
+         nnn=nnn-1
+      enddo
+c     copy offdiag terms (aka transp)
+      if(ihi.gt.ilo) then
+         do j=ilo,ihi
+            do i=j+1,ihi
+               pmat(j-ilo+1,i)=pmat(i-ilo+1,j)
+            enddo
+         enddo
+      endif
+c     full block ilo,ihi;1,ilo-1 to be transposed
+c     transpose ihi+1,nbf;ilo,ihi into ilo,ihi;ihi+1;nbf
+      if(ihi.lt.nbf_ld) then
+         nnn=nbf_ld-ihi
+         do j=ilo,ihi
+            ij=((j-1)*(2*(nbf_ld+1)-j)+1)/2+(ihi+1)-j+1
+            call dcopy(nnn,repdm(ij),1,pmat(j-ilo+1,ihi+1),nbfia)
+         enddo
+      endif
+      return
+      end

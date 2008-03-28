@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.22 2007-02-19 18:52:46 edo Exp $
+* $Id: dft_gradients.F,v 1.23 2008-03-28 18:52:37 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -57,8 +57,8 @@ c!!! BGJ test !!!
 c     
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-      logical movecs_read_header, movecs_read
-      external movecs_read_header, movecs_read
+      logical movecs_read_header, movecs_read,xc_rep_close
+      external movecs_read_header, movecs_read,xc_rep_close
       integer nmo(2), noc(2)
       integer iga_dens(2), g_vecs(2), g_force
       Integer k_evals(2), l_evals(2)
@@ -416,12 +416,16 @@ c
          ippp=k_wdens
 c     
       if (odftps) call pstat_on(ps_vcoul)
+      call xc_rep_init(rtdb, geom, ao_bas_han,iga_dens,iga_dens,
+     &     nbf_ao,ipol,.true.,.true.)
          call  dftg_cdfit(ao_bas_han, cd_bas_han,
      $        nbf_cd, nat, tol2e, dbl_mb(k_scr), 
      $        lscratch, dbl_mb(k_buf), lbuf,
      $        dbl_mb(isvec), dbl_mb(ippp), max_sh_bf,
      $        iga_dens, dbl_mb(k_frc_2el), 
      $        DBL_MB(i_cdcoef), oskel)
+         if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,.true.)) call
+     .        errquit(' dftggrad: xcrepclose failed ',0, 0)
 c     
          call ga_dgop(msg_grad_2el, dbl_mb(k_frc_2el), lforce, '+')
       if (odftps) call pstat_off(ps_vcoul)

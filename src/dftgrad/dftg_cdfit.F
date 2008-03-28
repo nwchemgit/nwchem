@@ -9,14 +9,15 @@ c
 c     BGJ - 3/99
 c    
 *
-* $Id: dftg_cdfit.F,v 1.22 2004-09-29 23:53:49 edo Exp $
+* $Id: dftg_cdfit.F,v 1.23 2008-03-28 18:52:37 edo Exp $
 *
       integer  AO_bas_han, CD_bas_han
       integer nbf_cd, nat, max_sh_bf
       integer iga_dens, lbuf, lscr
       double precision scr(lscr), buf(lbuf)
       double precision vec(*),
-     &                 PPP(max_sh_bf,max_sh_bf)
+     &                 PPP(*)
+!     &                 PPP(max_sh_bf,max_sh_bf)
       double precision CD_coef(nbf_cd)
       double precision force(3,nat)
       double precision tol2e
@@ -54,6 +55,7 @@ c
 #include "eaf.fh"
 #include "stdio.fh"
 #include "inp.fh"
+#include "dftpara.fh"
 c
       integer  AO_bas_han, CD_bas_han
       integer  nbf_cd, nat, max_sh_bf
@@ -67,7 +69,8 @@ c
 c     scratch arrays for dgem
 c
       double precision vec(*),
-     &                 PPP(max_sh_bf,max_sh_bf)
+     &                 PPP(*)
+!     &                 PPP(max_sh_bf,max_sh_bf)
 c
 c-->  Charge Density Expansion Coefficients
 c     
@@ -108,7 +111,8 @@ c
 c
       character*(nw_max_path_len) cdfit
 c
-      external nxtask,schwarz_shell
+      double precision dabsmax
+      external nxtask,schwarz_shell,dabsmax
       nproc  = ga_nnodes()
       me = ga_nodeid()
 c
@@ -187,7 +191,7 @@ c     2el. 3-c integral derivatives
 c
 c     increased granularity
 c
-      igran = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+      igran = (nshells_ao + mod(nshells_ao,2))/(4*nproc)
       igran = max(1,igran)
 c
       next = nxtask(nproc,igran) + 1
@@ -201,7 +205,7 @@ c
      &         call errquit('Exiting in dftg_cdfit_gen.',6, BASIS_ERR)
             nshbfp = ilastp - ifirstp + 1
 c          
-            do ishq = 1, ishp
+            do ishq = ishp,nshells_ao
                if (.not. bas_cn2bfr(AO_bas_han,ishq,ifirstq,ilastq))
      &            call errquit('Exiting in dftg_cdfit_gen.',7,
      &       BASIS_ERR)
@@ -217,18 +221,22 @@ c
 c
 c              get shell block of DM
 c
-               call ga_get (iga_dens, ifirstq, ilastq, ifirstp, ilastp,
-     &                      PPP, max_sh_bf)
+               if(truerepdm) then
+c busted for open shell??
+                  call xc_dmget(dbl_mb(k_repdm(1)),nbf_ld,
+     Q                 ifirstq, ilastq, 
+     P                 ifirstp, ilastp,
+     M                 PPP,nshbfq)
+               else
+                  call ga_get (iga_dens, ifirstq, ilastq, 
+     I                 ifirstp, ilastp, PPP, nshbfq)
+               endif
                
 c
 c              Schwarz screening on product MAX(ABS(DM(i,j)))*schwarz(i,j)
 c
-               PPP_max = 0.d0
-               do nu = 1, nshbfp
-                  do mu = 1, nshbfq
-                     PPP_max = max(PPP_max,abs(PPP(mu,nu)))
-                  enddo
-               enddo
+               PPP_max =dabsmax(nshbfp*nshbfq,PPP)
+
                if (PPP_max*schwarz_shell(ishp,ishq).gt.tol2e)then
                   do ishd = 1, nshells_cd
                      if (.not. bas_cn2bfr(CD_bas_han, ishd, 
@@ -286,14 +294,8 @@ c
      &                                   0.D0, vec, 1)
 c
                               icount = icount + Nintegrals
-                              dE = 0.d0
-                              icount2 = 1
-c
-                              do ifp = 1, nshbfp
-                                 dE = dE + ddot(nshbfq, PPP(1,ifp), 
-     &                                          1, vec(icount2), 1)
-                                 icount2 = icount2 + nshbfq
-                              enddo
+                              dE = ddot(nshbfq*nshbfp, PPP, 
+     &                                          1, vec, 1)
 c
                               force(icart,idatom(iat)) = 
      &                        force(icart,idatom(iat)) + dE * fac * q1
@@ -308,14 +310,14 @@ c
 c
                         write(*,*)'Are dimensions right on ints and P?'
                         call d2int_2e3c_block_jhess(CD_coef(ifirstd),
-     &                       PPP, max_sh_bf, hess, nat, buf, fac*q1,
+     &                       PPP, nshbfq, hess, nat, buf, fac*q1,
      &                       idatom, nshbfd, nshbfp, nshbfq)
 c
                      else if (do_cpks_r) then
 c
                         write(*,*)'Are dimensions right on ints and P?'
                         call dint_2e3c_block_jdmat(CD_coef(ifirstd),
-     &                       PPP, nbf_cd, max_sh_bf, g_dj,
+     &                       PPP, nbf_cd, nshbfq, g_dj,
      &                       db(ifirstd,1,1), dbl_mb(k_dfkl), buf,
      &                       ishp .eq. ishq, idatom, nshbfd,
      &                       ifirstp, ilastp, ifirstq, ilastq)
@@ -342,7 +344,7 @@ c!!!         call dfill(nbf_cd*3*nat, 0.0d0, db, 1)
 c
 c     2el. 2-c integral derivatives
 c
-      igran = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+      igran = (nshells_ao + mod(nshells_ao,2))/(4*nproc)
       igran = max(1,igran)
 c
       next = nxtask(nproc,igran) + 1
