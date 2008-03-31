@@ -1,5 +1,5 @@
 /*
- $Id: rpspsolve.c,v 1.18 2008-03-03 19:03:04 d3p708 Exp $
+ $Id: rpspsolve.c,v 1.19 2008-03-31 18:49:04 d3p708 Exp $
 */
 
 #include <stdlib.h>
@@ -286,14 +286,14 @@ void FATR rpspsolve_
       fprintf (fp, "%12.8lf", rl[k]);
 /**************************************************************
  *  Here we output the v spin orbit
- *     v_spin_orbit(l,r)=(v(l-1/2) - v(l+1/2))/(2*l+1)
+ *     v_spin_orbit(l,r)=2*(v(l+1/2) - v(l-1/2))/(2*l+1)
  *
- *   so that V_spin_orbit|Psi>= (1+kappa)*v_spin_orbit|Psi>
- *   its confusing because L*S -> - (1+kappa)
+ *   so that V_spin_orbit|Psi>= -1/2(1+kappa)*v_spin_orbit|Psi>
+ *   its confusing because L*S -> - (1+kappa)/2
  *************************************************************/
       for (p = 1; p < nvh;++p)
 	{
-	  vx = (pspl[2 * p+1][k] - pspl[2 * p][k]);
+	  vx = (pspl[2*p+1][k] - pspl[2*p][k]);
 	  vx *= 2. / (2. * p + 1.);
 	  fprintf (fp, " %15.8lf", vx);
 	}
