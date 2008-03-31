@@ -2,7 +2,7 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_pr_anal.F,v 1.14 2003-10-17 22:54:33 carlfahl Exp $
+* $Id: movecs_pr_anal.F,v 1.15 2008-03-31 19:17:10 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -43,6 +43,7 @@ c
       double precision chars(maxireps*maxireps)
       logical sym_char_table
       external sym_char_table
+      double precision maxv
 c
       or2 = .true.
       if (.not. bas_cando_mpoles(basis)) or2 = .false.
@@ -106,9 +107,32 @@ c
                   n = n + 1
                endif
             enddo
-            if (n.eq.0 .and. cur_thresh.le.64*thresh) then
-               cur_thresh = cur_thresh*2
-               goto 111         ! Go back if found nothing to print
+            if (n.eq.0) then
+               if(cur_thresh.le.64*thresh) then
+                  cur_thresh = cur_thresh*2
+                  goto 111      ! Go back if found nothing to print
+               else
+c
+c     found nothing. get max +10% of lowe
+c
+                  maxv=1d-99
+c     max
+                  do j = 0, nbf-1
+                     if (abs(dbl_mb(k_vecs+j)).ge.maxv) then
+                        int_mb(k_list) = j
+                        maxv=abs(dbl_mb(k_vecs+j))
+                     endif
+                  enddo
+c     get within 10% range
+                  maxv=maxv*0.9d0*maxv
+                  n=1
+                  do j = 0, nbf-1
+                     if (abs(dbl_mb(k_vecs+j)).ge.maxv) then
+                        int_mb(k_list + n) = j
+                        n=n+1
+                     endif
+                  enddo
+               endif
             endif
             do j = 0, n-1
                do k = 0, j
