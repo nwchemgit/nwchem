@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.21 2008-03-13 17:07:04 windus Exp $
+C$Id: gibbs.F,v 1.22 2008-04-01 16:43:48 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -4691,6 +4691,7 @@ C Replacement for util_sgstart
       external util_sggo
 C Additional variables
       integer groups_want, array_cpu(1), method
+      integer dir
 C End Additions
 
 C Dimensions
@@ -4726,8 +4727,9 @@ C     This is just option 3, but you get to lay the groups out exactly.
 C Setting array_cpu(1) = 0
 C Ignored in methods 1 and 2, otherwise must change
       array_cpu(1) = 0
+      dir = 1 ! Write group rtdb's in scratch directories
 C Replacement call for util_sgstart
-      call util_sggo(rtdb,groups_want,method,array_cpu)
+      call util_sggo(rtdb,groups_want,method,array_cpu,dir)
 C End of changes for util_sgstart depreciation
 
       if (util_print('debug',print_debug)) then
@@ -4990,11 +4992,6 @@ C Everything internal
       character*256 dntmc_dir
 
 C  Main Program
-      write(6,*)'starting write on file name'
-      write(6,*)'dntmc_dir ',dntmc_dir(1:inp_strlen(dntmc_dir))
-      write(6,*)'fprefix ',fprefix(1:inp_strlen(fprefix))
-      write(6,*)'.restart.'
-      write(6,*)'prcfil ',prcfil(1:4)
       write(fprefixcat,'(256(a))') (' ', i=1, 256)
       write(fprefixcat,'(5(a))')
      &      dntmc_dir(1:inp_strlen(dntmc_dir)),
@@ -5002,7 +4999,6 @@ C  Main Program
      &      fprefix(1:inp_strlen(fprefix)),
      &      '.restart.',
      &      prcfil(1:4)
-      write(6,*)'done with filename write'
 
       OPEN(UNIT = 20,FILE = fprefixcat(1:inp_strlen(fprefixcat))
      +    ,STATUS = 'OLD')
