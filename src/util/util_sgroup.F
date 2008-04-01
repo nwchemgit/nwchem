@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.45 2007-08-27 17:23:17 d3p852 Exp $
+C$Id: util_sgroup.F,v 1.46 2008-04-01 16:45:24 windus Exp $
       block data groups
 #include "util_sgroup.fh"
 C     Make sure that the group code works even if groups are not set up yet
@@ -19,6 +19,11 @@ C###############################################################################
       integer groups_want
       integer dum(1)
       integer method
+C added option to allow writting of group rtdb's
+C to permanent_dir(.false.) or scratch_dir(.true.)
+      integer dir
+c
+      dir = 0 ! permanent_dir by default
 c
 c Read number of subgroups from input
 c
@@ -26,13 +31,13 @@ c
      &   groups_want))groups_want=1
 
       method = 1
-      call util_sggo(rtdb,groups_want,method,dum)
+      call util_sggo(rtdb,groups_want,method,dum,dir)
 
       util_sgstart=.true.
       return
       end
 C###############################################################################
-      subroutine util_sggo(rtdb,groups_want,method,array_cpu)
+      subroutine util_sggo(rtdb,groups_want,method,array_cpu,dir)
       implicit none
 #include "stdio.fh"
 #include "global.fh"
@@ -65,6 +70,17 @@ C strings for fname definition
       character*256 permdir
       character*256 fprefix
       integer myproc,nproc
+C
+C     Added option to allow group rtdb's to be written
+C     to permanent_dir (0) or scratch_dir(1)
+      integer dir
+      logical dir2
+C     convert to logical
+      if (dir .gt. 0) then
+        dir2 = .true.
+      else
+        dir2 = .false.
+      endif
 c
       if (ga_pgroup_get_default() .eq. ga_pgroup_get_world()) then
         depth = 0
@@ -141,7 +157,7 @@ c initialize sub groups using a method
      *   meafter,mygroup(depth),my_ga_grp(depth)
        endif
 
-      call util_sgrtdb(rtdb,rtdb_fname(depth-1),rtdb_fname(depth))
+      call util_sgrtdb(rtdb,rtdb_fname(depth-1),rtdb_fname(depth),dir2)
       if (.not. rtdb_open(rtdb_fname(depth), 'old', rtdb)) call errquit
      *     (' rtdb_open old failed ',0,0)
 
@@ -206,7 +222,7 @@ c
       end
 
 C###############################################################################
-      subroutine util_sgrtdb(rtdb,name_in,name_out)
+      subroutine util_sgrtdb(rtdb,name_in,name_out,dir)
       implicit none
       integer rtdb
       character*256 name_in,name_out
@@ -220,7 +236,13 @@ C###############################################################################
       character*256 grouprtdb
       character*256 groupname
       integer myproc
-c
+
+C     Added option to allow group rtdb's to be written to
+C     Permanent_dir or scratch_dir
+      logical dir
+C                     .false. changes to permanent_dir
+C                     .true. changes to scratch dir
+
       myproc=ga_nodeid()
 
       if(myproc.eq.0.and.sgprint) then
@@ -228,7 +250,7 @@ c
         call flush(luout)
       endif
 c
-c     do a copy of rtdb to permanent_dir for each group
+c     do a copy of rtdb to permanent_dir or scratch_dir for each group
 c
       ibegin = 1
       iend   = ibegin + (6-1)
@@ -244,7 +266,9 @@ C       it gets to that long - other limitations on file name length exist
         write(groupname(ibegin:iend),'(i4.4)') mygroup(ii)
       end do
 
-      call util_file_name(groupname(1:iend),.false.,.false.,grouprtdb)
+      call util_file_name(groupname(1:iend),dir,.false.,grouprtdb)
+C
+
       call flush(0)
 C     Do not want to have other nodes to be using old RTDB file anymore
       call ga_pgroup_sync(ga_pgroup_get_default())
