@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
+c $Id: cf_f.fh,v 1.66 2008-04-01 16:34:50 d3j191 Exp $
 c
       implicit none
 c
@@ -759,7 +759,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
+c $Id: cf_f.fh,v 1.66 2008-04-01 16:34:50 d3j191 Exp $
 c
       implicit none
 c
@@ -1581,7 +1581,8 @@ c
       drvco2=chg(isq1(isa),1,iset)*qj4*rwi1(iax)
       derco2=derco2+drvco2
 #if defined(CAFE_FORCES)
-      if(npgdec.gt.1) dera(2,isga(isa))=dera(2,isga(isa))+drvco1+drvco2
+      if(npgdec.gt.1)
+     + dera(2,isga(isa))=dera(2,isga(isa))+half*(drvco1+drvco2)
 #endif
    42 continue
       deriv(5,ipsw)=deriv(5,ipsw)+derco1
@@ -1605,7 +1606,7 @@ c
       derco3=derco3+drvco3
 #if defined(CAFE_FORCES)
       if(npgdec.gt.1) dera(2,isga(isa))=dera(2,isga(isa))+
-     + drvco1+drvco2+drvco3
+     + half*(drvco1+drvco2+drvco3)
 #endif
    43 continue
       deriv(5,ipsw)=deriv(5,ipsw)+derco1+half*derco3
@@ -1620,7 +1621,8 @@ c
       drvco2=chg(isq1(isa),1,iset)*qj4*rwi1(iax)
       derco2=derco2+drvco2
 #if defined(CAFE_FORCES)
-      if(npgdec.gt.1) dera(2,isga(isa))=dera(2,isga(isa))+drvco1+drvco2
+      if(npgdec.gt.1)
+     + dera(2,isga(isa))=dera(2,isga(isa))+half*(drvco1+drvco2)
 #endif
   142 continue
       deriv(5,ipsw)=deriv(5,ipsw)+derco1
@@ -1644,7 +1646,7 @@ c
       derco3=derco3+drvco3
 #if defined(CAFE_FORCES)
       if(npgdec.gt.1) dera(2,isga(isa))=dera(2,isga(isa))+
-     + drvco1+drvco2+drvco3
+     + half*(drvco1+drvco2+drvco3)
 #endif
   143 continue
       deriv(5,ipsw)=deriv(5,ipsw)+derco1+half*derco3
@@ -1897,7 +1899,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
+c $Id: cf_f.fh,v 1.66 2008-04-01 16:34:50 d3j191 Exp $
 c
       implicit none
 c
@@ -3068,7 +3070,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
+c $Id: cf_f.fh,v 1.66 2008-04-01 16:34:50 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3378,7 +3380,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
+c $Id: cf_f.fh,v 1.66 2008-04-01 16:34:50 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3801,7 +3803,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
+c $Id: cf_f.fh,v 1.66 2008-04-01 16:34:50 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -4147,7 +4149,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
+c $Id: cf_f.fh,v 1.66 2008-04-01 16:34:50 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4477,7 +4479,7 @@ c
      + iatt,igan,isgm,imol,idyn,ichg,isss,xs,fs,ess,lpbc,lpbcs,dera,
      + esa,lseq)
 c
-c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
+c $Id: cf_f.fh,v 1.66 2008-04-01 16:34:50 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4894,7 +4896,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
+c $Id: cf_f.fh,v 1.66 2008-04-01 16:34:50 d3j191 Exp $
 c
       implicit none
 c

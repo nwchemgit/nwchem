@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.179 2006-05-26 17:02:48 d3j191 Exp $
+c $Id: cf_main.F,v 1.180 2008-04-01 16:34:50 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -4070,21 +4070,61 @@ c
 #include "msgids.fh"
 c
       integer lfnout
-      real*8 dec(6,nsatot)
+      real*8 dec(6,nsatot),decr(6),dtot
       character*16 snam(nsatot)
 c
       integer i,j
 c
       write(lfnout,1001)
- 1001 format(//,' SOLUTE DECOMPOSITION THERMODYNAMIC INTEGRATION',//,
+ 1001 format(//,
+     + ' SOLUTE ATOM DECOMPOSITION THERMODYNAMIC INTEGRATION',//,
      + '     Atom',13x,'Solvent     Solvent      Solute      Solute',
-     + 6x,'Solute      Solute',/,
+     + 6x,'Solute      Solute       Total',/,
      + 21x,'v.d.Waals   Electrost   v.d.Waals   Electrost',5x,
      + 'Bonded        Mass',/)
       do 1 i=1,nsatot
-      write(lfnout,1009) snam(i),(dec(j,i),j=1,6)
- 1009 format(1x,a16,6f12.3)
+      dtot=zero
+      do 2 j=1,6
+      dtot=dtot+dec(j,i)
+    2 continue
+      write(lfnout,1009) snam(i),(dec(j,i),j=1,6),dtot
+ 1009 format(1x,a16,7f12.3)
     1 continue
+c
+      write(lfnout,1002)
+ 1002 format(//,
+     + ' SOLUTE SEGMENT DECOMPOSITION THERMODYNAMIC INTEGRATION',//,
+     + '     Atom',13x,'Solvent     Solvent      Solute      Solute',
+     + 6x,'Solute      Solute       Total',/,
+     + 21x,'v.d.Waals   Electrost   v.d.Waals   Electrost',5x,
+     + 'Bonded        Mass',/)
+      do 3 j=1,6
+      decr(j)=dec(j,1)
+    3 continue
+      do 4 i=2,nsatot
+      if(snam(i)(11:16).eq.snam(i-1)(11:16)) then
+      do 5 j=1,6
+      decr(j)=decr(j)+dec(j,i)
+    5 continue
+      else
+      dtot=zero
+      do 6 j=1,6
+      dtot=dtot+decr(j)
+    6 continue
+      write(lfnout,1010) snam(i-1)(1:5),snam(i-1)(11:16),
+     + (decr(j),j=1,6),dtot
+ 1010 format(1x,a5,5x,a6,7f12.3)
+      do 7 j=1,6
+      decr(j)=dec(j,i)
+    7 continue
+      endif
+    4 continue
+      dtot=zero
+      do 8 j=1,6
+      dtot=dtot+decr(j)
+    8 continue
+      write(lfnout,1010) snam(nsatot)(1:5),snam(nsatot)(11:16),
+     + (decr(j),j=1,6),dtot
 c
       return
       end
