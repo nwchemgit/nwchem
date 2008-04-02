@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.42 2007-12-07 01:09:38 d3p307 Exp $
+#$Id: GNUmakefile,v 1.43 2008-04-02 16:55:27 d3p307 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 include ../config/makefile.h
@@ -61,9 +61,11 @@ else
 endif
 
 include ../config/makelib.h
-  ifeq ($(FC),efc)
+ifeq ($(_CPU),ia64)
+  ifeq ($(FC),ifort)
             FOPTIONS += -save
   endif
+endif
 
 ifeq ($(TARGET),CRAY-T3D)
   FNOOPT = -g -dp -Ccray-t3d -Wf"-o noscalar,jump,noieeedivide"
