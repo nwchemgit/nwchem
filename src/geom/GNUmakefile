@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.59 2008-04-02 16:47:53 d3p307 Exp $
+#$Id: GNUmakefile,v 1.60 2008-04-02 16:49:43 d3p307 Exp $
 
  LIBRARY = libnwcutil.a
 
@@ -27,7 +27,7 @@ include ../config/makelib.h
             FOPTIMIZE += -O0
     endif
   endif
-  ifeq ($(FC),ifc)
+  ifeq ($(FC),ifort)
             FOPTIONS += -save
   endif
   ifeq ($(FC),xlf)
