@@ -1,5 +1,5 @@
 /*
- $Id: hgh_parse.c,v 1.3 2007-04-09 22:55:51 d3p708 Exp $
+ $Id: hgh_parse.c,v 1.4 2008-04-03 16:57:15 d3p708 Exp $
 */
 
 #include <stdlib.h>
@@ -250,7 +250,8 @@ Integer	*n2;
     fprintf(fp,"%d\n",1);  /* set psp_type */
     fprintf(fp,"%s\n",atom);
     fprintf(fp,"%d\n",Zion);
-    fprintf(fp,"%d\n",lmax);
+    if (lmax<0) fprintf(fp,"%d",0);
+    else fprintf(fp,"%d\n",lmax);
     fprintf(fp,"%lf  %lf %lf %lf %lf\n",rloc,C1,C2,C3,C4);
 
     if (lmax>=0)
