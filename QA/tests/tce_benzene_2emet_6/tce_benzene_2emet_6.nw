@@ -1,0 +1,49 @@
+echo
+
+start tce_benzene_2emet_6
+
+# You must set to something globally accessible
+permanent_dir /dtemp/jhammond
+
+memory stack 1700 mb heap 300 mb global 1700 mb
+
+geometry units angstrom
+ symmetry d2h
+ C               0.000    1.390    0.000
+ H               0.000    2.470    0.000
+ C               1.204    0.695    0.000
+ H               2.139    1.235    0.000
+ C               0.000   -1.390    0.000
+ H               0.000   -2.470    0.000
+ C              -1.204   -0.695    0.000
+ H              -2.139   -1.235    0.000
+ C               1.204   -0.695    0.000
+ H               2.139   -1.235    0.000
+ C              -1.204    0.695    0.000
+ H              -2.139    1.235    0.000
+end
+
+basis spherical
+  * library cc-pvdz
+end
+
+scf
+  singlet
+  rhf
+  thresh 1.0e-10
+  direct
+end
+
+tce
+  scf
+  freeze core
+  ccsd
+  io ga
+  tilesize 15
+  2eorb
+  2emet 6
+  idiskx 1
+  attilesize 20
+end
+
+task tce energy
