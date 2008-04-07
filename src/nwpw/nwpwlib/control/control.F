@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.110 2008-02-07 02:22:37 d3p708 Exp $
+* $Id: control.F,v 1.111 2008-04-07 18:53:21 bylaska Exp $
 *
 
 *     ***********************************
@@ -2185,6 +2185,7 @@ c      end
       integer function control_version()
       implicit none
 
+#include "inp.fh"
 #include "control.fh"
 
 *     **** local variables ****
@@ -2193,8 +2194,8 @@ c      end
       l =index(boundry,' ') - 1
 
       version = 3
-      if (boundry(1:l).eq.'periodic')  version=3
-      if (boundry(1:l).eq.'aperiodic') version=4
+      if (inp_compare(.false.,boundry(1:l),'periodic'))  version=3
+      if (inp_compare(.false.,boundry(1:l),'aperiodic')) version=4
 
       control_version = version
       return 
