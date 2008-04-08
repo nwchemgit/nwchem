@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.28 2007-10-04 16:06:12 bert Exp $
+# $Id: GNUmakefile,v 1.29 2008-04-08 22:15:20 windus Exp $
 #
 
 
@@ -27,8 +27,8 @@
          hnd_diag.o \
          hnd_spinspin.o \
          hnd_sdfc.o \
-         hnd_pso.o \
-         hnd_dso.o \
+         hnd_psoten.o \
+         hnd_dsoten.o \
          prop_atom.o  \
          aoresponse_driver.o \
          int_mpole_1ega.o \
