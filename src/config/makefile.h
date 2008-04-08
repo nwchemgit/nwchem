@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.564 2008-01-25 20:19:45 d3p307 Exp $
+# $Id: makefile.h,v 1.565 2008-04-08 18:27:10 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -2074,7 +2074,16 @@ ifdef USE_FDIST
   DEFINES += -DFDIST
 endif
 
+# either define USE_SCALAPACK (for i4) or USE_SCALAPACK_I8
 ifdef USE_SCALAPACK
+  _USE_SCALAPACK = y
+else
+ ifdef USE_SCALAPACK_I8
+ _USE_SCALAPACK = y
+ endif
+endif
+
+ifeq ($(_USE_SCALAPACK),y)
   DEFINES += -DSCALAPACK
 ifeq ($(XLFBREN),y) 
   CORE_LIBS +=  -brename:.iceil_,.iceil \
@@ -2098,8 +2107,8 @@ ifeq ($(XLFBREN),y)
 	      -brename:.pdgetrs_,.pdgetrs 
 endif
   CORE_LIBS += $(SCALAPACK) $(PBLAS) $(BLACS)
-
 endif
+
 ifdef BLASOPT
        CORE_LIBS +=  $(BLASOPT) 
 endif
