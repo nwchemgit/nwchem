@@ -6,11 +6,11 @@ geometry noautoz units au
 end
 
 basis spherical
- I library "DZVP (DFT Orbital)"
+ * library "DZVP (DFT Orbital)"
 end
 
 dft
- grid fine
+ grid xfine
  iterations 100
  XC xpbe96 cpbe96
  odft
@@ -22,6 +22,7 @@ end
 
 relativistic
    zora on
+   zora:cutoff 1.0d-08
 end
 
 task sodft optimize

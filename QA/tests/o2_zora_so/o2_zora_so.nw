@@ -10,7 +10,7 @@ basis spherical
 end
 
 dft
- grid fine
+ grid xfine
  iterations 100
  XC b3lyp
  odft
@@ -23,6 +23,7 @@ end
 
 relativistic
    zora on
+   zora:cutoff 1.0d-08
 end
 
 task sodft optimize

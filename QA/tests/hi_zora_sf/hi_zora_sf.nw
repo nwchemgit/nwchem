@@ -10,6 +10,7 @@ basis spherical
 end
 
 dft
+ grid xfine
  xc b3lyp
 end
 
@@ -19,6 +20,7 @@ end
 
 relativistic
   zora on
+  zora:cutoff 1.0d-08
 end
 
 task dft optimize
