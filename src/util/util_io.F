@@ -1,5 +1,5 @@
 c
-c $Id: util_io.F,v 1.2 2008-02-12 17:56:24 marat Exp $
+c $Id: util_io.F,v 1.3 2008-04-14 22:04:21 marat Exp $
 c
 
       function util_get_io_unit(fn)
@@ -68,5 +68,16 @@ c
       end do
 2     FORMAT(1X,I5,5X,A16,6X,3(F12.6,4X))
 
+      end
+
+      subroutine util_message(buffer)
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+      character*(*) buffer
+
+      return
+      write(LuOut,*) buffer,ga_nodeid()
+      call util_flush(LuOut) 
       end
 
