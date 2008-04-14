@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.28 2008-03-17 23:05:26 marat Exp $
+# $Id: GNUmakefile,v 1.29 2008-04-14 21:59:27 marat Exp $
 #
 
        SUBDIRS = 
@@ -30,12 +30,13 @@
                 smd_bondlist.o smd_coulomb.o smd_rtdb_data.o \
                 smd_coordfile.o task_smd_dynamics.o smd_system_data.o \
                 smd_temper_data.o smd_mass.o smd_leapf.o \
-                smd_leapf_shake.o smd_monomer.o smd_geom.o
+                smd_leapf_shake.o smd_monomer.o smd_geom.o \
+		process_task.o sched_groups.o smd_monomer_profile.o
 
       LIBRARY = libsmd.a
 
 
-  LIB_DEFINES =
+  LIB_DEFINES = -DMPI -I$(MPI_INCLUDE)
 
 
 
