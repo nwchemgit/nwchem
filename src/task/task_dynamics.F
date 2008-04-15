@@ -1,6 +1,6 @@
       logical function task_dynamics(rtdb)
 *
-* $Id: task_dynamics.F,v 1.8 2003-10-17 22:58:26 carlfahl Exp $
+* $Id: task_dynamics.F,v 1.9 2008-04-15 20:13:27 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -28,6 +28,8 @@ c     Also returns status through the function value
 c
       logical nwmd
       external nwmd
+      logical task_smd_dynamics
+      external task_smd_dynamics
 c
       logical status
       double precision cpu,wall
@@ -54,7 +56,11 @@ c
 c
 c     Actually do the deed
 c
-      status=nwmd(rtdb)
+      if(theory.eq."smd") then
+        status = task_smd_dynamics(rtdb)
+      else
+        status=nwmd(rtdb)
+      end if
 c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
