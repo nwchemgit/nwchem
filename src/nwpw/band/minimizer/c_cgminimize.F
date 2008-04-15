@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.19 2007-11-03 19:57:13 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.20 2008-04-15 22:57:08 bylaska Exp $                       
 *
 
 
@@ -164,7 +164,8 @@ c         call BGrsm_fff_Sub_tag(G1_tag,G0_tag,G0_tag)
          call Pneb_ff_traceall_tag(0,0,G1_tag,G1_tag,sum1)
 
 *        **** the new direction using Fletcher-Reeves ****
-         if (dabs(deltae).le.(1.0d-2).and.(tmin.gt.0.0d0)) then
+         if ( (dabs(deltae).le.(1.0d-2)).and.
+     >        (tmin.gt.deltat_min)) then
 
            if (sum0.gt.1.0d-15) then
               scale = sum1/sum0
