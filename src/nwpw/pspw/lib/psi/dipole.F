@@ -1,5 +1,5 @@
 *
-* $Id: dipole.F,v 1.9 2007-02-27 22:22:51 bylaska Exp $
+* $Id: dipole.F,v 1.10 2008-04-15 22:59:18 bylaska Exp $
 *
 
 *     ******************************
@@ -34,6 +34,7 @@
       real*8 tmass,tcharge,ncharge,pcharge
       real*8 dv
       real*8 dipole_crystal(3),dipole_molecule(3)
+      real*8 dtmp(3)
 
       integer rgrid(2)
       integer rgx(2),rgy(2),rgz(2)
@@ -247,6 +248,25 @@
         WRITE(*,1220) 'ionic     ',qGX,qGY,qGZ
         WRITE(*,1220) 'crystal   ',cqGX,cqGY,cqGZ
       end if
+      dtmp(1) = CDX3
+      dtmp(2) = CDY3
+      dtmp(3) = CDZ3
+      call ecce_print1('total dipole',mt_dbl,dtmp,3)
+      dtmp(1) = CDX1
+      dtmp(2) = CDY1
+      dtmp(3) = CDZ1
+      call ecce_print1('alpha dipole',mt_dbl,dtmp,3)
+      if (ne(ispin).ne.0) then
+         dtmp(1) = CDX2
+         dtmp(2) = CDY2
+         dtmp(3) = CDZ2
+         call ecce_print1('beta dipole',mt_dbl,dtmp,3)
+      endif
+      dtmp(1) = qGX
+      dtmp(2) = qGy
+      dtmp(3) = qGz
+      call ecce_print1('nuclear dipole',mt_dbl,dtmp,3)
+
 
  1200 FORMAT(//'== Center of Charge =='/)
  1220 FORMAT(A10,'  (',F10.4,',',F10.4,',',F10.4,' )')

@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.63 2007-12-01 22:29:58 bylaska Exp $
+* $Id: cpmdv5.F,v 1.64 2008-04-15 22:58:29 bylaska Exp $
 *
 
 ***********************************************************************
@@ -611,8 +611,8 @@ c      parameter (autoatm =290.360032539d6)
       call fei_init(rtdb)
 
 *     **** ecce print ****
-      call ecce_print_module_entry('task optimize')
-      call ecce_print_module_entry('driver')
+      call ecce_print_module_entry('task Car-Parrinello')
+      !call ecce_print_module_entry('driver')
       call movecs_ecce_print_off()
 
 
@@ -843,8 +843,8 @@ c      parameter (autoatm =290.360032539d6)
       if (mulliken) call Orb_End()
 
 *     **** ecce print ****
-      call ecce_print_module_exit('driver', 'ok')
-      call ecce_print_module_exit('task optimize', 'ok')
+      !call ecce_print_module_exit('driver', 'ok')
+      call ecce_print_module_exit('task Car-Parrinello', 'ok')
 
 
 *     **** finalize pressure ****
