@@ -1,0 +1,10 @@
+*
+* $Id: C3dB_pfft.fh,v 1.1 2008-04-16 16:27:20 bylaska Exp $
+*
+
+
+*     **** common block for zero_row ****
+      integer zero_row2(2,0:1),zero_row3(2,0:1),zero_slab23(2,0:1)
+      common / c_zero_row_block / zero_row2,zero_row3,zero_slab23
+
+
