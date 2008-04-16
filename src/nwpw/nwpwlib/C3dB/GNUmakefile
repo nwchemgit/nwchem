@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.7 2008-04-16 18:10:25 bylaska Exp $
+# $Id: GNUmakefile,v 1.8 2008-04-16 18:11:20 bylaska Exp $
 #
 
- OBJ_OPTIMIZE = C3dB-new.o c_trans.o C3dB_pfft.o
+ OBJ_OPTIMIZE = C3dB-new.o c_trans.o
 	  OBJ = 
 
 #ifeq ($(USE_MPIF),y)
@@ -15,7 +15,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = C3dB-new.F C3dB_pfft.F
+    USES_BLAS = C3dB-new.F
 
   LIB_DEFINES = 
 
