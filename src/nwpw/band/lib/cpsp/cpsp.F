@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.63 2008-02-15 18:51:25 d3p708 Exp $
+* $Id: cpsp.F,v 1.64 2008-04-16 01:04:43 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1843,7 +1843,7 @@ cccccccccccccccccccc
               if (mprint) then
               write(luout,*)
               write(luout,*) 
-     >        "pseudopotential is not correctly formatted:--",fname
+     >        "pseudopotential is not correctly formatted:",fname
               end if
            end if
            if (correct_box) found = .true.
