@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.27 2008-02-23 23:43:22 d3p708 Exp $
+* $Id: cram.F,v 1.28 2008-04-17 01:09:56 bylaska Exp $
 *
 
 *     ***********************************
@@ -191,11 +191,11 @@
 
       subroutine Cram_c_pack(nb,A)
       implicit none
-#include "errquit.fh"
       integer    nb
       complex*16 A(*)
 
 #include "mafdecls.fh"  
+#include "errquit.fh"
 #include "cram_common.fh"
 
       
@@ -230,6 +230,57 @@
 
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *           Cram_c_pack_start     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_c_pack_start(nb,A,tmp1,request,reqcnt,msgtype)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 tmp1(*)
+      integer    request(*),reqcnt
+      integer    msgtype
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i,nfft3d
+      integer nidb,pack
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
+      call nwpw_timing_start(9)
+
+      nidb = int_mb(nidb_list(1)+nb)
+      pack = int_mb(pack_list(1)+2*nb)
+
+      call C3dB_nfft3d(1,nfft3d)
+
+      call dcopy(2*nfft3d,A,1,tmp1,1)
+      call dcopy(2*nfft3d,0.0d0,0,A,1)
+
+      do i=1,(nidb)
+        A(i) = tmp1(int_mb(pack+i-1))
+      end do
+
+      if (control_balance())
+     >  call c_Balance_c_balance_start(nb,A,request,reqcnt,msgtype)
+
+      call nwpw_timing_end(9)
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*
@@ -372,6 +423,89 @@
      >  call errquit('Cram_c_unpack:error popping stack',0, MA_ERR)
 
       call nwpw_timing_end(9)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      Cram_c_unpack_start        *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_c_unpack_start(nb,A,tmp1,request,reqcnt,msgtype)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 tmp1(*)
+      integer    request(*),reqcnt
+      integer    msgtype
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cram_common.fh"
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
+      call nwpw_timing_start(9)
+      call Cram_c_Copy(nb,A,tmp1)
+      if (control_balance())
+     > call c_Balance_c_unbalance_start(nb,tmp1,request,reqcnt,msgtype)
+
+      call nwpw_timing_end(9)
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *           Cram_c_unpack_end     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_c_unpack_end(nb,tmp1,tmp2,tmp1z,tmp2z,
+     >                         request,reqcnt)
+      implicit none
+      integer    nb
+      complex*16 tmp1(*)
+      complex*16 tmp2(*)
+      complex*16 tmp1z(*)
+      complex*16 tmp2z(*)
+      integer    request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i,nfft3d
+      integer nidb,pack
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
+      call nwpw_timing_start(9)
+      nidb = int_mb(nidb_list(1)+nb)
+      pack = int_mb(pack_list(1)+2*nb)
+
+      call C3dB_nfft3d(1,nfft3d)
+
+      call nwpw_timing_start(9)
+      if (control_balance())
+     >  call c_Balance_c_unbalance_end(nb,tmp1,request,reqcnt)
+
+      call dcopy(2*(nidb),tmp1,1,tmp2,1)
+      call dcopy(2*nfft3d,0.0d0,0,tmp1,1)
+      do i=1,(nidb)
+        tmp1(int_mb(pack+i-1)) = tmp2(i)
+      end do
+
+      call nwpw_timing_end(9)
+
       return
       end
 

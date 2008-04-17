@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.33 2008-01-11 19:57:52 d3p708 Exp $
+* $Id: Pneb.F,v 1.34 2008-04-17 01:09:52 bylaska Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1293,15 +1293,16 @@ c     **** get temp memory from stack ****
       vindex = 1
       do nb=nb1,nb2
       do ms=ms1,ms2
-        call ZHEEV('V','L',ne(ms),
-     >              V(vindex),ne(ms),
-     >              S(sindex),
-     >              dcpl_mb(work(1)),lwork,
-     >              dbl_mb(rwork(1)),
-     >              ierr)
-        if (ierr.ne.0) then
-          call errquit("Pneb_w_diag: ZHEEV failed",ierr,0)
-        end if
+        if (ne(ms).gt.0) then
+           call ZHEEV('V','L',ne(ms),
+     >                 V(vindex),ne(ms),
+     >                 S(sindex),
+     >                 dcpl_mb(work(1)),lwork,
+     >                 dbl_mb(rwork(1)),
+     >                 ierr)
+           if (ierr.ne.0) 
+     >       call errquit("Pneb_w_diag: ZHEEV failed",ierr,0)
+        endif
 
         vindex=vindex + ne(ms)*ne(ms)
         sindex=sindex + ne(ms)       

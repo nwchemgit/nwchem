@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: C3dB_pfft.F,v 1.2 2008-04-16 18:10:25 bylaska Exp $
+* $Id: C3dB_pfft.F,v 1.3 2008-04-17 01:09:42 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1883,8 +1883,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_start(31)
 
 #ifdef MLIB
-      call drcfts(A,nx(1),1,nq1(1),
-     >                  nx(1)+2,1,ierr)
+      indx = 1
+      do q=1,nq1(1)
+         call z1dfft(A(indx),nx(1),dcpl_mb(tmpx(1,1)),1,ierr)
+         indx = indx + nx(1)
+      end do
 #else
       indx = 1
       do q=1,nq1(1)
@@ -1958,52 +1961,28 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx0 = 0
       indx2 = 0
       do q=1,nq(1)
-      do i=1,nxh
+      do i=1,nx(1)
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
-
-         indx  = i + indx0
-         indx1 = indx
-         do j=1,ny(1)
-            tmp2(j) = tmp1(indx)
-            indx = indx + nxh
-         end do
+         indx = i + (q-1)*nx(1)*ny(1)
+         call zcopy(ny(1),tmp1(indx),nx(1),tmp2,1)
          call z1dfft(tmp2,ny(1),dcpl_mb(tmpy(1,1)),1,ierr)
-         do j=1,ny(1)
-            tmp1(indx1) = tmp2(j)
-            indx1 = indx1 + nxh
-         end do
-
+         call zcopy(ny(1),tmp2,1,tmp1(indx),nx(1))
         end if
       end do
-      indx0 = indx0 + nxhy
       end do
 #else
-
-       indx0 = 0
-       indx2 = 0
        do q=1,nq(1)
-       do i=1,nxh
+       do i=1,nx(1)
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
-
-          indx  = i + indx0
-          indx1 = indx
-          do k=1,ny(1)
-             tmp2(k) = tmp1(indx)
-             indx = indx + nxh
-          end do
+          indx = i + (q-1)*nx(1)*ny(1)
+          call zcopy(ny(1),tmp1(indx),nx(1),tmp2,1)
           call dcfftf(ny(1),tmp2,dcpl_mb(tmpy(1,1)))
-          do k=1,ny(1)
-             tmp1(indx1) = tmp2(k)
-             indx1 = indx1 + nxh
-          end do
-
+          call zcopy(ny(1),tmp2,1,tmp1(indx),nx(1))
         end if
        end do
-       indx0 = indx0 + nxhy
        end do
-
 #endif
 
 
@@ -2120,53 +2099,31 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 #ifdef MLIB
 
-      indx0 = 0
       indx2 = 0
       do q=1,nq(1)
-      do i=1,nxh
+      do i=1,nx(1)
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
-
-         indx  = i + indx0
-         indx1 = indx
-         do k=1,nz(1)
-            tmp1(k) = tmp2(indx)
-            indx = indx + nxh
-         end do
+         indx = i + (q-1)*nx(1)*nz(1)
+         call zcopy(nz(1),tmp2(indx),nx(1),tmp1,1)
          call z1dfft(tmp1,nz(1),dcpl_mb(tmpz(1,1)),1,ierr)
-         do k=1,nz(1)
-            tmp2(indx1) = tmp1(k)
-            indx1 = indx1 + nxh
-         end do
+         call zcopy(nz(1),tmp1,1,tmp2(indx),nx(1))
         end if
       end do
-      indx0 = indx0 + nxhz
       end do
 #else
-
-       indx0 = 0
-       indx2 = 0
-       do q=1,nq(1)
-       do i=1,nxh
+      indx2 = 0
+      do q=1,nq(1)
+      do i=1,nx(1)
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
-
-          indx  = i + indx0
-          indx1 = indx
-          do k=1,nz(1)
-             tmp1(k) = tmp2(indx)
-             indx = indx + nxh
-          end do
+          indx = i + (q-1)*nx(1)*nz(1)
+          call zcopy(nz(1),tmp2(indx),nx(1),tmp1,1)
           call dcfftf(nz(1),tmp1,dcpl_mb(tmpz(1,1)))
-          do k=1,nz(1)
-             tmp2(indx1) = tmp1(k)
-             indx1 = indx1 + nxh
-          end do
-
+          call zcopy(nz(1),tmp1,1,tmp2(indx),nx(1))
         end if
-       end do
-       indx0 = indx0 + nxhz
-       end do
+      end do
+      end do
       call nwpw_timing_end(31)
 
 #endif
@@ -2326,13 +2283,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     *** local variables ***
       integer i,k,q,indx,ierr
-      integer nxh,nxhz,indx0,indx1,indx2
+      integer indx2
 
 
-
-       nxh = (nx(1)/2+1)
-       nxhz = nxh*nz(1)
-      
       !**********************
       !**** slab mapping ****
       !**********************
@@ -2344,53 +2297,30 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ***   A(kx,nz(1),ky) <- fft1d^(-1)[A(kx,kz,ky)]  ***
 *     *************************************************
 #ifdef MLIB
-      indx0 = 0
       indx2 = 0
       do q=1,nq(1)
-      do i=1,nxh
+      do i=1,nx(1)
        indx2 = indx2 + 1
        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
-
-         indx = i+indx0
-         indx1 = indx
-         do k=1,nz(1)
-            tmp2(k) = tmp1(indx)
-            indx = indx + nxh
-         end do
-         call z1dfft(tmp2,nz(1),
-     >               dcpl_mb(tmpz(1,1)),-2,ierr)
-         do k=1,nz(1)
-            tmp1(indx1) = tmp2(k)
-            indx1 = indx1 + nxh
-         end do
+         indx = i + (q-1)*nx(1)*nz(1)
+         call zcopy(nz(1),tmp1(indx),nx(1),tmp2,1)
+         call z1dfft(tmp2,nz(1),dcpl_mb(tmpz(1,1)),-2,ierr)
+         call zcopy(nz(1),tmp2,1,tmp1(indx),nx(1))
        end if
       end do
-      indx0 = indx0+nxhz
       end do
-
 #else
-      indx0 = 0
       indx2 = 0
       do q=1,nq(1)
-      do i=1,nxh
+      do i=1,nx(1)
        indx2 = indx2 + 1
        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
-
-         indx  = i + indx0
-         indx1 = indx
-         do k=1,nz(1)
-            tmp2(k) = tmp1(indx)
-            indx = indx + nxh
-         end do
+         indx = i + (q-1)*nx(1)*nz(1)
+         call zcopy(nz(1),tmp1(indx),nx(1),tmp2,1)
          call dcfftb(nz(1),tmp2,dcpl_mb(tmpz(1,1)))
-         do k=1,nz(1)
-            tmp1(indx1) = tmp2(k)
-            indx1 = indx1 + nxh
-         end do
-
+         call zcopy(nz(1),tmp2,1,tmp1(indx),nx(1))
        end if
       end do
-      indx0 = indx0 + nxhz
       end do
 #endif
 
@@ -2474,12 +2404,8 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     *** local variables ***
       integer i,j,q,indx,ierr
-      integer nxh,nxhy,indx0,indx1,indx2
+      integer indx2
 
-      
-
-       nxh = (nx(1)/2+1)
-       nxhy = nxh*ny(1)
       
       !**********************
       !**** slab mapping ****
@@ -2502,55 +2428,30 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *************************************************
 #ifdef MLIB
      
-      indx0 = 0
       indx2 = 0
       do q=1,nq(1)
-      do i=1,nxh
+      do i=1,nx(1)
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
-
-          indx  = i + indx0
-          indx1 = indx
-          do j=1,ny(1)
-            tmp1(j) = tmp2(indx)
-            indx = indx + nxh
-          end do
-          call z1dfft(tmp1,ny(1),
-     >               dcpl_mb(tmpy(1,1)),-2,ierr)
-          do j=1,ny(1)
-            tmp2(indx1) = tmp1(j)
-            indx1 = indx1 + nxh
-          end do
+          indx = i + (q-1)*nx(1)*nz(1)
+          call zcopy(ny(1),tmp2(indx),nx(1),tmp1,1)
+          call z1dfft(tmp1,ny(1),dcpl_mb(tmpy(1,1)),-2,ierr)
+          call zcopy(ny(1),tmp1,1,tmp2(indx),nx(1))
         end if
       end do
-      indx0 = indx0 + nxhy
       end do
-      
 #else
-    
-      indx0 = 0
       indx2 = 0
       do q=1,nq(1)
-      do i=1,nxh
+      do i=1,nx(1)
         indx2 = indx2 + 1
-
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
-
-         indx  = i + indx0
-         indx1 = indx
-         do j=1,ny(1)
-            tmp1(j) = tmp2(indx)
-            indx = indx + nxh
-         end do
+         indx = i + (q-1)*nx(1)*nz(1)
+         call zcopy(ny(1),tmp2(indx),nx(1),tmp1,1)
          call dcfftb(ny(1),tmp1,dcpl_mb(tmpy(1,1)))
-         do j=1,ny(1)
-            tmp2(indx1) = tmp1(j)
-            indx1 = indx1 + nxh
-         end do
-
+         call zcopy(ny(1),tmp1,1,tmp2(indx),nx(1))
         end if
       end do
-      indx0 = indx0 + nxhy
       end do
 #endif
 
@@ -2632,7 +2533,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nxh
 
 
-      nxh = (nx(1)/2+1)
+      nxh = nx(1)
       
       !**********************
       !**** slab mapping ****
@@ -2648,23 +2549,21 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq(1)
       do j=1,ny(1)
-         call drc1ft(tmp2(indx),nx(1),dcpl_mb(tmpx(1,1)),-2,ierr)
+         call z1dfft(tmp2(indx),nx(1),dcpl_mb(tmpx(1,1)),-2,ierr)
          indx = indx + nxh
       end do
       end do
 
 #else
-      call cshift1_fftb(nx(1),ny(1),nq(1),1,tmp2)
       indx = 1
       do q=1,nq(1)
       do j=1,ny(1)
-         call drfftb(nx(1),tmp2(indx),dcpl_mb(tmpx(1,1)))
-         indx = indx + nxh
+         call dcfftb(nx(1),tmp2(indx),dcpl_mb(tmpx(1,1)))
+         indx = indx + nx(1)
       end do
       end do
-      call zeroend_fftb(nx(1),ny(1),nq(1),1,tmp2)
 #endif
-      call dcopy((nx(1)+2)*ny(1)*nq(1),tmp2,1,tmp1,1)
+      call dcopy(2*nx(1)*ny(1)*nq(1),tmp2,1,tmp1,1)
 
 
 
@@ -2689,21 +2588,17 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef MLIB
       indx = 1
       do q=1,nq1(1)
-         call drc1ft(tmp1(indx),nx(1),dcpl_mb(tmpx(1,1)),-2,ierr)
+         call z1dfft(tmp1(indx),nx(1),dcpl_mb(tmpx(1,1)),-2,ierr)
          indx = indx + nxh
       end do
 #else
-      call cshift1_fftb(nx(1),nq1(1),1,1,tmp1)
       indx = 1
       do q=1,nq1(1)
-         call drfftb(nx(1),tmp1(indx),dcpl_mb(tmpx(1,1)))
+         call dcfftb(nx(1),tmp1(indx),dcpl_mb(tmpx(1,1)))
          indx = indx + nxh
       end do
-      call zeroend_fftb(nx(1),nq1(1),1,1,tmp1)
 #endif
-
       call nwpw_timing_end(31)
-
 
       end if
     
@@ -2740,9 +2635,6 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          call nwpw_timing_end(32)
       else if (step.eq.2) then
          call nwpw_timing_start(32)
-         call Cram_c_unpack_mid(nbb,tmp1,tmp2,
-     >                          dcpl_mb(tmp1z(1)),dcpl_mb(tmp2z(1)),
-     >                          request,reqcnt,48)
          call nwpw_timing_end(32)
       else if (step.eq.3) then
          call nwpw_timing_start(32)
@@ -3216,24 +3108,7 @@ c      call nwpw_timing_end(1)
 
       call Parallel2d_np_i(np)
 
-c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
-
-
-
-c      do q=1,qsize
-c         indx   = int_mb(qindx(1)+q-1)
-c         int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
-c         status = int_mb(qstatus(1)+indx-1)
-c         shift1=nfft3d(1)*(2*(indx-1))
-c         shift2=nfft3d(1)*(2*(indx-1)+1)
-c         shift3=2*np*(indx-1)
-c         call C3dB_pfftb_step(status,nbb,A,
-c     >                        dcpl_mb(tmp(1)+shift1),
-c     >                        dcpl_mb(tmp(1)+shift2),
-c     >                        int_mb(request(1)+shift3),
-c     >                        int_mb(reqcnt(1)+indx-1))
-c      end do
 
       indx1   = int_mb(qindx(1))
       do while (int_mb(qstatus(1)+indx1-1).lt.6)
@@ -3260,7 +3135,6 @@ c      end do
       shift1=nfft3d(1)*(2*(indx1-1))
       call dcopy(2*nfft3d(1),dcpl_mb(tmp(1)+shift1),1,A,1)
 
-c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
       return
       end

@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.24 2007-08-23 23:49:55 bylaska Exp $
+* $Id: C3dB-new.F,v 1.25 2008-04-17 01:09:41 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2020,9 +2020,6 @@ c     integer i2_start(NFFT3+1)
       logical value
 
 *     **** external functions ****
-      logical  full_ps_C3dB
-      external full_ps_C3dB
-
 
 *     **** allocate c_trans_blk common block ****
       value = MA_alloc_get(mt_int,(nx(nb)*ny(nb)*nq(nb)),
@@ -2080,169 +2077,6 @@ c     integer i2_start(NFFT3+1)
 
       return
       end
-
-
-*     ***********************************
-*     *					*
-*     *	   C3dB_channel_init	        *
-*     *					*
-*     ***********************************
-
-      subroutine C3dB_channel_init(nb)
-      implicit none
-      integer nb
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "C3dB.fh"
-
-*     **** Used to avoid asynchronous communications ****
-      integer Nchannels(NBLOCKS)
-      integer channel_proc(2,NBLOCKS)
-      integer channel_type(2,NBLOCKS)
-      common / c_channel_blk / channel_proc,channel_type,Nchannels
-      integer pair1(2),pair2(2)
-      integer pair_step(2)
-      integer step,Nstep,icount
-
-
-*     **** local variables ****
-      integer proc_to,proc_from
-      integer pto,qto,np,taskid
-      integer pfrom,qfrom
-      integer phere,qhere
-      integer index1,index2,itmp
-      integer i,j,k,it
-      logical value
-
-*     **** external functions ****
-      logical  full_ps_C3dB
-      external full_ps_C3dB
-
-
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
-
-*     **** Define Channels - which are used to avoid ****
-*     **** asynchronous communications               ****
-      value = MA_alloc_get(mt_int,(2*np),
-     >        'channel_proc',channel_proc(2,nb),channel_proc(1,nb))
-      value = value.and.
-     >        MA_alloc_get(mt_int,(2*np),
-     >        'channel_type',channel_type(2,nb),channel_type(1,nb))
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
-
-
-
-      value = MA_push_get(mt_int,(np*(np-1)/2),
-     >                    'pair1',pair1(2),pair1(1))
-      value = value.and.
-     >        MA_push_get(mt_int,(np*(np-1)/2),
-     >                    'pair2',pair2(2),pair2(1))
-      value = value.and.
-     >        MA_push_get(mt_int,(np*(np-1)/2),
-     >                'pair_step',pair_step(2),pair_step(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-*     *** define pair1,pair2 ****
-      icount = 0
-      do i=0,     (np-1)
-      do j=(i+1), (np-1)
-         icount = icount + 1
-         int_mb(pair1(1)+icount-1) = i
-         int_mb(pair2(1)+icount-1) = j
-      end do
-      end do
-
-*     **** define pair_step ****
-      do i=1,(np*(np-1)/2)
-         int_mb(pair_step(1)+i-1) = (-1)
-      end do
-      step=0
-      do while(.not. full_ps_C3dB(int_mb(pair_step(1)),np))
-         step=step+1
-         do i=1, (np*(np-1)/2)
-            if (int_mb(pair_step(1)+i-1).eq.(-1)) then
-               value=.true.
-               do j=1,(i-1)
-                  if (int_mb(pair_step(1)+j-1).eq.step) then
-                     if (int_mb(pair1(1)+i-1)
-     >               .eq.int_mb(pair1(1)+j-1)) value=.false.
-                     if (int_mb(pair1(1)+i-1)
-     >               .eq.int_mb(pair2(1)+j-1)) value=.false.
-                     if (int_mb(pair2(1)+i-1)
-     >               .eq.int_mb(pair1(1)+j-1)) value=.false.
-                     if (int_mb(pair2(1)+i-1)
-     >               .eq.int_mb(pair2(1)+j-1)) value=.false.
-                  end if
-               end do
-               if (value) int_mb(pair_step(1)+i-1) = step
-            end if
-         end do
-      end do
-      Nstep=step
-
-*     **** define channels ***
-      Nchannels(nb)=0
-      do step=1,Nstep
-         do i=1,(np*(np-1)/2)
-            if (int_mb(pair_step(1)+i-1).eq.step) then
-*              **** send then recv ****
-               if (int_mb(pair1(1)+i-1).eq.taskid) then
-                  Nchannels(nb)=Nchannels(nb)+1
-                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1) 
-     >             = int_mb(pair2(1)+i-1)
-                  int_mb(channel_type(1,nb)+Nchannels(nb)-1) = 0
-                  Nchannels(nb)=Nchannels(nb)+1
-                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1) 
-     >            = int_mb(pair2(1)+i-1)
-                  int_mb(channel_type(1,nb)+Nchannels(nb)-1) = 1
-               end if
-
-*              **** recv then send ****
-               if (int_mb(pair2(1)+i-1).eq.taskid) then
-                  Nchannels(nb)=Nchannels(nb)+1
-                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1) 
-     >            = int_mb(pair1(1)+i-1)
-                  int_mb(channel_type(1,nb)+Nchannels(nb)-1) = 1
-                  Nchannels(nb)=Nchannels(nb)+1
-                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1) 
-     >            = int_mb(pair1(1)+i-1)
-                  int_mb(channel_type(1,nb)+Nchannels(nb)-1) = 0
-               end if
-            end if
-         end do
-      end do
-
-
-
-      value=MA_pop_stack(pair_step(2))
-      value=MA_pop_stack(pair2(2))
-      value=MA_pop_stack(pair1(2))
-      return
-      end
-
-
-      
-      logical function full_ps_C3dB(ps,np)
-      implicit none
-      integer ps(*)
-      integer np
-
-      integer i
-      logical value
-
-      value=.true.
-      do i=1,(np*(np-1)/2)
-         if (ps(i).eq.(-1)) value=.false.
-      end do
-
-      full_ps_C3dB=value
-      return
-      end
-             
-
-
 
 
 *     ***********************************
@@ -3672,6 +3506,37 @@ c      end
          call dcopy(nx(nb),A_d3db(indx1),1,B_c3dB(indx2),1)
          indx1 = indx1 + (nx(nb)+2)
          indx2 = indx2 + nx(nb)
+      end do
+      return
+      end
+
+
+      subroutine C3dB_pfft_index1_copy(n,index,a,b)
+      implicit none
+      integer n
+      integer index(*)
+      complex*16  a(*),b(*)
+      integer i
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+      do i=1,n
+        b(i) = a(index(i))
+      end do
+      return
+      end
+
+      subroutine C3dB_pfft_index2_copy(n,index,a,b)
+      implicit none
+      integer n
+      integer index(*)
+      complex*16  a(*),b(*)
+      integer i
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+      do i=1,n
+        b(index(i)) = a(i)
       end do
       return
       end
