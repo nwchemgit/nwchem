@@ -1,5 +1,5 @@
 #
-# $Id: I,v 1.3 2007-08-28 01:05:53 bylaska Exp $
+# $Id: I,v 1.4 2008-04-18 23:29:38 bylaska Exp $
 #
 Comment: I pseudopotential parameters
 Comment: Fitted 12-28-04
@@ -7,8 +7,8 @@ Comment: by E.J. Bylaska,
 Comment: relativistic TM, quadratic semicore
 
 
-[lmax] 1
-[locp] 0
+[lmax] 2
+[locp] 2
 [rlocal] 1.0
 [cutoff] 20.0
 
@@ -28,11 +28,4 @@ I
 5  1      5.00
 <end>
 <solver>          pauli         <end>
-<pseudopotential> troullier-martins    <end>
-<rcut> 
-   0    1.9980759
-   1    2.2359969
-<end>
-
-<semicore> 1.53   <end>
-<semicore_type> quadratic <end>
+<pseudopotential> hamann   <end>

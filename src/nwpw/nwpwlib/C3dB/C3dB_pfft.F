@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: C3dB_pfft.F,v 1.4 2008-04-18 00:05:44 bylaska Exp $
+* $Id: C3dB_pfft.F,v 1.5 2008-04-18 23:29:38 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -38,9 +38,9 @@
 
       logical value,yrow,zrow,yzslab
       integer nxh,nyh,nzh,q,p
-      integer k1,k2,k3,ii,fb,nbb
+      integer k1,k2,k3,fb,nbb
       integer i,j,k
-      integer index,index2
+      integer index2
       double precision ggcut,g1,g2,g3,gg
       integer zero_arow2(2),zero_arow3(2)
 
@@ -563,8 +563,11 @@
 
 
 *     *** local variables ***
-      integer i,j,k,q,indx,ierr,fb
-      integer indx0,indx1,indx2
+      integer i,j,k,q,indx,fb
+      integer indx2
+#ifdef MLIB
+      integer ierr
+#endif
 
       
       !integer tmp1(2),tmp2(2),tmp3(2)
@@ -775,8 +778,6 @@
       end do
 #endif
 
-
-
       end if
     
 *     **** deallocate temporary space  ****
@@ -831,8 +832,10 @@
       common    / C3dB_fft / tmpx,tmpy,tmpz
 
 *     *** local variables ***
-      integer i,j,k,q,indx,indx1,ierr,indx2,indx0,fb
-      integer nxh,nxhy,nxhz
+      integer i,j,k,q,indx,indx1,indx2,fb
+#ifdef MLIB
+      integer ierr
+#endif
 
       !integer tmp1(2),tmp2(2),tmp3(2)
       integer tmp2(2),tmp3(2)
@@ -854,10 +857,6 @@
       value = value.and.
      >        MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-      nxh =  nx(nb)
-      nxhz = nxh*nz(nb)
-      nxhy = nxh*ny(nb)
 
       !**********************
       !**** slab mapping ****
@@ -953,7 +952,6 @@
       end do
 #else
 
-       indx0 = 0
        indx2 = 0
        do q=1,nq(nb)
        do i=1,nx(nb)
@@ -1822,8 +1820,13 @@
       common    / C3dB_fft / tmpx,tmpy,tmpz
 
       !*** local variables ***
-      integer j,q,indx
+      integer j,q,indx,fb
 
+      if (nbb.eq.0) then
+         fb = 0
+      else
+         fb = 1
+      end if
 
       !**********************
       !**** slab mapping ****
@@ -1874,7 +1877,7 @@
 
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call C3dB_c_ptranspose_ijk_start(nbb,1,A,tmp1,tmp2,
+      call C3dB_c_ptranspose_ijk_start(fb,1,A,tmp1,tmp2,
      >                                 request,reqcnt,40)
       call nwpw_timing_end(32)
 
@@ -1915,11 +1918,13 @@
 
 
       !*** local variables ***
-      integer i,j,k,indx,indx0,indx1,indx2,q,nxh,nxhy
+      integer i,j,k,indx,indx2,q,fb
 
-      nxh = nx(1)
-      nxhy = nxh*ny(1)
-
+      if (nbb.eq.0) then
+         fb = 0
+      else
+         fb = 1
+      end if
 
       !**********************
       !**** slab mapping ****
@@ -1934,12 +1939,11 @@
 
 #ifdef MLIB
 
-      indx0 = 0
       indx2 = 0
       do q=1,nq(1)
       do i=1,nx(1)
         indx2 = indx2 + 1
-        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+        if (.not.log_mb(zero_row2(1,fb)+indx2-1)) then
          indx = i + (q-1)*nx(1)*ny(1)
          call zcopy(ny(1),tmp1(indx),nx(1),tmp2,1)
          call z1dfft(tmp2,ny(1),dcpl_mb(tmpy(1,1)),1,ierr)
@@ -1948,10 +1952,11 @@
       end do
       end do
 #else
+       indx2 = 0
        do q=1,nq(1)
        do i=1,nx(1)
         indx2 = indx2 + 1
-        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+        if (.not.log_mb(zero_row2(1,fb)+indx2-1)) then
           indx = i + (q-1)*nx(1)*ny(1)
           call zcopy(ny(1),tmp1(indx),nx(1),tmp2,1)
           call dcfftf(ny(1),tmp2,dcpl_mb(tmpy(1,1)))
@@ -1968,7 +1973,7 @@
 *     ********************************************
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call C3dB_c_ptranspose2_jk_start(nbb,tmp1,tmp2,tmp1,
+      call C3dB_c_ptranspose2_jk_start(fb,tmp1,tmp2,tmp1,
      >                                 request,reqcnt,41)
       call nwpw_timing_end(32)
 
@@ -1980,7 +1985,7 @@
       !*************************
       else
       call nwpw_timing_start(32)
-      call C3dB_c_ptranspose_ijk_end(nbb,1,tmp1,tmp2,request,reqcnt)
+      call C3dB_c_ptranspose_ijk_end(fb,1,tmp1,tmp2,request,reqcnt)
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
 
@@ -1991,7 +1996,7 @@
 #ifdef MLIB
       indx = 1
       do q=1,nq2(1)
-         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row2(1,fb)+q-1)) then
          call z1dfft(tmp1(indx),ny(1),dcpl_mb(tmpy(1,1)),1,ierr)
          end if
          indx = indx + ny(1)
@@ -1999,7 +2004,7 @@
 #else
       indx = 1
       do q=1,nq2(1)
-         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row2(1,fb)+q-1)) then
          call dcfftf(ny(1),tmp1(indx),dcpl_mb(tmpy(1,1)))
          end if
          indx = indx + ny(1)
@@ -2008,7 +2013,7 @@
 
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call C3dB_c_ptranspose_ijk_start(nbb,2,tmp1,tmp2,tmp1,
+      call C3dB_c_ptranspose_ijk_start(fb,2,tmp1,tmp2,tmp1,
      >                                 request,reqcnt,42)
       call nwpw_timing_end(32)
 
@@ -2049,14 +2054,18 @@
 
 
       !*** local variables ***
-      integer i,k,q,nxh,nxhz
-      integer indx,indx0,indx1,indx2
+      integer i,k,q,fb
+      integer indx,indx2
 
+#ifdef MLIB
+      integer ierr
+#endif
 
-       nxh = nx(1)
-       nxhz = nxh*nz(1)
-
-
+      if (nbb.eq.0) then
+         fb = 0
+      else
+         fb = 1
+      end if
 
       !**********************
       !**** slab mapping ****
@@ -2064,7 +2073,7 @@
       if (mapping.eq.1) then
 
       call nwpw_timing_start(32)
-      call C3dB_c_ptranspose2_jk_end(nbb,tmp2,tmp1,request,reqcnt)
+      call C3dB_c_ptranspose2_jk_end(fb,tmp2,tmp1,request,reqcnt)
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
 
@@ -2074,12 +2083,11 @@
 *     ********************************************
 
 #ifdef MLIB
-
       indx2 = 0
       do q=1,nq(1)
       do i=1,nx(1)
         indx2 = indx2 + 1
-        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
+        if (.not.log_mb(zero_row3(1,fb)+indx2-1)) then
          indx = i + (q-1)*nx(1)*nz(1)
          call zcopy(nz(1),tmp2(indx),nx(1),tmp1,1)
          call z1dfft(tmp1,nz(1),dcpl_mb(tmpz(1,1)),1,ierr)
@@ -2092,7 +2100,7 @@
       do q=1,nq(1)
       do i=1,nx(1)
         indx2 = indx2 + 1
-        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
+        if (.not.log_mb(zero_row3(1,fb)+indx2-1)) then
           indx = i + (q-1)*nx(1)*nz(1)
           call zcopy(nz(1),tmp2(indx),nx(1),tmp1,1)
           call dcfftf(nz(1),tmp1,dcpl_mb(tmpz(1,1)))
@@ -2110,7 +2118,7 @@
       !*************************
       else
       call nwpw_timing_start(32)
-      call C3dB_c_ptranspose_ijk_end(nbb,2,tmp2,tmp1,request,reqcnt)
+      call C3dB_c_ptranspose_ijk_end(fb,2,tmp2,tmp1,request,reqcnt)
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
 
@@ -2121,7 +2129,7 @@
 #ifdef MLIB
       indx = 1
       do q=1,nq3(1)
-         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row3(1,fb)+q-1)) then
          call z1dfft(tmp2(indx),nz(1),dcpl_mb(tmpz(1,1)),1,ierr)
          end if
          indx = indx + nz(1)
@@ -2129,7 +2137,7 @@
 #else
       indx = 1
       do q=1,nq3(1)
-         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row3(1,fb)+q-1)) then
          call dcfftf(nz(1),tmp2(indx),dcpl_mb(tmpz(1,1)))
          end if
          indx = indx + nz(1)
@@ -2142,7 +2150,7 @@
 
 
       call nwpw_timing_start(32)
-      call Cram_c_pack_start(nbb,tmp2,tmp1,request,reqcnt,43)
+      call Cram_c_pack_start(fb,tmp2,tmp1,request,reqcnt,43)
       call nwpw_timing_end(32)
 
       return
@@ -2164,13 +2172,11 @@
       complex*16 tmp2(*)
       integer    request(*),reqcnt
 
-
 #include "mafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
 #include "C3dB_pfft.fh"
-
 
       call nwpw_timing_start(32)
       call Cram_c_pack_end(nbb,tmp2,request,reqcnt)
@@ -2259,8 +2265,13 @@
 
 *     *** local variables ***
       integer i,k,q,indx,ierr
-      integer indx2
+      integer indx2,fb
 
+      if (nbb.eq.0) then
+         fb = 0
+      else
+         fb = 1
+      end if
 
       !**********************
       !**** slab mapping ****
@@ -2277,7 +2288,7 @@
       do q=1,nq(1)
       do i=1,nx(1)
        indx2 = indx2 + 1
-       if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
+       if (.not.log_mb(zero_row3(1,fb)+indx2-1)) then
          indx = i + (q-1)*nx(1)*nz(1)
          call zcopy(nz(1),tmp1(indx),nx(1),tmp2,1)
          call z1dfft(tmp2,nz(1),dcpl_mb(tmpz(1,1)),-2,ierr)
@@ -2290,7 +2301,7 @@
       do q=1,nq(1)
       do i=1,nx(1)
        indx2 = indx2 + 1
-       if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
+       if (.not.log_mb(zero_row3(1,fb)+indx2-1)) then
          indx = i + (q-1)*nx(1)*nz(1)
          call zcopy(nz(1),tmp1(indx),nx(1),tmp2,1)
          call dcfftb(nz(1),tmp2,dcpl_mb(tmpz(1,1)))
@@ -2306,7 +2317,7 @@
 *     ********************************************
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call C3dB_c_ptranspose1_jk_start(nbb,tmp1,tmp2,tmp1,
+      call C3dB_c_ptranspose1_jk_start(fb,tmp1,tmp2,tmp1,
      >                                 request,reqcnt,44)
       call nwpw_timing_end(32)
 
@@ -2325,7 +2336,7 @@
 #ifdef MLIB
       indx = 1
       do q=1,nq3(1)
-         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row3(1,fb)+q-1)) then
          call z1dfft(tmp1(indx),nz(1),dcpl_mb(tmpz(1,1)),-2,ierr)
          end if
          indx = indx + nz(1)
@@ -2333,7 +2344,7 @@
 #else
       indx = 1
       do q=1,nq3(1)
-         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row3(1,fb)+q-1)) then
          call dcfftb(nz(1),tmp1(indx),dcpl_mb(tmpz(1,1)))
          end if
          indx = indx + nz(1)
@@ -2342,7 +2353,7 @@
 
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call C3dB_c_ptranspose_ijk_start(nbb,3,tmp1,tmp2,tmp1,
+      call C3dB_c_ptranspose_ijk_start(fb,3,tmp1,tmp2,tmp1,
      >                                 request,reqcnt,45)
       call nwpw_timing_end(32)
 
@@ -2380,8 +2391,13 @@
 
 *     *** local variables ***
       integer i,j,q,indx,ierr
-      integer indx2
+      integer indx2,fb
 
+      if (nbb.eq.0) then
+         fb = 0
+      else
+         fb = 1
+      end if
       
       !**********************
       !**** slab mapping ****
@@ -2394,7 +2410,7 @@
 *     ***      A(kx,ky,nz(1)) <- A(kx,nz(1),ky)      ***
 *     ********************************************
       call nwpw_timing_start(32)
-      call C3dB_c_ptranspose1_jk_end(nbb,tmp2,tmp1,request,reqcnt)
+      call C3dB_c_ptranspose1_jk_end(fb,tmp2,tmp1,request,reqcnt)
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
 
@@ -2408,7 +2424,7 @@
       do q=1,nq(1)
       do i=1,nx(1)
         indx2 = indx2 + 1
-        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+        if (.not.log_mb(zero_row2(1,fb)+indx2-1)) then
           indx = i + (q-1)*nx(1)*nz(1)
           call zcopy(ny(1),tmp2(indx),nx(1),tmp1,1)
           call z1dfft(tmp1,ny(1),dcpl_mb(tmpy(1,1)),-2,ierr)
@@ -2421,7 +2437,7 @@
       do q=1,nq(1)
       do i=1,nx(1)
         indx2 = indx2 + 1
-        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+        if (.not.log_mb(zero_row2(1,fb)+indx2-1)) then
          indx = i + (q-1)*nx(1)*nz(1)
          call zcopy(ny(1),tmp2(indx),nx(1),tmp1,1)
          call dcfftb(ny(1),tmp1,dcpl_mb(tmpy(1,1)))
@@ -2440,7 +2456,7 @@
       else
 
       call nwpw_timing_start(32)
-      call C3dB_c_ptranspose_ijk_end(nbb,3,tmp2,tmp1,request,reqcnt)
+      call C3dB_c_ptranspose_ijk_end(fb,3,tmp2,tmp1,request,reqcnt)
 
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
@@ -2451,7 +2467,7 @@
 #ifdef MLIB
       indx = 1
       do q=1,nq2(1)
-         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row2(1,fb)+q-1)) then
          call z1dfft(tmp2(indx),ny(1),dcpl_mb(tmpy(1,1)),-2,ierr)
          end if
          indx = indx + ny(1)
@@ -2459,7 +2475,7 @@
 #else
       indx = 1
       do q=1,nq2(1)
-         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row2(1,fb)+q-1)) then
          call dcfftb(ny(1),tmp2(indx),dcpl_mb(tmpy(1,1)))
          end if
          indx = indx + ny(1)
@@ -2468,7 +2484,7 @@
 
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call C3dB_c_ptranspose_ijk_start(nbb,4,tmp2,tmp1,tmp2,
+      call C3dB_c_ptranspose_ijk_start(fb,4,tmp2,tmp1,tmp2,
      >                                 request,reqcnt,46)
       call nwpw_timing_end(32)
 
@@ -2502,14 +2518,15 @@
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / C3dB_fft / tmpx,tmpy,tmpz
 
-
-
 *     *** local variables ***
-      integer j,q,indx,ierr
-      integer nxh
+      integer j,q,indx,ierr,fb
 
 
-      nxh = nx(1)
+      if (nbb.eq.0) then
+         fb = 0
+      else
+         fb = 1
+      endif
       
       !**********************
       !**** slab mapping ****
@@ -2526,7 +2543,7 @@
       do q=1,nq(1)
       do j=1,ny(1)
          call z1dfft(tmp2(indx),nx(1),dcpl_mb(tmpx(1,1)),-2,ierr)
-         indx = indx + nxh
+         indx = indx + nx(1)
       end do
       end do
 
@@ -2550,10 +2567,8 @@
       !*************************
       else
 
-
-
       call nwpw_timing_start(32)
-      call C3dB_c_ptranspose_ijk_end(nbb,4,tmp1,tmp2,request,reqcnt)
+      call C3dB_c_ptranspose_ijk_end(fb,4,tmp1,tmp2,request,reqcnt)
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
 
@@ -2565,13 +2580,13 @@
       indx = 1
       do q=1,nq1(1)
          call z1dfft(tmp1(indx),nx(1),dcpl_mb(tmpx(1,1)),-2,ierr)
-         indx = indx + nxh
+         indx = indx + nx(1)
       end do
 #else
       indx = 1
       do q=1,nq1(1)
          call dcfftb(nx(1),tmp1(indx),dcpl_mb(tmpx(1,1)))
-         indx = indx + nxh
+         indx = indx + nx(1)
       end do
 #endif
       call nwpw_timing_end(31)
@@ -2608,16 +2623,13 @@
          call nwpw_timing_end(32)
       else if (step.eq.2) then
          call nwpw_timing_start(32)
-         call nwpw_timing_end(32)
-      else if (step.eq.3) then
-         call nwpw_timing_start(32)
          call Cram_c_unpack_end(nbb,tmp1,tmp2,request,reqcnt)
          call nwpw_timing_end(32)
-      else if (step.eq.4) then
+      else if (step.eq.3) then
          call C3dB_pfftbz(nbb,tmp1,tmp2,request,reqcnt)
-      else if (step.eq.5) then
+      else if (step.eq.4) then
          call C3dB_pfftby(nbb,tmp1,tmp2,request,reqcnt)
-      else if (step.eq.6) then
+      else if (step.eq.5) then
          call C3dB_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
       end if
 
@@ -2645,15 +2657,17 @@
 
       !**** pfft_queues ****
       integer aqindx(2),aqstatus(2)
-      integer atmp(2),arequest(2),areqcnt(2)
+      integer atmp(2),arequest(2),areqcnt(2),aqnbb(2)
       integer aqmax,aqsize,alast_index
       common / c_pfft_aqueue_common / aqindx,aqstatus,atmp,arequest,
-     >                              areqcnt,aqmax,aqsize,alast_index
+     >                              areqcnt,aqnbb,
+     >                              aqmax,aqsize,alast_index
       integer bqindx(2),bqstatus(2)
-      integer btmp(2),brequest(2),breqcnt(2)
+      integer btmp(2),brequest(2),breqcnt(2),bqnbb(2)
       integer bqmax,bqsize,blast_index
       common / c_pfft_bqueue_common / bqindx,bqstatus,btmp,brequest,
-     >                              breqcnt,bqmax,bqsize,blast_index
+     >                              breqcnt,bqnbb,
+     >                              bqmax,bqsize,blast_index
       
 
       logical value
@@ -2677,6 +2691,8 @@ c     **** allocate aqueue ****
      >      MA_alloc_get(mt_int,size,'aqstatus',aqstatus(2),aqstatus(1))
       value = value.and.
      >        MA_alloc_get(mt_int,size,'areqcnt',areqcnt(2),areqcnt(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,size,'aqnbb',aqnbb(2),aqnbb(1))
 
 
 c     **** allocate bqueue ****
@@ -2695,7 +2711,8 @@ c     **** allocate bqueue ****
      >      MA_alloc_get(mt_int,size,'bqstatus',bqstatus(2),bqstatus(1))
       value = value.and.
      >        MA_alloc_get(mt_int,size,'breqcnt',breqcnt(2),breqcnt(1))
-
+      value = value.and.
+     >        MA_alloc_get(mt_int,size,'bqnbb',bqnbb(2),bqnbb(1))
 
       return
       end
@@ -2720,18 +2737,21 @@ c     **** allocate bqueue ****
 #include "C3dB_pfft.fh"
 
 
+
       !**** pfft_queues ****
       integer aqindx(2),aqstatus(2)
-      integer atmp(2),arequest(2),areqcnt(2)
+      integer atmp(2),arequest(2),areqcnt(2),aqnbb(2)
       integer aqmax,aqsize,alast_index
       common / c_pfft_aqueue_common / aqindx,aqstatus,atmp,arequest,
-     >                              areqcnt,aqmax,aqsize,alast_index
-
+     >                              areqcnt,aqnbb,
+     >                              aqmax,aqsize,alast_index
       integer bqindx(2),bqstatus(2)
-      integer btmp(2),brequest(2),breqcnt(2)
+      integer btmp(2),brequest(2),breqcnt(2),bqnbb(2)
       integer bqmax,bqsize,blast_index
       common / c_pfft_bqueue_common / bqindx,bqstatus,btmp,brequest,
-     >                              breqcnt,bqmax,bqsize,blast_index
+     >                              breqcnt,bqnbb,
+     >                              bqmax,bqsize,blast_index
+
 
 
       logical value
@@ -2741,12 +2761,14 @@ c     **** allocate bqueue ****
       value = value.and.MA_free_heap(aqindx(2))
       value = value.and.MA_free_heap(aqstatus(2))
       value = value.and.MA_free_heap(areqcnt(2))
+      value = value.and.MA_free_heap(aqnbb(2))
 
       value = value.and.MA_free_heap(btmp(2))
       value = value.and.MA_free_heap(brequest(2))
       value = value.and.MA_free_heap(bqindx(2))
       value = value.and.MA_free_heap(bqstatus(2))
       value = value.and.MA_free_heap(breqcnt(2))
+      value = value.and.MA_free_heap(bqnbb(2))
 
       if (.not. value) call errquit('error freeing heap',0,MA_ERR)
 
@@ -2775,12 +2797,14 @@ c     **** allocate bqueue ****
 #include "C3dB_pfft.fh"
 
 
+
+
       !**** pfft_queue ****
       integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
+      integer tmp(2),request(2),reqcnt(2),qnbb(2)
       integer qmax,qsize,last_index
       common / c_pfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+     >                             qnbb,qmax,qsize,last_index
 
       C3dB_cr_pfft3_queue_filled = (qsize.ge.qmax)
       return
@@ -2806,10 +2830,10 @@ c     **** allocate bqueue ****
 
       !**** pfft_queue ****
       integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
+      integer tmp(2),request(2),reqcnt(2),qnbb(2)
       integer qmax,qsize,last_index
       common / c_pfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+     >                             qnbb,qmax,qsize,last_index
 
       C3dB_rc_pfft3_queue_filled = (qsize.ge.qmax)
       return
@@ -2839,16 +2863,15 @@ c     **** allocate bqueue ****
 
       !**** pfft_queue ****
       integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
+      integer tmp(2),request(2),reqcnt(2),qnbb(2)
       integer qmax,qsize,last_index
       common / c_pfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+     >                             qnbb,qmax,qsize,last_index
 
       !*** local variables ***
       integer shift1,shift2,shift3
       integer q,indx,status,np
 
-c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
       call Parallel_np(np)
 
@@ -2859,7 +2882,9 @@ c      call nwpw_timing_start(1)
          shift1=nfft3d(1)*(2*(indx-1))
          shift2=nfft3d(1)*(2*(indx-1)+1)
          shift3=2*np*(indx-1)
-         call C3dB_pfftf_step(status,nbb,A,
+         call C3dB_pfftf_step(status,
+     >                        int_mb(qnbb(1)+indx-1),
+     >                        A,
      >                        dcpl_mb(tmp(1)+shift1),
      >                        dcpl_mb(tmp(1)+shift2),
      >                        int_mb(request(1)+shift3),
@@ -2872,6 +2897,7 @@ c      call nwpw_timing_start(1)
       int_mb(qindx(1)+qsize-1)        = last_index
       int_mb(qstatus(1)+last_index-1) = 1
       status = 1
+      int_mb(qnbb(1)+last_index-1) = nbb
       shift1=nfft3d(1)*(2*(last_index-1))
       shift2=nfft3d(1)*(2*(last_index-1)+1)
       shift3=2*np*(last_index-1)
@@ -2882,7 +2908,7 @@ c      call nwpw_timing_start(1)
      >                     int_mb(request(1)+shift3),
      >                     int_mb(reqcnt(1)+last_index-1))
 
-c      call nwpw_timing_end(1)
+
       call nwpw_timing_end(30)
       return
       end
@@ -2911,16 +2937,15 @@ c      call nwpw_timing_end(1)
 
       !**** pfft_queue ****
       integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
+      integer tmp(2),request(2),reqcnt(2),qnbb(2)
       integer qmax,qsize,last_index
       common / c_pfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+     >                             qnbb,qmax,qsize,last_index
 
       !*** local variables ***
       integer shift1,shift2,shift3
       integer q,indx,indx1,status,np
 
-c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
       call Parallel_np(np)
 
@@ -2933,7 +2958,9 @@ c      call nwpw_timing_start(1)
             shift1=nfft3d(1)*(2*(indx-1))
             shift2=nfft3d(1)*(2*(indx-1)+1)
             shift3=2*np*(indx-1)
-            call C3dB_pfftf_step(status,nbb,A,
+            call C3dB_pfftf_step(status,
+     >                        int_mb(qnbb(1)+indx-1),
+     >                        A,
      >                        dcpl_mb(tmp(1)+shift1),
      >                        dcpl_mb(tmp(1)+shift2),
      >                        int_mb(request(1)+shift3),
@@ -2949,7 +2976,6 @@ c      call nwpw_timing_start(1)
       shift2=nfft3d(1)*(2*(indx1-1)+1)
       call Cram_c_Copy(nbb,dcpl_mb(tmp(1)+shift2),A)
 
-c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
       return
       end
@@ -2979,16 +3005,15 @@ c      call nwpw_timing_end(1)
 
       !**** pfft_queue ****
       integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
+      integer tmp(2),request(2),reqcnt(2),qnbb(2)
       integer qmax,qsize,last_index
       common / c_pfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+     >                             qnbb,qmax,qsize,last_index
 
       !*** local variables ***
       integer shift1,shift2,shift3
       integer q,indx,status,np
 
-c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
       call Parallel_np(np)
 
@@ -2999,7 +3024,9 @@ c      call nwpw_timing_start(1)
          shift1=nfft3d(1)*(2*(indx-1))
          shift2=nfft3d(1)*(2*(indx-1)+1)
          shift3=2*np*(indx-1)
-         call C3dB_pfftb_step(status,nbb,A,
+         call C3dB_pfftb_step(status,
+     >                        int_mb(qnbb(1)+indx-1),
+     >                        A,
      >                        dcpl_mb(tmp(1)+shift1),
      >                        dcpl_mb(tmp(1)+shift2),
      >                        int_mb(request(1)+shift3),
@@ -3012,6 +3039,7 @@ c      call nwpw_timing_start(1)
       int_mb(qindx(1)+qsize-1)        = last_index
       int_mb(qstatus(1)+last_index-1) = 1
       status = 1
+      int_mb(qnbb(1)+last_index-1) = nbb
       shift1=nfft3d(1)*(2*(last_index-1))
       shift2=nfft3d(1)*(2*(last_index-1)+1)
       shift3=2*np*(last_index-1)
@@ -3022,7 +3050,6 @@ c      call nwpw_timing_start(1)
      >                     int_mb(request(1)+shift3),
      >                     int_mb(reqcnt(1)+last_index-1))
 
-c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
       return
       end
@@ -3051,10 +3078,10 @@ c      call nwpw_timing_end(1)
 
       !**** pfft_queue ****
       integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
+      integer tmp(2),request(2),reqcnt(2),qnbb(2)
       integer qmax,qsize,last_index
       common / c_pfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+     >                             qnbb,qmax,qsize,last_index
 
       !*** local variables ***
       integer shift1,shift2,shift3
@@ -3065,7 +3092,7 @@ c      call nwpw_timing_end(1)
       call nwpw_timing_start(30)
 
       indx1   = int_mb(qindx(1))
-      do while (int_mb(qstatus(1)+indx1-1).lt.6)
+      do while (int_mb(qstatus(1)+indx1-1).lt.5)
          do q=1,qsize
             indx   = int_mb(qindx(1)+q-1)
             int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
@@ -3073,7 +3100,9 @@ c      call nwpw_timing_end(1)
             shift1=nfft3d(1)*(2*(indx-1))
             shift2=nfft3d(1)*(2*(indx-1)+1)
             shift3=2*np*(indx-1)
-            call C3dB_pfftb_step(status,nbb,A,
+            call C3dB_pfftb_step(status,
+     >                        int_mb(qnbb(1)+indx-1),
+     >                        A,
      >                        dcpl_mb(tmp(1)+shift1),
      >                        dcpl_mb(tmp(1)+shift2),
      >                        int_mb(request(1)+shift3),

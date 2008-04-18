@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.41 2008-04-18 00:06:34 bylaska Exp $
+* $Id: c_electron.F,v 1.42 2008-04-18 23:29:37 bylaska Exp $
 *
 
 
@@ -954,12 +954,16 @@ c     >                     THpsi_k)
 #include "c_electron_common.fh"
 
 c     **** local variables ****
+      logical done
       integer k,neall,nb,nbq
+      integer ki,kj,nbi,nbj
       integer shiftA,nshiftA
       integer shiftB,nshiftB
 
 c     **** external functions ***
+      logical  C3dB_cr_pfft3_queue_filled
       integer  Pneb_convert_nb,cpsi_data_get_chnk,cpsi_data_get_next
+      external C3dB_cr_pfft3_queue_filled
       external Pneb_convert_nb,cpsi_data_get_chnk,cpsi_data_get_next
 
 c      call BGrsm_fh_fftb(psi_k,
@@ -968,18 +972,59 @@ c     >                   dcpl_mb(psi_r(1)))
       neall   = neq(1)+neq(2)
       nshiftA = 2*npack1
       nshiftB = 2*nfft3d
-      do nbq=1,nbrillq
-         nb = Pneb_convert_nb(nbq)
-         shiftA = cpsi_data_get_chnk(psi_k_tag,nbq)
-         shiftB = cpsi_data_get_chnk(psi_r_tag,nbq)
-         do k=1,neall
-            call Cram_c_Copy(nb,dbl_mb(shiftA),dbl_mb(shiftB))
-            call Cram_c_unpack(nb,dbl_mb(shiftB))
-            !call C3dB_cr_fft3b(1,dbl_mb(shiftB))
-            call C3dB_cr_pfft3b(1,nb,dbl_mb(shiftB))
+
+c      do nbq=1,nbrillq
+c         nb = Pneb_convert_nb(nbq)
+c         shiftA = cpsi_data_get_chnk(psi_k_tag,nbq)
+c         shiftB = cpsi_data_get_chnk(psi_r_tag,nbq)
+c         do k=1,neall
+c            call Cram_c_Copy(nb,dbl_mb(shiftA),dbl_mb(shiftB))
+c            call Cram_c_unpack(nb,dbl_mb(shiftB))
+c            !call C3dB_cr_fft3b(1,dbl_mb(shiftB))
+c            call C3dB_cr_pfft3b(1,nb,dbl_mb(shiftB))
+c            shiftA = shiftA + nshiftA
+c            shiftB = shiftB + nshiftB
+c         end do
+c      end do
+
+
+      nbi = 1
+      ki  = 1 
+      shiftA =  cpsi_data_get_chnk(psi_k_tag,nbi)
+
+      nbj = 1
+      kj  = 1 
+      shiftB =  cpsi_data_get_chnk(psi_r_tag,nbj)
+
+      done = .false.
+      do while (.not.done)
+
+         if (nbi.le.nbrillq) then
+            call C3dB_cr_pfft3b_queuein(nbi,dbl_mb(shiftA))
             shiftA = shiftA + nshiftA
+            ki = ki+1
+            if (ki.gt.neall) then
+               nbi = nbi + 1
+               ki  = 1
+               if (nbi.le.nbrillq) then
+                  shiftA =  cpsi_data_get_chnk(psi_k_tag,nbi)
+               endif
+            end if
+         end if
+
+         if ((C3dB_cr_pfft3_queue_filled()).or.(nbi.gt.nbrillq)) then
+            call C3dB_cr_pfft3b_queueout(nbj,dbl_mb(shiftB))
             shiftB = shiftB + nshiftB
-         end do
+            kj = kj+1
+            if (kj.gt.neall) then
+               nbj = nbj + 1
+               kj  = 1
+               if (nbj.le.nbrillq) then
+                  shiftB =  cpsi_data_get_chnk(psi_r_tag,nbj)
+               endif
+            end if
+         endif
+         done = ((nbi.gt.nbrillq).and.(nbj.gt.nbrillq))
       end do
 
 *     **** set the occupations ****
