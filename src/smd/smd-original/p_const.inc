@@ -1,0 +1,8 @@
+      real*8 boltzmann,convfct1,convfct2,pii,twopi,sqrpi
+
+      parameter(boltzmann=  8.31451115d-1)
+      parameter(convfct1 = 14.39965173d0)
+      parameter(convfct2 = 9648.530821d0)
+      parameter(pii      =  3.141592653589793d0)
+      parameter(twopi    =  6.283185307179586d0)
+      parameter(sqrpi    =  1.772453850905516d0)
