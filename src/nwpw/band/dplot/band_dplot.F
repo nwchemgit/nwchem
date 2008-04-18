@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot.F,v 1.9 2007-12-17 18:25:01 bylaska Exp $
+* $Id: band_dplot.F,v 1.10 2008-04-18 00:06:27 bylaska Exp $
 *
       logical function band_dplot(rtdb)
       implicit none
@@ -109,6 +109,7 @@
       call c_G_init()
       call brillioun_init()
       call Cram_init()
+      call C3dB_pfft_init()
       call Cram_max_npack(npack1)
 
 
@@ -262,7 +263,9 @@
       value = MA_free_heap(psir(2))
       value = value.and.MA_free_heap(dn(2))
       value = value.and.MA_free_heap(psi2(2))
+      call C3dB_pfft_end()
       call C3dB_end(1)
+
 
       if (.not. value) call errquit('band_dplot:freeing heap memory',0,
      &       MA_ERR)

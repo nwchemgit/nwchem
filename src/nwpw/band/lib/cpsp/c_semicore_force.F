@@ -120,10 +120,15 @@ c     call C3dB_r_SMul(1,0.5d0,dcpl_mb(vxcG(1)),dcpl_mb(vxcG(1)))
            call Cram_c_unpack(0,dcpl_mb(cngy(1)))
            call Cram_c_unpack(0,dcpl_mb(cngz(1)))
 
-           call C3dB_cr_fft3b(1,dcpl_mb(dng(1)))
-           call C3dB_cr_fft3b(1,dcpl_mb(cngx(1)))
-           call C3dB_cr_fft3b(1,dcpl_mb(cngy(1)))
-           call C3dB_cr_fft3b(1,dcpl_mb(cngz(1)))
+           !call C3dB_cr_fft3b(1,dcpl_mb(dng(1)))
+           !call C3dB_cr_fft3b(1,dcpl_mb(cngx(1)))
+           !call C3dB_cr_fft3b(1,dcpl_mb(cngy(1)))
+           !call C3dB_cr_fft3b(1,dcpl_mb(cngz(1)))
+           call C3dB_cr_pfft3b(1,0,dcpl_mb(dng(1)))
+           call C3dB_cr_pfft3b(1,0,dcpl_mb(cngx(1)))
+           call C3dB_cr_pfft3b(1,0,dcpl_mb(cngy(1)))
+           call C3dB_cr_pfft3b(1,0,dcpl_mb(cngz(1)))
+
            call C3dB_ccr_Mul(1,dcpl_mb(dng(1)),
      >                         dcpl_mb(cngx(1)),
      >                         dbl_mb(dngx(1)))

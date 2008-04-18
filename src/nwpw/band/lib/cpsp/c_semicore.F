@@ -1,5 +1,5 @@
 *
-* $Id: c_semicore.F,v 1.6 2005-09-07 23:55:03 bylaska Exp $
+* $Id: c_semicore.F,v 1.7 2008-04-18 00:06:31 bylaska Exp $
 *
 
 #define TCGMSG
@@ -176,7 +176,8 @@ c          call Cram_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 *          **** Put put tmp into real space ****
            call Cram_c_unpack(0,dcpl_mb(tmp(1)))
-           call C3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
+           !call C3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
+           call C3dB_cr_pfft3b(1,0,dcpl_mb(tmp(1)))
 
 *          ****  square it and add to density ****
 c          call C3dB_cr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
@@ -252,7 +253,8 @@ c    >                               dbl_mb(dncore(1)))
 
 *          **** Put put tmp into real space ****
            call Cram_c_unpack(0,dcpl_mb(tmp(1)))
-           call C3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
+           !call C3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
+           call C3dB_cr_pfft3b(1,0,dcpl_mb(tmp(1)))
 
 *          ****  square it  ****
            call C3dB_cr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
@@ -470,8 +472,11 @@ c    >                               dbl_mb(dncore(1)))
 *          **** Put put tmp1 and tmp2 into real space ****
            call Cram_c_unpack(0,dcpl_mb(tmp1(1)))
            call Cram_c_unpack(0,dcpl_mb(tmp2(1)))
-           call C3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
-           call C3dB_cr_fft3b(1,dcpl_mb(tmp2(1)))
+           !call C3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
+           !call C3dB_cr_fft3b(1,dcpl_mb(tmp2(1)))
+           call C3dB_cr_pfft3b(1,0,dcpl_mb(tmp1(1)))
+           call C3dB_cr_pfft3b(1,0,dcpl_mb(tmp2(1)))
+
            call C3dB_cr_real(1,dcpl_mb(tmp1(1)),dbl_mb(rmp1(1)))
            call C3dB_cr_real(1,dcpl_mb(tmp2(1)),dbl_mb(rmp2(1)))
 

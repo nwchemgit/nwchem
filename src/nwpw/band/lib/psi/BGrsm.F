@@ -1,4 +1,4 @@
-* $Id: BGrsm.F,v 1.10 2008-02-23 23:51:59 d3p708 Exp $
+* $Id: BGrsm.F,v 1.11 2008-04-18 00:06:36 bylaska Exp $
 *
 
 
@@ -508,7 +508,8 @@
          do k=1,(neq(1)+neq(2))
             call Cram_c_Copy(nb,A(shiftA),B(shiftB))
             call Cram_c_unpack(nb,B(shiftB))
-            call C3dB_cr_fft3b(1,B(shiftB))
+            !call C3dB_cr_fft3b(1,B(shiftB))
+            call C3dB_cr_pfft3b(1,nb,B(shiftB))
             shiftA = shiftA + npack1
             shiftB = shiftB + nfft3d
          end do
@@ -542,7 +543,8 @@
       do nbq=1,nbrillq
          nb = nbq
          do k=1,(neq(1)+neq(2))
-           call C3dB_rc_fft3f(1,B(shiftB))
+           !call C3dB_rc_fft3f(1,B(shiftB))
+           call C3dB_rc_pfft3f(1,nb,B(shiftB))
            call Cram_c_pack(nb,B(shiftB))
            call Cram_c_Copy(nb,B(shiftB),A(shiftA))
            shiftA = shiftA + npack1

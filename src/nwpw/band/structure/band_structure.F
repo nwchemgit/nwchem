@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.28 2007-09-13 02:54:31 bylaska Exp $
+* $Id: band_structure.F,v 1.29 2008-04-18 00:06:41 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -199,6 +199,7 @@
       call c_G_init()
       call brillioun_init()
       call Cram_init()
+      call C3dB_pfft_init()
 
 
 *     **** initialize D3dB data structure and mask for GGA ****
@@ -891,6 +892,7 @@
       call ion_write(rtdb)
       call ion_end()
       call cpsi_data_end()
+      call C3dB_pfft_end()
       call C3dB_end(1)
       IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
       call mask_end()

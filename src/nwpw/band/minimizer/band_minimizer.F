@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.56 2007-11-17 00:05:54 bylaska Exp $
+* $Id: band_minimizer.F,v 1.57 2008-04-18 00:06:39 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -204,6 +204,7 @@ c      external      cpsp_comment
       call c_G_init()
       call brillioun_init()
       call Cram_init()
+      call C3dB_pfft_init()
 
 
 *     **** initialize D3dB data structure and mask for GGA ****
@@ -568,6 +569,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
       call ion_end()
       call ion_end_FixIon()
       call cpsi_data_end()
+      call C3dB_pfft_end()
       call C3dB_end(1)
       IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
       call mask_end()

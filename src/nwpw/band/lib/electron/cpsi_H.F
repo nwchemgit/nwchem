@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.21 2008-02-29 01:23:08 d3p708 Exp $
+* $Id: cpsi_H.F,v 1.22 2008-04-18 00:06:34 bylaska Exp $
 *
 
 *     **********************************************
@@ -93,7 +93,8 @@
 *     **********************************************
 *     **** fourier transform k-space potentials ****
 *     **********************************************
-      call C3dB_cr_fft3b(1,dcpl_mb(vall(1)))
+      !call C3dB_cr_fft3b(1,dcpl_mb(vall(1)))
+      call C3dB_cr_pfft3b(1,0,dcpl_mb(vall(1)))
 
       do nbq=1,nbrill
          nb = Pneb_convert_nb(nbq)
@@ -116,7 +117,8 @@
 *           *******************************
 *           **** get vpsi_r in k-space ****
 *           *******************************
-            call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+            !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+            call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
             call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
 
 *           ***********************
@@ -238,7 +240,8 @@
 
 
 *     **** put vpsi_r in k-space ****
-      call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+      !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+      call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
       call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
 
 *     **** add to Horb_k ****
@@ -350,10 +353,12 @@
 
 
 *     **** put vpsi_r in k-space ****
-      call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+      !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+      call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
       call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
 
-      call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)+nfft3d))
+      !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)+nfft3d))
+      call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)+nfft3d))
       call Cram_c_pack(nb,dcpl_mb(vpsi(1)+nfft3d))
 
 *     **** add to Horb_k ****
@@ -465,7 +470,8 @@ c      call Cram_max_npack(npack1)
 *           *******************************
 *           **** get vpsi_r in k-space ****
 *           *******************************
-            call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+            !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+            call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
             call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
 
 *           ***********************

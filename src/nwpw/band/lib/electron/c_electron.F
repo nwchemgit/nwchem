@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.40 2008-02-29 01:23:08 d3p708 Exp $
+* $Id: c_electron.F,v 1.41 2008-04-18 00:06:34 bylaska Exp $
 *
 
 
@@ -975,7 +975,8 @@ c     >                   dcpl_mb(psi_r(1)))
          do k=1,neall
             call Cram_c_Copy(nb,dbl_mb(shiftA),dbl_mb(shiftB))
             call Cram_c_unpack(nb,dbl_mb(shiftB))
-            call C3dB_cr_fft3b(1,dbl_mb(shiftB))
+            !call C3dB_cr_fft3b(1,dbl_mb(shiftB))
+            call C3dB_cr_pfft3b(1,nb,dbl_mb(shiftB))
             shiftA = shiftA + nshiftA
             shiftB = shiftB + nshiftB
          end do
@@ -1016,14 +1017,16 @@ c     >                   dcpl_mb(psi_r(1)))
       call Cram_c_Copy(nb,dbl_mb(shiftk),dbl_mb(shiftr))
 
       call Cram_c_unpack(nb, dbl_mb(shiftr))
-      call C3dB_cr_fft3b(1,  dbl_mb(shiftr))
+      !call C3dB_cr_fft3b(1,dbl_mb(shiftr))
+      call C3dB_cr_pfft3b(1,nb,dbl_mb(shiftr))
 
       if (spin_orbit) then
         shiftk = cpsi_data_get_ptr(psi_k_tag,nb,n+neq(1))
         shiftr = cpsi_data_get_ptr(psi_r_tag,nb,n+neq(1))
         call Cram_c_Copy(nb,dbl_mb(shiftk),dbl_mb(shiftr))
         call Cram_c_unpack(nb, dbl_mb(shiftr))
-        call C3dB_cr_fft3b(1,  dbl_mb(shiftr))
+        !call C3dB_cr_fft3b(1,dbl_mb(shiftr))
+        call C3dB_cr_pfft3b(1,nb,dbl_mb(shiftr))
       end if                                   
       call cpsi_data_noupdate(psi_r_tag)
       return
@@ -1134,7 +1137,8 @@ c     >                     dn)
 
       call C3dB_rrc_Sum(1,dn,dn(1,ispin),dcpl_mb(tmp1(1)))
       call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
-      call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
+      !call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
+      call C3dB_rc_pfft3f(1,0,dcpl_mb(tmp1(1)))
       call Cram_c_pack(0,dcpl_mb(tmp1(1)))
       call Cram_c_Copy(0,dcpl_mb(tmp1(1)),dng)
 
@@ -1209,7 +1213,8 @@ c     >                     dn)
 
       call C3dB_rrc_Sum(1,dn,dn(1,ispin),dcpl_mb(tmp1(1)))
       call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
-      call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
+      !call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
+      call C3dB_rc_pfft3f(1,0,dcpl_mb(tmp1(1)))
       call Cram_c_pack(0,dcpl_mb(tmp1(1)))
       call Cram_c_Copy(0,dcpl_mb(tmp1(1)),dng)
 
@@ -1272,7 +1277,8 @@ c     >                     dn)
 
 *     **** fourier transform k-space potentials ****
       call Cram_c_unpack(0,dcpl_mb(vall(1)))
-      call C3dB_cr_fft3b(1,dcpl_mb(vall(1)))
+      !call C3dB_cr_fft3b(1,dcpl_mb(vall(1)))
+      call C3dB_cr_pfft3b(1,0,dcpl_mb(vall(1)))
 
 *     **** add xcp to vall ****
       do ms=ispin,1,-1
@@ -1510,7 +1516,8 @@ c     >                     dn)
 *     **** average Kohn-Sham v_local energy ****
       call Cram_c_Copy(0,dcpl_mb(vl(1)),dcpl_mb(tmp1(1)))
       call Cram_c_unpack(0,dcpl_mb(tmp1(1)))
-      call C3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
+      !call C3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
+      call C3dB_cr_pfft3b(1,0,dcpl_mb(tmp1(1)))
       if (occ_tag.gt.0) then
          elocal = 0.0d0
          do nb=1,nbrillq
