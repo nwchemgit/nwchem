@@ -1,0 +1,21 @@
+
+      logical populate_first_time !populating the first time
+      integer i_q ! the original charge ma index
+      integer tmp_i_q, tmp_h_q ! Temporary charge array
+      integer new_i_q, old_i_q
+      logical populate_done !Done with tasks 
+      integer num_iters !Number of iterations (of populate_tasks)
+      double precision t_doit !Time spent in task_doit
+      double precision t_gm_crt, t_rtdb, t_esp, t_gm_push
+      double precision t_chrg_set, t_im_end 
+
+      common /pop_data/
+     &                   populate_first_time,
+     &			 i_q,
+     &			 tmp_i_q, tmp_h_q,
+     &			 new_i_q, old_i_q,
+     &			 populate_done, num_iters,
+     &			 t_doit, t_gm_crt,t_rtdb,t_esp,t_gm_push,
+     &			 t_chrg_set, t_im_end
+
+

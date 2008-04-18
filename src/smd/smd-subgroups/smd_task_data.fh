@@ -1,0 +1,13 @@
+*
+* $Id: smd_task_data.fh,v 1.1 2008-04-18 17:48:14 marat Exp $
+*
+      integer smd_task_nc
+      parameter(smd_task_nc=12)
+
+      character*72 smd_task_rname(smd_task_nc)
+      character*72 smd_task_cname(smd_task_nc)
+
+      common /smd_task_data/ smd_task_cname,
+     >                         smd_task_rname
+
+

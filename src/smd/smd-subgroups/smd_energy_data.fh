@@ -1,0 +1,11 @@
+*
+* $Id: smd_energy_data.fh,v 1.1 2008-04-18 17:48:13 marat Exp $
+*
+      integer smd_energy_nc
+      parameter(smd_energy_nc=8)
+
+      character*72 smd_energy_name(smd_energy_nc)
+
+      common /smd_energy_data/ smd_energy_name
+
+

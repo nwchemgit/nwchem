@@ -1,0 +1,37 @@
+*
+* $Id: smd_data.fh,v 1.1 2008-04-18 17:48:13 marat Exp $
+*
+      integer smd_max_nd
+      parameter(smd_max_nd=100)
+
+      integer smd_max_n
+      parameter(smd_max_n=100)
+
+      integer smd_max_ns
+      parameter(smd_max_ns=100)
+
+      integer smd_n
+      integer smd_nd(smd_max_n)
+      integer smd_ns(smd_max_ns)
+
+      integer smd_nchar_namespace
+      parameter(smd_nchar_namespace=72)
+
+      character*72 smd_name(smd_max_n)
+      character*72 smd_dname(smd_max_n,smd_max_nd)
+      integer smd_handle(smd_max_n,smd_max_nd)
+      integer smd_index(smd_max_n,smd_max_nd)
+      integer smd_type(smd_max_n,smd_max_nd)
+      integer smd_dim(smd_max_n,smd_max_nd)
+
+      common /smd_data/ 
+     &                   smd_name,
+     &                   smd_nd,
+     &                   smd_n,
+     &                   smd_ns,
+     &                   smd_dname,
+     &                   smd_handle,
+     &                   smd_index,
+     &                   smd_dim,
+     &                   smd_type
+

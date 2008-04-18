@@ -1,0 +1,27 @@
+*
+* $Id: smd_control_data.fh,v 1.1 2008-04-18 17:48:13 marat Exp $
+*
+      integer smd_control_nf
+      parameter(smd_control_nf=4)
+
+      character*72 smd_control_fname(smd_control_nf)
+      double precision  smd_control_f(smd_control_nf)
+      logical  smd_control_fstatus(smd_control_nf)
+
+      integer smd_control_ni
+      parameter(smd_control_ni=4)
+
+      character*72 smd_control_iname(smd_control_ni)
+      double precision  smd_control_i(smd_control_ni)
+      logical  smd_control_istatus(smd_control_ni)
+
+
+      common /smd_control_data/ 
+     >                         smd_control_iname,
+     >                         smd_control_i,
+     >                         smd_control_istatus,
+     >                         smd_control_fname,
+     >                         smd_control_f,
+     >                         smd_control_fstatus
+
+
