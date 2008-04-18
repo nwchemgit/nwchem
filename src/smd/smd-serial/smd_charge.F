@@ -77,7 +77,6 @@ c
       return
       end
 
-
       subroutine smd_charge_init(sp_charge,sp_atom)
       implicit none
 #include "errquit.fh"

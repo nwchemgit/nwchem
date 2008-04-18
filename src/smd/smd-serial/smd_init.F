@@ -81,8 +81,8 @@ c
 
 c
 c
-c     CREATE SYSTEM
-c     ------------
+c     assign names to preset components
+c     ---------------------------------
       tag = "atom"
       call smd_system_set_component(tag,sp_atom)
 
@@ -129,7 +129,6 @@ c     ------------
       call smd_system_set_component(tag,sp_mass)
 
 c
-c      write(*,*) "in "//pname
 c     DEFINE ALL THE COMPONENTS
 c     --------------------------------
 c

@@ -1,5 +1,5 @@
 c
-c $Id: smd_util.F,v 1.1 2008-04-18 17:40:32 marat Exp $
+c $Id: smd_util.F,v 1.2 2008-04-18 20:34:16 marat Exp $
 c
 
       SUBROUTINE smd_util_rebox(n,latt,rlatt,aaa)
@@ -74,3 +74,74 @@ c
       return
 
       end
+
+      SUBROUTINE tool_randm(iseed,x)
+
+      implicit none
+
+      integer i,iseed,itoz,itozz,mz,mult
+
+      real*8 x,add,dimax,ddimax
+c     real*8 rand
+
+      logical newjob
+
+      dimension mz(250)
+
+      save newjob,itoz,dimax,ddimax
+
+      data newjob/.true./
+
+*     **** external functions ****
+      real*8   util_random
+      external util_random
+
+      if(newjob)then
+       if(mod(iseed,2).eq.0)iseed=iseed+1
+       mult=65539
+       add=2147483648.0d00
+       dimax=1.0d00/add
+       ddimax=0.50d00*dimax
+       do i=1,250
+        x=util_random(iseed)
+        mz(i)=x*iseed
+       enddo
+       itoz=1
+       newjob=.false.
+      else
+       itoz=itoz+1
+       if(itoz.gt.250)itoz=itoz-250
+       itozz=itoz+103
+       if(itozz.gt.250)itozz=itozz-250
+       mz(itoz)=ieor(mz(itoz),mz(itozz))
+       x=mz(itoz)*dimax+ddimax
+       x=2.0d00*x
+      endif
+
+      return
+
+      END
+
+       FUNCTION erfxc(x)
+
+      implicit none
+
+      double precision erfxc
+      real*8 a1,a2,a3,a4,a5,p
+
+      parameter ( a1 = 0.254829592, a2 = -0.284496736 )
+      parameter ( a3 = 1.421413741, a4 = -1.453152027 )
+      parameter ( a5 = 1.061405429, p  =  0.327591100 )
+
+      real*8 t,x,xsq,tp
+
+      t=1.0/(1.0+p*x)
+      xsq=x*x
+
+      tp=t*(a1+t*(a2+t*(a3+t*(a4+t*a5))))
+
+      erfxc=tp*exp(-xsq)
+
+      return
+
+      END
