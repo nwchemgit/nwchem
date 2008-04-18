@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: C3dB_pfft.F,v 1.3 2008-04-17 01:09:42 bylaska Exp $
+* $Id: C3dB_pfft.F,v 1.4 2008-04-18 00:05:44 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -38,7 +38,7 @@
 
       logical value,yrow,zrow,yzslab
       integer nxh,nyh,nzh,q,p
-      integer k1,k2,k3,ii,nb,nbb
+      integer k1,k2,k3,ii,fb,nbb
       integer i,j,k
       integer index,index2
       double precision ggcut,g1,g2,g3,gg
@@ -52,7 +52,7 @@
       external lattice_ggcut,lattice_wggcut,lattice_unitg
       external brillioun_k
 
-      call Parallel2d_taskid_i(taskid)
+      call Parallel_taskid(taskid)
       nxh = nx(1)/2
       nyh = ny(1)/2
       nzh = nz(1)/2
@@ -75,23 +75,24 @@
      >               'zero_slab23',zero_slab23(2,1),zero_slab23(1,1))
          if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
-         value = value.and.MA_push_get(mt_log,nx(1)*ny(1),
+         value = value.and.MA_push_get(mt_log,(nx(1)*ny(1)),
      >                     'zero_arow3',zero_arow3(2),zero_arow3(1))
          if (.not. value) call errquit('out of stack memory',0,MA_ERR)
 
 
-         !*** nb==0 - density, nb=1 - all wavefunctions/brillioun zones ***
-         do nb=0,1
+         !*** fb==0 - density, fb=1 - all wavefunctions/brillioun zones ***
+         do fb=0,1
 
-         if (nb.eq.0) then
+         if (fb.eq.0) then
             ggcut = lattice_ggcut()
          else
             ggcut = lattice_wggcut()
          end if
 
-*        **** find zero_row3 - (i,j,*) rows that are zero ****
+*        **** find zero_row3 - (i,*,k) rows that are zero ****
+*        **** note the crazy notation used below ****
          do q=1,nx(1)*nq(1)
-             log_mb(zero_row3(1,nb)+q-1) =.true.
+             log_mb(zero_row3(1,fb)+q-1) =.true.
          end do
          do q=1,nx(1)*ny(1)
            log_mb(zero_arow3(1)+q-1) =.true.
@@ -108,7 +109,7 @@
           j=j+1
           zrow = .true.
           do k3 = -nzh+1, nzh-1
-            if (nb.eq.0) then
+            if (fb.eq.0) then
                g1 = k1*lattice_unitg(1,1)
      >            + k3*lattice_unitg(1,2)
      >            + k2*lattice_unitg(1,3)
@@ -143,23 +144,23 @@
 
           end do
           if (.not.zrow) then
-            log_mb(zero_arow3(1)+i-1+nx(1)*(j-1)) =.false.
+            log_mb(zero_arow3(1)+(i-1)+nx(1)*(j-1)) =.false.
             call C3dB_ktoqp(1,j,q,p)
             if (p.eq.taskid) then
               index2 = i + nx(1)*(q-1)
-              log_mb(zero_row3(1,nb)+index2-1) =.false.
+              log_mb(zero_row3(1,fb)+index2-1) =.false.
             end if
           end if
 
          end do
          end do
 
-         call C3dB_c_ptranspose_jk_init(nb,log_mb(zero_arow3(1)))
+         call C3dB_c_ptranspose_jk_init(fb,log_mb(zero_arow3(1)))
 
 
 *        **** find zero_slab23 - (i,*,*) slabs that are zero ****
          do k1 = 1,nx(1)
-           log_mb(zero_slab23(1,nb)+k1-1) =.true.
+           log_mb(zero_slab23(1,fb)+k1-1) =.true.
          end do
 
          do k1 = -nxh+1, nxh-1
@@ -169,7 +170,7 @@
           yzslab = .true.
           do k3 = -nzh+1, nzh-1
           do k2 = -nyh+1, nyh-1
-            if (nb.eq.0) then
+            if (fb.eq.0) then
                g1 = k1*lattice_unitg(1,1)
      >            + k2*lattice_unitg(1,2)
      >            + k3*lattice_unitg(1,3)
@@ -204,7 +205,7 @@
           end do
           end do
           if (.not.yzslab) then
-            log_mb(zero_slab23(1,nb)+i-1) =.false.
+            log_mb(zero_slab23(1,fb)+i-1) =.false.
           end if
 
          end do
@@ -215,14 +216,14 @@
            call C3dB_ktoqp(1,k3,q,p)
            if (p.eq.taskid) then
             index2 = k1 + nx(1)*(q-1)
-            log_mb(zero_row2(1,nb)+index2-1) 
-     >       = log_mb(zero_slab23(1,nb)+k1-1)
+            log_mb(zero_row2(1,fb)+index2-1) 
+     >       = log_mb(zero_slab23(1,fb)+k1-1)
            end if
          end do
          end do
 
         
-         end do !*nb*
+         end do !*fb*
          value = MA_pop_stack(zero_arow3(2))
          if (.not. value) call errquit('error freeing stack',0,MA_ERR)
 
@@ -250,10 +251,10 @@
      >                     'zero_arow3',zero_arow3(2),zero_arow3(1))
          if (.not. value) call errquit('out of stack memory',0,MA_ERR)
 
-         !*** nb==0 - density, nb=1 - all wavefunctions/brillioun zones ***
-         do nb=0,1
+         !*** fb==0 - density, fb=1 - all wavefunctions/brillioun zones ***
+         do fb=0,1
 
-         if (nb.eq.0) then
+         if (fb.eq.0) then
             ggcut = lattice_ggcut()
          else
             ggcut = lattice_wggcut()
@@ -261,7 +262,7 @@
 
 *        **** find zero_row3 - (i,j,*) rows that are zero ****
          do q = 1,nq3(1)
-           log_mb(zero_row3(1,nb)+q-1) =.true.
+           log_mb(zero_row3(1,fb)+q-1) =.true.
          end do
          do q = 1,nx(1)*ny(1)
            log_mb(zero_arow3(1)+q-1) =.true.
@@ -277,7 +278,7 @@
           j=j+1
           zrow = .true.
           do k3 = -nzh+1, nzh-1
-            if (nb.eq.0) then
+            if (fb.eq.0) then
                g1 = k1*lattice_unitg(1,1)
      >            + k2*lattice_unitg(1,2)
      >            + k3*lattice_unitg(1,3)
@@ -311,11 +312,11 @@
             end if
           end do
           if (.not.zrow) then
-            log_mb(zero_arow3(1)+i-1+nx(1)*(j-1)) =.false.
+            log_mb(zero_arow3(1)+(i-1)+nx(1)*(j-1)) =.false.
             q = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(1)))
             p = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(1)))
             if (p.eq.taskid) then
-              log_mb(zero_row3(1,nb)+q-1) =.false.
+              log_mb(zero_row3(1,fb)+q-1) =.false.
             end if
           end if
 
@@ -324,7 +325,7 @@
 
 *        **** find zero_slab23 - (i,*,*) slabs that are zero ****
          do k1 = 1,nx(1)
-           log_mb(zero_slab23(1,nb)+k1-1) =.true.
+           log_mb(zero_slab23(1,fb)+k1-1) =.true.
          end do
 
          do k1 = -nxh+1, nxh-1
@@ -334,7 +335,7 @@
           yzslab = .true.
           do k3 = -nzh+1, nzh-1
           do k2 = -nyh+1, nyh-1
-            if (nb.eq.0) then
+            if (fb.eq.0) then
                g1 = k1*lattice_unitg(1,1)
      >            + k2*lattice_unitg(1,2)
      >            + k3*lattice_unitg(1,3)
@@ -369,7 +370,7 @@
           end do
           end do
           if (.not.yzslab) then
-            log_mb(zero_slab23(1,nb)+i-1) =.false.
+            log_mb(zero_slab23(1,fb)+i-1) =.false.
           end if
 
          end do
@@ -382,18 +383,17 @@
            p = int_mb(p_map2(1,1)+(k-1)+(i-1)*(nz(1)))
 
            log_mb(zero_arow2(1)+i-1+nx(1)*(k-1))
-     >       = log_mb(zero_slab23(1,nb)+i-1)
+     >       = log_mb(zero_slab23(1,fb)+i-1)
            if (p.eq.taskid) then
-            log_mb(zero_row2(1,nb)+q-1)
-     >       = log_mb(zero_slab23(1,nb)+i-1)
+            log_mb(zero_row2(1,fb)+q-1)
+     >       = log_mb(zero_slab23(1,fb)+i-1)
            end if
          end do
          end do
 
-         call C3dB_c_ptranspose_ijk_init(nb,
+         call C3dB_c_ptranspose_ijk_init(fb,
      >                                   log_mb(zero_arow2(1)),
      >                                   log_mb(zero_arow3(1)))
-
 
 
          end do
@@ -527,7 +527,7 @@
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_cr_pfft3b(nb,nbb_in,A)
+      subroutine C3dB_cr_pfft3b(nb,nbb,A)
 
 *****************************************************
 *                                                   *
@@ -549,7 +549,7 @@
 *****************************************************
 
       implicit none
-      integer nb,nbb_in
+      integer nb,nbb
       complex*16  A(*)
 
 #include "mafdecls.fh"
@@ -562,10 +562,9 @@
       common    / C3dB_fft / tmpx,tmpy,tmpz
 
 
-
 *     *** local variables ***
-      integer i,j,k,q,indx,ierr,nbb
-      integer nxh,nxhy,nxhz,indx0,indx1,indx2
+      integer i,j,k,q,indx,ierr,fb
+      integer indx0,indx1,indx2
 
       
       !integer tmp1(2),tmp2(2),tmp3(2)
@@ -575,11 +574,11 @@
 
       call nwpw_timing_start(1)
 
-      !*** set nbb ***
-      if (nbb_in.eq.0) then
-         nbb = 0 
+      !*** set fb ***
+      if (nbb.eq.0) then
+         fb = 0 
       else
-         nbb = 1 
+         fb = 1 
       end if
  
 
@@ -591,32 +590,23 @@
      >      MA_push_get(mt_dcpl,(nfft3d(nb)),'ffttmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-       nxh =  nx(nb)
-       nxhz = nxh*nz(nb)
-       nxhy = nxh*ny(nb)
       
       !**********************
       !**** slab mapping ****
       !**********************
       if (mapping.eq.1) then
-*     ********************************************
-*     ***         Do a transpose of A          ***
-*     ***      A(kx,kz,ky) <- A(kx,ky,kz)      ***
-*     ********************************************
-c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
-*     *************************************************
-*     ***     do fft along kz dimension             ***
-*     ***   A(kx,nz(nb),ky) <- fft1d^(-1)[A(kx,kz,ky)]  ***
-*     *************************************************
+*     ****************************************************
+*     ***     do fft along ky dimension                ***
+*     ***  A(kx,ny(nb),kz) <- fft1d^(-1)[A(kx,ky,kz)]  ***
+*     ****************************************************
 #ifdef MLIB
       !call z1dfft(dbl_mb(tmp3(1)),nz(nb),dcpl_mb(tmpz(1)),-3,ierr)
-      indx0 = 0
       indx2 = 0
       do q=1,nq(nb)
       do i=1,nx(nb)
        indx2 = indx2 + 1
-       if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
+       if (.not.log_mb(zero_row3(1,fb)+indx2-1)) then
 
          indx = i + (q-1)*nx(nb)*nz(nb)
          call zcopy(nz(nb),A(indx),nx(nb),dcpl_mb(tmp2(1)),1)
@@ -634,7 +624,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do q=1,nq(nb)
       do i=1,nx(nb)
        indx2 = indx2 + 1
-       if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
+       if (.not.log_mb(zero_row3(1,fb)+indx2-1)) then
          indx = i + (q-1)*nx(nb)*nz(nb)
          call zcopy(nz(nb),A(indx),nx(nb),dcpl_mb(tmp2(1)),1)
          call dcfftb(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpz(1,nb)))
@@ -646,13 +636,13 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     ********************************************
 *     ***         Do a ptranspose of A          ***
-*     ***      A(kx,ky,nz(nb)) <- A(kx,nz(nb),ky)      ***
+*     ***   A(kx,kz,ny(nb)) <- A(kx,ny(nb),kz)  ***
 *     ********************************************
-      call C3dB_c_ptranspose1_jk(nbb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
+      call C3dB_c_ptranspose1_jk(fb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp3(1)))
 
 *     *************************************************
-*     ***     do fft along ky dimension             ***
-*     ***   A(kx,ny(nb),nz(nb)) <- fft1d^(-1)[A(kx,ky,nz(nb))]  ***
+*     ***     do fft along kz dimension             ***
+*     ***   A(kx,nz(nb),ny(nb)) <- fft1d^(-1)[A(kx,kz,ny(nb))]  ***
 *     *************************************************
 #ifdef MLIB
      
@@ -660,7 +650,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do q=1,nq(nb)
       do i=1,nx(nb)
         indx2 = indx2 + 1
-        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+        if (.not.log_mb(zero_row2(1,fb)+indx2-1)) then
           indx = i + (q-1)*nx(nb)*ny(nb)
           call zcopy(ny(nb),A(indx),nx(nb),dcpl_mb(tmp2(1)),1)
           call z1dfft(dcpl_mb(tmp2(1)),ny(nb),
@@ -671,28 +661,24 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
       
 #else
-    
       indx2 = 0
       do q=1,nq(nb)
       do i=1,nx(nb)
         indx2 = indx2 + 1
-
-        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
-
+        if (.not.log_mb(zero_row2(1,fb)+indx2-1)) then
          indx = i + (q-1)*nx(nb)*ny(nb)
          call zcopy(ny(nb),A(indx),nx(nb),dcpl_mb(tmp2(1)),1)
          call dcfftb(ny(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpy(1,nb)))
          call zcopy(ny(nb),dcpl_mb(tmp2(1)),1,A(indx),nx(nb))
-
         end if
       end do
       end do
 #endif
 
-*     *************************************************
-*     ***     do fft along kx dimension             ***
-*     ***   A(nx(nb),ny(nb),nz(nb)) <- fft1d^(-1)[A(kx,ny(nb),nz(nb))]  ***
-*     *************************************************
+*     *********************************************************************
+*     ***     do fft along kx dimension                                 ***
+*     ***   A(nx(nb),nz(nb),ny(nb)) <- fft1d^(-1)[A(kx,nz(nb),ny(nb))]  ***
+*     *********************************************************************
 #ifdef MLIB
       !call drc1ft (dbl_mb(tmp3(1)),nx(nb),dcpl_mb(tmp1(1)),-3,ierr)
       indx = 1
@@ -726,7 +712,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef MLIB
       indx = 1
       do q=1,nq3(nb)
-         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row3(1,fb)+q-1)) then
          call z1dfft(A(indx),nz(nb),dcpl_mb(tmpz(1,nb)),-2,ierr)
          end if
          indx = indx + nz(nb)
@@ -734,16 +720,16 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #else
       indx = 1
       do q=1,nq3(nb)
-         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row3(1,fb)+q-1)) then
          call dcfftb(nz(nb),A(indx),dcpl_mb(tmpz(1,nb)))
          end if
          indx = indx + nz(nb)
       end do
 #endif
 
-      call C3dB_c_ptranspose_ijk(nbb,3,A,
+      call C3dB_c_ptranspose_ijk(fb,3,A,
      >                           dcpl_mb(tmp2(1)),
-     >                           dbl_mb(tmp3(1)))
+     >                           dcpl_mb(tmp3(1)))
 
 *     *************************************************
 *     ***     do fft along ky dimension             ***
@@ -752,7 +738,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef MLIB
       indx = 1
       do q=1,nq2(nb)
-         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row2(1,fb)+q-1)) then
          call z1dfft(A(indx),ny(nb),dcpl_mb(tmpy(1,nb)),-2,ierr)
          end if
          indx = indx + ny(nb)
@@ -760,16 +746,16 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #else
       indx = 1
       do q=1,nq2(nb)
-         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row2(1,fb)+q-1)) then
          call dcfftb(ny(nb),A(indx),dcpl_mb(tmpy(1,nb)))
          end if
          indx = indx + ny(nb)
       end do
 #endif
 
-      call C3dB_c_ptranspose_ijk(nbb,4,A,
+      call C3dB_c_ptranspose_ijk(fb,4,A,
      >                           dcpl_mb(tmp2(1)),
-     >                           dbl_mb(tmp3(1)))
+     >                           dcpl_mb(tmp3(1)))
 
 *     *************************************************
 *     ***     do fft along kx dimension             ***
@@ -811,7 +797,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_rc_pfft3f(nb,nbb_in,A)
+      subroutine C3dB_rc_pfft3f(nb,nbb,A)
 
 *****************************************************
 *                                                   *
@@ -832,7 +818,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *****************************************************
 
       implicit none
-      integer nb,nbb_in
+      integer nb,nbb
       complex*16  A(*)
 
 #include "mafdecls.fh"
@@ -845,7 +831,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       common    / C3dB_fft / tmpx,tmpy,tmpz
 
 *     *** local variables ***
-      integer i,j,k,q,indx,indx1,ierr,indx2,indx0,nbb
+      integer i,j,k,q,indx,indx1,ierr,indx2,indx0,fb
       integer nxh,nxhy,nxhz
 
       !integer tmp1(2),tmp2(2),tmp3(2)
@@ -855,11 +841,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       call nwpw_timing_start(1)
 
-      !*** set nbb ***
-      if (nbb_in.eq.0) then
-         nbb = 0
+      !*** set fb ***
+      if (nbb.eq.0) then
+         fb = 0
       else
-         nbb = 1
+         fb = 1
       end if
 
 *     ***** allocate temporary space ****
@@ -879,7 +865,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       if (mapping.eq.1) then
 *     ********************************************
 *     ***     do fft along nx(nb) dimension        ***
-*     ***   A(kx,ny(nb),nz(nb)) <- fft1d[A(nx(nb),ny(nb),nz(nb))]  ***
+*     ***   A(kx,nz(nb),ny(nb)) <- fft1d[A(nx(nb),nz(nb),ny(nb))]  ***
 *     ********************************************
 #ifdef MLIB
       indx = 1
@@ -901,8 +887,8 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 *     ********************************************
-*     ***     do fft along ny(nb) dimension        ***
-*     ***   A(kx,ky,nz(nb)) <- fft1d[A(kx,ny(nb),nz(nb))]  ***
+*     ***     do fft along nz(nb) dimension        ***
+*     ***   A(kx,kz,nz(nb)) <- fft1d[A(kx,nz(nb),ny(nb))]  ***
 *     ********************************************
 
 #ifdef MLIB
@@ -911,7 +897,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do q=1,nq(nb)
       do i=1,nx(nb)
         indx2 = indx2 + 1
-        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+        if (.not.log_mb(zero_row2(1,fb)+indx2-1)) then
 
          indx = i + (q-1)*nx(nb)*ny(nb)
          call zcopy(ny(nb),A(indx),nx(nb),dcpl_mb(tmp2(1)),1)
@@ -927,7 +913,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
        do q=1,nq(nb)
        do i=1,nx(nb)
         indx2 = indx2 + 1
-        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+        if (.not.log_mb(zero_row2(1,fb)+indx2-1)) then
 
           indx = i + (q-1)*nx(nb)*ny(nb)
           call zcopy(ny(nb),A(indx),nx(nb),dcpl_mb(tmp2(1)),1)
@@ -939,18 +925,16 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 #endif
 
-
 *     ********************************************
 *     ***         Do a ptranspose of A          ***
-*     ***      A(ky,nz(nb),ky) <- A(kx,ky,nz(nb))      ***
+*     ***      A(ky,ny(nb),kz) <- A(kx,kz,ny(nb))      ***
 *     ********************************************
-      call C3dB_c_ptranspose2_jk(nbb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
-c      call C3dB_c_transpose_jk(nbb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
+      call C3dB_c_ptranspose2_jk(fb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp3(1)))
 
 
 *     ********************************************
-*     ***     do fft along nz(nb) dimension        ***
-*     ***   A(kx,kz,ky) <- fft1d[A(kx,nz(nb),ky)]  ***
+*     ***     do fft along ny(nb) dimension        ***
+*     ***   A(kx,ky,kz) <- fft1d[A(kx,ny(nb),kz)]  ***
 *     ********************************************
 #ifdef MLIB
       
@@ -958,8 +942,7 @@ c      call C3dB_c_transpose_jk(nbb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do q=1,nq(nb)
       do i=1,nx(nb)
         indx2 = indx2 + 1
-        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
-
+        if (.not.log_mb(zero_row3(1,fb)+indx2-1)) then
          indx = i + (q-1)*nx(nb)*ny(nb)
          call zcopy(nz(nb),A(indx),nx(nb),dcpl_mb(tmp2(1)),1)
          call z1dfft(dcpl_mb(tmp2(1)),nz(nb),dcpl_mb(tmpz(1,nb)),1,ierr)
@@ -975,8 +958,7 @@ c      call C3dB_c_transpose_jk(nbb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
        do q=1,nq(nb)
        do i=1,nx(nb)
         indx2 = indx2 + 1
-        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
- 
+        if (.not.log_mb(zero_row3(1,fb)+indx2-1)) then
           indx = i + (q-1)*nx(nb)*ny(nb)
           call zcopy(nz(nb),A(indx),nx(nb),dcpl_mb(tmp2(1)),1)
           call dcfftf(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpz(1,nb)))
@@ -986,12 +968,6 @@ c      call C3dB_c_transpose_jk(nbb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
        end do
 
 #endif
-
-*     ********************************************
-*     ***         Do a transpose of A          ***
-*     ***      A(kx,ky,kz) <- A(kx,kz,ky)      ***
-*     ********************************************
-c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
       !*************************
@@ -1017,9 +993,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 #endif
 
-      call C3dB_c_ptranspose_ijk(nbb,1,A,
+      call C3dB_c_ptranspose_ijk(fb,1,A,
      >                           dcpl_mb(tmp2(1)),
-     >                           dbl_mb(tmp3(1)))
+     >                           dcpl_mb(tmp3(1)))
 
 *     ********************************************
 *     ***     do fft along ny(nb) dimension        ***
@@ -1028,7 +1004,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef MLIB
       indx = 1
       do q=1,nq2(nb)
-         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row2(1,fb)+q-1)) then
          call z1dfft(A(indx),ny(nb),dcpl_mb(tmpy(1,nb)),1,ierr)
          end if
          indx = indx + ny(nb)
@@ -1036,16 +1012,16 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #else
       indx = 1
       do q=1,nq2(nb)
-         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row2(1,fb)+q-1)) then
          call dcfftf(ny(nb),A(indx),dcpl_mb(tmpy(1,nb)))
          end if
          indx = indx + ny(nb)
       end do
 #endif
 
-      call C3dB_c_ptranspose_ijk(nbb,2,A,
+      call C3dB_c_ptranspose_ijk(fb,2,A,
      >                          dcpl_mb(tmp2(1)),
-     >                          dbl_mb(tmp3(1)))
+     >                          dcpl_mb(tmp3(1)))
 
 *     ********************************************
 *     ***     do fft along nz(nb) dimension        ***
@@ -1054,7 +1030,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef MLIB
       indx = 1
       do q=1,nq3(nb)
-         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row3(1,fb)+q-1)) then
          call z1dfft(A(indx),nz(nb),dcpl_mb(tmpz(1,nb)),1,ierr)
          end if
          indx = indx + nz(nb)
@@ -1062,7 +1038,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #else
       indx = 1
       do q=1,nq3(nb)
-         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         if (.not.log_mb(zero_row3(1,fb)+q-1)) then
          call dcfftf(nz(nb),A(indx),dcpl_mb(tmpz(1,nb)))
          end if
          indx = indx + nz(nb)
@@ -1090,9 +1066,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_c_ptranspose_jk_init(nbb,zero_arow3)
+      subroutine C3dB_c_ptranspose_jk_init(fb,zero_arow3)
       implicit none
-      integer nbb
+      integer fb
       logical zero_arow3(*)
 
 #include "mafdecls.fh"
@@ -1135,35 +1111,35 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     **** allocate ptrans_blk1 and ptrans_blk2 common block ****
       value = MA_alloc_get(mt_int,(nx(1)*ny(1)*nq(1)),
-     >                     'piq_to_i1',iq_to_i1(2,nbb),iq_to_i1(1,nbb))
+     >                     'piq_to_i1',iq_to_i1(2,fb),iq_to_i1(1,fb))
       value=value.and.MA_alloc_get(mt_int,(nx(1)*ny(1)*nq(1)),
-     >                     'piq_to_i2',iq_to_i2(2,nbb),iq_to_i2(1,nbb))
+     >                     'piq_to_i2',iq_to_i2(2,fb),iq_to_i2(1,fb))
       value=value.and.MA_alloc_get(mt_int,(nx(1)*ny(1)*nq(1)),
-     >                     'piz_to_i2',iz_to_i2(2,nbb),iz_to_i2(1,nbb))
+     >                     'piz_to_i2',iz_to_i2(2,fb),iz_to_i2(1,fb))
 
       value = value.and.MA_alloc_get(mt_int,(nz(1)+1),
-     >                     'pi1_start',i1_start(2,nbb),i1_start(1,nbb))
+     >                     'pi1_start',i1_start(2,fb),i1_start(1,fb))
       value = value.and.MA_alloc_get(mt_int,(nz(1)+1),
-     >                     'pi2_start',i2_start(2,nbb),i2_start(1,nbb))
+     >                     'pi2_start',i2_start(2,fb),i2_start(1,fb))
 
 
       value = MA_alloc_get(mt_int,(nx(1)*ny(1)*nq(1)),
-     >                     'riq_to_i1',jq_to_i1(2,nbb),jq_to_i1(1,nbb))
+     >                     'riq_to_i1',jq_to_i1(2,fb),jq_to_i1(1,fb))
       value=value.and.MA_alloc_get(mt_int,(nx(1)*ny(1)*nq(1)),
-     >                     'riq_to_i2',jq_to_i2(2,nbb),jq_to_i2(1,nbb))
+     >                     'riq_to_i2',jq_to_i2(2,fb),jq_to_i2(1,fb))
       value=value.and.MA_alloc_get(mt_int,(nx(1)*ny(1)*nq(1)),
-     >                     'riz_to_i2',jz_to_i2(2,nbb),jz_to_i2(1,nbb))
+     >                     'riz_to_i2',jz_to_i2(2,fb),jz_to_i2(1,fb))
 
       value = value.and.MA_alloc_get(mt_int,(nz(1)+1),
-     >                     'ri1_start',j1_start(2,nbb),j1_start(1,nbb))
+     >                     'ri1_start',j1_start(2,fb),j1_start(1,fb))
       value = value.and.MA_alloc_get(mt_int,(nz(1)+1),
-     >                     'ri2_start',j2_start(2,nbb),j2_start(1,nbb))
+     >                     'ri2_start',j2_start(2,fb),j2_start(1,fb))
 
       if (.not. value) 
      > call errquit('C3dB_ptranspose_jk_init:out of heap',0,MA_ERR)
 
-      call Parallel2d_taskid_i(taskid)
-      call Parallel2d_np_i(np)
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
 
 
       index1 = 1 
@@ -1175,10 +1151,10 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do it=0,np-1
          proc_to   = mod(taskid+it,np)
          proc_from = mod(taskid-it+np,np)
-         int_mb(i1_start(1,nbb)+it) = index1
-         int_mb(i2_start(1,nbb)+it) = index2
-         int_mb(j1_start(1,nbb)+it) = jndex1
-         int_mb(j2_start(1,nbb)+it) = jndex2
+         int_mb(i1_start(1,fb)+it) = index1
+         int_mb(i2_start(1,fb)+it) = index2
+         int_mb(j1_start(1,fb)+it) = jndex1
+         int_mb(j2_start(1,fb)+it) = jndex2
 
          do k=1,nz(1)
          do j=1,ny(1)
@@ -1194,12 +1170,12 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
      >                     + (qhere-1)*nx(1)*ny(1)
 
                   if (.not.zero_arow3(ii)) then
-                  int_mb(iq_to_i1(1,nbb)+index1-1) = itmp
+                  int_mb(iq_to_i1(1,fb)+index1-1) = itmp
                   index1 = index1 + 1
                   end if
 
                   if (.not.zero_arow3(jj)) then
-                  int_mb(jq_to_i1(1,nbb)+jndex1-1) = itmp
+                  int_mb(jq_to_i1(1,fb)+jndex1-1) = itmp
                   jndex1 = jndex1 + 1
                   end if
 
@@ -1216,18 +1192,18 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
                   itmp = i + (k-1)*nx(1)
      >                     + (qhere-1)*nx(1)*ny(1)
                   if (zero_arow3(ii)) then
-                  int_mb(iz_to_i2(1,nbb)+index3-1) = itmp
+                  int_mb(iz_to_i2(1,fb)+index3-1) = itmp
                   index3 = index3 + 1
                   else
-                  int_mb(iq_to_i2(1,nbb)+index2-1) = itmp
+                  int_mb(iq_to_i2(1,fb)+index2-1) = itmp
                   index2 = index2 + 1
                   end if
 
                   if (zero_arow3(jj)) then
-                  int_mb(jz_to_i2(1,nbb)+jndex3-1) = itmp
+                  int_mb(jz_to_i2(1,fb)+jndex3-1) = itmp
                   jndex3 = jndex3 + 1
                   else
-                  int_mb(jq_to_i2(1,nbb)+jndex2-1) = itmp
+                  int_mb(jq_to_i2(1,fb)+jndex2-1) = itmp
                   jndex2 = jndex2 + 1
                   end if
                end do
@@ -1235,10 +1211,10 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          end do
          end do
       end do
-      int_mb(i1_start(1,nbb)+np) = index1
-      int_mb(i2_start(1,nbb)+np) = index2
-      int_mb(j1_start(1,nbb)+np) = jndex1
-      int_mb(j2_start(1,nbb)+np) = jndex2
+      int_mb(i1_start(1,fb)+np) = index1
+      int_mb(i2_start(1,fb)+np) = index2
+      int_mb(j1_start(1,fb)+np) = jndex1
+      int_mb(j2_start(1,fb)+np) = jndex2
 
 
       return
@@ -1254,9 +1230,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_c_ptranspose_ijk_init(nbb,zero_arow2,zero_arow3)
+      subroutine C3dB_c_ptranspose_ijk_init(fb,zero_arow2,zero_arow3)
       implicit none
-      integer nbb
+      integer fb
       logical zero_arow2(*)
       logical zero_arow3(*)
 
@@ -1288,8 +1264,8 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer i,j,k,it
 
 
-      call Parallel2d_taskid_i(taskid)
-      call Parallel2d_np_i(np)
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
 
 
 *     ********************************************************
@@ -1301,28 +1277,28 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     **** allocate trans_blk_ijk common block ****
       value = MA_alloc_get(mt_int,(nx(1)*nq1(1)),
      >                     'h_iq_to_i1_1',
-     >                      h_iq_to_i1(2,1,nbb),
-     >                      h_iq_to_i1(1,1,nbb))
+     >                      h_iq_to_i1(2,1,fb),
+     >                      h_iq_to_i1(1,1,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(ny(1)*nq2(1)),
      >                     'h_iq_to_i2_1',
-     >                      h_iq_to_i2(2,1,nbb),
-     >                      h_iq_to_i2(1,1,nbb))
+     >                      h_iq_to_i2(2,1,fb),
+     >                      h_iq_to_i2(1,1,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(ny(1)*nq2(1)),
      >                     'h_iz_to_i2_1',
-     >                      h_iz_to_i2(2,1,nbb),
-     >                      h_iz_to_i2(1,1,nbb))
+     >                      h_iz_to_i2(2,1,fb),
+     >                      h_iz_to_i2(1,1,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(np+1),
      >                     'h_i1_start_1',
-     >                      h_i1_start(2,1,nbb),
-     >                      h_i1_start(1,1,nbb))
+     >                      h_i1_start(2,1,fb),
+     >                      h_i1_start(1,1,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(np+1),
      >                     'h_i2_start_1',
-     >                      h_i2_start(2,1,nbb),
-     >                      h_i2_start(1,1,nbb))
+     >                      h_i2_start(2,1,fb),
+     >                      h_i2_start(1,1,fb))
       if (.not.value)
      > call errquit('C3dB_transpose_ijk_initt:out of heap',0,MA_ERR)
 
@@ -1332,8 +1308,8 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do it=0,np-1
          proc_to   = mod(taskid+it,np)
          proc_from = mod(taskid-it+np,np)
-         int_mb(h_i1_start(1,1,nbb)+it) = index1
-         int_mb(h_i2_start(1,1,nbb)+it) = index2
+         int_mb(h_i1_start(1,1,fb)+it) = index1
+         int_mb(h_i2_start(1,1,fb)+it) = index2
 
          do k=1,nz(1)
          do j=1,ny(1)
@@ -1351,7 +1327,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
                itmp = i + (qhere-1)*nx(1)
                if (.not.iszero) then
-               int_mb(h_iq_to_i1(1,1,nbb)+index1-1) = itmp
+               int_mb(h_iq_to_i1(1,1,fb)+index1-1) = itmp
                index1 = index1 + 1
                end if
             end if
@@ -1360,10 +1336,10 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
                itmp = j + (qto-1)*ny(1)
                if (.not.iszero) then
-               int_mb(h_iq_to_i2(1,1,nbb)+index2-1) =  itmp
+               int_mb(h_iq_to_i2(1,1,fb)+index2-1) =  itmp
                index2 = index2 + 1
                else
-               int_mb(h_iz_to_i2(1,1,nbb)+index3-1) =  itmp
+               int_mb(h_iz_to_i2(1,1,fb)+index3-1) =  itmp
                index3 = index3 + 1
                end if
             end if
@@ -1373,9 +1349,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          end do
 
       end do
-      int_mb(h_i1_start(1,1,nbb)+np) = index1
-      int_mb(h_i2_start(1,1,nbb)+np) = index2
-      h_iz_to_i2_count(1,nbb) = index3 - 1
+      int_mb(h_i1_start(1,1,fb)+np) = index1
+      int_mb(h_i2_start(1,1,fb)+np) = index2
+      h_iz_to_i2_count(1,fb) = index3 - 1
 
 
 
@@ -1390,28 +1366,28 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     **** allocate trans_blk_ijk common block ****
       value = MA_alloc_get(mt_int,(ny(1)*nq2(1)),
      >                     'h_iq_to_i1_2',
-     >                      h_iq_to_i1(2,2,nbb),
-     >                      h_iq_to_i1(1,2,nbb))
+     >                      h_iq_to_i1(2,2,fb),
+     >                      h_iq_to_i1(1,2,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(nz(1)*nq3(1)),
      >                     'h_iq_to_i2_2',
-     >                      h_iq_to_i2(2,2,nbb),
-     >                      h_iq_to_i2(1,2,nbb))
+     >                      h_iq_to_i2(2,2,fb),
+     >                      h_iq_to_i2(1,2,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(nz(1)*nq3(1)),
      >                     'h_iz_to_i2_2',
-     >                      h_iz_to_i2(2,2,nbb),
-     >                      h_iz_to_i2(1,2,nbb))
+     >                      h_iz_to_i2(2,2,fb),
+     >                      h_iz_to_i2(1,2,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(np+1),
      >                     'h_i1_start_2',
-     >                      h_i1_start(2,2,nbb),
-     >                      h_i1_start(1,2,nbb))
+     >                      h_i1_start(2,2,fb),
+     >                      h_i1_start(1,2,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(np+1),
      >                     'h_i2_start_2',
-     >                      h_i2_start(2,2,nbb),
-     >                      h_i2_start(1,2,nbb))
+     >                      h_i2_start(2,2,fb),
+     >                      h_i2_start(1,2,fb))
       if (.not.value)
      > call errquit('C3dB_transpose_ijk_init:out of heap',0,MA_ERR)
 
@@ -1421,12 +1397,12 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do it=0,np-1
          proc_to   = mod(taskid+it,np)
          proc_from = mod(taskid-it+np,np)
-         int_mb(h_i1_start(1,2,nbb)+it) = index1
-         int_mb(h_i2_start(1,2,nbb)+it) = index2
+         int_mb(h_i1_start(1,2,fb)+it) = index1
+         int_mb(h_i2_start(1,2,fb)+it) = index2
 
          do k=1,nz(1)
          do j=1,ny(1)
-         do i=1,(nx(1)/2+1)
+         do i=1,nx(1)
 
             iszero = zero_arow3(i+(j-1)*nx(1))
 
@@ -1441,7 +1417,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
                itmp = j + (qhere-1)*ny(1)
                if (.not.iszero) then
-               int_mb(h_iq_to_i1(1,2,nbb)+index1-1) = itmp
+               int_mb(h_iq_to_i1(1,2,fb)+index1-1) = itmp
                index1 = index1 + 1
                end if
             end if
@@ -1450,10 +1426,10 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
                itmp = k + (qto-1)*nz(1)
                if (.not.iszero) then
-               int_mb(h_iq_to_i2(1,2,nbb)+index2-1) = itmp
+               int_mb(h_iq_to_i2(1,2,fb)+index2-1) = itmp
                index2 = index2 + 1
                else  
-               int_mb(h_iz_to_i2(1,2,nbb)+index3-1) = itmp
+               int_mb(h_iz_to_i2(1,2,fb)+index3-1) = itmp
                index3 = index3 + 1
                end if
             end if
@@ -1464,9 +1440,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          end do
 
       end do
-      int_mb(h_i1_start(1,2,nbb)+np) = index1
-      int_mb(h_i2_start(1,2,nbb)+np) = index2
-      h_iz_to_i2_count(2,nbb) = index3 - 1
+      int_mb(h_i1_start(1,2,fb)+np) = index1
+      int_mb(h_i2_start(1,2,fb)+np) = index2
+      h_iz_to_i2_count(2,fb) = index3 - 1
 
 
 
@@ -1482,28 +1458,28 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     **** allocate trans_blk_ijk common block ****
       value = MA_alloc_get(mt_int,(nz(1)*nq3(1)),
      >                     'h_iq_to_i1_3',
-     >                      h_iq_to_i1(2,3,nbb),
-     >                      h_iq_to_i1(1,3,nbb))
+     >                      h_iq_to_i1(2,3,fb),
+     >                      h_iq_to_i1(1,3,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(ny(1)*nq2(1)),
      >                     'h_iq_to_i2_3',
-     >                      h_iq_to_i2(2,3,nbb),
-     >                      h_iq_to_i2(1,3,nbb))
+     >                      h_iq_to_i2(2,3,fb),
+     >                      h_iq_to_i2(1,3,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(ny(1)*nq2(1)),
      >                     'h_iz_to_i2_3',
-     >                      h_iz_to_i2(2,3,nbb),
-     >                      h_iz_to_i2(1,3,nbb))
+     >                      h_iz_to_i2(2,3,fb),
+     >                      h_iz_to_i2(1,3,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(np+1),
      >                     'h_i1_start_3',
-     >                      h_i1_start(2,3,nbb),
-     >                      h_i1_start(1,3,nbb))
+     >                      h_i1_start(2,3,fb),
+     >                      h_i1_start(1,3,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(np+1),
      >                     'h_i2_start_3',
-     >                      h_i2_start(2,3,nbb),
-     >                      h_i2_start(1,3,nbb))
+     >                      h_i2_start(2,3,fb),
+     >                      h_i2_start(1,3,fb))
       if (.not.value)
      > call errquit('C3dB_transpose_ijk_init:out of heap',0,MA_ERR)
 
@@ -1513,8 +1489,8 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do it=0,np-1
          proc_to   = mod(taskid+it,np)
          proc_from = mod(taskid-it+np,np)
-         int_mb(h_i1_start(1,3,nbb)+it) = index1
-         int_mb(h_i2_start(1,3,nbb)+it) = index2
+         int_mb(h_i1_start(1,3,fb)+it) = index1
+         int_mb(h_i2_start(1,3,fb)+it) = index2
 
          do k=1,nz(1)
          do j=1,ny(1)
@@ -1533,7 +1509,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
                itmp = k + (qhere-1)*nz(1)
                if (.not.iszero) then
-               int_mb(h_iq_to_i1(1,3,nbb)+index1-1) = itmp
+               int_mb(h_iq_to_i1(1,3,fb)+index1-1) = itmp
                index1 = index1 + 1
                end if
             end if
@@ -1542,10 +1518,10 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
                itmp = j + (qto-1)*ny(1)
                if (.not.iszero) then
-               int_mb(h_iq_to_i2(1,3,nbb)+index2-1) = itmp
+               int_mb(h_iq_to_i2(1,3,fb)+index2-1) = itmp
                index2 = index2 + 1
                else
-               int_mb(h_iz_to_i2(1,3,nbb)+index3-1) = itmp
+               int_mb(h_iz_to_i2(1,3,fb)+index3-1) = itmp
                index3 = index3 + 1
                end if
             end if
@@ -1556,9 +1532,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          end do
 
       end do
-      int_mb(h_i1_start(1,3,nbb)+np) = index1
-      int_mb(h_i2_start(1,3,nbb)+np) = index2
-      h_iz_to_i2_count(3,nbb) = index3 - 1
+      int_mb(h_i1_start(1,3,fb)+np) = index1
+      int_mb(h_i2_start(1,3,fb)+np) = index2
+      h_iz_to_i2_count(3,fb) = index3 - 1
 
 
 
@@ -1572,28 +1548,28 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     **** allocate trans_blk_ijk common block ****
       value = MA_alloc_get(mt_int,(ny(1)*nq2(1)),
      >                     'h_iq_to_i1_4',
-     >                      h_iq_to_i1(2,4,nbb),
-     >                      h_iq_to_i1(1,4,nbb))
+     >                      h_iq_to_i1(2,4,fb),
+     >                      h_iq_to_i1(1,4,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(nx(1)*nq1(1)),
      >                     'h_iq_to_i2_4',
-     >                      h_iq_to_i2(2,4,nbb),
-     >                      h_iq_to_i2(1,4,nbb))
+     >                      h_iq_to_i2(2,4,fb),
+     >                      h_iq_to_i2(1,4,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(nx(1)*nq1(1)),
      >                     'h_iz_to_i2_4',
-     >                      h_iz_to_i2(2,4,nbb),
-     >                      h_iz_to_i2(1,4,nbb))
+     >                      h_iz_to_i2(2,4,fb),
+     >                      h_iz_to_i2(1,4,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(np+1),
      >                     'h_i1_start_4',
-     >                      h_i1_start(2,4,nbb),
-     >                      h_i1_start(1,4,nbb))
+     >                      h_i1_start(2,4,fb),
+     >                      h_i1_start(1,4,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(np+1),
      >                     'h_i2_start_4',
-     >                      h_i2_start(2,4,nbb),
-     >                      h_i2_start(1,4,nbb))
+     >                      h_i2_start(2,4,fb),
+     >                      h_i2_start(1,4,fb))
       if (.not.value)
      > call errquit('C3dB_transpose_ijk_init:out of heap',0,MA_ERR)
 
@@ -1603,8 +1579,8 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do it=0,np-1
          proc_to   = mod(taskid+it,np)
          proc_from = mod(taskid-it+np,np)
-         int_mb(h_i1_start(1,4,nbb)+it) = index1
-         int_mb(h_i2_start(1,4,nbb)+it) = index2
+         int_mb(h_i1_start(1,4,fb)+it) = index1
+         int_mb(h_i2_start(1,4,fb)+it) = index2
 
          do k=1,nz(1)
          do j=1,ny(1)
@@ -1623,7 +1599,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
                itmp = j + (qhere-1)*ny(1)
                if (.not.iszero) then
-               int_mb(h_iq_to_i1(1,4,nbb)+index1-1) = itmp
+               int_mb(h_iq_to_i1(1,4,fb)+index1-1) = itmp
                index1 = index1 + 1
                end if
             end if
@@ -1632,10 +1608,10 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
                itmp = i + (qto-1)*nx(1)
                if (.not.iszero) then
-               int_mb(h_iq_to_i2(1,4,nbb)+index2-1) = itmp
+               int_mb(h_iq_to_i2(1,4,fb)+index2-1) = itmp
                index2 = index2 + 1
                else
-               int_mb(h_iz_to_i2(1,4,nbb)+index3-1) = itmp
+               int_mb(h_iz_to_i2(1,4,fb)+index3-1) = itmp
                index3 = index3 + 1
                end if
             end if
@@ -1646,9 +1622,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          end do
 
       end do
-      int_mb(h_i1_start(1,4,nbb)+np) = index1
-      int_mb(h_i2_start(1,4,nbb)+np) = index2
-      h_iz_to_i2_count(4,nbb) = index3 - 1
+      int_mb(h_i1_start(1,4,fb)+np) = index1
+      int_mb(h_i2_start(1,4,fb)+np) = index2
+      h_iz_to_i2_count(4,fb) = index3 - 1
 
 
 
@@ -1661,28 +1637,28 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     **** allocate trans_blk_ijk common block ****
       value = MA_alloc_get(mt_int,(nx(1)*nq1(1)),
      >                     'h_iq_to_i1_5',
-     >                      h_iq_to_i1(2,5,nbb),
-     >                      h_iq_to_i1(1,5,nbb))
+     >                      h_iq_to_i1(2,5,fb),
+     >                      h_iq_to_i1(1,5,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(nz(1)*nq3(1)),
      >                     'h_iq_to_i2_5',
-     >                      h_iq_to_i2(2,5,nbb),
-     >                      h_iq_to_i2(1,5,nbb))
+     >                      h_iq_to_i2(2,5,fb),
+     >                      h_iq_to_i2(1,5,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(nz(1)*nq3(1)),
      >                     'h_iz_to_i2_5',
-     >                      h_iz_to_i2(2,5,nbb),
-     >                      h_iz_to_i2(1,5,nbb))
+     >                      h_iz_to_i2(2,5,fb),
+     >                      h_iz_to_i2(1,5,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(np+1),
      >                     'h_i1_start_5',
-     >                      h_i1_start(2,5,nbb),
-     >                      h_i1_start(1,5,nbb))
+     >                      h_i1_start(2,5,fb),
+     >                      h_i1_start(1,5,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(np+1),
      >                     'h_i2_start_5',
-     >                      h_i2_start(2,5,nbb),
-     >                      h_i2_start(1,5,nbb))
+     >                      h_i2_start(2,5,fb),
+     >                      h_i2_start(1,5,fb))
       if (.not.value)
      > call errquit('C3dB_transpose_ijk_init:out of heap',0,MA_ERR)
 
@@ -1692,8 +1668,8 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do it=0,np-1
          proc_to   = mod(taskid+it,np)
          proc_from = mod(taskid-it+np,np)
-         int_mb(h_i1_start(1,5,nbb)+it) = index1
-         int_mb(h_i2_start(1,5,nbb)+it) = index2
+         int_mb(h_i1_start(1,5,fb)+it) = index1
+         int_mb(h_i2_start(1,5,fb)+it) = index2
 
          do k=1,nz(1)
          do j=1,ny(1)
@@ -1709,14 +1685,14 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
                itmp = i + (qhere-1)*nx(1)
-               int_mb(h_iq_to_i1(1,5,nbb)+index1-1) = itmp
+               int_mb(h_iq_to_i1(1,5,fb)+index1-1) = itmp
                index1 = index1 + 1
             end if
 
 *           **** unpacking scheme ****
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
                itmp = k + (qto-1)*nz(1)
-               int_mb(h_iq_to_i2(1,5,nbb)+index2-1) = itmp
+               int_mb(h_iq_to_i2(1,5,fb)+index2-1) = itmp
                index2 = index2 + 1
             end if
 
@@ -1725,9 +1701,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          end do
 
       end do
-      int_mb(h_i1_start(1,5,nbb)+np) = index1
-      int_mb(h_i2_start(1,5,nbb)+np) = index2
-      h_iz_to_i2_count(5,nbb) = index3 - 1
+      int_mb(h_i1_start(1,5,fb)+np) = index1
+      int_mb(h_i2_start(1,5,fb)+np) = index2
+      h_iz_to_i2_count(5,fb) = index3 - 1
 
 
 
@@ -1741,28 +1717,28 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     **** allocate trans_blk_ijk common block ****
       value = MA_alloc_get(mt_int,(nz(1)*nq3(1)),
      >                     'h_iq_to_i1_6',
-     >                      h_iq_to_i1(2,6,nbb),
-     >                      h_iq_to_i1(1,6,nbb))
+     >                      h_iq_to_i1(2,6,fb),
+     >                      h_iq_to_i1(1,6,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(nx(1)*nq1(1)),
      >                     'h_iq_to_i2_6',
-     >                      h_iq_to_i2(2,6,nbb),
-     >                      h_iq_to_i2(1,6,nbb))
+     >                      h_iq_to_i2(2,6,fb),
+     >                      h_iq_to_i2(1,6,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(nx(1)*nq1(1)),
      >                     'h_iz_to_i2_6',
-     >                      h_iz_to_i2(2,6,nbb),
-     >                      h_iz_to_i2(1,6,nbb))
+     >                      h_iz_to_i2(2,6,fb),
+     >                      h_iz_to_i2(1,6,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(np+1),
      >                     'h_i1_start_6',
-     >                      h_i1_start(2,6,nbb),
-     >                      h_i1_start(1,6,nbb))
+     >                      h_i1_start(2,6,fb),
+     >                      h_i1_start(1,6,fb))
       value = value.and.
      >        MA_alloc_get(mt_int,(np+1),
      >                     'h_i2_start_6',
-     >                      h_i2_start(2,6,nbb),
-     >                      h_i2_start(1,6,nbb))
+     >                      h_i2_start(2,6,fb),
+     >                      h_i2_start(1,6,fb))
       if (.not.value)
      > call errquit('C3dB_transpose_ijk_init:out of heap',0,MA_ERR)
 
@@ -1772,12 +1748,12 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do it=0,np-1
          proc_to   = mod(taskid+it,np)
          proc_from = mod(taskid-it+np,np)
-         int_mb(h_i1_start(1,6,nbb)+it) = index1
-         int_mb(h_i2_start(1,6,nbb)+it) = index2
+         int_mb(h_i1_start(1,6,fb)+it) = index1
+         int_mb(h_i2_start(1,6,fb)+it) = index2
 
          do k=1,nz(1)
          do j=1,ny(1)
-         do i=1,(nx(1)/2+1)
+         do i=1,nx(1)
 
 *           **** packing scheme ****
             phere = int_mb(p_map3(1,1)+(i-1)+(j-1)*nx(1))
@@ -1789,14 +1765,14 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
                itmp = k + (qhere-1)*nz(1)
-               int_mb(h_iq_to_i1(1,6,nbb)+index1-1) = itmp
+               int_mb(h_iq_to_i1(1,6,fb)+index1-1) = itmp
                index1 = index1 + 1
             end if
 
 *           **** unpacking scheme ****
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
                itmp = i + (qto-1)*nx(1)
-               int_mb(h_iq_to_i2(1,6,nbb)+index2-1) = itmp
+               int_mb(h_iq_to_i2(1,6,fb)+index2-1) = itmp
                index2 = index2 + 1
             end if
 
@@ -1805,9 +1781,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          end do
 
       end do
-      int_mb(h_i1_start(1,6,nbb)+np) = index1
-      int_mb(h_i2_start(1,6,nbb)+np) = index2
-      h_iz_to_i2_count(6,nbb) = index3 - 1
+      int_mb(h_i1_start(1,6,fb)+np) = index1
+      int_mb(h_i2_start(1,6,fb)+np) = index2
+      h_iz_to_i2_count(6,fb) = index3 - 1
 
 
       return
@@ -2625,9 +2601,6 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 #include "mafdecls.fh"
 
-      integer tmp1z(2),tmp2z(2)
-      common / c_pfft_queuez_common / tmp1z,tmp2z
-
 
       if (step.eq.1) then
          call nwpw_timing_start(32)
@@ -2638,9 +2611,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          call nwpw_timing_end(32)
       else if (step.eq.3) then
          call nwpw_timing_start(32)
-         call Cram_c_unpack_end(nbb,tmp1,
-     >                          dcpl_mb(tmp1z(1)),dcpl_mb(tmp2z(1)),
-     >                          request,reqcnt)
+         call Cram_c_unpack_end(nbb,tmp1,tmp2,request,reqcnt)
          call nwpw_timing_end(32)
       else if (step.eq.4) then
          call C3dB_pfftbz(nbb,tmp1,tmp2,request,reqcnt)
@@ -2684,13 +2655,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       common / c_pfft_bqueue_common / bqindx,bqstatus,btmp,brequest,
      >                              breqcnt,bqmax,bqsize,blast_index
       
-      integer tmp1z(2),tmp2z(2)
-      common / c_pfft_queuez_common / tmp1z,tmp2z
 
       logical value
-      integer np,size,zplane_sizetmp
+      integer np,size
 
-      call Parallel2d_np_i(np)
+      call Parallel_np(np)
 
 c     **** allocate aqueue ****
       aqmax       = qmax_in
@@ -2726,17 +2695,6 @@ c     **** allocate bqueue ****
      >      MA_alloc_get(mt_int,size,'bqstatus',bqstatus(2),bqstatus(1))
       value = value.and.
      >        MA_alloc_get(mt_int,size,'breqcnt',breqcnt(2),breqcnt(1))
-
-
-
-      call C3dB_zplane_size(1,zplane_sizetmp)
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,(zplane_sizetmp),
-     >                    'tmp1z',tmp1z(2),tmp1z(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,(zplane_sizetmp),
-     >                    'tmp2z',tmp2z(2),tmp2z(1))
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
       return
@@ -2775,8 +2733,6 @@ c     **** allocate bqueue ****
       common / c_pfft_bqueue_common / bqindx,bqstatus,btmp,brequest,
      >                              breqcnt,bqmax,bqsize,blast_index
 
-      integer tmp1z(2),tmp2z(2)
-      common / c_pfft_queuez_common / tmp1z,tmp2z
 
       logical value
 
@@ -2792,8 +2748,6 @@ c     **** allocate bqueue ****
       value = value.and.MA_free_heap(bqstatus(2))
       value = value.and.MA_free_heap(breqcnt(2))
 
-      value = value.and.MA_free_heap(tmp1z(2))
-      value = value.and.MA_free_heap(tmp2z(2))
       if (.not. value) call errquit('error freeing heap',0,MA_ERR)
 
       return
@@ -2896,7 +2850,7 @@ c     **** allocate bqueue ****
 
 c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
-      call Parallel2d_np_i(np)
+      call Parallel_np(np)
 
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
@@ -2968,7 +2922,7 @@ c      call nwpw_timing_end(1)
 
 c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
-      call Parallel2d_np_i(np)
+      call Parallel_np(np)
 
       indx1   = int_mb(qindx(1))
       do while (int_mb(qstatus(1)+indx1-1).lt.4)
@@ -3036,7 +2990,7 @@ c      call nwpw_timing_end(1)
 
 c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
-      call Parallel2d_np_i(np)
+      call Parallel_np(np)
 
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
@@ -3106,7 +3060,7 @@ c      call nwpw_timing_end(1)
       integer shift1,shift2,shift3
       integer q,indx,indx1,status,np
 
-      call Parallel2d_np_i(np)
+      call Parallel_np(np)
 
       call nwpw_timing_start(30)
 

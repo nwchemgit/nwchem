@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.25 2008-04-17 01:09:41 bylaska Exp $
+* $Id: C3dB-new.F,v 1.26 2008-04-18 00:05:44 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -3537,6 +3537,21 @@ c      end
 #endif
       do i=1,n
         b(index(i)) = a(i)
+      end do
+      return
+      end
+
+      subroutine C3dB_pfft_index2_zero(n,index,a)
+      implicit none
+      integer n
+      integer index(*)
+      complex*16  a(*)
+      integer i
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+      do i=1,n
+        a(index(i)) = 0.0d0
       end do
       return
       end

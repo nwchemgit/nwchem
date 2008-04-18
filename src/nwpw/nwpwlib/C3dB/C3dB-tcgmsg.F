@@ -525,7 +525,7 @@ c     integer i2_start(NFFT3+1)
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_c_ptranspose1_jk(nbb,A,tmp1,tmp2)
+      subroutine C3dB_c_ptranspose1_jk(fb,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -539,7 +539,7 @@ c     integer i2_start(NFFT3+1)
 *       then transpose2                             *
 *****************************************************
       implicit none
-      integer     nbb
+      integer     fb
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
@@ -553,9 +553,7 @@ c     integer i2_start(NFFT3+1)
       integer i1_start(2,0:1)
       integer i2_start(2,0:1)
       common / c_ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
-     >                       i1_start,i2_start
-
-
+     >                         i1_start,i2_start
 
 *     **** Used to avoid asynchronous communications ****
       integer Nchannels(NBLOCKS)
@@ -575,27 +573,21 @@ c     integer i2_start(NFFT3+1)
       integer taskid,np
       integer n1,n2
 
-*     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
-      
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
 
-      call Parallel2d_taskid_i(taskid)
-      call Parallel2d_np_i(np)
-
-
-      n1 = int_mb(i1_start(1,nbb)+np) - 1
-      n2 = int_mb(i2_start(1,nbb)+np) - 1
+      n1 = int_mb(i1_start(1,fb)+np) - 1
+      n2 = int_mb(i2_start(1,fb)+np) - 1
 
 *     **** pack A(i) array ****
-      call C3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+      call C3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,fb)),A,tmp1)
 
 
 *     **** it = 0, transpose data on same thread ****  
-      msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
+      msglen = int_mb(i2_start(1,fb)+2-1) - int_mb(i2_start(1,fb)+1-1)
       call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+     >           tmp1(int_mb(i1_start(1,fb)+1-1)),1,
+     >           tmp2(int_mb(i2_start(1,fb)+1-1)),1)
 
 
       do c=1,Nchannels(1)
@@ -605,14 +597,14 @@ c     integer i2_start(NFFT3+1)
             it = mod((taskid+np-pfrom),np)
 
             source=pfrom
-            msglen = (int_mb(i2_start(1,nbb)+it+2-1) 
-     >             -  int_mb(i2_start(1,nbb)+it+1-1))
+            msglen = (int_mb(i2_start(1,fb)+it+2-1) 
+     >             -  int_mb(i2_start(1,fb)+it+1-1))
          
             if (msglen.gt.0) then
                call RCV(9+MSGDBL,
-     >                  tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
+     >                  tmp2(int_mb(i2_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  Parallel2d_convert_taskid_i(source),
+     >                  source,
      >                  rcv_proc,1)
             end if
          end if
@@ -622,23 +614,23 @@ c     integer i2_start(NFFT3+1)
             pto=int_mb(channel_proc(1,1)+c-1)
             it = mod((pto-taskid+np),np)
 
-            msglen    = (int_mb(i1_start(1,nbb)+it+2-1)
-     >                - int_mb(i1_start(1,nbb)+it+1-1))
+            msglen    = (int_mb(i1_start(1,fb)+it+2-1)
+     >                 - int_mb(i1_start(1,fb)+it+1-1))
       
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
-     >                  tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
+     >                  tmp1(int_mb(i1_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),
-     >                  Parallel2d_convert_taskid_i(pto),
+     >                  pto,
      >                  1)
             end if
          end if
 
       end do
 
-   
 *     **** unpack A(i) array ****
-      call C3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call C3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,fb)),tmp2,A)
+      call C3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,fb)),A)
 
       
       return
@@ -652,7 +644,7 @@ c     integer i2_start(NFFT3+1)
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_c_ptranspose2_jk(nbb,A,tmp1,tmp2)
+      subroutine C3dB_c_ptranspose2_jk(fb,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -666,7 +658,7 @@ c     integer i2_start(NFFT3+1)
 *       then transpose2                             *
 *****************************************************
       implicit none
-      integer     nbb
+      integer     fb
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
@@ -702,26 +694,21 @@ c     integer i2_start(NFFT3+1)
       integer taskid,np
       integer n1,n2
 
-*     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
-      
-      call Parallel2d_taskid_i(taskid)
-      call Parallel2d_np_i(np)
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
 
-
-      n1 = int_mb(i1_start(1,nbb)+np) - 1
-      n2 = int_mb(i2_start(1,nbb)+np) - 1
+      n1 = int_mb(i1_start(1,fb)+np) - 1
+      n2 = int_mb(i2_start(1,fb)+np) - 1
 
 *     **** pack A(i) array ****
-      call C3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+      call C3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,fb)),A,tmp1)
 
 
 *     **** it = 0, transpose data on same thread ****  
-      msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
+      msglen = int_mb(i2_start(1,fb)+2-1) - int_mb(i2_start(1,fb)+1-1)
       call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+     >           tmp1(int_mb(i1_start(1,fb)+1-1)),1,
+     >           tmp2(int_mb(i2_start(1,fb)+1-1)),1)
 
 
       do c=1,Nchannels(1)
@@ -731,14 +718,14 @@ c     integer i2_start(NFFT3+1)
             it = mod((taskid+np-pfrom),np)
 
             source=pfrom
-            msglen = (int_mb(i2_start(1,nbb)+it+2-1) 
-     >             -  int_mb(i2_start(1,nbb)+it+1-1))
+            msglen = (int_mb(i2_start(1,fb)+it+2-1) 
+     >             -  int_mb(i2_start(1,fb)+it+1-1))
          
             if (msglen.gt.0) then
                call RCV(9+MSGDBL,
-     >                  tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
+     >                  tmp2(int_mb(i2_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  Parallel2d_convert_taskid_i(source),
+     >                  source,
      >                  rcv_proc,1)
             end if
          end if
@@ -748,14 +735,14 @@ c     integer i2_start(NFFT3+1)
             pto=int_mb(channel_proc(1,1)+c-1)
             it = mod((pto-taskid+np),np)
 
-            msglen    = (int_mb(i1_start(1,nbb)+it+2-1)
-     >                - int_mb(i1_start(1,nbb)+it+1-1))
+            msglen    = (int_mb(i1_start(1,fb)+it+2-1)
+     >                 - int_mb(i1_start(1,fb)+it+1-1))
       
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
-     >                  tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
+     >                  tmp1(int_mb(i1_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),
-     >                  Parallel2d_convert_taskid_i(pto),
+     >                  pto,
      >                  1)
             end if
          end if
@@ -763,7 +750,8 @@ c     integer i2_start(NFFT3+1)
       end do
 
 *     **** unpack A(i) array ****
-      call C3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call C3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,fb)),tmp2,A)
+      call C3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,fb)),A)
       
       return
       end
@@ -788,10 +776,10 @@ c     integer i2_start(NFFT3+1)
 *       then transpose2                            
 *
 
-      subroutine C3dB_c_ptranspose1_jk_start(nbb,A,tmp1,tmp2,
+      subroutine C3dB_c_ptranspose1_jk_start(fb,A,tmp1,tmp2,
      >                                       request,reqcnt,msgtype)
       implicit none
-      integer nbb
+      integer fb
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
       integer request(*),reqcnt,msgtype
@@ -828,26 +816,20 @@ c     integer i2_start(NFFT3+1)
       integer taskid,np
       integer n1
 
-*     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
-
       
-      call Parallel2d_taskid_i(taskid)
-      call Parallel2d_np_i(np)
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
 
-
-
-      n1 = int_mb(i1_start(1,nbb)+np) - 1
+      n1 = int_mb(i1_start(1,fb)+np) - 1
 
 *     **** pack A(i) array ****
-       call C3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+       call C3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,fb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
-      msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
+      msglen = int_mb(i2_start(1,fb)+2-1) - int_mb(i2_start(1,fb)+1-1)
       call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+     >           tmp1(int_mb(i1_start(1,fb)+1-1)),1,
+     >           tmp2(int_mb(i2_start(1,fb)+1-1)),1)
          
 
       do c=1,Nchannels(1)
@@ -857,14 +839,14 @@ c     integer i2_start(NFFT3+1)
             it = mod((taskid+np-pfrom),np)
 
             source=pfrom
-            msglen = (int_mb(i2_start(1,nbb)+it+2-1)
-     >             -  int_mb(i2_start(1,nbb)+it+1-1))
+            msglen = (int_mb(i2_start(1,fb)+it+2-1)
+     >             -  int_mb(i2_start(1,fb)+it+1-1))
 
             if (msglen.gt.0) then
                call RCV(9+MSGDBL,
-     >                  tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
+     >                  tmp2(int_mb(i2_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  Parallel2d_convert_taskid_i(source),
+     >                  source,
      >                  rcv_proc,1)
             end if
          end if
@@ -874,14 +856,14 @@ c     integer i2_start(NFFT3+1)
             pto=int_mb(channel_proc(1,1)+c-1)
             it = mod((pto-taskid+np),np)
 
-            msglen    = (int_mb(i1_start(1,nbb)+it+2-1)
-     >                - int_mb(i1_start(1,nbb)+it+1-1))
+            msglen    = (int_mb(i1_start(1,fb)+it+2-1)
+     >                 - int_mb(i1_start(1,fb)+it+1-1))
 
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
-     >                  tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
+     >                  tmp1(int_mb(i1_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),
-     >                  Parallel2d_convert_taskid_i(pto),1)
+     >                  pto,1)
             end if
          end if
 
@@ -908,10 +890,10 @@ c     integer i2_start(NFFT3+1)
 *       then transpose2                            
 *
 
-      subroutine C3dB_c_ptranspose1_jk_end(nbb,A,tmp2,request,reqcnt)
+      subroutine C3dB_c_ptranspose1_jk_end(fb,A,tmp2,request,reqcnt)
 
       implicit none
-      integer nbb
+      integer fb
       complex*16  A(*)
       complex*16  tmp2(*)
       integer     request(*),reqcnt
@@ -933,11 +915,12 @@ c     integer i2_start(NFFT3+1)
 *     **** local variables ***
       integer np,n2
       
-      call Parallel2d_np_i(np)
+      call Parallel_np(np)
 
 *     **** unpack A(i) array ****
-      n2 = int_mb(i2_start(1,nbb)+np) - 1
-      call C3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      n2 = int_mb(i2_start(1,fb)+np) - 1
+      call C3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,fb)),tmp2,A)
+      call C3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,fb)),A)
 
       return
       end
@@ -961,10 +944,10 @@ c     integer i2_start(NFFT3+1)
 *       then transpose2                            
 *
 
-      subroutine C3dB_c_ptranspose2_jk_start(nbb,A,tmp1,tmp2,
+      subroutine C3dB_c_ptranspose2_jk_start(fb,A,tmp1,tmp2,
      >                                       request,reqcnt,msgtype)
       implicit none
-      integer nbb
+      integer fb
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
       integer request(*),reqcnt,msgtype
@@ -1004,25 +987,21 @@ c     integer i2_start(NFFT3+1)
       integer taskid,np
       integer n1
 
-*     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
-
       
-      call Parallel2d_taskid_i(taskid)
-      call Parallel2d_np_i(np)
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
 
 
-      n1 = int_mb(i1_start(1,nbb)+np) - 1
+      n1 = int_mb(i1_start(1,fb)+np) - 1
 
 *     **** pack A(i) array ****
-       call C3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+       call C3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,fb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
-      msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
+      msglen = int_mb(i2_start(1,fb)+2-1) - int_mb(i2_start(1,fb)+1-1)
       call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+     >           tmp1(int_mb(i1_start(1,fb)+1-1)),1,
+     >           tmp2(int_mb(i2_start(1,fb)+1-1)),1)
          
 
       do c=1,Nchannels(1)
@@ -1032,14 +1011,14 @@ c     integer i2_start(NFFT3+1)
             it = mod((taskid+np-pfrom),np)
 
             source=pfrom
-            msglen = (int_mb(i2_start(1,nbb)+it+2-1)
-     >             -  int_mb(i2_start(1,nbb)+it+1-1))
+            msglen = (int_mb(i2_start(1,fb)+it+2-1)
+     >             -  int_mb(i2_start(1,fb)+it+1-1))
 
             if (msglen.gt.0) then
                call RCV(9+MSGDBL,
-     >                  tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
+     >                  tmp2(int_mb(i2_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  Parallel2d_convert_taskid_i(source),
+     >                  source,
      >                  rcv_proc,1)
             end if
          end if
@@ -1049,14 +1028,14 @@ c     integer i2_start(NFFT3+1)
             pto=int_mb(channel_proc(1,1)+c-1)
             it = mod((pto-taskid+np),np)
 
-            msglen    = (int_mb(i1_start(1,nbb)+it+2-1)
-     >                - int_mb(i1_start(1,nbb)+it+1-1))
+            msglen    = (int_mb(i1_start(1,fb)+it+2-1)
+     >                 - int_mb(i1_start(1,fb)+it+1-1))
 
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
-     >                  tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
+     >                  tmp1(int_mb(i1_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),
-     >                  Parallel2d_convert_taskid_i(pto),
+     >                  pto,
      >                  1)
             end if
          end if
@@ -1084,10 +1063,10 @@ c     integer i2_start(NFFT3+1)
 *       then transpose2                            
 *
 
-      subroutine C3dB_c_ptranspose2_jk_end(nbb,A,tmp2,request,reqcnt)
+      subroutine C3dB_c_ptranspose2_jk_end(fb,A,tmp2,request,reqcnt)
 
       implicit none
-      integer nbb
+      integer fb
       complex*16  A(*)
       complex*16  tmp2(*)
       integer     request(*),reqcnt
@@ -1110,11 +1089,12 @@ c     integer i2_start(NFFT3+1)
 *     **** local variables ***
       integer np,n2
       
-      call Parallel2d_np_i(np)
+      call Parallel_np(np)
 
 *     **** unpack A(i) array ****
-      n2 = int_mb(i2_start(1,nbb)+np) - 1
-      call C3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      n2 = int_mb(i2_start(1,fb)+np) - 1
+      call C3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,fb)),tmp2,A)
+      call C3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,fb)),A)
 
       return
       end
@@ -1138,11 +1118,11 @@ c     integer i2_start(NFFT3+1)
 *
 
 
-      subroutine C3dB_c_ptranspose_ijk_start(nbb,op,A,tmp1,tmp2,
+      subroutine C3dB_c_ptranspose_ijk_start(fb,op,A,tmp1,tmp2,
      >                                       request,reqcnt,msgtype)
 
       implicit none
-      integer nbb,op
+      integer fb,op
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
       integer     request(*),reqcnt,msgtype
@@ -1185,25 +1165,21 @@ c     integer i2_start(NFFT3+1)
       integer pfrom,pto
       integer taskid,np
 
-*     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
-
       
-      call Parallel2d_taskid_i(taskid)
-      call Parallel2d_np_i(np)
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
 
 *     **** pack A(i) array ****
-      n1 = int_mb(h_i1_start(1,op,nbb)+np) - 1
-      call C3dB_pfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),A,tmp1)
+      n1 = int_mb(h_i1_start(1,op,fb)+np) - 1
+      call C3dB_pfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,fb)),A,tmp1)
 
 
 *     **** it = 0, transpose data on same thread ****  
-      msglen = int_mb(h_i2_start(1,op,nbb)+2-1) 
-     >       - int_mb(h_i2_start(1,op,nbb)+1-1)
+      msglen = int_mb(h_i2_start(1,op,fb)+2-1) 
+     >       - int_mb(h_i2_start(1,op,fb)+1-1)
       call dcopy(2*msglen,
-     >           tmp1(int_mb(h_i1_start(1,op,nbb))),1,
-     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
+     >           tmp1(int_mb(h_i1_start(1,op,fb))),1,
+     >           tmp2(int_mb(h_i2_start(1,op,fb))),1)
 
 
 
@@ -1214,14 +1190,14 @@ c     integer i2_start(NFFT3+1)
             it = mod((taskid+np-pfrom),np)
 
             source=pfrom
-            msglen = (int_mb(h_i2_start(1,op,nbb)+it+2-1)
-     >             -  int_mb(h_i2_start(1,op,nbb)+it+1-1))
+            msglen = (int_mb(h_i2_start(1,op,fb)+it+2-1)
+     >             -  int_mb(h_i2_start(1,op,fb)+it+1-1))
 
             if (msglen.gt.0) then
                call RCV(9+MSGDBL,
-     >                  tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
+     >                  tmp2(int_mb(h_i2_start(1,op,fb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  Parallel2d_convert_taskid_i(source),
+     >                  source,
      >                  rcv_proc,1)
             end if
          end if
@@ -1231,14 +1207,14 @@ c     integer i2_start(NFFT3+1)
             pto=int_mb(channel_proc(1,1)+c-1)
             it = mod((pto-taskid+np),np)
 
-            msglen    = (int_mb(h_i1_start(1,op,nbb)+it+2-1)
-     >                -  int_mb(h_i1_start(1,op,nbb)+it+1-1))
+            msglen    = (int_mb(h_i1_start(1,op,fb)+it+2-1)
+     >                -  int_mb(h_i1_start(1,op,fb)+it+1-1))
 
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
-     >                  tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
+     >                  tmp1(int_mb(h_i1_start(1,op,fb)+it+1-1)),
      >                  mdtob(2*msglen),
-     >                  Parallel2d_convert_taskid_i(pto),
+     >                  pto,
      >                  1)
             end if
          end if
@@ -1266,11 +1242,11 @@ c     integer i2_start(NFFT3+1)
 *       then transpose2                      
 *
 
-      subroutine C3dB_c_ptranspose_ijk_end(nbb,op,A,tmp2,
+      subroutine C3dB_c_ptranspose_ijk_end(fb,op,A,tmp2,
      >                                 request,reqcnt)
 
       implicit none
-      integer nbb,op
+      integer fb,op
       complex*16  A(*)
       complex*16  tmp2(*)
       integer request(*),reqcnt
@@ -1298,12 +1274,13 @@ c     integer i2_start(NFFT3+1)
       integer n2,n3,np
 
       
-      call Parallel2d_np_i(np)
+      call Parallel_np(np)
 
 *     **** unpack A(i) array ****
-      n2 = int_mb(h_i2_start(1,op,nbb)+np) - 1
-      n3 = h_iz_to_i2_count(op,nbb)
-      call C3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),tmp2,A)
+      n2 = int_mb(h_i2_start(1,op,fb)+np) - 1
+      n3 = h_iz_to_i2_count(op,fb)
+      call C3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,fb)),tmp2,A)
+      call C3dB_pfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,fb)),A)
 
       return
       end
@@ -1316,7 +1293,7 @@ c     integer i2_start(NFFT3+1)
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_c_ptranspose_ijk(nbb,op,A,tmp1,tmp2)
+      subroutine C3dB_c_ptranspose_ijk(fb,op,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -1330,7 +1307,7 @@ c     integer i2_start(NFFT3+1)
 *       then transpose2                             *
 *****************************************************
       implicit none
-      integer nbb,op
+      integer fb,op
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
@@ -1372,29 +1349,23 @@ c     integer i2_start(NFFT3+1)
       integer pfrom,pto
       integer taskid,np
 
-*     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
 
-
-      call Parallel2d_taskid_i(taskid)
-      call Parallel2d_np_i(np)
-
-      n1 = int_mb(h_i1_start(1,op,nbb)+np) - 1
-      n2 = int_mb(h_i2_start(1,op,nbb)+np) - 1
-      n3 = h_iz_to_i2_count(op,nbb)
+      n1 = int_mb(h_i1_start(1,op,fb)+np) - 1
+      n2 = int_mb(h_i2_start(1,op,fb)+np) - 1
+      n3 = h_iz_to_i2_count(op,fb)
 
 
 *     **** pack A(i) array ****
-      call C3dB_pfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),A,tmp1)
-
+      call C3dB_pfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,fb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
-      msglen = int_mb(h_i2_start(1,op,nbb)+2-1) 
-     >       - int_mb(h_i2_start(1,op,nbb)+1-1)
+      msglen = int_mb(h_i2_start(1,op,fb)+2-1) 
+     >       - int_mb(h_i2_start(1,op,fb)+1-1)
       call dcopy(2*msglen,
-     >           tmp1(int_mb(h_i1_start(1,op,nbb))),1,
-     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
+     >           tmp1(int_mb(h_i1_start(1,op,fb))),1,
+     >           tmp2(int_mb(h_i2_start(1,op,fb))),1)
 
 
       do c=1,Nchannels(1)
@@ -1404,14 +1375,14 @@ c     integer i2_start(NFFT3+1)
             it = mod((taskid+np-pfrom),np)
 
             source=pfrom
-            msglen = (int_mb(h_i2_start(1,op,nbb)+it+2-1)
-     >             -  int_mb(h_i2_start(1,op,nbb)+it+1-1))
+            msglen = (int_mb(h_i2_start(1,op,fb)+it+2-1)
+     >             -  int_mb(h_i2_start(1,op,fb)+it+1-1))
 
             if (msglen.gt.0) then
                call RCV(9+MSGDBL,
-     >                  tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
+     >                  tmp2(int_mb(h_i2_start(1,op,fb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  Parallel2d_convert_taskid_i(source),
+     >                  source,
      >                  rcv_proc,1)
             end if
          end if
@@ -1421,14 +1392,14 @@ c     integer i2_start(NFFT3+1)
             pto=int_mb(channel_proc(1,1)+c-1)
             it = mod((pto-taskid+np),np)
 
-            msglen    = (int_mb(h_i1_start(1,op,nbb)+it+2-1)
-     >                -  int_mb(h_i1_start(1,op,nbb)+it+1-1))
+            msglen    = (int_mb(h_i1_start(1,op,fb)+it+2-1)
+     >                -  int_mb(h_i1_start(1,op,fb)+it+1-1))
 
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
-     >                  tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
+     >                  tmp1(int_mb(h_i1_start(1,op,fb)+it+1-1)),
      >                  mdtob(2*msglen),
-     >                  Parallel2d_convert_taskid_i(pto),
+     >                  pto,
      >                  1)
             end if
          end if
@@ -1436,9 +1407,9 @@ c     integer i2_start(NFFT3+1)
       end do
 
 *     **** unpack A(i) array ****
-      call C3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),tmp2,A)
+      call C3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,fb)),tmp2,A)
+      call C3dB_pfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,fb)),A)
 
-      
       return
       end
 

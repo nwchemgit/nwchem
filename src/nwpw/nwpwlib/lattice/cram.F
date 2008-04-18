@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.28 2008-04-17 01:09:56 bylaska Exp $
+* $Id: cram.F,v 1.29 2008-04-18 00:05:48 bylaska Exp $
 *
 
 *     ***********************************
@@ -281,6 +281,36 @@
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *           Cram_c_pack_end       *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_c_pack_end(nb,tmp1,request,reqcnt)
+      implicit none
+      integer    nb
+      complex*16 tmp1(*)
+      integer    request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cram_common.fh"
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
+      call nwpw_timing_start(9)
+
+      if (control_balance())
+     > call c_Balance_c_balance_end(nb,tmp1,request,reqcnt)
+
+      call nwpw_timing_end(9)
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*
@@ -466,14 +496,11 @@
 *     *                                 *
 *     ***********************************
 
-      subroutine Cram_c_unpack_end(nb,tmp1,tmp2,tmp1z,tmp2z,
-     >                         request,reqcnt)
+      subroutine Cram_c_unpack_end(nb,tmp1,tmp2,request,reqcnt)
       implicit none
       integer    nb
       complex*16 tmp1(*)
       complex*16 tmp2(*)
-      complex*16 tmp1z(*)
-      complex*16 tmp2z(*)
       integer    request(*),reqcnt
 
 #include "mafdecls.fh"
