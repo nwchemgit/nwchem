@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.22 2008-04-18 00:06:34 bylaska Exp $
+* $Id: cpsi_H.F,v 1.23 2008-04-19 01:27:19 bylaska Exp $
 *
 
 *     **********************************************
@@ -26,8 +26,10 @@
 #include "errquit.fh"
 
 *     **** local variables ****
+      logical done
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
+      integer ki,kj,nbi,nbj
       integer psi_shift,Hpsi_shift,nshift1,nshift2
       real*8  scal1,scal2
 
@@ -38,11 +40,11 @@
 
 
 *     **** external functions ****
-      logical  cpsi_spin_orbit
+      logical  C3dB_rc_pfft3_queue_filled
       integer  Pneb_nbrillq,Pneb_convert_nb
       integer  cpsi_data_get_chnk,cpsi_data_nsize
       real*8   lattice_omega
-      external cpsi_spin_orbit
+      external C3dB_rc_pfft3_queue_filled
       external Pneb_nbrillq,Pneb_convert_nb
       external cpsi_data_get_chnk,cpsi_data_nsize
       external lattice_omega
@@ -133,6 +135,68 @@
          end do
          end do
       end do
+
+c      ki  = 1
+c      nbi = 1 
+c      psi_shift    = cpsi_data_get_chnk(psi_r_tag,nbi)
+c
+c      kj  = 1
+c      nbj = 1 
+c      Hpsi_shift   = cpsi_data_get_chnk(Hpsi_k_tag,nbj)
+c      done = .false.
+c      do while (.not.done)
+c         if (nbi.le.nbrill) then
+c            ms=1
+c            if (ki.gt.n2(1)) ms = 2
+c
+c*           **** vpsi_r = (vall_r+xcp)*psi_r ****
+c            call C3dB_rc_Sum(1,
+c     >                       xcp(1+(ms-1)*nfft3d),
+c     >                       dcpl_mb(vall(1)),
+c     >                       dcpl_mb(vpsi(1)))
+c            call C3dB_cc_Mul(1,dcpl_mb(vpsi(1)),
+c     >                       dbl_mb(psi_shift),
+c     >                       dcpl_mb(vpsi(1)))
+c
+c*           **** get vpsi_r in k-space ****
+c            call C3dB_rc_pfft3f_queuein(nbi,dcpl_mb(vpsi(1)))
+c
+c            psi_shift  = psi_shift  + nshift1
+c            ki         = ki + 1
+c            if (ki.gt.neall) then
+c               nbi = nbi + 1
+c               ki  = 1
+c               if (nbi.le.nbrill) then
+c                  psi_shift    = cpsi_data_get_chnk(psi_r_tag,nbi)
+c               endif
+c            end if
+c         end if
+c
+c         if ((C3dB_rc_pfft3_queue_filled()).or.(nbi.gt.nbrill)) then
+c            call C3dB_rc_pfft3f_queueout(nbj,dcpl_mb(vpsi(1)))
+c
+c*           **** add to Hpsi_k ****
+c            call Cram_cc_daxpy(nb,(-scal1),
+c     >                         dcpl_mb(vpsi(1)),
+c     >                         dbl_mb(Hpsi_shift))
+c
+c            Hpsi_shift = Hpsi_shift + nshift2
+c            kj         = kj + 1
+c            if (kj.gt.neall) then
+c               nbj = nbj + 1
+c               kj  = 1
+c               if (nbj.le.nbrill) then
+c                  Hpsi_shift   = cpsi_data_get_chnk(Hpsi_k_tag,nbj)
+c               endif
+c            end if
+c
+c         end if
+c
+c         done = ((nbi.gt.nbrill).and.(nbj.gt.nbrill))
+c      end do
+
+
+
 
       value =           MA_pop_stack(vpsi(2))
       value = value.and.MA_pop_stack(vall(2))
