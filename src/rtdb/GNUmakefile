@@ -1,5 +1,6 @@
-# $Id: GNUmakefile,v 1.27 2008-04-21 20:31:02 d3p307 Exp $
+# $Id: GNUmakefile,v 1.28 2008-04-21 21:32:12 d3p307 Exp $
 
+include ../tools/armci/config/makecoms.h
 include ../config/makefile.h
 
          LIBRARY = libnwcutil.a
@@ -37,7 +38,6 @@ else
 endif
 
 include ../config/makelib.h
-include ../tools/armci/config/makecoms.h
 
 ifeq ($(TARGET),CATAMOUNT)
    LIB_DEFINES += -I$(IOBUF_INC) -I/opt/xt-libc/default/amd64/include
