@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-mpi.F,v 1.10 2008-04-21 19:34:26 bylaska Exp $
+* $Id: Parallel-mpi.F,v 1.11 2008-04-21 22:20:45 bylaska Exp $
 *
 
 * Parallel.f
@@ -215,6 +215,195 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
       return
       end
+
+
+
+*     *************************************
+*     *                                   *
+*     *        Parallel3d_Init            *
+*     *                                   *
+*     *************************************
+
+*     Sset up the 3d processor grid = np_i x np_j x np_k, 
+*     where np_i = nrows=np/(np_j*np_k), 
+*     np_j = ncolumns, and np_k = nzones
+*
+      subroutine Parallel3d_Init(ncolumns,nzones)
+      implicit none
+      integer ncolumns,nzones
+
+#include "Parallel.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+*     *** local variables ***
+      integer i,j,k,icount,ierr
+      integer tmp(2),mpi_group
+
+      np_i = np/(ncolumns*nzones)
+      np_j = ncolumns
+      np_k = nzones
+
+      icount = 0
+      do k=0,np_k-1
+      do j=0,np_j-1
+      do i=0,np_i-1
+        if (icount.eq.taskid) then
+           taskid_i = i
+           taskid_j = j
+           taskid_k = k
+        end if
+        int_mb(procNd(1) + i + j*np_i + k*np_i*np_j) = icount
+        icount = mod((icount+1),np)
+      end do
+      end do
+      end do
+
+      if (.not.MA_push_get(mt_int,np,'tmppp2',tmp(2),tmp(1)))
+     >  call errquit('Parallel3d_init:out of stack memory',0, MA_ERR)
+
+#ifdef MPI4
+      stupid_np_i = np_i
+      stupid_np_j = np_j
+      stupid_np_k = np_k
+*     **** set global processor group ****
+      call MPI_COMM_group(stupid_world,stupid_mpi_group,stupid_ierr)
+
+      do i=0,np_i-1
+        int_mb(tmp(1)+i) = int_mb(procNd(1) 
+     >                           + i 
+     >                           + taskid_j*np_i
+     >                           + taskid_k*np_i*np_j) 
+      end do
+      call stupid_icopy8to4(np_i,int_mb(tmp(1)),int_mb(tmp(1)))
+      call MPI_Group_incl(stupid_mpi_group,
+     >                    stupid_np_i,
+     >                    int_mb(tmp(1)),
+     >                    stupid_group_i,stupid_ierr)
+      call MPI_Comm_create(stupid_world,stupid_group_i,
+     >                     stupid_comm_i,stupid_ierr)
+
+      do j=0,np_j-1
+        int_mb(tmp(1)+j) = int_mb(procNd(1) 
+     >                           + taskid_i 
+     >                           + j*np_i
+     >                           + taskid_k*np_i*np_j) 
+      end do
+      call stupid_icopy8to4(np_j,int_mb(tmp(1)),int_mb(tmp(1)))
+      call MPI_Group_incl(stupid_mpi_group,stupid_np_j,int_mb(tmp(1)),
+     >                    stupid_group_j,stupid_ierr)
+      call MPI_Comm_create(stupid_world,stupid_group_j,stupid_comm_j,  
+     >                     stupid_ierr)
+
+      do k=0,np_k-1
+        int_mb(tmp(1)+k) = int_mb(procNd(1)
+     >                           + taskid_i
+     >                           + taskid_j*np_i
+     >                           + k*np_i*np_j)
+      end do
+      call stupid_icopy8to4(np_k,int_mb(tmp(1)),int_mb(tmp(1)))
+      call MPI_Group_incl(stupid_mpi_group,stupid_np_k,int_mb(tmp(1)),
+     >                    stupid_group_k,stupid_ierr)
+      call MPI_Comm_create(stupid_world,stupid_group_k,stupid_comm_k,
+     >                     stupid_ierr)
+
+
+
+      group_i = stupid_group_i
+      comm_i  = stupid_comm_i
+      group_j = stupid_group_j
+      comm_j  = stupid_comm_j
+      group_k = stupid_group_k
+      comm_k  = stupid_comm_k
+#else
+*     **** set global processor group ****
+      call MPI_COMM_group(MPI_COMM_WORLD,mpi_group,ierr)
+
+      do i=0,np_i-1
+        int_mb(tmp(1)+i) = int_mb(procNd(1) 
+     >                           + i 
+     >                           + taskid_j*np_i 
+     >                           + taskid_k*np_i*np_j) 
+      end do
+      call MPI_Group_incl(mpi_group,np_i,int_mb(tmp(1)),group_i,ierr)
+      call MPI_Comm_create(MPI_COMM_WORLD,group_i,comm_i,  ierr)
+
+      do j=0,np_j-1
+        int_mb(tmp(1)+j) = int_mb(procNd(1) 
+     >                           + taskid_i 
+     >                           + j*np_i
+     >                           + taskid_k*np_i*np_j) 
+      end do
+      call MPI_Group_incl(mpi_group,np_j,int_mb(tmp(1)),group_j,ierr)
+      call MPI_Comm_create(MPI_COMM_WORLD,group_j,comm_j,  ierr)
+
+      do k=0,np_k-1
+        int_mb(tmp(1)+k) = int_mb(procNd(1) 
+     >                           + taskid_i 
+     >                           + taskid_j*np_i
+     >                           + k*np_i*np_j) 
+      end do
+      call MPI_Group_incl(mpi_group,np_j,int_mb(tmp(1)),group_j,ierr)
+      call MPI_Comm_create(MPI_COMM_WORLD,group_j,comm_j,  ierr)
+
+#endif
+
+      if (.not.MA_pop_stack(tmp(2)))
+     >  call errquit('Parallel3d_init:popping stack memory',0, MA_ERR)
+      return
+      end
+
+
+*     *************************************
+*     *                                   *
+*     *        Parallel3d_Finalize        *
+*     *                                   *
+*     *************************************
+
+      subroutine Parallel3d_Finalize()
+      implicit none
+
+#include "Parallel.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+#ifdef MPI4
+*      **** free comm_i and comm_j communicators ****
+      call MPI_Comm_free(stupid_comm_i,  stupid_ierr)
+      call MPI_Group_free(stupid_group_i,stupid_ierr)
+      call MPI_Comm_free(stupid_comm_j,  stupid_ierr)
+      call MPI_Group_free(stupid_group_j,stupid_ierr)
+      call MPI_Comm_free(stupid_comm_k,  stupid_ierr)
+      call MPI_Group_free(stupid_group_k,stupid_ierr)
+#else
+
+*     *** local variable ***
+      integer mpierr
+
+*      **** free comm_i and comm_j communicators ****
+      call MPI_Comm_free(comm_i,  mpierr)
+      call MPI_Group_free(group_i,mpierr)
+      call MPI_Comm_free(comm_j,  mpierr)
+      call MPI_Group_free(group_j,mpierr)
+      call MPI_Comm_free(comm_k,  mpierr)
+      call MPI_Group_free(group_k,mpierr)
+#endif
+
+      return
+      end
+
 
 
 

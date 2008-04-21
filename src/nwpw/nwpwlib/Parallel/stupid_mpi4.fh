@@ -1,5 +1,5 @@
 *
-* $Id: stupid_mpi4.fh,v 1.1 2007-04-11 23:41:15 bylaska Exp $
+* $Id: stupid_mpi4.fh,v 1.2 2008-04-21 22:20:45 bylaska Exp $
 *
 
 *     *** dummy block for mpif4 bindings ***
@@ -8,12 +8,14 @@
       integer*4 stupid_mpi_group
       integer*4 stupid_np_i,stupid_group_i,stupid_comm_i
       integer*4 stupid_np_j,stupid_group_j,stupid_comm_j
+      integer*4 stupid_np_k,stupid_group_k,stupid_comm_k
       common / stupid_mpi4_parallel / 
      >       stupid_world,stupid_sum,
      >       stupid_complex,stupid_double,stupid_integer,
      >       stupid_mpi_group,
      >       stupid_np_i,stupid_group_i,stupid_comm_i,
-     >       stupid_np_j,stupid_group_j,stupid_comm_j
+     >       stupid_np_j,stupid_group_j,stupid_comm_j,
+     >       stupid_np_k,stupid_group_k,stupid_comm_k
 
       integer*4 stupid_tsum,stupid_tsum2,stupid_taskid,stupid_type
       integer*4 stupid_request,stupid_msglen,stupid_ierr
