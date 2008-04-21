@@ -1,0 +1,8 @@
+      logical context_srtdb_match, context_prefix, context_set,
+     $     context_srtdb_store, context_srtdb_load, context_push, 
+     $     context_pop
+C$Id: scontext.fh,v 1.1 2008-04-21 18:19:27 marat Exp $
+      external context_srtdb_match, context_prefix, context_set,
+     $     context_srtdb_store, context_srtdb_load, context_push, 
+     $     context_pop
+
