@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.57 2008-04-18 00:06:39 bylaska Exp $
+* $Id: band_minimizer.F,v 1.58 2008-04-21 23:23:24 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -22,7 +22,7 @@
 #include "stdio.fh"
 #include "errquit.fh"      
 *     **** parallel variables ****
-      integer  taskid,np
+      integer  taskid,np,np_i,np_j,np_k
       integer  MASTER
       parameter(MASTER=0)
 
@@ -119,8 +119,8 @@
       external cpsi_ispin,cpsi_ne,psi_get_version
       logical  pspw_reformat_c_wvfnc,control_check_charge_multiplicity
       external pspw_reformat_c_wvfnc,control_check_charge_multiplicity
-      integer  control_mapping,control_minimizer
-      external control_mapping,control_minimizer
+      integer  control_mapping,control_minimizer,control_np_dimensions
+      external control_mapping,control_minimizer,control_np_dimensions
       integer  control_scf_algorithm
       external control_scf_algorithm
       real*8   control_ks_alpha
@@ -183,6 +183,14 @@ c      external      cpsp_comment
       value = control_read(5,rtdb)
       if (.not. value) 
      > call errquit('error reading control',0, DISK_ERR)
+
+      call Parallel3d_Init(control_np_dimensions(2),
+     >                     control_np_dimensions(3))
+      call Parallel3d_np_i(np_i)
+      call Parallel3d_np_j(np_j)
+      call Parallel3d_np_k(np_k)
+
+
 
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
@@ -284,6 +292,7 @@ c      external      cpsp_comment
 
       if (taskid.eq.MASTER) then
          write(luout,1111) np
+         write(luout,1117) np_i,np_j,np_k
          if (mapping.eq.1) write(luout,1112)
          if (mapping.eq.2) write(luout,1113)
 
@@ -635,6 +644,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
 
 
 
+      call Parallel3d_Finalize()
       call Parallel_Finalize()
       band_minimizer = value
       return
@@ -663,10 +673,11 @@ c           write(luout,1154) cpsp_lmmax(ia)
      > '*  , Edoardo Apra, and Patrick Nichols.                  *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
- 1111 FORMAT(/' number of processors used:',I3)
- 1112 FORMAT( ' parallel mapping         : slab')
- 1113 FORMAT( ' parallel mapping         : hilbert')
+ 1111 FORMAT(/' number of processors used:',I16)
+ 1112 FORMAT( ' parallel mapping         :            slab')
+ 1113 FORMAT( ' parallel mapping         :         hilbert')
  1115 FORMAT(/' options:')
+ 1117 FORMAT( ' processor grid           :',I4,' x',I4,' x',I4)
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)

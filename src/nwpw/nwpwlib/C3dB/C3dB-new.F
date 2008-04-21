@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.26 2008-04-18 00:05:44 bylaska Exp $
+* $Id: C3dB-new.F,v 1.27 2008-04-21 23:23:30 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -74,9 +74,10 @@
 *     integer kn
       integer taskid,np
       logical value
-      
-      call Parallel_np(np)
-      call Parallel_taskid(taskid)
+
+
+      call Parallel3d_np_i(np)
+      call Parallel3d_taskid_i(taskid)
 
 
 *     **************************
@@ -640,7 +641,7 @@ c     p = p_map(k)
       parameter (MASTER=0)
       integer taskid,np
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
       call Parallel_taskid(taskid)
 
 
@@ -2032,8 +2033,8 @@ c     integer i2_start(NFFT3+1)
       value = MA_alloc_get(mt_int,(nz(nb)+1),
      >                     'i2_start',i2_start(2,nb),i2_start(1,nb))
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
       index1 = 1 
       index2 = 1
@@ -2429,7 +2430,7 @@ c     integer i2_start(NFFT3+1)
 
       call nwpw_timing_start(2)
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
 *     **** sum up dot product on this node ****
       sum = ddot(nfft3d_map(nb),A(1),2,B(1),2)
@@ -2505,7 +2506,7 @@ c     integer i2_start(NFFT3+1)
       real*8   ddot
       external ddot
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
 *     **** sum up dot product on this node ****
       sum = ddot(n2ft3d_map(nb),A,1,B,1)
@@ -2540,7 +2541,7 @@ c     integer i2_start(NFFT3+1)
       real*8   ddot
       external ddot
 
-      call Parallel_np(np)
+c      call Parallel3d_np_i(np)
 
 *     **** sum up dot product on this node ****
       sum = ddot(n2ft3d_map(nb),A,1,B,1)
@@ -2977,7 +2978,7 @@ c     integer i2_start(NFFT3+1)
       integer i,np
       real*8 sum
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
@@ -3012,7 +3013,7 @@ c     integer i2_start(NFFT3+1)
       integer i,np
       complex*16 sum
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
 *     **** sum up dot product on this node ****
       sum = dcmplx(0.0d0,0.0d0)
@@ -3058,7 +3059,7 @@ c     integer i2_start(NFFT3+1)
 
       call nwpw_timing_start(2)
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
 *     **** sum up dot product on this node ****
       do n=1,ne
@@ -3114,7 +3115,7 @@ c     integer i2_start(NFFT3+1)
 
       call nwpw_timing_start(2)
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
 *     **** sum up dot product on this node ****
       do n=1,ne
@@ -3313,7 +3314,7 @@ c      end
       integer i,j,k,index
       integer dest,source,status,msglen,idum
 
-      call Parallel_taskid(taskid)
+      call Parallel3d_taskid_i(taskid)
 
       !**********************
       !**** slab mapping ****

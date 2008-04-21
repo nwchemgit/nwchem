@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.29 2008-04-18 00:06:41 bylaska Exp $
+* $Id: band_structure.F,v 1.30 2008-04-21 23:23:26 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -26,7 +26,7 @@
 
       
 *     **** parallel variables ****
-      integer  taskid,np
+      integer  taskid,np,np_i,np_j,np_k
       integer  MASTER
       parameter(MASTER=0)
 
@@ -133,8 +133,8 @@
       external cpsi_ispin,cpsi_ne,psi_get_version
       logical  pspw_reformat_c_wvfnc
       external pspw_reformat_c_wvfnc
-      integer  control_mapping
-      external control_mapping
+      integer  control_mapping,control_np_dimensions
+      external control_mapping,control_np_dimensions
       integer  control_num_kvectors_structure,control_excited_ne
       external control_num_kvectors_structure,control_excited_ne
       logical  band_dplot_iteration_check
@@ -177,6 +177,14 @@
       value = control_read(5,rtdb)
       if (.not. value) 
      > call errquit('error reading control',0, DISK_ERR)
+
+      call Parallel3d_Init(control_np_dimensions(2),
+     >                     control_np_dimensions(3))
+      call Parallel3d_np_i(np_i)
+      call Parallel3d_np_j(np_j)
+      call Parallel3d_np_k(np_k)
+
+
 
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
@@ -280,6 +288,10 @@
 
       if (taskid.eq.MASTER) then
          write(luout,1111) np
+         write(luout,1117) np_i,np_j,np_k
+         if (mapping.eq.1) write(luout,1112)
+         if (mapping.eq.2) write(luout,1113)
+
          write(luout,1115)
          write(luout,1121) control_boundry(),control_version()
          IF (control_gga().eq.0) THEN
@@ -944,6 +956,7 @@
          CALL nwpw_MESSAGE(4)
       end if 
 
+      call Parallel3d_Finalize()
       call Parallel_Finalize()
       band_structure = value
       return
@@ -958,8 +971,11 @@
  1043 FORMAT(10X,'*          and Patrick Nichols                     *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
- 1111 FORMAT(/' number of processors used:',I3)
+ 1111 FORMAT(/' number of processors used:',I16)
+ 1112 FORMAT( ' parallel mapping         :            slab')
+ 1113 FORMAT( ' parallel mapping         :         hilbert')
  1115 FORMAT(/' options:')
+ 1117 FORMAT( ' processor grid           :',I4,' x',I4,' x',I4)
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)

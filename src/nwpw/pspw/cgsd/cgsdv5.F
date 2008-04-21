@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.90 2007-11-03 19:57:28 bylaska Exp $
+* $Id: cgsdv5.F,v 1.91 2008-04-21 23:23:34 bylaska Exp $
 *
 
 ***********************************************************************
@@ -646,6 +646,7 @@ c     end if
 
 
 
+      call Parallel2d_Finalize()
       call Parallel_Finalize()
       cgsdv5 = value
       return

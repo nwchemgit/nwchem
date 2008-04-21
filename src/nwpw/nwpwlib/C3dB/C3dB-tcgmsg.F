@@ -58,9 +58,14 @@ c     integer i2_start(NFFT3+1)
       integer msglen
       integer pfrom,pto
       integer taskid,np
+
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
+
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
 *     **** pack A(i) array ****
       do i=1,nx(nb)*ny(nb)*nq(nb)
@@ -89,7 +94,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel3d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -104,7 +110,8 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,nb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
+     >                  mdtob(2*msglen),
+     >                  Parallel3d_convert_taskid_i(pto),1)
             end if
          end if
 
@@ -177,9 +184,13 @@ c     integer i2_start(NFFT3+1)
       integer msglen
       integer pfrom,pto
       integer taskid,np
+
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
 *     **** pack A(i) array ****
       do i=1,nx(nb)*ny(nb)*nq(nb)
@@ -208,7 +219,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                  mdtob(msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel3d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -223,7 +235,8 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,nb)+it+1-1)),
-     >                  mdtob(msglen),pto,1)
+     >                  mdtob(msglen),
+     >                  Parallel3d_convert_taskid_i(pto),1)
             end if
          end if
 
@@ -300,9 +313,13 @@ c     integer i2_start(NFFT3+1)
       integer msglen
       integer pfrom,pto
       integer taskid,np
+
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
 
 *     **** pack A(i) array ****
@@ -342,7 +359,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel3d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -357,7 +375,8 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
+     >                  mdtob(2*msglen),
+     >                  Parallel3d_convert_taskid_i(pto),1)
             end if
          end if
 
@@ -437,9 +456,13 @@ c     integer i2_start(NFFT3+1)
       integer msglen
       integer pfrom,pto
       integer taskid,np
+
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
 
 *     **** pack A(i) array ****
@@ -479,7 +502,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
      >                  mdtob(msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel3d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -494,7 +518,8 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
-     >                  mdtob(msglen),pto,1)
+     >                  mdtob(msglen),
+     >                  Parallel3d_convert_taskid_i(pto),1)
             end if
          end if
 
@@ -573,8 +598,12 @@ c     integer i2_start(NFFT3+1)
       integer taskid,np
       integer n1,n2
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
+
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
       n1 = int_mb(i1_start(1,fb)+np) - 1
       n2 = int_mb(i2_start(1,fb)+np) - 1
@@ -604,7 +633,7 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,
+     >                  Parallel3d_convert_taskid_i(source),
      >                  rcv_proc,1)
             end if
          end if
@@ -621,7 +650,7 @@ c     integer i2_start(NFFT3+1)
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),
-     >                  pto,
+     >                  Parallel3d_convert_taskid_i(pto),
      >                  1)
             end if
          end if
@@ -694,8 +723,12 @@ c     integer i2_start(NFFT3+1)
       integer taskid,np
       integer n1,n2
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
+
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
       n1 = int_mb(i1_start(1,fb)+np) - 1
       n2 = int_mb(i2_start(1,fb)+np) - 1
@@ -725,7 +758,7 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,
+     >                  Parallel3d_convert_taskid_i(source),
      >                  rcv_proc,1)
             end if
          end if
@@ -742,7 +775,7 @@ c     integer i2_start(NFFT3+1)
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),
-     >                  pto,
+     >                  Parallel3d_convert_taskid_i(pto),
      >                  1)
             end if
          end if
@@ -816,9 +849,13 @@ c     integer i2_start(NFFT3+1)
       integer taskid,np
       integer n1
 
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
+
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
       n1 = int_mb(i1_start(1,fb)+np) - 1
 
@@ -846,7 +883,7 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,
+     >                  Parallel3d_convert_taskid_i(source),
      >                  rcv_proc,1)
             end if
          end if
@@ -863,7 +900,7 @@ c     integer i2_start(NFFT3+1)
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),
-     >                  pto,1)
+     >                  Parallel3d_convert_taskid_i(pto),1)
             end if
          end if
 
@@ -915,7 +952,7 @@ c     integer i2_start(NFFT3+1)
 *     **** local variables ***
       integer np,n2
       
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,fb)+np) - 1
@@ -987,9 +1024,13 @@ c     integer i2_start(NFFT3+1)
       integer taskid,np
       integer n1
 
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
+
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
 
       n1 = int_mb(i1_start(1,fb)+np) - 1
@@ -1018,7 +1059,7 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,
+     >                  Parallel3d_convert_taskid_i(source),
      >                  rcv_proc,1)
             end if
          end if
@@ -1035,7 +1076,7 @@ c     integer i2_start(NFFT3+1)
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,fb)+it+1-1)),
      >                  mdtob(2*msglen),
-     >                  pto,
+     >                  Parallel3d_convert_taskid_i(pto),
      >                  1)
             end if
          end if
@@ -1089,7 +1130,7 @@ c     integer i2_start(NFFT3+1)
 *     **** local variables ***
       integer np,n2
       
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,fb)+np) - 1
@@ -1165,9 +1206,13 @@ c     integer i2_start(NFFT3+1)
       integer pfrom,pto
       integer taskid,np
 
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
+
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
 *     **** pack A(i) array ****
       n1 = int_mb(h_i1_start(1,op,fb)+np) - 1
@@ -1197,7 +1242,7 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(h_i2_start(1,op,fb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,
+     >                  Parallel3d_convert_taskid_i(source),
      >                  rcv_proc,1)
             end if
          end if
@@ -1214,7 +1259,7 @@ c     integer i2_start(NFFT3+1)
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(h_i1_start(1,op,fb)+it+1-1)),
      >                  mdtob(2*msglen),
-     >                  pto,
+     >                  Parallel3d_convert_taskid_i(pto),
      >                  1)
             end if
          end if
@@ -1274,7 +1319,7 @@ c     integer i2_start(NFFT3+1)
       integer n2,n3,np
 
       
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
 *     **** unpack A(i) array ****
       n2 = int_mb(h_i2_start(1,op,fb)+np) - 1
@@ -1349,8 +1394,12 @@ c     integer i2_start(NFFT3+1)
       integer pfrom,pto
       integer taskid,np
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
+
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
       n1 = int_mb(h_i1_start(1,op,fb)+np) - 1
       n2 = int_mb(h_i2_start(1,op,fb)+np) - 1
@@ -1382,7 +1431,7 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(h_i2_start(1,op,fb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,
+     >                  Parallel3d_convert_taskid_i(source),
      >                  rcv_proc,1)
             end if
          end if
@@ -1399,7 +1448,7 @@ c     integer i2_start(NFFT3+1)
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(h_i1_start(1,op,fb)+it+1-1)),
      >                  mdtob(2*msglen),
-     >                  pto,
+     >                  Parallel3d_convert_taskid_i(pto),
      >                  1)
             end if
          end if
@@ -1454,8 +1503,8 @@ c     integer i2_start(NFFT3+1)
       external full_ps_C3dB
 
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
 *     **** Define Channels - which are used to avoid ****
 *     **** asynchronous communications               ****

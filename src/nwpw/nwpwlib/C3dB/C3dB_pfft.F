@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: C3dB_pfft.F,v 1.6 2008-04-21 19:34:25 bylaska Exp $
+* $Id: C3dB_pfft.F,v 1.7 2008-04-21 23:23:30 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -52,7 +52,7 @@
       external lattice_ggcut,lattice_wggcut,lattice_unitg
       external brillioun_k
 
-      call Parallel_taskid(taskid)
+      call Parallel3d_taskid_i(taskid)
       nxh = nx(1)/2
       nyh = ny(1)/2
       nzh = nz(1)/2
@@ -1136,8 +1136,8 @@
       if (.not. value) 
      > call errquit('C3dB_ptranspose_jk_init:out of heap',0,MA_ERR)
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
 
       index1 = 1 
@@ -1262,8 +1262,8 @@
       integer i,j,k,it
 
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel3d_taskid_i(taskid)
+      call Parallel3d_np_i(np)
 
 
 *     ********************************************************
@@ -2673,7 +2673,7 @@
       logical value
       integer np,size
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
 c     **** allocate aqueue ****
       aqmax       = qmax_in
@@ -2873,7 +2873,7 @@ c     **** allocate bqueue ****
       integer q,indx,status,np
 
       call nwpw_timing_start(30)
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
@@ -2947,7 +2947,7 @@ c     **** allocate bqueue ****
       integer q,indx,indx1,status,np
 
       call nwpw_timing_start(30)
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
       indx1   = int_mb(qindx(1))
       do while (int_mb(qstatus(1)+indx1-1).lt.4)
@@ -3015,7 +3015,7 @@ c     **** allocate bqueue ****
       integer q,indx,status,np
 
       call nwpw_timing_start(30)
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
@@ -3087,7 +3087,7 @@ c     **** allocate bqueue ****
       integer shift1,shift2,shift3
       integer q,indx,indx1,status,np
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
       call nwpw_timing_start(30)
 
