@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.26 2007-09-01 20:07:20 d3p307 Exp $
+# $Id: GNUmakefile,v 1.27 2008-04-21 20:31:02 d3p307 Exp $
 
 include ../config/makefile.h
 
@@ -37,6 +37,7 @@ else
 endif
 
 include ../config/makelib.h
+include ../tools/armci/config/makecoms.h
 
 ifeq ($(TARGET),CATAMOUNT)
    LIB_DEFINES += -I$(IOBUF_INC) -I/opt/xt-libc/default/amd64/include
