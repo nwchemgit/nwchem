@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.84 2007-11-17 00:25:26 d3p708 Exp $
+* $Id: psi.F,v 1.85 2008-04-21 19:34:27 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.84  2007/11/17 00:25:26  d3p708
+* ....PNJ
+*
 * Revision 1.83  2007/11/17 00:19:09  d3p708
 * pjn
 *    bugfix
@@ -3008,6 +3011,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 *     **** local variables ****
       integer tmp1(2)
+      logical value
  
 *     **** external functions ****
       logical  Dneall_m_push_get,Dneall_m_pop_stack
@@ -3015,7 +3019,6 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       real*8   electron_energy
       external electron_energy
-
 
       if (.not.Dneall_m_push_get(0,tmp1))
      >   call errquit('out of stack memory in psi_1get_Tradient',0,

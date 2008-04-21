@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.23 2008-04-19 01:27:19 bylaska Exp $
+* $Id: cpsi_H.F,v 1.24 2008-04-21 19:34:25 bylaska Exp $
 *
 
 *     **********************************************
@@ -98,58 +98,16 @@
       !call C3dB_cr_fft3b(1,dcpl_mb(vall(1)))
       call C3dB_cr_pfft3b(1,0,dcpl_mb(vall(1)))
 
-      do nbq=1,nbrill
-         nb = Pneb_convert_nb(nbq)
-         psi_shift   = cpsi_data_get_chnk(psi_r_tag,nbq)
-         Hpsi_shift  = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
-         do ms=1,ispin
-         do n=n1(ms),n2(ms)
-
-*           *************************************
-*           **** vpsi_r = (vall_r+xcp)*psi_r ****
-*           *************************************
-            call C3dB_rc_Sum(1,
-     >                       xcp(1+(ms-1)*nfft3d),
-     >                       dcpl_mb(vall(1)),
-     >                       dcpl_mb(vpsi(1)))
-            call C3dB_cc_Mul(1,dcpl_mb(vpsi(1)),
-     >                       dbl_mb(psi_shift),
-     >                       dcpl_mb(vpsi(1)))
-
-*           *******************************
-*           **** get vpsi_r in k-space ****
-*           *******************************
-            !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
-            call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
-            call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
-
-*           ***********************
-*           **** add to Hpsi_k ****
-*           ***********************
-            call Cram_cc_daxpy(nb,(-scal1),
-     >                         dcpl_mb(vpsi(1)),
-     >                         dbl_mb(Hpsi_shift))
-
-            psi_shift  = psi_shift  + nshift1
-            Hpsi_shift = Hpsi_shift + nshift2
-         end do
-         end do
-      end do
-
-c      ki  = 1
-c      nbi = 1 
-c      psi_shift    = cpsi_data_get_chnk(psi_r_tag,nbi)
+c      do nbq=1,nbrill
+c         nb = Pneb_convert_nb(nbq)
+c         psi_shift   = cpsi_data_get_chnk(psi_r_tag,nbq)
+c         Hpsi_shift  = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
+c         do ms=1,ispin
+c         do n=n1(ms),n2(ms)
 c
-c      kj  = 1
-c      nbj = 1 
-c      Hpsi_shift   = cpsi_data_get_chnk(Hpsi_k_tag,nbj)
-c      done = .false.
-c      do while (.not.done)
-c         if (nbi.le.nbrill) then
-c            ms=1
-c            if (ki.gt.n2(1)) ms = 2
-c
+c*           *************************************
 c*           **** vpsi_r = (vall_r+xcp)*psi_r ****
+c*           *************************************
 c            call C3dB_rc_Sum(1,
 c     >                       xcp(1+(ms-1)*nfft3d),
 c     >                       dcpl_mb(vall(1)),
@@ -158,42 +116,84 @@ c            call C3dB_cc_Mul(1,dcpl_mb(vpsi(1)),
 c     >                       dbl_mb(psi_shift),
 c     >                       dcpl_mb(vpsi(1)))
 c
+c*           *******************************
 c*           **** get vpsi_r in k-space ****
-c            call C3dB_rc_pfft3f_queuein(nbi,dcpl_mb(vpsi(1)))
+c*           *******************************
+c            !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+c            call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
+c            call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
 c
-c            psi_shift  = psi_shift  + nshift1
-c            ki         = ki + 1
-c            if (ki.gt.neall) then
-c               nbi = nbi + 1
-c               ki  = 1
-c               if (nbi.le.nbrill) then
-c                  psi_shift    = cpsi_data_get_chnk(psi_r_tag,nbi)
-c               endif
-c            end if
-c         end if
-c
-c         if ((C3dB_rc_pfft3_queue_filled()).or.(nbi.gt.nbrill)) then
-c            call C3dB_rc_pfft3f_queueout(nbj,dcpl_mb(vpsi(1)))
-c
+c*           ***********************
 c*           **** add to Hpsi_k ****
+c*           ***********************
 c            call Cram_cc_daxpy(nb,(-scal1),
 c     >                         dcpl_mb(vpsi(1)),
 c     >                         dbl_mb(Hpsi_shift))
 c
+c            psi_shift  = psi_shift  + nshift1
 c            Hpsi_shift = Hpsi_shift + nshift2
-c            kj         = kj + 1
-c            if (kj.gt.neall) then
-c               nbj = nbj + 1
-c               kj  = 1
-c               if (nbj.le.nbrill) then
-c                  Hpsi_shift   = cpsi_data_get_chnk(Hpsi_k_tag,nbj)
-c               endif
-c            end if
-c
-c         end if
-c
-c         done = ((nbi.gt.nbrill).and.(nbj.gt.nbrill))
+c         end do
+c         end do
 c      end do
+
+      ki  = 1
+      nbi = 1 
+      psi_shift    = cpsi_data_get_chnk(psi_r_tag,nbi)
+
+      kj  = 1
+      nbj = 1 
+      Hpsi_shift   = cpsi_data_get_chnk(Hpsi_k_tag,nbj)
+      done = .false.
+      do while (.not.done)
+         if (nbi.le.nbrill) then
+            ms=1
+            if (ki.gt.n2(1)) ms = 2
+
+*           **** vpsi_r = (vall_r+xcp)*psi_r ****
+            call C3dB_rc_Sum(1,
+     >                       xcp(1+(ms-1)*nfft3d),
+     >                       dcpl_mb(vall(1)),
+     >                       dcpl_mb(vpsi(1)))
+            call C3dB_cc_Mul(1,dcpl_mb(vpsi(1)),
+     >                       dbl_mb(psi_shift),
+     >                       dcpl_mb(vpsi(1)))
+
+*           **** get vpsi_r in k-space ****
+            call C3dB_rc_pfft3f_queuein(nbi,dcpl_mb(vpsi(1)))
+
+            psi_shift  = psi_shift  + nshift1
+            ki         = ki + 1
+            if (ki.gt.neall) then
+               nbi = nbi + 1
+               ki  = 1
+               if (nbi.le.nbrill) then
+                  psi_shift    = cpsi_data_get_chnk(psi_r_tag,nbi)
+               endif
+            end if
+         end if
+
+         if ((C3dB_rc_pfft3_queue_filled()).or.(nbi.gt.nbrill)) then
+            call C3dB_rc_pfft3f_queueout(nbj,dcpl_mb(vpsi(1)))
+
+*           **** add to Hpsi_k ****
+            call Cram_cc_daxpy(nbj,(-scal1),
+     >                         dcpl_mb(vpsi(1)),
+     >                         dbl_mb(Hpsi_shift))
+
+            Hpsi_shift = Hpsi_shift + nshift2
+            kj         = kj + 1
+            if (kj.gt.neall) then
+               nbj = nbj + 1
+               kj  = 1
+               if (nbj.le.nbrill) then
+                  Hpsi_shift   = cpsi_data_get_chnk(Hpsi_k_tag,nbj)
+               endif
+            end if
+
+         end if
+
+         done = ((nbi.gt.nbrill).and.(nbj.gt.nbrill))
+      end do
 
 
 

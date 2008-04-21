@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-mpi.F,v 1.9 2007-10-19 18:37:05 bylaska Exp $
+* $Id: Parallel-mpi.F,v 1.10 2008-04-21 19:34:26 bylaska Exp $
 *
 
 * Parallel.f
@@ -54,19 +54,22 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       taskid = nodeid()
 
 
-*     **** set up 2d processor grid = np x 1****
-      if (.not.MA_alloc_get(mt_int,np,'proc2d',proc2d(2),proc2d(1)))
+*     **** set up 3d processor grid = np x 1 x 1****
+      if (.not.MA_alloc_get(mt_int,np,'procNd',procNd(2),procNd(1)))
      >  call errquit('Parallel_init:out of heap memory',0, MA_ERR)
 
       np_i = np
       np_j = 1
+      np_k = 1
       do i=0,np-1
-        int_mb(proc2d(1)+i) = i
+        int_mb(procNd(1)+i) = i
       end do
       taskid_i = taskid
       taskid_j = 0
+      taskid_k = 0
       comm_i   = MPI_COMM_WORLD
       comm_j   = -99 
+      comm_k   = -99 
 
       return 
       end
@@ -111,7 +114,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
            taskid_i = i
            taskid_j = j
         end if
-        int_mb(proc2d(1) + i + j*np_i) = icount
+        int_mb(procNd(1) + i + j*np_i) = icount
         icount = mod((icount+1),np)
       end do
       end do
@@ -126,7 +129,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       call MPI_COMM_group(stupid_world,stupid_mpi_group,stupid_ierr)
 
       do i=0,np_i-1
-        int_mb(tmp(1)+i) = int_mb(proc2d(1) + i + taskid_j*np_i) 
+        int_mb(tmp(1)+i) = int_mb(procNd(1) + i + taskid_j*np_i) 
       end do
       call stupid_icopy8to4(np_i,int_mb(tmp(1)),int_mb(tmp(1)))
       call MPI_Group_incl(stupid_mpi_group,
@@ -137,7 +140,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >                     stupid_comm_i,stupid_ierr)
 
       do j=0,np_j-1
-        int_mb(tmp(1)+j) = int_mb(proc2d(1) + taskid_i + j*np_i) 
+        int_mb(tmp(1)+j) = int_mb(procNd(1) + taskid_i + j*np_i) 
       end do
       call stupid_icopy8to4(np_j,int_mb(tmp(1)),int_mb(tmp(1)))
       call MPI_Group_incl(stupid_mpi_group,stupid_np_j,int_mb(tmp(1)),
@@ -155,13 +158,13 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       call MPI_COMM_group(MPI_COMM_WORLD,mpi_group,ierr)
 
       do i=0,np_i-1
-        int_mb(tmp(1)+i) = int_mb(proc2d(1) + i + taskid_j*np_i) 
+        int_mb(tmp(1)+i) = int_mb(procNd(1) + i + taskid_j*np_i) 
       end do
       call MPI_Group_incl(mpi_group,np_i,int_mb(tmp(1)),group_i,ierr)
       call MPI_Comm_create(MPI_COMM_WORLD,group_i,comm_i,  ierr)
 
       do j=0,np_j-1
-        int_mb(tmp(1)+j) = int_mb(proc2d(1) + taskid_i + j*np_i) 
+        int_mb(tmp(1)+j) = int_mb(procNd(1) + taskid_i + j*np_i) 
       end do
       call MPI_Group_incl(mpi_group,np_j,int_mb(tmp(1)),group_j,ierr)
       call MPI_Comm_create(MPI_COMM_WORLD,group_j,comm_j,  ierr)

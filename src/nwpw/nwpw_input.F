@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.47 2008-01-26 04:08:16 bylaska Exp $
+c $Id: nwpw_input.F,v 1.48 2008-04-21 19:34:24 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -92,7 +92,7 @@ c
      >            'bo_algorithm',
      >            'scaling',
      >            'xyz_filename',
-     >            'np_orbital',
+     >            'np_dimensions',
      >            'spin_orbit',
      >            'spin-orbit',
      >            'cutoff',
@@ -1006,10 +1006,13 @@ c
       goto 10
 
 c
-c  np_orbital
+c  np_dimensions (fft,orbital,k-space) 
+c     - only values greater than 0 are meaningfull, less than zero are default
 c
- 5900 if (.not. inp_i(nx)) nx = 1
-      if (.not.rtdb_put(rtdb,'nwpw:np_orbital',mt_int,1,nx))
+ 5900 if (.not. inp_i(cell_expand(1))) cell_expand(1) = -1
+      if (.not. inp_i(cell_expand(2))) cell_expand(2) = -1
+      if (.not. inp_i(cell_expand(3))) cell_expand(3) = -1
+      if (.not.rtdb_put(rtdb,'nwpw:np_dimensions',mt_int,3,cell_expand))
      >  call errquit('nwpw_input: error writing to rtdb',5900,RTDB_ERR)
       goto 10
 

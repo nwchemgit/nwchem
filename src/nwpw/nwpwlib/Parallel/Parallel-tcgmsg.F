@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-tcgmsg.F,v 1.5 2007-09-04 23:26:49 bylaska Exp $
+* $Id: Parallel-tcgmsg.F,v 1.6 2008-04-21 19:34:26 bylaska Exp $
 *
 
 * Parallel.f
@@ -37,19 +37,22 @@ c      integer mpierr
       taskid = nodeid()
 
 
-*     **** set up 2d processor grid = np x 1****
-      if (.not.MA_alloc_get(mt_int,np,'proc2d',proc2d(2),proc2d(1)))
+*     **** set up 3d processor grid = np x 1 x 1****
+      if (.not.MA_alloc_get(mt_int,np,'procNd',procNd(2),procNd(1)))
      >  call errquit('Parallel_init:out of heap memory',0, MA_ERR)
 
       np_i = np
       np_j = 1
+      np_k = 1
       do i=0,np-1
-        int_mb(proc2d(1)+i) = i
+        int_mb(procNd(1)+i) = i
       end do
       taskid_i = taskid
       taskid_j = 0
+      taskid_k = 0
       comm_i   = ga_pgroup_get_world()
       comm_j   = -99 
+      comm_k   = -99 
 
       return 
       end
@@ -88,7 +91,7 @@ c      integer mpierr
            taskid_i = i
            taskid_j = j
         end if
-        int_mb(proc2d(1) + i + j*np_i) = icount
+        int_mb(procNd(1) + i + j*np_i) = icount
         icount = mod((icount+1),np)
       end do
       end do
@@ -96,11 +99,11 @@ c      integer mpierr
       if (.not.MA_push_get(mt_int,np,'tmppp2',tmp(2),tmp(1)))
      >  call errquit('Parallel2d_init:out of stack memory',0, MA_ERR)
         do i=0,np_i-1
-          int_mb(tmp(1)+i) = int_mb(proc2d(1) + i + taskid_j*np_i) 
+          int_mb(tmp(1)+i) = int_mb(procNd(1) + i + taskid_j*np_i) 
         end do
         comm_i = ga_pgroup_create(int_mb(tmp(1)),np_i)
         do j=0,np_j-1
-          int_mb(tmp(1)+j) = int_mb(proc2d(1) + taskid_i + j*np_i) 
+          int_mb(tmp(1)+j) = int_mb(procNd(1) + taskid_i + j*np_i) 
         end do
         comm_j = ga_pgroup_create(int_mb(tmp(1)),np_j)
       if (.not.MA_pop_stack(tmp(2)))

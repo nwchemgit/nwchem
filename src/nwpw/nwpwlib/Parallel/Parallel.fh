@@ -1,5 +1,5 @@
 *
-* $Id: Parallel.fh,v 1.1 2006-08-16 21:18:47 bylaska Exp $
+* $Id: Parallel.fh,v 1.2 2008-04-21 19:34:27 bylaska Exp $
 *
 
 
@@ -7,13 +7,14 @@
       integer taskid,np
       common / parallel / taskid,np
 
-*     *** Paralle2d common block ***
+*     *** ParallelNd common block ***
       integer taskid_i,np_i,comm_i,group_i
       integer taskid_j,np_j,comm_j,group_j
-      integer proc2d(2)
-      common / parallel2d / proc2d,
-     >                      taskid_i,taskid_j,
-     >                      np_i,    np_j,
-     >                      comm_i,  comm_j,
-     >                      group_i, group_j
+      integer taskid_k,np_k,comm_k,group_k
+      integer procNd(2)
+      common / parallelNd / procNd,
+     >                      taskid_i,taskid_j,taskid_k,
+     >                      np_i,    np_j,    np_k,
+     >                      comm_i,  comm_j,  comm_k,
+     >                      group_i, group_j, group_k
 

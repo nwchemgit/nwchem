@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix-mpi.F,v 1.5 2007-05-08 17:55:17 bylaska Exp $
+* $Id: DMatrix-mpi.F,v 1.6 2008-04-21 19:34:26 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -56,6 +56,9 @@ c      real*8  B(ldb,*)
       real*8  work1(*),work2(*)
 
 #include "mpif.h"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 
 *     **** local variables ****
@@ -84,12 +87,27 @@ c      real*8  B(ldb,*)
          if (nb(j).gt.nbmax) nbmax = nb(j)
       end do
       if (np_i.gt.1) then
+
+
          do j=1,nb(taskid_j+1)
-            call MPI_Allgather(
-     >   B(1+(j-1)*mb(taskid_i+1)),mb(taskid_i+1),MPI_DOUBLE_PRECISION,
-     >   Bcol(1+(j-1)*ne0),mbmax,                 MPI_DOUBLE_PRECISION,
-     >      comm_i,ierr)
+
+c            call MPI_Allgather(
+c     >   B(1+(j-1)*mb(taskid_i+1)),mb(taskid_i+1),MPI_DOUBLE_PRECISION,
+c     >   Bcol(1+(j-1)*ne0),mbmax (or ne0),        MPI_DOUBLE_PRECISION,
+c     >      comm_i,ierr)
+
+          !*** Allgather is flaky on my mac laptop ***
+          call dcopy(ne0,0.0,0,Bcol(1+(j-1)*ne0),1)
+          bshift = 0
+          do ii=1,taskid_i
+             bshift = bshift + mb(ii)
+          end do
+          do i=1,mb(taskid_i+1)
+            Bcol(bshift+i+(j-1)*ne0) = B(i+(j-1)*mb(taskid_i+1))
+          end do
+          call D3dB_Vector_SumAll(ne0,Bcol(1+(j-1)*ne0))
          end do
+
          bshift = 0
          iwrk2 = nb(taskid_j+1)
          ii    = 0

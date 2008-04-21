@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.112 2008-04-16 00:25:41 bylaska Exp $
+* $Id: control.F,v 1.113 2008-04-21 19:34:27 bylaska Exp $
 *
 
 *     ***********************************
@@ -18,7 +18,7 @@
 #include "control.fh"
 
       logical value 
-      integer ispin0,ne(2),nbrill
+      integer ispin0,ne(2),nbrill,np1,np2
 
 *     **** control_nose common block ****
       logical nose
@@ -59,15 +59,33 @@
          mapping1d = 1
       end if
 
-*     **** set np_orbital ****
-      if(.not.rtdb_get(rtdb,'nwpw:np_orbital',mt_int,1,np_orbital)) then
-         np_orbital = 1
-      end if
-*     **** reset np_orbital if np not a multiple of np_orbital ***
+*     **** set np_dimensions ****
       call Parallel_np(np)
-      do while ((mod(np,np_orbital).ne.0).and.(np_orbital.gt.1))
-           np_orbital = np_orbital - 1
-      end do
+      if(.not.rtdb_get(rtdb,'nwpw:np_dimensions',
+     >                 mt_int,3,np_dimensions)) then
+         np_dimensions(1) = np
+         np_dimensions(2) = 1
+         np_dimensions(3) = 1
+      else
+         if (.not.((code.eq.5).or.(code.eq.10))) np_dimensions(3) = 1
+         if (np_dimensions(3).lt.1) np_dimensions(3) = 1
+         if (np_dimensions(2).lt.1) np_dimensions(2) = 1
+         if (np_dimensions(1).lt.1) np_dimensions(1) = 1
+
+*        **** reset np_dimensions(3) if it is not a  multiple of np ****
+         do while ((mod(np,np_dimensions(3)).ne.0).and.
+     >             (np_dimensions(3).gt.1))
+            np_dimensions(3) = np_dimensions(3) - 1
+         end do
+*        **** reset np_dimensions(2) if it is not a  multiple of np2 ****
+         np = np/np_dimensions(3)
+         do while ((mod(np,np_dimensions(2)).ne.0).and.
+     >             (np_dimensions(2).gt.1))
+            np_dimensions(2) = np_dimensions(2) - 1
+         end do
+         np_dimensions(1) = np/np_dimensions(2)
+
+      endif
       
       
 
@@ -2992,6 +3010,21 @@ c      end
 
 *     *****************************
 *     *                           *
+*     *    control_np_dimensions  *
+*     *                           *
+*     *****************************
+      integer function control_np_dimensions(i)
+      implicit none
+      integer i
+
+#include "control.fh"
+
+      control_np_dimensions = np_dimensions(i)
+      return
+      end
+
+*     *****************************
+*     *                           *
 *     *    control_np_orbital     *
 *     *                           *
 *     *****************************
@@ -3000,9 +3033,10 @@ c      end
 
 #include "control.fh"
 
-      control_np_orbital = np_orbital
+      control_np_orbital = np_dimensions(2)
       return
       end
+
 
 
 *     *****************************

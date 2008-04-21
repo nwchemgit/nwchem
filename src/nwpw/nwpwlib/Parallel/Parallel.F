@@ -1,5 +1,5 @@
 *
-* $Id: Parallel.F,v 1.2 2006-08-13 01:03:25 bylaska Exp $
+* $Id: Parallel.F,v 1.3 2008-04-21 19:34:26 bylaska Exp $
 *
 
 * Parallel.f
@@ -29,7 +29,7 @@ c      include 'mpif.h'
 c      integer mpierr
 c     call MPI_FINALIZE(mpierr) 
 
-      if (.not.MA_free_heap(proc2d(2)))
+      if (.not.MA_free_heap(procNd(2)))
      >  call errquit('Parralel_finalalize',0,MA_ERR)
       return
       end
@@ -146,7 +146,7 @@ c     call MPI_FINALIZE(mpierr)
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      Parallel2d_convert_taskid_i = int_mb(proc2d(1)+i+taskid_j*np_i)
+      Parallel2d_convert_taskid_i = int_mb(procNd(1)+i+taskid_j*np_i)
       return
       end
 
@@ -163,7 +163,7 @@ c     call MPI_FINALIZE(mpierr)
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      Parallel2d_convert_taskid_j = int_mb(proc2d(1)+taskid_i+j*np_i)
+      Parallel2d_convert_taskid_j = int_mb(procNd(1)+taskid_i+j*np_i)
       return
       end
 
@@ -183,7 +183,7 @@ c     call MPI_FINALIZE(mpierr)
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      Parallel2d_convert_taskid_ij = int_mb(proc2d(1)+i+j*np_i)
+      Parallel2d_convert_taskid_ij = int_mb(procNd(1)+i+j*np_i)
       return
       end
 

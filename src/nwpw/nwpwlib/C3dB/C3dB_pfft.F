@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: C3dB_pfft.F,v 1.5 2008-04-18 23:29:38 bylaska Exp $
+* $Id: C3dB_pfft.F,v 1.6 2008-04-21 19:34:25 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2150,7 +2150,7 @@
 
 
       call nwpw_timing_start(32)
-      call Cram_c_pack_start(fb,tmp2,tmp1,request,reqcnt,43)
+      call Cram_c_pack_start(nbb,tmp2,tmp1,request,reqcnt,43)
       call nwpw_timing_end(32)
 
       return
