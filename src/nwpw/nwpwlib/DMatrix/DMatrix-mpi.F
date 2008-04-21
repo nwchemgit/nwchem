@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix-mpi.F,v 1.6 2008-04-21 19:34:26 bylaska Exp $
+* $Id: DMatrix-mpi.F,v 1.7 2008-04-21 21:41:24 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -395,7 +395,12 @@ c         end do
 
       real*8  work1(*),work2(*)
 
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
 #include "mpif.h"
+#endif
 
 
 *     **** local variables ****
@@ -435,6 +440,19 @@ c     **** loop over all row pannels of C ***
      >                   work2,  iwrk)
          end if
 
+#ifdef MPI4
+c        **** broadcast work1  within my row ***
+         stupid_msglen = iwrk*ma(taskid_i+1)
+         stupid_taskid = jcur
+         call MPI_Bcast(work1,stupid_msglen,stupid_double,
+     >                  stupid_taskid,stupid_comm_j,stupid_ierr)
+
+c        **** broadcast work2  within my column ***
+         stupid_msglen = iwrk*nb(taskid_j+1)
+         stupid_taskid = icur
+         call MPI_Bcast(work2,stupid_msglen,stupid_double,
+     >                  stupid_taskid,stupid_comm_i,stupid_ierr)
+#else
 c        **** broadcast work1  within my row ***
          call MPI_Bcast(work1,iwrk*ma(taskid_i+1),MPI_DOUBLE_PRECISION,
      >                  jcur,comm_j,ierr)
@@ -442,6 +460,7 @@ c        **** broadcast work1  within my row ***
 c        **** broadcast work2  within my column ***
          call MPI_Bcast(work2,iwrk*nb(taskid_j+1),MPI_DOUBLE_PRECISION,
      >                  icur,comm_i,ierr)
+#endif
 
 
          if ((iwrk.gt.0)          .and.
@@ -510,7 +529,12 @@ c        **** broadcast work2  within my column ***
 
       real*8  work1(*),work2(*)
 
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
 #include "mpif.h"
+#endif
 
 
 *     **** local variables ****
@@ -546,8 +570,16 @@ c     **** loop over all row pannels of C ***
             end if
 
 c           **** broadcast work1  within my row ***
+#ifdef MPI4
+            stupid_msglen = iwrk*ma(taskid_i+1)
+            stupid_taskid = jcur
+            call MPI_Bcast(work1,stupid_msglen,
+     >                     stupid_double,stupid_taskid,
+     >                     stupid_comm_j,stupid_ierr)
+#else
             call MPI_Bcast(work1,iwrk*ma(taskid_i+1),
      >                     MPI_DOUBLE_PRECISION,jcur,comm_j,ierr)
+#endif
 
 
 c            if ((iwrk.gt.0)          .and.
@@ -569,8 +601,16 @@ c     >          (ma(taskid_i+1).gt.0))
 
 
 c        **** summ to node that holds current rows of C ****
+#ifdef MPI4
+         stupid_msglen = nc(taskid_j+1)*iwrk
+         stupid_taskid = icur
+         call MPI_Reduce(work2,work1,stupid_msglen,
+     >                   stupid_double,stupid_sum,
+     >                   stupid_taskid,stupid_comm_i,stupid_ierr)
+#else
          call MPI_Reduce(work2,work1,nc(taskid_j+1)*iwrk,
      >                   MPI_DOUBLE_PRECISION,MPI_SUM,icur,comm_i,ierr)
+#endif
 
 
 c        **** add to current rows of C ****
@@ -640,7 +680,12 @@ c        **** add to current rows of C ****
 
       real*8  work1(*),work2(*)
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
 #include "mpif.h"
+#endif
+
 
 *     **** local variables ****
       logical docalc1,docalc2
@@ -671,10 +716,15 @@ c        **** add to current rows of C ****
      >                   work2,     iwrk)
          end if
 
-
+#ifdef MPI4
+        stupid_msglen = iwrk*nb(taskid_j+1)
+        stupid_taskid = icur
+        call MPI_Bcast(work2,stupid_msglen,stupid_double,
+     >                  stupid_taskid,stupid_comm_i,stupid_ierr)
+#else
         call MPI_Bcast(work2,iwrk*nb(taskid_j+1),MPI_DOUBLE_PRECISION,
      >                  icur,comm_i,ierr)
-
+#endif
 
          if ((iwrk.gt.0)          .and.
      >       (na(taskid_j+1).gt.0).and.
@@ -686,9 +736,16 @@ c        **** add to current rows of C ****
      >              0.0d0,
      >              work1, mc(taskid_i+1))
 
-
+#ifdef MPI4
+        stupid_msglen = mc(taskid_i+1)*iwrk
+        stupid_taskid = jcur
+        call MPI_Reduce(work1,work2,stupid_msglen,stupid_double,
+     >                  stupid_sum,stupid_taskid,
+     >                  stupid_comm_j,stupid_ierr)
+#else
         call MPI_Reduce(work1,work2,mc(taskid_i+1)*iwrk,
      >                   MPI_DOUBLE_PRECISION,MPI_SUM,jcur,comm_j,ierr)
+#endif
 
 
          if (taskid_j.eq.jcur) then
@@ -748,8 +805,11 @@ c        **** add to current rows of C ****
       integer comm_i,comm_j
       real*8  work1(*),work2(*)
 
-
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
 #include "mpif.h"
+#endif
 
 *     **** local variables ****
       integer MAXITER
@@ -828,12 +888,20 @@ c        **** add to current rows of C ****
                if (jcur1.eq.taskid_j)
      >             call dcopy(mq(taskid_i+1),Q(1,jj1),1,work2,1)
 
-
+#ifdef MPI4
+               stupid_msglen = mq(taskid_i+1)
+               stupid_taskid = jcur0
+               stupid_type   = jcur1
+               call MPI_Bcast(work1,stupid_msglen,stupid_double,
+     >                  stupid_taskid,stupid_comm_j,stupid_ierr)
+               call MPI_Bcast(work2,stupid_msglen,stupid_double,
+     >                  stupid_type,stupid_comm_j,stupid_ierr)
+#else
                call MPI_Bcast(work1,mq(taskid_i+1),MPI_DOUBLE_PRECISION,
      >                  jcur0,comm_j,ierr)
                call MPI_Bcast(work2,mq(taskid_i+1),MPI_DOUBLE_PRECISION,
      >                  jcur1,comm_j,ierr)
-
+#endif
 
                if (jcur0.eq.taskid_j) then
                   do ii=1,mq(taskid_i+1)
@@ -898,7 +966,11 @@ c        **** add to current rows of C ****
 
       real*8  work1(*),work2(*)
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
 #include "mpif.h"
+#endif
 
 *     **** local variables ****
       integer i,j,ii,jj
@@ -972,16 +1044,30 @@ c        **** add to current rows of C ****
                ii = 1
             end if
          end do
+#ifdef MPI4
+         stupid_msglen = 1
+         call MPI_AllReduce(mu0,mu,stupid_msglen,
+     >                      stupid_double,stupid_sum,
+     >                      stupid_comm_i,stupid_ierr)
+#else
          call MPI_AllReduce(mu0,mu,1,
      >                      MPI_DOUBLE_PRECISION,MPI_SUM,comm_i,ierr)
+#endif
          mu = dsqrt(mu)
 
 
          if (mu.ne.0.0d0) then
            if (icur1.eq.taskid_i)
      >        beta = V(ii1,jj0) + dsign(mu,V(ii1,jj0))
+#ifdef MPI4
+           stupid_msglen = 1
+           stupid_taskid = icur1
+           call MPI_Bcast(beta,stupid_msglen,stupid_double,
+     >                  stupid_taskid,stupid_comm_i,stupid_ierr)
+#else
            call MPI_Bcast(beta,1,MPI_DOUBLE_PRECISION,
      >                  icur1,comm_i,ierr)
+#endif
 
            icur = icur2
            ii   = ii2
@@ -1008,13 +1094,26 @@ c        **** add to current rows of C ****
                ii = 1
             end if
          end do
+#ifdef MPI4
+         stupid_msglen = 1
+         call MPI_AllReduce(v20,v2,stupid_msglen,
+     >                      stupid_double,stupid_sum,
+     >                      stupid_comm_i,stupid_ierr)
+#else
          call MPI_AllReduce(v20,v2,1,
      >                      MPI_DOUBLE_PRECISION,MPI_SUM,comm_i,ierr)
+#endif
          v2 = 2.0d0/v2
       end if
+#ifdef MPI4
+      stupid_msglen = 1
+      stupid_taskid = jcur0
+      call MPI_Bcast(v2,stupid_msglen,stupid_double,
+     >               stupid_taskid,stupid_comm_j,stupid_ierr)
+#else
       call MPI_Bcast(v2,1,MPI_DOUBLE_PRECISION,
      >               jcur0,comm_j,ierr)
-
+#endif
 
       call DMatrix_eye(n,n,1.0d0,Q,lda,ma,na,taskid_i,taskid_j)
       call DMatrix_dgemm3(n,n,n,64,
@@ -1055,7 +1154,12 @@ c        **** add to current rows of C ****
       integer comm_i,comm_j
       real*8  work1(*),work2(*)
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
 #include "mpif.h"
+#endif
+
 
 *     **** local variables ****
       logical notdone
@@ -1102,10 +1206,20 @@ c        **** add to current rows of C ****
             if (jcur1.eq.taskid_j)
      >         call dcopy(mq(taskid_i+1),Q(1,jj1),1,work2,1)
 
+#ifdef MPI4
+            stupid_msglen = mq(taskid_i+1)
+            stupid_taskid = jcur0
+            stupid_type   = jcur1
+            call MPI_Bcast(work1,stupid_msglen,stupid_double,
+     >                     stupid_taskid,stupid_comm_j,stupid_ierr)
+            call MPI_Bcast(work2,stupid_msglen,stupid_double,
+     >                     stupid_type,stupid_comm_j,stupid_ierr)
+#else
             call MPI_Bcast(work1,mq(taskid_i+1),MPI_DOUBLE_PRECISION,
      >                     jcur0,comm_j,ierr)
             call MPI_Bcast(work2,mq(taskid_i+1),MPI_DOUBLE_PRECISION,
      >                     jcur1,comm_j,ierr)
+#endif
 
             if (jcur0.eq.taskid_j)
      >         call dcopy(mq(taskid_i+1),work2,1,Q(1,jj0),1)
@@ -1142,7 +1256,12 @@ c        **** add to current rows of C ****
       integer comm_i,comm_j
       real*8  work1(*)
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
 #include "mpif.h"
+#endif
+
 
 
 *     **** local variables ****
@@ -1174,16 +1293,31 @@ c        **** add to current rows of C ****
          end do
          work1(j) = A(ii,jj)
 
+#ifdef MPI4
+         stupid_msglen = 1
+         stupid_taskid = icur
+         call MPI_Bcast(work1(j),stupid_msglen,stupid_double,
+     >                  stupid_taskid,stupid_comm_i,stupid_ierr)
+#else
          call MPI_Bcast(work1(j),1,MPI_DOUBLE_PRECISION,
      >                  icur,comm_i,ierr)
+#endif
          jj = jj + 1
          if (jj.gt.na(jcur+1)) then
             jcur = jcur + 1
             jj = 1
          end if
       end do
+
+#ifdef MPI4
+      stupid_msglen = n
+      call MPI_AllReduce(work1,eig,stupid_msglen,
+     >                   stupid_double,stupid_sum,
+     >                   stupid_comm_j,stupid_ierr)
+#else
       call MPI_AllReduce(work1,eig,n,
      >                   MPI_DOUBLE_PRECISION,MPI_SUM,comm_j,ierr)
+#endif
 
 
 *     ******************************
@@ -1236,7 +1370,12 @@ c        **** add to current rows of C ****
 c     implicit none
       real*8  sum
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
 #include "mpif.h"
+#endif
+
 
       integer msglen,mpierr,np
       real*8  sumall
@@ -1246,8 +1385,14 @@ c     implicit none
       call Parallel_np(np)
       if (np.gt.1) then
         msglen = 1
+#ifdef MPI4
+        stupid_msglen = 1
+        call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
+     >                      stupid_max,stupid_world,stupid_ierr)
+#else
         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
      >                      MPI_MAX,MPI_COMM_WORLD,mpierr)
+#endif
         sum = sumall
       end if
 
@@ -1266,7 +1411,12 @@ c     implicit none
 c     implicit none
       real*8  sum
 
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
 #include "mpif.h"
+#endif
+
 
       integer msglen,mpierr,np
       real*8  sumall
@@ -1276,8 +1426,14 @@ c     implicit none
       call Parallel_np(np)
       if (np.gt.1) then
         msglen = 1
+#ifdef MPI4
+        stupid_msglen = msglen
+        call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
+     >                      stupid_sum,stupid_world,stupid_ierr)
+#else
         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
      >                      MPI_SUM,MPI_COMM_WORLD,mpierr)
+#endif
         sum = sumall
       end if
 
@@ -1304,6 +1460,10 @@ c     implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 *     **** local variables ****
       logical value
@@ -1347,7 +1507,31 @@ c     implicit none
             if (psend.eq.precv) then
                if (psend.eq.taskid) B(rr,ss) = A(ii,jj)
             else
+#ifdef MPI4
                !**** send ****
+               if (psend.eq.taskid) then
+                  stupid_msglen = 1
+                  stupid_type   = msgtype
+                  stupid_taskid = precv
+                  call MPI_SEND(A(ii,jj),
+     >                          stupid_msglen,stupid_double,
+     >                          stupid_taskid,
+     >                          stupid_type,stupid_world,stupid_ierr)
+               end if
+
+               !**** recv ****
+               if (precv.eq.taskid) then
+                  stupid_msglen = msglen
+                  stupid_type   = msgtype
+                  stupid_taskid = psend
+                  call MPI_RECV(B(rr,ss),
+     >                       stupid_msglen,stupid_double,
+     >                       stupid_taskid,
+     >                       stupid_type,stupid_world,
+     >                       int_mb(status(1)),stupid_ierr)
+               end if
+
+#else
                if (psend.eq.taskid)
      >         call MPI_SEND(A(ii,jj),1,
      >                       MPI_DOUBLE_PRECISION,precv,
@@ -1359,6 +1543,7 @@ c     implicit none
      >                       MPI_DOUBLE_PRECISION,psend,
      >                       msgtype,MPI_COMM_WORLD,
      >                       int_mb(status(1)),mpierr)
+#endif
             end if
            
 
