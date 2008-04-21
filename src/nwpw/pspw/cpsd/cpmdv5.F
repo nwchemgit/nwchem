@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.64 2008-04-15 22:58:29 bylaska Exp $
+* $Id: cpmdv5.F,v 1.65 2008-04-21 23:23:52 bylaska Exp $
 *
 
 ***********************************************************************
@@ -1190,6 +1190,7 @@ c         end if
       end if 
 
 
+      call Parallel2d_Finalize()
       call Parallel_Finalize()
       cpmdv5 = value
       return

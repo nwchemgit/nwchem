@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.57 2007-10-02 21:39:09 bylaska Exp $
+* $Id: cpsdv5.F,v 1.58 2008-04-21 23:23:52 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -900,6 +900,7 @@ c            write(luout,1706) E(18)
       end if 
 
 
+      call Parallel2d_Finalize()
       call Parallel_Finalize()
       cpsdv5 = value
       return
