@@ -1,0 +1,13 @@
+*
+* $Id: K1dB.fh,v 1.1 2008-04-22 00:50:01 bylaska Exp $
+*
+
+      integer nq,nz,mapping,np_k
+      common    / K1dB / nq,nz,mapping,np_k
+
+      !**** 1d mapping ****
+      integer nqarray(2)
+      integer q_map(2),p_map(2),k_map(2)
+      common / K1dB_mapping / q_map,p_map,k_map,nqarray
+
+

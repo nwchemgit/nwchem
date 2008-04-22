@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.fh,v 1.2 2006-12-05 00:14:41 bylaska Exp $
+* $Id: Pneb.fh,v 1.3 2008-04-22 00:50:04 bylaska Exp $
 *
 
       logical spin_orbit,im_init
@@ -8,4 +8,20 @@
      >                          nbrill,nbrillq,
      >                          ispin,ispinq,
      >                          spin_orbit,im_init
+
+
+      logical parallelized_j,parallelized_k
+      integer taskid_i,taskid_j,taskid_k
+      integer np_i,np_j,np_k
+      integer comm_i,comm_j,comm_k
+      integer ma(2,NBLOCKS),na(2,NBLOCKS)
+      integer mc(2,NBLOCKS),nc(2,NBLOCKS)
+      integer mcq(NBLOCKS),ncq(NBLOCKS)
+      common    / Pneb_sub / ma,na,mc,nc,
+     >                      mcq,ncq,
+     >                      taskid_i,taskid_j,taskid_k,
+     >                      np_i,np_j,np_k,
+     >                      comm_i,comm_j,comm_k,
+     >                      parallelized_j,parallelized_k
+
 
