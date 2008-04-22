@@ -2,7 +2,7 @@
      $                   frc_kin, frc_wgh, g_force,
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb, oskel )
-c$Id: grad1.F,v 1.16 2005-04-02 02:07:48 marat Exp $
+c$Id: grad1.F,v 1.17 2008-04-22 22:00:19 niri Exp $
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 C     now also UMP2
@@ -15,6 +15,7 @@ C     now also UMP2
 #include "bas.fh"
 #include "rtdb.fh"
 #include "sym.fh"
+#include "bq_params.fh"
 
 C-------------------------parameters--------------------------------
       integer lbuf, lscr,
@@ -56,7 +57,8 @@ C-------------------------local variables--------------------------
 
       integer bq_ncent
       integer i_qbq,i_cbq
-
+      double precision r12
+c
       integer nxtask, task_size
       external nxtask
 
@@ -226,14 +228,19 @@ c     --------------------------------------------------
             dx = crd2(1) - crd1(1)
             dy = crd2(2) - crd1(2)
             dz = crd2(3) - crd1(3)
-            fact = q1 * q2 / SQRT ( dx*dx + dy*dy + dz*dz ) **3
-            dE = dx * fact
-            frc_nuc(1,iat1) = frc_nuc(1,iat1) + dE
-            dE = dy * fact
-            frc_nuc(2,iat1) = frc_nuc(2,iat1) + dE
-            dE = dz * fact
-            frc_nuc(3,iat1) = frc_nuc(3,iat1) + dE
 
+c           == check for small distances (the regions could overlap) ==
+            r12 = sqrt(dx*dx + dy*dy + dz*dz) 
+            if (r12.gt.bq_smalldist) then
+              fact = q1 * q2 / SQRT ( dx*dx + dy*dy + dz*dz ) **3
+              dE = dx * fact
+              frc_nuc(1,iat1) = frc_nuc(1,iat1) + dE
+              dE = dy * fact
+              frc_nuc(2,iat1) = frc_nuc(2,iat1) + dE
+              dE = dz * fact
+              frc_nuc(3,iat1) = frc_nuc(3,iat1) + dE
+            end if
+c
             next = nxtask(nproc,task_size)
           endif
  81     continue
@@ -248,7 +255,7 @@ c     --------------------------------------------------
      $                   frc_kin, frc_wgh, g_force,
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb, oskel )
-c$Id: grad1.F,v 1.16 2005-04-02 02:07:48 marat Exp $
+c$Id: grad1.F,v 1.17 2008-04-22 22:00:19 niri Exp $
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 C     now also UMP2

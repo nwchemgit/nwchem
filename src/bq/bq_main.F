@@ -1,4 +1,4 @@
-c $Id: bq_main.F,v 1.5 2006-03-07 23:13:41 marat Exp $
+c $Id: bq_main.F,v 1.6 2008-04-22 21:59:58 niri Exp $
 
       function bq_init(rtdb)
       implicit none
@@ -60,7 +60,8 @@ c
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "global.fh"
-
+#include "bq_params.fh"
+c
       integer rtdb
       double precision ebq
       logical bq_nuc_energy
@@ -69,7 +70,7 @@ c
       integer bq_handle
       integer bq_ncent
       integer ncent
-
+c
       integer i,j
       integer i_cbq,i_qbq
       integer h_c,h_t,h_q
@@ -77,22 +78,22 @@ c
       integer ioff,joff
       double precision rx,ry,rz,r
       integer geom
+      double precision qiqj
 c
-       logical  bq_ncenter
-       external bq_ncenter
-
-       logical  bq_index_coord
-       external bq_index_coord
-
-       logical  bq_index_charge
-       external bq_index_charge
-
-       logical  bq_destroy
-       external bq_destroy
-
-       logical  bq_get_active
-       external bq_get_active
-
+      logical  bq_ncenter
+      external bq_ncenter
+c
+      logical  bq_index_coord
+      external bq_index_coord
+c
+      logical  bq_index_charge
+      external bq_index_charge
+c
+      logical  bq_destroy
+      external bq_destroy
+c
+      logical  bq_get_active
+      external bq_get_active
 c   
       pname = "bq_nuc_rep_energy"
 c
@@ -119,7 +120,7 @@ c
 c
       if(.not. geom_ncent(geom, ncent) ) 
      >    call errquit("qmmm:geom_ncent",0,0)
-
+c
       if(.not.ma_push_get(mt_dbl,3*ncent,'bq c',h_c,i_c))
      + call errquit(pname//': Failed to allocate memory for c',
      + 3*ncent, MA_ERR)
@@ -146,12 +147,15 @@ c
            rz = dbl_mb(ioff+2)-dbl_mb(joff+2)
            rz = rz*rz
            r  = sqrt(rx+ry+rz)
-           ebq = ebq + dbl_mb(i_q+i-1)*dbl_mb(i_qbq+j-1)/r
+           qiqj = dbl_mb(i_q+i-1)*dbl_mb(i_qbq+j-1)
+           if (r.gt.bq_smalldist) then
+             ebq = ebq + qiqj/r
+           end if
          end do
       end do
 c
       if(ga_nodeid().eq.0) then
-        write(*,*) "Bq nuclear interaction energy is", ebq 
+        write(*,*) "Bq nuclear interaction energy =", ebq 
       end if
 c 
       if(.not.ma_pop_stack(h_t))
@@ -176,7 +180,8 @@ c
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "global.fh"
-
+#include "bq_params.fh"
+c
       integer geom
       double precision e
       logical bq_add_nuc_rep_energy
@@ -197,24 +202,22 @@ c
 #endif
       double precision rx,ry,rz,r
       double precision ebq
+      double precision qiqj
 c
-       logical  bq_ncenter
-       external bq_ncenter
-
-       logical  bq_index_coord
-       external bq_index_coord
-
-       logical  bq_index_charge
-       external bq_index_charge
-
-       logical  bq_destroy
-       external bq_destroy
-
-       logical  bq_get_active
-       external bq_get_active
-
-
-
+      logical  bq_ncenter
+      external bq_ncenter
+c
+      logical  bq_index_coord
+      external bq_index_coord
+c
+      logical  bq_index_charge
+      external bq_index_charge
+c
+      logical  bq_destroy
+      external bq_destroy
+c
+      logical  bq_get_active
+      external bq_get_active
 c   
       pname = "bq_add_nuc_rep_energy"
 c
@@ -265,7 +268,10 @@ c
            rz = dbl_mb(ioff+2)-dbl_mb(joff+2)
            rz = rz*rz
            r  = sqrt(rx+ry+rz)
-           ebq = ebq + dbl_mb(i_q+i-1)*dbl_mb(i_qbq+j-1)/r
+           qiqj = dbl_mb(i_q+i-1)*dbl_mb(i_qbq+j-1)
+           if (r.gt.bq_smalldist) then
+             ebq = ebq + qiqj/r
+           end if
          end do
 #ifdef NO_BQGEM
       endif
@@ -273,7 +279,8 @@ c
       end do
 c
       if(ga_nodeid().eq.0) then
-        write(*,*) "Bq nuclear interaction energy is", ebq 
+        write(*,*) "Nuclear repulsion energy =", e 
+        write(*,*) "Bq nuclear interaction energy =", ebq 
       end if
 c 
       e = e + ebq

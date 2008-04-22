@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.4 2005-08-08 21:55:11 edo Exp $
+# $Id: GNUmakefile,v 1.5 2008-04-22 21:59:58 niri Exp $
   LIBRARY = libbq.a
   
   OBJ = bq_input.o bq_data.o bq_rtdb.o bq_main.o
@@ -7,7 +7,7 @@
  
  
 
-HEADERS = bq.fh
+HEADERS = bq.fh bq_params.fh
 
 include ../config/makefile.h
 include ../config/makelib.h
