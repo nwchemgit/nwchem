@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.42 2008-04-18 23:29:37 bylaska Exp $
+* $Id: c_electron.F,v 1.43 2008-04-22 17:42:21 bylaska Exp $
 *
 
 
@@ -1163,9 +1163,10 @@ c     >                     dn)
        end do
       end if
 
-      !do ms=1,ispin
-      ! call C1dB_Vector_SumAll(nfft3d,dn(1,ms))
-      !end do
+*     *** reduce over brillioun zone ***
+      do ms=1,ispin
+       call K1dB_Vector_SumAll(nfft3d,dn(1,ms))
+      end do
 
       call C3dB_r_SMul(1,scal2,dn,dn)
       if (ispin.gt.1) 

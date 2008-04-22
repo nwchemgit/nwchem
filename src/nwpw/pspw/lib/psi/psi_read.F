@@ -1,5 +1,5 @@
 *
-* $Id: psi_read.F,v 1.16 2007-09-24 16:58:14 bylaska Exp $
+* $Id: psi_read.F,v 1.17 2008-04-22 17:42:23 bylaska Exp $
 *
 
 *     ***********************************
@@ -27,7 +27,7 @@
       character*30 filename
       character*255 full_filename
 
-      integer MASTER,taskid,taskid_j,np_j
+      integer MASTER,taskid,taskid_j
       parameter(MASTER=0)
       integer n,q,pj
       integer msglen

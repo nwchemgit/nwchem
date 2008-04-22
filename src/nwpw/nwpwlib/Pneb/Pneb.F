@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.35 2008-04-22 00:50:03 bylaska Exp $
+* $Id: Pneb.F,v 1.36 2008-04-22 17:42:23 bylaska Exp $
 *
 #define NBLOCKS 4
 
@@ -159,15 +159,29 @@ cccccccccccccccccccccccccc
 
 #include "Pneb.fh"
 
+*     **** external functions ****
+      integer  Parallel3d_comm_i,Parallel3d_comm_j,Parallel3d_comm_k
+      external Parallel3d_comm_i,Parallel3d_comm_j,Parallel3d_comm_k
+
       ispin   = ispin_in
       ne(1)   = ne_in(1)
       ne(2)   = ne_in(2)
       nbrill  = nbrill_in
       spin_orbit = spin_orbit_in
-  
+
       neq(1)  = ne(1)
       neq(2)  = ne(2)
-      nbrillq = nbrill
+
+      call K1dB_nq(nbrillq)
+      call Parallel3d_np_i(np_i)
+      call Parallel3d_np_j(np_j)
+      call Parallel3d_np_k(np_k)
+      comm_i = Parallel3d_comm_i()
+      comm_j = Parallel3d_comm_j()
+      comm_k = Parallel3d_comm_k()
+      parallelized_k = (np_k.gt.1)
+  
+
       if (spin_orbit) then
          ispinq = 1
       else
@@ -301,11 +315,12 @@ cccccccccccccccccccccccccc
 *     *            Pneb_convert_nb           *
 *     *                                      *
 *     ****************************************
-      integer function Pneb_convert_nb(nb)
+      integer function Pneb_convert_nb(nbq)
       implicit none
-      integer nb
+      integer nbq,nb
 
-c     *** placeholder until nbrill parallelized ***
+      call K1dB_qtok(nbq,nb)
+
       Pneb_convert_nb = nb
       return
       end 
@@ -349,7 +364,7 @@ c if (mb==0 && nb==0)
       integer mbsize,nbsize
 
       if (nb.eq.0) then
-        nbsize = nbrill
+        nbsize = nbrillq
       else
         nbsize = 1
       end if
@@ -385,7 +400,7 @@ c     ****************************************
       integer mbsize,nbsize
 
       if (nb.eq.0) then
-        nbsize = nbrill
+        nbsize = nbrillq
       else
         nbsize = 1
       end if
@@ -1465,7 +1480,7 @@ c     ** local variables ****
 
       if (nbb.eq.0) then
         nb1=1
-        nb2=nbrill
+        nb2=nbrillq
       else
         nb1=nbb
         nb2=nbb
@@ -1585,8 +1600,8 @@ c     ccccc local variables ccccc
       oprint = ((taskid.eq.MASTER).and.control_print(print_high))
       if (nbb.eq.0) then
          nb1=1
-         nb2=nbrill
-         asize=2*nbrill
+         nb2=nbrillq
+         asize=2*nbrillq
       else
          nb1=nbb
          nb2=nbb
@@ -1805,7 +1820,7 @@ c     ***** local variables ****
 c     ccccccccc first line ccccccccc
       if (nbb.eq.0) then
          nb1=1
-         nb2=nbrill
+         nb2=nbrillq
       else
          nb1=nbb
          nb2=nbb
@@ -1937,7 +1952,7 @@ c     ***** local variables ****
 c     ccccccccc first line ccccccccc
       if (nbb.eq.0) then
          nb1=1
-         nb2=nbrill
+         nb2=nbrillq
       else
          nb1=nbb
          nb2=nbb
@@ -2063,13 +2078,13 @@ c     ** external functions
       sum=0.0d0
       if (nbb.eq.0) then
         nb1 = 1
-        nb2 = nbrill
+        nb2 = nbrillq
       else
         nb1 = nbb
         nb2 = nbb
       end if
 
-      value=MA_push_get(mt_dbl,(2*nbrill),'tmp2',tmp2(2),tmp2(1))
+      value=MA_push_get(mt_dbl,(2*nbrillq),'tmp2',tmp2(2),tmp2(1))
       if (.not.value) then
        call errquit('out of stack memory',0,MA_ERR)
       end if
@@ -2202,7 +2217,7 @@ c     ****************************************
 
       if (nbb.eq.0) then
         nb1 = 1
-        nb2 = nbrill
+        nb2 = nbrillq
       else
         nb1 = nbb
         nb2 = nbb

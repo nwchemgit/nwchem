@@ -1,5 +1,5 @@
 *
-* $Id: brillioun.F,v 1.1 2006-04-10 18:05:19 bylaska Exp $
+* $Id: brillioun.F,v 1.2 2008-04-22 17:42:23 bylaska Exp $
 *
 
 *     ***********************************
@@ -9,9 +9,10 @@
 *     ***********************************
       subroutine brillioun_init()
       implicit none
-#include "errquit.fh"
+      integer map_in
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "brillioun_common.fh"
 
 *     **** local variables ****
@@ -25,6 +26,9 @@
       external control_num_kvectors
 
       nbrillioun = control_num_kvectors()
+
+      map_in = 1
+      call K1dB_init(nbrillioun,map_in)
 
 *     **** allocate from MA heap ****
       value = MA_alloc_get(mt_dbl,(nbrillioun),
@@ -135,6 +139,8 @@
 
 *     **** local variables ****
       logical value
+
+      call K1dB_end()
 
       value = MA_free_heap(weight(2))
       value = value.and.MA_free_heap(ks(2))

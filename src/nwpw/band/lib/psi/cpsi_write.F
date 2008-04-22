@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_write.F,v 1.13 2007-11-03 19:57:05 bylaska Exp $
+* $Id: cpsi_write.F,v 1.14 2008-04-22 17:42:21 bylaska Exp $
 *
 
 *     ***************************
@@ -25,9 +25,10 @@
       character*30 filename
       character*255 full_filename
 
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_j,taskid_k
       parameter(MASTER=0)
       integer n,nb,indx,occupation
+      integer q,pj,nbq,pk
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
@@ -42,6 +43,8 @@ c     complex*16 tmp(*)
       external control_ngrid,cpsi_data_get_ptr,cpsi_data_get_next
 
       call Parallel_taskid(taskid)
+      call Parallel3d_taskid_j(taskid_j)
+      call Parallel3d_taskid_k(taskid_k)
       call C3dB_nfft3d(1,nfft3d)
       occupation = cpsi_data_get_next(psi2_tag)
 
@@ -93,13 +96,18 @@ c     complex*16 tmp(*)
 
 *     *** write out 3d blocks ***
       do nb=1,nbrillioun
-      do n=1,(ne(1)+ne(2))
-         indx = cpsi_data_get_ptr(psi2_tag,nb,n)
-         call Cram_c_Copy(nb,dbl_mb(indx),dcpl_mb(tmp2(1)))
-         call Cram_c_unpack(nb,dcpl_mb(tmp2(1)))          
+         call K1dB_ktoqp(nb,nbq,pk)
+         do n=1,(ne(1)+ne(2))
+         pj = 0
+         q = n
+         if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
+            indx = cpsi_data_get_ptr(psi2_tag,nbq,q)
+            call Cram_c_Copy(nbq,dbl_mb(indx),dcpl_mb(tmp2(1)))
+            call Cram_c_unpack(nbq,dcpl_mb(tmp2(1)))          
+         end if
          call C3dB_c_write(1,6,dcpl_mb(tmp2(1)),
-     >                         dcpl_mb(tmp(1)))
-      end do
+     >                         dcpl_mb(tmp(1)),pj,pk)
+         end do
       end do
 
 *     **** write the occupations - needs to be reworked for parallel nbrill,ne ****
@@ -154,9 +162,10 @@ c     complex*16 tmp(*)
       real*8  unita(3,3)
       character*255 full_filename
 
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_j,taskid_k
       parameter(MASTER=0)
       integer n,nb,indx
+      integer q,pj,nbq,pk
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2),occupation
@@ -169,6 +178,8 @@ c     complex*16 tmp(*)
       external control_ngrid,cpsi_data_get_ptr,cpsi_data_get_next
 
       call Parallel_taskid(taskid)
+      call Parallel3d_taskid_j(taskid_j)
+      call Parallel3d_taskid_k(taskid_k)
       call C3dB_nfft3d(1,nfft3d)
       occupation = cpsi_data_get_next(psi2_tag)
 
@@ -219,13 +230,18 @@ c     complex*16 tmp(*)
 
 *     *** write out 3d blocks ***
       do nb=1,nbrillioun
-      do n=1,(ne(1)+ne(2))
-         indx = cpsi_data_get_ptr(psi2_tag,nb,n)
-         call Cram_c_Copy(nb,dbl_mb(indx),dcpl_mb(tmp2(1)))
-         call Cram_c_unpack(nb,dcpl_mb(tmp2(1)))          
-         call C3dB_c_write(1,6,dcpl_mb(tmp2(1)),
-     >                         dcpl_mb(tmp(1)))
-      end do
+         call K1dB_ktoqp(nb,nbq,pk)
+         do n=1,(ne(1)+ne(2))
+            pj=0
+            q=n
+            if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
+               indx = cpsi_data_get_ptr(psi2_tag,nbq,q)
+               call Cram_c_Copy(nbq,dbl_mb(indx),dcpl_mb(tmp2(1)))
+               call Cram_c_unpack(nbq,dcpl_mb(tmp2(1)))          
+            endif
+            call C3dB_c_write(1,6,dcpl_mb(tmp2(1)),
+     >                         dcpl_mb(tmp(1)),pj,pk)
+         end do
       end do
 
 *     *** close ELCIN binary file ***
@@ -263,9 +279,10 @@ c     complex*16 tmp(*)
       character*30 filename
       character*255 full_filename
       character*255 bfull_filename
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_j,taskid_k
       parameter(MASTER=0)
       integer n,nb,indx
+      integer q,pj,nbq,pk
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2),occupation
@@ -280,6 +297,8 @@ c     complex*16 tmp(*)
       external control_ngrid,cpsi_data_get_ptr,cpsi_data_get_next
 
       call Parallel_taskid(taskid)
+      call Parallel3d_taskid_j(taskid_j)
+      call Parallel3d_taskid_k(taskid_k)
       call C3dB_nfft3d(1,nfft3d)
       occupation = cpsi_data_get_next(psi2_tag)
 
@@ -342,15 +361,20 @@ c     complex*16 tmp(*)
 
 *     *** write out 3d blocks ***
       do nb=1,nbrillioun
-      do n=1,(ne(1)+ne(2))
-         indx = cpsi_data_get_ptr(psi2_tag,nb,n)
-         call Cram_c_Copy(nb,dbl_mb(indx),dcpl_mb(tmp2(1)))
-         call Cram_c_unpack(nb,dcpl_mb(tmp2(1)))          
-         call C3dB_c_write(1,6,dcpl_mb(tmp2(1)),
-     >                         dcpl_mb(tmp(1)))
-         call C3dB_c_write(1,37,dcpl_mb(tmp2(1)),
-     >                          dcpl_mb(tmp(1)))
-      end do
+         call K1dB_ktoqp(nb,nbq,pk)
+         do n=1,(ne(1)+ne(2))
+            pj=0
+            q=n
+            if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
+               indx = cpsi_data_get_ptr(psi2_tag,nbq,q)
+               call Cram_c_Copy(nbq,dbl_mb(indx),dcpl_mb(tmp2(1)))
+               call Cram_c_unpack(nbq,dcpl_mb(tmp2(1)))          
+            end if
+            call C3dB_c_write(1,6,dcpl_mb(tmp2(1)),
+     >                         dcpl_mb(tmp(1)),pj,pk)
+            call C3dB_c_write(1,37,dcpl_mb(tmp2(1)),
+     >                          dcpl_mb(tmp(1)),pj,pk)
+         end do
       end do
 
 *     *** close ELCIN binary file ***

@@ -1,5 +1,5 @@
 *
-* $Id: K1dB.F,v 1.1 2008-04-22 00:50:00 bylaska Exp $
+* $Id: K1dB.F,v 1.2 2008-04-22 17:42:23 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -60,7 +60,7 @@
       value=value.and.MA_alloc_get(mt_int,np_k,'nqarray',
      >                               nqarray(2),nqarray(1))
       if (.not. value)
-     > call errquit('Mapping_init:out of heap memory',0, MA_ERR)
+     > call errquit('k_Mapping_init:out of heap memory',0, MA_ERR)
 
 
 *     ****************************

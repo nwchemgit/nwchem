@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.17 2007-11-17 00:05:48 bylaska Exp $
+* $Id: cpsi_read.F,v 1.18 2008-04-22 17:42:21 bylaska Exp $
 *
 
 *     ***************************
@@ -27,11 +27,12 @@
       character*255 full_filename
 
 *     **** local variables ****
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_j,taskid_k
       parameter(MASTER=0)
       logical brillioun_check,psi_nolattice
       integer n,nb,nbrill,occupation,ms
       integer msglen,psiold,psiold1
+      integer q,pj,nbq,pk
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
@@ -52,6 +53,8 @@ c     complex*16 tmp(*)
       external cpsi_data_get_chnk
 
       call Parallel_taskid(taskid)
+      call Parallel3d_taskid_j(taskid_j)
+      call Parallel3d_taskid_k(taskid_k)
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
 
@@ -164,29 +167,39 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       if (nbrillioun.le.nbrill) then
 
         do nb=1,nbrillioun
-        do n=1,(ne(1)+ne(2))
-         !indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
-         call C3dB_c_Read(1,5,dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp(1)))
-         call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-         !call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
-         call cpsi_data_add(psi2_tag,nb,n,dcpl_mb(tmp2(1)))
-        end do
+           call K1dB_ktoqp(nb,nbq,pk)
+           do n=1,(ne(1)+ne(2))
+              pj=0
+              q=n
+              call C3dB_c_Read(1,5,dcpl_mb(tmp2(1)),
+     >                           dcpl_mb(tmp(1)),pj,pk)
+
+            if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
+               call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
+               call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
+            end if
+           end do
         end do
 
 *     * file contains less data then necessary *
       else 
 
         do nb=1,nbrill
-        do n=1,(ne(1)+ne(2))
-         !indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
-         call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp(1)))
-         call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-         !call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
-         call cpsi_data_add(psi2_tag,nb,n,dcpl_mb(tmp2(1)))
+           call K1dB_ktoqp(nb,nbq,pk)
+           do n=1,(ne(1)+ne(2))
+              pj=0
+              q=n
+
+             call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+     >                        dcpl_mb(tmp(1)),pj,pk)
+
+             if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
+                call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
+                call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
+             end if
         end do
         end do
+*       **** -needs to be reworked for parallel ****
 *       **** use the last zone for filling in unknown zones ****
         psiold1 = cpsi_data_get_chnk(psi2_tag,nbrill)
         do nb=nbrill+1,nbrillioun
@@ -273,11 +286,12 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       character*255 full_filename
 
 *     **** local variables ****
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_j,taskid_k
       parameter(MASTER=0)
       logical brillioun_check,psi_nolattice
       integer n,nb,nbrill,occupation
       integer msglen,psiold,psiold1
+      integer q,pj,nbq,pk
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
@@ -290,9 +304,10 @@ c     complex*16 tmp(*)
       external control_ngrid,control_rtdb,cpsi_data_get_chnk
 
       call Parallel_taskid(taskid)
+      call Parallel3d_taskid_j(taskid_j)
+      call Parallel3d_taskid_k(taskid_k)
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
-
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -399,30 +414,37 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       if (nbrillioun.le.nbrill) then
 
         do nb=1,nbrillioun
-        do n=1,(ne(1)+ne(2))
-         !indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
-         call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp(1)))
-         call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-         !call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
-         call cpsi_data_add(psi2_tag,nb,n,dcpl_mb(tmp2(1)))
-        end do
+           call K1dB_ktoqp(nb,nbq,pk)
+           do n=1,(ne(1)+ne(2))
+              pj=0
+              q=n
+              call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+     >                           dcpl_mb(tmp(1)),pj,pk)
+              if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
+                 call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
+                 call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
+              endif
+           end do
         end do
 
 *     * file contains less data then necessary *
       else 
 
         do nb=1,nbrill
-        do n=1,(ne(1)+ne(2))
-         !indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2)) 
-         call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp(1)))
-         call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-         !call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
-         call cpsi_data_add(psi2_tag,nb,n,dcpl_mb(tmp2(1)))
-        end do
+           call K1dB_ktoqp(nb,nbq,pk)
+           do n=1,(ne(1)+ne(2))
+              pj=0
+              q=n
+              call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+     >                        dcpl_mb(tmp(1)),pj,pk)
+              if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
+                 call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
+                 call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
+              end if
+           end do
         end do
 
+*       **** needs to be reworked for Parallel ****
 *       **** use the last zone for filling in unknown zones ****
         psiold1 = cpsi_data_get_chnk(psi2_tag,nbrill)
         do nb=nbrill+1,nbrillioun

@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.27 2008-04-21 23:23:30 bylaska Exp $
+* $Id: C3dB-new.F,v 1.28 2008-04-22 17:42:22 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1410,19 +1410,18 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_c_Read(nb,iunit,A,tmp)
+      subroutine C3dB_c_Read(nb,iunit,A,tmp,jcol,kcol)
       implicit none 
       integer nb
       integer iunit
       complex*16 A(*)
       complex*16 tmp(*)
+      integer jcol,kcol
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-
 #include "C3dB.fh"
-
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -1430,7 +1429,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       
 *     *** local variables ***
-      logical value
+      logical value,fillcolumn,fillzone
       integer MASTER,taskid
       parameter(MASTER=0)
       integer p_to, p_here,q
@@ -1438,7 +1437,38 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       integer source,msglen
       integer tmp1(2),tmp2(2)
 
+      integer taskid_j,np_j
+      integer taskid_k,np_k
+      integer ii,jj,kk,jstart,jend,kstart,kend
+
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_ijk
+      external Parallel3d_convert_taskid_ijk
+
       call Parallel_taskid(taskid)
+
+      call Parallel3d_np_j(np_j)
+      call Parallel3d_taskid_j(taskid_j)
+      if (jcol.lt.0) then
+         jstart = 0
+         jend = np_j-1
+         fillcolumn = .true.
+      else
+         jstart = jcol
+         jend   = jcol
+         fillcolumn = (taskid_j.eq.jcol)
+      endif
+      call Parallel3d_np_k(np_k)
+      call Parallel3d_taskid_k(taskid_k)
+      if (kcol.lt.0) then
+         kstart = 0
+         kend = np_k-1
+         fillzone = .true.
+      else
+         kstart = kcol
+         kend   = kcol
+         fillzone = (taskid_k.eq.kcol)
+      endif
 
 
       !**********************
@@ -1451,35 +1481,33 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
             call dread(iunit,tmp,2*nx(nb)*ny(nb))
 
-            call C3dB_ktoqp(nb,k,q,p_to)
-            if (p_to.eq.MASTER) then
-               index = 1 + (q-1)*nx(nb)*ny(nb)
-               call zcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
-            else
-               msglen = nx(nb)*ny(nb)
-
-
-               call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
-
-            end if
+            call C3dB_ktoqp(nb,k,q,ii)
+            do kk=kstart,kend
+            do jj=jstart,jend
+               p_to = Parallel3d_convert_taskid_ijk(ii,jj,kk)
+               if (p_to.eq.MASTER) then
+                  index = 1 + (q-1)*nx(nb)*ny(nb)
+                  call zcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
+               else
+                  msglen = nx(nb)*ny(nb)
+                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
+               end if
+            end do
+            end do
          end do
 
 *     **** not master node ****
-      else
+      else if (fillcolumn.and.fillzone) then
          do k=1,nz(nb)
-            call C3dB_ktoqp(nb,k,q,p_here)
+            call C3dB_ktoqp(nb,k,q,ii)
+            p_here = Parallel3d_convert_taskid_ijk(ii,taskid_j,taskid_k)
             if (p_here.eq.taskid) then
-
                msglen = nx(nb)*ny(nb)
                source  = MASTER
-
-
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                  source,rcv_proc,1)
-
                index = 1 + (q-1)*nx(nb)*ny(nb) 
                call zcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
-               
             end if
          end do
       end if
@@ -1491,7 +1519,6 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       !*************************
       else
 
-
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
@@ -1500,60 +1527,62 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
             call dread(iunit,tmp,2*nx(nb))
 
             q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_to = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-
-            if (p_to.eq.MASTER) then
-               index = 1 + (q-1)*nx(nb)
-               call zcopy(nx(nb),tmp,1,A(index),1)
-            else
-               msglen = nx(nb)
-               call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
-            end if
+            ii   = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            do kk=kstart,kend
+            do jj=jstart,jend
+               p_to = Parallel3d_convert_taskid_ijk(ii,jj,kk)
+               if (p_to.eq.MASTER) then
+                  index = 1 + (q-1)*nx(nb)
+                  call zcopy(nx(nb),tmp,1,A(index),1)
+               else
+                  msglen = nx(nb)
+                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
+               end if
+            end do
+            end do
          end do
          end do
 
 *     **** not master node ****
-      else
+      else if (fillcolumn.and.fillzone) then
          do k=1,nz(nb)
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = Parallel3d_convert_taskid_ijk(ii,taskid_j,taskid_k)
             if (p_here.eq.taskid) then
-
                msglen = nx(nb)
                source  = MASTER
-
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                  source,rcv_proc,1)
-
-
                index = 1 + (q-1)*nx(nb)
                call zcopy(nx(nb),tmp,1,A(index),1)
-
             end if
          end do
          end do
       end if
 
-*     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
-     >                    tmp1(2),tmp1(1))
-      value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (fillcolumn.and.fillzone) then
+*        **** allocate temporary space  ****
+         value =MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',tmp1(2),tmp1(1))
+         value =value.and.
+     >          MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+         if (.not. value) 
+     >      call errquit('C3dB_c_Read:out of stack memory',0,MA_ERR)
 *
-      call C3dB_c_transpose_ijk(nb,5,A,
+         call C3dB_c_transpose_ijk(nb,5,A,
      >                          dcpl_mb(tmp1(1)),
      >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
 
-*     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+*        **** deallocate temporary space  ****
+         value =           MA_pop_stack(tmp2(2))
+         value = value.and.MA_pop_stack(tmp1(2))
+         if (.not. value) 
+     >      call errquit('C3dB_c_Read:error popping stack',0,MA_ERR)
+      endif
 
       end if
-
 
 *     **** WAIT ****
       call ga_sync()
@@ -1561,12 +1590,13 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       return
       end
 
-      subroutine C3dB_r_Read(nb,iunit,A,tmp)
+      subroutine C3dB_r_Read(nb,iunit,A,tmp,jcol,kcol)
       implicit none 
       integer nb
       integer iunit
       real*8  A(*)
       real*8  tmp(*)
+      integer jcol,kcol
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -1583,13 +1613,45 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       integer MASTER,taskid
       parameter(MASTER=0)
 
-      logical value
+      logical value,fillcolumn,fillzone
       integer p_to, p_here,q
       integer j,k,index,index2
       integer source,msglen
       integer tmp1(2),tmp2(2)
 
+      integer taskid_j,np_j
+      integer taskid_k,np_k
+      integer ii,jj,kk,jstart,jend,kstart,kend
+
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_ijk
+      external Parallel3d_convert_taskid_ijk
+
       call Parallel_taskid(taskid)
+
+      call Parallel3d_np_j(np_j)
+      call Parallel3d_taskid_j(taskid_j)
+      if (jcol.lt.0) then
+         jstart = 0
+         jend = np_j-1
+         fillcolumn = .true.
+      else
+         jstart = jcol
+         jend   = jcol
+         fillcolumn = (taskid_j.eq.jcol)
+      endif
+      call Parallel3d_np_k(np_k)
+      call Parallel3d_taskid_k(taskid_k)
+      if (kcol.lt.0) then
+         kstart = 0
+         kend = np_k-1
+         fillzone = .true.
+      else
+         kstart = kcol
+         kend   = kcol
+         fillzone = (taskid_k.eq.kcol)
+      endif
+
 
 
       !**********************
@@ -1602,36 +1664,35 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
             call dread(iunit,tmp,(nx(nb))*ny(nb))
 
-            call C3dB_ktoqp(nb,k,q,p_to)
-            if (p_to.eq.MASTER) then
+            call C3dB_ktoqp(nb,k,q,ii)
+            do kk=kstart,kend
+            do jj=jstart,jend
+               p_to = Parallel3d_convert_taskid_ijk(ii,jj,kk)
+               if (p_to.eq.MASTER) then
+                  index = 1 + (q-1)*nx(nb)*ny(nb)
+                  call dcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
+               else
+                  msglen = nx(nb)*ny(nb)
+                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
+               end if
+            end do
+            end do
 
-               index = 1 + (q-1)*nx(nb)*ny(nb)
-               call dcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
-            else
-               msglen = nx(nb)*ny(nb)
-
-
-               call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
-
-            end if
          end do
 
 *     **** not master node ****
-      else
+      else if (fillcolumn.and.fillzone) then
          do k=1,nz(nb)
-            call C3dB_ktoqp(nb,k,q,p_here)
+            call C3dB_ktoqp(nb,k,q,ii)
+            p_here = Parallel3d_convert_taskid_ijk(ii,taskid_j,taskid_k)
             if (p_here.eq.taskid) then
-
                msglen = nx(nb)*ny(nb)
                source  = MASTER
-
-
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
 
                index = 1 + (q-1)*nx(nb)*ny(nb)
                call dcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
-               
             end if
          end do
       end if
@@ -1649,63 +1710,60 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
             call dread(iunit,tmp,(nx(nb)))
 
             q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_to = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-
-            if (p_to.eq.MASTER) then
-               index = (q-1)*nx(nb) + 1
-               call dcopy(nx(nb),tmp,1,A(index),1)
-            else
-               msglen = nx(nb)
-               call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
-            end if
+            ii   = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            do kk=kstart,kend
+            do jj=jstart,jend
+               p_to = Parallel3d_convert_taskid_ijk(ii,jj,kk)
+               if (p_to.eq.MASTER) then
+                  index = (q-1)*nx(nb) + 1
+                  call dcopy(nx(nb),tmp,1,A(index),1)
+               else
+                  msglen = nx(nb)
+                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
+               end if
+            end do
+            end do
          end do
          end do
 
 *     **** not master node ****
-      else
+      else if (fillcolumn.and.fillzone) then
          do k=1,nz(nb)
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = Parallel3d_convert_taskid_ijk(ii,taskid_j,taskid_k)
             if (p_here.eq.taskid) then
-
                msglen = nx(nb)
                source  = MASTER
-
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                  source,rcv_proc,1)
-
                index = (q-1)*nx(nb) + 1
                call dcopy(nx(nb),tmp,1,A(index),1)
-
             end if
          end do
          end do
        end if
 
-
-
-*     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
-     >                    tmp1(2),tmp1(1))
-      value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-*
-      call C3dB_r_transpose_ijk(nb,5,A,
+      if (fillcolumn.and.fillzone) then
+*        **** allocate temporary space  ****
+         value =MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',tmp1(2),tmp1(1))
+         value =value.and.
+     >          MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+         if (.not. value) 
+     >      call errquit('C3dB_r_Read:out of stack memory',0,MA_ERR)
+         call C3dB_r_transpose_ijk(nb,5,A,
      >                          dcpl_mb(tmp1(1)),
      >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
-
-*     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('error popping stack',0, MA_ERR)
-
-
-
+*        **** deallocate temporary space  ****
+         value =           MA_pop_stack(tmp2(2))
+         value = value.and.MA_pop_stack(tmp1(2))
+         if (.not. value) 
+     >      call errquit('C3dB_r_Read:error popping stack',0,MA_ERR)
       end if
 
+      end if
 
 *     **** WAIT ****
       call ga_sync()
@@ -2086,17 +2144,17 @@ c     integer i2_start(NFFT3+1)
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_c_Write(nb,iunit,A,tmp)
+      subroutine C3dB_c_Write(nb,iunit,A,tmp,jcol,kcol)
       implicit none 
       integer nb
       integer iunit
       complex*16 A(*)
       complex*16 tmp(*)
+      integer jcol,kcol
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
-
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -2113,7 +2171,15 @@ c     integer i2_start(NFFT3+1)
       integer dum,dum_msglen
       integer tmp1(2),tmp2(2)
 
+      integer ii,taskid_j,taskid_k
+
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_ijk
+      external Parallel3d_convert_taskid_ijk
+
       call Parallel_taskid(taskid)
+      call Parallel3d_taskid_j(taskid_j)
+      call Parallel3d_taskid_k(taskid_k)
 
 
       !**********************
@@ -2124,28 +2190,22 @@ c     integer i2_start(NFFT3+1)
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
 
-            call C3dB_ktoqp(nb,k,q,p_from)
+            call C3dB_ktoqp(nb,k,q,ii)
+            p_from = Parallel3d_convert_taskid_ijk(ii,jcol,kcol)
 
             if (p_from.eq.MASTER) then
-
                index = 1 + (q-1)*nx(nb)*ny(nb) 
                call zcopy(nx(nb)*ny(nb),A(index),1,tmp,1)
-
             else
-
                msglen  = nx(nb)*ny(nb)
                status  = msglen
                source  = p_from
-
-
                dum = 99
                dum_msglen = 1
                call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                       source,rcv_proc,1)
-
             end if
-
             call dwrite(iunit,tmp,2*nx(nb)*ny(nb)) 
          end do
 
@@ -2153,7 +2213,8 @@ c     integer i2_start(NFFT3+1)
       else
          do k=1,nz(nb)
          
-            call C3dB_ktoqp(nb,k,q,p_here)
+            call C3dB_ktoqp(nb,k,q,ii)
+            p_here = Parallel3d_convert_taskid_ijk(ii,jcol,kcol)
             if (p_here.eq.taskid) then
 
                index = 1 + (q-1)*nx(nb)*ny(nb)
@@ -2161,13 +2222,10 @@ c     integer i2_start(NFFT3+1)
 
                msglen  = nx(nb)*ny(nb)
                dest    = MASTER
-
-
                dum_msglen = 1
                call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
      >                       dest,rcv_proc,1)
                call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
-
             end if
 
          end do
@@ -2178,21 +2236,25 @@ c     integer i2_start(NFFT3+1)
       !*************************
       else
 
-*     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
-     >                    tmp1(2),tmp1(1))
-      value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if ((taskid_j.eq.jcol).and.(taskid_k.eq.kcol)) then
+*        **** allocate temporary space  ****
+         value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+     >                       tmp1(2),tmp1(1))
+         value = value.and.
+     >         MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+         if (.not. value) 
+     >      call errquit('C3dB_c_Write:out of stack memory',0,MA_ERR)
 *
-      call C3dB_c_transpose_ijk(nb,6,A,
+         call C3dB_c_transpose_ijk(nb,6,A,
      >                          dcpl_mb(tmp1(1)),
      >                          dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
 
-*     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+*        **** deallocate temporary space  ****
+         value = MA_pop_stack(tmp2(2))
+         value = value.and.MA_pop_stack(tmp1(2))
+         if (.not. value) 
+     >      call errquit('C3dB_c_Write:error popping stack',0, MA_ERR)
+      end if
 
       call ga_sync()
 
@@ -2202,15 +2264,13 @@ c     integer i2_start(NFFT3+1)
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_from = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_from = Parallel3d_convert_taskid_ijk(ii,jcol,kcol)
             if (p_from.eq.MASTER) then
 
                index = 1 + (q-1)*nx(nb)
                call zcopy(nx(nb),A(index),1,tmp,1)
-
             else
-
                msglen  = nx(nb)
                status  = msglen
                source  = p_from
@@ -2220,7 +2280,6 @@ c     integer i2_start(NFFT3+1)
                call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                       source,rcv_proc,1)
-
             end if
 
             call dwrite(iunit,tmp,2*nx(nb))
@@ -2233,32 +2292,26 @@ c     integer i2_start(NFFT3+1)
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = Parallel3d_convert_taskid_ijk(ii,jcol,kcol)
             if (p_here.eq.taskid) then
 
                index = 1 + (q-1)*nx(nb)
                call zcopy(nx(nb),A(index),1,tmp,1)
 
-
                msglen  = nx(nb)
                dest    = MASTER
-
                dum_msglen = 1
                call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
      >                       dest,rcv_proc,1)
                call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
-
             end if
 
          end do
          end do
       end if
 
-
       end if
-
-
 
 *     **** WAIT ****
       call ga_sync()
@@ -2266,12 +2319,13 @@ c     integer i2_start(NFFT3+1)
       return
       end
 
-      subroutine C3dB_r_Write(nb,iunit,A,tmp)
+      subroutine C3dB_r_Write(nb,iunit,A,tmp,jcol,kcol)
       implicit none 
       integer nb
       integer iunit
       real*8     A(*)
       real*8     tmp(*)
+      integer jcol,kcol
 
 #include "mafdecls.fh"
 #include "C3dB.fh"
@@ -2289,7 +2343,15 @@ c     integer i2_start(NFFT3+1)
       integer j,k,index,index2
       integer dest,source,status,msglen
 
+      integer ii,taskid_j,taskid_k
+
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_ijk
+      external Parallel3d_convert_taskid_ijk
+
       call Parallel_taskid(taskid)
+      call Parallel3d_taskid_j(taskid_j)
+      call Parallel3d_taskid_k(taskid_k)
 
 
       !**********************
@@ -2300,8 +2362,8 @@ c     integer i2_start(NFFT3+1)
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
 
-            call C3dB_ktoqp(nb,k,q,p_from)
-
+            call C3dB_ktoqp(nb,k,q,ii)
+            p_from = Parallel3d_convert_taskid_ijk(ii,jcol,kcol)
             if (p_from.eq.MASTER) then
                index = 1 + (q-1)*nx(nb)*ny(nb)
                call dcopy(nx(nb)*ny(nb),A(index),1,tmp,1)
@@ -2309,7 +2371,6 @@ c     integer i2_start(NFFT3+1)
                msglen  = (nx(nb))*ny(nb)
                status  = msglen
                source  = p_from
-
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
 
@@ -2322,7 +2383,8 @@ c     integer i2_start(NFFT3+1)
       else
          do k=1,nz(nb)
          
-            call C3dB_ktoqp(nb,k,q,p_here)
+            call C3dB_ktoqp(nb,k,q,ii)
+            p_here = Parallel3d_convert_taskid_ijk(ii,jcol,kcol)
             if (p_here.eq.taskid) then
 
                index = 1 + (q-1)*nx(nb)*ny(nb)
@@ -2330,10 +2392,7 @@ c     integer i2_start(NFFT3+1)
  
                msglen  = (nx(nb))*ny(nb)
                dest    = MASTER
-
-
                call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
-
             end if
 
          end do
@@ -2350,22 +2409,18 @@ c     integer i2_start(NFFT3+1)
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_from = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_from = Parallel3d_convert_taskid_ijk(ii,jcol,kcol)
 
             if (p_from.eq.MASTER) then
               index = 1 + (q-1)*nx(nb)
               call dcopy(nx(nb),A(index),1,tmp,1)
-
             else
-
                msglen  = (nx(nb))
                status  = msglen
                source  = p_from
-
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
-
             end if
 
             call dwrite(iunit,tmp,(nx(nb)))
@@ -2378,7 +2433,8 @@ c     integer i2_start(NFFT3+1)
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = Parallel3d_convert_taskid_ijk(ii,jcol,kcol)
 
             if (p_here.eq.taskid) then
 
@@ -2387,9 +2443,7 @@ c     integer i2_start(NFFT3+1)
 
                msglen  = nx(nb)
                dest    = MASTER
-
                call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
-
             end if
 
          end do

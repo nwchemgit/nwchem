@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.58 2008-04-21 23:23:24 bylaska Exp $
+* $Id: band_minimizer.F,v 1.59 2008-04-22 17:42:22 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -178,6 +178,7 @@ c      external      cpsp_comment
          write(luout,1000)
          call nwpw_message(1)
          write(luout,1110)
+         call flush(luout)
       end if
       
       value = control_read(5,rtdb)
@@ -189,8 +190,6 @@ c      external      cpsp_comment
       call Parallel3d_np_i(np_i)
       call Parallel3d_np_j(np_j)
       call Parallel3d_np_k(np_k)
-
-
 
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)

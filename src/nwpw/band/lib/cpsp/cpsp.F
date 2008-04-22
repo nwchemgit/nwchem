@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.64 2008-04-16 01:04:43 bylaska Exp $
+* $Id: cpsp.F,v 1.65 2008-04-22 17:42:20 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1457,9 +1457,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
 #endif
 
 *    *** local variables ***
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_k
       parameter(MASTER=0)
-      integer n,l,nb
+      integer n,l,nb,nbq,pk
       integer msglen,rsize
       integer iatom(2)
       character*255 full_filename
@@ -1476,6 +1476,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       external control_print
 
       call Parallel_taskid(taskid)
+      call Parallel3d_taskid_k(taskid_k)
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
 
 *     **** open fname binary file ****
@@ -1604,7 +1605,7 @@ ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
       end if
 
 *     *** read in vl 3d block ***
-      call C3dB_r_read(1,5,tmp2,tmp)
+      call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
       call Cram_r_pack(0,tmp2)
       call Cram_r_Copy(0,tmp2,vl)
 
@@ -1623,17 +1624,20 @@ cccccccccccccccccccc
      >                                  nprj,2*npack1)
 !*** XXXX double check this INPUT ****
         do nb=1,brillioun_nbrillioun() 
+          call K1dB_ktoqp(nb,nbq,pk)
           do n=1,nprj
-            call C3dB_c_read(1,5,tmp2,tmp)
-            call Cram_c_pack(nb,tmp2)
-            !call Cram_c_Copy(nb,tmp2,vnlsox(1,n,nb))
-            call cpsp_projector_add(vnl_tag,nb,n,tmp2)
+            call C3dB_c_read(1,5,tmp2,tmp,-1,pk)
+            if (pk.eq.taskid_k) then
+               call Cram_c_pack(nbq,tmp2)
+               call cpsp_projector_add(vnl_tag,nbq,n,tmp2)
+            end if
           end do
           do n=1,nprj
-            call C3dB_c_read(1,5,tmp2,tmp)
-            call Cram_c_pack(nb,tmp2)
-            !call Cram_c_Copy(nb,tmp2,vnlsox(1,n+vso_shft,nb))
-            call cpsp_projector_add(vnl2_tag,nb,n,tmp2)
+            call C3dB_c_read(1,5,tmp2,tmp,-1,pk)
+            if (pk.eq.taskid_k) then
+               call Cram_c_pack(nbq,tmp2)
+               call cpsp_projector_add(vnl2_tag,nbq,n,tmp2)
+            end if
           end do
         end do
 
@@ -1641,11 +1645,14 @@ cccccccccccccccccccc
         vnl_tag = cpsp_projector_alloc(brillioun_nbrillioun(),
      >                                 nprj,npack1)
         do nb=1,brillioun_nbrillioun() 
+          call K1dB_ktoqp(nb,nbq,pk)
           do n=1,nprj
-            call C3dB_r_read(1,5,tmp2,tmp)
-            call Cram_r_pack(nb,tmp2)
-            !call Cram_r_Copy(nb,tmp2,vnl(1,n,nb))
-            call cpsp_projector_add(vnl_tag,nb,n,tmp2)
+            call C3dB_r_read(1,5,tmp2,tmp,-1,pk)
+
+            if (pk.eq.taskid_k) then
+               call Cram_r_pack(nbq,tmp2)
+               call cpsp_projector_add(vnl_tag,nbq,n,tmp2)
+            endif
           end do
         end do
 *     **** read in v_spin_orbit 3d blocks ****
@@ -1653,30 +1660,32 @@ cccccccccccccccccccc
           vnl2_tag = cpsp_projector_alloc(brillioun_nbrillioun(),
      >                                    nprj,2*npack1)
           do nb=1,brillioun_nbrillioun()
+            call K1dB_ktoqp(nb,nbq,pk)
             do n=1,nprj
-              call C3dB_c_read(1,5,tmp2,tmp)
-              call Cram_c_pack(nb,tmp2)
-              !call Cram_c_Copy(nb,tmp2,vnlsox(1,n,nb))
-              call cpsp_projector_add(vnl2_tag,nb,n,tmp2)
+              call C3dB_c_read(1,5,tmp2,tmp,-1,pk)
+              if (pk.eq.taskid_k) then
+                 call Cram_c_pack(nbq,tmp2)
+                 call cpsp_projector_add(vnl2_tag,nbq,n,tmp2)
+              endif
             end do
           end do
         end if
       end if
 *     **** read in semicore density block ****
       if (semicore) then
-         call C3dB_r_read(1,5,tmp2,tmp)
+         call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,ncore(1))
 
-         call C3dB_r_read(1,5,tmp2,tmp)
+         call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,ncore(1+2*npack0))
 
-         call C3dB_r_read(1,5,tmp2,tmp)
+         call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,ncore(1+3*npack0))
 
-         call C3dB_r_read(1,5,tmp2,tmp)
+         call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,ncore(1+4*npack0))
       end if
