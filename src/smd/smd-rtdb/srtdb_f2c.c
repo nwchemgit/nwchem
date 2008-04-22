@@ -1,4 +1,4 @@
-/*$Id: srtdb_f2c.c,v 1.1 2008-04-21 18:19:27 marat Exp $*/
+/*$Id: srtdb_f2c.c,v 1.2 2008-04-22 17:41:51 marat Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "srtdb.h"
@@ -10,77 +10,6 @@
 #define FORTRAN_TRUE  ((Logical) 1)
 #define FORTRAN_FALSE ((Logical) 0)
 
-
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
-int fortchar_to_string(_fcd f, int flen, char *buf, const int buflen)
-#else
-int fortchar_to_string(const char *f, int flen, char *buf, const int buflen)
-#endif
-{
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
-  char *fstring;
-    fstring = _fcdtocp(f);
-    flen = _fcdlen(f);
-
-  while (flen-- && fstring[flen] == ' ')
-    ;
-
-  if (flen < 0) flen=0;		/* Empty strings break use of strtok 
-				   since consecutive separators are
-				   treated as one */
-  if ((flen+1) >= buflen)
-    return 0;			/* Won't fit */
-
-  flen++;
-  buf[flen] = 0;
-  while(flen--)
-    buf[flen] = fstring[flen];
-#else 
-  while (flen-- && f[flen] == ' ')
-    ;
-
-  if (flen < 0) flen=0;		/* Empty strings break use of strtok 
-				   since consecutive separators are
-				   treated as one */
-  if ((flen+1) >= buflen)
-    return 0;			/* Won't fit */
-
-  flen++;
-  buf[flen] = 0;
-  while(flen--)
-    buf[flen] = f[flen];
-#endif 
-
-  return 1;
-}
-
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
-int string_to_fortchar(_fcd f, int flen, char *buf)
-#else
-int string_to_fortchar(char *f, int flen, char *buf)
-#endif
-{
-  int len = (int) strlen(buf), i;
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
-  flen = _fcdlen(f);
-#endif
-
-  if (len > flen) 
-    return 0;			/* Won't fit */
-
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
-  for (i=0; i<len; i++)
-    _fcdtocp(f)[i] = buf[i];
-  for (i=len; i<flen; i++)
-    _fcdtocp(f)[i] = ' ';
-#else
-  for (i=0; i<len; i++)
-    f[i] = buf[i];
-  for (i=len; i<flen; i++)
-    f[i] = ' ';
-#endif
-  return 1;
-}
 
 
 Logical FATR srtdb_parallel_(const Logical *mode)

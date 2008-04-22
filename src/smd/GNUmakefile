@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.32 2008-04-18 17:35:46 marat Exp $
+# $Id: GNUmakefile,v 1.33 2008-04-22 17:41:42 marat Exp $
 #
 
 #       SUBDIRS = smd-subgroups
-       SUBDIRS = smd-serial
+       SUBDIRS = smd-new smd-rtdb
 #       SUBDIRS = smd-parallel
 
 

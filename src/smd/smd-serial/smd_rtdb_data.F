@@ -139,6 +139,7 @@ c
       subroutine smd_rtdb_init(rtdb)
       implicit none
 #include "rtdb.fh"
+#include "srtdb.fh"
 #include "smd_rtdb_data.fh"
 #include "mafdecls.fh"
 
@@ -155,4 +156,15 @@ c
       ignore = rtdb_get(rtdb,"smd:istart",mt_int,1,smd_istart)
       ignore = rtdb_get(rtdb,"smd:iend",mt_int,1,smd_iend)
       ignore = rtdb_get(rtdb,"smd:nproc",mt_int,1,smd_nproc)
+
+      if (.not. srtdb_open('smd.main', 'empty', smd_srtdb)) 
+     *     call errquit('srtdb_open',0,0)
+
+      if (.not. srtdb_put(rtdb, 'smd_istart', MT_INT, 1, smd_istart))
+     $     call errquit('srtdb_put',0,0)
+
+      if (.not. srtdb_get(rtdb, 'smd_istart', MT_INT, 1, smd_istart))
+     $     call errquit('srtdb_put',0,0)
+
+      write(*,*) "found istart in srtdb",smd_istart
       end 

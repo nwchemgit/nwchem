@@ -91,7 +91,7 @@ c
      $     srtdb_cput, srtdb_cget, srtdb_print, srtdb_get_info, 
      $     srtdb_first, srtdb_next, srtdb_delete, srtdb_parallel,
      $     srtdb_clone,srtdb_getfname
-C$Id: srtdb.fh,v 1.1 2008-04-21 18:19:27 marat Exp $
+C$Id: srtdb.fh,v 1.2 2008-04-22 17:41:51 marat Exp $
       external srtdb_open, srtdb_close, srtdb_put, 
      $     srtdb_get, srtdb_ma_get,
      $     srtdb_cput, srtdb_cget, srtdb_print, srtdb_get_info, 
@@ -100,5 +100,5 @@ C$Id: srtdb.fh,v 1.1 2008-04-21 18:19:27 marat Exp $
 c
 c     Check these values against srtdb_f2c.c
 c
-      integer rtdb_max_key, rtdb_max_file
-      parameter (rtdb_max_key=255, rtdb_max_file=255)
+      integer srtdb_max_key, srtdb_max_file
+      parameter (srtdb_max_key=255, srtdb_max_file=255)

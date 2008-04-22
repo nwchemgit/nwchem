@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.1 2008-04-21 18:19:27 marat Exp $
+# $Id: GNUmakefile,v 1.2 2008-04-22 17:41:51 marat Exp $
 
 include ../../config/makefile.h
 
@@ -7,6 +7,12 @@ include ../../config/makefile.h
     OBJ_OPTIMIZE = srtdb_f2c.o srtdb.o srtdb_seq.o \
                    scontext.o scontext_f2c.o
       HEADERS = srtdb.fh srtdb.h
+
+     LIB_TARGETS = test test.o 
+
+       TEST_LIBS = $(LIBRARY) $(LIBS) 
+
+
 # BEGIN_WIN32_IGNORE
 ifeq ($(TARGET),$(findstring $(TARGET),BGL LINUX))
     OBJ = srtdb_seq.o
