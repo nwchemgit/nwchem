@@ -1,0 +1,9 @@
+c
+c $Id: smd_temper_data.fh,v 1.1 2008-04-22 17:41:24 marat Exp $
+c
+
+      logical otemp
+      double precision degfree
+      double precision ke_target,temp_target
+
+      common/smd_temper_data/degfree,ke_target,temp_target,otemp

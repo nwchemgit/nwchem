@@ -1,0 +1,8 @@
+*
+* $Id: smd_charge_data.fh,v 1.1 2008-04-22 17:41:21 marat Exp $
+*
+      integer smd_charge_ga
+
+      common /smd_charge_data/ smd_charge_ga
+
+

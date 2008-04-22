@@ -1,0 +1,14 @@
+c
+c $Id: smd_rtdb_data.fh,v 1.1 2008-04-22 17:41:23 marat Exp $
+c
+
+      integer smd_rtdb, smd_srtdb
+      character*256 smd_rtdb_name
+      integer smd_istart,smd_iend,smd_nproc
+
+      common/smd_rtdb_data/ smd_rtdb,
+     >                      smd_srtdb,
+     >                      smd_istart,
+     >                      smd_iend,
+     >                      smd_nproc,
+     >                      smd_rtdb_name

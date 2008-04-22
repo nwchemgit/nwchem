@@ -1,0 +1,7 @@
+c
+c $Id: smd_srtdb_data.fh,v 1.1 2008-04-22 17:41:23 marat Exp $
+c
+
+      integer smd_srtdb
+
+      common/smd_srtdb_data/ smd_srtdb
