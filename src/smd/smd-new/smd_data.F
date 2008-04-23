@@ -1,324 +1,270 @@
 *
-* $Id: smd_data.F,v 1.1 2008-04-22 17:41:22 marat Exp $
+* $Id: smd_data.F,v 1.2 2008-04-23 16:48:29 marat Exp $
 *
-
-      block data initial_smd_data
-      implicit none
-#include "smd_data.fh"
-c     
-      data smd_n /0/
-      data smd_nd /smd_max_n*0/
-
-      end
-
-      subroutine smd_data_get_sindex(sname,ns,result)
-#include "smd_data.fh"
-      character*(*) sname
-      integer ns
-      logical result
-c
-      integer i
-
-      result = .false.
-      ns = 0
-      do i=1,smd_n
-       if(smd_name(i).eq.sname) then
-         ns = i
-         result = .true.
-         return
-       end if
-      end do
-
-      return
-      end
-
-      subroutine smd_data_get_dindex(sname,dname,nd,result)
-#include "smd_data.fh"
-      character*(*) sname
-      character*(*) dname
-      integer nd
-      logical result
-c
-      integer i,ns
-      character*72 buffer
-      character*30 pname
-
-      pname = "smd_data_get_dindex"    
- 
-      buffer = sname
-      call smd_data_get_sindex(buffer,ns,result)
-      if(.not.result)
-     +   call errquit(pname//'no namespace'//buffer,
-     +         0,
-     +         0)
-
-      result = .false.
-      nd = 0
-      buffer = dname
-      do i=1,smd_nd(ns)
-       if(smd_dname(ns,i).eq.buffer) then
-         nd = i
-         result = .true.
-         return
-       end if
-      end do
-
-      return
-      end
-
-      subroutine smd_data_get_index(sname,dname,ind,result)
-#include "smd_data.fh"
-      character*(*) sname
-      character*(*) dname
-      integer ind
-      logical result
-c
-      integer i,ns,nd
-      character*72 buffer
-      character*30 pname
-
-      pname = "smd_data_get_index"    
- 
-      buffer = sname
-
-      call smd_data_get_sindex(buffer,ns,result)
-      if(.not.result)
-     +   call errquit(pname//'no namespace'//buffer,
-     +         0,
-     +         0)
-
-      result = .false.
-      nd = 0
-      buffer = dname
-      do i=1,smd_nd(ns)
-       if(smd_dname(ns,i).eq.buffer) then
-         ind = smd_index(ns,i)
-         result = .true.
-         return
-       end if
-      end do
-
-      return
-      end
-
-      subroutine smd_data_get_size(sname,dname,ndim,result)
-#include "smd_data.fh"
-      character*(*) sname
-      character*(*) dname
-      integer ndim
-      logical result
-c
-      integer i,ns,nd
-      character*72 buffer
-      character*30 pname
-
-      pname = "smd_data_get_size"    
- 
-      buffer = sname
-
-      call smd_data_get_sindex(buffer,ns,result)
-      if(.not.result)
-     +   call errquit(pname//'no namespace'//buffer,
-     +         0,
-     +         0)
-
-      result = .false.
-      nd = 0
-      buffer = dname
-      do i=1,smd_nd(ns)
-       if(smd_dname(ns,i).eq.buffer) then
-         ndim = smd_dim(ns,i)
-         result = .true.
-         return
-       end if
-      end do
-
-      return
-      end
-
-      subroutine smd_namespace_create(sname)
-#include "smd_data.fh"
-      character*(*) sname
-c
-      character*(30) pname
-      pname = "smd_namespace_create"
-      smd_n = smd_n + 1
-      if(smd_n.gt.smd_max_n) 
-     +   call errquit(pname//'increase namespace size to',
-     +         smd_n,
-     +         0)
-      smd_name(smd_n) = sname
-
-      end
-
-      subroutine smd_namespace_destroy(sname)
-#include "smd_data.fh"
-#include "errquit.fh"
-#include "mafdecls.fh"
-      character*(*) sname
-c
-      integer i
-      integer ns
-      logical result
-      character*72 buffer
-      character*(30) pname
-      pname = "smd_namespace_destroy"
-
-      buffer = sname
-      call smd_data_get_sindex(buffer,ns,result)
-      if(.not.result)
-     +   call errquit(pname//'no namespace'//buffer,
-     +         0,
-     +         0)
-
-      do i=smd_nd(ns),1,-1
-        if(.not.ma_free_heap(smd_handle(ns,i)))
-     +   call errquit(pname//'memory deallocation'//smd_dname(ns,i),
-     +         smd_dim(ns,i),
-     +         MA_ERR)
-
-        smd_dname(ns,i) = " "
-        smd_dim(ns,i) = 0
-
-      end do
-
-      smd_nd(ns) = 0
-      smd_name(ns) = " "
-
-      end
-
-      subroutine smd_data_destroy()
-#include "smd_data.fh"
-#include "errquit.fh"
-#include "mafdecls.fh"
-c
-      integer i
-      integer ns
-      character*(30) pname
-      pname = "smd_namespace_destroy"
-
-      do ns=smd_n,1,-1
-
-        do i=smd_nd(ns),1,-1
-          if(.not.ma_free_heap(smd_handle(ns,i)))
-     +     call errquit(pname//'memory deallocation'//smd_dname(ns,i),
-     +           smd_dim(ns,i),
-     +           MA_ERR)
-
-          smd_dname(ns,i) = " "
-          smd_dim(ns,i) = 0
-
-        end do
-
-        smd_nd(ns) = 0
-        smd_name(i) = " "
-      end do
-      smd_n = 0
-     
-      return
-      end
-
-      subroutine smd_data_create(sname,dname,ndim,dtype)
+      function smd_data_create(srtdb,dname,ndim,dtype)
       implicit none
 c
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "smd_data.fh"
-      character*(*) sname
+#include "srtdb.fh"
+      integer srtdb
       character*(*) dname
       integer ndim
       integer dtype
+      logical smd_data_create
 c
       logical result
       integer ns,nd
       character*30 pname
       character*72 buffer
-      integer i
+      integer i,handle,id,datum(4)
 
       pname = "smd_data_create"
 
-      buffer = sname
-      call smd_data_get_sindex(buffer,ns,result)
-      if(.not.result)
-     +   call errquit(pname//'no namespace'//buffer,
-     +         0,
-     +         0)
 
-      
-      smd_nd(ns) = smd_nd(ns) + 1
-      if(smd_nd(ns).gt.smd_max_nd) 
-     +   call errquit(pname//'increase dataspace size to',
-     +         smd_nd(ns),
-     +         0)
+      smd_data_create = .false.
+      buffer = dname
+      if(.not.ma_alloc_get(dtype,
+     +   ndim,
+     +   dname,
+     +   handle,
+     +   id)) then
+         call smd_message_post(pname//'memory allocation '//buffer)
+         call smd_message_post(pname//'memory allocation1 '//buffer)
+         call smd_message_post(pname//'memory allocation2 '//buffer)
+         call smd_message_post(pname//'memory allocation3 '//buffer)
+         return
+      end if
 
-      nd = smd_nd(ns)
-      smd_dim(ns,nd)=ndim
-      smd_type(ns,nd)=dtype
-      smd_dname(ns,nd)=dname
-
-
-      if(.not.ma_alloc_get(smd_type(ns,nd),
-     +   smd_dim(ns,nd),
-     +   smd_dname(ns,nd),
-     +   smd_handle(ns,nd),
-     +   smd_index(ns,nd)))
-     +   call errquit(pname//'memory allocation'//smd_dname(ns,nd),
-     +         smd_dim(ns,nd),
-     +         MA_ERR)
-
-      if(smd_type(ns,nd).eq.MT_DBL) then
-        call dfill(smd_dim(ns,nd),
+      if(dtype.eq.MT_DBL) then
+        call dfill(ndim,
      +             0.d0,
-     +             dbl_mb(smd_index(ns,nd)),
+     +             dbl_mb(id),
      +             1)
       end if
 
-      if(smd_type(ns,nd).eq.MT_INT) then
-        call ifill(smd_dim(ns,nd),
+      if(dtype.eq.MT_INT) then
+        call ifill(ndim,
      +             0,
-     +             int_mb(smd_index(ns,nd)),
+     +             int_mb(id),
      +             1)
       end if
-      if(smd_type(ns,nd).eq.MT_LOG) then
-        do i=1,smd_dim(ns,nd)
-          log_mb(smd_index(ns,nd)+i-1) = .false.
+      if(dtype.eq.MT_LOG) then
+        do i=1,ndim
+          log_mb(id+i-1) = .false.
         end do
       end if
-cc     should probably fill logical and char arrays
+c     should probably fill logical and char arrays
 
+      datum(1) = dtype
+      datum(2) = ndim
+      datum(3) = id
+      datum(4) = handle
+      if (.not.srtdb_put(srtdb,dname,MT_INT,4,datum)) then
+        call smd_message_post(pname//'srtdb_put '//buffer)
+        return
+      end if
+
+      smd_data_create = .true.
+      return
       end
 
-      subroutine smd_data_inquire(sname,dname,ndim,dtype,result)
-#include "smd_data.fh"
-      character*(*) sname
+      function smd_data_create_get(srtdb,dname,ndim,dtype,id)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "srtdb.fh"
+      integer srtdb
       character*(*) dname
       integer ndim
       integer dtype
-      logical result
+      integer id
+      logical smd_data_create_get
 c
-      integer i,ns
-      character*72 buffer
+      logical result
+      integer ns,nd
       character*30 pname
+      character*72 buffer
+      integer i,handle,datum(4)
 
-      pname = "smd_data_inquire"    
- 
-      buffer = sname
+      pname = "smd_data_create_get"
 
-      ndim  = 0
-      dtype = 0 
-      call smd_data_get_sindex(buffer,ns,result)
-      if(.not.result) goto 100
 
-      result = .false.
+      smd_data_create_get = .false.
       buffer = dname
-      do i=1,smd_nd(ns)
-       if(smd_dname(ns,i).eq.buffer) then
-         result = .true.
-         ndim = smd_dim(ns,i)
-         dtype=smd_type(ns,i)
-       end if
+      if(.not.ma_alloc_get(dtype,
+     +   ndim,
+     +   dname,
+     +   handle,
+     +   id)) then
+         call smd_message_post(pname//'memory allocation '//buffer)
+         call smd_message_post(pname//'memory allocation1 '//buffer)
+         call smd_message_post(pname//'memory allocation2 '//buffer)
+         call smd_message_post(pname//'memory allocation3 '//buffer)
+         return
+      end if
+
+      if(dtype.eq.MT_DBL) then
+        call dfill(ndim,
+     +             0.d0,
+     +             dbl_mb(id),
+     +             1)
+      end if
+
+      if(dtype.eq.MT_INT) then
+        call ifill(ndim,
+     +             0,
+     +             int_mb(id),
+     +             1)
+      end if
+      if(dtype.eq.MT_LOG) then
+        do i=1,ndim
+          log_mb(id+i-1) = .false.
+        end do
+      end if
+c     should probably fill logical and char arrays
+
+      datum(1) = dtype
+      datum(2) = ndim
+      datum(3) = id
+      datum(4) = handle
+      if (.not.srtdb_put(srtdb,dname,MT_INT,4,datum)) then
+        call smd_message_post(pname//'srtdb_put '//buffer)
+        return
+      end if
+
+      smd_data_create_get = .true.
+      return
+      end
+
+      function smd_data_get_index(srtdb,dname,descriptor)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "srtdb.fh"
+      integer srtdb
+      character*(*) dname
+      integer descriptor
+      logical smd_data_get_index
+c
+      logical result
+      character*30 pname
+      character*72 buffer
+      integer datum(3)
+
+      pname = "smd_data_get_index"
+
+      smd_data_get_index = .false.
+
+      if (.not.srtdb_get(srtdb,dname,MT_INT,4,datum)) then
+         call smd_message_post(pname//" srtdb_get")
+         return
+      end if
+
+      descriptor = datum(3)
+      smd_data_get_index = .true.
+      return
+      end
+
+      subroutine smd_data_print(srtdb,dname,un)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "srtdb.fh"
+      integer srtdb
+      character*(*) dname
+      integer un
+c
+      logical result
+      character*30 pname
+      character*72 buffer
+      integer i,j,datum(3)
+
+      pname = "smd_data_print"
+
+      if (.not.srtdb_get(srtdb,dname,MT_INT,4,datum)) then
+         call errquit(pname//" srtdb_get",0,0)
+         return
+      end if
+
+      write(un,*) "SMD DATA ARRAY"
+      write(un,*) "name:",dname
+      
+      if(datum(1).eq.MT_INT) then
+        write(un,*) "size:",datum(2)
+        do i=1,datum(2)
+          write(un,*) int_mb(datum(3)+i-1)
+        end do
+      else if (datum(1).eq.MT_DBL) then
+        write(un,*) "size:",datum(2)
+        do i=1,datum(2)
+          write(un,*) dbl_mb(datum(3)+i-1)
+        end do
+      else if (datum(1).eq.MT_LOG) then
+        write(un,*) "size:",datum(2)
+        do i=1,datum(2)
+          write(un,'(A16)') log_mb(datum(3)+i-1)
+        end do
+      else if (datum(1).eq.MT_BYTE) then
+        write(un,*) "size:",datum(2)/16
+c        call smd_ma_chararray_print(un,datum(2)/16,byte_mb(datum(3)))
+        do i=1,datum(2)/16
+          write(un,'(16A1)') (byte_mb(datum(3)+16*(i-1)+j-1),j=1,16)
+        end do
+      end if
+
+      return
+      end
+
+      subroutine smd_ma_chararray_print(un,n,a)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "srtdb.fh"
+      integer n
+      integer un
+      character*16 a(n)
+c
+      integer i
+      do i=1,n
+        write(un,*) a(i)
       end do
 
-100   continue
+      end subroutine
+
+      function smd_data_destroy(srtdb,dname)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "srtdb.fh"
+      integer srtdb
+      character*(*) dname
+      logical smd_data_destroy
+c
+      logical result
+      character*30 pname
+      character*72 buffer
+      integer datum(4)
+
+      pname = "smd_data_destroy"
+
+      smd_data_destroy = .false.
+
+      if (.not.srtdb_get(srtdb,dname,MT_INT,4,datum)) then
+         call smd_message_post(pname//" srtdb_get")
+         return
+      end if
+
+      if(.not.ma_free_heap(datum(4))) then
+         call smd_message_post(pname//" ma_free_heap")
+         return
+      end if
+
+      smd_data_destroy = .true.
       return
       end

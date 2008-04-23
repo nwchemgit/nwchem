@@ -20,6 +20,9 @@ c     init core components
 c     -------------------
       call smd_srtdb_init()
       call smd_atom_init()
+      call smd_cutoff_init()
+      call smd_param_init()
+c      call smd_message_flush(6)
       return
       end
 

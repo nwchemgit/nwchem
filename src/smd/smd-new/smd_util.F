@@ -1,5 +1,5 @@
 c
-c $Id: smd_util.F,v 1.1 2008-04-22 17:41:24 marat Exp $
+c $Id: smd_util.F,v 1.2 2008-04-23 16:48:29 marat Exp $
 c
 
       SUBROUTINE smd_util_rebox(n,latt,rlatt,aaa)
@@ -146,59 +146,4 @@ c     real*8 rand
 
       END
 
-      subroutine smd_data_create(srtdb,dname,ndim,dtype)
-      implicit none
-c
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "srtdb.fh"
-      integer srtdb
-      character*(*) dname
-      integer ndim
-      integer dtype
-c
-      logical result
-      integer ns,nd
-      character*30 pname
-      character*72 buffer
-      integer i,handle,id
 
-      pname = "smd_data_create"
-
-
-      buffer = dname
-      if(.not.ma_alloc_get(dtype,
-     +   ndim,
-     +   dname,
-     +   handle,
-     +   id))
-     +   call errquit(pname//'memory allocation'//buffer,
-     +         ndim,
-     +         MA_ERR)
-
-      if(dtype.eq.MT_DBL) then
-        call dfill(ndim,
-     +             0.d0,
-     +             dbl_mb(id),
-     +             1)
-      end if
-
-      if(dtype.eq.MT_INT) then
-        call ifill(ndim,
-     +             0,
-     +             int_mb(id),
-     +             1)
-      end if
-      if(dtype.eq.MT_LOG) then
-        do i=1,ndim
-          log_mb(id+i-1) = .false.
-        end do
-      end if
-c     should probably fill logical and char arrays
-
-      if (.not. srtdb_put(srtdb,dname, dtype, ndim, handle))
-     $   call errquit(pname//' srtdb_put'//buffer,
-     +         ndim,
-     +         MA_ERR)
-
-      end

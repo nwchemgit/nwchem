@@ -1,5 +1,5 @@
-c $Id: smd_end.F,v 1.1 2008-04-22 17:41:22 marat Exp $
-      subroutine smd_end(rtdb)
+c $Id: smd_end.F,v 1.2 2008-04-23 16:48:29 marat Exp $
+      subroutine smd_end()
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -8,15 +8,12 @@ c $Id: smd_end.F,v 1.1 2008-04-22 17:41:22 marat Exp $
 #include "util.fh"
 #include "global.fh"
 c     
-      integer rtdb
+      integer srtdb
 c
       character*32 pname
 c
       pname = "smd_end"
-c
-c      write(*,*) "in "//pname
-c
-c      call smd_data_destroy()
+      call smd_atom_end()
 c
       return
       end

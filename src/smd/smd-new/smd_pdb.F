@@ -95,14 +95,12 @@ c
       i = 0
 100   continue
       read(un,'(A180)',end=200) buffer
-      call util_flush(34)
       if(buffer(1:4).eq."ATOM") then
         i = i +1
         if(i.gt.nt)
      >  call errquit(pname//"insufficient array size",0,0)
         read(buffer,*) tag,tag,ta(i),tr(i),ir(i),
      >                 tag,tag,tag
-        call util_flush(6)
        end if
       goto 100
 200   continue
