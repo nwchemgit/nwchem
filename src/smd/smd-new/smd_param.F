@@ -9,8 +9,6 @@
 #include "stdio.fh"
 #include "msgids.fh"
 c     
-      character*(*) namespace
-c
       character*32 pname
       character*80 tag
       character*255 filename
