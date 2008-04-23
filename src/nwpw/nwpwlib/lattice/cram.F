@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.29 2008-04-18 00:05:48 bylaska Exp $
+* $Id: cram.F,v 1.30 2008-04-23 01:32:13 bylaska Exp $
 *
 
 *     ***********************************
@@ -33,13 +33,14 @@
 
 *     **** external functions ****
       logical  cloak_masker
-      integer  control_num_kvectors
-      real*8   lattice_ecut,lattice_wcut
+      integer  control_num_kvectors,brillioun_nbrillq
+      real*8   lattice_ecut,lattice_wcut,brillioun_k
       external cloak_masker
-      external control_num_kvectors
-      external lattice_ecut,lattice_wcut
+      external control_num_kvectors,brillioun_nbrillq
+      external lattice_ecut,lattice_wcut,brillioun_k
       
-      maxsize = control_num_kvectors()+1
+      !maxsize = control_num_kvectors()+1
+      maxsize = brillioun_nbrillq()+1
 
       value = MA_alloc_get(mt_int,maxsize,
      >                     'nidb_list',
@@ -90,7 +91,9 @@
             kv(3) = 0.0d0
          else
             ecut = lattice_wcut()
-            call control_kvector(nb,kv)
+            kv(1) =  brillioun_k(nb,1)
+            kv(2) =  brillioun_k(nb,2)
+            kv(3) =  brillioun_k(nb,3)
          end if
          call cloak_set(kv,ecut)
 

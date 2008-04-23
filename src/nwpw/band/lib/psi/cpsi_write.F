@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_write.F,v 1.14 2008-04-22 17:42:21 bylaska Exp $
+* $Id: cpsi_write.F,v 1.15 2008-04-23 01:31:58 bylaska Exp $
 *
 
 *     ***************************
@@ -31,7 +31,7 @@
       integer q,pj,nbq,pk
 
 c     complex*16 tmp(*)
-      integer tmp(2),tmp2(2)
+      integer tmp(2),tmp2(2),tmpe(2)
       logical value
 
 *     ***** local functions ****
@@ -39,8 +39,10 @@ c     complex*16 tmp(*)
       external     control_output_psi
       double precision control_unita
       external         control_unita
-      integer  control_ngrid,cpsi_data_get_ptr,cpsi_data_get_next
-      external control_ngrid,cpsi_data_get_ptr,cpsi_data_get_next
+      integer  control_ngrid,cpsi_data_get_chnk,cpsi_data_get_next
+      integer  cpsi_data_get_ptr
+      external control_ngrid,cpsi_data_get_chnk,cpsi_data_get_next
+      external cpsi_data_get_ptr
 
       call Parallel_taskid(taskid)
       call Parallel3d_taskid_j(taskid_j)
@@ -51,6 +53,8 @@ c     complex*16 tmp(*)
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      value = MA_push_get(mt_dbl,(ne(1)+ne(2)),'tmpe',tmpe(2),tmpe(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       version = 5 ! version 5 - band, version 3 and 4 - pspw
@@ -111,24 +115,30 @@ c     complex*16 tmp(*)
       end do
 
 *     **** write the occupations - needs to be reworked for parallel nbrill,ne ****
-      if (taskid.eq.MASTER) then
       if (occupation.gt.0) then
          l = cpsi_data_get_next(psi2_tag)
          do nb=1,nbrillioun
-         do n=1,(ne(1)+ne(2))
-           call dwrite(6,dbl_mb(cpsi_data_get_ptr(l,nb,n)),1)
+            call K1dB_ktoqp(nb,nbq,pk)
+            call dcopy((ne(1)+ne(2)),0.0d0,0,dbl_mb(tmpe(1)),1)
+            if (pk.eq.taskid_k) then
+               call dcopy((ne(1)+ne(2)),
+     >                 dbl_mb(cpsi_data_get_chnk(l,nbq)),1,
+     >                 dbl_mb(tmpe(1)),1)
+            end if
+            call K1dB_Vector_SumAll((ne(1)+ne(2)),dbl_mb(tmpe(1)))
          end do
-         end do
+         if (taskid.eq.MASTER) then
+           call dwrite(6,dbl_mb(tmpe(1)),(ne(1)+ne(2)))
+         end if
       end if
-      end if
-
 
 *     *** close ELCIN binary file ***
       if (taskid.eq.MASTER) then
         call closefile(6)
       end if
 
-      value =           MA_pop_stack(tmp2(2))
+      value =           MA_pop_stack(tmpe(2))
+      value = value.and.MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
       return

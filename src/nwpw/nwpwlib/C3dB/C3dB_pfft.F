@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: C3dB_pfft.F,v 1.7 2008-04-21 23:23:30 bylaska Exp $
+* $Id: C3dB_pfft.F,v 1.8 2008-04-23 01:32:04 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -45,10 +45,10 @@
       integer zero_arow2(2),zero_arow3(2)
 
 *     **** external functions ***
-      integer  control_pfft3_qsize,brillioun_nbrillioun
+      integer  control_pfft3_qsize,brillioun_nbrillq
       real*8   lattice_ggcut,lattice_wggcut,lattice_unitg
       real*8   brillioun_k
-      external control_pfft3_qsize,brillioun_nbrillioun
+      external control_pfft3_qsize,brillioun_nbrillq
       external lattice_ggcut,lattice_wggcut,lattice_unitg
       external brillioun_k
 
@@ -123,7 +123,7 @@
                gg= gg-ggcut
                if (gg.lt.-eps) zrow = .false.
             else
-               do nbb=1,brillioun_nbrillioun()
+               do nbb=1,brillioun_nbrillq()
                   g1 = k1*lattice_unitg(1,1)
      >               + k3*lattice_unitg(1,2)
      >               + k2*lattice_unitg(1,3)
@@ -184,7 +184,7 @@
                gg= gg-ggcut
                if (gg.lt.-eps) yzslab = .false.
             else
-               do nbb=1,brillioun_nbrillioun()
+               do nbb=1,brillioun_nbrillq()
                   g1 = k1*lattice_unitg(1,1)
      >               + k2*lattice_unitg(1,2)
      >               + k3*lattice_unitg(1,3)
@@ -292,7 +292,7 @@
                gg= gg-ggcut
                if (gg.lt.-eps) zrow = .false.
             else
-               do nbb=1,brillioun_nbrillioun()
+               do nbb=1,brillioun_nbrillq()
                   g1 = k1*lattice_unitg(1,1)
      >               + k2*lattice_unitg(1,2)
      >               + k3*lattice_unitg(1,3)
@@ -349,7 +349,7 @@
                gg= gg-ggcut
                if (gg.lt.-eps) yzslab = .false.
             else
-               do nbb=1,brillioun_nbrillioun()
+               do nbb=1,brillioun_nbrillq()
                   g1 = k1*lattice_unitg(1,1)
      >               + k2*lattice_unitg(1,2)
      >               + k3*lattice_unitg(1,3)

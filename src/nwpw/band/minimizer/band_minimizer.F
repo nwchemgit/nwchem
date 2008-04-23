@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.59 2008-04-22 17:42:22 bylaska Exp $
+* $Id: band_minimizer.F,v 1.60 2008-04-23 01:32:01 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -83,10 +83,14 @@
       character*12 control_boundry
       external     control_boundry
 
-      integer  brillioun_nbrillioun
-      real*8   brillioun_weight,brillioun_ks,brillioun_k
-      external brillioun_nbrillioun
-      external brillioun_weight,brillioun_ks,brillioun_k
+      logical  Pbrillioun_print
+      integer  brillioun_nbrillioun,brillioun_nbrillq
+      real*8   Pbrillioun_weight,Pbrillioun_ks,Pbrillioun_k
+      real*8   brillioun_weight
+      external Pbrillioun_print
+      external brillioun_nbrillioun,brillioun_nbrillq
+      external Pbrillioun_weight,Pbrillioun_ks,Pbrillioun_k
+      external brillioun_weight
       integer  c_electron_count,linesearch_count
       external c_electron_count,linesearch_count
 
@@ -210,6 +214,7 @@ c      external      cpsp_comment
       call lattice_init()
       call c_G_init()
       call brillioun_init()
+      call Pbrillioun_init()
       call Cram_init()
       call C3dB_pfft_init()
 
@@ -289,6 +294,31 @@ c      external      cpsp_comment
 ******************   summary of input data  **********************
 *                |**************************|
 
+
+*     **** determine en ****
+      if (.not.control_spin_orbit()) then
+        icharge = 0.0d0
+        en(1) = 0.0d0
+        en(2) = 0.0d0
+        b = dble(3-cpsi_ispin())
+        do nb=1,brillioun_nbrillq()
+        weight = brillioun_weight(nb)
+        do ms=1,cpsi_ispin()
+          do i=1,ne(ms)
+            a = cpsi_occupation(nb,ms,i)
+            icharge = icharge - b*a*weight
+            en(ms)  = en(ms) + a*weight
+          end do
+        end do
+        end do
+        call K1dB_Vector_SumAll(2,en)
+      else
+        icharge          = -cpsi_ne(1)
+        en(1)            =  cpsi_ne(1)
+        en(cpsi_ispin()) =  cpsi_ne(cpsi_ispin())
+      end if
+
+
       if (taskid.eq.MASTER) then
          write(luout,1111) np
          write(luout,1117) np_i,np_j,np_k
@@ -336,30 +366,8 @@ c           write(luout,1154) cpsp_lmmax(ia)
            write(luout,1151) (cpsp_rc(i,ia),i=0,cpsp_lmax(ia))
          end do
 
-
-         if (.not.control_spin_orbit()) then
-           icharge = 0.0d0
-           en(1) = 0.0d0
-           en(2) = 0.0d0
-           b = dble(3-cpsi_ispin())
-           do nb=1,brillioun_nbrillioun()
-           weight = brillioun_weight(nb)
-           do ms=1,cpsi_ispin()
-             do i=1,ne(ms)
-               a = cpsi_occupation(nb,ms,i)
-               icharge = icharge - b*a*weight
-               en(ms)  = en(ms) + a*weight
-             end do
-           end do
-           end do
-         else
-           icharge          = -cpsi_ne(1)
-           en(1)            =  cpsi_ne(1)
-           en(cpsi_ispin()) =  cpsi_ne(cpsi_ispin())
-         end if
          icharge = icharge + ion_TotalCharge()
          write(luout,1159) icharge
-
 
          write(luout,1180)
          do I=1,ion_nion()
@@ -406,11 +414,15 @@ c           write(luout,1154) cpsp_lmmax(ia)
          ia = brillioun_nbrillioun()
          write(luout,1255)
          write(luout,1256) ia
-         do i=1,ia
-           write(luout,1257) brillioun_weight(i),
-     >        brillioun_ks(1,i),brillioun_ks(2,i),brillioun_ks(3,i),
-     >        brillioun_k(1,i), brillioun_k(2,i), brillioun_k(3,i)
-         end do
+         if (Pbrillioun_print()) then
+            do i=1,ia
+              write(luout,1257)  Pbrillioun_weight(i),
+     >        Pbrillioun_ks(1,i),Pbrillioun_ks(2,i),Pbrillioun_ks(3,i),
+     >        Pbrillioun_k(1,i), Pbrillioun_k(2,i), Pbrillioun_k(3,i)
+            end do
+         else
+              write(luout,1258) 
+         end if
 
          write(luout,1249)
          write(luout,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
@@ -573,6 +585,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
       call cpsp_end()
       call Cram_end()
       call c_G_end()
+      call Pbrillioun_end()
       call brillioun_end()
       call ion_end()
       call ion_end_FixIon()
@@ -727,6 +740,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
  1255 FORMAT(/' brillouin zone:')
  1256 FORMAT(5x,'number of zone points:',I3)
  1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
+ 1258 FORMAT(5x,' number of k-point is very large or distributed')
 
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)

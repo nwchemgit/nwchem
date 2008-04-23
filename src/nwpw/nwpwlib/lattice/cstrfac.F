@@ -1,5 +1,5 @@
 *
-* $Id: cstrfac.F,v 1.11 2005-08-05 20:39:36 bylaska Exp $
+* $Id: cstrfac.F,v 1.12 2008-04-23 01:32:13 bylaska Exp $
 *
 
 *     ***********************************
@@ -15,18 +15,18 @@
 #include "mafdecls.fh"
 #include "cstrfac_common.fh"
 
-      integer nion,nx,ny,nz,nbrillioun
+      integer nion,nx,ny,nz,nbrillq
       integer nb,i,j,k,index,taskid,p,q
       integer nfft3d
       integer i_indx(2),j_indx(2),k_indx(2)
       logical value
 
 *     ***** external functions ****
-      integer  ion_nion,brillioun_nbrillioun
-      external ion_nion,brillioun_nbrillioun
+      integer  ion_nion,brillioun_nbrillq
+      external ion_nion,brillioun_nbrillq
 
       nion       = ion_nion()
-      nbrillioun = brillioun_nbrillioun()
+      nbrillq    = brillioun_nbrillq()
       call Parallel_taskid(taskid)
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
@@ -39,23 +39,23 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,(nz*nion),'ex3',ex3(2),ex3(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(nbrillioun*nion),
+     >        MA_alloc_get(mt_dcpl,(nbrillq*nion),
      >                    'cxr',cxr(2),cxr(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(2*nbrillioun+2),
+     >        MA_alloc_get(mt_int,(2*nbrillq+2),
      >                    'i_indx_list',i_indx_list(2),i_indx_list(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(2*nbrillioun+2),
+     >        MA_alloc_get(mt_int,(2*nbrillq+2),
      >                    'j_indx_list',j_indx_list(2),j_indx_list(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(2*nbrillioun+2),
+     >        MA_alloc_get(mt_int,(2*nbrillq+2),
      >                    'k_indx_list',k_indx_list(2),k_indx_list(1))
       if (.not. value) call errquit('cstrfac_init:out of heap',0,
      &       MA_ERR)
 
 
 *     **** allocate indx blocks ****
-      do nb=0,nbrillioun
+      do nb=0,nbrillq
         call C3dB_nfft3d(1,nfft3d)
         value = MA_alloc_get(mt_int,nfft3d,'i_indx0',
      >                     i_indx(2),i_indx(1))
@@ -121,16 +121,16 @@ C     ***********************************
 *     **** local variables ****
       logical value
       integer i_indx,j_indx,k_indx
-      integer nb,nbrillioun
+      integer nb,nbrillq
 
 *     **** external functions ****
-      integer  brillioun_nbrillioun
-      external brillioun_nbrillioun
+      integer  brillioun_nbrillq
+      external brillioun_nbrillq
 
-      nbrillioun = brillioun_nbrillioun()
+      nbrillq = brillioun_nbrillq()
 
 *     **** deallocate index blocks ****
-      do nb=0,nbrillioun
+      do nb=0,nbrillq
          i_indx=int_mb(i_indx_list(1)+2*nb+1)
          j_indx=int_mb(j_indx_list(1)+2*nb+1)
          k_indx=int_mb(k_indx_list(1)+2*nb+1)
@@ -527,13 +527,13 @@ C
       integer    i,nb,nion
 
 *     **** external functions ****
-      integer  brillioun_nbrillioun,ion_nion
+      integer  brillioun_nbrillq,ion_nion
       real*8   brillioun_k,ion_rion
-      external brillioun_nbrillioun,ion_nion
+      external brillioun_nbrillq,ion_nion
       external brillioun_k,ion_rion
 
       nion = ion_nion()
-      do nb=1,brillioun_nbrillioun()
+      do nb=1,brillioun_nbrillq()
       do i =1,nion
          dcpl_mb(cxr(1)+i-1+(nb-1)*nion) =
      >        dcmplx(cos( (brillioun_k(1,nb))*ion_rion(1,i)
@@ -558,13 +558,13 @@ C
       integer    i,nb,nion
 
 *     **** external functions ****
-      integer  brillioun_nbrillioun,ion_nion
-      external brillioun_nbrillioun,ion_nion
+      integer  brillioun_nbrillq,ion_nion
+      external brillioun_nbrillq,ion_nion
 
       write(*,*)
       write(*,*) "cstrfac_k_print:"
       nion = ion_nion()
-      do nb=1,brillioun_nbrillioun()
+      do nb=1,brillioun_nbrillq()
       do i =1,nion
         write(*,*) "cstrfac_k nb,ii,cxr:",nb,i,
      >             dcpl_mb(cxr(1)+i-1+(nb-1)*nion)

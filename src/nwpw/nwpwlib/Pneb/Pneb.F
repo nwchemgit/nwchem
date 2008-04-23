@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.36 2008-04-22 17:42:23 bylaska Exp $
+* $Id: Pneb.F,v 1.37 2008-04-23 01:32:06 bylaska Exp $
 *
 #define NBLOCKS 4
 
@@ -160,19 +160,21 @@ cccccccccccccccccccccccccc
 #include "Pneb.fh"
 
 *     **** external functions ****
+      integer  brillioun_nbrillq
       integer  Parallel3d_comm_i,Parallel3d_comm_j,Parallel3d_comm_k
+      external brillioun_nbrillq
       external Parallel3d_comm_i,Parallel3d_comm_j,Parallel3d_comm_k
 
       ispin   = ispin_in
       ne(1)   = ne_in(1)
       ne(2)   = ne_in(2)
       nbrill  = nbrill_in
+      nbrillq =  brillioun_nbrillq()
       spin_orbit = spin_orbit_in
 
       neq(1)  = ne(1)
       neq(2)  = ne(2)
 
-      call K1dB_nq(nbrillq)
       call Parallel3d_np_i(np_i)
       call Parallel3d_np_j(np_j)
       call Parallel3d_np_k(np_k)

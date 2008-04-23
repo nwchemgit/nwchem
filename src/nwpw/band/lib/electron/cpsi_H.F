@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.24 2008-04-21 19:34:25 bylaska Exp $
+* $Id: cpsi_H.F,v 1.25 2008-04-23 01:31:53 bylaska Exp $
 *
 
 *     **********************************************
@@ -34,7 +34,7 @@
       real*8  scal1,scal2
 
 *     **** tempory space ****
-      integer nfft3d,npack1,nb,nbq,neall,nbrill
+      integer nfft3d,npack1,nb,nbq,neall,nbrillq
       integer vall(2),vpsi(2)
       logical value
 
@@ -68,7 +68,7 @@
       n1(2) = ne(1) + 1
       n2(2) = ne(1) + ne(2)
       neall = ne(1) + ne(2)
-      nbrill = Pneb_nbrillq()
+      nbrillq = Pneb_nbrillq()
       nshift1 = cpsi_data_nsize(psi_r_tag)
       nshift2 = cpsi_data_nsize(Hpsi_k_tag)
        
@@ -145,7 +145,7 @@ c      end do
       Hpsi_shift   = cpsi_data_get_chnk(Hpsi_k_tag,nbj)
       done = .false.
       do while (.not.done)
-         if (nbi.le.nbrill) then
+         if (nbi.le.nbrillq) then
             ms=1
             if (ki.gt.n2(1)) ms = 2
 
@@ -166,13 +166,13 @@ c      end do
             if (ki.gt.neall) then
                nbi = nbi + 1
                ki  = 1
-               if (nbi.le.nbrill) then
+               if (nbi.le.nbrillq) then
                   psi_shift    = cpsi_data_get_chnk(psi_r_tag,nbi)
                endif
             end if
          end if
 
-         if ((C3dB_rc_pfft3_queue_filled()).or.(nbi.gt.nbrill)) then
+         if ((C3dB_rc_pfft3_queue_filled()).or.(nbi.gt.nbrillq)) then
             call C3dB_rc_pfft3f_queueout(nbj,dcpl_mb(vpsi(1)))
 
 *           **** add to Hpsi_k ****
@@ -185,14 +185,14 @@ c      end do
             if (kj.gt.neall) then
                nbj = nbj + 1
                kj  = 1
-               if (nbj.le.nbrill) then
+               if (nbj.le.nbrillq) then
                   Hpsi_shift   = cpsi_data_get_chnk(Hpsi_k_tag,nbj)
                endif
             end if
 
          end if
 
-         done = ((nbi.gt.nbrill).and.(nbj.gt.nbrill))
+         done = ((nbi.gt.nbrillq).and.(nbj.gt.nbrillq))
       end do
 
 
@@ -467,7 +467,7 @@ c      end do
       real*8  scal1,scal2,fion(3)
 
 *     **** tempory space ****
-      integer nfft3d,nb,nbq,nbrill
+      integer nfft3d,nb,nbq,nbrillq
       integer vpsi(2)
       logical value
 
@@ -497,7 +497,7 @@ c      call Cram_max_npack(npack1)
       n2(1) = ne(1)
       n1(2) = ne(1) + 1
       n2(2) = ne(1) + ne(2)
-      nbrill = Pneb_nbrillq()
+      nbrillq = Pneb_nbrillq()
       nshift1 = cpsi_data_nsize(psi_r_tag)
       nshift2 = cpsi_data_nsize(Hpsi_k_tag)
        
@@ -516,7 +516,7 @@ c      call Cram_max_npack(npack1)
 *     **************************************************
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+)*psi_r]    ****
 *     **************************************************
-      do nbq=1,nbrill
+      do nbq=1,nbrillq
          nb = Pneb_convert_nb(nbq)
          psi_shift  = cpsi_data_get_chnk( psi_r_tag,nbq)
          Hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nbq)

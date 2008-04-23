@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.43 2008-04-22 17:42:21 bylaska Exp $
+* $Id: c_electron.F,v 1.44 2008-04-23 01:31:52 bylaska Exp $
 *
 
 
@@ -1135,8 +1135,7 @@ c     >                     dn)
       occ_tag = cpsi_data_get_next(psi_r_tag)
       if (occ_tag.gt.0) then
        do nbq=1,nbrillq
-        nb = Pneb_convert_nb(nbq)
-        weight = brillioun_weight(nb)
+        weight = brillioun_weight(nbq)
         shiftA = cpsi_data_get_chnk(psi_r_tag,nbq)
         shifto = cpsi_data_get_chnk(occ_tag,nbq)
         do ms=1,ispin
@@ -1151,8 +1150,7 @@ c     >                     dn)
        end do
       else
        do nbq=1,nbrillq
-        nb = Pneb_convert_nb(nbq)
-        weight = brillioun_weight(nb)
+        weight = brillioun_weight(nbq)
         shiftA = cpsi_data_get_chnk(psi_r_tag,nbq)
         do ms=1,ispin
         do n=n1(ms),n2(ms)

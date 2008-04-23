@@ -1,10 +1,17 @@
 *
-* $Id: brillioun_common.fh,v 1.1 2006-04-10 18:05:19 bylaska Exp $
+* $Id: brillioun_common.fh,v 1.2 2008-04-23 01:32:10 bylaska Exp $
 *
 
 *     **** Brillioun common block ****
-      integer nbrillioun
+      integer nbrillioun,nbrillq
       integer weight(2)
       integer ks(2),kv(2)
-      common / Brillion_common / ks,kv,weight,nbrillioun
+      common / Brillion_common / ks,kv,weight,nbrillioun,nbrillq
 
+*     **** PBrillioun common block ****
+      integer    pbrillmax
+      parameter (pbrillmax = 100)
+      logical printbrill
+      integer pweight(2)
+      integer pks(2),pkv(2)
+      common / PBrillion_common / pks,pkv,pweight,printbrill

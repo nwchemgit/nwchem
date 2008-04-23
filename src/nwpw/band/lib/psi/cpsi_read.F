@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.18 2008-04-22 17:42:21 bylaska Exp $
+* $Id: cpsi_read.F,v 1.19 2008-04-23 01:31:58 bylaska Exp $
 *
 
 *     ***************************
@@ -35,7 +35,7 @@
       integer q,pj,nbq,pk
 
 c     complex*16 tmp(*)
-      integer tmp(2),tmp2(2)
+      integer tmp(2),tmp2(2),tmpe(2)
       logical value
 
 *     ***** local functions ****
@@ -62,6 +62,9 @@ c     complex*16 tmp(*)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      value = MA_push_get(mt_dbl,(ne(1)+ne(2)),'tmpe',tmpe(2),tmpe(1))
        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
      
 *     **** open ELCIN binary file ****
@@ -184,7 +187,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 *     * file contains less data then necessary *
       else 
 
-        do nb=1,nbrill
+        do nb=1,nbrill-1
            call K1dB_ktoqp(nb,nbq,pk)
            do n=1,(ne(1)+ne(2))
               pj=0
@@ -199,51 +202,61 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
              end if
         end do
         end do
-*       **** -needs to be reworked for parallel ****
 *       **** use the last zone for filling in unknown zones ****
-        psiold1 = cpsi_data_get_chnk(psi2_tag,nbrill)
-        do nb=nbrill+1,nbrillioun
-         psiold = psiold1
-         do n=1,(ne(1)+ne(2))
-          call Cram_c_Copy(nbrill,dbl_mb(psiold),dcpl_mb(tmp2(1)))
-          call Cram_c_unpack(nbrill,dcpl_mb(tmp2(1)))
-          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-          call cpsi_data_add(psi2_tag,nb,n,dcpl_mb(tmp2(1)))
-          psiold = psiold + 2*npack1
-         end do
+        do n=1,(ne(1)+ne(2))
+          pj=0
+          q=n
+          call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+     >                         dcpl_mb(tmp(1)),pj,-1)
+          do nb=nbrill,nbrillioun
+             call K1dB_ktoqp(nb,nbq,pk)
+             if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
+                call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
+                call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
+             end if
+          end do
         end do
+
       end if
 
-*     **** read the occupations - needs to be reworked for parallel ****
+*     **** read the occupations - still a bit hacky ****
       if (occupation.gt.0) then
          l = cpsi_data_get_next(psi2_tag)
-         if (taskid.eq.MASTER) then
-            if (nbrillioun.eq.nbrill) then
-              do nb=1,nbrillioun
-              do n=1,(ne(1)+ne(2))
-                call dread(5,unita,1)
-                call cpsi_data_add(l,nb,n,unita)
-              end do
-              end do
-*           **** reset to zeros and ones ****
-            else
-              do nb=1,nbrillioun
-              do ms=1,ispin
-              do n=1,ne(ms)
-                if (n.le.(ne(ms)-control_fractional_orbitals(ms))) then
-                  unita(1,1) = 1.0d0  
-                else
-                  unita(1,1) = 0.0d0  
-                end if
-                call cpsi_data_add(l,nb,(n+(ms-1)*ne(1)),unita)
-              end do
-              end do
-              end do
-            end if
+         if (nbrillioun.eq.nbrill) then
+
+            do nb=1,nbrillioun
+               call K1dB_ktoqp(nb,nbq,pk)
+               if (taskid.eq.MASTER) then
+                  call dread(5,dbl_mb(tmpe(1)),(ne(1)+ne(2)))
+               end if
+               !** big broadcast - should be reduced ***
+               call Parallel_Brdcst_values(MASTER,
+     >                       (ne(1)+ne(2)),dbl_mb(tmpe(1)))
+               if (pk.eq.taskid_k) then
+                  do n=1,(ne(1)+ne(2))
+                     call cpsi_data_add(l,nbq,n,dbl_mb(tmpe(1)+n-1))
+                  end do
+               end if
+            end do
+*        **** reset to zeros and ones ****
+         else
+           do nb=1,nbrillioun
+             call K1dB_ktoqp(nb,nbq,pk) 
+             if (pk.eq.taskid_k) then 
+               do ms=1,ispin
+               do n =1,ne(ms)
+                 if (n.le.(ne(ms)-control_fractional_orbitals(ms))) then
+                   unita(1,1) = 1.0d0  
+                 else
+                   unita(1,1) = 0.0d0  
+                 end if
+                 call cpsi_data_add(l,nbq,(n+(ms-1)*ne(1)),unita)
+               end do
+               end do
+             end if
+           end do
          end if
-         call Parallel_Brdcst_values(MASTER,
-     >                 nbrillioun*(ne(1)+ne(2)),
-     >                 dbl_mb(cpsi_data_get_allptr(l)))
+
       end if
 
 *     *** close ELCIN binary file ***
@@ -251,7 +264,8 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
         call closefile(5)
       end if
  
-      value =           MA_pop_stack(tmp2(2))
+      value =           MA_pop_stack(tmpe(2))
+      value = value.and.MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp(2))
 *     end if
 
@@ -429,8 +443,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 
 *     * file contains less data then necessary *
       else 
-
-        do nb=1,nbrill
+        do nb=1,nbrill-1
            call K1dB_ktoqp(nb,nbq,pk)
            do n=1,(ne(1)+ne(2))
               pj=0
@@ -443,21 +456,19 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
               end if
            end do
         end do
-
-*       **** needs to be reworked for Parallel ****
 *       **** use the last zone for filling in unknown zones ****
-        psiold1 = cpsi_data_get_chnk(psi2_tag,nbrill)
-        do nb=nbrill+1,nbrillioun
-
-         psiold = psiold1
-         do n=1,(ne(1)+ne(2))
-          call Cram_c_Copy(nbrill,dbl_mb(psiold),dcpl_mb(tmp2(1)))
-          call Cram_c_unpack(nbrill,dcpl_mb(tmp2(1)))
-          call Cram_c_pack(nb,dcpl_mb(tmp2(1)))
-          call cpsi_data_add(psi2_tag,nb,n,dcpl_mb(tmp2(1)))
-          psiold = psiold + 2*npack1
-         end do
-
+        do n=1,(ne(1)+ne(2))
+           pj=0
+           q=n
+           call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+     >                     dcpl_mb(tmp(1)),pj,-1)
+           do nb=nbrill,nbrillioun
+              call K1dB_ktoqp(nb,nbq,pk)
+              if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
+                 call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
+                 call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
+              end if
+           end do
         end do
 
       end if

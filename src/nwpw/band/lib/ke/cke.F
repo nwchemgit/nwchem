@@ -1,5 +1,5 @@
 *
-* $Id: cke.F,v 1.14 2007-11-08 23:42:08 bylaska Exp $
+* $Id: cke.F,v 1.15 2008-04-23 01:31:55 bylaska Exp $
 *
       subroutine cke_init()
       implicit none 
@@ -10,7 +10,7 @@
 
 *     **** local variables ****
       integer nfft3d,npack1,G(3)
-      integer i,nb,nbrillioun
+      integer i,nb,nbrillq
       real*8  gg,gx,gy,gz,kx,ky,kz
       logical value
  
@@ -18,19 +18,19 @@
 
 *     **** external functions ****
 c     real*8 G(nfft3d,3)
-      integer  c_G_indx, brillioun_nbrillioun
+      integer  c_G_indx, brillioun_nbrillq
       real*8   brillioun_k
-      external c_G_indx, brillioun_nbrillioun
+      external c_G_indx, brillioun_nbrillq
       external brillioun_k
 
-      nbrillioun = brillioun_nbrillioun()
+      nbrillq = brillioun_nbrillq()
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
       G(1)= c_G_indx(1)
       G(2)= c_G_indx(2)
       G(3)= c_G_indx(3)
 
-      value = MA_alloc_get(mt_dbl,npack1*nbrillioun,
+      value = MA_alloc_get(mt_dbl,npack1*nbrillq,
      >                     'tg',tg_hndl,tg_indx)
       if (.not. value) 
      > call errquit('cke_init:out of heap memory',0,MA_ERR)
@@ -40,7 +40,7 @@ c     real*8 G(nfft3d,3)
      > call errquit('cke_init:out of stack memory',0,MA_ERR)
 
 
-      do nb=1,nbrillioun
+      do nb=1,nbrillq
          kx = brillioun_k(1,nb)
          ky = brillioun_k(2,nb)
          kz = brillioun_k(3,nb)
@@ -88,8 +88,8 @@ c     real*8 G(nfft3d,3)
 #include "cke_common.fh"
 
 *     **** local variables ****
-      integer npack1,nbrill,neall
-      integer n,nb,shift1,shift2,nshift,nbq
+      integer npack1,nbrillq,neall
+      integer n,shift1,shift2,nshift,nbq
 
 *     **** external functions ****
       integer  Pneb_nbrillq,Pneb_convert_nb,cpsi_data_get_chnk
@@ -97,16 +97,15 @@ c     real*8 G(nfft3d,3)
       
       call Cram_max_npack(npack1)
       nshift = 2*npack1
-      nbrill = Pneb_nbrillq()
+      nbrillq = Pneb_nbrillq()
       neall  = ne(1)+ne(2)
 
-      do nbq=1,nbrill
-         nb = Pneb_convert_nb(nbq)
+      do nbq=1,nbrillq
          shift1 = cpsi_data_get_chnk(psi1_tag,nbq)
          shift2 = cpsi_data_get_chnk(psi2_tag,nbq)
          do n=1,neall
-            call Cram_rc_Mul(nb,dbl_mb(tg_indx+(nb-1)*npack1),
-     >                          dbl_mb(shift1),dbl_mb(shift2))
+            call Cram_rc_Mul(nbq,dbl_mb(tg_indx+(nbq-1)*npack1),
+     >                           dbl_mb(shift1),dbl_mb(shift2))
             shift1 = shift1 + nshift
             shift2 = shift2 + nshift
          end do
@@ -199,20 +198,19 @@ c     real*8 G(nfft3d,3)
 
       ave = 0.0d0
       do nbq=1,nbrillq
-        nb = Pneb_convert_nb(nbq)
         shift1 = cpsi_data_get_chnk(psi1_tag,nbq)
         if (occ1_tag.gt.0) then
          shift2 = cpsi_data_get_chnk(occ1_tag,nbq)
          do ms=1,ispin
          do n=n1(ms),n2(ms)
-            call Cram_rc_Mul(nb,
-     >                       dbl_mb(tg_indx+(nb-1)*npack1),
+            call Cram_rc_Mul(nbq,
+     >                       dbl_mb(tg_indx+(nbq-1)*npack1),
      >                       dbl_mb(shift1),
      >                       dcpl_mb(tmp1(1)))
-            call Cram_cc_idot(nb,dbl_mb(shift1),
+            call Cram_cc_idot(nbq,dbl_mb(shift1),
      >                       dcpl_mb(tmp1(1)),
      >                       sum)
-            ave = ave + sum*brillioun_weight(nb)*dbl_mb(shift2)
+            ave = ave + sum*brillioun_weight(nbq)*dbl_mb(shift2)
             shift1 = shift1 + nshift1
             shift2 = shift2 + 1
          end do
@@ -221,14 +219,14 @@ c     real*8 G(nfft3d,3)
         else
          do ms=1,ispin
          do n=n1(ms),n2(ms)
-            call Cram_rc_Mul(nb,
-     >                       dbl_mb(tg_indx+(nb-1)*npack1),
+            call Cram_rc_Mul(nbq,
+     >                       dbl_mb(tg_indx+(nbq-1)*npack1),
      >                       dbl_mb(shift1),
      >                       dcpl_mb(tmp1(1)))
-            call Cram_cc_idot(nb,dbl_mb(shift1),
+            call Cram_cc_idot(nbq,dbl_mb(shift1),
      >                       dcpl_mb(tmp1(1)),
      >                       sum)
-            ave = ave + sum*brillioun_weight(nb)
+            ave = ave + sum*brillioun_weight(nbq)
             shift1 = shift1 + nshift1
          end do
          end do
@@ -261,7 +259,7 @@ c     real*8 G(nfft3d,3)
 
 *     **** local variables ****
       integer npack1,nfft3d,nbrillq,G(2,3)
-      integer nb,nbq,i,j,ms,n,n1(2),n2(2)
+      integer nbq,i,j,ms,n,n1(2),n2(2)
       integer u,v,s
       integer nshift1,shift1,psi_shift
       logical value
@@ -329,11 +327,10 @@ c     real*8 G(nfft3d,3)
       call dcopy(9,0.0d0,0,Aus,1)    
       do nbq=1,nbrillq
         shift1 = cpsi_data_get_chnk(psi_tag,nbq)
-        nb = Pneb_convert_nb(nbq)
-        weight = brillioun_weight(nb)
-        kx = brillioun_k(1,nb)
-        ky = brillioun_k(2,nb)
-        kz = brillioun_k(3,nb)
+        weight = brillioun_weight(nbq)
+        kx = brillioun_k(1,nbq)
+        ky = brillioun_k(2,nbq)
+        kz = brillioun_k(3,nbq)
         call dcopy(nfft3d,dbl_mb(c_G_indx(1)),1,dbl_mb(G(1,1)),1)
         call dcopy(nfft3d,dbl_mb(c_G_indx(2)),1,dbl_mb(G(1,2)),1)
         call dcopy(nfft3d,dbl_mb(c_G_indx(3)),1,dbl_mb(G(1,3)),1)
@@ -342,26 +339,26 @@ c     real*8 G(nfft3d,3)
           dbl_mb(G(1,2)+i-1) =  dbl_mb(G(1,2)+i-1)+ky
           dbl_mb(G(1,3)+i-1) =  dbl_mb(G(1,3)+i-1)+kz
         end do
-        call Cram_r_pack(nb,dbl_mb(G(1,1)))
-        call Cram_r_pack(nb,dbl_mb(G(1,2)))
-        call Cram_r_pack(nb,dbl_mb(G(1,3)))
+        call Cram_r_pack(nbq,dbl_mb(G(1,1)))
+        call Cram_r_pack(nbq,dbl_mb(G(1,2)))
+        call Cram_r_pack(nbq,dbl_mb(G(1,3)))
 
 *       **** fractional occupation ****
         if (occ_tag.gt.0) then
           shift2 = cpsi_data_get_chnk(occ_tag,nbq)
           do u=1,3
           do s=u,3
-            call Cram_rr_Mul(nb,dbl_mb(G(1,u)),
+            call Cram_rr_Mul(nbq,dbl_mb(G(1,u)),
      >                        dbl_mb(G(1,s)),
      >                        dbl_mb(tmp1(1)))
             psi_shift = shift1
             occ_shift = shift2
             do ms=1,ispin
             do n=n1(ms),n2(ms)    
-              call Cram_rc_Mul(nb,dbl_mb(tmp1(1)),
+              call Cram_rc_Mul(nbq,dbl_mb(tmp1(1)),
      >                         dbl_mb(psi_shift),
      >                         dcpl_mb(tmp2(1)))
-              call Cram_cc_dot(nb,dbl_mb(psi_shift),
+              call Cram_cc_dot(nbq,dbl_mb(psi_shift),
      >                         dcpl_mb(tmp2(1)),
      >                         sum)
                Aus(u,s)  = Aus(u,s) + sum*weight*dbl_mb(occ_shift)
@@ -376,16 +373,16 @@ c     real*8 G(nfft3d,3)
         else
           do u=1,3
           do s=u,3
-            call Cram_rr_Mul(nb,dbl_mb(G(1,u)),
+            call Cram_rr_Mul(nbq,dbl_mb(G(1,u)),
      >                        dbl_mb(G(1,s)),
      >                        dbl_mb(tmp1(1)))
             psi_shift = shift1
             do ms=1,ispin
             do n=n1(ms),n2(ms)
-              call Cram_rc_Mul(nb,dbl_mb(tmp1(1)),
+              call Cram_rc_Mul(nbq,dbl_mb(tmp1(1)),
      >                         dbl_mb(psi_shift),
      >                         dcpl_mb(tmp2(1)))
-              call Cram_cc_dot(nb,dbl_mb(psi_shift),
+              call Cram_cc_dot(nbq,dbl_mb(psi_shift),
      >                         dcpl_mb(tmp2(1)),
      >                         sum)
                Aus(u,s)  = Aus(u,s) + sum*weight
@@ -397,6 +394,7 @@ c     real*8 G(nfft3d,3)
         end if
 
       end do
+      call K1dB_Vector_SumAll(9,Aus)
 
       do u=1,3
       do s=u+1,3

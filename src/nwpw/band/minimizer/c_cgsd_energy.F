@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.24 2007-11-17 00:05:54 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.25 2008-04-23 01:32:01 bylaska Exp $                       
 *
 
 *     ***************************
@@ -44,8 +44,10 @@
       external control_tole,control_tolc
       external ion_rion,cpsi_eigenvalue,ion_amass,cpsi_svector
       external cpsi_occupation
+      logical  Pbrillioun_print
       integer  brillioun_nbrillioun
-      real*8   brillioun_k,brillioun_ks,brillioun_weight
+      real*8   Pbrillioun_k,Pbrillioun_ks,Pbrillioun_weight
+      external Pbrillioun_print
       external brillioun_nbrillioun
       external brillioun_k,brillioun_ks,brillioun_weight
       logical  cpsi_spin_orbit,control_fractional
@@ -244,15 +246,17 @@ c         write(luout,1210) GX,GY,GZ
      >                         cpsi_smearfermi(2),cpsi_smearfermi(2)*EV
            end if
          end if
+
+         if (Pbrillioun_print()) then
          do nb=1,brillioun_nbrillioun()
            write(luout,1508) nb,
-     >                   brillioun_weight(nb),
-     >                   brillioun_ks(1,nb),
-     >                   brillioun_ks(2,nb),
-     >                   brillioun_ks(3,nb),
-     >                   brillioun_k(1,nb),
-     >                   brillioun_k(2,nb),
-     >                   brillioun_k(3,nb)
+     >                   Pbrillioun_weight(nb),
+     >                   Pbrillioun_ks(1,nb),
+     >                   Pbrillioun_ks(2,nb),
+     >                   Pbrillioun_ks(3,nb),
+     >                   Pbrillioun_k(1,nb),
+     >                   Pbrillioun_k(2,nb),
+     >                   Pbrillioun_k(3,nb)
            write(luout,1500)
            if (cpsi_spin_orbit()) then
              write(luout,1511)
@@ -282,6 +286,8 @@ c         write(luout,1210) GX,GY,GZ
            end if
            
          end do
+         endif
+
       end if
 
       c_cgsd_energy = E(1)
