@@ -1,4 +1,4 @@
-/*$Id: srtdb_f2c.c,v 1.2 2008-04-22 17:41:51 marat Exp $*/
+/*$Id: srtdb_f2c.c,v 1.3 2008-04-23 16:46:50 marat Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "srtdb.h"
@@ -10,23 +10,6 @@
 #define FORTRAN_TRUE  ((Logical) 1)
 #define FORTRAN_FALSE ((Logical) 0)
 
-
-
-Logical FATR srtdb_parallel_(const Logical *mode)
-{
-  /* This causes problems on machines where true != 1 (i.e. intel)
-   * so it is better just to pass what we are given
-   *
-   * int new = (*mode == FORTRAN_TRUE); 
-   */
-  int new = *mode;
-  int old = srtdb_parallel(new);
-
-  if (old)
-    return FORTRAN_TRUE;
-  else
-    return FORTRAN_FALSE;
-}
 
 #if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 Logical FATR srtdb_open_(_fcd filename, _fcd mode, Integer *handle)
@@ -61,47 +44,8 @@ Logical FATR srtdb_open_(const char *filename, const char *mode, Integer *handle
     return FORTRAN_FALSE;
   }
 }
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
-Logical FATR srtdb_clone_(const Integer *handle, _fcd suffix)
-{
-  int mlen = _fcdlen(suffix);
-#else
-Logical FATR srtdb_clone_(const Integer *handle, const char *suffix, const int mlen)
-{
-#endif
-  char mbuf[256];
-  int hbuf = (int) *handle;
 
-  if (!fortchar_to_string(suffix, mlen, mbuf, sizeof(mbuf))) {
-    (void) fprintf(stderr, "srtdb_clone: mbuf is too small, need=%d\n", mlen);
-    return FORTRAN_FALSE;
-  }
- if (srtdb_clone(hbuf, mbuf))
-    return FORTRAN_TRUE;
- else
-    return FORTRAN_FALSE;
-}
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
-Logical FATR srtdb_getfname_(const Integer *handle, _fcd fname)
-{
-  int mlen = _fcdlen(fname);
-#else
-Logical FATR srtdb_getfname_(const Integer *handle, char *fname, const int mlen)
-{
-#endif
-  char mbuf[256];
-  int hbuf = (int) *handle;
 
-  if (srtdb_getfname(hbuf, mbuf)){
-    if (!string_to_fortchar(fname, mlen, mbuf)) {
-      (void) fprintf(stderr, "srtdb_close: mbuf is too small, need=%d\n", mlen);
-      return FORTRAN_FALSE;
-    }
-    return FORTRAN_TRUE;
-  }
- else
-    return FORTRAN_FALSE;
-}
 #if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 Logical FATR srtdb_close_(const Integer *handle, _fcd mode)
 {
@@ -240,38 +184,7 @@ Logical FATR srtdb_get_(const Integer *handle, const char *name,
   else
     return FORTRAN_FALSE;
 }
-#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
-Logical FATR srtdb_ma_get_(const Integer *handle, _fcd name, Integer *ma_type,
-		     Integer *nelem, Integer *ma_handle)
-{
-    int nlen = _fcdlen(name);
-#else
-Logical FATR srtdb_ma_get_(const Integer *handle, const char *name, Integer *ma_type,
-		     Integer *nelem, Integer *ma_handle, const int nlen)
-{
-#endif
-  int hbuf = (int) *handle;
-  char nbuf[256];
-  int nelbuf;
-  int typebuf;
-  int handbuf;
 
-  if (!fortchar_to_string(name, nlen, nbuf, sizeof(nbuf))) {
-    (void) fprintf(stderr, "srtdb_ma_get: nbuf is too small, need=%d\n", 
-		   nlen);
-    return FORTRAN_FALSE;
-  }
-
-  if (srtdb_ma_get(hbuf, nbuf, &typebuf, &nelbuf, &handbuf)) {
-    *ma_type   = (Integer) typebuf;
-    *ma_handle = (Integer) handbuf;
-    *nelem     = (Integer) nelbuf;
-
-    return FORTRAN_TRUE;
-  }
-  else
-    return FORTRAN_FALSE;
-}
 
 Logical FATR srtdb_print_(const Integer *handle, const Logical *print_values)
 {

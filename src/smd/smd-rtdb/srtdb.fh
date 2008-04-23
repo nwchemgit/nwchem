@@ -87,16 +87,14 @@ c     integer handle            [input]
 c     character *(*) name       [input]
 c
       logical srtdb_open, srtdb_close, 
-     $     srtdb_put, srtdb_get, srtdb_ma_get,
+     $     srtdb_put, srtdb_get, 
      $     srtdb_cput, srtdb_cget, srtdb_print, srtdb_get_info, 
-     $     srtdb_first, srtdb_next, srtdb_delete, srtdb_parallel,
-     $     srtdb_clone,srtdb_getfname
-C$Id: srtdb.fh,v 1.2 2008-04-22 17:41:51 marat Exp $
+     $     srtdb_first, srtdb_next, srtdb_delete
+C$Id: srtdb.fh,v 1.3 2008-04-23 16:46:50 marat Exp $
       external srtdb_open, srtdb_close, srtdb_put, 
-     $     srtdb_get, srtdb_ma_get,
+     $     srtdb_get,
      $     srtdb_cput, srtdb_cget, srtdb_print, srtdb_get_info, 
-     $     srtdb_first, srtdb_next, srtdb_delete, srtdb_parallel,
-     $     srtdb_clone,srtdb_getfname
+     $     srtdb_first, srtdb_next, srtdb_delete
 c
 c     Check these values against srtdb_f2c.c
 c

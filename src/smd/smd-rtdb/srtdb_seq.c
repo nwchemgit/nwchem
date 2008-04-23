@@ -1,4 +1,4 @@
-/*$Id: srtdb_seq.c,v 1.2 2008-04-22 17:41:51 marat Exp $*/
+/*$Id: srtdb_seq.c,v 1.3 2008-04-23 16:46:50 marat Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #if defined(CATAMOUNT)
@@ -505,6 +505,182 @@ int srtdb_seq_close(const int handle, const char *mode)
 
   return 1;
 }
+void srtdb_ma_print(FILE *file, const int ma_type, const int nelem, void *p)
+{
+  int i, nprint;
+
+  switch (ma_type) {
+  case MT_BASE + 0:	/* char */
+  case MT_BASE + 9:	/* Fortran byte */
+
+    (void) fprintf(file, "%.*s\n", nelem, (char *) p);
+    break;
+
+  case MT_BASE + 1:	/* int */
+    for (nprint=i=0; i<nelem; i++) {
+      nprint += fprintf(file, "%d ", ((int *) p)[i]);
+      if (nprint >= 72) {
+	(void) fprintf(file, "\n");
+	nprint = 0;
+      }
+    }
+    if (nprint > 0) (void) fprintf(file, "\n");
+    break;
+
+  case MT_BASE + 10:	/* Fortran integer ... not equivalent on KSR */
+    for (nprint=i=0; i<nelem; i++) {
+      nprint += fprintf(file, "%d ", ((Integer *) p)[i]);
+      if (nprint >= 72) {
+	(void) fprintf(file, "\n");
+	nprint = 0;
+      }
+    }
+    if (nprint > 0) (void) fprintf(file, "\n");
+    break;
+
+
+  case MT_BASE + 2:	/* long int */
+
+    for (nprint=i=0; i<nelem; i++) {
+      nprint += fprintf(file, "%ld ", ((long *) p)[i]);
+      if (nprint >= 72) {
+	(void) fprintf(file, "\n");
+	nprint = 0;
+      }
+    }
+    if (nprint > 0) (void) fprintf(file, "\n");
+    break;
+
+  case MT_BASE + 3:	/* float */
+  case MT_BASE + 12:	/* Fortran real */
+
+    for (nprint=i=0; i<nelem; i++) {
+      nprint += fprintf(file, "%.7e ", ((float *) p)[i]);
+      if (nprint >= 72) {
+	(void) fprintf(file, "\n");
+	nprint = 0;
+      }
+    }
+    if (nprint > 0) (void) fprintf(file, "\n");
+    break;
+
+  case MT_BASE + 4:	/* double */
+  case MT_BASE + 13:	/* Fortran double precision */
+
+    for (nprint=i=0; i<nelem; i++) {
+      nprint += fprintf(file, "%.14e ", ((double *) p)[i]);
+      if (nprint >= 72) {
+	(void) fprintf(file, "\n");
+	nprint = 0;
+      }
+    }
+    if (nprint > 0) (void) fprintf(file, "\n");
+    break;
+
+  case MT_BASE + 6:	/* single precision complex */
+  case MT_BASE + 14:	/* Fortran single precision complex */
+
+    for (nprint=i=0; i<nelem; i++) {
+      nprint += fprintf(file, "(%.7e,%.7e) ", ((float *) p)[2*i], 
+			((float *) p)[2*i+1]);
+      if (nprint >= 72) {
+	(void) fprintf(file, "\n");
+	nprint = 0;
+      }
+    }
+    if (nprint > 0) (void) fprintf(file, "\n");
+    break;
+
+  case MT_BASE + 7:	/* double precision complex */
+  case MT_BASE + 15:	/* Fortran double precision complex */
+
+    for (nprint=i=0; i<nelem; i++) {
+      nprint += fprintf(file, "(%.14e,%.14e) ", ((double *) p)[2*i], 
+			((double *) p)[2*i+1]);
+      if (nprint >= 72) {
+	(void) fprintf(file, "\n");
+	nprint = 0;
+      }
+    }
+    if (nprint > 0) (void) fprintf(file, "\n");
+    break;
+
+  case MT_BASE + 11:	/* Fortran logical */
+    for (nprint=i=0; i<nelem; i++) {
+      if (((int *) p)[i] == FORTRAN_TRUE)
+	nprint += fprintf(file, "t ");
+      else
+	nprint += fprintf(file, "f ");
+      if (nprint >= 72) {
+	(void) fprintf(file, "\n");
+	nprint = 0;
+      }
+    }
+    if (nprint > 0) (void) fprintf(file, "\n");
+    break;
+
+
+  case MT_BASE + 8:	/* long double precision complex */
+  case MT_BASE + 5:	/* long double */
+
+    (void) fprintf(file, " !! printing long double not supported !!\n");
+    break;
+
+  default:
+
+    (void) fprintf(file, " !! %d = unknown data type\n", ma_type);
+  }
+}
+
+
+const char *srtdb_ma_typename(const int ma_type)
+{
+  switch (ma_type) {
+  case MT_BASE + 0:	/* char */
+  case MT_BASE + 9:	/* Fortran byte */
+    return "char"; break;
+
+  case MT_BASE + 1:	/* int */
+  case MT_BASE + 10:	/* Fortran integer ... not equivalent on KSR */
+
+    return "int"; break;
+
+  case MT_BASE + 2:	/* long int */
+
+    return "long"; break;
+
+  case MT_BASE + 3:	/* float */
+  case MT_BASE + 12:	/* Fortran real */
+
+    return "float"; break;
+
+  case MT_BASE + 4:	/* double */
+  case MT_BASE + 13:	/* Fortran double precision */
+
+    return "double"; break;
+
+  case MT_BASE + 6:	/* single precision complex */
+  case MT_BASE + 14:	/* Fortran single precision complex */
+
+    return "complex float";
+
+  case MT_BASE + 7:	/* double precision complex */
+  case MT_BASE + 15:	/* Fortran double precision complex */
+
+    return "complex double"; break;
+
+  case MT_BASE + 11:	/* Fortran logical */
+
+    return "logical"; break;
+
+  case MT_BASE + 8:	/* long double precision complex */
+  case MT_BASE + 5:	/* long double */
+  default:
+
+    return "invalid"; break;
+  }
+}
+
 
 static void get_time(char buf[26])
 {
@@ -557,7 +733,7 @@ int srtdb_seq_print(const int handle, const int print_values)
       len = 29 - strlen(name);
       while (len-- > 0)
 	printf(" ");
-      printf("%15s[%d]", ma_typename(ma_type), nelem);
+      printf("%15s[%d]", srtdb_ma_typename(ma_type), nelem);
       if (nelem < 10)
 	printf(" ");
       if (nelem < 100)
@@ -579,7 +755,7 @@ int srtdb_seq_print(const int handle, const int print_values)
 	else {
 	  void *data;
 	  if (MA_get_pointer(ma_handle, &data))
-	    ma_print(stdout, ma_type, nelem, data);
+	    srtdb_ma_print(stdout, ma_type, nelem, data);
 	  else
 	    (void) fprintf(stderr, "srtdb_seq_print: MA_get_pt failed, handle=%d\n",
 			   handle);
