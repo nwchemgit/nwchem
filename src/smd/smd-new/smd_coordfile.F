@@ -10,7 +10,7 @@ c
 c
       pname = "smd_coordfile_natoms"
 c
-      call smd_rtdb_get_coordfile(filename,result)
+      call smd_srtdb_get_coordfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no coord file found',0, 0)
@@ -41,7 +41,7 @@ c
       pname = "smd_coordfile_read_coords"
 c
 c
-      call smd_rtdb_get_coordfile(filename,result)
+      call smd_srtdb_get_coordfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no coord file found',0, 0)
@@ -76,7 +76,7 @@ c
       pname = "smd_coordfile_read_atomres"
 c
 c
-      call smd_rtdb_get_coordfile(filename,result)
+      call smd_srtdb_get_coordfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no coord file found',0, 0)

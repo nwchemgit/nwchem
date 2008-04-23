@@ -14,7 +14,7 @@ c
 c
       pname = "smd_paramfile_natoms"
 c
-      call smd_rtdb_get_paramfile(filename,result)
+      call smd_srtdb_get_paramfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no parameter file found',0, 0)
@@ -56,7 +56,7 @@ c
       pname = "smd_paramfile_nshake"
 c      write(*,*) "in "//pname
 c
-      call smd_rtdb_get_paramfile(filename,result)
+      call smd_srtdb_get_paramfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no parameter file found',0, 0)
@@ -97,7 +97,7 @@ c
       pname = "smd_paramfile_nbond"
 c      write(*,*) "in "//pname
 c
-      call smd_rtdb_get_paramfile(filename,result)
+      call smd_srtdb_get_paramfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no parameter file found',0, 0)
@@ -137,7 +137,7 @@ c
       pname = "smd_paramfile_nres"
 
 c
-      call smd_rtdb_get_paramfile(filename,result)
+      call smd_srtdb_get_paramfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no parameter file found',0, 0)
@@ -185,7 +185,7 @@ c
 
       pname = "smd_paramfile_read_params"
 c
-      call smd_rtdb_get_paramfile(filename,result)
+      call smd_srtdb_get_paramfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no parameter file found',0, 0)
@@ -249,7 +249,7 @@ c
 
 c      write(*,*) "in "//pname
 c
-      call smd_rtdb_get_paramfile(filename,result)
+      call smd_srtdb_get_paramfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no parameter file found',0, 0)
@@ -332,7 +332,7 @@ c
 
 c      write(*,*) "in "//pname
 c
-      call smd_rtdb_get_paramfile(filename,result)
+      call smd_srtdb_get_paramfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no parameter file found',0, 0)
@@ -408,7 +408,7 @@ c
 
 c      write(*,*) "in "//pname
 c
-      call smd_rtdb_get_paramfile(filename,result)
+      call smd_srtdb_get_paramfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no parameter file found',0, 0)

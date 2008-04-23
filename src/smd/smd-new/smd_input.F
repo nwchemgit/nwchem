@@ -268,7 +268,7 @@ c     ------
      &           INPUT_ERR)
           end if
         end do
-        tag="smd:verlet"
+        tag="smd:rcut_verlet"
         if (.not.rtdb_put(rtdb,tag,mt_dbl,np,ftoken(1))) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)

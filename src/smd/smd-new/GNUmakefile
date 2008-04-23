@@ -1,13 +1,13 @@
 #
-# $Id: GNUmakefile,v 1.2 2008-04-23 16:48:29 marat Exp $
+# $Id: GNUmakefile,v 1.3 2008-04-23 17:48:46 marat Exp $
 #
 
-          OBJ = task_smd.o smd_input.o \
+          OBJ = task_smd.o smd_input.o smd_rdinp.o\
                 smd_coordfile.o smd_pdb.o \
                 smd_rtdb_data.o smd_init.o smd_end.o \
                 smd_atom.o task_smd_energy.o smd_srtdb.o \
                 task_smd_dynamics.o smd_util.o smd_data.o \
-                smd_message.o smd_cutoff.o smd_param.o \
+                smd_message.o smd_param.o \
                 smd_paramfile.o
 #                smd_param.o \
 #                smd_atom.o smd_pot.o \

@@ -1,5 +1,5 @@
 c
-c $Id: smd_message.F,v 1.1 2008-04-23 16:48:29 marat Exp $
+c $Id: smd_message.F,v 1.2 2008-04-23 17:48:46 marat Exp $
 c
 
       block data initial_smd_message_data
@@ -7,9 +7,7 @@ c
 #include "smd_message_data.fh"
 c     
       data smd_message_n /0/
-      data smd_message_string /(smd_message_nmax-1)*" ",
-     >                         "message buffer overfull"/
-
+      data smd_message_string /smd_message_nmax*" "/
 
       end
 
@@ -17,6 +15,7 @@ c
 
       implicit none
 #include "smd_message_data.fh"
+#include "stdio.fh"
 #include "global.fh"
       integer un
 c
@@ -26,6 +25,12 @@ c
      >   write(un,*) smd_message_string(i)
          smd_message_string(i) = " "
       end do
+      if(smd_message_n.eq.smd_message_nmax) then
+        if(ga_nodeid().eq.0) then
+        write(luout,*) "end of buffer reached"
+        write(luout,*) "messages could be lost"
+        end if
+      end if
       smd_message_n = 0
       return
 
@@ -39,11 +44,8 @@ c
       character*(*) buffer
 c
       integer i
+      if(smd_message_n.eq.smd_message_nmax) return
       smd_message_n = smd_message_n + 1
-      if(smd_message_n.ge.smd_message_nmax) then
-        smd_message_n = smd_message_nmax
-        return
-      end if
       i = smd_message_n
       smd_message_string(i) = buffer 
       return

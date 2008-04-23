@@ -78,23 +78,16 @@ c
 #ifdef SMD_DEBUG
        write(*,*) "0 smd_coordfile_read_atomres "//pname
 #endif
-      if(ga_nodeid().eq.master) then
-      write(*,*) "master smd_coordfile_read_atomres 0 "
-      call util_flush(6)
-      mode = rtdb_parallel(.false.)
-      call smd_coordfile_read_atomres(nt,
-     +                         byte_mb(i_t),
-     +                         byte_mb(i_tr),
-     +                         int_mb(i_ir))
+      if(ga_nodeid().eq.master) then 
+        call smd_coordfile_read_atomres(nt,
+     +                           byte_mb(i_t),
+     +                           byte_mb(i_tr),
+     +                           int_mb(i_ir))
 
-      mode = rtdb_parallel(mode)
-
-      write(*,*) "master smd_coordfile_read_atomres 1 "
-      call util_flush(6)
-      end if
 #ifdef SMD_DEBUG
        write(*,*) "1 smd_coordfile_read_atomres "//pname
 #endif
+      end if
 
       call ga_brdcst(msg_smd,byte_mb(i_t),
      >      16*nt,master)
