@@ -1,6 +1,4 @@
  argument  1 = o2_zora_so.nw
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
                                          
                                          
  
@@ -76,9 +74,9 @@ mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/nul
 
     hostname      = curie
     program       = ../../../bin/LINUX64/nwchem
-    date          = Wed Apr  9 15:44:18 2008
+    date          = Thu Apr 24 17:50:43 2008
 
-    compiled      = Fri_Mar_28_12:08:01_2008
+    compiled      = Thu_Apr_24_17:46:01_2008
     source        = /home/niri/nwchem/nwchem-dev
     nwchem branch = Development
     input         = o2_zora_so.nw
@@ -381,18 +379,6 @@ mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/nul
       -------------------------------------
  
  Sum of atomic energies:        -149.52590251
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
  
       Non-variational initial energy
       ------------------------------
@@ -407,128 +393,22 @@ mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/nul
  Read atomic ZORA corrections from ./o2_zora_so.zora_so
 
  dft_zora_read_so: failed to open ./o2_zora_so.zora_so
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
 
  Grid_pts file          = ./o2_zora_so.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     28        Max. recs in file   =    440136
+ Max. records in memory =     28        Max. recs in file   =    438727
 
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
-mpiexec_curie (handle_stdin_input 1064): stdin problem; if pgm is run in background, redirect from /dev/null
-mpiexec_curie (handle_stdin_input 1065):     e.g.: mpiexec -n 4 a.out < /dev/null &
 
  Wrote atomic ZORA corrections to ./o2_zora_so.zora_so
 
-   Time prior to 1st pass:     15.8
+   Time prior to 1st pass:     16.0
 
  #quartets = 3.080D+03 #integrals = 2.184D+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./o2_zora_so.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  82529
+ Max. records in memory =      2        Max. records in file   =  82265
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -541,30 +421,31 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -150.4640613491 -1.79D+02  1.58D-02  1.95D-01    16.2
+ d= 0,ls=0.0,diis     1   -150.4640613320 -1.79D+02  1.58D-02  1.95D-01    16.5
                                                      6.16D-03  1.95D-01
- d= 0,ls=0.0,diis     2   -150.4866583647 -2.26D-02  5.84D-03  9.21D-02    16.6
+ d= 0,ls=0.0,diis     2   -150.4866583452 -2.26D-02  5.84D-03  9.21D-02    16.9
                                                      4.44D-03  9.21D-02
- d= 0,ls=0.0,diis     3   -150.5073731672 -2.07D-02  1.00D-03  7.64D-04    17.1
+ d= 0,ls=0.0,diis     3   -150.5073731473 -2.07D-02  1.00D-03  7.64D-04    17.3
                                                      1.89D-04  7.64D-04
- d= 0,ls=0.0,diis     4   -150.5075965043 -2.23D-04  6.01D-05  3.59D-05    17.5
+ d= 0,ls=0.0,diis     4   -150.5075964844 -2.23D-04  6.01D-05  3.59D-05    17.7
                                                      1.44D-04  3.59D-05
- d= 0,ls=0.0,diis     5   -150.5076084086 -1.19D-05  3.72D-05  9.28D-07    17.9
+ d= 0,ls=0.0,diis     5   -150.5076083887 -1.19D-05  3.72D-05  9.28D-07    18.2
                                                      1.79D-05  9.28D-07
- d= 0,ls=0.0,diis     6   -150.5076087473 -3.39D-07  9.73D-07  1.96D-08    18.4
-                                                     1.03D-06  1.96D-08
+ d= 0,ls=0.0,diis     6   -150.5076087274 -3.39D-07  9.75D-07  1.96D-08    18.6
+                                                     1.04D-06  1.96D-08
 
 
-         Total DFT energy =   -150.507608747219
-       Scaling correction =      0.059663776439
-      One electron energy =   -262.319607907336
-           Coulomb energy =    100.592346083184
-    Exchange-Corr. energy =    -17.003133536385
+         Total DFT energy =   -150.507608727263
+      One electron energy =   -262.319607874713
+           Coulomb energy =    100.592346067701
+    Exchange-Corr. energy =    -17.003133533568
  Nuclear repulsion energy =     28.222786613317
 
- Numeric. integr. density =     16.000000008298
+       Scaling correction =      0.059663785204
 
-     Total iterative time =      3.1s
+ Numeric. integr. density =     16.000000009746
+
+     Total iterative time =      3.2s
 
 
  
@@ -572,188 +453,188 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
  
  Vector    5  Occ=1.000000D+00  E=-1.325393D+00
-              MO Center=  6.1D-09, -2.2D-08, -3.3D-06, r^2= 2.3D-01
+              MO Center= -6.1D-09, -3.6D-08, -3.4D-06, r^2= 2.4D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     2  -0.262274-0.262272  1 O  s                 16  -0.262269-0.262266  2 O  s          
-     3   0.161300 0.161299  1 O  s                 17   0.161295 0.161294  2 O  s          
-     6   0.139667 0.139665  1 O  pz                20  -0.139666-0.139665  2 O  pz         
-     1   0.118242 0.118241  1 O  s                 15   0.118240 0.118239  2 O  s          
+     2   0.265529 0.258975  1 O  s                 16   0.265524 0.258970  2 O  s          
+     3  -0.163303-0.159271  1 O  s                 17  -0.163297-0.159266  2 O  s          
+     6  -0.141400-0.137910  1 O  pz                20   0.141400 0.137910  2 O  pz         
+     1  -0.119709-0.116754  1 O  s                 15  -0.119707-0.116752  2 O  s          
  
  Vector    6  Occ=1.000000D+00  E=-1.268236D+00
-              MO Center=  1.5D-12, -5.6D-14,  2.6D-09, r^2= 3.1D-08
+              MO Center=  4.0D-13,  3.9D-13,  2.6D-09, r^2= 3.1D-08
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    30  -0.000214-0.348652  1 O  s                 44  -0.000214-0.348646  2 O  s          
-    31   0.000143 0.233145  1 O  s                 45   0.000143 0.233139  2 O  s          
-    34   0.000130 0.211371  1 O  pz                48  -0.000130-0.211371  2 O  pz         
-    29   0.000100 0.163135  1 O  s                 43   0.000100 0.163133  2 O  s          
+    30  -0.007456 0.348572  1 O  s                 44  -0.007456 0.348566  2 O  s          
+    31   0.004986-0.233092  1 O  s                 45   0.004986-0.233086  2 O  s          
+    34   0.004520-0.211323  1 O  pz                48  -0.004520 0.211322  2 O  pz         
+    29   0.003489-0.163098  1 O  s                 43   0.003489-0.163096  2 O  s          
  
  Vector    7  Occ=1.000000D+00  E=-8.424700D-01
-              MO Center=  2.5D-08, -3.9D-08, -6.0D-06, r^2= 5.2D-01
+              MO Center=  2.6D-08, -3.3D-08, -6.0D-06, r^2= 5.2D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     2   0.294924 0.294923  1 O  s                 16  -0.294924-0.294922  2 O  s          
-     3  -0.289343-0.289341  1 O  s                 17   0.289342 0.289341  2 O  s          
-    15   0.126533 0.126533  2 O  s                  1  -0.126533-0.126533  1 O  s          
+     2  -0.293653-0.296188  1 O  s                 16   0.293653 0.296188  2 O  s          
+     3   0.288096 0.290583  1 O  s                 17  -0.288095-0.290582  2 O  s          
+    15  -0.125988-0.127076  2 O  s                  1   0.125988 0.127076  1 O  s          
  
  Vector    8  Occ=1.000000D+00  E=-7.541548D-01
-              MO Center=  1.6D-12, -4.5D-11,  1.2D-08, r^2= 2.9D-07
+              MO Center= -1.6D-12, -4.4D-11,  1.2D-08, r^2= 2.9D-07
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    31   0.000338 0.411169  1 O  s                 45  -0.000338-0.411165  2 O  s          
-    30  -0.000328-0.398122  1 O  s                 44   0.000328 0.398119  2 O  s          
-    29   0.000144 0.174557  1 O  s                 43  -0.000144-0.174557  2 O  s          
-    34  -0.000131-0.158825  1 O  pz                48  -0.000131-0.158807  2 O  pz         
+    31  -0.002938-0.411159  1 O  s                 45   0.002938 0.411155  2 O  s          
+    30   0.002845 0.398112  1 O  s                 44  -0.002845-0.398109  2 O  s          
+    29  -0.001247-0.174553  1 O  s                 43   0.001247 0.174552  2 O  s          
+    34   0.001135 0.158821  1 O  pz                48   0.001135 0.158803  2 O  pz         
  
  Vector    9  Occ=1.000000D+00  E=-5.749823D-01
-              MO Center=  1.1D-09, -1.7D-07, -2.1D-05, r^2= 4.1D-01
+              MO Center= -2.5D-09, -8.9D-08, -2.1D-05, r^2= 4.1D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     4   0.000003-0.383635  1 O  px                 5  -0.383635-0.000007  1 O  py         
-    18   0.000003-0.383605  2 O  px                19  -0.383605-0.000007  2 O  py         
+     4   0.003277 0.383621  1 O  px                 5   0.383621-0.003268  1 O  py         
+    18   0.003276 0.383591  2 O  px                19   0.383591-0.003268  2 O  py         
  
  Vector   10  Occ=1.000000D+00  E=-5.741750D-01
-              MO Center=  6.7D-07, -5.6D-09, -3.3D-07, r^2= 4.1D-01
+              MO Center=  7.3D-07, -6.1D-09, -4.1D-07, r^2= 4.1D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     5   0.000002-0.383299  1 O  py                 4  -0.383299 0.000002  1 O  px         
-    19   0.000002-0.383296  2 O  py                18  -0.383296 0.000002  2 O  px         
+     5   0.000005-0.383299  1 O  py                 4  -0.383299 0.000005  1 O  px         
+    19   0.000004-0.383296  2 O  py                18  -0.383296 0.000004  2 O  px         
  
  Vector   11  Occ=1.000000D+00  E=-5.571480D-01
-              MO Center= -6.9D-07,  1.7D-07,  7.4D-06, r^2= 5.5D-01
+              MO Center= -9.1D-07, -3.4D-08,  8.6D-06, r^2= 6.4D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     6  -0.374838-0.374831  1 O  pz                20   0.374836 0.374829  2 O  pz         
-    17   0.186406 0.186402  2 O  s                  3   0.186397 0.186393  1 O  s          
+     6  -0.403143-0.344206  1 O  pz                20   0.403141 0.344204  2 O  pz         
+    17   0.200482 0.171172  2 O  s                  3   0.200472 0.171164  1 O  s          
  
  Vector   12  Occ=1.000000D+00  E=-5.164048D-01
-              MO Center=  1.7D-11,  1.1D-10, -7.6D-08, r^2= 4.0D-06
+              MO Center=  8.7D-12,  9.3D-11, -7.6D-08, r^2= 4.0D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    34   0.000733-0.519640  1 O  pz                48  -0.000733 0.519638  2 O  pz         
-    45  -0.000398 0.282307  2 O  s                 31  -0.000398 0.282289  1 O  s          
-    37   0.000222-0.157765  1 O  pz                51  -0.000222 0.157764  2 O  pz         
+    34   0.006893 0.519595  1 O  pz                48  -0.006893-0.519593  2 O  pz         
+    45  -0.003745-0.282282  2 O  s                 31  -0.003745-0.282265  1 O  s          
+    51  -0.002093-0.157751  2 O  pz                37   0.002093 0.157751  1 O  pz         
  
  Vector   13  Occ=1.000000D+00  E=-4.730689D-01
-              MO Center=  9.4D-11, -9.5D-12,  1.8D-08, r^2= 4.1D-07
+              MO Center= -3.5D-11,  7.9D-11,  2.9D-08, r^2= 6.5D-07
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    32   0.254395 0.254075  1 O  px                33  -0.254071 0.254398  1 O  py         
-    46   0.254376 0.254056  2 O  px                47  -0.254053 0.254379  2 O  py         
+    32   0.321442-0.161078  1 O  px                33   0.161085 0.321438  1 O  py         
+    46   0.321418-0.161066  2 O  px                47   0.161073 0.321414  2 O  py         
  
  Vector   14  Occ=1.000000D+00  E=-4.723669D-01
-              MO Center=  1.9D-13,  2.1D-13,  1.1D-12, r^2= 3.0D-12
+              MO Center=  1.6D-13,  2.0D-13,  1.1D-12, r^2= 2.9D-12
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    47   0.254267 0.253699  2 O  py                46  -0.253703 0.254264  2 O  px         
-    33   0.254261 0.253693  1 O  py                32  -0.253697 0.254258  1 O  px         
+    47   0.121652 0.337959  2 O  py                46  -0.337962 0.121644  2 O  px         
+    33   0.121649 0.337950  1 O  py                32  -0.337953 0.121641  1 O  px         
  
  Vector   15  Occ=1.000000D+00  E=-3.143212D-01
-              MO Center=  6.3D-10,  3.4D-08,  2.1D-05, r^2= 4.8D-01
+              MO Center=  4.3D-09,  2.9D-08,  2.1D-05, r^2= 4.8D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    18   0.000017-0.441402  2 O  px                19  -0.441402 0.000005  2 O  py         
-     4  -0.000017 0.441374  1 O  px                 5   0.441374-0.000005  1 O  py         
-    21   0.000009-0.222083  2 O  px                22  -0.222083 0.000002  2 O  py         
-     7  -0.000009 0.222076  1 O  px                 8   0.222076-0.000002  1 O  py         
+    19  -0.441389 0.003457  2 O  py                18  -0.003422-0.441389  2 O  px         
+     5   0.441360-0.003457  1 O  py                 4   0.003422 0.441360  1 O  px         
+    22  -0.222076 0.001740  2 O  py                21  -0.001722-0.222076  2 O  px         
+     8   0.222070-0.001740  1 O  py                 7   0.001722 0.222070  1 O  px         
  
  Vector   16  Occ=1.000000D+00  E=-3.132185D-01
-              MO Center= -3.0D-08, -5.4D-09, -5.7D-08, r^2= 4.8D-01
+              MO Center= -5.4D-08, -4.7D-09,  2.7D-08, r^2= 4.8D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     5  -0.000011-0.441036  1 O  py                 4  -0.441036-0.000011  1 O  px         
-    19   0.000011 0.441030  2 O  py                18   0.441030 0.000011  2 O  px         
-    22   0.000005 0.222852  2 O  py                21   0.222852 0.000005  2 O  px         
-     8  -0.000005-0.222845  1 O  py                 7  -0.222845-0.000005  1 O  px         
+     4   0.441036 0.000018  1 O  px                 5   0.000018 0.441036  1 O  py         
+    18  -0.441030-0.000018  2 O  px                19  -0.000018-0.441030  2 O  py         
+    21  -0.222852-0.000009  2 O  px                22  -0.000009-0.222852  2 O  py         
+     7   0.222845 0.000009  1 O  px                 8   0.000009 0.222845  1 O  py         
  
  Vector   17  Occ=0.000000D+00  E=-1.210137D-01
-              MO Center=  1.7D-12,  2.4D-11, -2.6D-07, r^2= 3.7D-06
+              MO Center= -2.4D-11,  3.9D-12, -4.7D-07, r^2= 6.7D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    46   0.291088 0.291389  2 O  px                47  -0.291408 0.291069  2 O  py         
-    32  -0.291072-0.291373  1 O  px                33   0.291392-0.291053  1 O  py         
-    49   0.201359 0.201567  2 O  px                50  -0.201580 0.201346  2 O  py         
-    35  -0.201352-0.201561  1 O  px                36   0.201574-0.201339  1 O  py         
+    47   0.135102 0.389085  2 O  py                46   0.389069-0.135148  2 O  px         
+    33  -0.135095-0.389064  1 O  py                32  -0.389047 0.135140  1 O  px         
+    50   0.093456 0.269148  2 O  py                49   0.269137-0.093488  2 O  px         
+    36  -0.093453-0.269140  1 O  py                35  -0.269128 0.093485  1 O  px         
  
  Vector   18  Occ=0.000000D+00  E=-1.200644D-01
-              MO Center= -2.0D-13, -2.4D-13, -2.2D-13, r^2= 1.9D-12
+              MO Center= -2.6D-13, -2.4D-13, -2.1D-13, r^2= 2.3D-12
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    33   0.291024 0.290838  1 O  py                32  -0.290819 0.291042  1 O  px         
-    47  -0.291013-0.290827  2 O  py                46   0.290809-0.291032  2 O  px         
-    50  -0.202126-0.201997  2 O  py                49   0.201984-0.202139  2 O  px         
-    36   0.202125 0.201996  1 O  py                35  -0.201983 0.202138  1 O  px         
+    32  -0.058993 0.407187  1 O  px                33   0.407180 0.059040  1 O  py         
+    46   0.058990-0.407172  2 O  px                47  -0.407165-0.059038  2 O  py         
+    49   0.040973-0.282806  2 O  px                50  -0.282801-0.041006  2 O  py         
+    35  -0.040972 0.282804  1 O  px                36   0.282799 0.041005  1 O  py         
  
- Vector   19  Occ=0.000000D+00  E= 1.726380D-01
-              MO Center=  7.1D-08,  5.3D-08,  2.6D-07, r^2= 1.0D+00
+ Vector   19  Occ=0.000000D+00  E= 1.726379D-01
+              MO Center=  2.5D-07,  7.9D-08,  3.2D-07, r^2= 1.0D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    17  -0.801345-0.801349  2 O  s                  3   0.801341 0.801345  1 O  s          
-    23   0.699108 0.699111  2 O  pz                 9   0.699106 0.699109  1 O  pz         
-    20   0.344953 0.344955  2 O  pz                 6   0.344951 0.344953  1 O  pz         
-     2  -0.162323-0.162324  1 O  s                 16   0.162317 0.162318  2 O  s          
+    17  -0.805511-0.797162  2 O  s                  3   0.805507 0.797158  1 O  s          
+    23   0.702742 0.695458  2 O  pz                 9   0.702740 0.695456  1 O  pz         
+    20   0.346746 0.343152  2 O  pz                 6   0.346744 0.343150  1 O  pz         
+     2  -0.163167-0.161475  1 O  s                 16   0.163161 0.161470  2 O  s          
  
- Vector   20  Occ=0.000000D+00  E= 2.078223D-01
-              MO Center=  5.3D-11,  3.8D-10, -1.8D-07, r^2= 3.7D-06
+ Vector   20  Occ=0.000000D+00  E= 2.078221D-01
+              MO Center= -2.6D-11,  3.1D-10, -1.8D-07, r^2= 3.7D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    45  -0.000888 1.264365  2 O  s                 31   0.000888-1.264358  1 O  s          
-    51   0.000761-1.083239  2 O  pz                37   0.000761-1.083237  1 O  pz         
-    48   0.000308-0.438886  2 O  pz                34   0.000308-0.438883  1 O  pz         
-    30  -0.000155 0.220154  1 O  s                 44   0.000155-0.220145  2 O  s          
+    45   0.059342 1.262972  2 O  s                 31  -0.059342-1.262966  1 O  s          
+    51  -0.050841-1.082046  2 O  pz                37  -0.050841-1.082044  1 O  pz         
+    48  -0.020599-0.438402  2 O  pz                34  -0.020599-0.438400  1 O  pz         
+    30   0.010333 0.219912  1 O  s                 44  -0.010332-0.219903  2 O  s          
  
  Vector   21  Occ=0.000000D+00  E= 4.519666D-01
-              MO Center=  5.0D-07,  4.3D-07, -2.4D-05, r^2= 1.3D+00
+              MO Center=  1.3D-06,  6.2D-07, -2.4D-05, r^2= 1.3D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     9   0.834452 0.834438  1 O  pz                23   0.834423 0.834409  2 O  pz         
-    17  -0.802223-0.802210  2 O  s                  3   0.802205 0.802191  1 O  s          
-     6  -0.455727-0.455719  1 O  pz                20  -0.455715-0.455708  2 O  pz         
+     9   0.831984 0.836898  1 O  pz                23   0.831955 0.836869  2 O  pz         
+    17  -0.799850-0.804575  2 O  s                  3   0.799832 0.804557  1 O  s          
+     6  -0.454379-0.457063  1 O  pz                20  -0.454367-0.457052  2 O  pz         
  
  Vector   22  Occ=0.000000D+00  E= 4.748762D-01
-              MO Center= -1.6D-09, -4.1D-08,  1.5D-06, r^2= 6.7D-03
+              MO Center= -7.4D-09, -3.6D-08,  1.5D-06, r^2= 6.7D-03
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    37  -0.007640 1.111490  1 O  pz                51  -0.007640 1.111456  2 O  pz         
-    45   0.007315-1.064099  2 O  s                 31  -0.007315 1.064080  1 O  s          
-    34   0.004614-0.671169  1 O  pz                48   0.004614-0.671154  2 O  pz         
+    37  -0.255612-1.081725  1 O  pz                51  -0.255605-1.081693  2 O  pz         
+    45   0.244714 1.035603  2 O  s                 31  -0.244709-1.035585  1 O  s          
+    34   0.154351 0.653196  1 O  pz                48   0.154347 0.653182  2 O  pz         
  
  Vector   23  Occ=0.000000D+00  E= 4.823919D-01
-              MO Center=  3.8D-09,  9.3D-08,  1.4D-05, r^2= 1.0D+00
+              MO Center= -7.0D-09,  1.1D-07,  1.4D-05, r^2= 1.0D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    22  -0.445925 0.000250  2 O  py                21  -0.000209-0.445925  2 O  px         
-     8  -0.445893 0.000250  1 O  py                 7  -0.000209-0.445893  1 O  px         
-    19   0.396869-0.000222  2 O  py                18   0.000186 0.396869  2 O  px         
-     5   0.396855-0.000222  1 O  py                 4   0.000186 0.396855  1 O  px         
+    22   0.445548 0.018351  2 O  py                21  -0.018446 0.445543  2 O  px         
+     8   0.445516 0.018349  1 O  py                 7  -0.018444 0.445511  1 O  px         
+    19  -0.396533-0.016332  2 O  py                18   0.016417-0.396528  2 O  px         
+     5  -0.396519-0.016331  1 O  py                 4   0.016416-0.396515  1 O  px         
  
  Vector   24  Occ=0.000000D+00  E= 4.830664D-01
-              MO Center= -1.8D-08, -1.6D-09, -4.8D-05, r^2= 1.1D+00
+              MO Center=  5.7D-08, -2.2D-09, -4.8D-05, r^2= 1.1D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     7  -0.447295-0.000020  1 O  px                 8  -0.000020-0.447295  1 O  py         
-    21  -0.447184-0.000020  2 O  px                22  -0.000020-0.447184  2 O  py         
-     4   0.398391 0.000018  1 O  px                 5   0.000018 0.398390  1 O  py         
-    18   0.398351 0.000018  2 O  px                19   0.000018 0.398351  2 O  py         
+     7  -0.447295-0.000047  1 O  px                 8  -0.000047-0.447294  1 O  py         
+    21  -0.447185-0.000047  2 O  px                22  -0.000047-0.447184  2 O  py         
+     4   0.398391 0.000042  1 O  px                 5   0.000042 0.398390  1 O  py         
+    18   0.398351 0.000042  2 O  px                19   0.000042 0.398350  2 O  py         
  
  Vector   25  Occ=0.000000D+00  E= 5.242571D-01
-              MO Center= -1.7D-09,  3.3D-09,  2.8D-06, r^2= 8.0D-05
+              MO Center=  5.5D-09, -1.0D-09,  2.9D-06, r^2= 8.1D-05
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    50   0.310968-0.311737  2 O  py                49  -0.311763-0.310941  2 O  px         
-    36   0.310948-0.311717  1 O  py                35  -0.311743-0.310921  1 O  px         
-    47  -0.294172 0.294900  2 O  py                46   0.294925 0.294147  2 O  px         
-    33  -0.294163 0.294891  1 O  py                32   0.294916 0.294138  1 O  px         
+    50   0.308052 0.314618  2 O  py                49   0.314567-0.308104  2 O  px         
+    36   0.308033 0.314598  1 O  py                35   0.314547-0.308085  1 O  px         
+    47  -0.291414-0.297625  2 O  py                46  -0.297577 0.291463  2 O  px         
+    33  -0.291406-0.297617  1 O  py                32  -0.297568 0.291455  1 O  px         
  
  Vector   26  Occ=0.000000D+00  E= 5.250362D-01
-              MO Center=  3.9D-13,  1.6D-12, -3.2D-12, r^2= 1.6D-11
+              MO Center=  2.1D-12,  1.4D-12, -3.3D-12, r^2= 2.1D-11
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    35  -0.311531 0.311089  1 O  px                36   0.311062 0.311558  1 O  py         
-    49  -0.311460 0.311018  2 O  px                50   0.310991 0.311486  2 O  py         
-    32   0.294941-0.294523  1 O  px                33  -0.294497-0.294966  1 O  py         
-    46   0.294912-0.294493  2 O  px                47  -0.294468-0.294937  2 O  py         
+    35  -0.134375-0.419251  1 O  px                36  -0.419273 0.134305  1 O  py         
+    49  -0.134344-0.419155  2 O  px                50  -0.419177 0.134274  2 O  py         
+    32   0.127219 0.396925  1 O  px                33   0.396946-0.127153  1 O  py         
+    46   0.127207 0.396885  2 O  px                47   0.396906-0.127140  2 O  py         
  
 
    alpha - beta orbital overlaps 
@@ -761,7 +642,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      3     18     19      6      4      5      6     18
+    beta      1      2      3     18     19      6      4      5      6     19
  overlap   1.060  0.311  0.296  0.275  0.275  0.341  0.085  0.085  0.085  0.000
 
 
@@ -771,7 +652,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
    alpha     21     22     23     24     25     26     27     28
-    beta     18     19     20     16     19     20     18      4
+    beta     18     19     20     19     19     20     18     18
  overlap   0.085  0.085  0.085  0.000  0.016  0.023  0.016  0.000
 
      --------------------------
@@ -787,13 +668,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      -   - - -        -----         -----         ----         -------
      0   0 0 0      0.000000     -8.999996     -7.000004     16.000000
  
-     1   1 0 0      0.000000      0.000000      0.000000      0.000000
+     1   1 0 0      0.000001      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000      0.000000
-     1   0 0 1      0.000057      0.000008      0.000050      0.000000
+     1   0 0 1      0.000058      0.000008      0.000050      0.000000
  
      2   2 0 0     -7.455397     -4.310406     -3.144991      0.000000
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
-     2   1 0 1     -0.000001      0.000000     -0.000001      0.000000
+     2   1 0 1     -0.000001      0.000000      0.000000      0.000000
      2   0 2 0     -7.455397     -4.310406     -3.144991      0.000000
      2   0 1 1     -0.000001      0.000000     -0.000001      0.000000
      2   0 0 2     -7.824455    -16.110940    -12.282845     20.569330
@@ -829,20 +710,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 O       0.000000   0.000000  -1.133836    0.000000   0.000000   0.035907
-   2 O       0.000000   0.000000   1.133836    0.000000   0.000000  -0.035907
+   1 O       0.000000   0.000000  -1.133836    0.000000   0.000000   0.035906
+   2 O       0.000000   0.000000   1.133836    0.000000   0.000000  -0.035906
  
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
                  |  CPU   |       0.00   |       0.05   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.06   |
+                 |  WALL  |       0.00   |       0.05   |
                  ----------------------------------------
 
 @ Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
 @ ---- ---------------- -------- -------- -------- -------- -------- --------
-@    0    -150.50760875  0.0D+00  0.03591  0.02073  0.00000  0.00000     22.2
+@    0    -150.50760873  0.0D+00  0.03591  0.02073  0.00000  0.00000     21.4
                                                        ok       ok  
 
                                  NWChem DFT Module
@@ -928,14 +809,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Read atomic ZORA corrections from ./o2_zora_so.zora_so
 
-   Time prior to 1st pass:     19.6
+   Time prior to 1st pass:     19.9
 
  #quartets = 3.080D+03 #integrals = 2.178D+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./o2_zora_so.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  82531
+ Max. records in memory =      2        Max. records in file   =  82267
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -944,7 +825,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Grid_pts file          = ./o2_zora_so.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     28        Max. recs in file   =    440136
+ Max. records in memory =     28        Max. recs in file   =    438727
 
  WARNING: error on integrated density =  0.21D-02
  greater than required accuracy of  0.10D-07
@@ -955,225 +836,226 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -150.4368449022 -1.77D+02  3.66D-03  1.28D-01    20.1
+ d= 0,ls=0.0,diis     1   -150.4368459719 -1.77D+02  3.66D-03  1.28D-01    20.5
                                                      2.48D-03  1.28D-01
- d= 0,ls=0.0,diis     2   -150.5037189478 -6.69D-02  1.22D-03  5.09D-03    20.5
+ d= 0,ls=0.0,diis     2   -150.5037191029 -6.69D-02  1.22D-03  5.09D-03    20.9
                                                      9.86D-04  5.09D-03
- d= 0,ls=0.0,diis     3   -150.5044394037 -7.20D-04  6.13D-04  1.19D-03    21.0
+ d= 0,ls=0.0,diis     3   -150.5044395319 -7.20D-04  6.13D-04  1.19D-03    21.3
                                                      4.30D-04  1.19D-03
- d= 0,ls=0.0,diis     4   -150.5046820086 -2.43D-04  1.26D-04  3.96D-05    21.4
-                                                     9.43D-05  3.96D-05
- d= 0,ls=0.0,diis     5   -150.5046906900 -8.68D-06  1.71D-05  2.12D-06    21.9
-                                                     2.82D-05  2.12D-06
- d= 0,ls=0.0,diis     6   -150.5046909191 -2.29D-07  7.32D-06  8.85D-07    22.3
-                                                     1.11D-05  8.85D-07
- d= 0,ls=0.0,diis     7   -150.5046910807 -1.62D-07  1.23D-07  1.66D-08    22.8
+ d= 0,ls=0.0,diis     4   -150.5046821298 -2.43D-04  1.26D-04  3.96D-05    21.8
+                                                     9.44D-05  3.96D-05
+ d= 0,ls=0.0,diis     5   -150.5046908071 -8.68D-06  1.72D-05  2.15D-06    22.3
+                                                     2.83D-05  2.15D-06
+ d= 0,ls=0.0,diis     6   -150.5046910433 -2.36D-07  7.29D-06  8.77D-07    22.7
+                                                     1.11D-05  8.77D-07
+ d= 0,ls=0.0,diis     7   -150.5046912034 -1.60D-07  1.23D-07  1.66D-08    23.1
                                                      1.45D-07  1.66D-08
 
 
-         Total DFT energy =   -150.504691080669
-       Scaling correction =      0.059682864683
-      One electron energy =   -259.085170898699
-           Coulomb energy =     98.973678108607
-    Exchange-Corr. energy =    -16.934909811943
- Nuclear repulsion energy =     26.541711521366
+         Total DFT energy =   -150.504691203433
+      One electron energy =   -259.085216966400
+           Coulomb energy =     98.973701194513
+    Exchange-Corr. energy =    -16.934910752461
+ Nuclear repulsion energy =     26.541735320915
 
- Numeric. integr. density =     16.000000011437
+       Scaling correction =      0.059682873656
 
-     Total iterative time =      3.8s
+ Numeric. integr. density =     16.000000009635
+
+     Total iterative time =      3.7s
 
 
  
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
  
- Vector    5  Occ=1.000000D+00  E=-1.269216D+00
-              MO Center=  4.7D-09, -2.1D-08,  1.9D-08, r^2= 2.6D-01
+ Vector    5  Occ=1.000000D+00  E=-1.269217D+00
+              MO Center= -8.2D-09, -3.5D-08,  1.9D-08, r^2= 2.7D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    16  -0.265066-0.265059  2 O  s                  2  -0.265066-0.265058  1 O  s          
-     3   0.175249 0.175244  1 O  s                 17   0.175248 0.175243  2 O  s          
-    20  -0.124325-0.124321  2 O  pz                 6   0.124325 0.124321  1 O  pz         
-    15   0.118369 0.118366  2 O  s                  1   0.118369 0.118366  1 O  s          
+    16  -0.268241-0.261846  2 O  s                  2  -0.268240-0.261845  1 O  s          
+     3   0.177348 0.173119  1 O  s                 17   0.177346 0.173118  2 O  s          
+    20  -0.125814-0.122814  2 O  pz                 6   0.125814 0.122814  1 O  pz         
+    15   0.119787 0.116931  2 O  s                  1   0.119787 0.116931  1 O  s          
  
- Vector    6  Occ=1.000000D+00  E=-1.208843D+00
-              MO Center=  1.6D-12, -4.7D-14,  2.9D-09, r^2= 3.3D-08
+ Vector    6  Occ=1.000000D+00  E=-1.208844D+00
+              MO Center=  3.6D-13,  5.3D-13,  2.9D-09, r^2= 3.3D-08
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    44   0.010664-0.351994  2 O  s                 30   0.010664-0.351994  1 O  s          
-    31  -0.007695 0.253978  1 O  s                 45  -0.007695 0.253977  2 O  s          
-    48   0.005744-0.189599  2 O  pz                34  -0.005744 0.189599  1 O  pz         
-    43  -0.004939 0.163037  2 O  s                 29  -0.004939 0.163037  1 O  s          
+    44   0.007602-0.352074  2 O  s                 30   0.007601-0.352073  1 O  s          
+    31  -0.005485 0.254035  1 O  s                 45  -0.005485 0.254034  2 O  s          
+    48   0.004095-0.189642  2 O  pz                34  -0.004095 0.189642  1 O  pz         
+    43  -0.003521 0.163073  2 O  s                 29  -0.003521 0.163073  1 O  s          
  
- Vector    7  Occ=1.000000D+00  E=-8.667807D-01
-              MO Center=  2.2D-08, -3.4D-08, -2.1D-07, r^2= 5.4D-01
+ Vector    7  Occ=1.000000D+00  E=-8.667804D-01
+              MO Center=  2.5D-08, -2.7D-08, -2.0D-07, r^2= 5.3D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     2   0.299845 0.299835  1 O  s                 16  -0.299845-0.299835  2 O  s          
-    17   0.286588 0.286578  2 O  s                  3  -0.286588-0.286578  1 O  s          
-     1  -0.128297-0.128293  1 O  s                 15   0.128297 0.128293  2 O  s          
+     2   0.299521 0.300159  1 O  s                 16  -0.299520-0.300159  2 O  s          
+    17   0.286278 0.286888  2 O  s                  3  -0.286278-0.286888  1 O  s          
+     1  -0.128158-0.128431  1 O  s                 15   0.128158 0.128431  2 O  s          
  
- Vector    8  Occ=1.000000D+00  E=-7.777806D-01
-              MO Center=  2.2D-12, -2.7D-11,  8.6D-09, r^2= 1.4D-07
+ Vector    8  Occ=1.000000D+00  E=-7.777802D-01
+              MO Center= -1.2D-12, -2.8D-11,  8.6D-09, r^2= 1.4D-07
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    45   0.015411-0.411393  2 O  s                 31  -0.015411 0.411393  1 O  s          
-    30   0.015146-0.404319  1 O  s                 44  -0.015146 0.404319  2 O  s          
-    29  -0.006639 0.177236  1 O  s                 43   0.006639-0.177236  2 O  s          
+    45  -0.003280-0.411668  2 O  s                 31   0.003280 0.411668  1 O  s          
+    30  -0.003224-0.404590  1 O  s                 44   0.003224 0.404590  2 O  s          
+    29   0.001413 0.177354  1 O  s                 43  -0.001413-0.177354  2 O  s          
  
- Vector    9  Occ=1.000000D+00  E=-5.523033D-01
-              MO Center=  6.2D-10, -4.2D-07, -1.2D-05, r^2= 4.4D-01
+ Vector    9  Occ=1.000000D+00  E=-5.523036D-01
+              MO Center= -3.7D-09, -1.5D-07, -1.2D-05, r^2= 4.4D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     5   0.384456-0.000017  1 O  py                 4   0.000021 0.384456  1 O  px         
-    18   0.000021 0.384441  2 O  px                19   0.384441-0.000017  2 O  py         
+     4  -0.003296-0.384441  1 O  px                 5  -0.384441 0.003286  1 O  py         
+    18  -0.003296-0.384426  2 O  px                19  -0.384426 0.003286  2 O  py         
  
- Vector   10  Occ=1.000000D+00  E=-5.514877D-01
-              MO Center=  2.3D-06, -5.4D-09,  1.2D-05, r^2= 4.4D-01
+ Vector   10  Occ=1.000000D+00  E=-5.514880D-01
+              MO Center=  2.6D-06, -6.0D-09,  1.2D-05, r^2= 4.4D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    18   0.384118-0.000002  2 O  px                19  -0.000002 0.384118  2 O  py         
-     5  -0.000002 0.384103  1 O  py                 4   0.384103-0.000002  1 O  px         
+    19  -0.000005 0.384118  2 O  py                18   0.384118-0.000005  2 O  px         
+     5  -0.000005 0.384103  1 O  py                 4   0.384103-0.000005  1 O  px         
  
- Vector   11  Occ=1.000000D+00  E=-5.475564D-01
-              MO Center= -2.4D-06,  4.1D-07,  4.4D-07, r^2= 5.8D-01
+ Vector   11  Occ=1.000000D+00  E=-5.475565D-01
+              MO Center= -3.1D-06, -3.0D-07,  4.9D-07, r^2= 6.5D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    20   0.377677 0.377658  2 O  pz                 6  -0.377677-0.377658  1 O  pz         
-     3   0.171160 0.171152  1 O  s                 17   0.171159 0.171151  2 O  s          
-    23   0.110792 0.110786  2 O  pz                 9  -0.110791-0.110785  1 O  pz         
+    20   0.402099 0.351542  2 O  pz                 6  -0.402099-0.351541  1 O  pz         
+     3   0.182229 0.159316  1 O  s                 17   0.182228 0.159315  2 O  s          
+    23   0.117956 0.103125  2 O  pz                 9  -0.117955-0.103124  1 O  pz         
  
- Vector   12  Occ=1.000000D+00  E=-5.093136D-01
-              MO Center=  2.7D-11,  1.4D-10, -1.4D-07, r^2= 6.1D-06
+ Vector   12  Occ=1.000000D+00  E=-5.093137D-01
+              MO Center=  8.8D-12,  1.1D-10, -1.4D-07, r^2= 6.1D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    34   0.020377 0.523271  1 O  pz                48  -0.020377-0.523270  2 O  pz         
-    45  -0.010138-0.260335  2 O  s                 31  -0.010138-0.260333  1 O  s          
-    37   0.006464 0.165981  1 O  pz                51  -0.006464-0.165980  2 O  pz         
+    34  -0.000365 0.523667  1 O  pz                48   0.000365-0.523667  2 O  pz         
+    45   0.000182-0.260533  2 O  s                 31   0.000182-0.260531  1 O  s          
+    37  -0.000116 0.166107  1 O  pz                51   0.000116-0.166106  2 O  pz         
  
- Vector   13  Occ=1.000000D+00  E=-4.485241D-01
-              MO Center=  1.2D-10, -1.9D-12,  3.5D-08, r^2= 6.8D-07
+ Vector   13  Occ=1.000000D+00  E=-4.485244D-01
+              MO Center= -3.1D-11,  1.1D-10,  6.0D-08, r^2= 1.2D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    33   0.253545-0.253691  1 O  py                32  -0.253687-0.253549  1 O  px         
-    47   0.253530-0.253676  2 O  py                46  -0.253672-0.253534  2 O  px         
-    36   0.106152-0.106214  1 O  py                35  -0.106212-0.106154  1 O  px         
-    50   0.106141-0.106202  2 O  py                49  -0.106201-0.106143  2 O  px         
+    32   0.331236-0.137574  1 O  px                33   0.137584 0.331232  1 O  py         
+    46   0.331217-0.137566  2 O  px                47   0.137576 0.331213  2 O  py         
+    35   0.138680-0.057599  1 O  px                36   0.057603 0.138678  1 O  py         
+    49   0.138665-0.057593  2 O  px                50   0.057596 0.138663  2 O  py         
  
- Vector   14  Occ=1.000000D+00  E=-4.478191D-01
-              MO Center=  2.4D-13,  2.7D-13,  1.1D-12, r^2= 3.0D-12
+ Vector   14  Occ=1.000000D+00  E=-4.478194D-01
+              MO Center=  2.0D-13,  2.6D-13,  1.1D-12, r^2= 2.9D-12
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    46   0.253207-0.253514  2 O  px                47  -0.253518-0.253203  2 O  py         
-    32   0.253192-0.253499  1 O  px                33  -0.253503-0.253188  1 O  py         
-    49   0.106377-0.106506  2 O  px                50  -0.106507-0.106375  2 O  py         
-    35   0.106366-0.106495  1 O  px                36  -0.106497-0.106364  1 O  py         
+    47   0.115112 0.339312  2 O  py                46  -0.339315 0.115102  2 O  px         
+    33   0.115105 0.339291  1 O  py                32  -0.339295 0.115096  1 O  px         
+    50   0.048360 0.142551  2 O  py                49  -0.142552 0.048356  2 O  px         
+    36   0.048356 0.142536  1 O  py                35  -0.142538 0.048352  1 O  px         
  
- Vector   15  Occ=1.000000D+00  E=-3.379531D-01
-              MO Center=  2.2D-10,  3.0D-08,  1.3D-05, r^2= 5.0D-01
+ Vector   15  Occ=1.000000D+00  E=-3.379528D-01
+              MO Center=  3.6D-09,  2.7D-08,  1.3D-05, r^2= 5.0D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    19  -0.438173 0.000020  2 O  py                18   0.000001-0.438173  2 O  px         
-     4  -0.000001 0.438155  1 O  px                 5   0.438155-0.000020  1 O  py         
-    22  -0.206932 0.000009  2 O  py                21   0.000001-0.206932  2 O  px         
-     7  -0.000001 0.206931  1 O  px                 8   0.206931-0.000009  1 O  py         
+    19  -0.438160 0.003400  2 O  py                18  -0.003366-0.438160  2 O  px         
+     5   0.438142-0.003400  1 O  py                 4   0.003366 0.438142  1 O  px         
+    22  -0.206926 0.001606  2 O  py                21  -0.001590-0.206926  2 O  px         
+     8   0.206925-0.001606  1 O  py                 7   0.001590 0.206925  1 O  px         
  
- Vector   16  Occ=1.000000D+00  E=-3.368691D-01
-              MO Center= -2.3D-08, -5.1D-09, -1.2D-05, r^2= 5.0D-01
+ Vector   16  Occ=1.000000D+00  E=-3.368688D-01
+              MO Center= -3.8D-08, -4.4D-09, -1.2D-05, r^2= 5.0D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     4  -0.437835-0.000011  1 O  px                 5  -0.000011-0.437835  1 O  py         
-    19   0.000011 0.437816  2 O  py                18   0.437816 0.000011  2 O  px         
-     7  -0.207658-0.000005  1 O  px                 8  -0.000005-0.207658  1 O  py         
-    22   0.000005 0.207657  2 O  py                21   0.207657 0.000005  2 O  px         
+     4   0.437835 0.000017  1 O  px                 5   0.000017 0.437835  1 O  py         
+    18  -0.437817-0.000017  2 O  px                19  -0.000017-0.437816  2 O  py         
+     7   0.207658 0.000008  1 O  px                 8   0.000008 0.207658  1 O  py         
+    21  -0.207658-0.000008  2 O  px                22  -0.000008-0.207658  2 O  py         
  
- Vector   17  Occ=0.000000D+00  E=-1.457489D-01
-              MO Center=  2.7D-12,  2.3D-11, -2.9D-07, r^2= 4.6D-06
+ Vector   17  Occ=0.000000D+00  E=-1.457485D-01
+              MO Center= -2.5D-11,  4.9D-12, -5.3D-07, r^2= 8.4D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    47   0.289989-0.289732  2 O  py                46  -0.289750-0.289971  2 O  px         
-    33  -0.289974 0.289717  1 O  py                32   0.289735 0.289956  1 O  px         
-    50   0.187554-0.187388  2 O  py                49  -0.187399-0.187542  2 O  px         
-    36  -0.187550 0.187384  1 O  py                35   0.187395 0.187538  1 O  px         
+    47   0.126579 0.389892  2 O  py                46   0.389878-0.126622  2 O  px         
+    33  -0.126572-0.389873  1 O  py                32  -0.389858 0.126616  1 O  px         
+    50   0.081867 0.252168  2 O  py                49   0.252159-0.081895  2 O  px         
+    36  -0.081865-0.252162  1 O  py                35  -0.252153 0.081893  1 O  px         
  
- Vector   18  Occ=0.000000D+00  E=-1.448102D-01
-              MO Center= -1.9D-13, -2.3D-13, -3.9D-13, r^2= 1.9D-12
+ Vector   18  Occ=0.000000D+00  E=-1.448099D-01
+              MO Center= -2.5D-13, -2.4D-13, -3.8D-13, r^2= 2.3D-12
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    32   0.289490-0.289649  1 O  px                33  -0.289631-0.289508  1 O  py         
-    46  -0.289475 0.289634  2 O  px                47   0.289616 0.289493  2 O  py         
-    35   0.187985-0.188089  1 O  px                36  -0.188077-0.187997  1 O  py         
-    49  -0.187981 0.188085  2 O  px                50   0.188073 0.187993  2 O  py         
+    32   0.068043-0.403821  1 O  px                33  -0.403813-0.068088  1 O  py         
+    46  -0.068039 0.403800  2 O  px                47   0.403792 0.068084  2 O  py         
+    35   0.044185-0.262228  1 O  px                36  -0.262223-0.044214  1 O  py         
+    49  -0.044184 0.262223  2 O  px                50   0.262218 0.044213  2 O  py         
  
- Vector   19  Occ=0.000000D+00  E= 9.357920D-02
-              MO Center=  2.6D-08,  2.7D-08, -7.2D-07, r^2= 7.9D-01
+ Vector   19  Occ=0.000000D+00  E= 9.358028D-02
+              MO Center=  1.1D-07,  3.8D-08, -6.9D-07, r^2= 8.0D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    17  -0.562035-0.562036  2 O  s                  3   0.562033 0.562034  1 O  s          
-    23   0.533317 0.533318  2 O  pz                 9   0.533316 0.533317  1 O  pz         
-     6   0.406964 0.406965  1 O  pz                20   0.406963 0.406964  2 O  pz         
-     2  -0.155875-0.155876  1 O  s                 16   0.155873 0.155873  2 O  s          
+    17  -0.566901-0.557134  2 O  s                  3   0.566899 0.557132  1 O  s          
+    23   0.537933 0.528666  2 O  pz                 9   0.537933 0.528665  1 O  pz         
+     6   0.410484 0.403412  1 O  pz                20   0.410484 0.403412  2 O  pz         
+     2  -0.157224-0.154515  1 O  s                 16   0.157221 0.154513  2 O  s          
  
- Vector   20  Occ=0.000000D+00  E= 1.328872D-01
-              MO Center=  4.3D-11,  2.4D-10, -1.7D-07, r^2= 4.0D-06
+ Vector   20  Occ=0.000000D+00  E= 1.328882D-01
+              MO Center= -3.1D-11,  1.6D-10, -1.7D-07, r^2= 4.0D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    45  -0.007721 0.894755  2 O  s                 31   0.007721-0.894751  1 O  s          
-    51   0.007148-0.828249  2 O  pz                37   0.007148-0.828248  1 O  pz         
-    34   0.004699-0.544486  1 O  pz                48   0.004699-0.544485  2 O  pz         
-    30  -0.001893 0.219330  1 O  s                 44   0.001893-0.219325  2 O  s          
+    45  -0.037374-0.894012  2 O  s                 31   0.037374 0.894009  1 O  s          
+    51   0.034596 0.827561  2 O  pz                37   0.034596 0.827560  1 O  pz         
+    34   0.022743 0.544030  1 O  pz                48   0.022743 0.544029  2 O  pz         
+    30  -0.009161-0.219146  1 O  s                 44   0.009161 0.219142  2 O  s          
  
- Vector   21  Occ=0.000000D+00  E= 4.257836D-01
-              MO Center=  4.6D-07,  4.0D-07, -1.3D-06, r^2= 1.6D+00
+ Vector   21  Occ=0.000000D+00  E= 4.257838D-01
+              MO Center=  1.3D-06,  5.7D-07, -1.2D-06, r^2= 1.6D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    23  -0.925118-0.925117  2 O  pz                 9  -0.925118-0.925116  1 O  pz         
-    17   0.815609 0.815608  2 O  s                  3  -0.815604-0.815603  1 O  s          
-    20   0.400353 0.400352  2 O  pz                 6   0.400352 0.400351  1 O  pz         
+    23  -0.926045-0.924187  2 O  pz                 9  -0.926044-0.924187  1 O  pz         
+    17   0.816427 0.814789  2 O  s                  3  -0.816423-0.814785  1 O  s          
+    20   0.400755 0.399951  2 O  pz                 6   0.400754 0.399950  1 O  pz         
  
- Vector   22  Occ=0.000000D+00  E= 4.424076D-01
-              MO Center= -3.4D-10, -5.9D-09,  5.6D-07, r^2= 1.6D-04
+ Vector   22  Occ=0.000000D+00  E= 4.424079D-01
+              MO Center= -6.3D-10, -5.2D-09,  5.7D-07, r^2= 1.6D-04
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    51   0.006612 1.279844  2 O  pz                37   0.006611 1.279841  1 O  pz         
-    45  -0.005877-1.137663  2 O  s                 31   0.005877 1.137658  1 O  s          
-    48  -0.003051-0.590694  2 O  pz                34  -0.003051-0.590692  1 O  pz         
+    51   0.196224 1.264727  2 O  pz                37   0.196224 1.264724  1 O  pz         
+    45  -0.174425-1.124227  2 O  s                 31   0.174425 1.124223  1 O  s          
+    48  -0.090565-0.583719  2 O  pz                34  -0.090565-0.583717  1 O  pz         
  
  Vector   23  Occ=0.000000D+00  E= 4.860892D-01
-              MO Center=  1.7D-09,  5.3D-08,  3.2D-05, r^2= 1.1D+00
+              MO Center= -3.5D-09,  6.8D-08,  3.2D-05, r^2= 1.1D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    22  -0.450090-0.000078  2 O  py                21   0.000116-0.450090  2 O  px         
-     8  -0.450020-0.000079  1 O  py                 7   0.000116-0.450020  1 O  px         
-    19   0.406331 0.000071  2 O  py                18  -0.000105 0.406331  2 O  px         
-     5   0.406303 0.000071  1 O  py                 4  -0.000105 0.406303  1 O  px         
+    22  -0.450034-0.007115  2 O  py                21   0.007192-0.450032  2 O  px         
+     8  -0.449965-0.007114  1 O  py                 7   0.007191-0.449963  1 O  px         
+    19   0.406280 0.006424  2 O  py                18  -0.006493 0.406279  2 O  px         
+     5   0.406253 0.006423  1 O  py                 4  -0.006493 0.406251  1 O  px         
  
  Vector   24  Occ=0.000000D+00  E= 4.868365D-01
-              MO Center= -3.6D-08, -1.1D-09, -3.0D-05, r^2= 1.1D+00
+              MO Center=  7.1D-09, -1.7D-09, -3.0D-05, r^2= 1.1D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     7  -0.450023-0.000019  1 O  px                 8  -0.000019-0.450022  1 O  py         
-    21  -0.449958-0.000019  2 O  px                22  -0.000019-0.449958  2 O  py         
-     4   0.406647 0.000017  1 O  px                 5   0.000017 0.406647  1 O  py         
-    18   0.406623 0.000017  2 O  px                19   0.000017 0.406623  2 O  py         
+     7   0.450023 0.000038  1 O  px                 8   0.000038 0.450022  1 O  py         
+    21   0.449958 0.000038  2 O  px                22   0.000039 0.449957  2 O  py         
+     4  -0.406647-0.000035  1 O  px                 5  -0.000035-0.406647  1 O  py         
+    18  -0.406623-0.000035  2 O  px                19  -0.000035-0.406622  2 O  py         
  
  Vector   25  Occ=0.000000D+00  E= 5.302652D-01
-              MO Center= -1.3D-09,  2.3D-09,  1.6D-06, r^2= 3.7D-05
+              MO Center=  4.2D-09, -7.3D-10,  1.8D-06, r^2= 4.3D-05
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    50  -0.312674 0.312728  2 O  py                49   0.312754 0.312649  2 O  px         
-    36  -0.312631 0.312685  1 O  py                35   0.312710 0.312605  1 O  px         
-    47   0.301798-0.301850  2 O  py                46  -0.301875-0.301773  2 O  px         
-    33   0.301778-0.301830  1 O  py                32  -0.301854-0.301753  1 O  px         
+    50   0.287843 0.335724  2 O  py                49   0.335677-0.287897  2 O  px         
+    36   0.287803 0.335677  1 O  py                35   0.335630-0.287857  1 O  px         
+    47  -0.277830-0.324046  2 O  py                46  -0.324000 0.277883  2 O  px         
+    33  -0.277812-0.324024  1 O  py                32  -0.323978 0.277864  1 O  px         
  
  Vector   26  Occ=0.000000D+00  E= 5.310876D-01
-              MO Center=  4.2D-13,  1.5D-12, -3.4D-12, r^2= 1.7D-11
+              MO Center=  1.9D-12,  1.4D-12, -3.9D-12, r^2= 2.3D-11
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    35  -0.312599 0.312637  1 O  px                36   0.312611 0.312625  1 O  py         
-    49  -0.312559 0.312596  2 O  px                50   0.312571 0.312584  2 O  py         
-    32   0.302001-0.302037  1 O  px                33  -0.302013-0.302026  1 O  py         
-    46   0.301983-0.302019  2 O  px                47  -0.301994-0.302007  2 O  py         
+    35   0.108301 0.428639  1 O  px                36   0.428656-0.108232  1 O  py         
+    49   0.108287 0.428583  2 O  px                50   0.428600-0.108217  2 O  py         
+    32  -0.104629-0.414106  1 O  px                33  -0.414123 0.104562  1 O  py         
+    46  -0.104623-0.414081  2 O  px                47  -0.414098 0.104556  2 O  py         
  
 
    alpha - beta orbital overlaps 
@@ -1191,7 +1073,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
    alpha     21     22     23     24     25     26     27     28
-    beta     18     19     20     16      5     20      4      5
+    beta     18     19     20     19      5     20      4      4
  overlap   0.089  0.089  0.089  0.000  0.014  0.021  0.014  0.000
 
      --------------------------
@@ -1211,12 +1093,12 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      1   0 1 0      0.000000      0.000000      0.000000      0.000000
      1   0 0 1     -0.000002     -0.000001     -0.000001      0.000000
  
-     2   2 0 0     -7.567249     -4.350081     -3.217168      0.000000
+     2   2 0 0     -7.567247     -4.350081     -3.217166      0.000000
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
-     2   1 0 1     -0.000002      0.000000     -0.000001      0.000000
-     2   0 2 0     -7.567249     -4.350081     -3.217168      0.000000
-     2   0 1 1     -0.000002      0.000000     -0.000001      0.000000
-     2   0 0 2     -7.718665    -17.529907    -13.446207     23.257450
+     2   1 0 1     -0.000001      0.000000     -0.000001      0.000000
+     2   0 2 0     -7.567247     -4.350081     -3.217166      0.000000
+     2   0 1 1     -0.000001      0.000000     -0.000001      0.000000
+     2   0 0 2     -7.718667    -17.529885    -13.446189     23.257408
  
 
  Parallel integral file used       4 records with       0 large values
@@ -1237,8 +1119,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 O                    8.0000     0.00000000     0.00000000    -0.61213554
-    2 O                    8.0000     0.00000000     0.00000000     0.61213554
+    1 O                    8.0000     0.00000000     0.00000000    -0.61213544
+    2 O                    8.0000     0.00000000     0.00000000     0.61213544
  
       Atomic Mass 
       ----------- 
@@ -1246,7 +1128,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       O                 15.994910
  
 
- Effective nuclear repulsion energy (a.u.)      27.6632720414
+ Effective nuclear repulsion energy (a.u.)      27.6632765703
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -1349,14 +1231,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Read atomic ZORA corrections from ./o2_zora_so.zora_so
 
-   Time prior to 1st pass:     23.4
+   Time prior to 1st pass:     23.6
 
  #quartets = 3.080D+03 #integrals = 2.183D+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./o2_zora_so.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  82529
+ Max. records in memory =      2        Max. records in file   =  82265
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -1365,7 +1247,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Grid_pts file          = ./o2_zora_so.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     28        Max. recs in file   =    440126
+ Max. records in memory =     28        Max. recs in file   =    438717
 
  WARNING: error on integrated density =  0.14D-02
  greater than required accuracy of  0.10D-07
@@ -1376,30 +1258,31 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -150.5566441231 -1.78D+02  2.40D-03  6.00D-02    23.9
+ d= 0,ls=0.0,diis     1   -150.5566432291 -1.78D+02  2.40D-03  6.00D-02    24.2
                                                      1.63D-03  6.00D-02
- d= 0,ls=0.0,diis     2   -150.5079202779  4.87D-02  8.10D-04  2.17D-03    24.3
+ d= 0,ls=0.0,diis     2   -150.5079202603  4.87D-02  8.10D-04  2.17D-03    24.6
                                                      6.22D-04  2.17D-03
- d= 0,ls=0.0,diis     3   -150.5082199211 -3.00D-04  4.19D-04  5.14D-04    24.8
+ d= 0,ls=0.0,diis     3   -150.5082198910 -3.00D-04  4.19D-04  5.14D-04    25.0
                                                      2.81D-04  5.14D-04
- d= 0,ls=0.0,diis     4   -150.5083249319 -1.05D-04  8.63D-05  1.72D-05    25.2
+ d= 0,ls=0.0,diis     4   -150.5083249153 -1.05D-04  8.63D-05  1.72D-05    25.5
                                                      5.99D-05  1.72D-05
- d= 0,ls=0.0,diis     5   -150.5083288715 -3.94D-06  2.96D-06  3.24D-08    25.6
+ d= 0,ls=0.0,diis     5   -150.5083288545 -3.94D-06  2.96D-06  3.24D-08    25.9
                                                      1.85D-06  3.24D-08
- d= 0,ls=0.0,diis     6   -150.5083288748 -3.35D-09  4.51D-07  1.87D-08    26.1
-                                                     7.02D-07  1.87D-08
+ d= 0,ls=0.0,diis     6   -150.5083288579 -3.35D-09  4.48D-07  1.86D-08    26.3
+                                                     6.97D-07  1.86D-08
 
 
-         Total DFT energy =   -150.508328874929
-       Scaling correction =      0.059669811993
-      One electron energy =   -261.248003908148
-           Coulomb energy =    100.056499326714
-    Exchange-Corr. energy =    -16.980096334913
- Nuclear repulsion energy =     27.663272041418
+         Total DFT energy =   -150.508328857968
+      One electron energy =   -261.248012593721
+           Coulomb energy =    100.056503687160
+    Exchange-Corr. energy =    -16.980096521744
+ Nuclear repulsion energy =     27.663276570337
 
- Numeric. integr. density =     15.999999993067
+       Scaling correction =      0.059669820877
 
-     Total iterative time =      3.1s
+ Numeric. integr. density =     16.000000008843
+
+     Total iterative time =      3.2s
 
 
  
@@ -1407,189 +1290,189 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
  
  Vector    5  Occ=1.000000D+00  E=-1.306412D+00
-              MO Center=  5.6D-09, -2.2D-08,  1.8D-06, r^2= 2.4D-01
+              MO Center= -6.8D-09, -3.6D-08,  1.9D-06, r^2= 2.5D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    16   0.263183 0.263180  2 O  s                  2   0.263180 0.263177  1 O  s          
-    17  -0.165854-0.165852  2 O  s                  3  -0.165854-0.165852  1 O  s          
-    20   0.134783 0.134782  2 O  pz                 6  -0.134783-0.134782  1 O  pz         
-    15  -0.118211-0.118210  2 O  s                  1  -0.118210-0.118209  1 O  s          
+    16   0.266695 0.259621  2 O  s                  2   0.266691 0.259618  1 O  s          
+    17  -0.168067-0.163610  2 O  s                  3  -0.168066-0.163609  1 O  s          
+    20   0.136581 0.132959  2 O  pz                 6  -0.136581-0.132959  1 O  pz         
+    15  -0.119788-0.116611  2 O  s                  1  -0.119787-0.116610  1 O  s          
  
- Vector    6  Occ=1.000000D+00  E=-1.248192D+00
-              MO Center=  1.5D-12, -4.3D-14,  2.7D-09, r^2= 3.1D-08
+ Vector    6  Occ=1.000000D+00  E=-1.248193D+00
+              MO Center=  3.6D-13,  6.4D-13,  2.7D-09, r^2= 3.1D-08
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    44  -0.000274 0.349772  2 O  s                 30  -0.000274 0.349768  1 O  s          
-    45   0.000188-0.239956  2 O  s                 31   0.000188-0.239956  1 O  s          
-    48  -0.000160 0.204498  2 O  pz                34   0.000160-0.204497  1 O  pz         
-    43   0.000128-0.163012  2 O  s                 29   0.000128-0.163011  1 O  s          
+    44   0.009480 0.349644  2 O  s                 30   0.009480 0.349640  1 O  s          
+    45  -0.006504-0.239868  2 O  s                 31  -0.006504-0.239867  1 O  s          
+    48   0.005543 0.204423  2 O  pz                34  -0.005543-0.204422  1 O  pz         
+    43  -0.004418-0.162953  2 O  s                 29  -0.004418-0.162951  1 O  s          
  
  Vector    7  Occ=1.000000D+00  E=-8.504030D-01
-              MO Center=  2.4D-08, -3.8D-08,  2.1D-06, r^2= 5.3D-01
+              MO Center=  2.6D-08, -3.1D-08,  2.1D-06, r^2= 5.2D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     2  -0.296683-0.296680  1 O  s                 16   0.296682 0.296680  2 O  s          
-    17  -0.288507-0.288505  2 O  s                  3   0.288507 0.288505  1 O  s          
-     1   0.127139 0.127138  1 O  s                 15  -0.127139-0.127138  2 O  s          
+     2  -0.296255-0.297107  1 O  s                 16   0.296255 0.297106  2 O  s          
+    17  -0.288092-0.288920  2 O  s                  3   0.288092 0.288920  1 O  s          
+     1   0.126956 0.127321  1 O  s                 15  -0.126956-0.127321  2 O  s          
  
- Vector    8  Occ=1.000000D+00  E=-7.618427D-01
-              MO Center=  1.5D-12, -3.8D-11,  1.0D-08, r^2= 2.2D-07
+ Vector    8  Occ=1.000000D+00  E=-7.618426D-01
+              MO Center= -3.8D-12, -3.9D-11,  1.0D-08, r^2= 2.2D-07
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    45  -0.000378 0.411506  2 O  s                 31   0.000378-0.411504  1 O  s          
-    44   0.000368-0.400415  2 O  s                 30  -0.000368 0.400415  1 O  s          
-    43  -0.000161 0.175508  2 O  s                 29   0.000161-0.175508  1 O  s          
-    48  -0.000139 0.151211  2 O  pz                34  -0.000139 0.151203  1 O  pz         
+    45   0.027071 0.410615  2 O  s                 31  -0.027071-0.410613  1 O  s          
+    44  -0.026341-0.399548  2 O  s                 30   0.026341 0.399548  1 O  s          
+    43   0.011546 0.175128  2 O  s                 29  -0.011546-0.175128  1 O  s          
+    48   0.009947 0.150884  2 O  pz                34   0.009947 0.150875  1 O  pz         
  
- Vector    9  Occ=1.000000D+00  E=-5.672376D-01
-              MO Center=  9.7D-10, -2.0D-07, -5.4D-06, r^2= 4.2D-01
+ Vector    9  Occ=1.000000D+00  E=-5.672377D-01
+              MO Center= -2.8D-09, -9.7D-08, -5.3D-06, r^2= 4.2D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     4  -0.000002 0.383848  1 O  px                 5   0.383848 0.000006  1 O  py         
-    18  -0.000002 0.383843  2 O  px                19   0.383843 0.000006  2 O  py         
+     5  -0.383834 0.003307  1 O  py                 4  -0.003317-0.383834  1 O  px         
+    19  -0.383829 0.003307  2 O  py                18  -0.003316-0.383828  2 O  px         
  
- Vector   10  Occ=1.000000D+00  E=-5.664277D-01
-              MO Center=  8.6D-07, -5.6D-09,  1.6D-05, r^2= 4.2D-01
+ Vector   10  Occ=1.000000D+00  E=-5.664278D-01
+              MO Center=  9.4D-07, -6.1D-09,  1.6D-05, r^2= 4.2D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    19   0.000002-0.383529  2 O  py                18  -0.383529 0.000002  2 O  px         
-     5   0.000002-0.383507  1 O  py                 4  -0.383507 0.000002  1 O  px         
+    18  -0.383529 0.000005  2 O  px                19   0.000005-0.383529  2 O  py         
+     4  -0.383507 0.000005  1 O  px                 5   0.000005-0.383507  1 O  py         
  
  Vector   11  Occ=1.000000D+00  E=-5.540888D-01
-              MO Center= -8.8D-07,  2.1D-07, -2.6D-06, r^2= 5.6D-01
+              MO Center= -1.2D-06, -6.7D-08, -3.0D-06, r^2= 6.4D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    20  -0.375806-0.375798  2 O  pz                 6   0.375804 0.375796  1 O  pz         
-     3  -0.181634-0.181630  1 O  s                 17  -0.181629-0.181625  2 O  s          
-    23  -0.106937-0.106934  2 O  pz                 9   0.106936 0.106933  1 O  pz         
+    20  -0.401751-0.347923  2 O  pz                 6   0.401749 0.347922  1 O  pz         
+     3  -0.194174-0.168158  1 O  s                 17  -0.194168-0.168153  2 O  s          
+    23  -0.114319-0.099003  2 O  pz                 9   0.114318 0.099002  1 O  pz         
  
- Vector   12  Occ=1.000000D+00  E=-5.141675D-01
-              MO Center=  1.9D-11,  1.2D-10, -9.3D-08, r^2= 4.6D-06
+ Vector   12  Occ=1.000000D+00  E=-5.141676D-01
+              MO Center= -2.1D-12,  9.4D-11, -9.2D-08, r^2= 4.6D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    48  -0.000369-0.521002  2 O  pz                34   0.000369 0.521001  1 O  pz         
-    31  -0.000195-0.275514  1 O  s                 45  -0.000195-0.275509  2 O  s          
-    37   0.000114 0.160510  1 O  pz                51  -0.000114-0.160509  2 O  pz         
+    48  -0.059084 0.517642  2 O  pz                34   0.059084-0.517641  1 O  pz         
+    31  -0.031244 0.273737  1 O  s                 45  -0.031244 0.273731  2 O  s          
+    37   0.018202-0.159475  1 O  pz                51  -0.018202 0.159474  2 O  pz         
  
- Vector   13  Occ=1.000000D+00  E=-4.647083D-01
-              MO Center=  1.0D-10, -7.1D-12,  2.3D-08, r^2= 4.7D-07
+ Vector   13  Occ=1.000000D+00  E=-4.647084D-01
+              MO Center= -3.3D-11,  8.6D-11,  3.8D-08, r^2= 7.7D-07
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    32  -0.254158-0.253809  1 O  px                33   0.253805-0.254161  1 O  py         
-    46  -0.254148-0.253799  2 O  px                47   0.253796-0.254151  2 O  py         
+    32   0.325045-0.152844  1 O  px                33   0.152852 0.325041  1 O  py         
+    46   0.325032-0.152838  2 O  px                47   0.152846 0.325028  2 O  py         
  
- Vector   14  Occ=1.000000D+00  E=-4.640055D-01
-              MO Center=  2.0D-13,  2.3D-13,  1.1D-12, r^2= 3.1D-12
+ Vector   14  Occ=1.000000D+00  E=-4.640056D-01
+              MO Center=  1.7D-13,  2.2D-13,  1.1D-12, r^2= 2.9D-12
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    47  -0.254046-0.253429  2 O  py                46   0.253433-0.254042  2 O  px         
-    33  -0.254029-0.253412  1 O  py                32   0.253416-0.254025  1 O  px         
+    47  -0.119532-0.338345  2 O  py                46   0.338348-0.119524  2 O  px         
+    33  -0.119524-0.338323  1 O  py                32   0.338326-0.119516  1 O  px         
  
  Vector   15  Occ=1.000000D+00  E=-3.223706D-01
-              MO Center=  4.8D-10,  3.3D-08,  5.9D-06, r^2= 4.8D-01
+              MO Center=  4.0D-09,  2.9D-08,  5.8D-06, r^2= 4.8D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    18  -0.000016 0.440354  2 O  px                19   0.440354-0.000005  2 O  py         
-     4   0.000016-0.440342  1 O  px                 5  -0.440342 0.000005  1 O  py         
-     7   0.000008-0.216785  1 O  px                 8  -0.216785 0.000003  1 O  py         
-    21  -0.000008 0.216782  2 O  px                22   0.216782-0.000003  2 O  py         
+    19  -0.440340 0.003557  2 O  py                18  -0.003522-0.440339  2 O  px         
+     5   0.440328-0.003557  1 O  py                 4   0.003522 0.440328  1 O  px         
+     8   0.216778-0.001751  1 O  py                 7   0.001734 0.216778  1 O  px         
+    22  -0.216776 0.001751  2 O  py                21  -0.001734-0.216775  2 O  px         
  
- Vector   16  Occ=1.000000D+00  E=-3.212741D-01
-              MO Center= -2.8D-08, -5.3D-09, -1.6D-05, r^2= 4.8D-01
+ Vector   16  Occ=1.000000D+00  E=-3.212740D-01
+              MO Center= -4.8D-08, -4.6D-09, -1.7D-05, r^2= 4.8D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     5   0.000011 0.440011  1 O  py                 4   0.440011 0.000011  1 O  px         
-    19  -0.000011-0.439988  2 O  py                18  -0.439988-0.000011  2 O  px         
-     8   0.000005 0.217540  1 O  py                 7   0.217540 0.000005  1 O  px         
-    22  -0.000005-0.217537  2 O  py                21  -0.217537-0.000005  2 O  px         
+     4  -0.440011-0.000017  1 O  px                 5  -0.000017-0.440011  1 O  py         
+    18   0.439988 0.000017  2 O  px                19   0.000017 0.439987  2 O  py         
+     7  -0.217540-0.000008  1 O  px                 8  -0.000008-0.217540  1 O  py         
+    21   0.217537 0.000008  2 O  px                22   0.000008 0.217537  2 O  py         
  
  Vector   17  Occ=0.000000D+00  E=-1.293590D-01
-              MO Center=  2.0D-12,  2.4D-11, -2.7D-07, r^2= 4.0D-06
+              MO Center= -2.4D-11,  4.3D-12, -4.8D-07, r^2= 7.2D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    46   0.290642 0.290988  2 O  px                47  -0.291006 0.290624  2 O  py         
-    32  -0.290630-0.290976  1 O  px                33   0.290994-0.290612  1 O  py         
-    49   0.196483 0.196716  2 O  px                50  -0.196729 0.196470  2 O  py         
-    35  -0.196482-0.196715  1 O  px                36   0.196727-0.196469  1 O  py         
+    47   0.132184 0.389454  2 O  py                46   0.389438-0.132229  2 O  px         
+    33  -0.132179-0.389438  1 O  py                32  -0.389422 0.132224  1 O  px         
+    50   0.089360 0.263282  2 O  py                49   0.263272-0.089391  2 O  px         
+    36  -0.089360-0.263281  1 O  py                35  -0.263270 0.089390  1 O  px         
  
  Vector   18  Occ=0.000000D+00  E=-1.284131D-01
-              MO Center= -2.0D-13, -2.5D-13, -2.9D-13, r^2= 1.9D-12
+              MO Center= -2.7D-13, -2.5D-13, -2.8D-13, r^2= 2.3D-12
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    33   0.290613 0.290421  1 O  py                32  -0.290403 0.290631  1 O  px         
-    47  -0.290597-0.290405  2 O  py                46   0.290387-0.290616  2 O  px         
-    36   0.197256 0.197126  1 O  py                35  -0.197113 0.197268  1 O  px         
-    50  -0.197251-0.197121  2 O  py                49   0.197108-0.197264  2 O  px         
+    32  -0.061645 0.406202  1 O  px                33   0.406195 0.061692  1 O  py         
+    46   0.061642-0.406180  2 O  px                47  -0.406173-0.061689  2 O  py         
+    35  -0.041842 0.275713  1 O  px                36   0.275708 0.041874  1 O  py         
+    49   0.041841-0.275706  2 O  px                50  -0.275701-0.041873  2 O  py         
  
- Vector   19  Occ=0.000000D+00  E= 1.474693D-01
-              MO Center=  5.1D-08,  4.2D-08, -1.5D-06, r^2= 9.4D-01
+ Vector   19  Occ=0.000000D+00  E= 1.474694D-01
+              MO Center=  1.9D-07,  6.1D-08, -1.5D-06, r^2= 9.5D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    17   0.713674 0.713678  2 O  s                  3  -0.713672-0.713675  1 O  s          
-    23  -0.638633-0.638636  2 O  pz                 9  -0.638632-0.638635  1 O  pz         
-     6  -0.370511-0.370513  1 O  pz                20  -0.370509-0.370511  2 O  pz         
-     2   0.161968 0.161969  1 O  s                 16  -0.161965-0.161966  2 O  s          
+    17  -0.718213-0.709112  2 O  s                  3   0.718211 0.709110  1 O  s          
+    23   0.642694 0.634550  2 O  pz                 9   0.642694 0.634549  1 O  pz         
+     6   0.372866 0.368142  1 O  pz                20   0.372864 0.368139  2 O  pz         
+     2  -0.162998-0.160932  1 O  s                 16   0.162995 0.160930  2 O  s          
  
  Vector   20  Occ=0.000000D+00  E= 1.845040D-01
-              MO Center=  5.1D-11,  3.3D-10, -1.8D-07, r^2= 3.9D-06
+              MO Center= -2.7D-11,  2.5D-10, -1.8D-07, r^2= 3.9D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    45   0.001141-1.131951  2 O  s                 31  -0.001141 1.131948  1 O  s          
-    51  -0.001001 0.992910  2 O  pz                37  -0.001001 0.992909  1 O  pz         
-    34  -0.000485 0.481258  1 O  pz                48  -0.000485 0.481255  2 O  pz         
-    30   0.000225-0.222816  1 O  s                 44  -0.000225 0.222812  2 O  s          
+    45   0.065155 1.130077  2 O  s                 31  -0.065155-1.130073  1 O  s          
+    51  -0.057152-0.991265  2 O  pz                37  -0.057152-0.991265  1 O  pz         
+    34  -0.027701-0.480460  1 O  pz                48  -0.027701-0.480457  2 O  pz         
+    30   0.012825 0.222447  1 O  s                 44  -0.012825-0.222443  2 O  s          
  
- Vector   21  Occ=0.000000D+00  E= 4.405315D-01
-              MO Center=  4.9D-07,  4.2D-07,  9.8D-06, r^2= 1.4D+00
+ Vector   21  Occ=0.000000D+00  E= 4.405316D-01
+              MO Center=  1.3D-06,  6.0D-07,  1.0D-05, r^2= 1.4D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    23  -0.874285-0.874273  2 O  pz                 9  -0.874271-0.874259  1 O  pz         
-     3  -0.820805-0.820794  1 O  s                 17   0.820803 0.820792  2 O  s          
-    20   0.435128 0.435122  2 O  pz                 6   0.435122 0.435116  1 O  pz         
+    23   0.873055 0.875500  2 O  pz                 9   0.873042 0.875486  1 O  pz         
+     3   0.819651 0.821946  1 O  s                 17  -0.819649-0.821944  2 O  s          
+    20  -0.434516-0.435733  2 O  pz                 6  -0.434510-0.435727  1 O  pz         
  
- Vector   22  Occ=0.000000D+00  E= 4.609007D-01
-              MO Center= -5.6D-10, -1.2D-08,  7.9D-07, r^2= 6.6D-04
+ Vector   22  Occ=0.000000D+00  E= 4.609008D-01
+              MO Center= -1.6D-09, -1.1D-08,  7.9D-07, r^2= 6.6D-04
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    51  -0.005203 1.184627  2 O  pz                37  -0.005203 1.184601  1 O  pz         
-    31  -0.004889 1.113215  1 O  s                 45   0.004889-1.113209  2 O  s          
-    48   0.002827-0.643659  2 O  pz                34   0.002827-0.643648  1 O  pz         
+    51  -0.204014-1.166938  2 O  pz                37  -0.204010-1.166912  1 O  pz         
+    31  -0.191716-1.096593  1 O  s                 45   0.191715 1.096586  2 O  s          
+    48   0.110850 0.634048  2 O  pz                34   0.110848 0.634037  1 O  pz         
  
  Vector   23  Occ=0.000000D+00  E= 4.839273D-01
-              MO Center=  2.4D-09,  6.2D-08,  4.1D-05, r^2= 1.1D+00
+              MO Center= -3.9D-09,  8.1D-08,  4.1D-05, r^2= 1.1D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    22  -0.448136 0.000067  2 O  py                21  -0.000028-0.448136  2 O  px         
-     8  -0.448043 0.000067  1 O  py                 7  -0.000028-0.448043  1 O  px         
-    19   0.400972-0.000060  2 O  py                18   0.000025 0.400972  2 O  px         
-     5   0.400937-0.000060  1 O  py                 4   0.000025 0.400936  1 O  px         
+    22   0.448046 0.009017  2 O  py                21  -0.009097 0.448043  2 O  px         
+     8   0.447953 0.009015  1 O  py                 7  -0.009095 0.447949  1 O  px         
+    19  -0.400892-0.008068  2 O  py                18   0.008140-0.400889  2 O  px         
+     5  -0.400856-0.008067  1 O  py                 4   0.008139-0.400853  1 O  px         
  
  Vector   24  Occ=0.000000D+00  E= 4.846465D-01
-              MO Center= -2.5D-08, -1.4D-09, -2.1D-05, r^2= 1.1D+00
+              MO Center=  3.8D-08, -2.0D-09, -2.1D-05, r^2= 1.1D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     7  -0.448159-0.000019  1 O  px                 8  -0.000019-0.448159  1 O  py         
-    21  -0.448111-0.000019  2 O  px                22  -0.000019-0.448111  2 O  py         
-     4   0.401356 0.000017  1 O  px                 5   0.000017 0.401355  1 O  py         
-    18   0.401339 0.000017  2 O  px                19   0.000017 0.401339  2 O  py         
+     7  -0.448160-0.000040  1 O  px                 8  -0.000040-0.448158  1 O  py         
+    21  -0.448112-0.000040  2 O  px                22  -0.000040-0.448110  2 O  py         
+     4   0.401356 0.000036  1 O  px                 5   0.000036 0.401355  1 O  py         
+    18   0.401340 0.000036  2 O  px                19   0.000036 0.401338  2 O  py         
  
  Vector   25  Occ=0.000000D+00  E= 5.266057D-01
-              MO Center= -1.5D-09,  2.8D-09,  2.2D-06, r^2= 5.6D-05
+              MO Center=  4.8D-09, -8.9D-10,  2.4D-06, r^2= 5.9D-05
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    50  -0.311402 0.312213  2 O  py                49   0.312239 0.311375  2 O  px         
-    36  -0.311342 0.312153  1 O  py                35   0.312179 0.311316  1 O  px         
-    47   0.296737-0.297510  2 O  py                46  -0.297535-0.296712  2 O  px         
-    33   0.296711-0.297484  1 O  py                32  -0.297509-0.296686  1 O  px         
+    50   0.301229 0.322039  2 O  py                49   0.321989-0.301281  2 O  px         
+    36   0.301172 0.321978  1 O  py                35   0.321927-0.301223  1 O  px         
+    47  -0.287043-0.306873  2 O  py                46  -0.306825 0.287093  2 O  px         
+    33  -0.287018-0.306847  1 O  py                32  -0.306799 0.287068  1 O  px         
  
- Vector   26  Occ=0.000000D+00  E= 5.274005D-01
-              MO Center=  4.0D-13,  1.5D-12, -3.3D-12, r^2= 1.7D-11
+ Vector   26  Occ=0.000000D+00  E= 5.274004D-01
+              MO Center=  2.0D-12,  1.4D-12, -3.5D-12, r^2= 2.2D-11
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    35  -0.311949 0.311487  1 O  px                36   0.311461 0.311975  1 O  py         
-    49  -0.311920 0.311457  2 O  px                50   0.311431 0.311946  2 O  py         
-    32   0.297525-0.297084  1 O  px                33  -0.297059-0.297550  1 O  py         
-    46   0.297512-0.297071  2 O  px                47  -0.297046-0.297537  2 O  py         
+    35   0.124760 0.422814  1 O  px                36   0.422833-0.124690  1 O  py         
+    49   0.124748 0.422774  2 O  px                50   0.422794-0.124678  2 O  py         
+    32  -0.118991-0.403264  1 O  px                33  -0.403282 0.118924  1 O  py         
+    46  -0.118986-0.403247  2 O  px                47  -0.403265 0.118919  2 O  py         
  
 
    alpha - beta orbital overlaps 
@@ -1607,7 +1490,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
    alpha     21     22     23     24     25     26     27     28
-    beta      4      5     20     16      5     20      4      4
+    beta      4      5     20      5      5     20      4      4
  overlap   0.086  0.086  0.087  0.000  0.015  0.022  0.015  0.000
 
      --------------------------
@@ -1625,14 +1508,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
      1   1 0 0      0.000000      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000      0.000000
-     1   0 0 1     -0.000033     -0.000006     -0.000027      0.000000
+     1   0 0 1     -0.000033     -0.000006     -0.000028      0.000000
  
-     2   2 0 0     -7.492635     -4.323219     -3.169416      0.000000
+     2   2 0 0     -7.492634     -4.323219     -3.169416      0.000000
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
-     2   1 0 1     -0.000002      0.000000     -0.000001      0.000000
-     2   0 2 0     -7.492635     -4.323219     -3.169416      0.000000
-     2   0 1 1     -0.000002      0.000000     -0.000001      0.000000
-     2   0 0 2     -7.791712    -16.553436    -12.648087     21.409812
+     2   1 0 1     -0.000001      0.000000     -0.000001      0.000000
+     2   0 2 0     -7.492634     -4.323219     -3.169416      0.000000
+     2   0 1 1     -0.000001      0.000000     -0.000001      0.000000
+     2   0 0 2     -7.791712    -16.553432    -12.648084     21.409805
  
 
  Parallel integral file used       4 records with       0 large values
@@ -1665,8 +1548,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 O       0.000000   0.000000  -1.156768    0.000000   0.000000  -0.003354
-   2 O       0.000000   0.000000   1.156768    0.000000   0.000000   0.003354
+   1 O       0.000000   0.000000  -1.156768    0.000000   0.000000  -0.003356
+   2 O       0.000000   0.000000   1.156768    0.000000   0.000000   0.003356
  
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
@@ -1678,7 +1561,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    1    -150.50832887 -7.2D-04  0.00335  0.00194  0.01324  0.02293     31.8
+@    1    -150.50832886 -7.2D-04  0.00336  0.00194  0.01324  0.02293     31.7
                                                                     
 
                                  NWChem DFT Module
@@ -1764,14 +1647,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Read atomic ZORA corrections from ./o2_zora_so.zora_so
 
-   Time prior to 1st pass:     27.3
+   Time prior to 1st pass:     27.5
 
  #quartets = 3.080D+03 #integrals = 2.183D+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./o2_zora_so.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  82531
+ Max. records in memory =      2        Max. records in file   =  82267
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -1780,7 +1663,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Grid_pts file          = ./o2_zora_so.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     28        Max. recs in file   =    440136
+ Max. records in memory =     28        Max. recs in file   =    438727
 
  WARNING: error on integrated density =  0.57D-04
  greater than required accuracy of  0.10D-07
@@ -1791,218 +1674,219 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -150.5103504021 -1.78D+02  1.03D-04  1.08D-04    27.8
+ d= 0,ls=0.0,diis     1   -150.5103510387 -1.78D+02  1.03D-04  1.08D-04    28.1
                                                      6.75D-05  1.08D-04
- d= 0,ls=0.0,diis     2   -150.5083328133  2.02D-03  3.30D-05  3.67D-06    28.3
+ d= 0,ls=0.0,diis     2   -150.5083327996  2.02D-03  3.30D-05  3.67D-06    28.5
                                                      2.57D-05  3.67D-06
- d= 0,ls=0.0,diis     3   -150.5083333094 -4.96D-07  1.75D-05  9.19D-07    28.7
-                                                     1.29D-05  9.19D-07
- d= 0,ls=0.0,diis     4   -150.5083358044 -2.50D-06  4.64D-06  1.44D-07    29.1
-                                                     6.52D-06  1.44D-07
- d= 0,ls=0.0,diis     5   -150.5083358193 -1.49D-08  1.98D-06  6.82D-08    29.6
+ d= 0,ls=0.0,diis     3   -150.5083332958 -4.96D-07  1.75D-05  9.20D-07    28.9
+                                                     1.29D-05  9.20D-07
+ d= 0,ls=0.0,diis     4   -150.5083357896 -2.49D-06  4.66D-06  1.46D-07    29.3
+                                                     6.55D-06  1.46D-07
+ d= 0,ls=0.0,diis     5   -150.5083358048 -1.53D-08  1.99D-06  6.82D-08    29.7
                                                      2.72D-06  6.82D-08
 
 
-         Total DFT energy =   -150.508335828623
-       Scaling correction =      0.059669297623
-      One electron energy =   -261.338116590386
-           Coulomb energy =    100.101593780976
-    Exchange-Corr. energy =    -16.982020552700
- Nuclear repulsion energy =     27.710207533487
+         Total DFT energy =   -150.508335814155
+      One electron energy =   -261.338154264417
+           Coulomb energy =    100.101612629793
+    Exchange-Corr. energy =    -16.982021360556
+ Nuclear repulsion energy =     27.710227181025
 
- Numeric. integr. density =     15.999999975057
+       Scaling correction =      0.059669306312
 
-     Total iterative time =      2.8s
+ Numeric. integr. density =     16.000000010444
+
+     Total iterative time =      2.7s
 
 
  
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
  
- Vector    5  Occ=1.000000D+00  E=-1.307996D+00
-              MO Center=  5.7D-09, -2.2D-08, -1.5D-07, r^2= 2.4D-01
+ Vector    5  Occ=1.000000D+00  E=-1.307997D+00
+              MO Center= -6.5D-09, -3.6D-08, -1.5D-07, r^2= 2.5D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    16   0.263105 0.263102  2 O  s                  2   0.263104 0.263102  1 O  s          
-     3  -0.165468-0.165467  1 O  s                 17  -0.165467-0.165465  2 O  s          
-    20   0.135201 0.135200  2 O  pz                 6  -0.135201-0.135200  1 O  pz         
-     1  -0.118210-0.118209  1 O  s                 15  -0.118210-0.118209  2 O  s          
+    16   0.266651 0.259507  2 O  s                  2   0.266651 0.259507  1 O  s          
+     3  -0.167699-0.163206  1 O  s                 17  -0.167698-0.163204  2 O  s          
+    20   0.137024 0.133353  2 O  pz                 6  -0.137024-0.133353  1 O  pz         
+     1  -0.119804-0.116594  1 O  s                 15  -0.119804-0.116594  2 O  s          
  
- Vector    6  Occ=1.000000D+00  E=-1.249865D+00
-              MO Center=  1.6D-12, -3.3D-14,  2.7D-09, r^2= 3.1D-08
+ Vector    6  Occ=1.000000D+00  E=-1.249866D+00
+              MO Center=  3.8D-13,  4.7D-13,  2.7D-09, r^2= 3.1D-08
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    44  -0.001954 0.349670  2 O  s                 30  -0.001954 0.349669  1 O  s          
-    31   0.001337-0.239375  1 O  s                 45   0.001337-0.239373  2 O  s          
-    48  -0.001146 0.205084  2 O  pz                34   0.001146-0.205084  1 O  pz         
-    29   0.000911-0.163015  1 O  s                 43   0.000911-0.163015  2 O  s          
+    44  -0.006120 0.349622  2 O  s                 30  -0.006120 0.349621  1 O  s          
+    31   0.004189-0.239342  1 O  s                 45   0.004189-0.239340  2 O  s          
+    48  -0.003589 0.205056  2 O  pz                34   0.003589-0.205056  1 O  pz         
+    29   0.002853-0.162993  1 O  s                 43   0.002853-0.162993  2 O  s          
  
- Vector    7  Occ=1.000000D+00  E=-8.497318D-01
-              MO Center=  2.4D-08, -3.8D-08, -4.2D-07, r^2= 5.3D-01
+ Vector    7  Occ=1.000000D+00  E=-8.497315D-01
+              MO Center=  2.6D-08, -3.1D-08, -4.1D-07, r^2= 5.2D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     2  -0.296539-0.296538  1 O  s                 16   0.296539 0.296537  2 O  s          
-    17  -0.288580-0.288579  2 O  s                  3   0.288580 0.288579  1 O  s          
-     1   0.127089 0.127088  1 O  s                 15  -0.127089-0.127088  2 O  s          
+     2  -0.296144-0.296932  1 O  s                 16   0.296143 0.296932  2 O  s          
+    17  -0.288195-0.288963  2 O  s                  3   0.288195 0.288963  1 O  s          
+     1   0.126919 0.127257  1 O  s                 15  -0.126919-0.127257  2 O  s          
  
- Vector    8  Occ=1.000000D+00  E=-7.611920D-01
-              MO Center=  1.7D-12, -3.8D-11,  1.1D-08, r^2= 2.3D-07
+ Vector    8  Occ=1.000000D+00  E=-7.611917D-01
+              MO Center= -1.7D-12, -3.8D-11,  1.1D-08, r^2= 2.3D-07
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    31   0.002776-0.411473  1 O  s                 45  -0.002776 0.411473  2 O  s          
-    30  -0.002700 0.400219  1 O  s                 44   0.002700-0.400218  2 O  s          
-    29   0.001183-0.175425  1 O  s                 43  -0.001183 0.175425  2 O  s          
-    34  -0.001024 0.151848  1 O  pz                48  -0.001024 0.151848  2 O  pz         
+    31   0.004764 0.411455  1 O  s                 45  -0.004764-0.411455  2 O  s          
+    30  -0.004633-0.400201  1 O  s                 44   0.004633 0.400201  2 O  s          
+    29   0.002031 0.175417  1 O  s                 43  -0.002031-0.175417  2 O  s          
+    34  -0.001758-0.151842  1 O  pz                48  -0.001758-0.151841  2 O  pz         
  
- Vector    9  Occ=1.000000D+00  E=-5.678808D-01
-              MO Center=  1.0D-09, -2.0D-07, -1.1D-05, r^2= 4.2D-01
+ Vector    9  Occ=1.000000D+00  E=-5.678811D-01
+              MO Center= -2.7D-09, -9.8D-08, -1.1D-05, r^2= 4.2D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     4   0.000067-0.383832  1 O  px                 5  -0.383832-0.000072  1 O  py         
-    18   0.000067-0.383818  2 O  px                19  -0.383817-0.000072  2 O  py         
+     4  -0.003277-0.383818  1 O  px                 5  -0.383818 0.003268  1 O  py         
+    18  -0.003277-0.383804  2 O  px                19  -0.383804 0.003267  2 O  py         
  
- Vector   10  Occ=1.000000D+00  E=-5.670712D-01
-              MO Center=  8.4D-07, -5.6D-09,  1.0D-05, r^2= 4.2D-01
+ Vector   10  Occ=1.000000D+00  E=-5.670714D-01
+              MO Center=  9.2D-07, -6.1D-09,  1.0D-05, r^2= 4.2D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    19  -0.000002 0.383505  2 O  py                18   0.383504-0.000002  2 O  px         
-     5  -0.000002 0.383492  1 O  py                 4   0.383491-0.000002  1 O  px         
+    19  -0.000005 0.383504  2 O  py                18   0.383504-0.000005  2 O  px         
+     5  -0.000005 0.383491  1 O  py                 4   0.383491-0.000005  1 O  px         
  
- Vector   11  Occ=1.000000D+00  E=-5.543504D-01
-              MO Center= -8.6D-07,  2.0D-07,  6.9D-07, r^2= 5.6D-01
+ Vector   11  Occ=1.000000D+00  E=-5.543505D-01
+              MO Center= -1.1D-06, -6.1D-08,  7.7D-07, r^2= 6.4D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    20   0.375725 0.375716  2 O  pz                 6  -0.375725-0.375716  1 O  pz         
-     3   0.182044 0.182039  1 O  s                 17   0.182043 0.182039  2 O  s          
-    23   0.106778 0.106776  2 O  pz                 9  -0.106777-0.106775  1 O  pz         
+    20   0.401699 0.347806  2 O  pz                 6  -0.401699-0.347806  1 O  pz         
+     3   0.194629 0.168517  1 O  s                 17   0.194628 0.168516  2 O  s          
+    23   0.114160 0.098844  2 O  pz                 9  -0.114159-0.098843  1 O  pz         
  
- Vector   12  Occ=1.000000D+00  E=-5.143607D-01
-              MO Center=  1.9D-11,  1.2D-10, -9.1D-08, r^2= 4.5D-06
+ Vector   12  Occ=1.000000D+00  E=-5.143608D-01
+              MO Center=  7.8D-12,  9.9D-11, -9.1D-08, r^2= 4.5D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    34   0.003127 0.520879  1 O  pz                48  -0.003127-0.520879  2 O  pz         
-    45  -0.001658-0.276094  2 O  s                 31  -0.001658-0.276091  1 O  s          
-    37   0.000962 0.160275  1 O  pz                51  -0.000962-0.160275  2 O  pz         
+    34   0.000628-0.520888  1 O  pz                48  -0.000628 0.520888  2 O  pz         
+    45  -0.000333 0.276099  2 O  s                 31  -0.000333 0.276096  1 O  s          
+    37   0.000193-0.160278  1 O  pz                51  -0.000193 0.160277  2 O  pz         
  
- Vector   13  Occ=1.000000D+00  E=-4.654031D-01
-              MO Center=  1.0D-10, -7.5D-12,  2.3D-08, r^2= 4.6D-07
+ Vector   13  Occ=1.000000D+00  E=-4.654034D-01
+              MO Center= -3.3D-11,  8.6D-11,  3.8D-08, r^2= 7.6D-07
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    32  -0.253817-0.254192  1 O  px                33   0.254188-0.253820  1 O  py         
-    46  -0.253804-0.254179  2 O  px                47   0.254175-0.253807  2 O  py         
+    32  -0.325055 0.152893  1 O  px                33  -0.152900-0.325051  1 O  py         
+    46  -0.325037 0.152884  2 O  px                47  -0.152892-0.325034  2 O  py         
  
- Vector   14  Occ=1.000000D+00  E=-4.647004D-01
-              MO Center=  2.0D-13,  2.3D-13,  1.1D-12, r^2= 3.0D-12
+ Vector   14  Occ=1.000000D+00  E=-4.647007D-01
+              MO Center=  1.7D-13,  2.2D-13,  1.1D-12, r^2= 2.9D-12
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    47   0.253529 0.253983  2 O  py                46  -0.253986 0.253525  2 O  px         
-    33   0.253515 0.253969  1 O  py                32  -0.253973 0.253512  1 O  px         
+    47  -0.120355-0.338080  2 O  py                46   0.338083-0.120347  2 O  px         
+    33  -0.120349-0.338063  1 O  py                32   0.338066-0.120341  1 O  px         
  
- Vector   15  Occ=1.000000D+00  E=-3.217030D-01
-              MO Center=  4.9D-10,  3.3D-08,  1.2D-05, r^2= 4.8D-01
+ Vector   15  Occ=1.000000D+00  E=-3.217027D-01
+              MO Center=  4.1D-09,  2.8D-08,  1.2D-05, r^2= 4.8D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    18  -0.000086 0.440446  2 O  px                19   0.440446 0.000065  2 O  py         
-     4   0.000086-0.440428  1 O  px                 5  -0.440428-0.000065  1 O  py         
-    21  -0.000043 0.217218  2 O  px                22   0.217218 0.000032  2 O  py         
-     7   0.000043-0.217217  1 O  px                 8  -0.217217-0.000032  1 O  py         
+    19   0.440433-0.003435  2 O  py                18   0.003400 0.440433  2 O  px         
+     5  -0.440415 0.003435  1 O  py                 4  -0.003400-0.440415  1 O  px         
+    22   0.217211-0.001694  2 O  py                21   0.001677 0.217211  2 O  px         
+     8  -0.217211 0.001694  1 O  py                 7  -0.001677-0.217211  1 O  px         
  
- Vector   16  Occ=1.000000D+00  E=-3.206059D-01
-              MO Center= -2.8D-08, -5.3D-09, -1.0D-05, r^2= 4.8D-01
+ Vector   16  Occ=1.000000D+00  E=-3.206056D-01
+              MO Center= -4.9D-08, -4.6D-09, -1.0D-05, r^2= 4.8D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     5  -0.000011-0.440096  1 O  py                 4  -0.440096-0.000011  1 O  px         
-    19   0.000011 0.440080  2 O  py                18   0.440079 0.000011  2 O  px         
-    22   0.000005 0.217973  2 O  py                21   0.217973 0.000005  2 O  px         
-     8  -0.000005-0.217973  1 O  py                 7  -0.217973-0.000005  1 O  px         
+     4  -0.440096-0.000017  1 O  px                 5  -0.000017-0.440096  1 O  py         
+    18   0.440080 0.000017  2 O  px                19   0.000017 0.440079  2 O  py         
+    21   0.217974 0.000009  2 O  px                22   0.000009 0.217973  2 O  py         
+     7  -0.217973-0.000009  1 O  px                 8  -0.000009-0.217973  1 O  py         
  
- Vector   17  Occ=0.000000D+00  E=-1.286636D-01
-              MO Center=  1.9D-12,  2.4D-11, -2.7D-07, r^2= 4.0D-06
+ Vector   17  Occ=0.000000D+00  E=-1.286634D-01
+              MO Center= -2.4D-11,  4.2D-12, -4.8D-07, r^2= 7.1D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    46   0.290769 0.290937  2 O  px                47  -0.290955 0.290751  2 O  py         
-    32  -0.290756-0.290924  1 O  px                33   0.290942-0.290737  1 O  py         
-    49   0.196943 0.197057  2 O  px                50  -0.197069 0.196930  2 O  py         
-    35  -0.196940-0.197053  1 O  px                36   0.197066-0.196927  1 O  py         
+    47  -0.132788-0.389305  2 O  py                46  -0.389290 0.132833  2 O  px         
+    33   0.132782 0.389287  1 O  py                32   0.389271-0.132827  1 O  px         
+    50  -0.089940-0.263683  2 O  py                49  -0.263673 0.089970  2 O  px         
+    36   0.089938 0.263679  1 O  py                35   0.263668-0.089969  1 O  px         
  
- Vector   18  Occ=0.000000D+00  E=-1.277175D-01
-              MO Center= -2.0D-13, -2.5D-13, -2.9D-13, r^2= 1.9D-12
+ Vector   18  Occ=0.000000D+00  E=-1.277172D-01
+              MO Center= -2.7D-13, -2.5D-13, -2.7D-13, r^2= 2.4D-12
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    33   0.290616 0.290490  1 O  py                32  -0.290472 0.290634  1 O  px         
-    47  -0.290602-0.290476  2 O  py                46   0.290458-0.290620  2 O  px         
-    36   0.197633 0.197547  1 O  py                35  -0.197535 0.197645  1 O  px         
-    50  -0.197630-0.197544  2 O  py                49   0.197532-0.197642  2 O  px         
+    32   0.060958-0.406357  1 O  px                33  -0.406350-0.061005  1 O  py         
+    46  -0.060955 0.406338  2 O  px                47   0.406330 0.061002  2 O  py         
+    35   0.041455-0.276343  1 O  px                36  -0.276338-0.041486  1 O  py         
+    49  -0.041454 0.276339  2 O  px                50   0.276334 0.041486  2 O  py         
  
- Vector   19  Occ=0.000000D+00  E= 1.496401D-01
-              MO Center=  5.3D-08,  4.3D-08, -6.3D-07, r^2= 9.4D-01
+ Vector   19  Occ=0.000000D+00  E= 1.496409D-01
+              MO Center=  2.0D-07,  6.2D-08, -6.0D-07, r^2= 9.6D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    17  -0.720744-0.720742  2 O  s                  3   0.720741 0.720740  1 O  s          
-    23   0.643532 0.643531  2 O  pz                 9   0.643531 0.643530  1 O  pz         
-     6   0.368569 0.368568  1 O  pz                20   0.368568 0.368568  2 O  pz         
-     2  -0.162079-0.162078  1 O  s                 16   0.162075 0.162075  2 O  s          
+    17  -0.725267-0.716197  2 O  s                  3   0.725264 0.716195  1 O  s          
+    23   0.647571 0.639473  2 O  pz                 9   0.647570 0.639472  1 O  pz         
+     6   0.370879 0.366241  1 O  pz                20   0.370879 0.366241  2 O  pz         
+     2  -0.163095-0.161055  1 O  s                 16   0.163091 0.161052  2 O  s          
  
- Vector   20  Occ=0.000000D+00  E= 1.865388D-01
-              MO Center=  5.1D-11,  3.3D-10, -1.8D-07, r^2= 3.9D-06
+ Vector   20  Occ=0.000000D+00  E= 1.865395D-01
+              MO Center= -2.9D-11,  2.6D-10, -1.8D-07, r^2= 3.9D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    45  -0.000756 1.142779  2 O  s                 31   0.000756-1.142775  1 O  s          
-    51   0.000662-1.000361  2 O  pz                37   0.000662-1.000360  1 O  pz         
-    34   0.000316-0.477978  1 O  pz                48   0.000316-0.477977  2 O  pz         
-    30  -0.000147 0.222718  1 O  s                 44   0.000147-0.222713  2 O  s          
+    45   0.052619 1.141573  2 O  s                 31  -0.052618-1.141569  1 O  s          
+    51  -0.046061-0.999304  2 O  pz                37  -0.046061-0.999303  1 O  pz         
+    34  -0.022008-0.477470  1 O  pz                48  -0.022008-0.477469  2 O  pz         
+    30   0.010255 0.222482  1 O  s                 44  -0.010255-0.222476  2 O  s          
  
- Vector   21  Occ=0.000000D+00  E= 4.413755D-01
-              MO Center=  4.9D-07,  4.2D-07, -1.7D-06, r^2= 1.4D+00
+ Vector   21  Occ=0.000000D+00  E= 4.413758D-01
+              MO Center=  1.3D-06,  6.0D-07, -1.6D-06, r^2= 1.4D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     9  -0.871322-0.871340  1 O  pz                23  -0.871322-0.871340  2 O  pz         
-    17   0.819829 0.819845  2 O  s                  3  -0.819824-0.819841  1 O  s          
-    20   0.436780 0.436788  2 O  pz                 6   0.436780 0.436788  1 O  pz         
+     9  -0.870008-0.872648  1 O  pz                23  -0.870008-0.872648  2 O  pz         
+    17   0.818593 0.821078  2 O  s                  3  -0.818589-0.821073  1 O  s          
+    20   0.436123 0.437446  2 O  pz                 6   0.436122 0.437446  1 O  pz         
  
- Vector   22  Occ=0.000000D+00  E= 4.619410D-01
-              MO Center= -8.0D-10, -1.3D-08,  8.0D-07, r^2= 7.3D-04
+ Vector   22  Occ=0.000000D+00  E= 4.619414D-01
+              MO Center= -1.9D-09, -1.2D-08,  8.1D-07, r^2= 7.3D-04
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    51  -0.014610-1.179216  2 O  pz                37  -0.014610-1.179212  1 O  pz         
-    45   0.013755 1.110148  2 O  s                 31  -0.013755-1.110144  1 O  s          
-    48   0.008004 0.646025  2 O  pz                34   0.008004 0.646023  1 O  pz         
+    51  -0.225935-1.157459  2 O  pz                37  -0.225934-1.157455  1 O  pz         
+    45   0.212702 1.089666  2 O  s                 31  -0.212701-1.089662  1 O  s          
+    48   0.123777 0.634108  2 O  pz                34   0.123777 0.634106  1 O  pz         
  
- Vector   23  Occ=0.000000D+00  E= 4.838090D-01
-              MO Center=  2.4D-09,  6.2D-08,  3.1D-05, r^2= 1.1D+00
+ Vector   23  Occ=0.000000D+00  E= 4.838089D-01
+              MO Center= -4.1D-09,  8.4D-08,  3.1D-05, r^2= 1.1D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    22  -0.448033-0.000385  2 O  py                21   0.000423-0.448032  2 O  px         
-     8  -0.447962-0.000385  1 O  py                 7   0.000423-0.447960  1 O  px         
-    19   0.400713 0.000344  2 O  py                18  -0.000379 0.400712  2 O  px         
-     5   0.400686 0.000344  1 O  py                 4  -0.000378 0.400684  1 O  px         
+    22   0.447932 0.009519  2 O  py                21  -0.009600 0.447929  2 O  px         
+     8   0.447861 0.009518  1 O  py                 7  -0.009598 0.447858  1 O  px         
+    19  -0.400623-0.008514  2 O  py                18   0.008586-0.400620  2 O  px         
+     5  -0.400595-0.008513  1 O  py                 4   0.008585-0.400593  1 O  px         
  
- Vector   24  Occ=0.000000D+00  E= 4.845264D-01
-              MO Center= -2.5D-08, -1.4D-09, -3.1D-05, r^2= 1.1D+00
+ Vector   24  Occ=0.000000D+00  E= 4.845263D-01
+              MO Center=  3.7D-08, -2.0D-09, -3.1D-05, r^2= 1.1D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     7  -0.448095-0.000019  1 O  px                 8  -0.000019-0.448093  1 O  py         
-    21  -0.448025-0.000019  2 O  px                22  -0.000019-0.448023  2 O  py         
-     4   0.401119 0.000017  1 O  px                 5   0.000017 0.401117  1 O  py         
-    18   0.401093 0.000017  2 O  px                19   0.000017 0.401092  2 O  py         
+     7  -0.448094-0.000040  1 O  px                 8  -0.000040-0.448094  1 O  py         
+    21  -0.448024-0.000040  2 O  px                22  -0.000040-0.448024  2 O  py         
+     4   0.401118 0.000036  1 O  px                 5   0.000036 0.401117  1 O  py         
+    18   0.401093 0.000036  2 O  px                19   0.000036 0.401092  2 O  py         
  
- Vector   25  Occ=0.000000D+00  E= 5.264217D-01
-              MO Center= -1.5D-09,  2.9D-09,  2.2D-06, r^2= 5.7D-05
+ Vector   25  Occ=0.000000D+00  E= 5.264216D-01
+              MO Center=  4.8D-09, -9.0D-10,  2.4D-06, r^2= 6.0D-05
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    50   0.312501-0.311025  2 O  py                49  -0.311050-0.312474  2 O  px         
-    36   0.312456-0.310980  1 O  py                35  -0.311005-0.312429  1 O  px         
-    47  -0.297612 0.296206  2 O  py                46   0.296230 0.297586  2 O  px         
-    33  -0.297592 0.296186  1 O  py                32   0.296210 0.297566  1 O  px         
+    50   0.301930 0.321296  2 O  py                49   0.321246-0.301983  2 O  px         
+    36   0.301887 0.321250  1 O  py                35   0.321199-0.301939  1 O  px         
+    47  -0.287545-0.305988  2 O  py                46  -0.305940 0.287595  2 O  px         
+    33  -0.287526-0.305968  1 O  py                32  -0.305920 0.287576  1 O  px         
  
- Vector   26  Occ=0.000000D+00  E= 5.272151D-01
-              MO Center=  4.0D-13,  1.5D-12, -3.3D-12, r^2= 1.7D-11
+ Vector   26  Occ=0.000000D+00  E= 5.272150D-01
+              MO Center=  2.0D-12,  1.4D-12, -3.5D-12, r^2= 2.2D-11
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    35  -0.311142 0.312237  1 O  px                36   0.312209 0.311167  1 O  py         
-    49  -0.311098 0.312192  2 O  px                50   0.312165 0.311123  2 O  py         
-    32   0.296575-0.297618  1 O  px                33  -0.297592-0.296599  1 O  py         
-    46   0.296556-0.297599  2 O  px                47  -0.297573-0.296580  2 O  py         
+    35   0.125369 0.422591  1 O  px                36   0.422611-0.125300  1 O  py         
+    49   0.125352 0.422531  2 O  px                50   0.422551-0.125282  2 O  py         
+    32  -0.119500-0.402806  1 O  px                33  -0.402825 0.119433  1 O  py         
+    46  -0.119492-0.402780  2 O  px                47  -0.402799 0.119426  2 O  py         
  
 
    alpha - beta orbital overlaps 
@@ -2020,7 +1904,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
    alpha     21     22     23     24     25     26     27     28
-    beta     18     19     20     16     19     20     18     18
+    beta     18     19     20     19     19     20     18     18
  overlap   0.086  0.086  0.086  0.000  0.015  0.022  0.015  0.000
 
      --------------------------
@@ -2040,12 +1924,12 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      1   0 1 0      0.000000      0.000000      0.000000      0.000000
      1   0 0 1      0.000001     -0.000001      0.000001      0.000000
  
-     2   2 0 0     -7.489498     -4.322122     -3.167376      0.000000
+     2   2 0 0     -7.489497     -4.322122     -3.167375      0.000000
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
-     2   1 0 1     -0.000002      0.000000     -0.000001      0.000000
-     2   0 2 0     -7.489498     -4.322122     -3.167376      0.000000
-     2   0 1 1     -0.000002      0.000000     -0.000001      0.000000
-     2   0 0 2     -7.794540    -16.515231    -12.616654     21.337345
+     2   1 0 1     -0.000001      0.000000     -0.000001      0.000000
+     2   0 2 0     -7.489497     -4.322122     -3.167375      0.000000
+     2   0 1 1     -0.000001      0.000000     -0.000001      0.000000
+     2   0 0 2     -7.794541    -16.515215    -12.616641     21.337315
  
 
  Parallel integral file used       4 records with       0 large values
@@ -2066,8 +1950,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 O                    8.0000     0.00000000     0.00000000    -0.61109871
-    2 O                    8.0000     0.00000000     0.00000000     0.61109871
+    1 O                    8.0000     0.00000000     0.00000000    -0.61109827
+    2 O                    8.0000     0.00000000     0.00000000     0.61109827
  
       Atomic Mass 
       ----------- 
@@ -2075,7 +1959,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       O                 15.994910
  
 
- Effective nuclear repulsion energy (a.u.)      27.7102075335
+ Effective nuclear repulsion energy (a.u.)      27.7102271810
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -2104,7 +1988,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   The DFT is already converged 
 
-         Total DFT energy =   -150.508335828623
+         Total DFT energy =   -150.508335814155
 
   WARNING: CD fitting not compatible with spinorbit
   WARNING: disabling CD fitting
@@ -2134,8 +2018,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 O       0.000000   0.000000  -1.154809    0.000000   0.000000  -0.000227
-   2 O       0.000000   0.000000   1.154809    0.000000   0.000000   0.000227
+   1 O       0.000000   0.000000  -1.154808    0.000000   0.000000  -0.000227
+   2 O       0.000000   0.000000   1.154808    0.000000   0.000000   0.000227
  
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
@@ -2147,7 +2031,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    2    -150.50833583 -7.0D-06  0.00023  0.00013  0.00113  0.00196     36.3
+@    2    -150.50833581 -7.0D-06  0.00023  0.00013  0.00113  0.00196     36.1
                                      ok       ok       ok           
 
                                  NWChem DFT Module
@@ -2233,14 +2117,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Read atomic ZORA corrections from ./o2_zora_so.zora_so
 
-   Time prior to 1st pass:     30.8
+   Time prior to 1st pass:     30.9
 
  #quartets = 3.080D+03 #integrals = 2.183D+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./o2_zora_so.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  82531
+ Max. records in memory =      2        Max. records in file   =  82267
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -2249,7 +2133,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Grid_pts file          = ./o2_zora_so.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     28        Max. recs in file   =    440136
+ Max. records in memory =     28        Max. recs in file   =    438727
 
  WARNING: error on integrated density =  0.41D-05
  greater than required accuracy of  0.10D-07
@@ -2260,24 +2144,25 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -150.5084802403 -1.78D+02  7.45D-06  5.88D-07    31.3
-                                                     4.93D-06  5.88D-07
- d= 0,ls=0.0,diis     2   -150.5083335094  1.47D-04  2.39D-06  3.68D-08    31.7
+ d= 0,ls=0.0,diis     1   -150.5084801150 -1.78D+02  7.45D-06  5.87D-07    31.4
+                                                     4.92D-06  5.87D-07
+ d= 0,ls=0.0,diis     2   -150.5083335067  1.47D-04  2.40D-06  3.68D-08    31.8
                                                      1.86D-06  3.68D-08
- d= 0,ls=0.0,diis     3   -150.5083358623 -2.35D-06  1.42D-06  2.27D-08    32.2
+ d= 0,ls=0.0,diis     3   -150.5083358426 -2.34D-06  1.41D-06  2.27D-08    32.3
                                                      9.97D-07  2.27D-08
- d= 0,ls=0.0,diis     4   -150.5083358632 -9.45D-10  3.60D-07  1.84D-08    32.6
-                                                     5.18D-07  1.84D-08
+ d= 0,ls=0.0,diis     4   -150.5083358435 -9.43D-10  3.57D-07  1.84D-08    32.7
+                                                     5.12D-07  1.84D-08
 
 
-         Total DFT energy =   -150.508335863301
-       Scaling correction =      0.059669242632
-      One electron energy =   -261.344633630606
-           Coulomb energy =    100.104830334591
-    Exchange-Corr. energy =    -16.982155158761
- Nuclear repulsion energy =     27.713622591475
+         Total DFT energy =   -150.508335843629
+      One electron energy =   -261.344666034164
+           Coulomb energy =    100.104846681353
+    Exchange-Corr. energy =    -16.982155876855
+ Nuclear repulsion energy =     27.713639386037
 
- Numeric. integr. density =     15.999999989069
+       Scaling correction =      0.059669251666
+
+ Numeric. integr. density =     15.999999994639
 
      Total iterative time =      2.3s
 
@@ -2286,190 +2171,190 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
  
- Vector    5  Occ=1.000000D+00  E=-1.308109D+00
-              MO Center=  5.4D-09, -2.2D-08, -1.2D-06, r^2= 2.4D-01
+ Vector    5  Occ=1.000000D+00  E=-1.308110D+00
+              MO Center= -6.9D-09, -3.6D-08, -1.3D-06, r^2= 2.5D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     2   0.263099 0.263098  1 O  s                 16   0.263097 0.263096  2 O  s          
-     3  -0.165441-0.165440  1 O  s                 17  -0.165438-0.165437  2 O  s          
-     6  -0.135231-0.135231  1 O  pz                20   0.135231 0.135231  2 O  pz         
-     1  -0.118210-0.118210  1 O  s                 15  -0.118209-0.118209  2 O  s          
+     2  -0.266651-0.259497  1 O  s                 16  -0.266649-0.259495  2 O  s          
+     3   0.167674 0.163176  1 O  s                 17   0.167672 0.163173  2 O  s          
+    20  -0.137057-0.133380  2 O  pz                 6   0.137057 0.133380  1 O  pz         
+     1   0.119806 0.116592  1 O  s                 15   0.119805 0.116591  2 O  s          
  
- Vector    6  Occ=1.000000D+00  E=-1.249985D+00
-              MO Center=  1.5D-12, -5.1D-14,  2.7D-09, r^2= 3.1D-08
+ Vector    6  Occ=1.000000D+00  E=-1.249986D+00
+              MO Center=  3.8D-13,  4.6D-13,  2.7D-09, r^2= 3.1D-08
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    30   0.002543 0.349659  1 O  s                 44   0.002543 0.349658  2 O  s          
-    31  -0.001741-0.239331  1 O  s                 45  -0.001741-0.239328  2 O  s          
-    34  -0.001492-0.205124  1 O  pz                48   0.001492 0.205124  2 O  pz         
-    29  -0.001186-0.163014  1 O  s                 43  -0.001186-0.163013  2 O  s          
+    30   0.007334-0.349591  1 O  s                 44   0.007334-0.349590  2 O  s          
+    31  -0.005020 0.239285  1 O  s                 45  -0.005020 0.239281  2 O  s          
+    34  -0.004303 0.205085  1 O  pz                48   0.004303-0.205085  2 O  pz         
+    29  -0.003419 0.162983  1 O  s                 43  -0.003419 0.162982  2 O  s          
  
- Vector    7  Occ=1.000000D+00  E=-8.496803D-01
-              MO Center=  2.4D-08, -3.8D-08, -1.9D-06, r^2= 5.3D-01
+ Vector    7  Occ=1.000000D+00  E=-8.496801D-01
+              MO Center=  2.6D-08, -3.1D-08, -1.8D-06, r^2= 5.2D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     2  -0.296528-0.296527  1 O  s                 16   0.296528 0.296527  2 O  s          
-     3   0.288586 0.288584  1 O  s                 17  -0.288586-0.288584  2 O  s          
-    15  -0.127085-0.127085  2 O  s                  1   0.127085 0.127084  1 O  s          
+     2   0.296141 0.296913  1 O  s                 16  -0.296141-0.296913  2 O  s          
+     3  -0.288209-0.288961  1 O  s                 17   0.288209 0.288961  2 O  s          
+    15   0.126919 0.127250  2 O  s                  1  -0.126919-0.127250  1 O  s          
  
- Vector    8  Occ=1.000000D+00  E=-7.611421D-01
-              MO Center=  1.1D-12, -3.9D-11,  1.1D-08, r^2= 2.3D-07
+ Vector    8  Occ=1.000000D+00  E=-7.611419D-01
+              MO Center= -1.5D-12, -3.8D-11,  1.1D-08, r^2= 2.3D-07
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    31  -0.004213-0.411459  1 O  s                 45   0.004213 0.411459  2 O  s          
-    30   0.004098 0.400193  1 O  s                 44  -0.004098-0.400192  2 O  s          
-    29  -0.001796-0.175414  1 O  s                 43   0.001796 0.175414  2 O  s          
-    34   0.001555 0.151893  1 O  pz                48   0.001555 0.151888  2 O  pz         
+    31  -0.003289-0.411468  1 O  s                 45   0.003289 0.411467  2 O  s          
+    30   0.003199 0.400201  1 O  s                 44  -0.003199-0.400200  2 O  s          
+    29  -0.001402-0.175418  1 O  s                 43   0.001402 0.175418  2 O  s          
+    34   0.001214 0.151897  1 O  pz                48   0.001214 0.151891  2 O  pz         
  
- Vector    9  Occ=1.000000D+00  E=-5.679257D-01
-              MO Center=  1.0D-09, -2.0D-07, -1.5D-05, r^2= 4.2D-01
+ Vector    9  Occ=1.000000D+00  E=-5.679259D-01
+              MO Center= -2.8D-09, -9.7D-08, -1.5D-05, r^2= 4.2D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     4  -0.000078 0.383833  1 O  px                 5   0.383833 0.000082  1 O  py         
-    18  -0.000078 0.383813  2 O  px                19   0.383813 0.000082  2 O  py         
+     4   0.003281 0.383819  1 O  px                 5   0.383819-0.003272  1 O  py         
+    18   0.003281 0.383799  2 O  px                19   0.383799-0.003272  2 O  py         
  
- Vector   10  Occ=1.000000D+00  E=-5.671160D-01
-              MO Center=  8.4D-07, -5.5D-09,  6.8D-06, r^2= 4.2D-01
+ Vector   10  Occ=1.000000D+00  E=-5.671163D-01
+              MO Center=  9.2D-07, -6.1D-09,  6.9D-06, r^2= 4.2D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    19  -0.000002 0.383500  2 O  py                18   0.383500-0.000002  2 O  px         
-     5  -0.000002 0.383492  1 O  py                 4   0.383492-0.000002  1 O  px         
+    19  -0.000005 0.383500  2 O  py                18   0.383500-0.000005  2 O  px         
+     5  -0.000005 0.383492  1 O  py                 4   0.383492-0.000005  1 O  px         
  
- Vector   11  Occ=1.000000D+00  E=-5.543668D-01
-              MO Center= -8.6D-07,  2.0D-07,  2.5D-06, r^2= 5.6D-01
+ Vector   11  Occ=1.000000D+00  E=-5.543669D-01
+              MO Center= -1.1D-06, -6.1D-08,  2.8D-06, r^2= 6.4D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     6   0.375708 0.375722  1 O  pz                20  -0.375707-0.375721  2 O  pz         
-    17  -0.182069-0.182076  2 O  s                  3  -0.182067-0.182074  1 O  s          
-    23  -0.106764-0.106768  2 O  pz                 9   0.106763 0.106767  1 O  pz         
+     6  -0.401687-0.347808  1 O  pz                20   0.401687 0.347807  2 O  pz         
+    17   0.194659 0.168549  2 O  s                  3   0.194657 0.168547  1 O  s          
+    23   0.114146 0.098836  2 O  pz                 9  -0.114146-0.098835  1 O  pz         
  
- Vector   12  Occ=1.000000D+00  E=-5.143725D-01
-              MO Center=  1.7D-11,  1.2D-10, -9.0D-08, r^2= 4.5D-06
+ Vector   12  Occ=1.000000D+00  E=-5.143726D-01
+              MO Center=  8.6D-12,  9.9D-11, -9.0D-08, r^2= 4.5D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    34  -0.008061 0.520818  1 O  pz                48   0.008061-0.520817  2 O  pz         
-    45   0.004274-0.276111  2 O  s                 31   0.004273-0.276104  1 O  s          
-    37  -0.002480 0.160243  1 O  pz                51   0.002480-0.160242  2 O  pz         
+    34  -0.003898-0.520866  1 O  pz                48   0.003898 0.520865  2 O  pz         
+    45   0.002067 0.276136  2 O  s                 31   0.002067 0.276129  1 O  s          
+    37  -0.001199-0.160257  1 O  pz                51   0.001199 0.160257  2 O  pz         
  
- Vector   13  Occ=1.000000D+00  E=-4.654519D-01
-              MO Center=  9.9D-11, -9.0D-12,  2.2D-08, r^2= 4.4D-07
+ Vector   13  Occ=1.000000D+00  E=-4.654522D-01
+              MO Center= -3.3D-11,  8.6D-11,  3.8D-08, r^2= 7.6D-07
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    32  -0.249480-0.258455  1 O  px                33   0.258451-0.249483  1 O  py         
-    46  -0.249465-0.258439  2 O  px                47   0.258435-0.249468  2 O  py         
+    32   0.325290-0.152398  1 O  px                33   0.152406 0.325286  1 O  py         
+    46   0.325270-0.152389  2 O  px                47   0.152397 0.325267  2 O  py         
  
- Vector   14  Occ=1.000000D+00  E=-4.647492D-01
-              MO Center=  2.0D-13,  2.2D-13,  1.1D-12, r^2= 3.0D-12
+ Vector   14  Occ=1.000000D+00  E=-4.647494D-01
+              MO Center=  1.7D-13,  2.2D-13,  1.1D-12, r^2= 2.9D-12
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    47   0.246843 0.260486  2 O  py                46  -0.260489 0.246838  2 O  px         
-    33   0.246832 0.260474  1 O  py                32  -0.260477 0.246828  1 O  px         
+    47  -0.120070-0.338182  2 O  py                46   0.338185-0.120061  2 O  px         
+    33  -0.120064-0.338167  1 O  py                32   0.338170-0.120056  1 O  px         
  
- Vector   15  Occ=1.000000D+00  E=-3.216520D-01
-              MO Center=  4.7D-10,  3.3D-08,  1.5D-05, r^2= 4.8D-01
+ Vector   15  Occ=1.000000D+00  E=-3.216518D-01
+              MO Center=  4.1D-09,  2.9D-08,  1.5D-05, r^2= 4.8D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    18   0.000100-0.440454  2 O  px                19  -0.440453-0.000079  2 O  py         
-     4  -0.000100 0.440432  1 O  px                 5   0.440432 0.000079  1 O  py         
-    21   0.000049-0.217252  2 O  px                22  -0.217251-0.000039  2 O  py         
-     7  -0.000049 0.217249  1 O  px                 8   0.217249 0.000039  1 O  py         
+    19  -0.440440 0.003438  2 O  py                18  -0.003403-0.440440  2 O  px         
+     5   0.440419-0.003438  1 O  py                 4   0.003403 0.440419  1 O  px         
+    22  -0.217245 0.001696  2 O  py                21  -0.001679-0.217245  2 O  px         
+     8   0.217242-0.001696  1 O  py                 7   0.001678 0.217242  1 O  px         
  
- Vector   16  Occ=1.000000D+00  E=-3.205549D-01
-              MO Center= -2.8D-08, -5.3D-09, -7.2D-06, r^2= 4.8D-01
+ Vector   16  Occ=1.000000D+00  E=-3.205547D-01
+              MO Center= -4.9D-08, -4.6D-09, -7.2D-06, r^2= 4.8D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     5   0.000011 0.440101  1 O  py                 4   0.440100 0.000011  1 O  px         
-    19  -0.000011-0.440087  2 O  py                18  -0.440087-0.000011  2 O  px         
-    22  -0.000005-0.218007  2 O  py                21  -0.218007-0.000005  2 O  px         
-     8   0.000005 0.218005  1 O  py                 7   0.218005 0.000005  1 O  px         
+     4   0.440101 0.000017  1 O  px                 5   0.000017 0.440100  1 O  py         
+    18  -0.440087-0.000017  2 O  px                19  -0.000017-0.440087  2 O  py         
+    21  -0.218007-0.000009  2 O  px                22  -0.000009-0.218007  2 O  py         
+     7   0.218005 0.000009  1 O  px                 8   0.000009 0.218005  1 O  py         
  
- Vector   17  Occ=0.000000D+00  E=-1.286109D-01
-              MO Center=  2.4D-12,  2.4D-11, -2.8D-07, r^2= 4.1D-06
+ Vector   17  Occ=0.000000D+00  E=-1.286107D-01
+              MO Center= -2.4D-11,  4.2D-12, -4.8D-07, r^2= 7.1D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    46   0.295697 0.285933  2 O  px                47  -0.285952 0.295679  2 O  py         
-    32  -0.295682-0.285919  1 O  px                33   0.285937-0.295664  1 O  py         
-    49   0.200310 0.193696  2 O  px                50  -0.193708 0.200297  2 O  py         
-    35  -0.200305-0.193691  1 O  px                36   0.193704-0.200293  1 O  py         
+    47  -0.133005-0.389236  2 O  py                46  -0.389220 0.133050  2 O  px         
+    33   0.132998 0.389216  1 O  py                32   0.389200-0.133043  1 O  px         
+    50  -0.090100-0.263674  2 O  py                49  -0.263664 0.090130  2 O  px         
+    36   0.090098 0.263668  1 O  py                35   0.263658-0.090128  1 O  px         
  
- Vector   18  Occ=0.000000D+00  E=-1.276646D-01
-              MO Center= -2.0D-13, -2.5D-13, -2.8D-13, r^2= 1.9D-12
+ Vector   18  Occ=0.000000D+00  E=-1.276645D-01
+              MO Center= -2.7D-13, -2.5D-13, -2.7D-13, r^2= 2.4D-12
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    33   0.288729 0.292369  1 O  py                32  -0.292351 0.288747  1 O  px         
-    47  -0.288716-0.292357  2 O  py                46   0.292338-0.288734  2 O  px         
-    36   0.196378 0.198854  1 O  py                35  -0.198841 0.196390  1 O  px         
-    50  -0.196376-0.198852  2 O  py                49   0.198840-0.196388  2 O  px         
+    32  -0.061529 0.406274  1 O  px                33   0.406266 0.061576  1 O  py         
+    46   0.061527-0.406256  2 O  px                47  -0.406248-0.061574  2 O  py         
+    35  -0.041849 0.276325  1 O  px                36   0.276320 0.041881  1 O  py         
+    49   0.041849-0.276323  2 O  px                50  -0.276318-0.041880  2 O  py         
  
- Vector   19  Occ=0.000000D+00  E= 1.497992D-01
-              MO Center=  5.3D-08,  4.3D-08, -1.5D-07, r^2= 9.4D-01
+ Vector   19  Occ=0.000000D+00  E= 1.498002D-01
+              MO Center=  1.9D-07,  6.2D-08, -1.5D-07, r^2= 9.6D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    17  -0.721290-0.721244  2 O  s                  3   0.721287 0.721241  1 O  s          
-    23   0.643917 0.643876  2 O  pz                 9   0.643915 0.643874  1 O  pz         
-    20   0.368435 0.368411  2 O  pz                 6   0.368434 0.368411  1 O  pz         
-     2  -0.162090-0.162080  1 O  s                 16   0.162086 0.162076  2 O  s          
+    17  -0.725789-0.716718  2 O  s                  3   0.725786 0.716715  1 O  s          
+    23   0.647933 0.639835  2 O  pz                 9   0.647932 0.639834  1 O  pz         
+    20   0.370732 0.366099  2 O  pz                 6   0.370732 0.366098  1 O  pz         
+     2  -0.163101-0.161063  1 O  s                 16   0.163097 0.161059  2 O  s          
  
- Vector   20  Occ=0.000000D+00  E= 1.866876D-01
-              MO Center=  4.8D-11,  3.3D-10, -1.8D-07, r^2= 3.9D-06
+ Vector   20  Occ=0.000000D+00  E= 1.866885D-01
+              MO Center= -2.9D-11,  2.6D-10, -1.8D-07, r^2= 3.9D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    45  -0.014836 1.143484  2 O  s                 31   0.014836-1.143480  1 O  s          
-    51   0.012985-1.000830  2 O  pz                37   0.012985-1.000828  1 O  pz         
-    34   0.006198-0.477693  1 O  pz                48   0.006198-0.477693  2 O  pz         
-    30  -0.002889 0.222690  1 O  s                 44   0.002889-0.222684  2 O  s          
+    45  -0.051892-1.142404  2 O  s                 31   0.051892 1.142399  1 O  s          
+    51   0.045418 0.999883  2 O  pz                37   0.045418 0.999882  1 O  pz         
+    48   0.021678 0.477241  2 O  pz                34   0.021678 0.477241  1 O  pz         
+    30  -0.010106-0.222480  1 O  s                 44   0.010106 0.222474  2 O  s          
  
- Vector   21  Occ=0.000000D+00  E= 4.414385D-01
-              MO Center=  4.9D-07,  4.2D-07, -8.2D-06, r^2= 1.4D+00
+ Vector   21  Occ=0.000000D+00  E= 4.414393D-01
+              MO Center=  1.3D-06,  6.0D-07, -8.1D-06, r^2= 1.4D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     9   0.871004 0.871227  1 O  pz                23   0.870996 0.871219  2 O  pz         
-    17  -0.819659-0.819869  2 O  s                  3   0.819651 0.819860  1 O  s          
-     6  -0.436853-0.436965  1 O  pz                20  -0.436850-0.436962  2 O  pz         
+     9  -0.869784-0.872443  1 O  pz                23  -0.869776-0.872435  2 O  pz         
+    17   0.818511 0.821013  2 O  s                  3  -0.818502-0.821005  1 O  s          
+     6   0.436242 0.437576  1 O  pz                20   0.436239 0.437573  2 O  pz         
  
- Vector   22  Occ=0.000000D+00  E= 4.620184D-01
-              MO Center=  3.9D-10, -1.2D-08,  8.0D-07, r^2= 7.4D-04
+ Vector   22  Occ=0.000000D+00  E= 4.620193D-01
+              MO Center= -1.9D-09, -1.2D-08,  8.1D-07, r^2= 7.4D-04
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    37  -0.109951 1.173774  1 O  pz                51  -0.109950 1.173766  2 O  pz         
-    45   0.103525-1.105170  2 O  s                 31  -0.103524 1.105161  1 O  s          
-    34   0.060273-0.643437  1 O  pz                48   0.060272-0.643434  2 O  pz         
+    37  -0.227969-1.156659  1 O  pz                51  -0.227968-1.156652  2 O  pz         
+    45   0.214645 1.089056  2 O  s                 31  -0.214643-1.089047  1 O  s          
+    34   0.124968 0.634057  1 O  pz                48   0.124967 0.634053  2 O  pz         
  
  Vector   23  Occ=0.000000D+00  E= 4.838009D-01
-              MO Center=  2.6D-09,  6.2D-08,  2.6D-05, r^2= 1.1D+00
+              MO Center= -4.1D-09,  8.3D-08,  2.6D-05, r^2= 1.1D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    22   0.448019-0.001179  2 O  py                21   0.001140 0.448017  2 O  px         
-     8   0.447960-0.001179  1 O  py                 7   0.001140 0.447958  1 O  px         
-    19  -0.400692 0.001055  2 O  py                18  -0.001020-0.400690  2 O  px         
-     5  -0.400669 0.001054  1 O  py                 4  -0.001020-0.400667  1 O  px         
+    22   0.447918 0.009571  2 O  py                21  -0.009651 0.447915  2 O  px         
+     8   0.447859 0.009569  1 O  py                 7  -0.009650 0.447856  1 O  px         
+    19  -0.400601-0.008560  2 O  py                18   0.008632-0.400599  2 O  px         
+     5  -0.400578-0.008559  1 O  py                 4   0.008631-0.400576  1 O  px         
  
  Vector   24  Occ=0.000000D+00  E= 4.845182D-01
-              MO Center= -2.2D-08, -1.4D-09, -3.6D-05, r^2= 1.1D+00
+              MO Center=  4.2D-08, -2.0D-09, -3.6D-05, r^2= 1.1D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     7   0.448096 0.000019  1 O  px                 8   0.000019 0.448094  1 O  py         
-    21   0.448013 0.000019  2 O  px                22   0.000019 0.448011  2 O  py         
-     4  -0.401104-0.000017  1 O  px                 5  -0.000017-0.401102  1 O  py         
-    18  -0.401074-0.000017  2 O  px                19  -0.000017-0.401072  2 O  py         
+     7  -0.448095-0.000040  1 O  px                 8  -0.000040-0.448094  1 O  py         
+    21  -0.448013-0.000040  2 O  px                22  -0.000040-0.448012  2 O  py         
+     4   0.401103 0.000036  1 O  px                 5   0.000036 0.401102  1 O  py         
+    18   0.401073 0.000036  2 O  px                19   0.000036 0.401072  2 O  py         
  
- Vector   25  Occ=0.000000D+00  E= 5.264090D-01
-              MO Center= -1.5D-09,  2.8D-09,  2.1D-06, r^2= 5.4D-05
+ Vector   25  Occ=0.000000D+00  E= 5.264089D-01
+              MO Center=  4.8D-09, -9.0D-10,  2.4D-06, r^2= 6.0D-05
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    50  -0.319464 0.303855  2 O  py                49   0.303881 0.319437  2 O  px         
-    36  -0.319426 0.303819  1 O  py                35   0.303845 0.319399  1 O  px         
-    47   0.304232-0.289368  2 O  py                46  -0.289392-0.304207  2 O  px         
-    33   0.304216-0.289352  1 O  py                32  -0.289376-0.304190  1 O  px         
+    50   0.301899 0.321312  2 O  py                49   0.321262-0.301952  2 O  px         
+    36   0.301863 0.321274  1 O  py                35   0.321224-0.301916  1 O  px         
+    47  -0.287505-0.305992  2 O  py                46  -0.305944 0.287555  2 O  px         
+    33  -0.287489-0.305976  1 O  py                32  -0.305928 0.287539  1 O  px         
  
- Vector   26  Occ=0.000000D+00  E= 5.272024D-01
-              MO Center=  4.2D-13,  1.5D-12, -3.3D-12, r^2= 1.7D-11
+ Vector   26  Occ=0.000000D+00  E= 5.272023D-01
+              MO Center=  2.0D-12,  1.4D-12, -3.5D-12, r^2= 2.2D-11
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    35   0.306243-0.317046  1 O  px                36  -0.317018-0.306269  1 O  py         
-    49   0.306192-0.316992  2 O  px                50  -0.316965-0.306217  2 O  py         
-    32  -0.291891 0.302187  1 O  px                33   0.302161 0.291915  1 O  py         
-    46  -0.291869 0.302164  2 O  px                47   0.302138 0.291893  2 O  py         
+    35   0.125532 0.422545  1 O  px                36   0.422565-0.125462  1 O  py         
+    49   0.125511 0.422474  2 O  px                50   0.422494-0.125441  2 O  py         
+    32  -0.119648-0.402742  1 O  px                33  -0.402761 0.119582  1 O  py         
+    46  -0.119639-0.402711  2 O  px                47  -0.402731 0.119573  2 O  py         
  
 
    alpha - beta orbital overlaps 
@@ -2487,7 +2372,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
    alpha     21     22     23     24     25     26     27     28
-    beta     18     19     20     16     19     20     18      5
+    beta     18     19     20     19     19     20     18     18
  overlap   0.086  0.086  0.086  0.000  0.015  0.022  0.015  0.000
 
      --------------------------
@@ -2507,18 +2392,18 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      1   0 1 0      0.000000      0.000000      0.000000      0.000000
      1   0 0 1      0.000020      0.000002      0.000017      0.000000
  
-     2   2 0 0     -7.489284     -4.322052     -3.167233      0.000000
+     2   2 0 0     -7.489283     -4.322051     -3.167232      0.000000
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
-     2   1 0 1     -0.000002      0.000000     -0.000001      0.000000
-     2   0 2 0     -7.489284     -4.322052     -3.167233      0.000000
-     2   0 1 1     -0.000002      0.000000     -0.000001      0.000000
-     2   0 0 2     -7.794760    -16.512469    -12.614378     21.332087
+     2   1 0 1     -0.000001      0.000000      0.000000      0.000000
+     2   0 2 0     -7.489283     -4.322051     -3.167232      0.000000
+     2   0 1 1     -0.000001      0.000000     -0.000001      0.000000
+     2   0 0 2     -7.794761    -16.512456    -12.614367     21.332061
  
 
  Parallel integral file used       4 records with       0 large values
 
  Line search: 
-     step= 1.00 grad=-6.5D-08 hess= 3.0D-08 energy=   -150.508336 mode=accept  
+     step= 1.00 grad=-6.5D-08 hess= 3.5D-08 energy=   -150.508336 mode=accept  
  new step= 1.00                   predicted energy=   -150.508336
 
           --------
@@ -2533,8 +2418,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 O                    8.0000     0.00000000     0.00000000    -0.61102340
-    2 O                    8.0000     0.00000000     0.00000000     0.61102340
+    1 O                    8.0000     0.00000000     0.00000000    -0.61102303
+    2 O                    8.0000     0.00000000     0.00000000     0.61102303
  
       Atomic Mass 
       ----------- 
@@ -2542,7 +2427,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       O                 15.994910
  
 
- Effective nuclear repulsion energy (a.u.)      27.7136225915
+ Effective nuclear repulsion energy (a.u.)      27.7136393860
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -2571,7 +2456,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   The DFT is already converged 
 
-         Total DFT energy =   -150.508335863301
+         Total DFT energy =   -150.508335843629
 
   WARNING: CD fitting not compatible with spinorbit
   WARNING: disabling CD fitting
@@ -2601,8 +2486,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 O       0.000000   0.000000  -1.154667    0.000000   0.000000   0.000020
-   2 O       0.000000   0.000000   1.154667    0.000000   0.000000  -0.000020
+   1 O       0.000000   0.000000  -1.154666    0.000000   0.000000   0.000020
+   2 O       0.000000   0.000000   1.154666    0.000000   0.000000  -0.000020
  
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
@@ -2614,7 +2499,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3    -150.50833586 -3.5D-08  0.00002  0.00001  0.00008  0.00014     40.3
+@    3    -150.50833584 -2.9D-08  0.00002  0.00001  0.00008  0.00014     39.8
                                      ok       ok       ok       ok  
 
 
@@ -2625,7 +2510,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3    -150.50833586 -3.5D-08  0.00002  0.00001  0.00008  0.00014     40.3
+@    3    -150.50833584 -2.9D-08  0.00002  0.00001  0.00008  0.00014     39.8
                                      ok       ok       ok       ok  
 
  
@@ -2637,8 +2522,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 O                    8.0000     0.00000000     0.00000000    -0.61102340
-    2 O                    8.0000     0.00000000     0.00000000     0.61102340
+    1 O                    8.0000     0.00000000     0.00000000    -0.61102303
+    2 O                    8.0000     0.00000000     0.00000000     0.61102303
  
       Atomic Mass 
       ----------- 
@@ -2646,7 +2531,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       O                 15.994910
  
 
- Effective nuclear repulsion energy (a.u.)      27.7136225915
+ Effective nuclear repulsion energy (a.u.)      27.7136393860
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -2679,7 +2564,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
 
- Task  times  cpu:       33.8s     wall:       38.8s
+ Task  times  cpu:       33.9s     wall:       39.7s
  
  
                                 NWChem Input Module
@@ -2705,10 +2590,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 4571     4561     5.50e+04 1.82e+04 8456        4        0        0     
+calls: 4571     4561     5.67e+04 1.82e+04 8511        4        0        0     
 number of processes/call 1.26e+00 1.73e+00 1.04e+00 4.00e+00 0.00e+00
-bytes total:             4.35e+07 2.82e+07 1.19e+07 5.12e+02 0.00e+00 0.00e+00
-bytes remote:            2.12e+07 1.43e+07 5.03e+06 3.84e+02 0.00e+00 0.00e+00
+bytes total:             4.44e+07 2.82e+07 1.20e+07 5.12e+02 0.00e+00 0.00e+00
+bytes remote:            2.18e+07 1.43e+07 5.16e+06 3.84e+02 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 515872 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
@@ -2765,4 +2650,4 @@ MA usage statistics:
 
 
 
- Total times  cpu:       33.8s     wall:       40.3s
+ Total times  cpu:       33.9s     wall:       39.8s

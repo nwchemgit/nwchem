@@ -20,7 +20,6 @@ end
 
 relativistic
   zora on
-  zora:cutoff 1.0d-08
 end
 
 task dft optimize
