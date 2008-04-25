@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.14 2008-03-20 02:04:15 niri Exp $
+* $Id: rel_input.F,v 1.15 2008-04-25 20:35:45 niri Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -78,7 +78,7 @@ c
          call zora_input(rtdb)
 c
       elseif(inp_compare(.false.,'zora:cutoff',test)) then
-         if(.not. inp_f(zoracutoff)) zoracutoff = 1.0d-04  ! set a default cutoff
+         if(.not. inp_f(zoracutoff)) zoracutoff = 1.0d-08  ! set a default cutoff
          if (.not. rtdb_put(rtdb,'zora:cutoff',mt_dbl,1,zoracutoff))
      &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)
 c
