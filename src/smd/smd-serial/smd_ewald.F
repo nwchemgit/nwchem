@@ -128,6 +128,7 @@ c
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 #include "smd_const_data.fh"
       double precision  ewald1
       integer i
@@ -140,18 +141,24 @@ c
 
       pname = "smd_ewald_self"
 
-
-      call smd_system_get_component(sp_charge,"charge",result)
-      if(.not.result)
-     >  call errquit(
+      call smd_get_charge_ind_size(i_q,nq,result) 
+      if(.not.result) then
+       call smd_message_flush(luout)
+       call errquit(
      >       pname//'no charge ',0,0)
+      end if
 
-      tag = "charge"
-      call smd_data_get_index(sp_charge,tag,i_q,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp_charge,tag,nq,result)
+c      call smd_system_get_component(sp_charge,"charge",result)
+c      if(.not.result)
+c     >  call errquit(
+c     >       pname//'no charge ',0,0)
+c
+c      tag = "charge"
+c      call smd_data_get_index(sp_charge,tag,i_q,result)
+c      if(.not. result) 
+c     >  call errquit(
+c     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c      call smd_data_get_size(sp_charge,tag,nq,result)
 
 
       call smd_ewald_get_alpha(alpha)

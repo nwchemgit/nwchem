@@ -1,0 +1,13 @@
+*
+* $Id: smd_message_data.fh,v 1.1 2008-04-25 16:31:16 marat Exp $
+*
+      integer smd_message_nmax
+      parameter(smd_message_nmax=100)
+
+      integer smd_message_n
+      character*72 smd_message_string(smd_message_nmax)
+
+      common /smd_message_data/ 
+     &                   smd_message_n,
+     &                   smd_message_string
+

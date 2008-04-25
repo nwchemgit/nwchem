@@ -44,7 +44,7 @@ c
       return
       end
 
-      subroutine smd_charge_get_ptr(i_q)
+      subroutine smd_charge_get_charge_ind(i_q,result)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -58,21 +58,54 @@ c
       character*32 tag,pname
       logical result
 
-      pname = "smd_charge_get_ptr"
+      pname = "smd_charge_get_charge_ind"
 
       tag = "charge"
       call smd_system_get_component(sp_charge,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
+      if(.not.result) then
+        call smd_message_post(pname//'no component '//tag,0,0) 
+        return
+      end if
 c
       tag = "charge"
       call smd_data_get_index(sp_charge,tag,i_q,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, rtdb_err)
+      if(.not.result) then
+        call smd_message_post(pname//'error getting index for'//tag) 
+        return
+      end if
 
+      return
+      end
+
+      subroutine smd_get_charge_ind_size(i_q,nq,result)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+      integer i_q,nq
+c     
+      character*32 sp_charge,sp_param,sp_atom,sp_type
+      character*32 tag,pname
+      logical result
+
+      pname = "smd_charge_get_charge_ind"
+
+      tag = "charge"
+      call smd_system_get_component(sp_charge,tag,result)
+      if(.not.result) then
+        call smd_message_post(pname//'no component '//tag,0,0) 
+        return
+      end if
+c
+      tag = "charge"
+      call smd_data_get_index_size(sp_charge,tag,i_q,nq,result)
+      if(.not.result) then
+        call smd_message_post(pname//'error getting index for'//tag) 
+        return
+      end if
 
       return
       end

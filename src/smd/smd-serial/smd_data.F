@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.1 2008-04-18 17:40:31 marat Exp $
+* $Id: smd_data.F,v 1.2 2008-04-25 16:31:16 marat Exp $
 *
 
       block data initial_smd_data
@@ -93,6 +93,42 @@ c
       do i=1,smd_nd(ns)
        if(smd_dname(ns,i).eq.buffer) then
          ind = smd_index(ns,i)
+         result = .true.
+         return
+       end if
+      end do
+
+      return
+      end
+
+      subroutine smd_data_get_index_size(sname,dname,ind,nq,result)
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ind,nq
+      logical result
+c
+      integer i,ns,nd
+      character*72 buffer
+      character*30 pname
+
+      pname = "smd_data_get_index"    
+ 
+      buffer = sname
+
+      call smd_data_get_sindex(buffer,ns,result)
+      if(.not.result)
+     +   call errquit(pname//'no namespace'//buffer,
+     +         0,
+     +         0)
+
+      result = .false.
+      nd = 0
+      buffer = dname
+      do i=1,smd_nd(ns)
+       if(smd_dname(ns,i).eq.buffer) then
+         ind = smd_index(ns,i)
+         nq  = smd_dim(ns,i)
          result = .true.
          return
        end if

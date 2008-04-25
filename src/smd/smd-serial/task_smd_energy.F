@@ -1,4 +1,4 @@
-      logical function task_smd_energy(rtdb)
+      function task_smd_energy(rtdb)
       implicit none
       integer rtdb
 
@@ -7,6 +7,7 @@
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
+      logical task_smd_energy
       character*72 namespace
       character*32 pname
       double precision etime1,etime2,etime3,etime4,etime5,etime6
