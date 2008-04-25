@@ -1,6 +1,6 @@
       subroutine dia_rdref(x)
 c
-c $Id: dia_rdref.F,v 1.2 2007-05-10 21:17:40 d3j191 Exp $
+c $Id: dia_rdref.F,v 1.3 2008-04-25 16:03:21 d3j191 Exp $
 c
       implicit none
 c
@@ -84,16 +84,16 @@ c
       close(unit=lfnref)
       endif
 c
-      do 6 j=1,3
+      do 7 j=1,3
       xsmin(j)=x(1,j)
       xsmax(j)=x(1,j)
       do 6 i=2,nsa
       xsmin(j)=min(xsmin(j),x(i,j))
       xsmax(j)=max(xsmax(j),x(i,j))
     6 continue
-c
-      xsmin=xsmin-0.5d0
-      xsmax=xsmax+0.5d0
+      xsmin(j)=xsmin(j)-0.5d0
+      xsmax(j)=xsmax(j)+0.5d0
+    7 continue
 c
 c     broadcast coordinates to all nodes
 c
@@ -111,7 +111,7 @@ c
       end
       subroutine dia_center_ref(x)
 c
-c $Id: dia_rdref.F,v 1.2 2007-05-10 21:17:40 d3j191 Exp $
+c $Id: dia_rdref.F,v 1.3 2008-04-25 16:03:21 d3j191 Exp $
 c
       implicit none
 c
