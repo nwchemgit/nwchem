@@ -6,7 +6,7 @@ c
      &                  iter, g_dens, g_dens_at, g_movecs, g_vxc, 
      &                  g_fock, g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.50 2008-03-20 02:06:33 niri Exp $
+c     $Id: dft_scf_so.F,v 1.51 2008-04-25 20:36:40 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -1818,60 +1818,44 @@ c
             write(LuOut,*)
          endif
          dft_time = dft_time+util_cpusec()
-         if (nexc.le.1)then
-            if (do_zora) then
-              write(LuOut,2221)etnew+enuc, ener_scal, ecore, Ecoul, 
-     &           Exc(1), enuc, rho_n, dft_time
-            else
-              write(LuOut,222)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
-     &           rho_n, dft_time
-            end if
-         else
-            if (do_zora) then
-              write(LuOut,2231)etnew+enuc, ener_scal, ecore, Ecoul, 
-     &           Exc(1), Exc(2), enuc, rho_n, dft_time
-            else
-              write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
-     &           enuc, rho_n, dft_time
-            end if
 
-         endif
- 222     format(//
-     &        '         Total DFT energy =', f20.12/
-     &        '      One electron energy =', f20.12/
-     &        '           Coulomb energy =', f20.12/
-     &        '    Exchange-Corr. energy =', f20.12/
-     &        ' Nuclear repulsion energy =', f20.12//
-     &        ' Numeric. integr. density =', f20.12//
-     &        '     Total iterative time =', f9.1,'s'//)
- 2221    format(//
-     &        '         Total DFT energy =', f20.12/
-     &        '       Scaling correction =', f20.12/
-     &        '      One electron energy =', f20.12/
-     &        '           Coulomb energy =', f20.12/
-     &        '    Exchange-Corr. energy =', f20.12/
-     &        ' Nuclear repulsion energy =', f20.12//
-     &        ' Numeric. integr. density =', f20.12//
-     &        '     Total iterative time =', f9.1,'s'//)
- 223     format(//
-     &        '         Total DFT energy =', f20.12/
-     &        '      One electron energy =', f20.12/
-     &        '           Coulomb energy =', f20.12/
-     &        '          Exchange energy =', f20.12/
-     &        '       Correlation energy =', f20.12/
-     &        ' Nuclear repulsion energy =', f20.12//
-     &        ' Numeric. integr. density =', f20.12//
-     &        '     Total iterative time =', f9.1,'s'//)
- 2231    format(//
-     &        '         Total DFT energy =', f20.12/
-     &        '       Scaling correction =', f20.12/
-     &        '      One electron energy =', f20.12/
-     &        '           Coulomb energy =', f20.12/
-     &        '          Exchange energy =', f20.12/
-     &        '       Correlation energy =', f20.12/
-     &        ' Nuclear repulsion energy =', f20.12//
-     &        ' Numeric. integr. density =', f20.12//
-     &        '     Total iterative time =', f9.1,'s'//)
+         if (nexc.le.1)then
+          write(LuOut,222)etnew+enuc,
+     &                      ecore,
+     &                      ecoul,
+     &                      exc(1),
+     &                      enuc
+         else
+          write(LuOut,223)etnew+enuc,
+     &                      ecore,
+     &                      ecoul,
+     &                      exc(1),
+     &                      exc(2),
+     &                      enuc
+         end if
+         if (do_zora) write(luout,2221) ener_scal
+         write(luout,2222) rho_n
+         write(luout,2223) dft_time
+c
+ 222  format(//
+     &     '         Total DFT energy =', f20.12/
+     &     '      One electron energy =', f20.12/
+     &     '           Coulomb energy =', f20.12/
+     &     '    Exchange-Corr. energy =', f20.12/
+     &     ' Nuclear repulsion energy =', f20.12/)
+c
+ 223  format(//
+     &     '         Total DFT energy =', f20.12/
+     &     '      One electron energy =', f20.12/
+     &     '           Coulomb energy =', f20.12/
+     &     '          Exchange energy =', f20.12/
+     &     '       Correlation energy =', f20.12/
+     &     ' Nuclear repulsion energy =', f20.12/)
+c
+ 2221 format('       Scaling correction =', f20.12/)
+ 2222 format(' Numeric. integr. density =', f20.12/)
+ 2223 format('     Total iterative time =', f9.1,'s'//)
+c
          call util_flush(LuOut)
       endif
 c

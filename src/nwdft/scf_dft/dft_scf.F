@@ -4,7 +4,7 @@
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.279 2007-11-17 01:12:59 niri Exp $
+c     $Id: dft_scf.F,v 1.280 2008-04-25 20:36:36 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -1511,28 +1511,23 @@ c
 c
          dft_time = dft_time+util_cpusec()
          if (nexc.le.1)then
-
-           if (.not.do_zora) then
-               write(LuOut,222)etnew+enuc, 
-     & ecore, Ecoul, Exc(1), enuc, rho_n, dft_time
-           else
-               write(LuOut,224)etnew+enuc,ener_scal, 
-     & ecore, Ecoul, Exc(1), enuc, rho_n, dft_time
-           end if
-
+          write(LuOut,222)etnew+enuc, 
+     &                      ecore, 
+     &                      ecoul, 
+     &                      exc(1), 
+     &                      enuc
          else
-
-           if (.not.do_zora) then
-               write(LuOut,223)etnew+enuc, 
-     & ecore, Ecoul, Exc(1), Exc(2), enuc, rho_n, dft_time
-           else
-               write(LuOut,225)etnew+enuc,ener_scal, 
-     & ecore, Ecoul, Exc(1), Exc(2), enuc, rho_n, dft_time
-           end if
-
-
-         endif
-
+          write(LuOut,223)etnew+enuc, 
+     &                      ecore, 
+     &                      ecoul, 
+     &                      exc(1), 
+     &                      exc(2), 
+     &                      enuc
+         end if
+         if (do_zora) write(luout,2221) ener_scal
+         write(luout,2222) rho_n
+         write(luout,2223) dft_time
+c
          if(cosmo_on.and.cosmo_phase.eq.2) then
            write(LuOut,*) '                 COSMO solvation results'
            write(LuOut,*) '                 -----------------------'
@@ -1842,47 +1837,26 @@ c
      &     1p,2d10.2,10x,0p,f8.1)
  23   format(51x,1p,1d10.2)
  1111 format(15x,'Core Energy:              ',f20.10)
+c
  222  format(//
      &     '         Total DFT energy =', f22.12/
      &     '      One electron energy =', f22.12/
      &     '           Coulomb energy =', f22.12/
      &     '    Exchange-Corr. energy =', f22.12/
-     &     ' Nuclear repulsion energy =', f22.12//
-     &     ' Numeric. integr. density =', f22.12//
-     &     '     Total iterative time =', f9.1,'s'//)
-czora...
- 224  format(//
-     &     '         Total DFT energy =', f22.12/
-     &     '       Scaling correction =', f22.12/
-     &     '      One electron energy =', f22.12/
-     &     '           Coulomb energy =', f22.12/
-     &     '    Exchange-Corr. energy =', f22.12/
-     &     ' Nuclear repulsion energy =', f22.12//
-     &     ' Numeric. integr. density =', f22.12//
-     &     '     Total iterative time =', f9.1,'s'//)
-czora...
+     &     ' Nuclear repulsion energy =', f22.12/)
+c
  223  format(//
      &     '         Total DFT energy =', f22.12/
      &     '      One electron energy =', f22.12/
      &     '           Coulomb energy =', f22.12/
      &     '          Exchange energy =', f22.12/
      &     '       Correlation energy =', f22.12/
-     &     ' Nuclear repulsion energy =', f22.12//
-     &     ' Numeric. integr. density =', f22.12//
-     &     '     Total iterative time =', f9.1,'s'//)
-czora...
- 225  format(//
-     &     '         Total DFT energy =', f22.12/
-     &     '       Scaling correction =', f22.12/
-     &     '      One electron energy =', f22.12/
-     &     '           Coulomb energy =', f22.12/
-     &     '          Exchange energy =', f22.12/
-     &     '       Correlation energy =', f22.12/
-     &     ' Nuclear repulsion energy =', f22.12//
-     &     ' Numeric. integr. density =', f22.12//
-     &     '     Total iterative time =', f9.1,'s'//)
-czora...
-
+     &     ' Nuclear repulsion energy =', f22.12/)
+c
+ 2221 format('       Scaling correction =', f22.12/)
+ 2222 format(' Numeric. integr. density =', f22.12/)
+ 2223 format('     Total iterative time =', f9.1,'s'//)
+c
  4224 format(10x,' HOMO = ',f7.3,' LUMO = ',f7.3,
      &              ' RLSHIFT = ',f7.3,' HL_GAP = ',f7.3)
 c     
