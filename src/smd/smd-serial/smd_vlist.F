@@ -175,10 +175,6 @@ c     --------------------------------------------------------
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
 
-      do i=1,nl
-       int_mb(i_list+i-1) = int_mb(i_l+i-1)
-      end do 
-
       tag = "vlist:distances"
       call smd_data_create(sp_vlist,tag,3*(nl+nlb),MT_DBL)
       call smd_data_get_index(sp_vlist,tag,i_clist,result)
@@ -267,10 +263,13 @@ c     --------------
      >       pname//'no component '//tag,0,0)
 
 c
+      write(*,*) "before smd_vlist_update_coord",pname
+      write(*,*) "olist,ocoord",olist,ocoord
       if(.not.olist) then
         call smd_vlist_update_coord(sp_vlist,sp_coord)
         goto 200
       end if
+      write(*,*) "after smd_vlist_update_coord",pname
 c
 c     get coordinate information
 c     --------------------------
@@ -389,10 +388,10 @@ c
       character*32 pname
       character*80 tag
       integer np,nl
-      integer i_p,i_l,i_c
+      integer i_p,i_c
       integer i_list,i_clist
-      integer i_cl
       logical result
+      integer i
 c
       pname = "smd_vlist_init"
 c
@@ -433,12 +432,16 @@ c     --------------------
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
-      nl = int_mb(i_p+np-1) - int_mb(i_p)
+      call smd_data_get_size(sp_vlist,tag,nl,result)
+      nl = nl/3
+c      write(*,*) "clist size",nl,int_mb(i_p+np-1) - int_mb(i_p)
+c      nl = int_mb(i_p+np-1) - int_mb(i_p)
+
       call smd_vlist_update_coord0(np,nl,
      +                   dbl_mb(i_c),
      +                   int_mb(i_p),
-     +                   int_mb(i_l),
-     +                   dbl_mb(i_cl))
+     +                   int_mb(i_list),
+     +                   dbl_mb(i_clist))
 
       call smd_lat_rebox(nl,dbl_mb(i_clist))
 
@@ -474,7 +477,6 @@ c
       character*30 pname
  
       pname = "smd_vlist_update_coord0"
-
       nlist=0
       do i=1,np-1
        jbeg=point(i)
@@ -788,6 +790,7 @@ c     -----------------------------
        call smd_vlist_test0(na,t,rcut,vcut,
      >     dbl_mb(i_vd),dbl_mb(i_v),lupdate)
 
+      write(*,*) "out",pname
       return
 
       END
@@ -845,6 +848,7 @@ c
 
        exceed=0
 
+       write(11,*) "dispxsq,dispysq,dispzsq"
        do i=1,natms
 
         dispxsq=ivv(i,1)**2
@@ -856,7 +860,7 @@ c
           write(*,*) "verlet update disp",disprsq,dispmax
         end if
         if(exceed.ge.2)lupdate=.true.
-
+        write(11,*) dispxsq,dispysq,dispzsq
        enddo
 
        if(lupdate)then

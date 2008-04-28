@@ -1,5 +1,5 @@
 c
-c $Id: frce_shrt.f,v 1.1 2008-04-18 17:40:30 marat Exp $
+c $Id: frce_shrt.f,v 1.2 2008-04-28 22:24:03 marat Exp $
 c
 
       SUBROUTINE frce_shrt(iii,ntype,rij,rijsq,jbeg,jend,evdw)
@@ -22,6 +22,7 @@ c
 
       dimension rij(mxnlist,3),rijsq(mxnlist)
 
+      write(24,*) "printing vdw"
       evdw=0.0
       k=0
 
@@ -51,7 +52,7 @@ c
 
          force=(12*potpar(potindex,1)/drij**12
      $          -6*potpar(potindex,2)/drij**6)/rijsq(k)
-
+         write(24,*) drij,rijsq(k)
          fff(iii,1)=fff(iii,1)+convfct2*force*rij(k,1)
          fff(iii,2)=fff(iii,2)+convfct2*force*rij(k,2)
          fff(iii,3)=fff(iii,3)+convfct2*force*rij(k,3)

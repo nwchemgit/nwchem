@@ -59,6 +59,7 @@ c
 
       double precision x,y,z
 
+      write(25,*) "printing vdw"
       e=0
 
 c     figure out number of types
@@ -103,6 +104,7 @@ c     ------------------
          force=(12*p1(potindex)/dr**12
      $          -6*p2(potindex)/dr**6)/rsq
 
+         write(25,*) dr,rsq
          fff(i,1)=fff(i,1)+convfct2*force*x
          fff(i,2)=fff(i,2)+convfct2*force*y
          fff(i,3)=fff(i,3)+convfct2*force*z

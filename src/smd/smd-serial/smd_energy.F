@@ -288,10 +288,9 @@ c
       do i=1,smd_energy_nc
         oexist = log_mb(i_oe+i-1)
         if(oexist)
-     >     write(un,'(A16," : ", F12.6)') 
+     >     write(un,'(A16," : ", F16.6)') 
      >     smd_energy_name(i),dbl_mb(i_e+i-1)
       end do
-      write(91,*) dbl_mb(i_e),dbl_mb(i_e+3),dbl_mb(i_e+2)
      
       return
       end

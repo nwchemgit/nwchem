@@ -1,5 +1,5 @@
 c
-c $Id: smd_leapf_shake.F,v 1.1 2008-04-18 17:40:32 marat Exp $
+c $Id: smd_leapf_shake.F,v 1.2 2008-04-28 22:24:03 marat Exp $
 c
 
       subroutine smd_leapf_shake(natms,
@@ -49,7 +49,6 @@ c
       maxit=100
       mxdiff = 0.0d0
 
-      write(40,*) ntcons
       do i=1,ntcons
 
        iatm1=icon1(i)
@@ -58,7 +57,6 @@ c
        orij(i,1)=ccc(iatm1,1)-ccc(iatm2,1)
        orij(i,2)=ccc(iatm1,2)-ccc(iatm2,2)
        orij(i,3)=ccc(iatm1,3)-ccc(iatm2,3)
-       write(40,*) consdist(i)
 
       enddo
 
@@ -93,10 +91,8 @@ c
         nrij(j,3)=ccc(iatm1,3)-ccc(iatm2,3)
 
        enddo
-       write(50,*) i,nrij(1,1), nrij(1,2),nrij(1,3)
 
        call smd_lat_rebox(ntcons,nrij) 
-       write(50,*) i,nrij(1,1), nrij(1,2),nrij(1,3)
 
        do j=1,natms
         dcc(j,1)=0.0
@@ -129,7 +125,6 @@ c
         dcc(iatm2,2)=dcc(iatm2,2)-rmb*orij(j,2)*force
         dcc(iatm2,3)=dcc(iatm2,3)-rmb*orij(j,3)*force
 
-        write(50,*) i,dotprod,diffsq
 
        enddo
 
@@ -175,11 +170,12 @@ c
        vvv(i,2)=nvv(i,2)
        vvv(i,3)=nvv(i,3)
 
-       write(30,*) fff(i,1),vvv(i,1),ncc(i,1)
+       write(15,*) vvv(i,1),vvv(i,2),vvv(i,3)
       enddo
 
-      ekin=0.5*ekin
 
+      ekin=0.5*ekin
+    
       return
 
       END

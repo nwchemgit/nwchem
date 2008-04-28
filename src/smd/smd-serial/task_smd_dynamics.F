@@ -42,18 +42,17 @@ c
      >      call errquit(pname//'failed to get ndata',0,
      >       RTDB_ERR)
 c
-      write(*,*) "ndata",ndata
       do i=1,ndata
-        write(93,*) "niter",i
         call smd_vlist_test(vupdate)
         call smd_vlist_update(vupdate,.true.)
         call smd_force_compute()
+        if(i.eq.2) call smd_coords_print(21)
+        call smd_force_print(23)
         call smd_coords_update()
         call smd_energy_compute()
         call smd_energy_print(6)
       end do
 c
-      call smd_vel_ke_compute(ke)
       call smd_end(rtdb)
 c
       if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))

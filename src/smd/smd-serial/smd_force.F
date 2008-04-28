@@ -104,6 +104,7 @@ c
      >       pname//'error getting index for'//tag,0, rtdb_err)
       na = na/3
 
+      write(un,*) "printing force"
       call smd_util_print_force_array(un,na,dbl_mb(i_f))
 
       return

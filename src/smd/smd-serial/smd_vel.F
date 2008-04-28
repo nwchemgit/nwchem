@@ -344,7 +344,8 @@ c     --------------
      >                     dbl_mb(i_m),
      >                     int_mb(i_it))
 
-c      write(*,*) "current ke 1",targetke
+      call smd_energy_set_component("kinetic",targetke)
+      write(*,*) "current ke 1",targetke
       return
       end
 
@@ -503,6 +504,7 @@ c
 
       ke=0.5*ke
 
+      write(*,*) "kinetic energy",ke
       return
 
       END

@@ -200,7 +200,7 @@ c     ----------------------
 
       na = na/3
 
-      
+      write(un,*) "printing coord" 
       call smd_util_print_force_array(un,na,
      >                           dbl_mb(i_c))  
 
@@ -215,6 +215,7 @@ c     ----------------------
 #include "rtdb.fh"
 #include "util.fh"
 #include "smd_system.fh"
+#include "smd_const_data.fh"
 c     
       character*72 sp_vel
       character*72 sp_coords
@@ -373,7 +374,7 @@ c     -------------
 
       end if
       if(oshake) then
-            call smd_leapf_shake(na,
+       call smd_leapf_shake(na,
      >                           ns,
      >                           tstep,
      >                           ekin,
@@ -402,8 +403,10 @@ c     -------------
 
       end if
 
+      call smd_energy_set_component("kinetic",ekin/convfct2)
       call smd_coords_rebox()
 
+      
       if(oshake) then
 
         if(.not.ma_pop_stack(h_orij))
