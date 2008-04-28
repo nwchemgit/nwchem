@@ -286,7 +286,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.38 2007-08-27 17:01:15 edo Exp $
+C$Id: util_file_name.F,v 1.39 2008-04-28 22:35:26 d3p852 Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -305,6 +305,7 @@ c
       character*(nw_max_path_len) a_temporary_file
       logical status, odirective, echo
       logical bad_permanent_dir, bad_scratch_dir
+      logical already
       integer nkeys, istart, iend
       parameter (nkeys = 7)
       logical iocheckk
@@ -426,6 +427,15 @@ c
 *check permanent directory
       if(iocheckk) then
       call util_file_name('dir_check_p',.false.,.true.,a_temporary_file)
+      inquire(file=a_temporary_file, exist=already)
+      if(already) then
+        iend = inp_strlen(a_temporary_file)
+        write(luout,*)' Warning: test file already exited: ',
+     &      a_temporary_file(1:iend)
+C        Assume all is well in the world, since file might be chmod 000
+         bad_permanent_dir = .false.
+         goto 91111
+      endif
       open(unit=42,file=a_temporary_file,status='new',err=91101)
       close(unit=42,status='delete')
       call util_file_unlink(a_temporary_file)
@@ -435,6 +445,15 @@ c
 91111 continue
 *check scratch directory
       call util_file_name('dir_check_s',.true.,.true.,a_temporary_file)
+      inquire(file=a_temporary_file, exist=already)
+      if(already) then
+        iend = inp_strlen(a_temporary_file)
+        write(luout,*)' Warning: test file already exited: ',
+     &      a_temporary_file(1:iend)
+C        Assume all is well in the world, since file might be chmod 000
+         bad_permanent_dir = .false.
+         goto 91122
+      endif
       open(unit=43,file=a_temporary_file,status='new',err=91102)
       close(unit=43,status='delete')
       call util_file_unlink(a_temporary_file)
