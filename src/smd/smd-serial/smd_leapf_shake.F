@@ -1,5 +1,5 @@
 c
-c $Id: smd_leapf_shake.F,v 1.2 2008-04-28 22:24:03 marat Exp $
+c $Id: smd_leapf_shake.F,v 1.3 2008-04-28 22:32:43 marat Exp $
 c
 
       subroutine smd_leapf_shake(natms,
@@ -170,7 +170,6 @@ c
        vvv(i,2)=nvv(i,2)
        vvv(i,3)=nvv(i,3)
 
-       write(15,*) vvv(i,1),vvv(i,2),vvv(i,3)
       enddo
 
 

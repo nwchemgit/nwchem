@@ -46,8 +46,6 @@ c
         call smd_vlist_test(vupdate)
         call smd_vlist_update(vupdate,.true.)
         call smd_force_compute()
-        if(i.eq.2) call smd_coords_print(21)
-        call smd_force_print(23)
         call smd_coords_update()
         call smd_energy_compute()
         call smd_energy_print(6)
