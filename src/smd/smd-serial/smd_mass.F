@@ -68,15 +68,6 @@ c     --------------
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
-c      call smd_data_get_index(sp_type,tag,i_it,result)
-c      if(.not. result) 
-c     >  call errquit(
-c     >       pname//'error getting index for'//tag,0, 0)
-c
-c      call smd_data_get_size(sp_type,tag,na,result)
-c      if(.not. result) 
-c     >  call errquit(
-c     >       pname//'error getting size for'//tag,0, 0)
 c
 c     get mass parameter array
 c     ------------------------
@@ -85,17 +76,17 @@ c     ------------------------
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
-cc
+c
 c     create mass structure
 c     ---------------------
 c
       call smd_namespace_create(sp_mass)
       tag = "mass"
-      call smd_data_create(sp_mass,tag,na,MT_DBL)
-      call smd_data_get_index(sp_mass,tag,i_m,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
+      call smd_data_create_get(sp_mass,tag,na,MT_DBL,i_m)
+c      call smd_data_get_index(sp_mass,tag,i_m,result)
+c      if(.not. result) 
+c     >  call errquit(
+c     >       pname//'error getting index for'//tag,0, 0)
 
       call smd_mass_set(na,
      +                  int_mb(i_it),

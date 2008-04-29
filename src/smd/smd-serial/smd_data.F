@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.2 2008-04-25 16:31:16 marat Exp $
+* $Id: smd_data.F,v 1.3 2008-04-29 19:37:49 marat Exp $
 *
 
       block data initial_smd_data
@@ -302,6 +302,79 @@ c
      +         smd_dim(ns,nd),
      +         MA_ERR)
 
+      if(smd_type(ns,nd).eq.MT_DBL) then
+        call dfill(smd_dim(ns,nd),
+     +             0.d0,
+     +             dbl_mb(smd_index(ns,nd)),
+     +             1)
+      end if
+
+      if(smd_type(ns,nd).eq.MT_INT) then
+        call ifill(smd_dim(ns,nd),
+     +             0,
+     +             int_mb(smd_index(ns,nd)),
+     +             1)
+      end if
+      if(smd_type(ns,nd).eq.MT_LOG) then
+        do i=1,smd_dim(ns,nd)
+          log_mb(smd_index(ns,nd)+i-1) = .false.
+        end do
+      end if
+cc     should probably fill logical and char arrays
+
+      end
+
+      subroutine smd_data_create_get(sname,dname,ndim,dtype,ind)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ndim
+      integer dtype
+      integer ind
+c
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+
+      pname = "smd_data_create"
+
+      buffer = sname
+      call smd_data_get_sindex(buffer,ns,result)
+      if(.not.result)
+     +   call errquit(pname//'no namespace'//buffer,
+     +         0,
+     +         0)
+
+      
+      smd_nd(ns) = smd_nd(ns) + 1
+      if(smd_nd(ns).gt.smd_max_nd) 
+     +   call errquit(pname//'increase dataspace size to',
+     +         smd_nd(ns),
+     +         0)
+
+      nd = smd_nd(ns)
+      smd_dim(ns,nd)=ndim
+      smd_type(ns,nd)=dtype
+      smd_dname(ns,nd)=dname
+
+
+      if(.not.ma_alloc_get(smd_type(ns,nd),
+     +   smd_dim(ns,nd),
+     +   smd_dname(ns,nd),
+     +   smd_handle(ns,nd),
+     +   smd_index(ns,nd)))
+     +   call errquit(pname//'memory allocation'//smd_dname(ns,nd),
+     +         smd_dim(ns,nd),
+     +         MA_ERR)
+
+      ind = smd_index(ns,nd)
+c
       if(smd_type(ns,nd).eq.MT_DBL) then
         call dfill(smd_dim(ns,nd),
      +             0.d0,
