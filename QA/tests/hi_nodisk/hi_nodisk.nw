@@ -1,0 +1,21 @@
+start hi_nodisk
+
+geometry noautoz units angstrom
+ H   0.00000000     0.00000000    -1.61179148
+ I   0.00000000     0.00000000     0.02355241
+end
+
+basis spherical
+* library "DZVP (DFT Orbital)"
+end
+
+dft
+ grid xfine nodisk
+ xc b3lyp
+end
+
+driver
+  maxiter 100 
+end
+
+task dft optimize
