@@ -29,7 +29,7 @@ c
      >  call errquit(
      >       pname//'no component '//tag,0,0)
 
-      call smd_shakelist_init(sp_shakelist,sp_bond,sp_type,result)
+      call smd_shakelist_init(sp_shakelist,result)
 
 200   continue
       if(.not.result) then
@@ -40,7 +40,7 @@ c
       return
       end
 
-      subroutine smd_shakelist_init(sp_shakelist,sp_bond,sp_type,result)
+      subroutine smd_shakelist_init(sp_shakelist,result)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -49,8 +49,6 @@ c
 #include "util.fh"
 #include "global.fh"
 c     
-      character*(*) sp_type
-      character*(*) sp_bond
       character*(*) sp_shakelist
       integer rtdb
       logical result
@@ -76,38 +74,33 @@ c
 c     get array of types
 c     ------------------
       tag = "type:id"
-      call smd_data_get_index(sp_type,tag,i_it,result)
+      call smd_get_ind_size(tag,i_it,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp_type,tag,na,result)
 c
 c     get bond arrays
 c     ---------------
       tag = "bond:i1"
-      call smd_data_get_index(sp_bond,tag,i_ib1,result)
+      call smd_get_ind(tag,i_ib1,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, 0)
 
       tag = "bond:i2"
-      call smd_data_get_index(sp_bond,tag,i_ib2,result)
+      call smd_get_ind(tag,i_ib2,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, 0)
 
       tag = "bond:distance"
-      call smd_data_get_index(sp_bond,tag,i_db,result)
+      call smd_get_ind(tag,i_db,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, 0)
 
       tag = "bond:type"
-      call smd_data_get_index(sp_bond,tag,i_itb,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-      call smd_data_get_size(sp_bond,tag,nb,result)
+      call smd_get_ind_size(tag,i_itb,nb,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, 0)
@@ -147,29 +140,12 @@ c     ---------------------------
         goto 200
       end if
       call smd_namespace_create(sp_shakelist)
-      call smd_data_create(sp_shakelist,"shake:i1",ns,MT_INT)
-      call smd_data_create(sp_shakelist,"shake:i2",ns,MT_INT)
-      call smd_data_create(sp_shakelist,"shake:distance",ns,MT_DBL)
-c
-c     get shake arrays
-c     ----------------
       tag = "shake:i1"
-      call smd_data_get_index(sp_shakelist,tag,i_is1,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
+      call smd_data_create_get(sp_shakelist,tag,ns,MT_INT,i_is1)
       tag = "shake:i2"
-      call smd_data_get_index(sp_shakelist,tag,i_is2,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
+      call smd_data_create_get(sp_shakelist,tag,ns,MT_INT,i_is2)
       tag = "shake:distance"
-      call smd_data_get_index(sp_shakelist,tag,i_ds,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
+      call smd_data_create_get(sp_shakelist,tag,ns,MT_DBL,i_ds)
 
       do i=1,ns
        int_mb(i_is1+i-1) = int_mb(i_is1t+i-1)
