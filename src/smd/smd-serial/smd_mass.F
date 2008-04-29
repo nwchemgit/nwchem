@@ -54,7 +54,7 @@ c
       character*80 tag
       integer nt,na
       integer i_it
-      integer i_mp,i_m
+      integer i_mp,i_m,nmp
       logical result
 c
       pname = "smd_mass_init"
@@ -64,20 +64,24 @@ c
 c     get type array
 c     --------------
       tag = "type:id"
-      call smd_data_get_index(sp_type,tag,i_it,result)
+      call smd_get_ind_size(tag,i_it,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
-
-      call smd_data_get_size(sp_type,tag,na,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting size for'//tag,0, 0)
+c      call smd_data_get_index(sp_type,tag,i_it,result)
+c      if(.not. result) 
+c     >  call errquit(
+c     >       pname//'error getting index for'//tag,0, 0)
+c
+c      call smd_data_get_size(sp_type,tag,na,result)
+c      if(.not. result) 
+c     >  call errquit(
+c     >       pname//'error getting size for'//tag,0, 0)
 c
 c     get mass parameter array
 c     ------------------------
       tag = "param:mass"
-      call smd_data_get_index(sp_param,tag,i_mp,result)
+      call smd_get_ind_size(tag,i_mp,nmp,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)

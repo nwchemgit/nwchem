@@ -243,7 +243,7 @@ c
       character*32 pname
       character*80 tag
       integer nt,na
-      integer i_v,i_it
+      integer i_v,i_it,n
       integer i_m
       logical result
 c
@@ -256,27 +256,32 @@ c
 c
       open(unit=un,status="old",form="formatted",file=filename)
 
-c
-c     get components
-c     --------------
-      tag = "velocity"
-      call smd_system_get_component(sp_vel,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-c
-c     get velocity array
-c     ------------------
-      tag = "vel"
-      call smd_data_get_index(sp_vel,tag,i_v,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-      call  smd_data_get_size(sp_vel,tag,na,result)
+      call smd_get_ind_size("vel",i_v,na,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
-      na = na/3
+      na=na/3
+cc
+cc     get components
+cc     --------------
+c      tag = "velocity"
+c      call smd_system_get_component(sp_vel,tag,result)
+c      if(.not.result)
+c     >  call errquit(
+c     >       pname//'no component '//tag,0,0)
+cc
+cc     get velocity array
+cc     ------------------
+c      tag = "vel"
+c      call smd_data_get_index(sp_vel,tag,i_v,result)
+c      if(.not. result) 
+c     >  call errquit(
+c     >       pname//'error getting index for'//tag,0, 0)
+c      call  smd_data_get_size(sp_vel,tag,na,result)
+c      if(.not. result)
+c     >  call errquit(
+c     >       pname//'error getting index for'//tag,0, 0)
+c      na = na/3
 
       call smd_vel_read0(un,
      >                   na,
