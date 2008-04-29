@@ -299,9 +299,6 @@ c      na = na/3
 #include "rtdb.fh"
 #include "util.fh"
 c     
-      character*72 sp_vel
-      character*72 sp_param
-      character*72 sp_type
       character*32 pname
       character*80 tag
       integer nt,na
@@ -314,37 +311,13 @@ c
 c
 c      write(*,*) "in "//pname
 c
-c     get components
-c     --------------
-      tag = "velocity"
-      call smd_system_get_component(sp_vel,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-      tag = "type"
-      call smd_system_get_component(sp_type,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-      tag = "parameters"
-      call smd_system_get_component(sp_param,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
 
 c
 c     get velocity array
 c     ------------------
       tag = "vel"
-      call smd_data_get_index(sp_vel,tag,i_v,result)
+      call smd_get_ind_size(tag,i_v,na,result)
       if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-      call  smd_data_get_size(sp_vel,tag,na,result)
-      if(.not. result)
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
       na = na/3
@@ -353,7 +326,7 @@ c
 c     get mass array
 c     ------------------
       tag = "param:mass"
-      call smd_data_get_index(sp_param,tag,i_m,result)
+      call smd_get_ind(tag,i_m,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
@@ -361,7 +334,7 @@ c
 c     get type array
 c     --------------
       tag = "type:id"
-      call smd_data_get_index(sp_type,tag,i_it,result)
+      call smd_get_ind(tag,i_it,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)

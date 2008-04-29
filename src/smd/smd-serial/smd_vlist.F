@@ -726,14 +726,8 @@ c     ------------
 c
 c     get verlet displacement array
 c     -----------------------------
-      tag = "verlet_list"
-      call smd_system_get_component(sp_vlist,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
       tag = "vlist:displacement"
-      call smd_data_get_index(sp_vlist,tag,i_vd,result)
+      call smd_get_ind(tag,i_vd,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
