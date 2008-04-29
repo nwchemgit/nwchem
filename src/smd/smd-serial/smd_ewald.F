@@ -141,7 +141,8 @@ c
 
       pname = "smd_ewald_self"
 
-      call smd_get_charge_ind_size(i_q,nq,result) 
+      tag = "charge"
+      call smd_get_ind_size(tag,i_q,nq,result)
       if(.not.result) then
        call smd_message_flush(luout)
        call errquit(

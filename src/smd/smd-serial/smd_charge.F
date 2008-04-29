@@ -44,72 +44,6 @@ c
       return
       end
 
-      subroutine smd_charge_get_charge_ind(i_q,result)
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "global.fh"
-      integer i_q
-c     
-      character*32 sp_charge,sp_param,sp_atom,sp_type
-      character*32 tag,pname
-      logical result
-
-      pname = "smd_charge_get_charge_ind"
-
-      tag = "charge"
-      call smd_system_get_component(sp_charge,tag,result)
-      if(.not.result) then
-        call smd_message_post(pname//'no component '//tag,0,0) 
-        return
-      end if
-c
-      tag = "charge"
-      call smd_data_get_index(sp_charge,tag,i_q,result)
-      if(.not.result) then
-        call smd_message_post(pname//'error getting index for'//tag) 
-        return
-      end if
-
-      return
-      end
-
-      subroutine smd_get_charge_ind_size(i_q,nq,result)
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "global.fh"
-      integer i_q,nq
-c     
-      character*32 sp_charge,sp_param,sp_atom,sp_type
-      character*32 tag,pname
-      logical result
-
-      pname = "smd_charge_get_charge_ind"
-
-      tag = "charge"
-      call smd_system_get_component(sp_charge,tag,result)
-      if(.not.result) then
-        call smd_message_post(pname//'no component '//tag,0,0) 
-        return
-      end if
-c
-      tag = "charge"
-      call smd_data_get_index_size(sp_charge,tag,i_q,nq,result)
-      if(.not.result) then
-        call smd_message_post(pname//'error getting index for'//tag) 
-        return
-      end if
-
-      return
-      end
-
       subroutine smd_charge_init(sp_charge,sp_atom)
       implicit none
 #include "errquit.fh"
@@ -191,25 +125,19 @@ c
 c      write(*,*) "in "//pname
 c
       tag = "charge"
-      call smd_data_get_index(sp_charge,tag,i_q,result)
+      call smd_get_ind_size(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
-
-      call smd_data_get_size(sp_charge,tag,na,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, rtdb_err)
-      na = na
 
       tag = "param:charge"
-      call smd_data_get_index(sp_param,tag,i_q0,result)
+      call smd_get_ind(tag,i_q0,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
       tag = "type:id"
-      call smd_data_get_index(sp_type,tag,i_id,result)
+      call smd_get_ind(tag,i_id,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -328,17 +256,13 @@ c
 
 c
       tag = "charge"
-      call smd_data_get_index(sp_charge,tag,i_q,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, rtdb_err)
-      call smd_data_get_size(sp_charge,tag,na,result)
+      call smd_get_ind_size(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
 
       tag = "atom:resid"
-      call smd_data_get_index(sp_atom,tag,i_ir,result)
+      call smd_get_ind(tag,i_ir,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -390,39 +314,19 @@ c
 c      write(*,*) "in "//pname
 c      call util_flush(6)
 c
-      tag = "charge"
-      call smd_system_get_component(sp_charge,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-c
-      tag = "atom"
-      call smd_system_get_component(sp_atom,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-
 c
       tag = "charge"
-      call smd_data_get_index(sp_charge,tag,i_q,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, rtdb_err)
-      call smd_data_get_size(sp_charge,tag,na,result)
+      call smd_get_ind_size(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
 
       tag = "atom:resid"
-      call smd_data_get_index(sp_atom,tag,i_ir,result)
+      call smd_get_ind(tag,i_ir,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
-c      write(*,*) "9 "//pname
-c      call util_flush(6)
- 
       call smd_charge_ga_handle(ga_charges)
       call smd_geom_monomer_index_size(im,na,int_mb(i_ir),nm,i0)
 
@@ -470,41 +374,19 @@ c
 c
 c      write(*,*) "in "//pname
 c
-      tag = "charge"
-      call smd_system_get_component(sp_charge,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-c
-      tag = "atom"
-      call smd_system_get_component(sp_atom,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-
 c
       tag = "charge"
-      call smd_data_get_index(sp_charge,tag,i_q,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, rtdb_err)
-      call smd_data_get_size(sp_charge,tag,na,result)
+      call smd_get_ind_size(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
 
       tag = "atom:resid"
-      call smd_data_get_index(sp_atom,tag,i_ir,result)
+      call smd_get_ind(tag,i_ir,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
  
-c      call smd_rtdb_get_handle(rtdb)
-c      if (.not.rtdb_get(rtdb,"ga_charges",mt_int,1,ga_charges)) 
-c     >      call errquit(pname//'failed to store ga_charges',0,
-c     >       RTDB_ERR)
-
       call smd_geom_monomer_index_size(im,na,int_mb(i_ir),nm,i0)
       call smd_charge_ga_handle(ga_charges)
 
@@ -538,19 +420,8 @@ c
 c
 c      write(*,*) "in "//pname
 c
-      call smd_system_get_component(sp_charge,"charge",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no charges ',0,0)
-
-c
       tag = "charge"
-      call smd_data_get_index(sp_charge,tag,i_q,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, rtdb_err)
-
-      call smd_data_get_size(sp_charge,tag,na,result)
+      call smd_get_ind_size(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)

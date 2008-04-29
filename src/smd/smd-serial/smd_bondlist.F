@@ -29,7 +29,7 @@ c
      >  call errquit(
      >       pname//'no component '//tag,0,0)
 
-      call smd_bondlist_init(sp_bondlist,sp_bond,sp_type,result)
+      call smd_bondlist_init(sp_bondlist,result)
 
 200   continue
       if(.not.result) then
@@ -40,7 +40,7 @@ c
       return
       end
 
-      subroutine smd_bondlist_init(sp_bondlist,sp_bond,sp_type,result)
+      subroutine smd_bondlist_init(sp_bondlist,result)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -49,8 +49,6 @@ c
 #include "util.fh"
 #include "global.fh"
 c     
-      character*(*) sp_type
-      character*(*) sp_bond
       character*(*) sp_bondlist
       integer rtdb
 c
@@ -81,50 +79,43 @@ c
 c     get array of types
 c     ------------------
       tag = "type:id"
-      call smd_data_get_index(sp_type,tag,i_it,result)
+      call smd_get_ind_size(tag,i_it,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp_type,tag,na,result)
 c
 c     get bond arrays
 c     ---------------
       tag = "bond:i1"
-      call smd_data_get_index(sp_bond,tag,i_ib1,result)
+      call smd_get_ind(tag,i_ib1,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, 0)
 
       tag = "bond:i2"
-      call smd_data_get_index(sp_bond,tag,i_ib2,result)
+      call smd_get_ind(tag,i_ib2,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, 0)
 
       tag = "bond:distance"
-      call smd_data_get_index(sp_bond,tag,i_db,result)
+      call smd_get_ind(tag,i_db,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, 0)
 
       tag = "bond:strength"
-      call smd_data_get_index(sp_bond,tag,i_kb,result)
+      call smd_get_ind(tag,i_kb,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, 0)
 
 
       tag = "bond:type"
-      call smd_data_get_index(sp_bond,tag,i_itb,result)
+      call smd_get_ind_size(tag,i_itb,nb,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, 0)
-
-      call smd_data_get_size(sp_bond,tag,nb,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
 
 c
 c     allocate initial storage for bond list
@@ -171,46 +162,18 @@ c     ---------------------------
         goto 200
       end if
       call smd_namespace_create(sp_bondlist)
-      call smd_data_create(sp_bondlist,"bond:i1",ns,MT_INT)
-      call smd_data_create(sp_bondlist,"bond:i2",ns,MT_INT)
-      call smd_data_create(sp_bondlist,"bond:distance",ns,MT_DBL)
-      call smd_data_create(sp_bondlist,"bond:strength",ns,MT_DBL)
-      call smd_data_create(sp_bondlist,"bond:type",ns,MT_INT)
+      tag = "bond:i1"
+      call smd_data_create_get(sp_bondlist,tag,ns,MT_INT,i_il1)
+      tag = "bond:i2"
+      call smd_data_create_get(sp_bondlist,tag,ns,MT_INT,i_il2)
+      tag = "bond:distance"
+      call smd_data_create_get(sp_bondlist,tag,ns,MT_DBL,i_dl)
+      tag = "bond:strength"
+      call smd_data_create_get(sp_bondlist,tag,ns,MT_DBL,i_kl)
+      tag = "bond:type"
+      call smd_data_create_get(sp_bondlist,tag,ns,MT_INT,i_tl)
 
 c
-c     get bond arrays
-c     ----------------
-      tag = "bond:i1"
-      call smd_data_get_index(sp_bondlist,tag,i_il1,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
-      tag = "bond:i2"
-      call smd_data_get_index(sp_bondlist,tag,i_il2,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
-      tag = "bond:strength"
-      call smd_data_get_index(sp_bondlist,tag,i_kl,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
-      tag = "bond:distance"
-      call smd_data_get_index(sp_bondlist,tag,i_dl,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
-      tag = "bond:type"
-      call smd_data_get_index(sp_bondlist,tag,i_tl,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
-
       do i=1,ns
        int_mb(i_il1+i-1) = int_mb(i_il1t+i-1)
        int_mb(i_il2+i-1) = int_mb(i_il2t+i-1)

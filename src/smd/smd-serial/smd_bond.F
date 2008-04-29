@@ -71,63 +71,32 @@ c
 c     create parameter data structures
 c     ---------------------------
       call smd_namespace_create(sp_bond)
-      call smd_data_create(sp_bond,"bond:i1",nb,MT_INT)
-      call smd_data_create(sp_bond,"bond:i2",nb,MT_INT)
-      call smd_data_create(sp_bond,"bond:type",nb,MT_INT)
-      call smd_data_create(sp_bond,"bond:distance",nb,MT_DBL)
-      call smd_data_create(sp_bond,"bond:strength",nb,MT_DBL)
+      tag = "bond:i1"
+      call smd_data_create_get(sp_bond,tag,nb,MT_INT,i_i1)
+      tag = "bond:i2"
+      call smd_data_create_get(sp_bond,tag,nb,MT_INT,i_i2)
+      tag = "bond:type"
+      call smd_data_create_get(sp_bond,tag,nb,MT_INT,i_it)
+      tag="bond:distance"
+      call smd_data_create_get(sp_bond,tag,nb,MT_DBL,i_d)
+      tag = "bond:strength"
+      call smd_data_create_get(sp_bond,"bond:strength",nb,MT_DBL,i_k)
 c
 c     get array of type names
 c     -----------------------
       tag = "param:atomname"
-      call smd_data_get_index(sp_param,tag,i_ta,result)
+      call smd_get_ind_size(tag,i_ta,nt,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp_param,tag,nt,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting size for'//tag,0, RTDB_ERR)
       nt = nt/16
+
       tag = "param:resname"
-      call smd_data_get_index(sp_param,tag,i_tr,result)
+      call smd_get_ind(tag,i_tr,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
  
-c
-c     get bond arrays
-c     ----------------
-      tag = "bond:i1"
-      call smd_data_get_index(sp_bond,tag,i_i1,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
-      tag = "bond:i2"
-      call smd_data_get_index(sp_bond,tag,i_i2,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
-      tag = "bond:distance"
-      call smd_data_get_index(sp_bond,tag,i_d,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
-      tag = "bond:strength"
-      call smd_data_get_index(sp_bond,tag,i_k,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
-      tag = "bond:type"
-      call smd_data_get_index(sp_bond,tag,i_it,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
 
       call smd_paramfile_read_bond(nb,nt,
      +                         int_mb(i_i1),
@@ -175,15 +144,10 @@ c
 c     get bond arrays
 c     ----------------
       tag = "bond:type"
-      call smd_data_get_index(sp_bond,tag,i_it,result)
+      call smd_get_ind_size(tag,i_it,nb,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, 0)
-      call smd_data_get_size(sp_bond,tag,nb,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
 
 
       ns = 0 
