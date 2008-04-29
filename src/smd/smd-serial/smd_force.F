@@ -86,22 +86,12 @@ c
 c
       write(*,*) "in "//pname
 c
-      call smd_system_get_component(sp_force,"force",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no energy ',0,0)
-
-c
       tag = "force"
-      call smd_data_get_index(sp_force,tag,i_f,result)
+      call smd_get_ind_size(tag,i_f,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
 
-      call smd_data_get_size(sp_force,tag,na,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, rtdb_err)
       na = na/3
 
       write(un,*) "printing force"
@@ -132,19 +122,8 @@ c
 c
       write(*,*) "in "//pname
 c
-      call smd_system_get_component(sp_force,"force",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no energy ',0,0)
-
-c
       tag = "force"
-      call smd_data_get_index(sp_force,tag,i_f,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, rtdb_err)
-
-      call smd_data_get_size(sp_force,tag,na,result)
+      call smd_get_ind_size(tag,i_f,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)

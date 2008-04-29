@@ -91,18 +91,11 @@ c
 c     fill in coordinates from pdb file if any
 c     ----------------------------------------
       tag = "coords"
-      call smd_data_get_index(sp_coords,tag,i_c,result)
+      call smd_get_ind_size(tag,i_c,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 c
-      call smd_data_get_size(sp_coords,tag,na,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-      if(na.le.0)
-     >call errquit(
-     >     pname//'no atoms ',0, RTDB_ERR)
       na = na/3
 
 
@@ -135,22 +128,11 @@ c
 c
 c     get atomic coordinates
 c     ----------------------
-      call smd_system_get_component(sp_coords,"coordinates",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no coordinates ',0,0)
-
       tag = "coords"
-      call smd_data_get_index(sp_coords,tag,i_c,result)
+      call smd_get_ind_size(tag,i_c,na,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
-
-      call smd_data_get_size(sp_coords,tag,na,result)
-      if(.not. result)
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-
       na = na/3
 
       call smd_lat_rebox(na,
@@ -182,22 +164,11 @@ c
 c
 c     get atomic coordinates
 c     ----------------------
-      call smd_system_get_component(sp_coords,"coordinates",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no coordinates ',0,0)
-
       tag = "coords"
-      call smd_data_get_index(sp_coords,tag,i_c,result)
+      call smd_get_ind(tag,i_c,na,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
-
-      call smd_data_get_size(sp_coords,tag,na,result)
-      if(.not. result)
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-
       na = na/3
 
       write(un,*) "printing coord" 
@@ -244,42 +215,11 @@ c      write(*,*) "in "//pname
 c
       call  smd_rtdb_get_handle(rtdb)
 c
-c     get components
-c     --------------
-      tag = "velocity"
-      call smd_system_get_component(sp_vel,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-      tag = "mass"
-      call smd_system_get_component(sp_mass,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-      tag = "force"
-      call smd_system_get_component(sp_force,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-      tag = "coordinates"
-      call smd_system_get_component(sp_coords,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-c
 c     get velocity array
 c     ------------------
       tag = "vel"
-      call smd_data_get_index(sp_vel,tag,i_v,result)
+      call smd_get_ind_size(tag,i_v,na,result)
       if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-      call  smd_data_get_size(sp_vel,tag,na,result)
-      if(.not. result)
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
       na = na/3
@@ -288,7 +228,7 @@ c
 c     get mass array
 c     ------------------
       tag = "mass"
-      call smd_data_get_index(sp_mass,tag,i_m,result)
+      call smd_get_ind(tag,i_m,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
@@ -296,7 +236,7 @@ c
 c     get force array
 c     ---------------
       tag = "force"
-      call smd_data_get_index(sp_force,tag,i_f,result)
+      call smd_get_ind(tag,i_f,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
@@ -305,7 +245,7 @@ c
 c     get coord array
 c     ---------------
       tag = "coords"
-      call smd_data_get_index(sp_coords,tag,i_c,result)
+      call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
@@ -323,34 +263,23 @@ c     -------------
 
       if(oshake) then
 
-        tag = "shakelist"
-        call smd_system_get_component(sp_shakelist,tag,result)
-        if(.not.result)
-     >    call errquit(
-     >         pname//'no component '//tag,0,0)
-
         tag = "shake:i1"
-        call smd_data_get_index(sp_shakelist,tag,i_is1,result)
+        call smd_get_ind(tag,i_is1,result)
         if(.not. result) 
      >    call errquit(
      >         pname//'error getting index for '//tag,0, 0)
 
         tag = "shake:i2"
-        call smd_data_get_index(sp_shakelist,tag,i_is2,result)
+        call smd_get_ind(tag,i_is2,result)
         if(.not. result) 
      >    call errquit(
      >         pname//'error getting index for '//tag,0, 0)
 
         tag = "shake:distance"
-        call smd_data_get_index(sp_shakelist,tag,i_ds,result)
+        call smd_get_ind_size(tag,i_ds,ns,result)
         if(.not. result) 
      >    call errquit(
      >         pname//'error getting index for '//tag,0, 0)
-
-        call smd_data_get_size(sp_shakelist,tag,ns,result)
-        if(.not. result) 
-     >    call errquit(
-     >         pname//'error getting size for '//tag,0, 0)
 
         if(.not.ma_push_get(mt_dbl,na*3,'i_ncc',h_ncc,i_ncc))
      +   call errquit(pname//'Failed to allocate memory',

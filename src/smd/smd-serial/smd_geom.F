@@ -11,7 +11,6 @@
 c
       integer im
 c     
-      character*32 sp_coords,sp_atom,sp_charge,sp_mass
       character*32 tag,pname
       logical result
       integer i_ir,i_ta,i_q,i_c,i_m,i_qf
@@ -31,69 +30,40 @@ c
       pname = "smd_geom_monomer_create"
 c
       call smd_rtdb_get_handle(rtdb)
-c
-      tag = "atom"
-      call smd_system_get_component(sp_atom,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-      tag = "coordinates"
-      call smd_system_get_component(sp_coords,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-c
-      tag = "charge"
-      call smd_system_get_component(sp_charge,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-c
-      tag = "mass"
-      call smd_system_get_component(sp_mass,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
 c     
       tag = "coords"
-      call smd_data_get_index(sp_coords,tag,i_c,result)
+      call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
       tag = "charge"
-      call smd_data_get_index(sp_charge,tag,i_q,result)
+      call smd_get_ind(tag,i_q,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 c
       tag = "atom:name"
-      call smd_data_get_index(sp_atom,tag,i_ta,result)
+      call smd_get_ind(tag,i_ta,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 c
       tag = "atom:formal_charge"
-      call smd_data_get_index(sp_atom,tag,i_qf,result)
+      call smd_get_ind(tag,i_qf,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 c
       tag = "atom:resid"
-      call smd_data_get_index(sp_atom,tag,i_ir,result)
+      call smd_get_ind_size(tag,i_ir,nt,result)
       if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp_atom,tag,nt,result)
-      if(.not. result)
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
 c
       tag = "mass"
-      call smd_data_get_index(sp_mass,tag,i_m,result)
+      call smd_get_ind(tag,i_m,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -324,69 +294,40 @@ c
       pname = "smd_geom_push_charges"
 c
       call smd_rtdb_get_handle(rtdb)
-c
-      tag = "atom"
-      call smd_system_get_component(sp_atom,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-      tag = "coordinates"
-      call smd_system_get_component(sp_coords,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-c
-      tag = "charge"
-      call smd_system_get_component(sp_charge,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-c
-      tag = "mass"
-      call smd_system_get_component(sp_mass,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
 c     
       tag = "coords"
-      call smd_data_get_index(sp_coords,tag,i_c,result)
+      call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 c
       tag = "charge"
-      call smd_data_get_index(sp_charge,tag,i_q,result)
+      call smd_get_ind(tag,i_q,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 c
       tag = "atom:name"
-      call smd_data_get_index(sp_atom,tag,i_ta,result)
+      call smd_get_ind(tag,i_ta,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 c
       tag = "atom:formal_charge"
-      call smd_data_get_index(sp_atom,tag,i_qf,result)
+      call smd_get_ind(tag,i_qf,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 c
       tag = "atom:resid"
-      call smd_data_get_index(sp_atom,tag,i_ir,result)
+      call smd_get_ind_size(tag,i_ir,nt,result)
       if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp_atom,tag,nt,result)
-      if(.not. result)
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
 c
       tag = "mass"
-      call smd_data_get_index(sp_mass,tag,i_m,result)
+      call smd_get_ind(tag,i_m,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)

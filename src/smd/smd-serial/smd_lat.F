@@ -65,27 +65,12 @@ c
 c
 c     create lattice data structures
 c     ------------------------------
-      call smd_data_create(namespace,"lat:fconst",2,MT_DBL)
-      call smd_data_create(namespace,"lat:cell",9,MT_DBL)
-      call smd_data_create(namespace,"lat:rcell",9,MT_DBL)
-c
-c     get memory pointers
-c     -------------------
-      tag = "lat:cell"
-      call smd_data_get_index(namespace,tag,i_lc,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-      tag = "lat:rcell"
-      call smd_data_get_index(namespace,tag,i_lrc,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
       tag = "lat:fconst"
-      call smd_data_get_index(namespace,tag,i_lfc,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+      call smd_data_create_get(namespace,tag,2,MT_DBL,i_lfc)
+      tag = "lat:cell"
+      call smd_data_create_get(namespace,tag,9,MT_DBL,i_lc)
+      tag = "lat:rcell"
+      call smd_data_create_get(namespace,tag,9,MT_DBL,i_lrc)
       
       call smd_lat_rtdb_read(rtdb,dbl_mb(i_lc))
       call smd_lat_invrt(dbl_mb(i_lc),dbl_mb(i_lrc))
@@ -238,6 +223,33 @@ c
       pname = "smd_latt_vol"
       tag = "lat:fconst"
       call smd_data_get_index(namespace,tag,i_fconst,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting ntot '//tag,0, RTDB_ERR)
+      vol = dbl_mb(i_fconst)
+
+      return
+      end
+
+      subroutine smd_latt_get_vol1(vol)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      double precision vol
+c
+      character*72 tag
+      character*30 pname
+      integer i_fconst
+      logical result
+
+      pname = "smd_latt_vol"
+      tag = "lat:fconst"
+      call smd_get_ind(tag,i_fconst,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting ntot '//tag,0, RTDB_ERR)

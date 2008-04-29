@@ -74,11 +74,7 @@ c     create pointer memory
 c     ---------------------
       call smd_namespace_create(sp_exlist)
       tag = "exlist:pointer"
-      call smd_data_create(sp_exlist,"exlist:pointer",np,MT_INT)
-      call smd_data_get_index(sp_exlist,tag,i_p,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+      call smd_data_create_get(sp_exlist,tag,np,MT_INT,i_p)
 
 c
 c    create temporary scratch array for list since
@@ -92,7 +88,7 @@ c
 c     get atom residue index for exclusion criteria
 c     ---------------------------------------------
       tag = "atom:resid"
-      call smd_data_get_index(sp_atom,tag,i_ir,result)
+      call smd_get_ind(tag,i_ir,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -115,13 +111,8 @@ c     -------------------------------
         goto 200
       end if
 c
-c      write(*,*) "excluded size list",nl
       tag = "exlist:list"
-      call smd_data_create(sp_exlist,tag,nl,MT_INT)
-      call smd_data_get_index(sp_exlist,tag,i_list,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+      call smd_data_create_get(sp_exlist,tag,nl,MT_INT,i_list)
 
 
       do i=1,nl

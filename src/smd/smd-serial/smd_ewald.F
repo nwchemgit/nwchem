@@ -32,7 +32,7 @@ c
       call smd_ewald_rtdb_read(alpha,kmax,rtdb)
 c
       tag = "lat:rcell"
-      call smd_data_get_index(sp_lat,tag,i_rl,result)
+      call smd_get_ind(tag,i_rl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -148,19 +148,6 @@ c
      >       pname//'no charge ',0,0)
       end if
 
-c      call smd_system_get_component(sp_charge,"charge",result)
-c      if(.not.result)
-c     >  call errquit(
-c     >       pname//'no charge ',0,0)
-c
-c      tag = "charge"
-c      call smd_data_get_index(sp_charge,tag,i_q,result)
-c      if(.not. result) 
-c     >  call errquit(
-c     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-c      call smd_data_get_size(sp_charge,tag,nq,result)
-
-
       call smd_ewald_get_alpha(alpha)
 
       ewald1=0.0
@@ -189,11 +176,6 @@ c      call smd_data_get_size(sp_charge,tag,nq,result)
 #include "smd_const_data.fh"
       double precision  ewald2
       character*30 pname
-      character*32 sp_charge
-      character*32 sp_coord
-      character*32 sp_lattice
-      character*32 sp_force
-      character*32 sp
       character*32 tag
       integer i_q,nq
       integer h_eikx,i_eikx
@@ -211,34 +193,10 @@ c      call smd_data_get_size(sp_charge,tag,nq,result)
 
 
 c
-c     get components
-c     --------------
-      call smd_system_get_component(sp_charge,"charge",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no charge ',0,0)
-
-      call smd_system_get_component(sp_coord,"coordinates",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no coordinates ',0,0)
-
-      call smd_system_get_component(sp_lattice,"lattice",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no lattice ',0,0)
-
-      call smd_system_get_component(sp_force,"force",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no force ',0,0)
-
-c
 c     get coord data
 c     --------------
       tag = "coords"
-      sp = sp_coord
-      call smd_data_get_index(sp,tag,i_c,result)
+      call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -246,33 +204,28 @@ c
 c     get charge data
 c     --------------
       tag = "charge"
-      sp = sp_charge
-      call smd_data_get_index(sp,tag,i_q,result)
+      call smd_get_ind_size(tag,i_q,nq,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp,tag,nq,result)
-      write(*,*) "nq=",nq
 c
 c     get force data
 c     --------------
       tag = "force"
-      sp = sp_force
-      call smd_data_get_index(sp,tag,i_f,result)
+      call smd_get_ind(tag,i_f,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 c
 c     get lattice data
 c     ----------------
-      sp = sp_lattice
       tag = "lat:rcell"
-      call smd_data_get_index(sp,tag,i_rc,result)
+      call smd_get_ind(tag,i_rc,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
-      call smd_latt_get_vol(sp,vol)
+      call smd_latt_get_vol1(vol)
 c
 c     get ewald data
 c     --------------
@@ -352,12 +305,6 @@ c    ---------------------------------------------
 #include "smd_const_data.fh"
       double precision  ewald2
       character*30 pname
-      character*32 sp_charge
-      character*32 sp_coord
-      character*32 sp_lattice
-      character*32 sp_force
-      character*32 sp_exlist
-      character*32 sp
       character*32 tag
       integer i_q,nq
       integer i_f,i_c,i_rlat
@@ -378,53 +325,27 @@ c    ---------------------------------------------
 c
 c     get components
 c     --------------
-      call smd_system_get_component(sp_exlist,"excl_list",result)
-      if(.not.result) return
-
-      call smd_system_get_component(sp_charge,"charge",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no charge ',0,0)
-
-      call smd_system_get_component(sp_coord,"coordinates",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no coordinates ',0,0)
-
-      call smd_system_get_component(sp_lattice,"lattice",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no lattice ',0,0)
-
-      call smd_system_get_component(sp_force,"force",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no force ',0,0)
-
 c
 c     get exluded list data
 c     ---------------------
-      sp = sp_exlist
       tag = "exlist:pointer"
-      call smd_data_get_index(sp,tag,i_p,result)
+      call smd_get_ind(tag,i_p,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
       tag = "exlist:list"
-      call smd_data_get_index(sp_exlist,tag,i_l,result)
+      call smd_get_ind_size(tag,i_l,nl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp,tag,nl,result)
        if(nl.eq.0) return
 
 c
 c     get coord data
 c     --------------
       tag = "coords"
-      sp = sp_coord
-      call smd_data_get_index(sp,tag,i_c,result)
+      call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -432,40 +353,35 @@ c
 c     get charge data
 c     --------------
       tag = "charge"
-      sp = sp_charge
-      call smd_data_get_index(sp,tag,i_q,result)
+      call smd_get_ind_size(tag,i_q,nq,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp,tag,nq,result)
-      write(*,*) "nq=",nq
 c
 c     get force data
 c     --------------
       tag = "force"
-      sp = sp_force
-      call smd_data_get_index(sp,tag,i_f,result)
+      call smd_get_ind(tag,i_f,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 c
 c     get lattice data
 c     ----------------
-      sp = sp_lattice
       tag = "lat:rcell"
-      call smd_data_get_index(sp,tag,i_rlat,result)
+      call smd_get_ind(tag,i_rlat,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
       tag = "lat:cell"
-      call smd_data_get_index(sp,tag,i_lat,result)
+      call smd_get_ind(tag,i_lat,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
 
-      call smd_latt_get_vol(sp,vol)
+      call smd_latt_get_vol1(vol)
 
 c
 c     get ewald data
@@ -546,23 +462,21 @@ c     --------------
 c
 c     get verlet list data
 c     --------------------
-      sp = sp_vlist
       tag = "vlist:pointer"
-      call smd_data_get_index(sp,tag,i_p,result)
+      call smd_get_ind(tag,i_p,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
       tag = "vlist:list"
-      call smd_data_get_index(sp,tag,i_l,result)
+      call smd_get_ind_size(tag,i_l,nl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp,tag,nl,result)
        if(nl.eq.0) return
 
       tag = "vlist:distances"
-      call smd_data_get_index(sp_vlist,tag,i_c,result)
+      call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -572,19 +486,15 @@ c
 c     get charge data
 c     --------------
       tag = "charge"
-      sp = sp_charge
-      call smd_data_get_index(sp,tag,i_q,result)
+      call smd_get_ind_size(tag,i_q,nq,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp,tag,nq,result)
-      write(*,*) "nq=",nq
 c
 c     get force data
 c     --------------
       tag = "force"
-      sp = sp_force
-      call smd_data_get_index(sp,tag,i_f,result)
+      call smd_get_ind(tag,i_f,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
