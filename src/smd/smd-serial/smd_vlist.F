@@ -72,27 +72,22 @@ c
 c     get coordinate information
 c     --------------------------
       tag = "coords"
-      call smd_data_get_index(sp_coord,tag,i_c,result)
+      call smd_get_ind_size(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
-      call smd_data_get_size(sp_coord,tag,np,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting size for'//tag,0, RTDB_ERR)
       np = np/3
 c
 c     get excluded list information
 c     -----------------------------
       if(oexlist) then
       tag = "exlist:pointer"
-      call smd_data_get_index(sp_exlist,tag,i_xp,result)
+      call smd_get_ind(tag,i_xp,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
       tag = "exlist:list"
-      call smd_data_get_index(sp_exlist,tag,i_xl,result)
+      call smd_get_ind(tag,i_xl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -108,12 +103,7 @@ c     create pointer memory
 c     ---------------------
       call smd_namespace_create(sp_vlist)
       tag = "vlist:pointer"
-      call smd_data_create(sp_vlist,"vlist:pointer",np,MT_INT)
-      call smd_data_get_index(sp_vlist,tag,i_p,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
+      call smd_data_create_get(sp_vlist,"vlist:pointer",np,MT_INT,i_p)
 c
 c    create temporary scratch array for list since
 c    we do not know the size yet
@@ -168,19 +158,10 @@ c     we will buffer it though to allow for possible expansion
 c     --------------------------------------------------------
       nlb = 500
       tag = "vlist:list"
-      call smd_data_create(sp_vlist,tag,nl+nlb,MT_INT)
-      call smd_data_get_index(sp_vlist,tag,i_list,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
+      call smd_data_create_get(sp_vlist,tag,nl+nlb,MT_INT,i_list)
 
       tag = "vlist:distances"
-      call smd_data_create(sp_vlist,tag,3*(nl+nlb),MT_DBL)
-      call smd_data_get_index(sp_vlist,tag,i_clist,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+      call smd_data_create_get(sp_vlist,tag,3*(nl+nlb),MT_DBL,i_clist)
 
       tag = "vlist:displacement"
       call smd_data_create(sp_vlist,tag,3*np,MT_DBL)
@@ -271,27 +252,22 @@ c
 c     get coordinate information
 c     --------------------------
       tag = "coords"
-      call smd_data_get_index(sp_coord,tag,i_c,result)
+      call smd_get_ind_size(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-       
-      call smd_data_get_size(sp_coord,tag,np,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting size for'//tag,0, RTDB_ERR)
-      np = np/3
+      np = np/3 
 c
 c     get excluded list information
 c     -----------------------------
       if(oexlist) then
       tag = "exlist:pointer"
-      call smd_data_get_index(sp_exlist,tag,i_xp,result)
+      call smd_get_ind(tag,i_xp,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
       tag = "exlist:list"
-      call smd_data_get_index(sp_exlist,tag,i_xl,result)
+      call smd_get_ind(tag,i_xl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -301,23 +277,19 @@ c
 c     get verlet list information
 c     ---------------------------
       tag = "vlist:pointer"
-      call smd_data_get_index(sp_vlist,tag,i_p,result)
+      call smd_get_ind(tag,i_p,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
       tag = "vlist:list"
-      call smd_data_get_index(sp_vlist,tag,i_list,result)
+      call smd_get_ind_size(tag,i_list,nl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp_vlist,tag,nl,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting size for'//tag,0, RTDB_ERR)
  
       tag = "vlist:distances"
-      call smd_data_get_index(sp_vlist,tag,i_clist,result)
+      call smd_get_ind(tag,i_clist,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -397,39 +369,32 @@ c
 c     get coordinate information
 c     --------------------------
       tag = "coords"
-      call smd_data_get_index(sp_coord,tag,i_c,result)
+      call smd_get_ind_size(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
-      call smd_data_get_size(sp_coord,tag,np,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting size for'//tag,0, RTDB_ERR)
       np = np/3
 c
 c     get list information
 c     --------------------
       tag = "vlist:pointer"
-      call smd_data_get_index(sp_vlist,tag,i_p,result)
+      call smd_get_ind(tag,i_p,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
       tag = "vlist:list"
-      call smd_data_get_index(sp_vlist,tag,i_list,result)
+      call smd_get_ind(tag,i_list,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
 
       tag = "vlist:distances"
-      call smd_data_get_index(sp_vlist,tag,i_clist,result)
+      call smd_get_ind_size(tag,i_clist,nl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
-      call smd_data_get_size(sp_vlist,tag,nl,result)
       nl = nl/3
 
       call smd_vlist_update_coord0(np,nl,
@@ -746,12 +711,8 @@ c     -----------------
      >       pname//'no component '//tag,0,0)
 
       tag = "vel"
-      call smd_data_get_index(sp_vel,tag,i_v,result)
+      call smd_get_ind_size(tag,i_v,na,result)
       if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-      call  smd_data_get_size(sp_vel,tag,na,result)
-      if(.not. result)
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
       na = na/3

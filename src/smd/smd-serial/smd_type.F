@@ -32,12 +32,12 @@ c
      >       pname//'no component '//tag,0,0)
 
 
-      call smd_type_init(sp_type,sp_atom,sp_param)
+      call smd_type_init(sp_type)
 c
       return
       end
 
-      subroutine smd_type_init(sp_type,sp_atom,sp_param)
+      subroutine smd_type_init(sp_type)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -46,8 +46,6 @@ c
 #include "util.fh"
 #include "global.fh"
 c     
-      character*(*) sp_atom
-      character*(*) sp_param
       character*(*) sp_type
 c
       character*32 pname
@@ -61,53 +59,45 @@ c
 c
 c      write(*,*) "in "//pname
 c
-c     get total number of atoms and types
-c     ---------------------------------------
-      call smd_atom_ntot(sp_atom,na)
-      call smd_param_ntot(sp_param,nt)
+      tag = "atom:name"
+      call smd_get_ind_size(tag,i_ta,na,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, 0)
+      na = na/16
       if(na.le.0)
      >  call errquit(
      >       pname//'no atoms ',0, RTDB_ERR)
+
+      tag = "atom:resname"
+      call smd_get_ind(tag,i_tr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, 0)
+
+      tag = "param:atomname"
+      call smd_get_ind_size(tag,i_tta,nt,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, 0)
+      nt = nt/16
       if(nt.le.0)
      >  call errquit(
      >       pname//'no types ',0, RTDB_ERR)
+
+      tag = "param:resname"
+      call smd_get_ind(tag,i_ttr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, 0)
+
 c
 c     create type structure
 c     ---------------------
 c
       call smd_namespace_create(sp_type)
       tag = "type:id"
-      call smd_data_create(sp_type,tag,na,MT_INT)
-      call smd_data_get_index(sp_type,tag,i_it,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-
-      tag = "atom:name"
-      call smd_data_get_index(sp_atom,tag,i_ta,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-
-      tag = "atom:resname"
-      call smd_data_get_index(sp_atom,tag,i_tr,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-
-      tag = "param:atomname"
-      call smd_data_get_index(sp_param,tag,i_tta,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-
-      tag = "param:resname"
-      call smd_data_get_index(sp_param,tag,i_ttr,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-
-
+      call smd_data_create_get(sp_type,tag,na,MT_INT,i_it)
 
       call smd_type_set(nt,
      +                  byte_mb(i_tta),

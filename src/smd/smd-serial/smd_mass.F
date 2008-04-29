@@ -32,12 +32,12 @@ c
      >       pname//'no component '//tag,0,0)
 
 
-      call smd_mass_init(sp_mass,sp_type,sp_param)
+      call smd_mass_init(sp_mass)
 c
       return
       end
 
-      subroutine smd_mass_init(sp_mass,sp_type,sp_param)
+      subroutine smd_mass_init(sp_mass)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -46,13 +46,11 @@ c
 #include "util.fh"
 #include "global.fh"
 c     
-      character*(*) sp_type
-      character*(*) sp_param
       character*(*) sp_mass
 c
       character*32 pname
       character*80 tag
-      integer nt,na
+      integer na
       integer i_it
       integer i_mp,i_m,nmp
       logical result
@@ -79,14 +77,9 @@ c     ------------------------
 c
 c     create mass structure
 c     ---------------------
-c
       call smd_namespace_create(sp_mass)
       tag = "mass"
       call smd_data_create_get(sp_mass,tag,na,MT_DBL,i_m)
-c      call smd_data_get_index(sp_mass,tag,i_m,result)
-c      if(.not. result) 
-c     >  call errquit(
-c     >       pname//'error getting index for'//tag,0, 0)
 
       call smd_mass_set(na,
      +                  int_mb(i_it),

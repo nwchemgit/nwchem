@@ -42,9 +42,6 @@ c
       integer i_iconst
       logical result
 c
-      logical geom_tag_to_charge
-      external geom_tag_to_charge
-c
       pname = "smd_atom_init"
 c
 c      write(*,*) "in "//pname
@@ -52,7 +49,6 @@ c
 c     get total number of atoms from pdb file
 c     ---------------------------------------
       call smd_coordfile_natoms(nt)
-c      write(*,*) "in 1"//pname
       if(nt.le.0)
      >  call errquit(
      >       pname//'no atoms ',0, RTDB_ERR)
@@ -60,66 +56,30 @@ c
 c     create atom namespace
 c     ---------------------
       call smd_namespace_create(namespace)
-c      write(*,*) "in 2"//pname
 c
 c     create atom data structures
 c     ---------------------------
-      call smd_data_create(namespace,"atom:iconst",1,MT_INT)
-      call smd_data_create(namespace,"atom:name",16*nt,MT_BYTE)
-c      call smd_data_create(namespace,"atom:formal_charge",nt,MT_DBL)
-      call smd_data_create(namespace,"atom:resname",16*nt,MT_BYTE)
-      call smd_data_create(namespace,"atom:resid",nt,MT_INT)
+      tag = "atom:iconst"
+      call smd_data_create_get(namespace,tag,1,MT_INT,i_iconst)
+      tag = "atom:name"
+      call smd_data_create_get(namespace,tag,16*nt,MT_BYTE,i_t)
+      tag  = "atom:resname"
+      call smd_data_create_get(namespace,tag,16*nt,MT_BYTE,i_tr)
+      tag = "atom:resid"
+      call smd_data_create_get(namespace,tag,nt,MT_INT,i_ir)
 
 c
 c    don't ask
 c    --------
-      tag = "atom:iconst"
-      call smd_data_get_index(namespace,tag,i_iconst,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
       int_mb(i_iconst) = nt
 c
 c     fill in names from pdb file
 c     ---------------------------
-      tag = "atom:name"
-      call smd_data_get_index(namespace,tag,i_t,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
-      tag = "atom:resname"
-      call smd_data_get_index(namespace,tag,i_tr,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
-      tag = "atom:resid"
-      call smd_data_get_index(namespace,tag,i_ir,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
-c      tag = "atom:formal_charge"
-c      call smd_data_get_index(namespace,tag,i_qf,result)
-c      if(.not. result) 
-c     >  call errquit(
-c     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
-
-c      write(*,*) "in 3"//pname,ga_nodeid()
       call smd_coordfile_read_atomres(nt,
      +                         byte_mb(i_t),
      +                         byte_mb(i_tr),
      +                         int_mb(i_ir))
 
-c      write(*,*) "in 4"//pname,ga_nodeid()
-c      call util_flush(6)
-c      if(.not.geom_tag_to_charge(nt,byte_mb(i_t),dbl_mb(i_qf)))
-c     >  call errquit(
-c     >       pname//'error setting formal charge',0, RTDB_ERR)
-c      write(*,*) "out "//pname,ga_nodeid()
-c      call util_flush(6)
       return
       end
 
