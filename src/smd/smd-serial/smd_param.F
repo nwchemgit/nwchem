@@ -59,45 +59,20 @@ c
 c
 c     create parameter data structures
 c     ---------------------------
-      call smd_data_create(namespace,"param:atomname",16*na,MT_BYTE)
-      call smd_data_create(namespace,"param:typename",16*na,MT_BYTE)
-      call smd_data_create(namespace,"param:charge",na,MT_DBL)
-      call smd_data_create(namespace,"param:mass",na,MT_DBL)
-      call smd_data_create(namespace,"param:resname",16*na,MT_BYTE)
+      tag = "param:atomname"
+      call smd_data_create_get(namespace,tag,16*na,MT_BYTE,i_ta)
+      tag = "param:typename"
+      call smd_data_create_get(namespace,tag,16*na,MT_BYTE,i_tt)
+      tag = "param:charge"
+      call smd_data_create_get(namespace,tag,na,MT_DBL,i_q)
+      tag = "param:mass"
+      call smd_data_create_get(namespace,tag,na,MT_DBL,i_m)
+      tag = "param:resname"
+      call smd_data_create_get(namespace,tag,16*na,MT_BYTE,i_tr)
 
 c
 c     fill in names and coordinates from parameter file
 c     -------------------------------------------------
-      tag = "param:atomname"
-      call smd_data_get_index(namespace,tag,i_ta,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, 0)
-
-      tag = "param:typename"
-      call smd_data_get_index(namespace,tag,i_tt,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-
-      tag = "param:resname"
-      call smd_data_get_index(namespace,tag,i_tr,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-
-      tag = "param:mass"
-      call smd_data_get_index(namespace,tag,i_m,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-
-      tag = "param:charge"
-      call smd_data_get_index(namespace,tag,i_q,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-
 
       call smd_paramfile_read_atom(na,
      +                         byte_mb(i_ta),

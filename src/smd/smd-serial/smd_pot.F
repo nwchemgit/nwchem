@@ -1,5 +1,5 @@
 *
-* $Id: smd_pot.F,v 1.1 2008-04-18 17:40:32 marat Exp $
+* $Id: smd_pot.F,v 1.2 2008-04-29 21:41:10 marat Exp $
 *
       subroutine smd_pot_init_system()
       implicit none
@@ -29,7 +29,7 @@ c
      >       pname//'no component '//tag,0,0)
 
 
-      call smd_pot_init(sp_pot,sp_param,result)
+      call smd_pot_init(sp_pot,result)
 
       if(.not.result) then
        tag = "potential"
@@ -39,7 +39,7 @@ c
       return
       end
 
-      subroutine smd_pot_init(sp_pot,sp_param,result)
+      subroutine smd_pot_init(sp_pot,result)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -48,7 +48,6 @@ c
 #include "global.fh"
 c     
       character*(*) sp_pot
-      character*(*) sp_param
       logical result
 c
       character*32 pname
@@ -64,9 +63,19 @@ c
 c
 c      write(*,*) "in "//pname
 c
-c     get total number of parameters
-c     ------------------------------
-      call smd_param_ntot(sp_param,nt)
+      tag = "param:typename"
+      call smd_get_ind(tag,i_tt,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+
+      tag = "param:resname"
+      call smd_get_ind_size(tag,i_tr,nt,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+
+      nt = nt/16
 c
 c     total number of possible pairwise interactions
 c     ----------------------------------------------
@@ -76,49 +85,10 @@ c
 c     create pot data structures
 c     ---------------------------
       call smd_namespace_create(sp_pot)
-      call smd_data_create(sp_pot,"pot:p1",np,MT_DBL)
-      call smd_data_create(sp_pot,"pot:p2",np,MT_DBL)
-      call smd_data_create(sp_pot,"pot:p3",np,MT_DBL)
-      call smd_data_create(sp_pot,"pot:type",np,MT_INT)
-c
-c     fill in parameters from parameter file
-c     -------------------------------------------
-      tag = "pot:p1"
-      call smd_data_get_index(sp_pot,tag,i_p1,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-
-      tag = "pot:p2"
-      call smd_data_get_index(sp_pot,tag,i_p2,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-
-      tag = "pot:p3"
-      call smd_data_get_index(sp_pot,tag,i_p3,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-
-      tag = "pot:type"
-      call smd_data_get_index(sp_pot,tag,i_pt,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-
-      tag = "param:typename"
-      call smd_data_get_index(sp_param,tag,i_tt,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
-      tag = "param:resname"
-      call smd_data_get_index(sp_param,tag,i_tr,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
+      call smd_data_create_get(sp_pot,"pot:p1",np,MT_DBL,i_p1)
+      call smd_data_create_get(sp_pot,"pot:p2",np,MT_DBL,i_p2)
+      call smd_data_create_get(sp_pot,"pot:p3",np,MT_DBL,i_p3)
+      call smd_data_create_get(sp_pot,"pot:type",np,MT_INT,i_pt)
 
       call smd_paramfile_read_pot(np,
      +                         int_mb(i_pt),
@@ -146,12 +116,6 @@ c     -------------------------------------------
       double precision  e
 c
       character*30 pname
-      character*32 sp_pot
-      character*32 sp_lattice
-      character*32 sp_force
-      character*32 sp_vlist
-      character*32 sp_type
-      character*32 sp
       character*32 tag
       integer i_p1,i_p2,i_p3,i_pt
       integer nt,np
@@ -172,46 +136,22 @@ c
 
       e = 0.0d0
 c
-c     get components
-c     --------------
-      call smd_system_get_component(sp_pot,"potential",result)
-      if(.not.result) return
-
-      call smd_system_get_component(sp_force,"force",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no force ',0,0)
-
-      call smd_system_get_component(sp_vlist,"verlet_list",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no verlet_list ',0,0)
-
-      call smd_system_get_component(sp_type,"type",result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no types ',0,0)
-
-
-c
 c     get verlet list data
 c     --------------------
-      sp = sp_vlist
       tag = "vlist:pointer"
-      call smd_data_get_index(sp,tag,i_p,result)
+      call smd_get_ind(tag,i_p,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
       tag = "vlist:list"
-      call smd_data_get_index(sp,tag,i_l,result)
+      call smd_get_ind_size(tag,i_l,nl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp,tag,nl,result)
 
       tag = "vlist:distances"
-      call smd_data_get_index(sp_vlist,tag,i_c,result)
+      call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -219,36 +159,31 @@ c     --------------------
 c
 c     get type data
 c     ------------
-      sp = sp_type
       tag = "type:id"
-      call smd_data_get_index(sp,tag,i_it,result)
+      call smd_get_ind_size(tag,i_it,nt,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
-
-      call smd_data_get_size(sp,tag,nt,result)
 c
 c     get pot data
 c     ------------
-      sp = sp_pot
       tag = "pot:p1"
-      call smd_data_get_index(sp,tag,i_p1,result)
+      call smd_get_ind_size(tag,i_p1,np,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp,tag,np,result)
       tag = "pot:p2"
-      call smd_data_get_index(sp,tag,i_p2,result)
+      call smd_get_ind(tag,i_p2,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
       tag = "pot:p3"
-      call smd_data_get_index(sp,tag,i_p3,result)
+      call smd_get_ind(tag,i_p3,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
       tag = "pot:type"
-      call smd_data_get_index(sp,tag,i_pt,result)
+      call smd_get_ind(tag,i_pt,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -256,12 +191,10 @@ c
 c     get force data
 c     --------------
       tag = "force"
-      sp = sp_force
-      call smd_data_get_index(sp,tag,i_f,result)
+      call smd_get_ind_size(tag,i_f,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
-      call smd_data_get_size(sp,tag,na,result)
       na = na/3
 c
 c     get cutoff data
