@@ -32,7 +32,6 @@ c
      >       pname//'no component '//tag,0,0)
 
       call smd_vel_init(sp_vel,sp_atom)
-c      call smd_vel_set(sp_vel,sp_type,sp_param)
 c
       return
       end
@@ -51,6 +50,8 @@ c
 c
       character*32 pname
       integer na
+      character*255 filename
+      logical result
 c
       pname = "smd_vel_init"
 c
@@ -67,6 +68,14 @@ c     create vel data structures
 c     ---------------------------
       call smd_namespace_create(sp_vel)
       call smd_data_create(sp_vel,"vel",3*na,MT_DBL)
+c
+      call smd_rtdb_get_veloc_input(filename,result)
+      if((.not.result).or.(filename.eq."random")) then
+        call smd_vel_random_guess()
+      else
+        call smd_vel_read(filename)
+      end if
+c
       return
       end
 c
@@ -159,15 +168,16 @@ c      write(*,*) "current ke compared",targetke,ke
       return
       end
 
-      subroutine smd_vel_write(un)
+      subroutine smd_vel_write(filename)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+      character*(*) filename
+c
       integer un
-c     
       character*72 sp_vel
       character*72 sp_param
       character*72 sp_type
@@ -182,6 +192,11 @@ c
       pname = "smd_type_init"
 c
 c      write(*,*) "in "//pname
+c
+      if(.not.util_get_io_unit(un))
+     >   call errquit("cannot get file number",0,0)
+c
+      open(unit=un,status="old",form="formatted",file=filename)
 c
 c     get components
 c     --------------
@@ -208,18 +223,20 @@ c     ------------------
      >                   na,
      >                   dbl_mb(i_v))
 
+      close(un)
       return
       end
 
-      subroutine smd_vel_read(un)
+      subroutine smd_vel_read(filename)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+      character*(*) filename
+c
       integer un
-c     
       character*72 sp_vel
       character*72 sp_param
       character*72 sp_type
@@ -229,11 +246,16 @@ c
       integer i_v,i_it
       integer i_m
       logical result
-      double precision targetke,ke
 c
-      pname = "smd_type_init"
+      pname = "smd_vel_read"
 c
 c      write(*,*) "in "//pname
+c
+      if(.not.util_get_io_unit(un))
+     >   call errquit("cannot get file number",0,0)
+c
+      open(unit=un,status="old",form="formatted",file=filename)
+
 c
 c     get components
 c     --------------
@@ -260,6 +282,7 @@ c     ------------------
      >                   na,
      >                   dbl_mb(i_v))
 
+      close(un)
       return
       end
 

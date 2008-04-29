@@ -332,6 +332,5 @@ c     -------------------
       call smd_coords_rebox()
       call smd_ewald_init()
       call smd_system_print(6)
-      call smd_vel_random_guess()
       return
       end

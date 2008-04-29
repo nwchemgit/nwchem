@@ -35,9 +35,6 @@ c
       call smd_init("dynamics",rtdb)
       call cpu_time(etime2)
 c
-      call smd_vel_read(70)
-      call smd_vel_write(71)
-c
       if (.not.smd_system_ndata(ndata)) 
      >      call errquit(pname//'failed to get ndata',0,
      >       RTDB_ERR)

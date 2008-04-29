@@ -136,6 +136,27 @@ c
 
       end 
 
+      subroutine smd_rtdb_get_veloc_input(filename,result)
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
+c
+      character*(*) filename
+      logical result
+c
+      character*30 pname
+
+      pname = "smd_rtdb_get_veloc:input"
+      
+      result = .true.
+      if(.not.rtdb_cget(smd_rtdb,'smd:veloc:input',1,filename))
+     >   result = .false.
+
+      end 
+
       subroutine smd_rtdb_init(rtdb)
       implicit none
 #include "rtdb.fh"

@@ -37,6 +37,13 @@ c     ------------------
     2 continue
       if(.not.inp_a(token)) goto 1
 c
+c     velocities
+c     ----------
+      if(inp_compare(.false.,'veloc',token)) then
+        call smd_input_veloc(rtdb)
+        goto 2
+      endif
+c
 c     coordinates
 c     ----------
       if(inp_compare(.false.,'coord',token)) then
@@ -284,9 +291,9 @@ c     -------------------
 c
       if (token.eq.'end') then
 c        write(luout,*) "out of ",pname
-c        if(.not.rtdb_print(rtdb,.true.))
-c     >      call errquit(pname//'failed to print rtdb',0,
-c     >       RTDB_ERR)
+        if(.not.rtdb_print(rtdb,.true.))
+     >      call errquit(pname//'failed to print rtdb',0,
+     >       RTDB_ERR)
         return
       endif
 c
@@ -303,3 +310,69 @@ c
       end
 
 
+      subroutine smd_input_veloc(rtdb)
+c
+      implicit none
+#include "errquit.fh"
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+c
+      integer rtdb
+c
+      character*32 tag
+      character*32 pname
+      character*255 token
+      integer ip,np
+c
+      pname = "smd_input_vel"
+c
+      write(luout,*) "in ",pname
+c
+      np = inp_n_field()
+c
+      if(np.eq.1) goto 200
+c
+      call inp_set_field(1)
+c
+c     start parsing input
+c     ------------------
+2     continue
+      if(inp_cur_field().eq.np) return
+      if (.not.inp_a(token))
+     + call errquit(pname,0, INPUT_ERR)
+      write(*,*) "current token",token,
+     +           inp_cur_field(),np
+c
+c     input files
+c     -----------
+      if(inp_compare(.false.,'input',token) ) then
+        if(.not.inp_a(token)) 
+     >   call errquit(pname//' input ',0,INPUT_ERR)
+        tag="smd:veloc:input"
+        if (.not.rtdb_cput(rtdb,tag,1,token)) 
+     >        call errquit(pname//'failed to store'//tag,0,
+     >         RTDB_ERR)
+
+        goto 2
+      endif
+c
+c     output files
+c     -----------
+      if(inp_compare(.false.,'output',token) ) then
+        if(.not.inp_a(token)) 
+     >   call errquit(pname//' input ',0,INPUT_ERR)
+        tag="smd:veloc:output"
+        if (.not.rtdb_cput(rtdb,tag,1,token)) 
+     >        call errquit(pname//'failed to store'//tag,0,
+     >         RTDB_ERR)
+
+        goto 2
+      endif
+
+
+200   continue
+      write(luout,*) "out ",pname
+      return
+      end
