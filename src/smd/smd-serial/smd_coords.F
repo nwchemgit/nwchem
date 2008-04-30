@@ -122,7 +122,7 @@ c
       integer i_c,i_lrc,i_lc
       logical result
 
-      pname = "smd_atom_rebox"
+      pname = "smd_coords_rebox"
 
 c
 c     get atomic coordinates
@@ -158,7 +158,7 @@ c
       integer i_c,i_lrc,i_lc
       logical result
 
-      pname = "smd_atom_rebox"
+      pname = "smd_coords_print"
 
 c
 c     get atomic coordinates
