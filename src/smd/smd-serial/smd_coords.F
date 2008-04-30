@@ -25,14 +25,14 @@ c
      >  call errquit(
      >       pname//'no component '//tag,0,0)
 
-      call smd_coords_init(sp_coords,sp_atom)
+      call smd_coords_init(sp_coords)
       
       call smd_coords_read(sp_coords)
 c
       return
       end
 
-      subroutine smd_coords_init(sp_coords,sp_atom)
+      subroutine smd_coords_init(sp_coords)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -42,7 +42,6 @@ c
 #include "global.fh"
 c     
       character*(*) sp_coords
-      character*(*) sp_atom
 c
       character*32 pname
       integer na
@@ -53,7 +52,7 @@ c      write(*,*) "in "//pname
 c
 c     get total number of atoms 
 c     -------------------------
-      call smd_atom_ntot(sp_atom,na)
+      call smd_system_ntot(na)
       if(na.le.0)
      >  call errquit(
      >       pname//'no atoms ',0, RTDB_ERR)

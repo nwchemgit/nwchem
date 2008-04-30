@@ -39,7 +39,7 @@ c
 
 
       call smd_charge_init(sp_charge)
-      call smd_charge_set(sp_charge,sp_type,sp_param)
+      call smd_charge_set()
 c
       return
       end
@@ -99,7 +99,7 @@ c     ---------------------------
       return
       end
 
-      subroutine smd_charge_set(sp_charge,sp_type,sp_param)
+      subroutine smd_charge_set()
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
