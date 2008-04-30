@@ -82,7 +82,7 @@ c
       call smd_system_get_component(sp_atom,tag,result)
       if(.not.result) goto 100
 
-      call smd_atom_ntot(sp_atom,ntot)
+      call smd_atom_ntot(ntot)
 
 100   continue
       smd_system_ntot = result

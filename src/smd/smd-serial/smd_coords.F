@@ -52,7 +52,7 @@ c      write(*,*) "in "//pname
 c
 c     get total number of atoms 
 c     -------------------------
-      call smd_system_ntot(na)
+      call smd_atom_ntot(na)
       if(na.le.0)
      >  call errquit(
      >       pname//'no atoms ',0, RTDB_ERR)

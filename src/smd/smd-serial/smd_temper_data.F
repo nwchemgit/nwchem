@@ -48,9 +48,7 @@ c
         if (.not.rtdb_get(rtdb,tag,mt_dbl,1,temp_target)) 
      >      temp_target = 0.0d0
 
-      if(.not.smd_system_ntot(natms))
-     >      call errquit(pname//'failed to get ntot',0,
-     >       RTDB_ERR)
+      call smd_atom_ntot(natms)
 
       if(.not.smd_system_ntcons(ntcons))
      >      call errquit(pname//'failed to get ntcons',0,

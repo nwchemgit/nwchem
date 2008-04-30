@@ -63,7 +63,7 @@ c      write(*,*) "in "//pname
 c
 c     get total number of atoms
 c     -------------------------
-      call smd_system_ntot(np)
+      call smd_atom_ntot(np)
 c
 c     gestimate the size of pair list
 c     ------------------------------

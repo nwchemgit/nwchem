@@ -83,7 +83,7 @@ c     ---------------------------
       return
       end
 
-      subroutine smd_atom_ntot(namespace,ntot)
+      subroutine smd_atom_ntot(ntot)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -102,7 +102,7 @@ c
 
       pname = "smd_atom_ntot"
       tag = "atom:iconst"
-      call smd_data_get_index(namespace,tag,i_iconst,result)
+      call smd_get_ind(tag,i_iconst,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting ntot '//tag,0, RTDB_ERR)
