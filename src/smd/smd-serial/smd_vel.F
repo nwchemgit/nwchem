@@ -31,12 +31,12 @@ c
      >  call errquit(
      >       pname//'no component '//tag,0,0)
 
-      call smd_vel_init(sp_vel,sp_atom)
+      call smd_vel_init(sp_vel)
 c
       return
       end
 
-      subroutine smd_vel_init(sp_vel,sp_atom)
+      subroutine smd_vel_init(sp_vel)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -59,7 +59,7 @@ c      write(*,*) "in "//pname
 c
 c     get total number of atoms 
 c     -------------------------
-      call smd_atom_ntot(sp_atom,na)
+      call smd_system_ntot(na)
       if(na.le.0)
      >  call errquit(
      >       pname//'no atoms ',0, RTDB_ERR)

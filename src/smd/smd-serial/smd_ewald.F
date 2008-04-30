@@ -226,7 +226,7 @@ c     ----------------
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
-      call smd_latt_get_vol1(vol)
+      call smd_latt_get_vol(vol)
 c
 c     get ewald data
 c     --------------
@@ -382,7 +382,7 @@ c     ----------------
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
 
-      call smd_latt_get_vol1(vol)
+      call smd_latt_get_vol(vol)
 
 c
 c     get ewald data

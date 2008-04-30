@@ -203,35 +203,7 @@ c
 
       END
 
-      subroutine smd_latt_get_vol(namespace,vol)
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "global.fh"
-c     
-      character*(*) namespace
-      double precision vol
-c
-      character*72 tag
-      character*30 pname
-      integer i_fconst
-      logical result
-
-      pname = "smd_latt_vol"
-      tag = "lat:fconst"
-      call smd_data_get_index(namespace,tag,i_fconst,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting ntot '//tag,0, RTDB_ERR)
-      vol = dbl_mb(i_fconst)
-
-      return
-      end
-
-      subroutine smd_latt_get_vol1(vol)
+      subroutine smd_latt_get_vol(vol)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

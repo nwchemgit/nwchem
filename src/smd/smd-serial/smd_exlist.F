@@ -27,7 +27,7 @@ c
      >       pname//'no component '//tag,0,0)
 
 
-      call smd_exlist_init(sp_exlist,sp_atom,result)
+      call smd_exlist_init(sp_exlist,result)
 c
       if(.not.result) then
        tag = "excl_list"
@@ -37,7 +37,7 @@ c
       return
       end
 
-      subroutine smd_exlist_init(sp_exlist,sp_atom,result)
+      subroutine smd_exlist_init(sp_exlist,result)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -47,7 +47,6 @@ c
 #include "global.fh"
 c     
       character*(*) sp_exlist
-      character*(*) sp_atom
       logical result
 c
       character*32 pname
@@ -64,7 +63,7 @@ c      write(*,*) "in "//pname
 c
 c     get total number of atoms
 c     -------------------------
-      call smd_atom_ntot(sp_atom,np)
+      call smd_system_ntot(np)
 c
 c     gestimate the size of pair list
 c     ------------------------------
