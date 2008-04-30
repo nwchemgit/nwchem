@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.5 2008-04-30 22:07:43 marat Exp $
+* $Id: smd_data.F,v 1.6 2008-04-30 22:24:50 marat Exp $
 *
 
       block data initial_smd_data
@@ -104,41 +104,53 @@ c
       return
       end
 
-c      subroutine smd_data_destroy(sname,dname,result)
-c      implicit none
-c#include "smd_data.fh"
-c      character*(*) sname
-c      character*(*) dname
-c      integer ind
-c      logical result
-cc
-c      integer i,ns,nd
-c      character*72 buffer
-c      character*30 pname
+      subroutine smd_data_destroy(sname,dname,result)
+      implicit none
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ind
+      logical result
 c
-c      pname = "smd_data_get_index"    
-c 
-c      buffer = sname
+      integer i,j,ns,nd
+      character*72 buffer
+      character*30 pname
+
+      pname = "smd_data_get_index"    
+ 
+      buffer = sname
+
+      call smd_data_get_sindex(buffer,ns,result)
+      if(.not.result) return
+
+      result = .false.
+      nd = 0
+      buffer = dname
+      do i=1,smd_nd(ns)
+       if(smd_dname(ns,i).eq.buffer) then
+         ind = smd_index(ns,i)
+         result = .true.
+         goto 10
+       end if
+      end do
+10    continue
+      if(.not.result) return
 c
-c      call smd_data_get_sindex(buffer,ns,result)
-c      if(.not.result) return
-c
-c      result = .false.
-c      nd = 0
-c      buffer = dname
-c      do i=1,smd_nd(ns)
-c       if(smd_dname(ns,i).eq.buffer) then
-c         ind = smd_index(ns,i)
-c         result = .true.
-c         goto 10
-c       end if
-c      end do
-c10    continue
-c      if(.not.result) return
-cc
-c
-c      return
-c      end
+      do j=i,smd_nd(ns)-1
+        smd_dname(ns,j)  = smd_dname(ns,j+1)
+        smd_handle(ns,j) = smd_handle(ns,j+1)
+        smd_index(ns,j)  = smd_index(ns,j+1)
+        smd_type(ns,j)   = smd_type(ns,j+1)
+        smd_dim(ns,j)    = smd_dim(ns,j+1)
+      end do
+      smd_dname(ns,smd_nd(ns))  = " "
+      smd_handle(ns,smd_nd(ns)) = 0
+      smd_index(ns,smd_nd(ns))  = 0
+      smd_type(ns,smd_nd(ns))   = 0
+      smd_dim(ns,smd_nd(ns))    = 0
+      smd_nd(ns) = smd_nd(ns)-1 
+      return
+      end
 
       subroutine smd_data_get_index_size(sname,dname,ind,nq,result)
       implicit none
