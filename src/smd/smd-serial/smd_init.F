@@ -331,6 +331,10 @@ c     finish system setup
 c     -------------------
       call smd_coords_rebox()
       call smd_ewald_init()
+      call smd_data_print(67)
+      call smd_namespace_destroy("charge")
+      call smd_data_print(68)
       call smd_system_print(6)
+      stop
       return
       end

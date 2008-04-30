@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.4 2008-04-30 21:37:06 marat Exp $
+* $Id: smd_data.F,v 1.5 2008-04-30 22:07:43 marat Exp $
 *
 
       block data initial_smd_data
@@ -103,6 +103,42 @@ c
 
       return
       end
+
+c      subroutine smd_data_destroy(sname,dname,result)
+c      implicit none
+c#include "smd_data.fh"
+c      character*(*) sname
+c      character*(*) dname
+c      integer ind
+c      logical result
+cc
+c      integer i,ns,nd
+c      character*72 buffer
+c      character*30 pname
+c
+c      pname = "smd_data_get_index"    
+c 
+c      buffer = sname
+c
+c      call smd_data_get_sindex(buffer,ns,result)
+c      if(.not.result) return
+c
+c      result = .false.
+c      nd = 0
+c      buffer = dname
+c      do i=1,smd_nd(ns)
+c       if(smd_dname(ns,i).eq.buffer) then
+c         ind = smd_index(ns,i)
+c         result = .true.
+c         goto 10
+c       end if
+c      end do
+c10    continue
+c      if(.not.result) return
+cc
+c
+c      return
+c      end
 
       subroutine smd_data_get_index_size(sname,dname,ind,nq,result)
       implicit none
@@ -231,7 +267,14 @@ c
       do i=ns,smd_n-1
        smd_name(i) = smd_name(i+1)
        smd_nd(i)   = smd_nd(i+1)
-       do j=1,smd_nd(ns)
+       do j=1,smd_nd(i)
+         smd_dname(i,j)  = " "
+         smd_handle(i,j) = 0
+         smd_index(i,j)  = 0
+         smd_type(i,j)   = 0
+         smd_dim(i,j)    = 0
+       end do
+       do j=1,smd_nd(i+1)
          smd_dname(i,j)  = smd_dname(i+1,j) 
          smd_handle(i,j) = smd_handle(i+1,j) 
          smd_index(i,j)  = smd_index(i+1,j) 
@@ -242,7 +285,7 @@ c
       smd_n = smd_n - 1
       end
 
-      subroutine smd_data_destroy()
+      subroutine smd_data_destroy_all()
       implicit none
 #include "smd_data.fh"
 #include "errquit.fh"

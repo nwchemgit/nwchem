@@ -1,4 +1,4 @@
-c $Id: smd_end.F,v 1.1 2008-04-18 17:40:31 marat Exp $
+c $Id: smd_end.F,v 1.2 2008-04-30 22:07:43 marat Exp $
       subroutine smd_end(rtdb)
       implicit none
 #include "errquit.fh"
@@ -16,7 +16,7 @@ c
 c
 c      write(*,*) "in "//pname
 c
-      call smd_data_destroy()
+      call smd_data_destroy_all()
 c
       return
       end
