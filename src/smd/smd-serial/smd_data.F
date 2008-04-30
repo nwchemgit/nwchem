@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.3 2008-04-29 19:37:49 marat Exp $
+* $Id: smd_data.F,v 1.4 2008-04-30 21:37:06 marat Exp $
 *
 
       block data initial_smd_data
@@ -12,6 +12,7 @@ c
       end
 
       subroutine smd_data_get_sindex(sname,ns,result)
+      implicit none
 #include "smd_data.fh"
       character*(*) sname
       integer ns
@@ -33,6 +34,7 @@ c
       end
 
       subroutine smd_data_get_dindex(sname,dname,nd,result)
+      implicit none
 #include "smd_data.fh"
       character*(*) sname
       character*(*) dname
@@ -67,6 +69,7 @@ c
       end
 
       subroutine smd_data_get_index(sname,dname,ind,result)
+      implicit none
 #include "smd_data.fh"
       character*(*) sname
       character*(*) dname
@@ -102,6 +105,7 @@ c
       end
 
       subroutine smd_data_get_index_size(sname,dname,ind,nq,result)
+      implicit none
 #include "smd_data.fh"
       character*(*) sname
       character*(*) dname
@@ -138,6 +142,7 @@ c
       end
 
       subroutine smd_data_get_size(sname,dname,ndim,result)
+      implicit none
 #include "smd_data.fh"
       character*(*) sname
       character*(*) dname
@@ -173,6 +178,7 @@ c
       end
 
       subroutine smd_namespace_create(sname)
+      implicit none
 #include "smd_data.fh"
       character*(*) sname
 c
@@ -188,12 +194,13 @@ c
       end
 
       subroutine smd_namespace_destroy(sname)
+      implicit none
 #include "smd_data.fh"
 #include "errquit.fh"
 #include "mafdecls.fh"
       character*(*) sname
 c
-      integer i
+      integer i,j
       integer ns
       logical result
       character*72 buffer
@@ -221,9 +228,22 @@ c
       smd_nd(ns) = 0
       smd_name(ns) = " "
 
+      do i=ns,smd_n-1
+       smd_name(i) = smd_name(i+1)
+       smd_nd(i)   = smd_nd(i+1)
+       do j=1,smd_nd(ns)
+         smd_dname(i,j)  = smd_dname(i+1,j) 
+         smd_handle(i,j) = smd_handle(i+1,j) 
+         smd_index(i,j)  = smd_index(i+1,j) 
+         smd_type(i,j)   = smd_type(i+1,j) 
+         smd_dim(i,j)    = smd_dim(i+1,j) 
+       end do
+      end do
+      smd_n = smd_n - 1
       end
 
       subroutine smd_data_destroy()
+      implicit none
 #include "smd_data.fh"
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -250,6 +270,34 @@ c
         smd_name(i) = " "
       end do
       smd_n = 0
+     
+      return
+      end
+
+      subroutine smd_data_print(un)
+      implicit none
+#include "smd_data.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+c
+      integer i,un
+      integer ns
+      character*(30) pname
+      pname = "smd_namespace_destroy"
+
+      do ns=1,smd_n
+
+        write(un,*) "namespace number and name",ns,smd_name(ns)
+        write(un,*) "contents"
+        do i=1,smd_nd(ns)
+          write(un,*) "data name", smd_dname(ns,i)
+          write(un,*) "data handle", smd_handle(ns,i)
+          write(un,*) "data index", smd_index(ns,i)
+          write(un,*) "data type", smd_type(ns,i)
+          write(un,*) "data dims", smd_dim(ns,i)
+
+        end do
+      end do
      
       return
       end
@@ -398,6 +446,7 @@ cc     should probably fill logical and char arrays
       end
 
       subroutine smd_data_inquire(sname,dname,ndim,dtype,result)
+      implicit none
 #include "smd_data.fh"
       character*(*) sname
       character*(*) dname
