@@ -38,13 +38,13 @@ c
      >       pname//'no component '//tag,0,0)
 
 
-      call smd_charge_init(sp_charge,sp_atom)
+      call smd_charge_init(sp_charge)
       call smd_charge_set(sp_charge,sp_type,sp_param)
 c
       return
       end
 
-      subroutine smd_charge_init(sp_charge,sp_atom)
+      subroutine smd_charge_init(sp_charge)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -55,7 +55,6 @@ c
 #include "smd_charge_data.fh"
 c     
       character*(*) sp_charge
-      character*(*) sp_atom
 c
       character*32 pname
       integer na
@@ -73,7 +72,7 @@ c
 c
 c     get total number of atoms 
 c     -------------------------
-      call smd_atom_ntot(sp_atom,na)
+      call smd_system_ntot(na)
       if(na.le.0)
      >  call errquit(
      >       pname//'no atoms ',0, RTDB_ERR)
