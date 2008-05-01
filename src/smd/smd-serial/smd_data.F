@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.6 2008-04-30 22:24:50 marat Exp $
+* $Id: smd_data.F,v 1.7 2008-05-01 23:26:24 marat Exp $
 *
 
       block data initial_smd_data
@@ -533,5 +533,159 @@ c
       end do
 
 100   continue
+      return
+      end
+
+      subroutine smd_data_namespace_brdcst(sname,root)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+#include "msgids.fh"
+#include "global.fh"
+      character*(*) sname
+      integer root
+c
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim,dtype,ind
+
+      pname = "smd_data_create"
+
+      buffer = sname
+      call smd_data_get_sindex(buffer,ns,result)
+      if(.not.result)
+     +   call errquit(pname//'no namespace'//buffer,
+     +         0,
+     +         0)
+
+      nd = smd_nd(ns)
+      do i=1,nd
+        ndim  = smd_dim(ns,i)
+        dtype = smd_type(ns,i)
+        ind   = smd_index(ns,i) 
+        buffer = smd_dname(ns,i)
+        if(dtype.eq. MT_DBL) then
+          write(*,*) "brdcst",ndim,dtype,buffer
+          call util_flush(6)
+          call ga_brdcst(msg_smd,dbl_mb(ind),
+     >     ndim*ma_sizeof(dtype,1,mt_byte),root)
+        else if(dtype.eq.MT_INT) then
+          write(*,*) "brdcst",ndim,dtype,buffer
+          call util_flush(6)
+          call ga_brdcst(msg_smd,int_mb(ind),
+     >     ndim*ma_sizeof(dtype,1,mt_byte),root)
+        else if(dtype.eq.MT_BYTE) then
+          write(*,*) "brdcst",ndim,dtype,buffer
+          call util_flush(6)
+          call ga_brdcst(msg_smd,byte_mb(ind),
+     >     ndim*ma_sizeof(dtype,1,mt_byte),root)
+        else if(dtype.eq.MT_LOG) then
+          write(*,*) "brdcst",ndim,dtype,buffer
+          call util_flush(6)
+          call ga_brdcst(msg_smd,log_mb(ind),
+     >     ndim*ma_sizeof(dtype,1,mt_byte),root)
+        else
+         call errquit(pname//'unknown type',0,0)
+        endif
+      end do 
+
+      return
+      end
+
+      subroutine smd_data_namespace_brdcst_create(sname,root)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+#include "msgids.fh"
+#include "global.fh"
+      character*(*) sname
+      integer root
+c
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim,dtype,ind
+
+      pname = "smd_data_create"
+
+      if(ga_nodeid().eq.root) then
+      buffer = sname
+      call smd_data_get_sindex(buffer,ns,result)
+      if(.not.result)
+     +   call errquit(pname//'no namespace'//buffer,
+     +         0,
+     +         0)
+       nd = smd_nd(ns)
+      else
+       nd = 0
+      end if
+
+      if(ga_nodeid().ne.root) then
+        call smd_namespace_create(sname)
+      end if
+c
+      call ga_brdcst(msg_smd,nd,
+     >     ma_sizeof(mt_int,1,mt_byte),root)
+c
+      call ga_sync()
+      do i=1,nd
+        if(ga_nodeid().eq.root) then
+          ndim  = smd_dim(ns,i)
+          dtype = smd_type(ns,i)
+          buffer = smd_dname(ns,i)
+        end if
+
+        call ga_brdcst(msg_smd,ndim,
+     >       ma_sizeof(mt_int,1,mt_byte),root)
+        call ga_brdcst(msg_smd,dtype,
+     >       ma_sizeof(mt_int,1,mt_byte),root)
+        call ga_brdcst(msg_smd,buffer,
+     >     72*ma_sizeof(mt_int,1,mt_byte),root)
+     
+        call ga_sync()
+     
+        if(ga_nodeid().ne.root) then
+          call smd_data_create_get(sname,buffer,ndim,dtype,ind)
+        else
+          ind = smd_index(ns,i)
+        end if
+        call ga_sync()
+
+        if(dtype.eq. MT_DBL) then
+          write(*,*) "brdcst",ndim,dtype,buffer
+          call util_flush(6)
+          call ga_brdcst(msg_smd,dbl_mb(ind),
+     >     ndim*ma_sizeof(dtype,1,mt_byte),root)
+        else if(dtype.eq.MT_INT) then
+          write(*,*) "brdcst",ndim,dtype,buffer
+          call util_flush(6)
+          call ga_brdcst(msg_smd,int_mb(ind),
+     >     ndim*ma_sizeof(dtype,1,mt_byte),root)
+        else if(dtype.eq.MT_BYTE) then
+          write(*,*) "brdcst",ndim,dtype,buffer
+          call util_flush(6)
+          call ga_brdcst(msg_smd,byte_mb(ind),
+     >     ndim*ma_sizeof(dtype,1,mt_byte),root)
+        else if(dtype.eq.MT_LOG) then
+          write(*,*) "brdcst",ndim,dtype,buffer
+          call util_flush(6)
+          call ga_brdcst(msg_smd,log_mb(ind),
+     >     ndim*ma_sizeof(dtype,1,mt_byte),root)
+        else
+         call errquit(pname//'unknown type',0,0)
+        endif
+
+      end do 
+
+      call smd_data_print(80+ga_nodeid())
       return
       end
