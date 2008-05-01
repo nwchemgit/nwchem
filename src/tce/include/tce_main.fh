@@ -1,4 +1,4 @@
-c $Id: tce_main.fh,v 1.7 2008-02-11 18:13:09 jhammond Exp $
+c $Id: tce_main.fh,v 1.8 2008-05-01 20:09:33 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -44,6 +44,7 @@ c
       integer l_occ(2),k_occ(2)! MA handles for occupancies (AB)
       integer mult             ! Ground state spin multiplicity
       integer nirreps          ! Number of irreducible representations
+      double precision maxdiff ! New
       double precision thresh  ! Convergence threshold for amplitude equation
       double precision pthresh ! Amplitude printing threshold
       double precision zlshift ! Level Shift
@@ -136,7 +137,7 @@ c
 c     Doubles
 c
       common /tcemaindouble/
-     1  thresh,pthresh,tol2e,cpusecs,zlshift
+     1  thresh,pthresh,tol2e,cpusecs,zlshift,maxdiff
 c
 c     Characters
 c

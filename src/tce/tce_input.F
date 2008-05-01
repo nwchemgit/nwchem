@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.24 2008-02-16 04:54:20 jhammond Exp $
+c $Id: tce_input.F,v 1.25 2008-05-01 20:09:30 jhammond Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -79,6 +79,7 @@ c
       character*10 model2e
       character*10 module
       double precision thresh
+      double precision maxdiff ! new
       character*10 ioalgchar
       integer ioalg
       integer reference
@@ -831,6 +832,18 @@ c
           nroots=0
         endif
         if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c     MAXDIFF (for EOM codes)
+c
+      else if (inp_compare(.false.,test,'maxdiff')) then
+        if (.not.inp_f(maxdiff)) then
+c          write(LuOut,*) 'tce_input: maxdiff value not found; ',
+c     1      'default value of 1e-6 will be used'
+          maxdiff=0.5d0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:maxdiff',mt_dbl,1,maxdiff))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c

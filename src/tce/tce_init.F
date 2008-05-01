@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.42 2008-03-17 16:15:19 jhammond Exp $
+c $Id: tce_init.F,v 1.43 2008-05-01 20:09:31 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -218,6 +218,13 @@ c
         nroots = 0
         if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
      1  call errquit('tce_init: failed to write nroots',0,RTDB_ERR)
+      endif
+c
+      if (.not.rtdb_get(rtdb,'tce:maxdiff',mt_dbl,1,maxdiff)) then
+        maxdiff = 0.5d0
+        if (.not.rtdb_put(rtdb,'tce:maxdiff',mt_dbl,1,maxdiff))
+     1  call errquit('tce_init: failed to write maxdiff',0,RTDB_ERR)
+c
       endif
       if (.not.rtdb_get(rtdb,'tce:hbard',mt_int,1,hbard)) then
         hbard = 500
