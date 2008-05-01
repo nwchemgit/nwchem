@@ -42,21 +42,50 @@ c
       integer i_iconst
       logical result
       logical rtdb_mode
+      integer root
 c
       pname = "smd_atom_init"
 c
+      root = 0
+      if(ga_nodeid().eq.root) then
+        call smd_atom_init_seq(namespace)
+      end if
+      call ga_sync()
+      call smd_data_namespace_brdcst_create(namespace,root)
+      return
+      end
+
+      subroutine smd_atom_init_seq(namespace)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      character*(*) namespace
+c
+      character*32 pname
+      character*80 tag
+      integer nt
+      integer i_t,i_tr,i_ir,i_qf
+      integer i_iconst
+      logical result
+      logical rtdb_mode
+c
+      pname = "smd_atom_init_seq"
+c
 c      write(*,*) "in "//pname
+      rtdb_mode = rtdb_parallel(.false.)
 c
 c     get total number of atoms from pdb file
 c     ---------------------------------------
-      call smd_coordfile_natoms(nt)
+      call smd_coordfile_natoms_seq(nt)
       if(nt.le.0)
      >  call errquit(
      >       pname//'no atoms ',0, RTDB_ERR)
 c
-c
-      rtdb_mode = rtdb_parallel(.false.)
-      if(ga_nodeid().eq.0) then
 c
 c     create atom namespace
 c     ---------------------
@@ -80,18 +109,13 @@ c    --------
 c
 c     fill in names from pdb file
 c     ---------------------------
-c      rtdb_mode = rtdb_parallel(.false.)
-c      if(ga_nodeid().eq.0) then
       call smd_coordfile_read_atomres_seq(nt,
      +                         byte_mb(i_t),
      +                         byte_mb(i_tr),
      +                         int_mb(i_ir))
 
-      end if
+c
       rtdb_mode = rtdb_parallel(rtdb_mode)
-      call ga_sync()
-      call util_message("before  call smd_data_namespace_brdcst")
-      call smd_data_namespace_brdcst_create(namespace,0)
       return
       end
 
