@@ -1,0 +1,334 @@
+ argument  1 = spce.nw
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 5.1
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                                         
+                                         
+
+
+                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
+                   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+
+                            >>> All Rights Reserved <<<
+
+
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC05-76RL01830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = colibry
+    program       = /home/marat/codes/nwchem-test/bin/LINUX/nwchem
+    date          = Tue Apr 29 12:06:45 2008
+
+    compiled      = Tue_Apr_29_12:06:38_2008
+    source        = /home/marat/codes/nwchem-test
+    nwchem branch = Development
+    input         = spce.nw
+    prefix        = test.
+    data base     = ./test.db
+    status        = startup
+    nproc         =    1
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =   65536001 doubles =    500.0 Mbytes
+    stack     =   65536001 doubles =    500.0 Mbytes
+    global    =  131072000 doubles =   1000.0 Mbytes (distinct from heap & stack)
+    total     =  262144002 doubles =   2000.0 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ in smd_input_vel                   
+ current token
+ input                                                                                                                                                                                                                                                          
+ 2 5
+ current token
+ output                                                                                                                                                                                                                                                         
+ 4 5
+
+ Contents of RTDB ./test.db
+ --------------------------
+
+ Entry                                   Type[nelem]           Date
+ ---------------------------  ----------------------  ------------------------
+ smd:rcut                              double[1]      Tue Apr 29 12:06:45 2008 
+9.00000000000000e+00 
+ smd:coordfile                           char[13]     Tue Apr 29 12:06:45 2008 
+spce-big.pdb
+ smd:nequil                               int[1]      Tue Apr 29 12:06:45 2008 
+1 
+ smd:veloc:input                         char[8]      Tue Apr 29 12:06:45 2008 
+fort.70
+ smd:step                              double[1]      Tue Apr 29 12:06:45 2008 
+1.00000000000000e-03 
+ smd:ndata                                int[1]      Tue Apr 29 12:06:45 2008 
+2 
+ smd:kvec                                 int[3]      Tue Apr 29 12:06:45 2008 
+6 6 6 
+ smd:nprint                               int[1]      Tue Apr 29 12:06:45 2008 
+10 
+ smd:temp_target                       double[1]      Tue Apr 29 12:06:45 2008 
+3.00000000000000e+02 
+ smd:ewald                             double[1]      Tue Apr 29 12:06:45 2008 
+3.50000000000000e-01 
+ smd:lat_a                             double[3]      Tue Apr 29 12:06:45 2008 
+1.96615550600000e+01 0.00000000000000e+00 0.00000000000000e+00 
+ smd:lat_b                             double[3]      Tue Apr 29 12:06:45 2008 
+0.00000000000000e+00 1.96615550600000e+01 0.00000000000000e+00 
+ smd:lat_c                             double[3]      Tue Apr 29 12:06:45 2008 
+0.00000000000000e+00 0.00000000000000e+00 1.96615550600000e+01 
+ smd:veloc:output                        char[9]      Tue Apr 29 12:06:45 2008 
+spce.vel
+ smd:paramfile                           char[8]      Tue Apr 29 12:06:45 2008 
+smd.par
+ file_prefix                             char[5]      Tue Apr 29 12:06:45 2008 
+test
+ smd:verlet                            double[1]      Tue Apr 29 12:06:45 2008 
+9.50000000000000e+00 
+ rtdb:stored:state                    logical[3]      Tue Apr 29 12:06:45 2008 
+t f f 
+
+ in task_smd_dynamics               
+ found istart in srtdb 0
+ BOND 1 2 1  1.  0.
+ BOND 1 3 1  1.  0.
+ BOND 2 3 1  1.632993  0.
+ BOND 4 5 1  1.  0.
+ BOND 4 6 1  1.  0.
+ BOND 5 6 1  1.632993  0.
+ in smd_vel_init_system             
+atom            = atom            
+parameters      = parameters      
+lattice         = lattice         
+type            = type            
+potential       = potential       
+coordinates     = coordinates     
+charge          = charge          
+velocity        = velocity        
+mass            = mass            
+energy          = energy          
+force           = force           
+excl_list       = excluded_list   
+verlet_list     = verlet_list     
+shakelist       = shakelist       
+bondlist        = bondlist        
+bond            = bond            
+ in smd_system_ndata                
+ in smd_system_tstep                
+ in smd_force_compute               
+ in smd_force_print                 
+ in smd_coulomb                   
+ in smd_system_set_component        
+ ewald1 -734.182495
+ in smd_energy_set_component        
+ nq= 768
+ ewald reciprocal  1.11452237
+ in smd_energy_set_component        
+ nq= 768
+ in smd_energy_set_component        
+ nq= 768
+ nl= 138638
+ in smd_energy_set_component        
+ in smd_energy_set_component        
+ in smd_system_shake                
+ in smd_energy_set_component        
+ in smd_energy_compute              
+ in smd_energy_print                
+total            :       -93.868981
+kinetic          :        14.148948
+vdw              :        29.368021
+electrostatic    :      -137.385950
+ewald self       :      -734.182495
+ewald reciprocal :         1.114522
+ewald excluded   :       719.864835
+ewald real       :      -124.182812
+ in smd_system_tstep                
+ in smd_force_compute               
+ in smd_force_print                 
+ in smd_coulomb                   
+ in smd_system_set_component        
+ ewald1 -734.182495
+ in smd_energy_set_component        
+ nq= 768
+ ewald reciprocal  1.09364158
+ in smd_energy_set_component        
+ nq= 768
+ in smd_energy_set_component        
+ nq= 768
+ nl= 138638
+ in smd_energy_set_component        
+ in smd_energy_set_component        
+ in smd_system_shake                
+ in smd_energy_set_component        
+ in smd_energy_compute              
+ in smd_energy_print                
+total            :       -95.782381
+kinetic          :        12.480447
+vdw              :        29.317588
+electrostatic    :      -137.580416
+ewald self       :      -734.182495
+ewald reciprocal :         1.093642
+ewald excluded   :       719.864862
+ewald real       :      -124.356424
+
+Total CPU time :                0.600
+
+Initialization :                0.150
+
+Verlet         :               -0.190
+
+Force          :                0.000
+ Goodbye from task_smd
+
+ Task  times  cpu:        0.6s     wall:        1.3s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  array 0 => double precision sp_charge(768),  handle: -1000 
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:    1        0        0        0        0        0        0        0     
+number of processes/call 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes total:             0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 6144 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        43	         5
+	current total bytes		         0	         0
+	maximum total bytes		   4045764	   4319428
+	maximum total K-bytes		      4046	      4320
+	maximum total M-bytes		         5	         5
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 5.1" (2007), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+          Please use the following citation when publishing results
+          obtained with NWChem:
+
+          E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+          M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, P. Nichols,
+          S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
+          M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+          Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+          E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+          R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+          D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+          K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+          B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+          X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+          G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong,
+          and Z. Zhang,
+          "NWChem, A Computational Chemistry Package for Parallel Computers, 
+          Version 5.1" (2007),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:        0.6s     wall:        1.4s
