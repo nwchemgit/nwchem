@@ -1,63 +1,43 @@
-            block data initial_smd_cutoff_data
-      implicit none
-#include "smd_cutoff_data.fh"
-c     
-      data ostatus /.false./
-      data rcut /0.0d0/
-      data rcut_verlet /0.0d0/
-
-
-      end
-
       subroutine smd_cutoff_get_rcut(arcut)
       implicit none
-#include "smd_cutoff_data.fh"
+#include "smd_const_data.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
 
       double precision arcut
-
-      arcut = rcut
+c
+      integer i
+      character*(smd_tag_size) tag
+      logical result
+c
+c      arcut = rcut
+      tag = "rcut"
+      call smd_get_ind(tag,i,result)
+      if(.not. result)
+     >  call errquit(
+     >       'error getting index for'//tag,0, 0)
+      arcut = dbl_mb(i)
 
       end 
 
-      subroutine smd_cutoff_set_rcut(arcut)
+      subroutine smd_cutoff_get_rcut_verlet(arcut)
       implicit none
-#include "smd_cutoff_data.fh"
+#include "smd_const_data.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
 
       double precision arcut
-
-      rcut = arcut
-
-      end 
-
-      subroutine smd_cutoff_get_rcut_verlet(arcut_verlet)
-      implicit none
-#include "smd_cutoff_data.fh"
-
-      double precision arcut_verlet
-
-      arcut_verlet = rcut_verlet
-
-      end 
-
-      subroutine smd_cutoff_set_rcut_verlet(arcut_verlet)
-      implicit none
-#include "smd_cutoff_data.fh"
-
-      double precision arcut_verlet
-
-      rcut_verlet = arcut_verlet
-
-      end 
-
-      subroutine smd_cutoff_print(un)
-      implicit none
-#include "smd_cutoff_data.fh"
-
-      integer un
-
-      write(un,*) "cutoff data"
-      write(un,*) "cutoff radius",rcut
-      write(un,*) "verlet cutoff radius",rcut_verlet
+c
+      integer i
+      character*(smd_tag_size) tag
+      logical result
+c
+      tag = "rcut_verlet"
+      call smd_get_ind(tag,i,result)
+      if(.not. result)
+     >  call errquit(
+     >       'error getting index for'//tag,0, 0)
+      arcut = dbl_mb(i)
 
       end 
 
@@ -66,13 +46,16 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "smd_cutoff_data.fh"
+#include "smd_const_data.fh"
 
 c
-      character*32 tag
+      character*(smd_tag_size) namespace,tag
       character*32 pname
       integer rtdb
-
+      logical result
+      integer i
+c
+      double precision rcut,rcut_verlet
       pname = "smd_cutoff_init"
 
       call smd_rtdb_get_handle(rtdb)
@@ -85,6 +68,20 @@ c
         if (.not.rtdb_get(rtdb,tag,mt_dbl,1,rcut_verlet)) 
      >      call errquit(pname//'failed to get'//tag,0,
      >       RTDB_ERR)
+
+      tag = "cutoff"
+      call smd_system_get_component(namespace,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      call smd_namespace_create(namespace)
+      tag = "rcut"
+      call smd_data_create_get(namespace,tag,1,MT_DBL,i)
+      dbl_mb(i) = rcut
+      tag = "rcut_verlet"
+      call smd_data_create_get(namespace,tag,1,MT_DBL,i)
+      dbl_mb(i) = rcut_verlet
 
 
       end 

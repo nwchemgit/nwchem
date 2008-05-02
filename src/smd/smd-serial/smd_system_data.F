@@ -19,6 +19,7 @@ c
      c                       "verlet_list",
      c                       "shakelist",
      c                       "bondlist",
+     c                       "cutoff",
      c                       "bond"/
 
 

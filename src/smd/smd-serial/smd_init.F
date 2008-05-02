@@ -211,6 +211,7 @@ c
       character*72 sp_vlist
       character*72 sp_velocity
       character*72 sp_mass
+      character*72 sp_cutoff
 c
       logical olattice
       logical obond
@@ -232,6 +233,7 @@ c
       sp_bond      = "bond"
       sp_velocity  = "velocity"
       sp_mass  = "mass"
+      sp_cutoff  = "cutoff"
 c
 c
 c     CREATE SYSTEM
@@ -283,6 +285,10 @@ c     ------------
 
       tag = "mass"
       call smd_system_set_component(tag,sp_mass)
+
+      tag = "cutoff"
+      call smd_system_set_component(tag,sp_cutoff)
+
 
 c
 c      write(*,*) "in "//pname

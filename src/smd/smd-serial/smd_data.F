@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.7 2008-05-01 23:26:24 marat Exp $
+* $Id: smd_data.F,v 1.8 2008-05-02 17:50:52 marat Exp $
 *
 
       block data initial_smd_data
@@ -686,6 +686,27 @@ c
 
       end do 
 
-      call smd_data_print(80+ga_nodeid())
       return
       end
+
+      subroutine smd_data_brdcst_create(root)
+      implicit none
+#include "smd_data.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+c
+      integer root
+c
+      integer ns
+      character*(30) pname
+      character*(72) buffer
+      pname = "smd_namespace_destroy"
+
+      do ns=1,smd_n
+       call smd_data_namespace_brdcst_create(smd_name(ns),root)   
+      end do
+     
+      return
+      end
+
+
