@@ -2,7 +2,7 @@
      1  size_x1,size_x2,size_x3,size_x4,
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
 c
-c $Id: tce_eom_xguess.F,v 1.5 2008-01-14 15:20:33 jhammond Exp $
+c $Id: tce_eom_xguess.F,v 1.6 2008-05-02 17:34:00 jhammond Exp $
 c
 c     Generates initial trial vectors that are all singly excited 
 c     determinants within the same irrep_x
@@ -40,7 +40,7 @@ c
       integer l_diff,k_diff
       integer size
       integer ivec, jvec
-      double precision maxdiff
+c      double precision maxdiff
       double precision nextmaxdiff
       integer i
       character*255 filename
