@@ -212,6 +212,7 @@ c
       character*72 sp_velocity
       character*72 sp_mass
       character*72 sp_cutoff
+      character*72 sp_temperature
 c
       logical olattice
       logical obond
@@ -234,6 +235,7 @@ c
       sp_velocity  = "velocity"
       sp_mass  = "mass"
       sp_cutoff  = "cutoff"
+      sp_temperature = "temperature"
 c
 c
 c     CREATE SYSTEM
@@ -289,6 +291,9 @@ c     ------------
       tag = "cutoff"
       call smd_system_set_component(tag,sp_cutoff)
 
+      tag = "temperature"
+      call smd_system_set_component(tag,sp_temperature)
+
 
 c
 c      write(*,*) "in "//pname
@@ -298,6 +303,8 @@ c
       call smd_rtdb_init(rtdb)
 c
       call smd_cutoff_init()
+c
+      call smd_temper_init()
 c
       call smd_atom_init_system()
 c
@@ -330,8 +337,6 @@ c
       call smd_vel_init_system()
 c
       call smd_mass_init_system()
-c
-      call smd_temper_init()
 c
 c     finish system setup
 c     -------------------

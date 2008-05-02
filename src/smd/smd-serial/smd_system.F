@@ -119,7 +119,7 @@ c
       return
       end
 
-      function smd_system_ntcons(ntot)
+      subroutine smd_system_ntcons(ntot)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -128,7 +128,6 @@ c
 #include "util.fh"
 #include "global.fh"
 c     
-      logical smd_system_ntcons
       integer ntot
 c
       character*72 tag,sp_shakelist
@@ -136,21 +135,22 @@ c
       integer i_iconst
       logical result
 
-      pname = "smd_system_ntot"
+      pname = "smd_system_nt"
 
       ntot = 0
       tag = "shakelist"
       call smd_system_get_component(sp_shakelist,tag,result)
       if(.not.result) then
-        result=.true.
         goto 100
       end if
 
       tag = "shake:distance"
       call smd_data_get_size(sp_shakelist,tag,ntot,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'failed size on '//tag,0,0)
 
 100   continue
-      smd_system_ntcons = result
       return
       end
 

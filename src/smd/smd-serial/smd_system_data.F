@@ -20,6 +20,7 @@ c
      c                       "shakelist",
      c                       "bondlist",
      c                       "cutoff",
+     c                       "temperature",
      c                       "bond"/
 
 

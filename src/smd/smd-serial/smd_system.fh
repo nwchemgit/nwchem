@@ -1,5 +1,5 @@
 *
-* $Id: smd_system.fh,v 1.1 2008-04-18 17:40:32 marat Exp $
+* $Id: smd_system.fh,v 1.2 2008-05-02 19:31:37 marat Exp $
 *
       logical smd_system_periodic
       external smd_system_periodic
@@ -9,9 +9,6 @@
 
       logical smd_system_ntot
       external smd_system_ntot
-
-      logical smd_system_ntcons
-      external smd_system_ntcons
 
       logical smd_system_tstep
       external smd_system_tstep
