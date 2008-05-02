@@ -46,7 +46,6 @@ c
 #include "global.fh"
 c     
       character*(*) sp_vel
-      character*(*) sp_atom
 c
       character*32 pname
       integer na

@@ -128,7 +128,6 @@ c
 #include "util.fh"
 #include "global.fh"
 c     
-      character*(*) namespace
       integer ntot
 c
       character*72 tag

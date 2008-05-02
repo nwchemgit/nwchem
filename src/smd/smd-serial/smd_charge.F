@@ -108,10 +108,6 @@ c     ---------------------------
 #include "util.fh"
 #include "global.fh"
 c     
-      character*(*) sp_charge
-      character*(*) sp_type
-      character*(*) sp_param
-c
       character*32 pname,tag
       integer na
       logical result
