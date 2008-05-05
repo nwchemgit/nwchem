@@ -1,6 +1,6 @@
-      subroutine tce_mod1_new(rtdb,d_mod1)
+      subroutine tce_mod1_new(rtdb,d_mod1,mpole)
 c
-c $Id: tce_mod1_new.F,v 1.1 2008-05-05 17:43:49 jhammond Exp $
+c $Id: tce_mod1_new.F,v 1.2 2008-05-05 22:43:34 jhammond Exp $
 c
 c     Spin-spatial-symmetry blocked dipole matrix transformations.
 c
@@ -22,6 +22,7 @@ c
       double precision origin(3)
       data origin/0d0,0d0,0d0/
 c
+      integer mpole,mpoles        ! order of multipole, number of blocks
       integer g_aod1              ! AO dipole matrices
       integer l_aod1,k_aod1       ! AO dipole matrices
       integer l_mod1,k_mod1       ! MO dipole matrices
@@ -39,6 +40,8 @@ c
 c
       nodezero = (ga_nodeid().eq.0)
 c
+      mpoles = (mpole+1)*(mpole+2)/2
+c
 c     formerly in tce_aod1_new.F
 c
 c     ===============
@@ -50,7 +53,7 @@ c
       alo(3) = -1
       ahi(1) = nbf
       ahi(2) = nbf
-      ahi(3) = 3
+      ahi(3) = mpoles ! formerly 3
       if (.not.nga_create(MT_DBL,3,ahi,'AO dipole ALL',alo,g_aod1))
      &    call errquit('aor_driver: nga_create failed g_aod1',0,GA_ERR)
       call ga_zero(g_aod1)
@@ -62,18 +65,21 @@ c
 #ifdef DEBUG_PRINT
       write(LuOut,*) 'calling int_mpole_1ega'
 #endif
-      call int_mpole_1ega(ao_bas_han,ao_bas_han,g_aod1,'dipole',
-     &                    origin,oskel)
+      if (mpole.eq.1) then
+        call int_mpole_1ega(ao_bas_han,ao_bas_han,g_aod1,'dipole',
+     &                      origin,.false.)
+      elseif (mpole.eq.2) then
+        call int_mpole_1ega(ao_bas_han,ao_bas_han,g_aod1,'quadrupole',
+     &                      origin,.false.)
+      elseif (mpole.eq.3) then
+        call int_mpole_1ega(ao_bas_han,ao_bas_han,g_aod1,'octupole',
+     &                      origin,.false.)
+      endif
       if (util_print('aod1',print_debug)) call ga_print(g_aod1)
-c
-c     Copy from 3D-NGA to 3 GAs
-c
-
-
 c
 c     end of what was formerly in tce_aod1_new.F
 c
-      do axis = 1,3
+      do axis = 1,mpoles
 #ifdef DEBUG_PRINT
         write(LuOut,*) 'axis = ',axis
 #endif
