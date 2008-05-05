@@ -1,0 +1,169 @@
+      subroutine tce_mod1_new(rtdb,d_mod1)
+c
+c $Id: tce_mod1_new.F,v 1.1 2008-05-05 17:43:49 jhammond Exp $
+c
+c     Spin-spatial-symmetry blocked dipole matrix transformations.
+c
+      implicit none
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "sym.fh"
+#include "sf.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+c
+c     formerly in tce_aod1_new.F
+c
+      integer rtdb               ! Run-time database
+      double precision origin(3)
+      data origin/0d0,0d0,0d0/
+c
+      integer g_aod1              ! AO dipole matrices
+      integer l_aod1,k_aod1       ! AO dipole matrices
+      integer l_mod1,k_mod1       ! MO dipole matrices
+      integer l_work,k_work       ! Work space
+      integer sf_size,sf_offset   ! SF size and offset
+      integer d_mod1(3)           ! File handle
+      integer g1b,g2b             ! Block indexes
+      integer range_g1,range_g2   ! Block ranges
+      integer offset_g1,offset_g2 ! Block offsets
+      integer axis                ! 1=x, 2=y, 3=z
+      integer alo(3),ahi(3),ld(2)
+      logical nodezero
+      integer sym_abelian_axis    ! Move this to "sym.fh"
+      external sym_abelian_axis
+c
+      nodezero = (ga_nodeid().eq.0)
+c
+c     formerly in tce_aod1_new.F
+c
+c     ===============
+c     Allocate g_aod1
+c     ===============
+c
+      alo(1) = nbf
+      alo(2) = -1
+      alo(3) = -1
+      ahi(1) = nbf
+      ahi(2) = nbf
+      ahi(3) = 3
+      if (.not.nga_create(MT_DBL,3,ahi,'AO dipole ALL',alo,g_aod1))
+     &    call errquit('aor_driver: nga_create failed g_aod1',0,GA_ERR)
+      call ga_zero(g_aod1)
+c
+c     ====================
+c     Make dipole matrices
+c     ====================
+c
+#ifdef DEBUG_PRINT
+      write(LuOut,*) 'calling int_mpole_1ega'
+#endif
+      call int_mpole_1ega(ao_bas_han,ao_bas_han,g_aod1,'dipole',
+     &                    origin,oskel)
+      if (util_print('aod1',print_debug)) call ga_print(g_aod1)
+c
+c     Copy from 3D-NGA to 3 GAs
+c
+
+
+c
+c     end of what was formerly in tce_aod1_new.F
+c
+      do axis = 1,3
+#ifdef DEBUG_PRINT
+        write(LuOut,*) 'axis = ',axis
+#endif
+        irrep_d = sym_abelian_axis(geom,axis)
+        sf_size=0
+        do g1b = 1,noa+nob+nva+nvb
+          do g2b = 1,noa+nob+nva+nvb
+            if (int_mb(k_spin+g1b-1) .eq. int_mb(k_spin+g2b-1)) then
+            if ((.not.restricted).or.(int_mb(k_spin+g1b-1)
+     1        +int_mb(k_spin+g2b-1).ne.4)) then
+            if (ieor(int_mb(k_sym+g1b-1),int_mb(k_sym+g2b-1))
+     1        .eq. irrep_d) then
+              sf_size = sf_size + int_mb(k_range+g1b-1)
+     1                          * int_mb(k_range+g2b-1)
+            endif
+            endif
+            endif
+          enddo
+        enddo
+        if (.not.ma_push_get(mt_dbl,sf_size,'MO dipole',l_mod1,k_mod1))
+     &      call errquit('tce_mod1_new: MA problem',3,MA_ERR)
+        sf_offset=0
+        do g2b = 1,noa+nob+nva+nvb
+          do g1b = 1,noa+nob+nva+nvb
+            if (int_mb(k_spin+g1b-1) .eq. int_mb(k_spin+g2b-1)) then
+            if ((.not.restricted).or.(int_mb(k_spin+g1b-1)
+     1        +int_mb(k_spin+g2b-1).ne.4)) then
+            if (ieor(int_mb(k_sym+g1b-1),int_mb(k_sym+g2b-1))
+     1        .eq. irrep_d) then
+              range_g1 = int_mb(k_range+g1b-1)
+              range_g2 = int_mb(k_range+g2b-1)
+              offset_g1 = int_mb(k_offset+g1b-1)*nbf
+              offset_g2 = int_mb(k_offset+g2b-1)*nbf
+              if (.not.ma_push_get(mt_dbl,range_g1*nbf,'Work',l_work,
+     1          k_work)) call errquit('tce_mod1_new: MA problem',0,
+     2          MA_ERR)
+              if (.not.ma_push_get(mt_dbl,nbf*nbf*1,'AO dipole',l_aod1,
+     1          k_aod1)) call errquit('tce_mod1_new: MA problem',1,
+     2          MA_ERR)
+c
+c             OLD CALL
+c              call ga_get(g_aod1(axis),1,nbf,1,nbf,dbl_mb(k_aod1),nbf)
+c
+c             NEW CALL
+              alo(1) = 1
+              ahi(1) = nbf
+              alo(2) = 1
+              ahi(2) = nbf
+              alo(3) = axis 
+              ahi(3) = axis ! 3 for dipole, 6 for quadrupole, 10 for octupole
+              ld(1) = nbf 
+              ld(2) = 1
+              call nga_get(g_aod1,alo,ahi,dbl_mb(k_aod1),ld)
+c
+              call dgemm('T','N',range_g1,nbf,nbf,1.0d0,
+     1          dbl_mb(k_movecs_sorted+offset_g1),nbf,dbl_mb(k_aod1),
+     2          nbf,0.0d0,dbl_mb(k_work),range_g1)
+              if (.not.ma_pop_stack(l_aod1))
+     1          call errquit('tce_mod1_new: MA problem',2,MA_ERR)
+              call dgemm('N','N',range_g1,range_g2,nbf,1.0d0,
+     1          dbl_mb(k_work),range_g1,
+     2          dbl_mb(k_movecs_sorted+offset_g2),nbf,
+     3          0.0d0,dbl_mb(k_mod1+sf_offset),range_g1)
+              if (nodezero.and.util_print('mod1',print_debug))
+     1          call ma_print(dbl_mb(k_mod1+sf_offset),
+     2          range_g1,range_g2,'Spin symmetry block of dipole')
+              if (.not.ma_pop_stack(l_work))
+     1          call errquit('tce_mod1_new: MA problem',5,MA_ERR)
+              sf_offset = sf_offset + range_g1 * range_g2
+            endif
+            endif
+            endif
+          enddo
+        enddo
+        call put_block(d_mod1(axis),dbl_mb(k_mod1),sf_size,0)
+        if (.not.ma_pop_stack(l_mod1))
+     1    call errquit('tce_mod1_new: MA problem',6,MA_ERR)
+        if (nodezero.and.util_print('mod1',print_debug))
+     1    call sf_print(d_mod1(axis),sf_size)
+      enddo
+      if (.not.ga_destroy(g_aod1))
+     1  call errquit('tce_mod1_new: GA problem',2,GA_ERR)
+c      if (.not.ga_destroy(g_aod1(2)))
+c     1  call errquit('tce_mod1_new: GA problem',3,GA_ERR)
+c      if (.not.ga_destroy(g_aod1(3)))
+c     1  call errquit('tce_mod1_new: GA problem',4,GA_ERR)
+c
+#ifdef DEBUG_PRINT
+      write(LuOut,*) 'end of tce_mod1_new'
+#endif
+c
+      return
+      end
