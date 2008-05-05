@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.566 2008-05-01 19:19:35 jhammond Exp $
+# $Id: makefile.h,v 1.567 2008-05-05 23:53:31 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -994,7 +994,7 @@ ifeq ($(TARGET),LAPI64)
 LARGE_FILES = YES
 
   LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64  -bloadmap:nwchem.lapi64_map $(LAPI64LIBS)
-   LINK.f   = mpcc_r   $(LDFLAGS)
+   LINK.f   = mpxlf_r   $(LDFLAGS)
 
    FOPTIONS = -qEXTNAME -qnosave -q64 -qalign=4k -qxlf77=leadzero -qthreaded
        AR   = ar -X 64
@@ -1005,7 +1005,7 @@ LARGE_FILES = YES
     FOPTIMIZE  += -qfloat=rsqrt:fltint
   endif
   COPTIMIZE = -O
-    XLF8= $(shell /usr/bin/lslpp -l xlfcmp  2>&1|grep COMM|head -1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
+    XLF8= $(shell xlf -qversion  2>&1|grep COMM|head -1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
     XLF10 = $(shell xlf -qversion  2>&1|grep Version|head -1| awk ' / 10./ {print "Y"}')
   ifdef XLF8
     FVECTORIZE= -O3 -qstrict -qtune=auto -qarch=auto -qcache=auto -qalign=natural -qnozerosize -qlargepage -qnozerosize -qipa=level=2
