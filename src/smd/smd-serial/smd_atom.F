@@ -74,7 +74,6 @@ c
       integer i_iconst
       logical result
       logical rtdb_mode
-      character*(smd_tag_size) ctag(2)
 c
       pname = "smd_atom_init_seq"
 c
@@ -119,13 +118,6 @@ c     ---------------------------
      +                         int_mb(i_ir))
 
 c
-      ctag(1) = "crap 1"
-      ctag(2) = "crap 2"
-      call smd_data_put_string(namespace,"test",2,ctag) 
-      ctag(1) = " "
-      ctag(2) = " "
-      call smd_data_get_string(namespace,"test",2,ctag) 
-      write(*,*) "contents of test are",ctag(1),ctag(2)
       rtdb_mode = rtdb_parallel(rtdb_mode)
       return
       end

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2008-05-05 21:15:58 marat Exp $
+# $Id: GNUmakefile,v 1.8 2008-05-05 23:47:21 marat Exp $
 #
 
           OBJ = task_smd.o smd_input.o \
@@ -17,7 +17,7 @@
                 smd_coordfile.o task_smd_dynamics.o smd_system_data.o \
                 smd_temper_data.o smd_mass.o smd_leapf.o \
                 smd_leapf_shake.o smd_geom.o smd_message.o \
-                smd_interface.o
+                smd_interface.o smd_rdinp.o
 
       LIBRARY = libsmd.a
 

@@ -306,6 +306,8 @@ c     --------------------------------
 c
       call smd_rtdb_init(rtdb)
 c
+      call smd_rdinp()
+c
       call smd_cutoff_init()
 c
       call smd_temper_init()

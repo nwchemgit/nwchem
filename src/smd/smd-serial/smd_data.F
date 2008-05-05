@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.9 2008-05-05 21:15:59 marat Exp $
+* $Id: smd_data.F,v 1.10 2008-05-05 23:47:21 marat Exp $
 *
 
       block data initial_smd_data
@@ -622,6 +622,78 @@ c
       return
       end
 
+      subroutine smd_data_namespace_print(sname,un)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+#include "msgids.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+      character*(*) sname
+      integer un
+c
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i,j,k
+      integer ndim,dtype,ind
+
+      pname = "smd_data_create"
+
+      buffer = sname
+      call smd_data_get_sindex(buffer,ns,result)
+      if(.not.result)
+     +   call errquit(pname//'no namespace'//buffer,
+     +         0,
+     +         0)
+
+      nd = smd_nd(ns)
+      do k=1,nd
+        ndim  = smd_dim(ns,k)
+        dtype = smd_type(ns,k)
+        ind   = smd_index(ns,k) 
+        buffer = smd_dname(ns,k)
+        if(dtype.eq. MT_DBL) then
+          write(un,*) "DATA NAME",buffer
+          write(un,*) "DATA TYPE"," double"
+          write(un,*) "DATA SIZE",ndim
+          do i=1,ndim
+          write(un,*) dbl_mb(ind+i-1)
+          end do
+        else if(dtype.eq.MT_LOG) then
+          write(un,*) "DATA NAME",buffer
+          write(un,*) "DATA TYPE"," logical"
+          write(un,*) "DATA SIZE",ndim
+          do i=1,ndim
+          write(un,*) log_mb(ind+i-1)
+          end do
+         else if(dtype.eq.MT_INT) then
+          write(un,*) "DATA NAME",buffer
+          write(un,*) "DATA TYPE"," integer"
+          write(un,*) "DATA SIZE",ndim
+          do i=1,ndim
+          write(un,*) int_mb(ind+i-1)
+          end do
+        else if(dtype.eq.MT_STR) then
+          write(un,*) "DATA NAME",buffer
+          write(un,*) "DATA TYPE"," string"
+          write(un,*) "DATA SIZE",ndim
+c          call smd_ma_char_print(ndim*smd_string_size,byte_mb(ind),un)
+          do i=1,ndim
+          write(un,'(72A1)') 
+     >      (byte_mb(ind+smd_string_size*(i-1)+j-1),j=1,smd_string_size)
+          end do
+        else
+         call errquit(pname//'unknown type',0,0)
+        endif
+      end do 
+
+      return
+      end
+
       subroutine smd_data_namespace_brdcst_create(sname,root)
       implicit none
 c
@@ -740,7 +812,7 @@ c
       return
       end
 
-      subroutine smd_data_put_int(sname,dname,dtype,ndim,datum)
+      subroutine smd_data_put_log(sname,dname,ndim,datum)
       implicit none
 c
 #include "mafdecls.fh"
@@ -749,7 +821,64 @@ c
       character*(*) sname
       character*(*) dname
       integer ndim
-      integer dtype
+      logical datum(ndim)
+c
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+
+      pname = "smd_data_put_int"
+
+      call smd_data_create_get(sname,dname,ndim,MT_LOG,ind)
+      do i=1,ndim
+        log_mb(ind+i-1) = datum(i)
+      end do
+      return
+      end
+
+      subroutine smd_data_get_log(sname,dname,ndim,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ndim
+      logical datum(ndim)
+c
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_data_get_int"
+
+      call smd_data_get_index_size(sname,dname,ind,ndim1,result)
+      if(ndim1.ne.ndim)
+     >     call errquit(pname//"incompatible sizes",0,0)
+
+      do i=1,ndim
+        datum(i) = log_mb(ind+i-1)
+      end do
+      return
+      end
+
+      subroutine smd_data_put_int(sname,dname,ndim,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ndim
       integer datum(ndim)
 c
       integer ind
@@ -759,11 +888,100 @@ c
       character*72 buffer
       integer i
 
-      pname = "smd_data_create"
+      pname = "smd_data_put_int"
 
-      call smd_data_create_get(sname,dname,ndim,dtype,ind)
+      call smd_data_create_get(sname,dname,ndim,MT_INT,ind)
       do i=1,ndim
         int_mb(ind+i-1) = datum(i)
+      end do
+      return
+      end
+
+      subroutine smd_data_get_int(sname,dname,ndim,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ndim
+      integer datum(ndim)
+c
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_data_get_int"
+
+      call smd_data_get_index_size(sname,dname,ind,ndim1,result)
+      if(ndim1.ne.ndim)
+     >     call errquit(pname//"incompatible sizes",0,0)
+
+      do i=1,ndim
+        datum(i) = int_mb(ind+i-1)
+      end do
+      return
+      end
+
+      subroutine smd_data_put_dbl(sname,dname,ndim,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ndim
+      double precision datum(ndim)
+c
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+
+      pname = "smd_data_put_int"
+
+      call smd_data_create_get(sname,dname,ndim,MT_DBL,ind)
+      do i=1,ndim
+        dbl_mb(ind+i-1) = datum(i)
+      end do
+      return
+      end
+
+      subroutine smd_data_get_dbl(sname,dname,ndim,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ndim
+      double precision datum(ndim)
+c
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_data_get_int"
+
+      call smd_data_get_index_size(sname,dname,ind,ndim1,result)
+      if(ndim1.ne.ndim)
+     >     call errquit(pname//"incompatible sizes",0,0)
+
+      do i=1,ndim
+        datum(i) = dbl_mb(ind+i-1)
       end do
       return
       end
@@ -780,7 +998,7 @@ c
       character*(*) dname
       integer ndim
       integer dtype
-      character*(smd_tag_size) datum(ndim)
+      character*(smd_string_size) datum(ndim)
 c
       integer ind
       logical result
@@ -792,10 +1010,10 @@ c
 
       pname = "smd_data_create"
 
-      ndim1 = smd_tag_size*ndim
+c      ndim1 = smd_tag_size*ndim
 
-      call smd_data_create_get(sname,dname,ndim1,MT_BYTE,ind)
-      call smd_set_ma_char(ndim1,datum,byte_mb(ind))
+      call smd_data_create_get(sname,dname,ndim,MT_STR,ind)
+      call smd_set_ma_char(ndim*smd_string_size,datum,byte_mb(ind))
       return
       end
 
@@ -811,7 +1029,7 @@ c
       character*(*) dname
       integer ndim
       integer dtype
-      character*(smd_tag_size) datum(ndim)
+      character*(smd_string_size) datum(ndim)
 c
       integer ind
       integer ns,nd
@@ -822,69 +1040,12 @@ c
       integer chunk
       logical result
 
-      pname = "smd_data_create"
+      pname = "smd_data_get_string"
 
       call smd_data_get_index_size(sname,dname,ind,ndim1,result)
-      call smd_set_ma_char(ndim1,byte_mb(ind),datum)
+      if(ndim1.ne.ndim)
+     >     call errquit(pname//"incompatible sizes",0,0)
+      call smd_set_ma_char(ndim1*smd_string_size,byte_mb(ind),datum)
       return
       end
 
-      subroutine smd_data_put_string1(sname,dname,datum)
-      implicit none
-c
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "smd_data.fh"
-#include "smd_const_data.fh"
-#include "inp.fh"
-      character*(*) sname
-      character*(*) dname
-      integer ndim
-      integer dtype
-      character*(*) datum
-c
-      integer ind
-      logical result
-      integer ns,nd
-      character*30 pname
-      character*72 buffer
-      integer i
-      integer ndim1
-
-      pname = "smd_data_create"
-
-      ndim1 = inp_strlen(datum)
-
-      call smd_data_create_get(sname,dname,ndim1,MT_BYTE,ind)
-      call smd_set_ma_char(ndim1,datum,byte_mb(ind))
-      return
-      end
-
-      subroutine smd_data_get_string1(sname,dname,datum)
-      implicit none
-c
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "smd_data.fh"
-#include "smd_const_data.fh"
-#include "inp.fh"
-      character*(*) sname
-      character*(*) dname
-      integer ndim
-      integer dtype
-      character*(*) datum
-c
-      integer ind
-      integer ns,nd
-      character*30 pname
-      character*72 buffer
-      integer i
-      integer ndim1
-      logical result
-
-      pname = "smd_data_create"
-
-      call smd_data_get_index_size(sname,dname,ind,ndim1,result)
-      call smd_set_ma_char(ndim1,byte_mb(ind),datum)
-      return
-      end
