@@ -74,10 +74,11 @@ c
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "smd_const_data.fh"
       character*(*) filename
       integer nt
-      character*16 ta(nt)
-      character*16 tr(nt)
+      character*(smd_string_size) ta(nt)
+      character*(smd_string_size) tr(nt)
       integer ir(nt)
 c
       character*(180) buffer
@@ -120,10 +121,11 @@ c
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "smd_const_data.fh"
       character*(*) filename
       integer nt
-      character*16 ta(nt)
-      character*16 tr(nt)
+      character*(smd_string_size) ta(nt)
+      character*(smd_string_size) tr(nt)
       integer ir(nt)
       double precision c(3,nt)
 c
@@ -204,16 +206,17 @@ c      reset residue arrays to be the size of number of residues only
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "smd_const_data.fh"
       character*(*) filename
       integer nt,nr
-      character*16 tr(nr)
+      character*(smd_string_size) tr(nr)
       integer ir(nt)
       integer nm(nr)
 c
       character*(30) pname
       character*(180) buffer
       character*(4)  tag
-      character*(16)  rtag,rtag0
+      character*(smd_string_size)  rtag,rtag0
       integer ir0,nr0
       integer ncenter
       integer un

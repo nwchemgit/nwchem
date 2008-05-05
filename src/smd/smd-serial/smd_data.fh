@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.fh,v 1.1 2008-04-18 17:40:31 marat Exp $
+* $Id: smd_data.fh,v 1.2 2008-05-05 21:15:59 marat Exp $
 *
       integer smd_max_nd
       parameter(smd_max_nd=100)
@@ -19,6 +19,7 @@
 
       character*72 smd_name(smd_max_n)
       character*72 smd_dname(smd_max_n,smd_max_nd)
+      integer smd_rhandle(smd_max_n)
       integer smd_handle(smd_max_n,smd_max_nd)
       integer smd_index(smd_max_n,smd_max_nd)
       integer smd_type(smd_max_n,smd_max_nd)

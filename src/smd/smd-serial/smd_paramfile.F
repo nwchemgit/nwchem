@@ -4,6 +4,7 @@
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "smd_const_data.fh"
       integer na
       logical result
 c
@@ -44,6 +45,7 @@ c
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "smd_const_data.fh"
       integer na
 c
       character*(180) buffer
@@ -85,6 +87,7 @@ c
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "smd_const_data.fh"
       integer na
 c
       character*(180) buffer
@@ -126,6 +129,7 @@ c
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "smd_const_data.fh"
       integer na
 c
       character*(180) buffer
@@ -167,17 +171,18 @@ c
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "smd_const_data.fh"
       integer na
-      character*16 ta(na)
-      character*16 tt(na)
-      character*16 tr(na)
+      character*(smd_string_size) ta(na)
+      character*(smd_string_size) tt(na)
+      character*(smd_string_size) tr(na)
       double precision mass(na)
       double precision q(na)
 c
       character*180 buffer
       character*4 tag
       character*30 pname
-      character*16 rtag
+      character*(smd_string_size) rtag
       integer i
       integer un
       logical result
@@ -226,18 +231,19 @@ c
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "smd_const_data.fh"
       integer np
       integer pt(np)
       double precision p1(np)
       double precision p2(np)
       double precision p3(np)
       integer nt
-      character*16 tt(nt)
-      character*16 tr(nt)
+      character*(smd_string_size) tt(nt)
+      character*(smd_string_size) tr(nt)
 c
       character*180 buffer
       character*4 tag
-      character*16 tag1,tag2
+      character*(smd_string_size) tag1,tag2
       character*30 pname
       integer i,i1,i2,npr
       integer un
@@ -310,16 +316,17 @@ c
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "smd_const_data.fh"
       integer nt
       integer ns
       integer s1(ns)
       integer s2(ns)
       double precision d(ns)
-      character*16 tt(nt)
+      character*(smd_string_size) tt(nt)
 c
       character*180 buffer
       character*4 tag
-      character*16 tag1,tag2
+      character*(smd_string_size) tag1,tag2
       character*30 pname
       integer i,j,i1,i2
       double precision dtmp
@@ -381,6 +388,7 @@ c
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "smd_const_data.fh"
       integer nt
       integer nb
       integer s1(nb)
@@ -388,12 +396,12 @@ c
       integer it(nb)
       double precision d(nb)
       double precision k(nb)
-      character*16 ta(nt)
-      character*16 tr(nt)
+      character*(smd_string_size) ta(nt)
+      character*(smd_string_size) tr(nt)
 c
       character*180 buffer
       character*4 tag
-      character*16 atag1,atag2,rtag
+      character*(smd_string_size) atag1,atag2,rtag
       character*30 pname
       integer i,j,i1,i2
       integer s1t,s2t,itt

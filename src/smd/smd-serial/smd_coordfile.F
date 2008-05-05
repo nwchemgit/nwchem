@@ -85,9 +85,10 @@ c
 #include "global.fh"
 #include "rtdb.fh"
 #include "msgids.fh"
+#include "smd_const_data.fh"
       integer nt
-      character*16 ta(nt)
-      character*16 tr(nt)
+      character*(smd_string_size) ta(nt)
+      character*(smd_string_size) tr(nt)
       integer ir(nt)
 c
       character*(180) buffer
@@ -112,8 +113,8 @@ c
 c
       call smd_pdb_read_atomres(filename,nt,ta,tr,ir)
 200   continue
-      call ga_brdcst(msg_smd,ta,16*nt,master)
-      call ga_brdcst(msg_smd,tr,16*nt,master)
+      call ga_brdcst(msg_smd,ta,smd_string_size*nt,master)
+      call ga_brdcst(msg_smd,tr,smd_string_size*nt,master)
       call ga_brdcst(msg_smd,ir,
      >     nt*ma_sizeof(mt_int,1,mt_byte),master)
 
@@ -130,9 +131,10 @@ c
 #include "util.fh"
 #include "inp.fh"
 #include "global.fh"
+#include "smd_const_data.fh"
       integer nt
-      character*16 ta(nt)
-      character*16 tr(nt)
+      character*(smd_string_size) ta(nt)
+      character*(smd_string_size) tr(nt)
       integer ir(nt)
 c
       character*(180) buffer

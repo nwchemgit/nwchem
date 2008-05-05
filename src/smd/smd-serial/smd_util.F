@@ -1,5 +1,5 @@
 c
-c $Id: smd_util.F,v 1.2 2008-04-18 20:34:16 marat Exp $
+c $Id: smd_util.F,v 1.3 2008-05-05 21:15:59 marat Exp $
 c
 
       SUBROUTINE smd_util_rebox(n,latt,rlatt,aaa)
@@ -145,3 +145,35 @@ c     real*8 rand
       return
 
       END
+
+      subroutine smd_set_ma_char1(nt,myname,t)
+      implicit none
+c
+      integer nt
+      character*(*) t(nt)
+      character*(*) myname(nt)
+
+      integer i
+
+      do i=1,nt
+       t(i) = myname(i)
+      end do
+
+      end
+      subroutine smd_set_ma_char(nt,myname,t)
+      implicit none
+c
+      integer nt
+      character(1) t(nt)
+      character(1) myname(nt)
+
+      integer i
+
+      do i=1,nt
+        t(i) = myname(i)
+      end do
+      write(*,*) "in smd_set_ma_char",t,myname
+
+      end
+
+

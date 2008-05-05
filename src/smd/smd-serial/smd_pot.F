@@ -1,5 +1,5 @@
 *
-* $Id: smd_pot.F,v 1.2 2008-04-29 21:41:10 marat Exp $
+* $Id: smd_pot.F,v 1.3 2008-05-05 21:15:59 marat Exp $
 *
       subroutine smd_pot_init_system()
       implicit none
@@ -74,8 +74,6 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
-      nt = nt/16
 c
 c     total number of possible pairwise interactions
 c     ----------------------------------------------

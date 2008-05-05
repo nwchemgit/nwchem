@@ -31,6 +31,7 @@ c
 #include "mafdecls.fh"
 #include "util.fh"
 #include "global.fh"
+#include "smd_const_data.fh"
 c     
       character*(*) namespace
 c
@@ -60,15 +61,18 @@ c
 c     create parameter data structures
 c     ---------------------------
       tag = "param:atomname"
-      call smd_data_create_get(namespace,tag,16*na,MT_BYTE,i_ta)
+c      call smd_data_create_get(namespace,tag,16*na,MT_BYTE,i_ta)
+      call smd_data_create_get(namespace,tag,na,MT_STR,i_ta)
       tag = "param:typename"
-      call smd_data_create_get(namespace,tag,16*na,MT_BYTE,i_tt)
+c      call smd_data_create_get(namespace,tag,16*na,MT_BYTE,i_tt)
+      call smd_data_create_get(namespace,tag,na,MT_STR,i_tt)
       tag = "param:charge"
       call smd_data_create_get(namespace,tag,na,MT_DBL,i_q)
       tag = "param:mass"
       call smd_data_create_get(namespace,tag,na,MT_DBL,i_m)
       tag = "param:resname"
-      call smd_data_create_get(namespace,tag,16*na,MT_BYTE,i_tr)
+c      call smd_data_create_get(namespace,tag,16*na,MT_BYTE,i_tr)
+      call smd_data_create_get(namespace,tag,na,MT_STR,i_tr)
 
 c
 c     fill in names and coordinates from parameter file

@@ -64,7 +64,6 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
-      na = na/16
       if(na.le.0)
      >  call errquit(
      >       pname//'no atoms ',0, RTDB_ERR)
@@ -80,10 +79,9 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
-      nt = nt/16
       if(nt.le.0)
      >  call errquit(
-     >       pname//'no types ',0, RTDB_ERR)
+     >       pname//'no types ',nt, RTDB_ERR)
 
       tag = "param:resname"
       call smd_get_ind(tag,i_ttr,result)
@@ -117,15 +115,16 @@ c
 #include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "smd_const_data.fh"
       integer na,nt
-      character*16 ta(na)
-      character*16 tr(na)
-      character*16 tta(nt)
-      character*16 ttr(nt)
+      character*(smd_string_size) ta(na)
+      character*(smd_string_size) tr(na)
+      character*(smd_string_size) tta(nt)
+      character*(smd_string_size) ttr(nt)
       integer it(na)
 c
       integer i,j
-      character*16 atag,rtag
+      character*(smd_string_size) atag,rtag
       character*30 pname
       logical lr,la,match
  

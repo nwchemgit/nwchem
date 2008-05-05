@@ -213,6 +213,7 @@ c
       character*72 sp_mass
       character*72 sp_cutoff
       character*72 sp_temperature
+      character*72 sp_rtdb
 c
       logical olattice
       logical obond
@@ -236,6 +237,7 @@ c
       sp_mass  = "mass"
       sp_cutoff  = "cutoff"
       sp_temperature = "temperature"
+      sp_rtdb = "rtdb"
 c
 c
 c     CREATE SYSTEM
@@ -294,6 +296,8 @@ c     ------------
       tag = "temperature"
       call smd_system_set_component(tag,sp_temperature)
 
+      tag = "rtdb"
+      call smd_system_set_component(tag,sp_rtdb)
 
 c
 c      write(*,*) "in "//pname

@@ -89,7 +89,6 @@ c     -----------------------
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-      nt = nt/16
 
       tag = "param:resname"
       call smd_get_ind(tag,i_tr,result)
