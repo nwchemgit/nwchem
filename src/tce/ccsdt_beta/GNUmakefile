@@ -1,23 +1,23 @@
-#$Id: GNUmakefile,v 1.1 2008-05-02 04:28:28 jhammond Exp $
+#$Id: GNUmakefile,v 1.2 2008-05-05 02:26:58 jhammond Exp $
 
-ifndef CCSDTLR
-OBJ_OPTIMIZE = \
-else
-OBJ_OPTIMIZE = 
+#ifndef CCSDTLR
+#OBJ_OPTIMIZE = ccsdt_lr_beta_1.o ccsdt_lr_beta_2.o ccsdt_lr_beta_3.o ccsdt_lr_beta_4.o
+#else
+OBJ_OPTIMIZE = ccsdt_lr_beta_1.o ccsdt_lr_beta_2.o ccsdt_lr_beta_3.o ccsdt_lr_beta_4.o
 
-USES_BLAS = 
+USES_BLAS = ccsdt_lr_beta_1.F ccsdt_lr_beta_2.F ccsdt_lr_beta_3.F ccsdt_lr_beta_4.F
 
-endif
+#endif
 
 LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
-ifndef CCSDTLR
-LIB_DEFINES = -DDEBUG_PRINT
-else
+#ifndef CCSDTLR
+#LIB_DEFINES = -DDEBUG_PRINT
+#else
 LIB_DEFINES = -DDEBUG_PRINT -DCCSDTLR
-endif
+#endif
 #
 # Possible #defines
 #
