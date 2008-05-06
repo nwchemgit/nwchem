@@ -192,5 +192,117 @@ c
       call smd_namespace_create(namespace)
 
       call smd_data_namespace_rtdb_get(rtdb,namespace,"smd")
-      call smd_data_namespace_print(namespace,6)
       end 
+
+      subroutine smd_rtdb_get_log(dname,ndim,datum,result)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_const_data.fh"
+      character*(smd_string_size) sname
+      character*(*) dname
+      integer ndim
+      logical datum(ndim)
+c
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_rtdb_get_log"
+
+      call smd_system_get_component(sname,"rtdb",result)
+      if(.not.result) call errquit(pname//"no rtdb component",0,0)
+      call smd_data_get_log(sname,dname,ndim,datum,result)
+      return
+      end
+
+      subroutine smd_rtdb_get_int(dname,ndim,datum,result)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_const_data.fh"
+      character*(smd_string_size) sname
+      character*(*) dname
+      integer ndim
+      integer datum(ndim)
+c
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_rtdb_get_int"
+
+      call smd_system_get_component(sname,"rtdb",result)
+      if(.not.result) call errquit(pname//"no rtdb component",0,0)
+      call smd_data_get_int(sname,dname,ndim,datum,result)
+      return
+      end
+
+      subroutine smd_rtdb_get_dbl(dname,ndim,datum,result)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_const_data.fh"
+      character*(smd_string_size) sname
+      character*(*) dname
+      integer ndim
+      double precision datum(ndim)
+c
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_rtdb_get_dbl"
+     
+      call smd_system_get_component(sname,"rtdb",result)
+      if(.not.result) call errquit(pname//"no rtdb component",0,0)
+      call smd_data_get_dbl(sname,dname,ndim,datum,result)
+      return
+      end
+
+      subroutine smd_rtdb_get_string(dname,ndim,datum,result)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_const_data.fh"
+#include "inp.fh"
+      character*(smd_string_size) sname
+      character*(*) dname
+      integer ndim
+      integer dtype
+      character*(smd_string_size) datum(ndim)
+c
+      integer ind
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+      integer chunk
+      logical result
+
+      pname = "smd_rtdb_get_string"
+
+      call smd_system_get_component(sname,"rtdb",result)
+      call smd_data_namespace_print(sname,6)
+      if(.not.result) call errquit(pname//"no rtdb component",0,0)
+      call smd_data_get_string(sname,dname,ndim,datum,result)
+      return
+      end
+

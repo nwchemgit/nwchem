@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.11 2008-05-06 19:53:11 marat Exp $
+* $Id: smd_data.F,v 1.12 2008-05-06 22:53:18 marat Exp $
 *
 
       block data initial_smd_data
@@ -107,6 +107,7 @@ c
       subroutine smd_data_destroy(sname,dname,result)
       implicit none
 #include "smd_data.fh"
+#include "mafdecls.fh"
       character*(*) sname
       character*(*) dname
       integer ind
@@ -135,6 +136,12 @@ c
       end do
 10    continue
       if(.not.result) return
+c
+      if(.not.ma_free_heap(smd_handle(ns,i)))
+     +     call errquit(pname//'memory deallocation'//smd_dname(ns,i),
+     +           smd_dim(ns,i),
+     +           0)
+
 c
       do j=i,smd_nd(ns)-1
         smd_dname(ns,j)  = smd_dname(ns,j+1)
@@ -232,6 +239,8 @@ c
 c
       character*(30) pname
       pname = "smd_namespace_create"
+
+      call smd_namespace_destroy(sname)
       smd_n = smd_n + 1
       if(smd_n.gt.smd_max_n) 
      +   call errquit(pname//'increase namespace size to',
@@ -257,10 +266,7 @@ c
 
       buffer = sname
       call smd_data_get_sindex(buffer,ns,result)
-      if(.not.result)
-     +   call errquit(pname//'no namespace'//buffer,
-     +         0,
-     +         0)
+      if(.not.result) return
 
       do i=smd_nd(ns),1,-1
         if(.not.ma_free_heap(smd_handle(ns,i)))
@@ -386,6 +392,7 @@ c
      +         0)
 
       
+      call smd_data_destroy(sname,dname,result)
       smd_nd(ns) = smd_nd(ns) + 1
       if(smd_nd(ns).gt.smd_max_nd) 
      +   call errquit(pname//'increase dataspace size to',
@@ -466,6 +473,7 @@ c
      +         0)
 
       
+      call smd_data_destroy(sname,dname,result)
       smd_nd(ns) = smd_nd(ns) + 1
       if(smd_nd(ns).gt.smd_max_nd) 
      +   call errquit(pname//'increase dataspace size to',
@@ -819,7 +827,7 @@ c
       return
       end
 
-      subroutine smd_data_get_log(sname,dname,ndim,datum)
+      subroutine smd_data_get_log(sname,dname,ndim,datum,result)
       implicit none
 c
 #include "mafdecls.fh"
@@ -841,6 +849,7 @@ c
       pname = "smd_data_get_int"
 
       call smd_data_get_index_size(sname,dname,ind,ndim1,result)
+      if(.not.result) return
       if(ndim1.ne.ndim)
      >     call errquit(pname//"incompatible sizes",0,0)
 
@@ -877,7 +886,7 @@ c
       return
       end
 
-      subroutine smd_data_get_int(sname,dname,ndim,datum)
+      subroutine smd_data_get_int(sname,dname,ndim,datum,result)
       implicit none
 c
 #include "mafdecls.fh"
@@ -899,6 +908,7 @@ c
       pname = "smd_data_get_int"
 
       call smd_data_get_index_size(sname,dname,ind,ndim1,result)
+      if(.not.result) return
       if(ndim1.ne.ndim)
      >     call errquit(pname//"incompatible sizes",0,0)
 
@@ -935,7 +945,7 @@ c
       return
       end
 
-      subroutine smd_data_get_dbl(sname,dname,ndim,datum)
+      subroutine smd_data_get_dbl(sname,dname,ndim,datum,result)
       implicit none
 c
 #include "mafdecls.fh"
@@ -957,6 +967,7 @@ c
       pname = "smd_data_get_int"
 
       call smd_data_get_index_size(sname,dname,ind,ndim1,result)
+      if(.not.result) return
       if(ndim1.ne.ndim)
      >     call errquit(pname//"incompatible sizes",0,0)
 
@@ -997,7 +1008,7 @@ c      ndim1 = smd_tag_size*ndim
       return
       end
 
-      subroutine smd_data_get_string(sname,dname,ndim,datum)
+      subroutine smd_data_get_string(sname,dname,ndim,datum,result)
       implicit none
 c
 #include "mafdecls.fh"
@@ -1023,6 +1034,7 @@ c
       pname = "smd_data_get_string"
 
       call smd_data_get_index_size(sname,dname,ind,ndim1,result)
+      if(.not.result) return
       if(ndim1.ne.ndim)
      >     call errquit(pname//"incompatible sizes",0,0)
       call smd_set_ma_char(ndim1*smd_string_size,byte_mb(ind),datum)
@@ -1073,9 +1085,6 @@ c
       if(.not.rtdb_get_info(rtdb, token, dtype, ndim, buffer))
      >  call errquit("rtdb_get_info"//token,0,0)
 
-      write(*,*) "rtdb entry name",
-     >           token(1:inp_strlen(token)+1),dtype,ndim
-
       if(dtype.eq. MT_DBL) then
         if(.not.rtdb_get(rtdb,token,mt_dbl,ndim,ftoken))
      >     call errquit("rtdb_get"//token,0,0)
@@ -1090,6 +1099,7 @@ c
         if(.not.rtdb_cget(rtdb,token,ndim,mtoken))
      >     call errquit("rtdb_get"//token,0,0)
         call smd_data_put_string(sname,token,ndim,mtoken)
+        call smd_data_get_string(sname,token,ndim,mtoken,result)
       else if(dtype.eq.MT_LOG) then
         if(.not.rtdb_get(rtdb,token,mt_log,ndim,ltoken))
      >     call errquit("rtdb_get"//token,0,0)

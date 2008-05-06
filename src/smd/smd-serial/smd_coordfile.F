@@ -8,7 +8,7 @@
 #include "rtdb.fh"
       integer nt
 c
-      character*(nw_max_path_len) filename
+      character*(32) filename
       logical result
       character*30 pname
       logical rtdb_mode
@@ -18,8 +18,12 @@ c
 c
       master = 0
       rtdb_mode = rtdb_parallel(.false.)
+      write(*,*) "in",pname
+      call util_flush(6)
       if (ga_nodeid().eq.master) then
-        call smd_rtdb_get_coordfile(filename,result)
+        call smd_rtdb_get_string("smd:coordfile",1,
+     >                           filename,result)
+c        call smd_coordfile(filename,result)
         if(.not.result)
      >    call errquit(
      >         pname//'no coord file found',0, 0)
@@ -53,7 +57,7 @@ c
       integer i
       integer un
       character*(30) pname
-      character*(nw_max_path_len) filename
+      character*(32) filename
       logical result
       logical rtdb_mode
       integer master
@@ -96,7 +100,7 @@ c
       integer i
       integer un
       character*(30) pname
-      character*(nw_max_path_len) filename
+      character*(32) filename
       logical result
       logical rtdb_mode
       integer master
@@ -106,7 +110,7 @@ c
       rtdb_mode = rtdb_parallel(.false.)
       if (ga_nodeid().ne.master) goto 200
 c
-      call smd_rtdb_get_coordfile(filename,result)
+      call smd_coordfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no coord file found',0, 0)
@@ -142,14 +146,14 @@ c
       integer i
       integer un
       character*(30) pname
-      character*(nw_max_path_len) filename
+      character*(32) filename
       logical result
 c
       pname = "smd_coordfile_read_atomres"
 c
 c
 c      write(*,*) "in 1"//pname,ga_nodeid()
-      call smd_rtdb_get_coordfile(filename,result)
+      call smd_coordfile(filename,result)
 c      write(*,*) "in 2"//pname,ga_nodeid()
       if(.not.result)
      >  call errquit(
@@ -169,13 +173,13 @@ c
 #include "util.fh"
       integer nt
 c
-      character*(nw_max_path_len) filename
+      character*(32) filename
       logical result
       character*30 pname
 c
       pname = "smd_coordfile_natoms"
 c
-      call smd_rtdb_get_coordfile(filename,result)
+      call smd_coordfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no coord file found',0, 0)
@@ -199,14 +203,14 @@ c
       integer i
       integer un
       character*(30) pname
-      character*(nw_max_path_len) filename
+      character*(32) filename
       logical result
 
 
       pname = "smd_coordfile_read_coords"
 c
 c
-      call smd_rtdb_get_coordfile(filename,result)
+      call smd_coordfile(filename,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no coord file found',0, 0)
@@ -215,6 +219,28 @@ c
       call smd_pdb_read_coords(filename,nt,c)
 
       return
+
+      end
+
+      subroutine smd_coordfile(filename,result)
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
+c
+      character*(*) filename
+      logical result
+c
+      character*30 pname
+
+      pname = "smd_coordfile"
+
+      result = .true.
+      call smd_rtdb_get_string("smd:coordfile",1,
+     >                           filename,result)
+      write(*,*) "filename",filename
 
       end
 
