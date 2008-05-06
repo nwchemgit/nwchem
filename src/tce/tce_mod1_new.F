@@ -1,6 +1,6 @@
       subroutine tce_mod1_new(rtdb,d_mod1,mpole)
 c
-c $Id: tce_mod1_new.F,v 1.2 2008-05-05 22:43:34 jhammond Exp $
+c $Id: tce_mod1_new.F,v 1.3 2008-05-06 01:39:19 jhammond Exp $
 c
 c     Spin-spatial-symmetry blocked dipole matrix transformations.
 c
@@ -28,7 +28,7 @@ c
       integer l_mod1,k_mod1       ! MO dipole matrices
       integer l_work,k_work       ! Work space
       integer sf_size,sf_offset   ! SF size and offset
-      integer d_mod1(3)           ! File handle
+      integer d_mod1(*)           ! File handle
       integer g1b,g2b             ! Block indexes
       integer range_g1,range_g2   ! Block ranges
       integer offset_g1,offset_g2 ! Block offsets
