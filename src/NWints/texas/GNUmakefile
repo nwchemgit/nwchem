@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.51 2007-09-14 18:14:21 niri Exp $
+# $Id: GNUmakefile,v 1.52 2008-05-06 16:53:51 d3p307 Exp $
  
 include ../../config/makefile.h
 
@@ -40,7 +40,6 @@ endif
                  rt123.o \
                  shells.o \
                  time.o \
-                 trobsa.o \
                  zeroint.o \
 		 missing.o \
 		 texas_stubs.o \
@@ -52,6 +51,12 @@ endif
                  test_calc2.o \
                  screened_op.o \
 		 case_impl.o      
+   ifdef XLF11
+    OBJ += trobsa.o
+   else
+    OBJ_OPTIMIZE += trobsa.o
+   endif
+
 else
       OBJ = texas_stubs.o 
       OBJ_OPTIMIZE = 
@@ -66,11 +71,11 @@ endif
 		 case.fh
 
 include ../../config/makelib.h
-ifeq ($(FC),efc)
+ifeq ($(_CPU),ia64)
+ifeq ($(FC),ifort)
         FDEBUG=
 	FOPTIONS+= $(FOPTIMIZE) -mP3OPT_ecg_fp_control_safety=TRUE  -g -save
-else
-        FOPTIONS+= $(FOPTIMIZE)
+endif
 endif
 
 txs:
