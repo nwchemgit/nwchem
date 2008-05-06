@@ -1,4 +1,4 @@
-c $Id: tce_main.fh,v 1.8 2008-05-01 20:09:33 jhammond Exp $
+c $Id: tce_main.fh,v 1.9 2008-05-06 01:48:42 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -48,7 +48,7 @@ c
       double precision thresh  ! Convergence threshold for amplitude equation
       double precision pthresh ! Amplitude printing threshold
       double precision zlshift ! Level Shift
-      integer l_irs(2),k_irs(2)! Irreps of MO's
+      integer l_irs(2),k_irs(2)! Irreps of MOs
       integer nmix(2)          ! Number of symmetry contaminations
       double precision tol2e   ! 2-e integral tolerance
       integer g_movecs(2)      ! GA handle for MO vectors
@@ -71,10 +71,12 @@ c tce.fh < integer noab,nvab        ! Number of blocks
       logical activecalc       !True for CCSDt, CCSDtq, EOMCCSDt,EOMCCSDtq
       integer nfiles           ! Number of files
       integer ioalg            ! 0 = Fortran Direct Access 
-                               ! 1 = C Low-Level I/O
+                               ! 1 = Exclusive Access File Library
                                ! 2 = Global Array Incore
                                ! 3 = Shared File Library
-                               ! 4 = Replicated C Low-Level I/O
+                               ! 4 = Replicated Exclusive Access Files
+                               ! 5 = Disk Resident Array Algorithm
+                               ! 6 = GA/EAF Replicated Algorithm
       integer reference        ! 0 = DFT
                                ! 1 = HF/SCF
       integer l_mo_index,k_mo_index     ! MA handles for MO index

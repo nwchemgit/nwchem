@@ -47,14 +47,14 @@
       integer k_g0_offset         ! Offset for g0 file
       integer size_g0             ! File size in doubles
       double precision gamm(3,3,3,3)! Dipole second hyperpolarizability tensor (gamma not safe variable name)
-      integer d_o1             
-      integer l_o1_offset      
-      integer k_o1_offset      
-      integer size_o1          
-      integer d_o2             
-      integer l_o2_offset      
-      integer k_o2_offset      
-      integer size_o2          
+c      integer d_o1             
+c      integer l_o1_offset      
+c      integer k_o1_offset      
+c      integer size_o1          
+c      integer d_o2             
+c      integer l_o2_offset      
+c      integer k_o2_offset      
+c      integer size_o2          
 
       common /tcepropdouble/
      1 afreq,bfreq,gfreq,lr_thresh,yr_thresh,qr_thresh
