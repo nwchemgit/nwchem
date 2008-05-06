@@ -162,10 +162,16 @@ c
 #include "rtdb.fh"
 #include "smd_rtdb_data.fh"
 #include "mafdecls.fh"
+#include "smd_const_data.fh"
 
       integer rtdb
 c
-      logical ignore
+      character*(smd_string_size) namespace
+      character*(smd_string_size) tag
+      logical ignore,result
+      character*30 pname
+
+      pname = "smd_rtdb_init"
       smd_rtdb = rtdb
       if(.not. rtdb_getfname(rtdb, smd_rtdb_name)) call
      *        errquit('rtdb_getfname failed',0,0)
@@ -177,4 +183,14 @@ c
       ignore = rtdb_get(rtdb,"smd:iend",mt_int,1,smd_iend)
       ignore = rtdb_get(rtdb,"smd:nproc",mt_int,1,smd_nproc)
 
+      tag = "rtdb"
+      call smd_system_get_component(namespace,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      call smd_namespace_create(namespace)
+
+      call smd_data_namespace_rtdb_get(rtdb,namespace,"smd")
+      call smd_data_namespace_print(namespace,6)
       end 

@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.10 2008-05-05 23:47:21 marat Exp $
+* $Id: smd_data.F,v 1.11 2008-05-06 19:53:11 marat Exp $
 *
 
       block data initial_smd_data
@@ -590,28 +590,18 @@ c
         ind   = smd_index(ns,i) 
         buffer = smd_dname(ns,i)
         if(dtype.eq. MT_DBL) then
-          write(*,*) "brdcst",ndim,dtype,buffer
-          call util_flush(6)
           call ga_brdcst(msg_smd,dbl_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
         else if(dtype.eq.MT_INT) then
-          write(*,*) "brdcst",ndim,dtype,buffer
-          call util_flush(6)
           call ga_brdcst(msg_smd,int_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
         else if(dtype.eq.MT_STR) then
-          write(*,*) "brdcst",ndim,dtype,buffer
-          call util_flush(6)
           call ga_brdcst(msg_smd,byte_mb(ind),
      >     smd_string_size*ndim*ma_sizeof(dtype,1,mt_byte),root)
          else if(dtype.eq.MT_BYTE) then
-          write(*,*) "brdcst",ndim,dtype,buffer
-          call util_flush(6)
           call ga_brdcst(msg_smd,byte_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
         else if(dtype.eq.MT_LOG) then
-          write(*,*) "brdcst",ndim,dtype,buffer
-          call util_flush(6)
           call ga_brdcst(msg_smd,log_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
         else
@@ -759,28 +749,18 @@ c
         call ga_sync()
 
         if(dtype.eq. MT_DBL) then
-          write(*,*) "brdcst",ndim,dtype,buffer
-          call util_flush(6)
           call ga_brdcst(msg_smd,dbl_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
         else if(dtype.eq.MT_INT) then
-          write(*,*) "brdcst",ndim,dtype,buffer
-          call util_flush(6)
           call ga_brdcst(msg_smd,int_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
         else if(dtype.eq.MT_STR) then
-          write(*,*) "brdcst",ndim,dtype,buffer
-          call util_flush(6)
           call ga_brdcst(msg_smd,byte_mb(ind),
      >     smd_string_size*ndim*ma_sizeof(dtype,1,mt_byte),root)
        else if(dtype.eq.MT_BYTE) then
-          write(*,*) "brdcst",ndim,dtype,buffer
-          call util_flush(6)
           call ga_brdcst(msg_smd,byte_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
         else if(dtype.eq.MT_LOG) then
-          write(*,*) "brdcst",ndim,dtype,buffer
-          call util_flush(6)
           call ga_brdcst(msg_smd,log_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
         else
@@ -1049,3 +1029,79 @@ c
       return
       end
 
+      subroutine smd_data_namespace_rtdb_get(rtdb,sname,prefix)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+#include "msgids.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+      integer rtdb
+      character*(*) sname
+      character*(*) prefix
+c
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim,dtype,ind
+      character*(smd_string_size) token
+      character*(smd_string_size) mtoken(100)
+      integer  itoken(100)
+      double precision  ftoken(100)
+      logical ltoken(100)
+      pname = "smd_data_namespace_rtdb_get"
+
+      buffer = sname
+      call smd_data_get_sindex(buffer,ns,result)
+      if(.not.result)
+     +   call errquit(pname//'no namespace'//buffer,
+     +         0,
+     +         0)
+      nd = smd_nd(ns)
+     
+      if(.not.rtdb_first(rtdb,token))
+     +  call errquit(pname//'rtdb is empty',0,0)
+c
+300   continue
+      if(index(token,prefix).gt.0) then
+      if(.not.rtdb_get_info(rtdb, token, dtype, ndim, buffer))
+     >  call errquit("rtdb_get_info"//token,0,0)
+
+      write(*,*) "rtdb entry name",
+     >           token(1:inp_strlen(token)+1),dtype,ndim
+
+      if(dtype.eq. MT_DBL) then
+        if(.not.rtdb_get(rtdb,token,mt_dbl,ndim,ftoken))
+     >     call errquit("rtdb_get"//token,0,0)
+        call smd_data_put_dbl(sname,token,ndim,ftoken)
+      else if(dtype.eq.MT_INT) then
+        if(.not.rtdb_get(rtdb,token,mt_int,ndim,itoken))
+     >     call errquit("rtdb_get"//token,0,0)
+        call smd_data_put_int(sname,token,ndim,itoken)
+      else if(dtype.eq.MT_C_CHAR) then
+        if(.not.rtdb_cget_size(rtdb,token,ndim))
+     >     call errquit("rtdb_get_size"//token,0,0)
+        if(.not.rtdb_cget(rtdb,token,ndim,mtoken))
+     >     call errquit("rtdb_get"//token,0,0)
+        call smd_data_put_string(sname,token,ndim,mtoken)
+      else if(dtype.eq.MT_LOG) then
+        if(.not.rtdb_get(rtdb,token,mt_log,ndim,ltoken))
+     >     call errquit("rtdb_get"//token,0,0)
+        call smd_data_put_log(sname,token,ndim,ltoken)
+      else
+        call errquit(pname//'unknown type',0,0)
+      endif
+
+      end if
+
+      result = rtdb_next(rtdb,token)
+      if(result) goto 300
+
+      return
+      end

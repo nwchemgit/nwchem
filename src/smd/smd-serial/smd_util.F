@@ -1,5 +1,5 @@
 c
-c $Id: smd_util.F,v 1.4 2008-05-05 23:47:21 marat Exp $
+c $Id: smd_util.F,v 1.5 2008-05-06 19:53:12 marat Exp $
 c
 
       SUBROUTINE smd_util_rebox(n,latt,rlatt,aaa)
@@ -168,12 +168,28 @@ c
 
       integer i
 
-      write(*,*) "iin smd_set_ma_char"
       do i=1,nt
         t(i) = myname(i)
-        write(*,*) t(i)
       end do
 
       end
 
+      subroutine smd_ma_char_count(s,t,nt)
+      implicit none
+c
+#include "inp.fh"
+      integer nt
+      character*(*) s
+      character*(*) t
+
+      integer istart,iend
+
+      istart = 0
+      nt = 0
+  10  if (inp_strtok(t,s, istart, iend)) then
+      nt = nt +1
+      goto 10
+      endif
+
+      end
 
