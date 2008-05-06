@@ -9,6 +9,7 @@
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_v2,k_v2_alpha_offset_s,size_2e
       INTEGER chunk_v2,handle_v2
       INTEGER l_aux,k_aux
@@ -106,6 +107,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_f1,k_f1_offset_s,size_1e
       INTEGER chunk_f1,handle_f1
       INTEGER l_aux,k_aux
@@ -193,6 +195,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_f1,k_f1_offset_s,size_1e
       INTEGER chunk_f1,handle_f1
       INTEGER l_aux,k_aux
@@ -285,6 +288,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_t1,k_t1_offset,size_t1
       INTEGER chunk_t1,handle_t1
       INTEGER l_aux,k_aux
@@ -371,6 +375,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_t1,k_t1_offset,size_t1
       INTEGER chunk_t1,handle_t1
       INTEGER l_aux,k_aux
@@ -464,6 +469,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_t1,k_t1_offset,size_t1
       INTEGER chunk_t1,handle_t1
       INTEGER l_aux,k_aux
@@ -551,6 +557,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_t2,k_t2_offset,size_t2
       INTEGER chunk_t2,handle_t2
       INTEGER l_aux,k_aux
@@ -644,6 +651,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_t2,k_t2_offset,size_t2
       INTEGER chunk_t2,handle_t2
       INTEGER l_aux,k_aux
@@ -744,6 +752,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_t2,k_t2_offset,size_t2
       INTEGER chunk_t2,handle_t2
       INTEGER l_aux,k_aux
@@ -855,6 +864,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_v2,k_v2_alpha_offset_s,size_2e
       INTEGER chunk_v2,handle_v2
       INTEGER l_aux,k_aux
@@ -952,6 +962,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_f1,k_f1_offset_s,size_1e
       INTEGER chunk_f1,handle_f1
       INTEGER l_aux,k_aux
@@ -1039,6 +1050,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_f1,k_f1_offset_s,size_1e
       INTEGER chunk_f1,handle_f1
       INTEGER l_aux,k_aux
@@ -1143,6 +1155,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_t1,k_t1_offset,size_t1
       INTEGER chunk_t1,handle_t1
       INTEGER l_aux,k_aux
@@ -1229,6 +1242,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_t1,k_t1_offset,size_t1
       INTEGER chunk_t1,handle_t1
       INTEGER l_aux,k_aux
@@ -1322,6 +1336,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_t1,k_t1_offset,size_t1
       INTEGER chunk_t1,handle_t1
       INTEGER l_aux,k_aux
@@ -1409,6 +1424,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_t2,k_t2_offset,size_t2
       INTEGER chunk_t2,handle_t2
       INTEGER l_aux,k_aux
@@ -1502,6 +1518,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_t2,k_t2_offset,size_t2
       INTEGER chunk_t2,handle_t2
       INTEGER l_aux,k_aux
@@ -1602,6 +1619,7 @@ c
 #include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       INTEGER d_t2,k_t2_offset,size_t2
       INTEGER chunk_t2,handle_t2
       INTEGER l_aux,k_aux
