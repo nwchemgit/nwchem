@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.567 2008-05-05 23:53:31 d3p307 Exp $
+# $Id: makefile.h,v 1.568 2008-05-06 16:57:50 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1005,8 +1005,9 @@ LARGE_FILES = YES
     FOPTIMIZE  += -qfloat=rsqrt:fltint
   endif
   COPTIMIZE = -O
-    XLF8= $(shell xlf -qversion  2>&1|grep COMM|head -1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
+    XLF8= $(shell xlf -qversion  2>&1|grep Version|head -1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
     XLF10 = $(shell xlf -qversion  2>&1|grep Version|head -1| awk ' / 10./ {print "Y"}')
+    XLF11 = $(shell xlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
   ifdef XLF8
     FVECTORIZE= -O3 -qstrict -qtune=auto -qarch=auto -qcache=auto -qalign=natural -qnozerosize -qlargepage -qnozerosize -qipa=level=2
     FOPTIMIZE = -O4  -NQ40000 -NT80000  -qarch=auto -qtune=auto
@@ -1479,8 +1480,6 @@ endif
     LDOPTIONS += -Wl,--relax #-v
   endif
 
-
-
       LINK.f = $(FC) $(FOPTIONS) $(LDFLAGS) 
 ifeq ($(LINUXCPU),x86)
   ifeq ($(FC),pgf77)
@@ -1507,9 +1506,7 @@ ifeq ($(LINUXCPU),x86)
 endif
 #EXTRA_LIBS +=-lefence # link against Electricfence
 
-
 CORE_LIBS += -llapack $(BLASOPT) -lblas
-
 
 # end of Linux, Cygnus
 endif
@@ -1634,7 +1631,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	@echo 
 	@exit 1
       endif
-      ifeq ($(CC),ecc)
+      ifeq ($(CC),icc)
         COPTIONS   =   -ftz
         COPTIMIZE =  -O3 -hlo   -mP2OPT_hlo_level=2  
       endif
