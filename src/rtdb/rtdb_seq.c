@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.23 2007-05-24 12:43:55 edo Exp $*/
+/*$Id: rtdb_seq.c,v 1.24 2008-05-06 19:32:42 marat Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #if defined(CATAMOUNT)
@@ -46,7 +46,7 @@ extern void *malloc(size_t);
 extern void free(void *);
 #endif
 
-#define MAX_RTDB 32
+#define MAX_RTDB 100
 
 #define FORTRAN_TRUE  1L
 #define FORTRAN_FALSE 0L

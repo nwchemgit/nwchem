@@ -1,4 +1,4 @@
-/*$Id: rtdb_f2c.c,v 1.24 2008-02-14 23:42:44 d3p307 Exp $*/
+/*$Id: rtdb_f2c.c,v 1.25 2008-05-06 19:32:42 marat Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -428,7 +428,63 @@ Logical FATR rtdb_cput_(const Integer *handle, const char *name,
     return FORTRAN_FALSE;
 }
 
+/*MV*/
 
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+Logical FATR rtdb_cget_size_(const Integer *handle, _fcd name,
+		   const Integer *nelem)
+{
+    int nlen = _fcdlen(name);
+    int alen = _fcdlen(farray);
+#else
+Logical FATR rtdb_cget_size_(const Integer *handle, const char *name,
+		   Integer *nelem,
+		   const int nlen, const int alen)
+{
+#endif
+
+/*
+  Read an array of Fortran character variables from the data base.
+
+  Put stored the array as follows:
+  .  Each array element is striped of trailing blanks, terminated with CR,
+  .  and appended to the list. The entire array must fit into abuf.
+*/
+
+  int hbuf = (int) *handle;
+  char nbuf[256];
+  char abuf[20480];
+  /*  char abuf[10240];*/
+  int nelbuf;
+  int typebuf;
+  int i;
+  char *next;
+  if (!fortchar_to_string(name, nlen, nbuf, sizeof(nbuf))) {
+    (void) fprintf(stderr, "rtdb_cget: nbuf is too small, need=%d\n", 
+		   nlen);
+    return FORTRAN_FALSE;
+  }
+
+
+  nelbuf = sizeof(abuf);
+  typebuf= (int) MT_CHAR;
+
+  if (!rtdb_get(hbuf, nbuf, typebuf, nelbuf, abuf)) {
+      return FORTRAN_FALSE;	/* Not there */
+  }
+
+  for (i=0, next=strtok(abuf, "\n");
+       next;
+       i++, next=strtok((char *) 0, "\n")) {
+  }
+  *nelem = i;
+  return FORTRAN_TRUE;
+}
+
+
+
+
+/*MV*/
 #if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 Logical FATR rtdb_cget_(const Integer *handle, _fcd name,
 		   const Integer *nelem,
