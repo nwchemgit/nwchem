@@ -1,46 +1,46 @@
-      subroutine smd_ewald_get_alpha(aalpha)
-      implicit none
-#include "smd_ewald_data.fh"
-
-      double precision aalpha
-
-      aalpha = alpha
-
-      end 
-
-      subroutine smd_ewald_get_ralphsq(aralphsq)
-      implicit none
-#include "smd_ewald_data.fh"
-
-      double precision aralphsq
-
-      aralphsq = ralphsq
-
-      end 
-
-      subroutine smd_ewald_get_rksqmax(arksqmax)
-      implicit none
-#include "smd_ewald_data.fh"
-
-      double precision arksqmax
-
-      arksqmax = rksqmax
-
-      end 
-
-      subroutine smd_ewald_get_kmax(akmax)
-      implicit none
-#include "smd_ewald_data.fh"
-
-      integer akmax(3)
-      integer i
-
-      do i=1,3
-        akmax(i) = kmax(i)
-      end do
-
-      end 
-
+c      subroutine smd_ewald_get_alpha(aalpha)
+c      implicit none
+c#include "smd_ewald_data.fh"
+c
+c      double precision aalpha
+c
+c      aalpha = alpha
+c
+c      end 
+c
+c      subroutine smd_ewald_get_ralphsq(aralphsq)
+c      implicit none
+c#include "smd_ewald_data.fh"
+c
+c      double precision aralphsq
+c
+c      aralphsq = ralphsq
+c
+c      end 
+c
+c      subroutine smd_ewald_get_rksqmax(arksqmax)
+c      implicit none
+c#include "smd_ewald_data.fh"
+c
+c      double precision arksqmax
+c
+c      arksqmax = rksqmax
+c
+c      end 
+c
+c      subroutine smd_ewald_get_kmax(akmax)
+c      implicit none
+c#include "smd_ewald_data.fh"
+c
+c      integer akmax(3)
+c      integer i
+c
+c      do i=1,3
+c        akmax(i) = kmax(i)
+c      end do
+c
+c      end 
+c
       subroutine smd_ewald_set_alpha(aalpha)
       implicit none
 #include "smd_ewald_data.fh"

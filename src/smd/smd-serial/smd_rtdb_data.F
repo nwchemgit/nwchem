@@ -157,21 +157,23 @@ c
 
       end 
 
-      subroutine smd_rtdb_init(rtdb)
+      subroutine smd_rtdb_init(parallel,rtdb)
       implicit none
 #include "rtdb.fh"
 #include "smd_rtdb_data.fh"
 #include "mafdecls.fh"
 #include "smd_const_data.fh"
 
+      logical parallel
       integer rtdb
 c
       character*(smd_string_size) namespace
       character*(smd_string_size) tag
-      logical ignore,result
+      logical ignore,result,oldmode
       character*30 pname
 
       pname = "smd_rtdb_init"
+      oldmode = rtdb_parallel(parallel)
       smd_rtdb = rtdb
       if(.not. rtdb_getfname(rtdb, smd_rtdb_name)) call
      *        errquit('rtdb_getfname failed',0,0)
@@ -192,6 +194,7 @@ c
       call smd_namespace_create(namespace)
 
       call smd_data_namespace_rtdb_get(rtdb,namespace,"smd")
+      oldmode = rtdb_parallel(oldmode)
       end 
 
       subroutine smd_rtdb_get_log(dname,ndim,datum,result)

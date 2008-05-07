@@ -22,6 +22,7 @@ c
      c                       "cutoff",
      c                       "temperature",
      c                       "rtdb",
+     c                       "ewald",
      c                       "bond"/
 
 

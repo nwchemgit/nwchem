@@ -6,16 +6,16 @@
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
+#include "smd_const_data.fh"
 c
-      integer rtdb
       character*32 sp_lat
       character*32 pname
-      character*80 tag
       integer i_rl
       integer kmax(3)
       double precision alpha
       double precision ralphsq
       double precision rksqmax
+      character*(smd_tag_size) namespace,tag
 
       logical result
 c
@@ -24,12 +24,10 @@ c
 c      write(*,*) "in "//pname
 
 c
-      call smd_rtdb_get_handle(rtdb)
-c
       call smd_system_get_component(sp_lat,"lattice",result)
       if(.not.result) return
 c
-      call smd_ewald_rtdb_read(alpha,kmax,rtdb)
+      call smd_ewald_rtdb_read(alpha,kmax)
 c
       tag = "lat:rcell"
       call smd_get_ind(tag,i_rl,result)
@@ -44,10 +42,28 @@ c
       call smd_ewald_set_ralphsq(ralphsq)
 
 c      call smd_ewald_print(6)
+
+      tag = "ewald"
+      call smd_system_get_component(namespace,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      call smd_namespace_create(namespace)
+     
+      tag = "ewald:kmax"
+      call smd_data_put_int(namespace,tag,3,kmax)
+      tag = "ewald:alpha"
+      call smd_data_put_dbl(namespace,tag,1,alpha)
+      tag = "ewald:rksqmax"
+      call smd_data_put_dbl(namespace,tag,1,rksqmax)
+      tag = "ewald:ralphsq"
+      call smd_data_put_dbl(namespace,tag,1,ralphsq)
+
       return
       end
 
-      subroutine smd_ewald_rtdb_read(alpha,kmax,rtdb)
+      subroutine smd_ewald_rtdb_read(alpha,kmax)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -58,24 +74,27 @@ c      call smd_ewald_print(6)
 c     
       double precision alpha
       integer kmax(3)
-      integer rtdb
 c
       character*32 pname
       character*80 tag
+      logical result
 c
       pname = "smd_ewald_rtdb_read"
 c
 c      write(*,*) "in "//pname
 c
       tag = "smd:ewald"
-      if (.not.rtdb_get(rtdb,tag,mt_dbl,1,alpha)) 
-     >      call errquit(pname//'failed to read'//tag,0,
+      call smd_rtdb_get_dbl(tag,1,alpha,result)
+      if (.not.result)
+     >      call errquit(pname//'failed to get'//tag,0,
      >       RTDB_ERR)
-c
+
       tag = "smd:kvec"
-      if (.not.rtdb_get(rtdb,tag,mt_int,3,kmax(1))) 
-     >      call errquit(pname//'failed to read'//tag,0,
+      call smd_rtdb_get_int(tag,3,kmax,result)
+      if (.not.result)
+     >      call errquit(pname//'failed to get'//tag,0,
      >       RTDB_ERR)
+
 
       return
       end
@@ -527,3 +546,148 @@ c      write(*,*) "ewald4",ewald2
       return
 
       END
+
+      subroutine smd_ewald_get_alpha(alpha)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+      double precision  alpha
+c
+      character*32 pname
+      character*(smd_tag_size) namespace,tag
+      logical result
+c
+      tag = "ewald"
+      call smd_system_get_component(namespace,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      tag = "ewald:alpha"
+      call smd_data_get_dbl(namespace,tag,1,alpha,result)
+      if(.not.result)
+     >  call errquit('no data '//tag,0,0)
+
+      return
+      end
+
+      subroutine smd_ewald_get_ralphsq(ralphsq)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+      double precision ralphsq
+c
+      character*32 pname
+      character*(smd_tag_size) namespace,tag
+      logical result
+c
+      tag = "ewald"
+      call smd_system_get_component(namespace,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      tag = "ewald:ralphsq"
+      call smd_data_get_dbl(namespace,tag,1,ralphsq,result)
+      if(.not.result)
+     >  call errquit('no data '//tag,0,0)
+
+      return
+      end
+
+      subroutine smd_ewald_get_rksqmax(rksqmax)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+      double precision rksqmax
+c
+      character*32 pname
+      character*(smd_tag_size) namespace,tag
+      logical result
+c
+      tag = "ewald"
+      call smd_system_get_component(namespace,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      tag = "ewald:rksqmax"
+      call smd_data_get_int(namespace,tag,1,rksqmax,result)
+      if(.not.result)
+     >  call errquit('no data '//tag,0,0)
+
+      return
+      end
+
+      subroutine smd_ewald_get_kmax(kmax)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+      integer kmax(3)
+c
+      character*32 pname
+      character*(smd_tag_size) namespace,tag
+      logical result
+c
+      tag = "ewald"
+      call smd_system_get_component(namespace,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      tag = "ewald:kmax"
+      call smd_data_get_int(namespace,tag,3,kmax,result)
+      if(.not.result)
+     >  call errquit('no data '//tag,0,0)
+
+      return
+      end
+c
+c      subroutine smd_ewald_get_xxx(xxx)
+c      implicit none
+c#include "errquit.fh"
+c#include "inp.fh"
+c#include "mafdecls.fh"
+c#include "rtdb.fh"
+c#include "util.fh"
+c#include "global.fh"
+c#include "smd_const_data.fh"
+c      type xxx
+cc
+c      character*32 pname
+c      character*(smd_tag_size) namespace,tag
+c      logical result
+cc
+c      tag = "ewald"
+c      call smd_system_get_component(namespace,tag,result)
+c      if(.not.result)
+c     >  call errquit(
+c     >       pname//'no component '//tag,0,0)
+c
+c      tag = "ewald:xxx"
+c      call smd_data_get_dbl(namespace,tag,1,kmax,result)
+c      if(.not.result)
+c     >  call errquit('no data '//tag,0,0)
+c
+c      return
+c      end

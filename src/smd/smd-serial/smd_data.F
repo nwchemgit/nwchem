@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.16 2008-05-07 21:38:39 marat Exp $
+* $Id: smd_data.F,v 1.17 2008-05-07 22:46:19 marat Exp $
 *
 
       block data initial_smd_data
@@ -188,6 +188,44 @@ c
        if(smd_dname(ns,i).eq.buffer) then
          ind = smd_index(ns,i)
          nq  = smd_dim(ns,i)
+         result = .true.
+         return
+       end if
+      end do
+
+      return
+      end
+
+      subroutine smd_data_get_attrib(sname,dname,ind,nq,dtype,result)
+      implicit none
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ind,nq,dtype
+      logical result
+c
+      integer i,ns,nd
+      character*72 buffer
+      character*30 pname
+
+      pname = "smd_data_get_index"    
+ 
+      buffer = sname
+
+      call smd_data_get_sindex(buffer,ns,result)
+      if(.not.result)
+     +   call errquit(pname//'no namespace'//buffer,
+     +         0,
+     +         0)
+
+      result = .false.
+      nd = 0
+      buffer = dname
+      do i=1,smd_nd(ns)
+       if(smd_dname(ns,i).eq.buffer) then
+         ind = smd_index(ns,i)
+         nq  = smd_dim(ns,i)
+         dtype = smd_type(ns,i)
          result = .true.
          return
        end if
@@ -903,7 +941,7 @@ c
       integer ndim
       integer datum(ndim)
 c
-      integer ind
+      integer ind,dtype
       logical result
       integer ns,nd
       character*30 pname
@@ -913,8 +951,10 @@ c
 
       pname = "smd_data_get_int"
 
-      call smd_data_get_index_size(sname,dname,ind,ndim1,result)
+      call smd_data_get_attrib(sname,dname,ind,ndim1,dtype,result)
       if(.not.result) return
+      if(dtype.ne.MT_INT)
+     >     call errquit(pname//"incompatible types",0,0)
       if(ndim1.ne.ndim)
      >     call errquit(pname//"incompatible sizes",0,0)
 
@@ -1121,6 +1161,11 @@ c
 
       result = rtdb_next(rtdb,token)
       if(result) goto 300
+      call smd_data_put_int(sname,"smd:rtdb_handle",1,rtdb)
+
+      if(.not. rtdb_getfname(rtdb, mtoken(1))) call
+     *        errquit('rtdb_getfname failed',0,0)
+       call smd_data_put_string(sname,"smd:rtdb_name",1,mtoken)
 
       return
       end

@@ -214,6 +214,7 @@ c
       character*72 sp_cutoff
       character*72 sp_temperature
       character*72 sp_rtdb
+      character*72 sp_ewald
 c
       logical olattice
       logical obond
@@ -241,6 +242,7 @@ c
       sp_cutoff  = "cutoff"
       sp_temperature = "temperature"
       sp_rtdb = "rtdb"
+      sp_ewald = "ewald"
 c
 c
 c     CREATE SYSTEM
@@ -302,13 +304,15 @@ c     ------------
       tag = "rtdb"
       call smd_system_set_component(tag,sp_rtdb)
 
+      tag = "ewald"
+      call smd_system_set_component(tag,sp_ewald)
 c
 c      write(*,*) "in "//pname
 c     DEFINE ALL THE COMPONENTS
 c     --------------------------------
 c
-      call smd_rtdb_init(rtdb)
       if(ga_nodeid().eq.master) then
+      call smd_rtdb_init(.false.,rtdb)
       call smd_cutoff_init()
       call smd_temper_init()
       call smd_atom_init_system()
