@@ -200,7 +200,7 @@ c      reset residue arrays to be the size of number of residues only
 
       end
 
-      subroutine smd_pdb_read_res(filename,nt,nr,nc,tr,ir,nm)
+      subroutine smd_pdb_read_res(filename,nt,nr,tr,ir,nm)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -209,7 +209,7 @@ c      reset residue arrays to be the size of number of residues only
 #include "smd_const_data.fh"
       character*(*) filename
       integer nt,nr,nc
-      character*(nc) tr(nr)
+      character*(smd_string_size) tr(nr)
       integer ir(nt)
       integer nm(nr)
 c
