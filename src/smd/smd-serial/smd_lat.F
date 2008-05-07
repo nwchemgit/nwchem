@@ -103,8 +103,9 @@ c      write(*,*) "in "//pname
 c
       olatt = .true.
       tag="smd:lat_a"
-      if (.not.rtdb_get(rtdb,tag,mt_dbl,3,a(1))) 
-     >      olatt=.false.
+      call smd_rtdb_get_dbl(tag,3,a(1),olatt)
+c      if (.not.rtdb_get(rtdb,tag,mt_dbl,3,a(1))) 
+c     >      olatt=.false.
 
       return
       end
@@ -125,29 +126,45 @@ c
       character*80 tag
       double precision a(3)
       integer i
+      logical result
 c
       pname = "smd_lat_rtdb_read"
 c
 c      write(*,*) "in "//pname
 c
       tag="smd:lat_a"
-      if (.not.rtdb_get(rtdb,tag,mt_dbl,3,a(1))) 
+      call smd_rtdb_get_dbl(tag,3,a(1),result)
+      if (.not.result) 
      >      call errquit(pname//'failed to get'//tag,0,
      >       RTDB_ERR)
+
+c      if (.not.rtdb_get(rtdb,tag,mt_dbl,3,a(1))) 
+c     >      call errquit(pname//'failed to get'//tag,0,
+c     >       RTDB_ERR)
       do i=1,3
        latt(i,1)=a(i)
       end do
       tag="smd:lat_b"
-      if (.not.rtdb_get(rtdb,tag,mt_dbl,3,a(1))) 
+      call smd_rtdb_get_dbl(tag,3,a(1),result)
+      if (.not.result) 
      >      call errquit(pname//'failed to get'//tag,0,
      >       RTDB_ERR)
+
+c      if (.not.rtdb_get(rtdb,tag,mt_dbl,3,a(1))) 
+c     >      call errquit(pname//'failed to get'//tag,0,
+c     >       RTDB_ERR)
       do i=1,3
        latt(i,2)=a(i)
       end do
       tag="smd:lat_c"
-      if (.not.rtdb_get(rtdb,tag,mt_dbl,3,a(1))) 
+      call smd_rtdb_get_dbl(tag,3,a(1),result)
+      if (.not.result) 
      >      call errquit(pname//'failed to get'//tag,0,
      >       RTDB_ERR)
+
+c      if (.not.rtdb_get(rtdb,tag,mt_dbl,3,a(1))) 
+c     >      call errquit(pname//'failed to get'//tag,0,
+c     >       RTDB_ERR)
       do i=1,3
        latt(i,3)=a(i)
       end do

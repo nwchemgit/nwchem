@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.15 2008-05-07 19:20:11 marat Exp $
+* $Id: smd_data.F,v 1.16 2008-05-07 21:38:39 marat Exp $
 *
 
       block data initial_smd_data
@@ -639,6 +639,7 @@ c
      +         0)
 
       nd = smd_nd(ns)
+      write(un,*) "NAMESPACE",sname
       do k=1,nd
         ndim  = smd_dim(ns,k)
         dtype = smd_type(ns,k)

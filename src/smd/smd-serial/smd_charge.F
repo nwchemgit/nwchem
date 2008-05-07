@@ -79,21 +79,6 @@ c     -------------------------
 c
 c     create charge data structures
 c     ---------------------------
-      dims(1) = na
-      chunk(1) = 0
-      if(.not.nga_create(type, ndims, dims, 
-     >    'sp_charge', chunk, ga_charges)) 
-     >  call errquit(
-     >       pname//'nga_create error ',0, RTDB_ERR)
-
-      call smd_rtdb_get_handle(rtdb)
-      
-      if (.not.rtdb_put(rtdb,"ga_charges",mt_int,1,ga_charges)) 
-     >      call errquit(pname//'failed to store ga_charges',0,
-     >       RTDB_ERR)
-
-      smd_charge_ga = ga_charges
-
       call smd_namespace_create(sp_charge)
       call smd_data_create(sp_charge,"charge",na,MT_DBL)
       return

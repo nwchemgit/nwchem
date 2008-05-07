@@ -68,7 +68,8 @@ c     ---------------------------
       call smd_namespace_create(sp_vel)
       call smd_data_create(sp_vel,"vel",3*na,MT_DBL)
 c
-      call smd_rtdb_get_veloc_input(filename,result)
+      call smd_velocfile_input(filename,result)
+c      call smd_rtdb_get_veloc_input(filename,result)
       if((.not.result).or.(filename.eq."random")) then
         call smd_vel_random_guess()
       else
@@ -447,4 +448,23 @@ c
 
       END
 
+      subroutine smd_velocfile_input(filename,result)
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 
+c
+      character*(*) filename
+      logical result
+c
+      character*30 pname
+
+      pname = "smd_velocfile_input"
+
+      result = .true.
+      call smd_rtdb_get_string("smd:veloc:input",1,
+     >                           filename,result)
+
+      end
