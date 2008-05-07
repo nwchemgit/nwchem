@@ -37,7 +37,6 @@ c
 c
       character*(smd_tag_size) namespace,tag
       character*32 pname
-      integer rtdb
       integer natms,ntcons
       logical result
       integer i
@@ -45,10 +44,10 @@ c
 c
       pname = "smd_temper_init"
 
-      call smd_rtdb_get_handle(rtdb)
       tag="smd:temp_target"
-      if (.not.rtdb_get(rtdb,tag,mt_dbl,1,t))  then
-         call smd_system_unset_component("temperature")
+      call smd_rtdb_get_dbl(tag,1,t,result)
+      if (.not.result) then
+        call smd_system_unset_component("temperature")
          return
       end if
 

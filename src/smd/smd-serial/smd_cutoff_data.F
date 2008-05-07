@@ -51,14 +51,12 @@ c
 c
       character*(smd_tag_size) namespace,tag
       character*32 pname
-      integer rtdb
       logical result
       integer i
 c
       double precision rcut,rcut_verlet
       pname = "smd_cutoff_init"
 
-      call smd_rtdb_get_handle(rtdb)
       tag="smd:rcut"
       call smd_rtdb_get_dbl(tag,1,rcut,result)
       if (.not.result) 
@@ -71,18 +69,6 @@ c
      >      call errquit(pname//'failed to get'//tag,0,
      >       RTDB_ERR)
 
-c      write(*,*) "rcut,rcut_verlet",rcut,rcut_verlet
-c      tag="smd:rcut"
-c        if (.not.rtdb_get(rtdb,tag,mt_dbl,1,rcut)) 
-c     >      call errquit(pname//'failed to get'//tag,0,
-c     >       RTDB_ERR)
-c
-c      tag="smd:verlet" 
-c        if (.not.rtdb_get(rtdb,tag,mt_dbl,1,rcut_verlet)) 
-c     >      call errquit(pname//'failed to get'//tag,0,
-c     >       RTDB_ERR)
-c
-c      write(*,*) "rcut,rcut_verlet",rcut,rcut_verlet
       tag = "cutoff"
       call smd_system_get_component(namespace,tag,result)
       if(.not.result)

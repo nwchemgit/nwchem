@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.14 2008-05-07 17:36:05 marat Exp $
+* $Id: smd_data.F,v 1.15 2008-05-07 19:20:11 marat Exp $
 *
 
       block data initial_smd_data
@@ -347,17 +347,7 @@ c
       pname = "smd_namespace_destroy"
 
       do ns=1,smd_n
-
-        write(un,*) "namespace number and name",ns,smd_name(ns)
-        write(un,*) "contents"
-        do i=1,smd_nd(ns)
-          write(un,*) "data name", smd_dname(ns,i)
-          write(un,*) "data handle", smd_handle(ns,i)
-          write(un,*) "data index", smd_index(ns,i)
-          write(un,*) "data type", smd_type(ns,i)
-          write(un,*) "data dims", smd_dim(ns,i)
-
-        end do
+        call smd_data_namespace_print(smd_name(ns),un)
       end do
      
       return
@@ -726,6 +716,7 @@ c
       end if
 
       if(ga_nodeid().ne.root) then
+        call smd_namespace_destroy(sname)
         call smd_namespace_create(sname)
       end if
 c
@@ -785,16 +776,30 @@ c
 #include "smd_data.fh"
 #include "errquit.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
+#include "global.fh"
 c
       integer root
 c
-      integer ns
+      integer ns,nsmax
       character*(30) pname
       character*(72) buffer
       pname = "smd_namespace_destroy"
 
-      do ns=1,smd_n
-       call smd_data_namespace_brdcst_create(smd_name(ns),root)   
+      
+      if(ga_nodeid().eq.root) then
+        nsmax = smd_n
+      end if
+      call ga_brdcst(msg_smd,nsmax,
+     >     ma_sizeof(mt_int,1,mt_byte),root)
+      do ns=1,nsmax
+      if(ga_nodeid().eq.root) then
+        buffer = smd_name(ns)
+      end if
+      call ga_sync()
+      call ga_brdcst(msg_smd,buffer,
+     >     72*ma_sizeof(mt_byte,1,mt_byte),root)
+       call smd_data_namespace_brdcst_create(buffer,root)   
       end do
      
       return

@@ -144,7 +144,7 @@ c
 c
       pname = "smd_atom_init"
 c
-c      write(*,*) "in "//pname
+      write(*,*) "in "//pname
 c
 c     get total number of atoms from pdb file
 c     ---------------------------------------
