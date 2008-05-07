@@ -217,6 +217,9 @@ c
 c
       logical olattice
       logical obond
+      integer master
+c
+      master = 0
       pname = "smd_init_dynamics"
 c
       sp_atom      = "atom"
@@ -305,12 +308,15 @@ c     DEFINE ALL THE COMPONENTS
 c     --------------------------------
 c
       call smd_rtdb_init(rtdb)
-c
+c      if(ga_nodeid().eq.master) then
       call smd_cutoff_init()
-c
       call smd_temper_init()
-c
       call smd_atom_init_system()
+c      end if
+c      call ga_sync()
+c      call smd_data_brdcst_create(master)
+c      call smd_data_print(70+ga_nodeid())
+c      stop
 c
       call smd_param_init_system()
 c

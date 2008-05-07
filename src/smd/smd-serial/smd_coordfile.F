@@ -1,4 +1,4 @@
-      subroutine smd_coordfile_natoms(nt)
+      subroutine smd_coordfile_natoms_par(nt)
       implicit none
 #include "errquit.fh"
 #include "util.fh"
@@ -21,9 +21,7 @@ c
       write(*,*) "in",pname
       call util_flush(6)
       if (ga_nodeid().eq.master) then
-        call smd_rtdb_get_string("smd:coordfile",1,
-     >                           filename,result)
-c        call smd_coordfile(filename,result)
+        call smd_coordfile(filename,result)
         if(.not.result)
      >    call errquit(
      >         pname//'no coord file found',0, 0)
@@ -114,8 +112,64 @@ c
       return
 
       end
+      subroutine smd_coordfile_read_atomres(nt,ta,tr,ir)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+      integer nt
+      character*(*) ta(nt)
+      character*(*) tr(nt)
+      integer ir(nt)
+c
+      character*(180) buffer
+      character*(4)  tag
+      integer i
+      integer un
+      character*(30) pname
+      character*(33) filename
+      logical result
+c
+      pname = "smd_coordfile_read_atomres"
+c
+c
+      call smd_coordfile(filename,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no coord file found',0, 0)
+c
+      call smd_pdb_read_atomres(filename,nt,ta,tr,ir)
+
+      return
+
+      end
 
       subroutine smd_coordfile_natoms_seq(nt)
+      implicit none
+#include "errquit.fh"
+#include "util.fh"
+      integer nt
+c
+      character*(33) filename
+      logical result
+      character*30 pname
+c
+      pname = "smd_coordfile_natoms"
+c
+      call smd_coordfile(filename,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no coord file found',0, 0)
+
+c
+      call smd_pdb_natoms(filename,nt)
+
+      end
+
+      subroutine smd_coordfile_natoms(nt)
       implicit none
 #include "errquit.fh"
 #include "util.fh"
