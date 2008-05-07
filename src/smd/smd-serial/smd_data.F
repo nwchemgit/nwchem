@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.12 2008-05-06 22:53:18 marat Exp $
+* $Id: smd_data.F,v 1.13 2008-05-07 16:40:23 marat Exp $
 *
 
       block data initial_smd_data
@@ -989,6 +989,71 @@ c
       character*(*) dname
       integer ndim
       integer dtype
+      character*(*) datum(ndim)
+c
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_data_create"
+
+c      ndim1 = smd_tag_size*ndim
+
+      call smd_data_create_get(sname,dname,ndim,MT_STR,ind)
+      call smd_set_char_to_ma(ndim,datum,byte_mb(ind))
+      return
+      end
+
+      subroutine smd_data_get_string(sname,dname,ndim,datum,result)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+#include "smd_const_data.fh"
+#include "inp.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ndim
+      integer dtype
+      character*(*) datum(ndim)
+c
+      integer ind
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+      integer chunk
+      logical result
+
+      pname = "smd_data_get_string"
+
+      call smd_data_get_index_size(sname,dname,ind,ndim1,result)
+      if(.not.result) return
+      write(*,*) "LEN",LEN(datum(1))
+      if(ndim1.ne.ndim)
+     >     call errquit(pname//"incompatible sizes",0,0)
+      call smd_set_ma_to_char(ndim1,byte_mb(ind),datum)
+      return
+      end
+
+      subroutine smd_data_put_string1(sname,dname,ndim,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+#include "smd_const_data.fh"
+#include "inp.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ndim
+      integer dtype
       character*(smd_string_size) datum(ndim)
 c
       integer ind
@@ -1007,8 +1072,7 @@ c      ndim1 = smd_tag_size*ndim
       call smd_set_ma_char(ndim*smd_string_size,datum,byte_mb(ind))
       return
       end
-
-      subroutine smd_data_get_string(sname,dname,ndim,datum,result)
+      subroutine smd_data_get_string1(sname,dname,ndim,datum,result)
       implicit none
 c
 #include "mafdecls.fh"
@@ -1099,7 +1163,9 @@ c
         if(.not.rtdb_cget(rtdb,token,ndim,mtoken))
      >     call errquit("rtdb_get"//token,0,0)
         call smd_data_put_string(sname,token,ndim,mtoken)
+        write(*,*) "mtoken before",mtoken(1)
         call smd_data_get_string(sname,token,ndim,mtoken,result)
+        write(*,*) "mtoken after",mtoken(1)
       else if(dtype.eq.MT_LOG) then
         if(.not.rtdb_get(rtdb,token,mt_log,ndim,ltoken))
      >     call errquit("rtdb_get"//token,0,0)

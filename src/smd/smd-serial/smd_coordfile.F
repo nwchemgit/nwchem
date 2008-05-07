@@ -8,7 +8,7 @@
 #include "rtdb.fh"
       integer nt
 c
-      character*(32) filename
+      character*(33) filename
       logical result
       character*30 pname
       logical rtdb_mode
@@ -57,7 +57,7 @@ c
       integer i
       integer un
       character*(30) pname
-      character*(32) filename
+      character*(33) filename
       logical result
       logical rtdb_mode
       integer master
@@ -100,7 +100,7 @@ c
       integer i
       integer un
       character*(30) pname
-      character*(32) filename
+      character*(33) filename
       logical result
       logical rtdb_mode
       integer master
@@ -146,7 +146,7 @@ c
       integer i
       integer un
       character*(30) pname
-      character*(32) filename
+      character*(33) filename
       logical result
 c
       pname = "smd_coordfile_read_atomres"
@@ -173,7 +173,7 @@ c
 #include "util.fh"
       integer nt
 c
-      character*(32) filename
+      character*(33) filename
       logical result
       character*30 pname
 c
@@ -203,7 +203,7 @@ c
       integer i
       integer un
       character*(30) pname
-      character*(32) filename
+      character*(33) filename
       logical result
 
 

@@ -286,7 +286,7 @@ c
       character*(*) dname
       integer ndim
       integer dtype
-      character*(smd_string_size) datum(ndim)
+      character*(*) datum(ndim)
 c
       integer ind
       integer ns,nd
