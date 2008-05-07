@@ -80,54 +80,6 @@ c
 
       end
 
-      subroutine smd_coordfile_read_atomres(nt,ta,tr,ir)
-      implicit none
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "util.fh"
-#include "inp.fh"
-#include "global.fh"
-#include "rtdb.fh"
-#include "msgids.fh"
-#include "smd_const_data.fh"
-      integer nt
-      character*(smd_string_size) ta(nt)
-      character*(smd_string_size) tr(nt)
-      integer ir(nt)
-c
-      character*(180) buffer
-      character*(4)  tag
-      integer i
-      integer un
-      character*(30) pname
-      character*(33) filename
-      logical result
-      logical rtdb_mode
-      integer master
-c
-      pname = "smd_coordfile_read_atomres"
-      master = 0
-      rtdb_mode = rtdb_parallel(.false.)
-      if (ga_nodeid().ne.master) goto 200
-c
-      call smd_coordfile(filename,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no coord file found',0, 0)
-c
-      call smd_pdb_read_atomres(filename,nt,ta,tr,ir)
-200   continue
-      call ga_brdcst(msg_smd,ta,smd_string_size*nt,master)
-      call ga_brdcst(msg_smd,tr,smd_string_size*nt,master)
-      call ga_brdcst(msg_smd,ir,
-     >     nt*ma_sizeof(mt_int,1,mt_byte),master)
-
-      call ga_sync()
-      rtdb_mode = rtdb_parallel(rtdb_mode)
-      return
-
-      end
-
       subroutine smd_coordfile_read_atomres_seq(nt,ta,tr,ir)
       implicit none
 #include "mafdecls.fh"
@@ -137,8 +89,8 @@ c
 #include "global.fh"
 #include "smd_const_data.fh"
       integer nt
-      character*(smd_string_size) ta(nt)
-      character*(smd_string_size) tr(nt)
+      character*(*) ta(nt)
+      character*(*) tr(nt)
       integer ir(nt)
 c
       character*(180) buffer
@@ -152,15 +104,11 @@ c
       pname = "smd_coordfile_read_atomres"
 c
 c
-c      write(*,*) "in 1"//pname,ga_nodeid()
       call smd_coordfile(filename,result)
-c      write(*,*) "in 2"//pname,ga_nodeid()
       if(.not.result)
      >  call errquit(
      >       pname//'no coord file found',0, 0)
-
 c
-
       call smd_pdb_read_atomres(filename,nt,ta,tr,ir)
 
       return
