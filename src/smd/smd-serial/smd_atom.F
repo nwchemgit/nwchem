@@ -137,10 +137,8 @@ c
       character*32 pname
       character*80 tag
       integer nt
-      integer i_t,i_tr,i_ir,i_qf
+      integer i_t,i_tr,i_ir
       integer i_iconst
-      logical result
-      logical rtdb_mode
 c
       pname = "smd_atom_init"
 c
