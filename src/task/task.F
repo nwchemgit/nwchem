@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.87 2008-01-17 23:32:00 marat Exp $
+* $Id: task.F,v 1.88 2008-05-08 22:18:04 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -41,7 +41,7 @@ c
       logical task_energy, task_gradient, task_optimize, task_freq
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics
-      logical oqmmm,opes, task_python, task_thermo,task_bq
+      logical oqmmm,opes, task_python, task_thermo,task_bq,task_nbo
       logical task_version, task_vscf
       logical task_paw 
       logical task_pspw,task_band,task_ofpw,task_smd
@@ -66,7 +66,7 @@ c
       external task_energy, task_gradient, task_optimize, task_freq
       external task_hessian, task_saddle, task_lst, task_neb
       external task_dynamics
-      external task_version, task_python, task_thermo
+      external task_version, task_python, task_thermo,task_nbo
       external kgdtest, task_vscf
       external task_paw 
       external task_pspw,task_band,task_ofpw,task_smd
@@ -203,6 +203,8 @@ c            status = task_smd(rtdb)
             status = nwmd(rtdb)
          else if (inp_compare(.false.,'cphf', theory)) then
             status = cphf(rtdb)
+         else if (inp_compare(.false.,'nbo', theory)) then
+            status = task_nbo(rtdb)
          else if (inp_compare(.false.,'drdy', theory).or.
      &            inp_compare(.false.,'dirdyvtst', theory).or.
      &            inp_compare(.false.,'drdy_nwchem', theory)) then
