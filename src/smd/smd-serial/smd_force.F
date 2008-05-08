@@ -83,7 +83,7 @@ c
 c
       pname = "smd_force_print"
 c
-      write(*,*) "in "//pname
+c      write(*,*) "in "//pname
 c
       tag = "force"
       call smd_get_ind_size(tag,i_f,na,result)
@@ -117,9 +117,9 @@ c
       integer i_f
       integer i,k
 c
-      pname = "smd_force_print"
+      pname = "smd_force_zero"
 c
-      write(*,*) "in "//pname
+c      write(*,*) "in "//pname
 c
       tag = "force"
       call smd_get_ind_size(tag,i_f,na,result)
@@ -152,7 +152,7 @@ c
 c
       pname = "smd_force_compute"
 c
-      write(*,*) "in "//pname
+c      write(*,*) "in "//pname
 
       call smd_force_zero()
       call smd_coulomb_compute()

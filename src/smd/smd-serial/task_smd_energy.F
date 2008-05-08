@@ -15,7 +15,7 @@
       logical operiodic
 
       pname = "task_smd_energy"
-      write(*,*) "in "//pname
+c      write(*,*) "in "//pname
 c
 c     start the clock
 c     ---------------

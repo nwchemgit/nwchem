@@ -180,7 +180,6 @@ c
 
       ewald1=-convfct1*alpha*ewald1/sqrpi
 
-      write(*,*) "ewald1",ewald1
       
       call smd_energy_set_component("ewald self",ewald1)
 
@@ -292,7 +291,6 @@ c    ---------------------------------------------
      >                          dbl_mb(i_f),
      >                          ewald2)
 
-      write(*,*) "ewald reciprocal",ewald2
 
       if(.not.ma_pop_stack(h_eikr))
      & call errquit(pname//'Failed to deallocate stack',0,
@@ -528,7 +526,6 @@ c     ---------------
       call smd_cutoff_get_rcut(rcutsq)
       rcutsq = rcutsq*rcutsq
 
-      write(*,*) "nl=",nl
       call       smd_ewald_real_generic(nq,
      >                                  nl,
      >                                  alpha,
@@ -540,7 +537,6 @@ c     ---------------
      >                                  int_mb(i_l),
      >                                  ewald2)
 
-c      write(*,*) "ewald4",ewald2
       
       call smd_energy_set_component("ewald real",ewald2)
       return

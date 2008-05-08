@@ -12,9 +12,9 @@ c
       character*32 pname,tag,sp_lattice
       logical result
 c
-      pname = "smd_system_set_component"
+      pname = "smd_system_periodic"
 c
-      write(*,*) "in "//pname
+c      write(*,*) "in "//pname
 c
 c     get components
 c     --------------

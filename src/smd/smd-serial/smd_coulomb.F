@@ -11,7 +11,7 @@ c
       logical operiodic
 c
       pname = "smd_coulomb"
-      write(*,*) "in "//pname
+c      write(*,*) "in "//pname
 c
       operiodic = smd_system_periodic()
 

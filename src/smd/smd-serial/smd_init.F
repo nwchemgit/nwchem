@@ -26,6 +26,7 @@ c
       return
       end
 
+
       subroutine smd_init_sp(rtdb)
       implicit none
 #include "errquit.fh"
@@ -57,11 +58,17 @@ c
       character*72 sp_exlist
       character*72 sp_vlist
       character*72 sp_mass
-
+      character*72 sp_cutoff
+      character*72 sp_temperature
+      character*72 sp_rtdb
+      character*72 sp_ewald
 c
       logical olattice
       logical obond
-      pname = "smd_init_sp"
+      integer master
+c
+      master = 0
+      pname = "smd_init_dynamics"
 c
       sp_atom      = "atom"
       sp_param     = "parameters"
@@ -78,11 +85,14 @@ c
       sp_bondlist  = "bondlist"
       sp_bond      = "bond"
       sp_mass  = "mass"
-
+      sp_cutoff  = "cutoff"
+      sp_temperature = "temperature"
+      sp_rtdb = "rtdb"
+      sp_ewald = "ewald"
 c
 c
-c     assign names to preset components
-c     ---------------------------------
+c     CREATE SYSTEM
+c     ------------
       tag = "atom"
       call smd_system_set_component(tag,sp_atom)
 
@@ -128,57 +138,54 @@ c     ---------------------------------
       tag = "mass"
       call smd_system_set_component(tag,sp_mass)
 
+      tag = "cutoff"
+      call smd_system_set_component(tag,sp_cutoff)
+
+      tag = "temperature"
+      call smd_system_set_component(tag,sp_temperature)
+
+      tag = "rtdb"
+      call smd_system_set_component(tag,sp_rtdb)
+
+      tag = "ewald"
+      call smd_system_set_component(tag,sp_ewald)
 c
+c      write(*,*) "in "//pname
 c     DEFINE ALL THE COMPONENTS
 c     --------------------------------
 c
-      call smd_rtdb_init(rtdb)
-c
+      if(ga_nodeid().eq.master) then
+      call smd_rtdb_init(.false.,rtdb)
       call smd_cutoff_init()
-c
-      call smd_atom_init_system()
-c
-      call smd_param_init_system()
-c
-      call smd_lat_init_system()
-c
-      call smd_pot_init_system()
-c
-      call smd_type_init_system()
-c
-      call smd_energy_init_system()
-c
-      call smd_force_init_system()
-c
-      call smd_charge_init_system()
-c
-      call smd_coords_init_system()
-c
-      call smd_exlist_init_system()
-c
-      call smd_vlist_init_system()
-c
-      call smd_bond_init_system()
-c
-      call smd_shakelist_init_system()
-c
-      call smd_bondlist_init_system()
-c
-      call smd_mass_init_system()
-
-c
       call smd_temper_init()
+      call smd_atom_init_system()
+      call smd_param_init_system()
+      call smd_lat_init_system()
+      call smd_pot_init_system()
+      call smd_type_init_system()
+      call smd_energy_init_system()
+      call smd_force_init_system()
+      call smd_charge_init_system()
+      call smd_coords_init_system()
+      call smd_exlist_init_system()
+      call smd_vlist_init_system()
+      call smd_bond_init_system()
+      call smd_shakelist_init_system()
+      call smd_bondlist_init_system()
+      call smd_mass_init_system()
 c
 c     finish system setup
 c     -------------------
-c      call smd_coords_rebox()
+      call smd_coords_rebox()
       call smd_ewald_init()
-c      call smd_system_print(6)
-c      write(*,*) "out "//pname,ga_nodeid()
-c      call util_flush(6)
+      call smd_system_print(6)
+
+      end if
+      call ga_sync()
+      call smd_data_brdcst_create(master)
+      call smd_data_print(70+ga_nodeid())
       return
       end
-
       subroutine smd_init_dynamics(rtdb)
       implicit none
 #include "errquit.fh"
@@ -331,15 +338,16 @@ c
       call smd_bondlist_init_system()
       call smd_vel_init_system()
       call smd_mass_init_system()
-      end if
-      call ga_sync()
-      call smd_data_brdcst_create(master)
-      call smd_data_print(70+ga_nodeid())
 c
 c     finish system setup
 c     -------------------
       call smd_coords_rebox()
       call smd_ewald_init()
       call smd_system_print(6)
+
+      end if
+      call ga_sync()
+      call smd_data_brdcst_create(master)
+      call smd_data_print(70+ga_nodeid())
       return
       end

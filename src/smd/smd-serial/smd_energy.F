@@ -91,7 +91,7 @@ c
 c
       pname = "smd_energy_set_component"
 c
-      write(*,*) "in "//pname
+c      write(*,*) "in "//pname
 c
       call smd_system_get_component(sp_energy,"energy",result)
       if(.not.result)
@@ -267,7 +267,7 @@ c
 c
       pname = "smd_energy_print"
 c
-      write(*,*) "in "//pname
+c      write(*,*) "in "//pname
 c
       call smd_system_get_component(sp_energy,"energy",result)
       if(.not.result)
