@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.17 2008-05-07 22:46:19 marat Exp $
+* $Id: smd_data.F,v 1.18 2008-05-08 16:44:29 marat Exp $
 *
 
       block data initial_smd_data
@@ -882,7 +882,7 @@ c
       integer ndim
       logical datum(ndim)
 c
-      integer ind
+      integer ind,dtype
       logical result
       integer ns,nd
       character*30 pname
@@ -892,8 +892,10 @@ c
 
       pname = "smd_data_get_int"
 
-      call smd_data_get_index_size(sname,dname,ind,ndim1,result)
+      call smd_data_get_attrib(sname,dname,ind,ndim1,dtype,result)
       if(.not.result) return
+      if(dtype.ne.MT_LOG)
+     >     call errquit(pname//"incompatible types",0,0)
       if(ndim1.ne.ndim)
      >     call errquit(pname//"incompatible sizes",0,0)
 
@@ -1002,7 +1004,7 @@ c
       integer ndim
       double precision datum(ndim)
 c
-      integer ind
+      integer ind,dtype
       logical result
       integer ns,nd
       character*30 pname
@@ -1012,8 +1014,11 @@ c
 
       pname = "smd_data_get_int"
 
-      call smd_data_get_index_size(sname,dname,ind,ndim1,result)
+      call smd_data_get_attrib(sname,dname,ind,ndim1,dtype,result)
       if(.not.result) return
+      if(dtype.ne.MT_DBL)
+     >     call errquit(pname//"incompatible types",0,0)
+
       if(ndim1.ne.ndim)
      >     call errquit(pname//"incompatible sizes",0,0)
 
@@ -1065,7 +1070,6 @@ c
       character*(*) sname
       character*(*) dname
       integer ndim
-      integer dtype
       character*(*) datum(ndim)
 c
       integer ind
@@ -1073,15 +1077,17 @@ c
       character*30 pname
       character*72 buffer
       integer i
-      integer ndim1
+      integer ndim1,dtype
       integer chunk
       logical result
 
       pname = "smd_data_get_string"
 
-      call smd_data_get_index_size(sname,dname,ind,ndim1,result)
+      call smd_data_get_attrib(sname,dname,ind,ndim1,dtype,result)
       if(.not.result) return
-      write(*,*) "LEN",LEN(datum(1))
+c      write(*,*) "LEN",LEN(datum(1))
+      if(dtype.ne.MT_STR)
+     >     call errquit(pname//"incompatible types",0,0)
       if(ndim1.ne.ndim)
      >     call errquit(pname//"incompatible sizes",0,0)
       call smd_set_ma_to_char(ndim1,byte_mb(ind),datum)

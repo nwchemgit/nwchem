@@ -627,7 +627,7 @@ c
      >       pname//'no component '//tag,0,0)
 
       tag = "ewald:rksqmax"
-      call smd_data_get_int(namespace,tag,1,rksqmax,result)
+      call smd_data_get_dbl(namespace,tag,1,rksqmax,result)
       if(.not.result)
      >  call errquit('no data '//tag,0,0)
 
