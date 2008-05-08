@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.8 2008-05-05 23:47:21 marat Exp $
+# $Id: GNUmakefile,v 1.9 2008-05-08 17:17:14 marat Exp $
 #
 
           OBJ = task_smd.o smd_input.o \
@@ -9,7 +9,7 @@
                 task_smd_energy.o smd_lat.o \
                 smd_util.o smd_type.o smd_vel.o smd_force.o \
                 smd_charge.o smd_coords.o smd_exlist.o \
-                smd_system.o smd_ewald_data.o smd_ewald.o \
+                smd_system.o smd_ewald.o \
                 smd_ewald_generic.o smd_cutoff_data.o \
                 smd_vlist.o smd_pot_generic.o smd_energy.o \
                 smd_bond.o smd_shakelist.o \

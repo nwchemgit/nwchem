@@ -36,10 +36,10 @@ c
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
       call smd_ewald_compute(ralphsq,rksqmax,alpha,kmax,dbl_mb(i_rl))
-      call smd_ewald_set_kmax(kmax)
-      call smd_ewald_set_alpha(alpha)
-      call smd_ewald_set_rksqmax(rksqmax)
-      call smd_ewald_set_ralphsq(ralphsq)
+c      call smd_ewald_set_kmax(kmax)
+c      call smd_ewald_set_alpha(alpha)
+c      call smd_ewald_set_rksqmax(rksqmax)
+c      call smd_ewald_set_ralphsq(ralphsq)
 
 c      call smd_ewald_print(6)
 
@@ -662,32 +662,4 @@ c
 
       return
       end
-c
-c      subroutine smd_ewald_get_xxx(xxx)
-c      implicit none
-c#include "errquit.fh"
-c#include "inp.fh"
-c#include "mafdecls.fh"
-c#include "rtdb.fh"
-c#include "util.fh"
-c#include "global.fh"
-c#include "smd_const_data.fh"
-c      type xxx
-cc
-c      character*32 pname
-c      character*(smd_tag_size) namespace,tag
-c      logical result
-cc
-c      tag = "ewald"
-c      call smd_system_get_component(namespace,tag,result)
-c      if(.not.result)
-c     >  call errquit(
-c     >       pname//'no component '//tag,0,0)
-c
-c      tag = "ewald:xxx"
-c      call smd_data_get_dbl(namespace,tag,1,kmax,result)
-c      if(.not.result)
-c     >  call errquit('no data '//tag,0,0)
-c
-c      return
-c      end
+
