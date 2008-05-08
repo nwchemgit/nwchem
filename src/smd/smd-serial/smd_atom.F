@@ -184,17 +184,3 @@ c
       return
       end
 
-      subroutine smd_atom_end(rtdb)
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "global.fh"
-c     
-      integer rtdb
-c
-      return
-      end
-
