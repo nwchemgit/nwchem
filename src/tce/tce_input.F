@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.26 2008-05-08 19:14:51 jhammond Exp $
+c $Id: tce_input.F,v 1.27 2008-05-08 19:23:07 jhammond Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -965,52 +965,53 @@ c
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
+c     MULTIPOLE (multipole moments)
+c
+      else if (inp_compare(.false.,test,'multipole')) then
+        left=.true.
+        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        if (.not.inp_i(multipole)) then
+          write(LuOut,*) 'tce_input: multipole value not found; ',
+     1      'all available multipoles (L=1,2,3) will be calculated'
+          multipole=3
+        endif
+        if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
 c     DIPOLE (dipole moments & dipole transition moments)
 c     QUADRUPOLE (quadrupole moments & quadrupole transition moments)
 c     OCTUPOLE (octupole moments & octupole transition moments)
 c
       else if (inp_compare(.false.,test,'dipole')) then
         left=.true.
-        multipole=1
         if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
+        multipole=max(multipole,1)
         if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
       else if (inp_compare(.false.,test,'quadrupole')) then
         left=.true.
-        multipole=2
         if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
+        multipole=max(multipole,2)
         if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
       else if (inp_compare(.false.,test,'octupole')) then
         left=.true.
-        multipole=3
         if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
+        multipole=max(multipole,3)
         if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     MULTIPOLE (multipole moments)
-c
-c      print*,'A multipole = ',multipole
-      else if (inp_compare(.false.,test,'multipole')) then
-        if (.not.inp_i(multipole)) then
-          write(LuOut,*) 'tce_input: multipole value not found; ',
-     1      'default value of 1 will be used'
-          multipole=1
-c        print*,'B multipole = ',multipole
-        endif
-        if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
-     1    call errquit('tce_input: failed writing to rtdb',0,
-     2    RTDB_ERR)
-c        print*,'C multipole = ',multipole
 c
 c     TILESIZE (the maximum tile size)
 c
