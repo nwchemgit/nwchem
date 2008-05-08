@@ -1,8 +1,10 @@
       logical function tce_prop_start(rtdb)
 c
-c $Id: tce_prop_start.F,v 1.3 2008-01-18 19:32:19 jhammond Exp $
+c $Id: tce_prop_start.F,v 1.4 2008-05-08 19:14:51 jhammond Exp $
 c
-c Wrapper for tce_property
+c Wrapper for tce_property - the only reason to keep this around is
+c because eventually there may be code wrapped around the real property
+c code to make its features work with QM/MM, etc.
 c
 c Written by Jeff Hammond
 c
@@ -14,10 +16,10 @@ c
 #include "stdio.fh"
 c
       integer rtdb             ! Run-time database
-      integer fragment         ! -1 if not fragment MO
-      double precision energy
-      integer iter, nfrags
-      double precision r
+c      integer fragment         ! -1 if not fragment MO
+c      double precision energy
+c      integer iter, nfrags
+c      double precision r
       logical nodezero
       logical tce_property
       external tce_property
@@ -27,7 +29,7 @@ c      if (.not.rtdb_get(rtdb,'tce:fragment',mt_int,1,fragment))
 c     1  call errquit('tce_prop_start',0,RTDB_ERR)
 c      if (fragment.eq.-1) then
         if(nodezero) write(LuOut,*) 'tce_prop_start'
-        tce_prop_start = tce_property(rtdb,.true.)
+        tce_prop_start = tce_property(rtdb)
         return
 c      else
 c        tce_prop_start = .false.

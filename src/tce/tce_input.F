@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.25 2008-05-01 20:09:30 jhammond Exp $
+c $Id: tce_input.F,v 1.26 2008-05-08 19:14:51 jhammond Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -468,6 +468,48 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
+c
+c
+c
+      else if (inp_compare(.false.,test,'lambda-ccsd(t)')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='lambda(t)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        left=.true.
+        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'lambda-ccsd[t]')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='lambda[t]'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        left=.true.
+        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+c
+c
+c
       else if (inp_compare(.false.,test,'cr-ccsd(t)')) then
         if (module.eq.'tce') then
         model='ccsd'
@@ -924,27 +966,51 @@ c
      2    RTDB_ERR)
 c
 c     DIPOLE (dipole moments & dipole transition moments)
+c     QUADRUPOLE (quadrupole moments & quadrupole transition moments)
+c     OCTUPOLE (octupole moments & octupole transition moments)
 c
       else if (inp_compare(.false.,test,'dipole')) then
         left=.true.
+        multipole=1
         if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+      else if (inp_compare(.false.,test,'quadrupole')) then
+        left=.true.
+        multipole=2
+        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+      else if (inp_compare(.false.,test,'octupole')) then
+        left=.true.
+        multipole=3
+        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
 c     MULTIPOLE (multipole moments)
 c
-      print*,'A multipole = ',multipole
+c      print*,'A multipole = ',multipole
       else if (inp_compare(.false.,test,'multipole')) then
         if (.not.inp_i(multipole)) then
           write(LuOut,*) 'tce_input: multipole value not found; ',
      1      'default value of 1 will be used'
           multipole=1
-        print*,'B multipole = ',multipole
+c        print*,'B multipole = ',multipole
         endif
         if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-        print*,'C multipole = ',multipole
+c        print*,'C multipole = ',multipole
 c
 c     TILESIZE (the maximum tile size)
 c

@@ -1,6 +1,6 @@
       subroutine tce_mod1_new(rtdb,d_mod1,mpole)
 c
-c $Id: tce_mod1_new.F,v 1.3 2008-05-06 01:39:19 jhammond Exp $
+c $Id: tce_mod1_new.F,v 1.4 2008-05-08 19:14:51 jhammond Exp $
 c
 c     Spin-spatial-symmetry blocked dipole matrix transformations.
 c
@@ -34,11 +34,22 @@ c
       integer offset_g1,offset_g2 ! Block offsets
       integer axis                ! 1=x, 2=y, 3=z
       integer alo(3),ahi(3),ld(2)
-      logical nodezero
+      logical nodezero,debugprint
       integer sym_abelian_axis    ! Move this to "sym.fh"
       external sym_abelian_axis
 c
       nodezero = (ga_nodeid().eq.0)
+      debugprint = .false.
+      if (multipole.eq.1) then
+        debugprint = debugprint.or.(util_print('aod1',print_debug))
+        debugprint = debugprint.or.(util_print('mod1',print_debug))
+      elseif (multipole.eq.2) then
+        debugprint = debugprint.or.(util_print('aoq1',print_debug))
+        debugprint = debugprint.or.(util_print('moq1',print_debug))
+      elseif (multipole.eq.3) then
+        debugprint = debugprint.or.(util_print('aoo1',print_debug))
+        debugprint = debugprint.or.(util_print('moo1',print_debug))
+      endif
 c
       mpoles = (mpole+1)*(mpole+2)/2
 c
@@ -75,14 +86,11 @@ c
         call int_mpole_1ega(ao_bas_han,ao_bas_han,g_aod1,'octupole',
      &                      origin,.false.)
       endif
-      if (util_print('aod1',print_debug)) call ga_print(g_aod1)
+      if (debugprint) call ga_print(g_aod1)
 c
 c     end of what was formerly in tce_aod1_new.F
 c
       do axis = 1,mpoles
-#ifdef DEBUG_PRINT
-        write(LuOut,*) 'axis = ',axis
-#endif
         irrep_d = sym_abelian_axis(geom,axis)
         sf_size=0
         do g1b = 1,noa+nob+nva+nvb
@@ -143,9 +151,9 @@ c
      1          dbl_mb(k_work),range_g1,
      2          dbl_mb(k_movecs_sorted+offset_g2),nbf,
      3          0.0d0,dbl_mb(k_mod1+sf_offset),range_g1)
-              if (nodezero.and.util_print('mod1',print_debug))
-     1          call ma_print(dbl_mb(k_mod1+sf_offset),
-     2          range_g1,range_g2,'Spin symmetry block of dipole')
+c              if (nodezero.and.util_print('mod1',print_debug))
+c     1          call ma_print(dbl_mb(k_mod1+sf_offset),
+c     2          range_g1,range_g2,'Spin symmetry block of dipole')
               if (.not.ma_pop_stack(l_work))
      1          call errquit('tce_mod1_new: MA problem',5,MA_ERR)
               sf_offset = sf_offset + range_g1 * range_g2
@@ -157,15 +165,17 @@ c
         call put_block(d_mod1(axis),dbl_mb(k_mod1),sf_size,0)
         if (.not.ma_pop_stack(l_mod1))
      1    call errquit('tce_mod1_new: MA problem',6,MA_ERR)
-        if (nodezero.and.util_print('mod1',print_debug))
-     1    call sf_print(d_mod1(axis),sf_size)
+c
+c       Debug printing
+c
+        if (debugprint) then
+          if (nodezero) write(LuOut,*) 'MO multipole integrals'
+          call ga_print(d_mod1)
+        endif
+c
       enddo
       if (.not.ga_destroy(g_aod1))
      1  call errquit('tce_mod1_new: GA problem',2,GA_ERR)
-c      if (.not.ga_destroy(g_aod1(2)))
-c     1  call errquit('tce_mod1_new: GA problem',3,GA_ERR)
-c      if (.not.ga_destroy(g_aod1(3)))
-c     1  call errquit('tce_mod1_new: GA problem',4,GA_ERR)
 c
 #ifdef DEBUG_PRINT
       write(LuOut,*) 'end of tce_mod1_new'

@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.43 2008-05-01 20:09:31 jhammond Exp $
+c $Id: tce_init.F,v 1.44 2008-05-08 19:14:51 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -843,6 +843,12 @@ c
           endif
           if (left) then
             write(LuOut,9220) 'on '
+            if (multipole.ge.2) then
+              write(LuOut,9221) 'on '
+            endif
+            if (multipole.ge.3) then
+              write(LuOut,9222) 'on '
+            endif
           else
             write(LuOut,9220) 'off'
           endif
@@ -897,6 +903,8 @@ c
  9190 format(3x,'        Target symmetry :',1x,a4)
  9210 format(3x,'   Symmetry restriction :',1x,a3)
  9220 format(3x,'Dipole & oscillator str :',1x,a3)
+ 9221 format(3x,'...same for quadrupoles :',1x,a3)
+ 9222 format(3x,'  ...same for octupoles :',1x,a3)
  9400 format(/,2x,
      1  '!! WARNING !! The number of MO is less than the number of AO')
  9500 format(/,2x,
