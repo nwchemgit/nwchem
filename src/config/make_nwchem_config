@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.239 2008-05-01 18:41:00 jhammond Exp $
+# $Id: make_nwchem_config,v 1.240 2008-05-08 22:11:53 bert Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -239,6 +239,8 @@ MOD_LIBS := $(patsubst perfm,-lperfm,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst neb,-lneb,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dntmc,-ldntmc,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dangchang,-ldangchang,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst nbo,-lnbo,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst ccca,-lccca,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------
@@ -290,6 +292,8 @@ STUBROUTINES := $(patsubst dangchang,dc_energy dangchang_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input ofpw_energy paw_energy paw_gradient task_paw task_pspw task_ofpw pspw_input pspw_energy pspw_gradient band_energy band_gradient task_band,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst smd,task_smd smd_input task_smd_energy task_smd_dynamics,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst ccca,task_ccca,$(STUBROUTINES) )
 #STUBROUTINES := $(patsubst cons, cons_end cons_input cons_add_egrad cons_add_energy cons_init cons_print_summary cons_active,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 STUBROUTINES := $(sort $(STUBROUTINES))
