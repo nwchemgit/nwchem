@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.18 2008-05-08 16:44:29 marat Exp $
+* $Id: smd_data.F,v 1.19 2008-05-09 18:02:58 marat Exp $
 *
 
       block data initial_smd_data
@@ -1113,6 +1113,7 @@ c
       integer ns,nd
       character*30 pname
       character*72 buffer
+      character*1000 big_buffer
       integer i
       integer ndim,dtype,ind
       character*(smd_string_size) token
@@ -1152,9 +1153,7 @@ c
         if(.not.rtdb_cget(rtdb,token,ndim,mtoken))
      >     call errquit("rtdb_get"//token,0,0)
         call smd_data_put_string(sname,token,ndim,mtoken)
-        write(*,*) "mtoken before",mtoken(1)
         call smd_data_get_string(sname,token,ndim,mtoken,result)
-        write(*,*) "mtoken after",mtoken(1)
       else if(dtype.eq.MT_LOG) then
         if(.not.rtdb_get(rtdb,token,mt_log,ndim,ltoken))
      >     call errquit("rtdb_get"//token,0,0)
@@ -1165,7 +1164,9 @@ c
 
       end if
 
-      result = rtdb_next(rtdb,token)
+      result = rtdb_next(rtdb,big_buffer)
+      token = big_buffer
+      write(*,*) "found token", token
       if(result) goto 300
       call smd_data_put_int(sname,"smd:rtdb_handle",1,rtdb)
 
