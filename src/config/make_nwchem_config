@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.241 2008-05-12 01:31:47 bylaska Exp $
+# $Id: make_nwchem_config,v 1.242 2008-05-12 18:52:58 bert Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -66,7 +66,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md classical argos alldev pnnl pnnldev smallqm
 
-EXP_all = $(filter-out smd uccsdt python develop oimp2 scfaux plane_wave rimp2_grad geninterface diana dntmc transport,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out smd uccsdt python develop oimp2 scfaux plane_wave rimp2_grad geninterface diana transport nbo dntmc,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -86,7 +86,7 @@ EXP_classical  = prepar nwmd analyz
 EXP_venus = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
           ccsd vib property dftgrad mp2_grad geninterface bq cons
 # Need bq in front of cons?
-EXP_qmmm = $(filter-out transport hessian tce uccsdt python diana develop oimp2 scfaux plane_wave rimp2_grad vscf geninterface dntmc,$(KNOWN_MODULE_SUBDIRS) )
+#EXP_qmmm = $(filter-out transport hessian tce uccsdt python diana develop oimp2 scfaux plane_wave rimp2_grad vscf geninterface dntmc,$(KNOWN_MODULE_SUBDIRS) )
 
 # Check each expansion
 
