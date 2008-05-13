@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.15 2008-04-25 20:35:45 niri Exp $
+* $Id: rel_input.F,v 1.16 2008-05-13 20:38:04 niri Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -69,12 +69,21 @@ c
      $               'calculations is ',F16.10, 'au.'/)
 c
       elseif (inp_compare(.false.,'douglas-kroll', test)) then
+         dk_run = .true.
+         if (.not. rtdb_put(rtdb, 'doug_kroll', mt_log, 1, dk_run))
+     $     call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
          call dk_input(rtdb)
 c
       elseif (inp_compare(.false.,'dyall-mod-dirac', test)) then
+         dmd_run = .true.
+         if (.not. rtdb_put(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run))
+     $     call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
          call dmd_input(rtdb)
 c
       elseif (inp_compare(.false.,'zora', test)) then
+        zora_run = .true.
+        if (.not. rtdb_put(rtdb, 'zora', mt_log, 1, zora_run))
+     &     call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
          call zora_input(rtdb)
 c
       elseif(inp_compare(.false.,'zora:cutoff',test)) then
