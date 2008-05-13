@@ -1,5 +1,5 @@
 c
-c $Id: smd_util.F,v 1.6 2008-05-07 16:40:23 marat Exp $
+c $Id: smd_util.F,v 1.7 2008-05-13 18:07:01 marat Exp $
 c
 
       SUBROUTINE smd_util_rebox(n,latt,rlatt,aaa)
@@ -146,16 +146,19 @@ c     real*8 rand
 
       END
 
-      subroutine smd_ma_char_print(nt,t,un)
+      subroutine smd_ma_char_print(nt,ns,t,un)
       implicit none
+#include "smd_const_data.fh"
 c
-      integer nt,un
-      character(1) t(nt)
+      integer nt,un,ns
+      character(1) t(nt*ns)
 
-      integer i
+      integer i,j
 
       do i=1,nt
-        write(un,*)t(nt)
+          write(un,'(72A1)')
+     >      (t(ns*(i-1)+j),j=1,ns)
+
       end do
 
       end

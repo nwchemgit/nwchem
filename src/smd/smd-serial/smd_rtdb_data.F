@@ -194,6 +194,7 @@ c
       call smd_namespace_create(namespace)
 
       call smd_data_namespace_rtdb_get(rtdb,namespace,"smd")
+      call smd_data_namespace_print(namespace,88)
       oldmode = rtdb_parallel(oldmode)
       end 
 

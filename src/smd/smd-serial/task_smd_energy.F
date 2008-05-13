@@ -8,6 +8,38 @@
 #include "stdio.fh"
 #include "errquit.fh"
       logical task_smd_energy
+      logical ogroups,result
+c
+      logical task_smd_energy_groups
+      external task_smd_energy_groups
+      logical task_smd_energy_sp
+      external task_smd_energy_sp
+c
+      call smd_init("energy",rtdb)
+
+      call smd_groups_inquire(rtdb,ogroups)
+      if(ogroups) then
+        result = task_smd_energy_groups(rtdb)
+      else
+        result = task_smd_energy_sp(rtdb)
+      end if
+
+      write(*,*) "Goodbye from task_smd"
+      task_smd_energy = .true.
+
+      return
+      END
+
+      function task_smd_energy_sp(rtdb)
+      implicit none
+      integer rtdb
+
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+      logical task_smd_energy_sp
       character*72 namespace
       character*32 pname
       double precision etime1,etime2,etime3,etime4,etime5,etime6
@@ -28,7 +60,6 @@ c     ---------------
       call cpu_time(etime1)
 c
       call cpu_time(etime1)
-      call smd_init("energy",rtdb)
       call cpu_time(etime2)
 c
       call smd_vlist_update(.true.,.true.)
@@ -55,7 +86,68 @@ c
       write(luout,'(/,a,f20.3)')'Force          : ',(etime4-etime3)
 
       write(*,*) "Goodbye from task_smd"
-      task_smd_energy = .true.
+      task_smd_energy_sp = .true.
+
+      return
+      END
+
+      function task_smd_energy_groups(rtdb)
+      implicit none
+      integer rtdb
+
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "util.fh"
+      logical task_smd_energy_groups
+      character*72 namespace
+      character*32 pname
+      double precision etime1,etime2,etime3,etime4,etime5,etime6
+      double precision energy,ewald1,ewald2,evdw
+      logical operiodic
+      integer i
+c
+      integer util_sgroup_mygroup
+      external util_sgroup_mygroup
+c
+      integer util_sgroup_numgroups
+      external util_sgroup_numgroups
+
+      pname = "task_smd_energy_groups"
+c      write(*,*) "in "//pname
+c
+      call smd_init_groups(rtdb)
+c
+      write(*,*) "number of groups",util_sgroup_numgroups(),
+     >           util_sgroup_mygroup()
+
+      do i=1,util_sgroup_numgroups()
+        call smd_monomer_energy(i)
+      end do
+c      call smd_vlist_update(.true.,.true.)
+cc
+c      call smd_force_compute()
+cc
+c      call smd_energy_compute()
+cc
+c      call smd_energy_print(6)
+c
+      call smd_end(rtdb)
+c
+      if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))
+     $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
+c
+
+      call cpu_time(etime6)
+      write(luout,'(/,a,f20.3)')'Total CPU time : ',(etime6-etime1)
+      write(luout,'(/,a,f20.3)')'Initialization : ',(etime2-etime1)
+      write(luout,'(/,a,f20.3)')'Verlet         : ',(etime3-etime2)
+      write(luout,'(/,a,f20.3)')'Force          : ',(etime4-etime3)
+
+      write(*,*) "Goodbye from task_smd"
+      task_smd_energy_groups = .true.
 
       return
       END

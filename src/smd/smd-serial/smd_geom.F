@@ -96,9 +96,6 @@ c     -----------------------------------------
       if(.not.geom_create(igeom,"geometry"))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
-     
-      call smd_ma_char_print(nt,smd_string_size,
-     +                      byte_mb(i_ta),6)
       if(.not.geom_cart_set_gen(igeom,i0,nm,nt,smd_string_size,
      + byte_mb(i_ta),
      + dbl_mb(i_ct),dbl_mb(i_qf)))
