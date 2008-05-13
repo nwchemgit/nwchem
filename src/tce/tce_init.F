@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.44 2008-05-08 19:14:51 jhammond Exp $
+c $Id: tce_init.F,v 1.45 2008-05-13 17:37:33 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -354,6 +354,141 @@ c
      1    call errquit('tce_init: failed to write symmetry',0,RTDB_ERR)
       endif
 c
+c     Temporary restart input
+c
+c     Save toggles
+c
+      if (.not.rtdb_get(rtdb,'tce:save_interval',mt_int,1,
+     1                            save_interval)) then
+        save_interval = 100000
+        if (.not.rtdb_put(rtdb,'tce:save_interval',mt_int,1,
+     1      save_interval)) call errquit(
+     2     'tce_init: failed to write save_interval',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:save_integrals',mt_log,5,
+     1         save_integrals)) then
+        save_integrals(1)=.false. ! 1-e integrals
+        save_integrals(2)=.false. ! 2-e integrals
+        save_integrals(3)=.false. ! dipole integrals
+        save_integrals(4)=.false. ! quadrupole integrals
+        save_integrals(5)=.false. ! octopole integrals
+        if (.not.rtdb_put(rtdb,'tce:save_integrals',mt_log,5,
+     1           save_integrals))
+     1  call errquit('tce_init: failed to write save_integrals',
+     2               0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:save_t',mt_log,4,save_t)) then
+        save_t(1)=.false.
+        save_t(2)=.false.
+        save_t(3)=.false.
+        save_t(4)=.false.
+        if (.not.rtdb_put(rtdb,'tce:save_t',mt_log,4,save_t))
+     1  call errquit('tce_init: failed to write save_t',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:save_l',mt_log,4,save_l)) then
+        save_l(1)=.false.
+        save_l(2)=.false.
+        save_l(3)=.false.
+        save_l(4)=.false.
+        if (.not.rtdb_put(rtdb,'tce:save_l',mt_log,4,save_l))
+     1  call errquit('tce_init: failed to write save_l',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:save_tr',mt_log,4,save_tr)) then
+        save_tr(1)=.false.
+        save_tr(2)=.false.
+        save_tr(3)=.false.
+        save_tr(4)=.false.
+        if (.not.rtdb_put(rtdb,'tce:save_tr',mt_log,4,save_tr))
+     1  call errquit('tce_init: failed to write save_tr',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:save_lr',mt_log,4,save_lr)) then
+        save_lr(1)=.false.
+        save_lr(2)=.false.
+        save_lr(3)=.false.
+        save_lr(4)=.false.
+        if (.not.rtdb_put(rtdb,'tce:save_lr',mt_log,4,save_lr))
+     1  call errquit('tce_init: failed to write save_lr',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:save_x',mt_log,4,save_x)) then
+        save_x(1)=.false.
+        save_x(2)=.false.
+        save_x(3)=.false.
+        save_x(4)=.false.
+        if (.not.rtdb_put(rtdb,'tce:save_x',mt_log,4,save_x))
+     1  call errquit('tce_init: failed to write save_x',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:save_y',mt_log,4,save_y)) then
+        save_y(1)=.false.
+        save_y(2)=.false.
+        save_y(3)=.false.
+        save_y(4)=.false.
+        if (.not.rtdb_put(rtdb,'tce:save_y',mt_log,4,save_y))
+     1  call errquit('tce_init: failed to write save_y',0,RTDB_ERR)
+      endif
+c
+c     Read toggles
+c
+      if (.not.rtdb_get(rtdb,'tce:read_integrals',mt_log,5,
+     1         read_integrals)) then
+        read_integrals(1)=.false. ! 1-e integrals
+        read_integrals(2)=.false. ! 2-e integrals
+        read_integrals(3)=.false. ! dipole integrals
+        read_integrals(4)=.false. ! quadrupole integrals
+        read_integrals(5)=.false. ! octopole integrals
+        if (.not.rtdb_put(rtdb,'tce:read_integrals',mt_log,5,
+     1           read_integrals))
+     1  call errquit('tce_init: failed to write read_integrals',
+     2               0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:read_t',mt_log,4,read_t)) then
+        read_t(1)=.false.
+        read_t(2)=.false.
+        read_t(3)=.false.
+        read_t(4)=.false.
+        if (.not.rtdb_put(rtdb,'tce:read_t',mt_log,4,read_t))
+     1  call errquit('tce_init: failed to write read_t',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:read_l',mt_log,4,read_l)) then
+        read_l(1)=.false.
+        read_l(2)=.false.
+        read_l(3)=.false.
+        read_l(4)=.false.
+        if (.not.rtdb_put(rtdb,'tce:read_l',mt_log,4,read_l))
+     1  call errquit('tce_init: failed to write read_l',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:read_tr',mt_log,4,read_tr)) then
+        read_tr(1)=.false.
+        read_tr(2)=.false.
+        read_tr(3)=.false.
+        read_tr(4)=.false.
+        if (.not.rtdb_put(rtdb,'tce:read_tr',mt_log,4,read_tr))
+     1  call errquit('tce_init: failed to write read_tr',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:read_lr',mt_log,4,read_lr)) then
+        read_lr(1)=.false.
+        read_lr(2)=.false.
+        read_lr(3)=.false.
+        read_lr(4)=.false.
+        if (.not.rtdb_put(rtdb,'tce:read_lr',mt_log,4,read_lr))
+     1  call errquit('tce_init: failed to write read_lr',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:read_x',mt_log,4,read_x)) then
+        read_x(1)=.false.
+        read_x(2)=.false.
+        read_x(3)=.false.
+        read_x(4)=.false.
+        if (.not.rtdb_put(rtdb,'tce:read_x',mt_log,4,read_x))
+     1  call errquit('tce_init: failed to write read_x',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:read_y',mt_log,4,read_y)) then
+        read_y(1)=.false.
+        read_y(2)=.false.
+        read_y(3)=.false.
+        read_y(4)=.false.
+        if (.not.rtdb_put(rtdb,'tce:read_y',mt_log,4,read_y))
+     1  call errquit('tce_init: failed to write read_y',0,RTDB_ERR)
+      endif
+c
 c     ----------------------
 c     2-e integral tolerance
 c     ----------------------
@@ -374,9 +509,9 @@ c
       intorb=.false.
       if (model2e.eq.'2eorb') intorb=.true.
       if(intorb) then 
-      if(.not.(intorb.and.(hftype.eq.'RHF'.or.hftype.eq.'ROHF'))) then
-       call errquit('tce_init: 2eorb needs RHF or ROHF ref.',0,RTDB_ERR)
-      endif
+        if(.not.(intorb.and.(hftype.eq.'RHF'.or.hftype.eq.'ROHF'))) then
+          call errquit('tce_init: 2eorb needs RHF/ROHF ref.',0,RTDB_ERR)
+        endif
       endif
 c
 c     --------------------------

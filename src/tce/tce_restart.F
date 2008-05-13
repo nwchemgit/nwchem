@@ -32,13 +32,14 @@ c
         chunk_v2=((tile_dim)**4)
         call util_file_name('v2_copy',.false.,.false.,filename)
 c
-        if(nodezero) write(6,*)'v2 restart write file:',filename
+        if(nodezero) write(6,1)'v2_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
         if (sf_create(filename,dfloat(bytes)*dfloat(size_2e),
      1   dfloat(bytes)*dfloat(size_2e),chunk_v2,handle_v2)
      1   .ne.0)
-     2   call errquit('v2 restart: sf_problem',0,DISK_ERR)
+     2   call errquit('v2_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -61,7 +62,7 @@ c
      &int_mb(k_range_alpha+g2b-1)
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('tce_rest_v2: MA l_aux',0,MA_ERR)
+     1   call errquit('v2_restart_save: MA l_aux',0,MA_ERR)
       call tce_hash_n(int_mb(k_v2_alpha_offset_s),IRES,offset_aux)
       call ga_get(d_v2,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
@@ -71,14 +72,14 @@ c
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('zones put: sf problem21-b',1,DISK_ERR)
+         call errquit('v2_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('zones put: sf problem31-b',2,DISK_ERR)
+         call errquit('v2_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
-     1    call errquit('tce_rest_v2: MA l_aux',0,MA_ERR)
+     1    call errquit('v2_restart_save: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -129,13 +130,14 @@ c
         chunk_f1=((tile_dim)**2)
         call util_file_name('f1_copy',.false.,.false.,filename)
 c
-        if(nodezero) write(6,*)'f1 restart write file:',filename
+        if(nodezero) write(6,1)'f1_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
         if (sf_create(filename,dfloat(bytes)*dfloat(size_1e),
      1   dfloat(bytes)*dfloat(size_1e),chunk_f1,handle_f1)
      1   .ne.0)
-     2   call errquit('f1 restart: sf_problem',0,DISK_ERR)
+     2   call errquit('f1_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -150,7 +152,7 @@ c
       size_aux = int_mb(k_range+g5b-1)*int_mb(k_range+g6b-1)
        if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1  l_aux,k_aux))
-     1  call errquit('tce_rest_f1_o: MA l_aux',0,MA_ERR)
+     1  call errquit('f1_restart_save: MA l_aux',0,MA_ERR)
       key=g5b - 1 + (noab+nvab) * (g6b - 1)
       call tce_hash_n(int_mb(k_f1_offset_s),key,offset_aux)
       call ga_get(d_f1,offset_aux+1,offset_aux+size_aux,1,1,
@@ -161,14 +163,14 @@ c
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('f1: sf problem21-b',1,DISK_ERR)
+         call errquit('f1_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('f1: sf problem31-b',2,DISK_ERR)
+         call errquit('f1_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
-     1   call errquit('tce_rest_f1_c: MA l_aux',0,MA_ERR)
+     1   call errquit('f1_restart_save: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -184,8 +186,8 @@ c
 c
 c
 c
-      subroutine d1_restart_save(d_f1,k_f1_offset_s,size_1e,axis,
-     &                          handle_f1)
+      subroutine d1_restart_save(d_d1,k_d1_offset_s,size_d1,axis,
+     &                          handle_d1,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -196,8 +198,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_f1,k_f1_offset_s,size_1e
-      INTEGER chunk_f1,handle_f1
+      INTEGER d_d1,k_d1_offset_s,size_d1
+      INTEGER chunk_d1,handle_d1
       INTEGER l_aux,k_aux
       INTEGER g5b,g6b
       INTEGER key,axis
@@ -210,25 +212,40 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_f1=((tile_dim)**2)
-      if(axis.eq.1) 
-     &   call util_file_name('d1_1_copy',.false.,.false.,filename)
-      if(axis.eq.2) 
-     &   call util_file_name('d1_2_copy',.false.,.false.,filename)
-      if(axis.eq.3) 
-     &   call util_file_name('d1_3_copy',.false.,.false.,filename)
+        chunk_d1=((tile_dim)**2)
+      if(axis.eq.1) then
+        call util_file_name('d1_1_copy',.false.,.false.,filename)
+      elseif(axis.eq.2) then
+        call util_file_name('d1_2_copy',.false.,.false.,filename)
+      elseif(axis.eq.3) then
+        call util_file_name('d1_3_copy',.false.,.false.,filename)
+      elseif(axis.eq.4) then
+        call util_file_name('q1_1_copy',.false.,.false.,filename)
+      elseif(axis.eq.5) then
+        call util_file_name('q1_2_copy',.false.,.false.,filename)
+      elseif(axis.eq.6) then
+        call util_file_name('q1_3_copy',.false.,.false.,filename)
+      elseif(axis.eq.7) then
+        call util_file_name('q1_4_copy',.false.,.false.,filename)
+      elseif(axis.eq.8) then
+        call util_file_name('q1_5_copy',.false.,.false.,filename)
+      elseif(axis.eq.9) then
+        call util_file_name('q1_6_copy',.false.,.false.,filename)
+      endif
 c
-        if(nodezero) write(6,*)'d1 restart write file:',filename,axis
+        if(nodezero) write(6,1)'d1_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_1e),
-     1   dfloat(bytes)*dfloat(size_1e),chunk_f1,handle_f1)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_d1),
+     1   dfloat(bytes)*dfloat(size_d1),chunk_d1,handle_d1)
      1   .ne.0)
-     2   call errquit('f1 restart: sf_problem',0,DISK_ERR)
+     2   call errquit('d1_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -236,32 +253,32 @@ c
       DO g5b = 1,noab+nvab
       IF (next.eq.count) THEN
       IF (int_mb(k_spin+g6b-1) .eq. int_mb(k_spin+g5b-1)) THEN
-      IF (ieor(int_mb(k_sym+g6b-1),int_mb(k_sym+g5b-1)) .eq. irrep_d) TH
+      IF (ieor(int_mb(k_sym+g6b-1),int_mb(k_sym+g5b-1)) .eq. irrep) TH
      &EN
       IF ((.not.restricted).or.(int_mb(k_spin+g6b-1)+int_mb(k_spin+g5b-1
      &).ne.4)) THEN
       size_aux = int_mb(k_range+g5b-1)*int_mb(k_range+g6b-1)
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('tce_rest_f1_o: MA l_aux',0,MA_ERR)
+     1   call errquit('d1_restart_save: MA l_aux',0,MA_ERR)
       key=g5b - 1 + (noab+nvab) * (g6b - 1)
-      call tce_hash_n(int_mb(k_f1_offset_s),key,offset_aux)
-      call ga_get(d_f1,offset_aux+1,offset_aux+size_aux,1,1,
+      call tce_hash_n(int_mb(k_d1_offset_s),key,offset_aux)
+      call ga_get(d_d1,offset_aux+1,offset_aux+size_aux,1,1,
      &     dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_f1,
+        ierrcode1=sf_write(handle_d1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('f1: sf problem21-b',1,DISK_ERR)
+         call errquit('d1_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('f1: sf problem31-b',2,DISK_ERR)
+         call errquit('d1_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
-     1   call errquit('tce_rest_f1_c: MA l_aux',0,MA_ERR)
+     1   call errquit('d1_restart_save: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -277,8 +294,8 @@ c
 c
 c
 c
-      subroutine t1_restart_save(d_t1,k_t1_offset,size_t1,
-     1                           handle_t1)
+      subroutine x1_restart_save(d_x1,k_x1_offset,size_x1,state,
+     1                           handle_x1,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -289,8 +306,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_t1,k_t1_offset,size_t1
-      INTEGER chunk_t1,handle_t1
+      INTEGER d_x1,k_x1_offset,size_x1
+      INTEGER chunk_x1,handle_x1
       INTEGER l_aux,k_aux
       INTEGER p5b,h6b
       INTEGER key
@@ -303,20 +320,42 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer state,irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_t1=((tile_dim)**2)
+        chunk_x1=((tile_dim)**2)
+      if(state.eq.0) then
         call util_file_name('t1_copy',.false.,.false.,filename)
+      elseif(state.eq.1) then
+        call util_file_name('eom_x1_1_copy',.false.,.false.,filename)
+      elseif(state.eq.2) then
+        call util_file_name('eom_x1_2_copy',.false.,.false.,filename)
+      elseif(state.eq.3) then
+        call util_file_name('eom_x1_3_copy',.false.,.false.,filename)
+      elseif(state.eq.4) then
+        call util_file_name('eom_x1_4_copy',.false.,.false.,filename)
+      elseif(state.eq.5) then
+        call util_file_name('eom_x1_5_copy',.false.,.false.,filename)
+      elseif(state.eq.6) then
+        call util_file_name('eom_x1_6_copy',.false.,.false.,filename)
+      elseif(state.eq.7) then
+        call util_file_name('eom_x1_7_copy',.false.,.false.,filename)
+      elseif(state.eq.8) then
+        call util_file_name('eom_x1_8_copy',.false.,.false.,filename)
+      else
+        call errquit('x1_restart_save: too many saved',state,DISK_ERR)
+      endif
 c
-        if(nodezero) write(6,*)'t1 restart write file:',filename
+        if(nodezero) write(6,1)'x1_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_t1),
-     1   dfloat(bytes)*dfloat(size_t1),chunk_t1,handle_t1)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_x1),
+     1   dfloat(bytes)*dfloat(size_x1),chunk_x1,handle_x1)
      1   .ne.0)
-     2   call errquit('t1 restart: sf_problem',0,DISK_ERR)
+     2   call errquit('x1_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -324,32 +363,31 @@ c
       DO h6b = 1,noab
       IF (next.eq.count) THEN
       IF (int_mb(k_spin+p5b-1) .eq. int_mb(k_spin+h6b-1)) THEN
-      IF (ieor(int_mb(k_sym+p5b-1),int_mb(k_sym+h6b-1)) .eq. irrep_t) TH
-     &EN
+      IF (ieor(int_mb(k_sym+p5b-1),int_mb(k_sym+h6b-1)) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p5b-1)+int_mb(k_spin+h6b-1
      &).ne.4)) THEN
       size_aux = int_mb(k_range+p5b-1)*int_mb(k_range+h6b-1)
        if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1  l_aux,k_aux))
-     1  call errquit('tce_rest_t1_o: MA l_aux',0,MA_ERR)
+     1  call errquit('x1_restart_save: MA l_aux',0,MA_ERR)
       key=h6b - 1 + noab * (p5b - noab - 1)
-      call tce_hash(int_mb(k_t1_offset),key,offset_aux)
-      call ga_get(d_t1,offset_aux+1,offset_aux+size_aux,1,1,
+      call tce_hash(int_mb(k_x1_offset),key,offset_aux)
+      call ga_get(d_x1,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_t1,
+        ierrcode1=sf_write(handle_x1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('t1: sf problem21-b',1,DISK_ERR)
+         call errquit('x1_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('t1: sf problem31-b',2,DISK_ERR)
+         call errquit('x1_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
-     1   call errquit('tce_rest_t1_c: MA l_aux',0,MA_ERR)
+     1   call errquit('x1_restart_save: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -364,8 +402,8 @@ c
       end 
 c
 c
-      subroutine lrt1_restart_save(d_t1,k_t1_offset,size_t1,
-     1                           handle_t1,axis)
+      subroutine tr1_restart_save(d_tr1,k_tr1_offset,size_tr1,axis,
+     1                            handle_tr1,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -376,8 +414,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_t1,k_t1_offset,size_t1
-      INTEGER chunk_t1,handle_t1
+      INTEGER d_tr1,k_tr1_offset,size_tr1
+      INTEGER chunk_tr1,handle_tr1
       INTEGER l_aux,k_aux
       INTEGER p5b,h6b
       INTEGER key
@@ -391,26 +429,43 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_t1=((tile_dim)**2)
+        chunk_tr1=((tile_dim)**2)
 c
-      if(axis.eq.1) 
-     &   call util_file_name('t1r_1_copy',.false.,.false.,filename)
-      if(axis.eq.2) 
-     &   call util_file_name('t1r_2_copy',.false.,.false.,filename)
-      if(axis.eq.3) 
-     &   call util_file_name('t1r_3_copy',.false.,.false.,filename)
+      if(axis.eq.1) then
+        call util_file_name('tr1_1_copy',.false.,.false.,filename)
+      elseif(axis.eq.2) then
+        call util_file_name('tr1_2_copy',.false.,.false.,filename)
+      elseif(axis.eq.3) then
+        call util_file_name('tr1_3_copy',.false.,.false.,filename)
+      elseif(axis.eq.4) then
+        call util_file_name('tr1_4_copy',.false.,.false.,filename)
+      elseif(axis.eq.5) then
+        call util_file_name('tr1_5_copy',.false.,.false.,filename)
+      elseif(axis.eq.6) then
+        call util_file_name('tr1_6_copy',.false.,.false.,filename)
+      elseif(axis.eq.7) then
+        call util_file_name('tr1_7_copy',.false.,.false.,filename)
+      elseif(axis.eq.8) then
+        call util_file_name('tr1_8_copy',.false.,.false.,filename)
+      elseif(axis.eq.9) then
+        call util_file_name('tr1_9_copy',.false.,.false.,filename)
+      else
+        call errquit('tr1_restart_save: too many saved',axis,DISK_ERR)
+      endif
 c
-        if(nodezero) write(6,*)'t1r restart write file:',filename,axis
+        if(nodezero) write(6,1)'tr1_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_t1),
-     1   dfloat(bytes)*dfloat(size_t1),chunk_t1,handle_t1)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_tr1),
+     1   dfloat(bytes)*dfloat(size_tr1),chunk_tr1,handle_tr1)
      1   .ne.0)
-     2   call errquit('t1r restart: sf_problem',0,DISK_ERR)
+     2   call errquit('tr1_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -418,32 +473,31 @@ c
       DO h6b = 1,noab
       IF (next.eq.count) THEN
       IF (int_mb(k_spin+p5b-1) .eq. int_mb(k_spin+h6b-1)) THEN
-      IF (ieor(int_mb(k_sym+p5b-1),int_mb(k_sym+h6b-1)) .eq. irrep_x) TH
-     &EN
+      IF (ieor(int_mb(k_sym+p5b-1),int_mb(k_sym+h6b-1)) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p5b-1)+int_mb(k_spin+h6b-1
      &).ne.4)) THEN
       size_aux = int_mb(k_range+p5b-1)*int_mb(k_range+h6b-1)
        if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1  l_aux,k_aux))
-     1  call errquit('tce_rest_t1r_o: MA l_aux',0,MA_ERR)
+     1  call errquit('tr1_restart_save: MA l_aux',0,MA_ERR)
       key=h6b - 1 + noab * (p5b - noab - 1)
-      call tce_hash(int_mb(k_t1_offset),key,offset_aux)
-      call ga_get(d_t1,offset_aux+1,offset_aux+size_aux,1,1,
+      call tce_hash(int_mb(k_tr1_offset),key,offset_aux)
+      call ga_get(d_tr1,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_t1,
+        ierrcode1=sf_write(handle_tr1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('t1r: sf problem21-b',1,DISK_ERR)
+         call errquit('tr1_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('t1r: sf problem31-b',2,DISK_ERR)
+         call errquit('tr1_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
-     1   call errquit('tce_rest_t1r_c: MA l_aux',0,MA_ERR)
+     1   call errquit('tr1_restart_save: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -458,8 +512,8 @@ c
       end 
 c
 c
-      subroutine y1_restart_save(d_t1,k_t1_offset,size_t1,
-     1                           handle_t1)
+      subroutine y1_restart_save(d_y1,k_y1_offset,size_y1,state,
+     1                           handle_y1,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -470,8 +524,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_t1,k_t1_offset,size_t1
-      INTEGER chunk_t1,handle_t1
+      INTEGER d_y1,k_y1_offset,size_y1
+      INTEGER chunk_y1,handle_y1
       INTEGER l_aux,k_aux
       INTEGER p5b,h6b
       INTEGER key
@@ -484,20 +538,42 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer state,irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_t1=((tile_dim)**2)
-        call util_file_name('y1_copy',.false.,.false.,filename)
+        chunk_y1=((tile_dim)**2)
+      if(state.eq.0) then
+        call util_file_name('lambda1_copy',.false.,.false.,filename)
+      elseif(state.eq.1) then
+        call util_file_name('eom_y1_1_copy',.false.,.false.,filename)
+      elseif(state.eq.2) then
+        call util_file_name('eom_y1_2_copy',.false.,.false.,filename)
+      elseif(state.eq.3) then
+        call util_file_name('eom_y1_3_copy',.false.,.false.,filename)
+      elseif(state.eq.4) then
+        call util_file_name('eom_y1_4_copy',.false.,.false.,filename)
+      elseif(state.eq.5) then
+        call util_file_name('eom_y1_5_copy',.false.,.false.,filename)
+      elseif(state.eq.6) then
+        call util_file_name('eom_y1_6_copy',.false.,.false.,filename)
+      elseif(state.eq.7) then
+        call util_file_name('eom_y1_7_copy',.false.,.false.,filename)
+      elseif(state.eq.8) then
+        call util_file_name('eom_y1_8_copy',.false.,.false.,filename)
+      else
+        call errquit('y1_restart_save: too many saved',state,DISK_ERR)
+      endif
 c
-        if(nodezero) write(6,*)'y1 restart write file:',filename
+        if(nodezero) write(6,1)'y1_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_t1),
-     1   dfloat(bytes)*dfloat(size_t1),chunk_t1,handle_t1)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_y1),
+     1   dfloat(bytes)*dfloat(size_y1),chunk_y1,handle_y1)
      1   .ne.0)
-     2   call errquit('y1 restart: sf_problem',0,DISK_ERR)
+     2   call errquit('y1_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -505,32 +581,140 @@ c
       DO p5b = noab+1,noab+nvab
       IF (next.eq.count) THEN
       IF (int_mb(k_spin+p5b-1) .eq. int_mb(k_spin+h6b-1)) THEN
-      IF (ieor(int_mb(k_sym+h6b-1),int_mb(k_sym+p5b-1)) .eq. irrep_y) TH
+      IF (ieor(int_mb(k_sym+h6b-1),int_mb(k_sym+p5b-1)) .eq. irrep) TH
      &EN
       IF ((.not.restricted).or.(int_mb(k_spin+p5b-1)+int_mb(k_spin+h6b-1
      &).ne.4)) THEN
       size_aux = int_mb(k_range+p5b-1)*int_mb(k_range+h6b-1)
        if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1  l_aux,k_aux))
-     1  call errquit('tce_rest_y1_o: MA l_aux',0,MA_ERR)
+     1  call errquit('y1_restart_save: MA l_aux',0,MA_ERR)
       key=p5b - noab - 1 + nvab * (h6b - 1)
-      call tce_hash(int_mb(k_t1_offset),key,offset_aux)
-      call ga_get(d_t1,offset_aux+1,offset_aux+size_aux,1,1,
+      call tce_hash(int_mb(k_y1_offset),key,offset_aux)
+      call ga_get(d_y1,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_t1,
+        ierrcode1=sf_write(handle_y1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('y1: sf problem21-b',1,DISK_ERR)
+         call errquit('y1_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('f1: sf problem31-b',2,DISK_ERR)
+         call errquit('y1_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
-     1   call errquit('tce_rest_y1_c: MA l_aux',0,MA_ERR)
+     1   call errquit('y1_restart_save: MA l_aux',0,MA_ERR)
+      END IF
+      END IF
+      END IF
+      next = NXTASK(nprocs, 1)
+      END IF
+      count = count + 1
+      END DO
+      END DO
+      next = NXTASK(-nprocs, 1)
+      call GA_SYNC()
+      return 
+      end 
+c
+c
+      subroutine yr1_restart_save(d_yr1,k_yr1_offset,size_yr1,axis,
+     1                           handle_yr1,irrep)
+      IMPLICIT NONE
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "sym.fh"
+#include "sf.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+      INTEGER d_yr1,k_yr1_offset,size_yr1
+      INTEGER chunk_yr1,handle_yr1
+      INTEGER l_aux,k_aux
+      INTEGER p5b,h6b
+      INTEGER key
+      INTEGER size_aux,offset_aux
+      INTEGER ierrcode1,ierrcode2
+      INTEGER request
+      logical nodezero
+      character*255 filename
+      INTEGER NXTASK
+      INTEGER next
+      INTEGER nprocs
+      INTEGER count
+      integer axis,irrep
+      EXTERNAL NXTASK
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+        chunk_yr1=((tile_dim)**2)
+      if(axis.eq.1) then
+        call util_file_name('yr1_1_copy',.false.,.false.,filename)
+      elseif(axis.eq.2) then
+        call util_file_name('yr1_2_copy',.false.,.false.,filename)
+      elseif(axis.eq.3) then
+        call util_file_name('yr1_3_copy',.false.,.false.,filename)
+      elseif(axis.eq.4) then
+        call util_file_name('yr1_4_copy',.false.,.false.,filename)
+      elseif(axis.eq.5) then
+        call util_file_name('yr1_5_copy',.false.,.false.,filename)
+      elseif(axis.eq.6) then
+        call util_file_name('yr1_6_copy',.false.,.false.,filename)
+      elseif(axis.eq.7) then
+        call util_file_name('yr1_7_copy',.false.,.false.,filename)
+      elseif(axis.eq.8) then
+        call util_file_name('yr1_8_copy',.false.,.false.,filename)
+      elseif(axis.eq.9) then
+        call util_file_name('yr1_9_copy',.false.,.false.,filename)
+      else
+        call errquit('yr1_restart_save: too many saved',axis,DISK_ERR)
+      endif
+c
+        if(nodezero) write(6,1)'yr1_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
+        call util_flush(6)
+c
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_yr1),
+     1   dfloat(bytes)*dfloat(size_yr1),chunk_yr1,handle_yr1)
+     1   .ne.0)
+     2   call errquit('yr1_restart_save: sf_problem',0,DISK_ERR)
+      nprocs = GA_NNODES()
+      count = 0
+      next = NXTASK(nprocs, 1)
+      DO h6b = 1,noab
+      DO p5b = noab+1,noab+nvab
+      IF (next.eq.count) THEN
+      IF (int_mb(k_spin+p5b-1) .eq. int_mb(k_spin+h6b-1)) THEN
+      IF (ieor(int_mb(k_sym+h6b-1),int_mb(k_sym+p5b-1)) .eq. irrep) THEN
+      IF ((.not.restricted).or.(int_mb(k_spin+p5b-1)+int_mb(k_spin+h6b-1
+     &).ne.4)) THEN
+      size_aux = int_mb(k_range+p5b-1)*int_mb(k_range+h6b-1)
+       if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
+     1  l_aux,k_aux))
+     1  call errquit('yr1_restart_save: MA l_aux',0,MA_ERR)
+      key=p5b - noab - 1 + nvab * (h6b - 1)
+      call tce_hash(int_mb(k_yr1_offset),key,offset_aux)
+      call ga_get(d_yr1,offset_aux+1,offset_aux+size_aux,1,1,
+     &            dbl_mb(k_aux),1)
+        ierrcode1=sf_write(handle_yr1,
+     2                   dfloat(bytes)*dfloat(offset_aux),
+     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+        if(ierrcode1.ne.0) then
+         write(6,*)'ierrcode1=',ierrcode1
+         call util_flush(6)
+         call errquit('yr1_restart_save: sf problem21-b',1,DISK_ERR)
+        end if
+        ierrcode2=sf_wait(request)
+        if(ierrcode2.ne.0) then
+         call errquit('yr1_restart_save: sf problem31-b',2,DISK_ERR)
+        end if
+        if (.not.ma_pop_stack(l_aux))
+     1   call errquit('yr1_restart_save: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -546,8 +730,8 @@ c
 c
 c
 c
-      subroutine t2_restart_save(d_t2,k_t2_offset,size_t2,
-     1                           handle_t2)
+      subroutine x2_restart_save(d_x2,k_x2_offset,size_x2,state,
+     1                           handle_x2,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -558,8 +742,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_t2,k_t2_offset,size_t2
-      INTEGER chunk_t2,handle_t2
+      INTEGER d_x2,k_x2_offset,size_x2
+      INTEGER chunk_x2,handle_x2
       INTEGER l_aux,k_aux
       INTEGER p1b,p2b,h3b,h4b
       INTEGER key
@@ -572,20 +756,42 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer state,irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_t2=((tile_dim)**4)
+        chunk_x2=((tile_dim)**4)
+      if(state.eq.0) then
         call util_file_name('t2_copy',.false.,.false.,filename)
+      elseif(state.eq.1) then
+        call util_file_name('eom_x2_1_copy',.false.,.false.,filename)
+      elseif(state.eq.2) then
+        call util_file_name('eom_x2_2_copy',.false.,.false.,filename)
+      elseif(state.eq.3) then
+        call util_file_name('eom_x2_3_copy',.false.,.false.,filename)
+      elseif(state.eq.4) then
+        call util_file_name('eom_x2_4_copy',.false.,.false.,filename)
+      elseif(state.eq.5) then
+        call util_file_name('eom_x2_5_copy',.false.,.false.,filename)
+      elseif(state.eq.6) then
+        call util_file_name('eom_x2_6_copy',.false.,.false.,filename)
+      elseif(state.eq.7) then
+        call util_file_name('eom_x2_7_copy',.false.,.false.,filename)
+      elseif(state.eq.8) then
+        call util_file_name('eom_x2_8_copy',.false.,.false.,filename)
+      else
+        call errquit('x2_restart_save: too many saved',state,DISK_ERR)
+      endif
 c
-        if(nodezero) write(6,*)'t2 restart write file:',filename
+        if(nodezero) write(6,1)'x2_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_t2),
-     1   dfloat(bytes)*dfloat(size_t2),chunk_t2,handle_t2)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_x2),
+     1   dfloat(bytes)*dfloat(size_x2),chunk_x2,handle_x2)
      1   .ne.0)
-     2   call errquit('t2 restart: sf_problem',0,DISK_ERR)
+     2   call errquit('x2_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -597,33 +803,33 @@ c
       IF (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) .eq. int_mb(k_spin+h
      &3b-1)+int_mb(k_spin+h4b-1)) THEN
       IF (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),ieor(int_mb(
-     &k_sym+h3b-1),int_mb(k_sym+h4b-1)))) .eq. irrep_t) THEN
+     &k_sym+h3b-1),int_mb(k_sym+h4b-1)))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1
      &)+int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8)) THEN
       size_aux = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1) * int_
      &mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('tce_rest_t2: MA l_aux',0,MA_ERR)
+     1   call errquit('x2_restart_save: MA l_aux',0,MA_ERR)
       key=h4b - 1 + noab * (h3b - 1 + noab * (p2b-
      &noab - 1 + nvab * (p1b - noab - 1)))
-      call tce_hash(int_mb(k_t2_offset),key,offset_aux)
-      call ga_get(d_t2,offset_aux+1,offset_aux+size_aux,1,1,
+      call tce_hash(int_mb(k_x2_offset),key,offset_aux)
+      call ga_get(d_x2,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_t2,
+        ierrcode1=sf_write(handle_x2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('copy t2: sf problem21-b',1,DISK_ERR)
+         call errquit('x2_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('copy t2: sf problem31-b',2,DISK_ERR)
+         call errquit('x2_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
-     1    call errquit('tce_rest_t2: MA l_aux',0,MA_ERR)
+     1    call errquit('x2_restart_save: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -640,8 +846,8 @@ c
       end 
 c
 c
-      subroutine lrt2_restart_save(d_t2,k_t2_offset,size_t2,
-     1                           handle_t2,axis)
+      subroutine tr2_restart_save(d_tr2,k_tr2_offset,size_tr2,axis,
+     1                            handle_tr2,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -652,8 +858,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_t2,k_t2_offset,size_t2
-      INTEGER chunk_t2,handle_t2
+      INTEGER d_tr2,k_tr2_offset,size_tr2
+      INTEGER chunk_tr2,handle_tr2
       INTEGER l_aux,k_aux
       INTEGER p1b,p2b,h3b,h4b
       INTEGER key,axis
@@ -666,27 +872,42 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_t2=((tile_dim)**4)
-        call util_file_name('t2r_copy',.false.,.false.,filename)
+        chunk_tr2=((tile_dim)**4)
+      if(axis.eq.1) then
+        call util_file_name('tr2_1_copy',.false.,.false.,filename)
+      elseif(axis.eq.2) then
+        call util_file_name('tr2_2_copy',.false.,.false.,filename)
+      elseif(axis.eq.3) then
+        call util_file_name('tr2_3_copy',.false.,.false.,filename)
+      elseif(axis.eq.4) then
+        call util_file_name('tr2_4_copy',.false.,.false.,filename)
+      elseif(axis.eq.5) then
+        call util_file_name('tr2_5_copy',.false.,.false.,filename)
+      elseif(axis.eq.6) then
+        call util_file_name('tr2_6_copy',.false.,.false.,filename)
+      elseif(axis.eq.7) then
+        call util_file_name('tr2_7_copy',.false.,.false.,filename)
+      elseif(axis.eq.8) then
+        call util_file_name('tr2_8_copy',.false.,.false.,filename)
+      elseif(axis.eq.9) then
+        call util_file_name('tr2_9_copy',.false.,.false.,filename)
+      else
+        call errquit('tr2_restart_save: too many saved',axis,DISK_ERR)
+      endif
 c
-      if(axis.eq.1) 
-     &   call util_file_name('t2r_1_copy',.false.,.false.,filename)
-      if(axis.eq.2) 
-     &   call util_file_name('t2r_2_copy',.false.,.false.,filename)
-      if(axis.eq.3) 
-     &   call util_file_name('t2r_3_copy',.false.,.false.,filename)
-c
-        if(nodezero) write(6,*)'t2r restart write file:',filename,axis
+        if(nodezero) write(6,1)'tr2_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_t2),
-     1   dfloat(bytes)*dfloat(size_t2),chunk_t2,handle_t2)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_tr2),
+     1   dfloat(bytes)*dfloat(size_tr2),chunk_tr2,handle_tr2)
      1   .ne.0)
-     2   call errquit('t2r restart: sf_problem',0,DISK_ERR)
+     2   call errquit('tr2_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -698,33 +919,33 @@ c
       IF (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) .eq. int_mb(k_spin+h
      &3b-1)+int_mb(k_spin+h4b-1)) THEN
       IF (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),ieor(int_mb(
-     &k_sym+h3b-1),int_mb(k_sym+h4b-1)))) .eq. irrep_x) THEN
+     &k_sym+h3b-1),int_mb(k_sym+h4b-1)))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1
      &)+int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8)) THEN
       size_aux = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1) * int_
      &mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('tce_rest_t2r: MA l_aux',0,MA_ERR)
+     1   call errquit('tr2_restart_save: MA l_aux',0,MA_ERR)
       key=h4b - 1 + noab * (h3b - 1 + noab * (p2b-
      &noab - 1 + nvab * (p1b - noab - 1)))
-      call tce_hash(int_mb(k_t2_offset),key,offset_aux)
-      call ga_get(d_t2,offset_aux+1,offset_aux+size_aux,1,1,
+      call tce_hash(int_mb(k_tr2_offset),key,offset_aux)
+      call ga_get(d_tr2,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_t2,
+        ierrcode1=sf_write(handle_tr2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('copy t2r: sf problem21-b',1,DISK_ERR)
+         call errquit('tr2_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('copy t2r: sf problem31-b',2,DISK_ERR)
+         call errquit('tr2_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
-     1    call errquit('tce_rest_t2r: MA l_aux',0,MA_ERR)
+     1    call errquit('tr2_restart_save: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -741,8 +962,8 @@ c
       end 
 c
 c
-      subroutine y2_restart_save(d_t2,k_t2_offset,size_t2,
-     1                           handle_t2)
+      subroutine y2_restart_save(d_y2,k_y2_offset,size_y2,state,
+     1                           handle_y2,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -753,8 +974,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_t2,k_t2_offset,size_t2
-      INTEGER chunk_t2,handle_t2
+      INTEGER d_y2,k_y2_offset,size_y2
+      INTEGER chunk_y2,handle_y2
       INTEGER l_aux,k_aux
       INTEGER p1b,p2b,h3b,h4b
       INTEGER key
@@ -767,20 +988,42 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer state,irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_t2=((tile_dim)**4)
-        call util_file_name('y2_copy',.false.,.false.,filename)
+        chunk_y2=((tile_dim)**4)
+      if(state.eq.0) then
+        call util_file_name('lambda2_copy',.false.,.false.,filename)
+      elseif(state.eq.1) then
+        call util_file_name('eom_y2_1_copy',.false.,.false.,filename)
+      elseif(state.eq.2) then
+        call util_file_name('eom_y2_2_copy',.false.,.false.,filename)
+      elseif(state.eq.3) then
+        call util_file_name('eom_y2_3_copy',.false.,.false.,filename)
+      elseif(state.eq.4) then
+        call util_file_name('eom_y2_4_copy',.false.,.false.,filename)
+      elseif(state.eq.5) then
+        call util_file_name('eom_y2_5_copy',.false.,.false.,filename)
+      elseif(state.eq.6) then
+        call util_file_name('eom_y2_6_copy',.false.,.false.,filename)
+      elseif(state.eq.7) then
+        call util_file_name('eom_y2_7_copy',.false.,.false.,filename)
+      elseif(state.eq.8) then
+        call util_file_name('eom_y2_8_copy',.false.,.false.,filename)
+      else
+        call errquit('y2_restart_save: too many saved',state,DISK_ERR)
+      endif
 c
-        if(nodezero) write(6,*)'y2 restart write file:',filename
+        if(nodezero) write(6,1)'y2_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_t2),
-     1   dfloat(bytes)*dfloat(size_t2),chunk_t2,handle_t2)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_y2),
+     1   dfloat(bytes)*dfloat(size_y2),chunk_y2,handle_y2)
      1   .ne.0)
-     2   call errquit('y2 restart: sf_problem',0,DISK_ERR)
+     2   call errquit('y2_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -792,33 +1035,149 @@ c
       IF (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) .eq. int_mb(k_spin+h
      &3b-1)+int_mb(k_spin+h4b-1)) THEN
       IF (ieor(int_mb(k_sym+h3b-1),ieor(int_mb(k_sym+h4b-1),ieor(int_mb(
-     &k_sym+p1b-1),int_mb(k_sym+p2b-1)))) .eq. irrep_y) THEN
+     &k_sym+p1b-1),int_mb(k_sym+p2b-1)))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1
      &)+int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8)) THEN
       size_aux = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1) * int_
      &mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('tce_rest_y2: MA l_aux',0,MA_ERR)
+     1   call errquit('y2_restart_save: MA l_aux',0,MA_ERR)
       key=p2b - noab - 1 + nvab * (p1b - noab - 1
      &+ nvab * (h4b - 1 + noab * (h3b - 1)))
-      call tce_hash(int_mb(k_t2_offset),key,offset_aux)
-      call ga_get(d_t2,offset_aux+1,offset_aux+size_aux,1,1,
+      call tce_hash(int_mb(k_y2_offset),key,offset_aux)
+      call ga_get(d_y2,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_t2,
+        ierrcode1=sf_write(handle_y2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('copy y2: sf problem21-b',1,DISK_ERR)
+         call errquit('y2_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('copy y2: sf problem31-b',2,DISK_ERR)
+         call errquit('y2_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
-     1    call errquit('tce_rest_y2: MA l_aux',0,MA_ERR)
+     1    call errquit('y2_restart_save: MA l_aux',0,MA_ERR)
+      END IF
+      END IF
+      END IF
+      next = NXTASK(nprocs, 1)
+      END IF
+      count = count + 1
+      END DO
+      END DO
+      END DO
+      END DO
+      next = NXTASK(-nprocs, 1)
+      call GA_SYNC()
+      return 
+      end 
+c
+c
+      subroutine yr2_restart_save(d_yr2,k_yr2_offset,size_yr2,axis,
+     1                           handle_yr2,irrep)
+      IMPLICIT NONE
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "sym.fh"
+#include "sf.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+      INTEGER d_yr2,k_yr2_offset,size_yr2
+      INTEGER chunk_yr2,handle_yr2
+      INTEGER l_aux,k_aux
+      INTEGER p1b,p2b,h3b,h4b
+      INTEGER key
+      INTEGER size_aux,offset_aux
+      INTEGER ierrcode1,ierrcode2
+      INTEGER request
+      logical nodezero
+      character*255 filename
+      INTEGER NXTASK
+      INTEGER next
+      INTEGER nprocs
+      INTEGER count
+      integer axis,irrep
+      EXTERNAL NXTASK
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+        chunk_yr2=((tile_dim)**4)
+      if(axis.eq.1) then
+        call util_file_name('yr2_1_copy',.false.,.false.,filename)
+      elseif(axis.eq.2) then
+        call util_file_name('yr2_2_copy',.false.,.false.,filename)
+      elseif(axis.eq.3) then
+        call util_file_name('yr2_3_copy',.false.,.false.,filename)
+      elseif(axis.eq.4) then
+        call util_file_name('yr2_4_copy',.false.,.false.,filename)
+      elseif(axis.eq.5) then
+        call util_file_name('yr2_5_copy',.false.,.false.,filename)
+      elseif(axis.eq.6) then
+        call util_file_name('yr2_6_copy',.false.,.false.,filename)
+      elseif(axis.eq.7) then
+        call util_file_name('yr2_7_copy',.false.,.false.,filename)
+      elseif(axis.eq.8) then
+        call util_file_name('yr2_8_copy',.false.,.false.,filename)
+      elseif(axis.eq.9) then
+        call util_file_name('yr2_9_copy',.false.,.false.,filename)
+      else
+        call errquit('yr2_restart_save: too many saved',axis,DISK_ERR)
+      endif
+c
+        if(nodezero) write(6,1)'yr2_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
+        call util_flush(6)
+c
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_yr2),
+     1   dfloat(bytes)*dfloat(size_yr2),chunk_yr2,handle_yr2)
+     1   .ne.0)
+     2   call errquit('yr2_restart_save: sf_problem',0,DISK_ERR)
+      nprocs = GA_NNODES()
+      count = 0
+      next = NXTASK(nprocs, 1)
+      DO h3b = 1,noab
+      DO h4b = h3b,noab
+      DO p1b = noab+1,noab+nvab
+      DO p2b = p1b,noab+nvab
+      IF (next.eq.count) THEN
+      IF (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) .eq. int_mb(k_spin+h
+     &3b-1)+int_mb(k_spin+h4b-1)) THEN
+      IF (ieor(int_mb(k_sym+h3b-1),ieor(int_mb(k_sym+h4b-1),ieor(int_mb(
+     &k_sym+p1b-1),int_mb(k_sym+p2b-1)))) .eq. irrep) THEN
+      IF ((.not.restricted).or.(int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1
+     &)+int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8)) THEN
+      size_aux = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1) * int_
+     &mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
+        if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
+     1   l_aux,k_aux))
+     1   call errquit('yr2_restart_save: MA l_aux',0,MA_ERR)
+      key=p2b - noab - 1 + nvab * (p1b - noab - 1
+     &+ nvab * (h4b - 1 + noab * (h3b - 1)))
+      call tce_hash(int_mb(k_yr2_offset),key,offset_aux)
+      call ga_get(d_yr2,offset_aux+1,offset_aux+size_aux,1,1,
+     &            dbl_mb(k_aux),1)
+        ierrcode1=sf_write(handle_yr2,
+     2                   dfloat(bytes)*dfloat(offset_aux),
+     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+        if(ierrcode1.ne.0) then
+         write(6,*)'ierrcode1=',ierrcode1
+         call util_flush(6)
+         call errquit('yr2_restart_save: sf problem21-b',1,DISK_ERR)
+        end if
+        ierrcode2=sf_wait(request)
+        if(ierrcode2.ne.0) then
+         call errquit('yr2_restart_save: sf problem31-b',2,DISK_ERR)
+        end if
+        if (.not.ma_pop_stack(l_aux))
+     1    call errquit('yr2_restart_save: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -887,7 +1246,8 @@ c
         chunk_v2=((tile_dim)**4)
         call util_file_name('v2_copy',.false.,.false.,filename)
 c
-        if(nodezero) write(6,*)'v2 restart read file:',filename
+        if(nodezero) write(6,1)'v2_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
         if (sf_create(filename,dfloat(bytes)*dfloat(size_2e),
@@ -984,7 +1344,8 @@ c
         chunk_f1=((tile_dim)**2)
         call util_file_name('f1_copy',.false.,.false.,filename)
 c
-        if(nodezero) write(6,*)'f1 restart read file:',filename
+        if(nodezero) write(6,1)'f1_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
         if (sf_create(filename,dfloat(bytes)*dfloat(size_1e),
@@ -1039,8 +1400,8 @@ c
 c
 c
 c
-      subroutine d1_restart_read(d_f1,k_f1_offset_s,size_1e,axis,
-     1                           handle_f1)
+      subroutine d1_restart_read(d_d1,k_d1_offset_s,size_d1,axis,
+     1                           handle_d1,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1051,8 +1412,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_f1,k_f1_offset_s,size_1e
-      INTEGER chunk_f1,handle_f1
+      INTEGER d_d1,k_d1_offset_s,size_d1
+      INTEGER chunk_d1,handle_d1
       INTEGER l_aux,k_aux
       INTEGER g5b,g6b
       INTEGER key,axis
@@ -1065,25 +1426,40 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_f1=((tile_dim)**2)
-      if(axis.eq.1) 
-     &   call util_file_name('d1_1_copy',.false.,.false.,filename)
-      if(axis.eq.2) 
-     &   call util_file_name('d1_2_copy',.false.,.false.,filename)
-      if(axis.eq.3) 
-     &   call util_file_name('d1_3_copy',.false.,.false.,filename)
+        chunk_d1=((tile_dim)**2)
+      if(axis.eq.1) then
+        call util_file_name('d1_1_copy',.false.,.false.,filename)
+      elseif(axis.eq.2) then
+        call util_file_name('d1_2_copy',.false.,.false.,filename)
+      elseif(axis.eq.3) then
+        call util_file_name('d1_3_copy',.false.,.false.,filename)
+      elseif(axis.eq.4) then
+        call util_file_name('q1_1_copy',.false.,.false.,filename)
+      elseif(axis.eq.5) then
+        call util_file_name('q1_2_copy',.false.,.false.,filename)
+      elseif(axis.eq.6) then
+        call util_file_name('q1_3_copy',.false.,.false.,filename)
+      elseif(axis.eq.7) then
+        call util_file_name('q1_4_copy',.false.,.false.,filename)
+      elseif(axis.eq.8) then
+        call util_file_name('q1_5_copy',.false.,.false.,filename)
+      elseif(axis.eq.9) then
+        call util_file_name('q1_6_copy',.false.,.false.,filename)
+      endif
 c
-        if(nodezero) write(6,*)'d1 restart read file:',filename,axis
+        if(nodezero) write(6,1)'d1_restart_save',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_1e),
-     1   dfloat(bytes)*dfloat(size_1e),chunk_f1,handle_f1)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_d1),
+     1   dfloat(bytes)*dfloat(size_d1),chunk_d1,handle_d1)
      1   .ne.0)
-     2   call errquit('f1 restart: sf_problem',0,DISK_ERR)
+     2   call errquit('d1_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -1098,25 +1474,25 @@ c
       size_aux = int_mb(k_range+g5b-1)*int_mb(k_range+g6b-1)
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('tce_rest_f1: MA l_aux',0,MA_ERR)
+     1   call errquit('d1_restart_read: MA l_aux',0,MA_ERR)
       key=g5b - 1 + (noab+nvab) * (g6b - 1)
-      call tce_hash_n(int_mb(k_f1_offset_s),key,offset_aux)
-        ierrcode1=sf_read(handle_f1,
+      call tce_hash_n(int_mb(k_d1_offset_s),key,offset_aux)
+        ierrcode1=sf_read(handle_d1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('f1: sf problem21-b',1,DISK_ERR)
+         call errquit('d1_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('f1: sf problem31-b',2,DISK_ERR)
+         call errquit('d1_restart_read: sf problem31-b',2,DISK_ERR)
         end if
-      call ga_put(d_f1,offset_aux+1,offset_aux+size_aux,1,1,
+      call ga_put(d_d1,offset_aux+1,offset_aux+size_aux,1,1,
      &     dbl_mb(k_aux),1)
         if (.not.ma_pop_stack(l_aux))
-     1   call errquit('tce_rest_f1: MA l_aux',0,MA_ERR)
+     1   call errquit('d1_restart_read: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -1144,8 +1520,8 @@ c
 c
 c
 c
-      subroutine t1_restart_read(d_t1,k_t1_offset,size_t1,
-     1                           handle_t1)
+      subroutine x1_restart_read(d_x1,k_x1_offset,size_x1,state,
+     1                           handle_x1,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1156,8 +1532,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_t1,k_t1_offset,size_t1
-      INTEGER chunk_t1,handle_t1
+      INTEGER d_x1,k_x1_offset,size_x1
+      INTEGER chunk_x1,handle_x1
       INTEGER l_aux,k_aux
       INTEGER p5b,h6b
       INTEGER key
@@ -1170,20 +1546,42 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer state,irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_t1=((tile_dim)**2)
+        chunk_x1=((tile_dim)**2)
+      if(state.eq.0) then
         call util_file_name('t1_copy',.false.,.false.,filename)
+      elseif(state.eq.1) then
+        call util_file_name('eom_x1_1_copy',.false.,.false.,filename)
+      elseif(state.eq.2) then
+        call util_file_name('eom_x1_2_copy',.false.,.false.,filename)
+      elseif(state.eq.3) then
+        call util_file_name('eom_x1_3_copy',.false.,.false.,filename)
+      elseif(state.eq.4) then
+        call util_file_name('eom_x1_4_copy',.false.,.false.,filename)
+      elseif(state.eq.5) then
+        call util_file_name('eom_x1_5_copy',.false.,.false.,filename)
+      elseif(state.eq.6) then
+        call util_file_name('eom_x1_6_copy',.false.,.false.,filename)
+      elseif(state.eq.7) then
+        call util_file_name('eom_x1_7_copy',.false.,.false.,filename)
+      elseif(state.eq.8) then
+        call util_file_name('eom_x1_8_copy',.false.,.false.,filename)
+      else
+        call errquit('x1_restart_read: cannot exist',state,DISK_ERR)
+      endif
 c
-        if(nodezero) write(6,*)'t1 restart read file:',filename
+        if(nodezero) write(6,1)'x1_restart_read',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_t1),
-     1   dfloat(bytes)*dfloat(size_t1),chunk_t1,handle_t1)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_x1),
+     1   dfloat(bytes)*dfloat(size_x1),chunk_x1,handle_x1)
      1   .ne.0)
-     2   call errquit('t1 restart: sf_problem',0,DISK_ERR)
+     2   call errquit('x1_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -1191,32 +1589,31 @@ c
       DO h6b = 1,noab
       IF (next.eq.count) THEN
       IF (int_mb(k_spin+p5b-1) .eq. int_mb(k_spin+h6b-1)) THEN
-      IF (ieor(int_mb(k_sym+p5b-1),int_mb(k_sym+h6b-1)) .eq. irrep_t) TH
-     &EN
+      IF (ieor(int_mb(k_sym+p5b-1),int_mb(k_sym+h6b-1)) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p5b-1)+int_mb(k_spin+h6b-1
      &).ne.4)) THEN
       size_aux = int_mb(k_range+p5b-1)*int_mb(k_range+h6b-1)
        if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1  l_aux,k_aux))
-     1  call errquit('tce_rest_t1_o: MA l_aux',0,MA_ERR)
+     1  call errquit('x1_restart_read: MA l_aux',0,MA_ERR)
       key=h6b - 1 + noab * (p5b - noab - 1)
-      call tce_hash(int_mb(k_t1_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_t1,
+      call tce_hash(int_mb(k_x1_offset),key,offset_aux)
+        ierrcode1=sf_read(handle_x1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('t1: sf problem21-b',1,DISK_ERR)
+         call errquit('x1_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('t1: sf problem31-b',2,DISK_ERR)
+         call errquit('x1_restart_read: sf problem31-b',2,DISK_ERR)
         end if
-      call ga_put(d_t1,offset_aux+1,offset_aux+size_aux,1,1,
+      call ga_put(d_x1,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         if (.not.ma_pop_stack(l_aux))
-     1   call errquit('tce_rest_t1_c: MA l_aux',0,MA_ERR)
+     1   call errquit('x1_restart_read: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -1231,8 +1628,8 @@ c
       end 
 c
 c
-      subroutine lrt1_restart_read(d_t1,k_t1_offset,size_t1,
-     1                           handle_t1,axis)
+      subroutine tr1_restart_read(d_tr1,k_tr1_offset,size_tr1,axis,
+     1                           handle_tr1,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1243,8 +1640,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_t1,k_t1_offset,size_t1
-      INTEGER chunk_t1,handle_t1
+      INTEGER d_tr1,k_tr1_offset,size_tr1
+      INTEGER chunk_tr1,handle_tr1
       INTEGER l_aux,k_aux
       INTEGER p5b,h6b
       INTEGER key
@@ -1258,26 +1655,43 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_t1=((tile_dim)**2)
+        chunk_tr1=((tile_dim)**2)
 c
-      if(axis.eq.1) 
-     &   call util_file_name('t1r_1_copy',.false.,.false.,filename)
-      if(axis.eq.2) 
-     &   call util_file_name('t1r_2_copy',.false.,.false.,filename)
-      if(axis.eq.3) 
-     &   call util_file_name('t1r_3_copy',.false.,.false.,filename)
+      if(axis.eq.1) then
+        call util_file_name('tr1_1_copy',.false.,.false.,filename)
+      elseif(axis.eq.2) then
+        call util_file_name('tr1_2_copy',.false.,.false.,filename)
+      elseif(axis.eq.3) then
+        call util_file_name('tr1_3_copy',.false.,.false.,filename)
+      elseif(axis.eq.4) then
+        call util_file_name('tr1_4_copy',.false.,.false.,filename)
+      elseif(axis.eq.5) then
+        call util_file_name('tr1_5_copy',.false.,.false.,filename)
+      elseif(axis.eq.6) then
+        call util_file_name('tr1_6_copy',.false.,.false.,filename)
+      elseif(axis.eq.7) then
+        call util_file_name('tr1_7_copy',.false.,.false.,filename)
+      elseif(axis.eq.8) then
+        call util_file_name('tr1_8_copy',.false.,.false.,filename)
+      elseif(axis.eq.9) then
+        call util_file_name('tr1_9_copy',.false.,.false.,filename)
+      else
+        call errquit('tr1_restart_read: cannot exist',axis,DISK_ERR)
+      endif
 c
-        if(nodezero) write(6,*)'t1r restart read file:',filename,axis
+        if(nodezero) write(6,1)'tr1_restart_read',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_t1),
-     1   dfloat(bytes)*dfloat(size_t1),chunk_t1,handle_t1)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_tr1),
+     1   dfloat(bytes)*dfloat(size_tr1),chunk_tr1,handle_tr1)
      1   .ne.0)
-     2   call errquit('t1r restart: sf_problem',0,DISK_ERR)
+     2   call errquit('tr1_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -1285,32 +1699,31 @@ c
       DO h6b = 1,noab
       IF (next.eq.count) THEN
       IF (int_mb(k_spin+p5b-1) .eq. int_mb(k_spin+h6b-1)) THEN
-      IF (ieor(int_mb(k_sym+p5b-1),int_mb(k_sym+h6b-1)) .eq. irrep_x) TH
-     &EN
+      IF (ieor(int_mb(k_sym+p5b-1),int_mb(k_sym+h6b-1)) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p5b-1)+int_mb(k_spin+h6b-1
      &).ne.4)) THEN
       size_aux = int_mb(k_range+p5b-1)*int_mb(k_range+h6b-1)
        if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1  l_aux,k_aux))
-     1  call errquit('tce_rest_t1r_o: MA l_aux',0,MA_ERR)
+     1  call errquit('tr1_restart_read: MA l_aux',0,MA_ERR)
       key=h6b - 1 + noab * (p5b - noab - 1)
-      call tce_hash(int_mb(k_t1_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_t1,
+      call tce_hash(int_mb(k_tr1_offset),key,offset_aux)
+        ierrcode1=sf_read(handle_tr1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('t1r: sf problem21-b',1,DISK_ERR)
+         call errquit('tr1_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('t1r: sf problem31-b',2,DISK_ERR)
+         call errquit('tr1_restart_read: sf problem31-b',2,DISK_ERR)
         end if
-      call ga_put(d_t1,offset_aux+1,offset_aux+size_aux,1,1,
+      call ga_put(d_tr1,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         if (.not.ma_pop_stack(l_aux))
-     1   call errquit('tce_rest_t1r_c: MA l_aux',0,MA_ERR)
+     1   call errquit('tr1_restart_read: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -1325,8 +1738,8 @@ c
       end 
 c
 c
-      subroutine y1_restart_read(d_t1,k_t1_offset,size_t1,
-     1                           handle_t1)
+      subroutine y1_restart_read(d_y1,k_y1_offset,size_y1,state,
+     1                           handle_y1,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1337,8 +1750,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_t1,k_t1_offset,size_t1
-      INTEGER chunk_t1,handle_t1
+      INTEGER d_y1,k_y1_offset,size_y1
+      INTEGER chunk_y1,handle_y1
       INTEGER l_aux,k_aux
       INTEGER p5b,h6b
       INTEGER key
@@ -1351,20 +1764,42 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer state,irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_t1=((tile_dim)**2)
-        call util_file_name('y1_copy',.false.,.false.,filename)
+        chunk_y1=((tile_dim)**2)
+      if(state.eq.0) then
+        call util_file_name('lambda1_copy',.false.,.false.,filename)
+      elseif(state.eq.1) then
+        call util_file_name('eom_y1_1_copy',.false.,.false.,filename)
+      elseif(state.eq.2) then
+        call util_file_name('eom_y1_2_copy',.false.,.false.,filename)
+      elseif(state.eq.3) then
+        call util_file_name('eom_y1_3_copy',.false.,.false.,filename)
+      elseif(state.eq.4) then
+        call util_file_name('eom_y1_4_copy',.false.,.false.,filename)
+      elseif(state.eq.5) then
+        call util_file_name('eom_y1_5_copy',.false.,.false.,filename)
+      elseif(state.eq.6) then
+        call util_file_name('eom_y1_6_copy',.false.,.false.,filename)
+      elseif(state.eq.7) then
+        call util_file_name('eom_y1_7_copy',.false.,.false.,filename)
+      elseif(state.eq.8) then
+        call util_file_name('eom_y1_8_copy',.false.,.false.,filename)
+      else
+        call errquit('y1_restart_read: cannot exist',state,DISK_ERR)
+      endif
 c
-        if(nodezero) write(6,*)'y1 restart read file:',filename
+        if(nodezero) write(6,1)'y1_restart_read',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_t1),
-     1   dfloat(bytes)*dfloat(size_t1),chunk_t1,handle_t1)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_y1),
+     1   dfloat(bytes)*dfloat(size_y1),chunk_y1,handle_y1)
      1   .ne.0)
-     2   call errquit('y1 restart: sf_problem',0,DISK_ERR)
+     2   call errquit('y1_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -1372,32 +1807,140 @@ c
       DO p5b = noab+1,noab+nvab
       IF (next.eq.count) THEN
       IF (int_mb(k_spin+p5b-1) .eq. int_mb(k_spin+h6b-1)) THEN
-      IF (ieor(int_mb(k_sym+h6b-1),int_mb(k_sym+p5b-1)) .eq. irrep_y) TH
+      IF (ieor(int_mb(k_sym+h6b-1),int_mb(k_sym+p5b-1)) .eq. irrep) TH
      &EN
       IF ((.not.restricted).or.(int_mb(k_spin+p5b-1)+int_mb(k_spin+h6b-1
      &).ne.4)) THEN
       size_aux = int_mb(k_range+p5b-1)*int_mb(k_range+h6b-1)
        if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1  l_aux,k_aux))
-     1  call errquit('tce_rest_y1_o: MA l_aux',0,MA_ERR)
+     1  call errquit('y1_restart_read: MA l_aux',0,MA_ERR)
       key=p5b - noab - 1 + nvab * (h6b - 1)
-      call tce_hash(int_mb(k_t1_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_t1,
+      call tce_hash(int_mb(k_y1_offset),key,offset_aux)
+        ierrcode1=sf_read(handle_y1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('y1: sf problem21-b',1,DISK_ERR)
+         call errquit('y1_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('f1: sf problem31-b',2,DISK_ERR)
+         call errquit('y1_restart_read: sf problem31-b',2,DISK_ERR)
         end if
-      call ga_put(d_t1,offset_aux+1,offset_aux+size_aux,1,1,
+      call ga_put(d_y1,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         if (.not.ma_pop_stack(l_aux))
-     1   call errquit('tce_rest_y1_c: MA l_aux',0,MA_ERR)
+     1   call errquit('y1_restart_read: MA l_aux',0,MA_ERR)
+      END IF
+      END IF
+      END IF
+      next = NXTASK(nprocs, 1)
+      END IF
+      count = count + 1
+      END DO
+      END DO
+      next = NXTASK(-nprocs, 1)
+      call GA_SYNC()
+      return 
+      end 
+c
+c
+      subroutine yr1_restart_read(d_yr1,k_yr1_offset,size_yr1,axis,
+     1                           handle_yr1,irrep)
+      IMPLICIT NONE
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "sym.fh"
+#include "sf.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+      INTEGER d_yr1,k_yr1_offset,size_yr1
+      INTEGER chunk_yr1,handle_yr1
+      INTEGER l_aux,k_aux
+      INTEGER p5b,h6b
+      INTEGER key
+      INTEGER size_aux,offset_aux
+      INTEGER ierrcode1,ierrcode2
+      INTEGER request
+      logical nodezero
+      character*255 filename
+      INTEGER NXTASK
+      INTEGER next
+      INTEGER nprocs
+      INTEGER count
+      integer axis,irrep
+      EXTERNAL NXTASK
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+        chunk_yr1=((tile_dim)**2)
+      if(axis.eq.1) then
+        call util_file_name('yr1_1_copy',.false.,.false.,filename)
+      elseif(axis.eq.2) then
+        call util_file_name('yr1_2_copy',.false.,.false.,filename)
+      elseif(axis.eq.3) then
+        call util_file_name('yr1_3_copy',.false.,.false.,filename)
+      elseif(axis.eq.4) then
+        call util_file_name('yr1_4_copy',.false.,.false.,filename)
+      elseif(axis.eq.5) then
+        call util_file_name('yr1_5_copy',.false.,.false.,filename)
+      elseif(axis.eq.6) then
+        call util_file_name('yr1_6_copy',.false.,.false.,filename)
+      elseif(axis.eq.7) then
+        call util_file_name('yr1_7_copy',.false.,.false.,filename)
+      elseif(axis.eq.8) then
+        call util_file_name('yr1_8_copy',.false.,.false.,filename)
+      elseif(axis.eq.9) then
+        call util_file_name('yr1_9_copy',.false.,.false.,filename)
+      else
+        call errquit('yr1_restart_read: cannot exist',axis,DISK_ERR)
+      endif
+c
+        if(nodezero) write(6,1)'yr1_restart_read',filename
+    1 format(1x,A20,' filename: ',A80)
+        call util_flush(6)
+c
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_yr1),
+     1   dfloat(bytes)*dfloat(size_yr1),chunk_yr1,handle_yr1)
+     1   .ne.0)
+     2   call errquit('yr1_restart_read: sf_problem',0,DISK_ERR)
+      nprocs = GA_NNODES()
+      count = 0
+      next = NXTASK(nprocs, 1)
+      DO h6b = 1,noab
+      DO p5b = noab+1,noab+nvab
+      IF (next.eq.count) THEN
+      IF (int_mb(k_spin+p5b-1) .eq. int_mb(k_spin+h6b-1)) THEN
+      IF (ieor(int_mb(k_sym+h6b-1),int_mb(k_sym+p5b-1)) .eq. irrep) THEN
+      IF ((.not.restricted).or.(int_mb(k_spin+p5b-1)+int_mb(k_spin+h6b-1
+     &).ne.4)) THEN
+      size_aux = int_mb(k_range+p5b-1)*int_mb(k_range+h6b-1)
+       if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
+     1  l_aux,k_aux))
+     1  call errquit('yr1_restart_read: MA l_aux',0,MA_ERR)
+      key=p5b - noab - 1 + nvab * (h6b - 1)
+      call tce_hash(int_mb(k_yr1_offset),key,offset_aux)
+        ierrcode1=sf_read(handle_yr1,
+     2                   dfloat(bytes)*dfloat(offset_aux),
+     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+        if(ierrcode1.ne.0) then
+         write(6,*)'ierrcode1=',ierrcode1
+         call util_flush(6)
+         call errquit('yr1_restart_read: sf problem21-b',1,DISK_ERR)
+        end if
+        ierrcode2=sf_wait(request)
+        if(ierrcode2.ne.0) then
+         call errquit('yr1_restart_read: sf problem31-b',2,DISK_ERR)
+        end if
+      call ga_put(d_yr1,offset_aux+1,offset_aux+size_aux,1,1,
+     &            dbl_mb(k_aux),1)
+        if (.not.ma_pop_stack(l_aux))
+     1   call errquit('yr1_restart_read: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -1413,8 +1956,8 @@ c
 c
 c
 c
-      subroutine t2_restart_read(d_t2,k_t2_offset,size_t2,
-     1                           handle_t2)
+      subroutine x2_restart_read(d_x2,k_x2_offset,size_x2,state,
+     1                           handle_x2,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1425,8 +1968,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_t2,k_t2_offset,size_t2
-      INTEGER chunk_t2,handle_t2
+      INTEGER d_x2,k_x2_offset,size_x2
+      INTEGER chunk_x2,handle_x2
       INTEGER l_aux,k_aux
       INTEGER p1b,p2b,h3b,h4b
       INTEGER key
@@ -1439,20 +1982,42 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer state,irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_t2=((tile_dim)**4)
+        chunk_x2=((tile_dim)**4)
+      if(state.eq.0) then
         call util_file_name('t2_copy',.false.,.false.,filename)
+      elseif(state.eq.1) then
+        call util_file_name('eom_x2_1_copy',.false.,.false.,filename)
+      elseif(state.eq.2) then
+        call util_file_name('eom_x2_2_copy',.false.,.false.,filename)
+      elseif(state.eq.3) then
+        call util_file_name('eom_x2_3_copy',.false.,.false.,filename)
+      elseif(state.eq.4) then
+        call util_file_name('eom_x2_4_copy',.false.,.false.,filename)
+      elseif(state.eq.5) then
+        call util_file_name('eom_x2_5_copy',.false.,.false.,filename)
+      elseif(state.eq.6) then
+        call util_file_name('eom_x2_6_copy',.false.,.false.,filename)
+      elseif(state.eq.7) then
+        call util_file_name('eom_x2_7_copy',.false.,.false.,filename)
+      elseif(state.eq.8) then
+        call util_file_name('eom_x2_8_copy',.false.,.false.,filename)
+      else
+        call errquit('x2_restart_read: cannot exist',state,DISK_ERR)
+      endif
 c
-        if(nodezero) write(6,*)'t2 restart read file:',filename
+        if(nodezero) write(6,1)'x2_restart_read',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_t2),
-     1   dfloat(bytes)*dfloat(size_t2),chunk_t2,handle_t2)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_x2),
+     1   dfloat(bytes)*dfloat(size_x2),chunk_x2,handle_x2)
      1   .ne.0)
-     2   call errquit('t2 restart: sf_problem',0,DISK_ERR)
+     2   call errquit('x2_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -1464,33 +2029,33 @@ c
       IF (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) .eq. int_mb(k_spin+h
      &3b-1)+int_mb(k_spin+h4b-1)) THEN
       IF (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),ieor(int_mb(
-     &k_sym+h3b-1),int_mb(k_sym+h4b-1)))) .eq. irrep_t) THEN
+     &k_sym+h3b-1),int_mb(k_sym+h4b-1)))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1
      &)+int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8)) THEN
       size_aux = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1) * int_
      &mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('tce_rest_t2: MA l_aux',0,MA_ERR)
+     1   call errquit('x2_restart_read: MA l_aux',0,MA_ERR)
       key=h4b - 1 + noab * (h3b - 1 + noab * (p2b-
      &noab - 1 + nvab * (p1b - noab - 1)))
-      call tce_hash(int_mb(k_t2_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_t2,
+      call tce_hash(int_mb(k_x2_offset),key,offset_aux)
+        ierrcode1=sf_read(handle_x2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('copy t2: sf problem21-b',1,DISK_ERR)
+         call errquit('x2_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('copy t2: sf problem31-b',2,DISK_ERR)
+         call errquit('x2_restart_read: sf problem31-b',2,DISK_ERR)
         end if
-      call ga_put(d_t2,offset_aux+1,offset_aux+size_aux,1,1,
+      call ga_put(d_x2,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         if (.not.ma_pop_stack(l_aux))
-     1    call errquit('tce_rest_t2: MA l_aux',0,MA_ERR)
+     1    call errquit('x2_restart_read: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -1507,8 +2072,8 @@ c
       end 
 c
 c
-      subroutine lrt2_restart_read(d_t2,k_t2_offset,size_t2,
-     1                           handle_t2,axis)
+      subroutine tr2_restart_read(d_tr2,k_tr2_offset,size_tr2,axis,
+     1                           handle_tr2,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1519,8 +2084,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_t2,k_t2_offset,size_t2
-      INTEGER chunk_t2,handle_t2
+      INTEGER d_tr2,k_tr2_offset,size_tr2
+      INTEGER chunk_tr2,handle_tr2
       INTEGER l_aux,k_aux
       INTEGER p1b,p2b,h3b,h4b
       INTEGER key,axis
@@ -1533,27 +2098,42 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_t2=((tile_dim)**4)
-        call util_file_name('t2r_copy',.false.,.false.,filename)
+        chunk_tr2=((tile_dim)**4)
+      if(axis.eq.1) then
+        call util_file_name('tr2_1_copy',.false.,.false.,filename)
+      elseif(axis.eq.2) then
+        call util_file_name('tr2_2_copy',.false.,.false.,filename)
+      elseif(axis.eq.3) then
+        call util_file_name('tr2_3_copy',.false.,.false.,filename)
+      elseif(axis.eq.4) then
+        call util_file_name('tr2_4_copy',.false.,.false.,filename)
+      elseif(axis.eq.5) then
+        call util_file_name('tr2_5_copy',.false.,.false.,filename)
+      elseif(axis.eq.6) then
+        call util_file_name('tr2_6_copy',.false.,.false.,filename)
+      elseif(axis.eq.7) then
+        call util_file_name('tr2_7_copy',.false.,.false.,filename)
+      elseif(axis.eq.8) then
+        call util_file_name('tr2_8_copy',.false.,.false.,filename)
+      elseif(axis.eq.9) then
+        call util_file_name('tr2_9_copy',.false.,.false.,filename)
+      else
+        call errquit('tr2_restart_read: cannot exist',axis,DISK_ERR)
+      endif
 c
-      if(axis.eq.1) 
-     &   call util_file_name('t2r_1_copy',.false.,.false.,filename)
-      if(axis.eq.2) 
-     &   call util_file_name('t2r_2_copy',.false.,.false.,filename)
-      if(axis.eq.3) 
-     &   call util_file_name('t2r_3_copy',.false.,.false.,filename)
-c
-        if(nodezero) write(6,*)'t2r restart read file:',filename,axis
+        if(nodezero) write(6,1)'tr2_restart_read',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_t2),
-     1   dfloat(bytes)*dfloat(size_t2),chunk_t2,handle_t2)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_tr2),
+     1   dfloat(bytes)*dfloat(size_tr2),chunk_tr2,handle_tr2)
      1   .ne.0)
-     2   call errquit('t2r restart: sf_problem',0,DISK_ERR)
+     2   call errquit('tr2_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -1565,33 +2145,33 @@ c
       IF (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) .eq. int_mb(k_spin+h
      &3b-1)+int_mb(k_spin+h4b-1)) THEN
       IF (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),ieor(int_mb(
-     &k_sym+h3b-1),int_mb(k_sym+h4b-1)))) .eq. irrep_x) THEN
+     &k_sym+h3b-1),int_mb(k_sym+h4b-1)))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1
      &)+int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8)) THEN
       size_aux = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1) * int_
      &mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('tce_rest_t2r: MA l_aux',0,MA_ERR)
+     1   call errquit('tr2_restart_read: MA l_aux',0,MA_ERR)
       key=h4b - 1 + noab * (h3b - 1 + noab * (p2b-
      &noab - 1 + nvab * (p1b - noab - 1)))
-      call tce_hash(int_mb(k_t2_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_t2,
+      call tce_hash(int_mb(k_tr2_offset),key,offset_aux)
+        ierrcode1=sf_read(handle_tr2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('copy t2r: sf problem21-b',1,DISK_ERR)
+         call errquit('tr2_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('copy t2r: sf problem31-b',2,DISK_ERR)
+         call errquit('tr2_restart_read: sf problem31-b',2,DISK_ERR)
         end if
-      call ga_put(d_t2,offset_aux+1,offset_aux+size_aux,1,1,
+      call ga_put(d_tr2,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         if (.not.ma_pop_stack(l_aux))
-     1    call errquit('tce_rest_t2r: MA l_aux',0,MA_ERR)
+     1    call errquit('tr2_restart_read: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
@@ -1608,8 +2188,8 @@ c
       end 
 c
 c
-      subroutine y2_restart_read(d_t2,k_t2_offset,size_t2,
-     1                           handle_t2)
+      subroutine y2_restart_read(d_y2,k_y2_offset,size_y2,state,
+     1                           handle_y2,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1620,8 +2200,8 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-      INTEGER d_t2,k_t2_offset,size_t2
-      INTEGER chunk_t2,handle_t2
+      INTEGER d_y2,k_y2_offset,size_y2
+      INTEGER chunk_y2,handle_y2
       INTEGER l_aux,k_aux
       INTEGER p1b,p2b,h3b,h4b
       INTEGER key
@@ -1634,20 +2214,42 @@ c
       INTEGER next
       INTEGER nprocs
       INTEGER count
+      integer state,irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
 c
-        chunk_t2=((tile_dim)**4)
-        call util_file_name('y2_copy',.false.,.false.,filename)
+        chunk_y2=((tile_dim)**4)
+      if(state.eq.0) then
+        call util_file_name('lambda2_copy',.false.,.false.,filename)
+      elseif(state.eq.1) then
+        call util_file_name('eom_y2_1_copy',.false.,.false.,filename)
+      elseif(state.eq.2) then
+        call util_file_name('eom_y2_2_copy',.false.,.false.,filename)
+      elseif(state.eq.3) then
+        call util_file_name('eom_y2_3_copy',.false.,.false.,filename)
+      elseif(state.eq.4) then
+        call util_file_name('eom_y2_4_copy',.false.,.false.,filename)
+      elseif(state.eq.5) then
+        call util_file_name('eom_y2_5_copy',.false.,.false.,filename)
+      elseif(state.eq.6) then
+        call util_file_name('eom_y2_6_copy',.false.,.false.,filename)
+      elseif(state.eq.7) then
+        call util_file_name('eom_y2_7_copy',.false.,.false.,filename)
+      elseif(state.eq.8) then
+        call util_file_name('eom_y2_8_copy',.false.,.false.,filename)
+      else
+        call errquit('y2_restart_read: cannot exist',state,DISK_ERR)
+      endif
 c
-        if(nodezero) write(6,*)'y2 restart read file:',filename
+        if(nodezero) write(6,1)'y2_restart_read',filename
+    1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_t2),
-     1   dfloat(bytes)*dfloat(size_t2),chunk_t2,handle_t2)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_y2),
+     1   dfloat(bytes)*dfloat(size_y2),chunk_y2,handle_y2)
      1   .ne.0)
-     2   call errquit('y2 restart: sf_problem',0,DISK_ERR)
+     2   call errquit('y2_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -1659,33 +2261,149 @@ c
       IF (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) .eq. int_mb(k_spin+h
      &3b-1)+int_mb(k_spin+h4b-1)) THEN
       IF (ieor(int_mb(k_sym+h3b-1),ieor(int_mb(k_sym+h4b-1),ieor(int_mb(
-     &k_sym+p1b-1),int_mb(k_sym+p2b-1)))) .eq. irrep_y) THEN
+     &k_sym+p1b-1),int_mb(k_sym+p2b-1)))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1
      &)+int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8)) THEN
       size_aux = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1) * int_
      &mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('tce_rest_y2: MA l_aux',0,MA_ERR)
+     1   call errquit('y2_restart_read: MA l_aux',0,MA_ERR)
       key=p2b - noab - 1 + nvab * (p1b - noab - 1
      &+ nvab * (h4b - 1 + noab * (h3b - 1)))
-      call tce_hash(int_mb(k_t2_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_t2,
+      call tce_hash(int_mb(k_y2_offset),key,offset_aux)
+        ierrcode1=sf_read(handle_y2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
-         call errquit('copy y2: sf problem21-b',1,DISK_ERR)
+         call errquit('y2_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
         if(ierrcode2.ne.0) then
-         call errquit('copy y2: sf problem31-b',2,DISK_ERR)
+         call errquit('y2_restart_read: sf problem31-b',2,DISK_ERR)
         end if
-      call ga_put(d_t2,offset_aux+1,offset_aux+size_aux,1,1,
+      call ga_put(d_y2,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         if (.not.ma_pop_stack(l_aux))
-     1    call errquit('tce_rest_y2: MA l_aux',0,MA_ERR)
+     1    call errquit('y2_restart_read: MA l_aux',0,MA_ERR)
+      END IF
+      END IF
+      END IF
+      next = NXTASK(nprocs, 1)
+      END IF
+      count = count + 1
+      END DO
+      END DO
+      END DO
+      END DO
+      next = NXTASK(-nprocs, 1)
+      call GA_SYNC()
+      return 
+      end 
+c
+c
+      subroutine yr2_restart_read(d_yr2,k_yr2_offset,size_yr2,axis,
+     1                           handle_yr2,irrep)
+      IMPLICIT NONE
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "sym.fh"
+#include "sf.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+      INTEGER d_yr2,k_yr2_offset,size_yr2
+      INTEGER chunk_yr2,handle_yr2
+      INTEGER l_aux,k_aux
+      INTEGER p1b,p2b,h3b,h4b
+      INTEGER key
+      INTEGER size_aux,offset_aux
+      INTEGER ierrcode1,ierrcode2
+      INTEGER request
+      logical nodezero
+      character*255 filename
+      INTEGER NXTASK
+      INTEGER next
+      INTEGER nprocs
+      INTEGER count
+      integer axis,irrep
+      EXTERNAL NXTASK
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+        chunk_yr2=((tile_dim)**4)
+      if(axis.eq.1) then
+        call util_file_name('yr2_1_copy',.false.,.false.,filename)
+      elseif(axis.eq.2) then
+        call util_file_name('yr2_2_copy',.false.,.false.,filename)
+      elseif(axis.eq.3) then
+        call util_file_name('yr2_3_copy',.false.,.false.,filename)
+      elseif(axis.eq.4) then
+        call util_file_name('yr2_4_copy',.false.,.false.,filename)
+      elseif(axis.eq.5) then
+        call util_file_name('yr2_5_copy',.false.,.false.,filename)
+      elseif(axis.eq.6) then
+        call util_file_name('yr2_6_copy',.false.,.false.,filename)
+      elseif(axis.eq.7) then
+        call util_file_name('yr2_7_copy',.false.,.false.,filename)
+      elseif(axis.eq.8) then
+        call util_file_name('yr2_8_copy',.false.,.false.,filename)
+      elseif(axis.eq.9) then
+        call util_file_name('yr2_9_copy',.false.,.false.,filename)
+      else
+        call errquit('yr2_restart_read: cannot exist',axis,DISK_ERR)
+      endif
+c
+        if(nodezero) write(6,1)'yr2_restart_read',filename
+    1 format(1x,A20,' filename: ',A80)
+        call util_flush(6)
+c
+        if (sf_create(filename,dfloat(bytes)*dfloat(size_yr2),
+     1   dfloat(bytes)*dfloat(size_yr2),chunk_yr2,handle_yr2)
+     1   .ne.0)
+     2   call errquit('yr2_restart_read: sf_problem',0,DISK_ERR)
+      nprocs = GA_NNODES()
+      count = 0
+      next = NXTASK(nprocs, 1)
+      DO h3b = 1,noab
+      DO h4b = h3b,noab
+      DO p1b = noab+1,noab+nvab
+      DO p2b = p1b,noab+nvab
+      IF (next.eq.count) THEN
+      IF (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) .eq. int_mb(k_spin+h
+     &3b-1)+int_mb(k_spin+h4b-1)) THEN
+      IF (ieor(int_mb(k_sym+h3b-1),ieor(int_mb(k_sym+h4b-1),ieor(int_mb(
+     &k_sym+p1b-1),int_mb(k_sym+p2b-1)))) .eq. irrep) THEN
+      IF ((.not.restricted).or.(int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1
+     &)+int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8)) THEN
+      size_aux = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1) * int_
+     &mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
+        if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
+     1   l_aux,k_aux))
+     1   call errquit('yr2_restart_read: MA l_aux',0,MA_ERR)
+      key=p2b - noab - 1 + nvab * (p1b - noab - 1
+     &+ nvab * (h4b - 1 + noab * (h3b - 1)))
+      call tce_hash(int_mb(k_yr2_offset),key,offset_aux)
+        ierrcode1=sf_read(handle_yr2,
+     2                   dfloat(bytes)*dfloat(offset_aux),
+     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+        if(ierrcode1.ne.0) then
+         write(6,*)'ierrcode1=',ierrcode1
+         call util_flush(6)
+         call errquit('yr2_restart_read: sf problem21-b',1,DISK_ERR)
+        end if
+        ierrcode2=sf_wait(request)
+        if(ierrcode2.ne.0) then
+         call errquit('yr2_restart_read: sf problem31-b',2,DISK_ERR)
+        end if
+      call ga_put(d_yr2,offset_aux+1,offset_aux+size_aux,1,1,
+     &            dbl_mb(k_aux),1)
+        if (.not.ma_pop_stack(l_aux))
+     1    call errquit('yr2_restart_read: MA l_aux',0,MA_ERR)
       END IF
       END IF
       END IF
