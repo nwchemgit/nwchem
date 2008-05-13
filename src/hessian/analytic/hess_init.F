@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.58 2007-10-11 17:31:12 bert Exp $
+C $Id: hess_init.F,v 1.59 2008-05-13 20:40:45 niri Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -569,7 +569,7 @@ c
 c
       integer geom1, basis1
       integer ipol, mult
-      logical cdfit, dmd_rel, dk_rel
+      logical cdfit, dmd_rel, dk_rel, zora_rel
       logical xc_chktau,xc_getxcfac
       external xc_chktau,xc_getxcfac
 c
@@ -590,7 +590,10 @@ c
      $   dmd_rel = .false.
       if (.not. rtdb_get(rtdb, 'doug_kroll', MT_LOG, 1, dk_rel))
      $   dk_rel = .false.
-      if (dmd_rel.or.dk_rel) then
+      if (.not. rtdb_get(rtdb, 'zora', MT_LOG, 1, zora_rel))
+     $   zora_rel = .false.
+c 
+      if (dmd_rel.or.dk_rel.or.zora_rel) then
          if (ga_nodeid().eq.0)
      $    write(LuOut,*) 'Relativistic all-electron method detected'
          return
