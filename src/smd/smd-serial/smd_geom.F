@@ -8,6 +8,7 @@
 #include "global.fh"
 #include "geom.fh"
 #include "bq.fh"
+#include "smd_const_data.fh"
 c
       integer im
 c     
@@ -25,8 +26,8 @@ c
       double precision scale
       double precision cm(3)
 c
-      logical geom_cart_set1
-      external geom_cart_set1
+      logical geom_cart_set_gen
+      external geom_cart_set_gen
       pname = "smd_geom_monomer_create"
 c
       call smd_rtdb_get_handle(rtdb)
@@ -71,7 +72,7 @@ c
 c    
       call smd_geom_monomer_index_size(im,nt,int_mb(i_ir),nm,i0)
 c
-c      write(*,*) "monomer size",i0,nm
+      write(*,*) "monomer size",i0,nm
 c
       if(.not.ma_push_get(mt_dbl,3*nm,'tmp',h_cd,i_cd))
      + call errquit(pname//'Failed to allocate memory for tmp l',
@@ -96,7 +97,10 @@ c     -----------------------------------------
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
      
-      if(.not.geom_cart_set1(igeom,i0,nm,nt,byte_mb(i_ta),
+      call smd_ma_char_print(nt,smd_string_size,
+     +                      byte_mb(i_ta),6)
+      if(.not.geom_cart_set_gen(igeom,i0,nm,nt,smd_string_size,
+     + byte_mb(i_ta),
      + dbl_mb(i_ct),dbl_mb(i_qf)))
      + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
 
@@ -104,8 +108,8 @@ c     -----------------------------------------
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
 c
-c      if (.not. geom_print(igeom))
-c     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
+      if (.not. geom_print(igeom))
+     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
 c
       if(.not.geom_rtdb_store(rtdb,igeom,"geometry"))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)

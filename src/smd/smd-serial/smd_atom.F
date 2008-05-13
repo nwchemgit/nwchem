@@ -33,14 +33,18 @@ c
 #include "util.fh"
 #include "global.fh"
 #include "smd_const_data.fh"
+#include "geom.fh"
 c     
       character*(*) namespace
 c
       character*32 pname
       character*80 tag
       integer nt
-      integer i_t,i_tr,i_ir
+      integer i_t,i_tr,i_ir,i_qf
       integer i_iconst
+c
+      logical geom_tag_to_charge_gen
+      external geom_tag_to_charge_gen
 c
       pname = "smd_atom_init"
 c
@@ -63,13 +67,13 @@ c     ---------------------------
       tag = "atom:iconst"
       call smd_data_create_get(namespace,tag,1,MT_INT,i_iconst)
       tag = "atom:name"
-c      call smd_data_create_get(namespace,tag,16*nt,MT_BYTE,i_t)
       call smd_data_create_get(namespace,tag,nt,MT_STR,i_t)
       tag  = "atom:resname"
-c      call smd_data_create_get(namespace,tag,16*nt,MT_BYTE,i_tr)
       call smd_data_create_get(namespace,tag,nt,MT_STR,i_tr)
       tag = "atom:resid"
       call smd_data_create_get(namespace,tag,nt,MT_INT,i_ir)
+      tag = "atom:formal_charge"
+      call smd_data_create_get(namespace,tag,nt,MT_DBL,i_qf)
 
 c
 c    don't ask
@@ -84,6 +88,12 @@ c     ---------------------------
      +                         int_mb(i_ir))
 
 c
+      if(.not.geom_tag_to_charge_gen(nt,smd_string_size,
+     >                        byte_mb(i_t),dbl_mb(i_qf)))
+     >  call errquit(
+     >       pname//'error setting formal charge',0, RTDB_ERR)
+
+      call smd_data_namespace_print(namespace,6)
       return
       end
 
