@@ -1,5 +1,5 @@
 *
-* $Id: ke.F,v 1.15 2007-02-23 01:24:32 bylaska Exp $
+* $Id: ke.F,v 1.16 2008-05-13 02:10:34 bylaska Exp $
 *
       subroutine ke_init()
       implicit none 
@@ -151,7 +151,7 @@ c     real*8 tg(nfft3d)
 
 
 *     **** local variables ****
-      integer npack1,np_i,np_j
+      integer npack1,np
       integer ms,n,n1(2),n2(2)
       real*8  sum
 
@@ -159,8 +159,8 @@ c     complex*16 tmp1(nfft3d)
       integer tmp1(2)
       logical value
      
-      call Parallel2d_np_i(np_i)
-      call Parallel2d_np_j(np_j)
+      call Parallel_np(np)
+
       call Pack_npack(1,npack1)
       value = MA_push_get(mt_dcpl,npack1,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -191,8 +191,7 @@ c     complex*16 tmp1(nfft3d)
             ave = ave + sum
          end do
       end do
-      if (np_i.gt.1) call D3dB_SumAll(ave)
-      if (np_j.gt.1) call D1dB_SumAll(ave)
+      if (np.gt.1) call Parallel_SumAll(ave)
       if (ispin.eq.1) ave = 2.0d0*ave
       ave = -ave
 
@@ -205,7 +204,7 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.15 2007-02-23 01:24:32 bylaska Exp $
+* $Id: ke.F,v 1.16 2008-05-13 02:10:34 bylaska Exp $
 *
       implicit none 
 #include "errquit.fh"

@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.18 2008-01-28 21:50:11 bylaska Exp $
+c $Id: cpmd_input.F,v 1.19 2008-05-13 02:10:25 bylaska Exp $
 c
 
 
@@ -15,7 +15,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 55)
+      parameter (num_dirs = 56)
  
       character*32 dirs(num_dirs)
       character*255 test, id
@@ -74,6 +74,7 @@ c
      >            'Fei_quench',
      >            'pressure',
      >            'cutoff',
+     >            'initial_ion_temperature',
      >            'end'/
 
        character*30 cell_name
@@ -118,7 +119,7 @@ c      call cpmd_input_default(rtdb)
      >       1200,1200, 1300,1300, 1400,1400, 1500,1500, 1600,1600,
      >       1700,1700,1700, 1800, 1900,1900, 2000,2000, 2100,2100,
      >       2200,2200, 2300,2300, 2400,2400,
-     >       2500,2600,2700,2800,2900,3000,1150,
+     >       2500,2600,2700,2800,2900,3000,1150,3100,
      >      9999) ind
       call errquit(
      >      'psp_formatter_input: unimplemented directive', ind,
@@ -513,6 +514,19 @@ c
       if (inp_compare(.false.,zone_name,'.false.')) value=.false.
       if (.not.rtdb_put(rtdb,'cpmd:pressure',mt_log,1,value))
      > call errquit('cpmd_input: writing pressure ', 3000, RTDB_ERR)
+      goto 10
+
+c
+c initial_ion_temperature
+c  rtdb = cpmd:init_velocities_temperature
+c
+ 3100 if (inp_f(scaling(1))) then            !*** in units of K ***
+         if (.not.rtdb_put(rtdb,'cpmd:init_velocities_temperture',
+     >                  mt_dbl,1,scaling))
+     >   call errquit('cpmd_input: initial temperature',3100,RTDB_ERR)
+      else
+         value = rtdb_delete(rtdb,'cpmd:init_velocities_temperture')
+      end if
       goto 10
 
 

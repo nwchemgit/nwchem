@@ -1,5 +1,5 @@
 *
-* $Id: cloak.F,v 1.7 2004-05-05 19:33:50 bylaska Exp $
+* $Id: cloak.F,v 1.8 2008-05-13 02:10:22 bylaska Exp $
 *
 
 *     *******************************
@@ -72,7 +72,7 @@
       real*8   lattice_unitg
       external lattice_unitg
 
-      call Parallel_taskid(taskid)
+      call Parallel3d_taskid_i(taskid)
       call C3dB_nfft3d(1,nfft3d)
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)

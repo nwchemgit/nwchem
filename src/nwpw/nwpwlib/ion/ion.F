@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.50 2007-08-28 01:05:59 bylaska Exp $
+* $Id: ion.F,v 1.51 2008-05-13 02:10:20 bylaska Exp $
 *
 
 *     ***************************
@@ -923,6 +923,9 @@ c         eki1=0.5d0*eki1
      >               ke_total,kg_total,ke_count
 
 *     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER = 0)
+
       double precision kb
       parameter (kb=3.16679d-6)
 
@@ -939,6 +942,9 @@ c         eki1=0.5d0*eki1
 
       !**** generate random initial velocities *****
       if (control_init_velocities()) then
+         call Parallel_taskid(taskid)
+         call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
+         if (taskid.eq.MASTER) then
          vgx = util_random(394) !*** initialize random sequence ****
          do i=1,3*nion
             dbl_mb(r0(1)+i-1) = 0.1d0*(0.5d0-util_random(0))
@@ -963,6 +969,9 @@ c         eki1=0.5d0*eki1
          end if
          T = dsqrt(control_init_velocities_temperature()/T)
          call dscal(3*nion,T,dbl_mb(r0(1)),1)
+         end if
+
+         call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r0(1)))
 
       end if
 

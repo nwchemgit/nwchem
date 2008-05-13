@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.66 2008-04-23 01:31:50 bylaska Exp $
+* $Id: cpsp.F,v 1.67 2008-05-13 02:09:56 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1523,9 +1523,9 @@ ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
          if (nbrillioun.eq.brillioun_nbrillioun()) then
            do nb=1,nbrillioun
                call dread(5,kv,3)
-               if ((brillioun_k(1,nb).ne.kv(1)).or.
-     >             (brillioun_k(2,nb).ne.kv(2)).or.
-     >             (brillioun_k(3,nb).ne.kv(3))) ierr = 1
+c               if ((brillioun_k(1,nb).ne.kv(1)).or.  
+c     >             (brillioun_k(2,nb).ne.kv(2)).or.
+c     >             (brillioun_k(3,nb).ne.kv(3))) ierr = 1
            end do
            if (ierr.eq.1) then
               if (mprint) then
@@ -1626,7 +1626,7 @@ cccccccccccccccccccc
         do nb=1,brillioun_nbrillioun() 
           call K1dB_ktoqp(nb,nbq,pk)
           do n=1,nprj
-            call C3dB_c_read(1,5,tmp2,tmp,-1,pk)
+            call C3dB_c_Read(1,5,tmp2,tmp,-1,pk)
             if (pk.eq.taskid_k) then
                call Cram_c_pack(nbq,tmp2)
                call cpsp_projector_add(vnl_tag,nbq,n,tmp2)
@@ -1647,6 +1647,7 @@ cccccccccccccccccccc
         do nb=1,brillioun_nbrillioun() 
           call K1dB_ktoqp(nb,nbq,pk)
           do n=1,nprj
+
             call C3dB_r_read(1,5,tmp2,tmp,-1,pk)
 
             if (pk.eq.taskid_k) then

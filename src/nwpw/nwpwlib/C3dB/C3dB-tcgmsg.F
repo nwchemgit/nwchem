@@ -1691,3 +1691,290 @@ c     integer i2_start(NFFT3+1)
       end
 
 
+
+*     ***********************************
+*     *					*
+*     *	        C3dB_SumAll		*	
+*     *					*
+*     ***********************************
+
+      subroutine C3dB_SumAll(sum)
+c     implicit none
+      real*8  sum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+*     **** local variables ****
+      integer np_i
+
+*     **** external functions ****
+      integer  Parallel3d_comm_i
+      external Parallel3d_comm_i
+
+      call Parallel3d_np_i(np_i)
+      if (np_i.gt.1) then
+         call GA_PGROUP_DGOP(Parallel3d_comm_i(),
+     >                       9+MSGDBL,sum,1,'+')
+      end if
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	        C3dB_ISumAll		*	
+*     *					*
+*     ***********************************
+
+      subroutine C3dB_ISumAll(sum)
+c     implicit none
+      integer  sum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+
+*     **** local variables ****
+      integer np_i
+
+*     **** external functions ****
+      integer  Parallel3d_comm_i
+      external Parallel3d_comm_i
+
+      call Parallel3d_np_i(np_i)
+      if (np_i.gt.1) then
+         call GA_PGROUP_IGOP(Parallel3d_comm_i(),
+     >                       9+MSGINT,sum,1,'+')
+      end if
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *					*
+*     *	        C3dB_Vector_SumAll	*	
+*     *					*
+*     ***********************************
+
+      subroutine C3dB_Vector_SumAll(n,sum1)
+c     implicit none
+      integer n
+      real*8  sum1(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+*     **** temporary workspace ****
+      integer np_i
+
+*     **** external functions ****
+      integer  Parallel3d_comm_i
+      external Parallel3d_comm_i
+
+      call nwpw_timing_start(2)
+
+      call Parallel3d_np_i(np_i)
+      if (np_i.gt.1) then
+         call GA_PGROUP_DGOP(Parallel3d_comm_i(),
+     >                       9+MSGDBL,sum,n,'+')
+      end if
+
+      call nwpw_timing_end(2)
+
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	        C3dB_Vector_ISumAll	*	
+*     *					*
+*     ***********************************
+
+      subroutine C3dB_Vector_ISumAll(n,sum)
+c     implicit none
+      integer n
+      integer  sum(*)
+
+
+
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer np_i
+
+*     **** external functions ****
+      integer  Parallel3d_comm_i
+      external Parallel3d_comm_i
+
+      call nwpw_timing_start(2)
+
+      call Parallel3d_np_i(np_i)
+      if (np_i.gt.1) then
+         call GA_PGROUP_IGOP(Parallel3d_comm_i(),
+     >                       9+MSGINT,sum,n,'+')
+      end if
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+*     *******************************************
+*     *						*
+*     *	       C3dB_r_FormatWrite_reverse	*	
+*     *						*
+*     *******************************************
+
+      subroutine C3dB_r_FormatWrite_reverse(nb,iunit,A,tmp)
+      implicit none 
+      integer nb
+      integer iunit
+      real*8     A(*)
+      real*8     tmp(*)
+
+#include "C3dB.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+      integer rcv_len,rcv_proc
+
+      
+*     *** local variables ***
+      integer MASTER,taskid
+      parameter(MASTER=0)
+      integer p_from, p_here,q
+      integer i,j,k,index
+      integer dest,source,status,msglen,idum
+
+      call Parallel3d_taskid_i(taskid)
+
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do i=1,nx(nb)
+         do j=1,ny(nb)
+
+            do k=1,nz(nb)
+              call C3dB_ktoqp(nb,k,q,p_from)
+              if (p_from.eq.MASTER) then
+                 index = (q-1)*(nx(nb))*ny(nb) 
+     >                 + (j-1)*(nx(nb)) + i
+                 tmp(k) = A(index)
+              else
+                 msglen  = 1
+                 status  = msglen
+                 source  = p_from
+
+                 call SND(9+MSGINT,idum,mitob(msglen),source,1)
+                 call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
+     >                         source,rcv_proc,1)
+
+              end if
+            end do
+            write(iunit,'(6E13.5)') (tmp(k), k=1,nz(nb))
+       
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do i=1,nx(nb)
+         do j=1,ny(nb)
+
+            do k=1,nz(nb)
+              call C3dB_ktoqp(nb,k,q,p_here)
+              if (p_here.eq.taskid) then
+
+                 index = (q-1)*(nx(nb))*ny(nb) 
+     >                 + (j-1)*(nx(nb)) + i
+                 tmp(1) = A(index)
+
+                 msglen  = 1
+                 dest    = MASTER
+
+                 call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
+     >                         dest,rcv_proc,1)
+                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
+
+              end if
+            end do
+
+         end do
+         end do
+      end if
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do i=1,nx(nb)
+         do j=1,ny(nb)
+
+            do k=1,nz(nb)
+              call C3dB_ijktoindex2p(nb,i,j,k,index,p_from)
+              if (p_from.eq.MASTER) then
+                 tmp(k) = A(index)
+              else
+                 msglen  = 1
+                 status  = msglen
+                 source  = p_from
+
+                 call SND(9+MSGINT,idum,mitob(msglen),source,1)
+                 call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
+     >                         source,rcv_proc,1)
+
+              end if
+            end do
+            write(iunit,'(6E13.5)') (tmp(k), k=1,nz(nb))
+
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do i=1,nx(nb)
+         do j=1,ny(nb)
+
+            do k=1,nz(nb)
+              call C3dB_ijktoindex2p(nb,i,j,k,index,p_from)
+
+              if (p_here.eq.taskid) then
+
+                 tmp(1) = A(index)
+
+                 msglen  = 1
+                 dest    = MASTER
+
+                 call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
+     >                         dest,rcv_proc,1)
+                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
+
+              end if
+            end do
+
+         end do
+         end do
+      end if
+
+      end if
+
+*     **** wait ****
+      return
+      end
+

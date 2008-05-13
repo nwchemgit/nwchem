@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.30 2008-04-21 23:23:26 bylaska Exp $
+* $Id: band_structure.F,v 1.31 2008-05-13 02:10:01 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -206,7 +206,7 @@
       call lattice_init()
       call c_G_init()
       call brillioun_init()
-      call Cram_init()
+      call Cram_Init()
       call C3dB_pfft_init()
 
 
@@ -425,6 +425,7 @@
       call c_coulomb_end()
       call cke_end()
       call cpsp_end()
+      call C3dB_pfft_end()
       call Cram_end()
       call c_G_end()
       call brillioun_end()
@@ -550,7 +551,8 @@
       call lattice_init()
       call c_G_init()
       call brillioun_structure_init(k)
-      call Cram_init()
+      call Cram_Init()
+      call C3dB_pfft_init()
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call cpsp_init()
@@ -775,6 +777,7 @@
       call c_coulomb_end()
       call cke_end()
       call cpsp_end()
+      call C3dB_pfft_end()
       call Cram_end()
       call c_G_end()
       call brillioun_end()
@@ -904,7 +907,6 @@
       call ion_write(rtdb)
       call ion_end()
       call cpsi_data_end()
-      call C3dB_pfft_end()
       call C3dB_end(1)
       IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
       call mask_end()

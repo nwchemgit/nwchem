@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.32 2007-10-02 20:15:46 bylaska Exp $
+* $Id: psp.F,v 1.33 2008-05-13 02:10:40 bylaska Exp $
 *
 
 
@@ -648,6 +648,7 @@ c             vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 
          end do
       end do
+
       call nwpw_timing_end(5)
 
       return
@@ -679,29 +680,52 @@ c             vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       integer npack0
       integer i,ii,ia
       integer exi(2),vtmp(2),xtmp(2),G(3)
-      logical value
+      logical value,periodic,inside
+      real*8  rxyz(3),fxyz(3)
 
 *     **** external functions ****
-      integer  Pack_G_indx,ion_nion,ion_katm
-      external Pack_G_indx,ion_nion,ion_katm
+      integer  Pack_G_indx,ion_nion,ion_katm,control_version
+      real*8   ion_rion
+      external Pack_G_indx,ion_nion,ion_katm,control_version
+      external ion_rion
 
       call nwpw_timing_start(5)
       call Pack_npack(0,npack0)
+      periodic = (control_version().eq.3)
 
       value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     >  call errquit('v_local:out of stack memory',0,MA_ERR)
 
-c*     **** define Gx,Gy and Gz in packed space ****
-      G(1)  = Pack_G_indx(0,1)
-      G(2)  = Pack_G_indx(0,2)
-      G(3)  = Pack_G_indx(0,3)
+*     **** define Gx,Gy and Gz in packed space ****
+      if (move) then
+         value = MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
+         if (.not. value) 
+     >   call errquit('v_local: out of stack memory',0, MA_ERR)
+         G(1)  = Pack_G_indx(0,1)
+         G(2)  = Pack_G_indx(0,2)
+         G(3)  = Pack_G_indx(0,3)
+         call dcopy(3*ion_nion(),0.0d0,0,fion,1)
+      end if
 
       call dcopy((2*npack0),0.0d0,0,vl_out,1)
       do ii=1,ion_nion()
+       if (.not.periodic) then
+          rxyz(1) = ion_rion(1,ii)
+          rxyz(2) = ion_rion(2,ii)
+          rxyz(3) = ion_rion(3,ii)
+          call lattice_r1_to_frac(1,rxyz,fxyz)
+          inside =((dabs(fxyz(1)).le.0.4d0).and.
+     >             (dabs(fxyz(2)).le.0.4d0).and.
+     >             (dabs(fxyz(3)).le.0.4d0))
+       else
+          inside = .true.
+       end if
+
+       if (inside) then
+
         ia=ion_katm(ii)
 
 *       **** structure factor and local pseudopotential ****
@@ -732,8 +756,11 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
        end if
         
 
+       end if
       end do
-      value =           MA_pop_stack(xtmp(2))
+
+      value = .true.
+      if (move) value = value.and.MA_pop_stack(xtmp(2))
       value = value.and.MA_pop_stack(vtmp(2))
       value = value.and.MA_pop_stack(exi(2))
 
@@ -759,18 +786,22 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
 
 
 *     *** local variables ***
-      logical value
+      logical value,periodic,inside
       integer npack0
       integer i,ii,ia
       integer exi(2),vtmp(2),xtmp(2),G(3)
 c      integer Gx(2),Gy(2),Gz(2)
+      real*8 rxyz(3),fxyz(3)
 
 *     **** external functions ****
-      integer  Pack_G_indx,ion_nion,ion_katm
-      external Pack_G_indx,ion_nion,ion_katm
+      integer  Pack_G_indx,ion_nion,ion_katm,control_version
+      real*8   ion_rion
+      external Pack_G_indx,ion_nion,ion_katm,control_version
+      external ion_rion
 
       call nwpw_timing_start(5)
       call Pack_npack(0,npack0)
+      periodic = (control_version().eq.3)
 
       value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
@@ -783,8 +814,22 @@ c     **** define Gx,Gy and Gz in packed space ****
       G(1)  = Pack_G_indx(0,1)
       G(2)  = Pack_G_indx(0,2)
       G(3)  = Pack_G_indx(0,3)
+      call dcopy(3*ion_nion(),0.0d0,0,fion,1)
 
       do ii=1,ion_nion()
+       if (.not.periodic) then
+          rxyz(1) = ion_rion(1,ii)
+          rxyz(2) = ion_rion(2,ii)
+          rxyz(3) = ion_rion(3,ii)
+          call lattice_r1_to_frac(1,rxyz,fxyz)
+          inside =((dabs(fxyz(1)).le.0.4d0).and.
+     >             (dabs(fxyz(2)).le.0.4d0).and.
+     >             (dabs(fxyz(3)).le.0.4d0))
+       else 
+          inside = .true.
+       endif
+
+       if (inside) then
         ia=ion_katm(ii)
 
 *       **** structure factor and local pseudopotential ****
@@ -810,6 +855,7 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
         call Pack_tt_dot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fion(2,ii))
         call Pack_tt_dot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fion(3,ii))
  
+       end if
       end do
       value =           MA_pop_stack(xtmp(2))
       value = value.and.MA_pop_stack(vtmp(2))

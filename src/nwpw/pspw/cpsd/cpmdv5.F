@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.65 2008-04-21 23:23:52 bylaska Exp $
+* $Id: cpmdv5.F,v 1.66 2008-05-13 02:10:25 bylaska Exp $
 *
 
 ***********************************************************************
@@ -289,6 +289,7 @@ c      parameter (autoatm =290.360032539d6)
       end if
 
 *     *****  read psi0 wavefunctions ****
+      call dcopy(2*npack1*(neq(1)+neq(2)),0.0d0,0,dcpl_mb(psi1(1)),1)
       call v_psi_read(ispin,ne,dcpl_mb(psi1(1)))
       n1(1) = 1
       n2(1) = ne(1)

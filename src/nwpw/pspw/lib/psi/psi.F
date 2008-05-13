@@ -1,9 +1,13 @@
 *
-* $Id: psi.F,v 1.85 2008-04-21 19:34:27 bylaska Exp $
+* $Id: psi.F,v 1.86 2008-05-13 02:10:36 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.85  2008/04/21 19:34:27  bylaska
+* queue fft added to cpsi_H, bug fixes in DMatrix_dgemm1_rot (MPI_Allgather routine replaced with a MPI_AllReduce for stability), np_orbital keyword replaced with np_dimensions keyword (needed for Parallel3d routines)
+* ...EJB
+*
 * Revision 1.84  2007/11/17 00:25:26  d3p708
 * ....PNJ
 *
@@ -2589,9 +2593,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       external electron_eorbit
       
       call ke_ave(ispin,neq,dcpl_mb(psi1(1)),ave)
-      call D1dB_SumAll(ave)
-      psi_1ke = ave
 
+      psi_1ke = ave
       return
       end
 

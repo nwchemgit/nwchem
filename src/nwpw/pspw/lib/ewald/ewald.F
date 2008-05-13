@@ -1,56 +1,30 @@
 *
-* $Id: ewald.F,v 1.12 2007-06-25 15:13:23 bylaska Exp $
+* $Id: ewald.F,v 1.13 2008-05-13 02:10:31 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
-
-
-*     **** common block for ewald.f ****
-      integer    ncut
-      real*8     rcut,cewald,alpha
-      integer    vg(2),rcell(2)
-      common / ewald_block / vg,rcell,cewald,alpha,rcut,ncut
-   
+#include "ewald.fh"
       ewald_ncut = ncut
       return
       end 
 
       real*8 function ewald_rcut()
       implicit none 
-
-*     **** common block for ewald.f ****
-      integer    ncut
-      real*8     rcut,cewald,alpha
-      integer    vg(2),rcell(2)
-      common / ewald_block / vg,rcell,cewald,alpha,rcut,ncut
-   
+#include "ewald.fh"
       ewald_rcut = rcut
       return
       end 
 
       integer function ewald_nshl3d()
       implicit none 
-
-
-*     **** common block for ewald.f ****
-      integer    ncut
-      real*8     rcut,cewald,alpha
-      integer    vg(2),rcell(2)
-      common / ewald_block / vg,rcell,cewald,alpha,rcut,ncut
-   
+#include "ewald.fh"
       ewald_nshl3d = (2*ncut+1)**3
       return
       end 
 
       integer function ewald_rcell_ptr()
       implicit none
-
-*     **** common block for ewald.f ****
-      integer    ncut
-      real*8     rcut,cewald,alpha
-      integer    vg(2),rcell(2)
-      common / ewald_block / vg,rcell,cewald,alpha,rcut,ncut
-
+#include "ewald.fh"
       ewald_rcell_ptr = rcell(1)
       return
       end
@@ -58,14 +32,7 @@
 
       real*8 function ewald_mandelung()
       implicit none 
-
-
-*     **** common block for ewald.f ****
-      integer    ncut
-      real*8     rcut,cewald,alpha
-      integer    vg(2),rcell(2)
-      common / ewald_block / vg,rcell,cewald,alpha,rcut,ncut
-   
+#include "ewald.fh"
       ewald_mandelung = alpha
       return
       end 
@@ -196,12 +163,7 @@ c           sum = sum + yerfc/ea
       implicit none 
 
 #include "mafdecls.fh"
-
-*     **** common block for ewald.f ****
-      integer    ncut
-      real*8     rcut,cewald,alpha
-      integer    vg(2),rcell(2)
-      common / ewald_block / vg,rcell,cewald,alpha,rcut,ncut
+#include "ewald.fh"
 
       logical value
 
@@ -214,16 +176,10 @@ c           sum = sum + yerfc/ea
  
       subroutine ewald_init()
       implicit none 
-#include "errquit.fh"
 
 #include "mafdecls.fh"
-
-
-*     **** common block for ewald.f ****
-      integer    ncut
-      real*8     rcut,cewald,alpha
-      integer    vg(2),rcell(2)
-      common / ewald_block / vg,rcell,cewald,alpha,rcut,ncut
+#include "errquit.fh"
+#include "ewald.fh"
 
 *     **** local variables ****
       integer nfft3d,G(3)
@@ -387,15 +343,10 @@ c      call D3dB_t_dsum(1,dbl_mb(vg(1)),cewald)
 *     ***********************************
       real*8 function ewald_e()
       implicit none
-#include "errquit.fh"
+
 #include "mafdecls.fh"
-
-
-*     **** common block for ewald.f ****
-      integer    ncut
-      real*8     rcut,cewald,alpha
-      integer    vg(2),rcell(2)
-      common / ewald_block / vg,rcell,cewald,alpha,rcut,ncut
+#include "errquit.fh"
+#include "ewald.fh"
 
 *     ****  expansion coefficient of the error function ****
 c     real*8 cerfc,b1,b2,b3,b4,b5,b6
@@ -426,8 +377,8 @@ c     real*8     tmp3(nfft3d*2)
       external lattice_omega,psp_zv,dsum,ion_rion,util_erfc
 
       call nwpw_timing_start(21)
-      call Parallel2d_np_i(np)
-      call Parallel2d_taskid_i(taskid)
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
 
 *     **** allocate temp workspace ****
 c      call D3dB_nfft3d(1,nfft3d)
@@ -491,7 +442,7 @@ c          dbl_mb(ft(1)+(l-1))=zz*erfc**4/r
       dutask = mod(dutask+1,np)
       end do
       end do
-      if (np.gt.1) call D3dB_SumAll(etmp)
+      if (np.gt.1) call Parallel_SumAll(etmp)
       energy = energy + etmp
       
 
@@ -517,17 +468,11 @@ c          dbl_mb(ft(1)+(l-1))=zz*erfc**4/r
 
       subroutine ewald_f(fion)
       implicit none
-#include "errquit.fh"
       real*8  fion(3,*)
 
 #include "mafdecls.fh"
-
-*     **** common block for ewald.f ****
-      integer    ncut
-      real*8     rcut,cewald,alpha
-      integer    vg(2),rcell(2)
-      common / ewald_block / vg,rcell,cewald,alpha,rcut,ncut
-
+#include "errquit.fh"
+#include "ewald.fh"
 
 *     ****  expansion coefficient of the error function ****
       real*8 cerfc
@@ -561,8 +506,8 @@ c     real*8     tmp3(nfft3d*2)
       external lattice_omega,psp_zv,dsum,ion_rion,util_erfc
 
       call nwpw_timing_start(21)
-      call Parallel2d_np_i(np)
-      call Parallel2d_taskid_i(taskid)
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
       nion = ion_nion()
 
 *     **** allocate temp workspace ****
@@ -681,10 +626,12 @@ c          erfc = 1.0d0/erfc**4
       dutask = mod((dutask+1),np)
       end do
       end do
+      if (np.gt.1) then
+          call Parallel_Vector_SumAll(nion,dbl_mb(fx(1)))
+          call Parallel_Vector_SumAll(nion,dbl_mb(fy(1)))
+          call Parallel_Vector_SumAll(nion,dbl_mb(fz(1)))
+      end if
 
-      if (np.gt.1) call D3dB_Vector_SumAll(nion,dbl_mb(fx(1)))
-      if (np.gt.1) call D3dB_Vector_SumAll(nion,dbl_mb(fy(1)))
-      if (np.gt.1) call D3dB_Vector_SumAll(nion,dbl_mb(fz(1)))
       do i=1,nion
          fion(1,i) = fion(1,i) + dbl_mb(fx(1)+i-1)
          fion(2,i) = fion(2,i) + dbl_mb(fy(1)+i-1)
@@ -712,20 +659,14 @@ c          erfc = 1.0d0/erfc**4
 
       subroutine ewald_stress(stress)
       implicit none
-#include "errquit.fh"
       real*8  stress(3,3)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
+#include "ewald.fh"
 
       integer N
       parameter (N=40)
-
-*     **** common block for ewald.f ****
-      integer    ncut
-      real*8     rcut,cewald,alpha
-      integer    vg(2),rcell(2)
-      common / ewald_block / vg,rcell,cewald,alpha,rcut,ncut
-
 
 *     **** common block used for coulomb.f ****
 *     real*8 vc(nfft3d)

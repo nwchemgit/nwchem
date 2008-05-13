@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.50 2007-10-01 23:02:44 bylaska Exp $
+* $Id: electron.F,v 1.51 2008-05-13 02:10:27 bylaska Exp $
 *
 
 
@@ -318,8 +318,7 @@ c      end
            eorbit = eorbit + sum
          end do
       end do
-      call D3dB_SumAll(eorbit)
-      call D1dB_SumAll(eorbit)
+      call Parallel_SumAll(eorbit)
       if (ispin.eq.1) eorbit = eorbit+eorbit
 
            
@@ -421,8 +420,7 @@ c      end
 
          end do
       end do
-      call D3dB_SumAll(eorbit)
-      call D1dB_SumAll(eorbit)
+      call Parallel_SumAll(eorbit)
       if (ispin.eq.1) eorbit = eorbit+eorbit
 
            
@@ -2100,8 +2098,7 @@ c    >                         sum)
             elocal = elocal + sum*scal1*scal2
          end do
       end do
-      if (np.gt.1) call D3dB_SumAll(elocal)
-      if (np.gt.1) call D1dB_SumAll(elocal)
+      if (np.gt.1) call Parallel_SumAll(elocal)
       if (ispin.eq.1) elocal = 2.0d0*elocal
 
 *     *** add in long range part of psp ****
@@ -2155,15 +2152,14 @@ c    >                         sum)
 
 *     **** local variables ****
       logical value
-      integer i,n,ms,n1(2),n2(2),np_i,np_j
+      integer i,n,ms,n1(2),n2(2),np
       integer nee(2)
       integer n2ft3d
       real*8 enlocal,sum
       integer tmp1(2),tmp2(2)
 
 
-      call Parallel2d_np_i(np_i)
-      call Parallel2d_np_j(np_j)
+      call Parallel_np(np)
 
       n2ft3d = 2*nfft3d
       value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
@@ -2199,8 +2195,7 @@ c    >                         sum)
             enlocal = enlocal - sum
          end do
       end do
-      if (np_i.gt.1) call D3dB_SumAll(enlocal)
-      if (np_j.gt.1) call D1dB_SumAll(enlocal)
+      if (np.gt.1) call Parallel_SumAll(enlocal)
       if (ispin.eq.1) enlocal = enlocal+enlocal
 
  

@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.30 2007-11-17 01:39:00 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.31 2008-05-13 02:10:43 bylaska Exp $
 c
 
 ***********************************************************
@@ -66,7 +66,9 @@ c
          if (control_version().eq.3) then
             nshl3d   = ewald_nshl3d()
             rcell(1) = ewald_rcell_ptr()
+            periodic = .true. 
          else
+            periodic = .false.
             nshl3d = 1
             if (.not.MA_alloc_get(mt_dbl,3,'rcell',rcell(2),rcell(1))) 
      >      call errquit(
@@ -401,7 +403,7 @@ c
         call pspw_LJ_init(rtdb)
 
 *       ***** make sure mm fragments are in cell ****
-        call pspw_qmmm_incell1(dbl_mb(ion_rion_ptr()))
+        if (periodic) call pspw_qmmm_incell1(dbl_mb(ion_rion_ptr()))
 
 
 *       ***** write out header info ****
@@ -1108,6 +1110,7 @@ c     **** external functions ***
          call pspw_qmmm_Q_fion(dbl_mb(ftmp(1)))
          call pspw_qmmm_spring_fion(dbl_mb(ftmp(1)))
          call Parallel_Vector_SumAll(nion3,dbl_mb(ftmp(1)))
+
          call daxpy(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
 

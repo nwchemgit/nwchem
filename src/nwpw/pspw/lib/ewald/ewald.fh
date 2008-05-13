@@ -1,0 +1,14 @@
+*
+* $Id: ewald.fh,v 1.1 2008-05-13 02:10:31 bylaska Exp $
+*
+
+*     **** common block for ewald.f ****
+      logical    egrid_on
+      integer    egrid(3)
+      integer    ncut
+      real*8     rcut,cewald,alpha
+      integer    vg(2),rcell(2)
+      common / ewald_block / egrid,vg,rcell,cewald,alpha,rcut,ncut,
+     >                       egrid_on
+
+

@@ -1,5 +1,5 @@
 *
-* $Id: cstrfac.F,v 1.12 2008-04-23 01:32:13 bylaska Exp $
+* $Id: cstrfac.F,v 1.13 2008-05-13 02:10:22 bylaska Exp $
 *
 
 *     ***********************************
@@ -27,7 +27,7 @@
 
       nion       = ion_nion()
       nbrillq    = brillioun_nbrillq()
-      call Parallel_taskid(taskid)
+      call Parallel3d_taskid_i(taskid)
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
@@ -390,7 +390,7 @@ C
 
       call nwpw_timing_start(8)
 
-      call Parallel_taskid(taskid)
+      call Parallel3d_taskid_i(taskid)
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)

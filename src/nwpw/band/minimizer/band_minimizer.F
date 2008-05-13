@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.60 2008-04-23 01:32:01 bylaska Exp $
+* $Id: band_minimizer.F,v 1.61 2008-05-13 02:09:59 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -215,7 +215,7 @@ c      external      cpsp_comment
       call c_G_init()
       call brillioun_init()
       call Pbrillioun_init()
-      call Cram_init()
+      call Cram_Init()
       call C3dB_pfft_init()
 
 

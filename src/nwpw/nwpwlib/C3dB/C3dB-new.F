@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.28 2008-04-22 17:42:22 bylaska Exp $
+* $Id: C3dB-new.F,v 1.29 2008-05-13 02:10:16 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -737,64 +737,6 @@ c     p = p_map(k)
 
       return
       end
-
-*     ***********************************
-*     *					*
-*     *	        C3dB_SumAll		*	
-*     *					*
-*     ***********************************
-
-      subroutine C3dB_SumAll(sum)
-c     implicit none
-      real*8  sum
-
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-
-      integer MASTER
-      parameter (MASTER=0)
-      integer msglen
-      real*8 sumall,sumt
-    
-      msglen = 1
-      sumt = sum
-      call GA_DGOP(9+MSGDBL,sumt,1,'+')
-c     call DGOP(9+MSGDBL,sumt,1,'+')
-      sumall=sumt
-
-      sum = sumall
-      return
-      end
-
-*     ***********************************
-*     *					*
-*     *	        C3dB_ISumAll		*	
-*     *					*
-*     ***********************************
-
-      subroutine C3dB_ISumAll(sum)
-c     implicit none
-      integer  sum
-
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-
-      integer MASTER
-      parameter (MASTER=0)
-      integer msglen
-      integer sumall,sumt
-    
-      msglen = 1
-
-      sumt = sum
-
-      call GA_IGOP(9+MSGINT,sumt,1,'+')
-      sumall=sumt
-
-      sum = sumall
-      return
-      end
-
 
 
 *     ***********************************
@@ -1602,7 +1544,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 #include "errquit.fh"
 #include "C3dB.fh"
 
-
+c#include "mpif.h"
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -1622,6 +1564,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       integer taskid_j,np_j
       integer taskid_k,np_k
       integer ii,jj,kk,jstart,jend,kstart,kend
+      integer msgtype
+      real*8 dum
+c      integer mpierr,mstatus(MPI_STATUS_SIZE)
 
 *     **** external functions ****
       integer  Parallel3d_convert_taskid_ijk
@@ -1651,8 +1596,6 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
          kend   = kcol
          fillzone = (taskid_k.eq.kcol)
       endif
-
-
 
       !**********************
       !**** slab mapping ****
@@ -1686,11 +1629,10 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
             call C3dB_ktoqp(nb,k,q,ii)
             p_here = Parallel3d_convert_taskid_ijk(ii,taskid_j,taskid_k)
             if (p_here.eq.taskid) then
-               msglen = nx(nb)*ny(nb)
-               source  = MASTER
+               msglen  = nx(nb)*ny(nb)
+               source   = MASTER
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
-     >                       source,rcv_proc,1)
-
+     >                  source,rcv_proc,1)
                index = 1 + (q-1)*nx(nb)*ny(nb)
                call dcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
             end if
@@ -3192,129 +3134,6 @@ c      call Parallel3d_np_i(np)
 
 
 
-
-
-*     ***********************************
-*     *					*
-*     *	        C3dB_Vector_SumAll	*	
-*     *					*
-*     ***********************************
-
-      subroutine C3dB_Vector_SumAll(n,sum1)
-c     implicit none
-      integer n
-      real*8  sum1(*)
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-
-
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-
-
-      integer MASTER
-      parameter (MASTER=0)
-      integer msglen
-      logical value
-
-*     **** temporary workspace ****
-      integer sumall(2)
-
-      call nwpw_timing_start(2)
-
-*     ***** allocate temporary space ****
-      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) 
-     > call errquit('C3dB_Vector_SumAll:out of stack memory',0, MA_ERR)
-
-      msglen = n
-
-      call dcopy(n,sum1,1,dbl_mb(sumall(1)),1)
-      call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
-c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
-
-      call dcopy(n,dbl_mb(sumall(1)),1,sum1,1)
-
-      value = MA_pop_stack(sumall(2))
-      if (.not. value) 
-     > call errquit('C3dB_Vector_SumAll:error popping stack',0, MA_ERR)
-
-      call nwpw_timing_end(2)
-      return
-      end
-
-
-*     ***********************************
-*     *					*
-*     *	        C3dB_Vector_ISumAll	*	
-*     *					*
-*     ***********************************
-
-      subroutine C3dB_Vector_ISumAll(n,sum)
-c     implicit none
-      integer n
-      integer  sum(*)
-
-
-
-
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#include "mafdecls.fh"
-#include "errquit.fh"
-
-
-      integer MASTER
-      parameter (MASTER=0)
-      integer msglen
-      logical value
-
-*     **** temporary workspace ****
-      integer sumall(2)
-
-
-      call nwpw_timing_start(2)
-
-*     ***** allocate temporary space ****
-      value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-      msglen = n
-
-
-
-      call icopy(n,sum,1,int_mb(sumall(1)),1)
-      call GA_IGOP(9+MSGINT,int_mb(sumall(1)),n,'+')
-
-
-      call icopy(n,int_mb(sumall(1)),1,sum,1)
-      value = MA_pop_stack(sumall(2))
-
-      call nwpw_timing_end(2)
-      return
-      end
-
-c *** icopy defined in src/util directory!!!
-c      subroutine icopy(n,a,inca,b,incb)
-c      integer n
-c      integer a(*),inca
-c      integer b(*),incb
-c
-c      integer i,shifta,shiftb
-c
-c      shifta = 1
-c      shiftb = 1
-c      do i=1,n
-c        b(shiftb)=a(shifta)
-c        shifta=shifta+inca
-c        shiftb=shiftb+incb
-c      end do
-c
-c      return
-c      end
-
-
 *     ***********************************
 *     *                                 *
 *     *          C3dB_ic_Mul            *
@@ -3336,158 +3155,6 @@ c      end
             C(i) = dcmplx(0.0d0,A(i)) * B(i)
       end do
 
-      return
-      end
-
-
-
-*     *******************************************
-*     *						*
-*     *	       C3dB_r_FormatWrite_reverse	*	
-*     *						*
-*     *******************************************
-
-      subroutine C3dB_r_FormatWrite_reverse(nb,iunit,A,tmp)
-      implicit none 
-      integer nb
-      integer iunit
-      real*8     A(*)
-      real*8     tmp(*)
-
-#include "C3dB.fh"
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-
-      integer rcv_len,rcv_proc
-
-      
-*     *** local variables ***
-      integer MASTER,taskid
-      parameter(MASTER=0)
-      integer p_from, p_here,q
-      integer i,j,k,index
-      integer dest,source,status,msglen,idum
-
-      call Parallel3d_taskid_i(taskid)
-
-      !**********************
-      !**** slab mapping ****
-      !**********************
-      if (mapping.eq.1) then
-
-*     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
-         do i=1,nx(nb)
-         do j=1,ny(nb)
-
-            do k=1,nz(nb)
-              call C3dB_ktoqp(nb,k,q,p_from)
-              if (p_from.eq.MASTER) then
-                 index = (q-1)*(nx(nb))*ny(nb) 
-     >                 + (j-1)*(nx(nb)) + i
-                 tmp(k) = A(index)
-              else
-                 msglen  = 1
-                 status  = msglen
-                 source  = p_from
-
-                 call SND(9+MSGINT,idum,mitob(msglen),source,1)
-                 call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
-     >                         source,rcv_proc,1)
-
-              end if
-            end do
-            write(iunit,'(6E13.5)') (tmp(k), k=1,nz(nb))
-       
-         end do
-         end do
-
-*     **** not master node ****
-      else
-         do i=1,nx(nb)
-         do j=1,ny(nb)
-
-            do k=1,nz(nb)
-              call C3dB_ktoqp(nb,k,q,p_here)
-              if (p_here.eq.taskid) then
-
-                 index = (q-1)*(nx(nb))*ny(nb) 
-     >                 + (j-1)*(nx(nb)) + i
-                 tmp(1) = A(index)
-
-                 msglen  = 1
-                 dest    = MASTER
-
-                 call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
-     >                         dest,rcv_proc,1)
-                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
-
-              end if
-            end do
-
-         end do
-         end do
-      end if
-
-      !*************************
-      !**** hilbert mapping ****
-      !*************************
-      else
-
-*     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
-         do i=1,nx(nb)
-         do j=1,ny(nb)
-
-            do k=1,nz(nb)
-              call C3dB_ijktoindex2p(nb,i,j,k,index,p_from)
-              if (p_from.eq.MASTER) then
-                 tmp(k) = A(index)
-              else
-                 msglen  = 1
-                 status  = msglen
-                 source  = p_from
-
-                 call SND(9+MSGINT,idum,mitob(msglen),source,1)
-                 call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
-     >                         source,rcv_proc,1)
-
-              end if
-            end do
-            write(iunit,'(6E13.5)') (tmp(k), k=1,nz(nb))
-
-         end do
-         end do
-
-*     **** not master node ****
-      else
-         do i=1,nx(nb)
-         do j=1,ny(nb)
-
-            do k=1,nz(nb)
-              call C3dB_ijktoindex2p(nb,i,j,k,index,p_from)
-
-              if (p_here.eq.taskid) then
-
-                 tmp(1) = A(index)
-
-                 msglen  = 1
-                 dest    = MASTER
-
-                 call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
-     >                         dest,rcv_proc,1)
-                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
-
-              end if
-            end do
-
-         end do
-         end do
-      end if
-
-      end if
-
-*     **** wait ****
       return
       end
 

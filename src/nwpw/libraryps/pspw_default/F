@@ -1,5 +1,5 @@
 #
-# $Id: F,v 1.3 2007-08-28 01:05:52 bylaska Exp $
+# $Id: F,v 1.4 2008-05-13 02:10:13 bylaska Exp $
 #
 Comment: F pseudopotential parameters
 Comment: Fitted 12-27-04
@@ -21,9 +21,9 @@ F
 <solver>          pauli         <end>
 <pseudopotential> troullier-martins    <end>
 <rcut> 
-   0    1.3876018
-   1    1.3876018
+   0    1.2000000
+   1    1.2000000
 <end>
 
-<semicore> 0.32   <end>
-<semicore_type> quadratic <end>
+#<semicore> 0.32   <end>
+#<semicore_type> quadratic <end>

@@ -1,5 +1,5 @@
 *
-* $Id: v_psi_read.F,v 1.6 2007-09-24 16:58:14 bylaska Exp $
+* $Id: v_psi_read.F,v 1.7 2008-05-13 02:10:36 bylaska Exp $
 *
 
 *     ***********************************
@@ -33,7 +33,7 @@
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value
+      logical value,readblock
 
 *     ***** local functions ****
       character*30 control_input_v_psi
@@ -92,11 +92,20 @@ c     **** send header to all nodes ****
 
 
 *     ***** Error checking ****
+      readblock=.true.
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
+         readblock = .false.
          if (taskid.eq.MASTER) then
-            write(6,*) "Error reading v_psi"
+            write(*,*) "Error reading v_psi, v_psi set to zero"
+            write(*,*) " - bad ngrid "
+            write(*,*) " - vpsi_ngrid(1)=",nfft(1),
+     >                 " ngrid(1)=",control_ngrid(1)
+            write(*,*) " - vpsi_ngrid(2)=",nfft(2),
+     >                 " ngrid(2)=",control_ngrid(2)
+            write(*,*) " - vpsi_ngrid(3)=",nfft(3),
+     >                 " ngrid(3)=",control_ngrid(3)
          end if
       end if
 
@@ -112,12 +121,16 @@ c     **** send header to all nodes ****
      >     (ispin     .ne.ispin0)             .or.
      >     (ne(1)     .ne.ne0(1))             .or.
      >     (ne(2)     .ne.ne0(2))  ) then
-         call errquit(
-     >      'Error reading wavefunction velocities', 0, DISK_ERR)
+         readblock = .false.
+         if (taskid.eq.MASTER) then
+            write(6,*) "Error reading v_psi, v_psi set to zero"
+            write(6,*) " - incorrect unitcell,ispin, or ne"
+         end if
       end if
 
 
 *     *** read in 3d blocks ***
+      if (readblock) then
       do n=1,(ne(1)+ne(2))
          call Dneall_ntoqp(n,q,pj) 
          call D3dB_c_read(1,5,dcpl_mb(tmp2(1)),
@@ -127,6 +140,7 @@ c     **** send header to all nodes ****
            call Pack_c_Copy(1,dcpl_mb(tmp2(1)),psi2(1+(q-1)*npack1))
          end if
       end do
+      end if
 
 *     *** close ELCIN binary file ***
       if (taskid.eq.MASTER) then

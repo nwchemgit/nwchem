@@ -1,5 +1,5 @@
 *
-* $Id: lattice.f,v 1.11 2007-03-27 02:02:48 bylaska Exp $
+* $Id: lattice.f,v 1.12 2008-05-13 02:10:22 bylaska Exp $
 *
 
       subroutine lattice_min_difference(x,y,z)
@@ -641,7 +641,7 @@ c     call D3dB_nz(1,nz)
 
 
 *     **** constants ****
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
       call D3dB_nx(1,np1)

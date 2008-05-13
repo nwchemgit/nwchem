@@ -1,5 +1,5 @@
 *
-* $Id: c_balance.F,v 1.1 2007-04-11 23:41:15 bylaska Exp $
+* $Id: c_balance.F,v 1.2 2008-05-13 02:10:22 bylaska Exp $
 *
 
 *     ***********************************
@@ -26,8 +26,8 @@
 
 
       maxsize = maxsize0
-      call Parallel_np(np)
-      call Parallel_taskid(taskid)
+      call Parallel3d_np_i(np)
+      call Parallel3d_taskid_i(taskid)
 
 *     **** allocate balance memory ****
       value =  MA_alloc_get(mt_int,2*maxsize,
@@ -375,6 +375,9 @@ c        ave = ave + nwave2(i)
       integer pto,pfrom,msglen,indx
 
 *     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
+
 
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
@@ -386,7 +389,7 @@ c            send data....
                call SND(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(2*msglen),
-     >                  pto,
+     >                  Parallel3d_convert_taskid_i(pto),
      >                  1)
             end if
   
@@ -404,7 +407,7 @@ c            recieve data....
                call RCV(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(2*msglen),rcv_len,
-     >                  pfrom,
+     >                  Parallel3d_convert_taskid_i(pfrom),
      >                  rcv_proc,1)
             end if
 
@@ -436,6 +439,12 @@ c            recieve data....
       integer j
       integer pto,pfrom,msglen,indx
 
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
+
+
+
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
             pto    = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)    
@@ -446,7 +455,7 @@ c            send data....
                call SND(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(msglen),
-     >                  pto,
+     >                  Parallel3d_convert_taskid_i(pto),
      >                  1)
             end if
    
@@ -464,7 +473,7 @@ c            recieve data....
                call RCV(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(msglen),rcv_len,
-     >                  pfrom,
+     >                  Parallel3d_convert_taskid_i(pfrom),
      >                  rcv_proc,1)
             end if
 
@@ -497,6 +506,12 @@ c            recieve data....
       integer j
       integer pto,pfrom,msglen,indx
 
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
+
+
+
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
             pfrom  = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)
@@ -507,7 +522,7 @@ c            recieve data....
                call RCV(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(2*msglen),rcv_len,
-     >                  pfrom,
+     >                  Parallel3d_convert_taskid_i(pfrom),
      >                  rcv_proc,1)
             end if
   
@@ -524,7 +539,7 @@ c            send data....
                call SND(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(2*msglen),
-     >                  pto,1)
+     >                  Parallel3d_convert_taskid_i(pto),1)
             end if
 
          end do
@@ -557,8 +572,8 @@ c            send data....
       integer pto,pfrom,msglen,indx
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
 
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
@@ -570,7 +585,7 @@ c            send data....
                call SND(9+MSGINT,
      >                  A(indx),
      >                  mitob(msglen),
-     >                  pto,1)
+     >                  Parallel3d_convert_taskid_i(pto),1)
             end if
   
 
@@ -587,7 +602,7 @@ c            recieve data....
                call RCV(9+MSGINT,
      >                  A(indx),
      >                  mitob(msglen),rcv_len,
-     >                  pfrom,
+     >                  Parallel3d_convert_taskid_i(pfrom),
      >                  rcv_proc,1)
             end if
 

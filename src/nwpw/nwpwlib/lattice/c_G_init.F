@@ -1,5 +1,5 @@
 c
-c $Id: c_G_init.F,v 1.4 2007-02-08 22:18:05 bylaska Exp $
+c $Id: c_G_init.F,v 1.5 2008-05-13 02:10:22 bylaska Exp $
 c
 
       integer function c_G_indx(i)
@@ -56,7 +56,7 @@ c
         G(2) = G(1) + nfft3d
         G(3) = G(2) + nfft3d
 
-        call Parallel_taskid(taskid)
+        call Parallel3d_taskid_i(taskid)
         call C3dB_nx(1,nx)
         call C3dB_ny(1,ny)
         call C3dB_nz(1,nz)

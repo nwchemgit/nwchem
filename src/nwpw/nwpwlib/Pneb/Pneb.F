@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.37 2008-04-23 01:32:06 bylaska Exp $
+* $Id: Pneb.F,v 1.38 2008-05-13 02:10:18 bylaska Exp $
 *
 #define NBLOCKS 4
 
@@ -783,7 +783,7 @@ c     ****************************************
       external Pneb_m_size
 
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
       nsize = Pneb_m_size(mb,nbb)
       if (mb.eq.0) then
          ms1 = 1
@@ -858,7 +858,7 @@ c     ****************************************
       external Pneb_w_size
 
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
       nsize = Pneb_w_size(mb,nbb)
       if (mb.eq.0) then
          ms1 = 1
@@ -932,7 +932,7 @@ c     ****************************************
       integer  Pneb_w_size
       external Pneb_w_size
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
       nsize = Pneb_w_size(mb,nbb)
       if (mb.eq.0) then
          ms1 = 1
@@ -2213,7 +2213,7 @@ c     ****************************************
       integer np
       real*8 m1,m2,sum
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
       nemax = ne(1)+ne(2)
 

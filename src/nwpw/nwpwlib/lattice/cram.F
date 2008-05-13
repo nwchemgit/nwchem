@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.30 2008-04-23 01:32:13 bylaska Exp $
+* $Id: cram.F,v 1.31 2008-05-13 02:10:22 bylaska Exp $
 *
 
 *     ***********************************
@@ -33,13 +33,12 @@
 
 *     **** external functions ****
       logical  cloak_masker
-      integer  control_num_kvectors,brillioun_nbrillq
+      integer  brillioun_nbrillq
       real*8   lattice_ecut,lattice_wcut,brillioun_k
       external cloak_masker
-      external control_num_kvectors,brillioun_nbrillq
+      external brillioun_nbrillq
       external lattice_ecut,lattice_wcut,brillioun_k
       
-      !maxsize = control_num_kvectors()+1
       maxsize = brillioun_nbrillq()+1
 
       value = MA_alloc_get(mt_int,maxsize,
@@ -66,7 +65,7 @@
 
 
       call cloak_init()
-      call Parallel_taskid(taskid)
+      call Parallel3d_taskid_i(taskid)
       call C3dB_nfft3d(1,nfft3d)
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
@@ -666,7 +665,7 @@
 
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
       do n=1,ne
         shift = (n-1)*npack_max
@@ -713,7 +712,7 @@
 
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
       do n=1,ne
         shift = (n-1)*npack_max
@@ -915,7 +914,7 @@
       integer i
       call nwpw_timing_start(2)
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
       tsum = tzdotc(int_mb(nidb2_list(1)+nb),A,1,B,1)
 
@@ -981,7 +980,7 @@ c      integer np
       call nwpw_timing_start(2)
 
 
-c      call Parallel_np(np)
+c      call Parallel3d_np_i(np)
 
       sum = ddot(2*int_mb(nidb2_list(1)+nb),A,1,B,1)
 
@@ -1020,7 +1019,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
       sum = ddot(2*int_mb(nidb2_list(1)+nb),A,1,B,1)
 
@@ -1055,7 +1054,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
       npack1 = int_mb(nidb2_list(1)+nb)
 
       call DGEMM('T','N',n,m,2*npack1,
@@ -1176,7 +1175,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
       npack1 = int_mb(nidb2_list(1)+nb)
 
       call ZGEMM('N','N',npack1,n,m,
@@ -1251,7 +1250,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
       call nwpw_timing_start(2)
 
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
       sum = ddot(int_mb(nidb2_list(1)+nb),A(1),1,B(1),1)
 
@@ -1285,7 +1284,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       external dsum
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel3d_np_i(np)
 
       sum = dsum(int_mb(nidb2_list(1)+nb),A(1),1)
 
