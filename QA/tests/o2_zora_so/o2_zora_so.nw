@@ -26,3 +26,4 @@ relativistic
 end
 
 task sodft optimize
+task sodft freq
