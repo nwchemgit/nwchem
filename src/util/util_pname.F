@@ -1,6 +1,6 @@
       subroutine util_pname(name, pname)
 *
-* $Id: util_pname.F,v 1.6 2004-08-04 16:46:28 edo Exp $
+* $Id: util_pname.F,v 1.7 2008-05-13 16:19:09 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -25,7 +25,7 @@ c
       end
       subroutine util_pname0(name, pname,nnumber,howmany)
 *
-* $Id: util_pname.F,v 1.6 2004-08-04 16:46:28 edo Exp $
+* $Id: util_pname.F,v 1.7 2008-05-13 16:19:09 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -64,9 +64,15 @@ c
       else if (p .lt. 1000) then
          write(pname(i+1:i+4),3) nnumber
  3       format('.',i3.3)
-      else 
+      else if (p .lt. 10000) then
          write(pname(i+1:i+5),4) nnumber
  4       format('.',i4.4)
+      else if (p .lt. 100000) then
+         write(pname(i+1:i+6),5) nnumber
+ 5       format('.',i5.5)
+      else 
+         write(pname(i+1:i+7),6) nnumber
+ 6       format('.',i6.6)
       endif
 c
       end
