@@ -194,7 +194,6 @@ c
       call smd_namespace_create(namespace)
 
       call smd_data_namespace_rtdb_get(rtdb,namespace,"smd")
-      call smd_data_namespace_print(namespace,88)
       oldmode = rtdb_parallel(oldmode)
       end 
 
@@ -304,7 +303,6 @@ c
       pname = "smd_rtdb_get_string"
 
       call smd_system_get_component(sname,"rtdb",result)
-      call smd_data_namespace_print(sname,6)
       if(.not.result) call errquit(pname//"no rtdb component",0,0)
       call smd_data_get_string(sname,dname,ndim,datum,result)
       return

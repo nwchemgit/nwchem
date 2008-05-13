@@ -291,10 +291,10 @@ c     -------------------
 c
       if (token.eq.'end') then
 c        write(luout,*) "out of ",pname
-        write(*,*) "RTDB after smd"
-        if(.not.rtdb_print(rtdb,.true.))
-     >      call errquit(pname//'failed to print rtdb',0,
-     >       RTDB_ERR)
+c        write(*,*) "RTDB after smd"
+c        if(.not.rtdb_print(rtdb,.true.))
+c     >      call errquit(pname//'failed to print rtdb',0,
+c     >       RTDB_ERR)
         return
       endif
 c

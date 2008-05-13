@@ -101,6 +101,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "util.fh"
+#include "global.fh"
       logical task_smd_energy_groups
       character*72 namespace
       character*32 pname
@@ -111,6 +112,9 @@ c
 c
       integer util_sgroup_mygroup
       external util_sgroup_mygroup
+c
+      logical smd_tasklist_get
+      external smd_tasklist_get
 c
       integer util_sgroup_numgroups
       external util_sgroup_numgroups
@@ -125,10 +129,12 @@ c
       write(*,*) "number of groups",util_sgroup_numgroups(),
      >           util_sgroup_mygroup()
 
-      
-      do i=1,util_sgroup_numgroups()
-c        call smd_monomer_energy(i)
-      end do
+99    continue
+      if(.not.smd_tasklist_get(i))
+     >  goto 100 
+      write(*,*) "got task",i,util_sgroup_mygroup()
+
+      call smd_monomer_energy(i)
 c      call smd_vlist_update(.true.,.true.)
 cc
 c      call smd_force_compute()
@@ -137,11 +143,11 @@ c      call smd_energy_compute()
 cc
 c      call smd_energy_print(6)
 c
-      call smd_end(rtdb)
 c
       if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))
      $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
 c
+      goto 99
 
       call cpu_time(etime6)
       write(luout,'(/,a,f20.3)')'Total CPU time : ',(etime6-etime1)
@@ -151,6 +157,8 @@ c
 
       write(*,*) "Goodbye from task_smd"
       task_smd_energy_groups = .true.
-
+100   continue
+      call ga_pgroup_sync(ga_pgroup_get_world())
+      call smd_end(rtdb)
       return
       END

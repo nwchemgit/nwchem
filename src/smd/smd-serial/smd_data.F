@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.19 2008-05-09 18:02:58 marat Exp $
+* $Id: smd_data.F,v 1.20 2008-05-13 20:57:03 marat Exp $
 *
 
       block data initial_smd_data
@@ -1166,7 +1166,6 @@ c
 
       result = rtdb_next(rtdb,big_buffer)
       token = big_buffer
-      write(*,*) "found token", token
       if(result) goto 300
       call smd_data_put_int(sname,"smd:rtdb_handle",1,rtdb)
 

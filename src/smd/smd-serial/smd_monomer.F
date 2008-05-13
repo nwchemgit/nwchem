@@ -29,13 +29,13 @@ c
 
       pname = "smd_monomer"
       call smd_rtdb_get_handle(rtdb)
-      if (.not.rtdb_cget(rtdb,"smd:theory",1,theory)) then
-       write(0,*) "PLEASE SET smd:theory"
-       call errquit('failed to get theory',0,0)
-      end if
+c      if (.not.rtdb_cget(rtdb,"smd:theory",1,theory)) then
+c       write(0,*) "PLEASE SET smd:theory"
+c       call errquit('failed to get theory',0,0)
+c      end if
 
       call smd_geom_monomer_create(im)
-      result = task_energy_doit(rtdb,theory,qm_energy)
+      result = task_energy_doit(rtdb,"dft",qm_energy)
 
       call smd_geom_monomer_end()
 

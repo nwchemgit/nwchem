@@ -93,7 +93,6 @@ c
      >  call errquit(
      >       pname//'error setting formal charge',0, RTDB_ERR)
 
-      call smd_data_namespace_print(namespace,6)
       return
       end
 
