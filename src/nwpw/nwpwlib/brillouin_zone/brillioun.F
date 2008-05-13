@@ -1,5 +1,5 @@
 *
-* $Id: brillioun.F,v 1.3 2008-04-23 01:32:10 bylaska Exp $
+* $Id: brillioun.F,v 1.4 2008-05-13 20:53:02 bylaska Exp $
 *
 
 *     ***********************************
@@ -37,6 +37,9 @@
      >       MA_alloc_get(mt_dbl,(3*nbrillq),'ks',ks(2),ks(1))
       value =value.and.
      >       MA_alloc_get(mt_dbl,(3*nbrillq),'kv',kv(2),kv(1))
+      value =value.and.
+     >       MA_alloc_get(mt_dbl,(3*nbrillioun),'kv_all',
+     >                    kv_all(2),kv_all(1))
       if (.not. value)
      > call errquit('brillioun_init:out of heap memory',0, MA_ERR)
 
@@ -53,6 +56,13 @@
          dbl_mb(ks(1)+3*(nbq-1)+1)  = ksvec(2)
          dbl_mb(ks(1)+3*(nbq-1)+2)  = ksvec(3)
          dbl_mb(weight(1)+nbq-1)    = ksvec(4)
+      end do
+
+      do nb=1,nbrillioun
+         call control_kvector(nb,kvec)
+         dbl_mb(kv_all(1)+3*(nb-1))    = kvec(1)
+         dbl_mb(kv_all(1)+3*(nb-1)+1)  = kvec(2)
+         dbl_mb(kv_all(1)+3*(nb-1)+2)  = kvec(3)
       end do
 
 
@@ -113,6 +123,9 @@
      >        MA_alloc_get(mt_dbl,(3*nbrillioun),'ks',ks(2),ks(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,(3*nbrillioun),'kv',kv(2),kv(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(3*nbrillioun),
+     >                     'kv_all',kv_all(2),kv_all(1))
       if (.not. value)
      > call errquit('brillioun_structure_init:out of heap memory',
      >              0,MA_ERR)
@@ -123,6 +136,10 @@
       dbl_mb(kv(1))    = kvec(1)
       dbl_mb(kv(1)+1)  = kvec(2)
       dbl_mb(kv(1)+2)  = kvec(3)
+
+      dbl_mb(kv_all(1))    = kvec(1)
+      dbl_mb(kv_all(1)+1)  = kvec(2)
+      dbl_mb(kv_all(1)+2)  = kvec(3)
 
       dbl_mb(ks(1))    = ksvec(1)
       dbl_mb(ks(1)+1)  = ksvec(2)
@@ -141,9 +158,9 @@
 *     ***********************************
       subroutine brillioun_end()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "brillioun_common.fh"
 
 *     **** local variables ****
@@ -154,6 +171,7 @@
       value =           MA_free_heap(weight(2))
       value = value.and.MA_free_heap(ks(2))
       value = value.and.MA_free_heap(kv(2))
+      value = value.and.MA_free_heap(kv_all(2))
       if (.not. value)
      > call errquit('brillioun_end:freeing heap memory',0, MA_ERR)
 
@@ -237,6 +255,24 @@
 #include "brillioun_common.fh"
 
       brillioun_k = dbl_mb(kv(1)+3*(nbq-1)+i-1)
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *           brillioun_all_k       *
+*     *                                 *
+*     ***********************************
+      real*8 function brillioun_all_k(i,nb)
+      implicit none
+      integer i,nb
+
+#include "mafdecls.fh"
+#include "brillioun_common.fh"
+
+      brillioun_all_k = dbl_mb(kv_all(1)+3*(nb-1)+i-1)
       return
       end
 

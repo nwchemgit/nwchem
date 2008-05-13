@@ -1,7 +1,6 @@
-#define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.29 2008-05-13 02:10:16 bylaska Exp $
+* $Id: C3dB-new.F,v 1.30 2008-05-13 20:52:58 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -244,10 +243,12 @@
       integer i2_start(2,NBLOCKS)
       common / c_trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
 
+#ifndef MPI
       integer Nchannels(NBLOCKS)
       integer channel_proc(2,NBLOCKS)
       integer channel_type(2,NBLOCKS)
       common / c_channel_blk / channel_proc,channel_type,Nchannels
+#endif
 
       logical value
       integer i
@@ -294,8 +295,11 @@
 
 
 
+#ifndef MPI
       value = value.and.MA_free_heap(channel_proc(2,nb))
       value = value.and.MA_free_heap(channel_type(2,nb))
+#endif
+
       if (.not. value)
      > call errquit('C3dB_end:freeing heap memory',0, MA_ERR)
       return
@@ -732,7 +736,11 @@ c     p = p_map(k)
       call Mapping_Init_C3dB(nb)
       if (mapping.eq.1) call C3dB_c_transpose_jk_init(nb)
       if (mapping.eq.2) call C3dB_c_transpose_ijk_init(nb)
+
+#ifndef MPI
       call C3dB_channel_init(nb)
+#endif
+
       call C3dB_fft_init(nb)
 
       return
@@ -2271,12 +2279,10 @@ c     integer i2_start(NFFT3+1)
 
 #include "mafdecls.fh"
 #include "C3dB.fh"
-
-
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-      integer rcv_len,rcv_proc
 
+      integer rcv_len,rcv_proc
       
 *     *** local variables ***
       integer MASTER,taskid
@@ -2399,6 +2405,159 @@ c     integer i2_start(NFFT3+1)
       call ga_sync()
       return
       end
+
+
+
+*     *******************************************
+*     *						*
+*     *	       C3dB_r_FormatWrite_reverse	*	
+*     *						*
+*     *******************************************
+
+      subroutine C3dB_r_FormatWrite_reverse(nb,iunit,A,tmp)
+      implicit none 
+      integer nb
+      integer iunit
+      real*8     A(*)
+      real*8     tmp(*)
+
+#include "C3dB.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+      integer rcv_len,rcv_proc
+
+      
+*     *** local variables ***
+      integer MASTER,taskid
+      parameter(MASTER=0)
+      integer p_from, p_here,q
+      integer i,j,k,index
+      integer dest,source,status,msglen,idum
+
+      call Parallel3d_taskid_i(taskid)
+
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do i=1,nx(nb)
+         do j=1,ny(nb)
+
+            do k=1,nz(nb)
+              call C3dB_ktoqp(nb,k,q,p_from)
+              if (p_from.eq.MASTER) then
+                 index = (q-1)*(nx(nb))*ny(nb) 
+     >                 + (j-1)*(nx(nb)) + i
+                 tmp(k) = A(index)
+              else
+                 msglen  = 1
+                 status  = msglen
+                 source  = p_from
+
+                 call SND(9+MSGINT,idum,mitob(msglen),source,1)
+                 call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
+     >                         source,rcv_proc,1)
+
+              end if
+            end do
+            write(iunit,'(6E13.5)') (tmp(k), k=1,nz(nb))
+       
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do i=1,nx(nb)
+         do j=1,ny(nb)
+
+            do k=1,nz(nb)
+              call C3dB_ktoqp(nb,k,q,p_here)
+              if (p_here.eq.taskid) then
+
+                 index = (q-1)*(nx(nb))*ny(nb) 
+     >                 + (j-1)*(nx(nb)) + i
+                 tmp(1) = A(index)
+
+                 msglen  = 1
+                 dest    = MASTER
+
+                 call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
+     >                         dest,rcv_proc,1)
+                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
+
+              end if
+            end do
+
+         end do
+         end do
+      end if
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do i=1,nx(nb)
+         do j=1,ny(nb)
+
+            do k=1,nz(nb)
+              call C3dB_ijktoindex2p(nb,i,j,k,index,p_from)
+              if (p_from.eq.MASTER) then
+                 tmp(k) = A(index)
+              else
+                 msglen  = 1
+                 status  = msglen
+                 source  = p_from
+
+                 call SND(9+MSGINT,idum,mitob(msglen),source,1)
+                 call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
+     >                         source,rcv_proc,1)
+
+              end if
+            end do
+            write(iunit,'(6E13.5)') (tmp(k), k=1,nz(nb))
+
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do i=1,nx(nb)
+         do j=1,ny(nb)
+
+            do k=1,nz(nb)
+              call C3dB_ijktoindex2p(nb,i,j,k,index,p_from)
+
+              if (p_here.eq.taskid) then
+
+                 tmp(1) = A(index)
+
+                 msglen  = 1
+                 dest    = MASTER
+
+                 call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
+     >                         dest,rcv_proc,1)
+                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
+
+              end if
+            end do
+
+         end do
+         end do
+      end if
+
+      end if
+
+*     **** wait ****
+      return
+      end
+
 
 
 *     ***********************************

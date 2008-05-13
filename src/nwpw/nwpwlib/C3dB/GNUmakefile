@@ -1,15 +1,15 @@
 #
-# $Id: GNUmakefile,v 1.10 2008-05-13 02:10:16 bylaska Exp $
+# $Id: GNUmakefile,v 1.11 2008-05-13 20:52:58 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = C3dB-new.o c_trans.o C3dB_pfft.o
 	  OBJ = 
 
-#ifeq ($(USE_MPIF),y)
-#  OBJ_OPTIMIZE += C3dB-mpi.o
-#else
+ifeq ($(USE_MPIF),y)
+  OBJ_OPTIMIZE += C3dB-mpi.o
+else
   OBJ_OPTIMIZE += C3dB-tcgmsg.o
-#endif
+endif
 
 
 

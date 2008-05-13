@@ -26,12 +26,12 @@
 
 *     ***** external functions *****
       integer      control_version
-      integer      control_ngrid,control_num_kvectors
-      real*8       control_unita
+      integer      control_ngrid, brillioun_nbrillioun
+      real*8       control_unita, brillioun_all_k
       logical      kbpp_band,nwpw_filefind,hghpp_band,rkbpp_band
       external     control_version
-      external     control_ngrid,control_num_kvectors
-      external     control_unita
+      external     control_ngrid, brillioun_nbrillioun
+      external     control_unita, brillioun_all_k
       external     kbpp_band,nwpw_filefind,hghpp_band
       external     rkbpp_band
       value  = .true.
@@ -70,15 +70,18 @@
       end do
 
 *     **** brillioun zone information ****
-      nbrillioun = control_num_kvectors()
+      nbrillioun = brillioun_nbrillioun()
       value = MA_push_get(mt_dbl,3*nbrillioun,'kv',kv(2),kv(1))
       if(.not. value) 
      > call errquit('cpsp_formatter_auto: out of stack memory',0,
      >       MA_ERR)
 
       do nb=1,nbrillioun
-         call control_kvector(nb,dbl_mb(kv(1)+3*(nb-1)))
+         dbl_mb(kv(1)+3*(nb-1))   = brillioun_all_k(1,nb)
+         dbl_mb(kv(1)+3*(nb-1)+1) = brillioun_all_k(2,nb)
+         dbl_mb(kv(1)+3*(nb-1)+2) = brillioun_all_k(3,nb)
       end do
+
 
       call get_psp_type(psp_filename,psp_type)
 c      write(*,*)"psp type = ",psp_type

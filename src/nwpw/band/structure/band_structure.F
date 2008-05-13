@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.31 2008-05-13 02:10:01 bylaska Exp $
+* $Id: band_structure.F,v 1.32 2008-05-13 20:52:54 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -38,8 +38,8 @@
       integer ngrid(3),nwave,nfft3d
 
 *     ***** energy variables ****
-      integer vall(2),nn,nb,ispin,ne(2),rho(2)
-      real*8  E(10),en(2),ein
+      integer vall(2),nn,nb,ispin,ne(2),rho(2),neall
+      real*8  E(20),en(2),ein,eke
       real*8  dipole(3)
       real*8  stress(3,3)
 
@@ -149,7 +149,7 @@
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(10,0.0d0,0,E,1)
+      call dcopy(20,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
@@ -577,17 +577,12 @@
         call cpsi_new_ne(ispin,ne)
         newpsi = .true.
         ortho  = .false.
-        vers = 5
-        write(*,*)"CPSI_NEW_NE VERSION = ",vers
-        call flush(6)
 
       else
         newpsi = .false.
 
 *       **** convert from pspw format to band format ****
         vers = psi_get_version()
-        write(*,*)"Version = ",vers
-        call flush(6)
         if ((vers.eq.3).or.(vers.eq.4)) then
            nbrillioun = brillioun_nbrillioun()
            newpsi = .true.
@@ -650,6 +645,7 @@
      >                            dbl_mb(cpsi_iptr_dn(1)),
      >                            dcpl_mb(c_electron_iptr_psir()))
       end if
+
 
       if (taskid.eq.MASTER) then
 

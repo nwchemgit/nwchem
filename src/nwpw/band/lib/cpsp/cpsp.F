@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.67 2008-05-13 02:09:56 bylaska Exp $
+* $Id: cpsp.F,v 1.68 2008-05-13 20:52:49 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1447,6 +1447,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       integer ierr
 
 #include "mafdecls.fh"
+#include "rtdb.fh"
 #include "util.fh"
 
 #ifdef TCGMSG
@@ -1463,16 +1464,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       character*255 full_filename
       real*8 kv(3)
       integer nbrillioun
-      logical mprint
+      logical mprint,value
 
 *     ***** external functions ****
       integer  brillioun_nbrillioun,cpsp_projector_alloc
       integer  brillioun_nbrillq
-      real*8   brillioun_k
+      real*8   brillioun_all_k
       logical  control_print
       external brillioun_nbrillioun,cpsp_projector_alloc
       external brillioun_nbrillq
-      external brillioun_k
+      external brillioun_all_k
       external control_print
 
       call Parallel_taskid(taskid)
@@ -1480,6 +1481,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
 
 *     **** open fname binary file ****
+      
       if (taskid.eq.MASTER) then
          call util_file_name_noprefix(fname,.false.,
      >                             .false.,
@@ -1523,9 +1525,10 @@ ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
          if (nbrillioun.eq.brillioun_nbrillioun()) then
            do nb=1,nbrillioun
                call dread(5,kv,3)
-c               if ((brillioun_k(1,nb).ne.kv(1)).or.  
-c     >             (brillioun_k(2,nb).ne.kv(2)).or.
-c     >             (brillioun_k(3,nb).ne.kv(3))) ierr = 1
+               if ((brillioun_all_k(1,nb).ne.kv(1)).or.  
+     >             (brillioun_all_k(2,nb).ne.kv(2)).or.
+     >             (brillioun_all_k(3,nb).ne.kv(3))) 
+     >          ierr = 1
            end do
            if (ierr.eq.1) then
               if (mprint) then

@@ -1,5 +1,5 @@
 *
-* $Id: cloak.F,v 1.8 2008-05-13 02:10:22 bylaska Exp $
+* $Id: cloak.F,v 1.9 2008-05-13 20:53:05 bylaska Exp $
 *
 
 *     *******************************
@@ -9,9 +9,9 @@
 *     *******************************
       subroutine cloak_init()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "cloak_common.fh"
 
       logical value

@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.25 2008-04-23 01:31:53 bylaska Exp $
+* $Id: cpsi_H.F,v 1.26 2008-05-13 20:52:52 bylaska Exp $
 *
 
 *     **********************************************
@@ -304,8 +304,8 @@ c      end do
 
 
 *     **** put vpsi_r in k-space ****
-      !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
-      call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
+      call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+      !call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
       call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
 
 *     **** add to Horb_k ****

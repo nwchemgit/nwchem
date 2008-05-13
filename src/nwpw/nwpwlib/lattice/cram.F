@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.31 2008-05-13 02:10:22 bylaska Exp $
+* $Id: cram.F,v 1.32 2008-05-13 20:53:05 bylaska Exp $
 *
 
 *     ***********************************
@@ -111,6 +111,7 @@
 
             !call C3dB_ktoqp(1,k3+1,q,p)
             call C3dB_ijktoindexp(1,k1+1,k2+1,k3+1,indx,p)
+              
             if (p.eq.taskid) then
                !indx = (q-1)*(nx)*ny + k2*(nx) + k1 + 1
                if (.not.cloak_masker(indx)) then
