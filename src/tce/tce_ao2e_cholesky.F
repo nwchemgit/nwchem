@@ -1,0 +1,286 @@
+      subroutine tce_ao2e_cholesky(rtdb,              ! input
+     &                             geom,              ! input
+     &                             basis_handle,      ! input
+     &                             d_ao2e)            ! output (first full AO matrix, then replaced by full Cholesky factor)
+c
+c $Id: tce_ao2e_cholesky.F,v 1.1 2008-05-13 00:59:43 jhammond Exp $
+c
+c     Returns a SF handle for the AO 2-e integral matrix.
+c
+      implicit none
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "bas.fh"
+#include "schwarz.fh"
+#include "sf.fh"
+#include "errquit.fh"
+c#include "tce.fh"
+c#include "tce_main.fh"
+      integer rtdb                    ! Run-time database
+      logical nodezero                ! True if node zero
+      integer d_ao2e                  ! AO integral GA handle
+      integer work1,work2             ! Work array sizes
+      integer l_work1,k_work1         ! Work array 1
+      integer l_work2,k_work2         ! Work array 2
+      integer l_ijkl,k_ijkl           ! AO integral patch
+      integer ish,jsh,ksh,lsh         ! Integral shell indices
+      integer i,j,k,l,kl              ! Integral indices
+      integer ikjl_offset,ijkl_offset ! 
+      integer ilo,ihi,jlo,jhi         ! Integral shell index range
+      integer klo,khi,llo,lhi         ! Integral shell index range
+      integer irange,jrange           ! Integral shell index range size
+      integer krange,lrange           ! Integral shell index range size
+      integer kloff,joff,loff         ! Offset temporaries
+      integer nxtval
+      external nxtval
+      integer next,count,nprocs
+c      character*255 filename
+c
+c     New variables: formerly from tce_main.fh, now defined locally.
+c     This is not the multigrid code so I can use the global variables - if I want.
+c
+      integer geom                          ! determined in this subroutine
+      character*255 basis_name              ! determined in this subroutine
+      integer basis_handle                  ! determined in this subroutine
+      integer nbf                           ! determined in this subroutine
+      integer nshells                       ! determined in this subroutine
+      double precision tol2e
+      logical int_normalize
+      external int_normalize
+c
+c     New variables for the Cholesky code
+c
+      integer size_aoints
+      integer rank_aoints
+      integer ijkl_patch_size
+      integer ikjl_patch_size
+      integer ij_sh_offset_lo,ij_sh_offset_hi
+      integer kl_sh_offset_lo,kl_sh_offset_hi
+c
+c     =========
+c     Basis set
+c     =========
+c
+#ifdef DEBUG_PRINT
+      print*,'initialize basis set'
+#endif
+      basis_name = 'ao basis'
+      if (.not.bas_create(basis_handle,basis_name))
+     1  call errquit('tce_ao2e_cholesky: bas_create failed',
+     2               0,BASIS_ERR)
+      if (.not.bas_rtdb_load(rtdb,geom,basis_handle,basis_name))
+     1  call errquit('tce_ao2e_cholesky: basis not found',
+     2               0,BASIS_ERR)
+      if (.not.int_normalize(rtdb,basis_handle))
+     1  call errquit('tce_ao2e_cholesky: int_normalize failed',
+     2               0,INT_ERR)
+      if (.not.bas_numbf(basis_handle,nbf))
+     1  call errquit('tce_ao2e_cholesky: failed to read nbf',
+     2               0,BASIS_ERR)
+      if (.not.bas_numcont(basis_handle,nshells))
+     1  call errquit('tce_ao2e_cholesky: failed to read nshells',
+     2               0,BASIS_ERR)
+c
+c     ===========
+c     Allocate GA
+c     ===========
+c
+#ifdef DEBUG_PRINT
+      print*,'starting GA allocation'
+#endif
+c      if (.not.(ioalg.eq.2)) then ! ioalg not accessible variable right now
+c        call errquit('tce_ao2e_cholesky: you must use ioalg=2 (GA);
+c     1                your chosen ioalg is',ioalg,GA_ERR)
+c      endif
+      rank_aoints = nbf*nbf
+      size_aoints = rank_aoints*rank_aoints
+      if (nodezero.and.util_print('ao2e',print_default)) then
+        write(LuOut,*)
+        write(LuOut,9000) rank_aoints
+        write(LuOut,9001) size_aoints
+      endif
+ 9000 format(1x,'rank of AO integral matrix = ',i8)
+ 9001 format(1x,'size of AO integral matrix = ',i8)
+      if (.not.ga_create(mt_dbl,rank_aoints,rank_aoints,'ao2e',-1,-1,
+     1  d_ao2e)) then
+        write(LuOut,*) ' available GA memory ',
+     1    ga_memory_avail(),' bytes' 
+        call errquit('tce_ao2e_cholesky: ga_create failed; 
+     1                filesize in MB is',size_aoints,GA_ERR)
+      endif
+c
+c     =======================
+c     Initialize integral API
+c     =======================
+c
+#ifdef DEBUG_PRINT
+      print*,'initialize integral API'
+#endif
+      call int_mem_2e4c(work1,work2)
+      if (.not.ma_push_get(mt_dbl,work1,'work1',l_work1,k_work1))
+     1  call errquit('tce_ao2e_cholesky: MA problem work1',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,work2,'work2',l_work2,k_work2))
+     1  call errquit('tce_ao2e_cholesky: MA problem work2',1,MA_ERR)
+c
+c     ================
+c     Loop over shells
+c     ================
+c
+#ifdef DEBUG_PRINT
+      print*,'begin loop over shells'
+#endif
+      nprocs = ga_nnodes()
+      count = 0
+      next = nxtval(nprocs)
+c
+c     BEGIN KL LOOPS
+c
+      do lsh=1,nshells
+        do ksh=1,nshells
+          if (next.eq.count) then
+            if (util_print('ao2e',print_debug))
+     1        write(LuOut,9190) ksh,lsh,ga_nodeid()
+c
+            if (.not.bas_cn2bfr(basis_handle,ksh,klo,khi))
+     1        call errquit('tce_ao2e_cholesky: 
+     2        basis fn range problem K',ksh,BASIS_ERR)
+            krange = khi - klo + 1
+c
+            if (.not.bas_cn2bfr(basis_handle,lsh,llo,lhi))
+     1        call errquit('tce_ao2e_cholesky: 
+     2        basis fn range problem L',lsh,BASIS_ERR)
+            lrange = lhi - llo + 1
+c
+            ijkl_patch_size = rank_aoints*krange*lrange
+            if (.not.ma_push_get(mt_dbl,ijkl_patch_size,
+     1        'ao2e',l_ijkl,k_ijkl)) call errquit('tce_ao2e_cholesky: 
+     2        MA problem k_ijkl',ijkl_patch_size,MA_ERR)
+c
+            do ijkl_offset = 1,ijkl_patch_size
+              dbl_mb(k_ijkl+ijkl_offset-1) = 0.0d0
+            enddo
+c
+c           BEGIN IJ LOOPS
+c
+            do jsh=1,nshells
+              do ish=1,nshells
+                tol2e = 0.0d0 ! no screening right now
+                if (schwarz_shell(ish,ksh)*schwarz_shell(jsh,lsh) 
+     1            .ge. tol2e) then
+c
+                  if (util_print('ao2e',print_debug))
+     1              write(LuOut,9191) ish,jsh,ga_nodeid()
+c
+                  if (.not.bas_cn2bfr(basis_handle,ish,ilo,ihi))
+     1              call errquit('tce_ao2e_cholesky: 
+     2              basis fn range problem I',ish,BASIS_ERR)
+                  irange = ihi - ilo + 1
+c
+                  if (.not.bas_cn2bfr(basis_handle,jsh,jlo,jhi))
+     1              call errquit('tce_ao2e_cholesky: 
+     2              basis fn range problem J',jsh,BASIS_ERR)
+                  jrange = jhi - jlo + 1
+c
+c                 dbl_mb(k_work1) = eri
+c                 eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh).ket_g(lsh)>
+c
+#ifdef DEBUG_PRINT
+                  print*,'calling int_2e4c'
+#endif
+                  call int_2e4c(basis_handle,ish,ksh,basis_handle,jsh,
+     1              lsh,work2,dbl_mb(k_work2),work1,dbl_mb(k_work1))
+c
+c =============== BEGIN INNER LOOPS ==============
+c
+c This should be replaced by a tce_sort-like routine.
+c
+#ifdef DEBUG_PRINT
+                  print*,'start transpose'
+#endif
+                  kl = 0
+                  do l = llo,lhi
+                    do k = klo,khi
+                      kl = kl + 1
+                      kloff = (kl-1)*rank_aoints
+                      do j = jlo,jhi
+                        joff = (j-1)*nbf
+                        do i = ilo,ihi
+                          ikjl_offset = (
+     1                                   (
+     2                                    (i-ilo)*krange+(k-klo)
+     3                                   )*jrange+(j-jlo)
+     4                                  )*lrange+(l-llo)
+                          dbl_mb(k_ijkl+kloff+joff+i-1) = 
+     1                      dbl_mb(k_work1+ikjl_offset)
+                        enddo              ! i
+                      enddo                ! j
+                    enddo                  ! k
+                  enddo                    ! l
+#ifdef DEBUG_PRINT
+                  print*,'end transpose'
+#endif
+c
+c =============== END INNER LOOPS ==============
+c
+                endif                      ! schwarz_shell
+c
+c             Put local stuff into GA
+c
+              ij_sh_offset_lo = 0
+              ij_sh_offset_hi = 0
+              kl_sh_offset_lo = 0
+              kl_sh_offset_hi = 0
+              ijkl_patch_size = 0
+#ifdef DEBUG_PRINT
+                  write(LuOut,9900) 'i',ish,ilo,ihi,irange
+                  write(LuOut,9900) 'j',jsh,jlo,jhi,jrange
+                  write(LuOut,9900) 'k',ksh,klo,khi,krange
+                  write(LuOut,9900) 'l',lsh,llo,lhi,lrange
+                  print*,'call ga_put'
+ 9900 format(a1,'-shell number ',i3,': lo = ',i3,' hi = ',i3,
+     &                                             ' range = ',i3)
+#endif
+c              call ga_put(d_ao2e, ij_sh_offset_lo, ij_sh_offset_hi, 
+c     1                    kl_sh_offset_lo, kl_sh_offset_hi, 
+c     2                    dbl_mb(k_ijkl), ijkl_patch_size)
+              enddo                        ! ish
+            enddo                          ! jsh
+c
+c           END IJ LOOPS
+c
+            if (.not.ma_pop_stack(l_ijkl)) 
+     1        call errquit('tce_ao2e_cholesky: ma_pop_stack of l_ijkl 
+     2                      failed',16,MA_ERR)
+            next = nxtval(nprocs)
+          endif
+          count = count + 1
+        enddo                              ! ksh
+      enddo                                ! lsh
+c
+c     END KL LOOPS
+c
+      next = nxtval(-nprocs)
+      call ga_sync() ! only necessary in parallel but that variable not available right now
+c
+c     ==========
+c     Deallocate
+c     ==========
+c
+      if (.not.ma_pop_stack(l_work2)) 
+     1  call errquit('tcc_ao2e: MA problem',14,MA_ERR)
+      if (.not.ma_pop_stack(l_work1)) 
+     1  call errquit('tcc_ao2e: MA problem',15,MA_ERR)
+c
+c     ======
+c     Return
+c     ======
+c
+ 8000 format(1x,'cpu & wall time in seconds for ',A,2f20.1)
+ 9190 format(/,'k- and l-shells',2i3,' have been assigned to node ',i3)
+ 9191 format(/,'i- and j-shells',2i3,' have been assigned to node ',i3)
+ 9200 format(/,'k and l',2i3)
+      return
+      end
