@@ -118,13 +118,16 @@ c
       pname = "task_smd_energy_groups"
 c      write(*,*) "in "//pname
 c
+      call smd_tasklist_init()
+c
       call smd_init_groups(rtdb)
 c
       write(*,*) "number of groups",util_sgroup_numgroups(),
      >           util_sgroup_mygroup()
 
+      
       do i=1,util_sgroup_numgroups()
-        call smd_monomer_energy(i)
+c        call smd_monomer_energy(i)
       end do
 c      call smd_vlist_update(.true.,.true.)
 cc
