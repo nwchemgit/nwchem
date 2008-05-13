@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.24 2006-12-01 22:19:18 edo Exp $
+* $Id: task_hessian.F,v 1.25 2008-05-13 20:39:01 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -195,11 +195,12 @@ c
      $    (.not.inp_compare(.false.,theory,'dft'))) then
         numerical = .true.
         analytic  = .false.
-      else
-        if (.not.hess_check(rtdb)) then
+      end if
+c
+c     == make sure the theory supports analytic hessians ==
+      if (.not.hess_check(rtdb)) then
           numerical = .true.
           analytic  = .false.
-        endif
       endif
 c
 c     Actually do the deed
