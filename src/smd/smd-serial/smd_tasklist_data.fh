@@ -1,5 +1,5 @@
 *
-* $Id: smd_tasklist_data.fh,v 1.1 2008-05-13 21:11:29 marat Exp $
+* $Id: smd_tasklist_data.fh,v 1.2 2008-05-13 22:10:23 marat Exp $
 *
       integer smd_ntask
       integer smd_ga_taskname
@@ -18,8 +18,8 @@
       integer t_busy
       parameter(t_busy = 1)
 
-      integer t_free
-      parameter(t_free = 2)
+      integer t_done
+      parameter(t_done = 2)
 
 
       common /smd_tasklist_data/ smd_ntask,

@@ -298,7 +298,10 @@ c     >       RTDB_ERR)
         return
       endif
 c
-      write(luout,*)' unrecognized token in smd input:',
+        if(.not.rtdb_print(rtdb,.true.))
+     >      call errquit(pname//'failed to print rtdb',0,
+     >       RTDB_ERR)
+       write(luout,*)' unrecognized token in smd input:',
      + token(1:inp_strlen(token))
        call errquit(pname//'failed ',0,
      >        RTDB_ERR)

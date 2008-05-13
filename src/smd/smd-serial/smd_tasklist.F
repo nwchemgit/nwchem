@@ -61,9 +61,8 @@ c
 c
       smd_ntask = 10
 
-      call nga_get(smd_ga_task_params,1, 10,t_p,1)
-
       call nga_get(smd_ga_task_status,1, 10,t_s,1)
+      call ga_sync()
 
       smd_tasklist_get =.false.
       do i=1,smd_ntask
@@ -72,6 +71,7 @@ c
       return
 100   continue
       t_s(i) = t_busy
+      call ga_sync()
       call nga_put(smd_ga_task_status,i,i,t_s,1)
       smd_tasklist_get =.true.
       return

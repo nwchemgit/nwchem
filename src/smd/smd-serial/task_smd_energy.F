@@ -123,6 +123,8 @@ c
 c      write(*,*) "in "//pname
 c
       call smd_tasklist_init()
+c     
+      call ga_sync()
 c
       call smd_init_groups(rtdb)
 c
@@ -132,9 +134,17 @@ c
 99    continue
       if(.not.smd_tasklist_get(i))
      >  goto 100 
+      if(ga_nodeid().eq.0) then
       write(*,*) "got task",i,util_sgroup_mygroup()
 
+      write(*,*) "starting energy calculation",
+     >            i,util_sgroup_mygroup()
+      end if
       call smd_monomer_energy(i)
+      if(ga_nodeid().eq.0) then
+      write(*,*) "finished energy calculation",
+     >            i,util_sgroup_mygroup()
+      end if
 c      call smd_vlist_update(.true.,.true.)
 cc
 c      call smd_force_compute()
@@ -144,8 +154,6 @@ cc
 c      call smd_energy_print(6)
 c
 c
-      if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))
-     $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
 c
       goto 99
 
@@ -156,9 +164,14 @@ c
       write(luout,'(/,a,f20.3)')'Force          : ',(etime4-etime3)
 
       write(*,*) "Goodbye from task_smd"
-      task_smd_energy_groups = .true.
 100   continue
+
       call ga_pgroup_sync(ga_pgroup_get_world())
+       call util_sgend(rtdb)
+       energy = 0.0d0
+       if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))
+     $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
       call smd_end(rtdb)
+      task_smd_energy_groups = .true.
       return
       END
