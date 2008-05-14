@@ -11,6 +11,7 @@ c
      c                       "potential",
      c                       "coordinates",
      c                       "charge",
+     c                       "fragment",
      c                       "velocity",
      c                       "mass",
      c                       "energy",

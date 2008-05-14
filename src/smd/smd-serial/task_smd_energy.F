@@ -8,16 +8,28 @@
 #include "stdio.fh"
 #include "errquit.fh"
       logical task_smd_energy
-      logical ogroups,result
+      logical ogroups,result,ofragment
 c
       logical task_smd_energy_groups
       external task_smd_energy_groups
+      logical task_smd_fragment
+      external task_smd_fragment
       logical task_smd_energy_sp
       external task_smd_energy_sp
 c
-      call smd_init("energy",rtdb)
-
       call smd_groups_inquire(rtdb,ogroups)
+      if (.not.rtdb_get(rtdb, 'task:fragment', mt_log, 1,ofragment))
+     +   ofragment = .false.
+c
+      if(ofragment) then
+       result = task_smd_fragment(rtdb)
+       goto 100
+      end if
+c
+      call smd_init("energy",rtdb)
+c
+      write(*,*) "ofragment",ofragment
+
       if(ogroups) then
         result = task_smd_energy_groups(rtdb)
       else
@@ -25,6 +37,8 @@ c
       end if
 
       write(*,*) "Goodbye from task_smd"
+100   continue
+
       task_smd_energy = .true.
 
       return
@@ -120,7 +134,6 @@ c
       external util_sgroup_numgroups
 
       pname = "task_smd_energy_groups"
-c      write(*,*) "in "//pname
 c
       call smd_tasklist_init()
 c     
@@ -145,15 +158,6 @@ c
       write(*,*) "finished energy calculation",
      >            i,util_sgroup_mygroup()
       end if
-c      call smd_vlist_update(.true.,.true.)
-cc
-c      call smd_force_compute()
-cc
-c      call smd_energy_compute()
-cc
-c      call smd_energy_print(6)
-c
-c
 c
       goto 99
 
