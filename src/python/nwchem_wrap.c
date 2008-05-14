@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.48 2008-04-01 17:57:09 windus Exp $
+ $Id: nwchem_wrap.c,v 1.49 2008-05-14 01:52:33 bylaska Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -648,6 +648,147 @@ static PyObject *wrap_task_gradient(PyObject *self, PyObject *args)
 
     return returnObj;
 }
+
+
+static PyObject *wrap_task_stress(PyObject *self, PyObject *args)
+{
+    char *theory,stresstheory[30];
+    double energy, *gradient, stress[9];
+    int ma_type, nelem, ma_handle,one;
+    PyObject *returnObj, *eObj, *gradObj, *stressObj;
+
+    one = 1;
+    if (PyArg_Parse(args, "s", &theory)) {
+        if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR,
+                      strlen(theory)+1, theory)) {
+            PyErr_SetString(NwchemError, "task_gradient: putting theory failed");
+            return NULL;
+        }
+        if (!rtdb_put(rtdb_handle, "includestress", MT_F_LOG, 1, &one)) {
+            PyErr_SetString(NwchemError, "task_gradient: putting includestress failed");
+            return NULL;
+        }
+
+        if (!task_gradient_(&rtdb_handle)) {
+            PyErr_SetString(NwchemError, "task_gradient: failed");
+            return NULL;
+        }
+
+        if (!rtdb_delete(rtdb_handle, "includestress")) {
+            PyErr_SetString(NwchemError, "task_gradient: deleting includestress failed");
+            return NULL;
+        }
+        if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy)) {
+            PyErr_SetString(NwchemError, "task_gradient: getting energy failed");
+            return NULL;
+        }
+        if (!rtdb_ma_get(rtdb_handle,"task:gradient",&ma_type,&nelem,&ma_handle)) {
+            PyErr_SetString(NwchemError, "task_gradient: getting gradient failed");
+            return NULL;
+        }
+        if (!MA_get_pointer(ma_handle, &gradient)) {
+            PyErr_SetString(NwchemError, "task_gradient: ma_get_ptr failed");
+            return NULL;
+        }
+
+        stress[0] = 0.0; stress[1] = 0.0; stress[2] = 0.0; 
+        stress[3] = 0.0; stress[4] = 0.0; stress[5] = 0.0; 
+        stress[6] = 0.0; stress[7] = 0.0; stress[8] = 0.0; 
+        strcpy(stresstheory,theory);
+        if (!rtdb_get(rtdb_handle, strcat(stresstheory,":stress"), MT_F_DBL, 9, &stress)) {
+            PyErr_SetString(NwchemError, "task_gradient: getting stress failed");
+            return NULL;
+        }
+
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Usage: task_gradient(theory)");
+        return NULL;
+    }
+
+    eObj = Py_BuildValue("d",energy);
+    gradObj   = nwwrap_doubles(nelem, gradient);
+    stressObj = nwwrap_doubles(9, stress);
+    returnObj = Py_BuildValue("OOO", eObj, gradObj,stressObj);
+    Py_DECREF(eObj);
+    Py_DECREF(gradObj);
+    Py_DECREF(stressObj);
+    (void) MA_free_heap(ma_handle);
+
+    return returnObj;
+}
+
+
+static PyObject *wrap_task_lstress(PyObject *self, PyObject *args)
+{
+    char *theory,stresstheory[30];
+    double energy, *gradient, stress[9];
+    int ma_type, nelem, ma_handle,one;
+    PyObject *returnObj, *eObj, *gradObj, *stressObj;
+
+    one = 1;
+    if (PyArg_Parse(args, "s", &theory)) {
+        if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR,
+                      strlen(theory)+1, theory)) {
+            PyErr_SetString(NwchemError, "task_gradient: putting theory failed");
+            return NULL;
+        }
+        if (!rtdb_put(rtdb_handle, "includestress", MT_F_LOG, 1, &one)) {
+            PyErr_SetString(NwchemError, "task_gradient: putting includestress failed");
+            return NULL;
+        }
+
+        if (!task_gradient_(&rtdb_handle)) {
+            PyErr_SetString(NwchemError, "task_gradient: failed");
+            return NULL;
+        }
+
+        if (!rtdb_delete(rtdb_handle, "includestress")) {
+            PyErr_SetString(NwchemError, "task_gradient: deleting includestress failed");
+            return NULL;
+        }
+        if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy)) {
+            PyErr_SetString(NwchemError, "task_gradient: getting energy failed");
+            return NULL;
+        }
+        if (!rtdb_ma_get(rtdb_handle,"task:gradient",&ma_type,&nelem,&ma_handle)) {
+            PyErr_SetString(NwchemError, "task_gradient: getting gradient failed");
+            return NULL;
+        }
+        if (!MA_get_pointer(ma_handle, &gradient)) {
+            PyErr_SetString(NwchemError, "task_gradient: ma_get_ptr failed");
+            return NULL;
+        }
+
+        stress[0] = 0.0; stress[1] = 0.0; stress[2] = 0.0;
+        stress[3] = 0.0; stress[4] = 0.0; stress[5] = 0.0;
+        stress[6] = 0.0; stress[7] = 0.0; stress[8] = 0.0;
+        strcpy(stresstheory,theory);
+        if (!rtdb_get(rtdb_handle, strcat(stresstheory,":lstress"), MT_F_DBL, 9, &stress)) {
+            PyErr_SetString(NwchemError, "task_gradient: getting stress failed");
+            return NULL;
+        }
+
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Usage: task_gradient(theory)");
+        return NULL;
+    }
+
+    eObj = Py_BuildValue("d",energy);
+    gradObj   = nwwrap_doubles(nelem, gradient);
+    stressObj = nwwrap_doubles(6, stress);
+    returnObj = Py_BuildValue("OOO", eObj, gradObj,stressObj);
+    Py_DECREF(eObj);
+    Py_DECREF(gradObj);
+    Py_DECREF(stressObj);
+    (void) MA_free_heap(ma_handle);
+
+    return returnObj;
+}
+
+
+
 
 static PyObject *wrap_task_optimize(PyObject *self, PyObject *args)
 {
@@ -1409,6 +1550,8 @@ static struct PyMethodDef nwchem_methods[] = {
    {"rtdb_next",       wrap_rtdb_next, 0}, 
    {"task_energy",     wrap_task_energy, 0}, 
    {"task_gradient",   wrap_task_gradient, 0}, 
+   {"task_stress",     wrap_task_stress, 0}, 
+   {"task_lstress",    wrap_task_lstress, 0}, 
    {"task_optimize",   wrap_task_optimize, 0}, 
    {"task_hessian",    wrap_task_hessian, 0},
    {"task_saddle",     wrap_task_saddle, 0},
