@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.11 2008-05-13 20:52:58 bylaska Exp $
+# $Id: GNUmakefile,v 1.12 2008-05-14 18:14:29 d3p708 Exp $
 #
 
  OBJ_OPTIMIZE = C3dB-new.o c_trans.o C3dB_pfft.o
@@ -32,12 +32,12 @@ ifeq ($(USE_MLIB),y)
   LIB_DEFINES += -DMLIB
 endif
 
-#ifeq ($(USE_MPIF),y)
+ifeq ($(USE_MPIF),y)
   LIB_DEFINES += -DMPI
   LIB_INCLUDES += -I$(MPI_INCLUDE)
-#else
+else
   LIB_DEFINES += -DTCGMSG
-#endif
+endif
 
 ifeq ($(USE_MPIF4),y)
   LIB_DEFINES += -DMPI4
