@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.145 2008-05-12 22:46:51 marat Exp $
+C$Id: geom.F,v 1.146 2008-05-14 17:23:25 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2479,9 +2479,15 @@ c
            end if
         end if
 c
-c       Last ditch attempt ... match against 1 character symbols
+c      not Last ditch attempt ... match against 1 character symbols
 c
         if (inp_match(14, .false., buf(1:1), sym1, ind)) then
+           ind = atn1(ind)
+           q(i)   = dble(ind)
+           match = .true.
+           goto 100
+        end if
+        if (inp_match(14, .false., buf(2:2), sym1, ind)) then
            ind = atn1(ind)
            q(i)   = dble(ind)
            match = .true.
