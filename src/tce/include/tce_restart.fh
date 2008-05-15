@@ -1,0 +1,13 @@
+c F1_SUFFIX - the number after the saved 1e-integrals
+c V2_SUFFIX - the number after the saved 2e-integrals
+c D1_SUFFIX - the number after the saved multipole-integrals
+c X_SUFFIX - the number after the saved T/EOM-X amplitudes
+c Y_SUFFIX - the number after the saved Lambda/EOM-Y amplitudes
+c TR_SUFFIX - the number after the saved T(1) amplitudes
+c YR_SUFFIX - the number after the saved Lambda(1) amplitudes
+      integer F1_SUFFIX, V2_SUFFIX, D1_SUFFIX
+      integer X_SUFFIX, Y_SUFFIX, TR_SUFFIX, YR_SUFFIX
+      parameter (F1_SUFFIX=10000, V2_SUFFIX=20000, D1_SUFFIX=30000)
+      parameter (X_SUFFIX=40000, Y_SUFFIX=50000)
+      parameter (TR_SUFFIX=60000, YR_SUFFIX=70000)
+
