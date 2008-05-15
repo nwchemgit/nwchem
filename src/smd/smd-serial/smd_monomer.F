@@ -1,4 +1,4 @@
-      function smd_monomer_energy(im)
+      function smd_monomer_energy(im,rtdb)
       implicit none
 
 #include "inp.fh"
@@ -8,11 +8,10 @@
 #include "errquit.fh"
 #include "global.fh"
       logical smd_monomer_energy
-      integer im
+      integer im,rtdb
 c
       character*72 namespace
       character*32 pname
-      integer rtdb
       logical result
       double precision qm_energy
       logical task_energy_doit
@@ -28,14 +27,40 @@ c
       double precision e1, e2,e3,e4,e5,e6,e7,e8,e9,e10,e11
 
       pname = "smd_monomer"
-      call smd_rtdb_get_handle(rtdb)
-c      if (.not.rtdb_cget(rtdb,"smd:theory",1,theory)) then
-c       write(0,*) "PLEASE SET smd:theory"
-c       call errquit('failed to get theory',0,0)
-c      end if
+      theory = "dft"
 
+      if (.not.(rtdb_cput(rtdb,'task:theory',1,theory)))
+     *     call errquit('rtdb_put task:theory failed',0,0)
+
+c
       call smd_geom_monomer_create(im)
-      result = task_energy_doit(rtdb,"dft",qm_energy)
+      result = task_energy_doit(rtdb,theory,qm_energy)
+c
+      if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
+     +     call errquit('esp: rtdb_put newgrd failed',0,0)
+
+      if (theory.eq.'dft') then
+       tag='dft:output vectors'
+      else
+       tag='scf:output vectors'
+      endif
+      if (.not.rtdb_cget(rtdb,tag,1,
+     >                   movecs)) then
+       write (6,*) 'error in rtdb_cget'
+      end if
+c
+      write(6,*) "got movecs from rtdb",movecs
+c
+      if (.not.rtdb_cput(rtdb,'esp:input vectors',1,
+     >                   movecs)) then
+       write (6,*) 'error in rtdb_cput'
+      end if
+c
+      if(.not.esp(rtdb))
+     &    call errquit(pname//'failed esp call', 100,
+     &                 RTDB_ERR)
+
+c      call smd_geom_push_charges(im)
 
       call smd_geom_monomer_end()
 

@@ -61,6 +61,7 @@ c
       integer na
 c
       integer ndims, type, ga_charges
+      integer ga_energies
       integer dims(1), chunk(1)
       integer rtdb
 c
@@ -78,15 +79,23 @@ c     -------------------------
      >  call errquit(
      >       pname//'no atoms ',0, RTDB_ERR)
 c
-c     create charge data structures
+c     create data structures
 c     ---------------------------
       call smd_namespace_create(sp_fragment)
       if(.not.nga_create(mt_dbl, 1, na, 
-     >    'sp_fragment',1, ga_charges)) 
+     >    'fragment_charges',1, ga_charges)) 
      >  call errquit(
      >       pname//'nga_create error ',0, RTDB_ERR)
-
       call smd_data_put_int(sp_fragment,"charge",1,ga_charges)
+c
+      if(.not.nga_create(mt_dbl, 1, na, 
+     >    'fragment_energies',1, ga_energies)) 
+     >  call errquit(
+     >       pname//'nga_create error ',0, RTDB_ERR)
+      call smd_data_put_int(sp_fragment,"energy",1,ga_energies)
+
+
+
       return
       end
 
@@ -249,14 +258,18 @@ c
 c     
       character*32 pname,tag
       logical result
-      integer rtdb,ga_charges
+      integer rtdb,ga
 c
       pname = "smd_charge_print"
 c
 
-      call smd_fragment_charge_handle(ga_charges)
-      call ga_print_distribution(ga_charges)
-      call ga_print(ga_charges)
+      call smd_fragment_charge_handle(ga)
+      call ga_print_distribution(ga)
+      call ga_print(ga)
+
+      call smd_fragment_energy_handle(ga)
+      call ga_print_distribution(ga)
+      call ga_print(ga)
 
       return
       end
@@ -282,6 +295,33 @@ c
      >       pname//'no component '//tag,0,0)
 
       call smd_data_get_int(sp,"charge",1,ga_handle,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//' getting handle'//tag,0,0)
+      return
+      end
+
+      subroutine smd_fragment_energy_handle(ga_handle)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+c     
+      integer ga_handle
+c     
+      logical result
+      character*(smd_string_size) tag,sp,pname
+c
+      pname  = "smd_fragment_charge_handle"
+c
+      tag = "fragment"
+      call smd_system_get_component(sp,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      call smd_data_get_int(sp,"energy",1,ga_handle,result)
       if(.not.result)
      >  call errquit(
      >       pname//' getting handle'//tag,0,0)
