@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.11 2007-11-17 00:05:40 bylaska Exp $
+* $Id: cpsp_stress.F,v 1.12 2008-05-16 00:39:54 bylaska Exp $
 *
 
 
@@ -557,21 +557,24 @@ c     >               + (ia-1)*3*npack1*nmax_max*lmmax_max*nbrillioun
 #endif
 
 *    *** local variables ***
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_k
       parameter(MASTER=0)
       integer i,n,l
       integer msglen
       character*255 full_filename
 
       real*8 kv(3)
-      integer nbrillioun,nb
+      integer nbrillioun,nb,nbq,pk
 
-      integer  brillioun_nbrillioun,cpsp_projector_alloc
-      real*8   brillioun_k
-      external brillioun_nbrillioun,cpsp_projector_alloc
-      external brillioun_k
+      integer  brillioun_nbrillioun,brillioun_nbrillq
+      integer  cpsp_projector_alloc
+      real*8   brillioun_all_k
+      external brillioun_nbrillioun,brillioun_nbrillq
+      external cpsp_projector_alloc
+      external brillioun_all_k
 
       call Parallel_taskid(taskid)
+      call Parallel3d_taskid_k(taskid_k)
   
 *     **** open fname binary file ****
       if (taskid.eq.MASTER) then
@@ -588,9 +591,9 @@ c     >               + (ia-1)*3*npack1*nmax_max*lmmax_max*nbrillioun
          if (nbrillioun.eq.brillioun_nbrillioun()) then
             do nb=1,nbrillioun
                call dread(5,kv,3)
-               if ((brillioun_k(1,nb).ne.kv(1)).or.
-     >             (brillioun_k(2,nb).ne.kv(2)).or.
-     >             (brillioun_k(3,nb).ne.kv(3))) ierr = 1
+               if ((brillioun_all_k(1,nb).ne.kv(1)).or.
+     >             (brillioun_all_k(2,nb).ne.kv(2)).or.
+     >             (brillioun_all_k(3,nb).ne.kv(3))) ierr = 1
             end do
          else
             ierr = 1
@@ -614,28 +617,30 @@ c     >               + (ia-1)*3*npack1*nmax_max*lmmax_max*nbrillioun
 
  
 *     *** read in dvl 3d block ***
-      call C3dB_r_read(1,5,tmp2,tmp)
+      call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
       call Cram_r_pack(0,tmp2)
       call Cram_r_Copy(0,tmp2,dvl)
 
 *     **** read in dvnl 3d blocks ****
-      dvnl_tag = cpsp_projector_alloc(brillioun_nbrillioun(),
+      dvnl_tag = cpsp_projector_alloc(brillioun_nbrillq(),
      >                                3*lmmax,npack1)
       do nb=1,brillioun_nbrillioun()
-      do n=1,lmmax
-      do i=1,3
-         call C3dB_r_read(1,5,tmp2,tmp)
-         call Cram_r_pack(nb,tmp2)
-         !call Cram_r_Copy(nb,tmp2,dvnl(1,i,n,nb))
-         call cpsp_projector_add(dvnl_tag,nb,(3*(n-1)+i),tmp2)
-      end do
-      end do
+         call K1dB_ktoqp(nb,nbq,pk)
+         do n=1,lmmax
+         do i=1,3
+            call C3dB_r_read(1,5,tmp2,tmp,-1,pk)
+            if (pk.eq.taskid_k) then
+               call Cram_r_pack(nbq,tmp2)
+               call cpsp_projector_add(dvnl_tag,nbq,(3*(n-1)+i),tmp2)
+            end if
+         end do
+         end do
       end do
 
 *     **** read in semicore density block ****
       if (semicore) then
          !write(*,*) "reading in semicore block"   !debug
-         call C3dB_r_read(1,5,tmp2,tmp)
+         call C3dB_r_Read(1,5,tmp2,tmp,-1,-1)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,dncore)
       end if

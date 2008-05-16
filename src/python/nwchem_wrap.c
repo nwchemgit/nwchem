@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.49 2008-05-14 01:52:33 bylaska Exp $
+ $Id: nwchem_wrap.c,v 1.50 2008-05-16 00:40:26 bylaska Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -995,6 +995,8 @@ static PyObject *wrap_nw_inp_from_string(PyObject *self, PyObject *args)
    Py_INCREF(Py_None);
    return Py_None;
 }
+
+
 
 ////  PGroup python routines follow //////////
 ////  If you have not done any group work, then these are global
