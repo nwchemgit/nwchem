@@ -1,13 +1,14 @@
       Logical Function ccsd(rtdb)
        implicit none
 #include "errquit.fh"
-C     $Id: ccsd.F,v 2.13 2005-08-24 19:18:43 edo Exp $
+C     $Id: ccsd.F,v 2.14 2008-05-16 17:56:59 bert Exp $
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "stdio.fh"
 #include "sym.fh"
 c
 c
@@ -56,8 +57,16 @@ c ------NEW AO CCSD CODE
      $     call errquit('ccsd: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      $     call errquit('ccsd: no geometry ', 0, RTDB_ERR)
-      if (.not.sym_abelian_group(geom))
-     1  call errquit('ccsd: non-Abelian symmetry not permitted',0,0)
+      if (.not.sym_abelian_group(geom)) then
+         if (.not.geom_strip_sym(geom)) call errquit
+     &          ('ccsd: geom_strip_sym failed',911,
+     &       GEOM_ERR)
+         if (ga_nodeid().eq.0) then
+            write(Luout,*) 'CCSD: Non-Abelian Symmetry Not Permitted'
+            write(Luout,*) '      Symmetry has been lowered to C1'
+            write(Luout,*) ' '
+         endif
+      endif
 
       if (.not. bas_create(basis, 'ao basis'))
      $     call errquit('ccsd: bas_create?', 0, BASIS_ERR)
