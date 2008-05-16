@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.45 2008-05-13 17:37:33 jhammond Exp $
+c $Id: tce_init.F,v 1.46 2008-05-16 14:07:33 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -1054,5 +1054,11 @@ c     ------
 c     Return
 c     ------
 c
+#ifndef CCSDTLR
+      if ((model.eq.'ccsdt').and.(lineresp)) then
+        call errquit('CCSDTLR not compiled',0,CAPMIS_ERR)
+        return
+      endif
+#endif
       return
       end
