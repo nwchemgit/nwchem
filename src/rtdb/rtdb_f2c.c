@@ -1,4 +1,4 @@
-/*$Id: rtdb_f2c.c,v 1.25 2008-05-06 19:32:42 marat Exp $*/
+/*$Id: rtdb_f2c.c,v 1.26 2008-05-19 17:16:38 marat Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -65,9 +65,9 @@ int string_to_fortchar(char *f, int flen, char *buf)
   flen = _fcdlen(f);
 #endif
 
-  if (len > flen) 
+  if (len > flen) {
     return 0;			/* Won't fit */
-
+}
 #if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
   for (i=0; i<len; i++)
     _fcdtocp(f)[i] = buf[i];
@@ -165,7 +165,7 @@ Logical FATR rtdb_getfname_(const Integer *handle, char *fname, const int mlen)
 
   if (rtdb_getfname(hbuf, mbuf)){
     if (!string_to_fortchar(fname, mlen, mbuf)) {
-      (void) fprintf(stderr, "rtdb_close: mbuf is too small, need=%d\n", mlen);
+      (void) fprintf(stderr, "rtdb_fname: mbuf is too small, need=%d\n",strlen(mbuf));
       return FORTRAN_FALSE;
     }
     return FORTRAN_TRUE;

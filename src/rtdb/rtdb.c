@@ -1,4 +1,4 @@
-/*$Id: rtdb.c,v 1.23 2007-08-17 22:32:40 d3p852 Exp $*/
+/*$Id: rtdb.c,v 1.24 2008-05-19 17:16:38 marat Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -131,9 +131,10 @@ int rtdb_clone(const int handle, const char *suffix)
   return status;
 }
 int rtdb_getfname(const int handle,
-		  char fname[36])
+		  char* fname)
 {
   int status;
+  int length;
 #ifdef GAGROUPS
   int me = ga_nodeid_();
 #endif
@@ -156,10 +157,12 @@ int rtdb_getfname(const int handle,
     status = rtdb_seq_getfname(handle, fname);
 
   if (parallel_mode == PARALLEL) {
+    if ( me == 0) length = strlen(fname)+1;
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
+    rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &length);
     
     if (status) {
-      rtdb_broadcast(TYPE_RTDB_FNAME,  MT_CHAR, 36,  (void *) fname);
+      rtdb_broadcast(TYPE_RTDB_FNAME,  MT_CHAR, length,  (void *) fname);
     }
   }
 
