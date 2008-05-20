@@ -65,11 +65,6 @@ c
       call nga_put(smd_ga_task_status,1,smd_ntask,t,1)
       call ga_print(smd_ga_task_status)
  
-      result = ga_create_mutexes(2) 
-      if(.not.result) then 
-         call ga_error('ga_create_mutexes failed ',0) 
-      endif 
-
       return
       end
 
@@ -148,26 +143,25 @@ c     honestly look for unfinished task
         if(t_s(i).eq.t_avail) goto 100
       end do
 c
-cc     start stealing work from left cpus
-c      call nga_get(smd_ga_task_status,1, smd_ntask,t_s,1)
-c      call ga_sync()
-c      do j=1,ig-1
-c       do i=j,smd_ntask,ng
-c        if(t_s(i).eq.t_avail) goto 100
-c       end do
-c      end do
-cc     start stealing work from right cpus
-c      call nga_get(smd_ga_task_status,1, smd_ntask,t_s,1)
-c      call ga_sync()
-c      do j=ig+1,ng
-c       do i=j,smd_ntask,ng
-c        if(t_s(i).eq.t_avail) goto 100
-c       end do
-c      end do
+c     start stealing work from left cpus
+      call nga_get(smd_ga_task_status,1, smd_ntask,t_s,1)
+      call ga_sync()
+      do j=1,ig-1
+       do i=j,smd_ntask,ng
+        if(t_s(i).eq.t_avail) goto 100
+       end do
+      end do
+c     start stealing work from right cpus
+      call nga_get(smd_ga_task_status,1, smd_ntask,t_s,1)
+      call ga_sync()
+      do j=ig+1,ng
+       do i=j,smd_ntask,ng
+        if(t_s(i).eq.t_avail) goto 100
+       end do
+      end do
       return
 100   continue
-      t_s(i) = t_busy
-      call nga_put(smd_ga_task_status,i,i,t_s,1)
+      call nga_put(smd_ga_task_status,i,i,t_busy,1)
       call ga_sync()
       smd_tasklist_get =.true.
       return

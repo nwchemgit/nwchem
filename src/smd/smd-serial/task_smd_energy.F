@@ -17,7 +17,7 @@ c
       logical task_smd_energy_sp
       external task_smd_energy_sp
 c
-      call smd_groups_inquire(rtdb,ogroups)
+      call smd_group_inquire(rtdb,ogroups)
       if (.not.rtdb_get(rtdb, 'task:fragment', mt_log, 1,ofragment))
      +   ofragment = .false.
 c
