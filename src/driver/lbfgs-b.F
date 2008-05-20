@@ -408,7 +408,7 @@ c       L-BFGS-B Library ... cauchy, subsm, lnsrlb, formk,
 c
 c        errclb, prn1lb, prn2lb, prn3lb, active, projgr,
 c
-c        freev, cmprlb, matupd, formt.
+c        freev, cmprlb, matupd, formtt.
 c
 c       Minpack2 Library ... timer, dpmeps.
 c
@@ -854,7 +854,7 @@ c        Store T in the upper triangular of the array wt;
 c        Cholesky factorize T to J*J' with
 c           J' stored in the upper triangular of wt.
 
-      call formt(m,wt,sy,ss,col,theta,info)
+      call formtt(m,wt,sy,ss,col,theta,info)
  
       if (info .ne. 0) then 
 c          nonpositive definiteness in Cholesky factorization;
@@ -2122,14 +2122,14 @@ c     Cholesky factorization of (2,2) block of wn.
 
 c======================= The end of formk ==============================
 
-      subroutine formt(m, wt, sy, ss, col, theta, info)
+      subroutine formtt(m, wt, sy, ss, col, theta, info)
  
       integer          m, col, info
       double precision theta, wt(m, m), sy(m, m), ss(m, m)
 
 c     ************
 c
-c     Subroutine formt
+c     Subroutine formtt
 c
 c       This subroutine forms the upper half of the pos. def. and symm.
 c         T = theta*SS + L*D^(-1)*L', stores T in the upper triangle
@@ -2188,7 +2188,7 @@ c        J' stored in the upper triangle of wt.
 
       end
 
-c======================= The end of formt ==============================
+c======================= The end of formtt ==============================
  
       subroutine freev(n, nfree, index, nenter, ileave, indx2, 
      +                 iwhere, wrk, updatd, cnstnd, iprint, iter)
