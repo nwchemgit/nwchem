@@ -40,6 +40,24 @@ c
       endif
 c
       end
+      subroutine util_file_prefix_get(fullname)
+      implicit none
+#include "cfileprefix.fh"
+      character*(*) fullname
+      external bfileprefix  ! This for T3D linker
+
+      fullname = file_prefix
+c
+      end
+      subroutine util_file_prefix_set(fullname)
+      implicit none
+#include "cfileprefix.fh"
+      character*(*) fullname
+      external bfileprefix  ! This for T3D linker
+
+      file_prefix = fullname
+c
+      end
       subroutine util_file_prefix(name, fullname)
       implicit none
 #include "errquit.fh"
@@ -286,7 +304,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.39 2008-04-28 22:35:26 d3p852 Exp $
+C$Id: util_file_name.F,v 1.40 2008-05-20 17:46:34 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.46 2008-04-01 16:45:24 windus Exp $
+C$Id: util_sgroup.F,v 1.47 2008-05-20 17:46:34 marat Exp $
       block data groups
 #include "util_sgroup.fh"
 C     Make sure that the group code works even if groups are not set up yet
@@ -6,7 +6,7 @@ C     Make sure that the group code works even if groups are not set up yet
       data my_ga_grp(0)/-1/
       data my_ga_0_grp(0)/-999/ ! Bogus
       data ngroups(0) /1/
-      data sgprint /.false./
+      data sgprint /.true./
       data depth /0/
       end
 
@@ -23,7 +23,7 @@ C added option to allow writting of group rtdb's
 C to permanent_dir(.false.) or scratch_dir(.true.)
       integer dir
 c
-      dir = 0 ! permanent_dir by default
+      dir = 1 ! permanent_dir by default
 c
 c Read number of subgroups from input
 c
@@ -123,7 +123,7 @@ C       Work around the 36 char cutoff for fname
 
       myproc=ga_nodeid()
       nproc=ga_nnodes()
-      sgprint = util_print('sgroup info', print_debug)
+c      sgprint = util_print('sgroup info', print_debug)
 c
 c    Create groups
 c   
