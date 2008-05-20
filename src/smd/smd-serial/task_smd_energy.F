@@ -7,6 +7,8 @@
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
+#include "util.fh"
+#include "global.fh"
       logical task_smd_energy
       logical ogroups,result,ofragment
 c
@@ -17,6 +19,9 @@ c
       logical task_smd_energy_sp
       external task_smd_energy_sp
 c
+      double precision t1,t2
+c
+      t1 = util_cpusec()
       call smd_group_inquire(rtdb,ogroups)
       if (.not.rtdb_get(rtdb, 'task:fragment', mt_log, 1,ofragment))
      +   ofragment = .false.
@@ -28,19 +33,18 @@ c
 c
       call smd_init("energy",rtdb)
 c
-      write(*,*) "ofragment",ofragment
-
       if(ogroups) then
 c        result = task_smd_energy_groups(rtdb)
       else
         result = task_smd_energy_sp(rtdb)
       end if
 
-      write(*,*) "Goodbye from task_smd"
 100   continue
 
       task_smd_energy = .true.
 
+      t2 = util_cpusec()
+      if(ga_nodeid().eq.0) write(*,*) "total time",t2-t1
       return
       END
 

@@ -21,21 +21,18 @@ c
       if(.not.result)
      > call errquit(
      >       pname//'no '//tag,0, RTDB_ERR)
-      write(*,*) "found theory",theory
 c
       tag = "smd:fragment_istart"
       call smd_rtdb_get_int(tag,1,istart,result)
       if(.not.result)
      > call errquit(
      >       pname//'no '//tag,0, RTDB_ERR)
-      write(*,*) "found istart",istart
 c
       tag = "smd:fragment_iend"
       call smd_rtdb_get_int(tag,1,iend,result)
       if(.not.result)
      > call errquit(
      >       pname//'no '//tag,0, RTDB_ERR)
-      write(*,*) "found iend",iend
 c
 c
       smd_ntask = iend-istart+1

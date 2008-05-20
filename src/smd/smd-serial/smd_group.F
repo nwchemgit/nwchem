@@ -35,7 +35,6 @@ c
       call ga_sync()
       if(.not.rtdb_close(rtdb, 'keep'))
      + call errquit('Failed to close group rtdb',0, GEOM_ERR)
-      write(*,*) "closed world rtdb",smd_group_rtdb_world
 
       call smd_group_create_simple(ngroups)
 
@@ -43,7 +42,6 @@ c
       i1 = inp_strlen(smd_group_prefix_world)
       write(smd_group_prefix,'(A,I4.4)')
      >    smd_group_prefix_world(1:i1),smd_group_id
-      write(*,*) "group prefix",smd_group_prefix 
       call util_file_prefix_set(smd_group_prefix)
 
       return
@@ -70,7 +68,6 @@ c
       call ga_sync()
       if(.not.rtdb_open(smd_group_rtdb_world,'old',rtdb))
      + call errquit('Failed to open world rtdb',0, 0)
-      write(*,*) "open world rtdb",smd_group_rtdb_world
 
       smd_ngroup =-1
       smd_group_nproc =-1
@@ -108,7 +105,6 @@ c     >          smd_group_id
 
       buffer = smd_group_rtdb
       call util_file_name(buffer,.true.,.false.,smd_group_rtdb)
-      write(*,*) "smd_group_rtdb",smd_group_rtdb
       if(ga_nodeid().eq.0) then
         inquire(file=smd_group_rtdb_world,exist=result)
         if(.not.result) then
@@ -146,13 +142,11 @@ c
 c
       call ga_sync()
 c
-      write(*,*) "smd_group_rtdb_world",smd_group_rtdb_world
       write(smd_group_rtdb,'(I4.4,A3)')
      >          smd_group_id,".db"
 
       buffer = smd_group_rtdb
       call util_file_name(buffer,.true.,.false.,smd_group_rtdb)
-      write(*,*) "smd_group_rtdb",smd_group_rtdb
       if(ga_nodeid().eq.0) then
         inquire(file=smd_group_rtdb_world,exist=result)
         if(.not.result) then

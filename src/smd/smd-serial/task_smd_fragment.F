@@ -30,14 +30,12 @@ c
       if (.not. rtdb_cget(rtdb,'task:operation', 1,operation))
      $      call errquit(pname,0, RTDB_ERR)
 
-      write(*,*) "found operation",operation
       if(operation.eq."energy") then
         result = task_smd_fragment_energy(rtdb)   
       else
         call errquit(pname//"unknown operation"//operation,
      +               0, RTDB_ERR)
       end if
-       write(*,*) "Goodbye from task_smd_fragment"
       if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))
      $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
       task_smd_fragment = .true.
@@ -80,23 +78,12 @@ c
       call smd_group_ngroup_get(ngroup)
       call smd_group_id_get(group_id)
       call smd_group_nproc_get(group_nproc)
-      write(*,*) "ngroup,id,nproc",ngroup,
-     >           group_id,group_nproc
 
 99    continue
       if(.not.smd_tasklist_get(i))
      >  goto 100 
-      if(ga_nodeid().eq.0) then
-      write(*,*) "got task",i,group_id
 
-      write(*,*) "starting energy calculation",
-     >            i,group_id
-      end if
       call smd_monomer_energy(i)
-      if(ga_nodeid().eq.0) then
-      write(*,*) "finished energy calculation",
-     >            i,group_id
-      end if
 c
       goto 99
 

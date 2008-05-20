@@ -188,7 +188,6 @@ c     -------------------
       end if
       call ga_sync()
       call smd_data_brdcst_create(master)
-      call smd_data_print(70+ga_nodeid())
       return
       end
 
@@ -357,7 +356,6 @@ c     -------------------
       call ga_sync()
       call smd_data_brdcst_create(master)
       call smd_fragment_init_system()
-      call smd_data_print(70+ga_nodeid())
       return
       end
 
@@ -526,7 +524,6 @@ c     -------------------
       end if
       call ga_sync()
       call smd_data_brdcst_create(master)
-      call smd_data_print(70+ga_nodeid())
       return
       end
 
