@@ -1,4 +1,4 @@
-      function smd_monomer_energy(im,rtdb)
+      function smd_monomer_energy(im)
       implicit none
 
 #include "inp.fh"
@@ -28,7 +28,10 @@ c
 
       pname = "smd_monomer"
       theory = "dft"
-
+c
+c
+      call smd_group_rtdb_clone(rtdb) 
+c
       if (.not.(rtdb_cput(rtdb,'task:theory',1,theory)))
      *     call errquit('rtdb_put task:theory failed',0,0)
 
@@ -51,10 +54,10 @@ c
 c
       write(6,*) "got movecs from rtdb",movecs
 c
-      if (.not.rtdb_cput(rtdb,'esp:input vectors',1,
-     >                   movecs)) then
-       write (6,*) 'error in rtdb_cput'
-      end if
+c      if (.not.rtdb_cput(rtdb,'esp:input vectors',1,
+c     >                   movecs)) then
+c       write (6,*) 'error in rtdb_cput'
+c      end if
 c
       if(.not.esp(rtdb))
      &    call errquit(pname//'failed esp call', 100,
@@ -64,6 +67,7 @@ c      call smd_geom_push_charges(im)
 
       call smd_geom_monomer_end()
 
+      call smd_group_rtdb_release(rtdb)
       smd_monomer_energy = .true.
 
       return

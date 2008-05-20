@@ -31,7 +31,7 @@ c
       write(*,*) "ofragment",ofragment
 
       if(ogroups) then
-        result = task_smd_energy_groups(rtdb)
+c        result = task_smd_energy_groups(rtdb)
       else
         result = task_smd_energy_sp(rtdb)
       end if
@@ -104,78 +104,78 @@ c
 
       return
       END
-
-      function task_smd_energy_groups(rtdb)
-      implicit none
-      integer rtdb
-
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "stdio.fh"
-#include "errquit.fh"
-#include "util.fh"
-#include "global.fh"
-      logical task_smd_energy_groups
-      character*72 namespace
-      character*32 pname
-      double precision etime1,etime2,etime3,etime4,etime5,etime6
-      double precision energy,ewald1,ewald2,evdw
-      logical operiodic
-      integer i
 c
-      integer util_sgroup_mygroup
-      external util_sgroup_mygroup
+c      function task_smd_energy_groups(rtdb)
+c      implicit none
+c      integer rtdb
 c
-      logical smd_tasklist_get
-      external smd_tasklist_get
+c#include "inp.fh"
+c#include "mafdecls.fh"
+c#include "rtdb.fh"
+c#include "stdio.fh"
+c#include "errquit.fh"
+c#include "util.fh"
+c#include "global.fh"
+c      logical task_smd_energy_groups
+c      character*72 namespace
+c      character*32 pname
+c      double precision etime1,etime2,etime3,etime4,etime5,etime6
+c      double precision energy,ewald1,ewald2,evdw
+c      logical operiodic
+c      integer i
+cc
+c      integer util_sgroup_mygroup
+c      external util_sgroup_mygroup
+cc
+c      logical smd_tasklist_get
+c      external smd_tasklist_get
+cc
+c      integer util_sgroup_numgroups
+c      external util_sgroup_numgroups
 c
-      integer util_sgroup_numgroups
-      external util_sgroup_numgroups
-
-      pname = "task_smd_energy_groups"
+c      pname = "task_smd_energy_groups"
+cc
+c      call smd_tasklist_init()
+cc     
+c      call ga_sync()
+cc
+c      call smd_init_group(rtdb)
+cc
+cc      write(*,*) "number of groups",util_sgroup_numgroups(),
+cc:     >           util_sgroup_mygroup()
 c
-      call smd_tasklist_init()
-c     
-      call ga_sync()
+c99    continue
+c      if(.not.smd_tasklist_get(i))
+c     >  goto 100 
+c      if(ga_nodeid().eq.0) then
+c      write(*,*) "got task",i,util_sgroup_mygroup()
 c
-      call smd_init_groups(rtdb)
+c      write(*,*) "starting energy calculation",
+c     >            i,util_sgroup_mygroup()
+c      end if
+c      call smd_monomer_energy(i)
+c      if(ga_nodeid().eq.0) then
+c      write(*,*) "finished energy calculation",
+c     >            i,util_sgroup_mygroup()
+c      end if
+cc
+c      goto 99
 c
-      write(*,*) "number of groups",util_sgroup_numgroups(),
-     >           util_sgroup_mygroup()
-
-99    continue
-      if(.not.smd_tasklist_get(i))
-     >  goto 100 
-      if(ga_nodeid().eq.0) then
-      write(*,*) "got task",i,util_sgroup_mygroup()
-
-      write(*,*) "starting energy calculation",
-     >            i,util_sgroup_mygroup()
-      end if
-      call smd_monomer_energy(i)
-      if(ga_nodeid().eq.0) then
-      write(*,*) "finished energy calculation",
-     >            i,util_sgroup_mygroup()
-      end if
+c      call cpu_time(etime6)
+c      write(luout,'(/,a,f20.3)')'Total CPU time : ',(etime6-etime1)
+c      write(luout,'(/,a,f20.3)')'Initialization : ',(etime2-etime1)
+c      write(luout,'(/,a,f20.3)')'Verlet         : ',(etime3-etime2)
+c      write(luout,'(/,a,f20.3)')'Force          : ',(etime4-etime3)
 c
-      goto 99
-
-      call cpu_time(etime6)
-      write(luout,'(/,a,f20.3)')'Total CPU time : ',(etime6-etime1)
-      write(luout,'(/,a,f20.3)')'Initialization : ',(etime2-etime1)
-      write(luout,'(/,a,f20.3)')'Verlet         : ',(etime3-etime2)
-      write(luout,'(/,a,f20.3)')'Force          : ',(etime4-etime3)
-
-      write(*,*) "Goodbye from task_smd"
-100   continue
-
-      call ga_pgroup_sync(ga_pgroup_get_world())
-       call util_sgend(rtdb)
-       energy = 0.0d0
-       if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))
-     $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
-      call smd_end(rtdb)
-      task_smd_energy_groups = .true.
-      return
-      END
+c      write(*,*) "Goodbye from task_smd"
+c100   continue
+c
+c      call ga_pgroup_sync(ga_pgroup_get_world())
+c       call util_sgend(rtdb)
+c       energy = 0.0d0
+c       if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))
+c     $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
+c      call smd_end(rtdb)
+c      task_smd_energy_groups = .true.
+c      return
+c      END

@@ -175,8 +175,8 @@ c
       pname = "smd_rtdb_init"
       oldmode = rtdb_parallel(parallel)
       smd_rtdb = rtdb
-      if(.not. rtdb_getfname(rtdb, smd_rtdb_name)) call
-     *        errquit('rtdb_getfname failed',0,0)
+c      if(.not. rtdb_getfname(rtdb, smd_rtdb_name)) call
+c     *        errquit('rtdb_getfname failed',0,0)
 
       smd_istart=0
       smd_iend  =0

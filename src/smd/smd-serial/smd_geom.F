@@ -149,7 +149,7 @@ c
          dbl_mb(i_qbq+i-1)=dbl_mb(i_q+nm+i-1)
       end do
 
-c      call bq_print_info(bq_handle)
+      call bq_print_info(bq_handle)
 
       if(.not.bq_activate(bq_handle))
      + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
@@ -184,12 +184,12 @@ c
       character*32 pname
 
       pname = "smd_geom_end"
-      if(.not.bq_get_active(bq_handle))
-     + call errquit(pname//'Failed bq_get_active',0,CALC_ERR)
+      if(bq_get_active(bq_handle)) then
 
       if(.not.bq_destroy(bq_handle))
      + call errquit(pname//'Failed bq_destroy',0,CALC_ERR)
 
+      end if
 
       return
       end

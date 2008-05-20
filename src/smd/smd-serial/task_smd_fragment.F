@@ -4,24 +4,26 @@
 
 #include "inp.fh"
 #include "mafdecls.fh"
+#include "global.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
       logical task_smd_fragment
-      logical ogroups,result,ofragment
+      logical ogroup,result,ofragment
 c
       logical task_smd_fragment_energy
       external task_smd_fragment_energy
       logical task_smd_energy_sp
       external task_smd_energy_sp
       character*30 operation,pname
+      character*69 buffer
 c
       double precision energy
 c
       energy = 0.0d0
       pname = "task_smd_fragment"
 c
-      call smd_groups_inquire(rtdb,ogroups)
+      call smd_group_inquire(rtdb,ogroup)
 c
       call smd_init("fragment",rtdb)
 c
@@ -61,15 +63,11 @@ c
       double precision energy,ewald1,ewald2,evdw
       logical operiodic
       integer i
+      integer group_id,group_nproc,ngroup
 c
-      integer util_sgroup_mygroup
-      external util_sgroup_mygroup
-
       logical smd_tasklist_get
       external smd_tasklist_get
 c
-      integer util_sgroup_numgroups
-      external util_sgroup_numgroups
 
       pname = "task_smd_fragment_energy"
 c
@@ -77,24 +75,27 @@ c
 c     
       call ga_sync()
 c
-      call smd_init_groups(rtdb)
+      call smd_group_init(rtdb)
 c
-      write(*,*) "number of groups",util_sgroup_numgroups(),
-     >           util_sgroup_mygroup()
+      call smd_group_ngroup_get(ngroup)
+      call smd_group_id_get(group_id)
+      call smd_group_nproc_get(group_nproc)
+      write(*,*) "ngroup,id,nproc",ngroup,
+     >           group_id,group_nproc
 
 99    continue
       if(.not.smd_tasklist_get(i))
      >  goto 100 
       if(ga_nodeid().eq.0) then
-      write(*,*) "got task",i,util_sgroup_mygroup()
+      write(*,*) "got task",i,group_id
 
       write(*,*) "starting energy calculation",
-     >            i,util_sgroup_mygroup()
+     >            i,group_id
       end if
-      call smd_monomer_energy(i,rtdb)
+      call smd_monomer_energy(i)
       if(ga_nodeid().eq.0) then
       write(*,*) "finished energy calculation",
-     >            i,util_sgroup_mygroup()
+     >            i,group_id
       end if
 c
       goto 99
@@ -109,7 +110,7 @@ c
 100   continue
 
       call ga_pgroup_sync(ga_pgroup_get_world())
-       call util_sgend(rtdb)
+       call smd_group_end(rtdb)
        energy = 0.0d0
        if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))
      $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
@@ -117,3 +118,5 @@ c
       task_smd_fragment_energy = .true.
       return
       END
+
+

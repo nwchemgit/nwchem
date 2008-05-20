@@ -530,27 +530,3 @@ c     -------------------
       return
       end
 
-      subroutine smd_init_groups(rtdb)
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "global.fh"
-c     
-      logical util_sgstart
-      external util_sgstart
-c
-      integer rtdb
-c
-      integer ngroups
-
-      if (.not.rtdb_get(rtdb, 'subgroups_number', mt_int, 1,
-     &   ngroups)) 
-     $  call errquit('define number of groups', 0, RTDB_ERR)
-
-      if(.not.util_sgstart(rtdb))
-     $  call errquit('Error in SUBGROUPS init', 0, RTDB_ERR)
-      return
-      end

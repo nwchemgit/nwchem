@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.20 2008-05-13 20:57:03 marat Exp $
+* $Id: smd_data.F,v 1.21 2008-05-20 16:59:46 marat Exp $
 *
 
       block data initial_smd_data
@@ -1169,9 +1169,9 @@ c
       if(result) goto 300
       call smd_data_put_int(sname,"smd:rtdb_handle",1,rtdb)
 
-      if(.not. rtdb_getfname(rtdb, mtoken(1))) call
-     *        errquit('rtdb_getfname failed',0,0)
-       call smd_data_put_string(sname,"smd:rtdb_name",1,mtoken)
+c      if(.not. rtdb_getfname(rtdb, mtoken(1))) call
+c     *        errquit('rtdb_getfname failed',0,0)
+c       call smd_data_put_string(sname,"smd:rtdb_name",1,mtoken)
 
       return
       end
