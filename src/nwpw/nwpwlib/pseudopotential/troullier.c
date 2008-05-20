@@ -224,7 +224,7 @@ double	*pc_psp;
         /*******************************************/
         if (fill_psp[l] == 0.0)
         {
-            rmax = 10.0;
+            rmax = 20.0;
             solve_Scattering_State_Atom(n_psp[l],l_psp[l],e_psp[l],rmax);
 
             /* scattering state saved at the end of the atom list */
@@ -300,8 +300,8 @@ double	*pc_psp;
             R_Schrodinger_Fixed_E(l_psp[l]+1,l_psp[l],Vl,
                                   Ngrid-1,el,wl,wl_prime);
 
-            /* normalize the scattering state to mch = 10.0 a.u.*/
-            rmax      = 10.0;
+            /* normalize the scattering state to mch = 20.0 a.u.*/
+            rmax      = 20.0;
             mch       = rint(log(rmax/r[0])/al);
             nu0       = Norm_LogGrid(mch,(l+1.0),wl);
             nu0       = 1.0/sqrt(nu0);
