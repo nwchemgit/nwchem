@@ -73,7 +73,7 @@ c
       return
       end
 
-      function smd_tasklist_get(i)
+      function smd_tasklist_get1(i)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -87,7 +87,7 @@ c
       integer i
       integer t_p(100)
       integer t_s(100)
-      logical smd_tasklist_get
+      logical smd_tasklist_get1
 c
       pname = "smd_tasklist_get"      
 c
@@ -97,7 +97,7 @@ c      do i=1,smd_group_id
       call ga_sync()
 c      end do
 
-      smd_tasklist_get =.false.
+      smd_tasklist_get1 =.false.
       do i=1,smd_ntask
         if(t_s(i).eq.t_avail) goto 100
       end do
@@ -107,7 +107,68 @@ c      end do
       call ga_sync()
       call nga_put(smd_ga_task_status,i,i,t_s,1)
       call ga_unlock(smd_group_id)
-      smd_tasklist_get =.true.
+      smd_tasklist_get1 =.true.
       return
       end
 
+      function smd_tasklist_get(i)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_tasklist_data.fh"
+#include "smd_group_data.fh"
+      character*30 pname 
+      integer i,ig,j,ng
+      integer t_p(100)
+      integer t_s(100)
+      logical smd_tasklist_get
+c
+      pname = "smd_tasklist_get"      
+c
+      ig = smd_group_id
+      ng = smd_ngroup
+c      write(90+ig,*) "getting task"
+c      write(*,*) "ig,ng,ntask",ig,ng,smd_ntask
+      call nga_get(smd_ga_task_status,1, smd_ntask,t_s,1)
+      call ga_sync()
+
+c      write(90+ig,*) "task array"
+c      do i=1,smd_ntask 
+c      write(90+ig,*) i,t_s(i).eq.t_avail
+c      end do
+ 
+      smd_tasklist_get =.false.
+c      write(90+ig,*) "looking for unfinished task"
+c     honestly look for unfinished task
+      do i=ig,smd_ntask,ng
+        if(t_s(i).eq.t_avail) goto 100
+      end do
+c
+cc     start stealing work from left cpus
+c      call nga_get(smd_ga_task_status,1, smd_ntask,t_s,1)
+c      call ga_sync()
+c      do j=1,ig-1
+c       do i=j,smd_ntask,ng
+c        if(t_s(i).eq.t_avail) goto 100
+c       end do
+c      end do
+cc     start stealing work from right cpus
+c      call nga_get(smd_ga_task_status,1, smd_ntask,t_s,1)
+c      call ga_sync()
+c      do j=ig+1,ng
+c       do i=j,smd_ntask,ng
+c        if(t_s(i).eq.t_avail) goto 100
+c       end do
+c      end do
+      return
+100   continue
+      t_s(i) = t_busy
+      call nga_put(smd_ga_task_status,i,i,t_s,1)
+      call ga_sync()
+      smd_tasklist_get =.true.
+      return
+      end
