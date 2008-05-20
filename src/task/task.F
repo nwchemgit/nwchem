@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.88 2008-05-08 22:18:04 bert Exp $
+* $Id: task.F,v 1.89 2008-05-20 17:52:02 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -185,8 +185,6 @@ c
             status = jvltest2(rtdb)
          else if (inp_compare(.false.,'python', theory)) then
             status = task_python(rtdb)
-c         else if (inp_compare(.false.,'smd', theory)) then
-c            status = task_smd(rtdb)
          else if (inp_compare(.false.,'raktest', theory)) then
             status = raktest(rtdb)
          else if (inp_compare(.false.,'kgdtest', theory)) then
@@ -311,7 +309,7 @@ c
 c     *** task_pspw handles pspw specific "operations" ***
       else if (inp_compare(.false.,'pspw',theory)) then
         status = task_pspw(rtdb)
-
+c
 c     *** task_band handles band specific "operations" ***
       else if (inp_compare(.false.,'band',theory)) then
         status = task_band(rtdb)

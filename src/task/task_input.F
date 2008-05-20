@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.53 2007-04-02 15:41:22 bylaska Exp $
+* $Id: task_input.F,v 1.54 2008-05-20 17:52:02 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -22,6 +22,7 @@ c          [ignore]
 c
       logical numerical, ignore, oqmmm, analytic
       logical opes
+      logical ofragment
       character*30 test, operation
       character*32 theory
       character*128 err_string
@@ -33,6 +34,7 @@ c
       ignore    = .false.
       oqmmm     = .false.
       opes      = .false.
+      ofragment      = .false.
 c
       call rtdb_clean(rtdb, 'task:') ! Delete ALL previous task parameters
       
@@ -87,6 +89,8 @@ c
             ignore = .true.
          else if (inp_compare(.false.,test,'qmmm')) then
             oqmmm = .true.
+         else if (inp_compare(.false.,test,'fragment')) then
+            ofragment = .true.
          else if (inp_compare(.false.,test,'pes')) then
             opes = .true.
          else if (inp_compare(.false.,test,
@@ -181,6 +185,11 @@ c
      $        analytic)) call errquit('task_input: rtdb is corrupt',0,
      &       RTDB_ERR)
       endif
+      if (ofragment) then
+        if (.not.rtdb_put(rtdb, 'task:fragment', mt_log, 1, .true.))
+     &       call errquit('task_input:task:pes rtdb is corrupt',911,
+     &       RTDB_ERR)
+      end if
       if (opes) then
         if (.not.rtdb_put(rtdb, 'task:pes', mt_log, 1, .true.))
      &       call errquit('task_input:task:pes rtdb is corrupt',911,
