@@ -38,9 +38,12 @@ c
      >       pname//'no component '//tag,0,0)
 
 
+      call ga_sync()
       call smd_fragment_init(sp_fragment)
+      call ga_sync()
       call smd_fragment_charge_set_all()
 c      call smd_fragment_charge_print()
+      call ga_sync()
 c
       return
       end

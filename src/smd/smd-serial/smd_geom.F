@@ -91,12 +91,12 @@ c     -----------------------------------------
         dbl_mb(i_ct+i-1) = dbl_mb(i_c+i-1)
       end do
 
-      call smd_coords_print_pdb("old.pdb")
+c      call smd_coords_print_pdb("old.pdb")
 
       call smd_geom_recenter(nt,nm,i0,dbl_mb(i_cd),
      >                       dbl_mb(i_ct))
 
-      call smd_coords_print_pdb1("new.pdb",dbl_mb(i_ct))
+c      call smd_coords_print_pdb1("new.pdb",dbl_mb(i_ct))
 
       if(.not.geom_create(igeom,"geometry"))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)

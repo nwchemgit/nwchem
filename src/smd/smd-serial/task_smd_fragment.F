@@ -83,6 +83,8 @@ c
       if(.not.smd_tasklist_get(i))
      >  goto 100 
 
+      if(ga_nodeid().eq.0)
+     > write(*,*) "got task",i,group_id
       call smd_monomer_energy(i)
 c
       goto 99

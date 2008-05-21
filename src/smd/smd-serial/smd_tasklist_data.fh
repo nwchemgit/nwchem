@@ -1,10 +1,11 @@
 *
-* $Id: smd_tasklist_data.fh,v 1.2 2008-05-13 22:10:23 marat Exp $
+* $Id: smd_tasklist_data.fh,v 1.3 2008-05-21 22:44:06 marat Exp $
 *
       integer smd_ntask
       integer smd_ga_taskname
       integer smd_ga_task_status
       integer smd_ga_task_params
+      integer smd_ga_group_pool
       
       integer t_dft
       parameter(t_dft = 0)
@@ -20,11 +21,15 @@
 
       integer t_done
       parameter(t_done = 2)
+       
+      logical osteal
 
 
       common /smd_tasklist_data/ smd_ntask,
      >                           smd_ga_taskname,
+     >                           osteal,
      >                           smd_ga_task_status,
+     >                           smd_ga_group_pool,
      >                           smd_ga_task_params
 
 
