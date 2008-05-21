@@ -40,7 +40,7 @@ c
 
       call smd_fragment_init(sp_fragment)
       call smd_fragment_charge_set_all()
-      call smd_fragment_charge_print()
+c      call smd_fragment_charge_print()
 c
       return
       end

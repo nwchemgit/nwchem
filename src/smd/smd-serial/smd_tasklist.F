@@ -53,14 +53,12 @@ c
       end do
 
       call nga_put(smd_ga_task_params,1,smd_ntask,t,1)
-      call ga_print(smd_ga_task_params)
 
       do i=1,smd_ntask
        t(i) = t_avail
       end do
 
       call nga_put(smd_ga_task_status,1,smd_ntask,t,1)
-      call ga_print(smd_ga_task_status)
  
       return
       end

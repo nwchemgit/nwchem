@@ -38,6 +38,7 @@ c
 
 c
       call smd_geom_monomer_create(im)
+      write(*,*) "smd theory is set to",theory
       result = task_energy_doit(rtdb,theory,qm_energy)
 c
 c      if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
