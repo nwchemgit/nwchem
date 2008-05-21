@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.147 2008-05-21 00:37:15 bert Exp $
+C$Id: geom.F,v 1.148 2008-05-21 18:03:50 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2361,6 +2361,15 @@ c
          return
       end if
 c
+      if (inp_match(14, .false., buf(2:2), sym1, ind)) then
+         ind = atn1(ind)
+         symbol  = symbols(ind)
+         element = elements(ind)
+         atn     = ind
+         geom_tag_to_element = .true.
+         return
+      end if
+cc
 c     Nothing matched
 c
       symbol = ' '
@@ -2494,7 +2503,10 @@ c
            goto 100
         end if
 100     continue
-        if(.not.match) goto 101
+        if(.not.match) then
+          write(*,*) "buffer",buf
+          goto 101
+        end if
       end do
 101   continue
       
