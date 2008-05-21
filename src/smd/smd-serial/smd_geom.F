@@ -158,7 +158,7 @@ c
          dbl_mb(i_qbq+i-1)=dbl_mb(i_q+nm+i-1)
       end do
 
-      call bq_print_xyz(bq_handle,98)
+c      call bq_print_xyz(bq_handle,98)
 
       if(.not.bq_activate(bq_handle))
      + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
