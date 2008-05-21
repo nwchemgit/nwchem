@@ -149,8 +149,8 @@ c
 #include "global.fh"
 #include "smd_const_data.fh"
       integer nt
-      character*(*) ta(nt)
-      character*(*) tr(nt)
+      character*(smd_string_size) ta(nt)
+      character*(smd_string_size) tr(nt)
       integer ir(nt)
 c
       character*(180) buffer
@@ -170,6 +170,9 @@ c
      >       pname//'no coord file found',0, 0)
 c
       call smd_pdb_read_atomres(filename,nt,ta,tr,ir)
+      do i=1,nt
+       write(*,*) ta(i)
+      end do
 
       return
 

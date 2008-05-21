@@ -362,3 +362,152 @@ c     -------------
 
       return
       end
+
+      subroutine smd_coords_print_pdb(fname)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+      character*(*) fname
+c     
+      integer un
+      character*32 sp_coords
+c
+      character*72 tag
+      character*30 pname
+      integer na
+      integer i,i0,j
+      integer i_c,i_ta,i_tr,i_ir
+      logical result
+c
+      pname = "smd_coords_print"
+c
+      if(.not.util_get_io_unit(un)) 
+     >   call errquit("cannot get file number",0,0)
+      open(unit=un,status="unknown",form="formatted",file=fname)
+c
+c     get atomic coordinates
+c     ----------------------
+      tag = "coords"
+      call smd_get_ind_size(tag,i_c,na,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+      na = na/3
+c
+      tag = "atom:name"
+      call smd_get_ind(tag,i_ta,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+      tag = "atom:resid"
+      call smd_get_ind(tag,i_ir,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+      tag = "atom:resname"
+      call smd_get_ind(tag,i_tr,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+ 
+
+      do i=1,na
+       i0=smd_string_size*(i-1)
+       write(un,FMT=9000)
+     >           i,
+     >           (byte_mb(i_ta+i0+j-1),j=1,4),
+     >           (byte_mb(i_tr+i0+j-1),j=1,3),
+     >            int_mb(i_ir+i-1),
+     >            dbl_mb(i_c+(i-1)),
+     >            dbl_mb(i_c+(i-1)+na),
+     >            dbl_mb(i_c+(i-1)+2*na)
+
+      end do
+      close(un)
+9000  FORMAT("ATOM",T7,I5,T13,4A,T18,3A,T23,
+     >       I4,T31,F8.3,T39,F8.3,T47,F8.3)
+
+      return
+      end
+
+      subroutine smd_coords_print_pdb1(fname,c)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+      character*(*) fname
+      double precision c(*)
+c     
+      integer un
+      character*32 sp_coords
+c
+      character*72 tag
+      character*30 pname
+      integer na
+      integer i,i0,j
+      integer i_c,i_ta,i_tr,i_ir
+      logical result
+c
+      pname = "smd_coords_print"
+c
+      if(.not.util_get_io_unit(un)) 
+     >   call errquit("cannot get file number",0,0)
+      open(unit=un,status="unknown",form="formatted",file=fname)
+c
+c     get atomic coordinates
+c     ----------------------
+      tag = "coords"
+      call smd_get_ind_size(tag,i_c,na,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+      na = na/3
+c
+      tag = "atom:name"
+      call smd_get_ind(tag,i_ta,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+      tag = "atom:resid"
+      call smd_get_ind(tag,i_ir,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+      tag = "atom:resname"
+      call smd_get_ind(tag,i_tr,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+ 
+
+      do i=1,na
+       i0=smd_string_size*(i-1)
+       write(un,FMT=9000)
+     >           i,
+     >           (byte_mb(i_ta+i0+j-1),j=1,4),
+     >           (byte_mb(i_tr+i0+j-1),j=1,3),
+     >            int_mb(i_ir+i-1),
+     >            c(i),
+     >            c(i+na),
+     >            c(i+2*na)
+
+      end do
+      close(un)
+9000  FORMAT("ATOM",T7,I5,T13,4A,T18,3A,T23,
+     >       I4,T31,F8.3,T39,F8.3,T47,F8.3)
+
+      return
+      end

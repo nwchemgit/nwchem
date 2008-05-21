@@ -39,18 +39,18 @@ c
       call smd_geom_monomer_create(im)
       result = task_energy_doit(rtdb,theory,qm_energy)
 c
-c      if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
-c     +     call errquit('esp: rtdb_put newgrd failed',0,0)
+      if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
+     +     call errquit('esp: rtdb_put newgrd failed',0,0)
 
-      if (theory.eq.'dft') then
-       tag='dft:output vectors'
-      else
-       tag='scf:output vectors'
-      endif
-      if (.not.rtdb_cget(rtdb,tag,1,
-     >                   movecs)) then
-       write (6,*) 'error in rtdb_cget'
-      end if
+c      if (theory.eq.'dft') then
+c       tag='dft:output vectors'
+c      else
+c       tag='scf:output vectors'
+c      endif
+c      if (.not.rtdb_cget(rtdb,tag,1,
+c     >                   movecs)) then
+c       write (6,*) 'error in rtdb_cget'
+c      end if
 c
 c
 c      if (.not.rtdb_cput(rtdb,'esp:input vectors',1,
@@ -58,9 +58,9 @@ c     >                   movecs)) then
 c       write (6,*) 'error in rtdb_cput'
 c      end if
 c
-c      if(.not.esp(rtdb))
-c     &    call errquit(pname//'failed esp call', 100,
-c     &                 RTDB_ERR)
+      if(.not.esp(rtdb))
+     &    call errquit(pname//'failed esp call', 100,
+     &                 RTDB_ERR)
 c
 c      call smd_geom_push_charges(im)
 
