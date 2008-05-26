@@ -1,6 +1,6 @@
       subroutine aoresponse_driver (rtdb, basis, geom)
 
-c     $Id: aoresponse_driver.F,v 1.1 2006-11-16 18:23:01 jochen Exp $
+c     $Id: aoresponse_driver.F,v 1.2 2008-05-26 00:15:29 jhammond Exp $
 
 c     ==================================================================
 
@@ -107,6 +107,18 @@ c     GA handles for one-electron integrals and temp arrays
       external ga_trace_diag
 
       logical debug, lgiao, lvelocity, lmagpert, lstatic, lifetime
+
+#ifdef JEFF_OUTPUT
+      double precision auXnm   ! Conversion factor from a.u. to nm
+      parameter (auXnm=45.563353d0)
+      double precision alphaiso     ! Isotropic dipole polarizability
+      double precision alphaani     ! Anisotropic dipole polarizability
+      double precision alphaevr(3)  ! Dipole polarizability tensor eigenvalues (real)
+      double precision alphaevi(3)  ! Dipole polarizability tensor eigenvalues (imag)
+      double precision aeigvec(3,3) ! dummy dgeev eigenvectors
+      double precision awork(9)     ! dgeev workspace
+      integer aeiginfo              ! dgeev information
+#endif
 
 c     ==================================================================
 
@@ -569,6 +581,31 @@ c     ------------
           endif
         endif
         call output(alfare,1,3,1,3,3,3,1)
+c
+c
+c
+#ifdef JEFF_OUTPUT
+          call dgeev('N','N',3,alfare,3,alphaevr,alphaevi,
+     1               aeigvec,3,aeigvec,3,awork,9,aeiginfo)
+          if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
+          alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
+          alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
+     1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
+     2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
+          alphaani = dsqrt(0.5d0*alphaani)
+c
+          if (ga_nodeid().eq.0) write(LuOut,9434) "DFT Linear Response",
+     1        dbl_mb(k_fr),auXnm/dbl_mb(k_fr),
+     2        alfare(1,1),alfare(2,1),alfare(3,1),
+     3        alfare(2,1),alfare(2,2),alfare(3,2),
+     4        alfare(3,1),alfare(3,2),alfare(3,3),
+     5        alphaevr(1),alphaevr(2),alphaevr(3),
+     6        alphaiso,alphaani
+          call util_flush(LuOut)
+#endif
+c
+c
+c
         if (lifetime) then
           write (luout,*)
           write (luout,*) 'Imaginary part:'
@@ -670,5 +707,19 @@ c     ==================================================================
      &       ' obtained with this code. Thank you!'/)
  9020 format(/,10x,'Open shell calculations not yet implemented',
      &      ' for the Response module. Exiting')
-
+ 9434 format(/,1x,A,' polarizability / au ',/
+     1  1x,'Frequency  = ',f15.7,' / au',/
+     1  1x,'Wavelength = ',f15.7,' / nm',/
+     2  1x,'             X              Y              Z',/
+     3  1x,'-----------------------------------------------',/
+     4  1x,'X ',3f15.7,/
+     5  1x,'Y ',3f15.7,/
+     6  1x,'Z ',3f15.7,/
+     3  1x,'-----------------------------------------------',/
+     6  1x,'Eigenvalues = ',1f15.7,/
+     6  1x,'            = ',1f15.7,/
+     6  1x,'            = ',1f15.7,/
+     6  1x,'Isotropic   = ',1f15.7,/
+     6  1x,'Anisotropic = ',1f15.7,/
+     7  1x,'-----------------------------------------------')
       end

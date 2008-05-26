@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.29 2008-04-08 22:15:20 windus Exp $
+# $Id: GNUmakefile,v 1.30 2008-05-26 00:15:33 jhammond Exp $
 #
 
 
@@ -40,9 +40,16 @@
    LIBRARY = libproperty.a
    LIB_DEFINES = 
 
-    LIB_INCLUDES = -I../nwdft/include -I../ddscf
+#
+# If you add -DJEFF_OUTPUT to LIB_DEFINES, the dipole polarizability will be printed in the same format as the TCE.
+# This is very useful (1) if you wrote scripts to parse that particular formatting and (2) if you want the anisotrophy.
+#
 
-USES_BLAS = hnd_elfcon.F wnbofile.F hnd_spinspin.F hnd_mtpole.F hnd_mulken.F hnd_elpmap.F hnd_elfmap.F hnd_mtpcon.F giaofock.F hnd_spinspin.F 
+   LIB_INCLUDES = -I../nwdft/include -I../ddscf
+
+USES_BLAS = hnd_elfcon.F wnbofile.F hnd_spinspin.F hnd_mtpole.F hnd_mulken.F \
+            hnd_elpmap.F hnd_elfmap.F hnd_mtpcon.F giaofock.F hnd_spinspin.F \
+            aoresponse_driver.F
 
 HEADERS = prop.fh atomdata.fh
 
