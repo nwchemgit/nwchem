@@ -41,8 +41,8 @@ c
       write(*,*) "smd theory is set to",theory
       result = task_energy_doit(rtdb,theory,qm_energy)
 c
-c      if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
-c     +     call errquit('esp: rtdb_put newgrd failed',0,0)
+      if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
+     +     call errquit('esp: rtdb_put newgrd failed',0,0)
 
 c      if (theory.eq.'dft') then
 c       tag='dft:output vectors'
@@ -60,15 +60,18 @@ c     >                   movecs)) then
 c       write (6,*) 'error in rtdb_cput'
 c      end if
 c
-c      if(.not.esp(rtdb))
-c     &    call errquit(pname//'failed esp call', 100,
-c     &                 RTDB_ERR)
+      if(.not.esp(rtdb))
+     &    call errquit(pname//'failed esp call', 100,
+     &                 RTDB_ERR)
 c
-c      call smd_geom_push_charges(im)
+      call smd_geom_push_charges(im)
+      if(ga_nodeid().eq.0)
+     &     call smd_fragment_charge_set(im)
 
       call smd_geom_monomer_end()
 
       call smd_group_rtdb_release(rtdb)
+      call smd_fragment_charge_print()
       smd_monomer_energy = .true.
 
       return

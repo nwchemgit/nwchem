@@ -42,7 +42,7 @@ c
       call smd_fragment_init(sp_fragment)
       call ga_sync()
       call smd_fragment_charge_set_all()
-c      call smd_fragment_charge_print()
+      call smd_fragment_charge_print()
       call ga_sync()
 c
       return
@@ -97,12 +97,10 @@ c
      >       pname//'nga_create error ',0, RTDB_ERR)
       call smd_data_put_int(sp_fragment,"energy",1,ga_energies)
 
-
-
       return
       end
 
-      subroutine smd_fragment_charge_set_all()
+      subroutine smd_fragment_charge_set_all1()
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -124,6 +122,39 @@ c
        call smd_fragment_charge_set(i)
       end do
 
+      return
+      end
+
+      subroutine smd_fragment_charge_set_all()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      character*32 pname,tag
+      logical result
+      integer i_q
+      integer ga_charges
+      integer na
+      integer lo(1), hi(1), ld(1)
+c
+      pname = "smd_fragment_charge_set_all"
+c
+      tag = "charge"
+      call smd_get_ind_size(tag,i_q,na,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, rtdb_err)
+
+      call smd_fragment_charge_handle(ga_charges)
+
+      lo(1) = 1
+      hi(1) = na
+      ld(1) = 1
+      call nga_put(ga_charges,lo, hi, dbl_mb(i_q), ld)
       return
       end
 
@@ -172,7 +203,6 @@ c
       call nga_put(ga_charges,lo, hi, dbl_mb(i_q+i0-1), ld)
       return
       end
-
       subroutine smd_fragment_charge_get_all()
       implicit none
 #include "errquit.fh"
