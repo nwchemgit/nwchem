@@ -300,9 +300,9 @@ c
       call ga_print_distribution(ga)
       call ga_print(ga)
 
-      call smd_fragment_energy_handle(ga)
-      call ga_print_distribution(ga)
-      call ga_print(ga)
+c      call smd_fragment_energy_handle(ga)
+c      call ga_print_distribution(ga)
+c      call ga_print(ga)
 
       return
       end

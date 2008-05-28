@@ -110,8 +110,8 @@ c      call smd_coords_print_pdb1("new.pdb",dbl_mb(i_ct))
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
 c
-      if (.not. geom_print_xyz(igeom,97))
-     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
+c      if (.not. geom_print_xyz(igeom,97))
+c     + call errquit('qmmmsi geom_print_xyz',0, GEOM_ERR)
 c
       if(.not.geom_rtdb_store(rtdb,igeom,"geometry"))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
