@@ -1,4 +1,4 @@
-c#define SFCREATESUFFIX
+#define SFCREATESUFFIX
 
         subroutine x4_restart_save(d_x4,k_x4_offset,size_x4,state,
      1                           handle_x4,irrep)
@@ -153,6 +153,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_x4).ne.0)
+     2   call errquit('x4_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -308,6 +312,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_y4).ne.0)
+     2   call errquit('y4_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -466,6 +474,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_tr4).ne.0)
+     2   call errquit('tr4_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -621,5 +633,9 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_yr4).ne.0)
+     2   call errquit('yr4_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 

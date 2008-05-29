@@ -1,4 +1,4 @@
-c#define SFCREATESUFFIX
+#define SFCREATESUFFIX
 
 #ifndef SFCREATESUFFIX
       subroutine sf_create_suffix(filename,size1,size2,
@@ -115,6 +115,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_v2).ne.0)
+     2   call errquit('v2_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -211,6 +215,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_f1).ne.0)
+     2   call errquit('f1_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -326,6 +334,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_d1).ne.0)
+     2   call errquit('d1_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -442,6 +454,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_x1).ne.0)
+     2   call errquit('x1_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -559,6 +575,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_tr1).ne.0)
+     2   call errquit('tr1_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -675,6 +695,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_y1).ne.0)
+     2   call errquit('y1_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -790,6 +814,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_yr1).ne.0)
+     2   call errquit('yr1_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -914,6 +942,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_x2).ne.0)
+     2   call errquit('x2_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -1037,6 +1069,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_tr2).ne.0)
+     2   call errquit('tr2_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -1160,6 +1196,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_y2).ne.0)
+     2   call errquit('y2_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -1283,6 +1323,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_yr2).ne.0)
+     2   call errquit('yr2_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -1440,6 +1484,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_x3).ne.0)
+     2   call errquit('x3_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -1593,6 +1641,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_y3).ne.0)
+     2   call errquit('y3_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -1750,6 +1802,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_tr3).ne.0)
+     2   call errquit('tr3_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -1903,6 +1959,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_yr3).ne.0)
+     2   call errquit('yr3_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -2027,6 +2087,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_v2).ne.0)
+     2   call errquit('v2_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -2122,6 +2186,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_f1).ne.0)
+     2   call errquit('f1_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -2237,6 +2305,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_d1).ne.0)
+     2   call errquit('d1_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -2365,6 +2437,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_x1).ne.0)
+     2   call errquit('x1_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -2482,6 +2558,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_tr1).ne.0)
+     2   call errquit('tr1_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -2598,6 +2678,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_y1).ne.0)
+     2   call errquit('y1_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -2713,6 +2797,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_yr1).ne.0)
+     2   call errquit('yr1_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -2837,6 +2925,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_x2).ne.0)
+     2   call errquit('x2_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -2960,6 +3052,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_tr2).ne.0)
+     2   call errquit('tr2_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -3083,6 +3179,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_y2).ne.0)
+     2   call errquit('y2_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -3206,6 +3306,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_yr2).ne.0)
+     2   call errquit('yr2_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -3361,6 +3465,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_x3).ne.0)
+     2   call errquit('x3_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -3515,6 +3623,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_y3).ne.0)
+     2   call errquit('y3_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -3670,6 +3782,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_tr3).ne.0)
+     2   call errquit('tr3_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -3824,6 +3940,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_yr3).ne.0)
+     2   call errquit('yr3_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -3968,6 +4088,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_x3a).ne.0)
+     2   call errquit('x3a_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
 c
@@ -4114,5 +4238,9 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if (sf_destroy(handle_x3a).ne.0)
+     2   call errquit('x3a_restart_save: sf_problem',0,DISK_ERR)
+c
       return 
       end 
