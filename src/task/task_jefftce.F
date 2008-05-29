@@ -1,36 +1,3 @@
-      logical function task_multilevel(rtdb)
-      implicit none
-#include "errquit.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "inp.fh"
-#include "util.fh"
-#include "global.fh"
-      integer rtdb
-c
-      logical status
-      logical property
-      external property
-      logical tce_multilevel
-      external tce_multilevel
-      character*32 theory
-c
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $ call errquit('task_multilevel: theory not specified',0, RTDB_ERR)
-c
-      if (theory .eq. 'tce') then
-        status = tce_multilevel(rtdb)
-      else 
-       call errquit('task_multilevel: only valid for tce',0,RTDB_ERR)
-      endif
-c
-      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
-     $     call errquit('task_multilevel: failed to store status',0, 
-     $                  RTDB_ERR)
-c
-      task_multilevel = status
-c
-      end
       logical function task_cholesky(rtdb)
       implicit none
 #include "errquit.fh"
