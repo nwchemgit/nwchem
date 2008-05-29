@@ -32,20 +32,27 @@
       integer axisB
       integer axisC
       integer axisD
-      integer d_a0                ! Dipole polarizability component handle
-      integer l_a0_offset         ! Offset for a0 file
-      integer k_a0_offset         ! Offset for a0 file
-      integer size_a0             ! File size in doubles
-      double precision alpha(3,3) ! Dipole polarizability tensor
-      integer d_b0                ! Dipole hyperpolarizability component handle
-      integer l_b0_offset         ! Offset for b0 file
-      integer k_b0_offset         ! Offset for b0 file
-      integer size_b0             ! File size in doubles
-      double precision beta(3,3,3)! Dipole hyperpolarizability tensor
-      integer d_g0                ! Dipole second hyperpolarizability component handle
-      integer l_g0_offset         ! Offset for g0 file
-      integer k_g0_offset         ! Offset for g0 file
-      integer size_g0             ! File size in doubles
+      integer d_a0                  ! Dipole polarizability component handle
+      integer l_a0_offset           ! Offset for a0 file
+      integer k_a0_offset           ! Offset for a0 file
+      integer size_a0               ! File size in doubles
+      double precision alpha(3,3)   ! Dipole polarizability tensor
+      double precision alphaiso     ! Isotropic dipole polarizability
+      double precision alphaani     ! Anisotropic dipole polarizability
+      double precision alphaevr(3)  ! Dipole polarizability tensor eigenvalues (real)
+      double precision alphaevi(3)  ! Dipole polarizability tensor eigenvalues (imag)
+      double precision aeigvec(3,3) ! dummy dgeev eigenvectors
+      double precision awork(9)     ! dgeev workspace
+      integer aeiginfo              ! dgeev information
+      integer d_b0                  ! Dipole hyperpolarizability component handle
+      integer l_b0_offset           ! Offset for b0 file
+      integer k_b0_offset           ! Offset for b0 file
+      integer size_b0               ! File size in doubles
+      double precision beta(3,3,3)  ! Dipole hyperpolarizability tensor
+      integer d_g0                  ! Dipole second hyperpolarizability component handle
+      integer l_g0_offset           ! Offset for g0 file
+      integer k_g0_offset           ! Offset for g0 file
+      integer size_g0               ! File size in doubles
       double precision gamm(3,3,3,3)! Dipole second hyperpolarizability tensor (gamma not safe variable name)
 c      integer d_o1             
 c      integer l_o1_offset      
