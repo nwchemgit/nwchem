@@ -1,6 +1,6 @@
       subroutine aoresponse_driver (rtdb, basis, geom)
 
-c     $Id: aoresponse_driver.F,v 1.2 2008-05-26 00:15:29 jhammond Exp $
+c     $Id: aoresponse_driver.F,v 1.3 2008-05-30 23:52:26 jhammond Exp $
 
 c     ==================================================================
 
@@ -109,6 +109,7 @@ c     GA handles for one-electron integrals and temp arrays
       logical debug, lgiao, lvelocity, lmagpert, lstatic, lifetime
 
 #ifdef JEFF_OUTPUT
+      double precision alfare2(3,3), alfaim2(3,3)
       double precision auXnm   ! Conversion factor from a.u. to nm
       parameter (auXnm=45.563353d0)
       double precision alphaiso     ! Isotropic dipole polarizability
@@ -585,6 +586,12 @@ c
 c
 c
 #ifdef JEFF_OUTPUT
+      do idir = 1,3
+        do ipert = 1,3
+          alfare2(idir,ipert) = alfare(idir,ipert)
+          alfaim2(idir,ipert) = alfaim(idir,ipert)
+        enddo
+      enddo
           call dgeev('N','N',3,alfare,3,alphaevr,alphaevi,
      1               aeigvec,3,aeigvec,3,awork,9,aeiginfo)
           if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
