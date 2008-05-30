@@ -1,5 +1,5 @@
 *
-* $Id: smd_group_data.fh,v 1.1 2008-05-20 16:59:59 marat Exp $
+* $Id: smd_group_data.fh,v 1.2 2008-05-30 17:23:18 marat Exp $
 *
       integer smd_ngroup
       integer smd_group_nproc
@@ -11,6 +11,7 @@
       character*255 smd_group_movecs
       character*255 smd_group_prefix
       character*255 smd_group_prefix_world
+      logical smd_group_rtdb_reuse
 
       common /smd_group_data/ smd_ngroup,
      >                         smd_group_id,
@@ -21,6 +22,7 @@
      >                         smd_group_prefix_world,
      >                         smd_group_rtdb,
      >                         smd_group_prefix,
+     >                         smd_group_rtdb_reuse,
      >                         smd_group_movecs
 
 

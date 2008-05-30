@@ -6,6 +6,7 @@ c
       data  smd_group_nproc /-1/
       data  smd_group_id /-1/
       data  smd_group_handle /-1/
+      data smd_group_rtdb_reuse /.false./
 
       end
       subroutine smd_group_init(rtdb)
@@ -23,7 +24,7 @@ c
       integer ngroups
       integer i1
 
-      character*36 buffer
+      character*255 buffer, buffer1
       if (.not.rtdb_get(rtdb, 'subgroups_number', mt_int, 1,
      &   ngroups)) 
      $  call errquit('define number of groups', 0, RTDB_ERR)
@@ -38,11 +39,42 @@ c
 
       call smd_group_create_simple(ngroups)
 
-      call util_file_prefix_get(smd_group_prefix_world)
-      i1 = inp_strlen(smd_group_prefix_world)
-      write(smd_group_prefix,'(A,I4.4)')
-     >    smd_group_prefix_world(1:i1),smd_group_id
-      call util_file_prefix_set(smd_group_prefix)
+c      call util_file_prefix_get(buffer)
+c      i1 = inp_strlen(buffer)
+c      write(buffer1,'(A,I4.4)')
+c     >    buffer(1:i1),smd_group_id
+c      call util_file_prefix_set(buffer1)
+c
+c      call util_file_prefix_get(smd_group_prefix_world)
+c      i1 = inp_strlen(smd_group_prefix_world)
+c      write(smd_group_prefix,'(A,I4.4)')
+c     >    smd_group_prefix_world(1:i1),smd_group_id
+c      call util_file_prefix_set(smd_group_prefix)
+
+
+      return
+      end
+      subroutine smd_group_prefix_set(im)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_group_data.fh"
+c     
+      integer im
+      integer rtdb
+c
+      character*255 buffer,buffer1
+      integer i1
+
+      call util_file_prefix_get(buffer)
+      i1 = inp_strlen(buffer)
+      write(buffer1,'(A,I4.4)')
+     >    buffer(1:i1),im
+      call util_file_prefix_set(buffer1)
 
       return
       end
@@ -125,6 +157,54 @@ c     >          smd_group_id
       return
       end
 
+      subroutine smd_group_rtdb_clone2(rtdb,im)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_group_data.fh"
+#include "rtdb.fh"
+      integer rtdb
+      integer im
+c     
+      character*255 buffer,buffer1
+      integer i1,i2
+      logical result
+c
+      call ga_sync()
+c
+      buffer = ""
+      write(buffer,'(I4.4,A3)')
+     >          im,".db"
+
+      call util_file_prefix(buffer,smd_group_rtdb)
+      if(ga_nodeid().eq.0) then
+        if(smd_group_rtdb_reuse) then
+        buffer = smd_group_rtdb
+        call util_file_name_resolve(buffer,.false.)
+        inquire(file=buffer,exist=result)
+        else
+        result = .false.
+        end if
+        if(.not.result) then
+          buffer = smd_group_rtdb_world
+        end if
+        buffer1 = smd_group_rtdb
+        call util_file_name_resolve(buffer1,.true.)
+        write(*,*) "copying rtdb from",buffer(1:inp_strlen(buffer))
+        call util_file_copy(buffer,buffer1)
+      end if
+
+      if(.not.rtdb_open(buffer1,"old",rtdb))
+     + call errquit('Failed to open group rtdb',0, GEOM_ERR)
+      
+      smd_group_rtdb_reuse = .true.
+
+      return
+      end
+
       subroutine smd_group_rtdb_clone(rtdb)
       implicit none
 #include "errquit.fh"
@@ -185,6 +265,41 @@ c
       character*72 buffer
       integer i1,i2
       logical result
+c
+      if(.not.rtdb_close(rtdb, 'delete'))
+     + call errquit('Failed to close group rtdb',0, GEOM_ERR)
+c
+      smd_group_rtdb = " "
+
+
+      return
+      end
+
+      subroutine smd_group_rtdb_release1(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_group_data.fh"
+#include "rtdb.fh"
+      integer rtdb
+c     
+      character*255 buffer,buffer1
+      integer i1,i2
+      logical result
+
+      if(.not.rtdb_getfname(rtdb,buffer))
+     $  call errquit('rtdb_getfname', 0, RTDB_ERR)
+c
+c
+      if(ga_nodeid().eq.0) then
+        buffer1 = smd_group_rtdb
+        call util_file_name_resolve(buffer1,.false.)
+        call util_file_copy(buffer,buffer1)
+      end if
+
 c
       if(.not.rtdb_close(rtdb, 'delete'))
      + call errquit('Failed to close group rtdb',0, GEOM_ERR)
