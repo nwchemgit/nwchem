@@ -1,6 +1,6 @@
       subroutine aoresponse_driver (rtdb, basis, geom)
 
-c     $Id: aoresponse_driver.F,v 1.3 2008-05-30 23:52:26 jhammond Exp $
+c     $Id: aoresponse_driver.F,v 1.4 2008-05-31 22:43:44 jhammond Exp $
 
 c     ==================================================================
 
@@ -592,7 +592,7 @@ c
           alfaim2(idir,ipert) = alfaim(idir,ipert)
         enddo
       enddo
-          call dgeev('N','N',3,alfare,3,alphaevr,alphaevi,
+          call dgeev('N','N',3,alfare2,3,alphaevr,alphaevi,
      1               aeigvec,3,aeigvec,3,awork,9,aeiginfo)
           if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
