@@ -1,4 +1,4 @@
-#define SFCREATESUFFIX
+c#define SFCREATESUFFIX
 
         subroutine x4_restart_save(d_x4,k_x4_offset,size_x4,state,
      1                           handle_x4,irrep)
