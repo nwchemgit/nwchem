@@ -189,3 +189,40 @@ c      call nga_put(smd_ga_group_pool,ig,ig,t_busy,1)
       smd_tasklist_get =.true.
       return
       end
+
+      subroutine smd_tasklist_set()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_tasklist_data.fh"
+#include "smd_group_data.fh"
+      character*30 pname 
+      integer t
+      integer i,ig,j,ng,it
+      integer t_p(100)
+      integer t_s(100)
+      integer p_world,p_default
+c
+      pname = "smd_tasklist_set"      
+c
+      p_world   = ga_pgroup_get_world()
+      p_default = ga_pgroup_get_default()
+      call ga_pgroup_sync(p_world)
+c
+      call ga_pgroup_set_default(p_world)
+c
+      if(ga_nodeid().eq.0) then
+      do i=1,smd_ntask
+        t_s(i)=t_avail
+      end do
+      call nga_put(smd_ga_task_status,1, smd_ntask,t_s,1)
+      end if
+
+      call ga_pgroup_set_default(p_default)
+
+      return
+      end

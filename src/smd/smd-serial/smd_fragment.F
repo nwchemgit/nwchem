@@ -40,8 +40,6 @@ c
 
       call ga_sync()
       call smd_fragment_init(sp_fragment)
-      call ga_sync()
-      call smd_fragment_charge_set_all()
       call smd_fragment_charge_print()
       call ga_sync()
 c
@@ -64,7 +62,7 @@ c
       integer na
 c
       integer ndims, type, ga_charges
-      integer ga_energies
+      integer ga_energies,ga_charges0
       integer dims(1), chunk(1)
       integer rtdb
 c
@@ -91,11 +89,23 @@ c     ---------------------------
      >       pname//'nga_create error ',0, RTDB_ERR)
       call smd_data_put_int(sp_fragment,"charge",1,ga_charges)
 c
+      if(.not.ga_duplicate(ga_charges,ga_charges0,"fragment_charges0"))
+     >  call errquit(
+     >       pname//'ga_duplicate error',0, RTDB_ERR)
+      call smd_data_put_int(sp_fragment,"charge0",1,ga_charges0)
+c
       if(.not.nga_create(mt_dbl, 1, na, 
      >    'fragment_energies',1, ga_energies)) 
      >  call errquit(
      >       pname//'nga_create error ',0, RTDB_ERR)
       call smd_data_put_int(sp_fragment,"energy",1,ga_energies)
+
+      call ga_sync()
+      if(ga_nodeid().eq.0)
+     > call smd_fragment_charge_set_all()
+      call ga_sync()
+     
+      call ga_copy(ga_charges,ga_charges0)
 
       return
       end
@@ -158,6 +168,39 @@ c
       return
       end
 
+      subroutine smd_fragment_charge_get_all()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      character*32 pname,tag
+      logical result
+      integer i_q
+      integer ga_charges
+      integer na
+      integer lo(1), hi(1), ld(1)
+c
+      pname = "smd_fragment_charge_get_all"
+c
+      tag = "charge"
+      call smd_get_ind_size(tag,i_q,na,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, rtdb_err)
+
+      call smd_fragment_charge_handle(ga_charges)
+
+      lo(1) = 1
+      hi(1) = na
+      ld(1) = 1
+      call nga_get(ga_charges,lo, hi, dbl_mb(i_q), ld)
+      return
+      end
+
       subroutine smd_fragment_charge_set(im)
       implicit none
 #include "errquit.fh"
@@ -203,7 +246,7 @@ c
       call nga_put(ga_charges,lo, hi, dbl_mb(i_q+i0-1), ld)
       return
       end
-      subroutine smd_fragment_charge_get_all()
+      subroutine smd_fragment_charge_get_all1()
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -331,6 +374,59 @@ c
       if(.not.result)
      >  call errquit(
      >       pname//' getting handle'//tag,0,0)
+      return
+      end
+
+      subroutine smd_fragment_charge_diff(eps)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+      double precision eps
+c     
+      integer ga
+      integer ga0
+      integer p_world,p_default
+c     
+      logical result
+      character*(smd_string_size) tag,sp,pname
+c
+      pname  = "smd_fragment_charge_handle"
+c
+      p_world   = ga_pgroup_get_world()
+      p_default = ga_pgroup_get_default()
+      call ga_pgroup_sync(p_world)
+c
+      call ga_pgroup_set_default(p_world)
+c
+      tag = "fragment"
+      call smd_system_get_component(sp,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      call smd_data_get_int(sp,"charge",1,ga,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//' getting handle'//tag,0,0)
+c
+      call smd_data_get_int(sp,"charge0",1,ga0,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//' getting handle'//tag,0,0)
+
+      call  ga_add(1.0d0,ga,-1.0d0,ga0,ga0)
+      call ga_norm_infinity(ga0,eps) 
+      if(ga_nodeid().eq.0) then
+        write(*,*) "current charge difference",eps
+        call util_flush(6)
+      end if
+
+      call ga_copy(ga,ga0)
+     
+      call ga_pgroup_set_default(p_default)
+
       return
       end
 

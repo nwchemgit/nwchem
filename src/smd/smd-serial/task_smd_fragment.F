@@ -62,6 +62,7 @@ c
       logical operiodic
       integer i
       integer group_id,group_nproc,ngroup
+      double precision eps
 c
       logical smd_tasklist_get
       external smd_tasklist_get
@@ -97,6 +98,11 @@ c
 
       write(*,*) "Goodbye from task_smd"
 100   continue
+      call smd_fragment_charge_diff(eps)
+      if(eps.gt.0.0001) then
+        call smd_tasklist_set()
+        goto 99
+      end if
 
       call ga_pgroup_sync(ga_pgroup_get_world())
        call smd_group_end(rtdb)

@@ -44,6 +44,7 @@ c
       if (.not.(rtdb_cput(rtdb,'task:theory',1,theory)))
      *     call errquit('rtdb_put task:theory failed',0,0)
 
+      call smd_fragment_charge_get_all()
 c
       call smd_geom_monomer_create(im)
       write(*,*) "smd theory is set to",theory
