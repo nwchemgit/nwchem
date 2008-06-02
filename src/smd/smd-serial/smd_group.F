@@ -76,6 +76,19 @@ c
      >    buffer(1:i1),im
       call util_file_prefix_set(buffer1)
 
+      if(ga_nodeid().eq.0)
+     > call util_flush(6)
+      call ga_sync(ga_pgroup_get_world())
+      if(smd_group_id.eq.1.and.ga_nodeid().eq.0) then
+        write(*,*) "GROUP INFORMATION"
+        call util_flush(6)
+      end if
+      if(ga_nodeid().eq.0) then
+       write(*,*) "Group id, nprocs",smd_group_id,smd_group_nproc
+       call util_flush(6)
+      end if
+      call ga_sync(ga_pgroup_get_world())
+
       return
       end
       subroutine smd_group_end(rtdb)
