@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.61 2008-05-13 02:09:59 bylaska Exp $
+* $Id: band_minimizer.F,v 1.62 2008-06-02 15:20:02 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -15,12 +15,15 @@
       implicit none
       integer rtdb
       integer flag
+
 #include "global.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "errquit.fh"      
+
 *     **** parallel variables ****
       integer  taskid,np,np_i,np_j,np_k
       integer  MASTER
@@ -49,7 +52,7 @@
       integer ierr
 
 *     **** local variables ****
-      logical newpsi
+      logical newpsi,lprint,mprint,hprint
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi,weight
       real*8  icharge,en(2)
@@ -133,8 +136,8 @@
       external control_ks_maxit_orb,control_ks_maxit_orbs
       real*8   cpsi_occupation,control_fractional_temperature
       external cpsi_occupation,control_fractional_temperature
-      logical  control_fractional
-      external control_fractional
+      logical  control_fractional,control_print
+      external control_fractional,control_print
       integer  control_fractional_smeartype
       external control_fractional_smeartype
       real*8   control_fractional_kT
@@ -160,10 +163,18 @@ c      external      cpsp_comment
       call Parallel_Init()
       call Parallel_np(np)
       call Parallel_taskid(taskid)
-      if (taskid.eq.MASTER) call current_second(cpu1)
 
+      value = control_read(5,rtdb)
+      if (.not. value) 
+     > call errquit('error reading control',0, DISK_ERR)
+
+      lprint = ((taskid.eq.MASTER).and.(control_print(print_low)))
+      mprint = ((taskid.eq.MASTER).and.(control_print(print_medium)))
+      hprint = ((taskid.eq.MASTER).and.(control_print(print_high)))
+
+      if (taskid.eq.MASTER) call current_second(cpu1)
 *     ***** print out header ****
-      if (taskid.eq.MASTER) then
+      if (mprint) then
          write(luout,1000)
          write(luout,1010)
          write(luout,1020)
@@ -185,9 +196,6 @@ c      external      cpsp_comment
          call flush(luout)
       end if
       
-      value = control_read(5,rtdb)
-      if (.not. value) 
-     > call errquit('error reading control',0, DISK_ERR)
 
       call Parallel3d_Init(control_np_dimensions(2),
      >                     control_np_dimensions(3))
@@ -319,7 +327,7 @@ c      external      cpsp_comment
       end if
 
 
-      if (taskid.eq.MASTER) then
+      if (mprint) then
          write(luout,1111) np
          write(luout,1117) np_i,np_j,np_k
          if (mapping.eq.1) write(luout,1112)
@@ -369,6 +377,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
          icharge = icharge + ion_TotalCharge()
          write(luout,1159) icharge
 
+         if (hprint) then
          write(luout,1180)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
@@ -381,6 +390,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
          end do
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
+         endif
          write(luout,1220) en(1),en(cpsi_ispin()),
      >                 ' (fourier space)'
          write(luout,1221) cpsi_ne(1),cpsi_ne(cpsi_ispin()),
@@ -492,7 +502,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
       end if
 
 *     **** extra energy output for QA test ****
-      if (taskid.eq.MASTER) write(luout,1600) EV
+      if (lprint) write(luout,1600) EV
 
 
 *     **** calculate the spin contamination ****
@@ -601,7 +611,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
 *                |***************************|
 ****************** report consumed cputime   **********************
 *                |***************************|
-      if (taskid.eq.MASTER) then
+      if (lprint) then
          CALL current_second(cpu4)
 
          T1=CPU2-CPU1

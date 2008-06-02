@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.75 2008-01-29 02:08:18 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.76 2008-06-02 15:20:04 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -728,83 +728,91 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
       real*8 stress(3,3)
       real*8 lstress(6)
 
+#include "stdio.fh"
+#include "util.fh"
+
       integer taskid,MASTER
       parameter (MASTER=0)
 
 *     **** local variables ****
+      logical oprint,hprint
       integer u,v,s
       real*8  tstress(3,3),ht(3,3),scal
       real*8  sigma(3,3),xcstress(3,3)
 
 *     **** external functions ****
-      logical  psp_semicore,pspw_SIC,pspw_HFX
+      logical  psp_semicore,pspw_SIC,pspw_HFX,control_print
       integer  control_optimize_cell_strategy
       integer  control_optimize_lattice_vectors
       integer  control_optimize_lattice
       real*8   lattice_omega,lattice_unita
-      external psp_semicore,pspw_SIC,pspw_HFX
+      external psp_semicore,pspw_SIC,pspw_HFX,control_print
       external control_optimize_cell_strategy
       external control_optimize_lattice_vectors
       external control_optimize_lattice
       external lattice_omega,lattice_unita
 
 
+      call Parallel_taskid(taskid)
+      oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
+      oprint = ((taskid.eq.MASTER).and.control_print(print_high))
+
       call dcopy(9,0.0d0,0,stress,1)
 
 *     **** Kinetic energy component : dE_kin/dhuv ****
       call psi_1ke_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      call write_stress(tstress,"ke")
+      if (hprint) call write_stress(tstress,"ke")
 
 *     **** Coulomb energy component : dE_Coul/dhuv ****
       call psi_1coulomb_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      call write_stress(tstress,"coulomb")
+      if (hprint) call write_stress(tstress,"coulomb")
 
 *     **** Local pseudo energy component : dE_local/dhuv ****
       call dng_1vlocal_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      call write_stress(tstress,"local")
+      if (hprint) call write_stress(tstress,"local")
 
 *     **** Nonlocal pseudo energy component : dE_nolocal/dhuv ****
       call dcopy(9,0.0d0,0,tstress,1)
       call psi_1vnonlocal_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      call write_stress(tstress,"nonlocal")
+      if (hprint) call write_stress(tstress,"nonlocal")
 
 *     **** xc energy component : dE_xc/dhuv ****
       call dcopy(9,0.0d0,0,tstress,1)
       call rho_1exc_stress(tstress)
       call dcopy(9,tstress,1,xcstress,1)
-      call write_stress(tstress,"xc1")
+      if (hprint) call write_stress(tstress,"xc1")
 
 *     **** Core-correction Coulomb energy component : dE_core/dhuv ****
       if (psp_semicore(0)) then
         call rho_1semicore_stress(tstress)
-        call write_stress(tstress,"xc2")
+        if (hprint) call write_stress(tstress,"xc2")
         call daxpy(9,1.0d0,tstress,1,xcstress,1)
       end if
 
       call daxpy(9,1.0d0,xcstress,1,stress,1)
-      call write_stress(xcstress,"xc")
+      if (hprint) call write_stress(xcstress,"xc")
 
 *     **** Ewald energy component : dE_ewald/dhuv ****
       call ewald_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      call write_stress(tstress,"ewald")
+      if (hprint) call write_stress(tstress,"ewald")
 
 *     **** SIC energy component : dE_SIC/dhuv ****
       if (pspw_SIC())  then
         call electron_SIC_stress(tstress)
         call daxpy(9,1.0d0,tstress,1,stress,1)
-        call write_stress(tstress,"SIC")
+        if (hprint) call write_stress(tstress,"SIC")
       end if
 
 *     **** HFX energy component : dE_HFX/dhuv ****
       if (pspw_hfx())  then
         call electron_HFX_stress(tstress)
         call daxpy(9,1.0d0,tstress,1,stress,1)
-        call write_stress(tstress,"HFX")
+        if (hprint) call write_stress(tstress,"HFX")
       end if
 
 
@@ -832,10 +840,9 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
        end do
 
 c     *** call dscal(9,-1.0d0,stress,1)
-      call write_stress(stress,"total gradient")
+      if (oprint) call write_stress(stress,"total gradient")
 
-      call Parallel_taskid(taskid)
-      if (taskid.eq.MASTER) then
+      if (oprint) then
         write(*,*)
         write(*,1811) "dE/da     = ",lstress(1)
         write(*,1811) "dE/db     = ",lstress(2)
@@ -846,7 +853,7 @@ c     *** call dscal(9,-1.0d0,stress,1)
         write(*,*)
       end if
 
-      call write_stress(sigma,"Internal Stress Tensor")
+      if (hprint) call write_stress(sigma,"Internal Stress Tensor")
 
       return
  1800 FORMAT('Lattice Constraint: gradient(',i1,',',i1,')-->0')

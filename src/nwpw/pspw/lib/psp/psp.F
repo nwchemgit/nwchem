@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.33 2008-05-13 02:10:40 bylaska Exp $
+* $Id: psp.F,v 1.34 2008-06-02 15:20:05 bylaska Exp $
 *
 
 
@@ -1648,10 +1648,11 @@ c       close(11)
 
       subroutine psp_readall()
       implicit none
-#include "errquit.fh"
       
 #include "mafdecls.fh"
+#include "stdio.fh"
 #include "util.fh"
+#include "errquit.fh"
 
 #include "psp.fh"
 
@@ -1783,8 +1784,14 @@ c     logocal semicore(0:nkatmx)
               correct_box = .false.
               if ((taskid.eq.MASTER).and.
      >           control_print(print_medium)) then
-              write(6,*) "pseudopotential is not correctly formatted:",
-     >                    fname
+              write(luout,*) 
+     >         "pseudopotential is not correctly formatted:",fname
+              end if
+
+*             *** deallocate memory ***
+              if (int_mb(nprj(1)+ia-1).gt.0) then
+              call psi_data_dealloc(int_mb(vnl(1)+ia-1))
+              call psi_data_dealloc(int_mb(Gijl(1)+ia-1))
               end if
            end if
            if (correct_box) found = .true.

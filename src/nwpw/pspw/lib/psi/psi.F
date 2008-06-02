@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.86 2008-05-13 02:10:36 bylaska Exp $
+* $Id: psi.F,v 1.87 2008-06-02 15:20:04 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.86  2008/05/13 02:10:36  bylaska
+* ...EJB
+*
 * Revision 1.85  2008/04/21 19:34:27  bylaska
 * queue fft added to cpsi_H, bug fixes in DMatrix_dgemm1_rot (MPI_Allgather routine replaced with a MPI_AllReduce for stability), np_orbital keyword replaced with np_dimensions keyword (needed for Parallel3d routines)
 * ...EJB
@@ -5061,6 +5064,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
+#include "util.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -5087,8 +5092,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       external     control_input_psi
       logical  wvfnc_expander,Dneall_m_allocate,band_reformat_c_wvfnc
       external wvfnc_expander,Dneall_m_allocate,band_reformat_c_wvfnc
-      logical  psp_pawexist
-      external psp_pawexist
+      logical  psp_pawexist,control_print
+      external psp_pawexist,control_print
 
 
 *     **** reformat wavefunction if it is a band wavefunction ****
@@ -5185,14 +5190,16 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
      >     call errquit(
      >     'wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
 
-          write(*,*)
-          write(*,*) "Grid is being converted:"
-          write(*,*) "------------------------"
-          write(*,*)
-          write(*,*) "To turn off automatic grid conversion:"
-          write(*,*)
-          write(*,*) "set nwpw:psi_nogrid .false."
-          write(*,*)
+          if (control_print(print_medium)) then
+            write(luout,*)
+            write(luout,*) "Grid is being converted:"
+            write(luout,*) "------------------------"
+            write(luout,*)
+            write(luout,*) "To turn off automatic grid conversion:"
+            write(luout,*)
+            write(luout,*) "set nwpw:psi_nogrid .false."
+            write(luout,*)
+          endif
           value = wvfnc_expander(rtdb)
 
         end if
@@ -5213,11 +5220,12 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
 *     **** force inversion symmetry ****
       if (control_symmetry().eq.1)  then
          call Parallel_taskid(taskid)
-         if (taskid.eq.MASTER) then
-         write(*,*)
-         write(*,*) 
+         if ((taskid.eq.MASTER).and.
+     >       (control_print(print_medium))) then
+         write(luout,*)
+         write(luout,*) 
      >   "Projecting wavefunctions to have inversion symmetry"
-         write(*,*)
+         write(luout,*)
          end if
          call psi_symm_project(ispin,neq,npack1,dcpl_mb(psi1(1)))
       end if 
@@ -5258,8 +5266,9 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
      >                        sum3)
          end if
          call D1dB_SumAll(sum3)
-         if (taskid.eq.MASTER)
-     >    write(*,*) "Warning - Gram-Schmidt being performed on psi:",
+         if ((taskid.eq.MASTER).and.(control_print(print_medium)))
+     >    write(luout,*) 
+     >     "Warning - Gram-Schmidt being performed on psi:",
      >               sum1,sum2,sum3,dabs(sum2-sum1)
 
 

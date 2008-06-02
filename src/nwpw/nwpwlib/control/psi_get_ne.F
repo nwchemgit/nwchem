@@ -1,5 +1,5 @@
 *
-* $Id: psi_get_ne.F,v 1.5 2007-09-13 20:38:26 bylaska Exp $
+* $Id: psi_get_ne.F,v 1.6 2008-06-02 15:20:02 bylaska Exp $
 *
 
 *     ***********************************
@@ -12,7 +12,11 @@
       implicit none 
       integer ispin,ne(2)
 
+#include	"stdio.fh"
+#include	"util.fh"
+
 *    *** local variables ***
+      logical oprint
       integer version,l
       integer nfft(3)
       real*8  unita(3,3)
@@ -25,6 +29,8 @@
 
 
 *     ***** local functions ****
+      logical      control_print
+      external     control_print
       character*30 control_input_psi
       external     control_input_psi
       double precision control_unita
@@ -33,7 +39,7 @@
       external control_ngrid
 
       call Parallel_taskid(taskid)
-
+      oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
 
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
@@ -68,8 +74,8 @@ c     **** send header to all nodes ****
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
-         if (taskid.eq.MASTER) then
-            write(6,*) "Error reading psi - bad grid"
+         if (oprint) then
+            write(luout,*) "Error reading psi - bad grid"
          end if
       end if
 
@@ -82,10 +88,10 @@ c     **** send header to all nodes ****
      >     (unita(1,3).ne.control_unita(1,3)) .or.
      >     (unita(2,3).ne.control_unita(2,3)) .or.
      >     (unita(3,3).ne.control_unita(3,3)) ) then
-         if (taskid.eq.MASTER) then
-          write(6,*) "Error reading psi - bad unitcell"
-          write(6,*) " - Ignored if the following  parameter is set"
-          write(6,*) " - set nwpw:psi_nolattice .true."
+         if (oprint) then
+          write(luout,*) "Error reading psi - bad unitcell"
+          write(luout,*) " - Ignored if the following  parameter is set"
+          write(luout,*) " - set nwpw:psi_nolattice .true."
          end if
 
       end if
@@ -104,7 +110,11 @@ c     **** send header to all nodes ****
       implicit none 
       integer ispin,ne(2)
 
+#include	"stdio.fh"
+#include	"util.fh"
+
 *    *** local variables ***
+      logical oprint
       integer version,l
       integer nfft(3)
       real*8  unita(3,3)
@@ -117,6 +127,8 @@ c     **** send header to all nodes ****
 
 
 *     ***** local functions ****
+      logical      control_print
+      external     control_print
       character*30 control_input_epsi
       external     control_input_epsi
       double precision control_unita
@@ -125,6 +137,7 @@ c     **** send header to all nodes ****
       external control_ngrid
 
       call Parallel_taskid(taskid)
+      oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
 
 
 *     **** open ELCIN binary file ****
@@ -160,8 +173,8 @@ c     **** send header to all nodes ****
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
-         if (taskid.eq.MASTER) then
-            write(6,*) "Error reading psi - bad grid"
+         if (oprint) then
+            write(luout,*) "Error reading psi - bad grid"
          end if
       end if
 
@@ -174,10 +187,10 @@ c     **** send header to all nodes ****
      >     (unita(1,3).ne.control_unita(1,3)) .or.
      >     (unita(2,3).ne.control_unita(2,3)) .or.
      >     (unita(3,3).ne.control_unita(3,3)) ) then
-         if (taskid.eq.MASTER) then
-          write(6,*) "Error reading psi - bad unitcell"
-          write(6,*) " - Ignored if the following  parameter is set"
-          write(6,*) " - set nwpw:psi_nolattice .true."
+         if (oprint) then
+          write(luout,*) "Error reading psi - bad unitcell"
+          write(luout,*) " - Ignored if the following  parameter is set"
+          write(luout,*) " - set nwpw:psi_nolattice .true."
          end if
 
       end if
@@ -185,9 +198,6 @@ c     **** send header to all nodes ****
 
       return
       end
-
-
-
 
 
 *     ***********************************
@@ -200,7 +210,11 @@ c     **** send header to all nodes ****
       implicit none 
       integer ispin,ne(2),occupation
 
+#include	"stdio.fh"
+#include	"util.fh"
+
 *    *** local variables ***
+      logical oprint
       integer version,l
       integer nfft(3),nbrill
       real*8  unita(3,3)
@@ -213,6 +227,8 @@ c     **** send header to all nodes ****
 
 
 *     ***** local functions ****
+      logical      control_print
+      external     control_print
       character*30 control_input_psi
       external     control_input_psi
       double precision control_unita
@@ -221,7 +237,7 @@ c     **** send header to all nodes ****
       external control_ngrid
 
       call Parallel_taskid(taskid)
-
+      oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
 
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
@@ -260,8 +276,8 @@ c     **** send header to all nodes ****
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
-         if (taskid.eq.MASTER) then
-            write(6,*) "Error reading psi - bad grid"
+         if (oprint) then
+            write(luout,*) "Error reading psi - bad grid"
          end if
       end if
 
@@ -274,10 +290,10 @@ c     **** send header to all nodes ****
      >     (unita(1,3).ne.control_unita(1,3)) .or.
      >     (unita(2,3).ne.control_unita(2,3)) .or.
      >     (unita(3,3).ne.control_unita(3,3)) ) then
-         if (taskid.eq.MASTER) then
-          write(6,*) "Error reading psi - bad unitcell"
-          write(6,*) " - Ignored if the following  parameter is set"
-          write(6,*) " - set nwpw:psi_nolattice .true."
+         if (oprint) then
+          write(luout,*) "Error reading psi - bad unitcell"
+          write(luout,*) " - Ignored if the following  parameter is set"
+          write(luout,*) " - set nwpw:psi_nolattice .true."
          end if
 
       end if

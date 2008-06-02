@@ -1,5 +1,5 @@
 *
-* $Id: psp_stress.F,v 1.15 2007-11-17 00:06:05 bylaska Exp $
+* $Id: psp_stress.F,v 1.16 2008-06-02 15:20:05 bylaska Exp $
 *
 
 
@@ -606,10 +606,12 @@ c       close(11)
       subroutine psp_stress_readall()
       implicit none
 
-#include "errquit.fh"      
 #include "mafdecls.fh"
-#include "psp.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "errquit.fh"      
 
+#include "psp.fh"
 
 *     **** semicore common block ****
       integer ncore(2),rcore(2)
@@ -633,13 +635,13 @@ c       close(11)
       parameter(MASTER=0)
 
 *     **** external functions ****
-      logical      nwpw_filefind
+      logical      nwpw_filefind,control_print
       integer      control_ngrid
       integer      psp_lmmax
       real*8       control_unita
       character*12 control_boundry
       character*4  ion_atom
-      external     nwpw_filefind
+      external     nwpw_filefind,control_print
       external     control_ngrid
       external     psp_lmmax
       external     control_unita
@@ -691,10 +693,11 @@ c       close(11)
            boundry = control_boundry()
            l =index(boundry,' ') - 1
            if ((boundry(1:l).ne.'periodic') .or. (version.ne.3)) then
-              if (taskid.eq.MASTER) then
-                 write(6,*) 
+              if ((taskid.eq.MASTER).and.
+     >            (control_print(print_medium))) then
+                 write(luout,*) 
      >             "Error reading formatted pseudoptental stress file:"
-                 write(6,*) "Formatted pseudopotential was not",
+                 write(luout,*) "Formatted pseudopotential was not",
      >                   " generated with periodic boundary condtions"
               end if
            end if
@@ -715,9 +718,10 @@ c       close(11)
      >       ((boundry(1:l).eq.'periodic').and.(version.ne.3)).or.
      >       ((boundry(1:l).eq.'aperiodic').and.(version.ne.4))) then
               correct_box = .false.
-              if (taskid.eq.MASTER) then
-              write(6,*) "pseudopotential is not correctly formatted:",
-     >                    fname
+              if ((taskid.eq.MASTER).and.
+     >            (control_print(print_medium))) then
+              write(luout,*) 
+     >         "pseudopotential is not correctly formatted:",fname
               end if
            end if
            if (correct_box) found = .true.

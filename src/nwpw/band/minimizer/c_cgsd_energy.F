@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.25 2008-04-23 01:32:01 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.26 2008-06-02 15:20:02 bylaska Exp $                       
 *
 
 *     ***************************
@@ -13,12 +13,12 @@
       logical newpsi
 
 #include "stdio.fh"
-
+#include "util.fh"
 
       integer MASTER
       parameter (MASTER=0)
 
-      logical stalled
+      logical stalled,mprint
       integer taskid,minimizer
       integer i,k,neall,NN,nb
       integer it_in,it_out,icount,bfgscount
@@ -44,10 +44,10 @@
       external control_tole,control_tolc
       external ion_rion,cpsi_eigenvalue,ion_amass,cpsi_svector
       external cpsi_occupation
-      logical  Pbrillioun_print
+      logical  Pbrillioun_print,control_print
       integer  brillioun_nbrillioun
       real*8   Pbrillioun_k,Pbrillioun_ks,Pbrillioun_weight
-      external Pbrillioun_print
+      external Pbrillioun_print,control_print
       external brillioun_nbrillioun
       external brillioun_k,brillioun_ks,brillioun_weight
       logical  cpsi_spin_orbit,control_fractional
@@ -56,6 +56,8 @@
       external cpsi_smearfermi
 
       call Parallel_taskid(taskid)
+
+      mprint = (taskid.eq.MASTER).and.control_print(print_medium)
 
 *     **** set the minimizer ****
       minimizer = control_minimizer()
@@ -67,7 +69,7 @@
 
 
 *     :::::::::::  begin electron iteration  :::::::::::::::::::::::
-      if (taskid.eq.MASTER) then
+      if (mprint) then
          write(luout,1301)
          write(luout,1304)
          if (minimizer.eq.1) write(luout,1305)
@@ -86,14 +88,14 @@
       tole   = control_tole()
       tolc   = control_tolc()
       E(1)=0.0d0
-      if (taskid.eq.MASTER) then
+      if (mprint) then
         if ((minimizer.eq.5).or.(minimizer.eq.8)) then
           call nwpw_message(7)
         else
           call nwpw_message(2)
         end if
       end if
-      if (taskid.eq.MASTER) call util_flush(luout)
+      if (mprint) call util_flush(luout)
       if (minimizer.eq.2) call band_Grsm_list_start()
       if ((minimizer.eq.5).or.(minimizer.eq.8)) it_out = 1
 
@@ -110,15 +112,10 @@
          
          if (minimizer.eq.1) then
            bfgscount = bfgscount + 1
-
            call c_cgminimize(E,deltae,deltac,bfgscount,it_in)
 
          else if (minimizer.eq.2) then
            bfgscount = bfgscount + 1
-
-c           write(*,*) "Bundled BFGS minimizer not implemented"
-c           stop
-
            call c_bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
 
          else if (minimizer.eq.3) then
@@ -154,13 +151,13 @@ c           stop
             stalled = .false.
          end if
 
-         if ((taskid.eq.MASTER).and.(minimizer.ne.5)
+         if ((mprint).and.(minimizer.ne.5)
      >                         .and.(minimizer.ne.8)) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac
            call util_flush(luout)
          end if
          if (deltae.gt.0.0d0) then
-            if (taskid.eq.MASTER) 
+            if (mprint) 
      >       write(luout,*) 
      >       ' *** energy going up. iteration terminated.'
             go to 3
@@ -168,26 +165,27 @@ c           stop
          deltae = dabs(deltae)
          if ((deltae.lt.tole).and.
      >       (deltac.lt.tolc)) then
-            if (taskid.eq.MASTER) 
+            if (mprint) 
      >       write(luout,*) 
      >       ' *** tolerance ok.    iteration terminated.'
             go to 3
          end if
          if (control_out_of_time()) then
-            if (taskid.eq.MASTER) 
+            if (mprint) 
      >       write(luout,*) 
      >       ' *** out of time.     iteration terminated.'
             go to 3
          end if
       if (icount.lt.it_out) go to 2
-      if (taskid.eq.MASTER) 
-     > write(6,*) '*** arived at the Maximum iiteration.   terminated.'
+      if (mprint) 
+     > write(luout,*) 
+     >  '*** arived at the Maximum iiteration.   terminated.'
 
 *     :::::::::::  end of electron iteration loop  :::::::::::::::::::::
 
    3  continue
       if (minimizer.eq.2) call band_Grsm_list_end()
-      if (taskid.eq.MASTER) CALL nwpw_MESSAGE(3)
+      if (mprint) CALL nwpw_MESSAGE(3)
 
 
 *     **** diagonalize hamiltonian and rotate psi ****
@@ -205,7 +203,7 @@ c           stop
       call center_mass(gx,gy,gz)
 
 **:::::::::::::::::   report summary of results  :::::::::::::::::::::::
-      if (taskid.eq.MASTER) then
+      if (mprint) then
          neall = (cpsi_ne(1)+cpsi_ne(2))
          write(luout,1304)
          write(luout,1410)

@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_write.F,v 1.15 2008-04-23 01:31:58 bylaska Exp $
+* $Id: cpsi_write.F,v 1.16 2008-06-02 15:20:01 bylaska Exp $
 *
 
 *     ***************************
@@ -16,6 +16,8 @@
 
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "stdio.fh"
+#include "util.fh"
 
 *    *** local variables ***
       integer version,l,ispin0
@@ -35,6 +37,8 @@ c     complex*16 tmp(*)
       logical value
 
 *     ***** local functions ****
+      logical      control_print
+      external     control_print
       character*30 control_output_psi
       external     control_output_psi
       double precision control_unita
@@ -79,7 +83,8 @@ c     complex*16 tmp(*)
      >                                .false.,
      >                       full_filename)
          l = index(full_filename,' ') -1
-         write(*,1210) full_filename(1:l)
+         if (control_print(print_medium))
+     >    write(luout,1210) full_filename(1:l)
  1210    FORMAT(/' output psi filename:',A)
 
          call openfile(6,full_filename,l,'w',l)

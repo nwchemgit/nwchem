@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_expander.F,v 1.7 2007-09-24 16:58:15 bylaska Exp $
+* $Id: wvfnc_expander.F,v 1.8 2008-06-02 15:20:05 bylaska Exp $
 *
 
 *     *******************************************
@@ -10,9 +10,13 @@
 
       logical function wvfnc_expander(rtdb)
       implicit none
+      integer rtdb
+
 #include "mafdecls.fh"
 #include "rtdb.fh"
-      integer rtdb
+#include "stdio.fh"
+#include "util.fh"
+
       logical value
       integer version
  
@@ -31,9 +35,10 @@
       integer nfft3d,n2ft3d
       integer dnfft3d,dn2ft3d
       integer ms,n,l,occupation
-
-
       double precision unita(3,3)
+
+      logical  control_print
+      external control_print
 
       value = .false.
       version = 3
@@ -79,11 +84,12 @@
       dnfft3d = (dngrid(1)/2+1)*dngrid(2)*dngrid(3)
        n2ft3d = 2* nfft3d
       dn2ft3d = 2*dnfft3d
-
-      write(*,109) old_wavefunction_filename
-      write(*,110) new_wavefunction_filename
-      write(*,111) ngrid(1), ngrid(2), ngrid(3),
+      if (control_print(print_medium)) then
+      write(luout,109) old_wavefunction_filename
+      write(luout,110) new_wavefunction_filename
+      write(luout,111) ngrid(1), ngrid(2), ngrid(3),
      >            dngrid(1),dngrid(2),dngrid(3)
+      end if
   109 format(' old_filename: ',A)
   110 format(' new_filename: ',A)
   111 format(' converting  : ',I3,'x',I3,'x',I3,' --> ', 
@@ -99,8 +105,8 @@
       do ms=1,ispin
         do n=1,ne(ms)
           call dread(5,dcpl_mb(cfull(1)),n2ft3d)
-
-          write(*,*) "converting .... psi:", n," spin:",ms
+          if (control_print(print_medium))
+     >      write(luout,*) "converting .... psi:", n," spin:",ms
           call wvfnc_expander_convert(ngrid,dcpl_mb(cfull(1)),
      >                               dngrid,dcpl_mb(dcfull(1)))
 

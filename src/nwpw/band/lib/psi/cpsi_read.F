@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.19 2008-04-23 01:31:58 bylaska Exp $
+* $Id: cpsi_read.F,v 1.20 2008-06-02 15:20:01 bylaska Exp $
 *
 
 *     ***************************
@@ -16,6 +16,8 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
+#include "stdio.fh"
+#include "util.fh"
 
 *    *** local variables ***
       integer rtdb
@@ -27,6 +29,7 @@
       character*255 full_filename
 
 *     **** local variables ****
+      logical hprint
       integer MASTER,taskid,taskid_j,taskid_k
       parameter(MASTER=0)
       logical brillioun_check,psi_nolattice
@@ -39,8 +42,8 @@ c     complex*16 tmp(*)
       logical value
 
 *     ***** local functions ****
-      logical control_spin_orbit
-      external control_spin_orbit
+      logical control_spin_orbit,control_print
+      external control_spin_orbit,control_print
       character*30 control_input_psi
       external     control_input_psi
       double precision control_unita
@@ -57,6 +60,7 @@ c     complex*16 tmp(*)
       call Parallel3d_taskid_k(taskid_k)
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
+      hprint = (taskid.eq.MASTER).and.control_print(print_high)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -74,7 +78,8 @@ c     complex*16 tmp(*)
      >                                .false.,
      >                        full_filename)
          l = index(full_filename,' ') -1
-         write(*,1210) full_filename(1:l)
+         if (control_print(print_medium))
+     >     write(luout,1210) full_filename(1:l)
  1210    FORMAT(/' input psi filename:',A)
 
          call openfile(5,full_filename,l,'r',l)
@@ -135,16 +140,18 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
      >     (dabs(unita(1,3)-control_unita(1,3)).gt.1.0d-6) .or.
      >     (dabs(unita(2,3)-control_unita(2,3)).gt.1.0d-6) .or.
      >     (dabs(unita(3,3)-control_unita(3,3)).gt.1.0d-6) ) then
-            write(*,*) "unita(psi)      unita(lattice)"
-            write(*,*) unita(1,1), control_unita(1,1)
-            write(*,*) unita(2,1), control_unita(2,1)
-            write(*,*) unita(3,1), control_unita(3,1)
-            write(*,*) unita(1,2), control_unita(1,2)
-            write(*,*) unita(2,2), control_unita(2,2)
-            write(*,*) unita(3,2), control_unita(3,2)
-            write(*,*) unita(1,3), control_unita(1,3)
-            write(*,*) unita(2,3), control_unita(2,3)
-            write(*,*) unita(3,3), control_unita(3,3)
+            if (hprint) then
+            write(luout,*) "unita(psi)      unita(lattice)"
+            write(luout,*) unita(1,1), control_unita(1,1)
+            write(luout,*) unita(2,1), control_unita(2,1)
+            write(luout,*) unita(3,1), control_unita(3,1)
+            write(luout,*) unita(1,2), control_unita(1,2)
+            write(luout,*) unita(2,2), control_unita(2,2)
+            write(luout,*) unita(3,2), control_unita(3,2)
+            write(luout,*) unita(1,3), control_unita(1,3)
+            write(luout,*) unita(2,3), control_unita(2,3)
+            write(luout,*) unita(3,3), control_unita(3,3)
+            endif
         call errquit('Error reading wavefunctions', 1, CALC_ERR)
       end if
       end if

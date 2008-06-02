@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.26 2008-05-13 20:52:52 bylaska Exp $
+* $Id: cpsi_H.F,v 1.27 2008-06-02 15:20:00 bylaska Exp $
 *
 
 *     **********************************************
@@ -81,7 +81,7 @@
 *     **************************
 *     **** add non-local psp ***
 *     **************************
-      call cpsp_v_nonlocal(  ispin,ne,psi_k_tag,Hpsi_k_tag,move,fion)
+      call cpsp_v_nonlocal(ispin,ne,psi_k_tag,Hpsi_k_tag,move,fion)
       call cpsp_v_spin_orbit(ispin,ne,psi_k_tag,Hpsi_k_tag,
      >  move,fion)
 
@@ -194,7 +194,6 @@ c      end do
 
          done = ((nbi.gt.nbrillq).and.(nbj.gt.nbrillq))
       end do
-
 
 
 

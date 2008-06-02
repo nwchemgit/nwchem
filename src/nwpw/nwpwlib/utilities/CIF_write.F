@@ -1,4 +1,4 @@
-c     $Id: CIF_write.F,v 1.4 2004-06-19 19:51:45 bylaska Exp $
+c     $Id: CIF_write.F,v 1.5 2008-06-02 15:20:03 bylaska Exp $
 *     *********************************
 *     *                               *
 *     *          CIF_write            *
@@ -10,6 +10,8 @@ c     $Id: CIF_write.F,v 1.4 2004-06-19 19:51:45 bylaska Exp $
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
+#include "util.fh"
 
       integer taskid,MASTER
       parameter (MASTER=0)
@@ -19,6 +21,8 @@ c     $Id: CIF_write.F,v 1.4 2004-06-19 19:51:45 bylaska Exp $
       character*30 filename
       character*255 full_filename
       character ch_tmp
+      logical  control_print
+      external control_print
 
       if (rtdb_cget(rtdb,'nwpw:cif_filename',1,filename)) then
          flen  = index(filename,' ') - 1
@@ -35,15 +39,19 @@ c     $Id: CIF_write.F,v 1.4 2004-06-19 19:51:45 bylaska Exp $
          call Parallel_taskid(taskid)
          if (taskid.eq.MASTER) then
             l = index(full_filename,' ') -1
-            write(6,*) 
-            write(6,*) 'Writing Crystallographic Information File:', 
-     >                 full_filename(1:l)
-            if (shift_cell) then
-              write(6,*) '  - cell shifted (nwpw:cif_shift_cell .true.)'
-            else
-              write(6,*) 
-     >        '  - cell not shifted (nwpw:cif_shift_cell .false.)'
-            end if
+            if (control_print(print_medium)) then
+              write(luout,*) 
+              write(luout,*) 
+     >        'Writing Crystallographic Information File:', 
+     >                   full_filename(1:l)
+              if (shift_cell) then
+                write(luout,*) 
+     >          '  - cell shifted (nwpw:cif_shift_cell .true.)'
+              else
+                write(luout,*) 
+     >          '  - cell not shifted (nwpw:cif_shift_cell .false.)'
+              end if
+            endif
 
             inquire(file=full_filename,exist=found)
 
