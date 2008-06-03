@@ -1,6 +1,6 @@
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.30 2008-05-13 20:52:58 bylaska Exp $
+* $Id: C3dB-new.F,v 1.31 2008-06-03 17:31:50 d3p708 Exp $
 *
 
 *     ***********************************************************
@@ -319,7 +319,6 @@
 #include "mafdecls.fh"
 #include "C3dB.fh"
       
-c     k = k_map(q)
       k = int_mb(k_map(1,nb)+q-1)
 
       return
@@ -339,10 +338,6 @@ c     k = k_map(q)
 #include "mafdecls.fh"
 #include "C3dB.fh"
       
-      
-c     q = q_map(k)
-c     p = p_map(k)
-
       q = int_mb(q_map(1,nb)+k-1)
       p = int_mb(p_map(1,nb)+k-1)
       return
@@ -1825,14 +1820,16 @@ c      integer mpierr,mstatus(MPI_STATUS_SIZE)
       integer    nb
       real*8     w
       complex*16 A(*)
-      real*8     C(*)
+      real*8     C(*),ar,ai
 
 #include "C3dB.fh"
 
       integer i
 
       do i=1,n2ft3d_map(nb)
-         C(i) = C(i) + w*(dble(A(i))**2 + dimag(A(i))**2)
+         ar=dble(A(i))
+         ai=dimag(A(i))
+         C(i) = C(i) + w*(ar*ar+ai*ai)
       end do
       return
       end
@@ -1852,14 +1849,16 @@ c      integer mpierr,mstatus(MPI_STATUS_SIZE)
       implicit none 
       integer    nb
       complex*16 A(*)
-      real*8     C(*)
+      real*8     C(*),ar,ai
 
 #include "C3dB.fh"
 
       integer i
 
       do i=1,n2ft3d_map(nb)
-         C(i) = dble(A(i))**2 + dimag(A(i))**2
+         ar=dble(A(i))
+         ai=dimag(A(i))
+         C(i) = ar*ar + ai*ai
       end do
       return
       end
@@ -2670,7 +2669,7 @@ c     integer i2_start(NFFT3+1)
       if (np.gt.1) then
          call C3dB_SumAll(sum)
       end if
-
+\
       sumall = sum
       return
       end
