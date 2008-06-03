@@ -1,10 +1,10 @@
-c
-c  $id: ewald_strfac.fh,v 0.0 2008/05/02 10:00:00 d3p708 Exp $
-c
+*
+*  $Id: ewald_strfac.fh,v 1.2 2008-06-03 19:26:04 d3p708 Exp $
+*
 cccccccccc local common block for ewald structure factor
-      integer ex1(2),ex2(2),ex3(2)
+      integer ewx1(2),ewx2(2),ewx3(2)
       integer cxr(2)
       integer i_indx_list(2),j_indx_list(2),k_indx_list(2)
-      common / ewald_cstrfac_block/ ex1,ex2,ex3,cxr,i_indx_list,
+      common / ewald_cstrfac_block/ ewx1,ewx2,ewx3,cxr,i_indx_list,
      >          j_indx_list,k_indx_list
 

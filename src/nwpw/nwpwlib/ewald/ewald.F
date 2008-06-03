@@ -1,6 +1,6 @@
-#
-# $Id: ewald.F,v 1.1 2008-06-03 17:25:58 d3p708 Exp $
-#
+*
+* $Id: ewald.F,v 1.2 2008-06-03 19:26:04 d3p708 Exp $
+*
       integer function ewald_ncut()
       implicit none 
 #include "ewald.fh"
@@ -35,28 +35,28 @@
       ewald_mandelung = alpha
       return
       end 
-
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer function ewald_grid_nx()
       implicit none
 #include "ewald.fh"
       ewald_grid_nx=enx
       return
       end
-
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer function ewald_grid_ny()
       implicit none
 #include "ewald.fh"
       ewald_grid_ny=eny
       return
       end
-
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer function ewald_grid_nz()
       implicit none
 #include "ewald.fh"
       ewald_grid_nz=enz
       return
       end
-
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine mandelung_set(alpha)
       implicit none
       real*8 alpha
@@ -99,7 +99,7 @@
       do n2=(-N+1),(N-1) 
       do n3=(-N+1),(N-1) 
          nterm=iabs(n1)+iabs(n2)+iabs(n3)
-         if (iterm.ne.0) then
+         if (nterm.ne.0) then
             a1 = n1*unita(1,1)
      >         + n2*unita(1,2)
      >         + n3*unita(1,3)
@@ -158,75 +158,97 @@
       alpha = -sum*rs
       return 
       end
-
-      subroutine ewald_end()
-      implicit none 
-
-#include "mafdecls.fh"
-#include "ewald.fh"
-
-      logical value
-
-      value = MA_free_heap(vg(2))
-      value = MA_free_heap(rcell(2))
-
-      return
-      end
-
- 
-      subroutine ewald_init()
-      implicit none 
-
+cccccccccccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccccccc
+      subroutine ewald_init(ew_ngrid)
+      implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
-
+*     **** arguments **********
+      integer ew_ngrid(3)
 *     **** local variables ****
       integer nfft3d,G(3)
       integer nshl3d
-      integer i,j,k,l,nterm
+      integer i,j,k,l,np,taskid
+      integer k1,k2,k3,itmp
+      integer nx,ny,nxh
+      integer enxh,enyh,enzh
+      integer dutask,indx,xtra
       real*8  pi,fourpi,gg,w
       real*8  rs
       real*8  zz,z
-      real*8 xx,yy,zz
-      integer taskid,pzero,qzero,zero
-      integer nx,ny,nxh
       logical value
+      real*8 kv(3),ecut,dk1,dk2,dk3,g1,g2,g3
 
 *     **** external functions ****
       integer  control_ncut
-      real*8   control_rcut
-      integer  ion_nion,ion_katm,G_indx
+      real*8   control_rcut,control_ecut
+      integer  ion_nion,ion_katm,c_G_indx
       real*8   lattice_omega,lattice_unita,psp_zv
-
+      real*8   lattice_unitg
       external control_ncut
-      external control_rcut
-      external ion_nion,ion_katm,G_indx
-      external lattice_omega,lattice_unita,psp_zv
+      external control_rcut,control_ecut
+      external ion_nion,ion_katm,c_G_indx
+      external lattice_omega,lattice_unita,psp_zv                                
+      external lattice_unitg
 
+      call Parallel_np(enp)
+      call Parallel_taskid(taskid)
+      enx=ew_ngrid(1)
+      eny=ew_ngrid(2)
+      enz=ew_ngrid(3)
+      enfft=enx*eny*enz
+      enloc=(enfft/enp)
+      xtra=enfft-enp*enloc
+      if (taskid.le.xtra) enloc=enloc+1
 
-*     **** allocate vg memory ****
-      call D3dB_nfft3d(1,nfft3d)
-      value = MA_alloc_get(mt_dbl,nfft3d,'vg',vg(2),vg(1))
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      value=MA_alloc_get(mt_dbl,3*enloc,'eG',eg_hndl,eG(1))
+      value=value.and.MA_alloc_get(mt_dbl,enloc,'vg',vg(2),vg(1))
+      if (.not.value) call errquit('out of heap memory',0,0)
+      pi=4.0d0*datan(1.0d0)
+      fourpi=4.0d0*pi
 
-      G(1) = G_indx(1)
-      G(2) = G_indx(2)
-      G(3) = G_indx(3)
+      eG(2)=eG(1)+enloc
+      eG(3)=eG(2)+enloc
+      enxh=enx/2
+      enyh=eny/2
+      enzh=enz/2
+      gzero=-1
+      call dcopy(3*enloc,0.0d0,0,dbl_mb(eG(1)),1)
+      indx=0
+      dutask=0
+      do k3=(-enzh+1),enzh
+      do k2=(-enyh+1),enyh
+      do k1=(-enxh+1),enxh
+        if (dutask.eq.taskid) then
+	 dk1=dble(k1)
+         dk2=dble(k2)
+         dk3=dble(k3)
+         g1=dk1*lattice_unitg(1,1)+
+     >      dk2*lattice_unitg(1,2)+
+     >      dk3*lattice_unitg(1,3)
+         g2=dk1*lattice_unitg(2,1)+
+     >      dk2*lattice_unitg(2,2)+
+     >      dk3*lattice_unitg(2,3)
+         g3=dk1*lattice_unitg(3,1)+
+     >      dk2*lattice_unitg(3,2)+
+     >      dk3*lattice_unitg(3,3)
+         i=k1
+         j=k2
+         k=k3 
+         dbl_mb(eG(1)+indx)=g1
+         dbl_mb(eG(2)+indx)=g2
+         dbl_mb(eG(3)+indx)=g3
+         itmp=abs(k1)+abs(k2)+abs(k3)
+         if (itmp.eq.0) gzero=indx
+         indx=indx+1
+        end if
+        dutask=mod(dutask+1,enp)
+      end do
+      end do
+      end do
 
-*     **** get constants ****
-      pi     = 4.0d0*datan(1.0d0)
-      fourpi = 4.0d0*pi
-
-      call Parallel_taskid(myid)
-      call Parallel2d_taskid_i(taskid)
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      nxh=nx/2
-
-*     ***** find the G==0 index ******
-      call D3dB_ijktoindexp(1,1,1,1,zero,pzero)
-      
 *     ***** initialize common block and find w *****
       ncut = control_ncut()
       rcut = control_rcut()
@@ -237,7 +259,7 @@
      >      + lattice_unita(3,1)**2
          rs = dsqrt(rs)
          rcut=rs/pi
-         
+
          rs = lattice_unita(1,2)**2
      >      + lattice_unita(2,2)**2
      >      + lattice_unita(3,2)**2
@@ -251,31 +273,25 @@
          rs = dsqrt(rs)
          w=rs/pi
          if (w.lt.rcut) rcut = w
-      end if 
+      end if
 
       w      = 0.25d0*rcut*rcut
 
+ccccccccc initialize Vg
+      do i=1,enfft
+         gg  = ( dbl_mb(eG(1)+i-1)*dbl_mb(eG(1)+i-1)
+     >         + dbl_mb(eG(2)+i-1)*dbl_mb(eG(2)+i-1)
+     >         + dbl_mb(eG(3)+i-1)*dbl_mb(eG(3)+i-1) )
 
-*     ***** initialize Vg  *****
-      do i=1,nfft3d
-         xx  = dbl_mb(G(1)+i-1)
-         yy  = dbl_mb(G(2)+i-1)
-         zz  = dbl_mb(G(3)+i-1)
-         gg  = (xx*xx+yy*yy+zz*zz) 
-         if ((pzero.eq.taskid) .and. (i.eq.zero)) then
+         if ((gzero.eq.i)) then
             dbl_mb(vg(1)+i-1) = 0.0d0
          else
             dbl_mb(vg(1)+i-1) = (fourpi/gg)*exp(-w*gg)
          end if
       end do
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-*     **** set the Madelung constant ****
-      call mandelung_set(alpha)
-
-      
-*     **** ewald summation ****
+ccccccccccc set Mandelung constant       
+      call Mandelung_set(alpha)
+cccccccccc  ewald summation
       rs = (3.0d0*lattice_omega()/fourpi)**(1.0d0/3.0d0)
       zz = 0.0d0
       z  = 0.0d0
@@ -285,54 +301,61 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end do
       cewald=0.0d0
       do i=1,enloc
-          cewald=cewald+dbl_mb(vg(1)+i-1)
+         cewald=cewald+dbl_mb( vg(1)+i-1 )
       end do
-      if (np.gt.1) call Parallel_SumAll(cewald)  
+      if (enp.gt.1) call Parallel_SumAll(cewald)
       cewald = -0.5d0*zz*(alpha/rs + cewald/lattice_omega())
      >         -0.5d0*(z*z-zz)*rcut*rcut*pi/lattice_omega()
-     
-
-
-*     **** allocate rcell memory ****
+cccccccccc allocate and fill rcell
       nshl3d=(2*ncut+1)**3
       value = MA_alloc_get(mt_dbl,(3*nshl3d),'rcell',rcell(2),
      >                                           rcell(1))
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      if (.not. value)
+     > call errquit('c_ewald_init:out of heap memory',0,MA_ERR)
 
-      
-*     **** get lattice vectors in real space - define rcell(1) = origin****
-      l=1
-      dbl_mb(rcell(1))          = 0.0d0
-      dbl_mb(rcell(1)+nshl3d)   = 0.0d0
-      dbl_mb(rcell(1)+2*nshl3d) = 0.0d0
+
+*     **** get lattice vectors in real space ****
+      l=0
       do k=-ncut,ncut
         do j=-ncut,ncut
           do i=-ncut,ncut
-             nterm=iabs(k)+iabs(j)+iabs(i)
-             if (nterm.ne.0) then
              l = l+1
-             dbl_mb(rcell(1)+(l-1) ) 
+             dbl_mb(rcell(1)+ (l-1) )
      >                = i*lattice_unita(1,1)
      >                + j*lattice_unita(1,2)
      >                + k*lattice_unita(1,3)
-             dbl_mb(rcell(1)+(l-1)+nshl3d) 
+             dbl_mb(rcell(1)+(l-1)+nshl3d)
      >                = i*lattice_unita(2,1)
      >                + j*lattice_unita(2,2)
      >                + k*lattice_unita(2,3)
-             dbl_mb(rcell(1)+(l-1)+2*nshl3d) 
+             dbl_mb(rcell(1)+(l-1)+2*nshl3d)
      >                = i*lattice_unita(3,1)
      >                + j*lattice_unita(3,2)
      >                + k*lattice_unita(3,3)
-             end if
 
           end do
         end do
       end do
-      
-
+     
       return
       end
-
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine ewald_end()
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ewald.fh"
+      logical value
+      value=MA_free_heap(eg_hndl)
+      value=value.and.MA_free_heap(vg(2))
+      value=value.and.MA_free_heap(rcell(2))
+      if (.not.value) then
+        call errquit("ewald end can free heap",0,MA_ERR)
+      end if
+      return 
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     ***********************************
 *     *			  		*
 *     *		ewald_e			*
@@ -340,18 +363,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     ***********************************
       real*8 function ewald_e()
       implicit none
-
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
-
 *     **** local variables ****
       integer dutask,taskid,np
       integer i,j,ii,l
       real*8  w,dx,dy,dz,x,y,z,r,zz
       real*8  yerfc
-      real*8  energy,etmp,energyG
-
+      real*8  energy,etmp,energyG,cr,ci,zii
+      complex*16 cz
 *     **** temporary workspace variables ****
       integer nshl3d
       integer exi(2),s(2),tmp3(2)
@@ -360,8 +381,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     **** external functions ****
       integer  ion_nion,ion_katm,ewald_nshl3d
       real*8   lattice_omega,psp_zv,dsum,ion_rion,util_erfc
+      real*8   ddot
       external ion_nion,ion_katm,ewald_nshl3d
       external lattice_omega,psp_zv,dsum,ion_rion,util_erfc
+      external ddot
 
       call nwpw_timing_start(21)
       call Parallel_np(np)
@@ -467,7 +490,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8  w,dx,dy,dz,x,y,z,r,zz
       real*8  yerfc
       real*8  sum,scal2,f
-      real*8  sw1,sw2,sw3
+      real*8  sw1,sw2,sw3,zii
 
 *     **** temporary workspace variables ****
       integer nshl3d,nion
@@ -478,8 +501,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     **** external functions ****
       integer  ion_nion,ion_katm,ewald_nshl3d
       external ion_nion,ion_katm,ewald_nshl3d
-      real*8   lattice_omega,psp_zv,dsum,ion_rion,util_erfc
-      external lattice_omega,psp_zv,dsum,ion_rion,util_erfc
+      real*8   lattice_omega,psp_zv,dsum,ion_rion,util_erfc,ddot
+      external lattice_omega,psp_zv,dsum,ion_rion,util_erfc,ddot
 
       call nwpw_timing_start(21)
       call Parallel_np(np)
@@ -511,14 +534,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call dcopy((2*enloc),0.0d0,0,dcpl_mb(s(1)),1)
       do ii=1,nion
          call ewald_strfac(ii,dcpl_mb(exi(1)))
-         zii=psp_zv(katm(ii))
+         zii=psp_zv(ion_katm(ii))
          call daxpy(2*enloc,zii,
-     >         dcpl_mb(ex(1)),1,
+     >         dcpl_mb(exi(1)),1,
      >         dcpl_mb(s(1)),1)
       end do
       do ii=1,nion
          call ewald_strfac(ii,dcpl_mb(exi(1)))
-         zii=psp_zv(katm(ii))
+         zii=psp_zv(ion_katm(ii))
          do i=1,enloc
             dbl_mb(tmp3(1)+i-1) 
      >              = ( dble(dcpl_mb(exi(1)+i-1))
@@ -638,9 +661,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 zz,z
       real*8 Cus(3,3),hm(3,3),energy,sum,ss,rs
       real*8 ea,ax,ay,az,epsilon
-      real*8 dx,dy,dz,w
+      real*8 dx,dy,dz,w,ar,ai
       real*8 unita(3,3),unitg(3,3)
-
+      complex*16 cz
       integer G(2,3),H(2),F(2),tmp1(2),tmp2(2),exi(2),strf(2)
       integer nshl3d
 
@@ -695,7 +718,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call dcopy((2*enloc),0.0d0,0,dcpl_mb(strf(1)),1)
       do ii=1,ion_nion()
          call ewald_strfac(0,ii,dcpl_mb(exi(1)))
-         call daxpy(2*enloc,zii,dcpl_mb(exi(1)),1,dcpl_mb(strf(1)))
+         call daxpy(2*enloc,psp_zv(ion_katm(ii)),dcpl_mb(exi(1)),1,
+     >             dcpl_mb(strf(1)),1)
       end do
       do i=1,enloc
           cz=dbl_mb(strf(1)+i-1)
@@ -711,7 +735,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     **** calculate the ewald energy ****
       call dcopy(enloc,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
       energy=ddot(2*enloc,dbl_mb(F(1)),1,dbl_mb(H(1)),1)
-      if (np.gt.1) Parallel_SumAll(energy)
+      if (np.gt.1) call Parallel_SumAll(energy)
       energy = -0.5d0*energy/lattice_omega()
 
 
@@ -751,7 +775,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       do u=1,3
       do s=u,3
          do i=1,enloc
-              dbl_mb(tmp1(1)+i-1)=dble_mb(eG(u)+i-1)*
+              dbl_mb(tmp1(1)+i-1)=dbl_mb(eG(u)+i-1)*
      >                   dbl_mb(eG(s)+i-1)  
          end do
          sum=ddot(enloc,dbl_mb(tmp1(1)),1,dbl_mb(tmp2(1)),1)
