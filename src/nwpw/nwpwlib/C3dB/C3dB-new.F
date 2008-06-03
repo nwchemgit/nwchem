@@ -1,6 +1,6 @@
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.31 2008-06-03 17:31:50 d3p708 Exp $
+* $Id: C3dB-new.F,v 1.32 2008-06-03 17:34:07 d3p708 Exp $
 *
 
 *     ***********************************************************
@@ -2669,7 +2669,7 @@ c     integer i2_start(NFFT3+1)
       if (np.gt.1) then
          call C3dB_SumAll(sum)
       end if
-\
+
       sumall = sum
       return
       end
