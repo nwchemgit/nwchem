@@ -64,11 +64,15 @@ c
       integer group_id,group_nproc,ngroup
       double precision eps
 c
+      logical smd_tasklist_get1
+      external smd_tasklist_get1
       logical smd_tasklist_get
       external smd_tasklist_get
 c
 
       pname = "task_smd_fragment_energy"
+c
+      eps = 1.0
 c
       call smd_tasklist_init()
 c     
@@ -81,7 +85,7 @@ c
       call smd_group_nproc_get(group_nproc)
 
 99    continue
-      if(.not.smd_tasklist_get(i))
+      if(.not.smd_tasklist_get1(i))
      >  goto 100 
 
       if(ga_nodeid().eq.0)
@@ -98,9 +102,11 @@ c
 
       write(*,*) "Goodbye from task_smd"
 100   continue
+      call ga_pgroup_sync(ga_pgroup_get_world())
       call smd_fragment_charge_diff(eps)
       if(eps.gt.0.0001) then
         call smd_tasklist_set()
+        eps = 0.0d0
         goto 99
       end if
 

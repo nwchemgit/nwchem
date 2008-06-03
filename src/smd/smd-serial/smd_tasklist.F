@@ -10,7 +10,7 @@
       character*30 pname, theory
       integer i
       integer istart,iend
-      integer t(100)
+      integer t(1000)
       logical result
       character*72 tag
 c
@@ -89,33 +89,56 @@ c      call ga_print(smd_ga_task_status)
 #include "global.fh"
 #include "smd_tasklist_data.fh"
 #include "smd_group_data.fh"
+#include "msgids.fh"
       character*30 pname 
-      integer i
-      integer t_p(100)
-      integer t_s(100)
+      integer t
+      integer i,ig,j,ng,it
+      integer t_p(1000)
+      integer t_s(1000)
       logical smd_tasklist_get1
+      logical result
 c
-      pname = "smd_tasklist_get"      
+      pname = "smd_tasklist_get1"      
 c
-c      do i=1,smd_group_id
-      call ga_lock(smd_group_id)
+      ig = smd_group_id
+      ng = smd_ngroup
+      if(ga_nodeid().ne.0) goto 20
+c      write(70+ig,*) "getting task"
+c      write(*,*) "ig,ng,ntask",ig,ng,smd_ntask
       call nga_get(smd_ga_task_status,1, smd_ntask,t_s,1)
-      call ga_sync()
-c      end do
 
-      smd_tasklist_get1 =.false.
-      do i=1,smd_ntask
-        if(t_s(i).eq.t_avail) goto 100
+c      write(70+ig,*) "task array"
+      do i=1,smd_ntask 
+      write(70+ig,*) i,t_s(i).eq.t_avail
       end do
-      return
-100   continue
-      t_s(i) = t_busy
-      call ga_sync()
-      call nga_put(smd_ga_task_status,i,i,t_s,1)
-      call ga_unlock(smd_group_id)
-      smd_tasklist_get1 =.true.
+ 
+      smd_tasklist_get1 =.false.
+c      write(70+ig,*) "looking for unfinished task"
+c     honestly look for unfinished task
+      do i=ig,smd_ntask,ng
+        if(t_s(i).eq.t_avail) then
+          result = .true.
+          goto 10
+        end if
+      end do
+c
+10    continue
+      if(result) then
+        call nga_put(smd_ga_task_status,i,i,t_busy,1)
+c        write(70+ig,*) "found task",i
+c        call util_flush(70+ig)
+      end if
+
+20    continue
+      call ga_brdcst(msg_smd,result,
+     >     ma_sizeof(mt_log,1,mt_byte),0)
+      call ga_brdcst(msg_smd,i,
+     >     ma_sizeof(mt_int,1,mt_byte),0)
+
+      smd_tasklist_get1 =result
       return
       end
+
 
       function smd_tasklist_get(i)
       implicit none
@@ -130,33 +153,34 @@ c      end do
       character*30 pname 
       integer t
       integer i,ig,j,ng,it
-      integer t_p(100)
-      integer t_s(100)
+      integer t_p(1000)
+      integer t_s(1000)
       logical smd_tasklist_get
 c
       pname = "smd_tasklist_get"      
 c
       ig = smd_group_id
       ng = smd_ngroup
-c      write(90+ig,*) "getting task"
-c      write(*,*) "ig,ng,ntask",ig,ng,smd_ntask
+      write(70+ig,*) "getting task"
+      write(*,*) "ig,ng,ntask",ig,ng,smd_ntask
 c      call nga_put(smd_ga_group_pool,ig,ig,t_avail,1)
       call nga_get(smd_ga_task_status,1, smd_ntask,t_s,1)
       call ga_sync()
 
-c      write(90+ig,*) "task array"
-c      do i=1,smd_ntask 
-c      write(90+ig,*) i,t_s(i).eq.t_avail
-c      end do
+      write(70+ig,*) "task array"
+      do i=1,smd_ntask 
+      write(70+ig,*) i,t_s(i).eq.t_avail
+      end do
  
       smd_tasklist_get =.false.
-c      write(90+ig,*) "looking for unfinished task"
+      write(70+ig,*) "looking for unfinished task"
 c     honestly look for unfinished task
       do i=ig,smd_ntask,ng
         if(t_s(i).eq.t_avail) goto 100
       end do
 c
-      if(.not.osteal) return
+      return
+c      if(.not.osteal) return
 c     start stealing work from left cpus
 c      call nga_get(smd_ga_task_status,1, smd_ntask,t_s,1)
       call ga_sync()
@@ -183,10 +207,12 @@ c      call nga_get(smd_ga_task_status,1, smd_ntask,t_s,1)
       end do
       return
 100   continue
+      write(70+ig,*) "found task",i
 c      call nga_put(smd_ga_group_pool,ig,ig,t_busy,1)
       call nga_put(smd_ga_task_status,i,i,t_busy,1)
       call ga_sync()
       smd_tasklist_get =.true.
+      call util_flush(70+ig)
       return
       end
 
@@ -203,8 +229,8 @@ c      call nga_put(smd_ga_group_pool,ig,ig,t_busy,1)
       character*30 pname 
       integer t
       integer i,ig,j,ng,it
-      integer t_p(100)
-      integer t_s(100)
+      integer t_p(1000)
+      integer t_s(1000)
       integer p_world,p_default
 c
       pname = "smd_tasklist_set"      
@@ -222,6 +248,7 @@ c
       call nga_put(smd_ga_task_status,1, smd_ntask,t_s,1)
       end if
 
+      call ga_sync()
       call ga_pgroup_set_default(p_default)
 
       return
