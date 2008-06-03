@@ -3,7 +3,7 @@
      2                  d_f1,k_f1_offset,d_v2,k_v2_offset,
      3                  energy1,energy2)
 C
-C     $Id: lambda_ccsd_t.F,v 1.1 2008-05-06 16:20:59 jhammond Exp $
+C     $Id: lambda_ccsd_t.F,v 1.2 2008-06-03 21:29:59 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -30,10 +30,10 @@ C
       integer t_p4b, t_p4
       integer t_p5b, t_p5
       integer t_p6b, t_p6
-c      integer k_tsingles,l_tsingles
       integer k_tdoubles,l_tdoubles
       integer k_ysingles,l_ysingles
-      integer k_ydoubles,l_ydoubles
+      integer k_ydoublesA,l_ydoublesA ! L3 form, before sorting
+      integer k_ydoubles,l_ydoubles   ! T3 form, after sorting
       integer size,i
       integer g_energy
       integer NXTVAL
@@ -87,52 +87,52 @@ C
      4           * int_mb(k_range+t_h2b-1)
      5           * int_mb(k_range+t_h3b-1)
 c
-c            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_tsingles,
-c     1        k_tsingles)) 
-c     2        call errquit('lambda_ccsd_t: MA error',11,MA_ERR)
-            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_tdoubles,
-     1        k_tdoubles)) 
-     2        call errquit('lambda_ccsd_t: MA error',12,MA_ERR)
-            if (.not.MA_PUSH_GET(mt_dbl,size,'Lambda 1',l_ysingles,
-     1        k_ysingles)) 
-     2        call errquit('lambda_ccsd_t: MA error',21,MA_ERR)
-            if (.not.MA_PUSH_GET(mt_dbl,size,'Lambda 2',l_ydoubles,
-     1        k_ydoubles)) 
-     2        call errquit('lambda_ccsd_t: MA error',22,MA_ERR)
-c
+            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) right doubles',
+     1        l_tdoubles,k_tdoubles)) 
+     2        call errquit('lambda_ccsd_t: MA error',301,MA_ERR)
+            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) left singles',
+     1        l_ysingles,k_ysingles)) 
+     2        call errquit('lambda_ccsd_t: MA error',302,MA_ERR)
+            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) left doubles',
+     1        l_ydoubles,k_ydoubles)) 
+     2        call errquit('lambda_ccsd_t: MA error',303,MA_ERR)
 c
             do i = 1, size
-c             dbl_mb(k_tsingles+i-1) = 0.0d0
              dbl_mb(k_tdoubles+i-1) = 0.0d0
              dbl_mb(k_ysingles+i-1) = 0.0d0
              dbl_mb(k_ydoubles+i-1) = 0.0d0
             enddo
 c
-c            call ccsd_t_singles(dbl_mb(k_tsingles),d_t1,d_v2,
-c     1           k_t1_offset,k_v2_offset,
-c     2           t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-c
 #ifdef DEBUG_PRINT
       print*,"before ccsd_t_doubles"
 #endif
+c
+c           <T|{W*T2}|0> : i0(p4 p5 p6 h1 h2 h3)_vt += -P(9)*Sum(h7)*t(p4 p5 h1 h7)_t*v(h7 p6 h2 h3)_v
+c                        : i0(p4 p5 p6 h1 h2 h3)_vt += -P(9)*Sum(p7)*t(p4 p7 h1 h2)_t*v(p5 p6 h3 p7)_v
+c
             call ccsd_t_doubles(dbl_mb(k_tdoubles),d_t2,d_v2,
      1           k_t2_offset,k_v2_offset,
      2           t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
 c
 #ifdef DEBUG_PRINT
-      print*,"before lambda_ccsd_t_singles"
+      print*,"before lambda_ccsd_t_left"
 #endif
-            call lambda_ccsd_t_singles(dbl_mb(k_ysingles),
-     1           d_f1,d_v2,d_y1,d_y2,k_f1_offset,
-     2           k_v2_offset,k_y1_offset,k_y2_offset,
-     3           t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
 c
-#ifdef DEBUG_PRINT
-      print*,"before lambda_ccsd_t_doubles"
-#endif
-            call lambda_ccsd_t_doubles(dbl_mb(k_ydoubles),
-     1           d_y2,d_v2,k_y2_offset,k_v2_offset,
-     2           t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
+c           <0|L(F+W)|T> : i0(h4 h5 h6 p1 p2 p3)_yv += P(9)*y(h4 p1)_y*v(h5 h6 p2 p3)_v
+c
+            call lambda_ccsd_t_left(dbl_mb(k_ysingles),d_f1,d_v2,
+     1           d_y1,d_y2,k_f1_offset,k_v2_offset,
+     2           k_y1_offset,k_y2_offset,
+     3           t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
+c
+c           <0|L(F+W)|T> : i0(h4 h5 h6 p1 p2 p3)_yf += P(9)*y(h4 h5 p1 p2)_y*f(h6 p3)_f
+c                        : i0(h4 h5 h6 p1 p2 p3)_yv += -P(9)*Sum(h7)*y(h4 h7 p1 p2)_y*v(h5 h6 h7 p3)_v
+c                        : i0(h4 h5 h6 p1 p2 p3)_yv += -P(9)*Sum(p7)*y(h4 h5 p1 p7)_y*v(h6 p7 p2 p3)_v
+c
+            call lambda_ccsd_t_left(dbl_mb(k_ydoubles),d_f1,d_v2,
+     1           d_y1,d_y2,k_f1_offset,k_v2_offset,
+     2           k_y1_offset,k_y2_offset,
+     3           t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
 c
             if (restricted) then
               factor = 2.0d0
@@ -180,13 +180,11 @@ c
              enddo
             enddo
             if (.not.MA_POP_STACK(l_ydoubles)) 
-     1        call errquit('lambda_ccsd_t',32,MA_ERR)
+     1        call errquit('lambda_ccsd_t',314,MA_ERR)
             if (.not.MA_POP_STACK(l_ysingles)) 
-     1        call errquit('lambda_ccsd_t',31,MA_ERR)
+     1        call errquit('lambda_ccsd_t',312,MA_ERR)
             if (.not.MA_POP_STACK(l_tdoubles)) 
-     1        call errquit('lambda_ccsd_t',42,MA_ERR)
-c            if (.not.MA_POP_STACK(l_tsingles)) 
-c     1        call errquit('ccsd_t',41,MA_ERR)
+     1        call errquit('lambda_ccsd_t',311,MA_ERR)
             endif
             endif
             endif
