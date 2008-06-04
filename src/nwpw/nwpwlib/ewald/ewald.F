@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.4 2008-06-04 16:43:31 d3p708 Exp $
+* $Id: ewald.F,v 1.5 2008-06-04 16:46:02 d3p708 Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -177,7 +177,7 @@ cccccccccccccccccccccccccccccccccccccc
       integer dutask,indx,xtra
       real*8  pi,fourpi,gg,w
       real*8  rs
-      real*8  zz,z
+      real*8  zz,z,term
       logical value
       real*8 kv(3),ecut,dk1,dk2,dk3,g1,g2,g3
 
@@ -292,7 +292,7 @@ ccccccccc initialize Vg
              dbl_mb(vg(1)+indx) = 0.0d0
            else
             term=fourpi/gg
-            dbl_mb(vxc(1)+indx) = term
+            dbl_mb(vcx(1)+indx) = term
             dbl_mb(vg(1)+indx) = term*exp(-w*gg)
            end if
            indx=indx+1
