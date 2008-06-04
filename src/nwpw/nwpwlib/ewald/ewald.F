@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.3 2008-06-03 23:16:07 d3p708 Exp $
+* $Id: ewald.F,v 1.4 2008-06-04 16:43:31 d3p708 Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -205,6 +205,7 @@ cccccccccccccccccccccccccccccccccccccc
 
       value=MA_alloc_get(mt_dbl,3*enloc,'eG',eg_hndl,eG(1))
       value=value.and.MA_alloc_get(mt_dbl,enloc,'vg',vg(2),vg(1))
+      value=value.and.MA_alloc_get(mt_dbl,enloc,'vcx',vcx(2),vcx(1))
       if (.not.value) call errquit('out of heap memory',0,0)
       pi=4.0d0*datan(1.0d0)
       fourpi=4.0d0*pi
@@ -287,9 +288,12 @@ ccccccccc initialize Vg
      >         + dbl_mb(eG(3)+indx)*dbl_mb(eG(3)+indx) )
 
            if ((gzero.eq.indx)) then
+             dbl_mb(vcx(1)+indx) = 0.0d0
              dbl_mb(vg(1)+indx) = 0.0d0
            else
-            dbl_mb(vg(1)+indx) = (fourpi/gg)*exp(-w*gg)
+            term=fourpi/gg
+            dbl_mb(vxc(1)+indx) = term
+            dbl_mb(vg(1)+indx) = term*exp(-w*gg)
            end if
            indx=indx+1
          end if
@@ -354,6 +358,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "ewald.fh"
       logical value
       value=MA_free_heap(eg_hndl)
+      value=value.and.MA_free_heap(vcx(2))
       value=value.and.MA_free_heap(vg(2))
       value=value.and.MA_free_heap(rcell(2))
       if (.not.value) then
@@ -647,13 +652,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer N
       parameter (N=40)
 
-*     **** common block used for coulomb.f ****
-*     real*8 vc(nfft3d)
-*     common / vc_block / vc
-      integer vc_indx,vc_hndl
-      common / vc_block / vc_indx,vc_hndl
-
-
 *     ****  expansion coefficient of the error function ****
       real*8 cerfc
       parameter (cerfc=1.128379167d0)
@@ -769,7 +767,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
       end do       
       do i=1,enloc
-         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vc_indx+i-1)
+         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vcx(1)+i-1)
       end do       
       do i=1,enloc
          dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp2(1)+i-1)+dbl_mb(tmp1(1)+i-1)
@@ -1209,13 +1207,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer N
       parameter (N=40)
 
-*     **** common block used for coulomb.f ****
-*     real*8 vc(nfft3d)
-*     common / vc_block / vc
-      integer vc_indx,vc_hndl
-      common / vc_block / vc_indx,vc_hndl
-
-
 *     ****  expansion coefficient of the error function ****
       real*8 cerfc
       parameter (cerfc=1.128379167d0)
@@ -1331,7 +1322,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
       end do       
       do i=1,enloc
-         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vc_indx+i-1)
+         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vcx(1)+i-1)
       end do       
       do i=1,enloc
          dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp2(1)+i-1)+dbl_mb(tmp1(1)+i-1)
