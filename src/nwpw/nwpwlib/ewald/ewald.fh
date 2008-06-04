@@ -1,9 +1,9 @@
 *
-* $Id: ewald.fh,v 1.2 2008-06-03 19:26:04 d3p708 Exp $
+* $Id: ewald.fh,v 1.3 2008-06-04 16:46:46 d3p708 Exp $
 *
 *     **** common block for ewald.f ****
       integer    ncut,enx,eny,enz,enloc,enfft,enp,gzero
       real*8     rcut,cewald,alpha
-      integer    vg(2),rcell(2),eG(3),eg_hndl
-      common / ewald_block/ rcut,cewald,alpha,ncut,vg,enx,eny,enz,enp,
-     >                      enloc,enfft,gzero,rcell,eG,eg_hndl
+      integer    vg(2),rcell(2),eG(3),eg_hndl,vcx(2)
+      common / ewald_block/ rcut,cewald,alpha,ncut,vg,vcx,enx,eny,enz,
+     >                     enp,enloc,enfft,gzero,rcell,eG,eg_hndl
