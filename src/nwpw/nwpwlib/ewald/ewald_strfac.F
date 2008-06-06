@@ -1,5 +1,5 @@
 *
-* $Id: ewald_strfac.F,v 1.2 2008-06-03 19:26:04 d3p708 Exp $
+* $Id: ewald_strfac.F,v 1.3 2008-06-06 01:26:53 d3p708 Exp $
 *
       subroutine ewald_strfact_init()
       implicit none
@@ -269,7 +269,7 @@ ccccccccc externals
       return 
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine ewald_strfact(ii,exi)
+      subroutine ewald_strfac(ii,exi)
       implicit none
       integer ii
       complex*16 exi(*)

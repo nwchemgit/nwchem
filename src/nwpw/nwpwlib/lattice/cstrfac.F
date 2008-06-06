@@ -1,5 +1,5 @@
 *
-* $Id: cstrfac.F,v 1.13 2008-05-13 02:10:22 bylaska Exp $
+* $Id: cstrfac.F,v 1.14 2008-06-06 01:26:58 d3p708 Exp $
 *
 
 *     ***********************************
@@ -277,7 +277,7 @@ C  	Uses - ion data structure
 C
       subroutine cphafac_rion(ion_rion)
       implicit none
-      real*8 ion_rion(3,3)
+      real*8 ion_rion(3,*)
 
 #include	"mafdecls.fh"
 #include "cstrfac_common.fh"
