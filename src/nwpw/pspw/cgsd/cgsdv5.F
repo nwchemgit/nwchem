@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.91 2008-04-21 23:23:34 bylaska Exp $
+* $Id: cgsdv5.F,v 1.92 2008-06-06 16:54:05 d3p708 Exp $
 *
 
 ***********************************************************************
@@ -246,7 +246,10 @@ c     value = psi_initialize()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
       call phafac()
-      if (control_version().eq.3) call ewald_init()
+      if (control_version().eq.3) then
+		call ewald_init(ngrid)
+		call ewald_phafac()
+      end if
 
 *     **** read in wavefunctions and initialize psi ****
       if (.not.control_check_charge_multiplicity()) then

@@ -1,4 +1,4 @@
-c     $Id: cgsd_noit_energy.F,v 1.7 2007-09-29 00:33:31 bylaska Exp $                       
+c     $Id: cgsd_noit_energy.F,v 1.8 2008-06-06 16:54:05 d3p708 Exp $                       
 *     ***************************
 *     *				*
 *     *	   cgsd_noit_energy	*
@@ -68,6 +68,7 @@ c     $Id: cgsd_noit_energy.F,v 1.7 2007-09-29 00:33:31 bylaska Exp $
 *     **** generate phaze factors and local psp and core density ****
       call dcopy(30,0.0d0,0,E,1)
       call phafac()
+      call ewald_phafac()
       call electron_gen_vl_potential()
       if (psp_semicore(0)) call semicore_density_update()
 

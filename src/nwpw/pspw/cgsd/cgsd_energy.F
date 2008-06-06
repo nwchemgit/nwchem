@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.76 2008-06-02 15:20:04 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.77 2008-06-06 16:54:05 d3p708 Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -72,6 +72,7 @@ c#include "rtdb.fh"
 
 *     **** generate phaze factors and local psp and core density ****
       call phafac()
+      call ewald_phafac()
       call electron_gen_vl_potential()
       if (psp_semicore(0)) call semicore_density_update()
 
