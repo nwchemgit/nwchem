@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.32 2008-05-13 20:52:54 bylaska Exp $
+* $Id: band_structure.F,v 1.33 2008-06-06 16:50:26 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -66,7 +66,6 @@
 
 
 
-  
 
 *     **** external functions ****
 *     **** external functions ****
@@ -113,10 +112,10 @@
       integer  Cram_nwave_all,Cram_nwave
       external Cram_nwave_all,Cram_nwave
 
-      integer  c_ewald_ncut
-      real*8   c_ewald_rcut,c_ewald_mandelung,c_ewald_e
-      external c_ewald_ncut
-      external c_ewald_rcut,c_ewald_mandelung,c_ewald_e
+      integer  ewald_ncut
+      real*8   ewald_rcut,ewald_mandelung,ewald_e
+      external ewald_ncut
+      external ewald_rcut,ewald_mandelung,ewald_e
       logical  cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize
       external cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize
       logical  cpsi_band_finalize
@@ -234,13 +233,13 @@
       call cstrfac_init()
       call cke_init()
       call c_coulomb_init()
-      call c_ewald_init()
-
+      
+      call ewald_init(ngrid)
 
 *     **** set up phase factors at the current geometry  ****
       call cphafac()
       call cphafac_k()
-
+      call ewald_phafac()
 
 *     **** read in wavefunctions and initialize psi ****
       if (.not.psi_filefind()) then
@@ -360,8 +359,8 @@
      >                 lattice_unitg(2,3),
      >                 lattice_unitg(3,3)
          write(luout,1231) lattice_omega()
-         write(luout,1260) c_ewald_rcut(),c_ewald_ncut()
-         write(luout,1261) c_ewald_mandelung()
+         write(luout,1260) ewald_rcut(),ewald_ncut()
+         write(luout,1261) ewald_mandelung()
 
          ia = brillioun_nbrillioun()
          write(luout,1255)
@@ -420,7 +419,7 @@
       value=cpsi_finalize(.true.)
       call c_electron_finalize()
       call c_geodesic_finalize()
-      call c_ewald_end()
+      call ewald_end()
       call cstrfac_end()
       call c_coulomb_end()
       call cke_end()
@@ -564,13 +563,13 @@
       call cstrfac_init()
       call cke_init()
       call c_coulomb_init()
-      call c_ewald_init()
+      call ewald_init(ngrid)
 
 
 *     **** set up phase factors at the current geometry  ****
       call cphafac()
       call cphafac_k()
-
+      call ewald_phafac()
 
 *     **** read in wavefunctions and initialize psi ****
       if (.not.psi_filefind()) then
@@ -768,7 +767,7 @@
 *     **** deallocate heap memory ****
       call c_electron_finalize()
       call c_geodesic_finalize()
-      call c_ewald_end()
+      call ewald_end()
       call cstrfac_end()
       call c_coulomb_end()
       call cke_end()
