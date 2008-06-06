@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.33 2008-06-06 16:50:26 d3p708 Exp $
+* $Id: band_structure.F,v 1.34 2008-06-06 17:52:40 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -58,7 +58,7 @@
       real*8  EV,pi
       real*8  pathlength,dist,kold(3),emin,emax
       integer ii,jj,i,k,ia,nion,vers,nbrillioun,icharge,isize,indx
-      integer npoints
+      integer npoints,engrid(3)
       integer mapping
       character*255 full_filename
       character*30 filename
@@ -112,9 +112,9 @@
       integer  Cram_nwave_all,Cram_nwave
       external Cram_nwave_all,Cram_nwave
 
-      integer  ewald_ncut
+      integer  ewald_ncut,control_ewald_ngrid
       real*8   ewald_rcut,ewald_mandelung,ewald_e
-      external ewald_ncut
+      external ewald_ncut,control_ewald_ngrid
       external ewald_rcut,ewald_mandelung,ewald_e
       logical  cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize
       external cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize
@@ -234,7 +234,10 @@
       call cke_init()
       call c_coulomb_init()
       
-      call ewald_init(ngrid)
+      engrid(1)=control_ewald_ngrid(1)
+      engrid(2)=control_ewald_ngrid(2)
+      engrid(3)=control_ewald_ngrid(3)
+      call ewald_init(engrid)
 
 *     **** set up phase factors at the current geometry  ****
       call cphafac()
@@ -563,7 +566,10 @@
       call cstrfac_init()
       call cke_init()
       call c_coulomb_init()
-      call ewald_init(ngrid)
+      engrid(1)=control_ewald_ngrid(1)
+      engrid(2)=control_ewald_ngrid(2)
+      engrid(3)=control_ewald_ngrid(3)
+      call ewald_init(engrid)
 
 
 *     **** set up phase factors at the current geometry  ****
