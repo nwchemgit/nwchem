@@ -1,5 +1,5 @@
 c
-c     $Id: c_nominimize.F,v 1.5 2007-09-12 17:28:23 bylaska Exp $ 
+c     $Id: c_nominimize.F,v 1.6 2008-06-06 17:06:42 d3p708 Exp $ 
 c
 
       subroutine c_nominimize(E)
@@ -24,7 +24,7 @@ c
       real*8   cpsi_1vnl
       real*8   c_rho_1exc
       real*8   c_rho_1pxc
-      real*8   c_ewald_e
+      real*8   ewald_e
       real*8   cpsi_1eorbit
       real*8   cpsi_1vnlso 
       external cpsi_neq,Pneb_nbrillq,cpsi_data_alloc
@@ -34,7 +34,7 @@ c
       external cpsi_1vnl
       external c_rho_1exc
       external c_rho_1pxc
-      external c_ewald_e
+      external ewald_e
       external cpsi_1eorbit
       external cpsi_1vnlso
 
@@ -51,7 +51,7 @@ c
 
 c      call cpsi_1toelectron() 
 
-      eion = c_ewald_e()
+      eion = ewald_e()
 
       eorbit   = cpsi_1eorbit()
       ehartree = c_dng_1ehartree()

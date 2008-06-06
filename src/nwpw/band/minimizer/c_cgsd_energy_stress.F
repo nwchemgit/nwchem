@@ -65,7 +65,7 @@
       call write_stress(xcstress,"xc")
  
 *     **** Ewald energy component : dE_ewald/dhuv ****
-      call c_ewald_stress(tstress)
+      call ewald_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
       call write_stress(tstress,"ewald")
 

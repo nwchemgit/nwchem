@@ -1,5 +1,5 @@
 c
-c     $Id: c_cgsd_energy_gradient.F,v 1.7 2007-08-30 00:58:17 bylaska Exp $         c
+c     $Id: c_cgsd_energy_gradient.F,v 1.8 2008-06-06 17:06:42 d3p708 Exp $         c
 
 *     *******************************
 *     *				    *
@@ -42,7 +42,7 @@ c     $Id: c_cgsd_energy_gradient.F,v 1.7 2007-08-30 00:58:17 bylaska Exp $     
       call cpsi_1force(G1)
       if (cpsp_semicore(0)) call c_electron_semicoreforce(G1)
 
-      call c_ewald_f(G1)
+      call ewald_f(G1)
 
 *     **** remove ion forces using ion_FixIon ****
       call ion_FixIon(G1)

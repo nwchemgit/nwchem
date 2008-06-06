@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.66 2008-05-13 02:10:25 bylaska Exp $
+* $Id: cpmdv5.F,v 1.67 2008-06-06 17:06:45 d3p708 Exp $
 *
 
 ***********************************************************************
@@ -332,7 +332,7 @@ c      parameter (autoatm =290.360032539d6)
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) call ewald_init()
+      if (control_version().eq.3) call ewald_init(ngrid)
 
 
 *     ******************************

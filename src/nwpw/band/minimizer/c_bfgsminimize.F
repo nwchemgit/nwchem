@@ -1,5 +1,5 @@
 c
-c     $Id: c_bfgsminimize.F,v 1.7 2007-11-17 00:05:54 bylaska Exp $                       
+c     $Id: c_bfgsminimize.F,v 1.8 2008-06-06 17:06:42 d3p708 Exp $                       
 c
 
 *  ************************************************************
@@ -60,7 +60,7 @@ c
       real*8   cpsi_1vnlso
       real*8   c_rho_1exc
       real*8   c_rho_1pxc
-      real*8   c_ewald_e
+      real*8   ewald_e
       real*8   cpsi_1eorbit
       real*8   linesearch
    
@@ -77,7 +77,7 @@ c
       external cpsi_1vnlso
       external c_rho_1exc
       external c_rho_1pxc
-      external c_ewald_e
+      external ewald_e
       external cpsi_1eorbit
       external linesearch
 
@@ -213,7 +213,7 @@ c     call c_rho_2to1()
 c     call c_dng_2to1()
       call cpsi_check()
 
-      eion = c_ewald_e()
+      eion = ewald_e()
 
       eorbit   = cpsi_1eorbit()
       ehartree = c_dng_1ehartree()

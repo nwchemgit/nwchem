@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.58 2008-04-21 23:23:52 bylaska Exp $
+* $Id: cpsdv5.F,v 1.59 2008-06-06 17:06:45 d3p708 Exp $
 *
       implicit none
       integer rtdb
@@ -249,7 +249,7 @@
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) call ewald_init()
+      if (control_version().eq.3) call ewald_init(ngrid)
 
 
 

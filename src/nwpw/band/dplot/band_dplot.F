@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot.F,v 1.10 2008-04-18 00:06:27 bylaska Exp $
+* $Id: band_dplot.F,v 1.11 2008-06-06 17:06:28 d3p708 Exp $
 *
       logical function band_dplot(rtdb)
       implicit none
@@ -112,7 +112,6 @@
       call C3dB_pfft_init()
       call Cram_max_npack(npack1)
 
-
 *     **** initialize ion data structure ****
       value = ion_init(rtdb)
 
@@ -147,7 +146,6 @@
       call c_coulomb_init()
       call cphafac()
       call cphafac_k()
-
 
 
 *                |**************************|
@@ -701,7 +699,6 @@
      >                      + lattice_unita(3,2)
      >                      + lattice_unita(3,3) )/2.0d0
       call cphafac_rion(dbl_mb(rion(1)))
-      
  
       do nb=1,nbrillioun
         call cstrfac_pack(nb,1,dcpl_mb(exi(1)))

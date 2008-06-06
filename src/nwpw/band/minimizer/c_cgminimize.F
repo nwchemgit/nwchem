@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.20 2008-04-15 22:57:08 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.21 2008-06-06 17:06:42 d3p708 Exp $                       
 *
 
 
@@ -58,7 +58,7 @@ c      complex*16 G1(nfft3d,nemax)
       real*8   cpsi_1vnlso
       real*8   c_rho_1exc
       real*8   c_rho_1pxc
-      real*8   c_ewald_e
+      real*8   ewald_e
       real*8   cpsi_1eorbit
       real*8   linesearch
       external cpsi_neq,control_version,cpsi_ispinq,cpsi_nbrillq
@@ -73,7 +73,7 @@ c      complex*16 G1(nfft3d,nemax)
       external cpsi_1vnl
       external c_rho_1exc
       external c_rho_1pxc
-      external c_ewald_e
+      external ewald_e
       external cpsi_1eorbit
       external linesearch
        
@@ -214,7 +214,7 @@ c      call cpsi_data_pop_stack(G0_tag)
       call cpsi_1toelectron() 
       call cpsi_check()
 
-      eion     = c_ewald_e()
+      eion     = ewald_e()
       eorbit   = cpsi_1eorbit()
       ehartree = c_dng_1ehartree()
       exc      = c_rho_1exc()

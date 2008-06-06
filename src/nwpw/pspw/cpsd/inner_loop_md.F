@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.30 2007-04-22 01:50:01 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.31 2008-06-06 17:06:45 d3p708 Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -233,7 +233,7 @@ c     real*8     fion(3,natmx)
 *       **** generate phaze factors ****
 *       ********************************
         call phafac()
-
+        if (control_version().eq.3) call ewald_phafac()
 
         call nwpw_timing_start(11)
 *       *******************

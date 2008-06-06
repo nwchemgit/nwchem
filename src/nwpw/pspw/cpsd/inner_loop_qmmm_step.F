@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_qmmm_step.F,v 1.2 2007-03-22 20:46:21 bylaska Exp $
+* $Id: inner_loop_qmmm_step.F,v 1.3 2008-06-06 17:06:45 d3p708 Exp $
 *
   
       subroutine inner_loop_qmmm_step(verlet,
@@ -193,6 +193,7 @@ c      external pspw_charge_Energy_ion_qmmm
 *       ********************************
         call ion_rion_reset(rion)
         call phafac()
+        if (control_version().eq.3) call ewald_phafac()
 
         call nwpw_timing_start(11)
 *       *******************

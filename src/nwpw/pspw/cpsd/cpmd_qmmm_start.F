@@ -1,5 +1,5 @@
 *
-* $Id: cpmd_qmmm_start.F,v 1.4 2007-04-02 15:38:41 bylaska Exp $
+* $Id: cpmd_qmmm_start.F,v 1.5 2008-06-06 17:06:45 d3p708 Exp $
 *
 
       logical function cpmd_qmmm_start(rtdb)
@@ -304,7 +304,8 @@
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) call ewald_init()
+ccccccccccccccccc need to replace this with an assigned ewald grid
+      if (control_version().eq.3) call ewald_init(ngrid)
 
 
 *     ******************************

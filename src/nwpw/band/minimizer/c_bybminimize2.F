@@ -1,5 +1,5 @@
 c
-c     $Id: c_bybminimize2.F,v 1.5 2007-11-17 00:05:54 bylaska Exp $                       
+c     $Id: c_bybminimize2.F,v 1.6 2008-06-06 17:06:42 d3p708 Exp $                       
 c
 
 *  ************************************************************
@@ -62,7 +62,7 @@ c
       real*8   cpsi_1vnlso
       real*8   c_rho_1exc
       real*8   c_rho_1pxc
-      real*8   c_ewald_e
+      real*8   ewald_e
       real*8   cpsi_1eorbit,cpsi_smearfermi,cpsi_smearcorrection
    
       external control_print,control_precondition,control_fractional
@@ -77,7 +77,7 @@ c
       external cpsi_1vnlso
       external c_rho_1exc
       external c_rho_1pxc
-      external c_ewald_e
+      external ewald_e
       external cpsi_1eorbit,cpsi_smearfermi,cpsi_smearcorrection
 
       real*8   cpsi_1_noupdate_energy,cpsi_eigenvalue
@@ -130,7 +130,7 @@ c
      >   call errquit('c_bybminimize2:out of stack memory',0,0)
 
 *     **** ion-ion energy ****
-      eion = c_ewald_e()
+      eion = ewald_e()
 
 
 *     **********************
