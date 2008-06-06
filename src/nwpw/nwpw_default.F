@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_default.F,v 1.13 2007-03-27 02:02:47 bylaska Exp $
+c $Id: nwpw_default.F,v 1.14 2008-06-06 17:46:43 d3p708 Exp $
 c
       subroutine nwpw_default(rtdb)
       implicit none
@@ -28,7 +28,7 @@ c
       character*30 rtdb_name
       character*25 boundry
       double precision unita(3,3)
-      integer ngrid(3),nx,ny,nz
+      integer ngrid(3),nx,ny,nz,ewald_ngrid(3)
 
        
 *     **** don't set defaults if they already exist ****
@@ -64,7 +64,8 @@ c
       multiplicity = 1
       ngrid(1) = 32
       ngrid(2) = 32
-      ngrid(3) = 32
+      ngrid(3) = 32 
+
       unita(1,1) = 0.0d0
       unita(2,1) = 0.0d0
       unita(3,1) = 0.0d0
@@ -239,7 +240,6 @@ c    >        rtdb_put(rtdb,rtdb_name,mt_int,3,ngrid)
       nz = 1
       call monkhorst_pack_set(rtdb,zone_name,nx,ny,nz)
       call monkhorst_pack_set(rtdb,structure_name,nx,ny,nz)
-
       
 
 *     ***** Error writing to RTDB *****

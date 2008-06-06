@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.48 2008-04-21 19:34:24 bylaska Exp $
+c $Id: nwpw_input.F,v 1.49 2008-06-06 17:46:43 d3p708 Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 87)
+      parameter (num_dirs = 88)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -101,6 +101,7 @@ c
      >            'smear',
      >            'lcao_skip',
      >            'lcao',
+     >            'ewald_ngrid',
      >            'end'/
 
        double precision kb
@@ -153,7 +154,7 @@ c
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5700,5800,5900,6000,6000,
-     >       2750,6100,1809,6200,6300,6400,
+     >       2750,6100,1809,6200,6300,6400,6500,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1103,9 +1104,13 @@ c
  6400 if (.not.rtdb_put(rtdb,'nwpw:lcao_skip',mt_log,1,.false.))
      >  call errquit('nwpw_input: error writing to rtdb',6400,RTDB_ERR)
       goto 10
-
-
-
+  
+ 6500 if (.not. inp_i(nx)) nx = 32
+      if (.not. inp_i(ny)) ny = 32
+      if (.not. inp_i(nz)) nz = 32
+      if (.not.rtdb_put(rtdb,'nwpw:ewald_ngrid',mt_int,3,.false.))
+     >  call errquit('nwpw_input: error writing to rtdb'.6500,RTDB_ERR)
+      goto 10
 ************************************************************************
 c
 c END/Finished
