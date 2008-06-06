@@ -1,5 +1,5 @@
 *
-* $Id: control.fh,v 1.30 2008-04-21 19:34:27 bylaska Exp $
+* $Id: control.fh,v 1.31 2008-06-06 17:44:37 d3p708 Exp $
 *
 
 *     **** control common block ****
@@ -22,7 +22,7 @@ c     character*20 pspnames(MAXPSP)
       real*8      bo_time_step
       integer     bo_steps,bo_algorithm
       integer     loop(2),ngrid(3),npsp,ncut,mapping,mapping1d
-      integer     np_dimensions(3)
+      integer     np_dimensions(3),ewald_grid(3)
       integer     code,gga
       integer	  ispin,multiplicity
       integer     est_finish_time,est_step_time
@@ -38,7 +38,7 @@ c     character*20 pspnames(MAXPSP)
      >                         bo_time_step,bo_steps,bo_algorithm,
      >                         mapping,mapping1d,np_dimensions,
      >                         ncut,gga,
-     >                         loop,ngrid,npsp,
+     >                         loop,ngrid,npsp,ewald_grid,
      >                         code,
      >                         ispin,multiplicity,
      >                         maxit_orb,maxit_orbs,scf_algorithm,

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.113 2008-04-21 19:34:27 bylaska Exp $
+* $Id: control.F,v 1.114 2008-06-06 17:44:36 d3p708 Exp $
 *
 
 *     ***********************************
@@ -864,10 +864,38 @@ c     >                  1,output_wavefunction_filename)
       
 *     **** set two component pseudopotential
       two_comp_ppot = .false.      
+
+*     ****  ewald ngrid ************
+      if (.not.rtdb_get(rtdb,'nwpw:ewald_ngrid',mt_int,3,ewald_grid)) 
+     > then
+     	ewald_grid(1)=32
+        ewald_grid(2)=32
+        ewald_grid(3)=32
+      end if
+
       control_read = value
       return
       end
-
+*     ***********************************
+*     *  control_ewald_ngrid()
+*     ***********************************
+      integer function ewald_ngrid(i)
+      implicit none
+      integer i
+      ewald_ngrid=ewald_grid(i)
+      return
+      end
+*     ***********************************
+*     *  control_ewald_set_ngrid
+*     ***********************************
+      subroutine ewald_set_ngrid(enx,eny,enz)
+      implicit none
+      integer enx,eny,enz
+      ewald_grid(1)=enx
+      ewald_grid(2)=eny
+      ewald_grid(3)=enz
+      return
+      end
 
 *     ***********************************
 *     *                                 *
