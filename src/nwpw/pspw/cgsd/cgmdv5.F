@@ -1,5 +1,5 @@
 *
-* $Id: cgmdv5.F,v 1.8 2008-06-06 16:54:05 d3p708 Exp $
+* $Id: cgmdv5.F,v 1.9 2008-06-06 18:06:03 d3p708 Exp $
 *
 
 ***********************************************************************
@@ -65,7 +65,7 @@
       real*8  ratio,aratio
       real*8  icharge
       integer i,k,ia,nion,minimizer,mapping,it,icount_shift
-      integer nbq
+      integer nbq,egrid(3)
 
       character*30 filename
       character*255 full_filename
@@ -91,7 +91,7 @@
       external    psp_lmmax,psp_lmax,psp_locp,ion_nkatm
       external    psp_nprj,psp_psp_type
       external    ion_atom,ion_aname
-
+      
       external      psp_comment
       character*255 psp_comment,comment
 
@@ -101,7 +101,8 @@
       external control_time_step,control_fake_mass
       logical  control_read,control_move,ion_init
       external control_read,control_move,ion_init
-
+      integer  control_ewald_ngrid
+      external control_ewald_ngrid
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
@@ -203,7 +204,10 @@
          write(6,1110)
       end if
       
-
+      egrid(1) = control_ewald_ngrid(1)
+      egrid(2) = control_ewald_ngrid(2)
+      egrid(3) = control_ewald_ngrid(3)
+ 
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
@@ -249,7 +253,7 @@ c     value = psi_initialize()
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) call ewald_init(ngrid)
+      if (control_version().eq.3) call ewald_init(egrid)
 
 *     **** read in wavefunctions and initialize psi ****
       if (.not.control_check_charge_multiplicity()) then

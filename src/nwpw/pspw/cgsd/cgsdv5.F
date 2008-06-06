@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.92 2008-06-06 16:54:05 d3p708 Exp $
+* $Id: cgsdv5.F,v 1.93 2008-06-06 18:06:03 d3p708 Exp $
 *
 
 ***********************************************************************
@@ -62,7 +62,7 @@
       real*8  EV,pi
       real*8  icharge
       integer i,k,ia,nion,minimizer,mapping,mapping1d
-  
+      integer egrid(3)
 
 
 *     **** external functions ****
@@ -70,7 +70,7 @@
       real*8      ewald_mandelung
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,ion_amass
-      integer     ewald_ncut,ewald_nshl3d
+      integer     ewald_ncut,ewald_nshl3d,control_ewald_ngrid
       integer     psp_lmmax,psp_lmax,psp_locp,ion_nkatm
       integer     psp_nprj,psp_psp_type
       character*4 ion_atom,ion_aname
@@ -78,11 +78,11 @@
       external    ewald_mandelung
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg,ion_amass
-      external    ewald_ncut,ewald_nshl3d
+      external    ewald_ncut,ewald_nshl3d,control_ewald_ngrid
       external    psp_lmmax,psp_lmax,psp_locp,ion_nkatm
       external    psp_nprj,psp_psp_type
       external    ion_atom,ion_aname
-
+    
       external      psp_comment
       character*255 psp_comment,comment
 
@@ -197,7 +197,9 @@
          call flush(luout)
       end if
       
-
+      egrid(1) = control_ewald_ngrid(1)
+      egrid(2) = control_ewald_ngrid(2)
+      egrid(3) = control_ewald_ngrid(3)
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
@@ -247,7 +249,7 @@ c     value = psi_initialize()
       call strfac_init()
       call phafac()
       if (control_version().eq.3) then
-		call ewald_init(ngrid)
+		call ewald_init(egrid)
 		call ewald_phafac()
       end if
 

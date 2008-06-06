@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.59 2008-06-06 17:06:45 d3p708 Exp $
+* $Id: cpsdv5.F,v 1.60 2008-06-06 18:06:06 d3p708 Exp $
 *
       implicit none
       integer rtdb
@@ -85,7 +85,7 @@
       logical value,psi_nogrid
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
-      integer ind
+      integer ind,egrid(3)
       character*30 filename
       character*30 control_input_psi
       external     control_input_psi
@@ -110,6 +110,8 @@
       external    ewald_ncut,ewald_nshl3d
       external    psp_lmmax,psp_lmax,psp_locp
       external    ion_aname,ion_atom
+      integer control_ewald_ngrid
+      external control_ewald_ngrid
 
 
       real*8   control_tole,control_tolc,control_tolr,ion_rion
@@ -249,9 +251,12 @@
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) call ewald_init(ngrid)
-
-
+      if (control_version().eq.3) then
+         egrid(1)=control_ewald_ngrid(1)
+         egrid(2)=control_ewald_ngrid(2)
+         egrid(3)=control_ewald_ngrid(3)
+         call ewald_init(egrid)
+      end if
 
 *     **** generate initial wavefunction if it does not exist ****
       if (.not.control_check_charge_multiplicity()) then

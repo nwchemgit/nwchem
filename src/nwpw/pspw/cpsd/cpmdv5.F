@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.67 2008-06-06 17:06:45 d3p708 Exp $
+* $Id: cpmdv5.F,v 1.68 2008-06-06 18:06:06 d3p708 Exp $
 *
 
 ***********************************************************************
@@ -89,7 +89,7 @@ c      parameter (autoatm =290.360032539d6)
       real*8  emotion_time_shift
       integer i,j,k,ia,n,nn
       integer ii,jj,index,indx
-      integer icount,it_in,it_out,icount_shift
+      integer icount,it_in,it_out,icount_shift,egrid(3)
       real*8 w,sumall,pressure,stress(3,3),p1,p2
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
       integer nfft3,mapping,mapping1d
@@ -115,7 +115,8 @@ c      parameter (autoatm =290.360032539d6)
       external    psp_lmmax,psp_lmax,psp_locp,ion_nkatm
       external    ion_atom,ion_aname
 
-
+      integer control_ewald_ngrid
+      external control_ewald_ngrid
       real*8   control_rti,control_rte,ion_rion
       real*8   ion_vion,ion_com_ke,ion_ke
       real*8   ion_Temperature,ion_com_Temperature
@@ -332,8 +333,12 @@ c      parameter (autoatm =290.360032539d6)
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) call ewald_init(ngrid)
-
+      if (control_version().eq.3) then
+         egrid(1)=control_ewald_ngrid(1)
+         egrid(2)=control_ewald_ngrid(2)
+         egrid(3)=control_ewald_ngrid(3)
+         call ewald_init(egrid)
+      end if
 
 *     ******************************
 *     **** scaling psi velocity ****
