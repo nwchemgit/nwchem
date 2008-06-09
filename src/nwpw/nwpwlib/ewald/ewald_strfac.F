@@ -1,5 +1,5 @@
 *
-* $Id: ewald_strfac.F,v 1.3 2008-06-06 01:26:53 d3p708 Exp $
+* $Id: ewald_strfac.F,v 1.4 2008-06-09 23:27:15 bylaska Exp $
 *
       subroutine ewald_strfact_init()
       implicit none
@@ -192,7 +192,7 @@ ccccccc start of code
         dcpl_mb(ewx2(1)+nyh+(i-1)*ny)=dcmplx(0.0d0, 0.0d0)
         dcpl_mb(ewx3(1)+nzh+(i-1)*nz)=dcmplx(0.0d0, 0.0d0)  
       end do 
-      call nwpw_time_end(8)
+      call nwpw_timing_end(8)
       return 
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -265,7 +265,7 @@ ccccccccc externals
         dcpl_mb(ewx2(1)+nyh+(i-1)*ny)=dcmplx(0.0d0, 0.0d0)
         dcpl_mb(ewx3(1)+nzh+(i-1)*nz)=dcmplx(0.0d0, 0.0d0)  
       end do 
-      call nwpw_time_end(8)
+      call nwpw_timing_end(8)
       return 
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
