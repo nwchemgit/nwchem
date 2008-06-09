@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.115 2008-06-09 19:15:55 bylaska Exp $
+* $Id: control.F,v 1.116 2008-06-09 19:29:50 bylaska Exp $
 *
 
 *     ***********************************
@@ -879,13 +879,13 @@ c     >                  1,output_wavefunction_filename)
 *     ***********************************
 *     *  control_ewald_ngrid()
 *     ***********************************
-      integer function ewald_ngrid(i)
+      integer function control_ewald_ngrid(i)
       implicit none
       integer i
 
 #include "control.fh"
 
-      ewald_ngrid=ewald_grid(i)
+      control_ewald_ngrid=ewald_grid(i)
       return
       end
 *     ***********************************
