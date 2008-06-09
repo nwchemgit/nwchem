@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.114 2008-06-06 17:44:36 d3p708 Exp $
+* $Id: control.F,v 1.115 2008-06-09 19:15:55 bylaska Exp $
 *
 
 *     ***********************************
@@ -882,6 +882,9 @@ c     >                  1,output_wavefunction_filename)
       integer function ewald_ngrid(i)
       implicit none
       integer i
+
+#include "control.fh"
+
       ewald_ngrid=ewald_grid(i)
       return
       end
@@ -891,6 +894,9 @@ c     >                  1,output_wavefunction_filename)
       subroutine ewald_set_ngrid(enx,eny,enz)
       implicit none
       integer enx,eny,enz
+
+#include "control.fh"
+
       ewald_grid(1)=enx
       ewald_grid(2)=eny
       ewald_grid(3)=enz
