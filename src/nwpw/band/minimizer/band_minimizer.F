@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.64 2008-06-06 17:53:10 d3p708 Exp $
+* $Id: band_minimizer.F,v 1.65 2008-06-09 19:35:16 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -143,7 +143,7 @@
       real*8   control_fractional_kT
       external control_fractional_kT
       integer  control_ewald_ngrid
-      extenral control_ewald_ngrid
+      external control_ewald_ngrid
 
 c      character*255 cpsp_comment,comment
 c      external      cpsp_comment
