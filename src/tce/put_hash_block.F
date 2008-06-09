@@ -1,6 +1,6 @@
       subroutine put_hash_block(d_file,array,size,hash,key)
 c
-c $Id: put_hash_block.F,v 1.1 2005-12-16 22:20:07 kowalski Exp $
+c $Id: put_hash_block.F,v 1.2 2008-06-09 19:19:53 jhammond Exp $
 c
       implicit none
       integer d_file
@@ -12,5 +12,27 @@ c
 c
       call tce_hash(hash,key,offset)
       call put_block(d_file,array,size,offset)
+      return
+      end
+
+
+
+
+
+
+      subroutine put_hash_block_sf(d_file,array,size,hash,key)
+c
+c $Id: put_hash_block.F,v 1.2 2008-06-09 19:19:53 jhammond Exp $
+c
+      implicit none
+      integer d_file
+      integer size
+      integer hash(*)
+      integer key
+      integer offset
+      double precision array(size)
+c
+      call tce_hash(hash,key,offset)
+      call put_block_sf(d_file,array,size,offset)
       return
       end

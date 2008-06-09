@@ -1,6 +1,6 @@
       subroutine deletefile(d_sf)
 c
-c $Id: deletefile.F,v 1.13 2008-01-14 15:20:32 jhammond Exp $
+c $Id: deletefile.F,v 1.14 2008-06-09 19:19:54 jhammond Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -173,6 +173,76 @@ c
         filehandles(d_sf) = 2**30
         if (d_sf.eq.nfiles) nfiles = nfiles - 1
       endif
+      cpusecs(2) = cpusecs(2) + util_cpusec()
+      cpusecs(52) = cpusecs(52) + util_wallsec()
+ 9000 format(1x,'delete a file: file handle = ',i9)
+ 9010 format(1x,'file handle = ',i9,' file name = ',a)
+      return
+      end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      subroutine deletefile_sf(d_sf)
+c
+c $Id: deletefile.F,v 1.14 2008-06-09 19:19:54 jhammond Exp $
+c
+c     Creates a shared file and returns the handle
+c
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "sf.fh"
+#include "eaf.fh"
+#include "dra.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+      integer d_sf
+      integer d_temp
+      logical nodezero
+      logical parallel
+      integer i,j
+      logical used
+      character*255 filename
+c
+      cpusecs(2) = cpusecs(2) - util_cpusec()
+      cpusecs(52) = cpusecs(52) - util_wallsec()
+      nodezero = (ga_nodeid().eq.0)
+      parallel = (ga_nnodes().gt.1)
+      if (nodezero.and.util_print('files',print_debug))
+     1  write(LuOut,9000) d_sf
+c
+c      else if (ioalg.eq.3) then
+c
+        if (parallel) then
+          call ga_sync()
+          if (sf_open(d_sf).ne.0)
+     1      call errquit('deletefile: sf problem',0,DISK_ERR)
+        endif
+        if (sf_destroy(d_sf).ne.0)
+     1    call errquit('deletefile: sf problem',1,DISK_ERR)
+        if (parallel) call ga_sync()
+c
+c      endif
+c
       cpusecs(2) = cpusecs(2) + util_cpusec()
       cpusecs(52) = cpusecs(52) + util_wallsec()
  9000 format(1x,'delete a file: file handle = ',i9)
