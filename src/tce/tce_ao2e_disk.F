@@ -1,6 +1,6 @@
       subroutine tce_ao2e_disk(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e_disk.F,v 1.1 2008-06-09 19:19:52 jhammond Exp $
+c $Id: tce_ao2e_disk.F,v 1.2 2008-06-09 21:01:24 jhammond Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -79,14 +79,6 @@ c
         enddo
       enddo
 #if !defined(EXT_INT)
-      if ((dbl_size .gt. 16.0d0*1024.0d0**3).and.
-     1    (ioalg.eq.0)) then
-        write(LuOut,*) '--------------------------------------------'
-        write(LuOut,*) 'Abort: 2 GB file size limit will be exceeded'
-        write(LuOut,*) 'Use GA/SF scheme or OS large file support'
-        write(LuOut,*) '--------------------------------------------'
-        call errquit('tce_ao2e_disk: abort',0,UNKNOWN_ERR)
-      endif
       if (dbl_size .gt. 2.0d0*1024.0d0**3) then
         write(LuOut,*) '---------------------------------------------'
         write(LuOut,*) 'Abort: 32 bit integer overflow is anticipated'
@@ -108,9 +100,9 @@ c
 c
 c      call createfile(filename,d_ao2e,sf_size_pq*sf_size_kl)
 c
-      write(LuOut,*) 'before createfile_sf'
+c      write(LuOut,*) 'before createfile_sf'
       call createfile_sf(filename,d_ao2e,sf_size_pq*sf_size_kl)
-      write(LuOut,*) 'after createfile_sf'
+c      write(LuOut,*) 'after createfile_sf'
 c
 c     =======================
 c     Initialize integral API
@@ -173,6 +165,7 @@ c
                   call int_2e4c(ao_bas_han,ish,ksh,ao_bas_han,jsh,lsh,
      1              work2,dbl_mb(k_work2),work1,dbl_mb(k_work1))
                   kl = 0
+c----------------------------------------------------------------------c
                   do l = llo,lhi
                     do k = klo,khi
                       kl = kl + 1
@@ -187,6 +180,7 @@ c
                       enddo
                     enddo
                   enddo
+c----------------------------------------------------------------------c
                 endif
               enddo
             enddo

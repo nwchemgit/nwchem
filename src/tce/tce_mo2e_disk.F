@@ -1,6 +1,6 @@
       subroutine tce_mo2e_disk(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e_disk.F,v 1.1 2008-06-09 19:19:52 jhammond Exp $
+c $Id: tce_mo2e_disk.F,v 1.2 2008-06-09 21:01:24 jhammond Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -122,9 +122,11 @@ c              call get_block(d_ao2e,dbl_mb(k_pqkl_packed
 c     1          +(kl-1)*sf_size_pq),sf_size_pq,(kl-1)*pq_packed_off
 c     2          +int_mb(k_pqboff+(pb-1)*Nb+qb-1))
 c
+c              write(LuOut,*) 'before get_block_sf'
               call get_block_sf(d_ao2e,dbl_mb(k_pqkl_packed
      1          +(kl-1)*sf_size_pq),sf_size_pq,(kl-1)*pq_packed_off
      2          +int_mb(k_pqboff+(pb-1)*Nb+qb-1))
+c              write(LuOut,*) 'after get_block_sf'
 c
             enddo
             do rb = 1,Nb
@@ -177,9 +179,17 @@ c
      1              sf_size_pq*sf_size_rs,1,'MO 2e')
                   endif
 c
-                  call put_hash_block(d_mo2e,dbl_mb(k_pqrs),
-     1              sf_size_pq*sf_size_rs,int_mb(k_2e_offset),
-     2              ((((pb-1)*Nb+qb-1)*Nb+rb-1)*Nb+sb-1))
+                  if (fast2e.eq.2) then
+                    call put_hash_block(d_mo2e,dbl_mb(k_pqrs),
+     1                sf_size_pq*sf_size_rs,int_mb(k_2e_offset),
+     2                ((((pb-1)*Nb+qb-1)*Nb+rb-1)*Nb+sb-1))
+                  elseif (fast2e.eq.3) then
+c                    write(LuOut,*) 'before put_hash_block_sf'
+                    call put_hash_block_sf(d_mo2e,dbl_mb(k_pqrs),
+     1                sf_size_pq*sf_size_rs,int_mb(k_2e_offset),
+     2                ((((pb-1)*Nb+qb-1)*Nb+rb-1)*Nb+sb-1))
+c                    write(LuOut,*) 'after put_hash_block_sf'
+                  endif
 c
                   if (.not.ma_pop_stack(l_pqrs)) 
      1              call errquit('tce_mo2e_disk: MA problem',5,MA_ERR)
@@ -226,6 +236,11 @@ c
 c
 c      call deletefile(d_ao2e)
 c
+      if ((ga_nnodes().gt.1)) call ga_sync()
+      if (fast2e.eq.3) then
+        if(sf_rwtor(d_mo2e).ne.0)
+     2      call errquit('tce_mo2e_disk: sf_rwtor problem',0,DISK_ERR)
+      endif
       call deletefile_sf(d_ao2e)
 c
       return
