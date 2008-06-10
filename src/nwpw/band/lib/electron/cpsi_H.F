@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.29 2008-06-09 20:39:31 bylaska Exp $
+* $Id: cpsi_H.F,v 1.30 2008-06-10 18:31:10 d3p708 Exp $
 *
 
 *     **********************************************
@@ -95,46 +95,7 @@
 *     **********************************************
 *     **** fourier transform k-space potentials ****
 *     **********************************************
-      !call C3dB_cr_fft3b(1,dcpl_mb(vall(1)))
       call C3dB_cr_pfft3b(1,0,dcpl_mb(vall(1)))
-
-c      do nbq=1,nbrill
-c         nb = Pneb_convert_nb(nbq)
-c         psi_shift   = cpsi_data_get_chnk(psi_r_tag,nbq)
-c         Hpsi_shift  = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
-c         do ms=1,ispin
-c         do n=n1(ms),n2(ms)
-c
-c*           *************************************
-c*           **** vpsi_r = (vall_r+xcp)*psi_r ****
-c*           *************************************
-c            call C3dB_rc_Sum(1,
-c      >                       xcp(1+(ms-1)*nfft3d),
-c      >                       dcpl_mb(vall(1)),
-c      >                       dcpl_mb(vpsi(1)))
-c             call C3dB_cc_Mul(1,dcpl_mb(vpsi(1)),
-c      >                       dbl_mb(psi_shift),
-c      >                       dcpl_mb(vpsi(1)))
-c 
-c*           *******************************
-c*           **** get vpsi_r in k-space ****
-c*           *******************************
-c            !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
-c            call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
-c            call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
-cc
-c*           ***********************
-c*           **** add to Hpsi_k ****
-c*           ***********************
-c            call Cram_cc_daxpy(nb,(-scal1),
-c     >                         dcpl_mb(vpsi(1)),
-c     >                         dbl_mb(Hpsi_shift))
-c
-c            psi_shift  = psi_shift  + nshift1
-c            Hpsi_shift = Hpsi_shift + nshift2
-c         end do
-c         end do
-c      end do
 
       ki  = 1
       nbi = 1 
@@ -416,11 +377,9 @@ c      end do
 
 
 *     **** put vpsi_r in k-space ****
-      !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
       call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
       call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
 
-      !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)+nfft3d))
       call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)+nfft3d))
       call Cram_c_pack(nb,dcpl_mb(vpsi(1)+nfft3d))
 
@@ -477,8 +436,6 @@ c      end do
       external Pneb_nbrillq,Pneb_convert_nb
       external cpsi_data_get_chnk,cpsi_data_nsize
       external lattice_omega
-      !logical  cpsi_spin_orbit
-      !external cpsi_spin_orbit
       
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
