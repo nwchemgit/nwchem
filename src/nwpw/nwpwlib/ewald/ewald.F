@@ -1,7 +1,14 @@
 *
-* $Id: ewald.F,v 1.6 2008-06-06 01:26:53 d3p708 Exp $
+* $Id: ewald.F,v 1.7 2008-06-10 19:33:00 d3p708 Exp $
 *
       integer function ewald_ncut()
+      implicit none 
+#include "ewald.fh"
+      ewald_ncut = ncut
+      return
+      end 
+
+      integer function ewald_npack()
       implicit none 
 #include "ewald.fh"
       ewald_ncut = ncut
@@ -66,6 +73,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ewald_grid_nz=enz
       return
       end
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      logical function ewald_do_point(ix)
+      implicit none
+      integer ix
+#include "ewald.fh"
+      ewald_do_point=(int_mb(ecount(1)+ix-1).eq.1)
+      return
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c      intialization routines
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine mandelung_set(alpha)
       implicit none
@@ -178,6 +195,8 @@ cccccccccccccccccccccccccccccccccccccc
 *     **** arguments **********
       integer ew_ngrid(3)
 *     **** local variables ****
+      real*8 eps
+      parameter(eps
       integer nfft3d,G(3)
       integer nshl3d
       integer i,j,k,l
@@ -201,6 +220,7 @@ cccccccccccccccccccccccccccccccccccccc
       real*8   lattice_unitg
       real*8 psp_zv,cpsp_zv,paw_basis_ion_charge
       real*8 paw_basis_core_charge
+  
       external control_code,ion_nkatm
       external control_ncut
       external control_rcut,control_ecut
@@ -224,52 +244,24 @@ cccccccccccccccccccccccccccccccccccccc
       value=value.and.MA_alloc_get(mt_dbl,enloc,'vg',vg(2),vg(1))
       value=value.and.MA_alloc_get(mt_dbl,enloc,'vcx',vcx(2),vcx(1))
       value=value.and.MA_alloc_get(mt_dbl,ntyp,'zv',zv(2),zv(1))
+      value=value.and.MA_alloc_get(mt_int,enloc,'ecount',ecount(2),
+     > ecount(1))
       if (.not.value) call errquit('out of heap memory',0,0)
       pi=4.0d0*datan(1.0d0)
       fourpi=4.0d0*pi
-
       ecut=control_ecut()
+      gcut=2.0d0*ecut
       eG(2)=eG(1)+enloc
       eG(3)=eG(2)+enloc
       enxh=enx/2
       enyh=eny/2
       enzh=enz/2
       gzero=-1
-      call dcopy(3*enloc,0.0d0,0,dbl_mb(eG(1)),1)
-      indx=0
-      dutask=0
-      do k3=(-enzh+1),enzh
-      do k2=(-enyh+1),enyh
-      do k1=(-enxh+1),enxh
-        if (dutask.eq.tid) then
-	 dk1=dble(k1)
-         dk2=dble(k2)
-         dk3=dble(k3)
-         g1=dk1*lattice_unitg(1,1)+
-     >      dk2*lattice_unitg(1,2)+
-     >      dk3*lattice_unitg(1,3)
-         g2=dk1*lattice_unitg(2,1)+
-     >      dk2*lattice_unitg(2,2)+
-     >      dk3*lattice_unitg(2,3)
-         g3=dk1*lattice_unitg(3,1)+
-     >      dk2*lattice_unitg(3,2)+
-     >      dk3*lattice_unitg(3,3)
-         i=k1
-         j=k2
-         k=k3 
-           
-         dbl_mb(eG(1)+indx)=g1
-         dbl_mb(eG(2)+indx)=g2
-         dbl_mb(eG(3)+indx)=g3
-         itmp=abs(k1)+abs(k2)+abs(k3)
-         if (itmp.eq.0) gzero=indx
-         indx=indx+1
-        end if
-        dutask=mod(dutask+1,tnp)
-      end do
-      end do
-      end do
 
+      call dcopy(3*enloc,0.0d0,0,dbl_mb(eG(1)),1)
+      call dcopy(enloc,0.0d0,0,dbl_mb(vg(1)),1)
+      call dcopy(enloc,0.0d0,0,dbl_mb(vcx(1)),1)
+      call icopy(enloc,0,0,int_mb(ecount(1)),1)
 *     ***** initialize common block and find w *****
       ncut = control_ncut()
       rcut = control_rcut()
@@ -298,29 +290,62 @@ cccccccccccccccccccccccccccccccccccccc
 
       w      = 0.25d0*rcut*rcut
 
-ccccccccc initialize Vg
-      dutask=0
-      indx=0
-      do i=1,enfft
-         if (tid.eq.dutask) then
-           gg  = ( dbl_mb(eG(1)+indx)*dbl_mb(eG(1)+indx)
-     >         + dbl_mb(eG(2)+indx)*dbl_mb(eG(2)+indx)
-     >         + dbl_mb(eG(3)+indx)*dbl_mb(eG(3)+indx) )
 
-           if ((gzero.eq.indx)) then
-             dbl_mb(vcx(1)+indx) = 0.0d0
-             dbl_mb(vg(1)+indx) = 0.0d0
+      enpack=0
+      indx=0
+      eindx=0
+      dutask=0
+      do k3=(-enzh+1),enzh
+      do k2=(-enyh+1),enyh
+      do k1=(-enxh+1),enxh
+        if (dutask.eq.tid) then
+	 dk1=dble(k1)
+         dk2=dble(k2)
+         dk3=dble(k3)
+         g1=dk1*lattice_unitg(1,1)+
+     >      dk2*lattice_unitg(1,2)+
+     >      dk3*lattice_unitg(1,3)
+         g2=dk1*lattice_unitg(2,1)+
+     >      dk2*lattice_unitg(2,2)+
+     >      dk3*lattice_unitg(2,3)
+         g3=dk1*lattice_unitg(3,1)+
+     >      dk2*lattice_unitg(3,2)+
+     >      dk3*lattice_unitg(3,3)
+         gg=g1*g1+g2*g2+g3*g3
+         if ((gg-gcut).lt.1.0d-9) then
+           int_mb(ecount(1)+eindx)=1
+           dbl_mb(eG(1)+indx)=g1
+           dbl_mb(eG(2)+indx)=g2
+           dbl_mb(eG(3)+indx)=g3
+
+           itmp=abs(k1)+abs(k2)+abs(k3)
+
+           if (itmp.eq.0) then
+              gzero=indx
+              dbl_mb(vcx(1)+indx)=0.0d0
+              dbl_mb(vg(1)+indx)=0.0d0
            else
-            term=fourpi/gg
-            dbl_mb(vcx(1)+indx) = term
-            dbl_mb(vg(1)+indx) = term*exp(-w*gg)
+              term=pi4/gg
+              dbl_mb(vxc(1)+eindx)=term
+              dbl_mb(vg(1)+indx)=term*dexp(-w*gg)
            end if
+
            indx=indx+1
+           enpack=enpack+1
+         else
+           int_mb(ecount(1)+eindx)=0
          end if
-	 dutask=mod(dutask+1,tnp)
+         eindx=eindx+1
+        end if
+        dutask=mod(dutask+1,tnp)
       end do
+      end do
+      end do
+
 ccccccccccc set Mandelung constant       
+
       call Mandelung_set(alpha)
+
 ccccccccccc set ion charges
       ccode=control_code()
       if (ccode.eq.5) then
@@ -339,6 +364,7 @@ ccccccccccc set ion charges
           end do
        end if
       end if
+
 cccccccccc  ewald summation
       rs = (3.0d0*lattice_omega()/fourpi)**(1.0d0/3.0d0)
       zz = 0.0d0
@@ -349,12 +375,13 @@ cccccccccc  ewald summation
          z  = z  + qi
       end do
       cewald=0.0d0
-      do i=1,enloc
+      do i=1,enpack
          cewald=cewald+dbl_mb(vg(1)+i-1)
       end do
       if (tnp.gt.1) call Parallel_SumAll(cewald)
       cewald = -0.5d0*zz*(alpha/rs + cewald/lattice_omega())
      >         -0.5d0*(z*z-zz)*rcut*rcut*pi/lattice_omega()
+
 cccccccccc allocate and fill rcell
       nshl3d=(2*ncut+1)**3
       value = MA_alloc_get(mt_dbl,(3*nshl3d),'rcell',rcell(2),
@@ -451,23 +478,23 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >  call errquit('ewald_e:out of stack memory',0,MA_ERR)
      
 *     **** get the structure factor ****
-      call dcopy((2*enloc),0.0d0,0,dcpl_mb(s(1)),1)
+      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
       do ii=1,ion_nion()
          call ewald_strfac(ii,dcpl_mb(exi(1)))
-         call daxpy(2*enloc,ewald_zv(ion_katm(ii)),
+         call daxpy(2*enpack,ewald_zv(ion_katm(ii)),
      >          dcpl_mb(exi(1)),1,
      >          dcpl_mb(s(1)),1)
       end do
 
 *     **** calculate the ewald energy ****
 
-      do i=1,enloc
+      do i=1,enpack
           cz=dcpl_mb(s(1))
           cr=dble(cz)
           ci=dimag(cz)
           dbl_mb(tmp3(1)+i-1)=cr*cr+ci*ci
       end do
-      energy=ddot(enloc,dbl_mb(tmp3(1)+i-1),1,
+      energy=ddot(enpack,dbl_mb(tmp3(1)+i-1),1,
      >  dbl_mb(vg(1)),1)
       if (tnp.gt.1) call Parallel_SumAll(energy)
       energyG = 0.5d0*energy/lattice_omega()
@@ -578,18 +605,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call dcopy(nion,0.0d0,0,dbl_mb(fz(1)),1)
      
 *     **** get the structure factor ****
-      call dcopy((2*enloc),0.0d0,0,dcpl_mb(s(1)),1)
+      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
       do ii=1,nion
          call ewald_strfac(ii,dcpl_mb(exi(1)))
          zii=ewald_zv(ion_katm(ii))
-         call daxpy(2*enloc,zii,
+         call daxpy(2*enpack,zii,
      >         dcpl_mb(exi(1)),1,
      >         dcpl_mb(s(1)),1)
       end do
       do ii=1,nion
          call ewald_strfac(ii,dcpl_mb(exi(1)))
          zii=ewald_zv(ion_katm(ii))
-         do i=1,enloc
+         do i=1,enpack
             dbl_mb(tmp3(1)+i-1) 
      >              = ( dble(dcpl_mb(exi(1)+i-1))
      >                *dimag(dcpl_mb(s(1)+i-1))
@@ -598,13 +625,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                )*dbl_mb(vg(1)+i-1)
          end do
 
-         sum=ddot(enloc,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
+         sum=ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
          dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
      >                      +  sum*zii*scal2
-         sum=ddot(enloc,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
+         sum=ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
          dbl_mb(fx(2)+ii-1) = dbl_mb(fx(2)+ii-1) 
      >                      +  sum*zii*scal2
-         sum=ddot(enloc,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
+         sum=ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
          dbl_mb(fx(3)+ii-1) = dbl_mb(fx(3)+ii-1) 
      >                      +  sum*zii*scal2
       end do
@@ -753,13 +780,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >      MA_push_get(mt_dcpl,enloc,'strf',strf(2),strf(1))
       if (.not. value) call errquit('out of stack memory',0,MA_ERR)
 
-      call dcopy((2*enloc),0.0d0,0,dcpl_mb(strf(1)),1)
+      call dcopy((2*enpack),0.0d0,0,dcpl_mb(strf(1)),1)
       do ii=1,ion_nion()
          call ewald_strfac(0,ii,dcpl_mb(exi(1)))
-         call daxpy(2*enloc,ewald_zv(ion_katm(ii)),dcpl_mb(exi(1)),1,
+         call daxpy(2*enpack,ewald_zv(ion_katm(ii)),dcpl_mb(exi(1)),1,
      >             dcpl_mb(strf(1)),1)
       end do
-      do i=1,enloc
+      do i=1,enpack
           cz=dbl_mb(strf(1)+i-1)
           ar=dble(cz)
           ai=dimag(cz)
@@ -771,8 +798,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      > call errquit('error popping stack memory',0,MA_ERR)
 
 *     **** calculate the ewald energy ****
-      call dcopy(enloc,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
-      energy=ddot(2*enloc,dbl_mb(F(1)),1,dbl_mb(H(1)),1)
+      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
+      energy=ddot(2*enpack,dbl_mb(F(1)),1,dbl_mb(H(1)),1)
       if (tnp.gt.1) call Parallel_SumAll(energy)
       energy = -0.5d0*energy/lattice_omega()
 
@@ -784,26 +811,26 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end do
      
 *     **** tmp2(G) = F(G)*H(G)/G**2 + F(G)*H(G)*rcut*rcut/4 ****
-      value = MA_push_get(mt_dbl,enloc,'tmp1',tmp1(2),tmp1(1))
+      value = MA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,enloc,'tmp2',tmp2(2),tmp2(1))
+     >        MA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-      do i=1,enloc
+      do i=1,enpack
          dbl_mb(tmp1(1)+i-1)=dbl_mb(F(1)+i-1)*dbl_mb(H(1)+i-1)
       end do
       ss = 0.25d0*rcut*rcut
-      do i=1,enloc
+      do i=1,enpack
          dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
       end do       
       ss = 1.0d0/fourpi
-      do i=1,enloc
+      do i=1,enpack
          dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
       end do       
-      do i=1,enloc
+      do i=1,enpack
          dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vcx(1)+i-1)
       end do       
-      do i=1,enloc
+      do i=1,enpack
          dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp2(1)+i-1)+dbl_mb(tmp1(1)+i-1)
       end do       
 *     **** calculate Cus ****
@@ -812,11 +839,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ss =  1.0d0/lattice_omega()
       do u=1,3
       do s=u,3
-         do i=1,enloc
+         do i=1,enpack
               dbl_mb(tmp1(1)+i-1)=dbl_mb(eG(u)+i-1)*
      >                   dbl_mb(eG(s)+i-1)  
          end do
-         sum=ddot(enloc,dbl_mb(tmp1(1)),1,dbl_mb(tmp2(1)),1)
+         sum=ddot(enpack,dbl_mb(tmp1(1)),1,dbl_mb(tmp2(1)),1)
          if (tnp.gt.1) call Parallel_SumAll(sum)
          Cus(u,s) = ss*sum
       end do
