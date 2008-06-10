@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.64 2008-06-09 19:19:52 jhammond Exp $
+#$Id: GNUmakefile,v 1.65 2008-06-10 11:37:09 jhammond Exp $
 #
 
 SUBDIRS = include ccsd ccsd_lambda eomccsd \
@@ -34,7 +34,7 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_residual_t3a.o tce_t3a_offset.o tce_jacobi_t3a.o \
       tce_x3a_offset.o tce_jacobi_x3a.o \
       tce_cholesky.o tce_ao2e_cholesky.o tce_imaginary.o \
-      e2_offset_2_offset.o get_block_ind.o tce_hash_ind.o \
+      e2_offset_2_offset.o get_block_ind.o get_block_ind_sf.o tce_hash_ind.o \
       tce_mo2e_offset_intorb.o tce_mo2e_offset_size.o tce_mo2e_trans.o \
       atpart_nalength.o tce_mo2e_zones_4a_disk_ga.o tce_mo2e_zones_4a_disk_ga_chop.o \
       tce_mo2e_zones_4a_disk_2s_new.o tce_restart.o tce_restart_quadruples.o \
@@ -59,7 +59,8 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_ccsd_lambda_response_driver.o tce_ccsd_asym_polar.o tce_ccsd_hyperpolar.o \
       tce_ao2e_new.o tce_tile_new.o tce_init_new.o \
       tce_mo2e_zones_4a_disk_4s_new_patch.o tce_mo2e_zones_4a_disk_4s_new_patch_m2.o \
-      tce_mo2e_zones_4a_disk_4s_new_patch_m3.o tce_ao2e_disk.o tce_mo2e_disk.o
+      tce_mo2e_zones_4a_disk_4s_new_patch_m3.o tce_ao2e_disk.o tce_mo2e_disk.o \
+      tce_mo2e_disk_2eorb.o
 
 #define SADAYSORT
 #endef
