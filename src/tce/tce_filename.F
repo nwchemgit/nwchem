@@ -1,6 +1,6 @@
       subroutine tce_filename(stub,filename)
 c
-c $Id: tce_filename.F,v 1.7 2008-03-19 01:00:13 jhammond Exp $
+c $Id: tce_filename.F,v 1.8 2008-06-10 14:57:27 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -37,7 +37,7 @@ c
 
       subroutine tce_filenameindexed(index,stub,filename)
 c
-c $Id: tce_filename.F,v 1.7 2008-03-19 01:00:13 jhammond Exp $
+c $Id: tce_filename.F,v 1.8 2008-06-10 14:57:27 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -73,7 +73,7 @@ c
 
       subroutine tce_filename_4ind(index,stub,filename)
 c
-c $Id: tce_filename.F,v 1.7 2008-03-19 01:00:13 jhammond Exp $
+c $Id: tce_filename.F,v 1.8 2008-06-10 14:57:27 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -106,4 +106,28 @@ ccx      call tce_filename(stub,temporary)
       return
       end
 
+
+
+
+
+      subroutine tce_filename_sf(stub,filename)
+c
+c $Id: tce_filename.F,v 1.8 2008-06-10 14:57:27 jhammond Exp $
+c
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "sf.fh"
+#include "stdio.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+      character*(*) stub
+      character*(*) filename
+c
+c      else if (ioalg.eq.3) then
+        call util_file_name(stub,.false.,.false.,filename)
+c      endif
+      return
+      end
 
