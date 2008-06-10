@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.117 2008-06-10 19:35:04 d3p708 Exp $
+* $Id: control.F,v 1.118 2008-06-10 19:48:09 d3p708 Exp $
 *
 
 *     ***********************************
@@ -885,9 +885,6 @@ cccc set to some reasonable default !
       implicit none
 #include "control.fh"
       integer i
-
-#include "control.fh"
-
       control_ewald_ngrid=ewald_grid(i)
       return
       end
@@ -896,7 +893,6 @@ cccc set to some reasonable default !
 *     ***********************************
       subroutine ewald_set_ngrid(enx,eny,enz)
       implicit none
-#include "control.fh"
       integer enx,eny,enz
 
 #include "control.fh"

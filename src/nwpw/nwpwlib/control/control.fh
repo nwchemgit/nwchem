@@ -1,11 +1,7 @@
 *
-* $Id: control.fh,v 1.31 2008-06-06 17:44:37 d3p708 Exp $
+* $Id: control.fh,v 1.32 2008-06-10 19:48:09 d3p708 Exp $
 *
-
 *     **** control common block ****
-
-c     integer MAXPSP
-c     parameter (MAXPSP=50)
       character*30 boutput_wavefunction_filename
       character*30 output_wavefunction_filename
       character*30 input_wavefunction_filename
@@ -13,7 +9,6 @@ c     parameter (MAXPSP=50)
       character*30 input_v_wavefunction_filename
       character*30 output_ewavefunction_filename
       character*30 input_ewavefunction_filename
-c     character*20 pspnames(MAXPSP)
       character*30 xyz_filename,cell_name
       character*12 boundry
       real*8      unita(3,3),tolerances(3),scaling(2),sa_decay(2)
@@ -31,8 +26,7 @@ c     character*20 pspnames(MAXPSP)
       logical     two_comp_ppot
       integer     maxit_orb,maxit_orbs,scf_algorithm,ks_algorithm
       integer     symm_number
-      common / control_block / 
-     >                         unita,tolerances,scaling,sa_decay,
+      common / control_block / unita,tolerances,scaling,sa_decay,
      >                         time_step,fake_mass,ks_alpha,
      >                         ecut,wcut,rcut,
      >                         bo_time_step,bo_steps,bo_algorithm,
@@ -48,8 +42,7 @@ c     character*20 pspnames(MAXPSP)
      >                         gram_schmidt,rotation,translation,
      >                         balance,spin_orbit,
      >                         two_comp_ppot
-      common / control_blkchar / 
-     >                         boutput_wavefunction_filename,
+      common / control_blkchar / boutput_wavefunction_filename,
      >                         output_wavefunction_filename,
      >                         input_wavefunction_filename,
      >                         output_v_wavefunction_filename,
