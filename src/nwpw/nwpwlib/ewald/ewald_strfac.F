@@ -1,5 +1,5 @@
 *
-* $Id: ewald_strfac.F,v 1.4 2008-06-09 23:27:15 bylaska Exp $
+* $Id: ewald_strfac.F,v 1.5 2008-06-10 19:00:11 d3p708 Exp $
 *
       subroutine ewald_strfact_init()
       implicit none
@@ -8,24 +8,22 @@
 #include "ewald_strfac.fh"
 cccccccc arguments
 cccccccc locals
-      integer nx,ny,nz,nb,taskid,np
+      integer taskid,np
+      integer nion,nx,ny,nz,nt,nloc
       logical value
-      integer i,j,k,nxh,nion,nloc,nt,xtra
-      integer cindx,dutask,nbrillq
-      integer i_indx(2),j_indx(2),k_indx(2)
 cccccccc externals
-      integer ion_nion,brillioun_nbrillq
+      integer ion_nion
       integer ewald_grid_nx
       integer ewald_grid_ny
       integer ewald_grid_nz
-      external ion_nion,brillioun_nbrillq
+      external ion_nion
       external ewald_grid_nx
       external ewald_grid_ny
       external ewald_grid_nz
 cccccccc exec
       call Parallel_np(np)
       call Parallel_taskid(taskid)
-      nbrillq=brillioun_nbrillq()
+
       nion=ion_nion()
       nx=ewald_grid_nx()
       ny=ewald_grid_ny()
@@ -39,53 +37,9 @@ cccccccc exec
      > ewx2(1))
       value=value.and.MA_alloc_get(mt_dcpl,(nz*nion),'ewx3',ewx3(2),
      > ewx3(1))
-      value=value.and.MA_alloc_get(mt_dcpl,(nbrillq*nion),'cxr',cxr(1),
-     > cxr(2))
-      value=value.and.MA_alloc_get(mt_int,(2*nbrillq+2),'i_indx_list',
-     >    i_indx_list(2),i_indx_list(1))
-      value=value.and.MA_alloc_get(mt_int,(2*nbrillq+2),'j_indx_list',
-     >    j_indx_list(2),j_indx_list(1))
-      value=value.and.MA_alloc_get(mt_int,(2*nbrillq+2),'k_indx_list',
-     >    k_indx_list(2),k_indx_list(1))
-
       if (.not.value) 
      >  call errquit("EWALD_STRUCTFACTOR_INIT: OUT OF HEAP MEMORY",0,
      >               MA_ERR)
-      do nb=0,nbrillq
-        value=MA_alloc_get(mt_int,nloc,'i_indx0',
-     >          i_indx(2),i_indx(1))
-        value=value.and.
-     >          MA_alloc_get(mt_int,nloc,'j_indx0',
-     >          j_indx(2),j_indx(1))
-        value=value.and.
-     >          MA_alloc_get(mt_int,nloc,'k_indx0',
-     >          k_indx(2),k_indx(1))
-        if (.not.value)
-     >       call errquit("ewald_stuctfactor:out of heap memory",nb+1,
-     >                MA_ERR)       
-        int_mb(i_indx_list(1)+2*nb)=i_indx(1)
-        int_mb(i_indx_list(1)+2*nb+1)=i_indx(2)
-        int_mb(j_indx_list(1)+2*nb)=j_indx(1)
-        int_mb(j_indx_list(1)+2*nb+1)=j_indx(2)
-        int_mb(k_indx_list(1)+2*nb)=k_indx(1)
-        int_mb(k_indx_list(1)+2*nb+1)=k_indx(2)
-
-        dutask=0
-        cindx=0
-        do k=1,nz
-        do j=1,ny
-        do i=1,nx
-          if (dutask.eq.taskid) then
-             int_mb(i_indx(1)+cindx-1)=i-1
-             int_mb(j_indx(1)+cindx-1)=j-1
-             int_mb(k_indx(1)+cindx-1)=k-1
-             cindx=cindx+1
-          end if
-          dutask=mod(dutask+1,np)
-        end do
-        end do
-        end do
-      end do
       return 
       end
 cccccccccccccccccccccccc
@@ -94,28 +48,12 @@ cccccccccccccccccccccccc
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "ewald_strfac.fh"
-      integer nb,i_indx,j_indx,k_indx,nbrillq
       logical value
-      integer brillioun_nbrillq
-      external brillioun_nbrillq
 cccccccc exec
-      nbrillq=brillioun_nbrillq()
       value=.true. 
-      do nb=nbrillq,0,-1
-         i_indx=int_mb(i_indx_list(1)+2*nb+1)
-         j_indx=int_mb(j_indx_list(1)+2*nb+1)
-         k_indx=int_mb(k_indx_list(1)+2*nb+1)
-         value=value.and.MA_free_heap(k_indx)
-         value=value.and.MA_free_heap(j_indx)
-         value=value.and.MA_free_heap(i_indx)
-      end do
-      value=value.and.MA_free_heap(i_indx_list(2))
-      value=value.and.MA_free_heap(j_indx_list(2))
-      value=value.and.MA_free_heap(k_indx_list(2))
       value=value.and.MA_free_heap(ewx1(2))
       value=value.and.MA_free_heap(ewx2(2))
       value=value.and.MA_free_heap(ewx3(2))
-      value=value.and.MA_free_heap(cxr(2))
       if (.not.value) then
         call errquit("ewald_strfact_end: error free heap",0,MA_ERR)
       end if
@@ -295,7 +233,7 @@ ccccccc locals
       do k=0,nz-1
       do j=0,ny-1
       do i=0,nx-1
-         if (dutask.eq.taskid) then
+         if ((dutask.eq.taskid).and.ewald_count(indx)) then
            exi(indx)=dcpl_mb(ewx1(1)+i+im1*nx)*
      >           dcpl_mb(ewx2(1)+j+im1*ny)*
      >           dcpl_mb(ewx3(1)+k+im1*nz)
