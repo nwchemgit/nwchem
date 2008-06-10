@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.7 2008-06-10 19:33:00 d3p708 Exp $
+* $Id: ewald.F,v 1.8 2008-06-10 19:55:11 d3p708 Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -11,7 +11,7 @@
       integer function ewald_npack()
       implicit none 
 #include "ewald.fh"
-      ewald_ncut = ncut
+      ewald_npack = enpack
       return
       end 
 
@@ -77,6 +77,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical function ewald_do_point(ix)
       implicit none
       integer ix
+#include "mafdecls.fh"
 #include "ewald.fh"
       ewald_do_point=(int_mb(ecount(1)+ix-1).eq.1)
       return
@@ -196,7 +197,7 @@ cccccccccccccccccccccccccccccccccccccc
       integer ew_ngrid(3)
 *     **** local variables ****
       real*8 eps
-      parameter(eps
+      parameter(eps=1.d-12)
       integer nfft3d,G(3)
       integer nshl3d
       integer i,j,k,l
@@ -204,8 +205,8 @@ cccccccccccccccccccccccccccccccccccccc
       integer nx,ny,nxh
       integer enxh,enyh,enzh
       integer dutask,indx,xtra
-      integer ntyp,ccode
-      real*8  pi,fourpi,gg,w
+      integer ntyp,ccode,endx
+      real*8  pi,pi4,gg,w,gcut
       real*8  rs,qi
       real*8  zz,z,term
       logical value
@@ -248,7 +249,7 @@ cccccccccccccccccccccccccccccccccccccc
      > ecount(1))
       if (.not.value) call errquit('out of heap memory',0,0)
       pi=4.0d0*datan(1.0d0)
-      fourpi=4.0d0*pi
+      pi4=4.0d0*pi
       ecut=control_ecut()
       gcut=2.0d0*ecut
       eG(2)=eG(1)+enloc
@@ -293,7 +294,7 @@ cccccccccccccccccccccccccccccccccccccc
 
       enpack=0
       indx=0
-      eindx=0
+      endx=0
       dutask=0
       do k3=(-enzh+1),enzh
       do k2=(-enyh+1),enyh
@@ -313,7 +314,7 @@ cccccccccccccccccccccccccccccccccccccc
      >      dk3*lattice_unitg(3,3)
          gg=g1*g1+g2*g2+g3*g3
          if ((gg-gcut).lt.1.0d-9) then
-           int_mb(ecount(1)+eindx)=1
+           int_mb(ecount(1)+endx)=1
            dbl_mb(eG(1)+indx)=g1
            dbl_mb(eG(2)+indx)=g2
            dbl_mb(eG(3)+indx)=g3
@@ -326,16 +327,16 @@ cccccccccccccccccccccccccccccccccccccc
               dbl_mb(vg(1)+indx)=0.0d0
            else
               term=pi4/gg
-              dbl_mb(vxc(1)+eindx)=term
+              dbl_mb(vcx(1)+endx)=term
               dbl_mb(vg(1)+indx)=term*dexp(-w*gg)
            end if
 
            indx=indx+1
            enpack=enpack+1
          else
-           int_mb(ecount(1)+eindx)=0
+           int_mb(ecount(1)+endx)=0
          end if
-         eindx=eindx+1
+         endx=endx+1
         end if
         dutask=mod(dutask+1,tnp)
       end do
@@ -366,7 +367,7 @@ ccccccccccc set ion charges
       end if
 
 cccccccccc  ewald summation
-      rs = (3.0d0*lattice_omega()/fourpi)**(1.0d0/3.0d0)
+      rs = (3.0d0*lattice_omega()/pi4)**(1.0d0/3.0d0)
       zz = 0.0d0
       z  = 0.0d0
       do i=1,ion_nion()

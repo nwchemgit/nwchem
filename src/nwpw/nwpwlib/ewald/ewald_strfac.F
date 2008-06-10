@@ -1,5 +1,5 @@
 *
-* $Id: ewald_strfac.F,v 1.6 2008-06-10 19:33:00 d3p708 Exp $
+* $Id: ewald_strfac.F,v 1.7 2008-06-10 19:55:11 d3p708 Exp $
 *
       subroutine ewald_strfact_init()
       implicit none
@@ -9,7 +9,7 @@
 cccccccc arguments
 cccccccc locals
       integer taskid,np
-      integer nion,nx,ny,nz,nt,nloc
+      integer nion,nx,ny,nz,nt,nloc,xtra
       logical value
 cccccccc externals
       integer ion_nion
