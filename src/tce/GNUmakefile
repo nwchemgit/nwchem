@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.65 2008-06-10 11:37:09 jhammond Exp $
+#$Id: GNUmakefile,v 1.66 2008-06-11 22:14:16 jhammond Exp $
 #
 
 SUBDIRS = include ccsd ccsd_lambda eomccsd \
@@ -24,7 +24,6 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       copyfile.o ddotfile.o daxfile.o daxpyfile.o dscalfile.o \
       tce_aod1.o tce_nud1.o tce_mod1.o tce_mod1_offset.o sym_abelian_axis.o tce_mod1_new.o tce_mod1_offset_new.o \
       tce_eom_init.o tce_eom_tidy.o tce_eom_xdiagon.o tce_eom_ydiagon.o \
-      tce_eom_xguess.o tce_eom_yguess.o \
       tce_x1_offset.o tce_x2_offset.o tce_x3_offset.o tce_x4_offset.o \
       tce_y1_offset.o tce_y2_offset.o tce_y3_offset.o tce_y4_offset.o \
       tce_jacobi_x1.o tce_jacobi_x2.o tce_jacobi_x3.o tce_jacobi_x4.o \
@@ -68,8 +67,18 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
 ifdef SADAYSORT
       OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
 else
-      OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o 
+      OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
 endif
+
+#define KAROLEOM
+#endef
+
+ifdef KAROLEOM
+      OBJ_OPTIMIZE += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
+else
+      OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o
+endif
+
 
 LIB_INCLUDES = -I./include
 
