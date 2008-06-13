@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.118 2008-06-10 19:48:09 d3p708 Exp $
+* $Id: control.F,v 1.119 2008-06-13 22:33:28 bylaska Exp $
 *
 
 *     ***********************************
@@ -870,9 +870,9 @@ c     >                  1,output_wavefunction_filename)
 cccc set to some reasonable default !
       if (.not.rtdb_get(rtdb,'nwpw:ewald_ngrid',mt_int,3,ewald_grid)) 
      > then
-     	ewald_grid(1)=32
-        ewald_grid(2)=32
-        ewald_grid(3)=32
+     	ewald_grid(1)=ngrid(1)
+        ewald_grid(2)=ngrid(2)
+        ewald_grid(3)=ngrid(3)
       end if
 
       control_read = value
