@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.69 2005-10-28 00:12:54 edo Exp $
+C$Id: scf.F,v 1.70 2008-06-13 19:06:55 jhammond Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -208,6 +208,43 @@ c
 c     Initialize integral library, schwarz screening, cached 1-e integs
 c
       call int_init(rtdb,1, basis)
+c
+      if (util_print('kinetic',print_debug)) then
+          write(6,*) "===================================="
+          write(6,*) "Begin kinetic 1-e integrals"
+          write(6,*) "===================================="
+          call print_1eints(basis, basis, 'kinetic', oskel)
+          write(6,*) "===================================="
+          write(6,*) "End kinetic 1-e integrals"
+          write(6,*) "===================================="
+      endif
+      if (util_print('potential',print_debug)) then
+          write(6,*) "===================================="
+          write(6,*) "Begin potential 1-e integrals"
+          write(6,*) "===================================="
+          call print_1eints(basis, basis, 'potential', oskel)
+          write(6,*) "===================================="
+          write(6,*) "End potential 1-e integrals"
+          write(6,*) "===================================="
+      endif
+      if (util_print('overlap',print_debug)) then
+          write(6,*) "===================================="
+          write(6,*) "Begin overlap 1-e integrals"
+          write(6,*) "===================================="
+          call print_1eints(basis, basis, 'overlap', oskel)
+          write(6,*) "===================================="
+          write(6,*) "End overlap 1-e integrals"
+          write(6,*) "===================================="
+      endif
+      if (util_print('ao2eints',print_debug)) then
+          write(6,*) "===================================="
+          write(6,*) "Begin all 2-e integrals"
+          write(6,*) "===================================="
+          call print_aoints(basis)
+          write(6,*) "===================================="
+          write(6,*) "End all 2-e integrals"
+          write(6,*) "===================================="
+      endif
 c
       if (util_print('allaoints',print_never)) ! Debug
      $     call print_aoints(basis)
