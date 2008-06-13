@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.8 2008-06-10 19:55:11 d3p708 Exp $
+* $Id: ewald.F,v 1.9 2008-06-13 22:54:26 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -198,7 +198,6 @@ cccccccccccccccccccccccccccccccccccccc
 *     **** local variables ****
       real*8 eps
       parameter(eps=1.d-12)
-      integer nfft3d,G(3)
       integer nshl3d
       integer i,j,k,l
       integer k1,k2,k3,itmp
@@ -216,7 +215,7 @@ cccccccccccccccccccccccccccccccccccccc
       integer control_code,ion_nkatm
       integer  control_ncut
       real*8   control_rcut,control_ecut
-      integer  ion_nion,ion_katm,c_G_indx
+      integer  ion_nion,ion_katm
       real*8   lattice_omega,lattice_unita
       real*8   lattice_unitg
       real*8 psp_zv,cpsp_zv,paw_basis_ion_charge
@@ -225,7 +224,7 @@ cccccccccccccccccccccccccccccccccccccc
       external control_code,ion_nkatm
       external control_ncut
       external control_rcut,control_ecut
-      external ion_nion,ion_katm,c_G_indx
+      external ion_nion,ion_katm
       external lattice_omega,lattice_unita                                
       external lattice_unitg
       external psp_zv,cpsp_zv,paw_basis_ion_charge
@@ -327,7 +326,7 @@ cccccccccccccccccccccccccccccccccccccc
               dbl_mb(vg(1)+indx)=0.0d0
            else
               term=pi4/gg
-              dbl_mb(vcx(1)+endx)=term
+              dbl_mb(vcx(1)+indx)=term
               dbl_mb(vg(1)+indx)=term*dexp(-w*gg)
            end if
 
@@ -391,13 +390,18 @@ cccccccccc allocate and fill rcell
      > call errquit('c_ewald_init:out of heap memory',0,MA_ERR)
 
 
-*     **** get lattice vectors in real space ****
-      l=0
+
+*     **** get lattice vectors in real space - define rcell(1) = origin****
+      l=1
+      dbl_mb(rcell(1)+(l-1))          = 0.0d0
+      dbl_mb(rcell(1)+(l-1)+nshl3d)   = 0.0d0
+      dbl_mb(rcell(1)+(l-1)+2*nshl3d) = 0.0d0
       do k=-ncut,ncut
         do j=-ncut,ncut
           do i=-ncut,ncut
+             if (.not.((i.eq.0).and.(j.eq.0).and.(k.eq.0))) then
              l = l+1
-             dbl_mb(rcell(1)+ (l-1) )
+             dbl_mb(rcell(1)+(l-1) )
      >                = i*lattice_unita(1,1)
      >                + j*lattice_unita(1,2)
      >                + k*lattice_unita(1,3)
@@ -409,10 +413,12 @@ cccccccccc allocate and fill rcell
      >                = i*lattice_unita(3,1)
      >                + j*lattice_unita(3,2)
      >                + k*lattice_unita(3,3)
+             end if
 
           end do
         end do
       end do
+
       call ewald_strfact_init()
       return
       end
@@ -490,13 +496,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     **** calculate the ewald energy ****
 
       do i=1,enpack
-          cz=dcpl_mb(s(1))
+          cz=dcpl_mb(s(1)+i-1)
           cr=dble(cz)
           ci=dimag(cz)
           dbl_mb(tmp3(1)+i-1)=cr*cr+ci*ci
       end do
-      energy=ddot(enpack,dbl_mb(tmp3(1)+i-1),1,
-     >  dbl_mb(vg(1)),1)
+      energy=ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
       if (tnp.gt.1) call Parallel_SumAll(energy)
       energyG = 0.5d0*energy/lattice_omega()
       energy  = 0.5d0*energy/lattice_omega() + cewald
