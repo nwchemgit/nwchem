@@ -1,7 +1,10 @@
 *
-*  $Id: ewald_strfac.fh,v 1.3 2008-06-10 18:59:42 d3p708 Exp $
+*  $Id: ewald_strfac.fh,v 1.4 2008-06-16 23:41:28 bylaska Exp $
 *
 cccccccccc local common block for ewald structure factor
+      integer nx,ny,nz,npack
       integer ewx1(2),ewx2(2),ewx3(2)
-      common / ewald_cstrfac_block/ ewx1,ewx2,ewx3
+      integer i_indx(2),j_indx(2),k_indx(2)
+      common / ewald_cstrfac_block/ ewx1,ewx2,ewx3,i_indx,j_indx,k_indx,
+     >                              nx,ny,nz,npack
 
