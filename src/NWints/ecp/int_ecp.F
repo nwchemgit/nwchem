@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.32 2008-01-18 21:57:55 bert Exp $
+* $Id: int_ecp.F,v 1.33 2008-06-17 19:53:32 bert Exp $
       implicit none
 *::cr::7
 *--------------------------------------------------*
@@ -691,7 +691,7 @@ c
      &          c_coef((p_nprim+1)),
      &          dbl_mb(mb_exndcf(icfp,soid)),
      &          dbl_mb(mb_exndcf(irexp,soid)),
-     &          nprim,n0,n1,n2)
+     &          nprim,n0,n1,n2,n3,n4)
             n_prim_C(0,type,ie,2) = n0
             n_prim_C(1,type,ie,2) = n1
             n_prim_C(2,type,ie,2) = n2
