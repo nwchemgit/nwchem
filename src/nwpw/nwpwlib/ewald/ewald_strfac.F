@@ -1,5 +1,5 @@
 *
-* $Id: ewald_strfac.F,v 1.8 2008-06-16 23:41:27 bylaska Exp $
+* $Id: ewald_strfac.F,v 1.9 2008-06-17 17:23:21 d3p708 Exp $
 *
       subroutine ewald_strfact_init()
       implicit none
@@ -173,6 +173,7 @@ ccccccc locals
       call nwpw_timing_end(8)
       return
       end
+cccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine ewald_strfac_sub(npack,
      >                            indxi,indxj,indxk,
      >                            ex1,ex2,ex3,

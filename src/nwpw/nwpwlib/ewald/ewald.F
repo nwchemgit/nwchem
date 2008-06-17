@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.10 2008-06-16 23:41:27 bylaska Exp $
+* $Id: ewald.F,v 1.11 2008-06-17 17:23:21 d3p708 Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -655,7 +655,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       energy=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
       !if (nida.eq.1) energy = energy - dbl_mb(tmp3(1)*dbl_mb(vg(1)) !*** zero because vg(g=0) = 0
       if (tnp.gt.1) call Parallel_SumAll(energy)
-      energyG = 0.5d0*energy/lattice_omega()
       energy  = 0.5d0*energy/lattice_omega() + cewald
 
       
@@ -767,7 +766,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end do
       do ii=1,nion
          call ewald_strfac(ii,dcpl_mb(exi(1)))
-         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+         zii=ewald_zv(ion_katm(ii))
          do i=1,enpack
             dbl_mb(tmp3(1)+i-1) 
      >              = ( dble(dcpl_mb(exi(1)+i-1))
@@ -795,7 +794,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         dx = ion_rion(1,i) - ion_rion(1,j)
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
-        zz = dbl_mb(zv(1)+ion_katm(i)-1) * dbl_mb(zv(1)+ion_katm(j)-1)
+        zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
         sw1=0.0d0
         sw2=0.0d0
         sw3=0.0d0  
@@ -809,7 +808,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
            f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
            sw1=sw1+(x*f)
            sw2=sw2+(y*f)
-           sw2=sw3+(z*f)
+           sw3=sw3+(z*f)
         end do
 
         dbl_mb(fx(1)+i-1) = dbl_mb(fx(1)+i-1) + sw1
@@ -934,7 +933,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       call dcopy((2*enpack),0.0d0,0,dcpl_mb(strf(1)),1)
       do ii=1,ion_nion()
-         call ewald_strfac(0,ii,dcpl_mb(exi(1)))
+         call ewald_strfac(ii,dcpl_mb(exi(1)))
          call daxpy(2*enpack,ewald_zv(ion_katm(ii)),dcpl_mb(exi(1)),1,
      >             dcpl_mb(strf(1)),1)
       end do
