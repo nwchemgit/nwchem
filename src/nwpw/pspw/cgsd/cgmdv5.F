@@ -1,5 +1,5 @@
 *
-* $Id: cgmdv5.F,v 1.9 2008-06-06 18:06:03 d3p708 Exp $
+* $Id: cgmdv5.F,v 1.10 2008-06-17 19:09:15 d3p708 Exp $
 *
 
 ***********************************************************************
@@ -65,7 +65,7 @@
       real*8  ratio,aratio
       real*8  icharge
       integer i,k,ia,nion,minimizer,mapping,it,icount_shift
-      integer nbq,egrid(3)
+      integer nbq
 
       character*30 filename
       character*255 full_filename
@@ -204,9 +204,6 @@
          write(6,1110)
       end if
       
-      egrid(1) = control_ewald_ngrid(1)
-      egrid(2) = control_ewald_ngrid(2)
-      egrid(3) = control_ewald_ngrid(3)
  
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
@@ -253,7 +250,7 @@ c     value = psi_initialize()
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) call ewald_init(egrid)
+      if (control_version().eq.3) call ewald_init()
 
 *     **** read in wavefunctions and initialize psi ****
       if (.not.control_check_charge_multiplicity()) then

@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.34 2008-06-06 17:52:40 d3p708 Exp $
+* $Id: band_structure.F,v 1.35 2008-06-17 19:09:13 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -58,7 +58,7 @@
       real*8  EV,pi
       real*8  pathlength,dist,kold(3),emin,emax
       integer ii,jj,i,k,ia,nion,vers,nbrillioun,icharge,isize,indx
-      integer npoints,engrid(3)
+      integer npoints
       integer mapping
       character*255 full_filename
       character*30 filename
@@ -234,10 +234,7 @@
       call cke_init()
       call c_coulomb_init()
       
-      engrid(1)=control_ewald_ngrid(1)
-      engrid(2)=control_ewald_ngrid(2)
-      engrid(3)=control_ewald_ngrid(3)
-      call ewald_init(engrid)
+      call ewald_init()
 
 *     **** set up phase factors at the current geometry  ****
       call cphafac()
@@ -566,10 +563,8 @@
       call cstrfac_init()
       call cke_init()
       call c_coulomb_init()
-      engrid(1)=control_ewald_ngrid(1)
-      engrid(2)=control_ewald_ngrid(2)
-      engrid(3)=control_ewald_ngrid(3)
-      call ewald_init(engrid)
+
+      call ewald_init()
 
 
 *     **** set up phase factors at the current geometry  ****

@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.13 2008-06-17 19:08:57 d3p708 Exp $
+* $Id: ewald.F,v 1.14 2008-06-17 19:10:13 d3p708 Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -213,7 +213,6 @@ cccccccccccccccccccccccccccccccccccccc
       integer  control_code,ion_nkatm
       integer  control_ncut
       real*8   control_rcut,control_ecut
-      real*8 control_ewald_ngrid
       integer  ion_nion,ion_katm
       real*8   lattice_omega,lattice_unita
       real*8   lattice_unitg
@@ -227,7 +226,6 @@ cccccccccccccccccccccccccccccccccccccc
       external control_code,ion_nkatm
       external control_ncut
       external control_rcut,control_ecut
-      external control_ewald_ngrid
       external ion_nion,ion_katm
       external lattice_omega,lattice_unita                                
       external lattice_unitg

@@ -1,5 +1,5 @@
 *
-* $Id: cpmd_qmmm_start.F,v 1.6 2008-06-06 18:06:06 d3p708 Exp $
+* $Id: cpmd_qmmm_start.F,v 1.7 2008-06-17 19:09:17 d3p708 Exp $
 *
 
       logical function cpmd_qmmm_start(rtdb)
@@ -80,7 +80,7 @@
       integer it_in,it_out
       real*8 w,sumall
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
-      integer nfft3,mapping,egrid(3)
+      integer nfft3,mapping
       parameter (nfft3=32)
       character*30 filename
       character*255 full_filename
@@ -308,10 +308,7 @@
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
       if (control_version().eq.3) then
-         egrid(1)=control_ewald_ngrid(1)
-         egrid(2)=control_ewald_ngrid(2)
-         egrid(3)=control_ewald_ngrid(3)
-         call ewald_init(egrid)
+         call ewald_init()
       end if
 
 
