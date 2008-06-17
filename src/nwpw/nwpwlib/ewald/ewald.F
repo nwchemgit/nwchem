@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.11 2008-06-17 17:23:21 d3p708 Exp $
+* $Id: ewald.F,v 1.12 2008-06-17 19:07:57 d3p708 Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -7,21 +7,21 @@
       ewald_ncut = ncut
       return
       end 
-
+ccccccccccccccccccccccccccccccccccccc
       integer function ewald_nida()
       implicit none 
 #include "ewald.fh"
       ewald_nida = nida
       return
       end
-
+ccccccccccccccccccccccccccccccccccccc
       integer function ewald_npack()
       implicit none 
 #include "ewald.fh"
       ewald_npack = enpack
       return
       end 
-
+ccccccccccccccccccccccccccccccccccccc
       real*8 function ewald_zv(i)
       implicit none
 #include "mafdecls.fh"
@@ -31,28 +31,28 @@
       ewald_zv=dbl_mb(ix)      
       return
       end
-
+cccccccccccccccccccccccccccccccccccc
       real*8 function ewald_rcut()
       implicit none 
 #include "ewald.fh"
       ewald_rcut = rcut
       return
       end 
-
+ccccccccccccccccccccccccccccccccccccccccc
       integer function ewald_nshl3d()
       implicit none 
 #include "ewald.fh"
       ewald_nshl3d = nshl3d
       return
       end 
-
+ccccccccccccccccccccccccccccccccccccc
       integer function ewald_rcell_ptr()
       implicit none
 #include "ewald.fh"
       ewald_rcell_ptr = rcell(1)
       return
       end
-
+ccccccccccccccccccccccccccccccccccccc
       real*8 function ewald_mandelung()
       implicit none 
 #include "ewald.fh"
@@ -186,13 +186,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 cccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccc
-      subroutine ewald_init(ew_ngrid)
+      subroutine ewald_init()
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
-*     **** arguments **********
-      integer ew_ngrid(3)
 *     **** local variables ****
       real*8 eps
       parameter(eps=1.0d-12)
@@ -215,6 +213,7 @@ cccccccccccccccccccccccccccccccccccccc
       integer  control_code,ion_nkatm
       integer  control_ncut
       real*8   control_rcut,control_ecut
+      real*8 control_ewald_ngrid
       integer  ion_nion,ion_katm
       real*8   lattice_omega,lattice_unita
       real*8   lattice_unitg
@@ -227,6 +226,7 @@ cccccccccccccccccccccccccccccccccccccc
       external control_code,ion_nkatm
       external control_ncut
       external control_rcut,control_ecut
+      external control_ewald_ngrid
       external ion_nion,ion_katm
       external lattice_omega,lattice_unita                                
       external lattice_unitg
@@ -241,9 +241,9 @@ cccccccccccccccccccccccccccccccccccccc
       end do
       call Parallel_np(tnp)
       call Parallel_taskid(tid)
-      enx=ew_ngrid(1)
-      eny=ew_ngrid(2)
-      enz=ew_ngrid(3)
+      enx=control_ewald_ngrid(1)
+      eny=control_ewald_ngrid(2)
+      enz=control_ewald_ngrid(3)
       enxh=enx/2
       enyh=eny/2
       enzh=enz/2
