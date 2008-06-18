@@ -37,6 +37,7 @@
       integer k_a0_offset           ! Offset for a0 file
       integer size_a0               ! File size in doubles
       double precision alpha(3,3)   ! Dipole polarizability tensor
+      double precision alphacopy(3,3)   ! Dipole polarizability tensor copy
       double precision alphaiso     ! Isotropic dipole polarizability
       double precision alphaani     ! Anisotropic dipole polarizability
       double precision alphaevr(3)  ! Dipole polarizability tensor eigenvalues (real)
