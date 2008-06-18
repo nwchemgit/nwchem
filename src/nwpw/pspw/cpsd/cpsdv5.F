@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.61 2008-06-17 19:09:17 d3p708 Exp $
+* $Id: cpsdv5.F,v 1.62 2008-06-18 18:53:14 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -110,8 +110,6 @@
       external    ewald_ncut,ewald_nshl3d
       external    psp_lmmax,psp_lmax,psp_locp
       external    ion_aname,ion_atom
-      integer control_ewald_ngrid
-      external control_ewald_ngrid
 
 
       real*8   control_tole,control_tolc,control_tolr,ion_rion
@@ -251,9 +249,7 @@
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) then
-         call ewald_init()
-      end if
+      if (control_version().eq.3) call ewald_init()
 
 *     **** generate initial wavefunction if it does not exist ****
       if (.not.control_check_charge_multiplicity()) then

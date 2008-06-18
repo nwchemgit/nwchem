@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.14 2008-06-17 19:10:13 d3p708 Exp $
+* $Id: ewald.F,v 1.15 2008-06-18 18:53:08 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -218,7 +218,7 @@ cccccccccccccccccccccccccccccccccccccc
       real*8   lattice_unitg
       real*8 psp_zv,cpsp_zv,paw_basis_ion_charge
       real*8 paw_basis_core_charge,dsum
-      real*8 control_ewald_ngrid
+      integer control_ewald_ngrid
   
       external ewald_strfact_i_indx
       external ewald_strfact_j_indx

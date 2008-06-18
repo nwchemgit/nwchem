@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.35 2008-06-17 19:09:13 d3p708 Exp $
+* $Id: band_structure.F,v 1.36 2008-06-18 18:53:05 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -112,9 +112,9 @@
       integer  Cram_nwave_all,Cram_nwave
       external Cram_nwave_all,Cram_nwave
 
-      integer  ewald_ncut,control_ewald_ngrid
+      integer  ewald_ncut
       real*8   ewald_rcut,ewald_mandelung,ewald_e
-      external ewald_ncut,control_ewald_ngrid
+      external ewald_ncut
       external ewald_rcut,ewald_mandelung,ewald_e
       logical  cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize
       external cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize

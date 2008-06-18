@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.19 2007-05-02 17:21:15 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.20 2008-06-18 18:53:21 bylaska Exp $
 c
 
 *     *************************
@@ -259,6 +259,7 @@ c     **** MM/MM LJ self image energy ****
        end if
        dutask = mod(dutask+1,np)
       end do
+
 
 c     **** MM/MM LJ image energy ****
       do j = (nion_qm+1),(nion-1)

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.94 2008-06-17 19:09:15 d3p708 Exp $
+* $Id: cgsdv5.F,v 1.95 2008-06-18 18:53:11 bylaska Exp $
 *
 
 ***********************************************************************
@@ -68,7 +68,7 @@
       real*8      ewald_mandelung
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,ion_amass
-      integer     ewald_ncut,ewald_nshl3d,control_ewald_ngrid
+      integer     ewald_ncut,ewald_nshl3d
       integer     psp_lmmax,psp_lmax,psp_locp,ion_nkatm
       integer     psp_nprj,psp_psp_type
       character*4 ion_atom,ion_aname
@@ -76,7 +76,7 @@
       external    ewald_mandelung
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg,ion_amass
-      external    ewald_ncut,ewald_nshl3d,control_ewald_ngrid
+      external    ewald_ncut,ewald_nshl3d
       external    psp_lmmax,psp_lmax,psp_locp,ion_nkatm
       external    psp_nprj,psp_psp_type
       external    ion_atom,ion_aname
@@ -244,8 +244,8 @@ c     value = psi_initialize()
       call strfac_init()
       call phafac()
       if (control_version().eq.3) then
-		call ewald_init()
-		call ewald_phafac()
+         call ewald_init()
+         call ewald_phafac()
       end if
 
 *     **** read in wavefunctions and initialize psi ****

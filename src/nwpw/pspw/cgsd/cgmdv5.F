@@ -1,5 +1,5 @@
 *
-* $Id: cgmdv5.F,v 1.10 2008-06-17 19:09:15 d3p708 Exp $
+* $Id: cgmdv5.F,v 1.11 2008-06-18 18:53:11 bylaska Exp $
 *
 
 ***********************************************************************
@@ -101,8 +101,6 @@
       external control_time_step,control_fake_mass
       logical  control_read,control_move,ion_init
       external control_read,control_move,ion_init
-      integer  control_ewald_ngrid
-      external control_ewald_ngrid
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm

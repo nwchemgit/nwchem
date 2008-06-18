@@ -1,5 +1,5 @@
 *
-* $Id: cpmd_qmmm_start.F,v 1.7 2008-06-17 19:09:17 d3p708 Exp $
+* $Id: cpmd_qmmm_start.F,v 1.8 2008-06-18 18:53:14 bylaska Exp $
 *
 
       logical function cpmd_qmmm_start(rtdb)
@@ -128,9 +128,6 @@
 
       character*12 control_boundry
       external     control_boundry
-
-      integer control_ewald_ngrid
-      external control_ewald_ngrid
 
       logical      psp_semicore
       real*8       psp_rcore,psp_ncore,psp_rlocal
@@ -307,9 +304,7 @@
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) then
-         call ewald_init()
-      end if
+      if (control_version().eq.3) call ewald_init()
 
 
 *     ******************************

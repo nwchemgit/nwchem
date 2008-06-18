@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.69 2008-06-17 19:09:17 d3p708 Exp $
+* $Id: cpmdv5.F,v 1.70 2008-06-18 18:53:14 bylaska Exp $
 *
 
 ***********************************************************************
@@ -115,8 +115,6 @@ c      parameter (autoatm =290.360032539d6)
       external    psp_lmmax,psp_lmax,psp_locp,ion_nkatm
       external    ion_atom,ion_aname
 
-      integer control_ewald_ngrid
-      external control_ewald_ngrid
       real*8   control_rti,control_rte,ion_rion
       real*8   ion_vion,ion_com_ke,ion_ke
       real*8   ion_Temperature,ion_com_Temperature
@@ -333,9 +331,7 @@ c      parameter (autoatm =290.360032539d6)
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) then
-         call ewald_init()
-      end if
+      if (control_version().eq.3) call ewald_init()
 
 *     ******************************
 *     **** scaling psi velocity ****
