@@ -3,7 +3,7 @@
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
      3  d_r1,d_r2,d_r3,d_r4,omega,residual,k_hbar,iteration)
 c
-c $Id: tce_eom_xdiagon.F,v 1.6 2008-02-11 16:26:32 jhammond Exp $
+c $Id: tce_eom_xdiagon.F,v 1.7 2008-06-18 21:48:22 kowalski Exp $
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -492,9 +492,9 @@ c         if (nodezero) write(LuOut,9010) ivec
             call tce_zero(d_r1,size_x1)
             call daxpyfile(nxtrials,dbl_mb(k_vr+(ivec-1)*nxtrials),
      1        x1,d_r1,size_x1)
-            call tce_filenameindexed(ivec,'xc1',filename)
-            call createfile(filename,xc1(ivec),size_x1)
-            call gatoeaf(xc1(ivec))
+ccxsg            call tce_filenameindexed(ivec,'xc1',filename)
+ccxsg            call createfile(filename,xc1(ivec),size_x1)
+ccxsg            call gatoeaf(xc1(ivec))
             call copyfile(d_r1,xc1(ivec),size_x1)
             call gatodra(xc1(ivec))
             xc1_exist(ivec) = .true.
@@ -503,9 +503,9 @@ c         if (nodezero) write(LuOut,9010) ivec
             call tce_zero(d_r2,size_x2)
             call daxpyfile(nxtrials,dbl_mb(k_vr+(ivec-1)*nxtrials),
      1        x2,d_r2,size_x2)
-            call tce_filenameindexed(ivec,'xc2',filename)
-            call createfile(filename,xc2(ivec),size_x2)
-            call gatoeaf(xc2(ivec))
+ccxsg            call tce_filenameindexed(ivec,'xc2',filename)
+ccxsg            call createfile(filename,xc2(ivec),size_x2)
+ccxsg            call gatoeaf(xc2(ivec))
             call copyfile(d_r2,xc2(ivec),size_x2)
             call gatodra(xc2(ivec))
             xc2_exist(ivec) = .true.
@@ -514,9 +514,9 @@ c         if (nodezero) write(LuOut,9010) ivec
             call tce_zero(d_r3,size_x3)
             call daxpyfile(nxtrials,dbl_mb(k_vr+(ivec-1)*nxtrials),
      1        x3,d_r3,size_x3)
-            call tce_filenameindexed(ivec,'xc3',filename)
-            call createfile(filename,xc3(ivec),size_x3)
-            call gatoeaf(xc3(ivec))
+ccxsg            call tce_filenameindexed(ivec,'xc3',filename)
+ccxsg            call createfile(filename,xc3(ivec),size_x3)
+ccxsg            call gatoeaf(xc3(ivec))
             call copyfile(d_r3,xc3(ivec),size_x3)
             call gatodra(xc3(ivec))
             xc3_exist(ivec) = .true.
@@ -525,9 +525,9 @@ c         if (nodezero) write(LuOut,9010) ivec
             call tce_zero(d_r4,size_x4)
             call daxpyfile(nxtrials,dbl_mb(k_vr+(ivec-1)*nxtrials),
      1        x4,d_r4,size_x4)
-            call tce_filenameindexed(ivec,'xc4',filename)
-            call createfile(filename,xc4(ivec),size_x4)
-            call gatoeaf(xc4(ivec))
+ccxsg            call tce_filenameindexed(ivec,'xc4',filename)
+ccxsg            call createfile(filename,xc4(ivec),size_x4)
+ccxsg            call gatoeaf(xc4(ivec))
             call copyfile(d_r4,xc4(ivec),size_x4)
             call gatodra(xc4(ivec))
             xc4_exist(ivec) = .true.
