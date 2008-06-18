@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.50 2008-06-09 16:22:58 d3p708 Exp $
+c $Id: nwpw_input.F,v 1.51 2008-06-18 19:22:26 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -1105,11 +1105,12 @@ c
      >  call errquit('nwpw_input: error writing to rtdb',6400,RTDB_ERR)
       goto 10
   
- 6500 if (.not. inp_i(nx)) nx = 32
-      if (.not. inp_i(ny)) ny = 32
-      if (.not. inp_i(nz)) nz = 32
-      if (.not.rtdb_put(rtdb,'nwpw:ewald_ngrid',mt_int,3,.false.))
+ 6500 if (inp_i(cell_expand(1))) then
+        if (.not. inp_i(cell_expand(2))) cell_expand(2) = cell_expand(1)
+        if (.not. inp_i(cell_expand(3))) cell_expand(3) = cell_expand(2)
+        if (.not.rtdb_put(rtdb,'nwpw:ewald_ngrid',mt_int,3,cell_expand))
      >  call errquit('nwpw_input: error writing to rtdb',6500,RTDB_ERR)
+      end if
       goto 10
 ************************************************************************
 c
