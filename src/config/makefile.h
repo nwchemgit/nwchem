@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.568 2008-05-06 16:57:50 d3p307 Exp $
+# $Id: makefile.h,v 1.569 2008-06-19 18:47:26 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -2009,6 +2009,30 @@ ifeq ($(TARGET),BGL)
 #  CORE_LIBS +=  -llapack -lblas
 endif
 
+ifeq ($(TARGET),DCMF)
+#
+   CORE_SUBDIRS_EXTRA = lapack blas
+   FC = bgxlf_r
+   CC     = $(BGCOMPILERS)/powerpc-bgp-linux-gcc
+   AR     = $(BGCOMPILERS)/powerpc-bgp-linux-ar
+   AS     = $(BGCOMPILERS)/powerpc-bgp-linux-as
+   RANLIB = $(BGCOMPILERS)/powerpc-bgp-linux-ranlib
+
+   ARFLAGS = urs
+   INSTALL = @echo $@ is built
+
+   DEFINES +=  -DDCMF
+   FOPTIONS = -qEXTNAME -qxlf77=leadzero -qthreaded
+   FOPTIONS += -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
+   FOPTIMIZE = -O5 -qarch=450 -qtune=450 -qfloat=rsqrt:fltint
+   FDEBUG = -g -O2
+   COPTIMIZE  = -g -O2
+   LDOPTIONS =  -Wl,--relax
+
+  EXPLICITF = TRUE
+  CPP=/usr/bin/cpp  -P -C -traditional
+  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+endif
 
 ###################################################################
 #  All machine dependent sections should be above here, otherwise #
