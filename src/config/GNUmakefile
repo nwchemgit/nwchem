@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.13 2007-09-01 22:26:48 d3p307 Exp $
+# $Id: GNUmakefile,v 1.14 2008-06-19 18:50:18 d3p307 Exp $
 #
 
 include makefile.h
@@ -47,6 +47,9 @@ ifeq ($(TARGET),BGL)
  CC=gcc
 endif
 
+ifeq ($(TARGET),DCMF)
+ CC=gcc
+endif
 
 $(BINDIR)/depend.x:	depend.c
 	$(CC) $(DEPENDCFLAGS) -g -o $@ $^
