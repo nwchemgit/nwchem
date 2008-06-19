@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.27 2007-10-29 17:52:36 d3p307 Exp $
+C     $Id: memory_def.F,v 1.28 2008-06-19 19:00:20 d3p307 Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -112,6 +112,8 @@ C
       Parameter ( Total_Dflt = 67108864) ! 512 MB (Fujitsu VPP)
 #elif defined(BGL)
       Parameter ( Total_Dflt = 52428800) ! 400 on 512 MB (default co mode)
+#elif defined(DCMF)
+      Parameter ( Total_Dflt = 52428800) ! 400 on 512 MB (per core)
 #endif
 C
 C     Fraction of total memory which goes into each memory category
