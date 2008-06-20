@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.569 2008-06-19 18:47:26 d3p307 Exp $
+# $Id: makefile.h,v 1.570 2008-06-20 20:18:48 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -2009,7 +2009,7 @@ ifeq ($(TARGET),BGL)
 #  CORE_LIBS +=  -llapack -lblas
 endif
 
-ifeq ($(TARGET),DCMF)
+ifeq ($(TARGET),BGP)
 #
    CORE_SUBDIRS_EXTRA = lapack blas
    FC = bgxlf_r
@@ -2021,7 +2021,7 @@ ifeq ($(TARGET),DCMF)
    ARFLAGS = urs
    INSTALL = @echo $@ is built
 
-   DEFINES +=  -DDCMF
+   DEFINES +=  -DDCMF -DBGP
    FOPTIONS = -qEXTNAME -qxlf77=leadzero -qthreaded
    FOPTIONS += -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
    FOPTIMIZE = -O5 -qarch=450 -qtune=450 -qfloat=rsqrt:fltint
