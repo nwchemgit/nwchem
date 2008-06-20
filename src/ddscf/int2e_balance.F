@@ -1,6 +1,6 @@
       subroutine int2e_file_balance
 *
-* $Id: int2e_balance.F,v 1.7 2003-10-17 22:54:32 carlfahl Exp $
+* $Id: int2e_balance.F,v 1.8 2008-06-20 19:01:53 windus Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -30,6 +30,11 @@ c
       logical oprint, odebug
       intrinsic mod
 c     
+c Return immediately if in subgroups since the snd and rcv do not work in subgroups
+c
+#ifdef USE_SUBGROUPS
+      return
+#endif
       npass = 0                 ! Used for paranoid infinite loop avoidance
       me = ga_nodeid()          ! Not true on workstation clusters
       nproc = ga_nnodes()
