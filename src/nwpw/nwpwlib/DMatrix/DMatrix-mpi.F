@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix-mpi.F,v 1.7 2008-04-21 21:41:24 bylaska Exp $
+* $Id: DMatrix-mpi.F,v 1.8 2008-06-20 15:39:07 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -294,7 +294,7 @@ c         end do
             call MPI_IRECV(W,
      >                    stupid_msglen,stupid_double,
      >                    stupid_taskid,
-     >                    stupid_type,stupid_world,
+     >                    stupid_type,stupid_comm_j,
      >                    stupid_request,stupid_ierr)
             request(1) = 0
             request(1) = stupid_request
@@ -1345,16 +1345,30 @@ c        **** add to current rows of C ****
             end if
          end do
          work1(i) = A(ii,jj)
+#ifdef MPI4
+         stupid_msglen = 1
+         stupid_taskid = jcur
+         call MPI_Bcast(work1(i),stupid_msglen,stupid_double,
+     >                  stupid_taskid,stupid_comm_j,stupid_ierr)
+#else
          call MPI_Bcast(work1(i),1,MPI_DOUBLE_PRECISION,
      >                  jcur,comm_j,ierr)
+#endif
          ii = ii + 1
          if (ii.gt.ma(icur+1)) then
             icur = icur + 1
             ii = 1
          end if
       end do
+#ifdef MPI4
+      stupid_msglen = n-1
+      call MPI_AllReduce(work1,tu,stupid_msglen,
+     >                   stupid_double,stupid_sum,
+     >                   stupid_comm_i,stupid_ierr)
+#else
       call MPI_AllReduce(work1,tu,n-1,
      >                   MPI_DOUBLE_PRECISION,MPI_SUM,comm_i,ierr)
+#endif
       return
       end
 
