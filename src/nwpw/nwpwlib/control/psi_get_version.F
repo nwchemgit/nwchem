@@ -1,8 +1,7 @@
 *
-* $Id: psi_get_version.F,v 1.1 2001-12-20 00:30:52 bylaska Exp $
+* $Id: psi_get_version.F,v 1.2 2008-06-20 16:20:24 bylaska Exp $
 *
 
-#define TCGMSG
 *     ***********************************
 *     *             			*
 *     *           psi_get_version		*
@@ -11,16 +10,6 @@
 
       integer function psi_get_version()
       implicit none 
-
-
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#endif
 
 *    *** local variables ***
       integer version,l
@@ -38,7 +27,6 @@
 
       call Parallel_taskid(taskid)
 
-
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
          filename = control_input_psi()
@@ -52,15 +40,9 @@
       end if
 
 c     **** send header to all nodes ****
-#ifdef MPI
       msglen = 1
-      call MPI_BCAST(version,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
-      msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
-#endif
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
+
 
       psi_get_version = version
       return

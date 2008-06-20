@@ -1,9 +1,8 @@
 *
-* $Id: psi_get_header.F,v 1.4 2003-07-20 16:46:58 bylaska Exp $
+* $Id: psi_get_header.F,v 1.5 2008-06-20 16:20:24 bylaska Exp $
 *
 
 
-#define TCGMSG
 *     ***********************************
 *     *             			*
 *     *           psi_get_header	*
@@ -16,16 +15,6 @@
       integer nfft(3)
       real*8  unita(3,3)
       integer ispin,ne(2)
-
-
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#endif
 
 *    *** local variables ***
       integer l
@@ -61,37 +50,16 @@
       end if
 
 c     **** send header to all nodes ****
-#ifdef MPI
       msglen = 1
-      call MPI_BCAST(version,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
       msglen = 3
-      call MPI_BCAST(nfft,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
       msglen = 9
-      call MPI_BCAST(unita,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_values(MASTER,msglen,unita)
       msglen = 1
-      call MPI_BCAST(ispin,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
       msglen = 2
-      call MPI_BCAST(ne,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
-      msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
-      msglen = 3
-      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
-      msglen = 9
-      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
-      msglen = 1
-      call BRDCST(9+MSGINT,ispin,mitob(msglen),MASTER)
-      msglen = 2
-      call BRDCST(9+MSGINT,ne,mitob(msglen),MASTER)
-#endif
-
-
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
 
       return
       end
@@ -112,15 +80,6 @@ c     **** send header to all nodes ****
       real*8  unita(3,3)
       integer ispin,ne(2)
 
-
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#endif
 
 *    *** local variables ***
       integer l
@@ -152,37 +111,16 @@ c     **** send header to all nodes ****
       end if
 
 c     **** send header to all nodes ****
-#ifdef MPI
       msglen = 1
-      call MPI_BCAST(version,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
       msglen = 3
-      call MPI_BCAST(nfft,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
       msglen = 9
-      call MPI_BCAST(unita,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_values(MASTER,msglen,unita)
       msglen = 1
-      call MPI_BCAST(ispin,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
       msglen = 2
-      call MPI_BCAST(ne,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
-      msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
-      msglen = 3
-      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
-      msglen = 9
-      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
-      msglen = 1
-      call BRDCST(9+MSGINT,ispin,mitob(msglen),MASTER)
-      msglen = 2
-      call BRDCST(9+MSGINT,ne,mitob(msglen),MASTER)
-#endif
-
-
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
 
       return
       end
