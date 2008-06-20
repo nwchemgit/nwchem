@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.14 2008-06-19 18:50:18 d3p307 Exp $
+# $Id: GNUmakefile,v 1.15 2008-06-20 20:19:30 d3p307 Exp $
 #
 
 include makefile.h
@@ -47,7 +47,7 @@ ifeq ($(TARGET),BGL)
  CC=gcc
 endif
 
-ifeq ($(TARGET),DCMF)
+ifeq ($(TARGET),BGP)
  CC=gcc
 endif
 
