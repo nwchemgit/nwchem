@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.29 2008-06-19 19:04:22 d3p307 Exp $
+# $Id: GNUmakefile,v 1.30 2008-06-20 20:25:05 d3p307 Exp $
 
 include ../tools/armci/config/makecoms.h
 include ../config/makefile.h
@@ -9,7 +9,7 @@ include ../config/makefile.h
     OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o rtdb_seq.o \
                    context.o context_f2c.o
 # BEGIN_WIN32_IGNORE
-ifeq ($(TARGET),$(findstring $(TARGET),BGL DCMF LINUX))
+ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP LINUX))
     OBJ = rtdb_seq.o
     OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o context.o context_f2c.o
 endif
