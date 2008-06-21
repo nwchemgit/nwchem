@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize2.F,v 1.8 2007-04-22 01:49:54 bylaska Exp $                       
+c     $Id: bfgsminimize2.F,v 1.9 2008-06-21 19:37:15 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -124,6 +124,7 @@ c     dte = 1.0d0
      >                     'G0',G0(2),G0(1))
       if (.not. value) call errquit('lmbfgs2:out of heap memory',0,
      &       MA_ERR)
+      call dcopy(2*npack1*neall,0.0d0,0,dcpl_mb(G0(1)),1)
 
 
 

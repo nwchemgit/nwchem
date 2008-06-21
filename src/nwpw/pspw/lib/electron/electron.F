@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.51 2008-05-13 02:10:27 bylaska Exp $
+* $Id: electron.F,v 1.52 2008-06-21 19:37:15 bylaska Exp $
 *
 
 
@@ -823,21 +823,6 @@ c      end
 *     ***** local variables ****
       integer ms,n,shift1,shift2
      
-*     **** no preconditioning ***
-c      do ms=1,ispin
-c            n     = ne(ms)
-c            if (n.le.0) go to 30
-c            shift1 = 1 + (ms-1)*ne(1)*npack1
-c            shift2 = 1 + (ms-1)*ne(1)*ne(1)
-c            call DGEMM('N','N',2*npack1,n,n,
-c     >                (1.0d0),
-c     >                psi_k(shift1),  2*npack1,
-c     >                hml(shift2),    n,
-c     >                (0.0d0),
-c     >                THpsi_k(shift1),2*npack1)
-c  30        continue
-c      end do
-
       call  Dneall_fmf_Multiply(0,
      >                           psi_k,npack1,
      >                           hml,    1.0d0,

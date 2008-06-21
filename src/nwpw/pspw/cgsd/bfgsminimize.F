@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.26 2007-04-22 01:49:54 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.27 2008-06-21 19:37:15 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -126,6 +126,7 @@ c     dte = 1.0d0
      >                     'G0',G0(2),G0(1))
       if (.not. value) call errquit('bfgsminimize:out of heap memory',0,
      &       MA_ERR)
+      call dcopy(2*npack1*neall,0.0d0,0,dcpl_mb(G0(1)),1)
 
 
 
@@ -161,7 +162,7 @@ c      call Grsm_gg_trace(npack1,neall,
 c     >                   dcpl_mb(S0(1)),
 c     >                   dcpl_mb(S0(1)),
 c     >                   kappa)
-c      !write(*,*) "KAPPA=",kappa
+c      call D1dB_SumAll(kappa)
 c      if (kappa.le.1.0d-10) call Grsm_gg_Copy(npack1,neall,
 c     >                                      dcpl_mb(G0(1)),
 c     >                                      dcpl_mb(S0(1)))

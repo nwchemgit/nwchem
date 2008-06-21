@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.87 2008-06-02 15:20:04 bylaska Exp $
+* $Id: psi.F,v 1.88 2008-06-21 19:37:16 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.87  2008/06/02 15:20:04  bylaska
+* ..io fixes...EJB
+*
 * Revision 1.86  2008/05/13 02:10:36  bylaska
 * ...EJB
 *
@@ -3003,11 +3006,11 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *
       subroutine psi_1get_Tgradient(THpsi,Eout)
       implicit none
-#include "errquit.fh"
       complex*16 THpsi(*)
       real*8 Eout
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -3016,7 +3019,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       common / rhoall_block / rho1_all,rho2_all
 
 *     **** local variables ****
-      integer tmp1(2)
+      integer tmp1(2),i,n
       logical value
  
 *     **** external functions ****

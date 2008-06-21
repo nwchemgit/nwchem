@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize.F,v 1.25 2007-04-22 01:49:55 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.26 2008-06-21 19:37:15 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -115,6 +115,7 @@ c      complex*16 G1(nfft3d,nemax)
      >                     'G1',G1(2),G1(1))
       if (.not. value) call errquit('cgminimize:out of heap memory',0,
      &       MA_ERR)
+      call dcopy(2*npack1*neall,0.0d0,0,dcpl_mb(G1(1)),1)
 
       Estart = Enew
       if (current_iteration.eq.1) then

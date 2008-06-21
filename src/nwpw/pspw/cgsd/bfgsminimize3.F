@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize3.F,v 1.7 2007-04-22 01:49:55 bylaska Exp $                       
+c     $Id: bfgsminimize3.F,v 1.8 2008-06-21 19:37:15 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -122,6 +122,7 @@ c     dte = 1.0d0
      >                     'Y0',Y0(2),Y0(1))
       if (.not. value) 
      >   call errquit('bfgsminimize3:out of heap memory',0,0)
+      call dcopy(2*npack1*neall,0.0d0,0,dcpl_mb(G0(1)),1)
 
 
 
