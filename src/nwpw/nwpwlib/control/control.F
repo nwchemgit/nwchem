@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.119 2008-06-13 22:33:28 bylaska Exp $
+* $Id: control.F,v 1.120 2008-06-22 16:43:51 bylaska Exp $
 *
 
 *     ***********************************
@@ -3863,6 +3863,31 @@ c      end
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *    control_mparallelized        *
+*     *                                 *
+*     ***********************************
+      logical function control_mparallelized()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.rtdb_get(rtdb,'nwpw:mparallelized',mt_log,1,value))
+     >   value = .false.
+
+      control_mparallelized = value
+      return
+      end
 
 
 

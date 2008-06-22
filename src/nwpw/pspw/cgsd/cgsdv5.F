@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.96 2008-06-21 19:37:15 bylaska Exp $
+* $Id: cgsdv5.F,v 1.97 2008-06-22 16:43:52 bylaska Exp $
 *
 
 ***********************************************************************
@@ -62,6 +62,7 @@
       real*8  EV,pi
       real*8  icharge
       integer i,k,ia,nion,minimizer,mapping,mapping1d
+
 
 *     **** external functions ****
       real*8      psp_zv,psp_rc,ewald_rcut
@@ -245,7 +246,7 @@ c     value = psi_initialize()
       call phafac()
       if (control_version().eq.3) then
          call ewald_init()
-         call ewald_phafac()
+	 call ewald_phafac()
       end if
 
 *     **** read in wavefunctions and initialize psi ****

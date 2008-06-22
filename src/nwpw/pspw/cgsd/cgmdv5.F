@@ -1,5 +1,5 @@
 *
-* $Id: cgmdv5.F,v 1.11 2008-06-18 18:53:11 bylaska Exp $
+* $Id: cgmdv5.F,v 1.12 2008-06-22 16:43:52 bylaska Exp $
 *
 
 ***********************************************************************
@@ -202,7 +202,6 @@
          write(6,1110)
       end if
       
- 
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)

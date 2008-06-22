@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.15 2008-06-18 18:53:08 bylaska Exp $
+* $Id: ewald.F,v 1.16 2008-06-22 16:43:51 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -191,6 +191,7 @@ cccccccccccccccccccccccccccccccccccccc
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
+*     **** arguments **********
 *     **** local variables ****
       real*8 eps
       parameter(eps=1.0d-12)
@@ -759,14 +760,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
       do ii=1,nion
          call ewald_strfac(ii,dcpl_mb(exi(1)))
-         zii=ewald_zv(ion_katm(ii))
-         call daxpy(2*enpack,zii,
-     >         dcpl_mb(exi(1)),1,
-     >         dcpl_mb(s(1)),1)
+         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+         call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
       end do
       do ii=1,nion
          call ewald_strfac(ii,dcpl_mb(exi(1)))
-         zii=ewald_zv(ion_katm(ii))
+
          do i=1,enpack
             dbl_mb(tmp3(1)+i-1) 
      >              = ( dble(dcpl_mb(exi(1)+i-1))
@@ -776,6 +775,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                )*dbl_mb(vg(1)+i-1)
          end do
 
+         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
          sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
          dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
      >                      +  sum*zii*scal2

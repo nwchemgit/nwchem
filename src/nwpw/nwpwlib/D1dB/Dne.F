@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.16 2007-12-26 19:33:38 bylaska Exp $
+* $Id: Dne.F,v 1.17 2008-06-22 16:43:50 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -26,8 +26,11 @@
       logical value
       integer ms,k,i,j,npack1,nida1
       integer nework,ncqmax
+      integer ii,jj,icur,jcur,indx0,indx1,indx2
 
 *     **** external functions ****
+      logical  control_mparallelized
+      external control_mparallelized
       integer  Parallel2d_comm_i,Parallel2d_comm_j
       external Parallel2d_comm_i,Parallel2d_comm_j
 
@@ -52,6 +55,8 @@
       comm_i = Parallel2d_comm_i()
       comm_j = Parallel2d_comm_j()
       parallelized = (np_j.gt.1)
+      mparallelized = (parallelized.and.control_mparallelized())
+
       if (parallelized) then
          value = .true.
          mcq(1) = 0
@@ -136,8 +141,84 @@
          value = value.and.MA_alloc_get(mt_dbl,
      >                              2*nework*int_mb(ma(1,1)+taskid_i),
      >                              'rwork2',rwork2(2),rwork2(1))
+         nework = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+         value = value.and.MA_alloc_get(mt_dbl,nework,
+     >                              'mat_tmp',mat_tmp(2),mat_tmp(1))
+
+         nework = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+         value = value.and.MA_alloc_get(mt_int,nework,
+     >                                 'mindx0',mindx(2,0),mindx(1,0))
+         nework = mcq(1)*ncq(1)
+         value = value.and.MA_alloc_get(mt_int,nework,
+     >                                 'mindx1',mindx(2,1),mindx(1,1))
+         if (ispin.eq.2) then
+         nework = mcq(2)*ncq(2)
+         value = value.and.MA_alloc_get(mt_int,nework,
+     >                                 'mindx2',mindx(2,2),mindx(1,2))
+         endif
          if (.not.value) 
      >      call errquit('Dne_init: out of heap memory',1,MA_ERR)
+
+         mall(0)  = ne(1)*ne(1) + ne(2)*ne(2)
+         mall(1)  = ne(1)*ne(1)
+         mall(2)  = ne(2)*ne(2)
+         mpack(0) = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+         mpack(1) = mcq(1)*ncq(1)
+         mpack(2) = mcq(2)*ncq(2)
+         indx0=0
+         indx1=0
+         indx2=0
+         jj   = 1
+         jcur = 0
+         do j=1,ne(1)
+            ii   = 1
+            icur = 0
+            do i=1,ne(1)
+               if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+                  int_mb(mindx(1,0)+indx0) = i+(j-1)*ne(1)
+                  int_mb(mindx(1,1)+indx1) = i+(j-1)*ne(1)
+                  indx0 = indx0 + 1
+                  indx1 = indx1 + 1
+               end if
+               ii = ii+1
+               if (ii.gt.int_mb(mc(1,1)+icur)) then
+                  icur = icur + 1
+                  ii   = 1
+               end if
+            end do
+            jj = jj+1
+            if (jj.gt.int_mb(nc(1,1)+jcur)) then
+               jcur = jcur + 1
+               jj   = 1
+            end if
+         end do
+         if (ispin.eq.2) then
+         jj   = 1
+         jcur = 0
+         do j=1,ne(2)
+            ii   = 1
+            icur = 0
+            do i=1,ne(2)
+               if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+                  int_mb(mindx(1,0)+indx0) = i+(j-1)*ne(2)
+                  int_mb(mindx(1,1)+indx2) = i+(j-1)*ne(2)
+                  indx0 = indx0 + 1
+                  indx2 = indx2 + 1
+               end if
+               ii = ii+1
+               if (ii.gt.int_mb(mc(1,2)+icur)) then
+                  icur = icur + 1
+                  ii   = 1
+               end if
+            end do
+            jj = jj+1
+            if (jj.gt.int_mb(nc(1,2)+jcur)) then
+               jcur = jcur + 1
+               jj   = 1
+            end if
+         end do
+         end if
+          
       end if
 
       return
@@ -178,6 +259,10 @@
          value = value.and.MA_free_heap(bwork2(2))
          value = value.and.MA_free_heap(rwork1(2))
          value = value.and.MA_free_heap(rwork2(2))
+         value = value.and.MA_free_heap(mat_tmp(2))
+         value = value.and.MA_free_heap(mindx(2,0))
+         value = value.and.MA_free_heap(mindx(2,1))
+         if (ispin.eq.2) value = value.and.MA_free_heap(mindx(2,2))
         if (.not.value) then
            call errquit('Dne_end: error deallocating heap memory',
      >                  0,MA_ERR)
@@ -287,7 +372,7 @@ c     ****************************************
 
 #include "Dne.fh"
      
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             size = mcq(1)*ncq(1) + mcq(2)*ncq(2)
          else
@@ -322,7 +407,7 @@ c     ****************************************
 
       integer size
      
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             size = mcq(1)*ncq(1) + mcq(2)*ncq(2)
          else
@@ -358,7 +443,7 @@ c     ****************************************
 
       integer size
      
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             size = mcq(1)*ncq(1) + mcq(2)*ncq(2)
          else
@@ -407,7 +492,7 @@ c     ****************************************
 
       integer size
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             size = mcq(1)*ncq(1) + mcq(2)*ncq(2)
          else
@@ -442,7 +527,7 @@ c     ****************************************
 
       integer size
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             size = mcq(1)*ncq(1) + mcq(2)*ncq(2)
          else
@@ -517,6 +602,7 @@ c      call Pack_npack(1,npack1)
             ishift2 = 0
          end if
 
+         if (mparallelized) then
          do ms=ms1,ms2
             shift  = 1 + (ms-1)*neq(1)*npack1
             shift2 = 1 + (ms-1)*ishift2
@@ -537,8 +623,33 @@ c      call Pack_npack(1,npack1)
      >             comm_i, comm_j,
      >             dbl_mb(bcolwork(1)),dbl_mb(bwork2(1)),
      >             dbl_mb(rwork1(1)),dbl_mb(rwork2(1)))
-
          end do
+         else
+         call Dneall_m_scatter(mpack(mb),int_mb(mindx(1,mb)),
+     >                         hml,dbl_mb(mat_tmp(1)))
+         do ms=ms1,ms2
+            shift  = 1 + (ms-1)*neq(1)*npack1
+            shift2 =     (ms-1)*ishift2
+            call DMatrix_dgemm1_rot(npack1_all,ne(ms),ne(ms),
+     >             alpha,
+     >             Ain(shift),int_mb(ma(1,ms)+taskid_i),
+     >                        int_mb(ma(1,ms)),
+     >                        int_mb(na(1,ms)),
+     >             dbl_mb(mat_tmp(1)+shift2),mcq(ms),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             beta,
+     >             Aout(shift),int_mb(ma(1,ms)+taskid_i),
+     >                         int_mb(ma(1,ms)),
+     >                         int_mb(na(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(bcolwork(1)),dbl_mb(bwork2(1)),
+     >             dbl_mb(rwork1(1)),dbl_mb(rwork2(1)))
+         end do
+         end if
+
 
       else
          if (mb.eq.0) then
@@ -611,6 +722,7 @@ c      call Pack_npack(1,npack1)
             ishift2 = 0
          end if
 
+         if (mparallelized) then
          do ms=ms1,ms2
             shift  = 1 + (ms-1)*neq(1)*npack1
             shift2 = 1 + (ms-1)*ishift2
@@ -632,6 +744,31 @@ c      call Pack_npack(1,npack1)
      >             dbl_mb(work1(1)),dbl_mb(work2(1)))
 
          end do
+         else
+         call Dneall_m_scatter(mpack(mb),int_mb(mindx(1,mb)),
+     >                         hml,dbl_mb(mat_tmp(1)))
+         do ms=ms1,ms2
+            shift  = 1 + (ms-1)*neq(1)*npack1
+            shift2 =     (ms-1)*ishift2
+            call DMatrix_dgemm1(npack1_all,ne(ms),ne(ms),64,
+     >             alpha,
+     >             Ain(shift),int_mb(ma(1,ms)+taskid_i),
+     >                        int_mb(ma(1,ms)),
+     >                        int_mb(na(1,ms)),
+     >             dbl_mb(mat_tmp(1)+shift2),mcq(ms),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             beta,
+     >             Aout(shift),int_mb(ma(1,ms)+taskid_i),
+     >                         int_mb(ma(1,ms)),
+     >                         int_mb(na(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+         end do
+         end if
          
       else
          if (mb.eq.0) then
@@ -695,6 +832,7 @@ c     ****************************************
             ishift2 = 0
          end if
 
+         if (mparallelized) then
          do ms=ms1,ms2
             if (ne(ms).le.0) go to 20
             shift  = 1 + (ms-1)*neq(1)*npack1
@@ -735,6 +873,51 @@ c     ****************************************
 
   20        continue
          end do
+         else
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 21
+            shift  = 1 + (ms-1)*neq(1)*npack1
+            shift2 =     (ms-1)*ishift2
+            call DMatrix_dgemm2(ne(ms),ne(ms),npack1_all,128,
+     >             2.0d0,
+     >             A1(shift),int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             A2(shift),int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             0.0d0,
+     >             dbl_mb(mat_tmp(1)+shift2),int_mb(mc(1,ms)+taskid_i),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+            call DMatrix_dgemm2(ne(ms),ne(ms),nida1_all,128,
+     >             -1.0d0,
+     >             A1(shift),int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma1(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             A2(shift),int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma1(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             1.0d0,
+     >             dbl_mb(mat_tmp(1)+shift2),int_mb(mc(1,ms)+taskid_i),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+  21        continue
+         end do
+         call Dneall_m_gather(mall(mb),mpack(mb),int_mb(mindx(1,mb)),
+     >                        dbl_mb(mat_tmp(1)),hml)
+
+         end if
       else
          if (mb.eq.0) then
             ms1 = 1
@@ -796,6 +979,7 @@ c     ****************************************
             ishift2 = 0
          end if
 
+         if (mparallelized) then
          do ms=ms1,ms2
             if (ne(ms).le.0) go to 20
             shift  = 1 + (ms-1)*neq(1)*npack1
@@ -836,6 +1020,50 @@ c     ****************************************
 
   20        continue
          end do
+         else
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 21
+            shift  = 1 + (ms-1)*neq(1)*npack1
+            shift2 =     (ms-1)*ishift2
+            call DMatrix_dgemm2(ne(ms),ne(ms),npack1_all,128,
+     >             2.0d0,
+     >             A1(shift),int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             A2(shift),int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             0.0d0,
+     >             dbl_mb(mat_tmp(1)+shift2),int_mb(mc(1,ms)+taskid_i),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+            call DMatrix_dgemm2(ne(ms),ne(ms),nida1_all,128,
+     >             -1.0d0,
+     >             A1(shift),int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma1(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             A2(shift),int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma1(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             1.0d0,
+     >             dbl_mb(mat_tmp(1)+shift2),int_mb(mc(1,ms)+taskid_i),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+  21        continue
+         end do
+         call Dneall_m_gather(mall(mb),mpack(mb),int_mb(mindx(1,mb)),
+     >                        dbl_mb(mat_tmp(1)),hml)
+         end if
          
       else
          if (mb.eq.0) then
@@ -894,7 +1122,7 @@ c     ****************************************
 
 
       call nwpw_timing_start(17)
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -1267,7 +1495,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,shift2,ishift2
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -1347,7 +1575,7 @@ c     ****************************************
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,k,j,indx1,indx2
       integer nj
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -1444,7 +1672,7 @@ c     ****************************************
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,k,j,indx1,indx2
       integer nj
  
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -1543,7 +1771,7 @@ c     ****************************************
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,k,j,indx1,indx2
       integer nj
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -1634,7 +1862,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift2,ishift2
   
-      if (parallelized) then
+      if (mparallelized) then
         if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -1714,7 +1942,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift2,ishift2
 
-      if (parallelized) then
+      if (mparallelized) then
         if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -1797,7 +2025,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift2,ishift2
   
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -1886,7 +2114,7 @@ c     ****************************************
       real*8   DMatrix_trace
       external DMatrix_trace
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -1954,7 +2182,7 @@ c     ****************************************
 *     **** local variables ****
       integer nn
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             nn = mcq(1)*ncq(1)+mcq(2)*ncq(2)
          else
@@ -1991,7 +2219,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,i
 
-      if (parallelized) then
+      if (mparallelized) then
          call errquit('Dneall_m_diag_scal not finished',0,0)
       else
          if (mb.eq.0) then
@@ -2041,7 +2269,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,i
 
-      if (parallelized) then
+      if (mparallelized) then
          call errquit('Dneall_m_diag_scal_inv not finished',0,0)
       else
          if (mb.eq.0) then
@@ -2096,7 +2324,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,shift2,ishift2,k,j,indx,indxt
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -2169,7 +2397,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,shift2,ishift2,k,j,indx,indxt
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -2242,7 +2470,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,shift2,ishift2,k,j,indx,indxt
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -2316,7 +2544,7 @@ c     ****************************************
       integer  idamax
       external idamax
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -2389,7 +2617,7 @@ c     ****************************************
       integer shift2,nn
       
       shift2 = 1
-      if (parallelized) then
+      if (mparallelized) then
 
          if (mb.eq.0) then
             nn     = mcq(1)*ncq(1) + mcq(2)*ncq(2)
@@ -2434,7 +2662,7 @@ c     ****************************************
       integer taskid
 
       call Parallel_taskid(taskid)
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1=1 
             ms2=ispin
@@ -2499,7 +2727,7 @@ c     ****************************************
       
       w = 0.0d0
       if (ne(ms).gt.0)  then
-         if (parallelized) then
+         if (mparallelized) then
 
             if (mb.eq.0) then
                ishift2 = mcq(1)*ncq(1)
@@ -2539,7 +2767,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,k,j,indx1,indx2
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -2620,7 +2848,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,k,j,indx1,indx2
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -2701,7 +2929,7 @@ c     ****************************************
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,k,j
       integer indx1,indx2,indx3
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -2783,7 +3011,7 @@ c     ****************************************
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,k,j
       integer indx1,indx2,indx3
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -2866,7 +3094,7 @@ c     ****************************************
       integer ms,ms1,ms2,shift2,ishift2,k
       integer indx2
 
-      if (parallelized) then
+      if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
@@ -3044,3 +3272,26 @@ c     **** not parallized ****
       return
       end 
 
+      subroutine DneAll_m_gather(nall,npack,indx,A,B)
+      implicit none
+      integer nall,npack,indx(*)
+      real*8 A(*),B(*)
+      integer i
+      call dcopy(nall,0.0d0,0,B,1)
+      do i=1,npack
+         B(indx(i)) = A(i)
+      end do  
+      call Parallel_Vector_SumAll(nall,B)
+      return
+      end
+
+      subroutine DneAll_m_scatter(npack,indx,A,B)
+      implicit none
+      integer npack,indx(*)
+      real*8 A(*),B(*)
+      integer i
+      do i=1,npack
+         B(i) = A(indx(i))
+      end do  
+      return
+      end

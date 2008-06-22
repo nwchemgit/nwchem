@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.36 2008-06-18 18:53:05 bylaska Exp $
+* $Id: band_structure.F,v 1.37 2008-06-22 16:43:45 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -563,9 +563,7 @@
       call cstrfac_init()
       call cke_init()
       call c_coulomb_init()
-
       call ewald_init()
-
 
 *     **** set up phase factors at the current geometry  ****
       call cphafac()

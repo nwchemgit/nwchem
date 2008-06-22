@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.70 2008-06-18 18:53:14 bylaska Exp $
+* $Id: cpmdv5.F,v 1.71 2008-06-22 16:43:52 bylaska Exp $
 *
 
 ***********************************************************************
@@ -89,7 +89,7 @@ c      parameter (autoatm =290.360032539d6)
       real*8  emotion_time_shift
       integer i,j,k,ia,n,nn
       integer ii,jj,index,indx
-      integer icount,it_in,it_out,icount_shift,egrid(3)
+      integer icount,it_in,it_out,icount_shift
       real*8 w,sumall,pressure,stress(3,3),p1,p2
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
       integer nfft3,mapping,mapping1d
