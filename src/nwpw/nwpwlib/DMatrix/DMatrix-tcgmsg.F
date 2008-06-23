@@ -1,10 +1,7 @@
 
 *
-* $Id: DMatrix-tcgmsg.F,v 1.5 2007-07-14 01:45:04 bylaska Exp $
+* $Id: DMatrix-tcgmsg.F,v 1.6 2008-06-23 01:04:49 bylaska Exp $
 *
-
-
-
 
 
 *     ***********************************************************
@@ -15,6 +12,53 @@
 *     *   date   - 5/19/06					*
 *     *								*
 *     ***********************************************************
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_dgemm1_rot2     *
+*     *                                 *
+*     ***********************************
+
+      subroutine DMatrix_dgemm1_rot2(m,n,k,
+     >                  alpha,
+     >                  A,lda,ma,na,
+     >                  B,ldb,mb,nb,
+     >                  beta,
+     >                  C,ldc,mc,nc,
+     >                  taskid_i,taskid_j,
+     >                  np_i,np_j,
+     >                  comm_i, comm_j,
+     >                  Bcol,Bwork,work1,work2)
+      implicit none
+      integer m,n,k
+      real*8  alpha
+
+      integer lda,ma(*),na(*)
+      real*8  A(lda,*)
+
+      integer ldb,mb(*),nb(*)
+c      real*8  B(ldb,*)
+      real*8  B(*)
+
+      real*8  beta
+
+      integer ldc,mc(*),nc(*)
+      real*8  C(ldc,*)
+
+      integer taskid_i,taskid_j
+      integer np_i,np_j
+      integer comm_i,comm_j
+
+      real*8  Bcol(*),Bwork(*)
+      real*8  work1(*),work2(*)
+
+
+      call errquit("TCGMSG DMatrix_dgemm1_rot2 not implemented",0,0)
+      return
+      end
 
 
 
