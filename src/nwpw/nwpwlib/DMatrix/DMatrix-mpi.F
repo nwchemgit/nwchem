@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix-mpi.F,v 1.9 2008-06-21 19:37:14 bylaska Exp $
+* $Id: DMatrix-mpi.F,v 1.10 2008-06-23 01:00:01 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -15,6 +15,192 @@ c
 c
 c
 c
+
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_dgemm1_rot2     *
+*     *                                 *
+*     ***********************************
+
+      subroutine DMatrix_dgemm1_rot2(m,n,k,
+     >                  alpha,
+     >                  A,lda,ma,na,
+     >                  B,ldb,mb,nb,
+     >                  beta,
+     >                  C,ldc,mc,nc,
+     >                  taskid_i,taskid_j,
+     >                  np_i,np_j,
+     >                  comm_i, comm_j,
+     >                  Bcol,Bwork,work1,work2)
+      implicit none
+      integer m,n,k
+      real*8  alpha
+
+      integer lda,ma(*),na(*)
+      real*8  A(lda,*)
+
+      integer ldb,mb(*),nb(*)
+c      real*8  B(ldb,*)
+      real*8  B(*)
+
+      real*8  beta
+
+      integer ldc,mc(*),nc(*)
+      real*8  C(ldc,*)
+
+      integer taskid_i,taskid_j
+      integer np_i,np_j
+      integer comm_i,comm_j
+
+      real*8  Bcol(*),Bwork(*)
+      real*8  work1(*),work2(*)
+
+#include "mpif.h"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+
+*     **** local variables ****
+      logical jeven
+      integer i,j,j1,ii,jj,ne0
+      integer iwrk,jcur,ierr,bshift,iwrk2
+      integer request1(4),request2(4)
+      integer bshift2(0:np_j)
+
+      bshift     = 1
+      bshift2(0) = 1
+      do jj=1,np_j
+         bshift      = bshift + na(jj)*nb(taskid_j+1)
+         bshift2(jj) = bshift
+      end do
+
+*     *** collect B into columns ***
+      ne0 = 0
+      do i=1,np_i
+         ne0 = ne0+mb(i)
+      end do
+      j1 = 0
+      do jj=1,taskid_j
+         j1 = j1 + nb(jj)
+      end do
+   
+      bshift = 0
+      iwrk2 = nb(taskid_j+1)
+      ii    = 0
+      do jcur=0,np_j-1
+         iwrk  = na(jcur+1)
+         do j=1,iwrk2
+         do i=1,iwrk
+            Bwork(bshift+i+(j-1)*iwrk) = B(ii+i+(j+j1-1)*ne0)
+         end do
+         end do
+         bshift = bshift + iwrk*iwrk2
+         ii     = ii     + iwrk
+      end do
+
+
+*     *** C = beta*C ***
+c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
+      do j=1,nc(taskid_j+1)
+         do i=1,mc(taskid_i+1)
+            C(i,j) = beta*C(i,j)
+         end do
+      end do
+
+      call Dmatrix_start_rot(1,
+     >                       taskid_j,np_j,comm_j,
+     >                       A,work1,lda,na,
+     >                       request1)
+      jcur = taskid_j
+      iwrk = na(jcur+1)
+
+      if ((mc(taskid_i+1).gt.0).and.
+     >    (nc(taskid_j+1).gt.0).and.
+     >    (iwrk.gt.0))
+     >     call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >                alpha,
+     >                A, ma(taskid_i+1),
+     >                Bwork(bshift2(jcur)), iwrk,
+     >                1.0d0,
+     >                C, ldc)
+
+      jeven = .true.
+      do j=2,np_j-1
+         if (jeven) then
+            jeven = .false.
+            jcur = mod(jcur-1+np_j,np_j)
+            iwrk = na(jcur+1)
+            call Dmatrix_end_rot(request1)
+            call Dmatrix_start_rot(j,
+     >                             taskid_j,np_j,comm_j,
+     >                             A,work2,lda,na,
+     >                             request2)
+         if ((mc(taskid_i+1).gt.0).and.
+     >       (nc(taskid_j+1).gt.0).and.
+     >       (iwrk.gt.0))
+     >       call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >                alpha,
+     >                work1, ma(taskid_i+1),
+     >                Bwork(bshift2(jcur)), iwrk,
+     >                1.0d0,
+     >                C, ldc)
+
+         else
+            jeven = .true.
+            jcur = mod(jcur-1+np_j,np_j)
+            iwrk = na(jcur+1)
+            call Dmatrix_end_rot(request2)
+            call Dmatrix_start_rot(j,
+     >                             taskid_j,np_j,comm_j,
+     >                             A,work1,lda,na,
+     >                             request1)
+            if ((mc(taskid_i+1).gt.0).and.
+     >          (nc(taskid_j+1).gt.0).and.
+     >          (iwrk.gt.0))
+     >          call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >                alpha,
+     >                work2, ma(taskid_i+1),
+     >                Bwork(bshift2(jcur)), iwrk,
+     >                1.0d0,
+     >                C, ldc)
+
+         end if 
+      end do
+      if (jeven) then
+         jcur = mod(jcur-1+np_j,np_j)
+         iwrk = na(jcur+1)
+         call Dmatrix_end_rot(request1)
+         if ((mc(taskid_i+1).gt.0).and.
+     >       (nc(taskid_j+1).gt.0).and.
+     >       (iwrk.gt.0))
+     >       call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >             alpha,
+     >             work1, ma(taskid_i+1),
+     >             Bwork(bshift2(jcur)), iwrk,
+     >             1.0d0,
+     >             C, ldc)
+
+      else
+         jcur = mod(jcur-1+np_j,np_j)
+         iwrk = na(jcur+1)
+         call Dmatrix_end_rot(request2)
+         if ((mc(taskid_i+1).gt.0).and.
+     >       (nc(taskid_j+1).gt.0).and.
+     >       (iwrk.gt.0))
+     >       call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >             alpha,
+     >             work2, ma(taskid_i+1),
+     >             Bwork(bshift2(jcur)), iwrk,
+     >             1.0d0,
+     >             C, ldc)
+      end if 
+      return
+      end
+
+
+
+
 
 *     ***********************************
 *     *                                 *

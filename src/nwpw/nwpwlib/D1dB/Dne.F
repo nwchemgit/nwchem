@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.17 2008-06-22 16:43:50 bylaska Exp $
+* $Id: Dne.F,v 1.18 2008-06-23 01:00:01 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -586,7 +586,7 @@ c     ****************************************
 #include "Dne.fh"
 
 *     **** local variables ****
-      integer ms,ms1,ms2,n,shift,shift2,ishift2
+      integer ms,ms1,ms2,n,shift,shift2,shift3,ishift2,ishift3
 
 c      call Pack_npack(1,npack1)
 
@@ -596,10 +596,12 @@ c      call Pack_npack(1,npack1)
             ms1 = 1
             ms2 = ispin
             ishift2 = mcq(1)*ncq(1)
+            ishift3 = ne(1)*ne(1)
          else
             ms1 = mb
             ms2 = mb
             ishift2 = 0
+            ishift3 = 0
          end if
 
          if (mparallelized) then
@@ -625,17 +627,35 @@ c      call Pack_npack(1,npack1)
      >             dbl_mb(rwork1(1)),dbl_mb(rwork2(1)))
          end do
          else
-         call Dneall_m_scatter(mpack(mb),int_mb(mindx(1,mb)),
-     >                         hml,dbl_mb(mat_tmp(1)))
+c         call Dneall_m_scatter(mpack(mb),int_mb(mindx(1,mb)),
+c     >                         hml,dbl_mb(mat_tmp(1)))
          do ms=ms1,ms2
             shift  = 1 + (ms-1)*neq(1)*npack1
-            shift2 =     (ms-1)*ishift2
-            call DMatrix_dgemm1_rot(npack1_all,ne(ms),ne(ms),
+c            shift2 =     (ms-1)*ishift2
+c            call DMatrix_dgemm1_rot(npack1_all,ne(ms),ne(ms),
+c     >             alpha,
+c     >             Ain(shift),int_mb(ma(1,ms)+taskid_i),
+c     >                        int_mb(ma(1,ms)),
+c     >                        int_mb(na(1,ms)),
+c     >             dbl_mb(mat_tmp(1)+shift2),mcq(ms),
+c     >                         int_mb(mc(1,ms)),
+c     >                         int_mb(nc(1,ms)),
+c     >             beta,
+c     >             Aout(shift),int_mb(ma(1,ms)+taskid_i),
+c     >                         int_mb(ma(1,ms)),
+c     >                         int_mb(na(1,ms)),
+c     >             taskid_i,taskid_j,
+c     >             np_i,np_j,
+c     >             comm_i, comm_j,
+c     >             dbl_mb(bcolwork(1)),dbl_mb(bwork2(1)),
+c     >             dbl_mb(rwork1(1)),dbl_mb(rwork2(1)))
+            shift3 = 1 + (ms-1)*ishift3
+            call DMatrix_dgemm1_rot2(npack1_all,ne(ms),ne(ms),
      >             alpha,
      >             Ain(shift),int_mb(ma(1,ms)+taskid_i),
      >                        int_mb(ma(1,ms)),
      >                        int_mb(na(1,ms)),
-     >             dbl_mb(mat_tmp(1)+shift2),mcq(ms),
+     >             hml(shift3),mcq(ms),
      >                         int_mb(mc(1,ms)),
      >                         int_mb(nc(1,ms)),
      >             beta,
