@@ -115,6 +115,10 @@ c
        energy = 0.0d0
        if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))
      $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
+      if(ga_nodeid().eq.0) then
+       write(*,*) "smd_charge_write_default()"
+       call smd_charge_write_default()
+      end if
       call smd_end(rtdb)
       task_smd_fragment_energy = .true.
       return

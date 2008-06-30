@@ -9,6 +9,7 @@
 c     
       character*32 sp_charge,sp_param,sp_atom,sp_type
       character*32 tag,pname
+      character*255 filename
       logical result
 
       pname = "smd_charge_init_system"
@@ -39,7 +40,12 @@ c
 
 
       call smd_charge_init(sp_charge)
-      call smd_charge_set()
+      call smd_chargefile_input(filename,result)
+      if(result) then
+        call smd_charge_read(filename) 
+      else
+        call smd_charge_set()
+      end if
 c
       return
       end
@@ -57,6 +63,7 @@ c
       character*(*) sp_charge
 c
       character*32 pname
+      character*255 filename
       integer na
 c
       integer ndims, type, ga_charges
@@ -413,6 +420,110 @@ c
       return
       end
 
+      subroutine smd_charge_write(filename)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      character*(*) filename
+c
+      integer un
+      character*72 sp_charge
+      character*32 pname,tag
+      integer na
+      logical result
+      integer i_q
+      integer i
+c
+      pname = "smd_charge_write"
+c
+c      write(*,*) "in "//pname
+c
+      if(.not.util_get_io_unit(un))
+     >   call errquit("cannot get file number",0,0)
+      open(unit=un,status="unknown",form="formatted",file=filename)
+c
+      tag = "charge"
+      call smd_get_ind_size(tag,i_q,na,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, rtdb_err)
+
+      do i=1,na
+       write(un,*) dbl_mb(i_q+i-1)
+      end do
+
+      close(un)
+
+      return
+      end
+
+      subroutine smd_charge_write_default()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      character*(255) filename
+      logical result
+      call smd_chargefile_output(filename,result)
+c
+      write(*,*) "writing charge to",filename
+      if(result) then
+        call smd_charge_write(filename) 
+      end if
+      return
+      end
+
+      subroutine smd_charge_read(filename)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      character*(*) filename
+c
+      integer un
+      character*72 sp_charge
+      character*32 pname,tag
+      integer na
+      logical result
+      integer i_q
+      integer i
+c
+      pname = "smd_charge_read"
+c
+c      write(*,*) "in "//pname
+c
+      if(.not.util_get_io_unit(un))
+     >   call errquit("cannot get file number",0,0)
+      open(unit=un,status="old",form="formatted",file=filename)
+c
+      tag = "charge"
+      call smd_get_ind_size(tag,i_q,na,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, rtdb_err)
+
+      do i=1,na
+       read(un,*) dbl_mb(i_q+i-1)
+      end do
+
+      close(un)
+
+      return
+      end
+
       subroutine smd_charge_ga_print()
       implicit none
 #include "errquit.fh"
@@ -453,4 +564,46 @@ c
 c     
       ga_handle = smd_charge_ga
       return
+      end
+
+      subroutine smd_chargefile_output(filename,result)
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
+c
+      character*(*) filename
+      logical result
+c
+      character*30 pname
+
+      pname = "smd_chargefile_input"
+
+      result = .true.
+      call smd_rtdb_get_string("smd:charge:output",1,
+     >                           filename,result)
+
+      end
+
+      subroutine smd_chargefile_input(filename,result)
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
+c
+      character*(*) filename
+      logical result
+c
+      character*30 pname
+
+      pname = "smd_chargefile_input"
+
+      result = .true.
+      call smd_rtdb_get_string("smd:charge:input",1,
+     >                           filename,result)
+
       end
