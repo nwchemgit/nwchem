@@ -1,7 +1,7 @@
 c#define SFCREATESUFFIX
 
 #ifndef SFCREATESUFFIX
-      subroutine sf_create_suffix(filename,size1,size2,
+      integer function sf_create_suffix(filename,size1,size2,
      1                            chunk,handle,suffix) 
       IMPLICIT NONE
 #include "sf.fh"
