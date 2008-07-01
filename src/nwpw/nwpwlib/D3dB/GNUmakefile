@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.13 2008-07-01 01:07:15 d3p708 Exp $
+# $Id: GNUmakefile,v 1.14 2008-07-01 16:58:35 d3p708 Exp $
 #
 
  OBJ_OPTIMIZE = D3dB-new.o generate_map_indexes.o hilbert.o olist.o trans.o D3dB_pfft.o
@@ -29,10 +29,10 @@ ifeq ($(USE_MPIF),y)
   LIB_DEFINES += -DMPI
   LIB_INCLUDES += -I$(MPI_INCLUDE)
 else
+  USES_BLAS += D3dB-tcgmsg.F
   LIB_DEFINES += -DTCGMSG
 endif
 
 ifeq ($(USE_MPIF4),y)
-USES_BLAS += D3dB-tcgmsg.F
 LIB_DEFINES += -DMPI4
 endif
