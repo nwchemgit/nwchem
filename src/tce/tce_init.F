@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.46 2008-05-16 14:07:33 jhammond Exp $
+c $Id: tce_init.F,v 1.47 2008-07-02 03:28:49 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -487,6 +487,13 @@ c
         read_y(4)=.false.
         if (.not.rtdb_put(rtdb,'tce:read_y',mt_log,4,read_y))
      1  call errquit('tce_init: failed to write read_y',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:nroots_restart',mt_int,1,
+     &                  nroots_restart)) then
+        nroots_restart = 0
+        if (.not.rtdb_put(rtdb,'tce:nroots_restart',mt_int,1,
+     1                    nroots_restart))
+     2  call errquit('tce_init: failed to write diis',0,RTDB_ERR)
       endif
 c
 c     ----------------------
