@@ -1,4 +1,4 @@
-c $Id: tce_diis.fh,v 1.4 2008-02-11 18:13:10 jhammond Exp $
+c $Id: tce_diis.fh,v 1.5 2008-07-02 03:36:24 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -33,10 +33,11 @@ c ------------------------------------
       logical r4_diis_exist(maxdiis) ! True if R4 DIIS file exist
       integer nroots           ! No. of excited state roots
       integer nroots_reduced   ! Adjusted no. of excited state roots
+      integer nroots_restart   ! Number of roots available for restart
       integer nxtrials         ! No. of RHS trial vectors
       integer nytrials         ! No. of LHS trial vectors
       integer maxtrials        ! Max No. of trial vectors
-      parameter (maxtrials = 10000)
+      parameter (maxtrials = 1000)  ! 10000 requires 240000*sizeof(int)+240000*sizeof(logical) bytes of (shared) static arrays
       integer xc1(maxtrials)   ! Converged RHS1 vectors
       integer yc1(maxtrials)   ! Converged LHS1 vectors
       integer xc2(maxtrials)   ! Converged RHS2 vectors
@@ -61,7 +62,7 @@ c ------------------------------------
       integer yp3(maxtrials)   ! Product LHS3 vectors
       integer xp4(maxtrials)   ! Product RHS4 vectors
       integer yp4(maxtrials)   ! Product LHS4 vectors
-      integer hbard !max dimension of the EOMCC iterative space
+      integer hbard            !max dimension of the EOMCC iterative space
       logical xc1_exist(maxtrials) ! True if XC1 file exist
       logical yc1_exist(maxtrials) ! True if YC1 file exist
       logical xc2_exist(maxtrials) ! True if XC2 file exist
@@ -90,11 +91,11 @@ c
 c     Integers
 c 
       common /tcediisinteger/
-     1  t1_diis,r1_diis,t2_diis,r2_diis,
-     2  t3_diis,r3_diis,t4_diis,r4_diis,t1_pointer,r1_pointer,
-     3  t2_pointer,r2_pointer,t3_pointer,r3_pointer,t4_pointer,
-     4  r4_pointer,nroots,nroots_reduced,nxtrials,nytrials,x1,y1,x2,y2,
-     5  x3,y3,x4,y4,xp1,yp1,xp2,yp2,xp3,yp3,xp4,yp4,
+     1  t1_diis,r1_diis,t2_diis,r2_diis,t3_diis,r3_diis,t4_diis,r4_diis,
+     2  t1_pointer,r1_pointer,t2_pointer,r2_pointer,
+     3  t3_pointer,r3_pointer,t4_pointer,r4_pointer,
+     4  nroots,nroots_reduced,nroots_restart,nxtrials,nytrials,
+     5  x1,y1,x2,y2,x3,y3,x4,y4,xp1,yp1,xp2,yp2,xp3,yp3,xp4,yp4,
      6  xc1,xc2,xc3,xc4,yc1,yc2,yc3,yc4,diis,hbard
 c
 c     Logicals
