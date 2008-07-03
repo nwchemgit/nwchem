@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.170 2008-07-03 18:05:48 d3j191 Exp $
+c $Id: md_start.F,v 1.171 2008-07-03 18:15:59 d3j191 Exp $
 c
       implicit none
 c
@@ -1965,6 +1965,7 @@ c
 c
 #include "md_common.fh"
 #include "global.fh"
+#include "util.fh"
 c  size should equal maximum number of processors that could be in
 c  a group
       integer MAX_GRP_SIZE
@@ -1972,6 +1973,7 @@ c  a group
       integer grp_size, nproc
       integer list(MAX_GRP_SIZE)
       integer i, grp_handle
+      real*8 rantmp
 c
 c      write(*,1000) npg
 c 1000 format(' The number of processor groups requested is ',i5)
@@ -1982,6 +1984,7 @@ c 1002 format(' The default group handle is ',i5)
 c
       nproc = ga_nnodes()
       me = ga_nodeid()
+      rantmp=util_random(iseed*(me+1))
       if (mod(nproc,npg).ne.0) then
         call md_abort('Number of processor groups is not a multiple'/
      +                ' of number of processors',ga_nodeid())
