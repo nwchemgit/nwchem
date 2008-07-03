@@ -3,9 +3,9 @@
      + lcf,lsp,ltwn,lpol,lpmei,llpstep,llpener,npstti,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
-     + nodpme,nipmf,lguide,lqmmm,lqmd,iradgi,idifci,nbget)
+     + nodpme,nipmf,lguide,lqmmm,lqmd,iradgi,idifci,nbget,ipgi,npgi)
 c
-c $Id: prp_init.F,v 1.68 2004-04-13 09:46:03 d3j191 Exp $
+c $Id: prp_init.F,v 1.69 2008-07-03 18:05:48 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       integer nseri,ntyp,lfn,iout,iprp,igib,iprf,ndistr,nbiasi,nftri
       integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3,npenrg,npstti
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi,npmf,nodpme
-      integer ipropi,nipmf,iradgi,idifci,nbget
+      integer ipropi,nipmf,iradgi,idifci,nbget,npgi,ipgi
       logical lcf,lsp,ltwn,lpol,lpmei,llpener,llpstep,lpbci
       real*8 tstp,ddi,edi
       character*255 fil
@@ -27,6 +27,8 @@ c
       me=ga_nodeid()
       np=ga_nnodes()
       npfft=nodpme
+      ipg=ipgi
+      npg=npgi
 c
       ntype=ntyp
       nserie=nseri

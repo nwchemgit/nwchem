@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.215 2007-12-13 21:53:30 marat Exp $
+c $Id: md_main.F,v 1.216 2008-07-03 18:05:48 d3j191 Exp $
 c
       implicit none
 c
@@ -52,6 +52,7 @@ c
 #include "mafdecls.fh"
 c
       lpair=.true.
+      lload=.false.
       lhop=.false.
       llong=ltwin
 c
@@ -126,6 +127,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
       lpair=.false.
+      lload=.false.
 
 c     atomic forces and potential energies
 c
@@ -168,6 +170,7 @@ c
       endif
 c
       lpair=.true.
+      lload=.true.
       lhop=.false.
       llong=ltwin
 c
@@ -347,6 +350,7 @@ c
       return
 c
       lpair=.true.
+      lload=.true.
       lhop=.false.
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
@@ -414,6 +418,7 @@ c
       isdit=0
 c
       lpair=.true.
+      lload=.true.
       lhop=.false.
 c
 c     atomic forces and potential energies
@@ -553,6 +558,7 @@ c
       isdit=isdit+1
 c
       lpair=frequency(isdit,nfpair)
+      lload=lpair
       lhop=.false.
       llong=(frequency(isdit,nflong).or.lpair).and.ltwin
 c
@@ -748,6 +754,7 @@ c
       beta1=zero
       icgit=0
       lpair=.true.
+      lload=.true.
       lhop=.false.
 c
       call timer_start(201)
@@ -863,6 +870,7 @@ c
       if(icgit.eq.(icgit/ncgcy)*ncgcy) beta1=zero
       icgit=icgit+1
       lpair=frequency(icgit,nfpair)
+      lload=frequency(icgit,nfload)
       lhop=.false.
 c
       ypa=zero
@@ -938,6 +946,7 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       lpair=.false.
+      lload=.false.
       lhop=.false.
 c
       beta3=beta2*pnorm/fnorm
@@ -1313,7 +1322,6 @@ c
       call md_server
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm)
-      if(ga_nodeid().eq.0) write(79,*) epot,etot
 c
       call timer_stop(201)
 c
@@ -1439,6 +1447,10 @@ c
 c
       do 1 irun=krun+1,mrun
 c
+      if(npg.gt.1) then
+      if(irun.ne.ipg+1) goto 1
+      endif
+c
       if(me.eq.0) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
       write(filrun,'(a,a,i5.5,a)') filtrj(1:index(filtrj,'.trj')-1),'-',
@@ -1451,6 +1463,12 @@ c
       write(filrun,'(a,a,i5.5,a)') filprp(1:index(filprp,'.prp')-1),'-',
      + irun,'.prp '
       open(unit=lfnprp,file=filrun(1:index(filrun,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      if(nfrdf.gt.0) then
+      write(filrun,'(a,a,i5.5,a)') filrdf(1:index(filprp,'.prp')-1),'-',
+     + irun,'.rdf '
+      open(unit=lfnrdf,file=filrun(1:index(filrun,' ')-1),
      + form='formatted',status='unknown')
       endif
       endif
@@ -1628,7 +1646,7 @@ c
 c
     1 continue
 c
-      call prp_mcti(npgdec)
+      call prp_mcti(npgdec,filnam)
 c
       if(me.eq.0) then
       if(nserie.eq.0) then
@@ -1727,6 +1745,7 @@ c
       endif
 c
       lpair=lfirst.or.frequency(mdstep,nfpair)
+      lload=lfirst.or.frequency(mdstep,nfload)
       lhop=frequency(mdstep,nfhop)
       llong=(lfirst.or.frequency(mdstep,nflong).or.lpair).and.ltwin
 c
@@ -1749,6 +1768,7 @@ c
 c
       call timer_stop(2)
 c
+      if(lload) then
       if(.not.lqmd) then
 c
       call timer_start(3)
@@ -1777,6 +1797,7 @@ c
 c
       call timer_stop(4)
 c
+      endif
       endif
 c
       endif
@@ -2450,10 +2471,12 @@ c
      + isl(1,lsct3),isl(1,lshop),xs,nsaloc,lfnhop)) then
       if(lpair) then
       lpair=.false.
+      lload=.false.
       lforce=.true.
       ldone=.false.
       else
       lpair=.true.
+      lload=.true.
       lforce=.true.
       ldone=.true.
       call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
@@ -2624,6 +2647,7 @@ c
 c
    22 continue
       lpair=.false.
+      lload=.false.
 c
       if(np.gt.0) call ga_sync()
 c
@@ -2707,18 +2731,30 @@ c
       integer i,left
       character*255 filn
 c
+      if(me.eq.0) print*,'filRST=',fil(1:index(fil,' ')-1)
+      if(me.eq.0) print*,npg,ntype,irun
       if(me.eq.0) then
       if(keepr.eq.0) then
       open(unit=lfn,file=fil(1:index(fil,' ')-1),
      + form='formatted',status='unknown',err=9999)
       else
+      if(ntype.eq.3.and.npg.le.1) then
+      print*,npg,ntype,irun
+      print*,fil(1:index(fil,' ')-1)
+      print*,fil(1:index(fil,'.rst')-1)
+      write(filn,'(a,i5.5,a)') fil(1:index(fil,'.rst')-1),
+     + irun,'.rst '
+      print*,'FILRST=',filn(1:index(filn,' ')-1)
+      else
       write(filn,'(a,a,i5.5,a)') fil(1:index(fil,'.rst')-1),'-',
      + keepr,'.rst '
+      endif
       open(unit=lfn,file=filn(1:index(filn,' ')-1),
      + form='formatted',status='unknown',err=9999)
       endif
       endif
 c
+      if(me.eq.0) print*,'FILRST=',filn(1:index(filn,' ')-1)
       call sp_wrtrst(lfn,fil,lveloc,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_gw),
      + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
@@ -2814,7 +2850,7 @@ c
 c
       integer i
 c
-      do 1 i=1,250
+      do 1 i=1,200
       call timer_reset(i)
     1 continue
 c
@@ -2935,6 +2971,7 @@ c
      + '            dfx         dfy         dfz',/)
 c
       lpair=.false.
+      lload=.false.
 c      xdv=0.000001
       xdv=dx0sd
 c

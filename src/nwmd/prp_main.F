@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.105 2005-08-25 23:36:26 marat Exp $
+c $Id: prp_main.F,v 1.106 2008-07-03 18:05:48 d3j191 Exp $
 c
       implicit none
 c
@@ -775,14 +775,67 @@ c
 c
       return
       end
-      subroutine prp_mcti(n)
+      subroutine prp_mcti(n,filnam)
 c
       implicit none
 c
 #include "prp_common.fh"
 #include "mafdecls.fh"
+#include "global.fh"
 c
-      integer n,i_dec,l_dec
+      integer n,i_dec,l_dec,ibl,i,igp_handle
+      character*80 filnam,string
+      character*5 gid
+c
+      if(npg.gt.1) then
+      if(me.eq.0) then
+      close(unit=lfngib,status='keep')
+      endif
+c
+c     now go global 
+c
+      igp_handle=ga_pgroup_get_default()
+      call ga_pgroup_set_default(ga_pgroup_get_world())
+      call ga_sync()
+      if(ga_nodeid().eq.0) then
+c
+      ibl=index(filnam,' ')-1
+      string=filnam(1:ibl)//'.gib'
+      open(unit=lfngib,file=string,status='unknown',form='formatted')
+      rewind(lfngib)
+      do 1 i=1,npg
+      write(gid,3300) i-1
+ 3300 format(i5.5)
+      string=filnam(1:ibl)//gid//'.gib'
+      open(unit=75,file=string,status='old',form='formatted')
+      rewind(unit=75)
+    2 continue
+      read(75,3301,end=99,err=99) string
+      write(lfngib,3301) string
+ 3301 format(a)
+      goto 2
+   99 continue
+      close(unit=75)
+    1 continue
+      close(unit=lfngib,status='keep')
+c
+      endif
+c
+c     go back to groups
+c
+      call ga_sync()
+      call ga_pgroup_set_default(igp_handle)
+c
+      endif
+c
+      if(ipg.eq.npg-1.or.npg.eq.1) then
+c
+      if(me.eq.0) then
+      ibl=index(filnam,' ')-1
+      string=filnam(1:ibl)//'.gib'
+      open(unit=lfngib,file=string,status='old',form='formatted')
+      rewind(lfngib)
+      endif
 c
       npgdec=n
 c
@@ -798,6 +851,9 @@ c
 c
       if(.not.ma_pop_stack(l_dec))
      + call md_abort('Failed to deallocate dec',0)
+c
+      endif
+c      endif
 c
       return
       end

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.91 2006-06-02 00:42:23 marat Exp $
+c $Id: md_input.F,v 1.92 2008-07-03 18:05:48 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
       integer iprop,iprpmf,nfhop,ipbtyp,iradgy,idifco,nfnewf,ncolt
-      integer icmopt,imembr,icrit,nbget,nprec
+      integer icmopt,imembr,icrit,nbget,nprec,nfload
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -62,7 +62,7 @@ c
       npx=0
       npy=0
       npz=0
-      npg=0
+      npg=1
       includ=0
       itrack=0
       mdalgo=1
@@ -138,6 +138,7 @@ c
       iformt=1
       madbox=6
       loadb=3
+      nfload=0
       ireset=0
       mropt=1
       idebug=0
@@ -1525,6 +1526,7 @@ c
       endif
       if(inp_compare(.false.,'load',item)) then
       loadb=0
+      if(.not.inp_i(nfload)) nfload=1
   700 continue
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'none',item)) then
@@ -1887,6 +1889,8 @@ c     + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:itime',mt_int,mtimes,itime))
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nftime',mt_int,1,nftime))
+     + call md_abort('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:nfload',mt_int,1,nfload))
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:itload',mt_int,1,itload))
      + call md_abort('md_input: rtdb_put failed',0)

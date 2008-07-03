@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.39 2004-01-31 20:17:12 d3j191 Exp $
+c $Id: md_finish.F,v 1.40 2008-07-03 18:05:48 d3j191 Exp $
 c
       implicit none
 c
@@ -141,6 +141,8 @@ c
       close(unit=-lfnpmf,status='keep')
       endif
       endif
+c
+      call md_partition_end()
 c
       return
       end

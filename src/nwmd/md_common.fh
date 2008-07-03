@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.87 2007-07-31 23:58:24 d3j191 Exp $
+c $Id: md_common.fh,v 1.88 2008-07-03 18:05:48 d3j191 Exp $
 c
 c     parameters
 c
@@ -103,6 +103,7 @@ c
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
      + rfile
+      integer nam_ptr
       common/md_nam/
      + root,filnam,filday,filinp,filrst,filtop,filtrj,filprp,filfld,
      + filgib,filppd,filhis,filhbo,filsfl,filcmd,filtri,
@@ -110,7 +111,7 @@ c
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
      + rfile,
-     + fdarg,fdlog,fsum,server,projct
+     + fdarg,fdlog,fsum,server,projct,nam_ptr
 c
       character*80 tittop(3),titrst(3),titinp(3)
       character*10 dattop,datrst,datinp,timtop,timrst,timinp,today,now
@@ -147,7 +148,8 @@ c
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,npmfi,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb(10),mbbreq,ioload,iprof,
      + isload,ncoll,ipopt,ilambd,mlambd,includ,iradgy,idifco,ndums,
-     + ipbtyp,nfnewf,ibatch,icmopt,imembr,icrit,nbget,nprec,inp_ptr
+     + ipbtyp,nfnewf,ibatch,icmopt,imembr,icrit,nbget,nprec,nfload,
+     + inp_ptr
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
      + fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,dxmsd,
      + dxsdmx,dx0cg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,prsext,prsrlx,
@@ -178,14 +180,15 @@ c
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,npmfi,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb,mbbreq,ioload,iprof,
      + isload,ncoll,ipopt,ilambd,mlambd,includ,iradgy,idifco,ndums,
-     + ipbtyp,nfnewf,ibatch,icmopt,imembr,icrit,nbget,nprec,inp_ptr
+     + ipbtyp,nfnewf,ibatch,icmopt,imembr,icrit,nbget,nprec,nfload,
+     + inp_ptr
 c
       logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
      + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp,
-     + lprpmf,lpme,lhop,lstop
+     + lprpmf,lpme,lhop,lstop,lload
       common/md_log/lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
      + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp,
-     + lprpmf,lpme,lhop,lstop
+     + lprpmf,lpme,lhop,lstop,lload
 c
       integer mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,msf,nsf,
      + mseq,nseq,mst

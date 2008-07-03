@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.169 2005-09-14 22:15:54 d3j191 Exp $
+c $Id: md_start.F,v 1.170 2008-07-03 18:05:48 d3j191 Exp $
 c
       implicit none
 c
@@ -8,7 +8,71 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 c
+      character*5 gid
+      integer iun,ibl
+      logical lexist
+c
       if(npg.gt.1) call md_partition
+c
+      if(me.eq.0) then
+      if(npg.gt.1) then
+      write(gid,3300) ipg
+ 3300 format(i5.5)
+      ibl=index(filnam,' ')-1
+      if(ibl.lt.1) then
+      filnam='nwmd'
+      ibl=4
+      endif
+      iun=index(filnam,'_')-1
+      if(iun.lt.0) iun=ibl
+      if(iun.eq.0) then
+      ibl=index(filnam,' ')-1
+      iun=5
+      endif
+      filtop=filnam(1:iun)//'.top'
+      filrst=filnam(1:ibl)//'.rst'
+      filout=filnam(1:ibl)//gid//'.out'
+      filtrj=filnam(1:ibl)//gid//'.trj'
+      filprp=filnam(1:ibl)//gid//'.prp'
+      filmro=filnam(1:ibl)//gid//'.mro'
+      filgib=filnam(1:ibl)//gid//'.gib'
+      if(npg.gt.1) then
+      filrst=filnam(1:ibl)//gid//'.rst'
+      inquire(file=filrst(1:index(filrst,' ')-1),exist=lexist)
+      if(.not.lexist) filrst=filnam(1:ibl)//'.rst'
+      endif
+      endif
+      print*,'FILRST=',filrst(1:index(filrst,' ')-1)
+      endif
+c
+c     Open debug file if requested
+c     ----------------------------
+c
+      if(idebug.gt.0) then
+      lfndbg=18
+      write(fildbg,'(a,i5.5,a)') 'nwchem_',me,'.dbg'
+      open(unit=lfndbg,file=fildbg,form='formatted',status='unknown')
+      endif
+c
+c     open recording file
+c
+      if(me.eq.0) then
+      call md_fopen(.false.)
+c
+      if(ntype.eq.3) then
+      open(unit=lfngib,file=filgib(1:index(filgib,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      if(ntype.eq.0.and.nftri.gt.0) then
+      open(unit=lfntri,file=filtri(1:index(filtri,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+c
+      if(itest.gt.0) then
+      open(unit=lfntst,file=filtst(1:index(filtst,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      endif
 c
       if(lqmd) call qmd_start()
 c
@@ -75,7 +139,7 @@ c
      + npstep.ne.0,npener.ne.0,npstat,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
      + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc,nbias,nodpme,npmfi,
-     + iguide.ne.0,iqmmm.ne.0,lqmd,iradgy,idifco,nbget)
+     + iguide.ne.0,iqmmm.ne.0,lqmd,iradgy,idifco,nbget,ipg,npg)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -252,6 +316,12 @@ c
      + call cf_trjhdr(lfntrj)
       endif
 c
+      if(npg.gt.1.and.me.eq.0) then
+      root=filnam(1:ibl)//gid
+      filrst=filnam(1:ibl)//gid//'.rst'
+      rfile=filrst
+      endif
+c
       if(.not.ma_verify_allocator_stuff())
      + call md_abort('ma problems at end of md_start',me)
       return
@@ -276,85 +346,13 @@ c
       logical lstate,lstart,lrstrt,lcont
       integer igt,igr,nbytes,ibl,iun
       integer niperw,nbperw,istart
+      character*5 gid
 c
 c     set process id and number of processes
 c     --------------------------------------
 c
       me=ga_nodeid()
       np=ga_nnodes()
-c
-c     get input variables on process 0 only
-c
-      if(me.eq.0) then
-c
-c     sequential access to rtdb
-c
-      lstate=rtdb_parallel(.false.)
-c
-c     retrieve project name
-c
-      if(.not.rtdb_cget(irtdb,'md:project',1,filnam)) then
-      if(.not.rtdb_cget(irtdb,'prep:sysnam',1,filnam)) then
-      if(.not.rtdb_cget(irtdb,'file_prefix',1,filnam))
-     + call md_abort('md_rdname: error rtdb_cget project',0)
-      endif
-      endif
-      projct=filnam
-c
-      ibl=index(filnam,' ')-1
-      if(ibl.lt.1) then
-      filnam='nwmd'
-      ibl=4
-      endif
-      iun=index(filnam,'_')-1
-      if(iun.lt.0) iun=ibl
-      if(iun.eq.0) then
-      ibl=index(filnam,' ')-1
-      iun=5
-      endif
-c
-c     set file names
-c
-      root=filnam(1:ibl)
-      filday=filnam(1:ibl)//'.day'
-      filinp=filnam(1:ibl)//'.inp'
-      filrst=filnam(1:ibl)//'.rst'
-      filtop=filnam(1:iun)//'.top'
-      filtrj=filnam(1:ibl)//'.trj'
-      filprp=filnam(1:ibl)//'.prp'
-      filgib=filnam(1:ibl)//'.gib'
-      filppd=filnam(1:ibl)//'.ppd'
-      filhis=filnam(1:ibl)//'.his'
-      filhbo=filnam(1:ibl)//'.hbo'
-      filmro=filnam(1:ibl)//'.mro'
-      filmrr=filnam(1:ibl)//'.mrr'
-      filmri=filnam(1:ibl)//'.mri'
-      filout=filnam(1:ibl)//'.out'
-      filmem=filnam(1:ibl)//'.mem'
-      fildef=filnam(1:ibl)//'.def'
-      filqsc=filnam(1:ibl)//'.qsc'
-      filsur=filnam(1:ibl)//'.sur'
-      filqrs=filnam(1:ibl)//'.qrs'
-      filrdf=filnam(1:ibl)//'.rdf'
-      filddf=filnam(1:ibl)//'.ddf'
-      filkrk=filnam(1:ibl)//'.krk'
-      fildbg=filnam(1:ibl)//'.dbg'
-      filacf=filnam(1:ibl)//'.acf'
-      filcnv=filnam(1:ibl)//'.cnv'
-      filfet=filnam(1:ibl)//'.fet'
-      filind=filnam(1:ibl)//'.ind'
-      filsin=filnam(1:ibl)//'.sin'
-      filtim=filnam(1:ibl)//'.tim'
-      filsyn=filnam(1:ibl)//'.syn'
-      filrdi=filnam(1:ibl)//'.rdi'
-      filfld=filnam(1:ibl)//'.fld'
-      filsfl=filnam(1:ibl)//'.sfl'
-      filtst=filnam(1:ibl)//'.tst'
-      filcmd=filnam(1:ibl)//'.cmd'
-      filtri=filnam(1:ibl)//'.tri'
-      filpmf=filnam(1:ibl)//'.pmf'
-      filhop=filnam(1:ibl)//'.hop'
-      rfile=filrst
 c
 c     set logical file numbers
 c
@@ -680,6 +678,79 @@ c
       nbperw=ma_sizeof(mt_dbl,1,mt_byte)
       niperw=nbperw/ma_sizeof(mt_int,1,mt_byte)
 c
+c     get input variables on process 0 only
+c
+      if(me.eq.0) then
+c
+c     sequential access to rtdb
+c
+      lstate=rtdb_parallel(.false.)
+c
+c     retrieve project name
+c
+      if(.not.rtdb_cget(irtdb,'md:project',1,filnam)) then
+      if(.not.rtdb_cget(irtdb,'prep:sysnam',1,filnam)) then
+      if(.not.rtdb_cget(irtdb,'file_prefix',1,filnam))
+     + call md_abort('md_rdname: error rtdb_cget project',0)
+      endif
+      endif
+      projct=filnam
+c
+      ibl=index(filnam,' ')-1
+      if(ibl.lt.1) then
+      filnam='nwmd'
+      ibl=4
+      endif
+      iun=index(filnam,'_')-1
+      if(iun.lt.0) iun=ibl
+      if(iun.eq.0) then
+      ibl=index(filnam,' ')-1
+      iun=5
+      endif
+c
+c     set file names
+c
+      root=filnam(1:ibl)
+      filday=filnam(1:ibl)//'.day'
+      filinp=filnam(1:ibl)//'.inp'
+      filrst=filnam(1:ibl)//'.rst'
+      filtop=filnam(1:iun)//'.top'
+      filtrj=filnam(1:ibl)//'.trj'
+      filprp=filnam(1:ibl)//'.prp'
+      filgib=filnam(1:ibl)//'.gib'
+      filppd=filnam(1:ibl)//'.ppd'
+      filhis=filnam(1:ibl)//'.his'
+      filhbo=filnam(1:ibl)//'.hbo'
+      filmro=filnam(1:ibl)//'.mro'
+      filmrr=filnam(1:ibl)//'.mrr'
+      filmri=filnam(1:ibl)//'.mri'
+      filout=filnam(1:ibl)//'.out'
+      filmem=filnam(1:ibl)//'.mem'
+      fildef=filnam(1:ibl)//'.def'
+      filqsc=filnam(1:ibl)//'.qsc'
+      filsur=filnam(1:ibl)//'.sur'
+      filqrs=filnam(1:ibl)//'.qrs'
+      filrdf=filnam(1:ibl)//'.rdf'
+      filddf=filnam(1:ibl)//'.ddf'
+      filkrk=filnam(1:ibl)//'.krk'
+      fildbg=filnam(1:ibl)//'.dbg'
+      filacf=filnam(1:ibl)//'.acf'
+      filcnv=filnam(1:ibl)//'.cnv'
+      filfet=filnam(1:ibl)//'.fet'
+      filind=filnam(1:ibl)//'.ind'
+      filsin=filnam(1:ibl)//'.sin'
+      filtim=filnam(1:ibl)//'.tim'
+      filsyn=filnam(1:ibl)//'.syn'
+      filrdi=filnam(1:ibl)//'.rdi'
+      filfld=filnam(1:ibl)//'.fld'
+      filsfl=filnam(1:ibl)//'.sfl'
+      filtst=filnam(1:ibl)//'.tst'
+      filcmd=filnam(1:ibl)//'.cmd'
+      filtri=filnam(1:ibl)//'.tri'
+      filpmf=filnam(1:ibl)//'.pmf'
+      filhop=filnam(1:ibl)//'.hop'
+      rfile=filrst
+c
 c     input from rtdb
 c
       if(.not.rtdb_get(irtdb,'md:port',mt_int,1,iport))
@@ -925,6 +996,8 @@ c     + call md_abort('md_rtdbin: rtdb_get failed',92)
      + call md_abort('md_rtdbin: rtdb_get failed',92)
       if(.not.rtdb_get(irtdb,'md:nfdrss',mt_int,1,nfdrss))
      + call md_abort('md_rtdbin: rtdb_get failed',93)
+      if(.not.rtdb_get(irtdb,'md:nfload',mt_int,1,nfload))
+     + call md_abort('md_rtdbin: rtdb_get failed',94)
       if(.not.rtdb_get(irtdb,'md:itload',mt_int,1,itload))
      + call md_abort('md_rtdbin: rtdb_get failed',94)
       if(.not.rtdb_get(irtdb,'md:ioload',mt_int,1,ioload))
@@ -1262,15 +1335,7 @@ c
       call ga_brdcst(mrg_d36,ptol,nbytes,0)
       nbytes=7*ma_sizeof(mt_int,1,mt_byte)
       call ga_brdcst(mrg_d37,npx,nbytes,0)
-      endif
-c
-c     Open debug file if requested
-c     ----------------------------
-c
-      if(idebug.gt.0) then
-      lfndbg=18
-      write(fildbg,'(a,i5.5,a)') 'nwchem_',me,'.dbg'
-      open(unit=lfndbg,file=fildbg,form='formatted',status='unknown')
+      call util_char_ga_brdcst(mrg_d38,filnam,0)
       endif
 c
       lesp=.false.
@@ -1291,26 +1356,6 @@ c
       factgf=one
       if(iguide.gt.0) factgf=tstep/tguide
       factgg=one-factgf
-c
-c     open recording file
-c
-      if(me.eq.0) then
-      call md_fopen(.false.)
-c
-      if(ntype.eq.3) then
-      open(unit=lfngib,file=filgib(1:index(filgib,' ')-1),
-     + form='formatted',status='unknown')
-      endif
-      if(ntype.eq.0.and.nftri.gt.0) then
-      open(unit=lfntri,file=filtri(1:index(filtri,' ')-1),
-     + form='formatted',status='unknown')
-      endif
-c
-      if(itest.gt.0) then
-      open(unit=lfntst,file=filtst(1:index(filtst,' ')-1),
-     + form='formatted',status='unknown')
-      endif
-      endif
 c
       costio=zero
       lpmfc=.true.
@@ -1553,9 +1598,9 @@ c
 
       if(loadb.eq.0) write(lfnout,2001)
  2001 format(' None')
-      if(loadb.eq.1) write(lfnout,2002)
+      if(loadb.eq.2) write(lfnout,2002)
  2002 format(' Redistribution of inter-processor box pairs')
-      if(loadb.eq.2) write(lfnout,2003) factld
+      if(loadb.eq.1) write(lfnout,2003) factld
  2003 format(' Resizing of processor domains: smallest scaling ',
      + t55,f12.6)
       if(loadb.eq.3) write(lfnout,2004) lbpair,factld
@@ -1567,6 +1612,9 @@ c
 c
       if(ireset.gt.0) write(lfnout,2005)
  2005 format(/,' Load balancing reset')
+c
+      write(lfnout,2012) nfload
+ 2012 format(/,' Load balancing frequency ',i5)
 c
       if(itload.eq.0) write(lfnout,2006)
  2006 format(/,' Load balancing based on last synchronization time')
@@ -1917,6 +1965,13 @@ c
 c
 #include "md_common.fh"
 #include "global.fh"
+c  size should equal maximum number of processors that could be in
+c  a group
+      integer MAX_GRP_SIZE
+      parameter (MAX_GRP_SIZE = 1000)
+      integer grp_size, nproc
+      integer list(MAX_GRP_SIZE)
+      integer i, grp_handle
 c
 c      write(*,1000) npg
 c 1000 format(' The number of processor groups requested is ',i5)
@@ -1925,5 +1980,40 @@ c 1001 format(' The world group handle is ',i5)
 c      write(*,1002) ga_pgroup_get_default()
 c 1002 format(' The default group handle is ',i5)
 c
+      nproc = ga_nnodes()
+      me = ga_nodeid()
+      if (mod(nproc,npg).ne.0) then
+        call md_abort('Number of processor groups is not a multiple'/
+     +                ' of number of processors',ga_nodeid())
+      endif
+      grp_size = nproc/npg
+      ipg = (me - mod(me,grp_size))/grp_size
+      do i = 1, grp_size
+        list(i) =ipg*grp_size + i - 1
+      end do
+      grp_handle = ga_pgroup_create(list,grp_size)
+      call ga_pgroup_set_default(grp_handle)
+      np = ga_nnodes()
+      me = ga_nodeid()
+      return
+      end
+c
+      subroutine md_partition_end
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "global.fh"
+      integer grp_handle
+      logical status
+c
+      grp_handle = ga_pgroup_get_default()
+      call ga_pgroup_set_default(ga_pgroup_get_world())
+      status = ga_pgroup_destroy(grp_handle)
+c
+      call ga_sync()
+c
+      np = ga_nnodes()
+      me = ga_nodeid()
       return
       end
