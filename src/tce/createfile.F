@@ -1,6 +1,8 @@
+c#define SFCREATESUFFIX
+
       subroutine createfile(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.18 2008-06-09 19:19:53 jhammond Exp $
+c $Id: createfile.F,v 1.19 2008-07-08 13:58:03 jhammond Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -210,7 +212,7 @@ c
 
       subroutine createfile_sf(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.18 2008-06-09 19:19:53 jhammond Exp $
+c $Id: createfile.F,v 1.19 2008-07-08 13:58:03 jhammond Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -277,3 +279,87 @@ c
      1          ' file name = ',a)
       return
       end
+
+
+
+
+
+
+
+
+
+
+
+
+#ifdef SFCREATESUFFIX
+      subroutine createfile_sf_suffix(filename,d_sf,size,suffix)
+c
+c $Id: createfile.F,v 1.19 2008-07-08 13:58:03 jhammond Exp $
+c
+c     Creates a shared file and returns the handle
+c
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "sf.fh"
+#include "eaf.fh"
+#include "dra.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+      character*(*) filename
+      integer d_sf
+      integer d_temp
+      integer size
+      integer i
+      integer suffix
+      logical nodezero
+      logical parallel
+      logical used
+c
+      nodezero = (ga_nodeid().eq.0)
+      parallel = (ga_nnodes().gt.1)
+      cpusecs(1) = cpusecs(1) - util_cpusec()
+      cpusecs(51) = cpusecs(51) - util_wallsec()
+      if (size.eq.0) then
+        if (nodezero.and.util_print('files',print_high)) then
+          write(LuOut,*) '*************** Warning ***************'
+          write(LuOut,*) ' Create file size is zero. Calculation'
+          write(LuOut,*) ' will continue by increasing the size.'
+          write(LuOut,*) ' Use of a larger basis set is advised.'
+        endif
+        size = 1
+      endif
+c
+c      else if (ioalg.eq.3) then
+c
+        if (parallel) call ga_sync()
+        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size),
+     1      dfloat(bytes)*dfloat(size),1.0d4,d_sf,suffix).ne.0)
+     2    call errquit('createfile_sf: sf problem',0,DISK_ERR)
+        if (parallel) then
+          if (sf_close(d_sf).ne.0)
+     1      call errquit('createfile_sf: sf problem',1,DISK_ERR)
+          call ga_sync()
+        endif
+        if (nodezero.and.util_print('files',print_debug))
+     1    write(LuOut,9010) d_sf,filename(1:40)
+c
+c        call tce_zero(d_sf,size)
+c
+        call tce_zero_sf(d_sf,size)
+c
+c      endif
+c
+      cpusecs(1) = cpusecs(1) + util_cpusec()
+      cpusecs(51) = cpusecs(51) + util_wallsec()
+ 9000 format(1x,'create a file: size = ',i10,' file name = ',a)
+ 9010 format(1x,'file handle = ',i9,' file name = ',a)
+ 9020 format(1x,'node',i3,' file handle = ',i9,' file name = ',a)
+ 9030 format(1x,'create a file: node',i3,' size = ',i10,
+     1          ' file name = ',a)
+      return
+      end
+#endif
