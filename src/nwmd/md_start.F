@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.172 2008-07-07 16:53:34 d3p307 Exp $
+c $Id: md_start.F,v 1.173 2008-07-08 14:52:13 d3j191 Exp $
 c
       implicit none
 c
@@ -1986,8 +1986,8 @@ c
       me = ga_nodeid()
       rantmp=util_random(iseed*(me+1))
       if (mod(nproc,npg).ne.0) then
-        call md_abort('Number of processor groups is not a multiple
-     +                 of number of processors',ga_nodeid())
+      call md_abort('Number of processor groups is not a multiple',
+     + ' of number of processors',ga_nodeid())
       endif
       grp_size = nproc/npg
       ipg = (me - mod(me,grp_size))/grp_size
