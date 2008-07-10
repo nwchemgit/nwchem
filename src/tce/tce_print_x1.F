@@ -1,6 +1,6 @@
       subroutine tce_print_x1(d_r1,k_r1_offset,r1_thresh)
 c
-c $Id: tce_print_x1.F,v 1.4 2008-07-09 22:08:21 d3p975 Exp $
+c $Id: tce_print_x1.F,v 1.5 2008-07-10 16:11:35 d3p975 Exp $
 c
 c Prints the X1 tensor
 c
@@ -12,6 +12,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_r1
       integer p1b
       integer h2b
