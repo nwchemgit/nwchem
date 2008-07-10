@@ -117,7 +117,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.49 2008-03-03 12:57:48 jhammond Exp $
+* $Id: task_energy.F,v 1.50 2008-07-10 22:28:15 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -163,6 +163,8 @@ c
       external task_smd_energy
       logical dc_energy
       external dc_energy
+      logical leps_energy
+      external leps_energy
 c
       logical status
       double precision dipole(3)
@@ -322,6 +324,8 @@ cedo         prefix = 'mp2'
      &         'n = energy>] [numerical || analytic] [ignore]'
          endif
          status = .false.
+      else if (theory .eq. 'leps') then
+         status = leps_energy(rtdb)
       else if (theory .eq. 'dangchang') then
          status = dc_energy(rtdb)
       else

@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.89 2008-05-20 17:52:02 marat Exp $
+* $Id: task.F,v 1.90 2008-07-10 22:28:15 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -202,7 +202,7 @@ c
          else if (inp_compare(.false.,'cphf', theory)) then
             status = cphf(rtdb)
          else if (inp_compare(.false.,'nbo', theory)) then
-            status = task_nbo(rtdb)
+c            status = task_nbo(rtdb)
          else if (inp_compare(.false.,'drdy', theory).or.
      &            inp_compare(.false.,'dirdyvtst', theory).or.
      &            inp_compare(.false.,'drdy_nwchem', theory)) then
@@ -324,6 +324,7 @@ c     *** task_ofpw handles ofpw specific "operations" ***
 
 c     *** task_smd handles smd specific "operations" ***
       else if (inp_compare(.false.,'smd',theory)) then
+        write(*,*) "going to task_smd"
         status = task_smd(rtdb)
 
       else
