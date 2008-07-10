@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.247 2008-05-29 22:18:35 jhammond Exp $
+# $Id: make_nwchem_config,v 1.248 2008-07-10 22:27:46 marat Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -20,7 +20,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop\
         property nwpw fft rimp2_grad python analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm qmd etrans tddft tce geninterface bq cons \
-        perfm neb dntmc transport smd nbo dangchang
+        perfm neb dntmc transport smd nbo dangchang leps
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -28,7 +28,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -loptim -ldftgrad -lplnwv -lnwdft -lgradients \
-                    -lcphf -lscfaux -lesp -lddscf -ldangchang -lguess -lhessian \
+                    -lcphf -lscfaux -lesp -lddscf -ldangchang -lleps -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lsmd \
                     -lcafe -lspace -lanalyze -ldiana -lqhop\
@@ -238,6 +238,7 @@ MOD_LIBS := $(patsubst perfm,-lperfm,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst neb,-lneb,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dntmc,-ldntmc,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dangchang,-ldangchang,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst leps,-lleps,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nbo,-lnbo,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ccca,-lccca,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
@@ -288,6 +289,7 @@ STUBROUTINES := $(patsubst property,property prop_input cosmo_input cosmo_initia
 STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dntmc,task_dntmc dntmc_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dangchang,dc_energy dangchang_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst leps,leps_energy ,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input ofpw_energy paw_energy paw_gradient task_paw task_pspw task_ofpw pspw_input pspw_energy pspw_gradient band_energy band_gradient task_band,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst smd,task_smd smd_input task_smd_energy task_smd_dynamics,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
