@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.52 2008-03-02 04:47:11 windus Exp $
+* $Id: task_gradient.F,v 1.53 2008-07-15 17:17:52 bojana Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -159,7 +159,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.52 2008-03-02 04:47:11 windus Exp $
+* $Id: task_gradient.F,v 1.53 2008-07-15 17:17:52 bojana Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -214,6 +214,8 @@ c
       logical mcscf_gradient, scf_gradient, grad_dft, task_num_grad
       external mcscf_gradient, scf_gradient, grad_dft, task_num_grad
       logical geom_rtdb_ncent
+      logical leps_gradient 
+      external leps_gradient
 c
       integer nelem, ncent
       logical status, numerical, ocosmo, xc_chktau
@@ -424,6 +426,9 @@ c
          status = task_num_grad(rtdb) ! Doing Oniom in a numerical fashion
       else if (theory .eq. 'dangchang') then
          status = task_num_grad(rtdb) ! Dang Chang only supports numerical gradients
+      else if (theory .eq. 'leps') then
+C         status = task_num_grad(rtdb)
+         status = leps_gradient(rtdb) 
       else
          call errquit('task_gradient: unknown theory',0, INPUT_ERR)
       endif
