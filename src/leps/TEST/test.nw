@@ -1,0 +1,25 @@
+permanent_dir /scratch2/bojana/NWCHEM-TEST
+scratch_dir /scratch2/bojana/scr1
+
+memory 800 mb
+echo
+
+title "       hexaachloroethene C2Cl6"
+
+start c2cl6
+
+geometry
+h  0.9326 0.0 0.0 
+h  0.0  0.0 0.0
+h  -0.9326 0.0 0.0
+end
+
+
+basis spherical
+ * Library 6-31+G* 
+end
+
+
+#task leps energy 
+task leps gradient 
+
