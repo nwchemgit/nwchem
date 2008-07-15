@@ -10,7 +10,7 @@
 #include "util.fh"
 #include "global.fh"
 #include "geom.fh"
-      logical leps_energy
+      logical leps_energy 
 c
       integer geom
       integer natom
@@ -18,21 +18,25 @@ c
       integer h_m,i_m
       integer h_q,i_q
       integer h_t,i_t
+      double precision eleps
 c
       write(*,*) "doing leps energy"
-c     load geometry
+      eleps=0.0 
+c     create geometry object 
       if (.not. geom_create(geom, 'geometry'))
      & call errquit('leps_getgeom: failed creating geometry',
      & 0,GEOM_ERR)
+C     load geometry into the object
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      & call errquit('leps_getgeom: no geometry',
      & 0,RTDB_ERR)
+C     get the number of centers 
       if (.not. geom_ncent(geom,natom))
      & call errquit('leps_getgeom: ncent error',
      & 0,GEOM_ERR)      
-
+c     print tgeometry
       if (.not. geom_print(geom))
-     & call errquit('leps_getgeom: ncent error',
+     & call errquit('leps_getgeom: print error',
      & 0,GEOM_ERR)      
 c    
 c     allocate memory for coordinates
@@ -50,21 +54,30 @@ c     allocate memory for coordinates
      & call errquit('leps_getgeom: tags not allocated',
      & natom,MA_ERR)
 
+C-----Finished allocating memory for info we get from database
+
+C ----- Fill up the local copies with data from geometry object
+C------- accessed by the geom handle
       if (.not. geom_cart_get(geom, natom, byte_mb(i_t),
      & dbl_mb(i_c), dbl_mb(i_q)))
      & call errquit('leps_getgeom: coord error',0,GEOM_ERR)
       if (.not. geom_masses_get(geom, natom, dbl_mb(i_m)))
      & call errquit('leps_getgeom:  mass error',0,GEOM_ERR)
+C--- now compute the leps energy
+      call leps_energy1(natom,dbl_mb(i_c),eleps)
+C--- end of leps energy computation
 
+C-----Print what you get out of the database
       call leps_energy0(natom,dbl_mb(i_c),dbl_mb(i_m),byte_mb(i_t))
- 
-      if (.not. rtdb_put(rtdb,'leps:energy',mt_dbl,1,0.0))
+C-----Calculate the energy
+      if (.not. rtdb_put(rtdb,'leps:energy',mt_dbl,1,eleps))
      & call errquit('leps_energy:  no energy ', 0,
      & RTDB_ERR)
       return
       END
 
       function leps_energy0(n,c,m,t)
+C THis function just prints the coordinates, masses and tags(names for the atoms)
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -87,6 +100,111 @@ c
        write(*,*) i,c(1,i),c(2,i),c(3,i),m(i),t(i)
       end do    
 
+      return
+      END
+
+      function leps_energy1(n,c0,eleps)
+C THis function calculates the leps energy and returns teh value
+C n is the number of atoms, c is array holding the coordinates 
+      implicit none
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "global.fh"
+#include "geom.fh"
+
+      double precision leps_energy1
+      integer n
+      double precision c(3,n),c0(3,n),eleps
+      double precision r(3),vk(3),vj(3),vleps
+      double precision dot,cosa,small,de(3),alp(3),re(3),del(3)
+      double precision tobohr, tohartree
+      integer i,j 
+      logical coll,out1
+      parameter (tobohr=0.529177249d+00)
+      parameter (tohartree=627.509451d+00)
+      data de     /109.4d+00,109.4d+00,109.4d+00/
+      data alp    /1.943d+00,1.943d+00,1.943d+00/
+      data re     /0.741d+00,0.741d+00,0.741d+00/
+      data del    /0.135d+00,0.135d+00,0.135d+00/
+
+      small = 0.0001
+      out1=.true.
+      coll=.false.
+c
+      eleps = 0.0
+      if (n.ne.3) then
+         write(*,*) "Number of atoms is not 3. Leps only works with 3"
+      endif 
+C----- convert the coordinates to angstrom (because alp and re are in angstroms)
+      do i=1,n
+        do j=1,n
+          c(j,i)=c0(j,i)*tobohr
+        enddo
+      end do
+
+C      do i=1,n
+C       write(*,*) i,c(1,i),c(2,i),c(3,i)
+C       write(*,*) i,c0(1,i),c0(2,i),c0(3,i)
+C      end do
+
+
+
+c   must make sure that r and c are in th right units
+C distance should be in angstroms, de (kcal/mol), alp (1/angs), re(angs), del(no unit)
+      r(1)=sqrt( (c(1,1)-c(1,2))**2+(c(2,1)-c(2,2))**2
+     1                             +(c(3,1)-c(3,2))**2 )
+      r(2)=sqrt( (c(1,2)-c(1,3))**2+(c(2,2)-c(2,3))**2
+     1                             +(c(3,2)-c(3,3))**2 )
+      r(3)=sqrt( (c(1,1)-c(1,3))**2+(c(2,1)-c(2,3))**2
+     1                             +(c(3,1)-c(3,3))**2 )
+
+C the dot product gives the colinearity chack, if dot is zero (i.e. small)
+C  dot=r1*r3 cosa
+C if a=180 or 0 degrees, cosa== -1 or 1
+      dot =      (c(1,1)-c(1,2))*(c(1,1)-c(1,3))+
+     1           (c(2,1)-c(2,2))*(c(2,1)-c(2,3))+
+     2           (c(3,1)-c(3,2))*(c(3,1)-c(3,3))
+      cosa=dot/(r(1)*r(3))
+
+      cosa=abs(cosa)
+      coll=abs(1.0-cosa).lt.small
+        
+      if(out1) then
+         write(*,*) 'de     = ',de
+         write(*,*) 'alp    = ',alp
+         write(*,*)  're     = ',re
+         write(*,*) 'del    = ',del
+      endif
+      if(coll) then
+         do i=1,3
+            vk(i)=  (de(i)/(4.0*(1.0+del(i))))*
+     1     (     (3.0+      del(i))*exp(-2.0*alp(i)*(r(i)-re(i)))
+     2      -2.0*(1.0  +3.0*del(i))*exp(-    alp(i)*(r(i)-re(i))) )
+            vj(i)=  (de(i)/(4.0*(1.0+del(i))))*
+     1     (     (1.0  +3.0*del(i))*exp(-2.0*alp(i)*(r(i)-re(i)))
+     2      -2.0*(3.0+      del(i))*exp(-    alp(i)*(r(i)-re(i))) )
+         enddo
+         vleps= vk(1)+vk(2)+vk(3)
+     1         -sqrt(((vj(1)-vj(2))**2 + (vj(2)-vj(3))**2 +
+     2                (vj(1)-vj(3))**2                      )/2.0 )
+
+C------- convert the energy from kcal_mol (because de is inkcal_mol) to hartree
+         eleps=vleps/tohartree
+         if(out1) then
+             write(6,*)'r      = ',r
+             write(6,*)'vk     = ',vk
+             write(6,*)'vj     = ',vj
+             write(6,*)'eleps (kcal/mol) = ',eleps
+c            call fiflsh(iw)
+         endif
+      else
+         eleps=0.0
+      endif
 
       return
       END
+
