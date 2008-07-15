@@ -1,6 +1,6 @@
       subroutine get_hash_block(d_file,array,size,hash,key)
 c
-c $Id: get_hash_block.F,v 1.6 2008-06-10 11:37:09 jhammond Exp $
+c $Id: get_hash_block.F,v 1.7 2008-07-15 00:03:43 jhammond Exp $
 c
       implicit none
 #include "tce.fh"
@@ -47,7 +47,7 @@ c
       subroutine get_hash_block_i(d_file,array,size,hash,key,
      &                            g2b,g1b,g4b,g3b)
 c
-c $Id: get_hash_block.F,v 1.6 2008-06-10 11:37:09 jhammond Exp $
+c $Id: get_hash_block.F,v 1.7 2008-07-15 00:03:43 jhammond Exp $
 c
       implicit none
 #include "tce.fh"
@@ -69,16 +69,7 @@ c
        call tce_hash(hash,key,offset)
        call get_block(d_file,array,size,offset)
       else if (intorb) then
-        if ((d_file.eq.d_v2orb).and.(io_v2.eq.IOSF)) then
-c          iauxo=k_v2spin_offset
-c          call tce_hash_ind(iauxo,key,indexc)
-          qy2=g2b
-          qy1=g1b
-          qy4=g4b
-          qy3=g3b
-          call get_block_ind_sf_i(d_file,array,size,key,indexc,
-     &                            qy2,qy1,qy4,qy3)
-        else if ((d_file.eq.d_v2orb).and.(io_v2.ne.IOSF)) then
+        if ((d_file.eq.d_v2orb).and.(io_v2.ne.IOSF)) then
 c          iauxo=k_v2spin_offset
 c          call tce_hash_ind(iauxo,key,indexc)
           qy2=g2b
@@ -87,6 +78,17 @@ c          call tce_hash_ind(iauxo,key,indexc)
           qy3=g3b
           call get_block_ind_i(d_file,array,size,key,indexc,
      &                         qy2,qy1,qy4,qy3)
+        else if ((d_file.eq.d_v2orb).and.(io_v2.eq.IOCHOP)) then
+c          This case is for the case where the two-electron integrals
+c          are chopped up into many files to get around the 32-bit
+c          integer problem on BlueGene/P
+        else if ((d_file.eq.d_v2orb).and.(io_v2.eq.IOSF)) then
+          qy2=g2b
+          qy1=g1b
+          qy4=g4b
+          qy3=g3b
+          call get_block_ind_sf_i(d_file,array,size,key,indexc,
+     &                            qy2,qy1,qy4,qy3)
         else
           call tce_hash(hash,key,offset)
           call get_block(d_file,array,size,offset)
