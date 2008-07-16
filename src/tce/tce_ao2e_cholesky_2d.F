@@ -1,7 +1,7 @@
-      subroutine tce_ao2e_cholesky(rtdb,              ! input
-     &                             d_ao2e)            ! output (first full AO matrix, then replaced by full Cholesky factor)
+      subroutine tce_ao2e_cholesky_2d(rtdb,              ! input
+     &                               d_ao2e)            ! output (first full AO matrix, then replaced by full Cholesky factor)
 c
-c $Id: tce_ao2e_cholesky.F,v 1.2 2008-07-16 21:47:09 jhammond Exp $
+c $Id: tce_ao2e_cholesky_2d.F,v 1.1 2008-07-16 21:49:51 jhammond Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -67,19 +67,19 @@ c      print*,'initialize basis set'
 c#endif
 c      basis_name = 'ao basis'
 c      if (.not.bas_create(ao_bas_han,basis_name))
-c     1  call errquit('tce_ao2e_cholesky: bas_create failed',
+c     1  call errquit('tce_ao2e_cholesky_2d: bas_create failed',
 c     2               0,BASIS_ERR)
 c      if (.not.bas_rtdb_load(rtdb,geom,ao_bas_han,basis_name))
-c     1  call errquit('tce_ao2e_cholesky: basis not found',
+c     1  call errquit('tce_ao2e_cholesky_2d: basis not found',
 c     2               0,BASIS_ERR)
 c      if (.not.int_normalize(rtdb,ao_bas_han))
-c     1  call errquit('tce_ao2e_cholesky: int_normalize failed',
+c     1  call errquit('tce_ao2e_cholesky_2d: int_normalize failed',
 c     2               0,INT_ERR)
 c      if (.not.bas_numbf(ao_bas_han,nbf))
-c     1  call errquit('tce_ao2e_cholesky: failed to read nbf',
+c     1  call errquit('tce_ao2e_cholesky_2d: failed to read nbf',
 c     2               0,BASIS_ERR)
 c      if (.not.bas_numcont(ao_bas_han,nshells))
-c     1  call errquit('tce_ao2e_cholesky: failed to read nshells',
+c     1  call errquit('tce_ao2e_cholesky_2d: failed to read nshells',
 c     2               0,BASIS_ERR)
 c
 c     ===========
@@ -90,7 +90,7 @@ c
       print*,'starting GA allocation'
 #endif
 c      if (.not.(ioalg.eq.2)) then ! ioalg not accessible variable right now
-c        call errquit('tce_ao2e_cholesky: you must use ioalg=2 (GA);
+c        call errquit('tce_ao2e_cholesky_2d: you must use ioalg=2 (GA);
 c     1                your chosen ioalg is',ioalg,GA_ERR)
 c      endif
       rank_aoints = nbf*nbf
@@ -106,7 +106,7 @@ c      endif
      1  d_ao2e)) then
         write(LuOut,*) ' available GA memory ',
      1    ga_memory_avail(),' bytes' 
-        call errquit('tce_ao2e_cholesky: ga_create failed; 
+        call errquit('tce_ao2e_cholesky_2d: ga_create failed; 
      1                filesize in MB is',size_aoints,GA_ERR)
       endif
 c
@@ -114,14 +114,14 @@ c     =======================
 c     Initialize integral API
 c     =======================
 c
-#ifdef DEBUG_PRINT
-      print*,'initialize integral API'
-#endif
+c#ifdef DEBUG_PRINT
+c      print*,'initialize integral API'
+c#endif
       call int_mem_2e4c(work1,work2)
       if (.not.ma_push_get(mt_dbl,work1,'work1',l_work1,k_work1))
-     1  call errquit('tce_ao2e_cholesky: MA problem work1',0,MA_ERR)
+     1  call errquit('tce_ao2e_cholesky_2d: MA problem work1',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,work2,'work2',l_work2,k_work2))
-     1  call errquit('tce_ao2e_cholesky: MA problem work2',1,MA_ERR)
+     1  call errquit('tce_ao2e_cholesky_2d: MA problem work2',1,MA_ERR)
 c
 c     ================
 c     Loop over shells
@@ -136,6 +136,18 @@ c
 c
 c     BEGIN KL LOOPS
 c
+#ifdef DEBUG_PRINT
+      print*,'nshells = ',nshells
+      do ish=1,nshells
+        if (.not.bas_cn2bfr(ao_bas_han,ish,ilo,ihi))
+     1    call errquit('tce_ao2e_cholesky_2d: basis fn range problem i',
+     2                 ish,BASIS_ERR)
+          irange = ihi - ilo + 1
+          write(LuOut,9900) 'i',ish,ilo,ihi,irange
+      enddo
+c      call errquit('manual stop',0,CALC_ERR)
+#endif
+c
       do lsh=1,nshells
         do ksh=1,nshells
           if (next.eq.count) then
@@ -143,18 +155,18 @@ c
      1        write(LuOut,9190) ksh,lsh,ga_nodeid()
 c
             if (.not.bas_cn2bfr(ao_bas_han,ksh,klo,khi))
-     1        call errquit('tce_ao2e_cholesky: 
+     1        call errquit('tce_ao2e_cholesky_2d: 
      2        basis fn range problem K',ksh,BASIS_ERR)
             krange = khi - klo + 1
 c
             if (.not.bas_cn2bfr(ao_bas_han,lsh,llo,lhi))
-     1        call errquit('tce_ao2e_cholesky: 
+     1        call errquit('tce_ao2e_cholesky_2d: 
      2        basis fn range problem L',lsh,BASIS_ERR)
             lrange = lhi - llo + 1
 c
             ijkl_patch_size = rank_aoints*krange*lrange
-            if (.not.ma_push_get(mt_dbl,ijkl_patch_size,
-     1        'ao2e',l_ijkl,k_ijkl)) call errquit('tce_ao2e_cholesky: 
+            if (.not.ma_push_get(mt_dbl,ijkl_patch_size,'ao2e',
+     1        l_ijkl,k_ijkl)) call errquit('tce_ao2e_cholesky_2d: 
      2        MA problem k_ijkl',ijkl_patch_size,MA_ERR)
 c
             do ijkl_offset = 1,ijkl_patch_size
@@ -173,22 +185,21 @@ c
      1              write(LuOut,9191) ish,jsh,ga_nodeid()
 c
                   if (.not.bas_cn2bfr(ao_bas_han,ish,ilo,ihi))
-     1              call errquit('tce_ao2e_cholesky: 
+     1              call errquit('tce_ao2e_cholesky_2d: 
      2              basis fn range problem I',ish,BASIS_ERR)
                   irange = ihi - ilo + 1
 c
                   if (.not.bas_cn2bfr(ao_bas_han,jsh,jlo,jhi))
-     1              call errquit('tce_ao2e_cholesky: 
+     1              call errquit('tce_ao2e_cholesky_2d: 
      2              basis fn range problem J',jsh,BASIS_ERR)
                   jrange = jhi - jlo + 1
 c
 c                 dbl_mb(k_work1) = eri
 c                 eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh).ket_g(lsh)>
 c
-#ifdef DEBUG_PRINT
-                  print*,'calling int_2e4c'
-                  print*,'ao_bas_han = ',ao_bas_han
-#endif
+c#ifdef DEBUG_PRINT
+c                  print*,'calling int_2e4c'
+c#endif
                   call int_2e4c(ao_bas_han,ish,ksh,ao_bas_han,jsh,
      1              lsh,work2,dbl_mb(k_work2),work1,dbl_mb(k_work1))
 c
@@ -196,9 +207,9 @@ c =============== BEGIN INNER LOOPS ==============
 c
 c This should be replaced by a tce_sort-like routine.
 c
-#ifdef DEBUG_PRINT
-                  print*,'start transpose'
-#endif
+c#ifdef DEBUG_PRINT
+c                  print*,'start transpose'
+c#endif
                   kl = 0
                   do l = llo,lhi
                     do k = klo,khi
@@ -218,9 +229,9 @@ c
                       enddo                ! j
                     enddo                  ! k
                   enddo                    ! l
-#ifdef DEBUG_PRINT
-                  print*,'end transpose'
-#endif
+c#ifdef DEBUG_PRINT
+c                  print*,'end transpose'
+c#endif
 c
 c =============== END INNER LOOPS ==============
 c
@@ -238,9 +249,7 @@ c
                   write(LuOut,9900) 'j',jsh,jlo,jhi,jrange
                   write(LuOut,9900) 'k',ksh,klo,khi,krange
                   write(LuOut,9900) 'l',lsh,llo,lhi,lrange
-                  print*,'call ga_put'
- 9900 format(a1,'-shell number ',i3,': lo = ',i3,' hi = ',i3,
-     &                                             ' range = ',i3)
+c                  print*,'call ga_put'
 #endif
 c              call ga_put(d_ao2e, ij_sh_offset_lo, ij_sh_offset_hi, 
 c     1                    kl_sh_offset_lo, kl_sh_offset_hi, 
@@ -251,8 +260,8 @@ c
 c           END IJ LOOPS
 c
             if (.not.ma_pop_stack(l_ijkl)) 
-     1        call errquit('tce_ao2e_cholesky: ma_pop_stack of l_ijkl 
-     2                      failed',16,MA_ERR)
+     1        call errquit('tce_ao2e_cholesky_2d: 
+     2                     ma_pop_stack of l_ijkl failed',16,MA_ERR)
             next = nxtval(nprocs)
           endif
           count = count + 1
@@ -281,5 +290,7 @@ c
  9190 format(/,'k- and l-shells',2i3,' have been assigned to node ',i3)
  9191 format(/,'i- and j-shells',2i3,' have been assigned to node ',i3)
  9200 format(/,'k and l',2i3)
+ 9900 format(a1,'-shell number ',i3,': lo = ',i3,' hi = ',i3,
+     &                                             ' range = ',i3)
       return
       end
