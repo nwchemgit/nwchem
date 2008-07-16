@@ -10,7 +10,7 @@
 #include "util.fh"
 #include "global.fh"
 #include "geom.fh"
-      logical leps_energy 
+      logical leps_energy
 c
       integer geom
       integer natom
@@ -18,8 +18,8 @@ c
       integer h_m,i_m
       integer h_q,i_q
       integer h_t,i_t
-      double precision eleps
-c
+      double precision eleps, leps_energy1
+
       write(*,*) "doing leps energy"
       eleps=0.0 
 c     create geometry object 
@@ -64,7 +64,7 @@ C------- accessed by the geom handle
       if (.not. geom_masses_get(geom, natom, dbl_mb(i_m)))
      & call errquit('leps_getgeom:  mass error',0,GEOM_ERR)
 C--- now compute the leps energy
-      call leps_energy1(natom,dbl_mb(i_c),eleps)
+      eleps=leps_energy1(natom,dbl_mb(i_c),eleps)
 C--- end of leps energy computation
 
 C-----Print what you get out of the database
@@ -73,10 +73,26 @@ C-----Calculate the energy
       if (.not. rtdb_put(rtdb,'leps:energy',mt_dbl,1,eleps))
      & call errquit('leps_energy:  no energy ', 0,
      & RTDB_ERR)
+
+C     GET RID OF MEMORY WITH MA_CHOP
+C     DEALLOCATE THE FIRST/LOWEST PART OF THE STACK
+C     THIS ACTION DEALLOCATES ALL ADDITIONAL
+C     MEMORY ADDED TO THE STACK AFTER LOWEST PART
+
+
+C     DESTROY GEOM. OBJECT
+
+C      WRITE(6,*) 'GEOM before destory', geom
+
+      if (.not. geom_destroy(geom))
+     & call errquit('leps_getgeom:  geom_destroy failed',
+     & 911,GEOM_ERR)
+
+
       return
       END
 
-      function leps_energy0(n,c,m,t)
+      subroutine leps_energy0(n,c,m,t)
 C THis function just prints the coordinates, masses and tags(names for the atoms)
       implicit none
 #include "inp.fh"
@@ -88,11 +104,11 @@ C THis function just prints the coordinates, masses and tags(names for the atoms
 #include "global.fh"
 #include "geom.fh"
 
-      logical leps_energy0
+c      logical leps_energy0
       integer n
-      double precision c(3,n)
-      double precision m(n)
-      character*16 t(n)
+      double precision c(3,3)
+      double precision m(3)
+      character*16 t(3)
 c
       integer i
 
@@ -103,7 +119,24 @@ c
       return
       END
 
+      subroutine leps_energy_test(n,c0,eleps)
+            implicit none
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "global.fh"
+#include "geom.fh"
+c      double precision leps_energy_test
+      integer n
+      double precision c0(3,3),eleps
+      eleps = 0.15 
+
+      end
       function leps_energy1(n,c0,eleps)
+c      subroutine leps_energy1(n,c0,eleps)
 C THis function calculates the leps energy and returns teh value
 C n is the number of atoms, c is array holding the coordinates 
       implicit none
@@ -118,7 +151,7 @@ C n is the number of atoms, c is array holding the coordinates
 
       double precision leps_energy1
       integer n
-      double precision c(3,n),c0(3,n),eleps
+      double precision c(3,3),c0(3,3),eleps
       double precision r(3),vk(3),vj(3),vleps
       double precision dot,cosa,small,de(3),alp(3),re(3),del(3)
       double precision tobohr, tohartree
@@ -132,7 +165,7 @@ C n is the number of atoms, c is array holding the coordinates
       data del    /0.135d+00,0.135d+00,0.135d+00/
 
       small = 0.0001
-      out1=.true.
+      out1=.false.
       coll=.false.
 c
       eleps = 0.0
@@ -140,8 +173,8 @@ c
          write(*,*) "Number of atoms is not 3. Leps only works with 3"
       endif 
 C----- convert the coordinates to angstrom (because alp and re are in angstroms)
-      do i=1,n
-        do j=1,n
+      do i=1,3
+        do j=1,3
           c(j,i)=c0(j,i)*tobohr
         enddo
       end do
@@ -204,6 +237,7 @@ c            call fiflsh(iw)
       else
          eleps=0.0
       endif
+      leps_energy1=eleps
 
       return
       END
