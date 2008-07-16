@@ -1,7 +1,7 @@
-#$Id: GNUmakefile,v 1.69 2008-07-16 23:39:46 jhammond Exp $
+#$Id: GNUmakefile,v 1.70 2008-07-16 23:40:31 jhammond Exp $
 #
 
-SUBDIRS = include #ccsd ccsd_lambda eomccsd \
+SUBDIRS = include ccsd ccsd_lambda eomccsd \
           ccsd_t cr-eomccsd_t lrh emb diis2 \
           response ccsd_yr ccsd_alpha ccsd_beta \
           ccd lccd lccsd qcisd cc3 \
