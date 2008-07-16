@@ -15,17 +15,37 @@
       integer h_c,i_c,h_g,i_g 
       integer h_q,i_q
       integer h_t,i_t
-
+c      integer h_g1,i_g1
+c      double precision gg(3,3),c(3,3),eleps
 c      double precision gradient(3,3) ! can do this because LEPS is only for triatomic collinier sys
 c
 c
       write(*,*) "doing leps_gradient"
-      call leps_energy(rtdb)
-c     create geometry object
+c      natom=3
+c      eleps=0.0
+c      call leps_energy(rtdb)
+c      c(1,1) =0.0
+c      c(2,1)= 0.0
+c      c(3,1)= 1.76235846
+
+c      c(1,2) = 0.0
+c      c(2,2)= 0.0
+c      c(3,2)= 0.0
+
+c      c(1,3) = 0.0
+c      c(2,3)= 0.0
+c      c(3,3)= -1.76235846
+       call leps_energy(rtdb)
+c      call leps_energy1(natom,c,eleps)
+c      if (.not. rtdb_put(rtdb,'leps:energy',mt_dbl,1,eleps))
+c     & call errquit('leps_energy:  no energy ', 0,
+c     & RTDB_ERR)
+c      write(*,*) "LEPS = ",eleps 
+c----   create geometry object
       if (.not. geom_create(geom, 'geometry'))
      & call errquit('leps_getgeom: failed creating geometry',
      & 0,GEOM_ERR)
-C     load geometry into the object
+c---    load geometry into the object
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      & call errquit('leps_getgeom: no geometry',
      & 0,RTDB_ERR)
@@ -71,21 +91,36 @@ C------- accessed by the geom handle
 
 C ------ Calculate the gradient by giving the coordinates as input and 
       call leps_gradient1(natom,nelem,dbl_mb(i_c),dbl_mb(i_g))
-      call leps_gradient0(natom,nelem,dbl_mb(i_g))  
-
+      call leps_gradient0(natom,nelem,dbl_mb(i_g))
+c      call leps_gradient1(natom,nelem,c,gg)  
+c      call leps_gradient1(natom,nelem,dbl_mb(i_c),gg)
+c      call leps_gradient0(natom,nelem,gg)
 C-------- Store the gradient into the database
       if (.not. rtdb_put(rtdb,'leps:gradient',mt_dbl,nelem,
      &     dbl_mb(i_g)))
      & call errquit('leps_gradient:  no grad ', 0,
      & RTDB_ERR)
 
+c      if (.not. rtdb_put(rtdb,'leps:gradient',mt_dbl,nelem,
+c     &     gg))
+c     & call errquit('leps_gradient:  no grad ', 0,
+c     & RTDB_ERR)
 
-      write(*,*) "looks like no error in doing leps_gradient"
+    
+c      write(*,*) "looks like no error in doing leps_gradient"
+C ---- Let's see if I can get the gradient from the database
+c      if (.not. rtdb_get(rtdb,'leps:gradient',mt_dbl,nelem,
+c     &     dbl_mb(i_g1)))
+c     & call errquit('leps_gradient1:  no grad ', 0,
+c     & RTDB_ERR)
+c       write(*,*) "looks like properly stored in database"  
+c       call leps_gradient0(natom,nelem,dbl_mb(i_g1))
 
+C ---
       return
       end 
 
-      function leps_gradient0(n,nel,grad)
+      subroutine leps_gradient0(n,nel,grad)
 C THis function just prints the coordinates, masses and tags(names for the atoms)
       implicit none
 #include "inp.fh"
@@ -97,12 +132,12 @@ C THis function just prints the coordinates, masses and tags(names for the atoms
 #include "global.fh"
 #include "geom.fh"
 
-      logical leps_gradient0
+c      logical leps_gradient0
       integer n,nel
-      double precision grad(3,n)
+      double precision grad(3,3)
 c
       integer i
-      write(*,*) 'Inside leps_gradien0:', nel
+      write(*,*) 'Leps_gradient:', nel
 
       do i=1,n
        write(*,*) i,grad(1,i),grad(2,i),grad(3,i)
@@ -111,7 +146,7 @@ c
       return
       END
 
-      function leps_gradient1(n,nel,c0,grad)
+      subroutine leps_gradient1(n,nel,c0,grad)
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -121,14 +156,14 @@ c
 #include "util.fh"
 #include "global.fh"
 #include "geom.fh"
-      logical leps_gradient1
+      logical out1 
       integer n,nel ! number of atoms
       integer i,j,jat
-      double precision c0(3,n),grad(3,n)
+      double precision c0(3,3),grad(3,3)
 
 
 c------from leps energy
-      double precision c(3,n),dr(3,3,3),dvk(3,3,3),dvj(3,3,3)
+      double precision c(3,3),dr(3,3,3),dvk(3,3,3),dvj(3,3,3)
       double precision r(3),vj(3),sqrj
       double precision de(3),alp(3),re(3),del(3)
       double precision tobohr, tohartree
@@ -139,6 +174,7 @@ c------from leps energy
       data re     /0.741d+00,0.741d+00,0.741d+00/
       data del    /0.135d+00,0.135d+00,0.135d+00/
 
+      out1=.false.
 C----- convert the coordinates to angstrom (because alp and re are in angstroms)
       do i=1,n
         do j=1,n
@@ -151,6 +187,7 @@ C----- convert the coordinates to angstrom (because alp and re are in angstroms)
      1                             +(c(3,2)-c(3,3))**2 )
       r(3)=sqrt( (c(1,1)-c(1,3))**2+(c(2,1)-c(2,3))**2
      1                             +(c(3,1)-c(3,3))**2 )
+
 
 c ------- Just cause I like all my arrays to be set to zero before use  
       do jat=1,n
@@ -165,6 +202,8 @@ c ------- Just cause I like all my arrays to be set to zero before use
       enddo
 c      write(6,*) 'r 0 = ',r
 c      write(6,*) 'dr 0 = ',dr
+c      write(6,*) 'C =',c
+c      write(6,*)'c0=',c0
 C derivatives of the coordinates dr(a,b,c) is der(r_a)/der(b_c)
 C r1
       dr(1,1,1)=(c(1,1)-c(1,2))/r(1)
@@ -173,6 +212,7 @@ C r1
       dr(1,1,2)=-dr(1,1,1)
       dr(1,2,2)=-dr(1,2,1)
       dr(1,3,2)=-dr(1,3,1)
+c      write (*,*) 'dr(1,3,2):',dr(1,3,2)
 c r2
       dr(2,1,2)=(c(1,2)-c(1,3))/r(2)
       dr(2,2,2)=(c(2,2)-c(2,3))/r(2)
@@ -180,6 +220,7 @@ c r2
       dr(2,1,3)=-dr(2,1,2)
       dr(2,2,3)=-dr(2,2,2)
       dr(2,3,3)=-dr(2,3,2)
+c      write (*,*) 'dr(2,3,3):',dr(2,3,3)
 c r3
       dr(3,1,1)=(c(1,1)-c(1,3))/r(3)
       dr(3,2,1)=(c(2,1)-c(2,3))/r(3)
@@ -187,6 +228,7 @@ c r3
       dr(3,1,3)=-dr(3,1,1)
       dr(3,2,3)=-dr(3,2,1)
       dr(3,3,3)=-dr(3,3,1)
+c      write (*,*) 'dr(3,3,3):',dr(3,3,3)
 
 c      write(6,*) 'dr  = ',dr
       do i=1,3
@@ -214,7 +256,7 @@ c      write(6,*) 'dr  = ',dr
       enddo
          sqrj=  sqrt(((vj(1)-vj(2))**2 + (vj(2)-vj(3))**2 +
      1                (vj(1)-vj(3))**2                      )/2.0 )
-c         write(*,*) 'sqrj :', sqrj
+
 c           do jat=1,n
 c             do j=1,3
 c                do i=1,3
@@ -237,16 +279,16 @@ c           enddo
             enddo
          enddo
               
-         write (*,*) 'grad 0: ',grad
-         do jat=1,n
-            do j=1,3
-               grad(j,jat)=(   dvk(1,j,jat)+dvk(2,j,jat)+dvk(3,j,jat)
-     1                   -( (dvj(1,j,jat)
-     2                     -dvj(2,j,jat))*(vj(1)-vj(2))
-     3                     +(dvj(2,j,jat)
-     4                     -dvj(3,j,jat))*(vj(2)-vj(3))
-     5                     +(dvj(1,j,jat)
-     6                     -dvj(3,j,jat))*(vj(1)-vj(3)) )/sqrj/2.0)
+c         write (*,*) 'grad 0: ',grad
+c         do jat=1,n
+c            do j=1,3
+c               grad(j,jat)=(   dvk(1,j,jat)+dvk(2,j,jat)+dvk(3,j,jat)
+c     1                   -( (dvj(1,j,jat)
+c     2                     -dvj(2,j,jat))*(vj(1)-vj(2))
+c     3                     +(dvj(2,j,jat)
+c     4                     -dvj(3,j,jat))*(vj(2)-vj(3))
+c     5                     +(dvj(1,j,jat)
+c     6                     -dvj(3,j,jat))*(vj(1)-vj(3)) )/sqrj/2.0)
 
 c     1                   -( dvj(1,j,jat)*(vj(1)-vj(2))
 c     2                     -dvj(2,j,jat)*(vj(1)-vj(2))
@@ -254,41 +296,22 @@ c     3                     +dvj(2,j,jat)*(vj(2)-vj(3))
 c     4                     -dvj(3,j,jat)*(vj(2)-vj(3))
 c     5                     +dvj(1,j,jat)*(vj(1)-vj(3))
 c     6                     -dvj(3,j,jat)*(vj(1)-vj(3)) )/sqrj/2.0)
-     7                   /tohartree*tobohr
-            enddo
-         enddo
-      write (*,*) 'grad 1: ',grad
+c     7                   /tohartree*tobohr
+c            enddo
+c         enddo
+         if (out1) then
+          write(*,*) 'sqrj :', sqrj
+           write(*,*) 'vj :', vj
+           write(*,*) 'r: ',r(1),r(2),r(3)
+           write(*,*) 'dr :', dr
+           write(*,*) 'dvk :',dvk
+           write(*,*) 'dvj :', dvj
+           write(*,*) 'c :',c
+           write(*,*) 'c0 :',c0
+           write (*,*) 'grad :',grad
+         endif
+c      write (*,*) 'grad 1: ',grad
 c      write (*,*) 'test - grad', 0.0+0.0+0.0 
       return
       end
 
-      subroutine leps_gradient_test(n,nel,c0,gradient)
-      implicit none
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "stdio.fh"
-#include "errquit.fh"
-#include "util.fh"
-#include "global.fh"
-#include "geom.fh"
-c      logical leps_gradient1
-      integer n,nel ! number of atoms
-      integer i,j
-      double precision c0(3,n),gradient(3,n),cnt
-    
-
-c------from leps energy
-
-      write(*,*) 'Inside leps_gradien1:'
-C----- Testing with rangom values
-      cnt=0.0
-      do i=1,n
-        do j=1,n
-             cnt=cnt+1.0
-             gradient(i,j)=cnt
-        enddo
-      enddo
-C-end of test
-      return 
-      end 
