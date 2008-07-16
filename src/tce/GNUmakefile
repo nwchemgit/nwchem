@@ -1,7 +1,7 @@
-#$Id: GNUmakefile,v 1.68 2008-07-16 21:09:50 jhammond Exp $
+#$Id: GNUmakefile,v 1.69 2008-07-16 23:39:46 jhammond Exp $
 #
 
-SUBDIRS = include ccsd ccsd_lambda eomccsd \
+SUBDIRS = include #ccsd ccsd_lambda eomccsd \
           ccsd_t cr-eomccsd_t lrh emb diis2 \
           response ccsd_yr ccsd_alpha ccsd_beta \
           ccd lccd lccsd qcisd cc3 \
@@ -59,7 +59,7 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_ao2e_new.o tce_tile_new.o tce_init_new.o \
       tce_mo2e_zones_4a_disk_4s_new_patch.o tce_mo2e_zones_4a_disk_4s_new_patch_m2.o \
       tce_mo2e_zones_4a_disk_4s_new_patch_m3.o tce_ao2e_disk.o tce_mo2e_disk.o \
-      tce_mo2e_disk_2eorb.o tce_mo2e_incore_2eorb.o tce_mo2e_incore_2eorb.o \
+      tce_mo2e_disk_2eorb.o tce_mo2e_incore_2eorb.o tce_mo2e_incore_2eorb_split.o \
       tce_mo2e_ga_sf_hybrid.o
 
 #define SADAYSORT
@@ -93,7 +93,7 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_mo2e_zones_4a_disk_ga.F tce_mo2e_zones_4a_disk_ga_chop.F\
             tce_mo2e_zones_4a_disk_4s_new_patch.F\
             tce_mo2e_zones_4a_disk_2s_new.F tce_mo2e_zones_4a_disk_4s_new_patch_m2.F\
-            tce_mo2e_disk_2eorb.F tce_mo2e_incore_2eorb.F tce_mo2e_incore_2eorb.F \
+            tce_mo2e_disk_2eorb.F tce_mo2e_incore_2eorb.F tce_mo2e_incore_2eorb_split.F \
             tce_mo2e_ga_sf_hybrid.F\
             tce_diagnose_t1.F ddotfile.F tce_ao2e_cholesky.F tce_energy.F
 
