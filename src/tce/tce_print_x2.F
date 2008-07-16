@@ -1,6 +1,6 @@
       subroutine tce_print_x2(d_r2,k_r2_offset,r2_thresh)
 c
-c $Id: tce_print_x2.F,v 1.5 2008-07-10 16:12:10 d3p975 Exp $
+c $Id: tce_print_x2.F,v 1.6 2008-07-16 02:39:31 jhammond Exp $
 c
 c Prints the X2 tensor
 c
@@ -69,18 +69,18 @@ c
                 spin_h3 = spinnames(int_mb(k_spin+h3b-1))
                 spin_h4 = spinnames(int_mb(k_spin+h4b-1))
                 if (nodezero) write(LuOut,9010)
-c     1            int_mb(k_offset+p1b-1)+p1,irrep_p1,spin_p1,
-c     2            int_mb(k_offset+p2b-1)+p2,irrep_p2,spin_p2,
-c     3            int_mb(k_offset+h3b-1)+h3,irrep_h3,spin_h3,
-c     4            int_mb(k_offset+h4b-1)+h4,irrep_h4,spin_h4,
-     1            int_mb(k_mo_index+int_mb(k_offset+p1b-1)+p1-1),
-     1            irrep_p1,spin_p1,
-     2            int_mb(k_mo_index+int_mb(k_offset+p2b-1)+p2-1),
-     2            irrep_p2,spin_p2,
-     3            int_mb(k_mo_index+int_mb(k_offset+h3b-1)+h3-1),
-     3            irrep_h3,spin_h3,
-     4            int_mb(k_mo_index+int_mb(k_offset+h4b-1)+h4-1),
-     4            irrep_h4,spin_h4,
+     1            int_mb(k_offset+p1b-1)+p1,irrep_p1,spin_p1,
+     2            int_mb(k_offset+p2b-1)+p2,irrep_p2,spin_p2,
+     3            int_mb(k_offset+h3b-1)+h3,irrep_h3,spin_h3,
+     4            int_mb(k_offset+h4b-1)+h4,irrep_h4,spin_h4,
+c     1            int_mb(k_mo_index+int_mb(k_offset+p1b-1)+p1-1),
+c     1            irrep_p1,spin_p1,
+c     2            int_mb(k_mo_index+int_mb(k_offset+p2b-1)+p2-1),
+c     2            irrep_p2,spin_p2,
+c     3            int_mb(k_mo_index+int_mb(k_offset+h3b-1)+h3-1),
+c     3            irrep_h3,spin_h3,
+c     4            int_mb(k_mo_index+int_mb(k_offset+h4b-1)+h4-1),
+c     4            irrep_h4,spin_h4,
      5            dbl_mb(k_r2+i-1)
               endif
                       enddo
@@ -98,7 +98,7 @@ c     4            int_mb(k_offset+h4b-1)+h4,irrep_h4,spin_h4,
       enddo
       call ga_sync()
  9000 format(/,1x,a)
- 9010 format(1x,i3,a4,'(',a5,') ',i3,a4,'(',a5,') --- ',
-     1          i3,a4,'(',a5,') ',i3,a4,'(',a5,')',f20.10)
+ 9010 format(1x,i5,a4,'(',a5,') ',i5,a4,'(',a5,') --- ',
+     1          i5,a4,'(',a5,') ',i5,a4,'(',a5,')',f20.10)
       return
       end

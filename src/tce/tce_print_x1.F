@@ -1,6 +1,6 @@
       subroutine tce_print_x1(d_r1,k_r1_offset,r1_thresh)
 c
-c $Id: tce_print_x1.F,v 1.5 2008-07-10 16:11:35 d3p975 Exp $
+c $Id: tce_print_x1.F,v 1.6 2008-07-16 02:39:31 jhammond Exp $
 c
 c Prints the X1 tensor
 c
@@ -52,13 +52,13 @@ c
                   spin_p = spinnames(int_mb(k_spin+p1b-1))
                   spin_h = spinnames(int_mb(k_spin+h2b-1))
                   if (nodezero) write(LuOut,9010) 
-c     1              int_mb(k_offset+p1b-1)+p1,irrep_p,spin_p,
-c     2              int_mb(k_offset+h2b-1)+h2,irrep_h,spin_h,
-     1              int_mb(k_mo_index+int_mb(k_offset+p1b-1)+p1-1),
-     1              irrep_p,spin_p,
-     2              int_mb(k_mo_index+int_mb(k_offset+h2b-1)+h2-1),
-     2              irrep_h,spin_h,
-     2              dbl_mb(k_r1+i-1)
+     1              int_mb(k_offset+p1b-1)+p1,irrep_p,spin_p,
+     2              int_mb(k_offset+h2b-1)+h2,irrep_h,spin_h,
+c     1              int_mb(k_mo_index+int_mb(k_offset+p1b-1)+p1-1),
+c     1              irrep_p,spin_p,
+c     2              int_mb(k_mo_index+int_mb(k_offset+h2b-1)+h2-1),
+c     2              irrep_h,spin_h,
+     3              dbl_mb(k_r1+i-1)
                 endif
               enddo
             enddo
@@ -71,6 +71,6 @@ c     2              int_mb(k_offset+h2b-1)+h2,irrep_h,spin_h,
       enddo
       call ga_sync()
  9000 format(/,1x,a)
- 9010 format(1x,i3,a4,'(',a5,') --- ',i3,a4,'(',a5,')',f20.10)
+ 9010 format(1x,i5,a4,'(',a5,') --- ',i5,a4,'(',a5,')',f20.10)
       return
       end
