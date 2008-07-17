@@ -1,0 +1,10 @@
+c
+c $Id: md_data.fh,v 1.1 2008-07-17 22:53:00 marat Exp $
+c
+      integer i_c,h_c
+
+
+      common/md_data/
+     &                     i_c,h_c
+
+
