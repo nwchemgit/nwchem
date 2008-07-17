@@ -1,6 +1,6 @@
       logical function task_dynamics(rtdb)
 *
-* $Id: task_dynamics.F,v 1.9 2008-04-15 20:13:27 marat Exp $
+* $Id: task_dynamics.F,v 1.10 2008-07-17 22:11:48 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -30,6 +30,8 @@ c
       external nwmd
       logical task_smd_dynamics
       external task_smd_dynamics
+      logical  md_driver
+      external md_driver
 c
       logical status
       double precision cpu,wall
@@ -58,6 +60,8 @@ c     Actually do the deed
 c
       if(theory.eq."smd") then
         status = task_smd_dynamics(rtdb)
+      else if(theory.eq.leps) then
+        status = md_driver(rtdb)
       else
         status=nwmd(rtdb)
       end if
