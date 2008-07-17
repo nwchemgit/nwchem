@@ -27,9 +27,14 @@ c
       double precision e1, e2,e3,e4,e5,e6,e7,e8,e9,e10,e11
       character*255 prefix, prefix0,key
       integer i1
+      integer group_id
 
-      pname = "smd_monomer"
+      pname = "smd_monomer_energy"
 c
+      call smd_group_id_get(group_id)
+c
+      if(ga_nodeid().eq.0)
+     >  write(*,*) "in ",pname,group_id
 c
       call smd_group_rtdb_clone2(rtdb,im) 
 c
@@ -47,9 +52,14 @@ c
       call smd_fragment_charge_get_all()
 c
       call smd_geom_monomer_create(im)
-      write(*,*) "smd theory is set to",theory
+      if(ga_nodeid().eq.0)
+     >  write(*,*) "smd theory is set to",theory,group_id
       result = task_energy_doit(rtdb,theory,qm_energy)
 c
+      if(ga_nodeid().eq.0)
+     >  write(*,*) "finished energy",theory,group_id
+c
+      if(theory.ne."dft") goto 100
       if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
      +     call errquit('esp: rtdb_put newgrd failed',0,0)
 
@@ -62,6 +72,7 @@ c
       if(ga_nodeid().eq.0)
      &     call smd_fragment_charge_set(im)
 
+100   continue
       call smd_geom_monomer_end()
 
       write(key,'(a,'':converged'')') theory(1:inp_strlen(theory))
