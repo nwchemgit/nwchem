@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.15 2008-01-14 15:20:33 jhammond Exp $
+c $Id: tce_ao2e.F,v 1.16 2008-07-17 21:47:56 marat Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -40,8 +40,10 @@ c
       integer irange,jrange
       integer krange,lrange
       integer kloff
-      integer nxtval
-      external nxtval
+cc      integer nxtval
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
       integer next,count,nprocs
       integer N
       character*255 filename
@@ -132,7 +134,8 @@ c     ================
 c
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+cc      next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
       do lsh=1,nshells
         do ksh=1,nshells
           if (next.eq.count) then
@@ -217,12 +220,14 @@ c
             enddo
             if (.not.ma_pop_stack(l_ijkl)) 
      1        call errquit('tce_ao2e: MA problem x1',16,MA_ERR)
-            next = nxtval(nprocs)
+cc            next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
       enddo
-      next = nxtval(-nprocs)
+cc      next = nxtval(-nprocs)
+      next = NXTASK(-nprocs, 1)
       call reconcilefile(d_ao2e,sf_size_pq*sf_size_kl)
 c
 c     ==========

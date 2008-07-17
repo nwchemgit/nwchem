@@ -6,7 +6,7 @@
      &                        ipol,              ! input
      &                        d_ao2e)            ! output
 c
-c $Id: tce_ao2e_new.F,v 1.2 2008-02-12 17:17:30 jhammond Exp $
+c $Id: tce_ao2e_new.F,v 1.3 2008-07-17 21:47:57 marat Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -44,8 +44,10 @@ c#include "tce_main.fh"
       integer irange,jrange
       integer krange,lrange
       integer kloff
-      integer nxtval
-      external nxtval
+cc      integer nxtval
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
       integer next,count,nprocs
       integer N
       character*255 filename
@@ -179,7 +181,8 @@ c     ================
 c
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+cc      next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
       do lsh=1,nshells
         do ksh=1,nshells
           if (next.eq.count) then
@@ -264,12 +267,14 @@ c
             enddo
             if (.not.ma_pop_stack(l_ijkl)) 
      1        call errquit('tce_ao2e: MA problem x1',16,MA_ERR)
-            next = nxtval(nprocs)
+cc            next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
       enddo
-      next = nxtval(-nprocs)
+cc      next = nxtval(-nprocs)
+      next = NXTASK(-nprocs, 1)
       call reconcilefile(d_ao2e,sf_size_pq*sf_size_kl)
 c
 c     ==========

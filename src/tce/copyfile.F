@@ -1,6 +1,6 @@
       subroutine copyfile(d_1,d_2,size)
 c
-c $Id: copyfile.F,v 1.7 2008-01-14 15:20:32 jhammond Exp $
+c $Id: copyfile.F,v 1.8 2008-07-17 21:47:56 marat Exp $
 c
 c     Duplicate a file
 c
@@ -22,8 +22,9 @@ c
       logical nodezero
       logical d_1isga
       logical d_2isga
-      integer nxtval, next, nprocs, count
-      external nxtval
+      integer  next, nprocs, count
+      INTEGER NXTASK
+      EXTERNAL NXTASK
       logical noloadbalance
 c
       if ((ioalg.eq.6).and.(fileisga(d_1).neqv.fileisga(d_2)))
@@ -49,7 +50,8 @@ c
      2  call errquit('copyfile: MA problem',0,MA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+cc      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
       do i = 1,nblocks
         if (noloadbalance.or.(next.eq.count)) then
           if (util_print('copyfile',print_debug))
@@ -59,11 +61,13 @@ c
      1      min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
           call put_block(d_2,dbl_mb(k_temp),
      1      min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
-          next = NXTVAL(nprocs)
+cc          next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
         endif
         count = count + 1
       enddo
-      next = NXTVAL(-nprocs)
+cc      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs, 1)
       if (.not.ma_pop_stack(l_temp))
      1  call errquit('copyfile: MA problem',1,MA_ERR)
       call ga_sync()

@@ -1,6 +1,6 @@
       double precision function ddotfile(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.5 2008-01-23 17:55:08 kowalski Exp $
+c $Id: ddotfile.F,v 1.6 2008-07-17 21:47:56 marat Exp $
 c
 c     Vector inner product of two files of the same size
 c
@@ -23,8 +23,11 @@ c
       integer i,j,k
       logical nodezero
       logical d_1isga, d_2isga
-      integer nxtval, next, nprocs, count
-      external nxtval
+cc      integer nxtval 
+      integer next, nprocs, count
+      INTEGER NXTASK
+      EXTERNAL NXTASK
+cc      external nxtval
       logical noloadbalance
 c
       if ((ioalg.eq.6).and.(fileisga(d_1).neqv.fileisga(d_2)))
@@ -61,7 +64,8 @@ c     endif
      2  call errquit('ddotfile: MA problem',1,MA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+cc      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
       do i = 1,nblocks
         if (noloadbalance.or.(next.eq.count)) then
           if (util_print('ddotfile',print_debug))
@@ -77,11 +81,13 @@ c     endif
             ddotfile = ddotfile + dbl_mb(k_temp1+k-1)
      1                          * dbl_mb(k_temp2+k-1)
           enddo
-          next = NXTVAL(nprocs)
+cc          next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
         endif
         count = count + 1
       enddo
-      next = NXTVAL(-nprocs)
+cc      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs, 1)
       call ga_sync()
       if (.not.noloadbalance) call ga_dgop(msg_tcemem,ddotfile,1,'+')
       if (.not.d_1isga) call gatodra(d_1)
@@ -100,7 +106,7 @@ c
 c
       double precision function ddotfile_1(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.5 2008-01-23 17:55:08 kowalski Exp $
+c $Id: ddotfile.F,v 1.6 2008-07-17 21:47:56 marat Exp $
 c
 c     Vector inner product of two files of the same size
 c
@@ -123,9 +129,12 @@ c
       integer i,j,k
       logical nodezero
       logical d_1isga, d_2isga
-      integer nxtval, next, nprocs, count
+cc      integer nxtval 
+      integer next, nprocs, count
       integer buffer_size_t1,size_t1
-      external nxtval
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
       logical noloadbalance
 c
       buffer_size_t1=tile_dim**2
@@ -164,7 +173,8 @@ c     endif
      2  call errquit('ddotfile: MA problem',1,MA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+cc      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
       do i = 1,nblocks
         if (noloadbalance.or.(next.eq.count)) then
           if (util_print('ddotfile',print_debug))
@@ -185,11 +195,13 @@ c
           ddotfile_1=ddotfile_1
      1       +ddot(size_t1,dbl_mb(k_temp1),1,dbl_mb(k_temp2),1)
 c
-          next = NXTVAL(nprocs)
+cc          next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
         endif
         count = count + 1
       enddo
-      next = NXTVAL(-nprocs)
+cc      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs, 1)
       call ga_sync()
       if (.not.noloadbalance) call ga_dgop(msg_tcemem,ddotfile_1,1,'+')
       if (.not.d_1isga) call gatodra(d_1)
@@ -211,7 +223,7 @@ c
 c
       double precision function ddotfile_2(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.5 2008-01-23 17:55:08 kowalski Exp $
+c $Id: ddotfile.F,v 1.6 2008-07-17 21:47:56 marat Exp $
 c
 c     Vector inner product of two files of the same size
 c
@@ -234,9 +246,12 @@ c
       integer i,j,k
       logical nodezero
       logical d_1isga, d_2isga
-      integer nxtval, next, nprocs, count
+cc      integer nxtval
+      integer  next, nprocs, count
       integer buffer_size_t2,size_t2
-      external nxtval
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
       logical noloadbalance
 c
       buffer_size_t2=tile_dim**4
@@ -275,7 +290,8 @@ c     endif
      2  call errquit('ddotfile: MA problem',1,MA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+cc      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
       do i = 1,nblocks
         if (noloadbalance.or.(next.eq.count)) then
           if (util_print('ddotfile',print_debug))
@@ -296,11 +312,13 @@ c
           ddotfile_2=ddotfile_2
      1       +ddot(size_t2,dbl_mb(k_temp1),1,dbl_mb(k_temp2),1)
 c
-          next = NXTVAL(nprocs)
+cc          next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
         endif
         count = count + 1
       enddo
-      next = NXTVAL(-nprocs)
+cc      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs, 1)
       call ga_sync()
       if (.not.noloadbalance) call ga_dgop(msg_tcemem,ddotfile_2,1,'+')
       if (.not.d_1isga) call gatodra(d_1)

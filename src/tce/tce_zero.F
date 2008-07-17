@@ -1,6 +1,6 @@
       subroutine tce_zero(d_sf,size)
 c
-c $Id: tce_zero.F,v 1.14 2008-06-09 19:19:53 jhammond Exp $
+c $Id: tce_zero.F,v 1.15 2008-07-17 21:47:59 marat Exp $
 c
 c     Zero scratch a file
 c
@@ -19,8 +19,11 @@ c
       integer l_temp,k_temp
       integer i,j,k
       logical nodezero
-      integer nxtval, next, nprocs, count
-      external nxtval
+cc      integer nxtval 
+      integer next, nprocs, count
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
       logical noloadbalance
 c
       nodezero = (ga_nodeid().eq.0)
@@ -52,7 +55,8 @@ c
      2    call errquit('tce_zero: MA problem',0,MA_ERR)
         nprocs = GA_NNODES()
         count = 0
-        next = NXTVAL(nprocs)
+cc        next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
         do i = 1,nblocks
           if (noloadbalance.or.(next.eq.count)) then
             k = 0
@@ -65,11 +69,13 @@ c
      2                          min(size,i*blocksize)-(i-1)*blocksize
             call put_block(d_sf,dbl_mb(k_temp),
      1        min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
-            next = NXTVAL(nprocs)
+cc            next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
-        next = NXTVAL(-nprocs)
+cc        next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs, 1)
         if (.not.ma_pop_stack(l_temp))
      1    call errquit('createfile: MA problem',1,MA_ERR)
         call ga_sync()
@@ -96,7 +102,7 @@ c
 
       subroutine tce_zero_sf(d_sf,size)
 c
-c $Id: tce_zero.F,v 1.14 2008-06-09 19:19:53 jhammond Exp $
+c $Id: tce_zero.F,v 1.15 2008-07-17 21:47:59 marat Exp $
 c
 c     Zero scratch a file
 c

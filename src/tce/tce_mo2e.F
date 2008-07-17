@@ -1,6 +1,6 @@
       subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e.F,v 1.13 2008-01-14 15:20:34 jhammond Exp $
+c $Id: tce_mo2e.F,v 1.14 2008-07-17 21:47:58 marat Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -40,8 +40,10 @@ c
       integer l_pqboff,k_pqboff
       integer pq
       integer r_range,s_range
-      integer nxtval
-      external nxtval
+cc      integer nxtval
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
       integer next,count,nprocs
       integer Nb
 c     integer pqrs,r,s
@@ -104,7 +106,8 @@ c     ============
 c
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+cc      next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
       do pb = 1,Nb
         do qb = pb,Nb
           if (next.eq.count) then
@@ -184,12 +187,14 @@ c
             enddo
             if (.not.ma_pop_stack(l_pqkl_packed)) 
      1        call errquit('tcc_mo2e: MA problem',3,MA_ERR)
-            next = nxtval(nprocs)
+cc            next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
       enddo
-      next = nxtval(-nprocs)
+cc      next = nxtval(-nprocs)
+      next = NXTASK(-nprocs, 1)
 c
 c     ==========
 c     Deallocate

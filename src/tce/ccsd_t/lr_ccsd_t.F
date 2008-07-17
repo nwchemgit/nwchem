@@ -3,7 +3,7 @@
      2                     d_e,k_e_offset,energy1,energy2,
      3  energy3,energy4,energy5,energy6)
 C
-C     $Id: lr_ccsd_t.F,v 1.2 2008-01-14 15:20:39 jhammond Exp $
+C     $Id: lr_ccsd_t.F,v 1.3 2008-07-17 21:48:08 marat Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -38,7 +38,7 @@ C
       integer hole_p_1
       integer hole_p_2
 c
-      integer NXTVAL
+      integer nxtask
       integer next
       integer nprocs
       integer count
@@ -50,7 +50,7 @@ c
       double precision energy5,energy6
       double precision factor
       double precision den0,den1,den2,den3,num1,num2
-      external NXTVAL
+      external nxtask
 c
 c     Get singles & doubles part of the denominator
 c
@@ -92,7 +92,7 @@ c
      1  call errquit('ccsd_t: GA problem',0,GA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       num1=0.0d0 !for <S3(M3)+ M3>/(1+L(J3))
       num2=0.0d0 !for <(S3(M3)+S1S2)+M3>/(1+L(J3))
       den0=0.0d0  !for <T3[2]+M3>/(1+L(J3))
@@ -329,7 +329,7 @@ cccx     1        call errquit('ccsd_t',8,MA_ERR)
             endif
             endif
             endif
-            next = NXTVAL(nprocs)
+            next = nxtask(nprocs,1)
             endif
             count = count + 1
            enddo
@@ -338,7 +338,7 @@ cccx     1        call errquit('ccsd_t',8,MA_ERR)
         enddo
        enddo
       enddo
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call cr_ccsd_t_E(dbl_mb(k_den),d_i1_3,
      1  d_t1,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
      2  l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
@@ -395,7 +395,7 @@ c
 c
       subroutine tce_nu1(k_hole,d_t1,k_t1_offset)
 c
-c $Id: lr_ccsd_t.F,v 1.2 2008-01-14 15:20:39 jhammond Exp $
+c $Id: lr_ccsd_t.F,v 1.3 2008-07-17 21:48:08 marat Exp $
 c
       implicit none
 #include "global.fh"
@@ -472,7 +472,7 @@ c
 c
       subroutine tce_mu2(k_2hole,hole_p_1,d_t2,k_t2_offset)
 c
-c $Id: lr_ccsd_t.F,v 1.2 2008-01-14 15:20:39 jhammond Exp $
+c $Id: lr_ccsd_t.F,v 1.3 2008-07-17 21:48:08 marat Exp $
 c
       implicit none
 #include "global.fh"

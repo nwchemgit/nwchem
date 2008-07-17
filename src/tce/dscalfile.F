@@ -1,6 +1,6 @@
       subroutine dscalfile(scale,d_1,size)
 c
-c $Id: dscalfile.F,v 1.5 2008-01-14 15:20:32 jhammond Exp $
+c $Id: dscalfile.F,v 1.6 2008-07-17 21:47:56 marat Exp $
 c
 c     Multiply a file by a constant
 c
@@ -21,8 +21,11 @@ c
       integer i
       logical nodezero
       logical d_1isga
-      integer nxtval, next, nprocs, count
-      external nxtval
+cc      integer nxtval
+      integer  next, nprocs, count
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
       logical noloadbalance
 c
       noloadbalance = ((ioalg.eq.4).or.
@@ -43,7 +46,8 @@ c
      2  call errquit('dscalfile: MA problem',0,MA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+cc      next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
       do i = 1,nblocks
         if (noloadbalance.or.(next.eq.count)) then
           if (util_print('dscalfile',print_debug))
@@ -54,11 +58,13 @@ c
           call dscal(blocksize,scale,dbl_mb(k_temp),1)
           call put_block(d_1,dbl_mb(k_temp),
      1      min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
-          next = NXTVAL(nprocs)
+cc          next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
         endif
         count = count + 1
       enddo
-      next = NXTVAL(-nprocs)
+cc      next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs, 1)
       if (.not.d_1isga) call gatodra(d_1)
       if (.not.ma_pop_stack(l_temp))
      1  call errquit('dscalfile: MA problem',1,MA_ERR)

@@ -1,6 +1,6 @@
       subroutine tce_residual_t2(d_r2,k_r2_offset,residual)
 c
-c $Id: tce_residual_t2.F,v 1.9 2007-08-14 17:06:28 jhammond Exp $
+c $Id: tce_residual_t2.F,v 1.10 2008-07-17 21:47:59 marat Exp $
 c
       implicit none
 #include "global.fh"
@@ -24,8 +24,10 @@ c
       integer nprocs
       integer count
       integer next
-      integer nxtval
-      external nxtval
+cc      integer nxtval
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
       logical nodezero
 c
 c     =====================
@@ -45,7 +47,8 @@ c     ================
 c
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+cc      next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
           do h3b = 1,noab
@@ -79,14 +82,16 @@ c
                 endif
                 endif
                 endif
-                next = nxtval(nprocs)
+cc                next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
               endif
               count = count + 1
             enddo
           enddo
         enddo
       enddo
-      next = nxtval(-nprocs)
+cc      next = nxtval(-nprocs)
+      next = NXTASK(-nprocs, 1)
       call ga_sync()
       call ga_get(g_residual,1,1,1,1,residual,1)
       residual = 0.5d0*dsqrt(residual)
@@ -96,7 +101,7 @@ c
       end
       subroutine tce_residual_tr2(d_r2,k_r2_offset,residual)
 c
-c $Id: tce_residual_t2.F,v 1.9 2007-08-14 17:06:28 jhammond Exp $
+c $Id: tce_residual_t2.F,v 1.10 2008-07-17 21:47:59 marat Exp $
 c
       implicit none
 #include "global.fh"
@@ -120,8 +125,10 @@ c
       integer nprocs
       integer count
       integer next
-      integer nxtval
-      external nxtval
+cc      integer nxtval
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
       logical nodezero
 c
 c     =====================
@@ -141,7 +148,8 @@ c     ================
 c
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+cc      next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
           do h3b = 1,noab
@@ -175,14 +183,16 @@ c
                 endif
                 endif
                 endif
-                next = nxtval(nprocs)
+cc                next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
               endif
               count = count + 1
             enddo
           enddo
         enddo
       enddo
-      next = nxtval(-nprocs)
+cc      next = nxtval(-nprocs)
+      next = NXTASK(-nprocs, 1)
       call ga_sync()
       call ga_get(g_residual,1,1,1,1,residual,1)
       residual = 0.5d0*dsqrt(residual)

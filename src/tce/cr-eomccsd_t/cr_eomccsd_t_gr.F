@@ -6,7 +6,7 @@
      7                        d_c2,k_c2_offset,size_c2,
      8                        energy1)
 C
-C     $Id: cr_eomccsd_t_gr.F,v 1.2 2008-01-14 15:20:40 jhammond Exp $
+C     $Id: cr_eomccsd_t_gr.F,v 1.3 2008-07-17 21:48:12 marat Exp $
 C 
 c 
 c
@@ -67,7 +67,7 @@ c *** cr_ccsd_t_E ***
 c *******************
       integer size,i
       integer g_energy
-      integer NXTVAL
+      integer nxtask
       integer next
       integer nprocs
       integer count
@@ -93,7 +93,7 @@ c ----------------------------
       double precision factor
       double precision den1,num1
       character*255 filename
-      external NXTVAL
+      external nxtask
 c *** debug ***
       double precision xxx
 c *************
@@ -168,7 +168,7 @@ c
      1  call errquit('ccsd_t: GA problem',0,GA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       do t_p4b = noab+1,noab+nvab
        do t_p5b = t_p4b,noab+nvab
         do t_p6b = t_p5b,noab+nvab
@@ -309,7 +309,7 @@ c
             endif
             endif
             endif
-            next = NXTVAL(nprocs)
+            next = nxtask(nprocs,1)
             endif
             count = count + 1
            enddo
@@ -318,7 +318,7 @@ c
         enddo
        enddo
       enddo
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
 c --- toggle = 3 ---
       if(lr0) then
       call cr_ccsd_t_E(dbl_mb(k_den0),d_i1_4,

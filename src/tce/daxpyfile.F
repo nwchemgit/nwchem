@@ -1,6 +1,6 @@
       subroutine daxpyfile(n,coefficients,d_in,d_out,size)
 c
-c $Id: daxpyfile.F,v 1.6 2008-01-14 15:20:32 jhammond Exp $
+c $Id: daxpyfile.F,v 1.7 2008-07-17 21:47:56 marat Exp $
 c
 c     A linear combination of files added to the original
 c
@@ -24,8 +24,11 @@ c
       logical nodezero
       double precision coefficients(*)
       logical dinisga, doutisga
-      integer nxtval, next, nprocs, count
-      external nxtval
+cc      integer nxtval 
+      integer next, nprocs, count
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
       logical noloadbalance
 c
       if ((ioalg.eq.6).and.(fileisga(d_in(1)).neqv.fileisga(d_out)))
@@ -64,7 +67,8 @@ c
      2    call errquit('daxpyfile: MA problem',1,MA_ERR)
         nprocs = GA_NNODES()
         count = 0
-        next = NXTVAL(nprocs)
+cc        next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
         do i = 1,nblocks
           if (noloadbalance.or.(next.eq.count)) then
             if (util_print('daxpyfile',print_debug))
@@ -87,11 +91,13 @@ c
             enddo
             call add_block(d_out,dbl_mb(k_temp1),
      1        min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
-            next = NXTVAL(nprocs)
+cc            next = NXTVAL(nprocs)
+      next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
-        next = NXTVAL(-nprocs)
+cc        next = NXTVAL(-nprocs)
+      next = NXTASK(-nprocs, 1)
         if (.not.ma_pop_stack(l_temp2))
      1    call errquit('createfile: MA problem',2,MA_ERR)
         if (.not.ma_pop_stack(l_temp1))

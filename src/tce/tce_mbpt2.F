@@ -1,7 +1,7 @@
       subroutine tce_mbpt2(d_mo2e,k_2e_offset,
      1                     d_t2,k_t2_offset,mbpt2)
 c
-c $Id: tce_mbpt2.F,v 1.5 2005-12-16 22:16:05 kowalski Exp $
+c $Id: tce_mbpt2.F,v 1.6 2008-07-17 21:47:58 marat Exp $
 c
       implicit none
 #include "global.fh"
@@ -28,8 +28,10 @@ c
       integer nprocs
       integer count
       integer next
-      integer nxtval
-      external nxtval
+cc      integer nxtval
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
 c
 c     =====================
 c     Zero scratch residual
@@ -47,7 +49,8 @@ c     ================
 c
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+cc      next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
           do h3b = 1,noab
@@ -93,14 +96,16 @@ c
                 endif
                 endif
                 endif
-                next = nxtval(nprocs)
+cc                next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
               endif
               count = count + 1
             enddo
           enddo
         enddo
       enddo
-      next = nxtval(-nprocs)
+cc      next = nxtval(-nprocs)
+      next = NXTASK(-nprocs, 1)
       call ga_sync()
       call ga_get(g_mbpt2,1,1,1,1,mbpt2,1)
       if (.not.ga_destroy(g_mbpt2))

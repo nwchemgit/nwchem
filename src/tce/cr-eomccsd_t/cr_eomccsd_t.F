@@ -8,7 +8,7 @@
      7                        d_c2,k_c2_offset,size_c2,
      8                        excit,energy1,energy2)
 C
-C     $Id: cr_eomccsd_t.F,v 1.3 2008-01-14 15:20:40 jhammond Exp $
+C     $Id: cr_eomccsd_t.F,v 1.4 2008-07-17 21:48:12 marat Exp $
 C 
 c from this point on we assume that corresponding one- and two-
 c body components of R(d_x1,d_x2) and T(d_t1,d_t2) operators,
@@ -87,7 +87,7 @@ c *** cr_ccsd_t_E ***
 c *******************
       integer size,i
       integer g_energy
-      integer NXTVAL
+      integer nxtask
       integer next
       integer nprocs
       integer count
@@ -114,7 +114,7 @@ c ----------------------------
       double precision den1,num1
       double precision den2,num2
       character*255 filename
-      external NXTVAL
+      external nxtask
 c *** debug ***
       double precision xxx
 c *************
@@ -325,7 +325,7 @@ c
      1  call errquit('ccsd_t: GA problem',0,GA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       do t_p4b = noab+1,noab+nvab
        do t_p5b = t_p4b,noab+nvab
         do t_p6b = t_p5b,noab+nvab
@@ -614,7 +614,7 @@ cccx     1        call errquit('eomccsd_t',6,MA_ERR)
             endif
             endif
             endif
-            next = NXTVAL(nprocs)
+            next = nxtask(nprocs,1)
             endif
             count = count + 1
            enddo
@@ -623,7 +623,7 @@ cccx     1        call errquit('eomccsd_t',6,MA_ERR)
         enddo
        enddo
       enddo
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
 c --- toggle = 3 ---
       if(lr0) then
 c      call q3rexpt(dbl_mb(k_den),d_i3_1,d_i3_2,d_t1,d_t2,d_e,

@@ -3,7 +3,7 @@
      2                   d_y1,k_y1_offset,d_y2,k_y2_offset,
      3                   d_e,k_e_offset,energy)
 C
-C     $Id: ccsd2_t.F,v 1.2 2008-01-14 15:20:39 jhammond Exp $
+C     $Id: ccsd2_t.F,v 1.3 2008-07-17 21:48:07 marat Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -37,7 +37,7 @@ C
       integer k_left_sorted,l_left_sorted
       integer size,i
       integer g_energy
-      integer NXTVAL
+      integer nxtask
       integer next
       integer nprocs
       integer count
@@ -49,7 +49,7 @@ C
       integer k_i1_offset_5,l_i1_offset_5
       double precision energy
       double precision factor
-      external NXTVAL
+      external nxtask
 c
 c     Caution! k_right & k_left are not even allocated yet
 c     but they won't be used.
@@ -70,7 +70,7 @@ c
      1  call errquit('ccsd_t: GA problem',0,GA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       energy=0.0d0
       do t_p4b = noab+1,noab+nvab
        do t_p5b = t_p4b,noab+nvab
@@ -175,7 +175,7 @@ c
             endif
             endif
             endif
-            next = NXTVAL(nprocs)
+            next = nxtask(nprocs,1)
             endif
             count = count + 1
            enddo
@@ -184,7 +184,7 @@ c
         enddo
        enddo
       enddo
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call ccsd2_t_left(dbl_mb(k_left),d_f1,d_i1_3,d_i1_4,d_i1_5,
      1  d_t1,d_v2,d_y1,d_y2,k_f1_offset,k_i1_offset_3,
      2  k_i1_offset_4,k_i1_offset_5,k_t1_offset,k_v2_offset,

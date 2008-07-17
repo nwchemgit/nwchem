@@ -2,7 +2,7 @@
      1                     d_f1,k_f1_offset,d_v2,k_v2_offset,
      2                     d_e,k_e_offset,energy1,energy2)
 C
-C     $Id: cr_ccsd_t.F,v 1.2 2008-01-14 15:20:39 jhammond Exp $
+C     $Id: cr_ccsd_t.F,v 1.3 2008-07-17 21:48:08 marat Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -33,7 +33,7 @@ C
       integer k_right,l_right
       integer size,i
       integer g_energy
-      integer NXTVAL
+      integer nxtask
       integer next
       integer nprocs
       integer count
@@ -44,7 +44,7 @@ C
       double precision energy1,energy2
       double precision factor
       double precision den0,den1,den2,num1,num2
-      external NXTVAL
+      external nxtask
 c
 c     Get singles & doubles part of the denominator
 c
@@ -72,7 +72,7 @@ c
      1  call errquit('ccsd_t: GA problem',0,GA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       num1=0.0d0
       num2=0.0d0
       do t_p4b = noab+1,noab+nvab
@@ -204,7 +204,7 @@ c
             endif
             endif
             endif
-            next = NXTVAL(nprocs)
+            next = nxtask(nprocs,1)
             endif
             count = count + 1
            enddo
@@ -213,7 +213,7 @@ c
         enddo
        enddo
       enddo
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call cr_ccsd_t_E(dbl_mb(k_den),d_i1_3,
      1  d_t1,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
      2  l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)

@@ -1,7 +1,7 @@
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                  d_v2,k_v2_offset,energy1,energy2)
 C
-C     $Id: ccsd_t.F,v 1.3 2008-03-22 19:32:11 jhammond Exp $
+C     $Id: ccsd_t.F,v 1.4 2008-07-17 21:48:07 marat Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -26,19 +26,19 @@ C
       integer k_doubles,l_doubles
       integer size,i
       integer g_energy
-      integer NXTVAL
+      integer nxtask
       integer next
       integer nprocs
       integer count
       double precision energy1,energy2
       double precision factor
-      external NXTVAL
+      external nxtask
 C
       if (.not.ga_create(mt_dbl,1,1,'perturbative',1,1,g_energy))
      1  call errquit('ccsd_t: GA problem',0,GA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       energy1=0.0d0
       energy2=0.0d0
       do t_p4b = noab+1,noab+nvab
@@ -137,7 +137,7 @@ C
             endif
             endif
             endif
-            next = NXTVAL(nprocs)
+            next = nxtask(nprocs,1)
             endif
             count = count + 1
            enddo
@@ -146,7 +146,7 @@ C
         enddo
        enddo
       enddo
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call ga_zero(g_energy)
       call ga_acc(g_energy,1,1,1,1,energy1,1,1.0d0)
       call ga_sync()

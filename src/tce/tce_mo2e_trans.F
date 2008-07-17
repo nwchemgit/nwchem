@@ -78,8 +78,8 @@ c
       integer size_mug3ij,l_mug3ij,k_mug3ij
       character*255 filename
 c
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       integer next,count,nprocs
       integer Nb
       logical transpose
@@ -180,7 +180,7 @@ c
 c
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs) 
+      next = nxtask(nprocs) 
 c
       do nu = 1,nshells   !--------------
       do mu = nu,nshells   !--------------
@@ -380,12 +380,12 @@ c  closing l_aaao
          if (.not.ma_pop_stack(l_aaao))
      1    call errquit('tce_mo2e:s_msns MA problem',16,MA_ERR)
 c
-          next = nxtval(nprocs)
+          next = nxtask(nprocs)
         endif
         count = count + 1
       enddo !mu
       enddo !nu
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs)
 c
 c
       if (.not.ma_pop_stack(l_work2))
@@ -430,7 +430,7 @@ c
 c
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+      next = nxtask(nprocs)
 c
         do g3b = 1,noa+nva   !l
         do g4b = g3b,noa+nva !k
@@ -744,14 +744,14 @@ c
          if (.not.ma_pop_stack(l_ggmj))
      1    call errquit('tce_mo2e_t: ggmj MA problem',16,MA_ERR)
 c
-          next = nxtval(nprocs)
+          next = nxtask(nprocs)
         endif
         count = count + 1
 c
         enddo  !g4b k
         enddo  !g3b l
 c
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs)
 c
       call reconcilefile(d_v2,size_2e)
 c
