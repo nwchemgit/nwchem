@@ -1,6 +1,6 @@
       logical function task_dynamics(rtdb)
 *
-* $Id: task_dynamics.F,v 1.10 2008-07-17 22:11:48 marat Exp $
+* $Id: task_dynamics.F,v 1.11 2008-07-18 00:34:29 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -60,7 +60,7 @@ c     Actually do the deed
 c
       if(theory.eq."smd") then
         status = task_smd_dynamics(rtdb)
-      else if(theory.eq.leps) then
+      else if(theory.eq.'leps') then
         status = md_driver(rtdb)
       else
         status=nwmd(rtdb)
