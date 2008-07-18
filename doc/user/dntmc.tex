@@ -1,21 +1,22 @@
-%\chapter{Dynamic Nucleation Theory Monte Carlo}
+%\chapter{Dynamical Nucleation Theory Monte Carlo}
 
-% $Id: dntmc.tex,v 1.1 2008-03-04 17:48:26 windus Exp $
+% $Id: dntmc.tex,v 1.2 2008-07-18 15:11:29 windus Exp $
 %
+% Updated 6/24/08 for new version (lcrosby)
+
 \label{sec:dntmc} 1.)  Schenter, G. K.; Kathmann, S. M.; Garrett, B.
 C. {\it J. Chem. Phys.} ({\bf 1999}), {\it 110}, 7951. 2.)Crosby, L.
-D.; Kathmann, S. M.; Windus, T. L. ({\bf 2008}) in preparation.
+D.; Kathmann, S. M.; Windus, T. L. {\it J. Comput. Chem.} ({\bf
+2008}), submitted.
 
- The Dynamical Nucleation Theory/Monte Carlo
-(DNTMC) module utilizes Dynamical Nucleation Theory to compute monomer
-evaporation rate constants at a given temperature.  The reactant is
-a molecular cluster of $i$ rigid monomers while the product is a
-molecular cluster with $i-1$ monomers plus a free monomer.  A
-Metropolis Monte Carlo methodology is utilized to sample the
-configurational space of these $i$ rigid monomers.  At present only
-homogenous clusters are supported by this module.  The input does
-allow for the definition of heterogeneous clusters, however, the
-underlying code does not correctly extend to these systems.
+ The Dynamical Nucleation Theory Monte Carlo
+(DNTMC) module utilizes Dynamical Nucleation Theory (DNT) to compute
+monomer evaporation rate constants at a given temperature.  The
+reactant is a molecular cluster of $i$ rigid monomers while the
+product is a molecular cluster with $i-1$ monomers plus a free
+monomer.  A Metropolis Monte Carlo (MC) methodology is utilized to
+sample the configurational space of these $i$ rigid monomers.  Both
+homogenous and heterogenous clusters are supported.
 
 \section{SubGroups}
 
@@ -29,7 +30,7 @@ through a set directive:
 number of processors that each subgroup has access to is determined
 by Total/subgroup\_number.  A separate MC simulation is performed
 within each subgroup.  To use this functionality, NWChem must be
-compiled with the USE\_SUBGROUPS environmental variable set to yes.
+compiled with the USE\_SUBGROUPS environmental variable set.
 
 Each MC simulation starts at a different starting configuration,
 which is equally spaced along the reaction coordinate.  The
@@ -37,9 +38,9 @@ statistical distributions which these MC simulations produce are
 averaged to form the final statistical distribution.  Output from
 these subgroups consists of various files whose names are of the
 form (*.\#num). These files include restart files and other data
-files.  The RTDB is used as input for these subgroups and must be
-globally accessible (set through the Permanent\_Dir directive) to
-all processes.
+files.  The NWChem runtime database (RTDB) is used as input for
+these subgroups and must be globally accessible (set through the
+Permanent\_Dir directive) to all processes.
 
 \newpage
 \section{Input Syntax}
@@ -55,6 +56,7 @@ DNTMC
      [temp     <real temperature>]
      [rmin     <real rmin>]
      [rmax     <real rmax>]
+     [nob      <integer nob>]
      [mcsteps  <integer number>]
      [tdisp    <real disp>]
      [rdisp    <real rot>]
@@ -72,17 +74,24 @@ END
 
 \section{Definition of Monomers}
 
-Geometry informaion is required for each unique monomer (species).
+Geometry information is required for each unique monomer (species).
 See the geometry input section \ref{sec:geom} for more information.
 A unique label must be given for each monomer geometry.
+Additionally, the noautosym and nocenter options are suggested for
+use with the DNTMC module to prevent NWChem from changing the input
+geometries.  Symmetry should also not be used since cluster
+configurations will seldom exhibit any symmetry; although monomers
+themselves may exhibit symmetry.
 
 \begin{verbatim}
-  GEOMETRY [<string name species_1>] ...
+  GEOMETRY [<string name species_1>] noautosym nocenter ...
       ...
+  symmetry c1
   END
 
-  GEOMETRY [<string name species_2>] ...
+  GEOMETRY [<string name species_2>] noautosym nocenter ...
       ...
+  symmetry c1
   END
 
   ...
@@ -101,12 +110,15 @@ default values.
      [nmol     <list of integers number[nspecies]>]
 \end{verbatim}
 
+An example is shown in section \ref{sec:dntmc_example} for a 10
+monomer cluster consisting of a 50/50 mixture of water and ammonia.
+
 \section{DNTMC runtime options}
 
-Several options control the behavior of the DNTMC method.  Some
+Several options control the behavior of the DNTMC module.  Some
 required options such as simulation temperature (temp), cluster
-radius (rmin and rmax), and maximum number of Monte Carlo steps
-(mcsteps) are used to control the MC simulation.
+radius (rmin and rmax), and maximum number of MC steps (mcsteps) are
+used to control the MC simulation.
 
 \begin{verbatim}
      [temp     <real temperature>]
@@ -117,6 +129,7 @@ MC simulation is run.  Temperature is given in kelvin.
 \begin{verbatim}
      [rmin     <real rmin>]
      [rmax     <real rmax>]
+     [nob    <integer nob>]
 \end{verbatim}
 These required options define the minimum and maximum extent of the
 projected reaction coordinate (The radius of a sphere centered at
@@ -124,6 +137,12 @@ the center of mass).  Rmin should be large enough to contain the
 entire molecular cluster of monomers and Rmax should be large enough
 to include any relevant configurational space (such as the position
 of the reaction bottleneck).  These values are given in Angstroms.
+
+The probability distributions obtain along this projected reaction
+coordinate has a minimum value of Rmin and a maximum value of Rmax.
+The distributions are created by chopping this range into a number
+of smaller sized bins.  The number of bins (nob) is controlled by
+the option of the same name.
 
 \begin{verbatim}
      [mcsteps  <integer number>]
@@ -134,13 +153,14 @@ of the reaction bottleneck).  These values are given in Angstroms.
 These options define some characteristics of the MC simulations. The
 maximum number of MC steps (mcsteps) to take in the course of the
 calculation run is a required option.  Once the MC simulation has
-performed this number of steps the calculation will end.  The
-maximum translational step size (tdisp) and rotational step size
-(rdisp) are optional inputs with defaults set at 0.04 Angstroms and
-0.06 radians, respectively.  The convergence keyword allows the
-convergence threshold to be set.  The default is 0.00 which
-effectively turns off this checking.  Once the measure of
-convergence goes below this threshold the calculation will end.
+performed this number of steps the calculation will end.  This is a
+per Markov chain quantity.  The maximum translational step size
+(tdisp) and rotational step size (rdisp) are optional inputs with
+defaults set at 0.04 Angstroms and 0.06 radians, respectively.  The
+convergence keyword allows the convergence threshold to be set.  The
+default is 0.00 which effectively turns off this checking.  Once the
+measure of convergence goes below this threshold the calculation
+will end.
 
 \begin{verbatim}
      [rsim || rconfig]
@@ -160,7 +180,7 @@ are optional with the default method being rconfig.
 \end{verbatim}
 These three options define some of the output and data analysis
 behavior. mprnt is an option which controls how often data analysis
-occurs during the simulation.  Currently, every mprnt*100 MC steps
+occurs during the simulation.  Currently, every mprnt*nob MC steps
 data analysis is performed and results are output to files and/or to
 the log file.  Restart files are also written every mprnt number of
 MC steps during the simulation.  The default value is 10. The
@@ -168,7 +188,7 @@ keyword dntmc\_dir allows the definition of an alternate directory
 to place DNTMC specific ouputfiles.  These files can be very large
 so be sure enough space is available.  This directory should be
 accessible by every process (although not necessarily globally
-accessible).  The defualt is to place these files in the directory
+accessible).  The default is to place these files in the directory
 which NWChem is run (./).  The keyword norestart turns off the
 production of restart files. By default restart files are produced
 every mprnt number of MC steps.
@@ -210,28 +230,110 @@ mirrors the Alldata files.\end{minipage}\\
 file (Prefix.fdist) which contains
 a concatenated list of distributions every mprnt*100 MC steps.\end{minipage}\\
 \\
+``timers'' & debug &
+\begin{minipage}{0.6\textwidth}Enables some timers in the code.
+These timers return performance statistics in the output file every
+time data analysis is performed.  Two timers are used.  One for the
+mcloop itself and one for the communication step.\end{minipage}
 \end{tabular}
 \end{center}
 \end{table}
+
+\section{Selected File Formats}
+Several output files are available in the DNTMC module.  This
+section defines the format for some of these files.
+
+\begin{enumerate}
+\item *.fdist
+
+This file is a concatenated list of radial distribution functions
+printed out every mprnt MC steps.  Each distribution is normalized
+(sum equal to one) with respect to the entire (all species)
+distribution.  The error is the RMS deviation of the average at each
+point.  Each entry is as follows: \subitem [1] \# Total
+Configurations \subitem [2] Species number \# \subitem [3](R
+coordinate in Angstroms) (Probability) (Error) \subitem [Repeats nob
+times] \subitem [2 and 3 Repeats for each species] \subitem [4]
+*** separator.
+
+\item *.MCdata.\#
+
+This file is a concatenated list of accepted configurations. Each
+file corresponds to a single Markov chain.  The dipole is set to
+zero for methods which do not produce a dipole moment with energy
+calculations.  Rsim is either the radial extent of the cluster
+(r-config) or the simulation radius (r-simulation).
+ Each entry is as follows: \subitem [1] (Atomic label) (X Coord.) (Y
+Coord.) (Z Coord.) \subitem [1 Repeats for each atom in the cluster
+configuration, units are in angstroms] \subitem [2] Ucalc = \#
+hartree \subitem [3] Dipole = (X) (Y) (Z) au \subitem [4] Rsim = \#
+Angstrom \subitem [1 through 4 repeats for each accepted
+configuration]
+
+\item *.MCout.\#
+
+This file has the same format and information content as the MCdata
+file except that additional output is included.  This additional
+output includes summary statistics such as acceptance ratios,
+average potential energy, and average radius.  The information
+included for accepted configurations does not include dipole moment
+or radius.
+
+\item *.MCall.\#
+
+This file has the same format as the MCdata file expect that it
+includes information for all configurations for which an energy is
+determined.  All accepted and rejected configurations are included
+in this file.
+
+\item *.restart.\#
+
+This file contains the restart information for each subgroup.  Its
+format is not very human readable but the basic fields are described
+in short here. \subitem Random number seed \subitem Potential energy
+in hartrees \subitem Sum of potential energy \subitem Average
+potential energy \subitem Sum of the squared potential energy
+\subitem Squared potential energy \subitem Dipole moment in au (x)
+(Y) (Z) \subitem Rmin and Rmax \subitem Rsim (Radius corresponds to
+r-config or r-sim methods) \subitem Array of nspecies length, value
+indicates the number of each type of monomer which lies at radius
+Rsim from the center of mass [r-simulation sets these to zero]
+\subitem Sum of Rsim \subitem Average of Rsim \subitem Number of
+accepted translantional moves \subitem Number of accepted rotational
+moves \subitem Number of accepted volume moves \subitem Number of
+attempted moves (volume) (translational) (rotational) \subitem
+Number of accepted moves (Zero) \subitem Number of accepted moves
+(Zero) \subitem Number of MC steps completed \subitem [1] (Atom
+label) (X Coord.) (Y Coord.) (Z Coord.) \subitem [1 repeats for each
+atom in cluster configurations, units are in angstroms] \subitem [2]
+Array of nspecies length, number of configurations in bin \subitem
+[3] Array of nspecies length, normalized number of configurations in
+each bin \subitem [4] (Value of bin in Angstroms) (Array of nspecies
+length, normalized probability of bin) \subitem [2 through 4 repeats
+nob times]
+
+\end{enumerate}
 
 \section{DNTMC Restart}
 
 \begin{verbatim}
      [procrestart <integer number>]
 \end{verbatim}
-Flag to indicate restart postprocessing.  In order to restart a
-DNTMC run postprocessing is required to put required information
-into the runtime database (RTDB).  During a run restart information
-is written to files (Prefix.restart.\#num) every mprnt MC steps.
-This information must be read and deposited into the RTDB before a
-restart run can be done.  The number taken as an argument is the
-number of files to read and must also equal the number of subgroups
-the calculation utilizes.  The start directive must also be set to
-restart for this to work properly.  All input is read as usual.
-However, values from the restart files take precedence over input
-values. Some keywords such as mcsteps are not defined in the restart
-files.  Task directives are ignored. You must have a RTDB present in
-your permanent directory.
+Flag to indicate restart postprocessing.  It is suggested that this
+postprocessing run is done utilizing only one processor.
+
+In order to restart a DNTMC run, postprocessing is required to put
+required information into the runtime database (RTDB). During a run
+restart information is written to files (Prefix.restart.\#num) every
+mprnt MC steps. This information must be read and deposited into the
+RTDB before a restart run can be done.  The number taken as an
+argument is the number of files to read and must also equal the
+number of subgroups the calculation utilizes.  The start directive
+must also be set to restart for this to work properly.  All input is
+read as usual. However, values from the restart files take
+precedence over input values. Some keywords such as mcsteps are not
+defined in the restart files.  Task directives are ignored. You must
+have a RTDB present in your permanent directory.
 
 Once postprocessing is done a standard restart can be done from the
 RTDB by removing the procrestart keyword and including the restart
@@ -247,9 +349,9 @@ utilized.  The task directive for the DNTMC module is shown below:
 \end{verbatim}
 
 \section{Example}
-This example is for a molecular cluster of 10 monomers.  A 50/50
-mixture of water and ammonia.  The energies are done at the
-SCF/6-31++G** level of theory.
+\label{sec:dntmc_example} This example is for a molecular cluster of
+10 monomers.  A 50/50 mixture of water and ammonia.  The energies
+are done at the SCF/6-31++G** level of theory.
 
 \begin{verbatim}
     start
