@@ -1,16 +1,9 @@
-C$Id: gibbsP.fh,v 1.3 2008-03-13 17:07:04 windus Exp $
+C$Id: gibbsP.fh,v 1.4 2008-07-18 15:09:27 windus Exp $
 c
 c First attemp to put some of this information into an include file
 c
 C     version 5.0  Dec. 20, 2007 full release version (lcrosby)
-
-      INTEGER MXATOM,MXMOLS,MXSP
-      integer NOB ! put in gibbsP.fh
-c
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
-      PARAMETER (NOB = 100)
+C     modified to eliminate statically allocated arrays June 10, 2008 (lcrosby)
 
       integer util_sgroup_numgroups, util_sgroup_mygroup
       integer util_sgroup_zero_group

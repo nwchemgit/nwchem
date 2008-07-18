@@ -1,4 +1,4 @@
-C $Id: dntmc_setgeom.F,v 1.5 2008-03-04 17:55:12 windus Exp $
+C $Id: dntmc_setgeom.F,v 1.6 2008-07-18 15:09:26 windus Exp $
 c
 c  Sets up NWChem and the DNTMC geometry information from the input
 c  information.  When come out of here should have a geometry in the rtdb
@@ -8,9 +8,12 @@ c  number of atoms in a species, and list of unique species numbers will be
 c  populated.
 c  
 C     version 5.0  Dec. 20, 2007 full release version (lcrosby)
+C     June 10, 2008 modified to support for dynamic arrays MA (lcrosby)
 
-      subroutine dntmc_getspecinfo(rtdb, nmols, natom, rinit, uspc, 
-     &            nspecies, m, SPC, tag)
+
+      subroutine dntmc_getspecinfo(rtdb, nmols, l_natom, k_natom, 
+     & l_rinit, k_rinit, l_uspc, k_uspc, nspecies, l_m, k_m, l_spc,
+     & k_spc, l_tag, k_tag, nattotal, natmax)
 
       implicit none
 #include "gibbsP.fh"
@@ -22,14 +25,23 @@ C     version 5.0  Dec. 20, 2007 full release version (lcrosby)
       integer rtdb     ! [input] rtdb handle
       integer nmols    ! [output] number of molecules
       integer nspecies ! [output] number of species
-      integer natom(mxsp)    ! [output] number of atoms in a particular species
-      double precision rinit(mxmols, mxatom, 3)   ! [output] coordinates
-      integer uspc(mxsp) ! [output] list of unique species numbers
-      double precision m(mxsp, mxatom)   ! [output] masses
-      integer spc(mxmols)  ! [output] list of species numbers for molecules
-      character*16 tag(mxatom*mxmols) ![output] contains atom tags
-      integer nmolunique(mxsp)  ! contains the number of molecules for each species
       integer l_spec, k_spec, i, j, k
+      integer nattotal, natmax
+
+      integer l_natom, k_natom
+      integer l_uspc, k_uspc
+      integer l_nmolunique, k_nmolunique
+      integer l_spc, k_spc
+
+      integer l_rinit, k_rinit
+      integer l_m, k_m
+      integer l_tag, k_tag
+
+      external dntmc_get_iarray_element
+      integer dntmc_get_iarray_element
+
+      external dntmc_put_iarray_element
+
 c
 c  Get the number of species and molecules off the rtdb
 c
@@ -39,8 +51,21 @@ c
 c
 c  Get the number of molecules for each species
 c
+      if (.not. ma_push_get(MT_INT,nspecies,'dntmc:natom',
+     &    l_natom, k_natom)) call errquit
+     &    ('entmc_getspecinfo: cannot allocate natom',0,MA_ERR)
+
+      if (.not. ma_push_get(MT_INT,nspecies,'dntmc:uspc',
+     &    l_uspc, k_uspc)) call errquit
+     &    ('entmc_getspecinfo: cannot allocate natom',0,MA_ERR)
+
+
+      if (.not. ma_push_get(MT_INT,nspecies,'dntmc:nmolunique',
+     &    l_nmolunique, k_nmolunique)) call errquit
+     &    ('dntmc_getspecinfo: cannot allocate nmolunique',0, MA_ERR)
+
       if (.not.rtdb_get(rtdb, 'dntmc:nmol', MT_INT, nspecies, 
-     &    nmolunique))
+     &    int_mb(k_nmolunique)))
      &    call errquit('dntmc_getspecinfo: rtdb error for nmolunique', 
      &                  0, RTDB_ERR)
 c
@@ -48,14 +73,20 @@ c Sum up each of the seperate molecule numbers to get the total, nmols
 c
       nmols = 0
       do i = 1, nspecies
-         nmols = nmols + nmolunique(i)
+         nmols = nmols + 
+     &   dntmc_get_iarray_element(int_mb(k_nmolunique),nspecies,i)
       enddo
 
 C Setup list of species numbers for each molecule (done in blocks)
+      if (.not. ma_push_get(MT_INT,nmols,'dntmc:spc',l_spc,k_spc))
+     & call errquit
+     &('dntmc_getspecinfo: cannot allocate spc',0,MA_ERR)
+
       K = 1
       DO I = 1, nspecies
-        DO J = K, K+nmolunique(I)-1
-          SPC(J) = I
+        DO J = K, K+
+     & dntmc_get_iarray_element(int_mb(k_nmolunique),nspecies,i)-1
+          call dntmc_put_iarray_element(int_mb(k_spc),nmols,J,I)
         END DO
         K = J
       END DO
@@ -69,9 +100,14 @@ c
      &    ('dntmc_getspecgeom: cannot allocate species', 0, MA_ERR)
       call dntmc_getspecgeomnames(rtdb, nspecies, byte_mb(k_spec))
       call dntmc_getspecgeom(rtdb, nspecies, byte_mb(k_spec),
-     &      uspc, natom, rinit, m, nmolunique, tag)
-      if (.not.ma_pop_stack(l_spec)) call errquit
-     &    ('dntmc_getspecgeom: ma pop failed for species', 1, MA_ERR)
+     & int_mb(k_uspc), int_mb(k_natom), l_rinit, k_rinit, l_m, k_m, 
+     & int_mb(k_nmolunique), l_tag, k_tag, nattotal, natmax)
+C Dont pop getspecgeom allocates additional entries on the stack
+C Will be chopped later
+C      if (.not.ma_pop_stack(l_spec)) call errquit
+C     &    ('dntmc_getspecgeom: ma pop failed for species', 1, MA_ERR)
+C       write(6,*) 'end of routine'
+C       call flush(6)
 
 
       return
@@ -104,7 +140,8 @@ C Get information from the geometries that are stored on the rtdb
 C This is really the routine that does most of the heavy lifting
 C
       subroutine dntmc_getspecgeom(rtdb, nspecies, species, uspc, natom,
-     &            rinit, m, nmolunique, tag)
+     &           l_rinit, k_rinit, l_ms, k_ms, nmolunique, l_tag, k_tag,
+     &           nattotal, natmax)
 
       implicit none
 #include "gibbsP.fh"
@@ -114,16 +151,17 @@ C
 #include "rtdb.fh"
 #include "stdio.fh"
       integer rtdb     ! [input] rtdb handle
-      integer nmolunique(mxsp)  ! [input] number of molecules in each species
+      integer nmolunique(nspecies)  ! [input] number of molecules in each species
       integer nspecies ! [input] number of species
-      integer natom(mxsp)    ! [output] number of atoms in a particular species
       character*255 species(nspecies) ! [input] list of geometry names
-      double precision rinit(mxmols, mxatom, 3)   ! [output] coordinates
+      integer natom(nspecies)    ! [output] number of atoms in a particular species
       integer uspc(nspecies) ! [output] list of unique species numbers
-      double precision m(mxsp, mxatom)   ! [output] masses
-      character*16 tag(mxatom*mxmols) ![output] contains atom labels
+
+      integer l_rinit, k_rinit
+      integer l_ms, k_ms
+      integer l_tag, k_tag
 c
-      integer i, nattotal, istart, geom
+      integer i, nattotal, istart, geom, natuspc, natmax, nmols
       integer l_ct, k_ct, l_qt, k_qt, l_mt, k_mt, l_tt, k_tt ! cluster indices
       integer l_c, k_c, l_q, k_q, l_m, k_m, l_t, k_t ! species indices
 c
@@ -137,6 +175,9 @@ c     write(6,*) 'species(1) ', species(1)
 c     write(6,*) 'nmolunique1 and nmolunique2 ', nmolunique(1),
 c    &   nmolunique(2)
       nattotal = 0
+      natuspc = 0
+      natmax = 0
+      nmols = 0
       do i = 1, nspecies
          if (.not. geom_create(geom, species(i)))
      &     call errquit('dntmc_getspecgeom: failed creating geometry?',
@@ -148,10 +189,27 @@ c    &   nmolunique(2)
      &     call errquit('dntmc_getspecgeom: ncent error', 0,
      &                   GEOM_ERR)
          nattotal = nattotal + (natom(i)*nmolunique(i))
+         natuspc = natuspc + natom(i)
+         if (natmax .lt. natom(i)) natmax = natom(i)
+         nmols = nmols + nmolunique(i)
          if (.not. geom_destroy(geom))
      &     call errquit('dntmc_getspecgeom: destroying geometry',0,
      &       GEOM_ERR)
       enddo
+
+C Allocate some other arrays
+      if (.not. ma_push_get(mt_dbl, 3*natmax*nmols,'dntmc:rinit',
+     & l_rinit, k_rinit)) call errquit
+     &('dntmc_getspecgeom: rinit not allocated',0,MA_ERR)
+
+      if (.not. ma_push_get(mt_dbl, nspecies*natmax,'dntmc:ms',
+     & l_ms, k_ms)) call errquit
+     &('dntmc_getspecgeom: ms not allocated',0,MA_ERR)
+
+      if (.not. ma_push_get(mt_byte, 16*nattotal,'dntmc:tag',
+     & l_tag, k_tag)) call errquit
+     &('dntmc_getspecgeom: tag not allocated',0,MA_ERR)
+
 c
 c Allocate some buffers for the full cluster geometry
 c
@@ -210,7 +268,8 @@ c
 c put information into dntmc variables
 c
          call dntmc_filldntmcinit(i, natom(i), dbl_mb(k_c), 
-     &     rinit, dbl_mb(k_m), m)
+     &     dbl_mb(k_rinit), dbl_mb(k_m), dbl_mb(k_ms),
+     &     nmols, nspecies, natmax)
 c
 c expand to the full list to be used for the generation of
 c the cluster geometry object
@@ -221,7 +280,7 @@ c        write(6,*) 'before the dntmc_speciestocluster call'
      &         nattotal,
      &         dbl_mb(k_c), dbl_mb(k_ct), dbl_mb(k_q), dbl_mb(k_qt),
      &         dbl_mb(k_m), dbl_mb(k_mt), byte_mb(k_t), byte_mb(k_tt),
-     &         tag)
+     &         byte_mb(k_tag))
 c        write(6,*) 'after the dntmc_speciestocluster call'
 c
 c get rid of local memory for next round
@@ -294,17 +353,18 @@ C
 C  Copy the species info to the DNTMC data structures
 C
       subroutine dntmc_filldntmcinit(iloc, natom, clocal, 
-     &     rinit, mlocal, m)
+     &     rinit, mlocal, m, nmols, nspecies, natmax)
 
       implicit none
 #include "gibbsP.fh"
 
       integer iloc ! [input] index in the DNTMC species
       integer natom ! [input] number of atoms in the molecule
+      integer nmols, nspecies, natmax ! to dimension rinit and m
       double precision clocal(3, natom) ! [input] coordinates of species
-      double precision rinit(mxmols, mxatom, 3) ! [input/output] initial dntmc coordinates
+      double precision rinit(nmols, natmax, 3) ! [input/output] initial dntmc coordinates
       double precision mlocal(natom) ! [input] masses of the species
-      double precision m(mxsp, mxatom) ! [input/output] masses for dntmc
+      double precision m(nspecies, natmax) ! [input/output] masses for dntmc
 C Convert from au to Angstroms
       double precision scale
 c
@@ -371,7 +431,7 @@ c
 c
 c set the coordinates assuming that a geometry already is set up in the rtdb
 c
-      subroutine dntmc_setcoords(rtdb, r, nmols, natom, spc)
+      subroutine dntmc_setcoords(rtdb, r, nmols, natom, spc,nspc,natmax)
 
       implicit none
 
@@ -383,10 +443,11 @@ c
 #include "stdio.fh"
 
       integer rtdb ! input
-      double precision r(mxmols, mxatom, 3) ! input - coordinates in DNTMC ordering
+      integer nspc, natmax ! to dimension r and natom
       integer nmols ! input - number of molecules
-      integer natom(mxsp) ! input - number of atoms for each species
-      integer spc(mxmols) ! input - species numbers
+      double precision r(nmols, natmax, 3) ! input - coordinates in DNTMC ordering
+      integer natom(nspc) ! input - number of atoms for each species
+      integer spc(nmols) ! input - species numbers
 c
       integer geom, ncent
       integer l_ct, k_ct
@@ -405,7 +466,7 @@ c
      &   call errquit('dntmc_setcoords: coordinate not allocated',
      &                 3*ncent, MA_ERR)
       call dntmc_dntcoordtonwchem(r, nmols, natom, spc, dbl_mb(k_ct),
-     &   ncent)
+     &   ncent, nspc, natmax)
 c
 c set the coordinates and store
 c
@@ -431,17 +492,18 @@ c
 c actually set the coordinates
 c
       subroutine dntmc_dntcoordtonwchem(r, nmols, natom, spc, 
-     &    coords, ncent)
+     &    coords, ncent, nspc, natmax)
 c
       implicit none
 
 #include "gibbsP.fh"
 #include "errquit.fh"
 c
-      double precision r(mxmols, mxatom, 3) ! input - coordinates in DNTMC ordering
       integer nmols ! input - number of molecules
-      integer natom(mxsp) ! input - number of atoms for each species
-      integer spc(mxmols) ! input - species numbers
+      integer nspc, natmax !to dimension r and natom
+      double precision r(nmols, natmax, 3) ! input - coordinates in DNTMC ordering
+      integer natom(nspc) ! input - number of atoms for each species
+      integer spc(nmols) ! input - species numbers
       integer ncent ! input - total number of atoms
       double precision coords(3, ncent) ! output - NWChem coordinates
 C Convert from Angstroms to au

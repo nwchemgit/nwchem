@@ -1,6 +1,7 @@
       subroutine dntmc_input(rtdb)
-C     $Id: dntmc_input.F,v 1.5 2008-03-04 17:55:12 windus Exp $
+C     $Id: dntmc_input.F,v 1.6 2008-07-18 15:09:26 windus Exp $
 C     version 5.0  Dec. 20, 2007 full release version (lcrosby)
+C     modified to include input of number of bins (nob) June 10, 2008 (lcrosby)
 
       implicit none
 #include "errquit.fh"
@@ -12,7 +13,7 @@ c
       integer rtdb  ! [input]
 c
       integer mprnt, procrestart
-      integer node
+      integer node, nob
       character*255 test
       integer nspecies, mcsteps
       double precision temp, rmin, rmax
@@ -46,6 +47,16 @@ c
         if (.not. rtdb_put(rtdb, 'dntmc:nspecies', MT_INT, 1, 
      &       nspecies)) call errquit
      &     ('dntmc_input: rtdb put failed for nspecies', 0, RTDB_ERR)
+c
+      else if (inp_compare(.false., 'nob', test)) then
+c
+C Number of bins in radial distributions - nob <intger nob>
+c
+        if (.not. inp_i(nob)) call errquit
+     &       ('dntmc_input: nob <nob>', 0, INPUT_ERR)
+        if (.not. rtdb_put(rtdb, 'dntmc:nob', MT_INT, 1,
+     &       nob)) call errquit
+     &     ('dntmc_input: rtdb put failed for nob', 0, RTDB_ERR)
 c
       else if (inp_compare(.false., 'species', test)) then
 c
