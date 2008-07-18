@@ -1,0 +1,62 @@
+start
+MEMORY 1000 mb
+
+PERMANENT_DIR ./
+# Set PERMANENT_DIR to:
+# Globally accessible directory which the
+# rtdb (*.db) file will or does reside.
+
+basis "ao basis" spherical noprint
+    * library 6-31G
+end
+
+scf
+    singlet
+    rhf
+    tol2e 1.0e-12
+    vectors input atomic
+    thresh 1.0e-06
+    maxiter 200
+    print none
+end
+
+geometry geom1 units angstroms noautosym nocenter noprint
+O  0.393676503613369      -1.743794626956820      -0.762291912129271
+H -0.427227157125777      -1.279138812526320      -0.924898279781319
+H  1.075463952717060      -1.095883929075060      -0.940073459864222
+symmetry c1
+end
+
+geometry geom2 units angstroms noautosym nocenter noprint
+N     6.36299e-08     0.00000     -0.670378
+H     0.916275     0.00000     -0.159874
+H     -0.458137     0.793517     -0.159874
+H     -0.458137     -0.793517     -0.159874
+symmetry c1
+end
+
+set subgroups_number 2 
+
+dntmc
+    nspecies 2
+    species geom1 geom2
+    nmol   2  1 
+    temp  243.0
+    mcsteps 2000
+    rmin 1.25
+    rmax 6.25
+    nob 100
+    mprnt 5 
+    tdisp 0.04
+    rdisp 0.06
+    print none fdist mcdata
+    rconfig
+    dntmc_dir ./
+# Set dntmc_dir to:
+# An accessible directory which to place the *.fdist,
+# *.mcdata.(#num), and *.restart.(#num) files.
+    convergence 0.00 
+end
+
+task scf dntmc
+

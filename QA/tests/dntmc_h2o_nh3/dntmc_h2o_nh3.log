@@ -1,0 +1,245 @@
+ARMCI configured for 2 cluster nodes. Network protocol is 'OpenIB Verbs API'.
+ argument  1 = h2o_nh3_hf_6_31_G
+  Unable to open h2o_nh3_hf_6_31_G --- appending .nw
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 5.1
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
+                   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC05-76RL01830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = node014
+    program       = /var/scratch/lcrosby/h2o_nh3_hf_6_31_G/nwchem
+    date          = Tue Jun 24 09:57:48 2008
+
+    compiled      = Tue_Jun_24_07:52:03_2008
+    source        = /home/lcrosby/nwchem_5dist/nwchem_3_6_08
+    nwchem branch = Development
+    input         = h2o_nh3_hf_6_31_G.nw
+    prefix        = h2o_nh3_hf_6_31_G.
+    data base     = /home/lcrosby/calculations/dntmc/h2o_dimer/dangchang/test/h2o_nh3_hf_6_31_G.db
+    status        = startup
+    nproc         =    8
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =   32768001 doubles =    250.0 Mbytes
+    stack     =   32768001 doubles =    250.0 Mbytes
+    global    =   65536000 doubles =    500.0 Mbytes (distinct from heap & stack)
+    total     =  131072002 doubles =   1000.0 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = /home/lcrosby/calculations/dntmc/h2o_dimer/dangchang/test
+  0 scratch   = .
+ 
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+  library name resolved from: .nwchemrc
+  library file name is: </home/thebunny/NWChem_Glob/data/basis/>
+  
+ ********** Starting DNTMC Module **********
+ *******************************************
+ ******** Splitting Into SubGroups *********
+ *******************************************
+ Creating groups
+ proc    0 was (   0    1   -1) now is (   0    1    2)
+ proc    3 was (   3    1   -1) now is (   3    1    2)
+ proc    1 was (   1    1   -1) now is (   1    1    2)
+ proc    7 was (   7    1   -1) now is (   3    2    2)
+ proc    6 was (   6    1   -1) now is (   2    2    2)
+ proc    5 was (   5    1   -1) now is (   1    2    2)
+ proc    4 was (   4    1   -1) now is (   0    2    2)
+ proc    2 was (   2    1   -1) now is (   2    1    2)
+ ********** Setting Up DNTMC Info **********
+ *******************************************
+Made it through the initial config setup
+NSPC  =         2
+NMOLS =         3
+TEMP  =    243.00 K
+MCSTPS=  2.00E+03
+Trans Max Disp =  4.00E-02 Ang
+Rot Max Disp =  6.00E-02 rad
+Restart files written
+Start Run
+RMIN =      1.25
+RMAX =      6.25
+R-Config Methodology
+NGROUPS =         2
+ Made it through initialization
+ ********** Starting MC Loop ***************
+ *******************************************
+    Max MC configurations are:  4.000E+003
+Convergence criteria is below:       0.000
+      @      # of Total        Rcut       Evp. Rate      Err. Evap.   Accept. Ratio   Accept. Ratio     Convergence
+      @  Configurations     (Angs.)          (s^-1)     Rate (s^-1)       Trans (%)         Rot (%)             (%)
+@******************************************************************************************************************
+   @               1000       1.350      1.000E+099             NaN          85.232          83.468             NaN
+   @               1000       4.450      1.103E+012      9.342E+011          85.232          83.468             NaN
+   @               2000       1.350      1.000E+099             NaN          86.042          85.542             NaN
+   @               2000       3.100      1.022E+012      8.943E+011          86.042          85.542             NaN
+   @               3000       1.350      1.000E+099             NaN          88.446          88.156             NaN
+   @               3000       3.100      6.143E+011      5.413E+011          88.446          88.156             NaN
+   @               4000       1.350      1.000E+099             NaN          89.959          89.759             NaN
+   @               4000       5.300      5.843E+010      4.566E+010          89.959          89.759             NaN
+ ********** Destroying SubGroups ***********
+ *******************************************
+ Closing subgroup 
+
+ Task  times  cpu:      470.8s     wall:      780.1s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 4.05e+05 4.05e+05 2.83e+06 2.04e+06 1.85e+06    0        0     7.37e+04 
+number of processes/call 1.37e+00 1.17e+00 1.20e+00 0.00e+00 0.00e+00
+bytes total:             3.53e+09 1.45e+09 1.41e+09 0.00e+00 0.00e+00 5.90e+05
+bytes remote:            1.48e+09 3.51e+08 5.93e+08 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 72912 bytes
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        17	        37
+	current total bytes		         0	         0
+	maximum total bytes		   2114688	  22527904
+	maximum total K-bytes		      2115	     22528
+	maximum total M-bytes		         3	        23
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 5.1" (2007), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+          Please use the following citation when publishing results
+          obtained with NWChem:
+
+          E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+          M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, P. Nichols,
+          S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
+          M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+          Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+          E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+          R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+          D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+          K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+          B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+          X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+          G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong,
+          and Z. Zhang,
+          "NWChem, A Computational Chemistry Package for Parallel Computers, 
+          Version 5.1" (2007),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:      470.9s     wall:      780.3s
