@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.205 2008-06-20 20:25:48 d3p307 Exp $
+# $Id: GNUmakefile,v 1.206 2008-07-22 18:07:22 bert Exp $
 
 include ../config/makefile.h
 
@@ -224,6 +224,11 @@ endif
 ifeq ($(TARGET),SGITFP)
    OBJ += sgi_flush6.o
 DEFINES += -DNOSOCKLEN
+endif
+ifdef SLURM
+  ifdef SLURMOPT
+    DEFINES += -DSLURM
+  endif
 endif
 ifdef LSF
   WHICHBJOBS  += $(shell which bjobs)

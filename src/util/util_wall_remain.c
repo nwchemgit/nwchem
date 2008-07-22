@@ -1,5 +1,5 @@
 /*
- $Id: util_wall_remain.c,v 1.15 2004-02-06 23:00:22 edo Exp $
+ $Id: util_wall_remain.c,v 1.16 2008-07-22 18:07:22 bert Exp $
 */
 #include <stdio.h>
 #include "typesf2c.h"
@@ -13,7 +13,7 @@
 /* util_batch_job_time_remaining returns the wall time (>=0) in seconds
    remaining for job execution, or -1 if no information is available */
 
-#if (defined(USE_LL) && defined(JOBTIMEPATH)) || defined(LSF) || defined (PBS)
+#if (defined(USE_LL) && defined(JOBTIMEPATH)) || defined(LSF) || defined (PBS) || defined (SLURM)
 #define DONEIT 1  
 
 #ifdef LSF
@@ -39,6 +39,14 @@ Integer FATR util_batch_job_time_remaining_(void)
     return -1;
   }
   
+}
+#elif defined(SLURM)
+Integer FATR util_batch_job_time_remaining_(void)
+{
+  Integer wallspent,uval;
+  uval = getenv("SLURM_JOBIB");
+  wallspent = (Integer) slurm_get_rem_time(uval);
+  return ((Integer) wallspent);
 }
 #else
 #include <unistd.h>
