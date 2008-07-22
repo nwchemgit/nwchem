@@ -1,3 +1,89 @@
+      subroutine md_data_allocate(n)
+      implicit none
+#include "md_data.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+
+      integer n
+      natom=n
+
+      if (.not. ma_alloc_get(mt_dbl, 3*natom, 'coordinate' ,
+     & h_c,i_c))
+     & call errquit('leps_getgeom: coordinate not allocated',
+     & 3*natom,MA_ERR)
+
+      if (.not. ma_alloc_get(mt_dbl, natom, 'charge' ,
+     & h_q,i_q))
+     & call errquit('leps_getgeom: charge not allocated',
+     & natom,MA_ERR)
+
+      if (.not.ma_alloc_get(mt_dbl, natom, 'mass', h_m,i_m))
+     & call errquit('leps_getgeom: mass not allocated',
+     & natom,MA_ERR)
+
+      if (.not.ma_alloc_get(mt_byte, 16*natom, 'tags', h_t,i_t))
+     & call errquit('leps_getgeom: tags not allocated',
+     & natom,MA_ERR)
+
+      if (.not. ma_alloc_get(mt_dbl, 3*natom, 'velocities' ,
+     & h_v,i_v))
+     & call errquit('leps_getgeom: velocities not allocated',
+     & natom,MA_ERR)
+
+      if (.not. ma_alloc_get(mt_dbl, 3*natom, 'accelerations' ,
+     & h_a,i_a))
+     & call errquit('leps_getgeom: accelerations not allocated',
+     & natom,MA_ERR)
+
+      if (.not. ma_alloc_get(mt_dbl, 3*natom, 'b-term' ,
+     & h_b,i_b))
+     & call errquit('leps_getgeom: b-term not allocated',
+     & natom,MA_ERR)
+
+      if (.not. ma_alloc_get(mt_dbl, 3*natom, 'd-term' ,
+     & h_d,i_d))
+     & call errquit('leps_getgeom: d-term not allocated',
+     & natom,MA_ERR)
+
+      if (.not. ma_alloc_get(mt_dbl, 3*natom, 'force' ,
+     & h_f,i_f))
+     & call errquit('leps_getgeom: force not allocated',
+     & natom,MA_ERR)
+
+      write(*,*) 'Done with all the allocation'
+      write(*,*) i_c,i_m,i_q,i_v,i_t,i_a,i_b,i_d,i_f
+
+      end 
+
+      subroutine md_data_free_all()
+      implicit none
+#include "md_data.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+
+      if(.not.ma_free_heap(h_c))
+     &     call errquit('memory deallocation:coord',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_m))
+     &     call errquit('memory deallocation:coord',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_q))
+     &     call errquit('memory deallocation:coord',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_t))
+     &     call errquit('memory deallocation:coord',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_v))
+     &     call errquit('memory deallocation:coord',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_a))
+     &     call errquit('memory deallocation:coord',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_b))
+     &     call errquit('memory deallocation:coord',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_d))
+     &     call errquit('memory deallocation:coord',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_f))
+     &     call errquit('memory deallocation:coord',0,RTDB_ERR)
+
+      end
+
       function md_data_get_i_c()
       implicit none
 #include "md_data.fh"
@@ -5,4 +91,181 @@
 
       md_data_get_i_c = i_c
 
-      end 
+      end
+
+      function md_data_get_i_v()
+      implicit none
+#include "md_data.fh"
+      integer md_data_get_i_v
+
+      md_data_get_i_v = i_v
+
+      end
+
+      function md_data_get_i_a()
+      implicit none
+#include "md_data.fh"
+      integer md_data_get_i_a
+
+      md_data_get_i_a = i_a
+
+      end
+
+      function md_data_get_i_b()
+      implicit none
+#include "md_data.fh"
+      integer md_data_get_i_b
+
+      md_data_get_i_b = i_b
+
+      end
+
+      function md_data_get_i_d()
+      implicit none
+#include "md_data.fh"
+      integer md_data_get_i_d
+
+      md_data_get_i_d = i_d
+
+      end
+
+      function md_data_get_i_f()
+      implicit none
+#include "md_data.fh"
+      integer md_data_get_i_f
+
+      md_data_get_i_f = i_f
+
+      end
+
+      function md_data_get_i_m()
+      implicit none
+#include "md_data.fh"
+      integer md_data_get_i_m
+
+      md_data_get_i_m = i_m
+
+      end
+
+      function md_data_get_i_q()
+      implicit none
+#include "md_data.fh"
+      integer md_data_get_i_q
+      md_data_get_i_q = i_q
+      end
+
+      function md_data_get_i_t()
+      implicit none
+#include "md_data.fh"
+      integer md_data_get_i_t
+      md_data_get_i_t = i_t
+      end
+
+      subroutine md_data_set_natom(rtdb,geom)
+#include "md_data.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+
+      integer rtdb,geom,n 
+
+c      if (.not. geom_create(geom, 'geometry'))
+c     & call errquit('md_data: failed creating geometry',
+c     & 0,GEOM_ERR)
+cC     load geometry into the object
+c      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+c     & call errquit('md_data: no geometry',
+c     & 0,RTDB_ERR)
+cC     get the number of centers
+      if (.not. geom_ncent(geom,n))
+     & call errquit('md_data: ncent error',
+     & 0,GEOM_ERR)
+
+      natom=n
+
+c      if (.not. geom_destroy(geom))
+c     & call errquit('md_data:  geom_destroy failed',
+c     & 911,GEOM_ERR)
+      end
+ 
+      function md_data_get_natom()
+      implicit none
+#include "md_data.fh"
+       integer md_data_get_natom
+       md_data_get_natom = natom
+
+      end
+
+      subroutine md_data_geom_copy(rtdb,geom)
+#include "md_data.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+
+      integer rtdb,geom
+
+c      if (.not. geom_create(geom, 'geometry'))
+c     & call errquit('md_data: failed creating geometry',
+c     & 0,GEOM_ERR)
+cC     load geometry into the object
+c      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+c     & call errquit('md_data: no geometry',
+c     & 0,RTDB_ERR)
+cC     get the number of centers
+c      if (.not. geom_ncent(geom,n))
+c     & call errquit('md_data: ncent error',
+c     & 0,GEOM_ERR)
+
+      if (.not. geom_masses_get(geom,natom,dbl_mb(i_m) ))
+     & call errquit('leps_getgeom:  mass error',0,GEOM_ERR)
+
+      if (.not. geom_cart_get(geom, n, byte_mb(i_t),
+     &                         dbl_mb(i_c),dbl_mb(i_q) ))
+     & call errquit('leps_getgeom: coord error',0,GEOM_ERR)
+       write(*,*) 'Filled cartesians and masses  '
+
+
+c      if (.not. geom_destroy(geom))
+c     & call errquit('md_data:  geom_destroy failed',
+c     & 911,GEOM_ERR)
+      end
+
+      subroutine md_data_geom_set(rtdb,geom)
+#include "md_data.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+
+      integer rtdb,geom
+
+c      if (.not. geom_create(geom, 'geometry'))
+c     & call errquit('md_data: failed creating geometry',
+c     & 0,GEOM_ERR)
+
+cC     load geometry into the object
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     & call errquit('md_data: no geometry',
+     & 0,RTDB_ERR)
+
+      if (.not. geom_ncent(geom,natom))
+     & call errquit('md_data: ncent error',
+     & 0,GEOM_ERR)
+
+      if (.not. geom_cart_set(geom, natom, byte_mb(i_t),
+     &   dbl_mb(i_c), dbl_mb(i_q)))
+     &   call errquit('leps_putgeom: coord error',0,GEOM_ERR)
+
+      if(.not.geom_rtdb_store(rtdb,geom,"geometry"))
+     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+
+c      if (.not. geom_destroy(geom))
+c     & call errquit('md_data:  geom_destroy failed',
+c     & 911,GEOM_ERR)
+      end
+    

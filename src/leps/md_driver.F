@@ -12,84 +12,246 @@
 #include "geom.fh"
       logical md_driver
 c
-c      integer geom
-c      integer natom
-c      integer h_c,i_c
-c      integer h_m,i_m
-c      integer h_q,i_q
-c      integer h_t,i_t
+      integer geom, i
+      integer natom
+      integer md_data_get_i_c, md_data_get_i_m, md_data_get_i_q
+      integer md_data_get_i_t, md_data_get_i_v, md_data_get_i_a
+      integer md_data_get_i_b, md_data_get_i_d, md_data_get_i_f
+      integer md_data_get_natom
+      external md_data_get_i_c, md_data_get_i_m, md_data_get_i_q
+      external md_data_get_i_t, md_data_get_i_v, md_data_get_i_a
+      external md_data_get_i_b, md_data_get_i_d, md_data_get_i_f
+      external md_data_get_natom
+
+      integer coor,mass,bq,tag,vel,acc,bterm,dterm,frc
+      integer step, nsteps
+      double precision dt,ek 
+
+      dt = 0.01  ! time step
+      ek=0.0 ! kinetic energy
+      nsteps=5000 
 c      double precision eleps, md_driver1
        md_driver=.true.
-c
-c      write(*,*) "doing leps energy"
-c      eleps=0.0 
 cc     create geometry object 
-c      if (.not. geom_create(geom, 'geometry'))
-c     & call errquit('leps_getgeom: failed creating geometry',
-c     & 0,GEOM_ERR)
+      if (.not. geom_create(geom, 'geometry'))
+     & call errquit('leps_getgeom: failed creating geometry',
+     & 0,GEOM_ERR)
 cC     load geometry into the object
-c      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-c     & call errquit('leps_getgeom: no geometry',
-c     & 0,RTDB_ERR)
-cC     get the number of centers 
-c      if (.not. geom_ncent(geom,natom))
-c     & call errquit('leps_getgeom: ncent error',
-c     & 0,GEOM_ERR)      
-cc     print tgeometry
-c      if (.not. geom_print(geom))
-c     & call errquit('leps_getgeom: print error',
-c     & 0,GEOM_ERR)      
-cc    
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     & call errquit('leps_getgeom: no geometry',
+     & 0,RTDB_ERR)
+
 cc     allocate memory for coordinates
-c      if (.not. ma_alloc_get(mt_dbl, 3*natom, 'coordinate' ,
-c     & h_c,i_c))
-c     & call errquit('leps_getgeom: coordinate not allocated',
-c     & 3*natom,MA_ERR)
-c      if (.not. ma_alloc_get(mt_dbl, natom, 'charge', h_q,i_q))
-c     & call errquit('leps_getgeom: charge not allocated',
-c     & natom,MA_ERR)
-c      if (.not.ma_alloc_get(mt_dbl, natom, 'mass', h_m,i_m))
-c     & call errquit('leps_getgeom: mass not allocated',
-c     & natom,MA_ERR)
-c      if (.not.ma_alloc_get(mt_byte, 16*natom, 'tags', h_t,i_t))
-c     & call errquit('leps_getgeom: tags not allocated',
-c     & natom,MA_ERR)
+      call md_data_set_natom(rtdb,geom)
+      natom=md_data_get_natom()
+      call md_data_allocate(natom)
+      write(*,*) 'Done with all the allocation'
+
+      coor=md_data_get_i_c()
+      mass=md_data_get_i_m()
+      bq=md_data_get_i_q()
+      tag=md_data_get_i_t()
+      vel=md_data_get_i_v()
+      acc=md_data_get_i_a()
+      bterm=md_data_get_i_b()
+      dterm=md_data_get_i_d()
+      frc=md_data_get_i_f()
 c
 cC-----Finished allocating memory for info we get from database
 c
 cC ----- Fill up the local copies with data from geometry object
-cC------- accessed by the geom handle
-c      if (.not. geom_cart_get(geom, natom, byte_mb(i_t),
-c     & dbl_mb(i_c), dbl_mb(i_q)))
-c     & call errquit('leps_getgeom: coord error',0,GEOM_ERR)
-c      if (.not. geom_masses_get(geom, natom, dbl_mb(i_m)))
+cC------- accessed by the geom handlei
+      call md_data_geom_copy(rtdb,geom) 
+
+      write(*,*)  coor,mass,bq,tag,vel,acc,bterm,dterm,frc   
+c      if (.not. geom_masses_get(geom, natom,dbl_mb(mass) ))
 c     & call errquit('leps_getgeom:  mass error',0,GEOM_ERR)
-cC--- now compute the leps energy
-c      eleps=md_driver1(natom,dbl_mb(i_c),eleps)
-cC--- end of leps energy computation
-c
-cC-----Print what you get out of the database
-c      call md_driver0(natom,dbl_mb(i_c),dbl_mb(i_m),byte_mb(i_t))
-cC-----Calculate the energy
-c      if (.not. rtdb_put(rtdb,'leps:energy',mt_dbl,1,eleps))
-c     & call errquit('md_driver:  no energy ', 0,
-c     & RTDB_ERR)
-c
-cC     GET RID OF MEMORY WITH MA_CHOP
-cC     DEALLOCATE THE FIRST/LOWEST PART OF THE STACK
-cC     THIS ACTION DEALLOCATES ALL ADDITIONAL
-cC     MEMORY ADDED TO THE STACK AFTER LOWEST PART
-c
-c
-cC     DESTROY GEOM. OBJECT
-c
-cC      WRITE(6,*) 'GEOM before destory', geom
-c
-c      if (.not. geom_destroy(geom))
-c     & call errquit('leps_getgeom:  geom_destroy failed',
-c     & 911,GEOM_ERR)
+
+c      if (.not. geom_cart_get(geom, natom, byte_mb(tag),
+c     &                         dbl_mb(coor),dbl_mb(bq) ))
+c     & call errquit('leps_getgeom: coord error',0,GEOM_ERR)
+       write(*,*) 'Filled cartesians and masses  '
+
+       call print_coord(natom,dbl_mb(frc),
+     &      byte_mb(tag))
+C ----- get initial velocities and accelerations and other inital conditions
+       call leps_gradient(rtdb)
+
+c  ---- get the gradient to fill up the force array        
+      if (.not. rtdb_get(rtdb,'leps:gradient',mt_dbl,3*natom,
+     &     dbl_mb(frc)))
+     & call errquit('leps_gradient:  no grad ', 0, RTDB_ERR)
+
+      call print_coord(natom,dbl_mb(coor),byte_mb(tag))
+C --- end of initial conditions
+      call md_init(natom,dbl_mb(mass),dbl_mb(vel),
+     &     dbl_mb(acc),dbl_mb(frc))
+
+      write(*,*) 'Starting MD'
+
+      do step=1,nsteps
+       write(*,*) 'Predicting step :',step
+       write(*,*)  coor,mass,bq,tag,vel,acc,bterm,dterm,frc
+
+c         write(*,*) 'Coords :'             
+c         call print_coord(natom,dbl_mb(coor),byte_mb(tag))
+c         write(*,*) 'Vels :'
+c         call print_coord(natom,dbl_mb(vel),byte_mb(tag)) 
+c         write(*,*) 'Acceler :'
+         call predict(natom,dt,dbl_mb(coor),dbl_mb(vel),dbl_mb(acc),
+     &             dbl_mb(bterm),dbl_mb(dterm))
+c         write(*,*) 'After Prediction step :'
+c         write(*,*) 'Coords :'
+c         call print_coord(natom,dbl_mb(coor),byte_mb(tag))
+c         write(*,*) 'Force :'
+c         call print_coord(natom,dbl_mb(frc),byte_mb(tag))
+c         write(*,*) 'Acceler :' 
+c         call print_coord(natom,dbl_mb(acc),byte_mb(tag))
+
+C---- Add the predicted coordinates to the rtdb
+
+         call md_data_geom_set(rtdb,geom)
+c         if (.not. geom_cart_set(geom, natom, byte_mb(tag),
+c     &   dbl_mb(coor), dbl_mb(bq)))
+c     &   call errquit('leps_putgeom: coord error',0,GEOM_ERR)
+
+c         if(.not.geom_rtdb_store(rtdb,geom,"geometry"))
+c     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+
+C --- calculate forces for predicted coords             
+         call leps_gradient(rtdb)
+
+ 
+         if (.not. rtdb_get(rtdb,'leps:gradient',mt_dbl,3*natom,
+     &     dbl_mb(frc)))
+     &   call errquit('leps_gradient:  no grad ', 0, RTDB_ERR)
+
+         write(*,*) 'Correcting step :',step
+
+         call correct(natom,dt,dbl_mb(mass),dbl_mb(coor),dbl_mb(vel),
+     &        dbl_mb(acc), dbl_mb(bterm),dbl_mb(dterm),dbl_mb(frc),ek)
+c         call print_coord(natom,dbl_mb(coor),byte_mb(tag)) 
+c         call leps_energy(rtdb)
+
+      enddo
+
+      call md_data_free_all
+
+      if (.not. geom_destroy(geom))
+     & call errquit('leps_getgeom:  geom_destroy failed',
+     & 911,GEOM_ERR)
 
 
+         return
+      end
+
+      subroutine predict (n,dt,r,v,a,b,c )
+      implicit none
+        integer     n
+        double precision r(3,n), v(3,n), a(3,n), b(3,n), c(3,n)
+        double precision dt
+        integer     i,j
+C ---- dt# are the Taylor expansion series terms dt1=dt, dt2=dt^2/2, dt3=dt^3/6 etc.
+        real        dt1, dt2, dt3, dt4
+
+c    *******************************************************************
+
+c        r(3,1) = r(3,1)+0.01
+c        r(3,2) = r(3,2)+0.02
+c        r(3,3) = r(3,3)-0.03
+       dt1 = dt
+       dt2 = dt1 * dt / 2.0
+       dt3 = dt2 * dt / 3.0
+       dt4 = dt3 * dt / 4.0
+       do i = 1,n
+        do j=1,3
+         r(j,i) = r(j,i) + dt1*v(j,i) + dt2*a(j,i)
+     1          +  dt3*b(j,i) + dt4*c(j,i)
+         v(j,i) = v(j,i) + dt1*a(j,i) + dt2*b(j,i) + dt3*c(j,i)
+         a(j,i) = a(j,i) + dt1*b(j,i) + dt2*c(j,i)
+         b(j,i) = b(j,i) + dt1*c(j,i)
+        enddo
+       enddo
+       return
+      end
+C ----- GEAR CORRECTOR
+      subroutine correct (n,dt,mass,r,v,a,b,c,force,ek )
+      implicit none
+        integer     n
+        double precision r(3,n),v(3,n),a(3,n),b(3,n),c(3,n),force(3,n)
+        double precision dt
+        integer     i,j
+C ---- dt# are the Taylor expansion series terms dt1=dt, dt2=dt^2/2, dt3=dt^3/6 etc.
+        double precision        dt1, dt2, dt3, dt4
+        double precision       mass(n), ek
+        double precision ai(3),corr(3)
+        double precision  cr, cv, cb, cc
+        double precision  c0, c1, c3, c4
+        parameter ( c0 = 19.0 / 120.0, c1 = 3.0 / 4.0,
+     1              c3 = 1.0 / 2.0,    c4 = 1.0 / 12.0 )
+
+c    *******************************************************************
+
+        dt1 = dt
+        dt2 = dt1 * dt / 2.0
+        dt3 = dt2 * dt / 3.0
+        dt4 = dt3 * dt / 4.0
+
+        cr = c0 * dt2
+        cv = c1 * dt2 / dt1
+        cb = c3 * dt2 / dt3
+        cc = c4 * dt2 / dt4
+
+        ek = 0.0
+
+        do i = 1, n
+         do j=1,3
+
+           ai(j) = -force(j,i) / mass(i)
+           corr(j) = ai(j) - a(j,i)
+
+           r(j,i) = r(j,i) + cr * corr(j)
+           v(j,i) = v(j,i) + cv * corr(j)
+           a(j,i) = ai(j)
+           b(j,i) = b(j,i) + cb * corr(j)
+           c(j,i) = c(j,i) + cc * corr(j)
+
+           ek = ek + v(j,i) ** 2
+         enddo
+       enddo
+
+       ek = 0.5 * mass(i) * ek
+
+       return
+       end
+
+       subroutine print_coord(n,c,t)
+       implicit none
+       integer n,i
+       double precision c(3,n)
+       character*16 t(3)
+
+       do i=1,n
+          write(*,*) t(i),c(1,i),c(2,i),c(3,i)
+       enddo  
+       return
+       end
+
+      subroutine md_init (n,mass,v,a,force)
+      implicit none
+        integer     n
+        double precision v(3,n), a(3,n),force(3,n),mass(n) 
+        integer     i,j
+  
+c ---- energy should average kT/2, so v=sqrt(kT/mass)         
+        do i=1,n
+           do j=1,3
+              v(j,i)=0.00
+              a(j,i) = -force(j,i) / mass(i) 
+           enddo
+        enddo 
+        v(3,1)=-0.000221588
+        v(3,2)= 0.000443176
+        v(3,3)=-0.000221588
       return
-      END
-
+      end 

@@ -1,10 +1,27 @@
 c
-c $Id: md_data.fh,v 1.1 2008-07-17 22:53:00 marat Exp $
+c $Id: md_data.fh,v 1.2 2008-07-22 23:48:43 bojana Exp $
 c
-      integer i_c,h_c
+      integer natom
+      integer h_c,i_c
+      integer h_m,i_m
+      integer h_q,i_q
+      integer h_t,i_t
+      integer h_v,i_v
+      integer h_a,i_a
+      integer h_b,i_b
+      integer h_d,i_d
+      integer h_f,i_f
 
 
-      common/md_data/
-     &                     i_c,h_c
+      common/md_data/     natom,
+     &                     h_c,i_c,
+     &                     h_m,i_m,
+     &                     h_q,i_q,
+     &                     h_t,i_t,
+     &                     h_v,i_v,
+     &                     h_a,i_a,
+     &                     h_b,i_b,
+     &                     h_d,i_d,
+     &                     h_f,i_f
 
 
