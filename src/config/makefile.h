@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.570 2008-06-20 20:18:48 d3p307 Exp $
+# $Id: makefile.h,v 1.571 2008-07-22 18:09:04 bert Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -2166,6 +2166,13 @@ endif
 else 
   CORE_LIBS += -ltcgmsg 
 endif 
+
+# slurm libraries for remaining wall time under slurm resource manager
+
+ifdef SLURM
+  EXTRA_LIBS += $(SLURMOPT)
+endif
+
 # lower level libs used by communication libraries 
  
 
