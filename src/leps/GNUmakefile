@@ -1,7 +1,7 @@
-#$Id: GNUmakefile,v 1.3 2008-07-17 22:53:00 marat Exp $
+#$Id: GNUmakefile,v 1.4 2008-07-22 23:47:49 bojana Exp $
    OBJ_OPTIMIZE = leps_energy.o leps_gradient.o
 
-   OBJ = leps_energy.o leps_gradient.o md_driver.o
+   OBJ = leps_energy.o leps_gradient.o md_driver.o md_data.o
 
    LIBRARY = libleps.a
 
