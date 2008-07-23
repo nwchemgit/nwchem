@@ -4,7 +4,7 @@
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.280 2008-04-25 20:36:36 niri Exp $
+c     $Id: dft_scf.F,v 1.281 2008-07-23 16:25:21 jhammond Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -53,7 +53,7 @@ c
       double precision dl_conv, dl2, ddl2, x1, x2, fddl, dlold
       logical lcdft
       integer g_fockv(2)
-      integer nconstr, ipop, counter_cdft
+      integer nconstr, ipop, counter_cdft, cdft_maxiter
       integer iatms1(max_constr), fatms1(max_constr)
       integer iatms2(max_constr), fatms2(max_constr), dtype(max_constr)
       integer g_constr(max_constr), g_shalf
@@ -782,6 +782,8 @@ c
      &   call errquit('dft_scf: rtdb_get failed', 2700, RTDB_ERR)
         if (.not. rtdb_get(rtdb, 'dft:ipop', mt_int, 1, ipop))
      &   ipop = 3     ! ipop default
+        if (.not.rtdb_get(rtdb,'dft:cdft_maxiter',mt_int,1,
+     1                    cdft_maxiter)) cdft_maxiter = 50
         if (.not. rtdb_put(rtdb,'dft:ipop', mt_int, 1, ipop))
      &   call errquit('dft_scf: rtdb_put pop failed', 0, RTDB_ERR)
 c
@@ -1012,16 +1014,16 @@ c Constrained DFT: label 2004 is associated with optimization of cdft.
         call dfill(nconstr, 0.0d0, grad_constr, 1)
         call dfill(nconstr*nconstr, 0.0d0, dbl_mb(k_hess), 1)
         counter_cdft = counter_cdft + 1
-        if(counter_cdft.gt.50) then
+        if(counter_cdft.gt.cdft_maxiter) then
           write(LuOut,*)
-     $     'CDFT failed to optimize the multipliers in 50 iterations.'
+     $     'CDFT failed to optimize the multipliers.'
           write(LuOut,*) 'multipliers:'
           do i = 1, nconstr
             write(LuOut,333) i, multipliers0(i)+multipliers(i)
           enddo
           call errquit
-     $        ('CDFT failed to optimize multipliers in 50 iterations',
-     $           0,RTDB_ERR)
+     $        ('CDFT failed to optimize multipliers, cdft_maxiter=',
+     $           cdft_maxiter,RTDB_ERR)
         endif
       endif
 
