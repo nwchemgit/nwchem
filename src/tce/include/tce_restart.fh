@@ -10,7 +10,7 @@ c YR_SUFFIX - the number after the saved Lambda(1) amplitudes
       parameter (F1_SUFFIX=10000, V2_SUFFIX=20000, D1_SUFFIX=30000)
       parameter (X_SUFFIX=40000, Y_SUFFIX=50000)
       parameter (TR_SUFFIX=60000, YR_SUFFIX=70000)
-      logical restart_ignore_failure
+      logical restart_ignore_failure(3)   ! F, V and D; T(0), L(0), EOM X(0) and Y(0); T(1) and L(1)
       logical save_integrals(5)  ! f1, v2, d1, q1, o1
       logical read_integrals(5)  ! f1, v2, d1, q1, o1
       logical save_t(4)          ! T(0): T1, T2, T3, T4
