@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.47 2008-07-02 03:28:49 jhammond Exp $
+c $Id: tce_init.F,v 1.48 2008-07-23 16:07:38 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -20,6 +20,7 @@ c
 #include "tce_main.fh"
 #include "tce_diis.fh"
 #include "tce_prop.fh"
+#include "tce_restart.fh"
 #include "dra.fh"
 c
       integer rtdb             ! RTDB handle
@@ -364,6 +365,16 @@ c
         if (.not.rtdb_put(rtdb,'tce:save_interval',mt_int,1,
      1      save_interval)) call errquit(
      2     'tce_init: failed to write save_interval',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:restart_ignore_failure',
+     &                  mt_log,4,restart_ignore_failure)) then
+        restart_ignore_failure(1)=.false. ! all integrals
+        restart_ignore_failure(2)=.false. ! all zeroth-order amplitudes (including EOM)
+        restart_ignore_failure(3)=.false. ! all response amplitudes
+        if (.not.rtdb_put(rtdb,'tce:restart_ignore_failure',
+     1                    mt_log,4,restart_ignore_failure))
+     1  call errquit('tce_init: failed to write restart_ignore_failure',
+     3               0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:save_integrals',mt_log,5,
      1         save_integrals)) then
