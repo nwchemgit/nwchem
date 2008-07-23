@@ -92,14 +92,14 @@ c
         ierrcode1=sf_write(handle_v2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(1))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('v2_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-c        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+c        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
          call errquit('v2_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -192,13 +192,13 @@ c
         ierrcode1=sf_write(handle_f1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(1))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('f1_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
          call errquit('f1_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -308,14 +308,14 @@ c
         ierrcode1=sf_write(handle_d1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(1))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('d1_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-c        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+c        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
          call errquit('d1_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -426,14 +426,13 @@ c
         ierrcode1=sf_write(handle_x1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('x1_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-c        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('x1_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -545,13 +544,13 @@ c
         ierrcode1=sf_write(handle_tr1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('tr1_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('tr1_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -662,13 +661,13 @@ c
         ierrcode1=sf_write(handle_y1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('y1_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('y1_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -778,13 +777,13 @@ c
         ierrcode1=sf_write(handle_yr1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('yr1_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('yr1_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -901,13 +900,13 @@ c
         ierrcode1=sf_write(handle_x2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('x2_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('x2_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -1025,13 +1024,13 @@ c
         ierrcode1=sf_write(handle_tr2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('tr2_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('tr2_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -1149,13 +1148,13 @@ c
         ierrcode1=sf_write(handle_y2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('y2_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('y2_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -1273,13 +1272,13 @@ c
         ierrcode1=sf_write(handle_yr2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('yr2_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('yr2_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -1429,13 +1428,13 @@ c
         ierrcode1=sf_write(handle_x3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('x3_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('x3_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -1583,13 +1582,13 @@ c
         ierrcode1=sf_write(handle_y3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('y3_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('y3_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -1741,13 +1740,13 @@ c
         ierrcode1=sf_write(handle_tr3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('tr3_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('tr3_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -1895,13 +1894,13 @@ c
         ierrcode1=sf_write(handle_yr3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('yr3_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('yr3_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -2020,13 +2019,13 @@ c
         ierrcode1=sf_read(handle_v2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(1))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('zones put: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
          call errquit('zones put: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_v2,offset_aux+1,offset_aux+size_aux,1,1,
@@ -2118,13 +2117,13 @@ c
         ierrcode1=sf_read(handle_f1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(1))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('f1: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
          call errquit('f1: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_f1,offset_aux+1,offset_aux+size_aux,1,1,
@@ -2234,13 +2233,13 @@ c
         ierrcode1=sf_read(handle_d1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(1))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('d1_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
          call errquit('d1_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_d1,offset_aux+1,offset_aux+size_aux,1,1,
@@ -2363,13 +2362,13 @@ c
         ierrcode1=sf_read(handle_x1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('x1_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('x1_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_x1,offset_aux+1,offset_aux+size_aux,1,1,
@@ -2481,13 +2480,13 @@ c
         ierrcode1=sf_read(handle_tr1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('tr1_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('tr1_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_tr1,offset_aux+1,offset_aux+size_aux,1,1,
@@ -2598,13 +2597,13 @@ c
         ierrcode1=sf_read(handle_y1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('y1_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('y1_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_y1,offset_aux+1,offset_aux+size_aux,1,1,
@@ -2714,13 +2713,13 @@ c
         ierrcode1=sf_read(handle_yr1,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('yr1_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('yr1_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_yr1,offset_aux+1,offset_aux+size_aux,1,1,
@@ -2837,13 +2836,13 @@ c
         ierrcode1=sf_read(handle_x2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('x2_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('x2_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_x2,offset_aux+1,offset_aux+size_aux,1,1,
@@ -2961,13 +2960,13 @@ c
         ierrcode1=sf_read(handle_tr2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('tr2_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('tr2_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_tr2,offset_aux+1,offset_aux+size_aux,1,1,
@@ -3085,13 +3084,13 @@ c
         ierrcode1=sf_read(handle_y2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('y2_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('y2_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_y2,offset_aux+1,offset_aux+size_aux,1,1,
@@ -3209,13 +3208,13 @@ c
         ierrcode1=sf_read(handle_yr2,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('yr2_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('yr2_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_yr2,offset_aux+1,offset_aux+size_aux,1,1,
@@ -3363,13 +3362,13 @@ c
         ierrcode1=sf_read(handle_x3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('x3_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('x3_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_x3,offset_aux+1,offset_aux+size_aux,1,1,
@@ -3518,13 +3517,13 @@ c
         ierrcode1=sf_read(handle_y3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('y3_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('y3_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_y3,offset_aux+1,offset_aux+size_aux,1,1,
@@ -3674,13 +3673,13 @@ c
         ierrcode1=sf_read(handle_tr3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('tr3_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('tr3_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_tr3,offset_aux+1,offset_aux+size_aux,1,1,
@@ -3829,13 +3828,13 @@ c
         ierrcode1=sf_read(handle_yr3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('yr3_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(3))) then
          call errquit('yr3_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_yr3,offset_aux+1,offset_aux+size_aux,1,1,
@@ -3975,13 +3974,13 @@ c
         ierrcode1=sf_write(handle_x3a,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('x3a_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('x3a_restart_save: sf problem31-b',2,DISK_ERR)
         end if
         if (.not.ma_pop_stack(l_aux))
@@ -4120,13 +4119,13 @@ c
         ierrcode1=sf_read(handle_x3a,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
-        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
          call errquit('x3a_restart_read: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure)) then
+        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(2))) then
          call errquit('x3a_restart_read: sf problem31-b',2,DISK_ERR)
         end if
       call ga_put(d_x3a,offset_aux+1,offset_aux+size_aux,1,1,
