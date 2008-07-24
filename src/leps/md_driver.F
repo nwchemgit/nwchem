@@ -1,4 +1,4 @@
-      function md_driver(rtdb)
+      function md_driver(rtdb,grad,thr)
       implicit none
       integer rtdb
 
@@ -12,7 +12,7 @@
 #include "geom.fh"
       logical md_driver
 c
-      integer geom, i
+      integer geom 
       integer natom
       integer md_data_get_i_c, md_data_get_i_m, md_data_get_i_q
       integer md_data_get_i_t, md_data_get_i_v, md_data_get_i_a
@@ -23,15 +23,27 @@ c
       external md_data_get_i_b, md_data_get_i_d, md_data_get_i_f
       external md_data_get_natom
 
+      logical grad
+      external grad
       integer coor,mass,bq,tag,vel,acc,bterm,dterm,frc
       integer step, nsteps
       double precision dt,ek 
-
-      dt = 0.01  ! time step
+      character*64 theory,blanks
+      character*32 thr
+      data blanks(1:64) /' '/
+      theory=blanks
+c      character*32 theorygrad 
+      call concat(thr,':gradient',theory) 
+c      theory=thr//':gradient'
+c      write(*,*) 'theory: ',theory  
+      dt = 0.5  ! time step
       ek=0.0 ! kinetic energy
-      nsteps=5000 
+      nsteps=200 
 c      double precision eleps, md_driver1
        md_driver=.true.
+      open(unit=10,file='traj.xyz',status='new')
+      open(unit=11,file='restart.pun',status='new') 
+
 cc     create geometry object 
       if (.not. geom_create(geom, 'geometry'))
      & call errquit('leps_getgeom: failed creating geometry',
@@ -64,25 +76,17 @@ cC------- accessed by the geom handlei
       call md_data_geom_copy(rtdb,geom) 
 
       write(*,*)  coor,mass,bq,tag,vel,acc,bterm,dterm,frc   
-c      if (.not. geom_masses_get(geom, natom,dbl_mb(mass) ))
-c     & call errquit('leps_getgeom:  mass error',0,GEOM_ERR)
-
-c      if (.not. geom_cart_get(geom, natom, byte_mb(tag),
-c     &                         dbl_mb(coor),dbl_mb(bq) ))
-c     & call errquit('leps_getgeom: coord error',0,GEOM_ERR)
        write(*,*) 'Filled cartesians and masses  '
 
-       call print_coord(natom,dbl_mb(frc),
-     &      byte_mb(tag))
 C ----- get initial velocities and accelerations and other inital conditions
-       call leps_gradient(rtdb)
-
+       if (.not. grad(rtdb)) 
+     & call errquit('md_gradient: grad not calculated', 0, RTDB_ERR)
 c  ---- get the gradient to fill up the force array        
-      if (.not. rtdb_get(rtdb,'leps:gradient',mt_dbl,3*natom,
+      if (.not. rtdb_get(rtdb,theory,mt_dbl,3*natom,
      &     dbl_mb(frc)))
-     & call errquit('leps_gradient:  no grad ', 0, RTDB_ERR)
+     & call errquit('md_gradient:  no grad found', 0, RTDB_ERR)
 
-      call print_coord(natom,dbl_mb(coor),byte_mb(tag))
+      call print_coord(10,natom,dbl_mb(coor),byte_mb(tag))
 C --- end of initial conditions
       call md_init(natom,dbl_mb(mass),dbl_mb(vel),
      &     dbl_mb(acc),dbl_mb(frc))
@@ -91,7 +95,7 @@ C --- end of initial conditions
 
       do step=1,nsteps
        write(*,*) 'Predicting step :',step
-       write(*,*)  coor,mass,bq,tag,vel,acc,bterm,dterm,frc
+c       write(*,*)  coor,mass,bq,tag,vel,acc,bterm,dterm,frc
 
 c         write(*,*) 'Coords :'             
 c         call print_coord(natom,dbl_mb(coor),byte_mb(tag))
@@ -111,28 +115,29 @@ c         call print_coord(natom,dbl_mb(acc),byte_mb(tag))
 C---- Add the predicted coordinates to the rtdb
 
          call md_data_geom_set(rtdb,geom)
-c         if (.not. geom_cart_set(geom, natom, byte_mb(tag),
-c     &   dbl_mb(coor), dbl_mb(bq)))
-c     &   call errquit('leps_putgeom: coord error',0,GEOM_ERR)
-
-c         if(.not.geom_rtdb_store(rtdb,geom,"geometry"))
-c     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
 
 C --- calculate forces for predicted coords             
-         call leps_gradient(rtdb)
+c         call grad(rtdb)
+       if (.not. grad(rtdb)) 
+     & call errquit('md_gradient: no grad calculated ', 0, RTDB_ERR)
 
  
-         if (.not. rtdb_get(rtdb,'leps:gradient',mt_dbl,3*natom,
+         if (.not. rtdb_get(rtdb,theory,mt_dbl,3*natom,
      &     dbl_mb(frc)))
-     &   call errquit('leps_gradient:  no grad ', 0, RTDB_ERR)
+     &   call errquit('md_gradient: no grad found ', 0, RTDB_ERR)
 
          write(*,*) 'Correcting step :',step
 
          call correct(natom,dt,dbl_mb(mass),dbl_mb(coor),dbl_mb(vel),
      &        dbl_mb(acc), dbl_mb(bterm),dbl_mb(dterm),dbl_mb(frc),ek)
-c         call print_coord(natom,dbl_mb(coor),byte_mb(tag)) 
-c         call leps_energy(rtdb)
+         call print_coord(10,natom,dbl_mb(coor),byte_mb(tag)) 
 
+         if (mod(step,10).eq.0.0) then
+             rewind(11)  
+             call punch (11,natom,nsteps,step,dt,dbl_mb(mass),
+     &            dbl_mb(coor),dbl_mb(vel),dbl_mb(acc),dbl_mb(bterm),
+     &            dbl_mb(dterm),byte_mb(tag))
+         endif    
       enddo
 
       call md_data_free_all
@@ -140,7 +145,9 @@ c         call leps_energy(rtdb)
       if (.not. geom_destroy(geom))
      & call errquit('leps_getgeom:  geom_destroy failed',
      & 911,GEOM_ERR)
-
+      
+      close(unit=10)
+      close(unit=11)
 
          return
       end
@@ -225,14 +232,18 @@ c    *******************************************************************
        return
        end
 
-       subroutine print_coord(n,c,t)
+       subroutine print_coord(rfile,n,c,t)
        implicit none
-       integer n,i
-       double precision c(3,n)
-       character*16 t(3)
-
+       integer n,i,rfile
+       double precision c(3,n),cnv
+       character*16 t(n)
+       cnv=1.889725989
+       if (rfile.eq.10) then
+        write(rfile,*) '3'
+        write(rfile,*) 
+       endif  
        do i=1,n
-          write(*,*) t(i),c(1,i),c(2,i),c(3,i)
+          write(rfile,*) t(i),c(1,i)/cnv,c(2,i)/cnv,c(3,i)/cnv
        enddo  
        return
        end
@@ -255,3 +266,85 @@ c ---- energy should average kT/2, so v=sqrt(kT/mass)
         v(3,3)=-0.000221588
       return
       end 
+
+
+      subroutine concat(str1,str2,str)
+      implicit none
+      character*32 str1
+      character*9  str2
+      character*64 str,blanks
+      integer i,j,i1 
+      data blanks(1:64) /' '/
+C
+      str = blanks
+ 
+C Find the first nonblank in the file name.
+C
+      write(*,*) 'str1: ',str1
+      write(*,*) 'str2: ',str2
+      write(*,*) 'str: ',str
+c      i1=1
+c      j=1
+c      Do while ((j .le. len(str1)) .and. (str1(j:j) .eq. ' '))
+c        j=j+1
+c      enddo
+C
+C Now concatenate the file name.
+C
+      i=1
+     
+      do while ((i .le. len(str1)) .and. (str1(i:i) .ne. ' '))
+         str (i:i) = str1 (i:i)
+c         i1 = i1 + 1
+         i=i+1
+      enddo
+C Find the first nonblank in the file type.
+C
+c      j=1
+c      Do while ((j .le. len(str2)) .and. (str2(j:j) .eq. ' '))
+c        j=j+1
+c      enddo
+      i1=i 
+      j=1
+      do while ((j .le. len(str2)) .and. (str2(j:j) .ne. ' '))
+            str (i1:i1) = str2 (j:j)
+            i1 = i1 + 1
+            j=j+1
+      enddo
+
+      write (*,*) 'Long string : ', str
+      write (*,*)
+      end
+      subroutine punch (rfile,n,nsteps,step,dt,mass,c,v,a,b,d,t)
+      implicit none
+        integer     i,rfile,n,nsteps,step 
+        double precision mass(n),c(3,n), v(3,n), a(3,n), b(3,n), d(3,n)
+        double precision dt
+        character*16 t(n)  
+        write(rfile,*) 'natom, md steps, curr. step, time step:'
+        write(rfile,*)  n,nsteps,step,dt
+        write(rfile,*) 'mass' 
+        do i =1,n
+          write(rfile,*) t(i),mass(i)
+        enddo
+        write(rfile,*) 'coordinates'
+        call print_coord(rfile,n,c,t)
+        write(rfile,*) 'velocities'
+        call print_coord(rfile,n,v,t)
+        write(rfile,*) 'accelerations'
+        call print_coord(rfile,n,a,t)
+        write(rfile,*) 'b-term'
+        call print_coord(rfile,n,b,t)
+        write(rfile,*) 'd-terms'
+        call print_coord(rfile,n,d,t)
+        write(rfile,*) 'End of restart file'
+      end
+
+c      subroutine read_punch (fname,n,nsteps,step,dt,mass,c,v,a,b,d,t)
+c        integer     i,rfile,n,nsteps,step
+c        double precision mass(n),c(3,n), v(3,n), a(3,n), b(3,n), d(3,n)
+c        double precision dt
+c        character*16 t(n)
+
+c        open(unit=12,file=fname,status=old)
+c      end 
