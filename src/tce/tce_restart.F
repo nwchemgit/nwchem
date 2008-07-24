@@ -1,4 +1,4 @@
-#define SFCREATESUFFIX
+c#define SFCREATESUFFIX
 
 #ifndef SFCREATESUFFIX
       integer function sf_create_suffix(filename,size1,size2,
