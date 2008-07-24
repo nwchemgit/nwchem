@@ -1,6 +1,6 @@
       subroutine tce_residual_t3a(d_r3,k_r3_offset,residual)
 c
-c $Id: tce_residual_t3a.F,v 1.2 2008-07-17 21:47:59 marat Exp $
+c $Id: tce_residual_t3a.F,v 1.3 2008-07-24 04:09:27 d3p975 Exp $
 c
       implicit none
 #include "global.fh"
@@ -48,7 +48,7 @@ c     ================
 c
       nprocs = ga_nnodes()
       count = 0
-      next = nxtask(nprocs)
+      next = nxtask(nprocs,1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
           do p3b = p2b,noab+nvab
@@ -119,7 +119,7 @@ c
                     endif
                     endif
                     endif         !active
-                    next = nxtask(nprocs)
+                    next = nxtask(nprocs,1)
                   endif
                   count = count + 1
                 enddo
@@ -128,7 +128,7 @@ c
           enddo
         enddo
       enddo
-      next = nxtask(-nprocs)
+      next = nxtask(-nprocs,1)
       call ga_sync()
       call ga_get(g_residual,1,1,1,1,residual,1)
       residual = 0.5d0*dsqrt(residual)
