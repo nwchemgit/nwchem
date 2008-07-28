@@ -9,6 +9,7 @@
 !
 ! 32 = alias for chopped GA on 32-bit systems
 !
+      integer d_v2sf,d_v2ga
       integer io_d1,io_f1,io_v2
 !      integer io_t1,io_t2,io_t3,io_t4
 !      integer io_l1,io_l2,io_l3,io_l4
@@ -17,16 +18,18 @@
 !      integer io_x1,io_x2,io_x3,io_x4
 !      integer io_y1,io_y2,io_y3,io_y4
       integer IOFORT, IOEAF, IOGA, IOSF
-      integer IOREP, IODRA, IOGAEAF, IOCHOP
+      integer IOREP, IODRA, IOGAEAF, IOCHOP, IOHYBRID
       parameter (IOFORT=0, IOEAF=1, IOGA=2, IOSF=3)
       parameter (IOREP=4, IODRA=5, IOGAEAF=6, IOCHOP=32)
+      parameter (IOHYBRID=101)
 
       common /tcehetiointeger/
-     1 io_d1,io_f1,io_v2
-!     2 io_t1,io_t2,io_t3,io_t4,
-!     3 io_l1,io_l2,io_l3,io_l4,
-!     4 io_tr1,io_tr2,io_tr3,io_tr4,
-!     3 io_lr1,io_lr2,io_lr3,io_lr4,
-!     5 io_x1,io_x2,io_x3,io_x4,
-!     6 io_y1,io_y2,io_y3,io_y4
+     1 d_v2sf,d_v2ga,
+     2 io_d1,io_f1,io_v2
+!     3 io_t1,io_t2,io_t3,io_t4,
+!     4 io_l1,io_l2,io_l3,io_l4,
+!     5 io_tr1,io_tr2,io_tr3,io_tr4,
+!     6 io_lr1,io_lr2,io_lr3,io_lr4,
+!     7 io_x1,io_x2,io_x3,io_x4,
+!     8 io_y1,io_y2,io_y3,io_y4
 
