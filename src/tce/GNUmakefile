@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.70 2008-07-16 23:40:31 jhammond Exp $
+#$Id: GNUmakefile,v 1.71 2008-07-28 19:28:19 jhammond Exp $
 #
 
 SUBDIRS = include ccsd ccsd_lambda eomccsd \
@@ -31,8 +31,8 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_mbpt2.o tce_energy.o tce_energy_fragment.o tce_restricted.o \
       tce_hash.o get_hash_block.o put_hash_block.o add_hash_block.o tce_sort_4kg.o \
       tce_residual_t3a.o tce_t3a_offset.o tce_jacobi_t3a.o \
-      tce_x3a_offset.o tce_jacobi_x3a.o \
-      tce_cholesky.o tce_ao2e_cholesky.o tce_imaginary.o \
+      tce_x3a_offset.o tce_jacobi_x3a.o tce_imaginary.o \
+      tce_cholesky.o tce_ao2e_cholesky.o tce_ao2e_cholesky_2d.o tce_ao2e_cholesky_4d.o \
       e2_offset_2_offset.o get_block_ind.o get_block_ind_sf.o tce_hash_ind.o \
       tce_mo2e_offset_intorb.o tce_mo2e_offset_size.o tce_mo2e_trans.o \
       atpart_nalength.o tce_mo2e_zones_4a_disk_ga.o tce_mo2e_zones_4a_disk_ga_chop.o \
@@ -56,11 +56,11 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_ccsd_response_driver.o tce_ccsdt_response_driver.o tce_ccsdtq_response_driver.o \
       tce_ccsd_symm_polar.o tce_ccsdt_symm_polar.o tce_ccsdtq_symm_polar.o \
       tce_ccsd_lambda_response_driver.o tce_ccsd_asym_polar.o tce_ccsd_hyperpolar.o \
-      tce_ao2e_new.o tce_tile_new.o tce_init_new.o \
+      tce_ao2e_new.o tce_mo2e_new.o tce_tile_new.o tce_init_new.o \
       tce_mo2e_zones_4a_disk_4s_new_patch.o tce_mo2e_zones_4a_disk_4s_new_patch_m2.o \
       tce_mo2e_zones_4a_disk_4s_new_patch_m3.o tce_ao2e_disk.o tce_mo2e_disk.o \
       tce_mo2e_disk_2eorb.o tce_mo2e_incore_2eorb.o tce_mo2e_incore_2eorb_split.o \
-      tce_mo2e_ga_sf_hybrid.o
+      tce_mo2e_hybrid_2eorb_split.o tce_mo2e_offset_intorb_hybrid.o
 
 #define SADAYSORT
 #endef
@@ -71,13 +71,15 @@ else
       OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
 endif
 
-define KAROLEOM
-endef
+#define KAROLEOM
+#endef
 
 ifdef KAROLEOM
-      OBJ_OPTIMIZE += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
+      OBJ_OPTIMIZE += tce_eom_xguess_karol.o tce_eom_yguess_karol.o \
+                      tce_eom_xrestart.o tce_eom_yrestart.o
 else
-      OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o
+      OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o \
+                      tce_eom_xrestart.o tce_eom_yrestart.o
 endif
 
 
@@ -88,22 +90,24 @@ LIBRARY = libtce.a
 USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_residual_t3.F tce_residual_t4.F tce_residual_t3a.F \
             tce_ao2e.F tce_mo2e.F tce_guess_t1.F tce_diis.F tce_mod1.F tce_moq1.F \
-            tce_eom_xdiagon.F dscalfile.F tce_eom_ydiagon.F\
-            tce_ao1e.F tce_aod1.F tce_aoq1.F tce_mo1e.F tce_ao_mp1.F tce_mo_mp1.F\
-            tce_mo2e_zones_4a_disk_ga.F tce_mo2e_zones_4a_disk_ga_chop.F\
-            tce_mo2e_zones_4a_disk_4s_new_patch.F\
-            tce_mo2e_zones_4a_disk_2s_new.F tce_mo2e_zones_4a_disk_4s_new_patch_m2.F\
+            tce_eom_xdiagon.F dscalfile.F tce_eom_ydiagon.F \
+            tce_ao1e.F tce_aod1.F tce_aoq1.F tce_mo1e.F tce_ao_mp1.F tce_mo_mp1.F \
+            tce_mo2e_zones_4a_disk_ga.F tce_mo2e_zones_4a_disk_ga_chop.F \
+            tce_mo2e_zones_4a_disk_4s_new_patch.F \
+            tce_mo2e_zones_4a_disk_2s_new.F tce_mo2e_zones_4a_disk_4s_new_patch_m2.F \
             tce_mo2e_disk_2eorb.F tce_mo2e_incore_2eorb.F tce_mo2e_incore_2eorb_split.F \
-            tce_mo2e_ga_sf_hybrid.F\
+            tce_mo2e_hybrid_2eorb_split.F \
             tce_diagnose_t1.F ddotfile.F tce_ao2e_cholesky.F tce_energy.F
 
 ifndef CCSDTLR
-LIB_DEFINES = #-DNEWDIPOLE
-#LIB_DEFINES = -DDEBUG_PRINT -DNEWDIPOLE
+LIB_DEFINES = 
 else
-LIB_DEFINES = -DCCSDTLR #-DNEWDIPOLE
-#LIB_DEFINES = -DDEBUG_PRINT -DCCSDTLR -DNEWDIPOLE
+LIB_DEFINES = -DCCSDTLR
 endif
+
+#LIB_DEFINES += -DNEWDIPOLE
+LIB_DEFINES += -DDEBUG_PRINT
+
 #
 # Possible #defines
 #
