@@ -1,7 +1,7 @@
       subroutine get_block_ind_sf(d_file,array,size,key_ix,indexc)
 c      subroutine get_block_ind_sf(d_file,array,size,offset,indexc)
 c
-c $Id: get_block_ind_sf.F,v 1.1 2008-06-10 11:37:09 jhammond Exp $
+c $Id: get_block_ind_sf.F,v 1.2 2008-07-28 19:06:26 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -161,7 +161,7 @@ c
 c
 c
 c
-      if (ioalg.eq.2) then
+c      if (ioalg.eq.2) then
 c v^{ g3b < g4b}_{ g1b < g2b } => ( g3b g1b | g4b g2b ) - ( g3b g2b | g4b g1b )
         uaadaa=.false.
         ubbdbb=.false.
@@ -255,7 +255,7 @@ c===================================================================c
 c 
 c         OLD CALL
 c
-c         call ga_get(d_v2orb,offset_alpha+1,offset_alpha+size,1,1,
+c         call ga_get(d_file,offset_alpha+1,offset_alpha+size,1,1,
 c     1         dbl_mb(k_a),1)
 c
 c         EXAMPLE FROM GET_BLOCK(...)
@@ -266,16 +266,16 @@ c
 c===================================================================c
         if (parallel) then
           call ga_lock(0)
-          if (sf_open(d_v2orb).ne.0)
+          if (sf_open(d_file).ne.0)
      1      call errquit('get_block: sf problem',0,DISK_ERR)
         endif
-        if (sf_read(d_v2orb,dfloat(bytes)*dfloat(offset_alpha),
+        if (sf_read(d_file,dfloat(bytes)*dfloat(offset_alpha),
      1    dfloat(bytes)*dfloat(size),dbl_mb(k_a),request).ne.0)
      2    call errquit('get_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('get_block: sf problem',2,DISK_ERR)
         if (parallel) then
-          if (sf_close(d_v2orb).ne.0)
+          if (sf_close(d_file).ne.0)
      1      call errquit('get_block: sf problem',3,DISK_ERR)
           call ga_unlock(0)
         endif
@@ -486,7 +486,7 @@ c===================================================================c
 c
 c         OLD CALL
 c
-c         call ga_get(d_v2orb,offset_alpha+1,offset_alpha+size,1,1,
+c         call ga_get(d_file,offset_alpha+1,offset_alpha+size,1,1,
 c     1         dbl_mb(k_a),1)
 c
 c         EXAMPLE FROM GET_BLOCK(...)
@@ -497,16 +497,16 @@ c
 c===================================================================c
         if (parallel) then
           call ga_lock(0)
-          if (sf_open(d_v2orb).ne.0)
+          if (sf_open(d_file).ne.0)
      1      call errquit('get_block: sf problem',0,DISK_ERR)
         endif
-        if (sf_read(d_v2orb,dfloat(bytes)*dfloat(offset_alpha),
+        if (sf_read(d_file,dfloat(bytes)*dfloat(offset_alpha),
      1    dfloat(bytes)*dfloat(size),dbl_mb(k_a),request).ne.0)
      2    call errquit('get_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('get_block: sf problem',2,DISK_ERR)
         if (parallel) then
-          if (sf_close(d_v2orb).ne.0)
+          if (sf_close(d_file).ne.0)
      1      call errquit('get_block: sf problem',3,DISK_ERR)
           call ga_unlock(0)
         endif
@@ -658,7 +658,7 @@ c
 c
 c
 c
-      end if    !ioalg
+c      end if    !ioalg
 c
       cpusecs(5) = cpusecs(5) + util_cpusec()
       cpusecs(55) = cpusecs(55) + util_wallsec()
@@ -685,7 +685,7 @@ c
      &                         w2b,w1b,w4b,w3b)
 c      subroutine get_block_ind_sf(d_file,array,size,offset,indexc)
 c
-c $Id: get_block_ind_sf.F,v 1.1 2008-06-10 11:37:09 jhammond Exp $
+c $Id: get_block_ind_sf.F,v 1.2 2008-07-28 19:06:26 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -815,7 +815,7 @@ c
 c
 c
 c
-      if (ioalg.eq.2) then
+c      if (ioalg.eq.2) then
 c v^{ g3b < g4b}_{ g1b < g2b } => ( g3b g1b | g4b g2b ) - ( g3b g2b | g4b g1b )
         uaadaa=.false.
         ubbdbb=.false.
@@ -910,14 +910,14 @@ c ***************
            array(i) = 0.0d0
          enddo
 c *** debug ***
-c       write(6,*)'from gbbi d_v2orb 1',d_v2orb
+c       write(6,*)'from gbbi d_file 1',d_file
 c       call util_flush(6)
 c ***************
 c===================================================================c
 c
 c         OLD CALL
 c
-c         call ga_get(d_v2orb,offset_alpha+1,offset_alpha+size,1,1,
+c         call ga_get(d_file,offset_alpha+1,offset_alpha+size,1,1,
 c     1         dbl_mb(k_a),1)
 c
 c         EXAMPLE FROM GET_BLOCK(...)
@@ -928,22 +928,22 @@ c
 c===================================================================c
         if (parallel) then
           call ga_lock(0)
-          if (sf_open(d_v2orb).ne.0)
+          if (sf_open(d_file).ne.0)
      1      call errquit('get_block: sf problem',0,DISK_ERR)
         endif
-        if (sf_read(d_v2orb,dfloat(bytes)*dfloat(offset_alpha),
+        if (sf_read(d_file,dfloat(bytes)*dfloat(offset_alpha),
      1    dfloat(bytes)*dfloat(size),dbl_mb(k_a),request).ne.0)
      2    call errquit('get_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('get_block: sf problem',2,DISK_ERR)
         if (parallel) then
-          if (sf_close(d_v2orb).ne.0)
+          if (sf_close(d_file).ne.0)
      1      call errquit('get_block: sf problem',3,DISK_ERR)
           call ga_unlock(0)
         endif
 c===================================================================c
 c *** debug ***
-c       write(6,*)'from gbbi d_v2orb 1',d_v2orb
+c       write(6,*)'from gbbi d_file 1',d_file
 c       call util_flush(6)
 c ***************
 c
@@ -1213,14 +1213,14 @@ c ***************
            dbl_mb(k_a+i-1) = 0.0d0
          enddo
 c *** debug ***
-c       write(6,*)'from gbbi d_v2orb 2',d_v2orb
+c       write(6,*)'from gbbi d_file 2',d_file
 c       call util_flush(6)
 c ***************
 c===================================================================c
 c
 c         OLD CALL
 c
-c         call ga_get(d_v2orb,offset_alpha+1,offset_alpha+size,1,1,
+c         call ga_get(d_file,offset_alpha+1,offset_alpha+size,1,1,
 c     1         dbl_mb(k_a),1)
 c
 c         EXAMPLE FROM GET_BLOCK(...)
@@ -1231,22 +1231,22 @@ c
 c===================================================================c
         if (parallel) then
           call ga_lock(0)
-          if (sf_open(d_v2orb).ne.0)
+          if (sf_open(d_file).ne.0)
      1      call errquit('get_block: sf problem',0,DISK_ERR)
         endif
-        if (sf_read(d_v2orb,dfloat(bytes)*dfloat(offset_alpha),
+        if (sf_read(d_file,dfloat(bytes)*dfloat(offset_alpha),
      1    dfloat(bytes)*dfloat(size),dbl_mb(k_a),request).ne.0)
      2    call errquit('get_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('get_block: sf problem',2,DISK_ERR)
         if (parallel) then
-          if (sf_close(d_v2orb).ne.0)
+          if (sf_close(d_file).ne.0)
      1      call errquit('get_block: sf problem',3,DISK_ERR)
           call ga_unlock(0)
         endif
 c===================================================================c
 c *** debug ***
-c       write(6,*)'after gbbi d_v2orb 2'
+c       write(6,*)'after gbbi d_file 2'
 c       call util_flush(6)
 c ***************
 c
@@ -1396,7 +1396,7 @@ c
 c
 c
 c
-      end if    !ioalg
+c      end if    !ioalg
 c
 c *** debug ***
 c       write(6,*)'leaving gbbi g-s'
