@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.5 2008-06-03 21:29:59 jhammond Exp $
+#$Id: GNUmakefile,v 1.6 2008-07-29 02:39:52 jhammond Exp $
 
 OBJ          = cr_ccsd_t.o lr_ccsd_t.o
 OBJ_OPTIMIZE = ccsd_t.o ccsd_t_doubles.o ccsd_t_singles.o  cr_ccsd_t_D.o cr_ccsd_t_E.o cr_ccsd_t_N.o \
@@ -16,8 +16,7 @@ ccsdt2_q_left.F \
 ccsdt2_q_right.F \
 ccsd_t_doubles.F \
 ccsd_t_singles.F \
-lambda_ccsd_t_doubles.F \
-lambda_ccsd_t_singles.F \
+lambda_ccsd_t_left.F \
 cr_ccsd_t_D.F \
 cr_ccsd_t_E.F \
 cr_ccsd_t_N.F \
