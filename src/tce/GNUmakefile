@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.71 2008-07-28 19:28:19 jhammond Exp $
+#$Id: GNUmakefile,v 1.72 2008-07-31 17:17:35 jhammond Exp $
 #
 
 SUBDIRS = include ccsd ccsd_lambda eomccsd \
@@ -75,11 +75,9 @@ endif
 #endef
 
 ifdef KAROLEOM
-      OBJ_OPTIMIZE += tce_eom_xguess_karol.o tce_eom_yguess_karol.o \
-                      tce_eom_xrestart.o tce_eom_yrestart.o
+      OBJ_OPTIMIZE += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
 else
-      OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o \
-                      tce_eom_xrestart.o tce_eom_yrestart.o
+      OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o
 endif
 
 
