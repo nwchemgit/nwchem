@@ -1,7 +1,7 @@
       subroutine cdft_input(rtdb, nconstr, dtype, iatms1, iatms2, 
      $                      fatms1, fatms2, constr)
 c
-c     $Id: cdft_inp.F,v 1.2 2007-02-15 00:07:44 bert Exp $
+c     $Id: cdft_inp.F,v 1.3 2008-08-03 00:33:34 jhammond Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -35,7 +35,8 @@ c
       if (.not.(inp_i(iatms1(nconstr)).and.inp_i(fatms1(nconstr))))
      &   call errquit('cdft_input: atom not selected', 2700, RTDB_ERR)
       if (.not.(inp_i(iatms2(nconstr)).and.inp_i(fatms2(nconstr)))) then
-         iatms2(nconstr) = 0; fatms2(nconstr) = 0
+         iatms2(nconstr) = 0
+         fatms2(nconstr) = 0
       endif
       if (.not. inp_a(test)) call errquit
      $         ('cdft_input: specify charge or spin', 2700, RTDB_ERR)
