@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.148 2008-05-21 18:03:50 marat Exp $
+C$Id: geom.F,v 1.149 2008-08-03 00:27:45 jhammond Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2648,7 +2648,7 @@ c
       logical match
       character*2 symbols(nelements)
       character*16 elements(nelements)
-      character(*) tag(nt)         ! [input]
+      character*(*) tag(nt)         ! [input]
       integer atn(nt)            ! [output]
 c
 c     attempt to figure out which element a tag refers to
