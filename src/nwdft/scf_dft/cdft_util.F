@@ -153,7 +153,7 @@ c convert charge to number of electrons
 
       subroutine lowd_pop( geom, basis, iga_dens,iga_s, g_tmp )
 
-C$Id: cdft_util.F,v 1.4 2007-11-06 21:23:30 d3p307 Exp $
+C$Id: cdft_util.F,v 1.5 2008-08-03 00:34:59 jhammond Exp $
       Implicit none
 #include "errquit.fh"
       integer geom,basis
@@ -746,7 +746,8 @@ c!! Here try Newton step.  If it's got out of [x1, x2], then bisection.
       check = .false.
       backtrack = .false.
 
-      x0=0d0; x1=0d0
+      x0=0d0
+      x1=0d0
       do i = 1, nconstr
          x0=x0+grad(i)*grad(i)
          x1=x1+grad_old(i)*grad_old(i)
@@ -754,7 +755,9 @@ c!! Here try Newton step.  If it's got out of [x1, x2], then bisection.
       if((x0-x1).gt.1d-8) backtrack = .true.
 
       if(backtrack) then
-        x0=0d0; x1=0d0; y1=0d0
+        x0=0d0
+        x1=0d0
+        y1=0d0
         do i = 1, nconstr
            x0=x0+grad_old(i)*p(i)
            x1=x1+grad(i)*p(i)
