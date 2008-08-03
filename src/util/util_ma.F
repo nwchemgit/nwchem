@@ -1,4 +1,4 @@
-c $Id: util_ma.F,v 1.1 2008-02-13 21:18:29 marat Exp $
+c $Id: util_ma.F,v 1.2 2008-08-03 00:24:59 jhammond Exp $
 
       subroutine util_set_ma_char_arrays(nt,tin,tout)
       implicit none
@@ -12,5 +12,5 @@ c $Id: util_ma.F,v 1.1 2008-02-13 21:18:29 marat Exp $
        tout(i) = tin(i) 
       end do
 
-      end subroutine
+      end
 
