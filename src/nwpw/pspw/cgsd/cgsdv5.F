@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.97 2008-06-22 16:43:52 bylaska Exp $
+* $Id: cgsdv5.F,v 1.98 2008-08-08 00:43:01 bylaska Exp $
 *
 
 ***********************************************************************
@@ -282,7 +282,6 @@ c     value = psi_initialize()
       call pspw_charge_init(rtdb)
 
 *     **** initialize SIC and HFX ****
-      call pspw_init_APC(rtdb)
       ne(1) = psi_ne(1)
       ne(2) = psi_ne(2)
       call pspw_init_SIC(rtdb,ne)
