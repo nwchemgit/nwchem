@@ -1,5 +1,5 @@
-[lmax] 0
-[locp] 0
+[lmax] -1
+[locp] -1
 [rlocal] 1.0
 [cutoff] 35.0
 
