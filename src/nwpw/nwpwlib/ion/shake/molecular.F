@@ -6,7 +6,7 @@
 *     ***************************
       subroutine molecular_init(rtdb)
 *
-* $Id: molecular.F,v 1.6 2007-03-27 02:02:47 bylaska Exp $
+* $Id: molecular.F,v 1.7 2008-08-08 01:02:21 bylaska Exp $
 *
       implicit none 
       integer   rtdb
@@ -51,9 +51,11 @@
       else
         value = rtdb_cget(rtdb,'nwpw:shake_constraint',1,string)
         if (value) then
-          call util_file_name_noprefix('SHAKE',.false.,
-     >                                .false.,
-     >                                full_filename)
+          full_filename = 'SHAKE'
+          call util_file_name_resolve(full_filename, .false.)
+c          call util_file_name_noprefix('SHAKE',.false.,
+c     >                                .false.,
+c     >                                full_filename)
           l = index(full_filename,' ') - 1
 
           !*** create SHAKE data file ****
