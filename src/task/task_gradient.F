@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.54 2008-07-16 16:49:15 bojana Exp $
+* $Id: task_gradient.F,v 1.55 2008-08-09 21:46:55 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -78,7 +78,8 @@ cc
         else
           status = bsse_gradient(rtdb,theory,energy,gradient)
           if(.not.status)
-     $      call errquit('task_gradient: error call bsse gradient',911)
+     $      call errquit('task_gradient: error call bsse gradient',911,
+     &                   CALC_ERROR)
         endif
 cc
       else
@@ -159,7 +160,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.54 2008-07-16 16:49:15 bojana Exp $
+* $Id: task_gradient.F,v 1.55 2008-08-09 21:46:55 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -430,7 +431,7 @@ c
          if (numerical) then
            status = task_num_grad(rtdb)
          else
-           status = leps_gradient(rtdb)
+c           status = leps_gradient(rtdb)
          endif
       else
          call errquit('task_gradient: unknown theory',0, INPUT_ERR)
