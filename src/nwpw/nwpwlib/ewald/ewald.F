@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.16 2008-06-22 16:43:51 bylaska Exp $
+* $Id: ewald.F,v 1.17 2008-08-11 17:12:00 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -931,6 +931,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if (.not. value) 
      >  call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
+
       call dcopy((2*enpack),0.0d0,0,dcpl_mb(strf(1)),1)
       do ii=1,ion_nion()
          call ewald_strfac(ii,dcpl_mb(exi(1)))
@@ -938,7 +939,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >             dcpl_mb(strf(1)),1)
       end do
       do i=1,enpack
-          cz=dbl_mb(strf(1)+i-1)
+          cz=dcpl_mb(strf(1)+i-1)
           ar=dble(cz)
           ai=dimag(cz)
           dbl_mb(H(1)+i-1)=ar*ar+ai*ai
@@ -996,22 +997,22 @@ c      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
             dbl_mb(tmp1(1)+i-1)=dbl_mb(eG(u)+i-1)*dbl_mb(eG(s)+i-1)
          end do
          sum=2.0d0*ddot(enpack,dbl_mb(tmp1(1)),1,dbl_mb(tmp2(1)),1)
-         if (tnp.gt.1) call Parallel_SumAll(sum)
+         !if (tnp.gt.1) call Parallel_SumAll(sum)
          Cus(u,s) = ss*sum
       end do
       end do
-      do u=1,3
-      do s=u+1,3
-         Cus(s,u) = Cus(u,s)
-      end do
-      end do
-      do v=1,3
-      do u=1,3
-        do s=1,3
-           stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
-        end do
-      end do
-      end do
+c      do u=1,3
+c      do s=u+1,3
+c         Cus(s,u) = Cus(u,s)
+c      end do
+c      end do
+c      do v=1,3
+c      do u=1,3
+c        do s=1,3
+c           stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
+c        end do
+c      end do
+c      end do
 
       value =           MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
@@ -1019,18 +1020,18 @@ c      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
       if (.not.value) 
      > call errquit('ewald_stress:error popping stack memory',0,MA_ERR)
 
-
 *     **** R-space contributions ****
 
-
 *     **** calculate alpha1 - stress from cewald term*****
-        call dcopy(9,0.0d0,0,Cus,1)
+c        call dcopy(9,0.0d0,0,Cus,1)
         rs      = (3.0d0*lattice_omega()/(4.0d0*pi))**(1.0d0/3.0d0)
         epsilon = 1.0d0/rcut
         sum = 0.0d0
+        dutask = 0
         do n1=(-N+1),(N-1) 
         do n2=(-N+1),(N-1) 
         do n3=(-N+1),(N-1) 
+           if (dutask.eq.tid) then
            if (.not.((n1.eq.0).and.(n2.eq.0).and.(n3.eq.0))) then
               ax = n1*unita(1,1)
      >           + n2*unita(1,2)
@@ -1054,31 +1055,33 @@ c      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
               Cus(1,2) = Cus(1,2) + ss * ax*ay 
               Cus(1,3) = Cus(1,3) + ss * ax*az 
 
-              Cus(2,1) = Cus(2,1) + ss * ay*ax 
+              !Cus(2,1) = Cus(2,1) + ss * ay*ax 
               Cus(2,2) = Cus(2,2) + ss * ay*ay 
               Cus(2,3) = Cus(2,3) + ss * ay*az 
 
-              Cus(3,1) = Cus(3,1) + ss * az*ax 
-              Cus(3,2) = Cus(3,2) + ss * az*ay 
+              !Cus(3,1) = Cus(3,1) + ss * az*ax 
+              !Cus(3,2) = Cus(3,2) + ss * az*ay 
               Cus(3,3) = Cus(3,3) + ss * az*az 
 
            end if
+           end if
+           dutask=mod(dutask+1,tnp)
         end do
         end do
         end do
 
 
-        do v=1,3
-        do u=1,3
-          do s=1,3
-             stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
-          end do
-        end do
-        end do
+c        do v=1,3
+c        do u=1,3
+c          do s=1,3
+c             stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
+c          end do
+c        end do
+c        end do
 
 
 *     **** calculate erfc contribution *****
-      call dcopy(9,0.0d0,0,Cus,1)
+c      call dcopy(9,0.0d0,0,Cus,1)
       epsilon = 1.0d0/rcut
       dutask=0
       do i=1,nion-1
@@ -1109,6 +1112,7 @@ c      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
         dutask=mod(dutask+1,tnp)
       end do
       end do
+
       if (tnp.gt.1) then
         call Parallel_Vector_SumAll(9,Cus(1,1))
       end if
