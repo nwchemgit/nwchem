@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: get-tools,v 1.13 2008-03-04 21:15:53 d3p307 Exp $
+# $Id: get-tools,v 1.14 2008-08-13 20:58:50 jhammond Exp $
 #
 
 unalias mv
@@ -30,3 +30,8 @@ rm -f NOTES
 mv -f * ..
 cd ..
 rm -rf ga
+
+svn checkout https://svn.pnl.gov/svn/hpctools/branches/cvs-dev/ga
+mv -f ga/pario/sf/sf.fh ga/pario/sf/sf_fortran.c ga/pario/sf/sf.h ga/pario/sf/shared.files.c pario/sf/.
+rm -rf ga
+
