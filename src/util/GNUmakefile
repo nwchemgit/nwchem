@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.206 2008-07-22 18:07:22 bert Exp $
+# $Id: GNUmakefile,v 1.207 2008-08-14 17:14:05 bert Exp $
 
 include ../config/makefile.h
 
@@ -239,6 +239,9 @@ ifdef PBS
   WHICHQSTAT  += $(shell which qstat)
   DEFINES += -DPBS
   LIB_ALSO_BUILD = $(BINDIR)/jobtime_pbs $(BINDIR)/jobtime_pbs.pl
+endif
+ifdef SLURM
+  DEFINES += -DSLURM
 endif
 
 include ../config/makelib.h
