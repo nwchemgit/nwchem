@@ -2,7 +2,7 @@
 #define NEW_SPARSE
 #endif
 c
-c  $Id: moints_semi.F,v 1.63 2005-01-17 19:49:54 edo Exp $
+c  $Id: moints_semi.F,v 1.64 2008-08-14 16:19:05 bert Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -61,8 +61,8 @@ c
        integer niofl
        integer myid, numnodes, rlo, rhi, clo, chi
        integer itmp, vtmp(10), mxrlen
-       integer lmemreq
-       double precision gmem
+       integer lmemreq, nvir_node
+       double precision gmem, gmem_agg
        double precision iotmpptr
        integer g_kbuf
        logical status
@@ -131,17 +131,17 @@ c
           call util_flush(6)
        endif
 c
-       gmem = gmem*numnodes
-c
-       gmem = gmem * 0.9d0      ! Protect against distribution inequity
+       gmem_agg = gmem*numnodes
 c
        if (oprint_mem) then
-          write(6,719) gmem
+          write(6,719) gmem_agg
  719      format('   Aggregate GA available ', 1p, d10.2)
           call util_flush(6)
        endif
 c
-       mxrlen = int(gmem/(nseg*nvir))
+       nvir_node = int(nvir/numnodes)
+       if (mod(nvir,numnodes).ne.0) nvir_node=nvir_node+1
+       mxrlen = int(gmem/(nseg*nvir_node))
        mxrlen = min(
      $      mxrlen, 
      $      min(nbf*nbf,10*maxbfsh*maxbfsh*numnodes))
