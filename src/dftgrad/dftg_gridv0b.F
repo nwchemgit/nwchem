@@ -16,7 +16,7 @@
      &     cetobfr, tau, dttau, kske, Mmat, Mmat2,
      &     ldbw, fact, dtype, nconstr)  ! Qin
 c      
-c     $Id: dftg_gridv0b.F,v 1.38 2008-02-01 22:28:17 niri Exp $
+c     $Id: dftg_gridv0b.F,v 1.39 2008-08-14 06:31:58 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -375,7 +375,7 @@ c     of bfn pairs in CPKS LHS - these are written back into rho and
 c     delrho
 c
                   call xc_cpks_coeff(drhonuc, ddelrhonuc, dttau,
-     &                 Amat2, Cmat2, Cmat, delrho,
+     &                 Amat2, Cmat2, Cmat, Mmat2, delrho,
      &                 3*ncuratoms, ipol, nqpts, grad, .false., ! kske = false 
      &                 .false.)
 c
