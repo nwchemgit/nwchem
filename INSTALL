@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.84 2007-11-26 22:07:04 d3p307 Exp $
+$Id: INSTALL,v 1.85 2008-08-14 16:31:33 d3p307 Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -154,7 +154,7 @@ BASIC BUILD INSTRUCTIONS:
    MACX           Apple MacOSX    Darwin      GNU,xlf,Intel
 
    BGL            Bluegene/L      SLES        blrts_xlf           y
-
+   BGP            Bluegene/P      SLES        bgxlf_r             y
    ----------------------------------------------------------------------
 
 
@@ -665,7 +665,7 @@ table summarize supported combinations of ARMCI_NETWORK and NWCHEM_TARGET.
   ELAN4           LINUX64       Quadrics/QsNetII           Elan4
 
   BGMLMPI         BGL           IBM BlueGene Torus/        BGLMPI
-                                Global Tree/Interrupt
+  DCMFMPI         BGP           Global Tree/Interrupt      DCMF,MPI
 
   CRAY-SHMEM      LINUX64       Hypertransport/            Cray SHMEM
                                 3D torus topology
@@ -820,7 +820,29 @@ setenv LIBMPI "-lfmpich_.rts -lmpich.rts -lmsglayer.rts -lrts.rts -ldevices.rts"
 setenv BGMLLIBS /bgl/BlueLight/ppcfloor/bglsys/lib
 
 to compile:
-gmake FC=blrts_xlf
+make FC=blrts_xlf
+
+BUILDING NWCHEM on BLUEGENE/P:
+------------------------------------------
+Set up the following environmental variables:
+setenv NWCHEM_TARGET BGP
+setenv ARMCI_NETWORK DCMFMPI
+setenv MSG_COMMS DCMFMPI
+setenv USE_MPI y
+setenv LARGE_FILES TRUE
+setenv BGP_INSTALLDIR /bgsys/drivers/ppcfloor
+setenv BGCOMPILERS /bgsys/drivers/ppcfloor/gnu-linux/bin
+setenv BGP_RUNTIMEPATH  /bgsys/drivers/ppcfloor/runtime
+setenv ARMCIDRV ${BGP_INSTALLDIR}
+setenv BGDRIVER ${ARMCIDRV}
+setenv MPI_LIB ${BGDRIVER}/comm/lib
+setenv MPI_INCLUDE ${BGDRIVER}/comm/include
+setenv LIBMPI "-L${MPI_LIB} -lfmpich_.cnk -lmpich.cnk -ldcmfcoll.cnk -ldcmf.cnk -lpthread -lrt -L${BGP_RUNTIMEPATH}/SPI -lSPI.cna"
+setenv BGMLMPI_INCLUDE ${MPI_INCLUDE}
+
+to compile:
+make FC=bgxlf_r
+
 
 BUILDING NWCHEM FOR CRAY XT3/XT4 (OS: Compute Node Linux (CNL))
 ---------------------------------------------------------------
