@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.47 2004-04-22 06:00:22 edo Exp $
+* $Id: mp2_grad_doit.F,v 1.48 2008-08-14 16:18:06 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -144,6 +144,7 @@ c
       end if
       call ga_igop(11,avail_ma,1,'min')
       call ga_igop(12,avail_ga,1,'min')
+      avail_ga = avail_ga/8  ! convert to words
       call ga_dgop(13,avail_file,1,'min')
 c     
       oprint_mem = util_print('multipass',print_default) .and. 
