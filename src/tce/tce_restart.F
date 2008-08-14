@@ -1,19 +1,3 @@
-c#define SFCREATESUFFIX
-
-#ifndef SFCREATESUFFIX
-      integer function sf_create_suffix(filename,size1,size2,
-     1                            chunk,handle,suffix) 
-      IMPLICIT NONE
-#include "sf.fh"
-      integer size1,size2,chunk,handle,suffix,status
-      character*255 filename
-c
-      status = sf_create(filename,size1,size2,chunk,handle)
-c
-      return
-      end
-#endif
-
       subroutine v2_restart_save(d_v2,k_v2_alpha_offset_s,size_2e,
      1                           handle_v2)
       IMPLICIT NONE
@@ -45,10 +29,6 @@ c
       INTEGER nprocs
       INTEGER count
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -152,10 +132,6 @@ c
       INTEGER nprocs
       INTEGER count
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -250,10 +226,6 @@ c
       INTEGER count
       integer irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -367,10 +339,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -484,10 +452,6 @@ c
       INTEGER count
       integer irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -601,10 +565,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -718,10 +678,6 @@ c
       INTEGER count
       integer axis,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -835,10 +791,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -959,10 +911,6 @@ c
       INTEGER count
       integer irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -1083,10 +1031,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -1207,10 +1151,6 @@ c
       INTEGER count
       integer axis,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -1332,10 +1272,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -1489,10 +1425,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -1644,10 +1576,6 @@ c
       INTEGER count
       integer axis,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -1801,10 +1729,6 @@ c
       INTEGER count
       integer axis,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -1973,10 +1897,6 @@ c
       INTEGER nprocs
       INTEGER count
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -2079,10 +1999,6 @@ c
       INTEGER nprocs
       INTEGER count
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -2177,10 +2093,6 @@ c
       INTEGER count
       integer irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -2305,10 +2217,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -2422,10 +2330,6 @@ c
       INTEGER count
       integer irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -2539,10 +2443,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -2656,10 +2556,6 @@ c
       INTEGER count
       integer axis,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -2773,10 +2669,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -2897,10 +2789,6 @@ c
       INTEGER count
       integer irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -3021,10 +2909,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -3145,10 +3029,6 @@ c
       INTEGER count
       integer axis,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -3271,10 +3151,6 @@ c      INTEGER p1b,p2b,h3b,h4b
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -3427,10 +3303,6 @@ c      INTEGER p1b,p2b,h3b,h4b
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -3582,10 +3454,6 @@ c      INTEGER p1b,p2b,h3b,h4b
       INTEGER count
       integer axis,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -3738,10 +3606,6 @@ c      INTEGER p1b,p2b,h3b,h4b
       INTEGER count
       integer axis,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -3893,10 +3757,6 @@ c
       integer state,irrep
       logical acolo
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -4038,10 +3898,6 @@ c
       integer state,irrep
       logical acolo
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c

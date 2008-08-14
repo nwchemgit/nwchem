@@ -1,5 +1,3 @@
-c#define SFCREATESUFFIX
-
         subroutine x4_restart_save(d_x4,k_x4_offset,size_x4,state,
      1                           handle_x4,irrep)
       IMPLICIT NONE
@@ -38,10 +36,6 @@ c#define SFCREATESUFFIX
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -196,10 +190,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -353,10 +343,6 @@ c
       INTEGER count
       integer axis,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -511,10 +497,6 @@ c
       INTEGER count
       integer axis,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -678,10 +660,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -832,10 +810,6 @@ c
       INTEGER count
       integer state,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -985,10 +959,6 @@ c
       INTEGER count
       integer axis,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -1139,10 +1109,6 @@ c
       INTEGER count
       integer axis,irrep
       EXTERNAL NXTASK
-#ifndef SFCREATESUFFIX
-      integer sf_create_suffix
-      external sf_create_suffix
-#endif
 c
       nodezero=(ga_nodeid().eq.0)
 c

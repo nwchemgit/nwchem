@@ -1,8 +1,6 @@
-c#define SFCREATESUFFIX
-
       subroutine createfile(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.19 2008-07-08 13:58:03 jhammond Exp $
+c $Id: createfile.F,v 1.20 2008-08-14 17:24:58 jhammond Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -212,7 +210,7 @@ c
 
       subroutine createfile_sf(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.19 2008-07-08 13:58:03 jhammond Exp $
+c $Id: createfile.F,v 1.20 2008-08-14 17:24:58 jhammond Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -291,10 +289,9 @@ c
 
 
 
-#ifdef SFCREATESUFFIX
       subroutine createfile_sf_suffix(filename,d_sf,size,suffix)
 c
-c $Id: createfile.F,v 1.19 2008-07-08 13:58:03 jhammond Exp $
+c $Id: createfile.F,v 1.20 2008-08-14 17:24:58 jhammond Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -362,4 +359,3 @@ c
      1          ' file name = ',a)
       return
       end
-#endif
