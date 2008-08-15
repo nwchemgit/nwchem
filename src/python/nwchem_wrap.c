@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.50 2008-05-16 00:40:26 bylaska Exp $
+ $Id: nwchem_wrap.c,v 1.51 2008-08-15 16:46:31 bylaska Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -502,6 +502,107 @@ PyObject *wrap_rtdb_next(PyObject *self, PyObject *args)
    }
    return returnObj;
 }
+
+static PyObject *wrap_task(PyObject *self, PyObject *args)
+{
+    char *theory;
+    char *operation;
+    char *other;
+    char *qmmm;
+    char *ignore;
+    double energy;
+/*     task [qmmm] <string theory> [<string operation = energy>] [numerical || analytic] [ignore]
+*/
+
+    if (PyArg_Parse(args, "(sssss)", &qmmm,&theory,&operation,&other,&ignore)){
+        if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR,
+                      strlen(theory)+1, theory)) {
+            PyErr_SetString(NwchemError, "task: putting theory failed");
+            return NULL;
+        }
+        if (!rtdb_put(rtdb_handle, "task:operation", MT_CHAR,
+                      strlen(operation)+1, operation)) {
+            PyErr_SetString(NwchemError, "task: putting operation failed");
+            return NULL;
+        }
+        task_(&rtdb_handle);
+        if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy))
+            energy = 0.0;
+    }
+    else if (PyArg_Parse(args, "(ssss)", &qmmm,&theory,&operation,&other)){
+        if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR,
+                      strlen(theory)+1, theory)) {
+            PyErr_SetString(NwchemError, "task: putting theory failed");
+            return NULL;
+        }
+        if (!rtdb_put(rtdb_handle, "task:operation", MT_CHAR,
+                      strlen(operation)+1, operation)) {
+            PyErr_SetString(NwchemError, "task: putting operation failed");
+            return NULL;
+        }
+        task_(&rtdb_handle);
+        if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy))
+            energy = 0.0;
+    }
+    else if (PyArg_Parse(args, "(sss)", &theory,&operation,&other)){
+        if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR,
+                      strlen(theory)+1, theory)) {
+            PyErr_SetString(NwchemError, "task: putting theory failed");
+            return NULL;
+        }
+        if (!rtdb_put(rtdb_handle, "task:operation", MT_CHAR,
+                      strlen(operation)+1, operation)) {
+            PyErr_SetString(NwchemError, "task: putting operation failed");
+            return NULL;
+        }
+        task_(&rtdb_handle);
+        if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy))
+            energy = 0.0;
+    }
+    else if (PyArg_Parse(args, "(ss)", &theory,&operation)){
+        if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR,
+                      strlen(theory)+1, theory)) {
+            PyErr_SetString(NwchemError, "task_energy: putting theory failed");
+            return NULL;
+        }
+        if (!rtdb_put(rtdb_handle, "task:operation", MT_CHAR,
+                      strlen(operation)+1, operation)) {
+            PyErr_SetString(NwchemError, "task: putting operation failed");
+            return NULL;
+        }
+        task_(&rtdb_handle);
+        if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy))
+            energy = 0.0;
+
+    }
+    else if (PyArg_Parse(args, "s", &theory)){
+        operation = "energy";
+        if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR,
+                      strlen(theory)+1, theory)) {
+            PyErr_SetString(NwchemError, "task_energy: putting theory failed");
+            return NULL;
+        }
+        if (!rtdb_put(rtdb_handle, "task:operation", MT_CHAR,
+                      strlen(operation)+1, operation)) {
+            PyErr_SetString(NwchemError, "task: putting operation failed");
+            return NULL;
+        }
+        task_(&rtdb_handle);
+        if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy))
+            energy = 0.0;
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Usage: task(theory,operation)");
+        return NULL;
+    }
+
+    return Py_BuildValue("d", energy);
+}
+
+
+
+
+
 
 static PyObject *wrap_task_coulomb_ref(PyObject *self, PyObject *args)
 {
@@ -1550,6 +1651,7 @@ static struct PyMethodDef nwchem_methods[] = {
    {"rtdb_get_info",   wrap_rtdb_get_info, 0}, 
    {"rtdb_first",      wrap_rtdb_first, 0}, 
    {"rtdb_next",       wrap_rtdb_next, 0}, 
+   {"task",            wrap_task, 0}, 
    {"task_energy",     wrap_task_energy, 0}, 
    {"task_gradient",   wrap_task_gradient, 0}, 
    {"task_stress",     wrap_task_stress, 0}, 
