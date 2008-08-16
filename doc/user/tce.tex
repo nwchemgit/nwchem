@@ -1,5 +1,5 @@
 %
-% $Id: tce.tex,v 1.11 2007-12-04 02:43:35 jhammond Exp $
+% $Id: tce.tex,v 1.12 2008-08-16 16:06:29 jhammond Exp $
 %
 \label{sec:tce}
 
@@ -53,75 +53,84 @@ as many operations as a spin-adapted restricted CCSD for a closed-shell system),
 \item Index permutation symmetry,
 \item Runtime orbital range tiling for memory management,
 \item Dynamic load balancing (local index sort and matrix multiplications) parallelism,
-\item Multiple parallel I/O schemes including fully incore algorithm using Global Arrays,
+\item Multiple parallel I/O schemes including fully in-core algorithm using Global Arrays,
 \item Frozen core and virtual approximation.
 \item DIIS extrapolation and Jacobi update of excitation amplitudes
 \end{itemize}
-
-This extensible module is designed such that an existing or new model of many-electron
-theory can be added and further optimization can be incorporated with ease 
-by virtue of the TCE.
-This module is still being
-actively enhanced by the TCE and we hope to include more models and optimizations
-in future releases!
 
 In addition to changes made in the 4.7 version the most essential component of the 5.0 release 
 include:
 
 \begin{itemize}
-
 \item Several variants of active-space CCSDt and EOMCCSDt methods that employ limited set of triply 
 excited cluster amplitudes defined by active orbitals.
-
 \item  Ground-state non-iterative CC approaches that account for the effect of triply and/or
 quadruply excited connected clusters: the perturbative approaches based on the similarity 
 transformed Hamiltonian: CCSD(2), CCSD(2)$_T$, CCSDT(2)$_Q$, the completely and locally renormalized 
 methods: CR-CCSD(T), LR-CCSD(T), LR-CCSD(TQ)-1.
-
 \item Excited-state non-iterative corrections due to triples to the EOMCCSD excitation energies:
 the completely renormalized EOMCCSD(T) method (CR-EOMCCSD(T)).
-
 \item Improved DIIS solver.
-
-\item New form of the offset tables for files that store cluster amplitudes, recursive intermediates,
-and one- and two-electron integrals.
-
-\item More efficient storage of two-electron integrals for CC calculations based on the RHF or ROHF 
-references.
-
+\item New form of the offset tables for files that store cluster amplitudes, recursive intermediates, and one- and two-electron integrals.
+\item More efficient storage of two-electron integrals for CC calculations based on the RHF or ROHF references.
 \item Improved scalability of the CCSD and CCSD(T) codes.
-
 \end{itemize} 
 
+New features in the 5.1 release included:
+\begin{itemize}
+\item Dynamic dipole polarizabilities at the CCSD and CCSDT levels using the linear response formalism.
+\item Ground- and excited- states the iterative second-order model CC2.
+\item Improved algorithms for the 2-e integral transformation.
+\item Improvements in time-to-solution and memory use for commonly used methods.
+\end{itemize} 
+
+New features in the 5.2 release include:
+\begin{itemize}
+\item Additional algorithms for the 2-e integral transformation, including efficient and scalable spin-free out-of-core $N^5$ algorithms.
+\item Hybrid I/O schemes for both spin-orbital and spin-free calculations which eliminate the memory bottleneck of the 2-e integrals 
+in favor of disk storage.  Calculations with nearly 400 basis functions at the CCSD(T) can be performed on workstation using this method.
+\item Parallel check-pointing and restart for ground-state (including property) calculations at the CCSD, CCSDT and CCSDTQ levels of theory.
+\item Dynamic dipole polarizabilities at the CCSDTQ level using the linear response formalism.
+\end{itemize} 
 
 \section{Performance of CI, MBPT, and CC methods}
 
-For reviews or tutorials of these highly-accurate correlation methods, the user is 
-referred to:
+For reviews or tutorials of these highly-accurate correlation methods, the user is referred to:
 \begin{itemize}
-\item A. Szabo and N. S. Ostlund, Modern Quantum Chemistry: Introduction to Advanced Electronic Structure Theory,
-\item R. J. Bartlett and J. F. Stanton, Applications of Post-Hartree-Fock Methods: A Tutorial, in Reviews in Computational Chemistry, Volume V,
-\item R. J. Bartlett, Coupled-Cluster Theory: An Overview of Recent Developments, in Modern Electronic Structure Theory, Part II,
-\item B. O. Roos (editor), Lecture Notes in Quantum Chemistry I and II.
+\item Trygve Helgaker, Poul Jørgensen and Jeppe Olsen, \textit{Molecular Electronic-Structure Theory}.
+\item A. Szabo and N. S. Ostlund, \textit{Modern Quantum Chemistry: Introduction to Advanced Electronic Structure Theory}.
+\item B. O. Roos (editor), \textit{Lecture Notes in Quantum Chemistry}.
 \end{itemize}
 
-For algorithms and applications of TCE, see:
+For background on development of the symbolic algebra tools which help create the code used in this model see:
 \begin{itemize}
-\item S. Hirata, J.\ Phys.\ Chem.\ A {\bf 107,} 9887 (2003).
-\item S. Hirata, T. Yanai, W. A. de Jong, T. Nakajima, and K. Hirao, J.\ Chem.\ Phys. {\bf 120,} 3297 (2004).
-\item S. Hirata, J.\ Chem. Phys. {\bf 121}, 51 (2004).
+\item S. Hirata, J. Phys. Chem. A {\bf 107,} 9887 (2003).
+\item S. Hirata, J. Chem. Phys. {\bf 121}, 51 (2004).
+\item S. Hirata, Theor. Chem. Acc. {\bf 116}, 2 (2006).
 \end{itemize}
 
-For new CC algorithms implemented in 5.0 version, see:
-
+For details of the CC algorithms implemented in 5.0 version, see:
 \begin{itemize}
-\item S. Hirata, P.-D. Fan, A.A. Auer, M. Nooijen, P. Piecuch, J. Chem. Phys.
-{\bf 121}, 12197 (2004).
-\item K. Kowalski, S. Hirata, M. W\l och, P. Piecuch, T.L. Windus, 
-J. Chem. Phys. {\bf 123}, 074319 (2005).
+\item S. Hirata, P.-D. Fan, A.A. Auer, M. Nooijen, P. Piecuch, J. Chem. Phys.  {\bf 121}, 12197 (2004).
+\item K. Kowalski, S. Hirata, M. W\l och, P. Piecuch, T.L. Windus, J. Chem. Phys. {\bf 123}, 074319 (2005).  
+\item K. Kowalski, P. Piecuch, J. Chem. Phys.  {\bf 115}, 643 (2001).  
+\item K. Kowalski, P. Piecuch, Chem. Phys. Lett. {\bf 347}, 237 (2001).  
+\item P. Piecuch, S.A. Kucharski, and R.J. Bartlett, J. Chem. Phys. {\bf 110}, 6103 (1999).
+\item P. Piecuch, N. Oliphant, and L. Adamowicz, J. Chem. Phys.  {\bf 99}, 1875 (1993).
+\item N. Oliphant and L. Adamowicz, Int. Rev. Phys. Chem.  {\bf 12}, 339 (1993).
+\item P. Piecuch, N. Oliphant, and L. Adamowicz, J. Chem. Phys.  {\bf 99}, 1875 (1993).
 \item K. Kowalski, P. Piecuch, J. Chem. Phys. {\bf 120},  1715 (2004).
 \item K. Kowalski, J. Chem. Phys. {\bf 123}, 014102 (2005).
-\item K. Kowalski, W. de Jong, J. Mol. Struct.: THEOCHEM, in press (2006).  
+\item P. Piecuch, K. Kowalski, I.S.O. Pimienta, M.J. McGuire, Int. Rev. Phys. Chem.  {\bf 21}, 527 (2002).
+\item K. Kowalski, P. Piecuch, J. Chem. Phys. {\bf 122}, 074107 (2005)
+\item K. Kowalski, W. de Jong, J. Mol. Struct.: THEOCHEM, {\bf 768}, 45 (2006).  
+\end{itemize}
+and references therein.
+
+For details of the CC methods implemented in 5.1 version, see:
+\begin{itemize}
+\item O. Christiansen, H. Koch, P. J\o rgensen, Chem. Phys. Lett. {\bf 243}, 409 (1995). 
+\item K. Kowalski, J. Chem. Phys. {\bf 125}, 124101 (2006)
 \end{itemize}
 and references therein.
 
@@ -137,8 +146,7 @@ symmetries of intermediate tensors.  Accordingly, every input and output tensor 
 integrals, excitation amplitudes, residuals) has just two independent but strictly ordered index strings,
 and each intermediate tensor has just four independent but strictly ordered index strings.
 The operation cost and storage size of tensor contraction is minimized by using the index range 
-restriction arising from these
-index permutation symmetries and also spin and spatial symmetry integration.
+restriction arising from these index permutation symmetries and also spin and spatial symmetry integration.
 
 \subsection{Runtime orbital range tiling}
 
@@ -177,7 +185,7 @@ that details the calculations:
     [(DFT||HF||SCF) default HF=SCF]
     [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
              [virtual <integer nfzv default 0>]]
-    [(LCCD||CCD||CCSD||LCCSD||CCSDT||CCSDTA||CCSDTQ|| \
+    [(LCCD||CCD||CCSD||CC2||LR-CCSD||LCCSD||CCSDT||CCSDTA||CCSDTQ|| \
       CCSD(T)||CCSD[T]||CCSD(2)_T||CCSD(2)||CCSDT(2)_Q|| \
       CR-CCSD[T]||CR-CCSD(T)|| \
       LR-CCSD(T)||LR-CCSD(TQ)-1||CREOMSD(T)|| \
@@ -195,6 +203,7 @@ that details the calculations:
     [TARGETSYM <character targetsym default 'none'>]
     [SYMMETRY]
     [2EORB]
+    [2EMET <integer fast2e default 1>]
     [T3A_LVL] 
     [ACTIVE_OA]
     [ACTIVE_OB]
@@ -221,73 +230,11 @@ or
       TASK TCE FREQUENCIES
 \end{verbatim}
 
-Alternatively, more descriptive keywords for each individual method can be used.
-For instance, to perform a CCSDT energy, gradient, etc. calculation, use
-\begin{verbatim}
-      TASK UCCSDT ENERGY
-\end{verbatim}
-or
-\begin{verbatim}
-      TASK UCCSDT GRADIENT
-\end{verbatim}
-or
-\begin{verbatim}
-      TASK UCCSDT OPTIMIZE
-\end{verbatim}
-or
-\begin{verbatim}
-      TASK UCCSDT FREQUENCIES
-\end{verbatim}
-with an (optional) input block enclosed either by \verb+UCCSDT+ and \verb+END+ or
-by \verb+UCC+ and \verb+END+.  The keywords for individual methods of TCE module
-always start with letter \verb+U+ which stands for ``unrestricted'' to avoid 
-confusion with other related methods (such as spin-restricted CCSD and various 
-canonical MP2 implementation) already in place in NWChem.
-\begin{verbatim}
-  (UCCSDT||UCC)
-    [(DFT||HF||SCF) default HF=SCF]
-    [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
-             [virtual <integer nfzv default 0>]]
-    [THRESH <double thresh default 1e-6>]
-    [MAXITER <integer maxiter default 100>]
-    [PRINT (none||low||medium||high||debug)]
-      <string list_of_names ...>]
-    [IO (fortran||eaf||ga||sf||replicated||dra||ga_eaf) default ga]
-    [DIIS <integer diis default 5>]
-    [NROOTS <integer nroots default 0>]
-    [TARGET <integer target default 1>]
-    [TARGETSYM <character targetsym default 'none'>]
-    [SYMMETRY]
-    [DIPOLE]
-    [TILESIZE <no default (automatically adjusted)>]
-    [(NO)FOCK <logical recompf default .true.>]
-    [FRAGMENT <default -1 (off)>]
-  END
-\end{verbatim}
-When a method (CCSDT in this example) is specified in the task directive, 
-a duplicate method specification
-is not necessary (indeed not allowed) in the corresponding (\verb+UCCSDT+ or \verb+UCC+ in this case) 
-input block.  The keywords of the other methods for task directive are:
-\begin{verbatim}
-      TASK (UCCD||ULCCD||UCCSD||ULCCSD||UQCISD||UCCSDT||UCCSDTQ) ENERGY
-\end{verbatim}
-or
-\begin{verbatim}
-      TASK (UCISD||UCISDT||UCISDTQ) ENERGY
-\end{verbatim}
-or
-\begin{verbatim}
-      TASK (UMP2||UMP3||UMP4||UMBPT2||UMBPT3||UMBPT4) ENERGY
-\end{verbatim}
-etc.  The input block can be specified by the same name (\verb+UCISDT+ and \verb+END+
-block for \verb+TASK UCISDT ENERGY+) or \verb+UCC+ for the CC family, \verb+UCI+ for 
-the CI family, and \verb+UMP+ or \verb+UMBPT+ for the MP family of methods.
-
 The user may also specify the parameters of reference wave function calculation
 in a separate block for either HF (SCF) or DFT, depending on the first keyword
 in the above syntax.
 
-Since each keyword has a default value, a minimal input file will be
+Since every keyword except the model has a default value, a minimal input file will be
 \begin{verbatim}
   GEOMETRY
   Be 0.0 0.0 0.0
@@ -295,6 +242,10 @@ Since each keyword has a default value, a minimal input file will be
 
   BASIS
   Be library cc-pVDZ
+  END
+
+  TCE
+  ccsd
   END
 
   TASK TCE ENERGY
@@ -327,32 +278,6 @@ can be performed with the following input blocks:
   END
 
   TASK TCE ENERGY
-\end{verbatim}
-or
-\begin{verbatim}
-  SCF
-  SINGLET
-  RHF
-  END
-
-  UCCSDT
-  SCF
-  END
-
-  TASK UCCSDT ENERGY
-\end{verbatim}
-or
-\begin{verbatim}
-  SCF
-  SINGLET
-  RHF
-  END
-
-  UCC
-  SCF
-  END
-
-  TASK UCCSDT ENERGY
 \end{verbatim}
 This calculation (and any correlation calculation in the TCE module using a RHF or RDFT
 reference for a closed-shell system) skips the storage and computation of all $\beta$ spin
@@ -404,7 +329,7 @@ Note that the default model of the DFT module is LDA.
 
 \subsection{{\tt CCSD},{\tt CCSDT},{\tt CCSDTQ},{\tt CISD},{\tt CISDT},{\tt CISDTQ},
 {\tt MBPT2},{\tt MBPT3},{\tt MBPT4}, etc.
- --- the correlation model}
+ --- the correlation models}
 
 These keywords stand for the following models:
 \begin{itemize}
@@ -412,6 +337,8 @@ These keywords stand for the following models:
 \item CCD: coupled-cluster doubles,
 \item LCCSD: linearized coupled-cluster singles \& doubles,
 \item CCSD: coupled-cluster singles \& doubles (also EOM-CCSD),
+\item LR-CCSD: locally renormalized EOMCCSD method,  
+\item CC2: second-order approximate coupled cluster with singles and doubles model
 \item CCSDT: coupled-cluster singles, doubles, \& triples (also EOM-CCSDT),
 \item CCSDTA: coupled-cluster singles, doubles, \& active triples (also EOM-CCSDT).
 Three variants of the active-space CCSDt and EOMCCSDt approaches can be selected based on 
@@ -474,6 +401,7 @@ For example, the operation cost of many conventional implementation of MBPT(2) s
 of the system size, but the cost of the present tensor MBPT(2) scales as the fifth power of the system size,
 as the latter permits non-canonical HF reference and the former does not (to reinstate the non-canonical HF 
 reference in the former makes it also scale as the fifth power of the system size).
+
 \subsection{{\tt THRESH} --- the convergence threshold of iterative solutions of amplitude equations}
 
 This keyword specifies the convergence threshold of iterative solutions of amplitude equations,
@@ -527,6 +455,10 @@ or EOM-CC trial vectors) in GA algorithm will be moved to DRA.  In the latter, t
 that are formed by tensor contractions are initially stored in GA, thereby avoiding the need to
 accumulate the fragments of the intermediate scattered in EAFs in the original EAF algorithm.
 Once the intermediate is formed completely, then it will be replicated as EAFs.
+
+The spin-free 4-index transformation algorithms are exclusively compatible with the GA I/O scheme,
+although out-of-core algorithms for the 4-index transformation are accessible using the
+\verb+2emet+ options.  See \ref{subsection:2EMET} for details.
 
 \subsection{{\tt DIIS} --- the convergence acceleration}
 
@@ -613,17 +545,86 @@ seek just the roots of the specified irreducible representation as
 
 In the 5.0 version a new option has been added in order to provide more economical 
 way of  storing two-electron integrals used in CC calculations based on the  RHF and ROHF 
-references. The {\tt 2EORB} keyword can be used in the context of all 
-(except for the active-space approaches) CC approaches. All two-electron integrals are
-transfromed and subsequently stored in a way which is compatible with assumed tiling scheme. 
+references. The {\tt 2EORB} keyword can be used for all CC methods except for those 
+using an active-space (CCSDt).  All two-electron integrals are
+transformed and subsequently stored in a way which is compatible with assumed tiling scheme. 
 The transformation from orbital to spinorbital form of the two-electron integrals is 
 performed on-the-fly during execution of the CC module. This option, although slower, allows  
 to significantly reduce the memory requirements needed by  the first half of 4-index 
 transformation and final file with fully transformed two-electron integrals . 
-Savings  in the memory requirements
-on the order of magnitude (and more)
+Savings in the memory requirements on the order of magnitude (and more)
 have been observed for large-scale open-shell calculations.
 
+\subsection{{\tt 2EMET} --- alternative storage of two-electron integrals}\label{subsection:2EMET}
+
+In addition to the algorithm implemented in the 5.0 version, several new computation-intensive 
+algorithms has been added to the 5.1 version with the purpose of improving scalability and overcoming 
+local memory bottleneck of the 5.0 {\tt 2EORB} 4-index transformation. 
+In order to give the user a full control over this part of the TCE code several keywords were designed to define the most vital
+parameters that determine the perfromance of 4-index transformation. All new keywords must  be used
+with the {\tt 2EORB} keyword. The {\tt 2emet} keyword (default value 1 or "{\tt 2emet 1}",
+refers to the 5.0 version of the 4-index transformation), 
+defines the algorithm to be used. By putting "{\tt 2emet 2}" the TCE code will execute 
+the algoritm based on the two step procedure with two intermediate files. In some instances 
+this algorithm is characterized by better timings compared to algorithms 3 and 4, although it is 
+more memory demanding.  In contrast to algorithms nr 1,3, and 4 this approach can make use of  
+a disk to store intermediate files.
+For this purpose one should use the keyword {\tt idiskx} ("{\tt idiskx 0}" causes
+that all intermediate files are stored on global arrays, while "{\tt idiskx 1}"
+tells the code to use a disk to store intermediates; default value of {\tt idiskx } is equal 0).
+Algorithm nr 3 ("{\tt 2emet 3}") uses only one intermediate file whereas
+algorithm nr 4 ("{\tt 2emet 4}") is a version of algorithm 3 with the option of reducing the 
+memory requirements. For example, by using new keyword "{\tt split 4}"  we will reduce the size of 
+only  intermediate file by factor of 4 (the {\tt split } keyword can be only used in the context of
+algorithm nr 4). 
+All new algorithms (i.e. {\tt 2emet 2+}) use the {\tt attilesize} setting to define the size of the atomic tile.
+By default {\tt attilesize } is set equal 30. For larger systems the use of larger values of 
+{\tt attilesize } is recommended (typically between 40-60).
+
+Additional algorithms for version 5.2 are numbers 5, 6 and 9.  Other values of {\tt 2emet} are not 
+supported and refer to methods which do not function properly.  Algorithms 5 and 6 were written as
+out-of-core $N^5$ methods ({\tt idiskx 1}) and are the most efficient algorithms at the present time.
+The corresponding in-core variants ({\tt idiskx 0}) are available but require excessive memory
+with respect to the methods discussed above, although they may be faster if sufficient memory
+is available (to get enough memory often requires excessive nodes, which decreases performance
+in the later stages of the calculation).  The difference between 5 and 6 is that 5 writes
+to a single file (SF or GA) while 6 uses multiple files.  For smaller calculations,
+particularly single-node jobs, 5 is faster than 6, but for more than a handful of processors,
+algorithm 6 should be used.  The perforance discrepancy depends on the hardware used but 
+in algorithm eliminates simulataneous disk access on parallel file systems or memory mutexes for
+the in-core case.  For NFS filesystems attached to parallel clusters, no performance differences
+have been observed, but for Lustre and PVFS they are signficant.  Using algorithm 5 for large parallel
+file systems will make the file system inaccessible to other users, invoking the wrath of 
+system administrators.
+
+Algorithm 9 is an out-of-core solution to the memory bottleneck of the 2-e integrals.  In this approach,
+the intermediates of the 4-index transformation as well as the MO integrals are stored in an SF file.
+As before, this requires a shared file system.  Because algorithm 9 is based upon algorithm 5, 
+described above, it is not expected to scale.  The primary purpose of algorithm 9 is to make the
+performance of the NWChem coupled-cluster codes competive with fast serial codes on workstations.
+It succeeds in this purpose when corresponding functionality is compared.  A more scalable version of
+this algorithm is possible, but the utility is limited since large parallel computers do not
+permit the wall times necessary to use an out-of-core method, which is necessarily slower than the
+in-core variant.  An extensible solution to these issues using complex heterogeneous I/O is in development.
+
+New to 5.2 is the inclusion of multiple {\tt 2emet} options for the spin-orbital transformations, which
+are the default when {\tt 2eorb} is not set and are mandatory for UHF and KS references.  The are currently
+three algorithms 1, 2 and 3 available.  The numbering scheme does not correspond in any way to the numbering
+scheme for the {\tt 2eorb} case, except that {\tt 2emet 1} corresponds to the default algorithm present in
+previous releases, which uses the user-defined I/O scheme.  Algorithm 2 ({\tt 2emet 2}) writes an SF file
+for the half-transformed integrals, which is at least an order-of-magnitude larger than the fully-transformed
+integrals, but stores the fully-transformed integrals in core.  Thus, once the 4-index transformation is complete,
+this algorithm will perform exactly as when algorithm 1 is used.  Unfortuntely, the spin-orbital 2-e 
+fully-transformed integrals are still quite large and an algorithm corresponding to {\tt 2eorb}/{\tt 2emet=9}
+is available with {\tt 2emet 3}.  Algorithm 3 is also limited in its scalability, but it permits
+relatively large UHF-based calculations using single workstations for patient users.
+
+In cases where the user has access to both shared and local filesystems for parallel calculations, 
+the {\tt permanent\_dir} setting refers to the location of SF files.  The file system for {\tt scratch\_dir}
+will not be used for any of the 4-index transformation algorithms which are compatible with {\tt io=ga}.
+ 
+In the later part of this manual several examples illustrate the use of the newly introduced 
+keywords.
 
 \subsection{{\tt DIPOLE} --- the ground- and excited-state dipole moments}
 
@@ -935,22 +936,83 @@ TASK TCE ENERGY
 \end{verbatim} 
 
 
+The CCSD calculations for the triplet state of the C$_{20}$ molecule. New 
+algorithms for 4-index tranformation are used.
+
+\begin{verbatim}
+title "c20_cage"
+echo
+start c20_cage
+memory stack 2320 mb heap 180 mb global 2000 mb noverify
+
+geometry print xyz units bohr
+   symmetry c2
+   C      -0.761732  -1.112760   3.451966
+   C       0.761732   1.112760   3.451966
+   C       0.543308  -3.054565   2.168328
+   C      -0.543308   3.054565   2.168328
+   C       3.190553   0.632819   2.242986
+   C      -3.190553  -0.632819   2.242986
+   C       2.896910  -1.982251   1.260270
+   C      -2.896910   1.982251   1.260270
+   C      -0.951060  -3.770169   0.026589
+   C       0.951060   3.770169   0.026589
+   C       3.113776   2.128908   0.076756
+   C      -3.113776  -2.128908   0.076756
+   C       3.012003  -2.087494  -1.347695
+   C      -3.012003   2.087494  -1.347695
+   C       0.535910  -2.990532  -2.103427
+   C      -0.535910   2.990532  -2.103427
+   C       3.334106   0.574125  -2.322563
+   C      -3.334106  -0.574125  -2.322563
+   C      -0.764522  -1.081362  -3.453211
+   C       0.764522   1.081362  -3.453211
+end
+
+basis spherical
+ * library cc-pvtz
+end
+
+scf
+   triplet
+   rohf
+   thresh 1.e-8
+   maxiter 200
+end
+
+tce
+   ccsd
+   maxiter 60
+   diis 5
+   thresh 1.e-6
+   2eorb
+   2emet 3
+   attilesize 40
+   tilesize 30
+   freeze atomic
+end
+
+task tce energy
+
+\end{verbatim}
+
 \section{TCE Response Properties}
 
 \subsection{Introduction}
 
-Response properties can be calculated within the TCE.  The current functionality is limited to ground-state dipole polarizabilities for the CCSD and CCSDT levels of theory.  Like the rest of the TCE, properties can be calculated with RHF, UHF, ROHF and DFT reference wavefunctions.
+Response properties can be calculated within the TCE.  Ground-state dipole polarizabilities can be performed at the CCSD, CCSDT and CCSDTQ levels of theory.  Neither CCSDT-LR nor CCSDTQ-LR are compiled by default.  Like the rest of the TCE, properties can be calculated with RHF, UHF, ROHF and DFT reference wavefunctions.
 
-Specific details about the implementation can be found in the following papers:
+Specific details for the implementation of CCSD-LR and CCSDT-LR can be found in the following papers:
 \begin{itemize}
 \item J. R. Hammond, M. Valiev, W. A. deJong and K. Kowalski, \textit{J. Phys. Chem. A}, \textbf{111}, 5492 (2007).
 \item J. R. Hammond, K. Kowalski and W. A. de Jong, \textit{J. Chem. Phys.}, \textbf{127}, 144105 (2007).
+\item J. R. Hammond, W. A. de Jong and K. Kowalski , \textit{J. Chem. Phys.}, \textbf{128}, 224102 (2008).
 \end{itemize}
 An appropriate background on coupled-cluster linear response (CC-LR) can be found in the references of those papers.
 
 \subsection{Performance}
 
-The coupled-cluster response codes were generated in the same manner as the rest of the TCE, thus all previous comments on performance apply here as well.  The improved offsets available in the CCSD and EOM-CCSD codes is now also available in the CCSD-$\Lambda$ and CCSD-LR codes.  The bottleneck for CCSD-LR is the same as EOM-CCSD, likewise for CCSDT-LR and EOM-CCSDT.  The CCSD-LR code has been run on as many as 720 processors for systems with more than 1000 spin-orbitals, while the CCSDT-LR code has been demonstrated on as many as 128 processors.
+The coupled-cluster response codes were generated in the same manner as the rest of the TCE, thus all previous comments on performance apply here as well.  The improved offsets available in the CCSD and EOM-CCSD codes is now also available in the CCSD-$\Lambda$ and CCSD-LR codes.  The bottleneck for CCSD-LR is the same as EOM-CCSD, likewise for CCSDT-LR and EOM-CCSDT.  The CCSD-LR code has been tested on as many as 1024 processors for systems with more than 2000 spin-orbitals, while the CCSDT-LR code has been run on as many as 1024 processors.  The CCSDTQ-LR code is not particularly useful due to the extreme memory requirements of quadruples amplitudes, limited scalability and poor convergence in the CCSDTQ equations in general.
 
 \subsection{Input}
 
@@ -962,7 +1024,7 @@ set tce:afreq <double precision afreq(9) default: 0.0>
 set tce:respaxis <logical respaxis(3) default: T T T>
 \end{verbatim}
 
-The boolean variable lineresp involves the linear response equations for the corresponding coupled-cluster method (only CCSD and CCSDT possess this feature) and evaluates the dipole polarizability.  When \verb+lineresp+ is true, the $\Lambda$-equations will also be solved, so the dipole moment is also calculated.  If no other options are set, the complete dipole polarizability tensor will be calculated at zero frequency (static). Up to nine real frequencies can be set; adding more should not crash the code but it will calculate meaningless quanities.  If one desires to calculate more frequencies at one time, merely change the line \verb+double precision afreq(9)+ in \verb+$(NWCHEM_TOP)/src/tce/include/tce.fh+ appropriately and recompile.
+The boolean variable \verb+lineresp+ invokes the linear response equations for the corresponding coupled-cluster method (only CCSD and CCSDT possess this feature) and evaluates the dipole polarizability.  When \verb+lineresp+ is true, the $\Lambda$-equations will also be solved, so the dipole moment is also calculated.  If no other options are set, the complete dipole polarizability tensor will be calculated at zero frequency (static). Up to nine real frequencies can be set; adding more should not crash the code but it will calculate meaningless quanities.  If one desires to calculate more frequencies at one time, merely change the line \verb+double precision afreq(9)+ in \verb+$(NWCHEM_TOP)/src/tce/include/tce.fh+ appropriately and recompile.
 
 The user can choose to calculate response amplitudes only for certain axis, either because of redundancy due to symmetry or because of memory limitations.  The boolean vector of length three \verb+respaxis+ is used to determine whether or not a given set of response amplitudes are allocated, solved for, and used in the polarizability tensor evaluation.  The logical variables represent the X, Y, Z axes, respectively.  If respaxis is set to \verb+T F T+, for example, the responses with respect to the X and Z dipoles will be calculated, and the four (three unique) tensor components will be evaluated.  This feature is also useful for conserving memory.  By calculating only one axis at a time, memory requirements can be reduced by $25\%$ or more, depending on the number of DIIS vectors used.  Reducing the number of DIIS vectors also reduces the memory requirements.
 
@@ -1033,3 +1095,86 @@ set tce:respaxis T F T
 
 task tce energy
 \end{verbatim}
+
+\section{TCE Restart Capability}
+
+\subsection{Overview}
+
+Check-pointing and restart are critical for computational chemistry applications of any scale, but particularly those done on supercomputers, or run for an extended period on workstations and clusters.  The TCE supports parallel check-pointing and restart using the Shared Files (SF) library in the Global Arrays Tools.  The SF library requires that the file system be accessible by every node, so reading and writing restart files can only be performed on a shared file system.  For workstations, this condition is trivially met.  Restart files must be persistent to be useful, so volatile file systems or those which are periodicly erased should not be used for check-pointing.
+
+Restart is possible for all ground-state amplitudes ($T$, $\Lambda$ and $T^{(1)}$) but not for excited-state amplitudes, as in an EOM-CC calculation.  The latter functionality is under development.
+
+Restart capability is useful in the following situations:
+\begin{itemize}
+ \item The total run time is limited, as is the case for most supercomputing facilities.
+ \item The system is volatile and jobs die randomly.
+ \item When doing property calculations which require a large number of responses which cannot all be stored in-core simultaneously.
+\end{itemize}
+
+At the present time, restarting the amplitudes during a potential energy surface scan or numerical geometry optmization/frequency calculation is not advised due to the phase issue in the molecular orbital coefficients.  If the phase changes, the amplitudes will no longer be a useful guess and may lead to nonsense results.  Expert users may be able to use restart when the geometry varies using careful choices in the SCF input by using the ``rotate'' and ``lock'' options but this use of restart is not supported.
+
+If SF encounters a failure during restart I/O, the job will fail.  The capability to ignore a subset of failures, such as when saving the amplitudes prior to convergence, will be available in the future.  This is useful on some large machines when the filesystem is being taxed by another job and may be appear unavailable at the moment a check-point write is attempted.  
+
+The performance of SF I/O for restart is excellent and the wall time for reading and writing integrals and amplitudes is negligible, even on a supercomputer (such systems have very fast parallel file systems in most cases).  The only platform for which restart may cause I/O problems is BlueGene, due to ratio of compute to I/O nodes (64 on BlueGene/P).
+
+\subsection{Input}
+
+\begin{verbatim}
+set tce:read_integrals <logical read_integrals default: F F F F F>
+set tce:read_t <logical read_t default: F F F F>
+set tce:read_l <logical read_l default: F F F F>
+set tce:read_tr <logical read_tr default: F F F F>
+set tce:save_integrals <logical save_integrals default: F F F F F>
+set tce:save_t <logical save_t default: F F F F>
+set tce:save_l <logical save_l default: F F F F>
+set tce:save_tr <logical save_tr default: F F F F>
+set tce:save_interval <integer save_interval default: 100000>
+\end{verbatim}
+
+The boolean variables \verb+read_integrals+ and \verb+save_integrals+ control which integrals are read/saved.  The first location is the 1-e integrals, the second is for the 2-e integrals, and the third is for dipole integrals.  The fourth and fifth positions are reserved for quadrupole and octupole integrals but this functionality is not available.  The \verb+read_t+, \verb+read_l+, \verb+read_tr+, \verb+save_t+, \verb+save_l+ and \verb+save_tr+ variables control the reading/saving of the $T$, $\Lambda$ and $T^{(1)}$ (response) amplitudes.  Restart control on the response amplitudes is implicitly controlled by the value of \verb+respaxis+ (see above).  Requesting amplitudes that are beyond the scope of a given calculation, such as $T_3$ in a CCSD calculation, does not produce an error as these commands will never be processed.
+
+Attempting to restart with a set of amplitudes without the corresponding integrals is ill-advised, due to the phase issue discussed above.  For the same reason, one cannot save a subset of the integrals, so if it is even remotely possible that the dipole moment or polarizabilities will be desired for a given molecule, the dipole integrals should be saved as well.  It is possible to save the dipole integrals without setting \verb+dipole+ in the TCE input block; setting \verb+save_integrals(3)+ true is sufficient for this to occur.
+
+The \verb+save_interval+ variable controls the frequency with which amplitudes are saved.  By default, the amplitudes are saved only when the iterative process has converged, meaning that if the iterations do not converge in less than the maximum, one must start the calculation again from scratch.  The solution is to set \verb+save_interval+ to a smaller value, such as the number of DIIS cycles being used.
+
+The user shall not change the tilesize when reading in saved amplitudes.  The results of this are catastrophic and under no circumstance will this lead to physically meaningful results.
+
+\subsection{Examples}
+
+\begin{verbatim}
+geometry units au
+  symmetry c2v
+  H 0       0        0
+  F 0       0        1.7328795
+end
+
+basis spherical
+  * library aug-cc-pvdz
+end
+
+tce
+  ccsdt
+  io ga
+end
+
+set tce:lineresp T
+set tce:afreq 0.0 0.1 0.2 0.3 0.4
+set tce:respaxis T F T
+
+task tce energy
+\end{verbatim}
+
+\section{Maximizing performance}
+
+The following are recommended parameters for getting the best performance and efficiency for common methods on various hardware configurations.  The optimal settings are far from extensible and it is extremely important that users take care in how they apply these recommendations.  Testing a variety of settings on a simple example is recommended when optimal settings are desired.  Nonetheless, a few guiding principles will improve the performance of TCE jobs markedly, including making otherwise impossible jobs possible.
+
+\subsection{Memory considerations and IO schemes}
+
+\subsection{Processor count}
+
+\subsection{SCF options}
+
+\subsection{Convergence criteria}
+
+\subsection{Integral storage, transformation algorithms and tilesizes}
+
