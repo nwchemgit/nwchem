@@ -1,6 +1,6 @@
       subroutine cphf_solve2(rtdb)
 *
-* $Id: cphf_solve2.F,v 1.14 2007-11-16 22:32:02 edo Exp $
+* $Id: cphf_solve2.F,v 1.15 2008-08-18 01:33:44 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -24,7 +24,8 @@ c!!! BGJ
       integer rtdb              ! [input] database handle
       double precision eone,etwo,enrep,energy
       integer g_grad, g_work
-      integer max_precond_iter,max_precond_sub
+c      integer max_precond_iter,max_precond_sub
+      integer maxsub ! replaces max_precond_sub
       double precision precond_acc
       integer precond_iter
       logical ga_iter_lsolve
@@ -136,11 +137,15 @@ c
          call errquit('cphf: unknown SCF type',0, INPUT_ERR)
       endif
 c
-      lshift=0.0d0
-      if (.not. rtdb_get(rtdb, 'cphf:thresh', mt_dbl, 1, 
+c      lshift=0.0d0
+      if (.not. rtdb_get(rtdb, 'cphf:lshift', mt_dbl, 1,
+     $     lshift)) lshift=0.0
+      if (.not. rtdb_get(rtdb, 'cphf:precond_tol', mt_dbl, 1, 
      $     precond_tol)) precond_tol=1d-4
-      if (.not. rtdb_get(rtdb, 'cphf:maxiter', mt_int, 1,
-     $     max_precond_iter)) max_precond_iter = 20
+      if (.not. rtdb_get(rtdb,'cphf:maxiter', mt_int, 1,
+     $     maxiter)) maxiter = 50
+      if (.not. rtdb_get(rtdb, 'cphf:maxsub', mt_int, 1,
+     $     maxsub)) maxsub = min(10*nvec,60)
 c
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)         
       if (.not. file_read_ga_info(cphf_rhs, rhs_title, ncol, nvec))
@@ -154,24 +159,26 @@ c
      $     call errquit('cphf_solve: ga_cre grad',vlen, GA_ERR)
 c
       pflg=2
-      max_precond_sub = 20
+c      max_precond_sub = 20
       if (oprint) then
-         write(luout,170) scftype
- 170     format('    scftype = ',a)
+            write(luout,170) scftype
+ 170        format('  scftype          = ',4x,a)
          if (scftype .eq. 'RHF' .or. scftype.eq.'ROHF') then
             write(luout,171) nclosed, nopen
- 171        format('    nclosed = ', i4/
-     $             '      nopen = ', i4)
+ 171        format('  nclosed          = ', i8/
+     $             '  nopen            = ', i8)
          else
             write(luout,172) nalpha, nbeta
- 172        format('     nalpha = ', i4/
-     $             '      nbeta = ', i4)
+ 172        format('  nalpha           = ', i8/
+     $             '  nbeta            = ', i8)
          endif
-         write(luout,173) vlen, nvec, precond_tol, max_precond_iter
- 173     format('  variables = ', i8/
-     $          '  num. vecs = ', i8/
-     $          '  tolerance = ', 1p,d9.1,0p/
-     $          '  max. iter = ', i4/)
+            write(luout,173) vlen,nvec,precond_tol,lshift,maxiter,maxsub
+ 173        format('  variables        = ', i8/
+     $             '  # of vectors     = ', i8/
+     $             '  tolerance        = ', d8.2/
+     $             '  level shift      = ', d8.2/
+     $             '  max iterations   = ', i8/
+     $             '  max subspace     = ', i8/)
       endif
 c
 *ga:1:0
@@ -269,8 +276,17 @@ c     $        g_grad, g_work, precond_acc, precond_iter))
 c     $        call errquit('cphf did not converge',precond_iter)
          call ga_copy(g_grad, g_work)
          call uhf_precond(g_work,0.0d0)
+c
+c        ORIGINAL CALL
+c
+c         call ga_lkain(rtdb,g_work, g_grad, uhf_hessv2, uhf_precond,
+c     $        precond_tol, 10*nvec, maxiter, .false., oprint_solve)
+c
          call ga_lkain(rtdb,g_work, g_grad, uhf_hessv2, uhf_precond,
-     $        precond_tol, 10*nvec, maxiter, .false., oprint_solve)
+     $        precond_tol, maxsub, maxiter, .false., oprint_solve)
+c
+c
+c
          noskew_uhf = .true.
       else 
 c$$$         if(.not.ga_iter_lsolve(vlen, max_precond_iter,
@@ -287,9 +303,19 @@ c
      $        noskew)) noskew = .true.
          call ga_copy(g_grad, g_work)
          call rohf_hessv_precond(g_work,0.0d0)
+c
+c        ORIGINAL CALL
+c
+c         call ga_lkain(rtdb,g_work, g_grad, rohf_hessv2,
+c     R         rohf_hessv_precond,
+c     $        precond_tol, 10*nvec, maxiter, .false., oprint_solve)
+c
          call ga_lkain(rtdb,g_work, g_grad, rohf_hessv2,
      R         rohf_hessv_precond,
-     $        precond_tol, 10*nvec, maxiter, .false., oprint_solve)
+     $        precond_tol, maxsub, maxiter, .false., oprint_solve)
+c
+c
+c
          noskew = .true.
       endif
 c !!! BGJ
