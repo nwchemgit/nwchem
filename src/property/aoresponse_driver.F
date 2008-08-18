@@ -1,6 +1,6 @@
       subroutine aoresponse_driver (rtdb, basis, geom)
 
-c     $Id: aoresponse_driver.F,v 1.4 2008-05-31 22:43:44 jhammond Exp $
+c     $Id: aoresponse_driver.F,v 1.5 2008-08-18 03:15:16 jhammond Exp $
 
 c     ==================================================================
 
@@ -603,8 +603,8 @@ c
 c
           if (ga_nodeid().eq.0) write(LuOut,9434) "DFT Linear Response",
      1        dbl_mb(k_fr),auXnm/dbl_mb(k_fr),
-     2        alfare(1,1),alfare(2,1),alfare(3,1),
-     3        alfare(2,1),alfare(2,2),alfare(3,2),
+     2        alfare(1,1),alfare(1,2),alfare(1,3),
+     3        alfare(2,1),alfare(2,2),alfare(2,3),
      4        alfare(3,1),alfare(3,2),alfare(3,3),
      5        alphaevr(1),alphaevr(2),alphaevr(3),
      6        alphaiso,alphaani
