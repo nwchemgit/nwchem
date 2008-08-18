@@ -1,6 +1,6 @@
       subroutine tce_jacobi_tr2(d_r2,d_t2,k_t2_offset,iter)
 c
-c $Id: tce_jacobi_tr2.F,v 1.2 2008-01-14 15:20:41 jhammond Exp $
+c $Id: tce_jacobi_tr2.F,v 1.3 2008-08-18 01:59:58 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -37,7 +37,7 @@ c *** shift ***
       double precision shift
 c *************
       if(iter.le.100) then
-       shift=-(2.0d0)*zlshift
+       shift=-(2.0d0)*zlshift2
       else
        shift=0.0d0
       end if
@@ -131,7 +131,7 @@ c
 c
       subroutine tce_rr2_divide(d_r2,k_t2_offset)
 c
-c $Id: tce_jacobi_tr2.F,v 1.2 2008-01-14 15:20:41 jhammond Exp $
+c $Id: tce_jacobi_tr2.F,v 1.3 2008-08-18 01:59:58 jhammond Exp $
 c
       implicit none
 #include "global.fh"
