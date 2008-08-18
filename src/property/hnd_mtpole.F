@@ -1,6 +1,6 @@
       subroutine hnd_mtpole(rtdb,basis,geom,mpole)
 c
-c $Id: hnd_mtpole.F,v 1.10 2008-05-05 22:38:15 jhammond Exp $
+c $Id: hnd_mtpole.F,v 1.11 2008-08-18 12:22:45 jhammond Exp $
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion
@@ -514,7 +514,7 @@ c     prints less stuff, for use in the TCE.
 c
       subroutine hnd_mtpole2(rtdb,basis,geom,mpole,mtpval)
 c
-c $Id: hnd_mtpole.F,v 1.10 2008-05-05 22:38:15 jhammond Exp $
+c $Id: hnd_mtpole.F,v 1.11 2008-08-18 12:22:45 jhammond Exp $
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion
@@ -537,14 +537,11 @@ c
       integer basis   ! [input] basis handle
       integer geom    ! [input] geometry handle
       integer mpole   ! [input] order of multipole
-c
-c     Setting a max_pole. We have up to Octupole.
-c
       integer max_pole, maxcomp
       parameter (max_pole = 3, maxcomp = (max_pole+1)*(max_pole+2)/2)
 c
       double precision cm(3), mtpval(maxcomp,3)
-      double precision octo, debye, buck, cx, cy, cz
+      double precision cx, cy, cz
       double precision dipol, dipefc, diptot, rsquar, dum1, dum2
       logical status
       integer Nxyz(3)
@@ -554,18 +551,9 @@ c
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
       character*3 scftyp
       character*16 at_tag
-      data octo    /0.711688d+00/
-      data buck    /1.344911d+00/
-      data debye   /2.54176568d+00/
-c
       if (ga_nodeid().eq.0.and.mpole.eq.1) write(luout,2001)
       if (ga_nodeid().eq.0.and.mpole.eq.2) write(luout,3001)
       if (ga_nodeid().eq.0.and.mpole.eq.3) write(luout,9001)
-c
-c     Initialize integrals - unnecessary since TCE does this already
-c
-c      call int_init(rtdb,1, basis)
-c      call schwarz_init(geom, basis)
 c
 c     Get density matrix
 c
@@ -575,7 +563,16 @@ c
 c     Determine number of components and zero mtpval
 c
       ncomp = (mpole+1)*(mpole+2)/2
-      call dcopy(2*maxcomp,0.0d0,0,mtpval,1)
+c
+c     It would appear dcopy screws things up be zeroing the wrong area.
+c     This bothers me but I do not care now that it is fixed.
+c      call dcopy(2*maxcomp,0.0d0,0,mtpval,1)
+c
+      do icomp = 1, ncomp
+         mtpval(icomp,1) = 0.0d0
+         mtpval(icomp,2) = 0.0d0
+         mtpval(icomp,3) = 0.0d0
+      enddo
 c
 c     Get center of expansion
 c
@@ -630,42 +627,6 @@ c
      &                     dbl_mb(k_zanpt+iat-1) * cx * cy * cz
    60 continue
 c
-c     ----- form -efc- contribution -----
-c           from cosmo point charges !!!!
-c
-      if (cosmo_last) then
-         if (.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1,nefc))
-     &      call errquit('hnd_mtpole2: rtdb get failed for nefc ',911,
-     &      rtdb_err)
-         if (.not.ma_push_get(mt_dbl,nefc*3,'efcc',l_efcc,k_efcc))
-     &      call errquit('hnd_mtpole2: malloc k_efcc fail',911,ma_err)
-         if (.not.ma_push_get(mt_dbl,nefc,'efcz',l_efcz,k_efcz))
-     &      call errquit('hnd_mtpole2: malloc k_efcz fail',911,ma_err)
-         if (.not.rtdb_get(rtdb,'cosmo:efcc',mt_dbl,3*nefc,
-     &      dbl_mb(k_efcc))) call
-     &      errquit('hnd_mtpole2: rtdb get failed efcc',912,rtdb_err)
-         if (.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,nefc,
-     &      dbl_mb(k_efcz))) call
-     &      errquit('hnd_mtpole2: rtdb get failed efcz',913,rtdb_err)
-         do 70 icomp = 1, ncomp
-            call getNxyz(2,icomp,Nxyz)
-            do 70 iat=1,nefc
-               cx=1d0
-               if(Nxyz(1).ne.0)
-     &         cx = (dbl_mb(k_efcc+3*(icomp-1)  )-cm(1))**Nxyz(1)
-               cy=1d0
-               if(Nxyz(2).ne.0)
-     &         cy = (dbl_mb(k_efcc+3*(icomp-1)+1)-cm(2))**Nxyz(2)
-               cz=1d0
-               if(Nxyz(3).ne.0)
-     &         cz = (dbl_mb(k_efcc+3*(icomp-1)+2)-cm(3))**Nxyz(3)
-               mtpval(icomp,2) = mtpval(icomp,2) + 
-     &                           dbl_mb(k_efcz+iat-1)*cx*cy*cz
-   70    continue
-         if (.not.ma_chop_stack(l_efcc)) call
-     &      errquit('hnd_mtpole2: chop stack l_efcc',913,ma_err)
-      endif
-c
 c     Print output for
 c     mpole = 1 : Dipole
 c     mpole = 2 : Quadrupole
@@ -675,36 +636,11 @@ c
 c
 c     Dipole output
 c
-  101 dipol  = sqrt(mtpval(1,1)*mtpval(1,1) +
-     &              mtpval(2,1)*mtpval(2,1) +
-     &              mtpval(3,1)*mtpval(3,1))
-      dipefc = sqrt(mtpval(1,2)*mtpval(1,2) +
-     &              mtpval(2,2)*mtpval(2,2) +
-     &              mtpval(3,2)*mtpval(3,2))
-      diptot = sqrt((mtpval(1,1)+mtpval(1,2))**2 +
-     &              (mtpval(2,1)+mtpval(2,2))**2 +
-     &              (mtpval(3,1)+mtpval(3,2))**2)
-      write(luout,2995) dipol,mtpval(1,1),mtpval(1,2),mtpval(2,1),
-     &                  mtpval(2,2),mtpval(3,1),mtpval(3,2),dipefc,
-     &                  diptot
+  101 continue
 c
       do icomp = 1, ncomp
-         mtpval(icomp,1) = -1.0*mtpval(icomp,1) !* debye
-         mtpval(icomp,2) = -1.0*mtpval(icomp,2) !* debye
-         mtpval(icomp,3) = mtpval(icomp,1) + mtpval(icomp,2)
+         mtpval(icomp,1) = -1.0*mtpval(icomp,1) 
       enddo
-!      dipol  =  dipol*debye
-!      dipefc = dipefc*debye
-!      diptot = diptot*debye
-      write(luout,2996) dipol,mtpval(1,1),mtpval(1,2),mtpval(2,1),
-     &                  mtpval(2,2),mtpval(3,1),mtpval(3,2),dipefc,
-     &                  diptot
-      write(luout,2994)
-      if (.not.rtdb_put(rtdb,'prop:dipval',mt_dbl,3,mtpval(1,3)))
-     &     call errquit('prop: rtdb_put of dipval failed',555,
-     &       RTDB_ERR)
-c
-c     Done, goto cleanup and sync with other nodes
 c
       goto 999 
 c
@@ -713,29 +649,7 @@ c
 c     Ordering in mtpval (from defNxyz):
 c     xx, xy, xz, yy, yz, zz
 c
-c     First < r**2 > = diamagnetic susceptibility
-c
-  102 write(luout,3992) rsquar
-c
-c     Second moments
-c
-      write(luout,3999)
-      write(luout,3996) mtpval(1,1),mtpval(1,2),mtpval(1,1)+mtpval(1,2),
-     &                  mtpval(4,1),mtpval(4,2),mtpval(4,1)+mtpval(4,2),
-     &                  mtpval(6,1),mtpval(6,2),mtpval(6,1)+mtpval(6,2),
-     &                  mtpval(2,1),mtpval(2,2),mtpval(2,1)+mtpval(2,2),
-     &                  mtpval(3,1),mtpval(3,2),mtpval(3,1)+mtpval(3,2),
-     &                  mtpval(5,1),mtpval(5,2),mtpval(5,1)+mtpval(5,2)
-      write(luout,3995)
-      write(luout,3996) mtpval(1,1)*buck,mtpval(1,2)*buck,
-     &                  (mtpval(1,1)+mtpval(1,2))*buck,mtpval(4,1)*buck,
-     &                  mtpval(4,2)*buck,(mtpval(4,1)+mtpval(4,2))*buck,
-     &                  mtpval(6,1)*buck,mtpval(6,2)*buck,
-     &                  (mtpval(6,1)+mtpval(6,2))*buck,mtpval(2,1)*buck,
-     &                  mtpval(2,2)*buck,(mtpval(2,1)+mtpval(2,2))*buck,
-     &                  mtpval(3,1)*buck,mtpval(3,2)*buck,
-     &                  (mtpval(3,1)+mtpval(3,2))*buck,mtpval(5,1)*buck,
-     &                  mtpval(5,2)*buck,(mtpval(5,1)+mtpval(5,2))*buck
+  102 continue
 c
 c     Quadrupole moments
 c
@@ -753,26 +667,6 @@ c
       mtpval(2,2)= 3.0d0*mtpval(2,2)/2.0d0
       mtpval(3,2)= 3.0d0*mtpval(3,2)/2.0d0
       mtpval(5,2)= 3.0d0*mtpval(5,2)/2.0d0
-      write(luout,3997)
-      write(luout,3996) mtpval(1,1),mtpval(1,2),mtpval(1,1)+mtpval(1,2),
-     &                  mtpval(4,1),mtpval(4,2),mtpval(4,1)+mtpval(4,2),
-     &                  mtpval(6,1),mtpval(6,2),mtpval(6,1)+mtpval(6,2),
-     &                  mtpval(2,1),mtpval(2,2),mtpval(2,1)+mtpval(2,2),
-     &                  mtpval(3,1),mtpval(3,2),mtpval(3,1)+mtpval(3,2),
-     &                  mtpval(5,1),mtpval(5,2),mtpval(5,1)+mtpval(5,2)
-      write(luout,3994)
-      write(luout,3996) mtpval(1,1)*buck,mtpval(1,2)*buck,
-     &                  (mtpval(1,1)+mtpval(1,2))*buck,mtpval(4,1)*buck,
-     &                  mtpval(4,2)*buck,(mtpval(4,1)+mtpval(4,2))*buck,
-     &                  mtpval(6,1)*buck,mtpval(6,2)*buck,
-     &                  (mtpval(6,1)+mtpval(6,2))*buck,mtpval(2,1)*buck,
-     &                  mtpval(2,2)*buck,(mtpval(2,1)+mtpval(2,2))*buck,
-     &                  mtpval(3,1)*buck,mtpval(3,2)*buck,
-     &                  (mtpval(3,1)+mtpval(3,2))*buck,mtpval(5,1)*buck,
-     &                  mtpval(5,2)*buck,(mtpval(5,1)+mtpval(5,2))*buck
-      write(luout,3993)
-c
-c     Done, goto cleanup and sync with other nodes
 c
       goto 999 
 c
@@ -781,35 +675,7 @@ c
 c     Ordering in mtpval (from defNxyz):
 c     xxx, xxy, xxz, yyx, xyz, zzx, yyy, zzy, zzz
 c
-c     Third moments
-c
-  103 write(luout,9999)
-      write(luout,9996) mtpval(1,1),mtpval(1,2),mtpval(1,1)+mtpval(1,2),
-     &              mtpval(7,1),mtpval(7,2),mtpval(7,1)+mtpval(7,2),
-     &              mtpval(10,1),mtpval(10,2),mtpval(10,1)+mtpval(10,2),
-     &              mtpval(2,1),mtpval(2,2),mtpval(2,1)+mtpval(2,2),
-     &              mtpval(3,1),mtpval(3,2),mtpval(3,1)+mtpval(3,2),
-     &              mtpval(4,1),mtpval(4,2),mtpval(4,1)+mtpval(4,2),
-     &              mtpval(8,1),mtpval(8,2),mtpval(8,1)+mtpval(8,2),
-     &              mtpval(6,1),mtpval(6,2),mtpval(6,1)+mtpval(6,2),
-     &              mtpval(9,1),mtpval(9,2),mtpval(9,1)+mtpval(9,2),
-     &              mtpval(5,1),mtpval(5,2),mtpval(5,1)+mtpval(5,2)
-      write(luout,9995)
-      write(luout,9996) mtpval(1,1)*octo,mtpval(1,2)*octo,
-     &                (mtpval(1,1)+mtpval(1,2))*octo,mtpval(7,1)*octo,
-     &                mtpval(7,2)*octo,(mtpval(7,1)+mtpval(7,2))*octo,
-     &                mtpval(10,1)*octo,mtpval(10,2)*octo,
-     &                (mtpval(10,1)+mtpval(10,2))*octo,mtpval(2,1)*octo,
-     &                mtpval(2,2)*octo,(mtpval(2,1)+mtpval(2,2))*octo,
-     &                mtpval(3,1)*octo,mtpval(3,2)*octo,
-     &                (mtpval(3,1)+mtpval(3,2))*octo,mtpval(4,1)*octo,
-     &                mtpval(4,2)*octo,(mtpval(4,1)+mtpval(4,2))*octo,
-     &                mtpval(8,1)*octo,mtpval(8,2)*octo,
-     &                (mtpval(8,1)+mtpval(8,2))*octo,mtpval(6,1)*octo,
-     &                mtpval(6,2)*octo,(mtpval(6,1)+mtpval(6,2))*octo,
-     &                mtpval(9,1)*octo,mtpval(9,2)*octo,
-     &                (mtpval(9,1)+mtpval(9,2))*octo,mtpval(5,1)*octo,
-     &                mtpval(5,2)*octo,(mtpval(5,1)+mtpval(5,2))*octo
+  103 continue
 c
 c     Octupole moments
 c
@@ -831,34 +697,6 @@ c
          mtpval(8,i)=(4.0d0*mtpval(8,i)-dum1-dum2)/2.0d0
          mtpval(5,i)=5.0d0*mtpval(5,i)/2.0d0
       enddo
-      write(luout,9997)
-      write(luout,9996) mtpval(1,1),mtpval(1,2),mtpval(1,1)+mtpval(1,2),
-     &              mtpval(7,1),mtpval(7,2),mtpval(7,1)+mtpval(7,2),
-     &              mtpval(10,1),mtpval(10,2),mtpval(10,1)+mtpval(10,2),
-     &              mtpval(2,1),mtpval(2,2),mtpval(2,1)+mtpval(2,2),
-     &              mtpval(3,1),mtpval(3,2),mtpval(3,1)+mtpval(3,2),
-     &              mtpval(4,1),mtpval(4,2),mtpval(4,1)+mtpval(4,2),
-     &              mtpval(8,1),mtpval(8,2),mtpval(8,1)+mtpval(8,2),
-     &              mtpval(6,1),mtpval(6,2),mtpval(6,1)+mtpval(6,2),
-     &              mtpval(9,1),mtpval(9,2),mtpval(9,1)+mtpval(9,2),
-     &              mtpval(5,1),mtpval(5,2),mtpval(5,1)+mtpval(5,2)
-      write(luout,9994)
-      write(luout,9996) mtpval(1,1)*octo,mtpval(1,2)*octo,
-     &                (mtpval(1,1)+mtpval(1,2))*octo,mtpval(7,1)*octo,
-     &                mtpval(7,2)*octo,(mtpval(7,1)+mtpval(7,2))*octo,
-     &                mtpval(10,1)*octo,mtpval(10,2)*octo,
-     &                (mtpval(10,1)+mtpval(10,2))*octo,mtpval(2,1)*octo,
-     &                mtpval(2,2)*octo,(mtpval(2,1)+mtpval(2,2))*octo,
-     &                mtpval(3,1)*octo,mtpval(3,2)*octo,
-     &                (mtpval(3,1)+mtpval(3,2))*octo,mtpval(4,1)*octo,
-     &                mtpval(4,2)*octo,(mtpval(4,1)+mtpval(4,2))*octo,
-     &                mtpval(8,1)*octo,mtpval(8,2)*octo,
-     &                (mtpval(8,1)+mtpval(8,2))*octo,mtpval(6,1)*octo,
-     &                mtpval(6,2)*octo,(mtpval(6,1)+mtpval(6,2))*octo,
-     &                mtpval(9,1)*octo,mtpval(9,2)*octo,
-     &                (mtpval(9,1)+mtpval(9,2))*octo,mtpval(5,1)*octo,
-     &                mtpval(5,2)*octo,(mtpval(5,1)+mtpval(5,2))*octo
-      write(luout,9993)
 c
 c     ----- release MA memory blocks -----
 c
@@ -878,69 +716,9 @@ c
      &       errquit('mtpole: ga_destroy failed g_dens',0,GA_ERR)
       enddo
 c
-c     Terminate integrals - do not do this since TCE will crash
-c
-c      call schwarz_tidy()
-c      call int_terminate()
-c
       return
 c
-c     Formatting dipole
-c
  2001 format(/,10x,13(1h-),/,10x,'Dipole Moment',/,10x,13(1h-))
- 2996 format(/,2x,' Dipole moment',f20.10,' Debye(s)',
-     2 /,12x,' DMX',f20.10,' DMXEFC',f20.10,
-     3 /,12x,' DMY',f20.10,' DMYEFC',f20.10,
-     4 /,12x,' DMZ',f20.10,' DMZEFC',f20.10,
-     5 /,2x,' -EFC- dipole ',f20.10,' DEBYE(S)',
-     6 /,2x,' Total dipole ',f20.10,' DEBYE(S)')
- 2995 format(/,2x,' Dipole moment',f20.10,' A.U.',
-     2 /,12x,' DMX',f20.10,' DMXEFC',f20.10,
-     3 /,12x,' DMY',f20.10,' DMYEFC',f20.10,
-     4 /,12x,' DMZ',f20.10,' DMZEFC',f20.10,
-     5 /, 2x,' -EFC- dipole ',f20.10,' A.U.',
-     6 /, 2x,' Total dipole ',f20.10,' A.U.')
- 2994 format(/,' 1 a.u. = 2.541766 Debyes ')
-c
-c     Formatting quadrupole
-c
  3001 format(/,10x,17(1h-),/,10x,'Quadrupole Moment',/,10x,17(1h-))
- 3999 format(/,2x,' Second moments in atomic units')
- 3997 format(/,2x,' Quadrupole moments in atomic units')
- 3995 format(/,2x,' Second moments in buckingham(s)')
- 3994 format(/,2x,' Quadrupole moments in buckingham(s)')
- 3996 format(/,2x,' Component','  Electronic+nuclear',4x,
-     2      ' Point charges',12x,' Total',/,2x,74(1h-),
-     2 /,2x,'    XX    ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    YY    ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    ZZ    ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    XY    ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    XZ    ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    YZ    ',f20.10,2x,f20.10,2x,f20.10)
- 3993 format(/,' 1 a.u. = 1.344911 Buckinghams ',
-     1                 '= 1.344911 10**(-26) esu*cm**2 ')
- 3992 format(/,' < R**2 > = ',f10.6,' a.u. ',
-     1 ' ( 1 a.u. = 0.280023 10**(-16) cm**2 ) ',/,
-     2 ' ( also called diamagnetic susceptibility ) ')
-c
-c     Formatted printing octupole moments
-c
  9001 format(/,10x,15(1h-),/,10x,'Octupole Moment',/,10x,15(1h-))
- 9999 format(/,2x,' Third moments in atomic units')
- 9997 format(/,2x,' Octupole moments in atomic units')
- 9995 format(/,2x,' Third moments in 10**(-34) esu*cm**3')
- 9994 format(/,2x,' Octupole moments in 10**(-34) esu*cm**3')
- 9996 format(/,2x,' Component','  Electronic+nuclear',4x,
-     2      ' Point charges',12x,' Total',/,2x,74(1h-),
-     2 /,2x,'    XXX   ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    YYY   ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    ZZZ   ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    XXY   ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    XXZ   ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    YYX   ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    YYZ   ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    ZZX   ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    ZZY   ',f20.10,2x,f20.10,2x,f20.10,
-     2 /,2x,'    XYZ   ',f20.10,2x,f20.10,2x,f20.10)
- 9993 format(/,' 1 a.u. = 0.711688 10**(-34) esu*cm**3 ')
       end
