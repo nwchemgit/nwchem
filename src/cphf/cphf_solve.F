@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.34 2003-10-17 22:54:30 carlfahl Exp $
+* $Id: cphf_solve.F,v 1.35 2008-08-18 03:11:04 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -134,14 +134,18 @@ c
      &       INPUT_ERR)
       endif
 c
-      lshift=0.0d0
+c      lshift=0.0d0
+      if (.not. rtdb_get(rtdb, 'cphf:lshift', mt_dbl, 1,
+     $     lshift)) lshift=0.0d0
       if (.not. rtdb_get(rtdb, 'cphf:thresh', mt_dbl, 1, 
      $     precond_tol)) precond_tol=1d-4
       if (.not. rtdb_get(rtdb, 'cphf:maxiter', mt_int, 1,
      $     max_precond_iter)) max_precond_iter = 100
+      if (.not. rtdb_get(rtdb, 'cphf:maxsub', mt_int, 1,
+     $     max_precond_sub)) max_precond_sub = 20
 c
       pflg=2
-      max_precond_sub = 20
+c      max_precond_sub = 20
       if (oprint) then
          write(6,170) scftype
  170     format('    scftype = ',a)
