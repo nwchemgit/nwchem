@@ -1,4 +1,4 @@
-c $Id: ga_it2.F,v 1.14 2008-08-18 01:31:11 jhammond Exp $
+c $Id: ga_it2.F,v 1.15 2008-08-18 03:08:45 jhammond Exp $
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc
@@ -166,18 +166,28 @@ c     at least while the product() routine is being executed.
 c
       integer iter, n, nvec, nsub, isub, type, maxsub
       integer g_y, g_Ay, g_Ax, g_r, g_a, g_bb, g_c, g_xold, g_Axold
-      double precision rmax, acc
+      double precision rmax, acc, ga_svd_tol
       logical converged
       logical odebug
 c
       odebug = util_print('debug lsolve', print_never) .and. 
      $     ga_nodeid().eq.0
       if (.not.rtdb_get(rtdb,'cphf:acc',mt_dbl,1,acc)) acc=0.01d0*tol
-c
       call ga_inquire(g_x, type, n, nvec)
       maxsub = mmaxsub          ! So don't modify input scalar arg
       if (maxsub .lt. 3*nvec) maxsub = 3*nvec
       maxsub = (maxsub/nvec)*nvec
+c
+      if (.not.rtdb_get(rtdb,'cphf:ga_svd_tol',mt_dbl,1,
+     &                  ga_svd_tol)) then
+c       See comment just before the ga_svd_solve_seq call to
+c       understand these choices.
+        if ((100*maxsub).lt.n) then
+          ga_svd_tol = 1d-7
+        else
+          ga_svd_tol = 1d-14
+        endif 
+      endif
 c
       if (oprint .and. ga_nodeid().eq.0) then
          write(6,1) n, nvec, maxsub, maxiter, tol, util_wallsec()
@@ -301,7 +311,7 @@ c     realistic examples (maxsub << n) there is only a little
 c     advantage and in the precence of real noise in the products
 c     screening with a realistic threshold is important.
 c
-         call ga_svd_solve_seq(g_a,g_bb,g_c,1d-14)
+         call ga_svd_solve_seq(g_a,g_bb,g_c,ga_svd_tol)
          if (odebug) call ga_print(g_c)
 c
 c     Form and add the correction, in parts, onto the solution
