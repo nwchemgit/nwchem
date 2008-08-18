@@ -1,4 +1,4 @@
-c $Id: ga_it2.F,v 1.13 2007-10-31 19:16:30 bert Exp $
+c $Id: ga_it2.F,v 1.14 2008-08-18 01:31:11 jhammond Exp $
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc
@@ -172,8 +172,7 @@ c
 c
       odebug = util_print('debug lsolve', print_never) .and. 
      $     ga_nodeid().eq.0
-      if (.not. rtdb_get(rtdb, 'cphf:acc',    mt_dbl, 1,
-     &                            acc)) acc = 0.01d0*tol
+      if (.not.rtdb_get(rtdb,'cphf:acc',mt_dbl,1,acc)) acc=0.01d0*tol
 c
       call ga_inquire(g_x, type, n, nvec)
       maxsub = mmaxsub          ! So don't modify input scalar arg
@@ -181,11 +180,12 @@ c
       maxsub = (maxsub/nvec)*nvec
 c
       if (oprint .and. ga_nodeid().eq.0) then
-         write(6,1) n, nvec, maxsub, tol, util_wallsec()
+         write(6,1) n, nvec, maxsub, maxiter, tol, util_wallsec()
  1       format(//,'Iterative solution of linear equations',/,
      $        '  No. of variables', i9,/,
      $        '  No. of equations', i9,/,
      $        '  Maximum subspace', i9,/,
+     $        '        Iterations', i9,/,
      $        '       Convergence', 1p,d9.1,/,
      $        '        Start time', 0p,f9.1,/)
          call util_flush(6)
