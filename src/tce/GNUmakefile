@@ -1,10 +1,10 @@
-#$Id: GNUmakefile,v 1.73 2008-08-18 02:13:35 jhammond Exp $
+#$Id: GNUmakefile,v 1.74 2008-08-18 02:56:49 jhammond Exp $
 #
 
 SUBDIRS = include diis2 diis3 \
           ccsd ccsd_lambda eomccsd \
           ccsd_t cr-eomccsd_t lrh emb \
-          response ccsd_yr ccsd_alpha ccsd_beta #\
+          response ccsd_yr ccsd_alpha ccsd_beta \
           ccd lccd lccsd qcisd cc3 \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
           ccsdt ccsdt_lambda eomccsdt \
@@ -63,11 +63,10 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_mo2e_disk_2eorb.o tce_mo2e_incore_2eorb.o tce_mo2e_incore_2eorb_split.o \
       tce_mo2e_hybrid_2eorb_split.o tce_mo2e_offset_intorb_hybrid.o \
       tce_mo2e_2emet3.o tce_mo2e_2emet3_n5.o tce_mo2e_2emet4.o tce_mo2e_2emet4_n5.o \
-      tce_make_denom1.o tce_make_denom2.o #\
-      tce_mo2e_offset_intorb_split.o
+      tce_make_denom1.o tce_make_denom2.o 
 
-define SADAYSORT
-endef
+#define SADAYSORT
+#endef
 
 ifdef SADAYSORT
       OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
@@ -75,8 +74,8 @@ else
       OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
 endif
 
-define KAROLEOM
-endef
+#define KAROLEOM
+#endef
 
 ifdef KAROLEOM
       OBJ_OPTIMIZE += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
