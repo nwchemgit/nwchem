@@ -1,4 +1,4 @@
-c $Id: tce_main.fh,v 1.11 2008-07-22 16:23:12 jhammond Exp $
+c $Id: tce_main.fh,v 1.12 2008-08-18 02:13:39 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -47,7 +47,10 @@ c
       double precision maxdiff ! New
       double precision thresh  ! Convergence threshold for amplitude equation
       double precision pthresh ! Amplitude printing threshold
+      double precision printtol! Amplitude printing threshold
       double precision zlshift ! Level Shift
+      double precision zlshift2! Level Shift 2 T(1) and L(1) regular response
+      double precision zlshift3! Level Shift 3 T(1) imaginary response
       integer l_irs(2),k_irs(2)! Irreps of MOs
       integer nmix(2)          ! Number of symmetry contaminations
       double precision tol2e   ! 2-e integral tolerance
@@ -139,7 +142,7 @@ c
 c     Doubles
 c
       common /tcemaindouble/
-     1  thresh,pthresh,tol2e,cpusecs,zlshift,maxdiff
+     1  thresh,pthresh,tol2e,cpusecs,zlshift,zlshift2,zlshift3,maxdiff
 c
 c     Characters
 c

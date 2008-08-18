@@ -1,12 +1,11 @@
       subroutine tce_ao2e_new(rtdb,              ! input
-     &                        geom,              ! input
-     &                        basis_name,        ! input
+!      &                        geom,              ! input
      &                        basis_handle,      ! input
-     &                        tol2e,             ! input
-     &                        ipol,              ! input
+!      &                        tol2e,             ! input
+!      &                        ipol,              ! input
      &                        d_ao2e)            ! output
 c
-c $Id: tce_ao2e_new.F,v 1.3 2008-07-17 21:47:57 marat Exp $
+c $Id: tce_ao2e_new.F,v 1.4 2008-08-18 02:13:36 jhammond Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -20,8 +19,8 @@ c
 #include "schwarz.fh"
 #include "sf.fh"
 #include "errquit.fh"
-c#include "tce.fh"
-c#include "tce_main.fh"
+#include "tce.fh"
+#include "tce_main.fh"
       integer rtdb                 ! Run-time database
       logical nodezero             ! True if node zero
       integer d_ao2e               ! AO integrals
@@ -55,23 +54,23 @@ cc      external nxtval
 c
 c     New variables: formerly from tce_main.fh, now defined locally
 c
-      integer geom
-      integer ipol
-      character*(*) basis_name
+!       integer geom
+!       integer ipol
+      character*255 basis_name
       integer basis_handle
-      integer nbf,nshells
-      double precision tol2e
-      integer noa,nob,nva,nvb
-      integer noab,nvab
-      integer nmo(2) 
-      integer max_clocks
-      parameter (max_clocks = 100)
-      double precision cpusecs(max_clocks)  ! to make compiler shut up, but not compatible with rest of TCE
-      integer max_size         ! A large number
-      parameter (max_size = 10000)
-      integer l_movecs_sorted,k_movecs_sorted ! MA handles for MO coeffs
-      integer l_range, k_range ! Length of blocks
-      integer nfc(2),nfv(2)
+!       integer nbf,nshells
+!       double precision tol2e
+!       integer noa,nob,nva,nvb
+!       integer noab,nvab
+!       integer nmo(2)
+!       integer max_clocks
+!       parameter (max_clocks = 100)
+!       double precision cpusecs(max_clocks)  ! to make compiler shut up, but not compatible with rest of TCE
+!       integer max_size         ! A large number
+!       parameter (max_size = 10000)
+!       integer l_movecs_sorted,k_movecs_sorted ! MA handles for MO coeffs
+!       integer l_range, k_range ! Length of blocks
+!       integer nfc(2),nfv(2)
       logical int_normalize
       external int_normalize
 c
@@ -85,16 +84,18 @@ c     ---------
 c     Basis set (formerly in tce_ao2e_new)
 c     ---------
 c
-      if (.not.bas_create(basis_handle,basis_name))
-     1  call errquit('tce_ao2e_new: bas_create failed',0,BASIS_ERR)
-      if (.not.bas_rtdb_load(rtdb,geom,basis_handle,basis_name))
-     1  call errquit('tce_ao2e_new: basis not found',0,BASIS_ERR)
-      if (.not.int_normalize(rtdb,basis_handle))
-     1  call errquit('tce_ao2e_new: int_normalize failed',0,INT_ERR)
-      if (.not.bas_numbf(basis_handle,nbf))
-     1  call errquit('tce_ao2e_new: failed to read nbf',0,BASIS_ERR)
-      if (.not.bas_numcont(basis_handle,nshells))
-     1  call errquit('tce_ao2e_new: failed to read nshells',0,BASIS_ERR)
+      basis_name = 'ao basis'
+c
+!       if (.not.bas_create(basis_handle,basis_name))
+!      1  call errquit('tce_ao2e_new: bas_create failed',0,BASIS_ERR)
+!       if (.not.bas_rtdb_load(rtdb,geom,basis_handle,basis_name))
+!      1  call errquit('tce_ao2e_new: basis not found',0,BASIS_ERR)
+!       if (.not.int_normalize(rtdb,basis_handle))
+!      1  call errquit('tce_ao2e_new: int_normalize failed',0,INT_ERR)
+!       if (.not.bas_numbf(basis_handle,nbf))
+!      1  call errquit('tce_ao2e_new: failed to read nbf',0,BASIS_ERR)
+!       if (.not.bas_numcont(basis_handle,nshells))
+!      1  call errquit('tce_ao2e_new: failed to read nshells',0,BASIS_ERR)
 c
 c     ===========
 c     Set offsets
@@ -171,7 +172,7 @@ c
       if (.not.ma_push_get(mt_dbl,N*N,'pq',l_pq,k_pq))
      1  call errquit('tce_ao2e: MA problem k_pq',6,MA_ERR)
       if (.not.ma_push_get(mt_dbl,sf_size_pq,'pq_packed',
-     1  l_pq_packed,k_pq_packed)) 
+     1  l_pq_packed,k_pq_packed))
      2  call errquit('tce_ao2e: MA problem pq_packed',7,
      3  MA_ERR)
 c
@@ -204,7 +205,7 @@ cc      next = nxtval(nprocs)
             enddo
             do jsh=1,nshells
               do ish=1,nshells
-                if (schwarz_shell(ish,ksh)*schwarz_shell(jsh,lsh) 
+                if (schwarz_shell(ish,ksh)*schwarz_shell(jsh,lsh)
      1            .ge. tol2e) then
                   if (.not.bas_cn2bfr(basis_handle,ish,ilo,ihi))
      1              call errquit('tce_ao2e: basis fn range problem',2,
@@ -216,6 +217,7 @@ cc      next = nxtval(nprocs)
                   jrange = jhi - jlo + 1
                   call int_2e4c(basis_handle,ish,ksh,basis_handle,jsh,
      1              lsh,work2,dbl_mb(k_work2),work1,dbl_mb(k_work1))
+c---------------------------------------------------------------------
                   kl = 0
                   do l = llo,lhi
                     do k = klo,khi
@@ -225,12 +227,13 @@ cc      next = nxtval(nprocs)
                         do i = ilo,ihi
                           ikjl = (((i-ilo)*krange+(k-klo))*jrange
      1                           +(j-jlo))*lrange+(l-llo)
-                          dbl_mb(k_ijkl+kloff+joff(j)+i-1) = 
+                          dbl_mb(k_ijkl+kloff+joff(j)+i-1) =
      1                      dbl_mb(k_work1+ikjl)
                         enddo
                       enddo
                     enddo
                   enddo
+c---------------------------------------------------------------------
                 endif
               enddo
             enddo
@@ -265,7 +268,7 @@ c
      1            sf_size_pq,(loff(l)+k-1)*sf_size_pq)
               enddo
             enddo
-            if (.not.ma_pop_stack(l_ijkl)) 
+            if (.not.ma_pop_stack(l_ijkl))
      1        call errquit('tce_ao2e: MA problem x1',16,MA_ERR)
 cc            next = nxtval(nprocs)
       next = NXTASK(nprocs, 1)
@@ -281,18 +284,18 @@ c     ==========
 c     Deallocate
 c     ==========
 c
-      if (.not.ma_pop_stack(l_pq_packed)) 
-     1  call errquit('tcc_ao2e: MA problem',8,MA_ERR)
-      if (.not.ma_pop_stack(l_pq)) 
-     1  call errquit('tcc_ao2e: MA problem',9,MA_ERR)
-      if (.not.ma_pop_stack(l_pj)) 
-     1  call errquit('tcc_ao2e: MA problem',10,MA_ERR)
-      if (.not.ma_pop_stack(l_ij)) 
-     1  call errquit('tcc_ao2e: MA problem',11,MA_ERR)
-      if (.not.ma_pop_stack(l_work2)) 
-     1  call errquit('tcc_ao2e: MA problem',14,MA_ERR)
-      if (.not.ma_pop_stack(l_work1)) 
-     1  call errquit('tcc_ao2e: MA problem',15,MA_ERR)
+      if (.not.ma_pop_stack(l_pq_packed))
+     1  call errquit('tce_ao2e: MA problem',8,MA_ERR)
+      if (.not.ma_pop_stack(l_pq))
+     1  call errquit('tce_ao2e: MA problem',9,MA_ERR)
+      if (.not.ma_pop_stack(l_pj))
+     1  call errquit('tce_ao2e: MA problem',10,MA_ERR)
+      if (.not.ma_pop_stack(l_ij))
+     1  call errquit('tce_ao2e: MA problem',11,MA_ERR)
+      if (.not.ma_pop_stack(l_work2))
+     1  call errquit('tce_ao2e: MA problem',14,MA_ERR)
+      if (.not.ma_pop_stack(l_work1))
+     1  call errquit('tce_ao2e: MA problem',15,MA_ERR)
       if (nodezero.and.util_print('time',print_debug)) then
         write(LuOut,8000) 'createfile   ', cpusecs(1), cpusecs(51)
         write(LuOut,8000) 'deletefile   ', cpusecs(2), cpusecs(52)

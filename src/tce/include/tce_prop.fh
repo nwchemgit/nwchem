@@ -1,4 +1,5 @@
       logical lineresp
+      logical imagresp
       logical leftresp
       logical quadresp
       logical respaxis(3)
@@ -6,12 +7,14 @@
       logical beta_or
       logical beta_eope
       integer anumfreq
+      integer inumfreq
       integer bnumfreq
       integer gnumfreq
       integer lr_diis
       integer yr_diis
       integer qr_diis
       double precision afreq(9)
+      double precision ifreq(99)  ! needs lots of alpha(i*omega) for Casimir-Polder quadrature
       double precision bfreq(9)
       double precision gfreq(9)
       double precision lr_thresh
@@ -65,11 +68,12 @@ c      integer k_o2_offset
 c      integer size_o2          
 
       common /tcepropdouble/
-     1 afreq,bfreq,gfreq,lr_thresh,yr_thresh,qr_thresh
+     1 afreq,ifreq,bfreq,gfreq,lr_thresh,yr_thresh,qr_thresh
 
       common /tcepropinteger/
-     1 dynaxis,anumfreq,bnumfreq,gnumfreq
+     1 dynaxis,anumfreq,inumfreq,bnumfreq,gnumfreq
 
       common /tceproplogical/
-     1  lineresp,leftresp,quadresp,respaxis,beta_shg,beta_or,beta_eope
+     1  lineresp,imagresp,leftresp,quadresp,respaxis,
+     2  beta_shg,beta_or,beta_eope
 

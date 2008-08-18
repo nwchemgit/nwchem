@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.16 2008-07-17 21:47:56 marat Exp $
+c $Id: tce_ao2e.F,v 1.17 2008-08-18 02:13:35 jhammond Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -132,6 +132,10 @@ c     ================
 c     Loop over shells
 c     ================
 c
+      print*,'======================================'
+      print*,'nshells = ',nshells
+      print*,'======================================'
+c
       nprocs = ga_nnodes()
       count = 0
 cc      next = nxtval(nprocs)
@@ -169,6 +173,7 @@ cc      next = nxtval(nprocs)
                   jrange = jhi - jlo + 1
                   call int_2e4c(ao_bas_han,ish,ksh,ao_bas_han,jsh,lsh,
      1              work2,dbl_mb(k_work2),work1,dbl_mb(k_work1))
+c--------------------------------------------------------------------
                   kl = 0
                   do l = llo,lhi
                     do k = klo,khi
@@ -184,6 +189,7 @@ cc      next = nxtval(nprocs)
                       enddo
                     enddo
                   enddo
+c--------------------------------------------------------------------
                 endif
               enddo
             enddo
@@ -235,17 +241,17 @@ c     Deallocate
 c     ==========
 c
       if (.not.ma_pop_stack(l_pq_packed)) 
-     1  call errquit('tcc_ao2e: MA problem',8,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem',8,MA_ERR)
       if (.not.ma_pop_stack(l_pq)) 
-     1  call errquit('tcc_ao2e: MA problem',9,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem',9,MA_ERR)
       if (.not.ma_pop_stack(l_pj)) 
-     1  call errquit('tcc_ao2e: MA problem',10,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem',10,MA_ERR)
       if (.not.ma_pop_stack(l_ij)) 
-     1  call errquit('tcc_ao2e: MA problem',11,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem',11,MA_ERR)
       if (.not.ma_pop_stack(l_work2)) 
-     1  call errquit('tcc_ao2e: MA problem',14,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem',14,MA_ERR)
       if (.not.ma_pop_stack(l_work1)) 
-     1  call errquit('tcc_ao2e: MA problem',15,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem',15,MA_ERR)
       if (nodezero.and.util_print('time',print_debug)) then
         write(LuOut,8000) 'createfile   ', cpusecs(1), cpusecs(51)
         write(LuOut,8000) 'deletefile   ', cpusecs(2), cpusecs(52)

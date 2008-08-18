@@ -1,6 +1,6 @@
       subroutine tce_mo2e_new(d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e_new.F,v 1.3 2008-07-30 14:34:37 jhammond Exp $
+c $Id: tce_mo2e_new.F,v 1.4 2008-08-18 02:13:37 jhammond Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -76,9 +76,9 @@ c
      1          (int_mb(k_spin+pb-1)+int_mb(k_spin+qb-1)+
      2           int_mb(k_spin+rb-1)+int_mb(k_spin+sb-1).ne.8)) then
               if (ieor(int_mb(k_sym+pb-1),ieor(int_mb(k_sym+qb-1),
-     1            ieor(int_mb(k_sym+rb-1),int_mb(k_sym+sb-1)))) 
+     1            ieor(int_mb(k_sym+rb-1),int_mb(k_sym+sb-1))))
      2            .eq. 0) then
-                sf_size_pqrs = sf_size_pqrs 
+                sf_size_pqrs = sf_size_pqrs
      1            + int_mb(k_range+pb-1) * int_mb(k_range+qb-1)
      2            * int_mb(k_range+rb-1) * int_mb(k_range+sb-1)
               endif
@@ -87,7 +87,7 @@ c
             enddo
           enddo
           int_mb(k_pqboff+(pb-1)*Nb+qb-1) = pq_packed_off
-          pq_packed_off = pq_packed_off + int_mb(k_range+pb-1) 
+          pq_packed_off = pq_packed_off + int_mb(k_range+pb-1)
      1                                  * int_mb(k_range+qb-1)
         enddo
       enddo
@@ -168,7 +168,7 @@ cc      next = nxtval(nprocs)
                     enddo
                   enddo
                   if (util_print('mo2e',print_debug))
-     1              then 
+     1              then
                     write(LuOut,9200) pb,qb,rb,sb
                     call ma_print_compact(dbl_mb(k_pqrs),
      1              sf_size_pq*sf_size_rs,1,'MO 2e')
@@ -176,16 +176,16 @@ cc      next = nxtval(nprocs)
                   call put_hash_block(d_mo2e,dbl_mb(k_pqrs),
      1              sf_size_pq*sf_size_rs,int_mb(k_2e_offset),
      2              ((((pb-1)*Nb+qb-1)*Nb+rb-1)*Nb+sb-1))
-                  if (.not.ma_pop_stack(l_pqrs)) 
+                  if (.not.ma_pop_stack(l_pqrs))
      1              call errquit('tce_mo2e_new: MA problem',5,MA_ERR)
-                  if (.not.ma_pop_stack(l_sl)) 
+                  if (.not.ma_pop_stack(l_sl))
      1              call errquit('tce_mo2e_new: MA problem',6,MA_ERR)
                 endif
                 endif
                 endif
               enddo
             enddo
-            if (.not.ma_pop_stack(l_pqkl_packed)) 
+            if (.not.ma_pop_stack(l_pqkl_packed))
      1        call errquit('tce_mo2e_new: MA problem',3,MA_ERR)
 cc            next = nxtval(nprocs)
       next = NXTASK(nprocs, 1)
@@ -200,18 +200,18 @@ c     ==========
 c     Deallocate
 c     ==========
 c
-      if (.not.ma_pop_stack(l_kl)) 
+      if (.not.ma_pop_stack(l_kl))
      1  call errquit('tce_mo2e_new: MA problem',10,MA_ERR)
-      if (.not.ma_pop_stack(l_pqboff)) 
+      if (.not.ma_pop_stack(l_pqboff))
      1  call errquit('tce_mo2e_new: MA problem',12,MA_ERR)
-      if (nodezero.and.util_print('time',print_debug)) then
-        write(LuOut,8000) 'createfile   ', cpusecs(1), cpusecs(51)
-        write(LuOut,8000) 'deletefile   ', cpusecs(2), cpusecs(52)
-        write(LuOut,8000) 'put_block    ', cpusecs(3), cpusecs(53)
-        write(LuOut,8000) 'add_block    ', cpusecs(4), cpusecs(54)
-        write(LuOut,8000) 'get_block    ', cpusecs(5), cpusecs(55)
-        write(LuOut,8000) 'reconcilefile', cpusecs(6), cpusecs(56)
-      endif
+!       if (nodezero.and.util_print('time',print_debug)) then
+!         write(LuOut,8000) 'createfile   ', cpusecs(1), cpusecs(51)
+!         write(LuOut,8000) 'deletefile   ', cpusecs(2), cpusecs(52)
+!         write(LuOut,8000) 'put_block    ', cpusecs(3), cpusecs(53)
+!         write(LuOut,8000) 'add_block    ', cpusecs(4), cpusecs(54)
+!         write(LuOut,8000) 'get_block    ', cpusecs(5), cpusecs(55)
+!         write(LuOut,8000) 'reconcilefile', cpusecs(6), cpusecs(56)
+!       endif
  8000 format(1x,'cpu & wall time in seconds for ',A,2f20.1)
 c
 c     Debug only
@@ -228,7 +228,7 @@ c           do sb = rb,Nb
 c             if (int_mb(k_spin+pb-1)+int_mb(k_spin+qb-1) .eq.
 c    1            int_mb(k_spin+rb-1)+int_mb(k_spin+sb-1)) then
 c               if (ieor(int_mb(k_sym+pb-1),ieor(int_mb(k_sym+qb-1),
-c    1              ieor(int_mb(k_sym+rb-1),int_mb(k_sym+sb-1)))) 
+c    1              ieor(int_mb(k_sym+rb-1),int_mb(k_sym+sb-1))))
 c    2              .eq. 0) then
 c                 do p = 1,int_mb(k_range+pb-1)
 c                   do q = 1,int_mb(k_range+qb-1)
@@ -251,7 +251,7 @@ c           enddo
 c         enddo
 c       enddo
 c     enddo
-c     if (.not.ma_pop_stack(l_debug)) 
+c     if (.not.ma_pop_stack(l_debug))
 c    1  call errquit('tce_mo2e_new: MA problem',7,MA_ERR)
 c9100 format(4i3,f20.10)
 c

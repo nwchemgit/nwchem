@@ -1,7 +1,7 @@
       subroutine tce_ao2e_cholesky_2d(rtdb,              ! input
      &                               d_ao2e)            ! output (first full AO matrix, then replaced by full Cholesky factor)
 c
-c $Id: tce_ao2e_cholesky_2d.F,v 1.1 2008-07-16 21:49:51 jhammond Exp $
+c $Id: tce_ao2e_cholesky_2d.F,v 1.2 2008-08-18 02:13:36 jhammond Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -278,9 +278,9 @@ c     Deallocate
 c     ==========
 c
       if (.not.ma_pop_stack(l_work2)) 
-     1  call errquit('tcc_ao2e: MA problem',14,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem',14,MA_ERR)
       if (.not.ma_pop_stack(l_work1)) 
-     1  call errquit('tcc_ao2e: MA problem',15,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem',15,MA_ERR)
 c
 c     ======
 c     Return

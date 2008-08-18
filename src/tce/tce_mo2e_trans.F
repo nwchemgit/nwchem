@@ -389,9 +389,9 @@ c
 c
 c
       if (.not.ma_pop_stack(l_work2))
-     1  call errquit('tcc_ao2e: MA problem',14,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem',14,MA_ERR)
       if (.not.ma_pop_stack(l_work1))
-     1  call errquit('tcc_ao2e: MA problem',15,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem',15,MA_ERR)
 c
 c first half transformation ends up here
 c
@@ -761,10 +761,10 @@ c     Deallocate API
 c     ==============
 c
       if (.not.ma_pop_stack(l_gpair))
-     1  call errquit('tcc_ao2e: MA problem',15,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem',15,MA_ERR)
 c
       if (.not.ma_pop_stack(l_ap_offset))
-     1  call errquit('tcc_ao2e: MA problem',15,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem',15,MA_ERR)
 c closing d_v2int ga
       call deletefile(d_v2int) 
 c

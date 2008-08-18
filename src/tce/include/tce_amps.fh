@@ -204,6 +204,20 @@ c     =====================================================
      &                 'tr4x++','tr4y++','tr4z++',
      &                 'tr4x--','tr4y--','tr4z--'/
 c     =====================================================
+c               CC-T(1) Imaginary Auxilary Amplitudes
+c               Use: ir = A*x, rr = A*ir (rr=A*A*x)
+c     =====================================================
+      integer d_ir1(3)             ! SF handle for ir1 amplitudes
+      integer d_ir2(3)             ! SF handle for ir2 amplitudes
+      integer d_ir3(3)             ! SF handle for ir3 amplitudes
+      integer d_ir4(3)             ! SF handle for ir4 amplitudes
+      character*8 ir1filename(6) ! File name stub
+      data ir1filename/'ir1x+ ','ir1y+ ','ir1z+ ',
+     &                 'ir1x- ','ir1y- ','ir1z- '/
+      character*8 ir2filename(6) ! File name stub
+      data ir2filename/'ir2x+ ','ir2y+ ','ir1z+ ',
+     &                 'ir2x- ','ir2y- ','ir2z- '/
+c     =====================================================
 c               CC-Lambda(1) Amplitudes and Residual Amplitudes
 c     =====================================================
       integer d_yr1(12)            ! SF handle for yr1 amplitudes

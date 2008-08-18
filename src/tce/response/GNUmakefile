@@ -1,8 +1,10 @@
-#$Id: GNUmakefile,v 1.2 2007-08-14 17:08:08 jhammond Exp $
+#$Id: GNUmakefile,v 1.3 2008-08-18 02:13:40 jhammond Exp $
 
 OBJ_OPTIMIZE = \
 ccsd_o1.o \
 ccsd_o2.o \
+eomccsd_o1.o \
+eomccsd_o2.o \
 ccsdt_o1.o \
 ccsdt_o2.o \
 ccsdt_o3.o \
@@ -18,6 +20,8 @@ LIBRARY = libtce.a
 USES_BLAS = \
 ccsd_o1.F \
 ccsd_o2.F \
+eomccsd_o1.F \
+eomccsd_o2.F \
 ccsdt_o1.F \
 ccsdt_o2.F \
 ccsdt_o3.F \

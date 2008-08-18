@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.27 2008-05-08 19:23:07 jhammond Exp $
+c $Id: tce_input.F,v 1.28 2008-08-18 02:13:36 jhammond Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -20,6 +20,8 @@ c        [MAXITER <integer maxiter default 100>]
 c        [PRINT (none||low||medium||high||debug)]
 c        [IO (fortran||eaf||ga||sf||replicated||dra||ga_eaf) default ga]
 c        [DIIS <integer diis default 5>]
+c        [DIIS2 <integer diis default 5>]
+c        [DIIS3 <integer diis default 5>]
 c        [NROOTS <integer nroots default 0>]
 c        [TARGET <integer target default 1>]
 c        [TARGETSYM <character targetsym default 'none'>]
@@ -83,9 +85,9 @@ c
       character*10 ioalgchar
       integer ioalg
       integer reference
-      integer diis
+      integer diis,diis2,diis3
 c --- level shift --
-      double precision zlshift
+      double precision zlshift,zlshift2,zlshift3
 c ------------------
       integer nroots
       integer target
@@ -146,6 +148,14 @@ c
       if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,1,zlshift))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
+      zlshift2=0.0d0
+      if (.not.rtdb_put(rtdb,'tce:zlshift2',mt_dbl,1,zlshift2))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+      zlshift3=0.0d0
+      if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,1,zlshift3))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
 c
 c     MAXITER (the maximum number of Davidson iterations)
 c
@@ -169,6 +179,14 @@ c     DIIS (the vector space size in DIIS)
 c
       diis=5
       if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+      diis2=5
+      if (.not.rtdb_put(rtdb,'tce:diis2',mt_int,1,diis2))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+      diis3=5
+      if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
@@ -801,6 +819,26 @@ c
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
+      else if (inp_compare(.false.,test,'lshift2')) then
+        if (.not.inp_f(zlshift2)) then
+          write(LuOut,*) 'tce_input: lshift2 value not found; ',
+     1      'default value of 0.0d0 will be used'
+          zlshift2=0.0d0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:zlshift2',mt_dbl,1,zlshift2))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+      else if (inp_compare(.false.,test,'lshift3')) then
+        if (.not.inp_f(zlshift3)) then
+          write(LuOut,*) 'tce_input: lshift3 value not found; ',
+     1      'default value of 0.0d0 will be used'
+          zlshift3=0.0d0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,1,zlshift3))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
 c     MAXITER (the maximum number of Davidson iterations)
 c
       else if (inp_compare(.false.,test,'maxiter')) then
@@ -850,6 +888,24 @@ c
           diis=5
         endif
         if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+      else if (inp_compare(.false.,test,'diis2')) then
+        if (.not.inp_i(diis2)) then
+          write(LuOut,*) 'tce_input: diis2 value not found; ',
+     1      'default value of 5 will be used'
+          diis2=5
+        endif
+        if (.not.rtdb_put(rtdb,'tce:diis2',mt_int,1,diis2))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+      else if (inp_compare(.false.,test,'diis3')) then
+        if (.not.inp_i(diis3)) then
+          write(LuOut,*) 'tce_input: diis3 value not found; ',
+     1      'default value of 5 will be used'
+          diis3=5
+        endif
+        if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c

@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.48 2008-07-23 16:07:38 jhammond Exp $
+c $Id: tce_init.F,v 1.49 2008-08-18 02:13:36 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -190,10 +190,25 @@ c
         if (.not.rtdb_put(rtdb,'tce:thresh',mt_dbl,1,thresh))
      1  call errquit('tce_init: failed to write thresh',0,RTDB_ERR)
       endif
+      if (.not.rtdb_get(rtdb,'tce:printtol',mt_dbl,1,printtol)) then
+        printtol = 1.0d-2
+        if (.not.rtdb_put(rtdb,'tce:printtol',mt_dbl,1,printtol))
+     1  call errquit('tce_init: failed to write printtol',0,RTDB_ERR)
+      endif
       if (.not.rtdb_get(rtdb,'tce:zlshift',mt_dbl,1,zlshift)) then
         zlshift = 0.0d0
         if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,1,zlshift))
      1  call errquit('tce_init: failed to write zlshift',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:zlshift2',mt_dbl,1,zlshift2)) then
+        zlshift2 = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:zlshift2',mt_dbl,1,zlshift2))
+     1  call errquit('tce_init: failed to write zlshift2',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:zlshift3',mt_dbl,1,zlshift3)) then
+        zlshift3 = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,1,zlshift3))
+     1  call errquit('tce_init: failed to write zlshift3',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:maxiter',mt_int,1,maxiter)) then
         maxiter = 100
@@ -210,10 +225,30 @@ c
         if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
      1  call errquit('tce_init: failed to write diis',0,RTDB_ERR)
       endif
+      if (.not.rtdb_get(rtdb,'tce:diis2',mt_int,1,diis2)) then
+        diis2 = 5
+        if (.not.rtdb_put(rtdb,'tce:diis2',mt_int,1,diis2))
+     1  call errquit('tce_init: failed to write diis2',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:diis3',mt_int,1,diis3)) then
+        diis3 = 5
+        if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
+     1  call errquit('tce_init: failed to write diis3',0,RTDB_ERR)
+      endif
       if (diis .gt. maxdiis) then
         diis = maxdiis
         if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
      1  call errquit('tce_init: failed to write diis',0,RTDB_ERR)
+      endif
+      if (diis2 .gt. maxdiis) then
+        diis2 = maxdiis
+        if (.not.rtdb_put(rtdb,'tce:diis2',mt_int,1,diis2))
+     1  call errquit('tce_init: failed to write diis2',0,RTDB_ERR)
+      endif
+      if (diis3 .gt. maxdiis) then
+        diis3 = maxdiis
+        if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
+     1  call errquit('tce_init: failed to write diis3',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:nroots',mt_int,1,nroots)) then
         nroots = 0
@@ -234,12 +269,12 @@ c
       endif
 c 4index trans.
       if (.not.rtdb_get(rtdb,'tce:maxs',mt_int,1,imaxsize)) then
-        imaxsize = 30 
+        imaxsize = 30
         if (.not.rtdb_put(rtdb,'tce:maxs',mt_int,1,imaxsize))
      1  call errquit('tce_init: failed to write maxs',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:ichopx',mt_int,1,ichop)) then
-        ichop = 1 
+        ichop = 1
         if (.not.rtdb_put(rtdb,'tce:ichopx',mt_int,1,ichop))
      1  call errquit('tce_init: failed to write ichop',0,RTDB_ERR)
       endif
@@ -308,10 +343,20 @@ c
         if (.not.rtdb_put(rtdb,'tce:lineresp',mt_log,1,lineresp))
      1  call errquit('tce_init: failed to write lineresp',0,RTDB_ERR)
       endif
-      if (lineresp) then
+      if (.not.rtdb_get(rtdb,'tce:imagresp',mt_log,1,imagresp)) then
+        imagresp=.false.
+        if (.not.rtdb_put(rtdb,'tce:imagresp',mt_log,1,imagresp))
+     1  call errquit('tce_init: failed to write imagresp',0,RTDB_ERR)
+      endif
+      if (lineresp.or.imagresp) then
         left=.true.
         if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
      1  call errquit('tce_init: failed to write left',0,RTDB_ERR)
+      endif
+      if (imagresp) then
+        lineresp=.false.
+        if (.not.rtdb_put(rtdb,'tce:lineresp',mt_log,1,lineresp))
+     1  call errquit('tce_init: failed to write lineresp',0,RTDB_ERR)
       endif
 c
       if (.not.rtdb_get(rtdb,'tce:leftresp',mt_log,1,leftresp)) then
@@ -337,6 +382,19 @@ c
         afreq(1) = 0.0d0
         if (.not.rtdb_put(rtdb,'tce:afreq',mt_dbl,anumfreq,afreq))
      1    call errquit('tce_init: failed to write afreq',0,RTDB_ERR)
+      endif
+c
+      if (.not.rtdb_get_info(rtdb,'tce:ifreq',ma_type,inumfreq,
+     1  date)) then
+        inumfreq = 1
+        if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
+     1   call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:ifreq',mt_dbl,inumfreq,
+     1  ifreq)) then
+        ifreq(1) = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:ifreq',mt_dbl,inumfreq,ifreq))
+     1    call errquit('tce_init: failed to write ifreq',0,RTDB_ERR)
       endif
 c
       if (.not.rtdb_get(rtdb,'tce:respaxis',mt_log,3,respaxis)) then
@@ -504,7 +562,8 @@ c
         nroots_restart = 0
         if (.not.rtdb_put(rtdb,'tce:nroots_restart',mt_int,1,
      1                    nroots_restart))
-     2  call errquit('tce_init: failed to write diis',0,RTDB_ERR)
+     2  call errquit('tce_init: failed to write nroots_restart',0,
+     3               RTDB_ERR)
       endif
 c
 c     ----------------------
@@ -526,7 +585,7 @@ c     ----------------------
 c
       intorb=.false.
       if (model2e.eq.'2eorb') intorb=.true.
-      if(intorb) then 
+      if(intorb) then
         if(.not.(intorb.and.(hftype.eq.'RHF'.or.hftype.eq.'ROHF'))) then
           call errquit('tce_init: 2eorb needs RHF/ROHF ref.',0,RTDB_ERR)
         endif
@@ -839,7 +898,7 @@ c
        oactive(1) = 0
        oactive(2) = 0
        vactive(1) = 0
-       vactive(2) = 0 
+       vactive(2) = 0
       end if
 c
 c     ----------------------
@@ -975,15 +1034,31 @@ c
         write(LuOut,*)
         call util_print_centered
      1    (LuOut,'Correlation Information',20,.true.)
-        write(LuOut,9000) ctype  
+        write(LuOut,9000) ctype
         write(LuOut,9230) cperturbative
         write(LuOut,9130) maxiter
         write(LuOut,9110) thresh
         write(LuOut,9115) zlshift
+        write(LuOut,9116) zlshift2
+        write(LuOut,9117) zlshift3
         if (diis .gt. 0) then
           write(LuOut,9150) diis,'-th order DIIS'
         else
           write(LuOut,9160) 'Jacobi'
+        endif
+        if (lineresp.eq..true.) then
+          if (diis2 .gt. 0) then
+            write(LuOut,9152) diis2,'-th order DIIS'
+          else
+            write(LuOut,9162) 'Jacobi'
+          endif
+        endif
+        if (imagresp.eq..true.) then
+          if (diis3 .gt. 0) then
+            write(LuOut,9153) diis3,'-th order DIIS'
+          else
+            write(LuOut,9163) 'Jacobi'
+          endif
         endif
         if (nroots .gt. 0) then
           write(LuOut,9170) nroots
@@ -1047,10 +1122,16 @@ c
  9100 format(3x,'      Schwarz screening : ',d8.2)
  9110 format(3x,'     Residual threshold : ',d8.2)
  9115 format(3x,'       DIIS level shift : ',d8.2)
+ 9116 format(3x,' CC-LR DIIS level shift : ',d8.2)
+ 9117 format(3x,' CC-IR DIIS level shift : ',d8.2)
  9130 format(3x,'         Max iterations :',2x,i7)
  9140 format(3x,'             I/O scheme : ',a)
  9150 format(3x,'       Amplitude update : ',i2,a)
+ 9152 format(3x,' CC-LR Amplitude update : ',i2,a)
+ 9153 format(3x,' CC-IR Amplitude update : ',i2,a)
  9160 format(3x,'       Amplitude update : ',a)
+ 9162 format(3x,' CC-LR Amplitude update : ',a)
+ 9163 format(3x,' CC-IR Amplitude update : ',a)
  9170 format(3x,'  No. of excited states :',2x,i4)
  9180 format(3x,'            Target root :',2x,i4)
  9190 format(3x,'        Target symmetry :',1x,a4)
