@@ -50,7 +50,7 @@ void tce_sort_4kg__(double * A, double * B, int * rowIdx, int * colIdx,
 	perm[2] = *perm3;
 	perm[3] = *perm4;
 
-	// assuming column ordering, the -first stride of A will be 1, the second 
+	/* assuming column ordering, the -first stride of A will be 1, the second */
 	for (i = 0; i < 4; i++)
 	{
 		bSize[i] = aSize[perm[i]-1];
