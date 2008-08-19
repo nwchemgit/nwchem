@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.25 2008-05-19 17:16:38 marat Exp $*/
+/*$Id: rtdb_seq.c,v 1.26 2008-08-19 00:12:17 d3p307 Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #if defined(CATAMOUNT)
@@ -1191,7 +1191,7 @@ int rtdb_seq_getfname(const int handle,
   }
 
   (void) memcpy(fname, rtdb[handle].filename, strlen(rtdb[handle].filename)+1);
-//  (void) memcpy(fname, rtdb[handle].filename, 36);
+/*  (void) memcpy(fname, rtdb[handle].filename, 36); */
 
   return 1;
 }
