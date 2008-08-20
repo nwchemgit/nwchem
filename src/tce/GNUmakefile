@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.74 2008-08-18 02:56:49 jhammond Exp $
+#$Id: GNUmakefile,v 1.75 2008-08-20 18:14:40 jhammond Exp $
 #
 
 SUBDIRS = include diis2 diis3 \
@@ -77,12 +77,19 @@ endif
 #define KAROLEOM
 #endef
 
-ifdef KAROLEOM
-      OBJ_OPTIMIZE += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
+ifeq ($(NWCHEM_TARGET),LAPI64)
+  ifdef KAROLEOM
+    OBJ += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
+  else
+    OBJ += tce_eom_xguess.o tce_eom_yguess.o
+  endif
 else
-      OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o
+  ifdef KAROLEOM
+    OBJ_OPTIMIZE += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
+  else
+    OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o
+  endif
 endif
-
 
 LIB_INCLUDES = -I./include
 
