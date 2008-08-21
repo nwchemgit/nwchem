@@ -1,5 +1,6 @@
       logical function pre_wrttop(lfnout,title,lfntop,filtop,
-     + lfnhdb,lfnhop,filhop,releps,q14fac,nparms,mparms,
+     + lfnhdb,lfnhop,filhop,lfnbsg,filbsg,
+     + releps,q14fac,nparms,mparms,
      + lseq,cseq,mseq,nseq,
      + mqu,latt,lats,catt,patt,ratt,matt,natt,mats,nats,latm,catm,qatm,
      + matm,natm,
@@ -9,16 +10,16 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.53 2004-12-13 21:20:52 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.54 2008-08-21 16:27:14 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 #include "pre_common.fh"
 c
-      integer lfnout,lfntop,nparms,mparms,lfnhdb,lfnhop,itopol
+      integer lfnout,lfntop,nparms,mparms,lfnhdb,lfnhop,lfnbsg,itopol
       character*80 title(2,3)
-      character*255 filtop,filhop
+      character*255 filtop,filhop,filbsg
       real*8 releps,q14fac
       integer mseq,nseq,mqu
       integer lseq(6,mseq)
@@ -62,8 +63,7 @@ c
       real*8 qsum(10),qtot(10),qatom(10,2)
       logical lprt
 c
-      integer nqu,iql(3)
-
+      integer nqu,iql(3),nbsg(30,2)
 c
       integer ip,ipfr,ipto,ipnum
 c
@@ -74,6 +74,13 @@ c
       ipnum=ipto-ipfr+1
 c
       nqu=0
+c
+      do 2033 i=1,30
+      nbsg(i,1)=0
+      nbsg(i,2)=0
+ 2033 continue
+      nbsg(28,1)=1
+      nbsg(28,2)=1
 c
 c     generate list with unique charges and polarizabilities
 c
@@ -190,6 +197,11 @@ c
       write(lfntop,1104) nseq
  1104 format(i5)
 c
+      nbsg(2,1)=0
+      nbsg(2,2)=nats
+      nbsg(19,1)=0
+      nbsg(19,2)=nats
+c
       write(lfntop,1004) q14fac,releps,0.0d0,0
  1004 format(3f12.6,i5)
       if(ipnum.eq.1) then
@@ -229,9 +241,12 @@ c
  1354 format(i5,0pf12.6,1pe12.5,/,(5x,0pf12.6,1pe12.5))
  5322 continue
       endif
+      nbsg(29,1)=natmt-natm
+      nbsg(29,2)=lseq(3,1)
       do 5342 i=1,nseq
       write(lfntop,1355) i,cseq(i),(lseq(j,i),j=1,6)
  1355 format(i7,a10,i7,i5,2i7,2i5)
+      if(i.gt.1) nbsg(29,2)=max(nbsg(29,2),lseq(3,i)-lseq(3,i-1))
  5342 continue
 c
       nd=0
@@ -250,6 +265,11 @@ c
      + nimpt-nimp,n3rdt-n3rd,nnon
  1008 format(5i7,2i10)
       endif
+      nbsg(1,1)=natmt-natm
+      nbsg(1,2)=natm
+      nbsg(11,1)=(natmt-natm)*(natmt-natm-1)/2-(n3rdt-n3rd)-nnon
+      nbsg(12,1)=1
+      nbsg(12,2)=nseq
       nd=0
       do 30 i=1,ndih
       j=0
@@ -264,6 +284,7 @@ c
       write(lfntop,1009) natm,nbnd,nang,nd,nimp,n3rd,nexc,0,0,0
  1009 format(5i7,3i10,2i5)
       endif
+      nbsg(11,2)=nexc
 c
       if(natmt.gt.natm) then
       do 4 i=natm+1,natmt
@@ -285,7 +306,15 @@ c
  1112 format(4i7)
       write(lfntop,1113) (rbnd(j,1,i),rbnd(j,2,i),j=ipfr,ipto)
  1113 format(0pf12.6,1pe12.5)
+      if(latt(1,lats(1,latm(3,lbnd(1,i)-natm))).eq.1.or.
+     + latt(1,lats(1,latm(3,lbnd(2,i)-natm))).eq.1) then
+      nbsg(3,1)=nbsg(3,1)+1
+      else
+      nbsg(4,1)=nbsg(4,1)+1
+      endif
+      if(lbnd(4,i).eq.1) nbsg(13,1)=nbsg(13,1)+1
    20 continue
+      nbsg(16,1)=nbndt-nbnd
       endif
 c
       if(nangt.gt.nang) then
@@ -301,7 +330,14 @@ c
      + rang(j,4,i),j=ipfr,ipto)
  1125 format(0pf10.6,1pe12.5,0pf10.6,1pe12.5)
       endif
+      if(latt(1,lats(1,latm(3,lang(1,i)-natm))).eq.1.or.
+     + latt(1,lats(1,latm(3,lang(3,i)-natm))).eq.1) then
+      nbsg(5,1)=nbsg(5,1)+1
+      else
+      nbsg(6,1)=nbsg(6,1)+1
+      endif
    21 continue
+      nbsg(17,1)=nangt-nang
       endif
 c
       if(ndiht.gt.ndih) then
@@ -316,8 +352,15 @@ c
       write(lfntop,1117)
      +  (kdih(k,j,i),rdih(k,j,1,i),rdih(k,j,2,i),j=ipfr,ipto)
  1117 format(i3,0pf10.6,1pe12.5)
+      if(latt(1,lats(1,latm(3,ldih(1,i)-natm))).eq.1.or.
+     + latt(1,lats(1,latm(3,ldih(4,i)-natm))).eq.1) then
+      nbsg(7,1)=nbsg(7,1)+1
+      else
+      nbsg(8,1)=nbsg(8,1)+1
+      endif
    23 continue
    22 continue
+      nbsg(18,1)=ndiht-ndih
       endif
 c
       if(nimpt.gt.nimp) then
@@ -452,7 +495,15 @@ c
  1012 format(4i7)
       write(lfntop,1013) (rbnd(j,1,i),rbnd(j,2,i),j=ipfr,ipto)
  1013 format(0pf12.6,1pe12.5)
+      if(latt(1,lats(1,latm(3,lbnd(1,i)))).eq.1.or.
+     + latt(1,lats(1,latm(3,lbnd(2,i)))).eq.1) then
+      nbsg(3,2)=nbsg(3,2)+1
+      else
+      nbsg(4,2)=nbsg(4,2)+1
+      endif
+      if(lbnd(4,i).eq.1) nbsg(13,2)=nbsg(13,2)+1
    11 continue
+      nbsg(16,2)=nbnd
 c
       do 12 i=1,nang
       write(lfntop,1014) lang(1,i),lang(2,i),lang(3,i),lang(5,i),i
@@ -465,7 +516,14 @@ c
      + rang(j,4,i),j=ipfr,ipto)
  1035 format(0pf10.6,1pe12.5,0pf10.6,1pe12.5)
       endif
+      if(latt(1,lats(1,latm(3,lang(1,i)))).eq.1.or.
+     + latt(1,lats(1,latm(3,lang(3,i)))).eq.1) then
+      nbsg(5,2)=nbsg(5,2)+1
+      else
+      nbsg(6,2)=nbsg(6,2)+1
+      endif
    12 continue
+      nbsg(17,2)=nang
 c
       do 13 i=1,ndih
       nd=0
@@ -479,7 +537,14 @@ c
      +  (kdih(k,j,i),rdih(k,j,1,i),rdih(k,j,2,i),j=ipfr,ipto)
  1017 format(i3,0pf10.6,1pe12.5)
    14 continue
+      if(latt(1,lats(1,latm(3,ldih(1,i)))).eq.1.or.
+     + latt(1,lats(1,latm(3,ldih(4,i)))).eq.1) then
+      nbsg(7,2)=nbsg(7,2)+1
+      else
+      nbsg(8,2)=nbsg(8,2)+1
+      endif
    13 continue
+      nbsg(18,2)=ndih
 c
       do 15 i=1,nimp
       if(ffield(1:5).eq.'amber') then
@@ -514,6 +579,14 @@ c
       endif
 c
       close(unit=lfntop)
+c
+      length=index(filbsg,' ')-1
+      open(unit=lfnbsg,file=filbsg(1:length),form='formatted',
+     + status='unknown',err=9999)
+      write(lfnbsg,2022) (nbsg(i,1),i=1,30)
+      write(lfnbsg,2022) (nbsg(i,2),i=1,30)
+ 2022 format(12i7)
+      close(unit=lfnbsg)
 c
       pre_wrttop=.true.
       return

@@ -1,9 +1,9 @@
       logical function pre_mktop(lfnout,title,nparms,mparms,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,
      + lfnmod,filmod,lfnmat,lfnhdb,lfnhop,filhop,
-     + ignore,slvnam,itopol,icomb)
+     + lfnbsg,filbsg,ignore,slvnam,itopol,icomb)
 c
-c $Id: pre_mktop.F,v 1.38 2006-07-20 14:18:53 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.39 2008-08-21 16:27:14 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -27,10 +27,10 @@ c
       external pre_nonbon,pre_modify
 c
       integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar,lfnmod,ignore,lfnmat
-      integer lfnhdb,lfnhop
+      integer lfnhdb,lfnhop,lfnbsg
       integer nparms,mparms,itopol,icomb
       character*80 title(2,3)
-      character*255 filseq,filtop,filmod,filhop
+      character*255 filseq,filtop,filmod,filhop,filbsg
       character*3 slvnam
 c
       integer mseq,nseq
@@ -486,7 +486,7 @@ c     write the topology file
 c     -----------------------
 c
       if(.not.pre_wrttop(lfnout,title,lfntop,filtop,lfnhdb,
-     + lfnhop,filhop,releps,q14fac,
+     + lfnhop,filhop,lfnbsg,filbsg,releps,q14fac,
      + nparms,mparms,int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,mqu,
      + int_mb(i_latt),int_mb(i_lats),byte_mb(i_catt),dbl_mb(i_patt),
      + dbl_mb(i_ratt),matt,natt,mats,nats,int_mb(i_latm),

@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.60 2006-07-20 14:18:53 d3j191 Exp $
+c $Id: prepar.F,v 1.61 2008-08-21 16:27:14 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -49,7 +49,7 @@ c
 c
       character*255 filpdb,filseq,filtop,filrst,filep,filtmp,filcmd
       character*255 filmod,prefix,filxyz,filqqq,filnoe,filpmf,filpov
-      character*255 filhop,filmrg(100)
+      character*255 filhop,filbsg,filmrg(100)
       character*80 sysnam,calc
       character*80 title(2,3)
       character*10 slvmdl
@@ -62,7 +62,7 @@ c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
       integer lfnxyz,lfnqqq,lfnnoe,lfnpmf,lfnpov,lfnmat,lfnmrg
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk,mdold
-      integer lfnhdb,lfnhop
+      integer lfnhdb,lfnhop,lfnbsg
       integer newtop,newseq,newrst,mgrid,mnoe,mpmf,maxscf,icount(mcount)
       integer ncount,icyren,model,iconst,nmerge
       integer nrgrid,iogrid(5),rogrid(2,5)
@@ -112,6 +112,7 @@ c
       lfnhdb=30
       lfnhop=31
       lfnmst=32
+      lfnbsg=33
 c
 c     node 0 only please
 c     ------------------
@@ -174,6 +175,7 @@ c      write(*,'(a,a)') 'filpdb=',filpdb(1:index(filpdb,' ')-1)
       filpmf=sysnam(1:len)//'.pmf '
       filtop=sysnam(1:len)//'.top '
       filhop=sysnam(1:len)//'.hop '
+      filbsg=sysnam(1:len)//'.bsg '
       filrst=sysnam(1:len)//'_'//calc(1:lenc)//'.rst '
       filseq=dirpar(mdirpar)(1:lend)//sysnam(1:len)//'.seq '
       filtmp=sysnam(1:len)//'.nam '
@@ -302,7 +304,7 @@ c     -----------------
 c
       if(.not.pre_mktop(lfnout,title,nparms,mparms,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,lfnmod,filmod,lfnmat,
-     + lfnhdb,lfnhop,filhop,ignore,slvnam,itopol,icomb))
+     + lfnhdb,lfnhop,filhop,lfnbsg,filbsg,ignore,slvnam,itopol,icomb))
      + call md_abort('pre_mktop failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2010) filtop(1:index(filtop,' ')-1)
