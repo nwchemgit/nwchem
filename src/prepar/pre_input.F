@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.125 2008-08-21 16:27:14 d3j191 Exp $
+c $Id: pre_input.F,v 1.126 2008-08-21 18:46:43 d3j191 Exp $
 c
       implicit none
 c
@@ -974,7 +974,13 @@ c
       numcmd=numcmd+1
       if(nrepeat.gt.1) then
       if(index(atomi,':').gt.1) then
-      read(atomi(1:index(atomi,':')-1),'(i)') k
+      n=index(atomi,':')-1
+      if(n.eq.1) read(atomi(1:index(atomi,':')-1),'(i1)') k
+      if(n.eq.2) read(atomi(1:index(atomi,':')-1),'(i2)') k
+      if(n.eq.3) read(atomi(1:index(atomi,':')-1),'(i3)') k
+      if(n.eq.4) read(atomi(1:index(atomi,':')-1),'(i4)') k
+      if(n.eq.5) read(atomi(1:index(atomi,':')-1),'(i5)') k
+      if(n.eq.6) read(atomi(1:index(atomi,':')-1),'(i6)') k
       do 6832 i=2,nrepeat
       j=(i-1)*irepeat-1
       write(atomj,'(i5,a,a)')
