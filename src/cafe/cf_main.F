@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.181 2008-07-03 18:06:12 d3j191 Exp $
+c $Id: cf_main.F,v 1.182 2008-08-22 21:15:58 bert Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1900,8 +1900,8 @@ c
       endif
 c
     6 continue
-      if(me.eq.0) write(*,'(2i5,e12.5)')
-     +  (i,ipmf(i,8),upmf(ipmf(i,8)),i=1,numpmf)
+c     if(me.eq.0) write(*,'(2i5,e12.5)')
+c    +  (i,ipmf(i,8),upmf(ipmf(i,8)),i=1,numpmf)
       call timer_stop(22)
 c
       return
