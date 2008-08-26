@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.49 2008-08-18 02:13:36 jhammond Exp $
+c $Id: tce_init.F,v 1.50 2008-08-26 23:18:04 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -279,6 +279,11 @@ c 4index trans.
      1  call errquit('tce_init: failed to write ichop',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:i4im',mt_int,1,fast2e)) then
+        fast2e = 1
+        if (.not.rtdb_put(rtdb,'tce:i4im',mt_int,1,fast2e))
+     1  call errquit('tce_init: failed to write i4im',0,RTDB_ERR)
+      endif
+      if ((model2e.ne.'2eorb').and.(fast2e.gt.3)) then
         fast2e = 1
         if (.not.rtdb_put(rtdb,'tce:i4im',mt_int,1,fast2e))
      1  call errquit('tce_init: failed to write i4im',0,RTDB_ERR)
@@ -586,7 +591,7 @@ c
       intorb=.false.
       if (model2e.eq.'2eorb') intorb=.true.
       if(intorb) then
-        if(.not.(intorb.and.(hftype.eq.'RHF'.or.hftype.eq.'ROHF'))) then
+        if(.not.((hftype.eq.'RHF').or.(hftype.eq.'ROHF'))) then
           call errquit('tce_init: 2eorb needs RHF/ROHF ref.',0,RTDB_ERR)
         endif
       endif
