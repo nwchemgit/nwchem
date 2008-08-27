@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.571 2008-07-22 18:09:04 bert Exp $
+# $Id: makefile.h,v 1.572 2008-08-27 23:09:25 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -2012,7 +2012,7 @@ endif
 ifeq ($(TARGET),BGP)
 #
    CORE_SUBDIRS_EXTRA = lapack blas
-   FC = bgxlf_r
+   FC = bgxlf
    CC     = $(BGCOMPILERS)/powerpc-bgp-linux-gcc
    AR     = $(BGCOMPILERS)/powerpc-bgp-linux-ar
    AS     = $(BGCOMPILERS)/powerpc-bgp-linux-as
