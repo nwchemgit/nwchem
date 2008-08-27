@@ -91,7 +91,7 @@ c
       IF (ieor(int_mb(k_sym+p5b-1),ieor(int_mb(k_sym+p6b-1),ieor(int_mb(
      &k_sym+p7b-1),ieor(int_mb(k_sym+p8b-1),ieor(int_mb(k_sym+h2b-1),ieo
      &r(int_mb(k_sym+h3b-1),ieor(int_mb(k_sym+h4b-1),int_mb(k_sym+h9b-1)
-     &))))))) .eq. irrep_x) THEN
+     &))))))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1
      &)+int_mb(k_spin+p7b-1)+int_mb(k_spin+p8b-1)+int_mb(k_spin+h2b-1)+i
      &nt_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)+int_mb(k_spin+h9b-1).ne.1
@@ -246,7 +246,7 @@ c
       IF (ieor(int_mb(k_sym+h6b-1),ieor(int_mb(k_sym+h7b-1),ieor(int_mb(
      &k_sym+h8b-1),ieor(int_mb(k_sym+h9b-1),ieor(int_mb(k_sym+p1b-1),ieo
      &r(int_mb(k_sym+p2b-1),ieor(int_mb(k_sym+p3b-1),int_mb(k_sym+p4b-1)
-     &))))))) .eq. irrep_y) THEN
+     &))))))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h6b-1)+int_mb(k_spin+h7b-1
      &)+int_mb(k_spin+h8b-1)+int_mb(k_spin+h9b-1)+int_mb(k_spin+p1b-1)+i
      &nt_mb(k_spin+p2b-1)+int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1).ne.1
@@ -398,7 +398,7 @@ c
       IF (ieor(int_mb(k_sym+p5b-1),ieor(int_mb(k_sym+p6b-1),ieor(int_mb(
      &k_sym+p7b-1),ieor(int_mb(k_sym+p8b-1),ieor(int_mb(k_sym+h2b-1),ieo
      &r(int_mb(k_sym+h3b-1),ieor(int_mb(k_sym+h4b-1),int_mb(k_sym+h9b-1)
-     &))))))) .eq. irrep_x) THEN
+     &))))))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1
      &)+int_mb(k_spin+p7b-1)+int_mb(k_spin+p8b-1)+int_mb(k_spin+h2b-1)+i
      &nt_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)+int_mb(k_spin+h9b-1).ne.1
@@ -553,7 +553,7 @@ c
       IF (ieor(int_mb(k_sym+h6b-1),ieor(int_mb(k_sym+h7b-1),ieor(int_mb(
      &k_sym+h8b-1),ieor(int_mb(k_sym+h9b-1),ieor(int_mb(k_sym+p1b-1),ieo
      &r(int_mb(k_sym+p2b-1),ieor(int_mb(k_sym+p3b-1),int_mb(k_sym+p4b-1)
-     &))))))) .eq. irrep_y) THEN
+     &))))))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h6b-1)+int_mb(k_spin+h7b-1
      &)+int_mb(k_spin+h8b-1)+int_mb(k_spin+h9b-1)+int_mb(k_spin+p1b-1)+i
      &nt_mb(k_spin+p2b-1)+int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1).ne.1
@@ -713,7 +713,7 @@ c
       IF (ieor(int_mb(k_sym+p5b-1),ieor(int_mb(k_sym+p6b-1),ieor(int_mb(
      &k_sym+p7b-1),ieor(int_mb(k_sym+p8b-1),ieor(int_mb(k_sym+h2b-1),ieo
      &r(int_mb(k_sym+h3b-1),ieor(int_mb(k_sym+h4b-1),int_mb(k_sym+h9b-1)
-     &))))))) .eq. irrep_x) THEN
+     &))))))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1
      &)+int_mb(k_spin+p7b-1)+int_mb(k_spin+p8b-1)+int_mb(k_spin+h2b-1)+i
      &nt_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)+int_mb(k_spin+h9b-1).ne.1
@@ -864,7 +864,7 @@ c
       IF (ieor(int_mb(k_sym+h6b-1),ieor(int_mb(k_sym+h7b-1),ieor(int_mb(
      &k_sym+h8b-1),ieor(int_mb(k_sym+h9b-1),ieor(int_mb(k_sym+p1b-1),ieo
      &r(int_mb(k_sym+p2b-1),ieor(int_mb(k_sym+p3b-1),int_mb(k_sym+p4b-1)
-     &))))))) .eq. irrep_y) THEN
+     &))))))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h6b-1)+int_mb(k_spin+h7b-1
      &)+int_mb(k_spin+h8b-1)+int_mb(k_spin+h9b-1)+int_mb(k_spin+p1b-1)+i
      &nt_mb(k_spin+p2b-1)+int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1).ne.1
@@ -1012,7 +1012,7 @@ c
       IF (ieor(int_mb(k_sym+p5b-1),ieor(int_mb(k_sym+p6b-1),ieor(int_mb(
      &k_sym+p7b-1),ieor(int_mb(k_sym+p8b-1),ieor(int_mb(k_sym+h2b-1),ieo
      &r(int_mb(k_sym+h3b-1),ieor(int_mb(k_sym+h4b-1),int_mb(k_sym+h9b-1)
-     &))))))) .eq. irrep_x) THEN
+     &))))))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1
      &)+int_mb(k_spin+p7b-1)+int_mb(k_spin+p8b-1)+int_mb(k_spin+h2b-1)+i
      &nt_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)+int_mb(k_spin+h9b-1).ne.1
@@ -1163,7 +1163,7 @@ c
       IF (ieor(int_mb(k_sym+h6b-1),ieor(int_mb(k_sym+h7b-1),ieor(int_mb(
      &k_sym+h8b-1),ieor(int_mb(k_sym+h9b-1),ieor(int_mb(k_sym+p1b-1),ieo
      &r(int_mb(k_sym+p2b-1),ieor(int_mb(k_sym+p3b-1),int_mb(k_sym+p4b-1)
-     &))))))) .eq. irrep_y) THEN
+     &))))))) .eq. irrep) THEN
       IF ((.not.restricted).or.(int_mb(k_spin+h6b-1)+int_mb(k_spin+h7b-1
      &)+int_mb(k_spin+h8b-1)+int_mb(k_spin+h9b-1)+int_mb(k_spin+p1b-1)+i
      &nt_mb(k_spin+p2b-1)+int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1).ne.1
