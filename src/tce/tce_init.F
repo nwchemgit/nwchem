@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.50 2008-08-26 23:18:04 jhammond Exp $
+c $Id: tce_init.F,v 1.51 2008-08-27 01:34:09 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -283,11 +283,11 @@ c 4index trans.
         if (.not.rtdb_put(rtdb,'tce:i4im',mt_int,1,fast2e))
      1  call errquit('tce_init: failed to write i4im',0,RTDB_ERR)
       endif
-      if ((model2e.ne.'2eorb').and.(fast2e.gt.3)) then
-        fast2e = 1
-        if (.not.rtdb_put(rtdb,'tce:i4im',mt_int,1,fast2e))
-     1  call errquit('tce_init: failed to write i4im',0,RTDB_ERR)
-      endif
+c      if ((model2e.ne.'2eorb').and.(fast2e.gt.3)) then
+c        fast2e = 1
+c        if (.not.rtdb_put(rtdb,'tce:i4im',mt_int,1,fast2e))
+c     1  call errquit('tce_init: failed to write i4im',0,RTDB_ERR)
+c      endif
       if (.not.rtdb_get(rtdb,'tce:idiskx',mt_int,1,idisk)) then
 c        idisk = 0
         if ( (fast2e.eq.5).or.(fast2e.eq.6) ) then
