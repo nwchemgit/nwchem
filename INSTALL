@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.85 2008-08-14 16:31:33 d3p307 Exp $
+$Id: INSTALL,v 1.86 2008-08-27 23:11:16 d3p307 Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -154,7 +154,7 @@ BASIC BUILD INSTRUCTIONS:
    MACX           Apple MacOSX    Darwin      GNU,xlf,Intel
 
    BGL            Bluegene/L      SLES        blrts_xlf           y
-   BGP            Bluegene/P      SLES        bgxlf_r             y
+   BGP            Bluegene/P      SLES        bgxlf               y
    ----------------------------------------------------------------------
 
 
@@ -841,7 +841,7 @@ setenv LIBMPI "-L${MPI_LIB} -lfmpich_.cnk -lmpich.cnk -ldcmfcoll.cnk -ldcmf.cnk 
 setenv BGMLMPI_INCLUDE ${MPI_INCLUDE}
 
 to compile:
-make FC=bgxlf_r
+make FC=bgxlf
 
 
 BUILDING NWCHEM FOR CRAY XT3/XT4 (OS: Compute Node Linux (CNL))
