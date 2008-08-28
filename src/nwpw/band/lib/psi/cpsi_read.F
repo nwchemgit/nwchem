@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.20 2008-06-02 15:20:01 bylaska Exp $
+* $Id: cpsi_read.F,v 1.21 2008-08-28 21:12:06 bylaska Exp $
 *
 
 *     ***************************
@@ -218,8 +218,10 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
           do nb=nbrill,nbrillioun
              call K1dB_ktoqp(nb,nbq,pk)
              if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
-                call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
-                call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
+                call dcopy(2*nfft3d,dcpl_mb(tmp2(1)),1,
+     >                              dcpl_mb(tmp(1)),1)
+                call Cram_c_pack(nbq,dcpl_mb(tmp(1)))
+                call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp(1)))
              end if
           end do
         end do
@@ -472,8 +474,10 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
            do nb=nbrill,nbrillioun
               call K1dB_ktoqp(nb,nbq,pk)
               if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
-                 call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
-                 call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
+                 call dcopy(2*nfft3d,dcpl_mb(tmp2(1)),1,
+     >                               dcpl_mb(tmp(1)),1)
+                 call Cram_c_pack(nbq,dcpl_mb(tmp(1)))
+                 call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp(1)))
               end if
            end do
         end do

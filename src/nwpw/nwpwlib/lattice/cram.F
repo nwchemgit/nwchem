@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.32 2008-05-13 20:53:05 bylaska Exp $
+* $Id: cram.F,v 1.33 2008-08-28 21:10:09 bylaska Exp $
 *
 
 *     ***********************************
@@ -90,9 +90,9 @@
             kv(3) = 0.0d0
          else
             ecut = lattice_wcut()
-            kv(1) =  brillioun_k(nb,1)
-            kv(2) =  brillioun_k(nb,2)
-            kv(3) =  brillioun_k(nb,3)
+            kv(1) =  brillioun_k(1,nb)
+            kv(2) =  brillioun_k(2,nb)
+            kv(3) =  brillioun_k(3,nb)
          end if
          call cloak_set(kv,ecut)
 
