@@ -17,11 +17,11 @@
 *     ***********************************
       subroutine pspw_init_APC(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "errquit.fh"
 
 #include "pspw_APC.fh"
 

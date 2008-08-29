@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.66 2008-06-17 19:09:10 d3p708 Exp $
+* $Id: band_minimizer.F,v 1.67 2008-08-29 00:47:11 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -99,8 +99,8 @@
 
       real*8   nwpw_timing
       external nwpw_timing
-      integer  Cram_nwave_all,Cram_nwave
-      external Cram_nwave_all,Cram_nwave
+      integer  Cram_nwave_all_print,Cram_nwave_print
+      external Cram_nwave_all_print,Cram_nwave_print
 
       integer  ewald_ncut
       real*8   ewald_rcut,ewald_mandelung,ewald_e
@@ -435,10 +435,10 @@ c           write(luout,1154) cpsp_lmmax(ia)
 
          write(luout,1249)
          write(luout,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
-     >                 Cram_nwave_all(0),Cram_nwave(0)
+     >                 Cram_nwave_all_print(0),Cram_nwave_print(0)
          do i=1,ia
           write(luout,1251) i,lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
-     >                 Cram_nwave_all(i),Cram_nwave(i)
+     >                 Cram_nwave_all_print(i),Cram_nwave_print(i)
          end do
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.38 2008-05-13 02:10:18 bylaska Exp $
+* $Id: Pneb.F,v 1.39 2008-08-29 00:47:15 bylaska Exp $
 *
 #define NBLOCKS 4
 
@@ -1634,7 +1634,7 @@ c     ccccc local variables ccccc
             sum1=dble(ne(1))
             sum2=dbl_mb(indx)
             indx=indx+1
-            if (dabs(sum2-sum1).gt.1.d-10) gram= .true.
+            if (dabs(sum2-sum1).gt.1.0d-10) gram= .true.
          end do 
       else
          indx=sm2(1)
@@ -1643,7 +1643,7 @@ c     ccccc local variables ccccc
             sum1=dble(ne(ms))
             sum2=dbl_mb(indx)
             indx=indx+1         
-            if (dabs(sum2-sum1).gt.1.d-10) gram = .true.
+            if (dabs(sum2-sum1).gt.1.0d-12) gram = .true.
          end do
          end do
       end if
@@ -1721,8 +1721,9 @@ c     ccccc local variables ccccc
       PARAMETER(MASTER=0)
 
       logical oprint,value
-      integer nb,nb1,nb2,ms,ms1,ms2
-      integer a_shift,nshift,l
+      integer nb,nb1,nb2,ms,ms1,ms2,nbq
+      integer a_shift,nshift,l,i
+      integer sm2(2),sm3(2)
       real*8  sum1,sum2,sum3
 
 *     **** external functions ****
@@ -1750,35 +1751,61 @@ c     ccccc local variables ccccc
          ms2=1
       end if
 
+      value =           MA_push_get(mt_dbl,2*nbrill,'sm2',sm2(2),sm2(1))
+      value = value.and.MA_push_get(mt_dbl,2*nbrill,'sm3',sm3(2),sm3(1))
+      if (.not.value) 
+     >   call errquit('Pneb_orthCheckMake_tag:out of stack',0,MA_ERR)
+      call dcopy(2*nbrill,0.0d0,0,dbl_mb(sm2(1)),1)
+      call dcopy(2*nbrill,0.0d0,0,dbl_mb(sm3(1)),1)
+
       nshift = cpsi_data_nsize(A_tag)
 
-      do nb=nb1,nb2
-         a_shift = cpsi_data_get_chnk(A_tag,nb)
+      do nbq=nb1,nb2
+         a_shift = cpsi_data_get_chnk(A_tag,nbq)
          do ms=ms1,ms2
             sum1=dble(ne(ms))
-            call Pneb_ff_trace(ms,nb,
+            call Pneb_ff_trace(ms,nbq,
      >                         dbl_mb(a_shift),
      >                         dbl_mb(a_shift),npack1,
      >                         sum2)
             if (dabs(sum2-sum1).gt.1.d-10) then
-              call Pneb_makeOrtho(ms,nb,npack1,dbl_mb(a_shift))
-              call Pneb_ff_trace(ms,nb,
+              call Pneb_makeOrtho(ms,nbq,npack1,dbl_mb(a_shift))
+              call Pneb_ff_trace(ms,nbq,
      >                         dbl_mb(a_shift),
      >                         dbl_mb(a_shift),npack1,
      >                         sum3)
-              if (oprint) then
-               if (spin_orbit) then
-                 write(*,1400) nb
-               else
-                 write(*,1401) ms,nb
-               end if
-               write(*,1402) dabs(sum2-sum1),sum2
-               write(*,1403) dabs(sum3-sum1),sum3
-              end if
+              call K1dB_qtok(nbq,nb)
+              write(*,*) "ms,nbq,nb=",ms,nbq,nb
+              i = (ms-ms1)+2*(nb-1)
+              dbl_mb(sm2(1)+i) = sum2
+              dbl_mb(sm3(1)+i) = sum3
             end if
-c            !a_shift = a_shift + nshift
          end do
       end do
+      call K1dB_Vector_SumAll(2*nbrill,dbl_mb(sm2(1)))
+      call K1dB_Vector_SumAll(2*nbrill,dbl_mb(sm3(1)))
+      if (oprint) then
+      do nb=1,nbrill
+         do ms=ms1,ms2
+            sum1=dble(ne(ms))
+            i = (ms-ms1)+2*(nb-1)
+            if (dabs(dbl_mb(sm2(1)+i)).gt.1.d-10) then
+              if (spin_orbit) then
+                 write(*,1400) nb
+              else
+                 write(*,1401) ms,nb
+              end if
+              write(*,1402) dabs(dbl_mb(sm2(1)+i)-sum1),dbl_mb(sm2(1)+i)
+              write(*,1403) dabs(dbl_mb(sm3(1)+i)-sum1),dbl_mb(sm3(1)+i)
+            end if
+         end do
+      end do
+      end if
+      value =           MA_pop_stack(sm3(2))
+      value = value.and.MA_pop_stack(sm2(2))
+      if (.not. value)
+     >   call errquit('Pneb_orthCheckMake_tag:popping stack',0,MA_ERR)
+
  1400 FORMAT(
      >  'Warning - Orthogonalization performed, spin_orbit,zone:',I4)
  1401 FORMAT('Warning - Orthogonalization performed, spin,zone:',I2,I4)

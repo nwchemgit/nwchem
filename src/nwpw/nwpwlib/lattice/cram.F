@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.33 2008-08-28 21:10:09 bylaska Exp $
+* $Id: cram.F,v 1.34 2008-08-29 00:47:17 bylaska Exp $
 *
 
 *     ***********************************
@@ -28,17 +28,18 @@
       integer nb
       integer nx,ny,nz
       integer nxh,nyh,nzh      
-      integer pack(2),nidb
+      integer pack(2),nidb,nbrill
       real*8  kv(3),ecut
 
 *     **** external functions ****
       logical  cloak_masker
-      integer  brillioun_nbrillq
+      integer  brillioun_nbrillq,brillioun_nbrillioun
       real*8   lattice_ecut,lattice_wcut,brillioun_k
       external cloak_masker
-      external brillioun_nbrillq
+      external brillioun_nbrillq,brillioun_nbrillioun
       external lattice_ecut,lattice_wcut,brillioun_k
       
+      nbrill  = brillioun_nbrillioun()
       maxsize = brillioun_nbrillq()+1
 
       value = MA_alloc_get(mt_int,maxsize,
@@ -60,8 +61,18 @@
      >                     'pack_list',
      >                      pack_list(2),
      >                      pack_list(1))
-      if (.not. value) call errquit('Cram_init: out of heap memory',0,
-     &       MA_ERR)
+      value = value.and.
+     >        MA_alloc_get(mt_int,nbrill+1,
+     >                     'nidb2_print',
+     >                      nidb2_print(2),
+     >                      nidb2_print(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,nbrill+1,
+     >                     'nwaveall_print',
+     >                      nwaveall_print(2),
+     >                      nwaveall_print(1))
+      if (.not. value) 
+     > call errquit('Cram_init: out of heap memory',0,MA_ERR)
 
 
       call cloak_init()
@@ -145,6 +156,20 @@
         end if
       end do
 
+      do i=1,nbrill
+         int_mb(nidb2_print(1)+i)    = 0.0d0
+         int_mb(nwaveall_print(1)+i) = 0.0d0
+      end do
+      do nb=1,maxsize-1
+         call K1dB_qtok(nb,i)
+         int_mb(nidb2_print(1)+i)    = int_mb(nidb2_list(1)+nb)
+         int_mb(nwaveall_print(1)+i) = int_mb(nwaveall_list(1)+nb)
+      end do
+      call K1dB_Vector_ISumAll(nbrill,int_mb(nidb2_print(1)+1))
+      call K1dB_Vector_ISumAll(nbrill,int_mb(nwaveall_print(1)+1))
+      int_mb(nidb2_print(1))    = int_mb(nidb2_list(1))
+      int_mb(nwaveall_print(1)) = int_mb(nwaveall_list(1))
+
       return 
       end
 
@@ -175,6 +200,8 @@
       value = value.and.MA_free_heap(nidb2_list(2))
       value = value.and.MA_free_heap(nwaveall_list(2))
       value = value.and.MA_free_heap(pack_list(2))
+      value = value.and.MA_free_heap(nidb2_print(2))
+      value = value.and.MA_free_heap(nwaveall_print(2))
 
       if (.not. value) 
      >  call errquit('Cram_end:error freeing heap memory',0, MA_ERR)
@@ -597,6 +624,24 @@
 
 *     ***********************************
 *     *					*
+*     *	         Cram_nwave_print	*	
+*     *					*
+*     ***********************************
+
+      integer function Cram_nwave_print(nb)
+      implicit none
+      integer nb
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+      Cram_nwave_print =  int_mb(nidb2_print(1)+nb)
+      return
+      end
+
+
+*     ***********************************
+*     *					*
 *     *	         Cram_nwave_all		*	
 *     *					*
 *     ***********************************
@@ -609,6 +654,23 @@
 #include "cram_common.fh"
 
       Cram_nwave_all = int_mb(nwaveall_list(1)+nb)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	         Cram_nwave_all_print	*	
+*     *					*
+*     ***********************************
+
+      integer function Cram_nwave_all_print(nb)
+      implicit none
+      integer nb
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+      Cram_nwave_all_print = int_mb(nwaveall_print(1)+nb)
       return
       end
 
