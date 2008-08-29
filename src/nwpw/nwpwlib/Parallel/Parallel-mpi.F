@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-mpi.F,v 1.11 2008-04-21 22:20:45 bylaska Exp $
+* $Id: Parallel-mpi.F,v 1.12 2008-08-29 22:51:14 bylaska Exp $
 *
 
 * Parallel.f
@@ -349,8 +349,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >                           + taskid_j*np_i
      >                           + k*np_i*np_j) 
       end do
-      call MPI_Group_incl(mpi_group,np_j,int_mb(tmp(1)),group_j,ierr)
-      call MPI_Comm_create(MPI_COMM_WORLD,group_j,comm_j,  ierr)
+      call MPI_Group_incl(mpi_group,np_k,int_mb(tmp(1)),group_k,ierr)
+      call MPI_Comm_create(MPI_COMM_WORLD,group_k,comm_k,ierr)
 
 #endif
 
