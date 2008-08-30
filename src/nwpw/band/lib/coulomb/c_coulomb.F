@@ -1,5 +1,5 @@
 *
-* $Id: c_coulomb.F,v 1.6 2007-08-23 23:49:42 bylaska Exp $
+* $Id: c_coulomb.F,v 1.7 2008-08-30 01:12:42 bylaska Exp $
 *
       subroutine c_coulomb_init()
       implicit none 
@@ -39,7 +39,7 @@
       if (.not. value) 
      > call errquit('c_coulomb_init:out of stack memory',0,0)
 
-      call Parallel_taskid(taskid)
+      call Parallel3d_taskid_i(taskid)
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
 
