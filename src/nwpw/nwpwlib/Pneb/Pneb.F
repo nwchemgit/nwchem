@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.39 2008-08-29 00:47:15 bylaska Exp $
+* $Id: Pneb.F,v 1.40 2008-08-30 01:19:45 bylaska Exp $
 *
 #define NBLOCKS 4
 
@@ -1775,7 +1775,6 @@ c     ccccc local variables ccccc
      >                         dbl_mb(a_shift),npack1,
      >                         sum3)
               call K1dB_qtok(nbq,nb)
-              write(*,*) "ms,nbq,nb=",ms,nbq,nb
               i = (ms-ms1)+2*(nb-1)
               dbl_mb(sm2(1)+i) = sum2
               dbl_mb(sm3(1)+i) = sum3

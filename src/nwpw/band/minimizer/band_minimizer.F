@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.67 2008-08-29 00:47:11 bylaska Exp $
+* $Id: band_minimizer.F,v 1.68 2008-08-30 01:14:54 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -305,8 +305,8 @@ c      external      cpsp_comment
 *     **** determine en ****
       if (.not.control_spin_orbit()) then
         icharge = 0.0d0
-        en(1) = 0.0d0
-        en(2) = 0.0d0
+        en(1)   = 0.0d0
+        en(2)   = 0.0d0
         b = dble(3-cpsi_ispin())
         do nb=1,brillioun_nbrillq()
         weight = brillioun_weight(nb)
@@ -319,6 +319,7 @@ c      external      cpsp_comment
         end do
         end do
         call K1dB_Vector_SumAll(2,en)
+        call K1dB_SumAll(icharge)
       else
         icharge          = -cpsi_ne(1)
         en(1)            =  cpsi_ne(1)
