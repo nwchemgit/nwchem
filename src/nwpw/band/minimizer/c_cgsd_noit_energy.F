@@ -1,4 +1,4 @@
-c     $Id: c_cgsd_noit_energy.F,v 1.8 2007-09-13 20:38:23 bylaska Exp $                       
+c     $Id: c_cgsd_noit_energy.F,v 1.9 2008-08-30 01:27:15 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -45,9 +45,9 @@ c      external ion_nion,cpsi_ispin,cpsi_ne
       external control_tole,control_tolc,cpsi_occupation
       external ion_rion,cpsi_eigenvalue,cpsi_svector,ion_amass
       integer  brillioun_nbrillioun
-      real*8   brillioun_k,brillioun_ks,brillioun_weight
+      real*8   Pbrillioun_k,Pbrillioun_ks,Pbrillioun_weight
       external brillioun_nbrillioun
-      external brillioun_k,brillioun_ks,brillioun_weight
+      external Pbrillioun_k,Pbrillioun_ks,Pbrillioun_weight
 
 
 
@@ -101,13 +101,13 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
          EV=27.2116d0
          do nb=1,brillioun_nbrillioun()
            write(luout,1508) nb,
-     >                   brillioun_weight(nb),
-     >                   brillioun_ks(1,nb),
-     >                   brillioun_ks(2,nb),
-     >                   brillioun_ks(3,nb),
-     >                   brillioun_k(1,nb),
-     >                   brillioun_k(2,nb),
-     >                   brillioun_k(3,nb)
+     >                   Pbrillioun_weight(nb),
+     >                   Pbrillioun_ks(1,nb),
+     >                   Pbrillioun_ks(2,nb),
+     >                   Pbrillioun_ks(3,nb),
+     >                   Pbrillioun_k(1,nb),
+     >                   Pbrillioun_k(2,nb),
+     >                   Pbrillioun_k(3,nb)
            write(luout,1500)
            if (cpsi_spin_orbit()) then
              write(luout,1511)
