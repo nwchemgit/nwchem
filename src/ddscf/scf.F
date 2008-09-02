@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.70 2008-06-13 19:06:55 jhammond Exp $
+C$Id: scf.F,v 1.71 2008-09-02 14:59:09 jhammond Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -209,7 +209,7 @@ c     Initialize integral library, schwarz screening, cached 1-e integs
 c
       call int_init(rtdb,1, basis)
 c
-      if (util_print('kinetic',print_debug)) then
+      if (util_print('kinetic',print_never)) then
           write(6,*) "===================================="
           write(6,*) "Begin kinetic 1-e integrals"
           write(6,*) "===================================="
@@ -218,7 +218,7 @@ c
           write(6,*) "End kinetic 1-e integrals"
           write(6,*) "===================================="
       endif
-      if (util_print('potential',print_debug)) then
+      if (util_print('potential',print_never)) then
           write(6,*) "===================================="
           write(6,*) "Begin potential 1-e integrals"
           write(6,*) "===================================="
@@ -227,7 +227,7 @@ c
           write(6,*) "End potential 1-e integrals"
           write(6,*) "===================================="
       endif
-      if (util_print('overlap',print_debug)) then
+      if (util_print('overlap',print_never)) then
           write(6,*) "===================================="
           write(6,*) "Begin overlap 1-e integrals"
           write(6,*) "===================================="
@@ -236,7 +236,7 @@ c
           write(6,*) "End overlap 1-e integrals"
           write(6,*) "===================================="
       endif
-      if (util_print('ao2eints',print_debug)) then
+      if (util_print('ao2eints',print_never)) then
           write(6,*) "===================================="
           write(6,*) "Begin all 2-e integrals"
           write(6,*) "===================================="
