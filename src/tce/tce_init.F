@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.51 2008-08-27 01:34:09 jhammond Exp $
+c $Id: tce_init.F,v 1.52 2008-09-02 12:31:53 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -1051,14 +1051,14 @@ c
         else
           write(LuOut,9160) 'Jacobi'
         endif
-        if (lineresp.eq..true.) then
+        if (lineresp) then
           if (diis2 .gt. 0) then
             write(LuOut,9152) diis2,'-th order DIIS'
           else
             write(LuOut,9162) 'Jacobi'
           endif
         endif
-        if (imagresp.eq..true.) then
+        if (imagresp) then
           if (diis3 .gt. 0) then
             write(LuOut,9153) diis3,'-th order DIIS'
           else
