@@ -1,5 +1,5 @@
 %
-% $Id: tce.tex,v 1.12 2008-08-16 16:06:29 jhammond Exp $
+% $Id: tce.tex,v 1.13 2008-09-03 16:00:02 jhammond Exp $
 %
 \label{sec:tce}
 
@@ -599,9 +599,9 @@ system administrators.
 
 Algorithm 9 is an out-of-core solution to the memory bottleneck of the 2-e integrals.  In this approach,
 the intermediates of the 4-index transformation as well as the MO integrals are stored in an SF file.
-As before, this requires a shared file system.  Because algorithm 9 is based upon algorithm 5, 
-described above, it is not expected to scale.  The primary purpose of algorithm 9 is to make the
+As before, this requires a shared file system.  The primary purpose of algorithm 9 is to make the
 performance of the NWChem coupled-cluster codes competive with fast serial codes on workstations.
+It does not work in parallel for all machines and thus should only be used in serial.
 It succeeds in this purpose when corresponding functionality is compared.  A more scalable version of
 this algorithm is possible, but the utility is limited since large parallel computers do not
 permit the wall times necessary to use an out-of-core method, which is necessarily slower than the
