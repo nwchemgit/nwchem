@@ -1,5 +1,5 @@
 *
-* $Id: brillioun.F,v 1.4 2008-05-13 20:53:02 bylaska Exp $
+* $Id: brillioun.F,v 1.5 2008-09-03 17:07:35 bylaska Exp $
 *
 
 *     ***********************************
@@ -17,7 +17,7 @@
 
 *     **** local variables ****
       logical value
-      integer nb,nbq,count
+      integer nb,nbq,count,taskid_k,p
       real*8  kvec(3),ksvec(4)
       real*8 total_weight 
 
@@ -25,7 +25,10 @@
       integer  control_num_kvectors
       external control_num_kvectors
 
+      call Parallel3d_taskid_k(taskid_k)
+
       nbrillioun = control_num_kvectors()
+      printbrill = (nbrillioun.le.pbrillmax)
 
       map_in = 1
       call K1dB_init(nbrillioun,map_in)
@@ -43,32 +46,31 @@
       if (.not. value)
      > call errquit('brillioun_init:out of heap memory',0, MA_ERR)
 
-
-      do nbq=1,nbrillq
-         call K1dB_qtok(nbq,nb)
+      do nb=1,nbrillioun
          call control_ksvector(nb,ksvec)
          call control_kvector(nb,kvec)
-         dbl_mb(kv(1)+3*(nbq-1))    = kvec(1)
-         dbl_mb(kv(1)+3*(nbq-1)+1)  = kvec(2)
-         dbl_mb(kv(1)+3*(nbq-1)+2)  = kvec(3)
 
-         dbl_mb(ks(1)+3*(nbq-1))    = ksvec(1)
-         dbl_mb(ks(1)+3*(nbq-1)+1)  = ksvec(2)
-         dbl_mb(ks(1)+3*(nbq-1)+2)  = ksvec(3)
-         dbl_mb(weight(1)+nbq-1)    = ksvec(4)
-      end do
-
-      do nb=1,nbrillioun
-         call control_kvector(nb,kvec)
          dbl_mb(kv_all(1)+3*(nb-1))    = kvec(1)
          dbl_mb(kv_all(1)+3*(nb-1)+1)  = kvec(2)
          dbl_mb(kv_all(1)+3*(nb-1)+2)  = kvec(3)
+
+         call K1dB_ktoqp(nb,nbq,p)
+
+         if (p.eq.taskid_k) then
+            dbl_mb(kv(1)+3*(nbq-1))    = kvec(1)
+            dbl_mb(kv(1)+3*(nbq-1)+1)  = kvec(2)
+            dbl_mb(kv(1)+3*(nbq-1)+2)  = kvec(3)
+
+            dbl_mb(ks(1)+3*(nbq-1))    = ksvec(1)
+            dbl_mb(ks(1)+3*(nbq-1)+1)  = ksvec(2)
+            dbl_mb(ks(1)+3*(nbq-1)+2)  = ksvec(3)
+            dbl_mb(weight(1)+nbq-1)    = ksvec(4)
+         end if
       end do
 
-
 *     *** set the default weights *****
-      total_weight = 1.0d0
       count = 0
+      total_weight = 0.0d0
       do nbq=1,nbrillq
          if (dbl_mb(weight(1)+nbq-1).gt.0.0d0) then
            total_weight = total_weight - dbl_mb(weight(1)+nbq-1)
@@ -76,8 +78,9 @@
            count = count + 1
          end if
       end do
-      call K1dB_SumAll(total_weight)
       call K1dB_ISumAll(count)
+      call K1dB_SumAll(total_weight)
+      total_weight = 1.0d0 - total_weight
      
       if (count.gt.0) then
          total_weight = total_weight/dble(count)
@@ -97,9 +100,9 @@
 *     *	   brillioun_structure_init	*
 *     *					*
 *     ***********************************
-      subroutine brillioun_structure_init(nb)
+      subroutine brillioun_structure_init(nbstart,nbk)
       implicit none
-      integer nb
+      integer nbstart,nbk
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -108,21 +111,22 @@
 *     **** local variables ****
       logical value
       real*8  kvec(3),ksvec(4)
-      integer map_in
+      integer map_in,nb,nbq,taskid_k,p
 
-      nbrillioun = 1
+      call Parallel3d_taskid_k(taskid_k)
+      nbrillioun = nbk
       
       map_in = 1
       call K1dB_init(nbrillioun,map_in)
       call K1dB_nq(nbrillq)
 
 *     **** allocate from MA heap ****
-      value = MA_alloc_get(mt_dbl,(nbrillioun),
+      value = MA_alloc_get(mt_dbl,(nbrillq),
      >                     'weight',weight(2),weight(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(3*nbrillioun),'ks',ks(2),ks(1))
+     >        MA_alloc_get(mt_dbl,(3*nbrillq),'ks',ks(2),ks(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(3*nbrillioun),'kv',kv(2),kv(1))
+     >        MA_alloc_get(mt_dbl,(3*nbrillq),'kv',kv(2),kv(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,(3*nbrillioun),
      >                     'kv_all',kv_all(2),kv_all(1))
@@ -130,25 +134,29 @@
      > call errquit('brillioun_structure_init:out of heap memory',
      >              0,MA_ERR)
 
+      do nb=1,nbrillioun
+        call control_ksvector_structure((nb-1)+nbstart,ksvec)
+        call control_kvector_structure((nb-1) +nbstart,kvec)
 
-      call control_ksvector_structure(nb,ksvec)
-      call control_kvector_structure(nb,kvec)
-      dbl_mb(kv(1))    = kvec(1)
-      dbl_mb(kv(1)+1)  = kvec(2)
-      dbl_mb(kv(1)+2)  = kvec(3)
+        dbl_mb(kv_all(1)+3*(nb-1))    = kvec(1)
+        dbl_mb(kv_all(1)+3*(nb-1)+1)  = kvec(2)
+        dbl_mb(kv_all(1)+3*(nb-1)+2)  = kvec(3)
 
-      dbl_mb(kv_all(1))    = kvec(1)
-      dbl_mb(kv_all(1)+1)  = kvec(2)
-      dbl_mb(kv_all(1)+2)  = kvec(3)
+        call K1dB_ktoqp(nb,nbq,p)
+        if (p.eq.taskid_k) then
+          dbl_mb(kv(1)+3*(nbq-1))    = kvec(1)
+          dbl_mb(kv(1)+3*(nbq-1)+1)  = kvec(2)
+          dbl_mb(kv(1)+3*(nbq-1)+2)  = kvec(3)
 
-      dbl_mb(ks(1))    = ksvec(1)
-      dbl_mb(ks(1)+1)  = ksvec(2)
-      dbl_mb(ks(1)+2)  = ksvec(3)
-      dbl_mb(weight(1))= 1.0d0
+          dbl_mb(ks(1)+3*(nbq-1))    = ksvec(1)
+          dbl_mb(ks(1)+3*(nbq-1)+1)  = ksvec(2)
+          dbl_mb(ks(1)+3*(nbq-1)+2)  = ksvec(3)
+          dbl_mb(weight(1)+(nbq-1))  = 1.0d0
+        end if
+      end do
 
       return
       end
-
 
 
 *     ***********************************
@@ -275,4 +283,101 @@
       brillioun_all_k = dbl_mb(kv_all(1)+3*(nb-1)+i-1)
       return
       end
+
+
+
+*     ***********************************
+*     *					*
+*     *		brillioun_weight_brdcst	*
+*     *					*
+*     ***********************************
+      real*8 function brillioun_weight_brdcst(nb)
+      implicit none
+      integer nb
+
+#include "mafdecls.fh"
+#include "brillioun_common.fh"
+
+      integer nbq,taskid_k,p
+      real*8 w 
+
+      call Parallel3d_taskid_k(taskid_k)
+      call K1dB_ktoqp(nb,nbq,p)
+
+      w = 0.0d0
+      if (p.eq.taskid_k) w = dbl_mb(weight(1)+nbq-1)
+      call K1dB_SumAll(w)
+
+      brillioun_weight_brdcst = w
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		 brillioun_ks_brdcst	*
+*     *					*
+*     ***********************************
+      real*8 function brillioun_ks_brdcst(i,nb)
+      implicit none
+      integer i,nb
+
+#include "mafdecls.fh"
+#include "brillioun_common.fh"
+
+      integer nbq,taskid_k,p
+      real*8 w 
+
+      call Parallel3d_taskid_k(taskid_k)
+      call K1dB_ktoqp(nb,nbq,p)
+
+      w = 0.0d0
+      if (p.eq.taskid_k) w = dbl_mb(ks(1)+3*(nbq-1)+i-1)
+      call K1dB_SumAll(w)
+
+      brillioun_ks_brdcst = w
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		  brillioun_k_brdcst    *
+*     *					*
+*     ***********************************
+      real*8 function brillioun_k_brdcst(i,nb)
+      implicit none
+      integer i,nb
+
+#include "mafdecls.fh"
+#include "brillioun_common.fh"
+
+      integer nbq,taskid_k,p
+      real*8 w 
+
+      call Parallel3d_taskid_k(taskid_k)
+      call K1dB_ktoqp(nb,nbq,p)
+
+      w = 0.0d0
+      if (p.eq.taskid_k) w = dbl_mb(kv(1)+3*(nbq-1)+i-1)
+      call K1dB_SumAll(w)
+
+      brillioun_k_brdcst = w
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *           brillioun_print      *
+*     *                                 *
+*     ***********************************
+      logical function brillioun_print()
+      implicit none
+      integer i,nb
+
+#include "mafdecls.fh"
+#include "brillioun_common.fh"
+
+      brillioun_print = printbrill
+      return
+      end
+
 

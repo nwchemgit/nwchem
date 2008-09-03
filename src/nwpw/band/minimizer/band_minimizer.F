@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.68 2008-08-30 01:14:54 bylaska Exp $
+* $Id: band_minimizer.F,v 1.69 2008-09-03 17:07:25 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -56,6 +56,8 @@
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi,weight
       real*8  icharge,en(2)
+      real*8  f0,f1,f2,f3,f4,f5,f6
+      integer if1,if2
       integer i,k,ia,nion,vers,nbrillioun,nb,ms
       integer mapping,minimizer
 
@@ -86,21 +88,21 @@
       character*12 control_boundry
       external     control_boundry
 
-      logical  Pbrillioun_print
+      logical  brillioun_print
       integer  brillioun_nbrillioun,brillioun_nbrillq
-      real*8   Pbrillioun_weight,Pbrillioun_ks,Pbrillioun_k
-      real*8   brillioun_weight
-      external Pbrillioun_print
+      real*8   brillioun_weight_brdcst,brillioun_ks_brdcst
+      real*8   brillioun_k_brdcst,brillioun_weight
+      external brillioun_print
       external brillioun_nbrillioun,brillioun_nbrillq
-      external Pbrillioun_weight,Pbrillioun_ks,Pbrillioun_k
-      external brillioun_weight
+      external brillioun_weight_brdcst,brillioun_ks_brdcst 
+      external brillioun_k_brdcst,brillioun_weight
       integer  c_electron_count,linesearch_count
       external c_electron_count,linesearch_count
 
       real*8   nwpw_timing
       external nwpw_timing
-      integer  Cram_nwave_all_print,Cram_nwave_print
-      external Cram_nwave_all_print,Cram_nwave_print
+      integer  Cram_nwave_all_brdcst,Cram_nwave_brdcst
+      external Cram_nwave_all_brdcst,Cram_nwave_brdcst
 
       integer  ewald_ncut
       real*8   ewald_rcut,ewald_mandelung,ewald_e
@@ -210,7 +212,6 @@ c      external      cpsp_comment
       mapping   = control_mapping()
       ierr = 0 
 
-
 *     **** initialize C3dB data structure ****
       call C3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call C3dB_nfft3d(1,nfft3d)
@@ -221,10 +222,8 @@ c      external      cpsp_comment
       call lattice_init()
       call c_G_init()
       call brillioun_init()
-      call Pbrillioun_init()
       call Cram_Init()
       call C3dB_pfft_init()
-
 
 *     **** initialize D3dB data structure and mask for GGA ****
       if ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
@@ -232,8 +231,6 @@ c      external      cpsp_comment
       call G_init()
       call mask_init()
       end if
-
-
 
 *     **** read ions ****
       value = ion_init(rtdb)
@@ -421,28 +418,48 @@ c           write(luout,1154) cpsp_lmmax(ia)
          write(luout,1260) ewald_rcut(),ewald_ncut()
          write(luout,1261) ewald_mandelung()
 
-         ia = brillioun_nbrillioun()
          write(luout,1255)
-         write(luout,1256) ia
-         if (Pbrillioun_print()) then
-            do i=1,ia
-              write(luout,1257)  Pbrillioun_weight(i),
-     >        Pbrillioun_ks(1,i),Pbrillioun_ks(2,i),Pbrillioun_ks(3,i),
-     >        Pbrillioun_k(1,i), Pbrillioun_k(2,i), Pbrillioun_k(3,i)
-            end do
-         else
-              write(luout,1258) 
-         end if
+         write(luout,1256) brillioun_nbrillioun()
+      end if
 
+c     **** print brillioun zone - extra logic for distributed kpoints ****
+      if (brillioun_print()) then
+         do i=1,brillioun_nbrillioun()
+            f0 = brillioun_weight_brdcst(i) 
+            f1 = brillioun_ks_brdcst(1,i) 
+            f2 = brillioun_ks_brdcst(2,i) 
+            f3 = brillioun_ks_brdcst(3,i) 
+            f4 = brillioun_k_brdcst(1,i)  
+            f5 = brillioun_k_brdcst(2,i)  
+            f6 = brillioun_k_brdcst(3,i)
+            if (mprint) write(luout,1257) f0,f1,f2,f3,f4,f5,f6
+         end do
+      else
+        if (mprint) write(luout,1258) 
+      end if
+
+      if1 = Cram_nwave_all_brdcst(0)
+      if2 = Cram_nwave_brdcst(0)
+      if (mprint) then
          write(luout,1249)
          write(luout,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
-     >                 Cram_nwave_all_print(0),Cram_nwave_print(0)
-         do i=1,ia
+     >                     if1,if2
+      end if
+
+      if (brillioun_print()) then
+        do i=1,brillioun_nbrillioun()
+          if1 = Cram_nwave_all_brdcst(i)
+          if2 = Cram_nwave_brdcst(i)
+          if (mprint) then
           write(luout,1251) i,lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
-     >                 Cram_nwave_all_print(i),Cram_nwave_print(i)
-         end do
+     >                      if1,if2
+          end if
+        end do
+      else
+        if (mprint) write(luout,1252) 
+      end if
 
-
+      if (mprint) then
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc()
@@ -480,9 +497,6 @@ c           write(luout,1154) cpsp_lmmax(ia)
          write(luout,1300)
          call util_flush(luout)
       end if
-
-
-
 
 
 
@@ -595,7 +609,6 @@ c           write(luout,1154) cpsp_lmmax(ia)
       call cpsp_end()
       call Cram_end()
       call c_G_end()
-      call Pbrillioun_end()
       call brillioun_end()
       call ion_end()
       call ion_end_FixIon()
@@ -746,6 +759,8 @@ c           write(luout,1154) cpsp_lmmax(ia)
  1251 FORMAT(5X,' wavefnc ',I3,' cutoff=',F7.3,
      &        '  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
+ 1252 FORMAT(5x, ' wavefunction grids not printed - ',
+     >           'number of k-point is very large')
   
  1255 FORMAT(/' brillouin zone:')
  1256 FORMAT(5x,'number of zone points:',I3)

@@ -1,5 +1,5 @@
 c
-c     $Id: c_bfgsminimize.F,v 1.8 2008-06-06 17:06:42 d3p708 Exp $                       
+c     $Id: c_bfgsminimize.F,v 1.9 2008-09-03 17:07:26 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -112,14 +112,6 @@ c     dte = 1.0d0
       G0_tag = cpsi_data_push_stack(nbrillq,neall,2*npack1)
       S0_shift = cpsi_data_get_allptr(S0_tag)
       G0_shift = cpsi_data_get_allptr(G0_tag)
-c      value = MA_push_get(mt_dcpl,npack1*neall*nbrill,
-c     >                     'S0',S0(2),S0(1))
-c      value = value.and.
-c     >        MA_push_get(mt_dcpl,npack1*neall*nbrill,
-c     >                     'G0',G0(2),G0(1))
-c      if (.not. value) 
-c     > call errquit('c_bfgsminimize:out of heap memory',0,MA_ERR)
-
 
 
 *     ***** get the initial direction ****

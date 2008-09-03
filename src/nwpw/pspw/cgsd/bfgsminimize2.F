@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize2.F,v 1.9 2008-06-21 19:37:15 bylaska Exp $                       
+c     $Id: bfgsminimize2.F,v 1.10 2008-09-03 17:07:40 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -12,13 +12,13 @@ c
      >                        current_iteration,
      >                        minimizer)
       implicit none
-#include "errquit.fh"
       real*8     E(*)
       real*8     deltae,deltac
       integer    current_iteration
       integer    minimizer
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
 
@@ -226,7 +226,7 @@ c        call dng_2to1()
       call psi_1toelectron() 
 c     call rho_2to1()
 c     call dng_2to1()
-      call psi_check()
+c     call psi_check()
 
       eion = 0.0d0
       if (control_version().eq.3) eion = ewald_e()

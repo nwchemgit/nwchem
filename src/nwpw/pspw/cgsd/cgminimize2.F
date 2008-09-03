@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize2.F,v 1.15 2008-06-21 19:37:15 bylaska Exp $                       
+c     $Id: cgminimize2.F,v 1.16 2008-09-03 17:07:41 bylaska Exp $                       
 c
 
 *  **************************************************************
@@ -14,12 +14,12 @@ c
   
       subroutine cgminimize2(E,deltae,deltac,current_iteration)
       implicit none
-#include "errquit.fh"
       real*8     E(*)
       real*8     deltae,deltac
       integer    current_iteration
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
 
@@ -233,7 +233,7 @@ c
 
  30   call psi_2to1()
       call psi_1toelectron() 
-      call psi_check()
+c      call psi_check()
 
       eion = 0.0d0
       if (control_version().eq.3) eion = ewald_e()

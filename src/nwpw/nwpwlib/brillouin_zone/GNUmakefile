@@ -1,11 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.3 2008-04-23 01:32:10 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2008-09-03 17:07:35 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
 		brillouin_zone_input.o \
-		brillioun.o \
-		Pbrillioun.o
+		brillioun.o
 
 	  OBJ = 
 

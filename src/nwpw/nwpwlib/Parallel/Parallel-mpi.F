@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-mpi.F,v 1.12 2008-08-29 22:51:14 bylaska Exp $
+* $Id: Parallel-mpi.F,v 1.13 2008-09-03 17:07:32 bylaska Exp $
 *
 
 * Parallel.f
@@ -43,6 +43,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 #include "stupid_mpi4.fh"
       stupid_world   = MPI_COMM_WORLD
       stupid_sum     = MPI_SUM
+      stupid_max     = MPI_MAX
       stupid_integer = MPI_INTEGER
       stupid_double  = MPI_DOUBLE_PRECISION
       stupid_complex = MPI_DOUBLE_COMPLEX
@@ -308,12 +309,13 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >                           + k*np_i*np_j)
       end do
       call stupid_icopy8to4(np_k,int_mb(tmp(1)),int_mb(tmp(1)))
-      call MPI_Group_incl(stupid_mpi_group,stupid_np_k,int_mb(tmp(1)),
+
+      call MPI_Group_incl(stupid_mpi_group,
+     >                    stupid_np_k,
+     >                    int_mb(tmp(1)),
      >                    stupid_group_k,stupid_ierr)
-      call MPI_Comm_create(stupid_world,stupid_group_k,stupid_comm_k,
-     >                     stupid_ierr)
-
-
+      call MPI_Comm_create(stupid_world,stupid_group_k,
+     >                     stupid_comm_k,stupid_ierr)
 
       group_i = stupid_group_i
       comm_i  = stupid_comm_i
@@ -332,7 +334,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >                           + taskid_k*np_i*np_j) 
       end do
       call MPI_Group_incl(mpi_group,np_i,int_mb(tmp(1)),group_i,ierr)
-      call MPI_Comm_create(MPI_COMM_WORLD,group_i,comm_i,  ierr)
+      call MPI_Comm_create(MPI_COMM_WORLD,group_i,comm_i,ierr)
 
       do j=0,np_j-1
         int_mb(tmp(1)+j) = int_mb(procNd(1) 
@@ -341,7 +343,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >                           + taskid_k*np_i*np_j) 
       end do
       call MPI_Group_incl(mpi_group,np_j,int_mb(tmp(1)),group_j,ierr)
-      call MPI_Comm_create(MPI_COMM_WORLD,group_j,comm_j,  ierr)
+      call MPI_Comm_create(MPI_COMM_WORLD,group_j,comm_j,ierr)
 
       do k=0,np_k-1
         int_mb(tmp(1)+k) = int_mb(procNd(1) 
@@ -351,7 +353,6 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       end do
       call MPI_Group_incl(mpi_group,np_k,int_mb(tmp(1)),group_k,ierr)
       call MPI_Comm_create(MPI_COMM_WORLD,group_k,comm_k,ierr)
-
 #endif
 
       if (.not.MA_pop_stack(tmp(2)))

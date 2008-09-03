@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.34 2008-08-29 00:47:17 bylaska Exp $
+* $Id: cram.F,v 1.35 2008-09-03 17:07:37 bylaska Exp $
 *
 
 *     ***********************************
@@ -61,16 +61,6 @@
      >                     'pack_list',
      >                      pack_list(2),
      >                      pack_list(1))
-      value = value.and.
-     >        MA_alloc_get(mt_int,nbrill+1,
-     >                     'nidb2_print',
-     >                      nidb2_print(2),
-     >                      nidb2_print(1))
-      value = value.and.
-     >        MA_alloc_get(mt_int,nbrill+1,
-     >                     'nwaveall_print',
-     >                      nwaveall_print(2),
-     >                      nwaveall_print(1))
       if (.not. value) 
      > call errquit('Cram_init: out of heap memory',0,MA_ERR)
 
@@ -156,20 +146,6 @@
         end if
       end do
 
-      do i=1,nbrill
-         int_mb(nidb2_print(1)+i)    = 0.0d0
-         int_mb(nwaveall_print(1)+i) = 0.0d0
-      end do
-      do nb=1,maxsize-1
-         call K1dB_qtok(nb,i)
-         int_mb(nidb2_print(1)+i)    = int_mb(nidb2_list(1)+nb)
-         int_mb(nwaveall_print(1)+i) = int_mb(nwaveall_list(1)+nb)
-      end do
-      call K1dB_Vector_ISumAll(nbrill,int_mb(nidb2_print(1)+1))
-      call K1dB_Vector_ISumAll(nbrill,int_mb(nwaveall_print(1)+1))
-      int_mb(nidb2_print(1))    = int_mb(nidb2_list(1))
-      int_mb(nwaveall_print(1)) = int_mb(nwaveall_list(1))
-
       return 
       end
 
@@ -200,8 +176,6 @@
       value = value.and.MA_free_heap(nidb2_list(2))
       value = value.and.MA_free_heap(nwaveall_list(2))
       value = value.and.MA_free_heap(pack_list(2))
-      value = value.and.MA_free_heap(nidb2_print(2))
-      value = value.and.MA_free_heap(nwaveall_print(2))
 
       if (.not. value) 
      >  call errquit('Cram_end:error freeing heap memory',0, MA_ERR)
@@ -624,18 +598,25 @@
 
 *     ***********************************
 *     *					*
-*     *	         Cram_nwave_print	*	
+*     *	         Cram_nwave_brdcst      *	
 *     *					*
 *     ***********************************
-
-      integer function Cram_nwave_print(nb)
+      integer function Cram_nwave_brdcst(nb)
       implicit none
       integer nb
 
 #include "mafdecls.fh"
 #include "cram_common.fh"
 
-      Cram_nwave_print =  int_mb(nidb2_print(1)+nb)
+      integer nbq,taskid_k,p
+      integer iw
+
+      call Parallel3d_taskid_k(taskid_k)
+      call K1dB_ktoqp(nb,nbq,p)
+      if (p.eq.taskid_k) iw = int_mb(nidb2_list(1)+nbq)
+      call K1dB_ISumAll(iw)
+
+      Cram_nwave_brdcst = iw
       return
       end
 
@@ -645,7 +626,6 @@
 *     *	         Cram_nwave_all		*	
 *     *					*
 *     ***********************************
-
       integer function Cram_nwave_all(nb)
       implicit none
       integer nb
@@ -659,18 +639,25 @@
 
 *     ***********************************
 *     *					*
-*     *	         Cram_nwave_all_print	*	
+*     *	         Cram_nwave_all_brdcst  *	
 *     *					*
 *     ***********************************
-
-      integer function Cram_nwave_all_print(nb)
+      integer function Cram_nwave_all_brdcst(nb)
       implicit none
       integer nb
 
 #include "mafdecls.fh"
 #include "cram_common.fh"
 
-      Cram_nwave_all_print = int_mb(nwaveall_print(1)+nb)
+      integer nbq,taskid_k,p
+      integer iw
+
+      call Parallel3d_taskid_k(taskid_k)
+      call K1dB_ktoqp(nb,nbq,p)
+      if (p.eq.taskid_k) iw = int_mb(nwaveall_list(1)+nbq)
+      call K1dB_ISumAll(iw)
+
+      Cram_nwave_all_brdcst = iw
       return
       end
 

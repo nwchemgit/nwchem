@@ -1,5 +1,5 @@
 *
-* $Id: K1dB.F,v 1.2 2008-04-22 17:42:23 bylaska Exp $
+* $Id: K1dB.F,v 1.3 2008-09-03 17:07:31 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -238,7 +238,6 @@
 
       call Parallel3d_np_k(np_k)
       call Parallel_taskid(taskid)
-
 
       !**** Make sure ngrid is consistent with mapping ***
       if (np_k.gt.nz_in) then

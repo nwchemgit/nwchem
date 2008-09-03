@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.120 2008-06-22 16:43:51 bylaska Exp $
+* $Id: control.F,v 1.121 2008-09-03 17:07:36 bylaska Exp $
 *
 
 *     ***********************************
@@ -38,6 +38,8 @@
       character*30 exchange_correlation
       integer i,l,ind,np
 
+      integer  control_num_kvectors
+      external control_num_kvectors
       logical  control_allow_translation
       external control_allow_translation
 
@@ -72,6 +74,10 @@
          if (np_dimensions(2).lt.1) np_dimensions(2) = 1
          if (np_dimensions(1).lt.1) np_dimensions(1) = 1
 
+*        **** reset np_dimensions(3) if larger than nbrill ****
+         nbrill = control_num_kvectors()
+         if (np_dimensions(3).gt.nbrill) np_dimensions(3) = nbrill
+
 *        **** reset np_dimensions(3) if it is not a  multiple of np ****
          do while ((mod(np,np_dimensions(3)).ne.0).and.
      >             (np_dimensions(3).gt.1))
@@ -83,6 +89,10 @@
      >             (np_dimensions(2).gt.1))
             np_dimensions(2) = np_dimensions(2) - 1
          end do
+
+         !*** temporary restriction until ne parallelized in band ***
+         if ((code.eq.5).or.(code.eq.10)) np_dimensions(2) = 1
+
          np_dimensions(1) = np/np_dimensions(2)
 
       endif
@@ -873,6 +883,14 @@ cccc set to some reasonable default !
      	ewald_grid(1)=ngrid(1)
         ewald_grid(2)=ngrid(2)
         ewald_grid(3)=ngrid(3)
+      end if
+
+*     ****  reset mapping if slab and it doesnot fit ****
+      if (mapping.eq.1) then
+         if ((ngrid(2).ne.ngrid(3)).or.
+     >       (ngrid(3).gt.np_dimensions(1))) then
+            mapping = 2
+         end if
       end if
 
       control_read = value

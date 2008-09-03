@@ -1,5 +1,5 @@
 *
-*     $Id: band_lmbfgs.F,v 1.7 2007-11-17 00:05:37 bylaska Exp $                       
+*     $Id: band_lmbfgs.F,v 1.8 2008-09-03 17:07:23 bylaska Exp $                       
 *
 
       subroutine band_lmbfgs_init(max_m0,g)
@@ -11,8 +11,8 @@
 
 
 *     **** external functions ****
-      integer  cpsi_ispin,cpsi_ne,brillioun_nbrillioun
-      external cpsi_ispin,cpsi_ne,brillioun_nbrillioun
+      integer  cpsi_ispin,cpsi_ne,brillioun_nbrillq
+      external cpsi_ispin,cpsi_ne,brillioun_nbrillq
 
       max_m = max_m0
       call Cram_max_npack(npack1)
@@ -20,7 +20,7 @@
       ne(1) = cpsi_ne(1)
       ne(2) = cpsi_ne(2)
       neall = ne(1)+ne(2)
-      nbrill = brillioun_nbrillioun()
+      nbrill = brillioun_nbrillq()
       nsize = neall*npack1*nbrill
       call band_Grsm_list_init('lmbfgs',2*max_m,2*nsize)
       m = 1
@@ -86,8 +86,6 @@
       end if
 
      
-c      casa1=yy(2)-yy(1)
-c      casa2=ss(2)-ss(1)
       call Pneb_ff_traceall(0,0,
      >                   dbl_mb(yy(1)),
      >                   dbl_mb(ss(1)),npack1,

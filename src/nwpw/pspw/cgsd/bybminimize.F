@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.23 2007-09-14 21:17:52 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.24 2008-09-03 17:07:40 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -337,7 +337,7 @@ c      stalled = .false.
       if (.not. value) 
      >  call errquit('bybminimize: popping stack',1,0)
 
-      call psi_check()
+c      call psi_check()
 
 
 *     **** set return energies **** - This is duplicate code

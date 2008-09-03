@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.30 2007-09-24 16:58:10 bylaska Exp $
+* $Id: pack.F,v 1.31 2008-09-03 17:07:39 bylaska Exp $
 *
 
 *     ***********************************
@@ -167,7 +167,7 @@
       call D3dB_ISumAll(nwave_all(0))
       call D3dB_ISumAll(nwave_all(1)) 
 
-c      call Parallel_taskid(taskid)
+c      call Parallel2d_taskid_i(taskid)
 c      write(*,*) taskid," nida=",nida
 c      write(*,*) taskid," nidb=",nidb,nidb2
 c      write(*,*) " nida(0),nidb(0),nidb2(0):",taskid,nida(0),
@@ -741,7 +741,7 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
       external ddot
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
       npack= nida(nb)+nidb(nb)
 
       do n=1,ne
@@ -784,7 +784,7 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       npack  = (nida(nb)+nidb(nb))
       npack2 = 2*npack
@@ -840,7 +840,7 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       npack  = (nida(nb)+nidb(nb))
       npack2 = 2*npack
@@ -897,7 +897,7 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       npack = 2*(nida(nb)+nidb(nb))
 
@@ -943,7 +943,7 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       npack = 2*(nida(nb)+nidb(nb))
 
@@ -999,7 +999,7 @@ c     real*8   ddot
 c     external ddot
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
       npack2= 2*(nida(nb)+nidb(nb))
 
 c     do n=1,ne
@@ -1057,7 +1057,7 @@ c     end do
       external ddot
 
       call nwpw_timing_start(2)
-c      call Parallel_np(np)
+c      call Parallel2d_np_i(np)
 
       sum = ddot(2*nida(nb),A,1,B,1)
       sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
@@ -1133,7 +1133,7 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       external ddot
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       sum = ddot(2*nida(nb),A,1,B,1)
       sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
@@ -1207,7 +1207,7 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       external ddot
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       sum =         ddot(nida(nb),A,1,B,1)
       sum = sum + 2*ddot(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
@@ -1245,7 +1245,7 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       sum =         dsum(nida(nb),A,1)
       sum = sum + 2*dsum(nidb(nb),A(nida(nb)+1),1)

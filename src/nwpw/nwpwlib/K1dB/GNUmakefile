@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2008-04-22 00:50:00 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2008-09-03 17:07:30 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = K1dB.o
@@ -31,5 +31,9 @@ ifeq ($(USE_MPIF),y)
   LIB_INCLUDES += -I$(MPI_INCLUDE)
 else
   LIB_DEFINES += -DTCGMSG
+endif
+
+ifeq ($(USE_MPIF4),y)
+  LIB_DEFINES += -DMPI4
 endif
 

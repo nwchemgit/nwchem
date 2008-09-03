@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.40 2008-08-30 01:19:45 bylaska Exp $
+* $Id: Pneb.F,v 1.41 2008-09-03 17:07:33 bylaska Exp $
 *
 #define NBLOCKS 4
 
@@ -2075,9 +2075,6 @@ c     ccccccccc first line ccccccccc
 
 
 
-
-
-
 c     ****************************************
 c     *                                      *
 c     *          Pneb_ff_traceall            *
@@ -2148,6 +2145,8 @@ c     ** external functions
         call errquit('error popping the stack',0,MA_ERR)
       end if
 
+      call K1dB_SumAll(sum)
+
       return
       end
 
@@ -2210,6 +2209,7 @@ c     *** external functions ***
           !y2_shift = y2_shift + nshift1
         end do
       end do
+      call K1dB_SumAll(sum)
 
       return
       end

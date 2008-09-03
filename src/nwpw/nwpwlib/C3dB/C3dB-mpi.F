@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: C3dB-mpi.F,v 1.1 2008-05-13 20:53:23 bylaska Exp $
+* $Id: C3dB-mpi.F,v 1.2 2008-09-03 17:07:28 bylaska Exp $
 *
 
 #ifdef MPI
@@ -990,7 +990,7 @@ c     implicit none
       integer  Parallel3d_comm_i
       external Parallel3d_comm_i
 
-      call Parallel_taskid(taskid)
+      call Parallel3d_taskid_i(taskid)
       call nwpw_timing_start(2)
 
       call Parallel3d_np_i(np)

@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-tcgmsg.F,v 1.7 2008-04-21 22:20:45 bylaska Exp $
+* $Id: Parallel-tcgmsg.F,v 1.8 2008-09-03 17:07:32 bylaska Exp $
 *
 
 * Parallel.f
@@ -202,6 +202,9 @@ c      integer mpierr
      >                              + k*np_i*np_j) 
         end do
         comm_k = ga_pgroup_create(int_mb(tmp(1)),np_k)
+
+        write(*,*) "kjdfljd comm_k=",comm_k
+        call flush(6)
 
       if (.not.MA_pop_stack(tmp(2)))
      >  call errquit('Parallel3d_init:popping stack memory',0, MA_ERR)

@@ -1,4 +1,4 @@
-c     $Id: c_cgsd_noit_energy.F,v 1.9 2008-08-30 01:27:15 bylaska Exp $                       
+c     $Id: c_cgsd_noit_energy.F,v 1.10 2008-09-03 17:07:27 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -20,6 +20,7 @@ c     $Id: c_cgsd_noit_energy.F,v 1.9 2008-08-30 01:27:15 bylaska Exp $
 
       logical value
       real*8  E(30),virial,EV
+      real*8  f0,f1,f2,f3,f4,f5,f6
       integer rtdb,neall
       integer i,NN,nb
 
@@ -36,18 +37,22 @@ c      external ion_nion,cpsi_ispin,cpsi_ne
       character*4 ion_aname
       integer     control_it_in,control_it_out,control_minimizer
       integer     ion_nion,ion_katm,cpsi_ne,cpsi_ispin
-      real*8      control_tole,control_tolc,cpsi_occupation
-      real*8      ion_rion,cpsi_eigenvalue,cpsi_svector,ion_amass
+      real*8      control_tole,control_tolc,cpsi_occupation_brdcst
+      real*8      ion_rion,cpsi_eigenvalue_brdcst,cpsi_svector_brdcst
+      real*8      ion_amass
       external cpsp_semicore,control_out_of_time,cpsi_spin_orbit
       external ion_aname
       external control_it_in,control_it_out,control_minimizer
       external ion_nion,ion_katm,cpsi_ne,cpsi_ispin
-      external control_tole,control_tolc,cpsi_occupation
-      external ion_rion,cpsi_eigenvalue,cpsi_svector,ion_amass
+      external control_tole,control_tolc,cpsi_occupation_brdcst
+      external ion_rion,cpsi_eigenvalue_brdcst,cpsi_svector_brdcst
+      external ion_amass
       integer  brillioun_nbrillioun
-      real*8   Pbrillioun_k,Pbrillioun_ks,Pbrillioun_weight
+      real*8   brillioun_k_brdcst,brillioun_ks_brdcst
+      real*8   brillioun_weight_brdcst
       external brillioun_nbrillioun
-      external Pbrillioun_k,Pbrillioun_ks,Pbrillioun_weight
+      external brillioun_k_brdcst,brillioun_ks_brdcst
+      external brillioun_weight_brdcst
 
 
 
@@ -96,49 +101,49 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
          write(luout,1499) E(11),E(11)/neall
          virial = (E(11)+E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
-
-         NN=cpsi_ne(1)-cpsi_ne(2)
-         EV=27.2116d0
-         do nb=1,brillioun_nbrillioun()
-           write(luout,1508) nb,
-     >                   Pbrillioun_weight(nb),
-     >                   Pbrillioun_ks(1,nb),
-     >                   Pbrillioun_ks(2,nb),
-     >                   Pbrillioun_ks(3,nb),
-     >                   Pbrillioun_k(1,nb),
-     >                   Pbrillioun_k(2,nb),
-     >                   Pbrillioun_k(3,nb)
-           write(luout,1500)
-           if (cpsi_spin_orbit()) then
-             write(luout,1511)
-             do i=0,cpsi_ne(1)-1
-               write(luout,1512)
-     >            cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
-     >            cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV,
-     >            cpsi_svector(nb,cpsi_ne(1)-i,3),
-     >            cpsi_svector(nb,cpsi_ne(1)-i,2),
-     >            cpsi_svector(nb,cpsi_ne(1)-i,1),
-     >            cpsi_occupation(nb,cpsi_ne(1)-i,1)
-             end do
-           else
-             do i=0,NN-1
-               write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
-     >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV,
-     >                     cpsi_occupation(nb,1,cpsi_ne(1)-i)
-             end do
-             do i=0,cpsi_ne(2)-1
-               write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
-     >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN)*EV,
-     >                      cpsi_occupation(nb,1,cpsi_ne(1)-i-NN),
-     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
-     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV,
-     >                      cpsi_occupation(nb,2,cpsi_ne(2)-i)
-             end do
-           end if
-         end do
-
-
       end if
+
+      NN=cpsi_ne(1)-cpsi_ne(2)
+      EV=27.2116d0
+      do nb=1,brillioun_nbrillioun()
+         f0 = brillioun_weight_brdcst(nb) 
+         f1 = brillioun_ks_brdcst(1,nb) 
+         f2 = brillioun_ks_brdcst(2,nb) 
+         f3 = brillioun_ks_brdcst(3,nb) 
+         f4 = brillioun_k_brdcst(1,nb) 
+         f5 = brillioun_k_brdcst(2,nb) 
+         f6 = brillioun_k_brdcst(3,nb) 
+         if (taskid.eq.MASTER) then
+            write(luout,1508) nb,f0,f1,f2,f3,f4,f5,f6
+            write(luout,1500)
+         end if
+         if (cpsi_spin_orbit()) then
+           if (taskid.eq.MASTER) write(luout,1511)
+           do i=0,cpsi_ne(1)-1
+             f1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i) 
+             f2 = cpsi_svector_brdcst(nb,cpsi_ne(1)-i,3) 
+             f3 = cpsi_svector_brdcst(nb,cpsi_ne(1)-i,2) 
+             f4 = cpsi_svector_brdcst(nb,cpsi_ne(1)-i,1) 
+             f5 = cpsi_occupation_brdcst(nb,cpsi_ne(1)-i,1)
+             if(taskid.eq.MASTER) 
+     >          write(luout,1512) f1,f1*EV,f2,f3,f4,f5
+           end do
+         else
+           do i=0,NN-1
+             f1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i) 
+             f2 = cpsi_occupation_brdcst(nb,1,cpsi_ne(1)-i)
+             if (taskid.eq.MASTER) write(luout,1510) f1,f1*EV,f2
+           end do
+           do i=0,cpsi_ne(2)-1
+             f1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i-NN) 
+             f2 = cpsi_occupation_brdcst(nb,1,cpsi_ne(1)-i-NN) 
+             f3 = cpsi_eigenvalue_brdcst(nb,2,cpsi_ne(2)-i) 
+             f4 = cpsi_occupation_brdcst(nb,2,cpsi_ne(2)-i)
+             if(taskid.eq.MASTER) 
+     >          write(luout,1510) f1,f1*EV,f2,f3,f3*EV,f4
+           end do
+         end if
+      end do
 
 
 *     **** diagonalize hamiltonian and rotate psi ****

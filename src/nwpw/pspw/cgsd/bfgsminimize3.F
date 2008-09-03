@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize3.F,v 1.8 2008-06-21 19:37:15 bylaska Exp $                       
+c     $Id: bfgsminimize3.F,v 1.9 2008-09-03 17:07:40 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -227,7 +227,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
       call psi_1toelectron() 
 c     call rho_2to1()
 c     call dng_2to1()
-      call psi_check()
+c     call psi_check()
 
       eion = 0.0d0
       if (control_version().eq.3) eion = ewald_e()

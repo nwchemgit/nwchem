@@ -1,5 +1,5 @@
 *
-* $Id: cram_common.fh,v 1.3 2008-08-29 00:47:17 bylaska Exp $
+* $Id: cram_common.fh,v 1.4 2008-09-03 17:07:37 bylaska Exp $
 *
 
 *     **** common block for cram ****
@@ -7,15 +7,11 @@
       integer nidb2_list(2)
       integer nwaveall_list(2)
       integer pack_list(2)
-      integer nidb_print(2)
-      integer nwaveall_print(2),nidb2_print(2)
       integer maxsize,npack_max
       common / cram_block / nidb_list,
      >                      nidb2_list,
      >                      nwaveall_list,
      >                      pack_list,
-     >                      nidb2_print,
-     >                      nwaveall_print,
      >                      maxsize,
      >                      npack_max
 

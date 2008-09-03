@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.18 2008-06-23 01:00:01 bylaska Exp $
+* $Id: Dne.F,v 1.19 2008-09-03 17:07:29 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -1133,12 +1133,10 @@ c     ****************************************
 #include "Dne.fh"
 
 *     ***** local variables ****
-      integer taskid
       logical value
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,ierr
       integer tmp1(2),V(2),VV(2),Q(2),tu(2),ework(2)
 
-      call Parallel_taskid(taskid)
 
 
       call nwpw_timing_start(17)
@@ -1391,7 +1389,6 @@ c     ****************************************
       logical  Dneall_m_allocate,Dneall_m_free
       external Dneall_m_allocate,Dneall_m_free
  
-      call Parallel_taskid(taskid)
 
       
       if (parallelized) then
@@ -3188,7 +3185,6 @@ c     ****************************************
       logical  Dneall_m_allocate,Dneall_m_free
       external Dneall_m_allocate,Dneall_m_free
  
-      call Parallel_taskid(taskid)
 
       
       if (parallelized) then
