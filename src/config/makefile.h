@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.572 2008-08-27 23:09:25 d3p307 Exp $
+# $Id: makefile.h,v 1.573 2008-09-04 17:14:02 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -2022,12 +2022,14 @@ ifeq ($(TARGET),BGP)
    INSTALL = @echo $@ is built
 
    DEFINES +=  -DDCMF -DBGP
-   FOPTIONS = -qEXTNAME -qxlf77=leadzero -qthreaded
+   FOPTIONS = -qEXTNAME -qxlf77=leadzero -qthreaded -qnosave -qalign=4k
    FOPTIONS += -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
    FOPTIMIZE = -O5 -qarch=450 -qtune=450 -qfloat=rsqrt:fltint
    FDEBUG = -g -O2
    COPTIMIZE  = -g -O2
    LDOPTIONS =  -Wl,--relax
+
+   XLF11 = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
 
   EXPLICITF = TRUE
   CPP=/usr/bin/cpp  -P -C -traditional
