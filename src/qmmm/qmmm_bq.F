@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_bq.F,v 1.15 2005-12-29 03:06:59 marat Exp $
+c $Id: qmmm_bq.F,v 1.16 2008-09-05 18:35:06 marat Exp $
 c
 c
       subroutine qmmm_bq_energy_gen(rtdb,n,c,q,e)
@@ -138,7 +138,6 @@ c
       logical property
       external property
 c
-      write(*,*) "debug 1 "
       pname = "qmmm_bq_forces"
 c
       if(qmmm_master()) then
