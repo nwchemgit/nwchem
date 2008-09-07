@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.75 2008-08-20 18:14:40 jhammond Exp $
+#$Id: GNUmakefile,v 1.76 2008-09-07 20:58:09 jhammond Exp $
 #
 
 SUBDIRS = include diis2 diis3 \
@@ -65,31 +65,18 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_mo2e_2emet3.o tce_mo2e_2emet3_n5.o tce_mo2e_2emet4.o tce_mo2e_2emet4_n5.o \
       tce_make_denom1.o tce_make_denom2.o 
 
-#define SADAYSORT
-#endef
-
-ifdef SADAYSORT
-      OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
-else
+      #OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
       OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
-endif
-
-#define KAROLEOM
-#endef
 
 ifeq ($(NWCHEM_TARGET),LAPI64)
-  ifdef KAROLEOM
-    OBJ += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
-  else
+    #OBJ += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
     OBJ += tce_eom_xguess.o tce_eom_yguess.o
-  endif
 else
-  ifdef KAROLEOM
-    OBJ_OPTIMIZE += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
-  else
+    #OBJ_OPTIMIZE += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
     OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o
-  endif
 endif
+
+      #OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
 
 LIB_INCLUDES = -I./include
 
