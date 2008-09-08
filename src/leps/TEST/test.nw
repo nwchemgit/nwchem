@@ -9,18 +9,31 @@ title "       hexaachloroethene C2Cl6"
 start c2cl6
 
 geometry
-h  0.9326 0.0 0.0 
-h  0.0  0.0 0.0
-h  -0.9326 0.0 0.0
+h  0.93452655 0.0 0.0 
+h  0.0  0.0   0.0
+h  -0.93452655 0.0 0.0
 end
 
+scf
+  doublet
+  rohf
+  ADAPT off
+  SYM off
+end
 
 basis spherical
  * Library 6-31+G* 
 end
 
+mymd
+ temp 298.15
+ nsteps 20
+ timestep 0.5
+end
 
 #task leps energy 
 #task leps gradient
+#task scf saddle
+#task scf frequencies
+#task scf dynamicsi
 task leps dynamics
-

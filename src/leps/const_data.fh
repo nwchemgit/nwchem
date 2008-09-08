@@ -1,0 +1,8 @@
+      double precision  boltzmann,pii,twopi,sqrpi,JToHartree
+
+
+      parameter(boltzmann=  1.3806503d-23)
+      parameter(pii      =  3.141592653589793d0)
+      parameter(twopi    =  6.283185307179586d0)
+      parameter(sqrpi    =  1.772453850905516d0)
+      parameter(JToHartree = 2.2937128d+17)

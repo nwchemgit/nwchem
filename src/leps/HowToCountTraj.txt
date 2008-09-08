@@ -1,0 +1,17 @@
+The trajectories start from a point at the dividing surface,and are propagated forward and backward. 
+Each trajectory can be either:
+1. reactive (starts in the reactant region, ends in the product region)
+2. reverse  (starts in the product region, ends in the reactant region)
+3. non-reactive (starts and ends in the same region)
+
+To determine the forward and backward dirction from the dividing surface, we need to run an IRC trajectory 
+starting from the transition state, towards reactants and products. This is needed so that we can distingush between 
+reactive and reverse trajectories, and can be tracked by assigning 1 to IRC_FORWSIDE and -1 to IRC_BACKSIDE. 
+
+Then we start sampling the surface. We could count the number of recrossings, by looking at each step of the trajecoty, or we can just look at the end points. For debugging purposes it is better to look at each step. 
+
+The counting of the recrossing is in the subroutine crossing.f
+
+There should probably be another subroutine that tracks the state of the calculation, cause crossing.F only looks at the current trajectory.
+
+--- need to write the outline for that subroutine cause the one in HONDO is a bit confusing and dificult to follow.  

@@ -17,33 +17,43 @@ c
       integer md_data_get_i_c, md_data_get_i_m, md_data_get_i_q
       integer md_data_get_i_t, md_data_get_i_v, md_data_get_i_a
       integer md_data_get_i_b, md_data_get_i_d, md_data_get_i_f
-      integer md_data_get_natom
+      integer md_data_get_natom, md_data_get_nsteps
+      double precision md_data_get_timestep, md_data_get_temp 
       external md_data_get_i_c, md_data_get_i_m, md_data_get_i_q
       external md_data_get_i_t, md_data_get_i_v, md_data_get_i_a
       external md_data_get_i_b, md_data_get_i_d, md_data_get_i_f
-      external md_data_get_natom
+      external md_data_get_natom, md_data_get_nsteps
+      external md_data_get_timestep, md_data_get_temp
 
       logical grad
       external grad
       integer coor,mass,bq,tag,vel,acc,bterm,dterm,frc
       integer step, nsteps
-      double precision dt,ek 
+      double precision dt,ek,temp 
       character*64 theory,blanks
       character*32 thr
       data blanks(1:64) /' '/
+      logical restart
+      restart=.false.
       theory=blanks
-c      character*32 theorygrad 
       call concat(thr,':gradient',theory) 
-c      theory=thr//':gradient'
-c      write(*,*) 'theory: ',theory  
       dt = 0.5  ! time step
       ek=0.0 ! kinetic energy
       nsteps=200 
-c      double precision eleps, md_driver1
-       md_driver=.true.
-      open(unit=10,file='traj.xyz',status='new')
-      open(unit=11,file='restart.pun',status='new') 
 
+c      double precision eleps, md_driver1
+      md_driver=.true.
+c      set input parameters 
+      call md_data_inp_set(rtdb)
+      nsteps = md_data_get_nsteps()
+      dt = md_data_get_timestep()   
+      temp =md_data_get_temp()
+      write(*,*) 'input params', nsteps, dt, temp
+c
+      if (.not.restart) then
+       open(unit=10,file='traj.xyz',status='new')
+       open(unit=11,file='restart.pun',status='new') 
+      endif
 cc     create geometry object 
       if (.not. geom_create(geom, 'geometry'))
      & call errquit('leps_getgeom: failed creating geometry',
@@ -59,6 +69,7 @@ cc     allocate memory for coordinates
       call md_data_allocate(natom)
       write(*,*) 'Done with all the allocation'
 
+C     Get the handles for everything
       coor=md_data_get_i_c()
       mass=md_data_get_i_m()
       bq=md_data_get_i_q()
@@ -72,7 +83,7 @@ c
 cC-----Finished allocating memory for info we get from database
 c
 cC ----- Fill up the local copies with data from geometry object
-cC------- accessed by the geom handlei
+cC------- accessed by the geom handle
       call md_data_geom_copy(rtdb,geom) 
 
       write(*,*)  coor,mass,bq,tag,vel,acc,bterm,dterm,frc   
@@ -92,7 +103,12 @@ C --- end of initial conditions
      &     dbl_mb(acc),dbl_mb(frc))
 
       write(*,*) 'Starting MD'
-
+      if (restart) then
+      write(*,*) 'Restarting from punch file'
+             call read_punch (11,natom,nsteps,step,dt,dbl_mb(mass),
+     &            dbl_mb(coor),dbl_mb(vel),dbl_mb(acc),dbl_mb(bterm),
+     &            dbl_mb(dterm),byte_mb(tag))
+      endif
       do step=1,nsteps
        write(*,*) 'Predicting step :',step
 c       write(*,*)  coor,mass,bq,tag,vel,acc,bterm,dterm,frc
@@ -317,34 +333,37 @@ c      enddo
       end
       subroutine punch (rfile,n,nsteps,step,dt,mass,c,v,a,b,d,t)
       implicit none
-        integer     i,rfile,n,nsteps,step 
+        integer     rfile,n,nsteps,step 
         double precision mass(n),c(3,n), v(3,n), a(3,n), b(3,n), d(3,n)
         double precision dt
         character*16 t(n)  
-        write(rfile,*) 'natom, md steps, curr. step, time step:'
-        write(rfile,*)  n,nsteps,step,dt
-        write(rfile,*) 'mass' 
-        do i =1,n
-          write(rfile,*) t(i),mass(i)
-        enddo
-        write(rfile,*) 'coordinates'
-        call print_coord(rfile,n,c,t)
-        write(rfile,*) 'velocities'
-        call print_coord(rfile,n,v,t)
-        write(rfile,*) 'accelerations'
-        call print_coord(rfile,n,a,t)
-        write(rfile,*) 'b-term'
-        call print_coord(rfile,n,b,t)
-        write(rfile,*) 'd-terms'
-        call print_coord(rfile,n,d,t)
-        write(rfile,*) 'End of restart file'
+         write(rfile,*),n,nsteps,step,dt,mass,c,v,a,b,d,t
+c        write(rfile,*) 'natom, md steps, curr. step, time step:'
+c        write(rfile,*)  n,nsteps,step,dt
+c        write(rfile,*) 'mass' 
+c        do i =1,n
+c          write(rfile,*) t(i),mass(i)
+c        enddo
+c        write(rfile,*) 'coordinates'
+c        call print_coord(rfile,n,c,t)
+c        write(rfile,*) 'velocities'
+c        call print_coord(rfile,n,v,t)
+c        write(rfile,*) 'accelerations'
+c        call print_coord(rfile,n,a,t)
+c        write(rfile,*) 'b-term'
+c        call print_coord(rfile,n,b,t)
+c        write(rfile,*) 'd-terms'
+c        call print_coord(rfile,n,d,t)
+c        write(rfile,*) 'End of restart file'
       end
 
-c      subroutine read_punch (fname,n,nsteps,step,dt,mass,c,v,a,b,d,t)
-c        integer     i,rfile,n,nsteps,step
-c        double precision mass(n),c(3,n), v(3,n), a(3,n), b(3,n), d(3,n)
-c        double precision dt
-c        character*16 t(n)
-
-c        open(unit=12,file=fname,status=old)
-c      end 
+      subroutine read_punch(rfile,n,nsteps,step,dt,mass,c,v,a,b,d,t)
+      implicit none
+        integer     rfile,n,nsteps,step
+        double precision mass(n),c(3,n), v(3,n), a(3,n), b(3,n), d(3,n)
+        double precision dt
+        character*16 t(n)
+         open(unit=12,file='restart.pun',status='old')
+         read(12,*),n,nsteps,step,dt,mass,c,v,a,b,d,t
+      end
+        

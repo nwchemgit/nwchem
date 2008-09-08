@@ -15,6 +15,7 @@
       integer h_c,i_c,h_g,i_g 
       integer h_q,i_q
       integer h_t,i_t
+      double precision eleps
 c      integer h_g1,i_g1
 c      double precision gg(3,3),c(3,3),eleps
 c      double precision gradient(3,3) ! can do this because LEPS is only for triatomic collinier sys
@@ -23,19 +24,10 @@ c
       write(*,*) "doing leps_gradient"
 c      natom=3
 c      eleps=0.0
-c      call leps_energy(rtdb)
-c      c(1,1) =0.0
-c      c(2,1)= 0.0
-c      c(3,1)= 1.76235846
+      call leps_energy(rtdb)
 
-c      c(1,2) = 0.0
-c      c(2,2)= 0.0
-c      c(3,2)= 0.0
 
-c      c(1,3) = 0.0
-c      c(2,3)= 0.0
-c      c(3,3)= -1.76235846
-       call leps_energy(rtdb)
+c       call leps_energy(rtdb)
 c      call leps_energy1(natom,c,eleps)
 c      if (.not. rtdb_put(rtdb,'leps:energy',mt_dbl,1,eleps))
 c     & call errquit('leps_energy:  no energy ', 0,
@@ -90,6 +82,7 @@ C------- accessed by the geom handle
      & call errquit('leps_getgeom: coord error',0,GEOM_ERR)
 
 C ------ Calculate the gradient by giving the coordinates as input and 
+
       call leps_gradient1(natom,nelem,dbl_mb(i_c),dbl_mb(i_g))
       call leps_gradient0(natom,nelem,dbl_mb(i_g))
 c      call leps_gradient1(natom,nelem,c,gg)  
@@ -100,6 +93,19 @@ C-------- Store the gradient into the database
      &     dbl_mb(i_g)))
      & call errquit('leps_gradient:  no grad ', 0,
      & RTDB_ERR)
+
+      if(.not.ma_free_heap(h_c))
+     &     call errquit('memory deallocation:coord',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_q))
+     &     call errquit('memory deallocation:charge',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_g))
+     &     call errquit('memory deallocation:mass',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_t))
+     &     call errquit('memory deallocation:tags',0,RTDB_ERR)
+
+      if (.not. geom_destroy(geom))
+     & call errquit('leps_getgeom:  geom_destroy failed',
+     & 911,GEOM_ERR)
 
 c      if (.not. rtdb_put(rtdb,'leps:gradient',mt_dbl,nelem,
 c     &     gg))

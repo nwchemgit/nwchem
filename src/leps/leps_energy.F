@@ -18,53 +18,65 @@ c
       integer h_m,i_m
       integer h_q,i_q
       integer h_t,i_t
-      double precision eleps, leps_energy1
-
+      double precision eleps
       write(*,*) "doing leps energy"
       eleps=0.0 
 c     create geometry object 
       if (.not. geom_create(geom, 'geometry'))
      & call errquit('leps_getgeom: failed creating geometry',
      & 0,GEOM_ERR)
+C      write(*,*) "doing leps energy 1"
 C     load geometry into the object
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      & call errquit('leps_getgeom: no geometry',
      & 0,RTDB_ERR)
+C      write(*,*) "doing leps energy 2"
+
 C     get the number of centers 
       if (.not. geom_ncent(geom,natom))
      & call errquit('leps_getgeom: ncent error',
      & 0,GEOM_ERR)      
+c      write(*,*) "doing leps energy 3"
 c     print tgeometry
       if (.not. geom_print(geom))
      & call errquit('leps_getgeom: print error',
      & 0,GEOM_ERR)      
+C      write(*,*) "doing leps energy 4"
 c    
 c     allocate memory for coordinates
       if (.not. ma_alloc_get(mt_dbl, 3*natom, 'coordinate' ,
      & h_c,i_c))
      & call errquit('leps_getgeom: coordinate not allocated',
      & 3*natom,MA_ERR)
+c      write(*,*) "doing leps energy 5"
       if (.not. ma_alloc_get(mt_dbl, natom, 'charge', h_q,i_q))
      & call errquit('leps_getgeom: charge not allocated',
      & natom,MA_ERR)
+C      write(*,*) "doing leps energy 6"
       if (.not.ma_alloc_get(mt_dbl, natom, 'mass', h_m,i_m))
      & call errquit('leps_getgeom: mass not allocated',
      & natom,MA_ERR)
+C      write(*,*) "doing leps energy 7"
       if (.not.ma_alloc_get(mt_byte, 16*natom, 'tags', h_t,i_t))
      & call errquit('leps_getgeom: tags not allocated',
      & natom,MA_ERR)
+C      write(*,*) "doing leps energy 8"
 
 C-----Finished allocating memory for info we get from database
 
 C ----- Fill up the local copies with data from geometry object
 C------- accessed by the geom handle
+C      write(*,*) "doing leps energy 9"
       if (.not. geom_cart_get(geom, natom, byte_mb(i_t),
      & dbl_mb(i_c), dbl_mb(i_q)))
      & call errquit('leps_getgeom: coord error',0,GEOM_ERR)
+C      write(*,*) "doing leps energy 10"
       if (.not. geom_masses_get(geom, natom, dbl_mb(i_m)))
      & call errquit('leps_getgeom:  mass error',0,GEOM_ERR)
 C--- now compute the leps energy
-      eleps=leps_energy1(natom,dbl_mb(i_c),eleps)
+C      write(*,*) 'Before calling leps_energy 1:',eleps
+      call leps_energy1(natom,dbl_mb(i_c),eleps)
+C      write(*,*) 'After calling leps_energy 1:',eleps
 C--- end of leps energy computation
 
 C-----Print what you get out of the database
@@ -74,15 +86,18 @@ C-----Calculate the energy
      & call errquit('leps_energy:  no energy ', 0,
      & RTDB_ERR)
 
-C     GET RID OF MEMORY WITH MA_CHOP
-C     DEALLOCATE THE FIRST/LOWEST PART OF THE STACK
-C     THIS ACTION DEALLOCATES ALL ADDITIONAL
-C     MEMORY ADDED TO THE STACK AFTER LOWEST PART
+      if(.not.ma_free_heap(h_c))
+     &     call errquit('memory deallocation:coord',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_q))
+     &     call errquit('memory deallocation:charge',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_m))
+     &     call errquit('memory deallocation:mass',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_t))
+     &     call errquit('memory deallocation:tags',0,RTDB_ERR)
 
 
-C     DESTROY GEOM. OBJECT
 
-C      WRITE(6,*) 'GEOM before destory', geom
+
 
       if (.not. geom_destroy(geom))
      & call errquit('leps_getgeom:  geom_destroy failed',
@@ -135,7 +150,7 @@ c      double precision leps_energy_test
       eleps = 0.15 
 
       end
-      function leps_energy1(n,c0,eleps)
+      subroutine leps_energy1(n,c0,eleps)
 c      subroutine leps_energy1(n,c0,eleps)
 C THis function calculates the leps energy and returns teh value
 C n is the number of atoms, c is array holding the coordinates 
@@ -149,7 +164,7 @@ C n is the number of atoms, c is array holding the coordinates
 #include "global.fh"
 #include "geom.fh"
 
-      double precision leps_energy1
+c      double precision leps_energy1
       integer n
       double precision c(3,3),c0(3,3),eleps
       double precision r(3),vk(3),vj(3),vleps
@@ -165,9 +180,10 @@ C n is the number of atoms, c is array holding the coordinates
       data del    /0.135d+00,0.135d+00,0.135d+00/
 
       small = 0.0001
-      out1=.false.
+      out1=.true.
       coll=.false.
 c
+      write (*,*) 'entering leps_energy1'
       eleps = 0.0
       if (n.ne.3) then
          write(*,*) "Number of atoms is not 3. Leps only works with 3"
@@ -205,8 +221,9 @@ C if a=180 or 0 degrees, cosa== -1 or 1
 
       cosa=abs(cosa)
       coll=abs(1.0-cosa).lt.small
-        
+              
       if(out1) then
+         write(*,*) 'coll=',coll 
          write(*,*) 'de     = ',de
          write(*,*) 'alp    = ',alp
          write(*,*)  're     = ',re
@@ -237,7 +254,7 @@ c            call fiflsh(iw)
       else
          eleps=0.0
       endif
-      leps_energy1=eleps
+c      leps_energy1=eleps
 
       return
       END

@@ -268,4 +268,53 @@ c      if (.not. geom_destroy(geom))
 c     & call errquit('md_data:  geom_destroy failed',
 c     & 911,GEOM_ERR)
       end
-    
+   
+      subroutine md_data_inp_set(rtdb)
+#include "md_data.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+
+      integer rtdb
+      if (.not.rtdb_get(rtdb,"mymd:temp",mt_dbl,1,temp))
+     >      call errquit('failed to get temp',0,
+     >       RTDB_ERR)
+      if (.not.rtdb_get(rtdb,"mymd:timestep",mt_dbl,1,dt))
+     >      call errquit('failed to get timestep',0,
+     >       RTDB_ERR)
+      if (.not.rtdb_get(rtdb,"mymd:nsteps",mt_int,1,nsteps))
+     >      call errquit('failed to get nsteps',0,
+     >       RTDB_ERR)
+
+
+      end
+      
+      function md_data_get_timestep()
+      implicit none
+#include "md_data.fh"
+      double precision md_data_get_timestep
+
+      md_data_get_timestep = dt
+
+      end
+ 
+      function md_data_get_nsteps()
+      implicit none
+#include "md_data.fh"
+      integer md_data_get_nsteps
+
+      md_data_get_nsteps = nsteps
+
+      end
+
+      function md_data_get_temp()
+      implicit none
+#include "md_data.fh"
+      double precision md_data_get_temp
+
+      md_data_get_temp = temp
+
+      end
+
