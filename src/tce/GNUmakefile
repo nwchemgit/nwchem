@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.76 2008-09-07 20:58:09 jhammond Exp $
+#$Id: GNUmakefile,v 1.77 2008-09-09 16:42:46 jhammond Exp $
 #
 
 SUBDIRS = include diis2 diis3 \
@@ -69,11 +69,11 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
 
 ifeq ($(NWCHEM_TARGET),LAPI64)
-    #OBJ += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
-    OBJ += tce_eom_xguess.o tce_eom_yguess.o
+      #OBJ += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
+      OBJ += tce_eom_xguess.o tce_eom_yguess.o
 else
-    #OBJ_OPTIMIZE += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
-    OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o
+      #OBJ_OPTIMIZE += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
+      OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o
 endif
 
       #OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
