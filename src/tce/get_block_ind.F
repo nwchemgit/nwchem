@@ -1,7 +1,7 @@
       subroutine get_block_ind(d_file,array,size,key_ix,indexc)
 c      subroutine get_block_ind(d_file,array,size,offset,indexc)
 c
-c $Id: get_block_ind.F,v 1.5 2008-01-14 15:20:32 jhammond Exp $
+c $Id: get_block_ind.F,v 1.6 2008-09-10 02:25:36 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -27,6 +27,8 @@ cccx      integer offset
       integer g1b,g2b,g3b,g4b
       integer g1,g2,g3,g4
       integer size1,size2,size3,size4
+      integer ii1,ii2,ii3
+      integer size12,size124
       integer length
       integer offset_alpha,key_alpha
       logical used
@@ -246,25 +248,33 @@ c
      1           CALL ERRQUIT('get-block-ind1',2,MA_ERR)
          do i = 1, size
            dbl_mb(k_a+i-1) = 0.0d0
+c           array(i) = 0.0d0
+         enddo
+         do i = 1, size
+c           dbl_mb(k_a+i-1) = 0.0d0
            array(i) = 0.0d0
          enddo
          call ga_get(d_v2orb,offset_alpha+1,offset_alpha+size,1,1,
      1         dbl_mb(k_a),1)
 c
-         size3 = int_mb(k_range+g3b-1)
          size1 = int_mb(k_range+g1b-1)
-         size4 = int_mb(k_range+g4b-1)
          size2 = int_mb(k_range+g2b-1)
+         size3 = int_mb(k_range+g3b-1)
+         size4 = int_mb(k_range+g4b-1)
+         size12 = size1*size2
+         size124 = size1*size2*size4
 c
 c
 c --- ( g3 g1 | g4 g2 ) 
         if((.not.lp31p42).and.(.not.l31s).and.(.not.l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) + 
      1    dbl_mb(k_a+(((g2-1)*size4+g4-1)*size1+g1-1)*size3+g3-1)
          enddo
@@ -275,12 +285,14 @@ c --- ( g3 g1 | g4 g2 )
         end if
 c --- ( g3 g1 | g2 g4 )
         if((.not.lp31p42).and.(.not.l31s).and.(l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g4-1)*size2+g2-1)*size1+g1-1)*size3+g3-1)
          enddo
@@ -291,12 +303,14 @@ c --- ( g3 g1 | g2 g4 )
         end if
 c --- ( g1 g3 | g4 g2 )
         if((.not.lp31p42).and.(l31s).and.(.not.l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g2-1)*size4+g4-1)*size3+g3-1)*size1+g1-1)
          enddo
@@ -307,12 +321,14 @@ c --- ( g1 g3 | g4 g2 )
         end if
 c --- ( g1 g3 | g2 g4 )
         if((.not.lp31p42).and.(l31s).and.(l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g4-1)*size2+g2-1)*size3+g3-1)*size1+g1-1)
          enddo
@@ -323,12 +339,14 @@ c --- ( g1 g3 | g2 g4 )
         end if
 c --- ( g4 g2 | g3 g1 )
         if((lp31p42).and.(.not.l31s).and.(.not.l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g1-1)*size3+g3-1)*size2+g2-1)*size4+g4-1)
          enddo
@@ -339,12 +357,14 @@ c --- ( g4 g2 | g3 g1 )
         end if
 c --- ( g4 g2 | g1 g3 )
         if((lp31p42).and.(l31s).and.(.not.l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g3-1)*size1+g1-1)*size2+g2-1)*size4+g4-1)
          enddo
@@ -355,12 +375,14 @@ c --- ( g4 g2 | g1 g3 )
         end if
 c --- ( g2 g4 | g3 g1 )
         if((lp31p42).and.(.not.l31s).and.(l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g1-1)*size3+g3-1)*size4+g4-1)*size2+g2-1)
          enddo
@@ -371,12 +393,14 @@ c --- ( g2 g4 | g3 g1 )
         end if
 c --- ( g2 g4 | g1 g3 )
         if((lp31p42).and.(l31s).and.(l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g3-1)*size1+g1-1)*size4+g4-1)*size2+g2-1)
          enddo
@@ -456,20 +480,24 @@ c -------------
      1         dbl_mb(k_a),1)
 c
 c
-         size3 = int_mb(k_range+g3b-1)
          size1 = int_mb(k_range+g1b-1)
-         size4 = int_mb(k_range+g4b-1)
          size2 = int_mb(k_range+g2b-1)
+         size3 = int_mb(k_range+g3b-1)
+         size4 = int_mb(k_range+g4b-1)
+         size12 = size1*size2
+         size124 = size1*size2*size4
 c
 c
 c --- ( g3 g2 | g4 g1 )
         if((.not.lp32p41).and.(.not.l32s).and.(.not.l41s)) then  
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g1-1)*size4+g4-1)*size2+g2-1)*size3+g3-1)
          enddo
@@ -480,12 +508,14 @@ c --- ( g3 g2 | g4 g1 )
         end if
 c --- ( g3 g2 | g1 g4 )
         if((.not.lp32p41).and.(.not.l32s).and.(l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g4-1)*size1+g1-1)*size2+g2-1)*size3+g3-1)
          enddo
@@ -496,12 +526,14 @@ c --- ( g3 g2 | g1 g4 )
         end if
 c --- ( g2 g3 | g4 g1 )
         if((.not.lp32p41).and.(l32s).and.(.not.l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g1-1)*size4+g4-1)*size3+g3-1)*size2+g2-1)
          enddo
@@ -512,12 +544,14 @@ c --- ( g2 g3 | g4 g1 )
         end if
 c --- ( g2 g3 | g1 g4 )
         if((.not.lp32p41).and.(l32s).and.(l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g4-1)*size1+g1-1)*size3+g3-1)*size2+g2-1)
          enddo
@@ -528,12 +562,14 @@ c --- ( g2 g3 | g1 g4 )
         end if
 c --- ( g4 g1 | g3 g2 )
         if((lp32p41).and.(.not.l32s).and.(.not.l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g2-1)*size3+g3-1)*size1+g1-1)*size4+g4-1)
          enddo
@@ -544,12 +580,14 @@ c --- ( g4 g1 | g3 g2 )
         end if
 c --- ( g4 g1 | g2 g3 )
         if((lp32p41).and.(l32s).and.(.not.l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g3-1)*size2+g2-1)*size1+g1-1)*size4+g4-1)
          enddo
@@ -560,12 +598,14 @@ c --- ( g4 g1 | g2 g3 )
         end if
 c --- ( g1 g4 | g3 g2 )
         if((lp32p41).and.(.not.l32s).and.(l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g2-1)*size3+g3-1)*size4+g4-1)*size1+g1-1)
          enddo
@@ -576,12 +616,14 @@ c --- ( g1 g4 | g3 g2 )
         end if
 c --- ( g1 g4 | g2 g3 )
         if((lp32p41).and.(l32s).and.(l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g3-1)*size2+g2-1)*size4+g4-1)*size1+g1-1)
          enddo
@@ -628,7 +670,7 @@ c
      &                         w2b,w1b,w4b,w3b)
 c      subroutine get_block_ind(d_file,array,size,offset,indexc)
 c
-c $Id: get_block_ind.F,v 1.5 2008-01-14 15:20:32 jhammond Exp $
+c $Id: get_block_ind.F,v 1.6 2008-09-10 02:25:36 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -655,6 +697,8 @@ cccx      integer offset
       integer w1b,w2b,w3b,w4b
       integer g1,g2,g3,g4
       integer size1,size2,size3,size4
+      integer ii1,ii2,ii3
+      integer size12,size124
       integer length
       integer offset_alpha,key_alpha
       logical used
@@ -862,20 +906,24 @@ c       write(6,*)'from gbbi d_v2orb 1',d_v2orb
 c       call util_flush(6)
 c ***************
 c
-         size3 = int_mb(k_range+g3b-1)
          size1 = int_mb(k_range+g1b-1)
-         size4 = int_mb(k_range+g4b-1)
          size2 = int_mb(k_range+g2b-1)
+         size3 = int_mb(k_range+g3b-1)
+         size4 = int_mb(k_range+g4b-1)
+         size12 = size1*size2
+         size124 = size1*size2*size4
 c
 c
 c --- ( g3 g1 | g4 g2 ) 
         if((.not.lp31p42).and.(.not.l31s).and.(.not.l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) + 
      1    dbl_mb(k_a+(((g2-1)*size4+g4-1)*size1+g1-1)*size3+g3-1)
          enddo
@@ -886,12 +934,14 @@ c --- ( g3 g1 | g4 g2 )
         end if
 c --- ( g3 g1 | g2 g4 )
         if((.not.lp31p42).and.(.not.l31s).and.(l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g4-1)*size2+g2-1)*size1+g1-1)*size3+g3-1)
          enddo
@@ -902,12 +952,14 @@ c --- ( g3 g1 | g2 g4 )
         end if
 c --- ( g1 g3 | g4 g2 )
         if((.not.lp31p42).and.(l31s).and.(.not.l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g2-1)*size4+g4-1)*size3+g3-1)*size1+g1-1)
          enddo
@@ -918,12 +970,14 @@ c --- ( g1 g3 | g4 g2 )
         end if
 c --- ( g1 g3 | g2 g4 )
         if((.not.lp31p42).and.(l31s).and.(l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g4-1)*size2+g2-1)*size3+g3-1)*size1+g1-1)
          enddo
@@ -934,12 +988,14 @@ c --- ( g1 g3 | g2 g4 )
         end if
 c --- ( g4 g2 | g3 g1 )
         if((lp31p42).and.(.not.l31s).and.(.not.l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g1-1)*size3+g3-1)*size2+g2-1)*size4+g4-1)
          enddo
@@ -950,12 +1006,14 @@ c --- ( g4 g2 | g3 g1 )
         end if
 c --- ( g4 g2 | g1 g3 )
         if((lp31p42).and.(l31s).and.(.not.l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g3-1)*size1+g1-1)*size2+g2-1)*size4+g4-1)
          enddo
@@ -966,12 +1024,14 @@ c --- ( g4 g2 | g1 g3 )
         end if
 c --- ( g2 g4 | g3 g1 )
         if((lp31p42).and.(.not.l31s).and.(l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g1-1)*size3+g3-1)*size4+g4-1)*size2+g2-1)
          enddo
@@ -982,12 +1042,14 @@ c --- ( g2 g4 | g3 g1 )
         end if
 c --- ( g2 g4 | g1 g3 )
         if((lp31p42).and.(l31s).and.(l42s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) +
      1    dbl_mb(k_a+(((g3-1)*size1+g1-1)*size4+g4-1)*size2+g2-1)
          enddo
@@ -1139,20 +1201,24 @@ c       call util_flush(6)
 c ***************
 c
 c
-         size3 = int_mb(k_range+g3b-1)
          size1 = int_mb(k_range+g1b-1)
-         size4 = int_mb(k_range+g4b-1)
          size2 = int_mb(k_range+g2b-1)
+         size3 = int_mb(k_range+g3b-1)
+         size4 = int_mb(k_range+g4b-1)
+         size12 = size1*size2
+         size124 = size1*size2*size4
 c
 c
 c --- ( g3 g2 | g4 g1 )
         if((.not.lp32p41).and.(.not.l32s).and.(.not.l41s)) then  
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g1-1)*size4+g4-1)*size2+g2-1)*size3+g3-1)
          enddo
@@ -1163,12 +1229,14 @@ c --- ( g3 g2 | g4 g1 )
         end if
 c --- ( g3 g2 | g1 g4 )
         if((.not.lp32p41).and.(.not.l32s).and.(l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g4-1)*size1+g1-1)*size2+g2-1)*size3+g3-1)
          enddo
@@ -1179,12 +1247,14 @@ c --- ( g3 g2 | g1 g4 )
         end if
 c --- ( g2 g3 | g4 g1 )
         if((.not.lp32p41).and.(l32s).and.(.not.l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g1-1)*size4+g4-1)*size3+g3-1)*size2+g2-1)
          enddo
@@ -1195,12 +1265,14 @@ c --- ( g2 g3 | g4 g1 )
         end if
 c --- ( g2 g3 | g1 g4 )
         if((.not.lp32p41).and.(l32s).and.(l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g4-1)*size1+g1-1)*size3+g3-1)*size2+g2-1)
          enddo
@@ -1211,12 +1283,14 @@ c --- ( g2 g3 | g1 g4 )
         end if
 c --- ( g4 g1 | g3 g2 )
         if((lp32p41).and.(.not.l32s).and.(.not.l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g2-1)*size3+g3-1)*size1+g1-1)*size4+g4-1)
          enddo
@@ -1227,12 +1301,14 @@ c --- ( g4 g1 | g3 g2 )
         end if
 c --- ( g4 g1 | g2 g3 )
         if((lp32p41).and.(l32s).and.(.not.l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g3-1)*size2+g2-1)*size1+g1-1)*size4+g4-1)
          enddo
@@ -1243,12 +1319,14 @@ c --- ( g4 g1 | g2 g3 )
         end if
 c --- ( g1 g4 | g3 g2 )
         if((lp32p41).and.(.not.l32s).and.(l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g2-1)*size3+g3-1)*size4+g4-1)*size1+g1-1)
          enddo
@@ -1259,12 +1337,14 @@ c --- ( g1 g4 | g3 g2 )
         end if
 c --- ( g1 g4 | g2 g3 )
         if((lp32p41).and.(l32s).and.(l41s)) then
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
+         do g3 = 1,size3
+          ii1=(g3-1)*size124
+         do g4 = 1,size4
+          ii2=(g4-1)*size12
+         do g1 = 1,size1
+          ii3=(g1-1)*size2
+         do g2 = 1,size2
+          i=ii1+ii2+ii3+g2
           array(i) = array(i) -
      1    dbl_mb(k_a+(((g3-1)*size2+g2-1)*size4+g4-1)*size1+g1-1)
          enddo
