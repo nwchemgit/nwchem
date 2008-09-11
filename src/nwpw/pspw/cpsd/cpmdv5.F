@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.71 2008-06-22 16:43:52 bylaska Exp $
+* $Id: cpmdv5.F,v 1.72 2008-09-11 21:26:48 bylaska Exp $
 *
 
 ***********************************************************************
@@ -17,13 +17,13 @@
 
       logical function cpmdv5(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-#include "frac_occ.fh"
+#include "errquit.fh"
+cccc#include "frac_occ.fh"
       
       logical value
 
@@ -60,6 +60,7 @@ c      parameter (autoatm =290.360032539d6)
 *     complex*16 Hpsi(nfft3d,nemax)
 *     complex*16 psir(nfft3d,nemax)
       integer psi0(2),psi1(2),psi2(2)
+      integer occ0(2),occ1(2),occ2(2)
       integer dn(2)
       integer Hpsi(2),psir(2)
     
@@ -72,8 +73,10 @@ c      parameter (autoatm =290.360032539d6)
 *     real*8  lmd(2*nemax*nemax)
       integer eig(2),hml(2),lmd(2)
 
-
-
+*     **** psi smearing block ****
+      logical fractional
+      integer smearoccupation,smeartype
+      real*8 smearfermi(2),smearcorrection,smearkT
 
 *     **** error variables ****
       integer ierr
@@ -254,7 +257,12 @@ c      parameter (autoatm =290.360032539d6)
 
 
 *     ***** allocate psi2, psi1, and psi0 wavefunctions ****
-      call psi_get_ne(ispin,ne)
+      call psi_get_ne_occupation(ispin,ne,smearoccupation)
+      if (smearoccupation.gt.0) then
+         fractional = .true.
+      else
+         fractional = .false.
+      end if
       mapping1d = control_mapping1d()
       call Dne_init(ispin,ne,mapping1d)
       call Dneall_neq(neq)
@@ -269,12 +277,21 @@ c      parameter (autoatm =290.360032539d6)
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi0',psi0(2),psi0(1))
+      if (fractional) then
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ0',occ0(2),occ0(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ1',occ1(2),occ1(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ2',occ2(2),occ2(1))
+      end if
       if (.not.value) call errquit('out of heap memory',0, MA_ERR)
 
 
 
 *     *****  read psi2 wavefunctions ****
-      call psi_read(ispin,ne,dcpl_mb(psi2(1)))
+      call psi_read(ispin,ne,dcpl_mb(psi2(1)),
+     >              smearoccupation,dbl_mb(occ2(1)))
 
 
 *     **** move  wavefunction velocities ****
@@ -394,8 +411,8 @@ c      parameter (autoatm =290.360032539d6)
 *     **** initialize dplot ****
       call dplot_iteration_init()
 
-*     **** initialize frac_occ data structure ****
-      call frac_occ_init(rtdb,ispin,ne)
+c*     **** initialize frac_occ data structure ****
+c      call frac_occ_init(rtdb,ispin,ne)
 
 *     **** initialize SIC and HFX ****
       call pspw_init_SIC(rtdb,ne)
@@ -494,8 +511,8 @@ c      parameter (autoatm =290.360032539d6)
             do ms=1,ispin
             en(ms) =0.0
             do i=n1(ms),n2(ms)
-              icharge = icharge - (3-ispin)*dbl_mb(fweight(1)+i-1)
-              en(ms) = en(ms) + dbl_mb(fweight(1)+i-1)
+              icharge = icharge - (3-ispin)*dbl_mb(occ2(1)+i-1)
+              en(ms) = en(ms) + dbl_mb(occ2(1)+i-1)
             end do
             end do
          end if
@@ -726,7 +743,9 @@ c      parameter (autoatm =290.360032539d6)
      >             E,
      >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
      >             dcpl_mb(Hpsi(1)), dcpl_mb(psir(1)),
-     >             calc_pressure,pressure,p1,p2)
+     >             calc_pressure,pressure,p1,p2,
+     >             fractional,
+     >             dbl_mb(occ0(1)),dbl_mb(occ1(1)),dbl_mb(occ2(1)))
 
          eke = eke + E(3)
 
@@ -926,21 +945,21 @@ c      parameter (autoatm =290.360032539d6)
 *     ***** diagonalize the hamiltonian matrix *****
       else
 
-         if (fractional) then
-           call Dneall_m_HmltimesSA(0,dbl_mb(hml(1)),dbl_mb(fweight(1)))
-         end if
+c         if (fractional) then
+c           call Dneall_m_HmltimesSA(0,dbl_mb(hml(1)),dbl_mb(fweight(1)))
+c         end if
 
          call Dneall_m_diagonalize(0,dbl_mb(hml(1)),
      >                               dbl_mb(eig(1)),.false.)
 
 
-         if (fractional) then
-         do ii=1,ne(ms)
-           dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
-     >       =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
-     >       /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
-         end do
-         end if
+c         if (fractional) then
+c         do ii=1,ne(ms)
+c           dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
+c     >       =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
+c     >       /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
+c         end do
+c         end if
 
 
 *        *** rotate current psi ***
@@ -1078,15 +1097,15 @@ c         end if
            do i=1,NN
              write(6,1511) dbl_mb(EIG(1)+i-1),
      >                     dbl_mb(EIG(1)+i-1)*EV,
-     >                     dbl_mb(fweight(1)+i-1)
+     >                     dbl_mb(occ2(1)+i-1)
            end do
            do i=1,ne(2)
              write(6,1511) dbl_mb(EIG(1)+i-1+NN),
      >                     dbl_mb(EIG(1)+i-1+NN)*EV,
-     >                     dbl_mb(fweight(1)+i-1+NN),
+     >                     dbl_mb(occ2(1)+i-1+NN),
      >                     dbl_mb(EIG(1)+i-1+n1(2)-1),
      >                     dbl_mb(EIG(1)+i-1+n1(2)-1)*EV,
-     >                     dbl_mb(fweight(1)+i-1+n1(2)-1)
+     >                     dbl_mb(occ2(1)+i-1+n1(2)-1)
            end do
          else
            do i=1,NN
@@ -1141,7 +1160,7 @@ c         end if
       call pspw_end_HFX()
       call pspw_qmmm_end()
       call dplot_iteration_end()
-      call frac_occ_end()
+c      call frac_occ_end()
       if (control_Nose()) call Nose_end()
 
       value = MA_free_heap(psir(2))
@@ -1153,6 +1172,11 @@ c         end if
       value = MA_free_heap(psi0(2))
       value = MA_free_heap(psi1(2))
       value = MA_free_heap(psi2(2))
+      if (fractional) then
+      value = MA_free_heap(occ0(2))
+      value = MA_free_heap(occ1(2))
+      value = MA_free_heap(occ2(2))
+      end if
       call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)

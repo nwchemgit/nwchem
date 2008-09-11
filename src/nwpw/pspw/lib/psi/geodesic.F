@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.28 2007-02-10 03:40:18 bylaska Exp $
+* $Id: geodesic.F,v 1.29 2008-09-11 21:26:50 bylaska Exp $
 *
 
 *     ***********************************
@@ -384,12 +384,12 @@ c         end if
 
       subroutine geodesic_transport(t,Yold,Ynew)
       implicit none
-#include "errquit.fh"
       real*8     t
       complex*16 Yold(*)
       complex*16 Ynew(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** geodesic common block ***
       integer U(2)

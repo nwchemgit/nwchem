@@ -1,6 +1,6 @@
 
 *
-* $Id: inner_loop.F,v 1.29 2008-06-06 17:06:45 d3p708 Exp $
+* $Id: inner_loop.F,v 1.30 2008-09-11 21:26:48 bylaska Exp $
 *
 
 *  ************************************************************
@@ -22,7 +22,8 @@
      >                      psi1,psi2,dn,
      >                      it_in,E,deltae,deltac,deltar,
      >                      hml,lmd,
-     >                      psi_r,Hpsi)
+     >                      psi_r,Hpsi,
+     >                      fractional,occ1,occ2)
       implicit none
       integer    ispin,ne(2)
       integer    npack1,nfft3d,nemax
@@ -38,11 +39,13 @@
       real*8     psi_r(2*nfft3d,nemax)
       complex*16 Hpsi(npack1,nemax)
 
+      logical fractional
+      real*8 occ1(*),occ2(*)
+
 
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "frac_occ.fh"
-
+cccccccc#include "frac_occ.fh"
 
 *     **** local variables ****
       logical move,sic,hfx
@@ -235,7 +238,7 @@ c        end do
                 do i=1,n2ft3d
                    dn(i,ms) = dn(i,ms) 
      >                      + scal2*(psi_r(i,n)**2)
-     >                       *dbl_mb(fweight(1)+n-1)
+     >                       *occ1(n)
                 end do
              end do
              call D3dB_r_Zero_Ends(1,dn(1,ms))
@@ -371,14 +374,14 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >             dcpl_mb(vl(1)),
      >             dbl_mb(v_field(1)),field_exist,
      >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
-     >             move,dbl_mb(fion(1)))
+     >             move,dbl_mb(fion(1)),fractional,occ1)
 
         if (control_version().eq.4) 
      >     call psi_Hv4(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
      >             dbl_mb(v_field(1)),field_exist,
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
-     >             move,dbl_mb(fion(1)))
+     >             move,dbl_mb(fion(1)),fractional,occ1)
 
         
 *       ************************************
@@ -422,7 +425,7 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       *****************************************        
         if (fractional) then
         call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
-     >                  dte,dbl_mb(fweight(1)),
+     >                  dte,occ1,
      >                  lmd,dbl_mb(tmp_L(1)),ierr)
         else if (sic.or.hfx) then
         call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte,
@@ -445,9 +448,9 @@ c        call mask_C(0,dcpl_mb(dng(1)))
       call Dneall_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
       call Dneall_m_scal(0,(-1.0d0),hml)
       if (fractional) then
-         call Dneall_m_diag_scal(0,dbl_mb(fweight(1)),hml)
+         !call Dneall_m_diag_scal(0,dbl_mb(fweight(1)),hml)
          eorbit = Dneall_m_trace(0,hml)
-         call Dneall_m_diag_scal_inv(0,dbl_mb(fweight(1)),hml)
+         !call Dneall_m_diag_scal_inv(0,dbl_mb(fweight(1)),hml)
       else
          eorbit = Dneall_m_trace(0,hml)
       end if
@@ -488,7 +491,7 @@ c        call mask_C(0,dcpl_mb(dng(1)))
         
   
 *     ***** average Kohn-Sham kinetic energy ****
-      call ke_ave(ispin,ne,psi1,eke)
+      call ke_ave(ispin,ne,psi1,eke,fractional,occ1)
 
 
 *     **** average Kohn-Sham v_local energy ****
@@ -511,12 +514,12 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *     ***** average Kohn-Sham v_nonlocal energy ****
       call dcopy(2*npack1*nemax,0.0d0,0,Hpsi,1)
       call v_nonlocal(ispin,ne,psi1,Hpsi,
-     >                move,dbl_mb(ftest(1)))
+     >                move,dbl_mb(ftest(1)),fractional,occ1)
       enlocal = 0.0d0
       do ms=1,ispin
       do n=n1(ms),n2(ms)
          call Pack_cc_idot(1,psi1(1,n),Hpsi(1,n),sum)
-         if (fractional) sum=sum*dbl_mb(fweight(1)+n-1)
+         if (fractional) sum=sum*occ1(n)
          enlocal = enlocal - sum
       end do
       end do

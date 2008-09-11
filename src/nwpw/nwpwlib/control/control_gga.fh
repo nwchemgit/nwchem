@@ -1,5 +1,5 @@
 *
-* $Id: control_gga.fh,v 1.1 2005-12-22 01:35:04 bylaska Exp $
+* $Id: control_gga.fh,v 1.2 2008-09-11 21:27:55 bylaska Exp $
 *
 
 
@@ -22,7 +22,8 @@
 *   gga = 110  pbe0
 *   gga = 111  b3lyp
 *   gga = 112  revpbe0
-*   gga = 113-199 (reserved for hybrids)
+*   gga = 113  bnl
+*   gga = 114-199 (reserved for hybrids)
 *   gga = 200 hartree-fock
 *
 *
@@ -79,6 +80,12 @@
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
         value = value.and.
      >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+
+      else if (inp_compare(.false.,exchange_correlation,'bnl')) then
+        gga = 113
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.00d0)
 
 
 *     **** SIC hybrids ****

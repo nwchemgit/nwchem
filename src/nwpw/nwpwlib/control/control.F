@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.121 2008-09-03 17:07:36 bylaska Exp $
+* $Id: control.F,v 1.122 2008-09-11 21:26:47 bylaska Exp $
 *
 
 *     ***********************************
@@ -324,7 +324,7 @@ c
      >   ks_alpha = 0.25d0
       if (.not.rtdb_get(rtdb,'nwpw:scf_algorithm',
      >                  mt_int,1,scf_algorithm))
-     >   scf_algorithm = 0
+     >   scf_algorithm = 3
 
       if (.not.rtdb_get(rtdb,'nwpw:ks_algorithm',
      >                  mt_int,1,ks_algorithm))
@@ -336,7 +336,7 @@ c
      >  maxit_orb = 5
       if (.not.rtdb_get(rtdb,
      >      'nwpw:ks_maxit_orbs',mt_int,1,maxit_orbs))
-     >  maxit_orbs = 0
+     >  maxit_orbs = 1
 
 
       if (.not.rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp))
@@ -888,7 +888,7 @@ cccc set to some reasonable default !
 *     ****  reset mapping if slab and it doesnot fit ****
       if (mapping.eq.1) then
          if ((ngrid(2).ne.ngrid(3)).or.
-     >       (ngrid(3).gt.np_dimensions(1))) then
+     >       (ngrid(3).lt.np_dimensions(1))) then
             mapping = 2
          end if
       end if

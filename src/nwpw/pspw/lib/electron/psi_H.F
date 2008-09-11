@@ -1,5 +1,5 @@
 *
-* $Id: psi_H.F,v 1.19 2007-03-29 00:51:33 bylaska Exp $
+* $Id: psi_H.F,v 1.20 2008-09-11 21:26:49 bylaska Exp $
 *
 
 *     *************************************
@@ -29,7 +29,8 @@
      >                 vl,
      >                 v_field,field_exist,
      >                 vc,xcp,Hpsi_k,
-     >                 move,fion)
+     >                 move,fion,
+     >                 fractional,occ)
       implicit none
       integer    ispin,ne(2)
       complex*16 psi_k(*)
@@ -42,6 +43,8 @@
       complex*16 Hpsi_k(*)
       logical    move
       real*8     fion(3,*)
+      logical fractional
+      real*8 occ(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -109,7 +112,7 @@ c     complex*16 vpsi(nfft3d)
 *     *********************************************************
 *     **** add non-local psp - Hpsi_k = Hpsi_k + Vnl*psi_k ****
 *     *********************************************************
-      call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
+      call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion,fractional,occ)
 
 
 *     *******************************************************
@@ -301,7 +304,7 @@ c     complex*16 vpsi(nfft3d)
 *     **** add non-local psp - Horb_k = Horb_k + Vnl*orb_k ****
 *     *********************************************************
       call v_nonlocal(ispin,nne,orb_k,Horb_k,
-     >                .false.,fion)
+     >                .false.,fion,.false.,fion)
 
 *     ***************************
 *     **** SIC corrections?? ****

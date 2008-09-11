@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.98 2008-08-08 00:43:01 bylaska Exp $
+* $Id: cgsdv5.F,v 1.99 2008-09-11 21:26:48 bylaska Exp $
 *
 
 ***********************************************************************
@@ -22,10 +22,10 @@
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
-#include "frac_occ.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 
+cccc#include "frac_occ.fh"
 
 #include "nwpw_timing.fh"
       
@@ -119,8 +119,8 @@
       external cgsd_energy,cgsd_noit_energy
       logical  control_Mulliken,control_DOS
       external control_Mulliken,control_DOS
-      real*8   ion_TotalCharge
-      external ion_TotalCharge
+      real*8   ion_TotalCharge,psi_occupation
+      external ion_TotalCharge,psi_occupation
       logical   control_check_charge_multiplicity
       external  control_check_charge_multiplicity
       logical   pspw_charge_found,ion_q_FixIon
@@ -137,6 +137,14 @@
       external control_mapping,control_mapping1d,control_np_orbital
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
+      logical  control_fractional
+      external control_fractional
+      integer  control_fractional_smeartype
+      external control_fractional_smeartype
+      real*8   control_fractional_kT,control_fractional_temperature
+      external control_fractional_kT,control_fractional_temperature
+
+
 
       logical pspw_bqext
       external pspw_bqext
@@ -346,7 +354,7 @@ c     value = psi_initialize()
             write(luout,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
-         if (fractional) write(luout,1132)
+         if (control_fractional()) write(luout,1132)
          call pspw_print_SIC(luout)
          call pspw_print_HFX(luout)
          write(luout,1140)
@@ -370,14 +378,14 @@ c     value = psi_initialize()
          icharge = -(psi_ne(1)+psi_ne(psi_ispin()))
          en(1)     = psi_ne(1)
          en(psi_ispin()) = psi_ne(psi_ispin())
-         if (fractional) then
+         if (control_fractional()) then
             icharge = 0
             do ms=1,psi_ispin()
             en(ms) =0.0d0
             do i=1,ne(ms)
-              k = fweight(1)+(i-1)+(ms-1)*ne(1)
-              icharge = icharge - (3-psi_ispin())*dbl_mb(k)
-              en(ms) = en(ms) + dbl_mb(k)
+              !!!!k = fweight(1)+(i-1)+(ms-1)*ne(1)
+              icharge = icharge - (3-psi_ispin())*psi_occupation(ms,i)
+              en(ms) = en(ms) + psi_occupation(ms,i)
             end do
             end do
          end if
@@ -404,7 +412,7 @@ c     value = psi_initialize()
          end if
 
          !write(luout,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
-         if (fractional) then
+         if (control_fractional()) then
           write(luout,1219) en(1),en(psi_ispin()),' (   fractional)'
           write(luout,1221) psi_ne(1),psi_neq(1),
      >                  psi_ne(psi_ispin()),psi_neq(psi_ispin()),
@@ -473,6 +481,17 @@ c     value = psi_initialize()
            if (minimizer.eq.8) write(luout,1296) "density"
            write(luout,1294) control_ks_alpha()
          end if
+        if (control_fractional()) then
+           write(6,1297)
+           if (control_fractional_smeartype().eq.0)
+     >       write(6,1298) "step function"
+           if (control_fractional_smeartype().eq.1)
+     >       write(6,1298) "Fermi-Dirac"
+           if (control_fractional_smeartype().eq.2)
+     >       write(6,1298) "Gaussian"
+           write(6,1299) control_fractional_kT(),
+     >                   control_fractional_temperature()
+         end if
          write(luout,1300)
 c         call ion_Print_neighborlist()
          call util_flush(luout)
@@ -495,6 +514,7 @@ c     end if
       end if
 
 *     **** calculate excited state orbitals ****
+      call ga_sync()
       call cgsd_excited()
 
 *     **** calculate oep eigenvalues ****
@@ -743,6 +763,9 @@ c     end if
  1295 FORMAT(5X, ' Kohn-Sham iterations = ',I3,
      >           ' (',I3,' outer)')
  1296 FORMAT(5X, ' SCF mixing type      = ',A)
+ 1297 FORMAT(/' fractional smearing parameters:')
+ 1298 FORMAT(5X, ' smearing algorithm   = ',A)
+ 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)')
  1300 FORMAT(//)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)

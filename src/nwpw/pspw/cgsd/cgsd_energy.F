@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.77 2008-06-06 16:54:05 d3p708 Exp $                       
+c     $Id: cgsd_energy.F,v 1.78 2008-09-11 21:26:47 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -12,7 +12,7 @@ c     $Id: cgsd_energy.F,v 1.77 2008-06-06 16:54:05 d3p708 Exp $
 #include "stdio.fh"
 #include "util.fh"
 #include "mafdecls.fh"
-#include "frac_occ.fh"
+cccccccccc   #include "frac_occ.fh"
 
 
 c#include "global.fh"
@@ -22,7 +22,7 @@ c#include "rtdb.fh"
       integer MASTER
       parameter (MASTER=0)
 
-      logical stalled,value,oprint,psitmp
+      logical stalled,value,oprint,psitmp,failed
       integer taskid
       integer minimizer
       integer i,j,ms,neall,NN
@@ -38,22 +38,24 @@ c#include "rtdb.fh"
 *     **** external functions ****
       logical     psp_semicore,pspw_charge_found,pspw_qmmm_found
       logical     control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
-      logical     control_print,control_psi_tmp
+      logical     control_print,control_psi_tmp,control_fractional
       character*4 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       integer     psi_iptr_hml
-      real*8      control_tole,control_tolc
+      real*8      control_tole,control_tolc,psi_occupation
       real*8      ion_rion,psi_eigenvalue,psi_hml,ion_amass
+      real*8      psi_smearfermi
       external psp_semicore,pspw_charge_found,pspw_qmmm_found
       external control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
       external ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       external psi_iptr_hml
-      external control_print,control_psi_tmp
-      external control_tole,control_tolc
+      external control_print,control_psi_tmp,control_fractional
+      external control_tole,control_tolc,psi_occupation
       external ion_rion,psi_eigenvalue,psi_hml,ion_amass
+      external psi_smearfermi
       character*4 psi_ab_irrep_name
       external    psi_ab_irrep_name
       integer     control_symmetry
@@ -139,18 +141,47 @@ c#include "rtdb.fh"
          else if (minimizer.eq.4) then
            bfgscount = bfgscount + 1
            call cgminimize2(E,deltae,deltac,bfgscount)
+
          else if (minimizer.eq.5) then
            bfgscount = bfgscount + 1
-           call bybminimize(E,deltae,deltac,bfgscount,.false.,1)
+           call bybminimize(E,deltae,deltac,bfgscount,.false.,1,failed)
+
+c          **** reset minimizer if failed ****
+           if (failed) then
+              minimizer = 1
+              it_out    = control_it_out()
+              call pspw_Grsm_list_end()
+              if (oprint) then
+                 write(luout,1314)
+                 write(luout,*)
+                 write(luout,1305)
+                 call nwpw_message(2)
+              end if
+           end if
+
          else if (minimizer.eq.6) then
            bfgscount = bfgscount + 1
            call bfgsminimize3(E,deltae,deltac,bfgscount,minimizer)
          else if (minimizer.eq.7) then
            bfgscount = bfgscount + 1
            call bfgsminimize2(E,deltae,deltac,bfgscount,minimizer)
+
          else if (minimizer.eq.8) then
            bfgscount = bfgscount + 1
-           call bybminimize2(E,deltae,deltac,bfgscount,.false.,1)
+           call bybminimize2(E,deltae,deltac,bfgscount,.false.,1,failed)
+
+c          **** reset minimizer if failed ****
+           if (failed) then
+              minimizer = 1
+              it_out    = control_it_out()
+              call pspw_Grsm_list_end()
+              if (oprint) then
+                 write(luout,1314)
+                 write(luout,*)
+                 write(luout,1305)
+                 call nwpw_message(2)
+              end if
+           end if
          end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
@@ -216,7 +247,7 @@ c#include "rtdb.fh"
 
       if (pspw_SIC()) then
          call psi_1gen_hml_g()
-      else if (.not.fractional) then
+      else if (.not.control_fractional()) then
          call psi_1rotate2()
          call psi_2to1()
       end if
@@ -331,26 +362,34 @@ c            end do
          end if
 
 *        **** write out KS eigenvalues ****
-           write(luout,1500)
            NN=psi_ne(1)-psi_ne(2)
            EV=27.2116
+           if (control_fractional()) then
+             if (psi_ispin().eq.1) then
+               write(luout,1507) psi_smearfermi(1),psi_smearfermi(1)*EV
+             else
+             write(luout,1507) psi_smearfermi(1),psi_smearfermi(1)*EV,
+     >                         psi_smearfermi(2),psi_smearfermi(2)*EV
+             end if
+           end if
+           write(luout,1500)
            if (control_symmetry().gt.0) then
-             if (fractional) then
+             if (control_fractional()) then
              do I=1,NN
                write(luout,1513) psi_eigenvalue(1,I),
      >                           psi_eigenvalue(1,I)*EV,
      >                           psi_ab_irrep_name(I),
-     >                           dbl_mb(fweight(1)+i-1)
+     >                           psi_occupation(1,I)
              end do
              do I=1,psi_ne(2)
                write(luout,1513)  psi_eigenvalue(1,I+NN),
      >                            psi_eigenvalue(1,I+NN)*EV,
      >                            psi_ab_irrep_name(I),
-     >                            dbl_mb(fweight(1)+i-1+NN),
+     >                            psi_occupation(1,I+NN),
      >                            psi_eigenvalue(2,I),
      >                            psi_eigenvalue(2,I)*EV,
      >                            psi_ab_irrep_name(I+psi_ne(1)),
-     >                            dbl_mb(fweight(1)+i-1+psi_ne(1))
+     >                            psi_occupation(2,I)
              end do
              else
              do I=1,NN
@@ -369,19 +408,19 @@ c            end do
              end if
 
            else
-             if (fractional) then
+             if (control_fractional()) then
              do I=1,NN
                write(luout,1511) psi_eigenvalue(1,I),
      >                           psi_eigenvalue(1,I)*EV,
-     >                           dbl_mb(fweight(1)+i-1)
+     >                           psi_occupation(1,I)
              end do
              do I=1,psi_ne(2)
                write(luout,1511)  psi_eigenvalue(1,I+NN),
      >                            psi_eigenvalue(1,I+NN)*EV,
-     >                            dbl_mb(fweight(1)+i-1+NN),
+     >                            psi_occupation(1,I+NN),
      >                            psi_eigenvalue(2,I),
      >                            psi_eigenvalue(2,I)*EV,
-     >                            dbl_mb(fweight(1)+i-1+psi_ne(1))
+     >                            psi_occupation(2,I)
              end do
              else
              do I=1,NN
@@ -444,6 +483,7 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1311 FORMAT(10X,'======= Projected Grassmann lmbfgs iteration =======')
  1312 FORMAT(10X,'============= Stiefel lmbfgs iteration =============')
  1313 FORMAT(10X,'======== Kohn-Sham scf iteration (density) =========')
+ 1314 FORMAT(10X,'======== Kohn-Sham scf iteration failed    =========')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted)')
@@ -484,6 +524,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1502 FORMAT( ' K.S. HFX energy     :',E19.10,
      >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
+ 1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))
  1512 FORMAT(2(E18.7,' (',F8.3,'eV)',A4))

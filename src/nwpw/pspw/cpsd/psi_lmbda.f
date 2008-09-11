@@ -1,5 +1,5 @@
 *
-* $Id: psi_lmbda.f,v 1.9 2007-02-10 03:40:18 bylaska Exp $
+* $Id: psi_lmbda.f,v 1.10 2008-09-11 21:26:49 bylaska Exp $
 *
 
 *     ********************************************
@@ -26,7 +26,7 @@
       parameter (MASTER=0)
 
 *     **** local variables ****
-      integer taskid,i
+      integer taskid
       integer n1(2)
       integer ms,it
       integer nn

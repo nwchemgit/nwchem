@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.34 2008-06-02 15:20:05 bylaska Exp $
+* $Id: psp.F,v 1.35 2008-09-11 21:26:51 bylaska Exp $
 *
 
 
@@ -880,18 +880,20 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
 *  Note - This routine was restructured 5-13-2002 to improve
 *         parallel efficiency.
 *
-      subroutine v_nonlocal(ispin,ne,psi1,psi2,move,fion)
+      subroutine v_nonlocal(ispin,ne,psi1,psi2,move,fion,fractional,occ)
       implicit none
       integer    ispin,ne(2)
       complex*16 psi1(*)
       complex*16 psi2(*)
       logical move
       real*8 fion(3,*)
+      logical fractional
+      real*8 occ(*)
 
 #include "mafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
-#include "frac_occ.fh"
+ccccccc#include "frac_occ.fh"
 
 
 *     *** local variables ***
@@ -1080,12 +1082,9 @@ c     >              psi2,                    (2*npack1))
              if (fractional) then
               do n=1,nn
                call Dneall_qton(n,i)
-               dbl_mb(sum(1)+3*(n-1))=dbl_mb(sum(1)+3*(n-1))
-     >                               *dbl_mb(fweight(1)+i-1)
-               dbl_mb(sum(1)+1+3*(n-1))=dbl_mb(sum(1)+1+3*(n-1))
-     >                                 *dbl_mb(fweight(1)+i-1)
-               dbl_mb(sum(1)+2+3*(n-1))=dbl_mb(sum(1)+2+3*(n-1))
-     >                                 *dbl_mb(fweight(1)+i-1)
+               dbl_mb(sum(1)+3*(n-1))=dbl_mb(sum(1)+3*(n-1))*occ(i)
+               dbl_mb(sum(1)+1+3*(n-1))=dbl_mb(sum(1)+1+3*(n-1))*occ(i)
+               dbl_mb(sum(1)+2+3*(n-1))=dbl_mb(sum(1)+2+3*(n-1))*occ(i)
               end do
              end if
   
@@ -1172,16 +1171,18 @@ c     >              psi2,                    (2*npack1))
 *     *					*
 *     ***********************************
 
-      subroutine f_vnonlocal(ispin,ne,psi1,fion)
+      subroutine f_vnonlocal(ispin,ne,psi1,fion,fractional,occ)
       implicit none
       integer    ispin,ne(2)
       complex*16 psi1(*)
       real*8 fion(3,*)
+      logical fractional
+      real*8 occ(*)
 
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "psp.fh"
-#include "frac_occ.fh"
+cccccccccccc#include "frac_occ.fh"
 
 *     *** local variables ***
       integer G(3),npack1,shift,Gijl_indx
@@ -1364,12 +1365,9 @@ c     **** define Gx,Gy and Gz in packed space ****
           if (fractional) then
            do n=1,nn
             call Dneall_qton(n,i)
-            dbl_mb(sum(1)+3*(n-1))=dbl_mb(sum(1)+3*(n-1))
-     >                            *dbl_mb(fweight(1)+i-1)
-            dbl_mb(sum(1)+1+3*(n-1))=dbl_mb(sum(1)+1+3*(n-1))
-     >                              *dbl_mb(fweight(1)+i-1)
-            dbl_mb(sum(1)+2+3*(n-1))=dbl_mb(sum(1)+2+3*(n-1))
-     >                              *dbl_mb(fweight(1)+i-1)
+            dbl_mb(sum(1)+3*(n-1))  =dbl_mb(sum(1)  +3*(n-1))*occ(i)
+            dbl_mb(sum(1)+1+3*(n-1))=dbl_mb(sum(1)+1+3*(n-1))*occ(i)
+            dbl_mb(sum(1)+2+3*(n-1))=dbl_mb(sum(1)+2+3*(n-1))*occ(i)
            end do
           end if
   

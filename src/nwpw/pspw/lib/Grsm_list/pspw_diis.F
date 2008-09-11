@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_diis.F,v 1.2 2006-10-07 00:10:06 bylaska Exp $                       
+*     $Id: pspw_diis.F,v 1.3 2008-09-11 21:26:49 bylaska Exp $                       
 *
 
       subroutine pspw_diis_init(max_m0,g)
@@ -13,12 +13,12 @@
       integer i
 
 *     **** external functions ****
-      integer  psi_ne
-      external psi_ne
+      integer  psi_neq
+      external psi_neq
 
       max_m = max_m0
       call Pack_npack(1,npack1)
-      neall = psi_ne(1)+psi_ne(2)
+      neall = psi_neq(1)+psi_neq(2)
       nsize = neall*npack1
       call pspw_Grsm_list_init('pspwdiis',2*max_m,2*nsize)
 

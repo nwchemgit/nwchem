@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.31 2008-06-06 17:06:45 d3p708 Exp $
+* $Id: inner_loop_md.F,v 1.32 2008-09-11 21:26:49 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -22,7 +22,8 @@
      >                      it_in,it_sum,E,
      >                      hml,lmd,
      >                      Hpsi,psi_r,
-     >                      calc_pressure,pressure,p1,p2)
+     >                      calc_pressure,pressure,p1,p2,
+     >                      fractional,occ0,occ1,occ2)
       implicit none
       logical    verlet
       real*8     sa_alpha(2)
@@ -43,10 +44,12 @@
       logical calc_pressure
       real*8  pressure,p1,p2,stress(3,3)
 
+      logical fractional
+      real*8 occ0(*),occ1(*),occ2(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "frac_occ.fh"
+ccccccc#include "frac_occ.fh"
 
 
 *     **** local variables ****
@@ -264,7 +267,7 @@ c        end do
                 do i=1,n2ft3d
                    dn(i,ms) = dn(i,ms)
      >                      + scal2*(psi_r(i,n)**2)
-     >                       *dbl_mb(fweight(1)+n-1)
+     >                       *occ1(n)
                 end do
              end do
              call D3dB_r_Zero_Ends(1,dn(1,ms))
@@ -496,7 +499,7 @@ c        end if
         if (nose.and.verlet) dte0 = dte*sse
         if (fractional) then
         call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
-     >                  dte0,dbl_mb(fweight(1)),
+     >                  dte0,occ1,
      >                  lmd,dbl_mb(tmp_L(1)),ierr)
         else if (sic) then
         call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte0,
@@ -570,9 +573,9 @@ c        end if
       call Dneall_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
       call Dneall_m_scal(0,(-1.0d0),hml)
       if (fractional) then
-         call Dneall_m_diag_scal(0,dbl_mb(fweight(1)),hml)
+         call Dneall_m_diag_scal(0,occ1,hml)
          eorbit = Dneall_m_trace(0,hml)
-         call Dneall_m_diag_scal_inv(0,dbl_mb(fweight(1)),hml)
+         call Dneall_m_diag_scal_inv(0,occ1,hml)
       else
          eorbit = Dneall_m_trace(0,hml)
       end if
@@ -706,12 +709,12 @@ c        end if
 *        ***** average Kohn-Sham v_nonlocal energy ****
         call dcopy(2*npack1*nemax,0.0d0,0,Hpsi,1)
         call v_nonlocal(ispin,ne,psi1,Hpsi,
-     >                move,dbl_mb(ftest(1)))
+     >                move,dbl_mb(ftest(1)),fractional,occ1)
         enlocal = 0.0d0
         do ms=1,ispin
         do n=n1(ms),n2(ms)
          call Pack_cc_idot(1,psi1(1,n),Hpsi(1,n),sum)
-         if (fractional) sum=sum*dbl_mb(fweight(1)+n-1)
+         if (fractional) sum=sum*occ1(n)
          enlocal = enlocal - sum
         end do
         end do

@@ -1,5 +1,5 @@
 *
-* $Id: psi_write.F,v 1.14 2007-09-24 16:58:14 bylaska Exp $
+* $Id: psi_write.F,v 1.15 2008-09-11 21:26:51 bylaska Exp $
 *
 
 *     ***********************************
@@ -8,11 +8,12 @@
 *     *             			*
 *     ***********************************
 
-      subroutine psi_write(ispin,ne,psi2)
+      subroutine psi_write(ispin,ne,psi2,occupation,occ)
       implicit none 
       integer ispin,ne(2)
       double complex psi2(*)
       integer occupation
+      double precision occ(*)
 
 #include "mafdecls.fh"
 #include "util.fh"
@@ -90,7 +91,6 @@ c    >                       full_filename)
          call dwrite(6,unita,9)
          call iwrite(6,ispin,1)
          call iwrite(6,ne,2)
-         occupation = -1
          call iwrite(6,occupation,1)
       end if
 
@@ -104,6 +104,14 @@ c    >                       full_filename)
          call D3dB_c_write(1,6,dcpl_mb(tmp2(1)),
      >                         dcpl_mb(tmp(1)),pj)
       end do
+
+*     **** write the occupations - ****
+      if (occupation.gt.0) then
+         if (taskid.eq.MASTER) then
+           call dwrite(6,occ,(ne(1)+ne(2)))
+         end if
+      end if
+
 
 *     *** close ELCIN binary file ***
       if (taskid.eq.MASTER) then

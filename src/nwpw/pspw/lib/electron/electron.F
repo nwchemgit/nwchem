@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.52 2008-06-21 19:37:15 bylaska Exp $
+* $Id: electron.F,v 1.53 2008-09-11 21:26:49 bylaska Exp $
 *
 
 
@@ -155,12 +155,14 @@
 *     *		electron_run		*
 *     *					*
 *     ***********************************
-      subroutine electron_run(psi_k,dn,dng,dnall)
+      subroutine electron_run(psi_k,dn,dng,dnall,fractional,occ)
       implicit none
       complex*16 psi_k(*)
       real*8     dn(*)
       complex*16 dng(*)
       real*8     dnall(*)
+      logical    fractional
+      real*8     occ(*)
 
 *     **** electron_counter common block ****
       integer counter
@@ -169,7 +171,7 @@
       counter = counter+1
 
       call electron_gen_psi_r(psi_k)
-      call electron_gen_densities(psi_k,dn,dng,dnall)
+      call electron_gen_densities(psi_k,dn,dng,dnall,fractional,occ)
       call electron_gen_scf_potentials(dn,dng,dnall)
       call electron_gen_Hpsi_k(psi_k)
 
@@ -181,15 +183,15 @@
 *     *		electron_genrho		*
 *     *					*
 *     ***********************************
-      subroutine electron_genrho(psi_k,dn)
+      subroutine electron_genrho(psi_k,dn,fractional,occ)
       implicit none
       complex*16 psi_k(*)
       real*8     dn(*)
-
+      logical    fractional
+      real*8     occ(*)
 
       call electron_gen_psi_r(psi_k)
-      call electron_gen_density(psi_k,dn)
-
+      call electron_gen_density(psi_k,dn,fractional,occ)
       return
       end
 
@@ -266,12 +268,14 @@ c      end
 *     *		electron_energy		*
 *     *					*
 *     ***********************************
-      real*8 function electron_energy(psi_k,dn,dng,dnall)
+      real*8 function electron_energy(psi_k,dn,dng,dnall,fractional,occ)
       implicit none
       complex*16 psi_k(*)
       real*8     dn(*)
       complex*16 dng(*)
       real*8     dnall(*)
+      logical fractional
+      real*8  occ(*)
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
@@ -309,7 +313,18 @@ c      end
 
 *     *** get orbital energies ****
       eorbit = 0.0d0
-      do ms=1,ispin
+      if (fractional) then
+         do ms=1,ispin
+         do ii=n1(ms),n2(ms)
+           call Pack_cc_idot(1,
+     >                       psi_k(1+(ii-1)*npack1),
+     >                       dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
+     >                       sum)
+           eorbit = eorbit + sum*occ(ii)
+         end do
+         end do
+      else
+         do ms=1,ispin
          do ii=n1(ms),n2(ms)
            call Pack_cc_idot(1,
      >                       psi_k(1+(ii-1)*npack1),
@@ -317,7 +332,8 @@ c      end
      >                       sum)
            eorbit = eorbit + sum
          end do
-      end do
+         end do
+      end if
       call Parallel_SumAll(eorbit)
       if (ispin.eq.1) eorbit = eorbit+eorbit
 
@@ -390,9 +406,11 @@ c      end
 *     *		electron_eorbit		*
 *     *					*
 *     ***********************************
-      real*8 function electron_eorbit(psi_k)
+      real*8 function electron_eorbit(psi_k,fractional,occ)
       implicit none
       complex*16 psi_k(*)
+      logical fractional
+      real*8 occ(*)
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
@@ -410,16 +428,25 @@ c      end
 
 *     *** get orbital energies ****
       eorbit = 0.0d0
-      do ms=1,ispin
+      if (fractional) then
+         do ms=1,ispin
          do ii=n1(ms),n2(ms)
            call Pack_cc_idot(1,psi_k(1+(ii-1)*npack1),
      >                       dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
      >                       sum)
-
-           eorbit = eorbit + sum
-
+           eorbit = eorbit + sum*occ(ii)
          end do
-      end do
+         end do
+      else
+         do ms=1,ispin
+         do ii=n1(ms),n2(ms)
+           call Pack_cc_idot(1,psi_k(1+(ii-1)*npack1),
+     >                       dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
+     >                       sum)
+           eorbit = eorbit + sum
+         end do
+         end do
+      end if
       call Parallel_SumAll(eorbit)
       if (ispin.eq.1) eorbit = eorbit+eorbit
 
@@ -1186,11 +1213,11 @@ c      end do
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
-#include "frac_occ.fh"
+cccc#include "frac_occ.fh"
 
 
 *     **** local variables ****
-      logical move
+      logical move,fractional
       integer n
       real*8  fion(3,1)
 
@@ -1199,6 +1226,7 @@ c      end do
       external control_version
 
       move = .false.
+      fractional = .false.
 *     ******************
 *     **** get Hpsi ****
 *     ******************
@@ -1211,7 +1239,8 @@ c      end do
      >             dbl_mb(xcp(1)),
      >             dcpl_mb(Hpsi_k(1)),
      >             move,
-     >             fion)
+     >             fion,
+     >             fractional,fion)
 
       if (control_version().eq.4)
      >  call psi_Hv4(ispin,neq,psi_k,
@@ -1223,19 +1252,13 @@ c      end do
      >             dbl_mb(xcp(1)),
      >             dcpl_mb(Hpsi_k(1)),
      >             move,     
-     >             fion)
+     >             fion,
+     >             fractional,fion)
 
       call Grsm_gg_dscale(npack1,(neq(1)+neq(2)),(-1.0d0),
      >                    dcpl_mb(Hpsi_k(1)),
      >                    dcpl_mb(Hpsi_k(1)))
 
-      if (fractional) then
-        do n=1,(neq(1)+neq(2))
-          call Pack_c_SMul(1,dbl_mb(fweight(1)+n-1),
-     >                    dcpl_mb(Hpsi_k(1)+(n-1)*npack1),
-     >                    dcpl_mb(Hpsi_k(1)+(n-1)*npack1))
-        end do
-      end if
       return
       end
 
@@ -1438,21 +1461,23 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 *     *				*
 *     ***************************
 
-      subroutine electron_gen_density(psi_k,dn)
+      subroutine electron_gen_density(psi_k,dn,fractional,occ)
       implicit none
       complex*16 psi_k(*)
       real*8     dn(*)
+      logical fractional
+      real*8 occ(*)
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
-#include "frac_occ.fh"
+cccc#include "frac_occ.fh"
 
      
 *     **** local variables ****
       integer i
       integer ms,n2ft3d
       integer n,n1(2),n2(2)
-      real*8  scal2
+      real*8  scal2,wf
       integer tmp1(2)
       logical value
 
@@ -1479,11 +1504,11 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       if (fractional) then
       do ms=1,ispin
          do n=n1(ms),n2(ms)
+            wf = occ(n)
             do i=1,n2ft3d
                dn(i+(ms-1)*n2ft3d)
      >            = dn(i+(ms-1)*n2ft3d)
-     >            + scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
-     >             *dbl_mb(fweight(1)+n-1)
+     >            + wf*scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
             end do
          end do
          call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
@@ -1515,23 +1540,26 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 *     *				*
 *     ***************************
 
-      subroutine electron_gen_densities(psi_k,dn,dng,dnall)
+      subroutine electron_gen_densities(psi_k,dn,dng,dnall,
+     >                                  fractional,occ)
       implicit none
       complex*16 psi_k(*)
       real*8     dn(*)
       complex*16 dng(*)
       real*8     dnall(*)
+      logical fractional
+      real*8     occ(*)
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
-#include "frac_occ.fh"
+cccccccccc#include "frac_occ.fh"
 
      
 *     **** local variables ****
       integer i
       integer ms,n2ft3d
       integer n,n1(2),n2(2)
-      real*8  scal2
+      real*8  scal2,wf
       integer tmp1(2)
       logical value
 
@@ -1558,11 +1586,11 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       if (fractional) then
       do ms=1,ispin
          do n=n1(ms),n2(ms)
+            wf = occ(n)
             do i=1,n2ft3d
                dn(i+(ms-1)*n2ft3d)
      >            = dn(i+(ms-1)*n2ft3d)
-     >            + scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
-     >             *dbl_mb(fweight(1)+n-1)
+     >            + wf*scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
             end do
          end do
          call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d)) !*** probably not needed!
@@ -2125,14 +2153,16 @@ c    >                         sum)
 *     *					*
 *     ***********************************
 
-      real*8 function electron_psi_vnl_ave(psi1)
+      real*8 function electron_psi_vnl_ave(psi1,fractional,occ)
       implicit none
-#include "errquit.fh"
       complex*16 psi1(*)
+      logical fractional
+      real*8 occ(*)
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
-#include "frac_occ.fh"
+#include "errquit.fh"
+cccc#include "frac_occ.fh"
 
 
 *     **** local variables ****
@@ -2169,13 +2199,13 @@ c    >                         sum)
             call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
             call v_nonlocal(ispin,nee,psi1(1+(n-1)*npack1),
      >                      dbl_mb(tmp1(1)),
-     >                      .false.,dbl_mb(tmp2(1)))
+     >                      .false.,dbl_mb(tmp2(1)),fractional,occ)
             call Pack_cc_idot(1,psi1(1+(n-1)*npack1),
      >                         dbl_mb(tmp1(1)),
      >                         sum)
             if (fractional) then
                call Dneall_qton(n,i)
-               sum=sum*dbl_mb(fweight(1)+i-1)
+               sum=sum*occ(i)
             end if
             enlocal = enlocal - sum
          end do

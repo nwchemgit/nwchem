@@ -1,5 +1,5 @@
 *
-* $Id: Dne.fh,v 1.4 2008-06-22 16:43:50 bylaska Exp $
+* $Id: Dne.fh,v 1.5 2008-09-11 21:26:46 bylaska Exp $
 *
 
       integer ne(2),neq(2),ispin
@@ -12,12 +12,17 @@
       integer ma(2,NBLOCKS),ma1(2,NBLOCKS),na(2,NBLOCKS)
       integer mc(2,NBLOCKS),nc(2,NBLOCKS)
       integer mcq(NBLOCKS),ncq(NBLOCKS)
+
+      integer m2c(2,NBLOCKS),n2c(2,NBLOCKS)
+      integer m2cq(NBLOCKS),n2cq(NBLOCKS)
+
       integer work1(2),work2(2)
       integer rwork1(2),rwork2(2),bcolwork(2),bwork2(2)
       integer mat_tmp(2)
       integer npack1_all,nida1_all
       common    / Dne_sub / ma,ma1,na,mc,nc,
      >                      mcq,ncq,
+     >                      m2c,n2c,m2cq,n2cq,
      >                      work1,work2,
      >                      rwork1,rwork2,bcolwork,bwork2,
      >                      mat_tmp,

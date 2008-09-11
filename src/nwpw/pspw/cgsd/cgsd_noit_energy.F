@@ -1,4 +1,4 @@
-c     $Id: cgsd_noit_energy.F,v 1.8 2008-06-06 16:54:05 d3p708 Exp $                       
+c     $Id: cgsd_noit_energy.F,v 1.9 2008-09-11 21:26:47 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *	   cgsd_noit_energy	*
@@ -15,7 +15,7 @@ c     $Id: cgsd_noit_energy.F,v 1.8 2008-06-06 16:54:05 d3p708 Exp $
 #include "rtdb.fh"
 #include "util.fh"
 
-#include "frac_occ.fh"
+cccccc#include "frac_occ.fh"
 
       integer MASTER,taskid
       parameter (MASTER=0)
@@ -36,12 +36,12 @@ c     $Id: cgsd_noit_energy.F,v 1.8 2008-06-06 16:54:05 d3p708 Exp $
 *     **** external functions ****
       logical     psp_semicore,pspw_charge_found,pspw_qmmm_found
       logical     control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
-      logical     control_print,control_psi_tmp
+      logical     control_print,control_psi_tmp,control_fractional
       character*4 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       integer     psi_iptr_hml
-      real*8      control_tole,control_tolc
+      real*8      control_tole,control_tolc,psi_occupation
       real*8      ion_rion,psi_eigenvalue,psi_hml,ion_amass
       external psp_semicore,pspw_charge_found,pspw_qmmm_found
       external control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
@@ -49,8 +49,8 @@ c     $Id: cgsd_noit_energy.F,v 1.8 2008-06-06 16:54:05 d3p708 Exp $
       external control_it_in, control_it_out,control_minimizer
       external ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       external psi_iptr_hml
-      external control_print,control_psi_tmp
-      external control_tole,control_tolc
+      external control_print,control_psi_tmp,control_fractional
+      external control_tole,control_tolc,psi_occupation
       external ion_rion,psi_eigenvalue,psi_hml,ion_amass
       character*4 psi_ab_irrep_name
       external    psi_ab_irrep_name
@@ -197,22 +197,22 @@ c            end do
            NN=psi_ne(1)-psi_ne(2)
            EV=27.2116
            if (control_symmetry().gt.0) then
-             if (fractional) then
+             if (control_fractional()) then
              do I=1,NN
                write(luout,1513) psi_eigenvalue(1,I),
      >                           psi_eigenvalue(1,I)*EV,
      >                           psi_ab_irrep_name(I),
-     >                           dbl_mb(fweight(1)+i-1)
+     >                           psi_occupation(1,I)
              end do
              do I=1,psi_ne(2)
                write(luout,1513)  psi_eigenvalue(1,I+NN),
      >                            psi_eigenvalue(1,I+NN)*EV,
      >                            psi_ab_irrep_name(I),
-     >                            dbl_mb(fweight(1)+i-1+NN),
+     >                            psi_occupation(1,I+NN),
      >                            psi_eigenvalue(2,I),
      >                            psi_eigenvalue(2,I)*EV,
      >                            psi_ab_irrep_name(I+psi_ne(1)),
-     >                            dbl_mb(fweight(1)+i-1+psi_ne(1))
+     >                            psi_occupation(2,I)
              end do
              else
              do I=1,NN
@@ -232,19 +232,19 @@ c            end do
 
 
            else
-             if (fractional) then
+             if (control_fractional()) then
              do I=1,NN
                write(luout,1511) psi_eigenvalue(1,I),
      >                           psi_eigenvalue(1,I)*EV,
-     >                           dbl_mb(fweight(1)+i-1)
+     >                           psi_occupation(1,I)
              end do
              do I=1,psi_ne(2)
                write(luout,1511)  psi_eigenvalue(1,I+NN),
      >                            psi_eigenvalue(1,I+NN)*EV,
-     >                            dbl_mb(fweight(1)+i-1+NN),
+     >                            psi_occupation(1,I+NN),
      >                            psi_eigenvalue(2,I),
      >                            psi_eigenvalue(2,I)*EV,
-     >                            dbl_mb(fweight(1)+i-1+psi_ne(1))
+     >                            psi_occupation(2,I)
              end do
              else
              do I=1,NN

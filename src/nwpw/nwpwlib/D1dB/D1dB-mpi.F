@@ -309,6 +309,54 @@ c     implicit none
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *      D1dB_Brdcst_values         *
+*     *                                 *
+*     ***********************************
+
+      subroutine D1dB_Brdcst_values(psend,nsize,sum)
+      implicit none
+      integer psend,nsize
+      real*8  sum(*)
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+
+#ifdef MPI4
+      integer*4 tpsend
+      integer np
+
+      call Parallel2d_np_j(np)
+      if (np.gt.1) then
+         stupid_msglen = nsize
+         tpsend        = psend
+         call MPI_Bcast(sum,stupid_msglen,stupid_double,
+     >                  tpsend,stupid_comm_j,stupid_ierr)
+      end if
+#else
+*     **** external functions ****
+      integer  Parallel2d_comm_j
+      external Parallel2d_comm_j
+
+      integer ierr,np
+
+      call Parallel2d_np_j(np)
+      if (np.gt.1) then
+         call MPI_Bcast(sum,nsize,MPI_DOUBLE_PRECISION,
+     >                  psend,Parallel2d_comm_j(),ierr)
+      end if
+#endif
+
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *                                 *

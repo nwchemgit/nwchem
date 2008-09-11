@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2005-12-22 01:35:06 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2008-09-11 21:28:44 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -8,7 +8,8 @@
             	v_bwexc_euv.o \
             	pbe96.o \
             	revpbe.o \
-            	blyp.o
+            	blyp.o \
+		bnl2007_x.o
 
 #            vdirac.o \
 

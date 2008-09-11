@@ -1,9 +1,13 @@
 *
-* $Id: psi.F,v 1.88 2008-06-21 19:37:16 bylaska Exp $
+* $Id: psi.F,v 1.89 2008-09-11 21:26:51 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.88  2008/06/21 19:37:16  bylaska
+*
+* initalization error fixed with psi_Tgradient...EJB
+*
 * Revision 1.87  2008/06/02 15:20:04  bylaska
 * ..io fixes...EJB
 *
@@ -580,7 +584,7 @@
 
       psi_ptr=psi1(1)+(ii-1)*npack1
 
-      if (ii.le.ne(1)) then
+      if (ii.le.neq(1)) then
          ms = 1
       else
          ms = 2
@@ -611,7 +615,7 @@
       real*8  sum
 
 *     **** spin up orbital ****
-      if (ii.le.ne(1)) then
+      if (ii.le.neq(1)) then
 
          shift  = 0
          shifte = 0
@@ -619,10 +623,10 @@
          kk     = ii
 *     **** spin down orbital ****
       else
-         shift  = ne(1)*npack1
-         shifte = ne(1)*npack1
+         shift  = neq(1)*npack1
+         shifte = neq(1)*npack1
          ms     = 2
-         kk     = ii-ne(1)
+         kk     = ii-neq(1)
       end if 
 
 
@@ -665,7 +669,7 @@
       real*8  sum
 
 *     **** spin up orbital ****
-      if (ii.le.ne(1)) then
+      if (ii.le.neq(1)) then
 
          shift  = 0
          shifte = 0
@@ -673,10 +677,10 @@
          kk     = ii
 *     **** spin down orbital ****
       else
-         shift  = ne(1)*npack1
-         shifte = ne(1)*npack1
+         shift  = neq(1)*npack1
+         shifte = neq(1)*npack1
          ms     = 2
-         kk     = ii-ne(1)
+         kk     = ii-neq(1)
       end if 
 
 
@@ -1093,9 +1097,11 @@
       complex*16 Horb(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "psi.fh"
 
       integer ms,i,jj,kk,shift,shifte
+      integer etmp(2)
       real*8  sum
 
 *     **** spin up orbital ****
@@ -1107,23 +1113,47 @@
          kk     = ii
 *     **** spin down orbital ****
       else
-         shift  = ne(1)*npack1
+         shift  = neq(1)*npack1
          shifte = ne_excited(1)*npack1
          ms     = 2
          kk     = ii-ne_excited(1)
       end if 
 
       !**** project out filled orbitals ****
-      do i=1,ne(ms)
-        call Pack_cc_dot(1,
+      if (neq(ms).eq.ne(ms)) then
+
+         do i=1,ne(ms)
+           call Pack_cc_dot(1,
      >            dcpl_mb(psi1(1) +(i-1)*npack1+shift),
      >            Horb,
      >            sum)
-
-        call Pack_cc_daxpy(1,(-sum),
+           call Pack_cc_daxpy(1,(-sum),
      >            dcpl_mb(psi1(1) +(i-1)*npack1+shift),
      >            Horb)
-      end do      
+         end do      
+
+      else
+
+      if (.not.MA_push_get(mt_dcpl,npack1,'etmp',etmp(2),etmp(1)))
+     > call errquit('psi_project_out_virtual1: out of stack',0,MA_ERR)
+
+         call dcopy(2*npack1,0.0d0,0,dcpl_mb(etmp(1)),1)
+         do i=1,neq(ms)
+           call Pack_cc_dot(1,
+     >            dcpl_mb(psi1(1) +(i-1)*npack1+shift),
+     >            Horb,
+     >            sum)
+           call Pack_cc_daxpy(1,(-sum),
+     >            dcpl_mb(psi1(1) +(i-1)*npack1+shift),
+     >            dcpl_mb(etmp(1)))
+         end do
+         call D1dB_Vector_SumAll(2*npack1,dcpl_mb(etmp(1)))
+         call daxpy(2*npack1,1.0d0,dcpl_mb(etmp(1)),1,Horb,1)
+
+      if (.not.MA_pop_stack(etmp(2)))
+     > call errquit('psi_project_out_virtual1:popping stack',0,MA_ERR)
+
+      end if
 
       !**** project out virtual orbitals ****
       do jj=1,(kk-1)
@@ -1158,9 +1188,11 @@
       complex*16 Horb(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "psi.fh"
 
       integer ms,i,jj,kk,shift,shifte
+      integer etmp(2)
       real*8  sum
 
 *     **** spin up orbital ****
@@ -1172,23 +1204,47 @@
          kk     = ii
 *     **** spin down orbital ****
       else
-         shift  = ne(1)*npack1
+         shift  = neq(1)*npack1
          shifte = ne_excited(1)*npack1
          ms     = 2
          kk     = ii-ne_excited(1)
       end if 
 
       !**** project out filled orbitals ****
-      do i=1,ne(ms)
-        call Pack_cc_dot(1,
+      if (neq(ms).eq.ne(ms)) then
+
+         do i=1,ne(ms)
+           call Pack_cc_dot(1,
      >            dcpl_mb(psi1(1) +(i-1)*npack1+shift),
      >            Horb,
      >            sum)
 
-        call Pack_cc_daxpy(1,(-sum),
+           call Pack_cc_daxpy(1,(-sum),
      >            dcpl_mb(psi1(1) +(i-1)*npack1+shift),
      >            Horb)
-      end do      
+         end do      
+
+      else
+      if (.not.MA_push_get(mt_dcpl,npack1,'etmp',etmp(2),etmp(1)))
+     > call errquit('psi_project_out_virtual1: out of stack',0,MA_ERR)
+
+         call dcopy(2*npack1,0.0d0,0,dcpl_mb(etmp(1)),1)
+         do i=1,neq(ms)
+           call Pack_cc_dot(1,
+     >            dcpl_mb(psi1(1) +(i-1)*npack1+shift),
+     >            Horb,
+     >            sum)
+           call Pack_cc_daxpy(1,(-sum),
+     >            dcpl_mb(psi1(1) +(i-1)*npack1+shift),
+     >            dcpl_mb(etmp(1)))
+         end do
+         call D1dB_Vector_SumAll(2*npack1,dcpl_mb(etmp(1)))
+         call daxpy(2*npack1,1.0d0,dcpl_mb(etmp(1)),1,Horb,1)
+
+      if (.not.MA_pop_stack(etmp(2)))
+     > call errquit('psi_project_out_virtual:popping stack',0,MA_ERR)
+
+      end if
 
       !**** project out virtual orbitals ****
       do jj=1,(kk)
@@ -1241,7 +1297,7 @@
       external control_ks_maxit_orb,control_ks_maxit_orbs
 
       tim = 0.0d0
-      neall = ne(1)+ne(2)
+      neall = neq(1)+neq(2)
       maxit_orb  = control_ks_maxit_orb()   !*** should be read from rtdb ***
       maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
       j = 0
@@ -2160,25 +2216,28 @@ c     write(*,*)
       common / rhoall_block / rho1_all,rho2_all
 
 *     **** local variables ****
-      integer psi_ptr,rho_ptr,dng_ptr,rho_all_ptr
+      integer psi_ptr,rho_ptr,dng_ptr,rho_all_ptr,occ_ptr
 
       if (psi_number.eq.1) then
         psi_ptr     = psi1(1)
         rho_ptr     = rho1(1)
         dng_ptr     = dng1(1)
         rho_all_ptr = rho1_all(1)
+        occ_ptr     = occ1(1)
       else
         psi_ptr     = psi2(1)
         rho_ptr     = rho2(1)
         dng_ptr     = dng2(1)
         rho_all_ptr = rho2_all(1)
+        occ_ptr     = occ2(1)
       end if
 
 
       call electron_gen_densities(dcpl_mb(psi_ptr),
      >                            dbl_mb(rho_ptr),
      >                            dcpl_mb(dng_ptr),
-     >                            dbl_mb(rho_all_ptr))
+     >                            dbl_mb(rho_all_ptr),
+     >                            occupation_on,dbl_mb(occ_ptr))
       call electron_gen_scf_potentials(dbl_mb(rho_ptr),
      >                            dcpl_mb(dng_ptr),
      >                            dbl_mb(rho_all_ptr))
@@ -2433,7 +2492,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       call electron_run(dcpl_mb(psi1(1)),
      >                  dbl_mb(rho1(1)),
      >                  dcpl_mb(dng1(1)),
-     >                  dbl_mb(rho1_all(1)))
+     >                  dbl_mb(rho1_all(1)),
+     >                  occupation_on,dbl_mb(occ1(1)))
 
       return
       end
@@ -2455,7 +2515,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       common / rhoall_block / rho1_all,rho2_all
  
       call electron_genrho(dcpl_mb(psi1(1)),
-     >                     dbl_mb(rho1(1)))
+     >                     dbl_mb(rho1(1)),
+     >                     occupation_on,dbl_mb(occ1(1)))
 
       return
       end
@@ -2485,11 +2546,13 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       call electron_run(dcpl_mb(psi1(1)),
      >                   dbl_mb(rho1(1)),
      >                   dcpl_mb(dng1(1)),
-     >                   dbl_mb(rho1_all(1)))
+     >                   dbl_mb(rho1_all(1)),
+     >                   occupation_on,dbl_mb(occ1(1)))
       psi_1energy = electron_energy(dcpl_mb(psi1(1)),
      >                               dbl_mb(rho1(1)),
      >                              dcpl_mb(dng1(1)),
-     >                              dbl_mb(rho1_all(1)))
+     >                              dbl_mb(rho1_all(1)),
+     >                              occupation_on,dbl_mb(occ1(1)))
 
       return
       end
@@ -2519,7 +2582,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       psi_1_noupdate_energy = electron_energy(dcpl_mb(psi1(1)),
      >                               dbl_mb(rho1(1)),
      >                              dcpl_mb(dng1(1)),
-     >                              dbl_mb(rho1_all(1)))
+     >                              dbl_mb(rho1_all(1)),
+     >                              occupation_on,dbl_mb(occ1(1)))
 
       return
       end
@@ -2548,11 +2612,13 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       call electron_run(dcpl_mb(psi2(1)),
      >                   dbl_mb(rho2(1)),
      >                  dcpl_mb(dng2(1)),
-     >                   dbl_mb(rho2_all(1)))
+     >                   dbl_mb(rho2_all(1)),
+     >                  occupation_on,dbl_mb(occ2(1)))
       psi_2energy = electron_energy(dcpl_mb(psi2(1)),
      >                               dbl_mb(rho2(1)),
      >                              dcpl_mb(dng2(1)),
-     >                              dbl_mb(rho2_all(1)))
+     >                              dbl_mb(rho2_all(1)),
+     >                              occupation_on,dbl_mb(occ2(1)))
 
       return
       end
@@ -2574,7 +2640,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8   electron_eorbit
       external electron_eorbit
 
-      psi_1eorbit = electron_eorbit(dcpl_mb(psi1(1)))
+      psi_1eorbit = electron_eorbit(dcpl_mb(psi1(1)),
+     >                              occupation_on,dbl_mb(occ1(1)))
 
       return
       end
@@ -2594,11 +2661,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     **** local variables ***
       real*8 ave
 
-*     **** external functions ****
-      real*8   electron_eorbit
-      external electron_eorbit
-      
-      call ke_ave(ispin,neq,dcpl_mb(psi1(1)),ave)
+      call ke_ave(ispin,neq,dcpl_mb(psi1(1)),ave,
+     >            occupation_on,dbl_mb(occ1(1)))
 
       psi_1ke = ave
       return
@@ -2670,7 +2734,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8   electron_psi_vnl_ave
       external electron_psi_vnl_ave
  
-      psi_1vnl = electron_psi_vnl_ave(dcpl_mb(psi1(1)))
+      psi_1vnl = electron_psi_vnl_ave(dcpl_mb(psi1(1)),
+     >                   occupation_on,dbl_mb(occ1(1)))
 
       return
       end
@@ -2858,7 +2923,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       call electron_run(dcpl_mb(psi2(1)),
      >                   dbl_mb(rho2(1)),
      >                   dcpl_mb(dng2(1)),
-     >                   dbl_mb(rho2_all(1)))
+     >                   dbl_mb(rho2_all(1)),
+     >                   occupation_on,dbl_mb(occ2(1)))
 
       return
       end
@@ -3036,12 +3102,14 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       call electron_run(dcpl_mb(psi1(1)),
      >                   dbl_mb(rho1(1)),
      >                  dcpl_mb(dng1(1)),
-     >                   dbl_mb(rho1_all(1)))
+     >                   dbl_mb(rho1_all(1)),
+     >                  occupation_on,dbl_mb(occ1(1)))
 
       Eout =  electron_energy(dcpl_mb(psi1(1)),
      >                        dbl_mb(rho1(1)),
      >                        dcpl_mb(dng1(1)),
-     >                        dbl_mb(rho1_all(1)))
+     >                        dbl_mb(rho1_all(1)),
+     >                        occupation_on,dbl_mb(occ1(1)))
 
       call electron_gen_hml(dcpl_mb(psi1(1)),
      >                       dbl_mb(tmp1(1)))
@@ -3089,12 +3157,14 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       call electron_run(dcpl_mb(psi1(1)),
      >                   dbl_mb(rho1(1)),
      >                  dcpl_mb(dng1(1)),
-     >                   dbl_mb(rho1_all(1)))
+     >                   dbl_mb(rho1_all(1)),
+     >                   occupation_on,dbl_mb(occ1(1)))
 
       Eout =  electron_energy(dcpl_mb(psi1(1)),
      >                        dbl_mb(rho1(1)),
      >                        dcpl_mb(dng1(1)),
-     >                        dbl_mb(rho1_all(1)))
+     >                        dbl_mb(rho1_all(1)),
+     >                        occupation_on,dbl_mb(occ1(1)))
 
       call electron_get_Gradient(THpsi)
 
@@ -3185,13 +3255,15 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
         call electron_run(dcpl_mb(psi2(1)),
      >                     dbl_mb(rho2(1)),
      >                    dcpl_mb(dng2(1)),
-     >                     dbl_mb(rho2_all(1)))
+     >                     dbl_mb(rho2_all(1)),
+     >                     occupation_on,dbl_mb(occ2(1)))
       end if
 
       Eout =  electron_energy(dcpl_mb(psi2(1)),
      >                        dbl_mb(rho2(1)),
      >                        dcpl_mb(dng2(1)),
-     >                        dbl_mb(rho2_all(1)))
+     >                        dbl_mb(rho2_all(1)),
+     >                        occupation_on,dbl_mb(occ2(1)))
 
       call electron_gen_hml(dcpl_mb(psi2(1)),
      >                       dbl_mb(tmp1(1)))
@@ -3236,13 +3308,15 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
         call electron_run(dcpl_mb(psi2(1)),
      >                     dbl_mb(rho2(1)),
      >                    dcpl_mb(dng2(1)),
-     >                     dbl_mb(rho2_all(1)))
+     >                     dbl_mb(rho2_all(1)),
+     >                     occupation_on,dbl_mb(occ2(1)))
       end if
 
       Eout =  electron_energy(dcpl_mb(psi2(1)),
      >                        dbl_mb(rho2(1)),
      >                        dcpl_mb(dng2(1)),
-     >                        dbl_mb(rho2_all(1)))
+     >                        dbl_mb(rho2_all(1)),
+     >                        occupation_on,dbl_mb(occ2(1)))
 
       call electron_get_Gradient(THpsi)
 
@@ -3331,12 +3405,14 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       call electron_run(dcpl_mb(psi1(1)),
      >                   dbl_mb(rho1(1)),
      >                  dcpl_mb(dng1(1)),
-     >                   dbl_mb(rho1_all(1)))
+     >                   dbl_mb(rho1_all(1)),
+     >                   occupation_on,dbl_mb(occ1(1)))
 
       Eout =  electron_energy(dcpl_mb(psi1(1)),
      >                        dbl_mb(rho1(1)),
      >                        dcpl_mb(dng1(1)),
-     >                        dbl_mb(rho1_all(1)))
+     >                        dbl_mb(rho1_all(1)),
+     >                        occupation_on,dbl_mb(occ1(1)))
 
 
       call electron_gen_hmlt(dcpl_mb(psi1(1)),
@@ -3394,13 +3470,15 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
         call electron_run(dcpl_mb(psi2(1)),
      >                     dbl_mb(rho2(1)),
      >                    dcpl_mb(dng2(1)),
-     >                     dbl_mb(rho2_all(1)))
+     >                     dbl_mb(rho2_all(1)),
+     >                    occupation_on,dbl_mb(occ2(1)))
       end if
 
       Eout =  electron_energy(dcpl_mb(psi2(1)),
      >                        dbl_mb(rho2(1)),
      >                        dcpl_mb(dng2(1)),
-     >                        dbl_mb(rho2_all(1)))
+     >                        dbl_mb(rho2_all(1)),
+     >                        occupation_on,dbl_mb(occ2(1)))
 
       call electron_gen_hmlt(dcpl_mb(psi2(1)),
      >                       dbl_mb(tmp1(1)))
@@ -3443,12 +3521,14 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       call electron_run(dcpl_mb(psi1(1)),
      >                   dbl_mb(rho1(1)),
      >                  dcpl_mb(dng1(1)),
-     >                   dbl_mb(rho1_all(1)))
+     >                   dbl_mb(rho1_all(1)),
+     >                  occupation_on,dbl_mb(occ1(1)))
 
       Eout =  electron_energy(dcpl_mb(psi1(1)),
      >                        dbl_mb(rho1(1)),
      >                        dcpl_mb(dng1(1)),
-     >                        dbl_mb(rho1_all(1)))
+     >                        dbl_mb(rho1_all(1)),
+     >                        occupation_on,dbl_mb(occ1(1)))
 
       call electron_get_TMgradient(dcpl_mb(psi1(1)),
      >                            THpsi)
@@ -3485,13 +3565,15 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
         call electron_run(dcpl_mb(psi2(1)),
      >                    dbl_mb(rho2(1)),
      >                    dcpl_mb(dng2(1)),
-     >                    dbl_mb(rho2_all(1)))
+     >                    dbl_mb(rho2_all(1)),
+     >                    occupation_on,dbl_mb(occ2(1)))
       end if
 
       Eout =  electron_energy(dcpl_mb(psi2(1)),
      >                        dbl_mb(rho2(1)),
      >                        dcpl_mb(dng2(1)),
-     >                        dbl_mb(rho2_all(1)))
+     >                        dbl_mb(rho2_all(1)),
+     >                        occupation_on,dbl_mb(occ2(1)))
 
       call electron_get_TMgradient(dcpl_mb(psi2(1)),
      >                             THpsi)
@@ -3592,12 +3674,14 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       call electron_run(dcpl_mb(psi2(1)),
      >                   dbl_mb(rho2(1)),
      >                  dcpl_mb(dng2(1)),
-     >                   dbl_mb(rho2_all(1)))
+     >                   dbl_mb(rho2_all(1)),
+     >                   occupation_on,dbl_mb(occ2(1)))
 
       e_new =  electron_energy(dcpl_mb(psi2(1)),
      >                        dbl_mb(rho2(1)),
      >                        dcpl_mb(dng2(1)),
-     >                        dbl_mb(rho2_all(1)))
+     >                        dbl_mb(rho2_all(1)),
+     >                        occupation_on,dbl_mb(occ2(1)))
 
       psi_geodesic_energy = e_new
       return
@@ -3622,7 +3706,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       call geodesic_transport(t,dcpl_mb(psi1(1)),
      >                          dcpl_mb(psi2(1)))
-      psi_geodesic_denergy =  2.0d0*electron_eorbit(dcpl_mb(psi2(1)))
+      psi_geodesic_denergy =  2.0d0*electron_eorbit(dcpl_mb(psi2(1)),
+     >                                 occupation_on,dbl_mb(occ2(1)))
 
       return
       end
@@ -3725,11 +3810,13 @@ c     real*8 sum1,sum2
       call electron_run(dcpl_mb(psi2(1)),
      >                   dbl_mb(rho2(1)),
      >                  dcpl_mb(dng2(1)),
-     >                   dbl_mb(rho2_all(1)))
+     >                   dbl_mb(rho2_all(1)),
+     >                   occupation_on,dbl_mb(occ2(1)))
       e_new =  electron_energy(dcpl_mb(psi2(1)),
      >                        dbl_mb(rho2(1)),
      >                        dcpl_mb(dng2(1)),
-     >                        dbl_mb(rho2_all(1)))
+     >                        dbl_mb(rho2_all(1)),
+     >                        occupation_on,dbl_mb(occ2(1)))
 
       psi_geodesic2_energy = e_new
       return
@@ -3754,7 +3841,8 @@ c     real*8 sum1,sum2
 
       call geodesic2_transport(t,dcpl_mb(psi1(1)),
      >                          dcpl_mb(psi2(1)))
-      psi_geodesic2_denergy =  2.0d0*electron_eorbit(dcpl_mb(psi2(1)))
+      psi_geodesic2_denergy =  2.0d0*electron_eorbit(dcpl_mb(psi2(1)),
+     >                                  occupation_on,dbl_mb(occ2(1)))
 
       return
       end
@@ -3818,7 +3906,8 @@ c     real*8 sum1,sum2
       call electron_run(dcpl_mb(psi1(1)),
      >                  dbl_mb(rho1(1)),
      >                  dcpl_mb(dng1(1)),
-     >                  dbl_mb(rho1_all(1)))
+     >                  dbl_mb(rho1_all(1)),
+     >                  occupation_on,dbl_mb(occ1(1)))
 
 *     **** do a steepest descent step ****
       call electron_sd_update(dcpl_mb(psi1(1)),
@@ -3835,7 +3924,7 @@ c     real*8 sum1,sum2
         if (fractional) then
         call psi_lmbda2(ispin,neq,nemaxq,npack1,
      >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),
-     >                 dte,dbl_mb(fweight(1)),
+     >                 dte,dbl_mb(occ1(1)),
      >                 dbl_mb(lmd(1)),
      >                 dbl_mb(tmp_L(1)),ierr)
         else if (pspw_SIC()) then
@@ -4321,7 +4410,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       real*8 sum
 
       sum = dbl_mb(eig(1)+(i-1)+(ms-1)*ne(1))
-      if (fractional) sum=sum/dbl_mb(fweight(1)+(i-1)+(ms-1)*ne(1))
+cccc      if (fractional) sum=sum/dbl_mb(fweight(1)+(i-1)+(ms-1)*ne(1))
       psi_eigenvalue = sum
 
       return
@@ -4347,6 +4436,204 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       end if
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      psi_1define_occupation    *
+*     *                                 *
+*     ***********************************
+      subroutine psi_1define_occupation(initial)
+      implicit none
+      logical initial
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      integer it,itmax
+      parameter (itmax=50)
+
+      integer ms,nb,n,shift1,shift2,occ1_tag,ndiff
+      real*8 e,x,kT,f,g,alpha,pi
+      real*8 ZZ,Z(2),Zlower,Zmid,Zupper,elower,emid,eupper
+      real*8 flower,fmid,fupper
+
+*     **** external functions ****
+      integer  control_multiplicity
+      real*8   control_TotalCharge,ion_TotalCharge_qm
+      real*8   psi_occ_distribution,control_ks_alpha
+      external control_multiplicity
+      external control_TotalCharge,ion_TotalCharge_qm
+      external psi_occ_distribution,control_ks_alpha
+
+
+      smearfermi(1)   = 0.0d0
+      smearfermi(2)   = 0.0d0
+      smearcorrection = 0.0d0
+
+      if (occupation_on) then
+         alpha = control_ks_alpha()
+         kT    = smearkT
+         ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
+         if (ispin.eq.2) then
+            ndiff = control_multiplicity() - 1
+            Z(1) = 0.5d0*(ZZ+ndiff)
+            Z(2) = 0.5d0*(ZZ-ndiff)
+         else
+            Z(1) = 0.5d0*ZZ
+            Z(2) = 0.0d0
+         end if
+       
+         pi    = 4.0d0*datan(1.0d0)
+         if (initial) alpha = 1.0d0
+
+*        **** outer loop over spins ****
+         smearcorrection = 0.0d0
+         do ms=1,ispin
+
+*           **** find eupper and elower ****
+            elower =  9.9d12
+            eupper = -9.9d12
+            shift1 = eig(1) + (ms-1)*ne(1)
+            do n=1,ne(ms)
+              e       = dbl_mb(shift1)
+              if (e.lt.elower) elower = e
+              if (e.gt.eupper) eupper = e
+              shift1  = shift1 + 1
+            end do
+
+
+*           **** find fermi level ****
+            Zlower = 0.0d0
+            Zupper = 0.0d0
+            shift1 = eig(1) + (ms-1)*ne(1)
+            do n=1,ne(ms)
+              e = dbl_mb(shift1)
+              Zlower = Zlower 
+     >         + psi_occ_distribution(smeartype,(e-elower)/kT)
+              Zupper = Zupper 
+     >         + psi_occ_distribution(smeartype,(e-eupper)/kT)
+              shift1  = shift1 + 1
+            end do
+
+            flower = Zlower - Z(ms)
+            fupper = Zupper - Z(ms)
+
+            if (flower*fupper.ge.0.0d0) 
+     >       call errquit(
+     >            'psi_1define_occupation:Fermi energy not found',ms,0)
+
+            it = 0
+  20        it = it + 1
+            emid = 0.5d0*(elower + eupper)
+            Zmid = 0.0d0
+            shift1 = eig(1) + (ms-1)*ne(1)
+            do n=1,ne(ms)
+              e = dbl_mb(shift1)
+              Zmid = Zmid + psi_occ_distribution(smeartype,(e-emid)/kT)
+              shift1  = shift1 + 1
+            end do
+            fmid = Zmid - Z(ms)
+            if (fmid.lt.0.0d0) then
+               flower = fmid
+               elower = emid
+            else 
+               fupper = fmid
+               eupper = emid
+            end if
+            if ( (dabs(fmid)     .gt.1.0d-11) .and.
+     >           ((eupper-elower).gt.1.0d-11) .and.
+     >           (it.lt.itmax))   goto 20
+   
+
+            smearfermi(ms) = emid
+
+*           **** determine filling and correction ****
+            shift1 = eig(1)  + (ms-1)*ne(1)
+            shift2 = occ1(1) + (ms-1)*ne(1)
+            do n=1,ne(ms)
+              e = dbl_mb(shift1)
+              x = (e - smearfermi(ms))/kT
+              f = psi_occ_distribution(smeartype,x)
+
+
+              dbl_mb(shift2) = (1.0d0-alpha)*dbl_mb(shift2) + alpha*f
+
+              if (smeartype.eq.1) then
+                 if (  (dbl_mb(shift2)       .gt.1.0d-6) .and. 
+     >               ( (1.0d0-dbl_mb(shift2)).gt.1.0d-6)) then
+                smearcorrection = smearcorrection  
+     >           + kT*( dbl_mb(shift2)*log(dbl_mb(shift2)) 
+     >           + (1.0d0-dbl_mb(shift2))*log(1.0d0-dbl_mb(shift2)) )
+                 end if
+              else if (smeartype.eq.2) then
+                smearcorrection 
+     >              = smearcorrection 
+     >              - kT*dexp(-x*x)/(4.0d0*dsqrt(pi))
+              end if
+              shift1  = shift1 + 1
+              shift2  = shift2 + 1
+            end do
+
+         end do !** ms***
+         if (ms.eq.1) smearcorrection=smearcorrection+smearcorrection
+
+      end if
+
+      return
+      end
+
+c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
+
+      real*8 function psi_occ_distribution(smeartype,e)
+      implicit none
+      integer smeartype
+      real*8 e
+      real*8 f
+
+*     **** external functions ****
+      real*8   util_erfc
+      external util_erfc
+
+      if (smeartype.eq.1) then
+         if (e.gt.30.0d0) then
+           f = 0.0d0
+         else if (e.lt.(-30.0d0)) then
+           f = 1.0d0
+         else
+           f = 1.0d0/(1.0d0+dexp(e))
+         end if
+      else if (smeartype.eq.2) then
+         f = 0.5d0*util_erfc(e)
+      else 
+         if (e.gt.0.0d0) then
+           f = 0.0d0
+         else
+           f = 1.0d0
+         end if
+      end if
+      psi_occ_distribution = f 
+      return
+      end
+
+      real*8 function psi_smearfermi(ms)
+      implicit none
+      integer ms
+#include "psi.fh"
+      psi_smearfermi = smearfermi(ms)
+      return
+      end
+      real*8 function psi_smearcorrection()
+      implicit none
+#include "psi.fh"
+      psi_smearcorrection = smearcorrection
+      return
+      end
+
+
+
 
 
 *     ***********************************
@@ -5097,6 +5384,11 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       external wvfnc_expander,Dneall_m_allocate,band_reformat_c_wvfnc
       logical  psp_pawexist,control_print
       external psp_pawexist,control_print
+      integer          control_fractional_smeartype
+      double precision control_fractional_kT
+      external         control_fractional_smeartype
+      external         control_fractional_kT
+
 
 
 *     **** reformat wavefunction if it is a band wavefunction ****
@@ -5110,13 +5402,14 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 
 *     *****  get ispin,ne,neq,nfft3d,npack0,npack1 ****
-      call psi_get_ne(ispin,ne)
+      call psi_get_ne_occupation(ispin,ne,smearoccupation)
       call Dneall_neq(neq)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
       call Pack_npack(0,npack0)
       nemax = ne(1)+ne(2)
       occupation_on = .false.
+      if (smearoccupation.gt.0) occupation_on = .true.
 
 
 *     **** allocate memory ****
@@ -5143,6 +5436,15 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
 
       value = value.and.
      >        MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
+
+      if (occupation_on) then
+        value = value.and.
+     >        MA_alloc_get(mt_dbl,(2*nemax),'occ1',occ1(2),occ1(1))
+        value = value.and.
+     >        MA_alloc_get(mt_dbl,(2*nemax),'occ2',occ2(2),occ2(1))
+        smeartype = control_fractional_smeartype()
+        smearkT   = control_fractional_kT()
+      end if
 
       value = value.and.
      >        MA_alloc_get(mt_dbl,4*nfft3d,
@@ -5213,7 +5515,9 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
 
       end if
 
-      call psi_read(ispin,ne,dcpl_mb(psi1(1)))
+      call psi_read(ispin,ne,dcpl_mb(psi1(1)),
+     >              smearoccupation,dbl_mb(occ1(1)))
+
 
       call psi_history_read(ispin,ne,
      >                      dcpl_mb(psi1(1)),
@@ -5295,7 +5599,8 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
 #include "psi.fh"
 
 *     ***** write psi1 wavefunctions ****
-      call psi_write(ispin,ne,dcpl_mb(psi1(1)))
+      call psi_write(ispin,ne,dcpl_mb(psi1(1)),
+     >               smearoccupation,dbl_mb(occ1(1)))
 
       return
       end
@@ -5330,7 +5635,8 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
 
 *     ***** write psi1 wavefunctions ****
       if (wpsi) then
-        call psi_write(ispin,ne,dcpl_mb(psi1(1)))
+        call psi_write(ispin,ne,dcpl_mb(psi1(1)),
+     >                 smearoccupation,dbl_mb(occ1(1)))
         call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
       end if
     
@@ -5344,6 +5650,11 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       value = value.and.MA_free_heap(psi1(2))
       value = value.and.MA_free_heap(rho2_all(2))
       value = value.and.MA_free_heap(rho1_all(2))
+      if (occupation_on) then
+         value = value.and.MA_free_heap(occ1(2))
+         value = value.and.MA_free_heap(occ2(2))
+      end if
+
       if (.not. value) 
      >  call errquit('psi_finalize: error freeing heap',0, MA_ERR)
 
@@ -5404,7 +5715,7 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
 
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne_excited(ispin0,ne_excited)
-      nemax = ne_excited(1)+ne_excited(2)
+      nemax  = ne_excited(1)  + ne_excited(2)
 
 *     **** allocate memory ****
       value = MA_alloc_get(mt_dcpl,npack1*(nemax),
@@ -5481,6 +5792,7 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
 
 *     *****  read initial wavefunctions into psi1  ****
       call epsi_read(ispin0,ne_excited,dcpl_mb(psi1_excited(1)))
+
 
 *     **** force inversion symmetry ****
       if (control_symmetry().eq.1)  then

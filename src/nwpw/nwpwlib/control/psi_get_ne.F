@@ -1,5 +1,5 @@
 *
-* $Id: psi_get_ne.F,v 1.6 2008-06-02 15:20:02 bylaska Exp $
+* $Id: psi_get_ne.F,v 1.7 2008-09-11 21:26:47 bylaska Exp $
 *
 
 *     ***********************************
@@ -252,8 +252,9 @@ c     **** send header to all nodes ****
          call dread(4,unita,9)
          call iread(4,ispin,1)
          call iread(4,ne,2)
-         call iread(4,nbrill,1)
-         call iread(4,occupation,2)
+         nbrill = 1
+         if (version.eq.5) call iread(4,nbrill,1)
+         call iread(4,occupation,1)
          call closefile(4)
       end if
 

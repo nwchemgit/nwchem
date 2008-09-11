@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.17 2007-11-16 22:26:50 d3p708 Exp $
+# $Id: GNUmakefile,v 1.18 2008-09-11 21:26:50 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -9,7 +9,6 @@
 		psi_spin2.o \
 		geodesic.o \
 		geodesic2.o \
-		skew.o \
 		Grassman.o \
 		psi_read.o \
 		psi_write.o \

@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.3 2008-09-03 17:07:29 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2008-09-11 21:26:46 bylaska Exp $
 #
 
- OBJ_OPTIMIZE = D1dB.o Dne.o Dnex.o
+ OBJ_OPTIMIZE = D1dB.o Dne.o Dnex.o skew.o
  OBJ = 
 
 ifeq ($(USE_MPIF),y)

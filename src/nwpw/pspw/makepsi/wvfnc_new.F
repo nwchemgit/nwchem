@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_new.F,v 1.10 2007-09-24 16:58:15 bylaska Exp $
+* $Id: wvfnc_new.F,v 1.11 2008-09-11 21:26:52 bylaska Exp $
 *
 
       subroutine wvfnc_new(wavefunction_filename,
@@ -7,27 +7,46 @@
      >						ngrid,
      >						unita,
      >						ispin,
-     >						ne)
+     >						nein)
       implicit none
       character*30 wavefunction_filename
       integer      version
       integer      ngrid(3)
       real*8       unita(3,3)
-      integer      ispin,ne(2)
+      integer      ispin,nein(2)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
  
 *     **** local variables ****
-      logical value
+      logical value,fractional
       integer MASTER,taskid
       parameter (MASTER=0)
 
       integer NMAX
       integer filling(2)
+      integer fractional_orbitals(2),ne(2)
+
+*     **** external functions ****
+      logical  control_fractional
+      integer  control_fractional_orbitals
+      external control_fractional
+      external control_fractional_orbitals
+
+
+      ne(1) = nein(1)
+      ne(2) = nein(2)
+      fractional = control_fractional()
+      if (fractional) then
+         fractional_orbitals(1) = control_fractional_orbitals(1)
+         ne(1) = nein(1) + fractional_orbitals(1)
+         if (ispin.eq.2) then
+           fractional_orbitals(2) = control_fractional_orbitals(2)
+           ne(2) = nein(2) + fractional_orbitals(2)
+         end if
+      end if
 
       NMAX = ne(1)+ne(2)
-
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
         value = MA_push_get(mt_int,8*NMAX,
@@ -37,12 +56,14 @@
 
 
         call sub_wvfnc_new(NMAX,int_mb(filling(1)),
-     >					wavefunction_filename,
-     >             		version,
-     >					ngrid,
-     >					unita,
-     >					ispin,
-     >					ne)
+     >                     wavefunction_filename,
+     >                     version,
+     >                     ngrid,
+     >                     unita,
+     >                     ispin,
+     >                     ne,
+     >                     fractional,
+     >                     fractional_orbitals)
         write(*,*) "random planewave guess, initial psi:",
      >             wavefunction_filename
         write(*,*) "-   spin, nalpha, nbeta:",ispin,ne
@@ -56,15 +77,16 @@
 
 
       subroutine sub_wvfnc_new(NMAX,filling,
-     >                      wavefunction_filename,
-     >             			version,
-     >						ngrid,
-     >						unita,
-     >						ispin,
-     >						ne)
+     >                         wavefunction_filename,
+     >                         version,
+     >                         ngrid,
+     >                         unita,
+     >                         ispin,
+     >                         ne,
+     >                         fractional,
+     >                         frac_orb)
 
       implicit none
-#include "errquit.fh"
       integer NMAX
       integer filling(4,NMAX,2)
       character*30 wavefunction_filename
@@ -72,8 +94,11 @@
       integer      ngrid(3)
       real*8       unita(3,3)
       integer      ispin,ne(2)
+      logical      fractional
+      integer      frac_orb(2)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
  
       logical value
       integer ierr
@@ -85,7 +110,7 @@
       integer i,j,k,ms,n,occupation
 
       double precision p,scale
-      double complex cc,cx,sx,zx,zc
+      double complex cc,cx,sx,zx,zc,rx,ry
 
 *     **** external functions ****
       double precision gcdotc,util_random
@@ -142,7 +167,11 @@
       call dwrite(6,unita,9)
       call iwrite(6,ispin,1)
       call iwrite(6,ne,2)
-      occupation = -1
+      if (fractional) then
+         occupation = ispin
+      else
+         occupation = -1
+      end if
       call iwrite(6,occupation,1)
  
       call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
@@ -227,6 +256,22 @@ c    >                   + (0.5d0-util_random(0))
  
 
   150 CONTINUE
+
+c     **** add occupation ****
+      if (fractional) then
+         rx = 1.0d0
+         ry = 0.0d0
+         do ms=1,ispin
+           do n=1,ne(ms)
+             if (n.le.frac_orb(ms)) then
+                call dwrite(6,ry,1)
+             else
+                call dwrite(6,rx,1)
+             end if
+           end do
+         end do
+      end if
+
  
       call closefile(6)
       IERR=0

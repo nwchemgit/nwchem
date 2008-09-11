@@ -1,5 +1,5 @@
 *
-* $Id: psi.fh,v 1.4 2007-09-24 16:58:14 bylaska Exp $
+* $Id: psi.fh,v 1.5 2008-09-11 21:26:51 bylaska Exp $
 *
 
 *     ***** psi common block ****
@@ -23,4 +23,10 @@
 
       common / epsi_block / psi1_excited,psi2_excited,
      >                      eig_excited,ne_excited,neq_excited
+
+*     **** psi smearing block ****
+      integer smearoccupation,smeartype
+      real*8 smearfermi(2),smearcorrection,smearkT
+      common / psi_block23 / smearfermi,smearcorrection,smearkT,
+     >                       smearoccupation,smeartype
 

@@ -1,5 +1,5 @@
 *
-* $Id: psi_read.F,v 1.17 2008-04-22 17:42:23 bylaska Exp $
+* $Id: psi_read.F,v 1.18 2008-09-11 21:26:51 bylaska Exp $
 *
 
 *     ***********************************
@@ -8,11 +8,12 @@
 *     *             			*
 *     ***********************************
 
-      subroutine psi_read(ispin,ne,psi2)
+      subroutine psi_read(ispin,ne,psi2,occupation,occ)
       implicit none 
       integer ispin,ne(2)
       double complex psi2(*)
       integer occupation
+      real*8 occ(*)
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -147,6 +148,13 @@ c     **** send header to all nodes ****
             call Pack_c_Copy(1,dcpl_mb(tmp2(1)),psi2(1+(q-1)*npack1))
          end if
       end do
+
+      if (occupation.gt.0) then
+         if (taskid.eq.MASTER) then
+            call dread(5,occ,(ne(1)+ne(2)))
+         end if
+         call Parallel_Brdcst_values(MASTER,(ne(1)+ne(2)),occ)
+      end if
       
 
 *     *** close ELCIN binary file ***
@@ -291,16 +299,19 @@ c     **** send header to all nodes ****
       end if
 
 
-*     *** read in 3d blocks ***
+*     *** read in 3d blocks - data replicated ***
       do n=1,(ne(1)+ne(2))
-         call Dnexall_ntoqp(n,q,pj)
+c         call Dnexall_ntoqp(n,q,pj)
           
          call D3dB_c_read(1,5,dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp(1)),pj)
-         if (pj.eq.taskid_j) then
-           call Pack_c_pack(1,dcpl_mb(tmp2(1)))
-           call Pack_c_Copy(1,dcpl_mb(tmp2(1)),psi2(1+(q-1)*npack1))
-         end if
+     >                        dcpl_mb(tmp(1)),-1)
+         call Pack_c_pack(1,dcpl_mb(tmp2(1)))
+         call Pack_c_Copy(1,dcpl_mb(tmp2(1)),psi2(1+(n-1)*npack1))
+
+c         if (pj.eq.taskid_j) then
+c           call Pack_c_pack(1,dcpl_mb(tmp2(1)))
+c           call Pack_c_Copy(1,dcpl_mb(tmp2(1)),psi2(1+(q-1)*npack1))
+c         end if
       end do
 
 *     *** close ELCIN binary file ***

@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize2.F,v 1.3 2008-09-03 17:07:41 bylaska Exp $                       
+c     $Id: bybminimize2.F,v 1.4 2008-09-11 21:26:47 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -11,13 +11,14 @@ c
 *  ************************************************************
   
       subroutine bybminimize2(E,deltae,deltac,current_iteration,
-     >                       set_iterations,iterations)
+     >                       set_iterations,iterations,failed)
       implicit none
       real*8     E(*)
       real*8     deltae,deltac
       integer    current_iteration
       logical    set_iterations
       integer    iterations
+      logical    failed
 
 
 #include "stdio.fh"
@@ -25,6 +26,8 @@ c
 #include "util.fh"
 
 *     **** local variables ****
+      integer MAX_SD_COUNT
+      parameter (MAX_SD_COUNT = 3)
       integer MASTER,taskid
       parameter (MASTER=0)
 
@@ -34,10 +37,10 @@ c
       integer rho_in(2),rho_out(2),rho_junk(2)
       real*8  E0,dE0,deltae_old,Ein,deltae_history(10)
       real*8  ks_deltae,deltav,dV,deltav_old,diis_error
-      integer nx,ny,nz,stalled_count
+      integer nx,ny,nz,stalled_count,sd_count
 
 
-      real*8     sum0,sum1,sum3,scale,tole,tolc
+      real*8     tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
       real*8     Enew,Eold,alpha
       !common / cgsd_block / Enew,Eold,alpha
@@ -127,6 +130,7 @@ c
       deltae_history(3) = 0.0d0
       deltae_history(4) = 0.0d0
       stalled_count     = 0
+      sd_count          = 0
 
       call D3dB_n2ft3d(1,n2ft3d)
 
@@ -192,6 +196,16 @@ c
      >                   ks_deltae)
 
       call rho_1to2()
+
+*     **** rotate orbitals ****
+      call psi_1gen_hml()
+      call psi_diagonalize_hml()
+      call psi_1rotate2()
+      call psi_2to1()
+
+*     **** define fractional occupation ****
+      call psi_1define_occupation(.false.)
+
       Eold = Enew
       Enew = psi_1energy()
 
@@ -217,10 +231,13 @@ c
 
 
 *     **** update vall using density mixing ****
+c      if ((it.le.0) .or.
+c     >    ((dabs(deltae).lt.1.0d1) .and.
+c     >    (deltav       .lt.1.0d1) .and.
+c     >    (.not.stalled          ))) then
       if ((it.le.0) .or.
-     >    ((dabs(deltae).lt.1.0d1) .and.
-     >    (deltav       .lt.1.0d1) .and.
-     >    (.not.stalled          ))) then
+     >    ((deltae.lt.0.0d0) .and.
+     >     (.not.stalled          ))) then
 
          call nwpw_scf_mixing(dbl_mb(rho_in(1)),dbl_mb(rho_out(1)),
      >                        deltae,diis_error)
@@ -229,15 +246,13 @@ c
       else
 
   30     call sdminimize(sd_it)
+         sd_count = sd_count + 1
          Eold   = Enew
          Enew   = psi_1energy()
         
-         if ((Enew.gt.Eold).or.(dabs(Enew-Eold).gt.1.0d-1)) then
-            write(*,*) "    - Eold,Enew,deltae=",Eold,Enew,Enew-Eold
-            go to 30
-         end if
-         
-         !if (dabs(Enew-Eold).gt.1.0d2) go to 30
+c         if (((Enew.gt.Eold).or.(dabs(Enew-Eold).gt.1.0d-1)).and.
+c     >       (sd_count.lt.MAX_SD_COUNT)) go to 30
+         if ((Enew.gt.Eold).and.(sd_count.lt.MAX_SD_COUNT)) go to 30
 
          call dcopy(ispin*n2ft3d,
      >              dbl_mb(rho_out(1)),1,
@@ -319,9 +334,9 @@ c      stalled = .false.
      >         .and.(deltae.lt.0.0d0)
      >         .and.(deltac      .lt.tolc))
      >       .or. (it.ge.it_in))
+c     >       .or. (sd_count.ge.MAX_SD_COUNT))
 
       if (.not.done) go to 2
-
 
 
 *     **** free memory ****
@@ -378,6 +393,9 @@ c      call psi_check()
          E(26) = ehfx
          E(27) = phfx
       end if
+
+ccc      failed = (sd_count.ge.MAX_SD_COUNT)
+      failed = .false.
 
       return
       end

@@ -1,5 +1,5 @@
 *
-* $Id: psi_Hv4.F,v 1.16 2008-05-13 02:10:27 bylaska Exp $
+* $Id: psi_Hv4.F,v 1.17 2008-09-11 21:26:49 bylaska Exp $
 *
 
 *     *************************************
@@ -34,7 +34,8 @@
      >                 vsr_l,vlr_l,
      >                 v_field,field_exist,
      >                 vc,xcp,Hpsi_k,
-     >                 move,fion)
+     >                 move,fion,
+     >                 fractional,occ)
       implicit none
       integer    ispin,ne(2)
       complex*16 psi_k(*)
@@ -48,6 +49,8 @@
       complex*16 Hpsi_k(*)
       logical    move
       real*8     fion(3,*)
+      logical fractional
+      real*8  occ(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -113,7 +116,7 @@
 *     **************************
 *     **** add non-local psp ***
 *     **************************
-      call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
+      call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion,fractional,occ)
 
 
 *     **********************************************
@@ -343,7 +346,7 @@ c      end do
 *     **** add non-local psp ***
 *     **************************
       call v_nonlocal(ispin,nne,orb_k,Horb_k,
-     >                .false.,fion)
+     >                .false.,fion,.false.,fion)
 
 *     **************************
 *     **** SIC corrections?? ***

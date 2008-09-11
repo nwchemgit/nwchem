@@ -1,4 +1,4 @@
-c     $Id: cgsd_excited.F,v 1.8 2006-08-13 01:03:26 bylaska Exp $                       
+c     $Id: cgsd_excited.F,v 1.9 2008-09-11 21:26:47 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -67,10 +67,7 @@ c#include "rtdb.fh"
       call psi_get_ne_excited(ispin,nexcited)
       call Dnex_init(ispin,nexcited,control_mapping1d())
 
-
-
       value = epsi_initialize()
-
       call psi_gen_density_potentials(1)
       call psi_minimize_virtual()
 
