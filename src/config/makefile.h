@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.573 2008-09-04 17:14:02 d3p307 Exp $
+# $Id: makefile.h,v 1.574 2008-09-11 20:21:56 d3j191 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1259,7 +1259,7 @@ ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 
 #   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
 # needed if python was built with pthread support
-   EXTRA_LIBS += -lz  -lreadline -lncurses -lnwcutil  -lpthread -lutil -ldl
+   EXTRA_LIBS += -lz  -lreadline -lncurses -lnwcutil  -lpthread -lutil -ldl -lsysfs
 endif
 
   DEFINES = -DLINUX
