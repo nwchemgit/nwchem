@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.188 2007-12-14 00:44:50 marat Exp $
+C     $Id: geom_input.F,v 1.189 2008-09-13 01:04:11 jhammond Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -4657,6 +4657,13 @@ c
       if (groupname(1:2).eq.'S2') then
          groupname(1:2)=CI
       endif
+c
+c   As far as I know D1d does not exist but this fix is necessary for some reason.
+c
+      if (groupname(1:3).eq.'D1D') then
+         write(groupname,'(a1,i1,a6)') 'C',1,'      '
+      endif
+c
 c
       IF(SOME) THEN
          WRITE(IW,9999) groupname
