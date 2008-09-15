@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.89 2008-09-11 21:26:51 bylaska Exp $
+* $Id: psi.F,v 1.90 2008-09-15 20:25:33 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.89  2008/09/11 21:26:51  bylaska
+* ...EJB
+*
 * Revision 1.88  2008/06/21 19:37:16  bylaska
 *
 * initalization error fixed with psi_Tgradient...EJB
@@ -3956,10 +3959,10 @@ c     real*8 sum1,sum2
 *     ***********************************
       subroutine psi_1force(fion)
       implicit none
-#include "errquit.fh"
       real*8 fion(3,*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "psi.fh"
 
 *     **** local variables ****
@@ -4002,7 +4005,8 @@ c    >                            dcpl_mb(dng1(1)))
       call f_vnonlocal(ispin,
      >                 neq,
      >                 dcpl_mb(psi1(1)),
-     >                 fion)
+     >                 fion,
+     >                 occupation_on,dbl_mb(occ1(1)))
       return
       end
 
@@ -4075,7 +4079,8 @@ c    >                            dcpl_mb(dng1(1)))
       call f_vnonlocal(ispin,
      >                 neq,
      >                 dcpl_mb(psi1(1)),
-     >                 fion)
+     >                 fion,
+     >                 occupation_on,dbl_mb(occ1(1)))
       return
       end
 
