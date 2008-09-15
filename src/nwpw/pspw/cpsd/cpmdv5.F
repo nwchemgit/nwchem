@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.72 2008-09-11 21:26:48 bylaska Exp $
+* $Id: cpmdv5.F,v 1.73 2008-09-15 18:48:11 bylaska Exp $
 *
 
 ***********************************************************************
@@ -255,7 +255,6 @@ c      parameter (autoatm =290.360032539d6)
 
       call D3dB_pfft_init()
 
-
 *     ***** allocate psi2, psi1, and psi0 wavefunctions ****
       call psi_get_ne_occupation(ispin,ne,smearoccupation)
       if (smearoccupation.gt.0) then
@@ -267,7 +266,6 @@ c      parameter (autoatm =290.360032539d6)
       call Dne_init(ispin,ne,mapping1d)
       call Dneall_neq(neq)
       nemaxq = neq(1)+neq(2)
-
 
       value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
@@ -299,10 +297,12 @@ c      parameter (autoatm =290.360032539d6)
         call v_psi_delete()
       end if
 
+
 *     **** generate initial wavefunction velocities if it does not exist ****
       if (.not.v_psi_filefind()) then
         call v_psi_new(ispin,ne)
       end if
+
 
 *     *****  read psi0 wavefunctions ****
       call dcopy(2*npack1*(neq(1)+neq(2)),0.0d0,0,dcpl_mb(psi1(1)),1)
@@ -349,6 +349,7 @@ c      parameter (autoatm =290.360032539d6)
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
       if (control_version().eq.3) call ewald_init()
+      
 
 *     ******************************
 *     **** scaling psi velocity ****
@@ -369,17 +370,21 @@ c      parameter (autoatm =290.360032539d6)
      >                    sum)
          eke1 = eke1 + sum
       end do
+
       call D1dB_SumAll(eke0)
       call D1dB_SumAll(eke1)
       eke0 = control_fake_mass()*eke0
       eke1 = control_fake_mass()*eke1
       call ion_init_ke(ekg,eki0,eki1)
 
+
 *     **** Initialize thermostats ****
       if (control_Nose()) then
-         call ke_ave(ispin,neq,dcpl_mb(psi2(1)),w)
+         call ke_ave(ispin,neq,dcpl_mb(psi2(1)),w,
+     >               fractional,dbl_mb(occ2(1)))
          call Nose_Init((ne(1)+ne(2)),w)
       end if
+
 
 *     **** Initialize simulated annealing ****
       SA       = .false.
@@ -417,6 +422,7 @@ c      call frac_occ_init(rtdb,ispin,ne)
 *     **** initialize SIC and HFX ****
       call pspw_init_SIC(rtdb,ne)
       call pspw_init_HFX(rtdb,ispin,ne)
+
 
 
 *     **** initialize pressure ****
@@ -480,6 +486,9 @@ c      call frac_occ_init(rtdb,ispin,ne)
          ELSE IF (control_gga().eq.112) THEN
             write(6,1131)
      >      'revPBE0 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.113) THEN
+            write(6,1131)
+     >      'BNL (White and Bird) parameterization'
 
          ELSE IF (control_gga().eq.200) THEN
             write(6,1131) 'Hartree-Fock'
@@ -709,7 +718,9 @@ c      call frac_occ_init(rtdb,ispin,ne)
      >             1,0,E,
      >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
      >             dcpl_mb(Hpsi(1)),dcpl_mb(psir(1)),
-     >             calc_pressure,pressure,p1,p2)
+     >             calc_pressure,pressure,p1,p2,
+     >             fractional,
+     >             dbl_mb(occ0(1)),dbl_mb(occ1(1)),dbl_mb(occ2(1)))
 
 
       if (taskid.eq.MASTER) call current_second(cpu2)
@@ -1138,7 +1149,8 @@ c         end if
 
       
 *     ***** write wavefunctions and v_wavefunctions ****
-      call psi_write(ispin,ne,dcpl_mb(psi2(1)))
+      call psi_write(ispin,ne,dcpl_mb(psi2(1)),
+     >               smearoccupation,dbl_mb(occ2(1)))
       call v_psi_write(ispin,ne,dcpl_mb(psi0(1)))
 
 *     **** write geometry to rtdb ****

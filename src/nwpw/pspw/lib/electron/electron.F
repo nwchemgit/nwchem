@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.53 2008-09-11 21:26:49 bylaska Exp $
+* $Id: electron.F,v 1.54 2008-09-15 18:48:13 bylaska Exp $
 *
 
 
@@ -10,9 +10,9 @@
 *     ***********************************
       subroutine electron_init()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "electron_common.fh"
 
 
@@ -1864,12 +1864,12 @@ cccccccccc#include "frac_occ.fh"
 
       subroutine electron_gen_scf_potentials(dn,dng,dnall)
       implicit none
-#include "errquit.fh"
       real*8     dn(*)
       complex*16 dng(*)
       real*8     dnall(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "electron_common.fh"
 
 
@@ -1877,10 +1877,13 @@ cccccccccc#include "frac_occ.fh"
       logical value
       integer n2ft3d,gga
       integer tmp1(2)
+      real*8  gmma
 
 *     **** external functions ****
       integer  control_gga,control_version
       external control_gga,control_version
+      real*8   control_attenuation
+      external control_attenuation
 
      
       n2ft3d = 2*nfft3d
@@ -1933,6 +1936,14 @@ cccccccccc#include "frac_occ.fh"
      >                    0.75d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)))
+      else if (gga.eq.113) then
+        gmma = control_attenuation()
+        call v_bwexc(11,n2ft3d,ispin,dnall,
+     >                    0.0d0,1.0d0,
+     >                    dbl_mb(xcp(1)),
+     >                    dbl_mb(xce(1)))
+        call bnl2007_x(n2ft3d,ispin,dnall,0.9d0,gmma,
+     >                 dbl_mb(xcp(1)),dbl_mb(xce(1)))
       end if
 
       return

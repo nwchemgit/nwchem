@@ -1,5 +1,5 @@
 *
-* $Id: cgmdv5.F,v 1.12 2008-06-22 16:43:52 bylaska Exp $
+* $Id: cgmdv5.F,v 1.13 2008-09-15 18:48:09 bylaska Exp $
 *
 
 ***********************************************************************
@@ -365,6 +365,9 @@ c      end if
          ELSE IF (control_gga().eq.112) THEN
             write(6,1131) 
      >      'revPBE0 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.113) THEN
+            write(6,1131) 
+     >      'BNL (White and Bird) parameterization'
 
          ELSE IF (control_gga().eq.200) THEN
             write(6,1131) 'Hartree-Fock'

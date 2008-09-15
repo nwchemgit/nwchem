@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.15 2007-03-29 00:51:38 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.16 2008-09-15 18:48:15 bylaska Exp $
 *
 
 *     *************************
@@ -244,6 +244,8 @@ c     **** define Amatrix ****
 
 *     **** local variables ****
       integer i,ms
+      real*8   control_attenuation
+      external control_attenuation
 
       if (hfx_on) then
         if (relaxed) then
@@ -263,6 +265,8 @@ c     **** define Amatrix ****
            if (rcut.ge.0.0d0) write(unit,1008) rcut
            if (rcut.ge.0.0d0) write(unit,1009) pp
            if (rcut.ge.0.0d0) write(unit,1011) flag
+           if ((rcut.ge.0.0d0).and.(flag.eq.2)) 
+     >        write(unit,1012) control_attenuation()
         else
           write(unit,1007)
         end if
@@ -288,6 +292,8 @@ c     **** define Amatrix ****
      >       E10.3)
  1011 FORMAT(6x,"- HFX screening type (pspw:HFX_screening_type)   :",
      >       I2)
+ 1012 FORMAT(6x,"- attenuation parameter (nwpw:attenuation)       :",
+     >       E10.3)
       end
 
 

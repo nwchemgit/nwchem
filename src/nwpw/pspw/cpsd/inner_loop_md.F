@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.32 2008-09-11 21:26:49 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.33 2008-09-15 18:48:12 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -128,6 +128,7 @@ c     real*8     fion(3,natmx)
       call Parallel_np(np)
       call Pack_npack(0,npack0)
 
+
       n2ft3d = 2*nfft3d
       field_exist       = pspw_charge_found()
       sic               = pspw_SIC()
@@ -219,6 +220,7 @@ c     real*8     fion(3,natmx)
 
       espring = 0.0d0
 
+
 *     ******************************************
 *     ****                                  ****
 *     **** Start of molecular dynamics loop ****
@@ -229,7 +231,7 @@ c     real*8     fion(3,natmx)
         call dcopy(2*npack1*nemax,psi2,1,psi1,1)
 *       *** skip ion_shift if newton step ***
         if (verlet) call ion_shift()
-        if (nose.and.verlet) call Nose_Shift()
+        if (nose.and.verlet) call Nose_shift()
 
 
 *       ********************************
@@ -311,6 +313,7 @@ c        end do
      >                     dbl_mb(dnall(1) +(ms-1)*n2ft3d))
         end do
         call nwpw_timing_end(11)
+
 
 
 
@@ -399,14 +402,14 @@ c        end do
      >             dcpl_mb(vl(1)),
      >             dbl_mb(v_field(1)),field_exist,
      >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
-     >             move,dbl_mb(fion(1)))
+     >             move,dbl_mb(fion(1)),fractional,occ1)
 
         if (control_version().eq.4)
      >     call psi_Hv4(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
      >             dbl_mb(v_field(1)),field_exist,
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
-     >             move,dbl_mb(fion(1)))
+     >             move,dbl_mb(fion(1)),fractional,occ1)
 
 
 *       **********************
@@ -709,7 +712,7 @@ c        end if
 *        ***** average Kohn-Sham v_nonlocal energy ****
         call dcopy(2*npack1*nemax,0.0d0,0,Hpsi,1)
         call v_nonlocal(ispin,ne,psi1,Hpsi,
-     >                move,dbl_mb(ftest(1)),fractional,occ1)
+     >                .false.,dbl_mb(ftest(1)),fractional,occ1)
         enlocal = 0.0d0
         do ms=1,ispin
         do n=n1(ms),n2(ms)

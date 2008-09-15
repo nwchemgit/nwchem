@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.63 2008-09-11 21:26:48 bylaska Exp $
+* $Id: cpsdv5.F,v 1.64 2008-09-15 18:48:11 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -453,6 +453,9 @@ c      call frac_occ_init(rtdb,ispin,ne)
          ELSE IF (control_gga().eq.112) THEN
             write(6,1131) 
      >      'revPBE0 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.113) THEN
+            write(6,1131) 
+     >      'BNL (White and Bird) parameterization'
 
          ELSE IF (control_gga().eq.200) THEN
             write(6,1131) 'Hartree-Fock'
@@ -854,7 +857,8 @@ c            write(luout,1706) E(18)
       end if
 
 *     ***** write psi2 wavefunctions ****
-      call psi_write(ispin,ne,dcpl_mb(psi2(1)))
+      call psi_write(ispin,ne,dcpl_mb(psi2(1)),
+     >               smearoccupation,dbl_mb(occ2(1)))
  
 *     **** write geometry to rtdb ****
       call ion_write(rtdb)

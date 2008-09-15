@@ -1,5 +1,5 @@
 *
-* $Id: control.fh,v 1.32 2008-06-10 19:48:09 d3p708 Exp $
+* $Id: control.fh,v 1.33 2008-09-15 18:48:08 bylaska Exp $
 *
 *     **** control common block ****
       character*30 boutput_wavefunction_filename
@@ -13,7 +13,7 @@
       character*12 boundry
       real*8      unita(3,3),tolerances(3),scaling(2),sa_decay(2)
       real*8      time_step,fake_mass,ks_alpha,ecut,wcut,rcut
-      real*8      cpu1_time,cpu2_time
+      real*8      cpu1_time,cpu2_time,attenuation
       real*8      bo_time_step
       integer     bo_steps,bo_algorithm
       integer     loop(2),ngrid(3),npsp,ncut,mapping,mapping1d
@@ -28,7 +28,7 @@
       integer     symm_number
       common / control_block / unita,tolerances,scaling,sa_decay,
      >                         time_step,fake_mass,ks_alpha,
-     >                         ecut,wcut,rcut,
+     >                         ecut,wcut,rcut,attenuation,
      >                         bo_time_step,bo_steps,bo_algorithm,
      >                         mapping,mapping1d,np_dimensions,
      >                         ncut,gga,

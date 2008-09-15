@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.122 2008-09-11 21:26:47 bylaska Exp $
+* $Id: control.F,v 1.123 2008-09-15 18:48:08 bylaska Exp $
 *
 
 *     ***********************************
@@ -857,6 +857,9 @@ c     >                  1,output_wavefunction_filename)
          frac_smeartype = 0
       end if
 
+*     **** set attenuation parameter ****
+      if (.not.rtdb_get(rtdb,'nwpw:attenuation',mt_dbl,1,attenuation))
+     >  attenuation = 0.5d0
 
 *     **** set out of time variables ****
       est_step_time   = -1
@@ -3931,6 +3934,19 @@ c      end
      >   value = 300.0d0
 
       control_init_velocities_temperature = value
+      return
+      end
+
+
+*     **********************************************
+*     *                                            *
+*     *      control_attenuation                   *
+*     *                                            *
+*     **********************************************
+      real*8 function control_attenuation()
+      implicit none
+#include "control.fh"
+      control_attenuation = attenuation
       return
       end
 

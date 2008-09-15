@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.99 2008-09-11 21:26:48 bylaska Exp $
+* $Id: cgsdv5.F,v 1.100 2008-09-15 18:48:10 bylaska Exp $
 *
 
 ***********************************************************************
@@ -347,6 +347,9 @@ c     value = psi_initialize()
          ELSE IF (control_gga().eq.112) THEN
             write(luout,1131) 
      >      'revPBE0 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.113) THEN
+            write(luout,1131) 
+     >      'BNL (White and Bird) parameterization'
 
          ELSE IF (control_gga().eq.200) THEN
             write(luout,1131) 'Hartree-Fock'

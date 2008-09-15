@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.20 2006-08-13 01:03:27 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.21 2008-09-15 18:48:13 bylaska Exp $
 
 
 *
@@ -17,7 +17,7 @@
 
 *     **** local variables ****
       real*8 EPSILON
-      parameter (EPSILON=1.0d0)
+c      parameter (EPSILON=1.0d0)
 
       logical value
       integer npack0,nfft3d,G(3),n2ft3d
@@ -32,9 +32,17 @@
       integer  G_indx
       real*8   util_erf,lattice_omega,lattice_unita
       real*8   kiril_coulomb_transform, kiril_coulomb_transform0
+      real*8  control_attenuation
       external G_indx
       external util_erf,lattice_omega,lattice_unita
       external kiril_coulomb_transform, kiril_coulomb_transform0
+      external control_attenuation
+
+      if (flag.eq.2) then
+         EPSILON = control_attenuation()
+      else
+         EPSILON = 1.0d0
+      end if
 
       call nwpw_timing_start(7)
       call Parallel2d_taskid_i(taskid)
@@ -83,7 +91,7 @@
 *     ***********************************************
 *     ***** use aperiodic definitions of kernel ******
 *     ***********************************************
-      if (flag.eq.0) then
+      if ((flag.eq.0).or.(flag.eq.2)) then
 
 *     ***********************************
 *     *** Set up the Green's function ***
@@ -100,8 +108,10 @@ c    >     + i+1
       call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
 
 
-*     **** short-range part of Greens function ****
       call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(gk(1)),1)
+
+*     **** short-range part of Greens function set only for short-range ****
+      if (flag.eq.0) then
       do i=1,nfft3d
 
          gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
@@ -119,6 +129,8 @@ c    >     + i+1
       end do
       call D3dB_cr_fft3b(1,dcpl_mb(gk(1)))
       call D3dB_r_SMul(1,scal1,dcpl_mb(gk(1)),dcpl_mb(gk(1)))
+      end if
+
 
 
 *     **** long-range part of Greens function ****
@@ -225,7 +237,7 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 *     ***********************************************
 *     ***** use periodic definitions of kernel ******
 *     ***********************************************
-      else
+      else 
         i=0
         j=0
         k=0

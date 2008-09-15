@@ -83,8 +83,8 @@ c
       double precision Pi
       parameter (Pi = 3.141592653589793d0)
       double precision TwoSqrtPi,OneOverQ,q2
-      double precision DERF
-      external DERF
+      double precision util_erf
+      external util_erf
 
       OneOverQ = 1.0d0/q
       TwoSqrtPi = 2.0d0*dsqrt(Pi)
@@ -100,7 +100,7 @@ c
          return
       end if
 
-      THqBNL=1.0d0-q*2.0d0/3.0d0*(TwoSqrtPi*DERF(OneOverQ)-q+
+      THqBNL=1.0d0-q*2.0d0/3.0d0*(TwoSqrtPi*util_erf(OneOverQ)-q+
      $     q*(q2-2.0d0)*(1.0d0-exp(-OneOverQ*OneOverQ)))
 
       return
@@ -117,8 +117,8 @@ c
       double precision Pi
       parameter (Pi = 3.141592653589793d0)
       double precision OneOverQ,q2,q3
-      double precision DERF
-      external         DERF
+      double precision util_erf
+      external         util_erf
 
       OneOverQ = 1.0d0/q
       q2 = q**2.0d0
@@ -130,7 +130,7 @@ c
       end if
 
       THqBNLPrime = 4.0d0/3.0d0*(q*(exp(-OneOverQ*OneOverQ)*(2.0d0*q2
-     $     -1.0d0)+(3.0d0-2.0d0*q2))-dsqrt(Pi)*DERF(OneOverQ))
+     $     -1.0d0)+(3.0d0-2.0d0*q2))-dsqrt(Pi)*util_erf(OneOverQ))
 
       return
       end

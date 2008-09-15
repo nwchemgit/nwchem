@@ -1,6 +1,6 @@
 
 *
-* $Id: inner_loop.F,v 1.30 2008-09-11 21:26:48 bylaska Exp $
+* $Id: inner_loop.F,v 1.31 2008-09-15 18:48:11 bylaska Exp $
 *
 
 *  ************************************************************
@@ -514,7 +514,7 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *     ***** average Kohn-Sham v_nonlocal energy ****
       call dcopy(2*npack1*nemax,0.0d0,0,Hpsi,1)
       call v_nonlocal(ispin,ne,psi1,Hpsi,
-     >                move,dbl_mb(ftest(1)),fractional,occ1)
+     >                .false.,dbl_mb(ftest(1)),fractional,occ1)
       enlocal = 0.0d0
       do ms=1,ispin
       do n=n1(ms),n2(ms)
