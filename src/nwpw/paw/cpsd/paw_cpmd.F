@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.25 2007-11-17 22:45:48 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.26 2008-09-15 20:52:31 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.25  2007/11/17 22:45:48  bylaska
+* ...EJB
+*
 * Revision 1.24  2007/04/02 15:38:39  bylaska
 * Symbol names increased to length 4 instead of 2.
 * standalone  rdf calculation added.
@@ -156,7 +159,7 @@
       integer ispin
       integer ne(2),n1(2),n2(2),nemax,neall,neq(2),nemaxq
       real*8  r_charge,icharge
-      real*8  dipole(3)
+      real*8  dipole(3),occ(1)
 
       integer psi0(2),psi1(2),psi2(2)
       integer dn(2),dn_cmp_smooth(2)
@@ -180,8 +183,8 @@
 
 *     **** local variables ****
       logical verlet,mulliken,SA,found
-      integer ms,lmax
-      real*8  deltae,deltac,deltar
+      integer ms,lmax,idum
+      real*8  deltae,deltac,deltar,dum(1)
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2
       real*8 vcx,vcy,vcz,vgx,vgy,vgz
       real*8  ekg,eki0,eki1,sum
@@ -429,7 +432,7 @@ c      call paw_vloc_init()
 
 
 *     *****  read psi2 wavefunctions ****
-      call psi_read(ispin,ne,dcpl_mb(psi2(1)))
+      call psi_read(ispin,ne,dcpl_mb(psi2(1)),idum,dum)
 
 
 *     **** move  wavefunction velocities ****
@@ -550,7 +553,7 @@ c      call init_paw_density(ispin,lmax)
 
 *     **** Initialize thermostats ****
       if (control_Nose()) then
-         call ke_ave(ispin,ne,dcpl_mb(psi2(1)),w)
+         call ke_ave(ispin,ne,dcpl_mb(psi2(1)),w,.false.,occ)
          call Nose_Init((ne(1)+ne(2)),w)
       end if
 
@@ -752,7 +755,8 @@ c      call pspw_qmmm_init(rtdb)
 
 
 *     **** open EMOTION file ****
-      value = rtdb_cget(rtdb,'cpmd:emotion_filename',1,filename)
+      if (.not.rtdb_cget(rtdb,'cpmd:emotion_filename',1,filename))
+     >  call util_file_prefix('emotion',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                    full_filename)
@@ -1218,7 +1222,7 @@ c         end if
 !      
 !
 !*     ***** write psi2 wavefunctions ****
-       call psi_write(ispin,ne,dcpl_mb(psi2(1)))
+       call psi_write(ispin,ne,dcpl_mb(psi2(1)),-1,dum)
       call v_psi_write(ispin,ne,dcpl_mb(psi0(1)))
 
        !call psi_marat_write("marat3.elc",ispin,ne,dcpl_mb(psi2(1)))

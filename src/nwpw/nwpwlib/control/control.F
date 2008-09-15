@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.123 2008-09-15 18:48:08 bylaska Exp $
+* $Id: control.F,v 1.124 2008-09-15 20:52:29 bylaska Exp $
 *
 
 *     ***********************************
@@ -121,14 +121,6 @@
      >                  1,exchange_correlation))
      >   exchange_correlation = 'vosko'
 
-c      value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
-c      value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
-c      value = value.and.
-c     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.0d0)
-c      value = value.and.
-c     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
-c      value = value.and.
-c     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
 
 #include "control_gga.fh"
 
@@ -198,14 +190,6 @@ c     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
       if(.not.rtdb_cget(rtdb,'cpmd:exchange_correlation',
      >                  1,exchange_correlation))
      >  exchange_correlation = 'vosko'
-c      value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
-c      value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
-c      if(.not. rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.00d0))
-c     *     call errquit(' control: rtdb_put failed ',0,0)      
-c      if(.not. rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.00d0))
-c     *     call errquit(' control: rtdb_put failed ',0,0)
-c      if(.not. rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0))
-c     *     call errquit(' control: rtdb_put failed ',0,0)
 
 #include "control_gga.fh"
 
@@ -256,11 +240,6 @@ c     *     call errquit(' control: rtdb_put failed ',0,0)
       if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
      >  rotation = .true.
 
-c     do i=1,npsp
-c       id = 'cpmd:psp'//CHAR(i)
-c       value = value.and.
-c    >          rtdb_cget(rtdb,id,1,pspnames(i))
-c     end do
 
 *     **** get thermostat information ****
       if (.not.rtdb_get(rtdb,'cpmd:nose',mt_log,1,nose))
@@ -394,8 +373,9 @@ c
 *     **** pspw_dplot: stuff ****
       else if (code.eq.4) then
          value = .true.
-         value = rtdb_cget(rtdb,'pspw_dplot:wavefunction_filename',
-     >                  1,input_wavefunction_filename)
+         if (.not.rtdb_cget(rtdb,'pspw_dplot:wavefunction_filename',
+     >                  1,input_wavefunction_filename))
+     >     call util_file_prefix('movecs',input_wavefunction_filename)
          call psi_get_header(i,ngrid,unita,ispin0,ne)
          if (i.eq.3) boundry = 'periodic'
          if (i.eq.4) boundry = 'aperiodic'
@@ -429,13 +409,7 @@ c
       if (.not.rtdb_cget(rtdb,'band:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
-cc      value = value.and.
-cc     >        rtdb_cget(rtdb,'band:input_wavefunction_filename',
-cc     >                  1,input_wavefunction_filename)
-cc      value = value.and.
-cc     >        rtdb_cget(rtdb,'band:output_wavefunction_filename',
-cc     >                  1,output_wavefunction_filename)
-cc
+
 c     **** Figure input/output MO vectors ****
 c
       if (.not. rtdb_cget(rtdb, 'pspw:input vectors', 
@@ -540,13 +514,12 @@ c
       if (.not.rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
-      value = value.and.
-     >        rtdb_cget(rtdb,'cgsd:input_wavefunction_filename',
-     >                  1,input_wavefunction_filename)
-      value = value.and.
-     >        rtdb_cget(rtdb,'cgsd:output_wavefunction_filename',
-     >                  1,output_wavefunction_filename)
-
+      if (.not.rtdb_cget(rtdb,'cgsd:input_wavefunction_filename',
+     >                  1,input_wavefunction_filename))
+     >  call util_file_prefix('movecs',input_wavefunction_filename)
+      if (.not.rtdb_cget(rtdb,'cgsd:output_wavefunction_filename',
+     >                  1,output_wavefunction_filename))
+     > call util_file_prefix('movecs',output_wavefunction_filename)
       if (.not.rtdb_cget(rtdb,'cgsd:exchange_correlation',
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
@@ -604,18 +577,20 @@ c
       if (.not.rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:input_wavefunction_filename',
-     >                  1,input_wavefunction_filename)
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:output_wavefunction_filename',
-     >                  1,output_wavefunction_filename)
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
-     >                  1,input_v_wavefunction_filename)
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
-     >                  1,output_v_wavefunction_filename)
+
+      if (.not.rtdb_cget(rtdb,'cpmd:input_wavefunction_filename',
+     >                  1,input_wavefunction_filename))
+     >  call util_file_prefix('movecs',input_wavefunction_filename)
+      if (.not.rtdb_cget(rtdb,'cpmd:output_wavefunction_filename',
+     >                  1,output_wavefunction_filename))
+     >  call util_file_prefix('movecs',output_wavefunction_filename)
+      if (.not.rtdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
+     >                  1,input_v_wavefunction_filename))
+     >  call util_file_prefix('vmovecs',input_v_wavefunction_filename)
+      if (.not.rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
+     >                  1,output_v_wavefunction_filename))
+     >  call util_file_prefix('vmovecs',output_v_wavefunction_filename)
+
 
 *     ***** motion filenames ****
       if(.not.rtdb_cget(rtdb,'cpmd:xyz_filename',
@@ -692,12 +667,16 @@ c
      >  rotation = .true.
 
 *     **** get thermostat information ****
-      value = value .and. rtdb_get(rtdb,'cpmd:nose',mt_log,1,nose)
-      value = value .and. rtdb_get(rtdb,'cpmd:Pe',mt_dbl,1,Pe)
-      value = value .and. rtdb_get(rtdb,'cpmd:Te',mt_dbl,1,Te)
-      value = value .and. rtdb_get(rtdb,'cpmd:Pr',mt_dbl,1,Pr)
-      value = value .and. rtdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr)
-
+      if (.not.rtdb_get(rtdb,'cpmd:nose',mt_log,1,nose))
+     >   nose = .false.
+      if (.not.rtdb_get(rtdb,'cpmd:Pe',mt_dbl,1,Pe))
+     >   Pe = 1000.0d0
+      if (.not.rtdb_get(rtdb,'cpmd:Te',mt_dbl,1,Te))
+     >   Te = 298.15d0
+      if (.not.rtdb_get(rtdb,'cpmd:Pr',mt_dbl,1,Pr))
+     >   Pr = 1000.0d0
+      if (.not.rtdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr))
+     >   Tr = 298.15d0
 
 
 *     **** pspw_wannier ****
@@ -731,12 +710,6 @@ c
          input_wavefunction_filename = output_wavefunction_filename
       end if
 
-c         value = rtdb_cget(rtdb,'wannier:input_wavefunction_filename',
-c     >                  1,input_wavefunction_filename)
-c         value = value.and.
-c     >           rtdb_cget(rtdb,'wannier:output_wavefunction_filename',
-c     >                  1,output_wavefunction_filename)
-
          call psi_get_header(i,ngrid,unita,ispin0,ne)
          if (i.eq.3) boundry = 'periodic'
          if (i.eq.4) boundry = 'aperiodic'
@@ -765,8 +738,9 @@ c     >                  1,output_wavefunction_filename)
 *     **** band_dplot: stuff ****
       else if (code.eq.10) then
          value = .true.
-         value = rtdb_cget(rtdb,'band_dplot:wavefunction_filename',
-     >                  1,input_wavefunction_filename)
+         if (.not.rtdb_cget(rtdb,'band_dplot:wavefunction_filename',
+     >                  1,input_wavefunction_filename))
+     >     call util_file_prefix('movecs',input_wavefunction_filename)
          call psi_get_header(i,ngrid,unita,ispin0,ne,nbrill)
          if (i.eq.5) boundry = 'periodic'
 

@@ -1,8 +1,12 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.12 2007-03-22 20:46:20 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.13 2008-09-15 20:52:32 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.12  2007/03/22 20:46:20  bylaska
+* New implementation of QM/MM.
+* ....EJB
+*
 * Revision 1.11  2006/02/11 02:50:46  bylaska
 * GGA's using 1st derivative formulas have been added in core part of PAW....EJB
 *
@@ -110,7 +114,7 @@
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr
       integer nx,ny,nz
       integer index,indext
-      double precision evloc_pw,evloc_atom
+      double precision evloc_pw,evloc_atom,occ(1)
       real*8  sum,Eold,eorbit,ehartr_pw,enlocal
       real*8  eke,eki,sse,ssr,sa1,sa2
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,h
@@ -730,7 +734,7 @@ c        end if
   
 
 *     ***** average Kohn-Sham kinetic energy ****
-      call ke_ave(ispin,ne,psi1,ekin_pw)
+      call ke_ave(ispin,ne,psi1,ekin_pw,.false.,occ)
 
 
 *     **** average Kohn-Sham v_local energy ****

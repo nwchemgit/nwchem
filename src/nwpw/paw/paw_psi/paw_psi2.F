@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.12 2007-09-24 16:58:12 bylaska Exp $
+* $Id: paw_psi2.F,v 1.13 2008-09-15 20:52:34 bylaska Exp $
 *
 
 
@@ -1088,13 +1088,13 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 #include "paw_psi.fh"
 
 *     **** local variables ***
-      real*8 ave
+      real*8 ave,occ(1)
 
 *     **** external functions ****
       real*8   paw_electron_eorbit
       external paw_electron_eorbit
       
-      call ke_ave(ispin,ne,dcpl_mb(psi1(1)),ave)
+      call ke_ave(ispin,ne,dcpl_mb(psi1(1)),ave,.false.,occ)
       paw_psi_1ke = ave
 
       return
@@ -1433,6 +1433,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       call paw_electron_run(dcpl_mb(psi1(1)),
      >                   dbl_mb(rho1(1)),
      >                  dcpl_mb(dng1(1)))
+
       Eout =  paw_electron_energy(dcpl_mb(psi1(1)),
      >                        dbl_mb(rho1(1)),
      >                        dcpl_mb(dng1(1)))
@@ -2723,8 +2724,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       integer MASTER,taskid
       parameter (MASTER=0)
       logical value,psi_nogrid
-      integer nemax,ms
-      real*8 sum1,sum2
+      integer nemax,ms,idum
+      real*8 sum1,sum2,dum(1)
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
       integer rtdb,ind
@@ -2835,7 +2836,7 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
 
       end if
 
-      call psi_read(ispin,ne,dcpl_mb(psi1(1)))
+      call psi_read(ispin,ne,dcpl_mb(psi1(1)),idum,dum)
 
 c      call psi_history_read(ispin,ne,
 c     >                      dcpl_mb(psi1(1)),
@@ -2887,8 +2888,10 @@ c     >                      dcpl_mb(psi2(1)))
 #include "mafdecls.fh"
 #include "paw_psi.fh"
 
+      real*8 dum(1)
+
 *     ***** write psi1 wavefunctions ****
-      call psi_write(ispin,ne,dcpl_mb(psi1(1)))
+      call psi_write(ispin,ne,dcpl_mb(psi1(1)),-1,dum)
 
       return
       end
@@ -2912,10 +2915,11 @@ c     >                      dcpl_mb(psi2(1)))
 
 *     **** local variables ****
       logical value
+      real*8  dum
 
 *     ***** write psi1 wavefunctions ****
       if (wpsi) then
-       call psi_write(ispin,ne,dcpl_mb(psi1(1)))
+       call psi_write(ispin,ne,dcpl_mb(psi1(1)),-1,dum)
 c      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
       end if
     

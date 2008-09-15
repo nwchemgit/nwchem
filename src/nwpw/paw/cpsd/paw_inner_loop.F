@@ -1,8 +1,16 @@
 *
-* $Id: paw_inner_loop.F,v 1.43 2007-09-24 16:58:12 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.44 2008-09-15 20:52:32 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.43  2007/09/24 16:58:12  bylaska
+* ...preliminary PAW modifications...
+*   - basis file format changed
+*   - .vpp formatting routines added to pspw
+*
+* - zdotc routines currently modified to tzdotc.
+* ...EJB
+*
 * Revision 1.42  2006/02/11 02:50:46  bylaska
 * GGA's using 1st derivative formulas have been added in core part of PAW....EJB
 *
@@ -147,7 +155,7 @@
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr
       integer nx,ny,nz
       integer index,indext
-      double precision evloc_pw,evloc_atom
+      double precision evloc_pw,evloc_atom,occ(1)
       real*8  sum,Eold,eorbit,ehartr_pw,eke,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  deltamm,vzero
@@ -681,7 +689,7 @@ c        call paw_density_solve()
         
   
 *     ***** average Kohn-Sham kinetic energy ****
-      call ke_ave(ispin,ne,psi1,eke)
+      call ke_ave(ispin,ne,psi1,eke,.false.,occ)
 
 
 *     **** average Kohn-Sham v_local energy ****

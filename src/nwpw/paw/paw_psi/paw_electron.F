@@ -1,5 +1,5 @@
 *
-* $Id: paw_electron.F,v 1.8 2006-06-05 17:34:26 edo Exp $
+* $Id: paw_electron.F,v 1.9 2008-09-15 20:52:33 bylaska Exp $
 *
 
 
@@ -258,7 +258,7 @@ c      call paw_electron_gen_Hpsi_k_orb(i,psi_k)
       integer n2ft3d
       integer ii,ms,n1(2),n2(2),nx,ny,nz
       real*8  sum,ehartr,exc,exc2,dv,eke,evloc
-      real*8  total_energy
+      real*8  total_energy,occ(1)
 
 *     **** external functions *****
       integer  control_version
@@ -284,7 +284,7 @@ c      call paw_electron_gen_Hpsi_k_orb(i,psi_k)
 
 
 *     **** get kinetic energies ****
-      call ke_ave(ispin,ne,psi_k,eke)
+      call ke_ave(ispin,ne,psi_k,eke,.false.,occ)
       eke = eke + paw_energy_kin_atom()
 c      write(*,*) "eke:",eke
 

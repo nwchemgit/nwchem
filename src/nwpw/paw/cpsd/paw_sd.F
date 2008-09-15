@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.82 2007-11-18 00:35:05 bylaska Exp $
+* $Id: paw_sd.F,v 1.83 2008-09-15 20:52:33 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.82  2007/11/18 00:35:05  bylaska
+* ...EJB
+*
 * Revision 1.81  2007/04/02 15:38:39  bylaska
 * Symbol names increased to length 4 instead of 2.
 * standalone  rdf calculation added.
@@ -246,8 +249,8 @@
       integer ierr
 
 *     **** local variables ****
-      integer ms,lmax
-      real*8  deltae,deltac,deltar
+      integer ms,lmax,idum
+      real*8  deltae,deltac,deltar,dum(1)
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2
       real*8  EV,pi
       integer i,j,k,ia,n,nn
@@ -537,7 +540,7 @@ c      call paw_vloc_init()
       end if
 
       end if
-      call psi_read(ispin,ne,dcpl_mb(psi2(1)))
+      call psi_read(ispin,ne,dcpl_mb(psi2(1)),idum,dum)
 
       n1(1) = 1
       n2(1) = ne(1)
@@ -985,7 +988,7 @@ c         write(6,1498) virial
 !      
 !
 !*     ***** write psi2 wavefunctions ****
-       call psi_write(ispin,ne,dcpl_mb(psi2(1)))
+       call psi_write(ispin,ne,dcpl_mb(psi2(1)),-1,dum)
        !call psi_marat_write("marat3.elc",ispin,ne,dcpl_mb(psi2(1)))
 
 

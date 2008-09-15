@@ -1,5 +1,5 @@
 c
-c     $Id: paw_cgminimize.F,v 1.4 2007-09-24 16:58:11 bylaska Exp $                       
+c     $Id: paw_cgminimize.F,v 1.5 2008-09-15 20:52:31 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -246,7 +246,7 @@ c              scale = sum3/sum0
 
  30   call paw_psi_2to1()
       call paw_psi_1toelectron() 
-      call paw_psi_check()
+c      call paw_psi_check()
 
 
 *     **** plane-wave energies ****
