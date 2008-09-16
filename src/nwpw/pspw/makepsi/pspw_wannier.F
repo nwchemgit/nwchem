@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.18 2008-01-03 00:31:51 d3p708 Exp $
+* $Id: pspw_wannier.F,v 1.19 2008-09-16 23:42:45 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -216,7 +216,7 @@ c      character*255 full_filename,full_filename2
 
 
 *     *****  read psi2 wavefunctions ****
-      call psi_read(ispin,ne,dcpl_mb(psi(1)))
+      call psi_read_noocc(ispin,ne,dcpl_mb(psi(1)))
 
 
       if (oprint) then
@@ -495,7 +495,7 @@ c              alpha = dble(wx)
 
 
 *     ***** write psi2 wavefunctions ****
-      call psi_write(ispin,ne,dcpl_mb(psi2(1)))
+      call psi_write_noocc(ispin,ne,dcpl_mb(psi2(1)))
 
       call ion_end()
 

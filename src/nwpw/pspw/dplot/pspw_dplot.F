@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.18 2007-07-13 22:31:00 bylaska Exp $
+* $Id: pspw_dplot.F,v 1.19 2008-09-16 23:42:43 bylaska Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -11,18 +11,18 @@
 #include "rtdb.fh"
 
 
-      logical value
+      logical value,fractional
       integer taskid,np
       integer MASTER
       parameter (MASTER=0)
 
 *     **** local variables ***
 
-      integer count
+      integer count,smearoccupation
       integer ngrid(3)
       integer nfft3d,n2ft3d,npack1,mapping,mapping1d
       integer ispin,ne(2),nemax
-      integer psi2(2),dn(2),psir(2)
+      integer psi2(2),dn(2),psir(2),occ2(2)
       real*8  cpu1,cpu2
       real*8  position_tolerance,origin(3)
       character*8 tag
@@ -120,18 +120,29 @@
       value = ion_init(rtdb)
 
 *     ***** allocate psi2 wavefunctions ****
-      call psi_get_ne(ispin,ne)
+      call psi_get_ne_occupation(ispin,ne,smearoccupation)
+      if (smearoccupation.gt.0) then
+         fractional = .true.
+      else
+         fractional = .false.
+      end if
       nemax = ne(1)+ne(2)
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'psi2',psi2(2),psi2(1))
+      if (fractional) then
+         value = value.and.
+     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ2',occ2(2),occ2(1))
+      end if
+
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       mapping1d   = control_mapping1d()
       call Dne_init(ispin,ne,mapping1d)
 
 *     *****  read psi2 wavefunctions ****
-      call psi_read(ispin,ne,dcpl_mb(psi2(1)))
+      call psi_read(ispin,ne,dcpl_mb(psi2(1)),
+     >              smearoccupation,dbl_mb(occ2(1)))
 
 *     **** allocate other variables *****
       value = value.and.
@@ -256,6 +267,10 @@
       value = MA_free_heap(psir(2))
       value = value.and.MA_free_heap(dn(2))
       value = value.and.MA_free_heap(psi2(2))
+      if (fractional) then
+         value = MA_free_heap(occ2(2))
+      end if
+
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
       call Dne_end()
