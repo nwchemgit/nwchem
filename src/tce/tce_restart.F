@@ -97,6 +97,10 @@ c        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
 c
+        if(nodezero) write(6,2)'v2_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
+c
       return 
       end 
 c
@@ -189,6 +193,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if(nodezero) write(6,2)'f1_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
 c
       return 
       end 
@@ -303,6 +311,10 @@ c        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
 c
+        if(nodezero) write(6,2)'d1_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
+c
       return 
       end 
 c
@@ -415,6 +427,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if(nodezero) write(6,2)'x1_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
 c
       return 
       end 
@@ -530,6 +546,10 @@ c
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
 c
+        if(nodezero) write(6,2)'tr1_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
+c
       return 
       end 
 c
@@ -643,6 +663,10 @@ c
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
 c
+        if(nodezero) write(6,2)'y1_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
+c
       return 
       end 
 c
@@ -754,6 +778,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if(nodezero) write(6,2)'yr1_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
 c
       return 
       end 
@@ -876,6 +904,10 @@ c
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
 c
+        if(nodezero) write(6,2)'x2_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
+c
       return 
       end 
 c
@@ -995,6 +1027,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if(nodezero) write(6,2)'tr2_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
 c
       return 
       end 
@@ -1116,6 +1152,10 @@ c
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
 c
+        if(nodezero) write(6,2)'y2_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
+c
       return 
       end 
 c
@@ -1235,6 +1275,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if(nodezero) write(6,2)'yr2_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
 c
       return 
       end 
@@ -1390,6 +1434,10 @@ c
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
 c
+        if(nodezero) write(6,2)'x3_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
+c
       return 
       end 
 c
@@ -1539,6 +1587,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if(nodezero) write(6,2)'y3_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
 c
       return 
       end 
@@ -1694,6 +1746,10 @@ c
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
 c
+        if(nodezero) write(6,2)'tr3_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
+c
       return 
       end 
 c
@@ -1843,6 +1899,10 @@ c
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
+c
+        if(nodezero) write(6,2)'yr3_restart_save finished'
+    2 format(1x,A80)
+        call util_flush(6)
 c
       return 
       end 
