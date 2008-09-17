@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.53 2008-09-17 03:33:38 jhammond Exp $
+c $Id: tce_init.F,v 1.54 2008-09-17 04:41:34 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -257,7 +257,7 @@ c
       endif
       if (.not.rtdb_get(rtdb,'tce:denom_power',mt_int,1,
      1                  denom_power)) then
-        denom_power = 1.0
+        denom_power = 2
         if (.not.rtdb_put(rtdb,'tce:denom_power',mt_int,1,denom_power))
      1  call errquit('tce_init: failed to write denom_power',0,RTDB_ERR)
       endif
