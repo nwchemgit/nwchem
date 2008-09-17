@@ -1,6 +1,6 @@
       subroutine tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,iter,omega)
 c
-c $Id: tce_jacobi_ir2.F,v 1.2 2008-09-17 03:33:40 jhammond Exp $
+c $Id: tce_jacobi_ir2.F,v 1.3 2008-09-17 16:43:50 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -87,7 +87,7 @@ c     5         *( -dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
 c     6            -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
 c     7            +dbl_mb(k_evl_sorted+int_mb(k_offset+h3b-1)+h3-1)
 c     8            +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1) )
-     9            +omega*omega+shift)
+     9            -omega*omega+shift)
                      enddo
                     enddo
                    enddo

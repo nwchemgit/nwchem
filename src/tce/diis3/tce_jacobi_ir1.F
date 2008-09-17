@@ -1,6 +1,6 @@
       subroutine tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,iter,omega)
 c
-c $Id: tce_jacobi_ir1.F,v 1.2 2008-09-17 03:33:39 jhammond Exp $
+c $Id: tce_jacobi_ir1.F,v 1.3 2008-09-17 16:43:50 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -70,7 +70,7 @@ c
      3           **denom_power
 c     3          *( -dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
 c     4             +dbl_mb(k_evl_sorted+int_mb(k_offset+h2b-1)+h2-1) )
-     5             +omega*omega+shift)
+     5             -omega*omega+shift)
                enddo
               enddo
               call add_hash_block(d_t1,dbl_mb(k_r1),size,
