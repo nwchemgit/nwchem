@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-tcgmsg.F,v 1.8 2008-09-03 17:07:32 bylaska Exp $
+* $Id: Parallel-tcgmsg.F,v 1.9 2008-09-17 03:23:14 bylaska Exp $
 *
 
 * Parallel.f
@@ -84,6 +84,7 @@ c      integer mpierr
       np_j = ncolumns
 
 
+      if (np_j.gt.1) then
       icount = 0
       do j=0,np_j-1
       do i=0,np_i-1
@@ -108,6 +109,7 @@ c      integer mpierr
         comm_j = ga_pgroup_create(int_mb(tmp(1)),np_j)
       if (.not.MA_pop_stack(tmp(2)))
      >  call errquit('Parallel2d_init:popping stack memory',0, MA_ERR)
+      end if
 
       return
       end
@@ -128,10 +130,14 @@ c      integer mpierr
 #include "global.fh"
 
 *      **** free comm_i and comm_j communicators ****
+       if (np_j.gt.1) then
+
        if (.not.ga_pgroup_destroy(comm_i))
      >  call errquit('Parallel2d_Finalize: error destoying comm_i',0,0)
        if (.not.ga_pgroup_destroy(comm_j))
      >  call errquit('Parallel2d_Finalize: error destoying comm_j',0,1)
+
+       end if
 
       return
       end
