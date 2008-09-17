@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.121 2008-09-17 03:47:55 jhammond Exp $
+c $Id: tce_energy.F,v 1.122 2008-09-17 05:47:57 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -2580,7 +2580,7 @@ c
               call get_block(d_a0,alpha2,1,0)
               call tce_zero(d_a0,size_a0)
             endif ! axisA.eq.axisB
-            write(LuOut,*) "alpha_1 BA = ",alpha2
+c            write(LuOut,*) "alpha_1 BA = ",alpha2
 c
             alpha(axisA,axisB)=alpha(axisA,axisB)+alpha1+alpha2
 c
@@ -2603,7 +2603,7 @@ c            write(LuOut,*) "alpha_2 A(+i) B(-i)"
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha1,1,0)
             call tce_zero(d_a0,size_a0)
-            write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
+c            write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
 c
 c            write(LuOut,*) "alpha_2 A(-i) B(+i)"
             call alpha_2(d_f1,d_a0,d_t1,d_t2,
@@ -2617,7 +2617,7 @@ c            write(LuOut,*) "alpha_2 A(-i) B(+i)"
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha2,1,0)
             call tce_zero(d_a0,size_a0)
-            write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
+c            write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
 c
 c            write(LuOut,*) "alpha_2 A(r) B(r)"
             call alpha_2(d_f1,d_a0,d_t1,d_t2,
@@ -2630,7 +2630,7 @@ c            write(LuOut,*) "alpha_2 A(r) B(r)"
      7           k_l1_offset,k_l2_offset)
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha3,1,0)
-            write(LuOut,*) "alpha_2 A(r) B(r) = ",alpha3
+c            write(LuOut,*) "alpha_2 A(r) B(r) = ",alpha3
             call deletefile(d_a0)
 c
             alpha(axisA,axisB)=alpha(axisA,axisB)-alpha1-alpha2+alpha3
