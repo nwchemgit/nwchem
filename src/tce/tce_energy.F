@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.122 2008-09-17 05:47:57 jhammond Exp $
+c $Id: tce_energy.F,v 1.123 2008-09-17 19:23:39 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -4593,7 +4593,8 @@ c -------------
 c
         if (lineresp) then
 #if !defined(CCSDTLR)
-          call errquit('CCSDTLR not compiled',0,CAPMIS_ERR)
+          call errquit('CCSDTLR not compiled (tce_energy.F)',
+     &                  0,CAPMIS_ERR)
           return
 #endif
 c          if (nodezero) write(LuOut,*) "lineresp is go"
