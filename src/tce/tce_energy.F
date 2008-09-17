@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.123 2008-09-17 19:23:39 jhammond Exp $
+c $Id: tce_energy.F,v 1.124 2008-09-17 21:32:17 kowalski Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -7273,7 +7273,7 @@ c               call hbar_tidy
                     write(LuOut,*) 'Saving X1 now...'
                   endif
                   do ivec = 1,min(nroots_reduced,8)
-                    call x1_restart_save(x1(ivec),k_x1_offset,size_x1,
+                    call x1_restart_save(xc1(ivec),k_x1_offset,size_x1,
      1                             ivec,handle_x1,irrep_x)
                   enddo
                 endif
@@ -7282,7 +7282,7 @@ c               call hbar_tidy
                     write(LuOut,*) 'Saving X2 now...'
                   endif
                   do ivec = 1,min(nroots_reduced,8)
-                    call x2_restart_save(x2(ivec),k_x2_offset,size_x2,
+                    call x2_restart_save(xc2(ivec),k_x2_offset,size_x2,
      1                             ivec,handle_x2,irrep_x)
                   enddo
                 endif
