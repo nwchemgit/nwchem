@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.30 2008-05-26 00:15:33 jhammond Exp $
+# $Id: GNUmakefile,v 1.31 2008-09-17 05:10:12 jhammond Exp $
 #
 
 
@@ -38,7 +38,7 @@
          ao_rdm_read.o
 
    LIBRARY = libproperty.a
-   LIB_DEFINES = 
+   LIB_DEFINES = -DJEFF_OUTPUT
 
 #
 # If you add -DJEFF_OUTPUT to LIB_DEFINES, the dipole polarizability will be printed in the same format as the TCE.
