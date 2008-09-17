@@ -1,5 +1,5 @@
 *
-* $Id: geodesic2.F,v 1.8 2008-09-11 21:26:50 bylaska Exp $
+* $Id: geodesic2.F,v 1.9 2008-09-17 00:55:35 bylaska Exp $
 *
 
 *     ***********************************
@@ -123,10 +123,10 @@ c      ne(2) = psi_neq(2)
 *     **** external functions **** 
       logical  Dneall_4m_allocate,Dneall_m_free
       integer  psi_ispin,psi_neq
-      real*8   electron_eorbit
+      real*8   electron_eorbit_noocc
       external Dneall_4m_allocate,Dneall_m_free
       external psi_ispin,psi_neq
-      external electron_eorbit
+      external electron_eorbit_noocc
 
       call nwpw_timing_start(10)
       call Pack_npack(1,npack1)
@@ -170,7 +170,7 @@ c      ne(2) = psi_neq(2)
      >                             dbl_mb(S(1)))
 
 *     **** calculate dE ****
-      dE = 2.0d0*electron_eorbit(H)
+      dE = 2.0d0*electron_eorbit_noocc(H)
 
 
 *     **** deallocate tmp space ****     

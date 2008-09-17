@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.54 2008-09-15 18:48:13 bylaska Exp $
+* $Id: electron.F,v 1.55 2008-09-17 00:55:34 bylaska Exp $
 *
 
 
@@ -398,6 +398,45 @@ c      end
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *         electron_eorbit_noocc   *
+*     *                                 *
+*     ***********************************
+      real*8 function electron_eorbit_noocc(psi_k)
+      implicit none
+      complex*16 psi_k(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+*     **** local variables ****
+      integer ii,ms,n1(2),n2(2)
+      real*8  sum,eorbit
+
+      n1(1) = 1
+      n1(2) = neq(1) + 1
+      n2(1) = neq(1)
+      n2(2) = neq(1) + neq(2)
+
+*     *** get orbital energies ****
+      eorbit = 0.0d0
+      do ms=1,ispin
+      do ii=n1(ms),n2(ms)
+        call Pack_cc_idot(1,psi_k(1+(ii-1)*npack1),
+     >                    dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
+     >                    sum)
+        eorbit = eorbit + sum
+      end do
+      end do
+     
+      call Parallel_SumAll(eorbit)
+      if (ispin.eq.1) eorbit = eorbit+eorbit
+
+      electron_eorbit_noocc = eorbit
+      return
+      end
 
 
 

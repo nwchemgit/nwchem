@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.90 2008-09-15 20:25:33 bylaska Exp $
+* $Id: psi.F,v 1.91 2008-09-17 00:55:36 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.90  2008/09/15 20:25:33  bylaska
+* ...fractional bug fix..EJB
+*
 * Revision 1.89  2008/09/11 21:26:51  bylaska
 * ...EJB
 *
@@ -3703,14 +3706,14 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 #include "psi.fh"
 
 *     **** external functions ****
-      real*8   electron_eorbit
-      external electron_eorbit
+      real*8   electron_eorbit_noocc
+      external electron_eorbit_noocc
 
 
       call geodesic_transport(t,dcpl_mb(psi1(1)),
      >                          dcpl_mb(psi2(1)))
-      psi_geodesic_denergy =  2.0d0*electron_eorbit(dcpl_mb(psi2(1)),
-     >                                 occupation_on,dbl_mb(occ2(1)))
+      psi_geodesic_denergy 
+     > =  2.0d0*electron_eorbit_noocc(dcpl_mb(psi2(1)))
 
       return
       end

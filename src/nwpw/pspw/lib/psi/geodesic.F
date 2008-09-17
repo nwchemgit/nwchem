@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.29 2008-09-11 21:26:50 bylaska Exp $
+* $Id: geodesic.F,v 1.30 2008-09-17 00:55:35 bylaska Exp $
 *
 
 *     ***********************************
@@ -134,10 +134,10 @@ c      value = value.and.MA_free_heap(Vt(2))
 *     **** external functions ****
       logical  Dneall_m_allocate,Dneall_m_free 
       integer  psi_ispin,psi_ne
-      real*8   electron_eorbit
+      real*8   electron_eorbit_noocc
       external Dneall_m_allocate,Dneall_m_free
       external psi_ispin,psi_ne
-      external electron_eorbit
+      external electron_eorbit_noocc
 
       call nwpw_timing_start(10)
       call Pack_npack(1,npack1)
@@ -160,7 +160,7 @@ c      value = value.and.MA_free_heap(Vt(2))
       call Dneall_mm_transpose(0,dbl_mb(V(1)),dbl_mb(Vt(1)))
 
 *     **** calculate 2*<A|H|psi> ****
-      dE = 2.0d0*electron_eorbit(A)
+      dE = 2.0d0*electron_eorbit_noocc(A)
 
 *     **** deallocate tmp space ****   
       if (.not.Dneall_m_free(V))  
