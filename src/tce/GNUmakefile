@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.78 2008-09-17 03:46:20 jhammond Exp $
+#$Id: GNUmakefile,v 1.79 2008-09-17 05:05:09 jhammond Exp $
 #
 
 SUBDIRS = include diis2 diis3 \
@@ -8,7 +8,7 @@ SUBDIRS = include diis2 diis3 \
           ccd lccd lccsd qcisd cc3 \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
           ccsdt ccsdt_lambda eomccsdt \
-          ccsdt_alpha_offdiag ccsdt_alpha_new \
+          ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta \
           ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag
 
 OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
@@ -97,13 +97,11 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_diagnose_t1.F ddotfile.F tce_ao2e_cholesky.F tce_energy.F
 
 ifndef CCSDTLR
-LIB_DEFINES =
-else
-LIB_DEFINES = -DCCSDTLR
+LIB_DEFINES += -DCCSDTLR
 endif
 
 #LIB_DEFINES += -DNEWDIPOLE
-LIB_DEFINES += -DDEBUG_PRINT -DSPAGHETTY
+#LIB_DEFINES += -DDEBUG_PRINT -DSPAGHETTY
 
 #
 # Possible #defines
