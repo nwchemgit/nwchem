@@ -1,3 +1,15 @@
+c
+c TO DO:
+c
+c 1. initialize all handles to 0 or -1 in tce_energy.F
+c 2. in every restart_save call, add logic so that if a handle is 0 or -1 
+c (whatever is chosen so that this value is always an invalid SF handle) then
+c call sf_create, otherwise just do status check (what is this call in SF?) and write.
+c
+c motivation: handles are repeatedly created despite just writing over existing
+c file and in response calculations this adds up to more than the number of
+c valid handles (100) SF supports by default.
+c
       subroutine v2_restart_save(d_v2,k_v2_alpha_offset_s,size_2e,
      1                           handle_v2)
       IMPLICIT NONE
@@ -78,7 +90,6 @@ c
          call errquit('v2_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-c        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
         if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
          call errquit('v2_restart_save: sf problem31-b',2,DISK_ERR)
         end if
@@ -294,7 +305,6 @@ c
          call errquit('d1_restart_save: sf problem21-b',1,DISK_ERR)
         end if
         ierrcode2=sf_wait(request)
-c        if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
         if ((ierrcode2.ne.0).and.(.not.restart_ignore_failure(1))) then
          call errquit('d1_restart_save: sf problem31-b',2,DISK_ERR)
         end if

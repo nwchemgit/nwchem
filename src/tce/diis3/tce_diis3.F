@@ -3,8 +3,9 @@
      2  d_r2,d_t2,k_t2_offset,size_t2,
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4,omega)
+c     4  d_r4,d_t4,k_t4_offset,size_t4,omega,denom_power)
 c
-c $Id: tce_diis3.F,v 1.1 2008-08-18 01:58:36 jhammond Exp $
+c $Id: tce_diis3.F,v 1.2 2008-09-17 03:33:39 jhammond Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -124,18 +125,19 @@ c
       if (diis .le. 0) then
         if (transpose) then
          call errquit('tce_diis3: transpose not available',0,CALC_ERR)
-c          if (t1) call tce_jacobi_lr1(d_r1,d_t1,k_t1_offset)
-c          if (t2) call tce_jacobi_lr2(d_r2,d_t2,k_t2_offset)
-c          if (t3) call tce_jacobi_lr3(d_r3,d_t3,k_t3_offset)
-c          if (t4) call tce_jacobi_lr4(d_r4,d_t4,k_t4_offset)
+c          if (t1) call tce_jacobi_lir1(d_r1,d_t1,k_t1_offset,iter,omega)
+c          if (t2) call tce_jacobi_lir2(d_r2,d_t2,k_t2_offset,iter,omega)
+c          if (t3) call tce_jacobi_lir3(d_r3,d_t3,k_t3_offset,iter,omega)
+c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,iter,omega)
         else
-          if (t1) call tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,iter,omega)
-          if (t2) call tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,iter,omega)
-c          if (t3) call tce_jacobi_tr3(d_r3,d_t3,k_t3_offset)
-c          if (t4) call tce_jacobi_tr4(d_r4,d_t4,k_t4_offset)
-          if (t3.or.t4) then
-            call errquit('tce_diis3: t3/t4 not available',0,CALC_ERR)
-          endif
+          if (t1) call tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,iter,omega,
+     &                                denom_power)
+          if (t2) call tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,iter,omega,
+     &                                denom_power)
+          if (t3) call tce_jacobi_tr3(d_r3,d_t3,k_t3_offset,iter,omega,
+     &                                denom_power)
+          if (t4) call tce_jacobi_tr4(d_r4,d_t4,k_t4_offset,iter,omega,
+     &                                denom_power)
         endif
         return
       endif
@@ -375,18 +377,15 @@ ccc      order = tce_diis_switch(iter)
       IF (r1_pointer .lt. diis3) THEN
         if (transpose) then
          call errquit('tce_diis3: transpose not available',0,CALC_ERR)
-c          if (t1) call tce_jacobi_lr1(d_r1,d_t1,k_t1_offset)
-c          if (t2) call tce_jacobi_lr2(d_r2,d_t2,k_t2_offset)
-c          if (t3) call tce_jacobi_lr3(d_r3,d_t3,k_t3_offset)
-c          if (t4) call tce_jacobi_lr4(d_r4,d_t4,k_t4_offset)
+c          if (t1) call tce_jacobi_lir1(d_r1,d_t1,k_t1_offset,iter,omega)
+c          if (t2) call tce_jacobi_lir2(d_r2,d_t2,k_t2_offset,iter,omega)
+c          if (t3) call tce_jacobi_lir3(d_r3,d_t3,k_t3_offset,iter,omega)
+c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,iter,omega)
         else
           if (t1) call tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,iter,omega)
           if (t2) call tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,iter,omega)
-c          if (t3) call tce_jacobi_tr3(d_r3,d_t3,k_t3_offset)
-c          if (t4) call tce_jacobi_tr4(d_r4,d_t4,k_t4_offset)
-          if (t3.or.t4) then
-            call errquit('tce_diis3: t3/t4 not available',0,CALC_ERR)
-          endif
+          if (t3) call tce_jacobi_tr3(d_r3,d_t3,k_t3_offset,iter,omega)
+          if (t4) call tce_jacobi_tr4(d_r4,d_t4,k_t4_offset,iter,omega)
         endif
       END IF
 c

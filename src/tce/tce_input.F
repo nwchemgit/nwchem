@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.28 2008-08-18 02:13:36 jhammond Exp $
+c $Id: tce_input.F,v 1.29 2008-09-17 03:33:37 jhammond Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -86,6 +86,7 @@ c
       integer ioalg
       integer reference
       integer diis,diis2,diis3
+      integer imagsolver
 c --- level shift --
       double precision zlshift,zlshift2,zlshift3
 c ------------------
@@ -187,6 +188,13 @@ c
      2  RTDB_ERR)
       diis3=5
       if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+c     DIIS solver for imaginary response (choose 2 or 3)
+c
+      imagsolver=2
+      if (.not.rtdb_put(rtdb,'tce:imagsolver',mt_int,1,imagsolver))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
@@ -906,6 +914,18 @@ c
           diis3=5
         endif
         if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c     DIIS solver for imaginary response (choose 2 or 3)
+c
+      else if (inp_compare(.false.,test,'imagsolver')) then
+        if (.not.inp_i(imagsolver)) then
+          write(LuOut,*) 'tce_input: imagsolver value not found; ',
+     1      'default value of 2 will be used'
+          imagsolver=2
+        endif
+        if (.not.rtdb_put(rtdb,'tce:imagsolver',mt_int,1,imagsolver))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c

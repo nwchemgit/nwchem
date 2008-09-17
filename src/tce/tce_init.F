@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.52 2008-09-02 12:31:53 jhammond Exp $
+c $Id: tce_init.F,v 1.53 2008-09-17 03:33:38 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -249,6 +249,17 @@ c
         diis3 = maxdiis
         if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
      1  call errquit('tce_init: failed to write diis3',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:imagsolver',mt_int,1,imagsolver)) then
+        imagsolver = 2
+        if (.not.rtdb_put(rtdb,'tce:imagsolver',mt_int,1,imagsolver))
+     1  call errquit('tce_init: failed to write imagsolver',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:denom_power',mt_int,1,
+     1                  denom_power)) then
+        denom_power = 1.0
+        if (.not.rtdb_put(rtdb,'tce:denom_power',mt_int,1,denom_power))
+     1  call errquit('tce_init: failed to write denom_power',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:nroots',mt_int,1,nroots)) then
         nroots = 0
@@ -1064,6 +1075,8 @@ c
           else
             write(LuOut,9163) 'Jacobi'
           endif
+          write(LuOut,9155) imagsolver
+          write(LuOut,9156) denom_power
         endif
         if (nroots .gt. 0) then
           write(LuOut,9170) nroots
@@ -1134,6 +1147,8 @@ c
  9150 format(3x,'       Amplitude update : ',i2,a)
  9152 format(3x,' CC-LR Amplitude update : ',i2,a)
  9153 format(3x,' CC-IR Amplitude update : ',i2,a)
+ 9155 format(3x,'     CC-IR Using Solver : ',i1)
+ 9156 format(3x,'CC-IR denominator power : ',i2)
  9160 format(3x,'       Amplitude update : ',a)
  9162 format(3x,' CC-LR Amplitude update : ',a)
  9163 format(3x,' CC-IR Amplitude update : ',a)

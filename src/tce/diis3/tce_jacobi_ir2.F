@@ -1,6 +1,6 @@
       subroutine tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,iter,omega)
 c
-c $Id: tce_jacobi_ir2.F,v 1.1 2008-08-18 01:58:36 jhammond Exp $
+c $Id: tce_jacobi_ir2.F,v 1.2 2008-09-17 03:33:40 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -72,9 +72,6 @@ c
      1              int_mb(k_t2_offset),((((p1b-noab-1)*nvab+p2b-noab-1)
      2              *noab+h3b-1)*noab+h4b-1))
                   i = 0
-c *** shift added ***
-ccc               shift=0.50d0
-c *******************
                   do p1 = 1,int_mb(k_range+p1b-1)
                    do p2 = 1,int_mb(k_range+p2b-1)
                     do h3 = 1,int_mb(k_range+h3b-1)
@@ -85,10 +82,11 @@ c *******************
      2            -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
      3            +dbl_mb(k_evl_sorted+int_mb(k_offset+h3b-1)+h3-1)
      4            +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1) )
-     5         *( -dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
-     6            -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
-     7            +dbl_mb(k_evl_sorted+int_mb(k_offset+h3b-1)+h3-1)
-     8            +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1) )
+     5          **denom_power
+c     5         *( -dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
+c     6            -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
+c     7            +dbl_mb(k_evl_sorted+int_mb(k_offset+h3b-1)+h3-1)
+c     8            +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1) )
      9            +omega*omega+shift)
                      enddo
                     enddo
@@ -97,11 +95,6 @@ c *******************
                   call add_hash_block(d_t2,dbl_mb(k_r2),size,
      1              int_mb(k_t2_offset),((((p1b-noab-1)*nvab+p2b-noab-1)
      2              *noab+h3b-1)*noab+h4b-1))
-c update of the res.-double vector to the form of increment used in DIIS proc.
-ccx                  call put_hash_block(d_r2,dbl_mb(k_r2),size,
-ccx     1              int_mb(k_t2_offset),((((p1b-noab-1)*nvab+p2b-noab-1)
-ccx     2              *noab+h3b-1)*noab+h4b-1))
-c ----------------------------------------------------------------------------
                   if (nodezero.and.util_print('tr2',print_debug)) 
      1              then
                     call get_hash_block(d_t2,dbl_mb(k_r2),size,
