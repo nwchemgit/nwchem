@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.27 2008-09-03 17:07:27 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.28 2008-09-17 02:26:40 bylaska Exp $                       
 *
 
 *     ***************************
@@ -53,7 +53,7 @@
       external brillioun_print,control_print
       external brillioun_nbrillioun
       external brillioun_k_brdcst,brillioun_ks_brdcst
-      external brillioun_weight_brdst
+      external brillioun_weight_brdcst
       logical  cpsi_spin_orbit,control_fractional
       external cpsi_spin_orbit,control_fractional
       real*8   cpsi_smearfermi
