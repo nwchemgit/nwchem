@@ -1,7 +1,7 @@
-#$Id: GNUmakefile,v 1.1 2008-08-18 01:58:36 jhammond Exp $
+#$Id: GNUmakefile,v 1.2 2008-09-17 03:46:21 jhammond Exp $
 
 OBJ_OPTIMIZE =  tce_diis3.o \
-      tce_jacobi_ir1.o tce_jacobi_ir2.o # tce_jacobi_ir3.o tce_jacobi_ir4.o
+      tce_jacobi_ir1.o tce_jacobi_ir2.o tce_jacobi_ir3.o tce_jacobi_ir4.o
 
 LIB_INCLUDES = -I../include
 

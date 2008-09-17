@@ -1,7 +1,7 @@
       subroutine get_block_ind(d_file,array,size,key_ix,indexc)
 c      subroutine get_block_ind(d_file,array,size,offset,indexc)
 c
-c $Id: get_block_ind.F,v 1.7 2008-09-11 14:44:39 jhammond Exp $
+c $Id: get_block_ind.F,v 1.8 2008-09-17 03:46:20 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -249,6 +249,10 @@ c
      1           CALL ERRQUIT('get-block-ind1',2,MA_ERR)
          do i = 1, size
            dbl_mb(k_a+i-1) = 0.0d0
+c           array(i) = 0.0d0
+         enddo
+         do i = 1, size
+c           dbl_mb(k_a+i-1) = 0.0d0
            array(i) = 0.0d0
          enddo
          call ga_get(d_v2orb,offset_alpha+1,offset_alpha+size,1,1,
@@ -679,7 +683,7 @@ c
      &                         w2b,w1b,w4b,w3b)
 c      subroutine get_block_ind(d_file,array,size,offset,indexc)
 c
-c $Id: get_block_ind.F,v 1.7 2008-09-11 14:44:39 jhammond Exp $
+c $Id: get_block_ind.F,v 1.8 2008-09-17 03:46:20 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -908,6 +912,10 @@ c ***************
      1           CALL ERRQUIT('get-block-ind1',2,MA_ERR)
          do i = 1, size
            dbl_mb(k_a+i-1) = 0.0d0
+c           array(i) = 0.0d0
+         enddo
+         do i = 1, size
+c           dbl_mb(k_a+i-1) = 0.0d0
            array(i) = 0.0d0
          enddo
 c *** debug ***
@@ -948,7 +956,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size1,size4,size3,4,2,3,1,1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
 c#endif
          go to 200
         end if
@@ -973,7 +981,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size4,size2,size1,size3,4,1,3,2,1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 200
         end if
 c --- ( g1 g3 | g4 g2 )
@@ -997,7 +1005,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size4,size3,size1,3,2,4,1,1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 200
         end if
 c --- ( g1 g3 | g2 g4 )
@@ -1021,7 +1029,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size4,size2,size3,size1,3,1,4,2,1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 200
         end if
 c --- ( g4 g2 | g3 g1 )
@@ -1045,7 +1053,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size3,size2,size4,2,4,1,3,1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 200
         end if
 c --- ( g4 g2 | g1 g3 )
@@ -1069,7 +1077,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size3,size1,size2,size4,1,4,2,3,1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 200
         end if
 c --- ( g2 g4 | g3 g1 )
@@ -1093,7 +1101,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size3,size4,size2,2,3,1,4,1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 200
         end if
 c --- ( g2 g4 | g1 g3 )
@@ -1117,7 +1125,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size3,size1,size4,size2,1,3,2,4,1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 200
         end if
 c
@@ -1290,7 +1298,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size4,size2,size3,4,2,1,3,-1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 300
         end if
 c --- ( g3 g2 | g1 g4 )
@@ -1314,7 +1322,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size1,size4,size3,4,1,2,3,-1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 300
         end if
 c --- ( g2 g3 | g4 g1 )
@@ -1338,7 +1346,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size4,size3,size2,3,2,1,4,-1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 300
         end if
 c --- ( g2 g3 | g1 g4 )
@@ -1364,7 +1372,7 @@ c         call zero_array(array2,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size4,size3,size2,3,1,2,4,-1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 300
         end if
 c --- ( g4 g1 | g3 g2 )
@@ -1388,7 +1396,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size3,size1,size4,2,4,3,1,-1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 300
         end if
 c --- ( g4 g1 | g2 g3 )
@@ -1412,7 +1420,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size3,size2,size1,size4,1,4,3,2,-1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 300
         end if
 c --- ( g1 g4 | g3 g2 )
@@ -1436,7 +1444,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size1,size4,size3,2,3,4,1,-1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 300
         end if
 c --- ( g1 g4 | g2 g3 )
@@ -1460,7 +1468,7 @@ c         call copy_array(array2,array,size,size1,size2,size3,size4)
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size3,size2,size1,size4,1,3,4,2,-1.0d0)
 c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
+c          &                    dummy)
          go to 300
         end if
 c
@@ -1485,6 +1493,8 @@ c      cpusecs(5) = cpusecs(5) + util_cpusec()
 c      cpusecs(55) = cpusecs(55) + util_wallsec()
       return
       end
+
+#ifdef LOOPS
 
       subroutine copy_array(array2,array,size,size1,size2,size3,size4)
       implicit none
@@ -1580,3 +1590,4 @@ c#include "tce_main.fh"
       return
       end
 
+#endif

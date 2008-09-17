@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.17 2008-08-18 02:13:35 jhammond Exp $
+c $Id: tce_ao2e.F,v 1.18 2008-09-17 03:46:20 jhammond Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -132,9 +132,9 @@ c     ================
 c     Loop over shells
 c     ================
 c
-      print*,'======================================'
-      print*,'nshells = ',nshells
-      print*,'======================================'
+c      print*,'======================================'
+c      print*,'nshells = ',nshells
+c      print*,'======================================'
 c
       nprocs = ga_nnodes()
       count = 0

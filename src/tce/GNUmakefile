@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.77 2008-09-09 16:42:46 jhammond Exp $
+#$Id: GNUmakefile,v 1.78 2008-09-17 03:46:20 jhammond Exp $
 #
 
 SUBDIRS = include diis2 diis3 \
@@ -8,7 +8,7 @@ SUBDIRS = include diis2 diis3 \
           ccd lccd lccsd qcisd cc3 \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
           ccsdt ccsdt_lambda eomccsdt \
-          ccsdt_alpha_offdiag \
+          ccsdt_alpha_offdiag ccsdt_alpha_new \
           ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag
 
 OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
@@ -23,7 +23,8 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       ma_pack.o sf_print.o ma_print_compact.o ma_transpose.o ma_scale.o \
       tce_diis_init.o tce_diis_tidy.o tce_diis_switch.o tce_diis.o \
       copyfile.o ddotfile.o daxfile.o daxpyfile.o dscalfile.o \
-      tce_aod1.o tce_nud1.o tce_mod1.o tce_mod1_offset.o sym_abelian_axis.o tce_mod1_new.o tce_mod1_offset_new.o \
+      tce_aod1.o tce_nud1.o tce_mod1.o tce_mod1_offset.o \
+      sym_abelian_axis.o tce_mod1_new.o tce_mod1_offset_new.o \
       tce_eom_init.o tce_eom_tidy.o tce_eom_xdiagon.o tce_eom_ydiagon.o \
       tce_x1_offset.o tce_x2_offset.o tce_x3_offset.o tce_x4_offset.o \
       tce_y1_offset.o tce_y2_offset.o tce_y3_offset.o tce_y4_offset.o \
@@ -63,7 +64,7 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_mo2e_disk_2eorb.o tce_mo2e_incore_2eorb.o tce_mo2e_incore_2eorb_split.o \
       tce_mo2e_hybrid_2eorb_split.o tce_mo2e_offset_intorb_hybrid.o \
       tce_mo2e_2emet3.o tce_mo2e_2emet3_n5.o tce_mo2e_2emet4.o tce_mo2e_2emet4_n5.o \
-      tce_make_denom1.o tce_make_denom2.o 
+      tce_make_denom1.o tce_make_denom2.o
 
       #OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
       OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
@@ -96,13 +97,13 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_diagnose_t1.F ddotfile.F tce_ao2e_cholesky.F tce_energy.F
 
 ifndef CCSDTLR
-LIB_DEFINES = 
+LIB_DEFINES =
 else
 LIB_DEFINES = -DCCSDTLR
 endif
 
 #LIB_DEFINES += -DNEWDIPOLE
-LIB_DEFINES += -DDEBUG_PRINT
+LIB_DEFINES += -DDEBUG_PRINT -DSPAGHETTY
 
 #
 # Possible #defines
@@ -113,7 +114,7 @@ LIB_DEFINES += -DDEBUG_PRINT
 #              -DOLD_AOBLOCK          /* Recover original AO blocking scheme */
 #
 
-HEADERS = 
+HEADERS =
 
 include ../config/makefile.h
 include ../config/makelib.h
