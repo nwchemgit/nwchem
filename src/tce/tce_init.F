@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.55 2008-09-17 19:23:40 jhammond Exp $
+c $Id: tce_init.F,v 1.56 2008-09-18 14:38:46 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -53,8 +53,9 @@ c
       character*8 multchar(8)
       data multchar/'singlet ','doublet ','triplet ','quartet ',
      1              'quintet ','sextet  ','septet  ','octet   '/
-       character*26 date
-       integer ma_type
+      character*26 date
+      integer ma_type
+      double precision t_max,t_i
 c
 c
       nodezero=(ga_nodeid().eq.0)
@@ -255,12 +256,12 @@ c
         if (.not.rtdb_put(rtdb,'tce:imagsolver',mt_int,1,imagsolver))
      1  call errquit('tce_init: failed to write imagsolver',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:denom_power',mt_int,1,
-     1                  denom_power)) then
-        denom_power = 2
-        if (.not.rtdb_put(rtdb,'tce:denom_power',mt_int,1,denom_power))
-     1  call errquit('tce_init: failed to write denom_power',0,RTDB_ERR)
-      endif
+c      if (.not.rtdb_get(rtdb,'tce:denom_power',mt_int,1,
+c     1                  denom_power)) then
+c        denom_power = 2
+c        if (.not.rtdb_put(rtdb,'tce:denom_power',mt_int,1,denom_power))
+c     1  call errquit('tce_init: failed to write denom_power',0,RTDB_ERR)
+c      endif
       if (.not.rtdb_get(rtdb,'tce:nroots',mt_int,1,nroots)) then
         nroots = 0
         if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
@@ -354,6 +355,11 @@ c
 c
 c    Beginning of response property input section
 c
+      if (.not.rtdb_get(rtdb,'tce:nowarn',mt_log,1,nowarn)) then
+        lineresp=.false.
+        if (.not.rtdb_put(rtdb,'tce:nowarn',mt_log,1,nowarn))
+     1  call errquit('tce_init: failed to write nowarn',0,RTDB_ERR)
+      endif
       if (.not.rtdb_get(rtdb,'tce:lineresp',mt_log,1,lineresp)) then
         lineresp=.false.
         if (.not.rtdb_put(rtdb,'tce:lineresp',mt_log,1,lineresp))
@@ -400,17 +406,49 @@ c
      1    call errquit('tce_init: failed to write afreq',0,RTDB_ERR)
       endif
 c
-      if (.not.rtdb_get_info(rtdb,'tce:ifreq',ma_type,inumfreq,
-     1  date)) then
-        inumfreq = 1
-        if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
-     1   call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'tce:ifreqauto',mt_log,1,ifreqauto)) then
+        ifreqauto=.true.
+        if (.not.rtdb_put(rtdb,'tce:ifreqauto',mt_log,1,ifreqauto))
+     1  call errquit('tce_init: failed to write ifreqauto',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:ifreq',mt_dbl,inumfreq,
-     1  ifreq)) then
-        ifreq(1) = 0.0d0
+      if (ifreqauto) then
+        if (.not.rtdb_get(rtdb,'tce:ifreqw0',mt_dbl,1,ifreqw0)) then
+          ifreqw0 = 1.0d0
+          if (.not.rtdb_put(rtdb,'tce:ifreqw0',mt_dbl,1,ifreqw0))
+     1      call errquit('tce_init: failed to write ifreqw0',0,RTDB_ERR)
+        endif
+        if (.not.rtdb_get(rtdb,'tce:inumfreq',mt_int,1,inumfreq)) then
+          inumfreq = 10
+          if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
+     1     call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
+        endif
+        t_max =  0.99d0
+        ifreq(1) = 0.0
+        do i = 1, inumfreq-1
+          t_i = -1.0d0*t_max + (i-1)*2*t_max/(inumfreq-1)
+          j = inumfreq - (i-1) ! increasing order from small magnitude
+          ifreq(j) = ifreqw0 * (1.0d0 - t_i)/(1.0d0 + t_i)
+        enddo
+#ifdef DEBUG_PRINT
+        do i = 1, inumfreq
+          write(6,999) i,t_i,ifreq(i)
+        enddo
+  999 format(3x,'i=',i3,1x,'t_i=',d8.2,1x,'ifreq(i)=',f14.8)
+#endif
         if (.not.rtdb_put(rtdb,'tce:ifreq',mt_dbl,inumfreq,ifreq))
      1    call errquit('tce_init: failed to write ifreq',0,RTDB_ERR)
+      else
+        if (.not.rtdb_get_info(rtdb,'tce:ifreq',ma_type,inumfreq,
+     1    date)) then
+          inumfreq = 1
+          if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
+     1     call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
+        endif
+        if (.not.rtdb_get(rtdb,'tce:ifreq',mt_dbl,inumfreq,ifreq)) then
+          ifreq(1) = 0.0d0
+          if (.not.rtdb_put(rtdb,'tce:ifreq',mt_dbl,inumfreq,ifreq))
+     1      call errquit('tce_init: failed to write ifreq',0,RTDB_ERR)
+        endif
       endif
 c
       if (.not.rtdb_get(rtdb,'tce:respaxis',mt_log,3,respaxis)) then
@@ -1076,7 +1114,7 @@ c
             write(LuOut,9163) 'Jacobi'
           endif
           write(LuOut,9155) imagsolver
-          write(LuOut,9156) denom_power
+c          write(LuOut,9156) denom_power
         endif
         if (nroots .gt. 0) then
           write(LuOut,9170) nroots

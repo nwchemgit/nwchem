@@ -1,6 +1,6 @@
       subroutine tce_jacobi_ir3(d_r3,d_t3,k_t3_offset,iter,omega)
 c
-c $Id: tce_jacobi_ir3.F,v 1.2 2008-09-17 16:43:50 jhammond Exp $
+c $Id: tce_jacobi_ir3.F,v 1.3 2008-09-18 14:38:49 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -38,12 +38,15 @@ c
       logical noloadbalance
       logical nodezero         ! True if node 0
       double precision shift,omega
+      integer denom_power
 c
       if(iter.le.100) then
        shift=-(3.0d0)*zlshift3 ! or is a factor of 6.0?  need to ask Karol
       else
        shift=0.0d0
       end if
+      if (omega.le.1.0d0) denom_power = 2
+      if (omega.gt.1.0d0) denom_power = 1
 c
 c     ================
 c     Loop over blocks

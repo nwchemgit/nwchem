@@ -1,6 +1,6 @@
       subroutine tce_init_new(rtdb)
 c
-c $Id: tce_init_new.F,v 1.1 2008-03-12 23:25:51 jhammond Exp $
+c $Id: tce_init_new.F,v 1.2 2008-09-18 14:38:47 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -8,6 +8,7 @@ c
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
+#include "dra.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
@@ -20,7 +21,6 @@ c
 #include "tce_main.fh"
 #include "tce_diis.fh"
 #include "tce_prop.fh"
-#include "dra.fh"
 c
       integer rtdb             ! RTDB handle
       integer nbf_verify       ! nbf read from movecs_read_header

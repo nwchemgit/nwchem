@@ -1,6 +1,6 @@
       subroutine tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,iter,omega)
 c
-c $Id: tce_jacobi_ir2.F,v 1.3 2008-09-17 16:43:50 jhammond Exp $
+c $Id: tce_jacobi_ir2.F,v 1.4 2008-09-18 14:38:48 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -34,12 +34,15 @@ c
       logical noloadbalance
       logical nodezero         ! True if node 0
       double precision shift,omega
+      integer denom_power
 c
       if(iter.le.100) then
        shift=-(2.0d0)*zlshift3
       else
        shift=0.0d0
       end if
+      if (omega.le.1.0d0) denom_power = 2
+      if (omega.gt.1.0d0) denom_power = 1
 c
 c     ================
 c     Loop over blocks

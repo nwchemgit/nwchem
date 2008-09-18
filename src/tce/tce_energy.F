@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.124 2008-09-17 21:32:17 kowalski Exp $
+c $Id: tce_energy.F,v 1.125 2008-09-18 14:38:46 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -2199,14 +2199,22 @@ c CCSD-IR
 c -------------
  2234   continue
         if (imagresp) then
+          if(nodezero) then
+            write(6,*)
+            write(6,*) 'Casimir-Polder integration points are:'
+            do i = 1, inumfreq
+              write(6,999) i,ifreq(i)
+            enddo
+          endif
+  999 format(3x,'ifreq(',i2,') = ',f14.8)
 c
 c         REAL COMPONENT
 c
           do omegacount=1,inumfreq
             omega = ifreq(omegacount)
-            if (omega.eq.(0.0d0)) then
-              call errquit('tce_energy: imag(omega) is zero',0,CALC_ERR)
-            endif
+c            if (omega.eq.(0.0d0)) then
+c              call errquit('tce_energy: imag(omega) is zero',0,CALC_ERR)
+c            endif
 c
           do axis = 1, 3
           if (respaxis(axis)) then
@@ -2374,7 +2382,7 @@ c
      3             d_rr2(axis),d_tr2(axis+dynaxis),k_tr2_offset(axis),
      4             size_tr2(axis),
      5             dummy,dummy,dummy,dummy,
-     6             dummy,dummy,dummy,dummy,omega,denom_power)
+     6             dummy,dummy,dummy,dummy,omega)
             endif
               call deletefile(d_rr2(axis))
               call deletefile(d_rr1(axis))
@@ -2660,6 +2668,12 @@ c
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
 c
+          if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
+     1        .and.(.not.nowarn)) write(LuOut,9911)
+c
+          if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
+     1        .and.(.not.nowarn)) write(LuOut,9911)
+c
           if (nodezero) write(LuOut,9434) "CCSD Imaginary Response",
      1      ifreq(omegacount),auXnm/ifreq(omegacount),
      2      alpha(1,1),alpha(2,1),alpha(3,1),
@@ -2675,7 +2689,37 @@ c
           if (nodezero) write(LuOut,9020) cpu, wall
           call util_flush(LuOut)
 c
+          ifreqval(omegacount,1) = alpha(1,1)
+          ifreqval(omegacount,2) = alpha(2,2)
+          ifreqval(omegacount,3) = alpha(3,3)
+          ifreqval(omegacount,4) = alpha(2,1)
+          ifreqval(omegacount,5) = alpha(3,1)
+          ifreqval(omegacount,6) = alpha(3,2)
+          ifreqval(omegacount,7) = alphaiso
+          ifreqval(omegacount,8) = alphaani
+c
           enddo ! omegacount loop
+c
+c       Casimir-Polder integration for determination of C6 coefficient
+c
+          do i = 1, 8
+            integral(i) = 0.0d0
+            do omegacount = 1,inumfreq-1
+              num1 = ifreqval(omegacount+1,i)
+              num0 = ifreqval(omegacount,i)
+              den1 = ifreq(omegacount+1)
+              den0 = ifreq(omegacount)
+              num1sq = num1*num1
+              num0sq = num0*num0
+              numtot = num1sq+num0sq
+              dentot = den1 - den0
+              integral(i) = integral(i) + 0.5d0*numtot*dentot
+            enddo
+          enddo
+          if (nodezero) write(LuOut,9435) "CCSD Imaginary Response",
+     &       integral(1),integral(2),integral(3),
+     &       integral(4),integral(5),integral(6),
+     &       integral(7),integral(8)
 c
         endif ! imagresp
 c -------------
@@ -2963,6 +3007,9 @@ c
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
+c
+          if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
+     1        .and.(.not.nowarn)) write(LuOut,9911)
 c
           if (nodezero) write(LuOut,9434) "CCSD Linear Response",
      1      afreq(omegacount),auXnm/afreq(omegacount),
@@ -3261,6 +3308,9 @@ c
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
+c
+          if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
+     1        .and.(.not.nowarn)) write(LuOut,9911)
 c
           if (nodezero) write(LuOut,9434) "CCSD Lambda Response",
      1      afreq(omegacount),auXnm/afreq(omegacount),
@@ -4241,7 +4291,7 @@ c        write(LuOut,*) "tce_residual_tr3"
      4             size_tr2(axis),
      5             d_rr3(axis),d_tr3(axis+dynaxis),k_tr3_offset(axis),
      6             size_tr3(axis),
-     7             dummy,dummy,dummy,dummy,omega,denom_power)
+     7             dummy,dummy,dummy,dummy,omega)
             endif
               call deletefile(d_rr3(axis))
               call deletefile(d_rr2(axis))
@@ -4567,6 +4617,9 @@ c
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
+c
+          if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
+     1        .and.(.not.nowarn)) write(LuOut,9911)
 c
           if (nodezero) write(LuOut,9434) "CCSDT Imaginary Response",
      1      ifreq(omegacount),auXnm/ifreq(omegacount),
@@ -4897,6 +4950,9 @@ c
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
+c
+          if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
+     1        .and.(.not.nowarn)) write(LuOut,9911)
 c
           if (nodezero) write(LuOut,9434) "CCSDT Linear Response",
      1      afreq(omegacount),auXnm/afreq(omegacount),
@@ -5257,6 +5313,9 @@ c
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
+c
+          if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
+     1        .and.(.not.nowarn)) write(LuOut,9911)
 c
           if (nodezero) write(LuOut,9434) "CCSDT Lambda Response",
      1      afreq(omegacount),auXnm/afreq(omegacount),
@@ -6200,6 +6259,9 @@ c
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
+c
+          if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
+     1        .and.(.not.nowarn)) write(LuOut,9911)
 c
           if (nodezero) write(LuOut,9434) "CCSDTQ Linear Response",
      1      afreq(omegacount),auXnm/afreq(omegacount),
@@ -9294,6 +9356,22 @@ c     xxx, xxy, xxz, yyx, xyz, zzx, yyy, zzy, zzz
      6  1x,'Anisotropic = ',8x,1f15.7,3x,15x,'|',15x,1f15.7,/
      3  1x,'-----------------------------------------------'
      3    ,'--------|-----------------------------------------------')
+ 9435 format(/,1x,A,' C6 coefficients ',/
+     1  1x,'--------------------------------',/
+     2  1x,'C6(XX)  ',f15.7,/
+     3  1x,'C6(YY)  ',f15.7,/
+     4  1x,'C6(ZZ)  ',f15.7,/
+     5  1x,'C6(XY)  ',f15.7,/
+     6  1x,'C6(XZ)  ',f15.7,/
+     7  1x,'C6(YZ)  ',f15.7,/
+     8  1x,'C6(AVG) ',f15.7,/
+     9  1x,'C6(ANI) ',f15.7,/
+     1  1x,'--------------------------------')
+ 9911 format(/,1x,'Warning: you have not solved ',
+     1            'the response equations for all axes.  ',
+     2            'Please analyze the results carefully as ',
+     3            'the average and anisotropic polarizabilities ',
+     4            'are surely wrong.',/)
  9440 format(1x,A3,' axis ( ',A4,'symmetry)')
  9450 format(1x,'(T) & [T] code has been provided by ',
      1  'A.A.Auer (Waterloo)')

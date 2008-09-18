@@ -1,6 +1,6 @@
       subroutine tce_fock_create(rtdb,d_f1,l_f1_offset,k_f1_offset)
 c
-c $Id: tce_fock_create.F,v 1.1 2008-02-11 17:08:23 jhammond Exp $
+c $Id: tce_fock_create.F,v 1.2 2008-09-18 14:38:46 jhammond Exp $
 c 
 c Written by Jeff Hammond, January 2008.
 c
@@ -20,10 +20,10 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-#include "tce_prop.fh"
+c#include "tce_prop.fh"
 #include "tce_ints.fh"
-#include "tce_amps.fh"
-#include "tce_diis.fh"
+c#include "tce_amps.fh"
+c#include "tce_diis.fh"
 c
 c     CI, CC, & MBPT
 c
