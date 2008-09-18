@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.79 2008-09-17 05:05:09 jhammond Exp $
+#$Id: GNUmakefile,v 1.80 2008-09-18 20:38:28 jhammond Exp $
 #
 
 SUBDIRS = include diis2 diis3 \
@@ -96,7 +96,7 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_mo2e_hybrid_2eorb_split.F \
             tce_diagnose_t1.F ddotfile.F tce_ao2e_cholesky.F tce_energy.F
 
-ifndef CCSDTLR
+ifdef CCSDTLR
 LIB_DEFINES += -DCCSDTLR
 endif
 
