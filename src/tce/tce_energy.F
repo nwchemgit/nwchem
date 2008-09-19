@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.125 2008-09-18 14:38:46 jhammond Exp $
+c $Id: tce_energy.F,v 1.126 2008-09-19 18:41:19 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -4079,9 +4079,9 @@ c         REAL COMPONENT
 c
           do omegacount=1,inumfreq
             omega = ifreq(omegacount)
-            if (omega.eq.(0.0d0)) then
-              call errquit('tce_energy: imag(omega) is zero',0,CALC_ERR)
-            endif
+c            if (omega.eq.(0.0d0)) then
+c              call errquit('tce_energy: imag(omega) is zero',0,CALC_ERR)
+c            endif
 c
           do axis = 1, 3
           if (respaxis(axis)) then
