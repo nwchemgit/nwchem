@@ -1973,7 +1973,7 @@ c
         chunk_v2=((tile_dim)**4)
         call util_file_name('v2_copy',.false.,.false.,filename)
 c
-        if(nodezero) write(6,1)'v2_restart_save',filename
+        if(nodezero) write(6,1)'v2_restart_read',filename
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
@@ -2075,7 +2075,7 @@ c
         chunk_f1=((tile_dim)**2)
         call util_file_name('f1_copy',.false.,.false.,filename)
 c
-        if(nodezero) write(6,1)'f1_restart_save',filename
+        if(nodezero) write(6,1)'f1_restart_read',filename
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
@@ -2187,7 +2187,7 @@ c
         call util_file_name('q1_6_copy',.false.,.false.,filename)
       endif
 c
-        if(nodezero) write(6,1)'d1_restart_save',filename
+        if(nodezero) write(6,1)'d1_restart_read',filename
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
@@ -3295,7 +3295,7 @@ c
 !
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('x3_restart_save: MA l_aux',0,MA_ERR)
+     1   call errquit('x3_restart_read: MA l_aux',0,MA_ERR)
 !
 !      key=h4b - 1 + noab * (h3b - 1 + noab * (p2b-
 !      &noab - 1 + nvab * (p1b - noab - 1)))
@@ -3446,7 +3446,7 @@ c
 !
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('y3_restart_save: MA l_aux',0,MA_ERR)
+     1   call errquit('y3_restart_read: MA l_aux',0,MA_ERR)
 !
 !       key=p2b - noab - 1 + nvab * (p1b - noab - 1
 !      &+ nvab * (h4b - 1 + noab * (h3b - 1)))
@@ -3547,7 +3547,7 @@ c
       elseif(axis.eq.9) then
         call util_file_name('tr3_9_copy',.false.,.false.,filename)
       else
-        call errquit('tr3_restart_save: too many saved',axis,DISK_ERR)
+        call errquit('tr3_restart_read: too many read',axis,DISK_ERR)
       endif
 c
         if(nodezero) write(6,1)'tr3_restart_read',filename
@@ -3598,7 +3598,7 @@ c
 !
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('tr3_restart_save: MA l_aux',0,MA_ERR)
+     1   call errquit('tr3_restart_read: MA l_aux',0,MA_ERR)
 !
 !      key=h4b - 1 + noab * (h3b - 1 + noab * (p2b-
 !      &noab - 1 + nvab * (p1b - noab - 1)))
@@ -3699,7 +3699,7 @@ c
       elseif(axis.eq.9) then
         call util_file_name('yr3_9_copy',.false.,.false.,filename)
       else
-        call errquit('yr3_restart_save: too many saved',axis,DISK_ERR)
+        call errquit('yr3_restart_read: too many read',axis,DISK_ERR)
       endif
 c
         if(nodezero) write(6,1)'yr3_restart_read',filename
@@ -3749,7 +3749,7 @@ c
 !
         if (.not.ma_push_get(mt_dbl,size_aux,'l_aux',
      1   l_aux,k_aux))
-     1   call errquit('yr3_restart_save: MA l_aux',0,MA_ERR)
+     1   call errquit('yr3_restart_read: MA l_aux',0,MA_ERR)
 !
 !       key=p2b - noab - 1 + nvab * (p1b - noab - 1
 !      &+ nvab * (h4b - 1 + noab * (h3b - 1)))
