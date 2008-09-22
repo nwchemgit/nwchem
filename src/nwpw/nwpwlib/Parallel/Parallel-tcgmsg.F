@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-tcgmsg.F,v 1.9 2008-09-17 03:23:14 bylaska Exp $
+* $Id: Parallel-tcgmsg.F,v 1.10 2008-09-22 22:53:47 bylaska Exp $
 *
 
 * Parallel.f
@@ -83,8 +83,8 @@ c      integer mpierr
       np_i = np/ncolumns
       np_j = ncolumns
 
-
       if (np_j.gt.1) then
+
       icount = 0
       do j=0,np_j-1
       do i=0,np_i-1
@@ -109,6 +109,7 @@ c      integer mpierr
         comm_j = ga_pgroup_create(int_mb(tmp(1)),np_j)
       if (.not.MA_pop_stack(tmp(2)))
      >  call errquit('Parallel2d_init:popping stack memory',0, MA_ERR)
+
       end if
 
       return
@@ -129,16 +130,15 @@ c      integer mpierr
 #include "errquit.fh"
 #include "global.fh"
 
-*      **** free comm_i and comm_j communicators ****
        if (np_j.gt.1) then
 
+*      **** free comm_i and comm_j communicators ****
        if (.not.ga_pgroup_destroy(comm_i))
      >  call errquit('Parallel2d_Finalize: error destoying comm_i',0,0)
        if (.not.ga_pgroup_destroy(comm_j))
      >  call errquit('Parallel2d_Finalize: error destoying comm_j',0,1)
 
-       end if
-
+      end if
       return
       end
 
@@ -169,6 +169,7 @@ c      integer mpierr
       np_j = ncolumns
       np_k = nzones
 
+      if ((np_j.gt.1).or.(np_k.gt.1)) then
 
       icount = 0
       do k=0,np_k-1
@@ -208,12 +209,10 @@ c      integer mpierr
      >                              + k*np_i*np_j) 
         end do
         comm_k = ga_pgroup_create(int_mb(tmp(1)),np_k)
-
-        write(*,*) "kjdfljd comm_k=",comm_k
-        call flush(6)
-
       if (.not.MA_pop_stack(tmp(2)))
      >  call errquit('Parallel3d_init:popping stack memory',0, MA_ERR)
+
+      end if
 
       return
       end
@@ -233,6 +232,8 @@ c      integer mpierr
 #include "errquit.fh"
 #include "global.fh"
 
+      if ((np_j.gt.1).or.(np_k.gt.1)) then
+
 *      **** free comm_i and comm_j communicators ****
        if (.not.ga_pgroup_destroy(comm_i))
      >  call errquit('Parallel3d_Finalize: error destoying comm_i',0,0)
@@ -241,6 +242,7 @@ c      integer mpierr
        if (.not.ga_pgroup_destroy(comm_k))
      >  call errquit('Parallel3d_Finalize: error destoying comm_k',0,2)
 
+      end if
       return
       end
 
