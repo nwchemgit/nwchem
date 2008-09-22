@@ -1,8 +1,8 @@
 c
-c $Id: pspw_qmmm.fh,v 1.14 2008-09-22 22:55:16 bylaska Exp $
+c $Id: pspw_2qmmm.fh,v 1.1 2008-09-22 22:55:16 bylaska Exp $
 c
 
-*     ***** pspw_qmmm common block ************************************
+*     ***** pspw_2qmmm common block ************************************
       integer indx_frag_start(2)
       integer size_frag(2)
       integer kfrag(2)
@@ -11,7 +11,7 @@ c
       integer nshl3d,rcell(2)
       integer nfrag,nkfrag
       logical qmmm_found,shake_found,periodic
-      common / pspw_qmmm /  indx_frag_start,
+      common / pspw_2qmmm /  indx_frag_start,
      >                      size_frag,
      >                      kfrag,switch_Rin,switch_Rout,
      >                      self_interaction,incell_frag,
@@ -19,51 +19,51 @@ c
      >                      nfrag,nkfrag,qmmm_found,shake_found,
      >                      periodic
 
-*     **** pspw_qmmm shake common block ****
+*     **** pspw_2qmmm shake common block ****
       integer nshake(2)
       integer na(2),nb(2),nab_shake_start(2)
       integer indx_shake(2),nindx_shake_start(2)
       integer dsq_shake(2),ndsq_shake_start(2)
-      common / pspw_qmmm2 /  nshake,na,nb,nab_shake_start,
+      common / pspw_2qmmm2 /  nshake,na,nb,nab_shake_start,
      >                       indx_shake,nindx_shake_start,
      >                       dsq_shake,ndsq_shake_start
 
-*     **** pspw_qmmm bond spring common block ****
+*     **** pspw_2qmmm bond spring common block ****
       integer nbond(2)
       integer indx_bond(2),nindx_bond_start(2)
       integer Kr0_bond(2), nKr0_bond_start(2)
       logical bond_found
-      common / pspw_qmmm3 /  nbond,
+      common / pspw_2qmmm3 /  nbond,
      >                       indx_bond,nindx_bond_start,
      >                       Kr0_bond,nKr0_bond_start,
      >                       bond_found
 
-*     **** pspw_qmmm angle spring common block ****
+*     **** pspw_2qmmm angle spring common block ****
       integer nangle(2)
       integer indx_angle(2),nindx_angle_start(2)
       integer Kr0_angle(2), nKr0_angle_start(2)
       logical angle_found
-      common / pspw_qmmm4 /  nangle,
+      common / pspw_2qmmm4 /  nangle,
      >                       indx_angle,nindx_angle_start,
      >                       Kr0_angle,nKr0_angle_start,
      >                       angle_found
 
-*     **** pspw_qmmm cross bond spring common block ****
+*     **** pspw_2qmmm cross bond spring common block ****
       integer ncbond(2)
       integer indx_cbond(2),nindx_cbond_start(2)
       integer Kr0_cbond(2), nKr0_cbond_start(2)
       logical cbond_found
-      common / pspw_qmmm5 /  ncbond,
+      common / pspw_2qmmm5 /  ncbond,
      >                       indx_cbond,nindx_cbond_start,
      >                       Kr0_cbond,nKr0_cbond_start,
      >                       cbond_found
 
-*     **** pspw_qmmm bond morse common block ****
+*     **** pspw_2qmmm bond morse common block ****
       integer nmbond(2)
       integer indx_mbond(2),nindx_mbond_start(2)
       integer Kr0_mbond(2), nKr0_mbond_start(2)
       logical mbond_found
-      common / pspw_qmmm6 /  nmbond,
+      common / pspw_2qmmm6 /  nmbond,
      >                       indx_mbond,nindx_mbond_start,
      >                       Kr0_mbond,nKr0_mbond_start,
      >                       mbond_found

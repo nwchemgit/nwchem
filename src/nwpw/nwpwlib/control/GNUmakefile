@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.9 2005-08-05 20:39:36 bylaska Exp $
+# $Id: GNUmakefile,v 1.10 2008-09-22 22:55:15 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -18,6 +18,10 @@
     USES_BLAS = control.F
 
   LIB_DEFINES = 
+
+ifneq ($(USE_MPI),y)
+  LIB_DEFINES += -DNOMPI
+endif
 
 
 include ../../../config/makefile.h

@@ -1,37 +1,21 @@
 c
-c $Id: pspw_qmmm.F,v 1.32 2008-09-22 22:55:16 bylaska Exp $
+c $Id: pspw_2qmmm.F,v 1.1 2008-09-22 22:55:16 bylaska Exp $
 c
-
-***********************************************************
-*                                                         *
-*                    PSPW-QMMM  module                    *
-*                                                         *
-* Top-level interface to Model_potential and Model_charge *
-* modules                                                 *
-*                                                         *
-*          Interfaced to nwchem-PSPW code                 *
-*                                                         *
-*    -- developed by Eric J. Bylaska on October 18,2001   *
-*                                                         *
-***********************************************************
-*
-*
-*  
 
 *     **********************************
 *     *	                               *
-*     *          pspw_qmmm_init        *
+*     *         pspw_2qmmm_init        *
 *     *                                *
 *     **********************************
 
-      subroutine pspw_qmmm_init(rtdb)
+      subroutine pspw_2qmmm_init(rtdb)
       implicit none
       integer rtdb
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
-#include "pspw_qmmm.fh"
+#include "pspw_2qmmm.fh"
 
 
 *     **** local variables ****
@@ -49,134 +33,115 @@ c
 
 *     **** external functions ****
       integer     ion_nion,ion_nion_qm,ion_nion_mm,control_version
-      integer     ewald_nshl3d,ewald_rcell_ptr,ion_rion_ptr
+      integer     ion_rion_ptr
       character*7 c_index_name
       real*8      lattice_unita
       external    ion_nion,ion_nion_qm,ion_nion_mm,control_version
-      external    ewald_nshl3d,ewald_rcell_ptr,ion_rion_ptr
+      external    ion_rion_ptr
       external    c_index_name
       external    lattice_unita
 
 
-      qmmm_found  =  (ion_nion_mm().gt.0)
+*     **** reading number of frags ****
+      rtdb_name = 'pspw_2qmmm_nfrag'
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nfrag)) nfrag = 0
+
+      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
       shake_found = .false.
 
 *     **** don't do anything if there are no MM atoms ****
       if (qmmm_found) then
 
-*        **** set the nshl3d and rcell ****
-         if (control_version().eq.3) then
-            nshl3d   = ewald_nshl3d()
-            rcell(1) = ewald_rcell_ptr()
-            periodic = .true. 
-         else
-            periodic = .false.
-            nshl3d = 1
-            if (.not.MA_alloc_get(mt_dbl,3,'rcell',rcell(2),rcell(1))) 
-     >      call errquit(
-     >      'pspw_qmmm_init:failed allocating rcell from heap',0,MA_ERR)
-            dbl_mb(rcell(1))   = 0.0d0
-            dbl_mb(rcell(1)+1) = 0.0d0
-            dbl_mb(rcell(1)+2) = 0.0d0
-         end if
-
-
-*        **** reading number of frags ****
-         rtdb_name = 'pspw_qmmm_nfrag'
-         value = rtdb_get(rtdb,rtdb_name,mt_int,1,nfrag)
-         if (.not. value)
-     >   call errquit(
-     >   'pspw_qmmm_init:failed reading nfrag',0,RTDB_ERR)
 
 *        **** reading number of kinds of frags ****
-         rtdb_name = 'pspw_qmmm_nkfrag'
+         rtdb_name = 'pspw_2qmmm_nkfrag'
          value = rtdb_get(rtdb,rtdb_name,mt_int,1,nkfrag)
          if (.not. value)
      >   call errquit(
-     >   'pspw_qmmm_init:failed reading nkfrag',0,RTDB_ERR)
+     >   'pspw_2qmmm_init:failed reading nkfrag',0,RTDB_ERR)
 
 
-         value = MA_alloc_get(mt_int,nfrag,'index_frag_start',
+         value = MA_alloc_get(mt_int,nfrag,'index_nonfrag_start',
      >                        indx_frag_start(2),indx_frag_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nfrag,'size_frag',
+     >           MA_alloc_get(mt_int,nfrag,'size_nonfrag',
      >                        size_frag(2),size_frag(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nfrag,'kfrag',kfrag(2),kfrag(1))
+     >           MA_alloc_get(mt_int,nfrag,'nonkfrag',kfrag(2),kfrag(1))
 
          value = value.and.
-     >           MA_alloc_get(mt_log,nkfrag,'self_interaction',
+     >           MA_alloc_get(mt_log,nkfrag,'nonself_interaction',
      >                        self_interaction(2),self_interaction(1))
          value = value.and.
-     >           MA_alloc_get(mt_log,nkfrag,'incell_frag',
+     >           MA_alloc_get(mt_log,nkfrag,'nonincell_frag',
      >                        incell_frag(2),incell_frag(1))
          value = value.and.
-     >           MA_alloc_get(mt_dbl,nkfrag,'switch_Rin',
+     >           MA_alloc_get(mt_dbl,nkfrag,'nonswitch_Rin',
      >                        switch_Rin(2),switch_Rin(1))
          value = value.and.
-     >           MA_alloc_get(mt_dbl,nkfrag,'switch_Rout',
+     >           MA_alloc_get(mt_dbl,nkfrag,'nonswitch_Rout',
      >                        switch_Rout(2),switch_Rout(1))
 
 *        **** shake variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nshake',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnshake',
      >                        nshake(2),nshake(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nab_shake_start',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnab_shake_start',
      >                        nab_shake_start(2),nab_shake_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nindx_shake_start',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnindx_shake_start',
      >                        nindx_shake_start(2),nindx_shake_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'ndsq_shake_start',
+     >           MA_alloc_get(mt_int,nkfrag,'nonndsq_shake_start',
      >                        ndsq_shake_start(2),ndsq_shake_start(1))
 
 *        **** bond variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nbond',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnbond',
      >                        nbond(2),nbond(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nindx_bond_start',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnindx_bond_start',
      >                        nindx_bond_start(2),nindx_bond_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nKr0_bond_start',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnKr0_bond_start',
      >                        nKr0_bond_start(2),nKr0_bond_start(1))
 
 *        **** angle variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nangle',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnangle',
      >                        nangle(2),nangle(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nindx_angle_start',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnindx_angle_start',
      >                        nindx_angle_start(2),nindx_angle_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nKr0_angle_start',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnKr0_angle_start',
      >                        nKr0_angle_start(2),nKr0_angle_start(1))
 
 *        **** cbond variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'ncbond',
+     >           MA_alloc_get(mt_int,nkfrag,'nonncbond',
      >                        ncbond(2),ncbond(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nindx_cbond_start',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnindx_cbond_start',
      >                        nindx_cbond_start(2),nindx_cbond_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nKr0_cbond_start',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnKr0_cbond_start',
      >                        nKr0_cbond_start(2),nKr0_cbond_start(1))
 
 *        **** mbond variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nmbond',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnmbond',
      >                        nmbond(2),nmbond(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nindx_mbond_start',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnindx_mbond_start',
      >                        nindx_mbond_start(2),nindx_mbond_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nKr0_mbond_start',
+     >           MA_alloc_get(mt_int,nkfrag,'nonnKr0_mbond_start',
      >                        nKr0_mbond_start(2),nKr0_mbond_start(1))
 
          if (.not.value) 
-     >    call errquit('cannot allocate heap memory for qmmm',0,
+     >    call errquit('cannot allocate heap memory for 2qmmm',0,
      >       MA_ERR)
 
 
@@ -197,50 +162,50 @@ c
 
          do ia=1,nkfrag
 
-            rtdb_name = 'pspw_qmmm_frag_size:'//c_index_name(ia)
+            rtdb_name = 'pspw_2qmmm_frag_size:'//c_index_name(ia)
             value = rtdb_get(rtdb,rtdb_name,mt_int,1,frag_size)
             if (.not. value)
      >        call errquit(
-     >       'pspw_qmmm_init:failed reading frag_size',0,RTDB_ERR)
+     >       'pspw_2qmmm_init:failed reading frag_size',0,RTDB_ERR)
 
-            rtdb_name = 'pspw_qmmm_frag_nindex_start:'//c_index_name(ia)
+            rtdb_name='pspw_2qmmm_frag_nindex_start:'//c_index_name(i)
             value = rtdb_get(rtdb,rtdb_name,mt_int,1,ni)
             if (.not. value)
      >        call errquit(
-     >       'pspw_qmmm_init:failed reading nindx_start',0,RTDB_ERR)
+     >       'pspw_2qmmm_init:failed reading nindx_start',0,RTDB_ERR)
             
             do i=1,ni
                int_mb(size_frag(1)+ii+i-1) = frag_size
                int_mb(kfrag(1)+ii+i-1)     = ia
             end do
 
-            rtdb_name = 'pspw_qmmm_frag_index_start:'//c_index_name(ia)
+            rtdb_name = 'pspw_2qmmm_frag_index_start:'//c_index_name(ia)
             value = rtdb_get(rtdb,rtdb_name,mt_int,
      >                       ni,int_mb(indx_frag_start(1)+ii))
             if (.not. value)
      >        call errquit(
-     >       'pspw_qmmm_init:failed reading indx_start',0,RTDB_ERR)
+     >       'pspw_2qmmm_init:failed reading indx_start',0,RTDB_ERR)
             ii = ii + ni
 
-            rtdb_name = 'pspw_qmmm_frag_self_interaction:'
+            rtdb_name = 'pspw_2qmmm_frag_self_interaction:'
      >                  //c_index_name(ia)
             if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,
      >                       log_mb(self_interaction(1)+ia-1)))
      >          log_mb(self_interaction(1)+ia-1) = .false.
 
-            rtdb_name = 'pspw_qmmm_frag_incell:'
+            rtdb_name = 'pspw_2qmmm_frag_incell:'
      >                  //c_index_name(ia)
             if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,
      >                       log_mb(incell_frag(1)+ia-1)))
      >          log_mb(incell_frag(1)+ia-1) = .true.
 
-            rtdb_name = 'pspw_qmmm_frag_switch_Rin:'//c_index_name(ia)
+            rtdb_name = 'pspw_2qmmm_frag_switch_Rin:'//c_index_name(ia)
             value = rtdb_get(rtdb,rtdb_name,mt_dbl,1,
      >                       dbl_mb(switch_Rin(1)+ia-1))
             if (.not.value) 
      >         dbl_mb(switch_Rin(1)+ia-1) =(2.0160d0/0.529177d0)
 
-            rtdb_name = 'pspw_qmmm_frag_switch_Rout:'//c_index_name(ia)
+            rtdb_name = 'pspw_2qmmm_frag_switch_Rout:'//c_index_name(ia)
             value = rtdb_get(rtdb,rtdb_name,mt_dbl,1,
      >                       dbl_mb(switch_Rout(1)+ia-1))
             if (.not.value) 
@@ -249,7 +214,7 @@ c
 
 *           **** shake stuff  - get nshake  ****
             int_mb(nab_shake_start(1)+ia-1) = nabsize + 1
-            rtdb_name = 'pspw_qmmm_frag_nshk:'//c_index_name(ia)
+            rtdb_name = 'pspw_2qmmm_frag_nshk:'//c_index_name(ia)
             if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(nshake(1)+ia-1))) 
      >         int_mb(nshake(1)+ia-1) = 0
@@ -261,13 +226,13 @@ c
             int_mb(ndsq_shake_start(1) +ia-1) = ndsqsize  + 1
 
             do ja=1,int_mb(nshake(1)+ia-1)
-               rtdb_name = 'pspw_qmmm_frag_na:'
+               rtdb_name = 'pspw_2qmmm_frag_na:'
      >                     //c_index_name(ia)//c_index_name(ja)
                if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,natmp))
      >            natmp = 0
                nindxsize = nindxsize + natmp
 
-               rtdb_name = 'pspw_qmmm_frag_nb:'
+               rtdb_name = 'pspw_2qmmm_frag_nb:'
      >                     //c_index_name(ia)//c_index_name(ja)
                if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nbtmp))
      >            nbtmp = 0
@@ -275,7 +240,7 @@ c
             end do
 
 *           **** bond stuff  - get nbond  ****
-            rtdb_name = 'pspw_qmmm_frag_nbond:'//c_index_name(ia)
+            rtdb_name = 'pspw_2qmmm_frag_nbond:'//c_index_name(ia)
             if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(nbond(1)+ia-1))) 
      >         int_mb(nbond(1)+ia-1) = 0
@@ -288,7 +253,7 @@ c
 
 
 *           **** angle stuff  - get nangle  ****
-            rtdb_name = 'pspw_qmmm_frag_nangle:'//c_index_name(ia)
+            rtdb_name = 'pspw_2qmmm_frag_nangle:'//c_index_name(ia)
             if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(nangle(1)+ia-1)))
      >         int_mb(nangle(1)+ia-1) = 0
@@ -300,7 +265,7 @@ c
             nQr0size   = nQr0size   + 2*int_mb(nangle(1)+ia-1)
 
 *           **** cbond stuff  - get ncbond  ****
-            rtdb_name = 'pspw_qmmm_frag_ncbond:'//c_index_name(ia)
+            rtdb_name = 'pspw_2qmmm_frag_ncbond:'//c_index_name(ia)
             if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(ncbond(1)+ia-1))) 
      >         int_mb(ncbond(1)+ia-1) = 0
@@ -312,7 +277,7 @@ c
             ncKr0size   = ncKr0size   + 3*int_mb(ncbond(1)+ia-1)
 
 *           **** mbond stuff  - get nmbond  ****
-            rtdb_name = 'pspw_qmmm_frag_nmbond:'//c_index_name(ia)
+            rtdb_name = 'pspw_2qmmm_frag_nmbond:'//c_index_name(ia)
             if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(nmbond(1)+ia-1))) 
      >         int_mb(nmbond(1)+ia-1) = 0
@@ -330,43 +295,43 @@ c
          shake_found = (nabsize.gt.0)
          if (shake_found) then
 
-            value = MA_alloc_get(mt_int,nabsize,'na',na(2),na(1))
+            value = MA_alloc_get(mt_int,nabsize,'nonna',na(2),na(1))
             value = value.and.
-     >              MA_alloc_get(mt_int,nabsize,'nb',nb(2),nb(1))
+     >              MA_alloc_get(mt_int,nabsize,'nonnb',nb(2),nb(1))
             value = value.and.
-     >              MA_alloc_get(mt_int,nindxsize,'indx_shake',
+     >              MA_alloc_get(mt_int,nindxsize,'nonindx_shake',
      >                        indx_shake(2),indx_shake(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,ndsqsize,'dsq_shake',
+     >              MA_alloc_get(mt_dbl,ndsqsize,'nondsq_shake',
      >                        dsq_shake(2),dsq_shake(1))
             if (.not.value) call errquit(
-     >       'cannot allocate heap memory for qmmm shake',0,MA_ERR)
+     >       'cannot allocate heap memory for 2qmmm shake',0,MA_ERR)
 
             nabsize   = 0
             nindxsize = 0
             ndsqsize  = 0
             do ia=1,nkfrag
                do ja=1,int_mb(nshake(1)+ia-1)
-                  rtdb_name = 'pspw_qmmm_frag_na:'
+                  rtdb_name = 'pspw_2qmmm_frag_na:'
      >                        //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,natmp))
      >               natmp = 0
                   int_mb(na(1)+nabsize) = natmp
-                  rtdb_name = 'pspw_qmmm_frag_nb:'
+                  rtdb_name = 'pspw_2qmmm_frag_nb:'
      >                        //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nbtmp))
      >               nbtmp = 0
                   int_mb(nb(1)+nabsize) = nbtmp
                   nabsize = nabsize + 1
 
-                  rtdb_name = 'pspw_qmmm_frag_indx_shake:'
+                  rtdb_name = 'pspw_2qmmm_frag_indx_shake:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_int,natmp,
      >                int_mb(indx_shake(1)+nindxsize)))
      >               int_mb(indx_shake(1)+nindxsize) = 0
                   nindxsize = nindxsize + natmp
 
-                  rtdb_name = 'pspw_qmmm_frag_dsq_shake:'
+                  rtdb_name = 'pspw_2qmmm_frag_dsq_shake:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,nbtmp,
      >                dbl_mb(dsq_shake(1)+ndsqsize)))
@@ -380,27 +345,27 @@ c
 *        *** more bond ****
          bond_found = (nbindxsize.gt.0)
          if (bond_found) then
-            value = MA_alloc_get(mt_int,nbindxsize,'indx_bond',
+            value = MA_alloc_get(mt_int,nbindxsize,'nonindx_bond',
      >                        indx_bond(2),indx_bond(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,nKr0size,'Kr0_bond',
+     >              MA_alloc_get(mt_dbl,nKr0size,'nonKr0_bond',
      >                        Kr0_bond(2),Kr0_bond(1))
             if (.not.value) call errquit(
-     >       'cannot allocate heap memory for qmmm bond',0,MA_ERR)
+     >       'cannot allocate heap memory for 2qmmm bond',0,MA_ERR)
 
             nbindxsize = 0
             nKr0size   = 0
             do ia=1,nkfrag
                do ja=1,int_mb(nbond(1)+ia-1)
 
-                  rtdb_name = 'pspw_qmmm_frag_indx_bond:'
+                  rtdb_name = 'pspw_2qmmm_frag_indx_bond:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_int,2,
      >                int_mb(indx_bond(1)+nbindxsize)))
      >               int_mb(indx_bond(1)+nbindxsize) = 0
                   nbindxsize = nbindxsize + 2
 
-                  rtdb_name = 'pspw_qmmm_frag_Kr0_bond:'
+                  rtdb_name = 'pspw_2qmmm_frag_Kr0_bond:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,2,
      >                dbl_mb(Kr0_bond(1)+nKr0size)))
@@ -417,27 +382,27 @@ c
 *        *** more angle ****
          angle_found = (naindxsize.gt.0)
          if (angle_found) then
-            value = MA_alloc_get(mt_int,naindxsize,'indx_angle',
+            value = MA_alloc_get(mt_int,naindxsize,'nonindx_angle',
      >                        indx_angle(2),indx_angle(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,nQr0size,'Kr0_angle',
+     >              MA_alloc_get(mt_dbl,nQr0size,'nonKr0_angle',
      >                        Kr0_angle(2),Kr0_angle(1))
             if (.not.value) call errquit(
-     >       'cannot allocate heap memory for qmmm angle',0,MA_ERR)
+     >       'cannot allocate heap memory for 2qmmm angle',0,MA_ERR)
 
             naindxsize = 0
             nQr0size   = 0
             do ia=1,nkfrag
                do ja=1,int_mb(nangle(1)+ia-1)
 
-                  rtdb_name = 'pspw_qmmm_frag_indx_angle:'
+                  rtdb_name = 'pspw_2qmmm_frag_indx_angle:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_int,3,
      >                int_mb(indx_angle(1)+naindxsize)))
      >               int_mb(indx_angle(1)+naindxsize) = 0
                   naindxsize = naindxsize + 3
 
-                  rtdb_name = 'pspw_qmmm_frag_Kr0_angle:'
+                  rtdb_name = 'pspw_2qmmm_frag_Kr0_angle:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,2,
      >                dbl_mb(Kr0_angle(1)+nQr0size)))
@@ -452,27 +417,27 @@ c
 *        *** more cbond ****
          cbond_found = (ncbindxsize.gt.0)
          if (cbond_found) then
-            value = MA_alloc_get(mt_int,ncbindxsize,'indx_cbond',
+            value = MA_alloc_get(mt_int,ncbindxsize,'nonindx_cbond',
      >                        indx_cbond(2),indx_cbond(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,ncKr0size,'Kr0_cbond',
+     >              MA_alloc_get(mt_dbl,ncKr0size,'nonKr0_cbond',
      >                        Kr0_cbond(2),Kr0_cbond(1))
             if (.not.value) call errquit(
-     >       'cannot allocate heap memory for qmmm cbond',0,MA_ERR)
+     >       'cannot allocate heap memory for 2qmmm cbond',0,MA_ERR)
 
             ncbindxsize = 0
             ncKr0size   = 0
             do ia=1,nkfrag
                do ja=1,int_mb(ncbond(1)+ia-1)
 
-                  rtdb_name = 'pspw_qmmm_frag_indx_cbond:'
+                  rtdb_name = 'pspw_2qmmm_frag_indx_cbond:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_int,4,
      >                int_mb(indx_cbond(1)+ncbindxsize)))
      >               int_mb(indx_cbond(1)+ncbindxsize) = 0
                   ncbindxsize = ncbindxsize + 4
 
-                  rtdb_name = 'pspw_qmmm_frag_Kr0_cbond:'
+                  rtdb_name = 'pspw_2qmmm_frag_Kr0_cbond:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,3,
      >                dbl_mb(Kr0_cbond(1)+ncKr0size)))
@@ -487,27 +452,27 @@ c
 *        *** more mbond ****
          mbond_found = (nmbindxsize.gt.0)
          if (mbond_found) then
-            value = MA_alloc_get(mt_int,nmbindxsize,'indx_mbond',
+            value = MA_alloc_get(mt_int,nmbindxsize,'nonindx_mbond',
      >                        indx_mbond(2),indx_mbond(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,nmKr0size,'Kr0_mbond',
+     >              MA_alloc_get(mt_dbl,nmKr0size,'nonKr0_mbond',
      >                        Kr0_mbond(2),Kr0_mbond(1))
             if (.not.value) call errquit(
-     >       'cannot allocate heap memory for qmmm mbond',0,MA_ERR)
+     >       'cannot allocate heap memory for 2qmmm mbond',0,MA_ERR)
 
             nmbindxsize = 0
             nmKr0size   = 0
             do ia=1,nkfrag
                do ja=1,int_mb(nmbond(1)+ia-1)
 
-                  rtdb_name = 'pspw_qmmm_frag_indx_mbond:'
+                  rtdb_name = 'pspw_2qmmm_frag_indx_mbond:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_int,2,
      >                int_mb(indx_mbond(1)+nmbindxsize)))
      >               int_mb(indx_mbond(1)+nmbindxsize) = 0
                   nmbindxsize = nmbindxsize + 2
 
-                  rtdb_name = 'pspw_qmmm_frag_Kr0_mbond:'
+                  rtdb_name = 'pspw_2qmmm_frag_Kr0_mbond:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,3,
      >                dbl_mb(Kr0_mbond(1)+nmKr0size)))
@@ -520,31 +485,22 @@ c
          end if
 
 
-
-
-*       ***** initialize Model, LJ, Pol, VIB, and CAV ****
-        call pspw_LJ_init(rtdb)
-
-*       ***** make sure mm fragments are in cell ****
-        if (periodic) call pspw_qmmm_incell1(dbl_mb(ion_rion_ptr()))
-
-
 *       ***** write out header info ****
         call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
            do ia=1,nkfrag
-             write(*,*) "fragment ",ia
-             write(*,'(1x,A,I4)') "  - fragment size = ",
+             write(*,*) "non-fragment ",ia
+             write(*,'(1x,A,I4)') "  - non-fragment size = ",
      >                         int_mb(size_frag(1)+ia-1)
              if (log_mb(self_interaction(1)+ia-1)) then
-                write(*,*) "  - ionic fragment"
+                write(*,*) "  - ionic non-fragment"
              else
-                write(*,*) "  - covalent fragment"
+                write(*,*) "  - covalent non-fragment"
              end if
              if (log_mb(incell_frag(1)+ia-1)) then
-                write(*,*) "  - incell fragment"
+                write(*,*) "  - incell non-fragment"
              else
-                write(*,*) "  - not incell fragment"
+                write(*,*) "  - not incell non-fragment"
              end if
              write(*,*) "  - Switching Parameters = ",
      >                  dbl_mb(switch_Rin(1)+ia-1),
@@ -650,14 +606,14 @@ c
      >                  "rho=",dbl_mb(shake_ptr+1),
      >                  "re=", dbl_mb(shake_ptr+2)
                ii = ii + 2
-               jj = jj + 3
+               jj = jj + 2
              end do
 
              
            end do
         end if
 
-        call pspw_2qmmm_init(rtdb)
+
       end if
 
       return
@@ -666,22 +622,20 @@ c
 
 *     **********************************
 *     *	                               *
-*     *         pspw_qmmm_end 	       *
+*     *         pspw_2qmmm_end 	       *
 *     *                                *
 *     **********************************
 
-      subroutine pspw_qmmm_end()
+      subroutine pspw_2qmmm_end()
       implicit none
 
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "pspw_qmmm.fh"
+#include "pspw_2qmmm.fh"
 
       logical value
       integer  control_version
       external control_version
-      logical  pspw_2qmmm_found
-      external pspw_2qmmm_found
 
       if (qmmm_found) then
         value =           MA_free_heap(indx_frag_start(2))
@@ -734,14 +688,9 @@ c
           value = value.and.MA_free_heap(Kr0_mbond(2))
         end if
 
-        if (control_version().ne.3) then
-        value = value.and.MA_free_heap(rcell(2))
-        end if
         if (.not.value) call errquit('cannot free heap memory',0,
      &       MA_ERR)
 
-        if (pspw_2qmmm_found()) call pspw_2qmmm_end()
-        call pspw_LJ_end()
       end if
 
       return
@@ -749,123 +698,47 @@ c
 
 *     **********************************
 *     *	                               *
-*     *         pspw_qmmm_found        *
+*     *         pspw_2qmmm_found        *
 *     *                                *
 *     **********************************
-      logical function pspw_qmmm_found()
+      logical function pspw_2qmmm_found()
       implicit none
 
-#include "pspw_qmmm.fh"
+#include "pspw_2qmmm.fh"
 
-      pspw_qmmm_found = qmmm_found
+      pspw_2qmmm_found = qmmm_found
       return
       end
 
 
 *     **********************************
 *     *                                *
-*     *    pspw_qmmm_shake_found       *
+*     *    pspw_2qmmm_shake_found       *
 *     *                                *
 *     **********************************
-      logical function pspw_qmmm_shake_found()
+      logical function pspw_2qmmm_shake_found()
       implicit none
 
-#include "pspw_qmmm.fh"
+#include "pspw_2qmmm.fh"
 
-      pspw_qmmm_shake_found = shake_found
+      pspw_2qmmm_shake_found = shake_found
       return
       end
 
 
+
 *     **********************************
-*     *	                               *
-*     *         pspw_qmmm_LJ_E 	       *
+*     *                                *
+*     *        pspw_2qmmm_spring_E      *
 *     *                                *
 *     **********************************
 
-      real*8 function pspw_qmmm_LJ_E()
+      real*8 function pspw_2qmmm_spring_E()
       implicit none
 
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "pspw_qmmm.fh"
-
-c     **** external functions ***
-      integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
-      external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
-      real*8   pspw_LJ_E
-      external pspw_LJ_E
-
-      pspw_qmmm_LJ_E = pspw_LJ_E(ion_nion(),
-     >                           ion_nion_qm(),
-     >                           int_mb(ion_katm_ptr()),
-     >                           nfrag,
-     >                           int_mb(indx_frag_start(1)),
-     >                           int_mb(size_frag(1)),
-     >                           int_mb(kfrag(1)),
-     >                           log_mb(self_interaction(1)),
-     >                           nshl3d,dbl_mb(rcell(1)),
-     >                           dbl_mb(ion_rion_ptr()))
-      return
-      end
-
-
-
-*     **********************************
-*     *                                *
-*     *         pspw_qmmm_Q_E          *
-*     *                                *
-*     **********************************
-
-      real*8 function pspw_qmmm_Q_E()
-      implicit none
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "pspw_qmmm.fh"
-
-c     **** external functions ***
-      integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
-      external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
-      integer  psp_zv_ptr,ion_amass_ptr
-      external psp_zv_ptr,ion_amass_ptr
-      real*8   pspw_Q_E
-      external pspw_Q_E
-
-      pspw_qmmm_Q_E = pspw_Q_E(ion_nion(),
-     >                         ion_nion_qm(),
-     >                         int_mb(ion_katm_ptr()),
-     >                         dbl_mb(psp_zv_ptr()),
-     >                         dbl_mb(ion_amass_ptr()),
-     >                         nfrag,
-     >                         int_mb(indx_frag_start(1)),
-     >                         int_mb(size_frag(1)),
-     >                         int_mb(kfrag(1)),
-     >                         dbl_mb(switch_Rin(1)),
-     >                         dbl_mb(switch_Rout(1)),
-     >                         log_mb(self_interaction(1)),
-     >                         nshl3d,dbl_mb(rcell(1)),
-     >                         dbl_mb(ion_rion_ptr()))
-      return
-      end
-
-
-
-
-
-
-*     **********************************
-*     *                                *
-*     *        pspw_qmmm_spring_E      *
-*     *                                *
-*     **********************************
-
-      real*8 function pspw_qmmm_spring_E()
-      implicit none
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "pspw_qmmm.fh"
+#include "pspw_2qmmm.fh"
 
 c     **** local variables ****
       integer dutask,taskid,np
@@ -883,10 +756,6 @@ c     **** external functions ***
       external pspw_qmmm_spring_cbond_frag
       real*8   pspw_qmmm_morse_bond_frag
       external pspw_qmmm_morse_bond_frag
-      real*8   pspw_2qmmm_spring_E
-      external pspw_2qmmm_spring_E
-      logical  pspw_2qmmm_found
-      external pspw_2qmmm_found
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -939,27 +808,24 @@ c     **** external functions ***
       end do
       if (np.gt.1) call Parallel_SumAll(E)
 
-c     **** non-fragments ****
-      if (pspw_2qmmm_found()) E = E + pspw_2qmmm_spring_E()
-
-      pspw_qmmm_spring_E = E
+      pspw_2qmmm_spring_E = E
       return
       end
 
 
 *     **********************************
 *     *                                *
-*     *      pspw_qmmm_spring_fion     *
+*     *      pspw_2qmmm_spring_fion    *
 *     *                                *
 *     **********************************
 
-      subroutine pspw_qmmm_spring_fion(fion)
+      subroutine pspw_2qmmm_spring_fion(fion)
       implicit none
       real*8 fion(3,*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "pspw_qmmm.fh"
+#include "pspw_2qmmm.fh"
 
 c     **** local variables ****
       integer dutask,taskid,np
@@ -968,8 +834,6 @@ c     **** local variables ****
 c     **** external functions ***
       integer  ion_rion_ptr
       external ion_rion_ptr
-      logical  pspw_2qmmm_found
-      external pspw_2qmmm_found
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -1023,316 +887,26 @@ c     **** external functions ***
          dutask = mod(dutask+1,np)
       end do
 
-c     *** non-fragments ***
-      if (pspw_2qmmm_found()) call pspw_2qmmm_spring_fion(fion)
-      return
-      end
-
-
-
-*     **********************************
-*     *                                *
-*     *         pspw_qmmm_LJ_fion      *
-*     *                                *
-*     **********************************
-
-      subroutine pspw_qmmm_LJ_fion(fion)
-      implicit none
-      real*8 fion(3,*)
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "pspw_qmmm.fh"
-
-c     **** external functions ***
-      integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
-      external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
-
-      call  pspw_LJ_fion(ion_nion(),
-     >                   ion_nion_qm(),
-     >                   int_mb(ion_katm_ptr()),
-     >                   nfrag,
-     >                   int_mb(indx_frag_start(1)),
-     >                   int_mb(size_frag(1)),
-     >                   int_mb(kfrag(1)),
-     >                   log_mb(self_interaction(1)),
-     >                   nshl3d,dbl_mb(rcell(1)),
-     >                   dbl_mb(ion_rion_ptr()),fion)
-      return
-      end
-
-
-
-*     **********************************
-*     *                                *
-*     *         pspw_qmmm_Q_fion       *
-*     *                                *
-*     **********************************
-
-      subroutine pspw_qmmm_Q_fion(fion)
-      implicit none
-      real*8 fion(3,*)
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "pspw_qmmm.fh"
-
-c     **** external functions ***
-      integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
-      external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
-      integer  psp_zv_ptr,ion_amass_ptr
-      external psp_zv_ptr,ion_amass_ptr
-      real*8   pspw_Q_E
-      external pspw_Q_E
-
-      call pspw_Q_fion(ion_nion(),
-     >                 ion_nion_qm(),
-     >                 int_mb(ion_katm_ptr()),
-     >                 dbl_mb(psp_zv_ptr()),
-     >                 dbl_mb(ion_amass_ptr()),
-     >                 nfrag,
-     >                 int_mb(indx_frag_start(1)),
-     >                 int_mb(size_frag(1)),
-     >                 int_mb(kfrag(1)),
-     >                 dbl_mb(switch_Rin(1)),
-     >                 dbl_mb(switch_Rout(1)),
-     >                 log_mb(self_interaction(1)),
-     >                 nshl3d,dbl_mb(rcell(1)),
-     >                 dbl_mb(ion_rion_ptr()),fion)
       return
       end
 
 
 
 
-*     **********************************
-*     *                                *
-*     *         pspw_qmmm_fion         *
-*     *                                *
-*     **********************************
-
-      subroutine pspw_qmmm_fion(fion)
-      implicit none
-      real*8 fion(3,*)
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-
-*      **** local variables ****
-      integer ftmp(2),nion3,np
-
-*     *** external functions ****
-      integer  ion_nion
-      external ion_nion
-      call Parallel_np(np)
-
-      if (np.eq.1) then
-         call pspw_qmmm_LJ_fion(fion)
-         call pspw_qmmm_Q_fion(fion)
-         call pspw_qmmm_spring_fion(fion)
-      else
-         nion3 = 3*ion_nion()
-         if (.not.MA_push_get(mt_dbl,nion3,'ftmp',ftmp(2),ftmp(1)))
-     >  call errquit('pspw_qmmm_fion:cannot push stack memory',0,MA_ERR)
-
-         call dcopy(nion3,0.0,0,dbl_mb(ftmp(1)),1)
-         call pspw_qmmm_LJ_fion(dbl_mb(ftmp(1)))
-         call pspw_qmmm_Q_fion(dbl_mb(ftmp(1)))
-         call pspw_qmmm_spring_fion(dbl_mb(ftmp(1)))
-         call Parallel_Vector_SumAll(nion3,dbl_mb(ftmp(1)))
-
-         call daxpy(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
-
-
-         if (.not.MA_pop_stack(ftmp(2)))
-     >   call errquit('pspw_qmmm_fion:cannot pop stack memory',0,MA_ERR)
-      end if
-      return
-      end
-
-
 *     ******************************
 *     *                            *
-*     *       pspw_qmmm_frag_cm    *
+*     *       pspw_2qmmm_shake     *
 *     *                            *
 *     ******************************
-*   Computes the center of mass and total mass of a fragment.
+*   shakes the 2fragments 
 *
-*    Entry - size_frag - fragment size
-*            kfrag_s   - index to start of fragment
-*            rion      - total atom list
-*    Exit - rcm    - center of mass of fragment
-*           mtotal - total mass of fragment
-*
-      subroutine pspw_qmmm_frag_cm(size_frag,kfrag_s,rion,rcm,mtotal)
-      implicit none
-      integer size_frag,kfrag_s
-      real*8 rion(3,*),rcm(3),mtotal
-
-#include "mafdecls.fh"
-
-*     **** local variables ****
-      integer k,kk,ptr
-      real*8  m
-
-*     **** external functions ****
-      integer  ion_amass_ptr
-      external ion_amass_ptr
-
-      ptr = ion_amass_ptr()
-
-      mtotal = 0.0d0
-      rcm(1) = 0.0d0
-      rcm(2) = 0.0d0
-      rcm(3) = 0.0d0
-      kk = kfrag_s
-      do k=1,size_frag
-         m = dbl_mb(ptr+kk-1)
-         rcm(1) = rcm(1) + m*rion(1,kk)
-         rcm(2) = rcm(2) + m*rion(2,kk)
-         rcm(3) = rcm(3) + m*rion(3,kk)
-         mtotal = mtotal + m
-         kk = kk + 1
-      end do
-      rcm(1) = rcm(1)/mtotal
-      rcm(2) = rcm(2)/mtotal
-      rcm(3) = rcm(3)/mtotal
-
-      return
-      end
-
-
-
-*     ******************************
-*     *                            *
-*     *       pspw_qmmm_incell1    *
-*     *                            *
-*     ******************************
-*   Computes the center of mass and total mass of a fragment.
-*
-*    Entry - size_frag - fragment size
-*            kfrag_s   - index to start of fragment
-*            rion      - total atom list
-*    Exit - rcm    - center of mass of fragment
-*           mtotal - total mass of fragment
-*
-      subroutine pspw_qmmm_incell1(r1)
-      implicit none
-      real*8 r1(3,*)
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "pspw_qmmm.fh"
-
-*     **** local variables ****
-      integer w1,n1,ks1,ia
-      real*8  rcm(3),mtotal
-
-      do w1=1,nfrag
-c        ia = int_mb(kfrag(1)+w1-1)
-c        if (log_mb(incell_frag(1)+ia-1)) then
-        n1  = int_mb(size_frag(1)+w1-1)
-        ks1 = int_mb(indx_frag_start(1)+w1-1)
-        call pspw_qmmm_frag_cm(n1,ks1,r1,rcm,mtotal)
-        call lattice_incell1_frag(rcm,n1,r1(1,ks1))
-c        end if
-      end do
-      return
-      end 
-
-*     ******************************
-*     *                            *
-*     *       pspw_qmmm_incell2    *
-*     *                            *
-*     ******************************
-*   Computes the center of mass and total mass of a fragment.
-*
-*    Entry - size_frag - fragment size
-*            kfrag_s   - index to start of fragment
-*            rion      - total atom list
-*    Exit - rcm    - center of mass of fragment
-*           mtotal - total mass of fragment
-*
-      subroutine pspw_qmmm_incell2(r1,r2)
-      implicit none
-      real*8 r1(3,*),r2(3,*)
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "pspw_qmmm.fh"
-
-*     **** local variables ****
-      integer w1,n1,ks1,ia
-      real*8  rcm(3),mtotal
-
-      do w1=1,nfrag
-c        ia = int_mb(kfrag(1)+w1-1)
-c        if (log_mb(incell_frag(1)+ia-1)) then
-        n1  = int_mb(size_frag(1)+w1-1)
-        ks1 = int_mb(indx_frag_start(1)+w1-1)
-        call pspw_qmmm_frag_cm(n1,ks1,r1,rcm,mtotal)
-        call lattice_incell2_frag(rcm,n1,r1(1,ks1),r2(1,ks1))
-c        end if
-      end do
-      return
-      end
-
-
-*     ******************************
-*     *                            *
-*     *       pspw_qmmm_incell3    *
-*     *                            *
-*     ******************************
-*   Computes the center of mass and total mass of a fragment.
-*
-*    Entry - size_frag - fragment size
-*            kfrag_s   - index to start of fragment
-*            rion      - total atom list
-*    Exit - rcm    - center of mass of fragment
-*           mtotal - total mass of fragment
-*
-      subroutine pspw_qmmm_incell3(r1,r2,r3)
-      implicit none
-      real*8 r1(3,*),r2(3,*),r3(3,*)
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "pspw_qmmm.fh"
-
-*     **** local variables ****
-      integer w1,n1,ks1,ia
-      real*8  rcm(3),mtotal
-
-
-      do w1=1,nfrag
-c        ia = int_mb(kfrag(1)+w1-1)
-c        if (log_mb(incell_frag(1)+ia-1)) then
-        n1  = int_mb(size_frag(1)+w1-1)
-        ks1 = int_mb(indx_frag_start(1)+w1-1)
-        call pspw_qmmm_frag_cm(n1,ks1,r1,rcm,mtotal)
-        call lattice_incell3_frag(rcm,n1,r1(1,ks1),r2(1,ks1),r3(1,ks1))
-c        end if
-      end do
-
-      return
-      end
-
-
-
-*     ******************************
-*     *                            *
-*     *       pspw_qmmm_shake      *
-*     *                            *
-*     ******************************
-*   shakes the fragments 
-*
-      subroutine pspw_qmmm_shake(r2,r1)
+      subroutine pspw_2qmmm_shake(r2,r1)
       implicit none
       real*8 r2(3,*),r1(3,*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "pspw_qmmm.fh"
+#include "pspw_2qmmm.fh"
 
 *     **** local variables ****
       integer maxit
@@ -1345,8 +919,6 @@ c        end if
 *     **** external functions ****
       integer  ion_amass_ptr
       external ion_amass_ptr
-      logical  pspw_2qmmm_found
-      external pspw_2qmmm_found
 
       do w1=1,nfrag
          wk1  = int_mb(kfrag(1)+w1-1)
@@ -1368,44 +940,7 @@ c        end if
          end if
       end do
   
-c     **** non-frags ****
-      if (pspw_2qmmm_found()) call pspw_2qmmm_shake(r2,r1)
 
-      return
-      end
-
-*     ******************************
-*     *                            *
-*     *   pspw_qmmm_shake_frag     *
-*     *                            *
-*     ******************************
-*   shakes a fragment 
-*
-      subroutine pspw_qmmm_shake_frag(nshk,na,nb,indx,dsq,
-     >                                tol,maxit,
-     >                                mass,r2,r1)
-      implicit none
-      integer nshk, na(*),nb(*)
-      integer indx(*)
-      real*8  dsq(*)
-      real*8  tol
-      integer maxit
-      real*8  mass(*)
-      real*8 r2(*),r1(*)
-
-*     **** local variables ****
-      integer ii,jj,sk
-
-      ii = 1
-      jj = 1
-      do sk=1,nshk
-         call shake_chain3(na(sk),indx(ii),nb(sk),
-     >                     tol,maxit,
-     >                     dsq(jj),
-     >                     mass,r2,r1)
-         ii = ii + na(sk)
-         jj = jj + nb(sk)
-      end do
       return
       end
 

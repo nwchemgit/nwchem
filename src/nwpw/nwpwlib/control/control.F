@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.124 2008-09-15 20:52:29 bylaska Exp $
+* $Id: control.F,v 1.125 2008-09-22 22:55:15 bylaska Exp $
 *
 
 *     ***********************************
@@ -63,6 +63,13 @@
 
 *     **** set np_dimensions ****
       call Parallel_np(np)
+
+**** if NOMPI then no processor groups or communicators ****
+#ifdef NOMPI
+      np_dimensions(1) = np
+      np_dimensions(2) = 1
+      np_dimensions(3) = 1
+#else
       if(.not.rtdb_get(rtdb,'nwpw:np_dimensions',
      >                 mt_int,3,np_dimensions)) then
          np_dimensions(1) = np
@@ -96,6 +103,7 @@
          np_dimensions(1) = np/np_dimensions(2)
 
       endif
+#endif
       
       
 

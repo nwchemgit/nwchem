@@ -1,17 +1,19 @@
 #
-# $Id: GNUmakefile,v 1.8 2007-03-27 02:02:50 bylaska Exp $
+# $Id: GNUmakefile,v 1.9 2008-09-22 22:55:16 bylaska Exp $
 #
  SUBDIRS = pspw_LJ pspw_Q 
  OBJ_OPTIMIZE = \
                 pspw_qmmm_input.o \
-                pspw_qmmm.o
+                pspw_qmmm.o \
+                pspw_2qmmm.o \
+		pspw_springs.o
 
       OBJ =
 
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = pspw_qmmm.F
+    USES_BLAS = pspw_qmmm.F pspw_qmmm2.F
   LIB_DEFINES =
   LIB_INCLUDES = 
 
