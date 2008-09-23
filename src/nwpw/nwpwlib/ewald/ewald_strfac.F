@@ -1,5 +1,5 @@
 *
-* $Id: ewald_strfac.F,v 1.9 2008-06-17 17:23:21 d3p708 Exp $
+* $Id: ewald_strfac.F,v 1.10 2008-09-23 19:39:45 bylaska Exp $
 *
       subroutine ewald_strfact_init()
       implicit none
@@ -23,7 +23,7 @@ cccccccc exec
       ny    = ewald_grid_ny()
       nz    = ewald_grid_nz()
 
-      value=MA_alloc_get(mt_dcpl,(nx*nion),'ewx1',ewx1(2),ewx2(1))
+      value=MA_alloc_get(mt_dcpl,(nx*nion),'ewx1',ewx1(2),ewx1(1))
       value=value.and.
      >      MA_alloc_get(mt_dcpl,(ny*nion),'ewx2',ewx2(2),ewx2(1))
       value=value.and.
