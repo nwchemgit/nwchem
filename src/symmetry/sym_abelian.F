@@ -1,6 +1,6 @@
       logical function sym_abelian_group(geom)
 *
-* $Id: sym_abelian.F,v 1.7 2003-10-17 22:58:24 carlfahl Exp $
+* $Id: sym_abelian.F,v 1.8 2008-09-24 18:08:49 jhammond Exp $
 *
       implicit none
       integer geom              ! [input]
@@ -551,6 +551,40 @@ c
             char_tab(op,ir) = chars((ir-1)*nir+class)            
          end do
       end do
+c
+      end
+
+      logical function sym_force_abelian_subgroup(geom)
+c
+c     This reduces non-Abelian groups to the appropriate Abelian subgroup
+c
+      implicit none
+      integer geom              ! [input]
+#include "inp.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      character*8 oldgroup,newgroup
+      integer nab, ind
+      parameter (nab = 8)
+      character*4 ab(nab)
+      data ab/ 'C1','Cs','Ci','C2','D2','C2v','C2h','D2h'/
+      logical sym_abelian_group
+      external sym_abelian_group
+c
+      call sym_group_name(geom,oldgroup)
+      print*,'oldgroup = ',oldgroup
+c
+      if (oldgroup(1:3).eq.'D4h') then
+        group_name = 'D2h       '
+      else ! give up and turn off symmetry
+        group_name = 'C1        '
+      endif
+c
+      call sym_group_name(geom,newgroup)
+      print*,'newgroup = ',newgroup
+c
+      sym_force_abelian_subgroup = sym_abelian_group(geom)
 c
       end
 
