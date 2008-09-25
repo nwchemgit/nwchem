@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.80 2008-09-18 20:38:28 jhammond Exp $
+#$Id: GNUmakefile,v 1.81 2008-09-25 14:54:18 jhammond Exp $
 #
 
 SUBDIRS = include diis2 diis3 \
@@ -67,6 +67,8 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_make_denom1.o tce_make_denom2.o
 
       #OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
+      #OBJ_OPTIMIZE += tce_sort0.o tce_sort2_saday.o tce_sort4_jeff.o tce_sort6.o tce_sort8.o \
+                      tce_sortacc_saday.o tce_sortacc8.o 
       OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
 
 ifeq ($(NWCHEM_TARGET),LAPI64)
@@ -101,6 +103,7 @@ LIB_DEFINES += -DCCSDTLR
 endif
 
 #LIB_DEFINES += -DNEWDIPOLE
+#LIB_DEFINES += -DSPECIAL2EMET
 #LIB_DEFINES += -DDEBUG_PRINT -DSPAGHETTY
 
 #
