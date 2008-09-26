@@ -1,6 +1,6 @@
       logical function sym_abelian_group(geom)
 *
-* $Id: sym_abelian.F,v 1.8 2008-09-24 18:08:49 jhammond Exp $
+* $Id: sym_abelian.F,v 1.9 2008-09-26 12:07:36 jhammond Exp $
 *
       implicit none
       integer geom              ! [input]
@@ -554,6 +554,7 @@ c
 c
       end
 
+#ifdef BAD_FOR_G77
       logical function sym_force_abelian_subgroup(geom)
 c
 c     This reduces non-Abelian groups to the appropriate Abelian subgroup
@@ -565,7 +566,7 @@ c
 #include "geomP.fh"
 c
       character*8 oldgroup,newgroup
-      integer nab, ind
+      integer nab
       parameter (nab = 8)
       character*4 ab(nab)
       data ab/ 'C1','Cs','Ci','C2','D2','C2v','C2h','D2h'/
@@ -587,4 +588,4 @@ c
       sym_force_abelian_subgroup = sym_abelian_group(geom)
 c
       end
-
+#endif
