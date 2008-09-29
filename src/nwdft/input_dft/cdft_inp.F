@@ -1,7 +1,7 @@
       subroutine cdft_input(rtdb, nconstr, dtype, iatms1, iatms2, 
      $                      fatms1, fatms2, constr)
 c
-c     $Id: cdft_inp.F,v 1.3 2008-08-03 00:33:34 jhammond Exp $
+c     $Id: cdft_inp.F,v 1.4 2008-09-29 20:12:07 jhammond Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -26,7 +26,7 @@ c
       integer ipop
       data dirs /'convergence', 'pop'/
       data dirs_c /'charge', 'spin'/
-      data dirs_p /'becke', 'mullikin', 'lowdin'/
+      data dirs_p /'becke', 'mulliken', 'lowdin'/
 c
 c
       if (.not.rtdb_get(rtdb,'dft:grid_make_sa',mt_log,1,grid_make_sa))
