@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.50 2008-08-18 16:05:53 d3p307 Exp $
+* $Id: util_legal.F,v 1.51 2008-09-29 19:09:10 d3p307 Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000             *
 *       2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008               *
@@ -26,7 +26,7 @@ c
      & 'COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 ',
      &    center_pt+1, FF)
       call util_print_centered(luout,
-     & '2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007',
+     & '2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008',
      &    center_pt+1, FF)
       call util_print_centered(luout,
      &    '    Pacific Northwest National Laboratory, ',
