@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.7 2005-12-28 18:09:49 edo Exp $
+# $Id: GNUmakefile,v 1.8 2008-09-29 20:21:59 edo Exp $
   LIBRARY = lib64to32.a
   
   OBJ_OPTIMIZE = yscal.o ycopy.o ydot.o ygemm.o ygemv.o \
@@ -7,7 +7,7 @@
                  ygebak.o ygebal.o ynrm2.o ylacpy.o ylascl.o\
                  ylange.o ytrevc.o yhseqr.o yorghr.o ygehrd.o\
                  ysterf.o ylarnv.o ylagtf.o ylagts.o yasum.o \
-                 ypotri.o ypotrf.o ysygv.o\
+                 ypotri.o ypotrf.o ysygv.o ygeev.o\
                  ifily.o\
                  xscal.o xaxpy.o xgemm.o xheev.o xcopy.o xdotc.o \
                  ixamax.o
