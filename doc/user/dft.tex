@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.95 2008-04-30 19:04:38 niri Exp $ 
+% $Id: dft.tex,v 1.96 2008-09-29 20:31:24 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -47,7 +47,8 @@ the DFT module are:
 
 
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
-     [becke97]  [becke97-1] [becke97-2] [becke97-3] [becke98] [hcth] [hcth120] [hcth147]\
+     [becke97]  [becke97-1] [becke97-2] [becke97-3] [becke97-d] [becke98] \
+      [hcth] [hcth120] [hcth147]\
       [hcth407] [becke97gga1]  [hcth407p]\
       [mpw91] [mpw1k] [xft97] [cft97] [ft97] [op] [bop] [pbeop]\
       [xpkzb99] [cpkzb99] [xtpss03] [ctpss03] [xctpssh]\
@@ -137,6 +138,7 @@ the DFT module are:
   ITERATIONS <integer iterations default 30>
   MAX_OVL
   MULLIKEN
+  DISP
   MULT <integer mult default 1>
   NOIO
   PRINT||NOPRINT
@@ -713,6 +715,7 @@ Keyword    & X        & C           & GGA    & Meta & Hybr. & 2nd  & Ref.\\
 {\tt  becke97-1}& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[15]\\
 {\tt  becke97-2}& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[22]\\
 {\tt  becke97-3}& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[30]\\
+{\tt  becke97-d}& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[45]\\
 {\tt  becke98  }& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[16]\\
 {\tt  pbe0     }& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[17]\\
 {\tt  mpw1k    }& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[25]\\
@@ -797,7 +800,9 @@ J. Chem Phys. {\bf 111}, 5656  (1999) \\
 \item T. Van Voorhis, G. E. Scuseria, J. Chem. Phys. {\bf 109}, 400 (1998)\\
 \item Y. Zhao, D. G. Truhlar, J. Chem. Phys. {\bf 125}, 194101 (2006)\\
 \item Y. Zhao, D. G. Truhlar, J. Phys. Chem. A. {\bf 110}, 13126 (2006)\\
-\item Y. Zhao, D. G. Truhlar, Theor. Chem. Acc. (2006)
+\item Y. Zhao, D. G. Truhlar, Theor. Chem. Acc. (2006)\\
+\item S. Grimme, J. Comp. Chem. \bf{27}, 1787 (2006).
+
 \end{enumerate}
 }
 %\end{table}
@@ -1617,6 +1622,71 @@ end
 
 Please note that the ``ghost'' oxygen atom has been labeled {\tt bqO},
 and not just {\tt bq}.
+
+\section{{\tt DISP} --- Empirical Long-range Contribution (vdW)}
+
+\begin{verbatim}
+  DISP 
+       [ vdw <real vdw integer default 2]]
+       [[s6 <real s6 default depends on XC functional>] \
+       [ alpha <real s6 default 20.0d0] \
+       [ off ] \
+\end{verbatim}
+
+When systems with high dependence on van der Waals interactions
+are computed, the dispersion term may be added empirically 
+through long-range contribution 
+DFT-D, i.e.$ E_{DFT-D}=E_{DFT-KS}+E_{disp}$,
+%[Q. Wu and W. Yang, \textit{J. Chem. Phys.} \textbf{116} 515 (2002)] 
+where:
+
+$$ E_{disp}=-s_6\sum^{N_{atom}-1}_{i=1}\sum^{N_{atom}}_{j=i+1} 
+\frac{C_{6}^{ij}}{R_{ij}^{6}}
+\left( 1+e^{-\alpha (R_{ij}/R_{vdw}-1)}  \right)^{-1}$$
+
+In this equation, the $s_6$ term depends in the functional and basis set used, $C_6^{ij}$ 
+is the dispersion coefficient between pairs of atoms.
+$R_{vdw}$ and $R_{ij}$ are related with van der Waals atom radii and
+the nucleus distance respectively. The $\alpha$ value contributes to control the corrections
+at intermediate distances.
+
+There are available three ways to compute $C_6^{ij}$:
+\begin{enumerate}
+\item   $C_6^{ij}=
+\frac{2(C_6^{i}C_6^{j})^{2/3}(N_{eff i}N_{eff j})^{1/3}}
+{C_6^{i}(N_{eff i}^2)^{1/3}+(C_6^{i}N_{eff j}^2)^{1/3}}$ 
+where $N_{eff}$ and $C_6$ are obtained from Q. Wu and W. Yang, \textit{J. Chem. Phys.} 
+\textbf{116} 515 (2002) and U. Zimmerli, M Parrinello and P. Koumoutsakos 
+\textit{J. Chem. Phys.} \textbf{120} 2693 (2004). (Use {\tt vdw 0})
+
+\item $C_6^{ij}=2\frac{C_6^{i}C_6^{j}}{C_6^{i}+C_6^{j}}$.
+See details in 
+S. Grimme \textit{J. Comp. Chem.} \textbf{25} 1463 (2004).
+% $R_{vdW}$ and $C_6$ 
+% those were obtained from this paper. 
+(Use {\tt vdw 1})
+
+\item $C_6^{ij}=\sqrt{C_6^{i}C_6^{j}}$
+See details in 
+S. Grimme \textit{J. Comp. Chem.} \textbf{27}1787 (2006).
+% $R_{vdW}$ and $C_6$ 
+% those were obtained from this paper. 
+(Use {\tt vdw 2})
+
+\end{enumerate}
+
+Note that in each option there is a certain set of $C_6$ and $R_{vdw}$.
+
+For options {\tt vdw 1 } and {\tt vdw 2 }, there are $s_6$ values by default for some functionals 
+and triple-zeta plus double polarization basis set (TZV2P):
+\begin{itemize}
+\item {\tt vdw 1}. BLYP 1.40, PBE 0.70 and BP86 1.30.
+\item {\tt vdw 2}. BLYP 1.20, PBE 0.75, BP86 1.05, B3LYP 1.05, Becke97-D 1.25 and TPSS 1.00.
+\end{itemize}
+
+This capability is also supported for energy gradients and Hessian.
+Is possible to be deactivated with \verb+OFF+.
+
 \section{Print Control}
 \begin{verbatim}
   PRINT||NOPRINT
