@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.134 2007-08-20 23:23:39 niri Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.135 2008-09-29 20:25:49 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -522,6 +522,8 @@ c
       cname(38)='            M06-HF Correlation Potential'
       cname(39)='               M06 Correlation Potential'
       cname(40)='            M06-2X Correlation Potential'
+      cname(41)='      Becke 1997-D Correlation Potential'
+
 
 c
 c     Exchange functional name defaults.
@@ -561,6 +563,8 @@ c
       xname(36)='                 M06 Exchange Functional'
       xname(37)='              M06-2X Exchange Functional'
       xname(38)='            BNL 2007 Exchange Functional'
+      xname(39)='       Becke 1997-D  Exchange Functional'
+
 
 c
 c     Exchange-Correlation combination functional name defaults.
@@ -599,6 +603,8 @@ c
       xcname(34)='             M06-HF Method XC Functional'
       xcname(35)='                M06 Method XC Functional'
       xcname(36)='             M06-2X Method XC Functional'
+      xcname(37)='         Becke 97-D Method XC Functional'
+
 c     
 c     place character XC parameters in rtdb
 c     

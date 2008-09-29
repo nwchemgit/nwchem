@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.23 2008-03-28 18:52:37 edo Exp $
+* $Id: dft_gradients.F,v 1.24 2008-09-29 20:27:49 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -83,7 +83,10 @@ c
       integer ipoint, itmpm,ltmpm,g_tmp(2),lenvec,maavail
       double precision charge, charge_nuc, rhffact, tol2e, onem,
      , toll
-      double precision dum,vdw
+c
+      double precision dum
+      logical disp
+c
       double precision fant_a,fant_d
       parameter(toll=1.d-9)
       logical  oprint_force_comps
@@ -471,11 +474,10 @@ c$$$      write(LuOut,*) (int_mb(icetobfr+i),i=0,2*nat-1)
 c     
 c     vdW bit
 c
-      if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, vdw))
-     &   vdw=0d0
-      if(vdw.ne.0d0) call xc_vdw(rtdb,geom,dum,
-     A     dbl_mb(k_frc_xc), 'forces',vdw)
-c     
+      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
+     &   disp=.false.
+      if(disp) call xc_vdw(rtdb,geom,dum,
+     &     dbl_mb(k_frc_xc), 'forces')
 c
 c     add Bonacic-Fantucci repulsive term
 c

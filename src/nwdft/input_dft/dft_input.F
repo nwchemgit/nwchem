@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.45 2007-11-17 00:21:01 niri Exp $
+c     $Id: dft_input.F,v 1.46 2008-09-29 20:25:49 edo Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -28,9 +28,13 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 28)
+      parameter (num_dirs = 29)
       character*12 dirs(num_dirs)
       character*255 test
+      logical disp
+      integer vdw
+      integer alpha
+      integer s6
       integer nopen
       logical lcdft
       logical pseudo
@@ -42,7 +46,7 @@ c
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
      $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'sic', 
      $           'smear','fon','lb94','cs00','cdft','attenuation',
-     $           'end'/
+     $           'disp','end'/
 c Qin / cdft
       integer nconstr
       integer dtype(max_constr), iatms1(max_constr), fatms1(max_constr)
@@ -76,7 +80,8 @@ c
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
      $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
-     $     2700, 9999) ind
+     $     2700, 2800, 9999) ind
+
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
 c
@@ -357,6 +362,51 @@ c
 c
 c     end;
 c             
+ 2800 disp = .true.
+c
+      if (.not.rtdb_put(rtdb,'dft:disp', mt_log, 1, disp))
+     &   call errquit('dft_input: rtdb_put failed', 2800, RTDB_ERR)
+
+ 2810 if (.not. inp_a(test)) goto 10
+c version vdw
+      if (inp_compare(.false.,'vdw', test)) then
+          if (.not. inp_i(vdw))
+     &     call errquit('dft_input: vdw case failed', 0, INPUT_ERR)
+          if (.not.rtdb_put(rtdb,'dft:ivdw', mt_int, 1, vdw))
+     &    call errquit('dft_input: rtdb_put failed vdw', 2810, RTDB_ERR)
+c alpha damping parameter
+      elseif (inp_compare(.false.,'alpha', test)) then
+        if (.not. inp_f(alpha))
+     &   call errquit('dft_input: alpha failed', 0, INPUT_ERR)
+        if (.not.rtdb_put(rtdb,'dft:alpha',mt_dbl,1,alpha))
+     &  call errquit('dft_input: rtdb_put failed alpha', 2810, RTDB_ERR)
+c s6 contribution
+      elseif (inp_compare(.false.,'s6', test)) then
+        if (.not. inp_f(s6))
+     &   call errquit('dft_input: s6 failed', 0, INPUT_ERR)
+        if (.not.rtdb_put(rtdb,'dft:vdw',mt_dbl,1,s6))
+     &   call errquit('dft_input: rtdb_put failed', 2810, RTDB_ERR)
+c turn off vdw contrib
+      elseif (inp_compare(.false.,'off', test)) then
+        if (.not.rtdb_put(rtdb,'dft:disp',mt_dbl,1,.false.))
+     &   call errquit('dft_input: rtdb_put failed', 2810, RTDB_ERR)
+      else
+c
+        write(LuOut,2819)
+c
+ 2819   format
+     $  (/' valid disp structure input : '/
+     $    '  DISP \ '/
+     $    '   VDW <real vdw integer default 2> \'/
+     $    '   S6 <real s6 default depends on XC functional> \ '/
+     $    '   ALPHA <real s6 default 20.0d0> \' /
+     $    '   OFF \' /)
+c
+        call errquit('dft_input: unknown directive,disp', 911,INPUT_ERR)
+      endif
+c
+      goto 2810
+c
  9999 continue
 c
       if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))

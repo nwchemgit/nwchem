@@ -1,12 +1,17 @@
-c     $Id: xc_vdw.fh,v 1.1 2005-03-28 22:06:58 edo Exp $
+c
+c     $Id: xc_vdw.fh,v 1.2 2008-09-29 20:25:06 edo Exp $
+c
       double precision c6(128),r0(128)
-      common /xc_vdwc/c6,r0
-      double precision alpha,angs2pm,angs2nm
-      parameter(alpha=23d0,angs2pm=1d2,angs2nm=1d-1)
-      double precision au2kcalmol
-      parameter(au2kcalmol=627.51d0)
-      double precision joule2kcal
-      parameter(joule2kcal=1d0/4.184d0/1d3)
+      double precision alpha
+      integer ivdw
+      common /xc_vdwc/c6,r0,alpha
+      common /xc_vdwi/ivdw
+c     double precision angs2nm
+c     parameter(angs2nm=10.0d-1)
+c     double precision au2kcalmol
+c     parameter(au2kcalmol=627.51d0)
+c     double precision joule2kcal
+c     parameter(joule2kcal=1d0/(4.184d0*1.0d3))
       double precision fdmp,f1dmp,ff,x1,x2
-      fdmp(x1,x2)=1d0/(1d0+exp(-alpha*((x1/x2)-1d0)))
-      f1dmp(x1,x2,ff)=alpha/x2*ff*ff*exp(-alpha*((x1/x2)-1d0))
+      fdmp(x1,x2)=1.0d0/(1.0d0+exp(-alpha*((x1/x2)-1.0d0)))
+      f1dmp(x1,x2,ff)=(alpha/x2)*ff*ff*exp(-alpha*((x1/x2)-1.0d0))

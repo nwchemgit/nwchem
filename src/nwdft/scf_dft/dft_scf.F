@@ -4,7 +4,7 @@
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.281 2008-07-23 16:25:21 jhammond Exp $
+c     $Id: dft_scf.F,v 1.282 2008-09-29 20:26:20 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -168,6 +168,9 @@ c
       logical llldb,llldb_out,util_statldb,staticguess
       external util_statldb
       integer ndisrst
+c     for vdw contrib
+      double precision dum
+      logical disp
 c
 czora...zora essentials
 c
@@ -1450,7 +1453,12 @@ c     Jorge Garza / Begin
 c
 c     Jorge Garza / End
 c     
-
+c     vdw  bit
+c
+c activate disp if is present in rtdb
+      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
+     &   disp=.false.
+      if(disp)  call xc_vdw(rtdb,geom,Etnew,dum,'energy')
 c
 c     ----- if cosmo ... after gas_phase, do sol_phase ... -----
 c

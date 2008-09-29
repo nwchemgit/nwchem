@@ -6,7 +6,7 @@ c
      &                  iter, g_dens, g_dens_at, g_movecs, g_vxc, 
      &                  g_fock, g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.51 2008-04-25 20:36:40 niri Exp $
+c     $Id: dft_scf_so.F,v 1.52 2008-09-29 20:25:50 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -57,6 +57,11 @@ czora...zora
       logical ldmix
       character*7 vecs_or_dens
 czora...end
+c     vdw contrib
+      double precision dum
+      logical disp
+
+c
 c
 #include "bas.fh"
 #include "geom.fh"
@@ -1721,6 +1726,13 @@ c
       endif        
       if (nodiis)diising = .false.
 c     
+c     vdw bit
+c
+c activate disp if is present in rtdb
+      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
+     &   disp=.false.
+      if(disp)  call xc_vdw(rtdb,geom,Etnew,dum,'energy')
+c
       Etold = Etnew
 c     
       lmaxov = lmaxov_sv

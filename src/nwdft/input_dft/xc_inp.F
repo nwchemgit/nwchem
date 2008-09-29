@@ -1,5 +1,5 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.54 2007-09-14 18:20:55 niri Exp $
+C$Id: xc_inp.F,v 1.55 2008-09-29 20:25:49 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -46,6 +46,7 @@ c     xtpss03 => 4100
 c     ctpss03 => 4150
 c     xctpssh => 4175
 c     becke97-3 => 4500
+c     becke97-d => 4800
 c     bc95 => 5000
 c     mpw1b95=> 5100
 c     mpwb1k => 5200
@@ -81,7 +82,7 @@ c     cm06-2x  => 8100
 c     xbnl07   => 8200
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs=90 , numfunc=41)
+      parameter (num_dirs=91 , numfunc=42)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -114,7 +115,10 @@ c
      &     'xpw6b95','cpw6b95','xpwb6k','cpwb6k','xm05','cm05',
      &     'xm05-2x','cm05-2x','vs98','xvs98','cvs98','m06-L',
      &     'xm06-L','cm06-L','m06-hf','xm06-hf','cm06-hf','m06',
-     &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x','xbnl07'/
+     &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x','xbnl07',
+     &     'becke97-d'/
+c     becke97-d
+      logical disp
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -149,7 +153,7 @@ c
      &  5000,5100,5200,5300,5400,5500,5600,5700,5800,
      &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
      &  7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,
-     &  8200,1999) ind
+     &  8200,4800,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -1039,6 +1043,35 @@ c
         cfac(28) = 1.d0
        lcfac(28) = .true.
       nlcfac(28) = .true.
+c
+      goto 10
+c
+c     becke97-d; Becke 1997 Hybrid functional
+c            AD Becke JCP 107, 8554 (1997)
+c     parameters re-fitted by
+c     Grimme JCC 27, 1787 (2006)
+c     to be used with empirical vdw contrib
+c            c*Ex(HF) + Exc
+c
+c            c=0.0000
+c
+ 4800 xccomb(37) = .true.
+c       xfac(1) = 0.0d0
+c      lxfac(1) = .false.
+c     nlxfac(1) = .false.
+        xfac(39) = 1.d0
+       lxfac(39) = .true.
+      nlxfac(39) = .true.
+        cfac(41) = 1.d0
+       lcfac(41) = .true.
+      nlcfac(41) = .true.
+c this functional must be used with vdw contrib, anyway is possible to change s6
+      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
+     &   disp=.false.
+      if(.not.disp) then
+        if (.not.rtdb_put(rtdb, 'dft:disp', mt_log, 1, .true.))
+     &   call errquit('xc_inp: rtdb_put disp failed', 5, RTDB_ERR)
+      endif
 c
       goto 10
 c     

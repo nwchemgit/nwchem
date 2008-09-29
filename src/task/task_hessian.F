@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.25 2008-05-13 20:39:01 niri Exp $
+* $Id: task_hessian.F,v 1.26 2008-09-29 20:28:16 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -152,6 +152,8 @@ c
       double precision default_delta
       character*80 prefix
       character*32 theory
+c   vdw contrib
+      logical disp
 c
       call ecce_print_module_entry('task hessian')
 c
@@ -253,6 +255,14 @@ c
         else
           call errquit('task_hessian: unknown analytic theory',0,
      &       INPUT_ERR)
+        endif
+c
+c  vdw bit
+        if(theory.eq.'dft') then
+c activate disp if is present in rtdb
+          if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
+     &      disp=.false.
+          if(disp)  call xc_vdw_to_hessian(rtdb)
         endif
 c
       endif
