@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.56 2008-09-18 14:38:46 jhammond Exp $
+c $Id: tce_init.F,v 1.57 2008-09-30 18:48:43 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -206,10 +206,26 @@ c
         if (.not.rtdb_put(rtdb,'tce:zlshift2',mt_dbl,1,zlshift2))
      1  call errquit('tce_init: failed to write zlshift2',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:zlshift3',mt_dbl,1,zlshift3)) then
-        zlshift3 = 0.0d0
-        if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,1,zlshift3))
+      if (.not.rtdb_get(rtdb,'tce:zlshift3',mt_dbl,2,zlshift3)) then
+        zlshift3(1) = 0.0d0
+        zlshift3(2) = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,2,zlshift3))
      1  call errquit('tce_init: failed to write zlshift3',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:damp',mt_dbl,1,damp)) then
+        damp = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:damp',mt_dbl,1,damp))
+     1  call errquit('tce_init: failed to write damp',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:damp2',mt_dbl,1,damp2)) then
+        damp2 = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:damp2',mt_dbl,1,damp2))
+     1  call errquit('tce_init: failed to write damp2',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:damp3',mt_dbl,1,damp3)) then
+        damp3 = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:damp3',mt_dbl,1,damp3))
+     1  call errquit('tce_init: failed to write damp3',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:maxiter',mt_int,1,maxiter)) then
         maxiter = 100
@@ -251,17 +267,31 @@ c
         if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
      1  call errquit('tce_init: failed to write diis3',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:imagsolver',mt_int,1,imagsolver)) then
-        imagsolver = 2
-        if (.not.rtdb_put(rtdb,'tce:imagsolver',mt_int,1,imagsolver))
-     1  call errquit('tce_init: failed to write imagsolver',0,RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'tce:guess_lr_real',mt_log,1,
+     1                  guess_lr_real)) then
+        guess_lr_real = .false.
+        if (.not.rtdb_put(rtdb,'tce:guess_lr_real',mt_log,1,
+     1                    guess_lr_real))
+     2  call errquit('tce_init: failed to write guess_lr_real',0,
+     3               RTDB_ERR)
       endif
-c      if (.not.rtdb_get(rtdb,'tce:denom_power',mt_int,1,
-c     1                  denom_power)) then
-c        denom_power = 2
-c        if (.not.rtdb_put(rtdb,'tce:denom_power',mt_int,1,denom_power))
-c     1  call errquit('tce_init: failed to write denom_power',0,RTDB_ERR)
-c      endif
+      if (.not.rtdb_get(rtdb,'tce:guess_ir_real',mt_log,1,
+     1                  guess_ir_real)) then
+        guess_ir_real = .false.
+        if (.not.rtdb_put(rtdb,'tce:guess_ir_real',mt_log,1,
+     1                    guess_ir_real))
+     2  call errquit('tce_init: failed to write guess_ir_real',0,
+     3               RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:guess_ir_imag',mt_log,1,
+     1                  guess_ir_imag)) then
+        guess_ir_imag = .false.
+        if (.not.rtdb_put(rtdb,'tce:guess_ir_imag',mt_log,1,
+     1                    guess_ir_imag))
+     2  call errquit('tce_init: failed to write guess_ir_imag',0,
+     3               RTDB_ERR)
+      endif
+c
       if (.not.rtdb_get(rtdb,'tce:nroots',mt_int,1,nroots)) then
         nroots = 0
         if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
@@ -406,6 +436,8 @@ c
      1    call errquit('tce_init: failed to write afreq',0,RTDB_ERR)
       endif
 c
+      if(imagresp) then !--------------------------
+c
       if (.not.rtdb_get(rtdb,'tce:ifreqauto',mt_log,1,ifreqauto)) then
         ifreqauto=.true.
         if (.not.rtdb_put(rtdb,'tce:ifreqauto',mt_log,1,ifreqauto))
@@ -449,6 +481,23 @@ c
           if (.not.rtdb_put(rtdb,'tce:ifreq',mt_dbl,inumfreq,ifreq))
      1      call errquit('tce_init: failed to write ifreq',0,RTDB_ERR)
         endif
+      endif
+      endif !------------------------------
+c
+      if (anumfreq.gt.maxnumfreq) then
+        anumfreq = maxnumfreq
+        if (.not.rtdb_put(rtdb,'tce:anumfreq',mt_int,1,anumfreq))
+     1    call errquit('tce_init: failed to write anumfreq',0,RTDB_ERR)
+      endif
+      if (bnumfreq.gt.maxnumfreq) then
+        bnumfreq = maxnumfreq
+        if (.not.rtdb_put(rtdb,'tce:bnumfreq',mt_int,1,bnumfreq))
+     1    call errquit('tce_init: failed to write bnumfreq',0,RTDB_ERR)
+      endif
+      if (inumfreq.gt.maxnumfreq) then
+        inumfreq = maxnumfreq
+        if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
+     1    call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
       endif
 c
       if (.not.rtdb_get(rtdb,'tce:respaxis',mt_log,3,respaxis)) then
@@ -655,8 +704,9 @@ c
         if (xc_gotxc()) write(LuOut,9500)
       endif
       if ((perturbative.ne.'none').and.
-     1    (model.ne.'ccsd').and.(model.ne.'ccsdt'))
-     2  call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
+     1    (model.ne.'ccsd').and.(model.ne.'ccsdt').and.
+     2    (model.ne.'qcisd').and.(model.ne.'lccsd'))
+     3  call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
       cperturbative = 'none'
       if (model.eq.'ccd') then
         ctype='Coupled-cluster doubles'
@@ -777,10 +827,19 @@ c
      3    call errquit('tce_init: ucc/uccsdtq module overridden',0,
      4    UNKNOWN_ERR)
       else if (model.eq.'qcisd') then
-        ctype='Quadratic configuration interaction singles & doubles'
+        if (perturbative.eq.'none') then
+          ctype='Quadratic configuration interaction singles & doubles'
+        else if (perturbative.eq.'(t)') then
+          ctype='Quadratic configuration interaction w/ perturbation'
+          cperturbative = '(T)'
+        else if (perturbative.eq.'cr_(t)') then
+          ctype='Quadratic configuration interaction w/ perturbation'
+          cperturbative = 'Completely renormalized (T)'
+        endif
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
-     2      (module.ne.'uqcisd'))
+     1      (module.ne.'uqcisd').and.
+     2      (module.ne.'uqcisd(t)'))
      3    call errquit('tce_init: ucc/uqcisd module overridden',0,
      4    UNKNOWN_ERR)
       else if (model.eq.'cisd') then
@@ -1094,7 +1153,8 @@ c
         write(LuOut,9110) thresh
         write(LuOut,9115) zlshift
         write(LuOut,9116) zlshift2
-        write(LuOut,9117) zlshift3
+        write(LuOut,9117) zlshift3(1)
+        write(LuOut,9118) zlshift3(2)
         if (diis .gt. 0) then
           write(LuOut,9150) diis,'-th order DIIS'
         else
@@ -1113,8 +1173,6 @@ c
           else
             write(LuOut,9163) 'Jacobi'
           endif
-          write(LuOut,9155) imagsolver
-c          write(LuOut,9156) denom_power
         endif
         if (nroots .gt. 0) then
           write(LuOut,9170) nroots
@@ -1179,14 +1237,13 @@ c          write(LuOut,9156) denom_power
  9110 format(3x,'     Residual threshold : ',d8.2)
  9115 format(3x,'       DIIS level shift : ',d8.2)
  9116 format(3x,' CC-LR DIIS level shift : ',d8.2)
- 9117 format(3x,' CC-IR DIIS level shift : ',d8.2)
+ 9117 format(3x,' CC-IR DIIS level shift : ',d8.2,' (imag part)')
+ 9118 format(3x,' CC-IR DIIS level shift : ',d8.2,' (real part)')
  9130 format(3x,'         Max iterations :',2x,i7)
  9140 format(3x,'             I/O scheme : ',a)
- 9150 format(3x,'       Amplitude update : ',i2,a)
+ 9150 format(3x,'CC-T/L Amplitude update : ',i2,a)
  9152 format(3x,' CC-LR Amplitude update : ',i2,a)
  9153 format(3x,' CC-IR Amplitude update : ',i2,a)
- 9155 format(3x,'     CC-IR Using Solver : ',i1)
- 9156 format(3x,'CC-IR denominator power : ',i2)
  9160 format(3x,'       Amplitude update : ',a)
  9162 format(3x,' CC-LR Amplitude update : ',a)
  9163 format(3x,' CC-IR Amplitude update : ',a)
