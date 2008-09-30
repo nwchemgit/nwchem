@@ -1,7 +1,7 @@
-      subroutine tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,omega,
+      subroutine tce_jacobi2_ir2(d_r2,d_t2,k_t2_offset,omega,
      1                          shift,damping)
 c
-c $Id: tce_jacobi_ir2.F,v 1.5 2008-09-30 18:35:54 jhammond Exp $
+c $Id: tce_jacobi2_ir2.F,v 1.1 2008-09-30 18:35:53 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -63,7 +63,7 @@ c
                   size = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1)
      1                 * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
                   if (.not.ma_push_get(mt_dbl,size,'rr2',l_r2,k_r2))
-     1              call errquit('tce_jacobi_ir2: MA problem',0,MA_ERR)
+     1              call errquit('tce_jacobi2_ir2: MA problem',0,MA_ERR)
                   call get_hash_block(d_r2,dbl_mb(k_r2),size,
      1              int_mb(k_t2_offset),((((p1b-noab-1)*nvab+p2b-noab-1)
      2              *noab+h3b-1)*noab+h4b-1))
@@ -80,7 +80,7 @@ c
      4             +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1) 
      5                   )
                 dbl_mb(k_r2+i-1) = damping*dbl_mb(k_r2+i-1)
-     1                           / ( shift + denom - omega )
+     1                           / ( shift - denom*denom - omega*omega )
                      enddo
                     enddo
                    enddo
@@ -97,7 +97,7 @@ c
      2              (dbl_mb(k_r2),size,1,'tr2')
                   endif
                   if (.not.ma_pop_stack(l_r2))
-     1              call errquit('tce_jacobi_ir2: MA problem',1,MA_ERR)
+     1              call errquit('tce_jacobi2_ir2: MA problem',1,MA_ERR)
                 endif
                 endif
                 endif

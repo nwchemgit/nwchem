@@ -1,14 +1,12 @@
-#$Id: GNUmakefile,v 1.3 2008-09-30 18:35:52 jhammond Exp $
+#$Id: GNUmakefile,v 1.1 2008-09-30 18:35:55 jhammond Exp $
 
-OBJ_OPTIMIZE =  tce_diis3.o \
-      tce_jacobi_ir1.o tce_jacobi_ir2.o tce_jacobi_ir3.o tce_jacobi_ir4.o \
-      tce_jacobi2_ir1.o tce_jacobi2_ir2.o tce_jacobi2_ir3.o tce_jacobi2_ir4.o
+OBJ_OPTIMIZE =  tce_crop.o
 
 LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
-USES_BLAS = tce_diis3.F
+USES_BLAS = tce_crop.o
             
 LIB_DEFINES = -DDEBUG_PRINT
 #

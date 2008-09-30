@@ -1,6 +1,6 @@
-      subroutine tce_jacobi_lr4(d_r4,d_l4,k_l4_offset)
+      subroutine tce_jacobi_lr4(d_r4,d_l4,k_l4_offset,omega)
 c
-c $Id: tce_jacobi_lr4.F,v 1.2 2008-01-14 15:20:41 jhammond Exp $
+c $Id: tce_jacobi_lr4.F,v 1.3 2008-09-30 18:35:51 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -41,6 +41,7 @@ c
       external nxtval
       logical noloadbalance
       logical nodezero         ! True if node 0
+      double precision omega
 c
       nodezero = (ga_nodeid().eq.0)
       noloadbalance = ((ioalg.eq.4).or. 
@@ -110,7 +111,7 @@ c
                                       do p4 = 1,int_mb(k_range+p4b-1)
                                     i = i + 1
                        dbl_mb(k_r4+i-1) = dbl_mb(k_r4+i-1)
-     1             / (-dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
+     1             /((-dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
      2                -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
      3                -dbl_mb(k_evl_sorted+int_mb(k_offset+p3b-1)+p3-1)
      4                -dbl_mb(k_evl_sorted+int_mb(k_offset+p4b-1)+p4-1)
@@ -118,6 +119,7 @@ c
      6                +dbl_mb(k_evl_sorted+int_mb(k_offset+h6b-1)+h6-1)
      7                +dbl_mb(k_evl_sorted+int_mb(k_offset+h7b-1)+h7-1)
      8                +dbl_mb(k_evl_sorted+int_mb(k_offset+h8b-1)+h8-1))
+     3                -omega)
                                       enddo
                                     enddo
                                   enddo

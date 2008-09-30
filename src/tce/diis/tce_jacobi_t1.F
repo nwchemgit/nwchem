@@ -1,6 +1,6 @@
-      subroutine tce_jacobi_tr1(d_r1,d_t1,k_t1_offset,iter,omega)
+      subroutine tce_jacobi_t1(d_r1,d_t1,k_t1_offset,iter)
 c
-c $Id: tce_jacobi_tr1.F,v 1.4 2008-09-30 18:35:51 jhammond Exp $
+c $Id: tce_jacobi_t1.F,v 1.1 2008-09-30 18:35:45 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -11,7 +11,6 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-#include "tce_diis.fh"
       integer d_r1
       integer d_t1
       integer p1b
@@ -25,17 +24,21 @@ c
       integer nprocs
       integer count
       integer next
-      integer nxtval
-      external nxtval
+cc      integer nxtval
+c
+      integer iter
+c
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
+      logical nodezero
       logical noloadbalance
-      logical nodezero         ! True if node 0
 c *** shift ***
       double precision shift
 c *************
-      double precision omega
 c
       if(iter.le.100) then
-       shift=-zlshift2
+       shift=-zlshift
       else
        shift=0.0d0
       end if
@@ -49,18 +52,18 @@ c
      1                ((ioalg.eq.6).and.(.not.fileisga(d_r1))))
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+cc      next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
           if (noloadbalance.or.(next.eq.count)) then
             if (int_mb(k_spin+p1b-1) .eq. int_mb(k_spin+h2b-1)) then 
             if ((.not.restricted).or.(int_mb(k_spin+p1b-1)
      1        +int_mb(k_spin+h2b-1).ne.4)) then
-            if (ieor(int_mb(k_sym+p1b-1),int_mb(k_sym+h2b-1)).eq.
-     &          irrep_x) then
+            if (ieor(int_mb(k_sym+p1b-1),int_mb(k_sym+h2b-1)).eq.0) then
               size = int_mb(k_range+p1b-1) * int_mb(k_range+h2b-1)
-              if (.not.ma_push_get(mt_dbl,size,'rr1',l_r1,k_r1))
-     1          call errquit('tce_jacobi_tr1: MA problem',0,MA_ERR)
+              if (.not.ma_push_get(mt_dbl,size,'r1',l_r1,k_r1))
+     1          call errquit('tce_jacobi_t1: MA problem',0,MA_ERR)
               call get_hash_block(d_r1,dbl_mb(k_r1),size,
      1          int_mb(k_t1_offset),((p1b-noab-1)*noab+h2b-1))
               i = 0
@@ -70,7 +73,7 @@ c
                   dbl_mb(k_r1+i-1) = dbl_mb(k_r1+i-1)
      1           / (-dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
      2              +dbl_mb(k_evl_sorted+int_mb(k_offset+h2b-1)+h2-1)
-     3              +shift-omega)
+     3              +shift)
                 enddo
               enddo
               call add_hash_block(d_t1,dbl_mb(k_r1),size,
@@ -79,31 +82,33 @@ c update of the res.-single vector to the form of increment used in DIIS proc.
 ccx              call put_hash_block(d_r1,dbl_mb(k_r1),size,
 ccx     1          int_mb(k_t1_offset),((p1b-noab-1)*noab+h2b-1))
 cc
-              if (nodezero.and.util_print('tr1',print_debug)) then
+              if (nodezero.and.util_print('t1',print_debug)) then
                 call get_hash_block(d_t1,dbl_mb(k_r1),size,
      1          int_mb(k_t1_offset),((p1b-noab-1)*noab+h2b-1))
-                call ma_print_compact(dbl_mb(k_r1),size,1,'tr1')
+                call ma_print_compact(dbl_mb(k_r1),size,1,'t1')
               endif
               if (.not.ma_pop_stack(l_r1))
-     1          call errquit('tce_jacobi_tr1: MA problem',1,MA_ERR)
+     1          call errquit('tce_jacobi_t1: MA problem',1,MA_ERR)
             endif
             endif
             endif
-            next = nxtval(nprocs)
+cc            next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
       enddo
-      next = nxtval(-nprocs)
+cc      next = nxtval(-nprocs)
+      next = NXTASK(-nprocs, 1)
       call ga_sync()
       return
       end
 c
 c
 c
-      subroutine tce_rr1_divide(d_r1,k_t1_offset)
+      subroutine tce_r1_divide(d_r1,k_t1_offset)
 c
-c $Id: tce_jacobi_tr1.F,v 1.4 2008-09-30 18:35:51 jhammond Exp $
+c $Id: tce_jacobi_t1.F,v 1.1 2008-09-30 18:35:45 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -126,10 +131,12 @@ c
       integer nprocs
       integer count
       integer next
-      integer nxtval
-      external nxtval
+cc      integer nxtval
+cc      external nxtval
+      INTEGER NXTASK
+      EXTERNAL NXTASK
+      logical nodezero
       logical noloadbalance
-      logical nodezero         ! True if node 0
 c
 c     ================
 c     Loop over blocks
@@ -140,18 +147,18 @@ c
      1                ((ioalg.eq.6).and.(.not.fileisga(d_r1))))
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+cc      next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
           if (noloadbalance.or.(next.eq.count)) then
             if (int_mb(k_spin+p1b-1) .eq. int_mb(k_spin+h2b-1)) then 
             if ((.not.restricted).or.(int_mb(k_spin+p1b-1)
      1        +int_mb(k_spin+h2b-1).ne.4)) then
-            if (ieor(int_mb(k_sym+p1b-1),int_mb(k_sym+h2b-1)).eq.
-     &          irrep_x) then
+            if (ieor(int_mb(k_sym+p1b-1),int_mb(k_sym+h2b-1)).eq.0) then
               size = int_mb(k_range+p1b-1) * int_mb(k_range+h2b-1)
-              if (.not.ma_push_get(mt_dbl,size,'rr1',l_r1,k_r1))
-     1          call errquit('tce_rr1_divide: MA problem',0,MA_ERR)
+              if (.not.ma_push_get(mt_dbl,size,'r1',l_r1,k_r1))
+     1          call errquit('tce_r1_divide: MA problem',0,MA_ERR)
               call get_hash_block(d_r1,dbl_mb(k_r1),size,
      1          int_mb(k_t1_offset),((p1b-noab-1)*noab+h2b-1))
               i = 0
@@ -168,16 +175,18 @@ c update of the res.-single vector to the form of increment used in DIIS proc.
      1          int_mb(k_t1_offset),((p1b-noab-1)*noab+h2b-1))
 cc
               if (.not.ma_pop_stack(l_r1))
-     1          call errquit('tce_rr1_divide: MA problem',1,MA_ERR)
+     1          call errquit('tce_r1_divide: MA problem',1,MA_ERR)
             endif
             endif
             endif
-            next = nxtval(nprocs)
+cc            next = nxtval(nprocs)
+      next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
       enddo
-      next = nxtval(-nprocs)
+cc      next = nxtval(-nprocs)
+      next = NXTASK(-nprocs, 1)
       call ga_sync()
       return
       end

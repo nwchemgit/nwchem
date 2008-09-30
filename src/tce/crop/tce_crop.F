@@ -1,10 +1,10 @@
-      subroutine tce_diis2(transpose,iter,t1,t2,t3,t4,
+      subroutine tce_diis3(transpose,iter,t1,t2,t3,t4,
      1  d_r1,d_t1,k_t1_offset,size_t1,
      2  d_r2,d_t2,k_t2_offset,size_t2,
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4,omega)
 c
-c $Id: tce_diis2.F,v 1.6 2008-09-30 18:35:49 jhammond Exp $
+c $Id: tce_crop.F,v 1.1 2008-09-30 18:35:55 jhammond Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -105,7 +105,10 @@ c      external tce_diis_switch
      2   'tr4.d10','tr4.d11','tr4.d12','tr4.d13',
      3   'tr4.d14','tr4.d15','tr4.d16','tr4.d17',
      4   'tr4.d18','tr4.d19','tr4.d20'/
-      double precision omega
+      double precision omega,shift
+      integer denom_power
+      if (omega.le.1.0d0) denom_power = 2
+      if (omega.gt.1.0d0) denom_power = 1
 c
 c     =====================
 c     Jacobi if DIIS is off
@@ -123,15 +126,24 @@ c
  8000 format(1x,'cpu & wall time in seconds for ',A,2f20.1)
       if (diis .le. 0) then
         if (transpose) then
-          if (t1) call tce_jacobi_lr1(d_r1,d_t1,k_t1_offset,omega)
-          if (t2) call tce_jacobi_lr2(d_r2,d_t2,k_t2_offset,omega)
-          if (t3) call tce_jacobi_lr3(d_r3,d_t3,k_t3_offset,omega)
-          if (t4) call tce_jacobi_lr4(d_r4,d_t4,k_t4_offset,omega)
+         call errquit('tce_diis3: transpose not available',0,CALC_ERR)
+c          if (t1) call tce_jacobi_lir1(d_r1,d_t1,k_t1_offset,omega)
+c          if (t2) call tce_jacobi_lir2(d_r2,d_t2,k_t2_offset,omega)
+c          if (t3) call tce_jacobi_lir3(d_r3,d_t3,k_t3_offset,omega)
+c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,omega)
         else
-          if (t1) call tce_jacobi_tr1(d_r1,d_t1,k_t1_offset,iter,omega)
-          if (t2) call tce_jacobi_tr2(d_r2,d_t2,k_t2_offset,iter,omega)
-          if (t3) call tce_jacobi_tr3(d_r3,d_t3,k_t3_offset,omega)
-          if (t4) call tce_jacobi_tr4(d_r4,d_t4,k_t4_offset,omega)
+          shift = -1.0d0*zlshift3
+          if (t1) call tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,omega,
+     1                                shift,denom_power)
+          shift = -2.0d0*zlshift3
+          if (t2) call tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,omega,
+     1                                shift,denom_power)
+          shift = 0.0d0
+          if (t3) call tce_jacobi_tr3(d_r3,d_t3,k_t3_offset,omega,
+     1                                shift,denom_power)
+          shift = 0.0d0
+          if (t4) call tce_jacobi_tr4(d_r4,d_t4,k_t4_offset,omega,
+     1                                shift,denom_power)
         endif
         return
       endif
@@ -153,9 +165,9 @@ c     ================
 c
       if (t1) then
       r1_pointer = r1_pointer + 1
-      if (r1_pointer .gt. diis2) r1_pointer = 1
+      if (r1_pointer .gt. diis3) r1_pointer = 1
       if (nodezero.and.util_print('diis',print_debug)) then
-        write(LuOut,*) 'diis_exist',(r1_diis_exist(i),i=1,diis2)
+        write(LuOut,*) 'diis_exist',(r1_diis_exist(i),i=1,diis3)
         call util_flush(LuOut)
       endif
       if (.not.r1_diis_exist(r1_pointer)) then
@@ -167,24 +179,21 @@ c
         r1_diis_exist(r1_pointer) = .true.
         if (nodezero.and.util_print('diis',print_debug)) then
           write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(r1_diis(i),i=1,diis2)
+          write(LuOut,9020) 'diis',(r1_diis(i),i=1,diis3)
           call util_flush(LuOut)
         endif
       else
         d_r1_diis = r1_diis(r1_pointer)
       endif
-c ---
-c        call tce_r1_divide(d_r1,k_t1_offset)
-c ---
       call copyfile(d_r1,d_r1_diis,size_t1)
       endif
 
       if (t2) then
       r2_pointer = r2_pointer + 1
-      if (r2_pointer .gt. diis2) r2_pointer = 1
+      if (r2_pointer .gt. diis3) r2_pointer = 1
       if (nodezero.and.util_print('diis',print_debug)) then
         write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(r2_diis_exist(i),i=1,diis2)
+        write(LuOut,*) 'diis_exist',(r2_diis_exist(i),i=1,diis3)
         call util_flush(LuOut)
       endif
       if (.not.r2_diis_exist(r2_pointer)) then
@@ -196,24 +205,21 @@ c ---
         r2_diis_exist(r2_pointer) = .true.
         if (nodezero.and.util_print('diis',print_debug)) then
           write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(r2_diis(i),i=1,diis2)
+          write(LuOut,9020) 'diis',(r2_diis(i),i=1,diis3)
           call util_flush(LuOut)
         endif
       else
         d_r2_diis = r2_diis(r2_pointer)
       endif
-c ---
-c        call tce_r2_divide(d_r2,k_t2_offset)
-c ---
       call copyfile(d_r2,d_r2_diis,size_t2)
       endif
 
       if (t3) then
       r3_pointer = r3_pointer + 1
-      if (r3_pointer .gt. diis2) r3_pointer = 1
+      if (r3_pointer .gt. diis3) r3_pointer = 1
       if (nodezero.and.util_print('diis',print_debug)) then
         write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(r3_diis_exist(i),i=1,diis2)
+        write(LuOut,*) 'diis_exist',(r3_diis_exist(i),i=1,diis3)
         call util_flush(LuOut)
       endif
       if (.not.r3_diis_exist(r3_pointer)) then
@@ -225,7 +231,7 @@ c ---
         r3_diis_exist(r3_pointer) = .true.
         if (nodezero.and.util_print('diis',print_debug)) then
           write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(r3_diis(i),i=1,diis2)
+          write(LuOut,9020) 'diis',(r3_diis(i),i=1,diis3)
           call util_flush(LuOut)
         endif
       else
@@ -236,10 +242,10 @@ c ---
 
       if (t4) then
       r4_pointer = r4_pointer + 1
-      if (r4_pointer .gt. diis2) r4_pointer = 1
+      if (r4_pointer .gt. diis3) r4_pointer = 1
       if (nodezero.and.util_print('diis',print_debug)) then
         write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(r4_diis_exist(i),i=1,diis2)
+        write(LuOut,*) 'diis_exist',(r4_diis_exist(i),i=1,diis3)
         call util_flush(LuOut)
       endif
       if (.not.r4_diis_exist(r4_pointer)) then
@@ -251,7 +257,7 @@ c ---
         r4_diis_exist(r4_pointer) = .true.
         if (nodezero.and.util_print('diis',print_debug)) then
           write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(r4_diis(i),i=1,diis2)
+          write(LuOut,9020) 'diis',(r4_diis(i),i=1,diis3)
           call util_flush(LuOut)
         endif
       else
@@ -266,10 +272,10 @@ c     ================
 c
       if (t1) then
       t1_pointer = t1_pointer + 1
-      if (t1_pointer .gt. diis2) t1_pointer = 1
+      if (t1_pointer .gt. diis3) t1_pointer = 1
       if (nodezero.and.util_print('diis',print_debug)) then
         write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(t1_diis_exist(i),i=1,diis2)
+        write(LuOut,*) 'diis_exist',(t1_diis_exist(i),i=1,diis3)
         call util_flush(LuOut)
       endif
       if (.not.t1_diis_exist(t1_pointer)) then
@@ -281,7 +287,7 @@ c
         t1_diis_exist(t1_pointer) = .true.
         if (nodezero.and.util_print('diis',print_debug)) then
           write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(t1_diis(i),i=1,diis2)
+          write(LuOut,9020) 'diis',(t1_diis(i),i=1,diis3)
           call util_flush(LuOut)
         endif
       else
@@ -292,10 +298,10 @@ c
 
       if (t2) then
       t2_pointer = t2_pointer + 1
-      if (t2_pointer .gt. diis2) t2_pointer = 1
+      if (t2_pointer .gt. diis3) t2_pointer = 1
       if (nodezero.and.util_print('diis',print_debug)) then
         write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(t2_diis_exist(i),i=1,diis2)
+        write(LuOut,*) 'diis_exist',(t2_diis_exist(i),i=1,diis3)
         call util_flush(LuOut)
       endif
       if (.not.t2_diis_exist(t2_pointer)) then
@@ -307,7 +313,7 @@ c
         t2_diis_exist(t2_pointer) = .true.
         if (nodezero.and.util_print('diis',print_debug)) then
           write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(t2_diis(i),i=1,diis2)
+          write(LuOut,9020) 'diis',(t2_diis(i),i=1,diis3)
           call util_flush(LuOut)
         endif
       else
@@ -318,10 +324,10 @@ c
 
       if (t3) then
       t3_pointer = t3_pointer + 1
-      if (t3_pointer .gt. diis2) t3_pointer = 1
+      if (t3_pointer .gt. diis3) t3_pointer = 1
       if (nodezero.and.util_print('diis',print_debug)) then
         write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(t3_diis_exist(i),i=1,diis2)
+        write(LuOut,*) 'diis_exist',(t3_diis_exist(i),i=1,diis3)
         call util_flush(LuOut)
       endif
       if (.not.t3_diis_exist(t3_pointer)) then
@@ -333,7 +339,7 @@ c
         t3_diis_exist(t3_pointer) = .true.
         if (nodezero.and.util_print('diis',print_debug)) then
           write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(t3_diis(i),i=1,diis2)
+          write(LuOut,9020) 'diis',(t3_diis(i),i=1,diis3)
           call util_flush(LuOut)
         endif
       else
@@ -344,10 +350,10 @@ c
 
       if (t4) then
       t4_pointer = t4_pointer + 1
-      if (t4_pointer .gt. diis2) t4_pointer = 1
+      if (t4_pointer .gt. diis3) t4_pointer = 1
       if (nodezero.and.util_print('diis',print_debug)) then
         write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(t4_diis_exist(i),i=1,diis2)
+        write(LuOut,*) 'diis_exist',(t4_diis_exist(i),i=1,diis3)
         call util_flush(LuOut)
       endif
       if (.not.t4_diis_exist(t4_pointer)) then
@@ -359,7 +365,7 @@ c
         t4_diis_exist(t4_pointer) = .true.
         if (nodezero.and.util_print('diis',print_debug)) then
           write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(t4_diis(i),i=1,diis2)
+          write(LuOut,9020) 'diis',(t4_diis(i),i=1,diis3)
           call util_flush(LuOut)
         endif
       else
@@ -374,30 +380,47 @@ c     ==============
 c
 ccc      order = tce_diis_switch(iter)
       
-      IF (r1_pointer .lt. diis2) THEN
+      IF (r1_pointer .lt. diis3) THEN
         if (transpose) then
-          if (t1) call tce_jacobi_lr1(d_r1,d_t1,k_t1_offset,omega)
-          if (t2) call tce_jacobi_lr2(d_r2,d_t2,k_t2_offset,omega)
-          if (t3) call tce_jacobi_lr3(d_r3,d_t3,k_t3_offset,omega)
-          if (t4) call tce_jacobi_lr4(d_r4,d_t4,k_t4_offset,omega)
+         call errquit('tce_diis3: transpose not available',0,CALC_ERR)
+c          if (t1) call tce_jacobi_lir1(d_r1,d_t1,k_t1_offset,omega)
+c          if (t2) call tce_jacobi_lir2(d_r2,d_t2,k_t2_offset,omega)
+c          if (t3) call tce_jacobi_lir3(d_r3,d_t3,k_t3_offset,omega)
+c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,omega)
         else
-          if (t1) call tce_jacobi_tr1(d_r1,d_t1,k_t1_offset,iter,omega)
-          if (t2) call tce_jacobi_tr2(d_r2,d_t2,k_t2_offset,iter,omega)
-          if (t3) call tce_jacobi_tr3(d_r3,d_t3,k_t3_offset,omega)
-          if (t4) call tce_jacobi_tr4(d_r4,d_t4,k_t4_offset,omega)
+          shift = -1.0d0*zlshift3
+          if (t1) call tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,omega,
+     1                                shift,denom_power)
+          shift = -2.0d0*zlshift3
+          if (t2) call tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,omega,
+     1                                shift,denom_power)
+          shift = 0.0d0
+          if (t3) call tce_jacobi_tr3(d_r3,d_t3,k_t3_offset,omega,
+     1                                shift,denom_power)
+          shift = 0.0d0
+          if (t4) call tce_jacobi_tr4(d_r4,d_t4,k_t4_offset,omega,
+     1                                shift,denom_power)
+c          if (t1) call tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,omega,
+c     1                                denom_power)
+c          if (t2) call tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,omega,
+c     1                                denom_power)
+c          if (t3) call tce_jacobi_tr3(d_r3,d_t3,k_t3_offset,omega,
+c     1                                denom_power)
+c          if (t4) call tce_jacobi_tr4(d_r4,d_t4,k_t4_offset,omega,
+c     1                                denom_power)
         endif
       END IF
 c
 c     Make Matrix A (at the end of DIIS cycle)
 c
-      IF(r1_pointer.eq.diis2) THEN !!!!!!!!!!!!!!!!!!!!!!!!!!
+      IF(r1_pointer.eq.diis3) THEN !!!!!!!!!!!!!!!!!!!!!!!!!!
       if(nodezero) then
       write(6,*)'MICROCYCLE DIIS UPDATE:',
      &          iter,r1_pointer
       end if 
 c
-        do i = 1, diis2
-          do j = i, diis2
+        do i = 1, diis3
+          do j = i, diis3
             a(i,j) = 0.0d0
             if (t1) a(i,j) = a(i,j)
      1      + ddotfile_1(r1_diis(i),r1_diis(j),size_t1)
@@ -410,11 +433,11 @@ c
             a(j,i) = a(i,j)
           enddo
         enddo
-        do i = 1,diis2
-          a(i,diis2+1) = -1.0d0
-          a(diis2+1,i) = -1.0d0
+        do i = 1,diis3
+          a(i,diis3+1) = -1.0d0
+          a(diis3+1,i) = -1.0d0
         enddo
-        a(diis2+1,diis2+1) = 0.0d0
+        a(diis3+1,diis3+1) = 0.0d0
         if (nodezero.and.util_print('diis',print_debug)) then
           call ma_print(a,maxdiis+1,maxdiis+1,'A matrix')
           call util_flush(LuOut)
@@ -422,10 +445,10 @@ c
 c
 c     Make Vector B
 c
-        do i = 1,diis2
+        do i = 1,diis3
           b(i) = 0.0d0
         enddo
-        b(diis2+1) = -1.0d0
+        b(diis3+1) = -1.0d0
         if (nodezero.and.util_print('diis',print_debug)) then
           call ma_print(b,maxdiis+1,1,'B vector')
           call util_flush(LuOut)
@@ -433,7 +456,7 @@ c
 c
 c     Solve AX = B
 c
-        call dgesv(diis2+1,1,a,maxdiis+1,iwork,b,maxdiis+1,info)
+        call dgesv(diis3+1,1,a,maxdiis+1,iwork,b,maxdiis+1,info)
         if (info .ne. 0)
      1    call errquit('tce_diis: LU decomposition failed',0,
      2    UNKNOWN_ERR)
@@ -444,10 +467,10 @@ c
 c
 c     Make New t's
 c
-        if (t1) call daxfile(diis2,b,t1_diis,d_t1,size_t1)
-        if (t2) call daxfile(diis2,b,t2_diis,d_t2,size_t2)
-        if (t3) call daxfile(diis2,b,t3_diis,d_t3,size_t3)
-        if (t4) call daxfile(diis2,b,t4_diis,d_t4,size_t4)
+        if (t1) call daxfile(diis3,b,t1_diis,d_t1,size_t1)
+        if (t2) call daxfile(diis3,b,t2_diis,d_t2,size_t2)
+        if (t3) call daxfile(diis3,b,t3_diis,d_t3,size_t3)
+        if (t4) call daxfile(diis3,b,t4_diis,d_t4,size_t4)
         call ga_sync()
       END IF
  9010 format(1x,A,' file name    = ',A)

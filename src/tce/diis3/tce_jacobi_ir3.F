@@ -1,6 +1,7 @@
-      subroutine tce_jacobi_ir3(d_r3,d_t3,k_t3_offset,iter,omega)
+      subroutine tce_jacobi_ir3(d_r3,d_t3,k_t3_offset,omega,
+     1                          shift,damping)
 c
-c $Id: tce_jacobi_ir3.F,v 1.3 2008-09-18 14:38:49 jhammond Exp $
+c $Id: tce_jacobi_ir3.F,v 1.4 2008-09-30 18:35:55 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -37,16 +38,8 @@ c
       external nxtval
       logical noloadbalance
       logical nodezero         ! True if node 0
-      double precision shift,omega
-      integer denom_power
-c
-      if(iter.le.100) then
-       shift=-(3.0d0)*zlshift3 ! or is a factor of 6.0?  need to ask Karol
-      else
-       shift=0.0d0
-      end if
-      if (omega.le.1.0d0) denom_power = 2
-      if (omega.gt.1.0d0) denom_power = 1
+      double precision shift,omega,damping
+      double precision denom
 c
 c     ================
 c     Loop over blocks
@@ -106,21 +99,16 @@ c
                               do h5 = 1,int_mb(k_range+h5b-1)
                                 do h6 = 1,int_mb(k_range+h6b-1)
                                   i = i + 1
-                     dbl_mb(k_r3+i-1) = dbl_mb(k_r3+i-1)
-     1           /(( -dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
-     2               -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
-     3               -dbl_mb(k_evl_sorted+int_mb(k_offset+p3b-1)+p3-1)
-     4               +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1)
-     5               +dbl_mb(k_evl_sorted+int_mb(k_offset+h5b-1)+h5-1)
-     6               +dbl_mb(k_evl_sorted+int_mb(k_offset+h6b-1)+h6-1) )
-     7             **denom_power
-c     7            *( -dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
-c     8               -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
-c     9               -dbl_mb(k_evl_sorted+int_mb(k_offset+p3b-1)+p3-1)
-c     1               +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1)
-c     2               +dbl_mb(k_evl_sorted+int_mb(k_offset+h5b-1)+h5-1)
-c     3               +dbl_mb(k_evl_sorted+int_mb(k_offset+h6b-1)+h6-1) )
-     4               -omega*omega+shift)
+                denom = ( 
+     1             -dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
+     2             -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
+     3             -dbl_mb(k_evl_sorted+int_mb(k_offset+p3b-1)+p2-1)
+     4             +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1) 
+     5             +dbl_mb(k_evl_sorted+int_mb(k_offset+h5b-1)+h5-1) 
+     6             +dbl_mb(k_evl_sorted+int_mb(k_offset+h6b-1)+h6-1) 
+     7                   )
+                dbl_mb(k_r3+i-1) = damping*dbl_mb(k_r3+i-1)
+     1                           / ( shift + denom - omega )
                                 enddo
                               enddo
                             enddo

@@ -1,7 +1,6 @@
-      subroutine tce_jacobi_ir4(d_r4,d_t4,k_t4_offset,omega,
-     1                          shift,damping)
+      subroutine tce_jacobi_t4(d_r4,d_t4,k_t4_offset)
 c
-c $Id: tce_jacobi_ir4.F,v 1.4 2008-09-30 18:35:55 jhammond Exp $
+c $Id: tce_jacobi_t4.F,v 1.1 2008-09-30 18:35:46 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -12,7 +11,6 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-#include "tce_diis.fh"
       integer d_r4
       integer d_t4
       integer p1b
@@ -38,12 +36,10 @@ c
       integer nprocs
       integer count
       integer next
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
+      logical nodezero
       logical noloadbalance
-      logical nodezero         ! True if node 0
-      double precision shift,omega,damping
-      double precision denom
 c
 c     ================
 c     Loop over blocks
@@ -54,7 +50,7 @@ c
      1                ((ioalg.eq.6).and.(.not.fileisga(d_r4))))
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+      next = nxtask(nprocs,1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
           do p3b = p2b,noab+nvab
@@ -88,7 +84,7 @@ c
      4                    ieor(int_mb(k_sym+h5b-1),
      5                    ieor(int_mb(k_sym+h6b-1),
      6                    ieor(int_mb(k_sym+h7b-1),
-     7                    int_mb(k_sym+h8b-1)))))))) .eq. irrep_x) then
+     7                         int_mb(k_sym+h8b-1)))))))) .eq. 0) then
                         size = int_mb(k_range+p1b-1)
      1                       * int_mb(k_range+p2b-1)
      2                       * int_mb(k_range+p3b-1)
@@ -97,9 +93,9 @@ c
      5                       * int_mb(k_range+h6b-1)
      6                       * int_mb(k_range+h7b-1)
      7                       * int_mb(k_range+h8b-1)
-                        if (.not.ma_push_get(mt_dbl,size,'rr4',
+                        if (.not.ma_push_get(mt_dbl,size,'r4',
      1                    l_r4,k_r4))
-     2                    call errquit('tce_jacobi_ir4: MA problem',0,
+     2                    call errquit('tce_jacobi_t4: MA problem',0,
      3                    MA_ERR)
                         call get_hash_block(d_r4,dbl_mb(k_r4),size,
      1                    int_mb(k_t4_offset),((((((((p1b-noab-1)*nvab
@@ -116,18 +112,15 @@ c
                                     do h7 = 1,int_mb(k_range+h7b-1)
                                       do h8 = 1,int_mb(k_range+h8b-1)
                                     i = i + 1
-                denom = ( 
-     1             -dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
-     2             -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
-     3             -dbl_mb(k_evl_sorted+int_mb(k_offset+p3b-1)+p3-1)
-     4             -dbl_mb(k_evl_sorted+int_mb(k_offset+p4b-1)+p4-1)
-     5             +dbl_mb(k_evl_sorted+int_mb(k_offset+h5b-1)+h5-1) 
-     6             +dbl_mb(k_evl_sorted+int_mb(k_offset+h6b-1)+h6-1) 
-     7             +dbl_mb(k_evl_sorted+int_mb(k_offset+h7b-1)+h7-1) 
-     8             +dbl_mb(k_evl_sorted+int_mb(k_offset+h8b-1)+h8-1) 
-     9                   )
-                dbl_mb(k_r4+i-1) = damping*dbl_mb(k_r4+i-1)
-     1                           / ( shift + denom - omega )
+                       dbl_mb(k_r4+i-1) = dbl_mb(k_r4+i-1)
+     1             / (-dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
+     2                -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
+     3                -dbl_mb(k_evl_sorted+int_mb(k_offset+p3b-1)+p3-1)
+     4                -dbl_mb(k_evl_sorted+int_mb(k_offset+p4b-1)+p4-1)
+     5                +dbl_mb(k_evl_sorted+int_mb(k_offset+h5b-1)+h5-1)
+     6                +dbl_mb(k_evl_sorted+int_mb(k_offset+h6b-1)+h6-1)
+     7                +dbl_mb(k_evl_sorted+int_mb(k_offset+h7b-1)+h7-1)
+     8                +dbl_mb(k_evl_sorted+int_mb(k_offset+h8b-1)+h8-1))
                                       enddo
                                     enddo
                                   enddo
@@ -141,7 +134,7 @@ c
      2                    +p2b-noab-1)*nvab+p3b-noab-1)*nvab
      3                    +p4b-noab-1)*noab+h5b-1)*noab
      4                    +h6b-1)*noab+h7b-1)*noab+h8b-1))
-                        if (nodezero.and.util_print('tr4',print_debug))
+                        if (nodezero.and.util_print('t4',print_debug))
      1                    then
                           call get_hash_block(d_t4,dbl_mb(k_r4),size,
      1                    int_mb(k_t4_offset),((((((((p1b-noab-1)*nvab
@@ -149,15 +142,15 @@ c
      3                    +p4b-noab-1)*noab+h5b-1)*noab
      4                    +h6b-1)*noab+h7b-1)*noab+h8b-1))
                           call ma_print_compact
-     1                    (dbl_mb(k_r4),size,1,'tr4')
+     1                    (dbl_mb(k_r4),size,1,'t4')
                         endif
                         if (.not.ma_pop_stack(l_r4))
-     1                    call errquit('tce_jacobi_ir4: MA problem',1,
+     1                    call errquit('tce_jacobi_t4: MA problem',1,
      2                    MA_ERR)
                       endif
                       endif
                       endif
-                      next = nxtval(nprocs)
+                      next = nxtask(nprocs,1)
                       endif
                       count = count + 1
                     enddo
@@ -168,7 +161,7 @@ c
           enddo
         enddo
       enddo
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
       call ga_sync()
       return
       end

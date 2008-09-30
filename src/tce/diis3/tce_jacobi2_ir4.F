@@ -1,7 +1,7 @@
-      subroutine tce_jacobi_ir4(d_r4,d_t4,k_t4_offset,omega,
+      subroutine tce_jacobi2_ir4(d_r4,d_t4,k_t4_offset,omega,
      1                          shift,damping)
 c
-c $Id: tce_jacobi_ir4.F,v 1.4 2008-09-30 18:35:55 jhammond Exp $
+c $Id: tce_jacobi2_ir4.F,v 1.1 2008-09-30 18:35:54 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -99,7 +99,7 @@ c
      7                       * int_mb(k_range+h8b-1)
                         if (.not.ma_push_get(mt_dbl,size,'rr4',
      1                    l_r4,k_r4))
-     2                    call errquit('tce_jacobi_ir4: MA problem',0,
+     2                    call errquit('tce_jacobi2_ir4: MA problem',0,
      3                    MA_ERR)
                         call get_hash_block(d_r4,dbl_mb(k_r4),size,
      1                    int_mb(k_t4_offset),((((((((p1b-noab-1)*nvab
@@ -127,7 +127,7 @@ c
      8             +dbl_mb(k_evl_sorted+int_mb(k_offset+h8b-1)+h8-1) 
      9                   )
                 dbl_mb(k_r4+i-1) = damping*dbl_mb(k_r4+i-1)
-     1                           / ( shift + denom - omega )
+     1                           / ( shift - denom*denom - omega*omega )
                                       enddo
                                     enddo
                                   enddo
@@ -152,7 +152,7 @@ c
      1                    (dbl_mb(k_r4),size,1,'tr4')
                         endif
                         if (.not.ma_pop_stack(l_r4))
-     1                    call errquit('tce_jacobi_ir4: MA problem',1,
+     1                    call errquit('tce_jacobi2_ir4: MA problem',1,
      2                    MA_ERR)
                       endif
                       endif

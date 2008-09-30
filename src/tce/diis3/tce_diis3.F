@@ -2,9 +2,9 @@
      1  d_r1,d_t1,k_t1_offset,size_t1,
      2  d_r2,d_t2,k_t2_offset,size_t2,
      3  d_r3,d_t3,k_t3_offset,size_t3,
-     4  d_r4,d_t4,k_t4_offset,size_t4,omega)
+     4  d_r4,d_t4,k_t4_offset,size_t4,omega,denom_power)
 c
-c $Id: tce_diis3.F,v 1.3 2008-09-18 14:38:48 jhammond Exp $
+c $Id: tce_diis3.F,v 1.4 2008-09-30 18:35:52 jhammond Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -105,7 +105,9 @@ c      external tce_diis_switch
      2   'tr4.d10','tr4.d11','tr4.d12','tr4.d13',
      3   'tr4.d14','tr4.d15','tr4.d16','tr4.d17',
      4   'tr4.d18','tr4.d19','tr4.d20'/
-      double precision omega
+      double precision omega,shift,damping
+      integer denom_power
+      damping = (1.0d0 - damp3) ! default: damp3 = 0.0d0
 c
 c     =====================
 c     Jacobi if DIIS is off
@@ -124,15 +126,38 @@ c
       if (diis .le. 0) then
         if (transpose) then
          call errquit('tce_diis3: transpose not available',0,CALC_ERR)
-c          if (t1) call tce_jacobi_lir1(d_r1,d_t1,k_t1_offset,iter,omega)
-c          if (t2) call tce_jacobi_lir2(d_r2,d_t2,k_t2_offset,iter,omega)
-c          if (t3) call tce_jacobi_lir3(d_r3,d_t3,k_t3_offset,iter,omega)
-c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,iter,omega)
+c          if (t1) call tce_jacobi_lir1(d_r1,d_t1,k_t1_offset,omega)
+c          if (t2) call tce_jacobi_lir2(d_r2,d_t2,k_t2_offset,omega)
+c          if (t3) call tce_jacobi_lir3(d_r3,d_t3,k_t3_offset,omega)
+c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,omega)
         else
-          if (t1) call tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,iter,omega)
-          if (t2) call tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,iter,omega)
-          if (t3) call tce_jacobi_tr3(d_r3,d_t3,k_t3_offset,iter,omega)
-          if (t4) call tce_jacobi_tr4(d_r4,d_t4,k_t4_offset,iter,omega)
+          if (denom_power.eq.1) then
+            shift = -1.0d0*zlshift3(1)
+            if (t1) call tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,omega,
+     1                                  shift,damping)
+            shift = -2.0d0*zlshift3(1)
+            if (t2) call tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,omega,
+     1                                  shift,damping)
+            shift = 0.0d0
+            if (t3) call tce_jacobi_ir3(d_r3,d_t3,k_t3_offset,omega,
+     1                                  shift,damping)
+            shift = 0.0d0
+            if (t4) call tce_jacobi_ir4(d_r4,d_t4,k_t4_offset,omega,
+     1                                  shift,damping)
+          elseif (denom_power.eq.2) then
+            shift = -1.0d0*zlshift3(2)
+            if (t1) call tce_jacobi2_ir1(d_r1,d_t1,k_t1_offset,omega,
+     1                                   shift,damping)
+            shift = -2.0d0*zlshift3(2)
+            if (t2) call tce_jacobi2_ir2(d_r2,d_t2,k_t2_offset,omega,
+     1                                   shift,damping)
+            shift = 0.0d0
+            if (t3) call tce_jacobi2_ir3(d_r3,d_t3,k_t3_offset,omega,
+     1                                   shift,damping)
+            shift = 0.0d0
+            if (t4) call tce_jacobi2_ir4(d_r4,d_t4,k_t4_offset,omega,
+     1                                   shift,damping)
+          endif
         endif
         return
       endif
@@ -372,15 +397,38 @@ ccc      order = tce_diis_switch(iter)
       IF (r1_pointer .lt. diis3) THEN
         if (transpose) then
          call errquit('tce_diis3: transpose not available',0,CALC_ERR)
-c          if (t1) call tce_jacobi_lir1(d_r1,d_t1,k_t1_offset,iter,omega)
-c          if (t2) call tce_jacobi_lir2(d_r2,d_t2,k_t2_offset,iter,omega)
-c          if (t3) call tce_jacobi_lir3(d_r3,d_t3,k_t3_offset,iter,omega)
-c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,iter,omega)
+c          if (t1) call tce_jacobi_lir1(d_r1,d_t1,k_t1_offset,omega)
+c          if (t2) call tce_jacobi_lir2(d_r2,d_t2,k_t2_offset,omega)
+c          if (t3) call tce_jacobi_lir3(d_r3,d_t3,k_t3_offset,omega)
+c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,omega)
         else
-          if (t1) call tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,iter,omega)
-          if (t2) call tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,iter,omega)
-          if (t3) call tce_jacobi_tr3(d_r3,d_t3,k_t3_offset,iter,omega)
-          if (t4) call tce_jacobi_tr4(d_r4,d_t4,k_t4_offset,iter,omega)
+          if (denom_power.eq.1) then
+            shift = -1.0d0*zlshift3(1)
+            if (t1) call tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,omega,
+     1                                  shift,damping)
+            shift = -2.0d0*zlshift3(1)
+            if (t2) call tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,omega,
+     1                                  shift,damping)
+            shift = 0.0d0
+            if (t3) call tce_jacobi_ir3(d_r3,d_t3,k_t3_offset,omega,
+     1                                  shift,damping)
+            shift = 0.0d0
+            if (t4) call tce_jacobi_ir4(d_r4,d_t4,k_t4_offset,omega,
+     1                                  shift,damping)
+          elseif (denom_power.eq.2) then
+            shift = -1.0d0*zlshift3(2)
+            if (t1) call tce_jacobi2_ir1(d_r1,d_t1,k_t1_offset,omega,
+     1                                   shift,damping)
+            shift = -2.0d0*zlshift3(2)
+            if (t2) call tce_jacobi2_ir2(d_r2,d_t2,k_t2_offset,omega,
+     1                                   shift,damping)
+            shift = 0.0d0
+            if (t3) call tce_jacobi2_ir3(d_r3,d_t3,k_t3_offset,omega,
+     1                                   shift,damping)
+            shift = 0.0d0
+            if (t4) call tce_jacobi2_ir4(d_r4,d_t4,k_t4_offset,omega,
+     1                                   shift,damping)
+          endif
         endif
       END IF
 c

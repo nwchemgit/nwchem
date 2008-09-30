@@ -1,6 +1,6 @@
-      subroutine tce_jacobi_lr3(d_r3,d_l3,k_l3_offset,omega)
+      subroutine tce_jacobi_l3(d_r3,d_l3,k_l3_offset)
 c
-c $Id: tce_jacobi_lr3.F,v 1.3 2008-09-30 18:35:50 jhammond Exp $
+c $Id: tce_jacobi_l3.F,v 1.1 2008-09-30 18:35:44 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -11,7 +11,6 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-#include "tce_diis.fh"
       integer d_r3
       integer d_l3
       integer p1b
@@ -33,18 +32,17 @@ c
       integer nprocs
       integer count
       integer next
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
+      logical nodezero
       logical noloadbalance
-      logical nodezero         ! True if node 0
-      double precision omega
 c
       nodezero = (ga_nodeid().eq.0)
       noloadbalance = ((ioalg.eq.4).or.
      1                ((ioalg.eq.6).and.(.not.fileisga(d_l3))))
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+      next = nxtask(nprocs,1)
       do h4b = 1,noab
         do h5b = h4b,noab
           do h6b = h5b,noab
@@ -79,7 +77,7 @@ c
      5                     * int_mb(k_range+h6b-1)
                       if (.not.ma_push_get(mt_dbl,size,'r3',
      1                  l_r3,k_r3))
-     2                  call errquit('tce_jacobi_lr3: MA problem',0,
+     2                  call errquit('tce_jacobi_l3: MA problem',0,
      3                  MA_ERR)
                       call get_hash_block(d_r3,dbl_mb(k_r3),size,
      1                  int_mb(k_l3_offset),((((((h4b-1)*noab
@@ -94,13 +92,12 @@ c
                                 do p3 = 1,int_mb(k_range+p3b-1)
                                   i = i + 1
                      dbl_mb(k_r3+i-1) = dbl_mb(k_r3+i-1)
-     1           /((-dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
+     1           / (-dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
      2              -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
      3              -dbl_mb(k_evl_sorted+int_mb(k_offset+p3b-1)+p3-1)
      4              +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1)
      5              +dbl_mb(k_evl_sorted+int_mb(k_offset+h5b-1)+h5-1)
      6              +dbl_mb(k_evl_sorted+int_mb(k_offset+h6b-1)+h6-1))
-     3              -omega)
                                 enddo
                               enddo
                             enddo
@@ -112,12 +109,12 @@ c
      2                  +h5b-1)*noab+h6b-1)*nvab+p1b-noab-1)*nvab
      3                  +p2b-noab-1)*nvab+p3b-noab-1))
                       if (.not.ma_pop_stack(l_r3))
-     1                  call errquit('tce_jacobi_lr3: MA problem',1,
+     1                  call errquit('tce_jacobi_l3: MA problem',1,
      2                  MA_ERR)
                     endif
                     endif
                     endif
-                    next = nxtval(nprocs)
+                    next = nxtask(nprocs,1)
                   endif
                   count = count + 1
                 enddo
@@ -126,7 +123,7 @@ c
           enddo
         enddo
       enddo
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
       call ga_sync()
       return
       end
