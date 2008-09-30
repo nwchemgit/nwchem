@@ -67,9 +67,8 @@ c
             call deletefile(d_r2)
             call deletefile(d_r1)
             call deletefile(d_e)
-            irrep_x = irrep_t ! Caution
-            call tce_print_x1(d_t1,k_t1_offset,1.0d-2)
-            call tce_print_x2(d_t2,k_t2_offset,1.0d-2)
+            call tce_print_x1(d_t1,k_t1_offset,printtol,irrep_t)
+            call tce_print_x2(d_t2,k_t2_offset,printtol,irrep_t)
             call tce_diis_tidy()
             goto 320
          endif
