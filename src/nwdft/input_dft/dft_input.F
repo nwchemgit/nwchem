@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.46 2008-09-29 20:25:49 edo Exp $
+c     $Id: dft_input.F,v 1.47 2008-09-30 17:34:43 edo Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -395,12 +395,12 @@ c
         write(LuOut,2819)
 c
  2819   format
-     $  (/' valid disp structure input : '/
-     $    '  DISP \ '/
-     $    '   VDW <real vdw integer default 2> \'/
-     $    '   S6 <real s6 default depends on XC functional> \ '/
-     $    '   ALPHA <real s6 default 20.0d0> \' /
-     $    '   OFF \' /)
+     $  (/' valid disp structure input : '/,
+     $    '  DISP  '/,
+     $    '   VDW <real vdw integer default 2> '/,
+     $    '   S6 <real s6 default depends on XC functional>  '/,
+     $    '   ALPHA <real s6 default 20.0d0> '/ ,
+     $    '   OFF '/)
 c
         call errquit('dft_input: unknown directive,disp', 911,INPUT_ERR)
       endif
