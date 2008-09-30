@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize2.F,v 1.4 2008-09-11 21:26:47 bylaska Exp $                       
+c     $Id: bybminimize2.F,v 1.5 2008-09-30 19:53:32 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -48,6 +48,7 @@ c
       integer it,it_in,i,ispin,bfgscount,icount,sd_it,cg_it
 
       logical value,precondition,done,stalled,deltav_bad(4),oprint
+      logical dohfx
       integer n2ft3d
       !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
@@ -93,8 +94,10 @@ c
 
 *     ***** pspw_charge external functions ****
       logical  pspw_charge_found,control_precondition,pspw_HFX
+      logical  pspw_HFX_relaxed
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_found,control_precondition,pspw_HFX
+      external pspw_HFX_relaxed
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
       real*8   psi_1_noupdate_energy,psi_eigenvalue
@@ -103,6 +106,8 @@ c
       Ein = E(1)
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER).and.control_print(print_medium)
+      dohfx = (pspw_HFX().and.pspw_HFX_relaxed())
+
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -171,6 +176,7 @@ c
          call psi_diagonalize_hml_assending()
          call psi_1rotate2()
          call psi_2to1()
+         if (dohfx) call psi_1genrho()
       else
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
@@ -199,7 +205,7 @@ c
 
 *     **** rotate orbitals ****
       call psi_1gen_hml()
-      call psi_diagonalize_hml()
+      call psi_diagonalize_hml_assending()
       call psi_1rotate2()
       call psi_2to1()
 
@@ -277,6 +283,7 @@ c     >       (sd_count.lt.MAX_SD_COUNT)) go to 30
          call psi_diagonalize_hml_assending()
          call psi_1rotate2()
          call psi_2to1()
+         if (dohfx) call psi_1genrho()
 
          stalled       = .false.
          deltae_history(1) = 0.0d0

@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.16 2008-09-15 18:48:15 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.17 2008-09-30 19:53:34 bylaska Exp $
 *
 
 *     *************************
@@ -22,7 +22,7 @@
 *     **** local variables ****
       logical value
       integer ma_type
-      integer n1,n2,n3,mapping,ms
+      integer n1,n2,n3,mapping,ms,neq(2)
 
 *     **** external functions ****
       integer  control_version,control_mapping
@@ -33,6 +33,7 @@
       norbs(2) = 0
       ehfx = 0.0d0
       hfx_on = .false.
+      call D3dB_n2ft3d(1,n2ft3d)
 
       if (.not.rtdb_get(rtdb,'pspw:HFX',mt_log,1,hfx_on))
      >   hfx_on = .false.
@@ -149,6 +150,27 @@ c     **** define Amatrix ****
         if (.not. value)   
      >    call errquit('pspw_init_HFX: out of heap memory',2, MA_ERR)
       end if
+
+c     **** define extra psi and Hpsi  ****
+      call Parallel2d_np_j(npj)
+      call Parallel2d_taskid_j(taskid_j)   
+      replicated = (npj.gt.1)
+      if (replicated) then
+        call Dneall_neq(neq)
+        neqall = neq(1)+neq(2)
+        nrsize = (ne(1)+ne(2))*n2ft3d
+        value = MA_alloc_get(mt_dbl,nrsize,
+     >                      'psi_r_replicated',
+     >                       psi_r_replicated(2),
+     >                       psi_r_replicated(1))
+        value = value.and.
+     >          MA_alloc_get(mt_dbl,nrsize,
+     >                      'Hpsi_r_replicated',
+     >                       Hpsi_r_replicated(2),
+     >                       Hpsi_r_replicated(1))
+        if (.not. value)   
+     >    call errquit('pspw_init_HFX: out of heap memory',3,MA_ERR)
+      end if
    
       return
       end
@@ -223,6 +245,15 @@ c     **** define Amatrix ****
               call coulomb2_end()
               call D3dB_end(2)
            end if
+        end if
+
+*        **** deallocate replicated space if necessary ****
+        if (replicated) then
+           value = value.and.MA_free_heap(psi_r_replicated(2))
+           value = value.and.MA_free_heap(Hpsi_r_replicated(2))
+           if (.not. value)
+     >     call errquit('pspw_end_HFX:error freeing heap memory',
+     >                  0,MA_ERR)
         end if
 
       end if
@@ -313,332 +344,44 @@ c     **** define Amatrix ****
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
-*     **** local variables ****
-      logical value,done
-      integer i,j,n2ft3d,n1,n2,n3,ms
-      integer dn(2),vij(2),tmp1(2),tmp2(2),index1,index2
-      integer i1,j1,k1,NN
-      integer i2,j2,k2
-      integer i3,j3,k3
-      real*8  scal1,scal2,dv,eh,ph
-
-*     **** external functions ****
-      integer  control_gga
-      real*8   lattice_omega,coulomb_screened_e
-      logical   D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
-      external control_gga
-      external lattice_omega,coulomb_screened_e
-      external  D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
-
+      integer q,n,indx1,indx2
 
       call nwpw_timing_start(33)
       ehfx = 0.0d0
       phfx = 0.0d0
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
-        call D3dB_nx(1,n1)
-        call D3dB_ny(1,n2)
-        call D3dB_nz(1,n3)
-        call D3dB_n2ft3d(1,n2ft3d)
-        value = MA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
-        value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
-        value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
-        value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
-        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-        scal1 = 1.0d0/dble(n1*n2*n3)
-        scal2 = 1.0d0/lattice_omega()
-        dv = scal1/scal2
+         if (replicated) then
 
-*       ***** screened coulomb solver ****
-        if (solver_type.eq.1) then
-        do ms=1,ispin0
-           call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
-           NN = norbs(ms)*(norbs(ms)+1)/2
-           i1 = 1
-           j1 = 1
-           k1 = 1
-           i2 = 1
-           j2 = 1
-           k2 = 1
-           i3 = 1
-           j3 = 1
-           k3 = 1
-           done = .false.
-           do while (.not.done)
-              if (k1.le.NN) then
-                 index1 = (int_mb(orbital_list(1,ms)+i1-1)-1)*n2ft3d+1
-                 index2 = (int_mb(orbital_list(1,ms)+j1-1)-1)*n2ft3d+1
-*                **** generate dnij for Vij  ****
-                 call D3dB_rr_Mul(1,psi_r(index2),
-     >                              psi_r(index1),dbl_mb(dn(1)))
-                 call D3dB_r_SMul(1,scal2*scal1,dbl_mb(dn(1)),
-     >                                          dbl_mb(dn(1)))
-                 call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+            call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
+            call dcopy(nrsize,0.0d0,0,dbl_mb(Hpsi_r_replicated(1)),1)
+            do q=1,neqall
+               call Dneall_qton(q,n)
+               indx1 = (q-1)*n2ft3d + 1
+               indx2 = psi_r_replicated(1)+(n-1)*n2ft3d
+               call dcopy(n2ft3d,psi_r(indx1),1,dbl_mb(indx2),1)
+            end do
+            call D1dB_Vector_SumAll(nrsize,dbl_mb(psi_r_replicated(1)))
+            call pspw_potential_HFX_sub(ispin0,
+     >                                  dbl_mb(psi_r_replicated(1)),
+     >                                  dbl_mb(Hpsi_r_replicated(1)))
+            call D1dB_Vector_SumAll(nrsize,dbl_mb(Hpsi_r_replicated(1)))
+            do q=1,neqall
+               call Dneall_qton(q,n)
+               indx1 = Hpsi_r_replicated(1)+(n-1)*n2ft3d
+               indx2 = (q-1)*n2ft3d + 1
+               call daxpy(n2ft3d,1.0d0,dbl_mb(indx1),1,Hpsi_r(indx2),1)
+            end do
 
-                 call D3dB_rc_pfft3f_queuein(0,dbl_mb(dn(1)))
-                 k1 = k1 + 1
-                 j1 = j1 + 1
-                 if (j1.gt.i1) then
-                    j1 = 1
-                    i1 = i1 + 1
-                 end if
-              end if
- 
-              if (     ((D3dB_rc_pfft3_queue_filled()).or.(k1.gt.NN))
-     >            .and.(k2.le.NN)) then
-                 call D3dB_rc_pfft3f_queueout(0,dbl_mb(dn(1)))
-
-*                **** generate Vcoul ****
-                 eh = coulomb_screened_e(dbl_mb(dn(1)))
-                 call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
-*                **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
-                 eh = eh*hfx_parameter
-                 if (ispin0.eq.1) eh = eh + eh
-                 ph = 2.0d0*eh
-                 ehfx = ehfx - eh
-                 phfx = phfx - ph
-                 dbl_mb(ehfx_orb(1,ms)+i2-1) 
-     >            = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
-                 if (i2.ne.j2) then
-                    ehfx = ehfx - eh
-                    phfx = phfx - ph
-                    dbl_mb(ehfx_orb(1,ms)+i2-1) 
-     >               = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
-                 end if
-
-                 call D3dB_cr_pfft3b_queuein(0,dbl_mb(vij(1)))
-                 k2 = k2 + 1
-                 j2 = j2 + 1
-                 if (j2.gt.i2) then
-                    j2 = 1
-                    i2 = i2 + 1
-                 end if
-              end if
-
-              if ((D3dB_cr_pfft3_queue_filled()).or.(k2.gt.NN)) then
-                 index1 = (int_mb(orbital_list(1,ms)+i3-1)-1)*n2ft3d+1
-                 index2 = (int_mb(orbital_list(1,ms)+j3-1)-1)*n2ft3d+1
-                 call D3dB_cr_pfft3b_queueout(0,dbl_mb(vij(1)))
-
-*                **** apply hfx_parameter ****
-                 call D3dB_r_SMul(1,hfx_parameter,
-     >                              dbl_mb(vij(1)),
-     >                              dbl_mb(vij(1)))
-
-*                **** generate (Vij)*psi_r ***
-                 call D3dB_rr_Mul(1,dbl_mb(vij(1)),
-     >                              psi_r(index2),
-     >                              dbl_mb(tmp1(1)))
-                 call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
-
-*                **** add -(Vij)*psi_r to Hpsi_r ***
-                 call D3dB_rr_Sub(1,Hpsi_r(index1),
-     >                              dbl_mb(tmp1(1)),
-     >                              Hpsi_r(index1))
-
-                 !**** include off diagonal terms ****
-                 if (i3.ne.j3) then
-*                   **** generate (Vij)*psi_r ***
-                    call D3dB_rr_Mul(1,dbl_mb(vij(1)),
-     >                              psi_r(index1),
-     >                              dbl_mb(tmp2(1)))
-                    call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
-
-*                   **** add -(Vij)*psi_r to Hpsi_r ***
-                    call D3dB_rr_Sub(1,Hpsi_r(index2),
-     >                              dbl_mb(tmp2(1)),
-     >                              Hpsi_r(index2))
-                 end if
-                 k3 = k3 + 1
-                 j3 = j3 + 1
-                 if (j3.gt.i3) then
-                    j3 = 1
-                    i3 = i3 + 1
-                 end if
-              end if
-              done = (k1.gt.NN).and.(k2.gt.NN).and.(k3.gt.NN)
-           end do !**** while ****
-       end do !**** ms *****
-
-c        do i=1,norbs(ms)
-c         dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
-c         do j=1,i
-c           index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
-c           index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
-c
-c*          **** generate dnij for Vij  ****
-c           call D3dB_rr_Mul(1,psi_r(index2),psi_r(index1),dbl_mb(dn(1)))
-c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
-c           call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
-c   
-c
-c*          ***** screened coulomb solver ****
-c           call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-c     >                              dbl_mb(dn(1)))
-c           !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
-c           call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
-c           call Pack_c_pack(0,dbl_mb(dn(1)))
-c
-c*          **** get Ecoul energy ****
-c           eh = coulomb_screened_e(dbl_mb(dn(1)))
-c
-c
-c*          **** generate Vcoul ****
-c           call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
-c           call Pack_c_unpack(0,dbl_mb(vij(1)))
-c           !call D3dB_cr_fft3b(1,dbl_mb(vij(1)))
-c           call D3dB_cr_pfft3b(1,0,dbl_mb(vij(1)))
-c        
-c
-c
-c*          **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
-c           eh = eh*hfx_parameter
-c           call D3dB_r_SMul(1,hfx_parameter,
-c     >                      dbl_mb(vij(1)),
-c     >                      dbl_mb(vij(1)))
-c           if (ispin0.eq.1) eh = eh + eh
-c           ph = 2.0d0*eh
-c
-c
-c           ehfx = ehfx - eh
-c           phfx = phfx - ph
-c           dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1) - eh
-c
-c*          **** generate (Vij)*psi_r ***
-c           call D3dB_rr_Mul(1,dbl_mb(vij(1)),
-c     >                        psi_r(index2),
-c     >                        dbl_mb(tmp1(1)))
-c           call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
-c
-c
-c*          **** add -(Vij)*psi_r to Hpsi_r ***
-c           call D3dB_rr_Sub(1,Hpsi_r(index1),
-c     >                        dbl_mb(tmp1(1)),
-c     >                        Hpsi_r(index1))
-c
-c
-c
-c           !**** include off diagonal terms ****
-c           if (i.ne.j) then
-c              ehfx = ehfx - eh
-c              phfx = phfx - ph
-c              dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
-c     >                                   - eh
-c
-c*             **** generate (Vij)*psi_r ***
-c              call D3dB_rr_Mul(1,dbl_mb(vij(1)),
-c     >                        psi_r(index1),
-c     >                        dbl_mb(tmp2(1)))
-c              call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
-c
-c*             **** add -(Vij)*psi_r to Hpsi_r ***
-c              call D3dB_rr_Sub(1,Hpsi_r(index2),
-c     >                        dbl_mb(tmp2(1)),
-c     >                        Hpsi_r(index2))
-c           end if
-c
-c
-c         end do
-c        end do
-c        end do
-
-*       ***** free-space coulomb solver ****
-        else
-        do ms=1,ispin0
-        do i=1,norbs(ms)
-         dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
-         do j=1,i
-           index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
-           index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
-
-*          **** generate dnij for Vij  ****
-           call D3dB_rr_Mul(1,psi_r(index2),psi_r(index1),dbl_mb(dn(1)))
-           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
-           call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
-   
-
-
-           call coulomb2_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
-           call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(vij(1)),eh)
-           eh = 0.5d0*eh*dv
-
-*          **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
-           eh = eh*hfx_parameter
-           call D3dB_r_SMul(1,hfx_parameter,
-     >                      dbl_mb(vij(1)),
-     >                      dbl_mb(vij(1)))
-           if (ispin0.eq.1) eh = eh + eh
-           ph = 2.0d0*eh
-
-
-           ehfx = ehfx - eh
-           phfx = phfx - ph
-           dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1) - eh
-
-*          **** generate (Vij)*psi_r ***
-           call D3dB_rr_Mul(1,dbl_mb(vij(1)),
-     >                        psi_r(index2),
-     >                        dbl_mb(tmp1(1)))
-           call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
-
-
-*          **** add -(Vij)*psi_r to Hpsi_r ***
-           call D3dB_rr_Sub(1,Hpsi_r(index1),
-     >                        dbl_mb(tmp1(1)),
-     >                        Hpsi_r(index1))
-
-
-
-           !**** include off diagonal terms ****
-           if (i.ne.j) then
-              ehfx = ehfx - eh
-              phfx = phfx - ph
-              dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
-     >                                   - eh
-
-*             **** generate (Vij)*psi_r ***
-              call D3dB_rr_Mul(1,dbl_mb(vij(1)),
-     >                        psi_r(index1),
-     >                        dbl_mb(tmp2(1)))
-              call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
-
-*             **** add -(Vij)*psi_r to Hpsi_r ***
-              call D3dB_rr_Sub(1,Hpsi_r(index2),
-     >                        dbl_mb(tmp2(1)),
-     >                        Hpsi_r(index2))
-           end if
-
-
-         end do
-        end do
-        end do
-        end if
-
-
-
-
-
-
-        value =           MA_pop_stack(tmp2(2))
-        value = value.and.MA_pop_stack(tmp1(2))
-        value = value.and.MA_pop_stack(vij(2))
-        value = value.and.MA_pop_stack(dn(2))
-        if (.not. value) 
-     >    call errquit('pspw_potential_HFX:popping stack memory',0,
-     &       MA_ERR)
+         else
+            call pspw_potential_HFX_sub(ispin0,psi_r,Hpsi_r)
+         end if
 
       end if
       call nwpw_timing_end(33)
 
       return
       end
-
-
-
-
 
 
 
@@ -659,102 +402,38 @@ c        end do
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
-*     **** local variables ****
-      logical value
-      integer i,j,n2ft3d,n1,n2,n3,ms
-      integer dn(2),tmp1(2),index1,index2
-      real*8  scal1,scal2,dv,eh,ph
+      integer q,n,indx1,indx2
 
-*     **** external functions ****
-      integer  control_gga
-      real*8   lattice_omega,coulomb_screened_e
-      external control_gga
-      external lattice_omega,coulomb_screened_e
-
-      
+      call nwpw_timing_start(33)
+c     **** calculate HFX energy  ****
       if (((norbs(1)+norbs(2)).ne.0).and.(.not.relaxed)) then
-        ehfx = 0.0d0
-        phfx = 0.0d0
 
-        call D3dB_nx(1,n1)
-        call D3dB_ny(1,n2)
-        call D3dB_nz(1,n3)
-        call D3dB_n2ft3d(1,n2ft3d)
-        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
-        value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
-        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+         if (replicated) then
 
-        scal1 = 1.0d0/dble(n1*n2*n3)
-        scal2 = 1.0d0/lattice_omega()
-        dv = scal1/scal2
+            call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
+            do q=1,neqall
+               call Dneall_qton(q,n)
+               indx1 = (q-1)*n2ft3d + 1
+               indx2 = psi_r_replicated(1)+(n-1)*n2ft3d
+               call dcopy(n2ft3d,psi_r(indx1),1,dbl_mb(indx2),1)
+            end do
+            call D1dB_Vector_SumAll(nrsize,dbl_mb(psi_r_replicated(1)))
+            call pspw_energy_HFX_sub(ispin0,
+     >                               dbl_mb(psi_r_replicated(1)),
+     >                               ehfx_out,phfx_out)
 
-        do ms=1,ispin
-        do i=1,norbs(ms)
-         dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
-         do j=1,i
+         else
 
-           index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
-           index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
+            call pspw_energy_HFX_sub(ispin0,psi_r,ehfx_out,phfx_out)
 
-*          **** generate dnij ****
-           call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),dbl_mb(dn(1)))
-           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
-           call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+         end if
 
-
-*          ***** screened coulomb solver ****
-           if (solver_type.eq.1) then
-
-*            **** generate dng ****
-             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-     >                                dbl_mb(dn(1)))
-             !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
-             call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
-             call Pack_c_pack(0,dbl_mb(dn(1)))
-
-*            **** get Ecoul energy ****
-             eh = coulomb_screened_e(dbl_mb(dn(1)))
-       
-
-*          ***** free-space coulomb solver ****
-           else
-              call coulomb2_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
-              call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(tmp1(1)),eh)
-              eh = 0.5d0*eh*dv
-           end if
-
-*          **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
-           eh = eh*hfx_parameter
-           if (ispin0.eq.1) eh = eh + eh
-           ph = 2.0d0*eh
-
-
-           ehfx = ehfx - eh
-           phfx = phfx - ph
-           dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1) - eh
-
-           !**** include off diagonal terms ****
-           if (i.ne.j) then
-              ehfx = ehfx - eh
-              phfx = phfx - ph
-              dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
-     >                                   - eh
-           end if
-
-         end do
-        end do
-        end do
-
-        value =           MA_pop_stack(tmp1(2))
-        value = value.and.MA_pop_stack(dn(2))
-        if (.not. value) 
-     >     call errquit('pspw_energy_HFX:popping stack memory',0,
-     &       MA_ERR)
-
+c     **** nothing to do ****
+      else
+         ehfx_out = ehfx
+         phfx_out = phfx
       end if
-      ehfx_out = ehfx
-      phfx_out = phfx
+      call nwpw_timing_end(33)
 
       return
       end
@@ -781,36 +460,32 @@ c        end do
 
 *     **** local variables ****
       logical value
-      integer i,j,n2ft3d,n1,n2,n3
-      integer dn(2),vij(2),tmp1(2),tmp2(2),index2
+      integer i,j,n1,n2,n3
+      integer dn(2),vij(2),tmp1(2),index2
       real*8  scal1,scal2,dv,eh,ph
 
 *     **** external functions ****
-      integer  control_gga
       real*8   lattice_omega,coulomb_screened_e
-      external control_gga
       external lattice_omega,coulomb_screened_e
 
 
-      if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
+      call nwpw_timing_start(33)
+      if ((norbs(ms).ne.0).and.relaxed) then
         call D3dB_nx(1,n1)
         call D3dB_ny(1,n2)
         call D3dB_nz(1,n3)
-        call D3dB_n2ft3d(1,n2ft3d)
+        !call D3dB_n2ft3d(1,n2ft3d)
         value = MA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
         value = value.and.
      >          MA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
         value = value.and.
      >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
-        value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
         dv = scal1/scal2
 
-        
         do j=1,norbs(ms)
            index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
 
@@ -818,13 +493,11 @@ c        end do
            call D3dB_rr_Mul(1,psi_r(index2),orb_r,dbl_mb(dn(1)))
            call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
-   
 
 *          ***** screened coulomb solver ****
            if (solver_type.eq.1) then
              call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
      >                                dbl_mb(dn(1)))
-             !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
              call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
              call Pack_c_pack(0,dbl_mb(dn(1)))
 
@@ -836,7 +509,6 @@ c        end do
              call Pack_c_unpack(0,dbl_mb(vij(1)))
              !call D3dB_cr_fft3b(1,dbl_mb(vij(1)))
              call D3dB_cr_pfft3b(1,0,dbl_mb(vij(1)))
-
 
 *          ***** free-space coulomb solver ****
            else
@@ -853,7 +525,6 @@ c        end do
            if (ispin.eq.1) eh = eh + eh
            ph = 2.0d0*eh
 
-
 *          **** generate (Vij)*psi_r ***
            call D3dB_rr_Mul(1,dbl_mb(vij(1)),
      >                        psi_r(index2),
@@ -864,10 +535,8 @@ c        end do
            call D3dB_rr_Sub(1,Horb_r,
      >                        dbl_mb(tmp1(1)),
      >                        Horb_r)
-
         end do
 
-        value =           MA_pop_stack(tmp2(2))
         value = value.and.MA_pop_stack(tmp1(2))
         value = value.and.MA_pop_stack(vij(2))
         value = value.and.MA_pop_stack(dn(2))
@@ -875,6 +544,7 @@ c        end do
      >    call errquit('pspw_potential_HFX_orb:popping stack memory',0,
      &       MA_ERR)
       end if
+      call nwpw_timing_end(33)
       return
       end
 
@@ -929,9 +599,446 @@ c        end do
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
+      integer q,n,indx1,indx2
+
+      call nwpw_timing_start(33)
+c     **** calculate HFX stress  ****
+      if (((norbs(1)+norbs(2)).ne.0)) then
+
+         if (replicated) then
+            call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
+            do q=1,neqall
+               call Dneall_qton(q,n)
+               indx1 = (q-1)*n2ft3d + 1
+               indx2 = psi_r_replicated(1)+(n-1)*n2ft3d
+               call dcopy(n2ft3d,psi_r(indx1),1,dbl_mb(indx2),1)
+            end do
+            call D1dB_Vector_SumAll(nrsize,dbl_mb(psi_r_replicated(1)))
+            call pspw_energy_euv_HFX_sub(ispin0,
+     >                               dbl_mb(psi_r_replicated(1)),
+     >                               stress)
+         else
+            call pspw_energy_euv_HFX_sub(ispin0,psi_r,stress)
+         end if
+
+      !*** nothing to do ***
+      else
+         call dcopy(9,0.0d0,0,stress,1)
+      end if
+      call nwpw_timing_end(33)
+
+      return
+      end
+
+c***************** sub/replicated routines *****************************
+
+*     ********************************
+*     *                    	     *
+*     *     pspw_potential_HFX_sub   *
+*     *                              *
+*     ********************************
+      subroutine pspw_potential_HFX_sub(ispin0,psi_r,Hpsi_r)
+      implicit none
+      integer    ispin0
+      real*8     psi_r(*)
+      real*8     Hpsi_r(*)
+
+#include "mafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value,done
+      integer i,j,n1,n2,n3,ms
+      integer dn(2),vij(2),tmp1(2),tmp2(2),index1,index2
+      integer i1,j1,k1,NN
+      integer i2,j2,k2
+      integer i3,j3,k3
+      real*8  scal1,scal2,dv,eh,ph
+
+*     **** external functions ****
+      real*8   lattice_omega,coulomb_screened_e
+      logical   D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
+      external lattice_omega,coulomb_screened_e
+      external  D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
+
+
+      ehfx = 0.0d0
+      phfx = 0.0d0
+      if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
+        call D3dB_nx(1,n1)
+        call D3dB_ny(1,n2)
+        call D3dB_nz(1,n3)
+        !call D3dB_n2ft3d(1,n2ft3d)
+        value = MA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
+        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+        scal1 = 1.0d0/dble(n1*n2*n3)
+        scal2 = 1.0d0/lattice_omega()
+        dv = scal1/scal2
+
+*       ***** screened coulomb solver ****
+        if (solver_type.eq.1) then
+        do ms=1,ispin0
+           call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
+           NN = norbs(ms)*(norbs(ms)+1)/2
+           i1 = 1
+           j1 = 1
+           k1 = 1
+           i2 = 1
+           j2 = 1
+           k2 = 1
+           i3 = 1
+           j3 = 1
+           k3 = 1
+           done = .false.
+           do while (.not.done)
+
+              if (k1.le.NN) then
+
+                 if (mod(k1,npj).eq.taskid_j) then
+                    index1 =(int_mb(orbital_list(1,ms)+i1-1)-1)*n2ft3d+1
+                    index2 =(int_mb(orbital_list(1,ms)+j1-1)-1)*n2ft3d+1
+
+*                   **** generate dnij for Vij  ****
+                    call D3dB_rr_Mul(1,psi_r(index2),
+     >                                 psi_r(index1),dbl_mb(dn(1)))
+                    call D3dB_r_SMul(1,scal2*scal1,dbl_mb(dn(1)),
+     >                                             dbl_mb(dn(1)))
+                    call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+
+                    call D3dB_rc_pfft3f_queuein(0,dbl_mb(dn(1)))
+                 end if
+
+                 k1 = k1 + 1
+                 j1 = j1 + 1
+                 if (j1.gt.i1) then
+                    j1 = 1
+                    i1 = i1 + 1
+                 end if
+              end if
+ 
+              if (     ((D3dB_rc_pfft3_queue_filled()).or.(k1.gt.NN))
+     >            .and.(k2.le.NN)) then
+
+                 if (mod(k2,npj).eq.taskid_j) then
+                    call D3dB_rc_pfft3f_queueout(0,dbl_mb(dn(1)))
+
+*                   **** generate Vcoul ****
+                    eh = coulomb_screened_e(dbl_mb(dn(1)))
+                    call coulomb_screened_v(dbl_mb(dn(1)),
+     >                                      dbl_mb(vij(1)))
+
+*                   **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
+                    eh = eh*hfx_parameter
+                    if (ispin0.eq.1) eh = eh + eh
+                    ph = 2.0d0*eh
+                    ehfx = ehfx - eh
+                    phfx = phfx - ph
+                    dbl_mb(ehfx_orb(1,ms)+i2-1) 
+     >               = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
+                    if (i2.ne.j2) then
+                       ehfx = ehfx - eh
+                       phfx = phfx - ph
+                       dbl_mb(ehfx_orb(1,ms)+i2-1) 
+     >                  = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
+                    end if
+
+                    call D3dB_cr_pfft3b_queuein(0,dbl_mb(vij(1)))
+                 end if
+
+                 k2 = k2 + 1
+                 j2 = j2 + 1
+                 if (j2.gt.i2) then
+                    j2 = 1
+                    i2 = i2 + 1
+                 end if
+              end if
+
+              if ((D3dB_cr_pfft3_queue_filled()).or.(k2.gt.NN)) then
+
+                 if (mod(k3,npj).eq.taskid_j) then
+                    index1 =(int_mb(orbital_list(1,ms)+i3-1)-1)*n2ft3d+1
+                    index2 =(int_mb(orbital_list(1,ms)+j3-1)-1)*n2ft3d+1
+
+
+                    call D3dB_cr_pfft3b_queueout(0,dbl_mb(vij(1)))
+
+*                   **** apply hfx_parameter ****
+                    call D3dB_r_SMul(1,hfx_parameter,
+     >                                 dbl_mb(vij(1)),
+     >                                 dbl_mb(vij(1)))
+
+*                   **** generate (Vij)*psi_r ***
+                    call D3dB_rr_Mul(1,dbl_mb(vij(1)),
+     >                                 psi_r(index2),
+     >                                 dbl_mb(tmp1(1)))
+                    call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+
+*                   **** add -(Vij)*psi_r to Hpsi_r ***
+                    call D3dB_rr_Sub(1,Hpsi_r(index1),
+     >                                 dbl_mb(tmp1(1)),
+     >                                 Hpsi_r(index1))
+
+                    !**** include off diagonal terms ****
+                    if (i3.ne.j3) then
+*                      **** generate (Vij)*psi_r ***
+                       call D3dB_rr_Mul(1,dbl_mb(vij(1)),
+     >                                 psi_r(index1),
+     >                                 dbl_mb(tmp2(1)))
+                       call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
+
+*                      **** add -(Vij)*psi_r to Hpsi_r ***
+                       call D3dB_rr_Sub(1,Hpsi_r(index2),
+     >                                 dbl_mb(tmp2(1)),
+     >                                 Hpsi_r(index2))
+                    end if
+                 end if
+
+                 k3 = k3 + 1
+                 j3 = j3 + 1
+                 if (j3.gt.i3) then
+                    j3 = 1
+                    i3 = i3 + 1
+                 end if
+              end if
+              done = (k1.gt.NN).and.(k2.gt.NN).and.(k3.gt.NN)
+           end do !**** while ****
+           call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
+       end do !**** ms *****
+
+*       ***** free-space coulomb solver ****
+        else
+        k1 = 1
+        do ms=1,ispin0
+        do i=1,norbs(ms)
+         dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
+         do j=1,i
+           if (mod(k1,npj).eq.taskid_j) then
+              index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
+              index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
+
+*             **** generate dnij for Vij  ****
+              call D3dB_rr_Mul(1,psi_r(index2),psi_r(index1),
+     >                         dbl_mb(dn(1)))
+              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+              call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+   
+              call coulomb2_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
+              call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(vij(1)),eh)
+              eh = 0.5d0*eh*dv
+
+*             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
+              eh = eh*hfx_parameter
+              call D3dB_r_SMul(1,hfx_parameter,
+     >                         dbl_mb(vij(1)),
+     >                         dbl_mb(vij(1)))
+              if (ispin0.eq.1) eh = eh + eh
+              ph = 2.0d0*eh
+
+
+              ehfx = ehfx - eh
+              phfx = phfx - ph
+              dbl_mb(ehfx_orb(1,ms)+i-1) =dbl_mb(ehfx_orb(1,ms)+i-1)-eh
+
+*             **** generate (Vij)*psi_r ***
+              call D3dB_rr_Mul(1,dbl_mb(vij(1)),
+     >                           psi_r(index2),
+     >                           dbl_mb(tmp1(1)))
+              call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+
+
+*             **** add -(Vij)*psi_r to Hpsi_r ***
+              call D3dB_rr_Sub(1,Hpsi_r(index1),
+     >                           dbl_mb(tmp1(1)),
+     >                           Hpsi_r(index1))
+
+              !**** include off diagonal terms ****
+              if (i.ne.j) then
+                 ehfx = ehfx - eh
+                 phfx = phfx - ph
+                 dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
+     >                                      - eh
+*                **** generate (Vij)*psi_r ***
+                 call D3dB_rr_Mul(1,dbl_mb(vij(1)),
+     >                           psi_r(index1),
+     >                           dbl_mb(tmp2(1)))
+                 call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
+
+*                **** add -(Vij)*psi_r to Hpsi_r ***
+                 call D3dB_rr_Sub(1,Hpsi_r(index2),
+     >                           dbl_mb(tmp2(1)),
+     >                           Hpsi_r(index2))
+              end if
+            end if
+            k1 = k1 + 1
+         end do
+        end do
+        call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
+        end do
+
+        end if
+
+        value =           MA_pop_stack(tmp2(2))
+        value = value.and.MA_pop_stack(tmp1(2))
+        value = value.and.MA_pop_stack(vij(2))
+        value = value.and.MA_pop_stack(dn(2))
+        if (.not. value) 
+     >    call errquit('pspw_potential_HFX:popping stack memory',0,
+     &       MA_ERR)
+
+         call D1dB_SumAll(ehfx)
+         call D1dB_SumAll(phfx)
+      end if
+
+      return
+      end
+
+
+*     *****************************
+*     *                           *
+*     *     pspw_energy_HFX_sub   *
+*     *                           *
+*     *****************************
+      subroutine pspw_energy_HFX_sub(ispin0,psi_r,ehfx_out,phfx_out)
+      implicit none
+      integer ispin0
+      real*8  psi_r(*)
+      real*8 ehfx_out
+      real*8 phfx_out
+
+#include "mafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
 *     **** local variables ****
       logical value
-      integer i,j,n2ft3d,n1,n2,n3,ms,u,v
+      integer i,j,n1,n2,n3,ms,k1
+      integer dn(2),tmp1(2),index1,index2
+      real*8  scal1,scal2,dv,eh,ph
+
+*     **** external functions ****
+      real*8   lattice_omega,coulomb_screened_e
+      external lattice_omega,coulomb_screened_e
+
+      
+      if (((norbs(1)+norbs(2)).ne.0).and.(.not.relaxed)) then
+        ehfx = 0.0d0
+        phfx = 0.0d0
+
+        call D3dB_nx(1,n1)
+        call D3dB_ny(1,n2)
+        call D3dB_nz(1,n3)
+        !call D3dB_n2ft3d(1,n2ft3d)
+        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+        scal1 = 1.0d0/dble(n1*n2*n3)
+        scal2 = 1.0d0/lattice_omega()
+        dv = scal1/scal2
+
+        k1 = 1
+        do ms=1,ispin
+        do i=1,norbs(ms)
+         dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
+         do j=1,i
+
+            if (mod(k1,npj).eq.taskid_j) then
+              index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
+              index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
+
+*             **** generate dnij ****
+              call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),
+     >                         dbl_mb(dn(1)))
+              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+              call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+
+*             ***** screened coulomb solver ****
+              if (solver_type.eq.1) then
+
+*               **** generate dng ****
+                call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+     >                                   dbl_mb(dn(1)))
+                call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
+                call Pack_c_pack(0,dbl_mb(dn(1)))
+
+*               **** get Ecoul energy ****
+                eh = coulomb_screened_e(dbl_mb(dn(1)))
+       
+*             ***** free-space coulomb solver ****
+              else
+                 call coulomb2_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
+                 call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(tmp1(1)),eh)
+                 eh = 0.5d0*eh*dv
+              end if
+
+*             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
+              eh = eh*hfx_parameter
+              if (ispin0.eq.1) eh = eh + eh
+              ph = 2.0d0*eh
+
+              ehfx = ehfx - eh
+              phfx = phfx - ph
+              dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)-eh
+
+              !**** include off diagonal terms ****
+              if (i.ne.j) then
+                 ehfx = ehfx - eh
+                 phfx = phfx - ph
+                 dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
+     >                                      - eh
+              end if
+
+            end if
+            k1 = k1 + 1
+
+         end do
+        end do
+        call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
+        end do
+
+        value =           MA_pop_stack(tmp1(2))
+        value = value.and.MA_pop_stack(dn(2))
+        if (.not. value) 
+     >     call errquit('pspw_energy_HFX_sub:popping stack memory',0,
+     &       MA_ERR)
+
+        call D1dB_SumAll(ehfx)
+        call D1dB_SumAll(phfx)
+      end if
+      ehfx_out = ehfx
+      phfx_out = phfx
+
+      return
+      end
+
+
+*     *********************************
+*     *                               *
+*     *     pspw_energy_euv_HFX_sub   *
+*     *                               *
+*     *********************************
+      subroutine pspw_energy_euv_HFX_sub(ispin0,psi_r,stress)
+      implicit none
+      integer ispin0
+      real*8  psi_r(*)
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer i,j,n1,n2,n3,ms,u,v,k1
       integer dn(2),index1,index2
       real*8  scal1,scal2,dv,eh,ph
       real*8  tstress(3,3)
@@ -945,83 +1052,204 @@ c        end do
       if (((norbs(1)+norbs(2)).ne.0)) then
         call coulomb_screened_euv_init(flag,rcut,pp)
 
-
         call D3dB_nx(1,n1)
         call D3dB_ny(1,n2)
         call D3dB_nz(1,n3)
-        call D3dB_n2ft3d(1,n2ft3d)
+        !call D3dB_n2ft3d(1,n2ft3d)
         value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
+        if (.not. value) call errquit('out of stack memory',0,MA_ERR)
+
+        scal1 = 1.0d0/dble(n1*n2*n3)
+        scal2 = 1.0d0/lattice_omega()
+        dv = scal1/scal2
+
+        k1 = 1
+        do ms=1,ispin
+        do i=1,norbs(ms)
+         do j=1,i
+            if (mod(k1,npj).eq.taskid_j) then
+              index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
+              index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
+
+*             **** generate dnij ****
+              call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),
+     >                         dbl_mb(dn(1)))
+              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+              call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+
+*             ***** screened coulomb solver ****
+              if (solver_type.eq.1) then
+
+*               **** generate dng ****
+                call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+     >                                   dbl_mb(dn(1)))
+                call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
+                call Pack_c_pack(0,dbl_mb(dn(1)))
+
+*               **** get Ecoul energy ****
+                call coulomb_screened_euv(dbl_mb(dn(1)),tstress)
+                if (ispin.eq.1) call dscal(9,2.0d0,tstress,1)
+
+*               **** apply the hfx_parameter ****
+                call dscal(9,hfx_parameter,tstress,1)
+
+*             ***** free-space coulomb solver ****
+              else
+                write(*,*) "ERROR free-space coulomb solver called"
+                call errquit('error: not periodic boundary conditions',
+     >                       0,0)
+              end if
+
+              do v=1,3
+              do u=1,3
+                 stress(u,v) = stress(u,v) - tstress(u,v)
+              end do
+              end do
+
+              !**** include off diagonal terms ****
+              if (i.ne.j) then
+                do v=1,3
+                do u=1,3
+                   stress(u,v) = stress(u,v) - tstress(u,v)
+                end do
+                end do
+              end if
+
+            end if
+            k1 = k1 + 1
+
+         end do
+        end do
+        end do
+
+        call coulomb_screened_euv_end()
+        value = MA_pop_stack(dn(2))
+        if (.not. value) 
+     >     call errquit('pspw_energy_euv_HFX_sub:popping stack memory',
+     >                  0,MA_ERR)
+
+        call D1dB_Vector_SumAll(9,stress)
+      end if
+
+      return
+      end
+
+
+*     ************************************
+*     *                    	         *
+*     *     pspw_potential_HFX_orb_sub   *
+*     *                                  *
+*     ************************************
+*
+*    Note that orb_r and Horb_r are assumed to be replicated rather than psi_r
+*    orb_r is not replicated in this routine
+*    Horb_r is not reduced in this routine
+*
+      subroutine pspw_potential_HFX_orb_sub(ms,psi_r,
+     >                                      orb_r,Horb_r)
+      implicit none
+      integer    ms
+      real*8     psi_r(*)
+      real*8     orb_r(*)
+      real*8     Horb_r(*)
+
+#include "mafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer i,j,n1,n2,n3,q2,p2
+      integer dn(2),vij(2),tmp1(2),tmp2(2),index2
+      real*8  scal1,scal2,dv,eh,ph
+
+*     **** external functions ****
+      real*8   lattice_omega,coulomb_screened_e
+      external lattice_omega,coulomb_screened_e
+
+      if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
+        call D3dB_nx(1,n1)
+        call D3dB_ny(1,n2)
+        call D3dB_nz(1,n3)
+        !call D3dB_n2ft3d(1,n2ft3d)
+        value = MA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
         dv = scal1/scal2
 
-        do ms=1,ispin
-        do i=1,norbs(ms)
-         do j=1,i
-
-           index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
+        do j=1,norbs(ms)
            index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
+           call Dneall_ntoqp(index2,q2,p2)
 
-*          **** generate dnij ****
-           call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),dbl_mb(dn(1)))
-           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
-           call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+           if (p2.eq.taskid_j) then
+*             **** generate dnij for Vij  ****
+              call D3dB_rr_Mul(1,psi_r(q2),orb_r,dbl_mb(dn(1)))
+              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+              call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+   
+*             ***** screened coulomb solver ****
+              if (solver_type.eq.1) then
+                call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+     >                                   dbl_mb(dn(1)))
+                call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
+                call Pack_c_pack(0,dbl_mb(dn(1)))
+
+*               **** get Ecoul energy ****
+                eh = coulomb_screened_e(dbl_mb(dn(1)))
+
+*               **** generate Vcoul ****
+                call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
+                call Pack_c_unpack(0,dbl_mb(vij(1)))
+                call D3dB_cr_pfft3b(1,0,dbl_mb(vij(1)))
+
+*             ***** free-space coulomb solver ****
+              else
+                 call coulomb2_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
+                 call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(vij(1)),eh)
+                 eh = 0.5d0*eh*dv
+              end if
+
+*             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
+              eh = eh*hfx_parameter
+              call D3dB_r_SMul(1,hfx_parameter,
+     >                         dbl_mb(vij(1)),
+     >                         dbl_mb(vij(1)))
+              if (ispin.eq.1) eh = eh + eh
+              ph = 2.0d0*eh
 
 
-*          ***** screened coulomb solver ****
-           if (solver_type.eq.1) then
+*             **** generate (Vij)*psi_r ***
+              call D3dB_rr_Mul(1,dbl_mb(vij(1)),
+     >                           psi_r(q2),
+     >                           dbl_mb(tmp1(1)))
+              call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
 
-*            **** generate dng ****
-             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-     >                                dbl_mb(dn(1)))
-             !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
-             call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
-             call Pack_c_pack(0,dbl_mb(dn(1)))
-
-*            **** get Ecoul energy ****
-             call coulomb_screened_euv(dbl_mb(dn(1)),tstress)
-             if (ispin.eq.1) call dscal(9,2.0d0,tstress,1)
-
-*            **** apply the hfx_parameter ****
-             call dscal(9,hfx_parameter,tstress,1)
-
-*          ***** free-space coulomb solver ****
-           else
-             write(*,*) "ERROR free-space coulomb solver called"
-             call errquit('error: not periodic boundary conditions',0,0)
+*             **** add -(Vij)*psi_r to Hpsi_r ***
+              call D3dB_rr_Sub(1,Horb_r,
+     >                           dbl_mb(tmp1(1)),
+     >                           Horb_r)
            end if
-
-           do v=1,3
-           do u=1,3
-              stress(u,v) = stress(u,v) - tstress(u,v)
-           end do
-           end do
-
-           !**** include off diagonal terms ****
-           if (i.ne.j) then
-             do v=1,3
-             do u=1,3
-                stress(u,v) = stress(u,v) - tstress(u,v)
-             end do
-             end do
-           end if
-
-
-         end do
         end do
-        end do
-
-
-        call coulomb_screened_euv_end()
-        value = MA_pop_stack(dn(2))
+        value =           MA_pop_stack(tmp2(2))
+        value = value.and.MA_pop_stack(tmp1(2))
+        value = value.and.MA_pop_stack(vij(2))
+        value = value.and.MA_pop_stack(dn(2))
         if (.not. value) 
-     >     call errquit('pspw_energy_euv_HFX:popping stack memory',0,
-     &       MA_ERR)
+     >   call errquit('pspw_potential_HFX_orb_sub:popping stack memory',
+     >                  0,MA_ERR)
 
+c        **** eh and ph not used yet ****
+c        call D1dB_SumAll(eh)
+c        call D1dB_SumAll(ph)
       end if
-
       return
       end
 

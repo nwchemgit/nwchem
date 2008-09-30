@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.78 2008-09-11 21:26:47 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.79 2008-09-30 19:53:32 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -797,7 +797,7 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 
       call Parallel_taskid(taskid)
       oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
-      oprint = ((taskid.eq.MASTER).and.control_print(print_high))
+      hprint = ((taskid.eq.MASTER).and.control_print(print_high))
 
       call dcopy(9,0.0d0,0,stress,1)
 

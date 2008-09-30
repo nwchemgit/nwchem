@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.91 2008-09-17 00:55:36 bylaska Exp $
+* $Id: psi.F,v 1.92 2008-09-30 19:53:35 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.91  2008/09/17 00:55:36  bylaska
+* ...EJB
+*
 * Revision 1.90  2008/09/15 20:25:33  bylaska
 * ...fractional bug fix..EJB
 *
@@ -1311,7 +1314,6 @@
         error = 0.0d0
         !do i=neall,1,-1
         do i=1,neall
-          call current_second(tim1)
 
          !*** orthogonalize to lower orbitals  ****
          call psi_project_out_f_orb1(
@@ -1340,18 +1342,12 @@
      >                         0.1d0,i,error_out)
           end if
 
-          call current_second(tim2)
-c          write(*,*) "outeriteration ",j,"orbital ",i,
-c     >               " time=",(tim2-tim1)
-c          write(*,*)
-          tim = tim + (tim2-tim1)
           error = error+error_out
         end do
         error = error/dble(neall)
 
         done = ((j.gt.maxit_orbs).or.(error.lt.maxerror))
       if (.not.done) go to 2
-c      write(*,*) "TIME ALL=",tim
 
       return
       end
@@ -1427,7 +1423,6 @@ c      write(*,*) "TIME ALL=",tim
      >                   dcpl_mb(g(1)),
      >                    e0)
          e0 = -e0
-         
 
          done = ((it.gt.maxiteration) 
      >           .or.

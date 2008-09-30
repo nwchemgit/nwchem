@@ -1,5 +1,5 @@
 *
-* $Id: psi_H.F,v 1.20 2008-09-11 21:26:49 bylaska Exp $
+* $Id: psi_H.F,v 1.21 2008-09-30 19:53:33 bylaska Exp $
 *
 
 *     *************************************
@@ -347,7 +347,6 @@ c     end if
       call Pack_cc_daxpy(1,(-scal1),
      >                   dcpl_mb(vpsi(1)),
      >                   Horb_k)
-
 
       call nwpw_timing_start(12)
       value = .true.
