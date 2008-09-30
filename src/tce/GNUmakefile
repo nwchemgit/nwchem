@@ -1,11 +1,11 @@
-#$Id: GNUmakefile,v 1.82 2008-09-30 19:03:06 jhammond Exp $
+#$Id: GNUmakefile,v 1.83 2008-09-30 19:10:12 jhammond Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 \
-          #ccsd ccsd_lambda eomccsd \
+          ccsd ccsd_lambda eomccsd \
           ccsd_t cr-eomccsd_t lrh emb \
           response ccsd_yr ccsd_alpha ccsd_beta \
-          #ccd lccd lccsd qcisd cc3 \
+          ccd lccd lccsd qcisd cc3 \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
           ccsdt ccsdt_lambda eomccsdt \
           ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta \
@@ -61,9 +61,9 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_make_denom1.o tce_make_denom2.o
 
       #OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
-      OBJ_OPTIMIZE += tce_sort0.o tce_sort2_saday.o tce_sort4_jeff.o tce_sort6.o tce_sort8.o \
+      #OBJ_OPTIMIZE += tce_sort0.o tce_sort2_saday.o tce_sort4_jeff.o tce_sort6.o tce_sort8.o \
                       tce_sortacc_saday.o tce_sortacc8.o 
-      #OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
+      OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
 
 ifeq ($(NWCHEM_TARGET),LAPI64)
       #OBJ += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
@@ -97,8 +97,8 @@ LIB_DEFINES += -DCCSDTLR
 endif
 
 #LIB_DEFINES += -DNEWDIPOLE
-LIB_DEFINES += -DSPECIAL2EMET
-LIB_DEFINES += -DDEBUG_PRINT -DSPAGHETTY
+#LIB_DEFINES += -DSPECIAL2EMET
+#LIB_DEFINES += -DDEBUG_PRINT -DSPAGHETTY
 
 #
 # Possible #defines
