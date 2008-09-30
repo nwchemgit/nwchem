@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.56 2008-08-09 21:48:05 jhammond Exp $
+* $Id: task_gradient.F,v 1.57 2008-09-30 20:01:22 d3p975 Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -160,7 +160,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.56 2008-08-09 21:48:05 jhammond Exp $
+* $Id: task_gradient.F,v 1.57 2008-09-30 20:01:22 d3p975 Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -217,6 +217,9 @@ c
       logical geom_rtdb_ncent
       logical leps_gradient 
       external leps_gradient
+c
+      logical tce_gradient
+      external tce_gradient
 c
       integer nelem, ncent
       logical status, numerical, ocosmo, xc_chktau
@@ -311,7 +314,11 @@ c
       else if (theory .eq. 'tddft') then
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'tce') then
-         status = task_num_grad(rtdb) ! Only numerical
+         if (numerical) then 
+            status = task_num_grad(rtdb) ! Only numerical
+         else
+            status = tce_gradient(rtdb)
+         endif
       else if (theory .eq. 'uccd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'ccd'))
