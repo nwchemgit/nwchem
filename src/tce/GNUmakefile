@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.83 2008-09-30 19:10:12 jhammond Exp $
+#$Id: GNUmakefile,v 1.84 2008-09-30 19:13:36 jhammond Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 \
@@ -14,8 +14,7 @@ SUBDIRS = include diis diis2 diis3 \
 OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o gatodra.o gatoeaf.o \
       get_block.o put_block.o add_block.o tce_tidy.o sf_test.o hbar.o \
-      tce_mo2e.o tce_mo1e_offset.o tce_mo2e_offset.o \
-      tce_e_offset.o tce_t1_offset.o tce_t2_offset.o tce_t3_offset.o tce_t4_offset.o \
+      tce_mo2e.o tce_mo1e_offset.o tce_mo2e_offset.o tce_e_offset.o \
       tce_guess_t1.o tce_guess_t2.o tce_zero.o tce_print_x1.o tce_print_x2.o \
       tce_residual_t1.o tce_residual_t2.o tce_residual_t3.o tce_residual_t4.o \
       ma_pack.o sf_print.o ma_print_compact.o ma_transpose.o ma_scale.o \
@@ -23,11 +22,12 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_aod1.o tce_nud1.o tce_mod1.o tce_mod1_offset.o \
       sym_abelian_axis.o tce_mod1_new.o tce_mod1_offset_new.o \
       tce_eom_init.o tce_eom_tidy.o tce_eom_xdiagon.o tce_eom_ydiagon.o \
+      tce_t1_offset.o tce_t2_offset.o tce_t3_offset.o tce_t4_offset.o \
       tce_x1_offset.o tce_x2_offset.o tce_x3_offset.o tce_x4_offset.o \
       tce_y1_offset.o tce_y2_offset.o tce_y3_offset.o tce_y4_offset.o \
       tce_mbpt2.o tce_energy.o tce_energy_fragment.o tce_restricted.o \
       tce_hash.o get_hash_block.o put_hash_block.o add_hash_block.o tce_sort_4kg.o \
-      tce_residual_t3a.o tce_x3a_offset.o tce_imaginary.o \
+      tce_residual_t3a.o tce_t3a_offset.o tce_x3a_offset.o tce_imaginary.o \
       tce_cholesky.o tce_ao2e_cholesky.o tce_ao2e_cholesky_2d.o tce_ao2e_cholesky_4d.o \
       e2_offset_2_offset.o get_block_ind.o get_block_ind_sf.o tce_hash_ind.o \
       tce_mo2e_offset_intorb.o tce_mo2e_offset_size.o tce_mo2e_trans.o \
