@@ -1,6 +1,6 @@
       subroutine hnd_elpmap(rtdb,basis,geom)
 c
-c $Id: hnd_elpmap.F,v 1.8 2005-07-01 00:40:20 marat Exp $
+c $Id: hnd_elpmap.F,v 1.9 2008-09-30 20:03:09 d3p975 Exp $
 c
 c     This routine calculates the electrostatic potential
 c     for a given density at the atomic positions.
@@ -14,6 +14,7 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "cosmo.fh"
+#include "bas.fh"
 c
       integer rtdb      ! [Input] rtdb        
       integer basis     ! [Input] Basis set
@@ -43,6 +44,12 @@ c     property grid points variables (MV)
       logical do_points
       integer l_tepot,k_tepot
 c
+      character*30 theory
+      integer nbf
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
+c
 c     Initialize integrals
 c
       call int_init(rtdb,1, basis)
@@ -50,8 +57,33 @@ c
 c
 c     Get density matrix
 c
-      call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
+      if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
+     + call errquit('task: no task input for theory?',0, RTDB_ERR)
+
+      if (theory.ne.'tce') then
+         call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
      &                      nclosed,nopen,nvirt)
+      endif
+c
+c     read CC denisty matrix
+c
+      if(theory.eq.'tce') then
+         ndens = 1
+c
+        do i = 1, ndens
+         g_dens(i) = ga_create_atom_blocked(geom,basis,'density matrix')
+         call ga_zero(g_dens(i))
+        enddo
+c
+c    2. read the data
+c
+        if (.not. bas_numbf(basis,nbf)) call
+     &    errquit('hnd_elfmap: could not get nbf',0, BASIS_ERR)
+c
+        call ao_1prdm_read(nbf,g_dens(ndens))
+      endif
+c
+c
 c
 c     ----- calculate electrostatic potential -----
 c
