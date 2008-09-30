@@ -1,29 +1,25 @@
-#$Id: GNUmakefile,v 1.6 2008-07-29 02:39:52 jhammond Exp $
+#$Id: GNUmakefile,v 1.7 2008-09-30 18:56:34 jhammond Exp $
 
 OBJ          = cr_ccsd_t.o lr_ccsd_t.o
-OBJ_OPTIMIZE = ccsd_t.o ccsd_t_doubles.o ccsd_t_singles.o  cr_ccsd_t_D.o cr_ccsd_t_E.o cr_ccsd_t_N.o \
-               ccsd2_t.o ccsd2_t_left.o ccsd2_q.o ccsd2_q_left.o ccsd2_q_right.o ccsdt2_q.o ccsdt2_q_left.o ccsdt2_q_right.o \
-               lr_ccsd_tq.o lambda_ccsd_t.o lambda_ccsd_t_left.o
+
+OBJ_OPTIMIZE = ccsd_t.o ccsd_t_doubles.o ccsd_t_singles.o lambda_ccsd_t.o lambda_ccsd_t_left.o\
+               ccsd2_t.o ccsd2_t_left.o ccsd2_q.o ccsd2_q_left.o ccsd2_q_right.o \
+               ccsdt2_q.o ccsdt2_q_left.o ccsdt2_q_right.o \
+               cr_ccsd_t_D.o cr_ccsd_t_E.o cr_ccsd_t_N.o lr_ccsd_tq.o \
+               cr_qcisd_t.o m2_dot_m1t1.o
 
 LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
-USES_BLAS = ccsd2_q_left.F \
-ccsd2_q_right.F \
-ccsd2_t_left.F \
-ccsdt2_q_left.F \
-ccsdt2_q_right.F \
-ccsd_t_doubles.F \
-ccsd_t_singles.F \
-lambda_ccsd_t_left.F \
-cr_ccsd_t_D.F \
-cr_ccsd_t_E.F \
-cr_ccsd_t_N.F \
-lr_ccsd_tq.F
+USES_BLAS = ccsd_t_doubles.F ccsd_t_singles.F lambda_ccsd_t_left.F \
+            ccsd2_q_left.F ccsd2_q_right.F ccsd2_t_left.F \
+            ccsdt2_q_left.F ccsdt2_q_right.F \
+            cr_ccsd_t_D.F cr_ccsd_t_E.F cr_ccsd_t_N.F lr_ccsd_tq.F \
+            cr_qcisd_t.F m2_dot_m1t1.F
 
 
-LIB_DEFINES = #-DDEBUG_PRINT
+#LIB_DEFINES = -DDEBUG_PRINT
 #
 # Possible #defines
 #
