@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.129 2008-09-30 19:14:36 jhammond Exp $
+c $Id: tce_energy.F,v 1.130 2008-09-30 19:28:18 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -1056,13 +1056,13 @@ c
           endif
           call tce_mo2e_zones_4a_disk_4s_new_patch_m2(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-        else if(fast2e.eq.7) then
-          if(idisk.ne.1) then
-            call errquit('tce_energy: 2emet 7 with idiskx=1 only',
-     2                                             idisk,CALC_ERR)
-          endif
-          call tce_mo2e_zones_4a_disk_4s_new_patch_m3(rtdb,d_v2,
-     1                                  kax_v2_alpha_offset,size_2e)
+c        else if(fast2e.eq.7) then
+c          if(idisk.ne.1) then
+c            call errquit('tce_energy: 2emet 7 with idiskx=1 only',
+c     2                                             idisk,CALC_ERR)
+c          endif
+c          call tce_mo2e_zones_4a_disk_4s_new_patch_m3(rtdb,d_v2,
+c     1                                  kax_v2_alpha_offset,size_2e)
 c        else if(fast2e.eq.8) then
 c          if(idisk.ne.1) then
 c            call errquit('tce_energy: 2emet 8 with idiskx=1 only',
