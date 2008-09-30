@@ -1,87 +1,90 @@
-c $Id: tce_main.fh,v 1.13 2008-08-20 21:53:06 jhammond Exp $
+c $Id: tce_main.fh,v 1.14 2008-09-30 19:03:07 jhammond Exp $
 c
 c Include file for TCE module
 c
 c Written by So Hirata (c) Battelle, PNNL (2002).
 c
 c      integer rtdb
-c      logical nodezero         ! True if node 0
-c tce.fh < double precision cpu     ! CPU sec counter
-c tce.fh < double precision wall    ! WALL sec counter
-c      integer iter             ! Iteration counter
-c      integer dummy            ! Dummy argument for DIIS
-c      double precision residual! Largest residual
+c      logical nodezero                       ! True if node 0
+c tce.fh < double precision cpu               ! CPU sec counter
+c tce.fh < double precision wall              ! WALL sec counter
+c      integer iter                           ! Iteration counter
+c      integer dummy                          ! Dummy argument for DIIS
+c      double precision residual              ! Largest residual
 c      character*255 filename
 c
-      integer bytes            ! Number of bytes in a double
-      integer max_size         ! A large number
+      integer bytes                           ! Number of bytes in a double
+      integer max_size                        ! A large number
       parameter (max_size = 10000)
-      integer max_files        ! Maximum number of files
+      integer max_files                       ! Maximum number of files
       parameter (max_files = 131072)
-      integer geom             ! Geometry handle
-      integer ao_bas_han       ! AO basis set handle
-      logical oskel,oadapt     ! Symmetry control parameters
-      integer nbf,nshells      ! Number of AO basis functions and shells
-      integer ipol             ! =1 (restricted), =2 (unrestricted)
-      integer nocc(2)          ! Number of alpha, beta electrons
-      integer nmo(2)           ! Number of alpha, beta orbitals
-      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
-      integer oactive(2)       ! Number of active occupieds
-      integer vactive(2)       ! Number of active virtuals
-      integer oatiles(2)       ! Number of active occupied tiles
-      integer vatiles(2)       ! Number of active unoccupied tiles
-      integer l_active,k_active ! Active tiles (0-inactive, 1 otherwise)
-      integer numact           !Active excitation level
-      character*10 model       ! CC model
-      character*10 perturbative! PT model
-      character*10 ccsd_var
-      logical left             ! Dipole moments & dipole transition moments
-      logical ampnorms         ! Calculate and print amplitude norms
-      logical diagnt1          ! Calculate the T1 diagnostic
-      integer multipole        ! Multipole moments
-      integer maxiter          ! Maximum number of Davidson iterations
-      integer l_evl(2),k_evl(2)! MA handles for eigenvalues (AB)
-      integer l_occ(2),k_occ(2)! MA handles for occupancies (AB)
-      integer mult             ! Ground state spin multiplicity
-      integer nirreps          ! Number of irreducible representations
-      double precision maxdiff ! New
-      double precision thresh  ! Convergence threshold for amplitude equation
-      double precision printtol! Amplitude printing threshold
-      double precision zlshift ! Level Shift
-      double precision zlshift2! Level Shift 2 T(1) and L(1) regular response
-      double precision zlshift3! Level Shift 3 T(1) imaginary response
-      integer l_irs(2),k_irs(2)! Irreps of MOs
-      integer nmix(2)          ! Number of symmetry contaminations
-      double precision tol2e   ! 2-e integral tolerance
-      integer g_movecs(2)      ! GA handle for MO vectors
-      integer l_irs_sorted,k_irs_sorted ! MA handles for irreps
-      integer l_evl_sorted,k_evl_sorted ! MA handles for eigenvalues
-      integer l_spin_sorted,k_spin_sorted ! MA handles for eigenvalues
+      integer geom                            ! Geometry handle
+      integer ao_bas_han                      ! AO basis set handle
+      logical oskel,oadapt                    ! Symmetry control parameters
+      integer nbf,nshells                     ! Number of AO basis functions and shells
+      integer ipol                            ! =1 (restricted), =2 (unrestricted)
+      integer nocc(2)                         ! Number of alpha, beta electrons
+      integer nmo(2)                          ! Number of alpha, beta orbitals
+      integer nfc(2),nfv(2)                   ! Number of frozen cores/virtuals
+      integer oactive(2)                      ! Number of active occupieds
+      integer vactive(2)                      ! Number of active virtuals
+      integer oatiles(2)                      ! Number of active occupied tiles
+      integer vatiles(2)                      ! Number of active unoccupied tiles
+      integer l_active,k_active               ! Active tiles (0-inactive, 1 otherwise)
+      integer numact                          ! Active excitation level
+      character*10 model                      ! CC model
+      character*10 perturbative               ! PT model
+      character*10 ccsd_var                   ! CCSD variant (CC2)
+      logical left                            ! Dipole moments & dipole transition moments
+      logical ampnorms                        ! Calculate and print amplitude norms
+      logical diagnt1                         ! Calculate the T1 diagnostic
+      integer multipole                       ! Multipole moments
+      integer maxiter                         ! Maximum number of Davidson iterations
+      integer l_evl(2),k_evl(2)               ! MA handles for eigenvalues (AB)
+      integer l_occ(2),k_occ(2)               ! MA handles for occupancies (AB)
+      integer mult                            ! Ground state spin multiplicity
+      integer nirreps                         ! Number of irreducible representations
+      double precision maxdiff                ! New
+      double precision thresh                 ! Convergence threshold for amplitude equation
+      double precision printtol               ! Amplitude printing threshold
+      double precision damp                   ! Damping on solver for T and Lambda
+      double precision damp2                  ! Damping on solver 2 (regular response)
+      double precision damp3                  ! Damping on solver 3 (imaginary response)
+      double precision zlshift                ! Level Shift for T and Lambda
+      double precision zlshift2               ! Level Shift for T(1) and L(1) response
+      double precision zlshift3(2)            ! Level Shift for T(1) imaginary response
+      integer l_irs(2),k_irs(2)               ! Irreps of MOs
+      integer nmix(2)                         ! Number of symmetry contaminations
+      double precision tol2e                  ! 2-e integral tolerance
+      integer g_movecs(2)                     ! GA handle for MO vectors
+      integer l_irs_sorted,k_irs_sorted       ! MA handles for irreps
+      integer l_evl_sorted,k_evl_sorted       ! MA handles for eigenvalues
+      integer l_spin_sorted,k_spin_sorted     ! MA handles for eigenvalues
       integer l_movecs_sorted,k_movecs_sorted ! MA handles for MO coeffs
-c tce.fh < integer l_spin, k_spin   ! Spins of blocks
-c tce.fh < integer l_sym, k_sym     ! Symmetry of blocks
-c tce.fh < integer l_range, k_range ! Length of blocks
-c tce.fh < integer l_offset, k_offset ! Offset of blocks
-c tce.fh < integer l_alpha,k_alpha  ! Alpha-izer of beta orbitals (for restricted case)
-c tce.fh < integer noa,nob,nva,nvb  ! Number of blocks
-c tce.fh < integer noab,nvab        ! Number of blocks
-      integer available        ! Available memory in doubles
-      character*255 filenames(max_files) ! File name holder
-      integer filehandles(max_files)     ! File handle holder
-      integer filesizes(max_files)       ! File size holder
-      logical fileisga(max_files)        ! True if a file is a GA
-      logical activecalc       !True for CCSDt, CCSDtq, EOMCCSDt,EOMCCSDtq
-      integer nfiles           ! Number of files
-      integer ioalg            ! 0 = Fortran Direct Access 
-                               ! 1 = Exclusive Access File Library
-                               ! 2 = Global Array Incore
-                               ! 3 = Shared File Library
-                               ! 4 = Replicated Exclusive Access Files
-                               ! 5 = Disk Resident Array Algorithm
-                               ! 6 = GA/EAF Replicated Algorithm
-      integer reference        ! 0 = DFT
-                               ! 1 = HF/SCF
-      integer l_mo_index,k_mo_index     ! MA handles for MO index
+c tce.fh < integer l_spin, k_spin             ! Spins of blocks
+c tce.fh < integer l_sym, k_sym               ! Symmetry of blocks
+c tce.fh < integer l_range, k_range           ! Length of blocks
+c tce.fh < integer l_offset, k_offset         ! Offset of blocks
+c tce.fh < integer l_alpha,k_alpha            ! Alpha-izer of beta orbitals (for restricted case)
+c tce.fh < integer noa,nob,nva,nvb            ! Number of blocks
+c tce.fh < integer noab,nvab                  ! Number of blocks
+      integer available                       ! Available memory in doubles
+      character*255 filenames(max_files)      ! File name holder
+      integer filehandles(max_files)          ! File handle holder
+      integer filesizes(max_files)            ! File size holder
+      logical fileisga(max_files)             ! True if a file is a GA
+      logical activecalc                      !True for CCSDt, CCSDtq, EOMCCSDt,EOMCCSDtq
+      integer nfiles                          ! Number of files
+      integer ioalg                           ! 0 = Fortran Direct Access 
+                                              ! 1 = Exclusive Access File Library
+                                              ! 2 = Global Array Incore
+                                              ! 3 = Shared File Library
+                                              ! 4 = Replicated Exclusive Access Files
+                                              ! 5 = Disk Resident Array Algorithm
+                                              ! 6 = GA/EAF Replicated Algorithm
+      integer reference                       ! 0 = DFT
+                                              ! 1 = HF/SCF
+      integer l_mo_index,k_mo_index           ! MA handles for MO index
 c --- relevant if intorb = .true. ----
       character*10 model2e
 c tce.fh < logical intorb 
@@ -91,34 +94,34 @@ c tce.fh < logical intorb
       integer l_range_alpha,k_range_alpha
       integer l_offset_alpha,k_offset_alpha
       integer d_v2orb
-      integer l_o2o_offset       ! Offset for offset to offset table
-      integer k_o2o_offset       ! Offset for offset to offset table
-      integer l_o2ot_offset      ! orbitals for offset to offset tables
-      integer k_o2ot_offset      ! orbitals for offset to offset tables
-      integer l_v2_alpha_offset  ! Offset for 2e integrals if intorb=.true.
-      integer k_v2_alpha_offset  ! Offset for 2e integrals if intorb=.true. 
+      integer l_o2o_offset                    ! Offset for offset to offset table
+      integer k_o2o_offset                    ! Offset for offset to offset table
+      integer l_o2ot_offset                   ! orbitals for offset to offset tables
+      integer k_o2ot_offset                   ! orbitals for offset to offset tables
+      integer l_v2_alpha_offset               ! Offset for 2e integrals if intorb=.true.
+      integer k_v2_alpha_offset               ! Offset for 2e integrals if intorb=.true. 
       integer l_v2spin_offset
       integer k_v2spin_offset
 c
       integer tile_dim
       integer idisk,fast2e,ichop,imaxsize
 c
-      integer atpart   !number of groups teh atomic orbitals are divided to
-      integer nalength(200) !number of elements in each group
-      integer a2length(200) !pointers to the last nshell in a given group
+      integer atpart                          ! number of groups teh atomic orbitals are divided to
+      integer nalength(200)                   ! number of elements in each group
+      integer a2length(200)                   ! pointers to the last nshell in a given group
 c
       integer max_clocks
       parameter (max_clocks = 100)
-      double precision cpusecs(max_clocks)  ! Multipurpose clock counter
-      integer buffer_size      ! Buffer size for tce_zero & reconcilefile
+      double precision cpusecs(max_clocks)    ! Multipurpose clock counter
+      integer buffer_size                     ! Buffer size for tce_zero & reconcilefile
       parameter (buffer_size = 3000000)
 c tce.fh < logical restricted
 c
 c     ALL IRREPS MOVED TO tce.fh
 c
-      integer target             ! Target root
-      character*4 targetsym      ! Irrep of target root
-      logical symmetry           ! True if only roots with targetsym are sought
+      integer target                          ! Target root
+      character*4 targetsym                   ! Irrep of target root
+      logical symmetry                        ! True if only roots with targetsym are sought
 c
 c     Integers
 c 
@@ -141,7 +144,8 @@ c
 c     Doubles
 c
       common /tcemaindouble/
-     1  thresh,printtol,tol2e,cpusecs,zlshift,zlshift2,zlshift3,maxdiff
+     1  thresh,printtol,tol2e,cpusecs,zlshift,zlshift2,zlshift3,
+     2  maxdiff,damp3
 c
 c     Characters
 c

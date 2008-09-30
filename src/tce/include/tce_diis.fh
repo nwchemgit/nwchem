@@ -1,96 +1,94 @@
-c $Id: tce_diis.fh,v 1.8 2008-09-18 14:38:50 jhammond Exp $
+c $Id: tce_diis.fh,v 1.9 2008-09-30 19:03:06 jhammond Exp $
 c
 c Include file for TCE module
 c
 c ------------------------------------
-      integer imagsolver
-c      integer denom_power
-      integer diis             ! DIIS vector space size
-      integer diis2            ! DIIS vector space size for CC-LR
-      integer diis3            ! DIIS vector space size for CC-IR
-      integer maxdiis          ! Maximum allowed value for diis
+      integer diis                      ! DIIS vector space size
+      integer diis2                     ! DIIS vector space size for CC-LR
+      integer diis3                     ! DIIS vector space size for CC-IR
+      integer maxdiis                   ! Maximum allowed value for diis
       integer iter
       parameter (maxdiis = 20)
-      integer t1_diis(maxdiis) ! T1 files for DIIS
-      integer r1_diis(maxdiis) ! R1 files for DIIS
-      integer t2_diis(maxdiis) ! T2 files for DIIS
-      integer r2_diis(maxdiis) ! R2 files for DIIS
-      integer t3_diis(maxdiis) ! T3 files for DIIS
-      integer r3_diis(maxdiis) ! R3 files for DIIS
-      integer t4_diis(maxdiis) ! T4 files for DIIS
-      integer r4_diis(maxdiis) ! R4 files for DIIS
-      integer t1_pointer       ! Pointer to open T1 file for DIIS
-      integer r1_pointer       ! Pointer to open R1 file for DIIS
-      integer t2_pointer       ! Pointer to open T2 file for DIIS
-      integer r2_pointer       ! Pointer to open R2 file for DIIS
-      integer t3_pointer       ! Pointer to open T3 file for DIIS
-      integer r3_pointer       ! Pointer to open R3 file for DIIS
-      integer t4_pointer       ! Pointer to open T4 file for DIIS
-      integer r4_pointer       ! Pointer to open R4 file for DIIS
-      logical t1_diis_exist(maxdiis) ! True if T1 DIIS file exist
-      logical r1_diis_exist(maxdiis) ! True if R1 DIIS file exist
-      logical t2_diis_exist(maxdiis) ! True if T2 DIIS file exist
-      logical r2_diis_exist(maxdiis) ! True if R2 DIIS file exist
-      logical t3_diis_exist(maxdiis) ! True if T3 DIIS file exist
-      logical r3_diis_exist(maxdiis) ! True if R3 DIIS file exist
-      logical t4_diis_exist(maxdiis) ! True if T4 DIIS file exist
-      logical r4_diis_exist(maxdiis) ! True if R4 DIIS file exist
-      integer nroots           ! No. of excited state roots
-      integer nroots_reduced   ! Adjusted no. of excited state roots
-      integer nroots_restart   ! Number of roots available for restart
-      integer nxtrials         ! No. of RHS trial vectors
-      integer nytrials         ! No. of LHS trial vectors
-      integer maxtrials        ! Max No. of trial vectors
-      parameter (maxtrials = 1000)  ! 10000 requires 240000*sizeof(int)+240000*sizeof(logical) bytes of (shared) static arrays
-      integer xc1(maxtrials)   ! Converged RHS1 vectors
-      integer yc1(maxtrials)   ! Converged LHS1 vectors
-      integer xc2(maxtrials)   ! Converged RHS2 vectors
-      integer yc2(maxtrials)   ! Converged LHS2 vectors
-      integer xc3(maxtrials)   ! Converged RHS3 vectors
-      integer yc3(maxtrials)   ! Converged LHS3 vectors
-      integer xc4(maxtrials)   ! Converged RHS4 vectors
-      integer yc4(maxtrials)   ! Converged LHS4 vectors
-      integer x1(maxtrials)    ! Trial RHS1 vectors
-      integer y1(maxtrials)    ! Trial LHS1 vectors
-      integer x2(maxtrials)    ! Trial RHS2 vectors
-      integer y2(maxtrials)    ! Trial LHS2 vectors
-      integer x3(maxtrials)    ! Trial RHS3 vectors
-      integer y3(maxtrials)    ! Trial LHS3 vectors
-      integer x4(maxtrials)    ! Trial RHS4 vectors
-      integer y4(maxtrials)    ! Trial LHS4 vectors
-      integer xp1(maxtrials)   ! Product RHS1 vectors
-      integer yp1(maxtrials)   ! Product LHS1 vectors
-      integer xp2(maxtrials)   ! Product RHS2 vectors
-      integer yp2(maxtrials)   ! Product LHS2 vectors
-      integer xp3(maxtrials)   ! Product RHS3 vectors
-      integer yp3(maxtrials)   ! Product LHS3 vectors
-      integer xp4(maxtrials)   ! Product RHS4 vectors
-      integer yp4(maxtrials)   ! Product LHS4 vectors
-      integer hbard            !max dimension of the EOMCC iterative space
-      logical xc1_exist(maxtrials) ! True if XC1 file exist
-      logical yc1_exist(maxtrials) ! True if YC1 file exist
-      logical xc2_exist(maxtrials) ! True if XC2 file exist
-      logical yc2_exist(maxtrials) ! True if YC2 file exist
-      logical xc3_exist(maxtrials) ! True if XC3 file exist
-      logical yc3_exist(maxtrials) ! True if YC3 file exist
-      logical xc4_exist(maxtrials) ! True if XC4 file exist
-      logical yc4_exist(maxtrials) ! True if YC4 file exist
-      logical x1_exist(maxtrials)  ! True if X1 file exist
-      logical y1_exist(maxtrials)  ! True if Y1 file exist
-      logical x2_exist(maxtrials)  ! True if X2 file exist
-      logical y2_exist(maxtrials)  ! True if Y2 file exist
-      logical x3_exist(maxtrials)  ! True if X3 file exist
-      logical y3_exist(maxtrials)  ! True if Y3 file exist
-      logical x4_exist(maxtrials)  ! True if X4 file exist
-      logical y4_exist(maxtrials)  ! True if Y4 file exist
-      logical xp1_exist(maxtrials) ! True if XP1 file exist
-      logical yp1_exist(maxtrials) ! True if YP1 file exist
-      logical xp2_exist(maxtrials) ! True if XP2 file exist
-      logical yp2_exist(maxtrials) ! True if YP2 file exist
-      logical xp3_exist(maxtrials) ! True if XP3 file exist
-      logical yp3_exist(maxtrials) ! True if YP3 file exist
-      logical xp4_exist(maxtrials) ! True if XP4 file exist
-      logical yp4_exist(maxtrials) ! True if YP4 file exist
+      integer t1_diis(maxdiis)          ! T1 files for DIIS
+      integer r1_diis(maxdiis)          ! R1 files for DIIS
+      integer t2_diis(maxdiis)          ! T2 files for DIIS
+      integer r2_diis(maxdiis)          ! R2 files for DIIS
+      integer t3_diis(maxdiis)          ! T3 files for DIIS
+      integer r3_diis(maxdiis)          ! R3 files for DIIS
+      integer t4_diis(maxdiis)          ! T4 files for DIIS
+      integer r4_diis(maxdiis)          ! R4 files for DIIS
+      integer t1_pointer                ! Pointer to open T1 file for DIIS
+      integer r1_pointer                ! Pointer to open R1 file for DIIS
+      integer t2_pointer                ! Pointer to open T2 file for DIIS
+      integer r2_pointer                ! Pointer to open R2 file for DIIS
+      integer t3_pointer                ! Pointer to open T3 file for DIIS
+      integer r3_pointer                ! Pointer to open R3 file for DIIS
+      integer t4_pointer                ! Pointer to open T4 file for DIIS
+      integer r4_pointer                ! Pointer to open R4 file for DIIS
+      logical t1_diis_exist(maxdiis)    ! True if T1 DIIS file exist
+      logical r1_diis_exist(maxdiis)    ! True if R1 DIIS file exist
+      logical t2_diis_exist(maxdiis)    ! True if T2 DIIS file exist
+      logical r2_diis_exist(maxdiis)    ! True if R2 DIIS file exist
+      logical t3_diis_exist(maxdiis)    ! True if T3 DIIS file exist
+      logical r3_diis_exist(maxdiis)    ! True if R3 DIIS file exist
+      logical t4_diis_exist(maxdiis)    ! True if T4 DIIS file exist
+      logical r4_diis_exist(maxdiis)    ! True if R4 DIIS file exist
+      integer nroots                    ! No. of excited state roots
+      integer nroots_reduced            ! Adjusted no. of excited state roots
+      integer nroots_restart            ! Number of roots available for restart
+      integer nxtrials                  ! No. of RHS trial vectors
+      integer nytrials                  ! No. of LHS trial vectors
+      integer maxtrials                 ! Max No. of trial vectors
+      parameter (maxtrials = 1000)      ! 10000 requires 240000*sizeof(int)+240000*sizeof(logical) bytes of (shared) static arrays
+      integer xc1(maxtrials)            ! Converged RHS1 vectors
+      integer yc1(maxtrials)            ! Converged LHS1 vectors
+      integer xc2(maxtrials)            ! Converged RHS2 vectors
+      integer yc2(maxtrials)            ! Converged LHS2 vectors
+      integer xc3(maxtrials)            ! Converged RHS3 vectors
+      integer yc3(maxtrials)            ! Converged LHS3 vectors
+      integer xc4(maxtrials)            ! Converged RHS4 vectors
+      integer yc4(maxtrials)            ! Converged LHS4 vectors
+      integer x1(maxtrials)             ! Trial RHS1 vectors
+      integer y1(maxtrials)             ! Trial LHS1 vectors
+      integer x2(maxtrials)             ! Trial RHS2 vectors
+      integer y2(maxtrials)             ! Trial LHS2 vectors
+      integer x3(maxtrials)             ! Trial RHS3 vectors
+      integer y3(maxtrials)             ! Trial LHS3 vectors
+      integer x4(maxtrials)             ! Trial RHS4 vectors
+      integer y4(maxtrials)             ! Trial LHS4 vectors
+      integer xp1(maxtrials)            ! Product RHS1 vectors
+      integer yp1(maxtrials)            ! Product LHS1 vectors
+      integer xp2(maxtrials)            ! Product RHS2 vectors
+      integer yp2(maxtrials)            ! Product LHS2 vectors
+      integer xp3(maxtrials)            ! Product RHS3 vectors
+      integer yp3(maxtrials)            ! Product LHS3 vectors
+      integer xp4(maxtrials)            ! Product RHS4 vectors
+      integer yp4(maxtrials)            ! Product LHS4 vectors
+      integer hbard                     ! max dimension of the EOMCC iterative space
+      logical xc1_exist(maxtrials)      ! True if XC1 file exist
+      logical yc1_exist(maxtrials)      ! True if YC1 file exist
+      logical xc2_exist(maxtrials)      ! True if XC2 file exist
+      logical yc2_exist(maxtrials)      ! True if YC2 file exist
+      logical xc3_exist(maxtrials)      ! True if XC3 file exist
+      logical yc3_exist(maxtrials)      ! True if YC3 file exist
+      logical xc4_exist(maxtrials)      ! True if XC4 file exist
+      logical yc4_exist(maxtrials)      ! True if YC4 file exist
+      logical x1_exist(maxtrials)       ! True if X1 file exist
+      logical y1_exist(maxtrials)       ! True if Y1 file exist
+      logical x2_exist(maxtrials)       ! True if X2 file exist
+      logical y2_exist(maxtrials)       ! True if Y2 file exist
+      logical x3_exist(maxtrials)       ! True if X3 file exist
+      logical y3_exist(maxtrials)       ! True if Y3 file exist
+      logical x4_exist(maxtrials)       ! True if X4 file exist
+      logical y4_exist(maxtrials)       ! True if Y4 file exist
+      logical xp1_exist(maxtrials)      ! True if XP1 file exist
+      logical yp1_exist(maxtrials)      ! True if YP1 file exist
+      logical xp2_exist(maxtrials)      ! True if XP2 file exist
+      logical yp2_exist(maxtrials)      ! True if YP2 file exist
+      logical xp3_exist(maxtrials)      ! True if XP3 file exist
+      logical yp3_exist(maxtrials)      ! True if YP3 file exist
+      logical xp4_exist(maxtrials)      ! True if XP4 file exist
+      logical yp4_exist(maxtrials)      ! True if YP4 file exist
 c
 c     Integers
 c 
@@ -100,8 +98,7 @@ c
      3  t3_pointer,r3_pointer,t4_pointer,r4_pointer,
      4  nroots,nroots_reduced,nroots_restart,nxtrials,nytrials,
      5  x1,y1,x2,y2,x3,y3,x4,y4,xp1,yp1,xp2,yp2,xp3,yp3,xp4,yp4,
-     6  xc1,xc2,xc3,xc4,yc1,yc2,yc3,yc4,diis,diis2,diis3,hbard,
-     7  imagsolver!,denom_power
+     6  xc1,xc2,xc3,xc4,yc1,yc2,yc3,yc4,diis,diis2,diis3,hbard
 c
 c     Logicals
 c
@@ -113,3 +110,8 @@ c
      5  xp2_exist,yp2_exist,xp3_exist,yp3_exist,xp4_exist,yp4_exist,
      6  xc1_exist,xc2_exist,xc3_exist,xc4_exist,
      7  yc1_exist,yc2_exist,yc3_exist,yc4_exist
+c
+c     Doubles
+c
+c      common /tcediisdouble/
+c     1  

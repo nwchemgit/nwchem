@@ -21,21 +21,9 @@ c     =====================================================
 c               CC-T(0) Residual Amplitudes
 c     =====================================================
       integer d_r1             ! SF handle for r1 amplitudes
-      integer l_r1_offset      ! Offset for r1 file
-      integer k_r1_offset      ! Offset for r1 file
-      integer size_r1          ! File size in doubles
       integer d_r2             ! SF handle for r2 amplitudes
-      integer l_r2_offset      ! Offset for r2 file
-      integer k_r2_offset      ! Offset for r2 file
-      integer size_r2          ! File size in doubles
       integer d_r3             ! SF handle for r3 amplitudes
-      integer l_r3_offset      ! Offset for r3 file
-      integer k_r3_offset      ! Offset for r3 file
-      integer size_r3          ! File size in doubles
       integer d_r4             ! SF handle for r4 amplitudes
-      integer l_r4_offset      ! Offset for r4 file
-      integer k_r4_offset      ! Offset for r4 file
-      integer size_r4          ! File size in doubles
 c     =====================================================
 c               MBPT Amplitudes
 c     =====================================================
