@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.84 2008-09-30 19:13:36 jhammond Exp $
+#$Id: GNUmakefile,v 1.85 2008-09-30 23:01:55 jhammond Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 \
@@ -73,7 +73,7 @@ else
       OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o
 endif
 
-      OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
+      #OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
 
 LIB_INCLUDES = -I./include
 
