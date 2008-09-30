@@ -1,0 +1,35 @@
+#
+start h2o
+
+SCRATCH_DIR /home/d3p975/scratch
+
+memory  1500 mb
+
+echo
+
+geometry units bohr
+O      0.000000000000     0.000000000000    -0.123909374404
+H      0.000000000000     1.429936611037     0.983265845431
+H      0.000000000000    -1.429936611037     0.983265845431
+symmetry c1
+end
+
+basis
+H library sto-3g
+O library sto-3g
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+
+tce
+ccsd
+io replicated
+end
+
+task tce gradient
