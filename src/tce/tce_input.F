@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.29 2008-09-17 03:33:37 jhammond Exp $
+c $Id: tce_input.F,v 1.30 2008-09-30 18:47:17 jhammond Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -86,7 +86,6 @@ c
       integer ioalg
       integer reference
       integer diis,diis2,diis3
-      integer imagsolver
 c --- level shift --
       double precision zlshift,zlshift2,zlshift3
 c ------------------
@@ -188,13 +187,6 @@ c
      2  RTDB_ERR)
       diis3=5
       if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
-     1  call errquit('tce_input: failed writing to rtdb',0,
-     2  RTDB_ERR)
-c
-c     DIIS solver for imaginary response (choose 2 or 3)
-c
-      imagsolver=2
-      if (.not.rtdb_put(rtdb,'tce:imagsolver',mt_int,1,imagsolver))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
@@ -408,6 +400,34 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
+      else if (inp_compare(.false.,test,'lccsd(t)')) then
+        if (module.eq.'tce') then
+        model='lccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='(t)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'cr-lccsd(t)')) then
+        if (module.eq.'tce') then
+        model='lccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='cr_(t)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
       else if (inp_compare(.false.,test,'ccsdta')) then
         if (module.eq.'tce') then
         model='ccsdta'
@@ -494,6 +514,34 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
+      else if (inp_compare(.false.,test,'qcisd(t)')) then
+        if (module.eq.'tce') then
+        model='qcisd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='(t)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'cr-qcisd(t)')) then
+        if (module.eq.'tce') then
+        model='qcisd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='cr_(t)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
 c
 c
 c
@@ -515,24 +563,24 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
-      else if (inp_compare(.false.,test,'lambda-ccsd[t]')) then
-        if (module.eq.'tce') then
-        model='ccsd'
-        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
-     1    call errquit('tce_input: failed writing to rtdb',0,
-     2    RTDB_ERR)
-        perturbative='lambda[t]'
-        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
-     1    call errquit('tce_input: failed writing to rtdb',0,
-     2    RTDB_ERR)
-        left=.true.
-        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
-     1    call errquit('tce_input: failed writing to rtdb',0,
-     2    RTDB_ERR)
-        else
-        call errquit('tce_input: multiple theory inputs',0,
-     1    INPUT_ERR)
-        endif
+c      else if (inp_compare(.false.,test,'lambda-ccsd[t]')) then
+c        if (module.eq.'tce') then
+c        model='ccsd'
+c        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+c     1    call errquit('tce_input: failed writing to rtdb',0,
+c     2    RTDB_ERR)
+c        perturbative='lambda[t]'
+c        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+c     1    call errquit('tce_input: failed writing to rtdb',0,
+c     2    RTDB_ERR)
+c        left=.true.
+c        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+c     1    call errquit('tce_input: failed writing to rtdb',0,
+c     2    RTDB_ERR)
+c        else
+c        call errquit('tce_input: multiple theory inputs',0,
+c     1    INPUT_ERR)
+c        endif
 c
 c
 c
@@ -914,18 +962,6 @@ c
           diis3=5
         endif
         if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
-     1    call errquit('tce_input: failed writing to rtdb',0,
-     2    RTDB_ERR)
-c
-c     DIIS solver for imaginary response (choose 2 or 3)
-c
-      else if (inp_compare(.false.,test,'imagsolver')) then
-        if (.not.inp_i(imagsolver)) then
-          write(LuOut,*) 'tce_input: imagsolver value not found; ',
-     1      'default value of 2 will be used'
-          imagsolver=2
-        endif
-        if (.not.rtdb_put(rtdb,'tce:imagsolver',mt_int,1,imagsolver))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
