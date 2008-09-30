@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.128 2008-09-30 19:01:52 jhammond Exp $
+c $Id: tce_energy.F,v 1.129 2008-09-30 19:14:36 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -1130,7 +1130,7 @@ c     1                             size_2e)
           call tce_mo2e_zones_4a_disk_ga_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
 #else
-          XXXXXXXXXXXXXXX
+c          XXXXXXXXXXXXXXX
           call tce_mo2e_zones_4a_disk_ga(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
 #endif
@@ -1139,7 +1139,7 @@ c     1                             size_2e)
           call  tce_mo2e_zones_4a_disk_ga_chop_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
 #else
-          XXXXXXXXXXXXXXX
+c          XXXXXXXXXXXXXXX
           call  tce_mo2e_zones_4a_disk_ga_chop(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
 #endif
