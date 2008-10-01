@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.57 2008-09-30 18:48:43 jhammond Exp $
+c $Id: tce_init.F,v 1.58 2008-10-01 03:31:06 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -705,7 +705,7 @@ c
       endif
       if ((perturbative.ne.'none').and.
      1    (model.ne.'ccsd').and.(model.ne.'ccsdt').and.
-     2    (model.ne.'qcisd').and.(model.ne.'lccsd'))
+     2    (model.ne.'qcisd'))
      3  call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
       cperturbative = 'none'
       if (model.eq.'ccd') then
@@ -728,6 +728,9 @@ c
         else if (perturbative.eq.'(t)') then
           ctype='Coupled-cluster singles & doubles w/ perturbation'
           cperturbative = '(T)'
+        else if (perturbative.eq.'lambda(t)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'Lambda (T)'
         else if (perturbative.eq.'[t]') then
           ctype='Coupled-cluster singles & doubles w/ perturbation'
           cperturbative = '[T] or +T(CCSD)'
@@ -838,8 +841,7 @@ c
         endif
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
-     1      (module.ne.'uqcisd').and.
-     2      (module.ne.'uqcisd(t)'))
+     2      (module.ne.'uqcisd'))
      3    call errquit('tce_init: ucc/uqcisd module overridden',0,
      4    UNKNOWN_ERR)
       else if (model.eq.'cisd') then
