@@ -4,7 +4,7 @@
      1       d_2pdm, k_2pdm_offset, size_2pdm,
      1       noab,nvab,k_range,k_offset,k_spin,
      1       k_movecs_sorted,restricted)
-c     $Id: tce_grad_force.F,v 1.1 2008-09-30 19:34:24 d3p975 Exp $
+c     $Id: tce_grad_force.F,v 1.2 2008-10-01 18:59:13 d3p975 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
       implicit none
@@ -296,6 +296,20 @@ c tce
                    write(luout,11) scftype,'CCSDT'
                else if(model.eq.'ccsdtq') then
                    write(luout,11) scftype,'CCSDTQ'
+               else if(model.eq.'mbpt2') then
+                   write(luout,11) scftype,'MP2'
+               else if(model.eq.'mbpt3') then
+                   write(luout,11) scftype,'MP3'
+               else if(model.eq.'mbpt4') then
+                   write(luout,11) scftype,'MP4'
+               else if(model.eq.'cis') then
+                   write(luout,11) scftype,'CIS'
+               else if(model.eq.'cisd') then
+                   write(luout,11) scftype,'CISD'
+               else if(model.eq.'cisdt') then
+                   write(luout,11) scftype,'CISDT'
+               else if(model.eq.'cisdtq') then
+                   write(luout,11) scftype,'CISDTQ'               
                else
                   call errquit('tce_grad_force: not implement yet',109,
      1                 capmis_err)
