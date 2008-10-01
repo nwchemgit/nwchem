@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.51 2008-05-13 02:10:20 bylaska Exp $
+* $Id: ion.F,v 1.52 2008-10-01 21:55:44 bylaska Exp $
 *
 
 *     ***************************
@@ -930,7 +930,7 @@ c         eki1=0.5d0*eki1
       parameter (kb=3.16679d-6)
 
       integer i
-      real*8  vgx,vgy,vgz,T
+      real*8  vgx,vgy,vgz,T,Tf
 
 *     **** external functions ****
       logical  control_COM_shift,control_init_velocities
@@ -944,33 +944,34 @@ c         eki1=0.5d0*eki1
       if (control_init_velocities()) then
          call Parallel_taskid(taskid)
          call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
-         if (taskid.eq.MASTER) then
-         vgx = util_random(394) !*** initialize random sequence ****
-         do i=1,3*nion
-            dbl_mb(r0(1)+i-1) = 0.1d0*(0.5d0-util_random(0))
-         end do
-         call center_v_mass(vgx,vgy,vgz)
-         do i=1,nion
-            dbl_mb(r0(1)+(i-1)*3+0) = dbl_mb(r0(1)+(i-1)*3+0)-vgx
-            dbl_mb(r0(1)+(i-1)*3+1) = dbl_mb(r0(1)+(i-1)*3+1)-vgy
-            dbl_mb(r0(1)+(i-1)*3+2) = dbl_mb(r0(1)+(i-1)*3+2)-vgz
-         end do
-         eki0 = 0.0d0
-         do i=1,nion
-            eki0 = eki0 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
-     >                                 + dbl_mb(r0(1)+(i-1)*3 + 1)**2
-     >                                 + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
-         end do
-         eki0=0.5d0*eki0
-         if (nion.gt.2) then
-            T = 2.0d0*eki0/(3.0d0*nion-6.0d0)/kb
-         else
-            T = 2.0d0*eki0/kb
-         end if
-         T = dsqrt(control_init_velocities_temperature()/T)
-         call dscal(3*nion,T,dbl_mb(r0(1)),1)
-         end if
+         Tf = control_init_velocities_temperature()
 
+         if (taskid.eq.MASTER) then
+            vgx = util_random(394) !*** initialize random sequence ****
+            do i=1,3*nion
+               dbl_mb(r0(1)+i-1) = 0.1d0*(0.5d0-util_random(0))
+            end do
+            call center_v_mass(vgx,vgy,vgz)
+            do i=1,nion
+               dbl_mb(r0(1)+(i-1)*3+0) = dbl_mb(r0(1)+(i-1)*3+0)-vgx
+               dbl_mb(r0(1)+(i-1)*3+1) = dbl_mb(r0(1)+(i-1)*3+1)-vgy
+               dbl_mb(r0(1)+(i-1)*3+2) = dbl_mb(r0(1)+(i-1)*3+2)-vgz
+            end do
+            eki0 = 0.0d0
+            do i=1,nion
+               eki0 = eki0 + ion_amass(i)*(dbl_mb(r0(1)+(i-1)*3 + 0)**2
+     >                                    +dbl_mb(r0(1)+(i-1)*3 + 1)**2
+     >                                    +dbl_mb(r0(1)+(i-1)*3 + 2)**2)
+            end do
+            eki0=0.5d0*eki0
+            if (nion.gt.2) then
+               T = 2.0d0*eki0/(3.0d0*nion-6.0d0)/kb
+            else
+               T = 2.0d0*eki0/kb
+            end if
+            T = dsqrt(Tf/T)
+            call dscal(3*nion,T,dbl_mb(r0(1)),1)
+         end if
          call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r0(1)))
 
       end if
