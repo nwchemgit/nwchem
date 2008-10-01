@@ -87,13 +87,13 @@ c     server-client loop
 c     ------------------
       world_me = ga_nodeid()
       
-c      if(world_me.eq.0) then
-c         call util_message("executing server code")
-c         call sched_grp_server_code()
-c      else
-c         call util_message("executing client code")
-c         call sched_grp_client_code()
-c      endif
+      if(world_me.eq.0) then
+         call util_message("executing server code")
+         call sched_grp_server_code()
+      else
+         call util_message("executing client code")
+         call sched_grp_client_code()
+      endif
 
       call ga_sync()
 c      call cpu_time(etime4)

@@ -209,11 +209,11 @@ c         new_i_q = old_i_q
 c         old_i_q = i
       end if
 
-      if(ntsks.eq.0) then
-         if(.not.ma_free_heap(tmp_h_q))
-     $        call errquit('memory deallocation',0,tmp_h_q)
-         populate_done=.true.
-      end if
+c      if(ntsks.eq.0) then
+c         if(.not.ma_free_heap(tmp_h_q))
+c     $        call errquit('memory deallocation',0,tmp_h_q)
+c         populate_done=.true.
+c      end if
 
       end !populate_tasks
 
