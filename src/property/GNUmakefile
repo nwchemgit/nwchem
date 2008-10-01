@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.31 2008-09-17 05:10:12 jhammond Exp $
+# $Id: GNUmakefile,v 1.32 2008-10-01 23:50:12 bylaska Exp $
 #
 
 
@@ -35,7 +35,8 @@
          aoresponse.o \
          CalcPerturbedTDPmat1.o \
          aoresponse_giao_rhs.o \
-         ao_rdm_read.o
+         ao_rdm_read.o \
+         ao_1prdm_read.o
 
    LIBRARY = libproperty.a
    LIB_DEFINES = -DJEFF_OUTPUT
