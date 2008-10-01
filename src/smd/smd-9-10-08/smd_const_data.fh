@@ -1,0 +1,19 @@
+c
+c $Id: smd_const_data.fh,v 1.1 2008-10-01 22:32:29 marat Exp $
+c
+
+      integer smd_tag_size,smd_string_size
+      double precision  boltzmann,convfct1,convfct2,pii,twopi,sqrpi
+
+      integer MT_STR
+      parameter (MT_STR = 1009)
+
+      parameter(boltzmann=  8.31451115d-1)
+      parameter(convfct1 = 14.39965173d0)
+      parameter(convfct2 = 9648.530821d0)
+      parameter(pii      =  3.141592653589793d0)
+      parameter(twopi    =  6.283185307179586d0)
+      parameter(sqrpi    =  1.772453850905516d0)
+      parameter(smd_tag_size = 32)
+      parameter(smd_string_size = 32)
+

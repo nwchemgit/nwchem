@@ -1,0 +1,13 @@
+*
+* $Id: smd_system_data.fh,v 1.1 2008-10-01 22:32:31 marat Exp $
+*
+      integer smd_system_nc
+      parameter(smd_system_nc=21)
+
+      character*72 smd_system_rname(smd_system_nc)
+      character*72 smd_system_cname(smd_system_nc)
+
+      common /smd_system_data/ smd_system_cname,
+     >                         smd_system_rname
+
+
