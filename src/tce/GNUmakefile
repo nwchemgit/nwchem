@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.85 2008-09-30 23:01:55 jhammond Exp $
+#$Id: GNUmakefile,v 1.86 2008-10-01 18:00:55 d3p975 Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 \
@@ -9,7 +9,8 @@ SUBDIRS = include diis diis2 diis3 \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
           ccsdt ccsdt_lambda eomccsdt \
           ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta \
-          ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag
+          ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag \
+          gradients
 
 OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o gatodra.o gatoeaf.o \
