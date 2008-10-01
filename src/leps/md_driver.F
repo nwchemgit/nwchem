@@ -337,7 +337,7 @@ c      enddo
         double precision mass(n),c(3,n), v(3,n), a(3,n), b(3,n), d(3,n)
         double precision dt
         character*16 t(n)  
-         write(rfile,*),n,nsteps,step,dt,mass,c,v,a,b,d,t
+         write(rfile,*) n,nsteps,step,dt,mass,c,v,a,b,d,t
 c        write(rfile,*) 'natom, md steps, curr. step, time step:'
 c        write(rfile,*)  n,nsteps,step,dt
 c        write(rfile,*) 'mass' 
@@ -364,6 +364,6 @@ c        write(rfile,*) 'End of restart file'
         double precision dt
         character*16 t(n)
          open(unit=12,file='restart.pun',status='old')
-         read(12,*),n,nsteps,step,dt,mass,c,v,a,b,d,t
+         read(12,*) n,nsteps,step,dt,mass,c,v,a,b,d,t
       end
         
