@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.1 2008-09-30 19:12:46 d3p975 Exp $
+#$Id: GNUmakefile,v 1.2 2008-10-01 23:49:43 bylaska Exp $
 
 OBJ_OPTIMIZE = tce_gradient.o ccsd_energy.o ccsd_left.o ccsd_gradient.o \
                ccsd_1pdm_hh_mo.o ccsd_1pdm_pp_mo.o ccsd_1pdm_hp_mo.o ccsd_1pdm_ph_mo.o \
@@ -30,7 +30,7 @@ OBJ_OPTIMIZE = tce_gradient.o ccsd_energy.o ccsd_left.o ccsd_gradient.o \
                put_2pdm_pphh.o put_2pdm_pphp.o put_2pdm_pppp.o \
                tce_1pdm_offset.o put_1pdm_hh.o put_1pdm_hp.o put_1pdm_ph.o \
                put_1pdm_ph_2.o put_1pdm_pp.o \
-               put_1pwdm_hp.o ao_tiles.o btrans1.o ao_1prdm_write.o ao_1prdm_read.o \
+               put_1pwdm_hp.o ao_tiles.o btrans1.o ao_1prdm_write.o \
                tce_gradients_doit.o tce_grad_force.o tce_grad1.o tce_grad2.o \
                sym_2pdm_ao.o btrans2.o
                  
