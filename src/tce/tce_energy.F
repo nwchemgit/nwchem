@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.130 2008-09-30 19:28:18 jhammond Exp $
+c $Id: tce_energy.F,v 1.131 2008-10-01 02:15:02 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -3724,7 +3724,6 @@ c
 c -------------------
 c CCSD(T) and CCSD[T]
 c -------------------
- 2000   continue
         if ((perturbative.eq.'(t)').or.(perturbative.eq.'[t]')) then
           cpu = - util_cpusec()
           wall = - util_wallsec()
@@ -3734,32 +3733,12 @@ c -------------------
           wall = wall + util_wallsec()
           if (nodezero) then
             write(LuOut,*)
-            if(model.eq.'ccsd') then
-              write(LuOut,9075) "CCSD[T]",pt3_1
-              write(LuOut,9070) "CCSD[T]",corr+pt3_1
-              write(LuOut,9080) "CCSD[T]",ref+corr+pt3_1
-            elseif(model.eq.'lccsd') then
-              write(LuOut,9075) "LCCSD[T]",pt3_1
-              write(LuOut,9070) "LCCSD[T]",corr+pt3_1
-              write(LuOut,9080) "LCCSD[T]",ref+corr+pt3_1
-            elseif(model.eq.'qcisd') then
-              write(LuOut,9075) "QCISD[T]",pt3_1
-              write(LuOut,9070) "QCISD[T]",corr+pt3_1
-              write(LuOut,9080) "QCISD[T]",ref+corr+pt3_1
-            endif
-            if(model.eq.'ccsd') then
-              write(LuOut,9075) "CCSD(T)",pt3_2
-              write(LuOut,9070) "CCSD(T)",corr+pt3_2
-              write(LuOut,9080) "CCSD(T)",ref+corr+pt3_2
-            elseif(model.eq.'lccsd') then
-              write(LuOut,9075) "LCCSD(T)",pt3_2
-              write(LuOut,9070) "LCCSD(T)",corr+pt3_2
-              write(LuOut,9080) "LCCSD(T)",ref+corr+pt3_2
-            elseif(model.eq.'qcisd') then
-              write(LuOut,9075) "QCISD(T)",pt3_2
-              write(LuOut,9070) "QCISD(T)",corr+pt3_2
-              write(LuOut,9080) "QCISD(T)",ref+corr+pt3_2
-            endif
+            write(LuOut,9075) "CCSD[T]",pt3_1
+            write(LuOut,9070) "CCSD[T]",corr+pt3_1
+            write(LuOut,9080) "CCSD[T]",ref+corr+pt3_1
+            write(LuOut,9075) "CCSD(T)",pt3_2
+            write(LuOut,9070) "CCSD(T)",corr+pt3_2
+            write(LuOut,9080) "CCSD(T)",ref+corr+pt3_2
             write(LuOut,9020) cpu, wall
           endif
           if (perturbative.eq.'[t]') then
@@ -3828,35 +3807,6 @@ c -------------------------
             else if (perturbative.eq.'cr_(t)') then
               corr = corr + pt3_2
             endif
-          endif
-c -------------------------
-c CR-QCISD(T)
-c -------------------------
-          if ((model.ne.'ccsd').and.
-     1        (perturbative.eq.'cr_(t)')) then
-            cpu = - util_cpusec()
-            wall = - util_wallsec()
-c            write(LuOut,*) 'tce_energy: cr_qcisd_t'
-            call cr_qcisd_t(d_t1,k_t1_offset,size_t1,
-     1                      d_t2,k_t2_offset,size_t2,
-     2                      d_f1,k_f1_offset,d_v2,k_v2_offset,
-     3                      pt3_2)
-            cpu = cpu + util_cpusec()
-            wall = wall + util_wallsec()
-            if (nodezero) then
-              write(LuOut,*)
-              if(model.eq.'qcisd') then
-                write(LuOut,9075) "CR-QCISD(T)",pt3_2
-                write(LuOut,9070) "CR-QCISD(T)",corr+pt3_2
-                write(LuOut,9080) "CR-QCISD(T)",ref+corr+pt3_2
-              elseif(model.eq.'lccsd') then
-                write(LuOut,9075) "CR-LCCSD(T)",pt3_2
-                write(LuOut,9070) "CR-LCCSD(T)",corr+pt3_2
-                write(LuOut,9080) "CR-LCCSD(T)",ref+corr+pt3_2
-              endif
-              write(LuOut,9020) cpu, wall
-            endif
-            corr = corr + pt3_2
           endif
 c ----------------------------------------------------
 c LR-CCSD(T) and/or LR-CCSD(T)-1 and/or LR-CCSD(TQ)-1p
@@ -4068,8 +4018,7 @@ c -------------
               call x2_restart_save(d_t2,k_t2_offset,size_t2,0,
      1                             handle_t2,irrep_t)
             endif
-c            goto 100
-            goto 2000
+            goto 100
           endif
           if (save_t(1).and.(mod(iter,save_interval).eq.0)) then
             if(nodezero) then
@@ -6664,7 +6613,7 @@ c -------------
      1                             handle_t2,irrep_t)
             endif
 c            goto 100
-            goto 2000
+            goto 3990
           endif
           if (save_t(1).and.(mod(iter,save_interval).eq.0)) then
             if(nodezero) then
@@ -6691,6 +6640,54 @@ c            goto 100
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
+ 3990 continue
+c -------------------
+c QCISD(T) and QCISD[T]
+c -------------------
+        if ((perturbative.eq.'(t)').or.(perturbative.eq.'[t]')) then
+          cpu = - util_cpusec()
+          wall = - util_wallsec()
+          call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
+     1                d_v2,k_v2_offset,pt3_1,pt3_2)
+          cpu = cpu + util_cpusec()
+          wall = wall + util_wallsec()
+          if (nodezero) then
+            write(LuOut,*)
+            write(LuOut,9075) "QCISD[T]",pt3_1
+            write(LuOut,9070) "QCISD[T]",corr+pt3_1
+            write(LuOut,9080) "QCISD[T]",ref+corr+pt3_1
+            write(LuOut,9075) "QCISD(T)",pt3_2
+            write(LuOut,9070) "QCISD(T)",corr+pt3_2
+            write(LuOut,9080) "QCISD(T)",ref+corr+pt3_2
+            write(LuOut,9020) cpu, wall
+          endif
+          if (perturbative.eq.'[t]') then
+            corr = corr + pt3_1
+          else if (perturbative.eq.'(t)') then
+            corr = corr + pt3_2
+          endif
+c -------------------------
+c CR-QCISD(T)
+c -------------------------
+        elseif (perturbative.eq.'cr_(t)') then
+          cpu = - util_cpusec()
+          wall = - util_wallsec()
+c          write(LuOut,*) 'tce_energy: cr_qcisd_t'
+          call cr_qcisd_t(d_t1,k_t1_offset,size_t1,
+     1                    d_t2,k_t2_offset,size_t2,
+     2                    d_f1,k_f1_offset,d_v2,k_v2_offset,
+     3                    pt3_2)
+          cpu = cpu + util_cpusec()
+          wall = wall + util_wallsec()
+          if (nodezero) then
+            write(LuOut,*)
+            write(LuOut,9075) "CR-QCISD(T)",pt3_2
+            write(LuOut,9070) "CR-QCISD(T)",corr+pt3_2
+            write(LuOut,9080) "CR-QCISD(T)",ref+corr+pt3_2
+            write(LuOut,9020) cpu, wall
+          endif
+          corr = corr + pt3_2
+        endif
       else if (model.eq.'cisd') then
 c -------------
 c CISD    right
