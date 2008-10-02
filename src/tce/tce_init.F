@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.58 2008-10-01 03:31:06 jhammond Exp $
+c $Id: tce_init.F,v 1.59 2008-10-02 12:13:28 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -461,12 +461,12 @@ c
           j = inumfreq - (i-1) ! increasing order from small magnitude
           ifreq(j) = ifreqw0 * (1.0d0 - t_i)/(1.0d0 + t_i)
         enddo
-#ifdef DEBUG_PRINT
-        do i = 1, inumfreq
-          write(6,999) i,t_i,ifreq(i)
-        enddo
-  999 format(3x,'i=',i3,1x,'t_i=',d8.2,1x,'ifreq(i)=',f14.8)
-#endif
+c#ifdef DEBUG_PRINT
+c        do i = 1, inumfreq
+c          if(nodezero) write(6,999) i,t_i,ifreq(i)
+c        enddo
+c  999 format(3x,'i=',i3,1x,'t_i=',d8.2,1x,'ifreq(i)=',f14.8)
+c#endif
         if (.not.rtdb_put(rtdb,'tce:ifreq',mt_dbl,inumfreq,ifreq))
      1    call errquit('tce_init: failed to write ifreq',0,RTDB_ERR)
       else
