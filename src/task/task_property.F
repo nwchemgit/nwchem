@@ -18,11 +18,11 @@ c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
 c
-      if (theory .eq. 'tce') then
-        status = tce_prop_start(rtdb)
-      else 
+c      if (theory .eq. 'tce') then
+c        status = tce_prop_start(rtdb)
+c      else 
         status = property(rtdb)
-      endif
+c      endif
 c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
      $     call errquit('task_property: failed to store status',0, 
