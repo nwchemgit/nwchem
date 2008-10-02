@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.60 2008-10-02 14:46:25 jhammond Exp $
+c $Id: tce_init.F,v 1.61 2008-10-02 18:39:02 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -196,14 +196,16 @@ c
         if (.not.rtdb_put(rtdb,'tce:printtol',mt_dbl,1,printtol))
      1  call errquit('tce_init: failed to write printtol',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:zlshift',mt_dbl,1,zlshift)) then
-        zlshift = 0.0d0
-        if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,1,zlshift))
+      if (.not.rtdb_get(rtdb,'tce:zlshift',mt_dbl,2,zlshift)) then
+        zlshift(1) = 0.0d0
+        zlshift(2) = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,2,zlshift))
      1  call errquit('tce_init: failed to write zlshift',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:zlshift2',mt_dbl,1,zlshift2)) then
-        zlshift2 = 0.0d0
-        if (.not.rtdb_put(rtdb,'tce:zlshift2',mt_dbl,1,zlshift2))
+      if (.not.rtdb_get(rtdb,'tce:zlshift2',mt_dbl,2,zlshift2)) then
+        zlshift2(1) = 0.0d0
+        zlshift2(2) = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:zlshift2',mt_dbl,2,zlshift2))
      1  call errquit('tce_init: failed to write zlshift2',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:zlshift3',mt_dbl,2,zlshift3)) then
@@ -1154,10 +1156,12 @@ c
         write(LuOut,9230) cperturbative
         write(LuOut,9130) maxiter
         write(LuOut,9110) thresh
-        write(LuOut,9115) zlshift
-        write(LuOut,9116) zlshift2
-        write(LuOut,9117) zlshift3(1)
-        write(LuOut,9118) zlshift3(2)
+        write(LuOut,9115) 'T(0)',zlshift(1)
+        write(LuOut,9115) 'L(0)',zlshift(2)
+        write(LuOut,9115) 'T(1)',zlshift2(1)
+        write(LuOut,9115) 'L(1)',zlshift2(2)
+        write(LuOut,9115) 'T(R)',zlshift3(1)
+        write(LuOut,9115) 'T(I)',zlshift3(2)
         if (diis .gt. 0) then
           write(LuOut,9150) diis,'-th order DIIS'
         else
@@ -1238,10 +1242,10 @@ c
  9060 format(3x,'    Number of AO shells :',2x,i4)
  9100 format(3x,'      Schwarz screening : ',d8.2)
  9110 format(3x,'     Residual threshold : ',d8.2)
- 9115 format(3x,'       DIIS level shift : ',d8.2)
- 9116 format(3x,' CC-LR DIIS level shift : ',d8.2)
- 9117 format(3x,' CC-IR DIIS level shift : ',d8.2,' (imag part)')
- 9118 format(3x,' CC-IR DIIS level shift : ',d8.2,' (real part)')
+ 9115 format(3x,a4,' DIIS level shift : ',d8.2)
+c 9116 format(3x,' CC-LR DIIS level shift : ',d8.2)
+c 9117 format(3x,' CC-IR DIIS level shift : ',d8.2,' (imag part)')
+c 9118 format(3x,' CC-IR DIIS level shift : ',d8.2,' (real part)')
  9130 format(3x,'         Max iterations :',2x,i7)
  9140 format(3x,'             I/O scheme : ',a)
  9150 format(3x,'CC-T/L Amplitude update : ',i2,a)

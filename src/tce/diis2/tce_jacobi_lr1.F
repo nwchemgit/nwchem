@@ -1,6 +1,6 @@
-      subroutine tce_jacobi_lr1(d_r1,d_l1,k_l1_offset,omega)
+      subroutine tce_jacobi_lr1(d_r1,d_l1,k_l1_offset,omega,shift)
 c
-c $Id: tce_jacobi_lr1.F,v 1.3 2008-09-30 18:35:50 jhammond Exp $
+c $Id: tce_jacobi_lr1.F,v 1.4 2008-10-02 18:39:07 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -29,7 +29,7 @@ c
       external nxtval
       logical noloadbalance
       logical nodezero         ! True if node 0
-      double precision omega
+      double precision omega,shift
 c
       nodezero = (ga_nodeid().eq.0)
       noloadbalance = ((ioalg.eq.4).or.

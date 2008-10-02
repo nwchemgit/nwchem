@@ -1,6 +1,6 @@
-      subroutine tce_jacobi_t1(d_r1,d_t1,k_t1_offset,iter)
+      subroutine tce_jacobi_t1(d_r1,d_t1,k_t1_offset,shift)
 c
-c $Id: tce_jacobi_t1.F,v 1.1 2008-09-30 18:35:45 jhammond Exp $
+c $Id: tce_jacobi_t1.F,v 1.2 2008-10-02 18:39:05 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -24,24 +24,18 @@ c
       integer nprocs
       integer count
       integer next
-cc      integer nxtval
-c
       integer iter
-c
-cc      external nxtval
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical nodezero
       logical noloadbalance
-c *** shift ***
       double precision shift
-c *************
 c
-      if(iter.le.100) then
-       shift=-zlshift
-      else
-       shift=0.0d0
-      end if
+c      if(iter.le.100) then
+c       shift=-zlshift
+c      else
+c       shift=0.0d0
+c      end if
 c
 c     ================
 c     Loop over blocks
@@ -73,7 +67,7 @@ cc      next = nxtval(nprocs)
                   dbl_mb(k_r1+i-1) = dbl_mb(k_r1+i-1)
      1           / (-dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
      2              +dbl_mb(k_evl_sorted+int_mb(k_offset+h2b-1)+h2-1)
-     3              +shift)
+     3             +shift)
                 enddo
               enddo
               call add_hash_block(d_t1,dbl_mb(k_r1),size,
@@ -108,7 +102,7 @@ c
 c
       subroutine tce_r1_divide(d_r1,k_t1_offset)
 c
-c $Id: tce_jacobi_t1.F,v 1.1 2008-09-30 18:35:45 jhammond Exp $
+c $Id: tce_jacobi_t1.F,v 1.2 2008-10-02 18:39:05 jhammond Exp $
 c
       implicit none
 #include "global.fh"

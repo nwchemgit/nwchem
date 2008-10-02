@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.31 2008-10-02 15:19:58 jhammond Exp $
+c $Id: tce_input.F,v 1.32 2008-10-02 18:39:02 jhammond Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -87,7 +87,7 @@ c
       integer reference
       integer diis,diis2,diis3
 c --- level shift --
-      double precision zlshift,zlshift2,zlshift3(2)
+      double precision zlshift(2),zlshift2(2),zlshift3(2)
 c ------------------
       integer nroots
       integer target
@@ -144,12 +144,14 @@ c
 c
 c     LEVEL SHIFT (for singles and doubles)
 c
-      zlshift=0.0d0
-      if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,1,zlshift))
+      zlshift(1)=0.0d0
+      zlshift(2)=0.0d0
+      if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,2,zlshift))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-      zlshift2=0.0d0
-      if (.not.rtdb_put(rtdb,'tce:zlshift2',mt_dbl,1,zlshift2))
+      zlshift2(1)=0.0d0
+      zlshift2(2)=0.0d0
+      if (.not.rtdb_put(rtdb,'tce:zlshift2',mt_dbl,2,zlshift2))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
       zlshift3(1)=0.0d0
@@ -868,33 +870,46 @@ c     LEVEL SHIFT
 c
       else if (inp_compare(.false.,test,'lshift')) then
         if (.not.inp_f(zlshift)) then
-          write(LuOut,*) 'tce_input: lshift value not found; ',
+          write(LuOut,*) 'tce_input: lshift(1) value not found; ',
      1      'default value of 0.0d0 will be used'
-          zlshift=0.0d0
+          zlshift(1)=0.0d0
         endif
-        if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,1,zlshift))
+        if (.not.inp_f(zlshift)) then
+          write(LuOut,*) 'tce_input: lshift(2) value not found; ',
+     1      'default value of 0.0d0 will be used'
+          zlshift(2)=0.0d0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,2,zlshift))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c      else if (inp_compare(.false.,test,'lshift2')) then
-c        if (.not.inp_f(zlshift2)) then
-c          write(LuOut,*) 'tce_input: lshift2 value not found; ',
-c     1      'default value of 0.0d0 will be used'
-c          zlshift2=0.0d0
-c        endif
-c        if (.not.rtdb_put(rtdb,'tce:zlshift2',mt_dbl,1,zlshift2))
-c     1    call errquit('tce_input: failed writing to rtdb',0,
-c     2    RTDB_ERR)
-c
-c      else if (inp_compare(.false.,test,'lshift3')) then
-c        if (.not.inp_f(zlshift3)) then
-c          write(LuOut,*) 'tce_input: lshift3 value not found; ',
-c     1      'default value of 0.0d0 will be used'
-c          zlshift3=0.0d0
-c        endif
-c        if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,1,zlshift3))
-c     1    call errquit('tce_input: failed writing to rtdb',0,
-c     2    RTDB_ERR)
+      else if (inp_compare(.false.,test,'lshift2')) then
+        if (.not.inp_f(zlshift2)) then
+          write(LuOut,*) 'tce_input: lshift2(1) value not found; ',
+     1      'default value of 0.0d0 will be used'
+          zlshift2(1)=0.0d0
+        endif
+        if (.not.inp_f(zlshift2)) then
+          write(LuOut,*) 'tce_input: lshift2(2) value not found; ',
+     1      'default value of 0.0d0 will be used'
+          zlshift2(2)=0.0d0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:zlshift2',mt_dbl,2,zlshift2))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+      else if (inp_compare(.false.,test,'lshift3')) then
+        if (.not.inp_f(zlshift3)) then
+          write(LuOut,*) 'tce_input: lshift3(1) value not found; ',
+     1      'default value of 0.0d0 will be used'
+          zlshift3(1)=0.0d0
+        endif
+        if (.not.inp_f(zlshift3)) then
+          write(LuOut,*) 'tce_input: lshift3(2) value not found; ',
+     1      'default value of 0.0d0 will be used'
+          zlshift3(2)=0.0d0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,2,zlshift3))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
 c
 c     MAXITER (the maximum number of Davidson iterations)
 c

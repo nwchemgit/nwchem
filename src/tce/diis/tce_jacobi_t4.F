@@ -1,6 +1,6 @@
-      subroutine tce_jacobi_t4(d_r4,d_t4,k_t4_offset)
+      subroutine tce_jacobi_t4(d_r4,d_t4,k_t4_offset,shift)
 c
-c $Id: tce_jacobi_t4.F,v 1.1 2008-09-30 18:35:46 jhammond Exp $
+c $Id: tce_jacobi_t4.F,v 1.2 2008-10-02 18:39:06 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -40,6 +40,7 @@ c
       external nxtask
       logical nodezero
       logical noloadbalance
+      double precision shift
 c
 c     ================
 c     Loop over blocks
@@ -120,7 +121,8 @@ c
      5                +dbl_mb(k_evl_sorted+int_mb(k_offset+h5b-1)+h5-1)
      6                +dbl_mb(k_evl_sorted+int_mb(k_offset+h6b-1)+h6-1)
      7                +dbl_mb(k_evl_sorted+int_mb(k_offset+h7b-1)+h7-1)
-     8                +dbl_mb(k_evl_sorted+int_mb(k_offset+h8b-1)+h8-1))
+     8                +dbl_mb(k_evl_sorted+int_mb(k_offset+h8b-1)+h8-1)
+     9               +shift)
                                       enddo
                                     enddo
                                   enddo

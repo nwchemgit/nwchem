@@ -1,6 +1,6 @@
-      subroutine tce_jacobi_tr3a(d_r3,d_t3,k_t3_offset,omega)
+      subroutine tce_jacobi_tr3a(d_r3,d_t3,k_t3_offset,omega,shift)
 c
-c $Id: tce_jacobi_tr3a.F,v 1.3 2008-09-30 18:35:52 jhammond Exp $
+c $Id: tce_jacobi_tr3a.F,v 1.4 2008-10-02 18:39:08 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -38,7 +38,7 @@ c
       logical noloadbalance
       logical nodezero
       logical acolo
-      double precision omega
+      double precision omega,shift
 c
 c     ================
 c     Loop over blocks

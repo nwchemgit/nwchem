@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.133 2008-10-02 15:09:22 jhammond Exp $
+c $Id: tce_energy.F,v 1.134 2008-10-02 18:39:03 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -3012,9 +3012,9 @@ c
 c             3. Hit with preconditioner
 c
               call tce_jacobi_tr1(d_tr1(axis+dynaxis),d_rr1(axis),
-     1                            k_tr1_offset(axis),101,0.0d0) ! 101 disables level-shift
+     1                            k_tr1_offset(axis),0.0d0)
               call tce_jacobi_tr2(d_tr2(axis+dynaxis),d_rr2(axis),
-     1                            k_tr2_offset(axis),101,0.0d0) ! 101 disables level-shift
+     1                            k_tr2_offset(axis),0.0d0)
 c
 c             4. Delete dummies
 c
@@ -4352,6 +4352,9 @@ c ----------
           endif
           corr = corr + pt3_1
         endif
+#if !defined(CCSDTLR)
+      CALL ERRQUIT('CCSDTLR not compiled',0,CAPMIS_ERR)
+#else
 c -------------
 c CCSDT-IR
 c -------------
@@ -5768,6 +5771,7 @@ c
           enddo ! omegacount loop
 c
         endif ! leftresp
+#endif
 c
       else if (model.eq.'ccsdta') then
 c -----------------------------
@@ -5880,6 +5884,9 @@ cedo            goto 330
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
       else if (model.eq.'ccsdtq') then
+#if !defined(CCSDTQ)
+      CALL ERRQUIT('CCSDTQ not compiled',0,CAPMIS_ERR)
+#else
 c -------------
 c CCSDTQ  right
 c -------------
@@ -6571,6 +6578,7 @@ c
 c
         endif ! lineresp
 c
+#endif
       else if (model.eq.'qcisd') then
 c -------------
 c QCISD   right
@@ -8496,6 +8504,9 @@ c
 c
 c
           else if (model.eq.'ccsdtq') then
+#if !defined(CCSDTQ)
+      CALL ERRQUIT('CCSDTQ not compiled',0,CAPMIS_ERR)
+#else
 c -------------
 c CCSDTQ  right
 c -------------
@@ -8975,6 +8986,7 @@ c                    call tce_print_x2(xc2(ivec),k_x2_offset,printtol)
             enddo
             call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
             endif
+#endif
           else
             call errquit("Not yet implemented",0,CAPMIS_ERR)
           endif

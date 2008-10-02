@@ -1,6 +1,6 @@
-      subroutine tce_jacobi_tr2(d_r2,d_t2,k_t2_offset,iter,omega)
+      subroutine tce_jacobi_tr2(d_r2,d_t2,k_t2_offset,omega,shift)
 c
-c $Id: tce_jacobi_tr2.F,v 1.4 2008-09-30 18:35:51 jhammond Exp $
+c $Id: tce_jacobi_tr2.F,v 1.5 2008-10-02 18:39:08 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -33,15 +33,13 @@ c
       external nxtval
       logical noloadbalance
       logical nodezero         ! True if node 0
-c *** shift ***
-      double precision shift
-c *************
-      double precision omega
-      if(iter.le.100) then
-       shift=-(2.0d0)*zlshift2
-      else
-       shift=0.0d0
-      end if
+      double precision shift,omega
+c
+c      if(iter.le.100) then
+c       shift=-(2.0d0)*zlshift2
+c      else
+c       shift=0.0d0
+c      end if
 c
 c     ================
 c     Loop over blocks
@@ -132,7 +130,7 @@ c
 c
       subroutine tce_rr2_divide(d_r2,k_t2_offset)
 c
-c $Id: tce_jacobi_tr2.F,v 1.4 2008-09-30 18:35:51 jhammond Exp $
+c $Id: tce_jacobi_tr2.F,v 1.5 2008-10-02 18:39:08 jhammond Exp $
 c
       implicit none
 #include "global.fh"

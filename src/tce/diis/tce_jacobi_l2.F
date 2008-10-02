@@ -1,6 +1,6 @@
-      subroutine tce_jacobi_l2(d_r2,d_l2,k_l2_offset)
+      subroutine tce_jacobi_l2(d_r2,d_l2,k_l2_offset,shift)
 c
-c $Id: tce_jacobi_l2.F,v 1.1 2008-09-30 18:35:44 jhammond Exp $
+c $Id: tce_jacobi_l2.F,v 1.2 2008-10-02 18:39:05 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -32,6 +32,7 @@ c
       external nxtask
       logical nodezero
       logical noloadbalance
+      double precision shift
 c
       nodezero = (ga_nodeid().eq.0)
       noloadbalance = ((ioalg.eq.4).or.
@@ -69,7 +70,8 @@ c
      1           / (-dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
      2              -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
      3              +dbl_mb(k_evl_sorted+int_mb(k_offset+h3b-1)+h3-1)
-     4              +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1))
+     4              +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1)
+     5             +shift)
                         enddo
                       enddo
                     enddo

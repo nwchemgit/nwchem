@@ -1,6 +1,6 @@
-      subroutine tce_jacobi_l1(d_r1,d_l1,k_l1_offset)
+      subroutine tce_jacobi_l1(d_r1,d_l1,k_l1_offset,shift)
 c
-c $Id: tce_jacobi_l1.F,v 1.1 2008-09-30 18:35:44 jhammond Exp $
+c $Id: tce_jacobi_l1.F,v 1.2 2008-10-02 18:39:05 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -28,6 +28,7 @@ c
       external nxtask
       logical nodezero
       logical noloadbalance
+      double precision shift
 c
       nodezero = (ga_nodeid().eq.0)
       noloadbalance = ((ioalg.eq.4).or.
@@ -54,7 +55,8 @@ c
                   i = i + 1
                   dbl_mb(k_r1+i-1) = dbl_mb(k_r1+i-1)
      1           / (-dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
-     2              +dbl_mb(k_evl_sorted+int_mb(k_offset+h2b-1)+h2-1))
+     2              +dbl_mb(k_evl_sorted+int_mb(k_offset+h2b-1)+h2-1)
+     3             +shift)
                 enddo
               enddo
               call add_hash_block(d_l1,dbl_mb(k_r1),size,

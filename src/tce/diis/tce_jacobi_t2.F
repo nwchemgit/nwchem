@@ -1,6 +1,6 @@
-      subroutine tce_jacobi_t2(d_r2,d_t2,k_t2_offset,iter)
+      subroutine tce_jacobi_t2(d_r2,d_t2,k_t2_offset,shift)
 c
-c $Id: tce_jacobi_t2.F,v 1.1 2008-09-30 18:35:45 jhammond Exp $
+c $Id: tce_jacobi_t2.F,v 1.2 2008-10-02 18:39:06 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -28,23 +28,18 @@ c
       integer nprocs
       integer count
       integer next
-cc      integer nxtval
-c
       integer iter 
-c
-cc      external nxtval
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical nodezero
       logical noloadbalance
-c *** shift ***
       double precision shift
-c *************
-      if(iter.le.100) then
-       shift=-(2.0d0)*zlshift
-      else
-       shift=0.0d0
-      end if
+c
+c      if(iter.le.100) then
+c       shift=-(2.0d0)*zlshift
+c      else
+c       shift=0.0d0
+c      end if
 c
 c     ================
 c     Loop over blocks
@@ -78,9 +73,6 @@ cc      next = nxtval(nprocs)
      1              int_mb(k_t2_offset),((((p1b-noab-1)*nvab+p2b-noab-1)
      2              *noab+h3b-1)*noab+h4b-1))
                   i = 0
-c *** shift added ***
-ccc               shift=0.50d0
-c *******************
                   do p1 = 1,int_mb(k_range+p1b-1)
                     do p2 = 1,int_mb(k_range+p2b-1)
                       do h3 = 1,int_mb(k_range+h3b-1)
@@ -91,7 +83,7 @@ c *******************
      2              -dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
      3              +dbl_mb(k_evl_sorted+int_mb(k_offset+h3b-1)+h3-1)
      4              +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1)
-     5              +shift)
+     5             +shift)
                         enddo
                       enddo
                     enddo
@@ -138,7 +130,7 @@ c
 c
       subroutine tce_r2_divide(d_r2,k_t2_offset)
 c
-c $Id: tce_jacobi_t2.F,v 1.1 2008-09-30 18:35:45 jhammond Exp $
+c $Id: tce_jacobi_t2.F,v 1.2 2008-10-02 18:39:06 jhammond Exp $
 c
       implicit none
 #include "global.fh"

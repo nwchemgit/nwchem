@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.87 2008-10-02 14:52:39 jhammond Exp $
+#$Id: GNUmakefile,v 1.88 2008-10-02 18:39:01 jhammond Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 gradients \
@@ -7,10 +7,17 @@ SUBDIRS = include diis diis2 diis3 gradients \
           response ccsd_yr ccsd_alpha ccsd_beta \
           ccd lccd lccsd qcisd cc3 \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
-          ccsdt ccsdt_lambda eomccsdt \
-          ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta \
-          ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag \
-          gradients
+          ccsdt ccsdt_lambda eomccsdt
+
+ifdef CCSDTQ
+      SUBDIRS += ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta
+      LIB_DEFINES += -DCCSDTLR
+endif
+
+ifdef CCSDTQ
+      SUBDIRS += ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag
+      LIB_DEFINES += -DCCSDTQ
+endif
 
 OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o gatodra.o gatoeaf.o \
@@ -62,10 +69,14 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_mo2e_2emet3.o tce_mo2e_2emet3_n5.o tce_mo2e_2emet4.o tce_mo2e_2emet4_n5.o \
       tce_make_denom1.o tce_make_denom2.o
 
-      #OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
-      #OBJ_OPTIMIZE += tce_sort0.o tce_sort2_saday.o tce_sort4_jeff_torun.o tce_sort6.o tce_sort8.o \
+ifdef SPAGHETTYSORT
+      OBJ_OPTIMIZE += tce_sort0.o tce_sort2_saday.o tce_sort4_jeff.o tce_sort6.o tce_sort8.o \
                       tce_sortacc_saday.o tce_sortacc8.o 
+      LIB_DEFINES += -DSPAGHETTY
+else
       OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
+      #OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
+endif
 
 ifeq ($(NWCHEM_TARGET),LAPI64)
       #OBJ += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
@@ -75,7 +86,10 @@ else
       OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o
 endif
 
-      #OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
+ifdef SPECIAL2EMET
+      OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
+      LIB_DEFINES += -DSPECIAL2EMET
+endif
 
 LIB_INCLUDES = -I./include
 
@@ -94,13 +108,9 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_mo2e_hybrid_2eorb_split.F \
             tce_diagnose_t1.F ddotfile.F tce_ao2e_cholesky.F tce_energy.F
 
-ifdef CCSDTLR
-LIB_DEFINES += -DCCSDTLR
-endif
 
 #LIB_DEFINES += -DNEWDIPOLE
-#LIB_DEFINES += -DSPECIAL2EMET
-#LIB_DEFINES += -DDEBUG_PRINT -DSPAGHETTY
+#LIB_DEFINES += -DDEBUG_PRINT
 
 #
 # Possible #defines

@@ -1,6 +1,6 @@
-      subroutine tce_jacobi_t3(d_r3,d_t3,k_t3_offset)
+      subroutine tce_jacobi_t3(d_r3,d_t3,k_t3_offset,shift)
 c
-c $Id: tce_jacobi_t3.F,v 1.1 2008-09-30 18:35:45 jhammond Exp $
+c $Id: tce_jacobi_t3.F,v 1.2 2008-10-02 18:39:06 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -36,6 +36,7 @@ c
       external nxtask
       logical nodezero
       logical noloadbalance
+      double precision shift
 c
 c     ================
 c     Loop over blocks
@@ -101,7 +102,8 @@ c
      3              -dbl_mb(k_evl_sorted+int_mb(k_offset+p3b-1)+p3-1)
      4              +dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1)
      5              +dbl_mb(k_evl_sorted+int_mb(k_offset+h5b-1)+h5-1)
-     6              +dbl_mb(k_evl_sorted+int_mb(k_offset+h6b-1)+h6-1))
+     6              +dbl_mb(k_evl_sorted+int_mb(k_offset+h6b-1)+h6-1)
+     7             +shift)
                                 enddo
                               enddo
                             enddo

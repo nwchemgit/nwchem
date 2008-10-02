@@ -1,6 +1,6 @@
       subroutine tce_jacobi_tr4(d_r4,d_t4,k_t4_offset,omega)
 c
-c $Id: tce_jacobi_tr4.F,v 1.3 2008-09-30 18:35:52 jhammond Exp $
+c $Id: tce_jacobi_tr4.F,v 1.4 2008-10-02 18:39:09 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -41,7 +41,7 @@ c
       external nxtval
       logical noloadbalance
       logical nodezero         ! True if node 0
-      double precision omega
+      double precision omega,shift
 c
 c     ================
 c     Loop over blocks
