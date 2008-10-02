@@ -68,7 +68,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x4),
-     1   dfloat(bytes)*dfloat(size_x4),chunk_x4,handle_x4,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_x4),dfloat(chunk_x4),handle_x4,
+     2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x4_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -222,7 +223,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_y4),
-     1   dfloat(bytes)*dfloat(size_y4),chunk_y4,handle_y4,Y_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_y4),dfloat(chunk_y4),handle_y4,
+     2   Y_SUFFIX)
      1   .ne.0)
      2   call errquit('y4_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -375,7 +377,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_tr4),
-     1   dfloat(bytes)*dfloat(size_tr4),chunk_tr4,handle_tr4,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_tr4),dfloat(chunk_tr4),handle_tr4,
+     2   TR_SUFFIX)
      1   .ne.0)
      2   call errquit('tr4_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -529,7 +532,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_yr4),
-     1   dfloat(bytes)*dfloat(size_yr4),chunk_yr4,handle_yr4,Y_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_yr4),dfloat(chunk_yr4),handle_yr4,
+     2   YR_SUFFIX)
      1   .ne.0)
      2   call errquit('yr4_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -691,7 +695,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x4),
-     1   dfloat(bytes)*dfloat(size_x4),chunk_x4,handle_x4,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_x4),dfloat(chunk_x4),handle_x4,
+     2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x4_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -841,7 +846,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_y4),
-     1   dfloat(bytes)*dfloat(size_y4),chunk_y4,handle_y4,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_y4),dfloat(chunk_y4),handle_y4,
+     2   Y_SUFFIX)
      1   .ne.0)
      2   call errquit('y4_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -990,7 +996,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_tr4),
-     1   dfloat(bytes)*dfloat(size_tr4),chunk_tr4,handle_tr4,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_tr4),dfloat(chunk_tr4),handle_tr4,
+     2   TR_SUFFIX)
      1   .ne.0)
      2   call errquit('tr4_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -1140,7 +1147,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_yr4),
-     1   dfloat(bytes)*dfloat(size_yr4),chunk_yr4,handle_yr4,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_yr4),dfloat(chunk_yr4),handle_yr4,
+     2   YR_SUFFIX)
      1   .ne.0)
      2   call errquit('yr4_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()

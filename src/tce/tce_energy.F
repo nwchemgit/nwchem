@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.131 2008-10-01 02:15:02 jhammond Exp $
+c $Id: tce_energy.F,v 1.132 2008-10-02 14:46:25 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -1302,18 +1302,24 @@ c         write(LuOut,9020) cpu
             call tce_filename(tr1filename(axis+3),filename)
             call createfile(filename,d_tr1(axis+3),
      &           size_tr1(axis))
-            if (read_tr(1)) then
+            if (read_tr(4+1)) then
               call tr1_restart_read(d_tr1(axis+3),k_tr1_offset(axis),
      1          size_tr1(axis),axis+3,handle_tr1(axis+3),irrep_x)
+            elseif (read_tr(1)) then
+              call tr1_restart_read(d_tr1(axis+3),k_tr1_offset(axis),
+     1          size_tr1(axis),axis,handle_tr1(axis+3),irrep_x)
             endif
             call gatoeaf(d_tr1(axis+3))
             if(imagresp) then
               call tce_filename(tr1filename(axis+6),filename)
               call createfile(filename,d_tr1(axis+6),
      &             size_tr1(axis))
-              if (read_tr(1)) then
+              if (read_tr(8+1)) then
                 call tr1_restart_read(d_tr1(axis+6),k_tr1_offset(axis),
      1            size_tr1(axis),axis+6,handle_tr1(axis+6),irrep_x)
+              elseif (read_tr(1)) then
+                call tr1_restart_read(d_tr1(axis+6),k_tr1_offset(axis),
+     1            size_tr1(axis),axis,handle_tr1(axis+6),irrep_x)
               endif
               call gatoeaf(d_tr1(axis+6))
             endif
@@ -1450,18 +1456,24 @@ c--       endif !---
             call tce_filename(tr2filename(axis+3),filename)
             call createfile(filename,d_tr2(axis+3),
      &           size_tr2(axis))
-            if (read_tr(2)) then
+            if (read_tr(4+2)) then
               call tr2_restart_read(d_tr2(axis+3),k_tr2_offset(axis),
      1          size_tr2(axis),axis+3,handle_tr2(axis+3),irrep_x)
+            elseif (read_tr(2)) then
+              call tr2_restart_read(d_tr2(axis+3),k_tr2_offset(axis),
+     1          size_tr2(axis),axis,handle_tr2(axis+3),irrep_x)
             endif
             call gatoeaf(d_tr2(axis+3))
             if (imagresp) then
               call tce_filename(tr2filename(axis+6),filename)
               call createfile(filename,d_tr2(axis+6),
      &             size_tr2(axis))
-              if (read_tr(2)) then
+              if (read_tr(8+2)) then
                 call tr2_restart_read(d_tr2(axis+6),k_tr2_offset(axis),
      1            size_tr2(axis),axis+6,handle_tr2(axis+6),irrep_x)
+              elseif (read_tr(2)) then
+                call tr2_restart_read(d_tr2(axis+6),k_tr2_offset(axis),
+     1            size_tr2(axis),axis,handle_tr2(axis+6),irrep_x)
               endif
             endif
             call gatoeaf(d_tr2(axis+6))
@@ -1542,7 +1554,10 @@ c         write(LuOut,9020) cpu
             call tce_filename(tr3filename(axis+3),filename)
             call createfile(filename,d_tr3(axis+3),
      &           size_tr3(axis))
-            if (read_tr(3)) then
+            if (read_tr(4+3)) then
+              call tr3_restart_read(d_tr3(axis+3),k_tr3_offset(axis),
+     1          size_tr3(axis),axis+3,handle_tr3(axis+3),irrep_x)
+            elseif (read_tr(3)) then
               call tr3_restart_read(d_tr3(axis+3),k_tr3_offset(axis),
      1          size_tr3(axis),axis,handle_tr3(axis+3),irrep_x)
             endif
@@ -1551,7 +1566,10 @@ c         write(LuOut,9020) cpu
               call tce_filename(tr3filename(axis+6),filename)
               call createfile(filename,d_tr3(axis+6),
      &             size_tr3(axis))
-              if (read_tr(3)) then
+              if (read_tr(8+3)) then
+                call tr3_restart_read(d_tr3(axis+6),k_tr3_offset(axis),
+     1            size_tr3(axis),axis+6,handle_tr3(axis+6),irrep_x)
+              elseif (read_tr(3)) then
                 call tr3_restart_read(d_tr3(axis+6),k_tr3_offset(axis),
      1            size_tr3(axis),axis,handle_tr3(axis+6),irrep_x)
               endif
@@ -1642,24 +1660,32 @@ c         write(LuOut,9020) cpu
             call tce_filename(tr4filename(axis),filename)
             call createfile(filename,d_tr4(axis),size_tr4(axis))
             if (read_tr(4)) then
-              call x4_restart_read(d_tr4(axis),k_tr4_offset(axis),
+              call tr4_restart_read(d_tr4(axis),k_tr4_offset(axis),
      1          size_tr4(axis),axis,handle_tr4(axis),irrep_x)
             endif
             call gatoeaf(d_tr4(axis))
             call tce_filename(tr4filename(axis+3),filename)
             call createfile(filename,d_tr4(axis+3),
      &           size_tr4(axis))
-            if (read_tr(4)) then
-              call x4_restart_read(d_tr4(axis+3),k_tr4_offset(axis),
+            if (read_tr(4+4)) then
+              call tr4_restart_read(d_tr4(axis+3),k_tr4_offset(axis),
+     1          size_tr4(axis),axis+3,handle_tr4(axis+3),irrep_x)
+            elseif (read_tr(4)) then
+              call tr4_restart_read(d_tr4(axis+3),k_tr4_offset(axis),
      1          size_tr4(axis),axis,handle_tr4(axis+3),irrep_x)
             endif
             call gatoeaf(d_tr4(axis+3))
-            call tce_filename(tr4filename(axis+6),filename)
-            call createfile(filename,d_tr4(axis+6),
-     &           size_tr4(axis))
-            if (read_tr(4)) then
-              call x4_restart_read(d_tr4(axis+6),k_tr4_offset(axis),
-     1          size_tr4(axis),axis,handle_tr4(axis+6),irrep_x)
+            if (imagresp) then
+              call tce_filename(tr4filename(axis+6),filename)
+              call createfile(filename,d_tr4(axis+6),
+     &             size_tr4(axis))
+              if (read_tr(8+4)) then
+                call tr4_restart_read(d_tr4(axis+6),k_tr4_offset(axis),
+     1            size_tr4(axis),axis+6,handle_tr4(axis+6),irrep_x)
+              elseif (read_tr(4)) then
+                call tr4_restart_read(d_tr4(axis+6),k_tr4_offset(axis),
+     1             size_tr4(axis),axis,handle_tr4(axis+6),irrep_x)
+              endif
             endif
             call gatoeaf(d_tr4(axis+6))
           endif

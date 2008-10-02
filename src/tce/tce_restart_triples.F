@@ -59,7 +59,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x3),
-     1   dfloat(bytes)*dfloat(size_x3),chunk_x3,handle_x3,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_x3),dfloat(chunk_x3),handle_x3,
+     2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x3_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -197,7 +198,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_y3),
-     1   dfloat(bytes)*dfloat(size_y3),chunk_y3,handle_y3,Y_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_y3),dfloat(chunk_y3),handle_y3,
+     2   Y_SUFFIX)
      1   .ne.0)
      2   call errquit('y3_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -337,7 +339,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_tr3),
-     1   dfloat(bytes)*dfloat(size_tr3),chunk_tr3,handle_tr3,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_tr3),dfloat(chunk_tr3),handle_tr3,
+     2   TR_SUFFIX)
      1   .ne.0)
      2   call errquit('tr3_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -475,7 +478,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_yr3),
-     1   dfloat(bytes)*dfloat(size_yr3),chunk_yr3,handle_yr3,Y_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_yr3),dfloat(chunk_yr3),handle_yr3,
+     2   YR_SUFFIX)
      1   .ne.0)
      2   call errquit('yr3_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -630,7 +634,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x3),
-     1   dfloat(bytes)*dfloat(size_x3),chunk_x3,handle_x3,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_x3),dfloat(chunk_x3),handle_x3,
+     2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x3_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -738,7 +743,7 @@ c
 c
         chunk_y3=((tile_dim)**6)
       if(state.eq.0) then
-        call util_file_name('t3_copy',.false.,.false.,filename)
+        call util_file_name('lambda3_copy',.false.,.false.,filename)
       elseif(state.eq.1) then
         call util_file_name('eom_y3_1_copy',.false.,.false.,filename)
       elseif(state.eq.2) then
@@ -764,7 +769,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_y3),
-     1   dfloat(bytes)*dfloat(size_y3),chunk_y3,handle_y3,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_y3),dfloat(chunk_y3),handle_y3,
+     2   Y_SUFFIX)
      1   .ne.0)
      2   call errquit('y3_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -897,7 +903,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_tr3),
-     1   dfloat(bytes)*dfloat(size_tr3),chunk_tr3,handle_tr3,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_tr3),dfloat(chunk_tr3),handle_tr3,
+     2   TR_SUFFIX)
      1   .ne.0)
      2   call errquit('tr3_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -1031,7 +1038,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_yr3),
-     1   dfloat(bytes)*dfloat(size_yr3),chunk_yr3,handle_yr3,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_yr3),dfloat(chunk_yr3),handle_yr3,
+     2   YR_SUFFIX)
      1   .ne.0)
      2   call errquit('yr3_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -1166,7 +1174,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x3a),
-     1   dfloat(bytes)*dfloat(size_x3a),chunk_x3a,handle_x3a,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_x3a),dfloat(chunk_x3a),handle_x3a,
+     2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x3a_restart_save: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()
@@ -1304,7 +1313,8 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x3a),
-     1   dfloat(bytes)*dfloat(size_x3a),chunk_x3a,handle_x3a,X_SUFFIX)
+     1   dfloat(bytes)*dfloat(size_x3a),dfloat(chunk_x3a),handle_x3a,
+     2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x3a_restart_read: sf_problem',0,DISK_ERR)
       nprocs = GA_NNODES()

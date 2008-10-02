@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.59 2008-10-02 12:13:28 jhammond Exp $
+c $Id: tce_init.F,v 1.60 2008-10-02 14:46:25 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -522,7 +522,7 @@ c     Save toggles
 c
       if (.not.rtdb_get(rtdb,'tce:save_interval',mt_int,1,
      1                            save_interval)) then
-        save_interval = 100000
+        save_interval = 1000
         if (.not.rtdb_put(rtdb,'tce:save_interval',mt_int,1,
      1      save_interval)) call errquit(
      2     'tce_init: failed to write save_interval',0,RTDB_ERR)
@@ -550,35 +550,34 @@ c
      2               0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:save_t',mt_log,4,save_t)) then
-        save_t(1)=.false.
-        save_t(2)=.false.
-        save_t(3)=.false.
-        save_t(4)=.false.
+        do i = 1, 4
+          save_t(i)=.false.
+        enddo
         if (.not.rtdb_put(rtdb,'tce:save_t',mt_log,4,save_t))
      1  call errquit('tce_init: failed to write save_t',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:save_l',mt_log,4,save_l)) then
-        save_l(1)=.false.
-        save_l(2)=.false.
-        save_l(3)=.false.
-        save_l(4)=.false.
+        do i = 1, 4
+          save_l(i)=.false.
+        enddo
         if (.not.rtdb_put(rtdb,'tce:save_l',mt_log,4,save_l))
      1  call errquit('tce_init: failed to write save_l',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:save_tr',mt_log,4,save_tr)) then
-        save_tr(1)=.false.
-        save_tr(2)=.false.
-        save_tr(3)=.false.
-        save_tr(4)=.false.
-        if (.not.rtdb_put(rtdb,'tce:save_tr',mt_log,4,save_tr))
+      if (.not.rtdb_get(rtdb,'tce:save_tr',mt_log,12,save_tr)) then
+c       Real positive and negative frequency amplitudes, then
+c       the real component of imaginary response when doing CC-IR          
+c       S(+),D(+),T(+),Q(+),S(-),D(-),T(-),Q(-),S(r),D(r),T(r),Q(r)
+        do i = 1, 12
+          save_tr(i)=.false.
+        enddo
+        if (.not.rtdb_put(rtdb,'tce:save_tr',mt_log,12,save_tr))
      1  call errquit('tce_init: failed to write save_tr',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:save_lr',mt_log,4,save_lr)) then
-        save_lr(1)=.false.
-        save_lr(2)=.false.
-        save_lr(3)=.false.
-        save_lr(4)=.false.
-        if (.not.rtdb_put(rtdb,'tce:save_lr',mt_log,4,save_lr))
+      if (.not.rtdb_get(rtdb,'tce:save_lr',mt_log,12,save_lr)) then
+        do i = 1, 12
+          save_lr(i)=.false.
+        enddo
+        if (.not.rtdb_put(rtdb,'tce:save_lr',mt_log,12,save_lr))
      1  call errquit('tce_init: failed to write save_lr',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:save_x',mt_log,4,save_x)) then
@@ -613,35 +612,37 @@ c
      2               0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:read_t',mt_log,4,read_t)) then
-        read_t(1)=.false.
-        read_t(2)=.false.
-        read_t(3)=.false.
-        read_t(4)=.false.
+        do i = 1, 4
+          read_t(i)=.false.
+        enddo
         if (.not.rtdb_put(rtdb,'tce:read_t',mt_log,4,read_t))
      1  call errquit('tce_init: failed to write read_t',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:read_l',mt_log,4,read_l)) then
-        read_l(1)=.false.
-        read_l(2)=.false.
-        read_l(3)=.false.
-        read_l(4)=.false.
+        do i = 1, 4
+          read_l(i)=.false.
+        enddo
         if (.not.rtdb_put(rtdb,'tce:read_l',mt_log,4,read_l))
      1  call errquit('tce_init: failed to write read_l',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:read_tr',mt_log,4,read_tr)) then
-        read_tr(1)=.false.
-        read_tr(2)=.false.
-        read_tr(3)=.false.
-        read_tr(4)=.false.
-        if (.not.rtdb_put(rtdb,'tce:read_tr',mt_log,4,read_tr))
+      if (.not.rtdb_get(rtdb,'tce:read_tr',mt_log,12,read_tr)) then
+c       Real positive and negative frequency amplitudes, then
+c       the real component of imaginary response when doing CC-IR          
+c       S(+),D(+),T(+),Q(+),S(-),D(-),T(-),Q(-),S(r),D(r),T(r),Q(r)
+        do i = 1, 12
+          read_tr(i)=.false.
+        enddo
+        if (.not.rtdb_put(rtdb,'tce:read_tr',mt_log,12,read_tr))
      1  call errquit('tce_init: failed to write read_tr',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:read_lr',mt_log,4,read_lr)) then
-        read_lr(1)=.false.
-        read_lr(2)=.false.
-        read_lr(3)=.false.
-        read_lr(4)=.false.
-        if (.not.rtdb_put(rtdb,'tce:read_lr',mt_log,4,read_lr))
+      if (.not.rtdb_get(rtdb,'tce:read_lr',mt_log,12,read_lr)) then
+c       Real positive and negative frequency amplitudes, then
+c       the real component of imaginary response when doing CC-IR          
+c       S(+),D(+),T(+),Q(+),S(-),D(-),T(-),Q(-),S(r),D(r),T(r),Q(r)
+        do i = 1, 12
+          read_lr(i)=.false.
+        enddo
+        if (.not.rtdb_put(rtdb,'tce:read_lr',mt_log,12,read_lr))
      1  call errquit('tce_init: failed to write read_lr',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:read_x',mt_log,4,read_x)) then

@@ -13,18 +13,18 @@ c YR_SUFFIX - the number after the saved Lambda(1) amplitudes
       logical restart_ignore_failure(3)   ! F, V and D; T(0), L(0), EOM X(0) and Y(0); T(1) and L(1)
       logical save_integrals(5)  ! f1, v2, d1, q1, o1
       logical read_integrals(5)  ! f1, v2, d1, q1, o1
-      logical save_t(4)          ! T(0): T1, T2, T3, T4
-      logical read_t(4)          ! T(0): T1, T2, T3, T4
-      logical save_l(4)          ! L(0): L1, L2, L3, L4
-      logical read_l(4)          ! L(0): L1, L2, L3, L4
-      logical save_tr(4)         ! T(1): Tr1, Tr2, Tr3, Tr4
-      logical read_tr(4)         ! T(1): Tr1, Tr2, Tr3, Tr4
-      logical save_lr(4)         ! L(1): Lr1, Lr2, Lr3, Lr4
-      logical read_lr(4)         ! L(1): Lr1, Lr2, Lr3, Lr4
-      logical save_x(4)          ! X1, X2, X3, X4
-      logical read_x(4)          ! X1, X2, X3, X4
-      logical save_y(4)          ! Y1, Y2, Y3, Y4
-      logical read_y(4)          ! Y1, Y2, Y3, Y4
+      logical save_t(12)         ! T(0): T1, T2, T3, T4
+      logical read_t(12)         ! T(0): T1, T2, T3, T4
+      logical save_l(12)         ! L(0): L1, L2, L3, L4
+      logical read_l(12)         ! L(0): L1, L2, L3, L4
+      logical save_tr(12)        ! T(1): Tr1, Tr2, Tr3, Tr4
+      logical read_tr(12)        ! T(1): Tr1, Tr2, Tr3, Tr4
+      logical save_lr(12)        ! L(1): Lr1, Lr2, Lr3, Lr4
+      logical read_lr(12)        ! L(1): Lr1, Lr2, Lr3, Lr4
+      logical save_x(12)         ! X1, X2, X3, X4
+      logical read_x(12)         ! X1, X2, X3, X4
+      logical save_y(12)         ! Y1, Y2, Y3, Y4
+      logical read_y(12)         ! Y1, Y2, Y3, Y4
       integer save_interval      !  1 = each iteration, 5 = every five, etc.
 
       common /tcerestartinteger/
