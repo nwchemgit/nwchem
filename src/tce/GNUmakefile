@@ -1,7 +1,7 @@
-#$Id: GNUmakefile,v 1.86 2008-10-01 18:00:55 d3p975 Exp $
+#$Id: GNUmakefile,v 1.87 2008-10-02 14:52:39 jhammond Exp $
 #
 
-SUBDIRS = include diis diis2 diis3 \
+SUBDIRS = include diis diis2 diis3 gradients \
           ccsd ccsd_lambda eomccsd \
           ccsd_t cr-eomccsd_t lrh emb \
           response ccsd_yr ccsd_alpha ccsd_beta \
@@ -33,7 +33,8 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       e2_offset_2_offset.o get_block_ind.o get_block_ind_sf.o tce_hash_ind.o \
       tce_mo2e_offset_intorb.o tce_mo2e_offset_size.o tce_mo2e_trans.o \
       atpart_nalength.o tce_mo2e_zones_4a_disk_ga.o tce_mo2e_zones_4a_disk_ga_chop.o \
-      tce_mo2e_zones_4a_disk_2s_new.o tce_restart.o tce_restart_quadruples.o \
+      tce_mo2e_zones_4a_disk_2s_new.o \
+      tce_restart.o tce_restart_triples.o tce_restart_quadruples.o \
       tce_dens_hh_offset.o tce_dens_hp_offset.o tce_dens_pp_offset.o tce_dens_ph_offset.o \
       get_mo_rdm_hh.o get_mo_rdm_hp.o get_mo_rdm_ph.o get_mo_rdm_pp.o \
       ao_rdm_write.o tce_prop_start.o tce_property.o tce_diagnose_t1.o \
@@ -62,7 +63,7 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_make_denom1.o tce_make_denom2.o
 
       #OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
-      #OBJ_OPTIMIZE += tce_sort0.o tce_sort2_saday.o tce_sort4_jeff.o tce_sort6.o tce_sort8.o \
+      #OBJ_OPTIMIZE += tce_sort0.o tce_sort2_saday.o tce_sort4_jeff_torun.o tce_sort6.o tce_sort8.o \
                       tce_sortacc_saday.o tce_sortacc8.o 
       OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
 
