@@ -1,9 +1,9 @@
 
-      subroutine tce sort_4(unsorted,sorted,a,b,c,d,
+      subroutine tce_sort_4(unsorted,sorted,a,b,c,d,
      1                      i,j,k,l,factor)
       implicit none
 #include "util.fh"
-#include "tce main.fh"
+#include "tce_main.fh"
       integer version
       integer a,b,c,d
       integer i,j,k,l
@@ -14,85 +14,85 @@
 c
       version = 1000*i+100*j+10*k+l
 c
-c transpose 1234.log:        The best loop order is:        2134
-c transpose 1243.log:        The best loop order is:        1243
-c transpose 1324.log:        The best loop order is:        1234
-c transpose 1342.log:        The best loop order is:        1342
-c transpose 1423.log:        The best loop order is:        1423
-c transpose 1432.log:        The best loop order is:        1342
+c transpose_1234.log:        The best loop order is:        2134
+c transpose_1243.log:        The best loop order is:        1243
+c transpose_1324.log:        The best loop order is:        1234
+c transpose_1342.log:        The best loop order is:        1342
+c transpose_1423.log:        The best loop order is:        1423
+c transpose_1432.log:        The best loop order is:        1342
 c
       if (version.eq.1234) then
-        call transpose 1234_loop_2134(unsorted,sorted,a,b,c,d,factor)
+        call transpose_1234_loop_2134(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.1243) then
-        call transpose 1243_loop_1243(unsorted,sorted,a,b,c,d,factor)
+        call transpose_1243_loop_1243(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.1324) then
-        call transpose 1324_loop_1234(unsorted,sorted,a,b,c,d,factor)
+        call transpose_1324_loop_1234(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.1342) then
-        call transpose 1342_loop_1342(unsorted,sorted,a,b,c,d,factor)
+        call transpose_1342_loop_1342(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.1423) then
-        call transpose 1423_loop_1423(unsorted,sorted,a,b,c,d,factor)
+        call transpose_1423_loop_1423(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.1432) then
-        call transpose 1432_loop_1342(unsorted,sorted,a,b,c,d,factor)
+        call transpose_1432_loop_1342(unsorted,sorted,a,b,c,d,factor)
 c
-c transpose 2134.log:        The best loop order is:        2134
-c transpose 2143.log:        The best loop order is:        2143
-c transpose 2314.log:        The best loop order is:        2134
-c transpose 2341.log:        The best loop order is:        2341
-c transpose 2413.log:        The best loop order is:        2413
-c transpose 2431.log:        The best loop order is:        2341
+c transpose_2134.log:        The best loop order is:        2134
+c transpose_2143.log:        The best loop order is:        2143
+c transpose_2314.log:        The best loop order is:        2134
+c transpose_2341.log:        The best loop order is:        2341
+c transpose_2413.log:        The best loop order is:        2413
+c transpose_2431.log:        The best loop order is:        2341
 c
       elseif (version.eq.2134) then
-        call transpose 2134_loop_2134(unsorted,sorted,a,b,c,d,factor)
+        call transpose_2134_loop_2134(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.2143) then
-        call transpose 2143_loop_2143(unsorted,sorted,a,b,c,d,factor)
+        call transpose_2143_loop_2143(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.2314) then
-        call transpose 2314_loop_2134(unsorted,sorted,a,b,c,d,factor)
+        call transpose_2314_loop_2134(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.2341) then
-        call transpose 2341_loop_2341(unsorted,sorted,a,b,c,d,factor)
+        call transpose_2341_loop_2341(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.2413) then
-        call transpose 2413_loop_2413(unsorted,sorted,a,b,c,d,factor)
+        call transpose_2413_loop_2413(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.2431) then
-        call transpose 2431_loop_2341(unsorted,sorted,a,b,c,d,factor)
+        call transpose_2431_loop_2341(unsorted,sorted,a,b,c,d,factor)
 c
-c transpose 3124.log:        The best loop order is:        1234
-c transpose 3142.log:        The best loop order is:        1342
-c transpose 3214.log:        The best loop order is:        2134
-c transpose 3241.log:        The best loop order is:        2341
-c transpose 3412.log:        The best loop order is:        1342
-c transpose 3421.log:        The best loop order is:        2341
+c transpose_3124.log:        The best loop order is:        1234
+c transpose_3142.log:        The best loop order is:        1342
+c transpose_3214.log:        The best loop order is:        2134
+c transpose_3241.log:        The best loop order is:        2341
+c transpose_3412.log:        The best loop order is:        1342
+c transpose_3421.log:        The best loop order is:        2341
 c
       elseif (version.eq.3124) then
-        call transpose 3124_loop_1234(unsorted,sorted,a,b,c,d,factor)
+        call transpose_3124_loop_1234(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.3142) then
-        call transpose 3142_loop_1342(unsorted,sorted,a,b,c,d,factor)
+        call transpose_3142_loop_1342(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.3214) then
-        call transpose 3214_loop_2134(unsorted,sorted,a,b,c,d,factor)
+        call transpose_3214_loop_2134(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.3241) then
-        call transpose 3241_loop_2341(unsorted,sorted,a,b,c,d,factor)
+        call transpose_3241_loop_2341(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.3412) then
-        call transpose 3412_loop_1342(unsorted,sorted,a,b,c,d,factor)
+        call transpose_3412_loop_1342(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.3421) then
-        call transpose 3421_loop_2341(unsorted,sorted,a,b,c,d,factor)
+        call transpose_3421_loop_2341(unsorted,sorted,a,b,c,d,factor)
 c
-c transpose 4123.log:        The best loop order is:        1423
-c transpose 4132.log:        The best loop order is:        1342
-c transpose 4213.log:        The best loop order is:        2413
-c transpose 4231.log:        The best loop order is:        2341
-c transpose 4312.log:        The best loop order is:        1342
-c transpose 4321.log:        The best loop order is:        2341
+c transpose_4123.log:        The best loop order is:        1423
+c transpose_4132.log:        The best loop order is:        1342
+c transpose_4213.log:        The best loop order is:        2413
+c transpose_4231.log:        The best loop order is:        2341
+c transpose_4312.log:        The best loop order is:        1342
+c transpose_4321.log:        The best loop order is:        2341
 c
       elseif (version.eq.4123) then
-        call transpose 4123_loop_1423(unsorted,sorted,a,b,c,d,factor)
+        call transpose_4123_loop_1423(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.4132) then
-        call transpose 4132_loop_1342(unsorted,sorted,a,b,c,d,factor)
+        call transpose_4132_loop_1342(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.4213) then
-        call transpose 4213_loop_2413(unsorted,sorted,a,b,c,d,factor)
+        call transpose_4213_loop_2413(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.4231) then
-        call transpose 4231_loop_2341(unsorted,sorted,a,b,c,d,factor)
+        call transpose_4231_loop_2341(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.4312) then
-        call transpose 4312_loop_1342(unsorted,sorted,a,b,c,d,factor)
+        call transpose_4312_loop_1342(unsorted,sorted,a,b,c,d,factor)
       elseif (version.eq.4321) then
-        call transpose 4321_loop_2341(unsorted,sorted,a,b,c,d,factor)
+        call transpose_4321_loop_2341(unsorted,sorted,a,b,c,d,factor)
 c
       else
         print*,'something is wrong...'
@@ -100,7 +100,7 @@ c
 
       return
       end
-        subroutine transpose 4321_loop_3241(unsorted,sorted,
+        subroutine transpose_4321_loop_3241(unsorted,sorted,
      &                           dim1,dim2,dim3,dim4,factor)
         implicit none
         integer dim1,dim2,dim3,dim4
