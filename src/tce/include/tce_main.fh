@@ -1,4 +1,4 @@
-c $Id: tce_main.fh,v 1.14 2008-09-30 19:03:07 jhammond Exp $
+c $Id: tce_main.fh,v 1.15 2008-10-02 18:41:40 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -50,9 +50,9 @@ c
       double precision damp                   ! Damping on solver for T and Lambda
       double precision damp2                  ! Damping on solver 2 (regular response)
       double precision damp3                  ! Damping on solver 3 (imaginary response)
-      double precision zlshift                ! Level Shift for T and Lambda
-      double precision zlshift2               ! Level Shift for T(1) and L(1) response
-      double precision zlshift3(2)            ! Level Shift for T(1) imaginary response
+      double precision zlshift(2)             ! Level Shift for T and Lambda
+      double precision zlshift2(2)            ! Level Shift for T(1) and L(1) in normal linear response
+      double precision zlshift3(2)            ! Level Shift for T(R) and T(I) in imaginary response
       integer l_irs(2),k_irs(2)               ! Irreps of MOs
       integer nmix(2)                         ! Number of symmetry contaminations
       double precision tol2e                  ! 2-e integral tolerance
