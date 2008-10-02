@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.132 2008-10-02 14:46:25 jhammond Exp $
+c $Id: tce_energy.F,v 1.133 2008-10-02 15:09:22 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -2404,9 +2404,9 @@ c
 c           3. Hit with preconditioner
 c
               call tce_jacobi2_ir1(d_tr1(axis+dynaxis),d_ir1(axis),
-     1                             k_tr1_offset(axis),0.0d0,0.0d0)
+     1                             k_tr1_offset(axis),0.0d0,0.0d0,1.0d0)
               call tce_jacobi2_ir2(d_tr2(axis+dynaxis),d_ir2(axis),
-     1                             k_tr2_offset(axis),0.0d0,0.0d0)
+     1                             k_tr2_offset(axis),0.0d0,0.0d0,1.0d0)
 c
 c           4. Delete dummies
 c
@@ -2629,9 +2629,9 @@ c
 c           3. Hit with preconditioner
 c
               call tce_jacobi_ir1(d_tr1(axis+dynaxis),d_rr1(axis),
-     1             k_tr1_offset(axis),0.0d0,0.0d0)
+     1             k_tr1_offset(axis),0.0d0,0.0d0,1.0d0)
               call tce_jacobi_ir2(d_tr2(axis+dynaxis),d_rr2(axis),
-     1             k_tr2_offset(axis),0.0d0,0.0d0)
+     1             k_tr2_offset(axis),0.0d0,0.0d0,1.0d0)
 c
 c           4. Delete dummies
 c
