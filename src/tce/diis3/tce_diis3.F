@@ -4,7 +4,7 @@
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4,omega,denom_power)
 c
-c $Id: tce_diis3.F,v 1.4 2008-09-30 18:35:52 jhammond Exp $
+c $Id: tce_diis3.F,v 1.5 2008-10-02 18:48:39 jhammond Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -132,10 +132,10 @@ c          if (t3) call tce_jacobi_lir3(d_r3,d_t3,k_t3_offset,omega)
 c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,omega)
         else
           if (denom_power.eq.1) then
-            shift = -1.0d0*zlshift3(1)
+            shift = -1.0d0*zlshift3(2)
             if (t1) call tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,omega,
      1                                  shift,damping)
-            shift = -2.0d0*zlshift3(1)
+            shift = -2.0d0*zlshift3(2)
             if (t2) call tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,omega,
      1                                  shift,damping)
             shift = 0.0d0
@@ -145,10 +145,10 @@ c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,omega)
             if (t4) call tce_jacobi_ir4(d_r4,d_t4,k_t4_offset,omega,
      1                                  shift,damping)
           elseif (denom_power.eq.2) then
-            shift = -1.0d0*zlshift3(2)
+            shift = -1.0d0*zlshift3(1)
             if (t1) call tce_jacobi2_ir1(d_r1,d_t1,k_t1_offset,omega,
      1                                   shift,damping)
-            shift = -2.0d0*zlshift3(2)
+            shift = -2.0d0*zlshift3(1)
             if (t2) call tce_jacobi2_ir2(d_r2,d_t2,k_t2_offset,omega,
      1                                   shift,damping)
             shift = 0.0d0
@@ -403,10 +403,10 @@ c          if (t3) call tce_jacobi_lir3(d_r3,d_t3,k_t3_offset,omega)
 c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,omega)
         else
           if (denom_power.eq.1) then
-            shift = -1.0d0*zlshift3(1)
+            shift = -1.0d0*zlshift3(2)
             if (t1) call tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,omega,
      1                                  shift,damping)
-            shift = -2.0d0*zlshift3(1)
+            shift = -2.0d0*zlshift3(2)
             if (t2) call tce_jacobi_ir2(d_r2,d_t2,k_t2_offset,omega,
      1                                  shift,damping)
             shift = 0.0d0
@@ -416,10 +416,10 @@ c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,omega)
             if (t4) call tce_jacobi_ir4(d_r4,d_t4,k_t4_offset,omega,
      1                                  shift,damping)
           elseif (denom_power.eq.2) then
-            shift = -1.0d0*zlshift3(2)
+            shift = -1.0d0*zlshift3(1)
             if (t1) call tce_jacobi2_ir1(d_r1,d_t1,k_t1_offset,omega,
      1                                   shift,damping)
-            shift = -2.0d0*zlshift3(2)
+            shift = -2.0d0*zlshift3(1)
             if (t2) call tce_jacobi2_ir2(d_r2,d_t2,k_t2_offset,omega,
      1                                   shift,damping)
             shift = 0.0d0
