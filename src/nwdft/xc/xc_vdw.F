@@ -1,4 +1,4 @@
-c     $Id: xc_vdw.F,v 1.5 2008-09-29 20:25:06 edo Exp $
+c     $Id: xc_vdw.F,v 1.6 2008-10-02 17:27:35 edo Exp $
       subroutine xc_vdw(rtdb,geom,exc,force,what)
       implicit none
       character *(*) what
@@ -190,7 +190,9 @@ c     fudge factor if needed
 c      
       if(abs(s6-1d0).gt.1d-9) 
      F     call dscal(3*n,s6,force,1)
+#ifdef DEBUG
       write(6,*) ' gradient vdw called'
+#endif
       return
       end
       double precision function c6ij_sk(i,j,z)
@@ -286,6 +288,7 @@ c
       logical function xc_vdw_init(angs2au)
       implicit none
 #include "xc_vdw.fh"
+      integer ii
       double precision angs2au
       double precision scalerad
       double precision r0_grimme1(54)
@@ -419,14 +422,18 @@ c      def2-QZVP PBE0 IP and alpha
         c6(16)=    5.57
         c6(17)=    5.07
         c6(18)=    4.61
-        c6(19:30)=10.8
+        do ii=19,30
+           c6(ii)=10.8
+        enddo
         c6(31)=   16.99
         c6(32)=   17.10
         c6(33)=   16.37
         c6(34)=   12.64
         c6(35)=   12.47
         c6(36)=   12.01
-        c6(37:48)=24.67
+        do ii=37,48
+           c6(ii)=24.67
+        enddo
         c6(49)=   37.32
         c6(50)=   38.71
         c6(51)=   38.44
@@ -537,7 +544,6 @@ c
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "geom.fh"
-      double precision vdw
       integer rtdb
       integer  geom
       double precision dum
@@ -685,7 +691,8 @@ c
 c         call output(hessvdw,1,n3xyz,1,n3xyz,
 c    &        n3xyz,n3xyz,1)
 c
-      call dadd(hessvdw,dbl_mb(k_exybs),dbl_mb(k_exybs),nat2,1,nat2,1) 
+cedo      call dadd(hessvdw,dbl_mb(k_exybs),dbl_mb(k_exybs),1,nat2,1) 
+      call dcopy(nat2,1d0,hessvdw,1,dbl_mb(k_exybs),1)
 c
 c:write the final hessian
 c
@@ -712,23 +719,4 @@ c
       write(luout,*)'hess_file => ',filehess
       call errquit
      & ('hess_read: unexpected EOF when reading file: "filehess"',911)
-      end
-      subroutine dadd (a,b,c,n,ini, fin, stp)
-c very simple subroutine to add array fragments
-      implicit none
-      double precision a(n)
-      double precision b(n)
-      double precision c(n)
-      integer n ! size arrays
-      integer ini, fin ! initial and final part
-      integer stp ! step
-      integer j
-      integer i
-
-      j=0
-      do i=ini, fin
-        j=j+stp
-        c(j)=a(j)+b(j) 
-      enddo
-      return
       end
