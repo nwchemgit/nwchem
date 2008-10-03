@@ -1,6 +1,6 @@
       subroutine cis_xdiagon(size_x1,k_x1_offset,d_r1,omega,residual)
 c
-c $Id: cis_xdiagon.F,v 1.1 2008-10-02 23:17:54 d3p975 Exp $
+c $Id: cis_xdiagon.F,v 1.2 2008-10-03 17:44:21 d3p975 Exp $
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -186,19 +186,23 @@ c
           call tce_zero(d_r1,size_x1)
           call daxpyfile(nxtrials,dbl_mb(k_vr+(ivec-1)*nxtrials),
      1        x1,d_r1,size_x1)
-          call tce_filenameindexed(ivec,'x1_ini',filename)
-          call createfile(filename,x1_ini(ivec),size_x1)
-          call gatoeaf(x1_ini(ivec))
-          call copyfile(d_r1,x1_ini(ivec),size_x1)
-          call gatodra(x1_ini(ivec))
-          x1_ini_exist(ivec) = .true.
+          if (.not.xc1_exist(ivec)) then
+             call tce_filenameindexed(ivec,'xc1',filename)
+             call createfile(filename,xc1(ivec),size_x1)
+             xc1_exist(ivec)=.true.
+          end if
+          call gatoeaf(xc1(ivec))
+          call copyfile(d_r1,xc1(ivec),size_x1)
+          call gatodra(xc1(ivec))
+            
+c             call tce_filenameindexed(ivec,'x1_ini',filename)
+c          call createfile(filename,x1_ini(ivec),size_x1)
+c          call gatoeaf(x1_ini(ivec))
+c          call copyfile(d_r1,x1_ini(ivec),size_x1)
+c          call gatodra(x1_ini(ivec))
+c          x1_ini_exist(ivec) = .true.
 c
 c
-c          call tce_filenameindexed(ivec,'x2_ini',filename)
-c          call createfile(filename,x2_ini(ivec),size_x2)
-c          call gatodra(x2_ini(ivec))
-c          call gatoeaf(x2_ini(ivec))
-c          x2_ini_exist(ivec) = .true.
         endif
         cpu = cpu + util_cpusec()
         wall = wall + util_wallsec()
