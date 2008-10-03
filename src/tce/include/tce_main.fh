@@ -1,4 +1,4 @@
-c $Id: tce_main.fh,v 1.17 2008-10-03 03:37:34 jhammond Exp $
+c $Id: tce_main.fh,v 1.18 2008-10-03 03:39:21 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -145,8 +145,9 @@ c
 c     Doubles
 c
       common /tcemaindouble/
-     1  thresh,printtol,tol2e,cpusecs,zlshift,zlshiftl,zlshift2,zlshift3,
-     2  maxdiff,damp3
+     1  thresh,printtol,tol2e,cpusecs,
+     2  zlshift,zlshiftl,zlshift2,zlshift3,
+     3  maxdiff,damp3
 c
 c     Characters
 c
