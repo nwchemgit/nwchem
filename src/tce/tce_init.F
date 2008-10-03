@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.62 2008-10-03 00:23:31 d3p975 Exp $
+c $Id: tce_init.F,v 1.63 2008-10-03 03:22:16 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -196,11 +196,15 @@ c
         if (.not.rtdb_put(rtdb,'tce:printtol',mt_dbl,1,printtol))
      1  call errquit('tce_init: failed to write printtol',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:zlshift',mt_dbl,2,zlshift)) then
-        zlshift(1) = 0.0d0
-        zlshift(2) = 0.0d0
-        if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,2,zlshift))
+      if (.not.rtdb_get(rtdb,'tce:zlshift',mt_dbl,1,zlshift)) then
+        zlshift = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,1,zlshift))
      1  call errquit('tce_init: failed to write zlshift',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:zlshiftl',mt_dbl,1,zlshift)) then
+        zlshiftl = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:zlshiftl',mt_dbl,1,zlshiftl))
+     1  call errquit('tce_init: failed to write zlshiftl',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:zlshift2',mt_dbl,2,zlshift2)) then
         zlshift2(1) = 0.0d0
@@ -214,6 +218,11 @@ c
         if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,2,zlshift3))
      1  call errquit('tce_init: failed to write zlshift3',0,RTDB_ERR)
       endif
+c#ifdef DEBUG_PRINT
+c      if(nodezero) write(6,*) 'zlshift  = ',zlshift
+c      if(nodezero) write(6,*) 'zlshift2 = ',zlshift2
+c      if(nodezero) write(6,*) 'zlshift3 = ',zlshift3
+c#endif
       if (.not.rtdb_get(rtdb,'tce:damp',mt_dbl,1,damp)) then
         damp = 0.0d0
         if (.not.rtdb_put(rtdb,'tce:damp',mt_dbl,1,damp))
@@ -1163,8 +1172,8 @@ c
         write(LuOut,9230) cperturbative
         write(LuOut,9130) maxiter
         write(LuOut,9110) thresh
-        write(LuOut,9115) 'T(0)',zlshift(1)
-        write(LuOut,9115) 'L(0)',zlshift(2)
+        write(LuOut,9115) 'T(0)',zlshift
+        write(LuOut,9115) 'L(0)',zlshiftl
         write(LuOut,9115) 'T(1)',zlshift2(1)
         write(LuOut,9115) 'L(1)',zlshift2(2)
         write(LuOut,9115) 'T(R)',zlshift3(1)
