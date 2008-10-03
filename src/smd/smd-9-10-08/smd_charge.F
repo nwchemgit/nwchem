@@ -112,7 +112,7 @@ c
 c      write(*,*) "in "//pname
 c
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,na,result)
+      call smd_get_ind_dim(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
@@ -243,7 +243,7 @@ c
 
 c
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,na,result)
+      call smd_get_ind_dim(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
@@ -303,7 +303,7 @@ c      call util_flush(6)
 c
 c
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,na,result)
+      call smd_get_ind_dim(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
@@ -363,7 +363,7 @@ c      write(*,*) "in "//pname
 c
 c
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,na,result)
+      call smd_get_ind_dim(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
@@ -408,7 +408,7 @@ c
 c      write(*,*) "in "//pname
 c
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,na,result)
+      call smd_get_ind_dim(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
@@ -448,7 +448,7 @@ c
       open(unit=un,status="unknown",form="formatted",file=filename)
 c
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,na,result)
+      call smd_get_ind_dim(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
@@ -510,7 +510,7 @@ c
       open(unit=un,status="old",form="formatted",file=filename)
 c
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,na,result)
+      call smd_get_ind_dim(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)

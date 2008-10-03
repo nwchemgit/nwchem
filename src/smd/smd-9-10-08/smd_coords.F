@@ -92,7 +92,7 @@ c
 c     fill in coordinates from pdb file if any
 c     ----------------------------------------
       tag = "coords"
-      call smd_get_ind_size(tag,i_c,na,result)
+      call smd_get_ind_dim(tag,i_c,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -130,7 +130,7 @@ c
 c     get atomic coordinates
 c     ----------------------
       tag = "coords"
-      call smd_get_ind_size(tag,i_c,na,result)
+      call smd_get_ind_dim(tag,i_c,na,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -219,7 +219,7 @@ c
 c     get velocity array
 c     ------------------
       tag = "vel"
-      call smd_get_ind_size(tag,i_v,na,result)
+      call smd_get_ind_dim(tag,i_v,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
@@ -277,7 +277,7 @@ c     -------------
      >         pname//'error getting index for '//tag,0, 0)
 
         tag = "shake:distance"
-        call smd_get_ind_size(tag,i_ds,ns,result)
+        call smd_get_ind_dim(tag,i_ds,ns,result)
         if(.not. result) 
      >    call errquit(
      >         pname//'error getting index for '//tag,0, 0)
@@ -396,14 +396,14 @@ c
 c     get atomic coordinates
 c     ----------------------
       tag = "coords"
-      call smd_get_ind_size(tag,i_c,na,result)
+      call smd_get_ind_dim(tag,i_c,na,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
       na = na/3
 c
       tag = "atom:name"
-      call smd_get_ind_size(tag,i_ta,nta,result)
+      call smd_get_ind_dim(tag,i_ta,nta,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -473,14 +473,14 @@ c
 c     get atomic coordinates
 c     ----------------------
       tag = "coords"
-      call smd_get_ind_size(tag,i_c,na,result)
+      call smd_get_ind_dim(tag,i_c,na,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
       na = na/3
 c
       tag = "atom:name"
-      call smd_get_ind_size(tag,i_ta,nta,result)
+      call smd_get_ind_dim(tag,i_ta,nta,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)

@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.2 2008-10-03 21:15:31 marat Exp $
+* $Id: smd_data.F,v 1.3 2008-10-03 21:21:33 marat Exp $
 *
 
       block data initial_smd_data
@@ -159,7 +159,7 @@ c
       return
       end
 
-      subroutine smd_data_get_index_dim(sname,dname,ind,nq,result)
+      subroutine smd_data_get_ind_dim(sname,dname,ind,nq,result)
       implicit none
 #include "smd_data.fh"
       character*(*) sname

@@ -85,7 +85,7 @@ c
 c     get array of type names
 c     -----------------------
       tag = "param:atomname"
-      call smd_get_ind_size(tag,i_ta,nt,result)
+      call smd_get_ind_dim(tag,i_ta,nt,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -143,7 +143,7 @@ c
 c     get bond arrays
 c     ----------------
       tag = "bond:type"
-      call smd_get_ind_size(tag,i_it,nb,result)
+      call smd_get_ind_dim(tag,i_it,nb,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, 0)
