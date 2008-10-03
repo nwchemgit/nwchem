@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.134 2008-10-02 18:39:03 jhammond Exp $
+c $Id: tce_energy.F,v 1.135 2008-10-03 03:53:22 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -4353,7 +4353,7 @@ c ----------
           corr = corr + pt3_1
         endif
 #if !defined(CCSDTLR)
-      CALL ERRQUIT('CCSDTLR not compiled',0,CAPMIS_ERR)
+      CALL ERRQUIT('CCSDTLR not compiled (tce_energy.F)',0,CAPMIS_ERR)
 #else
 c -------------
 c CCSDT-IR
@@ -4927,11 +4927,6 @@ c CCSDT-LR
 c -------------
 c
         if (lineresp) then
-#if !defined(CCSDTLR)
-          call errquit('CCSDTLR not compiled (tce_energy.F)',
-     &                  0,CAPMIS_ERR)
-          return
-#endif
 c          if (nodezero) write(LuOut,*) "lineresp is go"
           do omegacount=1,anumfreq
 c            if (nodezero) write(LuOut,*) "omegacount is go"
@@ -5885,7 +5880,7 @@ cedo            goto 330
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
       else if (model.eq.'ccsdtq') then
 #if !defined(CCSDTQ)
-      CALL ERRQUIT('CCSDTQ not compiled',0,CAPMIS_ERR)
+      CALL ERRQUIT('CCSDTQ not compiled (tce_energy.F)',0,CAPMIS_ERR)
 #else
 c -------------
 c CCSDTQ  right
@@ -8505,7 +8500,7 @@ c
 c
           else if (model.eq.'ccsdtq') then
 #if !defined(CCSDTQ)
-      CALL ERRQUIT('CCSDTQ not compiled',0,CAPMIS_ERR)
+      CALL ERRQUIT('CCSDTQ not compiled (tce_energy.F)',0,CAPMIS_ERR)
 #else
 c -------------
 c CCSDTQ  right
