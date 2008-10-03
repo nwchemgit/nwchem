@@ -1,18 +1,18 @@
-#$Id: GNUmakefile,v 1.6 2007-10-12 14:29:32 jhammond Exp $
+#$Id: GNUmakefile,v 1.7 2008-10-03 03:49:02 jhammond Exp $
 
-ifndef CCSDTQ
-OBJ_OPTIMIZE = \
-eomccsdtq_x1.o\
-eomccsdtq_x2.o\
-eomccsdtq_x3.o\
-eomccsdtq_x4.o\
-eomccsdtq_y1.o\
-eomccsdtq_y2.o\
-eomccsdtq_y3.o\
-eomccsdtq_y4.o\
-eomccsdtq_density1.o\
-eomccsdtq_denominator.o
-else
+#ifndef CCSDTQ
+#OBJ_OPTIMIZE = \
+#eomccsdtq_x1.o\
+#eomccsdtq_x2.o\
+#eomccsdtq_x3.o\
+#eomccsdtq_x4.o\
+#eomccsdtq_y1.o\
+#eomccsdtq_y2.o\
+#eomccsdtq_y3.o\
+#eomccsdtq_y4.o\
+#eomccsdtq_density1.o\
+#eomccsdtq_denominator.o
+#else
 OBJ_OPTIMIZE = \
 eomccsdtq_x1.o\
 eomccsdtq_x2.o\
@@ -2501,17 +2501,17 @@ eomccsdtq_y4_6.F eomccsdtq_y4_7_2_2.F eomccsdtq_y4_7_2.F \
 eomccsdtq_y4_7_3.F eomccsdtq_y4_7.F eomccsdtq_y4_8_2.F \
 eomccsdtq_y4_8_3.F eomccsdtq_y4_8_4_1.F eomccsdtq_y4_8_4.F \
 eomccsdtq_y4_8.F eomccsdtq_y4_9.F
-endif
+#endif
 
 LIB_INCLUDES = -I../include
  
 LIBRARY = libtce.a
  
-ifndef CCSDTQ
-LIB_DEFINES = -DDEBUG_PRINT
-else
-LIB_DEFINES = -DDEBUG_PRINT -DCCSDTQ
-endif
+#ifndef CCSDTQ
+#LIB_DEFINES = -DDEBUG_PRINT
+#else
+#LIB_DEFINES = -DDEBUG_PRINT -DCCSDTQ
+#endif
 #
 # Possible #defines
 #
