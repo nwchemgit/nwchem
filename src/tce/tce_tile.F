@@ -1,6 +1,6 @@
       subroutine tce_tile(rtdb)
 c
-c $Id: tce_tile.F,v 1.21 2008-01-23 18:00:48 kowalski Exp $
+c $Id: tce_tile.F,v 1.22 2008-10-03 00:24:14 d3p975 Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -164,6 +164,11 @@ c
         size = size ** (1.0d0/8.0d0)
         isize = min(isize,int(size))
       else if (model.eq."qcisd") then
+        size = dfloat(available)
+        size = size / 6.0d0
+        size = dsqrt(dsqrt(size))
+        isize = min(isize,int(size))
+      else if (model.eq."cis") then
         size = dfloat(available)
         size = size / 6.0d0
         size = dsqrt(dsqrt(size))
