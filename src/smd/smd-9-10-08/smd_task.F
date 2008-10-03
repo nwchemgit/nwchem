@@ -44,16 +44,17 @@ c
       call cpu_time(etime2)
 c      write(*,*) "time monomer rtdb",etime2-etime1
 
-      call smd_rtdb_set_handle(rtdb_grp)
+c      call smd_rtdb_set_handle(rtdb_grp)
 c
       call ga_pgroup_sync(p_grp)
-c      call smd_monomer(tskid)
+c      call smd_monomer_energy(tskid)
       call ga_pgroup_sync(p_grp)
 c
 c      call smd_charge_ga_print()
       call ga_sync()
-      if(.not.rtdb_close(rtdb_grp, 'delete'))
-     + call errquit('Failed to close group rtdb',0, GEOM_ERR)
+      call smd_rtdb_close("delete")
+c      if(.not.rtdb_close(rtdb_grp, 'delete'))
+c     + call errquit('Failed to close group rtdb',0, GEOM_ERR)
 c
       end subroutine
 
@@ -111,8 +112,10 @@ c
         call util_file_copy(rtdb_name,rtdb_name_group)
       end if
 
-      if(.not.rtdb_open(rtdb_name_group,"old",rtdb))
-     + call errquit('Failed to open group rtdb',0, GEOM_ERR)
+      call smd_rtdb_open(rtdb_name_group,"old")
+c      if(.not.rtdb_open(rtdb_name_group,"old",rtdb))
+c     + call errquit('Failed to open group rtdb',0, GEOM_ERR)
+      write(*,*) "got new rtdb handle",rtdb
 
       return
       end

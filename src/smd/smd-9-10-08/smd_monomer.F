@@ -1,6 +1,8 @@
       function smd_monomer_energy(im)
       implicit none
-
+c     calculates monomer (im) energy
+c     in the field (classical) of others
+c     im[IN]  monomer id
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -31,12 +33,6 @@ c
 
       pname = "smd_monomer_energy"
 c
-      call smd_group_id_get(group_id)
-c
-      if(ga_nodeid().eq.0)
-     >  write(*,*) "in ",pname,group_id
-c
-      call smd_group_rtdb_clone2(rtdb,im) 
 c
       call util_file_prefix_get(prefix0)
       i1 = inp_strlen(prefix0)

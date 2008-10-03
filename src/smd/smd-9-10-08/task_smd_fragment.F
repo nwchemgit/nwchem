@@ -77,8 +77,9 @@ c
 c     closing world rtdb now
 c     its name is saved in smd data structure
 c     ---------------------------------------
-      if(.not.rtdb_close(rtdb, 'keep'))
-     + call errquit('Failed to close world rtdb',0, RTDB_ERR)
+      call smd_rtdb_close('keep')
+c      if(.not.rtdb_close(rtdb, 'keep'))
+c     + call errquit('Failed to close world rtdb',0, RTDB_ERR)
       call ga_sync() 
       call smd_data_print(60+ga_nodeid())
       call ga_sync() 

@@ -29,6 +29,8 @@ c
       
       call smd_coords_read(sp_coords)
 c
+      call smd_coords_print_pdb("old.pdb")
+
       return
       end
 
@@ -380,6 +382,7 @@ c
       character*72 tag
       character*30 pname
       integer na
+      integer nta
       integer i,i0,j
       integer i_c,i_ta,i_tr,i_ir
       logical result
@@ -400,7 +403,7 @@ c     ----------------------
       na = na/3
 c
       tag = "atom:name"
-      call smd_get_ind(tag,i_ta,result)
+      call smd_get_ind_size(tag,i_ta,nta,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -418,6 +421,7 @@ c
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
  
 
+      write(*,*) "nta=",nta,nta/na,smd_string_size
       do i=1,na
        i0=smd_string_size*(i-1)
        write(un,FMT=9000)
@@ -455,6 +459,7 @@ c
       character*72 tag
       character*30 pname
       integer na
+      integer nta
       integer i,i0,j
       integer i_c,i_ta,i_tr,i_ir
       logical result
@@ -475,7 +480,7 @@ c     ----------------------
       na = na/3
 c
       tag = "atom:name"
-      call smd_get_ind(tag,i_ta,result)
+      call smd_get_ind_size(tag,i_ta,nta,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -492,6 +497,7 @@ c
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
  
+      write(*,*) "nta=",nta,nta/na,smd_string_size
 
       do i=1,na
        i0=smd_string_size*(i-1)

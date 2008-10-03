@@ -131,7 +131,7 @@ c     case sensitive
  
       call smd_system_get_component(sp,stag,result)
 c
-      call smd_data_get_index_size(sp,atag,ind,n,result)
+      call smd_data_get_index_dim(sp,atag,ind,n,result)
       if(.not.result) then
         call smd_message_post(pname//'error getting index for'//buffer) 
         goto 200

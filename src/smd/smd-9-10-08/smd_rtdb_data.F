@@ -1,3 +1,46 @@
+      subroutine smd_rtdb_close(action)
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "mafdecls.fh"
+c
+      character*(*) action
+c
+      integer rtdb
+      logical result
+      character*30 pname
+
+      pname = "smd_rtdb_close"
+      call smd_rtdb_get_handle(rtdb)
+      if(rtdb.lt.0) call errquit(pname//"no rtdb to close")
+      if(.not.rtdb_close(rtdb,action)) 
+     >     call errquit(pname//" while rtdb_close",0,0)
+      call smd_rtdb_set_handle(-1000)
+
+      end 
+
+      subroutine smd_rtdb_open(fname,action)
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "mafdecls.fh"
+c
+      character*(*) fname
+      character*(*) action
+c
+      integer rtdb
+      logical result
+      character*30 pname
+
+      pname = "smd_rtdb_close"
+      call smd_rtdb_get_handle(rtdb)
+      if(rtdb.ge.0) call errquit(pname//"close rtdb first")
+      if(.not.rtdb_open(fname,action,rtdb)) 
+     >     call errquit(pname//" while rtdb_open",0,0)
+      call smd_rtdb_set_handle(rtdb)
+
+      end 
+
       subroutine smd_rtdb_get_handle(rtdb)
       implicit none
 #include "rtdb.fh"
@@ -6,7 +49,29 @@
 c
       integer rtdb
 c
-      rtdb= smd_rtdb
+      logical result
+      character*30 pname
+
+      pname = "smd_rtdb_get_handle"
+      call smd_rtdb_get_int("smd:rtdb_handle",1,rtdb,result)
+      if(.not.result) call errquit(pname//"no rtdb component",0,0)
+
+      end 
+
+      subroutine smd_rtdb_set_handle(rtdb)
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "mafdecls.fh"
+c
+      integer rtdb
+c
+      logical result
+      character*30 pname
+
+      pname = "smd_rtdb_set_handle"
+      call smd_rtdb_put_int("smd:rtdb_handle",1,rtdb,result)
+      if(.not.result) call errquit(pname//"no rtdb component",0,0)
 
       end 
 
@@ -70,24 +135,17 @@ c
 c
       character*(*) rtdb_name
 c
+      integer rtdb
       character*30 pname
       logical result
 
       pname = "smd_rtdb_get_name"
+c      call smd_rtdb_get_handle(rtdb)
+c      if(.not. rtdb_getfname(rtdb, rtdb_name)) call
+c     *        errquit(pname//'rtdb_getfname failed',0,0)
       call smd_rtdb_get_string("smd:rtdb_name",1,rtdb_name,result)
       if(.not.result) call errquit(pname//"no rtdb component",0,0)
 
-      end 
-
-      subroutine smd_rtdb_set_handle(rtdb)
-      implicit none
-#include "rtdb.fh"
-#include "smd_rtdb_data.fh"
-#include "mafdecls.fh"
-c
-      integer rtdb
-c
-      smd_rtdb = rtdb
 
       end 
 
@@ -269,6 +327,33 @@ c
       call smd_system_get_component(sname,"rtdb",result)
       if(.not.result) call errquit(pname//"no rtdb component",0,0)
       call smd_data_get_int(sname,dname,ndim,datum,result)
+      return
+      end
+
+      subroutine smd_rtdb_put_int(dname,ndim,datum,result)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_const_data.fh"
+      character*(smd_string_size) sname
+      character*(*) dname
+      integer ndim
+      integer datum(ndim)
+c
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_rtdb_put_int"
+
+      call smd_system_get_component(sname,"rtdb",result)
+      if(.not.result) return
+      call smd_data_put_int(sname,dname,ndim,datum)
       return
       end
 
