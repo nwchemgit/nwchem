@@ -151,7 +151,7 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting '//tag,0, RTDB_ERR)
-      call smd_data_get_size(namespace,tag,nt,result)
+      call smd_data_get_dim(namespace,tag,nt,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting size '//tag,0, RTDB_ERR)
@@ -187,7 +187,7 @@ c
 
       pname = "smd_atom_ntot"
       tag = "atom:xyz"
-      call smd_data_get_size(namespace,tag,ntot,result)
+      call smd_data_get_dim(namespace,tag,ntot,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting size for '//tag,0, RTDB_ERR)

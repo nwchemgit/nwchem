@@ -161,7 +161,7 @@ c
       pname = "smd_ewald_self"
 
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,nq,result)
+      call smd_get_ind_dim(tag,i_q,nq,result)
       if(.not.result) then
        call smd_message_flush(luout)
        call errquit(
@@ -223,7 +223,7 @@ c
 c     get charge data
 c     --------------
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,nq,result)
+      call smd_get_ind_dim(tag,i_q,nq,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -353,7 +353,7 @@ c     ---------------------
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
       tag = "exlist:list"
-      call smd_get_ind_size(tag,i_l,nl,result)
+      call smd_get_ind_dim(tag,i_l,nl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -371,7 +371,7 @@ c
 c     get charge data
 c     --------------
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,nq,result)
+      call smd_get_ind_dim(tag,i_q,nq,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -487,7 +487,7 @@ c     --------------------
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
       tag = "vlist:list"
-      call smd_get_ind_size(tag,i_l,nl,result)
+      call smd_get_ind_dim(tag,i_l,nl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -504,7 +504,7 @@ c
 c     get charge data
 c     --------------
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,nq,result)
+      call smd_get_ind_dim(tag,i_q,nq,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)

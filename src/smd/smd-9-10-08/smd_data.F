@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.3 2008-10-03 21:21:33 marat Exp $
+* $Id: smd_data.F,v 1.4 2008-10-03 21:25:29 marat Exp $
 *
 
       block data initial_smd_data
@@ -234,7 +234,7 @@ c
       return
       end
 
-      subroutine smd_data_get_size(sname,dname,ndim,result)
+      subroutine smd_data_get_dim(sname,dname,ndim,result)
       implicit none
 #include "smd_data.fh"
       character*(*) sname
@@ -246,7 +246,7 @@ c
       character*72 buffer
       character*30 pname
 
-      pname = "smd_data_get_size"    
+      pname = "smd_data_get_dim"    
  
       buffer = sname
 

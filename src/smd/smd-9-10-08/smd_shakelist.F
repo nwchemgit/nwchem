@@ -74,7 +74,7 @@ c
 c     get array of types
 c     ------------------
       tag = "type:id"
-      call smd_get_ind_size(tag,i_it,na,result)
+      call smd_get_ind_dim(tag,i_it,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -100,7 +100,7 @@ c     ---------------
      >       pname//'error getting index for '//tag,0, 0)
 
       tag = "bond:type"
-      call smd_get_ind_size(tag,i_itb,nb,result)
+      call smd_get_ind_dim(tag,i_itb,nb,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, 0)

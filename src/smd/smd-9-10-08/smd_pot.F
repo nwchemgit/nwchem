@@ -1,5 +1,5 @@
 *
-* $Id: smd_pot.F,v 1.1 2008-10-01 22:32:31 marat Exp $
+* $Id: smd_pot.F,v 1.2 2008-10-03 21:21:33 marat Exp $
 *
       subroutine smd_pot_init_system()
       implicit none
@@ -70,7 +70,7 @@ c
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
       tag = "param:resname"
-      call smd_get_ind_size(tag,i_tr,nt,result)
+      call smd_get_ind_dim(tag,i_tr,nt,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -143,7 +143,7 @@ c     --------------------
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
       tag = "vlist:list"
-      call smd_get_ind_size(tag,i_l,nl,result)
+      call smd_get_ind_dim(tag,i_l,nl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -158,7 +158,7 @@ c
 c     get type data
 c     ------------
       tag = "type:id"
-      call smd_get_ind_size(tag,i_it,nt,result)
+      call smd_get_ind_dim(tag,i_it,nt,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -166,7 +166,7 @@ c
 c     get pot data
 c     ------------
       tag = "pot:p1"
-      call smd_get_ind_size(tag,i_p1,np,result)
+      call smd_get_ind_dim(tag,i_p1,np,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -189,7 +189,7 @@ c
 c     get force data
 c     --------------
       tag = "force"
-      call smd_get_ind_size(tag,i_f,na,result)
+      call smd_get_ind_dim(tag,i_f,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)

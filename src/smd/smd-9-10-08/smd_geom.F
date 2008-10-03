@@ -58,7 +58,7 @@ c
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 c
       tag = "atom:resid"
-      call smd_get_ind_size(tag,i_ir,nt,result)
+      call smd_get_ind_dim(tag,i_ir,nt,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -331,7 +331,7 @@ c
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 c
       tag = "atom:resid"
-      call smd_get_ind_size(tag,i_ir,nt,result)
+      call smd_get_ind_dim(tag,i_ir,nt,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)

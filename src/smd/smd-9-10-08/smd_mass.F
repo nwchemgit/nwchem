@@ -62,7 +62,7 @@ c
 c     get type array
 c     --------------
       tag = "type:id"
-      call smd_get_ind_size(tag,i_it,na,result)
+      call smd_get_ind_dim(tag,i_it,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
@@ -70,7 +70,7 @@ c
 c     get mass parameter array
 c     ------------------------
       tag = "param:mass"
-      call smd_get_ind_size(tag,i_mp,nmp,result)
+      call smd_get_ind_dim(tag,i_mp,nmp,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)

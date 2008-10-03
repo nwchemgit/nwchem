@@ -105,7 +105,7 @@ c
 
       pname = "smd_param_ntot"
       tag = "param:charge"
-      call smd_data_get_size(namespace,tag,ntot,result)
+      call smd_data_get_dim(namespace,tag,ntot,result)
       if(.not. result)  
      >  call errquit(
      >       pname//'error getting size for '//tag,0, 0)

@@ -60,7 +60,7 @@ c
 c      write(*,*) "in "//pname
 c
       tag = "atom:name"
-      call smd_get_ind_size(tag,i_ta,na,result)
+      call smd_get_ind_dim(tag,i_ta,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
@@ -75,7 +75,7 @@ c
      >       pname//'error getting index for'//tag,0, 0)
 
       tag = "param:atomname"
-      call smd_get_ind_size(tag,i_tta,nt,result)
+      call smd_get_ind_dim(tag,i_tta,nt,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)

@@ -154,7 +154,7 @@ c
       pname = "smd_fragment_charge_set_all"
 c
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,na,result)
+      call smd_get_ind_dim(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
@@ -187,7 +187,7 @@ c
       pname = "smd_fragment_charge_get_all"
 c
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,na,result)
+      call smd_get_ind_dim(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
@@ -225,7 +225,7 @@ c
       pname = "smd_fragment_charge_set"
 c
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,na,result)
+      call smd_get_ind_dim(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
@@ -301,7 +301,7 @@ c      write(*,*) "in "//pname
 c
 c
       tag = "charge"
-      call smd_get_ind_size(tag,i_q,na,result)
+      call smd_get_ind_dim(tag,i_q,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)

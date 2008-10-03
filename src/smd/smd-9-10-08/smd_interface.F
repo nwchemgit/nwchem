@@ -88,7 +88,7 @@ c
 
 
       end
-      subroutine smd_get_ind_size(atag,ind,n,result)
+      subroutine smd_get_ind_dim(atag,ind,n,result)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -105,7 +105,7 @@ c
       logical result,ocase
       integer i,nrec
 
-      pname = "smd_get_ind_size"
+      pname = "smd_get_ind_dim"
 c
       result = .false.
 c      if(atag.eq."charge") then
@@ -131,7 +131,7 @@ c     case sensitive
  
       call smd_system_get_component(sp,stag,result)
 c
-      call smd_data_get_index_dim(sp,atag,ind,n,result)
+      call smd_data_get_ind_dim(sp,atag,ind,n,result)
       if(.not.result) then
         call smd_message_post(pname//'error getting index for'//buffer) 
         goto 200
@@ -158,7 +158,7 @@ c
       logical result,ocase
       integer i,nrec
 
-      pname = "smd_get_ind_size"
+      pname = "smd_get_ind_dim"
 c
       result = .false.
 c     case sensitive

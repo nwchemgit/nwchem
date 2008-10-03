@@ -145,7 +145,7 @@ c
       end if
 
       tag = "shake:distance"
-      call smd_data_get_size(sp_shakelist,tag,ntot,result)
+      call smd_data_get_dim(sp_shakelist,tag,ntot,result)
       if(.not.result)
      >  call errquit(
      >       pname//'failed size on '//tag,0,0)

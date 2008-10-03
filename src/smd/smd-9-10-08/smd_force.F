@@ -86,7 +86,7 @@ c
 c      write(*,*) "in "//pname
 c
       tag = "force"
-      call smd_get_ind_size(tag,i_f,na,result)
+      call smd_get_ind_dim(tag,i_f,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)
@@ -122,7 +122,7 @@ c
 c      write(*,*) "in "//pname
 c
       tag = "force"
-      call smd_get_ind_size(tag,i_f,na,result)
+      call smd_get_ind_dim(tag,i_f,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, rtdb_err)

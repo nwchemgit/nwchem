@@ -103,7 +103,7 @@ c
 c     get velocity array
 c     ------------------
       tag = "vel"
-      call smd_get_ind_size(tag,i_v,na,result)
+      call smd_get_ind_dim(tag,i_v,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
@@ -173,7 +173,7 @@ c
 c     get velocity array
 c     ------------------
       tag = "vel"
-      call smd_get_ind_size(sp_vel,tag,i_v,na,result)
+      call smd_get_ind_dim(sp_vel,tag,i_v,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
@@ -216,7 +216,7 @@ c
 c
       open(unit=un,status="old",form="formatted",file=filename)
 
-      call smd_get_ind_size("vel",i_v,na,result)
+      call smd_get_ind_dim("vel",i_v,na,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
@@ -254,7 +254,7 @@ c
 c     get velocity array
 c     ------------------
       tag = "vel"
-      call smd_get_ind_size(tag,i_v,na,result)
+      call smd_get_ind_dim(tag,i_v,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)

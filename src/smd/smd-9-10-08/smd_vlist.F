@@ -72,7 +72,7 @@ c
 c     get coordinate information
 c     --------------------------
       tag = "coords"
-      call smd_get_ind_size(tag,i_c,np,result)
+      call smd_get_ind_dim(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -252,7 +252,7 @@ c
 c     get coordinate information
 c     --------------------------
       tag = "coords"
-      call smd_get_ind_size(tag,i_c,np,result)
+      call smd_get_ind_dim(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -283,7 +283,7 @@ c     ---------------------------
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
       tag = "vlist:list"
-      call smd_get_ind_size(tag,i_list,nl,result)
+      call smd_get_ind_dim(tag,i_list,nl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -369,7 +369,7 @@ c
 c     get coordinate information
 c     --------------------------
       tag = "coords"
-      call smd_get_ind_size(tag,i_c,np,result)
+      call smd_get_ind_dim(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -391,7 +391,7 @@ c     --------------------
 
 
       tag = "vlist:distances"
-      call smd_get_ind_size(tag,i_clist,nl,result)
+      call smd_get_ind_dim(tag,i_clist,nl,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -711,7 +711,7 @@ c     -----------------
      >       pname//'no component '//tag,0,0)
 
       tag = "vel"
-      call smd_get_ind_size(tag,i_v,na,result)
+      call smd_get_ind_dim(tag,i_v,na,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
