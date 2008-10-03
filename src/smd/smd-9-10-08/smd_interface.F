@@ -141,6 +141,50 @@ c
       return
       end
 
+      subroutine smd_get_size(atag,n,result)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_interface_data.fh"
+      character*(*) atag
+      integer n
+c     
+      character*32 stag,sp
+      character*32 pname,buffer
+      logical result,ocase
+      integer i,nrec
+
+      pname = "smd_get_size"
+c
+      result = .false.
+c     case sensitive
+      ocase = .true.
+
+      nrec = smd_interface_nc
+      buffer = atag
+      result = inp_match(nrec,ocase,atag,smd_interface_cname,i)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'no component '//buffer,0, RTDB_ERR)
+
+      stag = smd_interface_rname(i) 
+ 
+      call smd_system_get_component(sp,stag,result)
+c
+      call smd_data_get_size(sp,atag,n,result)
+      if(.not.result) then
+        call smd_message_post(pname//'error getting index for'//buffer) 
+        goto 200
+      end if
+
+200   continue
+      return
+      end
+
       subroutine smd_get_ind(atag,ind,result)
       implicit none
 #include "errquit.fh"

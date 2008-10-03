@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.4 2008-10-03 21:25:29 marat Exp $
+* $Id: smd_data.F,v 1.5 2008-10-03 21:52:43 marat Exp $
 *
 
       block data initial_smd_data
@@ -156,6 +156,47 @@ c
       smd_type(ns,smd_nd(ns))   = 0
       smd_dim(ns,smd_nd(ns))    = 0
       smd_nd(ns) = smd_nd(ns)-1 
+      return
+      end
+
+      subroutine smd_data_get_size(sname,dname,nsize,result)
+      implicit none
+#include "smd_data.fh"
+#include "smd_const_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer nsize
+      logical result
+c
+      integer i,ns,nd
+      character*72 buffer
+      character*30 pname
+
+      pname = "smd_data_get_size"    
+ 
+      buffer = sname
+
+      call smd_data_get_sindex(buffer,ns,result)
+      if(.not.result)
+     +   call errquit(pname//'no namespace'//buffer,
+     +         0,
+     +         0)
+
+      result = .false.
+      nd = 0
+      buffer = dname
+      do i=1,smd_nd(ns)
+       if(smd_dname(ns,i).eq.buffer) then
+         if(smd_type(ns,i).eq.MT_STR) then
+           nsize = smd_dim(ns,i)*smd_string_size
+         else
+           nsize = smd_dim(ns,i)
+         end if
+         result = .true.
+         return
+       end if
+      end do
+
       return
       end
 

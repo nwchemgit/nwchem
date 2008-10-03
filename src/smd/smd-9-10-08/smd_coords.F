@@ -403,7 +403,7 @@ c     ----------------------
       na = na/3
 c
       tag = "atom:name"
-      call smd_get_ind_dim(tag,i_ta,nta,result)
+      call smd_get_ind(tag,i_ta,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -420,7 +420,12 @@ c
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
  
-
+      tag = "atom:name"
+      call smd_get_size(tag,nta,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting size for '//tag,0, RTDB_ERR)
+c
       write(*,*) "nta=",nta,nta/na,smd_string_size
       do i=1,na
        i0=smd_string_size*(i-1)
@@ -480,7 +485,7 @@ c     ----------------------
       na = na/3
 c
       tag = "atom:name"
-      call smd_get_ind_dim(tag,i_ta,nta,result)
+      call smd_get_ind(tag,i_ta,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
@@ -496,7 +501,13 @@ c
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
- 
+
+      tag = "atom:name"
+      call smd_get_size(tag,nta,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting size for '//tag,0, RTDB_ERR)
+c 
       write(*,*) "nta=",nta,nta/na,smd_string_size
 
       do i=1,na
