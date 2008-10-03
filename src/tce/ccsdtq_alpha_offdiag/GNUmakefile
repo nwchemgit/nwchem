@@ -1,9 +1,8 @@
-#$Id: GNUmakefile,v 1.2 2007-10-30 00:13:15 jhammond Exp $
+#$Id: GNUmakefile,v 1.3 2008-10-03 03:52:06 jhammond Exp $
 
-ifndef CCSDTQ
-OBJ_OPTIMIZE = ccsdtq_lr_alpha.o
-
-else
+c ifndef CCSDTQ
+c OBJ_OPTIMIZE = ccsdtq_lr_alpha.o
+c else
 OBJ_OPTIMIZE = \
 ccsdtq_lr_alpha_10_1_1.o\
 ccsdtq_lr_alpha_10_1.o\
@@ -2775,17 +2774,17 @@ ccsdtq_lr_alpha_9_8_1.F\
 ccsdtq_lr_alpha_9_8.F\
 ccsdtq_lr_alpha_9.F\
 ccsdtq_lr_alpha.F
-endif
+c endif
 
 LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
-ifndef CCSDTQ
+c ifndef CCSDTQ
 LIB_DEFINES = -DDEBUG_PRINT
-else
-LIB_DEFINES = -DDEBUG_PRINT -DCCSDTQ
-endif
+c else
+c LIB_DEFINES = -DDEBUG_PRINT -DCCSDTQ
+c endif
 
 #
 # Possible #defines
