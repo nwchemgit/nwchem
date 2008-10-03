@@ -4,7 +4,7 @@
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4)
 c
-c $Id: tce_diis.F,v 1.2 2008-10-02 18:39:04 jhammond Exp $
+c $Id: tce_diis.F,v 1.3 2008-10-03 03:38:33 jhammond Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -123,18 +123,18 @@ c
  8000 format(1x,'cpu & wall time in seconds for ',A,2f20.1)
       if (diis .le. 0) then
         if (transpose) then
-          shift = -1.0d0*zlshift(2)
+          shift = -1.0d0*zlshiftl
           if (t1) call tce_jacobi_l1(d_r1,d_t1,k_t1_offset,shift)
-          shift = -2.0d0*zlshift(2)
+          shift = -2.0d0*zlshiftl
           if (t2) call tce_jacobi_l2(d_r2,d_t2,k_t2_offset,shift)
           shift = 0.0d0
           if (t3) call tce_jacobi_l3(d_r3,d_t3,k_t3_offset,shift)
           shift = 0.0d0
           if (t4) call tce_jacobi_l4(d_r4,d_t4,k_t4_offset,shift)
         else
-          shift = -1.0d0*zlshift(1)
+          shift = -1.0d0*zlshift
           if (t1) call tce_jacobi_t1(d_r1,d_t1,k_t1_offset,shift)
-          shift = -2.0d0*zlshift(1)
+          shift = -2.0d0*zlshift
           if (t2) call tce_jacobi_t2(d_r2,d_t2,k_t2_offset,shift)
           shift = 0.0d0
           if (t3) then
@@ -390,18 +390,18 @@ ccc      order = tce_diis_switch(iter)
       
       IF (r1_pointer .lt. diis) THEN
         if (transpose) then
-          shift = -1.0d0*zlshift(2)
+          shift = -1.0d0*zlshiftl
           if (t1) call tce_jacobi_l1(d_r1,d_t1,k_t1_offset,shift)
-          shift = -2.0d0*zlshift(2)
+          shift = -2.0d0*zlshiftl
           if (t2) call tce_jacobi_l2(d_r2,d_t2,k_t2_offset,shift)
           shift = 0.0d0
           if (t3) call tce_jacobi_l3(d_r3,d_t3,k_t3_offset,shift)
           shift = 0.0d0
           if (t4) call tce_jacobi_l4(d_r4,d_t4,k_t4_offset,shift)
         else
-          shift = -1.0d0*zlshift(1)
+          shift = -1.0d0*zlshift
           if (t1) call tce_jacobi_t1(d_r1,d_t1,k_t1_offset,shift)
-          shift = -2.0d0*zlshift(1)
+          shift = -2.0d0*zlshift
           if (t2) call tce_jacobi_t2(d_r2,d_t2,k_t2_offset,shift)
           shift = 0.0d0
           if (t3) then
