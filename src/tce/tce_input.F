@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.32 2008-10-02 18:39:02 jhammond Exp $
+c $Id: tce_input.F,v 1.33 2008-10-03 00:22:18 d3p975 Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -763,6 +763,16 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
+      else if (inp_compare(.false.,test,'cis')) then
+        if (module.eq.'tce') then
+           model='cis'
+           if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1     call errquit('tce_input: failed writing to rtdb',0,
+     1     rtdb_err)
+        else
+           call errquit('tce_input: multiple theory inputs',0,
+     1     input_err)
+        end if
       else if (inp_compare(.false.,test,'cisd')) then
         if (module.eq.'tce') then
         model='cisd'

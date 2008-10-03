@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.61 2008-10-02 18:39:02 jhammond Exp $
+c $Id: tce_init.F,v 1.62 2008-10-03 00:23:31 d3p975 Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -847,6 +847,13 @@ c
      2      (module.ne.'uqcisd'))
      3    call errquit('tce_init: ucc/uqcisd module overridden',0,
      4    UNKNOWN_ERR)
+      else if (model.eq.'cis') then
+        ctype='Configuration interaction singles'
+        if((module.ne.'tce').and.
+     1     (module.ne.'uci').and.
+     2     (module.ne.'ucis'))
+     3     call errquit('tce_init: uci/ucis module overridden',0,
+     4     unknown_err)
       else if (model.eq.'cisd') then
         ctype='Configuration interaction singles & doubles'
         if ((module.ne.'tce').and.
