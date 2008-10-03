@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.135 2008-10-03 03:53:22 jhammond Exp $
+c $Id: tce_energy.F,v 1.136 2008-10-03 21:24:28 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -1810,7 +1810,29 @@ c     =========================
 c     CC / CI / MBPT iterations
 c     =========================
 c
-      if (model.eq.'ccd') then
+      if (model.eq.'eionly') then
+        if (nodezero) then
+          write(LuOut,9120) 'BEGIN PRINT'
+          write(LuOut,9122) 'Number of alpha electrons = ',nocc(1)
+          write(LuOut,9122) 'Number of beta electrons  = ',nocc(2)
+          write(LuOut,9122) 'Number of alpha MOs = ',nmo(1)
+        endif
+        if (nodezero) write(LuOut,9120) 'tce_write_g1'
+        call tce_print_g1(d_f1,k_f1_offset,thresh,irrep_f)
+        if (nodezero) write(LuOut,9120) 'tce_write_g2'
+        call tce_print_g2(d_v2,k_v2_offset,thresh,irrep_v)
+        if (left) then
+          do axis = 1, 3
+            irrep_d=sym_abelian_axis(geom,axis)
+            call sym_irrepname(geom,irrep_d+1,irrepname)
+            if (nodezero) write(LuOut,9440) axisname(axis),irrepname
+            call tce_print_g1(d_d1(axis),k_d1_offset(axis),thresh,
+     &                        irrep_d)
+          enddo ! axis
+        endif ! left
+        if (nodezero) write(LuOut,9120) 'END PRINT'
+        if (nodezero) call util_flush(LuOut)
+      elseif (model.eq.'ccd') then
 c -------------
 c CCD     right
 c -------------
@@ -4570,7 +4592,7 @@ c        write(LuOut,*) "tce_residual_tr3"
      4             size_tr2(axis),
      5             d_rr3(axis),d_tr3(axis+dynaxis),k_tr3_offset(axis),
      6             size_tr3(axis),
-     7             dummy,dummy,dummy,dummy,omega,2)
+     7             dummy,dummy,dummy,dummy,omega,1)
               call deletefile(d_rr3(axis))
               call deletefile(d_rr2(axis))
               call deletefile(d_rr1(axis))
@@ -9664,6 +9686,7 @@ c
  9100 format(1x,i4,2f18.13,2f8.1)
  9120 format(1x,A)
  9121 format(/,1x,A)
+ 9122 format(1x,A,i4)
  9123 format(1x,'4-index algorithm nr.',i4,1x,'is used')
  9124 format(1x,'imaxsize = ',2x,i6)
  9125 format(1x,'imaxsize ichop = ',2x,2i6)

@@ -1,6 +1,6 @@
       subroutine tce_print_x2(d_r2,k_r2_offset,r2_thresh,irrep)
 c
-c $Id: tce_print_x2.F,v 1.7 2008-09-30 18:39:58 jhammond Exp $
+c $Id: tce_print_x2.F,v 1.8 2008-10-03 21:24:28 jhammond Exp $
 c
 c Prints the X2 tensor
 c
@@ -196,5 +196,114 @@ c
  9000 format(/,1x,a)
  9010 format(1x,i5,a4,'(',a5,') ',i5,a4,'(',a5,') --- ',
      1          i5,a4,'(',a5,') ',i5,a4,'(',a5,')',f20.10)
+      return
+      end
+c
+c
+c
+c
+c
+      subroutine tce_print_g2(d_r2,k_r2_offset,r2_thresh,irrep_r2)
+c
+c Prints the G2 tensor
+c
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+      integer d_r2
+      integer g1b,g2b,g3b,g4b
+      integer g1,g2,g3,g4
+      integer k_r2_offset
+      integer size
+      integer l_r2,k_r2
+      integer i
+      integer irrep_r2
+      logical nodezero
+      double precision r2_thresh
+      character*4 irrep_g1,irrep_g2,irrep_g3,irrep_g4
+      character*5 spinnames(2),spin_g1,spin_g2,spin_g3,spin_g4
+      data spinnames/'alpha','beta '/
+c
+      nodezero = (ga_nodeid().eq.0)
+c      if (nodezero) write(LuOut,9000) 'Doubles contributions'
+      do g3b = 1,noab+nvab
+        do g4b = g3b,noab+nvab
+          do g1b = 1,noab+nvab
+            do g2b = g1b,noab+nvab
+              if (int_mb(k_spin+g1b-1)+int_mb(k_spin+g2b-1)
+     1          .eq. int_mb(k_spin+g3b-1)+int_mb(k_spin+g4b-1)) then
+              if ((.not.restricted).or.
+     1          (int_mb(k_spin+g1b-1)+int_mb(k_spin+g2b-1)+
+     2           int_mb(k_spin+g3b-1)+int_mb(k_spin+g4b-1).ne.8)) then
+              if (ieor(int_mb(k_sym+g1b-1),ieor(int_mb(k_sym+g2b-1),
+     1            ieor(int_mb(k_sym+g3b-1),int_mb(k_sym+g4b-1))))
+     2          .eq. irrep_r2) then
+                size = int_mb(k_range+g1b-1) * int_mb(k_range+g2b-1)
+     1               * int_mb(k_range+g3b-1) * int_mb(k_range+g4b-1)
+                if (.not.ma_push_get(mt_dbl,size,'r2',l_r2,k_r2))
+     1            call errquit('tce_print_x2: MA problem',0,MA_ERR)
+                call get_hash_block(d_r2,dbl_mb(k_r2),size,
+     1            int_mb(k_r2_offset),g2b-1+(noab+nvab)
+     2              *(g1b-1+(noab+nvab)*(g4b-1+(noab+nvab)*(g3b-1))))
+                i = 0
+                do g3 = 1,int_mb(k_range+g3b-1)
+                  do g4 = 1,int_mb(k_range+g4b-1)
+                    do g1 = 1,int_mb(k_range+g1b-1)
+                      do g2 = 1,int_mb(k_range+g2b-1)
+                        i = i + 1
+              if (dabs(dbl_mb(k_r2+i-1)).gt.r2_thresh) then
+                call sym_irrepname(geom,int_mb(k_sym+g3b-1)+1,irrep_g3)
+                call sym_irrepname(geom,int_mb(k_sym+g4b-1)+1,irrep_g4)
+                call sym_irrepname(geom,int_mb(k_sym+g1b-1)+1,irrep_g1)
+                call sym_irrepname(geom,int_mb(k_sym+g2b-1)+1,irrep_g2)
+                spin_g3 = spinnames(int_mb(k_spin+g3b-1))
+                spin_g4 = spinnames(int_mb(k_spin+g4b-1))
+                spin_g1 = spinnames(int_mb(k_spin+g1b-1))
+                spin_g2 = spinnames(int_mb(k_spin+g2b-1))
+                if (nodezero) write(LuOut,9010)
+     3            int_mb(k_offset+g3b-1)+g3,irrep_g3,spin_g3,
+     4            int_mb(k_offset+g4b-1)+g4,irrep_g4,spin_g4,
+     1            int_mb(k_offset+g1b-1)+g1,irrep_g1,spin_g1,
+     2            int_mb(k_offset+g2b-1)+g2,irrep_g2,spin_g2,
+     5            dbl_mb(k_r2+i-1)
+c                if (nodezero) write(LuOut,9011)
+c     3            int_mb(k_offset+g3b-1)+g3,irrep_g3,spin_g3,
+c     4            int_mb(k_offset+g4b-1)+g4,irrep_g4,spin_g4,
+c     1            int_mb(k_offset+g1b-1)+g1,irrep_g1,spin_g1,
+c     2            int_mb(k_offset+g2b-1)+g2,irrep_g2,spin_g2,
+c     5            dbl_mb(k_r2+i-1)
+c                if (nodezero) write(LuOut,9012)
+c     3            int_mb(k_offset+g3b-1)+g3,
+c     4            int_mb(k_offset+g4b-1)+g4,
+c     1            int_mb(k_offset+g1b-1)+g1,
+c     2            int_mb(k_offset+g2b-1)+g2,
+c     5            dbl_mb(k_r2+i-1)
+              endif
+                      enddo
+                    enddo
+                  enddo
+                enddo
+                if (.not.ma_pop_stack(l_r2))
+     1            call errquit('tce_print_x2: MA problem',1,MA_ERR)
+              endif
+              endif
+              endif
+            enddo
+          enddo
+        enddo
+      enddo
+      call ga_sync()
+ 9000 format(/,1x,a)
+ 9010 format(1x,i3,a4,'(',a5,') ',i3,a4,'(',a5,') --- ',
+     1          i3,a4,'(',a5,') ',i3,a4,'(',a5,')',f20.5)
+ 9011 format(1x,i3,',  ',a4,',',a5,',',i3,',  ',a4,',',a5,',',
+     1          i3,',  ',a4,',',a5,',',i3,',  ',a4,',',a5,',',f20.10)
+ 9012 format(1x,i3,', ',i3,', ',i3,', ',i3,', ',f20.10)
       return
       end

@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.63 2008-10-03 03:22:16 jhammond Exp $
+c $Id: tce_init.F,v 1.64 2008-10-03 21:24:30 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -720,7 +720,12 @@ c
      2    (model.ne.'qcisd'))
      3  call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
       cperturbative = 'none'
-      if (model.eq.'ccd') then
+      if (model.eq.'eionly') then
+        ctype='Electron integral printing'
+        if (module.ne.'tce')
+     1    call errquit('tce_init: eionly module overridden',0,
+     2    UNKNOWN_ERR)
+      else if (model.eq.'ccd') then
         ctype='Coupled-cluster doubles'
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
