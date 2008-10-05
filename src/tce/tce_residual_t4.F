@@ -1,6 +1,6 @@
       subroutine tce_residual_t4(d_r4,k_r4_offset,residual)
 c
-c $Id: tce_residual_t4.F,v 1.9 2008-07-24 04:09:53 d3p975 Exp $
+c $Id: tce_residual_t4.F,v 1.10 2008-10-05 02:59:10 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -10,6 +10,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_r4
       integer p1b
       integer p2b
@@ -31,6 +32,13 @@ c
       integer nxtask
       external nxtask
       logical nodezero
+c
+c     new
+c
+      if (fileisga(d_r4)) then
+        residual = ga_ddot(d_r4,d_r4)
+        return
+      endif
 c
 c     =====================
 c     Zero scratch residual
@@ -168,7 +176,7 @@ c
       end
       subroutine tce_residual_tr4(d_r4,k_r4_offset,residual)
 c
-c $Id: tce_residual_t4.F,v 1.9 2008-07-24 04:09:53 d3p975 Exp $
+c $Id: tce_residual_t4.F,v 1.10 2008-10-05 02:59:10 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -178,6 +186,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_r4
       integer p1b
       integer p2b
@@ -199,6 +208,13 @@ c
       integer nxtask
       external nxtask
       logical nodezero
+c
+c     new
+c
+      if (fileisga(d_r4)) then
+        residual = ga_ddot(d_r4,d_r4)
+        return
+      endif
 c
 c     =====================
 c     Zero scratch residual

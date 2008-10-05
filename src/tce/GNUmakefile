@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.88 2008-10-02 18:39:01 jhammond Exp $
+#$Id: GNUmakefile,v 1.89 2008-10-05 02:59:09 jhammond Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 gradients \
@@ -25,7 +25,7 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_mo2e.o tce_mo1e_offset.o tce_mo2e_offset.o tce_e_offset.o \
       tce_guess_t1.o tce_guess_t2.o tce_zero.o tce_print_x1.o tce_print_x2.o \
       tce_residual_t1.o tce_residual_t2.o tce_residual_t3.o tce_residual_t4.o \
-      ma_pack.o sf_print.o ma_print_compact.o ma_transpose.o ma_scale.o \
+      ma_pack.o sf_print.o ma_print_compact.o ma_scale.o \
       copyfile.o ddotfile.o daxfile.o daxpyfile.o dscalfile.o \
       tce_aod1.o tce_nud1.o tce_mod1.o tce_mod1_offset.o \
       sym_abelian_axis.o tce_mod1_new.o tce_mod1_offset_new.o \
@@ -89,6 +89,13 @@ endif
 ifdef SPECIAL2EMET
       OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
       LIB_DEFINES += -DSPECIAL2EMET
+endif
+
+ifdef MA_TRANS_BLOCKED
+      OBJ_OPTIMIZE += ma_transpose_blocked.o
+      LIB_DEFINES += -DMA_TRANS_BLOCKED
+else
+      OBJ_OPTIMIZE += ma_transpose.o
 endif
 
 LIB_INCLUDES = -I./include

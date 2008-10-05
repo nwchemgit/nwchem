@@ -1,6 +1,6 @@
       subroutine tce_residual_t3a(d_r3,k_r3_offset,residual)
 c
-c $Id: tce_residual_t3a.F,v 1.3 2008-07-24 04:09:27 d3p975 Exp $
+c $Id: tce_residual_t3a.F,v 1.4 2008-10-05 02:59:11 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -10,6 +10,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_r3
       integer p1b
       integer p2b
@@ -30,6 +31,13 @@ c
       external nxtask
       logical nodezero
       logical acolo
+c
+c     new
+c
+      if (fileisga(d_r3)) then
+        residual = ga_ddot(d_r3,d_r3)
+        return
+      endif
 c
 c     =====================
 c     Zero scratch residual

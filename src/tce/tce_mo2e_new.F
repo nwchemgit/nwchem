@@ -1,6 +1,6 @@
       subroutine tce_mo2e_new(d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e_new.F,v 1.4 2008-08-18 02:13:37 jhammond Exp $
+c $Id: tce_mo2e_new.F,v 1.5 2008-10-05 02:59:08 jhammond Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -150,7 +150,11 @@ cc      next = nxtval(nprocs)
      1                  dbl_mb(k_pqkl_packed+pq-1),
      2                  sf_size_pq,dbl_mb(k_kl),1)
                       if (transpose) then
+#ifdef MA_TRANS_BLOCKED
+                        call ma_transpose_blocked(dbl_mb(k_kl),nbf)
+#else
                         call ma_transpose(dbl_mb(k_kl),nbf)
+#endif
                       else
                         call ma_scale(dbl_mb(k_kl),nbf**2,-1.0d0)
                       endif

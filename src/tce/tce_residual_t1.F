@@ -1,6 +1,6 @@
       subroutine tce_residual_t1(d_r1,k_r1_offset,residual)
 c
-c $Id: tce_residual_t1.F,v 1.12 2008-07-17 21:47:59 marat Exp $
+c $Id: tce_residual_t1.F,v 1.13 2008-10-05 02:59:10 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -10,6 +10,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_r1
       integer p1b
       integer h2b
@@ -26,6 +27,13 @@ cc      external nxtval
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical nodezero
+c
+c     new
+c
+      if (fileisga(d_r1)) then
+        residual = ga_ddot(d_r1,d_r1)
+        return
+      endif
 c
 c     =====================
 c     Zero scratch residual
@@ -95,7 +103,7 @@ cc      next = nxtval(-nprocs)
 
       subroutine tce_residual_tr1(d_r1,k_r1_offset,residual)
 c
-c $Id: tce_residual_t1.F,v 1.12 2008-07-17 21:47:59 marat Exp $
+c $Id: tce_residual_t1.F,v 1.13 2008-10-05 02:59:10 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -105,6 +113,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer d_r1
       integer p1b
       integer h2b
@@ -121,6 +130,13 @@ cc      external nxtval
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical nodezero
+c
+c     new
+c
+      if (fileisga(d_r1)) then
+        residual = ga_ddot(d_r1,d_r1)
+        return
+      endif
 c
 c     =====================
 c     Zero scratch residual

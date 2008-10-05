@@ -1,6 +1,6 @@
       double precision function ddotfile(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.6 2008-07-17 21:47:56 marat Exp $
+c $Id: ddotfile.F,v 1.7 2008-10-05 02:59:09 jhammond Exp $
 c
 c     Vector inner product of two files of the same size
 c
@@ -29,6 +29,13 @@ cc      integer nxtval
       EXTERNAL NXTASK
 cc      external nxtval
       logical noloadbalance
+c
+c     new
+c
+      if ((fileisga(d_1).and.fileisga(d_2))) then
+        ddotfile = ga_ddot(d_1,d_2)
+        return
+      endif
 c
       if ((ioalg.eq.6).and.(fileisga(d_1).neqv.fileisga(d_2)))
      1  call errquit('unable to ddot GA and EAF',0,UNKNOWN_ERR)
@@ -106,7 +113,7 @@ c
 c
       double precision function ddotfile_1(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.6 2008-07-17 21:47:56 marat Exp $
+c $Id: ddotfile.F,v 1.7 2008-10-05 02:59:09 jhammond Exp $
 c
 c     Vector inner product of two files of the same size
 c
@@ -136,6 +143,13 @@ cc      external nxtval
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
+c
+c     new
+c
+      if ((fileisga(d_1).and.fileisga(d_2))) then
+        ddotfile_1 = ga_ddot(d_1,d_2)
+        return
+      endif
 c
       buffer_size_t1=tile_dim**2
 c
@@ -223,7 +237,7 @@ c
 c
       double precision function ddotfile_2(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.6 2008-07-17 21:47:56 marat Exp $
+c $Id: ddotfile.F,v 1.7 2008-10-05 02:59:09 jhammond Exp $
 c
 c     Vector inner product of two files of the same size
 c
@@ -253,6 +267,13 @@ cc      external nxtval
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
+c
+c     new
+c
+      if ((fileisga(d_1).and.fileisga(d_2))) then
+        ddotfile_2 = ga_ddot(d_1,d_2)
+        return
+      endif
 c
       buffer_size_t2=tile_dim**4
 c
