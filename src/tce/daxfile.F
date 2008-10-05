@@ -1,6 +1,6 @@
       subroutine daxfile(n,coefficients,d_in,d_out,size)
 c
-c $Id: daxfile.F,v 1.6 2008-10-05 22:31:29 jhammond Exp $
+c $Id: daxfile.F,v 1.7 2008-10-05 23:25:47 jhammond Exp $
 c
 c     A linear combination of files
 c
@@ -33,8 +33,7 @@ cc      external nxtval
 c
 c     new
 c
-      if ( ((n.eq.1).or.(n.eq.2)).and.
-     1     (fileisga(d_in(1)).and.fileisga(d_out)) ) then
+      if ( (fileisga(d_in(1)).and.fileisga(d_out)) ) then
         if (n.eq.1) then
           call ga_copy(d_in(1),d_out)
           call ga_scale(d_out,coefficients(1))
@@ -45,6 +44,11 @@ c         d_c = alpha * d_a  +  beta * d_b
      1                coefficients(2),d_in(2), ! beta, d_b
      2                d_out)                   ! d_c
           return
+        else
+          call ga_zero(d_out)
+          do l = 1,n
+            call ga_add(coefficients(l),d_in(l),1.0d0,d_out,d_out)
+          enddo
         endif
       endif
 c

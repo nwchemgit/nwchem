@@ -1,6 +1,6 @@
       subroutine daxpyfile(n,coefficients,d_in,d_out,size)
 c
-c $Id: daxpyfile.F,v 1.8 2008-10-05 22:31:29 jhammond Exp $
+c $Id: daxpyfile.F,v 1.9 2008-10-05 23:25:47 jhammond Exp $
 c
 c     A linear combination of files added to the original
 c
@@ -33,13 +33,19 @@ cc      external nxtval
 c
 c     new
 c
-      if ( (n.eq.1).and.
-     1     (fileisga(d_in(1)).and.fileisga(d_out)) ) then
-c       d_c = alpha * d_a  +  beta * d_b
-        call ga_add(coefficients(1),d_in(1), ! alpha,d_a
-     1              1.0d0,d_out,             ! beta, d_b
-     2              d_out)                   ! d_c
-        return
+      if ( (fileisga(d_in(1)).and.fileisga(d_out)) ) then
+        if (n.eq.1) then
+c         d_c = alpha * d_a  +  beta * d_b
+          call ga_add(coefficients(1),d_in(1), ! alpha,d_a
+     1                1.0d0,d_out,             ! beta, d_b
+     2                d_out)                   ! d_c
+          return
+        else
+          do l = 1,n
+            call ga_add(coefficients(l),d_in(l),1.0d0,d_out,d_out)
+          enddo
+          return
+        endif
       endif
 c
       if ((ioalg.eq.6).and.(fileisga(d_in(1)).neqv.fileisga(d_out)))
