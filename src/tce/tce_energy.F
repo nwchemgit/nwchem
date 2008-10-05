@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.136 2008-10-03 21:24:28 jhammond Exp $
+c $Id: tce_energy.F,v 1.137 2008-10-05 23:34:03 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -1816,18 +1816,23 @@ c
           write(LuOut,9122) 'Number of alpha electrons = ',nocc(1)
           write(LuOut,9122) 'Number of beta electrons  = ',nocc(2)
           write(LuOut,9122) 'Number of alpha MOs = ',nmo(1)
+          write(LuOut,9122) 'Number of beta MOs = ',nmo(2)
         endif
-        if (nodezero) write(LuOut,9120) 'tce_write_g1'
-        call tce_print_g1(d_f1,k_f1_offset,thresh,irrep_f)
-        if (nodezero) write(LuOut,9120) 'tce_write_g2'
-        call tce_print_g2(d_v2,k_v2_offset,thresh,irrep_v)
+        if (nodezero) write(LuOut,9120) 'BEGIN 1-E'
+        call tce_print_g1(rtdb,d_f1,k_f1_offset,thresh,irrep_f)
+        if (nodezero) write(LuOut,9120) 'END 1-E'
+        if (nodezero) write(LuOut,9120) 'BEGIN 2-E'
+        call tce_print_g2(rtdb,d_v2,k_v2_offset,thresh,irrep_v)
+        if (nodezero) write(LuOut,9120) 'END 2-E'
         if (left) then
           do axis = 1, 3
             irrep_d=sym_abelian_axis(geom,axis)
             call sym_irrepname(geom,irrep_d+1,irrepname)
             if (nodezero) write(LuOut,9440) axisname(axis),irrepname
-            call tce_print_g1(d_d1(axis),k_d1_offset(axis),thresh,
+            if (nodezero) write(LuOut,9120) 'BEGIN DIPOLE'
+            call tce_print_g1(rtdb,d_d1(axis),k_d1_offset(axis),thresh,
      &                        irrep_d)
+            if (nodezero) write(LuOut,9120) 'END DIPOLE'
           enddo ! axis
         endif ! left
         if (nodezero) write(LuOut,9120) 'END PRINT'
@@ -2445,85 +2450,65 @@ c
               wall=-util_wallsec()
               if (nodezero.and.(iter.eq.1))
      &          write(LuOut,9400) "CCSD-IR (real component)"
-!         write(LuOut,*) "tce_filename rr1"
+c
               call tce_filename(rr1filename(axis),filename)
-!         write(LuOut,*) "createfile rr1"
               call createfile(filename,d_rr1(axis),size_tr1(axis))
-!         write(LuOut,*) "tce_zero rr1"
               call tce_zero(d_rr1(axis),size_tr1(axis))
-!         write(LuOut,*) "tce_filename ir1"
               call tce_filename(ir1filename(axis),filename)
-!         write(LuOut,*) "createfile ir1"
               call createfile(filename,d_ir1(axis),size_tr1(axis))
-!         write(LuOut,*) "tce_zero ir1"
               call tce_zero(d_ir1(axis),size_tr1(axis))
-!         write(LuOut,*) "tce_filename rr2"
-              call tce_filename(rr2filename(axis),filename)
-!         write(LuOut,*) "createfile rr2"
-              call createfile(filename,d_rr2(axis),size_tr2(axis))
-!         write(LuOut,*) "tce_zero rr2"
-              call tce_zero(d_rr2(axis),size_tr2(axis))
-!         write(LuOut,*) "tce_filename ir2"
-              call tce_filename(ir2filename(axis),filename)
-!         write(LuOut,*) "createfile ir2"
-              call createfile(filename,d_ir2(axis),size_tr2(axis))
-!         write(LuOut,*) "tce_zero ir2"
-              call tce_zero(d_ir2(axis),size_tr2(axis))
-!         write(LuOut,*) "ccsd_o1"
               call ccsd_o1(d_ir1(axis),d_d1(axis),d_t1,d_t2,
      1             k_tr1_offset(axis),k_d1_offset(axis),
      2             k_t1_offset,k_t2_offset)
-!         write(LuOut,*) "ccsd_o2"
-              call ccsd_o2(d_ir2(axis),d_d1(axis),d_t1,d_t2,
-     1             k_tr2_offset(axis),k_d1_offset(axis),
-     2             k_t1_offset,k_t2_offset)
-              call reconcilefile(d_ir1(axis),size_tr1(axis))
-              call reconcilefile(d_ir2(axis),size_tr2(axis))
-!         write(LuOut,*) "eomccsd_x1 ir1"
               call eomccsd_x1(d_f1,d_ir1(axis),d_t1,d_t2,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),k_f1_offset,
      2             k_tr1_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis))
-!         write(LuOut,*) "eomccsd_x2 ir2"
+              call reconcilefile(d_ir1(axis),size_tr1(axis))
+              call eomccsd_x1(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
+     1             d_ir1(axis),d_ir2(axis),k_f1_offset,
+     2             k_tr1_offset(axis),
+     3             k_t1_offset,k_t2_offset,k_v2_offset,
+     4             k_tr1_offset(axis),k_tr2_offset(axis))
+              call reconcilefile(d_rr1(axis),size_tr1(axis))
+              call deletefile(d_ir1(axis))
+              call daxpyfile(1,omega*omega,d_tr1(axis+dynaxis),
+     1             d_rr1(axis),size_tr1(axis))
+              call reconcilefile(d_rr1(axis),size_tr1(axis))
+              call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
+c
+              call tce_filename(rr2filename(axis),filename)
+              call createfile(filename,d_rr2(axis),size_tr2(axis))
+              call tce_zero(d_rr2(axis),size_tr2(axis))
+              call tce_filename(ir2filename(axis),filename)
+              call createfile(filename,d_ir2(axis),size_tr2(axis))
+              call tce_zero(d_ir2(axis),size_tr2(axis))
+              call ccsd_o2(d_ir2(axis),d_d1(axis),d_t1,d_t2,
+     1             k_tr2_offset(axis),k_d1_offset(axis),
+     2             k_t1_offset,k_t2_offset)
+              call reconcilefile(d_ir1(axis),size_tr1(axis))
+              call reconcilefile(d_ir2(axis),size_tr2(axis))
               call eomccsd_x2(d_f1,d_ir2(axis),d_t1,d_t2,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             k_f1_offset,k_tr2_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             size_tr1(axis),size_tr2(axis))
-!         write(LuOut,*) "reconcilefile ir1,ir2"
-              call reconcilefile(d_ir1(axis),size_tr1(axis))
               call reconcilefile(d_ir2(axis),size_tr2(axis))
-!         write(LuOut,*) "eomccsd_x1 rr1"
-              call eomccsd_x1(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
-     1             d_ir1(axis),d_ir2(axis),k_f1_offset,
-     2             k_tr1_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis))
-!         write(LuOut,*) "eomccsd_x2 rr2"
               call eomccsd_x2(d_f1,d_rr2(axis),d_t1,d_t2,d_v2,
      1             d_ir1(axis),d_ir2(axis),
      2             k_f1_offset,k_tr2_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             size_tr1(axis),size_tr2(axis))
-              call reconcilefile(d_rr1(axis),size_tr1(axis))
               call reconcilefile(d_rr2(axis),size_tr2(axis))
-!         write(LuOut,*) "deletefile ir[12]"
-              call deletefile(d_ir1(axis))
               call deletefile(d_ir2(axis))
-!         write(LuOut,*) "daxpyfile rr1"
-              call daxpyfile(1,omega*omega,d_tr1(axis+dynaxis),
-     1             d_rr1(axis),size_tr1(axis))
-!         write(LuOut,*) "daxpyfile rr2"
               call daxpyfile(1,omega*omega,d_tr2(axis+dynaxis),
      1             d_rr2(axis),size_tr2(axis))
-!         write(LuOut,*) "reconcilefile & tce_residual"
-              call reconcilefile(d_rr1(axis),size_tr1(axis))
               call reconcilefile(d_rr2(axis),size_tr2(axis))
-              call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
               call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
+c
               residual = max(rr1,rr2)
               cpu=cpu+util_cpusec()
               wall=wall+util_wallsec()
@@ -2616,10 +2601,12 @@ c
             elseif (omegasign.eq.2) then
               omega = (-1.0d0)*ifreq(omegacount)
               dynaxis = 3
-              call daxpyfile(1,1.0d0,d_tr1(axis+0),
-     1             d_tr1(axis+3),size_tr1(axis))
-              call daxpyfile(1,1.0d0,d_tr2(axis+0),
-     1             d_tr2(axis+3),size_tr2(axis))
+c              call daxpyfile(1,1.0d0,d_tr1(axis+0),
+c     1             d_tr1(axis+3),size_tr1(axis))
+c              call daxpyfile(1,1.0d0,d_tr2(axis+0),
+c     1             d_tr2(axis+3),size_tr2(axis))
+              call copyfile(d_tr1(axis+0),d_tr1(axis+3),size_tr1(axis))
+              call copyfile(d_tr2(axis+0),d_tr2(axis+3),size_tr2(axis))
             endif
             if (nodezero) write(LuOut,9431) omega
 c
@@ -2643,9 +2630,9 @@ c
 c
 c           1. Form w_I = omega*x_R
 c
-              call daxpyfile(1,omega,d_tr1(axis+6),
+              call daxfile(1,omega,d_tr1(axis+6),
      1             d_rr1(axis),size_tr1(axis))
-              call daxpyfile(1,omega,d_tr2(axis+6),
+              call daxfile(1,omega,d_tr2(axis+6),
      1             d_rr2(axis),size_tr2(axis))
 c
 c           3. Hit with preconditioner
@@ -2667,43 +2654,32 @@ c
               wall=-util_wallsec()
               if (nodezero.and.(iter.eq.1))
      &          write(LuOut,9400) "CCSD-IR (imaginary component)"
-!         write(LuOut,*) "tce_filename rr1"
+c
               call tce_filename(rr1filename(axis),filename)
-!         write(LuOut,*) "createfile rr1"
               call createfile(filename,d_rr1(axis),size_tr1(axis))
-!         write(LuOut,*) "tce_zero rr1"
-              call tce_zero(d_rr1(axis),size_tr1(axis))
-!         write(LuOut,*) "tce_filename rr2"
-              call tce_filename(rr2filename(axis),filename)
-!         write(LuOut,*) "createfile rr2"
-              call createfile(filename,d_rr2(axis),size_tr2(axis))
-!         write(LuOut,*) "tce_zero rr2"
-              call tce_zero(d_rr2(axis),size_tr2(axis))
-!         write(LuOut,*) "eomccsd_x1 rr1"
+c              call tce_zero(d_rr1(axis),size_tr1(axis))
+              call daxfile(1,(-1.0d0)*omega,d_tr1(axis+6),
+     1             d_rr1(axis),size_tr1(axis))
               call eomccsd_x1(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             k_f1_offset,k_tr1_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis))
-!         write(LuOut,*) "eomccsd_x2 rr2"
+              call reconcilefile(d_rr1(axis),size_tr1(axis))
+              call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
+c
+              call tce_filename(rr2filename(axis),filename)
+              call createfile(filename,d_rr2(axis),size_tr2(axis))
+c              call tce_zero(d_rr2(axis),size_tr2(axis))
+              call daxfile(1,(-1.0d0)*omega,d_tr2(axis+6),
+     1             d_rr2(axis),size_tr2(axis))
               call eomccsd_x2(d_f1,d_rr2(axis),d_t1,d_t2,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             k_f1_offset,k_tr2_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             size_tr1(axis),size_tr2(axis))
-!         write(LuOut,*) "daxpyfile rr1"
-              call daxpyfile(1,(-1.0d0)*omega,d_tr1(axis+6),
-     1             d_rr1(axis),size_tr1(axis))
-!         write(LuOut,*) "daxpyfile rr2"
-              call daxpyfile(1,(-1.0d0)*omega,d_tr2(axis+6),
-     1             d_rr2(axis),size_tr2(axis))
-!         write(LuOut,*) "reconcilefile rr1,rr2"
-              call reconcilefile(d_rr1(axis),size_tr1(axis))
               call reconcilefile(d_rr2(axis),size_tr2(axis))
-!         write(LuOut,*) "tce_residual_tr1"
-              call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
-!         write(LuOut,*) "tce_residual_tr2"
               call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
               residual = max(rr1,rr2)
               cpu=cpu+util_cpusec()
@@ -3050,49 +3026,38 @@ c
               wall=-util_wallsec()
               if (nodezero.and.(iter.eq.1))
      &          write(LuOut,9400) "CCSD-LR"
-c        write(LuOut,*) "tce_filename"
+c
               call tce_filename(rr1filename(axis),filename)
-c        write(LuOut,*) "createfile"
               call createfile(filename,d_rr1(axis),size_tr1(axis))
-c        write(LuOut,*) "tce_zero"
-              call tce_zero(d_rr1(axis),size_tr1(axis))
-              call daxpyfile(1,(-1.0d0)*omega,d_tr1(axis+dynaxis),
+c              call tce_zero(d_rr1(axis),size_tr1(axis))
+              call daxfile(1,(-1.0d0)*omega,d_tr1(axis+dynaxis),
      1             d_rr1(axis),size_tr1(axis))
-c        write(LuOut,*) "ccsd_o1"
               call ccsd_o1(d_rr1(axis),d_d1(axis),d_t1,d_t2,
      &             k_tr1_offset(axis),k_d1_offset(axis),
      &             k_t1_offset,k_t2_offset)
-c        write(LuOut,*) "eomccsd_x1"
               call eomccsd_x1(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),k_f1_offset,
      2             k_tr1_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis))
-c        write(LuOut,*) "tce_filename"
+              call reconcilefile(d_rr1(axis),size_tr1(axis))
+              call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
+c
               call tce_filename(rr2filename(axis),filename)
-c        write(LuOut,*) "createfile"
               call createfile(filename,d_rr2(axis),size_tr2(axis))
-c        write(LuOut,*) "tce_zero"
-              call tce_zero(d_rr2(axis),size_tr2(axis))
-              call daxpyfile(1,(-1.0d0)*omega,d_tr2(axis+dynaxis),
+c              call tce_zero(d_rr2(axis),size_tr2(axis))
+              call daxfile(1,(-1.0d0)*omega,d_tr2(axis+dynaxis),
      1             d_rr2(axis),size_tr2(axis))
-c        write(LuOut,*) "ccsd_o2"
               call ccsd_o2(d_rr2(axis),d_d1(axis),d_t1,d_t2,
      &             k_tr2_offset(axis),k_d1_offset(axis),
      &             k_t1_offset,k_t2_offset)
-c        write(LuOut,*) "eomccsd_x2"
               call eomccsd_x2(d_f1,d_rr2(axis),d_t1,d_t2,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             k_f1_offset,k_tr2_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             size_tr1(axis),size_tr2(axis))
-c        write(LuOut,*) "reconcilefile"
-              call reconcilefile(d_rr1(axis),size_tr1(axis))
               call reconcilefile(d_rr2(axis),size_tr2(axis))
-c        write(LuOut,*) "tce_residual_tr1"
-              call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
-c        write(LuOut,*) "tce_residual_tr2"
               call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
               residual = max(rr1,rr2)
               cpu=cpu+util_cpusec()

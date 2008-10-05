@@ -1,6 +1,6 @@
       subroutine tce_tile(rtdb)
 c
-c $Id: tce_tile.F,v 1.23 2008-10-03 21:24:31 jhammond Exp $
+c $Id: tce_tile.F,v 1.24 2008-10-05 23:34:04 jhammond Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -212,8 +212,11 @@ c        isize = min(isize,int(size))
         size = size / 6.0d0
         size = dsqrt(dsqrt(size))
         isize = min(isize,int(size))
-        if (nodezero) write(LuOut,*) 
+        if (nodezero) then
+          write(LuOut,*) 
+          write(LuOut,*) 
      1    'Warning: unknown model, assuming CCSD-like (tce_tile.F)'
+        endif
 c        call errquit("tce_tile: the model NYI",0,CAPMIS_ERR)
       endif
       if (nodezero) write(LuOut,*)

@@ -1,6 +1,6 @@
       subroutine tce_print_x1(d_r1,k_r1_offset,r1_thresh,irrep)
 c
-c $Id: tce_print_x1.F,v 1.8 2008-10-03 21:24:28 jhammond Exp $
+c $Id: tce_print_x1.F,v 1.9 2008-10-05 23:34:04 jhammond Exp $
 c
 c Prints the X1 tensor
 c
@@ -148,7 +148,7 @@ c
 c
 c
 c
-      subroutine tce_print_g1(d_r1,k_r1_offset,r1_thresh,irrep_r1)
+      subroutine tce_print_g1(rtdb,d_r1,k_r1_offset,r1_thresh,irrep_r1)
 c
 c Prints the G1 tensor
 c
@@ -159,8 +159,10 @@ c
 #include "util.fh"
 #include "stdio.fh"
 #include "errquit.fh"
+#include "rtdb.fh"
 #include "tce.fh"
 #include "tce_main.fh"
+      integer rtdb
       integer d_r1
       integer g1b
       integer g2b
@@ -171,11 +173,18 @@ c
       integer l_r1,k_r1
       integer i
       integer irrep_r1
+      integer eiformat
       logical nodezero
       double precision r1_thresh
       character*4 irrep_g1,irrep_g2
       character*5 spinnames(2),spin_g1,spin_g2
       data spinnames/'alpha','beta '/
+c
+      if (.not.rtdb_get(rtdb,'tce:eiformat',mt_int,1,eiformat)) then
+        eiformat = 1
+        if (.not.rtdb_put(rtdb,'tce:eiformat',mt_int,1,eiformat))
+     1  call errquit('tce_init: failed to write eiformat',0,RTDB_ERR)
+      endif
 c
       nodezero = (ga_nodeid().eq.0)
 c      if (nodezero) write(LuOut,9000) 'Singles contributions'
@@ -200,18 +209,29 @@ c      if (nodezero) write(LuOut,9000) 'Singles contributions'
                  call sym_irrepname(geom,int_mb(k_sym+g2b-1)+1,irrep_g2)
                  spin_g1 = spinnames(int_mb(k_spin+g1b-1))
                  spin_g2 = spinnames(int_mb(k_spin+g2b-1))
-                 if (nodezero) write(LuOut,9010)
+                 if ((nodezero).and.(eiformat.eq.1)) then
+                   write(LuOut,9011)
      1             int_mb(k_offset+g1b-1)+g1,irrep_g1,spin_g1,
      2             int_mb(k_offset+g2b-1)+g2,irrep_g2,spin_g2,
      3             dbl_mb(k_r1+i-1)
-c                 if (nodezero) write(LuOut,9011) 
-c     1             int_mb(k_offset+g1b-1)+g1,irrep_g1,spin_g1,
-c     2             int_mb(k_offset+g2b-1)+g2,irrep_g2,spin_g2,
-c     3             dbl_mb(k_r1+i-1)
-c                 if (nodezero) write(LuOut,9012)
-c     1             int_mb(k_offset+g1b-1)+g1,
-c     2             int_mb(k_offset+g2b-1)+g2,
-c     3             dbl_mb(k_r1+i-1)          
+                 elseif ((nodezero).and.(eiformat.eq.2)) then
+                   write(LuOut,9012)
+     1             int_mb(k_offset+g1b-1)+g1,irrep_g1,spin_g1,
+     2             int_mb(k_offset+g2b-1)+g2,irrep_g2,spin_g2,
+     3             dbl_mb(k_r1+i-1)
+                 elseif ((nodezero).and.(eiformat.eq.3)) then
+                   write(LuOut,9013)
+     1             int_mb(k_offset+g1b-1)+g1,int_mb(k_sym+g1b-1)+1,
+     2             int_mb(k_spin+g1b-1),
+     3             int_mb(k_offset+g2b-1)+g2,int_mb(k_sym+g2b-1)+1,
+     4             int_mb(k_spin+g2b-1),
+     5             dbl_mb(k_r1+i-1)
+                 elseif ((nodezero).and.(eiformat.eq.4)) then
+                   write(LuOut,9014)
+     1             int_mb(k_offset+g1b-1)+g1,
+     2             int_mb(k_offset+g2b-1)+g2,
+     3             dbl_mb(k_r1+i-1)          
+                 endif
                endif
              enddo
             enddo
@@ -224,8 +244,9 @@ c     3             dbl_mb(k_r1+i-1)
       enddo
       call ga_sync()
  9000 format(/,1x,a)
- 9010 format(1x,i3,a4,'(',a5,') --- ',i3,a4,'(',a5,')',f20.5)
- 9011 format(1x,i3,',  ',a4,',',a5,',',i3,',  ',a4,',',a5,',',f20.10)
- 9012 format(1x,', ',i3,', ',i3,', ',f20.10)
+ 9011 format(1x,i3,a4,'(',a5,') --- ',i3,a4,'(',a5,')',f20.8)
+ 9012 format(1x,i3,',  ',a4,',',a5,',',i3,',  ',a4,',',a5,',',f20.8)
+ 9013 format(1x,i3,',',i3,',',i3,',',i3,',',i3,',',i3,',',f20.8)
+ 9014 format(1x,i3,', ',i3,', ',f20.8)
       return
       end
