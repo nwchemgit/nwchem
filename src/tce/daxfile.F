@@ -1,6 +1,6 @@
       subroutine daxfile(n,coefficients,d_in,d_out,size)
 c
-c $Id: daxfile.F,v 1.5 2008-07-17 21:47:56 marat Exp $
+c $Id: daxfile.F,v 1.6 2008-10-05 22:31:29 jhammond Exp $
 c
 c     A linear combination of files
 c
@@ -30,6 +30,23 @@ cc      external nxtval
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
+c
+c     new
+c
+      if ( ((n.eq.1).or.(n.eq.2)).and.
+     1     (fileisga(d_in(1)).and.fileisga(d_out)) ) then
+        if (n.eq.1) then
+          call ga_copy(d_in(1),d_out)
+          call ga_scale(d_out,coefficients(1))
+          return
+        elseif (n.eq.2) then
+c         d_c = alpha * d_a  +  beta * d_b
+          call ga_add(coefficients(1),d_in(1), ! alpha,d_a
+     1                coefficients(2),d_in(2), ! beta, d_b
+     2                d_out)                   ! d_c
+          return
+        endif
+      endif
 c
       if ((ioalg.eq.6).and.(fileisga(d_in(1)).neqv.fileisga(d_out)))
      1  call errquit('unable to dax mixed GA and EAF',0,UNKNOWN_ERR)

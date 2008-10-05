@@ -1,6 +1,6 @@
       subroutine dscalfile(scale,d_1,size)
 c
-c $Id: dscalfile.F,v 1.6 2008-07-17 21:47:56 marat Exp $
+c $Id: dscalfile.F,v 1.7 2008-10-05 22:31:29 jhammond Exp $
 c
 c     Multiply a file by a constant
 c
@@ -27,6 +27,13 @@ cc      external nxtval
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
+c
+c     new
+c
+      if (fileisga(d_1)) then
+        call ga_scale(d_1,scale)
+        return
+      endif
 c
       noloadbalance = ((ioalg.eq.4).or.
      1                ((ioalg.eq.6).and.(.not.fileisga(d_1))))

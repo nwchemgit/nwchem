@@ -1,6 +1,6 @@
       subroutine copyfile(d_1,d_2,size)
 c
-c $Id: copyfile.F,v 1.8 2008-07-17 21:47:56 marat Exp $
+c $Id: copyfile.F,v 1.9 2008-10-05 22:31:30 jhammond Exp $
 c
 c     Duplicate a file
 c
@@ -26,6 +26,13 @@ c
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
+c
+c     new
+c
+      if ( fileisga(d_1).and.fileisga(d_2) ) then
+        call ga_copy(d_1,d_2)
+        return
+      endif
 c
       if ((ioalg.eq.6).and.(fileisga(d_1).neqv.fileisga(d_2)))
      1  call errquit('unable to copy GA to/from EAF',0,UNKNOWN_ERR)
