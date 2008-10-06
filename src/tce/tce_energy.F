@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.137 2008-10-05 23:34:03 jhammond Exp $
+c $Id: tce_energy.F,v 1.138 2008-10-06 20:46:10 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -3740,15 +3740,25 @@ c -------------------
         if ((perturbative.eq.'(t)').or.(perturbative.eq.'[t]')) then
           cpu = - util_cpusec()
           wall = - util_wallsec()
-          call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                d_v2,k_v2_offset,pt3_1,pt3_2)
+          if (restart_ccsd_t.eq.0) then
+            call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
+     1                  d_v2,k_v2_offset,pt3_1,pt3_2)
+          elseif (restart_ccsd_t.gt.0) then
+            pt3_1 = 0.0d0
+            call ccsd_t_restart(rtdb,d_t1,k_t1_offset,
+     1                               d_t2,k_t2_offset,
+     2                               d_v2,k_v2_offset,
+     3                               pt3_2)
+          endif
           cpu = cpu + util_cpusec()
           wall = wall + util_wallsec()
           if (nodezero) then
             write(LuOut,*)
-            write(LuOut,9075) "CCSD[T]",pt3_1
-            write(LuOut,9070) "CCSD[T]",corr+pt3_1
-            write(LuOut,9080) "CCSD[T]",ref+corr+pt3_1
+            if (restart_ccsd_t.eq.0) then
+              write(LuOut,9075) "CCSD[T]",pt3_1
+              write(LuOut,9070) "CCSD[T]",corr+pt3_1
+              write(LuOut,9080) "CCSD[T]",ref+corr+pt3_1
+            endif
             write(LuOut,9075) "CCSD(T)",pt3_2
             write(LuOut,9070) "CCSD(T)",corr+pt3_2
             write(LuOut,9080) "CCSD(T)",ref+corr+pt3_2

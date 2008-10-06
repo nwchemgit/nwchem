@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.64 2008-10-03 21:24:30 jhammond Exp $
+c $Id: tce_init.F,v 1.65 2008-10-06 20:46:11 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -528,6 +528,15 @@ c
       endif
 c
 c     Temporary restart input
+c
+      if (.not.rtdb_get(rtdb,'tce:restart_ccsd_t',mt_int,1,
+     1  restart_ccsd_t)) then
+        restart_ccsd_t = 0
+        if (.not.rtdb_put(rtdb,'tce:restart_ccsd_t',mt_int,1,
+     1                    restart_ccsd_t))
+     2  call errquit('tce_init: failed to write restart_ccsd_t',0,
+     3               RTDB_ERR)
+      endif
 c
 c     Save toggles
 c
