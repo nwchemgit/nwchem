@@ -26,9 +26,10 @@ c YR_SUFFIX - the number after the saved Lambda(1) amplitudes
       logical save_y(12)         ! Y1, Y2, Y3, Y4
       logical read_y(12)         ! Y1, Y2, Y3, Y4
       integer save_interval      !  1 = each iteration, 5 = every five, etc.
+      integer restart_ccsd_t
 
       common /tcerestartinteger/
-     1  save_interval
+     1  save_interval,restart_ccsd_t
 
       common /tcerestartlogical/
      1  restart_ignore_failure,
