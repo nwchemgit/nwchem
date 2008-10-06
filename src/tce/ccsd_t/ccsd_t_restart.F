@@ -3,7 +3,7 @@
      2                               d_v2,k_v2_offset,
      3                               t_energy)
 C
-C     $Id: ccsd_t_restart.F,v 1.1 2008-10-06 20:46:12 jhammond Exp $
+C     $Id: ccsd_t_restart.F,v 1.2 2008-10-06 21:01:20 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -13,6 +13,7 @@ C
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
+#include "tce_restart.fh"
       integer rtdb
       integer d_t1
       integer k_t1_offset
