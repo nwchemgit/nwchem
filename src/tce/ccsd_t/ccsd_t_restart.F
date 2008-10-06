@@ -3,7 +3,7 @@
      2                               d_v2,k_v2_offset,
      3                               t_energy)
 C
-C     $Id: ccsd_t_restart.F,v 1.2 2008-10-06 21:01:20 jhammond Exp $
+C     $Id: ccsd_t_restart.F,v 1.3 2008-10-06 21:27:26 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -215,16 +215,20 @@ c
 c      Global reduction on (T) energy
 c
 #ifdef DEBUG_PRINT
-       write(6,*) '====================================='
-       write(6,*) 'virtual_outer_index = ',virtual_outer_index
-       write(6,*) 'energy before reduction',energy
+       if (nodezero) then
+         write(6,*) '====================================='
+         write(6,*) 'virtual_outer_index = ',virtual_outer_index
+         write(6,*) 'energy before reduction',energy
+       endif
 #endif
        call ga_dgop(mt_dbl,energy,1,'+')
 #ifdef DEBUG_PRINT
-       write(6,*) 'energy after reduction',energy
        energy_debug = energy_debug + energy
-       write(6,*) 'energy_debug',energy_debug
-       write(6,*) '====================================='
+       if (nodezero) then
+         write(6,*) 'energy after reduction',energy
+         write(6,*) 'energy_debug',energy_debug
+         write(6,*) '====================================='
+       endif
 #endif
 c
 c      Update the triples table in memory
@@ -248,7 +252,7 @@ c
         t_energy = t_energy + dbl_mb(k_triples_table+i-1)
       enddo
 #ifdef DEBUG_PRINT
-       write(6,*) 't_energy = ',t_energy
+       if (nodezero) write(6,*) 't_energy = ',t_energy
 #endif
 c
       if (.not.ma_pop_stack(l_triples_table))
