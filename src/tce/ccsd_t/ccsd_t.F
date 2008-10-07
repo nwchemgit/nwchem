@@ -1,7 +1,7 @@
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                  d_v2,k_v2_offset,energy1,energy2)
 C
-C     $Id: ccsd_t.F,v 1.6 2008-10-07 13:39:08 jhammond Exp $
+C     $Id: ccsd_t.F,v 1.7 2008-10-07 14:26:45 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -119,30 +119,42 @@ C
 !$OMP PARALLEL DO
 !$OMP+SHARED(energy)
 #endif
+#ifdef IFCV8
 !DEC$ ivdep
 !DEC$ loop count min(4), max(32), avg(16)
+#endif
             do t_p4 = 1, range_p4
              denom_p4 = dbl_mb(offset_p4+t_p4)
+#ifdef IFCV8
 !DEC$ loop count min(4), max(32), avg(16)
+#endif
              do t_p5 = 1, range_p5
               denom_p5 = dbl_mb(offset_p5+t_p5)
+#ifdef IFCV8
 !DEC$ loop count min(4), max(32), avg(16)
+#endif
               do t_p6 = 1, range_p6
                denom_p6 = dbl_mb(offset_p6+t_p6)
                denom_p = -1.0d0 * (denom_p6 + denom_p5 + denom_p4)
+#ifdef IFCV8
 !DEC$ prefetch dbl_mb
 !DEC$ loop count min(4), max(32), avg(16)
 !DEC$ unroll(4)
+#endif
                do t_h1 = 1, range_h1
                 denom_h1 = dbl_mb(offset_h1+t_h1)
+#ifdef IFCV8
 !DEC$ loop count min(4), max(32), avg(16)
 !DEC$ unroll(4)
+#endif
                 do t_h2 = 1, range_h2
                  denom_h2 = dbl_mb(offset_h2+t_h2)
                  denom_h12 = denom_h1 + denom_h2
+#ifdef IFCV8
 !DEC$ loop count min(4), max(32), avg(16)
 !DEC$ unroll(4)
 !DEC$ vector always
+#endif
                  do t_h3 = 1, range_h3
                   denom_h3 = dbl_mb(offset_h3+t_h3)
                   denom = 1.0d0 / ( denom_p + denom_h12 + denom_h3 )
