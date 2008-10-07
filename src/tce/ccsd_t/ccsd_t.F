@@ -1,7 +1,7 @@
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                  d_v2,k_v2_offset,energy1,energy2)
 C
-C     $Id: ccsd_t.F,v 1.7 2008-10-07 14:26:45 jhammond Exp $
+C     $Id: ccsd_t.F,v 1.8 2008-10-07 14:30:59 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -117,7 +117,7 @@ C
             i = 0
 #ifdef _OPENMP
 !$OMP PARALLEL DO
-!$OMP+SHARED(energy)
+!$OMP+SHARED(energy1,energy2)
 #endif
 #ifdef IFCV8
 !DEC$ ivdep
@@ -162,13 +162,13 @@ C
 c
 c                 fourth-order terms
 c
-                  energy(1) = energy(1) + factor * denom
+                  energy1 = energy1 + factor * denom
      1                                  * dbl_mb(k_doubles+i-1) 
      2                                  * dbl_mb(k_doubles+i-1)
 c
 c                 fifth-order term by itself
 c
-                  energy(2) = energy(2) + factor * denom
+                  energy2 = energy2 + factor * denom
      1                                  * dbl_mb(k_doubles+i-1)
      2                                  * dbl_mb(k_singles+i-1) 
                  enddo
@@ -194,8 +194,10 @@ c
        enddo
       enddo
       next = nxtask(-nprocs,1)
+      energy(1) = energy1
+      energy(2) = energy1 + energy2
       call ga_dgop(mt_dbl,energy,2,'+')
       energy1 = energy(1)
-      energy2 = energy(1) + energy(2)
+      energy2 = energy(2)
       return
       end
