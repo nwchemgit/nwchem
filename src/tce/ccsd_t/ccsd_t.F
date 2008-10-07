@@ -1,7 +1,7 @@
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                  d_v2,k_v2_offset,energy1,energy2)
 C
-C     $Id: ccsd_t.F,v 1.4 2008-07-17 21:48:07 marat Exp $
+C     $Id: ccsd_t.F,v 1.5 2008-10-07 01:24:45 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -25,28 +25,44 @@ C
       integer k_singles,l_singles
       integer k_doubles,l_doubles
       integer size,i
-      integer g_energy
       integer nxtask
       integer next
       integer nprocs
       integer count
+      integer offset_p4,offset_p5,offset_p6
+      integer offset_h1,offset_h2,offset_h3
+      integer range_p4,range_p5,range_p6
+      integer range_h1,range_h2,range_h3
+      double precision energy(2)
       double precision energy1,energy2
-      double precision factor
+      double precision factor,denom
+      double precision denom_p4,denom_p5,denom_p6
+      double precision denom_h1,denom_h2,denom_h3
       external nxtask
 C
-      if (.not.ga_create(mt_dbl,1,1,'perturbative',1,1,g_energy))
-     1  call errquit('ccsd_t: GA problem',0,GA_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = nxtask(nprocs,1)
-      energy1=0.0d0
-      energy2=0.0d0
+      energy(1)=0.0d0
+      energy(2)=0.0d0
       do t_p4b = noab+1,noab+nvab
+       range_p4 = int_mb(k_range+t_p4b-1)
+       offset_p4 = int_mb(k_offset+t_p4b-1)
        do t_p5b = t_p4b,noab+nvab
+        range_p5 = int_mb(k_range+t_p5b-1)
+        offset_p5 = int_mb(k_offset+t_p5b-1)
         do t_p6b = t_p5b,noab+nvab
+         range_p6 = int_mb(k_range+t_p6b-1)
+         offset_p6 = int_mb(k_offset+t_p6b-1)
          do t_h1b = 1,noab
+          range_h1 = int_mb(k_range+t_h1b-1)
+          offset_h1 = int_mb(k_offset+t_h1b-1)
           do t_h2b = t_h1b,noab
+           range_h2 = int_mb(k_range+t_h2b-1)
+           offset_h2 = int_mb(k_offset+t_h2b-1)
            do t_h3b = t_h2b,noab
+            range_h3 = int_mb(k_range+t_h3b-1)
+            offset_h3 = int_mb(k_offset+t_h3b-1)
             if (next.eq.count) then                        
             if (int_mb(k_spin+t_p4b-1)
      1         +int_mb(k_spin+t_p5b-1)
@@ -67,18 +83,22 @@ C
      3          ieor(int_mb(k_sym+t_h1b-1),
      4          ieor(int_mb(k_sym+t_h2b-1),
      5               int_mb(k_sym+t_h3b-1)))))).eq.0) then
-            size = int_mb(k_range+t_p4b-1)
-     1           * int_mb(k_range+t_p5b-1)
-     2           * int_mb(k_range+t_p6b-1)
-     3           * int_mb(k_range+t_h1b-1)
-     4           * int_mb(k_range+t_h2b-1)
-     5           * int_mb(k_range+t_h3b-1)
+c            size = int_mb(k_range+t_p4b-1)
+c     1           * int_mb(k_range+t_p5b-1)
+c     2           * int_mb(k_range+t_p6b-1)
+c     3           * int_mb(k_range+t_h1b-1)
+c     4           * int_mb(k_range+t_h2b-1)
+c     5           * int_mb(k_range+t_h3b-1)
+            size = range_p4 * range_p5 * range_p6
+     3           * range_h1 * range_h2 * range_h3
             if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
      1        k_singles)) call errquit('ccsd_t: MA error',1,MA_ERR)
             if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
      1        k_doubles)) call errquit('ccsd_t: MA error',2,MA_ERR)
             do i = 1, size
              dbl_mb(k_singles+i-1) = 0.0d0
+            enddo
+            do i = 1, size
              dbl_mb(k_doubles+i-1) = 0.0d0
             enddo
             call ccsd_t_singles(dbl_mb(k_singles),d_t1,d_v2,k_t1_offset,
@@ -101,29 +121,58 @@ C
               factor = factor / 2.0d0
             endif
             i = 0
-            do t_p4 = 1, int_mb(k_range+t_p4b-1)
-             do t_p5 = 1, int_mb(k_range+t_p5b-1)
-              do t_p6 = 1, int_mb(k_range+t_p6b-1)
-               do t_h1 = 1, int_mb(k_range+t_h1b-1)
-                do t_h2 = 1, int_mb(k_range+t_h2b-1)
-                 do t_h3 = 1, int_mb(k_range+t_h3b-1)
+c            do t_p4 = 1, int_mb(k_range+t_p4b-1)
+            do t_p4 = 1, range_p4
+c      denom_p4 = dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
+      denom_p4 = dbl_mb(k_evl_sorted+offset_p4+t_p4-1)
+      denom    = denom_p4
+c             do t_p5 = 1, int_mb(k_range+t_p5b-1)
+             do t_p5 = 1, range_p5
+c      denom_p5 = dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
+      denom_p5 = dbl_mb(k_evl_sorted+offset_p5+t_p5-1)
+      denom = denom + denom_p5
+c              do t_p6 = 1, int_mb(k_range+t_p6b-1)
+              do t_p6 = 1, range_p6
+c      denom_p6 = dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
+      denom_p6 = dbl_mb(k_evl_sorted+offset_p6+t_p6-1)
+      denom = denom + denom_p6
+c               do t_h1 = 1, int_mb(k_range+t_h1b-1)
+               do t_h1 = 1, range_h1
+c      denom_h1 = dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
+      denom_h1 = dbl_mb(k_evl_sorted+offset_h1+t_h1-1)
+      denom = denom + denom_h1
+c                do t_h2 = 1, int_mb(k_range+t_h2b-1)
+                do t_h2 = 1, range_h2
+c      denom_h2 = dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
+      denom_h2 = dbl_mb(k_evl_sorted+offset_h2-1)
+      denom = denom + denom_h2
+c                 do t_h3 = 1, int_mb(k_range+t_h3b-1)
+                 do t_h3 = 1, range_h3
+c      denom_h3 = dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1)
+      denom_h3 = dbl_mb(k_evl_sorted+offset_h3+t_h3-1)
+      denom = denom + denom_h3
+c
+c                  denom = ( denom_h1 + denom_h2 + denom_h3 )
+c     1                  - ( denom_p4 + denom_p5 + denom_p6 )
                   i = i + 1
-                  energy1 = energy1 + factor * dbl_mb(k_doubles+i-1)
+                  energy(1) = energy(1) + factor * dbl_mb(k_doubles+i-1)
      1                                       * dbl_mb(k_doubles+i-1)
-     2      / (-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
-     3         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
-     4         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
-     5         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
-     6         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
-     7         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1))
-                  energy2 = energy2 + factor * dbl_mb(k_doubles+i-1)
+     2      / denom
+c     2      / (-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
+c     3         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
+c     4         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
+c     5         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
+c     6         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
+c     7         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1))
+                  energy(2) = energy(2) + factor * dbl_mb(k_doubles+i-1)
      1             * (dbl_mb(k_singles+i-1) + dbl_mb(k_doubles+i-1))
-     2      / (-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
-     3         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
-     4         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
-     5         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
-     6         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
-     7         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1))
+     2      / denom
+c     2      / (-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
+c     3         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
+c     4         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
+c     5         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
+c     6         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
+c     7         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1))
                  enddo
                 enddo
                enddo
@@ -147,15 +196,8 @@ C
        enddo
       enddo
       next = nxtask(-nprocs,1)
-      call ga_zero(g_energy)
-      call ga_acc(g_energy,1,1,1,1,energy1,1,1.0d0)
-      call ga_sync()
-      call ga_get(g_energy,1,1,1,1,energy1,1)
-      call ga_zero(g_energy)
-      call ga_acc(g_energy,1,1,1,1,energy2,1,1.0d0)
-      call ga_sync()
-      call ga_get(g_energy,1,1,1,1,energy2,1)
-      if (.not.ga_destroy(g_energy))
-     1  call errquit('ccsd_t: GA problem',1,GA_ERR)
+      call ga_dgop(mt_dbl,energy,2,'+')
+      energy1 = energy(1)
+      energy2 = energy(2)
       return
       end
