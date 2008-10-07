@@ -1,7 +1,7 @@
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                  d_v2,k_v2_offset,energy1,energy2)
 C
-C     $Id: ccsd_t.F,v 1.9 2008-10-07 14:37:31 jhammond Exp $
+C     $Id: ccsd_t.F,v 1.10 2008-10-07 18:18:24 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -115,10 +115,6 @@ C
               factor = factor / 2.0d0
             endif
             i = 0
-#ifdef _OPENMP
-!$OMP PARALLEL DO
-!$OMP+SHARED(energy1,energy2)
-#endif
 #ifdef IFCV8
 !DEC$ ivdep
 !DEC$ loop count min(4), max(32), avg(16)
@@ -139,13 +135,13 @@ C
 #ifdef IFCV8
 !DEC$ prefetch dbl_mb
 !DEC$ loop count min(4), max(32), avg(16)
-!DEC$ unroll(4)
 #endif
                do t_h1 = 1, range_h1
                 denom_h1 = dbl_mb(offset_h1+t_h1)
 #ifdef IFCV8
 !DEC$ loop count min(4), max(32), avg(16)
 !DEC$ unroll(4)
+!DEC$ vector always
 #endif
                 do t_h2 = 1, range_h2
                  denom_h2 = dbl_mb(offset_h2+t_h2)
@@ -163,14 +159,14 @@ c
 c                 fourth-order terms
 c
                   energy1 = energy1 + factor * denom
-     1                                  * dbl_mb(k_doubles+i-1) 
-     2                                  * dbl_mb(k_doubles+i-1)
+     1                                       * dbl_mb(k_doubles+i-1) 
+     2                                       * dbl_mb(k_doubles+i-1)
 c
 c                 fifth-order term by itself
 c
                   energy2 = energy2 + factor * denom
-     1                                  * dbl_mb(k_doubles+i-1)
-     2                                  * dbl_mb(k_singles+i-1) 
+     1                                       * dbl_mb(k_doubles+i-1)
+     2                                       * dbl_mb(k_singles+i-1) 
                  enddo
                 enddo
                enddo
