@@ -1,7 +1,7 @@
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                  d_v2,k_v2_offset,energy1,energy2)
 C
-C     $Id: ccsd_t.F,v 1.8 2008-10-07 14:30:59 jhammond Exp $
+C     $Id: ccsd_t.F,v 1.9 2008-10-07 14:37:31 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
