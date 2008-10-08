@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.138 2008-10-06 20:46:10 jhammond Exp $
+c $Id: tce_energy.F,v 1.139 2008-10-08 20:44:52 kowalski Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -155,6 +155,8 @@ c FOR CR-EOMCCSD(T) ---------------------
       double precision energy_grcr
 c  NEW SOLVER ---------------------------
       integer l_hbar,k_hbar,ihbar
+c - T1/X1 LOCALIZATION -------------------
+      integer l_t1_local,k_t1_local
 c ---------------------------------------
       logical needt1
       logical needt2
@@ -1984,11 +1986,27 @@ c -------------
         else
           if (nodezero.and.(iter.eq.1)) write(LuOut,9050) "CCSD"
         end if
+c - T1/X1 LOCALIZATION ----------
+       if(ccsd_var.ne.'cc2') then
+c    opening l_t1_local
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        call ma_zero(k_t1_local,size_t1)
+c    copy d_t1 ==> l_t1_local
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+       end if
+c -------------------------------
           call tce_filename('e',filename)
           call createfile(filename,d_e,size_e)
-          call ccsd_e(d_f1,d_e,d_t1,d_t2,d_v2,
+c          call ccsd_e(d_f1,d_e,d_t1,d_t2,d_v2,
+c     1                k_f1_offset,k_e_offset,
+c     2                k_t1_offset,k_t2_offset,k_v2_offset)
+c - T1/X1 LOCALIZATION --
+          call ccsd_e(d_f1,d_e,k_t1_local,d_t2,d_v2,
      1                k_f1_offset,k_e_offset,
      2                k_t1_offset,k_t2_offset,k_v2_offset)
+c -----------------------
           call reconcilefile(d_e,size_e)
           call tce_filename('r1',filename)
           call createfile(filename,d_r1,size_t1)
@@ -1996,9 +2014,14 @@ c -------------
            call  cc2_t1(d_f1,d_r1,d_t1,d_t2,d_v2,k_f1_offset,
      &       k_t1_offset,k_t1_offset,k_t2_offset,k_v2_offset)
         else
-          call ccsd_t1(d_f1,d_r1,d_t1,d_t2,d_v2,
+c         call ccsd_t1(d_f1,d_r1,d_t1,d_t2,d_v2,
+c     1                 k_f1_offset,k_t1_offset,
+c     2                 k_t1_offset,k_t2_offset,k_v2_offset)
+c - T1/X1 LOCALIZATION --
+          call ccsd_t1(d_f1,d_r1,k_t1_local,d_t2,d_v2,
      1                 k_f1_offset,k_t1_offset,
      2                 k_t1_offset,k_t2_offset,k_v2_offset)
+c -----------------------
         end if
           call reconcilefile(d_r1,size_t1)
           call tce_filename('r2',filename)
@@ -2012,15 +2035,26 @@ c %%% for other purposes (not subgroups)
          call cc2_t2(d_f1,d_r2,d_t1,d_t2,d_v2,k_f1_offset,k_t2_offset,
      &     k_t1_offset,k_t2_offset,k_v2_offset,size_t2)
         else
-          call ccsd_t2(d_f1,d_r2,d_t1,d_t2,d_v2,
+c          call ccsd_t2(d_f1,d_r2,d_t1,d_t2,d_v2,
+c     1                 k_f1_offset,k_t2_offset,
+c     2              k_t1_offset,k_t2_offset,k_v2_offset)!,size_t2)
+c - T1/X1 LOCALIZATION --
+          call ccsd_t2(d_f1,d_r2,k_t1_local,d_t2,d_v2,
      1                 k_f1_offset,k_t2_offset,
      2              k_t1_offset,k_t2_offset,k_v2_offset)!,size_t2)
+c -----------------------
         end if
           call reconcilefile(d_r2,size_t2)
           call tce_residual_t1(d_r1,k_t1_offset,r1)
           call tce_residual_t2(d_r2,k_t2_offset,r2)
           residual = max(r1,r2)
           call get_block(d_e,corr,1,0)
+c - T1/X1 LOCALIZATION --
+       if(ccsd_var.ne.'cc2') then
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',2,MA_ERR)
+       end if
+c -----------------------
           cpu=cpu+util_cpusec()
           wall=wall+util_wallsec()
           if (nodezero) write(LuOut,9100) iter,residual,corr,cpu,wall
