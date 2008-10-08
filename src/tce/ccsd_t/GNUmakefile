@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.8 2008-10-06 20:46:12 jhammond Exp $
+#$Id: GNUmakefile,v 1.9 2008-10-08 16:41:07 jhammond Exp $
 
 OBJ          = cr_ccsd_t.o lr_ccsd_t.o
 
@@ -6,7 +6,7 @@ OBJ_OPTIMIZE = ccsd_t.o ccsd_t_doubles.o ccsd_t_singles.o lambda_ccsd_t.o lambda
                ccsd2_t.o ccsd2_t_left.o ccsd2_q.o ccsd2_q_left.o ccsd2_q_right.o \
                ccsdt2_q.o ccsdt2_q_left.o ccsdt2_q_right.o \
                cr_ccsd_t_D.o cr_ccsd_t_E.o cr_ccsd_t_N.o lr_ccsd_tq.o \
-               cr_qcisd_t.o m2_dot_m1t1.o ccsd_t_restart.o
+               cr_qcisd_t.o m2_dot_m1t1.o ccsd_t_restart.o ccsd_t_sse2.o
 
 LIB_INCLUDES = -I../include
 
@@ -19,7 +19,7 @@ USES_BLAS = ccsd_t_doubles.F ccsd_t_singles.F lambda_ccsd_t_left.F \
             cr_qcisd_t.F m2_dot_m1t1.F
 
 
-LIB_DEFINES = -DDEBUG_PRINT
+LIB_DEFINES = -DDEBUG_PRINT -DDEBUG_CCSD_T
 #
 # Possible #defines
 #
