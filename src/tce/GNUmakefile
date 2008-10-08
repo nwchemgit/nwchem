@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.89 2008-10-05 02:59:09 jhammond Exp $
+#$Id: GNUmakefile,v 1.90 2008-10-08 20:46:25 kowalski Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 gradients \
@@ -67,7 +67,7 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_mo2e_disk_2eorb.o tce_mo2e_incore_2eorb.o tce_mo2e_incore_2eorb_split.o \
       tce_mo2e_hybrid_2eorb_split.o tce_mo2e_offset_intorb_hybrid.o \
       tce_mo2e_2emet3.o tce_mo2e_2emet3_n5.o tce_mo2e_2emet4.o tce_mo2e_2emet4_n5.o \
-      tce_make_denom1.o tce_make_denom2.o
+      tce_make_denom1.o tce_make_denom2.o get_hash_block_ma.o
 
 ifdef SPAGHETTYSORT
       OBJ_OPTIMIZE += tce_sort0.o tce_sort2_saday.o tce_sort4_jeff.o tce_sort6.o tce_sort8.o \
