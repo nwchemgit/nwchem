@@ -1,7 +1,7 @@
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                  d_v2,k_v2_offset,energy1,energy2)
 C
-C     $Id: ccsd_t.F,v 1.11 2008-10-08 16:41:07 jhammond Exp $
+C     $Id: ccsd_t.F,v 1.12 2008-10-09 03:42:24 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -168,7 +168,7 @@ C
 
 
 
-#ifndef DEBUG_CCSD_T
+#ifndef SSE2_VERSION
 c --------------------------------------------------------------
 c
 c                 Only does CCSD(T) not CCSD[T]
@@ -177,7 +177,7 @@ c --------------------------------------------------------------
       SUBROUTINE ccsd_t_vector(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                         d_v2,k_v2_offset,energy)
 C
-C     $Id: ccsd_t.F,v 1.11 2008-10-08 16:41:07 jhammond Exp $
+C     $Id: ccsd_t.F,v 1.12 2008-10-09 03:42:24 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -393,11 +393,9 @@ C
       call ga_dgop(mt_dbl,energy,1,'+')
       return
       end
-
 #endif
 
-#ifdef DEBUG_CCSD_T
-
+#ifdef SSE2_VERSION
 c --------------------------------------------------------------
 c
 c                 Only does CCSD(T) not CCSD[T]
@@ -406,7 +404,7 @@ c --------------------------------------------------------------
       SUBROUTINE ccsd_t_vector(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                         d_v2,k_v2_offset,energy)
 C
-C     $Id: ccsd_t.F,v 1.11 2008-10-08 16:41:07 jhammond Exp $
+C     $Id: ccsd_t.F,v 1.12 2008-10-09 03:42:24 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -517,100 +515,17 @@ C
             else if ((t_h1b.eq.t_h2b).or.(t_h2b.eq.t_h3b)) then
               factor = factor / 2.0d0
             endif
-#ifdef FORTRAN_VERSION
-            print*,'======================================'
-            print*,'         Fortran Version              '
-            print*,'======================================'
 c
-c            print*,'i,dbl_mb(k_singles+i),dbl_mb(k_doubles+i)'
-c            do i = 1,size
-c              if ( ( dabs(dbl_mb(k_singles+i)).gt.(1.0d-8) ).or.
-c     1             ( dabs(dbl_mb(k_doubles+i)).gt.(1.0d-8) )
-c     2           ) then
-c                write(6,350) i,dbl_mb(k_singles+i),dbl_mb(k_doubles+i)
-c              endif
-c            enddo
-c
-            energy = 0.0d0
-c
-            i = 0
-            do t_p4 = 1, range_p4
-             denom_p4 = dbl_mb(offset_p4+t_p4)
-             do t_p5 = 1, range_p5
-              denom_p5 = dbl_mb(offset_p5+t_p5)
-              do t_p6 = 1, range_p6
-               denom_p6 = dbl_mb(offset_p6+t_p6)
-c
-               denom_p = denom_p6 + denom_p5 + denom_p4
-c
-               do t_h1 = 1, range_h1
-                denom_h1 = dbl_mb(offset_h1+t_h1)
-                do t_h2 = 1, range_h2
-                 denom_h2 = dbl_mb(offset_h2+t_h2)
-                 do t_h3 = 1, range_h3
-                  denom_h3 = dbl_mb(offset_h3+t_h3)
-c
-                  denom_h = denom_h1 + denom_h2 + denom_h3
-c
-                  denom = 1.0d0 / ( denom_h - denom_p )
-c
-                  energy0 = factor * denom * dbl_mb(k_doubles+i)
-     2                    * (dbl_mb(k_doubles+i) + dbl_mb(k_singles+i))
-                  energy = energy + energy0
-c
-c                  if (dabs(energy0).gt.(1.0d-8)) then
-c
-c                  write(6,600) t_p4,t_p5,t_p6,t_h1,t_h2,t_h3,
-c     1              denom_p4,denom_p5,denom_p6,
-c     2              denom_h1,denom_h2,denom_h3,
-c     3              factor,denom_p,denom_h,denom,
-c     4              dbl_mb(k_singles+i),dbl_mb(k_doubles+i),
-c     5              energy0
-c
-c                  endif
-c
-                  i = i + 1
-c
-                 enddo ! t_h3
-                enddo ! t_h2
-               enddo ! t_h1
-              enddo ! t_p6
-             enddo ! t_p5
-            enddo ! t_p4
-c
-c            write(6,325) 'Energy = ',energy,' after Fortran'
-c
-#endif
-c            print*,'======================================'
-c            print*,'         C + SSE2 Version             '
-c            print*,'======================================'
-c
-c            energy = 999999999.0d0
-c
-c            write(6,325) 'Energy = ',energy,' before C+SSE2'
-c
-c        write(6,100) 'range_p4,range_p5,range_p6 = ',
-c     1                range_p4,range_p5,range_p6
-c        write(6,100) 'range_h1,range_h2,range_h3 = ',
-c     1                range_h1,range_h2,range_h3
-c        write(6,200) 'dbl_mb(o_p4+1),dbl_mb(o_p5+1),dbl_mb(o_p6+1) = ',
-c     1       dbl_mb(offset_p4+1),dbl_mb(offset_p5+1),dbl_mb(offset_p6+1)
-c        write(6,200) 'dbl_mb(o_h1+1),dbl_mb(o_h2+1),dbl_mb(o_h3+1) = ',
-c     1       dbl_mb(offset_h1+1),dbl_mb(offset_h2+1),dbl_mb(offset_h3+1)
-c        write(6,300) 'dbl_mb(k_singles),dbl_mb(k_doubles) = ',
-c     1                dbl_mb(k_singles),dbl_mb(k_doubles)
+c            print*,'ccsd_t.F: call ccsd_t_sse2'
             call ccsd_t_sse2(range_p4,range_p5,range_p6,
      1                       range_h1,range_h2,range_h3,
-     2      dbl_mb(offset_p4),dbl_mb(offset_p5),dbl_mb(offset_p6),
-     3      dbl_mb(offset_h1),dbl_mb(offset_h2),dbl_mb(offset_h3),
-     4                       dbl_mb(k_singles),dbl_mb(k_doubles),
-     5                       factor,energy0)
-c
+     2           dbl_mb(offset_p4),dbl_mb(offset_p5),dbl_mb(offset_p6),
+     3           dbl_mb(offset_h1),dbl_mb(offset_h2),dbl_mb(offset_h3),
+     4           dbl_mb(k_singles),dbl_mb(k_doubles),factor,energy0)
+c            print*,'ccsd_t.F: after ccsd_t_sse2'
+c            print*,'ccsd_t.F: energy0 = ',energy0
             energy = energy + energy0
 c
-c            write(6,325) 'Energy = ',energy,' after C+SSE2'
-c
-c            print*,'======================================'
             if (.not.MA_POP_STACK(l_doubles)) 
      1        call errquit('ccsd_t',3,MA_ERR)
             if (.not.MA_POP_STACK(l_singles)) 
@@ -639,5 +554,4 @@ c            print*,'======================================'
 500   format(1x,a12,f18.8)
 600   format(6i4,13f12.8)
       end
-
 #endif

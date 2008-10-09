@@ -3,7 +3,7 @@
      2                               d_v2,k_v2_offset,
      3                               t_energy)
 C
-C     $Id: ccsd_t_restart.F,v 1.3 2008-10-06 21:27:26 jhammond Exp $
+C     $Id: ccsd_t_restart.F,v 1.4 2008-10-09 03:42:24 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -57,6 +57,7 @@ c
       if (.not.ma_push_get(mt_dbl,size_table,'(T) restart table',
      1                     l_triples_table,k_triples_table)) 
      2    call errquit('(T) restart table',0,MA_ERR) 
+c
       if (restart_ccsd_t.eq.1) then ! first time through
 c
 c       Initialize the triples table
@@ -101,7 +102,7 @@ c
 #ifdef DEBUG_PRINT
       energy_debug = 0.0d0
 #endif
-      do t_p4b = noab+1,noab+nvab
+      do t_p4b = noab+ccsd_t_restart_begin,noab+nvab
        energy=0.0d0
        virtual_outer_index = t_p4b - noab
        do t_p5b = t_p4b,noab+nvab
@@ -257,6 +258,14 @@ c
 c
       if (.not.ma_pop_stack(l_triples_table))
      1  call errquit("ccsd_t_restart: MA problem",0,MA_ERR)
+c
+c     Reset starting index once complete?
+c
+c      ccsd_t_restart_begin = 1
+c      if (.not.rtdb_put(rtdb,'tce:ccsd_t_restart_begin',mt_int,1,
+c     1                  ccsd_t_restart_begin))
+c     2  call errquit('ccsd_t_restart: failed writing to RTDB',1,
+c     3  RTDB_ERR)
 c
       return
       end

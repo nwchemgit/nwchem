@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.9 2008-10-08 16:41:07 jhammond Exp $
+#$Id: GNUmakefile,v 1.10 2008-10-09 03:42:23 jhammond Exp $
 
 OBJ          = cr_ccsd_t.o lr_ccsd_t.o
 
@@ -19,7 +19,8 @@ USES_BLAS = ccsd_t_doubles.F ccsd_t_singles.F lambda_ccsd_t_left.F \
             cr_qcisd_t.F m2_dot_m1t1.F
 
 
-LIB_DEFINES = -DDEBUG_PRINT -DDEBUG_CCSD_T
+LIB_DEFINES += -DDEBUG_PRINT
+LIB_DEFINES += -DSSE2_VERSION
 #
 # Possible #defines
 #
