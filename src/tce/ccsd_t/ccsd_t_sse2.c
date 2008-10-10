@@ -16,6 +16,7 @@ void ccsd_t_sse2_(int *p_range_p4, int *p_range_p5, int *p_range_p6,
                   double *p_factor, double *p_energy){
 
    static unsigned int range_p4,range_p5,range_p6,range_h1,range_h2,range_h3;
+   void ccsd_t_sse2_unaligned_();
 
    printf("Top of ccsd_t_sse2_\n");
 
