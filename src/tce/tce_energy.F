@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.139 2008-10-08 20:44:52 kowalski Exp $
+c $Id: tce_energy.F,v 1.140 2008-10-10 20:27:05 kowalski Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -1992,7 +1992,7 @@ c    opening l_t1_local
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
      1      call errquit('t1_local',1,MA_ERR)
-        call ma_zero(k_t1_local,size_t1)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
 c    copy d_t1 ==> l_t1_local
         call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
        end if
