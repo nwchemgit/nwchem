@@ -1,5 +1,5 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.55 2008-09-29 20:25:49 edo Exp $
+C$Id: xc_inp.F,v 1.56 2008-10-10 14:52:55 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -305,7 +305,7 @@ c
        endif
        nlxfac(16)=.true.
        lxfac(2)=.true.
-       xfac(2)=1.05151d0
+       if(abs(xfac(2)).lt.1d-6) xfac(2)=1.05151d0
        goto 10
 c     
 c     Handys OPTC 2001
