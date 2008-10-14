@@ -1,7 +1,7 @@
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                  d_v2,k_v2_offset,energy1,energy2)
 C
-C     $Id: ccsd_t.F,v 1.12 2008-10-09 03:42:24 jhammond Exp $
+C     $Id: ccsd_t.F,v 1.13 2008-10-14 04:17:17 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -114,6 +114,9 @@ C
             else if ((t_h1b.eq.t_h2b).or.(t_h2b.eq.t_h3b)) then
               factor = factor / 2.0d0
             endif
+c
+c factor = [ 1/36, 1/18, 1/12, 1/6, 1/4, 1/3, 1/2, 1, 2]
+c
             i = 0
             do t_p4 = 1, range_p4
              denom_p4 = dbl_mb(offset_p4+t_p4)
@@ -177,7 +180,7 @@ c --------------------------------------------------------------
       SUBROUTINE ccsd_t_vector(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                         d_v2,k_v2_offset,energy)
 C
-C     $Id: ccsd_t.F,v 1.12 2008-10-09 03:42:24 jhammond Exp $
+C     $Id: ccsd_t.F,v 1.13 2008-10-14 04:17:17 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -210,7 +213,7 @@ C
       integer range_p4,range_p5,range_p6
       integer range_h1,range_h2,range_h3
       integer range_h3_b,range_h3_r
-      double precision energy
+      double precision energy,energy1,energy2,energy3,energy4
       double precision factor,denom,denom_p,denom_h12,denom_ph12
       double precision denom_p4,denom_p5,denom_p6
       double precision denom_h1,denom_h2,denom_h3
@@ -219,7 +222,11 @@ C
       nprocs = GA_NNODES()
       count = 0
       next = nxtask(nprocs,1)
-      energy = 0.0d0
+      energy  = 0.0d0
+      energy1 = 0.0d0
+      energy2 = 0.0d0
+      energy3 = 0.0d0
+      energy4 = 0.0d0
       do t_p4b = noab+1,noab+nvab
        range_p4 = int_mb(k_range+t_p4b-1)
        offset_p4 = k_evl_sorted+int_mb(k_offset+t_p4b-1)-1
@@ -332,31 +339,23 @@ C
                  denom_h12 = denom_h1 + denom_h2
                  denom_ph12 = denom_p + denom_h1 + denom_h2
 #ifdef IFCV8
-!DEC$ loop count min(4), max(32), avg(16)
-!DEC$ unroll(4)
+!DEC$ loop count min(1), max(8), avg(4)
 !DEC$ vector always
 #endif
                  do t_h3 = 1, range_h3_b,4
-                  denom_h3 = dbl_mb(offset_h3+t_h3)
-                  denom = 1.0d0 / ( denom_ph12 + denom_h3 )
-                  energy = energy + factor*denom*dbl_mb(k_doubles+i)
-     2                   * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
-                  i = i + 1
-                  denom_h3 = dbl_mb(offset_h3+t_h3+1)
-                  denom = 1.0d0 / ( denom_ph12 + denom_h3 )
-                  energy = energy + factor*denom*dbl_mb(k_doubles+i)
-     2                   * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
-                  i = i + 1
-                  denom_h3 = dbl_mb(offset_h3+t_h3+2)
-                  denom = 1.0d0 / ( denom_ph12 + denom_h3 )
-                  energy = energy + factor*denom*dbl_mb(k_doubles+i)
-     2                   * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
-                  i = i + 1
-                  denom_h3 = dbl_mb(offset_h3+t_h3+3)
-                  denom = 1.0d0 / ( denom_ph12 + denom_h3 )
-                  energy = energy + factor*denom*dbl_mb(k_doubles+i)
-     2                   * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
-                  i = i + 1
+                  energy1 = energy1 + factor*dbl_mb(k_doubles+i)
+     1                   * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
+     2                   / ( denom_ph12 + dbl_mb(offset_h3+t_h3))
+                  energy2 = energy2 + factor*dbl_mb(k_doubles+i+1)
+     1                   * (dbl_mb(k_doubles+i+1)+dbl_mb(k_singles+i+1))
+     2                   / ( denom_ph12 + dbl_mb(offset_h3+t_h3+1))
+                  energy3 = energy3 + factor*dbl_mb(k_doubles+i+2)
+     1                   * (dbl_mb(k_doubles+i+2)+dbl_mb(k_singles+i+2))
+     2                   / ( denom_ph12 + dbl_mb(offset_h3+t_h3+2))
+                  energy4 = energy4 + factor*dbl_mb(k_doubles+i+3)
+     1                   * (dbl_mb(k_doubles+i+3)+dbl_mb(k_singles+i+3))
+     2                   / ( denom_ph12 + dbl_mb(offset_h3+t_h3+3))
+                  i = i + 4
                  enddo ! t_h3
 #ifdef IFCV8
 !DEC$ loop count min(0), max(3), avg(2)
@@ -389,6 +388,7 @@ C
         enddo
        enddo
       enddo
+      energy = energy + energy1 + energy2 + energy3 + energy4
       next = nxtask(-nprocs,1)
       call ga_dgop(mt_dbl,energy,1,'+')
       return
@@ -404,7 +404,7 @@ c --------------------------------------------------------------
       SUBROUTINE ccsd_t_vector(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                         d_v2,k_v2_offset,energy)
 C
-C     $Id: ccsd_t.F,v 1.12 2008-10-09 03:42:24 jhammond Exp $
+C     $Id: ccsd_t.F,v 1.13 2008-10-14 04:17:17 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
