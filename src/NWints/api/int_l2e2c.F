@@ -1,7 +1,7 @@
-c $Id: int_l2e2c.F,v 1.14 2003-10-17 22:53:42 carlfahl Exp $
+c $Id: int_l2e2c.F,v 1.15 2008-10-14 15:43:49 jhammond Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsection{int\_2e2c}
+c:tex-\subsection{int\_l2e2c}
 c:tex-this routine computes the 2 center 2 electron integrals
 c:tex-with labels and ``zero'' integrals removed: 
 c:tex-\begin{eqnarray*}
