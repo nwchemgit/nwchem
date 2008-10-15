@@ -2,7 +2,7 @@
      1  size_x1,size_x2,size_x3,size_x4,
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
 c
-c $Id: tce_eom_xguess.F,v 1.6 2008-05-02 17:34:00 jhammond Exp $
+c $Id: tce_eom_xguess.F,v 1.7 2008-10-15 18:22:18 kowalski Exp $
 c
 c     Generates initial trial vectors that are all singly excited 
 c     determinants within the same irrep_x
@@ -42,15 +42,19 @@ c
       integer ivec, jvec
 c      double precision maxdiff
       double precision nextmaxdiff
-      integer i
+      integer i,ibumper
       character*255 filename
 c
 c     Determine threshold
 c
       nodezero = (ga_nodeid().eq.0)
-      if (.not.ma_push_get(mt_dbl,maxtrials,'diff',l_diff,k_diff))
+      ibumper=50000
+cx      if (.not.ma_push_get(mt_dbl,maxtrials,'diff',l_diff,k_diff))
+cx     1  call errquit('tce_eom_xguess: MA problem',0,MA_ERR)
+cx      call dfill(maxtrials,1.0d99,dbl_mb(k_diff),1)
+      if (.not.ma_push_get(mt_dbl,ibumper,'diff',l_diff,k_diff))
      1  call errquit('tce_eom_xguess: MA problem',0,MA_ERR)
-      call dfill(maxtrials,1.0d99,dbl_mb(k_diff),1)
+      call dfill(ibumper,1.0d99,dbl_mb(k_diff),1)
       ivec = 0
       do p1b = noab+1,noab+nvab
         do h3b = 1,noab
