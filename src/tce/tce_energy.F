@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.140 2008-10-10 20:27:05 kowalski Exp $
+c $Id: tce_energy.F,v 1.141 2008-10-15 22:33:33 kowalski Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -157,6 +157,7 @@ c  NEW SOLVER ---------------------------
       integer l_hbar,k_hbar,ihbar
 c - T1/X1 LOCALIZATION -------------------
       integer l_t1_local,k_t1_local
+      integer l_x1_local,k_x1_local
 c ---------------------------------------
       logical needt1
       logical needt2
@@ -7654,6 +7655,23 @@ c           call hbar_init
                   xp1_exist(ivec) = .true.
                   call dratoga(x1(ivec))
                   call dratoga(x2(ivec))
+c - T1/X1 LOCALIZATION ----------
+       if(ccsd_var.ne.'cc2') then
+c    opening l_t1_local and l_x1_local
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,size_x1,'x1_local',
+     1      l_x1_local,k_x1_local))
+     1      call errquit('x1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+        call ma_zero(dbl_mb(k_x1_local),size_x1)
+c    copy d_t1 ==> l_t1_local
+c    copy x1(ivec) ==> l_x1_local
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+        call ga_get(x1(ivec),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+       end if
+c -------------------------------
          if(ccsd_var.eq.'cc2') then
           call cc2_x1(d_f1,xp1(ivec),d_t1,d_t2,d_v2,x1(ivec),x2(ivec),
      &      k_f1_offset,k_x1_offset,k_t1_offset,k_t2_offset,
@@ -7663,10 +7681,16 @@ c                  call eomccsd_x1(d_f1,xp1(ivec),d_t1,d_t2,d_v2,
 c     1              x1(ivec),x2(ivec),k_f1_offset,k_x1_offset,
 c     2              k_t1_offset,k_t2_offset,k_v2_offset,
 c     3              k_x1_offset,k_x2_offset)
-                  call eomccsd_x1(d_f1,xp1(ivec),d_t1,d_t2,d_v2,
-     1              x1(ivec),x2(ivec),k_f1_offset,k_x1_offset,
+ccx                  call eomccsd_x1(d_f1,xp1(ivec),d_t1,d_t2,d_v2,
+ccx     1              x1(ivec),x2(ivec),k_f1_offset,k_x1_offset,
+ccx     2              k_t1_offset,k_t2_offset,k_v2_offset,
+ccx     3              k_x1_offset,k_x2_offset)
+c - T1/X1 LOCALIZATION --
+                  call eomccsd_x1(d_f1,xp1(ivec),k_t1_local,d_t2,d_v2,
+     1              k_x1_local,x2(ivec),k_f1_offset,k_x1_offset,
      2              k_t1_offset,k_t2_offset,k_v2_offset,
      3              k_x1_offset,k_x2_offset)
+c - T1/X1 LOCALIZATION --
          end if
                   call reconcilefile(xp1(ivec),size_x1)
            if(ccsd_var.eq.'lr-ccsd') then
@@ -7692,12 +7716,26 @@ c                  call eomccsd_x2(d_f1,xp2(ivec),d_t1,d_t2,d_v2,
 c     1              x1(ivec),x2(ivec),k_f1_offset,k_x2_offset,
 c     2              k_t1_offset,k_t2_offset,k_v2_offset,
 c     3              k_x1_offset,k_x2_offset)
-                  call eomccsd_x2(d_f1,xp2(ivec),d_t1,d_t2,d_v2,
-     1              x1(ivec),x2(ivec),k_f1_offset,k_x2_offset,
+ccx                  call eomccsd_x2(d_f1,xp2(ivec),d_t1,d_t2,d_v2,
+ccx     1              x1(ivec),x2(ivec),k_f1_offset,k_x2_offset,
+ccx     2              k_t1_offset,k_t2_offset,k_v2_offset,
+ccx     3              k_x1_offset,k_x2_offset,size_x1,size_x2)
+c - T1/X1 LOCALIZATION --
+                  call eomccsd_x2(d_f1,xp2(ivec),k_t1_local,d_t2,d_v2,
+     1              k_x1_local,x2(ivec),k_f1_offset,k_x2_offset,
      2              k_t1_offset,k_t2_offset,k_v2_offset,
      3              k_x1_offset,k_x2_offset,size_x1,size_x2)
+c - T1/X1 LOCALIZATION --
          end if
                   call reconcilefile(xp2(ivec),size_x2)
+c - T1/X1 LOCALIZATION --
+       if(ccsd_var.ne.'cc2') then
+         if(.not.MA_POP_STACK(l_x1_local))
+     &      call errquit('l_x1_local',4,MA_ERR)
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',4,MA_ERR)
+       end if
+c -----------------------
            if(ccsd_var.eq.'lr-ccsd') then
                   call tce_j2_x2_scaling(xp2(ivec),k_x2_offset,
      1              d_j2,k_j2_offset)
