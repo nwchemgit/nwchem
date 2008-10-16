@@ -2,7 +2,7 @@
      1  size_y1,size_y2,size_y3,size_y4,
      2  k_y1_offset,k_y2_offset,k_y3_offset,k_y4_offset)
 c
-c $Id: tce_eom_yguess.F,v 1.6 2008-05-02 17:34:01 jhammond Exp $
+c $Id: tce_eom_yguess.F,v 1.7 2008-10-16 16:43:11 kowalski Exp $
 c
 c     Generates initial trial vectors that are all singly excited 
 c     determinants within the same irrep_y
@@ -39,15 +39,19 @@ c
       integer ivec, jvec
 c      double precision maxdiff
       double precision nextmaxdiff
-      integer i
+      integer i,ibumper
       character*255 filename
 c
 c     Determine threshold
 c
       nodezero = (ga_nodeid().eq.0)
-      if (.not.ma_push_get(mt_dbl,maxtrials,'diff',l_diff,k_diff))
-     1  call errquit('tce_eom_yguess: MA problem',0,MA_ERR)
-      call dfill(maxtrials,1.0d99,dbl_mb(k_diff),1)
+      ibumper=50000
+ccx      if (.not.ma_push_get(mt_dbl,maxtrials,'diff',l_diff,k_diff))
+ccx     1  call errquit('tce_eom_yguess: MA problem',0,MA_ERR)
+ccx      call dfill(maxtrials,1.0d99,dbl_mb(k_diff),1)
+      if (.not.ma_push_get(mt_dbl,ibumper,'diff',l_diff,k_diff))
+     1  call errquit('tce_eom_xguess: MA problem',0,MA_ERR)
+      call dfill(ibumper,1.0d99,dbl_mb(k_diff),1)
       ivec = 0
       do p1b = noab+1,noab+nvab
         do h3b = 1,noab
