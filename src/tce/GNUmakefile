@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.90 2008-10-08 20:46:25 kowalski Exp $
+#$Id: GNUmakefile,v 1.91 2008-10-16 15:38:12 jhammond Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 gradients \
@@ -9,7 +9,7 @@ SUBDIRS = include diis diis2 diis3 gradients \
           mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
           ccsdt ccsdt_lambda eomccsdt
 
-ifdef CCSDTQ
+ifdef CCSDTLR
       SUBDIRS += ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta
       LIB_DEFINES += -DCCSDTLR
 endif
