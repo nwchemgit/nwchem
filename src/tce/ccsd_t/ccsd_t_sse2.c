@@ -1,3 +1,5 @@
+#ifdef SSE2_VERSION
+
 #ifdef DEBUG_PRINT
   #include <stdio.h>
 #endif
@@ -349,3 +351,5 @@ void ccsd_t_sse2_unaligned_(int range_p4, int range_p5, int range_p6,
 //   fflush(stdout);
 
 }
+
+#endif

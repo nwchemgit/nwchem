@@ -12,8 +12,8 @@ c
       integer l_spin, k_spin      ! Spins of blocks
       integer l_sym, k_sym        ! Symmetry of blocks
       integer l_range, k_range    ! Length of blocks
-      integer l_offset, k_offset  ! Offset of blocks
-      integer l_alpha,k_alpha     ! Alpha-izer of beta orbitals (for restricted case)
+c      integer l_offset, k_offset  ! Offset of blocks
+c      integer l_alpha,k_alpha     ! Alpha-izer of beta orbitals (for restricted case)
       integer noa,nob,nva,nvb     ! Number of blocks
       integer noab,nvab           ! Number of blocks
       integer irrep_e             ! Totally symmetric
@@ -75,8 +75,8 @@ c
       logical intorb              ! When using spatial indexing of the 2-electron integrals
 
       common /tceinteger/
-     1  noa,nob,nva,nvb,noab,nvab,l_alpha,k_alpha,
-     2  l_spin,k_spin,l_sym,k_sym,l_range,k_range,l_offset,k_offset,
+     1  noa,nob,nva,nvb,noab,nvab,!l_alpha,k_alpha,
+     2  l_spin,k_spin,l_sym,k_sym,l_range,k_range,!l_offset,k_offset,
      4  irrep_x,irrep_y,irrep_d,irrep_o,irrep_tr,irrep_yr,
      5  irrep_a,irrep_b,irrep_c,
      6  irrep_oa,irrep_ob,irrep_oc,irrep_od,

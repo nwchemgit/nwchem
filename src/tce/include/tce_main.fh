@@ -1,8 +1,13 @@
-c $Id: tce_main.fh,v 1.18 2008-10-03 03:39:21 jhammond Exp $
+c $Id: tce_main.fh,v 1.19 2008-10-16 14:30:30 jhammond Exp $
 c
 c Include file for TCE module
 c
 c Written by So Hirata (c) Battelle, PNNL (2002).
+c
+c from tce.fh (does not appear to be necessary for computer-generated code)
+c
+      integer l_offset, k_offset  ! Offset of blocks
+      integer l_alpha,k_alpha     ! Alpha-izer of beta orbitals (for restricted case)
 c
 c      integer rtdb
 c      logical nodezero                       ! True if node 0
@@ -38,6 +43,7 @@ c
       logical left                            ! Dipole moments & dipole transition moments
       logical ampnorms                        ! Calculate and print amplitude norms
       logical diagnt1                         ! Calculate the T1 diagnostic
+      logical fast_ccsd_t                     ! Use vectorized CCSD(T) code which does not produce CCSD[T]
       integer multipole                       ! Multipole moments
       integer maxiter                         ! Maximum number of Davidson iterations
       integer l_evl(2),k_evl(2)               ! MA handles for eigenvalues (AB)
@@ -140,7 +146,8 @@ c
      9  l_o2o_offset,k_o2o_offset,l_o2ot_offset,k_o2ot_offset,
      1  l_v2_alpha_offset,k_v2_alpha_offset,l_v2spin_offset,
      2  k_v2spin_offset,atpart,nalength,a2length,tile_dim,
-     3  idisk,fast2e,ichop,imaxsize,l_mo_index, k_mo_index
+     3  idisk,fast2e,ichop,imaxsize,l_mo_index, k_mo_index,
+     4  l_alpha,k_alpha,l_offset,k_offset
 c
 c     Doubles
 c
@@ -158,5 +165,5 @@ c     Logicals
 c
       common /tcemainlogical/
      1  oskel,oadapt,left,fileisga,ampnorms,diagnt1,
-     2  symmetry,activecalc
+     2  symmetry,activecalc,fast_ccsd_t
 
