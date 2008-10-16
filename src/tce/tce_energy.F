@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.141 2008-10-15 22:33:33 kowalski Exp $
+c $Id: tce_energy.F,v 1.142 2008-10-16 14:20:17 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -501,6 +501,7 @@ c
       logical excitedfragment
 c
       logical ccsdtleft
+      logical tce_skip_scf
       nodezero=(ga_nodeid().eq.0)
       ccsdtleft=.false.
 c
@@ -515,19 +516,37 @@ c
      1    call errquit('tce_energy: failed to write reference',0,
      2    RTDB_ERR)
       endif
-      if (reference.eq.0) then
-        if (.not.dft_energy(rtdb)) return
-        if (.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,ref))
-     1    call errquit('tce_energy: failed to get dft energy',0,
-     2    RTDB_ERR)
-      else if (reference.eq.1) then
-        if (.not.scf(rtdb)) return
-        if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,ref))
-     1    call errquit('tce_energy: failed to get scf energy',0,
-     2    RTDB_ERR)
-      else
-        call errquit('tce_energy: illegal reference',reference,
-     1    UNKNOWN_ERR)
+c
+c     TCE restart precludes SCF calculation
+c
+      if (.not.rtdb_get(rtdb,'tce:read_integrals',mt_log,5,
+     1         read_integrals)) then
+        read_integrals(1)=.false. ! 1-e integrals
+        read_integrals(2)=.false. ! 2-e integrals
+        read_integrals(3)=.false. ! dipole integrals
+        read_integrals(4)=.false. ! quadrupole integrals
+        read_integrals(5)=.false. ! octopole integrals
+        if (.not.rtdb_put(rtdb,'tce:read_integrals',mt_log,5,
+     1           read_integrals))
+     1  call errquit('tce_init: failed to write read_integrals',
+     2               0,RTDB_ERR)
+        tce_skip_scf = (read_integrals(1).and.read_integrals(2))
+      endif
+      if (.not.tce_skip_scf) then
+        if (reference.eq.0) then
+          if (.not.dft_energy(rtdb)) return
+          if (.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,ref))
+     1      call errquit('tce_energy: failed to get dft energy',0,
+     2      RTDB_ERR)
+        else if (reference.eq.1) then
+          if (.not.scf(rtdb)) return
+          if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,ref))
+     1      call errquit('tce_energy: failed to get scf energy',0,
+     2      RTDB_ERR)
+        else
+          call errquit('tce_energy: illegal reference',reference,
+     1      UNKNOWN_ERR)
+        endif
       endif
 c
 c     ===================
@@ -3776,20 +3795,26 @@ c -------------------
           cpu = - util_cpusec()
           wall = - util_wallsec()
           if (restart_ccsd_t.eq.0) then
-            call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                  d_v2,k_v2_offset,pt3_1,pt3_2)
+            if (fast_ccsd_t) then
+              if (nodezero) write(LuOut,*) 'Using tuned CCSD(T) code'
+              call ccsd_t_vector(d_t1,k_t1_offset,d_t2,k_t2_offset,
+     1                           d_v2,k_v2_offset,pt3_2)
+            else
+              if (nodezero) write(LuOut,*) 'Using plain CCSD(T) code'
+              call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
+     1                    d_v2,k_v2_offset,pt3_1,pt3_2)
+            endif
           elseif (restart_ccsd_t.gt.0) then
             pt3_1 = 0.0d0
             call ccsd_t_restart(rtdb,d_t1,k_t1_offset,
      1                               d_t2,k_t2_offset,
-     2                               d_v2,k_v2_offset,
-     3                               pt3_2)
+     2                               d_v2,k_v2_offset,pt3_2)
           endif
           cpu = cpu + util_cpusec()
           wall = wall + util_wallsec()
           if (nodezero) then
             write(LuOut,*)
-            if (restart_ccsd_t.eq.0) then
+            if ((restart_ccsd_t.eq.0).and.(.not.fast_ccsd_t)) then
               write(LuOut,9075) "CCSD[T]",pt3_1
               write(LuOut,9070) "CCSD[T]",corr+pt3_1
               write(LuOut,9080) "CCSD[T]",ref+corr+pt3_1

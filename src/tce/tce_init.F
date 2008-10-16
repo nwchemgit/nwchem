@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.65 2008-10-06 20:46:11 jhammond Exp $
+c $Id: tce_init.F,v 1.66 2008-10-16 14:20:18 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -527,6 +527,15 @@ c
      1    call errquit('tce_init: failed to write symmetry',0,RTDB_ERR)
       endif
 c
+c     vectorized CCSD(T)
+c
+      if (.not.rtdb_get(rtdb,'tce:fast_ccsd_t',mt_log,1,
+     1  fast_ccsd_t)) then
+        fast_ccsd_t = .false.
+        if (.not.rtdb_put(rtdb,'tce:fast_ccsd_t',mt_log,1,fast_ccsd_t))
+     1    call errquit('tce_init: failed for fast_ccsd_t',0,RTDB_ERR)
+      endif
+c
 c     Temporary restart input
 c
       if (.not.rtdb_get(rtdb,'tce:restart_ccsd_t',mt_int,1,
@@ -619,18 +628,20 @@ c       S(+),D(+),T(+),Q(+),S(-),D(-),T(-),Q(-),S(r),D(r),T(r),Q(r)
 c
 c     Read toggles
 c
-      if (.not.rtdb_get(rtdb,'tce:read_integrals',mt_log,5,
-     1         read_integrals)) then
-        read_integrals(1)=.false. ! 1-e integrals
-        read_integrals(2)=.false. ! 2-e integrals
-        read_integrals(3)=.false. ! dipole integrals
-        read_integrals(4)=.false. ! quadrupole integrals
-        read_integrals(5)=.false. ! octopole integrals
-        if (.not.rtdb_put(rtdb,'tce:read_integrals',mt_log,5,
-     1           read_integrals))
-     1  call errquit('tce_init: failed to write read_integrals',
-     2               0,RTDB_ERR)
-      endif
+c moved to tce_energy.F so skips SCF on integral read
+c
+c      if (.not.rtdb_get(rtdb,'tce:read_integrals',mt_log,5,
+c     1         read_integrals)) then
+c        read_integrals(1)=.false. ! 1-e integrals
+c        read_integrals(2)=.false. ! 2-e integrals
+c        read_integrals(3)=.false. ! dipole integrals
+c        read_integrals(4)=.false. ! quadrupole integrals
+c        read_integrals(5)=.false. ! octopole integrals
+c        if (.not.rtdb_put(rtdb,'tce:read_integrals',mt_log,5,
+c     1           read_integrals))
+c     1  call errquit('tce_init: failed to write read_integrals',
+c     2               0,RTDB_ERR)
+c      endif
       if (.not.rtdb_get(rtdb,'tce:read_t',mt_log,4,read_t)) then
         do i = 1, 4
           read_t(i)=.false.
@@ -829,9 +840,9 @@ c
           ctype='Coupled-cluster through triples w/ perturbation'
           cperturbative = '(2) quadruples (nonfactorized)'
         endif
-         if(intorb) then
-          call errquit('tce_init: 2eorb with active calc.',0,RTDB_ERR)
-         endif
+c         if(intorb) then
+c          call errquit('tce_init: 2eorb with active calc.',0,RTDB_ERR)
+c         endif
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
      2      (module.ne.'uccsdt'))

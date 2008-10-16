@@ -1,10 +1,11 @@
       subroutine ma_pack(unpack,pack,n)
 c
-c $Id: ma_pack.F,v 1.1 2002-10-18 23:42:06 sohirata Exp $
+c $Id: ma_pack.F,v 1.2 2008-10-16 14:20:16 jhammond Exp $
 c
       implicit none
 #include "mafdecls.fh"
 #include "tce.fh"
+#include "tce_main.fh"
       integer i,j,k,n
       integer g1b,g2b,ioff,joff
       double precision unpack(n,n)

@@ -1,7 +1,7 @@
       subroutine tce_mbpt2(d_mo2e,k_2e_offset,
      1                     d_t2,k_t2_offset,mbpt2)
 c
-c $Id: tce_mbpt2.F,v 1.6 2008-07-17 21:47:58 marat Exp $
+c $Id: tce_mbpt2.F,v 1.7 2008-10-16 14:20:17 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -32,6 +32,13 @@ cc      integer nxtval
 cc      external nxtval
       INTEGER NXTASK
       EXTERNAL NXTASK
+      double precision cpu
+      double precision wall
+      logical nodezero
+c
+      nodezero=(ga_nodeid().eq.0)
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
 c
 c     =====================
 c     Zero scratch residual
@@ -110,6 +117,10 @@ cc      next = nxtval(-nprocs)
       call ga_get(g_mbpt2,1,1,1,1,mbpt2,1)
       if (.not.ga_destroy(g_mbpt2))
      1  call errquit('tce_mbpt2: GA problem',1,GA_ERR)
+      cpu=cpu+util_cpusec()
+      wall=wall+util_wallsec()
+      if (nodezero) write(LuOut,9020) cpu, wall
+ 9020 format(1x,'Cpu & wall time / sec',2f15.1)
  9200 format(/,1x,'node',i3,' blocks:',4i3,' MBPT(2) contribution',
      1       f20.10)
       return
