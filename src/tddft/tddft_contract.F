@@ -2,7 +2,7 @@
      1  g_td,g_pd,g_qd,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet)
 c
-c $Id: tddft_contract.F,v 1.5 2008-10-10 19:35:05 niri Exp $
+c $Id: tddft_contract.F,v 1.6 2008-10-17 00:56:01 niri Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c (1) A trial density matrix will be decomposed into 
@@ -28,7 +28,7 @@ c
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
-#include "case.fh"   ! attenuation header
+#include "case.fh"
 c
       integer rtdb             ! Runtime database
       integer geom             ! Geometry handle
@@ -312,7 +312,7 @@ c
      1  g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet,nvectors)
 c
-c $Id: tddft_contract.F,v 1.5 2008-10-10 19:35:05 niri Exp $
+c $Id: tddft_contract.F,v 1.6 2008-10-17 00:56:01 niri Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c Multiple trial density matrices are processed simultaneously,
