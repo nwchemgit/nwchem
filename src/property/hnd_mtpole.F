@@ -1,6 +1,6 @@
       subroutine hnd_mtpole(rtdb,basis,geom,mpole)
 c
-c $Id: hnd_mtpole.F,v 1.11 2008-08-18 12:22:45 jhammond Exp $
+c $Id: hnd_mtpole.F,v 1.12 2008-10-17 16:47:05 jhammond Exp $
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion
@@ -30,11 +30,12 @@ c
       parameter (max_pole = 3, maxcomp = (max_pole+1)*(max_pole+2)/2)
 c
       double precision cm(3), mptval(maxcomp,3)
+      double precision mptval2(maxcomp,3)
       double precision octo, debye, buck, cx, cy, cz
       double precision dipol, dipefc, diptot, rsquar, dum1, dum2
       logical status
       integer Nxyz(3)
-      integer ncomp, nat, iat, icomp, i
+      integer ncomp, nat, iat, icomp, i,j
       integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt
       integer nefc, l_efcc, k_efcc, l_efcz, k_efcz
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
@@ -207,21 +208,19 @@ c     Second moments
 c
       write(luout,3999)
       write(luout,3996) mptval(1,1),mptval(1,2),mptval(1,1)+mptval(1,2),
-     &                  mptval(4,1),mptval(4,2),mptval(4,1)+mptval(4,2),
-     &                  mptval(6,1),mptval(6,2),mptval(6,1)+mptval(6,2),
-     &                  mptval(2,1),mptval(2,2),mptval(2,1)+mptval(2,2),
-     &                  mptval(3,1),mptval(3,2),mptval(3,1)+mptval(3,2),
-     &                  mptval(5,1),mptval(5,2),mptval(5,1)+mptval(5,2)
+     1                  mptval(4,1),mptval(4,2),mptval(4,1)+mptval(4,2),
+     2                  mptval(6,1),mptval(6,2),mptval(6,1)+mptval(6,2),
+     3                  mptval(2,1),mptval(2,2),mptval(2,1)+mptval(2,2),
+     4                  mptval(3,1),mptval(3,2),mptval(3,1)+mptval(3,2),
+     5                  mptval(5,1),mptval(5,2),mptval(5,1)+mptval(5,2)
+c
+      do j = 1, 2
+        do i = 1, 6
+          mptval2(i,j) = mptval(i,j)*buck
+        enddo
+      enddo
+c
       write(luout,3995)
-      write(luout,3996) mptval(1,1)*buck,mptval(1,2)*buck,
-     &                  (mptval(1,1)+mptval(1,2))*buck,mptval(4,1)*buck,
-     &                  mptval(4,2)*buck,(mptval(4,1)+mptval(4,2))*buck,
-     &                  mptval(6,1)*buck,mptval(6,2)*buck,
-     &                  (mptval(6,1)+mptval(6,2))*buck,mptval(2,1)*buck,
-     &                  mptval(2,2)*buck,(mptval(2,1)+mptval(2,2))*buck,
-     &                  mptval(3,1)*buck,mptval(3,2)*buck,
-     &                  (mptval(3,1)+mptval(3,2))*buck,mptval(5,1)*buck,
-     &                  mptval(5,2)*buck,(mptval(5,1)+mptval(5,2))*buck
 c
 c     Quadrupole moments
 c
@@ -241,21 +240,26 @@ c
       mptval(5,2)= 3.0d0*mptval(5,2)/2.0d0
       write(luout,3997)
       write(luout,3996) mptval(1,1),mptval(1,2),mptval(1,1)+mptval(1,2),
-     &                  mptval(4,1),mptval(4,2),mptval(4,1)+mptval(4,2),
-     &                  mptval(6,1),mptval(6,2),mptval(6,1)+mptval(6,2),
-     &                  mptval(2,1),mptval(2,2),mptval(2,1)+mptval(2,2),
-     &                  mptval(3,1),mptval(3,2),mptval(3,1)+mptval(3,2),
-     &                  mptval(5,1),mptval(5,2),mptval(5,1)+mptval(5,2)
+     1                  mptval(4,1),mptval(4,2),mptval(4,1)+mptval(4,2),
+     2                  mptval(6,1),mptval(6,2),mptval(6,1)+mptval(6,2),
+     3                  mptval(2,1),mptval(2,2),mptval(2,1)+mptval(2,2),
+     4                  mptval(3,1),mptval(3,2),mptval(3,1)+mptval(3,2),
+     5                  mptval(5,1),mptval(5,2),mptval(5,1)+mptval(5,2)
+c
+      do j = 1, 2
+        do i = 1, 6
+          mptval2(i,j) = mptval(i,j)*buck
+        enddo
+      enddo
+c
       write(luout,3994)
-      write(luout,3996) mptval(1,1)*buck,mptval(1,2)*buck,
-     &                  (mptval(1,1)+mptval(1,2))*buck,mptval(4,1)*buck,
-     &                  mptval(4,2)*buck,(mptval(4,1)+mptval(4,2))*buck,
-     &                  mptval(6,1)*buck,mptval(6,2)*buck,
-     &                  (mptval(6,1)+mptval(6,2))*buck,mptval(2,1)*buck,
-     &                  mptval(2,2)*buck,(mptval(2,1)+mptval(2,2))*buck,
-     &                  mptval(3,1)*buck,mptval(3,2)*buck,
-     &                  (mptval(3,1)+mptval(3,2))*buck,mptval(5,1)*buck,
-     &                  mptval(5,2)*buck,(mptval(5,1)+mptval(5,2))*buck
+      write(luout,3996) 
+     1    mptval2(1,1),mptval2(1,2),mptval2(1,1)+mptval2(1,2),
+     2    mptval2(4,1),mptval2(4,2),mptval2(4,1)+mptval2(4,2),
+     3    mptval2(6,1),mptval2(6,2),mptval2(6,1)+mptval2(6,2),
+     4    mptval2(2,1),mptval2(2,2),mptval2(2,1)+mptval2(2,2),
+     5    mptval2(3,1),mptval2(3,2),mptval2(3,1)+mptval2(3,2),
+     6    mptval2(5,1),mptval2(5,2),mptval2(5,1)+mptval2(5,2)
       write(luout,3993)
 c
 c     Done, goto cleanup and sync with other nodes
@@ -270,32 +274,36 @@ c
 c     Third moments
 c
   103 write(luout,9999)
-      write(luout,9996) mptval(1,1),mptval(1,2),mptval(1,1)+mptval(1,2),
-     &              mptval(7,1),mptval(7,2),mptval(7,1)+mptval(7,2),
-     &              mptval(10,1),mptval(10,2),mptval(10,1)+mptval(10,2),
-     &              mptval(2,1),mptval(2,2),mptval(2,1)+mptval(2,2),
-     &              mptval(3,1),mptval(3,2),mptval(3,1)+mptval(3,2),
-     &              mptval(4,1),mptval(4,2),mptval(4,1)+mptval(4,2),
-     &              mptval(8,1),mptval(8,2),mptval(8,1)+mptval(8,2),
-     &              mptval(6,1),mptval(6,2),mptval(6,1)+mptval(6,2),
-     &              mptval(9,1),mptval(9,2),mptval(9,1)+mptval(9,2),
-     &              mptval(5,1),mptval(5,2),mptval(5,1)+mptval(5,2)
+      write(luout,9996) 
+     1              mptval(1,1),mptval(1,2),mptval(1,1)+mptval(1,2),
+     2              mptval(7,1),mptval(7,2),mptval(7,1)+mptval(7,2),
+     3              mptval(10,1),mptval(10,2),mptval(10,1)+mptval(10,2),
+     4              mptval(2,1),mptval(2,2),mptval(2,1)+mptval(2,2),
+     5              mptval(3,1),mptval(3,2),mptval(3,1)+mptval(3,2),
+     6              mptval(4,1),mptval(4,2),mptval(4,1)+mptval(4,2),
+     7              mptval(8,1),mptval(8,2),mptval(8,1)+mptval(8,2),
+     8              mptval(6,1),mptval(6,2),mptval(6,1)+mptval(6,2),
+     9              mptval(9,1),mptval(9,2),mptval(9,1)+mptval(9,2),
+     1              mptval(5,1),mptval(5,2),mptval(5,1)+mptval(5,2)
+c
+      do j = 1, 2
+        do i = 1, 10
+          mptval2(i,j) = mptval(i,j)*octo
+        enddo
+      enddo
+c
       write(luout,9995)
-      write(luout,9996) mptval(1,1)*octo,mptval(1,2)*octo,
-     &                (mptval(1,1)+mptval(1,2))*octo,mptval(7,1)*octo,
-     &                mptval(7,2)*octo,(mptval(7,1)+mptval(7,2))*octo,
-     &                mptval(10,1)*octo,mptval(10,2)*octo,
-     &                (mptval(10,1)+mptval(10,2))*octo,mptval(2,1)*octo,
-     &                mptval(2,2)*octo,(mptval(2,1)+mptval(2,2))*octo,
-     &                mptval(3,1)*octo,mptval(3,2)*octo,
-     &                (mptval(3,1)+mptval(3,2))*octo,mptval(4,1)*octo,
-     &                mptval(4,2)*octo,(mptval(4,1)+mptval(4,2))*octo,
-     &                mptval(8,1)*octo,mptval(8,2)*octo,
-     &                (mptval(8,1)+mptval(8,2))*octo,mptval(6,1)*octo,
-     &                mptval(6,2)*octo,(mptval(6,1)+mptval(6,2))*octo,
-     &                mptval(9,1)*octo,mptval(9,2)*octo,
-     &                (mptval(9,1)+mptval(9,2))*octo,mptval(5,1)*octo,
-     &                mptval(5,2)*octo,(mptval(5,1)+mptval(5,2))*octo
+      write(luout,9996)
+     1        mptval2(1,1),mptval2(1,2),mptval2(1,1)+mptval2(1,2),
+     2        mptval2(7,1),mptval2(7,2),mptval2(7,1)+mptval2(7,2),
+     3        mptval2(10,1),mptval2(10,2),mptval2(10,1)+mptval2(10,2),
+     4        mptval2(2,1),mptval2(2,2),mptval2(2,1)+mptval2(2,2),
+     5        mptval2(3,1),mptval2(3,2),mptval2(3,1)+mptval2(3,2),
+     6        mptval2(4,1),mptval2(4,2),mptval2(4,1)+mptval2(4,2),
+     7        mptval2(8,1),mptval2(8,2),mptval2(8,1)+mptval2(8,2),
+     8        mptval2(6,1),mptval2(6,2),mptval2(6,1)+mptval2(6,2),
+     9        mptval2(9,1),mptval2(9,2),mptval2(9,1)+mptval2(9,2),
+     1        mptval2(5,1),mptval2(5,2),mptval2(5,1)+mptval2(5,2)
 c
 c     Octupole moments
 c
@@ -304,7 +312,7 @@ c
          dum2=mptval(4,i)
          mptval(1,i)=mptval(1,i)-3.0d0*(mptval(4,i)+mptval(6,i))/2.0d0
          mptval(4,i)=(4.0d0*mptval(4,i)-dum1-mptval(6,i))/2.0d0
-         mptval(6,i)=(4.0d0*mptval(6,1)-dum1-dum2)/2.0d0
+         mptval(6,i)=(4.0d0*mptval(6,i)-dum1-dum2)/2.0d0
          dum1=mptval(7,i)
          dum2=mptval(2,i)
          mptval(7,i)=mptval(7,i)-3.0d0*(mptval(2,i)+mptval(9,i))/2.0d0
@@ -318,32 +326,36 @@ c
          mptval(5,i)=5.0d0*mptval(5,i)/2.0d0
       enddo
       write(luout,9997)
-      write(luout,9996) mptval(1,1),mptval(1,2),mptval(1,1)+mptval(1,2),
-     &              mptval(7,1),mptval(7,2),mptval(7,1)+mptval(7,2),
-     &              mptval(10,1),mptval(10,2),mptval(10,1)+mptval(10,2),
-     &              mptval(2,1),mptval(2,2),mptval(2,1)+mptval(2,2),
-     &              mptval(3,1),mptval(3,2),mptval(3,1)+mptval(3,2),
-     &              mptval(4,1),mptval(4,2),mptval(4,1)+mptval(4,2),
-     &              mptval(8,1),mptval(8,2),mptval(8,1)+mptval(8,2),
-     &              mptval(6,1),mptval(6,2),mptval(6,1)+mptval(6,2),
-     &              mptval(9,1),mptval(9,2),mptval(9,1)+mptval(9,2),
-     &              mptval(5,1),mptval(5,2),mptval(5,1)+mptval(5,2)
+      write(luout,9996) 
+     1              mptval(1,1),mptval(1,2),mptval(1,1)+mptval(1,2),
+     2              mptval(7,1),mptval(7,2),mptval(7,1)+mptval(7,2),
+     3              mptval(10,1),mptval(10,2),mptval(10,1)+mptval(10,2),
+     4              mptval(2,1),mptval(2,2),mptval(2,1)+mptval(2,2),
+     5              mptval(3,1),mptval(3,2),mptval(3,1)+mptval(3,2),
+     6              mptval(4,1),mptval(4,2),mptval(4,1)+mptval(4,2),
+     7              mptval(8,1),mptval(8,2),mptval(8,1)+mptval(8,2),
+     8              mptval(6,1),mptval(6,2),mptval(6,1)+mptval(6,2),
+     9              mptval(9,1),mptval(9,2),mptval(9,1)+mptval(9,2),
+     1              mptval(5,1),mptval(5,2),mptval(5,1)+mptval(5,2)
+c
+      do j = 1, 2
+        do i = 1, 10
+          mptval2(i,j) = mptval(i,j)*octo
+        enddo
+      enddo
+c
       write(luout,9994)
-      write(luout,9996) mptval(1,1)*octo,mptval(1,2)*octo,
-     &                (mptval(1,1)+mptval(1,2))*octo,mptval(7,1)*octo,
-     &                mptval(7,2)*octo,(mptval(7,1)+mptval(7,2))*octo,
-     &                mptval(10,1)*octo,mptval(10,2)*octo,
-     &                (mptval(10,1)+mptval(10,2))*octo,mptval(2,1)*octo,
-     &                mptval(2,2)*octo,(mptval(2,1)+mptval(2,2))*octo,
-     &                mptval(3,1)*octo,mptval(3,2)*octo,
-     &                (mptval(3,1)+mptval(3,2))*octo,mptval(4,1)*octo,
-     &                mptval(4,2)*octo,(mptval(4,1)+mptval(4,2))*octo,
-     &                mptval(8,1)*octo,mptval(8,2)*octo,
-     &                (mptval(8,1)+mptval(8,2))*octo,mptval(6,1)*octo,
-     &                mptval(6,2)*octo,(mptval(6,1)+mptval(6,2))*octo,
-     &                mptval(9,1)*octo,mptval(9,2)*octo,
-     &                (mptval(9,1)+mptval(9,2))*octo,mptval(5,1)*octo,
-     &                mptval(5,2)*octo,(mptval(5,1)+mptval(5,2))*octo
+      write(luout,9996)
+     1        mptval2(1,1),mptval2(1,2),mptval2(1,1)+mptval2(1,2),
+     2        mptval2(7,1),mptval2(7,2),mptval2(7,1)+mptval2(7,2),
+     3        mptval2(10,1),mptval2(10,2),mptval2(10,1)+mptval2(10,2),
+     4        mptval2(2,1),mptval2(2,2),mptval2(2,1)+mptval2(2,2),
+     5        mptval2(3,1),mptval2(3,2),mptval2(3,1)+mptval2(3,2),
+     6        mptval2(4,1),mptval2(4,2),mptval2(4,1)+mptval2(4,2),
+     7        mptval2(8,1),mptval2(8,2),mptval2(8,1)+mptval2(8,2),
+     8        mptval2(6,1),mptval2(6,2),mptval2(6,1)+mptval2(6,2),
+     9        mptval2(9,1),mptval2(9,2),mptval2(9,1)+mptval2(9,2),
+     1        mptval2(5,1),mptval2(5,2),mptval2(5,1)+mptval2(5,2)
       write(luout,9993)
 c
 c     ----- release MA memory blocks -----
@@ -514,7 +526,7 @@ c     prints less stuff, for use in the TCE.
 c
       subroutine hnd_mtpole2(rtdb,basis,geom,mpole,mtpval)
 c
-c $Id: hnd_mtpole.F,v 1.11 2008-08-18 12:22:45 jhammond Exp $
+c $Id: hnd_mtpole.F,v 1.12 2008-10-17 16:47:05 jhammond Exp $
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion
