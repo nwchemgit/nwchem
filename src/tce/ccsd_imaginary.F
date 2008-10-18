@@ -59,12 +59,9 @@ c
 c
             if (nodezero) write(LuOut,9431) omega
 c
-c
 c           REAL COMPONENT
 c
-c           offset to the third set of response for real component
-            dynaxis = 6
-c
+            dynaxis = 6 ! offset to the third set of response for real component
             if (guess_ir_real.and.(omegacount.eq.1)) then
               call ccsd_ir_guess(d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
      1             k_f1_offset,k_v2_offset,k_d1_offset,
@@ -80,44 +77,24 @@ c
 c
 c           IMAGINARY COMPONENT
 c
-            call ccsd_ir_get_imag_from_real(axis,ifreq(omegacount),
+            call ccsd_ir_get_imag_from_real(axis,omega,
      1           d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
      2           k_f1_offset,k_v2_offset,k_d1_offset,
      3           k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
      4           size_tr1,size_tr2)
 c
-            do omegasign=1,2
-              if (omegasign.eq.1) then
-                omega = (1.0d0)*ifreq(omegacount)
-                dynaxis = 0
-c                if (guess_ir_imag.and.(omegacount.eq.1)) then
-c                  call ccsd_ir_guess(d_f1,d_v2,d_d1,
-c     1                 d_t1,d_t2,d_tr1,d_tr2,
-c     2                 k_f1_offset,k_v2_offset,k_d1_offset,
-c     3                 k_t1_offset,k_t2_offset,
-c     4                 k_tr1_offset,k_tr2_offset,
-c     5                 size_tr1,size_tr2,1,axis,dynaxis)
-c                endif ! guess_ir_imag
-              elseif (omegasign.eq.2) then
-                omega = (-1.0d0)*ifreq(omegacount)
-                dynaxis = 3
-c                call copyfile(d_tr1(axis+0),d_tr1(axis+3),
-c     1                        size_tr1(axis))
-c                call copyfile(d_tr2(axis+0),d_tr2(axis+3),
-c     1                        size_tr2(axis))
-                call daxfile(1,-1.0d0,d_tr1(axis+0),d_tr1(axis+3),
-     1                        size_tr1(axis))
-                call daxfile(1,-1.0d0,d_tr2(axis+0),d_tr2(axis+3),
-     2                        size_tr2(axis))
-              endif ! omegasign
-              call ccsd_ir_imag_it(axis,dynaxis,omega,
-     1             d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
-     2             k_f1_offset,k_v2_offset,k_d1_offset,
-     3             k_t1_offset,k_t2_offset,
-     4             k_tr1_offset,k_tr2_offset,
-     5             size_tr1,size_tr2)
-c
-            enddo ! omegasign loop
+            dynaxis = 0 ! positive omega_I
+            call ccsd_ir_imag_it(axis,dynaxis,omega,
+     1           d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     2           k_f1_offset,k_v2_offset,k_d1_offset,
+     3           k_t1_offset,k_t2_offset,
+     4           k_tr1_offset,k_tr2_offset,
+     5           size_tr1,size_tr2)
+c           dynaxis = 3 is for negative omega_I
+            call daxfile(1,-1.0d0,d_tr1(axis+0),d_tr1(axis+3),
+     1                    size_tr1(axis))
+            call daxfile(1,-1.0d0,d_tr2(axis+0),d_tr2(axis+3),
+     2                    size_tr2(axis))
 c
           endif ! respaxis(axis)
         enddo ! axis loop

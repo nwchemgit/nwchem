@@ -77,10 +77,11 @@ c      integer k_o2_offset
 c      integer size_o2          
 
       common /tcepropdouble/
-     1 afreq,ifreq,bfreq,gfreq,lr_thresh,yr_thresh,qr_thresh
+     1 afreq,ifreq,bfreq,gfreq,lr_thresh,yr_thresh,qr_thresh,
+     2 ifreqval
 
       common /tcepropinteger/
-     1 dynaxis,anumfreq,inumfreq,bnumfreq,gnumfreq
+     1 anumfreq,inumfreq,bnumfreq,gnumfreq
 
       common /tceproplogical/
      1  nowarn,lineresp,imagresp,leftresp,quadresp,respaxis,
