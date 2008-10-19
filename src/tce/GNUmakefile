@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.92 2008-10-18 19:11:50 jhammond Exp $
+#$Id: GNUmakefile,v 1.93 2008-10-19 21:01:41 jhammond Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 gradients \
@@ -68,7 +68,7 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_mo2e_hybrid_2eorb_split.o tce_mo2e_offset_intorb_hybrid.o \
       tce_mo2e_2emet3.o tce_mo2e_2emet3_n5.o tce_mo2e_2emet4.o tce_mo2e_2emet4_n5.o \
       tce_make_denom1.o tce_make_denom2.o get_hash_block_ma.o \
-      ccsd_energy_loc.o cc2_energy.o ccsd_lambda.o ccsd_imaginary.o
+      ccsd_energy_loc.o cc2_energy.o ccsd_lambda.o ccsd_imaginary.o ccsd_lr_alpha.o
 
 ifdef SPAGHETTYSORT
       OBJ_OPTIMIZE += tce_sort0.o tce_sort2_saday.o tce_sort4_jeff.o tce_sort6.o tce_sort8.o \
@@ -114,7 +114,8 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_mo2e_2emet3.F tce_mo2e_2emet3_n5.F tce_mo2e_2emet4.F tce_mo2e_2emet4_n5.F \
             tce_mo2e_disk_2eorb.F tce_mo2e_incore_2eorb.F tce_mo2e_incore_2eorb_split.F \
             tce_mo2e_hybrid_2eorb_split.F \
-            tce_diagnose_t1.F ddotfile.F tce_ao2e_cholesky.F tce_energy.F
+            tce_diagnose_t1.F ddotfile.F tce_ao2e_cholesky.F tce_energy.F \
+            ccsd_imaginary.F ccsd_lr_alpha.F
 
 
 #LIB_DEFINES += -DNEWDIPOLE
