@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.146 2008-10-20 16:02:26 jhammond Exp $
+c $Id: tce_energy.F,v 1.147 2008-10-20 16:06:13 jhammond Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -2052,12 +2052,13 @@ c -------------
 c CCSD-LR
 c -------------
         if (lineresp) then
-          call ccsd_lr_alpha(d_a0,d_f1,d_v2,d_d1,
+          call ccsd_lr_alpha(d_d0,d_a0,d_f1,d_v2,d_d1,
      1         d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
-     2         k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
+     2         k_d0_offset,k_a0_offset,
+     3         k_f1_offset,k_v2_offset,k_d1_offset,
      4         k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
-     6         k_tr1_offset,k_tr2_offset,
-     7         size_tr1,size_tr2)
+     5         k_tr1_offset,k_tr2_offset,
+     6         size_tr1,size_tr2)
 c
         endif ! lineresp
 c -------------
