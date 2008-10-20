@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.66 2008-10-16 14:20:18 jhammond Exp $
+c $Id: tce_init.F,v 1.67 2008-10-20 00:29:23 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -213,8 +213,8 @@ c
      1  call errquit('tce_init: failed to write zlshift2',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:zlshift3',mt_dbl,2,zlshift3)) then
-        zlshift3(1) = 0.0d0
-        zlshift3(2) = 0.0d0
+        zlshift3(1) = 0.0d0 ! denom_power = 2 aka real
+        zlshift3(2) = 0.0d0 ! denom_power = 1 aka imag
         if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,2,zlshift3))
      1  call errquit('tce_init: failed to write zlshift3',0,RTDB_ERR)
       endif
@@ -445,6 +445,18 @@ c
         afreq(1) = 0.0d0
         if (.not.rtdb_put(rtdb,'tce:afreq',mt_dbl,anumfreq,afreq))
      1    call errquit('tce_init: failed to write afreq',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get_info(rtdb,'tce:bfreq',ma_type,bnumfreq,
+     1  date)) then
+        bnumfreq = 1
+        if (.not.rtdb_put(rtdb,'tce:bnumfreq',mt_int,1,bnumfreq))
+     1   call errquit('tce_init: failed to write bnumfreq',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:bfreq',mt_dbl,bnumfreq,
+     1  bfreq)) then
+        bfreq(1) = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:bfreq',mt_dbl,bnumfreq,bfreq))
+     1    call errquit('tce_init: failed to write bfreq',0,RTDB_ERR)
       endif
 c
       if(imagresp) then !--------------------------

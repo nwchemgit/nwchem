@@ -1,0 +1,1001 @@
+      subroutine ccsd_lr_beta(d_a0,d_b0,d_f1,d_v2,d_d1,
+     1           d_t1,d_t2,d_y1,d_y2,d_yr1,d_yr2,d_tr1,d_tr2,
+     2           k_a0_offset,k_b0_offset,
+     3           k_f1_offset,k_v2_offset,k_d1_offset,
+     4           k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
+     5           k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset,
+     6           size_yr1,size_yr2)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_prop.fh"
+c
+      integer i,j,dummy,axis
+      integer irrep_g
+      parameter (irrep_g=0)
+      integer d_f1,d_v2,d_d1(3)
+      integer d_t1,d_t2,d_y1,d_y2
+      integer d_tr1(9),d_tr2(9),d_yr1(6),d_yr2(6)
+      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset
+      integer k_tr1_offset(3),k_tr2_offset(3)
+      integer k_yr1_offset(3),k_yr2_offset(3)
+      integer size_yr1(3),size_yr2(3)
+      integer d_rr1(3),d_rr2(3)
+      integer sym_abelian_axis
+      external sym_abelian_axis
+      double precision omega
+      logical nodezero
+      character*4 irrepname
+      character*3 axisname(3)  ! Axis
+      data axisname/'X','Y','Z'/
+c
+      print*,'subroutine ccsd_lr_beta'
+      nodezero=(ga_nodeid().eq.0)
+c
+      do omegacount=1,bnumfreq
+        omega = bfreq(omegacount)
+        if (omega.eq.(0.0d0)) then
+          dynfreq = 1
+        else
+          dynfreq = 2
+        endif
+        do axis = 1, 3
+          if (respaxis(axis)) then
+            irrep_d=sym_abelian_axis(geom,axis)
+            call sym_irrepname(geom,irrep_d+1,irrepname)
+            if (nodezero.and.util_print('mod1',print_default)) then
+              write(LuOut,*)
+              write(LuOut,9440) axisname(axis),irrepname
+            endif
+            irrep_o=irrep_d
+            irrep_x=irrep_d
+c
+            do omegasign=1,dynfreq
+              if (omegasign.eq.1) then
+                omega = (1.0d0)*bfreq(omegacount)
+                dynaxis = 0
+              elseif (omegasign.eq.2) then
+                omega = (-1.0d0)*bfreq(omegacount)
+                dynaxis = 3
+              endif
+c
+              if (nodezero) write(LuOut,9431) omega
+c
+              call ccsd_qr_iter(axis,dynaxis,omega,
+     1             d_f1,d_v2,d_d1,d_t1,d_t2,d_y1,d_y2,
+     2             d_tr1,d_tr2,d_yr1,d_yr2,
+     3             k_f1_offset,k_v2_offset,k_d1_offset,
+     4             k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
+     5             k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset,
+     6             size_yr1,size_yr2)
+c
+            enddo ! omegasign loop
+          endif ! respaxis(axis)
+        enddo ! axis loop
+c
+        call ccsd_qr_alpha_eval(omega,d_a0,d_f1,d_v2,d_d1,
+     1       d_t1,d_t2,d_y1,d_y2,d_tr1,d_tr2,d_yr1,d_yr2,
+     2       k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
+     4       k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
+     5       k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset)
+c
+        call ccsd_qr_beta_eval(omega1,omega2,d_b0,d_f1,d_v2,d_d1,
+     1       d_t1,d_t2,d_y1,d_y2,d_tr1,d_tr2,d_yr1,d_yr2,
+     2       k_b0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
+     4       k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
+     5       k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset)
+c
+      enddo ! omegacount loop
+c
+ 9020 format(1x,'Cpu & wall time / sec',2f15.1)
+ 9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
+ 9100 format(1x,i4,2f18.13,2f8.1)
+ 9120 format(1x,A)
+ 9121 format(/,1x,A)
+ 9122 format(1x,A,i4)
+ 9420 format(1x,i4,f25.13,2f8.1)
+ 9431 format(/,1x,'Frequency = ',f15.7,' / au')
+ 9440 format(1x,A3,' axis ( ',A4,'symmetry)')
+      return
+      end
+
+
+      subroutine ccsd_qr_iter(axis,dynaxis,omega,
+     1           d_f1,d_v2,d_d1,d_t1,d_t2,d_y1,d_y2,
+     2           d_tr1,d_tr2,d_yr1,d_yr2,
+     3           k_f1_offset,k_v2_offset,k_d1_offset,
+     4           k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
+     5           k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset,
+     6           size_yr1,size_yr2)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "tce_prop.fh"
+#include "tce_restart.fh"
+c
+      integer i,j,dummy,axis
+      integer irrep_g
+      parameter (irrep_g=0)
+      integer d_f1,d_v2,d_d1(3)
+      integer d_t1,d_t2,d_y1,d_y2,d_b1(3),d_b2(3)
+      integer d_tr1(9),d_tr2(9),d_yr1(6),d_yr2(6)
+      integer d_yrr1(3),d_yrr2(3)
+      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_t1_offset,k_t2_offset
+      integer k_y1_offset,k_y2_offset
+      integer k_tr1_offset(3),k_tr2_offset(3)
+      integer k_yr1_offset(3),k_yr2_offset(3)
+      integer size_yr1(3),size_yr2(3)
+      integer sym_abelian_axis
+      external sym_abelian_axis
+      double precision omega
+      double precision cpu, wall
+      double precision residual
+      double precision ddotfile
+      external ddotfile
+      logical nodezero
+      character*4 irrepname
+      character*255 filename
+      character*5 yrr1filename(3) ! File name stub
+      data yrr1filename/'yrr1x','yrr1y','yrr1z'/
+      character*5 yrr2filename(3) ! File name stub
+      data yrr2filename/'yrr2x','yrr2y','yrr2z'/
+      character*3 b1filename(3) ! File name stub
+      data b1filename/'b1x','b1y','b1z'/
+      character*3 b2filename(3) ! File name stub
+      data b2filename/'b2x','b2y','b2z'/
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+c     form and store constant RHS of linear equations
+c
+      if (nodezero) write(LuOut,9120) 'Forming RHS'
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
+c
+      call tce_filename(b1filename(axis),filename)
+      call createfile(filename,d_b1(axis),size_yr1(axis))
+      call tce_zero(d_b1(axis),size_yr1(axis))
+c
+      call tce_filename(b2filename(axis),filename)
+      call createfile(filename,d_b2(axis),size_yr2(axis))
+      call tce_zero(d_b2(axis),size_yr2(axis))
+c
+      irrep_y=irrep_g ! using Lambda(0) amplitudes
+      call ccsd_y_o1(d_b1(axis),d_d1(axis),d_t1,d_t2,
+     1     d_y1,d_y2,k_yr1_offset(axis),
+     2     k_d1_offset(axis),k_t1_offset,k_t2_offset,
+     3     k_y1_offset,k_y2_offset)
+      call ccsd_y_tr1(d_f1,d_b1(axis),d_t1,d_t2,d_v2,
+     1     d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),d_y1,
+     2     d_y2,k_f1_offset,k_yr1_offset(axis),
+     3     k_t1_offset,k_t2_offset,k_v2_offset,
+     4     k_tr1_offset(axis),k_tr2_offset(axis),
+     5     k_y1_offset,k_y2_offset)
+      call ccsd_y_o2(d_b2(axis),d_d1(axis),d_t1,
+     1     d_y1,d_y2,k_yr2_offset(axis),
+     2     k_d1_offset(axis),k_t1_offset,
+     3     k_y1_offset,k_y2_offset)
+      call ccsd_y_tr2(d_f1,d_b2(axis),d_t1,d_v2,
+     1     d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),d_y1,
+     2     d_y2,k_f1_offset,k_yr2_offset(axis),
+     3     k_t1_offset,k_v2_offset,
+     4     k_tr1_offset(axis),k_tr2_offset(axis),
+     5     k_y1_offset,k_y2_offset)
+c
+      call reconcilefile(d_b1(axis),size_yr1(axis))
+      call reconcilefile(d_b2(axis),size_yr2(axis))
+c
+      cpu=cpu+util_cpusec()
+      wall=wall+util_wallsec()
+      if (nodezero) write(LuOut,9020) cpu,wall
+c
+      call tce_diis_init()
+      do iter=1,maxiter
+              cpu=-util_cpusec()
+              wall=-util_wallsec()
+              if (nodezero.and.(iter.eq.1))
+     &          write(LuOut,9400) "CCSD-YR (Static)"
+c
+              call tce_filename(yrr1filename(axis),filename)
+              call createfile(filename,d_yrr1(axis),size_yr1(axis))
+c              call tce_zero(d_yrr1(axis),size_yr1(axis))
+              call copyfile(d_b1(axis),d_yrr1(axis),size_yr1(axis))
+              call daxpyfile(1,(1.0d0)*omega,d_yr1(axis+dynaxis),
+     1             d_yrr1(axis),size_yr1(axis))
+c
+c        write(LuOut,*) "ccsd_y_o1"
+c              irrep_y=irrep_g ! using Lambda(0) amplitudes
+c              call ccsd_y_o1(d_yrr1(axis),d_d1(axis),d_t1,d_t2,
+c     1             d_y1,d_y2,k_yr1_offset(axis),
+c     2             k_d1_offset(axis),k_t1_offset,k_t2_offset,
+c     3             k_y1_offset,k_y2_offset)
+c              call ga_print(d_yrr1(axis))
+c        write(LuOut,*) "ccsd_y_tr1"
+c              irrep_y=irrep_g ! using Lambda(0) amplitudes
+c              call ccsd_y_tr1(d_f1,d_yrr1(axis),d_t1,d_t2,d_v2,
+c     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),d_y1,
+c     2             d_y2,k_f1_offset,k_yr1_offset(axis),
+c     3             k_t1_offset,k_t2_offset,k_v2_offset,
+c     4             k_tr1_offset(axis),k_tr2_offset(axis),
+c     5             k_y1_offset,k_y2_offset)
+c              call ga_print(d_yrr1(axis))
+c        write(LuOut,*) "eomccsd_y1"
+              irrep_y=irrep_d ! using Lambda(1) amplitudes
+              call eomccsd_y1(d_f1,d_yrr1(axis),d_t1,d_t2,d_v2,
+     1             d_yr1(axis+dynaxis),d_yr2(axis+dynaxis),k_f1_offset,
+     2             k_yr1_offset(axis),k_t1_offset,k_t2_offset,
+     3             k_v2_offset,k_yr1_offset(axis),k_yr2_offset(axis))
+c              call ga_print(d_yrr1(axis))
+c
+              call tce_filename(yrr2filename(axis),filename)
+              call createfile(filename,d_yrr2(axis),size_yr2(axis))
+c              call tce_zero(d_yrr2(axis),size_yr2(axis))
+              call copyfile(d_b2(axis),d_yrr2(axis),size_yr2(axis))
+              call daxpyfile(1,(1.0d0)*omega,d_yr2(axis+dynaxis),
+     1             d_yrr2(axis),size_yr2(axis))
+c
+c        write(LuOut,*) "ccsd_y_o2"
+c              irrep_y=irrep_g ! using Lambda(0) amplitudes
+c              call ccsd_y_o2(d_yrr2(axis),d_d1(axis),d_t1,
+c     1             d_y1,d_y2,k_yr2_offset(axis),
+c     2             k_d1_offset(axis),k_t1_offset,
+c     3             k_y1_offset,k_y2_offset)
+c        write(LuOut,*) "ccsd_y_tr2"
+c              irrep_y=irrep_g ! using Lambda(0) amplitudes
+c              call ccsd_y_tr2(d_f1,d_yrr2(axis),d_t1,d_v2,
+c     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),d_y1,
+c     2             d_y2,k_f1_offset,k_yr2_offset(axis),
+c     3             k_t1_offset,k_v2_offset,
+c     4             k_tr1_offset(axis),k_tr2_offset(axis),
+c     5             k_y1_offset,k_y2_offset)
+c        write(LuOut,*) "eomccsd_y2"
+              irrep_y=irrep_d ! using Lambda(1) amplitudes
+              call eomccsd_y2(d_f1,d_yrr2(axis),d_t1,d_t2,d_v2,
+     1             d_yr1(axis+dynaxis),d_yr2(axis+dynaxis),k_f1_offset,
+     2             k_yr2_offset(axis),k_t1_offset,k_t2_offset,
+     3             k_v2_offset,k_yr1_offset(axis),k_yr2_offset(axis))
+c        write(LuOut,*) "reconcilefile"
+              call reconcilefile(d_yrr1(axis),size_yr1(axis))
+              call reconcilefile(d_yrr2(axis),size_yr2(axis))
+c        write(LuOut,*) "ddotfile"
+              rr1 = ddotfile(d_yrr1(axis),d_yrr1(axis),size_yr1(axis))
+              rr2 = ddotfile(d_yrr2(axis),d_yrr2(axis),size_yr2(axis))
+              residual = max(rr1,rr2)
+              cpu=cpu+util_cpusec()
+              wall=wall+util_wallsec()
+              if (nodezero) write(LuOut,9420) iter,residual,cpu,wall
+              if (residual .lt. thresh) then
+                if (nodezero) then
+                  write(LuOut,9410)
+                endif
+                if (ampnorms) then
+                  rr1 = ddotfile(d_yr1(axis+dynaxis),
+     1                           d_yr1(axis+dynaxis),size_yr1(axis))
+                  rr1 = ddotfile(d_yr2(axis+dynaxis),
+     1                           d_yr2(axis+dynaxis),size_yr2(axis))
+                  if (nodezero) then
+                    write(LuOut,9082) "Lambda(1) singles",rr1
+                    write(LuOut,9082) "Lambda(1) doubles",rr2
+                  endif
+                endif
+c
+c                call ga_print(d_yrr1(axis))
+c                call ga_print(d_yrr2(axis))
+c
+                call deletefile(d_yrr2(axis))
+                call deletefile(d_yrr1(axis))
+                call tce_diis_tidy()
+c                if (save_lr(1)) then
+c                  if(nodezero) then
+c                    write(LuOut,*) 'Saving L1(1) now...'
+c                  endif
+c                  call yr1_restart_save(d_yr1(axis),k_yr1_offset(axis),
+c     1                 size_yr1(axis),axis,handle_yr1(axis),irrep_d)
+c                endif
+c                if (save_lr(2)) then
+c                  if(nodezero) then
+c                    write(LuOut,*) 'Saving L2(1) now...'
+c                  endif
+c                  call yr2_restart_save(d_yr2(axis),k_yr2_offset(axis),
+c     1                 size_yr2(axis),axis,handle_yr2(axis),irrep_d)
+c                endif
+                call deletefile(d_b2(axis))
+                call deletefile(d_b1(axis))
+                return
+              endif
+c              if (save_lr(1).and.(mod(iter,save_interval).eq.0)) then
+c                if(nodezero) then
+c                  write(LuOut,*) 'Saving L1(1) now...'
+c                endif
+c                call yr1_restart_save(d_yr1(axis),k_yr1_offset(axis),
+c     1               size_yr1(axis),axis,handle_yr1(axis),irrep_d)
+c              endif
+c              if (save_lr(2).and.(mod(iter,save_interval).eq.0)) then
+c                if(nodezero) then
+c                  write(LuOut,*) 'Saving L2(1) now...'
+c                endif
+c                call yr2_restart_save(d_yr2(axis),k_yr2_offset(axis),
+c     1               size_yr2(axis),axis,handle_yr2(axis),irrep_d)
+c              endif
+c       write(LuOut,*) "before tce_diis2"
+              irrep_y=irrep_d
+              call tce_diis2(.true.,iter,.true.,.true.,.false.,.false.,
+     1             d_yrr1(axis),d_yr1(axis+dynaxis),k_yr1_offset(axis),
+     2             size_yr1(axis),
+     3             d_yrr2(axis),d_yr2(axis+dynaxis),k_yr2_offset(axis),
+     4             size_yr2(axis),
+     5             dummy,dummy,dummy,dummy,
+     6             dummy,dummy,dummy,dummy,omega)
+c       write(LuOut,*) "after tce_diis2"
+              call deletefile(d_yrr2(axis))
+              call deletefile(d_yrr1(axis))
+              if (nodezero) call util_flush(LuOut)
+      enddo ! iter loop
+      call deletefile(d_b2(axis))
+      call deletefile(d_b1(axis))
+      call errquit('ccsd_qr_iter: maxiter exceeded',iter,CALC_ERR)
+c
+ 9020 format(1x,'Cpu & wall time / sec',2f15.1)
+ 9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
+ 9100 format(1x,i4,2f18.13,2f8.1)
+ 9120 format(1x,A)
+ 9121 format(/,1x,A)
+ 9122 format(1x,A,i4)
+ 9400 format(/,1x,A,' iterations',/,
+     1  1x,'---------------------------------------------',/
+     2  1x,'Iter          Residuum            Cpu    Wall',/
+     3  1x,'---------------------------------------------')
+ 9410 format(
+     1  1x,'---------------------------------------------',/
+     2  1x,'Iterations converged')
+ 9420 format(1x,i4,f25.13,2f8.1)
+ 9431 format(/,1x,'Frequency = ',f15.7,' / au')
+ 9440 format(1x,A3,' axis ( ',A4,'symmetry)')
+      return
+      end
+
+
+      subroutine ccsd_qr_alpha_eval(omega,d_b0,d_f1,d_v2,d_d1,
+     1           d_t1,d_t2,d_y1,d_y2,d_tr1,d_tr2,d_yr1,d_yr2,
+     2           k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
+     3           k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
+     4           k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_prop.fh"
+c
+      integer i,j,dummy,axis
+      integer irrep_g
+      parameter (irrep_g=0)
+      integer d_f1,d_v2,d_d1(3)
+      integer d_t1,d_t2,d_y1,d_y2
+      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset
+      integer d_tr1(9),d_tr2(9),d_yr1(6),d_yr2(6)
+      integer k_tr1_offset(3),k_tr2_offset(3)
+      integer k_yr1_offset(3),k_yr2_offset(3)
+      integer sym_abelian_axis
+      external sym_abelian_axis
+      double precision omega
+      double precision cpu, wall
+      double precision residual
+      double precision alpha1,alpha2,alpha3,alpha4
+      double precision au2ang   ! Conversion factor from bohr to Angstrom
+      double precision au2ang3  ! Conversion factor from bohr^3 to Angstrom^3
+      double precision auXnm    ! Conversion factor from a.u. (frequency) to nm (wavelength)
+      double precision ddotfile
+      external ddotfile
+      parameter (auXnm=45.563353d0)
+      parameter (au2ang=5.29177249d-01)
+      parameter (au2ang3=au2ang*au2ang*au2ang)
+      logical nodezero
+      character*4 irrepname
+      character*3 axisname(3)  ! Axis
+      data axisname/'X','Y','Z'/
+      character*255 filename
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+c CCSD-QR evaluation step
+c
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
+      do axisA = 1, 3
+        irrep_a=sym_abelian_axis(geom,axisA)
+        do axisB = 1, axisA
+          irrep_b=sym_abelian_axis(geom,axisB)
+          if ( respaxis(axisA).and.respaxis(axisB) ) then
+c
+            alpha1=0.0d0
+            alpha2=0.0d0
+            alpha3=0.0d0
+            alpha4=0.0d0
+            alpha(axisA,axisB)=0.0d0
+            call tce_filename('a0',filename)
+            call createfile(filename,d_a0,1)
+c
+            irrep_y=irrep_g
+            irrep_d=irrep_a
+            irrep_tr=irrep_b
+c
+            call alpha_1(d_d1(axisA),d_a0,d_t1,d_t2,
+     1           d_tr1(axisB),d_tr2(axisB),
+     2           d_y1,d_y2,k_d1_offset(axisA),k_a0_offset,
+     4           k_t1_offset,k_t2_offset,k_tr1_offset(axisB),
+     5           k_tr2_offset(axisB),k_y1_offset,k_y2_offset)
+            call reconcilefile(d_a0,1)
+            call get_block(d_a0,alpha1,1,0)
+            call tce_zero(d_a0,1)
+c
+            if (omega1.eq.0.0d0) then
+              alpha2=alpha1
+            else
+              call alpha_1(d_d1(axisA),d_a0,d_t1,d_t2,
+     1             d_tr1(axisB+3),d_tr2(axisB+3),
+     2             d_y1,d_y2,k_d1_offset(axisA),k_a0_offset,
+     4             k_t1_offset,k_t2_offset,k_tr1_offset(axisB),
+     5             k_tr2_offset(axisB),k_y1_offset,k_y2_offset)
+              call reconcilefile(d_a0,1)
+              call get_block(d_a0,alpha2,1,0)
+              call tce_zero(d_a0,1)
+            endif
+c
+            irrep_o=irrep_a
+            irrep_y=irrep_b
+c
+            call alpha_2_yr(d_a0,d_d1(axisA),d_t1,d_t2,
+     1           d_yr1(axisB),d_yr2(axisB),
+     2           k_a0_offset,k_d1_offset(axisA),k_t1_offset,
+     3           k_t2_offset,k_yr1_offset(axisB),k_yr2_offset(axisB))
+            call reconcilefile(d_a0,1)
+            call get_block(d_a0,alpha3,1,0)
+            call tce_zero(d_a0,1)
+c
+            if (omega1.eq.0.0d0) then
+              alpha4=alpha3
+            else
+              call alpha_2_yr(d_a0,d_d1(axisA),d_t1,d_t2,
+     1             d_yr1(axisB+3),d_yr2(axisB+3),
+     2             k_a0_offset,k_d1_offset(axisA),k_t1_offset,
+     3             k_t2_offset,k_yr1_offset(axisB),k_yr2_offset(axisB))
+              call reconcilefile(d_a0,1)
+              call get_block(d_a0,alpha4,1,0)
+              call tce_zero(d_a0,1)
+            endif
+c
+c            write(LuOut,*) "alpha1 = ",alpha1
+c            write(LuOut,*) "alpha2 = ",alpha2
+c            write(LuOut,*) "alpha3 = ",alpha3
+c            write(LuOut,*) "alpha4 = ",alpha4
+            alpha(axisA,axisB)=(-0.5d0)*(alpha1+alpha2+alpha3+alpha4)
+            call deletefile(d_a0)
+c
+          endif ! respaxis(axisA,axisB)
+        enddo ! axisB loop
+      enddo ! axisA loop
+      cpu=cpu+util_cpusec()
+      wall=wall+util_wallsec()
+c
+      do j = 1, 3
+        do i = 1, 3
+          alphacopy(i,j)=alpha(i,j)
+        enddo
+      enddo
+c
+      call dgeev('N','N',3,alphacopy,3,alphaevr,alphaevi,
+     1           aeigvec,3,aeigvec,3,awork,9,aeiginfo)
+      if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
+      alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
+      alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
+     1         + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
+     2         + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
+      alphaani = dsqrt(0.5d0*alphaani)
+c
+      if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
+     1    .and.(.not.nowarn).and.nodezero) write(LuOut,9911)
+c
+      if (nodezero) write(LuOut,9434) "CCSD Lambda Response",
+     1  afreq(omegacount),auXnm/afreq(omegacount),
+     2  alpha(1,1),alpha(2,1),alpha(3,1),
+     3  au2ang3*alpha(1,1),au2ang3*alpha(2,1),au2ang3*alpha(3,1),
+     4  alpha(2,1),alpha(2,2),alpha(3,2),
+     5  au2ang3*alpha(2,1),au2ang3*alpha(2,2),au2ang3*alpha(3,2),
+     6  alpha(3,1),alpha(3,2),alpha(3,3),
+     7  au2ang3*alpha(3,1),au2ang3*alpha(3,2),au2ang3*alpha(3,3),
+     8  alphaevr(1),alphaevr(2),alphaevr(3),
+     9  au2ang3*alphaevr(1),au2ang3*alphaevr(2),au2ang3*alphaevr(3),
+     1  alphaiso,au2ang3*alphaiso,alphaani,au2ang3*alphaani
+      if (nodezero) write(LuOut,9020) cpu, wall
+      call util_flush(LuOut)
+c
+ 9020 format(1x,'Cpu & wall time / sec',2f15.1)
+ 9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
+ 9100 format(1x,i4,2f18.13,2f8.1)
+ 9120 format(1x,A)
+ 9121 format(/,1x,A)
+ 9122 format(1x,A,i4)
+ 9400 format(/,1x,A,' iterations',/,
+     1  1x,'---------------------------------------------',/
+     2  1x,'Iter          Residuum            Cpu    Wall',/
+     3  1x,'---------------------------------------------')
+ 9410 format(
+     1  1x,'---------------------------------------------',/
+     2  1x,'Iterations converged')
+ 9420 format(1x,i4,f25.13,2f8.1)
+ 9431 format(/,1x,'Frequency = ',f15.7,' / au')
+ 9434 format(/,1x,A,' polarizability / au ',/
+     1  1x,'Frequency  = ',f15.7,' / au',/
+     1  1x,'Wavelength = ',f15.7,' / nm',/
+     3  1x,'-----------------------------------------------'
+     3    ,'--------|-----------------------------------------------',/
+     2  1x,'                    atomic units (bohr^3)       '
+     2    ,'       |                   angstroms^3           ',/
+     2  1x,'                 X              Y              Z',
+     2  1x,'      |             X              Y              Z',/
+     3  1x,'-----------------------------------------------'
+     3    ,'--------|-----------------------------------------------',/
+     4  1x,'X      ',3f15.7,3x,'|',3f15.7,/
+     5  1x,'Y      ',3f15.7,3x,'|',3f15.7,/
+     6  1x,'Z      ',3f15.7,3x,'|',3f15.7,/
+     3  1x,'-----------------------------------------------'
+     3    ,'--------|-----------------------------------------------',/
+     6  1x,'Eigs = ',3f15.7,3x,'|',3f15.7,/
+     6  1x,'Isotropic   = ',8x,1f15.7,3x,15x,'|',15x,1f15.7,/
+     6  1x,'Anisotropic = ',8x,1f15.7,3x,15x,'|',15x,1f15.7,/
+     3  1x,'-----------------------------------------------'
+     3    ,'--------|-----------------------------------------------')
+ 9435 format(/,1x,A,' C6 coefficients ',/
+     1  1x,'--------------------------------',/
+     2  1x,'C6(XX)  ',f15.7,/
+     3  1x,'C6(YY)  ',f15.7,/
+     4  1x,'C6(ZZ)  ',f15.7,/
+     5  1x,'C6(XY)  ',f15.7,/
+     6  1x,'C6(XZ)  ',f15.7,/
+     7  1x,'C6(YZ)  ',f15.7,/
+     8  1x,'C6(AVG) ',f15.7,/
+     9  1x,'C6(ANI) ',f15.7,/
+     1  1x,'--------------------------------')
+ 9911 format(/,1x,'Warning: you have not solved ',
+     1            'the response equations for all axes.  ',
+     2            'Please analyze the results carefully as ',
+     3            'the average and anisotropic polarizabilities ',
+     4            'are surely wrong.',/)
+ 9440 format(1x,A3,' axis ( ',A4,'symmetry)')
+      return
+      end
+
+
+      subroutine ccsd_qr_beta_eval(omega1,omega2,d_b0,d_f1,d_v2,d_d1,
+     1           d_t1,d_t2,d_y1,d_y2,d_tr1,d_tr2,d_yr1,d_yr2,
+     2           k_b0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
+     3           k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
+     4           k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_prop.fh"
+c
+      integer i,j,dummy,axis
+      integer irrep_g
+      parameter (irrep_g=0)
+      integer d_f1,d_v2,d_d1(3)
+      integer d_t1,d_t2,d_y1,d_y2
+      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset
+      integer d_tr1(9),d_tr2(9),d_yr1(6),d_yr2(6)
+      integer k_tr1_offset(3),k_tr2_offset(3)
+      integer k_yr1_offset(3),k_yr2_offset(3)
+      integer sym_abelian_axis
+      external sym_abelian_axis
+      double precision cpu, wall
+      double precision beta1,beta2,beta3,beta4
+      double precision au2ang   ! Conversion factor from bohr to Angstrom
+      double precision au2ang3  ! Conversion factor from bohr^3 to Angstrom^3
+      double precision auXnm    ! Conversion factor from a.u. (frequency) to nm (wavelength)
+      double precision ddotfile
+      external ddotfile
+      parameter (auXnm=45.563353d0)
+      parameter (au2ang=5.29177249d-01)
+      parameter (au2ang3=au2ang*au2ang*au2ang)
+      logical nodezero
+      character*4 irrepname
+      character*3 axisname(3)  ! Axis
+      data axisname/'X','Y','Z'/
+      character*255 filename
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+      do axisC = 1, 3
+        do axisB = 1, 3
+          do axisA = 1, 3
+            beta(axisA,axisB,axisC)=0.0d0
+          enddo
+        enddo
+      enddo
+c
+c CCSD-QR evaluation step
+c
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
+      do axisA = 1, 3
+        irrep_a=sym_abelian_axis(geom,axisA)
+        do axisB = 1, 3
+          irrep_b=sym_abelian_axis(geom,axisB)
+          do axisC = 1, 3
+            irrep_c=sym_abelian_axis(geom,axisC)
+            if ( ( respaxis(axisA).and.respaxis(axisB) )
+     &                          .and.respaxis(axisC) ) then
+c
+c              write(LuOut,*) "axisA = ",axisA
+c              write(LuOut,*) "axisB = ",axisB
+c              write(LuOut,*) "axisC = ",axisC
+c              call util_flush(LuOut)
+c
+              beta1=0.0d0
+              beta2=0.0d0
+              beta3=0.0d0
+              beta4=0.0d0
+              call tce_filename('b0',filename)
+              call createfile(filename,d_b0,1)
+c
+              irrep_y=irrep_g
+              irrep_tra=irrep_a
+              irrep_trb=irrep_b
+              irrep_trc=irrep_c
+c              write(LuOut,*) "beta_1"
+              call beta_1(d_b0,d_t1,d_tr1(axisA),d_tr2(axisA),
+     1             d_tr1(axisB),d_tr2(axisB),d_tr1(axisC),d_tr2(axisC),
+     2             d_v2,d_y1,d_y2,k_b0_offset,k_t1_offset,
+     3             k_tr1_offset(axisA),k_tr2_offset(axisA),
+     4             k_tr1_offset(axisB),k_tr2_offset(axisB),
+     5             k_tr1_offset(axisC),k_tr2_offset(axisC),
+     6             k_v2_offset,k_y1_offset,k_y2_offset)
+              call reconcilefile(d_b0,1)
+              call get_block(d_b0,beta1,1,0)
+              call tce_zero(d_b0,1)
+c
+              irrep_y=irrep_g
+              irrep_d=irrep_a
+              irrep_tra=irrep_b
+              irrep_trb=irrep_c
+c              write(LuOut,*) "beta_2"
+              call beta_2(d_d1(axisA),d_b0,d_tr1(axisB),d_tr2(axisB),
+     1             d_tr1(axisC),d_tr2(axisC),d_y1,d_y2,
+     2             k_d1_offset(axisA),k_b0_offset,
+     3             k_tr1_offset(axisB),k_tr2_offset(axisB),
+     4             k_tr1_offset(axisC),k_tr2_offset(axisC),
+     5             k_y1_offset,k_y2_offset)
+              call reconcilefile(d_b0,1)
+              call get_block(d_b0,beta2,1,0)
+              call tce_zero(d_b0,1)
+c
+              irrep_y=irrep_a
+              irrep_tra=irrep_b
+              irrep_trb=irrep_c
+c              write(LuOut,*) "beta_3"
+              call beta_3(d_f1,d_b0,d_t1,d_t2,d_tr1(axisB),d_tr2(axisB),
+     1             d_tr1(axisC),d_tr2(axisC),d_v2,
+     2             d_yr1(axisA),d_yr2(axisA),
+     3             k_f1_offset,k_b0_offset,k_t1_offset,k_t2_offset,
+     4             k_tr1_offset(axisB),k_tr2_offset(axisB),
+     5             k_tr1_offset(axisC),k_tr2_offset(axisC),k_v2_offset,
+     6             k_yr1_offset(axisA),k_yr2_offset(axisA))
+              call reconcilefile(d_b0,1)
+              call get_block(d_b0,beta3,1,0)
+              call tce_zero(d_b0,1)
+c
+              irrep_y=irrep_a
+              irrep_d=irrep_b
+              irrep_tr=irrep_c
+c              write(LuOut,*) "beta_4"
+              call beta_4(d_d1(axisB),d_b0,d_t1,d_t2,
+     1             d_tr1(axisC),d_tr2(axisC),d_yr1(axisA),d_yr2(axisA),
+     2             k_d1_offset(axisB),k_b0_offset,
+     3             k_t1_offset,k_t2_offset,
+     4             k_tr1_offset(axisC),k_tr2_offset(axisC),
+     5             k_yr1_offset(axisA),k_yr2_offset(axisA))
+              call reconcilefile(d_b0,1)
+              call get_block(d_b0,beta4,1,0)
+              call tce_zero(d_b0,1)
+c
+c              write(LuOut,*) "beta1 = ",beta1
+c              write(LuOut,*) "beta2 = ",beta2
+c              write(LuOut,*) "beta3 = ",beta3
+c              write(LuOut,*) "beta4 = ",beta4
+c
+c             This term contributes to only one component
+c
+              beta(axisA,axisB,axisC)=beta(axisA,axisB,axisC)-beta1
+c
+c             These terms both contribute to three components
+c
+              beta(axisA,axisB,axisC)=beta(axisA,axisB,axisC)-beta2
+              beta(axisB,axisC,axisA)=beta(axisB,axisC,axisA)-beta2
+              beta(axisC,axisA,axisB)=beta(axisC,axisA,axisB)-beta2
+c
+              beta(axisA,axisB,axisC)=beta(axisA,axisB,axisC)-beta3
+              beta(axisB,axisC,axisA)=beta(axisB,axisC,axisA)-beta3
+              beta(axisC,axisA,axisB)=beta(axisC,axisA,axisB)-beta3
+c
+c             This term contributes to six components
+c
+              beta(axisA,axisB,axisC)=beta(axisA,axisB,axisC)-beta4
+              beta(axisA,axisC,axisB)=beta(axisA,axisC,axisB)-beta4
+              beta(axisB,axisA,axisC)=beta(axisB,axisA,axisC)-beta4
+              beta(axisB,axisC,axisA)=beta(axisB,axisC,axisA)-beta4
+              beta(axisC,axisA,axisB)=beta(axisC,axisA,axisB)-beta4
+              beta(axisC,axisB,axisA)=beta(axisC,axisB,axisA)-beta4
+c
+              call deletefile(d_b0)
+c
+            endif ! respaxis(axisA,axisB,axisC)
+          enddo ! axisB loop
+        enddo ! axisB loop
+      enddo ! axisA loop
+c
+      if (nodezero) then
+        write(LuOut,*)
+        write(LuOut,9120) "CCSD Quadratic Response"
+        write(LuOut,9504)
+        write(LuOut,9502)
+        do axisA = 1, 3
+          do axisB = 1, 3
+            do axisC = 1, 3
+              if (dabs(beta(axisA,axisB,axisC)).gt.1.0d-8)
+     1        write(LuOut,9503) axisname(axisA),axisname(axisB),
+     2                          axisname(axisC),beta(axisA,axisB,axisC),
+     3                          ' / au'
+            enddo
+          enddo
+        enddo
+        write(LuOut,9502)
+      endif
+      cpu=cpu+util_cpusec()
+      wall=wall+util_wallsec()
+      if (nodezero) write(LuOut,9020) cpu, wall
+      call util_flush(LuOut)
+c
+ 9020 format(1x,'Cpu & wall time / sec',2f15.1)
+ 9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
+ 9100 format(1x,i4,2f18.13,2f8.1)
+ 9120 format(1x,A)
+ 9121 format(/,1x,A)
+ 9122 format(1x,A,i4)
+ 9400 format(/,1x,A,' iterations',/,
+     1  1x,'---------------------------------------------',/
+     2  1x,'Iter          Residuum            Cpu    Wall',/
+     3  1x,'---------------------------------------------')
+ 9410 format(
+     1  1x,'---------------------------------------------',/
+     2  1x,'Iterations converged')
+ 9420 format(1x,i4,f25.13,2f8.1)
+ 9431 format(/,1x,'Frequency = ',f15.7,' / au')
+ 9434 format(/,1x,A,' polarizability / au ',/
+     1  1x,'Frequency  = ',f15.7,' / au',/
+     1  1x,'Wavelength = ',f15.7,' / nm',/
+     3  1x,'-----------------------------------------------'
+     3    ,'--------|-----------------------------------------------',/
+     2  1x,'                    atomic units (bohr^3)       '
+     2    ,'       |                   angstroms^3           ',/
+     2  1x,'                 X              Y              Z',
+     2  1x,'      |             X              Y              Z',/
+     3  1x,'-----------------------------------------------'
+     3    ,'--------|-----------------------------------------------',/
+     4  1x,'X      ',3f15.7,3x,'|',3f15.7,/
+     5  1x,'Y      ',3f15.7,3x,'|',3f15.7,/
+     6  1x,'Z      ',3f15.7,3x,'|',3f15.7,/
+     3  1x,'-----------------------------------------------'
+     3    ,'--------|-----------------------------------------------',/
+     6  1x,'Eigs = ',3f15.7,3x,'|',3f15.7,/
+     6  1x,'Isotropic   = ',8x,1f15.7,3x,15x,'|',15x,1f15.7,/
+     6  1x,'Anisotropic = ',8x,1f15.7,3x,15x,'|',15x,1f15.7,/
+     3  1x,'-----------------------------------------------'
+     3    ,'--------|-----------------------------------------------')
+ 9435 format(/,1x,A,' C6 coefficients ',/
+     1  1x,'--------------------------------',/
+     2  1x,'C6(XX)  ',f15.7,/
+     3  1x,'C6(YY)  ',f15.7,/
+     4  1x,'C6(ZZ)  ',f15.7,/
+     5  1x,'C6(XY)  ',f15.7,/
+     6  1x,'C6(XZ)  ',f15.7,/
+     7  1x,'C6(YZ)  ',f15.7,/
+     8  1x,'C6(AVG) ',f15.7,/
+     9  1x,'C6(ANI) ',f15.7,/
+     1  1x,'--------------------------------')
+ 9911 format(/,1x,'Warning: you have not solved ',
+     1            'the response equations for all axes.  ',
+     2            'Please analyze the results carefully as ',
+     3            'the average and anisotropic polarizabilities ',
+     4            'are surely wrong.',/)
+ 9440 format(1x,A3,' axis ( ',A4,'symmetry)')
+ 9502 format(1x,'-----------------------------------------------')
+ 9503 format(1x,'beta(',a1,',',a1,',',a1,') = ',f13.7,a)
+ 9504 format(1x,'Static Hyperpolarizability')
+ 9505 format(1x,'Second Harmonic Generation (SHG)')
+ 9506 format(1x,'Optical Rectification (OR)')
+ 9507 format(1x,'Electro-Optic Pockels Effect (EOPE)')
+ 9508 format(1x,'beta(',f1.5,',',f1.5,',',f1.5,')')
+      return
+      end
+
+
+
+
+      subroutine ccsd_qr_guess(d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     1           k_f1_offset,k_v2_offset,k_d1_offset,
+     2           k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
+     4           size_tr1,size_tr2,component,axis,dynaxis)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_prop.fh"
+c
+      integer axis,component
+      integer d_f1,d_v2,d_d1(3)
+      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer d_t1
+      integer k_t1_offset
+      integer d_t2
+      integer k_t2_offset
+      integer d_tr1(9)
+      integer k_tr1_offset(3)
+      integer size_tr1(3)
+      integer d_tr2(9)
+      integer k_tr2_offset(3)
+      integer size_tr2(3)
+      integer d_rr1(3)
+      integer d_rr2(3)
+      double precision omega
+      double precision cpu, wall
+      logical nodezero
+      character*4 irrepname
+      character*3 axisname(3)  ! Axis
+      data axisname/'X','Y','Z'/
+      character*255 filename
+      character*5 rr1filename(3) ! File name stub
+      data rr1filename/'rr1x ','rr1y ','rr1z '/
+      character*5 rr2filename(3) ! File name stub
+      data rr2filename/'rr2x ','rr2y ','rr2z '/
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+      if (nodezero) write(6,9121) 'Initial guess x = b/Adiag'
+c
+c     0. Create dummies
+c
+      call tce_filename(rr1filename(axis),filename)
+      call createfile(filename,d_rr1(axis),size_tr1(axis))
+      call tce_zero(d_rr1(axis),size_tr1(axis))
+c
+      call tce_filename(rr2filename(axis),filename)
+      call createfile(filename,d_rr2(axis),size_tr2(axis))
+      call tce_zero(d_rr2(axis),size_tr2(axis))
+c
+c     1. Form b
+c
+      call ccsd_o1(d_rr1(axis),d_d1(axis),d_t1,d_t2,
+     1     k_tr1_offset(axis),k_d1_offset(axis),
+     2     k_t1_offset,k_t2_offset)
+      call ccsd_o2(d_rr2(axis),d_d1(axis),d_t1,d_t2,
+     1     k_tr2_offset(axis),k_d1_offset(axis),
+     2     k_t1_offset,k_t2_offset)
+c
+c     3. Hit with preconditioner
+c
+      call tce_jacobi_tr1(d_tr1(axis+dynaxis),d_rr1(axis),
+     1                    k_tr1_offset(axis),0.0d0)
+      call tce_jacobi_tr2(d_tr2(axis+dynaxis),d_rr2(axis),
+     1                    k_tr2_offset(axis),0.0d0)
+c
+c     4. Delete dummies
+c
+      call deletefile(d_rr1(axis))
+      call deletefile(d_rr2(axis))
+c
+ 9020 format(1x,'Cpu & wall time / sec',2f15.1)
+ 9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
+ 9100 format(1x,i4,2f18.13,2f8.1)
+ 9120 format(1x,A)
+ 9121 format(/,1x,A)
+ 9122 format(1x,A,i4)
+ 9420 format(1x,i4,f25.13,2f8.1)
+ 9431 format(/,1x,'Frequency = ',f15.7,' / au')
+ 9440 format(1x,A3,' axis ( ',A4,'symmetry)')
+      return
+      end
+
+#ifdef DENOM_EXPER
+c====================================================================
+c             DENOMINATOR EXPERIMENT
+c====================================================================
+          call tce_filename('denom1',filename)
+          call createfile(filename,d_denom1,size_t1)
+          call tce_zero(d_denom1,size_t1)
+c
+          call tce_filename('denom2',filename)
+          call createfile(filename,d_denom2,size_t2)
+          call tce_zero(d_denom2,size_t2)
+c
+          call tce_make_denom1(d_denom1,k_t1_offset,irrep_t,
+     1                         1,0.0d0,0.0d0) ! denom_power, omega, shift
+          call tce_make_denom2(d_denom2,k_t2_offset,irrep_t,
+     1                         1,0.0d0,0.0d0) ! denom_power, omega, shift
+c
+          call tce_print_x1(d_denom1,k_t1_offset,1.0d-6,irrep_t)
+          call tce_print_x2(d_denom2,k_t2_offset,1.0d-6,irrep_t)
+c
+          call deletefile(d_denom1)
+          call deletefile(d_denom2)
+c
+          do axis = 1, 3
+          do i = 1, 2
+          if (respaxis(axis)) then
+c
+            if(nodezero) write(6,*) '================================='
+            if(nodezero) write(6,*) 'denom_power = ',i
+c
+            irrep_d=sym_abelian_axis(geom,axis)
+            call sym_irrepname(geom,irrep_d+1,irrepname)
+            if (nodezero.and.util_print('mod1',print_default)) then
+              write(LuOut,*)
+              write(LuOut,9440) axisname(axis),irrepname
+            endif
+c
+            call tce_filename('denom1',filename)
+            call createfile(filename,d_denom1,size_tr1(axis))
+            call tce_zero(d_denom1,size_tr1(axis))
+c
+            call tce_filename('denom2',filename)
+            call createfile(filename,d_denom2,size_tr2(axis))
+            call tce_zero(d_denom2,size_tr2(axis))
+c
+            call tce_make_denom1(d_denom1,k_tr1_offset(axis),irrep_d,
+     1                             i,0.0d0,0.0d0) ! denom_power, omega, shift
+            call tce_make_denom2(d_denom2,k_tr2_offset(axis),irrep_d,
+     1                             i,0.0d0,0.0d0) ! denom_power, omega, shift
+c
+            call tce_print_x1(d_denom1,k_tr1_offset(axis),1.0d-6,
+     1                        irrep_d)
+            call tce_print_x2(d_denom2,k_tr2_offset(axis),1.0d-6,
+     2                        irrep_d)
+c
+            call deletefile(d_denom1)
+            call deletefile(d_denom2)
+c
+          endif
+          enddo
+          enddo
+c
+          call errquit('tce_energy: MANUAL STOP',0,CALC_ERR)
+c====================================================================
+#endif
+c
