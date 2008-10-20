@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.94 2008-10-20 00:29:22 jhammond Exp $
+#$Id: GNUmakefile,v 1.95 2008-10-20 16:02:25 jhammond Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 gradients \
@@ -35,7 +35,7 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_y1_offset.o tce_y2_offset.o tce_y3_offset.o tce_y4_offset.o \
       tce_mbpt2.o tce_energy.o tce_energy_fragment.o tce_restricted.o \
       tce_hash.o get_hash_block.o put_hash_block.o add_hash_block.o tce_sort_4kg.o \
-      tce_residual_t3a.o tce_t3a_offset.o tce_x3a_offset.o tce_imaginary.o \
+      tce_residual_t3a.o tce_t3a_offset.o tce_x3a_offset.o \
       tce_cholesky.o tce_ao2e_cholesky.o tce_ao2e_cholesky_2d.o tce_ao2e_cholesky_4d.o \
       e2_offset_2_offset.o get_block_ind.o get_block_ind_sf.o tce_hash_ind.o \
       tce_mo2e_offset_intorb.o tce_mo2e_offset_size.o tce_mo2e_trans.o \

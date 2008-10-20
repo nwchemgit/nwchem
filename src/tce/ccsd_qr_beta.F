@@ -15,12 +15,14 @@
 #include "tce_main.fh"
 #include "tce_prop.fh"
 c
-      integer i,j,dummy,axis
+      integer i,j,dummy,axis,dynaxis,dynfreq
+      integer omegacount,omegasign
       integer irrep_g
       parameter (irrep_g=0)
-      integer d_f1,d_v2,d_d1(3)
+      integer d_a0,d_b0,d_f1,d_v2,d_d1(3)
       integer d_t1,d_t2,d_y1,d_y2
       integer d_tr1(9),d_tr2(9),d_yr1(6),d_yr2(6)
+      integer k_a0_offset,k_b0_offset
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset
       integer k_tr1_offset(3),k_tr2_offset(3)
@@ -29,7 +31,7 @@ c
       integer d_rr1(3),d_rr2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
-      double precision omega
+      double precision omega,omega1,omega2
       logical nodezero
       character*4 irrepname
       character*3 axisname(3)  ! Axis
@@ -125,7 +127,7 @@ c
 #include "tce_prop.fh"
 #include "tce_restart.fh"
 c
-      integer i,j,dummy,axis
+      integer i,j,dummy,axis,dynaxis
       integer irrep_g
       parameter (irrep_g=0)
       integer d_f1,d_v2,d_d1(3)
@@ -143,6 +145,8 @@ c
       double precision omega
       double precision cpu, wall
       double precision residual
+      double precision rr1            ! Residual tr1
+      double precision rr2            ! Residual tr2
       double precision ddotfile
       external ddotfile
       logical nodezero
@@ -204,145 +208,107 @@ c
 c
       call tce_diis_init()
       do iter=1,maxiter
-              cpu=-util_cpusec()
-              wall=-util_wallsec()
-              if (nodezero.and.(iter.eq.1))
-     &          write(LuOut,9400) "CCSD-YR (Static)"
+        cpu=-util_cpusec()
+        wall=-util_wallsec()
+        if (nodezero.and.(iter.eq.1)) write(LuOut,9400) "CCSD-YR"
 c
-              call tce_filename(yrr1filename(axis),filename)
-              call createfile(filename,d_yrr1(axis),size_yr1(axis))
-c              call tce_zero(d_yrr1(axis),size_yr1(axis))
-              call copyfile(d_b1(axis),d_yrr1(axis),size_yr1(axis))
-              call daxpyfile(1,(1.0d0)*omega,d_yr1(axis+dynaxis),
-     1             d_yrr1(axis),size_yr1(axis))
+        call tce_filename(yrr1filename(axis),filename)
+        call createfile(filename,d_yrr1(axis),size_yr1(axis))
+        call copyfile(d_b1(axis),d_yrr1(axis),size_yr1(axis))
+        call daxpyfile(1,(1.0d0)*omega,d_yr1(axis+dynaxis),
+     1       d_yrr1(axis),size_yr1(axis))
 c
-c        write(LuOut,*) "ccsd_y_o1"
-c              irrep_y=irrep_g ! using Lambda(0) amplitudes
-c              call ccsd_y_o1(d_yrr1(axis),d_d1(axis),d_t1,d_t2,
-c     1             d_y1,d_y2,k_yr1_offset(axis),
-c     2             k_d1_offset(axis),k_t1_offset,k_t2_offset,
-c     3             k_y1_offset,k_y2_offset)
-c              call ga_print(d_yrr1(axis))
-c        write(LuOut,*) "ccsd_y_tr1"
-c              irrep_y=irrep_g ! using Lambda(0) amplitudes
-c              call ccsd_y_tr1(d_f1,d_yrr1(axis),d_t1,d_t2,d_v2,
-c     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),d_y1,
-c     2             d_y2,k_f1_offset,k_yr1_offset(axis),
-c     3             k_t1_offset,k_t2_offset,k_v2_offset,
-c     4             k_tr1_offset(axis),k_tr2_offset(axis),
-c     5             k_y1_offset,k_y2_offset)
-c              call ga_print(d_yrr1(axis))
-c        write(LuOut,*) "eomccsd_y1"
-              irrep_y=irrep_d ! using Lambda(1) amplitudes
-              call eomccsd_y1(d_f1,d_yrr1(axis),d_t1,d_t2,d_v2,
-     1             d_yr1(axis+dynaxis),d_yr2(axis+dynaxis),k_f1_offset,
-     2             k_yr1_offset(axis),k_t1_offset,k_t2_offset,
-     3             k_v2_offset,k_yr1_offset(axis),k_yr2_offset(axis))
-c              call ga_print(d_yrr1(axis))
+        irrep_y=irrep_d ! using Lambda(1) amplitudes
+        call eomccsd_y1(d_f1,d_yrr1(axis),d_t1,d_t2,d_v2,
+     1       d_yr1(axis+dynaxis),d_yr2(axis+dynaxis),k_f1_offset,
+     2       k_yr1_offset(axis),k_t1_offset,k_t2_offset,
+     3       k_v2_offset,k_yr1_offset(axis),k_yr2_offset(axis))
 c
-              call tce_filename(yrr2filename(axis),filename)
-              call createfile(filename,d_yrr2(axis),size_yr2(axis))
-c              call tce_zero(d_yrr2(axis),size_yr2(axis))
-              call copyfile(d_b2(axis),d_yrr2(axis),size_yr2(axis))
-              call daxpyfile(1,(1.0d0)*omega,d_yr2(axis+dynaxis),
-     1             d_yrr2(axis),size_yr2(axis))
+        call tce_filename(yrr2filename(axis),filename)
+        call createfile(filename,d_yrr2(axis),size_yr2(axis))
+        call copyfile(d_b2(axis),d_yrr2(axis),size_yr2(axis))
+        call daxpyfile(1,(1.0d0)*omega,d_yr2(axis+dynaxis),
+     1       d_yrr2(axis),size_yr2(axis))
 c
-c        write(LuOut,*) "ccsd_y_o2"
-c              irrep_y=irrep_g ! using Lambda(0) amplitudes
-c              call ccsd_y_o2(d_yrr2(axis),d_d1(axis),d_t1,
-c     1             d_y1,d_y2,k_yr2_offset(axis),
-c     2             k_d1_offset(axis),k_t1_offset,
-c     3             k_y1_offset,k_y2_offset)
-c        write(LuOut,*) "ccsd_y_tr2"
-c              irrep_y=irrep_g ! using Lambda(0) amplitudes
-c              call ccsd_y_tr2(d_f1,d_yrr2(axis),d_t1,d_v2,
-c     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),d_y1,
-c     2             d_y2,k_f1_offset,k_yr2_offset(axis),
-c     3             k_t1_offset,k_v2_offset,
-c     4             k_tr1_offset(axis),k_tr2_offset(axis),
-c     5             k_y1_offset,k_y2_offset)
-c        write(LuOut,*) "eomccsd_y2"
-              irrep_y=irrep_d ! using Lambda(1) amplitudes
-              call eomccsd_y2(d_f1,d_yrr2(axis),d_t1,d_t2,d_v2,
-     1             d_yr1(axis+dynaxis),d_yr2(axis+dynaxis),k_f1_offset,
-     2             k_yr2_offset(axis),k_t1_offset,k_t2_offset,
-     3             k_v2_offset,k_yr1_offset(axis),k_yr2_offset(axis))
-c        write(LuOut,*) "reconcilefile"
-              call reconcilefile(d_yrr1(axis),size_yr1(axis))
-              call reconcilefile(d_yrr2(axis),size_yr2(axis))
-c        write(LuOut,*) "ddotfile"
-              rr1 = ddotfile(d_yrr1(axis),d_yrr1(axis),size_yr1(axis))
-              rr2 = ddotfile(d_yrr2(axis),d_yrr2(axis),size_yr2(axis))
-              residual = max(rr1,rr2)
-              cpu=cpu+util_cpusec()
-              wall=wall+util_wallsec()
-              if (nodezero) write(LuOut,9420) iter,residual,cpu,wall
-              if (residual .lt. thresh) then
-                if (nodezero) then
-                  write(LuOut,9410)
-                endif
-                if (ampnorms) then
-                  rr1 = ddotfile(d_yr1(axis+dynaxis),
-     1                           d_yr1(axis+dynaxis),size_yr1(axis))
-                  rr1 = ddotfile(d_yr2(axis+dynaxis),
-     1                           d_yr2(axis+dynaxis),size_yr2(axis))
-                  if (nodezero) then
-                    write(LuOut,9082) "Lambda(1) singles",rr1
-                    write(LuOut,9082) "Lambda(1) doubles",rr2
-                  endif
-                endif
+        irrep_y=irrep_d ! using Lambda(1) amplitudes
+        call eomccsd_y2(d_f1,d_yrr2(axis),d_t1,d_t2,d_v2,
+     1       d_yr1(axis+dynaxis),d_yr2(axis+dynaxis),k_f1_offset,
+     2       k_yr2_offset(axis),k_t1_offset,k_t2_offset,
+     3       k_v2_offset,k_yr1_offset(axis),k_yr2_offset(axis))
 c
-c                call ga_print(d_yrr1(axis))
-c                call ga_print(d_yrr2(axis))
+        call reconcilefile(d_yrr1(axis),size_yr1(axis))
+        call reconcilefile(d_yrr2(axis),size_yr2(axis))
 c
-                call deletefile(d_yrr2(axis))
-                call deletefile(d_yrr1(axis))
-                call tce_diis_tidy()
-c                if (save_lr(1)) then
-c                  if(nodezero) then
-c                    write(LuOut,*) 'Saving L1(1) now...'
-c                  endif
-c                  call yr1_restart_save(d_yr1(axis),k_yr1_offset(axis),
-c     1                 size_yr1(axis),axis,handle_yr1(axis),irrep_d)
-c                endif
-c                if (save_lr(2)) then
-c                  if(nodezero) then
-c                    write(LuOut,*) 'Saving L2(1) now...'
-c                  endif
-c                  call yr2_restart_save(d_yr2(axis),k_yr2_offset(axis),
-c     1                 size_yr2(axis),axis,handle_yr2(axis),irrep_d)
-c                endif
-                call deletefile(d_b2(axis))
-                call deletefile(d_b1(axis))
-                return
-              endif
-c              if (save_lr(1).and.(mod(iter,save_interval).eq.0)) then
-c                if(nodezero) then
-c                  write(LuOut,*) 'Saving L1(1) now...'
-c                endif
-c                call yr1_restart_save(d_yr1(axis),k_yr1_offset(axis),
-c     1               size_yr1(axis),axis,handle_yr1(axis),irrep_d)
-c              endif
-c              if (save_lr(2).and.(mod(iter,save_interval).eq.0)) then
-c                if(nodezero) then
-c                  write(LuOut,*) 'Saving L2(1) now...'
-c                endif
-c                call yr2_restart_save(d_yr2(axis),k_yr2_offset(axis),
-c     1               size_yr2(axis),axis,handle_yr2(axis),irrep_d)
-c              endif
+        rr1 = ddotfile(d_yrr1(axis),d_yrr1(axis),size_yr1(axis))
+        rr2 = ddotfile(d_yrr2(axis),d_yrr2(axis),size_yr2(axis))
+c
+        residual = max(rr1,rr2)
+        cpu=cpu+util_cpusec()
+        wall=wall+util_wallsec()
+        if (nodezero) write(LuOut,9420) iter,residual,cpu,wall
+        if (residual .lt. thresh) then
+          if (nodezero) then
+            write(LuOut,9410)
+          endif
+          if (ampnorms) then
+            rr1 = ddotfile(d_yr1(axis+dynaxis),d_yr1(axis+dynaxis),
+     1                     size_yr1(axis))
+            rr1 = ddotfile(d_yr2(axis+dynaxis),d_yr2(axis+dynaxis),
+     1                     size_yr2(axis))
+            if (nodezero) then
+              write(LuOut,9082) "Lambda(1) singles",rr1
+              write(LuOut,9082) "Lambda(1) doubles",rr2
+            endif
+          endif
+c
+          call deletefile(d_yrr2(axis))
+          call deletefile(d_yrr1(axis))
+          call tce_diis_tidy()
+c          if (save_lr(1)) then
+c            if(nodezero) then
+c              write(LuOut,*) 'Saving L1(1) now...'
+c            endif
+c            call yr1_restart_save(d_yr1(axis),k_yr1_offset(axis),
+c     1           size_yr1(axis),axis,handle_yr1(axis),irrep_d)
+c          endif
+c          if (save_lr(2)) then
+c            if(nodezero) then
+c              write(LuOut,*) 'Saving L2(1) now...'
+c            endif
+c            call yr2_restart_save(d_yr2(axis),k_yr2_offset(axis),
+c     1           size_yr2(axis),axis,handle_yr2(axis),irrep_d)
+c          endif
+          call deletefile(d_b2(axis))
+          call deletefile(d_b1(axis))
+          return
+        endif
+c        if (save_lr(1).and.(mod(iter,save_interval).eq.0)) then
+c          if(nodezero) then
+c            write(LuOut,*) 'Saving L1(1) now...'
+c          endif
+c          call yr1_restart_save(d_yr1(axis),k_yr1_offset(axis),
+c     1         size_yr1(axis),axis,handle_yr1(axis),irrep_d)
+c        endif
+c        if (save_lr(2).and.(mod(iter,save_interval).eq.0)) then
+c          if(nodezero) then
+c            write(LuOut,*) 'Saving L2(1) now...'
+c          endif
+c          call yr2_restart_save(d_yr2(axis),k_yr2_offset(axis),
+c     1   size_yr2(axis),axis,handle_yr2(axis),irrep_d)
+c        endif
 c       write(LuOut,*) "before tce_diis2"
-              irrep_y=irrep_d
-              call tce_diis2(.true.,iter,.true.,.true.,.false.,.false.,
-     1             d_yrr1(axis),d_yr1(axis+dynaxis),k_yr1_offset(axis),
-     2             size_yr1(axis),
-     3             d_yrr2(axis),d_yr2(axis+dynaxis),k_yr2_offset(axis),
-     4             size_yr2(axis),
-     5             dummy,dummy,dummy,dummy,
-     6             dummy,dummy,dummy,dummy,omega)
+        irrep_y=irrep_d
+        call tce_diis2(.true.,iter,.true.,.true.,.false.,.false.,
+     1       d_yrr1(axis),d_yr1(axis+dynaxis),k_yr1_offset(axis),
+     2       size_yr1(axis),
+     3       d_yrr2(axis),d_yr2(axis+dynaxis),k_yr2_offset(axis),
+     4       size_yr2(axis),
+     5       dummy,dummy,dummy,dummy,
+     6       dummy,dummy,dummy,dummy,omega)
 c       write(LuOut,*) "after tce_diis2"
-              call deletefile(d_yrr2(axis))
-              call deletefile(d_yrr1(axis))
-              if (nodezero) call util_flush(LuOut)
+        call deletefile(d_yrr2(axis))
+        call deletefile(d_yrr1(axis))
+        if (nodezero) call util_flush(LuOut)
       enddo ! iter loop
       call deletefile(d_b2(axis))
       call deletefile(d_b1(axis))
@@ -352,7 +318,7 @@ c
  9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
  9100 format(1x,i4,2f18.13,2f8.1)
  9120 format(1x,A)
- 9121 format(/,1x,A)
+ 9121 format(1x,A)
  9122 format(1x,A,i4)
  9400 format(/,1x,A,' iterations',/,
      1  1x,'---------------------------------------------',/
@@ -368,7 +334,7 @@ c
       end
 
 
-      subroutine ccsd_qr_alpha_eval(omega,d_b0,d_f1,d_v2,d_d1,
+      subroutine ccsd_qr_alpha_eval(omega,d_a0,d_f1,d_v2,d_d1,
      1           d_t1,d_t2,d_y1,d_y2,d_tr1,d_tr2,d_yr1,d_yr2,
      2           k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
      3           k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
@@ -383,25 +349,35 @@ c
 #include "tce_main.fh"
 #include "tce_prop.fh"
 c
-      integer i,j,dummy,axis
+      integer i,j,dummy,axis,axisA,axisB,omegacount
       integer irrep_g
       parameter (irrep_g=0)
-      integer d_f1,d_v2,d_d1(3)
+      integer d_a0,d_f1,d_v2,d_d1(3)
       integer d_t1,d_t2,d_y1,d_y2
+      integer k_a0_offset
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset
       integer d_tr1(9),d_tr2(9),d_yr1(6),d_yr2(6)
       integer k_tr1_offset(3),k_tr2_offset(3)
       integer k_yr1_offset(3),k_yr2_offset(3)
+      integer aeiginfo
       integer sym_abelian_axis
       external sym_abelian_axis
-      double precision omega
+      double precision omega,omega1
       double precision cpu, wall
       double precision residual
       double precision alpha1,alpha2,alpha3,alpha4
       double precision au2ang   ! Conversion factor from bohr to Angstrom
       double precision au2ang3  ! Conversion factor from bohr^3 to Angstrom^3
       double precision auXnm    ! Conversion factor from a.u. (frequency) to nm (wavelength)
+      double precision alpha(3,3)       ! Dipole polarizability tensor
+      double precision alphacopy(3,3)   ! Dipole polarizability tensor copy
+      double precision alphaiso         ! Isotropic dipole polarizability
+      double precision alphaani         ! Anisotropic dipole polarizability
+      double precision alphaevr(3)      ! Dipole polarizability tensor eigenvalues (real)
+      double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
+      double precision aeigvec(3,3)     ! dummy dgeev eigenvectors
+      double precision awork(9)         ! dgeev workspace
       double precision ddotfile
       external ddotfile
       parameter (auXnm=45.563353d0)
@@ -600,19 +576,22 @@ c
 #include "tce_prop.fh"
 c
       integer i,j,dummy,axis
+      integer axisA,axisB,axisC
       integer irrep_g
       parameter (irrep_g=0)
-      integer d_f1,d_v2,d_d1(3)
+      integer d_b0,d_f1,d_v2,d_d1(3)
       integer d_t1,d_t2,d_y1,d_y2
-      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_b0_offset,k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset
       integer d_tr1(9),d_tr2(9),d_yr1(6),d_yr2(6)
       integer k_tr1_offset(3),k_tr2_offset(3)
       integer k_yr1_offset(3),k_yr2_offset(3)
       integer sym_abelian_axis
       external sym_abelian_axis
+      double precision omega1,omega2
       double precision cpu, wall
       double precision beta1,beta2,beta3,beta4
+      double precision beta(3,3,3)      ! Dipole hyperpolarizability tensor
       double precision au2ang   ! Conversion factor from bohr to Angstrom
       double precision au2ang3  ! Conversion factor from bohr^3 to Angstrom^3
       double precision auXnm    ! Conversion factor from a.u. (frequency) to nm (wavelength)
@@ -841,161 +820,3 @@ c
  9508 format(1x,'beta(',f1.5,',',f1.5,',',f1.5,')')
       return
       end
-
-
-
-
-      subroutine ccsd_qr_guess(d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
-     1           k_f1_offset,k_v2_offset,k_d1_offset,
-     2           k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
-     4           size_tr1,size_tr2,component,axis,dynaxis)
-      implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-#include "util.fh"
-#include "errquit.fh"
-#include "stdio.fh"
-#include "tce.fh"
-#include "tce_main.fh"
-#include "tce_prop.fh"
-c
-      integer axis,component
-      integer d_f1,d_v2,d_d1(3)
-      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
-      integer d_t1
-      integer k_t1_offset
-      integer d_t2
-      integer k_t2_offset
-      integer d_tr1(9)
-      integer k_tr1_offset(3)
-      integer size_tr1(3)
-      integer d_tr2(9)
-      integer k_tr2_offset(3)
-      integer size_tr2(3)
-      integer d_rr1(3)
-      integer d_rr2(3)
-      double precision omega
-      double precision cpu, wall
-      logical nodezero
-      character*4 irrepname
-      character*3 axisname(3)  ! Axis
-      data axisname/'X','Y','Z'/
-      character*255 filename
-      character*5 rr1filename(3) ! File name stub
-      data rr1filename/'rr1x ','rr1y ','rr1z '/
-      character*5 rr2filename(3) ! File name stub
-      data rr2filename/'rr2x ','rr2y ','rr2z '/
-c
-      nodezero=(ga_nodeid().eq.0)
-c
-      if (nodezero) write(6,9121) 'Initial guess x = b/Adiag'
-c
-c     0. Create dummies
-c
-      call tce_filename(rr1filename(axis),filename)
-      call createfile(filename,d_rr1(axis),size_tr1(axis))
-      call tce_zero(d_rr1(axis),size_tr1(axis))
-c
-      call tce_filename(rr2filename(axis),filename)
-      call createfile(filename,d_rr2(axis),size_tr2(axis))
-      call tce_zero(d_rr2(axis),size_tr2(axis))
-c
-c     1. Form b
-c
-      call ccsd_o1(d_rr1(axis),d_d1(axis),d_t1,d_t2,
-     1     k_tr1_offset(axis),k_d1_offset(axis),
-     2     k_t1_offset,k_t2_offset)
-      call ccsd_o2(d_rr2(axis),d_d1(axis),d_t1,d_t2,
-     1     k_tr2_offset(axis),k_d1_offset(axis),
-     2     k_t1_offset,k_t2_offset)
-c
-c     3. Hit with preconditioner
-c
-      call tce_jacobi_tr1(d_tr1(axis+dynaxis),d_rr1(axis),
-     1                    k_tr1_offset(axis),0.0d0)
-      call tce_jacobi_tr2(d_tr2(axis+dynaxis),d_rr2(axis),
-     1                    k_tr2_offset(axis),0.0d0)
-c
-c     4. Delete dummies
-c
-      call deletefile(d_rr1(axis))
-      call deletefile(d_rr2(axis))
-c
- 9020 format(1x,'Cpu & wall time / sec',2f15.1)
- 9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
- 9100 format(1x,i4,2f18.13,2f8.1)
- 9120 format(1x,A)
- 9121 format(/,1x,A)
- 9122 format(1x,A,i4)
- 9420 format(1x,i4,f25.13,2f8.1)
- 9431 format(/,1x,'Frequency = ',f15.7,' / au')
- 9440 format(1x,A3,' axis ( ',A4,'symmetry)')
-      return
-      end
-
-#ifdef DENOM_EXPER
-c====================================================================
-c             DENOMINATOR EXPERIMENT
-c====================================================================
-          call tce_filename('denom1',filename)
-          call createfile(filename,d_denom1,size_t1)
-          call tce_zero(d_denom1,size_t1)
-c
-          call tce_filename('denom2',filename)
-          call createfile(filename,d_denom2,size_t2)
-          call tce_zero(d_denom2,size_t2)
-c
-          call tce_make_denom1(d_denom1,k_t1_offset,irrep_t,
-     1                         1,0.0d0,0.0d0) ! denom_power, omega, shift
-          call tce_make_denom2(d_denom2,k_t2_offset,irrep_t,
-     1                         1,0.0d0,0.0d0) ! denom_power, omega, shift
-c
-          call tce_print_x1(d_denom1,k_t1_offset,1.0d-6,irrep_t)
-          call tce_print_x2(d_denom2,k_t2_offset,1.0d-6,irrep_t)
-c
-          call deletefile(d_denom1)
-          call deletefile(d_denom2)
-c
-          do axis = 1, 3
-          do i = 1, 2
-          if (respaxis(axis)) then
-c
-            if(nodezero) write(6,*) '================================='
-            if(nodezero) write(6,*) 'denom_power = ',i
-c
-            irrep_d=sym_abelian_axis(geom,axis)
-            call sym_irrepname(geom,irrep_d+1,irrepname)
-            if (nodezero.and.util_print('mod1',print_default)) then
-              write(LuOut,*)
-              write(LuOut,9440) axisname(axis),irrepname
-            endif
-c
-            call tce_filename('denom1',filename)
-            call createfile(filename,d_denom1,size_tr1(axis))
-            call tce_zero(d_denom1,size_tr1(axis))
-c
-            call tce_filename('denom2',filename)
-            call createfile(filename,d_denom2,size_tr2(axis))
-            call tce_zero(d_denom2,size_tr2(axis))
-c
-            call tce_make_denom1(d_denom1,k_tr1_offset(axis),irrep_d,
-     1                             i,0.0d0,0.0d0) ! denom_power, omega, shift
-            call tce_make_denom2(d_denom2,k_tr2_offset(axis),irrep_d,
-     1                             i,0.0d0,0.0d0) ! denom_power, omega, shift
-c
-            call tce_print_x1(d_denom1,k_tr1_offset(axis),1.0d-6,
-     1                        irrep_d)
-            call tce_print_x2(d_denom2,k_tr2_offset(axis),1.0d-6,
-     2                        irrep_d)
-c
-            call deletefile(d_denom1)
-            call deletefile(d_denom2)
-c
-          endif
-          enddo
-          enddo
-c
-          call errquit('tce_energy: MANUAL STOP',0,CALC_ERR)
-c====================================================================
-#endif
-c

@@ -15,24 +15,26 @@
 #include "tce_prop.fh"
 c
       integer i,j,dummy,axis
+      integer omegacount
+      integer omegasign
+      integer dynfreq
+      integer dynaxis
       integer irrep_g
       parameter (irrep_g=0)
-      integer d_f1,d_v2,d_d1(3)
+      integer d_a0,d_f1,d_v2,d_d1(3)
       integer d_t1,d_t2,d_lambda1,d_lambda2
-      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset
       integer d_tr1(9),d_tr2(9)
       integer k_tr1_offset(3),k_tr2_offset(3)
       integer size_tr1(3),size_tr2(3)
-      integer d_rr1(3),d_rr2(3),d_ir1(3),d_ir2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
       double precision omega
       logical nodezero
       character*4 irrepname
-      character*3 axisname(19)  ! Axis
-      data axisname/'X','Y','Z','XX','YY','ZZ','XY','XZ','YZ',
-     & 'XXX','YYY','ZZZ','XXY','XXZ','YYX','YYZ','ZZX','ZZY','XYZ'/
+      character*3 axisname(3)  ! Axis
+      data axisname/'X','Y','Z'/
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -135,14 +137,6 @@ c
 c
   999 format(3x,'ifreq(',i2,') = ',f14.8)
  9020 format(1x,'Cpu & wall time / sec',2f15.1)
- 9050 format(/,1x,A,' iterations',/,
-     1  1x,'--------------------------------------------------------',/
-     2  1x,'Iter          Residuum       Correlation     Cpu    Wall',/
-     3  1x,'--------------------------------------------------------')
- 9060 format(
-     1  1x,'--------------------------------------------------------',/
-     2  1x,'Iterations converged')
- 9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
  9100 format(1x,i4,2f18.13,2f8.1)
  9120 format(1x,A)
  9121 format(/,1x,A)
@@ -183,6 +177,12 @@ c
 #include "tce_restart.fh"
 c
       integer i,j,dummy,axis
+      integer omegacount
+      integer omegasign
+      integer dynfreq
+      integer dynaxis
+      integer axisA
+      integer axisB
       integer irrep_g
       parameter (irrep_g=0)
       integer d_f1,d_v2,d_d1(3)
@@ -195,6 +195,8 @@ c
       integer d_rr1(3),d_rr2(3),d_ir1(3),d_ir2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
+      double precision rr1            ! Residual tr1
+      double precision rr2            ! Residual tr2
       double precision omega
       double precision cpu, wall
       double precision residual
@@ -390,6 +392,10 @@ c
 #include "tce_restart.fh"
 c
       integer i,j,dummy,axis
+      integer omegacount
+      integer omegasign
+      integer dynfreq
+      integer dynaxis
       integer irrep_g
       parameter (irrep_g=0)
       integer d_f1,d_v2,d_d1(3)
@@ -410,6 +416,8 @@ c
       integer d_ir2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
+      double precision rr1            ! Residual tr1
+      double precision rr2            ! Residual tr2
       double precision omega
       double precision cpu, wall
       double precision residual
@@ -672,23 +680,21 @@ c
 #include "tce_prop.fh"
 c
       integer i,j,dummy,axis
+      integer axisA
+      integer axisB
+      integer omegacount
+      integer omegasign
+      integer dynfreq
+      integer dynaxis
+      integer aeiginfo                  ! dgeev information
       integer irrep_g
       parameter (irrep_g=0)
-      integer d_f1,d_v2,d_d1(3)
+      integer d_a0,d_f1,d_v2,d_d1(3)
       integer d_t1,d_t2,d_lambda1,d_lambda2
-      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
-      integer k_t1_offset,k_t2_offset
-      integer k_l1_offset,k_l2_offset
-      integer d_tr1(9)
-      integer l_tr1_offset(3)
-      integer k_tr1_offset(3)
-      integer d_tr2(9)
-      integer l_tr2_offset(3)
-      integer k_tr2_offset(3)
-      integer d_rr1(3)
-      integer d_rr2(3)
-      integer d_ir1(3)
-      integer d_ir2(3)
+      integer k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset
+      integer d_tr1(9),d_tr2(9)
+      integer k_tr1_offset(3),k_tr2_offset(3)
       integer sym_abelian_axis
       external sym_abelian_axis
       double precision omega
@@ -698,6 +704,14 @@ c
       double precision au2ang   ! Conversion factor from bohr to Angstrom
       double precision au2ang3  ! Conversion factor from bohr^3 to Angstrom^3
       double precision auXnm    ! Conversion factor from a.u. (frequency) to nm (wavelength)
+      double precision alpha(3,3)       ! Dipole polarizability tensor
+      double precision alphacopy(3,3)   ! Dipole polarizability tensor copy
+      double precision alphaiso         ! Isotropic dipole polarizability
+      double precision alphaani         ! Anisotropic dipole polarizability
+      double precision alphaevr(3)      ! Dipole polarizability tensor eigenvalues (real)
+      double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
+      double precision aeigvec(3,3)     ! dummy dgeev eigenvectors
+      double precision awork(9)         ! dgeev workspace
       double precision ddotfile
       external ddotfile
       parameter (auXnm=45.563353d0)
@@ -705,9 +719,8 @@ c
       parameter (au2ang3=au2ang*au2ang*au2ang)
       logical nodezero
       character*4 irrepname
-      character*3 axisname(19)  ! Axis
-      data axisname/'X','Y','Z','XX','YY','ZZ','XY','XZ','YZ',
-     & 'XXX','YYY','ZZZ','XXY','XXZ','YYX','YYZ','ZZX','ZZY','XYZ'/
+      character*3 axisname(3)  ! Axis
+      data axisname/'X','Y','Z'/
       character*255 filename
       character*4 ir1filename(3) ! File name stub
       data ir1filename/'ir1x','ir1y','ir1z'/
@@ -781,41 +794,45 @@ c            write(LuOut,*) "alpha_1 BA = ",alpha2
 c
             alpha(axisA,axisB)=alpha(axisA,axisB)+alpha1+alpha2
 c
-            alpha1=0.0d0
-            alpha2=0.0d0
-            alpha3=0.0d0
-c
             irrep_tra=irrep_a
             irrep_trb=irrep_b
 c
-c            write(LuOut,*) "alpha_2 A(+i) B(-i)"
-            call alpha_2(d_f1,d_a0,d_t1,d_t2,
-     1           d_tr1(axisA),d_tr2(axisA),
-     2           d_tr1(axisB+3),d_tr2(axisB+3),
-     3           d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
-     4           k_t1_offset,k_t2_offset,
-     5           k_tr1_offset(axisA),k_tr2_offset(axisA),
-     6           k_tr1_offset(axisB),k_tr2_offset(axisB),k_v2_offset,
-     7           k_l1_offset,k_l2_offset)
-            call reconcilefile(d_a0,1)
-            call get_block(d_a0,alpha1,1,0)
-            call tce_zero(d_a0,1)
-c            write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
+            if (omega.ne.(0.0d0)) then
+              alpha1=0.0d0
+              alpha2=0.0d0
+c              write(LuOut,*) "alpha_2 A(+i) B(-i)"
+              call alpha_2(d_f1,d_a0,d_t1,d_t2,
+     1             d_tr1(axisA),d_tr2(axisA),
+     2             d_tr1(axisB+3),d_tr2(axisB+3),
+     3             d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
+     4             k_t1_offset,k_t2_offset,
+     5             k_tr1_offset(axisA),k_tr2_offset(axisA),
+     6             k_tr1_offset(axisB),k_tr2_offset(axisB),k_v2_offset,
+     7             k_l1_offset,k_l2_offset)
+              call reconcilefile(d_a0,1)
+              call get_block(d_a0,alpha1,1,0)
+              call tce_zero(d_a0,1)
+c              write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
 c
-c            write(LuOut,*) "alpha_2 A(-i) B(+i)"
-            call alpha_2(d_f1,d_a0,d_t1,d_t2,
-     1           d_tr1(axisA+3),d_tr2(axisA+3),
-     2           d_tr1(axisB),d_tr2(axisB),
-     3           d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
-     4           k_t1_offset,k_t2_offset,
-     5           k_tr1_offset(axisA),k_tr2_offset(axisA),
-     6           k_tr1_offset(axisB),k_tr2_offset(axisB),k_v2_offset,
-     7           k_l1_offset,k_l2_offset)
-            call reconcilefile(d_a0,1)
-            call get_block(d_a0,alpha2,1,0)
-            call tce_zero(d_a0,1)
-c            write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
+c              write(LuOut,*) "alpha_2 A(-i) B(+i)"
+              call alpha_2(d_f1,d_a0,d_t1,d_t2,
+     1             d_tr1(axisA+3),d_tr2(axisA+3),
+     2             d_tr1(axisB),d_tr2(axisB),
+     3             d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
+     4             k_t1_offset,k_t2_offset,
+     5             k_tr1_offset(axisA),k_tr2_offset(axisA),
+     6             k_tr1_offset(axisB),k_tr2_offset(axisB),k_v2_offset,
+     7             k_l1_offset,k_l2_offset)
+              call reconcilefile(d_a0,1)
+              call get_block(d_a0,alpha2,1,0)
+              call tce_zero(d_a0,1)
+c              write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
+            elseif (omega.eq.(0.0d0)) then
+              alpha1 = 0.0d0
+              alpha2 = 0.0d0
+            endif
 c
+            alpha3=0.0d0
 c            write(LuOut,*) "alpha_2 A(r) B(r)"
             call alpha_2(d_f1,d_a0,d_t1,d_t2,
      1           d_tr1(axisA+6),d_tr2(axisA+6),
@@ -956,7 +973,7 @@ c
 #include "tce_main.fh"
 #include "tce_prop.fh"
 c
-      integer axis,component
+      integer axis,component,dynaxis
       integer d_f1,d_v2,d_d1(3)
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer d_t1
@@ -977,9 +994,8 @@ c
       double precision cpu, wall
       logical nodezero
       character*4 irrepname
-      character*3 axisname(19)  ! Axis
-      data axisname/'X','Y','Z','XX','YY','ZZ','XY','XZ','YZ',
-     & 'XXX','YYY','ZZZ','XXY','XXZ','YYX','YYZ','ZZX','ZZY','XYZ'/
+      character*3 axisname(3)  ! Axis
+      data axisname/'X','Y','Z'/
       character*255 filename
       character*4 ir1filename(3) ! File name stub
       data ir1filename/'ir1x','ir1y','ir1z'/
@@ -1040,9 +1056,9 @@ c
 c
 c       3. Hit with preconditioner
 c
-        call tce_jacobi2_ir1(d_tr1(axis+dynaxis),d_ir1(axis),
+        call tce_jacobi2_ir1(d_ir1(axis),d_tr1(axis+dynaxis),
      1                       k_tr1_offset(axis),0.0d0,0.0d0,1.0d0)
-        call tce_jacobi2_ir2(d_tr2(axis+dynaxis),d_ir2(axis),
+        call tce_jacobi2_ir2(d_ir2(axis),d_tr2(axis+dynaxis),
      1                       k_tr2_offset(axis),0.0d0,0.0d0,1.0d0)
 c
 c       4. Delete dummies
@@ -1077,9 +1093,9 @@ c
 c
 c     3. Hit with preconditioner
 c
-        call tce_jacobi_ir1(d_tr1(axis+dynaxis),d_rr1(axis),
+        call tce_jacobi_ir1(d_rr1(axis),d_tr1(axis+dynaxis),
      1       k_tr1_offset(axis),0.0d0,0.0d0,1.0d0)
-        call tce_jacobi_ir2(d_tr2(axis+dynaxis),d_rr2(axis),
+        call tce_jacobi_ir2(d_rr2(axis),d_tr2(axis+dynaxis),
      1       k_tr2_offset(axis),0.0d0,0.0d0,1.0d0)
 c
 c     4. Delete dummies

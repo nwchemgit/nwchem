@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.145 2008-10-20 00:29:22 jhammond Exp $
+c $Id: tce_energy.F,v 1.146 2008-10-20 16:02:26 jhammond Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -135,7 +135,32 @@ c ------------------------------------
       double precision t1diagn ! T1 diagnostic
       double precision alpha1,alpha2,alpha3,alpha4
       double precision beta1,beta2,beta3,beta4
-c      integer iter             ! Iteration counter
+      double precision rr1            ! Residual tr1
+      double precision rr2            ! Residual tr2
+      double precision rr3            ! Residual tr3
+      double precision rr4            ! Residual tr4
+      double precision omega1         ! The frequency used in (A-Iw)x=b
+      double precision omega2         ! The frequency used in (A-Iw)x=b
+      double precision omega3         ! The frequency used in (A-Iw)x=b
+      double precision alpha(3,3)       ! Dipole polarizability tensor
+      double precision alphacopy(3,3)   ! Dipole polarizability tensor copy
+      double precision alphaiso         ! Isotropic dipole polarizability
+      double precision alphaani         ! Anisotropic dipole polarizability
+      double precision alphaevr(3)      ! Dipole polarizability tensor eigenvalues (real)
+      double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
+      double precision aeigvec(3,3)     ! dummy dgeev eigenvectors
+      double precision awork(9)         ! dgeev workspace
+      double precision beta(3,3,3)      ! Dipole hyperpolarizability tensor
+      double precision gamm(3,3,3,3)    ! Dipole second hyperpolarizability tensor (gamma not safe variable name)
+      integer omegacount
+      integer omegasign
+      integer dynfreq
+      integer dynaxis
+      integer axisA
+      integer axisB
+      integer axisC
+      integer axisD
+      integer aeiginfo                  ! dgeev information
       integer dummy            ! Dummy argument for DIIS
 c FOR LRH-SD
       integer d_j1,d_j2
@@ -250,13 +275,13 @@ c
       integer l_d0_offset      ! Offset for d0 file
       integer k_d0_offset      ! Offset for d0 file
       integer size_d0          ! File size in doubles
-      integer d_q0             ! Dipole moment
-      integer l_q0_offset      ! Offset for d0 file
-      integer k_q0_offset      ! Offset for d0 file
+      integer d_q0             ! Quadrupole moment
+      integer l_q0_offset      ! Offset for q0 file
+      integer k_q0_offset      ! Offset for q0 file
       integer size_q0          ! File size in doubles
-      integer d_o0             ! Dipole moment
-      integer l_o0_offset      ! Offset for d0 file
-      integer k_o0_offset      ! Offset for d0 file
+      integer d_o0             ! Octupole moment
+      integer l_o0_offset      ! Offset for o0 file
+      integer k_o0_offset      ! Offset for o0 file
       integer size_o0          ! File size in doubles
       integer axis             ! X=1, Y=2, & Z=3
       double precision dipole_scf(3)     ! Dipole moment
@@ -394,28 +419,28 @@ c      integer axisA
 c      integer axisB
 c      integer axisC
 c      integer axisD
-c      integer d_a0                ! Dipole polarizability component handle
-c      integer l_a0_offset         ! Offset for a0 file
-c      integer k_a0_offset         ! Offset for a0 file
-c      integer size_a0             ! File size in doubles
+      integer d_a0                ! Dipole polarizability component handle
+      integer l_a0_offset         ! Offset for a0 file
+      integer k_a0_offset         ! Offset for a0 file
+      integer size_a0             ! File size in doubles
 c      double precision alpha(3,3) ! Dipole polarizability tensor
 c      double precision alpha1     ! Dipole polarizability term 1
 c      double precision alpha2     ! Dipole polarizability term 2
 c      double precision alpha3     ! Dipole polarizability term 3
 c      double precision alpha4     ! Dipole polarizability term 4
-c      integer d_b0                ! Dipole hyperpolarizability component handle
-c      integer l_b0_offset         ! Offset for b0 file
-c      integer k_b0_offset         ! Offset for b0 file
-c      integer size_b0             ! File size in doubles
+      integer d_b0                ! Dipole hyperpolarizability component handle
+      integer l_b0_offset         ! Offset for b0 file
+      integer k_b0_offset         ! Offset for b0 file
+      integer size_b0             ! File size in doubles
 c      double precision beta(3,3,3)! Dipole hyperpolarizability tensor
 c      double precision beta1      ! Dipole hyperpolarizability term 1
 c      double precision beta2      ! Dipole hyperpolarizability term 2
 c      double precision beta3      ! Dipole hyperpolarizability term 3
 c      double precision beta4      ! Dipole hyperpolarizability term 4
-c      integer d_g0                ! Dipole second hyperpolarizability component handle
-c      integer l_g0_offset         ! Offset for g0 file
-c      integer k_g0_offset         ! Offset for g0 file
-c      integer size_g0             ! File size in doubles
+      integer d_g0                ! Dipole second hyperpolarizability component handle
+      integer l_g0_offset         ! Offset for g0 file
+      integer k_g0_offset         ! Offset for g0 file
+      integer size_g0             ! File size in doubles
 c      double precision gamm(3,3,3,3)! Dipole second hyperpolarizability tensor (gamma not safe variable name)
 c      double precision gamm1        ! Dipole second hyperpolarizability term 1
 c      double precision gamm2        ! Dipole second hyperpolarizability term 2
@@ -2009,15 +2034,15 @@ c -------------
      1         d_lambda1,d_lambda2,
      2         k_d0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
      3         k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
-     4         size_l1,size_l2)
+     4         size_l1,size_l2,dipole_scf,dipole_cor)
         endif ! left
 c -------------
 c CCSD-IR
 c -------------
         if (imagresp) then
-            call ccsd_imaginary(d_a0,d_f1,d_v2,d_d1,
+            call ccsd_imaginary(d_d0,d_a0,d_f1,d_v2,d_d1,
      1           d_t1,d_t2,d_lambda1,d_lambda2,
-     2           d_tr1,d_tr2,k_a0_offset,
+     2           d_tr1,d_tr2,k_d0_offset,k_a0_offset,
      3           k_f1_offset,k_v2_offset,k_d1_offset,
      4           k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
      6           k_tr1_offset,k_tr2_offset,

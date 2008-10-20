@@ -1,8 +1,8 @@
-      subroutine ccsd_lr_alpha(d_a0,d_f1,d_v2,d_d1,
+      subroutine ccsd_lr_alpha(d_d0,d_a0,d_f1,d_v2,d_d1,
      1           d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
-     2           k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
-     4           k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
-     6           k_tr1_offset,k_tr2_offset,
+     2           k_d0_offset,k_a0_offset,k_f1_offset,k_v2_offset,
+     3           k_d1_offset,k_t1_offset,k_t2_offset,
+     4           k_l1_offset,k_l2_offset,k_tr1_offset,k_tr2_offset,
      7           size_tr1,size_tr2)
       implicit none
 #include "global.fh"
@@ -15,10 +15,15 @@
 #include "tce_prop.fh"
 c
       integer i,j,dummy,axis
+      integer omegacount
+      integer omegasign
+      integer dynaxis
+      integer dynfreq
       integer irrep_g
       parameter (irrep_g=0)
-      integer d_f1,d_v2,d_d1(3)
+      integer d_d0,d_a0,d_f1,d_v2,d_d1(3)
       integer d_t1,d_t2,d_lambda1,d_lambda2
+      integer k_d0_offset,k_a0_offset
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset
       integer d_tr1(9),d_tr2(9)
@@ -71,6 +76,14 @@ c
      4             size_tr1,size_tr2)
 c
             enddo ! omegasign loop
+c
+            if (omega.eq.(0.0d0)) then
+              call dip_r(d_d0,d_d1(axis),d_t1,
+     1             d_tr1(axis),d_tr2(axis),d_v2,
+     2             k_d0_offset,k_d1_offset(axis),k_t1_offset,
+     3             k_tr1_offset(axis),k_tr2_offset(axis),k_v2_offset)
+            endif
+c
           endif ! respaxis(axis)
         enddo ! axis loop
 c
@@ -113,6 +126,9 @@ c
 #include "tce_restart.fh"
 c
       integer i,j,dummy,axis
+      integer omegacount
+      integer omegasign
+      integer dynaxis
       integer irrep_g
       parameter (irrep_g=0)
       integer d_f1,d_v2,d_d1(3)
@@ -128,6 +144,8 @@ c
       double precision omega
       double precision cpu, wall
       double precision residual
+      double precision rr1            ! Residual tr1
+      double precision rr2            ! Residual tr2
       double precision ddotfile
       external ddotfile
       logical nodezero
@@ -282,19 +300,21 @@ c
 #include "tce_prop.fh"
 c
       integer i,j,dummy,axis
+      integer omegacount
+      integer omegasign
+      integer dynfreq
+      integer dynaxis
+      integer axisA
+      integer axisB
+      integer aeiginfo                  ! dgeev information
       integer irrep_g
       parameter (irrep_g=0)
-      integer d_f1,d_v2,d_d1(3)
+      integer d_a0,d_f1,d_v2,d_d1(3)
       integer d_t1,d_t2,d_lambda1,d_lambda2
-      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
-      integer k_t1_offset,k_t2_offset
-      integer k_l1_offset,k_l2_offset
-      integer d_tr1(9)
-      integer l_tr1_offset(3)
-      integer k_tr1_offset(3)
-      integer d_tr2(9)
-      integer l_tr2_offset(3)
-      integer k_tr2_offset(3)
+      integer k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset
+      integer d_tr1(9),d_tr2(9)
+      integer k_tr1_offset(3),k_tr2_offset(3)
       integer sym_abelian_axis
       external sym_abelian_axis
       double precision omega
@@ -304,6 +324,14 @@ c
       double precision au2ang   ! Conversion factor from bohr to Angstrom
       double precision au2ang3  ! Conversion factor from bohr^3 to Angstrom^3
       double precision auXnm    ! Conversion factor from a.u. (frequency) to nm (wavelength)
+      double precision alpha(3,3)       ! Dipole polarizability tensor
+      double precision alphacopy(3,3)   ! Dipole polarizability tensor copy
+      double precision alphaiso         ! Isotropic dipole polarizability
+      double precision alphaani         ! Anisotropic dipole polarizability
+      double precision alphaevr(3)      ! Dipole polarizability tensor eigenvalues (real)
+      double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
+      double precision aeigvec(3,3)     ! dummy dgeev eigenvectors
+      double precision awork(9)         ! dgeev workspace
       double precision ddotfile
       external ddotfile
       parameter (auXnm=45.563353d0)
@@ -541,7 +569,7 @@ c
 #include "tce_main.fh"
 #include "tce_prop.fh"
 c
-      integer axis,component
+      integer axis,component,dynaxis
       integer d_f1,d_v2,d_d1(3)
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer d_t1
@@ -593,9 +621,9 @@ c
 c
 c     3. Hit with preconditioner
 c
-      call tce_jacobi_tr1(d_tr1(axis+dynaxis),d_rr1(axis),
+      call tce_jacobi_tr1(d_rr1(axis),d_tr1(axis+dynaxis),
      1                    k_tr1_offset(axis),0.0d0)
-      call tce_jacobi_tr2(d_tr2(axis+dynaxis),d_rr2(axis),
+      call tce_jacobi_tr2(d_rr2(axis),d_tr2(axis+dynaxis),
      1                    k_tr2_offset(axis),0.0d0)
 c
 c     4. Delete dummies

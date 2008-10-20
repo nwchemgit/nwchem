@@ -1,3 +1,23 @@
+      integer maxnumfreq
+      parameter (maxnumfreq=99)
+      integer anumfreq
+      integer inumfreq
+      integer bnumfreq
+      integer gnumfreq
+      integer lr_diis
+      integer yr_diis
+      integer qr_diis
+      double precision lr_thresh
+      double precision yr_thresh
+      double precision qr_thresh
+      double precision ifreqw0                     ! effective frequency omega_0 for automatic generation of Casimer-Polder integration points
+      double precision num1,num0,den1,den0,num1sq,num0sq,numtot,dentot 
+      double precision integral(8)                 ! Casimir-Polder integral for (XX,YY,ZZ,XY,YZ,XZ,AVG,ANI) components
+      double precision afreq(maxnumfreq)
+      double precision ifreq(maxnumfreq)           ! needs lots of alpha(i*omega) for Casimir-Polder quadrature
+      double precision ifreqval(maxnumfreq,8)      ! alpha(ifreq(inumfreq)) for (XX,YY,ZZ,XY,YZ,XZ,AVG,ANI) components
+      double precision bfreq(maxnumfreq)
+      double precision gfreq(maxnumfreq)
       logical nowarn
       logical lineresp
       logical imagresp
@@ -9,72 +29,6 @@
       logical beta_or
       logical beta_eope
       logical guess_ir_real,guess_ir_imag,guess_lr_real
-      integer anumfreq
-      integer inumfreq
-      integer bnumfreq
-      integer gnumfreq
-      integer lr_diis
-      integer yr_diis
-      integer qr_diis
-      integer maxnumfreq
-      parameter (maxnumfreq=99)
-      double precision afreq(maxnumfreq)
-      double precision ifreqw0                 ! effective frequency omega_0 for automatic generation of Casimer-Polder integration points
-      double precision ifreq(maxnumfreq)       ! needs lots of alpha(i*omega) for Casimir-Polder quadrature
-      double precision ifreqval(maxnumfreq,8)  ! alpha(ifreq(inumfreq)) for (XX,YY,ZZ,XY,YZ,XZ,AVG,ANI) components
-      double precision integral(8)             ! Casimir-Polder integral for (XX,YY,ZZ,XY,YZ,XZ,AVG,ANI) components
-      double precision num1,num0,den1,den0,num1sq,num0sq,numtot,dentot 
-      double precision bfreq(maxnumfreq)
-      double precision gfreq(maxnumfreq)
-      double precision lr_thresh
-      double precision yr_thresh
-      double precision qr_thresh
-      double precision rr1        ! Residual tr1
-      double precision rr2        ! Residual tr2
-      double precision rr3        ! Residual tr3
-      double precision rr4        ! Residual tr4
-      double precision omega1     ! The frequency used in (A-Iw)x=b
-      double precision omega2     ! The frequency used in (A-Iw)x=b
-      double precision omega3     ! The frequency used in (A-Iw)x=b
-      integer omegacount
-      integer omegasign
-      integer dynfreq
-      integer dynaxis
-      integer axisA
-      integer axisB
-      integer axisC
-      integer axisD
-      integer d_a0                  ! Dipole polarizability component handle
-      integer l_a0_offset           ! Offset for a0 file
-      integer k_a0_offset           ! Offset for a0 file
-      integer size_a0               ! File size in doubles
-      double precision alpha(3,3)   ! Dipole polarizability tensor
-      double precision alphacopy(3,3)   ! Dipole polarizability tensor copy
-      double precision alphaiso     ! Isotropic dipole polarizability
-      double precision alphaani     ! Anisotropic dipole polarizability
-      double precision alphaevr(3)  ! Dipole polarizability tensor eigenvalues (real)
-      double precision alphaevi(3)  ! Dipole polarizability tensor eigenvalues (imag)
-      double precision aeigvec(3,3) ! dummy dgeev eigenvectors
-      double precision awork(9)     ! dgeev workspace
-      integer aeiginfo              ! dgeev information
-      integer d_b0                  ! Dipole hyperpolarizability component handle
-      integer l_b0_offset           ! Offset for b0 file
-      integer k_b0_offset           ! Offset for b0 file
-      integer size_b0               ! File size in doubles
-      double precision beta(3,3,3)  ! Dipole hyperpolarizability tensor
-      integer d_g0                  ! Dipole second hyperpolarizability component handle
-      integer l_g0_offset           ! Offset for g0 file
-      integer k_g0_offset           ! Offset for g0 file
-      integer size_g0               ! File size in doubles
-      double precision gamm(3,3,3,3)! Dipole second hyperpolarizability tensor (gamma not safe variable name)
-c      integer d_o1             
-c      integer l_o1_offset      
-c      integer k_o1_offset      
-c      integer size_o1          
-c      integer d_o2             
-c      integer l_o2_offset      
-c      integer k_o2_offset      
-c      integer size_o2          
 
       common /tcepropdouble/
      1 afreq,ifreq,bfreq,gfreq,lr_thresh,yr_thresh,qr_thresh,
