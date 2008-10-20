@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.86 2008-08-27 23:11:16 d3p307 Exp $
+$Id: INSTALL,v 1.87 2008-10-20 20:06:10 d3p307 Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -364,11 +364,8 @@ D) cd $NWCHEM_TOP/src/basis
    cp -r libraries /usr/local/NWChem/data
    cd $NWCHEM_TOP/src/
    cp -r data /usr/local/NWChem
-   cd $NWCHEM_TOP/src/nwpw/libraryps
-   cp -r pspw_default /usr/local/NWChem/data
-   cp -r paw_default  /usr/local/NWChem/data
-   cp -r TM  /usr/local/NWChem/data
-   cp -r HGH_LDA  /usr/local/NWChem/data
+   cd $NWCHEM_TOP/src/nwpw
+   cp -r libraryps /usr/local/NWChem/data
 
 E) Each user will need a .nwchemrc file to point to these default data
    files.  A global one could be put in /usr/local/NWChem/data and a
@@ -381,6 +378,7 @@ F) Contents of the default.nwchemrc file based on the above
    information should be:
 
    nwchem_basis_library /usr/local/NWChem/data/libraries/
+   nwchem_nwpw_library /usr/local/NWChem/data/libraryps/
    ffield amber
    amber_1 /usr/local/NWChem/data/amber_s/
    amber_2 /usr/local/NWChem/data/amber_q/
