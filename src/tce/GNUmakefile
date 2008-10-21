@@ -1,8 +1,8 @@
-#$Id: GNUmakefile,v 1.96 2008-10-21 00:37:18 jhammond Exp $
+#$Id: GNUmakefile,v 1.97 2008-10-21 17:20:19 jhammond Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 gradients \
-          #ccsd ccsd_lambda eomccsd \
+          ccsd ccsd_lambda eomccsd \
           ccsd_t cr-eomccsd_t lrh emb \
           response ccsd_yr ccsd_alpha ccsd_beta \
           ccd lccd lccsd qcisd cc3 \
@@ -10,12 +10,12 @@ SUBDIRS = include diis diis2 diis3 gradients \
           ccsdt ccsdt_lambda eomccsdt
 
 ifdef CCSDTLR
-#      SUBDIRS += ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta
+      SUBDIRS += ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta
       LIB_DEFINES += -DCCSDTLR
 endif
 
 ifdef CCSDTQ
-#      SUBDIRS += ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag
+      SUBDIRS += ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag
       LIB_DEFINES += -DCCSDTQ
 endif
 
