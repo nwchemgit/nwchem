@@ -32,7 +32,7 @@ c
       integer sym_abelian_axis
       external sym_abelian_axis
       double precision omega,omega1,omega2
-      logical nodezero
+      logical nodezero,guess
       character*4 irrepname
       character*3 axisname(3)  ! Axis
       data axisname/'X','Y','Z'/
@@ -69,7 +69,8 @@ c
 c
               if (nodezero) write(LuOut,9431) omega
 c
-              call ccsd_qr_iter(axis,dynaxis,omega,
+              guess = ((omegacount.eq.1).and.guess_qr_real)
+              call ccsd_qr_iter(guess,axis,dynaxis,omega,
      1             d_f1,d_v2,d_d1,d_t1,d_t2,d_y1,d_y2,
      2             d_tr1,d_tr2,d_yr1,d_yr2,
      3             k_f1_offset,k_v2_offset,k_d1_offset,
@@ -108,7 +109,7 @@ c
       end
 
 
-      subroutine ccsd_qr_iter(axis,dynaxis,omega,
+      subroutine ccsd_qr_iter(guess,axis,dynaxis,omega,
      1           d_f1,d_v2,d_d1,d_t1,d_t2,d_y1,d_y2,
      2           d_tr1,d_tr2,d_yr1,d_yr2,
      3           k_f1_offset,k_v2_offset,k_d1_offset,
@@ -149,7 +150,7 @@ c
       double precision rr2            ! Residual tr2
       double precision ddotfile
       external ddotfile
-      logical nodezero
+      logical nodezero,guess
       character*4 irrepname
       character*255 filename
       character*5 yrr1filename(3) ! File name stub
@@ -201,6 +202,19 @@ c
 c
       call reconcilefile(d_b1(axis),size_yr1(axis))
       call reconcilefile(d_b2(axis),size_yr2(axis))
+c
+      if (guess) then
+        if (nodezero) write(6,9121) 'Initial guess y = b/Adiag'
+c
+        call tce_zero(d_yr1(axis),size_yr1(axis))
+        call tce_zero(d_yr2(axis),size_yr2(axis))
+c
+        irrep_y = irrep_d
+        call tce_jacobi_lr1(d_b1(axis),d_yr1(axis),k_yr1_offset(axis),
+     1                      0.0d0,0.0d0)
+        call tce_jacobi_lr2(d_b2(axis),d_yr2(axis),k_yr2_offset(axis),
+     1                      0.0d0,0.0d0)
+      endif
 c
       cpu=cpu+util_cpusec()
       wall=wall+util_wallsec()

@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.67 2008-10-20 00:29:23 jhammond Exp $
+c $Id: tce_init.F,v 1.68 2008-10-21 00:37:21 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -278,12 +278,25 @@ c#endif
         if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
      1  call errquit('tce_init: failed to write diis3',0,RTDB_ERR)
       endif
+      if (.not.rtdb_get(rtdb,'tce:cc_ir_alg',mt_int,1,cc_ir_alg)) then
+        cc_ir_alg = 1
+        if (.not.rtdb_put(rtdb,'tce:cc_ir_alg',mt_int,1,cc_ir_alg))
+     2  call errquit('tce_init: failed to write cc_ir_alg',0,RTDB_ERR)
+      endif
       if (.not.rtdb_get(rtdb,'tce:guess_lr_real',mt_log,1,
      1                  guess_lr_real)) then
         guess_lr_real = .false.
         if (.not.rtdb_put(rtdb,'tce:guess_lr_real',mt_log,1,
      1                    guess_lr_real))
      2  call errquit('tce_init: failed to write guess_lr_real',0,
+     3               RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:guess_qr_real',mt_log,1,
+     1                  guess_qr_real)) then
+        guess_qr_real = .false.
+        if (.not.rtdb_put(rtdb,'tce:guess_qr_real',mt_log,1,
+     1                    guess_qr_real))
+     2  call errquit('tce_init: failed to write guess_qr_real',0,
      3               RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:guess_ir_real',mt_log,1,

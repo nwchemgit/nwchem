@@ -23,9 +23,9 @@ c
       parameter (irrep_g=0)
       integer d_a0,d_f1,d_v2,d_d1(3)
       integer d_t1,d_t2,d_lambda1,d_lambda2
+      integer d_tr1(9),d_tr2(9)
       integer k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset
-      integer d_tr1(9),d_tr2(9)
       integer k_tr1_offset(3),k_tr2_offset(3)
       integer size_tr1(3),size_tr2(3)
       integer sym_abelian_axis
@@ -61,42 +61,82 @@ c
 c
             if (nodezero) write(LuOut,9431) omega
 c
-c           REAL COMPONENT
+            if (cc_ir_alg.eq.1) then
 c
-            dynaxis = 6 ! offset to the third set of response for real component
-            if (guess_ir_real.and.(omegacount.eq.1)) then
-              call ccsd_ir_guess(d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
-     1             k_f1_offset,k_v2_offset,k_d1_offset,
-     2             k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
+c             REAL COMPONENT
+c
+              dynaxis = 6 ! offset to the third set of response for real component
+              if (guess_ir_real.and.(omegacount.eq.1)) then
+                call ccsd_ir_guess(d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     1             k_d1_offset,k_t1_offset,k_t2_offset,
+     2             k_tr1_offset,k_tr2_offset,
      4             size_tr1,size_tr2,0,axis,dynaxis)
-            endif ! guess_ir_real
-            call ccsd_ir_real_it(axis,dynaxis,omega,
-     1           d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
-     2           k_f1_offset,k_v2_offset,k_d1_offset,
-     3           k_t1_offset,k_t2_offset,
-     4           k_tr1_offset,k_tr2_offset,
-     5           size_tr1,size_tr2)
+              endif ! guess_ir_real
+              call ccsd_ir_real_sq_it(axis,dynaxis,omega,
+     1             d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     2             k_f1_offset,k_v2_offset,k_d1_offset,
+     3             k_t1_offset,k_t2_offset,
+     4             k_tr1_offset,k_tr2_offset,
+     5             size_tr1,size_tr2)
 c
-c           IMAGINARY COMPONENT
+c             IMAGINARY COMPONENT
 c
-            call ccsd_ir_get_imag_from_real(axis,omega,
-     1           d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
-     2           k_f1_offset,k_v2_offset,k_d1_offset,
-     3           k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
-     4           size_tr1,size_tr2)
+              call ccsd_ir_get_imag_from_real(axis,omega,
+     1             d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     2             k_f1_offset,k_v2_offset,k_d1_offset,
+     3             k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
+     4             size_tr1,size_tr2)
 c
-            dynaxis = 0 ! positive omega_I
-            call ccsd_ir_imag_it(axis,dynaxis,omega,
-     1           d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
-     2           k_f1_offset,k_v2_offset,k_d1_offset,
-     3           k_t1_offset,k_t2_offset,
-     4           k_tr1_offset,k_tr2_offset,
-     5           size_tr1,size_tr2)
-c           dynaxis = 3 is for negative omega_I
-            call daxfile(1,-1.0d0,d_tr1(axis+0),d_tr1(axis+3),
-     1                    size_tr1(axis))
-            call daxfile(1,-1.0d0,d_tr2(axis+0),d_tr2(axis+3),
-     2                    size_tr2(axis))
+              dynaxis = 0 ! positive omega_I
+              call ccsd_ir_imag_it(axis,dynaxis,omega,
+     1             d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     2             k_f1_offset,k_v2_offset,k_d1_offset,
+     3             k_t1_offset,k_t2_offset,
+     4             k_tr1_offset,k_tr2_offset,
+     5             size_tr1,size_tr2)
+c             dynaxis = 3 is for negative omega_I
+              call daxfile(1,-1.0d0,d_tr1(axis+0),d_tr1(axis+3),
+     1                      size_tr1(axis))
+              call daxfile(1,-1.0d0,d_tr2(axis+0),d_tr2(axis+3),
+     2                      size_tr2(axis))
+c
+            elseif (cc_ir_alg.eq.2) then
+c
+c             IMAGINARY COMPONENT
+c
+              dynaxis = 0 ! positive omega_I
+              call ccsd_ir_imag_sq_it(axis,dynaxis,omega,
+     1             d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     2             k_f1_offset,k_v2_offset,k_d1_offset,
+     3             k_t1_offset,k_t2_offset,
+     4             k_tr1_offset,k_tr2_offset,
+     5             size_tr1,size_tr2)
+c             dynaxis = 3 is for negative omega_I
+              call daxfile(1,-1.0d0,d_tr1(axis+0),d_tr1(axis+3),
+     1                      size_tr1(axis))
+              call daxfile(1,-1.0d0,d_tr2(axis+0),d_tr2(axis+3),
+     2                      size_tr2(axis))
+c
+c             REAL COMPONENT
+c
+              dynaxis = 6 ! offset to the third set of response for real component
+              call ccsd_ir_real_it(axis,dynaxis,omega,
+     1             d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     2             k_f1_offset,k_v2_offset,k_d1_offset,
+     3             k_t1_offset,k_t2_offset,
+     4             k_tr1_offset,k_tr2_offset,
+     5             size_tr1,size_tr2)
+c
+            elseif (cc_ir_alg.eq.3) then
+c
+              call ccsd_ir_coupled_it(axis,omega,
+     1             d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     2             k_f1_offset,k_v2_offset,k_d1_offset,
+     3             k_t1_offset,k_t2_offset,
+     4             k_tr1_offset,k_tr2_offset,
+     5             size_tr1,size_tr2)
+c
+            endif ! cc_ir_alg
 c
           endif ! respaxis(axis)
         enddo ! axis loop
@@ -159,7 +199,7 @@ c
       end
 
 
-      subroutine ccsd_ir_real_it(axis,dynaxis,omega,
+      subroutine ccsd_ir_real_sq_it(axis,dynaxis,omega,
      1           d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
      2           k_f1_offset,k_v2_offset,k_d1_offset,
      3           k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
@@ -185,21 +225,17 @@ c
       integer axisB
       integer irrep_g
       parameter (irrep_g=0)
-      integer d_f1,d_v2,d_d1(3)
-      integer d_t1,d_t2
+      integer d_f1,d_v2,d_d1(3),d_t1,d_t2
+      integer d_tr1(9),d_tr2(9),d_rr1(3),d_rr2(3),d_ir1(3),d_ir2(3)
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset
-      integer d_tr1(9),d_tr2(9)
       integer k_tr1_offset(3),k_tr2_offset(3)
       integer size_tr1(3),size_tr2(3)
-      integer d_rr1(3),d_rr2(3),d_ir1(3),d_ir2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
-      double precision rr1            ! Residual tr1
-      double precision rr2            ! Residual tr2
+      double precision rr1,rr2,residual
       double precision omega
       double precision cpu, wall
-      double precision residual
       double precision ddotfile
       external ddotfile
       logical nodezero
@@ -351,7 +387,401 @@ c
         call deletefile(d_rr1(axis))
         if (nodezero) call util_flush(LuOut)
       enddo ! iter loop
-      call errquit('ccsd_ir_real_it: maxiter exceeded',iter,CALC_ERR)
+      call errquit('ccsd_ir_real_sq_it: maxiter exceeded',iter,CALC_ERR)
+c
+ 9020 format(1x,'Cpu & wall time / sec',2f15.1)
+ 9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
+ 9100 format(1x,i4,2f18.13,2f8.1)
+ 9120 format(1x,A)
+ 9121 format(/,1x,A)
+ 9122 format(1x,A,i4)
+ 9400 format(/,1x,A,' iterations',/,
+     1  1x,'---------------------------------------------',/
+     2  1x,'Iter          Residuum            Cpu    Wall',/
+     3  1x,'---------------------------------------------')
+ 9410 format(
+     1  1x,'---------------------------------------------',/
+     2  1x,'Iterations converged')
+ 9420 format(1x,i4,f25.13,2f8.1)
+ 9431 format(/,1x,'Frequency = ',f15.7,' / au')
+ 9440 format(1x,A3,' axis ( ',A4,'symmetry)')
+      return
+      end
+
+
+      subroutine ccsd_ir_imag_sq_it(axis,dynaxis,omega,
+     1           d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     2           k_f1_offset,k_v2_offset,k_d1_offset,
+     3           k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
+     4           size_tr1,size_tr2)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "tce_prop.fh"
+#include "tce_restart.fh"
+c
+      integer i,j,dummy,axis
+      integer omegacount,omegasign
+      integer dynfreq,dynaxis
+      integer axisA,axisB
+      integer irrep_g
+      parameter (irrep_g=0)
+      integer d_f1,d_v2,d_d1(3),d_t1,d_t2
+      integer d_tr1(9),d_tr2(9),d_rr1(3),d_rr2(3),d_ir1(3),d_ir2(3)
+      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_t1_offset,k_t2_offset
+      integer k_tr1_offset(3),k_tr2_offset(3)
+      integer size_tr1(3),size_tr2(3)
+      integer sym_abelian_axis
+      external sym_abelian_axis
+      double precision rr1,rr2,residual
+      double precision omega
+      double precision cpu, wall
+      double precision ddotfile
+      external ddotfile
+      logical nodezero
+      character*4 irrepname
+      character*255 filename
+      character*4 ir1filename(3) ! File name stub
+      data ir1filename/'ir1x','ir1y','ir1z'/
+      character*4 ir2filename(3) ! File name stub
+      data ir2filename/'ir2x','ir2y','ir1z'/
+      character*5 rr1filename(3) ! File name stub
+      data rr1filename/'rr1x ','rr1y ','rr1z '/
+      character*5 rr2filename(3) ! File name stub
+      data rr2filename/'rr2x ','rr2y ','rr2z '/
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+      call tce_diis_init()
+      do iter=1,maxiter
+        cpu=-util_cpusec()
+        wall=-util_wallsec()
+        if (nodezero.and.(iter.eq.1))
+     &    write(LuOut,9400) "CCSD-IR (imaginary component)"
+c
+        call tce_filename(rr1filename(axis),filename)
+        call createfile(filename,d_rr1(axis),size_tr1(axis))
+        call tce_zero(d_rr1(axis),size_tr1(axis))
+c
+        call tce_filename(ir1filename(axis),filename)
+        call createfile(filename,d_ir1(axis),size_tr1(axis))
+        call tce_zero(d_ir1(axis),size_tr1(axis))
+c
+        call tce_filename(rr2filename(axis),filename)
+        call createfile(filename,d_rr2(axis),size_tr2(axis))
+        call tce_zero(d_rr2(axis),size_tr2(axis))
+c
+        call tce_filename(ir2filename(axis),filename)
+        call createfile(filename,d_ir2(axis),size_tr2(axis))
+        call tce_zero(d_ir2(axis),size_tr2(axis))
+c
+        call eomccsd_x1_old(d_f1,d_ir1(axis),d_t1,d_t2,d_v2,
+     1       d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),k_f1_offset,
+     2       k_tr1_offset(axis),
+     3       k_t1_offset,k_t2_offset,k_v2_offset,
+     4       k_tr1_offset(axis),k_tr2_offset(axis))
+        call reconcilefile(d_ir1(axis),size_tr1(axis))
+        call eomccsd_x1_old(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
+     1       d_ir1(axis),d_ir2(axis),k_f1_offset,
+     2       k_tr1_offset(axis),
+     3       k_t1_offset,k_t2_offset,k_v2_offset,
+     4       k_tr1_offset(axis),k_tr2_offset(axis))
+        call reconcilefile(d_rr1(axis),size_tr1(axis))
+c
+        call eomccsd_x2_old(d_f1,d_ir2(axis),d_t1,d_t2,d_v2,
+     1       d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
+     2       k_f1_offset,k_tr2_offset(axis),
+     3       k_t1_offset,k_t2_offset,k_v2_offset,
+     4       k_tr1_offset(axis),k_tr2_offset(axis),
+     5       size_tr1(axis),size_tr2(axis))
+        call reconcilefile(d_ir2(axis),size_tr2(axis))
+        call eomccsd_x2_old(d_f1,d_rr2(axis),d_t1,d_t2,d_v2,
+     1       d_ir1(axis),d_ir2(axis),
+     2       k_f1_offset,k_tr2_offset(axis),
+     3       k_t1_offset,k_t2_offset,k_v2_offset,
+     4       k_tr1_offset(axis),k_tr2_offset(axis),
+     5       size_tr1(axis),size_tr2(axis))
+        call reconcilefile(d_rr2(axis),size_tr2(axis))
+c
+        call tce_zero(d_ir1(axis),size_tr1(axis))
+        call ccsd_o1(d_ir1(axis),d_d1(axis),d_t1,d_t2,
+     1       k_tr1_offset(axis),k_d1_offset(axis),
+     2       k_t1_offset,k_t2_offset)
+        call daxpyfile(1,omega,d_tr1(axis+dynaxis),
+     1       d_rr1(axis),size_tr1(axis))
+        call reconcilefile(d_rr1(axis),size_tr1(axis))
+c
+        call tce_zero(d_ir2(axis),size_tr2(axis))
+        call ccsd_o2(d_ir2(axis),d_d1(axis),d_t1,d_t2,
+     1       k_tr2_offset(axis),k_d1_offset(axis),
+     2       k_t1_offset,k_t2_offset)
+        call daxpyfile(1,omega,d_tr2(axis+dynaxis),
+     1       d_rr2(axis),size_tr2(axis))
+        call reconcilefile(d_rr2(axis),size_tr2(axis))
+c
+        call daxpyfile(1,omega*omega,d_tr1(axis+dynaxis),
+     1       d_rr1(axis),size_tr1(axis))
+        call reconcilefile(d_rr1(axis),size_tr1(axis))
+        call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
+c
+        call daxpyfile(1,omega*omega,d_tr2(axis+dynaxis),
+     1       d_rr2(axis),size_tr2(axis))
+        call reconcilefile(d_rr2(axis),size_tr2(axis))
+        call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
+c
+        residual = max(rr1,rr2)
+        cpu=cpu+util_cpusec()
+        wall=wall+util_wallsec()
+        if (nodezero) write(LuOut,9420) iter,residual,cpu,wall
+        if (residual .lt. thresh) then
+          if (nodezero) write(LuOut,9410)
+          if (ampnorms) then
+            call tce_residual_tr1(d_tr1(axis+dynaxis),
+     1                            k_tr1_offset(axis),rr1)
+            call tce_residual_tr2(d_tr2(axis+dynaxis),
+     1                            k_tr2_offset(axis),rr2)
+            if (nodezero) then
+              write(LuOut,9082) "T(1) singles",rr1
+              write(LuOut,9082) "T(1) doubles",rr2
+            endif
+          endif
+          call deletefile(d_rr2(axis))
+          call deletefile(d_rr1(axis))
+          call tce_diis_tidy()
+!           if (save_tr(1)) then
+!             if(nodezero) then
+!               write(LuOut,*) 'Saving T1(1) now...'
+!             endif
+!             call tr1_restart_save(d_tr1(axis+dynaxis),
+!      1           k_tr1_offset(axis),size_tr1(axis),
+!      2           axis+dynaxis,handle_tr1(axis),irrep_x)
+!           endif
+!           if (save_tr(2)) then
+!             if(nodezero) then
+!               write(LuOut,*) 'Saving T2(1) now...'
+!             endif
+!             call tr2_restart_save(d_tr2(axis+dynaxis),
+!      1           k_tr2_offset(axis),size_tr2(axis),
+!      2           axis+dynaxis,handle_tr2(axis),irrep_x)
+!           endif
+          return
+        endif
+!         if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
+!           if(nodezero) then
+!             write(LuOut,*) 'Saving T1(1) now...'
+!           endif
+!           call tr1_restart_save(d_tr1(axis+dynaxis),
+!      1         k_tr1_offset(axis),size_tr1(axis),
+!      2         axis+dynaxis,handle_tr1(axis),irrep_x)
+!         endif
+!         if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
+!           if(nodezero) then
+!             write(LuOut,*) 'Saving T2(1) now...'
+!           endif
+!           call tr2_restart_save(d_tr2(axis+dynaxis),
+!      1         k_tr2_offset(axis),size_tr2(axis),
+!      2         axis+dynaxis,handle_tr2(axis),irrep_x)
+!         endif
+        call tce_diis3(.false.,iter,.true.,.true.,.false.,.false.,
+     1       d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
+     2       size_tr1(axis),
+     3       d_rr2(axis),d_tr2(axis+dynaxis),k_tr2_offset(axis),
+     4       size_tr2(axis),
+     5       dummy,dummy,dummy,dummy,
+     6       dummy,dummy,dummy,dummy,omega,2)
+        call deletefile(d_rr2(axis))
+        call deletefile(d_rr1(axis))
+        if (nodezero) call util_flush(LuOut)
+      enddo ! iter loop
+      call errquit('ccsd_ir_real_sq_it: maxiter exceeded',iter,CALC_ERR)
+c
+ 9020 format(1x,'Cpu & wall time / sec',2f15.1)
+ 9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
+ 9100 format(1x,i4,2f18.13,2f8.1)
+ 9120 format(1x,A)
+ 9121 format(/,1x,A)
+ 9122 format(1x,A,i4)
+ 9400 format(/,1x,A,' iterations',/,
+     1  1x,'---------------------------------------------',/
+     2  1x,'Iter          Residuum            Cpu    Wall',/
+     3  1x,'---------------------------------------------')
+ 9410 format(
+     1  1x,'---------------------------------------------',/
+     2  1x,'Iterations converged')
+ 9420 format(1x,i4,f25.13,2f8.1)
+ 9431 format(/,1x,'Frequency = ',f15.7,' / au')
+ 9440 format(1x,A3,' axis ( ',A4,'symmetry)')
+      return
+      end
+
+
+
+      subroutine ccsd_ir_real_it(axis,dynaxis,omega,
+     1           d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     2           k_f1_offset,k_v2_offset,k_d1_offset,
+     3           k_t1_offset,k_t2_offset,
+     4           k_tr1_offset,k_tr2_offset,
+     5           size_tr1,size_tr2)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "tce_prop.fh"
+#include "tce_restart.fh"
+c
+      integer i,j,dummy,axis
+      integer omegacount
+      integer omegasign
+      integer dynfreq
+      integer dynaxis
+      integer irrep_g
+      parameter (irrep_g=0)
+      integer d_f1,d_v2,d_d1(3),d_t1,d_t2
+      integer d_tr1(9),d_tr2(9),d_rr1(3),d_rr2(3),d_ir1(3),d_ir2(3)
+      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_t1_offset,k_t2_offset
+      integer k_tr1_offset(3),k_tr2_offset(3)
+      integer size_tr1(3),size_tr2(3)
+      integer sym_abelian_axis
+      external sym_abelian_axis
+      double precision rr1,rr2,residual
+      double precision omega
+      double precision cpu, wall
+      double precision ddotfile
+      external ddotfile
+      logical nodezero
+      character*4 irrepname
+      character*255 filename
+      character*4 ir1filename(3) ! File name stub
+      data ir1filename/'ir1x','ir1y','ir1z'/
+      character*4 ir2filename(3) ! File name stub
+      data ir2filename/'ir2x','ir2y','ir1z'/
+      character*5 rr1filename(3) ! File name stub
+      data rr1filename/'rr1x ','rr1y ','rr1z '/
+      character*5 rr2filename(3) ! File name stub
+      data rr2filename/'rr2x ','rr2y ','rr2z '/
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+      call tce_diis_init()
+      do iter=1,maxiter
+        cpu=-util_cpusec()
+        wall=-util_wallsec()
+        if (nodezero.and.(iter.eq.1))
+     &    write(LuOut,9400) "CCSD-IR (real component)"
+c
+        call tce_filename(rr1filename(axis),filename)
+        call createfile(filename,d_rr1(axis),size_tr1(axis))
+        call tce_zero(d_rr1(axis),size_tr1(axis))
+c
+        call tce_filename(rr2filename(axis),filename)
+        call createfile(filename,d_rr2(axis),size_tr2(axis))
+        call tce_zero(d_rr2(axis),size_tr2(axis))
+c
+        call ccsd_o1(d_rr1(axis),d_d1(axis),d_t1,d_t2,
+     1       k_tr1_offset(axis),k_d1_offset(axis),
+     2       k_t1_offset,k_t2_offset)
+        call daxfile(1,(-1.0d0)*omega,d_tr1(axis),
+     1       d_rr1(axis),size_tr1(axis))
+        call eomccsd_x1_old(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
+     1       d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
+     2       k_f1_offset,k_tr1_offset(axis),
+     3       k_t1_offset,k_t2_offset,k_v2_offset,
+     4       k_tr1_offset(axis),k_tr2_offset(axis))
+        call reconcilefile(d_rr1(axis),size_tr1(axis))
+        call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
+c
+        call ccsd_o2(d_rr2(axis),d_d1(axis),d_t1,d_t2,
+     1       k_tr2_offset(axis),k_d1_offset(axis),
+     2       k_t1_offset,k_t2_offset)
+        call daxfile(1,(-1.0d0)*omega,d_tr2(axis),
+     1       d_rr2(axis),size_tr2(axis))
+        call eomccsd_x2_old(d_f1,d_rr2(axis),d_t1,d_t2,d_v2,
+     1       d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
+     2       k_f1_offset,k_tr2_offset(axis),
+     3       k_t1_offset,k_t2_offset,k_v2_offset,
+     4       k_tr1_offset(axis),k_tr2_offset(axis),
+     5       size_tr1(axis),size_tr2(axis))
+        call reconcilefile(d_rr2(axis),size_tr2(axis))
+        call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
+c
+        residual = max(rr1,rr2)
+        cpu=cpu+util_cpusec()
+        wall=wall+util_wallsec()
+        if (nodezero) write(LuOut,9420) iter,residual,cpu,wall
+        if (residual .lt. thresh) then
+          if (nodezero) write(LuOut,9410)
+          if (ampnorms) then
+            call tce_residual_tr1(d_tr1(axis+dynaxis),
+     1                            k_tr1_offset(axis),rr1)
+            call tce_residual_tr2(d_tr2(axis+dynaxis),
+     1                            k_tr2_offset(axis),rr2)
+            if (nodezero) then
+              write(LuOut,9082) "T(1) singles",rr1
+              write(LuOut,9082) "T(1) doubles",rr2
+            endif
+          endif
+          call deletefile(d_rr2(axis))
+          call deletefile(d_rr1(axis))
+          call tce_diis_tidy()
+!           if (save_tr(1)) then
+!             if(nodezero) then
+!               write(LuOut,*) 'Saving T1(1) now...'
+!             endif
+!             call tr1_restart_save(d_tr1(axis+dynaxis),
+!      1           k_tr1_offset(axis),size_tr1(axis),
+!      2           axis+dynaxis,handle_tr1(axis),irrep_x)
+!           endif
+!           if (save_tr(2)) then
+!             if(nodezero) then
+!               write(LuOut,*) 'Saving T2(1) now...'
+!             endif
+!             call tr2_restart_save(d_tr2(axis+dynaxis),
+!      1           k_tr2_offset(axis),size_tr2(axis),
+!      2           axis+dynaxis,handle_tr2(axis),irrep_x)
+!           endif
+          return
+        endif
+!         if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
+!           if(nodezero) then
+!             write(LuOut,*) 'Saving T1(1) now...'
+!           endif
+!           call tr1_restart_save(d_tr1(axis+dynaxis),
+!      1         k_tr1_offset(axis),size_tr1(axis),
+!      2         axis+dynaxis,handle_tr1(axis),irrep_x)
+!         endif
+!         if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
+!           if(nodezero) then
+!             write(LuOut,*) 'Saving T2(1) now...'
+!           endif
+!           call tr2_restart_save(d_tr2(axis+dynaxis),
+!      1         k_tr2_offset(axis),size_tr2(axis),
+!      2         axis+dynaxis,handle_tr2(axis),irrep_x)
+!         endif
+        call tce_diis3(.false.,iter,.true.,.true.,.false.,.false.,
+     1       d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
+     2       size_tr1(axis),
+     3       d_rr2(axis),d_tr2(axis+dynaxis),k_tr2_offset(axis),
+     4       size_tr2(axis),
+     5       dummy,dummy,dummy,dummy,
+     6       dummy,dummy,dummy,dummy,0.0d0,1)
+        call deletefile(d_rr2(axis))
+        call deletefile(d_rr1(axis))
+        if (nodezero) call util_flush(LuOut)
+      enddo ! iter loop
+      call errquit('ccsd_ir_imag_it: maxiter exceeded',iter,CALC_ERR)
 c
  9020 format(1x,'Cpu & wall time / sec',2f15.1)
  9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
@@ -398,29 +828,17 @@ c
       integer dynaxis
       integer irrep_g
       parameter (irrep_g=0)
-      integer d_f1,d_v2,d_d1(3)
-      integer d_t1,d_t2
+      integer d_f1,d_v2,d_d1(3),d_t1,d_t2,d_tr1(9),d_tr2(9)
+      integer d_rr1(3),d_rr2(3),d_ir1(3),d_ir2(3)
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset
-      integer d_tr1(9)
-      integer l_tr1_offset(3)
-      integer k_tr1_offset(3)
-      integer size_tr1(3)
-      integer d_tr2(9)
-      integer l_tr2_offset(3)
-      integer k_tr2_offset(3)
-      integer size_tr2(3)
-      integer d_rr1(3)
-      integer d_rr2(3)
-      integer d_ir1(3)
-      integer d_ir2(3)
+      integer k_tr1_offset(3),k_tr2_offset(3)
+      integer size_tr1(3),size_tr2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
-      double precision rr1            ! Residual tr1
-      double precision rr2            ! Residual tr2
+      double precision rr1,rr2,residual
       double precision omega
       double precision cpu, wall
-      double precision residual
       double precision ddotfile
       external ddotfile
       logical nodezero
@@ -560,6 +978,180 @@ c
 
 
 
+      subroutine ccsd_ir_coupled_it(axis,omega,
+     1           d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     2           k_f1_offset,k_v2_offset,k_d1_offset,
+     3           k_t1_offset,k_t2_offset,
+     4           k_tr1_offset,k_tr2_offset,
+     5           size_tr1,size_tr2)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "tce_prop.fh"
+#include "tce_restart.fh"
+c
+      integer i,j,dummy,axis
+      integer omegacount
+      integer omegasign
+      integer irrep_g
+      parameter (irrep_g=0)
+      integer d_f1,d_v2,d_d1(3),d_t1,d_t2
+      integer d_tr1(9),d_tr2(9)
+      integer d_rr1(3),d_rr2(3),d_ir1(3),d_ir2(3)
+      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_t1_offset,k_t2_offset
+      integer k_tr1_offset(3),k_tr2_offset(3)
+      integer size_tr1(3),size_tr2(3)
+      integer sym_abelian_axis
+      external sym_abelian_axis
+      double precision rr1,rr2,rr3,rr4,rres,ires,residual
+      double precision omega
+      double precision cpu, wall
+      double precision ddotfile
+      external ddotfile
+      logical nodezero
+      character*4 irrepname
+      character*255 filename
+      character*5 rr1filename(3) ! File name stub
+      data rr1filename/'rr1x ','rr1y ','rr1z '/
+      character*5 rr2filename(3) ! File name stub
+      data rr2filename/'rr2x ','rr2y ','rr2z '/
+      character*4 ir1filename(3) ! File name stub
+      data ir1filename/'ir1x','ir1y','ir1z'/
+      character*4 ir2filename(3) ! File name stub
+      data ir2filename/'ir2x','ir2y','ir1z'/
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+      call tce_diis_init()
+      do iter=1,maxiter
+        cpu=-util_cpusec()
+        wall=-util_wallsec()
+        if (nodezero.and.(iter.eq.1))
+     &    write(LuOut,9400) "CCSD-IR (coupled iteration)"
+c
+c       REAL COMPONENT
+c
+        call tce_filename(rr1filename(axis),filename)
+        call createfile(filename,d_rr1(axis),size_tr1(axis))
+        call tce_zero(d_rr1(axis),size_tr1(axis))
+c
+        call tce_filename(rr2filename(axis),filename)
+        call createfile(filename,d_rr2(axis),size_tr2(axis))
+        call tce_zero(d_rr2(axis),size_tr2(axis))
+c
+        call ccsd_o1(d_rr1(axis),d_d1(axis),d_t1,d_t2,
+     1       k_tr1_offset(axis),k_d1_offset(axis),
+     2       k_t1_offset,k_t2_offset)
+        call daxfile(1,(-1.0d0)*omega,d_tr1(axis),
+     1       d_rr1(axis),size_tr1(axis))
+        call eomccsd_x1_old(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
+     1       d_tr1(axis+6),d_tr2(axis+6),
+     2       k_f1_offset,k_tr1_offset(axis),
+     3       k_t1_offset,k_t2_offset,k_v2_offset,
+     4       k_tr1_offset(axis),k_tr2_offset(axis))
+        call reconcilefile(d_rr1(axis),size_tr1(axis))
+        call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
+c
+        call ccsd_o2(d_rr2(axis),d_d1(axis),d_t1,d_t2,
+     1       k_tr2_offset(axis),k_d1_offset(axis),
+     2       k_t1_offset,k_t2_offset)
+        call daxfile(1,(-1.0d0)*omega,d_tr2(axis),
+     1       d_rr2(axis),size_tr2(axis))
+        call eomccsd_x2_old(d_f1,d_rr2(axis),d_t1,d_t2,d_v2,
+     1       d_tr1(axis+6),d_tr2(axis+6),
+     2       k_f1_offset,k_tr2_offset(axis),
+     3       k_t1_offset,k_t2_offset,k_v2_offset,
+     4       k_tr1_offset(axis),k_tr2_offset(axis),
+     5       size_tr1(axis),size_tr2(axis))
+        call reconcilefile(d_rr2(axis),size_tr2(axis))
+        call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
+c
+c       IMAGINARY COMPONENT
+c
+        call tce_filename(ir1filename(axis),filename)
+        call createfile(filename,d_ir1(axis),size_tr1(axis))
+        call tce_zero(d_ir1(axis),size_tr1(axis))
+c
+        call tce_filename(ir2filename(axis),filename)
+        call createfile(filename,d_ir2(axis),size_tr2(axis))
+        call tce_zero(d_ir2(axis),size_tr2(axis))
+c
+        call daxfile(1,(-1.0d0)*omega,d_tr1(axis+6),
+     1       d_ir1(axis),size_tr1(axis))
+        call eomccsd_x1_old(d_f1,d_ir1(axis),d_t1,d_t2,d_v2,
+     1       d_tr1(axis+0),d_tr2(axis+0),
+     2       k_f1_offset,k_tr1_offset(axis),
+     3       k_t1_offset,k_t2_offset,k_v2_offset,
+     4       k_tr1_offset(axis),k_tr2_offset(axis))
+        call reconcilefile(d_ir1(axis),size_tr1(axis))
+        call tce_residual_tr1(d_ir1(axis),k_tr1_offset(axis),rr3)
+c
+        call daxfile(1,(-1.0d0)*omega,d_tr2(axis+6),
+     1       d_ir2(axis),size_tr2(axis))
+        call eomccsd_x2_old(d_f1,d_ir2(axis),d_t1,d_t2,d_v2,
+     1       d_tr1(axis+0),d_tr2(axis+0),
+     2       k_f1_offset,k_tr2_offset(axis),
+     3       k_t1_offset,k_t2_offset,k_v2_offset,
+     4       k_tr1_offset(axis),k_tr2_offset(axis),
+     5       size_tr1(axis),size_tr2(axis))
+        call reconcilefile(d_ir2(axis),size_tr2(axis))
+        call tce_residual_tr2(d_ir2(axis),k_tr2_offset(axis),rr4)
+c
+        rres = max(rr1,rr2)
+        ires = max(rr3,rr4)
+        residual = max(rres,ires)
+        cpu=cpu+util_cpusec()
+        wall=wall+util_wallsec()
+        if (nodezero) write(LuOut,9420) iter,rres,ires,cpu,wall
+        if (residual .lt. thresh) then
+          if (nodezero) write(LuOut,9410)
+          call deletefile(d_rr2(axis))
+          call deletefile(d_rr1(axis))
+          call deletefile(d_ir2(axis))
+          call deletefile(d_ir1(axis))
+          call tce_diis_tidy()
+          return
+        endif
+        call tce_diis3c(iter,.true.,.true.,.true.,.true.,
+     1      d_rr1(axis),d_tr1(axis+6),k_tr1_offset(axis),size_tr1(axis),
+     2      d_rr2(axis),d_tr2(axis+6),k_tr2_offset(axis),size_tr2(axis),
+     3      d_ir1(axis),d_tr1(axis+0),k_tr1_offset(axis),size_tr1(axis),
+     4      d_ir2(axis),d_tr2(axis+0),k_tr2_offset(axis),size_tr2(axis),
+     5      0.0d0)
+        call deletefile(d_rr2(axis))
+        call deletefile(d_rr1(axis))
+        call deletefile(d_ir2(axis))
+        call deletefile(d_ir1(axis))
+        if (nodezero) call util_flush(LuOut)
+      enddo ! iter loop
+      call errquit('ccsd_ir_imag_it: maxiter exceeded',iter,CALC_ERR)
+c
+ 9020 format(1x,'Cpu & wall time / sec',2f15.1)
+ 9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
+ 9100 format(1x,i4,2f18.13,2f8.1)
+ 9120 format(1x,A)
+ 9121 format(/,1x,A)
+ 9122 format(1x,A,i4)
+ 9400 format(/,1x,A,' iterations',/,
+     1  1x,'-------------------------------------------------------',/
+     2  1x,'Iter   Residuum (real)  Residuum (imag)     Cpu    Wall',/
+     3  1x,'-------------------------------------------------------')
+ 9410 format(
+     1  1x,'-------------------------------------------------------',/
+     2  1x,'Iterations converged')
+ 9420 format(1x,i4,2f20.13,2f8.1)
+ 9431 format(/,1x,'Frequency = ',f15.7,' / au')
+ 9440 format(1x,A3,' axis ( ',A4,'symmetry)')
+      return
+      end
+
 
       subroutine ccsd_ir_get_imag_from_real(axis,omega,
      1           d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
@@ -581,11 +1173,10 @@ c
       integer i,j,dummy,axis
       integer irrep_g
       parameter (irrep_g=0)
-      integer d_f1,d_v2,d_d1(3)
-      integer d_t1,d_t2
+      integer d_f1,d_v2,d_d1(3),d_t1,d_t2
+      integer d_tr1(9),d_tr2(9)
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset
-      integer d_tr1(9),d_tr2(9)
       integer k_tr1_offset(3),k_tr2_offset(3)
       integer size_tr1(3),size_tr2(3)
       integer sym_abelian_axis
@@ -699,7 +1290,6 @@ c
       external sym_abelian_axis
       double precision omega
       double precision cpu, wall
-      double precision residual
       double precision alpha1,alpha2,alpha3,alpha4
       double precision au2ang   ! Conversion factor from bohr to Angstrom
       double precision au2ang3  ! Conversion factor from bohr^3 to Angstrom^3
@@ -959,9 +1549,9 @@ c
 
 
 
-      subroutine ccsd_ir_guess(d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
-     1           k_f1_offset,k_v2_offset,k_d1_offset,
-     2           k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
+      subroutine ccsd_ir_guess(d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     1           k_d1_offset,k_t1_offset,k_t2_offset,
+     2           k_tr1_offset,k_tr2_offset,
      4           size_tr1,size_tr2,component,axis,dynaxis)
       implicit none
 #include "global.fh"
@@ -974,22 +1564,11 @@ c
 #include "tce_prop.fh"
 c
       integer axis,component,dynaxis
-      integer d_f1,d_v2,d_d1(3)
-      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
-      integer d_t1
-      integer k_t1_offset
-      integer d_t2
-      integer k_t2_offset
-      integer d_tr1(9)
-      integer k_tr1_offset(3)
-      integer size_tr1(3)
-      integer d_tr2(9)
-      integer k_tr2_offset(3)
-      integer size_tr2(3)
-      integer d_rr1(3)
-      integer d_rr2(3)
-      integer d_ir1(3)
-      integer d_ir2(3)
+      integer d_d1(3),d_t1,d_t2
+      integer d_tr1(9),d_tr2(9),d_rr1(3),d_rr2(3)
+      integer k_d1_offset(3),k_t1_offset,k_t2_offset
+      integer k_tr1_offset(3),k_tr2_offset(3)
+      integer size_tr1(3),size_tr2(3)
       double precision omega
       double precision cpu, wall
       logical nodezero
@@ -997,10 +1576,6 @@ c
       character*3 axisname(3)  ! Axis
       data axisname/'X','Y','Z'/
       character*255 filename
-      character*4 ir1filename(3) ! File name stub
-      data ir1filename/'ir1x','ir1y','ir1z'/
-      character*4 ir2filename(3) ! File name stub
-      data ir2filename/'ir2x','ir2y','ir1z'/
       character*5 rr1filename(3) ! File name stub
       data rr1filename/'rr1x ','rr1y ','rr1z '/
       character*5 rr2filename(3) ! File name stub
@@ -1010,8 +1585,7 @@ c
 c
       if (component.eq.0) then
 c
-        if (nodezero) write(6,9121)
-     1     'Initial guess x = A*b/(Adiag^2 - omega^2)'
+        if (nodezero) write(6,9121) 'Initial guess x = b/Adiag'
 c
 c       0. Create dummies
 c
@@ -1023,14 +1597,6 @@ c
         call createfile(filename,d_rr2(axis),size_tr2(axis))
         call tce_zero(d_rr2(axis),size_tr2(axis))
 c
-        call tce_filename(ir1filename(axis),filename)
-        call createfile(filename,d_ir1(axis),size_tr1(axis))
-        call tce_zero(d_ir1(axis),size_tr1(axis))
-c
-        call tce_filename(ir2filename(axis),filename)
-        call createfile(filename,d_ir2(axis),size_tr2(axis))
-        call tce_zero(d_ir2(axis),size_tr2(axis))
-c
 c       1. Form b
 c
         call ccsd_o1(d_rr1(axis),d_d1(axis),d_t1,d_t2,
@@ -1040,39 +1606,23 @@ c
      1       k_tr2_offset(axis),k_d1_offset(axis),
      2       k_t1_offset,k_t2_offset)
 c
-c       2. Hit with A
+c       2. Hit with preconditioner
 c
-        call eomccsd_x1_old(d_f1,d_ir1(axis),d_t1,d_t2,d_v2,
-     1       d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),k_f1_offset,
-     2       k_tr1_offset(axis),
-     3       k_t1_offset,k_t2_offset,k_v2_offset,
-     4       k_tr1_offset(axis),k_tr2_offset(axis))
-        call eomccsd_x2_old(d_f1,d_ir2(axis),d_t1,d_t2,d_v2,
-     1       d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
-     2       k_f1_offset,k_tr2_offset(axis),
-     3       k_t1_offset,k_t2_offset,k_v2_offset,
-     4       k_tr1_offset(axis),k_tr2_offset(axis),
-     5       size_tr1(axis),size_tr2(axis))
-c
-c       3. Hit with preconditioner
-c
-        call tce_jacobi2_ir1(d_ir1(axis),d_tr1(axis+dynaxis),
+        call tce_jacobi_ir1(d_rr1(axis),d_tr1(axis+dynaxis),
      1                       k_tr1_offset(axis),0.0d0,0.0d0,1.0d0)
-        call tce_jacobi2_ir2(d_ir2(axis),d_tr2(axis+dynaxis),
+        call tce_jacobi_ir2(d_rr2(axis),d_tr2(axis+dynaxis),
      1                       k_tr2_offset(axis),0.0d0,0.0d0,1.0d0)
 c
-c       4. Delete dummies
+c       3. Delete dummies
 c
         call deletefile(d_rr1(axis))
         call deletefile(d_rr2(axis))
-        call deletefile(d_ir1(axis))
-        call deletefile(d_ir2(axis))
 c
       elseif (component.eq.1) then
 c
 c     Initial guess x_I = omega*x_R/(Adiag-omega)
         if (nodezero) write(6,9121)
-     1     'Initial guess x_I = omega*x_R/(Adiag-omega)'
+     1     'Initial guess x_I = omega*x_R/Adiag'
 c
 c     0. Create dummies
 c

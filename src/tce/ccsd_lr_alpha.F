@@ -3,7 +3,7 @@
      2           k_d0_offset,k_a0_offset,k_f1_offset,k_v2_offset,
      3           k_d1_offset,k_t1_offset,k_t2_offset,
      4           k_l1_offset,k_l2_offset,k_tr1_offset,k_tr2_offset,
-     7           size_tr1,size_tr2)
+     7           size_tr1,size_tr2,dipole_scf,dipole_cor)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -32,11 +32,17 @@ c
       integer d_rr1(3),d_rr2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
-      double precision omega
+      double precision omega,cdipole
+      double precision dipole_scf(3),dipole_cor(3)
+      double precision debye
+      parameter (debye=2.54176568d0)
       logical nodezero
       character*4 irrepname
       character*3 axisname(3)  ! Axis
       data axisname/'X','Y','Z'/
+      character*255 filename
+      character*3 dfilename(3)  ! File name stub
+      data dfilename/'d1x','d1y','d1z'/
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -78,14 +84,28 @@ c
             enddo ! omegasign loop
 c
             if (omega.eq.(0.0d0)) then
+              irrep_tr=irrep_d
+              call tce_filename('d0',filename)
+              call createfile(filename,d_d0,1)
+              call tce_zero(d_d0,1)
               call dip_r(d_d0,d_d1(axis),d_t1,
      1             d_tr1(axis),d_tr2(axis),d_v2,
      2             k_d0_offset,k_d1_offset(axis),k_t1_offset,
      3             k_tr1_offset(axis),k_tr2_offset(axis),k_v2_offset)
+              call reconcilefile(d_d0,1)
+              cdipole=0.0d0
+              call get_block(d_d0,cdipole,1,0)
+              dipole_cor(axis)=dipole_scf(axis)+cdipole
+              call deletefile(d_d0)
             endif
 c
           endif ! respaxis(axis)
         enddo ! axis loop
+c
+        if (nodezero) write(LuOut,9430) "CCSD-LR",
+     1                dipole_cor(1),dipole_cor(1)*debye,
+     2                dipole_cor(2),dipole_cor(2)*debye,
+     3                dipole_cor(3),dipole_cor(3)*debye
 c
         call ccsd_lr_alpha_eval(omegacount,d_a0,d_f1,d_v2,d_d1,
      1       d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
@@ -102,6 +122,12 @@ c
  9121 format(/,1x,A)
  9122 format(1x,A,i4)
  9420 format(1x,i4,f25.13,2f8.1)
+ 9430 format(/,1x,A,' dipole moments / hartree & Debye',/,
+     1  1x,'--------------------------------',/
+     2  1x,'X ',2f15.7,/
+     3  1x,'Y ',2f15.7,/
+     4  1x,'Z ',2f15.7,/
+     5  1x,'--------------------------------')
  9431 format(/,1x,'Frequency = ',f15.7,' / au')
  9440 format(1x,A3,' axis ( ',A4,'symmetry)')
       return

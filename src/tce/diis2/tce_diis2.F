@@ -4,7 +4,7 @@
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4,omega)
 c
-c $Id: tce_diis2.F,v 1.9 2008-10-16 14:20:19 jhammond Exp $
+c $Id: tce_diis2.F,v 1.10 2008-10-21 00:37:22 jhammond Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -129,7 +129,7 @@ c
           if (t2) call tce_jacobi_lr2(d_r2,d_t2,k_t2_offset,omega,shift)
           shift = -3.0d0*zlshift2(2)
           if (t3) call tce_jacobi_lr3(d_r3,d_t3,k_t3_offset,omega,shift)
-          shift = 0.0d0
+          shift = -4.0d0*zlshift2(2)
           if (t4) call tce_jacobi_lr4(d_r4,d_t4,k_t4_offset,omega,shift)
         else
           shift = -1.0d0*zlshift2(1)
@@ -138,7 +138,7 @@ c
           if (t2) call tce_jacobi_tr2(d_r2,d_t2,k_t2_offset,omega,shift)
           shift = -3.0d0*zlshift2(1)
           if (t3) call tce_jacobi_tr3(d_r3,d_t3,k_t3_offset,omega,shift)
-          shift = 0.0d0
+          shift = -4.0d0*zlshift2(1)
           if (t4) call tce_jacobi_tr4(d_r4,d_t4,k_t4_offset,omega,shift)
         endif
         return

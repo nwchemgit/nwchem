@@ -4,7 +4,7 @@
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4,omega,denom_power)
 c
-c $Id: tce_diis3.F,v 1.7 2008-10-16 14:20:20 jhammond Exp $
+c $Id: tce_diis3.F,v 1.8 2008-10-21 00:37:23 jhammond Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -141,7 +141,7 @@ c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,omega)
             shift = -3.0d0*zlshift3(2)
             if (t3) call tce_jacobi_ir3(d_r3,d_t3,k_t3_offset,omega,
      1                                  shift,damping)
-            shift = 0.0d0
+            shift = -4.0d0*zlshift3(2)
             if (t4) call tce_jacobi_ir4(d_r4,d_t4,k_t4_offset,omega,
      1                                  shift,damping)
           elseif (denom_power.eq.2) then
@@ -154,7 +154,7 @@ c          if (t4) call tce_jacobi_lir4(d_r4,d_t4,k_t4_offset,omega)
             shift = -3.0d0*zlshift3(1)
             if (t3) call tce_jacobi2_ir3(d_r3,d_t3,k_t3_offset,omega,
      1                                   shift,damping)
-            shift = 0.0d0
+            shift = -4.0d0*zlshift3(1)
             if (t4) call tce_jacobi2_ir4(d_r4,d_t4,k_t4_offset,omega,
      1                                   shift,damping)
           endif
@@ -166,7 +166,7 @@ c
 c
 c ATTENTION !!! ORTHOGONALIZATION !!! (for diis > 1) ---
 c     write(6,*)'before tce_ortho iter=',iter
-c     call util_flush(6) 
+c     call util_flush(6)
 c      call tce_r_ortho(d_r1,d_r2,k_t1_offset,k_t2_offset,
 c     &                 size_t1,size_t2,iter)
 c      write(6,*)'after tce_ortho iter=',iter
@@ -178,106 +178,106 @@ c     Copy the r files
 c     ================
 c
       if (t1) then
-      r1_pointer = r1_pointer + 1
-      if (r1_pointer .gt. diis3) r1_pointer = 1
-      if (nodezero.and.util_print('diis',print_debug)) then
-        write(LuOut,*) 'diis_exist',(r1_diis_exist(i),i=1,diis3)
-        call util_flush(LuOut)
-      endif
-      if (.not.r1_diis_exist(r1_pointer)) then
-        call tce_filename(r1suffixes(r1_pointer),filename)
-        call createfile(filename,d_r1_diis,size_t1)         
-        call gatoeaf(d_r1_diis)         
-        call gatodra(d_r1_diis)
-        r1_diis(r1_pointer) = d_r1_diis
-        r1_diis_exist(r1_pointer) = .true.
+        r1_pointer = r1_pointer + 1
+        if (r1_pointer .gt. diis3) r1_pointer = 1
         if (nodezero.and.util_print('diis',print_debug)) then
-          write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(r1_diis(i),i=1,diis3)
+          write(LuOut,*) 'diis_exist',(r1_diis_exist(i),i=1,diis3)
           call util_flush(LuOut)
         endif
-      else
-        d_r1_diis = r1_diis(r1_pointer)
-      endif
+        if (.not.r1_diis_exist(r1_pointer)) then
+          call tce_filename(r1suffixes(r1_pointer),filename)
+          call createfile(filename,d_r1_diis,size_t1)
+          call gatoeaf(d_r1_diis)
+          call gatodra(d_r1_diis)
+          r1_diis(r1_pointer) = d_r1_diis
+          r1_diis_exist(r1_pointer) = .true.
+          if (nodezero.and.util_print('diis',print_debug)) then
+            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9020) 'diis',(r1_diis(i),i=1,diis3)
+            call util_flush(LuOut)
+          endif
+        else
+          d_r1_diis = r1_diis(r1_pointer)
+        endif
       call copyfile(d_r1,d_r1_diis,size_t1)
       endif
 
       if (t2) then
-      r2_pointer = r2_pointer + 1
-      if (r2_pointer .gt. diis3) r2_pointer = 1
-      if (nodezero.and.util_print('diis',print_debug)) then
-        write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(r2_diis_exist(i),i=1,diis3)
-        call util_flush(LuOut)
-      endif
-      if (.not.r2_diis_exist(r2_pointer)) then
-        call tce_filename(r2suffixes(r2_pointer),filename)
-        call createfile(filename,d_r2_diis,size_t2)         
-        call gatoeaf(d_r2_diis)         
-        call gatodra(d_r2_diis)
-        r2_diis(r2_pointer) = d_r2_diis
-        r2_diis_exist(r2_pointer) = .true.
+        r2_pointer = r2_pointer + 1
+        if (r2_pointer .gt. diis3) r2_pointer = 1
         if (nodezero.and.util_print('diis',print_debug)) then
-          write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(r2_diis(i),i=1,diis3)
+          write(LuOut,*)
+          write(LuOut,*) 'diis_exist',(r2_diis_exist(i),i=1,diis3)
           call util_flush(LuOut)
         endif
-      else
-        d_r2_diis = r2_diis(r2_pointer)
-      endif
-      call copyfile(d_r2,d_r2_diis,size_t2)
+        if (.not.r2_diis_exist(r2_pointer)) then
+          call tce_filename(r2suffixes(r2_pointer),filename)
+          call createfile(filename,d_r2_diis,size_t2)
+          call gatoeaf(d_r2_diis)
+          call gatodra(d_r2_diis)
+          r2_diis(r2_pointer) = d_r2_diis
+          r2_diis_exist(r2_pointer) = .true.
+          if (nodezero.and.util_print('diis',print_debug)) then
+            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9020) 'diis',(r2_diis(i),i=1,diis3)
+            call util_flush(LuOut)
+          endif
+        else
+          d_r2_diis = r2_diis(r2_pointer)
+        endif
+        call copyfile(d_r2,d_r2_diis,size_t2)
       endif
 
       if (t3) then
-      r3_pointer = r3_pointer + 1
-      if (r3_pointer .gt. diis3) r3_pointer = 1
-      if (nodezero.and.util_print('diis',print_debug)) then
-        write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(r3_diis_exist(i),i=1,diis3)
-        call util_flush(LuOut)
-      endif
-      if (.not.r3_diis_exist(r3_pointer)) then
-        call tce_filename(r3suffixes(r3_pointer),filename)
-        call createfile(filename,d_r3_diis,size_t3)         
-        call gatoeaf(d_r3_diis)         
-        call gatodra(d_r3_diis)
-        r3_diis(r3_pointer) = d_r3_diis
-        r3_diis_exist(r3_pointer) = .true.
+        r3_pointer = r3_pointer + 1
+        if (r3_pointer .gt. diis3) r3_pointer = 1
         if (nodezero.and.util_print('diis',print_debug)) then
-          write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(r3_diis(i),i=1,diis3)
+          write(LuOut,*)
+          write(LuOut,*) 'diis_exist',(r3_diis_exist(i),i=1,diis3)
           call util_flush(LuOut)
         endif
-      else
-        d_r3_diis = r3_diis(r3_pointer)
-      endif
-      call copyfile(d_r3,d_r3_diis,size_t3)
+        if (.not.r3_diis_exist(r3_pointer)) then
+          call tce_filename(r3suffixes(r3_pointer),filename)
+          call createfile(filename,d_r3_diis,size_t3)
+          call gatoeaf(d_r3_diis)
+          call gatodra(d_r3_diis)
+          r3_diis(r3_pointer) = d_r3_diis
+          r3_diis_exist(r3_pointer) = .true.
+          if (nodezero.and.util_print('diis',print_debug)) then
+            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9020) 'diis',(r3_diis(i),i=1,diis3)
+            call util_flush(LuOut)
+          endif
+        else
+          d_r3_diis = r3_diis(r3_pointer)
+        endif
+        call copyfile(d_r3,d_r3_diis,size_t3)
       endif
 
       if (t4) then
-      r4_pointer = r4_pointer + 1
-      if (r4_pointer .gt. diis3) r4_pointer = 1
-      if (nodezero.and.util_print('diis',print_debug)) then
-        write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(r4_diis_exist(i),i=1,diis3)
-        call util_flush(LuOut)
-      endif
-      if (.not.r4_diis_exist(r4_pointer)) then
-        call tce_filename(r4suffixes(r4_pointer),filename)
-        call createfile(filename,d_r4_diis,size_t4)         
-        call gatoeaf(d_r4_diis)         
-        call gatodra(d_r4_diis)
-        r4_diis(r4_pointer) = d_r4_diis
-        r4_diis_exist(r4_pointer) = .true.
+        r4_pointer = r4_pointer + 1
+        if (r4_pointer .gt. diis3) r4_pointer = 1
         if (nodezero.and.util_print('diis',print_debug)) then
-          write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(r4_diis(i),i=1,diis3)
+          write(LuOut,*)
+          write(LuOut,*) 'diis_exist',(r4_diis_exist(i),i=1,diis3)
           call util_flush(LuOut)
         endif
-      else
-        d_r4_diis = r4_diis(r4_pointer)
-      endif
-      call copyfile(d_r4,d_r4_diis,size_t4)
+        if (.not.r4_diis_exist(r4_pointer)) then
+          call tce_filename(r4suffixes(r4_pointer),filename)
+          call createfile(filename,d_r4_diis,size_t4)
+          call gatoeaf(d_r4_diis)
+          call gatodra(d_r4_diis)
+          r4_diis(r4_pointer) = d_r4_diis
+          r4_diis_exist(r4_pointer) = .true.
+          if (nodezero.and.util_print('diis',print_debug)) then
+            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9020) 'diis',(r4_diis(i),i=1,diis3)
+            call util_flush(LuOut)
+          endif
+        else
+          d_r4_diis = r4_diis(r4_pointer)
+        endif
+        call copyfile(d_r4,d_r4_diis,size_t4)
       endif
 c
 c     ================
@@ -285,107 +285,107 @@ c     Copy the t files
 c     ================
 c
       if (t1) then
-      t1_pointer = t1_pointer + 1
-      if (t1_pointer .gt. diis3) t1_pointer = 1
-      if (nodezero.and.util_print('diis',print_debug)) then
-        write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(t1_diis_exist(i),i=1,diis3)
-        call util_flush(LuOut)
-      endif
-      if (.not.t1_diis_exist(t1_pointer)) then
-        call tce_filename(t1suffixes(t1_pointer),filename)
-        call createfile(filename,d_t1_diis,size_t1)         
-        call gatoeaf(d_t1_diis)         
-        call gatodra(d_t1_diis)         
-        t1_diis(t1_pointer) = d_t1_diis
-        t1_diis_exist(t1_pointer) = .true.
+        t1_pointer = t1_pointer + 1
+        if (t1_pointer .gt. diis3) t1_pointer = 1
         if (nodezero.and.util_print('diis',print_debug)) then
-          write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(t1_diis(i),i=1,diis3)
+          write(LuOut,*)
+          write(LuOut,*) 'diis_exist',(t1_diis_exist(i),i=1,diis3)
           call util_flush(LuOut)
         endif
-      else
-        d_t1_diis = t1_diis(t1_pointer)
-      endif
-      call copyfile(d_t1,d_t1_diis,size_t1)
+        if (.not.t1_diis_exist(t1_pointer)) then
+          call tce_filename(t1suffixes(t1_pointer),filename)
+          call createfile(filename,d_t1_diis,size_t1)
+          call gatoeaf(d_t1_diis)
+          call gatodra(d_t1_diis)
+          t1_diis(t1_pointer) = d_t1_diis
+          t1_diis_exist(t1_pointer) = .true.
+          if (nodezero.and.util_print('diis',print_debug)) then
+            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9020) 'diis',(t1_diis(i),i=1,diis3)
+            call util_flush(LuOut)
+          endif
+        else
+          d_t1_diis = t1_diis(t1_pointer)
+        endif
+        call copyfile(d_t1,d_t1_diis,size_t1)
       endif
 
       if (t2) then
-      t2_pointer = t2_pointer + 1
-      if (t2_pointer .gt. diis3) t2_pointer = 1
-      if (nodezero.and.util_print('diis',print_debug)) then
-        write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(t2_diis_exist(i),i=1,diis3)
-        call util_flush(LuOut)
-      endif
-      if (.not.t2_diis_exist(t2_pointer)) then
-        call tce_filename(t2suffixes(t2_pointer),filename)
-        call createfile(filename,d_t2_diis,size_t2)         
-        call gatoeaf(d_t2_diis)         
-        call gatodra(d_t2_diis)         
-        t2_diis(t2_pointer) = d_t2_diis
-        t2_diis_exist(t2_pointer) = .true.
+        t2_pointer = t2_pointer + 1
+        if (t2_pointer .gt. diis3) t2_pointer = 1
         if (nodezero.and.util_print('diis',print_debug)) then
-          write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(t2_diis(i),i=1,diis3)
+          write(LuOut,*)
+          write(LuOut,*) 'diis_exist',(t2_diis_exist(i),i=1,diis3)
           call util_flush(LuOut)
         endif
-      else
-        d_t2_diis = t2_diis(t2_pointer)
-      endif
-      call copyfile(d_t2,d_t2_diis,size_t2)
+        if (.not.t2_diis_exist(t2_pointer)) then
+          call tce_filename(t2suffixes(t2_pointer),filename)
+          call createfile(filename,d_t2_diis,size_t2)
+          call gatoeaf(d_t2_diis)
+          call gatodra(d_t2_diis)
+          t2_diis(t2_pointer) = d_t2_diis
+          t2_diis_exist(t2_pointer) = .true.
+          if (nodezero.and.util_print('diis',print_debug)) then
+            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9020) 'diis',(t2_diis(i),i=1,diis3)
+            call util_flush(LuOut)
+          endif
+        else
+          d_t2_diis = t2_diis(t2_pointer)
+        endif
+        call copyfile(d_t2,d_t2_diis,size_t2)
       endif
 
       if (t3) then
-      t3_pointer = t3_pointer + 1
-      if (t3_pointer .gt. diis3) t3_pointer = 1
-      if (nodezero.and.util_print('diis',print_debug)) then
-        write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(t3_diis_exist(i),i=1,diis3)
-        call util_flush(LuOut)
-      endif
-      if (.not.t3_diis_exist(t3_pointer)) then
-        call tce_filename(t3suffixes(t3_pointer),filename)
-        call createfile(filename,d_t3_diis,size_t3)         
-        call gatoeaf(d_t3_diis)         
-        call gatodra(d_t3_diis)         
-        t3_diis(t3_pointer) = d_t3_diis
-        t3_diis_exist(t3_pointer) = .true.
+        t3_pointer = t3_pointer + 1
+        if (t3_pointer .gt. diis3) t3_pointer = 1
         if (nodezero.and.util_print('diis',print_debug)) then
-          write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(t3_diis(i),i=1,diis3)
+          write(LuOut,*)
+          write(LuOut,*) 'diis_exist',(t3_diis_exist(i),i=1,diis3)
           call util_flush(LuOut)
         endif
-      else
-        d_t3_diis = t3_diis(t3_pointer)
-      endif
-      call copyfile(d_t3,d_t3_diis,size_t3)
+        if (.not.t3_diis_exist(t3_pointer)) then
+          call tce_filename(t3suffixes(t3_pointer),filename)
+          call createfile(filename,d_t3_diis,size_t3)
+          call gatoeaf(d_t3_diis)
+          call gatodra(d_t3_diis)
+          t3_diis(t3_pointer) = d_t3_diis
+          t3_diis_exist(t3_pointer) = .true.
+          if (nodezero.and.util_print('diis',print_debug)) then
+            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9020) 'diis',(t3_diis(i),i=1,diis3)
+            call util_flush(LuOut)
+          endif
+        else
+          d_t3_diis = t3_diis(t3_pointer)
+        endif
+        call copyfile(d_t3,d_t3_diis,size_t3)
       endif
 
       if (t4) then
-      t4_pointer = t4_pointer + 1
-      if (t4_pointer .gt. diis3) t4_pointer = 1
-      if (nodezero.and.util_print('diis',print_debug)) then
-        write(LuOut,*)
-        write(LuOut,*) 'diis_exist',(t4_diis_exist(i),i=1,diis3)
-        call util_flush(LuOut)
-      endif
-      if (.not.t4_diis_exist(t4_pointer)) then
-        call tce_filename(t4suffixes(t4_pointer),filename)
-        call createfile(filename,d_t4_diis,size_t4)         
-        call gatoeaf(d_t4_diis)         
-        call gatodra(d_t4_diis)         
-        t4_diis(t4_pointer) = d_t4_diis
-        t4_diis_exist(t4_pointer) = .true.
+        t4_pointer = t4_pointer + 1
+        if (t4_pointer .gt. diis3) t4_pointer = 1
         if (nodezero.and.util_print('diis',print_debug)) then
-          write(LuOut,9010) 'diis',filename(1:20)
-          write(LuOut,9020) 'diis',(t4_diis(i),i=1,diis3)
+          write(LuOut,*)
+          write(LuOut,*) 'diis_exist',(t4_diis_exist(i),i=1,diis3)
           call util_flush(LuOut)
         endif
-      else
-        d_t4_diis = t4_diis(t4_pointer)
-      endif
-      call copyfile(d_t4,d_t4_diis,size_t4)
+        if (.not.t4_diis_exist(t4_pointer)) then
+          call tce_filename(t4suffixes(t4_pointer),filename)
+          call createfile(filename,d_t4_diis,size_t4)
+          call gatoeaf(d_t4_diis)
+          call gatodra(d_t4_diis)
+          t4_diis(t4_pointer) = d_t4_diis
+          t4_diis_exist(t4_pointer) = .true.
+          if (nodezero.and.util_print('diis',print_debug)) then
+            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9020) 'diis',(t4_diis(i),i=1,diis3)
+            call util_flush(LuOut)
+          endif
+        else
+          d_t4_diis = t4_diis(t4_pointer)
+        endif
+        call copyfile(d_t4,d_t4_diis,size_t4)
       endif
 c
 c     ==============
@@ -393,7 +393,7 @@ c     DIIS or Jacobi
 c     ==============
 c
 ccc      order = tce_diis_switch(iter)
-      
+
       IF (r1_pointer .lt. diis3) THEN
         if (transpose) then
          call errquit('tce_diis3: transpose not available',0,CALC_ERR)
@@ -438,7 +438,7 @@ c
       if(nodezero) then
       write(6,*)'MICROCYCLE DIIS UPDATE:',
      &          iter,r1_pointer
-      end if 
+      end if
 c
         do i = 1, diis3
           do j = i, diis3

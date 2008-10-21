@@ -4,7 +4,7 @@
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4)
 c
-c $Id: tce_diis.F,v 1.5 2008-10-16 14:20:19 jhammond Exp $
+c $Id: tce_diis.F,v 1.6 2008-10-21 00:37:22 jhammond Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -51,10 +51,7 @@ c
       integer iwork(maxdiis+1)
       integer info
       character*255 filename
-c      integer order
       integer i,j
-c      integer tce_diis_switch
-c      external tce_diis_switch
       double precision ddotfile,ddotfile_1,ddotfile_2
       external ddotfile,ddotfile_1,ddotfile_2
       character*7 r1suffixes(maxdiis)
@@ -386,8 +383,6 @@ c     ==============
 c     DIIS or Jacobi
 c     ==============
 c
-ccc      order = tce_diis_switch(iter)
-      
       IF (r1_pointer .lt. diis) THEN
         if (transpose) then
           shift = -1.0d0*zlshiftl
