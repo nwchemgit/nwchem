@@ -24,7 +24,7 @@
      2 ifreqval
 
       common /tcepropinteger/
-     1 anumfreq,inumfreq,bnumfreq,gnumfreq
+     1 cc_ir_alg,anumfreq,inumfreq,bnumfreq,gnumfreq
 
       common /tceproplogical/
      1  nowarn,lineresp,imagresp,leftresp,quadresp,respaxis,
