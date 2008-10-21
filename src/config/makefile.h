@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.575 2008-10-01 18:02:22 d3p307 Exp $
+# $Id: makefile.h,v 1.576 2008-10-21 23:49:49 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1191,7 +1191,7 @@ endif
     _FC=ifort
 #ifort 9.1
 #        LINK.f = ifort  $(LDFLAGS) 
-        FOPTIONS   = -align    -mp1 -w -g -vec_report1
+        FOPTIONS   = -align    -mp1 -w -g -vec-report1
   ifdef  USE_GPROF
     FOPTIONS += -qp
   endif
@@ -1359,7 +1359,7 @@ ifeq ($(LINUXCPU),x86)
        DEFINES  += -DGFORTRAN
   endif
   ifeq ($(_FC),ifc)
-  FOPTIONS   =  -align    -mp1 -w -g -vec_report1
+  FOPTIONS   =  -align    -mp1 -w -g -vec-report1
   ifdef  USE_GPROF
     FOPTIONS += -qp
   endif
@@ -1420,7 +1420,7 @@ ifeq ($(LINUXCPU),x86)
       endif
 
   ifeq ($(CC),icc)
-    COPTIONS   =   -mp1 -w -g -vec_report1
+    COPTIONS   =   -mp1 -w -g -vec-report1
     COPTIMIZE = -O3   -unroll 
     ifeq ($(_CPU),i586)
       COPTIMIZE +=  -tpp5 -xi # this are for PentiumII
@@ -1706,7 +1706,7 @@ endif
            @echo ifort 8.1 is required for x86_64 CPUs
            @exit 1
        endif
-        FOPTIONS += -align -w -g -vec_report1
+        FOPTIONS += -align -w -g -vec-report1
         DEFINES+= -DIFCV8 -DIFCLINUX
         ifeq ($(FC),ifc)
           FOPTIONS += -quiet
