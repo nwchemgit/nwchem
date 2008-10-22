@@ -114,7 +114,7 @@ c
 #endif
 c
             elseif (cc_ir_alg.eq.2) then
-              if (omega.ne.(0.0d0)) then
+              if (omega.gt.(1.0d-3)) then
 c
 c               IMAGINARY COMPONENT
 c
@@ -148,7 +148,7 @@ c
      3               k_t1_offset,k_t2_offset,
      4               k_tr1_offset,k_tr2_offset,
      5               size_tr1,size_tr2)
-              else
+              elseif (omega.eq.(0.0d0)) then
 c
 c               IMAGINARY COMPONENT
 c
@@ -165,6 +165,10 @@ c
      2               k_f1_offset,k_v2_offset,k_d1_offset,
      3               k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
      4               size_tr1,size_tr2)
+              else
+                if (nodezero) then
+                  write(9121) 'Frequency is too close to zero.'
+                endif
               endif
 c
             elseif (cc_ir_alg.eq.3) then
