@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.68 2008-10-21 00:37:21 jhammond Exp $
+c $Id: tce_init.F,v 1.69 2008-10-22 13:20:53 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -409,11 +409,6 @@ c
 c
 c    Beginning of response property input section
 c
-      if (.not.rtdb_get(rtdb,'tce:nowarn',mt_log,1,nowarn)) then
-        lineresp=.false.
-        if (.not.rtdb_put(rtdb,'tce:nowarn',mt_log,1,nowarn))
-     1  call errquit('tce_init: failed to write nowarn',0,RTDB_ERR)
-      endif
       if (.not.rtdb_get(rtdb,'tce:lineresp',mt_log,1,lineresp)) then
         lineresp=.false.
         if (.not.rtdb_put(rtdb,'tce:lineresp',mt_log,1,lineresp))

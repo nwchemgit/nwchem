@@ -4,7 +4,7 @@
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4,omega)
 c
-c $Id: tce_diis3c.F,v 1.1 2008-10-21 03:14:36 jhammond Exp $
+c $Id: tce_diis3c.F,v 1.2 2008-10-22 13:20:55 jhammond Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -153,7 +153,7 @@ c
           r1_diis(r1_pointer) = d_r1_diis
           r1_diis_exist(r1_pointer) = .true.
           if (nodezero.and.util_print('diis',print_debug)) then
-            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9010) 'diis',filename(1:255)
             write(LuOut,9020) 'diis',(r1_diis(i),i=1,diis3)
             call util_flush(LuOut)
           endif
@@ -179,7 +179,7 @@ c
           r2_diis(r2_pointer) = d_r2_diis
           r2_diis_exist(r2_pointer) = .true.
           if (nodezero.and.util_print('diis',print_debug)) then
-            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9010) 'diis',filename(1:255)
             write(LuOut,9020) 'diis',(r2_diis(i),i=1,diis3)
             call util_flush(LuOut)
           endif
@@ -205,7 +205,7 @@ c
           r3_diis(r3_pointer) = d_r3_diis
           r3_diis_exist(r3_pointer) = .true.
           if (nodezero.and.util_print('diis',print_debug)) then
-            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9010) 'diis',filename(1:255)
             write(LuOut,9020) 'diis',(r3_diis(i),i=1,diis3)
             call util_flush(LuOut)
           endif
@@ -231,7 +231,7 @@ c
           r4_diis(r4_pointer) = d_r4_diis
           r4_diis_exist(r4_pointer) = .true.
           if (nodezero.and.util_print('diis',print_debug)) then
-            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9010) 'diis',filename(1:255)
             write(LuOut,9020) 'diis',(r4_diis(i),i=1,diis3)
             call util_flush(LuOut)
           endif
@@ -261,7 +261,7 @@ c
           t1_diis(t1_pointer) = d_t1_diis
           t1_diis_exist(t1_pointer) = .true.
           if (nodezero.and.util_print('diis',print_debug)) then
-            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9010) 'diis',filename(1:255)
             write(LuOut,9020) 'diis',(t1_diis(i),i=1,diis3)
             call util_flush(LuOut)
           endif
@@ -287,7 +287,7 @@ c
           t2_diis(t2_pointer) = d_t2_diis
           t2_diis_exist(t2_pointer) = .true.
           if (nodezero.and.util_print('diis',print_debug)) then
-            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9010) 'diis',filename(1:255)
             write(LuOut,9020) 'diis',(t2_diis(i),i=1,diis3)
             call util_flush(LuOut)
           endif
@@ -313,7 +313,7 @@ c
           t3_diis(t3_pointer) = d_t3_diis
           t3_diis_exist(t3_pointer) = .true.
           if (nodezero.and.util_print('diis',print_debug)) then
-            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9010) 'diis',filename(1:255)
             write(LuOut,9020) 'diis',(t3_diis(i),i=1,diis3)
             call util_flush(LuOut)
           endif
@@ -339,7 +339,7 @@ c
           t4_diis(t4_pointer) = d_t4_diis
           t4_diis_exist(t4_pointer) = .true.
           if (nodezero.and.util_print('diis',print_debug)) then
-            write(LuOut,9010) 'diis',filename(1:20)
+            write(LuOut,9010) 'diis',filename(1:255)
             write(LuOut,9020) 'diis',(t4_diis(i),i=1,diis3)
             call util_flush(LuOut)
           endif
@@ -415,7 +415,7 @@ c     Solve AX = B
 c
         call dgesv(diis3+1,1,a,maxdiis+1,iwork,b,maxdiis+1,info)
         if (info .ne. 0)
-     1    call errquit('tce_diis: LU decomposition failed',0,
+     1    call errquit('tce_diis: LU decomposition failed',info,
      2    UNKNOWN_ERR)
         if (nodezero.and.util_print('diis',print_debug)) then
           call ma_print(b,maxdiis+1,1,'X matrix')
@@ -430,7 +430,7 @@ c
         if (t4) call daxfile(diis3,b,t4_diis,d_t4,size_t4)
         call ga_sync()
       END IF
- 9010 format(1x,A,' file name    = ',A)
- 9020 format(1x,A,' file handles = ',20i5)
+ 9010 format(1x,A4,' file name    = ',A255)
+ 9020 format(1x,A4,' file handles = ',20i5)
       return
       end

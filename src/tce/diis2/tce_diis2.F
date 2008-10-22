@@ -4,7 +4,7 @@
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4,omega)
 c
-c $Id: tce_diis2.F,v 1.10 2008-10-21 00:37:22 jhammond Exp $
+c $Id: tce_diis2.F,v 1.11 2008-10-22 13:20:54 jhammond Exp $
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary
@@ -451,7 +451,7 @@ c     Solve AX = B
 c
         call dgesv(diis2+1,1,a,maxdiis+1,iwork,b,maxdiis+1,info)
         if (info .ne. 0)
-     1    call errquit('tce_diis: LU decomposition failed',0,
+     1    call errquit('tce_diis: LU decomposition failed',info,
      2    UNKNOWN_ERR)
         if (nodezero.and.util_print('diis',print_debug)) then
           call ma_print(b,maxdiis+1,1,'X matrix')

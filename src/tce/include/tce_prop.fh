@@ -12,7 +12,6 @@
       double precision ifreqval(maxnumfreq,8)      ! alpha(ifreq(inumfreq)) for (XX,YY,ZZ,XY,YZ,XZ,AVG,ANI) components
       double precision bfreq(maxnumfreq)
       double precision gfreq(maxnumfreq)
-      logical nowarn
       logical respaxis(3)
       logical lineresp,imagresp,leftresp,quadresp
       logical ifreqauto
@@ -27,7 +26,7 @@
      1 cc_ir_alg,anumfreq,inumfreq,bnumfreq,gnumfreq
 
       common /tceproplogical/
-     1  nowarn,lineresp,imagresp,leftresp,quadresp,respaxis,
+     1  lineresp,imagresp,leftresp,quadresp,respaxis,
      2  beta_shg,beta_or,beta_eope,guess_ir_real,guess_ir_imag,
-     3  guess_lr_real,guess_qr_real
+     3  guess_lr_real,guess_qr_real,ifreqauto
 

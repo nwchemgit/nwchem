@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.148 2008-10-21 00:37:20 jhammond Exp $
+c $Id: tce_energy.F,v 1.149 2008-10-22 13:20:52 jhammond Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -3244,7 +3244,7 @@ c
           alphaani = dsqrt(0.5d0*alphaani)
 c
           if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
-     1        .and.(.not.nowarn).and.nodezero) write(LuOut,9911)
+     1        .and.nodezero) write(LuOut,9911)
 c
           if (nodezero) write(LuOut,9434) "CCSDT Imaginary Response",
      1      ifreq(omegacount),auXnm/ifreq(omegacount),
@@ -3576,7 +3576,7 @@ c
           alphaani = dsqrt(0.5d0*alphaani)
 c
           if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
-     1        .and.(.not.nowarn).and.nodezero) write(LuOut,9911)
+     1        .and.nodezero) write(LuOut,9911)
 c
           if (nodezero) write(LuOut,9434) "CCSDT Linear Response",
      1      afreq(omegacount),auXnm/afreq(omegacount),
@@ -3939,7 +3939,7 @@ c
           alphaani = dsqrt(0.5d0*alphaani)
 c
           if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
-     1        .and.(.not.nowarn).and.nodezero) write(LuOut,9911)
+     1        .and.nodezero) write(LuOut,9911)
 c
           if (nodezero) write(LuOut,9434) "CCSDT Lambda Response",
      1      afreq(omegacount),auXnm/afreq(omegacount),
@@ -4895,7 +4895,7 @@ c
           alphaani = dsqrt(0.5d0*alphaani)
 c
           if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
-     1        .and.(.not.nowarn).and.nodezero) write(LuOut,9911)
+     1        .and.nodezero) write(LuOut,9911)
 c
           if (nodezero) write(LuOut,9434) "CCSDTQ Linear Response",
      1      afreq(omegacount),auXnm/afreq(omegacount),

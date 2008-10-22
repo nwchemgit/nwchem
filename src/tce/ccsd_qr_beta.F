@@ -501,7 +501,7 @@ c
       alphaani = dsqrt(0.5d0*alphaani)
 c
       if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
-     1    .and.(.not.nowarn).and.nodezero) write(LuOut,9911)
+     1    .and.nodezero) write(LuOut,9911)
 c
       if (nodezero) write(LuOut,9434) "CCSD Lambda Response",
      1  afreq(omegacount),auXnm/afreq(omegacount),

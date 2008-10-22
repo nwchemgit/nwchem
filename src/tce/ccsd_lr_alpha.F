@@ -75,6 +75,13 @@ c
 c
               if (nodezero) write(LuOut,9431) omega
 c
+              if ((omegacount.eq.1).and.guess_lr_real) then
+                call ccsd_lr_guess(d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     1               k_f1_offset,k_v2_offset,k_d1_offset,
+     2               k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
+     3               size_tr1,size_tr2,axis,dynaxis)
+              endif
+c
               call ccsd_lr_iter(axis,dynaxis,omega,
      1             d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
      2             k_f1_offset,k_v2_offset,k_d1_offset,
@@ -506,7 +513,7 @@ c
       alphaani = dsqrt(0.5d0*alphaani)
 c
       if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
-     1    .and.(.not.nowarn).and.nodezero) write(LuOut,9911)
+     1    .and.nodezero) write(LuOut,9911)
 c
       if (nodezero) write(LuOut,9434) "CCSD Linear Response",
      1  afreq(omegacount),auXnm/afreq(omegacount),
@@ -584,7 +591,7 @@ c
       subroutine ccsd_lr_guess(d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
      1           k_f1_offset,k_v2_offset,k_d1_offset,
      2           k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
-     4           size_tr1,size_tr2,component,axis,dynaxis)
+     3           size_tr1,size_tr2,axis,dynaxis)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -595,7 +602,7 @@ c
 #include "tce_main.fh"
 #include "tce_prop.fh"
 c
-      integer axis,component,dynaxis
+      integer axis,dynaxis
       integer d_f1,d_v2,d_d1(3)
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer d_t1
