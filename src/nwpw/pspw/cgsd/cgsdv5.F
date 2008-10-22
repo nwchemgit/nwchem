@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.100 2008-09-15 18:48:10 bylaska Exp $
+* $Id: cgsdv5.F,v 1.101 2008-10-22 23:56:42 bylaska Exp $
 *
 
 ***********************************************************************
@@ -528,6 +528,7 @@ c     end if
 
 *     **** calculate the spin contamination ****
       if (flag.gt.-1) call psi_spin2(dipole(1))
+
       
 *     **** calculate the dipole ***
       dipole(1) = 0.0d0
@@ -564,6 +565,7 @@ c     end if
 *     **** output energy, dipole, and gradient to rtdb for use ****
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
+      value = .true.
       if (flag.gt.-1) then
       value = rtdb_put(rtdb,'pspw:energy',mt_dbl,1,EV)
       value = value.and.
@@ -597,16 +599,13 @@ c     end if
       if (control_Mulliken()) call psi_Mulliken(rtdb)
 
 
-
-
-*     **** calculate Mulliken Populations ***
-
 *     **** write wavefunctions to file and finalize psi ****
       if (flag.eq.-1) then
         value = psi_finalize(.false.)
       else
         value = psi_finalize(.true.)
       end if
+
 
 *     **** write geometry to rtdb ****
       call pspw_charge_write(rtdb)

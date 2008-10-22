@@ -1,5 +1,5 @@
 *
-* $Id: psi_read.F,v 1.19 2008-09-16 23:42:44 bylaska Exp $
+* $Id: psi_read.F,v 1.20 2008-10-22 23:56:44 bylaska Exp $
 *
 
 *     ***********************************
@@ -95,6 +95,8 @@ c     **** send header to all nodes ****
       call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
       msglen = 2
       call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
+      msglen = 1
+      call Parallel_Brdcst_ivalues(MASTER,msglen,occupation)
 
 
 *     ***** Error checking ****

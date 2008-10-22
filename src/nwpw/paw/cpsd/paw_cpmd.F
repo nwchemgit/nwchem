@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.26 2008-09-15 20:52:31 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.27 2008-10-22 23:56:39 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.26  2008/09/15 20:52:31  bylaska
+* ..paw fixes...EJB
+*
 * Revision 1.25  2007/11/17 22:45:48  bylaska
 * ...EJB
 *
@@ -239,8 +242,8 @@
       external control_tole,control_tolc,control_tolr,ion_rion
       real*8   control_time_step,control_fake_mass
       external control_time_step,control_fake_mass
-      logical  control_read,control_move,ion_init,ion_q_FixIon
-      external control_read,control_move,ion_init,ion_q_FixIon
+      logical  control_read,ion_init,ion_q_FixIon
+      external control_read,ion_init,ion_q_FixIon
 
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
@@ -492,7 +495,7 @@ c      call init_paw_density(ispin,lmax)
       call init_paw_xc(ispin,lmax)
 
 *     *** intialize paw force ***      
-      if (control_move()) call paw_force_init()
+      call paw_force_init()
 
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       call paw_ovlp_weights_set()
@@ -1261,7 +1264,7 @@ c      call paw_vloc_end()
       call end_paw_pot_hartree()
 c      call paw_density_end()
       call paw_xc_end()
-      if (control_move()) call paw_force_end()
+      call paw_force_end()
       call paw_gaunt_end()
       if (control_Nose()) call Nose_end()
 

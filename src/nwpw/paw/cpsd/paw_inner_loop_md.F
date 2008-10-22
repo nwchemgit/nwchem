@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.13 2008-09-15 20:52:32 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.14 2008-10-22 23:56:40 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.13  2008/09/15 20:52:32  bylaska
+* ..paw fixes...EJB
+*
 * Revision 1.12  2007/03/22 20:46:20  bylaska
 * New implementation of QM/MM.
 * ....EJB
@@ -500,6 +503,7 @@ c        call paw_density_solve()
      >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)))
         call nwpw_timing_end(13)
+
         
 
 *       *******************************************
@@ -514,7 +518,6 @@ c        call paw_density_solve()
         call paw_mult_pw_force(dcpl_mb(vh(1)),
      >                         dcpl_mb(vcomp(1)),
      >                         dbl_mb(fion(1)))
-
 
         call paw_force_solve(psi1,dbl_mb(fion(1))) 
 
@@ -550,6 +553,7 @@ c        call paw_density_solve()
         call dscal(2*nemax*nemax,2.0d0,dbl_mb(tmp_L(1)),1)
         call daxpy(2*nemax*nemax,-1.0d0,lmd1,1,dbl_mb(tmp_L(1)),1)
         call paw_force_constraint(dbl_mb(tmp_L(1)),dbl_mb(fion(1))) 
+
 
 *       **** remove ion forces using ion_FixIon ****
         call ion_FixIon(dbl_mb(fion(1)))

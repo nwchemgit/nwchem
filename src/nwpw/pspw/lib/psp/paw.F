@@ -1,5 +1,5 @@
 *
-* $Id: paw.F,v 1.2 2007-10-01 23:02:49 bylaska Exp $
+* $Id: paw.F,v 1.3 2008-10-22 23:56:45 bylaska Exp $
 *
 
 *     ***********************************
@@ -62,7 +62,7 @@
 
         nproj   = int_mb(nprj(1)+ia-1)
 
-        if ((int_mb(psp_type(1)).eq.4).and.(nproj.gt.0)) then
+        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
 
 *       **** structure factor and local pseudopotential ****
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
@@ -206,7 +206,7 @@
         ia    = ion_katm(ii)
         nproj = int_mb(nprj(1)+ia-1)
 
-        if ((int_mb(psp_type(1)).eq.4).and.(nproj.gt.0)) then
+        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
 
 *       **** structure factor and local pseudopotential ****
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
@@ -356,7 +356,7 @@
         ia    = ion_katm(ii)
         nproj = int_mb(nprj(1)+ia-1)
 
-        if ((int_mb(psp_type(1)).eq.4).and.(nproj.gt.0)) then
+        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
 
 *       **** structure factor and local pseudopotential ****
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
@@ -465,7 +465,7 @@
       ecore = 0.0d0
       do ii=1,ion_nion()
         ia    = ion_katm(ii)
-        if (int_mb(psp_type(1)).eq.4) then
+        if (int_mb(psp_type(1)+ia-1).eq.4) then
            ecore = ecore + dbl_mb(core_kin(1)+ia-1)
         end if
       end do
@@ -537,7 +537,7 @@
         ia    = ion_katm(ii)
         nproj = int_mb(nprj(1)+ia-1)
 
-        if ((int_mb(psp_type(1)).eq.4).and.(nproj.gt.0)) then
+        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
 
 *       **** structure factor and local pseudopotential ****
         call strfac_pack(1,ii,dcpl_mb(exi(1)))

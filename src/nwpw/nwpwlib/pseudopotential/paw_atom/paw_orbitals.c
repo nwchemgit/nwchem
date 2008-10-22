@@ -1,5 +1,5 @@
 /*
-   $Id: paw_orbitals.c,v 1.4 2007-04-10 19:04:34 d3p708 Exp $
+   $Id: paw_orbitals.c,v 1.5 2008-10-22 23:56:39 bylaska Exp $
 */
 
 /************************************
@@ -139,7 +139,7 @@ void paw_guess_eigenvalues(double Zion, double *V)
     Ngrid = paw_N_LogGrid();
 
     echarge = 0.0;
-    for (i=0; i<=Nvalence-1; i++)
+    for (i=0; i<=Nbound-1; i++)
     {
         echarge += fill[i];
         Z = Zion - echarge + 1.0;
@@ -222,6 +222,7 @@ void   paw_solve_occupied_orbitals()
                 converged = False;
 
             eigenvalue[i]=Etmp;
+
 
             /*orthogonalize to lower orbitals*/
             for (j=0;j<=i-1;j++)
@@ -359,6 +360,7 @@ void paw_solve_unoccupied_orbitals()
         {
             status = paw_R_Schrodinger(n[i],l[i],V,
                                        &eigenvalue[i],psi[i],psi_prime[i]);
+
         }
 
         if (!(status))

@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.92 2008-09-30 19:53:35 bylaska Exp $
+* $Id: psi.F,v 1.93 2008-10-22 23:56:43 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.92  2008/09/30 19:53:35  bylaska
+* Added Baden's exchange algorithm...EJB
+*
 * Revision 1.91  2008/09/17 00:55:36  bylaska
 * ...EJB
 *
@@ -5513,6 +5516,7 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
         end if
         call ga_sync()
         value = rtdb_parallel(.true.)
+        value = .true.
 
       end if
 

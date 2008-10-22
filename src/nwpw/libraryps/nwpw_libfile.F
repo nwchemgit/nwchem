@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.14 2005-11-04 19:31:30 bylaska Exp $
+* $Id: nwpw_libfile.F,v 1.15 2008-10-22 23:56:37 bylaska Exp $
 *
 
 *
@@ -26,21 +26,41 @@ c
       character*(*) element
       integer       library_type
 c
-      character*255 libname,rtdb_name,library,library_name
-      external util_find_dir
-      logical  util_find_dir,lexist
-      integer lgth,l,ind,rtdb
-      logical from_environment,hprint
+      logical hprint,debug,lexist
+      logical does_it_exist,foundit,is_it_open,noslash
+      logical nwrcopen,from_environment,from_nwchemrc,from_compile
 
+      character*255 libname,rtdb_name,library,library_name
+      character*255 file_nwchemrc,userhome
+      character*128 test
+      integer lgth,l,ind,rtdb,unitrc
+
+*     **** external functions ****
+      logical  util_find_dir
+      external util_find_dir
       logical  control_print
       external control_print
       integer  control_rtdb
       external control_rtdb
 c
+
+*
+* order of precedence for choosing name
+* 1) value of NWCHEM_NWPW_LIBRARY environment variable
+* 2) value of NWCHEM_NWPW_LIBRARY set in $HOME/.nwchemrc file
+* 3) value of the compiled in library name
+*
       hprint = control_print(print_high)
+      debug  = control_print(print_debug)
+      nwrcopen         = .false.
+      from_environment = .false.
+      from_nwchemrc    = .false.
+      from_compile     = .false.
+      noslash          = .false.
+
+*     **** Try to get from NWPW_NWPW_LIBRARY environment variable ****
       call util_getenv('NWCHEM_NWPW_LIBRARY',libname)
       lgth=inp_strlen(libname)
-      from_environment = .false.
       if (lgth.gt.0) then
          if (util_find_dir(libname)) then
             from_environment = .true.
@@ -51,8 +71,99 @@ c
      &           libname(1:inp_strlen(libname)),'>'
             write(luout,*)' but file does not exist !'
             write(luout,*)' using compiled library'
-         endif
+         end if
+      end if
+
+*     **** Try to get from NWPW_NWPW_LIBRARY nwchemrc ****
+*2: check for NWCHEM_NWPW_LIBRARY defined in users .nwchemrc file
+*   assumed structure in .nwchemrc file is variable [whitespace] value
+*   one setting per line
+*
+      call util_getenv('HOME',userhome)
+      if (debug) then
+        write(luout,*)'env return value of HOME: <',
+     &      userhome(1:inp_strlen(userhome)),'>'
       endif
+      lgth = inp_strlen(userhome)
+      if (lgth.gt.0) then
+        file_nwchemrc = userhome(1:lgth)//'/.nwchemrc'
+
+        if (debug) then
+          write(luout,*)' file_nwchemrc: <',
+     &        file_nwchemrc(1:inp_strlen(file_nwchemrc)),'>'
+        endif
+
+        does_it_exist = .false.
+        inquire(file=file_nwchemrc,exist=does_it_exist)
+        if (does_it_exist) then
+          call inp_save_state() ! save state of any inp unit
+*
+          unitrc = 68
+00001     continue
+          unitrc = unitrc + 1
+          if (unitrc.gt.80) then
+            write(luout,*)' could not find a free unit 69->80'
+            call errquit('bas_input: no free units for library',911,
+     &       BASIS_ERR)
+          endif
+          is_it_open = .false.
+          inquire(unit=unitrc,opened=is_it_open)
+          if (is_it_open) goto 00001
+          nwrcopen=.false.
+* found unitrc
+          open (unit=unitrc,  file=file_nwchemrc,
+     &        status='old', err=99998,
+     &        form='formatted',
+     &        access='sequential')
+          nwrcopen=.true.
+          call inp_init(unitrc,LuOut)
+00002     continue
+          if (.not.inp_read()) then
+            if (inp_eof()) then
+              goto 99998
+            else
+              call errquit('fatal parsing error in nwchemrc file',911,
+     &       INPUT_ERR)
+            endif
+          endif
+          if (.not.inp_a(test)) call errquit('inp_a error 1',911,
+     &       UNKNOWN_ERR)
+          foundit = inp_compare(.false.,test,'nwchem_nwpw_library')
+          if (foundit) then
+            if (.not.inp_a(test)) call errquit('inp_a error 2',911,
+     &       UNKNOWN_ERR)
+            libname = test
+            lgth = inp_strlen(libname)
+            does_it_exist = .false.
+            if (libname(lgth:lgth).eq.'/') then
+               does_it_exist=util_find_dir(libname)
+            else
+               inquire(file=libname,exist=does_it_exist)
+               noslash=does_it_exist
+            endif
+            if (does_it_exist)then
+              from_nwchemrc = .true.
+              call inp_restore_state() ! restore state of any inp unit
+              goto 99
+            else
+              write(luout,*)' warning:::::::::::::: from_nwchemrc'
+              write(luout,*)' NWCHEM_NWPW_LIBRARY set to: <',
+     &            libname(1:inp_strlen(libname)),'>'
+              write(luout,*)' but file does not exist !'
+              write(luout,*)' using compiled in library'
+            endif
+            goto 99998
+          else
+            goto 00002
+          endif
+*
+99998     continue
+          call inp_restore_state() ! restore state of any inp unit
+        endif
+      endif
+
+*     **** Try to get from compile ****
+      from_compile = .true.
       libname = 
      &NWPW_LIBRARY
 c
@@ -64,22 +175,37 @@ c
          goto 99
       else
          write(luout,*)' warning:::::::::::::: from_compile'
-         write(luout,*)' NWPW_BASIS_LIBRARY is: <',
+         write(luout,*)' NWPW_NWPW_LIBRARY is: <',
      &        libname(1:inp_strlen(libname)),'>'
          write(luout,*)' but file does ','not exist or you ',
      &        'do not have ','access to it !'
       endif
       call errquit('nwpwlibfile: no nwpw library found',0, DISK_ERR)
+
  99   continue
+
       if (from_environment) then
           if (hprint)
      >     write(luout,*)' library name resolved from: environment'
-       else
+      else if (from_nwchemrc) then
+          if (hprint)
+     >     write(luout,*)' library name resolved from: .nwchemrc'
+      else
           if (hprint)
      >     write(luout,*)
-     &      ' library name resolved from: compiled reference'
-       endif
+     >      ' library name resolved from: compiled reference'
+      endif
 
+      if(noslash) then
+         write(luout,*) "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+         write(luout,*) "! DANGEROUS: nwchem_nwpw_library set equal  !"
+         write(luout,*) "! to a filename and not to a directory since!"
+         write(luout,*) "! since you did not use the ending slash.   !"
+         write(luout,*) "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+      end if
+      if (nwrcopen) then
+        close(unit=unitrc,status='keep') ! close file after library name found
+      end if
 
 *     **** library for paw ****
       if (flag.eq.2) then

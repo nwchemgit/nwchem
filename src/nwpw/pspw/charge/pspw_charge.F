@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.20 2006-01-06 00:57:47 bylaska Exp $
+c $Id: pspw_charge.F,v 1.21 2008-10-22 23:56:43 bylaska Exp $
 c
   
 ***********************************************************
@@ -240,12 +240,12 @@ c
 
       subroutine pspw_charge_write(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
+#include "errquit.fh"
 #include "pspw_charge.fh"
 
 *     **** local variables ****

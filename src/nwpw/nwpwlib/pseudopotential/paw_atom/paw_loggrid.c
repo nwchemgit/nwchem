@@ -1,5 +1,5 @@
 /*
-   $Id: paw_loggrid.c,v 1.4 2007-04-10 19:04:34 d3p708 Exp $
+   $Id: paw_loggrid.c,v 1.5 2008-10-22 23:56:38 bylaska Exp $
 */
 
 #include        <stdio.h>
@@ -37,6 +37,14 @@ double Lmax;
 static double r0Z   = 0.00025;
 double  r0;
 
+void  paw_end_LogGrid()
+{
+    paw_dealloc_LogGrid(rgrid);
+    paw_dealloc_LogGrid(rgrid2);
+    paw_dealloc_LogGrid(rgrid3);
+    paw_dealloc_LogGrid(scratch);
+}
+
 
 /****************************************
 Function name	  : paw_init_LogGrid
@@ -62,6 +70,7 @@ void  paw_init_LogGrid_from_file( double Z, FILE *fp)
 
         r0 = r0Z/Z;
         Ngrid = (int) floor(log(Lmax/r0)/log_amesh)+1;
+
 
     }
     else

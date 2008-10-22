@@ -1,5 +1,5 @@
 *
-* $Id: paw_force.F,v 1.14 2005-01-31 02:09:38 bylaska Exp $
+* $Id: paw_force.F,v 1.15 2008-10-22 23:56:41 bylaska Exp $
 *
 
 !**************************************************
@@ -126,6 +126,7 @@ c     *** number of electrons ***
       ne_d  = paw_ne_down()
       neall = paw_ne_total()
 
+
 c     *** pointers to paw_ovlp arrays ***     
       call paw_ovlp_indx2_ptr(indx2)
       call paw_ovlp_sgn_ptr(sgn)
@@ -217,7 +218,6 @@ c     *** compute force overlap coefficients ***
       call D3dB_Vector_SumAll(2*paw_force_cz_s(3),
      >                        dcpl_mb(paw_force_cz_s(1)))
 
-
       !*** unsrcramble to get true force overlap coefficients ***
       do i1=1,paw_force_cx_s(3)
          i2 = int_mb(indx2(1)+i1-1)
@@ -272,6 +272,7 @@ c     *** calculate weights ***
       ii = 0
       i_nbasis = 0
       do in=1,ion_nion()
+
         ia = ion_katm(in)
         nbasis = paw_proj_nbasis(ia)
         do nlm =1,nbasis
@@ -308,6 +309,7 @@ c     *** calculate weights ***
            dcpl_mb(paw_force_wx_u(1)+ii) = wx_tmp*occup
            dcpl_mb(paw_force_wy_u(1)+ii) = wy_tmp*occup
            dcpl_mb(paw_force_wz_u(1)+ii) = wz_tmp*occup
+
 
 
 c           !*** this loop is not computed when ispin=1 ***
@@ -350,7 +352,7 @@ c           !*** this loop is not computed when ispin=1 ***
            
         end if
         tcount=mod(tcount+1,np)
-        ii=ii +1
+        ii=ii+1
         end do
         end do
         i_nbasis = i_nbasis + nbasis
@@ -482,13 +484,6 @@ c           !*** this loop is not computed when ispin=1 ***
       call paw_nonloc_gop_u_ptr(gop_u)
       call paw_nonloc_gop_d_ptr(gop_d)
 
-c      write(*,*) " paw force, gop"
-c      do in=1,gop_u(3)
-c      write(*,*) 
-c     > dcpl_mb(gop_u(1)+in-1),
-c     > dcpl_mb(gop_d(1)+in-1),
-c     > dcpl_mb(paw_force_wx_u(1)+in-1)
-c      end do
 
       tcount = 0
       do in=1,nion
@@ -536,10 +531,6 @@ c        fion(3,in) = fion(3,in) - dble(tmp_fz)
         dbl_mb(ft(1)+3*(in-1)+1) = dbl_mb(ft(1)+3*(in-1)+1)-dble(tmp_fy)
         dbl_mb(ft(1)+3*(in-1)+2) = dbl_mb(ft(1)+3*(in-1)+2)-dble(tmp_fz)
 
-
-c       write(*,*) "  fatom",in,-dble(tmp_fx),
-c    >                          -dble(tmp_fy),
-c    >                          -dble(tmp_fz)
 
       end do
 
@@ -682,25 +673,6 @@ c     *** number of electrons ***
      >            + dimag(dcpl_mb(paw_force_cz_u(1)+indx_coeff))
      >             *dimag(dcpl_mb(coeff(1)         +indx_coeff1))
      >           )*lmbda(indx_lmbda)
-
-
-
-c       write(*,*) "wx_tmp:",n,m,a,ma,b,mb,
-c    >           (  dble( dcpl_mb(coeff(1)         +indx_coeff))
-c    >             *dble( dcpl_mb(paw_force_cx_u(1)+indx_coeff1))
-c    >            + dimag(dcpl_mb(coeff(1)         +indx_coeff))
-c    >             *dimag(dcpl_mb(paw_force_cx_u(1)+indx_coeff1))
-c    >            + dble( dcpl_mb(paw_force_cx_u(1)+indx_coeff))
-c    >             *dble( dcpl_mb(coeff(1)         +indx_coeff1))
-c    >            + dimag(dcpl_mb(paw_force_cx_u(1)+indx_coeff))
-c    >             *dimag(dcpl_mb(coeff(1)         +indx_coeff1))
-c    >           )*lmbda(indx_lmbda)
-c      write(*,*)  dcpl_mb(paw_force_cx_u(1)+indx_coeff),
-c    >             dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
-c      write(*,*)  dcpl_mb(coeff(1) +indx_coeff),
-c    >             dcpl_mb(coeff(1) +indx_coeff1)
-c      write(*,*)  lmbda(indx_lmbda)
-c      write(*,*)
 
 
              end do !*m*

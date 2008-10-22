@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.24 2007-03-21 03:31:28 bylaska Exp $
+! $Id: paw_basis_data.F,v 1.25 2008-10-22 23:56:41 bylaska Exp $
 
 !**************************************************
 !
@@ -335,7 +335,7 @@ c     *** local variables ***
 !
 !	Created:	7/9/2002
 !**************************************************
-      INTEGER FUNCTION  paw_basis_ngrid(it)
+      integer function paw_basis_ngrid(it)
       implicit none
       integer it
     

@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi.F,v 1.12 2006-06-05 17:34:26 edo Exp $
+* $Id: paw_psi.F,v 1.13 2008-10-22 23:56:42 bylaska Exp $
 *
 
 
@@ -224,20 +224,6 @@
      >              (1.0d0),
      >              psi2(1,n1(ms)),2*npack1)
 
-c          do ii=n1(ms),n2(ms)
-c             i=ii-n1(ms)+1
-c
-c             do jj=n1(ms),n2(ms)
-c                j=jj-n1(ms)+1
-c
-c                index = (i-1) + (j-1)*n
-c                !alpha = dte*lmbda(sl(ms) + index)
-c                alpha = tmp(st1 + index)
-c
-c                call Pack_cc_daxpy(1,alpha,psi1(1,jj),psi2(1,ii))
-c             end do
-c          end do
-
         end if
   640   continue
       end do !*ms*
@@ -321,7 +307,7 @@ c          end do
       !**** local variables ****
       integer itrlmd
       real*8  convg
-      parameter (itrlmd=20, convg=1.0d-15)
+      parameter (itrlmd=40, convg=1.0d-15)
 
       integer i,it
       real*8  adiff

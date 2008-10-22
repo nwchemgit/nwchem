@@ -1,5 +1,5 @@
 /*
- $Id: paw_atom_driver.c,v 1.4 2008-01-28 22:49:55 d3p708 Exp $
+ $Id: paw_atom_driver.c,v 1.5 2008-10-22 23:56:38 bylaska Exp $
 */
 
 #include <math.h>
@@ -146,6 +146,7 @@ Integer *n3;
     if (debug) printf("\ninitializing atom parameters\n");
     paw_init_atom(atom_out,infile);
 
+
     if (debug) printf("\nentering the selfconsistent loop\n");
     paw_solve_atom();
     paw_print_atom();
@@ -156,6 +157,7 @@ Integer *n3;
 
     paw_end_paw_scattering();
     paw_end_paw_basis();
+    paw_end_LogGrid();
 
 }
 

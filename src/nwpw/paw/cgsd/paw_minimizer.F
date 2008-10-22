@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.16 2007-09-24 16:58:11 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.17 2008-10-22 23:56:39 bylaska Exp $
 *
 
 ***********************************************************************
@@ -133,8 +133,6 @@
 *****************************|  PROLOGUE  |****************************
 *                            |************|
 
-c      value = MA_set_error_print(.true.)
-c      value = MA_set_auto_verify(.true.)
       value = .true.
       pi = 4.0d0*datan(1.0d0)
 
@@ -219,10 +217,7 @@ c     --------------------
 
 
 *     **** initialize Gaunt array ****
-c     call current_second(t1)
       call paw_gaunt_init()
-c     call current_second(t2)
-c     write(*,*) "time1:",t2-t1
 
 
 *     **** read ions ****
@@ -232,15 +227,10 @@ c     write(*,*) "time1:",t2-t1
 
 
 *     **** allocate paw data structure and read in paw basis into it ****
-c     call current_second(t1)
-c      value = MA_set_auto_verify(.true.)
       call init_paw_basis()
       call init_paw_small_basis()
-c     call current_second(t2)
-c     write(*,*) "time2:",t2-t1
 
 *     *** initialize paw matrices ***
-c     call current_second(t1)
       call init_paw_kin_matrix()
       call init_paw_ion_matrix()
       call init_paw_vloc_matrix()
@@ -249,20 +239,12 @@ c     call current_second(t1)
       call init_paw_overlap_matrix()
       call init_paw_comp_charge_matrix()
       call init_paw_comp_pot_matrix()
-c     call current_second(t2)
-c     write(*,*) "time3:",t2-t1
 
 *     *** initialize paw projectors ***
-c     call current_second(t1)
       call paw_proj_init()
-c     call current_second(t2)
-c     write(*,*) "time4:",t2-t1
 
 *     *** initialize compensation charge ***
-c     call current_second(t1)
       call paw_comp_charge_init()
-c     call current_second(t2)
-c     write(*,*) "time5:",t2-t1
 
 c*     *** initialize paw atomic potentials ***
 c      call current_second(t1)
@@ -280,6 +262,7 @@ c     call current_second(t1)
 c     call current_second(t2)
 c     write(*,*) "time8:",t2-t1
 
+
 c     call current_second(t1)
       call paw_mult_init()
 c     call current_second(t2)
@@ -292,6 +275,7 @@ c     call current_second(t1)
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
+
 
 *     ***** create wavefunctions if they don't exist ****
       if (.not.psi_filefind()) then
