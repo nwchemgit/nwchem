@@ -1,7 +1,7 @@
       Subroutine hf2mkr(Axyz,Bxyz,Cxyz,Dxyz,alpha_p,alpha_q,R0,IJK,
      &    Pxyz,Qxyz,PQ,ff,R,NPP,NPQ,Lr,Lr3)
 c
-c $Id: hf2mkr.F,v 1.1 2008-10-23 01:20:21 niri Exp $
+c $Id: hf2mkr.F,v 1.2 2008-10-23 17:36:58 niri Exp $
 
       implicit none
 #include "case.fh"
@@ -9,8 +9,12 @@ c
       double precision PI,P1
       Parameter (PI=3.1415926535898D0,P1=4.D0/PI)
 
-c--> Cartesian Coordinates
+c--> ints
+      integer npp,npq
+      integer Lr, Lr3
+      integer IJK(0:Lr,0:Lr,0:Lr)
 
+c--> Cartesian Coordinates
       double precision Axyz(3),Bxyz(3),Cxyz(3),Dxyz(3)
 
 c--> Exponents
@@ -20,7 +24,6 @@ c--> Exponents
 c--> Auxiliary Function Integrals & Index
 
       double precision R0((NPP*NPQ),Lr3)
-      integer IJK(0:Lr,0:Lr,0:Lr)
 
 c--> Scratch Space
 
@@ -30,8 +33,7 @@ c
       double precision ffscr(2,(NPP*NPQ)), Rscr((NPP*NPQ),0:Lr,Lr3),
      & rhoscaled,radd
 
-      integer mp, NPP, mq, NPQ, mr, j, n
-      integer Lr, Lr3
+      integer mp, mq, mr, j, n
       double precision a,b,c,d,f1,f2,p,q,rho
       double precision PQx, PQy, PQz 
 c
