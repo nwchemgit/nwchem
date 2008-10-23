@@ -3,7 +3,7 @@ c     /* Main DFT driver */
 c
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.87 2008-10-23 01:23:25 niri Exp $
+c     $Id: dft_main0d.F,v 1.88 2008-10-23 02:25:47 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -36,6 +36,7 @@ czora...end
 c
 ccase...start
 #include "case.fh"
+#include "candoP.fh"
 ccase...end
 c
       integer  ga_create_atom_blocked
@@ -59,6 +60,7 @@ c
       logical dft_scf_so 
       external dft_scf_so 
       character*80 theory
+      logical status
 
       dft_main0d = .false.
 c     
@@ -132,6 +134,21 @@ c
      &   cam_alpha)) cam_alpha=0.d0
       if (.not.rtdb_get(rtdb, 'dft:cam_beta', mt_dbl, 1,
      &   cam_beta)) cam_beta=0.d0
+      if (cam_exch) then
+        if (rtdb_get(rtdb,'int:cando_txs',MT_LOG,1,status)) then
+         user_cando_txs = .true.
+         def_cando_txs  = status
+        endif
+        if (user_cando_txs) then
+          call errquit ('dft_main0d: Coulomb Attenuation Method (CAM) is
+     & not available with the Texas integral package. Please turn off 
+     & the Texas integrals. "set int:cando txs f" in your input.',0, 
+     & RTDB_ERR)
+      end if
+
+
+
+      endif 
 c
 ccase...end
 c     
@@ -230,7 +247,7 @@ ccase...start
 c     Is Coulomb attenuation (CAM) true without CDFIT ?
 c
       if (cam_exch .and. (.not.CDFIT) ) then
-          call errquit ('dft_main0d: Coulomb attenuation is
+          call errquit ('dft_main0d: Coulomb Attenuation Method (CAM) is
      & only available with charge density fitting.',0, RTDB_ERR)
       end if
 ccase...end
