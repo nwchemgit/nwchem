@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.47 2008-09-30 17:34:43 edo Exp $
+c     $Id: dft_input.F,v 1.48 2008-10-23 01:23:20 niri Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -45,8 +45,7 @@ c
      $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
      $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'sic', 
-     $           'smear','fon','lb94','cs00','cdft','attenuation',
-     $           'disp','end'/
+     $           'smear','fon','lb94','cs00','cdft','cam','disp','end'/
 c Qin / cdft
       integer nconstr
       integer dtype(max_constr), iatms1(max_constr), fatms1(max_constr)
@@ -343,25 +342,41 @@ c Qin/end
 c
       goto 10
 c
-c     Coulomb attenuation for Exchange
+c     Coulomb attenuation method for Exchange
 c
- 2700 screen_exch = .true.
+ 2700 cam_exch = .true.
       
 c     persist the information in the runtime database
-      if (.not.rtdb_put(rtdb,'dft:screen_exch', mt_log, 1, screen_exch)) 
+      if (.not.rtdb_put(rtdb,'dft:cam_exch', mt_log, 1, cam_exch)) 
      &   call errquit('dft_input: rtdb_put failed', 2700, RTDB_ERR)
-      if (.not.inp_f(screen_omega)) then
-        write(LuOut,*)'Screening factor not found;', ' 
-     & Defaulting to 0.5.'
-        screen_omega = 0.5d0
-      endif
-      if (.not.rtdb_put(rtdb,'dft:screen_omega',mt_dbl,1,screen_omega))
-     &   call errquit('dft_inp: rtdb_put failed', 2700, RTDB_ERR)
+      if (.not.inp_f(cam_omega)) cam_omega = 0.5d0
+c           write(luout,*) "cam_omega:",cam_omega
+      if (.not.rtdb_put(rtdb,'dft:cam_omega',mt_dbl,1,cam_omega))
+     &   call errquit('dft_inp: rtdb_put failed cam_omega', 2700, 
+     &     RTDB_ERR)
+c
+ 2710 if (.not. inp_a(test)) goto 10
+c  get cam_alpha
+      if (inp_compare(.false.,'cam_alpha', test)) then
+       if (.not. inp_f(cam_alpha)) cam_alpha = 1.d0
+       if (.not.rtdb_put(rtdb,'dft:cam_alpha', mt_dbl, 1, cam_alpha))
+     &  call errquit('dft_input: rtdb_put failed cam_alpha', 2710, 
+     &     RTDB_ERR)
+c           write(luout,*) "cam_alpha:",cam_alpha
+      end if
+c
+ 2720 if (.not. inp_a(test)) goto 10
+c  get cam_beta
+      if (inp_compare(.false.,'cam_beta', test)) then
+       if (.not. inp_f(cam_beta)) cam_beta = 1.d0
+       if (.not.rtdb_put(rtdb,'dft:cam_beta', mt_dbl, 1, cam_beta))
+     &  call errquit('dft_input: rtdb_put failed cam_beta', 2720, 
+     &     RTDB_ERR)
+c           write(luout,*) "cam_beta:",cam_beta
+      end if
 c
       goto 10
 c
-c     end;
-c             
  2800 disp = .true.
 c
       if (.not.rtdb_put(rtdb,'dft:disp', mt_log, 1, disp))

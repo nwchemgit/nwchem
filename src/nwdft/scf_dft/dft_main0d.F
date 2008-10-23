@@ -3,7 +3,7 @@ c     /* Main DFT driver */
 c
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.86 2008-04-25 20:36:36 niri Exp $
+c     $Id: dft_main0d.F,v 1.87 2008-10-23 01:23:25 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -122,12 +122,17 @@ c
 c
 ccase...start
 c
-c     Is Coulomb attenuation needed ? If so, get the necessary parameters
+c     Get the Coulomb Attenuation Method (CAM) parameters
 c
-      if (.not.rtdb_get(rtdb, 'dft:screen_exch', mt_log, 1,
-     &   screen_exch)) screen_exch=.false.
-      if (.not.rtdb_get(rtdb, 'dft:screen_omega', mt_dbl, 1,
-     &   screen_omega)) screen_omega=0.d0
+      if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1,
+     &   cam_exch)) cam_exch=.false.
+      if (.not.rtdb_get(rtdb, 'dft:cam_omega', mt_dbl, 1,
+     &   cam_omega)) cam_omega=0.d0
+      if (.not.rtdb_get(rtdb, 'dft:cam_alpha', mt_dbl, 1,
+     &   cam_alpha)) cam_alpha=0.d0
+      if (.not.rtdb_get(rtdb, 'dft:cam_beta', mt_dbl, 1,
+     &   cam_beta)) cam_beta=0.d0
+c
 ccase...end
 c     
 c     Select method to compute the XC potential.
@@ -224,7 +229,7 @@ c
 ccase...start
 c     Is Coulomb attenuation (CAM) true without CDFIT ?
 c
-      if (screen_exch .and. (.not.CDFIT) ) then
+      if (cam_exch .and. (.not.CDFIT) ) then
           call errquit ('dft_main0d: Coulomb attenuation is
      & only available with charge density fitting.',0, RTDB_ERR)
       end if

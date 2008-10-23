@@ -2,7 +2,7 @@
      1  g_td,g_pd,g_qd,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet)
 c
-c $Id: tddft_contract.F,v 1.6 2008-10-17 00:56:01 niri Exp $
+c $Id: tddft_contract.F,v 1.7 2008-10-23 01:22:21 niri Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c (1) A trial density matrix will be decomposed into 
@@ -116,7 +116,7 @@ c ---------------------
 c
       call ga_zero(g_nprd)
       if ((ipol.eq.1).and.(.not.triplet)) then
-        if (.not.screen_exch) then            ! regular calculations
+        if (.not.cam_exch) then            ! regular calculations
           jf(1)=1.0d0
           kf(1)=-kfac*0.5d0
           call shell_fock_build(geom,ao_bas_han,0,1,
@@ -126,9 +126,9 @@ c
           call shell_fock_build_att_alg24(geom,ao_bas_han,0,1,
      &      nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
      &      .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
-        end if  ! screen_exch
+        end if  ! cam_exch
       else if ((ipol.eq.1).and.(triplet)) then
-        if (.not.screen_exch) then            ! regular calculations
+        if (.not.cam_exch) then            ! regular calculations
           jf(1)=0.0d0
           kf(1)=-kfac*0.5d0
           call shell_fock_build(geom,ao_bas_han,0,1,
@@ -138,11 +138,11 @@ c
           call shell_fock_build_att_alg24(geom,ao_bas_han,0,1,
      &      nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
      &      .true.,.false.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
-        end if  ! screen_exch
+        end if  ! cam_exch
       else if (ipol.eq.2) then
         ndu=2
         nfu=2
-        if (.not.screen_exch) then     ! regular calculations
+        if (.not.cam_exch) then     ! regular calculations
           jf(1)=1.0d0
           kf(1)=kfac
           jf(2)=1.0d0
@@ -158,7 +158,7 @@ c
           call shell_fock_build_att_alg24(geom,ao_bas_han,0,ndu,
      &       nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
      &       .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
-        end if  ! screen_exch
+        end if  ! cam_exch
 c
       endif
       do i=1,ipol
@@ -211,7 +211,7 @@ c ---------------------
 c
         call ga_zero(g_nprd)
         if (ipol.eq.1) then
-         if (.not.screen_exch) then  ! regular calculations
+         if (.not.cam_exch) then  ! regular calculations
            jf(1)=0.0d0
            kf(1)=-kfac*0.5d0
            call shell_fock_build(geom,ao_bas_han,0,1,
@@ -221,11 +221,11 @@ c
            call shell_fock_build_att_alg24(geom,ao_bas_han,
      &       0,1,nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
      &       .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
-         end if  ! screen_exch
+         end if  ! cam_exch
         else
           ndu=2
           nfu=2
-          if (.not.screen_exch) then  ! regular calculations
+          if (.not.cam_exch) then  ! regular calculations
             jf(1)=0.0d0
             kf(1)=kfac
             jf(2)=0.0d0
@@ -241,7 +241,7 @@ c
             call shell_fock_build_att_alg24(geom,ao_bas_han,0,ndu,
      &         nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
      &         .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
-          end if  ! screen_exch
+          end if  ! cam_exch
         endif  ! ipol
 c
         do i=1,ipol
@@ -312,7 +312,7 @@ c
      1  g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet,nvectors)
 c
-c $Id: tddft_contract.F,v 1.6 2008-10-17 00:56:01 niri Exp $
+c $Id: tddft_contract.F,v 1.7 2008-10-23 01:22:21 niri Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c Multiple trial density matrices are processed simultaneously,
@@ -431,7 +431,7 @@ c ---------------------
 c
       call ga_zero(g_nprd_p)
       if ((ipol.eq.1).and.(.not.triplet)) then
-       if(.not.screen_exch) then ! normal calculations
+       if(.not.cam_exch) then ! normal calculations
         do n=1,nvectors
           dbl_mb(k_jf+n-1)=1.0d0
           dbl_mb(k_kf+n-1)=-kfac*0.5d0
@@ -443,9 +443,9 @@ c
         call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
      &     nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_p,g_temp,ipol,
      &    .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
-       end if  ! screen_exch
+       end if  ! cam_exch
       else if ((ipol.eq.1).and.(triplet)) then
-       if (.not.screen_exch) then   ! normal calculations
+       if (.not.cam_exch) then   ! normal calculations
         do n=1,nvectors
           dbl_mb(k_jf+n-1)=0.0d0
           dbl_mb(k_kf+n-1)=-kfac*0.5d0
@@ -457,9 +457,9 @@ c
         call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
      &     nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_p,g_temp,ipol,
      &    .true.,.false.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
-       end if  ! screen_exch
+       end if  ! cam_exch
       else if (ipol.eq.2) then
-       if (.not.screen_exch) then   ! normal calculations
+       if (.not.cam_exch) then   ! normal calculations
         do n=1,2*nvectors
           dbl_mb(k_jf+n-1)=1.0d0
           dbl_mb(k_kf+n-1)=kfac
@@ -477,7 +477,7 @@ c
         call shell_fock_build_att_alg13(geom,ao_bas_han,0,2*nvectors,
      &     nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_p,g_temp,ipol,
      &    .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
-       end if ! screen_exch
+       end if ! cam_exch
       endif
       if (util_print('contract',print_debug))
      1  call ga_print(g_nprd_p)
@@ -521,7 +521,7 @@ c
             dbl_mb(k_kf+n-1)=-kfac*0.5d0
           enddo
           if (tda) then
-            if (.not.screen_exch) then ! normal calculations
+            if (.not.cam_exch) then ! normal calculations
              call shell_fock_build(geom,ao_bas_han,0,nvectors,
      1          dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_work,.false.)
             else  ! attenuated calculations
@@ -529,7 +529,7 @@ c
              call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
      &          nbf_ao,jfac,kfac,tol2e,g_nsym,g_work,g_temp,ipol,
      &          .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
-            end if  ! screen_exch
+            end if  ! cam_exch
             alo(1)=1
             ahi(1)=ipol*nvectors
             alo(2)=1
@@ -545,7 +545,7 @@ c
             call nga_add_patch(1.0d0,g_work,alo,ahi,1.0d0,
      1        g_nprd_p,blo,bhi,g_nprd_p,blo,bhi) 
           else
-            if (.not.screen_exch) then ! normal calculations
+            if (.not.cam_exch) then ! normal calculations
               call shell_fock_build(geom,ao_bas_han,0,nvectors,
      1          dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_m,.false.)
             else  ! attenuated calculations
@@ -553,7 +553,7 @@ c
              call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
      &           nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_m,g_temp,ipol,
      &          .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
-            end if  ! screen_exch
+            end if  ! cam_exch
           endif ! tda
         else
           do n=1,2*nvectors
@@ -563,7 +563,7 @@ c
           ndu=2*nvectors
           nfu=2*nvectors
           if (tda) then
-           if (.not.screen_exch) then
+           if (.not.cam_exch) then
             call uhf_fock_setup(g_nsym,g_work,
      1        dbl_mb(k_jf),dbl_mb(k_kf),ndu,nfu,nbf_ao,.false.)
             call shell_fock_build(geom,ao_bas_han,0,ndu,
@@ -575,7 +575,7 @@ c
            call shell_fock_build_att_alg13(geom,ao_bas_han,0,2*nvectors,
      &         nbf_ao,jfac,kfac,tol2e,g_nsym,g_work,g_temp,ipol,
      &         .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
-           end if ! screen_exch
+           end if ! cam_exch
            alo(1)=1
            ahi(1)=ipol*nvectors
            alo(2)=1
@@ -591,7 +591,7 @@ c
            call nga_add_patch(1.0d0,g_work,alo,ahi,1.0d0,
      1        g_nprd_p,blo,bhi,g_nprd_p,blo,bhi) 
           else
-           if (.not.screen_exch) then
+           if (.not.cam_exch) then
              call uhf_fock_setup(g_nsym,g_nprd_m,
      1        dbl_mb(k_jf),dbl_mb(k_kf),ndu,nfu,nbf_ao,.false.)
              call shell_fock_build(geom,ao_bas_han,0,ndu,
@@ -603,7 +603,7 @@ c
            call shell_fock_build_att_alg13(geom,ao_bas_han,0,2*nvectors,
      &         nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_m,g_temp,ipol,
      &        .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
-           end if  ! screen_exch
+           end if  ! cam_exch
           endif ! tda
         endif
         if (tda) then

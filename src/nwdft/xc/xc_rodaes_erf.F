@@ -53,10 +53,10 @@ c     -----------------------------------------------------------------------
 c     Preliminaries
 c     -----------------------------------------------------------------------
 c
-      gamma = screen_omega
+      gamma = cam_omega
 
 c      write(luout,*) "In xc_rodaes_erf"
-c      write(luout,*) "screen_omega:",screen_omega
+c      write(luout,*) "cam_omega:",cam_omega
 c      write(luout,*) "gamma:",gamma
 
       do n = 1,nq
