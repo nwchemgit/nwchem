@@ -14,6 +14,8 @@ basis "cd basis"
 H  library "DGauss A2 DFT Coulomb Fitting"
 end
 
+set int:cando txs f
+
 dft
  xc xbnl07 0.90 lyp 1.00 hfexch 1.00
  cam 0.5 cam_alpha 0.0 cam_beta 1.0
