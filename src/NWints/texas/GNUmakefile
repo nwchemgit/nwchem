@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.52 2008-05-06 16:53:51 d3p307 Exp $
+# $Id: GNUmakefile,v 1.53 2008-10-23 01:21:18 niri Exp $
  
 include ../../config/makefile.h
 
@@ -49,8 +49,7 @@ endif
                  derivat.o \
                  convert.o \
                  test_calc2.o \
-                 screened_op.o \
-		 case_impl.o      
+                 screened_op.o 
    ifdef XLF11
     OBJ += trobsa.o
    else
@@ -67,8 +66,7 @@ endif
                   trobsa.F  getmem.F
 
        LIBRARY = libnwints.a
-       HEADERS = screened_op.fh \
-		 case.fh
+       HEADERS = screened_op.fh 
 
 include ../../config/makelib.h
 ifeq ($(_CPU),ia64)
