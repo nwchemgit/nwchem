@@ -4,8 +4,8 @@ C     MA memory type corresponding to the unit of record length for
 C     unformatted direct access files.
 C
       Integer MT_DAFRecL
-#if defined(BGL) || defined(BGP) || defined(sun) || defined(IBM) || defined(SP1) || defined(_CRAY) || defined(__ksr__) || (defined(LINUX)&&!defined(__alpha)) || defined(WIN32) || defined(MACX)
-C$Id: ftnio.fh,v 1.15 2008-06-20 20:24:12 d3p307 Exp $
+#if defined(sun) || defined(IBM) || defined(SP1) || defined(_CRAY) || defined(__ksr__) || (defined(LINUX)&&!defined(__alpha)) || defined(WIN32) || defined(MACX)
+C$Id: ftnio.fh,v 1.16 2008-10-23 20:20:28 d3p307 Exp $
       Parameter ( MT_DAFRecL = MT_BYTE )
 #elif defined(__PARAGON__) || defined(__IPSC__) ||defined(HPUX) ||defined(FUJITSU_VPP) || defined(FUJITSU_VPP64)
       Parameter ( MT_DAFRecL = MT_BYTE )
