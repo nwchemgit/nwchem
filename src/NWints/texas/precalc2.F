@@ -1,4 +1,4 @@
-* $Id: precalc2.F,v 1.33 2007-09-14 18:14:21 niri Exp $
+* $Id: precalc2.F,v 1.34 2008-10-23 02:18:26 niri Exp $
 c--------------------------------------------------------------------
       subroutine prec2ij(ibl,nblock1, bl,inx)
       implicit real*8 (a-h,o-z)
@@ -819,8 +819,6 @@ c
 c
             const(ijkl1)=coefij(ijpar,ij)*coefkl(klpar,kl)*sqrpold
 c
-            call case_txs(rho1, rys(ijkl1), const(ijkl1))  ! apply CASE screening if needed
-c
          endif
  100  continue
 c
@@ -914,8 +912,6 @@ c
             endif
 c
             const(ijkl1)=coefij(ijpar,ij)*coefkl(klpar,kl)*sqrpold
-c
-            call case_txs(rho1, rys(ijkl1), const(ijkl1))  ! apply CASE screening if needed
 c
          endif
  100  continue
@@ -1834,8 +1830,6 @@ c
             rys(ijkl1)=rr2*rho1
             const(ijkl1)=coefij(ijpar,ij)*coefkl(klpar,kl)*sqrpold
 c
-            call case_txs(rho1, rys(ijkl1), const(ijkl1))  ! apply CASE screening if needed
-c
          endif
  100  continue
 c
@@ -1918,8 +1912,6 @@ c
             rys(ijkl1)=rr2*rho1
 c     
             const(ijkl1)=coefij(ijpar,ij)*coefkl(klpar,kl)*sqrpold
-c
-            call case_txs(rho1, rys(ijkl1), const(ijkl1))  ! apply CASE screening if needed
 c
          endif
  100  continue
