@@ -21,7 +21,7 @@ end
 
 dft
  xc xbnl07 0.90 lyp 1.00 hfexch 1.00
- attenuation 0.5
+ cam 0.5 cam_alpha 0.0 cam_beta 1.0
 end
 
 task dft energy
@@ -32,7 +32,7 @@ task dft energy
                                          
  
  
-              Northwest Computational Chemistry Package (NWChem) 5.0
+              Northwest Computational Chemistry Package (NWChem) 5.1
               ------------------------------------------------------
  
  
@@ -44,8 +44,8 @@ task dft energy
                                          
  
  
-                     COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
-                   1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
+                2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
  
@@ -103,16 +103,16 @@ task dft energy
 
     hostname      = curie
     program       = ../../../bin/LINUX64/nwchem
-    date          = Wed Sep 19 18:24:42 2007
+    date          = Wed Oct 22 18:37:11 2008
 
-    compiled      = Wed_Sep_19_18:23:03_2007
-    source        = /home/niri/nwchem
+    compiled      = Wed_Oct_22_18:33:39_2008
+    source        = /home/niri/nwchem/nwchem-atten
     nwchem branch = Development
     input         = h2_bnl.nw
     prefix        = h2_bnl.
     data base     = ./h2_bnl.db
     status        = startup
-    nproc         =    2
+    nproc         =    4
     time left     =     -1s
 
 
@@ -208,6 +208,9 @@ task dft energy
  H                     0.00000000     0.00000000     0.38707500
  H                     0.00000000     0.00000000    -0.38707500
  
+  library name resolved from: environment
+  library file name is: </home/niri/nwchem/nwchem-atten/src/basis/libraries/>
+  
 
 
  Summary of "ao basis" -> "" (spherical)
@@ -217,6 +220,9 @@ task dft energy
  *                          cc-pVTZ                   on all atoms 
 
 
+  library name resolved from: environment
+  library file name is: </home/niri/nwchem/nwchem-atten/src/basis/libraries/>
+  
                       Basis "cd basis" -> "" (cartesian)
                       -----
   H (Hydrogen)
@@ -386,14 +392,14 @@ task dft energy
       3 Center 2 Electron Integral Information
       ----------------------------------------
           Maximum number of 3-center 2e- integrals is:           20384.
-            This is reduced with Schwarz screening to:           13182.
-            Incore requires a per proc buffer size of:           18487.
-                  The minimum integral buffer size is:            1950
+            This is reduced with Schwarz screening to:           11388.
+            Incore requires a per proc buffer size of:            9543.
+                  The minimum integral buffer size is:             650
           Minimum dble words available (all nodes) is:        26213565
-                   This is reduced (for later use) to:        26026899
-                             Suggested buffer size is:           18487
+                   This is reduced (for later use) to:        26029643
+                             Suggested buffer size is:            9543
 
-           0.018 MW buffer allocated for incore 3-center 
+           0.010 MW buffer allocated for incore 3-center 
           2e- integral storage on stack. 
           The percent of 3c 2e- integrals held in-core is: 100.00
 
@@ -404,7 +410,7 @@ task dft energy
 
  Integral file          = ./h2_bnl.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 173549
+ Max. records in memory =      2        Max. records in file   =  32764
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -413,12 +419,12 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Grid_pts file          = ./h2_bnl.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      5        Max. recs in file   =    925524
+ Max. records in memory =      3        Max. recs in file   =    174735
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.91            12913967
-          Stack Space remaining (MW):       13.09            13088360
+           Heap Space remaining (MW):       12.94            12938545
+          Stack Space remaining (MW):       13.10            13097343
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
@@ -428,10 +434,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  d= 0,ls=0.0,diis     4     -1.1308092070 -1.34D-08  2.72D-07  9.42D-11     0.1
 
 
-         Total DFT energy =       -1.130809207018
+         Total DFT energy =       -1.130809207020
       One electron energy =       -2.443438335213
-           Coulomb energy =        1.258241758578
-    Exchange-Corr. energy =       -0.629171693872
+           Coulomb energy =        1.258241758575
+    Exchange-Corr. energy =       -0.629171693871
  Nuclear repulsion energy =        0.683559063489
 
  Numeric. integr. density =        2.000000185407
@@ -444,81 +450,83 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
  
  Vector    1  Occ=2.000000D+00  E=-5.523620D-01  Symmetry=a1g
-              MO Center=  2.6D-34,  2.4D-34,  2.5D-17, r^2= 8.0D-01
+              MO Center=  1.5D-19,  1.7D-19, -3.3D-15, r^2= 8.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2     -0.266854  1 H  s                 16     -0.266854  2 H  s          
     15     -0.180828  2 H  s                  1     -0.180828  1 H  s          
-     3     -0.163651  1 H  s                 17     -0.163651  2 H  s          
+    17     -0.163651  2 H  s                  3     -0.163651  1 H  s          
  
  Vector    2  Occ=0.000000D+00  E= 1.370046D-01  Symmetry=a2u
-              MO Center=  1.3D-18,  5.5D-18, -2.9D-16, r^2= 3.3D+00
+              MO Center= -3.1D-18, -5.3D-20,  5.7D-15, r^2= 3.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17     -2.143834  2 H  s                  3      2.143834  1 H  s          
-    16      0.162180  2 H  s                  2     -0.162180  1 H  s          
+     3      2.143834  1 H  s                 17     -2.143834  2 H  s          
+     2     -0.162180  1 H  s                 16      0.162180  2 H  s          
  
  Vector    3  Occ=0.000000D+00  E= 2.865487D-01  Symmetry=a1g
-              MO Center=  6.3D-17,  1.3D-17,  3.0D-16, r^2= 3.3D+00
+              MO Center=  6.7D-18,  3.5D-19, -4.0D-15, r^2= 3.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.857128  1 H  s                 17      0.857128  2 H  s          
-    16     -0.747125  2 H  s                  2     -0.747125  1 H  s          
+    17     -0.857128  2 H  s                  3     -0.857128  1 H  s          
+    16      0.747125  2 H  s                  2      0.747125  1 H  s          
  
  Vector    4  Occ=0.000000D+00  E= 5.857176D-01  Symmetry=a2u
-              MO Center= -2.7D-18,  1.5D-18,  7.2D-16, r^2= 2.4D+00
+              MO Center=  1.3D-32,  1.1D-31,  2.1D-15, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3     -2.215373  1 H  s                 17      2.215373  2 H  s          
-     2      1.865437  1 H  s                 16     -1.865437  2 H  s          
+     3      2.215373  1 H  s                 17     -2.215373  2 H  s          
+     2     -1.865437  1 H  s                 16      1.865437  2 H  s          
  
  Vector    5  Occ=0.000000D+00  E= 6.362893D-01  Symmetry=eu
-              MO Center=  2.9D-16,  1.8D-17,  7.6D-16, r^2= 1.1D+00
+              MO Center= -5.2D-17,  3.8D-17, -5.5D-16, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      0.574424  1 H  px                21      0.574424  2 H  px         
+    22     -0.465079  2 H  py                 8     -0.465079  1 H  py         
+     7     -0.346211  1 H  px                21     -0.346211  2 H  px         
  
  Vector    6  Occ=0.000000D+00  E= 6.362893D-01  Symmetry=eu
-              MO Center=  2.1D-17, -8.5D-17, -4.5D-15, r^2= 1.1D+00
+              MO Center=  5.3D-19, -4.0D-19, -3.6D-17, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22     -0.574424  2 H  py                 8     -0.574424  1 H  py         
+    21      0.465079  2 H  px                 7      0.465079  1 H  px         
+    22     -0.346211  2 H  py                 8     -0.346211  1 H  py         
  
  Vector    7  Occ=0.000000D+00  E= 1.034719D+00  Symmetry=a1g
-              MO Center= -3.4D-17,  2.0D-17, -1.5D-15, r^2= 1.6D+00
+              MO Center= -5.2D-19, -7.0D-19,  3.1D-16, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      1.010540  2 H  pz                 9     -1.010540  1 H  pz         
-     2     -0.654484  1 H  s                 16     -0.654484  2 H  s          
-     3      0.350114  1 H  s                 17      0.350114  2 H  s          
+     9     -1.010540  1 H  pz                23      1.010540  2 H  pz         
+    16     -0.654484  2 H  s                  2     -0.654484  1 H  s          
+    17      0.350114  2 H  s                  3      0.350114  1 H  s          
  
  Vector    8  Occ=0.000000D+00  E= 1.060042D+00  Symmetry=eg
-              MO Center= -4.1D-17, -1.4D-17,  4.7D-15, r^2= 1.5D+00
+              MO Center= -1.0D-19,  9.3D-20,  3.2D-16, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21     -1.144665  2 H  px                 7      1.144665  1 H  px         
-     8     -0.714677  1 H  py                22      0.714677  2 H  py         
+    21     -1.001002  2 H  px                 7      1.001002  1 H  px         
+     8     -0.904995  1 H  py                22      0.904995  2 H  py         
  
  Vector    9  Occ=0.000000D+00  E= 1.060042D+00  Symmetry=eg
-              MO Center= -1.9D-18, -3.1D-18, -9.7D-16, r^2= 1.5D+00
+              MO Center= -8.6D-19, -9.5D-19,  4.9D-17, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8     -1.144665  1 H  py                22      1.144665  2 H  py         
-    21      0.714677  2 H  px                 7     -0.714677  1 H  px         
+     8     -1.001002  1 H  py                22      1.001002  2 H  py         
+    21      0.904995  2 H  px                 7     -0.904995  1 H  px         
  
  Vector   10  Occ=0.000000D+00  E= 1.472614D+00  Symmetry=a2u
-              MO Center=  7.3D-18, -4.6D-18,  4.1D-15, r^2= 1.9D+00
+              MO Center= -1.4D-31, -1.9D-31, -8.8D-38, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16    -11.349038  2 H  s                  2     11.349038  1 H  s          
-     9     -5.753095  1 H  pz                23     -5.753095  2 H  pz         
-    12      0.297341  1 H  d  0              26     -0.297341  2 H  d  0       
+     2    -11.349038  1 H  s                 16     11.349038  2 H  s          
+     9      5.753095  1 H  pz                23      5.753095  2 H  pz         
+    26      0.297341  2 H  d  0              12     -0.297341  1 H  d  0       
  
  Vector   11  Occ=0.000000D+00  E= 2.224152D+00  Symmetry=a2u
-              MO Center= -1.1D-17,  5.6D-18,  1.1D-15, r^2= 1.2D+00
+              MO Center= -7.7D-32, -3.5D-32, -9.5D-16, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2     -3.988657  1 H  s                 16      3.988657  2 H  s          
+    16      3.988657  2 H  s                  2     -3.988657  1 H  s          
      3      1.319099  1 H  s                 17     -1.319099  2 H  s          
      9      1.017883  1 H  pz                23      1.017883  2 H  pz         
      1      0.725022  1 H  s                 15     -0.725022  2 H  s          
@@ -554,10 +562,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2   0 0 2     -1.232632     -1.151358     -1.151358      1.070084
  
 
- Parallel integral file used       2 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        0.1s     wall:        0.4s
+ Task  times  cpu:        0.1s     wall:        0.5s
  
  
                                 NWChem Input Module
@@ -574,11 +582,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  131      131     3797     1978      634        0        0        0     
-number of processes/call 1.04e+00 1.02e+00 1.11e+00 0.00e+00 0.00e+00
-bytes total:             2.66e+06 7.78e+05 1.51e+06 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            4.78e+05 1.68e+05 2.43e+05 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 215936 bytes
+calls:  132      132     2113     1142      236        0        0        0     
+number of processes/call 1.65e+00 1.13e+00 2.35e+00 0.00e+00 0.00e+00
+bytes total:             1.92e+06 3.73e+05 8.93e+05 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            1.31e+06 1.86e+05 6.15e+05 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 73920 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -588,10 +596,10 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        27	        52
+	maximum number of blocks	        27	        54
 	current total bytes		         0	         0
-	maximum total bytes		   1545744	  22510584
-	maximum total K-bytes		      1546	     22511
+	maximum total bytes		   1349120	  22510584
+	maximum total K-bytes		      1350	     22511
 	maximum total M-bytes		         2	        23
 
 
@@ -604,33 +612,34 @@ MA usage statistics:
 
             High Performance Computational Chemistry Group, "NWChem, A
             Computational Chemistry Package for Parallel Computers, 
-            Version 5.0" (2006), Pacific Northwest National Laboratory,
+            Version 5.1.1" (2008), Pacific Northwest National Laboratory,
             Richland, Washington 99352-0999, USA.
 
 
                                      CITATION
                                      --------
 
-            Please use the following citation when publishing results
-            obtained with NWChem:
+          Please use the following citation when publishing results
+          obtained with NWChem:
 
-            E. Apra, T. L. Windus, T. P. Straatsma, E. J. Bylaska, W. de Jong,
-            K. Kowalski, S. Hirata, M. Valiev, D. Wang, M. T. Hackler,
-            Y. Zhao, R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha,
-            V. Tipparaju, M. Krishnan, A. A. Auer, E. Brown, G. Cisneros,
-            G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. Kendall,
-            J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt,
-            P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall,
-            D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-            B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
-            X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
-            G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong,
-            and Z. Zhang,
-            "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 5.0" (2006),
+          E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+          M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, P. Nichols,
+          S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
+          M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+          A. Vazquez-Mayagoitia, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+          L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl,
+          J. Garza, K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman
+          K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
+          D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening
+          M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi,
+          R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima,
+          S. Niu, L. Pollack, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
+          G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
+          "NWChem, A Computational Chemistry Package for Parallel Computers, 
+          Version 5.1.1" (2008),
                       Pacific Northwest National Laboratory,
                       Richland, Washington 99352-0999, USA.
 
 
 
- Total times  cpu:        0.1s     wall:        0.5s
+ Total times  cpu:        0.2s     wall:        0.6s
