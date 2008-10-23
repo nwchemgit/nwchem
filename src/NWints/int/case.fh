@@ -1,0 +1,12 @@
+c     Constants and flags for the Coulomb Attenuated Schrodinger Equation (CASE)
+c     The coulomb operator can be attenuated using the error function
+c
+ccase...start
+       double precision cam_omega
+       logical cam_exch, doscreen
+       double precision cam_alpha, cam_beta
+c
+       common/case_var1/cam_omega
+       common/case_var2/cam_exch, doscreen
+       common/case_var3/cam_alpha,cam_beta
+ccase...end

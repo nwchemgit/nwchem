@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.41 2006-03-10 20:06:11 edo Exp $
+# $Id: GNUmakefile,v 1.42 2008-10-23 01:20:21 niri Exp $
 
     OBJ          = 
     OBJ_OPTIMIZE = hf3PEabc.o hf3mkr.o hf3pot.o \
@@ -7,14 +7,14 @@
                    hf2oi.o hf3OIs.o hfabc.o hfctr3.o \
                    hferi.o hferi_gen.o hfkei.o hfmke.o hfmkr.o \
                    hfnai.o hfset.o igamma.o hf_print.o \
-                   hfreord_pq.o hf1_tran.o hf1_er.o hfnai_er.o
+                   hfreord_pq.o hf1_tran.o hf1_er.o hfnai_er.o case_impl.o
 
   USES_BLAS = hf2oi.f hfkei.f hfnai.f hfnai_er.F hf2.F igamma.F hferi.F hf1.F hf1mke3.f
 
   LIB_TARGETS = showxyz showxyz.o int_order.o int_order
   LIBRARY = libnwints.a
 
-  HEADERS= sh_order.fh
+  HEADERS= sh_order.fh case.fh
 
 include ../../config/makefile.h
 include ../../config/makelib.h
