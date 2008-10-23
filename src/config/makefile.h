@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.576 2008-10-21 23:49:49 d3p307 Exp $
+# $Id: makefile.h,v 1.577 2008-10-23 20:18:30 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1983,58 +1983,47 @@ ifeq ($(TARGET),cray-sv2)
 #end of sv2
 endif
 
-ifeq ($(TARGET),BGL)
+ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP))
 #
    CORE_SUBDIRS_EXTRA = lapack blas
-   FC = blrts_xlf
-   CC     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-gcc
-   AR     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ar
-   AS     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-as
-   RANLIB = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ranlib
-
    ARFLAGS = urs
    INSTALL = @echo $@ is built
+   EXPLICITF = TRUE
+   CPP=/usr/bin/cpp  -P -C -traditional
+   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+   LDOPTIONS =  -Wl,--relax
 
-   DEFINES +=  -DBGL 
-   FOPTIONS = -qEXTNAME -qxlf77=leadzero
-   FOPTIONS += -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 
-   FOPTIMIZE = -O5 -qarch=440 -qtune=440 -qfloat=rsqrt:fltint
+   DEFINES = -DLINUX -DXLFLINUX
    FDEBUG  = -g -O2
    COPTIMIZE  = -g -O2
-   LDOPTIONS =  -Wl,--relax
+   FOPTIMIZE = -O5 -qfloat=rsqrt:fltint
+   FOPTIONS = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
 
-  EXPLICITF = TRUE
-  CPP=/usr/bin/cpp  -P -C -traditional
-  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-#  CORE_LIBS +=  -llapack -lblas
+#for BGL
+   ifeq ($(FC),blrts_xlf)
+    CC     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-gcc
+    AR     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ar
+    AS     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-as
+    RANLIB = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ranlib
+    DEFINES += -DBGL
+    FOPTIMIZE += -qarch=440 -qtune=440
+   endif
+
+#for BGP
+   ifeq ($(FC),bgxlf)
+    CC     = $(BGCOMPILERS)/powerpc-bgp-linux-gcc
+    AR     = $(BGCOMPILERS)/powerpc-bgp-linux-ar
+    AS     = $(BGCOMPILERS)/powerpc-bgp-linux-as
+    RANLIB = $(BGCOMPILERS)/powerpc-bgp-linux-ranlib
+    DEFINES  += -DDCMF -DBGP
+    FOPTIONS += -qthreaded -qnosave -qalign=4k
+    FOPTIMIZE += -qarch=450 -qtune=450
+
+    XLF11 = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
+   endif
+
 endif
 
-ifeq ($(TARGET),BGP)
-#
-   CORE_SUBDIRS_EXTRA = lapack blas
-   FC = bgxlf
-   CC     = $(BGCOMPILERS)/powerpc-bgp-linux-gcc
-   AR     = $(BGCOMPILERS)/powerpc-bgp-linux-ar
-   AS     = $(BGCOMPILERS)/powerpc-bgp-linux-as
-   RANLIB = $(BGCOMPILERS)/powerpc-bgp-linux-ranlib
-
-   ARFLAGS = urs
-   INSTALL = @echo $@ is built
-
-   DEFINES +=  -DDCMF -DBGP
-   FOPTIONS = -qEXTNAME -qxlf77=leadzero -qthreaded -qnosave -qalign=4k
-   FOPTIONS += -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
-   FOPTIMIZE = -O5 -qarch=450 -qtune=450 -qfloat=rsqrt:fltint
-   FDEBUG = -g -O2
-   COPTIMIZE  = -g -O2
-   LDOPTIONS =  -Wl,--relax
-
-   XLF11 = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
-
-  EXPLICITF = TRUE
-  CPP=/usr/bin/cpp  -P -C -traditional
-  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-endif
 
 ###################################################################
 #  All machine dependent sections should be above here, otherwise #
