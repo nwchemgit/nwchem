@@ -758,7 +758,7 @@ c
         do axisA = 1, 3
           do axisB = 1, 3
             do axisC = 1, 3
-              if (dabs(beta(axisA,axisB,axisC)).gt.1.0d-8)
+              if (dabs(beta(axisA,axisB,axisC)).gt.1.0d-6)
      1        write(LuOut,9503) axisname(axisA),axisname(axisB),
      2                          axisname(axisC),beta(axisA,axisB,axisC),
      3                          ' / au'
