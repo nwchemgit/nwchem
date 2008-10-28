@@ -26,12 +26,12 @@ c
 ccase...start
 #include "case.fh"
 ccase...end
+#include "paw_params.fh"
 c
       integer nq, ipol, n
       double precision fac, Ex, total
       logical ldew, lfac, nlfac
       double precision func(*) ! value of the functional [output]
-      double precision pi
       double precision tol_rho
       double precision rho(nq,(ipol*(ipol+1))/2) ! charge density
       double precision qwght(nq)                 ! quadrature weights
@@ -43,7 +43,6 @@ c
       double precision EpsX
       double precision EpsXprime
       double precision EpsTwoXprime
-      double precision ValueOfPi
 c
 #ifdef SECOND_DERIV
       double precision Amat2(nq,*)               ! partial second derivatives
@@ -140,8 +139,10 @@ c
       double precision function ValueOfPi()
 c 
       implicit none
+#include "paw_params.fh"
 c      
-      ValueOfPi = acos(-1.d0)   ! calculate the value of pi
+c      ValueOfPi = acos(-1.d0)   ! calculate the value of pi
+      ValueOfPi = pi             ! There is absolutely no basis for using an inverse trig function when the value is readily available.
 
       return
       end
@@ -153,13 +154,12 @@ c
       double precision function HqBNL(q)
 
       implicit none
+#include "paw_params.fh"
 
-      double precision q,Pi,TwoSqrtPi,OneOverQ,q2,DERF
-      double precision ValueOfPi
+      double precision q,TwoSqrtPi,OneOverQ,q2,DERF
 
-      Pi = ValueOfPi()     ! calculate the value of pi
       OneOverQ = 1.0d0/q
-      TwoSqrtPi = 2.0d0*dsqrt(Pi)
+      TwoSqrtPi = 2.0d0*dsqrt(Pi) ! pi is defined in paw_params.fh
       q2 = q**2.0d0
 
       if (q .lt. 1D-15) then
@@ -185,13 +185,12 @@ c
       double precision function FermiK(den)
 
       implicit none
+#include "paw_params.fh"
 
-      double precision F13, den, Pi
-      double precision ValueOfPi
+      double precision F13, den
 
-      Pi = ValueOfPi()     ! calculate the value of pi
       F13 = 1.0D0 / 3.0D0
-      FermiK = (3.d0*Pi*Pi*den)**F13
+      FermiK = (3.d0*Pi*Pi*den)**F13 ! pi is defined in paw_params.fh
 
       return
       end
@@ -203,9 +202,9 @@ c
       double precision function EpsX(Rho,gamma)
 
       implicit none
+#include "paw_params.fh"
 
-      double precision  kF,RHO,Pi,gamma,Cs
-      double precision ValueOfPi
+      double precision  kF,RHO,gamma,Cs
       double precision HqBNL
       double precision FermiK
 
@@ -214,9 +213,8 @@ c
          return
       end if
 
-      Pi = ValueOfPi()     ! calculate the value of pi
       kF = FermiK(Rho)
-      Cs = -3.0D0/(4.0d0*Pi)
+      Cs = -3.0D0/(4.0d0*Pi)  ! pi is defined in paw_params.fh
       EpsX = Cs * kF * HqBNL(gamma/kF)
 
       return
@@ -229,17 +227,16 @@ c
       double precision function HqBNLPrime(q)
 
       implicit none
+#include "paw_params.fh"
 
-      double precision q,Pi,OneOverQ,q2,q3,DERF
-      double precision ValueOfPi
+      double precision q,OneOverQ,q2,q3,DERF
 
-      Pi = ValueOfPi()     ! calculate the value of pi
       OneOverQ = 1.0d0/q
       q2 = q**2.0d0
       q3 = q**3.0d0
 
       if (q .lt. 0.1d0) then
-        HqBNLPrime = -4.0d0/3.0d0*(dsqrt(Pi)+2.0d0*q3-3.0d0*q)
+        HqBNLPrime = -4.0d0/3.0d0*(dsqrt(Pi)+2.0d0*q3-3.0d0*q)  ! pi is defined in paw_params.fh
         return
       end if
 
@@ -256,13 +253,12 @@ c
       double precision function FermiKPrime(den)
 
       implicit none
+#include "paw_params.fh"
    
-      double precision Pi, F23, den
-      double precision ValueOfPi
+      double precision F23, den
 
-      Pi = ValueOfPi()     ! calculate the value of pi
       F23 = 2.0D0 / 3.0D0
-      FermiKPrime = (Pi/(3.0d0*den))**F23
+      FermiKPrime = (Pi/(3.0d0*den))**F23  ! pi is defined in paw_params.fh
 
       return
       end
@@ -290,18 +286,17 @@ c
       double precision function EpsXprime(Rho,gamma)
 
       implicit none
+#include "paw_params.fh"
 
       double precision Rho,gamma
-      double precision Pi,Cs,kF,CsPrime
+      double precision Cs,kF,CsPrime
 
-      double precision ValueOfPi
       double precision HqBNL
       double precision HqBNLPrime
       double precision QPrime
       double precision FermiK
       double precision FermiKPrime
 
-      Pi = ValueOfPi()     ! calculate the value of pi
       kF = FermiK(Rho)
       CsPrime = -3.0D0/(4.0d0*Pi)
       Cs = CsPrime*kF
@@ -324,11 +319,10 @@ c
       double precision function HqBNLTwoPrime(q)
 
       implicit none
+#include "paw_params.fh"
 
-      double precision q,Pi,OneOverQ,q2
-      double precision ValueOfPi
+      double precision q,OneOverQ,q2
 
-      Pi = ValueOfPi()     ! calculate the value of pi
       OneOverQ = 1.0d0/q
       q2 = q**2.0d0
 
@@ -350,11 +344,10 @@ c
       double precision function FermiKTwoPrime(den)
 
       implicit none
+#include "paw_params.fh"
 
-      double precision Pi, F13, den
-      double precision ValueOfPi
+      double precision F13, den
 
-      Pi = ValueOfPi()     ! calculate the value of pi
       F13 = 1.0D0/3.0D0
       FermiKTwoPrime =  -(8.0d0*Pi**2.0d0/(243.0d0*den**5.0d0))**F13
 
@@ -384,15 +377,14 @@ c
       double precision function EpsTwoXprime(Rho,gamma)
 
       implicit none
+#include "paw_params.fh"
 
       double precision Rho,gamma
-      double precision Pi
       double precision kF,kFPrim,kFprim2,kF2prim
       double precision q,qprim,qprim2,q2prim
       double precision g,gprim,g2prim
       double precision Cs,CsPrim
 
-      double precision ValueOfPi
       double precision FermiK
       double precision FermiKPrime
       double precision FermiKTwoPrime
@@ -407,7 +399,6 @@ c
          return
       end if
 
-      Pi = ValueOfPi()     ! calculate the value of pi
       kF = FermiK(Rho)
       kFPrim = FermiKPrime(Rho)
       kFPrim2=kFPrim**2.0d0
