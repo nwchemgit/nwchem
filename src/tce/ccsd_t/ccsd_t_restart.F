@@ -3,7 +3,7 @@
      2                               d_v2,k_v2_offset,
      3                               t_energy)
 C
-C     $Id: ccsd_t_restart.F,v 1.4 2008-10-09 03:42:24 jhammond Exp $
+C     $Id: ccsd_t_restart.F,v 1.5 2008-10-30 18:10:49 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -36,7 +36,7 @@ C
       integer count
       integer size_table
       integer ccsd_t_restart_begin
-      integer virtual_outer_index
+      integer outer_virtual_index
       integer k_triples_table,l_triples_table
       double precision energy,t_energy
       double precision factor
@@ -51,50 +51,53 @@ c
 c     Restarting for the occupied triplets
 c
       size_table = nvab
+#ifdef DEBUG_PRINT
+      write(6,*) 'size_table = ',size_table
+#endif
 c
-c       Allocate the triples table
+c     Initialize the starting index
+c
+      if (.not.rtdb_get(rtdb,'tce:ccsd_t_restart_begin',mt_int,1,
+     1                  ccsd_t_restart_begin)) then
+        ccsd_t_restart_begin = 1
+        if (.not.rtdb_put(rtdb,'tce:ccsd_t_restart_begin',mt_dbl,1,
+     1                    ccsd_t_restart_begin)) then
+          call errquit('ccsd_t_restart: failed to write to RTDB',0,
+     1                 RTDB_ERR)
+        endif
+      endif
+#ifdef DEBUG_PRINT
+      write(6,*) 'ccsd_t_restart_begin = ',ccsd_t_restart_begin
+#endif
+c
+c     Allocate the triples table
 c
       if (.not.ma_push_get(mt_dbl,size_table,'(T) restart table',
      1                     l_triples_table,k_triples_table)) 
-     2    call errquit('(T) restart table',0,MA_ERR) 
+     2    call errquit('(T) restart table',size_table,MA_ERR) 
 c
-      if (restart_ccsd_t.eq.1) then ! first time through
+c     Initialize the triples table
 c
-c       Initialize the triples table
-c
+      if (.not.rtdb_get(rtdb,'tce:restart_triples_table',mt_dbl,
+     1    size_table,dbl_mb(k_triples_table))) then
         do i = 1,size_table
           dbl_mb(k_triples_table+i-1) = 0.0d0
         enddo
         if (.not.rtdb_put(rtdb,'tce:restart_triples_table',mt_dbl,
-     1      size_table,dbl_mb(k_triples_table)))
-     2      call errquit('ccsd_t_restart: triples table RTDB put',
-     3                   0,RTDB_ERR)
-c
-c       Initialize the starting index
-c
-        ccsd_t_restart_begin = 1
-        if (.not.rtdb_put(rtdb,'tce:ccsd_t_restart_begin',mt_int,1,
-     1                    ccsd_t_restart_begin))
-     2    call errquit('ccsd_t_restart: failed writing to RTDB',0,
-     3    RTDB_ERR)
-c
-      elseif (restart_ccsd_t.eq.2) then ! all subsequent runs
-c
-c       Get triples table from the RTDB
-c
-        if (.not.rtdb_get(rtdb,'tce:restart_triples_table',mt_dbl,
-     1      size_table,dbl_mb(k_triples_table)))
-     2      call errquit('ccsd_t_restart: triples table RTDB get',
-     3                   0,RTDB_ERR)
-c
-c       Get the starting index from the RTDB
-c
-        if (.not.rtdb_get(rtdb,'tce:ccsd_t_restart_begin',mt_int,
-     1      1,ccsd_t_restart_begin))
-     2      call errquit('ccsd_t_restart: failed reading from RTDB',
-     3                   0,RTDB_ERR)
-c
+     1      size_table,dbl_mb(k_triples_table))) then
+            call errquit('ccsd_t_restart: triples table RTDB put',
+     1                   0,RTDB_ERR)
+        endif
       endif
+#ifdef DEBUG_PRINT
+      write(6,9000)
+      do i = 1,size_table
+        write(6,9001) i,dbl_mb(k_triples_table+i-1)
+      enddo
+      write(6,9000)
+#endif
+c
+c     Evaluating the (T) energy
 c
       nprocs = GA_NNODES()
       count = 0
@@ -104,7 +107,7 @@ c
 #endif
       do t_p4b = noab+ccsd_t_restart_begin,noab+nvab
        energy=0.0d0
-       virtual_outer_index = t_p4b - noab
+       outer_virtual_index = t_p4b - noab
        do t_p5b = t_p4b,noab+nvab
         do t_p6b = t_p5b,noab+nvab
          do t_h1b = 1,noab
@@ -207,7 +210,7 @@ c
 c
 c      Write new starting index to RTDB
 c
-       ccsd_t_restart_begin = virtual_outer_index+1
+       ccsd_t_restart_begin = outer_virtual_index+1
        if (.not.rtdb_put(rtdb,'tce:ccsd_t_restart_begin',mt_int,1,
      1                   ccsd_t_restart_begin))
      2   call errquit('ccsd_t_restart: failed writing to RTDB',1,
@@ -218,7 +221,7 @@ c
 #ifdef DEBUG_PRINT
        if (nodezero) then
          write(6,*) '====================================='
-         write(6,*) 'virtual_outer_index = ',virtual_outer_index
+         write(6,*) 'outer_virtual_index = ',outer_virtual_index
          write(6,*) 'energy before reduction',energy
        endif
 #endif
@@ -234,7 +237,7 @@ c
 c
 c      Update the triples table in memory
 c
-       dbl_mb(k_triples_table+virtual_outer_index-1) = energy
+       dbl_mb(k_triples_table+outer_virtual_index-1) = energy
 c
 c      Write updated triples table to RTDB
 c
@@ -243,7 +246,7 @@ c
      2     call errquit('ccsd_t_restart: triples table RTDB put',
      3                  0,RTDB_ERR)
 c
-      enddo ! virtual_outer_index
+      enddo ! outer_virtual_index
       next = nxtask(-nprocs,1)
 c
 c     Sum triples correction when finished
@@ -254,6 +257,14 @@ c
       enddo
 #ifdef DEBUG_PRINT
        if (nodezero) write(6,*) 't_energy = ',t_energy
+#endif
+c
+#ifdef DEBUG_PRINT
+      write(6,9000)
+      do i = 1,size_table
+        write(6,9001) i,dbl_mb(k_triples_table+i-1)
+      enddo
+      write(6,9000)
 #endif
 c
       if (.not.ma_pop_stack(l_triples_table))
@@ -268,4 +279,6 @@ c     2  call errquit('ccsd_t_restart: failed writing to RTDB',1,
 c     3  RTDB_ERR)
 c
       return
+ 9000 format(1x,'---------------------------------------')
+ 9001 format(1x,'restart_triples_table(',i3,') = ',f25.14)
       end
