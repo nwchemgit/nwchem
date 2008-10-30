@@ -3,7 +3,7 @@
      2                               d_v2,k_v2_offset,
      3                               t_energy)
 C
-C     $Id: ccsd_t_restart.F,v 1.5 2008-10-30 18:10:49 jhammond Exp $
+C     $Id: ccsd_t_restart.F,v 1.6 2008-10-30 19:26:47 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -51,9 +51,6 @@ c
 c     Restarting for the occupied triplets
 c
       size_table = nvab
-#ifdef DEBUG_PRINT
-      write(6,*) 'size_table = ',size_table
-#endif
 c
 c     Initialize the starting index
 c
@@ -67,7 +64,9 @@ c
         endif
       endif
 #ifdef DEBUG_PRINT
+      write(6,*) 'size_table = ',size_table
       write(6,*) 'ccsd_t_restart_begin = ',ccsd_t_restart_begin
+      call util_flush(LuOut)
 #endif
 c
 c     Allocate the triples table
@@ -95,6 +94,7 @@ c
         write(6,9001) i,dbl_mb(k_triples_table+i-1)
       enddo
       write(6,9000)
+      call util_flush(LuOut)
 #endif
 c
 c     Evaluating the (T) energy
@@ -233,6 +233,7 @@ c
          write(6,*) 'energy_debug',energy_debug
          write(6,*) '====================================='
        endif
+       call util_flush(LuOut)
 #endif
 c
 c      Update the triples table in memory
@@ -256,15 +257,14 @@ c
         t_energy = t_energy + dbl_mb(k_triples_table+i-1)
       enddo
 #ifdef DEBUG_PRINT
-       if (nodezero) write(6,*) 't_energy = ',t_energy
-#endif
+      if (nodezero) write(6,*) 't_energy = ',t_energy
 c
-#ifdef DEBUG_PRINT
       write(6,9000)
       do i = 1,size_table
         write(6,9001) i,dbl_mb(k_triples_table+i-1)
       enddo
       write(6,9000)
+      call util_flush(LuOut)
 #endif
 c
       if (.not.ma_pop_stack(l_triples_table))
