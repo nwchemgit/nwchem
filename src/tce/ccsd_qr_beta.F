@@ -1,4 +1,4 @@
-      subroutine ccsd_lr_beta(d_a0,d_b0,d_f1,d_v2,d_d1,
+      subroutine ccsd_qr_beta(d_a0,d_b0,d_f1,d_v2,d_d1,
      1           d_t1,d_t2,d_y1,d_y2,d_yr1,d_yr2,d_tr1,d_tr2,
      2           k_a0_offset,k_b0_offset,
      3           k_f1_offset,k_v2_offset,k_d1_offset,
@@ -37,7 +37,7 @@ c
       character*3 axisname(3)  ! Axis
       data axisname/'X','Y','Z'/
 c
-      print*,'subroutine ccsd_lr_beta'
+c      print*,'subroutine ccsd_lr_beta'
       nodezero=(ga_nodeid().eq.0)
 c
       do omegacount=1,bnumfreq
