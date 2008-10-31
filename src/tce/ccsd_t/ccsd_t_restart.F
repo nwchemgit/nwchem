@@ -3,7 +3,7 @@
      2                               d_v2,k_v2_offset,
      3                               t_energy)
 C
-C     $Id: ccsd_t_restart.F,v 1.6 2008-10-30 19:26:47 jhammond Exp $
+C     $Id: ccsd_t_restart.F,v 1.7 2008-10-31 03:20:02 jhammond Exp $
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -14,7 +14,7 @@ C
 #include "tce.fh"
 #include "tce_main.fh"
 #include "tce_restart.fh"
-      integer rtdb
+      integer rtdb,node
       integer d_t1
       integer k_t1_offset
       integer d_t2
@@ -46,7 +46,8 @@ C
       external nxtask
       logical nodezero
 c
-      nodezero=(ga_nodeid().eq.0)
+      node = ga_nodeid()
+      nodezero=(node.eq.0)
 c
 c     Restarting for the occupied triplets
 c
@@ -66,7 +67,7 @@ c
 #ifdef DEBUG_PRINT
       write(6,*) 'size_table = ',size_table
       write(6,*) 'ccsd_t_restart_begin = ',ccsd_t_restart_begin
-      call util_flush(LuOut)
+      call util_flush(6)
 #endif
 c
 c     Allocate the triples table
@@ -91,23 +92,28 @@ c
 #ifdef DEBUG_PRINT
       write(6,9000)
       do i = 1,size_table
-        write(6,9001) i,dbl_mb(k_triples_table+i-1)
+        write(6,9001) node,i,dbl_mb(k_triples_table+i-1)
       enddo
       write(6,9000)
-      call util_flush(LuOut)
+      call util_flush(6)
 #endif
 c
 c     Evaluating the (T) energy
 c
-      nprocs = GA_NNODES()
-      count = 0
-      next = nxtask(nprocs,1)
+c      nprocs = GA_NNODES()
+c      count = 0
+c      next = nxtask(nprocs,1)
 #ifdef DEBUG_PRINT
       energy_debug = 0.0d0
 #endif
       do t_p4b = noab+ccsd_t_restart_begin,noab+nvab
        energy=0.0d0
        outer_virtual_index = t_p4b - noab
+
+       nprocs = GA_NNODES()
+       count = 0
+       next = nxtask(nprocs,1)
+c
        do t_p5b = t_p4b,noab+nvab
         do t_p6b = t_p5b,noab+nvab
          do t_h1b = 1,noab
@@ -207,6 +213,7 @@ c
 c      Make sure all processess have finished these loops
 c
        call ga_sync()
+       next = nxtask(-nprocs,1)
 c
 c      Write new starting index to RTDB
 c
@@ -233,7 +240,7 @@ c
          write(6,*) 'energy_debug',energy_debug
          write(6,*) '====================================='
        endif
-       call util_flush(LuOut)
+       call util_flush(6)
 #endif
 c
 c      Update the triples table in memory
@@ -248,7 +255,7 @@ c
      3                  0,RTDB_ERR)
 c
       enddo ! outer_virtual_index
-      next = nxtask(-nprocs,1)
+c      next = nxtask(-nprocs,1)
 c
 c     Sum triples correction when finished
 c
@@ -261,10 +268,10 @@ c
 c
       write(6,9000)
       do i = 1,size_table
-        write(6,9001) i,dbl_mb(k_triples_table+i-1)
+        write(6,9001) node,i,dbl_mb(k_triples_table+i-1)
       enddo
       write(6,9000)
-      call util_flush(LuOut)
+      call util_flush(6)
 #endif
 c
       if (.not.ma_pop_stack(l_triples_table))
@@ -279,6 +286,6 @@ c     2  call errquit('ccsd_t_restart: failed writing to RTDB',1,
 c     3  RTDB_ERR)
 c
       return
- 9000 format(1x,'---------------------------------------')
- 9001 format(1x,'restart_triples_table(',i3,') = ',f25.14)
+ 9000 format(1x,'---------------------------------------------------')
+ 9001 format(1x,'node ',i4,' table(',i4,') = ',f25.14)
       end
