@@ -1,5 +1,5 @@
-# $Id: q-aug-cc-pvqz_diffuse,v 1.1 2008-10-29 13:04:55 jhammond Exp $
-basis "H_t-aug-cc-pVQZ_Diffuse" SPHERICAL
+# $Id: q-aug-cc-pvqz_diffuse,v 1.2 2008-10-31 23:14:35 jhammond Exp $
+basis "H_q-aug-cc-pVQZ_Diffuse" SPHERICAL
    H   S
     0.0004292603203   1.0000000000
    H   P
@@ -9,7 +9,7 @@ basis "H_t-aug-cc-pVQZ_Diffuse" SPHERICAL
    H   F
     0.0061605684124   1.0000000000
 end
-basis "He_t-aug-cc-pVQZ_Diffuse" SPHERICAL
+basis "He_q-aug-cc-pVQZ_Diffuse" SPHERICAL
    He  S
     0.0008756696755   1.0000000000
    He  P
@@ -19,7 +19,7 @@ basis "He_t-aug-cc-pVQZ_Diffuse" SPHERICAL
    He  F
     0.0118168552031   1.0000000000
 end
-basis "B_t-aug-cc-pVQZ_Diffuse" SPHERICAL
+basis "B_q-aug-cc-pVQZ_Diffuse" SPHERICAL
    B   S
     0.0013560503914   1.0000000000
    B   P
@@ -31,7 +31,7 @@ basis "B_t-aug-cc-pVQZ_Diffuse" SPHERICAL
    B   G
     0.0182223924426   1.0000000000
 end
-basis "C_t-aug-cc-pVQZ_Diffuse" SPHERICAL
+basis "C_q-aug-cc-pVQZ_Diffuse" SPHERICAL
    C   S
     0.0021525634546   1.0000000000
    C   P
@@ -43,7 +43,7 @@ basis "C_t-aug-cc-pVQZ_Diffuse" SPHERICAL
    C   G
     0.0312759103507   1.0000000000
 end
-basis "N_t-aug-cc-pVQZ_Diffuse" SPHERICAL
+basis "N_q-aug-cc-pVQZ_Diffuse" SPHERICAL
    N   S
     0.0023843368558   1.0000000000
    N   P
@@ -55,7 +55,7 @@ basis "N_t-aug-cc-pVQZ_Diffuse" SPHERICAL
    N   G
     0.0336027880159   1.0000000000
 end
-basis "O_t-aug-cc-pVQZ_Diffuse" SPHERICAL
+basis "O_q-aug-cc-pVQZ_Diffuse" SPHERICAL
    O   S
     0.0026556199104   1.0000000000
    O   P
@@ -67,7 +67,7 @@ basis "O_t-aug-cc-pVQZ_Diffuse" SPHERICAL
    O   G
     0.0413140486925   1.0000000000
 end
-basis "F_t-aug-cc-pVQZ_Diffuse" SPHERICAL
+basis "F_q-aug-cc-pVQZ_Diffuse" SPHERICAL
    F   S
     0.0029747536633   1.0000000000
    F   P
@@ -79,7 +79,7 @@ basis "F_t-aug-cc-pVQZ_Diffuse" SPHERICAL
    F   G
     0.0543436213992   1.0000000000
 end
-basis "Ne_t-aug-cc-pVQZ_Diffuse" SPHERICAL
+basis "Ne_q-aug-cc-pVQZ_Diffuse" SPHERICAL
    Ne  S
     0.0034310407055   1.0000000000
    Ne  P
@@ -91,7 +91,7 @@ basis "Ne_t-aug-cc-pVQZ_Diffuse" SPHERICAL
    Ne  G
     0.0845601824116   1.0000000000
 end
-basis "Cl_t-aug-cc-pVQZ_Diffuse" SPHERICAL
+basis "Cl_q-aug-cc-pVQZ_Diffuse" SPHERICAL
    Cl  S
     0.0024759993715   1.0000000000
    Cl  P
