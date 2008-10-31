@@ -1,7 +1,7 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.149 2008-10-22 13:20:52 jhammond Exp $
-c
+c $Id: tce_energy.F,v 1.150 2008-10-31 13:42:00 jhammond Exp $
+c 
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -22,6 +22,7 @@ c
 #include "tce_diis.fh"
 #include "tce_prop.fh"
 #include "tce_restart.fh"
+#include "paw_params.fh"
 c
 c     CI, CC, & MBPT
 c
@@ -132,35 +133,6 @@ c ------------------------------------
       double precision r3      ! Residual t3
       double precision r4      ! Residual t4
       double precision residual! Largest residual
-      double precision t1diagn ! T1 diagnostic
-      double precision alpha1,alpha2,alpha3,alpha4
-      double precision beta1,beta2,beta3,beta4
-      double precision rr1            ! Residual tr1
-      double precision rr2            ! Residual tr2
-      double precision rr3            ! Residual tr3
-      double precision rr4            ! Residual tr4
-      double precision omega1         ! The frequency used in (A-Iw)x=b
-      double precision omega2         ! The frequency used in (A-Iw)x=b
-      double precision omega3         ! The frequency used in (A-Iw)x=b
-      double precision alpha(3,3)       ! Dipole polarizability tensor
-      double precision alphacopy(3,3)   ! Dipole polarizability tensor copy
-      double precision alphaiso         ! Isotropic dipole polarizability
-      double precision alphaani         ! Anisotropic dipole polarizability
-      double precision alphaevr(3)      ! Dipole polarizability tensor eigenvalues (real)
-      double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
-      double precision aeigvec(3,3)     ! dummy dgeev eigenvectors
-      double precision awork(9)         ! dgeev workspace
-      double precision beta(3,3,3)      ! Dipole hyperpolarizability tensor
-      double precision gamm(3,3,3,3)    ! Dipole second hyperpolarizability tensor (gamma not safe variable name)
-      integer omegacount
-      integer omegasign
-      integer dynfreq
-      integer dynaxis
-      integer axisA
-      integer axisB
-      integer axisC
-      integer axisD
-      integer aeiginfo                  ! dgeev information
       integer dummy            ! Dummy argument for DIIS
 c FOR LRH-SD
       integer d_j1,d_j2
@@ -313,16 +285,20 @@ c
       data rr4filename/'rr4x ','rr4y ','rr4z '/
       character*5 tr1filename(9) ! File name stub
       data tr1filename/'tr1x+','tr1y+','tr1z+',
-     &                 'tr1x-','tr1y-','tr1z-',
-     &                 'tr1xi','tr1yi','tr1zi'/
+     1                 'tr1x-','tr1y-','tr1z-',
+     2                 'tr1xi','tr1yi','tr1zi'/
       character*5 tr2filename(9) ! File name stub
       data tr2filename/'tr2x+','tr2y+','tr2z+',
-     &                 'tr2x-','tr2y-','tr2z-',
-     &                 'tr2xi','tr2yi','tr2zi'/
-      character*5 tr3filename(6) ! File name stub
-      data tr3filename/'tr3x ','tr3y ','tr3z ','tr3x-','tr3y-','tr3z-'/
-      character*5 tr4filename(6) ! File name stub
-      data tr4filename/'tr4x ','tr4y ','tr4z ','tr4x-','tr4y-','tr4z-'/
+     1                 'tr2x-','tr2y-','tr2z-',
+     2                 'tr2xi','tr2yi','tr2zi'/
+      character*5 tr3filename(9) ! File name stub
+      data tr3filename/'tr3x+','tr3y+','tr3z+',
+     1                 'tr3x-','tr3y-','tr3z-',
+     2                 'tr3xi','tr3yi','tr3zi'/
+      character*5 tr4filename(9) ! File name stub
+      data tr4filename/'tr4x ','tr4y ','tr4z ',
+     1                 'tr4x-','tr4y-','tr4z-',
+     2                 'tr4xi','tr4yi','tr4zi'/
 c
       character*5 yrr1filename(3) ! File name stub
       data yrr1filename/'yrr1x','yrr1y','yrr1z'/
@@ -333,13 +309,13 @@ c
       character*5 yrr4filename(3) ! File name stub
       data yrr4filename/'yrr4x','yrr4y','yrr4z'/
       character*5 yr1filename(6) ! File name stub
-      data yr1filename/'yr1x ','yr1y ','yr1z ','yr1x-','yr1y-','yr1z-'/
+      data yr1filename/'yr1x+','yr1y+','yr1z+','yr1x-','yr1y-','yr1z-'/
       character*5 yr2filename(6) ! File name stub
-      data yr2filename/'yr2x ','yr2y ','yr2z ','yr2x-','yr2y-','yr2z-'/
+      data yr2filename/'yr2x+','yr2y+','yr2z+','yr2x-','yr2y-','yr2z-'/
       character*5 yr3filename(6) ! File name stub
-      data yr3filename/'yr3x ','yr3y ','yr3z ','yr3x-','yr3y-','yr3z-'/
+      data yr3filename/'yr3x+','yr3y+','yr3z+','yr3x-','yr3y-','yr3z-'/
       character*5 yr4filename(6) ! File name stub
-      data yr4filename/'yr4x ','yr4y ','yr4z ','yr4x-','yr4y-','yr4z-'/
+      data yr4filename/'yr4x+','yr4y+','yr4z+','yr4x-','yr4y-','yr4z-'/
 c     RESPONSE AMPLITUDES
       integer d_tr1(9)             ! SF handle for tr1 amplitudes
       integer l_tr1_offset(3)      ! Offset for tr1 file
@@ -408,35 +384,35 @@ c      double precision rr3        ! Residual tr3
 c      double precision rr4        ! Residual tr4
       double precision omega       ! The frequency used in (A-Iw)x=b
       double precision lambda      ! The damping of Ab in (A^2-Iw^2)+lambda*Ab=0
-c      double precision omega1     ! The frequency used in (A-Iw)x=b
-c      double precision omega2     ! The frequency used in (A-Iw)x=b
-c      double precision omega3     ! The frequency used in (A-Iw)x=b
-c      integer omegacount
-c      integer omegasign
-c      integer dynfreq
-c      integer dynaxis
-c      integer axisA
-c      integer axisB
-c      integer axisC
-c      integer axisD
+      double precision omega1     ! The frequency used in (A-Iw)x=b
+      double precision omega2     ! The frequency used in (A-Iw)x=b
+      double precision omega3     ! The frequency used in (A-Iw)x=b
+      integer omegacount
+      integer omegasign
+      integer dynfreq
+      integer dynaxis
+      integer axisA
+      integer axisB
+      integer axisC
+      integer axisD
       integer d_a0                ! Dipole polarizability component handle
       integer l_a0_offset         ! Offset for a0 file
       integer k_a0_offset         ! Offset for a0 file
       integer size_a0             ! File size in doubles
-c      double precision alpha(3,3) ! Dipole polarizability tensor
-c      double precision alpha1     ! Dipole polarizability term 1
-c      double precision alpha2     ! Dipole polarizability term 2
-c      double precision alpha3     ! Dipole polarizability term 3
-c      double precision alpha4     ! Dipole polarizability term 4
+      double precision alpha(3,3) ! Dipole polarizability tensor
+      double precision alpha1     ! Dipole polarizability term 1
+      double precision alpha2     ! Dipole polarizability term 2
+      double precision alpha3     ! Dipole polarizability term 3
+      double precision alpha4     ! Dipole polarizability term 4
       integer d_b0                ! Dipole hyperpolarizability component handle
       integer l_b0_offset         ! Offset for b0 file
       integer k_b0_offset         ! Offset for b0 file
       integer size_b0             ! File size in doubles
-c      double precision beta(3,3,3)! Dipole hyperpolarizability tensor
-c      double precision beta1      ! Dipole hyperpolarizability term 1
-c      double precision beta2      ! Dipole hyperpolarizability term 2
-c      double precision beta3      ! Dipole hyperpolarizability term 3
-c      double precision beta4      ! Dipole hyperpolarizability term 4
+      double precision beta(3,3,3)! Dipole hyperpolarizability tensor
+      double precision beta1      ! Dipole hyperpolarizability term 1
+      double precision beta2      ! Dipole hyperpolarizability term 2
+      double precision beta3      ! Dipole hyperpolarizability term 3
+      double precision beta4      ! Dipole hyperpolarizability term 4
       integer d_g0                ! Dipole second hyperpolarizability component handle
       integer l_g0_offset         ! Offset for g0 file
       integer k_g0_offset         ! Offset for g0 file
@@ -446,6 +422,17 @@ c      double precision gamm1        ! Dipole second hyperpolarizability term 1
 c      double precision gamm2        ! Dipole second hyperpolarizability term 2
 c      double precision gamm3        ! Dipole second hyperpolarizability term 3
 c      double precision gamm4        ! Dipole second hyperpolarizability term 4
+      double precision rr1,rr2,rr3,rr4
+      double precision t1diagn ! T1 diagnostic
+      double precision alphacopy(3,3)   ! Dipole polarizability tensor copy
+      double precision alphaiso         ! Isotropic dipole polarizability
+      double precision alphaani         ! Anisotropic dipole polarizability
+      double precision alphaevr(3)      ! Dipole polarizability tensor eigenvalues (real)
+      double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
+      double precision aeigvec(3,3)     ! dummy dgeev eigenvectors
+      double precision awork(9)         ! dgeev workspace
+      integer aeiginfo
+c      integer iter             ! Iteration counter
 c
 c     Excited-state CI, CC, & MBPT
 c
@@ -1318,7 +1305,7 @@ cc        call tce_guess_t1_zero(d_t1,k_t1_offset)
           write(LuOut,*)
           write(LuOut,9000) 't1',size_t1
           write(LuOut,9010) 't1',filename(1:20)
-c         write(LuOut,9090) 't1',d_t1
+          write(LuOut,9090) 't1',d_t1
 c         write(LuOut,9020) cpu
           call util_flush(LuOut)
         endif
@@ -1332,11 +1319,18 @@ c         write(LuOut,9020) cpu
      1                           handle_l1,irrep_y)
           endif
           call gatoeaf(d_lambda1)
+          if (nodezero.and.util_print('l1',print_debug)) then
+            write(LuOut,*)
+            write(LuOut,9000) 'l1',size_l1
+            write(LuOut,9090) 'l1',d_lambda1
+            call util_flush(LuOut)
+          endif
         endif
         if (lineresp.or.imagresp) then
           do axis = 1, 3
           if (respaxis(axis)) then
             irrep_x=sym_abelian_axis(geom,axis)
+            call sym_irrepname(geom,irrep_x+1,irrepname)
             call tce_x1_offset(l_tr1_offset(axis),k_tr1_offset(axis),
      &           size_tr1(axis))
             call tce_filename(tr1filename(axis),filename)
@@ -1369,6 +1363,17 @@ c         write(LuOut,9020) cpu
      1            size_tr1(axis),axis,handle_tr1(axis+6),irrep_x)
               endif
               call gatoeaf(d_tr1(axis+6))
+            endif
+            if (nodezero.and.util_print('tr1',print_debug)) then
+              write(LuOut,*)
+              write(LuOut,9440) axisname(axis),irrepname
+              write(LuOut,9000) 'tr1',size_tr1(axis)
+              write(LuOut,9090) 'tr1',d_tr1(axis)
+              write(LuOut,9090) 'tr1',d_tr1(axis+3)
+              if(imagresp) then
+                write(LuOut,9090) 'tr1',d_tr1(axis+6)
+              endif
+              call util_flush(LuOut)
             endif
           endif
           enddo ! axis
@@ -1442,7 +1447,7 @@ c starts for t1 amplitudes t1(in the second order of MBPT)
           write(LuOut,*)
           write(LuOut,9000) 't2',size_t2
           write(LuOut,9010) 't2',filename(1:20)
-c         write(LuOut,9090) 't2',d_t2
+          write(LuOut,9090) 't2',d_t2
 c         write(LuOut,9020) cpu
           call util_flush(LuOut)
         endif
@@ -1456,6 +1461,12 @@ c         write(LuOut,9020) cpu
      1                           handle_l2,irrep_y)
           endif
           call gatoeaf(d_lambda2)
+          if (nodezero.and.util_print('l2',print_debug)) then
+            write(LuOut,*)
+            write(LuOut,9000) 'l2',size_l2
+            write(LuOut,9090) 'l2',d_lambda2
+            call util_flush(LuOut)
+          endif
         endif
 c--       else  ! ----
 c--        cpu = - util_cpusec()
@@ -1491,6 +1502,7 @@ c--       endif !---
           do axis = 1, 3
           if (respaxis(axis)) then
             irrep_x=sym_abelian_axis(geom,axis)
+            call sym_irrepname(geom,irrep_x+1,irrepname)
             call tce_x2_offset(l_tr2_offset(axis),k_tr2_offset(axis),
      &           size_tr2(axis))
             call tce_filename(tr2filename(axis),filename)
@@ -1524,6 +1536,17 @@ c--       endif !---
               endif
             endif
             call gatoeaf(d_tr2(axis+6))
+            if (nodezero.and.util_print('tr2',print_debug)) then
+              write(LuOut,*)
+              write(LuOut,9440) axisname(axis),irrepname
+              write(LuOut,9000) 'tr2',size_tr1(axis)
+              write(LuOut,9090) 'tr2',d_tr1(axis)
+              write(LuOut,9090) 'tr2',d_tr1(axis+3)
+              if(imagresp) then
+                write(LuOut,9090) 'tr2',d_tr1(axis+6)
+              endif
+              call util_flush(LuOut)
+            endif
           endif
           enddo ! axis
         endif ! lineresp.or.imagresp
@@ -2039,14 +2062,610 @@ c -------------
 c -------------
 c CCSD-IR
 c -------------
+ 2234   continue
         if (imagresp) then
-            call ccsd_imaginary(d_a0,d_f1,d_v2,d_d1,
-     1           d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
-     2           k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
-     3           k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
-     4           k_tr1_offset,k_tr2_offset,
-     5           size_tr1,size_tr2)
+          if(nodezero) then
+            write(6,*)
+            write(6,*) 'Casimir-Polder integration points are:'
+            do i = 1, inumfreq
+              write(6,999) i,ifreq(i)
+            enddo
+          endif
+  999 format(3x,'ifreq(',i2,') = ',f14.8)
+c
+c         REAL COMPONENT
+c
+          do omegacount=1,inumfreq
+            omega = ifreq(omegacount)
+c            if (omega.eq.(0.0d0)) then
+c              call errquit('tce_energy: imag(omega) is zero',0,CALC_ERR)
+c            endif
+c
+          do axis = 1, 3
+          if (respaxis(axis)) then
+            irrep_d=sym_abelian_axis(geom,axis)
+            call sym_irrepname(geom,irrep_d+1,irrepname)
+            if (nodezero.and.util_print('mod1',print_default)) then
+              write(LuOut,*)
+              write(LuOut,9440) axisname(axis),irrepname
+            endif
+            irrep_o=irrep_d
+            irrep_x=irrep_d
+c
+c           offset to the third set of response for real component
+            dynaxis = 6
+c
+            if (nodezero) write(LuOut,9431) omega
+c
+            if (guess_ir_real.and.(omegacount.eq.1)) then
+c
+            if (nodezero) write(6,9121) 'Initial guess x = b/Adiag'
+c
+c           0. Create dummies
+c
+              call tce_filename(rr1filename(axis),filename)
+              call createfile(filename,d_rr1(axis),size_tr1(axis))
+              call tce_zero(d_rr1(axis),size_tr1(axis))
+c
+              call tce_filename(rr2filename(axis),filename)
+              call createfile(filename,d_rr2(axis),size_tr2(axis))
+              call tce_zero(d_rr2(axis),size_tr2(axis))
+c
+              if (nodezero.and.(util_print('rr1',print_debug)
+     1                      .or.util_print('rr2',print_debug))) then
+                write(LuOut,*)
+                write(LuOut,9440) axisname(axis),irrepname
+                write(LuOut,9000) 'rr1',size_tr1(axis)
+                write(LuOut,9000) 'rr2',size_tr2(axis)
+                write(LuOut,9090) 'rr1',d_rr1(axis)
+                write(LuOut,9090) 'rr2',d_rr2(axis)
+                call util_flush(LuOut)
+              endif
+c
+c           1. Form b
+c
+              call ccsd_o1(d_rr1(axis),d_d1(axis),d_t1,d_t2,
+     1             k_tr1_offset(axis),k_d1_offset(axis),
+     2             k_t1_offset,k_t2_offset)
+              call ccsd_o2(d_rr2(axis),d_d1(axis),d_t1,d_t2,
+     1             k_tr2_offset(axis),k_d1_offset(axis),
+     2             k_t1_offset,k_t2_offset)
+c
+c           2. Hit with preconditioner
+c
+              call tce_jacobi_tr1(d_rr1(axis),d_tr1(axis+6),
+     1                            k_tr1_offset(axis),0.0d0,0.0d0)
+              call tce_jacobi_tr2(d_rr2(axis),d_tr2(axis+6),
+     1                            k_tr2_offset(axis),0.0d0,0.0d0)
+c
+c           4. Delete dummies
+c
+              call deletefile(d_rr1(axis))
+              call deletefile(d_rr2(axis))
+c
+            endif ! guess_ir_real
+c
+            call tce_diis_init()
+            do iter=1,maxiter
+              cpu=-util_cpusec()
+              wall=-util_wallsec()
+              if (nodezero.and.(iter.eq.1))
+     &          write(LuOut,9400) "CCSD-IR (real component)"
+c
+              call tce_filename(rr1filename(axis),filename)
+              call createfile(filename,d_rr1(axis),size_tr1(axis))
+              call tce_zero(d_rr1(axis),size_tr1(axis))
+c
+              call tce_filename(ir1filename(axis),filename)
+              call createfile(filename,d_ir1(axis),size_tr1(axis))
+              call tce_zero(d_ir1(axis),size_tr1(axis))
+c
+              call tce_filename(rr2filename(axis),filename)
+              call createfile(filename,d_rr2(axis),size_tr2(axis))
+              call tce_zero(d_rr2(axis),size_tr2(axis))
+c
+              call tce_filename(ir2filename(axis),filename)
+              call createfile(filename,d_ir2(axis),size_tr2(axis))
+              call tce_zero(d_ir2(axis),size_tr2(axis))
+c
+              if (nodezero.and.(util_print('rr1',print_debug)
+     1                      .or.util_print('rr2',print_debug))) then
+                write(LuOut,*)
+                write(LuOut,9440) axisname(axis),irrepname
+                write(LuOut,9000) 'rr1',size_tr1(axis)
+                write(LuOut,9090) 'rr1',d_rr1(axis)
+                write(LuOut,9090) 'ir1',d_ir1(axis)
+                write(LuOut,9000) 'rr2',size_tr2(axis)
+                write(LuOut,9090) 'rr2',d_rr2(axis)
+                write(LuOut,9090) 'ir2',d_ir2(axis)
+                call util_flush(LuOut)
+              endif
+c
+              call ccsd_o1(d_ir1(axis),d_d1(axis),d_t1,d_t2,
+     1             k_tr1_offset(axis),k_d1_offset(axis),
+     2             k_t1_offset,k_t2_offset)
+              call eomccsd_x1_old(d_f1,d_ir1(axis),d_t1,d_t2,d_v2,
+     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),k_f1_offset,
+     2             k_tr1_offset(axis),
+     3             k_t1_offset,k_t2_offset,k_v2_offset,
+     4             k_tr1_offset(axis),k_tr2_offset(axis))
+c
+              call ccsd_o2(d_ir2(axis),d_d1(axis),d_t1,d_t2,
+     1             k_tr2_offset(axis),k_d1_offset(axis),
+     2             k_t1_offset,k_t2_offset)
+              call eomccsd_x2_old(d_f1,d_ir2(axis),d_t1,d_t2,d_v2,
+     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
+     2             k_f1_offset,k_tr2_offset(axis),
+     3             k_t1_offset,k_t2_offset,k_v2_offset,
+     4             k_tr1_offset(axis),k_tr2_offset(axis),
+     5             size_tr1(axis),size_tr2(axis))
+c
+              call reconcilefile(d_ir1(axis),size_tr1(axis))
+              call reconcilefile(d_ir2(axis),size_tr2(axis))
+c
+              call eomccsd_x1_old(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
+     1             d_ir1(axis),d_ir2(axis),k_f1_offset,
+     2             k_tr1_offset(axis),
+     3             k_t1_offset,k_t2_offset,k_v2_offset,
+     4             k_tr1_offset(axis),k_tr2_offset(axis))
+c
+              call eomccsd_x2_old(d_f1,d_rr2(axis),d_t1,d_t2,d_v2,
+     1             d_ir1(axis),d_ir2(axis),
+     2             k_f1_offset,k_tr2_offset(axis),
+     3             k_t1_offset,k_t2_offset,k_v2_offset,
+     4             k_tr1_offset(axis),k_tr2_offset(axis),
+     5             size_tr1(axis),size_tr2(axis))
+c
+              call reconcilefile(d_rr1(axis),size_tr1(axis))
+              call reconcilefile(d_rr2(axis),size_tr2(axis))
+c
+              call deletefile(d_ir1(axis))
+              call deletefile(d_ir2(axis))
+c
+              call daxpyfile(1,omega*omega,d_tr1(axis+dynaxis),
+     1             d_rr1(axis),size_tr1(axis))
+              call reconcilefile(d_rr1(axis),size_tr1(axis))
+              call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
+c
+              call daxpyfile(1,omega*omega,d_tr2(axis+dynaxis),
+     1             d_rr2(axis),size_tr2(axis))
+              call reconcilefile(d_rr2(axis),size_tr2(axis))
+              call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
+c
+              residual = max(rr1,rr2)
+              cpu=cpu+util_cpusec()
+              wall=wall+util_wallsec()
+              if (nodezero) write(LuOut,9420) iter,residual,cpu,wall
+              if (residual .lt. thresh) then
+                if (nodezero) then
+                  write(LuOut,9410)
+                endif
+                if (ampnorms) then
+                  call tce_residual_tr1(d_tr1(axis+dynaxis),
+     1                                  k_tr1_offset(axis),rr1)
+                  call tce_residual_tr2(d_tr2(axis+dynaxis),
+     1                                  k_tr2_offset(axis),rr2)
+                  if (nodezero) then
+                    write(LuOut,9082) "T(1) singles",rr1
+                    write(LuOut,9082) "T(1) doubles",rr2
+                  endif
+                endif
+                call deletefile(d_rr2(axis))
+                call deletefile(d_rr1(axis))
+                call tce_diis_tidy()
+                if (save_tr(1)) then
+                  if(nodezero) then
+                    write(LuOut,*) 'Saving T1(1) now...'
+                  endif
+                  call tr1_restart_save(d_tr1(axis+dynaxis),
+     1                 k_tr1_offset(axis),size_tr1(axis),
+     2                 axis+dynaxis,handle_tr1(axis),irrep_x)
+                endif
+                if (save_tr(2)) then
+                  if(nodezero) then
+                    write(LuOut,*) 'Saving T2(1) now...'
+                  endif
+                  call tr2_restart_save(d_tr2(axis+dynaxis),
+     1                 k_tr2_offset(axis),size_tr2(axis),
+     2                 axis+dynaxis,handle_tr2(axis),irrep_x)
+                endif
+                goto 2235
+              endif
+              if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
+                if(nodezero) then
+                  write(LuOut,*) 'Saving T1(1) now...'
+                endif
+                call tr1_restart_save(d_tr1(axis+dynaxis),
+     1               k_tr1_offset(axis),size_tr1(axis),
+     2               axis+dynaxis,handle_tr1(axis),irrep_x)
+              endif
+              if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
+                if(nodezero) then
+                  write(LuOut,*) 'Saving T2(1) now...'
+                endif
+                call tr2_restart_save(d_tr2(axis+dynaxis),
+     1               k_tr2_offset(axis),size_tr2(axis),
+     2               axis+dynaxis,handle_tr2(axis),irrep_x)
+              endif
+              call tce_diis3(.false.,iter,.true.,.true.,.false.,.false.,
+     1             d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
+     2             size_tr1(axis),
+     3             d_rr2(axis),d_tr2(axis+dynaxis),k_tr2_offset(axis),
+     4             size_tr2(axis),
+     5             dummy,dummy,dummy,dummy,
+     6             dummy,dummy,dummy,dummy,omega,2)
+              call deletefile(d_rr2(axis))
+              call deletefile(d_rr1(axis))
+              if (nodezero) call util_flush(LuOut)
+            enddo ! iter loop
+          call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
+ 2235 continue
+c
+          endif ! respaxis(axis)
+          enddo ! axis loop
+c
+c         IMAGINARY COMPONENT
+c
+          do axis = 1, 3
+          if (respaxis(axis)) then
+            irrep_d=sym_abelian_axis(geom,axis)
+            call sym_irrepname(geom,irrep_d+1,irrepname)
+            if (nodezero.and.util_print('mod1',print_default)) then
+              write(LuOut,*)
+              write(LuOut,9440) axisname(axis),irrepname
+            endif
+            irrep_o=irrep_d
+            irrep_x=irrep_d
+c
+          do omegasign=1,2
+            if (omegasign.eq.1) then
+              omega = (1.0d0)*ifreq(omegacount)
+              dynaxis = 0
+            elseif (omegasign.eq.2) then
+              omega = (-1.0d0)*ifreq(omegacount)
+              dynaxis = 3
+              call daxpyfile(1,-1.0d0,d_tr1(axis+0),
+     1             d_tr1(axis+3),size_tr1(axis))
+              call daxpyfile(1,-1.0d0,d_tr2(axis+0),
+     1             d_tr2(axis+3),size_tr2(axis))
+            endif
+            if (nodezero) write(LuOut,9431) omega
+c
+            call tce_diis_init()
+c
+            if (guess_ir_imag.and.(omegacount.eq.1)) then
+c
+c           Initial guess x_I = omega*x_R/(Adiag-omega)
+           if (nodezero) write(6,9121) 
+     1        'Initial guess x_I = omega*x_R/Adiag'
+c
+c           0. Create dummies
+c
+              call tce_filename(rr1filename(axis),filename)
+              call createfile(filename,d_rr1(axis),size_tr1(axis))
+              call tce_zero(d_rr1(axis),size_tr1(axis))
+c
+              call tce_filename(rr2filename(axis),filename)
+              call createfile(filename,d_rr2(axis),size_tr2(axis))
+              call tce_zero(d_rr2(axis),size_tr2(axis))
+c
+c           1. Form w_I = omega*x_R
+c
+              call daxfile(1,omega,d_tr1(axis+6),d_rr1(axis),
+     1             size_tr1(axis))
+              call daxfile(1,omega,d_tr2(axis+6),d_rr2(axis),
+     1             size_tr2(axis))
+c
+c           3. Hit with preconditioner
+c
+              call tce_jacobi_tr1(d_rr1(axis),d_tr1(axis+dynaxis),
+     1             k_tr1_offset(axis),0.0d0,0.0d0)
+              call tce_jacobi_tr2(d_rr2(axis),d_tr2(axis+dynaxis),
+     1             k_tr2_offset(axis),0.0d0,0.0d0)
+c
+c           4. Delete dummies
+c
+              call deletefile(d_rr1(axis))
+              call deletefile(d_rr2(axis))
+c
+            endif ! guess_ir_imag
+c
+            do iter=1,maxiter
+              cpu=-util_cpusec()
+              wall=-util_wallsec()
+              if (nodezero.and.(iter.eq.1))
+     &          write(LuOut,9400) "CCSD-IR (imaginary component)"
+c
+              call tce_filename(rr1filename(axis),filename)
+              call createfile(filename,d_rr1(axis),size_tr1(axis))
+c              call tce_zero(d_rr1(axis),size_tr1(axis))
+              call daxfile(1,(-1.0d0)*omega,d_tr1(axis+6),
+     1             d_rr1(axis),size_tr1(axis))
+              call eomccsd_x1_old(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
+     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
+     2             k_f1_offset,k_tr1_offset(axis),
+     3             k_t1_offset,k_t2_offset,k_v2_offset,
+     4             k_tr1_offset(axis),k_tr2_offset(axis))
+              call reconcilefile(d_rr1(axis),size_tr1(axis))
+              call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
+c
+              call tce_filename(rr2filename(axis),filename)
+              call createfile(filename,d_rr2(axis),size_tr2(axis))
+c              call tce_zero(d_rr2(axis),size_tr2(axis))
+              call daxfile(1,(-1.0d0)*omega,d_tr2(axis+6),
+     1             d_rr2(axis),size_tr2(axis))
+              call eomccsd_x2_old(d_f1,d_rr2(axis),d_t1,d_t2,d_v2,
+     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
+     2             k_f1_offset,k_tr2_offset(axis),
+     3             k_t1_offset,k_t2_offset,k_v2_offset,
+     4             k_tr1_offset(axis),k_tr2_offset(axis),
+     5             size_tr1(axis),size_tr2(axis))
+              call reconcilefile(d_rr2(axis),size_tr2(axis))
+              call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
+              residual = max(rr1,rr2)
+              cpu=cpu+util_cpusec()
+              wall=wall+util_wallsec()
+              if (nodezero) write(LuOut,9420) iter,residual,cpu,wall
+              if (residual .lt. thresh) then
+                if (nodezero) then
+                  write(LuOut,9410)
+                endif
+                if (ampnorms) then
+                  call tce_residual_tr1(d_tr1(axis+dynaxis),
+     1                                  k_tr1_offset(axis),rr1)
+                  call tce_residual_tr2(d_tr2(axis+dynaxis),
+     1                                  k_tr2_offset(axis),rr2)
+                  if (nodezero) then
+                    write(LuOut,9082) "T(1) singles",rr1
+                    write(LuOut,9082) "T(1) doubles",rr2
+                  endif
+                endif
+                call deletefile(d_rr2(axis))
+                call deletefile(d_rr1(axis))
+                call tce_diis_tidy()
+                if (save_tr(1)) then
+                  if(nodezero) then
+                    write(LuOut,*) 'Saving T1(1) now...'
+                  endif
+                  call tr1_restart_save(d_tr1(axis+dynaxis),
+     1                 k_tr1_offset(axis),size_tr1(axis),
+     2                 axis+dynaxis,handle_tr1(axis),irrep_x)
+                endif
+                if (save_tr(2)) then
+                  if(nodezero) then
+                    write(LuOut,*) 'Saving T2(1) now...'
+                  endif
+                  call tr2_restart_save(d_tr2(axis+dynaxis),
+     1                 k_tr2_offset(axis),size_tr2(axis),
+     2                 axis+dynaxis,handle_tr2(axis),irrep_x)
+                endif
+                goto 2236
+              endif
+              if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
+                if(nodezero) then
+                  write(LuOut,*) 'Saving T1(1) now...'
+                endif
+                call tr1_restart_save(d_tr1(axis+dynaxis),
+     1               k_tr1_offset(axis),size_tr1(axis),
+     2               axis+dynaxis,handle_tr1(axis),irrep_x)
+              endif
+              if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
+                if(nodezero) then
+                  write(LuOut,*) 'Saving T2(1) now...'
+                endif
+                call tr2_restart_save(d_tr2(axis+dynaxis),
+     1               k_tr2_offset(axis),size_tr2(axis),
+     2               axis+dynaxis,handle_tr2(axis),irrep_x)
+              endif
+              call tce_diis3(.false.,iter,.true.,.true.,.false.,.false.,
+     1             d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
+     2             size_tr1(axis),
+     3             d_rr2(axis),d_tr2(axis+dynaxis),k_tr2_offset(axis),
+     4             size_tr2(axis),
+     5             dummy,dummy,dummy,dummy,
+     6             dummy,dummy,dummy,dummy,0.0d0,1)
+              call deletefile(d_rr2(axis))
+              call deletefile(d_rr1(axis))
+              if (nodezero) call util_flush(LuOut)
+            enddo ! iter loop
+          call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
+ 2236 continue
+c
+          enddo ! omegasign loop
+c
+          endif ! respaxis(axis)
+          enddo ! axis loop
+c
+c CCSD-IR evaluation step
+c
+          cpu=-util_cpusec()
+          wall=-util_wallsec()
+          do axisA = 1, 3
+          do axisB = 1, axisA
+          if (respaxis(axisA).and.respaxis(axisB)) then
+            irrep_a=sym_abelian_axis(geom,axisA)
+            irrep_b=sym_abelian_axis(geom,axisB)
+            irrep_y=irrep_g
+c
+            alpha(axisA,axisB)=0.0d0
+c
+            call tce_filename('a0',filename)
+            call createfile(filename,d_a0,size_a0)
+c
+c            if (nodezero) write(LuOut,*) "axisA = ",axisA
+c            if (nodezero) write(LuOut,*) "axisB = ",axisB
+c
+            alpha1=0.0d0
+            alpha2=0.0d0
+c
+            irrep_d=irrep_a
+            irrep_tr=irrep_b
+c
+c            write(LuOut,*) "alpha_1 AB"
+            call alpha_1(d_d1(axisA),d_a0,d_t1,d_t2,
+     1           d_tr1(axisB+6),d_tr2(axisB+6),
+     2           d_lambda1,d_lambda2,
+     3           k_d1_offset(axisA),k_a0_offset,
+     4           k_t1_offset,k_t2_offset,
+     5           k_tr1_offset(axisB),k_tr2_offset(axisB),
+     6           k_l1_offset,k_l2_offset)
+c
+            call reconcilefile(d_a0,size_a0)
+            call get_block(d_a0,alpha1,1,0)
+            call tce_zero(d_a0,size_a0)
+c            write(LuOut,*) "alpha_1 AB = ",alpha1
+c
+            if (axisA.eq.axisB) then
+              alpha2=alpha1
+            else
+              irrep_d=irrep_b
+              irrep_tr=irrep_a
+c              write(LuOut,*) "alpha_1 BA"
+              call alpha_1(d_d1(axisB),d_a0,d_t1,d_t2,
+     1             d_tr1(axisA+6),d_tr2(axisA+6),
+     2             d_lambda1,d_lambda2,
+     3             k_d1_offset(axisB),k_a0_offset,
+     4             k_t1_offset,k_t2_offset,
+     5             k_tr1_offset(axisA),k_tr2_offset(axisA),
+     6             k_l1_offset,k_l2_offset)
+c
+              call reconcilefile(d_a0,size_a0)
+              call get_block(d_a0,alpha2,1,0)
+              call tce_zero(d_a0,size_a0)
+            endif ! axisA.eq.axisB
+c            write(LuOut,*) "alpha_1 BA = ",alpha2
+c
+            alpha(axisA,axisB)=alpha(axisA,axisB)+alpha1+alpha2
+c
+            alpha1=0.0d0
+            alpha2=0.0d0
+            alpha3=0.0d0
+c
+            irrep_tra=irrep_a
+            irrep_trb=irrep_b
+c
+c            write(LuOut,*) "alpha_2 A(+i) B(-i)"
+            call alpha_2(d_f1,d_a0,d_t1,d_t2,
+     1           d_tr1(axisA),d_tr2(axisA),
+     2           d_tr1(axisB+3),d_tr2(axisB+3),
+     3           d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
+     4           k_t1_offset,k_t2_offset,
+     5           k_tr1_offset(axisA),k_tr2_offset(axisA),
+     6           k_tr1_offset(axisB),k_tr2_offset(axisB),k_v2_offset,
+     7           k_l1_offset,k_l2_offset)
+            call reconcilefile(d_a0,size_a0)
+            call get_block(d_a0,alpha1,1,0)
+            call tce_zero(d_a0,size_a0)
+c            write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
+c
+c            write(LuOut,*) "alpha_2 A(-i) B(+i)"
+            call alpha_2(d_f1,d_a0,d_t1,d_t2,
+     1           d_tr1(axisA+3),d_tr2(axisA+3),
+     2           d_tr1(axisB),d_tr2(axisB),
+     3           d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
+     4           k_t1_offset,k_t2_offset,
+     5           k_tr1_offset(axisA),k_tr2_offset(axisA),
+     6           k_tr1_offset(axisB),k_tr2_offset(axisB),k_v2_offset,
+     7           k_l1_offset,k_l2_offset)
+            call reconcilefile(d_a0,size_a0)
+            call get_block(d_a0,alpha2,1,0)
+            call tce_zero(d_a0,size_a0)
+c            write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
+c
+c            write(LuOut,*) "alpha_2 A(r) B(r)"
+            call alpha_2(d_f1,d_a0,d_t1,d_t2,
+     1           d_tr1(axisA+6),d_tr2(axisA+6),
+     2           d_tr1(axisB+6),d_tr2(axisB+6),
+     3           d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
+     4           k_t1_offset,k_t2_offset,
+     5           k_tr1_offset(axisA),k_tr2_offset(axisA),
+     6           k_tr1_offset(axisB),k_tr2_offset(axisB),k_v2_offset,
+     7           k_l1_offset,k_l2_offset)
+            call reconcilefile(d_a0,size_a0)
+            call get_block(d_a0,alpha3,1,0)
+c            write(LuOut,*) "alpha_2 A(r) B(r) = ",alpha3
+            call deletefile(d_a0)
+c
+            alpha(axisA,axisB)=alpha(axisA,axisB)-alpha1-alpha2+alpha3
+            alpha(axisA,axisB)=-1.0d0*alpha(axisA,axisB)
+c
+c            write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
+c            if (nodezero) write(LuOut,9020) cpu, wall
+c
+          endif ! respaxis(axis)
+          enddo ! axisB loop
+          enddo ! axisA loop
+          cpu=cpu+util_cpusec()
+          wall=wall+util_wallsec()
+c
+          do j = 1, 3
+            do i = 1, 3
+              alphacopy(i,j)=alpha(i,j)
+            enddo
+          enddo
+c
+          call dgeev('N','N',3,alphacopy,3,alphaevr,alphaevi,
+     1               aeigvec,3,aeigvec,3,awork,9,aeiginfo)
+          if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
+          alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
+          alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
+     1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
+     2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
+          alphaani = dsqrt(0.5d0*alphaani)
+c
+          if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
+     1        .and.nodezero) write(LuOut,9911)
+c
+          if (nodezero) write(LuOut,9434) "CCSD Imaginary Response",
+     1      ifreq(omegacount),auXnm/ifreq(omegacount),
+     2      alpha(1,1),alpha(2,1),alpha(3,1),
+     3      au2ang3*alpha(1,1),au2ang3*alpha(2,1),au2ang3*alpha(3,1),
+     4      alpha(2,1),alpha(2,2),alpha(3,2),
+     5      au2ang3*alpha(2,1),au2ang3*alpha(2,2),au2ang3*alpha(3,2),
+     6      alpha(3,1),alpha(3,2),alpha(3,3),
+     7      au2ang3*alpha(3,1),au2ang3*alpha(3,2),au2ang3*alpha(3,3),
+     8      alphaevr(1),alphaevr(2),alphaevr(3),
+     9      au2ang3*alphaevr(1),au2ang3*alphaevr(2),au2ang3*alphaevr(3),
+     1      alphaiso,au2ang3*alphaiso,
+     2      alphaani,au2ang3*alphaani
+          if (nodezero) write(LuOut,9020) cpu, wall
+          call util_flush(LuOut)
+c
+          ifreqval(omegacount,1) = alpha(1,1)
+          ifreqval(omegacount,2) = alpha(2,2)
+          ifreqval(omegacount,3) = alpha(3,3)
+          ifreqval(omegacount,4) = alpha(2,1)
+          ifreqval(omegacount,5) = alpha(3,1)
+          ifreqval(omegacount,6) = alpha(3,2)
+          ifreqval(omegacount,7) = alphaiso
+          ifreqval(omegacount,8) = alphaani
+c
+          enddo ! omegacount loop
+c
+c       Casimir-Polder integration for determination of C6 coefficient
+c
+          do i = 1, 8
+            integral(i) = 0.0d0
+            do omegacount = 1,inumfreq-1
+              num1 = ifreqval(omegacount+1,i)
+              num0 = ifreqval(omegacount,i)
+              den1 = ifreq(omegacount+1)
+              den0 = ifreq(omegacount)
+              num1sq = num1*num1
+              num0sq = num0*num0
+              numtot = num1sq+num0sq
+              dentot = den1 - den0
+              integral(i) = integral(i) + 0.5d0*numtot*dentot
+            enddo
+            integral(i) = integral(i)*3.0d0/pi
+          enddo
+          if (nodezero) write(LuOut,9435) "CCSD Imaginary Response",
+     &       integral(1),integral(2),integral(3),
+     &       integral(4),integral(5),integral(6),
+     &       integral(7),integral(8)
+c
         endif ! imagresp
+ 2237   continue
 c -------------
 c CCSD-LR
 c -------------
@@ -2064,8 +2683,7 @@ c -------------
 c CCSD-YR
 c -------------
         if (leftresp) then
-          print*,'call ccsd_lr_beta'
-          call ccsd_lr_beta(d_a0,d_b0,d_f1,d_v2,d_d1,
+          call ccsd_qr_beta(d_a0,d_b0,d_f1,d_v2,d_d1,
      1         d_t1,d_t2,d_lambda1,d_lambda2,d_yr1,d_yr2,d_tr1,d_tr2,
      2         k_a0_offset,k_b0_offset,
      3         k_f1_offset,k_v2_offset,k_d1_offset,
@@ -5897,7 +6515,7 @@ c
           wall=-util_wallsec()
           if (model.eq.'ccsd') then
 c -------------
-c EOM-CCSD right
+c EOM-CCSD    right
 c -------------
 c
       if(ccsd_var.eq.'lr-ccsd') then
@@ -6135,7 +6753,7 @@ c
 c
             call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
 c -------------
-c EOM-CCSD left
+c EOM-CCSD    left
 c -------------
   200       continue
 c
@@ -6586,7 +7204,7 @@ c
 c
           else if (model.eq.'ccsdt') then
 c -------------
-c CCSDT   right
+c EOM-CCSDT   right
 c -------------
             call tce_eom_xguess(needt1,needt2,needt3,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
@@ -6735,7 +7353,7 @@ c
 c
           else if (model.eq.'ccsdta') then
 c -----------------------
-c CCSDt (EOMCCSDt)  right
+c EOM-CCSDt  right
 c -----------------------
             call tce_eom_xguess(needt1,needt2,needt3a,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
@@ -6883,7 +7501,7 @@ c
       CALL ERRQUIT('CCSDTQ not compiled (tce_energy.F)',0,CAPMIS_ERR)
 #else
 c -------------
-c EOM-CCSDTQ right
+c EOM-CCSDTQ  right
 c -------------
             call tce_eom_xguess(needt1,needt2,needt3,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
@@ -7041,7 +7659,7 @@ c               call hbar_tidy
 	    enddo
 	    call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
 c -------------
-c EOM-CCSDTQ left
+c EOM-CCSDTQ  left
 c -------------
   220       continue
 	    if (left) then
@@ -7372,7 +7990,7 @@ c         --------------------
 c
   400     continue
 c -------------
-c EOM-CCSDT left
+c EOM-CCSDT   left
 c -------------
           if(ccsdtleft) then
             if (left) then
