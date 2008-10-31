@@ -37,8 +37,9 @@ c
       character*3 axisname(3)  ! Axis
       data axisname/'X','Y','Z'/
 c
-c      print*,'subroutine ccsd_lr_beta'
       nodezero=(ga_nodeid().eq.0)
+c
+      if (nodezero) write(6,*) 'ccsd_qr_beta'
 c
       do omegacount=1,bnumfreq
         omega = bfreq(omegacount)
@@ -504,7 +505,7 @@ c
      1    .and.nodezero) write(LuOut,9911)
 c
       if (nodezero) write(LuOut,9434) "CCSD Lambda Response",
-     1  afreq(omegacount),auXnm/afreq(omegacount),
+     1  omega,auXnm/omega,
      2  alpha(1,1),alpha(2,1),alpha(3,1),
      3  au2ang3*alpha(1,1),au2ang3*alpha(2,1),au2ang3*alpha(3,1),
      4  alpha(2,1),alpha(2,2),alpha(3,2),
