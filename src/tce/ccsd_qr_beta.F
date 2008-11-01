@@ -449,6 +449,7 @@ c
             alpha(axisA,axisB)=0.0d0
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,1)
+            call tce_zero(d_a0,1)
 c
             irrep_y=irrep_g
             irrep_d=irrep_a
@@ -499,12 +500,19 @@ c
               call tce_zero(d_a0,1)
             endif
 c
-c            write(LuOut,*) "alpha1 = ",alpha1
-c            write(LuOut,*) "alpha2 = ",alpha2
-c            write(LuOut,*) "alpha3 = ",alpha3
-c            write(LuOut,*) "alpha4 = ",alpha4
             alpha(axisA,axisB)=(-0.5d0)*(alpha1+alpha2+alpha3+alpha4)
             call deletefile(d_a0)
+c
+#ifdef DEBUG_PRINT
+            if (nodezero) then
+              write(LuOut,*) "alpha1 = ",alpha1
+              write(LuOut,*) "alpha2 = ",alpha2
+              write(LuOut,*) "alpha3 = ",alpha3
+              write(LuOut,*) "alpha4 = ",alpha4
+              write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
+              call util_flush(LuOut)
+            endif
+#endif
 c
           endif ! respaxis(axisA,axisB)
         enddo ! axisB loop

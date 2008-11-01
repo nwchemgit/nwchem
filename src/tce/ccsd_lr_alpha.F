@@ -15,21 +15,17 @@
 #include "tce_prop.fh"
 c
       integer i,j,dummy,axis
-      integer omegacount
-      integer omegasign
-      integer dynaxis
-      integer dynfreq
+      integer omegacount,omegasign,dynaxis,dynfreq
       integer irrep_g
       parameter (irrep_g=0)
       integer d_d0,d_a0,d_f1,d_v2,d_d1(3)
       integer d_t1,d_t2,d_lambda1,d_lambda2
+      integer d_tr1(9),d_tr2(9)
       integer k_d0_offset,k_a0_offset
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset
-      integer d_tr1(9),d_tr2(9)
       integer k_tr1_offset(3),k_tr2_offset(3)
       integer size_tr1(3),size_tr2(3)
-      integer d_rr1(3),d_rr2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
       double precision omega,cdipole
@@ -41,8 +37,6 @@ c
       character*3 axisname(3)  ! Axis
       data axisname/'X','Y','Z'/
       character*255 filename
-      character*3 dfilename(3)  ! File name stub
-      data dfilename/'d1x','d1y','d1z'/
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -114,7 +108,7 @@ c
      2                dipole_cor(2),dipole_cor(2)*debye,
      3                dipole_cor(3),dipole_cor(3)*debye
 c
-        call ccsd_lr_alpha_eval(omegacount,d_a0,d_f1,d_v2,d_d1,
+        call ccsd_lr_alpha_eval(omega,d_a0,d_f1,d_v2,d_d1,
      1       d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
      2       k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
      4       k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
@@ -159,35 +153,28 @@ c
 #include "tce_restart.fh"
 c
       integer i,j,dummy,axis
-      integer omegacount
-      integer omegasign
-      integer dynaxis
+      integer omegacount,omegasign,dynaxis
       integer irrep_g
       parameter (irrep_g=0)
-      integer d_f1,d_v2,d_d1(3)
-      integer d_t1,d_t2
+      integer d_f1,d_v2,d_d1(3),d_t1,d_t2
+      integer d_tr1(9),d_tr2(9),d_rr1(3),d_rr2(3)
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset
-      integer d_tr1(9),d_tr2(9)
       integer k_tr1_offset(3),k_tr2_offset(3)
       integer size_tr1(3),size_tr2(3)
-      integer d_rr1(3),d_rr2(3),d_ir1(3),d_ir2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
       double precision omega
       double precision cpu, wall
-      double precision residual
-      double precision rr1            ! Residual tr1
-      double precision rr2            ! Residual tr2
+      double precision residual,rr1,rr2
       double precision ddotfile
       external ddotfile
-      logical nodezero
-      character*4 irrepname
       character*255 filename
       character*5 rr1filename(3) ! File name stub
       data rr1filename/'rr1x ','rr1y ','rr1z '/
       character*5 rr2filename(3) ! File name stub
       data rr2filename/'rr2x ','rr2y ','rr2z '/
+      logical nodezero
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -200,6 +187,7 @@ c
         call tce_filename(rr1filename(axis),filename)
         call createfile(filename,d_rr1(axis),size_tr1(axis))
 c        call tce_zero(d_rr1(axis),size_tr1(axis))
+c
         call daxfile(1,(-1.0d0)*omega,d_tr1(axis+dynaxis),
      1       d_rr1(axis),size_tr1(axis))
         call ccsd_o1(d_rr1(axis),d_d1(axis),d_t1,d_t2,
@@ -210,12 +198,14 @@ c        call tce_zero(d_rr1(axis),size_tr1(axis))
      2       k_tr1_offset(axis),
      3       k_t1_offset,k_t2_offset,k_v2_offset,
      4       k_tr1_offset(axis),k_tr2_offset(axis))
+c
         call reconcilefile(d_rr1(axis),size_tr1(axis))
         call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
 c
         call tce_filename(rr2filename(axis),filename)
         call createfile(filename,d_rr2(axis),size_tr2(axis))
 c        call tce_zero(d_rr2(axis),size_tr2(axis))
+c
         call daxfile(1,(-1.0d0)*omega,d_tr2(axis+dynaxis),
      1       d_rr2(axis),size_tr2(axis))
         call ccsd_o2(d_rr2(axis),d_d1(axis),d_t1,d_t2,
@@ -227,8 +217,10 @@ c        call tce_zero(d_rr2(axis),size_tr2(axis))
      3       k_t1_offset,k_t2_offset,k_v2_offset,
      4       k_tr1_offset(axis),k_tr2_offset(axis),
      5       size_tr1(axis),size_tr2(axis))
+c
         call reconcilefile(d_rr2(axis),size_tr2(axis))
         call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
+c
         residual = max(rr1,rr2)
         cpu=cpu+util_cpusec()
         wall=wall+util_wallsec()
@@ -317,7 +309,7 @@ c
       end
 
 
-      subroutine ccsd_lr_alpha_eval(omegacount,d_a0,d_f1,d_v2,d_d1,
+      subroutine ccsd_lr_alpha_eval(omega,d_a0,d_f1,d_v2,d_d1,
      1           d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
      2           k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
      4           k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
@@ -333,30 +325,21 @@ c
 #include "tce_prop.fh"
 c
       integer i,j,dummy,axis
-      integer omegacount
-      integer omegasign
-      integer dynfreq
-      integer dynaxis
-      integer axisA
-      integer axisB
+      integer dynfreq,dynaxis,axisA,axisB,omegasign
       integer aeiginfo                  ! dgeev information
-      integer irrep_g
-      parameter (irrep_g=0)
       integer d_a0,d_f1,d_v2,d_d1(3)
       integer d_t1,d_t2,d_lambda1,d_lambda2
+      integer d_tr1(9),d_tr2(9)
       integer k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset
-      integer d_tr1(9),d_tr2(9)
       integer k_tr1_offset(3),k_tr2_offset(3)
+      integer irrep_g
+      parameter (irrep_g=0)
       integer sym_abelian_axis
       external sym_abelian_axis
       double precision omega
       double precision cpu, wall
-      double precision residual
-      double precision alpha1,alpha2,alpha3,alpha4
-      double precision au2ang   ! Conversion factor from bohr to Angstrom
-      double precision au2ang3  ! Conversion factor from bohr^3 to Angstrom^3
-      double precision auXnm    ! Conversion factor from a.u. (frequency) to nm (wavelength)
+      double precision alpha1,alpha2
       double precision alpha(3,3)       ! Dipole polarizability tensor
       double precision alphacopy(3,3)   ! Dipole polarizability tensor copy
       double precision alphaiso         ! Isotropic dipole polarizability
@@ -365,24 +348,18 @@ c
       double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
       double precision aeigvec(3,3)     ! dummy dgeev eigenvectors
       double precision awork(9)         ! dgeev workspace
+      double precision auXnm            ! Conversion factor from a.u. (frequency) to nm (wavelength)
+      parameter (auXnm=45.563353d0)
+      double precision au2ang           ! Conversion factor from bohr to Angstrom
+      parameter (au2ang=5.29177249d-01)
+      double precision au2ang3          ! Conversion factor from bohr^3 to Angstrom^3
+      parameter (au2ang3=au2ang*au2ang*au2ang)
       double precision ddotfile
       external ddotfile
-      parameter (auXnm=45.563353d0)
-      parameter (au2ang=5.29177249d-01)
-      parameter (au2ang3=au2ang*au2ang*au2ang)
-      logical nodezero
-      character*4 irrepname
       character*3 axisname(3)  ! Axis
       data axisname/'X','Y','Z'/
       character*255 filename
-      character*4 ir1filename(3) ! File name stub
-      data ir1filename/'ir1x','ir1y','ir1z'/
-      character*4 ir2filename(3) ! File name stub
-      data ir2filename/'ir2x','ir2y','ir1z'/
-      character*5 rr1filename(3) ! File name stub
-      data rr1filename/'rr1x ','rr1y ','rr1z '/
-      character*5 rr2filename(3) ! File name stub
-      data rr2filename/'rr2x ','rr2y ','rr2z '/
+      logical nodezero
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -401,9 +378,15 @@ c
 c
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,1)
+            call tce_zero(d_a0,1)
 c
-c            if (nodezero) write(LuOut,*) "axisA = ",axisA
-c            if (nodezero) write(LuOut,*) "axisB = ",axisB
+#ifdef DEBUG_PRINT
+            if (nodezero) then
+              write(LuOut,*) "axisA = ",axisA
+              write(LuOut,*) "axisB = ",axisB
+              call util_flush(LuOut)
+            endif
+#endif
 c
             do omegasign=1, 2
 c
@@ -429,7 +412,6 @@ c
               call reconcilefile(d_a0,1)
               call get_block(d_a0,alpha1,1,0)
               call tce_zero(d_a0,1)
-c              write(LuOut,*) "alpha1 = ",alpha1
               if (axisA.eq.axisB) then
                 alpha2=alpha1
               else
@@ -447,7 +429,14 @@ c
                 call get_block(d_a0,alpha2,1,0)
                 call tce_zero(d_a0,1)
               endif ! axisA.eq.axisB
-c              write(LuOut,*) "alpha2 = ",alpha2
+c
+#ifdef DEBUG_PRINT
+              if (nodezero) then
+                write(LuOut,*) "alpha1 = ",alpha1
+                write(LuOut,*) "alpha2 = ",alpha2
+                call util_flush(LuOut)
+              endif
+#endif
 c
               alpha(axisA,axisB)=alpha(axisA,axisB)+alpha1+alpha2
 c
@@ -470,7 +459,6 @@ c
             call reconcilefile(d_a0,1)
             call get_block(d_a0,alpha1,1,0)
             call tce_zero(d_a0,1)
-c            write(LuOut,*) "alpha1 = ",alpha1
 c
             call alpha_2(d_f1,d_a0,d_t1,d_t2,
      1           d_tr1(axisA+dynaxis),d_tr2(axisA+dynaxis),
@@ -483,13 +471,18 @@ c
 c
             call reconcilefile(d_a0,1)
             call get_block(d_a0,alpha2,1,0)
-c            write(LuOut,*) "alpha2 = ",alpha2
             call deletefile(d_a0)
             alpha(axisA,axisB)=alpha(axisA,axisB)+alpha1+alpha2
             alpha(axisA,axisB)=-0.5d0*alpha(axisA,axisB)
 c
-c            write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
-c            if (nodezero) write(LuOut,9020) cpu, wall
+#ifdef DEBUG_PRINT
+            if (nodezero) then
+              write(LuOut,*) "alpha1 = ",alpha1
+              write(LuOut,*) "alpha2 = ",alpha2
+              write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
+              call util_flush(LuOut)
+            endif
+#endif
 c
           endif ! respaxis(axis)
         enddo ! axisB loop
@@ -516,7 +509,7 @@ c
      1    .and.nodezero) write(LuOut,9911)
 c
       if (nodezero) write(LuOut,9434) "CCSD Linear Response",
-     1  afreq(omegacount),auXnm/afreq(omegacount),
+     1  omega,auXnm/omega,
      2  alpha(1,1),alpha(2,1),alpha(3,1),
      3  au2ang3*alpha(1,1),au2ang3*alpha(2,1),au2ang3*alpha(3,1),
      4  alpha(2,1),alpha(2,2),alpha(3,2),
@@ -526,6 +519,7 @@ c
      8  alphaevr(1),alphaevr(2),alphaevr(3),
      9  au2ang3*alphaevr(1),au2ang3*alphaevr(2),au2ang3*alphaevr(3),
      1  alphaiso,au2ang3*alphaiso,alphaani,au2ang3*alphaani
+c
       if (nodezero) write(LuOut,9020) cpu, wall
       call util_flush(LuOut)
 c
@@ -620,7 +614,6 @@ c
       double precision omega
       double precision cpu, wall
       logical nodezero
-      character*4 irrepname
       character*3 axisname(3)  ! Axis
       data axisname/'X','Y','Z'/
       character*255 filename
