@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.150 2008-10-31 13:42:00 jhammond Exp $
+c $Id: tce_energy.F,v 1.151 2008-11-01 19:09:36 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -300,14 +300,14 @@ c
      1                 'tr4x-','tr4y-','tr4z-',
      2                 'tr4xi','tr4yi','tr4zi'/
 c
-      character*5 yrr1filename(3) ! File name stub
-      data yrr1filename/'yrr1x','yrr1y','yrr1z'/
-      character*5 yrr2filename(3) ! File name stub
-      data yrr2filename/'yrr2x','yrr2y','yrr2z'/
-      character*5 yrr3filename(3) ! File name stub
-      data yrr3filename/'yrr3x','yrr3y','yrr3z'/
-      character*5 yrr4filename(3) ! File name stub
-      data yrr4filename/'yrr4x','yrr4y','yrr4z'/
+c      character*5 yrr1filename(3) ! File name stub
+c      data yrr1filename/'yrr1x','yrr1y','yrr1z'/
+c      character*5 yrr2filename(3) ! File name stub
+c      data yrr2filename/'yrr2x','yrr2y','yrr2z'/
+c      character*5 yrr3filename(3) ! File name stub
+c      data yrr3filename/'yrr3x','yrr3y','yrr3z'/
+c      character*5 yrr4filename(3) ! File name stub
+c      data yrr4filename/'yrr4x','yrr4y','yrr4z'/
       character*5 yr1filename(6) ! File name stub
       data yr1filename/'yr1x+','yr1y+','yr1z+','yr1x-','yr1y-','yr1z-'/
       character*5 yr2filename(6) ! File name stub
