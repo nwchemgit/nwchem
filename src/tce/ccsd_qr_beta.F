@@ -31,7 +31,7 @@ c
       integer d_rr1(3),d_rr2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
-      double precision omega,omega1,omega2
+      double precision omega
       logical nodezero,guess
       character*4 irrepname
       character*3 axisname(3)  ! Axis
@@ -39,7 +39,10 @@ c
 c
       nodezero=(ga_nodeid().eq.0)
 c
-      if (nodezero) write(6,*) 'ccsd_qr_beta'
+#ifdef DEBUG_PRINT
+      if (nodezero) write(6,*) 'top of ccsd_qr_beta'
+      call util_flush(6)
+#endif
 c
       do omegacount=1,bnumfreq
         omega = bfreq(omegacount)
@@ -83,13 +86,23 @@ c
           endif ! respaxis(axis)
         enddo ! axis loop
 c
+#ifdef DEBUG_PRINT
+        if (nodezero) write(6,*) 'calling ccsd_qr_alpha_eval'
+        call util_flush(6)
+#endif
+c
         call ccsd_qr_alpha_eval(omega,d_a0,d_f1,d_v2,d_d1,
      1       d_t1,d_t2,d_y1,d_y2,d_tr1,d_tr2,d_yr1,d_yr2,
      2       k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
      4       k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
      5       k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset)
 c
-        call ccsd_qr_beta_eval(omega1,omega2,d_b0,d_f1,d_v2,d_d1,
+#ifdef DEBUG_PRINT
+        if (nodezero) write(6,*) 'calling ccsd_qr_beta_eval'
+        call util_flush(6)
+#endif
+c
+        call ccsd_qr_beta_eval(omega,d_b0,d_f1,d_v2,d_d1,
      1       d_t1,d_t2,d_y1,d_y2,d_tr1,d_tr2,d_yr1,d_yr2,
      2       k_b0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
      4       k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
@@ -364,7 +377,7 @@ c
 #include "tce_main.fh"
 #include "tce_prop.fh"
 c
-      integer i,j,dummy,axis,axisA,axisB,omegacount
+      integer i,j,dummy,axis,axisA,axisB
       integer irrep_g
       parameter (irrep_g=0)
       integer d_a0,d_f1,d_v2,d_d1(3)
@@ -378,7 +391,7 @@ c
       integer aeiginfo
       integer sym_abelian_axis
       external sym_abelian_axis
-      double precision omega,omega1
+      double precision omega
       double precision cpu, wall
       double precision residual
       double precision alpha1,alpha2,alpha3,alpha4
@@ -406,6 +419,11 @@ c
 c
       nodezero=(ga_nodeid().eq.0)
 c
+#ifdef DEBUG_PRINT
+      if (nodezero) write(6,*) 'top of ccsd_qr_alpha_eval'
+      call util_flush(6)
+#endif
+c
 c CCSD-QR evaluation step
 c
       cpu=-util_cpusec()
@@ -415,6 +433,14 @@ c
         do axisB = 1, axisA
           irrep_b=sym_abelian_axis(geom,axisB)
           if ( respaxis(axisA).and.respaxis(axisB) ) then
+c
+#ifdef DEBUG_PRINT
+            if (nodezero) then
+              write(LuOut,*) "axisA = ",axisA
+              write(LuOut,*) "axisB = ",axisB
+              call util_flush(6)
+            endif
+#endif
 c
             alpha1=0.0d0
             alpha2=0.0d0
@@ -437,7 +463,7 @@ c
             call get_block(d_a0,alpha1,1,0)
             call tce_zero(d_a0,1)
 c
-            if (omega1.eq.0.0d0) then
+            if (omega.eq.0.0d0) then
               alpha2=alpha1
             else
               call alpha_1(d_d1(axisA),d_a0,d_t1,d_t2,
@@ -461,7 +487,7 @@ c
             call get_block(d_a0,alpha3,1,0)
             call tce_zero(d_a0,1)
 c
-            if (omega1.eq.0.0d0) then
+            if (omega.eq.0.0d0) then
               alpha4=alpha3
             else
               call alpha_2_yr(d_a0,d_d1(axisA),d_t1,d_t2,
@@ -575,7 +601,7 @@ c
       end
 
 
-      subroutine ccsd_qr_beta_eval(omega1,omega2,d_b0,d_f1,d_v2,d_d1,
+      subroutine ccsd_qr_beta_eval(omega,d_b0,d_f1,d_v2,d_d1,
      1           d_t1,d_t2,d_y1,d_y2,d_tr1,d_tr2,d_yr1,d_yr2,
      2           k_b0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
      3           k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
@@ -603,7 +629,7 @@ c
       integer k_yr1_offset(3),k_yr2_offset(3)
       integer sym_abelian_axis
       external sym_abelian_axis
-      double precision omega1,omega2
+      double precision omega
       double precision cpu, wall
       double precision beta1,beta2,beta3,beta4
       double precision beta(3,3,3)      ! Dipole hyperpolarizability tensor
@@ -622,6 +648,11 @@ c
       character*255 filename
 c
       nodezero=(ga_nodeid().eq.0)
+c
+#ifdef DEBUG_PRINT
+      if (nodezero) write(6,*) 'top of ccsd_qr_beta_eval'
+      call util_flush(6)
+#endif
 c
       do axisC = 1, 3
         do axisB = 1, 3
@@ -644,10 +675,14 @@ c
             if ( ( respaxis(axisA).and.respaxis(axisB) )
      &                          .and.respaxis(axisC) ) then
 c
-c              write(LuOut,*) "axisA = ",axisA
-c              write(LuOut,*) "axisB = ",axisB
-c              write(LuOut,*) "axisC = ",axisC
-c              call util_flush(LuOut)
+#ifdef DEBUG_PRINT
+              if (nodezero) then
+                write(LuOut,*) "axisA = ",axisA
+                write(LuOut,*) "axisB = ",axisB
+                write(LuOut,*) "axisC = ",axisC
+                call util_flush(6)
+              endif
+#endif
 c
               beta1=0.0d0
               beta2=0.0d0
