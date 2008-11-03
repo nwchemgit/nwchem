@@ -20,9 +20,6 @@ c     implicit none
       integer  Parallel3d_comm_k
       external Parallel3d_comm_k
     
-      write(*,*) "np_k,comm_k=",np_k,Parallel3d_comm_k()
-      call flush(6)
-
       if (np_k.gt.1) then
          call GA_PGROUP_DGOP(Parallel3d_comm_k(),
      >                       9+MSGDBL,sum,1,'+')

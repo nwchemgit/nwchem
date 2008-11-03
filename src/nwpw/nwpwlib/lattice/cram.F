@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.35 2008-09-03 17:07:37 bylaska Exp $
+* $Id: cram.F,v 1.36 2008-11-03 23:44:40 bylaska Exp $
 *
 
 *     ***********************************
@@ -611,10 +611,15 @@
       integer nbq,taskid_k,p
       integer iw
 
-      call Parallel3d_taskid_k(taskid_k)
-      call K1dB_ktoqp(nb,nbq,p)
-      if (p.eq.taskid_k) iw = int_mb(nidb2_list(1)+nbq)
-      call K1dB_ISumAll(iw)
+      if (nb.eq.0) then
+         iw = int_mb(nidb2_list(1))
+      else
+         iw = 0
+         call Parallel3d_taskid_k(taskid_k)
+         call K1dB_ktoqp(nb,nbq,p)
+         if (p.eq.taskid_k) iw = int_mb(nidb2_list(1)+nbq)
+         call K1dB_ISumAll(iw)
+      end if
 
       Cram_nwave_brdcst = iw
       return
@@ -652,10 +657,15 @@
       integer nbq,taskid_k,p
       integer iw
 
-      call Parallel3d_taskid_k(taskid_k)
-      call K1dB_ktoqp(nb,nbq,p)
-      if (p.eq.taskid_k) iw = int_mb(nwaveall_list(1)+nbq)
-      call K1dB_ISumAll(iw)
+      if (nb.eq.0) then
+         iw = int_mb(nwaveall_list(1))
+      else
+         iw = 0
+         call Parallel3d_taskid_k(taskid_k)
+         call K1dB_ktoqp(nb,nbq,p)
+         if (p.eq.taskid_k) iw = int_mb(nwaveall_list(1)+nbq)
+         call K1dB_ISumAll(iw)
+      end if
 
       Cram_nwave_all_brdcst = iw
       return
