@@ -1,3 +1,8 @@
+c
+c $Id: pspw_APC.F,v 1.7 2008-11-03 06:06:13 bylaska Exp $
+c
+
+
 ********************************************************************
 *
 *	pspw_APC module: used to generate derived atomic point charges
@@ -11,9 +16,9 @@
 ********************************************************************
 
 *     ***********************************
-*     *									*
-*     *			pspw_init_APC			*
-*     *									*
+*     *					*
+*     *		pspw_init_APC		*
+*     *					*
 *     ***********************************
       subroutine pspw_init_APC(rtdb)
       implicit none
@@ -22,14 +27,13 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
-
 #include "pspw_APC.fh"
 
 *     **** local variables ****
       integer taskid,MASTER
       parameter (MASTER=0)
 
-      logical value
+      logical value,doapc
       integer i,j,k,n,npack0,nfft3d
       integer nx,ny,nxh
       integer zero,pzero,qzero
@@ -37,22 +41,29 @@
       real*8  coef,x,gg,fourpi
 
 *     **** external functions ****
-      integer  ion_nion, G_indx
+      logical  control_Mulliken
+      integer  ion_nion_qm, G_indx
       real*8   lattice_omega
-      external ion_nion, G_indx
+      external control_Mulliken
+      external ion_nion_qm, G_indx
       external lattice_omega
 
-
+      if (.not.rtdb_get(rtdb,'nwpw:APC',mt_log,1,doapc))
+     >  doapc = control_Mulliken()
 
 *     **** read in nga from rtdb ***
       value = rtdb_get(rtdb,'pspw_APC:nga',mt_int,1,nga)
 
-*     **** return and set nga to zero if nothing in rtdb ****
+*     **** return and set nga to zero if nothing in rtdb and not mulliken****
       if ((.not.value).or.(nga.le.0)) then
-         nga = 0
-         return
+         if (doapc) then
+            nga = 3
+         else
+            nga = 0
+            return
+         end if
       end if
-      ngs = nga*ion_nion()
+      ngs = nga*ion_nion_qm()
       call Parallel_taskid(taskid)
       call Pack_npack(0,npack0)
 
@@ -78,12 +89,17 @@
      >   call errquit('pspw_init_APC:out of heap memory',0, MA_ERR)
 
 *     **** read in Gc and gamma from rtdb ***
-      value = rtdb_get(rtdb,'pspw_APC:Gc',mt_dbl,1,Gc)
-      value = value.and.
-     >        rtdb_get(rtdb,'pspw_APC:gamma',mt_dbl,nga,
-     >                 dbl_mb(gamma(1)))
-      if (.not. value)
-     >   call errquit('pspw_init_APC:error reading rtdb',0, RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'pspw_APC:Gc',mt_dbl,1,Gc)) Gc = 2.5d0
+      if (.not.rtdb_get(rtdb,'pspw_APC:gamma',mt_dbl,nga,
+     >   dbl_mb(gamma(1)))) then
+         if (nga.eq.3) then
+            dbl_mb(gamma(1))   = 0.6d0
+            dbl_mb(gamma(1)+1) = 0.9d0
+            dbl_mb(gamma(1)+2) = 1.35d0
+         else
+            call errquit('pspw_init_APC:error reading rtdb',0,RTDB_ERR)
+         end if
+      end if
 
 
 *     ********************************
@@ -170,9 +186,9 @@ c    >     + i+1
       end
 
 *     ***********************************
-*     *									*
-*     *			pspw_end_APC			*
-*     *									*
+*     *					*
+*     *		pspw_end_APC		*
+*     *					*
 *     ***********************************
       subroutine pspw_end_APC()
       implicit none
@@ -203,17 +219,17 @@ c    >     + i+1
 
 
 *     ***********************************
-*     *									*
-*     *			pspw_gen_APC			*
-*     *									*
+*     *					*
+*     *		pspw_gen_APC		*
+*     *					*
 *     ***********************************
       subroutine pspw_gen_APC(ispin,ne,dng)
       implicit none
-#include "errquit.fh"
       integer ispin,ne(2)
       complex*16 dng(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "pspw_APC.fh"
 
 *     ***** local variables ****
@@ -230,9 +246,9 @@ c    >     + i+1
       integer AAA(2)
 
 *     ***** external functions ****
-      integer  ion_nion
+      integer  ion_nion_qm
       real*8   lattice_omega
-      external ion_nion
+      external ion_nion_qm
       external lattice_omega
 
       if (nga.gt.0) then
@@ -260,7 +276,7 @@ c    >     + i+1
 *        ***** calculate c_i = omega*gaus_i(G=0) = 1.0d0 *****
 
 *        ***** calculate b_i = omega*Sum(G) w(G)*Re(dcongj(dng(G))*gaus_i(G)) ****
-         do ii=1,ion_nion()
+         do ii=1,ion_nion_qm()
 
 *           **** structure factor  ****
             call strfac(ii,dcpl_mb(exi(1)))
@@ -290,12 +306,12 @@ c    >     + i+1
 
 
 *        ***** calculate A_ij = omega*Sum(G) w(G)*dcongj(gaus_i(G))*gaus_j(G)) ****
-         do ii=1,ion_nion()
+         do ii=1,ion_nion_qm()
 *           **** structure factor  ****
             call strfac(ii,dcpl_mb(exi(1)))
             call Pack_c_pack(0,dcpl_mb(exi(1)))
 
-             do jj=ii,ion_nion()
+             do jj=ii,ion_nion_qm()
 *              **** structure factor  ****
                call strfac(jj,dcpl_mb(exj(1)))
                call Pack_c_pack(0,dcpl_mb(exj(1)))
@@ -402,9 +418,9 @@ c    >     + i+1
       end
 
 *     ***********************************
-*     *									*
-*     *			pspw_dngen_APC			*
-*     *									*
+*     *					*
+*     *		pspw_dngen_APC		*
+*     *					*
 *     ***********************************
       subroutine pspw_dngen_APC(ispin,ne,dn)
       implicit none
@@ -464,9 +480,9 @@ c    >     + i+1
       end
 
 *     ***********************************
-*     *									*
-*     *			pspw_getQ_APC			*
-*     *									*
+*     *					*
+*     *		pspw_getQ_APC		*
+*     *					*
 *     ***********************************
       real*8 function pspw_getQ_APC(ii,n)
       implicit none
@@ -493,9 +509,9 @@ c    >     + i+1
 
 
 *     ***********************************
-*     *									*
-*     *			pspw_print_APC			*
-*     *									*
+*     *					*
+*     *		pspw_print_APC		*
+*     *					*
 *     ***********************************
       subroutine pspw_print_APC(unit)
       implicit none
@@ -512,10 +528,10 @@ c    >     + i+1
 
 *     **** external functions ****
       character*4  ion_atom
-      integer      ion_nion,ion_katm
+      integer      ion_nion_qm,ion_katm_qm
       real*8       psp_zv
       external     ion_atom
-      external     ion_nion,ion_katm
+      external     ion_nion_qm,ion_katm_qm
       external     psp_zv
       
       if (nga.gt.0) then
@@ -559,18 +575,18 @@ c    >     + i+1
          sumi=0.0d0
          write(unit,100) 'no','atom','Qelc','Qion','Qtotal'
          write(unit,105) 
-         do j=1,ion_nion()
+         do j=1,ion_nion_qm()
            sum = 0.0d0
            do i=1,nga
               indx = (i-1) + (j-1)*nga
               sum = sum + dbl_mb(q(1)+indx)
            end do
            sume = sume - sum
-           sumi = sumi + psp_zv(ion_katm(j))
-           write(unit,110) j,ion_atom(ion_katm(j)),
+           sumi = sumi + psp_zv(ion_katm_qm(j))
+           write(unit,110) j,ion_atom(ion_katm_qm(j)),
      >                  (-sum),
-     >                  (psp_zv(ion_katm(j))),
-     >                  (psp_zv(ion_katm(j))-sum)
+     >                  (psp_zv(ion_katm_qm(j))),
+     >                  (psp_zv(ion_katm_qm(j))-sum)
          end do
          write(unit,120) sume,sumi,(sume+sumi)
 
@@ -582,9 +598,9 @@ c    >     + i+1
      >                   'g=',0.0d0,
      >                    ('g=',dbl_mb(gamma(1)+i-1),i=1,nga)
          write(unit,205) ('-------',i=0,nga)
-         do j=1,ion_nion()
-           write(unit,210) j,ion_atom(ion_katm(j)),
-     >                     psp_zv(ion_katm(j)),
+         do j=1,ion_nion_qm()
+           write(unit,210) j,ion_atom(ion_katm_qm(j)),
+     >                     psp_zv(ion_katm_qm(j)),
      >                     (-dbl_mb(q(1)+i-1+(j-1)*nga),i=1,nga)
          end do
 

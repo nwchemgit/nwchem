@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.79 2008-09-30 19:53:32 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.80 2008-11-03 06:06:15 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -1145,3 +1145,62 @@ ccc        call electron_HFX_stress(tstress)
       return
       end
 
+
+*     *******************************
+*     *				    *
+*     *	  cgsd_energy_gradient_md   *
+*     *				    *
+*     *******************************
+      subroutine cgsd_energy_gradient_md(G1)
+      implicit none
+      real*8 G1(3,*)
+
+      integer i,k,nion,nion1
+      integer i1
+      real*8  GG
+
+*     **** external functions ****
+      logical     psp_semicore,pspw_charge_found,pspw_qmmm_found
+      character*4 ion_aname,pspw_charge_aname
+      integer     ion_katm,ion_nion,control_version
+      integer     pspw_charge_nion
+      real*8      ion_rion,pspw_charge_rion
+      real*8      pspw_charge_charge
+      external psp_semicore,pspw_charge_found,pspw_qmmm_found
+      external ion_aname,pspw_charge_aname
+      external ion_katm,ion_nion,control_version
+      external pspw_charge_nion
+      external ion_rion,pspw_charge_rion
+      external pspw_charge_charge
+      logical  pspw_bqext
+      external pspw_bqext
+
+      nion = ion_nion()
+      if (pspw_charge_found().and.
+     >    (.not.pspw_bqext())) nion = nion + pspw_charge_nion()
+
+      call dcopy(3*nion,0.0d0,0,G1,1)
+
+      call psi_1force(G1)
+      if (psp_semicore(0)) call electron_semicoreforce(G1)
+
+      if (control_version().eq.3) call ewald_f(G1)
+      if (control_version().eq.4) call ion_ion_f(G1)
+      if (pspw_qmmm_found()) call pspw_qmmm_fion(G1)
+
+      if (pspw_charge_found()) then
+        if(pspw_bqext()) then
+           call pspw_charge_charge_Fion(G1)
+         else
+           nion1 = ion_nion()
+           call pspw_charge_Fion_Fcharge(G1,G1(1,nion1+1))
+           call pspw_charge_Fcharge(G1(1,nion1+1))
+           call rho_1Fcharge(G1(1,nion1+1))
+         end if
+      end if
+
+*     **** remove ion forces using ion_FixIon ****
+      call ion_FixIon(G1)
+
+      return
+      end

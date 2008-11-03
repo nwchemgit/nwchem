@@ -1,5 +1,5 @@
 *
-* $Id: nose-hoover.F,v 1.8 2006-12-28 19:24:27 bylaska Exp $
+* $Id: nose-hoover.F,v 1.9 2008-11-03 06:06:16 bylaska Exp $
 *
 
 *     ***************************
@@ -592,10 +592,10 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
       real*8 dXr,dt
 
 *     **** external functions ****
-      real*8   control_time_step
-      external control_time_step
+      real*8   control_ion_time_step
+      external control_ion_time_step
 
-      dt = control_time_step()
+      dt = control_ion_time_step()
 
       dXr         = (3.0d0*dbl_mb(Xr1(1))
      >              -4.0d0*dbl_mb(Xr0(1))

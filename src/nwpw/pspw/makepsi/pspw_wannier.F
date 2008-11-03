@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.19 2008-09-16 23:42:45 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.20 2008-11-03 06:06:17 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -28,7 +28,7 @@
       real*8 bv(3,6),wrk(6,6),wts(6),bmat(3,3)
       real*8 b(3),ixmat(3,6)
       real*8 xx,yy,zz,tmp1(tmp_len)
-      real*8 dx,dy,dz,nx,ny,nz,tx,ty,tz
+      real*8 dx,dy,dz,nx,ny,nz,tx,ty,tz,alpha
       complex*16 arg,wx
       character*2 labels(6)
 
@@ -376,6 +376,13 @@ c      character*255 full_filename,full_filename2
       dx=0.0d0
       dy=0.0d0
       dz=0.0d0
+
+      if (oprint) then
+         write(*,*) "rank=",rank
+         do i=1,rank
+            write(*,*) "b=",i,bv(1,i),bv(2,i),bv(3,i)
+         end do
+      end if
       
       do ms=1,ispin
 
@@ -477,11 +484,12 @@ ccccccccccccccccccccccccccccccccccccccccccccc
      >                     dcpl_mb(psi2(1)+(i-1) *npack1
      >                                    +(ms-1)*npack1*ne(1)))
           do j=1,ne(ms)
-              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms) 
-     >                            +(ms-1)*ne(1)*ne(1))
-c              alpha = dble(wx)
+c              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms) 
+c     >                            +(ms-1)*ne(1)*ne(1))
+              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms)) 
+              alpha = dble(wx)
 
-              call Pack_cc_zaxpy(1,wx,
+              call Pack_cc_daxpy(1,alpha,
      >                           dcpl_mb(psi(1) +(j-1)*npack1
      >                                          +(ms-1)*npack1*ne(1)),
      >                           dcpl_mb(psi2(1)+(i-1)*npack1

@@ -1,6 +1,6 @@
 
 *
-* $Id: aorbs.F,v 1.5 2007-08-21 18:52:58 bylaska Exp $
+* $Id: aorbs.F,v 1.6 2008-11-03 06:06:16 bylaska Exp $
 *
 
 #define TCGMSG
@@ -23,13 +23,13 @@
       logical value
 
 *     **** external functions *****
-      integer  ion_nkatm,ion_nion
-      external ion_nkatm,ion_nion
+      integer  ion_nkatm_qm,ion_nion_qm
+      external ion_nkatm_qm,ion_nion_qm
  
 
       call Pack_npack(1,npack1)
-      nion   = ion_nion()
-      nkatmx = ion_nkatm()
+      nion   = ion_nion_qm()
+      nkatmx = ion_nkatm_qm()
 
       value = MA_alloc_get(mt_dbl,(norbs_max*nkatmx*npack1),
      >                    'aorbs',aorbs(2),aorbs(1))
@@ -492,14 +492,14 @@ c       close(11)
       integer      control_ngrid
       real*8       control_unita
       character*12 control_boundry
-      character*4  ion_atom
+      character*4  ion_atom_qm
       external     nwpw_filefind
       external     control_ngrid
       external     control_unita
       external     control_boundry
-      external     ion_atom
-      integer      ion_nion,ion_katm
-      external     ion_nion,ion_katm
+      external     ion_atom_qm
+      integer      ion_nion_qm,ion_katm_qm
+      external     ion_nion_qm,ion_katm_qm
       
 
       call D3dB_nfft3d(1,nfft3d)
@@ -517,7 +517,7 @@ c       close(11)
 
 *      **** define formatted aorb name ****
        element = '    '
-       element = ion_atom(ia)
+       element = ion_atom_qm(ia)
        l = index(element,' ') - 1
        fname = element(1:l)//'.aorb'
         
@@ -571,7 +571,7 @@ c       close(11)
 
 *        **** generate formatted pseudopotential atom.aorb *****
          if (.not.found) then
-             call aorbs_formatter_auto(ion_atom(ia))
+             call aorbs_formatter_auto(ion_atom_qm(ia))
          end if
 
        end do !***do while ****
@@ -583,8 +583,8 @@ c       close(11)
 *     **** set up the index for the atomic basis ****
 *     ***********************************************
       icount = 0
-      do ii=1,ion_nion()
-         ia = ion_katm(ii)
+      do ii=1,ion_nion_qm()
+         ia = ion_katm_qm(ii)
 
          do lm=1,int_mb(lmmax(1)+ia-1)
             icount = icount + 1

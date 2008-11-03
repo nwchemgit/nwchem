@@ -5,6 +5,7 @@
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "geom.fh"
 #include "util.fh"
 #include "nwc_const.fh"
 #include "errquit.fh"
@@ -12,7 +13,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 10)
+      parameter (num_dirs = 11)
       character*30 dirs(num_dirs)
       data dirs / 'lj_ion_parameters:',
      >            'lj_ion_parameters',
@@ -23,6 +24,7 @@ c
      >            'fragment',
      >            'nonfragment',
      >            'mm_psp',
+     >            'mm_tags',
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
@@ -42,13 +44,15 @@ c
 c
       logical       value
       character*4   element
+      character*16  tag
       character*80  rtdb_name
-      integer       element_length,basis_length,tmp(2)
+      integer       element_length,basis_length,tmp(2),geom
       integer       ni,nkf,nfrag,frag_size,index_start(2)
       integer       nknf,nnonfrag
       real*8        se(2),alpha,Rin,Rout,scal
       integer       nsigma
       real*8        charge,rcut
+      real*8        rxyz(3),q
       character*255 test,dir_name,sdir_name
       integer ind               ! Index of matched directive
 
@@ -69,6 +73,7 @@ c
       nknf     = 0
       nnonfrag = 0
 
+
  10   if (.not. inp_read()) 
      >  call errquit(
      >  'pspw_qmmm_input: inp_read failed', 0, INPUT_ERR)
@@ -80,7 +85,7 @@ c
      >  'pspw_qmmm_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 100,100, 200, 300, 400, 500, 600, 700,800,
+      goto ( 100,100, 200, 300, 400, 500, 600, 700,800,900,
      >      9999) ind
       call errquit(
      >      'pspw_qmmm_input: unimplemented directive', ind, INPUT_ERR)
@@ -1005,6 +1010,69 @@ c
          open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
          close(unit=99,status='delete')
       end if 
+
+      goto 10
+c
+c  mm_tags
+c
+ 900  value = MA_push_get(mt_int,nw_max_atom,'indx_start',
+     >                    index_start(2),index_start(1))
+      if (.not. value) call errquit(
+     > 'pspw_qmmm_input:failed allocating mm_tags',0,MA_ERR)
+
+      ni = 0
+      do while (inp_irange(jstart,jlast,jstride))
+         do j=jstart,jlast,jstride
+          int_mb(index_start(1)+ni) = j
+          ni = ni+1
+         end do
+      end do
+      element = '    '
+      if (.not.inp_a(element)) element = '    '
+
+      if (geom_create(geom,'geometry')) then
+      if (geom_rtdb_load(rtdb,geom,'geometry')) then
+
+c     *** remove ^ from tags ****
+      if (inp_compare(.false.,element,'off')) then
+         do j=1,ni
+            i = int_mb(index_start(1)+j-1)
+            value = geom_cent_get(geom,i,tag,rxyz,q)
+            k = index(tag,'^') 
+            if (k.gt.0) then
+               do ka=k,16
+                  tag(ka:ka) = ' '
+               end do
+               value = geom_cent_set(geom,i,tag,rxyz,q)
+            end if
+         end do
+
+c     *** add ^ to tags ****
+      else
+         element = '^'//element(1:1)
+         do j=1,ni
+            i = int_mb(index_start(1)+j-1)
+            value = geom_cent_get(geom,i,tag,rxyz,q)
+            k = index(tag,' ') - 1
+            if (k.gt.0) then
+               tag = tag(1:k)//element
+               value = geom_cent_set(geom,i,tag,rxyz,q)
+            end if
+         end do
+      end if
+
+      value = geom_rtdb_delete(rtdb,'geometry')
+      value = geom_rtdb_store(rtdb,geom,'geometry')
+      value = geom_destroy(geom)
+
+      end if
+      end if
+
+
+
+      value = MA_pop_stack(index_start(2))
+      if (.not. value) call errquit(
+     > 'pspw_qmmm_input:failed deallocating mm_tags',0,MA_ERR)
 
       goto 10
 

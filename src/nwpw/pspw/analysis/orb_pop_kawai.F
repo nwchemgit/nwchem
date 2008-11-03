@@ -1,3 +1,6 @@
+c
+c $Id: orb_pop_kawai.F,v 1.2 2008-11-03 06:06:13 bylaska Exp $
+c
  
 *     ***********************************
 *     *					*
@@ -37,8 +40,8 @@
 
 
 *     **** external functions ****
-      integer  G_indx,ion_nion,ion_katm
-      external G_indx,ion_nion,ion_katm
+      integer  G_indx,ion_nion_qm,ion_katm_qm
+      external G_indx,ion_nion_qm,ion_katm_qm
       real*8   lattice_omega
       external lattice_omega
 
@@ -87,7 +90,7 @@
       F25=F23
 
       call phafac()
-      do i=1,ion_nion()
+      do i=1,ion_nion_qm()
 
 *       **** get the structure factor ****
         call strfac(i,dcpl_mb(exr(1)))
@@ -99,11 +102,11 @@
 
 * S-COMPONENT
             call Pack_cc_dot(1,dcpl_mb(exr(1)),c2(1,n),w)
-            A(1,N,I)=F0/B0(0,ion_katm(I))*w
+            A(1,N,I)=F0/B0(0,ion_katm_qm(I))*w
 
 
 * P-COMPONENT
-            IF(lmax(ion_katm(i)).GE.1) THEN
+            IF(lmax(ion_katm_qm(i)).GE.1) THEN
 
 *             **** px component ****
               do k=1,npack1
@@ -111,7 +114,7 @@
      >                            *DCMPLX(0.0d0,-dbl_mb(gx(1)+K-1))
               end do
               call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
-              A(2,N,I)=F1/B0(1,ion_katm(I))*w
+              A(2,N,I)=F1/B0(1,ion_katm_qm(I))*w
 
 *             **** py component ****
               do k=1,npack1
@@ -119,7 +122,7 @@
      >                            *DCMPLX(0.0d0,-dbl_mb(gy(1)+K-1))
               end do
               call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
-              A(3,N,I)=F1/B0(1,ion_katm(I))*w
+              A(3,N,I)=F1/B0(1,ion_katm_qm(I))*w
 
 *             **** pz component ****
               do k=1,npack1
@@ -127,11 +130,11 @@
      >                            *DCMPLX(0.0d0,-dbl_mb(gz(1)+K-1))
               end do
               call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
-              A(4,N,I)=F1/B0(1,ion_katm(I))*w
+              A(4,N,I)=F1/B0(1,ion_katm_qm(I))*w
             ENDIF
 
 * D-COMPONENT
-            IF(lmax(ion_katm(I)).GE.2) THEN
+            IF(lmax(ion_katm_qm(I)).GE.2) THEN
 
 *             **** dzz component ****
               do k=1,npack1
@@ -141,7 +144,7 @@ c               CW(K)=EXR(K)*(3.0d0*g(K,3)**2-1.0)/(2.0d0*dsqrt(3.0d0)
      >            /(2.0d0*dsqrt(3.0d0))
               end do
               call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
-              A(5,N,I)=F2/B0(2,ion_katm(I))*w
+              A(5,N,I)=F2/B0(2,ion_katm_qm(I))*w
 
 *             **** dx2-y2 component ****
               do k=1,npack1
@@ -151,7 +154,7 @@ c               CW(K)=EXR(K)*(g(K,1)**2-g(K,2)**2)/(2.0d0)
      >             - dbl_mb(gy(1)+k-1)**2)/(2.0d0)
               end do
               call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
-              A(6,N,I)=F2/B0(2,ion_katm(I))*w
+              A(6,N,I)=F2/B0(2,ion_katm_qm(I))*w
 
 *             **** dxy component ****
               do k=1,npack1
@@ -160,7 +163,7 @@ c               CW(K)=EXR(K)*g(K,1)*g(K,2)
      >            *( dbl_mb(gx(1)+k-1)*dbl_mb(gy(1)+k-1)**2)
               end do
               call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
-              A(7,N,I)=F2/B0(2,ion_katm(I))*w
+              A(7,N,I)=F2/B0(2,ion_katm_qm(I))*w
 
 *             **** dyz component ****
               do k=1,npack1
@@ -169,7 +172,7 @@ c               CW(K)=EXR(K)*g(K,2)*g(K,3)
      >            *( dbl_mb(gy(1)+k-1)*dbl_mb(gz(1)+k-1)**2)
               end do
               call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
-              A(8,N,I)=F2/B0(2,ion_katm(I))*w
+              A(8,N,I)=F2/B0(2,ion_katm_qm(I))*w
 
 *             **** dzx component ****
               do k=1,npack1
@@ -178,7 +181,7 @@ c               CW(K)=EXR(K)*g(K,3)*g(K,1)
      >            *( dbl_mb(gz(1)+k-1)*dbl_mb(gx(1)+k-1)**2)
               end do
               call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
-              A(9,N,I)=F2/B0(2,ion_katm(I))*w
+              A(9,N,I)=F2/B0(2,ion_katm_qm(I))*w
             ENDIF 
 
           end do
@@ -189,15 +192,15 @@ c               CW(K)=EXR(K)*g(K,3)*g(K,1)
         DO N=N1(SPIN),N2(SPIN)
           SUM(N)=0.0d0
 
-          DO I=1,ion_nion()
-            LLMAX=(lmax(ion_katm(I))+1)**2
+          DO I=1,ion_nion_qm()
+            LLMAX=(lmax(ion_katm_qm(I))+1)**2
             DO LL=1,LLMAX
               SUM(N)=SUM(N)+A(LL,N,I)**2
             END DO
           END DO
 
-          DO I=1,ion_nion()
-            LLMAX=(lmax(ion_katm(I))+1)**2
+          DO I=1,ion_nion_qm()
+            LLMAX=(lmax(ion_katm_qm(I))+1)**2
             DO LL=1,LLMAX
               A(LL,N,I)=A(LL,N,I)/DSQRT(SUM(N))
             END DO

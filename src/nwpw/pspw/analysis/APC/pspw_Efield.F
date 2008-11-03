@@ -1,3 +1,8 @@
+c
+c $Id: pspw_Efield.F,v 1.4 2008-11-03 06:06:14 bylaska Exp $
+c
+
+
 ********************************************************************
 *
 *	pspw_gen_Efield module: used to generate electric fields at atoms
@@ -45,10 +50,9 @@
       external control_version
       external lattice_omega,psp_zv,ion_rion
 
-
-
       if (.not.rtdb_get(rtdb,'nwpw:efield',mt_log,1,doefield)) 
-     >  doefield=.false.
+     >  doefield=.true.
+
       if (doefield) then
        
        call Parallel_taskid(taskid)
@@ -81,7 +85,7 @@
           call coulomb_v(dng,dcpl_mb(vc(1)))
           scal2 = 1.0d0/dsqrt(lattice_omega())
           scal2 = 1.0d0
-          call Pack_c_SMul(1,scal2,dcpl_mb(vc(1)),dcpl_mb(vc(1)))
+          call Pack_c_SMul(0,scal2,dcpl_mb(vc(1)),dcpl_mb(vc(1)))
        end if
 
        if (control_version().eq.4)  then
@@ -111,9 +115,9 @@
       call Pack_t_pack(0,dbl_mb(Gy(1)))
       call Pack_t_pack(0,dbl_mb(Gz(1)))
 
-      call Pack_itc_Mul(1,dbl_mb(Gx(1)),dcpl_mb(vc(1)),dcpl_mb(tmpx(1)))
-      call Pack_itc_Mul(1,dbl_mb(Gy(1)),dcpl_mb(vc(1)),dcpl_mb(tmpy(1)))
-      call Pack_itc_Mul(1,dbl_mb(Gz(1)),dcpl_mb(vc(1)),dcpl_mb(tmpz(1)))
+      call Pack_itc_Mul(0,dbl_mb(Gx(1)),dcpl_mb(vc(1)),dcpl_mb(tmpx(1)))
+      call Pack_itc_Mul(0,dbl_mb(Gy(1)),dcpl_mb(vc(1)),dcpl_mb(tmpy(1)))
+      call Pack_itc_Mul(0,dbl_mb(Gz(1)),dcpl_mb(vc(1)),dcpl_mb(tmpz(1)))
        do ii=1,nion
 c       p(1) = ion_rion(1,ii)
 c       p(2) = ion_rion(2,ii)
@@ -179,8 +183,8 @@ c        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
      >    MA_ERR)
 
 
-
       end if
+
       return
       end
 
@@ -211,9 +215,9 @@ c        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
      >                  (Ee(k,i),k=1,3),
      >                  i=1,nion)
  1300 FORMAT(//'=== Electric Field at Atoms ==='/)
- 1190 FORMAT(5X, I4, A4  ,' Atomic Electric Field =(',3F11.5,' )',
-     >      /12X,         '        (ion)          =(',3F11.5,' )',
-     >      /12X,         '        (electronic)   =(',3F11.5,' )')
+ 1190 FORMAT(3X,I4,1x,A4,' Atomic Electric Field =(',3F11.5,' )',
+     >      /12X,        '        (ion)          =(',3F11.5,' )',
+     >      /12X,        '        (electronic)   =(',3F11.5,' )')
 
       return
       end

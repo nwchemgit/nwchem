@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.52 2008-09-11 21:26:45 bylaska Exp $
+c $Id: nwpw_input.F,v 1.53 2008-11-03 06:06:09 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 89)
+      parameter (num_dirs = 91)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -103,11 +103,13 @@ c
      >            'lcao_skip',
      >            'lcao',
      >            'ewald_ngrid',
+     >            'auxiliary_potentials',
+     >            'Nose-Hoover',
      >            'end'/
 
        double precision kb
        parameter (kb=3.16679d-6)
-       logical      value,move,mulliken_kawai
+       logical      value,move,mulliken_kawai,nose,nosers
        character*30 cell_name,zone_name
        character*30 input_wavefunction_filename
        character*30 output_wavefunction_filename
@@ -116,6 +118,7 @@ c
        integer loop(2),ncut,cell_expand(3)
        double precision tolerances(3),ecut,wcut,fe,ff,scaling(2)
        double precision alpha,emin,emax
+       double precision Pe,Pr,Te,Tr
        integer npoints
        logical mulliken,allow_translation
        integer ispin,multiplicity
@@ -155,7 +158,7 @@ c
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5700,5800,5900,6000,6000,
-     >       2750,6090,6100,1809,6200,6300,6400,6500,
+     >       2750,6090,6100,1809,6200,6300,6400,6500,1500,6600,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -957,8 +960,9 @@ c
 c
 c  bo_steps
 c
- 5400 if (.not. inp_i(nx)) nx = 10
-      if (.not.rtdb_put(rtdb,'nwpw:bo_steps',mt_int,1,nx))
+ 5400 if (.not. inp_i(loop(1))) loop(1) = 10
+      if (.not. inp_i(loop(2))) loop(2) = 100
+      if (.not.rtdb_put(rtdb,'nwpw:bo_steps',mt_int,2,loop))
      >  call errquit('nwpw_input: error writing to rtdb',5400,RTDB_ERR)
 
       goto 10
@@ -1115,7 +1119,9 @@ c
  6400 if (.not.rtdb_put(rtdb,'nwpw:lcao_skip',mt_log,1,.false.))
      >  call errquit('nwpw_input: error writing to rtdb',6400,RTDB_ERR)
       goto 10
-  
+c
+c ewald_ngrid
+c
  6500 if (inp_i(cell_expand(1))) then
         if (.not. inp_i(cell_expand(2))) cell_expand(2) = cell_expand(1)
         if (.not. inp_i(cell_expand(3))) cell_expand(3) = cell_expand(2)
@@ -1123,6 +1129,47 @@ c
      >  call errquit('nwpw_input: error writing to rtdb',6500,RTDB_ERR)
       end if
       goto 10
+
+c
+c Nose-Hoover
+c
+ 6600 nose   = .true.
+      nosers = .true.
+      Pe = 100.00d0
+      Pr = 100.00d0
+      Te = 298.15d0
+      Tr = 298.15d0
+      if (.not. inp_f(fe)) goto 6601
+      Pe = fe
+      if (.not. inp_f(fe)) goto 6601
+      Te = fe
+      if (.not. inp_f(fe)) goto 6601
+      Pr = fe
+      if (.not. inp_f(fe)) goto 6601
+      Tr = fe
+      if (.not.inp_a(zone_name)) goto 6601
+      if (inp_compare(.false.,zone_name,'restart'))    nosers=.true.
+      if (inp_compare(.false.,zone_name,'start'))      nosers=.false.
+      if (inp_compare(.false.,zone_name,'clear'))      nosers=.false.
+      if (inp_compare(.false.,zone_name,'initialize')) nosers=.false.
+ 6601 value = rtdb_put(rtdb,'cpmd:nose',mt_log,1,nose)
+     >   .and.rtdb_put(rtdb,'nwpw:nose',mt_log,1,nose)
+      value = value.and.
+     >        rtdb_put(rtdb,'cpmd:nose_restart',mt_log,1,nosers)
+     >   .and.rtdb_put(rtdb,'nwpw:nose_restart',mt_log,1,nosers)
+      value = value.and.rtdb_put(rtdb,'cpmd:Pe',mt_dbl,1,Pe)
+      value = value.and.rtdb_put(rtdb,'nwpw:Pe',mt_dbl,1,Pe)
+      value = value.and.rtdb_put(rtdb,'cpmd:Te',mt_dbl,1,Te)
+      value = value.and.rtdb_put(rtdb,'nwpw:Te',mt_dbl,1,Te)
+      value = value.and.rtdb_put(rtdb,'cpmd:Pr',mt_dbl,1,Pr)
+      value = value.and.rtdb_put(rtdb,'nwpw:Pr',mt_dbl,1,Pr)
+      value = value.and.rtdb_put(rtdb,'cpmd:Tr',mt_dbl,1,Tr)
+      value = value.and.rtdb_put(rtdb,'nwpw:Tr',mt_dbl,1,Tr)
+      if (.not.value)
+     > call errquit('nwpw_input: writing ', 6600, RTDB_ERR)
+      goto 10
+
+
 ************************************************************************
 c
 c END/Finished

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.125 2008-09-22 22:55:15 bylaska Exp $
+* $Id: control.F,v 1.126 2008-11-03 06:06:09 bylaska Exp $
 *
 
 *     ***********************************
@@ -366,8 +366,10 @@ c
 
 
 *     **** BO parameterss ***
-      if (.not.rtdb_get(rtdb,'nwpw:bo_steps',mt_int,1,bo_steps))
-     >   bo_steps = 100
+      if (.not.rtdb_get(rtdb,'nwpw:bo_steps',mt_int,2,bo_steps)) then
+         bo_steps(1) = 10
+         bo_steps(2) = 100
+      end if
       if (.not.rtdb_get(rtdb,'nwpw:bo_time_step',mt_dbl,1,bo_time_step))
      >   bo_time_step = time_step
       if (.not.rtdb_get(rtdb,'nwpw:bo_algorithm',mt_int,1,bo_algorithm))
@@ -375,6 +377,33 @@ c
 
       if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
      >  rotation = .true.
+
+      SA = .true.
+      if (.not.rtdb_get(rtdb,'nwpw:sa_decay',mt_dbl,2,sa_decay)) then
+        SA = .false.
+        sa_decay(1) = 1.0d0
+        sa_decay(2) = 1.0d0
+      end if
+
+      if (.not.rtdb_get(rtdb,'nwpw:fei',mt_log,1,fei))
+     >  fei = .false.
+
+      if (.not.rtdb_get(rtdb,'nwpw:fei_quench',mt_log,1,fei_quench))
+     >  fei_quench = .false.
+
+
+
+*     **** get thermostat information ****
+      if (.not.rtdb_get(rtdb,'nwpw:nose',mt_log,1,nose))
+     >   nose = .false.
+      if (.not.rtdb_get(rtdb,'nwpw:Pe',mt_dbl,1,Pe))
+     >   Pe = 1000.0d0
+      if (.not.rtdb_get(rtdb,'nwpw:Te',mt_dbl,1,Te))
+     >   Te = 298.15d0
+      if (.not.rtdb_get(rtdb,'nwpw:Pr',mt_dbl,1,Pr))
+     >   Pr = 1000.0d0
+      if (.not.rtdb_get(rtdb,'nwpw:Tr',mt_dbl,1,Tr))
+     >   Tr = 298.15d0
 
 
 
@@ -1522,15 +1551,29 @@ c         mtensor(3,3) = z
 
 *     ***********************************
 *     *					*
-*     *		control_bo_steps        *
+*     *		control_bo_steps_in     *
 *     *					*
 *     ***********************************
-      integer function control_bo_steps()
+      integer function control_bo_steps_in()
       implicit none 
 
 #include "control.fh"
 
-      control_bo_steps = bo_steps
+      control_bo_steps_in = bo_steps(1)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		control_bo_steps_out    *
+*     *					*
+*     ***********************************
+      integer function control_bo_steps_out()
+      implicit none 
+
+#include "control.fh"
+
+      control_bo_steps_out = bo_steps(2)
       return
       end
 

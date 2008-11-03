@@ -1,5 +1,5 @@
 c
-c $Id: orb.F,v 1.9 2007-04-02 15:38:40 bylaska Exp $
+c $Id: orb.F,v 1.10 2008-11-03 06:06:12 bylaska Exp $
 c
 
 *     ***********************************
@@ -35,10 +35,10 @@ c
       character*255 id,full_filename
 
 *     **** external functions ****
-      character*4 ion_atom
-      external    ion_atom
-      integer  ion_nion,ion_nkatm
-      external ion_nion,ion_nkatm
+      character*4 ion_atom_qm
+      external    ion_atom_qm
+      integer  ion_nion_qm,ion_nkatm_qm
+      external ion_nion_qm,ion_nkatm_qm
       logical  control_mulliken_kawai,aorbs_init,aorbs_readall
       external control_mulliken_kawai,aorbs_init,aorbs_readall
 
@@ -47,8 +47,8 @@ c
       ne(1) = ne_in(1)
       ne(2) = ne_in(2)
       nemax = ne(1)+ne(2)
-      nion = ion_nion()
-      npsp = ion_nkatm()
+      nion = ion_nion_qm()
+      npsp = ion_nkatm_qm()
       call Pack_npack(1,npack1)
       mulliken_kawai = control_mulliken_kawai()
 
@@ -65,12 +65,12 @@ c
 *     **** read in expansion coefficients ****
 *     ****************************************
       do k=1,npsp
-          id = 'analysis:lorb'//ion_atom(k)
+          id = 'analysis:lorb'//ion_atom_qm(k)
           if (.not. rtdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1)))
      >        call errquit(
      >        'analysis: rtdb_get lorb failed', 0, RTDB_ERR)
 
-          id = 'analysis:expansion'//ion_atom(k)
+          id = 'analysis:expansion'//ion_atom_qm(k)
           if (.not. rtdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
      >                                       dbl_mb(b0(1)+(k-1)*6)))
      >        call errquit(

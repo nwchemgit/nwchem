@@ -1,14 +1,15 @@
+c
+c $Id: analysis_input.F,v 1.5 2008-11-03 06:06:11 bylaska Exp $
+c
       subroutine analysis_input(rtdb)
-c
-c $Id: analysis_input.F,v 1.4 2003-10-17 22:57:03 carlfahl Exp $
-c
       implicit none
+      integer rtdb
+
+c
 #include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-c
-      integer rtdb
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives

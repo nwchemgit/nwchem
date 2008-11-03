@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.32 2008-09-22 22:55:16 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.33 2008-11-03 06:06:18 bylaska Exp $
 c
 
 ***********************************************************
@@ -57,14 +57,18 @@ c
       external    c_index_name
       external    lattice_unita
 
+      rtdb_name = 'pspw_qmmm_auxon'
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,value)) value = .false.
 
-      qmmm_found  =  (ion_nion_mm().gt.0)
-      shake_found = .false.
+      qmmm_found     = (ion_nion_mm().gt.0).or. value 
+      auxiliary_only = (ion_nion_mm().le.0).and.value
+      shake_found    = .false.
 
 *     **** don't do anything if there are no MM atoms ****
       if (qmmm_found) then
 
 *        **** set the nshl3d and rcell ****
+         if (.not.auxiliary_only) then
          if (control_version().eq.3) then
             nshl3d   = ewald_nshl3d()
             rcell(1) = ewald_rcell_ptr()
@@ -79,22 +83,19 @@ c
             dbl_mb(rcell(1)+1) = 0.0d0
             dbl_mb(rcell(1)+2) = 0.0d0
          end if
+         end if
 
 
 *        **** reading number of frags ****
          rtdb_name = 'pspw_qmmm_nfrag'
-         value = rtdb_get(rtdb,rtdb_name,mt_int,1,nfrag)
-         if (.not. value)
-     >   call errquit(
-     >   'pspw_qmmm_init:failed reading nfrag',0,RTDB_ERR)
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nfrag)) nfrag = 0
+
 
 *        **** reading number of kinds of frags ****
          rtdb_name = 'pspw_qmmm_nkfrag'
-         value = rtdb_get(rtdb,rtdb_name,mt_int,1,nkfrag)
-         if (.not. value)
-     >   call errquit(
-     >   'pspw_qmmm_init:failed reading nkfrag',0,RTDB_ERR)
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nkfrag)) nkfrag = 0
 
+         if (nfrag.eq.0) go to 999
 
          value = MA_alloc_get(mt_int,nfrag,'index_frag_start',
      >                        indx_frag_start(2),indx_frag_start(1))
@@ -521,9 +522,8 @@ c
 
 
 
-
 *       ***** initialize Model, LJ, Pol, VIB, and CAV ****
-        call pspw_LJ_init(rtdb)
+        if (.not.auxiliary_only) call pspw_LJ_init(rtdb)
 
 *       ***** make sure mm fragments are in cell ****
         if (periodic) call pspw_qmmm_incell1(dbl_mb(ion_rion_ptr()))
@@ -657,6 +657,7 @@ c
            end do
         end if
 
+ 999    continue
         call pspw_2qmmm_init(rtdb)
       end if
 
@@ -684,6 +685,7 @@ c
       external pspw_2qmmm_found
 
       if (qmmm_found) then
+        if (nfrag.gt.0) then
         value =           MA_free_heap(indx_frag_start(2))
         value = value.and.MA_free_heap(size_frag(2))
         value = value.and.MA_free_heap(kfrag(2))
@@ -734,14 +736,19 @@ c
           value = value.and.MA_free_heap(Kr0_mbond(2))
         end if
 
+        if (.not.auxiliary_only) then
         if (control_version().ne.3) then
         value = value.and.MA_free_heap(rcell(2))
         end if
+        end if
+
         if (.not.value) call errquit('cannot free heap memory',0,
      &       MA_ERR)
 
-        if (pspw_2qmmm_found()) call pspw_2qmmm_end()
-        call pspw_LJ_end()
+        end if
+
+        if (pspw_2qmmm_found())  call pspw_2qmmm_end()
+        if (.not.auxiliary_only) call pspw_LJ_end()
       end if
 
       return
@@ -796,16 +803,20 @@ c     **** external functions ***
       real*8   pspw_LJ_E
       external pspw_LJ_E
 
-      pspw_qmmm_LJ_E = pspw_LJ_E(ion_nion(),
-     >                           ion_nion_qm(),
-     >                           int_mb(ion_katm_ptr()),
-     >                           nfrag,
-     >                           int_mb(indx_frag_start(1)),
-     >                           int_mb(size_frag(1)),
-     >                           int_mb(kfrag(1)),
-     >                           log_mb(self_interaction(1)),
-     >                           nshl3d,dbl_mb(rcell(1)),
-     >                           dbl_mb(ion_rion_ptr()))
+      if (auxiliary_only) then
+         pspw_qmmm_LJ_E = 0.0d0
+      else
+         pspw_qmmm_LJ_E = pspw_LJ_E(ion_nion(),
+     >                              ion_nion_qm(),
+     >                              int_mb(ion_katm_ptr()),
+     >                              nfrag,
+     >                              int_mb(indx_frag_start(1)),
+     >                              int_mb(size_frag(1)),
+     >                              int_mb(kfrag(1)),
+     >                              log_mb(self_interaction(1)),
+     >                              nshl3d,dbl_mb(rcell(1)),
+     >                              dbl_mb(ion_rion_ptr()))
+      end if
       return
       end
 
@@ -832,26 +843,26 @@ c     **** external functions ***
       real*8   pspw_Q_E
       external pspw_Q_E
 
-      pspw_qmmm_Q_E = pspw_Q_E(ion_nion(),
-     >                         ion_nion_qm(),
-     >                         int_mb(ion_katm_ptr()),
-     >                         dbl_mb(psp_zv_ptr()),
-     >                         dbl_mb(ion_amass_ptr()),
-     >                         nfrag,
-     >                         int_mb(indx_frag_start(1)),
-     >                         int_mb(size_frag(1)),
-     >                         int_mb(kfrag(1)),
-     >                         dbl_mb(switch_Rin(1)),
-     >                         dbl_mb(switch_Rout(1)),
-     >                         log_mb(self_interaction(1)),
-     >                         nshl3d,dbl_mb(rcell(1)),
-     >                         dbl_mb(ion_rion_ptr()))
+      if (auxiliary_only) then
+         pspw_qmmm_Q_E = 0.0d0
+      else
+         pspw_qmmm_Q_E = pspw_Q_E(ion_nion(),
+     >                            ion_nion_qm(),
+     >                            int_mb(ion_katm_ptr()),
+     >                            dbl_mb(psp_zv_ptr()),
+     >                            dbl_mb(ion_amass_ptr()),
+     >                            nfrag,
+     >                            int_mb(indx_frag_start(1)),
+     >                            int_mb(size_frag(1)),
+     >                            int_mb(kfrag(1)),
+     >                            dbl_mb(switch_Rin(1)),
+     >                            dbl_mb(switch_Rout(1)),
+     >                            log_mb(self_interaction(1)),
+     >                            nshl3d,dbl_mb(rcell(1)),
+     >                            dbl_mb(ion_rion_ptr()))
+      end if
       return
       end
-
-
-
-
 
 
 *     **********************************
@@ -1048,16 +1059,18 @@ c     **** external functions ***
       integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
       external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
 
-      call  pspw_LJ_fion(ion_nion(),
-     >                   ion_nion_qm(),
-     >                   int_mb(ion_katm_ptr()),
-     >                   nfrag,
-     >                   int_mb(indx_frag_start(1)),
-     >                   int_mb(size_frag(1)),
-     >                   int_mb(kfrag(1)),
-     >                   log_mb(self_interaction(1)),
-     >                   nshl3d,dbl_mb(rcell(1)),
-     >                   dbl_mb(ion_rion_ptr()),fion)
+      if (.not.auxiliary_only) then
+         call  pspw_LJ_fion(ion_nion(),
+     >                      ion_nion_qm(),
+     >                      int_mb(ion_katm_ptr()),
+     >                      nfrag,
+     >                      int_mb(indx_frag_start(1)),
+     >                      int_mb(size_frag(1)),
+     >                      int_mb(kfrag(1)),
+     >                      log_mb(self_interaction(1)),
+     >                      nshl3d,dbl_mb(rcell(1)),
+     >                      dbl_mb(ion_rion_ptr()),fion)
+      end if
       return
       end
 
@@ -1085,20 +1098,22 @@ c     **** external functions ***
       real*8   pspw_Q_E
       external pspw_Q_E
 
-      call pspw_Q_fion(ion_nion(),
-     >                 ion_nion_qm(),
-     >                 int_mb(ion_katm_ptr()),
-     >                 dbl_mb(psp_zv_ptr()),
-     >                 dbl_mb(ion_amass_ptr()),
-     >                 nfrag,
-     >                 int_mb(indx_frag_start(1)),
-     >                 int_mb(size_frag(1)),
-     >                 int_mb(kfrag(1)),
-     >                 dbl_mb(switch_Rin(1)),
-     >                 dbl_mb(switch_Rout(1)),
-     >                 log_mb(self_interaction(1)),
-     >                 nshl3d,dbl_mb(rcell(1)),
-     >                 dbl_mb(ion_rion_ptr()),fion)
+      if (.not.auxiliary_only) then
+         call pspw_Q_fion(ion_nion(),
+     >                    ion_nion_qm(),
+     >                    int_mb(ion_katm_ptr()),
+     >                    dbl_mb(psp_zv_ptr()),
+     >                    dbl_mb(ion_amass_ptr()),
+     >                    nfrag,
+     >                    int_mb(indx_frag_start(1)),
+     >                    int_mb(size_frag(1)),
+     >                    int_mb(kfrag(1)),
+     >                    dbl_mb(switch_Rin(1)),
+     >                    dbl_mb(switch_Rout(1)),
+     >                    log_mb(self_interaction(1)),
+     >                    nshl3d,dbl_mb(rcell(1)),
+     >                    dbl_mb(ion_rion_ptr()),fion)
+      end  if
       return
       end
 
@@ -1117,6 +1132,7 @@ c     **** external functions ***
 
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "pspw_qmmm.fh"
 
 *      **** local variables ****
       integer ftmp(2),nion3,np
@@ -1127,8 +1143,10 @@ c     **** external functions ***
       call Parallel_np(np)
 
       if (np.eq.1) then
-         call pspw_qmmm_LJ_fion(fion)
-         call pspw_qmmm_Q_fion(fion)
+         if (.not.auxiliary_only) then
+            call pspw_qmmm_LJ_fion(fion)
+            call pspw_qmmm_Q_fion(fion)
+         end if
          call pspw_qmmm_spring_fion(fion)
       else
          nion3 = 3*ion_nion()
@@ -1136,8 +1154,10 @@ c     **** external functions ***
      >  call errquit('pspw_qmmm_fion:cannot push stack memory',0,MA_ERR)
 
          call dcopy(nion3,0.0,0,dbl_mb(ftmp(1)),1)
-         call pspw_qmmm_LJ_fion(dbl_mb(ftmp(1)))
-         call pspw_qmmm_Q_fion(dbl_mb(ftmp(1)))
+         if (.not.auxiliary_only) then
+            call pspw_qmmm_LJ_fion(dbl_mb(ftmp(1)))
+            call pspw_qmmm_Q_fion(dbl_mb(ftmp(1)))
+         end if
          call pspw_qmmm_spring_fion(dbl_mb(ftmp(1)))
          call Parallel_Vector_SumAll(nion3,dbl_mb(ftmp(1)))
 

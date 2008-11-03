@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.fh,v 1.14 2008-09-22 22:55:16 bylaska Exp $
+c $Id: pspw_qmmm.fh,v 1.15 2008-11-03 06:06:18 bylaska Exp $
 c
 
 *     ***** pspw_qmmm common block ************************************
@@ -10,13 +10,14 @@ c
       integer self_interaction(2),incell_frag(2)
       integer nshl3d,rcell(2)
       integer nfrag,nkfrag
-      logical qmmm_found,shake_found,periodic
+      logical qmmm_found,shake_found,auxiliary_only,periodic
       common / pspw_qmmm /  indx_frag_start,
      >                      size_frag,
      >                      kfrag,switch_Rin,switch_Rout,
      >                      self_interaction,incell_frag,
      >                      rcell,nshl3d,
      >                      nfrag,nkfrag,qmmm_found,shake_found,
+     >                      auxiliary_only,
      >                      periodic
 
 *     **** pspw_qmmm shake common block ****

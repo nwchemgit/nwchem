@@ -1,5 +1,5 @@
 *
-* $Id: task_pspw.F,v 1.14 2007-04-02 15:38:40 bylaska Exp $
+* $Id: task_pspw.F,v 1.15 2008-11-03 06:06:10 bylaska Exp $
 *
 
       logical function task_pspw(rtdb)
@@ -11,7 +11,7 @@
 #include "rtdb.fh"
 c
       integer rtdb
-      logical value,dummy
+      logical value,dummy,md_only
       integer MASTER
       parameter (MASTER=0)
 c
@@ -42,12 +42,12 @@ c
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
-      logical  v_wvfnc_init,wvfnc_expander,cell_optimize
+      logical  v_wvfnc_init,wvfnc_expander,cell_optimize,mmsdv1,mmmdv1
       logical  pspw_dplot,pspw_stress,pspw_noit_energy
       logical  pspw_wannier,expand_cell,wvfnc_ionize
       logical  wvfnc_convert_restricted,nwpw_rdf
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
-      external v_wvfnc_init,wvfnc_expander,cell_optimize
+      external v_wvfnc_init,wvfnc_expander,cell_optimize,mmsdv1,mmmdv1
       external pspw_dplot,pspw_stress,pspw_noit_energy
       external pspw_wannier,expand_cell,wvfnc_ionize
       external wvfnc_convert_restricted,nwpw_rdf
@@ -135,7 +135,16 @@ c
 
       value = .true.
       value = rtdb_parallel(.true.)
-      value = cpsdv5(rtdb)
+
+      if (.not.rtdb_get(rtdb,'nwpw:md_only',mt_log,1,md_only))
+     >   md_only = .false.
+
+      if (md_only) then
+         value = mmsdv1(rtdb)
+      else
+         value = cpsdv5(rtdb)
+      end if
+
       call ga_sync()
       goto 9999
 
@@ -299,9 +308,18 @@ c
  1800 if (ga_nodeid().eq.MASTER) then
         write(*,*)  ">>>> PSPW Parallel Module - Born-Oppenheimer <<<<"
       end if
+
       value = .true.
       value = rtdb_parallel(.true.)
-      value = cgmdv5(rtdb,0)
+      if (.not.rtdb_get(rtdb,'nwpw:md_only',mt_log,1,md_only))
+     >   md_only = .false.
+
+      if (md_only) then
+         value = mmmdv1(rtdb,0)
+      else
+         value = cgmdv5(rtdb,0)
+      end if
+
       call ga_sync()
       goto 9999
 

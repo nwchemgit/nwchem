@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.20 2008-06-18 18:53:21 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.21 2008-11-03 06:06:19 bylaska Exp $
 c
 
 *     *************************
@@ -67,7 +67,7 @@ c
           write(*,*)
           write(*,*) 'Ion LJ Parameters:'
           do i=1,nkatm
-            write(*,'(A3,4x,A12,E10.3,A9,A12,E10.3,A9)') 
+            write(*,'(A4,4x,A12,E10.3,A9,A12,E10.3,A9)') 
      >         ion_atom(i),
      >         'sigma:',  
      >         dbl_mb(sigma_all(1)+i-1)*(0.529177d0), 

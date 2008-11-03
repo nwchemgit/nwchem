@@ -1,3 +1,7 @@
+c
+c $Id: analysis.F,v 1.12 2008-11-03 06:06:11 bylaska Exp $
+c
+
       subroutine pspw_analysis(flag,rtdb,ispin,ne,psi,eig)
       implicit none
       integer flag
@@ -67,10 +71,10 @@
       external control_mulliken_kawai,aorbs_init,aorbs_readall
       character   spdf_name
       external    spdf_name
-      character*4 ion_atom
-      external    ion_atom
-      integer  ion_nion,ion_katm,ion_nkatm
-      external ion_nion,ion_katm,ion_nkatm
+      character*4 ion_atom_qm
+      external    ion_atom_qm
+      integer  ion_nion_qm,ion_katm_qm,ion_nkatm_qm
+      external ion_nion_qm,ion_katm_qm,ion_nkatm_qm
       real*8   ion_rion
       external ion_rion
       real*8      lattice_omega,lattice_ecut,lattice_unita
@@ -81,8 +85,8 @@
       call Pack_npack(1,npack1)
       mulliken_kawai = control_mulliken_kawai()
 
-      npsp = ion_nkatm()
-      nion = ion_nion()
+      npsp = ion_nkatm_qm()
+      nion = ion_nion_qm()
       nemax = ne(1)+ne(2)
 
       n1(1) = 1
@@ -108,21 +112,21 @@
 *      ***********************************************
        do k=1,npsp
          DD = '                          '
-         DD = ion_atom(k)
+         DD = ion_atom_qm(k)
          ind = index(DD,' ') - 1
          test = DD(1:ind)//'.psp1'
          if (.not.nwpw_filefind(test))
-     >      call aorbs_formatter_auto(ion_atom(k))
+     >      call aorbs_formatter_auto(ion_atom_qm(k))
        end do
 
 *      ****************************************
 *      **** read in expansion coefficients ****
 *      ****************************************
        do k=1,npsp
-          id = 'analysis:lorb'//ion_atom(k)
+          id = 'analysis:lorb'//ion_atom_qm(k)
           if (.not. rtdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1))) then
             DD = '                          '
-            DD = ion_atom(k)
+            DD = ion_atom_qm(k)
             ind = index(DD,' ') - 1
             test = DD(1:ind)//'.psp1'
 
@@ -141,11 +145,11 @@
      >        'analysis: rtdb_get lorb failed', 0, RTDB_ERR)
           end if
 
-          id = 'analysis:expansion'//ion_atom(k)
+          id = 'analysis:expansion'//ion_atom_qm(k)
           if (.not. rtdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
      >                                  dbl_mb(b0(1)+(k-1)*6))) then
             DD = '                          '
-            DD = ion_atom(k)
+            DD = ion_atom_qm(k)
             ind = index(DD,' ') -1
             test = DD(1:ind)//'.psp1'
             call analysis_expansion_coef(test,-1,rtdb)
@@ -205,7 +209,7 @@ c     **** ouput xyz format ****
          WRITE(6,1300)
          WRITE(6,1305) 'ATOM ','S','P','D','F'
          DO k=1,npsp
-           WRITE(6,1310) ion_atom(K),
+           WRITE(6,1310) ion_atom_qm(K),
      >                  (dbl_mb(b0(1)+l+(k-1)*6), 
      >                   l=0,int_mb(lorb(1)+k-1))
          END DO
@@ -276,7 +280,7 @@ c1315 FORMAT('==                    dzz, dx2-y2, dxy, dyz, dzx ==')
           END DO
           DO I=1,nion
             dbl_mb(TOTAL(1)+I-1)=0.0d0
-            DO L=0,int_mb(lorb(1)+ion_katm(I)-1)
+            DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
               L1=L**2+1
               L2=(L+1)**2
               SUBTTL=0.0d0
@@ -291,7 +295,7 @@ c1315 FORMAT('==                    dzz, dx2-y2, dxy, dyz, dzx ==')
               if (l.eq.1) write(6,1517)
               if (l.eq.2) write(6,1518)
               if (l.eq.3) write(6,1519)
-              WRITE(6,1530) I,ion_atom(ion_katm(I)),L,SUBTTL,
+              WRITE(6,1530) I,ion_atom_qm(ion_katm_qm(I)),L,SUBTTL,
      >               (dbl_mb(A(1)+LL-1+(N-1)*36+(I-1)*36*nemax),
      >                        LL=L1,L2)
 
@@ -299,7 +303,7 @@ c1315 FORMAT('==                    dzz, dx2-y2, dxy, dyz, dzx ==')
           END DO
 
           WRITE(6,1540)
-          WRITE(6,1550) (I,ion_atom(ion_katm(I)),
+          WRITE(6,1550) (I,ion_atom_qm(ion_katm_qm(I)),
      >                   dbl_mb(TOTAL(1)+I-1),I=1,nion)
           WRITE(6,1555)
           WRITE(6,1560)  's','p','d','f'
@@ -350,7 +354,7 @@ c     >           '         f6         f7')
         TTL1=0.0d0
         TTL2=0.0d0
 
-        DO L=0,int_mb(lorb(1)+ion_katm(I)-1)
+        DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
           DO ms=1,ISPIN
             dbl_mb(SUBTL(1)+L+(ms-1)*6)=0.0d0
             DO N=N1(ms),N2(ms)
@@ -367,19 +371,19 @@ c     >           '         f6         f7')
         END DO
      
         TTL1=0.0d0
-        DO L=0,int_mb(lorb(1)+ion_katm(I)-1)
+        DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
           TTL1=TTL1+dbl_mb(SUBTL(1)+L)
         END DO
-        WRITE(6,1620) I,ion_atom(ion_katm(I)),SPN(1),TTL1,
+        WRITE(6,1620) I,ion_atom_qm(ion_katm_qm(I)),SPN(1),TTL1,
      >                 ( dbl_mb(SUBTL(1)+L),
-     >                   L=0,int_mb(lorb(1)+ion_katm(I)-1) )
+     >                   L=0,int_mb(lorb(1)+ion_katm_qm(I)-1) )
         TTL1=0.0d0
-        DO L=0,int_mb(lorb(1)+ion_katm(I)-1)
+        DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
           TTL1=TTL1+dbl_mb(SUBTL(1)+L+(ispin-1)*6)
         END DO
-        WRITE(6,1620) I,ion_atom(ion_katm(I)),SPN(2),TTL1,
+        WRITE(6,1620) I,ion_atom_qm(ion_katm_qm(I)),SPN(2),TTL1,
      >                 ( dbl_mb(SUBTL(1)+L+(ispin-1)*6),
-     >                   L=0,int_mb(lorb(1)+ion_katm(I)-1) )
+     >                   L=0,int_mb(lorb(1)+ion_katm_qm(I)-1) )
 
       END DO
       call util_flush(6)
@@ -394,7 +398,7 @@ c     >           '         f6         f7')
       DO I=1,nion
         DO SPIN=1,ISPIN
           DO N=N1(SPIN),N2(SPIN)
-            DO L=0,int_mb(lorb(1)+ion_katm(I)-1)
+            DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
               L1=L**2+1
               L2=(L+1)**2
               DO LL=L1,L2
@@ -502,7 +506,7 @@ c     >           '         f6         f7')
          DO I=1,nion
            DO SPIN=1,ISPIN
            DO N=N1(SPIN),N2(SPIN)
-            if (L.le.int_mb(lorb(1)+ion_katm(I)-1)) then
+            if (L.le.int_mb(lorb(1)+ion_katm_qm(I)-1)) then
               L1=L**2+1
               L2=(L+1)**2
               DO LL=L1,L2
@@ -519,7 +523,7 @@ c     >           '         f6         f7')
            I=int_mb(l_actlist+j-1)
            DO SPIN=1,ISPIN
            DO N=N1(SPIN),N2(SPIN)
-            if (L.le.int_mb(lorb(1)+ion_katm(I)-1)) then
+            if (L.le.int_mb(lorb(1)+ion_katm_qm(I)-1)) then
               L1=L**2+1
               L2=(L+1)**2
               DO LL=L1,L2
@@ -560,7 +564,7 @@ c     >           '         f6         f7')
          DO I=1,nion
            DO SPIN=1,ISPIN
            DO N=N1(SPIN),N2(SPIN)
-            DO L=0,int_mb(lorb(1)+ion_katm(I)-1)
+            DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
               L1=L**2+1
               L2=(L+1)**2
               DO LL=L1,L2
@@ -577,7 +581,7 @@ c     >           '         f6         f7')
            I=int_mb(l_actlist+j-1)
            DO SPIN=1,ISPIN
            DO N=N1(SPIN),N2(SPIN)
-            DO L=0,int_mb(lorb(1)+ion_katm(I)-1)
+            DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
               L1=L**2+1
               L2=(L+1)**2
               DO LL=L1,L2
@@ -624,7 +628,7 @@ c
 c         call dcopy(nemax,0.0d0,0,dbl_mb(weight(1)),1)
 c           DO SPIN=1,ISPIN
 c           DO N=N1(SPIN),N2(SPIN)
-c            DO L=0,int_mb(lorb(1)+ion_katm(I)-1)
+c            DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
 c              L1=L**2+1
 c              L2=(L+1)**2
 c              DO LL=L1,L2

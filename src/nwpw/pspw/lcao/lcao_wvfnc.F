@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.23 2007-04-02 15:38:42 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.24 2008-11-03 06:06:16 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint_in,it_max,
      >                      wavefunction_filename,
@@ -45,9 +45,9 @@
 
 *     **** external functions ****
       logical     psp_semicore,aorbs_init,aorbs_readall
-      character*4 ion_atom
-      integer     aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax,ion_nion
-      integer     psp_locp,psp_lmmax,ion_natm
+      character*4 ion_atom_qm,ion_atom
+      integer     aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax
+      integer     psp_locp,psp_lmmax,ion_natm,ion_nion,ion_nkatm_qm
       integer     control_version
       integer     ewald_ncut,ewald_nshl3d
       real*8      psp_ncore,psp_rcore,psp_rlocal,psp_rc,psp_zv
@@ -56,9 +56,9 @@
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,control_tole,control_tolc
       external    psp_semicore,aorbs_init,aorbs_readall
-      external    ion_atom
-      external    aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax,ion_nion
-      external    psp_locp,psp_lmmax,ion_natm
+      external    ion_atom_qm,ion_atom
+      external    aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax
+      external    psp_locp,psp_lmmax,ion_natm,ion_nion,ion_nkatm_qm
       external    control_version
       external    ewald_ncut,ewald_nshl3d
       external    psp_ncore,psp_rcore,psp_rlocal,psp_rc,psp_zv
@@ -197,8 +197,8 @@
          END IF
 
         write(*,1117) 
-        do ia=1,ion_nkatm()
-           write(*,1118) ion_atom(ia),aorbs_norbs(ia)
+        do ia=1,ion_nkatm_qm()
+           write(*,1118) ion_atom_qm(ia),aorbs_norbs(ia)
         end do
         write(*,1119) nbasis
 

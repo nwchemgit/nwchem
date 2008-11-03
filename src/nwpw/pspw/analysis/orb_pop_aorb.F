@@ -1,3 +1,6 @@
+c
+c $Id: orb_pop_aorb.F,v 1.2 2008-11-03 06:06:12 bylaska Exp $
+c
  
 *     ***********************************
 *     *					*
@@ -34,8 +37,8 @@
 
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm,aorbs_get_basis_number
-      external ion_nion,ion_katm,aorbs_get_basis_number
+      integer  ion_nion_qm,ion_katm_qm,aorbs_get_basis_number
+      external ion_nion_qm,ion_katm_qm,aorbs_get_basis_number
 
       call D3dB_nfft3d(1,nfft3d)
 
@@ -56,7 +59,7 @@
       twopi = 2.0d0*pi
 
       call phafac()
-      do i=1,ion_nion()
+      do i=1,ion_nion_qm()
 
 
         DO spin=1,ispin
@@ -70,7 +73,7 @@
 
 
 * P-COMPONENT
-            IF(lmax(ion_katm(i)).GE.1) THEN
+            IF(lmax(ion_katm_qm(i)).GE.1) THEN
 
 *             **** px component ****
               jj=aorbs_get_basis_number(i,4)
@@ -92,7 +95,7 @@
             ENDIF
 
 * D-COMPONENT
-            IF(lmax(ion_katm(I)).GE.2) THEN
+            IF(lmax(ion_katm_qm(I)).GE.2) THEN
 
 *             **** dzz component ****
               jj=aorbs_get_basis_number(i,9)
@@ -133,15 +136,15 @@
         DO N=N1(SPIN),N2(SPIN)
           SUM(N)=0.0d0
 
-          DO I=1,ion_nion()
-            LLMAX=(lmax(ion_katm(I))+1)**2
+          DO I=1,ion_nion_qm()
+            LLMAX=(lmax(ion_katm_qm(I))+1)**2
             DO LL=1,LLMAX
               SUM(N)=SUM(N)+A(LL,N,I)**2
             END DO
           END DO
 
-          DO I=1,ion_nion()
-            LLMAX=(lmax(ion_katm(I))+1)**2
+          DO I=1,ion_nion_qm()
+            LLMAX=(lmax(ion_katm_qm(I))+1)**2
             DO LL=1,LLMAX
               A(LL,N,I)=A(LL,N,I)/DSQRT(SUM(N))
             END DO

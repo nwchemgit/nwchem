@@ -1,11 +1,14 @@
+c
+c $Id: pspw_Lubin_water_analysis.F,v 1.5 2008-11-03 06:06:13 bylaska Exp $
+c
+
 *     ************************************
-*     *                    		         *
+*     *                    	         *
 *     *    pspw_Lubin_water_analysis     *
-*     *                            		 *
+*     *                                  *
 *     ************************************
       subroutine pspw_Lubin_water_analysis(rtdb,ispin,ne,n2ft3d,dn)
       implicit none
-#include "errquit.fh"
       integer rtdb
       integer ispin,ne(2)
       integer n2ft3d
@@ -13,6 +16,7 @@
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "errquit.fh"
 
 *     ***** local variables ****
       integer ma_type,nactive_atoms,h_actlist,l_actlist

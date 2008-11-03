@@ -1,5 +1,5 @@
 c
-c $Id: pspw_2qmmm.F,v 1.1 2008-09-22 22:55:16 bylaska Exp $
+c $Id: pspw_2qmmm.F,v 1.2 2008-11-03 06:06:18 bylaska Exp $
 c
 
 *     **********************************
@@ -46,7 +46,8 @@ c
       rtdb_name = 'pspw_2qmmm_nfrag'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nfrag)) nfrag = 0
 
-      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
+cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
+      qmmm_found  =  (nfrag.gt.0)
       shake_found = .false.
 
 *     **** don't do anything if there are no MM atoms ****
@@ -168,7 +169,7 @@ c
      >        call errquit(
      >       'pspw_2qmmm_init:failed reading frag_size',0,RTDB_ERR)
 
-            rtdb_name='pspw_2qmmm_frag_nindex_start:'//c_index_name(i)
+            rtdb_name='pspw_2qmmm_frag_nindex_start:'//c_index_name(ia)
             value = rtdb_get(rtdb,rtdb_name,mt_int,1,ni)
             if (.not. value)
      >        call errquit(
