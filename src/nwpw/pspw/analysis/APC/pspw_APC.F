@@ -1,5 +1,5 @@
 c
-c $Id: pspw_APC.F,v 1.7 2008-11-03 06:06:13 bylaska Exp $
+c $Id: pspw_APC.F,v 1.8 2008-11-03 22:54:27 bylaska Exp $
 c
 
 
@@ -424,11 +424,11 @@ c    >     + i+1
 *     ***********************************
       subroutine pspw_dngen_APC(ispin,ne,dn)
       implicit none
-#include "errquit.fh"
       integer ispin,ne(2)
       real*8 dn(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "pspw_APC.fh"
 
 *     ***** local variables ****
@@ -458,7 +458,7 @@ c    >     + i+1
 
 *     **** generate dng ****
       call D3dB_rr_Sum(1,dn(1),dn(1+(ispin-1)*n2ft3d),dcpl_mb(tmp(1)))
-      call D3dB_r_SMul(1,scal1,dbl_mb(tmp(1)),dcpl_mb(tmp(1)))
+      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       call D3dB_rc_fft3f(1,dcpl_mb(tmp(1)))
       call Pack_c_pack(0,dcpl_mb(tmp(1)))
       call Pack_c_Copy(0,dcpl_mb(tmp(1)),dcpl_mb(dng(1)))
