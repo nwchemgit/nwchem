@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.80 2008-11-03 06:06:15 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.81 2008-11-04 21:30:57 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -58,8 +58,8 @@ c#include "rtdb.fh"
       external psi_smearfermi
       character*4 psi_ab_irrep_name
       external    psi_ab_irrep_name
-      integer     control_symmetry
-      external    control_symmetry
+      integer     control_symmetry,control_version
+      external    control_symmetry,control_version
 
 
       call Parallel_taskid(taskid)
@@ -74,7 +74,7 @@ c#include "rtdb.fh"
 
 *     **** generate phaze factors and local psp and core density ****
       call phafac()
-      call ewald_phafac()
+      if (control_version().eq.3) call ewald_phafac()
       call electron_gen_vl_potential()
       if (psp_semicore(0)) call semicore_density_update()
 

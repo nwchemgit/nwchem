@@ -1,4 +1,4 @@
-c     $Id: cgsd_noit_energy.F,v 1.9 2008-09-11 21:26:47 bylaska Exp $                       
+c     $Id: cgsd_noit_energy.F,v 1.10 2008-11-04 21:30:57 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *	   cgsd_noit_energy	*
@@ -54,8 +54,8 @@ cccccc#include "frac_occ.fh"
       external ion_rion,psi_eigenvalue,psi_hml,ion_amass
       character*4 psi_ab_irrep_name
       external    psi_ab_irrep_name
-      integer     control_symmetry
-      external    control_symmetry
+      integer     control_symmetry,control_version
+      external    control_symmetry,control_version
       logical  psp_pawexist
       external psp_pawexist
 
@@ -68,7 +68,7 @@ cccccc#include "frac_occ.fh"
 *     **** generate phaze factors and local psp and core density ****
       call dcopy(30,0.0d0,0,E,1)
       call phafac()
-      call ewald_phafac()
+      if (control_version().eq.3) call ewald_phafac()
       call electron_gen_vl_potential()
       if (psp_semicore(0)) call semicore_density_update()
 

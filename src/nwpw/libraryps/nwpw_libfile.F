@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.15 2008-10-22 23:56:37 bylaska Exp $
+* $Id: nwpw_libfile.F,v 1.16 2008-11-04 21:30:57 bylaska Exp $
 *
 
 *
@@ -26,7 +26,7 @@ c
       character*(*) element
       integer       library_type
 c
-      logical hprint,debug,lexist
+      logical mprint,hprint,debug,lexist
       logical does_it_exist,foundit,is_it_open,noslash
       logical nwrcopen,from_environment,from_nwchemrc,from_compile
 
@@ -50,6 +50,7 @@ c
 * 2) value of NWCHEM_NWPW_LIBRARY set in $HOME/.nwchemrc file
 * 3) value of the compiled in library name
 *
+      mprint = control_print(print_medium)
       hprint = control_print(print_high)
       debug  = control_print(print_debug)
       nwrcopen         = .false.
@@ -185,16 +186,20 @@ c
  99   continue
 
       if (from_environment) then
-          if (hprint)
+          if (mprint)
      >     write(luout,*)' library name resolved from: environment'
       else if (from_nwchemrc) then
-          if (hprint)
+          if (mprint)
      >     write(luout,*)' library name resolved from: .nwchemrc'
       else
-          if (hprint)
+          if (mprint)
      >     write(luout,*)
      >      ' library name resolved from: compiled reference'
       endif
+      if (mprint) then 
+         write(luout,*) ' NWCHEM_NWPW_LIBRARY set to: <',
+     >                  libname(1:inp_strlen(libname)),'>'
+      end if
 
       if(noslash) then
          write(luout,*) "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"

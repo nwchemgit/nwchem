@@ -1780,7 +1780,7 @@ c     implicit none
       call Parallel3d_np_i(np_i)
       if (np_i.gt.1) then
          call GA_PGROUP_DGOP(Parallel3d_comm_i(),
-     >                       9+MSGDBL,sum,n,'+')
+     >                       9+MSGDBL,sum1,n,'+')
       end if
 
       call nwpw_timing_end(2)
