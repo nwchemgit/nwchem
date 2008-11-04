@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, grad, ldew, func,
      &                       do_2nd, tau, ttau, kske, Mmat, Mmat2)
 c
-c     $Id: xc_eval_fnl.F,v 1.62 2008-09-29 20:25:06 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.63 2008-11-04 16:40:51 niri Exp $
 c
       implicit none
 c
@@ -634,6 +634,20 @@ c
        else
         call xc_rodaes_erf_d2(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
      &    rho, Amat, Amat2, nq, ipol, Ex, qwght, ldew, func)
+       endif
+      endif
+c
+c CAMB88 Exchange
+c
+      if (abs(xfac(40)).gt.eps)then
+       if (.not. do_2nd) then
+        call xc_camb88(tol_rho, xfac(40), lxfac(40), nlxfac(40),
+     &    rho, delrho, Amat, Cmat, nq, ipol,
+     &    Ex, qwght,ldew,func)
+       else
+        call xc_camb88_d2(tol_rho, xfac(40), lxfac(40), nlxfac(40),
+     &    rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &    Ex, qwght,ldew,func)
        endif
       endif
 c

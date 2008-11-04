@@ -3,7 +3,7 @@ c     /* Main DFT driver */
 c
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.89 2008-10-28 23:10:53 niri Exp $
+c     $Id: dft_main0d.F,v 1.90 2008-11-04 16:40:44 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -134,6 +134,18 @@ c
      &   cam_alpha)) cam_alpha=0.d0
       if (.not.rtdb_get(rtdb, 'dft:cam_beta', mt_dbl, 1,
      &   cam_beta)) cam_beta=0.d0
+c
+      if (cam_exch) then
+         if (rtdb_get(rtdb,'int:cando_txs',MT_LOG,1,status)) then
+          def_cando_txs  = status
+         endif
+         if (def_cando_txs) then
+          call errquit ('dft_main0d: Coulomb Attenuation Method (CAM) is
+     & not available with the Texas integral package. Please turn off
+     & the Texas integrals. "set int:cando txs f" in your input.',0,
+     & RTDB_ERR)
+       end if
+      end if
 c
 ccase...end
 c     

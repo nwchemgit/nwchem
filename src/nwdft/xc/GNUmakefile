@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.108 2008-02-06 23:13:37 niri Exp $
+# $Id: GNUmakefile,v 1.109 2008-11-04 16:40:51 niri Exp $
 
 	OBJ=xc_getv.o zora_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
 
@@ -35,7 +35,8 @@
 	xc_optx.o xc_optc.o xc_atomblock.o xc_replicated.o xc_ft97.o \
         xc_lb94.o xc_cs00.o xc_vdw.o xc_op.o xc_kop.o \
         xc_bc95.o xc_xm05.o xc_cm05.o xc_xpw6.o\
-        xc_xvs98.o xc_cvs98.o xc_xm06.o xc_cm06.o
+        xc_xvs98.o xc_cvs98.o xc_xm06.o xc_cm06.o \
+        xc_camb88.o xc_att_xc.o
 
 
      LIBRARY = libnwdft.a
@@ -48,7 +49,7 @@ ifeq ($(TARGET),cray-sv2)
 endif
 
 
-   USES_BLAS = xc_fitv.F xc_dirac.F xc_rodaes_erf.F xc_tabcd.F zora_tabcd.F xc_rhogen.F \
+   USES_BLAS = xc_fitv.F xc_dirac.F xc_rodaes_erf.F xc_att_xc.F xc_tabcd.F zora_tabcd.F xc_rhogen.F \
                xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
                xc_eval_basis.F xc_fd.F xc_optc.F xc_atomblock.F xc_vdw.F scat_mat.F \
                xc_replicated.F

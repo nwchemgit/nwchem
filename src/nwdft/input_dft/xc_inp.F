@@ -1,5 +1,5 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.56 2008-10-10 14:52:55 edo Exp $
+C$Id: xc_inp.F,v 1.57 2008-11-04 16:40:41 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -80,9 +80,10 @@ c     m06-2x   => 7900
 c     xm06-2x  => 8000
 c     cm06-2x  => 8100
 c     xbnl07   => 8200
-c     
+c     xcamb88  => 8300      
+c
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs=91 , numfunc=42)
+      parameter (num_dirs=92 , numfunc=43)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -116,7 +117,7 @@ c
      &     'xm05-2x','cm05-2x','vs98','xvs98','cvs98','m06-L',
      &     'xm06-L','cm06-L','m06-hf','xm06-hf','cm06-hf','m06',
      &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x','xbnl07',
-     &     'becke97-d'/
+     &     'becke97-d','xcamb88'/
 c     becke97-d
       logical disp
 c
@@ -153,7 +154,7 @@ c
      &  5000,5100,5200,5300,5400,5500,5600,5700,5800,
      &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
      &  7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,
-     &  8200,4800,1999) ind
+     &  8200,4800,8300,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -2338,6 +2339,43 @@ c
       endif
       if (.not. inp_f(xfac(38))) then
          xfac(38) = 1.0d0
+      endif
+c
+      goto 10
+c
+c     xcamb88: Coulomb-attenuating Becke88 exchange functional
+c
+ 8300 if (inp_a(test)) then
+
+         write(luout,*) "accessing CAM funtional"
+
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' becke88 "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+            lxfac(40) = .true.
+            nlxfac(40) = .false.
+         elseif (inp_compare(.false.,'nonlocal', test)) then
+            nlxfac(40) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(40) = .true.
+            nlxfac(40) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(40) = .true.
+         nlxfac(40) = .true.
+      endif
+      if (.not. inp_f(xfac(40))) then
+         xfac(40) = 1.0d0
       endif
 c
       goto 10
