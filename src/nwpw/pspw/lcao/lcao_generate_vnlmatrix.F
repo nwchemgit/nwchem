@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vnlmatrix.F,v 1.2 2001-12-02 19:38:14 bylaska Exp $
+* $Id: lcao_generate_vnlmatrix.F,v 1.3 2008-11-05 00:49:47 bylaska Exp $
 *
       subroutine lcao_generate_vnlmatrix(vnlmatrix,phi1,phi2)
       implicit none
@@ -11,10 +11,10 @@
 #include "global.fh"
 
 *     **** local variables ****
-      logical move
+      logical move,frac
       integer i,j,nbasis,npack1
       integer ne(2),ispin
-      real*8  sum,fion(3)
+      real*8  sum,fion(3),occ(1)
 
 *     ***** external functions ****
       integer  aorbs_nbasis
@@ -27,12 +27,13 @@
       ne(1) = 1
       ne(2) = 0
       move =.false.
+      frac = .false.
       do j=1,nbasis
 
 *        **** get phi2 ****
          call aorbs_aorb(j,phi1)
          call Pack_c_Zero(1,phi2)
-         call v_nonlocal(ispin,ne,phi1,phi2,move,fion)
+         call v_nonlocal(ispin,ne,phi1,phi2,move,fion,frac,occ)
 
          do i=1,j
 
