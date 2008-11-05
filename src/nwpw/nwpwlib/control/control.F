@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.126 2008-11-03 06:06:09 bylaska Exp $
+* $Id: control.F,v 1.127 2008-11-05 19:07:00 bylaska Exp $
 *
 
 *     ***********************************
@@ -1030,7 +1030,7 @@ c      end if
       nf3 = factor_count2(nx,3)
       nf5 = factor_count2(nx,5)
       nf7 = factor_count2(nx,7)
-      ntest = 2**nf2 * 3**nf3 * 5**nf5 * 7**nf7
+      ntest = (2**nf2) * (3**nf3) * (5**nf5) * (7**nf7)
       do while  (nx .ne. ntest)
         nx = nx + 1
         if (mult2) nx = nx + 1
@@ -1038,7 +1038,7 @@ c      end if
         nf3 = factor_count2(nx,3)
         nf5 = factor_count2(nx,5)
         nf7 = factor_count2(nx,7)
-        ntest = 2**nf2 * 3**nf3 * 5**nf5 * 7**nf7
+        ntest = (2**nf2) * (3**nf3) * (5**nf5) * (7**nf7)
       end do
 
       control_set_ngrid = nx
@@ -1050,12 +1050,14 @@ c      end if
       integer n,m
       integer f,nn
 
+      f  = 0
       nn = n
-      f = 0
+
       do while (mod(nn,m).eq.0)
-        f = f + 1
         nn = nn/m
+        f  = f + 1
       end do
+
       factor_count2 = f
       return
       end
