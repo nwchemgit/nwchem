@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.17 2008-08-11 17:12:00 bylaska Exp $
+* $Id: ewald.F,v 1.18 2008-11-05 23:47:08 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -609,8 +609,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer i,j,ii,l,nion
       real*8  w,dx,dy,dz,x,y,z,r,zz
       real*8  yerfc
-      real*8  energy,etmp,energyG,cr,ci,zii
-      complex*16 cz
+      real*8  energy,etmp,energyG,ttcr,ttci,zii
+      complex*16 ttcz
 *     **** temporary workspace variables ****
       integer exi(2),s(2),tmp3(2)
       logical value
@@ -647,14 +647,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     **** calculate the ewald energy ****
       do i=1,enpack
-          cz=dcpl_mb(s(1)+i-1)
-          cr=dble(cz)
-          ci=dimag(cz)
-          dbl_mb(tmp3(1)+i-1)=cr*cr+ci*ci
+          ttcz=dcpl_mb(s(1)+i-1)
+          ttcr=dble(ttcz)
+          ttci=dimag(ttcz)
+          dbl_mb(tmp3(1)+i-1)=ttcr*ttcr + ttci*ttci
       end do
 
       energy=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
-      !if (nida.eq.1) energy = energy - dbl_mb(tmp3(1)*dbl_mb(vg(1)) !*** zero because vg(g=0) = 0
       if (tnp.gt.1) call Parallel_SumAll(energy)
       energy  = 0.5d0*energy/lattice_omega() + cewald
 
@@ -691,7 +690,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       value = value.and.MA_pop_stack(s(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not. value) 
-     >  call errquit('ewald_init:popping stack memory',0,MA_ERR)
+     >  call errquit('ewald_e:popping stack memory',0,MA_ERR)
 
       call nwpw_timing_end(21)
       ewald_e = energy
@@ -749,7 +748,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       value = value.and.MA_push_get(mt_dbl,nion,'fx',fx(2),fx(1)) 
       value = value.and.MA_push_get(mt_dbl,nion,'fy',fy(2),fy(1)) 
       value = value.and.MA_push_get(mt_dbl,nion,'fz',fz(2),fz(1)) 
-      if(.not.value) call errquit('ewald_e:out of heap memory',0,MA_ERR)
+      if(.not.value) call errquit('ewald_f:out of heap memory',0,MA_ERR)
 
       scal2 = 1.0d0/lattice_omega()
       call dcopy(nion,0.0d0,0,dbl_mb(fx(1)),1)
@@ -843,7 +842,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       value = value.and.MA_pop_stack(s(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not. value) 
-     >  call errquit('ewald_e:popping stack memory',0,MA_ERR)
+     >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
 
       call nwpw_timing_end(21)
       return
