@@ -1,6 +1,6 @@
       subroutine ga_local_mdot(n, nva, nvb, c, ldc, g_a, g_b)
 *
-* $Id: ga_local_mdot.F,v 1.11 2008-11-06 21:30:11 jhammond Exp $
+* $Id: ga_local_mdot.F,v 1.12 2008-11-06 21:37:36 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -45,7 +45,7 @@ c
       call ga_sync
 c
       if (.not.ma_push_get(mt_dbl,nva*nvb,'work',l_work,k_work))
-     1         call errquit('ga_local_mdot: work',nva*nvb,MA_ERR)
+     1         call errquit('ga_local_mdot: push work',nva*nvb,MA_ERR)
 c
       if (aihi.gt.0 .and. aihi.ge.ailo) then
          if (ajlo.ne.1 .or. ajhi.lt.nva) call errquit('ga_l_mdot:a2?',0,
@@ -73,6 +73,9 @@ c
             c(i,j) = dbl_mb(k_work+ij-1)
          enddo
       enddo
+c
+      if (.not.ma_pop_stack(l_work))
+     1  call errquit('ga_local_mdot: pop work',1,MA_ERR)
 c
 c
 #endif
