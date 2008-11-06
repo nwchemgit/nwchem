@@ -1,6 +1,6 @@
       subroutine ga_local_mdot(n, nva, nvb, c, ldc, g_a, g_b)
 *
-* $Id: ga_local_mdot.F,v 1.8 2003-10-17 22:58:34 carlfahl Exp $
+* $Id: ga_local_mdot.F,v 1.9 2008-11-06 18:23:39 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -19,7 +19,8 @@ c
       integer ailo, aihi, ajlo, ajhi, aind, ald
       integer bilo, bihi, bjlo, bjhi, bind, bld
       integer i, j, ij
-      double precision work(2500)
+c      double precision work(2500)
+      integer k_work,l_work
       integer dim1,dim2,type
 #ifdef  BAD_GACCESS 
       integer g_c
@@ -44,6 +45,9 @@ c
 c
       call ga_sync
 c
+      if (.not.ma_push_get(mt_int,nva*nvb,'work',l_work,k_work))
+     1         call errquit('ga_local_mdot: work',nva*nvb,MA_ERR)
+c
       if (aihi.gt.0 .and. aihi.ge.ailo) then
          if (ajlo.ne.1 .or. ajhi.lt.nva) call errquit('ga_l_mdot:a2?',0,
      &       GA_ERR)
@@ -52,22 +56,22 @@ c
 c
          call ga_access(g_a, ailo, aihi, ajlo, ajhi, aind, ald)
          call ga_access(g_b, bilo, bihi, bjlo, bjhi, bind, bld)
-         call ga_lmdotb(work,dbl_mb(aind),dbl_mb(bind),
+         call ga_lmdotb(dbl_mb(k_work),dbl_mb(aind),dbl_mb(bind),
      ,        aihi,ailo,ald,nva,nvb,bld)
          call ga_release(g_a, ailo, aihi, ajlo, ajhi)
          call ga_release(g_b, bilo, bihi, bjlo, bjhi)
       else
-         call dfill(nva*nvb, 0.0d0, work, 1)
+         call dfill(nva*nvb, 0.0d0, dbl_mb(k_work), 1)
       endif
 c
       call ga_sync
 c
-      call ga_dgop(1, work, nva*nvb, '+')
+      call ga_dgop(1, dbl_mb(k_work), nva*nvb, '+')
 c
       do j = 1, nvb
          do i = 1, nva
             ij   = (j-1)*nva + i
-            c(i,j) = work(ij)
+            c(i,j) = dbl_mb(k_work+ij-1)
          enddo
       enddo
 c
@@ -90,7 +94,7 @@ c
             aoff = (i-1)*ald 
             boff = (j-1)*bld
             ij   = (j-1)*nva + i
-            if (ij.gt.2500) call errquit('Robert is lazy',0, GA_ERR)
+c            if (ij.gt.2500) call errquit('Robert is lazy',0, GA_ERR)
             sum = 0.0d0
             do k = 1, kdim
                sum = sum + a(aoff+k)*b(boff+k)
