@@ -1,6 +1,6 @@
       subroutine ga_local_mdot(n, nva, nvb, c, ldc, g_a, g_b)
 *
-* $Id: ga_local_mdot.F,v 1.9 2008-11-06 18:23:39 jhammond Exp $
+* $Id: ga_local_mdot.F,v 1.10 2008-11-06 18:52:40 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -19,7 +19,6 @@ c
       integer ailo, aihi, ajlo, ajhi, aind, ald
       integer bilo, bihi, bjlo, bjhi, bind, bld
       integer i, j, ij
-c      double precision work(2500)
       integer k_work,l_work
       integer dim1,dim2,type
 #ifdef  BAD_GACCESS 
@@ -94,7 +93,6 @@ c
             aoff = (i-1)*ald 
             boff = (j-1)*bld
             ij   = (j-1)*nva + i
-c            if (ij.gt.2500) call errquit('Robert is lazy',0, GA_ERR)
             sum = 0.0d0
             do k = 1, kdim
                sum = sum + a(aoff+k)*b(boff+k)
