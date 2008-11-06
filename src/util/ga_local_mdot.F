@@ -1,6 +1,6 @@
       subroutine ga_local_mdot(n, nva, nvb, c, ldc, g_a, g_b)
 *
-* $Id: ga_local_mdot.F,v 1.10 2008-11-06 18:52:40 jhammond Exp $
+* $Id: ga_local_mdot.F,v 1.11 2008-11-06 21:30:11 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -44,7 +44,7 @@ c
 c
       call ga_sync
 c
-      if (.not.ma_push_get(mt_int,nva*nvb,'work',l_work,k_work))
+      if (.not.ma_push_get(mt_dbl,nva*nvb,'work',l_work,k_work))
      1         call errquit('ga_local_mdot: work',nva*nvb,MA_ERR)
 c
       if (aihi.gt.0 .and. aihi.ge.ailo) then
