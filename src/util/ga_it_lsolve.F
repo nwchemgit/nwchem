@@ -1,6 +1,6 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
      $     precond, product, ostall, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.15 2003-10-17 22:58:34 carlfahl Exp $
+C$Id: ga_it_lsolve.F,v 1.16 2008-11-06 20:01:42 jhammond Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -71,7 +71,7 @@ c
       double precision prod_acc
       logical converged
       integer maxdim
-      parameter (maxdim = 20)   ! Maximum size of iterative subspace
+      parameter (maxdim = 100)   ! Maximum size of iterative subspace
       double precision aa(maxdim, maxdim), bb(maxdim), yy(maxdim)
       double precision rx, xx
       double precision rnorm, rnorm_prev, bnorm, convg_ratio
