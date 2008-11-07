@@ -44,7 +44,7 @@ O    F
           2.19178082E+00         1.00000000       
 END
 
-set int:cando txs f
+set int:cando_txs f
 
 dft
  xc xbnl07 0.90 lyp 1.00 hfexch 1.00
