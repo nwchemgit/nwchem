@@ -16,7 +16,7 @@ H  library "Ahlrichs Coulomb Fitting"
 end
 
 set int:acc_std 1d-15
-set int:cando txs f
+set int:cando_txs f
 
 dft
  xc xbnl07 0.90 lyp 1.00 hfexch 1.00
