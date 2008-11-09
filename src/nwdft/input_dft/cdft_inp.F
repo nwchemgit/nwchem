@@ -1,7 +1,7 @@
       subroutine cdft_input(rtdb, nconstr, dtype, iatms1, iatms2, 
      $                      fatms1, fatms2, constr)
 c
-c     $Id: cdft_inp.F,v 1.4 2008-09-29 20:12:07 jhammond Exp $
+c     $Id: cdft_inp.F,v 1.5 2008-11-09 22:50:05 jhammond Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -41,7 +41,7 @@ c
       if (.not. inp_a(test)) call errquit
      $         ('cdft_input: specify charge or spin', 2700, RTDB_ERR)
       if (.not. inp_match(num_c, .false., test, dirs_c, ind))
-     $     call errquit('et_input: unknown constraint', 0, INPUT_ERR)
+     $     call errquit('cdft_input: unknown constraint', 0, INPUT_ERR)
 
       goto (1, 2, 19) ind
  1    dtype(nconstr) = 1
