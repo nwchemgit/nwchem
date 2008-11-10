@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.17 2008-09-30 19:53:34 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.18 2008-11-10 21:51:10 bylaska Exp $
 *
 
 *     *************************
@@ -155,7 +155,7 @@ c     **** define extra psi and Hpsi  ****
       call Parallel2d_np_j(npj)
       call Parallel2d_taskid_j(taskid_j)   
       replicated = (npj.gt.1)
-      if (replicated) then
+      if (hfx_on.and.replicated) then
         call Dneall_neq(neq)
         neqall = neq(1)+neq(2)
         nrsize = (ne(1)+ne(2))*n2ft3d
