@@ -1,6 +1,6 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.45 2007-10-09 17:27:36 d3p307 Exp $
+C     $Id: ccsd_driver.F,v 2.46 2008-11-11 14:19:36 jhammond Exp $
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -245,8 +245,8 @@ c
      $        10x,'Number of occupied orbitals:',8x,i5,/,
      $        10x,'Number of occ. correlated orbitals:',1x,i5,/,
      $        10x,'Block length:',23x,i5,/,
-     $        10x,'Superscript MO index range:',6x,i3,1x,'-',i3,/,
-     $        10x,'Subscript MO index range:',8x,i3,1x,'-',i3,/,
+     $        10x,'Superscript MO index range:',2x,i5,1x,'-',i5,/,
+     $        10x,'Subscript MO index range:',4x,i5,1x,'-',i5,/,
      $        10x,'MO coefficients read from:',2x,a25,/,
      $        10x,'Number of operator matrices in core:',i5)
          call util_flush(6)

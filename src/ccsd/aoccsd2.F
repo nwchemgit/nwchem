@@ -4,7 +4,7 @@
      $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
 #include "errquit.fh"
-C     $Id: aoccsd2.F,v 2.34 2006-12-12 15:56:17 edo Exp $
+C     $Id: aoccsd2.F,v 2.35 2008-11-11 14:19:36 jhammond Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -130,7 +130,7 @@ c
       write(6,1001)nodes
  1001 format(//,1x,76(1h*),/,14x,
      &       'the segmented parallel ccsd program:',
-     &       i3,' nodes',/,1x,76(1h*),//)
+     &       i5,' nodes',/,1x,76(1h*),//)
       endif
       if (iam.eq.0)then
       write (*,1318) CC_Theory( :Inp_StrLen(CC_Theory) ),
@@ -544,7 +544,7 @@ c
 c
       if (iam .eq. 0) then
          write(luout,1101) nkpass, nvpass,memdrv,memtrn,mem_avail
- 1101    format('nkpass=',i2,'; nvpass=',i3,'; memdrv=',i15,
+ 1101    format('nkpass=',i5,'; nvpass=',i5,'; memdrv=',i15,
      $        '; memtrn=',i15,'; memavail=',i15)
          call util_flush(luout)
       endif
