@@ -1,11 +1,11 @@
-c $Id: intd_1e3ov.F,v 1.7 2004-12-03 22:34:31 bert Exp $
+c $Id: intd_1e3ov.F,v 1.8 2008-11-11 17:49:23 jhammond Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{intd\_1e3ov}
 c:tex-This routine computes the 3 center overlap integral derivatives:
 c:tex-\[
 c:tex-\frac{\partial}{\partial q}({\mu}{\nu}{\lamda}) = \int_{-\infty}^{\infty}
-c:tex-g_{\mu}(X,r_{1})g_{\nu}(X-R,r_{1}g_{\lamda}(X-R,r_{1})dr_{1}
+c:tex-g_{\mu}(X,r_{1})g_{\nu}(X-R,r_{1})g_{\lamda}(X-R,r_{1})dr_{1}
 c:tex-\]
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}

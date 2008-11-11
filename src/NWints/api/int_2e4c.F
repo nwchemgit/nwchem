@@ -1,10 +1,10 @@
-c $Id: int_2e4c.F,v 1.41 2004-12-03 22:34:31 bert Exp $
+c $Id: int_2e4c.F,v 1.42 2008-11-11 17:49:21 jhammond Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
 c:tex-this routine computes the 4 center (traditional) 2 electron integrals: 
 c:tex-\begin{eqnarray*}
-c:tex-({\mu}{\rho}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2}g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
+c:tex-({\mu}{\rho}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2})g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
 c:tex-\end{eqnarray*}
 c:tex-
 c:tex-{\it Syntax:}

@@ -1,4 +1,4 @@
-c $Id: int_l2e3c.F,v 1.15 2003-10-17 22:53:42 carlfahl Exp $
+c $Id: int_l2e3c.F,v 1.16 2008-11-11 17:49:22 jhammond Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l2e3c}
@@ -6,7 +6,7 @@ c:tex-this routine computes the 3 center 2 electron integrals
 c:tex-with labels and ``zero'' integrals removed: 
 c:tex-\begin{eqnarray*}
 c:tex-({\mu}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}
-c:tex-g_{\nu}(X_{\nu},r_{2}g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
+c:tex-g_{\nu}(X_{\nu},r_{2})g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
 c:tex-\end{eqnarray*}
 c:tex-
 c:tex-{\it Syntax:}

@@ -1,4 +1,4 @@
-*     $Id: intb_2e4c.F,v 1.26 2004-12-03 22:34:31 bert Exp $
+*     $Id: intb_2e4c.F,v 1.27 2008-11-11 17:49:23 jhammond Exp $
 c:tex-
 c:tex-\subsection{intb\_2e4c}
 c:tex-This logical function returns the integrals and labels based on the
@@ -7,7 +7,7 @@ c:tex-called without a call to intb\_init4c using the same block information.
 c:tex-``zero'' integrals are removed.
 c:tex-
 c:tex-\begin{eqnarray*}
-c:tex-({\mu}{\rho}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2}g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
+c:tex-({\mu}{\rho}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\rho}(X_{\rho},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2})g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
 c:tex-\end{eqnarray*}
 c:tex-
 c:tex-{\it Return Values:}
