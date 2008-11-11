@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.19 2008-11-11 19:40:17 bylaska Exp $
+* $Id: ewald.F,v 1.20 2008-11-11 19:46:22 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -599,7 +599,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     *          ewald_ct_Sqr           *
 *     *                                 *
 *     ***********************************
-      subroutine Pack_ct_Sqr(ng,A,C)
+      subroutine ewald_ct_Sqr(ng,A,C)
       implicit none
       integer    ng
       complex*16 A(*)
@@ -900,10 +900,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer H(2),F(2),tmp1(2),tmp2(2),exi(2),strf(2)
 
 *     **** external functions ****
-      integer  ion_katm,ion_nion,Pack_G_indx
+      integer  ion_katm,ion_nion
       real*8   ewald_zv,lattice_unitg,lattice_unita,lattice_omega
       real*8   util_erfc,ion_rion,ddot
-      external ion_katm,ion_nion,Pack_G_indx
+      external ion_katm,ion_nion
       external ewald_zv,lattice_unitg,lattice_unita,lattice_omega
       external util_erfc,ion_rion,ddot
 
