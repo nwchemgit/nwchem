@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.18 2008-11-05 23:47:08 bylaska Exp $
+* $Id: ewald.F,v 1.19 2008-11-11 19:40:17 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -591,6 +591,28 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end if
       return 
       end
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+*     ***********************************
+*     *                                 *
+*     *          ewald_ct_Sqr           *
+*     *                                 *
+*     ***********************************
+      subroutine Pack_ct_Sqr(ng,A,C)
+      implicit none
+      integer    ng
+      complex*16 A(*)
+      real*8     C(*)
+
+*     **** local variables ****
+      integer i
+
+      do i=1,ng
+        C(i) = dble(A(i))**2 + dimag(A(i))**2
+      end do
+      return
+      end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     ***********************************
 *     *			  		*
@@ -646,13 +668,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end do
 
 *     **** calculate the ewald energy ****
-      do i=1,enpack
-          ttcz=dcpl_mb(s(1)+i-1)
-          ttcr=dble(ttcz)
-          ttci=dimag(ttcz)
-          dbl_mb(tmp3(1)+i-1)=ttcr*ttcr + ttci*ttci
-      end do
-
+      call ewald_ct_Sqr(enpack,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
       energy=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
       if (tnp.gt.1) call Parallel_SumAll(energy)
       energy  = 0.5d0*energy/lattice_omega() + cewald
