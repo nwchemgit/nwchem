@@ -3,7 +3,7 @@ c     /* Main DFT driver */
 c
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.90 2008-11-04 16:40:44 niri Exp $
+c     $Id: dft_main0d.F,v 1.91 2008-11-11 00:40:33 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -28,16 +28,11 @@ c
       integer ga_cholesky,ga_llt_i
       external ga_cholesky,ga_llt_i
 #endif
-     
-czora...start
+c     
 #include "zora.fh"
 #include "rel_consts.fh"
-czora...end
 c
-ccase...start
 #include "case.fh"
-#include "candoP.fh"
-ccase...end
 c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -61,6 +56,7 @@ c
       external dft_scf_so 
       character*80 theory
       logical status
+      logical ldirect
 
       dft_main0d = .false.
 c     
@@ -100,8 +96,7 @@ c
       iter = 0
       Etold = 0.D0
 c
-czora...start
-czora...do we need to get the zora correction ?
+c     Check zora options
       do_zora_get_correction=.false.
       if (rtdb_get(rtdb,'zora:calc',mt_log,1,
      &    do_zora_get_correction)) 
@@ -115,17 +110,11 @@ c     == Get the grid cutoff or set default ==
       if(.not.rtdb_get(rtdb,'zora:cutoff',mt_dbl,1,zoracutoff))
      &  zoracutoff = 1.0d-08
 c
-czora...end
-c
 c     Get the light speed and other constants, if specified
-c
       call rel_init_con(rtdb)
       clight_au = cau
 c
-ccase...start
-c
-c     Get the Coulomb Attenuation Method (CAM) parameters
-c
+c     Get and check the Coulomb Attenuation Method (CAM) parameters
       if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1,
      &   cam_exch)) cam_exch=.false.
       if (.not.rtdb_get(rtdb, 'dft:cam_omega', mt_dbl, 1,
@@ -135,22 +124,17 @@ c
       if (.not.rtdb_get(rtdb, 'dft:cam_beta', mt_dbl, 1,
      &   cam_beta)) cam_beta=0.d0
 c
-      if (cam_exch) then
-         if (rtdb_get(rtdb,'int:cando_txs',MT_LOG,1,status)) then
-          def_cando_txs  = status
-         endif
-         if (def_cando_txs) then
-          call errquit ('dft_main0d: Coulomb Attenuation Method (CAM) is
-     & not available with the Texas integral package. Please turn off
-     & the Texas integrals. "set int:cando txs f" in your input.',0,
-     & RTDB_ERR)
+      ldirect = .false.
+      if (cam_exch .and. (.not.CDFIT) ) then
+       if (rtdb_get(rtdb, 'dft:direct', mt_log, 1, ldirect)) then
+        if (.not.ldirect) then
+        call errquit ('dft_main0d: CAM without charge density fitting is
+     & only available with the direct option.',0, RTDB_ERR)
+         end if
        end if
       end if
-c
-ccase...end
 c     
 c     Select method to compute the XC potential.
-c     
       if (XC_bas_han.eq.-99999)then
          iVxc_opt = 0
          XCFIT    = .FALSE.
@@ -240,14 +224,6 @@ c
          CDFIT      = .TRUE.
       endif
 c
-ccase...start
-c     Is Coulomb attenuation (CAM) true without CDFIT ?
-c
-      if (cam_exch .and. (.not.CDFIT) ) then
-          call errquit ('dft_main0d: Coulomb Attenuation Method (CAM) is
-     & only available with charge density fitting.',0, RTDB_ERR)
-      end if
-ccase...end
 c
       if (CDFIT)then
 c     

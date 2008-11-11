@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.135 2008-09-29 20:25:49 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.136 2008-11-11 00:40:30 niri Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -25,6 +25,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "case.fh"
 c
       integer itype, icenter, jcenter
       integer lcoord, icoord, lcharge, icharge, ltags, itags,
@@ -927,6 +928,14 @@ c
      &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)
       if (.not. MA_Pop_Stack(lcoord))
      &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)
+c
+c     Force texas integrals to false for CAM calculations
+
+      if (cam_exch) then
+       write(LuOut,*) 'Unsetting texas integrals for CAM calculations'
+       if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
+     $    call errquit('cannot set int:cando_txs',0, RTDB_ERR)
+      end if
 c
       call ga_sync
 c

@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.64 2008-09-29 20:25:06 edo Exp $
+C$Id: xc_getv.F,v 1.65 2008-11-11 00:40:37 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -26,6 +26,7 @@ c
 #include "util.fh"
 #include "sym.fh"
 #include "stdio.fh"
+#include "case.fh"
 c
       integer cetobfr(2,natoms)
       double precision rho_n, rdens_atom(ipol*natoms*natoms)
@@ -70,7 +71,7 @@ c
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
       double precision tol2e
       integer g_tmp(2)
-
+c
 c******************************************************************************
 c
 c Compute the matrix elements for the XC potential and energy.
@@ -81,7 +82,7 @@ c
       oprint_oep = util_print('oep', print_high)
       Exc(1)=0.d0
       Exc(2)=0.d0
-
+c
       me=ga_nodeid()
       havehfxc=abs(xfac(1)).gt.1d-8
 c      nproc=ga_nnodes()
@@ -89,9 +90,9 @@ c
       if (oprint_intermediate_xc)then
          write(luout,*)' rtdb, Exc, nExc, iVxc_opt, g_xcinv: ',
      &               rtdb, Exc, nExc, iVxc_opt, g_xcinv
-       write(luout,*)'g_dens(1),g_vxc(1),IOLGC,g_wght,g_xyz,wght_GA:',
+         write(luout,*)'g_dens(1),g_vxc(1),IOLGC,g_wght,g_xyz,wght_GA:',
      &               g_dens(1),g_vxc(1),IOLGC,g_wght,g_xyz,wght_GA
-       write(luout,*)' Fock XC matrix entering xc_getv: '
+         write(luout,*)' Fock XC matrix entering xc_getv: '
          call ga_print(g_vxc(1))
          if(ipol.eq.2)call ga_print(g_vxc(2))
          call ga_print(g_dens(1))
@@ -106,37 +107,102 @@ c
          call ga_sync
          if (oprint_time)call dft_tstamp(' Before call to fock_2e. ')
          if (ipol.eq.1) then
-            kfac(1) = -0.5d0*xfac(1)
-            jfac(1)=0.0d0
             if (.not. CDFIT) then
-             jfac(2) = 1.0d0
-             kfac(2) = 0d0
-              g_vxc(2) = ga_create_atom_blocked(geom,ao_bas_han,'jk')
-              call ga_zero(g_vxc(2))
-              g_dens(2)=g_dens(1)
-              call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+              if (.not.cam_exch) then  ! for regular calculations
+c
+c               set up prefactors
+                kfac(1) = -0.5d0*xfac(1)
+                jfac(1) = 0.0d0
+                jfac(2) = 1.0d0
+                kfac(2) = 0.0d0
+c
+c               get some work space
+                g_vxc(2) = ga_create_atom_blocked(geom,ao_bas_han,'jk')
+c
+c               calculate the exchange and coulomb parts
+                call ga_zero(g_vxc(2))
+                g_dens(2)=g_dens(1)
+                call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
      &             tol2e, oskel, g_dens, g_vxc, .false.)
-              Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
-              ecoul = 0.5d0*ga_ddot(g_dens(1),g_vxc(2)) 
-              call ga_dadd(1d0,g_vxc(1),1d0,g_vxc(2),g_vxc(1))
-              if (.not. ga_destroy(g_vxc(2))) call errquit
+                Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
+                ecoul = 0.5d0*ga_ddot(g_dens(1),g_vxc(2)) 
+                call ga_dadd(1d0,g_vxc(1),1d0,g_vxc(2),g_vxc(1))
+                if (.not. ga_destroy(g_vxc(2))) call errquit
      $             ('xc_getv: ga corrupt?',0, GA_ERR)
-            else
-              call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+              else
+c
+c               get some work space
+                g_tmp(1)=ga_create_atom_blocked(geom,ao_bas_han,'work')
+c
+c               calculate the CAM exchange
+                call ga_zero(g_tmp(1))
+c
+c               set up prefactors for exchange
+                kfac(1) = -0.5d0*xfac(1)
+                jfac(1) = 0.0d0
+                call case_setflags(.true.)
+                call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+     &             tol2e, oskel, g_dens, g_tmp(1), .false.)
+                Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_tmp(1))
+                call ga_dadd(1d0,g_vxc(1),1d0,g_tmp(1),g_vxc(1))
+                call case_setflags(.false.)
+c
+c               calculate the full Coulomb
+                call ga_zero(g_tmp(1))
+c
+c               set up prefactors for coulomb
+                kfac(1) = 0.0d0
+                jfac(1) = 1.0d0
+                call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+     &             tol2e, oskel, g_dens, g_tmp(1), .false.)
+                ecoul = 0.5d0*ga_ddot(g_dens(1),g_tmp(1)) 
+                call ga_dadd(1d0,g_vxc(1),1d0,g_tmp(1),g_vxc(1))
+c
+c               destroy work space
+                if (.not. ga_destroy(g_tmp(1))) call errquit
+     $             ('xc_getv: ga corrupt?',0, GA_ERR)
+              end if
+            else  ! with CDFIT
+c
+c             set up prefactors
+              kfac(1) = -0.5d0*xfac(1)
+              jfac(1) = 0.0d0
+c
+c             calculate the non-CAM exchange
+              if (.not.cam_exch) then ! for regular calculations with CDFIT
+                call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
      &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
-            Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
+              else
+c
+c               calculate the CAM exchange
+                call case_setflags(.true.)  ! turn on attenuation
+                call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+     &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
+                call case_setflags(.false.) ! turn off attenuation
+              end if
+              Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
             endif
-         else
+         else  ! spin-polarized calculations
             if (CDFIT) then
-               jfac(1)=0.d0
-               jfac(2)=0.d0
-               kfac(1)=-1.0d0*xfac(1)
-               kfac(2)=-1.0d0*xfac(1)
+              jfac(1)=0.d0
+              jfac(2)=0.d0
+              kfac(1)=-1.0d0*xfac(1)
+              kfac(2)=-1.0d0*xfac(1)
+              if (.not.cam_exch) then ! for regular calculations
                call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
      &              tol2e, oskel, g_dens, g_vxc, .false.)
-               Exc(1) = Exc(1)+0.5d0*(ga_ddot(g_dens(1),g_vxc(1)) +
+              else
+c 
+c              calculate the CAM exchange
+               call case_setflags(.true.)  ! turn on attenuation
+               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+     &              tol2e, oskel, g_dens, g_vxc, .false.)
+               call case_setflags(.false.) ! turn off attenuation
+              end if
+              Exc(1) = Exc(1)+0.5d0*(ga_ddot(g_dens(1),g_vxc(1)) +
      &              ga_ddot(g_dens(2),g_vxc(2)))
             else
+              if (.not.cam_exch) then ! for regular calculations
                jfac(1) = 1.0d0
                jfac(2) = 0.0d0
                jfac(3) = 1.0d0
@@ -176,12 +242,68 @@ c
      $              ('xc_getv: ga corrupt?',0, GA_ERR)
                if (.not. ga_destroy(g_jk(4))) call errquit
      $              ('xc_getv: ga corrupt?',1, GA_ERR)
+              else
+c
+c              Allocate some scratch space
+               g_tmp(1)=ga_create_atom_blocked(geom, ao_bas_han,'tmp1')
+               g_tmp(2)=ga_create_atom_blocked(geom, ao_bas_han,'tmp2')
+c
+c              Calculate Coulomb
+               jfac(1) = 1.0d0
+               jfac(2) = 1.0d0
+               kfac(1) = 0.0d0
+               kfac(2) = 0.0d0
+               call ga_zero(g_tmp(1))
+               call ga_zero(g_tmp(2))
+               call case_setflags(.false.)
+               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+     &              tol2e, oskel, g_dens, g_tmp, .false.)
+c
+c              Accumulate contribution 
+               call ga_dadd(1.0d0, g_vxc(1), 1.0d0, g_tmp(1), g_vxc(1))
+               call ga_dadd(1.0d0, g_vxc(2), 1.0d0, g_tmp(2), g_vxc(2))
+               call ga_dadd(1.0d0, g_vxc(1), 1.0d0, g_vxc(2), g_vxc(1))
+               call ga_copy(g_vxc(1), g_vxc(2))
+               ecoul = 0.5d0*( ! Alpha coulomb energy
+     $              ga_ddot(g_dens(1),g_tmp(1)) + 
+     $              ga_ddot(g_dens(1),g_tmp(2)))
+               ecoul = ecoul + 0.5d0*( ! Beta coulomb energy
+     $              ga_ddot(g_dens(2),g_tmp(1)) + 
+     $              ga_ddot(g_dens(2),g_tmp(2)))
+c
+c              Calculate Exchange
+               jfac(1) = 0.0d0
+               jfac(2) = 0.0d0
+               kfac(1) =-1.0d0*xfac(1)
+               kfac(2) =-1.0d0*xfac(1)
+               call ga_zero(g_tmp(1))
+               call ga_zero(g_tmp(2))
+               call case_setflags(.true.) ! turn on attenuation
+               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+     &              tol2e, oskel, g_dens, g_tmp, .false.)
+               call case_setflags(.false.) ! turn off attenuation
+c
+c              Accumulate contribution 
+               call ga_dadd(1.0d0, g_vxc(1), 1.0d0, g_tmp(1), g_vxc(1))
+               call ga_dadd(1.0d0, g_vxc(2), 1.0d0, g_tmp(2), g_vxc(2))
+               exc(1) = exc(1) + 0.5d0*( ! Exchange energy
+     $              ga_ddot(g_dens(1),g_tmp(1)) +
+     $              ga_ddot(g_dens(2),g_tmp(2)))
+c
+c              Deallocate scratch
+               if (.not. ga_destroy(g_tmp(1))) call errquit
+     $              ('xc_getv: ga corrupt?',0, GA_ERR)
+               if (.not. ga_destroy(g_tmp(2))) call errquit
+     $              ('xc_getv: ga corrupt?',1, GA_ERR)
+c
+              end if
             endif
          endif
          if (oprint_time)call dft_tstamp('  After call to fock_2e. ')
          call ga_sync
       endif
 c
+c     Get the DFT exchange-correlation contribution
       if (xc_gotxc()) then  
          if(xcfit) then       
             nTrows = nbf_xc
@@ -207,21 +329,21 @@ c
             endif
 c
             if(xc_gotxc())            !! Qin, to skip the call when only HF EX used
-     $      call grid_quadv0(rtdb, g_dens, g_truevxc, 
-     ,           nexc,rho_n,  Exc, dbl_mb(itmat))
-c
-c
-            if(havehfxc.or.(.not.cdfit)) then
-               call ga_dadd(1d0,g_vxc(1),1d0,g_truevxc(1),g_vxc(1))
-               if (.not. ga_destroy(g_truevxc(1))) call errquit(
-     .              ' xc_getv: ga_destroy failed ',0, GA_ERR)
-               if(ipol.eq.2) then
-               call ga_dadd(1d0,g_vxc(2),1d0,g_truevxc(2),g_vxc(2))
-               if (.not. ga_destroy(g_truevxc(2))) call errquit(
-     .              ' xc_getv: ga_destroy failed ',0, GA_ERR)
-               endif
-            endif
+     &        call grid_quadv0(rtdb, g_dens, g_truevxc, 
+     &           nexc,rho_n,  Exc, dbl_mb(itmat))
 
+              if(havehfxc.or.(.not.cdfit)) then
+                call ga_dadd(1d0,g_vxc(1),1d0,g_truevxc(1),g_vxc(1))
+                if (.not. ga_destroy(g_truevxc(1))) call errquit(
+     &              ' xc_getv: ga_destroy failed ',0, GA_ERR)
+                if(ipol.eq.2) then
+                 call ga_dadd(1d0,g_vxc(2),1d0,g_truevxc(2),g_vxc(2))
+                 if (.not. ga_destroy(g_truevxc(2))) call errquit(
+     &              ' xc_getv: ga_destroy failed ',0, GA_ERR)
+                endif
+              endif
+c
+c        In case we are performing an xc fit calculation
          if(xcfit) then
 c     
 c     symmetrize the "T" vector
@@ -241,7 +363,7 @@ c
 c     
          endif
       endif
-
+c
       if (oprint_intermediate_xc)then
          write(*,*)' Fock XC matrix leaving xc_getv: '
          call ga_print(g_vxc(1))

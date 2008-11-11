@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.75 2006-05-19 18:57:19 edo Exp $
+C$Id: nwdft.F,v 1.76 2008-11-11 00:40:27 niri Exp $
       implicit none
 #include "errquit.fh"
 c****
@@ -205,6 +205,7 @@ c
 c     get 1-el in cache
 c
       call schwarz_init(geom, AO_bas_han)
+c
       l1ecache=.false.
       if ((nbf_ao*nbf_ao*3*8)/ga_nnodes() .lt. 8000000) then! Cache if < 8MB/node
          if (iproc.eq.0 .and. oprint)then
@@ -223,6 +224,7 @@ c
 c     Analyze set parameters for consistency
 c
       call dft_inpana(rtdb)
+c
 c     
 c--> determine system type (molecule, polymer,surface,crystal)
 c    if no system type exists in db --> default = molecular case     

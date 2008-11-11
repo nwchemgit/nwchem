@@ -10,7 +10,7 @@
      ,     n_levels, act_levels, oprint_time,
      ,     g_zora_sf )
 c     
-c     $Id: dft_fockbld.F,v 1.35 2007-09-28 00:52:05 niri Exp $
+c     $Id: dft_fockbld.F,v 1.36 2008-11-11 00:40:33 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -22,15 +22,9 @@ c
 #include "util.fh"
 #include "dftps.fh"
 #include "cosmo.fh"
-
-czora...start
 #include "zora.fh"
-czora...end
-
-ccase...start
 #include "case.fh"
-ccase...end
-
+c
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
       integer g_xcinv
       integer g_tmp,g_nq,g_wght,g_xyz
@@ -104,8 +98,6 @@ c
      &     '           Kinetic energy =', f20.12/)
          endif
       endif
-
-
 c
 c     if requested separate calculation of bq-electron energy (MV)
 c     ----------------------------------------------------------- 
@@ -157,10 +149,6 @@ c
 c
       if (CDFIT)then
 c
-ccase...start
-        call case_setflags(.false.)  ! turn off the attenution for J
-ccase...end
-c
 c        Fit the electron charge density.
 c     
          if (.not.MA_Push_Get(MT_Dbl,nbf_cd,'cd_coef',lcd_coef,
@@ -169,6 +157,7 @@ c
          if (oprint_time)
      &        call dft_tstamp(' Before call to FITCD.   ')
          if (odftps) call pstat_on(ps_fitcd)
+         call case_setflags(.false.)  ! no attenuation for Coulomb
          call dft_fitcd(1,Dbl_MB(icd_coef),dd3cERI,Ecoul,
      &                  g_dens, nTotEl, n_batch, n3c_int,
      &                  ii3cwhat, n3c_dbl, iwhat_max, 
@@ -227,31 +216,22 @@ c
       rho_n = 0.0d0
       if (ipol.eq.2)call ga_zero(g_vxc(2))
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
-
-
+c
       if (odftps) call pstat_on(ps_xc)
-
+c
 czora...We have the correction, turn off the correction
 czora...so_term is set via a common block (zora.fh)
 czora...so_term = 0 (spin-free and the matrices are symmetric)
       do_zora_get_correction = .false.
       so_term = 0
 c
-ccase...start
-      call case_setflags(.true.)   ! turn on the 1/r attenuation for K
-ccase...end
-c
 c     Calculate the HF exchange (exact Coulomb), DFT exchange-correlation
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &             rdens_atom, cetobfr, natoms) 
 c
-ccase...start
-      call case_setflags(.false.)  ! reset 1/r attenuation flag
-ccase...end
-c
       if (odftps) call pstat_off(ps_xc)
-
+c
 czora...start
       if (do_zora) then
 
@@ -299,7 +279,6 @@ c
 c
 c  Jorge Garza/End
 c
-
       call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
 
       if (ipol.gt.1)then
