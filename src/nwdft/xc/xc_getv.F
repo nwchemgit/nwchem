@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.65 2008-11-11 00:40:37 niri Exp $
+C$Id: xc_getv.F,v 1.66 2008-11-12 23:57:05 niri Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -314,7 +314,7 @@ c     Get the DFT exchange-correlation contribution
             call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
          endif
          
-            if(havehfxc.or.(.not.cdfit)) then
+         if(havehfxc.or.(.not.cdfit)) then
                if(.not.ga_duplicate(g_vxc(1),g_truevxc(1),'g vxc 1'))
      .         call errquit('xcgetv: gaduplicate failed',1, GA_ERR)
                call ga_zero(g_truevxc(1))
@@ -323,15 +323,15 @@ c     Get the DFT exchange-correlation contribution
      .         call errquit('xcgetv: gaduplicate failed',1, GA_ERR)
                   call ga_zero(g_truevxc(2))
                endif
-            else
+         else
                g_truevxc(1)=g_vxc(1)
                g_truevxc(2)=g_vxc(2)
-            endif
+         endif
 c
-            if(xc_gotxc())            !! Qin, to skip the call when only HF EX used
+         if(xc_gotxc())            !! Qin, to skip the call when only HF EX used
      &        call grid_quadv0(rtdb, g_dens, g_truevxc, 
      &           nexc,rho_n,  Exc, dbl_mb(itmat))
-
+c
               if(havehfxc.or.(.not.cdfit)) then
                 call ga_dadd(1d0,g_vxc(1),1d0,g_truevxc(1),g_vxc(1))
                 if (.not. ga_destroy(g_truevxc(1))) call errquit(

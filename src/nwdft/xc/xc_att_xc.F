@@ -1,9 +1,13 @@
 #if defined(FUJITSU_VPP)
 !ocl scalar
 #endif
+#ifndef SECOND_DERIV
       Subroutine xc_att_xc(rho,ipol,Ex,Amat,Cmat)
+#else
+      Subroutine xc_att_xc_d2(rho,ipol,Ex,Amat,Cmat,Amat2,Cmat2)
+#endif
 c
-C$Id: xc_att_xc.F,v 1.1 2008-11-04 16:45:54 niri Exp $
+C$Id: xc_att_xc.F,v 1.2 2008-11-12 23:57:05 niri Exp $
 c
       implicit none
 c      
@@ -16,6 +20,12 @@ ccase...end
 c
       double precision rho, Ex, Amat, Cmat
       integer ipol
+#ifdef SECOND_DERIV
+c
+c     Second Derivatives of the Exchange Energy Functional
+c
+      double precision Amat2, Cmat2
+#endif
 c
 c
 c References:
@@ -29,28 +39,42 @@ c
 c
       double precision sqrt_pi,t1,t2,t3,t4,t5,t6,t7
       double precision alpha,beta, DERF
+      double precision f10, f01, b_first
+
 c      Parameter (alpha = 0d0)
 c      Parameter (beta = 1d0)
       Parameter (sqrt_pi = 1.77245385090552d0)
       Parameter (t7 = 2.666666666666666667d0)
+#ifdef SECOND_DERIV
+c
+c     Second Derivatives of the Exchange Energy Functional
+c
+      double precision a_second, a2_second, f20
+      double precision b_second, btmp_second, t8
+ 
+#endif
+
 
 c calculate the a_sigma parameter
 
 c         write(luout,*) 'alpha',alpha
 c         write(luout,*) 'beta',beta
 c         write(luout,*) 'mu',mu
+c           
           a = cam_omega*sqrt(-4d0*Ex/ipol)/(6d0*sqrt_pi*rho)
-c
           alpha = cam_alpha
           beta = cam_beta
-c
-c         write(luout,*) 'accessing xc_att_xc'
-c         write(luout,*) 'alpha',alpha
-c         write(luout,*) 'beta',beta
-c         write(luout,*) 'mu',cam_omega
 c 
-          a_first = (Amat/(2d0*Ex) - 1d0/rho)*a 
-          a2_first = (Cmat/(2d0*Ex))*a 
+          f10 = Amat/(2d0*Ex) -1d0/rho
+          a_first = f10*a 
+          f01 = Cmat/(2d0*Ex)
+          a2_first = f01*a 
+#ifdef SECOND_DERIV
+          f20 = Amat2/(2d0*Ex) - Amat*(Amat/(2d0*Ex*Ex) + 1d0/(rho*rho))
+          a_second = a*(f10*f10 + f20) 
+          a2_second = a*(Cmat2/(2d0*Ex) - Cmat*Cmat/(4d0*Ex*Ex))
+#endif
+
 
           if (a < 0.14d0) then
 c             write(luout,*) 'a is small'
@@ -88,11 +112,43 @@ c            stop
      &                  1d0/(70d0*a**7d0) + 1d0/(405d0*a**9d0) 
              btmp_first = btmp_first*2d0
           end if
-
+#ifdef SECOND_DERIV
+          if (abs(a) < 1d-40) then 
+             btmp_second = 16
+          else if (a >=5)  then
+             btmp_second = 1d0/(6d0*a**4) - 1d0/(48d0*a**6d0) +
+     &                  1d0/(640d0*a**8d0) - 1d0/(11520d0*a**10d0)
+             
+          else 
+             t1 = a*a
+             t2 = 1d0/t1
+             t3 = exp(-0.25d0*t2)
+             t4 = 1d0/(a*a*a)
+             t5 = t3 - 1d0
+             t6 = -t2*t3
+             t8 = -t3/a + 0.5d0*t4*t3 - 4d0*a*t5
+             btmp_second = -(8d0*a*(2d0*a*(t3/(4*a**6d0) -
+     &       2d0*t3/(a**4d0) +t6 - 4d0*t5) -t3/(2*a**5d0) +
+     &       4d0*t8 + 2d0*t4*t3)/3d0 + 16d0*(2d0*a*t8 +
+     &       2d0*(t3 - 2d0*t1*t5-1.5d0) + t6)/3d0) 
+          end if
+#endif
           bfactor = 1d0 - alpha - beta*btmp
-          Amat = bfactor*Amat + Ex*beta*btmp_first*a_first
-          Cmat = bfactor*Cmat + Ex*beta*btmp_first*a2_first
-          Ex = Ex*bfactor
+          b_first = beta*btmp_first
+#ifdef SECOND_DERIV
+          b_second = beta*btmp_second
+          Amat2 = bfactor*Amat2 + 2d0*Amat*b_first*a_first 
+     &          + Ex*b_second*a_first*a_first  
+     &          + Ex*b_first*a_second
+
+          Cmat2 = bfactor*Cmat2 + 2d0*Cmat*b_first*a2_first
+     &          + Ex*b_second*a2_first*a2_first
+     &          + Ex*b_first*a2_second
+          
+#endif
+         Amat = bfactor*Amat + Ex*b_first*a_first
+         Cmat = bfactor*Cmat + Ex*b_first*a2_first
+         Ex = Ex*bfactor
 
 c         write(luout,*) 'bfactor',bfactor
 c
@@ -101,3 +157,10 @@ c
 c
       return
       end
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "xc_att_xc.F"
+#endif
