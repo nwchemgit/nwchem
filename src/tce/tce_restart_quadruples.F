@@ -1,5 +1,5 @@
         subroutine x4_restart_save(d_x4,k_x4_offset,size_x4,state,
-     1                           handle_x4,irrep)
+     1                           hand_x4,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -14,7 +14,7 @@
       double precision cpu     ! CPU sec counter
       double precision wall    ! WALL sec counter
       INTEGER d_x4,k_x4_offset,size_x4
-      INTEGER chunk_x4,handle_x4
+      INTEGER chunk_x4,hand_x4
       INTEGER l_aux,k_aux
       INTEGER p5b
       INTEGER p6b
@@ -68,7 +68,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x4),
-     1   dfloat(bytes)*dfloat(size_x4),dfloat(chunk_x4),handle_x4,
+     1   dfloat(bytes)*dfloat(size_x4),dfloat(chunk_x4),hand_x4,
      2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x4_restart_save: sf_problem',0,DISK_ERR)
@@ -118,7 +118,7 @@ c
       call tce_hash(int_mb(k_x4_offset),key,offset_aux)
       call ga_get(d_x4,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_x4,
+        ierrcode1=sf_write(hand_x4,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
@@ -154,7 +154,7 @@ c
 c
 c
       subroutine y4_restart_save(d_y4,k_y4_offset,size_y4,state,
-     1                           handle_y4,irrep)
+     1                           hand_y4,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -169,7 +169,7 @@ c
       double precision cpu     ! CPU sec counter
       double precision wall    ! WALL sec counter
       INTEGER d_y4,k_y4_offset,size_y4
-      INTEGER chunk_y4,handle_y4
+      INTEGER chunk_y4,hand_y4
       INTEGER l_aux,k_aux
       INTEGER h6b
       INTEGER h7b
@@ -223,7 +223,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_y4),
-     1   dfloat(bytes)*dfloat(size_y4),dfloat(chunk_y4),handle_y4,
+     1   dfloat(bytes)*dfloat(size_y4),dfloat(chunk_y4),hand_y4,
      2   Y_SUFFIX)
      1   .ne.0)
      2   call errquit('y4_restart_save: sf_problem',0,DISK_ERR)
@@ -271,7 +271,7 @@ c
       call tce_hash(int_mb(k_y4_offset),key,offset_aux)
       call ga_get(d_y4,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_y4,
+        ierrcode1=sf_write(hand_y4,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
@@ -308,7 +308,7 @@ c
 c
 c
         subroutine tr4_restart_save(d_tr4,k_tr4_offset,size_tr4,axis,
-     1                           handle_tr4,irrep)
+     1                           hand_tr4,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -323,7 +323,7 @@ c
       double precision cpu     ! CPU sec counter
       double precision wall    ! WALL sec counter
       INTEGER d_tr4,k_tr4_offset,size_tr4
-      INTEGER chunk_tr4,handle_tr4
+      INTEGER chunk_tr4,hand_tr4
       INTEGER l_aux,k_aux
       INTEGER p5b
       INTEGER p6b
@@ -377,7 +377,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_tr4),
-     1   dfloat(bytes)*dfloat(size_tr4),dfloat(chunk_tr4),handle_tr4,
+     1   dfloat(bytes)*dfloat(size_tr4),dfloat(chunk_tr4),hand_tr4,
      2   TR_SUFFIX)
      1   .ne.0)
      2   call errquit('tr4_restart_save: sf_problem',0,DISK_ERR)
@@ -427,7 +427,7 @@ c
       call tce_hash(int_mb(k_tr4_offset),key,offset_aux)
       call ga_get(d_tr4,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_tr4,
+        ierrcode1=sf_write(hand_tr4,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
@@ -463,7 +463,7 @@ c
 c
 c
       subroutine yr4_restart_save(d_yr4,k_yr4_offset,size_yr4,axis,
-     1                           handle_yr4,irrep)
+     1                           hand_yr4,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -478,7 +478,7 @@ c
       double precision cpu     ! CPU sec counter
       double precision wall    ! WALL sec counter
       INTEGER d_yr4,k_yr4_offset,size_yr4
-      INTEGER chunk_yr4,handle_yr4
+      INTEGER chunk_yr4,hand_yr4
       INTEGER l_aux,k_aux
       INTEGER h6b
       INTEGER h7b
@@ -532,7 +532,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_yr4),
-     1   dfloat(bytes)*dfloat(size_yr4),dfloat(chunk_yr4),handle_yr4,
+     1   dfloat(bytes)*dfloat(size_yr4),dfloat(chunk_yr4),hand_yr4,
      2   YR_SUFFIX)
      1   .ne.0)
      2   call errquit('yr4_restart_save: sf_problem',0,DISK_ERR)
@@ -580,7 +580,7 @@ c
       call tce_hash(int_mb(k_yr4_offset),key,offset_aux)
       call ga_get(d_yr4,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_yr4,
+        ierrcode1=sf_write(hand_yr4,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
@@ -627,7 +627,7 @@ c
 
 
       subroutine x4_restart_read(d_x4,k_x4_offset,size_x4,state,
-     1                           handle_x4,irrep)
+     1                           hand_x4,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -642,7 +642,7 @@ c
       double precision cpu     ! CPU sec counter
       double precision wall    ! WALL sec counter
       INTEGER d_x4,k_x4_offset,size_x4
-      INTEGER chunk_x4,handle_x4
+      INTEGER chunk_x4,hand_x4
       INTEGER l_aux,k_aux
       INTEGER p5b
       INTEGER p6b
@@ -695,7 +695,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x4),
-     1   dfloat(bytes)*dfloat(size_x4),dfloat(chunk_x4),handle_x4,
+     1   dfloat(bytes)*dfloat(size_x4),dfloat(chunk_x4),hand_x4,
      2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x4_restart_read: sf_problem',0,DISK_ERR)
@@ -739,7 +739,7 @@ c
      &    ( p5b - noab - 1)))))))
 !
       call tce_hash(int_mb(k_x4_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_x4,
+        ierrcode1=sf_read(hand_x4,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
@@ -778,7 +778,7 @@ c
 
 
       subroutine y4_restart_read(d_y4,k_y4_offset,size_y4,state,
-     1                           handle_y4,irrep)
+     1                           hand_y4,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -793,7 +793,7 @@ c
       double precision cpu     ! CPU sec counter
       double precision wall    ! WALL sec counter
       INTEGER d_y4,k_y4_offset,size_y4
-      INTEGER chunk_y4,handle_y4
+      INTEGER chunk_y4,hand_y4
       INTEGER l_aux,k_aux
       INTEGER h6b
       INTEGER h7b
@@ -846,7 +846,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_y4),
-     1   dfloat(bytes)*dfloat(size_y4),dfloat(chunk_y4),handle_y4,
+     1   dfloat(bytes)*dfloat(size_y4),dfloat(chunk_y4),hand_y4,
      2   Y_SUFFIX)
      1   .ne.0)
      2   call errquit('y4_restart_read: sf_problem',0,DISK_ERR)
@@ -891,7 +891,7 @@ c
      &    ( h6b - 1)))))))
 !
       call tce_hash(int_mb(k_y4_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_y4,
+        ierrcode1=sf_read(hand_y4,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
@@ -928,7 +928,7 @@ c
       end
 
       subroutine tr4_restart_read(d_tr4,k_tr4_offset,size_tr4,axis,
-     1                           handle_tr4,irrep)
+     1                           hand_tr4,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -943,7 +943,7 @@ c
       double precision cpu     ! CPU sec counter
       double precision wall    ! WALL sec counter
       INTEGER d_tr4,k_tr4_offset,size_tr4
-      INTEGER chunk_tr4,handle_tr4
+      INTEGER chunk_tr4,hand_tr4
       INTEGER l_aux,k_aux
       INTEGER p5b
       INTEGER p6b
@@ -996,7 +996,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_tr4),
-     1   dfloat(bytes)*dfloat(size_tr4),dfloat(chunk_tr4),handle_tr4,
+     1   dfloat(bytes)*dfloat(size_tr4),dfloat(chunk_tr4),hand_tr4,
      2   TR_SUFFIX)
      1   .ne.0)
      2   call errquit('tr4_restart_read: sf_problem',0,DISK_ERR)
@@ -1040,7 +1040,7 @@ c
      &    ( p5b - noab - 1)))))))
 !
       call tce_hash(int_mb(k_tr4_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_tr4,
+        ierrcode1=sf_read(hand_tr4,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then
@@ -1079,7 +1079,7 @@ c
 
 
       subroutine yr4_restart_read(d_yr4,k_yr4_offset,size_yr4,axis,
-     1                           handle_yr4,irrep)
+     1                           hand_yr4,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1094,7 +1094,7 @@ c
       double precision cpu     ! CPU sec counter
       double precision wall    ! WALL sec counter
       INTEGER d_yr4,k_yr4_offset,size_yr4
-      INTEGER chunk_yr4,handle_yr4
+      INTEGER chunk_yr4,hand_yr4
       INTEGER l_aux,k_aux
       INTEGER h6b
       INTEGER h7b
@@ -1147,7 +1147,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_yr4),
-     1   dfloat(bytes)*dfloat(size_yr4),dfloat(chunk_yr4),handle_yr4,
+     1   dfloat(bytes)*dfloat(size_yr4),dfloat(chunk_yr4),hand_yr4,
      2   YR_SUFFIX)
      1   .ne.0)
      2   call errquit('yr4_restart_read: sf_problem',0,DISK_ERR)
@@ -1192,7 +1192,7 @@ c
      &    ( h6b - 1)))))))
 !
       call tce_hash(int_mb(k_yr4_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_yr4,
+        ierrcode1=sf_read(hand_yr4,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if(ierrcode1.ne.0) then

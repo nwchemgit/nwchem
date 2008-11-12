@@ -1,5 +1,5 @@
       subroutine x3_restart_save(d_x3,k_x3_offset,size_x3,state,
-     1                           handle_x3,irrep)
+     1                           hand_x3,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -12,7 +12,7 @@
 #include "tce_main.fh"
 #include "tce_restart.fh"
       INTEGER d_x3,k_x3_offset,size_x3
-      INTEGER chunk_x3,handle_x3
+      INTEGER chunk_x3,hand_x3
       INTEGER l_aux,k_aux
       INTEGER p2b,p3b,p4b,h1b,h5b,h6b
       INTEGER key
@@ -59,7 +59,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x3),
-     1   dfloat(bytes)*dfloat(size_x3),dfloat(chunk_x3),handle_x3,
+     1   dfloat(bytes)*dfloat(size_x3),dfloat(chunk_x3),hand_x3,
      2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x3_restart_save: sf_problem',0,DISK_ERR)
@@ -101,7 +101,7 @@ c
       call tce_hash(int_mb(k_x3_offset),key,offset_aux)
       call ga_get(d_x3,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_x3,
+        ierrcode1=sf_write(hand_x3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
@@ -139,7 +139,7 @@ c
 c
 c
       subroutine y3_restart_save(d_y3,k_y3_offset,size_y3,state,
-     1                           handle_y3,irrep)
+     1                           hand_y3,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -152,7 +152,7 @@ c
 #include "tce_main.fh"
 #include "tce_restart.fh"
       INTEGER d_y3,k_y3_offset,size_y3
-      INTEGER chunk_y3,handle_y3
+      INTEGER chunk_y3,hand_y3
       INTEGER l_aux,k_aux
       INTEGER h6b,h7b,h8b,p1b,p2b,p3b
       INTEGER key
@@ -198,7 +198,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_y3),
-     1   dfloat(bytes)*dfloat(size_y3),dfloat(chunk_y3),handle_y3,
+     1   dfloat(bytes)*dfloat(size_y3),dfloat(chunk_y3),hand_y3,
      2   Y_SUFFIX)
      1   .ne.0)
      2   call errquit('y3_restart_save: sf_problem',0,DISK_ERR)
@@ -240,7 +240,7 @@ c
       call tce_hash(int_mb(k_y3_offset),key,offset_aux)
       call ga_get(d_y3,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_y3,
+        ierrcode1=sf_write(hand_y3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
@@ -279,7 +279,7 @@ c
 c
 c
       subroutine tr3_restart_save(d_tr3,k_tr3_offset,size_tr3,axis,
-     1                           handle_tr3,irrep)
+     1                           hand_tr3,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -292,7 +292,7 @@ c
 #include "tce_main.fh"
 #include "tce_restart.fh"
       INTEGER d_tr3,k_tr3_offset,size_tr3
-      INTEGER chunk_tr3,handle_tr3
+      INTEGER chunk_tr3,hand_tr3
       INTEGER l_aux,k_aux
       INTEGER p2b,p3b,p4b,h1b,h5b,h6b
       INTEGER key
@@ -339,7 +339,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_tr3),
-     1   dfloat(bytes)*dfloat(size_tr3),dfloat(chunk_tr3),handle_tr3,
+     1   dfloat(bytes)*dfloat(size_tr3),dfloat(chunk_tr3),hand_tr3,
      2   TR_SUFFIX)
      1   .ne.0)
      2   call errquit('tr3_restart_save: sf_problem',0,DISK_ERR)
@@ -381,7 +381,7 @@ c
       call tce_hash(int_mb(k_tr3_offset),key,offset_aux)
       call ga_get(d_tr3,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_tr3,
+        ierrcode1=sf_write(hand_tr3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
@@ -419,7 +419,7 @@ c
 c
 c
       subroutine yr3_restart_save(d_yr3,k_yr3_offset,size_yr3,axis,
-     1                           handle_yr3,irrep)
+     1                           hand_yr3,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -432,7 +432,7 @@ c
 #include "tce_main.fh"
 #include "tce_restart.fh"
       INTEGER d_yr3,k_yr3_offset,size_yr3
-      INTEGER chunk_yr3,handle_yr3
+      INTEGER chunk_yr3,hand_yr3
       INTEGER l_aux,k_aux
       INTEGER h6b,h7b,h8b,p1b,p2b,p3b
       INTEGER key
@@ -478,7 +478,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_yr3),
-     1   dfloat(bytes)*dfloat(size_yr3),dfloat(chunk_yr3),handle_yr3,
+     1   dfloat(bytes)*dfloat(size_yr3),dfloat(chunk_yr3),hand_yr3,
      2   YR_SUFFIX)
      1   .ne.0)
      2   call errquit('yr3_restart_save: sf_problem',0,DISK_ERR)
@@ -520,7 +520,7 @@ c
       call tce_hash(int_mb(k_yr3_offset),key,offset_aux)
       call ga_get(d_yr3,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_yr3,
+        ierrcode1=sf_write(hand_yr3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
@@ -575,7 +575,7 @@ c
 c
 c
       subroutine x3_restart_read(d_x3,k_x3_offset,size_x3,state,
-     1                           handle_x3,irrep)
+     1                           hand_x3,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -588,7 +588,7 @@ c
 #include "tce_main.fh"
 #include "tce_restart.fh"
       INTEGER d_x3,k_x3_offset,size_x3
-      INTEGER chunk_x3,handle_x3
+      INTEGER chunk_x3,hand_x3
       INTEGER l_aux,k_aux
       INTEGER p2b,p3b,p4b,h1b,h5b,h6b
       INTEGER key
@@ -634,7 +634,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x3),
-     1   dfloat(bytes)*dfloat(size_x3),dfloat(chunk_x3),handle_x3,
+     1   dfloat(bytes)*dfloat(size_x3),dfloat(chunk_x3),hand_x3,
      2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x3_restart_read: sf_problem',0,DISK_ERR)
@@ -673,7 +673,7 @@ c
      2     (p2b - noab - 1)))))
 !
       call tce_hash(int_mb(k_x3_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_x3,
+        ierrcode1=sf_read(hand_x3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
@@ -710,7 +710,7 @@ c
 c
 c
       subroutine y3_restart_read(d_y3,k_y3_offset,size_y3,state,
-     1                           handle_y3,irrep)
+     1                           hand_y3,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -723,7 +723,7 @@ c
 #include "tce_main.fh"
 #include "tce_restart.fh"
       INTEGER d_y3,k_y3_offset,size_y3
-      INTEGER chunk_y3,handle_y3
+      INTEGER chunk_y3,hand_y3
       INTEGER l_aux,k_aux
       INTEGER h6b,h7b,h8b,p1b,p2b,p3b
       INTEGER key
@@ -769,7 +769,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_y3),
-     1   dfloat(bytes)*dfloat(size_y3),dfloat(chunk_y3),handle_y3,
+     1   dfloat(bytes)*dfloat(size_y3),dfloat(chunk_y3),hand_y3,
      2   Y_SUFFIX)
      1   .ne.0)
      2   call errquit('y3_restart_read: sf_problem',0,DISK_ERR)
@@ -807,7 +807,7 @@ c
      2     (h7b - 1 + noab * (h6b - 1)))))
 !
       call tce_hash(int_mb(k_y3_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_y3,
+        ierrcode1=sf_read(hand_y3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
@@ -844,7 +844,7 @@ c
 c
 c
       subroutine tr3_restart_read(d_tr3,k_tr3_offset,size_tr3,axis,
-     1                           handle_tr3,irrep)
+     1                           hand_tr3,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -857,7 +857,7 @@ c
 #include "tce_main.fh"
 #include "tce_restart.fh"
       INTEGER d_tr3,k_tr3_offset,size_tr3
-      INTEGER chunk_tr3,handle_tr3
+      INTEGER chunk_tr3,hand_tr3
       INTEGER l_aux,k_aux
       INTEGER p2b,p3b,p4b,h1b,h5b,h6b
       INTEGER key
@@ -903,7 +903,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_tr3),
-     1   dfloat(bytes)*dfloat(size_tr3),dfloat(chunk_tr3),handle_tr3,
+     1   dfloat(bytes)*dfloat(size_tr3),dfloat(chunk_tr3),hand_tr3,
      2   TR_SUFFIX)
      1   .ne.0)
      2   call errquit('tr3_restart_read: sf_problem',0,DISK_ERR)
@@ -942,7 +942,7 @@ c
      2     (p2b - noab - 1)))))
 !
       call tce_hash(int_mb(k_tr3_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_tr3,
+        ierrcode1=sf_read(hand_tr3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
@@ -979,7 +979,7 @@ c
 c
 c
       subroutine yr3_restart_read(d_yr3,k_yr3_offset,size_yr3,axis,
-     1                           handle_yr3,irrep)
+     1                           hand_yr3,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -992,7 +992,7 @@ c
 #include "tce_main.fh"
 #include "tce_restart.fh"
       INTEGER d_yr3,k_yr3_offset,size_yr3
-      INTEGER chunk_yr3,handle_yr3
+      INTEGER chunk_yr3,hand_yr3
       INTEGER l_aux,k_aux
       INTEGER h6b,h7b,h8b,p1b,p2b,p3b
       INTEGER key
@@ -1038,7 +1038,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_yr3),
-     1   dfloat(bytes)*dfloat(size_yr3),dfloat(chunk_yr3),handle_yr3,
+     1   dfloat(bytes)*dfloat(size_yr3),dfloat(chunk_yr3),hand_yr3,
      2   YR_SUFFIX)
      1   .ne.0)
      2   call errquit('yr3_restart_read: sf_problem',0,DISK_ERR)
@@ -1076,7 +1076,7 @@ c
      2     (h7b - 1 + noab * (h6b - 1)))))
 !
       call tce_hash(int_mb(k_yr3_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_yr3,
+        ierrcode1=sf_read(hand_yr3,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
@@ -1113,7 +1113,7 @@ c
 c
 c
       subroutine x3a_restart_save(d_x3a,k_x3a_offset,size_x3a,state,
-     1                           handle_x3a,irrep)
+     1                           hand_x3a,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1126,7 +1126,7 @@ c
 #include "tce_main.fh"
 #include "tce_restart.fh"
       INTEGER d_x3a,k_x3a_offset,size_x3a
-      INTEGER chunk_x3a,handle_x3a
+      INTEGER chunk_x3a,hand_x3a
       INTEGER l_aux,k_aux
       INTEGER p5b,p6b,p7b,h3b,h4b,h9b
       INTEGER key
@@ -1174,7 +1174,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x3a),
-     1   dfloat(bytes)*dfloat(size_x3a),dfloat(chunk_x3a),handle_x3a,
+     1   dfloat(bytes)*dfloat(size_x3a),dfloat(chunk_x3a),hand_x3a,
      2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x3a_restart_save: sf_problem',0,DISK_ERR)
@@ -1217,7 +1217,7 @@ c
       call tce_hash(int_mb(k_x3a_offset),key,offset_aux)
       call ga_get(d_x3a,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
-        ierrcode1=sf_write(handle_x3a,
+        ierrcode1=sf_write(hand_x3a,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
@@ -1253,7 +1253,7 @@ c
 c
 c
       subroutine x3a_restart_read(d_x3a,k_x3a_offset,size_x3a,state,
-     1                           handle_x3a,irrep)
+     1                           hand_x3a,irrep)
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1266,7 +1266,7 @@ c
 #include "tce_main.fh"
 #include "tce_restart.fh"
       INTEGER d_x3a,k_x3a_offset,size_x3a
-      INTEGER chunk_x3a,handle_x3a
+      INTEGER chunk_x3a,hand_x3a
       INTEGER l_aux,k_aux
       INTEGER p5b,p6b,p7b,h3b,h4b,h9b
       INTEGER key
@@ -1313,7 +1313,7 @@ c
         call util_flush(6)
 c
         if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x3a),
-     1   dfloat(bytes)*dfloat(size_x3a),dfloat(chunk_x3a),handle_x3a,
+     1   dfloat(bytes)*dfloat(size_x3a),dfloat(chunk_x3a),hand_x3a,
      2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x3a_restart_read: sf_problem',0,DISK_ERR)
@@ -1357,7 +1357,7 @@ c
      2    * (p5b - noab - 1)))))
 !
       call tce_hash(int_mb(k_x3a_offset),key,offset_aux)
-        ierrcode1=sf_read(handle_x3a,
+        ierrcode1=sf_read(hand_x3a,
      2                   dfloat(bytes)*dfloat(offset_aux),
      2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
