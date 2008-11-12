@@ -125,6 +125,10 @@ c
       if(string.ne.'pmf') goto 9
       goto 11
    10 continue
+c     position right before EOF
+c     to avoid problems on chinook 
+c     (MV 11/12/2008 2:50 PM )
+      backspace(lfntop)
       write(lfntop,101)
   101 format('pmf')
    11 continue
