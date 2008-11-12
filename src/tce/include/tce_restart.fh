@@ -27,12 +27,32 @@ c YR_SUFFIX - the number after the saved Lambda(1) amplitudes
       logical read_y(12)         ! Y1, Y2, Y3, Y4
       integer save_interval      !  1 = each iteration, 5 = every five, etc.
       integer restart_ccsd_t
-
+c
+c     handles
+c
+      integer handle_f1,handle_v2
+      integer handle_d1(3),handle_q1(6),handle_o1(10)
+      integer handle_t1,handle_t2,handle_t3,handle_t4
+      integer handle_l1,handle_l2,handle_l3,handle_l4
+      integer handle_x1,handle_x2,handle_x3,handle_x4
+      integer handle_y1,handle_y2,handle_y3,handle_y4
+      integer handle_tr1(9),handle_tr2(9),handle_tr3(9),handle_tr4(9)
+      integer handle_yr1(9),handle_yr2(9),handle_yr3(9),handle_yr4(9)
+c
       common /tcerestartinteger/
-     1  save_interval,restart_ccsd_t
-
+     1  save_interval,restart_ccsd_t,
+     2  handle_f1,handle_v2,
+     3  handle_d1, handle_q1,handle_o1,
+     4  handle_t1,handle_t2,handle_t3,handle_t4,
+     5  handle_l1,handle_l2,handle_l3,handle_l4,
+     6  handle_x1,handle_x2,handle_x3,handle_x4,
+     7  handle_y1,handle_y2,handle_y3,handle_y4,
+     8  handle_tr1,handle_tr2,handle_tr3,handle_tr4,
+     9  handle_yr1,handle_yr2,handle_yr3,handle_yr4
+c
       common /tcerestartlogical/
      1  restart_ignore_failure,
      2  save_integrals,read_integrals,
-     3  save_t,read_t,save_l,read_l,save_tr,read_tr,save_lr,read_lr,
-     4  save_x,read_x,save_y,read_y
+     3  save_t,read_t,save_l,read_l,
+     4  save_x,read_x,save_y,read_y,
+     5  save_tr,read_tr,save_lr,read_lr

@@ -12,8 +12,10 @@
 #include "stdio.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-#include "tce_diis.fh"
+c#include "tce_diis.fh"
+#include "tce_restart.fh"
 c
+      integer iter
       integer d_d0,d_f1,d_v2,d_d1(3),d_t1,d_t2
       integer d_lambda1,d_lambda2
       integer d_lr1,d_lr2
@@ -74,20 +76,20 @@ c
           call tce_diis_tidy()
           call tce_print_y1(d_lambda1,k_l1_offset,printtol,irrep_y)
           call tce_print_y2(d_lambda2,k_l2_offset,printtol,irrep_y)
-c          if (save_l(1)) then
-c            if(nodezero) then
-c            write(LuOut,*) 'Saving L1 now...'
-c            endif
-c            call y1_restart_save(d_lambda1,k_l1_offset,size_l1,0,
-c     1                           handle_l1,irrep_y)
-c          endif
-c          if (save_l(2)) then
-c            if(nodezero) then
-c              write(LuOut,*) 'Saving L2 now...'
-c            endif
-c            call y2_restart_save(d_lambda2,k_l2_offset,size_l2,0,
-c     1                           handle_l2,irrep_y)
-c          endif
+          if (save_l(1)) then
+            if(nodezero) then
+            write(LuOut,*) 'Saving L1 now...'
+            endif
+            call y1_restart_save(d_lambda1,k_l1_offset,size_l1,0,
+     1                           handle_l1,irrep_y)
+          endif
+          if (save_l(2)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving L2 now...'
+            endif
+            call y2_restart_save(d_lambda2,k_l2_offset,size_l2,0,
+     1                           handle_l2,irrep_y)
+          endif
           call ccsd_dipole(d_d0,d_f1,d_v2,d_d1,d_t1,d_t2,
      1         d_lambda1,d_lambda2,
      2         k_d0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
@@ -96,20 +98,20 @@ c          endif
      5         size_l1,size_l2,dipole_scf,dipole_cor)
           return
         endif
-c      if (save_l(1).and.(mod(iter,save_interval).eq.0)) then
-c          if(nodezero) then
-c            write(LuOut,*) 'Saving L1 now...'
-c          endif
-c          call y1_restart_save(d_lambda1,k_l1_offset,size_l1,0,
-c     1                         handle_l1,irrep_y)
-c        endif
-c        if (save_l(2).and.(mod(iter,save_interval).eq.0)) then
-c          if(nodezero) then
-c            write(LuOut,*) 'Saving L2 now...'
-c          endif
-c          call y2_restart_save(d_lambda2,k_l2_offset,size_l2,0,
-c     1                         handle_l2,irrep_y)
-c        endif
+      if (save_l(1).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving L1 now...'
+          endif
+          call y1_restart_save(d_lambda1,k_l1_offset,size_l1,0,
+     1                         handle_l1,irrep_y)
+        endif
+        if (save_l(2).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving L2 now...'
+          endif
+          call y2_restart_save(d_lambda2,k_l2_offset,size_l2,0,
+     1                         handle_l2,irrep_y)
+        endif
         call tce_diis(.true.,iter,.true.,.true.,.false.,.false.,
      1                d_lr1,d_lambda1,k_l1_offset,size_l1,
      2                d_lr2,d_lambda2,k_l2_offset,size_l2,
@@ -149,7 +151,7 @@ c        endif
 #include "stdio.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-#include "tce_diis.fh"
+c#include "tce_diis.fh"
 c
       integer axis
       integer d_d0,d_f1,d_v2,d_d1(3),d_t1,d_t2

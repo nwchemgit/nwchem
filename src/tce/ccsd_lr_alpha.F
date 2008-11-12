@@ -13,6 +13,7 @@
 #include "tce.fh"
 #include "tce_main.fh"
 #include "tce_prop.fh"
+#include "tce_restart.fh"
 c
       integer i,j,dummy,axis
       integer omegacount,omegasign,dynaxis,dynfreq
@@ -148,11 +149,11 @@ c
 #include "stdio.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-#include "tce_diis.fh"
+c#include "tce_diis.fh"
 #include "tce_prop.fh"
 #include "tce_restart.fh"
 c
-      integer i,j,dummy,axis
+      integer i,j,dummy,axis,iter
       integer omegacount,omegasign,dynaxis
       integer irrep_g
       parameter (irrep_g=0)
@@ -242,40 +243,40 @@ c
           call deletefile(d_rr2(axis))
           call deletefile(d_rr1(axis))
           call tce_diis_tidy()
-c          if (save_tr(1)) then
-c            if(nodezero) then
-c              write(LuOut,*) 'Saving T1(1) now...'
-c            endif
-c            call tr1_restart_save(d_tr1(axis+dynaxis),
-c     1           k_tr1_offset(axis),size_tr1(axis),
-c     2           axis+dynaxis,handle_tr1(axis),irrep_x)
-c          endif
-c          if (save_tr(2)) then
-c            if(nodezero) then
-c              write(LuOut,*) 'Saving T2(1) now...'
-c            endif
-c            call tr2_restart_save(d_tr2(axis+dynaxis),
-c     1           k_tr2_offset(axis),size_tr2(axis),
-c     2           axis+dynaxis,handle_tr2(axis),irrep_x)
-c          endif
+          if (save_tr(1)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving T1(1) now...'
+            endif
+            call tr1_restart_save(d_tr1(axis+dynaxis),
+     1           k_tr1_offset(axis),size_tr1(axis),
+     2           axis+dynaxis,handle_tr1(axis),irrep_x)
+          endif
+          if (save_tr(2)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving T2(1) now...'
+            endif
+            call tr2_restart_save(d_tr2(axis+dynaxis),
+     1           k_tr2_offset(axis),size_tr2(axis),
+     2           axis+dynaxis,handle_tr2(axis),irrep_x)
+          endif
           return
         endif
-c        if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
-c          if(nodezero) then
-c            write(LuOut,*) 'Saving T1(1) now...'
-c          endif
-c          call tr1_restart_save(d_tr1(axis+dynaxis),
-c     1         k_tr1_offset(axis),size_tr1(axis),
-c     2         axis+dynaxis,handle_tr1(axis),irrep_x)
-c        endif
-c        if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
-c          if(nodezero) then
-c            write(LuOut,*) 'Saving T2(1) now...'
-c          endif
-c          call tr2_restart_save(d_tr2(axis+dynaxis),
-c     1         k_tr2_offset(axis),size_tr2(axis),
-c     2         axis+dynaxis,handle_tr2(axis),irrep_x)
-c        endif
+        if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T1(1) now...'
+          endif
+          call tr1_restart_save(d_tr1(axis+dynaxis),
+     1         k_tr1_offset(axis),size_tr1(axis),
+     2         axis+dynaxis,handle_tr1(axis),irrep_x)
+        endif
+        if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T2(1) now...'
+          endif
+          call tr2_restart_save(d_tr2(axis+dynaxis),
+     1         k_tr2_offset(axis),size_tr2(axis),
+     2         axis+dynaxis,handle_tr2(axis),irrep_x)
+        endif
         call tce_diis2(.false.,iter,.true.,.true.,.false.,.false.,
      1       d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
      2       size_tr1(axis),

@@ -13,6 +13,7 @@
 #include "tce.fh"
 #include "tce_main.fh"
 #include "tce_prop.fh"
+#include "tce_restart.fh"
 #include "paw_params.fh"
 c
       integer i,j,dummy,axis
@@ -392,40 +393,40 @@ c
           call deletefile(d_rr2(axis))
           call deletefile(d_rr1(axis))
           call tce_diis_tidy()
-!           if (save_tr(1)) then
-!             if(nodezero) then
-!               write(LuOut,*) 'Saving T1(1) now...'
-!             endif
-!             call tr1_restart_save(d_tr1(axis+dynaxis),
-!      1           k_tr1_offset(axis),size_tr1(axis),
-!      2           axis+dynaxis,handle_tr1(axis),irrep_x)
-!           endif
-!           if (save_tr(2)) then
-!             if(nodezero) then
-!               write(LuOut,*) 'Saving T2(1) now...'
-!             endif
-!             call tr2_restart_save(d_tr2(axis+dynaxis),
-!      1           k_tr2_offset(axis),size_tr2(axis),
-!      2           axis+dynaxis,handle_tr2(axis),irrep_x)
-!           endif
-          return
+          if (save_tr(1)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving T1(1) now...'
+            endif
+            call tr1_restart_save(d_tr1(axis+dynaxis),
+     1           k_tr1_offset(axis),size_tr1(axis),
+     2           axis+dynaxis,handle_tr1(axis),irrep_x)
+          endif
+          if (save_tr(2)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving T2(1) now...'
+            endif
+            call tr2_restart_save(d_tr2(axis+dynaxis),
+     1           k_tr2_offset(axis),size_tr2(axis),
+     2           axis+dynaxis,handle_tr2(axis),irrep_x)
+          endif
+         return
         endif
-!         if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
-!           if(nodezero) then
-!             write(LuOut,*) 'Saving T1(1) now...'
-!           endif
-!           call tr1_restart_save(d_tr1(axis+dynaxis),
-!      1         k_tr1_offset(axis),size_tr1(axis),
-!      2         axis+dynaxis,handle_tr1(axis),irrep_x)
-!         endif
-!         if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
-!           if(nodezero) then
-!             write(LuOut,*) 'Saving T2(1) now...'
-!           endif
-!           call tr2_restart_save(d_tr2(axis+dynaxis),
-!      1         k_tr2_offset(axis),size_tr2(axis),
-!      2         axis+dynaxis,handle_tr2(axis),irrep_x)
-!         endif
+        if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T1(1) now...'
+          endif
+          call tr1_restart_save(d_tr1(axis+dynaxis),
+     1         k_tr1_offset(axis),size_tr1(axis),
+     2         axis+dynaxis,handle_tr1(axis),irrep_x)
+        endif
+        if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T2(1) now...'
+          endif
+          call tr2_restart_save(d_tr2(axis+dynaxis),
+     1         k_tr2_offset(axis),size_tr2(axis),
+     2         axis+dynaxis,handle_tr2(axis),irrep_x)
+        endif
         call tce_diis3(.false.,iter,.true.,.true.,.false.,.false.,
      1       d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
      2       size_tr1(axis),
@@ -606,40 +607,40 @@ c
           call deletefile(d_rr2(axis))
           call deletefile(d_rr1(axis))
           call tce_diis_tidy()
-!           if (save_tr(1)) then
-!             if(nodezero) then
-!               write(LuOut,*) 'Saving T1(1) now...'
-!             endif
-!             call tr1_restart_save(d_tr1(axis+dynaxis),
-!      1           k_tr1_offset(axis),size_tr1(axis),
-!      2           axis+dynaxis,handle_tr1(axis),irrep_x)
-!           endif
-!           if (save_tr(2)) then
-!             if(nodezero) then
-!               write(LuOut,*) 'Saving T2(1) now...'
-!             endif
-!             call tr2_restart_save(d_tr2(axis+dynaxis),
-!      1           k_tr2_offset(axis),size_tr2(axis),
-!      2           axis+dynaxis,handle_tr2(axis),irrep_x)
-!           endif
+          if (save_tr(1)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving T1(1) now...'
+            endif
+            call tr1_restart_save(d_tr1(axis+dynaxis),
+     1           k_tr1_offset(axis),size_tr1(axis),
+     2           axis+dynaxis,handle_tr1(axis),irrep_x)
+          endif
+          if (save_tr(2)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving T2(1) now...'
+            endif
+            call tr2_restart_save(d_tr2(axis+dynaxis),
+     1           k_tr2_offset(axis),size_tr2(axis),
+     2           axis+dynaxis,handle_tr2(axis),irrep_x)
+          endif
           return
         endif
-!         if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
-!           if(nodezero) then
-!             write(LuOut,*) 'Saving T1(1) now...'
-!           endif
-!           call tr1_restart_save(d_tr1(axis+dynaxis),
-!      1         k_tr1_offset(axis),size_tr1(axis),
-!      2         axis+dynaxis,handle_tr1(axis),irrep_x)
-!         endif
-!         if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
-!           if(nodezero) then
-!             write(LuOut,*) 'Saving T2(1) now...'
-!           endif
-!           call tr2_restart_save(d_tr2(axis+dynaxis),
-!      1         k_tr2_offset(axis),size_tr2(axis),
-!      2         axis+dynaxis,handle_tr2(axis),irrep_x)
-!         endif
+        if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T1(1) now...'
+          endif
+          call tr1_restart_save(d_tr1(axis+dynaxis),
+     1         k_tr1_offset(axis),size_tr1(axis),
+     2         axis+dynaxis,handle_tr1(axis),irrep_x)
+        endif
+        if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T2(1) now...'
+          endif
+          call tr2_restart_save(d_tr2(axis+dynaxis),
+     1         k_tr2_offset(axis),size_tr2(axis),
+     2         axis+dynaxis,handle_tr2(axis),irrep_x)
+        endif
         call tce_diis3(.false.,iter,.true.,.true.,.false.,.false.,
      1       d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
      2       size_tr1(axis),
@@ -787,40 +788,40 @@ c
           call deletefile(d_rr2(axis))
           call deletefile(d_rr1(axis))
           call tce_diis_tidy()
-!           if (save_tr(1)) then
-!             if(nodezero) then
-!               write(LuOut,*) 'Saving T1(1) now...'
-!             endif
-!             call tr1_restart_save(d_tr1(axis+dynaxis),
-!      1           k_tr1_offset(axis),size_tr1(axis),
-!      2           axis+dynaxis,handle_tr1(axis),irrep_x)
-!           endif
-!           if (save_tr(2)) then
-!             if(nodezero) then
-!               write(LuOut,*) 'Saving T2(1) now...'
-!             endif
-!             call tr2_restart_save(d_tr2(axis+dynaxis),
-!      1           k_tr2_offset(axis),size_tr2(axis),
-!      2           axis+dynaxis,handle_tr2(axis),irrep_x)
-!           endif
+          if (save_tr(1)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving T1(1) now...'
+            endif
+            call tr1_restart_save(d_tr1(axis+dynaxis),
+     1           k_tr1_offset(axis),size_tr1(axis),
+     2           axis+dynaxis,handle_tr1(axis),irrep_x)
+          endif
+          if (save_tr(2)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving T2(1) now...'
+            endif
+            call tr2_restart_save(d_tr2(axis+dynaxis),
+     1           k_tr2_offset(axis),size_tr2(axis),
+     2           axis+dynaxis,handle_tr2(axis),irrep_x)
+          endif
           return
         endif
-!         if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
-!           if(nodezero) then
-!             write(LuOut,*) 'Saving T1(1) now...'
-!           endif
-!           call tr1_restart_save(d_tr1(axis+dynaxis),
-!      1         k_tr1_offset(axis),size_tr1(axis),
-!      2         axis+dynaxis,handle_tr1(axis),irrep_x)
-!         endif
-!         if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
-!           if(nodezero) then
-!             write(LuOut,*) 'Saving T2(1) now...'
-!           endif
-!           call tr2_restart_save(d_tr2(axis+dynaxis),
-!      1         k_tr2_offset(axis),size_tr2(axis),
-!      2         axis+dynaxis,handle_tr2(axis),irrep_x)
-!         endif
+        if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T1(1) now...'
+          endif
+          call tr1_restart_save(d_tr1(axis+dynaxis),
+     1         k_tr1_offset(axis),size_tr1(axis),
+     2         axis+dynaxis,handle_tr1(axis),irrep_x)
+        endif
+        if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T2(1) now...'
+          endif
+          call tr2_restart_save(d_tr2(axis+dynaxis),
+     1         k_tr2_offset(axis),size_tr2(axis),
+     2         axis+dynaxis,handle_tr2(axis),irrep_x)
+        endif
         call tce_diis3(.false.,iter,.true.,.true.,.false.,.false.,
      1       d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
      2       size_tr1(axis),
@@ -961,40 +962,40 @@ c
           call deletefile(d_rr2(axis))
           call deletefile(d_rr1(axis))
           call tce_diis_tidy()
-!           if (save_tr(1)) then
-!             if(nodezero) then
-!               write(LuOut,*) 'Saving T1(1) now...'
-!             endif
-!             call tr1_restart_save(d_tr1(axis+dynaxis),
-!      1           k_tr1_offset(axis),size_tr1(axis),
-!      2           axis+dynaxis,handle_tr1(axis),irrep_x)
-!           endif
-!           if (save_tr(2)) then
-!             if(nodezero) then
-!               write(LuOut,*) 'Saving T2(1) now...'
-!             endif
-!             call tr2_restart_save(d_tr2(axis+dynaxis),
-!      1           k_tr2_offset(axis),size_tr2(axis),
-!      2           axis+dynaxis,handle_tr2(axis),irrep_x)
-!           endif
+          if (save_tr(1)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving T1(1) now...'
+            endif
+            call tr1_restart_save(d_tr1(axis+dynaxis),
+     1           k_tr1_offset(axis),size_tr1(axis),
+     2           axis+dynaxis,handle_tr1(axis),irrep_x)
+          endif
+          if (save_tr(2)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving T2(1) now...'
+            endif
+            call tr2_restart_save(d_tr2(axis+dynaxis),
+     1           k_tr2_offset(axis),size_tr2(axis),
+     2           axis+dynaxis,handle_tr2(axis),irrep_x)
+          endif
           return
         endif
-!         if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
-!           if(nodezero) then
-!             write(LuOut,*) 'Saving T1(1) now...'
-!           endif
-!           call tr1_restart_save(d_tr1(axis+dynaxis),
-!      1         k_tr1_offset(axis),size_tr1(axis),
-!      2         axis+dynaxis,handle_tr1(axis),irrep_x)
-!         endif
-!         if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
-!           if(nodezero) then
-!             write(LuOut,*) 'Saving T2(1) now...'
-!           endif
-!           call tr2_restart_save(d_tr2(axis+dynaxis),
-!      1         k_tr2_offset(axis),size_tr2(axis),
-!      2         axis+dynaxis,handle_tr2(axis),irrep_x)
-!         endif
+        if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T1(1) now...'
+          endif
+          call tr1_restart_save(d_tr1(axis+dynaxis),
+     1         k_tr1_offset(axis),size_tr1(axis),
+     2         axis+dynaxis,handle_tr1(axis),irrep_x)
+        endif
+        if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T2(1) now...'
+          endif
+          call tr2_restart_save(d_tr2(axis+dynaxis),
+     1         k_tr2_offset(axis),size_tr2(axis),
+     2         axis+dynaxis,handle_tr2(axis),irrep_x)
+        endif
         call tce_diis3(.false.,iter,.true.,.true.,.false.,.false.,
      1       d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
      2       size_tr1(axis),

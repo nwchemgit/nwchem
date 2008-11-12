@@ -11,6 +11,7 @@
 #include "tce.fh"
 #include "tce_main.fh"
 #include "tce_diis.fh"
+#include "tce_restart.fh"
 c
       integer d_f1,d_e,d_t1,d_t2,d_v2,d_r1,d_r2
       integer k_f1_offset,k_e_offset,k_t1_offset
@@ -83,36 +84,36 @@ c
         call tce_print_x1(d_t1,k_t1_offset,printtol,irrep_t)
         call tce_print_x2(d_t2,k_t2_offset,printtol,irrep_t)
         call tce_diis_tidy()
-c        if (save_t(1)) then
-c          if(nodezero) then
-c            write(LuOut,*) 'Saving T1 now...'
-c          endif
-c          call x1_restart_save(d_t1,k_t1_offset,size_t1,0,
-c     1                         handle_t1,irrep_t)
-c        endif
-c        if (save_t(2)) then
-c          if(nodezero) then
-c            write(LuOut,*) 'Saving T1 now...'
-c          endif
-c          call x2_restart_save(d_t2,k_t2_offset,size_t2,0,
-c     1                         handle_t2,irrep_t)
-c        endif
+        if (save_t(1)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T1 now...'
+          endif
+          call x1_restart_save(d_t1,k_t1_offset,size_t1,0,
+     1                         handle_t1,irrep_t)
+        endif
+        if (save_t(2)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T1 now...'
+          endif
+          call x2_restart_save(d_t2,k_t2_offset,size_t2,0,
+     1                         handle_t2,irrep_t)
+        endif
         return
         endif
-c        if (save_t(1).and.(mod(iter,save_interval).eq.0)) then
-c          if(nodezero) then
-c            write(LuOut,*) 'Saving T1 now...'
-c          endif
-c          call x1_restart_save(d_t1,k_t1_offset,size_t1,0,
-c     1                         handle_t1,irrep_t)
-c        endif
-c        if (save_t(2).and.(mod(iter,save_interval).eq.0)) then
-c          if(nodezero) then
-c            write(LuOut,*) 'Saving T2 now...'
-c          endif
-c          call x2_restart_save(d_t2,k_t2_offset,size_t2,0,
-c     1                         handle_t2,irrep_t)
-c        endif
+        if (save_t(1).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T1 now...'
+          endif
+          call x1_restart_save(d_t1,k_t1_offset,size_t1,0,
+     1                         handle_t1,irrep_t)
+        endif
+        if (save_t(2).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving T2 now...'
+          endif
+          call x2_restart_save(d_t2,k_t2_offset,size_t2,0,
+     1                         handle_t2,irrep_t)
+        endif
         call tce_diis(.false.,iter,.true.,.true.,.false.,.false.,
      1                d_r1,d_t1,k_t1_offset,size_t1,
      2                d_r2,d_t2,k_t2_offset,size_t2,

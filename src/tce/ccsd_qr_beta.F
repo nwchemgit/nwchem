@@ -14,6 +14,7 @@
 #include "tce.fh"
 #include "tce_main.fh"
 #include "tce_prop.fh"
+#include "tce_restart.fh"
 c
       integer i,j,dummy,axis,dynaxis,dynfreq
       integer omegacount,omegasign
@@ -138,11 +139,11 @@ c
 #include "stdio.fh"
 #include "tce.fh"
 #include "tce_main.fh"
-#include "tce_diis.fh"
+c#include "tce_diis.fh"
 #include "tce_prop.fh"
 #include "tce_restart.fh"
 c
-      integer i,j,dummy,axis,dynaxis
+      integer i,j,dummy,axis,dynaxis,iter
       integer irrep_g
       parameter (irrep_g=0)
       integer d_f1,d_v2,d_d1(3)
@@ -292,39 +293,39 @@ c
           call deletefile(d_yrr2(axis))
           call deletefile(d_yrr1(axis))
           call tce_diis_tidy()
-c          if (save_lr(1)) then
-c            if(nodezero) then
-c              write(LuOut,*) 'Saving L1(1) now...'
-c            endif
-c            call yr1_restart_save(d_yr1(axis),k_yr1_offset(axis),
-c     1           size_yr1(axis),axis,handle_yr1(axis),irrep_d)
-c          endif
-c          if (save_lr(2)) then
-c            if(nodezero) then
-c              write(LuOut,*) 'Saving L2(1) now...'
-c            endif
-c            call yr2_restart_save(d_yr2(axis),k_yr2_offset(axis),
-c     1           size_yr2(axis),axis,handle_yr2(axis),irrep_d)
-c          endif
+          if (save_lr(1)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving L1(1) now...'
+            endif
+            call yr1_restart_save(d_yr1(axis),k_yr1_offset(axis),
+     1           size_yr1(axis),axis,handle_yr1(axis),irrep_d)
+          endif
+          if (save_lr(2)) then
+            if(nodezero) then
+              write(LuOut,*) 'Saving L2(1) now...'
+            endif
+            call yr2_restart_save(d_yr2(axis),k_yr2_offset(axis),
+     1           size_yr2(axis),axis,handle_yr2(axis),irrep_d)
+          endif
           call deletefile(d_b2(axis))
           call deletefile(d_b1(axis))
           return
         endif
-c        if (save_lr(1).and.(mod(iter,save_interval).eq.0)) then
-c          if(nodezero) then
-c            write(LuOut,*) 'Saving L1(1) now...'
-c          endif
-c          call yr1_restart_save(d_yr1(axis),k_yr1_offset(axis),
-c     1         size_yr1(axis),axis,handle_yr1(axis),irrep_d)
-c        endif
-c        if (save_lr(2).and.(mod(iter,save_interval).eq.0)) then
-c          if(nodezero) then
-c            write(LuOut,*) 'Saving L2(1) now...'
-c          endif
-c          call yr2_restart_save(d_yr2(axis),k_yr2_offset(axis),
-c     1   size_yr2(axis),axis,handle_yr2(axis),irrep_d)
-c        endif
-c       write(LuOut,*) "before tce_diis2"
+        if (save_lr(1).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving L1(1) now...'
+          endif
+          call yr1_restart_save(d_yr1(axis),k_yr1_offset(axis),
+     1         size_yr1(axis),axis,handle_yr1(axis),irrep_d)
+        endif
+        if (save_lr(2).and.(mod(iter,save_interval).eq.0)) then
+          if(nodezero) then
+            write(LuOut,*) 'Saving L2(1) now...'
+          endif
+          call yr2_restart_save(d_yr2(axis),k_yr2_offset(axis),
+     1   size_yr2(axis),axis,handle_yr2(axis),irrep_d)
+        endif
+       write(LuOut,*) "before tce_diis2"
         irrep_y=irrep_d
         call tce_diis2(.true.,iter,.true.,.true.,.false.,.false.,
      1       d_yrr1(axis),d_yr1(axis+dynaxis),k_yr1_offset(axis),
