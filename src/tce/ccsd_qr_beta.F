@@ -325,7 +325,7 @@ c
           call yr2_restart_save(d_yr2(axis),k_yr2_offset(axis),
      1   size_yr2(axis),axis,handle_yr2(axis),irrep_d)
         endif
-       write(LuOut,*) "before tce_diis2"
+c        write(LuOut,*) "before tce_diis2"
         irrep_y=irrep_d
         call tce_diis2(.true.,iter,.true.,.true.,.false.,.false.,
      1       d_yrr1(axis),d_yr1(axis+dynaxis),k_yr1_offset(axis),
