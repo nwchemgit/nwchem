@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.152 2008-11-01 22:49:18 jhammond Exp $
+c $Id: tce_energy.F,v 1.153 2008-11-12 16:45:11 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -180,17 +180,6 @@ c ---------------------------------------
 c --- debug ---
 c      integer dup1,dup2,dup3,dup4,dup5,dup6
 c -------------
-c
-c     Restart
-c
-      integer handle_f1 ,handle_v2 ,handle_v3 ,handle_v4
-      integer handle_t1 ,handle_t2 ,handle_t3 ,handle_t4
-      integer handle_l1 ,handle_l2 ,handle_l3 ,handle_l4
-      integer handle_tr1(9),handle_tr2(9),handle_tr3(9),handle_tr4(9)
-      integer handle_yr1(9),handle_yr2(9),handle_yr3(9),handle_yr4(9)
-      integer handle_x1 ,handle_x2 ,handle_x3 ,handle_x4
-      integer handle_y1 ,handle_y2 ,handle_y3 ,handle_y4
-      integer handle_d1(3),handle_q1(6),handle_o1(10)
 c
 c     CC Lambda equation
 c
