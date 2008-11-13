@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.97 2008-10-21 17:20:19 jhammond Exp $
+#$Id: GNUmakefile,v 1.98 2008-11-13 17:01:31 jhammond Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 gradients \
@@ -19,7 +19,9 @@ ifdef CCSDTQ
       LIB_DEFINES += -DCCSDTQ
 endif
 
-OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
+OBJ = tce_input.o tce_init.o
+
+OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o gatodra.o gatoeaf.o \
       get_block.o put_block.o add_block.o tce_tidy.o sf_test.o hbar.o \
       tce_mo2e.o tce_mo1e_offset.o tce_mo2e_offset.o tce_e_offset.o \
