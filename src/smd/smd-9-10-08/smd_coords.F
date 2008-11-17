@@ -373,7 +373,6 @@ c     -------------
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
-#include "smd_const_data.fh"
       character*(*) fname
 c     
       integer un
@@ -426,9 +425,9 @@ c
      >  call errquit(
      >       pname//'error getting size for '//tag,0, RTDB_ERR)
 c
-      write(*,*) "nta=",nta,nta/na,smd_string_size
+      nta=nta/na
       do i=1,na
-       i0=smd_string_size*(i-1)
+       i0=nta*(i-1)
        write(un,FMT=9000)
      >           i,
      >           (byte_mb(i_ta+i0+j-1),j=1,4),
@@ -454,7 +453,6 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
-#include "smd_const_data.fh"
       character*(*) fname
       double precision c(*)
 c     
@@ -508,10 +506,10 @@ c
      >  call errquit(
      >       pname//'error getting size for '//tag,0, RTDB_ERR)
 c 
-      write(*,*) "nta=",nta,nta/na,smd_string_size
+      nta=nta/na
 
       do i=1,na
-       i0=smd_string_size*(i-1)
+       i0=nta*(i-1)
        write(un,FMT=9000)
      >           i,
      >           (byte_mb(i_ta+i0+j-1),j=1,4),

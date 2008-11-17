@@ -47,7 +47,7 @@ c      write(*,*) "time monomer rtdb",etime2-etime1
 c      call smd_rtdb_set_handle(rtdb_grp)
 c
       call ga_pgroup_sync(p_grp)
-c      call smd_monomer_energy(tskid)
+      call smd_monomer_energy(tskid)
       call ga_pgroup_sync(p_grp)
 c
 c      call smd_charge_ga_print()

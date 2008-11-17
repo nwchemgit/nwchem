@@ -39,9 +39,10 @@ c
 c
       character*32 pname
       character*80 tag
-      integer nt
+      integer nt,ns
       integer i_t,i_tr,i_ir,i_qf
       integer i_iconst
+      logical result
 c
       logical geom_tag_to_charge_gen
       external geom_tag_to_charge_gen
@@ -88,8 +89,14 @@ c     ---------------------------
      +                         byte_mb(i_tr),
      +                         int_mb(i_ir))
 
+      tag = "atom:name"
+      call smd_get_size(tag,ns,result)
+      if(.not.result) call errquit(
+     >       pname//'error getting size',0, RTDB_ERR)
+
+      ns=ns/nt
 c
-      if(.not.geom_tag_to_charge_gen(nt,smd_string_size,
+      if(.not.geom_tag_to_charge_gen(nt,ns,
      >                        byte_mb(i_t),dbl_mb(i_qf)))
      >  call errquit(
      >       pname//'error setting formal charge',0, RTDB_ERR)

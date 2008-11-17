@@ -64,18 +64,22 @@ c
      &    call errquit(pname//'failed esp call', 100,
      &                 RTDB_ERR)
 c
+      call util_message("finished esp")
+c
       call smd_geom_push_charges(im)
       if(ga_nodeid().eq.0)
      &     call smd_fragment_charge_set(im)
 
+      call util_message("finished smd_geom_push_charges")
+
 100   continue
       call smd_geom_monomer_end()
+      call util_message("smd_geom_monomer_end")
 
       write(key,'(a,'':converged'')') theory(1:inp_strlen(theory))
       if (.not. rtdb_put(rtdb, key, mt_log, 1, .false.))
      &    call errquit(pname//'  rtdb_put', 0,
      &                 RTDB_ERR)
-      call smd_group_rtdb_release1(rtdb)
       call smd_fragment_charge_print()
 
       call util_file_prefix_set(prefix0)
