@@ -1,5 +1,5 @@
 *
-* $Id: Dne.fh,v 1.5 2008-09-11 21:26:46 bylaska Exp $
+* $Id: Dne.fh,v 1.6 2008-11-17 17:25:41 bylaska Exp $
 *
 
       integer ne(2),neq(2),ispin
@@ -34,3 +34,4 @@
 
       integer mpack(0:2),mall(0:2),mindx(2,0:2)
       common / Dne_gathscat / mindx,mpack,mall
+

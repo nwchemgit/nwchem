@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-mpi.F,v 1.13 2008-09-03 17:07:32 bylaska Exp $
+* $Id: Parallel-mpi.F,v 1.14 2008-11-17 17:25:42 bylaska Exp $
 *
 
 * Parallel.f
@@ -44,6 +44,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       stupid_world   = MPI_COMM_WORLD
       stupid_sum     = MPI_SUM
       stupid_max     = MPI_MAX
+      stupid_min     = MPI_MIN
       stupid_integer = MPI_INTEGER
       stupid_double  = MPI_DOUBLE_PRECISION
       stupid_complex = MPI_DOUBLE_COMPLEX

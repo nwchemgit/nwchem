@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.81 2008-11-04 21:30:57 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.82 2008-11-17 17:25:44 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -7,14 +7,11 @@ c     $Id: cgsd_energy.F,v 1.81 2008-11-04 21:30:57 bylaska Exp $
 
       real*8 function cgsd_energy(newpsi)
       implicit none
-#include "errquit.fh"
 
 #include "stdio.fh"
 #include "util.fh"
 #include "mafdecls.fh"
-cccccccccc   #include "frac_occ.fh"
-
-
+#include "errquit.fh"
 c#include "global.fh"
 c#include "rtdb.fh"
 
@@ -245,9 +242,15 @@ c          **** reset minimizer if failed ****
 
       call psi_diagonalize_hml()
 
+*     *** reverse the order of occ ***
+      if (control_fractional())  then
+         call psi_1reverse_occupation()
+      end if
+
       if (pspw_SIC()) then
          call psi_1gen_hml_g()
-      else if (.not.control_fractional()) then
+c      else if (.not.control_fractional()) then
+      else 
          call psi_1rotate2()
          call psi_2to1()
       end if
@@ -293,6 +296,9 @@ c          **** reset minimizer if failed ****
            write(luout,1457) E(26),E(26)/neall
          end if
          write(luout,1470) E(5),E(5)/ion_nion()
+         if (control_fractional()) write(luout,1471) E(28),E(28)/neall
+
+
 
          write(luout,1480) E(6),E(6)/neall
 
@@ -363,7 +369,7 @@ c            end do
 
 *        **** write out KS eigenvalues ****
            NN=psi_ne(1)-psi_ne(2)
-           EV=27.2116
+           EV=27.2116d0
            if (control_fractional()) then
              if (psi_ispin().eq.1) then
                write(luout,1507) psi_smearfermi(1),psi_smearfermi(1)*EV
@@ -510,6 +516,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
+ 1471 FORMAT( ' smearing  energy    :',E19.10,' (',E15.5,'/electron)')
  1480 FORMAT(/' kinetic (planewave) :',E19.10,' (',E15.5,'/electron)')
  1490 FORMAT( ' V_local (planewave) :',E19.10,' (',E15.5,'/electron)')
  1491 FORMAT( ' Vl+Vqm/mm           :',E19.10,' (',E15.5,'/electron)')

@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_write.F,v 1.16 2008-06-02 15:20:01 bylaska Exp $
+* $Id: cpsi_write.F,v 1.17 2008-11-17 17:25:39 bylaska Exp $
 *
 
 *     ***************************
@@ -131,10 +131,10 @@ c     complex*16 tmp(*)
      >                 dbl_mb(tmpe(1)),1)
             end if
             call K1dB_Vector_SumAll((ne(1)+ne(2)),dbl_mb(tmpe(1)))
+            if (taskid.eq.MASTER) then
+              call dwrite(6,dbl_mb(tmpe(1)),(ne(1)+ne(2)))
+            end if
          end do
-         if (taskid.eq.MASTER) then
-           call dwrite(6,dbl_mb(tmpe(1)),(ne(1)+ne(2)))
-         end if
       end if
 
 *     *** close ELCIN binary file ***

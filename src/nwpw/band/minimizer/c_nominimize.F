@@ -1,5 +1,5 @@
 c
-c     $Id: c_nominimize.F,v 1.6 2008-06-06 17:06:42 d3p708 Exp $ 
+c     $Id: c_nominimize.F,v 1.7 2008-11-17 17:25:40 bylaska Exp $ 
 c
 
       subroutine c_nominimize(E)
@@ -25,8 +25,8 @@ c
       real*8   c_rho_1exc
       real*8   c_rho_1pxc
       real*8   ewald_e
-      real*8   cpsi_1eorbit
-      real*8   cpsi_1vnlso 
+      real*8   cpsi_1eorbit,cpsi_smearcorrection
+      real*8   cpsi_1vnlso
       external cpsi_neq,Pneb_nbrillq,cpsi_data_alloc
       external c_dng_1ehartree
       external cpsi_1ke
@@ -35,7 +35,7 @@ c
       external c_rho_1exc
       external c_rho_1pxc
       external ewald_e
-      external cpsi_1eorbit
+      external cpsi_1eorbit,cpsi_smearcorrection
       external cpsi_1vnlso
 
       call Cram_max_npack(npack1)
@@ -72,7 +72,6 @@ c      call cpsi_1toelectron()
 
       call cpsi_data_dealloc(G1_tag)
 
-  
       return
       end
  

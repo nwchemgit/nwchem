@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix.F,v 1.5 2007-06-25 15:11:21 bylaska Exp $
+* $Id: DMatrix.F,v 1.6 2008-11-17 17:25:41 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -351,6 +351,64 @@ c
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *     DMatrix_Kiril_BTransform    *
+*     *                                 *
+*     ***********************************
+      subroutine DMatrix_Kiril_BTransform(n,
+     >               s12,s21,
+     >               ldq,mq,nq,
+     >               taskid_i,taskid_j)
+      implicit none
+      integer n
+      integer ldq,mq(*),nq(*)
+      real*8  s12(ldq,*),s21(ldq,*)
+      integer taskid_i,taskid_j
+
+*     **** local variables ****
+      integer i,j,ii,jj,im,jm,i1,j1,k,l,index
+      integer icur,jcur
+      real*8  tmp1
+
+      do k=1,n
+         do l=1,(k-1)
+            index = (k-1) + l*(k-1) !****index = (i-1) + (j-1)*n****
+            im = mod(index,n)
+            jm = (index-im)/n
+            i1 = im + 1
+            j1 = jm + 1
+
+            jj   = 1
+            jcur = 0
+            do j=1,j1-1
+                jj = jj + 1
+               if (jj.gt.nq(jcur+1)) then
+                 jcur = jcur + 1
+                 jj   = 1
+               end if
+            end do
+            ii   = 1
+            icur = 0
+            do i=1,i1-1
+               ii = ii +1
+               if (ii.gt.mq(icur+1)) then
+                  icur = icur + 1
+                  ii   = 1
+               end if
+            end do
+            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+               tmp1 = 0.5d0*(s12(ii,jj)+s21(ii,jj))
+               s12(ii,jj) = tmp1
+               s21(ii,jj) = tmp1
+            end if
+         end do
+      end do
+      return
+      end
+
+
 
 
 *     ***********************************

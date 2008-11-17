@@ -76,9 +76,6 @@ c     implicit none
 #include "msgtypesf.h"
 #include "K1dB.fh"
 
-      integer msglen,mpierr,np
-      real*8  sumall
-
 *     **** external functions ****
       integer  Parallel3d_comm_k
       external Parallel3d_comm_k
@@ -87,7 +84,31 @@ c     implicit none
          call GA_PGROUP_DGOP(Parallel3d_comm_k(),
      >                       9+MSGDBL,sum,1,'max')
       end if
+      return
+      end
 
+*     ***********************************
+*     *                                 *
+*     *         K1dB_MinAll             *
+*     *                                 *
+*     ***********************************
+      subroutine K1dB_MinAll(sum)
+c     implicit none
+      real*8  sum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "K1dB.fh"
+
+
+*     **** external functions ****
+      integer  Parallel3d_comm_k
+      external Parallel3d_comm_k
+
+      if (np_k.gt.1) then
+         call GA_PGROUP_DGOP(Parallel3d_comm_k(),
+     >                       9+MSGDBL,sum,1,'min')
+      end if
 
       return
       end

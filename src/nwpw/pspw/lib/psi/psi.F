@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.93 2008-10-22 23:56:43 bylaska Exp $
+* $Id: psi.F,v 1.94 2008-11-17 17:25:45 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.93  2008/10/22 23:56:43  bylaska
+* added NWCHEM_NWPW_LIBRARY to nwchemrc. fixed bug in paw...EJB
+*
 * Revision 1.92  2008/09/30 19:53:35  bylaska
 * Added Baden's exchange algorithm...EJB
 *
@@ -3887,7 +3890,6 @@ c     real*8 sum1,sum2
 
 #include "mafdecls.fh"
 #include "psi.fh"
-#include "frac_occ.fh"
 #include "errquit.fh"
 
 
@@ -3925,19 +3927,19 @@ c     real*8 sum1,sum2
       value =           Dneall_m_push_get_block(1,8,tmp_L)
       value = value.and.Dneall_m_push_get(0,lmd)
 
-        if (fractional) then
-        call psi_lmbda2(ispin,neq,nemaxq,npack1,
-     >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),
-     >                 dte,dbl_mb(occ1(1)),
-     >                 dbl_mb(lmd(1)),
-     >                 dbl_mb(tmp_L(1)),ierr)
-        else if (pspw_SIC()) then
-        call psi_lmbda_sic(ispin,neq,nemaxq,npack1,
+c        if (occupation_on) then
+c        call psi_lmbda2(ispin,ne,nemaxq,npack1,
+c     >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),
+c     >                 dte,dbl_mb(occ1(1)),
+c     >                 dbl_mb(lmd(1)),
+c     >                 dbl_mb(tmp_L(1)),ierr)
+        if (pspw_SIC().or.occupation_on) then
+        call psi_lmbda_sic(ispin,ne,nemaxq,npack1,
      >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
      >                 dbl_mb(lmd(1)),
      >                 dbl_mb(tmp_L(1)),ierr)
         else
-        call psi_lmbda(ispin,neq,nemaxq,npack1,
+        call psi_lmbda(ispin,ne,nemaxq,npack1,
      >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
      >                 dbl_mb(lmd(1)),
      >                 dbl_mb(tmp_L(1)),ierr)
@@ -4411,12 +4413,10 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
 #include "mafdecls.fh"
 #include "psi.fh"
-#include "frac_occ.fh"
 
       real*8 sum
 
       sum = dbl_mb(eig(1)+(i-1)+(ms-1)*ne(1))
-cccc      if (fractional) sum=sum/dbl_mb(fweight(1)+(i-1)+(ms-1)*ne(1))
       psi_eigenvalue = sum
 
       return
@@ -4443,6 +4443,31 @@ cccc      if (fractional) sum=sum/dbl_mb(fweight(1)+(i-1)+(ms-1)*ne(1))
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *     psi_1reverse_occupation     *
+*     *                                 *
+*     ***********************************
+      subroutine psi_1reverse_occupation()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      integer ms,i,indx1,indx2
+
+      do ms=1,ispin
+         indx1 = occ1(1) + ne(ms) - 1 + (ms-1)*ne(1)
+         indx2 = occ2(1)              + (ms-1)*ne(1)
+         do i=1,ne(ms)
+            dbl_mb(indx2)=dbl_mb(indx1)
+            indx1 = indx1 - 1
+            indx2 = indx2 + 1
+         end do
+      end do
+      call dcopy((ne(1)+ne(2)),dbl_mb(occ2(1)),1,dbl_mb(occ1(1)),1)
+      return
+      end
 
 
 *     ***********************************

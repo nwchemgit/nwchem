@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.56 2008-09-03 17:07:24 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.57 2008-11-17 17:25:39 bylaska Exp $ *
 
 
 *     ***************************
@@ -1292,6 +1292,8 @@ c     &       MA_ERR)
                  shift1  = shift1 + 1
                end do
             end do
+            call K1dB_MinAll(elower)
+            call K1dB_MaxAll(eupper)
 
 *           **** find fermi level ****
   10        Zlower = 0.0d0
@@ -1308,6 +1310,8 @@ c     &       MA_ERR)
                  shift1  = shift1 + 1
                end do
             end do
+            call K1dB_SumAll(Zlower)
+            call K1dB_SumAll(Zupper)
             flower = Zlower - Z(ms)
             fupper = Zupper - Z(ms)
 
@@ -1329,6 +1333,7 @@ c     &       MA_ERR)
                  shift1  = shift1 + 1
                end do
             end do
+            call K1dB_SumAll(Zmid)
             fmid = Zmid - Z(ms)
             if (fmid.lt.0.0d0) then
                flower = fmid
@@ -1373,11 +1378,13 @@ c     &       MA_ERR)
 
          end do !** ms***
          if (ms.eq.1) smearcorrection=smearcorrection+smearcorrection
+         call K1dB_SumAll(smearcorrection)
 
       end if
 
       return
       end
+
 
 c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
 

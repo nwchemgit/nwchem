@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.20 2008-09-11 21:26:46 bylaska Exp $
+* $Id: Dne.F,v 1.21 2008-11-17 17:25:41 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -2538,9 +2538,77 @@ c     ****************************************
  30        continue
          end do
       end if
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_m_Kiril_BTransform     *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_m_Kiril_BTransform(mb,s12,s21)
+      implicit none
+      integer mb
+      real*8 s12(*),s21(*)
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,i,j,ii
+      real*8 tmp1
+
+      if (mparallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 29
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_Kiril_BTransform(ne(ms),
+     >                       s12(shift2),s21(shift2),
+     >                       mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
+     >                       taskid_i,taskid_j)
+ 29         continue
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 30
+            shift2 = 1 + (ms-1)*ishift2
+            do i=1,ne(ms)
+               do j=1,(i-1)
+                  ii = i + j*(i-1) + shift2
+                  tmp1 = 0.5d0*(s12(ii)+s21(ii))
+                  s12(ii) = tmp1
+                  s21(ii) = tmp1
+               end do
+            end do
+ 30        continue
+         end do
+
+      end if
 
       return
       end
+
+
 c     ****************************************
 c     *                                      *
 c     *        Dneall_m_dmax                 *

@@ -1,5 +1,5 @@
 c
-c     $Id: c_bybminimize2.F,v 1.6 2008-06-06 17:06:42 d3p708 Exp $                       
+c     $Id: c_bybminimize2.F,v 1.7 2008-11-17 17:25:40 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -176,7 +176,7 @@ c
       call cpsi_2to1()
 
 *     **** define fractional occupation ****
-      call cpsi_1define_occupation(.false.)
+      if (control_fractional()) call cpsi_1define_occupation(.false.)
 
       Eold = Enew
       Enew = cpsi_1energy()

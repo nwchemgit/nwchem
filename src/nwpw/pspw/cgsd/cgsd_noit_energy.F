@@ -1,4 +1,4 @@
-c     $Id: cgsd_noit_energy.F,v 1.10 2008-11-04 21:30:57 bylaska Exp $                       
+c     $Id: cgsd_noit_energy.F,v 1.11 2008-11-17 17:25:44 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *	   cgsd_noit_energy	*
@@ -14,8 +14,6 @@ c     $Id: cgsd_noit_energy.F,v 1.10 2008-11-04 21:30:57 bylaska Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-
-cccccc#include "frac_occ.fh"
 
       integer MASTER,taskid
       parameter (MASTER=0)
@@ -58,6 +56,8 @@ cccccc#include "frac_occ.fh"
       external    control_symmetry,control_version
       logical  psp_pawexist
       external psp_pawexist
+      real*8   psi_smearfermi,psi_smearcorrection
+      external psi_smearfermi,psi_smearcorrection
 
 
 
@@ -79,6 +79,11 @@ cccccc#include "frac_occ.fh"
       call psi_spin_density(en)
       call psi_1gen_hml()
       call psi_diagonalize_hml()
+      if (control_fractional()) then
+         call psi_1define_occupation(.true.)
+        E(28) = psi_smearcorrection()
+        E(1)  = E(1) + E(28)
+      end if
 
       if (pspw_SIC()) then
         call psi_1gen_hml_g()
@@ -124,6 +129,7 @@ cccccc#include "frac_occ.fh"
            write(luout,1457) E(26),E(26)/neall
          end if
          write(luout,1470) E(5),E(5)/ion_nion()
+         if (control_fractional()) write(luout,1471) E(28),E(28)/neall
 
          write(luout,1480) E(6),E(6)/neall
          write(luout,1490) E(7),E(7)/neall
@@ -193,9 +199,18 @@ c            end do
 
 
 *        **** write out KS eigenvalues ****
-           write(luout,1500)
            NN=psi_ne(1)-psi_ne(2)
-           EV=27.2116
+           EV=27.2116d0
+          if (control_fractional()) then
+             if (psi_ispin().eq.1) then
+               write(luout,1507) psi_smearfermi(1),psi_smearfermi(1)*EV
+             else
+             write(luout,1507) psi_smearfermi(1),psi_smearfermi(1)*EV,
+     >                         psi_smearfermi(2),psi_smearfermi(2)*EV
+             end if
+           end if
+
+           write(luout,1500)
            if (control_symmetry().gt.0) then
              if (control_fractional()) then
              do I=1,NN
@@ -336,6 +351,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
+ 1471 FORMAT( ' smearing  energy    :',E19.10,' (',E15.5,'/electron)')
  1480 FORMAT(/' kinetic (planewave) :',E19.10,' (',E15.5,'/electron)')
  1490 FORMAT( ' V_local (planewave) :',E19.10,' (',E15.5,'/electron)')
  1491 FORMAT( ' K.S. Vl+Vqm/mm      :',E19.10,' (',E15.5,'/electron)')
@@ -350,6 +366,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1502 FORMAT( ' K.S. HFX energy     :',E19.10,
      >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
+ 1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))
  1512 FORMAT(2(E18.7,' (',F8.3,'eV)',A4))

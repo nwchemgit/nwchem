@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize2.F,v 1.5 2008-09-30 19:53:32 bylaska Exp $                       
+c     $Id: bybminimize2.F,v 1.6 2008-11-17 17:25:43 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -27,7 +27,7 @@ c
 
 *     **** local variables ****
       integer MAX_SD_COUNT
-      parameter (MAX_SD_COUNT = 3)
+      parameter (MAX_SD_COUNT = 1)
       integer MASTER,taskid
       parameter (MASTER=0)
 
@@ -45,7 +45,7 @@ c
       real*8     Enew,Eold,alpha
       !common / cgsd_block / Enew,Eold,alpha
 
-      integer it,it_in,i,ispin,bfgscount,icount,sd_it,cg_it
+      integer it,it_in,i,ispin,bfgscount,icount,sd_it,cg_it,it2
 
       logical value,precondition,done,stalled,deltav_bad(4),oprint
       logical dohfx
@@ -58,7 +58,7 @@ c
 
 
 *     **** external functions ****
-      logical control_print
+      logical control_print,control_fractional
       integer  control_ispin,control_scf_algorithm,control_ks_algorithm
       integer  control_it_in,control_it_out,psi_ne,control_version
       real*8   control_tole,control_tolc,control_ks_alpha
@@ -70,9 +70,9 @@ c
       real*8   rho_1exc
       real*8   rho_1pxc
       real*8   ewald_e,ion_ion_e
-      real*8   psi_1eorbit
+      real*8   psi_1eorbit,psi_smearcorrection
    
-      external control_print
+      external control_print,control_fractional
       external control_ispin,control_scf_algorithm,control_ks_algorithm
       external control_it_in,control_it_out,psi_ne,control_version
       external control_tole,control_tolc,control_ks_alpha
@@ -84,7 +84,7 @@ c
       external rho_1exc
       external rho_1pxc
       external ewald_e,ion_ion_e
-      external psi_1eorbit
+      external psi_1eorbit,psi_smearcorrection
 
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found
@@ -177,6 +177,7 @@ c
          call psi_1rotate2()
          call psi_2to1()
          if (dohfx) call psi_1genrho()
+         if (control_fractional()) call psi_1reverse_occupation()
       else
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
@@ -192,8 +193,10 @@ c
 
 
 *     ***** diis loop ****
+      it2 = -4
       it   = 0
  2    it   = it + 1
+      it2 = it2 + 1
       
 *     **** diaganolize KS matrix ****
       call psi_KS_update(1,
@@ -210,7 +213,7 @@ c
       call psi_2to1()
 
 *     **** define fractional occupation ****
-      call psi_1define_occupation(.false.)
+      if (control_fractional()) call psi_1define_occupation(.false.)
 
       Eold = Enew
       Enew = psi_1energy()
@@ -241,7 +244,7 @@ c      if ((it.le.0) .or.
 c     >    ((dabs(deltae).lt.1.0d1) .and.
 c     >    (deltav       .lt.1.0d1) .and.
 c     >    (.not.stalled          ))) then
-      if ((it.le.0) .or.
+      if ((it2.le.0) .or.
      >    ((deltae.lt.0.0d0) .and.
      >     (.not.stalled          ))) then
 
@@ -250,14 +253,12 @@ c     >    (.not.stalled          ))) then
 
 *     **** bad convergence - try fixed step steepest descent ****
       else
-
   30     call sdminimize(sd_it)
          sd_count = sd_count + 1
          Eold   = Enew
          Enew   = psi_1energy()
+         it2 = -4
         
-c         if (((Enew.gt.Eold).or.(dabs(Enew-Eold).gt.1.0d-1)).and.
-c     >       (sd_count.lt.MAX_SD_COUNT)) go to 30
          if ((Enew.gt.Eold).and.(sd_count.lt.MAX_SD_COUNT)) go to 30
 
          call dcopy(ispin*n2ft3d,
@@ -314,8 +315,6 @@ c     >       (sd_count.lt.MAX_SD_COUNT)) go to 30
       if (ks_deltae.gt.1.0d-4) ks_deltae = 1.0d-4
       !ks_deltae = 0.1d0*tole
 
-
-
       deltav_old = deltav
 
       deltae_history(1)    = deltae_history(2)
@@ -332,7 +331,6 @@ c     >       (sd_count.lt.MAX_SD_COUNT)) go to 30
          stalled = .false.
       end if
       stalled_count = stalled_count + 1
-c      stalled = .false.
       if (deltae.gt.0.0d0) stalled = .true.
 
       precondition = precondition.and.(dabs(deltae).gt.1*tole)
@@ -399,6 +397,11 @@ c      call psi_check()
          call electron_HFX_energies(ehfx,phfx)
          E(26) = ehfx
          E(27) = phfx
+      end if
+
+      if (control_fractional()) then
+        E(28) = psi_smearcorrection()
+        E(1)  = E(1) + E(28)
       end if
 
 ccc      failed = (sd_count.ge.MAX_SD_COUNT)

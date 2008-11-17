@@ -1,4 +1,4 @@
-c     $Id: c_cgsd_noit_energy.F,v 1.10 2008-09-03 17:07:27 bylaska Exp $                       
+c     $Id: c_cgsd_noit_energy.F,v 1.11 2008-11-17 17:25:40 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -25,22 +25,18 @@ c     $Id: c_cgsd_noit_energy.F,v 1.10 2008-09-03 17:07:27 bylaska Exp $
       integer i,NN,nb
 
 *     **** external functions ****
-c      logical  cpsp_semicore
        integer  control_rtdb
-c      integer  ion_nion,cpsi_ispin,cpsi_ne
-c
-c      external cpsp_semicore
        external control_rtdb
-c      external ion_nion,cpsi_ispin,cpsi_ne
-
       logical     cpsp_semicore,control_out_of_time,cpsi_spin_orbit
+      logical     control_fractional
       character*4 ion_aname
       integer     control_it_in,control_it_out,control_minimizer
       integer     ion_nion,ion_katm,cpsi_ne,cpsi_ispin
       real*8      control_tole,control_tolc,cpsi_occupation_brdcst
       real*8      ion_rion,cpsi_eigenvalue_brdcst,cpsi_svector_brdcst
       real*8      ion_amass
-      external cpsp_semicore,control_out_of_time,cpsi_spin_orbit
+      external    cpsp_semicore,control_out_of_time,cpsi_spin_orbit
+      external    control_fractional
       external ion_aname
       external control_it_in,control_it_out,control_minimizer
       external ion_nion,ion_katm,cpsi_ne,cpsi_ispin
@@ -53,6 +49,9 @@ c      external ion_nion,cpsi_ispin,cpsi_ne
       external brillioun_nbrillioun
       external brillioun_k_brdcst,brillioun_ks_brdcst
       external brillioun_weight_brdcst
+      real*8   cpsi_smearfermi,cpsi_smearcorrection
+      external cpsi_smearfermi,cpsi_smearcorrection
+
 
 
 
@@ -70,6 +69,12 @@ c      call cphafac_k()
 *     **** diagonalize hamiltonian ****
       call cpsi_1gen_hml()
       call cpsi_diagonalize_hml()
+      if (control_fractional()) then
+         call cpsi_1define_occupation(.true.)
+         E(12) = cpsi_smearcorrection()
+         E(1)  = E(1) + E(12)
+      end if
+
 
 *     **** generate svectors ****
       if (cpsi_spin_orbit()) then
@@ -92,6 +97,7 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
          write(luout,1450) E(3),E(3)/neall
          write(luout,1460) E(4),E(4)/neall
          write(luout,1470) E(5),E(5)/ion_nion()
+         if (control_fractional()) write(luout,1471) E(12),E(12)/neall
 
          write(luout,1480) E(6),E(6)/neall
          write(luout,1490) E(7),E(7)/neall
@@ -105,6 +111,17 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
 
       NN=cpsi_ne(1)-cpsi_ne(2)
       EV=27.2116d0
+      if (taskid.eq.MASTER) then
+        if (control_fractional()) then
+          if (cpsi_ispin().eq.1) then
+            write(luout,1507) cpsi_smearfermi(1),cpsi_smearfermi(1)*EV
+          else
+            write(luout,1507) cpsi_smearfermi(1),cpsi_smearfermi(1)*EV,
+     >                        cpsi_smearfermi(2),cpsi_smearfermi(2)*EV
+          end if
+        end if
+      end if
+
       do nb=1,brillioun_nbrillioun()
          f0 = brillioun_weight_brdcst(nb) 
          f1 = brillioun_ks_brdcst(1,nb) 
@@ -199,6 +216,7 @@ c     call psi_2to1()
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
+ 1471 FORMAT( ' smearing  energy    :',E19.10,' (',E15.5,'/electron)')
  1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
  1490 FORMAT( ' K.S. V_l  energy    :',E19.10,' (',E15.5,'/electron)')
  1491 FORMAT( ' K.S. Vl+Vqm/mm      :',E19.10,' (',E15.5,'/electron)')
@@ -208,6 +226,7 @@ c     call psi_2to1()
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1499 FORMAT( ' K.S. V_nlso energy  :',E19.10,' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
+ 1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
  1508 FORMAT(/' Brillouin zone point: ',i2,
      >       /'    weight=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.101 2008-10-22 23:56:42 bylaska Exp $
+* $Id: cgsdv5.F,v 1.102 2008-11-17 17:25:44 bylaska Exp $
 *
 
 ***********************************************************************
@@ -24,8 +24,6 @@
 #include "util.fh"
 #include "errquit.fh"
 #include "stdio.fh"
-
-cccc#include "frac_occ.fh"
 
 #include "nwpw_timing.fh"
       
@@ -297,9 +295,6 @@ c     value = psi_initialize()
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
-
-*     **** initialize frac_occ data structure ****
-      call frac_occ_init(rtdb,psi_ispin(),ne)
 
 *     **** initialize linesearching ****
       call linesearch_init()
@@ -632,7 +627,7 @@ c     end if
       call pspw_end_APC()
       call pspw_charge_end()
       call pspw_qmmm_end()
-      call frac_occ_end()
+c      call frac_occ_end()
       call ion_end()
       call psp_end()
       call ion_end_FixIon()

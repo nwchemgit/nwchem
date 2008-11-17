@@ -125,6 +125,47 @@ c     implicit none
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *         K1dB_MinAll             *
+*     *                                 *
+*     ***********************************
+      subroutine K1dB_MinAll(sum)
+c     implicit none
+      real*8  sum
+
+#include "K1dB.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+      real*8  sumall
+#else
+#include "mpif.h"
+      integer msglen,mpierr,np
+      real*8  sumall
+
+*     **** external functions ****
+      integer  Parallel3d_comm_k
+      external Parallel3d_comm_k
+#endif
+
+      if (np_k.gt.1) then
+#ifdef MPI4
+        stupid_msglen = 1
+        call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
+     >                     stupid_min,stupid_comm_k,stupid_ierr)
+#else
+        msglen = 1
+        call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+     >                      MPI_MIN,Parallel3d_comm_k(),mpierr)
+#endif
+        sum = sumall
+      end if
+      return
+      end
+
+
+
 
 
 *     ***********************************

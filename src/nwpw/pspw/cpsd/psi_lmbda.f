@@ -1,5 +1,5 @@
 *
-* $Id: psi_lmbda.f,v 1.10 2008-09-11 21:26:49 bylaska Exp $
+* $Id: psi_lmbda.f,v 1.11 2008-11-17 17:25:44 bylaska Exp $
 *
 
 *     ********************************************
@@ -8,15 +8,15 @@
 *     *                                          *
 *     ********************************************
 
-      subroutine psi_lmbda(ispin,ne,nemax,npack1,
+      subroutine psi_lmbda(ispin,ne,nemaxq,npack1,
      >                     psi1,psi2,
      >                     dte,
      >                     lmbda,tmp,ierr)
 
       implicit none
-      integer ispin,ne(2),nemax,npack1
-      complex*16 psi1(npack1,nemax)
-      complex*16 psi2(npack1,nemax)
+      integer ispin,ne(2),nemaxq,npack1
+      complex*16 psi1(npack1,nemaxq)
+      complex*16 psi2(npack1,nemaxq)
       real*8     dte
       real*8     lmbda(*)
       real*8     tmp(*)
@@ -27,7 +27,6 @@
 
 *     **** local variables ****
       integer taskid
-      integer n1(2)
       integer ms,it
       integer nn
       integer s11,s12,s21,s22,st1,st2,sa1,sa0
@@ -44,8 +43,6 @@
 
       call nwpw_timing_start(3)
 
-      n1(1) = 1
-      n1(2) = ne(1)+1
       call Dneall_m_size(1,nn)
       
       s11  = 0*nn + 1
@@ -108,7 +105,6 @@
           WRITE(6,*) '        +Gram-Schmidt being performed, spin:',ms
         end if
         call Dneall_f_ortho(ms,psi2,npack1)
-c        call Grsm_g_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
 
 C       return
   630   continue

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.127 2008-11-05 19:07:00 bylaska Exp $
+* $Id: control.F,v 1.128 2008-11-17 17:25:43 bylaska Exp $
 *
 
 *     ***********************************
@@ -528,7 +528,7 @@ c
      >   ks_alpha = 0.25d0
       if (.not.rtdb_get(rtdb,'nwpw:scf_algorithm',
      >                  mt_int,1,scf_algorithm))
-     >   scf_algorithm = 0
+     >   scf_algorithm = 3
       if (.not.rtdb_get(rtdb,'nwpw:ks_algorithm',
      >                  mt_int,1,ks_algorithm))
      >   ks_algorithm = 0
@@ -539,7 +539,7 @@ c
      >  maxit_orb = 5
       if (.not.rtdb_get(rtdb,
      >      'nwpw:ks_maxit_orbs',mt_int,1,maxit_orbs))
-     >  maxit_orbs = 0
+     >  maxit_orbs = 1
 
 
 *     **** paw_sd: stuff ****

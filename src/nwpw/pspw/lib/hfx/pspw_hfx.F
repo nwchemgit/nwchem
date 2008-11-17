@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.18 2008-11-10 21:51:10 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.19 2008-11-17 17:25:45 bylaska Exp $
 *
 
 *     *************************
@@ -16,7 +16,6 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
-#include "frac_occ.fh"
 #include "pspw_hfx.fh"
 
 *     **** local variables ****
@@ -143,13 +142,13 @@
       end if
 
 c     **** define Amatrix ****
-      if (hfx_on.and.fractional) then
-        n1 = norbs(1)**2
-        if (ispin.eq.2) n1 = n1 + norbs(2)**2
-        value = MA_alloc_get(mt_dbl,n1,'amatrix',amatrix(2),amatrix(1))
-        if (.not. value)   
-     >    call errquit('pspw_init_HFX: out of heap memory',2, MA_ERR)
-      end if
+c      if (hfx_on.and.fractional) then
+c        n1 = norbs(1)**2
+c        if (ispin.eq.2) n1 = n1 + norbs(2)**2
+c        value = MA_alloc_get(mt_dbl,n1,'amatrix',amatrix(2),amatrix(1))
+c        if (.not. value)   
+c     >    call errquit('pspw_init_HFX: out of heap memory',2, MA_ERR)
+c      end if
 
 c     **** define extra psi and Hpsi  ****
       call Parallel2d_np_j(npj)
@@ -185,9 +184,8 @@ c     **** define extra psi and Hpsi  ****
       implicit none
 
 #include "mafdecls.fh"
-#include "errquit.fh"
-#include "frac_occ.fh"
 #include "pspw_hfx.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -229,10 +227,10 @@ c     **** define extra psi and Hpsi  ****
           value = value.and.MA_free_heap(orbital_list(2,ms)) 
           value = value.and.MA_free_heap(ehfx_orb(2,ms))
         end do
-        if (fractional) 
-     >     value = value.and.MA_free_heap(amatrix(2))
-        if (.not. value)
-     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
+c        if (fractional) 
+c     >     value = value.and.MA_free_heap(amatrix(2))
+c        if (.not. value)
+c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 
 
 *        **** end coulomb_screened ****

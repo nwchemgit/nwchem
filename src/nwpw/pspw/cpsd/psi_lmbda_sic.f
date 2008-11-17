@@ -1,45 +1,46 @@
 *
-* $Id: psi_lmbda_sic.f,v 1.3 2007-02-10 03:40:18 bylaska Exp $
+* $Id: psi_lmbda_sic.f,v 1.4 2008-11-17 17:25:44 bylaska Exp $
 *
 
-      subroutine psi_lmbda_sic(ispin,ne,nemax,npack1,
+      subroutine psi_lmbda_sic(ispin,ne,nemaxq,npack1,
      >                     psi1,psi2,
      >                     dte,
      >                     lmbda,tmp,ierr)
 
       implicit none
-      integer ispin,ne(2),nemax,npack1
-      complex*16 psi1(npack1,nemax)
-      complex*16 psi2(npack1,nemax)
+      integer ispin,ne(2),nemaxq,npack1
+      complex*16 psi1(npack1,nemaxq)
+      complex*16 psi2(npack1,nemaxq)
       real*8     dte
       real*8     lmbda(*)
       real*8     tmp(*)
       integer	 ierr
 
+*     **** parameters ****
       integer MASTER
       parameter (MASTER=0)
 
-*     **** local variables ****
-      integer taskid
-      integer n1(2),n2(2)
-      integer i,j,ii,jj,ms,it,ii1
-      integer index,indext,n,nn
-      integer s11,s12,s21,s22,st1,st2,sa1,sa0
-      integer sl(2)
-      real*8  adiff,alpha,tmp1(1000000)
 *     ::::  iteration limit and tolerence for non-liner equations  ::::
-      integer itrlmd,idamax
+      integer itrlmd
       real*8  convg
-      parameter (itrlmd=20, convg=1.0d-15)
+      parameter (itrlmd=50, convg=1.0d-12)
+
+*     **** local variables ****
+      logical notgram
+      integer taskid
+      integer ms,it,nn
+      integer s11,s12,s21,s22,st1,st2,sa1,sa0
+      real*8  adiff
+c      real*8  tmp1(1000000)
+
+*     **** external functions ****
+      real*8   Dneall_m_dmax
+      external Dneall_m_dmax
 
 
       call nwpw_timing_start(3)
 
-      call Parallel_taskid(taskid)
-
-      n    = ne(1)
-      nn   = n**2
-      
+      call Dneall_m_size(1,nn)
       s11  = 0*nn + 1
       s12  = 1*nn + 1
       s21  = 2*nn + 1
@@ -48,210 +49,98 @@
       sa1  = 5*nn + 1
       st1  = 6*nn + 1
       st2  = 7*nn + 1
-
       call dcopy(8*nn,0.0d0,0,tmp,1)
 
-      sl(1)  = 0*nn + 1
-      sl(2)  = 1*nn + 1
-      call dcopy(2*nn,0.0d0,0,lmbda,1)
-
-      n1(1)=1
-      n2(1)=ne(1)
-      n1(2)=ne(1)+1
-      n2(2)=ne(1)+ne(2)
-      
-*::::::::::::::::::::::  Lagrangian multipliers  ::::::::::::::::::::::
+*     ::::::::::::::::::::::  Lagrangian multipliers  ::::::::::::::::::::::
       DO 640 ms=1,ispin
+        notgram = .true.
         IF(ne(ms).le.0) GO TO 640
 
-*       ***** compute the overlap matrices ****
-c        call D3dB_cc_Vector_dot(1,nfft3d,n,ne(ms),
-c     >                          psi2(1,n1(ms)),
-c     >                          psi2(1,n1(ms)),
-c     >                          tmp(s22))
-c        call D3dB_cc_Vector_dot(1,nfft3d,n,ne(ms),
-c     >                          psi2(1,n1(ms)),
-c     >                          psi1(1,n1(ms)),
-c     >                          tmp(s21))
-c        call D3dB_cc_Vector_dot(1,nfft3d,n,ne(ms),
-c     >                          psi1(1,n1(ms)),
-c     >                          psi2(1,n1(ms)),
-c     >                          tmp(s12))
-c        call D3dB_cc_Vector_dot(1,nfft3d,n,ne(ms),
-c     >                          psi1(1,n1(ms)),
-c     >                          psi1(1,n1(ms)),
-c     >                          tmp(s11))
-c       call Grsm_ggm_dot2(npack1,n,ne(ms),
-c    >                          psi2(1,n1(ms)),
-c    >                          psi2(1,n1(ms)),
-c    >                          tmp(s22))
-c       call Grsm_ggm_dot2(npack1,n,ne(ms),
-c    >                          psi2(1,n1(ms)),
-c    >                          psi1(1,n1(ms)),
-c    >                          tmp(s21))
-c       call Grsm_ggm_dot2(npack1,n,ne(ms),
-c    >                          psi1(1,n1(ms)),
-c    >                          psi2(1,n1(ms)),
-c    >                          tmp(s12))
-c       call Grsm_ggm_dot2(npack1,n,ne(ms),
-c    >                          psi1(1,n1(ms)),
-c    >                          psi1(1,n1(ms)),
-c    >                          tmp(s11))
-
-        call Pack_ccm_sym_dot2(1,n,ne(ms),
-     >                          psi2(1,n1(ms)),
-     >                          psi2(1,n1(ms)),
-     >                          tmp(s22))
-        call Pack_ccm_sym_dot2(1,n,ne(ms),
-     >                          psi2(1,n1(ms)),
-     >                          psi1(1,n1(ms)),
-     >                          tmp(s21))
-        call Pack_ccm_sym_dot2(1,n,ne(ms),
-     >                          psi1(1,n1(ms)),
-     >                          psi2(1,n1(ms)),
-     >                          tmp(s12))
-        call Pack_ccm_sym_dot2(1,n,ne(ms),
-     >                          psi1(1,n1(ms)),
-     >                          psi1(1,n1(ms)),
-     >                          tmp(s11))
-
+        call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(s22))
+        call Dneall_ffm_sym_Multiply(ms,psi2,psi1,npack1,tmp(s21))
+        call Dneall_ffm_sym_Multiply(ms,psi1,psi2,npack1,tmp(s12))
+        call Dneall_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(s11))
 
 ****  Begin  ADDED by Kiril *****
-
-        do ii=1,ne(ms)
-           do jj=1,ne(ms)
-             ii1 = -1+ii+jj*(ii-1)
-             tmp1(ii1+1)=0.5d0*(tmp(s12+ii1)+tmp(s21+ii1))
-
-           enddo
-        enddo
-
-        do ii=1,ne(ms)
-           do jj=1,ii-1
-             ii1 = -1+ii+jj*(ii-1)
-             tmp(s12+ii1)=tmp1(ii1+1)
-             tmp(s21+ii1)=tmp1(ii1+1)
-           enddo
-        enddo
-
+        call Dneall_m_Kiril_BTransform(ms,tmp(12),tmp(s21))
+c        do ii=1,ne(ms)
+c           do jj=1,ne(ms)
+c             ii1 = -1+ii+jj*(ii-1)
+c             tmp1(ii1+1)=0.5d0*(tmp(s12+ii1)+tmp(s21+ii1))
+c
+c           enddo
+c        enddo
+c
+c        do ii=1,ne(ms)
+c           do jj=1,ii-1
+c             ii1 = -1+ii+jj*(ii-1)
+c             tmp(s12+ii1)=tmp1(ii1+1)
+c             tmp(s21+ii1)=tmp1(ii1+1)
+c           enddo
+c        enddo
 ****  End    ADDED by Kiril *****
 
-
 *       ***** scale the overlap matrices ****
-        do i=1,ne(ms)
-          index = (i-1) + (i-1)*n
-      
-          tmp(s22+index)=(1.0d0-tmp(s22+index))*0.5d0/dte
-          tmp(s21+index)=(1.0d0-tmp(s21+index))*0.5d0
-          tmp(s12+index)=(1.0d0-tmp(s12+index))*0.5d0
-          tmp(s11+index)= (-tmp(s11+index))*0.5d0*dte
+        call Dneall_m_scale_s22(ms,dte,tmp(s22))
+        call Dneall_m_scale_s21(ms,dte,tmp(s21))
+        call Dneall_m_scale_s21(ms,dte,tmp(s12))
+        call Dneall_m_scale_s11(ms,dte,tmp(s11))
           
-           do j=i+1,ne(ms)
-             index  = (i-1) + (j-1)*n
-             indext = (j-1) + (i-1)*n
-   
-             tmp(s22+index)= (-tmp(s22+index))*0.5d0/dte
-             tmp(s21+index)= (-tmp(s21+index))*0.5d0
-             tmp(s12+index)= (-tmp(s12+index))*0.5d0
-             tmp(s11+index)= (-tmp(s11+index))*0.5d0*dte
-
-             tmp(s22+indext)=tmp(s22+index)
-             tmp(s21+indext)=tmp(s12+index)
-             tmp(s12+indext)=tmp(s21+index)
-             tmp(s11+indext)=tmp(s11+index)
-          end do
-        end do
-
         call dcopy(nn,tmp(s22),1,tmp(sa0),1)
 
         do it=1,itrlmd
           CALL dcopy(nn,tmp(s22),1,tmp(sa1),1)
-c         CALL DMMUL(n,ne(MS), tmp(s21), tmp(sa0), tmp(st1))
-c         CALL DMMUL(n,ne(MS), tmp(sa0), tmp(s12), tmp(st2))
-c         CALL DMADD(n,ne(MS), tmp(st1), tmp(st2), tmp(st1))
-c         CALL DMADD(n,ne(MS), tmp(st1), tmp(sa1), tmp(sa1))
-c         CALL DMMUL(n,ne(MS), tmp(s11), tmp(sa0), tmp(st1))
-c         CALL DMMUL(n,ne(MS), tmp(sa0), tmp(st1), tmp(st2))
-c         CALL DMADD(n,ne(MS), tmp(st2), tmp(sa1), tmp(sa1))
-c         CALL DMSUB(n,ne(MS), tmp(sa1), tmp(sa0), tmp(st1))
 
-          call DGEMM('N','N',ne(ms),ne(ms),ne(ms),
-     >                (1.0d0),
-     >                tmp(s21),n,
-     >                tmp(sa0),n,
-     >                (1.0d0),
-     >                tmp(sa1),n)
-          call DGEMM('N','N',ne(ms),ne(ms),ne(ms),
-     >                (1.0d0),
-     >                tmp(sa0),n,
-     >                tmp(s12),n,
-     >                (1.0d0),
-     >                tmp(sa1),n)
-
-          call DGEMM('N','N',ne(ms),ne(ms),ne(ms),
-     >                (1.0d0),
-     >                tmp(s11),n,
-     >                tmp(sa0),n,
-     >                (0.0d0),
-     >                tmp(st1),n)
-
-          call DGEMM('N','N',ne(ms),ne(ms),ne(ms),
-     >                (1.0d0),
-     >                tmp(sa0),n,
-     >                tmp(st1),n,
-     >                (1.0d0),
-     >                tmp(sa1),n)
-          CALL dcopy(nn,tmp(sa1),1,tmp(st1),1)
+          call Dneall_mmm_Multiply(ms,
+     >                              tmp(s21),tmp(sa0),1.0d0,
+     >                              tmp(sa1),1.0d0)
+          call Dneall_mmm_Multiply(ms,
+     >                              tmp(sa0),tmp(s12),1.0d0,
+     >                              tmp(sa1),1.0d0)
+          call Dneall_mmm_Multiply(ms,
+     >                              tmp(s11),tmp(sa0),1.0d0,
+     >                              tmp(st1),0.0d0)
+          call Dneall_mmm_Multiply(ms,
+     >                              tmp(sa0),tmp(st1),1.0d0,
+     >                              tmp(sa1),1.0d0)
+          call dcopy(nn,tmp(sa1),1,tmp(st1),1)
           call daxpy(nn,(-1.0d0),tmp(sa0),1,tmp(st1),1)
 
-          adiff=tmp(st1 - 1 + (idamax(n*ne(ms),tmp(st1),1)))
+          adiff = Dneall_m_dmax(ms,tmp(st1))
           if(adiff.lt.convg) GO TO 630
-          call dcopy(n*ne(ms),tmp(sa1),1,tmp(sa0),1)
+          call dcopy(nn,tmp(sa1),1,tmp(sa0),1)
         end do
 
         ierr=10
+        call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
-          WRITE(6,*) 
+          write(6,*) 
      >     'Warning: Lagrange Multiplier tolerance too high:',adiff
-          WRITE(6,*) '        +Try using a smaller time step'
-          WRITE(6,*) '        +Gram-Schmidt being performed, spin:',ms
+          write(6,*) '        +Try using a smaller time step'
+          write(6,*) '        +Gram-Schmidt being performed, spin:',ms
         end if
         call Dneall_f_ortho(ms,psi2,npack1)
-c        call Grsm_g_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
+        notgram = .false.
 
-C       return
   630   continue
-        call dcopy(n*ne(ms),tmp(sa1),1,lmbda(sl(ms)),1)
+
+*       :::::::::::::::::  correction due to the constraint  :::::::::::::::::
+        if (notgram)
+     >     call Dneall_fmf_Multiply(ms,
+     >                             psi1,npack1,
+     >                             tmp(sa1), dte,
+     >                             psi2,1.0d0)
+        call Dneall_mm_Expand(ms,tmp(sa1),lmbda)
+
   640 continue
 
-*:::::::::::::::::  correction due to the constraint  :::::::::::::::::
-      do ms=1,ispin
-       call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
-     >              dte,
-     >              psi1(1,n1(ms)),2*npack1,
-     >              lmbda(sl(ms)),n,
-     >              (1.0d0),
-     >              psi2(1,n1(ms)),2*npack1)
-c        do ii=n1(ms),n2(ms)
-c           i=ii-n1(ms)+1
-c
-c           do jj=n1(ms),n2(ms)
-c              j=jj-n1(ms)+1
-c
-c              index = (i-1) + (j-1)*n
-c              alpha = dte*lmbda(sl(ms) + index)
-c
-cc             do k=1,nfft3d
-cc                psi2(k,ii) = psi2(k,ii)  + alpha*psi1(k,jj)
-cc             end do
-c              call Pack_cc_daxpy(1,alpha,psi1(1,jj),psi2(1,ii))
-c           end do
-c        end do
-
-       end do
+c*:::::::::::::::::  correction due to the constraint  :::::::::::::::::
+c      call Dneall_fmf_Multiply(0,
+c     >                          psi1,npack1,
+c     >                          lmbda, dte,
+c     >                          psi2,1.0d0)
 
       call nwpw_timing_end(3)
-
       return
       end
 

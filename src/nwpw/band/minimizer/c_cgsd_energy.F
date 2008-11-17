@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.28 2008-09-17 02:26:40 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.29 2008-11-17 17:25:40 bylaska Exp $                       
 *
 
 *     ***************************
@@ -327,7 +327,7 @@ c         write(luout,1210) GX,GY,GZ
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
- 1471 FORMAT( ' smearing  energy    :',E19.10,' (',E15.5,'/ion)')
+ 1471 FORMAT( ' smearing  energy    :',E19.10,' (',E15.5,'/electron)')
  1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
  1490 FORMAT( ' K.S. V_l  energy    :',E19.10,' (',E15.5,'/electron)')
  1491 FORMAT( ' K.S. Vl+Vqm/mm      :',E19.10,' (',E15.5,'/electron)')
