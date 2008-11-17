@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.13 2007-11-16 20:24:09 marat Exp $
+c $Id: qmmm_pes.F,v 1.14 2008-11-17 18:26:39 marat Exp $
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.13 2007-11-16 20:24:09 marat Exp $
+c     $Id: qmmm_pes.F,v 1.14 2008-11-17 18:26:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -48,6 +48,7 @@ c
       character*255 rst_in, movecs_in, espfile
       character*255 rst_perm,rst_tmp,movecs_perm
       character*255 rst_old
+      character*255 geom_in,geom_tmp
       character*255 logfile
       double precision rb(2)
       integer ii
@@ -132,6 +133,10 @@ c
      +                    1,backward))
      +  backward = .false.
 c
+      if (.not. rtdb_cget(irtdb,'qmmm:pes_geom_input',
+     +                    1,geom_in))
+     +  geom_in = " "
+c
       if (.not. rtdb_cget(irtdb,'qmmm:pes_rst_input',
      +                    1,rst_in))
      +  rst_in = " "
@@ -177,7 +182,7 @@ c
       else if(theory.eq."mp2") then
         inmovecs_tag = "scf:input vectors"
         outmovecs_tag = "scf:output vectors"
-      else if(theory.eq."scf") then
+       else if(theory.eq."scf") then
         inmovecs_tag = "scf:input vectors"
         outmovecs_tag = "scf:output vectors"
       else if(theory.eq."esp") then
@@ -294,6 +299,16 @@ c       ----------------------
         if (.not. rtdb_cput(irtdb,outmovecs_tag,
      +                    1,movecs_perm))
      +  call errquit(pname//'Failed to set movecs',0,0)
+c
+c       loading geometries if any
+c       -------------------------
+        if(geom_in.ne." ") then
+          write(geom_tmp,34) geom_in(1:inp_strlen(geom_in)), ip
+ 34       format(a,i3.3,'.xyzi')
+c          call util_file_name_resolve(geom_tmp, .false.)
+          write(*,*) geom_tmp
+          call mm_set_solute_coord_file(geom_tmp)
+        end if
 
         if(operation.eq."energy") then
           status = task_qmmm_energy_sp(irtdb) 
