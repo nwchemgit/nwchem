@@ -4,10 +4,10 @@
 #ifndef SECOND_DERIV
       Subroutine xc_att_xc(rho,ipol,Ex,Amat,Cmat)
 #else
-      Subroutine xc_att_xc_d2(rho,ipol,Ex,Amat,Cmat,Amat2,Cmat2)
+      Subroutine xc_att_xc_d2(rho,ipol,Ex,Amat,Cmat,Amat2,Cmat2,Cmat3)
 #endif
 c
-C$Id: xc_att_xc.F,v 1.2 2008-11-12 23:57:05 niri Exp $
+C$Id: xc_att_xc.F,v 1.3 2008-11-22 23:16:10 niri Exp $
 c
       implicit none
 c      
@@ -24,7 +24,7 @@ c
 c
 c     Second Derivatives of the Exchange Energy Functional
 c
-      double precision Amat2, Cmat2
+      double precision Amat2, Cmat2, Cmat3
 #endif
 c
 c
@@ -51,6 +51,7 @@ c     Second Derivatives of the Exchange Energy Functional
 c
       double precision a_second, a2_second, f20
       double precision b_second, btmp_second, t8
+      double precision a3_second
  
 #endif
 
@@ -61,7 +62,11 @@ c         write(luout,*) 'alpha',alpha
 c         write(luout,*) 'beta',beta
 c         write(luout,*) 'mu',mu
 c           
-          a = cam_omega*sqrt(-4d0*Ex/ipol)/(6d0*sqrt_pi*rho)
+          if (ipol.eq.1) then
+             Ex = Ex/2d0
+             rho = rho/2d0
+          endif
+          a = cam_omega*sqrt(-2d0*Ex)/(6d0*sqrt_pi*rho)
           alpha = cam_alpha
           beta = cam_beta
 c 
@@ -70,9 +75,15 @@ c
           f01 = Cmat/(2d0*Ex)
           a2_first = f01*a 
 #ifdef SECOND_DERIV
-          f20 = Amat2/(2d0*Ex) - Amat*(Amat/(2d0*Ex*Ex) + 1d0/(rho*rho))
+          f20 = Amat2/(2d0*Ex) - Amat*Amat/(2d0*Ex*Ex) 
+     &        + 1d0/(rho*rho)
+
           a_second = a*(f10*f10 + f20) 
-          a2_second = a*(Cmat2/(2d0*Ex) - Cmat*Cmat/(4d0*Ex*Ex))
+
+          a2_second = a*(f10*f01 + Cmat2/(2d0*Ex)  
+     &              - Amat*Cmat/(2d0*Ex*Ex))
+
+          a3_second = a*(Cmat3/(2d0*Ex) - Cmat*Cmat/(4d0*Ex*Ex))
 #endif
 
 
@@ -85,6 +96,7 @@ c             write(luout,*) 'a is small'
               btmp_first = (4d0/3d0)*(-sqrt_pi + 3d0*a +
      &                   (2d0*exp(-1/(a*a)) - 2d0)*a*a*a)  
               btmp_first = 2d0*btmp_first
+             a = a /2d0
           else if (a <4.25d0) then
 c            write(luout,*) 'a is medium'
 c             stop
@@ -111,12 +123,13 @@ c            stop
              btmp_first = -1d0/(4.5d0*a**3) + 1d0/(15d0*a**5d0) -
      &                  1d0/(70d0*a**7d0) + 1d0/(405d0*a**9d0) 
              btmp_first = btmp_first*2d0
+             a = a /2d0
           end if
 #ifdef SECOND_DERIV
           if (abs(a) < 1d-40) then 
-             btmp_second = 16
-          else if (a >=5)  then
-             btmp_second = 1d0/(6d0*a**4) - 1d0/(48d0*a**6d0) +
+             btmp_second = 16d0
+          else if (a >=5d0)  then
+             btmp_second = 1d0/(6d0*a**4d0) - 1d0/(48d0*a**6d0) +
      &                  1d0/(640d0*a**8d0) - 1d0/(11520d0*a**10d0)
              
           else 
@@ -141,14 +154,24 @@ c            stop
      &          + Ex*b_second*a_first*a_first  
      &          + Ex*b_first*a_second
 
-          Cmat2 = bfactor*Cmat2 + 2d0*Cmat*b_first*a2_first
-     &          + Ex*b_second*a2_first*a2_first
+          Cmat2 = bfactor*Cmat2 + Amat*b_first*a2_first
+     &          + Cmat*b_first*a_first
+     &          + Ex*b_second*a_first*a2_first
      &          + Ex*b_first*a2_second
           
+          Cmat3 = bfactor*Cmat3 + 2d0*Cmat*b_first*a2_first
+     &          + Ex*b_second*a2_first*a2_first
+     &          + Ex*b_first*a3_second
+          
 #endif
-         Amat = bfactor*Amat + Ex*b_first*a_first
-         Cmat = bfactor*Cmat + Ex*b_first*a2_first
-         Ex = Ex*bfactor
+          Amat = bfactor*Amat + Ex*b_first*a_first
+          Cmat = bfactor*Cmat + Ex*b_first*a2_first
+          Ex = Ex*bfactor
+
+          if (ipol.eq.1) then
+             Ex = 2d0*Ex
+             rho = 2d0*rho
+          endif
 
 c         write(luout,*) 'bfactor',bfactor
 c

@@ -10,7 +10,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_camb88.F,v 1.2 2008-11-12 23:57:05 niri Exp $
+C$Id: xc_camb88.F,v 1.3 2008-11-22 23:16:10 niri Exp $
 c
       implicit none
 c      
@@ -42,7 +42,7 @@ c
 c     Second Derivatives of the Exchange Energy Functional
 c
       double precision Amat2(nq,NCOL_AMAT2), Cmat2(nq,NCOL_CMAT2)
-      double precision A2tmp, C2tmp
+      double precision A2tmp, C2tmp, C3tmp
 #endif
 c
       double precision BETA
@@ -101,13 +101,13 @@ c
             t    = 0d0
             if (lfac) then
                Etmp = 2d0*rho43*C*fac
-               if(ldew)func(n) = func(n) + 2.d0*rho43*C*fac
+               if(ldew)func(n) = func(n) + 2d0*rho43*C*fac
                Atmp = (4d0/3d0)*rho13*C*fac
             endif
 c
             if (nlfac) then
                Etmp = Etmp + 2d0*rho43*g*fac
-               if(ldew)func(n) = func(n) + 2.d0*rho43*g*fac
+               if(ldew)func(n) = func(n) + 2d0*rho43*g*fac
                Atmp = Atmp + (4d0/3d0)*rho13*(g-x*dg)*fac
             endif
 c
@@ -119,6 +119,9 @@ c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
             endif
 c
 #ifdef SECOND_DERIV
+            A2tmp = 0d0
+            C2tmp = 0d0
+            C3tmp = 0d0
             if(lfac) g = g + C           ! Add local contribution back to g
             rhom23 = rho13 / (0.5d0*rho(n,1))
             d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
@@ -129,14 +132,16 @@ c
             A2tmp = (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*fac
             C2tmp = - (4d0/3d0)*(rhom23**2/rho(n,1))*d2g*fac
             if (x.gt.tol_rho) then
-               C2tmp = C2tmp - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*fac
+               C3tmp = - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*fac
             endif
 #endif
 c
 #ifdef SECOND_DERIV
-            call xc_att_xc_d2(rho(n,1),ipol,Etmp,Atmp,t,A2tmp,C2tmp)
+            call xc_att_xc_d2(rho(n,1),ipol,Etmp,Atmp,t,A2tmp,
+     &           C2tmp,C3tmp)
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp
+            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp
 #else
             call xc_att_xc(rho(n,1),ipol,Etmp,Atmp,t)
 #endif
@@ -202,19 +207,18 @@ c
      &           + BETA*x*x*d2gdenom/gdenom**2
      &           - 2d0*BETA*x*x*(dgdenom)**2/gdenom**3
 c
-            A2tmp =
-     &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*fac
-            C2tmp =
-     &           - (2d0/3d0)*(rhom23**2/rho(n,2))*d2g*fac
+            A2tmp = (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*fac
+            C2tmp =  (2d0/3d0)*(rhom23**2/rho(n,2))*d2g*fac
             if (x.gt.tol_rho) then
-               C2tmp = C2tmp
-     &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*fac
+               C3tmp = -0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*fac
             endif
 #endif
 #ifdef SECOND_DERIV
-            call xc_att_xc_d2(rho(n,2),ipol,Etmp,Atmp,t,A2tmp,C2tmp)
+            call xc_att_xc_d2(rho(n,2),ipol,Etmp,Atmp,t,A2tmp,C2tmp,
+     &           C3tmp)
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp
+            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp
 #else
             call xc_att_xc(rho(n,2),ipol,Etmp,Atmp,t)
 #endif
@@ -269,6 +273,9 @@ c               Cmat(n,3,2) = Cmat(n,3,2) + t*delrho(n,3,2)
             endif
 c
 #ifdef SECOND_DERIV
+            A2tmp = 0d0
+            C2tmp = 0d0
+            C3tmp = 0d0
             if(lfac) g = g + C           ! Add local contribution back to g
             rhom23 = rho13 / rho(n,3)
             d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
@@ -276,20 +283,19 @@ c
      &           + BETA*x*x*d2gdenom/gdenom**2
      &           - 2d0*BETA*x*x*(dgdenom)**2/gdenom**3
 c
-            A2tmp = 
-     &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*fac
-            C2tmp = 
-     &           - (2d0/3d0)*(rhom23**2/rho(n,3))*d2g*fac
+            A2tmp = (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*fac
+            C2tmp = -(2d0/3d0)*(rhom23**2/rho(n,3))*d2g*fac
             if (x.gt.tol_rho) then
-               C2tmp = C2tmp
-     &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*fac
+               C3tmp = - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*fac
             endif
 #endif
 c
 #ifdef SECOND_DERIV
-            call xc_att_xc_d2(rho(n,3),ipol,Etmp,Atmp,t,A2tmp,C2tmp)
+            call xc_att_xc_d2(rho(n,3),ipol,Etmp,Atmp,t,A2tmp,C2tmp,
+     &           C3tmp)
             Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp
             Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB) + C2tmp
+            Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB) + C3tmp
 #else
             call xc_att_xc(rho(n,3),ipol,Etmp,Atmp,t)
 #endif
