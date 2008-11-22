@@ -1,0 +1,45 @@
+echo
+start
+
+geometry units bohr
+C         -3.4889915040            0.0757243564            0.0000000000
+C         -1.1660674990           -0.8921396346            0.0000000000
+C          1.0745076249            0.7531195619            0.0000000000
+O          3.2306456355           -0.0048697519            0.0000000000
+H         -5.1598072439           -1.1007803728            0.0000000000
+H         -3.7843301456            2.1030589485            0.0000000000
+H         -0.8202431053           -2.9101405740            0.0000000000
+H          0.6573804135            2.8079130427            0.0000000000
+end
+
+basis spherical
+ * library "cc-pVTZ"
+end
+
+#basis "cd basis"
+#*  library "DGauss A2 DFT Coulomb Fitting"
+#end
+
+set int:cando_txs f
+
+dft
+ xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
+ cam 0.33 cam_alpha 0.19 cam_beta 0.81
+ direct
+# odft
+# mult 1
+end
+#task dft energy
+
+#property
+# center com
+# dipole
+#end
+#task dft property
+
+tddft
+ nroots 5
+ notriplet
+ algorithm 3
+end
+task tddft energy
