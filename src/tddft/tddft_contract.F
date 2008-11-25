@@ -2,7 +2,7 @@
      1  g_td,g_pd,g_qd,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet)
 c
-c $Id: tddft_contract.F,v 1.7 2008-10-23 01:22:21 niri Exp $
+c $Id: tddft_contract.F,v 1.8 2008-11-25 01:51:34 niri Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c (1) A trial density matrix will be decomposed into 
@@ -312,7 +312,7 @@ c
      1  g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet,nvectors)
 c
-c $Id: tddft_contract.F,v 1.7 2008-10-23 01:22:21 niri Exp $
+c $Id: tddft_contract.F,v 1.8 2008-11-25 01:51:34 niri Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c Multiple trial density matrices are processed simultaneously,
@@ -391,16 +391,13 @@ c
       ichunk(1)=ipol*nvectors
       ichunk(2)=-1
       ichunk(3)=-1
-      if (.not.nga_create(mt_dbl,3,idim,'Work sym',
-     1  ichunk,g_nsym)) call errquit
-     2  ('tddft_nga_cont: failed to create g_nsym',0, GA_ERR)
-      if (.not.nga_create(mt_dbl,3,idim,'temp array',
-     1  ichunk,g_temp)) call errquit
-     2  ('tddft_nga_cont: failed to create g_nsym',0, GA_ERR)
+      if (.not.nga_create(mt_dbl,3,idim,'Work sym',ichunk,g_nsym)) 
+     1 call errquit('tddft_nga_cont: failed to create g_nsym',0, GA_ERR)
+      if (.not.nga_create(mt_dbl,3,idim,'temp array',ichunk,g_temp)) 
+     1 call errquit('tddft_nga_cont: failed to create g_temp',0, GA_ERR)
       if (lhashf.and.tda) then
-        if (.not.nga_create(mt_dbl,3,idim,'Work',
-     1    ichunk,g_work)) call errquit
-     2    ('tddft_nga_cont: failed to create g_work',0, GA_ERR)
+       if (.not.nga_create(mt_dbl,3,idim,'Work',ichunk,g_work)) 
+     1 call errquit('tddft_nga_cont: failed to create g_work',0, GA_ERR)
       endif
 c
 c ---------------------------
@@ -474,7 +471,7 @@ c
      1    ndu,nfu,nbf_ao,.false.)
        else  ! attenuated calculations 
         jfac = 1.d0
-        call shell_fock_build_att_alg13(geom,ao_bas_han,0,2*nvectors,
+        call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
      &     nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_p,g_temp,ipol,
      &    .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
        end if ! cam_exch
@@ -572,7 +569,7 @@ c
      1        dbl_mb(k_jf),dbl_mb(k_kf),ndu,nfu,nbf_ao,.false.)
            else
            jfac = 0.d0
-           call shell_fock_build_att_alg13(geom,ao_bas_han,0,2*nvectors,
+           call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
      &         nbf_ao,jfac,kfac,tol2e,g_nsym,g_work,g_temp,ipol,
      &         .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
            end if ! cam_exch
@@ -600,7 +597,7 @@ c
      1        dbl_mb(k_jf),dbl_mb(k_kf),ndu,nfu,nbf_ao,.false.)
            else 
            jfac = 0.d0
-           call shell_fock_build_att_alg13(geom,ao_bas_han,0,2*nvectors,
+           call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
      &         nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_m,g_temp,ipol,
      &        .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
            end if  ! cam_exch
