@@ -6,7 +6,7 @@ c in the original cpbe96 file, they are arrays
 
 
 c
-c$Id: xc_cMpbe96.F,v 1.3 2006-02-03 01:45:22 edo Exp $
+c$Id: xc_cMpbe96.F,v 1.4 2008-11-26 04:04:14 niri Exp $
 c
       Implicit none
 #include "dft2drv.fh"
@@ -311,9 +311,6 @@ c          NOTE:  this PBE does the LDA part of Ec in house
 
             Amat(n,1) = Amat(n,1) +  dH0dna*fac
             if (ipol.eq.2) Amat(n,2) = Amat(n,2) + dH0dnb*fac
-
-
-
 c
 c        Now we go into gradient-correction parts
 c        Note that the functional depends on |Nabla n| through "t" only
