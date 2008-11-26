@@ -2,7 +2,7 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_pr_anal.F,v 1.15 2008-03-31 19:17:10 edo Exp $
+* $Id: movecs_pr_anal.F,v 1.16 2008-11-26 16:46:40 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -124,7 +124,7 @@ c     max
                      endif
                   enddo
 c     get within 10% range
-                  maxv=maxv*0.9d0*maxv
+                  maxv=0.9d0*maxv
                   n=1
                   do j = 0, nbf-1
                      if (abs(dbl_mb(k_vecs+j)).ge.maxv) then
