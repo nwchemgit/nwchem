@@ -2,7 +2,7 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_pr_anal.F,v 1.16 2008-11-26 16:46:40 bert Exp $
+* $Id: movecs_pr_anal.F,v 1.17 2008-11-26 17:07:09 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -108,31 +108,25 @@ c
                endif
             enddo
             if (n.eq.0) then
-               if(cur_thresh.le.64*thresh) then
-                  cur_thresh = cur_thresh*2
-                  goto 111      ! Go back if found nothing to print
-               else
 c
 c     found nothing. get max +10% of lowe
 c
-                  maxv=1d-99
+               maxv=1d-99
 c     max
-                  do j = 0, nbf-1
-                     if (abs(dbl_mb(k_vecs+j)).ge.maxv) then
-                        int_mb(k_list) = j
-                        maxv=abs(dbl_mb(k_vecs+j))
-                     endif
-                  enddo
+               do j = 0, nbf-1
+                  if (abs(dbl_mb(k_vecs+j)).ge.maxv) then
+                     int_mb(k_list) = j
+                     maxv=abs(dbl_mb(k_vecs+j))
+                  endif
+               enddo
 c     get within 10% range
-                  maxv=0.9d0*maxv
-                  n=1
-                  do j = 0, nbf-1
-                     if (abs(dbl_mb(k_vecs+j)).ge.maxv) then
-                        int_mb(k_list + n) = j
-                        n=n+1
-                     endif
-                  enddo
-               endif
+               maxv=0.9d0*maxv
+               do j = 0, nbf-1
+                  if (abs(dbl_mb(k_vecs+j)).ge.maxv) then
+                     int_mb(k_list + n) = j
+                     n=n+1
+                  endif
+               enddo
             endif
             do j = 0, n-1
                do k = 0, j
