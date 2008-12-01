@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.48 2008-10-23 01:23:20 niri Exp $
+c     $Id: dft_input.F,v 1.49 2008-12-01 19:35:21 niri Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -374,6 +374,10 @@ c  get cam_beta
      &     RTDB_ERR)
 c           write(luout,*) "cam_beta:",cam_beta
       end if
+c
+c     Force texas integrals to false for CAM calculations
+      if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
+     &   call errquit('cannot set int:cando_txs',0, RTDB_ERR)
 c
       goto 10
 c
