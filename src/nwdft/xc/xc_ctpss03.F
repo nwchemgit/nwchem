@@ -1,5 +1,5 @@
 c   
-c$Id: xc_ctpss03.F,v 1.14 2008-11-26 04:04:14 niri Exp $
+c$Id: xc_ctpss03.F,v 1.15 2008-12-02 19:27:28 niri Exp $
 c
 #include "dft2drv.fh"
 c
@@ -231,9 +231,7 @@ c        functional deriv info below fffffffffffff
          dtwt2dn = -2.d0*xx2/rhoval
          dtwt3dn = -3.d0*xx3/rhoval
          decggadn= dneGGAdn(1)
-
          dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2)
-
          dtwt3dg = 3.d0*xx2*0.125d0/(rhoval*tauN)
          decggadg= dneGGAdg(1)
 
@@ -252,22 +250,21 @@ C  functional deriv info below fffffffffffffffff
 C  eps-tilda is eps^FSP
 C  functional deriv info below fffffffffffffffff
 
-        dpbeupdn = 0.5d0*dneFSPdn(1)
+          dpbeupdn = 0.5d0*dneFSPdn(1)
 c  above note the .5's.  you are taking deriv wrt total density n
 c                        not deriv wrt n_up
-        dpbeupdg = 0.25d0*dneFSPdg(1)
+          dpbeupdg = 0.25d0*dneFSPdg(1)
 c  note .25 above is because you want gamma=deln_tot*deln_tot
 c
-        atermn=pbe*ccc*dtwt2dn+(1.d0+ccc*xx2)*decggadn
-        btermn=(1.d0+ccc)*(xx2*dpbeupdn+pbeup*dtwt2dn)
-        drevdn=atermn-btermn
-
-        atermg=pbe*ccc*dtwt2dg+(1.d0+ccc*xx2)*decggadg
-        btermg=(1.d0+ccc)*(xx2*dpbeupdg+pbeup*dtwt2dg)
-        drevdg=atermg-btermg
-
-        drevdt=(ccc*pbe-(1.d0+ccc)*pbeup)*xx2*(-2.d0/tauN)
-
+          atermn=pbe*ccc*dtwt2dn+(1.d0+ccc*xx2)*decggadn
+          btermn=(1.d0+ccc)*(xx2*dpbeupdn+pbeup*dtwt2dn)
+          drevdn=atermn-btermn
+c
+          atermg=pbe*ccc*dtwt2dg+(1.d0+ccc*xx2)*decggadg
+          btermg=(1.d0+ccc)*(xx2*dpbeupdg+pbeup*dtwt2dg)
+          drevdg=atermg-btermg
+c
+          drevdt=(ccc*pbe-(1.d0+ccc)*pbeup)*xx2*(-2.d0/tauN)
        endif
 
        delc = -(1.d0 + ccc)*delc
@@ -542,7 +539,7 @@ c        functional deriv info below fffffffffffff
           detilbdgbb = dneFSPdg(D1_GAA)
           detilbdgab = 0.d0
        endif
-
+c
 c     n_sigma/n_total factor
        fabdown=rhob/rhoval
 
@@ -555,7 +552,7 @@ c     n_sigma/n_total factor
        if(ldew) func(n) = func(n) + rhoval*erevsic*fac
        Ec = Ec + rhoval*erevsic*qwght(n)*fac
 c
-cderivs
+c na
        atermn=pbe*ccc*dtwt2dn+(1.d0+ccc*xx2)*dneggadn(1)+
      &      pbe*xx2*dcccdna
        btermn=(1.d0+ccc)*(
@@ -565,6 +562,7 @@ cderivs
      Z      xx2*(fabup*etildea+fabdown*etildeb)*dcccdna
        drevdna=atermn-btermn
 c       
+c nb
        atermn=pbe*ccc*dtwt2dn+(1.d0+ccc*xx2)*dneggadn(2)+
      &      pbe*xx2*dcccdnb
        btermn=(1.d0+ccc)*(
@@ -607,47 +605,47 @@ c ta,tb
        drevdtb=-2d0*xx2/tauN*
      *(ccc*pbe-(1.d0+ccc)*(fabup*etildea+fabdown*etildeb))
 c
-c     derivs wrt n
-       finaln= rhoval*drevdna + erevc +
-     &      dd*(erevc*erevc*xx3 +
-     +      rhoval*(xx3*2.d0*erevc*drevdna +
-     +      erevc*erevc*dtwt3dn))
-       Amat(n,1)=Amat(n,1)+(finaln)*fac
+c derivs wrt na
+         finaln= rhoval*drevdna + erevc +
+     &      dd*(erevc*erevc*xx3 + rhoval*(xx3*2.d0*erevc*drevdna 
+     &     + erevc*erevc*dtwt3dn))
+         Amat(n,1)=Amat(n,1)+finaln*fac
 c
-       finaln= rhoval*drevdnb + erevc +
-     &      dd*(erevc*erevc*xx3 +
-     +      rhoval*(xx3*2.d0*erevc*drevdnb +
-     +      erevc*erevc*dtwt3dn))
-       Amat(n,2)=Amat(n,2)+(finaln)*fac
+c derivs wrt nb
+         finaln= rhoval*drevdnb + erevc +
+     &      dd*(erevc*erevc*xx3 + rhoval*(xx3*2.d0*erevc*drevdnb 
+     &     + erevc*erevc*dtwt3dn))
+         Amat(n,2)=Amat(n,2)+finaln*fac
 c
-c     derivs wrt gaa
+c derivs wrt gaa
          apartg=rhoval*drevdgaa
          cpartg(1)=erevc*erevc*dtwt3dg
          cpartg(2)=xx3*2.d0*erevc*drevdgaa
          finalgaa=apartg+rhoval*dd*(cpartg(1)+cpartg(2))
          Cmat(n,D1_GAA)=Cmat(n,D1_GAA)+finalgaa*fac
 c
-c     derivs wrt gbb
+c derivs wrt gbb
          apartg=rhoval*drevdgbb
          cpartg(1)=erevc*erevc*dtwt3dg
          cpartg(2)=xx3*2.d0*erevc*drevdgbb
          finalgbb=apartg+rhoval*dd*(cpartg(1)+cpartg(2))
          Cmat(n,D1_GBB)=Cmat(n,D1_GBB)+finalgbb*fac
 c
-c     derivs wrt gab
+c derivs wrt gab
          apartg=rhoval*drevdgab
          cpartg(1)=erevc*erevc*2.d0*dtwt3dg
          cpartg(2)=xx3*2.d0*erevc*drevdgab
          finalgab=apartg+rhoval*dd*(cpartg(1)+cpartg(2))
          Cmat(n,D1_GAB)=Cmat(n,D1_GAB)+finalgab*fac
 c
-c     derivs wrt t
+c derivs wrt ta
          apartt=rhoval*drevdta
          bpartt(1)=erevc*erevc*dtwt3dt
          bpartt(2)=xx3*2.d0*erevc*drevdta
          finalt=apartt+dd*rhoval*(bpartt(1)+bpartt(2))
          Mmat(n,1)=Mmat(n,1)+0.5d0*finalt*fac
 c
+c derivs wrt tb
          apartt=rhoval*drevdtb
          bpartt(1)=erevc*erevc*dtwt3dt
          bpartt(2)=xx3*2.d0*erevc*drevdtb
