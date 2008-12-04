@@ -1,5 +1,5 @@
 *
-* $Id: qmmm_lbfgsb.F,v 1.10 2005-11-09 22:42:48 marat Exp $
+* $Id: qmmm_lbfgsb.F,v 1.11 2008-12-04 17:01:00 d3p852 Exp $
 *
 c        Modified lbfgs driver for use with QMMM
 c
@@ -55,7 +55,7 @@ c       the driver.
  
       character*60     task, csave
       character*60     pname
-      character*16     xyz
+      character*60     xyz
       logical          lsave(4)
       integer          m, iprint
       integer isave(44)
