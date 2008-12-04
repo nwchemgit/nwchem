@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_qmmm_step.F,v 1.3 2008-06-06 17:06:45 d3p708 Exp $
+* $Id: inner_loop_qmmm_step.F,v 1.4 2008-12-04 00:45:07 bylaska Exp $
 *
   
       subroutine inner_loop_qmmm_step(verlet,
@@ -35,7 +35,7 @@
 
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "frac_occ.fh"
+ccc#include "frac_occ.fh"
 
 
 *     **** local variables ****
@@ -211,18 +211,18 @@ c      external pspw_charge_Energy_ion_qmmm
 *       **** generate dn ****
 *       *********************
         call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
-        if (fractional) then
-          do ms=1,ispin
-             do n=n1(ms),n2(ms)
-                do i=1,n2ft3d
-                   dn(i,ms) = dn(i,ms)
-     >                      + scal2*(psi_r(i,n)**2)
-     >                       *dbl_mb(fweight(1)+n-1)
-                end do
-             end do
-             call D3dB_r_Zero_Ends(1,dn(1,ms))
-          end do
-        else
+c        if (fractional) then
+c          do ms=1,ispin
+c             do n=n1(ms),n2(ms)
+c                do i=1,n2ft3d
+c                   dn(i,ms) = dn(i,ms)
+c     >                      + scal2*(psi_r(i,n)**2)
+c     >                       *dbl_mb(fweight(1)+n-1)
+c                end do
+c             end do
+c             call D3dB_r_Zero_Ends(1,dn(1,ms))
+c          end do
+c        else
           do ms=1,ispin
              do n=n1(ms),n2(ms)
                 do i=1,n2ft3d
@@ -231,7 +231,7 @@ c      external pspw_charge_Energy_ion_qmmm
              end do
              call D3dB_r_Zero_Ends(1,dn(1,ms))
           end do
-        end if
+c        end if
 
 
 *       **********************
@@ -433,11 +433,11 @@ c     >                                         fion,fcharge)
         !**** orthoganality constraint ****
         dte0 = dte
         if (nose) dte0 = dte*sse
-        if (fractional) then
-        call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
-     >                  dte0,dbl_mb(fweight(1)),
-     >                  lmd,dbl_mb(tmp_L(1)),ierr)
-        else if (sic) then
+c        if (fractional) then
+c        call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
+c     >                  dte0,dbl_mb(fweight(1)),
+c     >                  lmd,dbl_mb(tmp_L(1)),ierr)
+        if (sic) then
         call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte0,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
         else
@@ -529,7 +529,7 @@ c     >                                         fion,fcharge)
          do ii=1,ne(ms)
             index = (ii) + (ii-1)*n + (ms-1)*nn
             sum = hml(index)
-            if (fractional) sum=sum*dbl_mb(fweight(1)+ii-1+(ms-1)*ne(1))
+c            if (fractional) sum=sum*dbl_mb(fweight(1)+ii-1+(ms-1)*ne(1))
             eorbit = eorbit + sum
          end do
       end do

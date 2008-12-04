@@ -1,5 +1,5 @@
 *
-* $Id: pspw_bq_gradient.F,v 1.3 2007-04-02 15:38:41 bylaska Exp $
+* $Id: pspw_bq_gradient.F,v 1.4 2008-12-04 00:45:03 bylaska Exp $
 *
 
 
@@ -16,7 +16,7 @@
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
-#include "frac_occ.fh"
+cccc#include "frac_occ.fh"
 #include "nwpw_timing.fh"
 #include "errquit.fh"
       
@@ -246,7 +246,7 @@ c     value = psi_initialize()
 
 
 *     **** initialize frac_occ data structure ****
-      call frac_occ_init(rtdb,psi_ispin(),ne)
+c      call frac_occ_init(rtdb,psi_ispin(),ne)
 
 
 
@@ -294,7 +294,7 @@ c     end if
      
       call pspw_charge_end()
       
-      call frac_occ_end()
+ccc      call frac_occ_end()
       call ion_end()
       call D3dB_pfft_end()
       call D3dB_end(1)

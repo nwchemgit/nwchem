@@ -1,5 +1,5 @@
 *
-* $Id: cpmd_qmmm_start.F,v 1.8 2008-06-18 18:53:14 bylaska Exp $
+* $Id: cpmd_qmmm_start.F,v 1.9 2008-12-04 00:45:07 bylaska Exp $
 *
 
       logical function cpmd_qmmm_start(rtdb)
@@ -9,7 +9,7 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-#include "frac_occ.fh"
+ccc#include "frac_occ.fh"
 #include "errquit.fh"
       
       logical value
@@ -367,7 +367,7 @@
       call dplot_iteration_init()
 
 *     **** initialize frac_occ data structure ****
-      call frac_occ_init(rtdb,ispin,ne)
+ccc      call frac_occ_init(rtdb,ispin,ne)
 
 *     **** initialize SIC and HFX ****
       call pspw_init_SIC(rtdb,ne)
@@ -416,7 +416,7 @@
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
-         if (fractional) write(6,1132)
+c         if (fractional) write(6,1132)
          call pspw_print_SIC(6)
          call pspw_print_HFX(6)
          write(6,1140)
@@ -435,16 +435,16 @@
          icharge = -(ne(1)+ne(ispin))
          en(1)     = ne(1)
          en(ispin) = ne(ispin)
-         if (fractional) then
-            icharge = 0.0d0
-            do ms=1,ispin
-            en(ms) =0.0
-            do i=n1(ms),n2(ms)
-              icharge = icharge - (3-ispin)*dbl_mb(fweight(1)+i-1)
-              en(ms) = en(ms) + dbl_mb(fweight(1)+i-1)
-            end do
-            end do
-         end if
+c         if (fractional) then
+c            icharge = 0.0d0
+c            do ms=1,ispin
+c            en(ms) =0.0
+c            do i=n1(ms),n2(ms)
+c              icharge = icharge - (3-ispin)*dbl_mb(fweight(1)+i-1)
+c              en(ms) = en(ms) + dbl_mb(fweight(1)+i-1)
+c            end do
+c            end do
+c         end if
 
          do ia=1,ion_nkatm()
            icharge = icharge + ion_natm(ia)*psp_zv(ia)
@@ -476,13 +476,13 @@
 
          call pspw_qmmm_Print2(6)
 
-         if (fractional) then
-           write(6,1219) en(1),en(ispin),' (   fractional)'
-           write(6,1221) ne(1),ne(ispin),' (fourier space)'
-         else
+c         if (fractional) then
+c           write(6,1219) en(1),en(ispin),' (   fractional)'
+c           write(6,1221) ne(1),ne(ispin),' (fourier space)'
+c         else
            write(6,1220) ne(1),ne(ispin),' (fourier space)'
            write(6,1221) ne(1),ne(ispin),' (fourier space)'
-         end if
+c         end if
          write(6,1230)
          write(6,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),

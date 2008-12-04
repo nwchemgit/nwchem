@@ -6,7 +6,7 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-#include "frac_occ.fh"
+ccc#include "frac_occ.fh"
 #include "errquit.fh"
       
       logical value
@@ -264,15 +264,17 @@ c        call eigen(n,ne(ms),
 c    >              dbl_mb(hml(1)+(ms-1)*nn),
 c    >              dbl_mb(eig(1)+(ms-1)*n),
 c    >              dbl_mb(lmd(1)),ierr)
-        if (fractional) then
-         do jj=1,ne(ms)
-         do ii=1,ne(ms)
-           dbl_mb(hml(1)+(ii-1)+(jj-1)*n+(ms-1)*nn)
-     >     =dbl_mb(hml(1)+(ii-1)+(jj-1)*n+(ms-1)*nn)
-     >     *dbl_mb(fweight(1)+(jj-1)+(ms-1)*n)
-         end do
-         end do
-        end if
+
+c        if (fractional) then
+c         do jj=1,ne(ms)
+c         do ii=1,ne(ms)
+c           dbl_mb(hml(1)+(ii-1)+(jj-1)*n+(ms-1)*nn)
+c     >     =dbl_mb(hml(1)+(ii-1)+(jj-1)*n+(ms-1)*nn)
+c     >     *dbl_mb(fweight(1)+(jj-1)+(ms-1)*n)
+c         end do
+c         end do
+c        end if
+
         call DSYEV('V','U',ne(ms),
      >              dbl_mb(hml(1)+(ms-1)*nn),n,
      >              dbl_mb(eig(1)+(ms-1)*n),
@@ -281,13 +283,13 @@ c    >              dbl_mb(lmd(1)),ierr)
         call eigsrt(dbl_mb(eig(1)+(ms-1)*n),
      >              dbl_mb(hml(1)+(ms-1)*nn),
      >              ne(ms),n)
-        if (fractional) then
-        do ii=1,ne(ms)
-           dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
-     >       =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
-     >       /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
-        end do
-        end if
+c        if (fractional) then
+c        do ii=1,ne(ms)
+c           dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
+c     >       =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
+c     >       /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
+c        end do
+c        end if
 
       end do
 
@@ -452,21 +454,21 @@ c    >              dbl_mb(lmd(1)),ierr)
          NN=NE(1)-NE(2)
          EV=27.2116d0
 
-         if (fractional) then
-           do i=1,NN
-             write(6,1511) dbl_mb(EIG(1)+i-1),
-     >                     dbl_mb(EIG(1)+i-1)*EV,
-     >                     dbl_mb(fweight(1)+i-1)
-           end do
-           do i=1,ne(2)
-             write(6,1511) dbl_mb(EIG(1)+i-1+NN),
-     >                     dbl_mb(EIG(1)+i-1+NN)*EV,
-     >                     dbl_mb(fweight(1)+i-1+NN),
-     >                     dbl_mb(EIG(1)+i-1+n1(2)-1),
-     >                     dbl_mb(EIG(1)+i-1+n1(2)-1)*EV,
-     >                     dbl_mb(fweight(1)+i-1+n1(2)-1)
-           end do
-         else
+c         if (fractional) then
+c           do i=1,NN
+c             write(6,1511) dbl_mb(EIG(1)+i-1),
+c     >                     dbl_mb(EIG(1)+i-1)*EV,
+c     >                     dbl_mb(fweight(1)+i-1)
+c           end do
+c           do i=1,ne(2)
+c             write(6,1511) dbl_mb(EIG(1)+i-1+NN),
+c     >                     dbl_mb(EIG(1)+i-1+NN)*EV,
+c     >                     dbl_mb(fweight(1)+i-1+NN),
+c     >                     dbl_mb(EIG(1)+i-1+n1(2)-1),
+c     >                     dbl_mb(EIG(1)+i-1+n1(2)-1)*EV,
+c     >                     dbl_mb(fweight(1)+i-1+n1(2)-1)
+c           end do
+c         else
            do i=1,NN
              write(6,1510) dbl_mb(EIG(1)+i-1),dbl_mb(EIG(1)+i-1)*EV
            end do
@@ -476,7 +478,7 @@ c    >              dbl_mb(lmd(1)),ierr)
      >                     dbl_mb(EIG(1)+i-1+n1(2)-1),
      >                     dbl_mb(EIG(1)+i-1+n1(2)-1)*EV
            end do
-         end if
+c         end if
 
          end if
 
@@ -520,7 +522,7 @@ c    >              dbl_mb(lmd(1)),ierr)
       call pspw_end_HFX()
       call pspw_qmmm_end()
       call dplot_iteration_end()
-      call frac_occ_end()
+ccc      call frac_occ_end()
       if (control_Nose()) call Nose_end()
 
       value = MA_free_heap(psir(2))
