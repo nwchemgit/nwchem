@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, grad, ldew, func,
      &                       do_2nd, tau, ttau, kske, Mmat, Mmat2)
 c
-c     $Id: xc_eval_fnl.F,v 1.63 2008-11-04 16:40:51 niri Exp $
+c     $Id: xc_eval_fnl.F,v 1.64 2008-12-06 23:08:58 niri Exp $
 c
       implicit none
 c
@@ -625,7 +625,7 @@ c
          endif
       endif
 c
-c BNL 2007 Exchange 
+c LC-BNL 2007 Exchange 
 c
       if (abs(xfac(38)).gt.eps)then
        if (.not. do_2nd) then
@@ -637,7 +637,7 @@ c
        endif
       endif
 c
-c CAMB88 Exchange
+c CAM-B88 Exchange
 c
       if (abs(xfac(40)).gt.eps)then
        if (.not. do_2nd) then
@@ -648,6 +648,22 @@ c
         call xc_camb88_d2(tol_rho, xfac(40), lxfac(40), nlxfac(40),
      &    rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
      &    Ex, qwght,ldew,func)
+       endif
+      endif
+c
+c CAM-PBE96 Exchange
+c
+      if (abs(xfac(41)).gt.eps)then
+       if (.not. do_2nd) then
+        call xc_camxpbe96('orig',
+     T           tol_rho, xfac(41), lxfac(41), nlxfac(41), 
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+       else
+        call xc_camxpbe96_d2('orig',
+     T           tol_rho, xfac(41), lxfac(41), nlxfac(41), 
+     &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
+     &           Ex, qwght,ldew,func)
        endif
       endif
 c

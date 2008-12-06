@@ -7,7 +7,7 @@
       Subroutine xc_att_xc_d2(rho,ipol,Ex,Amat,Cmat,Amat2,Cmat2,Cmat3)
 #endif
 c
-C$Id: xc_att_xc.F,v 1.3 2008-11-22 23:16:10 niri Exp $
+C$Id: xc_att_xc.F,v 1.4 2008-12-06 23:08:58 niri Exp $
 c
       implicit none
 c      
