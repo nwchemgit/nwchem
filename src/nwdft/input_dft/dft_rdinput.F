@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.138 2008-12-01 19:35:35 niri Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.139 2008-12-06 23:09:50 niri Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -523,24 +523,22 @@ c
       cname(39)='               M06 Correlation Potential'
       cname(40)='            M06-2X Correlation Potential'
       cname(41)='      Becke 1997-D Correlation Potential'
-
-
 c
 c     Exchange functional name defaults.
 c
       xname(1)='           Hartree-Fock (Exact) Exchange'
-      xname(2)='              Slater Exchange Functional'
-      xname(3)='          Becke 1988 Exchange Functional'
-      xname(4)='               HCTH  Exchange Functional'
-      xname(5)='          Becke 1997 Exchange Functional'
-      xname(6)='        Becke 1997-1 Exchange Functional'
-      xname(7)='PerdewBurkeErnzerhof Exchange Functional'
-      xname(8)='         Gill 1996   Exchange Functional'
-      xname(9)='       Perdew 1991   Exchange Functional'
+      xname(2)='               Slater Exchange Functional'
+      xname(3)='           Becke 1988 Exchange Functional'
+      xname(4)='                HCTH  Exchange Functional'
+      xname(5)='           Becke 1997 Exchange Functional'
+      xname(6)='         Becke 1997-1 Exchange Functional'
+      xname(7)=' PerdewBurkeErnzerhof Exchange Functional'
+      xname(8)='          Gill 1996   Exchange Functional'
+      xname(9)='        Perdew 1991   Exchange Functional'
       xname(10)='            HCTH120  Exchange Functional'
       xname(11)='            HCTH147  Exchange Functional'
-      xname(12)='        Becke 1998  Exchange Functional'
-      xname(13)='    Becke 1997GGA-1 Exchange Functional'
+      xname(12)='         Becke 1998  Exchange Functional'
+      xname(13)='     Becke 1997GGA-1 Exchange Functional'
       xname(14)='            HCTH407  Exchange Functional'
       xname(15)='           HCTHP1/4  Exchange Functional'
       xname(16)='            OPTX     Exchange Functional'
@@ -562,26 +560,26 @@ c
       xname(35)='              M06-HF Exchange Functional'
       xname(36)='                 M06 Exchange Functional'
       xname(37)='              M06-2X Exchange Functional'
-      xname(38)='            BNL 2007 Exchange Functional'
-      xname(39)='       Becke 1997-D  Exchange Functional'
-
-
+      xname(38)='         LC-BNL 2007 Exchange Functional'
+      xname(39)='        Becke 1997-D Exchange Functional'
+      xname(40)='         CAM-Becke88 Exchange Functional'
+      xname(41)='           CAM-PBE96 Exchange Functional'
 c
 c     Exchange-Correlation combination functional name defaults.
 c
-      xcname(1)='Adiabatic Connection Method XC Potential'
-      xcname(2)='               B3LYP Method XC Potential'
-      xcname(3)=' Becke half-and-half Method XC Potential'
-      xcname(4)='          Becke 1997 Method XC Potential'
-      xcname(5)='        Becke 1997-1 Method XC Potential'
-      xcname(6)='              HCTH  Method XC Functional'
-      xcname(7)='           HCTH120  Method XC Functional'
-      xcname(8)='           HCTH147  Method XC Functional'
-      xcname(9)='         Becke 1998 Method XC Functional'
-      xcname(10)='              PBE0 Method XC Functional'
+      xcname(1)=' Adiabatic Connection Method XC Potential'
+      xcname(2)='                B3LYP Method XC Potential'
+      xcname(3)='  Becke half-and-half Method XC Potential'
+      xcname(4)='           Becke 1997 Method XC Potential'
+      xcname(5)='         Becke 1997-1 Method XC Potential'
+      xcname(6)='               HCTH  Method XC Functional'
+      xcname(7)='            HCTH120  Method XC Functional'
+      xcname(8)='            HCTH147  Method XC Functional'
+      xcname(9)='          Becke 1998 Method XC Functional'
+      xcname(10)='               PBE0 Method XC Functional'
       xcname(11)='     Becke 1997GGA-1 Method XC Potential'
-      xcname(12)='           HCTH407  Method XC Functional'
-      xcname(13)='          HCTHP1/4  Method XC Functional'
+      xcname(12)='            HCTH407 Method XC Functional'
+      xcname(13)='           HCTHP1/4 Method XC Functional'
       xcname(14)='         Becke 97-2 Method XC Functional'
       xcname(15)=' Filatov Thiel 1997 Method XC Functional'
       xcname(16)='              MPW1K Method XC Functional'
@@ -604,7 +602,7 @@ c
       xcname(35)='                M06 Method XC Functional'
       xcname(36)='             M06-2X Method XC Functional'
       xcname(37)='         Becke 97-D Method XC Functional'
-
+      xcname(38)='             LC-BNL Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     

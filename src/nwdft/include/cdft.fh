@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.74 2008-11-04 16:40:37 niri Exp $
+C$Id: cdft.fh,v 1.75 2008-12-06 23:09:46 niri Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -10,6 +10,10 @@ c     variables related to "xc" input,
 c     variables related to "tolerances" input,
 c     variables related to "grid" input, and
 c     other misc variables.
+c
+
+c Exchange-Correlation related
+#include "xc.fh"
 c
       character*256 title
       character*16 grtagin
@@ -35,7 +39,7 @@ c
      &     nbf_cd, nbf_cd_mxprim, nbf_cd_mxang, nbf_cd_mxcont, 
      &     nbf_cd_mxnbf_cn, nbf_cd_mxnbf_ce, nshells_cd,
      &     nbf_xc, nbf_xc_mxprim, nbf_xc_mxang, nbf_xc_mxcont, 
-     &     nbf_xc_mxnbf_cn, nbf_xc_mxnbf_ce, nshells_xc, numfunc,
+     &     nbf_xc_mxnbf_cn, nbf_xc_mxnbf_ce, nshells_xc,
 c
 c     old common handles 
 c
@@ -44,7 +48,6 @@ c
      ,     g_cdinv, g_2ceri, sic_orb_spin, sic_orb_occ, sic_orb_index,
      ,     g_sic_dens(2), aux_ik, g_s12m,g_s12p
 c
-      parameter(numfunc=43)
       character*256 movecs_in, movecs_out
       character*8 movecs_guess
       common /cdft/

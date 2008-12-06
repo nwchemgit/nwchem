@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.70 2006-11-28 18:46:02 edo Exp $
+c     $Id: dft_inpana.F,v 1.71 2008-12-06 23:09:50 niri Exp $
 c
 c*********************************************************************
 c     
@@ -367,44 +367,44 @@ c
 c           Check XC coefficients to make sure appropriate components
 c           sum to 1.0
 c     
-            ckfac = 0.0d0
-            do n = 1, numfunc
-               if (lcfac(n))ckfac = ckfac + cfac(n)
-            enddo
-            if (abs(ckfac-1.0d0).gt.1.d-8)then
-               write(LuOut,*)
-     &            ' WARNING: Sum of local correlation is ',ckfac
-               write(LuOut,*)' Sum of components do not equal unity. '
-            endif
-            ckfac = 0.0d0
-            do n = 1, numfunc
-               if (nlcfac(n))ckfac = ckfac + cfac(n)
-            enddo
-            if (abs(ckfac-1.0d0).gt.1.d-8.and.abs(ckfac).gt.1.d-8)then
-               write(LuOut,*)
-     &            ' WARNING: Sum of nonlocal correlation is ',ckfac
-               write(LuOut,*)
-     &            ' Sum of components do not equal unity or 0. '
-            endif
-            ckfac = 0.0d0
-            do n = 1, numfunc
-               if (lxfac(n))ckfac = ckfac + xfac(n)
-            enddo
-            if (abs(ckfac-1.0d0).gt.1.d-8)then
-               write(LuOut,*)
-     &            ' WARNING: Sum of local exchange is ',ckfac
-               write(LuOut,*)' Sum of components do not equal unity. '
-            endif
-            ckfac = 0.0d0
-            do n = 1, numfunc
-               if (nlxfac(n))ckfac = ckfac + xfac(n)
-            enddo
-            if (abs(ckfac-1.0d0).gt.1.d-8.and.abs(ckfac).gt.1.d-8)then
-               write(LuOut,*)
-     &            ' WARNING: Sum of nonlocal exchange is ',ckfac
-               write(LuOut,*)
-     &            ' Sum of components do not equal unity or 0. '
-            endif
+c            ckfac = 0.0d0
+c            do n = 1, numfunc
+c               if (lcfac(n))ckfac = ckfac + cfac(n)
+c            enddo
+c            if (abs(ckfac-1.0d0).gt.1.d-8)then
+c               write(LuOut,*)
+c     &            ' WARNING: Sum of local correlation is ',ckfac
+c               write(LuOut,*)' Sum of components do not equal unity. '
+c            endif
+c            ckfac = 0.0d0
+c            do n = 1, numfunc
+c               if (nlcfac(n))ckfac = ckfac + cfac(n)
+c            enddo
+c            if (abs(ckfac-1.0d0).gt.1.d-8.and.abs(ckfac).gt.1.d-8)then
+c               write(LuOut,*)
+c     &            ' WARNING: Sum of nonlocal correlation is ',ckfac
+c               write(LuOut,*)
+c     &            ' Sum of components do not equal unity or 0. '
+c            endif
+c            ckfac = 0.0d0
+c            do n = 1, numfunc
+c               if (lxfac(n))ckfac = ckfac + xfac(n)
+c            enddo
+c            if (abs(ckfac-1.0d0).gt.1.d-8)then
+c               write(LuOut,*)
+c     &            ' WARNING: Sum of local exchange is ',ckfac
+c               write(LuOut,*)' Sum of components do not equal unity. '
+c            endif
+c            ckfac = 0.0d0
+c            do n = 1, numfunc
+c               if (nlxfac(n))ckfac = ckfac + xfac(n)
+c            enddo
+c            if (abs(ckfac-1.0d0).gt.1.d-8.and.abs(ckfac).gt.1.d-8)then
+c               write(LuOut,*)
+c     &            ' WARNING: Sum of nonlocal exchange is ',ckfac
+c               write(LuOut,*)
+c     &            ' Sum of components do not equal unity or 0. '
+c            endif
 c
 c           Check if asymptotic correction will be added to potential
 c           If both LB94 and CS00 are .true., it is assumed that the 
