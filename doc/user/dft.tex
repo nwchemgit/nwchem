@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.96 2008-09-29 20:31:24 edo Exp $ 
+% $Id: dft.tex,v 1.97 2008-12-07 16:12:29 jhammond Exp $ 
 %
 \label{sec:dft}
 
@@ -134,6 +134,9 @@ the DFT module are:
   DECOMP
   ODFT
   DIRECT
+  SEMIDIRECT [filesize <integer filesize default disksize>]
+             [memsize  <integer memsize default available>]
+             [filename <string filename default $file_prefix.aoints$>]
   INCORE
   ITERATIONS <integer iterations default 30>
   MAX_OVL
@@ -1483,9 +1486,12 @@ This option sets all tolerances to their
 default/user specified values at the very first iteration.
 
 
-\section{{\tt DIRECT} and {\tt NOIO} --- Hardware Resource Control}
+\section{{\tt DIRECT}, {\tt SEMIDIRECT} and {\tt NOIO} --- Hardware Resource Control}
 \begin{verbatim}
   DIRECT||INCORE
+  SEMIDIRECT [filesize <integer filesize default disksize>]
+             [memsize  <integer memsize default available>]
+             [filename <string filename default $file_prefix.aoints$>]
   NOIO
 \end{verbatim}
 
@@ -1501,11 +1507,16 @@ as follows,
 \end{verbatim}
 If this keyword is encountered, then the two matrices (inverted
 charge-density and exchange-correlation) are computed ``on-the-fly''
-whenever needed.  
+whenever needed. 
 
 The \verb+INCORE+ option is always assumed to be true but can be
 overridden with the option \verb+DIRECT+ in which case all integrals
 are computed ``on-the-fly''.
+
+The \verb+SEMIDIRECT+ option controls caching of integrals.  A full 
+description of this option is described in User Manual~\ref{sec:max}.
+Some functionality which is only compatible with the \verb+DIRECT+
+option will not, at present, work when using \verb+SEMIDIRECT+.
 
 \fussy
 
