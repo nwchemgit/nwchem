@@ -2,7 +2,11 @@ echo
 
 start dft_semidirect
 
-memory total 500 mb
+memory stack 700 mb heap 300 mb global 500 mb
+
+# do calculation with direct for comparison
+
+set int:txs:limxmem 30000000
 
 geometry units bohr
   symmetry c2v
@@ -16,17 +20,86 @@ end
 
 dft
   xc b3lyp
+  convergence energy 1e-8 density 1e-7 gradient 1e-7
   direct
 end
 
-task dft optimize
-task dft frequencies
+driver
+  tight
+end
 
-dft
-  xc b3lyp
-  semidirect memsize 51200000 filesize 0 # use 400 mb of memory and no disk
+tddft
+  nroots 4
 end
 
 task dft optimize
 task dft frequencies
+task tddft energy
+
+# reset all settings and test new method of semidirect input
+
+set int:txs:limxmem 30000000
+
+geometry units bohr
+  symmetry c2v
+  F     0.00000000     0.00000000     1.7328795
+  H     0.00000000     0.00000000     0.0000000
+end
+
+basis spherical
+  * library aug-cc-pvqz
+end
+
+dft
+  xc b3lyp
+  convergence energy 1e-8 density 1e-7 gradient 1e-7
+  semidirect memsize 51200000 filesize 0 # use 400 mb of memory and no disk
+end
+
+driver
+  tight
+end
+
+tddft
+  nroots 4
+end
+
+task dft optimize
+task dft frequencies
+task tddft energy
+
+# reset all settings and test old method of semidirect input
+
+set int:txs:limxmem 30000000
+
+geometry units bohr
+  symmetry c2v
+  F     0.00000000     0.00000000     1.7328795
+  H     0.00000000     0.00000000     0.0000000
+end
+
+basis spherical
+  * library aug-cc-pvqz
+end
+
+scf
+  semidirect memsize 51200000 filesize 0 # use 400 mb of memory and no disk
+end
+
+dft
+  xc b3lyp
+  convergence energy 1e-8 density 1e-7 gradient 1e-7
+end
+
+driver
+  tight
+end
+
+tddft
+  nroots 4
+end
+
+task dft optimize
+task dft frequencies
+task tddft energy
 
