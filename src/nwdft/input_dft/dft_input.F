@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.49 2008-12-01 19:35:21 niri Exp $
+c     $Id: dft_input.F,v 1.50 2008-12-07 16:00:43 jhammond Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -28,7 +28,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 29)
+      parameter (num_dirs = 30)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -41,16 +41,17 @@ c
       double precision smear_sigma
       double precision shift
       integer nel_fon(2),nmo_fon(2),ispin
-      data dirs /'convergence', 'decomp', 'dft', 'direct', 'ecp', 
-     $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
-     $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
-     $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'sic', 
+      data dirs /'convergence','decomp','dft','direct','semidirect',
+     $           'ecp','grid','vectors','incore','iterations', 
+     $           'max_ovl','mulliken','mult','noio','noprint','odft', 
+     $           'print','tolerances', 'xc','sym','adapt','sic', 
      $           'smear','fon','lb94','cs00','cdft','cam','disp','end'/
 c Qin / cdft
       integer nconstr
       integer dtype(max_constr), iatms1(max_constr), fatms1(max_constr)
       integer iatms2(max_constr), fatms2(max_constr)
       double precision constr(max_constr)
+      integer memsize, filesize
       nconstr = 0
 c Qin / end
 c
@@ -76,9 +77,9 @@ c
      $     call errquit('dft_input: unknown directive', 0,
      &       INPUT_ERR)
 c     
-      goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
-     $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
-     $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
+      goto (100,  200,  300,  400,  450,  500,  600,  700,  800,
+     $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
+     $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
      $     2700, 2800, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
@@ -107,16 +108,56 @@ c
 c     direct;
 c             
   400 direct = .true.
-      if (.not. rtdb_put(rtdb, 'dft:direct', mt_log, 1, direct))
-     &   call errquit('dft_input: rtdb_put failed', 400, RTDB_ERR)
-         if (.not. rtdb_put(rtdb,'int2e:filesize', mt_int, 1, -1))
-     $        call errquit('dft_input: failed to store filesize',0,
-     &       RTDB_ERR)
-         if (.not. rtdb_put(rtdb,'int2e:memsize', mt_int, 1, -1))
-     $        call errquit('dft_input: failed to store filesize',0,
-     &       RTDB_ERR)
+      filesize = -1
+      memsize  = -1
+      if (.not. rtdb_put(rtdb, 'dft:direct',mt_log,1,direct))
+     &   call errquit('dft_input: rtdb_put failed',400,RTDB_ERR)
+         if (.not. rtdb_put(rtdb,'int2e:filesize',mt_int,1,filesize))
+     $        call errquit('dft_input: failed to store filesize',401,
+     &                     RTDB_ERR)
+         if (.not. rtdb_put(rtdb,'int2e:memsize',mt_int,1,memsize))
+     $        call errquit('dft_input: failed to store filesize',402,
+     &                     RTDB_ERR)
 c
       goto 10
+c
+c     semidirect;
+c
+  450 direct = .false.
+c
+c     this part is copied directly from ddscf/scf_input.F
+c
+         filesize = -33
+         memsize  = -33
+ 3601    if (inp_a(test)) then
+            if (inp_compare(.false., test, 'filesize')) then
+               if (.not. inp_i(filesize)) goto 3602
+            else if (inp_compare(.false., test, 'memsize')) then
+               if (.not. inp_i(memsize)) goto 3602
+            else if (inp_compare(.false., test, 'filename')) then
+               if (.not. inp_a(test)) goto 3602
+               if (.not. rtdb_cput(rtdb, 'int2e:filename', 1, test))
+     $              call errquit('dft_input: bad int2e:filename',450,
+     $                           RTDB_ERR)
+            else
+               goto 3602
+            endif
+            goto 3601
+         endif
+         call inp_clear_err()
+c
+c     User should see a value of zero meaning zero not use default
+c
+         if (filesize.eq.0) filesize = -1
+         if (memsize.eq.0) memsize = -1
+         if (filesize.eq.-33) filesize=0
+         if (memsize.eq.-33) memsize=0
+         if (.not. rtdb_put(rtdb,'int2e:filesize', mt_int, 1, filesize))
+     $        call errquit('scf_input: failed to store filesize',0,
+     &       RTDB_ERR)
+         if (.not. rtdb_put(rtdb,'int2e:memsize', mt_int, 1, memsize))
+     $        call errquit('scf_input: failed to store filesize',0,
+     &       RTDB_ERR)
 c
 c     ecp;
 c             
@@ -435,5 +476,11 @@ c
 10001 format(/' fon [alpha|beta] orbitals <norb> electrons <nelec>'/)
       call util_flush(6)
       call errquit('vectors_input: invalid format', 0, INPUT_ERR)
+c
+c     for semidirect
+c
+ 3602 call errquit('semi-direct [filesize <integer filesize'//
+     $     ' = disksize>] [memsize <integer memsize = available>]'//
+     $     ' [filename <string filename>] ',450,INPUT_ERR)
 c       
       end
