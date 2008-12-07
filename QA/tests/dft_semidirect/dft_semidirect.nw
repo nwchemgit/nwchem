@@ -1,0 +1,32 @@
+echo
+
+start dft_semidirect
+
+memory total 500 mb
+
+geometry units bohr
+  symmetry c2v
+  F     0.00000000     0.00000000     1.7328795
+  H     0.00000000     0.00000000     0.0000000
+end
+
+basis spherical
+  * library aug-cc-pvqz
+end
+
+dft
+  xc b3lyp
+  direct
+end
+
+task dft optimize
+task dft frequencies
+
+dft
+  xc b3lyp
+  semidirect memsize 51200000 filesize 0 # use 400 mb of memory and no disk
+end
+
+task dft optimize
+task dft frequencies
+
