@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.154 2008-12-07 16:18:23 jhammond Exp $
+c $Id: tce_energy.F,v 1.155 2008-12-07 16:19:52 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -8703,12 +8703,12 @@ c 9126 format(1x,'imaxsize = ',2x,i6)
      2  1x,'Iterations converged')
  9420 format(1x,i4,f25.13,2f8.1)
  9430 format(/,1x,A,' dipole moments / hartree & Debye',/,
-     1  1x,'--------------------------------',/
+     1  1x,'------------------------------------',/
      2  1x,'  X   ',2f15.7,/
      3  1x,'  Y   ',2f15.7,/
      4  1x,'  Z   ',2f15.7,/
      5  1x,'Total ',2f15.7,/
-     5  1x,'--------------------------------')
+     5  1x,'------------------------------------')
  9431 format(/,1x,'Frequency = ',f15.7,' / au')
 c
 c     Ordering in mptval (from defNxyz):
