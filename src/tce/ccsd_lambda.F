@@ -163,6 +163,7 @@ c
       integer size_l1,size_l2
       double precision cpu, wall
       double precision dipole_scf(3),dipole_cor(3)
+      double precision dipole_scf_t ,dipole_cor_t
       double precision cdipole
       double precision debye,buck,octo
       parameter (octo=0.711688d0)
@@ -190,15 +191,23 @@ c
         call deletefile(d_d0)
       enddo
 #if defined(NEWDIPOLE)
+      dipole_scf_t = dsqrt( dipole_scf(1)*dipole_scf(1) +
+     1                      dipole_scf(2)*dipole_scf(2) +
+     2                      dipole_scf(3)*dipole_scf(3) )
       if (nodezero) write(LuOut,9430) "SCF",
      1              dipole_scf(1),dipole_scf(1)*debye,
      2              dipole_scf(2),dipole_scf(2)*debye,
-     3              dipole_scf(3),dipole_scf(3)*debye
+     3              dipole_scf(3),dipole_scf(3)*debye,
+     4              dipole_scf_t ,dipole_scf_t*debye
 #endif
+      dipole_cor_t = dsqrt( dipole_cor(1)*dipole_cor(1) +
+     1                      dipole_cor(2)*dipole_cor(2) +
+     2                      dipole_cor(3)*dipole_cor(3) )
       if (nodezero) write(LuOut,9430) "CCSD",
      1              dipole_cor(1),dipole_cor(1)*debye,
      2              dipole_cor(2),dipole_cor(2)*debye,
-     3              dipole_cor(3),dipole_cor(3)*debye
+     3              dipole_cor(3),dipole_cor(3)*debye,
+     4              dipole_cor_t ,dipole_cor_t*debye
 #if defined(NEWDIPOLE)
       if (multipole.ge.2) then
         do axis=1,6
@@ -268,10 +277,11 @@ c
       return
  9430 format(/,1x,A,' dipole moments / hartree & Debye',/,
      1  1x,'--------------------------------',/
-     2  1x,'X ',2f15.7,/
-     3  1x,'Y ',2f15.7,/
-     4  1x,'Z ',2f15.7,/
-     5  1x,'--------------------------------')
+     2  1x,'  X   ',2f15.7,/
+     3  1x,'  Y   ',2f15.7,/
+     4  1x,'  Z   ',2f15.7,/
+     5  1x,'Total ',2f15.7,/
+     6  1x,'--------------------------------')
  9432 format(/,1x,A,' quadrupole moments / hartree & Buckingham',/,
      1  1x,'--------------------------------',/
      2  1x,'XX ',2f15.7,/

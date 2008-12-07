@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.153 2008-11-12 16:45:11 jhammond Exp $
+c $Id: tce_energy.F,v 1.154 2008-12-07 16:18:23 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -22,7 +22,7 @@ c
 #include "tce_diis.fh"
 #include "tce_prop.fh"
 #include "tce_restart.fh"
-#include "paw_params.fh"
+c#include "paw_params.fh"
 c
 c     CI, CC, & MBPT
 c
@@ -246,7 +246,9 @@ c
       integer size_o0          ! File size in doubles
       integer axis             ! X=1, Y=2, & Z=3
       double precision dipole_scf(3)     ! Dipole moment
+      double precision dipole_scf_t      ! Dipole moment
       double precision dipole_cor(3)     ! Dipole moment
+      double precision dipole_cor_t      ! Dipole moment
       double precision dipole_exc(3)     ! Dipole moment
       double precision cdipole           ! Dipole moment correlation
       double precision quadrupole_scf(6) ! Quadrupole moment
@@ -495,6 +497,8 @@ c
       parameter (auXnm=45.563353d0)
       parameter (au2ang=5.29177249d-01)
       parameter (au2ang3=au2ang*au2ang*au2ang)
+      double precision pi
+      parameter(pi = 3.14159265358979323846264338327950288419D0)
       character*255 modelname
 c
 c     Fragment extension
@@ -520,6 +524,7 @@ c
 c
 c     TCE restart precludes SCF calculation
 c
+      tce_skip_scf = .false.
       if (.not.rtdb_get(rtdb,'tce:read_integrals',mt_log,5,
      1         read_integrals)) then
         read_integrals(1)=.false. ! 1-e integrals
@@ -616,10 +621,14 @@ c
         call tce_aod1(rtdb,g_aod1,dipole_scf)
         cpu = cpu + util_cpusec()
         wall = wall + util_wallsec()
+        dipole_scf_t = dsqrt( dipole_scf(1)*dipole_scf(1) +
+     1                        dipole_scf(2)*dipole_scf(2) +
+     2                        dipole_scf(3)*dipole_scf(3) )
         if (nodezero.and.util_print('mod1',print_default)) then
           write(LuOut,9430) "SCF",dipole_scf(1),dipole_scf(1)*debye,
      1                            dipole_scf(2),dipole_scf(2)*debye,
-     2                            dipole_scf(3),dipole_scf(3)*debye
+     2                            dipole_scf(3),dipole_scf(3)*debye,
+     3                            dipole_scf_t ,dipole_scf_t*debye
           write(LuOut,*)
           write(LuOut,9020) cpu, wall
           call util_flush(LuOut)
@@ -3237,10 +3246,14 @@ c -------------
               dipole_cor(axis)=dipole_scf(axis)+cdipole
               call deletefile(d_d0)
             enddo
+            dipole_cor_t = dsqrt( dipole_cor(1)*dipole_cor(1) +
+     1                            dipole_cor(2)*dipole_cor(2) +
+     2                            dipole_cor(3)*dipole_cor(3) )
             if (nodezero) write(LuOut,9430) "CCSDT",
      1                    dipole_cor(1),dipole_cor(1)*debye,
      2                    dipole_cor(2),dipole_cor(2)*debye,
-     3                    dipole_cor(3),dipole_cor(3)*debye
+     3                    dipole_cor(3),dipole_cor(3)*debye,
+     4                    dipole_cor_t ,dipole_cor_t*debye
 ccc            goto 2010
             goto 2337
           endif
@@ -5094,10 +5107,14 @@ c -------------
               dipole_cor(axis)=dipole_scf(axis)+cdipole
               call deletefile(d_d0)
             enddo
+            dipole_cor_t = dsqrt( dipole_cor(1)*dipole_cor(1) +
+     1                            dipole_cor(2)*dipole_cor(2) +
+     2                            dipole_cor(3)*dipole_cor(3) )
             if (nodezero) write(LuOut,9430) "CCSDTQ",
      1                    dipole_cor(1),dipole_cor(1)*debye,
      2                    dipole_cor(2),dipole_cor(2)*debye,
-     3                    dipole_cor(3),dipole_cor(3)*debye
+     3                    dipole_cor(3),dipole_cor(3)*debye,
+     4                    dipole_cor_t ,dipole_cor_t*debye
 c            goto 100
             goto 2437
           endif
@@ -8687,9 +8704,10 @@ c 9126 format(1x,'imaxsize = ',2x,i6)
  9420 format(1x,i4,f25.13,2f8.1)
  9430 format(/,1x,A,' dipole moments / hartree & Debye',/,
      1  1x,'--------------------------------',/
-     2  1x,'X ',2f15.7,/
-     3  1x,'Y ',2f15.7,/
-     4  1x,'Z ',2f15.7,/
+     2  1x,'  X   ',2f15.7,/
+     3  1x,'  Y   ',2f15.7,/
+     4  1x,'  Z   ',2f15.7,/
+     5  1x,'Total ',2f15.7,/
      5  1x,'--------------------------------')
  9431 format(/,1x,'Frequency = ',f15.7,' / au')
 c
