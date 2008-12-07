@@ -1,6 +1,6 @@
       double precision function ddotfile(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.7 2008-10-05 02:59:09 jhammond Exp $
+c $Id: ddotfile.F,v 1.8 2008-12-07 22:37:59 jhammond Exp $
 c
 c     Vector inner product of two files of the same size
 c
@@ -96,7 +96,7 @@ cc          next = NXTVAL(nprocs)
 cc      next = NXTVAL(-nprocs)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
-      if (.not.noloadbalance) call ga_dgop(msg_tcemem,ddotfile,1,'+')
+      if (.not.noloadbalance) call ga_dgop(mt_dbl,ddotfile,1,'+')
       if (.not.d_1isga) call gatodra(d_1)
       if ((.not.d_2isga).and.(d_1.ne.d_2)) call gatodra(d_2)
       if (.not.ma_pop_stack(l_temp2))
@@ -113,7 +113,7 @@ c
 c
       double precision function ddotfile_1(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.7 2008-10-05 02:59:09 jhammond Exp $
+c $Id: ddotfile.F,v 1.8 2008-12-07 22:37:59 jhammond Exp $
 c
 c     Vector inner product of two files of the same size
 c
@@ -217,7 +217,7 @@ cc          next = NXTVAL(nprocs)
 cc      next = NXTVAL(-nprocs)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
-      if (.not.noloadbalance) call ga_dgop(msg_tcemem,ddotfile_1,1,'+')
+      if (.not.noloadbalance) call ga_dgop(mt_dbl,ddotfile_1,1,'+')
       if (.not.d_1isga) call gatodra(d_1)
       if ((.not.d_2isga).and.(d_1.ne.d_2)) call gatodra(d_2)
       if (.not.ma_pop_stack(l_temp2))
@@ -237,7 +237,7 @@ c
 c
       double precision function ddotfile_2(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.7 2008-10-05 02:59:09 jhammond Exp $
+c $Id: ddotfile.F,v 1.8 2008-12-07 22:37:59 jhammond Exp $
 c
 c     Vector inner product of two files of the same size
 c
@@ -341,7 +341,7 @@ cc          next = NXTVAL(nprocs)
 cc      next = NXTVAL(-nprocs)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
-      if (.not.noloadbalance) call ga_dgop(msg_tcemem,ddotfile_2,1,'+')
+      if (.not.noloadbalance) call ga_dgop(mt_dbl,ddotfile_2,1,'+')
       if (.not.d_1isga) call gatodra(d_1)
       if ((.not.d_2isga).and.(d_1.ne.d_2)) call gatodra(d_2)
       if (.not.ma_pop_stack(l_temp2))

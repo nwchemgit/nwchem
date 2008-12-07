@@ -1,6 +1,6 @@
       subroutine tce_tile_new(rtdb)
 c
-c $Id: tce_tile_new.F,v 1.2 2008-03-12 21:34:18 jhammond Exp $
+c $Id: tce_tile_new.F,v 1.3 2008-12-07 22:37:57 jhammond Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -52,7 +52,7 @@ c
       nodezero = (ga_nodeid().eq.0)
       ga_dble = dfloat(ga_memory_avail()) / dfloat(bytes)
       ma_dble = dfloat(ma_inquire_avail(mt_dbl))
-      call ga_dgop(msg_tcemem,ga_dble,1,'+')
+      call ga_dgop(mt_dbl,ga_dble,1,'+')
       if (ga_uses_ma()) then
         available = int(ga_dble)/2
       else

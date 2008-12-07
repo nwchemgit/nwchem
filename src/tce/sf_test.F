@@ -1,6 +1,6 @@
       subroutine sf_test
 c
-c $Id: sf_test.F,v 1.13 2008-01-14 15:20:32 jhammond Exp $
+c $Id: sf_test.F,v 1.14 2008-12-07 22:37:58 jhammond Exp $
 c
       implicit none
 #include "global.fh"
@@ -69,7 +69,7 @@ c     Performance
 c
       ga_dble = dfloat(ga_memory_avail()) / dfloat(bytes)
       ma_dble = dfloat(ma_inquire_avail(mt_dbl))
-      call ga_dgop(msg_tcemem,ga_dble,1,'+')
+      call ga_dgop(mt_dbl,ga_dble,1,'+')
       if (ga_uses_ma()) then
         available = int(ga_dble)/2
       else
