@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.155 2008-12-07 16:19:52 jhammond Exp $
+c $Id: tce_energy.F,v 1.156 2008-12-08 19:14:16 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -1158,23 +1158,11 @@ c     1                             size_2e)
           call tce_mo2e_hybrid_2eorb_split(d_v2ga,d_v2sf,
      1         kax_v2_alpha_offset)
         else if(fast2e.eq.13) then
-#ifdef SPECIAL2EMET
           call tce_mo2e_zones_4a_disk_ga_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-#else
-c          XXXXXXXXXXXXXXX
-          call tce_mo2e_zones_4a_disk_ga(rtdb,d_v2,
-     1                                  kax_v2_alpha_offset,size_2e)
-#endif
         else if(fast2e.eq.14) then
-#ifdef SPECIAL2EMET
           call  tce_mo2e_zones_4a_disk_ga_chop_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-#else
-c          XXXXXXXXXXXXXXX
-          call  tce_mo2e_zones_4a_disk_ga_chop(rtdb,d_v2,
-     1                                  kax_v2_alpha_offset,size_2e)
-#endif
         else
           write(LuOut,9123)fast2e
           call errquit('tce_energy: invalid 2emet: ',fast2e,CALC_ERR)
