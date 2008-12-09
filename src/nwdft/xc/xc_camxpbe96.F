@@ -19,7 +19,7 @@ c
      &                        qwght,ldew,func)
 #endif
 c
-c$Id: xc_camxpbe96.F,v 1.2 2008-12-09 01:21:07 niri Exp $
+c$Id: xc_camxpbe96.F,v 1.3 2008-12-09 01:42:28 niri Exp $
 c
       implicit none
 c
@@ -258,7 +258,7 @@ c
             C2tmp = (rho13*d1g(2) + rho43*d2g(2))*fac
             C3tmp = rho43*d2g(3)*fac*0.5d0
 c
-            call xc_att_xc_d2(rho(n,1),ipol,Etmp,Atmp,Ctmp,A2tmp,
+            call xc_att_xc_d2(rho(n,2),ipol,Etmp,Atmp,Ctmp,A2tmp,
      &           C2tmp,C3tmp)
             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp
