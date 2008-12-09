@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.98 2008-11-13 17:01:31 jhammond Exp $
+#$Id: GNUmakefile,v 1.99 2008-12-09 18:37:00 jhammond Exp $
 #
 
 SUBDIRS = include diis diis2 diis3 gradients \
@@ -73,6 +73,8 @@ OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       ccsd_energy_loc.o cc2_energy.o ccsd_lambda.o ccsd_imaginary.o ccsd_lr_alpha.o \
       ccsd_qr_beta.o
 
+OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
+
 ifdef SPAGHETTYSORT
       OBJ_OPTIMIZE += tce_sort0.o tce_sort2_saday.o tce_sort4_jeff.o tce_sort6.o tce_sort8.o \
                       tce_sortacc_saday.o tce_sortacc8.o 
@@ -90,10 +92,6 @@ else
       OBJ_OPTIMIZE += tce_eom_xguess.o tce_eom_yguess.o
 endif
 
-ifdef SPECIAL2EMET
-      OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
-      LIB_DEFINES += -DSPECIAL2EMET
-endif
 
 ifdef MA_TRANS_BLOCKED
       OBJ_OPTIMIZE += ma_transpose_blocked.o
