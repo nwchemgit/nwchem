@@ -1,6 +1,6 @@
       subroutine reconcilefile(d_sf,size)
 c
-c $Id: reconcilefile.F,v 1.9 2008-01-14 15:20:32 jhammond Exp $
+c $Id: reconcilefile.F,v 1.10 2008-12-11 20:20:38 jhammond Exp $
 c
 c     Accumulate local distributed files and update all files
 c     with the one accumulated file
@@ -36,6 +36,11 @@ c
         if (parallel) call ga_sync()
       else if (ioalg.eq.2) then
         if (parallel) call ga_sync()
+        if ( 1 .eq. ga_is_mirrored(d_sf) ) then
+          if (util_print('reconcilefile',print_debug)) write(LuOut,*) 
+     1        'accumulating mirrored array across all nodes'
+          call ga_merge_mirrored(d_sf)
+        endif
       else if (ioalg.eq.3) then
         if (parallel) call ga_sync()
       else if ((ioalg.eq.4).or.
