@@ -1,4 +1,4 @@
-c $Id: tce_main.fh,v 1.19 2008-10-16 14:30:30 jhammond Exp $
+c $Id: tce_main.fh,v 1.20 2008-12-13 21:57:50 jhammond Exp $
 c
 c Include file for TCE module
 c
@@ -11,8 +11,6 @@ c
 c
 c      integer rtdb
 c      logical nodezero                       ! True if node 0
-c tce.fh < double precision cpu               ! CPU sec counter
-c tce.fh < double precision wall              ! WALL sec counter
 c      integer iter                           ! Iteration counter
 c      integer dummy                          ! Dummy argument for DIIS
 c      double precision residual              ! Largest residual

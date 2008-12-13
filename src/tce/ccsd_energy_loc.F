@@ -63,7 +63,10 @@ c
      &     call errquit('l_t1_local',2,MA_ERR)
         cpu=cpu+util_cpusec()
         wall=wall+util_wallsec()
-        if (nodezero) write(LuOut,9100) iter,residual,corr,cpu,wall
+        if (nodezero) then
+          write(LuOut,9100) iter,residual,corr,cpu,wall,cpusecs(37)
+c          write(LuOut,9101) cpusecs(37),cpusecs(38)
+        endif
         if (residual .lt. thresh) then
         if (nodezero) then
           write(LuOut,9060)
@@ -127,15 +130,20 @@ c
       call errquit('ccsd_energy_loc: maxiter exceeded',iter,CALC_ERR)
       return
  9050 format(/,1x,A,' iterations',/,
-     1  1x,'--------------------------------------------------------',/
-     2  1x,'Iter          Residuum       Correlation     Cpu    Wall',/
-     3  1x,'--------------------------------------------------------')
+     1  1x,'----------------------------',
+     2     '-------------------------------------',/
+     3  1x,'Iter          Residuum      ',
+     4     ' Correlation     Cpu    Wall    V2*C2',/
+     5  1x,'----------------------------',
+     6     '-------------------------------------')
  9060 format(
-     1  1x,'--------------------------------------------------------',/
-     2  1x,'Iterations converged')
+     1  1x,'----------------------------',
+     2     '-------------------------------------',/
+     3  1x,'Iterations converged')
  9070 format(1x,A,' correlation energy / hartree = ',f25.15)
  9080 format(1x,A,' total energy / hartree       = ',f25.15)
  9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
- 9100 format(1x,i4,2f18.13,2f8.1)
+ 9100 format(1x,i4,2f18.13,3f8.1)
+ 9101 format(11x,'ccsd_t2_8 ',20x,2f8.1)
       end
 
