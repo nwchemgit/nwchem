@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.12 2008-05-16 00:39:54 bylaska Exp $
+* $Id: cpsp_stress.F,v 1.13 2008-12-13 01:34:26 bylaska Exp $
 *
 
 
@@ -336,7 +336,8 @@
 *         **** structure factor and local pseudopotential ****
           call cstrfac_pack(nb,ii,dcpl_mb(exi(1)))
           call cstrfac_k(ii,nb,cxr)
-          call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+c          call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+          call zscal(npack,cxr,dcpl_mb(exi(1)),1)
 
 
   

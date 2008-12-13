@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.68 2008-05-13 20:52:49 bylaska Exp $
+* $Id: cpsp.F,v 1.69 2008-12-13 01:34:26 bylaska Exp $
 *
 
 #define TCGMSG
@@ -763,7 +763,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *       **** structure factor pseudopotential ****
             call cstrfac_pack(nbq,ii,dcpl_mb(exi(1)))
             call cstrfac_k(ii,nbq,cxr)
-            call Cram_c_ZMul(nbq,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+c             call Cram_c_ZMul(nbq,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+            call zscal(npack,cxr,dcpl_mb(exi(1)),1)
 
 
 *          **** generate zsw1's and projectors ****
@@ -1066,7 +1067,8 @@ c      nbrill = brillioun_nbrillioun()
             call Cram_npack(nb,npack)
             call cstrfac_pack(nb,ii,dcpl_mb(exi(1)))
             call cstrfac_k(ii,nb,cxr)
-            call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+cc            call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+            call zscal(npack,cxr,dcpl_mb(exi(1)),1)
 
             do l=1,nproj
 
@@ -1124,7 +1126,7 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
 
 *           **** do Kleinman-Bylander Multiplication ****
             call dscal(2*nproj,scal,dcpl_mb(zsw2(1)),1)
-            call ZGEMM('N','C',npack1,1,nproj,
+            call ZGEMM('N','C',npack,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 dcpl_mb(zsw2(1)),   1,
@@ -1263,7 +1265,8 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
 *             **** structure factor ****
               call cstrfac_pack(nbq,ii,dcpl_mb(exi(1)))
               call cstrfac_k(ii,nbq,cxr)
-              call Cram_c_ZMul(nbq,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+c              call Cram_c_ZMul(nbq,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+              call zscal(npack,cxr,dcpl_mb(exi(1)),1)
 
               do l=1,nproj
 c                 shift = vnl(1)

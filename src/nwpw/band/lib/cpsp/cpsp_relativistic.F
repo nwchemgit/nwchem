@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.22 2008-03-07 23:54:55 d3p708 Exp $
+* $Id: cpsp_relativistic.F,v 1.23 2008-12-13 01:34:26 bylaska Exp $
 *
 
 
@@ -248,7 +248,8 @@ c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
             call Cram_npack(nb,npack)
             call cstrfac_pack(nb,ii,dcpl_mb(exi(1)))
             call cstrfac_k(ii,nb,cxr)
-            call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+c            call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+            call zscal(npack,cxr,dcpl_mb(exi(1)),1)
 
             do l=1,nproj
 
@@ -326,13 +327,13 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
 *           **** do Kleinman-Bylander Multiplication ****
             call dscal(2*nproj,scal,dcpl_mb(zsw2u(1)),1)
             call dscal(2*nproj,scal,dcpl_mb(zsw2d(1)),1)
-            call ZGEMM('N','C',npack1,1,nproj,
+            call ZGEMM('N','C',npack,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 dcpl_mb(zsw2u(1)),   1,
      >                 one,
      >                 orb2, npack1)
-            call ZGEMM('N','C',npack1,1,nproj,
+            call ZGEMM('N','C',npack,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 dcpl_mb(zsw2d(1)),   1,
@@ -463,7 +464,8 @@ cccccccccccccccccccccccccccccccccccccccccccc
 *       **** structure factor pseudopotential ****
            call cstrfac_pack(nb,ii,dcpl_mb(exi(1)))
            call cstrfac_k(ii,nb,cxr)
-           call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+c           call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+           call zscal(npack,cxr,dcpl_mb(exi(1)),1)
 
 
 *          **** generate zsw1's and projectors ****
@@ -699,7 +701,8 @@ c                    end do
             call Cram_npack(nb,npack)
             call cstrfac_pack(nb,ii,dcpl_mb(exi(1)))
             call cstrfac_k(ii,nb,cxr)
-            call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+c            call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+            call zscal(npack,cxr,dcpl_mb(exi(1)),1)
 
             do l=1,nproj
 
@@ -763,13 +766,13 @@ c     >                      +(ia-1)*npack1*vso_stride*nbrill
 *           **** do Kleinman-Bylander Multiplication ****
             call dscal(2*nproj,scal,dcpl_mb(zsw2u(1)),1)
             call dscal(2*nproj,scal,dcpl_mb(zsw2d(1)),1)
-            call ZGEMM('N','C',npack1,1,nproj,
+            call ZGEMM('N','C',npack,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 dcpl_mb(zsw2u(1)),   1,
      >                 one,
      >                 orb2, npack1)
-            call ZGEMM('N','C',npack1,1,nproj,
+            call ZGEMM('N','C',npack,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 dcpl_mb(zsw2d(1)),   1,
@@ -837,7 +840,8 @@ ccccccccccccccccccccccccccccccccccccccccc
 *       **** structure factor pseudopotential ****
       call cstrfac_pack(nb,ii,exi)
       call cstrfac_k(ii,nb,cxr)
-      call Cram_c_ZMul(nb,cxr,exi,exi)
+c      call Cram_c_ZMul(nb,cxr,exi,exi)
+      call zscal(npack,cxr,exi,1)
 *          **** generate zsw1's and projectors ****
       do 105 l=1,nproj
               vshiftu = cpsp_projector_get_ptr(
@@ -963,7 +967,8 @@ ccccccccccc
       call Cram_npack(nb,npack)
       call cstrfac_pack(nb,ii,exi)
       call cstrfac_k(ii,nb,cxr)
-      call Cram_c_ZMul(nb,cxr,exi,exi)
+c      call Cram_c_ZMul(nb,cxr,exi,exi)
+      call zscal(npack,cxr,exi,1)
 
       do l=1,nproj
               shiftu = cpsp_projector_get_ptr(
@@ -1012,14 +1017,14 @@ ccccccccccc
       call C3dB_Vector_SumAll((2*nproj),zsw1)
 
 *           **** do Kleinman-Bylander Multiplication ****
-      call ZGEMM('N','C',npack1,1,nproj,
+      call ZGEMM('N','C',npack,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 zsw1,   1,
      >                 one,
      >                 orb2, npack1)
 
-      call ZGEMM('N','C',npack1,1,nproj,
+      call ZGEMM('N','C',npack,1,nproj,
      >                 mone,
      >                 dcpl_mb(prjtmp(1)+nproj*npack1), npack1,
      >                 zsw1,   1,
@@ -1033,7 +1038,7 @@ ccccccccccccccccc
      >  exi,zsw1,psi,prtmp,xtmp,sum1,Gij,Gx,Gy,Gz,
      >  fx,fy,fz,weight,scal)
       implicit none
-      integer ia,ii,nproj,ne1,npack1,nb
+      integer ia,ii,nproj,ne1,npack1,nb,npack
       complex*16 exi(*),zsw1(*),psi(*),prtmp(*),cxr
       real*8 xtmp(*),sum1(*),fx,fy,fz,xx
       real*8 weight,scal,Gij(*),Gx(*),Gy(*),Gz(*)
@@ -1048,9 +1053,12 @@ ccccccccccc external
       external cpsp_projector_get_ptr
 cccccccccccccccccccccccccccccccccccccccccccc
 *             **** structure factor ****
+      call Cram_npack(nb,npack)
       call cstrfac_pack(nb,ii,exi)
       call cstrfac_k(ii,nb,cxr)
-      call Cram_c_ZMul(nb,cxr,exi,exi)
+c      call Cram_c_ZMul(nb,cxr,exi,exi)
+      call zscal(npack,cxr,exi,1)
+
       shifts=1+npack1*ne1
       do l=1,nproj
          vshiftu = cpsp_projector_get_ptr(
