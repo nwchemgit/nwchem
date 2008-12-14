@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.156 2008-12-08 19:14:16 jhammond Exp $
+c $Id: tce_energy.F,v 1.157 2008-12-14 00:59:03 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -33,7 +33,8 @@ c
       double precision wall    ! WALL sec counter
       integer g_ao1e(2)        ! GA handle for AO Fock matrices
       integer d_ao2e           ! SF handle for AO 2e integrals
-      integer d_f1             ! SF handle for MO 1e integrals
+      integer d_f1,d_f1temp    ! SF handle for MO 1e integrals
+      integer k_f1temp,l_f1temp
       integer l_f1_offset      ! Offset for 1e integral file
       integer k_f1_offset      ! Offset for 1e integral file
       integer size_1e          ! File size in doubles
@@ -876,6 +877,43 @@ c       write(LuOut,9090) '1-e',d_f1
         write(LuOut,9020) cpu, wall
         call util_flush(LuOut)
       endif
+#ifdef MIRROR_FOCK
+      if (nodezero) write(LuOut,*) 'Mirroring Fock matrix'
+c
+c     allocate space for local copy
+c
+      if (.not.ma_push_get(mt_dbl,size_1e,'f1temp',l_f1temp,k_f1temp))
+     1    call errquit('tce_energy: MA problem',3737,MA_ERR)
+c
+c     make a mirror GA for Fock matrix
+c
+      call tce_filename('f1temp',filename)
+      call createfile_mirror(filename,d_f1temp,size_1e)
+c
+c     copy the entire distributed GA to local buffer
+c
+      call ga_get(d_f1,1,size_1e,1,1,dbl_mb(k_f1temp),1)
+      call ga_sync()
+c
+c     put it back in the mirrored GA
+c
+      call ga_put(d_f1temp,1,size_1e,1,1,dbl_mb(k_f1temp),1)
+      call ga_sync() ! no need to merge_mirrored since copying entire array
+c
+c     delete the distributed version
+c
+      if (.not.ga_destroy(d_f1))
+     1    call errquit('tce_energy: GA problem',3737,GA_ERR)
+c
+c     delete local temporary space
+c
+      if (.not.ma_pop_stack(l_f1temp))
+     1  call errquit('tce_energy: MA problem',3737,MA_ERR)
+c
+c     reassign the handle so that it points to the mirrored GA
+c
+      d_f1 = d_f1temp
+#endif
 c
       io_v2=IOGA
 c
@@ -1277,9 +1315,16 @@ c -------
          call util_flush(LuOut)
         end if
 c -------------
+#ifdef MIRROR_SING
+        call createfile_mirror(filename,d_t1,size_t1)
+#else
         call createfile(filename,d_t1,size_t1)
+#endif
         if (.not.read_t(1)) then
           call tce_guess_t1(d_t1,k_t1_offset)
+#ifdef MIRROR_SING
+          call reconcilefile(d_t1)
+#endif
         elseif (read_t(1)) then
           call x1_restart_read(d_t1,k_t1_offset,size_t1,0,
      1                         handle_t1,irrep_t)
@@ -2031,10 +2076,17 @@ c -------------
 c -------------
 c CCSD    right
 c -------------
+#ifdef MIRROR_SING
+        call ccsd_energy_noloc(d_e,d_f1,d_v2,d_t1,d_t2,
+     1       k_e_offset,k_f1_offset,k_v2_offset,
+     2       k_t1_offset,k_t2_offset,
+     3       size_t1,size_t2,ref,corr)
+#else
         call ccsd_energy_loc(d_e,d_f1,d_v2,d_t1,d_t2,
      1       k_e_offset,k_f1_offset,k_v2_offset,
      2       k_t1_offset,k_t2_offset,
      3       size_t1,size_t2,ref,corr)
+#endif
 c -------------
 c CCSD    left
 c -------------
