@@ -1,6 +1,6 @@
       subroutine add_block(d_file,array,size,offset)
 c
-c $Id: add_block.F,v 1.12 2008-01-14 15:20:31 jhammond Exp $
+c $Id: add_block.F,v 1.13 2008-12-14 00:10:48 jhammond Exp $
 c
 c     This subroutine reads a section of a file and adds
 c     the content of an array to it and write it back to
@@ -185,4 +185,60 @@ c
       cpusecs(4) = cpusecs(4) + util_cpusec()
       cpusecs(54) = cpusecs(54) + util_wallsec()
       return
+      end
+
+
+
+
+
+
+
+
+
+
+
+
+      subroutine add_block_nb(d_file,array,size,offset,nbh)
+c
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+c
+      double precision array(size)
+      integer d_file
+      integer size
+      integer offset
+      integer nbh
+      logical parallel
+c
+      cpusecs(4) = cpusecs(4) - util_cpusec()
+      cpusecs(54) = cpusecs(54) - util_wallsec()
+c
+      parallel = (ga_nnodes().gt.1)
+c
+      if (util_print('add_block',print_debug)) then
+         write(LuOut,9000) ga_nodeid(),d_file,size,offset
+      endif
+c
+      if (offset .eq. -1)
+     1  call errquit('add_block_nb: illegal offset',0,UNKNOWN_ERR)
+c
+      if (ioalg.eq.2) then
+        call ga_nbacc(d_file,offset+1,offset+size,1,1,array,1,1.0d0,nbh)
+      else
+        call errquit('add_block_nb: only for GA!!!',911,MA_ERR)
+      endif
+c
+      cpusecs(4) = cpusecs(4) + util_cpusec()
+      cpusecs(54) = cpusecs(54) + util_wallsec()
+      return
+c
+ 9000 format(1x,'node',i3,' add_block_nb request to file:',i10,
+     1  ' size:',i10,' offset:',i10)
+c
       end
