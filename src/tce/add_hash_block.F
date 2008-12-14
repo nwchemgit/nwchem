@@ -1,6 +1,6 @@
       subroutine add_hash_block(d_file,array,size,hash,key)
 c
-c $Id: add_hash_block.F,v 1.2 2008-12-14 00:10:48 jhammond Exp $
+c $Id: add_hash_block.F,v 1.3 2008-12-14 01:04:48 jhammond Exp $
 c
       implicit none
       integer d_file
@@ -27,14 +27,13 @@ c
 c
       implicit none
 c
-      double precision array(size)
-c
       integer d_file
       integer size
       integer hash(*)
       integer key
       integer offset
       integer nbh
+      double precision array(size)
 c
       call tce_hash(hash,key,offset)
       call add_block_nb(d_file,array,size,offset,nbh)

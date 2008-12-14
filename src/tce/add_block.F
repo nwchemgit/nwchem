@@ -1,6 +1,6 @@
       subroutine add_block(d_file,array,size,offset)
 c
-c $Id: add_block.F,v 1.13 2008-12-14 00:10:48 jhammond Exp $
+c $Id: add_block.F,v 1.14 2008-12-14 01:04:48 jhammond Exp $
 c
 c     This subroutine reads a section of a file and adds
 c     the content of an array to it and write it back to
@@ -209,11 +209,11 @@ c
 #include "tce.fh"
 #include "tce_main.fh"
 c
-      double precision array(size)
       integer d_file
       integer size
       integer offset
       integer nbh
+      double precision array(size)
       logical parallel
 c
       cpusecs(4) = cpusecs(4) - util_cpusec()
