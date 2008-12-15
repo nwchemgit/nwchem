@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.24 2008-11-03 06:06:16 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.25 2008-12-15 21:12:46 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint_in,it_max,
      >                      wavefunction_filename,
@@ -81,6 +81,7 @@
       external     control_input_epsi
 
 
+      Etotal = 0.0d0
       oprint = oprint_in
 
       if ((taskid.eq.MASTER).and.oprint) call current_second(cpu1)
@@ -524,12 +525,12 @@ C     * write out the eigenvalues *
       if ((taskid.eq.MASTER).and.oprint) call current_second(cpu5)
 
 
+      if ((taskid.eq.MASTER).and.oprint) then
       t1 = cpu2 - cpu1
       t2 = cpu3 - cpu2
       t3 = cpu4 - cpu3
       t4 = cpu5 - cpu1
       av = t3/it_max
-      if ((taskid.eq.MASTER).and.oprint) then
       WRITE(*,*)
       WRITE(*,*) '----------------------'
       WRITE(*,*) 'Proglogue        : ',t1

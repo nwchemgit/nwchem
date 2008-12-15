@@ -1,3 +1,6 @@
+*
+*     $Id: cell.F,v 1.2 2008-12-15 21:03:03 bylaska Exp $
+*
 
 *     ***************************
 *     *                         *
@@ -167,7 +170,7 @@ c      end
          lvector(6) = c*cos(alpha) 
      >              + c*cos(alpha)*(cos(gamma)/sin(gamma))**2
 
-      else if ((i.eq.2).and.(v.eq.3)) then
+      else if ((i.eq.2).and.(j.eq.3)) then
          lvector(3) = dcos(gamma)
          lvector(6) = -c*dsin(gamma)
 

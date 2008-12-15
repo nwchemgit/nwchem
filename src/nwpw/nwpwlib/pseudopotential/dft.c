@@ -1,7 +1,6 @@
-/*
- $Id: dft.c,v 1.6 2008-01-29 23:09:15 d3p708 Exp $
-   dft.c -
+/* dft.c -
    Author - Eric Bylaska
+ $Id: dft.c,v 1.7 2008-12-15 21:08:40 bylaska Exp $
 
 */
 

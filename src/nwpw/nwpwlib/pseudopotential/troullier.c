@@ -1,5 +1,7 @@
 /* troullier.c -
    Author - Eric Bylaska
+   $Id: troullier.c,v 1.9 2008-12-15 21:08:40 bylaska Exp $
+
 */
 
 #include	<stdio.h>
@@ -202,6 +204,7 @@ double	*pc_psp;
     al    = log_amesh_LogGrid();
     amesh = amesh_LogGrid();
 
+   eeig   = 0.0;
     Zion  = 0.0;
     for (k=0; k<Ngrid; ++k)
         rho_psp[k] = 0.0;

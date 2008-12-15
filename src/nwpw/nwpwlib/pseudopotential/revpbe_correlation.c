@@ -1,5 +1,7 @@
 /* revpbe_correlation.c
    Author - Eric Bylaska
+   $Id: revpbe_correlation.c,v 1.3 2008-12-15 21:08:40 bylaska Exp $
+
 */
 #include	"loggrid.h"
 #include	"revpbe_correlation.h"

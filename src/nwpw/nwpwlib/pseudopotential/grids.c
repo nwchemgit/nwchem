@@ -1,7 +1,7 @@
-/*
- $Id: grids.c,v 1.2 2007-04-09 22:55:51 d3p708 Exp $
-   grid.c
+/* grid.c
    author - Eric Bylaska
+   $Id: grids.c,v 1.3 2008-12-15 21:08:40 bylaska Exp $
+
 */
 
 #include	<stdlib.h>
