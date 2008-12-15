@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.253 2008-10-10 19:36:40 niri Exp $
+# $Id: make_nwchem_config,v 1.254 2008-12-15 23:21:25 bylaska Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -71,7 +71,7 @@ EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          optim stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft tce vscf transport
+          optim stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft tce vscf
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver vib mcscf property dftgrad selci dplot \
            mp2_grad esp etrans tddft vscf
@@ -79,7 +79,7 @@ EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
            optim driver analyz diana
 #plane_wave ... broken? RJH
 EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          optim stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft vscf transport
+          optim stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft vscf
 EXP_argos = prepar nwmd analyz diana ddscf nwdft gradients esp
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
 EXP_classical  = prepar nwmd analyz
