@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.64 2008-09-15 18:48:11 bylaska Exp $
+* $Id: cpsdv5.F,v 1.65 2008-12-17 19:00:27 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -943,7 +943,7 @@ c      call frac_occ_end()
  1043 FORMAT(10X,'*    developed by the group of Prof. John H. Weare *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ PSPW input data ===================')
- 1111 FORMAT(/' number of processors used:',I3)
+ 1111 FORMAT(/' number of processors used:',I10)
  1112 FORMAT( ' parallel mapping         : slab')
  1113 FORMAT( ' parallel mapping         : hilbert')
  1114 FORMAT( ' parallel mapping         : balanced')
