@@ -1,5 +1,5 @@
 *
-* $Id: cgmdv5.F,v 1.14 2008-11-03 06:06:14 bylaska Exp $
+* $Id: cgmdv5.F,v 1.15 2008-12-17 19:00:22 bylaska Exp $
 *
 
 ***********************************************************************
@@ -1032,7 +1032,7 @@ c      call frac_occ_end()
  1041 FORMAT(10X,'*    This code was developed by Eric J. Bylaska.   *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
- 1111 FORMAT(/' number of processors used:',I3)
+ 1111 FORMAT(/' number of processors used:',I10)
  1112 FORMAT( ' parallel mapping         : slab')
  1113 FORMAT( ' parallel mapping         : hilbert')
  1114 FORMAT( ' parallel mapping         : balanced')
