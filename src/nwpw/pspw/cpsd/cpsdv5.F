@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.65 2008-12-17 19:00:27 bylaska Exp $
+* $Id: cpsdv5.F,v 1.66 2008-12-18 21:15:48 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -834,7 +834,8 @@ c            write(luout,1706) E(18)
 *                |***************************|
 
 *     **** calculate spin contamination ****
-      call Calculate_psi_spin2(ispin,ne,npack1,dcpl_mb(psi2(1)),w)
+      call Calculate_psi_spin2(ispin,ne,npack1,dcpl_mb(psi2(1)),
+     >                         fractional,dbl_mb(occ2(1)),w)
 
 *     **** calculate the Dipole ***
       call Calculate_Dipole(ispin,ne,n2ft3d,dbl_mb(dn(1)),dipole)

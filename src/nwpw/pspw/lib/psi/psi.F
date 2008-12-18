@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.94 2008-11-17 17:25:45 bylaska Exp $
+* $Id: psi.F,v 1.95 2008-12-18 21:15:51 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.94  2008/11/17 17:25:45  bylaska
+* fractional occupation updates....EJB
+*
 * Revision 1.93  2008/10/22 23:56:43  bylaska
 * added NWCHEM_NWPW_LIBRARY to nwchemrc. fixed bug in paw...EJB
 *
@@ -4775,16 +4778,10 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
 #include "mafdecls.fh"
 #include "psi.fh"
 
-      call Calculate_psi_spin2(ispin,ne,npack1,dcpl_mb(psi1(1)),Sab)
-           
+      call Calculate_psi_spin2(ispin,ne,npack1,dcpl_mb(psi1(1)),
+     >                         occupation_on,dbl_mb(occ1(1)),Sab)
       return
       end
-
-
-
-
-
-
 
 *     ***********************************
 *     *					*

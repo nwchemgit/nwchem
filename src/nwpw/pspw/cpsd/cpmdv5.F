@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.74 2008-12-17 19:00:27 bylaska Exp $
+* $Id: cpmdv5.F,v 1.75 2008-12-18 21:15:48 bylaska Exp $
 *
 
 ***********************************************************************
@@ -1142,6 +1142,7 @@ c         end if
 
 *     **** calculate spin contamination ****
       call Calculate_psi_spin2(ispin,ne,npack1,dcpl_mb(psi2(1)),
+     >                         fractional,dbl_mb(occ2(1)),
      >                         dipole)
 
 *     **** calculate the Dipole ***
