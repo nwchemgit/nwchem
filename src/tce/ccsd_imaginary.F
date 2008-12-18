@@ -14,7 +14,6 @@
 #include "tce_main.fh"
 #include "tce_prop.fh"
 #include "tce_restart.fh"
-#include "paw_params.fh"
 c
       integer i,j,dummy,axis
       integer omegacount
@@ -32,6 +31,8 @@ c
       integer size_tr1(3),size_tr2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
+      double precision pi
+      parameter(pi = 3.14159265358979323846264338327950288419D0)
       double precision omega
       double precision threeoverpi
       parameter (threeoverpi=3.0d0/pi)
