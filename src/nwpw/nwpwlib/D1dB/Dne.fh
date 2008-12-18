@@ -1,5 +1,5 @@
 *
-* $Id: Dne.fh,v 1.6 2008-11-17 17:25:41 bylaska Exp $
+* $Id: Dne.fh,v 1.7 2008-12-18 21:15:16 bylaska Exp $
 *
 
       integer ne(2),neq(2),ispin
@@ -9,12 +9,21 @@
       integer taskid_i,taskid_j
       integer np_i,np_j
       integer comm_i,comm_j
+
+      !*** used for Ng x (ne(1)+ne(2)) matrices ***
       integer ma(2,NBLOCKS),ma1(2,NBLOCKS),na(2,NBLOCKS)
+
+      !*** used for ne(ms) x ne(ms) matrices ***
       integer mc(2,NBLOCKS),nc(2,NBLOCKS)
       integer mcq(NBLOCKS),ncq(NBLOCKS)
 
       integer m2c(2,NBLOCKS),n2c(2,NBLOCKS)
       integer m2cq(NBLOCKS),n2cq(NBLOCKS)
+
+      !*** used for ne(1) x ne(2) matrices ***
+      integer md(2),nd(2)
+      integer mdq,ndq
+
 
       integer work1(2),work2(2)
       integer rwork1(2),rwork2(2),bcolwork(2),bwork2(2)
@@ -23,6 +32,7 @@
       common    / Dne_sub / ma,ma1,na,mc,nc,
      >                      mcq,ncq,
      >                      m2c,n2c,m2cq,n2cq,
+     >                      md,nd,mdq,ndq,
      >                      work1,work2,
      >                      rwork1,rwork2,bcolwork,bwork2,
      >                      mat_tmp,
@@ -33,5 +43,6 @@
      >                      parallelized,mparallelized
 
       integer mpack(0:2),mall(0:2),mindx(2,0:2)
-      common / Dne_gathscat / mindx,mpack,mall
+      integer smpack,small,smindx(2)
+      common / Dne_gathscat / mindx,smindx,mpack,mall,smpack,small
 

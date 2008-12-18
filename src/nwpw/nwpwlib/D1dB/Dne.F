@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.21 2008-11-17 17:25:41 bylaska Exp $
+* $Id: Dne.F,v 1.22 2008-12-18 21:15:16 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -119,6 +119,35 @@
              end do
 
          end do
+
+         mdq = 0
+         ndq = 0
+         if ((ispin.eq.2).and.(ne(2).gt.0)) then
+            value = MA_alloc_get(mt_int,np_i,'md',md(2),md(1))
+            value = value.and.
+     >              MA_alloc_get(mt_int,np_j,'nd',nd(2),nd(1))
+            if (.not.value) then
+               call errquit('Dne_init: out of heap memory',1,MA_ERR)
+            end if
+            call icopy(np_i,0,0,int_mb(md(1)),1)
+            call icopy(np_j,0,0,int_mb(nd(1)),1)
+
+            i = 0
+            do k=1,ne(1)
+               int_mb(md(1)+i) = int_mb(md(1)+i) + 1
+               i = mod(i+1,np_i)
+            end do
+
+            j = 0
+            do k=1,ne(2)
+               int_mb(nd(1)+j) = int_mb(nd(1)+j) + 1
+               j = mod(j+1,np_j)
+            end do
+            mdq = int_mb(md(1)+taskid_i)
+            ndq = int_mb(nd(1)+taskid_j)
+         end if
+
+
          value = value.and.MA_alloc_get(mt_dbl,
      >                                  2*64*int_mb(ma(1,1)+taskid_i),
      >                                  'work1',work1(2),work1(1))
@@ -219,7 +248,38 @@
             end if
          end do
          end if
-          
+
+         if ((ispin.eq.2).and.(ne(2).gt.0)) then
+            nework = mdq*ndq
+            value = value.and.MA_alloc_get(mt_int,nework,
+     >                                 'smindx',smindx(2),smindx(1))
+            small  = ne(1)*ne(2)
+            smpack = mdq*ndq
+            indx2=0
+            jj   = 1
+            jcur = 0
+            do j=1,ne(2)
+               ii   = 1
+               icur = 0
+               do i=1,ne(1)
+               if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+                  int_mb(smindx(1)+indx2) = i+(j-1)*ne(1)
+                  indx2 = indx2 + 1
+               end if
+               ii = ii+1
+               if (ii.gt.int_mb(md(1)+icur)) then
+                  icur = icur + 1
+                  ii   = 1
+               end if
+               end do
+               jj = jj+1
+               if (jj.gt.int_mb(nd(1)+jcur)) then
+                  jcur = jcur + 1
+                  jj   = 1
+               end if
+            end do
+         end if
+
       end if
 
       return
@@ -254,6 +314,11 @@
             value = value.and.MA_free_heap(mc(2,ms))
             value = value.and.MA_free_heap(nc(2,ms))
          end do
+         if ((ispin.eq.2).and.(ne(2).gt.0)) then
+            value = value.and.MA_free_heap(md(2))
+            value = value.and.MA_free_heap(nd(2))
+            value = value.and.MA_free_heap(smindx(2))
+         end if
          value = value.and.MA_free_heap(work1(2))
          value = value.and.MA_free_heap(work2(2))
          value = value.and.MA_free_heap(bcolwork(2))
@@ -562,6 +627,70 @@ c     ****************************************
       Dneall_m_pop_stack = MA_pop_stack(hml(2))
       return
       end
+
+c
+c
+c
+c     ****************************************
+c     *                                      *
+c     *        Dneall_sm_size                *
+c     *                                      *
+c     ****************************************
+      subroutine Dneall_sm_size(size)
+      implicit none
+      integer size
+
+#include "Dne.fh"
+
+      if (mparallelized) then
+         size = mdq*ndq
+      else
+         size = ne(1)*ne(2)
+      end if
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_sm_push_get            *
+c     *                                      *
+c     ****************************************
+      logical function Dneall_sm_push_get(hml)
+      implicit none
+      integer hml(2)
+
+#include "Dne.fh"
+#include "mafdecls.fh"
+
+      integer size
+
+      if (mparallelized) then
+         size = mdq*ndq
+      else
+         size = ne(1)*ne(2)
+      end if
+
+      Dneall_sm_push_get = MA_push_get(mt_dbl,size,'hmls',hml(2),hml(1))
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_sm_pop_stack           *
+c     *                                      *
+c     ****************************************
+      logical function Dneall_sm_pop_stack(hml)
+      implicit none
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+      Dneall_sm_pop_stack = MA_pop_stack(hml(2))
+      return
+      end
+
+
 
 c     ****************************************
 c     *                                      *
@@ -1114,6 +1243,131 @@ c     ****************************************
       call nwpw_timing_end(15)
       return
       end
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_ffsm_Multiply          *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_ffsm_Multiply(A1,A2,npack1,hml)
+      implicit none
+      complex*16 A1(*),A2(*)
+      integer    npack1
+      real*8     hml(*)
+           
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,n,shift2,ishift2,shift
+
+      call nwpw_timing_start(15)
+      if (parallelized) then
+
+         if (mparallelized) then
+
+            if (ne(2).le.0) go to 20
+            shift  = 1 + neq(1)*npack1
+            call DMatrix_dgemm2(ne(1),ne(2),npack1_all,128,
+     >             2.0d0,
+     >             A1,       int_mb(ma(1,1)+taskid_i),
+     >                       int_mb(ma(1,1)),
+     >                       int_mb(na(1,1)),
+     >             A2(shift),int_mb(ma(1,2)+taskid_i),
+     >                       int_mb(ma(1,2)),
+     >                       int_mb(na(1,2)),
+     >             0.0d0,
+     >             hml,        int_mb(md(1)+taskid_i),
+     >                         int_mb(md(1)),
+     >                         int_mb(nd(1)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+            call DMatrix_dgemm2(ne(1),ne(2),nida1_all,128,
+     >             -1.0d0,
+     >             A1,       int_mb(ma(1,1)+taskid_i),
+     >                       int_mb(ma1(1,1)),
+     >                       int_mb(na(1,1)),
+     >             A2(shift),int_mb(ma(1,2)+taskid_i),
+     >                       int_mb(ma1(1,2)),
+     >                       int_mb(na(1,2)),
+     >             1.0d0,
+     >             hml,        int_mb(md(1)+taskid_i),
+     >                         int_mb(md(1)),
+     >                         int_mb(nd(1)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+  20        continue
+
+         else
+
+            if (ne(2).le.0) go to 21
+            shift  = 1 + neq(1)*npack1
+            call DMatrix_dgemm2(ne(1),ne(2),npack1_all,128,
+     >             2.0d0,
+     >             A1,       int_mb(ma(1,1)+taskid_i),
+     >                       int_mb(ma(1,1)),
+     >                       int_mb(na(1,1)),
+     >             A2(shift),int_mb(ma(1,2)+taskid_i),
+     >                       int_mb(ma(1,2)),
+     >                       int_mb(na(1,2)),
+     >             0.0d0,
+     >             dbl_mb(mat_tmp(1)),int_mb(md(1)+taskid_i),
+     >                                int_mb(md(1)),
+     >                                int_mb(nd(1)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+            call DMatrix_dgemm2(ne(1),ne(2),nida1_all,128,
+     >             -1.0d0,
+     >             A1,       int_mb(ma(1,1)+taskid_i),
+     >                       int_mb(ma1(1,1)),
+     >                       int_mb(na(1,1)),
+     >             A2(shift),int_mb(ma(1,2)+taskid_i),
+     >                       int_mb(ma1(1,2)),
+     >                       int_mb(na(1,2)),
+     >             1.0d0,
+     >             dbl_mb(mat_tmp(1)),int_mb(md(1)+taskid_i),
+     >                         int_mb(md(1)),
+     >                         int_mb(nd(1)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+            call Dneall_m_gather(small,smpack,int_mb(smindx(1)),
+     >                        dbl_mb(mat_tmp(1)),hml)
+
+  21        continue
+         end if
+         
+      else
+
+         shift  = 1+ne(1)*npack1
+         if (ne(2).le.0) go to 30
+
+         call Pack_ccmn_dot(1,ne(1),ne(2),
+     >                     A1,
+     >                     A2(shift),
+     >                     hml)
+  30        continue
+      end if
+
+      call nwpw_timing_end(15)
+      return
+      end
+
 
 
 
@@ -2830,6 +3084,37 @@ c     ****************************************
       end if
 
       Dneall_m_value = w
+      return
+      end
+
+
+
+      real*8 function  Dneall_sm_value(i,j,A)
+      implicit none
+      integer i,j
+      real*8  A(*)
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      real*8 w
+
+*     **** external functions ****
+      real*8   DMatrix_m_get_value
+      external DMatrix_m_get_value
+
+      w = 0.0d0
+      if (ne(2).gt.0)  then
+         if (mparallelized) then
+            w = DMatrix_m_get_value(i,j,A,
+     >                 mdq,int_mb(md(1)),int_mb(nd(1)))
+         else
+            w = A(i+(j-1)*ne(1))
+         end if
+      end if
+
+      Dneall_sm_value = w
       return
       end
 
