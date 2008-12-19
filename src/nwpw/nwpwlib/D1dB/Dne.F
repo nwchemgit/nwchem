@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.22 2008-12-18 21:15:16 bylaska Exp $
+* $Id: Dne.F,v 1.23 2008-12-19 00:41:58 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -149,13 +149,13 @@
 
 
          value = value.and.MA_alloc_get(mt_dbl,
-     >                                  2*64*int_mb(ma(1,1)+taskid_i),
+     >                                  2*2*64*int_mb(ma(1,1)+taskid_i),
      >                                  'work1',work1(2),work1(1))
 
          nework = 2*64*int_mb(nc(1,1)+taskid_j)
          if (nework.lt.mcq(1)*ncq(1)) nework = mcq(1)*ncq(1)
          value = value.and.MA_alloc_get(mt_dbl,
-     >                                  nework,
+     >                                  3*nework,
      >                                  'work2',work2(2),work2(1))
 
          value = value.and.MA_alloc_get(mt_dbl,
@@ -172,7 +172,7 @@
      >                              2*nework*int_mb(ma(1,1)+taskid_i),
      >                              'rwork2',rwork2(2),rwork2(1))
          nework = mcq(1)*ncq(1) + mcq(2)*ncq(2)
-         value = value.and.MA_alloc_get(mt_dbl,nework,
+         value = value.and.MA_alloc_get(mt_dbl,3*nework,
      >                              'mat_tmp',mat_tmp(2),mat_tmp(1))
 
          nework = mcq(1)*ncq(1) + mcq(2)*ncq(2)
@@ -5100,6 +5100,144 @@ c     ****************************************
          end do
       end if
 
+      return
+      end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dne_ffm_combo_sym_Multiply    *
+c     *                                      *
+c     ****************************************
+c
+c   warning - ms==0 not allowed
+
+      subroutine Dne_ffm_combo_sym_Multiply(ms,A1,A2,npack1,hml3)
+      implicit none
+      complex*16 A1(*),A2(*)
+      integer    ms,npack1
+      real*8     hml3(*)
+           
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer n,shift
+
+      call nwpw_timing_start(15)
+      if (parallelized) then
+
+         if (mparallelized) then
+            if (ne(ms).le.0) go to 20
+            shift  = 1 + (ms-1)*neq(1)*npack1
+            
+            call DMatrix_combo_dgemm2(ne(ms),ne(ms),npack1_all,128,
+     >             2.0d0,
+     >             A1(shift),A2(shift),
+     >                       int_mb(ma(1,ms)+taskid_i), 
+     >                       int_mb(ma(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             0.0d0,
+     >             hml3,        int_mb(mc(1,ms)+taskid_i), 
+     >                         int_mb(nc(1,ms)+taskid_j),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+            call DMatrix_combo_dgemm2(ne(ms),ne(ms),nida1_all,128,
+     >             -1.0d0,
+     >             A1(shift),A2(shift),
+     >                       int_mb(ma(1,ms)+taskid_i), 
+     >                       int_mb(ma1(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             1.0d0,
+     >             hml3,        int_mb(mc(1,ms)+taskid_i), 
+     >                         int_mb(nc(1,ms)+taskid_j),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+  20        continue
+
+         else
+
+            if (ne(ms).le.0) go to 21
+            shift  = 1 + (ms-1)*neq(1)*npack1
+            
+            call DMatrix_combo_dgemm2(ne(ms),ne(ms),npack1_all,128,
+     >             2.0d0,
+     >             A1(shift),A2(shift),
+     >                       int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             0.0d0,
+     >             dbl_mb(mat_tmp(1)),
+     >                         int_mb(mc(1,ms)+taskid_i),
+     >                         int_mb(nc(1,ms)+taskid_j),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+            call DMatrix_combo_dgemm2(ne(ms),ne(ms),nida1_all,128,
+     >             -1.0d0,
+     >             A1(shift),A2(shift),
+     >                       int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma1(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             1.0d0,
+     >             dbl_mb(mat_tmp(1)),
+     >                         int_mb(mc(1,ms)+taskid_i),
+     >                         int_mb(nc(1,ms)+taskid_j),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+  21        continue
+            call Dne_m_combo_gather(mall(ms),
+     >                        mpack(ms),int_mb(mindx(1,ms)),
+     >                        dbl_mb(mat_tmp(1)),hml3)
+
+         end if
+      else
+
+         if (ne(ms).le.0) go to 30
+         shift  = 1 + (ms-1)*ne(1)*npack1
+         call Pack_ccm_combo_sym_dot(1,ne(ms),
+     >                     A1(shift),
+     >                     A2(shift),
+     >                     hml3)
+
+  30     continue
+      end if
+      call nwpw_timing_end(15)
+      return
+      end
+
+      subroutine Dne_m_combo_gather(nall,npack,indx,A,B)
+      implicit none
+      integer nall,npack,indx(*)
+      real*8 A(npack,*),B(nall,*)
+      integer i
+      call dcopy(3*nall,0.0d0,0,B,1)
+      do i=1,npack
+         B(indx(i),1) = A(i,1)
+         B(indx(i),2) = A(i,2)
+         B(indx(i),3) = A(i,3)
+      end do  
+      call Parallel_Vector_SumAll(3*nall,B)
       return
       end
 

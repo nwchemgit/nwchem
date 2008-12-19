@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix-mpi.F,v 1.10 2008-06-23 01:00:01 bylaska Exp $
+* $Id: DMatrix-mpi.F,v 1.11 2008-12-19 00:42:03 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1831,4 +1831,177 @@ c     implicit none
       end
 
 
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *       DMatrix_combo_dgemm2      *
+*     *                                 *
+*     ***********************************
+      subroutine DMatrix_combo_dgemm2(m,n,k,nblock,
+     >                  alpha,
+     >                  A,B,lda,ma,na,
+     >                  beta,
+     >                  C,ldc,ldc2,mc,nc,
+     >                  taskid_i,taskid_j,
+     >                  np_i,np_j,
+     >                  comm_i, comm_j,
+     >                  work1,work2)
+      implicit none
+      integer m,n,k,nblock
+      real*8  alpha
+
+      integer lda,ma(*),na(*)
+      real*8  A(lda,*)
+      real*8  B(lda,*)
+
+      real*8  beta
+
+      integer ldc,ldc2,mc(*),nc(*)
+      real*8  C(ldc,ldc2,3)
+
+      integer taskid_i,taskid_j
+      integer np_i,np_j
+      integer comm_i,comm_j
+
+      real*8  work1(*),work2(*)
+
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+
+*     **** local variables ****
+      logical docalc1,docalc2
+      integer i,j,ii,jj
+      integer kk,iwrk,icur,jcur,ierr,shift,shft,shft2,shft3
+
+      do kk=1,3
+      do j=1,nc(taskid_j+1)
+         do i=1,mc(taskid_i+1)
+            C(i,j,kk) = beta*C(i,j,kk)
+         end do
+      end do
+      end do
+
+      ii = 0
+      jj = 0
+      kk = 0
+      icur = 0
+      jcur = 0
+c     **** loop over all row pannels of C ***
+      do while (kk.lt.m)
+         iwrk = min(nblock, mc(icur+1)-ii)
+         iwrk = min(iwrk,   na(jcur+1)-jj)
+
+
+*        **** iwrk*nc(taskid_j+1) submatrix !=0 ****
+         if (ma(taskid_i+1).gt.0) then
+
+            shft  = iwrk*ma(taskid_i+1)
+            shft2 = iwrk*nc(taskid_j+1)
+            shft3 = shft2+shft2
+
+*           **** pack current iwrk columns of A into work1 ***
+            if (taskid_j.eq.jcur) then
+               call dlacpy("G", ma(taskid_i+1),iwrk,
+     >                   A(1,jj+1), lda,
+     >                   work1,     ma(taskid_i+1))
+
+               call dlacpy("G", ma(taskid_i+1),iwrk,
+     >                   B(1,jj+1), lda,
+     >                   work1(1+shft),  ma(taskid_i+1))
+            end if
+
+c           **** broadcast work1  within my row ***
+#ifdef MPI4
+            stupid_msglen = 2*iwrk*ma(taskid_i+1)
+            stupid_taskid = jcur
+            call MPI_Bcast(work1,stupid_msglen,
+     >                     stupid_double,stupid_taskid,
+     >                     stupid_comm_j,stupid_ierr)
+#else
+            call MPI_Bcast(work1,2*iwrk*ma(taskid_i+1),
+     >                     MPI_DOUBLE_PRECISION,jcur,comm_j,ierr)
+#endif
+
+
+            if ((iwrk.gt.0)          .and.
+     >          (na(taskid_j+1).gt.0)) then
+
+              call dgemm('T','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
+     >                   alpha,
+     >                   work1, ma(taskid_i+1),
+     >                   A, lda,
+     >                   0.0d0,
+     >                   work2, iwrk)
+              call dgemm('T','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
+     >                   alpha,
+     >                   work1, ma(taskid_i+1),
+     >                   B, lda,
+     >                   0.0d0,
+     >                   work2(1+shft2), iwrk)
+              call dgemm('T','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
+     >                   alpha,
+     >                   work1(1+shft), ma(taskid_i+1),
+     >                   B, lda,
+     >                   0.0d0,
+     >                   work2(1+shft3), iwrk)
+            end if
+
+*        **** iwrk*nc(taskid_j+1) submatrix ==0 ****
+         else
+            call dcopy(3*nc(taskid_j+1)*iwrk,0.0d0,0,work2,1)
+         end if
+
+
+c        **** summ to node that holds current rows of C ****
+#ifdef MPI4
+         stupid_msglen = 3*nc(taskid_j+1)*iwrk
+         stupid_taskid = icur
+         call MPI_Reduce(work2,work1,stupid_msglen,
+     >                   stupid_double,stupid_sum,
+     >                   stupid_taskid,stupid_comm_i,stupid_ierr)
+#else
+         call MPI_Reduce(work2,work1,3*nc(taskid_j+1)*iwrk,
+     >                   MPI_DOUBLE_PRECISION,MPI_SUM,icur,comm_i,ierr)
+#endif
+
+
+c        **** add to current rows of C ****
+         if (taskid_i.eq.icur) then
+            shift = 1
+            do i=ii,(ii+iwrk-1)
+               call daxpy(nc(taskid_j+1),1.0d0,work1(shift),iwrk,
+     >                                    C(i+1,1,1),mc(taskid_i+1))
+               call daxpy(nc(taskid_j+1),1.0d0,work1(shift+shft2),iwrk,
+     >                                    C(i+1,1,2),mc(taskid_i+1))
+               call daxpy(nc(taskid_j+1),1.0d0,work1(shift+shft3),iwrk,
+     >                                    C(i+1,1,3),mc(taskid_i+1))
+               shift = shift + 1
+            end do
+         end if
+
+         ii = ii + iwrk
+         jj = jj + iwrk
+         kk = kk + iwrk
+
+         if (jj.ge.na(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 0
+         end if
+         if (ii.ge.mc(icur+1)) then
+           icur = icur + 1
+           ii   = 0
+         end if
+
+      end do
+
+      return
+      end
 

@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.31 2008-09-03 17:07:39 bylaska Exp $
+* $Id: pack.F,v 1.32 2008-12-19 00:42:06 bylaska Exp $
 *
 
 *     ***********************************
@@ -815,6 +815,94 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
       call nwpw_timing_end(2)
       return
       end 
+
+
+*     ***********************************
+*     *                                 *
+*     *      Pack_ccm_combo_sym_dot     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_ccm_combo_sym_dot(nb,n,A,B,matrix)
+      implicit none
+      integer    nb,n
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     matrix(n,n,3)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i,j,k
+      integer np,npack,npack2
+
+
+
+      call nwpw_timing_start(2)
+      call Parallel2d_np_i(np)
+
+      npack  = (nida(nb)+nidb(nb))
+      npack2 = 2*npack
+
+      do k=1,n
+        call DGEMM('T','N',k,1,npack2,
+     >             2.0d0,
+     >             A,npack2,
+     >             A(1+(k-1)*npack),npack2,
+     >             0.0d0,
+     >             matrix(1,k,1),k)
+        call DGEMM('T','N',k,1,npack2,
+     >             2.0d0,
+     >             A,npack2,
+     >             B(1+(k-1)*npack),npack2,
+     >             0.0d0,
+     >             matrix(1,k,2),k)
+        call DGEMM('T','N',k,1,npack2,
+     >             2.0d0,
+     >             B,npack2,
+     >             B(1+(k-1)*npack),npack2,
+     >             0.0d0,
+     >             matrix(1,k,3),k)
+
+        call DGEMM('T','N',k,1,2*nida(nb),
+     >             -1.0d0,
+     >             A,npack2,
+     >             A(1+(k-1)*npack),npack2,
+     >             1.0d0,
+     >             matrix(1,k,1),k)
+        call DGEMM('T','N',k,1,2*nida(nb),
+     >             -1.0d0,
+     >             A,npack2,
+     >             B(1+(k-1)*npack),npack2,
+     >             1.0d0,
+     >             matrix(1,k,2),k)
+        call DGEMM('T','N',k,1,2*nida(nb),
+     >             -1.0d0,
+     >             B,npack2,
+     >             B(1+(k-1)*npack),npack2,
+     >             1.0d0,
+     >             matrix(1,k,3),k)
+      end do
+
+      do i=1,3
+      do k=1,n
+      do j=k+1,n
+        matrix(j,k,i) = matrix(k,j,i)
+      end do
+      end do
+      end do
+
+      if (np.gt.1) call D3dB_Vector_SumAll(3*n*n,matrix)
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*
