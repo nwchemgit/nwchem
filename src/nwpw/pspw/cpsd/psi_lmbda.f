@@ -1,5 +1,5 @@
 *
-* $Id: psi_lmbda.f,v 1.11 2008-11-17 17:25:44 bylaska Exp $
+* $Id: psi_lmbda.f,v 1.12 2008-12-19 00:42:10 bylaska Exp $
 *
 
 *     ********************************************
@@ -43,27 +43,35 @@
 
       call nwpw_timing_start(3)
 
-      call Dneall_m_size(1,nn)
-      
-      s11  = 0*nn + 1
-      s12  = 1*nn + 1
-      s21  = 2*nn + 1
-      s22  = 3*nn + 1
-      sa0  = 4*nn + 1
-      sa1  = 5*nn + 1
-      st1  = 6*nn + 1
-      st2  = 7*nn + 1
-
-      call dcopy(8*nn,0.0d0,0,tmp,1)
+c      call Dneall_m_size(1,nn)
+c      s11  = 0*nn + 1
+c      s21  = 1*nn + 1
+c      s22  = 2*nn + 1
+c      s12  = 3*nn + 1
+c      sa0  = 4*nn + 1
+c      sa1  = 5*nn + 1
+c      st1  = 6*nn + 1
+c      st2  = 7*nn + 1
+c      call dcopy(8*nn,0.0d0,0,tmp,1)
 
       
 *::::::::::::::::::::::  Lagrangian multipliers  ::::::::::::::::::::::
       DO 640 ms=1,ispin
         IF(ne(ms).le.0) GO TO 640
 
-        call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(s22))
-        call Dneall_ffm_sym_Multiply(ms,psi2,psi1,npack1,tmp(s21))
-        call Dneall_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(s11))
+        call Dneall_m_size(ms,nn)
+        s11  = 0*nn + 1
+        s21  = 1*nn + 1
+        s22  = 2*nn + 1
+        s12  = 3*nn + 1
+        sa0  = 4*nn + 1
+        sa1  = 5*nn + 1
+        st1  = 6*nn + 1
+        st2  = 7*nn + 1
+c        call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(s22))
+c        call Dneall_ffm_sym_Multiply(ms,psi2,psi1,npack1,tmp(s21))
+c        call Dneall_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(s11))
+        call Dne_ffm_combo_sym_Multiply(ms,psi1,psi2,npack1,tmp(s11))
 
 *       ***** scale the overlap matrices ****
         call Dneall_m_scale_s22(ms,dte,tmp(s22))
