@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.65 2005-10-07 19:48:06 edo Exp $
+* $Id: grid_file.F,v 1.66 2008-12-23 20:31:40 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -33,19 +33,17 @@ c
       double precision availkb
       character*20 fstype
       character*(nw_max_path_len) scratchdir
-#ifdef GCC4
-      integer*4 ioserr,ierr,ios
-#else
-      integer ioserr,ierr,ios
-#endif
+      integer ierr
       integer me
       double precision util_scratch_dir_avail_for_me
       character*80 errmsg
+      character*256 grinfo_in
       external util_scratch_dir_avail_for_me
       logical grid_file_rewind
       logical oreafail
       external grid_file_rewind
-c
+      logical grid_grinfoinit,grid_grinfo2
+      external grid_grinfoinit,grid_grinfo2
 c     Open file returning CHEMIO filehandle (not yet)
 c     Return true on success, false on failure
 c
@@ -84,7 +82,8 @@ c
 c     defer allocation of memory until the first write otherwise
 c     this memory is sitting around during the initial guess routines
 c
-      call util_file_name('grinfo',.true.,.true.,grinfo)
+      call util_file_name('grinfo',.true.,.false.,grinfo_in)
+      call util_pname(grinfo_in, grinfo)
       if(.not.oreopen) then
 c
 c     Figure out sizes.  The -1 is to leave room for the end record
@@ -130,8 +129,6 @@ c
 c
 c     dont use disk for grid pts
 c     
-!                if(ga_nodeid().eq.0) write(luout,*)   
-!     $               'gridfileopen: insuff space in scratchdir'
                 largenode=.true.
                 grid_file_open=.true.
                 return
@@ -144,7 +141,7 @@ c
      =           min(max_file_rec,filesize/rec_len_in_dbl)
          else 
              call errquit(
-     '            'gridfileopen: filesize lt 0',911, DISK_ERR)
+     C           'gridfileopen: filesize lt 0',911, DISK_ERR)
             
          endif
 c     
@@ -156,70 +153,39 @@ c
          k_cache = -1
          n_rec_in_file = 0
          grid_file_open = .true.
-#if (defined(DECOSF) || defined(SGI) ||defined(PGLINUX)) & !defined(LANGUAGE_FORTRAN_90) & !defined(LANGUAGE_FORTRAN_95)
-         open(unit=gr_unit,file=grinfo,status='unknown',
-     .        form='formatted')
-#else
-#if defined(AIX) || defined(XLFLINUX) ||defined(GCC4)
-         close(unit=gr_unit,status='keep',iostat=ioserr)
-#endif	
-         open(unit=gr_unit,file=grinfo,status='replace',
-     .        form='formatted')
-#endif
+         if(.not.grid_grinfoinit(fdg,grinfo,enuc_in,'write')) call
+     C        errquit(' opening1 grinfo file failed',0,0)
          filedump_opened=.true.
-         rewind(gr_unit)
-         write(gr_unit,'(1E20.12)') enuc_in
       else
          grid_file_open=.false.
          if (otrace) then
             write(LuOut,*) ' grid_file: grinfo opening ',grinfo
             call util_flush(LuOut)
          end if
-         open(unit=gr_unit,file=grinfo,status='old',iostat=ioserr,
-     ,        err=199)
+         if(.not.grid_grinfoinit(fdg,grinfo,enuc,'read')) goto 199
+
          filedump_opened=.true.
          if (otrace) then
-            write(LuOut,*) ' readin enuc from ',grinfo
+            write(LuOut,*) ' grid_file: enucs ',enuc_in,enuc
             call util_flush(LuOut)
          end if
-         read(gr_unit,'(1E20.12)',iostat=ios,err=199) enuc
-         if(ios.ne.0) goto 199
          if(abs(enuc-enuc_in).gt.1d-7) then
-cedo           write(6,*) ' enucs ',enuc,enuc_in
-           return
+            if (otrace)
+     T           write(Luout,*) ' GRIDFILE: wrong enucs ',enuc,enuc_in
+            return
 	 endif
          if (otrace) then
             write(LuOut,*) ' readin mxfilerec from ',grinfo
             call util_flush(LuOut)
          end if
-         read(gr_unit,99,err=199,iostat=ios) max_file_rec
-         if(ios.ne.0) goto 199
- 99      format(I72) 
-         if (otrace) then
-            write(LuOut,*) ' readin mxcacherec from ',grinfo
-            call util_flush(LuOut)
-         end if
-         read(gr_unit,99,err=199,iostat=ios) max_cache_rec
-         if(ios.ne.0) goto 199
-         read(gr_unit,99,err=199,iostat=ios) n_rec_in_file
-         if(ios.ne.0) goto 199
-         read(gr_unit,'(L1)',err=199,iostat=ios) file_opened
-         if(ios.ne.0) goto 199
-         rewind(gr_unit)
-         if (otrace) then
-            write(LuOut,*) ' INFO readin  from ',grinfo
-            write(LuOut,*) '      enuc',enuc
-            write(LuOut,*) '      mxcrec',max_cache_rec
-            write(LuOut,*) '      nrecfil',n_rec_in_file
-            write(LuOut,*) '      flopend',file_opened
-            call util_flush(LuOut)
-         endif
+         if(.not.grid_grinfo2(fdg,grinfo,'read',
+     I        max_file_rec, max_cache_rec,n_rec_in_file,
+     L        file_opened)) goto 199
          grid_file_open=.true.
          if (.not. grid_file_rewind())
      $        call errquit('grfile: rewinding gridpts?',1, DISK_ERR)
          file_opened=.false.
          filedump_opened=.false.
-         rewind(gr_unit)
          ierr=eaf_open(actualname, eaf_rw, fd)
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr,errmsg)
@@ -232,7 +198,7 @@ cedo           write(6,*) ' enucs ',enuc,enuc_in
       return
  199  continue
       if(oreafail)
-     W  write(luout,*) ga_nodeid(),' grinfo reading failed',ioserr
+     W  write(luout,*) ga_nodeid(),' grinfo reading failed',ierr
       return
 c
 c
@@ -250,7 +216,10 @@ c
 #include "stdio.fh"
       logical okeep  ! [input] If true keep, otherwise delete
       logical oprint,lstatus
-      integer ioserr
+      integer ierr
+      double precision ll
+      logical grid_grinfo2
+      external grid_grinfo2
       oprint=util_print('iostats',print_high).and.ga_nodeid().eq.0
 c
       if (file_opened) then
@@ -265,19 +234,21 @@ c
       endif
 c
       if(okeep) then
-         inquire(file=grinfo,exist=lstatus)
+         ierr=eaf_length(fdg,ll)
+         lstatus=ierr.eq.0.and.ll.gt.0d0
+         if(otrace) then
+            write(luout,*) ' lstatus ',lstatus,ierr,ll
+            call util_flush(lstatus)
+         endif
          if(lstatus) then
-            rewind(gr_unit,iostat=ioserr,err=199)
-            read(gr_unit,*,err=199,iostat=ioserr) 
-            write(gr_unit,99,err=199) max_file_rec
- 99         format(I72)
-            write(gr_unit,99,err=199) max_cache_rec
-            write(gr_unit,99,err=199) n_rec_in_file
-            write(gr_unit,'(L1)',err=199) file_opened
-            close(gr_unit)
+            if(.not.grid_grinfo2(fdg,grinfo,'write',
+     I           max_file_rec, max_cache_rec,n_rec_in_file,
+     L           file_opened)) goto 199
+            if (eaf_close(fdg) .ne. 0) call errquit
+     $        ('grid_file_close: eaf_close failed',0, DISK_ERR)
          endif
       else
-         close(gr_unit,status='delete',iostat=ioserr,err=2001)
+         if (eaf_delete(grinfo) .ne. 0)goto 2001
       endif
 c
          call ga_igop(msg_grid_stat1, n_rec_in_file, 1, '+')
@@ -304,7 +275,7 @@ c
       grid_file_close = .true.
 c
       return
- 199  write(0,*) ' write failure on grinfo: iostat=',ioserr
+ 199  write(0,*) ' write failure on grinfo: ierr=',ierr
       grid_file_close=.false.
       return
       end
@@ -355,7 +326,7 @@ c
 #include "stdio.fh"
 #include "global.fh"
       logical oend           ! [input]
-      logical grid_opencache
+      logical grid_opencache,status
       external grid_opencache
 c
 c     Write the grid_pts buffer to disk.  For all but the
@@ -402,9 +373,17 @@ c
 c
  10   continue
          if (.not. file_opened) then
-            if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $           call errquit('grid_pckbufw: eaf_open failed', 0,
-     &       DISK_ERR)
+            if (eaf_open(actualname, eaf_rw, fd) .ne. 0) then
+cold     $           call errquit('grid_pckbufw: eaf_open failed', 0,
+cold     &       DISK_ERR)
+               write(6,*)ga_nodeid(),'grid_pckbufw: eaf_open failed'
+               ierr=eaf_delete(actualname)
+               write(6,*)ga_nodeid(),'grpck: eaf_del rc=',ierr
+               call util_flush(6)
+               if (eaf_open(actualname, eaf_rw, fd) .ne. 0) 
+     $              call errquit('grid_pckbufw: eaf_open failed', 0,
+     &              DISK_ERR)
+            endif
             file_opened = .true.
          endif
        if (cur_rec .le. max_cache_rec) then

@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.24 2005-10-07 19:48:06 edo Exp $
+* $Id: cgridfile.fh,v 1.25 2008-12-23 20:31:40 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -10,6 +10,7 @@ c
       double precision cur_rec_rad       ! Max Radius of current record
       double precision buf      ! Compressed buffer for IO only
       double precision fd                ! CHEMIO fd
+      double precision fdg                ! CHEMIO fdg
       double precision buf2     ! Compressed buffer for IO only - ASYNC
       integer n_in_rec          ! No. of entries in buffer
       integer n_in_rec_tot      ! Total no. of entries 
@@ -80,7 +81,7 @@ c
 c
       common/cgridinfo/
 c     double
-     $     fd,
+     $     fd,fdg,
      $     cur_rec_rad,
 c     integer
      $     n_rec_in_file,

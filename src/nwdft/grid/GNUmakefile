@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.53 2007-05-23 23:14:23 niri Exp $
+# $Id: GNUmakefile,v 1.54 2008-12-23 20:31:40 edo Exp $
 
       OBJ_OPTIMIZE= \
         grid_pscreen.o \
@@ -17,7 +17,7 @@
 	grid_quadv0a.o \
 	grid_quadv0b.o \
 	grid_quadvc.o \
-        grid_file.o 
+        grid_file.o grid_eaf.o
       OBJ= \
 	grid_sic.o \
 	grid_zoracorr.o \
