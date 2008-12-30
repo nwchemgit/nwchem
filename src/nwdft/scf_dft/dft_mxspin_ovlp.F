@@ -1,6 +1,6 @@
-      Subroutine dft_mxspin_ovlp(basis,noc,g_alpha,g_beta,g_tmp)
+      Subroutine dft_mxspin_ovlp(nao,nmo,basis,noc,g_alpha,g_beta,g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.21 2003-10-17 22:55:44 carlfahl Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.22 2008-12-30 22:57:28 bert Exp $
       Implicit none
 #include "errquit.fh"
       integer basis
@@ -8,6 +8,8 @@ C$Id: dft_mxspin_ovlp.F,v 1.21 2003-10-17 22:55:44 carlfahl Exp $
       integer g_alpha          ! alpha eigenvecs [input]
       integer g_beta           ! beta eigenvecs [input]
       integer g_tmp            ! scratch space
+      integer nao              ! # of basis functions
+      integer nmo              ! # of molecular orbitals
 
 #include "bas.fh"
 #include "cdft.fh"
@@ -37,19 +39,15 @@ c
       me=ga_nodeid()
       nproc=ga_nnodes()
 c     
-      if ( .not. bas_numbf(basis,nbf) ) 
-     &     call errquit(' exiting in max_ovl',1, BASIS_ERR)
-c
-c      call gacrea(geom,basis,nbf,nbf,'ovl ',g_s,'atom')
       g_s = ga_create_atom_blocked(geom, basis, 'AO ovl')
 c
-      if(.not.MA_Push_Get(MT_Dbl,nbf,'real_tmp1',l_tmpr1, k_tmpr1))
+      if(.not.MA_Push_Get(MT_Dbl,nao,'real_tmp1',l_tmpr1, k_tmpr1))
      &     call errquit('dft_mxspin_ovlp: cannot allocate real_tmp1',0,
      &       MA_ERR)
-      if(.not.MA_Push_Get(MT_Dbl,nbf,'real_tmp2',l_tmpr2, k_tmpr2))
+      if(.not.MA_Push_Get(MT_Dbl,nao,'real_tmp2',l_tmpr2, k_tmpr2))
      &     call errquit('dft_mxspin_ovlp: cannot allocate real_tmp2',0,
      &       MA_ERR)
-      if(.not.MA_Push_Get(MT_Int,nbf,'int_tmp1',l_tmpi1, k_tmpi1))
+      if(.not.MA_Push_Get(MT_Int,nao,'int_tmp1',l_tmpi1, k_tmpi1))
      &     call errquit('dft_mxspin_ovlp: cannot allocate int_tmp1',0,
      &       MA_ERR)
 c
@@ -59,8 +57,8 @@ c
 c
 c     Compute matrix mult (C_alpha)T * S * C_beta = S`
 c     
-      call ga_dgemm('T','N',nbf,nbf,nbf,1.d0,g_alpha,g_s,0.d0,g_tmp)
-      call ga_dgemm('N','N',nbf,nbf,nbf,1.d0,g_tmp,g_beta,0.d0,g_s)
+      call ga_dgemm('T','N',nmo,nao,nao,1.d0,g_alpha,g_s,0.d0,g_tmp)
+      call ga_dgemm('N','N',nmo,nmo,nao,1.d0,g_tmp,g_beta,0.d0,g_s)
 c
 c
       if(me.eq.0) then
@@ -69,13 +67,13 @@ c        call ga_print(g_s)
       endif
       if(me.eq.0) then
         jbig = 1         ! take care of compiler warnings
-        do i = 1, nbf
+        do i = 1, nmo
 c
 c         get row of g_s 
 c
-          call ga_get(g_s,i,i,1,nbf,DBL_MB(k_tmpr1),1)
+          call ga_get(g_s,i,i,1,nmo,DBL_MB(k_tmpr1),1)
           prodbig=0.0d0
-          do j = 1, nbf
+          do j = 1, nmo
             prodtmp = abs(dbl_mb(k_tmpr1+j-1))
             if(prodtmp.gt.prodbig) then
               prodbig = prodtmp
@@ -85,12 +83,12 @@ c
           dbl_mb(k_tmpr2+i-1) = prodbig
           int_mb(k_tmpi1+i-1) = jbig
         enddo
-        ichunks = nbf/10
+        ichunks = nmo/10
         if(ichunks*10.lt.nbf)ichunks = ichunks +1
         do i = 1, ichunks
           nbe = 10*(i-1) + 1
           nend = nbe + 9
-          if(nend.gt.nbf)nend = nbf
+          if(nend.gt.nmo)nend = nmo
           write(LuOut,9997)(n,n=nbe,nend)
           write(LuOut,9998)(int_mb(k_tmpi1+n-1),n=nbe,nend)
           write(LuOut,9999)(dbl_mb(k_tmpr2+n-1),n=nbe,nend)
@@ -265,10 +263,10 @@ c
 c
 c      call ga_print(g_t)
 c
-      if(.not.ga_create(mt_dbl,nbf,noc(1),'alphaT',0,0,g_alphaT))
+      if(.not.ga_create(mt_dbl,nao,noc(1),'alphaT',0,0,g_alphaT))
      $        call errquit('ga_create failed', g_alphaT, GA_ERR)
 c
-      call ga_dgemm('N','N',nbf,noc(1),noc(1),1.d0
+      call ga_dgemm('N','N',nao,noc(1),noc(1),1.d0
      &     ,g_alpha,g_u,0.d0,g_alphaT)
 c
 c      call ga_print(g_alpha)
@@ -306,7 +304,7 @@ c      write(luout,*) 'paired/unpaired alpha orbitals'
 c      write(luout,*) (int_mb(k_unp+i-1),i=1,noc(1))
 c
       call ga_sync()
-      if(.not.ga_create(mt_dbl,nbf,nalp,'unp alphaT',0,0,g_ualpha))
+      if(.not.ga_create(mt_dbl,nao,nalp,'unp alphaT',0,0,g_ualpha))
      $        call errquit('ga_create failed', g_ualpha, GA_ERR)
 c
       nalp=0
@@ -314,7 +312,7 @@ c
        if(int_mb(k_unp+i-1).EQ.1) then
          nalp = nalp + 1
          call ga_copy_patch('N',g_alphaT,1,nbf,i,i
-     &         ,g_ualpha,1,nbf,nalp,nalp)
+     &         ,g_ualpha,1,nao,nalp,nalp)
         endif
       enddo
       call ga_sync()
