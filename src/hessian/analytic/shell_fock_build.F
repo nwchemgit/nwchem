@@ -1,6 +1,6 @@
 c#define NBACC 1
 c
-c $Id: shell_fock_build.F,v 1.38 2007-11-07 20:24:44 d3p307 Exp $
+c $Id: shell_fock_build.F,v 1.39 2008-12-30 22:16:41 bert Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -316,7 +316,7 @@ c
       integer handij,handkl,handik,handjl,handil,handjk
       logical dorepl
       integer g_densrep,g_dens0,g_fockrep,g_fock0,dorep_glob
-      logical docopy,dozero,dorepd,dorepf
+      logical docopy,dozero,dorepd,dorepf,dorepon
       logical util_mirrmat
       external util_mirrmat
 c     
@@ -336,8 +336,11 @@ c
 c
 c     replicated DM and Fock Matrix
 c
+c     turned off for now: needs to be debugged
+c
+      dorepon=.false.
       dorepl=.false.
-      if(ga_cluster_nnodes().gt.1) then
+      if(ga_cluster_nnodes().gt.1.and.dorepon) then
          docopy=.true.
          dozero=.false.
          dorepd=util_mirrmat(1,g_dens,g_densrep,docopy,dozero)
