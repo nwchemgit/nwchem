@@ -1,7 +1,7 @@
 cedo#define NBACC 1
 cedo#define NBGET 1
       subroutine new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,kfac)
-c $Id: giaofock.F,v 1.11 2007-10-17 17:36:00 bert Exp $
+c $Id: giaofock.F,v 1.12 2008-12-30 22:17:44 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "errquit.fh"
@@ -157,7 +157,7 @@ c
       integer g_densrep,g_dens0,g_fockrep,g_fock0,dorep_glob
 c
       integer nproc
-      logical dorepl,dorepd,dorepf
+      logical dorepl,dorepd,dorepf,dorepon
       logical util_mirrmat
       external util_mirrmat
 c
@@ -176,8 +176,11 @@ c
 c
 c     replicated DM and Fock
 c
+c     turned off for now: needs to be debugged
+c
+      dorepon=.false.
       dorepl=.false.
-      if(ga_cluster_nnodes().gt.1) then
+      if(ga_cluster_nnodes().gt.1.and.dorepon) then
          dorepd=util_mirrmat(1,g_dens,g_densrep,.true.,.false.)
          dorepf=util_mirrmat(1,g_fock,g_fockrep,.true.,.false.)
          dorepl=dorepd.and.dorepf
