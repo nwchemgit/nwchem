@@ -1,4 +1,4 @@
-C $Id: grid_eaf.F,v 1.1 2008-12-23 20:29:23 edo Exp $
+C $Id: grid_eaf.F,v 1.2 2008-12-31 17:14:21 edo Exp $
       logical function grid_grinfoinit(fdg,grinfo,enuc_in,what)
       implicit none
 #include "errquit.fh"
@@ -6,6 +6,7 @@ C $Id: grid_eaf.F,v 1.1 2008-12-23 20:29:23 edo Exp $
 #include "eaf.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "inp.fh"
       double precision fdg
       character*(*) grinfo, what
       double precision enuc_in
@@ -34,7 +35,7 @@ cgrinfo     enuc in first record
       endif
       grid_grinfoinit=ierr.eq.0
       if (otrace) then
-         write(LuOut,*) ' INFO ' // what // ' from ',grinfo
+         write(LuOut,*) ' INFO ' // what(1:4)// ' from ',grinfo
          write(LuOut,*) '      enuc',enuc_in
          call util_flush(LuOut)
       endif
@@ -90,11 +91,11 @@ cgrinfo     foplog in 5th record
          call eaf_errmsg(ierr,errmsg)
          write(LuOut,*) ga_nodeid(),errmsg
          call util_flush(LuOut)         
-         call errquit('gridfileopen: eaf_' // what //' failed', 
+         call errquit('gridfileopen: eaf_' // what(1:4) //' failed', 
      I        ierr, DISK_ERR)
       endif
       if (otrace) then
-         write(LuOut,*) ' INFO ' // what // ' from ',grinfo
+         write(LuOut,*) ' INFO ' // what(1:4) // ' from ',grinfo
          write(LuOut,*) ' ierr ',ierr
          write(LuOut,*) '      mxcrec',max_cache_rec
          write(LuOut,*) '      nrecfil',n_rec_in_file
