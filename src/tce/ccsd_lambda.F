@@ -34,6 +34,11 @@ c
       integer dummy
       character*255 filename
 c
+      if (skip_l) then
+        if (nodezero) write(LuOut,9700)
+        return
+      endif
+c
       nodezero=(ga_nodeid().eq.0)
       irrep_y=0
       call tce_diis_init()
@@ -135,6 +140,7 @@ c
  9080 format(1x,A,' total energy / hartree       = ',f25.15)
  9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
  9100 format(1x,i4,2f18.13,2f8.1)
+ 9700 format(1x,'Skipping CCSD-Lambda altogether')
       end
 
       subroutine ccsd_dipole(d_d0,d_f1,d_v2,d_d1,d_t1,d_t2,

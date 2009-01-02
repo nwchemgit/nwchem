@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.69 2008-10-22 13:20:53 jhammond Exp $
+c $Id: tce_init.F,v 1.70 2009-01-02 19:38:25 jhammond Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -539,6 +539,25 @@ c
      1    call errquit('tce_init: failed to write respaxis',0,RTDB_ERR)
       endif
 c
+c     these force skipping of alpha, beta and gamma evaluation
+c     which is useful during restarts
+c
+      if (.not.rtdb_get(rtdb,'tce:nopolar',mt_log,1,nopolar)) then
+        nopolar=.false.
+        if (.not.rtdb_put(rtdb,'tce:nopolar',mt_log,1,nopolar))
+     1  call errquit('tce_init: failed to write nopolar',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:nohyper',mt_log,1,nohyper)) then
+        nohyper=.false.
+        if (.not.rtdb_put(rtdb,'tce:nohyper',mt_log,1,nohyper))
+     1  call errquit('tce_init: failed to write nohyper',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:nogamma',mt_log,1,nogamma)) then
+        nogamma=.false.
+        if (.not.rtdb_put(rtdb,'tce:nogamma',mt_log,1,nogamma))
+     1  call errquit('tce_init: failed to write nogamma',0,RTDB_ERR)
+      endif
+c
 c     End of response property input section
 c
       if ((symmetry).and.(targetsym.eq.'none')) then
@@ -719,6 +738,30 @@ c       S(+),D(+),T(+),Q(+),S(-),D(-),T(-),Q(-),S(r),D(r),T(r),Q(r)
      1                    nroots_restart))
      2  call errquit('tce_init: failed to write nroots_restart',0,
      3               RTDB_ERR)
+      endif
+c
+c     forces skipping of iterations during restart because for
+c     huge basis sets these do not always converge in one iteration
+c
+      if (.not.rtdb_get(rtdb,'tce:skip_t',mt_log,1,skip_t)) then
+        skip_t=.false.
+        if (.not.rtdb_put(rtdb,'tce:skip_t',mt_log,1,skip_t))
+     1  call errquit('tce_init: failed to write skip_t',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:skip_l',mt_log,1,skip_l)) then
+        skip_l=.false.
+        if (.not.rtdb_put(rtdb,'tce:skip_l',mt_log,1,skip_l))
+     1  call errquit('tce_init: failed to write skip_l',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:skip_tr',mt_log,1,skip_tr)) then
+        skip_tr=.false.
+        if (.not.rtdb_put(rtdb,'tce:skip_tr',mt_log,1,skip_tr))
+     1  call errquit('tce_init: failed to write skip_tr',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:skip_lr',mt_log,1,skip_lr)) then
+        skip_lr=.false.
+        if (.not.rtdb_put(rtdb,'tce:skip_lr',mt_log,1,skip_lr))
+     1  call errquit('tce_init: failed to write skip_lr',0,RTDB_ERR)
       endif
 c
 c     ----------------------

@@ -25,6 +25,7 @@ c YR_SUFFIX - the number after the saved Lambda(1) amplitudes
       logical read_x(12)         ! X1, X2, X3, X4
       logical save_y(12)         ! Y1, Y2, Y3, Y4
       logical read_y(12)         ! Y1, Y2, Y3, Y4
+      logical skip_t,skip_l,skip_tr,skip_lr
       integer save_interval      !  1 = each iteration, 5 = every five, etc.
       integer restart_ccsd_t
 c
@@ -55,4 +56,5 @@ c
      2  save_integrals,read_integrals,
      3  save_t,read_t,save_l,read_l,
      4  save_x,read_x,save_y,read_y,
-     5  save_tr,read_tr,save_lr,read_lr
+     5  save_tr,read_tr,save_lr,read_lr,
+     6  skip_t,skip_l,skip_tr,skip_lr

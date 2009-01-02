@@ -63,27 +63,30 @@ c
             irrep_o=irrep_d
             irrep_x=irrep_d
 c
-            do omegasign=1,dynfreq
-              if (omegasign.eq.1) then
-                omega = (1.0d0)*bfreq(omegacount)
-                dynaxis = 0
-              elseif (omegasign.eq.2) then
-                omega = (-1.0d0)*bfreq(omegacount)
-                dynaxis = 3
-              endif
+            if (skip_tr) then
+              if (nodezero) write(LuOut,9700)
+            else
+              do omegasign=1,dynfreq
+                if (omegasign.eq.1) then
+                  omega = (1.0d0)*bfreq(omegacount)
+                  dynaxis = 0
+                elseif (omegasign.eq.2) then
+                  omega = (-1.0d0)*bfreq(omegacount)
+                  dynaxis = 3
+                endif
 c
-              if (nodezero) write(LuOut,9431) omega
+                if (nodezero) write(LuOut,9431) omega
 c
-              guess = ((omegacount.eq.1).and.guess_qr_real)
-              call ccsd_qr_iter(guess,axis,dynaxis,omega,
-     1             d_f1,d_v2,d_d1,d_t1,d_t2,d_y1,d_y2,
-     2             d_tr1,d_tr2,d_yr1,d_yr2,
-     3             k_f1_offset,k_v2_offset,k_d1_offset,
-     4             k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
-     5             k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset,
-     6             size_yr1,size_yr2)
+                guess = ((omegacount.eq.1).and.guess_qr_real)
+                call ccsd_qr_iter(guess,axis,dynaxis,omega,
+     1               d_f1,d_v2,d_d1,d_t1,d_t2,d_y1,d_y2,
+     2               d_tr1,d_tr2,d_yr1,d_yr2,k_f1_offset,k_v2_offset,
+     3               k_d1_offset,k_t1_offset,k_t2_offset,
+     4               k_y1_offset,k_y2_offset,k_tr1_offset,k_tr2_offset,
+     5               k_yr1_offset,k_yr2_offset,size_yr1,size_yr2)
 c
-            enddo ! omegasign loop
+              enddo ! omegasign loop
+            endif ! skip_tr
           endif ! respaxis(axis)
         enddo ! axis loop
 c
@@ -103,11 +106,15 @@ c
         call util_flush(6)
 #endif
 c
-        call ccsd_qr_beta_eval(omega,d_b0,d_f1,d_v2,d_d1,
-     1       d_t1,d_t2,d_y1,d_y2,d_tr1,d_tr2,d_yr1,d_yr2,
-     2       k_b0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
-     4       k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
-     5       k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset)
+        if (nopolar) then
+          if (nodezero) write(LuOut,9701)
+        else
+          call ccsd_qr_beta_eval(omega,d_b0,d_f1,d_v2,d_d1,
+     1         d_t1,d_t2,d_y1,d_y2,d_tr1,d_tr2,d_yr1,d_yr2,
+     2         k_b0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
+     4         k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
+     5         k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset)
+        endif
 c
       enddo ! omegacount loop
 c
@@ -120,6 +127,8 @@ c
  9420 format(1x,i4,f25.13,2f8.1)
  9431 format(/,1x,'Frequency = ',f15.7,' / au')
  9440 format(1x,A3,' axis ( ',A4,'symmetry)')
+ 9700 format(1x,'Skipping CCSD-QR iterations')
+ 9701 format(1x,'Skipping evaluation of hyperpolarizability by request')
       return
       end
 

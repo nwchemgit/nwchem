@@ -27,6 +27,12 @@ c
       character*255 filename
 c
       nodezero=(ga_nodeid().eq.0)
+c
+      if (skip_t) then
+        if (nodezero) write(LuOut,9700)
+        return
+      endif
+c
       call tce_diis_init()
       do iter=1,maxiter
         cpu=-util_cpusec()
@@ -129,6 +135,7 @@ c          write(LuOut,9101) cpusecs(37),cpusecs(38)
       enddo
       call errquit('ccsd_energy_loc: maxiter exceeded',iter,CALC_ERR)
       return
+ 9020 format(1x,'Cpu & wall time / sec',2f15.1)
  9050 format(/,1x,A,' iterations',/,
      1  1x,'----------------------------',
      2     '-------------------------------------',/
@@ -145,5 +152,6 @@ c          write(LuOut,9101) cpusecs(37),cpusecs(38)
  9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
  9100 format(1x,i4,2f18.13,3f8.1)
  9101 format(11x,'ccsd_t2_8 ',20x,2f8.1)
+ 9700 format(1x,'Skipping CCSD altogether')
       end
 

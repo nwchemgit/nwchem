@@ -29,6 +29,7 @@ c
       integer size_tr1(3),size_tr2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
+      double precision cpu, wall
       double precision omega,cdipole
       double precision dipole_scf(3),dipole_cor(3)
       double precision debye
@@ -59,31 +60,36 @@ c
             irrep_o=irrep_d
             irrep_x=irrep_d
 c
-            do omegasign=1,dynfreq
-              if (omegasign.eq.1) then
-                omega = (1.0d0)*afreq(omegacount)
-                dynaxis = 0
-              elseif (omegasign.eq.2) then
-                omega = (-1.0d0)*afreq(omegacount)
-                dynaxis = 3
-              endif
+            if (skip_tr) then
+              if (nodezero) write(LuOut,9700)
+            else
+              do omegasign=1,dynfreq
+                if (omegasign.eq.1) then
+                  omega = (1.0d0)*afreq(omegacount)
+                  dynaxis = 0
+                elseif (omegasign.eq.2) then
+                  omega = (-1.0d0)*afreq(omegacount)
+                  dynaxis = 3
+                endif
 c
-              if (nodezero) write(LuOut,9431) omega
+                if (nodezero) write(LuOut,9431) omega
 c
-              if ((omegacount.eq.1).and.guess_lr_real) then
-                call ccsd_lr_guess(d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
-     1               k_f1_offset,k_v2_offset,k_d1_offset,
-     2               k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
-     3               size_tr1,size_tr2,axis,dynaxis)
-              endif
+                if ((omegacount.eq.1).and.guess_lr_real) then
+                  call ccsd_lr_guess(d_f1,d_v2,d_d1,d_t1,d_t2,
+     1                 d_tr1,d_tr2,k_f1_offset,k_v2_offset,
+     2                 k_d1_offset,k_t1_offset,k_t2_offset,
+     3                 k_tr1_offset,k_tr2_offset,
+     4                 size_tr1,size_tr2,axis,dynaxis)
+                endif
 c
-              call ccsd_lr_iter(axis,dynaxis,omega,
-     1             d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
-     2             k_f1_offset,k_v2_offset,k_d1_offset,
-     3             k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
-     4             size_tr1,size_tr2)
+                call ccsd_lr_iter(axis,dynaxis,omega,
+     1               d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
+     2               k_f1_offset,k_v2_offset,k_d1_offset,
+     3               k_t1_offset,k_t2_offset,k_tr1_offset,k_tr2_offset,
+     4               size_tr1,size_tr2)
 c
-            enddo ! omegasign loop
+              enddo ! omegasign loop
+            endif ! skip_tr
 c
             if (omega.eq.(0.0d0)) then
               irrep_tr=irrep_d
@@ -109,11 +115,15 @@ c
      2                dipole_cor(2),dipole_cor(2)*debye,
      3                dipole_cor(3),dipole_cor(3)*debye
 c
-        call ccsd_lr_alpha_eval(omega,d_a0,d_f1,d_v2,d_d1,
-     1       d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
-     2       k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
-     4       k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
-     6       k_tr1_offset,k_tr2_offset)
+        if (nopolar) then
+          if (nodezero) write(LuOut,9701)
+        else
+          call ccsd_lr_alpha_eval(omega,d_a0,d_f1,d_v2,d_d1,
+     1         d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
+     2         k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
+     4         k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
+     6         k_tr1_offset,k_tr2_offset)
+        endif
 c
       enddo ! omegacount loop
 c
@@ -132,6 +142,8 @@ c
      5  1x,'--------------------------------')
  9431 format(/,1x,'Frequency = ',f15.7,' / au')
  9440 format(1x,A3,' axis ( ',A4,'symmetry)')
+ 9700 format(1x,'Skipping CCSD-LR iterations')
+ 9701 format(1x,'Skipping evaluation of polarizability by request')
       return
       end
 
@@ -391,9 +403,6 @@ c
 c
             do omegasign=1, 2
 c
-              alpha1=0.0d0
-              alpha2=0.0d0
-c
               if ((omegasign.eq.2).and.(omega.ne.0.0d0)) then
                 dynaxis = 3
               else
@@ -410,6 +419,7 @@ c
      5             k_tr1_offset(axisB),k_tr2_offset(axisB),
      6             k_l1_offset,k_l2_offset)
 c
+              alpha1=0.0d0
               call reconcilefile(d_a0,1)
               call get_block(d_a0,alpha1,1,0)
               call tce_zero(d_a0,1)
@@ -426,6 +436,7 @@ c
      5               k_tr1_offset(axisA),k_tr2_offset(axisA),
      6               k_l1_offset,k_l2_offset)
 c
+                alpha2=0.0d0
                 call reconcilefile(d_a0,1)
                 call get_block(d_a0,alpha2,1,0)
                 call tce_zero(d_a0,1)
@@ -457,6 +468,7 @@ c
      6           k_tr1_offset(axisB),k_tr2_offset(axisB),k_v2_offset,
      7           k_l1_offset,k_l2_offset)
 c
+            alpha1=0.0d0
             call reconcilefile(d_a0,1)
             call get_block(d_a0,alpha1,1,0)
             call tce_zero(d_a0,1)
@@ -470,6 +482,7 @@ c
      6           k_tr1_offset(axisB),k_tr2_offset(axisB),k_v2_offset,
      7           k_l1_offset,k_l2_offset)
 c
+            alpha2=0.0d0
             call reconcilefile(d_a0,1)
             call get_block(d_a0,alpha2,1,0)
             call deletefile(d_a0)

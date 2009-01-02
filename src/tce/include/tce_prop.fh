@@ -17,6 +17,7 @@
       logical ifreqauto
       logical beta_shg,beta_or,beta_eope
       logical guess_ir_real,guess_ir_imag,guess_lr_real,guess_qr_real
+      logical nopolar,nohyper,nogamma
 
       common /tcepropdouble/
      1 afreq,ifreq,bfreq,gfreq,lr_thresh,yr_thresh,qr_thresh,
@@ -28,5 +29,6 @@
       common /tceproplogical/
      1  lineresp,imagresp,leftresp,quadresp,respaxis,
      2  beta_shg,beta_or,beta_eope,guess_ir_real,guess_ir_imag,
-     3  guess_lr_real,guess_qr_real,ifreqauto
+     3  guess_lr_real,guess_qr_real,ifreqauto,
+     4  nopolar,nohyper,nogamma
 
