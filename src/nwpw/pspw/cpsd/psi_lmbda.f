@@ -1,5 +1,5 @@
 *
-* $Id: psi_lmbda.f,v 1.12 2008-12-19 00:42:10 bylaska Exp $
+* $Id: psi_lmbda.f,v 1.13 2009-01-05 17:46:31 bylaska Exp $
 *
 
 *     ********************************************
@@ -68,10 +68,10 @@ c      call dcopy(8*nn,0.0d0,0,tmp,1)
         sa1  = 5*nn + 1
         st1  = 6*nn + 1
         st2  = 7*nn + 1
-c        call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(s22))
-c        call Dneall_ffm_sym_Multiply(ms,psi2,psi1,npack1,tmp(s21))
-c        call Dneall_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(s11))
-        call Dne_ffm_combo_sym_Multiply(ms,psi1,psi2,npack1,tmp(s11))
+        call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(s22))
+        call Dneall_ffm_sym_Multiply(ms,psi2,psi1,npack1,tmp(s21))
+        call Dneall_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(s11))
+c        call Dne_ffm_combo_sym_Multiply(ms,psi1,psi2,npack1,tmp(s11))
 
 *       ***** scale the overlap matrices ****
         call Dneall_m_scale_s22(ms,dte,tmp(s22))

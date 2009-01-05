@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.21 2008-09-15 18:48:13 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.22 2009-01-05 17:46:32 bylaska Exp $
 
 
 *
@@ -324,32 +324,28 @@ c      call coulomb_screened_init_print(rcut,pp)
       end
 
 
-
       real*8 function coulomb_screened_e(dng)
       implicit none
-#include "errquit.fh"
       complex*16 dng(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
       integer vc_indx,vc_hndl
       common / vc_screened_block / vc_indx,vc_hndl
 
-
 *     **** local variables ****
       integer npack0
       real*8 ec
 
-c     real*8  tmp1(*)
       integer tmp1(2)
       logical value
 
 *     **** external functions ****
-      real*8 lattice_omega
+      real*8  lattice_omega
       external lattice_omega
 
-      
       call nwpw_timing_start(7)
 
       call Pack_npack(0,npack0)
@@ -364,10 +360,51 @@ c     real*8  tmp1(*)
       value = MA_pop_stack(tmp1(2))
       
       call nwpw_timing_end(7)
-
       coulomb_screened_e = ec
       return 
       end
+
+
+      real*8 function icoulomb_screened_e(dng)
+      implicit none
+      complex*16 dng(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block used for coulomb.f ****
+      integer vc_indx,vc_hndl
+      common / vc_screened_block / vc_indx,vc_hndl
+
+*     **** local variables ****
+      integer tmp1(2)
+      integer npack0
+      real*8 ec
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      call nwpw_timing_start(7)
+      call Pack_npack(0,npack0)
+      if (.not.MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1)))
+     > call errquit('out of stack',0, MA_ERR)
+
+      call Pack_ct_Sqr(0,dng,dbl_mb(tmp1(1)))
+      call Pack_tt_idot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
+
+      ec = 0.5d0*ec*lattice_omega()
+
+      if (.not.MA_pop_stack(tmp1(2)))
+     >  call errquit('popping stack memory',0, MA_ERR)
+      call nwpw_timing_end(7)
+
+      icoulomb_screened_e = ec
+      return
+      end
+
+
+
 
 *     *******************************
 *     *                             *

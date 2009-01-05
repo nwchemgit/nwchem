@@ -6,7 +6,7 @@
 *     ***************************
       subroutine molecular_init(rtdb)
 *
-* $Id: molecular.F,v 1.7 2008-08-08 01:02:21 bylaska Exp $
+* $Id: molecular.F,v 1.8 2009-01-05 17:46:30 bylaska Exp $
 *
       implicit none 
       integer   rtdb
@@ -362,17 +362,19 @@ c     >                                full_filename)
             x = rion(1,indxa(b+1))-rion(1,indxa(b))
             y = rion(2,indxa(b+1))-rion(2,indxa(b))
             z = rion(3,indxa(b+1))-rion(3,indxa(b))
+            rr = dsqrt(x*x + y*y + z*z)
+
             f1 = x*fion(1,indxa(b)) 
      >         + y*fion(2,indxa(b)) 
      >         + z*fion(3,indxa(b))
             f2 = x*fion(1,indxa(b+1)) 
      >         + y*fion(2,indxa(b+1)) 
      >         + z*fion(3,indxa(b+1))
-            ff = 0.5*(f2-f1)
+            ff = 0.5*(f2-f1)/rr
+
             af(indx)  = af(indx)  + ff
             af2(indx) = af2(indx) + ff*ff
 
-            rr = dsqrt(x*x + y*y + z*z)
             ac(indx) = ac(indx) + dabs(rr-blist(b))
 
             indx = indx + 1

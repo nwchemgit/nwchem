@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.19 2008-11-17 17:25:45 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.20 2009-01-05 17:46:32 bylaska Exp $
 *
 
 *     *************************
@@ -655,9 +655,9 @@ c***************** sub/replicated routines *****************************
       real*8  scal1,scal2,dv,eh,ph
 
 *     **** external functions ****
-      real*8   lattice_omega,coulomb_screened_e
+      real*8   lattice_omega,icoulomb_screened_e
       logical   D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
-      external lattice_omega,coulomb_screened_e
+      external lattice_omega,icoulomb_screened_e
       external  D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
 
 
@@ -729,7 +729,8 @@ c***************** sub/replicated routines *****************************
                     call D3dB_rc_pfft3f_queueout(0,dbl_mb(dn(1)))
 
 *                   **** generate Vcoul ****
-                    eh = coulomb_screened_e(dbl_mb(dn(1)))
+                    !eh = coulomb_screened_e(dbl_mb(dn(1)))
+                    eh = icoulomb_screened_e(dbl_mb(dn(1)))
                     call coulomb_screened_v(dbl_mb(dn(1)),
      >                                      dbl_mb(vij(1)))
 
@@ -764,7 +765,6 @@ c***************** sub/replicated routines *****************************
                  if (mod(k3,npj).eq.taskid_j) then
                     index1 =(int_mb(orbital_list(1,ms)+i3-1)-1)*n2ft3d+1
                     index2 =(int_mb(orbital_list(1,ms)+j3-1)-1)*n2ft3d+1
-
 
                     call D3dB_cr_pfft3b_queueout(0,dbl_mb(vij(1)))
 
@@ -808,7 +808,8 @@ c***************** sub/replicated routines *****************************
               end if
               done = (k1.gt.NN).and.(k2.gt.NN).and.(k3.gt.NN)
            end do !**** while ****
-           call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
+           !call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
+           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
        end do !**** ms *****
 
 *       ***** free-space coulomb solver ****
@@ -829,7 +830,7 @@ c***************** sub/replicated routines *****************************
               call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
    
               call coulomb2_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
-              call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(vij(1)),eh)
+              call D3dB_rr_idot(1,dbl_mb(dn(1)),dbl_mb(vij(1)),eh)
               eh = 0.5d0*eh*dv
 
 *             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
@@ -878,7 +879,8 @@ c***************** sub/replicated routines *****************************
             k1 = k1 + 1
          end do
         end do
-        call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
+        !call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
+        call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
         end do
 
         end if
@@ -891,8 +893,8 @@ c***************** sub/replicated routines *****************************
      >    call errquit('pspw_potential_HFX:popping stack memory',0,
      &       MA_ERR)
 
-         call D1dB_SumAll(ehfx)
-         call D1dB_SumAll(phfx)
+         call Parallel_SumAll(ehfx)
+         call Parallel_SumAll(phfx)
       end if
 
       return

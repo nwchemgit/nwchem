@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.33 2008-11-03 06:06:18 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.34 2009-01-05 17:46:33 bylaska Exp $
 c
 
 ***********************************************************
@@ -63,6 +63,9 @@ c
       qmmm_found     = (ion_nion_mm().gt.0).or. value 
       auxiliary_only = (ion_nion_mm().le.0).and.value
       shake_found    = .false.
+      nfrag  = 0
+      nkfrag = 0
+      
 
 *     **** don't do anything if there are no MM atoms ****
       if (qmmm_found) then
@@ -85,11 +88,9 @@ c
          end if
          end if
 
-
 *        **** reading number of frags ****
          rtdb_name = 'pspw_qmmm_nfrag'
          if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nfrag)) nfrag = 0
-
 
 *        **** reading number of kinds of frags ****
          rtdb_name = 'pspw_qmmm_nkfrag'

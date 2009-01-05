@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.12 2008-02-23 23:30:59 d3p708 Exp $
+* $Id: silvestrelli_minimize.F,v 1.13 2009-01-05 17:46:33 bylaska Exp $
 *
 
 
@@ -25,7 +25,7 @@
       integer MASTER,taskid
       parameter (MASTER=0)
       integer MAXITER
-      parameter (MAXITER=10000)
+      parameter (MAXITER=500)
 
       logical value,oprint
       integer i,j,k,sign,iter
@@ -78,8 +78,8 @@
       
 
       do while( (iter.lt.10)    .or.
-     >          (crit.gt.1.0d-7).or.
-     >          ((maxgrad .GT. 1.0d-08).and.(iter.lt.MAXITER)))
+     >          (((crit.gt.1.0d-7).or.(maxgrad.gt.1.0d-08))
+     >           .and.(iter.lt.MAXITER)))
 
          iter=iter+1
 
@@ -263,9 +263,9 @@
          crit = dabs(omega-omega1)/omega
          omega1 = omega
 
-         !if (oprint) then
-         !write(6,*) iter, omega, maxgrad,crit
-         !end if
+         if (oprint) then
+            write(6,*) iter, omega, maxgrad,crit
+         end if
       end do ! end do while
 
       if (oprint) then

@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.21 2008-08-28 21:12:06 bylaska Exp $
+* $Id: cpsi_read.F,v 1.22 2009-01-05 17:46:28 bylaska Exp $
 *
 
 *     ***************************
@@ -469,7 +469,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
         do n=1,(ne(1)+ne(2))
            pj=0
            q=n
-           call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+           call C3dB_c_Read(1,5,dcpl_mb(tmp2(1)),
      >                     dcpl_mb(tmp(1)),pj,-1)
            do nb=nbrill,nbrillioun
               call K1dB_ktoqp(nb,nbq,pk)

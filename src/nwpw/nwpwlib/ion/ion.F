@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.52 2008-10-01 21:55:44 bylaska Exp $
+* $Id: ion.F,v 1.53 2009-01-05 17:46:29 bylaska Exp $
 *
 
 *     ***************************
@@ -2028,7 +2028,6 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
       ke_total = ke_total + eki1
       kg_total = kg_total + ekg
       ke_count = ke_count + 1
-
 
       return
       end
