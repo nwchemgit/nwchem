@@ -1,7 +1,7 @@
       subroutine tddft_memory(rtdb,nroots,maxvecs,maxiter,
      1  ipol,nbf_ao,nocc,nmo,nfc,nfv,nov,tda,algorithm)
 c
-c $Id: tddft_memory.F,v 1.8 2004-11-10 01:45:18 edo Exp $
+c $Id: tddft_memory.F,v 1.9 2009-01-06 22:26:59 jhammond Exp $
 c
 c Itemize all the outstanding memory usage and determine
 c how many trial and product vectors we can handle with the
@@ -73,9 +73,9 @@ c ====================================================================
 c
         endif
       endif
- 9000 format(10x,'Available GA+MA space size is ',i10,' doubles')
- 9010 format(10x,'Available GA space size is    ',i10,' doubles',/,
-     1       10x,'Available MA space size is    ',i10,' doubles')
+ 9000 format(10x,'Available GA+MA space size is ',i14,' doubles')
+ 9010 format(10x,'Available GA space size is    ',i14,' doubles',/,
+     1       10x,'Available MA space size is    ',i14,' doubles')
 c
 c -------------------------------------
 c Detemine the length of a trial vector
@@ -289,9 +289,9 @@ c
         if ((algorithm.eq.3).or.(algorithm.eq.4))
      1    write(LuOut,9030) maxvecs*j
       endif
- 9020 format(10x,'Estimated peak GA usage is    ',i10,' doubles',/,
-     1       10x,'Estimated peak MA usage is    ',i10,' doubles')
- 9030 format(10x,'Estimated peak DRA usage is   ',i10,' doubles')
+ 9020 format(10x,'Estimated peak GA usage is    ',i14,' doubles',/,
+     1       10x,'Estimated peak MA usage is    ',i14,' doubles')
+ 9030 format(10x,'Estimated peak DRA usage is   ',i14,' doubles')
       if (nodezero) call util_flush(LuOut)
 c
 c ------
