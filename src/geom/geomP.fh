@@ -1,5 +1,5 @@
 *
-* $Id: geomP.fh,v 1.31 2000-11-08 00:42:30 d3g681 Exp $
+* $Id: geomP.fh,v 1.32 2009-01-12 19:20:07 bert Exp $
 *
 c
 c     Private fortran include file for the geometry routines
@@ -117,7 +117,7 @@ c
       parameter (max_cent      = nw_max_atom)
       parameter (max_nzvar     = 6*max_cent)
       parameter (max_izmat     = 4*max_nzvar)
-      parameter (max_zcoord    = 16) ! For augmenting autoz
+      parameter (max_zcoord    = 160) ! For augmenting autoz
 c
       logical active, operiodic, oefield, include_bqbq, oecpcent,
      $     zmt_ijbond_frz, zmt_ijkang_frz, zmt_ijklto_frz,

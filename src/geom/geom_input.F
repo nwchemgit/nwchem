@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.189 2008-09-13 01:04:11 jhammond Exp $
+C     $Id: geom_input.F,v 1.190 2009-01-12 19:20:08 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -530,7 +530,7 @@ c
 c     
 c     Call auto-z-matrix generation
 c     
-      if(oautoz) oautoz =  geom_zmtmak(geom,oprint)
+      if(oautoz) oautoz =  geom_zmtmak(rtdb,geom,oprint)
 c     
 c     Note, autoz may have failed and set oautoz=.false.
 c     Impose initial values of redundant internals and 

@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.47 2005-09-27 18:44:03 bert Exp $
+* $Id: geom_hnd.F,v 1.48 2009-01-12 19:20:08 bert Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -1050,7 +1050,7 @@ C
   950 FORMAT(1X,'THIS MESSAGE COMES TO YOU FROM -DIHPLA-, WHERE ',
      1          'INTERNAL COORDINATE',I4,' USES ATOMS',5I4)
       END
-      logical function geom_zmtmak(geom, oprint)
+      logical function geom_zmtmak(rtdb, geom, oprint)
       implicit double precision (a-h,o-z)
 #include "errquit.fh"
 #include "stdio.fh"
@@ -1059,9 +1059,10 @@ C
 #include "geom.fh"
 #include "util.fh"
 #include "nwc_const.fh"
+#include "rtdb.fh"
       integer  geom
       logical  oprint
-      parameter (max_zcoord=16)
+      parameter (max_zcoord=160)
 c     
 c     Make a Z-matrix for the current geometry.  If successful store
 c     it in the geometry and return true.  Otherwise return false.
@@ -1139,7 +1140,9 @@ c
       integer nibond(mxatom),iibond(mxatom)
       integer nimods(mxatom),iimods(mxatom)
       integer izfrz(mxcoor), nzfrz
-      double precision izfrz_val(mxcoor)
+      double precision izfrz_val(mxcoor),zmat(mxcoor)
+      external geom_compute_zmatrix
+      logical  geom_compute_zmatrix, frz_bnd, frz_ang, frz_tor
 *
       dimension endatm(mxatom)
       dimension endmod(mxatom)
@@ -1605,6 +1608,46 @@ c     Match generated variables against the user input to propagate
 c     constraint information into the final zmatrix
 c
          nzfrz = 0
+         if (.not.rtdb_get(rtdb, 'zmat:frz_bnd', MT_LOG, 1, frz_bnd))
+     $       frz_bnd=.false.
+         if (.not.rtdb_get(rtdb, 'zmat:frz_ang', MT_LOG, 1, frz_ang))
+     $       frz_ang=.false.
+         if (.not.rtdb_get(rtdb, 'zmat:frz_tor', MT_LOG, 1, frz_tor))
+     $       frz_tor=.false.
+         if (frz_bnd.or.frz_ang.or.frz_tor) then
+            if (.not. geom_zmt_put_data(geom, nizmat, izmat,
+     $           nzfrz, izfrz, izfrz_val, nzvar, zvarname, zvarsign,
+     $           'autoz')) call
+     $           errquit('geom_zmtmak: put data failed',0, GEOM_ERR)
+            done=geom_compute_zmatrix(geom, zmat)
+            iadd = 1
+            do izvar = 1, nzvar
+               itype = izmat(iadd)
+               if (itype .eq. 1) then
+                  iadd = iadd + 3
+                  if (frz_bnd) then
+                     nzfrz = nzfrz + 1
+                     izfrz(nzfrz) = izvar
+                     izfrz_val(nzfrz) = zmat(izvar)
+                  endif
+               else if (itype .eq. 2) then
+                  iadd = iadd + 4
+                  if (frz_ang) then
+                     nzfrz = nzfrz + 1
+                     izfrz(nzfrz) = izvar
+                     izfrz_val(nzfrz) = zmat(izvar)
+                  endif
+               else if (itype .eq. 3) then
+                  iadd = iadd + 5
+                  if (frz_tor) then
+                     nzfrz = nzfrz + 1
+                     izfrz(nzfrz) = izvar
+                     izfrz_val(nzfrz) = zmat(izvar)
+                  endif
+               endif
+            enddo
+         endif
+c
          if (modbnd .or. modang .or. modtor) then
             nuser = 0
             iadd = 1
