@@ -2,7 +2,7 @@
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
      $     odens, eatom,spec)
-C     $Id: datoms.F,v 1.27 2007-11-13 22:15:59 bert Exp $
+C     $Id: datoms.F,v 1.28 2009-01-13 20:33:41 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -371,7 +371,6 @@ c..   gather the primitives
                kkzc = kkzc + 1
                zeta(kkzc) = expnt(k)
                cont(kkzc) = coeff(k + nprim*(igen-1))
-               ucont(kkzc) = cont(kkzc)
 c...  get contraction coeffs as we are used to
                ee = 2*zeta(kkzc)
                fac = pi32/(ee*sqrt(ee))
@@ -384,6 +383,7 @@ c...  get contraction coeffs as we are used to
                   fac = 1.875d0*fac/(ee**3)
                end if
                cont(kkzc) = cont(kkzc)*sqrt(fac)
+               ucont(kkzc) = 1.0d0/sqrt(fac)
             enddo
 c...  in the pseudopotential case, we would be involved in
 c...  gathering  the h integrals for the contracted aos

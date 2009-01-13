@@ -1,7 +1,7 @@
       subroutine atomd(oprin,iwr,znps,ic,isymax,hatom,
      + pcap,qcap,fc,fo,s,u,t,h,dc,dos,dt,dold,ss,
      + c, copn, smin, qmin, transf, cc , nbb, element, tag,spec)
-C$Id: atomd.F,v 1.15 2007-11-13 22:15:59 bert Exp $
+C$Id: atomd.F,v 1.16 2009-01-13 20:33:41 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -187,9 +187,6 @@ c
          end if
 c
          call hamild(pcap,qcap,fc,fo,s,u,t,h,dos,dt,c,smin,qmin,nbb)
-         call trafsd(nsym,nbas,ndim,fc,nbc,cont,nstrt,dc)
-         call trafsd(nsym,nbas,ndim,fo,nbc,cont,nstrt,dc)
-c
 c...
 c...    now add the h-pseudo-contributions (from xpsnld)
 c...
@@ -197,6 +194,9 @@ c...
             fc(i) = fc(i) + hatom(i)
             fo(i) = fo(i) + hatom(i)
          enddo
+         call trafsd(nsym,nbas,ndim,fc,nbc,cont,nstrt,dc)
+         call trafsd(nsym,nbas,ndim,fo,nbc,cont,nstrt,dc)
+c
 c.......................................................................
 c
 c     do double diagonalization by symmetries:
