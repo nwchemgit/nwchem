@@ -2,7 +2,7 @@
      1  g_td,g_pd,g_qd,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet)
 c
-c $Id: tddft_contract.F,v 1.8 2008-11-25 01:51:34 niri Exp $
+c $Id: tddft_contract.F,v 1.9 2009-01-16 05:31:17 niri Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c (1) A trial density matrix will be decomposed into 
@@ -123,7 +123,7 @@ c
      &      jf,kf,tol2e,g_ntrl,g_nprd,.true.)
         else                                  ! attenuated calculations
           jfac = 1.d0
-          call shell_fock_build_att_alg24(geom,ao_bas_han,0,1,
+          call shell_fock_build_cam_single(geom,ao_bas_han,0,1,
      &      nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
      &      .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
         end if  ! cam_exch
@@ -135,7 +135,7 @@ c
      1      jf,kf,tol2e,g_ntrl,g_nprd,.true.)
         else                                  ! attenuated calculations
           jfac = 1.d0
-          call shell_fock_build_att_alg24(geom,ao_bas_han,0,1,
+          call shell_fock_build_cam_single(geom,ao_bas_han,0,1,
      &      nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
      &      .true.,.false.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
         end if  ! cam_exch
@@ -155,7 +155,7 @@ c
      1       nfu,nbf_ao,.false.)
         else                           ! attenuated calculations 
           jfac = 1.d0
-          call shell_fock_build_att_alg24(geom,ao_bas_han,0,ndu,
+          call shell_fock_build_cam_single(geom,ao_bas_han,0,ndu,
      &       nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
      &       .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
         end if  ! cam_exch
@@ -218,7 +218,7 @@ c
      &       jf,kf,tol2e,g_ntrl,g_nprd,.false.)
          else                        ! attenuated calculations
            jfac = 1.d0
-           call shell_fock_build_att_alg24(geom,ao_bas_han,
+           call shell_fock_build_cam_single(geom,ao_bas_han,
      &       0,1,nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
      &       .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
          end if  ! cam_exch
@@ -238,7 +238,7 @@ c
      1        nfu,nbf_ao,.false.)
           else  ! attenuated calculations
             jfac = 1.d0
-            call shell_fock_build_att_alg24(geom,ao_bas_han,0,ndu,
+            call shell_fock_build_cam_single(geom,ao_bas_han,0,ndu,
      &         nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
      &         .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
           end if  ! cam_exch
@@ -312,7 +312,7 @@ c
      1  g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet,nvectors)
 c
-c $Id: tddft_contract.F,v 1.8 2008-11-25 01:51:34 niri Exp $
+c $Id: tddft_contract.F,v 1.9 2009-01-16 05:31:17 niri Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c Multiple trial density matrices are processed simultaneously,
@@ -437,7 +437,7 @@ c
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
        else   ! attenuated calculations
         jfac = 1.d0
-        call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
+        call shell_fock_build_cam_multiple(geom,ao_bas_han,0,nvectors,
      &     nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_p,g_temp,ipol,
      &    .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
        end if  ! cam_exch
@@ -451,7 +451,7 @@ c
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
        else   ! attenuated calculations
         jfac = 0.d0
-        call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
+        call shell_fock_build_cam_multiple(geom,ao_bas_han,0,nvectors,
      &     nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_p,g_temp,ipol,
      &    .true.,.false.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
        end if  ! cam_exch
@@ -471,7 +471,7 @@ c
      1    ndu,nfu,nbf_ao,.false.)
        else  ! attenuated calculations 
         jfac = 1.d0
-        call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
+        call shell_fock_build_cam_multiple(geom,ao_bas_han,0,nvectors,
      &     nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_p,g_temp,ipol,
      &    .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
        end if ! cam_exch
@@ -523,7 +523,8 @@ c
      1          dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_work,.false.)
             else  ! attenuated calculations
              jfac = 0.d0
-             call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
+             call shell_fock_build_cam_multiple(geom,ao_bas_han,0,
+     &          nvectors,
      &          nbf_ao,jfac,kfac,tol2e,g_nsym,g_work,g_temp,ipol,
      &          .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
             end if  ! cam_exch
@@ -547,8 +548,9 @@ c
      1          dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_m,.false.)
             else  ! attenuated calculations
              jfac = 0.d0
-             call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
-     &           nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_m,g_temp,ipol,
+             call shell_fock_build_cam_multiple(geom,ao_bas_han,0,
+     &          nvectors,
+     &          nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_m,g_temp,ipol,
      &          .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
             end if  ! cam_exch
           endif ! tda
@@ -569,7 +571,8 @@ c
      1        dbl_mb(k_jf),dbl_mb(k_kf),ndu,nfu,nbf_ao,.false.)
            else
            jfac = 0.d0
-           call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
+           call shell_fock_build_cam_multiple(geom,ao_bas_han,0,
+     &         nvectors,
      &         nbf_ao,jfac,kfac,tol2e,g_nsym,g_work,g_temp,ipol,
      &         .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
            end if ! cam_exch
@@ -597,7 +600,8 @@ c
      1        dbl_mb(k_jf),dbl_mb(k_kf),ndu,nfu,nbf_ao,.false.)
            else 
            jfac = 0.d0
-           call shell_fock_build_att_alg13(geom,ao_bas_han,0,nvectors,
+           call shell_fock_build_cam_multiple(geom,ao_bas_han,0,
+     &         nvectors,
      &         nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_m,g_temp,ipol,
      &        .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
            end if  ! cam_exch
