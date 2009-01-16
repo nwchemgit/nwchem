@@ -1,6 +1,6 @@
       subroutine fock_2e_cam( geom1, ao_basis, mfock, jfac, kfac,
      $           tol2e1, oskel1, vg_dens, vg_fock, asym, doxc )
-c$Id: fock_2e_cam.F,v 1.1 2009-01-16 05:32:29 niri Exp $
+c$Id: fock_2e_cam.F,v 1.2 2009-01-16 06:29:03 niri Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -36,9 +36,13 @@ c     !!! BGJ test !!!
       integer vg_fockc
       integer dims(3), chunk(3),alo(3),ahi(3),blo(3),bhi(3)
       logical doxc
+      integer rtdb
 c
       external ga_create_atom_blocked
       logical xc_active, jfit,oprint,odft,cphf_uhf
+c
+c     Get a handle to the rtdb
+      rtdb = bgj_get_rtdb_handle()
 c
       oprint= util_print('fock_2e',print_debug)
       cphf_uhf = .false.
@@ -129,6 +133,8 @@ c
      $          tol2e1, oskel1, vg_dens, vg_fock,asym )
         endif
       else
+         if (bgj_have_j_fit()) call fock_force_direct(rtdb)
+         
          call ao_fock_2e( geom1, ao_basis, nfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
       endif
