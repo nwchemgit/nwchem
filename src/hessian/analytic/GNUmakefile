@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.16 2008-10-10 19:32:19 niri Exp $
+# $Id: GNUmakefile,v 1.17 2009-01-16 05:29:55 niri Exp $
 
 SUBDIRS = dft 
 
@@ -14,8 +14,8 @@ OBJ_OPTIMIZE =  hess_anal.o \
                 twodd_cont.o \
                 twodd_coul_ex.o \
                 shell_fock_build.o \
-                shell_fock_build_att_alg24.o \
-                shell_fock_build_att_alg13.o \
+                shell_fock_build_cam_single.o \
+                shell_fock_build_cam_multiple.o \
                 shell_fock_buildjk.o \
                 shell_fock_buildxc.o \
                 hess_cphf.o \
@@ -34,7 +34,7 @@ OBJ_OPTIMIZE =  hess_anal.o \
 LIB_INCLUDES = -I../../../nwdft/include
 
    USES_BLAS = 	 \
-    onedd_calc.F hess_restart.F shell_fock_build.F shell_fock_build_att_alg24.F shell_fock_build_att_alg13.F shell_fock_buildjk.F shell_fock_buildxc.F twodd_cont.F
+    onedd_calc.F hess_restart.F shell_fock_build.F shell_fock_build_cam_single.F shell_fock_build_cam_multiple.F shell_fock_buildjk.F shell_fock_buildxc.F twodd_cont.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
