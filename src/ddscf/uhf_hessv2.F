@@ -1,6 +1,6 @@
       subroutine uhf_hessv2(acc, g_x, g_ax)
 *
-* $Id: uhf_hessv2.F,v 1.5 2004-12-03 22:39:55 bert Exp $
+* $Id: uhf_hessv2.F,v 1.6 2009-01-16 05:32:29 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -60,6 +60,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "bgj.fh"
+#include "case.fh"
 c     
       double precision acc      ! [input] required accuracy of products
       integer g_x               ! [input] handle to input vectors
@@ -85,7 +86,7 @@ c
       integer iset, isetoff, isetoff2
       integer istart, istart_diff, iend, iend_diff, vbase, vbase_diff
       integer g_d, g_j, g_k
-      integer g_dens2, g_fock2
+      integer g_dens2, g_fock2, g_work2
       integer l_jfac, k_jfac, l_kfac, k_kfac
       integer alo(3), ahi(3), blo(2), bhi(2), dims(3), chunk(3)
       double precision tol2e_local
@@ -223,6 +224,11 @@ c
      &    ('uhf_hessv_2e2: could not allocate g_fock2',555, GA_ERR)
       call ga_zero(g_fock2)
 c
+      if (.not. nga_create (MT_DBL, 3, dims, 'work2',chunk,
+     &     g_work2)) call errquit
+     &    ('uhf_hessv_2e2: could not allocate g_work2',555, GA_ERR)
+      call ga_zero(g_work2)
+c
 c     Do some setup
 c
       ndensity = 2*nvec
@@ -233,9 +239,16 @@ c
 c
 c     Actually do the Fock build
 c
-      call shell_fock_build(geom, basis, 0, nfock,
+      if (.not.cam_exch) then
+        call shell_fock_build(geom, basis, 0, nfock,
      $     dbl_mb(k_jfac), dbl_mb(k_kfac),
      $     tol2e, g_dens2, g_fock2, noskew_uhf)
+      else
+        call shell_fock_build_cam_multiple(geom, basis, 0, nfock,
+     &     nbf, 1.d0, 1.d0, ! dbl_mb(k_jfac), dbl_mb(k_kfac)
+     &     tol2e, g_dens2, g_fock2, g_work2, 2, ! set ipol = 2: unrestricted
+     &    .true.,.true.,.true.,noskew_uhf,.false.)  ! doexch, docoul, doxc, osym, oprint
+      end if
 c
       if (.not.ma_pop_stack(l_kfac))
      $  call errquit('uhf_hessv_2e2: pop problem with l_jfac',555,
@@ -261,6 +274,8 @@ c     endif
 c
       if (.not. ga_destroy(g_dens2))
      $     call errquit('uhf_hessv_2e2: GA corrupt?',0, GA_ERR)
+      if (.not. ga_destroy(g_work2)) 
+     &     call errquit('uhf_hessv_2e2: GA corrupt?',0, GA_ERR)
 c
 c     Now transform to the MO basis and assemble the results
 c     I would like this to eventually be part of uhf_fock_finish
@@ -368,5 +383,3 @@ c
      &       GA_ERR)
 c
       end
-
-           

@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.68 2005-10-27 00:12:45 edo Exp $
+C$Id: uhf.F,v 1.69 2009-01-16 05:32:29 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -218,7 +218,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.68 2005-10-27 00:12:45 edo Exp $
+C     $Id: uhf.F,v 1.69 2009-01-16 05:32:29 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -527,7 +527,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.68 2005-10-27 00:12:45 edo Exp $
+C$Id: uhf.F,v 1.69 2009-01-16 05:32:29 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -622,8 +622,9 @@ c
 #include "cscfps.fh"
 #include "rtdb.fh"
 #include "bgj.fh"
+#include "case.fh"
 c     
-c     $Id: uhf.F,v 1.68 2005-10-27 00:12:45 edo Exp $
+c     $Id: uhf.F,v 1.69 2009-01-16 05:32:29 niri Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -635,6 +636,7 @@ c
       integer g_a_dens, g_a_coul, g_a_exch, g_a_xc
       integer g_b_dens, g_b_coul, g_b_exch, g_b_xc
       integer g_hcore
+      integer g_tmp(6),ifock
       double precision jfac(4), kfac(4), one, zero, mone
       parameter (one=1.0d0, zero=0.0d0, mone=-1.0d0)
       double precision e_a_coul, e_a_exch, e_b_coul, e_b_exch,
@@ -750,15 +752,56 @@ c
 c
 czz   two extra ga's are passed to fock_2e to get the xc matrix
 c
-c
       if(cphf_uhf)then
          nfock = 6
       else
          nfock = 4
       endif
       call do_riscf (.false.)
-      call fock_2e(geom, basis, nfock, jfac, kfac, tol2e,
+      if (.not.cam_exch) then
+        call fock_2e(geom, basis, nfock, jfac, kfac, tol2e,
      $     oskel, d, f, .false.)
+      else ! for attenuated calculations
+c
+c       calculate the CAM exchange
+c
+        do ifock = 1,nfock
+           g_tmp(ifock) = ga_create_atom_blocked(geom, basis, 'tmp')
+        end do
+        call ga_zero(g_tmp)
+c
+        call case_setflags(.true.)
+        jfac(1)=0d0
+        jfac(2)=0d0
+        jfac(3)=0d0
+        jfac(4)=0d0
+        kfac(1)=0d0
+        kfac(2)=1d0
+        kfac(3)=0d0
+        kfac(4)=1d0
+        call fock_2e_cam(geom, basis, nfock, jfac, kfac, tol2e, 
+     &     oskel, d, g_tmp, .false., .false.)
+        call ga_dadd(1d0,f,1d0,g_tmp,f)
+c
+c       calculate the full Coulomb
+c
+        call case_setflags(.false.)
+        jfac(1)=1d0
+        jfac(2)=0d0
+        jfac(3)=1d0
+        jfac(4)=0d0
+        kfac(1)=0d0
+        kfac(2)=0d0
+        kfac(3)=0d0
+        kfac(4)=0d0
+        call fock_2e_cam(geom, basis, nfock, jfac, kfac, tol2e, 
+     &     oskel, d, g_tmp, .false., .true.)
+        call ga_dadd(1d0,f,1d0,g_tmp,f)
+c
+c       destroy work space
+        if (.not. ga_destroy(g_tmp)) 
+     &   call errquit('uhf: ga corrupt?',0, GA_ERR)
+      end if
       call do_riscf (.true.)
 c
       e_a_coul = 0.5d0*
@@ -1158,7 +1201,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.68 2005-10-27 00:12:45 edo Exp $
+C$Id: uhf.F,v 1.69 2009-01-16 05:32:29 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

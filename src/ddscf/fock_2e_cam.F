@@ -1,6 +1,6 @@
-      subroutine fock_2e( geom1, ao_basis, mfock, jfac, kfac,
-     $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.31 2009-01-16 05:32:29 niri Exp $
+      subroutine fock_2e_cam( geom1, ao_basis, mfock, jfac, kfac,
+     $           tol2e1, oskel1, vg_dens, vg_fock, asym, doxc )
+c$Id: fock_2e_cam.F,v 1.1 2009-01-16 05:32:29 niri Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -35,8 +35,11 @@ c     !!! BGJ test !!!
       integer ga_create_atom_blocked
       integer vg_fockc
       integer dims(3), chunk(3),alo(3),ahi(3),blo(3),bhi(3)
+      logical doxc
+c
       external ga_create_atom_blocked
       logical xc_active, jfit,oprint,odft,cphf_uhf
+c
       oprint= util_print('fock_2e',print_debug)
       cphf_uhf = .false.
       if (.not. rtdb_get(bgj_get_rtdb_handle(), 
@@ -177,7 +180,8 @@ c     works with nfock=1 for CS and nfock=4 for OS
 c
       if(nfock.ne.1.and.nfock.ne.4) call errquit(
      '     '    fock_2e: unexpected nfock value = ',nfock, UNKNOWN_ERR)
-c       
+       
+      if (doxc) then
       call fock_xc(geom1, nbf,ao_basis,
      ,     nfock, vg_dens, g_xc,.false.)
       ffac=1d0
@@ -227,6 +231,7 @@ c
             call errquit('fock_2e: problem destroying test array',1,
      &       GA_ERR)
          endif
-      endif
+      endif !xc_active
+      end if  ! doxc
       return
       end

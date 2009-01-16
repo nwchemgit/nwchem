@@ -6,7 +6,7 @@
 #include "stdio.fh"
 #include "util.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.14 2006-07-12 00:01:35 bert Exp $
+c     $Id: rohf_hessv2.F,v 1.15 2009-01-16 05:32:29 niri Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -54,7 +54,7 @@ c
      $     pflg,
      $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.14 2006-07-12 00:01:35 bert Exp $
+C     $Id: rohf_hessv2.F,v 1.15 2009-01-16 05:32:29 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -93,7 +93,7 @@ c
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, noskew, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.14 2006-07-12 00:01:35 bert Exp $
+C     $Id: rohf_hessv2.F,v 1.15 2009-01-16 05:32:29 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -103,6 +103,7 @@ C     $Id: rohf_hessv2.F,v 1.14 2006-07-12 00:01:35 bert Exp $
 #include "rtdb.fh"
 #include "bgj.fh"
 #include "stdio.fh"
+#include "case.fh"
 c     
 c     Return the ROHF orbital 2e-Hessian vector product, g_ax = A * g_x
 c     
@@ -133,6 +134,8 @@ c
       logical oprint
       logical noskew
 c
+      integer g_work
+c
       integer dims(3), chunk(3), alo(3), ahi(3), blo(2), bhi(2)
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -144,7 +147,7 @@ c
       parameter (half=0.5d0, mhalf=-0.5d0, two=2.0d0, mtwo=-2.0d0)
       oprint= util_print('rohf_hessv2',print_debug)
       xc_xfac1=bgj_kfac()
-c     
+c
 c     This get's cleaned up a lot when the Fock build accepts
 c     a single multiple dimension GA for its input.
 c
@@ -190,11 +193,15 @@ c
       chunk(1) = dims(1)
       chunk(2) = -1
       chunk(3) = -1
-      if (.not. nga_create (MT_DBL, 3, dims, 'CPKS dens',chunk,
-     &     g_dens))
-     &   call errquit('rohf_h2e: could not allocate g_dens',555,
-     &       GA_ERR)
+c
+      if (.not. nga_create (MT_DBL, 3, dims, 'CPKS dens',chunk, g_dens))
+     & call errquit('rohf_h2e: could not allocate g_dens',555,GA_ERR)
       call ga_zero(g_dens)
+c
+      if (.not. nga_create (MT_DBL, 3, dims, 'CPKS dens',chunk, g_work))
+     & call errquit('rohf_h2e: could not allocate g_work',555,GA_ERR)
+      call ga_zero(g_work)
+c
       g_dcv = ga_create_atom_blocked(geom, basis, 'rohf_h2e: dcv')
       if (nopen .gt. 0) then
          g_dcp = ga_create_atom_blocked(geom, basis, 'rohf_h2e: dcp')
@@ -355,9 +362,16 @@ c
 c
 c     noskew is true, except for nmr perturbations (skew symmetric)
 c
-      call shell_fock_build(geom, basis, 0, nfock, 
-     $     dbl_mb(k_jfac), dbl_mb(k_kfac),
-     $     tol2e, g_dens, g_fock, noskew)
+      if (.not.cam_exch) then
+        call shell_fock_build(geom, basis, 0, nfock, 
+     $   dbl_mb(k_jfac), dbl_mb(k_kfac),
+     $   tol2e, g_dens, g_fock, noskew)
+      else   ! for attenuated calculations
+        call shell_fock_build_cam_multiple(geom, basis, 0, nfock,
+     &     nbf, 1.d0, 1.d0, ! dbl_mb(k_jfac), dbl_mb(k_kfac)
+     &     tol2e, g_dens, g_fock, g_work, 1, ! set ipol = 1: restricted
+     &    .true.,.true.,.true.,noskew,.false.)  ! doexch, docoul, doxc, osym, oprint
+      end if
 c     
       if (oskel) 
      $   call errquit('rohf_h2e2: no way',0, UNKNOWN_ERR)
@@ -482,7 +496,8 @@ c
      &       GA_ERR)
       if (.not. ga_destroy(g_fock)) call errquit('rohf_h2e: GA?',0,
      &       GA_ERR)
-c
+      if (.not. ga_destroy(g_work)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
       if (.not. ga_destroy(g_tmp1)) call errquit('rohf:destroy?',0,
      &       GA_ERR)
       if (.not. ga_destroy(g_tmp2)) call errquit('rohf:destroy?',0,
@@ -499,4 +514,3 @@ c
       endif
 c     
       end
-

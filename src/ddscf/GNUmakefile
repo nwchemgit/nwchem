@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.124 2008-06-13 19:06:55 jhammond Exp $
+# $Id: GNUmakefile,v 1.125 2009-01-16 05:32:29 niri Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -44,8 +44,9 @@
         rohf_lagr.o 		rohf_diis.o \
 	rhf_fock.o              multipole.o ga_mat_to_vec.o \
         movecs_frag.o  localize.o int_dip_ga.o \
-        fock_xc.o fock_j_fit.o rohf_jkfac.o \
-        rohf_hessv3.o
+        fock_xc.o fock_j_fit.o rohf_jkfac.o uhf_jkfac.o \
+        rohf_hessv3.o \
+	fock_2e_cam.o
 
 
  OBJ_OPTIMIZE = \
@@ -65,7 +66,8 @@
 
     USES_BLAS = ao_fock_2e.F ao_replicated.F fock_2e_file.F fock_2e_slab.F int2e_file.F \
                 movecs_lock.F movecs_phase.F riscf_fock.F riscf_trans.F rohf_diis.F \
-                rohf_k2cf.F scf_movecs.F scf_vec_guess.F uhf.F movecs_frag.F localize.F fock_2e.F int_1e_ga.F movecs_rotate.F
+                rohf_k2cf.F scf_movecs.F scf_vec_guess.F uhf.F movecs_frag.F localize.F fock_2e.F \
+		fock_2e_cam.F int_1e_ga.F movecs_rotate.F
 
 HEADERS = schwarz.fh cscfps.fh cfock.fh cscf.fh cint2efile.fh cint2esave.fh cfockmul.fh crohf.fh cosmo.fh cuhf.fh
 

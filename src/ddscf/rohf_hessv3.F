@@ -16,7 +16,7 @@ c     have an imaginary part, too
 #include "util.fh"
 #include "global.fh"
 c     
-c     $Id: rohf_hessv3.F,v 1.4 2007-10-31 22:23:31 d3p852 Exp $
+c     $Id: rohf_hessv3.F,v 1.5 2009-01-16 05:32:29 niri Exp $
 c
 c ... jochen: these two arrays now have two components:
       integer g_x(2)  ! [input]  A-matrix elements for density matrix
@@ -96,7 +96,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax, g_x_im, g_Ax_im, omega, limag,
      &   lifetime, gamwidth, ncomp)
-C     $Id: rohf_hessv3.F,v 1.4 2007-10-31 22:23:31 d3p852 Exp $
+C     $Id: rohf_hessv3.F,v 1.5 2009-01-16 05:32:29 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -246,7 +246,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       subroutine rohf_hessv_2e3( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, noskew, g_x, acc, g_ax, limag)
-C     $Id: rohf_hessv3.F,v 1.4 2007-10-31 22:23:31 d3p852 Exp $
+C     $Id: rohf_hessv3.F,v 1.5 2009-01-16 05:32:29 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -707,6 +707,7 @@ c     false if P-matrix is antisymmetric. The output Fock matrices
 c     will be symmetrized and antisymmetrized, respectively.
 c
 c     case I: symmetric density matrix
+      write(6,*) "Calling shell_fock_build in rohf_hessv3"
       call shell_fock_build(geom, basis, 0, nfock, 
      $   dbl_mb(k_jfac(1)), dbl_mb(k_kfac(1)),
      $   tol2e, g_dens(1), g_fock(1), .true.)

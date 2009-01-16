@@ -3,7 +3,7 @@
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel, iter)
 *
-* $Id: rohf_fock.F,v 1.22 2007-12-22 00:46:14 niri Exp $
+* $Id: rohf_fock.F,v 1.23 2009-01-16 05:32:29 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -14,6 +14,7 @@
 #include "util.fh"
 #include "cscfps.fh"
 #include "cosmo.fh"
+#include "case.fh"
 c     
 c     Build fock matrices and energies for ROHF wavefunction
 c     
@@ -45,6 +46,7 @@ c
       double precision sym_tol  ! Threshold for detecting symmetry breaking
       double precision jfactor(nset),kfactor(nset)
       integer iv_dens(nset),iv_fock(nset)
+      integer g_tmp(2)
 c     
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -138,8 +140,7 @@ c
         itype_wfn=1
         call cosmo_charges(rtdb,basis,geom,ecosmo,osome,
      $                     itype_wfn,g_vecs,nclosed,nopen,nbf,nmo)
-        call int_1e_ga(basis,basis,g_hcore   ,'cos_chg_pot',
-     $                                                  .false.)
+        call int_1e_ga(basis,basis,g_hcore,'cos_chg_pot',.false.)
       endif
       call ga_sync()
 c
@@ -174,18 +175,52 @@ C     don't do it if RI HESSIAN is active
       call do_riscf (.false.)
 C     Dyalls method for RHF
       if ( nopen .eq. 0 ) call riscf_dovecs(.true., g_vecs)
-      call fock_2e(geom, basis, nfock, jfactor, kfactor,
+      if (.not.cam_exch) then
+        call fock_2e(geom, basis, nfock, jfactor, kfactor,
      $     tol2e, oskel, iv_dens, iv_fock, .false.)
+      else 
+c       for attenuated calculations
+c
+c       get some work space
+        g_tmp(1) = ga_create_atom_blocked(geom, basis,'rohf: tmp1')
+c
+c       calculate the CAM exchange
+c
+        call ga_zero(g_tmp(1))
+        call case_setflags(.true.)
+        jfactor(1)=0d0
+        jfactor(2)=0d0
+        jfactor(3)=0d0
+        kfactor(1)=-.5d0
+        kfactor(2)=0d0
+        kfactor(3)=-.5d0
+        call fock_2e_cam(geom, basis, nfock, jfactor, kfactor,
+     $     tol2e, oskel, iv_dens, g_tmp(1), .false., .false.)
+        call ga_dadd(1d0,iv_fock,1d0,g_tmp(1),iv_fock)
+c
+c       calculate the full Coulomb
+c
+        call ga_zero(g_tmp(1))
+        call case_setflags(.false.)
+        jfactor(1)=1d0
+        jfactor(2)=1d0
+        jfactor(3)=0d0
+        kfactor(1)=0d0
+        kfactor(2)=0d0
+        kfactor(3)=0d0
+        call fock_2e_cam(geom, basis, nfock, jfactor, kfactor,
+     $     tol2e, oskel, iv_dens, g_tmp(1), .false., .true.)
+        call ga_dadd(1d0,iv_fock,1d0,g_tmp(1),iv_fock)
+c
+c       destroy work space
+        if (.not. ga_destroy(g_tmp(1))) call errquit
+     $             ('xc_getv: ga corrupt?',0, GA_ERR)
+      end if
       call do_riscf (.true.)
       if ( nopen .eq. 0 ) call riscf_dovecs(.false., g_vecs)
 c     
 c     Energy evaluation
 c     
-c     FIXME
-c     g_cfock has more that the 2e present. it is consistent for HF
-c     but includes the dft xc for dft. so etwo_closed is a bit incorrect.
-c     this needs to be split up
-c     the potential is constructed correctly in fock_2e
       etwo_closed = 0.5d0*ga_ddot(g_cdens,g_cfock)
       etwo_open = 0.0d0
       if (nopen .gt. 0) etwo_open = 
@@ -279,6 +314,7 @@ c
       endif
 c     
       end
+c
       subroutine rohf_get_fock(g_fock)
       implicit none
 #include "cscf.fh"
@@ -304,18 +340,3 @@ c
       endif
 c
       end
-
-
-
-
-
-
-
-
-
-
-
-       
-
-
-
