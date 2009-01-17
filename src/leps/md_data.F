@@ -1,12 +1,12 @@
-      subroutine md_data_allocate(n)
+      subroutine md_data_allocate()
       implicit none
 #include "md_data.fh"
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 
-      integer n
-      natom=n
+c      integer n
+c      natom=n
 
       if (.not. ma_alloc_get(mt_dbl, 3*natom, 'coordinate' ,
      & h_c,i_c))
@@ -52,6 +52,7 @@
      & natom,MA_ERR)
 
       write(*,*) 'Done with all the allocation'
+      write(*,*) 'i_c,i_m,i_q,i_v,i_t,i_a,i_b,i_d,i_f'
       write(*,*) i_c,i_m,i_q,i_v,i_t,i_a,i_b,i_d,i_f
 
       end 
@@ -161,7 +162,7 @@
       md_data_get_i_t = i_t
       end
 
-      subroutine md_data_set_natom(rtdb,geom)
+      subroutine md_data_set_natom(n)
 #include "md_data.fh"
 #include "errquit.fh"
 #include "global.fh"
@@ -169,25 +170,14 @@
 #include "rtdb.fh"
 #include "geom.fh"
 
-      integer rtdb,geom,n 
+      integer n 
 
-c      if (.not. geom_create(geom, 'geometry'))
-c     & call errquit('md_data: failed creating geometry',
+c      if (.not. geom_ncent(geom,n))
+c     & call errquit('md_data: ncent error',
 c     & 0,GEOM_ERR)
-cC     load geometry into the object
-c      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-c     & call errquit('md_data: no geometry',
-c     & 0,RTDB_ERR)
-cC     get the number of centers
-      if (.not. geom_ncent(geom,n))
-     & call errquit('md_data: ncent error',
-     & 0,GEOM_ERR)
 
       natom=n
 
-c      if (.not. geom_destroy(geom))
-c     & call errquit('md_data:  geom_destroy failed',
-c     & 911,GEOM_ERR)
       end
  
       function md_data_get_natom()
@@ -208,17 +198,6 @@ c     & 911,GEOM_ERR)
 
       integer rtdb,geom
 
-c      if (.not. geom_create(geom, 'geometry'))
-c     & call errquit('md_data: failed creating geometry',
-c     & 0,GEOM_ERR)
-cC     load geometry into the object
-c      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-c     & call errquit('md_data: no geometry',
-c     & 0,RTDB_ERR)
-cC     get the number of centers
-c      if (.not. geom_ncent(geom,n))
-c     & call errquit('md_data: ncent error',
-c     & 0,GEOM_ERR)
 
       if (.not. geom_masses_get(geom,natom,dbl_mb(i_m) ))
      & call errquit('leps_getgeom:  mass error',0,GEOM_ERR)
@@ -226,12 +205,9 @@ c     & 0,GEOM_ERR)
       if (.not. geom_cart_get(geom, n, byte_mb(i_t),
      &                         dbl_mb(i_c),dbl_mb(i_q) ))
      & call errquit('leps_getgeom: coord error',0,GEOM_ERR)
-       write(*,*) 'Filled cartesians and masses  '
+       write(*,*) 'Geom_copy:Filled cartesians and masses  '
 
 
-c      if (.not. geom_destroy(geom))
-c     & call errquit('md_data:  geom_destroy failed',
-c     & 911,GEOM_ERR)
       end
 
       subroutine md_data_geom_set(rtdb,geom)
@@ -244,9 +220,6 @@ c     & 911,GEOM_ERR)
 
       integer rtdb,geom
 
-c      if (.not. geom_create(geom, 'geometry'))
-c     & call errquit('md_data: failed creating geometry',
-c     & 0,GEOM_ERR)
 
 cC     load geometry into the object
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
@@ -264,9 +237,6 @@ cC     load geometry into the object
       if(.not.geom_rtdb_store(rtdb,geom,"geometry"))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
 
-c      if (.not. geom_destroy(geom))
-c     & call errquit('md_data:  geom_destroy failed',
-c     & 911,GEOM_ERR)
       end
    
       subroutine md_data_inp_set(rtdb)
@@ -316,5 +286,14 @@ c     & 911,GEOM_ERR)
 
       md_data_get_temp = temp
 
+      end
+
+      function md_data_set_temp(t)
+      implicit none
+#include "md_data.fh"
+      logical md_data_set_temp
+      double precision t   
+      temp=t
+      md_data_set_temp=.true.
       end
 

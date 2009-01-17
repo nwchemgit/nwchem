@@ -21,7 +21,7 @@ c      double precision gg(3,3),c(3,3),eleps
 c      double precision gradient(3,3) ! can do this because LEPS is only for triatomic collinier sys
 c
 c
-      write(*,*) "doing leps_gradient"
+c      write(*,*) "doing leps_gradient"
 c      natom=3
 c      eleps=0.0
       call leps_energy(rtdb)
@@ -84,7 +84,7 @@ C------- accessed by the geom handle
 C ------ Calculate the gradient by giving the coordinates as input and 
 
       call leps_gradient1(natom,nelem,dbl_mb(i_c),dbl_mb(i_g))
-      call leps_gradient0(natom,nelem,dbl_mb(i_g))
+c      call leps_gradient0(natom,nelem,dbl_mb(i_g))
 c      call leps_gradient1(natom,nelem,c,gg)  
 c      call leps_gradient1(natom,nelem,dbl_mb(i_c),gg)
 c      call leps_gradient0(natom,nelem,gg)
@@ -165,8 +165,8 @@ c
       logical out1 
       integer n,nel ! number of atoms
       integer i,j,jat
-      double precision c0(3,3),grad(3,3)
-
+      double precision small,dot,cosa,c0(3,3),grad(3,3)
+      logical coll
 
 c------from leps energy
       double precision c(3,3),dr(3,3,3),dvk(3,3,3),dvj(3,3,3)
@@ -181,6 +181,10 @@ c------from leps energy
       data del    /0.135d+00,0.135d+00,0.135d+00/
 
       out1=.false.
+      dot=0.0
+      cosa=0.0 
+      small = 1d-10
+      coll=.false.
 C----- convert the coordinates to angstrom (because alp and re are in angstroms)
       do i=1,n
         do j=1,n
@@ -193,6 +197,15 @@ C----- convert the coordinates to angstrom (because alp and re are in angstroms)
      1                             +(c(3,2)-c(3,3))**2 )
       r(3)=sqrt( (c(1,1)-c(1,3))**2+(c(2,1)-c(2,3))**2
      1                             +(c(3,1)-c(3,3))**2 )
+
+C check collinearity
+      dot =      (c(1,1)-c(1,2))*(c(1,1)-c(1,3))+
+     1           (c(2,1)-c(2,2))*(c(2,1)-c(2,3))+
+     2           (c(3,1)-c(3,2))*(c(3,1)-c(3,3))
+      cosa=dot/(r(1)*r(3))
+
+      cosa=abs(cosa)
+      coll=abs(1.0-cosa).lt.small
 
 
 c ------- Just cause I like all my arrays to be set to zero before use  
@@ -237,6 +250,7 @@ c r3
 c      write (*,*) 'dr(3,3,3):',dr(3,3,3)
 
 c      write(6,*) 'dr  = ',dr
+      if(coll) then
       do i=1,3
             vj(i)=  (de(i)/(4.0*(1.0+del(i))))*
      1     (     (1.0  +3.0*del(i))*exp(-2.0*alp(i)*(r(i)-re(i)))
@@ -305,6 +319,13 @@ c     6                     -dvj(3,j,jat)*(vj(1)-vj(3)) )/sqrj/2.0)
 c     7                   /tohartree*tobohr
 c            enddo
 c         enddo
+        else
+         do jat=1,n
+            do j=1,3
+               grad(j,jat)=0.0
+            enddo
+         enddo   
+        endif
          if (out1) then
           write(*,*) 'sqrj :', sqrj
            write(*,*) 'vj :', vj

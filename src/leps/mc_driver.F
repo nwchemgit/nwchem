@@ -1,4 +1,4 @@
-      function mc_driver(rtdb)
+      function mc_driver(rtdb,naccept)
       implicit none
       integer rtdb
 
@@ -14,47 +14,56 @@
 
       logical mc_driver
       integer geom
-      integer natom,mcstep !number of Monte Carlo step
-      integer h_in,i_in
-      integer h_c,i_c
-      integer h_q,i_q
-      integer h_t,i_t
-      integer h_s,i_s
-      double precision E0,E1,R,ediff,temp
-      integer i,j,step  
-      natom=3
-      mcstep=5  
-      temp=300
+      integer mcstep,natom !number of Monte Carlo step
+c      integer h_in,i_in
+      integer i_c,i_evec,i_eval,i_in,i_s,i_q,i_t 
+      integer mc_data_get_i_c, mc_data_get_i_evec, mc_data_get_i_eval
+      integer mc_data_get_i_c_array, mc_data_get_i_s, mc_data_get_i_q
+      integer mc_data_get_i_t
+      integer mc_data_get_mcsteps
+      double precision mc_data_get_stepsize, mc_data_get_ratio 
+      double precision mc_data_get_temp
+      double precision temp,stepsize,ratio
+      logical  mc_data_set_natom, mc_data_set_naccept 
+      double precision E0,E1,R,ediff,dir,dynrnd,urand
+      integer i,j,step,ivib  
+      integer naccept,nreject
+      character*64 theory,blanks
+      character*32 thr,task
+      data blanks(1:64) /' '/
+      double precision seed,nseed
+      integer seed1
+      COMMON/DYSEED/SEED,NSEED
+ 
+      logical md_driver
+      external md_driver
+      logical leps_gradient
+      external leps_gradient
+      logical status 
+      theory=blanks
+      task=':energy'
+c      thr="leps"
+      call mc_data_inp_set(rtdb)
+      natom=0
+      seed1=152
+      seed= 52.34
+      mcstep=mc_data_get_mcsteps() ! number of monte carlo steps  
+      temp=mc_data_get_temp()      ! temperature, should be the same as in md
+      stepsize=mc_data_get_stepsize() ! stepsize scale for the geometry displacement
+      ratio = mc_data_get_ratio()     ! the ratio of accepted and rejected steps in the run
+                                      ! if the ratio is below or above the given value, the stepsize should be 
+                                      ! increased or reduced NOT YET IMPLEMENTED 
+      write(*,*) 'mymc input parameters:_mcsteps, temp, stepsize, ratio'
+      write(*,*) mcstep,temp,stepsize,ratio
+      naccept=0
+      nreject=0
 C will need an array of coordinaates      
 C allocate memory for the init_points array
-      write(*,*) 'Entering mc_driver'
-      if (.not. ma_alloc_get(mt_dbl, (mcstep+1)*3*natom, 'coordinate' ,
-     & h_in,i_in))
-     & call errquit('mc_driver: array of coords not allocated',
-     & 3*natom,MA_ERR)
-      write(*,*) 'iAllocated big array'
-C allocate  memory for the property array
-      if (.not. ma_alloc_get(mt_int, mcstep+1, 'mcstep' ,
-     & h_s,i_s))
-     & call errquit('mc_driver: array of properties not allocated',
-     & 1,MA_ERR)
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, thr))
+     $     call errquit('mc_driver: theory not specified',0, RTDB_ERR)
+      call concat(thr,task,theory)
+      write(*,*) 'Theory is:  ',theory
 
-C  allocate memeory for the next point to be stored
-      if (.not. ma_alloc_get(mt_dbl, 3*natom, 'coordinate' ,
-     & h_c,i_c))
-     & call errquit('mc_driver: array of coords not allocated',
-     & 3*natom,MA_ERR)
-      write(*,*) 'Allocated coord'
-      if (.not. ma_alloc_get(mt_dbl, natom, 'charge', h_q,i_q))
-     & call errquit('leps_getgeom: charge not allocated',
-     & natom,MA_ERR)
-      if (.not.ma_alloc_get(mt_byte, 16*natom, 'tags', h_t,i_t))
-     & call errquit('leps_getgeom: tags not allocated',
-     & natom,MA_ERR)
-
-
-C copy the initial geometry in the array:
-c     create geometry object
       if (.not. geom_create(geom, 'geometry'))
      & call errquit('mc_driver_getgeom: failed creating geometry',
      & 0,GEOM_ERR)
@@ -65,46 +74,90 @@ C     load geometry into the object
      & 0,RTDB_ERR)
       write(*,*) 'Loaded Geom object'
 
-      if (.not. geom_cart_get(geom, natom, byte_mb(i_t),
-     & dbl_mb(i_in), dbl_mb(i_q)))
-     & call errquit('mc_driver_getgeom: coord error',0,GEOM_ERR)
-      write(*,*) 'Filled array'
+      if (.not. geom_ncent(geom,natom))
+     & call errquit('mc_data: ncent error',
+     & 0,GEOM_ERR)
 
+      status = mc_data_set_natom(natom)
+      write(*,*) 'Entering mc_driver'
+      write(*,*) 'Allocated big array'
+ 
+      call mc_data_allocate(natom)
+      call mc_data_set(rtdb,geom)
+      write(*,*) 'Mc data set'
+
+      i_c = mc_data_get_i_c()
+      i_evec = mc_data_get_i_evec()
+      i_eval =  mc_data_get_i_eval()
+      i_in = mc_data_get_i_c_array() 
+      i_s = mc_data_get_i_s()
+      i_t = mc_data_get_i_t()
+      i_q = mc_data_get_i_q() 
+c      write(*,*) 'got handles'
+c      do i=1, 3*natom
+c          write(*,*) 'TST 0: ', dbl_mb(i_in+i-1)
+c          write(*,*) 'TST 1: ', dbl_mb(i_c+i-1)
+c      enddo
+
+c      call mc_data_geom_copy(rtdb,geom)
+
+
+      call mc_data_init(rtdb)
+      write(*,*) 'mc_data_init'
+      call printeg(3*natom,dbl_mb(i_eval),dbl_mb(i_evec))
 
 C  ! get ihe energy for the initial point
-      R=util_random(1234) ! init random umber generator
-      do step=1,mcstep
-      write(*,*) 'Starting step',step
+C      R=util_random(seed1) ! init random number generator
+      R=dynrnd(1) 
+C      do i=1,10
+C          write(*,*) 'dynrnd',dynrnd(0)
+C      enddo 
+C      return 
 
-      call leps_energy(rtdb)
+      int_mb(i_s)=1  ! always the first step is accepted cause it is the irc 
+      do step=1,mcstep
+c     write(*,*) 'Starting step',step
+
+      call task_energy(rtdb) 
       
-      if (.not. rtdb_get(rtdb,'leps:energy',mt_dbl,1,E0))
-     & call errquit('leps_energy:  no energy ', 0,
+      if (.not. rtdb_get(rtdb,theory,mt_dbl,1,E0))
+     & call errquit('mc_driver:  no energy ', 0,
      & RTDB_ERR)
 
-      write(*,*) 'In MC-driver E0 is: ',E0 
-      write(*,*) 'In MC-driver stored in the big array:'
-      do i=1, natom
-         write(*,*) dbl_mb(i_in+(step-1)*3*natom+3*i-3),
-     &              dbl_mb(i_in+(step-1)*3*natom+3*i-2),
-     &              dbl_mb(i_in+(step-1)*3*natom+3*i-1)
+      write(*,*)'In MC-driver:current step :',step,' from ',mcstep 
+      do i=1, 3*natom
+         write(*,*) dbl_mb(i_c+i-1)
       enddo
-C   store the next step in the temp array
-        do i=1, natom
-         do j=1,3
-          if (3*i-j.eq.2 .or. 3*i-j.eq.8) then 
-C this part is to be replaced with the real displacment from the eigenvectors
-           dbl_mb(i_c+3*i-j)=dbl_mb(i_in+(step-1)*3*natom+3*i-j)+0.01
-          else
-           dbl_mb(i_c+3*i-j)=dbl_mb(i_in+(step-1)*3*natom+3*i-j)  
-          endif
-          dbl_mb(i_in+step*3*natom+3*i-j)=dbl_mb(i_c+3*i-j)
-         enddo
-        enddo
-      write(*,*) 'In MC-driver the next state is:'
-      do i=1, natom
-         write(*,*) dbl_mb(i_c+3*i-3),dbl_mb(i_c+3*i-2),
-     &              dbl_mb(i_c+3*i-1)
+c      write(*,*)'In MC-driver: end of temp array C'
+      do ivib=2, 3*natom
+       if (dbl_mb(i_eval+ivib-1).gt.0.1) then  
+c       write(*,*)'In MC-driver:mode',ivib,'is ',(dbl_mb(i_eval+ivib-1))
+c       write(*,*)'In MC-driver:mode', ivib, ' vector is:'
+c       do i=1, 3*natom
+c        write(*,*)dbl_mb(i_evec+(ivib-1)*3*natom+i-1)
+c       enddo
+C            R=util_random(0)
+C            dir=util_random(0)
+            R=(dynrnd(0))
+            dir=dynrnd(0)
+            write(*,*) 'dynrnd1 ', R
+            write(*,*) 'dynrnd2 ', dir  
+            if(dir.le.0.5) then
+               dir=-1.0
+            else
+               dir=1.0
+            endif
+            write(*,*)'In MC-driver:dir , rnd ', dir,R*dir*stepsize
+            do i=1, 3*natom
+              dbl_mb(i_c+i-1)=dbl_mb(i_c+i-1)+
+     $              dbl_mb(i_evec+(ivib-1)*3*natom+i-1)*R*dir*stepsize
+            enddo
+       endif
+      enddo
+
+      write(*,*) 'In MC-driver the new state is:'
+      do i=1, 3*natom
+         write(*,*) dbl_mb(i_c+i-1)
       enddo
 
 C store the new coords in rtdb
@@ -117,27 +170,43 @@ C store the new coords in rtdb
      &               RTDB_ERR)
 
 C call the energy calculation 
-        call leps_energy(rtdb)
-
-        if (.not. rtdb_get(rtdb,'leps:energy',mt_dbl,1,E1))
+C        call leps_energy(rtdb)
+        call task_energy(rtdb)
+        if (.not. rtdb_get(rtdb,theory,mt_dbl,1,E1))
      &   call errquit('mc_driver:  no energy ', 0,
      &                 RTDB_ERR)
 
-        write(*,*) 'In MC-driver second energy is: ',E1
+       
         if (E1.lt.E0) then
           int_mb(i_s+step)=1
+          naccept=naccept+1
+          write(*,*) 'naccept1= ',naccept
+          do i=1, 3*natom
+             dbl_mb(i_in+naccept*3*natom+i-1)=dbl_mb(i_c+i-1)
+          enddo
+c          status=md_driver(rtdb,leps_gradient,thr,naccept)
+c          call crossing(natom)
         else
-          R=util_random(0)
+C          R=util_random(0)
+          R=(dynrnd(0))
+          write(*,*) 'dynrnd3 ', R
           ediff=exp(-(E1-E0)/(temp*boltzmann*JToHartree))
-          if(ediff.le.R) then
+          if(ediff.ge.R) then
              int_mb(i_s+step)=1
+             naccept=naccept+1
+             write(*,*) 'naccept2= ',naccept
+             do i=1, 3*natom
+                dbl_mb(i_in+naccept*3*natom+i-1)=dbl_mb(i_c+i-1)
+             enddo
+c             status=md_driver(rtdb,leps_gradient,thr,naccept)  
+c             call crossing(natom)   
           else
              int_mb(i_s+step)=0
+             nreject=nreject+1
+             write(*,*) 'nreject= ',nreject
 C     ---and return the old coordinates in the rtdb  
-             do i=1,natom
-               do j=1,3 
-                dbl_mb(i_c+3*i-j)=dbl_mb(i_in+(step-1)*3*natom+3*i-j)
-               enddo
+             do i=1,3*natom
+                dbl_mb(i_c+i-1)=dbl_mb(i_in+naccept*3*natom+i-1)
              enddo 
              if (.not. geom_cart_set(geom, natom, byte_mb(i_t),
      &            dbl_mb(i_c), dbl_mb(i_q)))
@@ -146,15 +215,48 @@ C     ---and return the old coordinates in the rtdb
              if(.not.geom_rtdb_store(rtdb,geom,"geometry"))
      &       call errquit('mc_driver: Failed to store geom to rtdb',0,
      &               RTDB_ERR)
+             write(*,*) 'Returning to previous state :'
+             do i=1,3*natom
+                write(*,*) dbl_mb(i_c+i-1)
+             enddo
+
 
          endif 
+      write(*,*) 'In MC-driver E0,E1 :',E0,E1
+      write(*,*) 'k*T :', (temp*boltzmann*JToHartree)
+      write(*,*) 'Ediff :', ediff
+      write(*,*) 'Rand :',R  
         endif
-        
       enddo
-      do i=1,mcstep
+      do i=0,mcstep
           write(*,*) 'property is ',int_mb(i_s+i) 
       enddo 
-
+      write(*,*) 'number of accepted steps: ',naccept
+      write(*,*) 'number of rejected steps: ', nreject
+      status=mc_data_set_naccept(naccept)
       mc_driver=.true.
       return 
       END
+      Subroutine printeg(nat3,eigval,eigvec)
+
+       integer nat3, i,nhess
+       double precision eigval(nat3)
+       double precision eigvec(nat3*nat3)
+
+       nhess = nat3*nat3  
+       write(*,*) 'Printing Eigenvalues in mc_driver:',nat3
+       do i=1, nat3
+        write(*,*) eigval(i)
+       enddo
+       write(*,*) 'Printing Eigenvectors in mc_driver:',nhess
+       do i=1, nat3
+         write(*,*) 'Vector: ',i
+         do j=1,nat3
+          write(*,*) eigvec((i-1)*nat3+j)
+         enddo
+       enddo
+
+
+
+      END
+

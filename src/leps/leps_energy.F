@@ -19,7 +19,7 @@ c
       integer h_q,i_q
       integer h_t,i_t
       double precision eleps
-      write(*,*) "doing leps energy"
+c      write(*,*) "doing leps energy"
       eleps=0.0 
 c     create geometry object 
       if (.not. geom_create(geom, 'geometry'))
@@ -80,7 +80,7 @@ C      write(*,*) 'After calling leps_energy 1:',eleps
 C--- end of leps energy computation
 
 C-----Print what you get out of the database
-      call leps_energy0(natom,dbl_mb(i_c),dbl_mb(i_m),byte_mb(i_t))
+c      call leps_energy0(natom,dbl_mb(i_c),dbl_mb(i_m),byte_mb(i_t))
 C-----Calculate the energy
       if (.not. rtdb_put(rtdb,'leps:energy',mt_dbl,1,eleps))
      & call errquit('leps_energy:  no energy ', 0,
@@ -179,11 +179,11 @@ c      double precision leps_energy1
       data re     /0.741d+00,0.741d+00,0.741d+00/
       data del    /0.135d+00,0.135d+00,0.135d+00/
 
-      small = 0.0001
-      out1=.true.
+      small = 1d-10
+      out1=.false.
       coll=.false.
 c
-      write (*,*) 'entering leps_energy1'
+c      write (*,*) 'entering leps_energy1'
       eleps = 0.0
       if (n.ne.3) then
          write(*,*) "Number of atoms is not 3. Leps only works with 3"
@@ -248,7 +248,7 @@ C------- convert the energy from kcal_mol (because de is inkcal_mol) to hartree
              write(6,*)'r      = ',r
              write(6,*)'vk     = ',vk
              write(6,*)'vj     = ',vj
-             write(6,*)'eleps (kcal/mol) = ',eleps
+             write(6,*)'eleps (hartree) = ',eleps
 c            call fiflsh(iw)
          endif
       else

@@ -1,16 +1,26 @@
 c
-c $Id: mc_data.fh,v 1.1 2008-09-08 20:08:16 bojana Exp $
+c $Id: mc_data.fh,v 1.2 2009-01-17 22:06:15 bojana Exp $
 c
-      integer natom
-      integer h_c,i_c
-      integer h_m,i_m
-      integer h_q,i_q
-      integer nsteps
-      double precision temp,dt
+      integer mcsteps,natom
+      double precision temp,stepsize,ratio
+      integer h_eval,i_eval
+      integer h_evec,i_evec
+      integer h_ctst,i_ctst
+      integer i_c,i_q,i_t,i_m,i_f,h_c,h_q,h_t,h_m,h_f    
+      integer forside0, backside0,forside, backside
+      logical forward, backward
+      logical ifirc
+      integer h_in,i_in,i_s,h_s, i_sc,h_sc,h_prp,i_prp
+      integer naccept,h_in_vel,i_in_vel, h_in_acc,i_in_acc
 
-      common/md_data/     natom,
-     &                     h_c,i_c,
-     &                     h_m,i_m,
-     &                     h_q,i_q,
-     &                     nsteps, temp, dt
+      common/mc_data/  mcsteps,natom,
+     &  temp,stepsize,ratio,
+     &  h_eval,i_eval,
+     &  h_evec,i_evec,
+     &  h_ctst,i_ctst,
+     &  i_c,i_q,i_t,i_m,i_f,h_c,h_q,h_t,h_m,h_f,
+     &  forside0, backside0,forside, backside,
+     &  forward, backward, ifirc,
+     &  h_in,i_in, i_s,h_s,i_sc,h_sc,h_prp,i_prp,
+     &  naccept,h_in_vel,i_in_vel, h_in_acc,i_in_acc
 

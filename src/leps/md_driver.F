@@ -1,4 +1,4 @@
-      function md_driver(rtdb,grad,thr)
+      logical function md_driver(rtdb,grad,thr,flag,trajnum)
       implicit none
       integer rtdb
 
@@ -10,66 +10,81 @@
 #include "util.fh"
 #include "global.fh"
 #include "geom.fh"
-      logical md_driver
-c
+ 
       integer geom 
       integer natom
+      integer trajnum
       integer md_data_get_i_c, md_data_get_i_m, md_data_get_i_q
       integer md_data_get_i_t, md_data_get_i_v, md_data_get_i_a
       integer md_data_get_i_b, md_data_get_i_d, md_data_get_i_f
       integer md_data_get_natom, md_data_get_nsteps
       double precision md_data_get_timestep, md_data_get_temp 
-      external md_data_get_i_c, md_data_get_i_m, md_data_get_i_q
-      external md_data_get_i_t, md_data_get_i_v, md_data_get_i_a
-      external md_data_get_i_b, md_data_get_i_d, md_data_get_i_f
-      external md_data_get_natom, md_data_get_nsteps
-      external md_data_get_timestep, md_data_get_temp
+      logical status,md_data_set_temp,md_set
 
       logical grad
       external grad
       integer coor,mass,bq,tag,vel,acc,bterm,dterm,frc
-      integer step, nsteps
+      integer step, nsteps,naccept
       double precision dt,ek,temp 
+      double precision gks_gasdev,gasdev,seed
+      external gks_gasdev
+
       character*64 theory,blanks
-      character*32 thr
+      character*32 thr,task,blanks32
       data blanks(1:64) /' '/
+      data blanks32(1:32)/' '/
       logical restart
+      integer i 
+      integer nxing,side_prev
+      logical flag,forward,backward
+      logical mc_data_get_forward,mc_data_get_backward
+      seed = -1234
+      write(*,*) 'inside md_driver'
+      gasdev=gks_gasdev(seed)
+
+
       restart=.false.
       theory=blanks
-      call concat(thr,':gradient',theory) 
+c      thr=blanks32
+      task=':gradient'
+      call concat(thr,task,theory) 
       dt = 0.5  ! time step
       ek=0.0 ! kinetic energy
       nsteps=200 
 
 c      double precision eleps, md_driver1
       md_driver=.true.
-c      set input parameters 
-      call md_data_inp_set(rtdb)
+      forward= mc_data_get_forward()
+      backward=mc_data_get_backward()
+
       nsteps = md_data_get_nsteps()
       dt = md_data_get_timestep()   
       temp =md_data_get_temp()
-      write(*,*) 'input params', nsteps, dt, temp
+      write(*,*) 'Md_driver:input params', nsteps, dt, temp
 c
-      if (.not.restart) then
+      if (.not.restart.and.flag) then
+       temp=10   ! for the first trajectory the Temp should be very low to follow PES
+       status=md_data_set_temp(temp)
        open(unit=10,file='traj.xyz',status='new')
-       open(unit=11,file='restart.pun',status='new') 
+       open(unit=11,file='restart.pun',status='new')
+       naccept=2 
+      else
+       temp=289.15
+       status=md_data_set_temp(temp)
+       open(unit=10,file='traj.xyz',status='old')
+       open(unit=11,file='restart.pun',status='old')
+c       rewind(unit=10)
+c       rewind(unit=11)
+
       endif
+
 cc     create geometry object 
       if (.not. geom_create(geom, 'geometry'))
      & call errquit('leps_getgeom: failed creating geometry',
      & 0,GEOM_ERR)
-cC     load geometry into the object
-      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     & call errquit('leps_getgeom: no geometry',
-     & 0,RTDB_ERR)
-
-cc     allocate memory for coordinates
-      call md_data_set_natom(rtdb,geom)
-      natom=md_data_get_natom()
-      call md_data_allocate(natom)
-      write(*,*) 'Done with all the allocation'
 
 C     Get the handles for everything
+      natom=md_data_get_natom()
       coor=md_data_get_i_c()
       mass=md_data_get_i_m()
       bq=md_data_get_i_q()
@@ -79,29 +94,10 @@ C     Get the handles for everything
       bterm=md_data_get_i_b()
       dterm=md_data_get_i_d()
       frc=md_data_get_i_f()
-c
-cC-----Finished allocating memory for info we get from database
-c
-cC ----- Fill up the local copies with data from geometry object
-cC------- accessed by the geom handle
-      call md_data_geom_copy(rtdb,geom) 
 
-      write(*,*)  coor,mass,bq,tag,vel,acc,bterm,dterm,frc   
-       write(*,*) 'Filled cartesians and masses  '
-
-C ----- get initial velocities and accelerations and other inital conditions
-       if (.not. grad(rtdb)) 
-     & call errquit('md_gradient: grad not calculated', 0, RTDB_ERR)
-c  ---- get the gradient to fill up the force array        
-      if (.not. rtdb_get(rtdb,theory,mt_dbl,3*natom,
-     &     dbl_mb(frc)))
-     & call errquit('md_gradient:  no grad found', 0, RTDB_ERR)
-
-      call print_coord(10,natom,dbl_mb(coor),byte_mb(tag))
-C --- end of initial conditions
-      call md_init(natom,dbl_mb(mass),dbl_mb(vel),
-     &     dbl_mb(acc),dbl_mb(frc))
-
+c     end of initialization
+c      write(*,*) 'Calling MD test:'
+c      call md_test1(rtdb)
       write(*,*) 'Starting MD'
       if (restart) then
       write(*,*) 'Restarting from punch file'
@@ -109,35 +105,25 @@ C --- end of initial conditions
      &            dbl_mb(coor),dbl_mb(vel),dbl_mb(acc),dbl_mb(bterm),
      &            dbl_mb(dterm),byte_mb(tag))
       endif
+      nxing=0
+      side_prev=0
+      call crossing(natom,dbl_mb(coor),trajnum,side_prev)
+
+C-------- this is where the MD loop starts
       do step=1,nsteps
        write(*,*) 'Predicting step :',step
-c       write(*,*)  coor,mass,bq,tag,vel,acc,bterm,dterm,frc
 
-c         write(*,*) 'Coords :'             
-c         call print_coord(natom,dbl_mb(coor),byte_mb(tag))
-c         write(*,*) 'Vels :'
-c         call print_coord(natom,dbl_mb(vel),byte_mb(tag)) 
-c         write(*,*) 'Acceler :'
          call predict(natom,dt,dbl_mb(coor),dbl_mb(vel),dbl_mb(acc),
      &             dbl_mb(bterm),dbl_mb(dterm))
-c         write(*,*) 'After Prediction step :'
-c         write(*,*) 'Coords :'
-c         call print_coord(natom,dbl_mb(coor),byte_mb(tag))
-c         write(*,*) 'Force :'
-c         call print_coord(natom,dbl_mb(frc),byte_mb(tag))
-c         write(*,*) 'Acceler :' 
-c         call print_coord(natom,dbl_mb(acc),byte_mb(tag))
 
 C---- Add the predicted coordinates to the rtdb
 
-         call md_data_geom_set(rtdb,geom)
+       call md_data_geom_set(rtdb,geom)
 
 C --- calculate forces for predicted coords             
-c         call grad(rtdb)
        if (.not. grad(rtdb)) 
      & call errquit('md_gradient: no grad calculated ', 0, RTDB_ERR)
 
- 
          if (.not. rtdb_get(rtdb,theory,mt_dbl,3*natom,
      &     dbl_mb(frc)))
      &   call errquit('md_gradient: no grad found ', 0, RTDB_ERR)
@@ -148,6 +134,8 @@ c         call grad(rtdb)
      &        dbl_mb(acc), dbl_mb(bterm),dbl_mb(dterm),dbl_mb(frc),ek)
          call print_coord(10,natom,dbl_mb(coor),byte_mb(tag)) 
 
+c         call crossing(natom,dbl_mb(coor),side_prev,nxing)
+c         call crosslin(natom,dbl_mb(coor),side_prev,nxing)
          if (mod(step,10).eq.0.0) then
              rewind(11)  
              call punch (11,natom,nsteps,step,dt,dbl_mb(mass),
@@ -155,16 +143,19 @@ c         call grad(rtdb)
      &            dbl_mb(dterm),byte_mb(tag))
          endif    
       enddo
-
-      call md_data_free_all
+C ---- End of MD_loop      
+      call crossing(natom,dbl_mb(coor),trajnum,side_prev)
 
       if (.not. geom_destroy(geom))
      & call errquit('leps_getgeom:  geom_destroy failed',
      & 911,GEOM_ERR)
       
-      close(unit=10)
+c      close(unit=10)
+      if (backward) then 
+        write(10,*) 'end of traj foreard/backward' 
+      endif
       close(unit=11)
-
+      write(*,*) 'END OF TRAJECTORY, side is :',side_prev
          return
       end
 
@@ -179,9 +170,12 @@ C ---- dt# are the Taylor expansion series terms dt1=dt, dt2=dt^2/2, dt3=dt^3/6 
 
 c    *******************************************************************
 
-c        r(3,1) = r(3,1)+0.01
-c        r(3,2) = r(3,2)+0.02
-c        r(3,3) = r(3,3)-0.03
+c       write(*,*) 'In predictor:'
+c       do i=1,n
+c          do j=1,3
+c           write (*,*) r(i,j),v(i,j),a(i,j),b(i,j),c(i,j)
+c          enddo
+c       enddo   
        dt1 = dt
        dt2 = dt1 * dt / 2.0
        dt3 = dt2 * dt / 3.0
@@ -264,30 +258,10 @@ c    *******************************************************************
        return
        end
 
-      subroutine md_init (n,mass,v,a,force)
-      implicit none
-        integer     n
-        double precision v(3,n), a(3,n),force(3,n),mass(n) 
-        integer     i,j
-  
-c ---- energy should average kT/2, so v=sqrt(kT/mass)         
-        do i=1,n
-           do j=1,3
-              v(j,i)=0.00
-              a(j,i) = -force(j,i) / mass(i) 
-           enddo
-        enddo 
-        v(3,1)=-0.000221588
-        v(3,2)= 0.000443176
-        v(3,3)=-0.000221588
-      return
-      end 
-
-
       subroutine concat(str1,str2,str)
       implicit none
       character*32 str1
-      character*9  str2
+      character*32 str2
       character*64 str,blanks
       integer i,j,i1 
       data blanks(1:64) /' '/

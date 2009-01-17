@@ -4,36 +4,45 @@ scratch_dir ./perm
 memory 800 mb
 echo
 
-title "       hexaachloroethene C2Cl6"
+title "  h2+h    "
 
-start c2cl6
+start h2+h 
 
-geometry
-h  0.93452655 0.0 0.0 
-h  0.0  0.0   0.0
-h  -0.93452655 0.0 0.0
+geometry noautoz
+symmetry c1 
+Fe  0.93453582  0.0 0.0
+H   0.0 0.0 0.0
+Fe  -0.93453582  0.0 0.0
 end
 
 scf
   doublet
-  rohf
+  uhf
   ADAPT off
   SYM off
 end
 
 basis spherical
- * Library 6-31+G* 
+ * Library 6-311G* 
 end
-
+driver
+ xyz
+end
 mymd
  temp 298.15
- nsteps 20
+ nsteps 100
  timestep 0.5
+end
+mymc
+ temp 298.15
+ mcsteps 10 
+ stepsize 0.5
+ ratio 0.5
 end
 
 #task leps energy 
 #task leps gradient
-#task scf saddle
-#task scf frequencies
-#task scf dynamicsi
-task leps dynamics
+#task scf saddle 
+#task leps frequencies
+task leps dynamics 
+#task leps optimize 
