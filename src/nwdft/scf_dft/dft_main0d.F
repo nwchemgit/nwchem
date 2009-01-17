@@ -3,7 +3,7 @@ c     /* Main DFT driver */
 c
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.91 2008-11-11 00:40:33 niri Exp $
+c     $Id: dft_main0d.F,v 1.92 2009-01-17 00:44:02 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -23,6 +23,7 @@ c
 #include "schwarz.fh"
 #include "msgids.fh"
 #include "dftps.fh"
+#include "bgj.fh"
 #ifdef SCALAPACK
 #include "dft_scaleig.fh"
       integer ga_cholesky,ga_llt_i
@@ -128,9 +129,12 @@ c
       if (cam_exch .and. (.not.CDFIT) ) then
        if (rtdb_get(rtdb, 'dft:direct', mt_log, 1, ldirect)) then
         if (.not.ldirect) then
-        call errquit ('dft_main0d: CAM without charge density fitting is
-     & only available with the direct option.',0, RTDB_ERR)
-         end if
+          if (ga_nodeid().eq.0) then
+           write(luout,*) "CAM type calculations without CDFIT are only"
+           write(luout,*) "available with the direct option"
+          end if
+          call errquit('Please use the direct option',4, INPUT_ERR)
+        end if
        end if
       end if
 c     
