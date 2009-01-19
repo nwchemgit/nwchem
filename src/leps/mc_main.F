@@ -11,7 +11,6 @@
 #include "global.fh"
 #include "geom.fh"
 #include "const_data.fh"
-c#include "mc_data.fh" 
 
       logical mc_main
       logical md_driver, leps_gradient,mc_driver,mc_init
@@ -35,10 +34,12 @@ c#include "mc_data.fh"
       integer mc_data_get_natom, mc_data_get_i_prp
       integer tag,charge,md_data_get_i_t,md_data_get_i_q
       character*64 thr
-      logical flag,mc_data_set_forward,mc_data_set_backward
+      logical ircflag,flag,mc_data_set_forward,mc_data_set_backward
       integer i_sc, mc_data_get_i_sc, nonreact,reactive,reverse
       integer i_s, mc_data_get_i_s,mc_data_get_mcsteps
       double precision avg,rc,temp,mc_data_get_temp
+      logical md_data_set_temp
+      double precision mdtemp,mdtemp10, md_data_get_temp
 
       forward=.true.
       backward=.false.
@@ -46,11 +47,14 @@ c#include "mc_data.fh"
       status=mc_data_set_forward(forward)
       status=mc_data_set_backward(backward)
       status=mc_driver(rtdb,naccept)
+
       write(*,*) 'In MC_main, after mc_driver: naccept: ', naccept  
-      status=mc_init(rtdb,leps_gradient)
-      write(*,*) 'In MC_main, after mc_init' 
+      ircflag=.true.
+c      status=mc_init(rtdb,leps_gradient,ircflag)
+c      write(*,*) 'In MC_main, after mc_init' 
       thr='leps'
- 
+      mdtemp10 =10.0 
+      mdtemp = 298.15
       c_array=mc_data_get_i_c_array()
       vel_init=mc_data_get_i_in_vel()
       acc_init=mc_data_get_i_in_acc()
@@ -64,7 +68,8 @@ c      enddo
 
       call md_data_set_natom(natom)
       call md_data_allocate()
-      call md_set(rtdb)
+      call md_set(rtdb) ! sets md_temp, md_steps and mc_stepsize
+      mdtemp=md_data_get_temp()
       tag=md_data_get_i_t()
       charge=md_data_get_i_q()
       c_start=md_data_get_i_c()
@@ -75,14 +80,44 @@ c      enddo
       prp=mc_data_get_i_prp()
       mcsteps=mc_data_get_mcsteps()
 
-
+      write(*,*) 'In MC main coordinates'
+      do i=1,naccept+1
+         write(*,*) 'point ',i
+         do k=1,3*natom
+            write(*,*) dbl_mb(c_array+(i-1)*3*natom+k-1)
+         enddo
+      enddo  
       do i=1,naccept+1
         write(*,*) 'traj, prp: ',i,dbl_mb(prp+i-1) 
       enddo
+      write(*,*) 'In MC main mdtemp, mdtemp10:', mdtemp, mdtemp10
       write(*,*) 'STARTING TRAJECTORIES '
 
+C  ---- do the IRC trajectory first,  at low temp
+      status=md_data_set_temp(mdtemp10)
+C --- set vel and acc      
+      status=mc_init(rtdb,leps_gradient,ircflag)
+C  --- run the IRC traj forward 
+      do k=1,3*natom
+          dbl_mb(c_start+k-1)=dbl_mb(c_array+k-1)
+          dbl_mb(vel+k-1)=dbl_mb(vel_init+k-1)
+          dbl_mb(acc+k-1)=dbl_mb(acc_init+k-1)
+      enddo
+      status=md_driver(rtdb,leps_gradient,thr,0)      
+C --- run the IRC traj backward
+      call md_set(rtdb)
+      do k=1,3*natom
+          dbl_mb(c_start+k-1)=dbl_mb(c_array+k-1)
+          dbl_mb(vel+k-1)=-dbl_mb(vel_init+k-1)
+          dbl_mb(acc+k-1)=-dbl_mb(acc_init+k-1)
+      enddo
+      status=md_driver(rtdb,leps_gradient,thr,0) 
 C --- get geometru from the big array in mc_driver
 C--- the first one is always the TS
+      write(*,*) 'Done with IRC'
+      ircflag=.false.
+      status=mc_init(rtdb,leps_gradient,ircflag)
+      write(*,*) 'In MC_main, after mc_init' 
       flag =.true.
       do i=1,naccept+1
        if (i.gt.1) then
@@ -116,18 +151,11 @@ C ---- set the appropriate coordinate
 
 
         do  j=1,3
-
-c          if (j.eq.1.and.i.eq.1) then
-c          flag =.true.
-c          else
-c            flag =.false.
-c          endif        
           if (forward.and. .not.backward) then
            write(*,*) 'Forward: traj',i  
-            status=md_driver(rtdb,leps_gradient,thr,flag,i)
+            status=md_driver(rtdb,leps_gradient,thr,i)
             forward=.false.
             backward=.true. 
-            flag=.false.
             status=mc_data_set_forward(forward)
             status=mc_data_set_backward(backward)
 
@@ -141,7 +169,7 @@ C          get the initial conditions generated in the forward run
               dbl_mb(vel+k-1)=-dbl_mb(vel_init+(i-1)*3*natom+k-1)
               dbl_mb(acc+k-1)=-dbl_mb(acc_init+(i-1)*3*natom+k-1)
             enddo
-            status=md_driver(rtdb,leps_gradient,thr,flag,i)
+            status=md_driver(rtdb,leps_gradient,thr,i)
             forward=.false.
             backward=.false.
         write(*,*) 'traj ifirc forside0 backside0 forside backside ', i,

@@ -1,4 +1,4 @@
-      logical function md_driver(rtdb,grad,thr,flag,trajnum)
+      logical function md_driver(rtdb,grad,thr,trajnum)
       implicit none
       integer rtdb
 
@@ -37,7 +37,7 @@
       integer i 
       integer nxing,side_prev
       logical flag,forward,backward
-      logical mc_data_get_forward,mc_data_get_backward
+      logical mc_data_get_forward,mc_data_get_backward,mc_data_get_ifirc
       seed = -1234
       write(*,*) 'inside md_driver'
       gasdev=gks_gasdev(seed)
@@ -62,15 +62,11 @@ c      double precision eleps, md_driver1
       temp =md_data_get_temp()
       write(*,*) 'Md_driver:input params', nsteps, dt, temp
 c
-      if (.not.restart.and.flag) then
-       temp=10   ! for the first trajectory the Temp should be very low to follow PES
-       status=md_data_set_temp(temp)
+      if (.not.restart.and.mc_data_get_ifirc) then
+       write(*,*) 'Opening xyz and rest files on traj ',trajnum  
        open(unit=10,file='traj.xyz',status='new')
        open(unit=11,file='restart.pun',status='new')
-       naccept=2 
       else
-       temp=289.15
-       status=md_data_set_temp(temp)
        open(unit=10,file='traj.xyz',status='old')
        open(unit=11,file='restart.pun',status='old')
 c       rewind(unit=10)
@@ -107,7 +103,7 @@ c      call md_test1(rtdb)
       endif
       nxing=0
       side_prev=0
-      call crossing(natom,dbl_mb(coor),trajnum,side_prev)
+c      call crossing(natom,dbl_mb(coor),trajnum,side_prev)
 
 C-------- this is where the MD loop starts
       do step=1,nsteps
@@ -144,7 +140,7 @@ c         call crosslin(natom,dbl_mb(coor),side_prev,nxing)
          endif    
       enddo
 C ---- End of MD_loop      
-      call crossing(natom,dbl_mb(coor),trajnum,side_prev)
+C      call crossing(natom,dbl_mb(coor),trajnum,side_prev)
 
       if (.not. geom_destroy(geom))
      & call errquit('leps_getgeom:  geom_destroy failed',

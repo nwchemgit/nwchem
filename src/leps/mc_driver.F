@@ -234,6 +234,7 @@ C     ---and return the old coordinates in the rtdb
       write(*,*) 'number of accepted steps: ',naccept
       write(*,*) 'number of rejected steps: ', nreject
       status=mc_data_set_naccept(naccept)
+      
       mc_driver=.true.
       return 
       END

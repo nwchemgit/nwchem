@@ -30,12 +30,12 @@ driver
 end
 mymd
  temp 298.15
- nsteps 100
+ nsteps 10
  timestep 0.5
 end
 mymc
  temp 298.15
- mcsteps 10 
+ mcsteps 4 
  stepsize 0.5
  ratio 0.5
 end
