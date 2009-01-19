@@ -1,8 +1,5 @@
 c ===========================================================================
 c
-c     This code came movecs_ecce.F and adapted portions of
-c     movecs_pr_anal.F, basis.F (bas_print), geom.F (geom_print_xyz),...
-c
 c     Goal: create a complete NWChem interface to Molden.
 c
 c     1. need subroutine which prints MOs in batches (DONE)
@@ -11,7 +8,7 @@ c     3. need to dump geometry information (DONE)
 c     4. (optional) dump scf and geometry optimization convergence information
 c     5. (optional) dump normal modes from frequency calculation
 c
-c     This code was written on January 18th, 2009 by Jeff Hammond.
+c     This code was written on January 18th and 19th, 2009 by Jeff Hammond.
 c
 c ===========================================================================
 c
@@ -19,46 +16,46 @@ c
 c
 c ===========================================================================
 c
-      subroutine nwmolden_openfile()
+      logical function nwmolden_openfile()
       implicit none
 #include "errquit.fh"
-c
-      integer rtdb
       character*64 filename
 c
       call util_file_prefix ('molden', filename )
 c
-      if (MOLDEN_UNIT.ne.6) then
-c
-      open(unit=MOLDEN_UNIT, ! no conflicts that I can find
-     1     file=filename,
-     2     status='unknown',
-     3     form='formatted',
-     4     err=911)
-c
+      if (MOLDEN_UNIT.gt.9) then
+         open(unit=MOLDEN_UNIT,
+     1        file=filename,
+     2        status='unknown',
+     3        form='formatted',
+     4        err=911)
       endif
 c
       write(MOLDEN_UNIT,100) '[Molden Format]'
  100  format(a15)
 c
+      nwmolden_openfile = .true.
       return
 c
-  911 call errquit('nwmolden_openfile: open failed', 0, UNKNOWN_ERR)
-c
+ 911  nwmolden_openfile = .false.
       return
       end
 c
 c ===========================================================================
 c
-      subroutine nwmolden_closefile()
+      logical function nwmolden_closefile()
       implicit none
 c
-      if (MOLDEN_UNIT.ne.6) then
-c
-      close(unit=MOLDEN_UNIT,status='keep')
-c
+      if (MOLDEN_UNIT.gt.9) then
+        close(unit=MOLDEN_UNIT,
+     1        status='keep',
+     2        err=911)
       endif
 c
+      nwmolden_closefile = .true.
+      return
+c
+ 911  nwmolden_closefile = .false.
       return
       end
 c
@@ -101,8 +98,7 @@ c
          status = geom_tag_to_element(tag, symbol, element, atn)
          if (.not.status) symbol = 'X'
 c
-         write(MOLDEN_UNIT,300) symbol,iat,nint(qnuc),
-     1                          (coord(j),j=1,3)
+         write(MOLDEN_UNIT,300) symbol,iat,nint(qnuc),(coord(j),j=1,3)
  300     format(1x,a4,1x,i4,1x,i4,1x,3f15.8)
 c
       enddo
@@ -118,7 +114,6 @@ c
       implicit none
 #include "bas.fh"
 #include "errquit.fh"
-c
       integer basis             ! [input] basis handle
       integer numcont           ! number of mapped contractions
       integer i,j,k
@@ -195,44 +190,44 @@ c
 c
 c ===========================================================================
 c
-      subroutine nwmolden_movecs(basis,nbf,nmo,
-     1                           eval,occ,sym,g_movecs,scftype)
+      logical function nwmolden_movecs(basis,nbf,nmo,
+     1                                 eval,occ,sym,g_movecs,scftype)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
-#include "inp.fh"
-#include "bas.fh"
-c
-      integer nbf               ! [input] number of basis functions
-      integer nmo               ! [input] number of molecular orbitals (MOs)
+      integer nbf               ! [input] number of AOs
+      integer nmo               ! [input] number of MOs
       double precision eval(*)  ! [input] MO energies
       double precision occ(*)   ! [input] MO occupation numbers
       integer sym(*)            ! [input] MO symmetries
       integer g_movecs          ! [input] GA with vectors
       character*(*) scftype     ! [input] RHF, ROHF, UHF, DFT, or MCSCF
-c
       integer k_vec, l_vec
       integer alfabeta, spinref
       integer orb, aof, offset
-      character*5 cspin, cspins(2)
-      character*5 csym
-c
       integer basis, geom
       integer maxop, maxireps
       parameter (maxop = 120, maxireps=20)
       integer nop, nir,  class_dim(maxireps)
+      double precision chars(maxireps*maxireps)
+      character*5 cspin, cspins(2)
+      character*5 csym
       character*8 zir(maxireps), zclass(maxireps)
       character*20 zname
-      double precision chars(maxireps*maxireps)
-      logical sym_char_table
-      external sym_char_table
+      logical status
+      logical sym_char_table, bas_geom
+      external sym_char_table, bas_geom
 c
-      if (.not.bas_geom(basis, geom)) 
-     1    call errquit('nwmolden_movecs: bas geom',basis,BASIS_ERR)
+      status = bas_geom(basis, geom)
+      if (.not.status) 
+     1    call errquit('nwmolden_movecs: error code = ',1,BASIS_ERR)
+c
       call sym_group_name(geom, zname)
-      if (.not.sym_char_table(zname,nop,nir,class_dim,zir,zclass,chars))
-     1    call errquit('nwmolden_movecs: no char table',geom,GEOM_ERR)
+c
+      status = sym_char_table(zname,nop,nir,class_dim,zir,zclass,chars)
+      if (.not.status) 
+     1    call errquit('nwmolden_movecs: error code = ',2,BASIS_ERR)
 c
       cspins(1) = 'Alpha'
       cspins(2) = 'Beta '
@@ -278,6 +273,8 @@ c     de-allocate local memory
 c
       if (.not. ma_pop_stack(l_vec)) 
      1    call errquit('nwmolden_movecs: MA stack is corrupt',0,MA_ERR)
+c
+      nwmolden_movecs = .true.
 c
       return
       end
