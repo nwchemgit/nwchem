@@ -1,0 +1,5 @@
+      logical nwmolden_geom,nwmolden_basis,nwmolden_movecs
+      logical nwmolden_openfile,nwmolden_closefile
+      external nwmolden_geom,nwmolden_basis,nwmolden_movecs
+      external nwmolden_openfile,nwmolden_closefile
+
