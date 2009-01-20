@@ -4,7 +4,7 @@ c     This has the same form as VWN functional V, only with a different
 c     form for the parameterized functionals of rs.  The VWN V code is
 c     reused.
 *
-* $Id: xc_pw91lda.F,v 1.14 2004-11-23 20:03:27 edo Exp $
+* $Id: xc_pw91lda.F,v 1.15 2009-01-20 18:27:40 niri Exp $
 *
 #ifndef SECOND_DERIV
       Subroutine xc_pw91lda(tol_rho, fac, lfac, nlfac, rho, Amat, nq,
@@ -161,13 +161,17 @@ c
          d1zeta(1) = (1.d0-zeta)/rhoval
          d1zeta(2) =-(1.d0+zeta)/rhoval
 #ifdef SECOND_DERIV
-         if((zeta-1d0).lt.tol_rho) then
-            d2fz = ((1.d0+zeta)**(-twothirds))*p3
-         elseif((zeta+1d0).lt.tol_rho) then
-            d2fz = ((1.d0-zeta)**(-twothirds))*p3
+         if(dabs(zeta).lt.tol_rho) then
+            d2fz = d2fz0
          else
-            d2fz = ((1.d0+zeta)**(-twothirds) +
-     &           (1.d0-zeta)**(-twothirds))*p3
+            if (dabs(zeta+1.d0).le.tol_rho) then 
+              d2fz = ((1.d0-zeta)**(-twothirds))*p3
+            else if (dabs(zeta-1.d0).le.tol_rho) then
+              d2fz = ((1.d0+zeta)**(-twothirds))*p3
+            else
+              d2fz = ((1.d0+zeta)**(-twothirds) +
+     &                (1.d0-zeta)**(-twothirds))*p3
+            endif
          endif
          rrho2 = 2.d0/(rhoval*rhoval)
 c        1 = aa, 2 = ab, 3 = bb

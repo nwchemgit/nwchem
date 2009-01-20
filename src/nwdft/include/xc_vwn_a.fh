@@ -3,7 +3,7 @@ c     General implementation of VWN functionals
 c
 c     BGJ (4/00)
 *
-* $Id: xc_vwn_a.fh,v 1.8 2003-10-09 21:45:01 sohirata Exp $
+* $Id: xc_vwn_a.fh,v 1.9 2009-01-20 18:27:35 niri Exp $
 *
 c     Meanings of macros used in constructing different VWN parameterizations
 c     The determining macro FNL_VWN_xxx is set in the .F file
@@ -276,13 +276,13 @@ c
          d1zeta(1) = (1.d0-zeta)/rhoval
          d1zeta(2) =-(1.d0+zeta)/rhoval
 #ifdef SECOND_DERIV
-         if(abs(zeta).lt.tol_rho) then
+         if(dabs(zeta).lt.tol_rho) then
             d2fz = d2fz0 
          else
-            if (zeta.eq.-1.0d0) then
+            if (dabs(zeta+1.d0).le.tol_rho) then
               d2fz = ((1.d0-zeta)**(-twothirds))*p3
-            else if (zeta.eq.1.0d0) then
-              d2fz = (1.d0+zeta)**(-twothirds)
+            else if (dabs(zeta-1.d0).le.tol_rho) then
+              d2fz = ((1.d0+zeta)**(-twothirds))*p3
             else
               d2fz = ((1.d0+zeta)**(-twothirds) +
      &                (1.d0-zeta)**(-twothirds))*p3
