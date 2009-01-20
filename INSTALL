@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.87 2008-10-20 20:06:10 d3p307 Exp $
+$Id: INSTALL,v 1.88 2009-01-20 00:39:40 d3p307 Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -155,6 +155,7 @@ BASIC BUILD INSTRUCTIONS:
 
    BGL            Bluegene/L      SLES        blrts_xlf           y
    BGP            Bluegene/P      SLES        bgxlf               y
+   Cray XT4       Cray XT4        SLES/CNL    ftn                 y
    ----------------------------------------------------------------------
 
 
@@ -390,14 +391,6 @@ F) Contents of the default.nwchemrc file based on the above
 
    Of course users can copy this file instead of making the symbolic
    link described above and change these defaults at their discretion.
-
-G)  Please note that the .nwchemrc does not handle the pseudopotential
-   libraries used in the planewave part of the code.  The user will
-   need to set an environment variable, NWCHEM_NWPW_LIBRARY, to the
-   appropriate location.  For example:
-   setenv NWCHEM_NWPW_LIBRARY /usr/local/lib/NWChem/data/
-   IMPORTANT: If you don't put the last slash ("/") after "data",
-         nwchem will not be able to find the nwpw library files.
 
    It is can also be useful to use the NWCHEM_BASIS_LIBRARY environment variable
 when testing a new installation when an old one exists.  This will allow you to
@@ -665,102 +658,31 @@ table summarize supported combinations of ARMCI_NETWORK and NWCHEM_TARGET.
   BGMLMPI         BGL           IBM BlueGene Torus/        BGLMPI
   DCMFMPI         BGP           Global Tree/Interrupt      DCMF,MPI
 
-  CRAY-SHMEM      LINUX64       Hypertransport/            Cray SHMEM
-                                3D torus topology
- 
+  PORTALS         LINUX64       Cray SeaStar/HyperTransport PORTALS 
                                 
 
 For more information/support, you are referred to the ARMCI support page at
 section 2.1.2 of the following URL
 http://www.emsl.pnl.gov/docs/global/um/build.html
 
-RUNNING ON FUJITSU VPP 300/500/700/5000
----------------------------------------------------------------
-For compilation on the Fujitsu VPP vector computers, native versions of
-the Global Arrays and related libraries have to be installed. These can
-be obtained free of charge from Fujitsu Laboratories of Europe. 
-NWCHEM_TARGET should be set to FUJITSU_VPP (FUJITSU_VPP64 for the 64-bit 
-version on the VPP5000), and the environment variable GA_LIBDIR 
-should point to the directory where the GA libraries are installed. 
-Requests for the GA libraries and enquiries about installation issues may 
-be directed to Ross Nobes (r.nobes@fle.fujitsu.com) or Herbert Fruchtl 
-(h.fruchtl@fle.fujitsu.com).
 
-BUILDING AND RUNNING ON FUJITSU PRIMEPOWER
-------------------------------------------
-NWChem needs to be compiled with NWCHEM_TARGET=SOLARIS (or SOLARIS64) FC=frt 
-CC=fcc.
-
-BUILDING AND RUNNING NWCHEM ON MYRINET CLUSTERS:
+BUILDING AND RUNNING NWCHEM ON INFINIBAND CLUSTERS WITH OPENIB
+(or MELLANOX) NETWORK :
 ------------------------------------------------
-Prior to installing NWChem, you must have installed the GM and the MPICH
-over GM softwares (http://www.myri.com/scs/index.html) on the system. 
 Before starting the NWChem compilation, the following environmental 
-variables must be defined:
+variables need be defined (a sample for OpenIB network with mavpich):
 
 USE_MPI=y
-GM_HOME="location of GM software"
-GM_INCLUDE=$GM_HOME/include  
-GM_LIB=$GM_HOME/lib
-ARMCI_NETWORK=GM
-MPI_LOC="location of MPICH-GM software"
+IB_HOME="location of OpenIB software"
+IB_INCLUDE=$IB_HOME/include  
+IB_LIB=$IB_HOME/lib64
+IB_LIB_NAME="-libumad -lpthread"
+ARMCI_NETWORK=OPENIB
+MPI_LOC="location of MPI libs"
 MPI_LIB=$MPI_LOC/lib
 MPI_INCLUDE=$MPI_LOC/include
 LIBMPI=-lmpich             
 
-BUILDING AND RUNNING NWCHEM ON GIGANET CLUSTERS:
-------------------------------------------------
-Before starting the NWChem compilation, the following environmental
-variables must be defined:
-
-ARMCI_NETWORK=VIA
-
-To run NWChem, you need to set the following environmental variable:
-
-MPI_COMM=VIA
-------------------------------------------------
-Note*: Giganet clusters can be configured with MPICH or MPI.
-       Please see the above notes "Building with MPI" for further details.
-
-BUILDING AND RUNNING NWCHEM ON INFINIBAND CLUSTERS:
-------------------------------------------------
-Before starting the NWChem compilation, the following environmental
-variables must be defined:
-
-ARMCI_NETWORK=MELLANOX
-
-Prior to installing NWChem, you must have installed the Mellanox and
-the MVAPICH over IB softwares (http://www.mellanox.com and
-http://nowlab.cis.ohio-state.edu/projects/mpi-iba/download.html ) on
-the system.  
-Before starting the NWChem compilation, the following environmental 
-variables must be defined:
-
-USE_MPI=y
-IB_HOME="location of MELLANOX software"
-IB_INCLUDE=$IB_HOME/include  
-IB_LIB=$IB_HOME/lib
-ARMCI_NETWORK=MELLANOX
-MPI_LOC="location of MVAPICH software"
-MPI_LIB=$MPI_LOC/lib (x86 HW)
-MPI_LIB=$MPI_LOC/lib64 (x86_64 HW)
-MPI_INCLUDE=$MPI_LOC/include
-LIBMPI=-lmpich             
-
-RUNNING ON ALPHA SC SERVERS
----------------------------
-Because of 32-bit limitations of the
-Elan3 device and of the way the ARMCI library uses the Quadrics
-Qsnet library, NWChem runs on Elan3 HW cannot use more than 512 mB of 
-Global Arrays memory.
-
-For example, the following memory input line will not work:
-
-memory stack 200 mb heap 200 mb global 700 mb
-
-the memory input line should be modified to, instead:
-
-memory stack 200 mb heap 200 mb global 350 mb
 
 BUILDING FOR WINDOWS:
 ---------------------
@@ -848,12 +770,10 @@ Environmental variables for building and running:
 
 setenv NWCHEM_TARGET LINUX64
 setenv USE_MPI y
-setenv ARMCI_NETWORK CRAY-SHMEM
-setenv XT_SYMMETRIC_HEAP_SIZE 1G
-setenv XT_LINUX_SHMEM_HEAP_SIZE 1G
-setenv MPI_LIB ""
-setenv LIBMPI -lmpich
-setenv MPI_INCLUDE $MPICH_DIR/include
+setenv ARMCI_NETWORK PORTALS
+setenv MA_USE_ARMCI_MEM 1
+setenv LIBMPI " "
+setenv MPI_INCLUDE "$MPICH_DIR/include -I/opt/xt-pe/default/include -I/opt/xt-catamount/default/catamount/linux/include"
 
 to compile:
 make FC=ftn
