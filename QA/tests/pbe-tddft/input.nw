@@ -1,0 +1,29 @@
+echo
+start pbe-test
+
+memory stack 512 mb heap 512 mb global 1024 mb
+
+geometry
+C 0.0 0.0 0.0
+O 0.0 0.0 1.128
+symmetry c1
+end
+
+basis spherical
+  * library "6-311++G(3df,3pd)"
+end
+
+set int:cando_txs f
+
+dft
+  xc xpbe96 1.0 cpbe96 nonlocal 1.0
+  direct
+end
+task dft energy
+
+tddft
+  nroots 10
+  algorithm 3
+end
+
+task tddft energy
