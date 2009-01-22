@@ -16,7 +16,7 @@ c     have an imaginary part, too
 #include "util.fh"
 #include "global.fh"
 c     
-c     $Id: rohf_hessv3.F,v 1.5 2009-01-16 05:32:29 niri Exp $
+c     $Id: rohf_hessv3.F,v 1.6 2009-01-22 02:06:13 niri Exp $
 c
 c ... jochen: these two arrays now have two components:
       integer g_x(2)  ! [input]  A-matrix elements for density matrix
@@ -96,7 +96,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax, g_x_im, g_Ax_im, omega, limag,
      &   lifetime, gamwidth, ncomp)
-C     $Id: rohf_hessv3.F,v 1.5 2009-01-16 05:32:29 niri Exp $
+C     $Id: rohf_hessv3.F,v 1.6 2009-01-22 02:06:13 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -246,7 +246,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       subroutine rohf_hessv_2e3( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, noskew, g_x, acc, g_ax, limag)
-C     $Id: rohf_hessv3.F,v 1.5 2009-01-16 05:32:29 niri Exp $
+C     $Id: rohf_hessv3.F,v 1.6 2009-01-22 02:06:13 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -256,6 +256,7 @@ C     $Id: rohf_hessv3.F,v 1.5 2009-01-16 05:32:29 niri Exp $
 #include "rtdb.fh"
 #include "bgj.fh"
 #include "stdio.fh"
+#include "case.fh"
 c     
 c     Return the ROHF orbital 2e-Hessian vector product, g_ax = A * g_x
 c
@@ -311,6 +312,8 @@ c ... jochen: additional declarations added:
       double precision pre_factor, tenm6
       parameter (tenm6 = 1d-6)
       logical debug
+c
+      integer g_work
 c
 c     =================================================================
 c
@@ -418,6 +421,10 @@ c
         call ga_zero(g_dens(ipm))
       end do                    ! ipm = 1,2
       if (debug) write (6,*) 'rohf_h2e3 step 5' 
+c
+      if (.not. nga_create (MT_DBL, 3, dims, 'CPKS dens',chunk, g_work))
+     & call errquit('rohf_h2e: could not allocate g_work',555,GA_ERR)
+      call ga_zero(g_work)
 c
       g_dcv = ga_create_atom_blocked(geom, basis, 'rohf_h2e: dcv')
       if (nopen .gt. 0) then
@@ -568,7 +575,6 @@ c         Note that this is NOT correct!
           call nga_copy_patch('N',g_dpv,blo,bhi,g_dens,alo,ahi)
           call nga_copy_patch('N',g_dcp,blo,bhi,g_dens,alo,ahi)
         endif
-        
 c       
 c ... jochen: if the preceeding code were exectuted then
 c       g_dens would now hold the perturbed density matrix in the.
@@ -701,27 +707,41 @@ c     noskew is true, except for nmr perturbations (skew symmetric)
 c
 c ... jochen: we call the fock matrix builder twice here, once with
 c     a symmetric, and once with an antisymmetric density matrix
-
+c
 c     last argument is "noskew", true if P-matrix is symmetric,
 c     false if P-matrix is antisymmetric. The output Fock matrices
 c     will be symmetrized and antisymmetrized, respectively.
 c
 c     case I: symmetric density matrix
-      write(6,*) "Calling shell_fock_build in rohf_hessv3"
-      call shell_fock_build(geom, basis, 0, nfock, 
+      if (.not.cam_exch) then
+        call shell_fock_build(geom, basis, 0, nfock, 
      $   dbl_mb(k_jfac(1)), dbl_mb(k_kfac(1)),
      $   tol2e, g_dens(1), g_fock(1), .true.)
-      if (debug) write (6,*) 'rohf_h2e3 step 11'
+         if (debug) write (6,*) 'rohf_h2e3 step 11'
+      else   ! for attenuated calculations
+        call shell_fock_build_cam_multiple(geom, basis, 0, nfock,
+     &     nbf, 1.d0, 1.d0, ! dbl_mb(k_jfac), dbl_mb(k_kfac)
+     &     tol2e, g_dens(1), g_fock(1), g_work, 1, ! set ipol = 1: restricted
+     &    .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
+      end if
 c
 c     case II: antisymmetric density matrix. note that jfac for this
 c     case is zero, i.e. there is no Coulomb term because there is
 c     no density. However, there are still exchange contributions from
 c     HF exchange. For pure DFT we just skip the call to save CPU time.
+c
       if (abs(xc_xfac1).gt.tenm6) then
+       if (.not.cam_exch) then
         call shell_fock_build(geom, basis, 0, nfock, 
-     $     dbl_mb(k_jfac(2)), dbl_mb(k_kfac(2)),
-     $     tol2e, g_dens(2), g_fock(2), .false.)
-        if (debug) write (6,*) 'shell_fock_build called with P(A)'
+     $   dbl_mb(k_jfac(2)), dbl_mb(k_kfac(2)),
+     $   tol2e, g_dens(2), g_fock(2), .false.)
+         if (debug) write (6,*) 'shell_fock_build called with P(A)'
+       else  ! for attenuated calculations
+        call shell_fock_build_cam_multiple(geom, basis, 0, nfock,
+     &     nbf, 0.d0, 1.d0, ! dbl_mb(k_jfac), dbl_mb(k_kfac)
+     &     tol2e, g_dens(2), g_fock(2), g_work, 1, ! set ipol = 1: restricted
+     &    .true.,.false.,.false.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
+       end if
       else 
         call ga_zero (g_fock(2))
         if (debug) write (6,*) 'shell_fock_build skipped for P(A)'
@@ -1007,6 +1027,8 @@ c ... jochen:
         if (.not. ga_destroy(g_tmp3)) call errquit('rohf:destroy?',0,
      &     GA_ERR)
       endif
+      if (.not. ga_destroy(g_work)) call errquit('rohf:destroy?',0,
+     &   GA_ERR)
 c     
       end
 
