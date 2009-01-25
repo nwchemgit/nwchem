@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.62 2008-12-06 23:10:38 niri Exp $
+C $Id: hess_init.F,v 1.63 2009-01-25 02:27:01 niri Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -569,7 +569,7 @@ c
       integer geom1, basis1
       integer ipol, mult
       logical cdfit, dmd_rel, dk_rel, zora_rel
-      logical xc_chktau,xc_getxcfac
+      logical xc_chktau,xc_getxcfac,cam_exch
       external xc_chktau,xc_getxcfac
 c
       hess_check = .false.
@@ -659,13 +659,27 @@ c
          if(xc_getxcfac(rtdb)) then
             if(xc_chktau()) then
                if (ga_nodeid().eq.0)
-     $              write(LuOut,*) 'MetaGGAs detected'
+     $              write(LuOut,*) 'MetaGGA xc detected'
                return
             endif
          endif
       endif
 c
-      
+c     check for attenuated exchange-correlation forms
+c
+      cam_exch = .false.
+      if(theory.eq.'dft') then
+        if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1,
+     &   cam_exch)) cam_exch=.false.
+         if (cam_exch) then
+             if (ga_nodeid().eq.0) 
+     &              write(LuOut,*) 'CAM/LC xc detected'
+             return
+         end if
+      end if
+c
+c     check for cdfit
+c      
       if (cdfit) then
         if (ga_nodeid().eq.0)
      $    write(LuOut,*) 'CD fit detected'
