@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.57 2008-09-30 20:01:22 d3p975 Exp $
+* $Id: task_gradient.F,v 1.58 2009-01-26 00:53:26 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -28,11 +28,10 @@ c
       logical cons_active
       external cons_active
 c
-cc
       logical task_bsse
       logical bsse_gradient
       external bsse_gradient
-cc
+c
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
@@ -58,10 +57,9 @@ c
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
 c
-cc
       if (.not. rtdb_get(rtdb,'bsse',mt_log,1,task_bsse))
      $     task_bsse = .false.
-cc
+c
       if(task_qmmm) then
           status = task_qmmm_gradient(rtdb)
             if (.not. rtdb_get(rtdb, 'qmmm:energy', mt_dbl, 1, energy))
@@ -72,7 +70,7 @@ cc
      $           call errquit('task_gradient: no gradient in rtdb?',0,
      &       RTDB_ERR)
       else if (theory .ne. 'oniom' .or. numerical) then
-cc
+c
         if(.not.task_bsse) then
           status = task_gradient_doit(rtdb,theory,energy, gradient)
         else
@@ -81,7 +79,7 @@ cc
      $      call errquit('task_gradient: error call bsse gradient',911,
      &                   CALC_ERR)
         endif
-cc
+c
       else
          status = oniom_gradient(rtdb)
          if (status) then
@@ -160,7 +158,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.57 2008-09-30 20:01:22 d3p975 Exp $
+* $Id: task_gradient.F,v 1.58 2009-01-26 00:53:26 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -227,6 +225,8 @@ c
       double precision dipole(3)
       character*80 key, prefix
 c
+      logical cam_exch
+c
       if (.not. geom_rtdb_ncent(rtdb, 'geometry', ncent))
      $     call errquit('task_gradient: failed getting #atoms',0,
      &       RTDB_ERR)
@@ -249,6 +249,19 @@ c     Right now only have a QM component
 c
       if (.not. rtdb_get(rtdb, 'task:numerical', mt_log, 1, 
      $     numerical)) numerical = .false.
+c
+c     Check for CAM/LC xc forms
+c
+      cam_exch = .false.
+      if(theory.eq.'dft') then
+        if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1,
+     &   cam_exch)) cam_exch=.false.
+         if (cam_exch) then
+             numerical = .true.  ! do numerical gradients for cam/lc xc forms
+             if (ga_nodeid().eq.0)
+     &              write(LuOut,*) 'CAM/LC xc detected'
+         end if
+      end if
 c
 c Currently cosmo does not work with analytic gradients
 c

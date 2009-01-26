@@ -32,7 +32,7 @@ c
       end
       logical function grad_dft(rtdb)
 *
-* $Id: grad_dft.F,v 1.37 2007-09-14 18:28:51 niri Exp $
+* $Id: grad_dft.F,v 1.38 2009-01-26 00:55:22 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -172,14 +172,8 @@ c
 c
 c     Compute the gradients arising from CD fit and XC
 c
-ccase...start
-        call case_setflags(.false.)  ! turn off the attenuation for CDFIT (J)
-ccase...end
-c
-cso
       if(theory .eq. 'dft')call dft_gradients(rtdb)
       if(theory .eq. 'sodft')call dft_gradients_so(rtdb)
-cso
 c
       call schwarz_tidy ()
 c
@@ -199,16 +193,8 @@ c
 c
 c     Compute the rest of the gradients (1-e and 2-e)
 c
-ccase...start
-        call case_setflags(.true.)  ! turn on the attenuation for K
-ccase...end
-c
       if(theory .eq. 'dft')call grad_force(rtdb, ao_bas_han, geom)
       if(theory .eq. 'sodft')call grad_force_so(rtdb, ao_bas_han, geom)
-c
-ccase...start
-        call case_setflags(.false.)  ! reset the flag
-ccase...end
 c
       if (.not.((bas_destroy(ao_bas_han)) .and. (geom_destroy(geom)) ) )
      &   call errquit
