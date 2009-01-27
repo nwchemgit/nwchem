@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.90 2008-07-10 22:28:15 marat Exp $
+* $Id: task.F,v 1.91 2009-01-27 00:38:17 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -52,6 +52,7 @@ c
       logical qmmm_end
       logical cons_active
       logical task_property
+      logical task_ccca
 c
 c      logical task_pes
 c      external task_pes
@@ -73,6 +74,7 @@ c
       external task_drdy
       external task_et
       external task_property
+      external task_ccca
 
       logical bq_init,bq_end
       external bq_init,bq_end
@@ -167,6 +169,16 @@ c         status = task_pes(rtdb)
 c         call ga_sync()
 c         goto 99999
 c      endif
+c
+      if (inp_compare(.false.,'ccca',theory)) then
+         if (operation.eq.' ') operation='energy'
+         if (.not. rtdb_cput(rtdb, 'ccca:type',1,operation))
+     +       call errquit('task: failed to store ccCA operation',0,
+     +                     RTDB_ERR)
+         status = task_ccca(rtdb)
+         call ga_sync()
+         goto 99999
+      endif
 c
 c Look for speciallized routine tasks here 
 c
