@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.254 2008-12-15 23:21:25 bylaska Exp $
+# $Id: make_nwchem_config,v 1.255 2009-01-27 00:38:54 bert Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -20,7 +20,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop\
         property nwpw fft rimp2_grad python analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm qmd etrans tddft tce geninterface bq cons \
-        perfm neb dntmc transport smd nbo dangchang leps
+        perfm neb dntmc transport smd nbo dangchang leps ccca
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -33,7 +33,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
 		    -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lsmd \
                     -lcafe -lspace -lanalyze -ldiana -lqhop\
                     -lpfft -ldplot -loimp2 -lnwpython -ldrdy -lvscf -lqmmm -lqmd -letrans\
-                    -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lneb -lnbo -ldntmc -ltransport
+                    -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lneb -lnbo -ldntmc -ltransport -lccca
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
