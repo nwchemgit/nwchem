@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.102 2008-11-17 17:25:44 bylaska Exp $
+* $Id: cgsdv5.F,v 1.103 2009-01-28 01:25:23 bylaska Exp $
 *
 
 ***********************************************************************
@@ -150,6 +150,8 @@
 *                            |************|
 *****************************|  PROLOGUE  |****************************
 *                            |************|
+
+      call ecce_print_module_entry('pspw')
 
       value = .true.
       pi = 4.0d0*datan(1.0d0)
@@ -666,6 +668,7 @@ c      call frac_occ_end()
 
       call Parallel2d_Finalize()
       call Parallel_Finalize()
+      call ecce_print_module_exit('pspw', 'ok')
       cgsdv5 = value
       return
 
@@ -807,6 +810,7 @@ c      call frac_occ_end()
 
  9000 if (taskid.eq.MASTER) write(luout,9010) ierr
       call Parallel_Finalize()
+      call ecce_print_module_exit('pspw', 'failed')
 
       cgsdv5 = value
       return
