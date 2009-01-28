@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.70 2009-01-02 19:38:25 jhammond Exp $
+c $Id: tce_init.F,v 1.71 2009-01-28 18:11:42 marat Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -192,7 +192,7 @@ c
      1  call errquit('tce_init: failed to write thresh',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:printtol',mt_dbl,1,printtol)) then
-        printtol = 1.0d-2
+        printtol = 1.0d-1
         if (.not.rtdb_put(rtdb,'tce:printtol',mt_dbl,1,printtol))
      1  call errquit('tce_init: failed to write printtol',0,RTDB_ERR)
       endif
