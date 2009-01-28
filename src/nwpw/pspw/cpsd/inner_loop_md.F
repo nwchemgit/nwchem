@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.34 2009-01-27 01:50:36 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.35 2009-01-28 01:29:33 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -633,8 +633,7 @@ c        end if
          call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
          eke = eke+sum
       end do
-      if (np_i.gt.1) call D3dB_SumAll(eke)
-      if (np_j.gt.1) call D1dB_SumAll(eke)
+      if (np.gt.1) call Parallel_SumAll(eke)
       eke = eke*fmass
       if (ispin.eq.1) eke = 2.0d0*eke
 
@@ -721,7 +720,7 @@ c        end if
          enlocal = enlocal - sum
         end do
         end do
-        if (np.gt.1) call D3dB_SumAll(enlocal)
+        if (np.gt.1) call Parallel_SumAll(enlocal)
         if (ispin.eq.1) enlocal = 2.0d0*enlocal
 
 

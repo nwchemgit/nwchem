@@ -1,6 +1,6 @@
 
 *
-* $Id: inner_loop.F,v 1.31 2008-09-15 18:48:11 bylaska Exp $
+* $Id: inner_loop.F,v 1.32 2009-01-28 01:29:32 bylaska Exp $
 *
 
 *  ************************************************************
@@ -49,7 +49,7 @@ cccccccc#include "frac_occ.fh"
 
 *     **** local variables ****
       logical move,sic,hfx
-      integer n2ft3d,np_i,np_j
+      integer n2ft3d,np_i,np_j,np
       integer i,n,n1(2),n2(2),it,ms,ierr
       integer nx,ny,nz
       integer gga
@@ -441,6 +441,7 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *     ***** total energy calculation ******
 *     *************************************
       call nwpw_timing_start(10)
+      call Parallel_np(np)
       call Parallel2d_np_i(np_i)
       call Parallel2d_np_j(np_j)
 
@@ -523,8 +524,7 @@ c        call mask_C(0,dcpl_mb(dng(1)))
          enlocal = enlocal - sum
       end do
       end do
-      if (np_i.gt.1) call D3dB_SumAll(enlocal)
-      if (np_j.gt.1) call D1dB_SumAll(enlocal)
+      if (np.gt.1) call Parallel_SumAll(enlocal)
       if (ispin.eq.1) enlocal = 2.0d0*enlocal
 
 
