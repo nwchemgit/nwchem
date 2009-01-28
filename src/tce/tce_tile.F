@@ -1,6 +1,6 @@
       subroutine tce_tile(rtdb)
 c
-c $Id: tce_tile.F,v 1.25 2009-01-28 21:15:55 d3p975 Exp $
+c $Id: tce_tile.F,v 1.26 2009-01-28 21:39:26 d3p975 Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -625,6 +625,10 @@ c
              dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(1)+hole-1)
              call ga_get(g_movecs(1),1,nbf,hole,hole,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+c             int_mb(k_mo_index+i-1)=2*hole-1
+              int_mb(k_mo_index+i-1)=hole
+c<-d3p975
           endif
         enddo
         do hole =nocc(2)+1,nocc(1) !FOR RHF this part does not contribute
@@ -636,6 +640,10 @@ c
              dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(1)+hole-1)
              call ga_get(g_movecs(1),1,nbf,hole,hole,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+c             int_mb(k_mo_index+i-1)=2*hole-1
+              int_mb(k_mo_index+i-1)=hole
+c<-d3p975
           endif
         enddo
         j=j_ia+j_a
@@ -686,6 +694,10 @@ c
              dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(ipol)+hole-1)
              call ga_get(g_movecs(ipol),1,nbf,hole,hole,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+c             int_mb(k_mo_index+i-1)=2*hole
+              int_mb(k_mo_index+i-1)=hole
+c<-d3p975
           endif
         enddo
         j=j_ia
@@ -721,6 +733,10 @@ c
              dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(1)+particle-1)
              call ga_get(g_movecs(1),1,nbf,particle,particle,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+c             int_mb(k_mo_index+i-1)=2*particle-1
+              int_mb(k_mo_index+i-1)=particle
+c<-d3p975
           endif
         enddo
         j=j_ia
@@ -760,6 +776,10 @@ c
              dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(ipol)+particle-1)
              call ga_get(g_movecs(ipol),1,nbf,particle,particle,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+c             int_mb(k_mo_index+i-1)=2*particle
+              int_mb(k_mo_index+i-1)=particle
+c<-d3p975
           endif
         enddo
         do particle = nocc(1)+1, nmo(ipol)-nfv(ipol)
@@ -771,6 +791,10 @@ c
              dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(ipol)+particle-1)
              call ga_get(g_movecs(ipol),1,nbf,particle,particle,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+c             int_mb(k_mo_index+i-1)=2*particle
+              int_mb(k_mo_index+i-1)=particle
+c<-d3p975
           endif
         enddo
         j=j_a+j_ia
