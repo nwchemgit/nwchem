@@ -306,7 +306,7 @@ c     Externs needed
 c
 c     Vars
 c
-      character*256 filename,t2file
+      character*256 filename,t2file,newname
       character*8 nwctheory,reftype,tceio,calctype,model,perturbation
       character*18 tag,tag2,vectors_in, frozen_key
       character*80 project(2), vectors_out
@@ -464,7 +464,9 @@ c
 c
         call ccca_err(rtdb_get(rtdb,'task:gradient',MT_DBL,
      +                natoms*3,grad),errcode)
-        call ccca_err(rtdb_put(rtdb,name(1:len(name))//':gradient',
+        newname=' '
+        newname=name(1:len(name))//':gradient'
+        call ccca_err(rtdb_put(rtdb,newname(1:len(newname)),
      +                                 MT_DBL,natoms*3,grad),errcode)
       endif
       call ccca_err(rtdb_put(rtdb,name(1:len(name)),MT_DBL,1,e_comp)
