@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs3.F,v 1.2 2003-10-24 18:56:59 marat Exp $                       
+*     $Id: pspw_lmbfgs3.F,v 1.3 2009-01-31 01:18:18 bylaska Exp $                       
 *
 
       subroutine pspw_lmbfgs3_init(max_m0,y,g)
@@ -12,12 +12,12 @@
 
 
 *     **** external functions ****
-      integer  psi_ne
-      external psi_ne
+      integer  psi_neq
+      external psi_neq
 
       max_m = max_m0
       call Pack_npack(1,npack1)
-      neall = psi_ne(1)+psi_ne(2)
+      neall = psi_neq(1)+psi_neq(2)
       nsize = neall*npack1
       call pspw_Grsm_list_init('lmbfgs',2*max_m,2*nsize)
 
@@ -85,12 +85,14 @@
      >                   dbl_mb(yy(1)),
      >                   dbl_mb(ss(1)),
      >                   sum)
+      call D1dB_SumAll(sum)
       rho(m) = 1.0d0/sum
 
       call Grsm_gg_trace(npack1,neall,
      >                   dbl_mb(ss(1)),
      >                   s,
      >                   sum)
+      call D1dB_SumAll(sum)
       alpha(m) = rho(m)*sum
       call Grsm_gg_daxpy(npack1,neall,-alpha(m),dbl_mb(yy(1)),s)
 
@@ -112,6 +114,7 @@
      >                   dbl_mb(ss(1)),
      >                   s,
      >                   sum)
+         call D1dB_SumAll(sum)
          alpha(k) = rho(k)*sum
          call Grsm_gg_daxpy(npack1,neall,-alpha(k),dbl_mb(yy(1)),s)
 
@@ -127,6 +130,7 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
      >                   dbl_mb(yy(1)),
      >                   s,
      >                   sum)
+         call D1dB_SumAll(sum)
          beta = rho(k)*sum
          sum = alpha(k) - beta
          call Grsm_gg_daxpy(npack1,neall,sum,dbl_mb(ss(1)),s)
@@ -143,6 +147,7 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
      >                dbl_mb(yy(1)),
      >                s,
      >                sum)
+      call D1dB_SumAll(sum)
       beta = rho(m)*sum
       sum = alpha(m) - beta
       call Grsm_gg_daxpy(npack1,neall,sum,dbl_mb(ss(1)),s)
