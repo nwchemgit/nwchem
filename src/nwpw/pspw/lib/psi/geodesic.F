@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.30 2008-09-17 00:55:35 bylaska Exp $
+* $Id: geodesic.F,v 1.31 2009-01-31 01:19:05 bylaska Exp $
 *
 
 *     ***********************************
@@ -218,7 +218,7 @@ c      value = value.and.MA_free_heap(Vt(2))
       real*8     zero,one
       integer    tmp1(2),tmp2(2),tmp3(2)
       integer    tmpC(2),tmpS(2)
-      real*8     sum1,sum2
+      real*8     sum1,sum2,sum3
 
       integer    taskid, MASTER
       parameter  (MASTER=0)
@@ -312,13 +312,16 @@ c      end do
   
       sum1 = dble(nemax)
       if (dabs(sum2-sum1).gt.1.0d-10) then
-        call Parallel_taskid(taskid)
-c         if (taskid.eq.MASTER) 
-c     >      write(*,'(5x,A,A,e10.3)') 
-c     >      "-  Warning: Gram-Schmidt performed in geodesic_get, ",
-c     >      "error=",dabs(sum2-sum1)
+        call Dneall_f_ortho(0,Ynew,npack1)
+        call Grsm_gg_trace(npack1,nemaxq,Ynew,Ynew,sum3)
+        call D1dB_SumAll(sum3)
 
-         call Dneall_f_ortho(0,Ynew,npack1)
+        call Parallel_taskid(taskid)
+         if (taskid.eq.MASTER) 
+     >      write(*,'(5x,A,A,4e10.3)') 
+     >      "-  Warning: Gram-Schmidt performed in geodesic_get, ",
+     >      "error=",dabs(sum2-sum1),sum2,dabs(sum3-sum1),sum3
+
 c         call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
 c         if (psi_ispin().gt.1) then
 c           call Grsm_g_MakeOrtho(npack1,psi_ne(2),
