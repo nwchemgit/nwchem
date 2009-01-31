@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.75 2008-12-18 21:15:48 bylaska Exp $
+* $Id: cpmdv5.F,v 1.76 2009-01-31 01:18:00 bylaska Exp $
 *
 
 ***********************************************************************
@@ -709,7 +709,7 @@ c      call frac_occ_init(rtdb,ispin,ne)
 
 *     ***** first step using velocity ****
       verlet = .false.
-      call inner_loop_md(verlet,sa_alpha,ispin,neq,
+      call inner_loop_md(verlet,sa_alpha,ispin,ne,neq,
      >             npack1,nfft3d,nemaxq,
      >             dcpl_mb(psi0(1)),
      >             dcpl_mb(psi1(1)),
@@ -744,7 +744,7 @@ c      call frac_occ_init(rtdb,ispin,ne)
       Tr_new = Tr_init
   101 continue
          icount = icount + 1
-         call inner_loop_md(verlet,sa_alpha,ispin,neq,
+         call inner_loop_md(verlet,sa_alpha,ispin,ne,neq,
      >             npack1,nfft3d,nemaxq,
      >             dcpl_mb(psi0(1)),
      >             dcpl_mb(psi1(1)),

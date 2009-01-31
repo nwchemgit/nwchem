@@ -1,5 +1,5 @@
 c
-c $Id: cpsd_input.F,v 1.9 2004-11-10 23:05:32 bylaska Exp $
+c $Id: cpsd_input.F,v 1.10 2009-01-31 01:18:01 bylaska Exp $
 c
       subroutine cpsd_input(rtdb)
       implicit none
@@ -64,7 +64,7 @@ c
        integer ispin,multiplicity
 
 *     **** initializations ****
-      call cpsd_input_default(rtdb)
+c      call cpsd_input_default(rtdb)
       npsp = 0
 
 
@@ -332,126 +332,123 @@ c
 
 
 
-
-
       return
       end
 
 
-      subroutine cpsd_input_default(rtdb)
-      implicit none
-#include "errquit.fh"
-      integer rtdb
-
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
+c      subroutine cpsd_input_default(rtdb)
+c      implicit none
+c#include "errquit.fh"
+c      integer rtdb
 c
-
-*     **** local variables ****
-      logical value
-      integer ind             
-
-      character*30 cell_name
-      character*30 input_wavefunction_filename
-      character*30 output_wavefunction_filename
-      character*30 exchange_correlation
-      logical geometry_optimize,frac_coord,mulliken
-      double precision fake_mass,time_step,rcut
-      integer loop(2),npsp,ncut
-      double precision tolerances(3),ecut,wcut
-      integer ispin,multiplicity
-
-
-*     **** don't set defaults if they already exist ****
-      value = rtdb_get(rtdb,'cpsd:ncut',mt_int,1,ncut)
-      if (value) return
-
-*     ***** initializations ****
-      cell_name             = 'cell_default'
-
-      call util_file_prefix('movecs',input_wavefunction_filename)
-      call util_file_prefix('movecs',output_wavefunction_filename)
-c     input_wavefunction_filename  = ' '
-c     output_wavefunction_filename = ' '
-
-      exchange_correlation         = 'vosko'
-      geometry_optimize            = .false.
-      frac_coord                   = .false.
-      mulliken                     = .false.
-      fake_mass = 400000.0d0
-      time_step = 5.8d0
-      loop(1) = 10
-      loop(2) = 1
-      tolerances(1) = 1.0d-9
-      tolerances(2) = 1.0d-9
-      tolerances(3) = 1.0d-4
-      ecut=9000.0d0
-      wcut=9000.0d0
-      rcut = 0.0d0
-      ncut = 0
-      npsp = 0
-      ispin        = 1
-      multiplicity = 1
-
-
-      ind = index(cell_name,' ') - 1
-      value = rtdb_cput(rtdb,'cpsd:cell_name',1,cell_name(1:ind))
-
-      ind = index(input_wavefunction_filename,' ') - 1
-      value = value.and.
-     >        rtdb_cput(rtdb,'cpsd:input_wavefunction_filename',
-     >                    1,input_wavefunction_filename(1:ind))
-
-      ind = index(output_wavefunction_filename,' ') - 1
-      value = value.and.
-     >        rtdb_cput(rtdb,'cpsd:output_wavefunction_filename',
-     >                    1,output_wavefunction_filename(1:ind))
-
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:geometry_optimize',mt_log,1,
-     >                       geometry_optimize)
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:fractional_coordinates',mt_log,1,
-     >                       frac_coord)
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:mulliken',mt_log,1,
-     >                       mulliken)
-
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:npsp',     mt_int,1,npsp)
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:fake_mass',mt_dbl,1,fake_mass)
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:time_step',mt_dbl,1,time_step)
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:loop',mt_int,2,loop)
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:tolerances',mt_dbl,3,tolerances)
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:ecut',mt_dbl,1,ecut)
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:wcut',mt_dbl,1,wcut)
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:rcut',mt_dbl,1,rcut)
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:ncut',mt_int,1,ncut)
-c      ind = index(exchange_correlation,' ') - 1
+c#include "inp.fh"
+c#include "mafdecls.fh"
+c#include "rtdb.fh"
+cc
+c
+c*     **** local variables ****
+c      logical value
+c      integer ind             
+c
+c      character*30 cell_name
+c      character*30 input_wavefunction_filename
+c      character*30 output_wavefunction_filename
+c      character*30 exchange_correlation
+c      logical geometry_optimize,frac_coord,mulliken
+c      double precision fake_mass,time_step,rcut
+c      integer loop(2),npsp,ncut
+c      double precision tolerances(3),ecut,wcut
+c      integer ispin,multiplicity
+c
+c
+c*     **** don't set defaults if they already exist ****
+c      value = rtdb_get(rtdb,'cpsd:ncut',mt_int,1,ncut)
+c      if (value) return
+c
+c*     ***** initializations ****
+c      cell_name             = 'cell_default'
+c
+c      call util_file_prefix('movecs',input_wavefunction_filename)
+c      call util_file_prefix('movecs',output_wavefunction_filename)
+cc     input_wavefunction_filename  = ' '
+cc     output_wavefunction_filename = ' '
+c
+c      exchange_correlation         = 'vosko'
+c      geometry_optimize            = .false.
+c      frac_coord                   = .false.
+c      mulliken                     = .false.
+c      fake_mass = 400000.0d0
+c      time_step = 5.8d0
+c      loop(1) = 10
+c      loop(2) = 1
+c      tolerances(1) = 1.0d-9
+c      tolerances(2) = 1.0d-9
+c      tolerances(3) = 1.0d-4
+c      ecut=9000.0d0
+c      wcut=9000.0d0
+c      rcut = 0.0d0
+c      ncut = 0
+c      npsp = 0
+c      ispin        = 1
+c      multiplicity = 1
+c
+c
+c      ind = index(cell_name,' ') - 1
+c      value = rtdb_cput(rtdb,'cpsd:cell_name',1,cell_name(1:ind))
+c
+c      ind = index(input_wavefunction_filename,' ') - 1
 c      value = value.and.
-c     >        rtdb_cput(rtdb,'cpsd:exchange_correlation',
-c     >                    1,exchange_correlation(1:ind))
-
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:mult',mt_int,1,multiplicity)
-      value = value.and.
-     >        rtdb_put(rtdb,'cpsd:ispin',mt_int,1,ispin)
-
-*    ***** Error writing to RTDB *****
-      if (.not.value)
-     >  call errquit(
-     >       'cpsd_default: error writing to rtdb', 0, RTDB_ERR)
-
-
-      return
-      end
-
+c     >        rtdb_cput(rtdb,'cpsd:input_wavefunction_filename',
+c     >                    1,input_wavefunction_filename(1:ind))
+c
+c      ind = index(output_wavefunction_filename,' ') - 1
+c      value = value.and.
+c     >        rtdb_cput(rtdb,'cpsd:output_wavefunction_filename',
+c     >                    1,output_wavefunction_filename(1:ind))
+c
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:geometry_optimize',mt_log,1,
+c     >                       geometry_optimize)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:fractional_coordinates',mt_log,1,
+c     >                       frac_coord)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:mulliken',mt_log,1,
+c     >                       mulliken)
+c
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:npsp',     mt_int,1,npsp)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:fake_mass',mt_dbl,1,fake_mass)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:time_step',mt_dbl,1,time_step)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:loop',mt_int,2,loop)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:tolerances',mt_dbl,3,tolerances)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:ecut',mt_dbl,1,ecut)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:wcut',mt_dbl,1,wcut)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:rcut',mt_dbl,1,rcut)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:ncut',mt_int,1,ncut)
+cc      ind = index(exchange_correlation,' ') - 1
+cc      value = value.and.
+cc     >        rtdb_cput(rtdb,'cpsd:exchange_correlation',
+cc     >                    1,exchange_correlation(1:ind))
+c
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:mult',mt_int,1,multiplicity)
+c      value = value.and.
+c     >        rtdb_put(rtdb,'cpsd:ispin',mt_int,1,ispin)
+c
+c*    ***** Error writing to RTDB *****
+c      if (.not.value)
+c     >  call errquit(
+c     >       'cpsd_default: error writing to rtdb', 0, RTDB_ERR)
+c
+c
+c      return
+c      end

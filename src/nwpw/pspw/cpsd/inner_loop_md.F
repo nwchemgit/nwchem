@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.35 2009-01-28 01:29:33 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.36 2009-01-31 01:18:01 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -16,8 +16,8 @@
 *  ************************************************************
   
       subroutine inner_loop_md(verlet,sa_alpha,
-     >                      ispin,ne,
-     >                      npack1,nfft3d,nemax,
+     >                      ispin,ne,neq,
+     >                      npack1,nfft3d,nemaxq,
      >                      psi0,psi1,psi2,dn,
      >                      it_in,it_sum,E,
      >                      hml,lmd,
@@ -27,19 +27,19 @@
       implicit none
       logical    verlet
       real*8     sa_alpha(2)
-      integer    ispin,ne(2)
-      integer    npack1,nfft3d,nemax
-      complex*16 psi0(npack1,nemax)
-      complex*16 psi1(npack1,nemax)
-      complex*16 psi2(npack1,nemax)
+      integer    ispin,ne(2),neq(2)
+      integer    npack1,nfft3d,nemaxq
+      complex*16 psi0(npack1,nemaxq)
+      complex*16 psi1(npack1,nemaxq)
+      complex*16 psi2(npack1,nemaxq)
       real*8     dn(2*nfft3d,2)
       integer    it_in,it_sum
       real*8     E(*)
       real*8     hml(*),lmd(*)
 
 *     **** very big workspace variables ****
-      complex*16 Hpsi(npack1,nemax)
-      real*8     psi_r(2*nfft3d,nemax)
+      complex*16 Hpsi(npack1,nemaxq)
+      real*8     psi_r(2*nfft3d,nemaxq)
 
       logical calc_pressure
       real*8  pressure,p1,p2,stress(3,3)
@@ -198,9 +198,9 @@ c     real*8     fion(3,natmx)
       ssr = 1.0d0
 
       n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1) + 1
-      n2(2) = ne(1) + ne(2)
+      n2(1) = neq(1)
+      n1(2) = neq(1) + 1
+      n2(2) = neq(1) + neq(2)
 
       dt    = control_time_step()
       fmass = control_fake_mass()
@@ -227,8 +227,8 @@ c     real*8     fion(3,natmx)
 *     ****                                  ****
 *     ******************************************
       do it=1,it_in
-        call dcopy(2*npack1*nemax,psi1,1,psi0,1)
-        call dcopy(2*npack1*nemax,psi2,1,psi1,1)
+        call dcopy(2*npack1*nemaxq,psi1,1,psi0,1)
+        call dcopy(2*npack1*nemaxq,psi2,1,psi1,1)
 *       *** skip ion_shift if newton step ***
         if (verlet) call ion_shift()
         if (nose.and.verlet) call Nose_shift()
@@ -398,14 +398,14 @@ c        end do
 *       **** get Hpsi ****
 *       ******************
         if (control_version().eq.3)
-     >  call psi_H(ispin,ne,psi1,psi_r,
+     >  call psi_H(ispin,neq,psi1,psi_r,
      >             dcpl_mb(vl(1)),
      >             dbl_mb(v_field(1)),field_exist,
      >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)),fractional,occ1)
 
         if (control_version().eq.4)
-     >     call psi_Hv4(ispin,ne,psi1,psi_r,
+     >     call psi_Hv4(ispin,neq,psi1,psi_r,
      >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
      >             dbl_mb(v_field(1)),field_exist,
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
@@ -501,14 +501,14 @@ c        end if
         dte0 = dte
         if (nose.and.verlet) dte0 = dte*sse
         if (fractional) then
-        call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
+        call psi_lmbda2(ispin,neq,nemaxq,npack1,psi1,psi2,
      >                  dte0,occ1,
      >                  lmd,dbl_mb(tmp_L(1)),ierr)
         else if (sic) then
-        call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte0,
+        call psi_lmbda_sic(ispin,neq,nemaxq,npack1,psi1,psi2,dte0,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
         else
-        call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte0,
+        call psi_lmbda(ispin,neq,nemaxq,npack1,psi1,psi2,dte0,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
         end if
 
@@ -552,7 +552,7 @@ c        end if
 *       **** call dplot ****
 *       ********************
         if (dplot_iteration_check(it+it_sum)) then
-         call dplot_iteration((it+it_sum),ispin,ne,psi1,dn,psi_r)
+         call dplot_iteration((it+it_sum),ispin,neq,psi1,dn,psi_r)
         end if
 
 
@@ -698,9 +698,9 @@ c        end if
 
 
       if (nose) then
-        E(9) = Nose_e_energy()
+        E(9)  = Nose_e_energy()
         E(10) = Nose_r_energy()
-        E(1) = E(2)+E(3)+E(4)+E(9)+E(10)
+        E(1)  = E(2)+E(3)+E(4)+E(9)+E(10)
       else
         E(1) = E(2)+E(3)+E(4)
       end if
@@ -709,8 +709,8 @@ c        end if
       if (calc_pressure) then
 
 *        ***** average Kohn-Sham v_nonlocal energy ****
-        call dcopy(2*npack1*nemax,0.0d0,0,Hpsi,1)
-        call v_nonlocal(ispin,ne,psi1,Hpsi,
+        call dcopy(2*npack1*nemaxq,0.0d0,0,Hpsi,1)
+        call v_nonlocal(ispin,neq,psi1,Hpsi,
      >                .false.,dbl_mb(ftest(1)),fractional,occ1)
         enlocal = 0.0d0
         do ms=1,ispin
@@ -724,7 +724,7 @@ c        end if
         if (ispin.eq.1) enlocal = 2.0d0*enlocal
 
 
-        call cgsd_pressure_stress(ispin,ne,psi1,
+        call cgsd_pressure_stress(ispin,neq,psi1,
      >                            dbl_mb(dnall(1)),
      >                            dcpl_mb(dng(1)),
      >                            enlocal,exc,pxc,
