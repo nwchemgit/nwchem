@@ -1,6 +1,6 @@
       logical function cphf(rtdb)
 *
-* $Id: cphf.F,v 1.9 2007-02-27 16:14:31 bert Exp $
+* $Id: cphf.F,v 1.10 2009-02-02 22:27:28 niri Exp $
 *
       implicit none
 #include "global.fh"
@@ -18,6 +18,7 @@ c
          write(6,*)
          write(6,*) 
       endif
+c
       call cphf_solve(rtdb)
 c
       cphf=.true.
@@ -45,6 +46,7 @@ c
          write(6,*)
          write(6,*) 
       endif
+c
       call cphf_solve2(rtdb)
 c
       cphf2=.true.
@@ -83,6 +85,13 @@ c
          write(6,*)
          write(6,*) 
       endif
+c
+c       if (ga_nodeid().eq.0) then
+c         write(6,*) "omega: ",omega
+c         write(6,*) "lifetime: ",lifetime
+c         write(6,*) "gamwidth: ",gamwidth
+c       end if
+c
       call cphf_solve3(rtdb, omega, lifetime, gamwidth)
 c
       cphf3=.true.
@@ -109,6 +118,7 @@ c
          write(6,*)
          write(6,*) 
       endif
+c
       call cphf_solve4(rtdb)
 c
       cphf4=.true.
