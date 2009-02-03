@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.56 2003-10-17 22:55:29 carlfahl Exp $
+* $Id: mp2_energy.F,v 1.57 2009-02-03 14:44:29 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -84,6 +84,12 @@ c
 
       character*(nw_max_path_len) cphf_sol
       integer natoms, l_grad, k_grad, g_tmpa, g_tmpb
+c
+      logical rungfive            ! use DFT reference orbitals and energy
+      double precision pt2_factor ! coefficient on MP2 contribution to total energy
+c
+      if (.not. rtdb_get(rtdb,'dft:fifthrung',mt_log,1,rungfive))
+     $     rungfive = .false.
 c     
       if (.not.rtdb_get(rtdb, 'mp2:skeleton',MT_LOG, 1, oskel))
      $     oskel = sym_number_ops(geom) .gt. 0
@@ -514,19 +520,40 @@ c
          end if
       end if
 c     
-      if(.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,escf))
-     $     call errquit('could not get scf energy',1, RTDB_ERR)
-      e_total = escf + e2
+      if (rungfive) then
+        if(.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,escf))
+     $       call errquit('could not get dft energy',1, RTDB_ERR)
+        if (.not.rtdb_get(rtdb,'dft:pt2fac',mt_dbl,1,pt2_factor)) then
+          pt2_factor = 1.0d0
+          if (ga_nodeid().eq.0) then
+            write(LuOut,*) 'dft:pt2fac not found, using 1.0'
+          endif
+        endif
+        e_total = escf + pt2_factor*e2
+      else
+        if(.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,escf))
+     $       call errquit('could not get scf energy',1, RTDB_ERR)
+        e_total = escf + e2
+      endif
       if (util_print('information',print_low).and.ga_nodeid().eq.0) then
-         write(6,999) escf, e2, esing, etrip, e_total
- 999     format(//,10x,43('-'),
-     $        /,10x,'SCF energy         ',f24.12,
-     $        /,10x,'Correlation energy ',f24.12,
-     $        /,10x,'Singlet pairs      ',f24.12,
-     $        /,10x,'Triplet pairs      ',f24.12,
-     $        /,10x,'Total MP2 energy   ',f24.12,
-     $        /,10x,43('-'),/)
-         call util_flush(6)
+        if (rungfive) then
+          write(6,998) escf, e2, e_total
+ 998      format(//,10x,43('-'),
+     $            /,10x,'DFT energy             ',f20.12,
+     $            /,10x,'Unscaled MP2 energy    ',f20.12,
+     $            /,10x,'Total DFT+MP2 energy   ',f20.12,
+     $            /,10x,43('-'),/)
+        else
+          write(6,999) escf, e2, esing, etrip, e_total
+ 999      format(//,10x,43('-'),
+     $            /,10x,'SCF energy         ',f24.12,
+     $            /,10x,'Correlation energy ',f24.12,
+     $            /,10x,'Singlet pairs      ',f24.12,
+     $            /,10x,'Triplet pairs      ',f24.12,
+     $            /,10x,'Total MP2 energy   ',f24.12,
+     $            /,10x,43('-'),/)
+        endif
+        call util_flush(6)
       end if 
       call ecce_print1('total energy', mt_dbl, e_total, 1)
       call ecce_print1('correlation energy', mt_dbl, e2, 1)
@@ -536,6 +563,11 @@ c
       if(.not. rtdb_put(rtdb,'mp2:energy',mt_dbl,1,e_total))
      $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0,
      &       RTDB_ERR)
+      if (rungfive) then
+        if(.not. rtdb_put(rtdb,'dft:energy',mt_dbl,1,e_total))
+     1       call errquit('semi_dir_mp2:failed storing energy in rtdb',
+     2                    0,RTDB_ERR)
+      endif
       if(.not. rtdb_put(rtdb,'mp2:esing',mt_dbl,1,esing))
      $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0,
      &       RTDB_ERR)

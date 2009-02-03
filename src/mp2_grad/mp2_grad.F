@@ -1,6 +1,6 @@
       logical function semi_dir_mp2(rtdb)
 *
-* $Id: mp2_grad.F,v 1.25 2003-10-17 22:55:29 carlfahl Exp $
+* $Id: mp2_grad.F,v 1.26 2009-02-03 14:44:30 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -21,32 +21,61 @@
       character*8 task
       double precision threshscf
 c
-      logical cphf, scf, int_normalize
-      external cphf, scf, int_normalize
+      logical cphf, scf, int_normalize, dft_energy
+      external cphf, scf, int_normalize, dft_energy
+c
+      logical rungfive            ! use DFT reference orbitals and energy
+c      double precision pt2_factor ! coefficient on MP2 contribution to total energy
 c
       status=rtdb_parallel(.true.)
       call util_print_push
       call util_print_rtdb_load(rtdb,'mp2')
       call ecce_print_module_entry('mp2')
 c
+      if (.not. rtdb_get(rtdb,'dft:fifthrung',mt_log,1,rungfive))
+     $     rungfive = .false.
+c
 c     Make sure the SCF is being converged accurately enough
 c
-      if (.not. rtdb_get(rtdb,'scf:thresh',mt_dbl,1,threshscf))
-     $     threshscf = 1.0d-4
-      if (threshscf .gt. 1.0d-6) then
-         threshscf = 1.0d-6
-         if (.not. rtdb_put(rtdb,'scf:thresh',mt_dbl,1,threshscf))
-     $        call errquit('mp2_grad: failed setting scf:thresh',0,
-     &       RTDB_ERR)
-         status = rtdb_delete(rtdb,'scf:converged')
-      endif
+      if (rungfive) then ! DFT SCF
 c
-      if (.not. scf(rtdb)) then
-         semi_dir_mp2 = .false.
-         call ecce_print_module_exit('mp2', 'failed')
-         Call Util_Print_pop
-         return
-      endif
+        if (.not. rtdb_get(rtdb,'dft:e_conv',mt_dbl,1,threshscf))
+     $       threshscf = 1.0d-4
+        if (threshscf .gt. 1.0d-6) then
+           threshscf = 1.0d-6
+           if (.not. rtdb_put(rtdb,'dft:e_conv',mt_dbl,1,threshscf))
+     $          call errquit('mp2_grad: failed setting dft:e_conv',0,
+     &                       RTDB_ERR)
+           status = rtdb_delete(rtdb,'dft:converged')
+        endif
+c
+        if (.not. dft_energy(rtdb)) then
+           semi_dir_mp2 = .false.
+           call ecce_print_module_exit('mp2', 'failed')
+           Call Util_Print_pop
+           return
+        endif
+c
+      else ! Hartree-Fock SCF
+c
+        if (.not. rtdb_get(rtdb,'scf:thresh',mt_dbl,1,threshscf))
+     $       threshscf = 1.0d-4
+        if (threshscf .gt. 1.0d-6) then
+           threshscf = 1.0d-6
+           if (.not. rtdb_put(rtdb,'scf:thresh',mt_dbl,1,threshscf))
+     $          call errquit('mp2_grad: failed setting scf:thresh',0,
+     &                       RTDB_ERR)
+           status = rtdb_delete(rtdb,'scf:converged')
+        endif
+c
+        if (.not. scf(rtdb)) then
+           semi_dir_mp2 = .false.
+           call ecce_print_module_exit('mp2', 'failed')
+           Call Util_Print_pop
+           return
+        endif
+c
+      endif ! ===============================
 c
       call mp2_pstat_init()
 c
@@ -95,9 +124,16 @@ c
      &    call errquit('mp2_grad: int_normalize failed',0, INT_ERR)
 c
 c     Make sure that we use the same vectors as the SCF
+c     Jeff: Why are we using input vectors and not output vectors?
+c           Are they set to the same once SCF converges?
 c
-      if (.not. rtdb_cget(rtdb,'scf:input vectors',1,movecs_in)) 
-     $     call errquit('mp2_grad: no SCF MO vectors',0, RTDB_ERR)
+      if (rungfive) then
+        if (.not. rtdb_cget(rtdb,'dft:input vectors',1,movecs_in)) 
+     $       call errquit('mp2_grad: no DFT MO vectors',0, RTDB_ERR)
+      else
+        if (.not. rtdb_cget(rtdb,'scf:input vectors',1,movecs_in)) 
+     $       call errquit('mp2_grad: no SCF MO vectors',0, RTDB_ERR)
+      endif
 c
       call mp2_energy(rtdb, geom, basis, movecs_in, task)
 c
