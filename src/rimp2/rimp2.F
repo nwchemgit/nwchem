@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.47 2003-10-17 22:58:10 carlfahl Exp $
+C$Id: rimp2.F,v 1.48 2009-02-03 14:39:52 jhammond Exp $
       Implicit NONE
 #include "errquit.fh"
       Integer RTDB
@@ -26,8 +26,8 @@ C
       Integer LNBlnk
       External LNBlnk
 C
-      Logical RIMP2_XF_Driver, RIMP2_V_E2, SCF
-      External RIMP2_XF_Driver, RIMP2_V_E2, SCF
+      Logical RIMP2_XF_Driver, RIMP2_V_E2, SCF, dft_energy
+      External RIMP2_XF_Driver, RIMP2_V_E2, SCF, dft_energy
 C
       Integer MaxSpin
       Parameter (MaxSpin = 2)
@@ -82,6 +82,11 @@ C
 C     Stuff for SCF reference
 C
       Double precision ThreshSCF
+c
+c     fifth-rung functional stuff: DFT += c2*MP2
+c
+      logical rungfive            ! use DFT reference orbitals and energy
+      double precision pt2_factor ! coefficient on MP2 contribution to total energy
 C
 C     Initialize this module
 C
@@ -115,6 +120,9 @@ C     ************************************
 C     * Check for adequate SCF reference *
 C     ************************************
 c
+      if (.not. rtdb_get(rtdb,'dft:fifthrung',mt_log,1,rungfive))
+     $     rungfive = .false.
+c
       if (.not. rtdb_get(rtdb,'scf:thresh',mt_dbl,1,threshscf))
      $     threshscf = 1.0d-4
       if (threshscf .gt. 1.0d-6) then
@@ -125,11 +133,24 @@ c
          status = rtdb_delete(rtdb,'scf:converged') ! Status irrelevant
       endif
 c
-      if (.not. scf(rtdb)) then
-         rimp2 = .false.
-         call ecce_print_module_exit('mp2', 'failed')
-         Call Util_Print_pop
-         return
+      if (rungfive) then
+        if (.not.dft_energy(rtdb)) then
+           call ecce_print_module_exit('mp2','failed')
+           call errquit('rimp2: DFT did not converged',0,RTDB_ERR)
+        endif
+        if (.not.rtdb_get(rtdb,'dft:pt2fac',mt_dbl,1,pt2_factor)) then
+          pt2_factor = 1.0d0
+          if (Me.eq.0) then
+            write(LuOut,*) 'dft:pt2fac not found, using 1.0'
+          endif
+        endif
+      else
+        if (.not. scf(rtdb)) then
+           rimp2 = .false.
+           call ecce_print_module_exit('mp2','failed')
+           Call Util_Print_pop
+           return
+        endif
       endif
 C
 C     *****************
@@ -290,8 +311,7 @@ C
  8520 Format(1X, A35, 4(1X, I10), (/36X, 4(1X,I10)) )
 C
  9050 Format(1X, 'The following mapping relates the ''correlated ',
-     $       'basis'' to the'/
-     $   1X, 'original SCF basis.')
+     $       'basis'' to the original SCF basis.')
  9051 Format(1X, 'This correlated calculation is based on an SCF ',
      $       'reference in which'/
      $   1X, 'orbitals have been frozen or rearranged relative to ',
@@ -378,34 +398,75 @@ C
 C
 C     Also get the SCF energy so we can report the total energy
 C
-      Status = RTDB_Get(RTDB, 'scf:energy', MT_Dbl, 1, RefEner)
-      If ( .NOT. Status ) then
-         RefEner = FP_Zero
-         If ( Me .eq. 0) Write ( LuOut, *)
-     $      'RIMP2: Warning! Unable to get scf:energy from RTDB.'
-      EndIf
+      if (rungfive) then
+        if (.not.rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, RefEner)) then
+           call errquit('rimp2: failed to get dft:energy from RTDB',
+     1                  0,RTDB_ERR)
+        endif
+      else
+        if (.not.rtdb_get(rtdb, 'scf:energy', mt_dbl, 1, RefEner)) then
+           call errquit('rimp2: failed to get scf:energy from RTDB',
+     1                  0,RTDB_ERR)
+        endif
+      endif
 C
-      TotEner = RefEner + CorEner
+      if (rungfive) then
+        TotEner = RefEner + pt2_factor*CorEner
+      else
+        TotEner = RefEner + CorEner
+      endif
 C
-      If ( Me .eq. 0) then
-         Call Banner(LuOut, 'RI-MP2 energy', '-',
-     $      .TRUE., .TRUE., .FALSE.)
-         Write (LuOut, '(1X, A, F30.15)') 'Reference energy:    ',
-     $      RefEner
-         Write (LuOut, '(1X, A, F30.15)') 'Correlation energy:  ',
-     $      CorEner
-         Write (LuOut, '(1X, A, F30.15)') 'Total RI-MP2 energy: ',
-     $      TotEner
-      EndIf
+c
+c      old output printing
+c
+c      If ( Me .eq. 0) then
+c         Call Banner(LuOut,'RI-MP2 energy','-',.TRUE.,.TRUE.,.FALSE.)
+c         if (rungfive) then
+c           Write(LuOut,'(1X,A,F30.15)') 'Using DFT reference'
+c         endif
+c         Write(LuOut,'(1X,A,F30.15)') 'Reference energy:    ',RefEner
+c         Write(LuOut,'(1X,A,F30.15)') 'Correlation energy:  ',CorEner
+c         if (rungfive) then
+c           Write(LuOut,'(1X,A,F30.15)') 'Total DFT+PT2 energy: ',TotEner
+c         else
+c           Write(LuOut,'(1X,A,F30.15)') 'Total RI-MP2 energy: ',TotEner
+c         endif
+c      EndIf
+c
+c       same format as MP2 and directMP2
+c
+        if (Me.eq.0) then
+          if (rungfive) then
+            write(6,998) RefEner,CorEner,TotEner
+ 998        format(//,10x,43('-'),
+     $              /,10x,'DFT energy              ',f20.12,
+     $              /,10x,'Unscaled MP2 energy     ',f20.12,
+     $              /,10x,'Total DFT+MP2 energy    ',f20.12,
+     $              /,10x,43('-'),/)
+          else
+            write(6,999) RefEner,CorEner,TotEner
+ 999        format(//,10x,43('-'),
+     $              /,10x,'SCF energy         ',f24.12,
+     $              /,10x,'Correlation energy ',f24.12,
+     $              /,10x,'Total MP2 energy   ',f24.12,
+     $              /,10x,43('-'),/)
+          endif
+        endif
 C
 C     Write our energy out to the database
 C
-      Status = RTDB_Put( RTDB, 'rimp2:correlation energy', MT_Dbl, 1,
+      Status = RTDB_Put(RTDB,'rimp2:correlation energy',MT_Dbl,1,
      $   CorEner)
-      Status = Status .AND. RTDB_Put( RTDB, 'rimp2:energy', MT_Dbl, 1,
+      Status = Status.AND.RTDB_Put(RTDB,'rimp2:energy',MT_Dbl,1,
      $     TotEner)
-      If ( .NOT. Status ) Call ErrQuit(
-     $   'rimp2: unable to store energies in rtdb', 911, RTDB_ERR)
+      if (rungfive) then
+        Status = Status.AND.RTDB_Put(RTDB,'dft:energy',MT_Dbl,1,
+     $     TotEner)
+      endif
+      If (.NOT.Status) then
+         Call ErrQuit('rimp2: unable to store energies in rtdb',911,
+     2                RTDB_ERR)
+      endif
 C
 #ifdef RIMP2_USE_DA
 C
@@ -420,15 +481,17 @@ C
       Status = .TRUE.
       Status = Status .AND. MA_Pop_Stack( H_Contrib)
       Status = Status .AND.  MA_Free_Heap(H_Eval)
-      If ( .NOT. Status) Call ErrQuit(
-     $   'RIMP2: Unable to destroy local arrays', 0, MA_ERR)
+      If (.NOT.Status) then
+         Call ErrQuit('RIMP2: Unable to destroy local arrays',0,MA_ERR)
+      endif
 C
-      Status = Status .AND. Geom_Destroy( Geom)
-      Status = Status .AND. Bas_Destroy( FitBas)
-      Status = Status .AND. Bas_Destroy( AOBas)
-      If (.NOT. Status) Call ErrQuit(
-     $   'RIMP2: Failed to destroy geometry and  basis sets', 0,
-     &       BASIS_ERR)
+      Status = Status .AND. Geom_Destroy(Geom)
+      Status = Status .AND. Bas_Destroy(FitBas)
+      Status = Status .AND. Bas_Destroy(AOBas)
+      If (.NOT.Status) then
+         Call ErrQuit('RIMP2: Failed to destroy geometry and basis',0,
+     2                BASIS_ERR)
+      Endif
 C
       Call Util_Print_Pop
       call ecce_print_module_exit('mp2', 'ok')

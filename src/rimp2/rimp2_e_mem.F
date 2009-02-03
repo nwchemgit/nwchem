@@ -3,7 +3,7 @@ C NAME
 C     rimp2_e_mem -- Determine optimal memory usage for energy calc.
 C
 C REVISION
-C     $Id: rimp2_e_mem.F,v 1.5 2003-10-17 22:58:10 carlfahl Exp $
+C     $Id: rimp2_e_mem.F,v 1.6 2009-02-03 14:39:52 jhammond Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_E_Mem(TopSpin, NOcc, NVir, FitBas, Mode,
@@ -35,6 +35,7 @@ C INCLUDE FILES
 #include "global.fh"
 #include "mafdecls.fh"
 #include "msgids.fh"
+#include "errquit.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer BigOcc, BigVir, I, J, G_I, NProc
@@ -42,7 +43,6 @@ C LOCAL VARIABLES
       Double Precision Need1, Need2
 C
 C     For simplicity, we'll figure out a distribution that works for
-#include "errquit.fh"
 C     the largest spin case.  Note that nrs. of occupied and virtual
 C     orbitals may change, but fitting basis doesn't.
 C
