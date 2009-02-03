@@ -1,19 +1,4 @@
-refund: UserID = jhammond
-refund: SLURM Job ID = 125858
-refund: Number of nodes          = 4
-refund: Number of cores per node = 4
-refund: Number of cores          = 16
-refund: Amount of time requested = 30
- 
-Processor list
- 
-cu1n[1-4]
- 
 ARMCI configured for 4 cluster nodes. Network protocol is 'OpenIB Verbs API'.
-All connections between all procs tested: SUCCESS
- argument  1 = /mscf/home/jhammond/nwchem/QA/tests/b2plyp/He_b2plyp_cc-vqz.nw
- 
-
 
 ============================== echo of input deck ==============================
 #
