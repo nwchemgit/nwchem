@@ -19,12 +19,6 @@ basis "ao basis" spherical
   * library cc-pvqz
 end
 
-# This won't reproduce Turbomole exactly because it's not the same basis
-# but it should come darn close to the complete MP2 result
-basis "ri-mp2 basis" spherical
-  * library aug-cc-pv6z
-end
-
 mp2
   freeze 0
   scratchdisk 4096
@@ -32,7 +26,6 @@ end
 
 dft
   xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
-#  xc b2plyp
   rungfive 1 # semidirect
   convergence energy 1e-8
   iterations 100
@@ -42,17 +35,52 @@ task dft energy
 
 dft
   xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
-#  xc b2plyp
   rungfive 2 # direct
+  direct
   convergence energy 1e-8
   iterations 100
 end
 
 task dft energy
 
+# This won't reproduce Turbomole exactly because it's not the same basis
+# but it should come darn close to the complete DFT result
+basis "cc-pVQZ-RI" spherical
+#BASIS SET: (5s,4p,3d,2f)
+He    S
+     29.251976741            1.0000000        
+He    S
+      6.3479959175           1.0000000        
+He    S
+      3.0141166013           1.0000000        
+He    S
+      0.83396087296          1.0000000        
+He    S
+      0.47964730615          1.0000000        
+He    P
+      8.6905135631           1.0000000        
+He    P
+      2.5796767548           1.0000000        
+He    P
+      1.1943303704           1.0000000        
+He    P
+      0.71278867940          1.0000000        
+He    D
+      7.2944834617           1.0000000        
+He    D
+      4.3632208275           1.0000000        
+He    D
+      1.7345900404           1.0000000        
+He    F
+      4.3507069127           1.0000000        
+He    F
+      2.7082979618           1.0000000        
+end
+
+set "ri-mp2 basis" "cc-pVQZ-RI"
+
 dft
   xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
-#  xc b2plyp
   rungfive 3 # RI
   convergence energy 1e-8
   iterations 100
