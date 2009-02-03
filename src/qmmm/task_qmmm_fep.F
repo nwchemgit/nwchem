@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_fep.F,v 1.8 2006-07-18 16:50:48 d3p307 Exp $
+c $Id: task_qmmm_fep.F,v 1.9 2009-02-03 18:14:15 marat Exp $
 c
 c
       function task_qmmm_fep(rtdb)
@@ -399,7 +399,7 @@ c     external functions
 
 c     local variables
       double precision stime
-      integer i
+      integer i,i0
       character*255 filename
       integer fn_trj,fn
       integer trn(3)
@@ -509,6 +509,16 @@ c
          read(fn,*,END=10)  nf0,taver,faver1,de1,faver2,de2
        end do
 10     continue
+c this was done to get rid off past EOF problem on chinook
+       i0=i-1
+       write(*,*) "rereading", i0
+       call util_flush(6)
+       rewind(fn)
+       do i=1,i0
+         read(fn,*)  nf0,taver,faver1,de1,faver2,de2
+         write(*,*) i,nf0,taver,faver1,de1,faver2,de2
+       end do
+c
        tsum = taver*nf0
        fsum1 = faver1*nf0
        fsum2 = faver2*nf0
@@ -862,7 +872,7 @@ c     external functions
 
 c     local variables
       double precision stime
-      integer i
+      integer i,i0
       character*255 filename
       integer fn_trj,fn
       integer trn(3)
@@ -968,6 +978,16 @@ c
          read(fn,*,END=10)  nf0,taver,faver,de
        end do
 10     continue
+c this was done to get rid off past EOF problem on chinook
+       i0=i-1
+       write(*,*) "rereading", i0
+       call util_flush(6)
+       rewind(fn)
+       do i=1,i0
+         read(fn,*)  nf0,taver,faver,de
+         write(*,*)  i,nf0,taver,faver,de
+       end do
+c
        tsum = taver*nf0
        fsum = faver*nf0
        end if
