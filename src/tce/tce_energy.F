@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.158 2009-02-03 19:37:22 jhammond Exp $
+c $Id: tce_energy.F,v 1.159 2009-02-03 21:37:03 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -3361,7 +3361,7 @@ c -------------
         if (imagresp) then
 #if !defined(CCSDTLR)
       CALL ERRQUIT('CCSDTLR not compiled (tce_energy.F)',0,CAPMIS_ERR)
-#else
+#endif
 c
 c         REAL COMPONENT
 c
@@ -3931,7 +3931,7 @@ c -------------
         if (lineresp) then
 #if !defined(CCSDTLR)
       CALL ERRQUIT('CCSDTLR not compiled (tce_energy.F)',0,CAPMIS_ERR)
-#else
+#endif
 c          if (nodezero) write(LuOut,*) "lineresp is go"
           do omegacount=1,anumfreq
 c            if (nodezero) write(LuOut,*) "omegacount is go"
@@ -4771,7 +4771,6 @@ c
           enddo ! omegacount loop
 c
         endif ! leftresp
-#endif
 c
       else if (model.eq.'ccsdta') then
 c -----------------------------
