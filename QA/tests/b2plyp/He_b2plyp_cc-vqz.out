@@ -1,4 +1,6 @@
-ARMCI configured for 4 cluster nodes. Network protocol is 'OpenIB Verbs API'.
+ argument  1 = He_b2plyp_cc-vqz.nw
+ 
+
 
 ============================== echo of input deck ==============================
 #
@@ -29,7 +31,7 @@ end
 
 dft
   xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
-  rungfive 1 # semidirect
+  rungfive semidirect
   convergence energy 1e-8
   iterations 100
 end
@@ -38,7 +40,7 @@ task dft energy
 
 dft
   xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
-  rungfive 2 # direct
+  rungfive direct
   direct
   convergence energy 1e-8
   iterations 100
@@ -84,7 +86,7 @@ set "ri-mp2 basis" "cc-pVQZ-RI"
 
 dft
   xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
-  rungfive 3 # RI
+  rungfive ri
   convergence energy 1e-8
   iterations 100
 end
@@ -166,19 +168,19 @@ task dft energy
            Job information
            ---------------
 
-    hostname      = cu1n1
-    program       = /scratch/nwchem
-    date          = Tue Feb  3 08:52:50 2009
+    hostname      = torun
+    program       = /home/jhammond/nwchem/bin/LINUX64/nwchem
+    date          = Tue Feb  3 10:13:50 2009
 
-    compiled      = Tue_Feb_03_08:48:57_2009
+    compiled      = Tue_Feb_03_09:56:21_2009
     source        = /home/jhammond/nwchem
     nwchem branch = Development
-    input         = /mscf/home/jhammond/nwchem/QA/tests/b2plyp/He_b2plyp_cc-vqz.nw
+    input         = He_b2plyp_cc-vqz.nw
     prefix        = He_b2plyp_cc-vqz.
     data base     = ./He_b2plyp_cc-vqz.db
     status        = startup
-    nproc         =   16
-    time left     =   1794s
+    nproc         =    2
+    time left     =     -1s
 
 
 
@@ -242,8 +244,8 @@ task dft energy
  geometry
  He                    0.00000000     0.00000000     0.00000000
  
-  library name resolved from: environment
-  library file name is: </mscf/nwchem/nwchem-users/src/basis/libraries/>
+  library name resolved from: .nwchemrc
+  library file name is: </home/jhammond/nwchem/src/basis/libraries/>
   
 
 
@@ -316,9 +318,9 @@ task dft energy
           Maximum number of iterations: 100
           AO basis - number of functions:    30
                      number of shells:    10
-          Convergence on energy requested: 1.00E-08
-          Convergence on density requested: 1.00E-05
-          Convergence on gradient requested: 5.00E-04
+          Convergence on energy requested: 1.00D-08
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
  
               XC Information
               --------------
@@ -343,7 +345,7 @@ task dft energy
           Convergence aids based upon iterative change in 
           total energy or number of iterations. 
           Levelshifting, if invoked, occurs when the 
-          HOMO/LUMO gap drops below (HL_TOL): 1.00E-02
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
           DIIS, if invoked, will attempt to extrapolate 
           using up to (NFOCK): 10 stored Fock matrices.
 
@@ -355,11 +357,11 @@ task dft energy
  
       Screening Tolerance Information
       -------------------------------
-          Density screening/tol_rho: 1.00E-11
+          Density screening/tol_rho: 1.00D-11
           AO Gaussian exp screening on grid/accAOfunc:  18
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul: 1.00E-09
+          Schwarz screening/accCoul: 1.00D-09
 
  
       Superposition of Atomic Density Guess
@@ -376,36 +378,36 @@ task dft energy
  HOMO         =      -0.917849
  LUMO         =       0.496529
  
-   Time after variat. SCF:      0.6
-   Time prior to 1st pass:      0.6
+   Time after variat. SCF:      0.1
+   Time prior to 1st pass:      0.1
 
- #quartets = 1.540E+03 #integrals = 1.511E+04 #direct =  0.0% #cached =100.0%
+ #quartets = 1.540D+03 #integrals = 1.511D+04 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./He_b2plyp_cc-vqz.aoints.00
+ Integral file          = ./He_b2plyp_cc-vqz.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 169373
+ Max. records in memory =      3        Max. records in file   = 144944
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
 
- Grid_pts file          = ./He_b2plyp_cc-vqz.gridpts.00
+ Grid_pts file          = ./He_b2plyp_cc-vqz.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      2        Max. recs in file   =    903252
+ Max. records in memory =      5        Max. recs in file   =    772979
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       32.61            32611019
+           Heap Space remaining (MW):       32.51            32508570
           Stack Space remaining (MW):       32.77            32767752
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.8933143907 -2.89E+00  1.31E-03  9.22E-03     0.7
- d= 0,ls=0.0,diis     2     -2.8936988123 -3.84E-04  1.49E-04  3.53E-05     0.7
- d= 0,ls=0.0,diis     3     -2.8937015181 -2.71E-06  7.33E-06  3.94E-08     0.7
- d= 0,ls=0.0,diis     4     -2.8937015226 -4.47E-09  1.27E-08  1.99E-12     0.8
+ d= 0,ls=0.0,diis     1     -2.8933143907 -2.89D+00  1.31D-03  9.22D-03     0.2
+ d= 0,ls=0.0,diis     2     -2.8936988123 -3.84D-04  1.49D-04  3.53D-05     0.2
+ d= 0,ls=0.0,diis     3     -2.8937015181 -2.71D-06  7.33D-06  3.94D-08     0.2
+ d= 0,ls=0.0,diis     4     -2.8937015226 -4.47D-09  1.27D-08  1.99D-12     0.3
 
 
          Total DFT energy =       -2.893701522570
@@ -416,89 +418,92 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Numeric. integr. density =        1.999999953047
 
-     Total iterative time =      0.1s
+     Total iterative time =      0.2s
 
 
  
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
  
- Vector    1  Occ=2.000000E+00  E=-7.678053E-01
-              MO Center=  1.7E-18,  5.8E-18, -5.1E-18, r^2= 3.4E-01
+ Vector    1  Occ=2.000000D+00  E=-7.678053D-01
+              MO Center= -2.6D-17, -1.4D-19, -3.0D-18, r^2= 3.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3     -0.435628  1 He s                  2     -0.309512  1 He s          
-     4     -0.256357  1 He s                  1     -0.163343  1 He s          
+     3      0.435628  1 He s                  2      0.309512  1 He s          
+     4      0.256357  1 He s                  1      0.163343  1 He s          
  
- Vector    2  Occ=0.000000E+00  E= 4.114852E-01
-              MO Center=  9.1E-18, -7.2E-17,  4.5E-17, r^2= 1.8E+00
+ Vector    2  Occ=0.000000D+00  E= 4.114852D-01
+              MO Center= -4.9D-17,  1.5D-18,  1.4D-17, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -1.669910  1 He s                  3      1.306012  1 He s          
+     4      1.669910  1 He s                  3     -1.306012  1 He s          
  
- Vector    3  Occ=0.000000E+00  E= 9.614474E-01
-              MO Center=  1.9E-17,  2.6E-16,  1.2E-17, r^2= 6.8E-01
+ Vector    3  Occ=0.000000D+00  E= 9.614474D-01
+              MO Center=  9.3D-18,  3.7D-18, -4.5D-18, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.094011  1 He py                 9     -0.161722  1 He py         
+    11     -0.956954  1 He px                12     -0.453119  1 He py         
+    13     -0.281504  1 He pz         
  
- Vector    4  Occ=0.000000E+00  E= 9.614474E-01
-              MO Center= -4.0E-17, -2.3E-18, -2.0E-17, r^2= 6.8E-01
+ Vector    4  Occ=0.000000D+00  E= 9.614474D-01
+              MO Center= -5.9D-17, -2.8D-17, -1.8D-17, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11     -1.092418  1 He px                 8      0.161487  1 He px         
+    13     -1.058695  1 He pz                11      0.247527  1 He px         
+    10      0.156502  1 He pz         
  
- Vector    5  Occ=0.000000E+00  E= 9.614474E-01
-              MO Center= -2.6E-18, -2.0E-17, -9.7E-17, r^2= 6.8E-01
+ Vector    5  Occ=0.000000D+00  E= 9.614474D-01
+              MO Center=  5.3D-17, -7.5D-17, -6.7D-17, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13     -1.093756  1 He pz                10      0.161684  1 He pz         
+    12     -0.988326  1 He py                11      0.472537  1 He px         
  
- Vector    6  Occ=0.000000E+00  E= 2.587113E+00
-              MO Center=  5.9E-17,  5.6E-17,  5.5E-17, r^2= 7.6E-01
+ Vector    6  Occ=0.000000D+00  E= 2.587113D+00
+              MO Center=  6.8D-17,  1.3D-16, -7.3D-18, r^2= 7.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      2.669620  1 He s                  2     -1.776737  1 He s          
-     4     -1.138512  1 He s          
+     3     -2.669620  1 He s                  2      1.776737  1 He s          
+     4      1.138512  1 He s          
  
- Vector    7  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center= -3.4E-17, -1.6E-17,  5.8E-17, r^2= 4.2E-01
+ Vector    7  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center=  1.6D-16, -1.3D-17,  2.4D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      0.852599  1 He d -1              19      0.500679  1 He d -2       
-    21     -0.260413  1 He d  0              23      0.244970  1 He d  2       
+    19      0.744308  1 He d -2              22      0.652649  1 He d  1       
+    20      0.337070  1 He d -1       
  
- Vector    8  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center= -2.5E-16,  1.1E-16,  1.5E-16, r^2= 4.2E-01
+ Vector    8  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center=  5.9D-17,  1.5D-16,  1.4D-16, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19     -0.817183  1 He d -2              20      0.444256  1 He d -1       
-    23      0.383077  1 He d  2              21      0.241980  1 He d  0       
-    22      0.187037  1 He d  1       
+    22      0.607297  1 He d  1              20     -0.563286  1 He d -1       
+    21     -0.488254  1 He d  0              23      0.354704  1 He d  2       
+    19     -0.234794  1 He d -2       
  
- Vector    9  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center= -1.6E-17,  3.3E-18, -2.1E-16, r^2= 4.2E-01
+ Vector    9  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center= -1.2D-16,  1.3D-16,  8.6D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21     -0.844033  1 He d  0              22     -0.477733  1 He d  1       
-    19     -0.331790  1 He d -2              23      0.199787  1 He d  2       
+    20      0.810868  1 He d -1              19     -0.527219  1 He d -2       
+    23      0.273261  1 He d  2              21     -0.236190  1 He d  0       
+    22      0.198775  1 He d  1       
  
- Vector   10  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center=  4.4E-17, -1.0E-16, -4.7E-17, r^2= 4.2E-01
+ Vector   10  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center= -3.1D-17, -3.6D-19, -1.5D-16, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.926236  1 He d  2              20     -0.378172  1 He d -1       
-    19      0.277251  1 He d -2              21      0.166236  1 He d  0       
+    23      0.741263  1 He d  2              22     -0.505366  1 He d  1       
+    19      0.421668  1 He d -2              21     -0.347199  1 He d  0       
  
- Vector   11  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center= -5.5E-17,  1.4E-18, -8.3E-17, r^2= 4.2E-01
+ Vector   11  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center=  4.2D-17,  1.6D-16,  1.2D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22     -0.917721  1 He d  1              21      0.488919  1 He d  0       
-    20      0.152699  1 He d -1       
+    21      0.825217  1 He d  0              23      0.594418  1 He d  2       
+    19     -0.201370  1 He d -2       
  
 
- Parallel integral file used      16 records with       0 large values
+ Parallel integral file used       2 records with       0 large values
 
                    NWChem MP2 Semi-direct Energy/Gradient Module
                    ---------------------------------------------
@@ -515,21 +520,23 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   Use MO symmetry       = F
   Use skeleton AO sym   = F
 
-  AO/Fock/Back tols     =   1.0E-09  1.0E-09  1.0E-09
+  AO/Fock/Back tols     =   1.0D-09  1.0D-09  1.0D-09
+  #avail    536870912.000000     
+  #avail    536870912.000000     
 
  GA uses MA = F    GA memory limited = T
 
  Available: 
-  local mem=  6.55E+07
- global mem=  6.55E+07
- local disk=  5.37E+08
-   1 passes of   1:         707528                       1563                      1425.
+  local mem=  6.55D+07
+ global mem=  6.55D+07
+ local disk=  5.37D+08
+   1 passes of   1:         707528                       2367                      7591.
  
- Semi-direct pass number   1 of   1  for RHF alpha+beta  at        1.0s
-Node 0 wrote       0.0 Mb in      0.00000 s     Agg I/O rate:            0.0 Mb/s
- Done moints_semi at        1.1s
- Done maket at        1.1s
- Done multipass loop at        1.1s
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at        0.7s
+Node 0 wrote      0.1 Mb in      0.0 s     Agg I/O rate:     0.0 Mb/s
+ Done moints_semi at        0.8s
+ Done maket at        0.8s
+ Done multipass loop at        0.8s
 
 
           -------------------------------------------
@@ -542,17 +549,17 @@ Node 0 wrote       0.0 Mb in      0.00000 s     Agg I/O rate:            0.0 Mb/
  Performance information
  -----------------------
 
- Timer overhead =  4.10E-06 seconds/call
+ Timer overhead =  3.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-mp2: moin     1     1     1   4.50E-2 6.05E-2 7.50E-2  7.70E-2 7.70E-2 7.70E-2 7.70E-2   0.0     0.0     0.0   
-mp2: make     1     1     1   2.00E-3 3.44E-3 5.00E-3  4.32E-3 4.34E-3 4.36E-3 4.36E-3   0.0     0.0     0.0   
-mp2: tota     1     1     1   0.16    0.19    0.21     0.22    0.22    0.22    0.22      0.0     0.0     0.0   
+mp2: moin     1     1     1   8.60E-2 8.95E-2 9.30E-2  9.61E-2 9.61E-2 9.61E-2 9.61E-2   0.0     0.0     0.0   
+mp2: make     1     1     1   2.00E-3 2.00E-3 2.00E-3  5.38E-3 5.39E-3 5.39E-3 5.39E-3   0.0     0.0     0.0   
+mp2: tota     1     1     1   0.17    0.17    0.17     0.19    0.19    0.19    0.19      0.0     0.0     0.0   
 
- The average no. of pstat calls per process was 3.00E+00
- with a timing overhead of 1.23E-05s
+ The average no. of pstat calls per process was 3.00D+00
+ with a timing overhead of 9.00D-07s
 
 
  Task  times  cpu:        0.4s     wall:        0.7s
@@ -583,9 +590,9 @@ mp2: tota     1     1     1   0.16    0.19    0.21     0.22    0.22    0.22    0
           This is a Direct SCF calculation.
           AO basis - number of functions:    30
                      number of shells:    10
-          Convergence on energy requested: 1.00E-08
-          Convergence on density requested: 1.00E-05
-          Convergence on gradient requested: 5.00E-04
+          Convergence on energy requested: 1.00D-08
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
  
               XC Information
               --------------
@@ -610,7 +617,7 @@ mp2: tota     1     1     1   0.16    0.19    0.21     0.22    0.22    0.22    0
           Convergence aids based upon iterative change in 
           total energy or number of iterations. 
           Levelshifting, if invoked, occurs when the 
-          HOMO/LUMO gap drops below (HL_TOL): 1.00E-02
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
           DIIS, if invoked, will attempt to extrapolate 
           using up to (NFOCK): 10 stored Fock matrices.
 
@@ -622,34 +629,33 @@ mp2: tota     1     1     1   0.16    0.19    0.21     0.22    0.22    0.22    0
  
       Screening Tolerance Information
       -------------------------------
-          Density screening/tol_rho: 1.00E-11
+          Density screening/tol_rho: 1.00D-11
           AO Gaussian exp screening on grid/accAOfunc:  18
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul: 1.00E-09
+          Schwarz screening/accCoul: 1.00D-09
 
 
  Loading old vectors from job with title :
 
 
 
-   Time after variat. SCF:      1.0
-   Time prior to 1st pass:      1.0
+   Time after variat. SCF:      0.5
+   Time prior to 1st pass:      0.5
 
- Grid_pts file          = ./He_b2plyp_cc-vqz.gridpts.00
+ Grid_pts file          = ./He_b2plyp_cc-vqz.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      2        Max. recs in file   =    903252
+ Max. records in memory =      5        Max. recs in file   =    772979
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       32.74            32742103
+           Heap Space remaining (MW):       32.71            32705190
           Stack Space remaining (MW):       32.77            32767752
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.8937015226 -2.89E+00  5.11E-10  3.70E-16     1.0
-  Singularity in Pulay matrix. Error and Fock matrices removed. 
- d= 0,ls=0.0,diis     2     -2.8937015226  3.11E-15  4.21E-11  7.53E-18     1.1
+ d= 0,ls=0.0,diis     1     -2.8937015226 -2.89D+00  5.11D-10  3.70D-16     0.6
+ d= 0,ls=0.0,diis     2     -2.8937015226 -1.78D-15  4.52D-11  7.53D-18     0.7
 
 
          Total DFT energy =       -2.893701522570
@@ -660,85 +666,85 @@ mp2: tota     1     1     1   0.16    0.19    0.21     0.22    0.22    0.22    0
 
  Numeric. integr. density =        1.999999953047
 
-     Total iterative time =      0.0s
+     Total iterative time =      0.2s
 
 
  
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
  
- Vector    1  Occ=2.000000E+00  E=-7.678053E-01
-              MO Center=  5.3E-18,  5.5E-18,  5.4E-18, r^2= 3.4E-01
+ Vector    1  Occ=2.000000D+00  E=-7.678053D-01
+              MO Center= -1.4D-16, -2.3D-16, -9.8D-18, r^2= 3.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3     -0.435628  1 He s                  2     -0.309512  1 He s          
-     4     -0.256357  1 He s                  1     -0.163343  1 He s          
+     3      0.435628  1 He s                  2      0.309512  1 He s          
+     4      0.256357  1 He s                  1      0.163343  1 He s          
  
- Vector    2  Occ=0.000000E+00  E= 4.114853E-01
-              MO Center=  2.0E-18, -1.7E-17,  2.5E-18, r^2= 1.8E+00
+ Vector    2  Occ=0.000000D+00  E= 4.114853D-01
+              MO Center= -2.5D-17, -2.6D-17,  3.9D-17, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -1.669910  1 He s                  3      1.306012  1 He s          
+     4      1.669910  1 He s                  3     -1.306012  1 He s          
  
- Vector    3  Occ=0.000000E+00  E= 9.614473E-01
-              MO Center= -4.0E-17,  1.3E-17,  1.8E-17, r^2= 6.8E-01
+ Vector    3  Occ=0.000000D+00  E= 9.614473D-01
+              MO Center= -3.1D-17, -2.9D-17, -5.2D-18, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11     -0.941348  1 He px                13      0.554462  1 He pz         
+    13      1.092572  1 He pz                10     -0.161509  1 He pz         
  
- Vector    4  Occ=0.000000E+00  E= 9.614473E-01
-              MO Center=  2.5E-16, -6.3E-17,  4.9E-17, r^2= 6.8E-01
+ Vector    4  Occ=0.000000D+00  E= 9.614473D-01
+              MO Center=  2.4D-16, -2.1D-18,  9.5D-18, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13     -0.942593  1 He pz                11     -0.544294  1 He px         
+    11      1.089317  1 He px                 8     -0.161028  1 He px         
  
- Vector    5  Occ=0.000000E+00  E= 9.614473E-01
-              MO Center=  7.9E-18,  2.6E-17,  2.5E-18, r^2= 6.8E-01
+ Vector    5  Occ=0.000000D+00  E= 9.614473D-01
+              MO Center= -4.5D-18,  2.7D-17,  4.1D-18, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12     -1.085348  1 He py                 9      0.160442  1 He py         
+    12     -1.089707  1 He py                 9      0.161086  1 He py         
  
- Vector    6  Occ=0.000000E+00  E= 2.587113E+00
-              MO Center= -3.9E-18,  3.3E-17,  1.1E-17, r^2= 7.6E-01
+ Vector    6  Occ=0.000000D+00  E= 2.587113D+00
+              MO Center= -4.8D-18, -7.1D-18, -7.7D-18, r^2= 7.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3     -2.669620  1 He s                  2      1.776737  1 He s          
-     4      1.138512  1 He s          
+     3      2.669620  1 He s                  2     -1.776737  1 He s          
+     4     -1.138512  1 He s          
  
- Vector    7  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center= -2.0E-17,  2.3E-17, -1.6E-17, r^2= 4.2E-01
+ Vector    7  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center=  1.2D-16, -2.0D-17, -4.7D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.032052  1 He d -2       
+    22      0.692421  1 He d  1              19     -0.614391  1 He d -2       
+    23     -0.426660  1 He d  2              20     -0.252625  1 He d -1       
  
- Vector    8  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center= -1.8E-17,  7.1E-17, -2.0E-17, r^2= 4.2E-01
+ Vector    8  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center=  1.7D-17,  3.2D-17, -6.2D-19, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.854685  1 He d  2              20     -0.517018  1 He d -1       
-    21     -0.217839  1 He d  0              19     -0.188228  1 He d -2       
-    22     -0.157350  1 He d  1       
+    23     -0.744491  1 He d  2              20      0.521885  1 He d -1       
+    21      0.427041  1 He d  0              22     -0.310336  1 He d  1       
  
- Vector    9  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center= -1.6E-16,  1.8E-16, -2.2E-16, r^2= 4.2E-01
+ Vector    9  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center=  5.1D-17, -1.4D-17, -1.5D-18, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      0.880723  1 He d  1              20      0.405442  1 He d -1       
-    23      0.360168  1 He d  2              21     -0.188797  1 He d  0       
+    22      0.709797  1 He d  1              19      0.703562  1 He d -2       
+    20      0.306425  1 He d -1       
  
- Vector   10  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center= -3.8E-17, -5.9E-17,  2.4E-17, r^2= 4.2E-01
+ Vector   10  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center=  4.8D-17,  4.7D-17, -3.7D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      0.737396  1 He d -1              22     -0.530747  1 He d  1       
-    21     -0.481009  1 He d  0              23      0.216102  1 He d  2       
+    20     -0.734312  1 He d -1              23     -0.536831  1 He d  2       
+    19      0.481573  1 He d -2              22     -0.160800  1 He d  1       
  
- Vector   11  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center=  1.1E-17,  2.7E-17,  3.5E-17, r^2= 4.2E-01
+ Vector   11  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center=  3.5D-19,  8.3D-17, -5.9D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21     -0.883050  1 He d  0              23     -0.422508  1 He d  2       
-    20     -0.350870  1 He d -1       
+    21      0.942493  1 He d  0              20     -0.368974  1 He d -1       
+    23      0.282973  1 He d  2       
  
                           Direct MP2
                           ----------
@@ -753,27 +759,27 @@ mp2: tota     1     1     1   0.16    0.19    0.21     0.22    0.22    0.22    0
           Use AO Integral blocking
           Twofold algorithm used
 
-     Pass:    1     Index range:    1  -    1     Time:      0.01
+     Pass:    1     Index range:    1  -    1     Time:      0.05
 
 
           -------------------------------------------
           DFT energy                  -2.893701522570
-          Unscaled MP2 energy         -0.039977160232
+          Unscaled MP2 energy         -0.039977160233
           Total DFT+MP2 energy        -2.904495355833
           -------------------------------------------
 
 
-          Total MP2 time:           0.05
+          Total MP2 time:           0.08
 
- Task  times  cpu:        0.1s     wall:        0.2s
+ Task  times  cpu:        0.3s     wall:        0.3s
  
  
                                 NWChem Input Module
                                 -------------------
  
  
-  library name resolved from: environment
-  library file name is: </mscf/nwchem/nwchem-users/src/basis/libraries/>
+  library name resolved from: .nwchemrc
+  library file name is: </home/jhammond/nwchem/src/basis/libraries/>
   
                       Basis "cc-pVQZ-RI" -> "" (spherical)
                       -----
@@ -839,9 +845,9 @@ mp2: tota     1     1     1   0.16    0.19    0.21     0.22    0.22    0.22    0
           This is a Direct SCF calculation.
           AO basis - number of functions:    30
                      number of shells:    10
-          Convergence on energy requested: 1.00E-08
-          Convergence on density requested: 1.00E-05
-          Convergence on gradient requested: 5.00E-04
+          Convergence on energy requested: 1.00D-08
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
  
               XC Information
               --------------
@@ -866,7 +872,7 @@ mp2: tota     1     1     1   0.16    0.19    0.21     0.22    0.22    0.22    0
           Convergence aids based upon iterative change in 
           total energy or number of iterations. 
           Levelshifting, if invoked, occurs when the 
-          HOMO/LUMO gap drops below (HL_TOL): 1.00E-02
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
           DIIS, if invoked, will attempt to extrapolate 
           using up to (NFOCK): 10 stored Fock matrices.
 
@@ -878,126 +884,124 @@ mp2: tota     1     1     1   0.16    0.19    0.21     0.22    0.22    0.22    0
  
       Screening Tolerance Information
       -------------------------------
-          Density screening/tol_rho: 1.00E-11
+          Density screening/tol_rho: 1.00D-11
           AO Gaussian exp screening on grid/accAOfunc:  18
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul: 1.00E-09
+          Schwarz screening/accCoul: 1.00D-09
 
 
  Loading old vectors from job with title :
 
 
 
-   Time after variat. SCF:      1.2
-   Time prior to 1st pass:      1.2
+   Time after variat. SCF:      0.8
+   Time prior to 1st pass:      0.8
 
- Grid_pts file          = ./He_b2plyp_cc-vqz.gridpts.00
+ Grid_pts file          = ./He_b2plyp_cc-vqz.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      2        Max. recs in file   =    903252
+ Max. records in memory =      5        Max. recs in file   =    772979
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       32.74            32742103
+           Heap Space remaining (MW):       32.71            32705190
           Stack Space remaining (MW):       32.77            32767752
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.8937015226 -2.89E+00  5.42E-12  2.04E-20     1.2
-  Singularity in Pulay matrix. Error and Fock matrices removed. 
- d= 0,ls=0.0,diis     2     -2.8937015226  3.55E-15  4.16E-13  7.64E-22     1.2
+ d= 0,ls=0.0,diis     1     -2.8937015226 -2.89D+00  3.63D-12  6.61D-20     0.9
+ d= 0,ls=0.0,diis     2     -2.8937015226 -4.44D-16  2.73D-13  1.04D-21     0.9
 
 
          Total DFT energy =       -2.893701522570
-      One electron energy =       -3.882803789563
-           Coulomb energy =        2.043369346259
-    Exchange-Corr. energy =       -1.054267079267
+      One electron energy =       -3.882803789560
+           Coulomb energy =        2.043369346253
+    Exchange-Corr. energy =       -1.054267079264
  Nuclear repulsion energy =        0.000000000000
 
  Numeric. integr. density =        1.999999953047
 
-     Total iterative time =      0.0s
+     Total iterative time =      0.1s
 
 
  
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
  
- Vector    1  Occ=2.000000E+00  E=-7.678053E-01
-              MO Center=  1.6E-16,  3.4E-17, -1.2E-16, r^2= 3.4E-01
+ Vector    1  Occ=2.000000D+00  E=-7.678053D-01
+              MO Center= -4.5D-18, -8.7D-18,  1.5D-16, r^2= 3.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3     -0.435628  1 He s                  2     -0.309512  1 He s          
      4     -0.256357  1 He s                  1     -0.163343  1 He s          
  
- Vector    2  Occ=0.000000E+00  E= 4.114853E-01
-              MO Center= -1.3E-17,  7.6E-19, -1.0E-17, r^2= 1.8E+00
+ Vector    2  Occ=0.000000D+00  E= 4.114853D-01
+              MO Center= -2.5D-17, -6.4D-17, -9.2D-18, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      1.669910  1 He s                  3     -1.306012  1 He s          
+     4     -1.669910  1 He s                  3      1.306012  1 He s          
  
- Vector    3  Occ=0.000000E+00  E= 9.614473E-01
-              MO Center=  6.8E-19, -3.9E-17,  5.0E-17, r^2= 6.8E-01
+ Vector    3  Occ=0.000000D+00  E= 9.614473D-01
+              MO Center=  7.2D-19, -1.1D-17,  1.4D-17, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12     -1.094472  1 He py                 9      0.161790  1 He py         
+    13     -1.091669  1 He pz                10      0.161376  1 He pz         
  
- Vector    4  Occ=0.000000E+00  E= 9.614473E-01
-              MO Center=  1.4E-17,  3.7E-17, -3.2E-17, r^2= 6.8E-01
+ Vector    4  Occ=0.000000D+00  E= 9.614473D-01
+              MO Center= -2.0D-17,  4.5D-17,  8.3D-18, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13     -0.811628  1 He pz                11     -0.734680  1 He px         
+    12     -0.843314  1 He py                11     -0.693236  1 He px         
  
- Vector    5  Occ=0.000000E+00  E= 9.614473E-01
-              MO Center= -1.2E-16,  2.4E-18,  1.1E-16, r^2= 6.8E-01
+ Vector    5  Occ=0.000000D+00  E= 9.614473D-01
+              MO Center= -3.3D-17,  2.7D-17, -1.5D-17, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11     -0.811377  1 He px                13      0.735772  1 He pz         
+    11     -0.846519  1 He px                12      0.695496  1 He py         
  
- Vector    6  Occ=0.000000E+00  E= 2.587113E+00
-              MO Center=  1.1E-17, -1.3E-18,  1.2E-17, r^2= 7.6E-01
+ Vector    6  Occ=0.000000D+00  E= 2.587113D+00
+              MO Center=  2.3D-17, -3.2D-17, -6.3D-18, r^2= 7.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      2.669620  1 He s                  2     -1.776737  1 He s          
-     4     -1.138512  1 He s          
+     3     -2.669620  1 He s                  2      1.776737  1 He s          
+     4      1.138512  1 He s          
  
- Vector    7  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center= -1.3E-18, -2.2E-17,  5.4E-17, r^2= 4.2E-01
+ Vector    7  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center= -1.1D-16, -2.0D-16, -3.5D-18, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23     -0.670930  1 He d  2              20     -0.598445  1 He d -1       
-    19      0.482436  1 He d -2              21      0.199880  1 He d  0       
-    22      0.156386  1 He d  1       
+    21      0.650508  1 He d  0              22     -0.516580  1 He d  1       
+    19     -0.457349  1 He d -2              20     -0.371521  1 He d -1       
+    23      0.261196  1 He d  2       
  
- Vector    8  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center= -2.2E-17,  1.4E-16,  6.0E-17, r^2= 4.2E-01
+ Vector    8  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center= -1.6D-17, -4.5D-17, -9.6D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      0.761735  1 He d -1              23     -0.503854  1 He d  2       
-    19      0.403465  1 He d -2              22     -0.288877  1 He d  1       
-    21     -0.158412  1 He d  0       
+    19     -0.821318  1 He d -2              22      0.632524  1 He d  1       
+    20      0.172822  1 He d -1       
  
- Vector    9  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center=  3.0E-17, -1.7E-17,  2.4E-17, r^2= 4.2E-01
+ Vector    9  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center=  3.4D-17, -1.5D-17, -2.4D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22     -0.850305  1 He d  1              19      0.402021  1 He d -2       
-    23      0.366186  1 He d  2              20     -0.267668  1 He d -1       
+    20     -0.935267  1 He d -1              22      0.450380  1 He d  1       
  
- Vector   10  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center= -2.5E-17, -2.2E-17, -1.5E-17, r^2= 4.2E-01
+ Vector   10  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center= -4.6D-17, -1.6D-17,  4.2D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19     -0.710591  1 He d -2              23     -0.473719  1 He d  2       
-    22     -0.472704  1 He d  1              21      0.389089  1 He d  0       
+    23     -0.865843  1 He d  2              22     -0.379823  1 He d  1       
+    19     -0.325374  1 He d -2              21     -0.278441  1 He d  0       
+    20     -0.167596  1 He d -1       
  
- Vector   11  Occ=0.000000E+00  E= 3.695851E+00
-              MO Center= -5.5E-18,  5.1E-17, -9.0E-17, r^2= 4.2E-01
+ Vector   11  Occ=0.000000D+00  E= 3.695851D+00
+              MO Center= -5.4D-17,  1.2D-17, -7.8D-17, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.934848  1 He d  0              20      0.306866  1 He d -1       
-    22      0.225967  1 He d  1              19      0.208200  1 He d -2       
-    23      0.207171  1 He d  2       
+    21     -0.775614  1 He d  0              23      0.533068  1 He d  2       
+    19     -0.305917  1 He d -2              22     -0.302302  1 He d  1       
+    20     -0.186352  1 He d -1       
  
                                NWChem RI-MP2 Module
                                --------------------
@@ -1025,12 +1029,12 @@ mp2: tota     1     1     1   0.16    0.19    0.21     0.22    0.22    0.22    0
     Type of storage for MO integrals 'EAF library'
  
  Transformation block size    1, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    1 pass.             @Tue Feb  3 08:52:51 2009
+ XForm_3cInts: Completed     1:    1 pass.             @Tue Feb  3 10:13:51 2009
  Energy evaluation using block sizes     1    1
- RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Tue Feb  3 08:52:51 2009
- RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Tue Feb  3 08:52:51 2009
- RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Tue Feb  3 08:52:51 2009
- RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Tue Feb  3 08:52:51 2009
+ RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Tue Feb  3 10:13:51 2009
+ RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Tue Feb  3 10:13:51 2009
+ RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Tue Feb  3 10:13:51 2009
+ RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Tue Feb  3 10:13:51 2009
 
 
           -------------------------------------------
@@ -1043,28 +1047,28 @@ mp2: tota     1     1     1   0.16    0.19    0.21     0.22    0.22    0.22    0
  Performance information
  -----------------------
 
- Timer overhead =  4.00E-06 seconds/call
+ Timer overhead =  6.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.16    0.18    0.20     0.25    0.25    0.25    0.25      0.0     0.0     0.0   
-3c integr     1     1     1   3.00E-3 5.69E-3 9.00E-3  9.58E-3 9.58E-3 9.58E-3 9.58E-3   0.0     0.0     0.0   
-Energy        1     1     1   1.00E-3 2.94E-3 4.00E-3  4.63E-3 4.63E-3 4.63E-3 4.63E-3   0.0     0.0     0.0   
-3c integr     0     0     1    0.0    1.44E-3 8.00E-3   0.0    1.43E-3 7.89E-3 7.89E-3   0.0     0.0     0.0   
-First 2/3     0     0     3    0.0     0.0     0.0      0.0    1.47E-5 6.32E-5 2.11E-5   0.0     0.0     0.0   
-Final 1/3     1     1     1    0.0    1.87E-4 1.00E-3  4.96E-4 4.99E-4 5.01E-4 5.01E-4   0.0     0.0     0.0   
-Write 3c      1     1     1    0.0     0.0     0.0     2.15E-6 1.65E-5 5.51E-5 5.51E-5   0.0     0.0     0.0   
-Read 3c i     1     1     1    0.0     0.0     0.0     9.54E-7 7.50E-6 2.19E-5 2.19E-5   0.0     0.0     0.0   
-Fitting b     1     1     1   1.00E-3 2.81E-3 5.00E-3  4.43E-3 4.45E-3 4.47E-3 4.47E-3   0.0     0.0     0.0   
-Schwarz i     1     1     1   1.00E-3 3.94E-3 8.00E-3  7.50E-3 7.53E-3 7.62E-3 7.62E-3   0.0     0.0     0.0   
-Form 4ci      1     1     1    0.0    1.25E-4 1.00E-3  3.71E-4 3.81E-4 3.86E-4 3.86E-4   0.0     0.0     0.0   
-Form A &      1     1     1    0.0    2.50E-4 1.00E-3  3.02E-4 3.09E-4 3.10E-4 3.10E-4   0.0     0.0     0.0   
-Denominat     1     1     1    0.0     0.0     0.0     3.10E-6 4.87E-6 5.96E-6 5.96E-6   0.0     0.0     0.0   
-Pair Ener     1     1     1    0.0     0.0     0.0     7.87E-6 1.02E-5 1.22E-5 1.22E-5   0.0     0.0     0.0   
+Overall       1     1     1   0.22    0.23    0.23     0.26    0.26    0.26    0.26      0.0     0.0     0.0   
+3c integr     1     1     1   1.60E-2 1.80E-2 2.00E-2  2.04E-2 2.04E-2 2.04E-2 2.04E-2   0.0     0.0     0.0   
+Energy        1     1     1   2.00E-3 2.00E-3 2.00E-3  2.58E-3 2.58E-3 2.59E-3 2.59E-3   0.0     0.0     0.0   
+3c integr     1     1     1   1.60E-2 1.80E-2 2.00E-2  1.64E-2 1.80E-2 1.95E-2 1.95E-2   0.0     0.0     0.0   
+First 2/3     3     3     3    0.0     0.0     0.0     6.41E-5 7.57E-5 8.73E-5 2.91E-5   0.0     0.0     0.0   
+Final 1/3     1     1     1    0.0     0.0     0.0     2.28E-4 2.29E-4 2.29E-4 2.29E-4   0.0     0.0     0.0   
+Write 3c      1     1     1    0.0     0.0     0.0     9.30E-5 9.44E-5 9.58E-5 9.58E-5   0.0     0.0     0.0   
+Read 3c i     1     1     1    0.0     0.0     0.0     2.60E-5 2.66E-5 2.72E-5 2.72E-5   0.0     0.0     0.0   
+Fitting b     1     1     1   1.00E-3 2.00E-3 3.00E-3  3.53E-3 3.53E-3 3.53E-3 3.53E-3   0.0     0.0     0.0   
+Schwarz i     1     1     1    0.0    2.50E-3 5.00E-3  5.17E-3 5.19E-3 5.21E-3 5.21E-3   0.0     0.0     0.0   
+Form 4ci      1     1     1    0.0     0.0     0.0     1.74E-4 1.74E-4 1.74E-4 1.74E-4   0.0     0.0     0.0   
+Form A &      1     1     1    0.0    5.00E-4 9.99E-4  1.38E-4 1.40E-4 1.42E-4 1.42E-4   0.0     0.0     0.0   
+Denominat     1     1     1    0.0     0.0     0.0     1.31E-5 1.35E-5 1.38E-5 1.38E-5   0.0     0.0     0.0   
+Pair Ener     1     1     1    0.0     0.0     0.0     1.41E-5 1.50E-5 1.60E-5 1.60E-5   0.0     0.0     0.0   
 
- The average no. of pstat calls per process was 1.20E+01
- with a timing overhead of 4.80E-05s
+ The average no. of pstat calls per process was 1.60D+01
+ with a timing overhead of 9.60D-06s
 
 
  Task  times  cpu:        0.2s     wall:        0.3s
@@ -1084,11 +1088,11 @@ Pair Ener     1     1     1    0.0     0.0     0.0     7.87E-6 1.02E-5 1.22E-5 1
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  243      243     1158      574      292        0        0        0     
-number of processes/call 1.45e+00 1.32e+00 2.28e+00 0.00e+00 0.00e+00
-bytes total:             2.85e+06 9.26e+05 1.14e+06 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            4.74e+05 1.50e+05 3.28e+05 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 252000 bytes
+calls:  227      227     2517     2005     1259        0        0        0     
+number of processes/call 1.01e+00 1.02e+00 1.02e+00 0.00e+00 0.00e+00
+bytes total:             3.63e+06 1.19e+06 1.83e+06 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            1.59e+05 1.31e+05 6.68e+04 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 253440 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -1100,9 +1104,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        23	        49
 	current total bytes		         0	         0
-	maximum total bytes		   1255856	  22510552
-	maximum total K-bytes		      1256	     22511
-	maximum total M-bytes		         2	        23
+	maximum total bytes		   2075080	  22510552
+	maximum total K-bytes		      2076	     22511
+	maximum total M-bytes		         3	        23
 
 
 
@@ -1144,4 +1148,4 @@ MA usage statistics:
 
 
 
- Total times  cpu:        0.8s     wall:        1.7s
+ Total times  cpu:        1.0s     wall:        1.4s
