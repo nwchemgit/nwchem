@@ -1,0 +1,65 @@
+#
+# These are the comparison numbers directly from Stefan Grimme:
+#
+#here it is (noFC, spherical basis, for total energies add col_1+0.27*col_2):
+#      B2-LYP                unscaled RI-PT2
+# Ar  -527.351972459        -0.3399411238  (Turbomole?)
+# Ar  -527.351971755        -0.3399459549  (G03)
+
+echo
+
+start Ar_b2plyp_cc-vqz
+
+memory total 1000 mb
+
+geometry
+ Ar     0.0 0.0 0.0
+end
+
+basis "ao basis" spherical
+  * library cc-pvqz
+end
+
+# This won't reproduce Turbomole exactly because it's not the same basis
+# but it should come darn close to the complete MP2 result
+basis "ri-mp2 basis" spherical
+  * library aug-cc-pv6z
+end
+
+mp2
+  freeze 0
+  scratchdisk 4096
+end
+
+dft
+  xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
+#  xc b2plyp
+  rungfive 1 # semidirect
+  convergence energy 1e-8
+  semidirect memsize 100000000 filesize 0
+  iterations 100
+end
+
+task dft energy
+
+dft
+  xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
+#  xc b2plyp
+  rungfive 2 # direct
+  convergence energy 1e-8
+  semidirect memsize 100000000 filesize 0
+  iterations 100
+end
+
+task dft energy
+
+dft
+  xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
+#  xc b2plyp
+  rungfive 3 # RI
+  convergence energy 1e-8
+  semidirect memsize 100000000 filesize 0
+  iterations 100
+end
+
+task dft energy
