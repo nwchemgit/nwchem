@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.50 2008-12-07 16:00:43 jhammond Exp $
+c     $Id: dft_input.F,v 1.51 2009-02-03 14:48:10 jhammond Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -28,7 +28,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 30)
+      parameter (num_dirs = 32)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -38,6 +38,9 @@ c
       integer nopen
       logical lcdft
       logical pseudo
+      logical rungfive
+      logical molden
+      integer which_mp2
       double precision smear_sigma
       double precision shift
       integer nel_fon(2),nmo_fon(2),ispin
@@ -45,7 +48,8 @@ c
      $           'ecp','grid','vectors','incore','iterations', 
      $           'max_ovl','mulliken','mult','noio','noprint','odft', 
      $           'print','tolerances', 'xc','sym','adapt','sic', 
-     $           'smear','fon','lb94','cs00','cdft','cam','disp','end'/
+     $           'smear','fon','lb94','cs00','cdft','cam','disp',
+     $           'rungfive','molden','end'/
 c Qin / cdft
       integer nconstr
       integer dtype(max_constr), iatms1(max_constr), fatms1(max_constr)
@@ -80,7 +84,7 @@ c
       goto (100,  200,  300,  400,  450,  500,  600,  700,  800,
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
-     $     2700, 2800, 9999) ind
+     $     2700, 2800, 2900, 3000, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -466,6 +470,34 @@ c
       endif
 c
       goto 2810
+c
+c     rungfive: enables fifth-rung functionals by modifying parameters
+c               for the MP2 code so that it uses DFT reference orbitals, etc.
+c               which_mp2 is necessary for task selection
+c
+ 2900 rungfive = .true.
+c
+      if (.not.rtdb_put(rtdb,'dft:fifthrung', mt_log, 1, rungfive))
+     &   call errquit('dft_input: rtdb_put failed', 2901, RTDB_ERR)
+c
+      if (.not. inp_i(which_mp2)) then
+         write(LuOut,*)' dft_input: which_mp2 not specified,',
+     1                 ' using semidirect MP2 by default.'
+         which_mp2 = 1
+      endif
+c
+      if (.not. rtdb_put(rtdb, 'dft:which_mp2', mt_int, 1, which_mp2))
+     &   call errquit('dft_input: rtdb_put failed', 2902, RTDB_ERR)
+c
+      goto 10
+c
+c     molden; 
+c
+ 3000 molden = .true.
+      if (.not. rtdb_put(rtdb, 'dft:molden', mt_log, 1, molden))
+     &   call errquit('dft_input: rtdb_put failed', 3000, RTDB_ERR)
+c
+      goto 10
 c
  9999 continue
 c

@@ -1,5 +1,5 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.58 2008-12-06 23:09:50 niri Exp $
+C$Id: xc_inp.F,v 1.59 2009-02-03 14:48:10 jhammond Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -83,9 +83,11 @@ c     cm06-2x  => 8100
 c     xbnl07   => 8200
 c     xcamb88  => 8300      
 c     xcampbe96 ==> 8400
+c     mp2      => 8500
+c     b2plyp   => 8510
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=93)
+      parameter (num_dirs=95)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -99,6 +101,7 @@ c
 c
 c     XC functionals coefficients
 c     
+      double precision pt2_factor
       double precision cfac(numfunc),xfac(numfunc)
       data dirs /'acm', 'b3lyp', 'beckehandh', 'HFexch', 'becke88',  
      &           'lyp', 'perdew81', 'perdew86', 'perdew91', 'pw91lda', 
@@ -119,7 +122,7 @@ c
      &     'xm05-2x','cm05-2x','vs98','xvs98','cvs98','m06-L',
      &     'xm06-L','cm06-L','m06-hf','xm06-hf','cm06-hf','m06',
      &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x','xbnl07',
-     &     'becke97-d','xcamb88','xcampbe96'/
+     &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp'/
 c     becke97-d
       logical disp
 c
@@ -156,7 +159,7 @@ c
      &  5000,5100,5200,5300,5400,5500,5600,5700,5800,
      &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
      &  7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,
-     &  8200,4800,8300,8400,1999) ind
+     &  8200,4800,8300,8400,8500,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -234,14 +237,14 @@ c
             write(LuOut,*)' HF exchange is by nature nonlocal',
      &                ' and cannot be conveniently split'
             write(LuOut,*)' into local and nonlocal pieces;',
-     &                ' total HF exchange is assumed desired. '                   
+     &                ' total HF exchange is assumed desired. '
             lxfac(1) = .true.
             nlxfac(1) = .true.
          elseif (inp_compare(.false.,'nonlocal', test) ) then
             write(LuOut,*)' HF exchange is by nature nonlocal',
      &                ' and cannot be conveniently split'
             write(LuOut,*)' into local and nonlocal pieces;',
-     &                ' total HF exchange is assumed desired. '                   
+     &                ' total HF exchange is assumed desired. '
             lxfac(1) = .true.
             nlxfac(1) = .true.
          else
@@ -600,13 +603,13 @@ c
          if (inp_compare(.false.,'local', test)) then
             write(LuOut,*)' The lyp functional cannot be conveniently',
      &                ' split into local and nonlocal pieces; '
-            write(LuOut,*)' total lyp is assumed desired. '                   
+            write(LuOut,*)' total lyp is assumed desired. ' 
             lcfac(2) = .true.
             nlcfac(2) = .true.
          elseif (inp_compare(.false.,'nonlocal', test)) then
             write(LuOut,*)' The lyp functional cannot be conveniently',
      &                ' split into local and nonlocal pieces; '
-            write(LuOut,*)' total lyp is assumed desired. '                   
+            write(LuOut,*)' total lyp is assumed desired. ' 
             lcfac(2) = .true.
             nlcfac(2) = .true.
          else
@@ -943,7 +946,7 @@ c
             lcfac(7) = .true.
          elseif (inp_compare(.false.,'nonlocal', test)) then
             write(LuOut,*)' vwn_1_rpa is a local functional;',
-     &                ' "nonlocal" descriptor is ignored. '                   
+     &                ' "nonlocal" descriptor is ignored. '
             nlcfac(7) = .false.
          else
 c
@@ -1121,7 +1124,7 @@ c
  2100 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
             write(LuOut,*)' cpbe96 is a nonlocal functional;',
-     &                ' "local" descriptor is ignored. '                   
+     &                ' "local" descriptor is ignored. '
 c
 c           This is also done by default inside xc_pbe96.F
 c           when lcfac(12) is .true.
@@ -2408,7 +2411,67 @@ c
          xfac(41) = 1.0d0
       endif
       goto 10
-c     
+c
+c     mp2; MP2 ``functional'' for correlation
+c
+ 8500 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test) ) then
+            write(LuOut,*)' MP2 correlation is by nature nonlocal',
+     &                ' and cannot be conveniently split'
+            write(LuOut,*)' into local and nonlocal pieces;',
+     &                ' total MP2 correlation is assumed desired. '
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            write(LuOut,*)' MP2 correaltion is by nature nonlocal',
+     &                ' and cannot be conveniently split'
+            write(LuOut,*)' into local and nonlocal pieces;',
+     &                ' total MP2 correlation is assumed desired. '
+         else
+            call inp_prev_field()
+         endif
+      endif
+      if (.not. inp_f(pt2_factor) ) then
+         write(LuOut,*)' xc_inp: mp2 multiplicative factor not found.'
+         pt2_factor = 1.0d0
+      endif
+      if (.not. rtdb_put(rtdb,'dft:pt2fac', mt_dbl, 1, pt2_factor))
+     1     call errquit('xc_inp: failed to store dft:pt2fac in rtdb',
+     2                  0,RTDB_ERR)
+
+      goto 10
+c
+c    b2plyp; B2PLYP fifth-rung double hybrid of Grimme 
+c
+c            S. Grimme JCP 124, 034108 (2006)
+c
+c            A*Ex(HF) + (1-A)*Ex(S) + B*Ex(B88(nl)) +
+c            C*Ec(LYP(total)) + (1-C)*Ec(VWN_1_RPA)
+c
+c            A=0.20, B=0.72, C=0.81
+c
+c     b3lyp  = HFexch 0.20 becke88 nonlocal 0.72 lyp 0.81          vwn_1_rpa 0.19 slater 0.80
+c     b2plyp = HFexch 0.53 becke88 0.47          lyp 0.73 mp2 0.27
+c
+ 8510 xccomb(2) = .true.
+c HF exchange
+        xfac(1) = 0.53d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c Becke88
+        xfac(3) = 0.47d0
+       lxfac(3) = .true.
+      nlxfac(3) = .true.
+c LYP
+        cfac(2) = 0.73d0
+       lcfac(2) = .true.
+      nlcfac(2) = .true.
+c MP2
+      pt2_factor = 0.27d0
+      if (.not. rtdb_put(rtdb,'dft:pt2fac', mt_dbl, 1, pt2_factor))
+     1     call errquit('xc_inp: failed to store dft:pt2fac in rtdb',
+     2                  0,RTDB_ERR)
+c
+      goto 10
+c
 c     gill96; Gill '96 functional for exchange
 c     
  2300  if (inp_a(test)) then
@@ -2482,7 +2545,7 @@ c
          elseif (inp_compare(.false.,'nonlocal', test)) then
             write(LuOut,*)' The OP functional cannot be conveniently',
      &           ' split into local and nonlocal pieces; '
-            write(LuOut,*)' total OP is assumed desired. '                   
+            write(LuOut,*)' total OP is assumed desired. '
             call inp_prev_field()
          endif
       endif
@@ -2505,7 +2568,7 @@ c
          elseif (inp_compare(.false.,'nonlocal', test)) then
             write(LuOut,*)' The OP functional cannot be conveniently',
      &           ' split into local and nonlocal pieces; '
-            write(LuOut,*)' total OP is assumed desired. '                   
+            write(LuOut,*)' total OP is assumed desired. '
             call inp_prev_field()
          endif
       endif
@@ -2532,7 +2595,7 @@ c
          elseif (inp_compare(.false.,'nonlocal', test)) then
             write(LuOut,*)' The OP functional cannot be conveniently',
      &           ' split into local and nonlocal pieces; '
-            write(LuOut,*)' total OP is assumed desired. '                   
+            write(LuOut,*)' total OP is assumed desired. '
             call inp_prev_field()
          endif
       endif
@@ -2566,7 +2629,7 @@ c
         if(.not.ck_local)then
           if(nlcfac(4))then
             write(LuOut,*)' perdew86 is a nonlocal functional;',
-     &                ' adding perdew81 local functional. '                   
+     &                ' adding perdew81 local functional. '
             lcfac(3) = .true.
             cfac(3) = cfac(4)
           elseif(nlcfac(5))then
