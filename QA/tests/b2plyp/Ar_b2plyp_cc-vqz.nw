@@ -36,7 +36,6 @@ dft
 #  xc b2plyp
   rungfive 1 # semidirect
   convergence energy 1e-8
-  semidirect memsize 100000000 filesize 0
   iterations 100
 end
 
@@ -47,7 +46,6 @@ dft
 #  xc b2plyp
   rungfive 2 # direct
   convergence energy 1e-8
-  semidirect memsize 100000000 filesize 0
   iterations 100
 end
 
@@ -58,7 +56,6 @@ dft
 #  xc b2plyp
   rungfive 3 # RI
   convergence energy 1e-8
-  semidirect memsize 100000000 filesize 0
   iterations 100
 end
 
