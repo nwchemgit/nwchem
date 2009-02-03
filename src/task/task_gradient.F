@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.59 2009-02-03 14:36:35 jhammond Exp $
+* $Id: task_gradient.F,v 1.60 2009-02-03 22:50:20 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -32,6 +32,10 @@ c
       logical bsse_gradient
       external bsse_gradient
 c
+c      logical task_embed
+c      logical embed_gradient
+c      external embed_gradient
+c
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
@@ -57,6 +61,9 @@ c
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
 c
+c      if( .not. rtdb_get(rtdb,'task:embed',mt_log,1,task_embed))
+c     &    task_embed = .false.
+c
       if (.not. rtdb_get(rtdb,'bsse',mt_log,1,task_bsse))
      $     task_bsse = .false.
 c
@@ -69,7 +76,18 @@ c
      $           gradient))
      $           call errquit('task_gradient: no gradient in rtdb?',0,
      &       RTDB_ERR)
-      else if (theory .ne. 'oniom' .or. numerical) then
+c
+c      else if(task_embed) then
+c          status = embed_gradient(rtdb)
+c            if (.not. rtdb_get(rtdb, 'embed:energy', mt_dbl, 1, energy))
+c     $           call errquit('task_gradient: no energy in rtdb?',0,
+c     &       RTDB_ERR)
+c            if (.not. rtdb_get(rtdb, 'embed:gradient', mt_dbl, nelem,
+c     $           gradient))
+c     $           call errquit('task_gradient: no gradient in rtdb?',0,
+c     &       RTDB_ERR)
+c
+      else if(theory .ne. 'oniom' .or. numerical) then
 c
         if(.not.task_bsse) then
           status = task_gradient_doit(rtdb,theory,energy, gradient)
@@ -158,7 +176,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.59 2009-02-03 14:36:35 jhammond Exp $
+* $Id: task_gradient.F,v 1.60 2009-02-03 22:50:20 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -451,6 +469,12 @@ c
      &         '= energy>] [numerical] [ignore]'
          endif
          status = .false.
+c      else if (theory .eq. 'embed') then
+c         if (ga_nodeid().eq.0) then
+c           write(6,*)'task [embed] <string theory> [<string operation ',
+c     &         '= energy>] [numerical] [ignore]'
+c         endif
+c         status = .false.
       else if (theory .eq. 'oniom') then
          status = task_num_grad(rtdb) ! Doing Oniom in a numerical fashion
       else if (theory .eq. 'dangchang') then

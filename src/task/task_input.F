@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.55 2009-01-27 00:38:17 bert Exp $
+* $Id: task_input.F,v 1.56 2009-02-03 22:50:20 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -22,6 +22,7 @@ c          [ignore]
 c
       logical numerical, ignore, oqmmm, analytic
       logical opes
+c     logical oembed
       logical ofragment
       character*30 test, operation
       character*32 theory
@@ -35,6 +36,7 @@ c
       oqmmm     = .false.
       opes      = .false.
       ofragment      = .false.
+c     oembed    = .false.
 c
       call rtdb_clean(rtdb, 'task:') ! Delete ALL previous task parameters
       
@@ -95,6 +97,8 @@ c
             ofragment = .true.
          else if (inp_compare(.false.,test,'pes')) then
             opes = .true.
+c        else if (inp_compare(.false.,test,'embed')) then
+c           oembed = .true.
          else if (inp_compare(.false.,test,
      >                        'steepest_descent')) then
             operation='steepest_descent'
@@ -221,17 +225,29 @@ c
      >      operation.ne.'et' ) call errquit
      &      ("task_input:"//operation//"not supported with QMMM",911,
      &       RTDB_ERR)
-
-c        if (operation.eq.'freq' .or.
-c     >      operation.eq.'hessian' .or.
-c     >      operation.eq.'frequencies' ) then
-c           if(.not.numerical) call errquit
-c     &      ("task_input:only numerical "//operation//
-c     >        "is supported with QMMM",911,
-c     &       RTDB_ERR)
-c        end if
-
       endif
+c
+c      if (oembed) then
+c        if (.not.rtdb_put(rtdb, 'task:embed', mt_log, 1, .true.))
+c     &       call errquit('task_input:task:embed rtdb is corrupt',911,
+c     &       RTDB_ERR)
+c        if (operation.ne.'energy' .and.
+c     >      operation.ne.'optimize' .and.
+c     >      operation.ne.'prepare' .and.
+c     >      operation.ne.'neb' .and.
+c     >      operation.ne.'saddle' .and.
+c     >      operation.ne.'frequencies' .and.
+c     >      operation.ne.'hessian' .and.
+c     >      operation.ne.'freq' .and.
+c     >      operation.ne.'gradient' .and.
+c     >      operation.ne.'property' .and.
+c     >      operation.ne.'dynamics' .and.
+c     >      operation.ne.'abc' .and.
+c     >      operation.ne.'et' ) call errquit
+c     &      ("task_input:"//operation//"not supported with embed",911,
+c     &       RTDB_ERR)
+c      endif
+c
       if (ignore) then
          if (.not. rtdb_put(rtdb, 'task:ignore', mt_log, 1, 
      $        ignore)) call errquit('task_input: rtdb is corrupt',0,

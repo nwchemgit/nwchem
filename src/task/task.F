@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.91 2009-01-27 00:38:17 bert Exp $
+* $Id: task.F,v 1.92 2009-02-03 22:50:20 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -42,6 +42,7 @@ c
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics
       logical oqmmm,opes, task_python, task_thermo,task_bq,task_nbo
+c     logical oembed
       logical task_version, task_vscf
       logical task_paw 
       logical task_pspw,task_band,task_ofpw,task_smd
@@ -50,6 +51,7 @@ c
       logical player,transport
       logical qmmm_init
       logical qmmm_end
+c     logical embed_init
       logical cons_active
       logical task_property
       logical task_ccca
@@ -58,6 +60,9 @@ c      logical task_pes
 c      external task_pes
 c
       external qmmm_init
+c
+c     external embed_init
+c
       external cons_active
       external qmmm_end
       external jantest, uccsdtest
@@ -100,6 +105,15 @@ c
       logical task_dntmc
       external task_dntmc
 c
+c      logical embed_optimize
+c      external embed_optimize
+c
+c      logical embed_prepare
+c      external embed_prepare
+c
+c      logical embed_frequency
+c      external embed_frequency
+c
 C#ifdef USE_SUBGROUPS
 C      logical util_sgstart
 C      external util_sgstart
@@ -112,7 +126,7 @@ c
 C#ifdef USE_SUBGROUPS
 C      if(util_sgstart(rtdb)) then
 C#endif
-
+c
       if (rtdb_get(rtdb, 'task:debug', mt_log, 1, odebug))
      $     call util_debug(rtdb)
 *
@@ -121,6 +135,9 @@ C#endif
 c
       if (.not.rtdb_get(rtdb,'task:pes',mt_log,1,opes))
      &    opes = .false.
+c
+c      if (.not.rtdb_get(rtdb,'task:embed',mt_log,1,oembed))
+c     &    oembed = .false.
 c
       if (rtdb_cget(rtdb,'bq',1,bqname)) then
          task_bq = .true.
@@ -145,6 +162,13 @@ c
               call errquit("failed to initialize qmmm", 0, CALC_ERR)
         end if
       endif
+c
+c      if (oembed) then
+c        status = embed_init(rtdb)
+c        if ((ga_nodeid().eq.0) .and. (.not. status)) then
+c              call errquit("failed to initialize embed", 0, CALC_ERR)
+c        end if
+c      endif
 c
       ocons = cons_active(rtdb)
       if(ocons) call cons_init(rtdb)
@@ -274,12 +298,16 @@ c
       else if (inp_compare(.false., 'optimize', operation)) then
          if(oqmmm) then
            status = task_qmmm_optimize(rtdb)
+c        else if (oembed) then
+c          status = embed_optimize(rtdb)
          else
            status = task_optimize(rtdb)
          endif
       else if (inp_compare(.false., 'saddle', operation)) then
          if(oqmmm) then
            status = task_qmmm_optimize(rtdb)
+c        else if (oembed) then
+c          status = embed_optimize(rtdb)
          else
            status = task_saddle(rtdb)
          endif
@@ -290,7 +318,11 @@ c
       else if (inp_compare(.false., 'et', operation)) then
          status = task_et(rtdb)
       else if (inp_compare(.false., 'freq', operation)) then
-         status = task_freq(rtdb)
+c        if (oembed) then
+c          status = embed_frequency(rtdb)
+c        else
+           status = task_freq(rtdb)
+c        end if
       else if (inp_compare(.false.,'dynamics',operation)) then
          if(oqmmm) then
            status = task_qmmm_dynamics(rtdb)
@@ -309,8 +341,10 @@ c
          else
            call errquit('task: abc needs QMMM',0, INPUT_ERR)
          end if
-       else if(inp_compare(.false.,'thermodynamics',operation)) then
+      else if(inp_compare(.false.,'thermodynamics',operation)) then
           status=task_thermo(rtdb)
+c     else if(inp_compare(.false.,'prepare',operation)) then
+c         status=embed_prepare(rtdb)
       else if(inp_compare(.false.,'vscf',operation)) then
          status=task_vscf(rtdb)
       else if(inp_compare(.false.,'dntmc',operation)) then

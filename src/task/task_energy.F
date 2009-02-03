@@ -24,6 +24,9 @@ c
       logical cons_active
       external cons_active
 c
+c      logical task_embed
+c      logical  embed_energy
+c      external embed_energy
 cc
       logical task_bsse
       logical bsse_energy
@@ -44,7 +47,9 @@ c
 c
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
-
+c
+c      if( .not. rtdb_get(rtdb,'task:embed',mt_log,1,task_embed))
+c     &    task_embed = .false.
 cc
       if (.not. rtdb_get(rtdb,'bsse',mt_log,1,task_bsse))
      $     task_bsse = .false.
@@ -54,6 +59,11 @@ cc
           if (.not. rtdb_get(rtdb, 'qmmm:energy', mt_dbl, 1, energy))
      $           call errquit('task_energy: no energy in rtdb?',0,
      &       RTDB_ERR)
+c      else if (task_embed) then
+c          status = embed_energy(rtdb)
+c          if (.not. rtdb_get(rtdb, 'embed:energy', mt_dbl, 1, energy))
+c     $           call errquit('task_energy: no energy in rtdb?',0,
+c     &       RTDB_ERR)
       else if (theory .ne. 'oniom') then
          status = task_energy_doit(rtdb,theory,energy)
 cc
@@ -117,7 +127,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.51 2009-02-03 14:36:35 jhammond Exp $
+* $Id: task_energy.F,v 1.52 2009-02-03 22:50:20 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -348,6 +358,12 @@ cedo         prefix = 'mp2'
      &         'n = energy>] [numerical || analytic] [ignore]'
          endif
          status = .false.
+c      else if (theory .eq. 'embed') then
+c         if(ga_nodeid().eq.0) then
+c           write(6,*)'task [embed] <string theory> [<string operatio',
+c     &         'n = energy>] [numerical || analytic] [ignore]'
+c         endif
+c         status = .false.
       else if (theory .eq. 'leps') then
          status = leps_energy(rtdb)
       else if (theory .eq. 'dangchang') then

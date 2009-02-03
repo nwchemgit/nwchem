@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.30 2008-03-03 20:09:05 niri Exp $
+c     $Id: task_optimize.F,v 1.31 2009-02-03 22:50:20 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -109,6 +109,12 @@ c
      &           '= energy>] [numerical] [ignore]'
          endif
          status = .false.
+c      else if (theory.eq.'embed') then
+c         if (ga_nodeid().eq.0) then
+c           write(6,*)'task [embed] <string theory> [<string operation ',
+c     &           '= optimize>] [numerical] [ignore]'
+c         endif
+c         status = .false.
       else
          if (ousedriver) then
             if (.not. rtdb_put(rtdb,'driver:modsad',mt_int, 1, 0))
@@ -166,7 +172,7 @@ c
       end
 c
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.30 2008-03-03 20:09:05 niri Exp $
+c     $Id: task_optimize.F,v 1.31 2009-02-03 22:50:20 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -246,6 +252,12 @@ c
      &           '= energy>] [numerical] [ignore]'
          endif
          status = .false.
+c      else if (theory.eq.'embed') then
+c         if (ga_nodeid().eq.0) then
+c           write(6,*)'task [embed] <string theory> [<string operation ',
+c     &           '= saddle>] [numerical] [ignore]'
+c         endif
+c         status = .false.
       else
          if (ousedriver) then
             modsad = 1
@@ -300,7 +312,7 @@ c
       end
 c
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.30 2008-03-03 20:09:05 niri Exp $
+c     $Id: task_optimize.F,v 1.31 2009-02-03 22:50:20 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
