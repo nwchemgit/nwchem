@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.52 2009-02-03 17:49:41 jhammond Exp $
+c     $Id: dft_input.F,v 1.53 2009-02-03 17:53:48 jhammond Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -498,6 +498,10 @@ c
             which_mp2 = 3
           else if (mp2char.eq.'rimp2') then
             which_mp2 = 3
+          else
+            write(LuOut,*)' dft_input: invalid which_mp2 input,',
+     1                    ' using semidirect MP2 by default.'
+            which_mp2 = 1
           endif
         endif
 c
