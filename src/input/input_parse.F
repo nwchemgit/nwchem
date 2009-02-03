@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.87 2008-05-09 13:33:44 jhammond Exp $
+C     $Id: input_parse.F,v 1.88 2009-02-03 22:49:53 niri Exp $
       implicit none
 #include "errquit.fh"
       integer rtdb              ! [input]
@@ -154,6 +154,8 @@ c
 	       call util_sleep(60)
             else if (inp_compare(.false.,test,'qmmm')) then
                call qmmm_input(rtdb)
+c            else if (inp_compare(.false.,test,'embed')) then
+c               call embed_input(rtdb)
             else if (inp_compare(.false.,test,'relativistic')) then
                call rel_input(rtdb)
             else if (inp_compare(.false.,test,'nbo')) then
