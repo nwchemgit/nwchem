@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.14 2008-11-17 18:26:39 marat Exp $
+c $Id: qmmm_pes.F,v 1.15 2009-02-03 18:14:53 marat Exp $
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.14 2008-11-17 18:26:39 marat Exp $
+c     $Id: qmmm_pes.F,v 1.15 2009-02-03 18:14:53 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -78,6 +78,7 @@ c
       double precision temp
       logical lvel
       logical operm
+      integer tce_ref
  
       pname = "task_qmmm_pes"
 c
@@ -177,8 +178,16 @@ c
         inmovecs_tag = 'dft:input vectors'
         outmovecs_tag = 'dft:output vectors'
       else if(theory.eq."tce") then
+        if (.not.rtdb_get(irtdb,'tce:reference',mt_int,1,tce_ref))
+     +    call errquit('failed to get  tce:reference',0,RTDB_ERR)
+
+        if(tce_ref.eq.0) then
+        inmovecs_tag = 'dft:input vectors'
+        outmovecs_tag = 'dft:output vectors'
+        else
         inmovecs_tag = "scf:input vectors"
         outmovecs_tag = "scf:output vectors"
+        end if
       else if(theory.eq."mp2") then
         inmovecs_tag = "scf:input vectors"
         outmovecs_tag = "scf:output vectors"
