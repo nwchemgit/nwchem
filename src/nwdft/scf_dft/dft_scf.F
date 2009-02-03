@@ -4,7 +4,7 @@
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.284 2009-02-03 16:09:10 jhammond Exp $
+c     $Id: dft_scf.F,v 1.285 2009-02-03 16:10:04 jhammond Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -36,7 +36,6 @@ c
 #include "dft_conv.fh"
 #include "dftps.fh"
 #include "cosmo.fh"
-#include "nwmolden.fh"
 c
 czora...start
 #include "zora.fh"
@@ -1757,28 +1756,6 @@ c
       call ecce_print1 ('exchange energy', mt_dbl, Exc(1), 1)
       if (nexc.gt. 1)then
          call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1)
-      endif
-c
-      if (.not. rtdb_get(rtdb, 'dft:molden', mt_log, 1, make_molden))
-     1    make_molden = .false.   
-c
-      if (make_molden.and.(me.eq.0)) then
-         molden_status = nwmolden_openfile()
-         molden_status = nwmolden_basis(ao_bas_han)
-         molden_status = nwmolden_geom(geom)
-         if (ipol.eq.2) then
-            molden_status = nwmolden_movecs(ao_bas_han,nbf_ao,nmo,
-     1                      dbl_mb(k_eval(1)),dbl_mb(k_occ),
-     2                      int_mb(k_ir),g_movecs(1),1)
-            molden_status = nwmolden_movecs(ao_bas_han,nbf_ao,nmo,
-     1                      dbl_mb(k_eval(2)),dbl_mb(k_occ+nbf_ao),
-     2                      int_mb(k_ir+nbf_ao),g_movecs(2),2)
-         else
-            molden_status = nwmolden_movecs(ao_bas_han,nbf_ao,nmo,
-     1                      dbl_mb(k_eval(1)),dbl_mb(k_occ),
-     2                      int_mb(k_ir),g_movecs(1),1)
-         endif
-         molden_status = nwmolden_closefile()
       endif
 c
       if (.not.ma_chop_stack(l_ir))
