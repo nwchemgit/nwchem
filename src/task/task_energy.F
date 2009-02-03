@@ -117,7 +117,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.50 2008-07-10 22:28:15 marat Exp $
+* $Id: task_energy.F,v 1.51 2009-02-03 14:36:35 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -170,6 +170,9 @@ c
       double precision dipole(3)
       character*80 key, prefix
 c
+      logical rungfive
+      integer which_mp2
+c
       call ecce_print_module_entry('task energy')
 c
       task_energy_doit = .false.
@@ -191,7 +194,28 @@ c
       else if (theory .eq. 'smd') then
          status = task_smd_energy(rtdb)
       else if (theory .eq. 'dft') then
-         status = dft_energy(rtdb)
+         if (.not. rtdb_get(rtdb,'dft:fifthrung',mt_log,1,rungfive))
+     1       rungfive = .false.
+         if (rungfive) then
+           if (.not.rtdb_get(rtdb,'dft:which_mp2',mt_int,1,which_mp2))
+     1       which_mp2 = 1
+           if (which_mp2.eq.1) then        ! semidirect MP2
+              prefix = 'mp2'
+              if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'energy')) then
+                 call errquit('task_energy: rtdb_put failed',37,
+     1                        RTDB_ERR)
+              endif
+              status = semi_dir_mp2(rtdb)
+           elseif (which_mp2.eq.2) then    ! direct MP2
+              status = direct_mp2(rtdb)
+           elseif (which_mp2.eq.3) then    ! RI-MP2
+              status = rimp2(rtdb)
+           else
+             write(6,*) 'task_energy: problem with DFT+MP2'
+           endif
+         else
+            status = dft_energy(rtdb)
+         endif
       else if (theory .eq. 'sodft')then 
          status = sodft_energy(rtdb)
       else if (theory .eq. 'tddft') then

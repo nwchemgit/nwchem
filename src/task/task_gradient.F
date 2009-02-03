@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.58 2009-01-26 00:53:26 niri Exp $
+* $Id: task_gradient.F,v 1.59 2009-02-03 14:36:35 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -158,7 +158,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.58 2009-01-26 00:53:26 niri Exp $
+* $Id: task_gradient.F,v 1.59 2009-02-03 14:36:35 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -225,7 +225,7 @@ c
       double precision dipole(3)
       character*80 key, prefix
 c
-      logical cam_exch
+      logical cam_exch,rungfive
 c
       if (.not. geom_rtdb_ncent(rtdb, 'geometry', ncent))
      $     call errquit('task_gradient: failed getting #atoms',0,
@@ -253,14 +253,22 @@ c
 c     Check for CAM/LC xc forms
 c
       cam_exch = .false.
+      rungfive = .false.
       if(theory.eq.'dft') then
-        if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1,
-     &   cam_exch)) cam_exch=.false.
-         if (cam_exch) then
-             numerical = .true.  ! do numerical gradients for cam/lc xc forms
-             if (ga_nodeid().eq.0)
-     &              write(LuOut,*) 'CAM/LC xc detected'
-         end if
+        if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1,cam_exch)) 
+     1      cam_exch=.false.
+        if (cam_exch) then
+            numerical = .true.  ! do numerical gradients for cam/lc xc forms
+            if (ga_nodeid().eq.0) write(LuOut,*) 
+     1         'CAM/LC XC functional - numerical derivatives only'
+        end if
+        if (.not. rtdb_get(rtdb,'dft:fifthrung',mt_log,1,rungfive))
+     1      rungfive = .false.
+        if (rungfive) then
+            numerical = .true.  ! do numerical gradients for fifth-rung (w/MP2) functionals
+            if (ga_nodeid().eq.0) write(LuOut,*) 
+     1         'Fifth-rung functional - numerical derivatives only'
+        end if
       end if
 c
 c Currently cosmo does not work with analytic gradients
