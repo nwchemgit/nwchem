@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.57 2009-02-03 14:44:29 jhammond Exp $
+* $Id: mp2_energy.F,v 1.58 2009-02-03 17:31:50 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -40,7 +40,7 @@ c
       integer nmixed
       integer rtdb,basis,geom
       integer g_vecs_a,g_vecs_b
-      integer nocc
+      integer nocc,noc(2)
       character*4 scftype
       character*20 scftypevecs
       integer i,nbf_vecs,nsets,nmos(2),nbf, nmo
@@ -155,10 +155,17 @@ c
       if(.not.rtdb_cget(rtdb,'scf:scftype',1,scftype))
      $     call errquit('mp2:scftype absent',1, RTDB_ERR)
       if(scftype.eq.'UHF')then
-         if(.not.rtdb_get(rtdb,'scf:nalpha',mt_int,1,noa))
+        if (rungfive) then
+          if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc)) 
+     1        call errquit('mp2: rtdb_get of noc failed',0,RTDB_ERR)
+          noa=noc(1)
+          nob=noc(2)
+        else
+          if(.not.rtdb_get(rtdb,'scf:nalpha',mt_int,1,noa))
      $        call errquit('no alphas',1, RTDB_ERR)
-         if(.not.rtdb_get(rtdb,'scf:nbeta',mt_int,1,nob))
+          if(.not.rtdb_get(rtdb,'scf:nbeta',mt_int,1,nob))
      $        call errquit('no betas',1, RTDB_ERR)
+        endif
       else if(scftype.eq.'RHF')then
          if(.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nocc))
      $        call errquit('no occ',1, RTDB_ERR)
