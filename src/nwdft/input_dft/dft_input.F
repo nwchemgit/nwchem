@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.51 2009-02-03 14:48:10 jhammond Exp $
+c     $Id: dft_input.F,v 1.52 2009-02-03 17:49:41 jhammond Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -41,6 +41,7 @@ c
       logical rungfive
       logical molden
       integer which_mp2
+      character*20 mp2char
       double precision smear_sigma
       double precision shift
       integer nel_fon(2),nmo_fon(2),ispin
@@ -480,11 +481,25 @@ c
       if (.not.rtdb_put(rtdb,'dft:fifthrung', mt_log, 1, rungfive))
      &   call errquit('dft_input: rtdb_put failed', 2901, RTDB_ERR)
 c
-      if (.not. inp_i(which_mp2)) then
-         write(LuOut,*)' dft_input: which_mp2 not specified,',
-     1                 ' using semidirect MP2 by default.'
-         which_mp2 = 1
-      endif
+        if (.not.inp_a(mp2char)) then
+           write(LuOut,*)' dft_input: which_mp2 not specified,',
+     1                   ' using semidirect MP2 by default.'
+           which_mp2 = 1
+        else
+          if (mp2char.eq.'semidirect') then
+            which_mp2 = 1
+          else if (mp2char.eq.'semi') then
+            which_mp2 = 1
+          else if (mp2char.eq.'disk') then
+            which_mp2 = 1
+          else if (mp2char.eq.'direct') then
+            which_mp2 = 2
+          else if (mp2char.eq.'ri') then
+            which_mp2 = 3
+          else if (mp2char.eq.'rimp2') then
+            which_mp2 = 3
+          endif
+        endif
 c
       if (.not. rtdb_put(rtdb, 'dft:which_mp2', mt_int, 1, which_mp2))
      &   call errquit('dft_input: rtdb_put failed', 2902, RTDB_ERR)
