@@ -1,10 +1,10 @@
 
       logical function dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
-     &                         iter, g_dens, g_dens_at, g_movecs, g_vxc, 
+     &                         iter, g_dens, g_dens_at, g_movecs, g_vxc,
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.283 2008-12-30 22:57:28 bert Exp $
+c     $Id: dft_scf.F,v 1.284 2009-02-03 16:09:10 jhammond Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -36,6 +36,7 @@ c
 #include "dft_conv.fh"
 #include "dftps.fh"
 #include "cosmo.fh"
+#include "nwmolden.fh"
 c
 czora...start
 #include "zora.fh"
@@ -462,6 +463,9 @@ c
       elseif (ipol.eq.2)then
          scftype = 'UHF'
       endif
+c     needed for rungfive
+      if (.not. rtdb_cput(rtdb,'scf:scftype', 1, scftype))
+     &   call errquit('dft_scf: rtdb_cput scftype failed', 0, RTDB_ERR)
 c
 c     allocate array for irreps
 c
@@ -470,6 +474,8 @@ c
       call ifill(ipol*nbf_ao,1,int_mb(k_ir),1)
       nopen = mult - 1
       nclosed = (nTotEl - nopen) / 2
+      if (.not. rtdb_put(rtdb,'scf:nclosed', mt_int, 1, nclosed))
+     &   call errquit('dft_scf: rtdb_put nclosed failed', 0, RTDB_ERR)
 c
       if (.not. bas_name(ao_bas_han, basis_name, basis_trans))
      $     call errquit('dft_scf: bas_name?', 0, BASIS_ERR)
@@ -1752,6 +1758,29 @@ c
       if (nexc.gt. 1)then
          call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1)
       endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:molden', mt_log, 1, make_molden))
+     1    make_molden = .false.   
+c
+      if (make_molden.and.(me.eq.0)) then
+         molden_status = nwmolden_openfile()
+         molden_status = nwmolden_basis(ao_bas_han)
+         molden_status = nwmolden_geom(geom)
+         if (ipol.eq.2) then
+            molden_status = nwmolden_movecs(ao_bas_han,nbf_ao,nmo,
+     1                      dbl_mb(k_eval(1)),dbl_mb(k_occ),
+     2                      int_mb(k_ir),g_movecs(1),1)
+            molden_status = nwmolden_movecs(ao_bas_han,nbf_ao,nmo,
+     1                      dbl_mb(k_eval(2)),dbl_mb(k_occ+nbf_ao),
+     2                      int_mb(k_ir+nbf_ao),g_movecs(2),2)
+         else
+            molden_status = nwmolden_movecs(ao_bas_han,nbf_ao,nmo,
+     1                      dbl_mb(k_eval(1)),dbl_mb(k_occ),
+     2                      int_mb(k_ir),g_movecs(1),1)
+         endif
+         molden_status = nwmolden_closefile()
+      endif
+c
       if (.not.ma_chop_stack(l_ir))
      &   call errquit('dft_scf: cannot chop stack',98, MA_ERR)
 c     
