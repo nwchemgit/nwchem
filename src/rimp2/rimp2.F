@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.48 2009-02-03 14:39:52 jhammond Exp $
+C$Id: rimp2.F,v 1.49 2009-02-03 16:48:51 jhammond Exp $
       Implicit NONE
 #include "errquit.fh"
       Integer RTDB
@@ -439,9 +439,9 @@ c
           if (rungfive) then
             write(6,998) RefEner,CorEner,TotEner
  998        format(//,10x,43('-'),
-     $              /,10x,'DFT energy              ',f20.12,
-     $              /,10x,'Unscaled MP2 energy     ',f20.12,
-     $              /,10x,'Total DFT+MP2 energy    ',f20.12,
+     $              /,10x,'DFT energy             ',f20.12,
+     $              /,10x,'Unscaled MP2 energy    ',f20.12,
+     $              /,10x,'Total DFT+MP2 energy   ',f20.12,
      $              /,10x,43('-'),/)
           else
             write(6,999) RefEner,CorEner,TotEner
