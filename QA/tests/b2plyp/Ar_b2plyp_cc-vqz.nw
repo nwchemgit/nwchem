@@ -27,7 +27,7 @@ end
 
 dft
   xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
-  rungfive semidirect
+  dftmp2 semidirect
   convergence energy 1e-8
   iterations 100
 end
@@ -36,7 +36,7 @@ task dft energy
 
 dft
   xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
-  rungfive direct
+  dftmp2 direct
   direct
   convergence energy 1e-8
   iterations 100
@@ -129,7 +129,7 @@ set "ri-mp2 basis" "cc-pVQZ-RI"
 
 dft
   xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
-  rungfive ri
+  dftmp2 ri
   convergence energy 1e-8
   iterations 100
 end
