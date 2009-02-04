@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.53 2009-02-03 17:53:48 jhammond Exp $
+c     $Id: dft_input.F,v 1.54 2009-02-04 01:18:41 niri Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -38,7 +38,7 @@ c
       integer nopen
       logical lcdft
       logical pseudo
-      logical rungfive
+      logical dftmp2
       logical molden
       integer which_mp2
       character*20 mp2char
@@ -50,7 +50,7 @@ c
      $           'max_ovl','mulliken','mult','noio','noprint','odft', 
      $           'print','tolerances', 'xc','sym','adapt','sic', 
      $           'smear','fon','lb94','cs00','cdft','cam','disp',
-     $           'rungfive','molden','end'/
+     $           'dftmp2','molden','end'/
 c Qin / cdft
       integer nconstr
       integer dtype(max_constr), iatms1(max_constr), fatms1(max_constr)
@@ -472,13 +472,13 @@ c
 c
       goto 2810
 c
-c     rungfive: enables fifth-rung functionals by modifying parameters
+c     dftmp2: enables fifth-rung functionals by modifying parameters
 c               for the MP2 code so that it uses DFT reference orbitals, etc.
 c               which_mp2 is necessary for task selection
 c
- 2900 rungfive = .true.
+ 2900 dftmp2 = .true.
 c
-      if (.not.rtdb_put(rtdb,'dft:fifthrung', mt_log, 1, rungfive))
+      if (.not.rtdb_put(rtdb,'dft:dftmp2', mt_log, 1, dftmp2))
      &   call errquit('dft_input: rtdb_put failed', 2901, RTDB_ERR)
 c
         if (.not.inp_a(mp2char)) then

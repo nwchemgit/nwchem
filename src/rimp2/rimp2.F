@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.49 2009-02-03 16:48:51 jhammond Exp $
+C$Id: rimp2.F,v 1.50 2009-02-04 01:18:01 niri Exp $
       Implicit NONE
 #include "errquit.fh"
       Integer RTDB
@@ -83,10 +83,10 @@ C     Stuff for SCF reference
 C
       Double precision ThreshSCF
 c
-c     fifth-rung functional stuff: DFT += c2*MP2
+c     dftmp2 functional stuff: DFT += c2*MP2
 c
-      logical rungfive            ! use DFT reference orbitals and energy
-      double precision pt2_factor ! coefficient on MP2 contribution to total energy
+      logical dftmp2            ! use DFT reference orbitals and energy
+      double precision mp2fac   ! coefficient on MP2 contribution to total energy
 C
 C     Initialize this module
 C
@@ -120,8 +120,8 @@ C     ************************************
 C     * Check for adequate SCF reference *
 C     ************************************
 c
-      if (.not. rtdb_get(rtdb,'dft:fifthrung',mt_log,1,rungfive))
-     $     rungfive = .false.
+      if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
+     $     dftmp2 = .false.
 c
       if (.not. rtdb_get(rtdb,'scf:thresh',mt_dbl,1,threshscf))
      $     threshscf = 1.0d-4
@@ -133,15 +133,15 @@ c
          status = rtdb_delete(rtdb,'scf:converged') ! Status irrelevant
       endif
 c
-      if (rungfive) then
+      if (dftmp2) then
         if (.not.dft_energy(rtdb)) then
            call ecce_print_module_exit('mp2','failed')
            call errquit('rimp2: DFT did not converged',0,RTDB_ERR)
         endif
-        if (.not.rtdb_get(rtdb,'dft:pt2fac',mt_dbl,1,pt2_factor)) then
-          pt2_factor = 1.0d0
+        if (.not.rtdb_get(rtdb,'dft:mp2fac',mt_dbl,1,mp2fac)) then
+          mp2fac = 1.0d0
           if (Me.eq.0) then
-            write(LuOut,*) 'dft:pt2fac not found, using 1.0'
+            write(LuOut,*) 'dft:mp2fac not found, using 1.0'
           endif
         endif
       else
@@ -398,7 +398,7 @@ C
 C
 C     Also get the SCF energy so we can report the total energy
 C
-      if (rungfive) then
+      if (dftmp2) then
         if (.not.rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, RefEner)) then
            call errquit('rimp2: failed to get dft:energy from RTDB',
      1                  0,RTDB_ERR)
@@ -410,8 +410,8 @@ C
         endif
       endif
 C
-      if (rungfive) then
-        TotEner = RefEner + pt2_factor*CorEner
+      if (dftmp2) then
+        TotEner = RefEner + mp2fac*CorEner
       else
         TotEner = RefEner + CorEner
       endif
@@ -421,12 +421,12 @@ c      old output printing
 c
 c      If ( Me .eq. 0) then
 c         Call Banner(LuOut,'RI-MP2 energy','-',.TRUE.,.TRUE.,.FALSE.)
-c         if (rungfive) then
+c         if (dftmp2) then
 c           Write(LuOut,'(1X,A,F30.15)') 'Using DFT reference'
 c         endif
 c         Write(LuOut,'(1X,A,F30.15)') 'Reference energy:    ',RefEner
 c         Write(LuOut,'(1X,A,F30.15)') 'Correlation energy:  ',CorEner
-c         if (rungfive) then
+c         if (dftmp2) then
 c           Write(LuOut,'(1X,A,F30.15)') 'Total DFT+PT2 energy: ',TotEner
 c         else
 c           Write(LuOut,'(1X,A,F30.15)') 'Total RI-MP2 energy: ',TotEner
@@ -436,7 +436,7 @@ c
 c       same format as MP2 and directMP2
 c
         if (Me.eq.0) then
-          if (rungfive) then
+          if (dftmp2) then
             write(6,998) RefEner,CorEner,TotEner
  998        format(//,10x,43('-'),
      $              /,10x,'DFT energy             ',f20.12,
@@ -459,7 +459,7 @@ C
      $   CorEner)
       Status = Status.AND.RTDB_Put(RTDB,'rimp2:energy',MT_Dbl,1,
      $     TotEner)
-      if (rungfive) then
+      if (dftmp2) then
         Status = Status.AND.RTDB_Put(RTDB,'dft:energy',MT_Dbl,1,
      $     TotEner)
       endif

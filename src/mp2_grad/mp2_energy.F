@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.58 2009-02-03 17:31:50 jhammond Exp $
+* $Id: mp2_energy.F,v 1.59 2009-02-04 01:18:19 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -85,11 +85,11 @@ c
       character*(nw_max_path_len) cphf_sol
       integer natoms, l_grad, k_grad, g_tmpa, g_tmpb
 c
-      logical rungfive            ! use DFT reference orbitals and energy
-      double precision pt2_factor ! coefficient on MP2 contribution to total energy
+      logical dftmp2            ! use DFT reference orbitals and energy
+      double precision mp2fac   ! coefficient on MP2 contribution to total energy
 c
-      if (.not. rtdb_get(rtdb,'dft:fifthrung',mt_log,1,rungfive))
-     $     rungfive = .false.
+      if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
+     $     dftmp2 = .false.
 c     
       if (.not.rtdb_get(rtdb, 'mp2:skeleton',MT_LOG, 1, oskel))
      $     oskel = sym_number_ops(geom) .gt. 0
@@ -155,7 +155,7 @@ c
       if(.not.rtdb_cget(rtdb,'scf:scftype',1,scftype))
      $     call errquit('mp2:scftype absent',1, RTDB_ERR)
       if(scftype.eq.'UHF')then
-        if (rungfive) then
+        if (dftmp2) then
           if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc)) 
      1        call errquit('mp2: rtdb_get of noc failed',0,RTDB_ERR)
           noa=noc(1)
@@ -527,23 +527,23 @@ c
          end if
       end if
 c     
-      if (rungfive) then
+      if (dftmp2) then
         if(.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,escf))
      $       call errquit('could not get dft energy',1, RTDB_ERR)
-        if (.not.rtdb_get(rtdb,'dft:pt2fac',mt_dbl,1,pt2_factor)) then
-          pt2_factor = 1.0d0
+        if (.not.rtdb_get(rtdb,'dft:mp2fac',mt_dbl,1,mp2fac)) then
+          mp2fac = 1.0d0
           if (ga_nodeid().eq.0) then
             write(LuOut,*) 'dft:pt2fac not found, using 1.0'
           endif
         endif
-        e_total = escf + pt2_factor*e2
+        e_total = escf + mp2fac*e2
       else
         if(.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,escf))
      $       call errquit('could not get scf energy',1, RTDB_ERR)
         e_total = escf + e2
       endif
       if (util_print('information',print_low).and.ga_nodeid().eq.0) then
-        if (rungfive) then
+        if (dftmp2) then
           write(6,998) escf, e2, e_total
  998      format(//,10x,43('-'),
      $            /,10x,'DFT energy             ',f20.12,
@@ -570,7 +570,7 @@ c
       if(.not. rtdb_put(rtdb,'mp2:energy',mt_dbl,1,e_total))
      $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0,
      &       RTDB_ERR)
-      if (rungfive) then
+      if (dftmp2) then
         if(.not. rtdb_put(rtdb,'dft:energy',mt_dbl,1,e_total))
      1       call errquit('semi_dir_mp2:failed storing energy in rtdb',
      2                    0,RTDB_ERR)

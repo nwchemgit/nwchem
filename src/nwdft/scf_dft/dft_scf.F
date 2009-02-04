@@ -4,7 +4,7 @@
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.285 2009-02-03 16:10:04 jhammond Exp $
+c     $Id: dft_scf.F,v 1.286 2009-02-04 01:18:44 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -462,7 +462,8 @@ c
       elseif (ipol.eq.2)then
          scftype = 'UHF'
       endif
-c     needed for rungfive
+c
+c     needed for dftmp2
       if (.not. rtdb_cput(rtdb,'scf:scftype', 1, scftype))
      &   call errquit('dft_scf: rtdb_cput scftype failed', 0, RTDB_ERR)
 c

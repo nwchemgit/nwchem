@@ -1,6 +1,6 @@
       logical function semi_dir_mp2(rtdb)
 *
-* $Id: mp2_grad.F,v 1.26 2009-02-03 14:44:30 jhammond Exp $
+* $Id: mp2_grad.F,v 1.27 2009-02-04 01:18:19 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -24,20 +24,20 @@ c
       logical cphf, scf, int_normalize, dft_energy
       external cphf, scf, int_normalize, dft_energy
 c
-      logical rungfive            ! use DFT reference orbitals and energy
-c      double precision pt2_factor ! coefficient on MP2 contribution to total energy
+      logical dftmp2            ! use DFT reference orbitals and energy
+c     double precision mp2fac   ! coefficient on MP2 contribution to total energy
 c
       status=rtdb_parallel(.true.)
       call util_print_push
       call util_print_rtdb_load(rtdb,'mp2')
       call ecce_print_module_entry('mp2')
 c
-      if (.not. rtdb_get(rtdb,'dft:fifthrung',mt_log,1,rungfive))
-     $     rungfive = .false.
+      if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
+     $     dftmp2 = .false.
 c
 c     Make sure the SCF is being converged accurately enough
 c
-      if (rungfive) then ! DFT SCF
+      if (dftmp2) then ! DFT SCF
 c
         if (.not. rtdb_get(rtdb,'dft:e_conv',mt_dbl,1,threshscf))
      $       threshscf = 1.0d-4
@@ -127,7 +127,7 @@ c     Make sure that we use the same vectors as the SCF
 c     Jeff: Why are we using input vectors and not output vectors?
 c           Are they set to the same once SCF converges?
 c
-      if (rungfive) then
+      if (dftmp2) then
         if (.not. rtdb_cget(rtdb,'dft:input vectors',1,movecs_in)) 
      $       call errquit('mp2_grad: no DFT MO vectors',0, RTDB_ERR)
       else

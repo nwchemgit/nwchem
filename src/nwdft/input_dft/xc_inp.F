@@ -1,5 +1,5 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.59 2009-02-03 14:48:10 jhammond Exp $
+C$Id: xc_inp.F,v 1.60 2009-02-04 01:18:41 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -101,7 +101,7 @@ c
 c
 c     XC functionals coefficients
 c     
-      double precision pt2_factor
+      double precision mp2fac
       double precision cfac(numfunc),xfac(numfunc)
       data dirs /'acm', 'b3lyp', 'beckehandh', 'HFexch', 'becke88',  
      &           'lyp', 'perdew81', 'perdew86', 'perdew91', 'pw91lda', 
@@ -2429,12 +2429,12 @@ c
             call inp_prev_field()
          endif
       endif
-      if (.not. inp_f(pt2_factor) ) then
+      if (.not. inp_f(mp2fac) ) then
          write(LuOut,*)' xc_inp: mp2 multiplicative factor not found.'
-         pt2_factor = 1.0d0
+         mp2fac = 1.0d0
       endif
-      if (.not. rtdb_put(rtdb,'dft:pt2fac', mt_dbl, 1, pt2_factor))
-     1     call errquit('xc_inp: failed to store dft:pt2fac in rtdb',
+      if (.not. rtdb_put(rtdb,'dft:mp2fac', mt_dbl, 1, mp2fac))
+     1     call errquit('xc_inp: failed to store dft:mp2fac in rtdb',
      2                  0,RTDB_ERR)
 
       goto 10
@@ -2465,9 +2465,9 @@ c LYP
        lcfac(2) = .true.
       nlcfac(2) = .true.
 c MP2
-      pt2_factor = 0.27d0
-      if (.not. rtdb_put(rtdb,'dft:pt2fac', mt_dbl, 1, pt2_factor))
-     1     call errquit('xc_inp: failed to store dft:pt2fac in rtdb',
+      mp2fac = 0.27d0
+      if (.not. rtdb_put(rtdb,'dft:mp2fac', mt_dbl, 1, mp2fac))
+     1     call errquit('xc_inp: failed to store dft:mp2fac in rtdb',
      2                  0,RTDB_ERR)
 c
       goto 10

@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.60 2009-02-03 22:50:20 niri Exp $
+* $Id: task_gradient.F,v 1.61 2009-02-04 01:17:18 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -176,7 +176,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.60 2009-02-03 22:50:20 niri Exp $
+* $Id: task_gradient.F,v 1.61 2009-02-04 01:17:18 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -243,7 +243,8 @@ c
       double precision dipole(3)
       character*80 key, prefix
 c
-      logical cam_exch,rungfive
+      logical cam_exch
+      logical dftmp2
 c
       if (.not. geom_rtdb_ncent(rtdb, 'geometry', ncent))
      $     call errquit('task_gradient: failed getting #atoms',0,
@@ -271,21 +272,21 @@ c
 c     Check for CAM/LC xc forms
 c
       cam_exch = .false.
-      rungfive = .false.
+      dftmp2 = .false.
       if(theory.eq.'dft') then
         if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1,cam_exch)) 
      1      cam_exch=.false.
         if (cam_exch) then
-            numerical = .true.  ! do numerical gradients for cam/lc xc forms
-            if (ga_nodeid().eq.0) write(LuOut,*) 
-     1         'CAM/LC XC functional - numerical derivatives only'
+         numerical = .true.  ! do numerical gradients for cam/lc xc forms
+         if (ga_nodeid().eq.0) write(LuOut,*) 
+     1    'CAM/LC XC functional - numerical derivatives only'
         end if
-        if (.not. rtdb_get(rtdb,'dft:fifthrung',mt_log,1,rungfive))
-     1      rungfive = .false.
-        if (rungfive) then
-            numerical = .true.  ! do numerical gradients for fifth-rung (w/MP2) functionals
-            if (ga_nodeid().eq.0) write(LuOut,*) 
-     1         'Fifth-rung functional - numerical derivatives only'
+        if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
+     1   dftmp2 = .false.
+        if (dftmp2) then
+         numerical = .true.  ! do numerical gradients for fifth-rung (w/MP2) functionals
+         if (ga_nodeid().eq.0) write(LuOut,*) 
+     1    'DFT+MP2 based functional - numerical derivatives only'
         end if
       end if
 c

@@ -127,7 +127,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.52 2009-02-03 22:50:20 niri Exp $
+* $Id: task_energy.F,v 1.53 2009-02-04 01:17:17 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -180,7 +180,7 @@ c
       double precision dipole(3)
       character*80 key, prefix
 c
-      logical rungfive
+      logical dftmp2
       integer which_mp2
 c
       call ecce_print_module_entry('task energy')
@@ -204,9 +204,9 @@ c
       else if (theory .eq. 'smd') then
          status = task_smd_energy(rtdb)
       else if (theory .eq. 'dft') then
-         if (.not. rtdb_get(rtdb,'dft:fifthrung',mt_log,1,rungfive))
-     1       rungfive = .false.
-         if (rungfive) then
+         if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
+     1       dftmp2 = .false.
+         if (dftmp2) then
            if (.not.rtdb_get(rtdb,'dft:which_mp2',mt_int,1,which_mp2))
      1       which_mp2 = 1
            if (which_mp2.eq.1) then        ! semidirect MP2

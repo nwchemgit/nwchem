@@ -1,5 +1,5 @@
       logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.50 2009-02-03 14:41:51 jhammond Exp $
+C$Id: direct_mp2.F,v 1.51 2009-02-04 01:17:40 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -31,8 +31,8 @@ c
       integer i, j, ij, ii
       logical oprint, osym, status, omemprint
       logical ohalf, oblk, odisk, oaoreuse, oaokeep
-      logical rungfive            ! use DFT reference orbitals and energy
-      double precision pt2_factor ! coefficient on MP2 contribution to total energy
+      logical dftmp2            ! use DFT reference orbitals and energy
+      double precision mp2fac ! coefficient on MP2 contribution to total energy
       double precision emp2, e2pair
       double precision tpass, ttotal, scf_energy
       double precision tol2e
@@ -59,10 +59,11 @@ c
       data g_coul,g_exch/-1,-1/
       data ohalf/.false./
 c
-      if (.not. rtdb_get(rtdb,'dft:fifthrung',mt_log,1,rungfive))
-     $     rungfive = .false.
+      if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
+     $     dftmp2 = .false.
 c
-      if (rungfive) then
+c     Check if mp2 is requested with dft orbitals
+      if (dftmp2) then
         if (.not.dft_energy(rtdb)) then
            direct_mp2 = .false.
            return
@@ -116,13 +117,13 @@ c
       if (.not. bas_nbf_cn_max(basis,maxbfsh))
      $      call errquit('direct_mp2: cannot get basis info',0,
      &      BASIS_ERR)
-      if (rungfive) then
+      if (dftmp2) then
         if (.not. rtdb_get(rtdb, 'dft:energy', MT_DBL, 1, scf_energy))
      $        scf_energy = 0.0d0
-        if (.not.rtdb_get(rtdb,'dft:pt2fac',mt_dbl,1,pt2_factor)) then
-          pt2_factor = 1.0d0
+        if (.not.rtdb_get(rtdb,'dft:mp2fac',mt_dbl,1,mp2fac)) then
+          mp2fac = 1.0d0
           if (GA_NodeID().eq.0) then
-            write(6,*) 'dft:pt2fac not found, using 1.0'
+            write(6,*) 'dft:mp2fac not found, using 1.0'
           endif
         endif
       else
@@ -158,7 +159,7 @@ c
       if (scftype.ne.'RHF') 
      $      call errquit('direct_mp2: scftype not RHF',911,INPUT_ERR)
 #ifdef UNUSED
-      if (rungfive) then
+      if (dftmp2) then
         if (.not. rtdb_get(rtdb, 'dft:nopen', MT_INT, 1, nopen))
      1        call errquit('direct_mp2: get of nopen failed',0,
      2                     RTDB_ERR)
@@ -181,7 +182,7 @@ c
 c     Look for MP2 specific MO vectors.  If not there use previous SCF.  
 c     If not there use default.
 c
-      if (rungfive) then
+      if (dftmp2) then
         if (.not.rtdb_cget(rtdb,'mp2:input vectors',1,movecs_in)) then
           if (.not.rtdb_cget(rtdb,'dft:output vectors',1,movecs_in))
      $          call util_file_name('movecs',.false.,.false.,movecs_in)
@@ -437,8 +438,8 @@ c
  980      format(8f10.5)
         endif
         if (oprint) then
-          if (rungfive) then
-            write(6,998) scf_energy,emp2,scf_energy+pt2_factor*emp2
+          if (dftmp2) then
+            write(6,998) scf_energy,emp2,scf_energy+mp2fac*emp2
  998        format(//,10x,43('-'),
      $              /,10x,'DFT energy             ',f20.12,
      $              /,10x,'Unscaled MP2 energy    ',f20.12,
@@ -471,7 +472,7 @@ c
       if (.not. rtdb_put(rtdb, 'direct_mp2:energy', mt_dbl, 1, emp2))
      $     call errquit('direct_mp2: failed storing energy in rtdb', 0,
      &      RTDB_ERR)
-      if (rungfive) then
+      if (dftmp2) then
         if (.not. rtdb_put(rtdb,'dft:energy',mt_dbl,1,emp2))
      1       call errquit('direct_mp2: failed storing energy in rtdb',
      2                    1,RTDB_ERR)
