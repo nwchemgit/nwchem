@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.35 2008-10-03 21:24:30 jhammond Exp $
+c $Id: tce_input.F,v 1.36 2009-02-04 02:23:31 jhammond Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -87,7 +87,7 @@ c
       integer reference
       integer diis,diis2,diis3
 c --- level shift --
-      double precision zlshift,zlshiftl
+      double precision zlshift,zlshiftl,zlshift2(2),zlshift3(2)
 c ------------------
       integer nroots
       integer target
@@ -150,6 +150,16 @@ c
      2  RTDB_ERR)
       zlshiftl=0.0d0
       if (.not.rtdb_put(rtdb,'tce:zlshiftl',mt_dbl,1,zlshiftl))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+      zlshift2(1)=0.0d0
+      zlshift2(2)=0.0d0
+      if (.not.rtdb_put(rtdb,'tce:zlshift2',mt_dbl,2,zlshift2))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+      zlshift3(1)=0.0d0
+      zlshift3(2)=0.0d0
+      if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,2,zlshift3))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
@@ -897,6 +907,34 @@ c
           zlshiftl=0.0d0
         endif
         if (.not.rtdb_put(rtdb,'tce:zlshiftl',mt_dbl,1,zlshiftl))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+      else if (inp_compare(.false.,test,'lshift2')) then
+        if (.not.inp_f(zlshift2(1))) then
+          write(LuOut,*) 'tce_input: lshift2(1) value not found; ',
+     1      'default value of 0.0d0 will be used'
+          zlshift2(1)=0.0d0
+        endif
+        if (.not.inp_f(zlshift2(2))) then
+          write(LuOut,*) 'tce_input: lshift2(2) value not found; ',
+     1      'default value of 0.0d0 will be used'
+          zlshift2(2)=0.0d0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:zlshift2',mt_dbl,2,zlshift2))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+      else if (inp_compare(.false.,test,'lshift3')) then
+        if (.not.inp_f(zlshift3(1))) then
+          write(LuOut,*) 'tce_input: lshift3(1) value not found; ',
+     1      'default value of 0.0d0 will be used'
+          zlshift3(1)=0.0d0
+        endif
+        if (.not.inp_f(zlshift3(2))) then
+          write(LuOut,*) 'tce_input: lshift3(2) value not found; ',
+     1      'default value of 0.0d0 will be used'
+          zlshift3(2)=0.0d0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,2,zlshift3))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
