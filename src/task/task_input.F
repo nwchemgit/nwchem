@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.56 2009-02-03 22:50:20 niri Exp $
+* $Id: task_input.F,v 1.57 2009-02-04 06:23:53 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -22,7 +22,7 @@ c          [ignore]
 c
       logical numerical, ignore, oqmmm, analytic
       logical opes
-c     logical oembed
+c      logical oembed
       logical ofragment
       character*30 test, operation
       character*32 theory
@@ -35,8 +35,8 @@ c
       ignore    = .false.
       oqmmm     = .false.
       opes      = .false.
-      ofragment      = .false.
-c     oembed    = .false.
+      ofragment = .false.
+c      oembed    = .false.
 c
       call rtdb_clean(rtdb, 'task:') ! Delete ALL previous task parameters
       
@@ -69,6 +69,8 @@ c
             operation = 'thermodynamics'
          else if (inp_compare(.false.,test,'et')) then
             operation = 'et'
+c         else if (inp_compare(.false.,test,'prepare')) then
+c            operation = 'prepare'
          else if (inp_compare(.false.,test,'freq') .or.
      $            inp_compare(.false.,test,'frequencies')) then
             operation = 'freq'
@@ -93,12 +95,12 @@ c
             ignore = .true.
          else if (inp_compare(.false.,test,'qmmm')) then
             oqmmm = .true.
+c         else if (inp_compare(.false.,test,'embed')) then
+c            oembed = .true.
          else if (inp_compare(.false.,test,'fragment')) then
             ofragment = .true.
          else if (inp_compare(.false.,test,'pes')) then
             opes = .true.
-c        else if (inp_compare(.false.,test,'embed')) then
-c           oembed = .true.
          else if (inp_compare(.false.,test,
      >                        'steepest_descent')) then
             operation='steepest_descent'
