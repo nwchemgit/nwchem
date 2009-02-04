@@ -1,0 +1,127 @@
+echo
+
+start tce_helium_imaginary
+
+memory stack 900 mb heap 100 mb global 900 mb
+
+permanent_dir /home/jeff/scratch/nwchem
+scratch_dir /home/jeff/scratch/nwchem
+
+geometry units bohr
+  symmetry d2h
+  He     0.0 0.0 0.0
+end
+
+basis "dadz" spherical
+  * library d-aug-cc-pvdz
+end
+
+basis "daqz" spherical
+  * library d-aug-cc-pvqz
+end
+
+basis "qaqz" spherical
+#BASIS SET: (9s,5p,4d,3f) -> [6s,5p,4d,3f]
+He    S
+    528.5000000              0.0009400        
+     79.3100000              0.0072140        
+     18.0500000              0.0359750        
+      5.0850000              0.1277820        
+He    S
+      1.6090000              1.0000000        
+He    S
+      0.5363000              1.0000000        
+He    S
+      0.1833000              1.0000000        
+He    S
+      0.0481900              1.0000000        
+He    S
+      0.0127000              1.0000000        
+He    S
+      0.0033307792388082     1.0000000        
+He    S
+      0.0008756696754946     1.0000000        
+He    P
+      5.9940000              1.0000000        
+He    P
+      1.7450000              1.0000000        
+He    P
+      0.5600000              1.0000000        
+He    P
+      0.1626000              1.0000000        
+He    P
+      0.0472000              1.0000000        
+He    P
+      0.0137083621683673     1.0000000        
+He    P
+      0.0039803208724581     1.0000000        
+He    D
+      4.2990000              1.0000000        
+He    D
+      1.2230000              1.0000000        
+He    D
+      0.3510000              1.0000000        
+He    D
+      0.1010000              1.0000000        
+He    D
+      0.0289113542627040     1.0000000        
+He    D
+      0.0082975350336951     1.0000000        
+He    F
+      2.6800000              1.0000000        
+He    F
+      0.6906000              1.0000000        
+He    F
+      0.1780000              1.0000000        
+He    F
+      0.0458574745789708     1.0000000        
+He    F
+      0.0118168552030736     1.0000000        
+end
+
+set "ao basis" "qaqz"
+
+scf
+  singlet
+  rhf
+  thresh 1e-9
+  semidirect memsize 50000000 filesize 0
+end
+
+tce
+  ccsd
+  io ga
+  2eorb
+  2emet 13
+  tilesize 32
+  attilesize 32
+  thresh 1e-12
+  maxiter 100
+  diis  10
+  diis2 10
+  diis3 10
+end
+
+set tce:printtol 1e-1
+set tce:respaxis T F F
+
+set tce:lineresp T
+set tce:guess_lr_real T
+
+#task tce energy
+
+set tce:lineresp F
+set tce:imagresp T
+set tce:ifreqauto F
+#set tce:inumfreq 10
+set tce:ifreq 0.00000 0.01000 0.10000 0.20000 0.30000 0.40000 0.50000 0.60000 0.70000 0.80000 0.90000 1.00000 1.50000 2.00000 3.00000 4.00000 4.50000 5.00000 7.50000 10.00000 20.00000 30.00000 40.00000 50.00000 100.00000 
+
+set tce:guess_ir_real T
+set tce:guess_ir_imag T
+set tce:cc_ir_alg 1
+
+#task tce energy
+
+set tce:cc_ir_alg 2
+
+task tce energy

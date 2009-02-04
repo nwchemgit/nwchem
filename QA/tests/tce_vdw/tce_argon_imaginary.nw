@@ -1,0 +1,177 @@
+echo
+
+start tce_argon_imaginary
+
+memory stack 600 mb heap 100 mb global 1200 mb
+
+permanent_dir /home/jeff/scratch/nwchem
+scratch_dir /home/jeff/scratch/nwchem
+
+geometry units bohr
+  symmetry d2h
+  Ar 0.0 0.0 0.0
+end
+
+basis "dadz" spherical
+  * library d-aug-cc-pvdz
+end
+
+basis "qaqz" spherical
+   Ar  S
+   950600.00000      0.22754500000E-04 -0.64620100000E-05  0.20205600000E-05
+   142300.00000      0.17694500000E-03 -0.50234600000E-04  0.15685100000E-04
+   32360.000000      0.93128200000E-03 -0.26480400000E-03  0.82861700000E-04
+   9145.0000000      0.39286000000E-02 -0.11189500000E-02  0.34926400000E-03
+   2970.0000000      0.14206400000E-01 -0.40827600000E-02  0.12797600000E-02
+   1064.0000000      0.44811400000E-01 -0.13121600000E-01  0.41036500000E-02
+   410.80000000      0.12100100000     -0.37285500000E-01  0.11778900000E-01
+   168.00000000      0.26057900000     -0.89470900000E-01  0.28386800000E-01
+   71.990000000      0.38136400000     -0.16805400000      0.55240600000E-01
+   31.670000000      0.27605800000     -0.17959400000      0.60749200000E-01
+   12.890000000      0.50517900000E-01  0.10295300000     -0.36201200000E-01
+   5.9290000000     -0.35986600000E-02  0.56263000000     -0.27539800000
+   2.6780000000      0.21879800000E-02  0.45035500000     -0.36284500000
+   Ar  S
+   0.94160000000     1.0000000000
+   Ar  S
+   0.42390000000     1.0000000000
+   Ar  S
+   0.17140000000     1.0000000000
+   Ar  S
+   0.61000000000E-01 1.0000000000
+   Ar  S
+   0.021709451575    1.0000000000
+   Ar  S
+   0.007726234225    1.0000000000
+   Ar  S
+   0.002749709963    1.0000000000
+   Ar  P
+   1890.0000000      0.49575200000E-03 -0.13886300000E-03
+   447.80000000      0.42517200000E-02 -0.11887000000E-02
+   144.60000000      0.22327700000E-01 -0.63255300000E-02
+   54.460000000      0.83087800000E-01 -0.23881300000E-01
+   22.510000000      0.21711000000     -0.64923800000E-01
+   9.7740000000      0.37450700000     -0.11544400000
+   4.3680000000      0.36644500000     -0.12365100000
+   1.9590000000      0.12924500000      0.64905500000E-01
+   Ar  P
+   0.82600000000     1.0000000000
+   Ar  P
+   0.32970000000     1.0000000000
+   Ar  P
+   0.12420000000     1.0000000000
+   Ar  P
+   0.43500000000E-01 1.0000000000
+   Ar  P
+   0.015235507246    1.0000000000
+   Ar  P
+   0.005336107610    1.0000000000
+   Ar  P
+   0.001868926579    1.0000000000
+   Ar  D
+   0.31100000000     1.0000000000
+   Ar  D
+   0.76300000000     1.0000000000
+   Ar  D
+   1.8730000000      1.0000000000
+   Ar  D
+   0.11600000000     1.0000000000
+   Ar  D
+   0.043266881029    1.0000000000
+   Ar  D
+   0.016138129258    1.0000000000
+   Ar  D
+   0.006019366540    1.0000000000
+   Ar  F
+   0.54300000000     1.0000000000
+   Ar  F
+   1.3250000000      1.0000000000
+   Ar  F
+   0.29400000000     1.0000000000
+   Ar  F
+   0.159182320442    1.0000000000
+   Ar  F
+   0.086187112725    1.0000000000
+   Ar  F
+   0.046664845564    1.0000000000
+   Ar  G
+   1.0070000000      1.0000000000
+   Ar  G
+   0.45900000000     1.0000000000
+   Ar  G
+   0.209216484608    1.0000000000
+   Ar  G
+   0.095362826648    1.0000000000
+   Ar  G
+   0.043467266566    1.0000000000
+end
+
+set "ao basis" "qaqz"
+
+scf
+  singlet
+  rhf
+  thresh 1e-9
+  semidirect memsize 50000000 filesize 0
+#  vectors input atomic output Ar_scf_q-aug-cc-pvqz.movecs
+  vectors input Ar_scf_q-aug-cc-pvqz.movecs
+end
+
+tce
+  freeze atomic
+  ccsd
+  thresh 1e-7
+  io ga
+  2eorb
+  2emet 5
+  idiskx 1
+  tilesize 32 
+  attilesize 32
+  diis  6
+  diis2 6
+  diis3 6
+  lshift    0.0
+  lshift2   0.0
+  lshift3   0.0
+end
+
+#set tce:lineresp T
+#set tce:respaxis T F F
+#set tce:afreq 0.0
+
+#set tce:read_integrals T T T F F
+#set tce:save_integrals F F F F F
+#set tce:save_integrals T T T F F
+
+#set tce:read_t T T F F
+#set tce:save_t F F F F
+#set tce:save_t T T F F
+
+#set tce:read_l T T F F
+#set tce:save_l F F F F
+#set tce:save_l T T F F
+
+#set tce:read_tr T T F F
+#set tce:save_tr F F F F
+#set tce:save_tr T T F F
+
+#task tce energy
+
+set tce:lineresp F
+set tce:imagresp T
+set tce:respaxis T F F
+set tce:ifreq 0.05 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.2 2.4 2.6 2.8 3.0 3.5 4.0 5.0 6.0 8.0 10.0 20.0 30.0 40.0 50.0 100.0 200.0 400.0 600.0 800.0 1000.0 10000.0
+
+set tce:read_integrals T T T F F
+set tce:save_integrals F F F F F
+
+set tce:read_t T T F F
+set tce:save_t F F F F
+
+set tce:read_l T T F F
+set tce:save_l F F F F
+
+set tce:read_tr T T F F
+set tce:save_tr T T F F
+
+task tce energy

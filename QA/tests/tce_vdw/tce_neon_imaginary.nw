@@ -1,0 +1,168 @@
+echo
+
+start tce_neon_imaginary
+
+memory stack 1000 mb heap 100 mb global 2000 mb
+
+permanent_dir /home/jeff/scratch/nwchem
+scratch_dir /home/jeff/scratch/nwchem
+
+geometry units bohr
+  symmetry d2h
+  Ne 0.0 0.0 0.0
+end
+
+basis "dadz" spherical
+  * library d-aug-cc-pvdz
+end
+
+basis "datz" spherical
+  * library d-aug-cc-pvtz
+end
+
+basis "daqz" spherical
+  * library d-aug-cc-pvqz
+end
+
+basis "qaqz" spherical
+   Ne  S
+   99920.000000      0.86000000000E-04 -0.20000000000E-04
+   14960.000000      0.66900000000E-03 -0.15800000000E-03
+   3399.0000000      0.35180000000E-02 -0.82400000000E-03
+   958.90000000      0.14667000000E-01 -0.35000000000E-02
+   311.20000000      0.50962000000E-01 -0.12233000000E-01
+   111.70000000      0.14374400000     -0.37017000000E-01
+   43.320000000      0.30456200000     -0.86113000000E-01
+   17.800000000      0.40010500000     -0.15838100000    
+   7.5030000000      0.21864400000     -0.11428800000    
+   Ne  S
+   2.3370000000      1.0000000000    
+   Ne  S
+   0.90010000000     1.0000000000    
+   Ne  S
+   0.33010000000     1.0000000000    
+   Ne  S
+   0.10540000000     1.0000000000    
+   Ne  S
+   0.033653923054    1.0000000000
+   Ne  S
+   0.010745602817    1.0000000000
+   Ne  S
+   0.003431040706    1.0000000000
+   Ne  P
+   99.680000000      0.65660000000E-02
+   23.150000000      0.45979000000E-01
+   7.1080000000      0.17341900000    
+   Ne  P
+   2.4410000000      1.0000000000    
+   Ne  P
+   0.83390000000     1.0000000000    
+   Ne  P
+   0.26620000000     1.0000000000    
+   Ne  P
+   0.81780000000E-01 1.0000000000    
+   Ne  P
+   0.025123848234    1.0000000000
+   Ne  P
+   0.007718363293    1.0000000000
+   Ne  P
+   0.002371178625    1.0000000000
+   Ne  D
+   6.4710000000      1.0000000000    
+   Ne  D
+   2.2130000000      1.0000000000    
+   Ne  D
+   0.74700000000     1.0000000000    
+   Ne  D
+   0.27300000000     1.0000000000    
+   Ne  D
+   0.099771084337    1.0000000000
+   Ne  D
+   0.036462524798    1.0000000000
+   Ne  D
+   0.013325661673    1.0000000000
+   Ne  F
+   4.6570000000      1.0000000000    
+   Ne  F
+   1.5240000000      1.0000000000    
+   Ne  F
+   0.68900000000     1.0000000000    
+   Ne  F
+   0.311496719160    1.0000000000
+   Ne  F
+   0.140827584975    1.0000000000
+   Ne  F
+   0.063668114204    1.0000000000
+   Ne  G
+   2.9830000000      1.0000000000    
+   Ne  G
+   1.2240000000      1.0000000000    
+   Ne  G
+   0.502238015421    1.0000000000    
+   Ne  G
+   0.206080902070    1.0000000000
+   Ne  G
+   0.084560182412    1.0000000000
+end
+
+set "ao basis" "datz"
+
+scf
+  singlet
+  rhf
+  thresh 1e-9
+  semidirect memsize 50000000 filesize 0
+  vectors input atomic output Ne_scf_d-aug-cc-pvtz.movecs
+end
+
+tce
+  freeze atomic
+  ccsd
+  thresh 1e-7
+  io ga
+  2eorb
+  2emet 5
+  idiskx 1
+  tilesize 32 
+  attilesize 32
+  diis  6
+  diis2 6
+  diis3 6
+  lshift 0.1
+  lshiftl 0.0
+  lshift2 0.2 0.1
+  lshift3 0.2 0.1
+end
+
+#set tce:lineresp T
+#set tce:respaxis T F F
+#set tce:afreq 0.0
+
+#set tce:save_integrals T T T F F
+#set tce:save_t T T F F
+#set tce:save_l T T F F
+#set tce:save_tr T T F F
+
+#task tce energy
+
+set tce:lineresp F
+set tce:imagresp T
+set tce:respaxis T F F
+
+set tce:ifreqauto T
+set tce:inumfreq 10
+
+set tce:read_integrals T T T F F
+set tce:save_integrals F F F F F
+
+set tce:read_t T T F F
+set tce:save_t F F F F
+
+set tce:read_l T T F F
+set tce:save_l F F F F
+
+#set tce:read_tr T T F F
+#set tce:save_tr T T F F
+
+task tce energy
+
