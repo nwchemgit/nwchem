@@ -10,9 +10,9 @@ start h2+h
 
 geometry noautoz
 symmetry c1 
-Fe  0.93453582  0.0 0.0
+O   0.93453582  0.0 0.0
 H   0.0 0.0 0.0
-Fe  -0.93453582  0.0 0.0
+O   -0.93453582  0.0 0.0
 end
 
 scf
@@ -30,12 +30,12 @@ driver
 end
 mymd
  temp 298.15
- nsteps 10
+ nsteps 10 
  timestep 0.5
 end
 mymc
  temp 298.15
- mcsteps 4 
+ mcsteps 5 
  stepsize 0.5
  ratio 0.5
 end
