@@ -36,7 +36,7 @@
       logical restart
       integer i 
       integer nxing,side_prev
-      logical flag,forward,backward
+      logical forward,backward
       logical mc_data_get_forward,mc_data_get_backward,mc_data_get_ifirc
       seed = -1234
       write(*,*) 'inside md_driver'
@@ -62,7 +62,7 @@ c      double precision eleps, md_driver1
       temp =md_data_get_temp()
       write(*,*) 'Md_driver:input params', nsteps, dt, temp
 c
-      if (.not.restart.and.mc_data_get_ifirc) then
+      if (.not.restart.and.mc_data_get_ifirc().and.forward) then
        write(*,*) 'Opening xyz and rest files on traj ',trajnum  
        open(unit=10,file='traj.xyz',status='new')
        open(unit=11,file='restart.pun',status='new')
@@ -103,9 +103,11 @@ c      call md_test1(rtdb)
       endif
       nxing=0
       side_prev=0
-c      call crossing(natom,dbl_mb(coor),trajnum,side_prev)
 
+C-------- print the first point
+      call print_coord(10,natom,dbl_mb(coor),byte_mb(tag))
 C-------- this is where the MD loop starts
+
       do step=1,nsteps
        write(*,*) 'Predicting step :',step
 
@@ -130,8 +132,6 @@ C --- calculate forces for predicted coords
      &        dbl_mb(acc), dbl_mb(bterm),dbl_mb(dterm),dbl_mb(frc),ek)
          call print_coord(10,natom,dbl_mb(coor),byte_mb(tag)) 
 
-c         call crossing(natom,dbl_mb(coor),side_prev,nxing)
-c         call crosslin(natom,dbl_mb(coor),side_prev,nxing)
          if (mod(step,10).eq.0.0) then
              rewind(11)  
              call punch (11,natom,nsteps,step,dt,dbl_mb(mass),
@@ -140,13 +140,13 @@ c         call crosslin(natom,dbl_mb(coor),side_prev,nxing)
          endif    
       enddo
 C ---- End of MD_loop      
-C      call crossing(natom,dbl_mb(coor),trajnum,side_prev)
+      call crossing(natom,dbl_mb(coor),trajnum,side_prev)
 
       if (.not. geom_destroy(geom))
      & call errquit('leps_getgeom:  geom_destroy failed',
      & 911,GEOM_ERR)
       
-c      close(unit=10)
+c     close(unit=10)
       if (backward) then 
         write(10,*) 'end of traj foreard/backward' 
       endif

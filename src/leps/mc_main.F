@@ -34,30 +34,27 @@
       integer mc_data_get_natom, mc_data_get_i_prp
       integer tag,charge,md_data_get_i_t,md_data_get_i_q
       character*64 thr
-      logical ircflag,flag,mc_data_set_forward,mc_data_set_backward
+      logical ircflag,mc_data_set_forward,mc_data_set_backward
       integer i_sc, mc_data_get_i_sc, nonreact,reactive,reverse
       integer i_s, mc_data_get_i_s,mc_data_get_mcsteps
       double precision avg,rc,temp,mc_data_get_temp
       logical md_data_set_temp
       double precision mdtemp,mdtemp10, md_data_get_temp
+      logical dbug
 
+      dbug=.false. 
       forward=.true.
       backward=.false.
       status=mc_data_set_ifirc(.true.)  
-      status=mc_data_set_forward(forward)
-      status=mc_data_set_backward(backward)
+c      status=mc_data_set_forward(forward)
+c      status=mc_data_set_backward(backward)
       status=mc_driver(rtdb,naccept)
 
       write(*,*) 'In MC_main, after mc_driver: naccept: ', naccept  
       ircflag=.true.
-c      status=mc_init(rtdb,leps_gradient,ircflag)
-c      write(*,*) 'In MC_main, after mc_init' 
       thr='leps'
       mdtemp10 =10.0 
       mdtemp = 298.15
-      c_array=mc_data_get_i_c_array()
-      vel_init=mc_data_get_i_in_vel()
-      acc_init=mc_data_get_i_in_acc()
       natom=mc_data_get_natom()
 c      do i=1,naccept
 c        write(*,*) 'MC main accelerate: '
@@ -75,34 +72,60 @@ c      enddo
       c_start=md_data_get_i_c()
       vel=md_data_get_i_v()
       acc=md_data_get_i_a()
+c      i_sc=mc_data_get_i_sc()
+c      i_s=mc_data_get_i_s()
+c      prp=mc_data_get_i_prp()
+c      mcsteps=mc_data_get_mcsteps()
+c      c_array=mc_data_get_i_c_array()
+c      vel_init=mc_data_get_i_in_vel()
+c      acc_init=mc_data_get_i_in_acc()
+
+c      write(*,*) 'In MC main coordinates'
+c      do i=1,naccept+1
+c         write(*,*) 'point ',i
+c         do k=1,3*natom
+c            write(*,*) dbl_mb(c_array+(i-1)*3*natom+k-1)
+c         enddo
+c      enddo  
+      write(*,*) 'Starting IRC '
+c  ---- do the IRC trajectory first,  at low temp
+      status=md_data_set_temp(mdtemp10)
+C --- set vel and acc      
+      status=mc_init(rtdb,leps_gradient,ircflag)
+
+      c_array=mc_data_get_i_c_array()
+      vel_init=mc_data_get_i_in_vel()
+      acc_init=mc_data_get_i_in_acc()
       i_sc=mc_data_get_i_sc()
       i_s=mc_data_get_i_s()
       prp=mc_data_get_i_prp()
       mcsteps=mc_data_get_mcsteps()
-
-      write(*,*) 'In MC main coordinates'
-      do i=1,naccept+1
+c      write(*,*) 'Allocation for i_sc ', i_sc 
+      if(dbug) then
+       write(*,*) 'In MC main coordinates'
+       do i=1,naccept+1
          write(*,*) 'point ',i
          do k=1,3*natom
             write(*,*) dbl_mb(c_array+(i-1)*3*natom+k-1)
          enddo
-      enddo  
-      do i=1,naccept+1
-        write(*,*) 'traj, prp: ',i,dbl_mb(prp+i-1) 
-      enddo
-      write(*,*) 'In MC main mdtemp, mdtemp10:', mdtemp, mdtemp10
-      write(*,*) 'STARTING TRAJECTORIES '
+       enddo
+      endif
+      status=mc_data_set_backside0(0)
+c      vel_init=mc_data_get_i_in_vel()
+c      acc_init=mc_data_get_i_in_acc()
 
-C  ---- do the IRC trajectory first,  at low temp
-      status=md_data_set_temp(mdtemp10)
-C --- set vel and acc      
-      status=mc_init(rtdb,leps_gradient,ircflag)
 C  --- run the IRC traj forward 
       do k=1,3*natom
           dbl_mb(c_start+k-1)=dbl_mb(c_array+k-1)
           dbl_mb(vel+k-1)=dbl_mb(vel_init+k-1)
           dbl_mb(acc+k-1)=dbl_mb(acc_init+k-1)
       enddo
+      status=mc_data_set_forward(.true.)
+      status=mc_data_set_backward(.false.)
+c      write(*,*) 'Velocities forward:'
+c      do k=1,3*natom
+c          write(*,*) dbl_mb(vel_init+k-1)
+c      enddo
       status=md_driver(rtdb,leps_gradient,thr,0)      
 C --- run the IRC traj backward
       call md_set(rtdb)
@@ -111,45 +134,61 @@ C --- run the IRC traj backward
           dbl_mb(vel+k-1)=-dbl_mb(vel_init+k-1)
           dbl_mb(acc+k-1)=-dbl_mb(acc_init+k-1)
       enddo
+      status=mc_data_set_forward(.false.)
+      status=mc_data_set_backward(.true.)
+c      write(*,*) 'Velocities back:'
+c      do k=1,3*natom
+c          write(*,*) dbl_mb(vel_init+k-1)
+c      enddo
+
       status=md_driver(rtdb,leps_gradient,thr,0) 
 C --- get geometru from the big array in mc_driver
 C--- the first one is always the TS
       write(*,*) 'Done with IRC'
       ircflag=.false.
+      status=mc_data_set_ifirc(.false.)
       status=mc_init(rtdb,leps_gradient,ircflag)
-      write(*,*) 'In MC_main, after mc_init' 
-      flag =.true.
       do i=1,naccept+1
-       if (i.gt.1) then
-         status=mc_data_set_ifirc(.false.)
-          status= mc_data_set_forside(0)
-          status=mc_data_set_backside(0)
-       else   
-          status=mc_data_set_forside0(0)
-          status=mc_data_set_backside0(0)
-       endif 
+        write(*,*) 'traj, prp: ',i,dbl_mb(prp+i-1)
+      enddo
+      write(*,*) 'In MC_main, after mc_init' 
+      write(*,*) 'In MC main mdtemp, mdtemp10:', mdtemp, mdtemp10
+      write(*,*) 'STARTING TRAJECTORIES '
+
+      status=mc_data_set_forward(.true.)
+      status=mc_data_set_backward(.false.)
+      do i=1,naccept+1
+c       if (i.gt.1) then
+c         status=mc_data_set_ifirc(.false.)
+c          status= mc_data_set_forside(0)
+c          status=mc_data_set_backside(0)
+c       else   
+c          status=mc_data_set_forside0(0)
+c          status=mc_data_set_backside0(0)
+c       endif 
 
        write(*,*) 'TRAJECTORY ',i
 C ---- set the appropriate coordinate             
+        call md_set(rtdb)
         do k=1,3*natom
           dbl_mb(c_start+k-1)=dbl_mb(c_array+(i-1)*3*natom+k-1)
           dbl_mb(vel+k-1)=dbl_mb(vel_init+(i-1)*3*natom+k-1)
           dbl_mb(acc+k-1)=dbl_mb(acc_init+(i-1)*3*natom+k-1)
         enddo
-        write(*,*) 'Coordinates:'
-        do k=1,3*natom
-         write(*,*) dbl_mb(c_start+k-1)
-        enddo
-        write(*,*) 'Velocieties:'
-        do k=1,3*natom
-         write(*,*) dbl_mb(vel+k-1)
-        enddo
-        write(*,*) 'Acceleration:'
-        do k=1,3*natom
-         write(*,*) dbl_mb(acc+k-1) 
-        enddo
-
-
+        if (dbug) then
+          write(*,*) 'Coordinates:'
+           do k=1,3*natom
+             write(*,*) dbl_mb(c_start+k-1)
+           enddo
+          write(*,*) 'Velocieties:'
+           do k=1,3*natom
+             write(*,*) dbl_mb(vel+k-1)
+           enddo
+          write(*,*) 'Acceleration:'
+           do k=1,3*natom
+             write(*,*) dbl_mb(acc+k-1) 
+           enddo
+        endif
         do  j=1,3
           if (forward.and. .not.backward) then
            write(*,*) 'Forward: traj',i  
@@ -196,17 +235,18 @@ c     &  mc_data_get_forside0(), mc_data_get_backside0(),
 c     &  mc_data_get_forside(),mc_data_get_ backside()  
       enddo
       write(*,*) ' Recrossing Results:'
+      write(*,*) 'Handles: i_sc ',i_sc, ' prp ', prp
       nonreact=0
       reactive=0
       reverse=0
       do i=1,naccept+1
-        write(*,*) 'traj  sidef sideb ',i, int_mb(i_sc+2*i-2), 
-     &               int_mb(i_sc+2*i-1) 
-        if (int_mb(i_sc+2*i-2).eq.int_mb(i_sc+2*i-1)) then
+        write(*,*) 'traj  sidef sideb ',i, int_mb(i_sc+2*i+1), 
+     &               int_mb(i_sc+2*i+2) 
+        if (int_mb(i_sc+2*i+2).eq.int_mb(i_sc+2*i+1)) then
            nonreact=nonreact+1
            dbl_mb(prp+i-1)=0.0 
            write(*,*) 'non-reactive traj: ', i 
-        else if (int_mb(i_sc+2*i-2).eq.mc_data_get_forside0()) then
+        else if (int_mb(i_sc+2*i+1).eq.mc_data_get_forside0()) then
            reactive=reactive+1
            dbl_mb(prp+i-1)=0.5*dbl_mb(prp+i-1)
         else

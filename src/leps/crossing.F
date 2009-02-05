@@ -36,11 +36,17 @@ C  v_tst is the imaginary mode eigenvector
       backward=mc_data_get_backward()
  
       write(*,*) 'In crossing: TST coordinates' 
+      write(*,*) ' Traj num: ',trajnum 
+c      if (trajnum.eq.0) then
+c         trajnum=1
+c      endif
+c      write(*,*) ' Traj num: ',trajnum 
       i_ctst=mc_data_get_i_ctst()
       i_evec=mc_data_get_i_evec()
       i_eval=mc_data_get_i_eval()
       i_m= mc_data_get_i_m()
       i_sc=mc_data_get_i_sc()
+      write(*,*) 'In crossing: i_sc: ', i_sc 
       do i=1,3*natom
          write(*,*) dbl_mb(i_ctst+i-1)
       enddo
@@ -49,6 +55,7 @@ C  v_tst is the imaginary mode eigenvector
           mass((i-1)*natom+j)=dbl_mb(i_m+i-1)
        enddo
       enddo
+C      goto 7
       write(*,*) 'In crossing: C coordinates'
       do i=1,3*natom
          write(*,*) c(i)
@@ -71,7 +78,7 @@ C ... you have crossed accross the dividing surface at this point (side)
           enddo
         endif
       enddo    
-
+c      goto 7
       write(*,*) 'In crossing: TST_V coordinates'
       do i=1,3*natom
          write(*,*) v_tst(i)
@@ -92,11 +99,17 @@ C
             side=1
          endif
       endif
+c      goto 7
       if (forward) then
-         int_mb(i_sc+2*trajnum-2)=side
+         int_mb(i_sc+2*trajnum+1)=side
+      write(*,*)'In crossing: (i_sc+2*trajnum+1) ',trajnum ,
+     $  ' forw ',forward,' back ', backward,int_mb(i_sc+2*trajnum+1)
       else
-         int_mb(i_sc+2*trajnum-1)=side
+         int_mb(i_sc+2*trajnum+2)=side
+      write(*,*)'In crossing: (i_sc+2*trajnum+2) ',trajnum ,
+     $  ' forw ',forward,' back ', backward,int_mb(i_sc+2*trajnum+2)
       endif
+
 C
 C     ----- Side ? Xing ? ... -----
 C
@@ -104,7 +117,7 @@ c      if ((side.ne.side_prev).and.(side_prev.ne.0)) then
 c         nxing=nxing+1
 c      endif
       write(*,*) 'In crossing: side_prev ',side_prev
-
+c      goto 7
       side_prev=side
       
       if (mc_data_get_ifirc()) then
@@ -142,6 +155,6 @@ C are set in this subroutine
      &   mc_data_get_backside0(), mc_data_get_forside(), 
      &   mc_data_get_backside()
 c      write(*,*) 'In crossing: nxing ',nxing
-
+c    7 continue
 
       end

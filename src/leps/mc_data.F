@@ -63,7 +63,7 @@ c     &      call errquit('mc_data:rtdb_get tst_coord',0, RTDB_ERR)
       integer n
 
       write(*,*) 'In mc  data allocate:n,mcsteps: ', n, mcsteps 
-      if (.not. ma_alloc_get(mt_int, (mcsteps+1)*2, 'sidecount' ,
+      if (.not. ma_alloc_get(mt_int, (mcsteps+2)*2, 'sidecount' ,
      & h_sc,i_sc))
      & call errquit('mc_data: array of sidecount not allocated',
      & 1,MA_ERR)
@@ -113,7 +113,7 @@ c allocate memory for the eigenvalues and eigenvectors
      & h_ctst,i_ctst))
      & call errquit('crossing tst allocate: not allocated',
      & n,MA_ERR)
-
+      write(*,*) 'In mc_data_allocatte: i_sc: ',i_sc
       end
 
       subroutine mc_data_allocate_vel_acc()

@@ -7,7 +7,11 @@
 
 c      integer n
 c      natom=n
-
+      if (natom.eq.0) then
+         write(*,*) ' Natom is not set in md_data. Allocation failed. ' 
+         return
+      endif   
+ 
       if (.not. ma_alloc_get(mt_dbl, 3*natom, 'coordinate' ,
      & h_c,i_c))
      & call errquit('leps_getgeom: coordinate not allocated',

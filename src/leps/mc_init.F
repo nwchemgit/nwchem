@@ -39,7 +39,7 @@
       thr=blanks32
       task=blanks32
       task=':gradient'
-      dbug=.true. 
+      dbug=.false. 
       c_array=mc_data_get_i_c_array()  ! get the entire array of starting geometries
       c_start=mc_data_get_i_c()
       tag=mc_data_get_i_t()
@@ -50,8 +50,9 @@
       naccept=mc_data_get_naccept()
       i_eval=mc_data_get_i_eval()
       i_evec=mc_data_get_i_evec()
-
-      call mc_data_allocate_vel_acc(naccept)
+      if (ircflag) then 
+       call mc_data_allocate_vel_acc(naccept)
+      endif
       vel=mc_data_get_i_in_vel()
       acc=mc_data_get_i_in_acc()
       prp = mc_data_get_i_prp() 
@@ -73,7 +74,7 @@ C                             ( = BOLTZMANN CONSTANT IN ERG/DEG. )
       if (.not. geom_create(geom, 'geometry'))
      & call errquit('mc_driver_getgeom: failed creating geometry',
      & 0,GEOM_ERR)
-      write(*,*) 'MC_init created geom object'
+c      write(*,*) 'MC_init created geom object'
 
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, thr))
      $     call errquit('mc_driver: theory not specified',0, RTDB_ERR)

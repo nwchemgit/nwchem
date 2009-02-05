@@ -32,11 +32,12 @@ c      character*64 theory
 c      write(*,*) 'inside md_set, theory',theory
 
 c      set input parameters 
+      write(*,*) ' In MD_SET '
       call md_data_inp_set(rtdb)
 c      nsteps = md_data_get_nsteps()
 c      dt = md_data_get_timestep()   
 c      temp =md_data_get_temp()
-c      write(*,*) 'input params', nsteps, dt, temp
+      write(*,*) 'input params set'
 c
 
 cc     create geometry object 
