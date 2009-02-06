@@ -4,7 +4,7 @@
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.287 2009-02-06 00:25:27 niri Exp $
+c     $Id: dft_scf.F,v 1.288 2009-02-06 01:07:33 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -916,8 +916,7 @@ c
 c
       if (cosmo_on.and.cosmo_phase.eq.2) etnew = etnew + ecosmo
 c     
-c
-c     == Is this a oneshot "noscf" type calculation, no diagonalization ==
+c     == is this a oneshot "noscf" type calculation, no diagonalization ==
       noscf = .false.
       if (.not.rtdb_get(rtdb, 'dft:noscf', mt_log, 1, noscf))
      &    noscf=.false.
@@ -926,6 +925,7 @@ c     == Is this a oneshot "noscf" type calculation, no diagonalization ==
         converged = .true.
       end if
 c
+c     == is this the last energy evaluation ? ==
       if (last_time_energy) then
          etnew=etnew+tdots
 c     
