@@ -3,7 +3,7 @@ C NAME
 C     Corr_Mk_Ref -- Create reference for correlated calculation
 C
 C REVISION
-C     $Id: corr_mk_ref.F,v 1.14 2007-05-03 18:35:42 d3p307 Exp $
+C     $Id: corr_mk_ref.F,v 1.15 2009-02-06 14:37:45 jhammond Exp $
 C
 C SYNOPSIS
       Logical Function Corr_Mk_Ref(RTDB, Mod, Geom, Basis, DoSCF, 
@@ -35,6 +35,7 @@ C ARGUMENTS
       Integer NFrzVir           ! [out] Number of frozen virtual orbitals
       Logical KeepFrz           ! [in]  Keep frozen orbitals in reference 
                                 !       returned
+      logical dftmp2            ! use DFT reference orbitals and energy
 C
 C DESCRIPTION
 C     Prepares reference wavefunction for post-SCF calculations.
@@ -149,6 +150,11 @@ C
       MLen = Inp_StrLen(Mod)
       Me = GA_NodeID()
       PrInfo = Util_Print('reference info', Print_Low) .AND. Me .eq. 0
+c
+c     Are we doing a double-hybrid?
+c
+      if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
+     $     dftmp2 = .false.
 C
 C     Simple sanity checks
 C
@@ -164,12 +170,17 @@ C     1) VECTORS INPUT for this module
 C     2) VECTORS OUTPUT for SCF module
 C     3) <job_prefix>.movecs
 C
-      Write( Key, '(a,'':'',a)' ) Mod(1:MLen), 'input vectors'
-      If ( RTDB_CGet(RTDB, Key, 1, VecFil) ) then
-      ElseIf ( RTDB_CGet(RTDB, 'scf:output vectors', 1, VecFil) ) then
-      Else
-         Call Util_File_Name(VecDef, .False., .False., VecFil)
-      EndIf
+      if (dftmp2) then
+        if (.not. rtdb_cget(rtdb,'dft:output vectors',1,VecFil))
+     $       call errquit('rimp2: no DFT MO vectors',0, RTDB_ERR)
+      else
+        Write( Key, '(a,'':'',a)' ) Mod(1:MLen), 'input vectors'
+        If ( RTDB_CGet(RTDB, Key, 1, VecFil) ) then
+        ElseIf ( RTDB_CGet(RTDB, 'scf:output vectors', 1, VecFil) ) then
+        Else
+           Call Util_File_Name(VecDef, .False., .False., VecFil)
+        EndIf
+      endif
 C
 C     ***************************************
 C     * Try to insure vectors are converged *
