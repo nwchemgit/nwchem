@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.54 2009-02-04 01:18:41 niri Exp $
+c     $Id: dft_input.F,v 1.55 2009-02-06 00:25:25 niri Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -28,7 +28,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 32)
+      parameter (num_dirs = 33)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -40,6 +40,7 @@ c
       logical pseudo
       logical dftmp2
       logical molden
+      logical noscf
       integer which_mp2
       character*20 mp2char
       double precision smear_sigma
@@ -50,7 +51,7 @@ c
      $           'max_ovl','mulliken','mult','noio','noprint','odft', 
      $           'print','tolerances', 'xc','sym','adapt','sic', 
      $           'smear','fon','lb94','cs00','cdft','cam','disp',
-     $           'dftmp2','molden','end'/
+     $           'dftmp2','molden','noscf','end'/
 c Qin / cdft
       integer nconstr
       integer dtype(max_constr), iatms1(max_constr), fatms1(max_constr)
@@ -85,7 +86,7 @@ c
       goto (100,  200,  300,  400,  450,  500,  600,  700,  800,
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
-     $     2700, 2800, 2900, 3000, 9999) ind
+     $     2700, 2800, 2900, 3000, 3100, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -514,6 +515,14 @@ c     molden;
 c
  3000 molden = .true.
       if (.not. rtdb_put(rtdb, 'dft:molden', mt_log, 1, molden))
+     &   call errquit('dft_input: rtdb_put failed', 3000, RTDB_ERR)
+c
+      goto 10
+c
+c     noscf; 
+c
+ 3100 noscf = .true.
+      if (.not. rtdb_put(rtdb, 'dft:noscf', mt_log, 1, noscf))
      &   call errquit('dft_input: rtdb_put failed', 3000, RTDB_ERR)
 c
       goto 10

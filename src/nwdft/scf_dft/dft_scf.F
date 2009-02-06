@@ -4,7 +4,7 @@
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.286 2009-02-04 01:18:44 niri Exp $
+c     $Id: dft_scf.F,v 1.287 2009-02-06 00:25:27 niri Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -130,7 +130,7 @@ c
       double precision dft_dencvg, dft_time
       external dft_dencvg
       integer l_ir, k_ir
-      logical last_time_energy
+      logical last_time_energy,noscf
       logical fon, reorth
       character*7 name
       character*4 scftype
@@ -908,13 +908,24 @@ c
       else
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
       endif
-
+c
       if (oprint_conv_details.and.me.eq.0)then
          write(LuOut,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic: ',
      &                  Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic
       endif
+c
       if (cosmo_on.and.cosmo_phase.eq.2) etnew = etnew + ecosmo
 c     
+c
+c     == Is this a oneshot "noscf" type calculation, no diagonalization ==
+      noscf = .false.
+      if (.not.rtdb_get(rtdb, 'dft:noscf', mt_log, 1, noscf))
+     &    noscf=.false.
+      if (noscf) then 
+        last_time_energy = .true. 
+        converged = .true.
+      end if
+c
       if (last_time_energy) then
          etnew=etnew+tdots
 c     
@@ -1399,6 +1410,7 @@ c
       endif
 c     
  2000 continue
+c
 c Qin
       if(lcdft.and.me.eq.0) then
         write(LuOut,*) ' CDFT final multipliers '
@@ -1413,7 +1425,7 @@ c     get rid of levelshifting in evals
 c
          call dft_remshft(levelshifting,ipol,nbf_ao,noc,
      ,        rlshift,dbl_mb(k_eval(1)))
-      
+c
       if (nExc.eq.1)then
         Etnew = Ecore + Ecoul + Exc(1) +tdots
       else
