@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.577 2008-10-23 20:18:30 d3p307 Exp $
+# $Id: makefile.h,v 1.578 2009-02-07 21:25:35 jhammond Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -2010,7 +2010,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP))
    endif
 
 #for BGP
-   ifeq ($(FC),bgxlf)
+   ifeq ($(FC),$(findstring $(FC),bgxlf bgxlf_r))
     CC     = $(BGCOMPILERS)/powerpc-bgp-linux-gcc
     AR     = $(BGCOMPILERS)/powerpc-bgp-linux-ar
     AS     = $(BGCOMPILERS)/powerpc-bgp-linux-as
