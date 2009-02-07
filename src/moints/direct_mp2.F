@@ -1,5 +1,5 @@
       logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.51 2009-02-04 01:17:40 niri Exp $
+C$Id: direct_mp2.F,v 1.52 2009-02-07 20:59:19 jhammond Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -310,8 +310,8 @@ c
      $       10x,'Basis functions:',20x,i5,/,
      $       10x,'Shells:',29x,i5,/,
      $       10x,'Block length:',23x,i5,/,
-     $       10x,'Active occupied range:',11x,i3,1x,'-',i3,/,
-     $       10x,'Active virtual range:',12x,i3,1x,'-',i3,/,
+     $       10x,'Active occupied range:',8x,i4,1x,'-',i5,/,
+     $       10x,'Active virtual range: ',8x,i4,1x,'-',i5,/,
      $       10x,'MO coefficients read from:',2x,a25,/,
      $       10x,'Operator matrices in core:',10x,i5,/,
      $       10x,'AO passes required:',17x,i5)
