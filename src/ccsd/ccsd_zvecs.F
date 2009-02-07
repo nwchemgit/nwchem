@@ -3,7 +3,7 @@
      $                      scra,scrb,z1,hiu,hia,habe,giu,gabe,
      $                      g_nt2,g_z2,g_hz2,g_nz2,g_nhz2,
      $                      g_ncoul,g_nexch,tklst, Tol2E)
-C     $Id: ccsd_zvecs.F,v 2.8 2004-12-16 23:02:58 edo Exp $
+C     $Id: ccsd_zvecs.F,v 2.9 2009-02-07 02:06:00 windus Exp $
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
      &        g_nt2,g_z2,g_hz2,g_nz2,g_nhz2,g_ncoul,g_nexch,
@@ -20,11 +20,13 @@ c
 #include "msgids.fh"
 #include "global.fh"
 #include "ccsdps.fh"
+#include "util.fh"
 c
       integer i,j,a,b,bv,ad1,ad2,ad3,ad4,offt2,icnt,nvp1,
      &        ilo,ihi,jlo,jhi,lhoo,lhoov
 c
       Integer Nodes, IAm
+      Logical oprint
       double precision one
       data one/1.0d00/
 c
@@ -37,6 +39,8 @@ C
       else
          call qenter('zvecs',0)
       endif
+c
+      oprint = util_print('information', print_low)
 c
       lhoo=nocc*(nocc+1)/2
       lhoov=nvir*nocc*(nocc+1)/2
@@ -201,7 +205,7 @@ c
       call ga_sync()
 c
 c     if (iprt.gt.50.and.iam.eq.0)then
-      if (iam.eq.0)then
+      if (iam.eq.0.and.oprint)then
        print *,' sym hz1 '
        write(6,189)(hz1(i),i=1,lnov)
        do bv=1,nvir

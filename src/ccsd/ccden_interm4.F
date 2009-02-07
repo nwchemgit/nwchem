@@ -3,7 +3,7 @@ C NAME
 C     ccden_interm4 -- Form four-index intermediates for density
 C
 C REVISION
-C     $Id: ccden_interm4.F,v 2.4 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccden_interm4.F,v 2.5 2009-02-07 02:05:58 windus Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_Interm4(NOcc, NVir,
@@ -31,12 +31,18 @@ C INCLUDE FILES
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "util.fh"
 C
 C EXTERNAL ROUTINES
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer ILo, IHi, JLo, JHi, J, K, L
       Integer G_Scr1, H_Scr2, I_Scr2
+      Logical oprint
+C
+C     Get print information
+C
+      oprint = util_print('information', print_low)
 C
       Call GA_Print(g_T2)
       Call GA_Print(g_Z2)
@@ -58,7 +64,7 @@ C     Figure out which patch of Scr1 this processor has
 C
       Call CCSD_T2_MyIJ(GA_NodeID(), NVir, G_Scr1, ILo, IHi, JLo, JHi)
 C
-      Write (LuOut, *) 'CCDen_Interm4 ', GA_NodeID(),
+      If (oprint) Write (LuOut, *) 'CCDen_Interm4 ', GA_NodeID(),
      $     ': Scr1 region (', ILo, ':', IHi, ', ', JLo, ':', JHi, ')'
 C
 C     ********************************************************************

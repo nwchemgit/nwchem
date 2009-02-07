@@ -3,7 +3,7 @@ C NAME
 C     CCDen_Interm2 -- Form two-index intermediates for density
 C
 C REVISION
-C     $Id: ccden_interm2.F,v 2.6 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccden_interm2.F,v 2.7 2009-02-07 02:05:58 windus Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_Interm2(NOcc, NVir, T1, LDT1, g_T2,
@@ -38,6 +38,7 @@ C INCLUDE FILES
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "global.fh"
+#include "util.fh"
 C
 C EXTERNAL ROUTINES
       Double precision GA_DDot_Patch_DP
@@ -47,6 +48,11 @@ C LOCAL VARIABLES
       Integer T2_ILo, T2_IHi, T2_JLo, T2_JHi
       Integer H_Scr1, I_Scr1, H_Scr2, I_Scr2
       Integer I, J, M, N
+      Logical oprint
+C
+C     Get print information
+C
+      oprint = util_print('information', print_low)
 C
       Call DGeWr(NOcc, NVir, T1, LDT1, 0, 0, LUOut,
      $   'T1', 80, 'F20.15')
@@ -73,7 +79,8 @@ C
      $   'CCDen_Interm2: T2 and Z2 must have same dist.', 0,
      &       GA_ERR)
 C
-      Write (LuOut, *) 'CCDen_Interm2 ', GA_NodeID(), ': T2 region (',
+      If (oprint) Write (LuOut, *) 'CCDen_Interm2 ', GA_NodeID(), 
+     $   ': T2 region (',
      $   T2_ILo, ':', T2_IHi, ', ', T2_JLo, ':', T2_JHi, ')'
 C
 C     ********************************************
@@ -90,7 +97,7 @@ C
       Do I = T2_ILo, T2_IHi
          Do M = T2_JLo, T2_JHi
 c$$$C
-c$$$            Write (LuOut, *) GA_NodeID(), ': Omega1 (', I, ',', M, ')'
+c$$$            If (oprint) Write (LuOut, *) GA_NodeID(), ': Omega1 (', I, ',', M, ')'
 c$$$C
             Call GA_Get(g_T2, (I-1)*NVir+1, I*NVir, (M-1)*NVir+1,
      $         M*NVir, Dbl_MB(I_Scr1), NVir)
@@ -124,7 +131,7 @@ C
       Do M = T2_ILo, T2_IHi
          Do I = T2_JLo, T2_JHi
 c$$$C
-c$$$            Write (LuOut, *) GA_NodeID(), ':Omega2 (', M, ',', I, ')'
+c$$$            If (oprint) Write (LuOut, *) GA_NodeID(), ':Omega2 (', M, ',', I, ')'
 c$$$C
             Call GA_Get(g_T2, (M-1)*NVir+1, M*NVir, (I-1)*NVir+1,
      $         I*NVir, Dbl_MB(I_Scr1), NVir)
@@ -175,7 +182,7 @@ C
       Do M = T2_ILo, T2_IHi
          Do N = T2_JLo, T2_JHi
 c$$$C
-c$$$            Write (LuOut, *) GA_NodeID(), ': Omega3 (', M, ',', N, ')'
+c$$$            If (oprint) Write (LuOut, *) GA_NodeID(), ': Omega3 (', M, ',', N, ')'
 c$$$C
             Call GA_Get(g_T2, (M-1)*NVir+1, M*NVir, (N-1)*NVir+1,
      $         N*NVir, Dbl_MB(I_Scr1), NVir)
@@ -225,7 +232,7 @@ C
      $         g_T2, 'N', (I-1)*NVir+1, I*NVir, 1, NOcc*NVir,
      $         g_Z2, 'N', (J-1)*NVir+1, J*NVir, 1, NOcc*NVir)
 c$$$C
-c$$$            Write (LuOut, *) GA_NodeID(), ':Omega4 (', I, ',', J, ') =',
+c$$$            If (oprint) Write (LuOut, *) GA_NodeID(), ':Omega4 (', I, ',', J, ') =',
 c$$$     $         Omega4(i,j)
 c$$$C
          EndDo
@@ -244,7 +251,7 @@ C
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C REVISION
-C     $Id: ccden_interm2.F,v 2.6 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccden_interm2.F,v 2.7 2009-02-07 02:05:58 windus Exp $
 C SYNOPSIS
       Subroutine CCSD_T2_MyIJ(Node, NVir, g_T2, ILo, IHi, JLo, JHi)
       Implicit NONE

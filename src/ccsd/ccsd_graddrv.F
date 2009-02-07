@@ -4,7 +4,7 @@
      &                        giu,gabe,bbkp,bb,g_nt2,g_z2,g_hz2,
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst, Tol2E)
-C     $Id: ccsd_graddrv.F,v 2.8 2004-12-16 02:40:47 edo Exp $
+C     $Id: ccsd_graddrv.F,v 2.9 2009-02-07 02:05:59 windus Exp $
       implicit none
 #include "errquit.fh"
 c
@@ -32,6 +32,7 @@ c
      &                 tstart,tend
       double precision zip
       Integer IAm
+      Logical oprint
 C
 #include "msgids.fh"
 #include "tcgmsg.fh"
@@ -39,6 +40,7 @@ C
 #include "mafdecls.fh"
 #include "ccsd_len.fh"
 #include "ccsdps.fh"
+#include "util.fh"
 c
 * DATA MUST FOLLOW ALL DELCARATIONS 
       data zip/0.0d00/
@@ -51,6 +53,8 @@ C
       else
          call qenter('graddrv',0)
       endif
+c
+      oprint = util_print('information', print_low)
 c
       lhoo=nocc*(nocc+1)/2
       lhoov=nvir*nocc*(nocc+1)/2
@@ -91,7 +95,7 @@ c
 c ----------------------------------------------------------
 c begin iterations
 c ----------------------------------------------------------
-      if (iam.eq.0)write(6,1234)
+      if (iam.eq.0.and.oprint)write(6,1234)
  1234 format(//,71(1h-),/,' iter',9x,'rms',/,71(1h-))
    99 continue
       iter=iter+1
@@ -101,24 +105,24 @@ c ----------------------------------------------------------
       if (ndiis.gt.mxvec)ndiis=mxvec
       offt2=(idiis-1)*lhoov
       if (dabs(rms).lt.thre)then
-        if (iam.eq.0)write(6,1236)
+        if (iam.eq.0.and.oprint)write(6,1236)
  1236   format(18x,'*************converged*************',18x,
      &         /,71(1h-),/)
         goto 999 
       endif
       if (iter.gt.maxit)then
-        if (iam.eq.0)write(6,1237)
+        if (iam.eq.0.and.oprint)write(6,1237)
  1237   format(18x,'****maximum iterations exceeded****',18x,
      &         /,71(1h-),/)
         goto 999
       endif
-      if (iam.eq.0.and.iprt.gt.5)write(6,134)iter,idiis,ndiis
+      if (iam.eq.0.and.iprt.gt.5.and.oprint)write(6,134)iter,idiis,ndiis
  134  format(' iteration ',i3,' idiis ',i3,' ndiis ',i3)
       if (iam.eq.0)then
        call ga_get(g_z2,offt2+1,offt2+lnov,nvp1,nvp1,z1,lnov)
       endif
 c
-      if (iam.eq.0.and.iprt.gt.5)then
+      if (iam.eq.0.and.iprt.gt.5.and.oprint)then
        print *,'starting z1 vector'
        write(6,139)(z1(i),i=1,lnov)
        do av=1,nvir
@@ -163,7 +167,7 @@ c ----------------------------------------------------------
       tx(4)=tcgtime()
       tend=tx(4)
       if (iprt.gt.5.and.iam.eq.0)print *,' time pdiis ',tend-tstart
-      if (iam.eq.0)then
+      if (iam.eq.0.and.oprint)then
       write(6,1235)iter,rms,tx(2)-tx(1),tx(4)-tx(3)-
      &                                       (tx(2)-tx(1))
  1235 format(i4,d12.4,2d12.4)

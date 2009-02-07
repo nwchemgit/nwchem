@@ -5,7 +5,7 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E, occd, oconverged)
-C     $Id: ccsd_iterdrv2.F,v 2.26 2006-12-12 15:56:16 edo Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.27 2009-02-07 02:06:00 windus Exp $
       implicit none
 #include "errquit.fh"
 #include "util.fh"
@@ -40,7 +40,7 @@ c
      &                 tstart,tend
 
       Integer IAm
-      logical orestart
+      logical orestart, oprint
       character*255 t2file, filename
 
       logical ccsd_read_restart, ccsd_write_restart
@@ -65,6 +65,8 @@ c
       external util_scratch_dir_avail_for_me
 c
       IAm = GA_NodeID()
+c
+      oprint = util_print('information', print_low)
 C
       call ga_sync()
       if (occsdps) then
@@ -112,7 +114,7 @@ c - else check if one can restart
 
 c Note that if restart fails orestart will be set false
       if (.not. orestart) then
-         if (iam .eq. 0) write(luout,*) 
+         if (iam .eq. 0 .and. oprint) write(luout,*) 
      M        ' Using MP2 initial guess vector '
         call dfill(lnov,zip,t1,1)
         if (nvp1.ge.ilo.and.nvp1.le.ihi)then
@@ -136,7 +138,8 @@ c
       call ga_sync()
 c
       if(oconverged) then
-         if (iam.eq.0)write(luout,*) 'CCSD is already converged'
+         if (iam.eq.0 .and. oprint)write(luout,*) 
+     $      'CCSD is already converged'
          offt2 = 0
          if(.not.rtdb_get(rtdb, 'ccsd:corlenerg',MT_DBL, 1, eccsd))
      $      eccsd=zip
@@ -160,7 +163,7 @@ c
 c ----------------------------------------------------------
 c begin iterations
 c ----------------------------------------------------------
-      if (iam.eq.0)write(luout,1234)
+      if (iam.eq.0 .and. oprint)write(luout,1234)
 *rak 1234 format(//,71(1h-),/,' iter',8x,'correlation',11x,'delta',9x,
 *rak     &       'rms',/,15x,'energy',14x,'energy',/,71(1h-))
  1234 format(//,73('-'),/,' iter',5x,'correlation',5x,'delta',7x,
@@ -194,13 +197,13 @@ c
      $     call errquit('ccsd_iterdrv2: rtdb_put failed', 0, RTDB_ERR)
          if(.not.rtdb_put(rtdb, 'ccsd:converged',MT_LOG, 1, oconverged))
      $     call errquit('ccsd_iterdrv2: rtdb_put failed', 0, RTDB_ERR)
-        if (iam.eq.0)write(luout,1236)
+        if (iam.eq.0 .and. oprint)write(luout,1236)
  1236   format(18x,'*************converged*************',18x,
      &         /,73('-'),/)
         goto 999 
       endif
       if (iter.gt.maxit)then
-        if (iam.eq.0)write(luout,1237)
+        if (iam.eq.0 .and. oprint)write(luout,1237)
  1237   format(18x,'****maximum iterations exceeded****',18x,
      &         /,73('-'),/)
         goto 999
@@ -282,7 +285,7 @@ c ----------------------------------------------------------
       tx(4)=tcgtime()
       tend=tx(4)
       if (iprt.gt.5.and.iam.eq.0)print *,' time pdiis ',tend-tstart
-      if (iam.eq.0)then
+      if (iam.eq.0 .and. oprint)then
           write(luout,1235)iter,eccsd,deccsd,rms,
      &      tx(2)-tx(1),
      &      tx(4)-tx(3)-(tx(2)-tx(1)),
@@ -332,20 +335,24 @@ c
       implicit none
 #include "global.fh"
 #include "inp.fh"
+#include "util.fh"
 #include "stdio.fh"
       character*(*) t2file
       integer nvir, lhoov
       integer g_t2
+      logical oprint
 c
       logical file_read_ga_patch
       external file_read_ga_patch
 c
       call ga_sync
 c
+      oprint = util_print('information', print_low)
+c
       ccsd_read_restart = 
      $     file_read_ga_patch(t2file,g_t2,1,lhoov,1,nvir+1)
 
-      if (ga_nodeid().eq. 0) then
+      if (ga_nodeid().eq. 0 .and. oprint) then
          if (ccsd_read_restart) then
             write(luout,*) ' Restarting from old vector in ',
      $           t2file(1:inp_strlen(t2file))
@@ -360,6 +367,7 @@ c
      $     offt2)
       implicit none
 #include "global.fh"
+#include "util.fh"
 #include "stdio.fh"
       character*(*) t2file
       integer nvir, lhoov, offt2
@@ -373,7 +381,8 @@ c
       ccsd_write_restart = 
      $     file_write_ga_patch(t2file,g_t2,offt2+1,offt2+lhoov,1,nvir+1)
 
-      if ((.not. ccsd_write_restart) .and. ga_nodeid().eq. 0) 
+      if ((.not. ccsd_write_restart) .and. ga_nodeid().eq. 0
+     $     .and. util_print('information', print_low)) 
      $     write(luout,*) ' Write of T2 failed'
 c
       end

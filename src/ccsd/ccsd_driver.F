@@ -1,6 +1,6 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.46 2008-11-11 14:19:36 jhammond Exp $
+C     $Id: ccsd_driver.F,v 2.47 2009-02-07 02:05:59 windus Exp $
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -62,7 +62,7 @@ c
        external moints_occrange
        logical int_normalize
        external int_normalize,ccsd_drivacc
-       logical ccsd_drivacc,oprint
+       logical ccsd_drivacc,oprint, oprintdef
 c
        double precision zip
        data zip/0.0d00/
@@ -76,6 +76,7 @@ capr
 capr
        Me = GA_NodeID()
        oprint = util_print('meminfo',print_debug)
+       oprintdef = util_print('information',print_low)
 c
        status = bas_numbf(basis, nbf)
        status = status.and.bas_numcont(basis,nsh)
@@ -233,7 +234,7 @@ c
 c
 c Print info
 c
-       if (Me.eq.0) then
+       if (Me.eq.0.and.oprintdef) then
          write(6,*)
          write(6,*)
          call util_print_centered(6,'Four-Index Transformation',
@@ -265,7 +266,7 @@ c
 c
 c Loop over segments of occupied orbitals
 c
-       if (Me.eq.0) write(6,*)
+       if (Me.eq.0.and.oprintdef) write(6,*)
        npass = 0
        oseg_hi = occ_lo - 1
  22    continue
@@ -304,7 +305,8 @@ c
 c
 c
        tpass = tcgtime() - tpass
-       if (Me.eq.0) write(6,772) npass, oseg_lo, oseg_hi, tpass
+       if (Me.eq.0.and.oprintdef) write(6,772) 
+     $    npass, oseg_lo, oseg_hi, tpass
  772   format(5x,'Pass:',i5,5x,'Index range:',i5,2x,'-',i5,
      $        5x,'Time:',f10.2)
        if (oseg_hi.lt.occ_hi) goto 22

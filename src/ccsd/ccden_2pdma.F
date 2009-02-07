@@ -3,7 +3,7 @@ C NAME
 C     CCDen_2PDMoooo -- Form coupled cluster 2-particle density matrix
 C
 C REVISION
-C     $Id: ccden_2pdma.F,v 2.3 2003-10-17 22:54:24 carlfahl Exp $
+C     $Id: ccden_2pdma.F,v 2.4 2009-02-07 02:05:58 windus Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_2PDMoooo(NOcc, NVir, T1, LDT1, g_T2,
@@ -138,7 +138,7 @@ C NAME
 C     CCDen_tZoooo -- Form [tZ] intermediate for 2PDM
 C
 C REVISION
-C     $Id: ccden_2pdma.F,v 2.3 2003-10-17 22:54:24 carlfahl Exp $
+C     $Id: ccden_2pdma.F,v 2.4 2009-02-07 02:05:58 windus Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_tZoooo(NOcc, NVir, g_t, g_Z, g_tZ)
@@ -174,6 +174,7 @@ C INCLUDE FILES
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "util.fh"
 C
 C EXTERNAL ROUTINES
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -182,12 +183,17 @@ C LOCAL VARIABLES
       Integer Sorta_Node, Node
       Integer H_Scr1, I_Scr1, H_Scr2, I_Scr2
       Double precision tZ
+      Logical oprint
+C
+C Get print information
+C
+      oprint = util_print('information',print_low)
 C
 C     Find out what portion of t is "local"
 C
       Call CCSD_T2_MyIJ(GA_NodeID(), NVir, g_t, ILo, IHi, JLo, JHi)
 C
-      Write (LuOut, *) 'CCDen_tZoooo ', GA_NodeID(),
+      If (oprint)  Write (LuOut, *) 'CCDen_tZoooo ', GA_NodeID(),
      $     ': T2 region (', ILo, ':', IHi, ', ', JLo, ':', JHi, ')'
 C
 C     Allocate scratch space
@@ -214,7 +220,7 @@ C
 C        Figure out what Z patches are on the node and loop over them
 C
          Call CCSD_T2_MyIJ(Node, NVir, g_Z, KLo, KHi, LLo, LHi)
-         Write (LuOut, *) 'CCDen_tZoooo ', GA_NodeID(),
+         If (oprint) Write (LuOut, *) 'CCDen_tZoooo ', GA_NodeID(),
      $        ': Z2 region (', KLo, ':', KHi, ', ', LLo, ':', LHi, ')'
 C
          Do K = KLo, KHi
@@ -279,7 +285,7 @@ C NAME
 C     CCDen_tZvvvv -- Form [tZ] intermediate for 2PDM
 C
 C REVISION
-C     $Id: ccden_2pdma.F,v 2.3 2003-10-17 22:54:24 carlfahl Exp $
+C     $Id: ccden_2pdma.F,v 2.4 2009-02-07 02:05:58 windus Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_tZvvvv(NOcc, NVir, g_t, g_Z, g_tZ)
@@ -315,6 +321,7 @@ C INCLUDE FILES
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "util.fh"
 C
 C EXTERNAL ROUTINES
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -323,12 +330,17 @@ C LOCAL VARIABLES
       Integer Sorta_Node, Node
       Integer H_Scr1, I_Scr1, H_Scr2, I_Scr2
       Double precision tZ
+      Logical oprint
+C
+C     Get print information
+C
+      oprint = util_print('information',print_low)
 C
 C     Find out what portion of t is "local"
 C
       Call CCSD_T2_MyIJ(GA_NodeID(), NVir, g_t, ILo, IHi, JLo, JHi)
 C
-      Write (LuOut, *) 'CCDen_tZvvvv ', GA_NodeID(),
+      If (oprint) Write (LuOut, *) 'CCDen_tZvvvv ', GA_NodeID(),
      $     ': T2 region (', ILo, ':', IHi, ', ', JLo, ':', JHi, ')'
 C
 C     Allocate scratch space
@@ -357,7 +369,7 @@ C
 C        Figure out what Z patches are on the node and loop over them
 C
          Call CCSD_T2_MyIJ(Node, NVir, g_Z, KLo, KHi, LLo, LHi)
-         Write (LuOut, *) 'CCDen_tZvvvv ', GA_NodeID(),
+         If (oprint) Write (LuOut, *) 'CCDen_tZvvvv ', GA_NodeID(),
      $        ': Z2 region (', KLo, ':', KHi, ', ', LLo, ':', LHi, ')'
 C
          Do K = KLo, KHi

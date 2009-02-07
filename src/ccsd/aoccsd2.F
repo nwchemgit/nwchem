@@ -4,7 +4,7 @@
      $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
 #include "errquit.fh"
-C     $Id: aoccsd2.F,v 2.35 2008-11-11 14:19:36 jhammond Exp $
+C     $Id: aoccsd2.F,v 2.36 2009-02-07 02:05:57 windus Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -48,7 +48,7 @@ c triples
       integer vchunk,noper,occ_lo,vir_lo,vir_hi,oseg_lo,oseg_hi,
      &        nvpass
       integer ga_create_jkblocked
-      logical oexch,ocoul,ohalf
+      logical oexch,ocoul,ohalf,oprint
       double precision eccsdt,eccsd,empt(2),tx(3)
       Integer Nodes, IAm, memdrv, memtrn
 c
@@ -114,6 +114,7 @@ c
       else
          call qenter('aoccsd',0)
       endif
+      oprint = util_print('information',print_low)
 c
       nodes = ga_nnodes()
       iam = ga_nodeid()
@@ -126,13 +127,13 @@ c      print *,'basis set handle ',basis
 c      print *,' ga allocated start of aoccsd '
 c      call ga_summarize(.true.)
 c
-      if (iam.eq.0)then
+      if (iam.eq.0.and.oprint)then
       write(6,1001)nodes
  1001 format(//,1x,76(1h*),/,14x,
      &       'the segmented parallel ccsd program:',
      &       i5,' nodes',/,1x,76(1h*),//)
       endif
-      if (iam.eq.0)then
+      if (iam.eq.0.and.oprint)then
       write (*,1318) CC_Theory( :Inp_StrLen(CC_Theory) ),
      $      ncor,nocc,nvir,ndel,nbf,nsh,basis
  1318 format(//,' level of theory    ',A,/
@@ -161,10 +162,10 @@ c Begin parallel ccsd code
 c----------------------------------------------------------------
 c
       mem_avail = ma_inquire_avail(MT_DBL)
-      if(iam.eq.0)write(6,*)'memory',mem_avail
+      if(iam.eq.0.and.oprint)write(6,*)'memory',mem_avail
       call int_mem_2e4c(max2e, mem2)
       mem2=max(mem2,nbf*nbf)
-      if (iprt.gt.10.and.iam.eq.0)then
+      if (iprt.gt.10.and.iam.eq.0.and.oprint)then
          write(6,*)'lnoo,lnov,lnvv,lnoov,lnooo,lnovv',
      &              lnoo,lnov,lnvv,lnoov,lnooo,lnovv
       endif
@@ -263,7 +264,7 @@ c
       enddo
       call ga_sync
 c
-         if (iam.eq.0.and.iprt.gt.5)then
+         if (iam.eq.0.and.iprt.gt.5.and.oprint)then
             print *,'starting t1 vector'
             write(6,139)(dbl_mb(k_t1-1+i),i=1,lnov)
  139        format(4e14.4)
@@ -354,6 +355,7 @@ c
       endif
 c
       If ( GA_NodeID() .eq. 0 .AND.
+     $     Util_Print('information', Print_Low) .AND.
      $   ( Util_Print('byproduct energies', Print_Default)
      $   .OR. Inp_Compare(.FALSE., 'ccsd', CC_Theory) ) ) then
          Call Banner(LuOut,
@@ -491,13 +493,13 @@ c the new parallel triples
 c ----------------------------
 c
       mem_avail = ma_inquire_avail(MT_DBL)
-      if(iam.eq.0)write(luout,*)'memory',mem_avail
+      if(iam.eq.0.and.oprint)write(luout,*)'memory',mem_avail
       if (occsdps) then
          call pstat_on(ps_tripls)
       else
          call qenter('triples',0)
       endif
-      if (iam.eq.0)write(luout,293)
+      if (iam.eq.0.and.oprint)write(luout,293)
  293  format(//,'*********triples calculation*********',/)
       lbfo=lnovv+lnoov+lnoov
       lbfv=lnoov+lnoov+lnoov
@@ -542,7 +544,7 @@ c
       memdrv = lnvv*(11+3*kchunk) + lnov*(5+4*kchunk) + nvir*(1+kchunk)
       memtrn = moints_trp_mem(basis, vchunk, blen)
 c
-      if (iam .eq. 0) then
+      if (iam .eq. 0.and.oprint) then
          write(luout,1101) nkpass, nvpass,memdrv,memtrn,mem_avail
  1101    format('nkpass=',i5,'; nvpass=',i5,'; memdrv=',i15,
      $        '; memtrn=',i15,'; memavail=',i15)
@@ -573,7 +575,7 @@ c
 c
       noper=nocc*vchunk
 c
-      if (iam.eq.0)write(*,845)mem_avail,nvir,vchunk,nvpass,
+      if (iam.eq.0.and.oprint)write(*,845)mem_avail,nvir,vchunk,nvpass,
      $     kchunk,nkpass
   845 format(' memory available/node                ',i15,/,
      &       ' total number of virtual orbitals     ',i5,/,
@@ -594,7 +596,7 @@ c
          nvpass = nvpass + 1
          oseg_lo = oseg_hi + 1
          oseg_hi = min(oseg_hi+vchunk,vir_hi)
-         if (iam.eq.0)write(*,846)nvpass
+         if (iam.eq.0.and.oprint)write(*,846)nvpass
  846     format(' commencing integral evaluation ',i8)
          tx(1)=tcgtime()
          call moints_trp(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
@@ -603,7 +605,7 @@ c
      &      blen, cmo, ncor, nocc, nvir, ndel, Tol2E)
 c        print *,'call trpdrv ',nvpass
 
-*          if (iam .eq. 0) then
+*          if (iam .eq. 0.and.oprint) then
 *            write(luout,*) ' Out of MOINTS '
 *            call util_flush(luout)
 *          endif
@@ -689,7 +691,7 @@ c
          call ga_sync
          tx(2)=tcgtime()
 c
-         if (iam.eq.0) then
+         if (iam.eq.0.and.oprint) then
             write(luout,1846)nvpass
             call util_flush(luout)
          endif
@@ -712,7 +714,7 @@ c
          if (.not. ma_chop_stack(l_f1n)) call errquit
      $        ('ccsd triples: stack corrupt (f1n)',0, MA_ERR)
 
-         if (iam.eq.0)then
+         if (iam.eq.0.and.oprint)then
             write(luout,'(1x,a,i5,f9.2)')
      &       'Time for integral evaluation pass ',
      $       nvpass,tx(2)-tx(1)
@@ -727,7 +729,7 @@ c
       empt(2)=empt(2)+empt(2)
       call ga_dgop(msg_cc_emp2,empt,2, '+')
       eccsdt=empt(1)+empt(2)
-      if (iam.eq.0)then
+      if (iam.eq.0.and.oprint)then
        write(luout,100)empt(1),empt(2),eccsdt
  100   format(/,
      &     ' pseudo-e(mp4) ',e22.14,/,
@@ -739,7 +741,7 @@ c
       stat=ga_destroy(g_coul)
       stat=stat.and.ga_destroy(g_exch)
 c
-      If ( IAm .eq. 0) then
+      If ( IAm .eq. 0.and.oprint) then
          call ecce_print1('total ccsd+t(ccsd) energy', 
      $        mt_dbl, refener+eccsd+empt(1), 1)
          call ecce_print1('total ccsd(t) energy', 

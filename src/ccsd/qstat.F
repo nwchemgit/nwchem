@@ -1,5 +1,5 @@
       subroutine qenter(namein,iprint)
-C     $Id: qstat.F,v 2.8 2004-12-16 23:02:58 edo Exp $
+C     $Id: qstat.F,v 2.9 2009-02-07 02:06:00 windus Exp $
       Implicit NONE
 #include "errquit.fh"
       Character*(*) NameIn
@@ -130,16 +130,19 @@ c
       Double Precision Tcp2, Tcp3, Tio2, Tio3, TcpTot, TioTot
       Double Precision tcp_min, tcp_ave, tcp_max
       Integer Nodes, IAm, I
+      Logical oprint
 *old:      Integer NDe
 C
 C
 #include "qdata.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "util.fh"
 *
       double precision zip
       data zip/0.0d00/
 *
+      oprint = util_print('information', print_low)
       call cputime(tcp2)
       tio2=zip
       tcptot=zip
@@ -167,8 +170,8 @@ C
 *old:      write(*,'(6x,a8,9x,f9.2,f8.2)')
 *old:     &   'Total   ',tcptot,tiotot
 *old:      endif
-      if (iam.eq.0)write(*,*)
-      if (iam.eq.0)
+      if (iam.eq.0.and.oprint)write(*,*)
+      if (iam.eq.0.and.oprint)
      &    write(*,'(a,a)')
      &    ' routine      calls  cpu(0)   ',
      &    'cpu-min  cpu-ave  cpu-max   i/o '
@@ -180,7 +183,7 @@ C
          tcp_ave = tcp_ave/dble(nodes)
          tcp_max = tcp(i)
          call ga_dgop(msg_qstat_3,tcp_max,1,'max')
-         if (iam.eq.0) then
+         if (iam.eq.0.and.oprint) then
            write(*,'(1x,a8,i9,f9.2,f9.2,f9.2,f9.2,f8.2)')
      &         name(i),ncall(i),tcp(i),
      &         tcp_min,tcp_ave,tcp_max,tio(i)
@@ -194,7 +197,7 @@ C
       tcp_ave = tcp_ave/dble(nodes)
       tcp_max = tcptot
       call ga_dgop(msg_qstat_3,tcp_max,1,'max')
-      if (iam.eq.0) then
+      if (iam.eq.0.and.oprint) then
         write(*,'(1x,a8,9x,f9.2,f9.2,f9.2,f9.2,f8.2)')
      &      'Total   ',tcptot,tcp_min,tcp_ave,tcp_max,tiotot
         call util_flush(6)
