@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Lubin_water_analysis.F,v 1.5 2008-11-03 06:06:13 bylaska Exp $
+c $Id: pspw_Lubin_water_analysis.F,v 1.6 2009-02-07 03:50:28 bylaska Exp $
 c
 
 *     ************************************
@@ -180,9 +180,12 @@ c
          dbl_mb(fcut(1)+k-1) = 0.5d0*util_erfc(x)
       end do
 
-      call D3dB_rr_Mul(1,dbl_mb(rgx(1)),dbl_mb(fcut(1)),dbl_mb(rgx(1)))
-      call D3dB_rr_Mul(1,dbl_mb(rgy(1)),dbl_mb(fcut(1)),dbl_mb(rgy(1)))
-      call D3dB_rr_Mul(1,dbl_mb(rgz(1)),dbl_mb(fcut(1)),dbl_mb(rgz(1)))
+c      call D3dB_rr_Mul(1,dbl_mb(rgx(1)),dbl_mb(fcut(1)),dbl_mb(rgx(1)))
+c      call D3dB_rr_Mul(1,dbl_mb(rgy(1)),dbl_mb(fcut(1)),dbl_mb(rgy(1)))
+c      call D3dB_rr_Mul(1,dbl_mb(rgz(1)),dbl_mb(fcut(1)),dbl_mb(rgz(1)))
+      call D3dB_rr_Mul2(1,dbl_mb(fcut(1)),dbl_mb(rgx(1)))
+      call D3dB_rr_Mul2(1,dbl_mb(fcut(1)),dbl_mb(rgy(1)))
+      call D3dB_rr_Mul2(1,dbl_mb(fcut(1)),dbl_mb(rgz(1)))
 
       call D3dB_rr_dot(1,dbl_mb(rgx(1)),dn(1,1),cdx1)
       call D3dB_rr_dot(1,dbl_mb(rgy(1)),dn(1,1),cdy1)

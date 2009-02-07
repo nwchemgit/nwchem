@@ -1,5 +1,5 @@
 *
-* $Id: psi_marat_write.F,v 1.7 2003-10-21 02:05:15 marat Exp $
+* $Id: psi_marat_write.F,v 1.8 2009-02-07 03:50:22 bylaska Exp $
 *
 
 *     ***********************************
@@ -102,9 +102,10 @@ c         filename = "marat.psi"
          call Pack_c_Copy(1,psi2(1+(n-1)*npack1),dcpl_mb(tmp2(1)))
          call Pack_c_unpack(1,dcpl_mb(tmp2(1)))         
          call D3dB_cr_fft3b(1,dcpl_mb(tmp2(1))) 
-         call D3dB_r_SMul(1,scale,
-     >                      dcpl_mb(tmp2(1)),
-     >                      dcpl_mb(tmp2(1)))
+c         call D3dB_r_SMul(1,scale,
+c     >                      dcpl_mb(tmp2(1)),
+c     >                      dcpl_mb(tmp2(1)))
+         call D3dB_r_SMul1(1,scale,dcpl_mb(tmp2(1)))
          call D3dB_r_FormatWrite_paw(1,87,
      >                           dcpl_mb(tmp2(1)),
      >                           dcpl_mb(tmp(1)))
@@ -116,9 +117,10 @@ c         filename = "marat.psi"
          call Pack_c_Copy(1,psi2(1+(n-1)*npack1),dcpl_mb(tmp2(1)))
          call Pack_c_unpack(1,dcpl_mb(tmp2(1)))         
          call D3dB_cr_fft3b(1,dcpl_mb(tmp2(1))) 
-         call D3dB_r_SMul(1,scale,
-     >                      dcpl_mb(tmp2(1)),
-     >                      dcpl_mb(tmp2(1)))
+c         call D3dB_r_SMul(1,scale,
+c     >                      dcpl_mb(tmp2(1)),
+c     >                      dcpl_mb(tmp2(1)))
+         call D3dB_r_SMul1(1,scale,dcpl_mb(tmp2(1)))
          call D3dB_r_FormatWrite_paw(1,87,
      >                           dcpl_mb(tmp2(1)),
      >                           dcpl_mb(tmp(1)))

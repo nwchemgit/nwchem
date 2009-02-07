@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop.F,v 1.44 2008-09-15 20:52:32 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.45 2009-02-07 03:50:22 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.44  2008/09/15 20:52:32  bylaska
+* ..paw fixes...EJB
+*
 * Revision 1.43  2007/09/24 16:58:12  bylaska
 * ...preliminary PAW modifications...
 *   - basis file format changed
@@ -407,7 +410,8 @@
            call coulomb2_v(dcpl_mb(tmp1(1)),dcpl_mb(vh(1)))
 
            call D3dB_rc_fft3f(1,dcpl_mb(vh(1)))
-           call D3dB_r_SMul(1,scal1,dcpl_mb(vh(1)),dcpl_mb(vh(1)))
+c           call D3dB_r_SMul(1,scal1,dcpl_mb(vh(1)),dcpl_mb(vh(1)))
+           call D3dB_r_SMul1(1,scal1,dcpl_mb(vh(1)))
            call Pack_c_pack(0,dcpl_mb(vh(1)))
 
 
@@ -418,7 +422,8 @@
            call coulomb2_v(dcpl_mb(tmp2(1)),dcpl_mb(vcomp(1)))
 
            call D3dB_rc_fft3f(1,dcpl_mb(vcomp(1)))
-           call D3dB_r_SMul(1,scal1,dcpl_mb(vcomp(1)),dcpl_mb(vcomp(1)))
+c           call D3dB_r_SMul(1,scal1,dcpl_mb(vcomp(1)),dcpl_mb(vcomp(1)))
+           call D3dB_r_SMul1(1,scal1,dcpl_mb(vcomp(1)))
            call Pack_c_pack(0,dcpl_mb(vcomp(1)))
 
            call paw_mult_vzero(vzero)
@@ -492,12 +497,16 @@ c        call paw_density_solve()
      >                        psi_r,
      >                        psi2(1,n1(ms)))    ! psi2 = Hpsi - S*psi1*<psi1|Hpsi1>
 
-            call Grsm_gg_dscale(npack1,ne(ms),dte,
-     >                         psi2(1,n1(ms)),
-     >                         psi2(1,n1(ms)))
+c            call Grsm_gg_dscale(npack1,ne(ms),dte,
+c     >                         psi2(1,n1(ms)),
+c     >                         psi2(1,n1(ms)))
+            call Grsm_gg_dScale1(npack1,ne(ms),dte,psi2(1,n1(ms)))
 
-            call Grsm_ggg_Sum(npack1,ne(ms),
-     >                        psi2(1,n1(ms)), 
+c            call Grsm_ggg_Sum(npack1,ne(ms),
+c     >                        psi2(1,n1(ms)), 
+c     >                        psi1(1,n1(ms)),
+c     >                        psi2(1,n1(ms)))
+            call Grsm_ggg_Sum2(npack1,ne(ms),
      >                        psi1(1,n1(ms)),
      >                        psi2(1,n1(ms)))
           end do !*ms*
@@ -507,7 +516,8 @@ c        call paw_density_solve()
 
           do n=1,n2(ispin)
             call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
-            call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+c            call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+            call Pack_cc_Sum2(1,psi1(1,n),psi2(1,n))
           end do
         end if
 

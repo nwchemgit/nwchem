@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.22 2009-01-05 17:46:32 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.23 2009-02-07 03:50:47 bylaska Exp $
 
 
 *
@@ -128,7 +128,8 @@ c    >     + i+1
          dcpl_mb(gk(1)+i-1) = dcmplx(temp,0.0d0)
       end do
       call D3dB_cr_fft3b(1,dcpl_mb(gk(1)))
-      call D3dB_r_SMul(1,scal1,dcpl_mb(gk(1)),dcpl_mb(gk(1)))
+c      call D3dB_r_SMul(1,scal1,dcpl_mb(gk(1)),dcpl_mb(gk(1)))
+      call D3dB_r_SMul1(1,scal1,dcpl_mb(gk(1)))
       end if
 
 
@@ -178,9 +179,10 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
 
 *     **** add long-range part to short-range part  ****
-      call D3dB_rr_Sum(1,dcpl_mb(gk(1)),
-     >                 dbl_mb(glr(1)),
-     >                 dbl_mb(glr(1)))
+c      call D3dB_rr_Sum(1,dcpl_mb(gk(1)),
+c     >                 dbl_mb(glr(1)),
+c     >                 dbl_mb(glr(1)))
+      call D3dB_rr_Sum2(1,dcpl_mb(gk(1)),dbl_mb(glr(1)))
 
 
 *     **** Multiply by the screening function ****
@@ -843,7 +845,8 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       end do
       end do
       end do
-      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
+c      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
+      call D3dB_r_SMul1(1,scal1,dbl_mb(gr(1)))
 
 
 *     **** Put gk in k-space ****
@@ -944,7 +947,8 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       end do
       end do
       end do
-      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
+c      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
+      call D3dB_r_SMul1(1,scal1,dbl_mb(gr(1)))
 
 
 *     **** Put gr in k-space ****
@@ -1054,7 +1058,8 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       end do
       end do
       end do
-      call D3dB_r_SMul(1,dV,dbl_mb(gr(1)),dbl_mb(gr(1)))  !** note extra omega ***
+c      call D3dB_r_SMul(1,dV,dbl_mb(gr(1)),dbl_mb(gr(1)))  !** note extra omega ***
+      call D3dB_r_SMul1(1,dV,dbl_mb(gr(1)))
 
 
 *     **** Put gk in k-space ****
@@ -1070,9 +1075,10 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
 
 *     *** Pack the kernel ****
       call Pack_t_pack(0,dbl_mb(gk2(1)))
-      call Pack_tt_Sum(0,dbl_mb(gk2(1)),
-     >                 dbl_mb(dvscr(u,s)),
-     >                 dbl_mb(dvscr(u,s)))
+c      call Pack_tt_Sum(0,dbl_mb(gk2(1)),
+c     >                 dbl_mb(dvscr(u,s)),
+c     >                 dbl_mb(dvscr(u,s)))
+      call Pack_tt_Sum2(0,dbl_mb(gk2(1)),dbl_mb(dvscr(u,s)))
 
 
       end do 

@@ -1,5 +1,5 @@
 c
-c     $Id: paw_cgminimize.F,v 1.5 2008-09-15 20:52:31 bylaska Exp $                       
+c     $Id: paw_cgminimize.F,v 1.6 2009-02-07 03:50:21 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -201,12 +201,16 @@ c              scale = sum3/sum0
               scale = 0.0d0
            end if
 
-           call Grsm_gg_dScale(npack1,neall,scale,
-     >                         dcpl_mb(H0(1)),
-     >                         dcpl_mb(H0(1)))
-           call Grsm_ggg_Sum(npack1,neall,
+c           call Grsm_gg_dScale(npack1,neall,scale,
+c     >                         dcpl_mb(H0(1)),
+c     >                         dcpl_mb(H0(1)))
+c           call Grsm_ggg_Sum(npack1,neall,
+c     >                       dcpl_mb(G1(1)),
+c     >                       dcpl_mb(H0(1)),
+c     >                       dcpl_mb(H0(1)))
+           call Grsm_gg_dScale1(npack1,neall,scale,dcpl_mb(H0(1)))
+           call Grsm_ggg_Sum2(npack1,neall,
      >                       dcpl_mb(G1(1)),
-     >                       dcpl_mb(H0(1)),
      >                       dcpl_mb(H0(1)))
 
 

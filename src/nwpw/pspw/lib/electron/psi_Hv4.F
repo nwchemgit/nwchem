@@ -1,5 +1,5 @@
 *
-* $Id: psi_Hv4.F,v 1.17 2008-09-11 21:26:49 bylaska Exp $
+* $Id: psi_Hv4.F,v 1.18 2009-02-07 03:50:49 bylaska Exp $
 *
 
 *     *************************************
@@ -147,10 +147,14 @@
 *     *******************************************
 *     **** add vlr_l, vc and v_field to vall ****
 *     *******************************************
-      call D3dB_rr_Sum(1,dcpl_mb(vall(1)),vlr_l,dcpl_mb(vall(1)))
-      call D3dB_rr_Sum(1,dcpl_mb(vall(1)),vc,   dcpl_mb(vall(1)))
+c      call D3dB_rr_Sum(1,dcpl_mb(vall(1)),vlr_l,dcpl_mb(vall(1)))
+c      call D3dB_rr_Sum(1,dcpl_mb(vall(1)),vc,   dcpl_mb(vall(1)))
+c      if (field_exist)
+c     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
+      call D3dB_rr_Sum2(1,vlr_l,dcpl_mb(vall(1)))
+      call D3dB_rr_Sum2(1,vc,   dcpl_mb(vall(1)))
       if (field_exist)
-     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
+     >  call D3dB_rr_Sum2(1,v_field,dcpl_mb(vall(1)))
 
 
 c*     **************************************************
@@ -202,13 +206,18 @@ c      end do
             call D3dB_rr_Sum(1,dcpl_mb(vall(1)),
      >                       xcp(1+(ms-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
-            call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
-     >                       psi_r(1+(indx1-1)*n2ft3d),
+c            call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
+c     >                       psi_r(1+(indx1-1)*n2ft3d),
+c     >                       dcpl_mb(vpsi(1)))
+            call D3dB_rr_Mul2(1,psi_r(1+(indx1-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
 
+c            if ((dosic).or.(dohfx))
+c     >        call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
+c     >                         dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
+c     >                         dcpl_mb(vpsi(1)))
             if ((dosic).or.(dohfx))
-     >        call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
-     >                         dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
+     >        call D3dB_rr_Sum2(1,dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
      >                         dcpl_mb(vpsi(1)))
 
 *           **** put vpsi_r in k-space ****
@@ -376,9 +385,12 @@ c     end if
      >                   dcpl_mb(vpsi(1)))
 
 *     **** vpsi_r = vpsi_r + Horb_r ****
+c      if (dohfx)
+c     >   call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
+c     >                      dbl_mb(Horb_r(1)),
+c     >                      dcpl_mb(vpsi(1)))
       if (dohfx)
-     >   call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
-     >                      dbl_mb(Horb_r(1)),
+     >   call D3dB_rr_Sum2(1,dbl_mb(Horb_r(1)),
      >                      dcpl_mb(vpsi(1)))
 
 *     **** get vpsi_r in k-space ****

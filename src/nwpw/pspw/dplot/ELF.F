@@ -1,6 +1,6 @@
 
 *
-* $Id: ELF.F,v 1.5 2004-04-27 19:43:34 edo Exp $
+* $Id: ELF.F,v 1.6 2009-02-07 03:50:38 bylaska Exp $
 *
 
 *     ***************************
@@ -91,7 +91,8 @@
 
 *     **** elf <-- -0.25*elf ****
       !call D3dB_rr_Divide(1,elf,dn,elf)
-      call D3dB_r_SMul(1,(-0.25d0),elf,elf)
+c      call D3dB_r_SMul(1,(-0.25d0),elf,elf)
+      call D3dB_r_SMul1(1,(-0.25d0),elf)
 
 *     **** elf <-- elf + Sum(i) |del*psi_i|^2 ****
       do i=1,ne
@@ -207,12 +208,18 @@
       call D3dB_cr_fft3b(1,dbl_mb(fz(1)))
 
 *     **** calculate df = df + fx*fx + fy*fy + fz*fz ****
-      call D3dB_rr_Sqr(1,dbl_mb(fx(1)),dbl_mb(fx(1)))
-      call D3dB_rr_Sqr(1,dbl_mb(fy(1)),dbl_mb(fy(1)))
-      call D3dB_rr_Sqr(1,dbl_mb(fz(1)),dbl_mb(fz(1)))
-      call D3dB_rr_Sum(1,dbl_mb(fx(1)),df,df)
-      call D3dB_rr_Sum(1,dbl_mb(fy(1)),df,df)
-      call D3dB_rr_Sum(1,dbl_mb(fz(1)),df,df)
+c      call D3dB_rr_Sqr(1,dbl_mb(fx(1)),dbl_mb(fx(1)))
+c      call D3dB_rr_Sqr(1,dbl_mb(fy(1)),dbl_mb(fy(1)))
+c      call D3dB_rr_Sqr(1,dbl_mb(fz(1)),dbl_mb(fz(1)))
+c      call D3dB_rr_Sum(1,dbl_mb(fx(1)),df,df)
+c      call D3dB_rr_Sum(1,dbl_mb(fy(1)),df,df)
+c      call D3dB_rr_Sum(1,dbl_mb(fz(1)),df,df)
+      call D3dB_rr_Sqr1(1,dbl_mb(fx(1)))
+      call D3dB_rr_Sqr1(1,dbl_mb(fy(1)))
+      call D3dB_rr_Sqr1(1,dbl_mb(fz(1)))
+      call D3dB_rr_Sum2(1,dbl_mb(fx(1)),df)
+      call D3dB_rr_Sum2(1,dbl_mb(fy(1)),df)
+      call D3dB_rr_Sum2(1,dbl_mb(fz(1)),df)
 
       value =           MA_pop_stack(fz(2))
       value = value.and.MA_pop_stack(fy(2))
@@ -320,12 +327,18 @@
       call D3dB_cr_fft3b(1,dbl_mb(hz(1)))
 
 *     **** calculate df = df + hx*fx + hy*fy + hz*fz ****
-      call D3dB_rr_Mul(1,dbl_mb(hx(1)),dbl_mb(fx(1)),dbl_mb(fx(1)))
-      call D3dB_rr_Mul(1,dbl_mb(hy(1)),dbl_mb(fy(1)),dbl_mb(fy(1)))
-      call D3dB_rr_Mul(1,dbl_mb(hz(1)),dbl_mb(fz(1)),dbl_mb(fz(1)))
-      call D3dB_rr_Sum(1,dbl_mb(fx(1)),df,df)
-      call D3dB_rr_Sum(1,dbl_mb(fy(1)),df,df)
-      call D3dB_rr_Sum(1,dbl_mb(fz(1)),df,df)
+c      call D3dB_rr_Mul(1,dbl_mb(hx(1)),dbl_mb(fx(1)),dbl_mb(fx(1)))
+c      call D3dB_rr_Mul(1,dbl_mb(hy(1)),dbl_mb(fy(1)),dbl_mb(fy(1)))
+c      call D3dB_rr_Mul(1,dbl_mb(hz(1)),dbl_mb(fz(1)),dbl_mb(fz(1)))
+c      call D3dB_rr_Sum(1,dbl_mb(fx(1)),df,df)
+c      call D3dB_rr_Sum(1,dbl_mb(fy(1)),df,df)
+c      call D3dB_rr_Sum(1,dbl_mb(fz(1)),df,df)
+      call D3dB_rr_Mul2(1,dbl_mb(hx(1)),dbl_mb(fx(1)))
+      call D3dB_rr_Mul2(1,dbl_mb(hy(1)),dbl_mb(fy(1)))
+      call D3dB_rr_Mul2(1,dbl_mb(hz(1)),dbl_mb(fz(1)))
+      call D3dB_rr_Sum2(1,dbl_mb(fx(1)),df)
+      call D3dB_rr_Sum2(1,dbl_mb(fy(1)),df)
+      call D3dB_rr_Sum2(1,dbl_mb(fz(1)),df)
 
       value =           MA_pop_stack(fz(2))
       value = value.and.MA_pop_stack(fy(2))

@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.44 2008-04-23 01:31:52 bylaska Exp $
+* $Id: c_electron.F,v 1.45 2009-02-07 03:50:06 bylaska Exp $
 *
 
 
@@ -293,8 +293,10 @@ cccccccccccc
 *     ************************************
       do n=1,nn
         call Cram_c_SMul(nb,(-dte),Hpsi(1,n),psi2(1,n))
-        call Cram_cc_Sum(nb,psi2(1,n),psi1(1,n),psi2(1,n))
+c        call Cram_cc_Sum(nb,psi2(1,n),psi1(1,n),psi2(1,n))
+        call Cram_cc_Sum2(nb,psi1(1,n),psi2(1,n))
       end do
+
       return
       end
 
@@ -922,14 +924,17 @@ c     >                     THpsi_k)
      >              dbl_mb(psir_shift),
      >              dbl_mb(hpsi_shift))
 
-      call Cram_c_SMul(nb,(-1.0d0),
-     >                 dbl_mb(hpsi_shift),
-     >                 dbl_mb(hpsi_shift))
+c      call Cram_c_SMul(nb,(-1.0d0),
+c     >                 dbl_mb(hpsi_shift),
+c     >                 dbl_mb(hpsi_shift))
+      call Cram_c_SMul1(nb,(-1.0d0),dbl_mb(hpsi_shift))
+
       if (spin_orbit) then
          hpsi_shift = cpsi_data_get_ptr(Hpsi_k_tag,nb,n+neq(1))
-         call Cram_c_SMul(nb,(-1.0d0),
-     >                 dbl_mb(hpsi_shift),
-     >                 dbl_mb(hpsi_shift))
+c         call Cram_c_SMul(nb,(-1.0d0),
+c     >                 dbl_mb(hpsi_shift),
+c     >                 dbl_mb(hpsi_shift))
+         call Cram_c_SMul1(nb,(-1.0d0),dbl_mb(hpsi_shift))
       end if               
       call cpsi_data_noupdate(Hpsi_k_tag)
       return
@@ -1121,8 +1126,9 @@ c      end do
 *     *********************
 *     **** generate dn ****
 *     *********************
-      call C3dB_r_Zero(1,dn)
-      if (ispin.gt.1) call C3dB_r_Zero(1,dn(1,ispin))
+c      call C3dB_r_Zero(1,dn)
+c      if (ispin.gt.1) call C3dB_r_Zero(1,dn(1,ispin))
+      call dcopy(ispin*nfft3d,0.0d0,0,dn,1)
 
 c      call BGrsm_hr_SumSqr(dcpl_mb(psi_r(1)),
 c     >                     dn)
@@ -1161,14 +1167,15 @@ c     >                     dn)
        end do
       end if
 
+
 *     *** reduce over brillioun zone ***
       do ms=1,ispin
        call K1dB_Vector_SumAll(nfft3d,dn(1,ms))
       end do
 
-      call C3dB_r_SMul(1,scal2,dn,dn)
+      call C3dB_r_SMul1(1,scal2,dn)
       if (ispin.gt.1) 
-     >  call C3dB_r_SMul(1,scal2,dn(1,ispin),dn(1,ispin))
+     >  call C3dB_r_SMul1(1,scal2,dn(1,ispin))
 
 
         
@@ -1180,7 +1187,8 @@ c     >                     dn)
      >     'electron_gen_densities: out of stack memory',0, MA_ERR)
 
       call C3dB_rrc_Sum(1,dn,dn(1,ispin),dcpl_mb(tmp1(1)))
-      call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+c      call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+      call C3dB_c_SMul1(1,scal1,dcpl_mb(tmp1(1)))
       !call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
       call C3dB_rc_pfft3f(1,0,dcpl_mb(tmp1(1)))
       call Cram_c_pack(0,dcpl_mb(tmp1(1)))
@@ -1192,7 +1200,8 @@ c     >                     dn)
 *     ********************************************************
       if (cpsp_semicore(0)) then
          call c_semicore_density(dcpl_mb(tmp1(1)))
-         call C3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+c         call C3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+         call C3dB_r_SMul1(1,0.5d0,dcpl_mb(tmp1(1)))
       else
          call C3dB_r_Zero(1,dcpl_mb(tmp1(1)))
       end if
@@ -1256,7 +1265,8 @@ c     >                     dn)
      >     'electron_gen_dng_dnall: out of stack memory',0, MA_ERR)
 
       call C3dB_rrc_Sum(1,dn,dn(1,ispin),dcpl_mb(tmp1(1)))
-      call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+c      call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+      call C3dB_c_SMul1(1,scal1,dcpl_mb(tmp1(1)))
       !call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
       call C3dB_rc_pfft3f(1,0,dcpl_mb(tmp1(1)))
       call Cram_c_pack(0,dcpl_mb(tmp1(1)))
@@ -1266,9 +1276,11 @@ c     >                     dn)
 *     ********************************************************
 *     **** generate dnall - used for semicore corrections ****
 *     ********************************************************
+      call dcopy(ispin*nfft3d,dn,1,dnall,1)
       if (cpsp_semicore(0)) then
          call c_semicore_density(dcpl_mb(tmp1(1)))
-         call C3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+c         call C3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+         call C3dB_r_SMul1(1,0.5d0,dcpl_mb(tmp1(1)))
       else
          call C3dB_r_Zero(1,dcpl_mb(tmp1(1)))
       end if
@@ -1315,9 +1327,11 @@ c     >                     dn)
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
       call Cram_c_SMul(0,scal2,dcpl_mb(vl(1)),
      >                         dcpl_mb(vall(1)))
-      call Cram_cc_Sum(0,dcpl_mb(vall(1)),
-     >                   dcpl_mb(vc(1)),
-     >                   dcpl_mb(vall(1)))
+c      call Cram_cc_Sum(0,dcpl_mb(vall(1)),
+c     >                   dcpl_mb(vc(1)),
+c     >                   dcpl_mb(vall(1)))
+      call Cram_cc_Sum2(0,dcpl_mb(vc(1)),
+     >                    dcpl_mb(vall(1)))
 
 *     **** fourier transform k-space potentials ****
       call Cram_c_unpack(0,dcpl_mb(vall(1)))
@@ -1325,12 +1339,17 @@ c     >                     dn)
       call C3dB_cr_pfft3b(1,0,dcpl_mb(vall(1)))
 
 *     **** add xcp to vall ****
-      do ms=ispin,1,-1
-        call C3dB_rc_Sum(1,
-     >                   dbl_mb(xcp(1)+(ms-1)*nfft3d),
-     >                   dcpl_mb(vall(1)),
-     >                   dcpl_mb(vall(1)+(ms-1)*nfft3d))
-      end do
+c      do ms=ispin,1,-1
+c        call C3dB_rc_Sum(1,
+c     >                   dbl_mb(xcp(1)+(ms-1)*nfft3d),
+c     >                   dcpl_mb(vall(1)),
+c     >                   dcpl_mb(vall(1)+(ms-1)*nfft3d))
+c      end do
+      if (ispin.eq.2)
+     >   call C3dB_rc_Sum(1,dbl_mb(xcp(1)+nfft3d),
+     >                      dcpl_mb(vall(1)),
+     >                      dcpl_mb(vall(1)+nfft3d))
+      call C3dB_rc_Sum2(1,dbl_mb(xcp(1)),dcpl_mb(vall(1)))
 
       return
       end

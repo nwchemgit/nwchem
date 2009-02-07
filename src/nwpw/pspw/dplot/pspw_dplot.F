@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.19 2008-09-16 23:42:43 bylaska Exp $
+* $Id: pspw_dplot.F,v 1.20 2009-02-07 03:50:38 bylaska Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -385,7 +385,8 @@
          call Pack_c_unpack(1,psi_r(1,n))
          call D3dB_cr_fft3b(1,psi_r(1,n))
          call D3dB_r_Zero_Ends(1,psi_r(1,n))
-         call D3dB_r_SMul(1,dsqrt(scal2),psi_r(1,n),psi_r(1,n))
+c         call D3dB_r_SMul(1,dsqrt(scal2),psi_r(1,n),psi_r(1,n))
+         call D3dB_r_SMul1(1,dsqrt(scal2),psi_r(1,n))
       end do
 
 
@@ -570,7 +571,8 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 *          *** laplacian ***
 *          *****************
  750       call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dbl_mb(rho(1)))
-           call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dbl_mb(rho(1)))
+c           call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dbl_mb(rho(1)))
+           call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
            call Pack_c_pack(1,dbl_mb(rho(1)))
            nn(1) = 1
@@ -594,9 +596,11 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
            if (control_version().eq.3) then
              call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
              call Pack_c_pack(0,dbl_mb(rho(1)))
-             call Pack_c_SMul(0,scal1,dbl_mb(rho(1)),dbl_mb(rho(1)))
+c             call Pack_c_SMul(0,scal1,dbl_mb(rho(1)),dbl_mb(rho(1)))
+             call Pack_c_SMul1(0,scal1,dbl_mb(rho(1)))
              call pspw_add_core_dng(1.0d0,dbl_mb(rho(1)))
-             call Pack_c_SMul(0,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
+c             call Pack_c_SMul(0,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
+             call Pack_c_SMul1(0,scal2,dbl_mb(rho(1)))
              call coulomb_v(dbl_mb(rho(1)),dbl_mb(rho(1)))
 c             call Pack_c_SMul(0,(1.0d0/scal2),
 c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
@@ -1093,10 +1097,12 @@ c     if (.not. value) call errquit('closing geometry',0)
          call strfac(ii,dcpl_mb(exi(1)))
          call Pack_c_pack(0,dcpl_mb(exi(1)))
          call Pack_t_pack(0,dbl_mb(vg(1)))
-         call Pack_tc_Mul(0,dbl_mb(vg(1)),
-     >                   dcpl_mb(exi(1)),
-     >                   dcpl_mb(exi(1)))
-         call Pack_cc_Sum(0,dng,dcpl_mb(exi(1)),dng)
+c         call Pack_tc_Mul(0,dbl_mb(vg(1)),
+c     >                   dcpl_mb(exi(1)),
+c     >                   dcpl_mb(exi(1)))
+c         call Pack_cc_Sum(0,dng,dcpl_mb(exi(1)),dng)
+         call Pack_tc_Mul2(0,dbl_mb(vg(1)),dcpl_mb(exi(1)))
+         call Pack_cc_Sum2(0,dcpl_mb(exi(1)),dng)
 
       end do
 
@@ -1225,7 +1231,8 @@ c     if (.not. value) call errquit('closing geometry',0)
       
  
       do n=1,nemax
-        call Pack_cc_Mul(1,dcpl_mb(exi(1)),psi(1,n),psi(1,n))
+c        call Pack_cc_Mul(1,dcpl_mb(exi(1)),psi(1,n),psi(1,n))
+        call Pack_cc_Mul2(1,dcpl_mb(exi(1)),psi(1,n))
         !call Pack_cc_conjgMul(1,dcpl_mb(exi(1)),psi(1,n),psi(1,n))
       end do
 

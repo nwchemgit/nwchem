@@ -1,5 +1,5 @@
 *
-* $Id: semicore_force.F,v 1.4 2004-02-01 01:10:04 bylaska Exp $
+* $Id: semicore_force.F,v 1.5 2009-02-07 03:50:58 bylaska Exp $
 *
 
 #define TCGMSG
@@ -131,15 +131,18 @@ c    >                                 dcpl_mb(dngz(1)))
            call D3dB_cr_fft3b(1,dcpl_mb(dngx(1)))
            call D3dB_cr_fft3b(1,dcpl_mb(dngy(1)))
            call D3dB_cr_fft3b(1,dcpl_mb(dngz(1)))
-           call D3dB_rr_Mul(1,dcpl_mb(dng(1)),
-     >                        dcpl_mb(dngx(1)),
-     >                        dcpl_mb(dngx(1)))
-           call D3dB_rr_Mul(1,dcpl_mb(dng(1)),
-     >                        dcpl_mb(dngy(1)),
-     >                        dcpl_mb(dngy(1)))
-           call D3dB_rr_Mul(1,dcpl_mb(dng(1)),
-     >                        dcpl_mb(dngz(1)),
-     >                        dcpl_mb(dngz(1)))
+c           call D3dB_rr_Mul(1,dcpl_mb(dng(1)),
+c     >                        dcpl_mb(dngx(1)),
+c     >                        dcpl_mb(dngx(1)))
+c           call D3dB_rr_Mul(1,dcpl_mb(dng(1)),
+c     >                        dcpl_mb(dngy(1)),
+c     >                        dcpl_mb(dngy(1)))
+c           call D3dB_rr_Mul(1,dcpl_mb(dng(1)),
+c     >                        dcpl_mb(dngz(1)),
+c     >                        dcpl_mb(dngz(1)))
+           call D3dB_rr_Mul2(1,dcpl_mb(dng(1)),dcpl_mb(dngx(1)))
+           call D3dB_rr_Mul2(1,dcpl_mb(dng(1)),dcpl_mb(dngy(1)))
+           call D3dB_rr_Mul2(1,dcpl_mb(dng(1)),dcpl_mb(dngz(1)))
 
            call D3dB_rr_dot(1,dcpl_mb(dngx(1)),dcpl_mb(vxcG(1)),sumx)
            call D3dB_rr_dot(1,dcpl_mb(dngy(1)),dcpl_mb(vxcG(1)),sumy)

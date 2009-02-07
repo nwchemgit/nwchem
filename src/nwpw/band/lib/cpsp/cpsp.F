@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.69 2008-12-13 01:34:26 bylaska Exp $
+* $Id: cpsp.F,v 1.70 2009-02-07 03:50:04 bylaska Exp $
 *
 
 #define TCGMSG
@@ -458,8 +458,8 @@
         call Cram_rc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
      >                   dcpl_mb(exi(1)),
      >                   dcpl_mb(vtmp(1)))
-        call Cram_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
-
+c        call Cram_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
+        call Cram_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
 
         if (move) then
        

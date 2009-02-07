@@ -1,5 +1,5 @@
 *
-* $Id: paw_vloc.F,v 1.5 2004-09-04 17:56:21 bylaska Exp $
+* $Id: paw_vloc.F,v 1.6 2009-02-07 03:50:26 bylaska Exp $
 *
 
 
@@ -136,7 +136,8 @@
         call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
      >                   dcpl_mb(exi(1)),
      >                   dcpl_mb(vtmp(1)))
-        call Pack_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
+c        call Pack_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
+        call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
 
 
         if (move) then

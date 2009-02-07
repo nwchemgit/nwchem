@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.35 2008-09-11 21:26:51 bylaska Exp $
+* $Id: psp.F,v 1.36 2009-02-07 03:50:57 bylaska Exp $
 *
 
 
@@ -737,7 +737,8 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
         call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
      >                   dcpl_mb(exi(1)),
      >                   dcpl_mb(vtmp(1)))
-        call Pack_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
+c        call Pack_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
+        call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
 
 
         if (move) then

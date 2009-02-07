@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs.F,v 1.16 2006-10-13 01:43:58 bylaska Exp $                       
+*     $Id: pspw_lmbfgs.F,v 1.17 2009-02-07 03:50:42 bylaska Exp $                       
 *
 
       subroutine pspw_lmbfgs_init(max_m0,g)
@@ -21,10 +21,12 @@
       call pspw_Grsm_list_init('lmbfgs',2*max_m,2*nsize)
 
       m = 1
-      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
+c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
+      call Grsm_gg_dScale1(npack1,neall,(-1.0d0),g)
       call pspw_Grsm_list_store(2*m-1,g)
       call pspw_Grsm_list_store(2*m,g)
-      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
+c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
+      call Grsm_gg_dScale1(npack1,neall,(-1.0d0),g)
       return
       end
 

@@ -1,5 +1,5 @@
 c
-c $Id: pspw_APC.F,v 1.8 2008-11-03 22:54:27 bylaska Exp $
+c $Id: pspw_APC.F,v 1.9 2009-02-07 03:50:30 bylaska Exp $
 c
 
 
@@ -291,9 +291,10 @@ c    >     + i+1
      >                          dcpl_mb(gaus_i(1)))
 
 *              *** w(G)*gaus_i(G))***
-               call Pack_tc_Mul(0,dbl_mb(w(1)),
-     >                          dcpl_mb(gaus_i(1)),
-     >                          dcpl_mb(gaus_i(1)))
+c               call Pack_tc_Mul(0,dbl_mb(w(1)),
+c     >                          dcpl_mb(gaus_i(1)),
+c     >                          dcpl_mb(gaus_i(1)))
+               call Pack_tc_Mul2(0,dbl_mb(w(1)),dcpl_mb(gaus_i(1)))
 
 *              *** omega*Sum(G) w(G)*Re(dcongj(dng(G))*gaus_i(G))***
                call Pack_cc_dot(0,dng,
@@ -324,9 +325,10 @@ c    >     + i+1
      >                               dcpl_mb(gaus_i(1)))
 
 *                 *** w(G)*gaus_i(G))***
-                  call Pack_tc_Mul(0,dbl_mb(w(1)),
-     >                               dcpl_mb(gaus_i(1)),
-     >                               dcpl_mb(gaus_i(1)))
+c                  call Pack_tc_Mul(0,dbl_mb(w(1)),
+c     >                               dcpl_mb(gaus_i(1)),
+c     >                               dcpl_mb(gaus_i(1)))
+                  call Pack_tc_Mul2(0,dbl_mb(w(1)),dcpl_mb(gaus_i(1)))
 
                   do jjj=1,nga
 *                   *** gaus_j(G))***
@@ -458,7 +460,8 @@ c    >     + i+1
 
 *     **** generate dng ****
       call D3dB_rr_Sum(1,dn(1),dn(1+(ispin-1)*n2ft3d),dcpl_mb(tmp(1)))
-      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
+c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
+      call D3dB_r_SMul1(1,scal1,dcpl_mb(tmp(1)))
       call D3dB_rc_fft3f(1,dcpl_mb(tmp(1)))
       call Pack_c_pack(0,dcpl_mb(tmp(1)))
       call Pack_c_Copy(0,dcpl_mb(tmp(1)),dcpl_mb(dng(1)))

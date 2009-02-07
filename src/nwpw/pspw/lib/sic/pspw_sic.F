@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.34 2005-06-24 19:24:19 bylaska Exp $
+* $Id: pspw_sic.F,v 1.35 2009-02-07 03:50:59 bylaska Exp $
 *
 
 *     *************************
@@ -327,7 +327,8 @@
 
 *          **** generate dn for Vxc and VH ****
            call D3dB_rr_Sqr(1,psi_r(index),dbl_mb(dn(1)))
-           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+           call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
 
@@ -345,12 +346,14 @@
            end if
 
 *          **** apply the xc_parameter ****
-           call D3dB_r_SMul(1,xc_parameter,
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xcp(1)))
-           call D3dB_r_SMul(1,xc_parameter,
-     >                      dbl_mb(xce(1)),
-     >                      dbl_mb(xce(1)))
+c           call D3dB_r_SMul(1,xc_parameter,
+c     >                      dbl_mb(xcp(1)),
+c     >                      dbl_mb(xcp(1)))
+c           call D3dB_r_SMul(1,xc_parameter,
+c     >                      dbl_mb(xce(1)),
+c     >                      dbl_mb(xce(1)))
+           call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xcp(1)))
+           call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xce(1)))
 
 *          **** get exchange-correlation energy ****
            call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(xce(1)),exc)
@@ -373,8 +376,10 @@ c    >         call D3dB_rr_Sum(1,dbl_mb(dn(1)),
 c    >                            dbl_mb(dn(1)),
 c    >                            dbl_mb(dn(1)))
 
-             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-     >                              dbl_mb(dn(1)))
+c             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+c     >                              dbl_mb(dn(1)))
+             call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
+
              !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
              call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
              call Pack_c_pack(0,dbl_mb(dn(1)))
@@ -412,26 +417,30 @@ c     >                            dbl_mb(dn(1)))
 *          **** apply the h_parameter ****
            eh = eh*h_parameter
            ph = ph*h_parameter
-           call D3dB_r_SMul(1,h_parameter,
-     >                      dbl_mb(tmp1(1)),
-     >                      dbl_mb(tmp1(1)))
+c           call D3dB_r_SMul(1,h_parameter,
+c     >                      dbl_mb(tmp1(1)),
+c     >                      dbl_mb(tmp1(1)))
+           call D3dB_r_SMul1(1,h_parameter,dbl_mb(tmp1(1)))
 
            eh_sic = eh_sic - eh
            ph_sic = ph_sic - ph
 
 *          **** generate (Vcoul+Vxc)*psi_r ***
-           call D3dB_rr_Sum(1,dbl_mb(tmp1(1)),
-     >                        dbl_mb(xcp(1)),
-     >                        dbl_mb(xcp(1)))
+c           call D3dB_rr_Sum(1,dbl_mb(tmp1(1)),
+c     >                        dbl_mb(xcp(1)),
+c     >                        dbl_mb(xcp(1)))
+           call D3dB_rr_Sum2(1,dbl_mb(tmp1(1)),dbl_mb(xcp(1)))
+
            call D3dB_rr_Mul(1,dbl_mb(xcp(1)),
      >                        psi_r(index),
      >                        dbl_mb(tmp1(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
 
 *          **** add -(Vcoul+Vxc)*psi_r to Hpsi_r ***
-           call D3dB_rr_Sub(1,Hpsi_r(index),
-     >                        dbl_mb(tmp1(1)),
-     >                        Hpsi_r(index))
+c           call D3dB_rr_Sub(1,Hpsi_r(index),
+c     >                        dbl_mb(tmp1(1)),
+c     >                        Hpsi_r(index))
+           call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Hpsi_r(index))
 
 *          **** fourier transform (Vcoul+Vxc)*psi_r and add to Hpsi_k ***
 c          call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
@@ -525,7 +534,8 @@ c    >                        Hpsi_k(index2))
 
 *          **** generate dn ****
            call D3dB_rr_Sqr(1,psi_r(index),dbl_mb(dn(1)))
-           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+           call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
 
@@ -543,12 +553,14 @@ c    >                        Hpsi_k(index2))
            end if
 
 *          **** apply the xc_parameter ****
-           call D3dB_r_SMul(1,xc_parameter,
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xcp(1)))
-           call D3dB_r_SMul(1,xc_parameter,
-     >                      dbl_mb(xce(1)),
-     >                      dbl_mb(xce(1)))
+c           call D3dB_r_SMul(1,xc_parameter,
+c     >                      dbl_mb(xcp(1)),
+c     >                      dbl_mb(xcp(1)))
+c           call D3dB_r_SMul(1,xc_parameter,
+c     >                      dbl_mb(xce(1)),
+c     >                      dbl_mb(xce(1)))
+           call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xcp(1)))
+           call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xce(1)))
 
 *          **** get exchange-correlation energy ****
            call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(xce(1)),exc)
@@ -566,8 +578,9 @@ c    >                        Hpsi_k(index2))
            if (solver_type.eq.1) then
 
 *            **** generate dng ****
-             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-     >                                dbl_mb(dn(1)))
+c             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+c     >                                dbl_mb(dn(1)))
+             call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
              !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
              call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
              call Pack_c_pack(0,dbl_mb(dn(1)))
@@ -721,9 +734,10 @@ c    >                        Hpsi_k(index2))
 
 *          **** generate dn for Vxc and VH ****
            call D3dB_rr_Sqr(1,psi_r(index),dbl_mb(rhoi(1)+(i-1)*n2ft3d))
-           call D3dB_r_SMul(1,scal2,
-     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d),
-     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d))
+c           call D3dB_r_SMul(1,scal2,
+c     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+c     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d))
+           call D3dB_r_SMul1(1,scal2,dbl_mb(rhoi(1)+(i-1)*n2ft3d))
            call D3dB_r_Zero_Ends(1,dbl_mb(rhoi(1)+(i-1)*n2ft3d))
            call dcopy(n2ft3d,dbl_mb(rhoi(1)+(i-1)*n2ft3d),1,
      >                        dbl_mb(dn(1)),1)
@@ -744,12 +758,14 @@ c    >                        Hpsi_k(index2))
            end if
 
 *          **** apply the xc_parameter ****
-           call D3dB_r_SMul(1,xc_parameter,
-     >                      dbl_mb(xcp(1)),
-     >                      dbl_mb(xcp(1)))
-           call D3dB_r_SMul(1,xc_parameter,
-     >                      dbl_mb(xce(1)),
-     >                      dbl_mb(xce(1)))
+c           call D3dB_r_SMul(1,xc_parameter,
+c     >                      dbl_mb(xcp(1)),
+c     >                      dbl_mb(xcp(1)))
+c           call D3dB_r_SMul(1,xc_parameter,
+c     >                      dbl_mb(xce(1)),
+c     >                      dbl_mb(xce(1)))
+           call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xcp(1)))
+           call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xce(1)))
 
 
 *          ***** screened coulomb solver ****
@@ -778,18 +794,21 @@ c    >                        Hpsi_k(index2))
            end if
 
 *          **** apply the h_parameter ****
-           call D3dB_r_SMul(1,h_parameter,
-     >                      dbl_mb(tmp1(1)),
-     >                      dbl_mb(tmp1(1)))
+c           call D3dB_r_SMul(1,h_parameter,
+c     >                      dbl_mb(tmp1(1)),
+c     >                      dbl_mb(tmp1(1)))
+           call D3dB_r_SMul1(1,h_parameter,dbl_mb(tmp1(1)))
 
 
 *          **** generate vsic(i) = (Vcoul+Vxc) ***
            call D3dB_rr_Sum(1,dbl_mb(tmp1(1)),
      >                        dbl_mb(xcp(1)),
      >                        dbl_mb(vsic(1)+(i-1)*n2ft3d))
-           call D3dB_r_SMul(1,(-1.0d0),
-     >                        dbl_mb(vsic(1)+(i-1)*n2ft3d),
-     >                        dbl_mb(vsic(1)+(i-1)*n2ft3d))
+
+c           call D3dB_r_SMul(1,(-1.0d0),
+c     >                        dbl_mb(vsic(1)+(i-1)*n2ft3d),
+c     >                        dbl_mb(vsic(1)+(i-1)*n2ft3d))
+           call D3dB_r_SMul1(1,(-1.0d0),dbl_mb(vsic(1)+(i-1)*n2ft3d))
 
 
         end do
@@ -803,16 +822,20 @@ c    >                        Hpsi_k(index2))
            call D3dB_rr_Mul(1,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
      >                        dbl_mb(vsic(1)+(i-1)*n2ft3d),
      >                        dbl_mb(tmp1(1)))
-           call D3dB_rr_Sum(1,v_oep((ms-1)*n2ft3d+1),
-     >                        dbl_mb(tmp1(1)),
+c           call D3dB_rr_Sum(1,v_oep((ms-1)*n2ft3d+1),
+c     >                        dbl_mb(tmp1(1)),
+c     >                        v_oep((ms-1)*n2ft3d+1))
+           call D3dB_rr_Sum2(1,dbl_mb(tmp1(1)),
      >                        v_oep((ms-1)*n2ft3d+1))
         end do
         end do
 
         do ms=1,ispin
-          call D3dB_rr_Divide(1,  v_oep((ms-1)*n2ft3d+1),
-     >                          dntotal((ms-1)*n2ft3d+1),
-     >                            v_oep((ms-1)*n2ft3d+1))
+c          call D3dB_rr_Divide(1,  v_oep((ms-1)*n2ft3d+1),
+c     >                          dntotal((ms-1)*n2ft3d+1),
+c     >                            v_oep((ms-1)*n2ft3d+1))
+          call D3dB_rr_Divide2(1,dntotal((ms-1)*n2ft3d+1),
+     >                             v_oep((ms-1)*n2ft3d+1))
         end do
 
         !**** define (-M)  ****
@@ -824,8 +847,11 @@ c    >                        Hpsi_k(index2))
            call D3dB_rr_Mul(1,dbl_mb(rhoi(1)+indexi),
      >                        dbl_mb(rhoi(1)+indexj),
      >                        dbl_mb(tmp1(1)))
-           call D3dB_rr_Divide(1,dbl_mb(tmp1(1)),
-     >                          dntotal((ms-1)*n2ft3d+1),
+
+c           call D3dB_rr_Divide(1,dbl_mb(tmp1(1)),
+c     >                          dntotal((ms-1)*n2ft3d+1),
+c     >                           dbl_mb(tmp1(1)))
+           call D3dB_rr_Divide2(1,dntotal((ms-1)*n2ft3d+1),
      >                           dbl_mb(tmp1(1)))
 
            call D3dB_r_dsum(1,dbl_mb(tmp1(1)),eh)
@@ -936,11 +962,16 @@ c    >                        Hpsi_k(index2))
      >                        dbl_mb(tmp1(1)))
 
           end do
-          call D3dB_rr_Divide(1,dbl_mb(tmp1(1)),
-     >                        dntotal((ms-1)*n2ft3d+1),
+c          call D3dB_rr_Divide(1,dbl_mb(tmp1(1)),
+c     >                        dntotal((ms-1)*n2ft3d+1),
+c     >                          dbl_mb(tmp1(1)))
+          call D3dB_rr_Divide2(1,dntotal((ms-1)*n2ft3d+1),
      >                          dbl_mb(tmp1(1)))
-          call D3dB_rr_Sum(1,v_oep((ms-1)*n2ft3d+1),
-     >                       dbl_mb(tmp1(1)),
+
+c          call D3dB_rr_Sum(1,v_oep((ms-1)*n2ft3d+1),
+c     >                       dbl_mb(tmp1(1)),
+c     >                       v_oep((ms-1)*n2ft3d+1))
+          call D3dB_rr_Sum2(1,dbl_mb(tmp1(1)),
      >                       v_oep((ms-1)*n2ft3d+1))
         end do
 
@@ -1030,7 +1061,8 @@ c    >                        Hpsi_k(index2))
 
 *          **** generate dn ****
            call D3dB_rr_Sqr(1,psi_r(index),dbl_mb(dn(1)))
-           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+           call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
 
@@ -1081,8 +1113,9 @@ c    >                        Hpsi_k(index2))
            if (solver_type.eq.1) then
 
 *            **** generate dng ****
-             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-     >                                dbl_mb(dn(1)))
+c             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+c     >                                dbl_mb(dn(1)))
+             call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
              !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
              call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
              call Pack_c_pack(0,dbl_mb(dn(1)))

@@ -1,8 +1,12 @@
 *
-* $Id: Grassman.F,v 1.18 2007-03-29 00:51:45 bylaska Exp $
+* $Id: Grassman.F,v 1.19 2009-02-07 03:50:56 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.18  2007/03/29 00:51:45  bylaska
+* queue FFT added to HFX and more rigid msgtyping added to queueFFT
+* ....EJB
+*
 * Revision 1.17  2006/10/07 00:10:07  bylaska
 * Initial implementation of 2d processor grid parallelization in pspw.  Currently works with:
 *
@@ -191,6 +195,35 @@ c         call D3dB_cc_Sum(1,A(1,i),B(1,i),C(1,i))
  
       return
       end
+
+
+
+*     ****************************
+*     *                          *
+*     *         Grsm_ggg_Sum2    *
+*     *                          *
+*     ****************************
+*
+*     B = A + B
+*     uses - Pack_cc_Sum2
+
+      subroutine Grsm_ggg_Sum2(nfft3d,n,A,B)
+      implicit none
+      integer    nfft3d,n
+      complex*16 A(nfft3d,n)
+      complex*16 B(nfft3d,n)
+
+*     **** local variables ****
+      integer i
+
+      do i=1,n
+c         call D3dB_cc_Sum(1,A(1,i),B(1,i),C(1,i))
+          call Pack_cc_Sum2(1,A(1,i),B(1,i))
+      end do
+
+      return
+      end
+
        
 
 *     ****************************
@@ -404,6 +437,34 @@ c        call D3dB_c_SMul(1,scale,A(1,k),C(1,k))
 
       return
       end
+
+
+
+*     ****************************
+*     *                          *
+*     *         Grsm_gg_dScale1  *
+*     *                          *
+*     ****************************
+*
+*     C = scale*A
+*     uses - Pack_c_SMul1
+
+      subroutine Grsm_gg_dScale1(nfft3d,n,scale,A)
+      implicit none
+      integer nfft3d,n
+      real*8     scale
+      complex*16 A(nfft3d,n)
+
+*     **** local variables ****
+      integer k
+
+      do k=1,n
+        call Pack_c_SMul1(1,scale,A(1,k))
+      end do
+
+      return
+      end
+
 
 
 

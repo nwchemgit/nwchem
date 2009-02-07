@@ -1,6 +1,6 @@
 
 *
-* $Id: coulomb.F,v 1.8 2006-08-13 01:03:27 bylaska Exp $
+* $Id: coulomb.F,v 1.9 2009-02-07 03:50:47 bylaska Exp $
 *
 
       subroutine coulomb_init()
@@ -166,7 +166,7 @@ c     real*8  tmp1(*)
 
       subroutine coulomb_euv(dng,euv)
 *
-* $Id: coulomb.F,v 1.8 2006-08-13 01:03:27 bylaska Exp $
+* $Id: coulomb.F,v 1.9 2009-02-07 03:50:47 bylaska Exp $
 *
       implicit none 
 #include "errquit.fh"
@@ -242,8 +242,9 @@ c     real*8 G(nfft3d,3)
       call Pack_ct_Sqr(0,dng,dbl_mb(tmp1(1)))
       call Pack_tt_Mul(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),
      >                                   dbl_mb(tmp2(1)))
-      call Pack_tt_Mul(0,dbl_mb(tmp2(1)),dbl_mb(vc_indx),
-     >                                   dbl_mb(tmp2(1)))
+c      call Pack_tt_Mul(0,dbl_mb(tmp2(1)),dbl_mb(vc_indx),
+c     >                                   dbl_mb(tmp2(1)))
+      call Pack_tt_Mul2(0,dbl_mb(vc_indx),dbl_mb(tmp2(1)))
 
 
 *     **** Bus = Sum(G) (omega/4*pi)*tmp2(G)*Gu*Gs ****

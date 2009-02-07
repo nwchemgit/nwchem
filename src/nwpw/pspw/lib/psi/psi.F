@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.95 2008-12-18 21:15:51 bylaska Exp $
+* $Id: psi.F,v 1.96 2009-02-07 03:50:56 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.95  2008/12/18 21:15:51  bylaska
+* ...updates for calculating spin contaminatio....EJB
+*
 * Revision 1.94  2008/11/17 17:25:45  bylaska
 * fractional occupation updates....EJB
 *
@@ -281,9 +284,10 @@
      >            dcpl_mb(psi1(1) +(ii-1)*npack1),
      >            sum)
          sum = 1.0d0/dsqrt(sum)
-         call Pack_c_SMul(1,sum,
-     >            dcpl_mb(psi1(1) +(ii-1)*npack1),
-     >            dcpl_mb(psi1(1) +(ii-1)*npack1))
+c         call Pack_c_SMul(1,sum,
+c     >            dcpl_mb(psi1(1) +(ii-1)*npack1),
+c     >            dcpl_mb(psi1(1) +(ii-1)*npack1))
+         call Pack_c_SMul1(1,sum,dcpl_mb(psi1(1) +(ii-1)*npack1))
 
          !*** minimize orbital ****
           l = 0
@@ -456,7 +460,8 @@
      >                   dcpl_mb(t(1)),
      >                   de0)
          de0 = 1.0d0/dsqrt(de0)
-         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+         call Pack_c_SMul1(1,de0,dcpl_mb(t(1)))
          call Pack_cc_dot(1,dcpl_mb(t(1)),
      >                   dcpl_mb(g(1)),
      >                   de0)
@@ -759,8 +764,10 @@
      >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
      >            sum)
          sum = 1.0d0/dsqrt(sum)
-         call Pack_c_SMul(1,sum,
-     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+c         call Pack_c_SMul(1,sum,
+c     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+c     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
+         call Pack_c_SMul1(1,sum,
      >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
 
          !*** minimize orbital ****
@@ -941,7 +948,8 @@
      >                   dcpl_mb(t(1)),
      >                   de0)
          de0 = 1.0d0/dsqrt(de0)
-         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+         call Pack_c_SMul1(1,de0,dcpl_mb(t(1)))
          call Pack_cc_dot(1,dcpl_mb(t(1)),
      >                   dcpl_mb(g(1)),
      >                   de0)
@@ -1335,8 +1343,10 @@
      >            dcpl_mb(psi1(1) +(i-1)*npack1),
      >            sum)
          sum = 1.0d0/dsqrt(sum)
-         call Pack_c_SMul(1,sum,
-     >            dcpl_mb(psi1(1) +(i-1)*npack1),
+c         call Pack_c_SMul(1,sum,
+c     >            dcpl_mb(psi1(1) +(i-1)*npack1),
+c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
+         call Pack_c_SMul1(1,sum,
      >            dcpl_mb(psi1(1) +(i-1)*npack1))
 
 
@@ -1491,7 +1501,8 @@ c!    >                 dcpl_mb(t(1)))
      >                   sigma)
          sigma = dsqrt(sigma)
          de0 = 1.0d0/sigma
-         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+         call Pack_c_SMul1(1,de0,dcpl_mb(t(1)))
 
 
 *        **** compute de0 = <t|g> ****
@@ -1658,8 +1669,10 @@ c     >           theta
      >                 dcpl_mb(psi_ptr+(i-1)*npack1),
      >                 dcpl_mb(psi_ptr+(i-1)*npack1),
      >                 sigma)
-      call Pack_c_SMul(1,(1.0d0/dsqrt(sigma)),
-     >                 dcpl_mb(psi_ptr+(i-1)*npack1),
+c      call Pack_c_SMul(1,(1.0d0/dsqrt(sigma)),
+c     >                 dcpl_mb(psi_ptr+(i-1)*npack1),
+c     >                 dcpl_mb(psi_ptr+(i-1)*npack1))
+      call Pack_c_SMul1(1,(1.0d0/dsqrt(sigma)),
      >                 dcpl_mb(psi_ptr+(i-1)*npack1))
 
 
@@ -1882,9 +1895,10 @@ c     write(*,*)
       call Pack_cc_daxpy(1,x,
      >                   t,
      >                   tau_t)
-      call Pack_c_SMul(1,sigma,
-     >                  tau_t,
-     >                  tau_t)
+c      call Pack_c_SMul(1,sigma,
+c     >                  tau_t,
+c     >                  tau_t)
+      call Pack_c_SMul1(1,sigma,tau_t)
 
 *     **** orb2 = orb*cos(theta) + t*sin(theta) ****
       call Pack_c_SMul(1,x,

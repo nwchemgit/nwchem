@@ -1,5 +1,5 @@
 c
-c $Id: switching_charge.F,v 1.14 2003-10-17 22:57:54 carlfahl Exp $
+c $Id: switching_charge.F,v 1.15 2009-02-07 03:51:01 bylaska Exp $
 c
 
 ***********************************************************
@@ -122,7 +122,8 @@ c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
        write(*,*) "ERROR:",count,scal2
 
 *     **** Tall*Vqm ****
-      call D3dB_rr_Mul(1,Vqm,dbl_mb(xtmp(1)),Vqm)
+c      call D3dB_rr_Mul(1,Vqm,dbl_mb(xtmp(1)),Vqm)
+      call D3dB_rr_Mul2(1,dbl_mb(xtmp(1)),Vqm)
 
       value = MA_pop_stack(xtmp(2))
       if (.not. value)
@@ -172,13 +173,15 @@ c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
       call Switching_Charge_Vmm(n2ft3d,rgrid,dbl_mb(Amm(1)))
 
 *     **** Amm(r) = rho(r)*Vmm(r) ****
-      call D3dB_rr_Mul(1,dbl_mb(Amm(1)),rho,dbl_mb(Amm(1)))
+c      call D3dB_rr_Mul(1,dbl_mb(Amm(1)),rho,dbl_mb(Amm(1)))
+      call D3dB_rr_Mul2(1,rho,dbl_mb(Amm(1)))
 
 
 *     **** Amm(G) = FFT(Amm(r)) ****
       call D3dB_rc_fft3f(1,dbl_mb(Amm(1)))
       call Pack_c_pack(0,dbl_mb(Amm(1)))
-      call Pack_c_SMul(0,scal1,dbl_mb(Amm(1)),dbl_mb(Amm(1)))
+c      call Pack_c_SMul(0,scal1,dbl_mb(Amm(1)),dbl_mb(Amm(1)))
+      call Pack_c_SMul1(0,scal1,dbl_mb(Amm(1)))
       
 
       call grad_Truncating_Function(dbl_mb(Amm(1)),fion)

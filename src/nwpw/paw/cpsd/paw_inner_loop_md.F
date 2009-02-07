@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.14 2008-10-22 23:56:40 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.15 2009-02-07 03:50:22 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.14  2008/10/22 23:56:40  bylaska
+* added NWCHEM_NWPW_LIBRARY to nwchemrc. fixed bug in paw...EJB
+*
 * Revision 1.13  2008/09/15 20:52:32  bylaska
 * ..paw fixes...EJB
 *
@@ -417,7 +420,8 @@ c      allow_translation = control_allow_translation()
            call coulomb2_v(dcpl_mb(tmp1(1)),dcpl_mb(vh(1)))
 
            call D3dB_rc_fft3f(1,dcpl_mb(vh(1)))
-           call D3dB_r_SMul(1,scal1,dcpl_mb(vh(1)),dcpl_mb(vh(1)))
+c           call D3dB_r_SMul(1,scal1,dcpl_mb(vh(1)),dcpl_mb(vh(1)))
+           call D3dB_r_SMul1(1,scal1,dcpl_mb(vh(1)))
            call Pack_c_pack(0,dcpl_mb(vh(1)))
 
 
@@ -428,7 +432,8 @@ c      allow_translation = control_allow_translation()
            call coulomb2_v(dcpl_mb(tmp2(1)),dcpl_mb(vcomp(1)))
 
            call D3dB_rc_fft3f(1,dcpl_mb(vcomp(1)))
-           call D3dB_r_SMul(1,scal1,dcpl_mb(vcomp(1)),dcpl_mb(vcomp(1)))
+c           call D3dB_r_SMul(1,scal1,dcpl_mb(vcomp(1)),dcpl_mb(vcomp(1)))
+           call D3dB_r_SMul1(1,scal1,dcpl_mb(vcomp(1)))
            call Pack_c_pack(0,dcpl_mb(vcomp(1)))
 
            call paw_mult_vzero(vzero)
@@ -578,7 +583,8 @@ c        end if
               call Pack_c_SMul(1,0.5d0*dte,Hpsi(1,n),psi2(1,n))
               call Pack_cc_daxpy(1,-1.0d0,psi0(1,n),psi2(1,n))
               call Pack_cc_daxpy(1,1.0d0,psi1(1,n),psi2(1,n))
-              call Pack_c_SMul(1,2.0d0*sse,psi2(1,n),psi2(1,n))
+c              call Pack_c_SMul(1,2.0d0*sse,psi2(1,n),psi2(1,n))
+              call Pack_c_SMul1(1,2.0d0*sse,psi2(1,n))
               call Pack_cc_daxpy(1,1.0d0,psi0(1,n),psi2(1,n))
              end do
              call ion_nose_step(ssr,dbl_mb(fion(1)))
@@ -601,7 +607,8 @@ c        end if
            do n=1,n2(ispin)
               call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
               call Pack_cc_daxpy(1,dt*sa_alpha(1),psi0(1,n),psi2(1,n))
-              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+              call Pack_cc_Sum2(1,psi1(1,n),psi2(1,n))
            end do
            call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2))
 
@@ -627,7 +634,8 @@ c        end if
           if (verlet) then
              eke = 0.0d0
              do i=1,n2(ispin)
-                call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
+c                call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
+                call Pack_c_SMul1(1,-h,psi0(1,i))
                 call Pack_cc_daxpy(1,h,psi2(1,i),psi0(1,i))
                 call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
                 eke = eke+sum
@@ -770,7 +778,8 @@ c        end if
 c        h = 1.0d0/(2.0d0*dt)
          eke = 0.0d0
          do i=1,n2(ispin)
-            call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
+c            call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
+            call Pack_c_SMul1(1,-h,psi0(1,i))
             call Pack_cc_daxpy(1,h,psi2(1,i),psi0(1,i))
             call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
             eke = eke+sum

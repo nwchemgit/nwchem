@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vhxcmatrix.F,v 1.8 2005-10-11 22:37:03 bylaska Exp $
+* $Id: lcao_generate_vhxcmatrix.F,v 1.9 2009-02-07 03:50:40 bylaska Exp $
 *
       subroutine lcao_generate_vhxcmatrix(ispin,n2ft3d,dn,
      >                                    vhxcmatrix,phi1,phi2,
@@ -61,7 +61,8 @@
 *     *************************************************
       if (psp_semicore(0)) then
            call semicore_density(dbl_mb(tmp1(1)))
-           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
+c           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
+           call D3dB_r_SMul1(1,0.5d0,dbl_mb(tmp1(1)))
       else
            call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
       end if
@@ -114,7 +115,8 @@
       call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dbl_mb(rho))
 
       if (control_version().eq.3) then
-         call D3dB_r_SMul(1,scal1,dbl_mb(rho),dbl_mb(rho))
+c         call D3dB_r_SMul(1,scal1,dbl_mb(rho),dbl_mb(rho))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(rho))
          call D3dB_rc_pfft3f(1,0,dbl_mb(rho))
          call Pack_c_pack(0,dbl_mb(rho))
          ehartr = coulomb_e(dbl_mb(rho))
@@ -149,9 +151,10 @@
      >                         dbl_mb(xcp(1)+(ms-1)*n2ft3d),
      >                         dbl_mb(vall))
 
-            call D3dB_rr_Mul(1,dbl_mb(vall),
-     >                         dbl_mb(vpsi),
-     >                         dbl_mb(vall))
+c            call D3dB_rr_Mul(1,dbl_mb(vall),
+c     >                         dbl_mb(vpsi),
+c     >                         dbl_mb(vall))
+            call D3dB_rr_Mul2(1,dbl_mb(vpsi),dbl_mb(vall))
 
 *           *******************************
 *           **** get vpsi_r in k-space ****

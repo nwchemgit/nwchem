@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.50 2007-07-13 22:29:10 bylaska Exp $
+* $Id: D3dB-new.F,v 1.51 2009-02-07 03:50:14 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2780,6 +2780,23 @@ c      end
       return
       end 
 
+      subroutine D3dB_r_SMul1(nb,scale,A)
+      implicit none
+      integer nb
+      real*8     scale
+      real*8 A(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         A(i) = scale*A(i)
+      end do
+      return
+      end
+
+
 
       subroutine D3dB_t_SMul(nb,scale,A,C)     
       implicit none 
@@ -2865,6 +2882,30 @@ c      end
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *        D3dB_rr_Sqr1             *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_rr_Sqr1(nb,A)
+      implicit none
+      integer nb
+      real*8 A(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         A(i) = A(i)**2
+      end do
+      return
+      end
+
+
 *     ***********************************
 *     *					*
 *     *	       D3dB_rr_Sqrt	 	*	
@@ -2883,6 +2924,29 @@ c      end
 
       do i=1,n2ft3d_map(nb)
          C(i) = dsqrt(A(i))
+      end do
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *        D3dB_rr_Sqrt1            *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_rr_Sqrt1(nb,A)
+      implicit none
+      integer nb
+      real*8 A(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         A(i) = dsqrt(A(i))
       end do
       return
       end
@@ -4478,6 +4542,31 @@ c      call Parallel2d_np_i(np)
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *          D3dB_tc_Mul2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_tc_Mul2(nb,A,B)
+      implicit none
+      integer    nb
+      real*8     A(*)
+      complex*16 B(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,nfft3d_map(nb)
+            B(i) = B(i) * A(i)
+      end do
+
+      return
+      end
+
 *     ***********************************
 *     *					*
 *     *	         D3dB_rr_Mul  	 	*	
@@ -4498,6 +4587,29 @@ c      call Parallel2d_np_i(np)
       do i=1,n2ft3d_map(nb)
             C(i) = A(i) * B(i)
          end do
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *          D3dB_rr_Mul2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_rr_Mul2(nb,A,B)
+      implicit none
+      integer nb
+      real*8 A(*)
+      real*8 B(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         B(i) = B(i) * A(i)
+      end do
 
       return
       end
@@ -4530,6 +4642,30 @@ c      call Parallel2d_np_i(np)
 
 
 *     ***********************************
+*     *                                 *
+*     *          D3dB_cc_Sum2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_cc_Sum2(nb,A,B)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,nfft3d_map(nb)
+         B(i) = B(i) + A(i)
+      end do
+
+      return
+      end
+
+
+*     ***********************************
 *     *					*
 *     *	         D3dB_rr_Sum  	 	*	
 *     *					*
@@ -4552,6 +4688,29 @@ c      call Parallel2d_np_i(np)
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *          D3dB_rr_Sum2           *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_rr_Sum2(nb,A,B)
+      implicit none
+      integer nb
+      real*8  A(*)
+      real*8  B(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         B(i) = B(i) + A(i)
+      end do
+      return
+      end
+
 
 *     ***********************************
 *     *					*
@@ -4597,6 +4756,31 @@ c      call Parallel2d_np_i(np)
 
       do i=1,n2ft3d_map(nb)
          C(i) = A(i) - B(i)
+      end do
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          D3dB_rr_Sub2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_rr_Sub2(nb,A,B)
+      implicit none
+      integer nb
+      real*8  A(*)
+      real*8  B(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         B(i) = B(i) - A(i)
       end do
 
       return
@@ -4708,6 +4892,45 @@ c      call Parallel2d_np_i(np)
            C(index) = 0.0d0
          else
            C(index) = A(index) / B(index)
+         end if
+      end do
+      !end do
+      !end do
+      !end do
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          D3dB_rr_Divide2         *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_rr_Divide2(nb,A,B)
+      implicit none
+      integer nb
+      real*8 A(*)
+      real*8 B(*)
+
+#include "D3dB.fh"
+
+      real*8 eta
+      parameter (eta=1.0d-9)
+
+      integer index
+
+      !do q=1,nq(nb)
+      !do j=1,ny(nb)
+      !do i=1,nx(nb)
+      do index = 1,n2ft3d_map(nb)
+         !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
+         if (dabs(A(index)) .le. eta) then
+           B(index) = 0.0d0
+         else
+           B(index) = B(index) / A(index)
          end if
       end do
       !end do
@@ -5379,6 +5602,30 @@ cpgi$r opt=1
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *          D3dB_ic_Mul2           *
+*     *                                 *
+*     ***********************************
+cpgi$r opt=1
+      subroutine D3dB_ic_Mul2(nb,A,B)
+      implicit none
+      integer    nb
+      real*8     A(*)
+      complex*16 B(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,nfft3d_map(nb)
+            B(i) = dcmplx(0.0d0,A(i)) * B(i)
+      end do
+
+      return
+      end
+
 
 *     ***********************************
 *     *                                 *

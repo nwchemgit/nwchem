@@ -1,5 +1,5 @@
 *
-* $Id: v_bwexc_euv.F,v 1.7 2005-12-22 01:35:06 bylaska Exp $
+* $Id: v_bwexc_euv.F,v 1.8 2009-02-07 03:50:52 bylaska Exp $
 *
 
       
@@ -119,16 +119,23 @@ c        ***** calculate agr = |grad n| ****
      >                      dbl_mb(agr(1)))
          call D3dB_rr_Sqr(1,dbl_mb(gry(1)),
      >                      dbl_mb(tmp(1)))
-         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-     >                      dbl_mb(agr(1)),
-     >                      dbl_mb(agr(1)))
+
+c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
+c     >                      dbl_mb(agr(1)),
+c     >                      dbl_mb(agr(1)))
+         call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
+
          call D3dB_rr_Sqr(1,dbl_mb(grz(1)),
      >                      dbl_mb(tmp(1)))
-         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-     >                      dbl_mb(agr(1)),
-     >                      dbl_mb(agr(1)))
-         call D3dB_rr_Sqrt(1,dbl_mb(agr(1)),
-     >                       dbl_mb(agr(1)))
+
+c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
+c     >                      dbl_mb(agr(1)),
+c     >                      dbl_mb(agr(1)))
+         call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
+
+c         call D3dB_rr_Sqrt(1,dbl_mb(agr(1)),
+c     >                       dbl_mb(agr(1)))
+         call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
 
 
     
@@ -165,30 +172,42 @@ c        ***** calculate fdn=df/d|grad n|  ****
 
      
 c        ***** calculate df/d|grad n| *(grad n)/|grad n| ****
-         call D3dB_rr_Divide(1,dbl_mb(grx(1)),
-     >                         dbl_mb(agr(1)),
-     >                         dbl_mb(grx(1)))
-         call D3dB_rr_Divide(1,dbl_mb(gry(1)),
-     >                         dbl_mb(agr(1)),
-     >                         dbl_mb(gry(1)))
-         call D3dB_rr_Divide(1,dbl_mb(grz(1)),
-     >                         dbl_mb(agr(1)),
-     >                         dbl_mb(grz(1)))
-         call D3dB_rr_Mul(1,dbl_mb(grx(1)),
-     >                      dbl_mb(fdn(1)),
-     >                      dbl_mb(grx(1)))
-         call D3dB_rr_Mul(1,dbl_mb(gry(1)),
-     >                      dbl_mb(fdn(1)),
-     >                      dbl_mb(gry(1)))
-         call D3dB_rr_Mul(1,dbl_mb(grz(1)),
-     >                      dbl_mb(fdn(1)),
-     >                      dbl_mb(grz(1)))
-         call D3dB_r_SMul(1,scal1,dbl_mb(grx(1)),
-     >                            dbl_mb(grx(1)))
-         call D3dB_r_SMul(1,scal1,dbl_mb(gry(1)),
-     >                            dbl_mb(gry(1)))
-         call D3dB_r_SMul(1,scal1,dbl_mb(grz(1)),
-     >                            dbl_mb(grz(1)))
+c         call D3dB_rr_Divide(1,dbl_mb(grx(1)),
+c     >                         dbl_mb(agr(1)),
+c     >                         dbl_mb(grx(1)))
+c         call D3dB_rr_Divide(1,dbl_mb(gry(1)),
+c     >                         dbl_mb(agr(1)),
+c     >                         dbl_mb(gry(1)))
+c         call D3dB_rr_Divide(1,dbl_mb(grz(1)),
+c     >                         dbl_mb(agr(1)),
+c     >                         dbl_mb(grz(1)))
+         call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grx(1)))
+         call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(gry(1)))
+         call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grz(1)))
+
+c         call D3dB_rr_Mul(1,dbl_mb(grx(1)),
+c     >                      dbl_mb(fdn(1)),
+c     >                      dbl_mb(grx(1)))
+c         call D3dB_rr_Mul(1,dbl_mb(gry(1)),
+c     >                      dbl_mb(fdn(1)),
+c     >                      dbl_mb(gry(1)))
+c         call D3dB_rr_Mul(1,dbl_mb(grz(1)),
+c     >                      dbl_mb(fdn(1)),
+c     >                      dbl_mb(grz(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(grx(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(gry(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(grz(1)))
+
+c         call D3dB_r_SMul(1,scal1,dbl_mb(grx(1)),
+c     >                            dbl_mb(grx(1)))
+c         call D3dB_r_SMul(1,scal1,dbl_mb(gry(1)),
+c     >                            dbl_mb(gry(1)))
+c         call D3dB_r_SMul(1,scal1,dbl_mb(grz(1)),
+c     >                            dbl_mb(grz(1)))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(grx(1)))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(gry(1)))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(grz(1)))
+
          call D3dB_r_Zero_Ends(1,dbl_mb(grx(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(gry(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(grz(1)))
@@ -306,8 +325,9 @@ c        *****                          agr,fn,fdn      *****
 c        ***** calculate rhoup  ****
          call D3dB_r_Copy(1,dn(1,1),dbl_mb(rhoup(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(rhoup(1)))
-         call D3dB_r_SMul(1,scal1,dbl_mb(rhoup(1)),
-     >                            dbl_mb(rhoup(1)))
+c         call D3dB_r_SMul(1,scal1,dbl_mb(rhoup(1)),
+c     >                            dbl_mb(rhoup(1)))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(rhoup(1)))
          call D3dB_rc_fft3f(1,dbl_mb(rhoup(1)))
          call mask_C(0,dbl_mb(rhoup(1)))
 
@@ -330,22 +350,30 @@ c        ***** calculate agrup = |grad nup| ****
      >                      dbl_mb(agr(1)))
          call D3dB_rr_Sqr(1,dbl_mb(grupy(1)),
      >                      dbl_mb(tmp(1)))
-         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-     >                      dbl_mb(agr(1)),
-     >                      dbl_mb(agr(1)))
+
+c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
+c     >                      dbl_mb(agr(1)),
+c     >                      dbl_mb(agr(1)))
+         call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
+
          call D3dB_rr_Sqr(1,dbl_mb(grupz(1)),
      >                      dbl_mb(tmp(1)))
-         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-     >                      dbl_mb(agr(1)),
-     >                      dbl_mb(agr(1)))
-         call D3dB_rr_Sqrt(1,dbl_mb(agr(1)),
-     >                       dbl_mb(agr(1)))     
+
+c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
+c     >                      dbl_mb(agr(1)),
+c     >                      dbl_mb(agr(1)))
+         call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
+
+c         call D3dB_rr_Sqrt(1,dbl_mb(agr(1)),
+c     >                       dbl_mb(agr(1)))     
+         call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
 
 c        ***** calculate rhodn  ****
          call D3dB_r_Copy(1,dn(1,2),dbl_mb(rhodn(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(rhodn(1)))
-         call D3dB_r_SMul(1,scal1,dbl_mb(rhodn(1)),
-     >                            dbl_mb(rhodn(1)))
+c         call D3dB_r_SMul(1,scal1,dbl_mb(rhodn(1)),
+c     >                            dbl_mb(rhodn(1)))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(rhodn(1)))
          call D3dB_rc_fft3f(1,dbl_mb(rhodn(1)))
          call mask_C(0,dbl_mb(rhodn(1)))
 
@@ -369,16 +397,24 @@ c        ***** calculate agrdn = |grad ndn| ****
      >                      dbl_mb(agr(2)))
          call D3dB_rr_Sqr(1,dbl_mb(grdny(1)),
      >                      dbl_mb(tmp(1)))
-         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-     >                      dbl_mb(agr(2)),
-     >                      dbl_mb(agr(2)))
+
+c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
+c     >                      dbl_mb(agr(2)),
+c     >                      dbl_mb(agr(2)))
+         call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(2)))
+
          call D3dB_rr_Sqr(1,dbl_mb(grdnz(1)),
      >                      dbl_mb(tmp(1)))
-         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-     >                      dbl_mb(agr(2)),
-     >                      dbl_mb(agr(2)))
-         call D3dB_rr_Sqrt(1,dbl_mb(agr(2)),
-     >                       dbl_mb(agr(2)))     
+
+c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
+c     >                      dbl_mb(agr(2)),
+c     >                      dbl_mb(agr(2)))
+         call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(2)))
+
+c         call D3dB_rr_Sqrt(1,dbl_mb(agr(2)),
+c     >                       dbl_mb(agr(2)))     
+         call D3dB_rr_Sqrt1(1,dbl_mb(agr(2)))
+
 
 c        ***** calculate agr = |grad nup +grad ndn| ****
          call D3dB_rr_Sum(1,dbl_mb(grupx(1)),
@@ -390,20 +426,28 @@ c        ***** calculate agr = |grad nup +grad ndn| ****
          call D3dB_rr_Sum(1,dbl_mb(grupz(1)),
      >                      dbl_mb(grdnz(1)),
      >                      dbl_mb(grallz(1)))
+
          call D3dB_rr_Sqr(1,dbl_mb(grallx(1)),
      >                      dbl_mb(agr(3)))
          call D3dB_rr_Sqr(1,dbl_mb(grally(1)),
      >                      dbl_mb(tmp(1)))
-         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-     >                      dbl_mb(agr(3)),
-     >                      dbl_mb(agr(3)))
+
+c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
+c     >                      dbl_mb(agr(3)),
+c     >                      dbl_mb(agr(3)))
+         call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(3)))
+
          call D3dB_rr_Sqr(1,dbl_mb(grallz(1)),
      >                      dbl_mb(tmp(1)))
-         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-     >                      dbl_mb(agr(3)),
-     >                      dbl_mb(agr(3)))
-         call D3dB_rr_Sqrt(1,dbl_mb(agr(3)),
-     >                       dbl_mb(agr(3)))
+
+c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
+c     >                      dbl_mb(agr(3)),
+c     >                      dbl_mb(agr(3)))
+         call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(3)))
+
+c         call D3dB_rr_Sqrt(1,dbl_mb(agr(3)),
+c     >                       dbl_mb(agr(3)))
+         call D3dB_rr_Sqrt1(1,dbl_mb(agr(3)))
 
  
 c        ***** calculate    ****
@@ -438,96 +482,130 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
 *        **** calculate df/d|grad nup|* (grad nup)/|grad nup|  ****
 *        **** calculate df/d|grad ndn|* (grad ndn)/|grad ndn|  ****
 *        **** calculate df/d|grad n|  * (grad n)/|grad n|  ****
-         call D3dB_rr_Divide(1,dbl_mb(grupx(1)),
-     >                         dbl_mb(agr(1)),
-     >                         dbl_mb(grupx(1)))
-         call D3dB_rr_Divide(1,dbl_mb(grupy(1)),
-     >                         dbl_mb(agr(1)),
-     >                         dbl_mb(grupy(1)))
-         call D3dB_rr_Divide(1,dbl_mb(grupz(1)),
-     >                         dbl_mb(agr(1)),
-     >                         dbl_mb(grupz(1)))
-         call D3dB_rr_Divide(1,dbl_mb(grdnx(1)),
-     >                         dbl_mb(agr(2)),
-     >                         dbl_mb(grdnx(1)))
-         call D3dB_rr_Divide(1,dbl_mb(grdny(1)),
-     >                         dbl_mb(agr(2)),
-     >                         dbl_mb(grdny(1)))
-         call D3dB_rr_Divide(1,dbl_mb(grdnz(1)),
-     >                         dbl_mb(agr(2)),
-     >                         dbl_mb(grdnz(1)))
-         call D3dB_rr_Divide(1,dbl_mb(grallx(1)),
-     >                         dbl_mb(agr(3)),
-     >                         dbl_mb(grallx(1)))
-         call D3dB_rr_Divide(1,dbl_mb(grally(1)),
-     >                         dbl_mb(agr(3)),
-     >                         dbl_mb(grally(1)))
-         call D3dB_rr_Divide(1,dbl_mb(grallz(1)),
-     >                         dbl_mb(agr(3)),
-     >                         dbl_mb(grallz(1)))
-         call D3dB_rr_Mul(1,dbl_mb(grupx(1)),
-     >                      dbl_mb(fdn(1)),
-     >                      dbl_mb(grupx(1)))
-         call D3dB_rr_Mul(1,dbl_mb(grupy(1)),
-     >                      dbl_mb(fdn(1)),
-     >                      dbl_mb(grupy(1)))
-         call D3dB_rr_Mul(1,dbl_mb(grupz(1)),
-     >                      dbl_mb(fdn(1)),
-     >                      dbl_mb(grupz(1)))
-         call D3dB_rr_Mul(1,dbl_mb(grdnx(1)),
-     >                      dbl_mb(fdn(2)),
-     >                      dbl_mb(grdnx(1)))
-         call D3dB_rr_Mul(1,dbl_mb(grdny(1)),
-     >                      dbl_mb(fdn(2)),
-     >                      dbl_mb(grdny(1)))
-         call D3dB_rr_Mul(1,dbl_mb(grdnz(1)),
-     >                      dbl_mb(fdn(2)),
-     >                      dbl_mb(grdnz(1)))
-         call D3dB_rr_Mul(1,dbl_mb(grallx(1)),
-     >                      dbl_mb(fdn(3)),
-     >                      dbl_mb(grallx(1)))
-         call D3dB_rr_Mul(1,dbl_mb(grally(1)),
-     >                      dbl_mb(fdn(3)),
-     >                      dbl_mb(grally(1)))
-         call D3dB_rr_Mul(1,dbl_mb(grallz(1)),
-     >                      dbl_mb(fdn(3)),
-     >                      dbl_mb(grallz(1)))
+c         call D3dB_rr_Divide(1,dbl_mb(grupx(1)),
+c     >                         dbl_mb(agr(1)),
+c     >                         dbl_mb(grupx(1)))
+c         call D3dB_rr_Divide(1,dbl_mb(grupy(1)),
+c     >                         dbl_mb(agr(1)),
+c     >                         dbl_mb(grupy(1)))
+c         call D3dB_rr_Divide(1,dbl_mb(grupz(1)),
+c     >                         dbl_mb(agr(1)),
+c     >                         dbl_mb(grupz(1)))
+c         call D3dB_rr_Divide(1,dbl_mb(grdnx(1)),
+c     >                         dbl_mb(agr(2)),
+c     >                         dbl_mb(grdnx(1)))
+c         call D3dB_rr_Divide(1,dbl_mb(grdny(1)),
+c     >                         dbl_mb(agr(2)),
+c     >                         dbl_mb(grdny(1)))
+c         call D3dB_rr_Divide(1,dbl_mb(grdnz(1)),
+c     >                         dbl_mb(agr(2)),
+c     >                         dbl_mb(grdnz(1)))
+c         call D3dB_rr_Divide(1,dbl_mb(grallx(1)),
+c     >                         dbl_mb(agr(3)),
+c     >                         dbl_mb(grallx(1)))
+c         call D3dB_rr_Divide(1,dbl_mb(grally(1)),
+c     >                         dbl_mb(agr(3)),
+c     >                         dbl_mb(grally(1)))
+c         call D3dB_rr_Divide(1,dbl_mb(grallz(1)),
+c     >                         dbl_mb(agr(3)),
+c     >                         dbl_mb(grallz(1)))
+         call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grupx(1)))
+         call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grupy(1)))
+         call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grupz(1)))
+         call D3dB_rr_Divide2(1,dbl_mb(agr(2)),dbl_mb(grdnx(1)))
+         call D3dB_rr_Divide2(1,dbl_mb(agr(2)),dbl_mb(grdny(1)))
+         call D3dB_rr_Divide2(1,dbl_mb(agr(2)),dbl_mb(grdnz(1)))
+         call D3dB_rr_Divide2(1,dbl_mb(agr(3)),dbl_mb(grallx(1)))
+         call D3dB_rr_Divide2(1,dbl_mb(agr(3)),dbl_mb(grally(1)))
+         call D3dB_rr_Divide2(1,dbl_mb(agr(3)),dbl_mb(grallz(1)))
+
+
+c         call D3dB_rr_Mul(1,dbl_mb(grupx(1)),
+c     >                      dbl_mb(fdn(1)),
+c     >                      dbl_mb(grupx(1)))
+c         call D3dB_rr_Mul(1,dbl_mb(grupy(1)),
+c     >                      dbl_mb(fdn(1)),
+c     >                      dbl_mb(grupy(1)))
+c         call D3dB_rr_Mul(1,dbl_mb(grupz(1)),
+c     >                      dbl_mb(fdn(1)),
+c     >                      dbl_mb(grupz(1)))
+c         call D3dB_rr_Mul(1,dbl_mb(grdnx(1)),
+c     >                      dbl_mb(fdn(2)),
+c     >                      dbl_mb(grdnx(1)))
+c         call D3dB_rr_Mul(1,dbl_mb(grdny(1)),
+c     >                      dbl_mb(fdn(2)),
+c     >                      dbl_mb(grdny(1)))
+c         call D3dB_rr_Mul(1,dbl_mb(grdnz(1)),
+c     >                      dbl_mb(fdn(2)),
+c     >                      dbl_mb(grdnz(1)))
+c         call D3dB_rr_Mul(1,dbl_mb(grallx(1)),
+c     >                      dbl_mb(fdn(3)),
+c     >                      dbl_mb(grallx(1)))
+c         call D3dB_rr_Mul(1,dbl_mb(grally(1)),
+c     >                      dbl_mb(fdn(3)),
+c     >                      dbl_mb(grally(1)))
+c         call D3dB_rr_Mul(1,dbl_mb(grallz(1)),
+c     >                      dbl_mb(fdn(3)),
+c     >                      dbl_mb(grallz(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(grupx(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(grupy(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(grupz(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(fdn(2)),dbl_mb(grdnx(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(fdn(2)),dbl_mb(grdny(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(fdn(2)),dbl_mb(grdnz(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(fdn(3)),dbl_mb(grallx(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(fdn(3)),dbl_mb(grally(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(fdn(3)),dbl_mb(grallz(1)))
 
 *        **** calculate (df/d|grad nup|* (grad nup)/|grad nup|)  ****
 *        ****         + (df/d|grad n|  * (grad n)/|grad n|)      ****
 
 *        **** calculate (df/d|grad ndn|* (grad ndn)/|grad ndn|)  ****
 *        ****         + (df/d|grad n|  * (grad n)/|grad n|)      ****
-         call D3dB_rr_Sum(1,dbl_mb(grupx(1)),
-     >                      dbl_mb(grallx(1)),
-     >                      dbl_mb(grupx(1)))
-         call D3dB_rr_Sum(1,dbl_mb(grupy(1)),
-     >                      dbl_mb(grally(1)),
-     >                      dbl_mb(grupy(1)))
-         call D3dB_rr_Sum(1,dbl_mb(grupz(1)),
-     >                      dbl_mb(grallz(1)),
-     >                      dbl_mb(grupz(1)))
-         call D3dB_rr_Sum(1,dbl_mb(grdnx(1)),
-     >                      dbl_mb(grallx(1)),
-     >                      dbl_mb(grdnx(1)))
-         call D3dB_rr_Sum(1,dbl_mb(grdny(1)),
-     >                      dbl_mb(grally(1)),
-     >                      dbl_mb(grdny(1)))
-         call D3dB_rr_Sum(1,dbl_mb(grdnz(1)),
-     >                      dbl_mb(grallz(1)),
-     >                      dbl_mb(grdnz(1)))
-         call D3dB_r_SMul(1,scal1,dbl_mb(grupx(1)),
-     >                            dbl_mb(grupx(1)))
-         call D3dB_r_SMul(1,scal1,dbl_mb(grupy(1)),
-     >                            dbl_mb(grupy(1)))
-         call D3dB_r_SMul(1,scal1,dbl_mb(grupz(1)),
-     >                            dbl_mb(grupz(1)))
-         call D3dB_r_SMul(1,scal1,dbl_mb(grdnx(1)),
-     >                            dbl_mb(grdnx(1)))
-         call D3dB_r_SMul(1,scal1,dbl_mb(grdny(1)),
-     >                            dbl_mb(grdny(1)))
-         call D3dB_r_SMul(1,scal1,dbl_mb(grdnz(1)),
-     >                            dbl_mb(grdnz(1)))
+c         call D3dB_rr_Sum(1,dbl_mb(grupx(1)),
+c     >                      dbl_mb(grallx(1)),
+c     >                      dbl_mb(grupx(1)))
+c         call D3dB_rr_Sum(1,dbl_mb(grupy(1)),
+c     >                      dbl_mb(grally(1)),
+c     >                      dbl_mb(grupy(1)))
+c         call D3dB_rr_Sum(1,dbl_mb(grupz(1)),
+c     >                      dbl_mb(grallz(1)),
+c     >                      dbl_mb(grupz(1)))
+c         call D3dB_rr_Sum(1,dbl_mb(grdnx(1)),
+c     >                      dbl_mb(grallx(1)),
+c     >                      dbl_mb(grdnx(1)))
+c         call D3dB_rr_Sum(1,dbl_mb(grdny(1)),
+c     >                      dbl_mb(grally(1)),
+c     >                      dbl_mb(grdny(1)))
+c         call D3dB_rr_Sum(1,dbl_mb(grdnz(1)),
+c     >                      dbl_mb(grallz(1)),
+c     >                      dbl_mb(grdnz(1)))
+         call D3dB_rr_Sum2(1,dbl_mb(grallx(1)),dbl_mb(grupx(1)))
+         call D3dB_rr_Sum2(1,dbl_mb(grally(1)),dbl_mb(grupy(1)))
+         call D3dB_rr_Sum2(1,dbl_mb(grallz(1)),dbl_mb(grupz(1)))
+         call D3dB_rr_Sum2(1,dbl_mb(grallx(1)),dbl_mb(grdnx(1)))
+         call D3dB_rr_Sum2(1,dbl_mb(grally(1)),dbl_mb(grdny(1)))
+         call D3dB_rr_Sum2(1,dbl_mb(grallz(1)),dbl_mb(grdnz(1)))
+
+c         call D3dB_r_SMul(1,scal1,dbl_mb(grupx(1)),
+c     >                            dbl_mb(grupx(1)))
+c         call D3dB_r_SMul(1,scal1,dbl_mb(grupy(1)),
+c     >                            dbl_mb(grupy(1)))
+c         call D3dB_r_SMul(1,scal1,dbl_mb(grupz(1)),
+c     >                            dbl_mb(grupz(1)))
+c         call D3dB_r_SMul(1,scal1,dbl_mb(grdnx(1)),
+c     >                            dbl_mb(grdnx(1)))
+c         call D3dB_r_SMul(1,scal1,dbl_mb(grdny(1)),
+c     >                            dbl_mb(grdny(1)))
+c         call D3dB_r_SMul(1,scal1,dbl_mb(grdnz(1)),
+c     >                            dbl_mb(grdnz(1)))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(grupx(1)))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(grupy(1)))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(grupz(1)))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(grdnx(1)))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(grdny(1)))
+         call D3dB_r_SMul1(1,scal1,dbl_mb(grdnz(1)))
+
          call D3dB_r_Zero_Ends(1,dbl_mb(grupx(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(grupy(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(grupz(1)))

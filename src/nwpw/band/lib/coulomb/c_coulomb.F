@@ -1,5 +1,5 @@
 *
-* $Id: c_coulomb.F,v 1.7 2008-08-30 01:12:42 bylaska Exp $
+* $Id: c_coulomb.F,v 1.8 2009-02-07 03:50:01 bylaska Exp $
 *
       subroutine c_coulomb_init()
       implicit none 
@@ -228,8 +228,9 @@ c     real*8  tmp1(*)
       call Cram_cr_Sqr(0,dng,dbl_mb(tmp1(1)))
       call Cram_rr_Mul(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),
      >                                   dbl_mb(tmp2(1)))
-      call Cram_rr_Mul(0,dbl_mb(tmp2(1)),dbl_mb(vc_indx),
-     >                                   dbl_mb(tmp2(1)))
+c      call Cram_rr_Mul(0,dbl_mb(tmp2(1)),dbl_mb(vc_indx),
+c     >                                   dbl_mb(tmp2(1)))
+      call Cram_rr_Mul2(0,dbl_mb(vc_indx),dbl_mb(tmp2(1)))
 
 
 *     **** Bus = Sum(G) (omega/4*pi)*tmp2(G)*Gu*Gs ****

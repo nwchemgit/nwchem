@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.31 2009-01-31 01:19:05 bylaska Exp $
+* $Id: geodesic.F,v 1.32 2009-02-07 03:50:56 bylaska Exp $
 *
 
 *     ***********************************
@@ -313,14 +313,14 @@ c      end do
       sum1 = dble(nemax)
       if (dabs(sum2-sum1).gt.1.0d-10) then
         call Dneall_f_ortho(0,Ynew,npack1)
-        call Grsm_gg_trace(npack1,nemaxq,Ynew,Ynew,sum3)
-        call D1dB_SumAll(sum3)
 
-        call Parallel_taskid(taskid)
-         if (taskid.eq.MASTER) 
-     >      write(*,'(5x,A,A,4e10.3)') 
-     >      "-  Warning: Gram-Schmidt performed in geodesic_get, ",
-     >      "error=",dabs(sum2-sum1),sum2,dabs(sum3-sum1),sum3
+c        call Grsm_gg_trace(npack1,nemaxq,Ynew,Ynew,sum3)
+c        call D1dB_SumAll(sum3)
+c        call Parallel_taskid(taskid)
+c         if (taskid.eq.MASTER) 
+c     >      write(*,'(5x,A,A,4e10.3)') 
+c     >      "-  Warning: Gram-Schmidt performed in geodesic_get, ",
+c     >      "error=",dabs(sum2-sum1),sum2,dabs(sum3-sum1),sum3
 
 c         call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
 c         if (psi_ispin().gt.1) then

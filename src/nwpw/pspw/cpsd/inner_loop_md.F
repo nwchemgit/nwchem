@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.36 2009-01-31 01:18:01 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.37 2009-02-07 03:50:36 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -303,7 +303,8 @@ c        end do
         if (psp_semicore(0)) then
            call semicore_density_update()
            call semicore_density(dcpl_mb(tmp1(1)))
-           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+           call D3dB_r_SMul1(1,0.5d0,dcpl_mb(tmp1(1)))
         else
            call dcopy(n2ft3d,0.0d0,0,dcpl_mb(tmp1(1)),1)
         end if
@@ -454,7 +455,8 @@ c        end if
               call Pack_c_SMul(1,0.5d0*dte,Hpsi(1,n),psi2(1,n))
               call Pack_cc_daxpy(1,-1.0d0,psi0(1,n),psi2(1,n))
               call Pack_cc_daxpy(1,1.0d0,psi1(1,n),psi2(1,n))
-              call Pack_c_SMul(1,2.0d0*sse,psi2(1,n),psi2(1,n))
+c              call Pack_c_SMul(1,2.0d0*sse,psi2(1,n),psi2(1,n))
+              call Pack_c_SMul1(1,2.0d0*sse,psi2(1,n))
               call Pack_cc_daxpy(1,1.0d0,psi0(1,n),psi2(1,n))
              end do
              call ion_nose_step(ssr,dbl_mb(fion(1)))
@@ -484,7 +486,8 @@ c        end if
            do n=1,n2(ispin)
               call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
               call Pack_cc_daxpy(1,s*dt*sa_alpha(1),psi0(1,n),psi2(1,n))
-              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+              call Pack_cc_Sum2(1,psi1(1,n),psi2(1,n))
            end do
 
 *          **** QM/MM Newton update ****
@@ -628,7 +631,8 @@ c        end if
       h = 1.0d0/(2.0d0*dt)
       eke = 0.0d0
       do i=1,n2(ispin)
-         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
+c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
+         call Pack_c_SMul1(1,-h,psi0(1,i))
          call Pack_cc_daxpy(1,h,psi2(1,i),psi0(1,i))
          call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
          eke = eke+sum

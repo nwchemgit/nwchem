@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.32 2008-12-19 00:42:06 bylaska Exp $
+* $Id: pack.F,v 1.33 2009-02-07 03:50:18 bylaska Exp $
 *
 
 *     ***********************************
@@ -1447,6 +1447,37 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_cc_Sum2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_cc_Sum2(nb,A,B)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        B(i) = B(i) + A(i)
+      end do
+
+      return
+      end
+
+
 *     ***********************************
 *     *					*
 *     *	         Pack_tt_Sum		*	
@@ -1470,6 +1501,35 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
       do i=1,(nida(nb)+nidb(nb))
         C(i) = A(i) + B(i)
+      end do
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_tt_Sum2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_tt_Sum2(nb,A,B)
+      implicit none
+      integer  nb
+      real*8 A(*)
+      real*8 B(*)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        B(i) = B(i) + A(i)
       end do
 
       return
@@ -1562,6 +1622,32 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *          Pack_tt_Sqrt1          *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_tt_Sqrt1(nb,A)
+      implicit none
+      integer  nb
+      real*8   A(*)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        A(i) = dsqrt(A(i))
+      end do
+
+      return
+      end
+
 
 *     ***********************************
 *     *					*
@@ -1621,6 +1707,35 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_c_SMul1           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_c_SMul1(nb,alpha,A)
+      implicit none
+      integer    nb
+      real*8     alpha
+      complex*16 A(*)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        A(i) = alpha*A(i)
+      end do
+
+      return
+      end
+
+
 *     ***********************************
 *     *					*
 *     *	         Pack_c_ZMul		*	
@@ -1676,6 +1791,34 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
       do i=1,(nida(nb)+nidb(nb))
         C(i) = alpha*A(i)
+      end do
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_t_SMul1           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_t_SMul1(nb,alpha,A)
+      implicit none
+      integer    nb
+      real*8 alpha
+      real*8 A(*)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        A(i) = alpha*A(i)
       end do
 
       return
@@ -1800,6 +1943,37 @@ c      end do
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_tc_Mul2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_tc_Mul2(nb,A,B)
+      implicit none
+      integer    nb
+      real*8     A(*)
+      complex*16 B(*)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        B(i) = B(i)*A(i)
+      end do
+
+      return
+      end
+
+
+
 *     ***********************************
 *     *                                 *
 *     *          Pack_tc_aMul           *
@@ -1954,6 +2128,35 @@ c      end do
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_cc_Mul2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_cc_Mul2(nb,A,B)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        B(i) = B(i)*A(i)
+      end do
+
+      return
+      end
+
+
 *     ***********************************
 *     *					*
 *     *	         Pack_cct_conjgMul	*	
@@ -2069,6 +2272,33 @@ c      end do
 
       do i=1,(nida(nb)+nidb(nb))
         C(i) = A(i)*B(i)
+      end do
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_tt_Mul2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_tt_Mul2(nb,A,B)
+      implicit none
+      integer    nb
+      real*8     A(*)
+      real*8     B(*)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        B(i) = B(i)*A(i)
       end do
 
       return

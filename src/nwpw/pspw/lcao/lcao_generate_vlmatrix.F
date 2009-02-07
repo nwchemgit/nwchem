@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vlmatrix.F,v 1.4 2005-07-12 21:26:33 bylaska Exp $
+* $Id: lcao_generate_vlmatrix.F,v 1.5 2009-02-07 03:50:40 bylaska Exp $
 *
       subroutine lcao_generate_vlmatrix(vlmatrix,phi1,phi2)
       implicit none
@@ -65,7 +65,8 @@
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vsr_l    ****
 *     **********************************************************
-      call Pack_c_SMul(0,scal2,dcpl_mb(vl(1)),dcpl_mb(vl(1)))
+c      call Pack_c_SMul(0,scal2,dcpl_mb(vl(1)),dcpl_mb(vl(1)))
+      call Pack_c_SMul1(0,scal2,dcpl_mb(vl(1)))
 
 
 *     **********************************************
@@ -78,9 +79,10 @@
 *     **** add vlr_l                ****
 *     **********************************
       if (control_version().eq.4) then
-        call D3dB_rr_Sum(1,dcpl_mb(vl(1)),
-     >                   dbl_mb(vlr_l(1)),
-     >                   dcpl_mb(vl(1)))
+c        call D3dB_rr_Sum(1,dcpl_mb(vl(1)),
+c     >                   dbl_mb(vlr_l(1)),
+c     >                   dcpl_mb(vl(1)))
+        call D3dB_rr_Sum2(1,dbl_mb(vlr_l(1)),dcpl_mb(vl(1)))
       end if
 
 
@@ -97,9 +99,10 @@
          call D3dB_cr_pfft3b(1,1,dbl_mb(vpsi))
          call D3dB_r_Zero_Ends(1,dbl_mb(vpsi))
 
-         call D3dB_rr_Mul(1,dcpl_mb(vl(1)),
-     >                      dbl_mb(vpsi),
-     >                      dbl_mb(vpsi))
+c         call D3dB_rr_Mul(1,dcpl_mb(vl(1)),
+c     >                      dbl_mb(vpsi),
+c     >                      dbl_mb(vpsi))
+         call D3dB_rr_Mul2(1,dcpl_mb(vl(1)),dbl_mb(vpsi))
 
 *        *******************************
 *        **** get vpsi_r in k-space ****

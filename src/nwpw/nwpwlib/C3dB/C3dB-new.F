@@ -1,6 +1,6 @@
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.32 2008-06-03 17:34:07 d3p708 Exp $
+* $Id: C3dB-new.F,v 1.33 2009-02-07 03:50:12 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1744,6 +1744,24 @@ c      integer mpierr,mstatus(MPI_STATUS_SIZE)
       end
 
 
+      subroutine C3dB_c_SMul1(nb,scale,A)
+      implicit none
+      integer    nb
+      real*8     scale
+      complex*16 A(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,nfft3d_map(nb)
+         A(i) = scale*A(i)
+      end do
+      return
+      end
+
+
+
       subroutine C3dB_r_SMul(nb,scale,A,C)     
       implicit none 
       integer nb
@@ -1761,6 +1779,21 @@ c      integer mpierr,mstatus(MPI_STATUS_SIZE)
       return
       end 
 
+      subroutine C3dB_r_SMul1(nb,scale,A)
+      implicit none
+      integer nb
+      real*8     scale
+      real*8 A(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         A(i) = scale*A(i)
+      end do
+      return
+      end
 
 
       subroutine C3dB_c_ZMul(nb,scale,A,C)     
@@ -2735,6 +2768,56 @@ c      call Parallel3d_np_i(np)
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *          C3dB_cc_Mul2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_cc_Mul2(nb,A,B)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,nfft3d_map(nb)
+         B(i) = dconjg(A(i)) * B(i)
+      end do
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *          C3dB_cc_Mul2c          *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_cc_Mul2c(nb,A,B)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,nfft3d_map(nb)
+         B(i) = dconjg(B(i)) * A(i)
+      end do
+
+      return
+      end
+
+
 *     ***********************************
 *     *					*
 *     *	         C3dB_lc_Mask  	 	*	
@@ -2878,6 +2961,31 @@ c      call Parallel3d_np_i(np)
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *          C3dB_rc_Sum2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_rc_Sum2(nb,A,B)
+      implicit none
+      integer    nb
+      real*8     A(*)
+      complex*16 B(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,nfft3d_map(nb)
+         B(i) = B(i) + A(i)
+      end do
+
+      return
+      end
+
+
 
 
 *     ***********************************

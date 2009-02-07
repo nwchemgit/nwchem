@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.36 2008-11-03 23:44:40 bylaska Exp $
+* $Id: cram.F,v 1.37 2009-02-07 03:50:18 bylaska Exp $
 *
 
 *     ***********************************
@@ -1443,6 +1443,33 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_cc_Sum2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_cc_Sum2(nb,A,B)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(int_mb(nidb2_list(1)+nb))
+        B(i) = B(i) + A(i)
+      end do
+
+      return
+      end
+
+
 *     ***********************************
 *     *					*
 *     *	         Cram_rr_Sum		*	
@@ -1469,6 +1496,32 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_rr_Sum2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_rr_Sum2(nb,A,B)
+      implicit none
+      integer  nb
+      real*8 A(*)
+      real*8 B(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(int_mb(nidb2_list(1)+nb))
+        B(i) = B(i) + A(i)
+      end do
+
+      return
+      end
 
 
 *     ***********************************
@@ -1604,6 +1657,35 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_c_SMul1           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_c_SMul1(nb,alpha,A)
+      implicit none
+      integer    nb
+      real*8     alpha
+      complex*16 A(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(int_mb(nidb2_list(1)+nb))
+        A(i) = alpha*A(i)
+      end do
+
+      return
+      end
+
+
+
 *     ***********************************
 *     *					*
 *     *	         Cram_c_ZMul		*	
@@ -1653,6 +1735,32 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
       do i=1,(int_mb(nidb2_list(1)+nb))
         C(i) = alpha*A(i)
+      end do
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_r_SMul1            *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_r_SMul1(nb,alpha,A)
+      implicit none
+      integer    nb
+      real*8 alpha
+      real*8 A(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(int_mb(nidb2_list(1)+nb))
+        A(i) = alpha*A(i)
       end do
 
       return
@@ -1845,6 +1953,33 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_cc_Mul2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_cc_Mul2(nb,A,B)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(int_mb(nidb2_list(1)+nb))
+        B(i) = B(i)*A(i)
+      end do
+
+      return
+      end
+
+
 *     ***********************************
 *     *					*
 *     *	         Cram_ccr_conjgMul	*	
@@ -1953,6 +2088,32 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_rr_Mul2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_rr_Mul2(nb,A,B)
+      implicit none
+      integer    nb
+      real*8     A(*)
+      real*8     B(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(int_mb(nidb2_list(1)+nb))
+        B(i) = B(i)*A(i)
+      end do
+
+      return
+      end
+
 
 
 *     ***********************************

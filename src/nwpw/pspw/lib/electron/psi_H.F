@@ -1,5 +1,5 @@
 *
-* $Id: psi_H.F,v 1.21 2008-09-30 19:53:33 bylaska Exp $
+* $Id: psi_H.F,v 1.22 2009-02-07 03:50:49 bylaska Exp $
 *
 
 *     *************************************
@@ -134,7 +134,8 @@ c     complex*16 vpsi(nfft3d)
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
 *     **********************************************************
       call Pack_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
-      call Pack_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
+c      call Pack_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
+      call Pack_cc_Sum2(0,vc,dcpl_mb(vall(1)))
       
 *     **********************************************
 *     **** fourier transform k-space potentials ****
@@ -145,8 +146,10 @@ c     complex*16 vpsi(nfft3d)
 *     ******************************
 *     **** add v_field to vall  ****
 *     ******************************
+c      if (field_exist)
+c     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
       if (field_exist)
-     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
+     >  call D3dB_rr_Sum2(1,v_field,dcpl_mb(vall(1)))
 
 
 *     **************************************************************
@@ -164,14 +167,20 @@ c     complex*16 vpsi(nfft3d)
             call D3dB_rr_Sum(1,dcpl_mb(vall(1)),
      >                       xcp(1+(ms-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
-            call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
-     >                       psi_r(1+(indx1-1)*n2ft3d),
+
+c            call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
+c     >                       psi_r(1+(indx1-1)*n2ft3d),
+c     >                       dcpl_mb(vpsi(1)))
+            call D3dB_rr_Mul2(1,psi_r(1+(indx1-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
 
+c            if ((dosic).or.(dohfx))
+c     >        call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
+c     >                         dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
+c     >                         dcpl_mb(vpsi(1)))
             if ((dosic).or.(dohfx))
-     >        call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
-     >                         dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
-     >                         dcpl_mb(vpsi(1)))
+     >        call D3dB_rr_Sum2(1,dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
+     >                            dcpl_mb(vpsi(1)))
 
 *           **** put vpsi_r in k-space ****
             call D3dB_rc_pfft3f_queuein(1,dcpl_mb(vpsi(1)))
@@ -334,9 +343,12 @@ c     end if
      >                   dcpl_mb(vpsi(1)))
 
 *     **** vpsi_r = vpsi_r + Hpsi_r ****
+c      if (dohfx)
+c     >   call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
+c     >                      dbl_mb(Horb_r(1)),
+c     >                      dcpl_mb(vpsi(1)))
       if (dohfx)
-     >   call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
-     >                      dbl_mb(Horb_r(1)),
+     >   call D3dB_rr_Sum2(1,dbl_mb(Horb_r(1)),
      >                      dcpl_mb(vpsi(1)))
 
 *     **** put vpsi_r in k-space ****

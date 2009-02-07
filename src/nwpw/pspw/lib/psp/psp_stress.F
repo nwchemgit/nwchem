@@ -1,5 +1,5 @@
 *
-* $Id: psp_stress.F,v 1.16 2008-06-02 15:20:05 bylaska Exp $
+* $Id: psp_stress.F,v 1.17 2009-02-07 03:50:58 bylaska Exp $
 *
 
 
@@ -171,17 +171,22 @@
      >                          dbl_mb(tmp2(1)))
 
 *       **** tmp2(G) = tmp2(G)*(dvl(G))
-        call Pack_tt_Mul(0,dbl_mb(tmp2(1)),
-     >                     dbl_mb(dvl(1)+(ia-1)*npack0),
-     >                     dbl_mb(tmp2(1)))
+c        call Pack_tt_Mul(0,dbl_mb(tmp2(1)),
+c     >                     dbl_mb(dvl(1)+(ia-1)*npack0),
+c     >                     dbl_mb(tmp2(1)))
+        call Pack_tt_Mul2(0,dbl_mb(dvl(1)+(ia-1)*npack0),
+     >                      dbl_mb(tmp2(1)))
 
 *       **** tmp2(G) = tmp2(G)/G ****
         ss     = 1.0d0/fourpi
         call Pack_t_SMul(0,ss,dbl_mb(vc_indx),dbl_mb(tmp1(1)))
-        call Pack_tt_Sqrt(0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
-        call Pack_tt_Mul(0,dbl_mb(tmp1(1)),
-     >                     dbl_mb(tmp2(1)),
-     >                     dbl_mb(tmp2(1)))
+c        call Pack_tt_Sqrt(0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
+c        call Pack_tt_Mul(0,dbl_mb(tmp1(1)),
+c     >                     dbl_mb(tmp2(1)),
+c     >                     dbl_mb(tmp2(1)))
+        call Pack_tt_Sqrt1(0,dbl_mb(tmp1(1)))
+        call Pack_tt_Mul2(0,dbl_mb(tmp1(1)),
+     >                      dbl_mb(tmp2(1)))
         
 *       **** Bus = Bus - Sum(G) tmp2(G)*Gu*Gs ***
         do u=1,3

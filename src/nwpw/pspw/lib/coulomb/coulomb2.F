@@ -289,14 +289,16 @@ c     *** Expand the density ***
 
 c     **** Convolution g*dn ****
       call D3dB_rc_fft3f(2,dcpl_mb(tmpx(1)))
-      call D3dB_tc_MUL(2,dbl_mb(gk(1)),
-     >                   dcpl_mb(tmpx(1)),
-     >                   dcpl_mb(tmpx(1)))
+c      call D3dB_tc_Mul(2,dbl_mb(gk(1)),
+c     >                   dcpl_mb(tmpx(1)),
+c     >                   dcpl_mb(tmpx(1)))
+      call D3dB_tc_Mul2(2,dbl_mb(gk(1)),dcpl_mb(tmpx(1)))
       call D3dB_cr_fft3b(2,dcpl_mb(tmpx(1)))
 
 c     **** contract tmpx to extract vh ****
       call D3dB_r_Contract(2,dcpl_mb(tmpx(1)),1,vh)
-      call D3dB_r_SMul(1,scale,vh,vh)
+c      call D3dB_r_SMul(1,scale,vh,vh)
+      call D3dB_r_SMul1(1,scale,vh)
            
       value = MA_pop_stack(tmpx(2))
       if (.not. value) call errquit('error popping stack memory',0,

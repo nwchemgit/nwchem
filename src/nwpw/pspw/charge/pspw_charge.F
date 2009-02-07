@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.21 2008-10-22 23:56:43 bylaska Exp $
+c $Id: pspw_charge.F,v 1.22 2009-02-07 03:50:34 bylaska Exp $
 c
   
 ***********************************************************
@@ -182,10 +182,12 @@ c
            call Pack_t_Copy(0,dbl_mb(gk(1)),dbl_mb(vc_charge(1)))
            call Pack_t_pack(0,dbl_mb(gk2(1)))
            call Pack_t_Copy(0,dbl_mb(gk2(1)),dbl_mb(vc2_charge(1)))
-           call Pack_t_SMul(0,scal2,dbl_mb(vc_charge(1)),
-     >                              dbl_mb(vc_charge(1)))
-           call Pack_t_SMul(0,scal2,dbl_mb(vc2_charge(1)),
-     >                              dbl_mb(vc2_charge(1)))
+c           call Pack_t_SMul(0,scal2,dbl_mb(vc_charge(1)),
+c     >                              dbl_mb(vc_charge(1)))
+c           call Pack_t_SMul(0,scal2,dbl_mb(vc2_charge(1)),
+c     >                              dbl_mb(vc2_charge(1)))
+           call Pack_t_SMul1(0,scal2,dbl_mb(vc_charge(1)))
+           call Pack_t_SMul1(0,scal2,dbl_mb(vc2_charge(1)))
 
            value =           MA_pop_stack(gk2(2))
            value = value.and.MA_pop_stack(gk(2))
@@ -667,9 +669,11 @@ c
              call Pack_cc_daxpy(0,dabs(q1),dcpl_mb(exi(1)),
      >                                     dcpl_mb(tmp(1)))
            end do
-           call Pack_tc_Mul(0,dbl_mb(vc_charge(1)),Vqm,Vqm)
-           call Pack_tc_Mul(0,dbl_mb(vc2_charge(1)),dcpl_mb(tmp(1)),
-     >                                              dcpl_mb(tmp(1)))
+c           call Pack_tc_Mul(0,dbl_mb(vc_charge(1)),Vqm,Vqm)
+c           call Pack_tc_Mul(0,dbl_mb(vc2_charge(1)),dcpl_mb(tmp(1)),
+c     >                                              dcpl_mb(tmp(1)))
+           call Pack_tc_Mul2(0,dbl_mb(vc_charge(1)),Vqm)
+           call Pack_tc_Mul2(0,dbl_mb(vc2_charge(1)),dcpl_mb(tmp(1)))
            !call Pack_cc_Sum(0,dcpl_mb(tmp(1)),Vqm,Vqm)
            call Pack_c_unpack(0,Vqm)
            call D3dB_cr_fft3b(1,Vqm)

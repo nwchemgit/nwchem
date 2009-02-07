@@ -1,7 +1,10 @@
-* $Id: cpsi_KS.F,v 1.16 2007-09-12 17:28:19 bylaska Exp $
+* $Id: cpsi_KS.F,v 1.17 2009-02-07 03:50:10 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.16  2007/09/12 17:28:19  bylaska
+* cpsi_data_ routines have been added...EJB
+*
 * Revision 1.15  2007/08/24 02:25:01  bylaska
 * added density mixing to band...EJB
 *
@@ -239,9 +242,10 @@
      >                      dbl_mb(psi1_shift),
      >                      sum)
            sum = 1.0d0/dsqrt(sum)
-           call Cram_c_SMul(nb,sum,
-     >                      dbl_mb(psi1_shift),
-     >                      dbl_mb(psi1_shift))
+c           call Cram_c_SMul(nb,sum,
+c     >                      dbl_mb(psi1_shift),
+c     >                      dbl_mb(psi1_shift))
+           call Cram_c_SMul1(nb,sum,dbl_mb(psi1_shift))
 
 
             call cpsi_KS_update_orb(psi_number,precondition,maxit_orb,
@@ -327,9 +331,10 @@
      >              dbl_mb(psi1_shift),
      >              sum)
            sum = 1.0d0/dsqrt(sum)
-           call Cram_c_SMul(nb,sum,
-     >              dbl_mb(psi1_shift),
-     >              dbl_mb(psi1_shift))
+c           call Cram_c_SMul(nb,sum,
+c     >              dbl_mb(psi1_shift),
+c     >              dbl_mb(psi1_shift))
+           call Cram_c_SMul1(nb,sum,dbl_mb(psi1_shift))
 
 
             !**** minimize orbital ****
@@ -677,7 +682,8 @@ c!    >                 dcpl_mb(t(1)))
      >                   sigma)
          sigma = dsqrt(sigma)
          de0 = 1.0d0/sigma
-         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+c         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+         call Cram_c_SMul1(nb,de0,dcpl_mb(t(1)))
 
 
 
@@ -812,9 +818,10 @@ c!    >                 dcpl_mb(t(1)))
       call Cram_cc_daxpy(nb,x,
      >                   t,
      >                   tau_t)
-      call Cram_c_SMul(nb,sigma,
-     >                  tau_t,
-     >                  tau_t)
+c      call Cram_c_SMul(nb,sigma,
+c     >                  tau_t,
+c     >                  tau_t)
+      call Cram_c_SMul1(nb,sigma,tau_t)
 
 *     **** orb2 = orb*cos(theta) + t*sin(theta) ****
       call Cram_c_SMul(nb,x,
@@ -969,7 +976,8 @@ c         end if
      >                   sigma)
          sigma = dsqrt(sigma)
          de0 = 1.0d0/sigma
-         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+c         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+         call Cram_c_SMul1(nb,de0,dcpl_mb(t(1)))
 
 
 
@@ -1243,13 +1251,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >              sum2)
            sum = sum1 + sum2
            sum = 1.0d0/dsqrt(sum)
-           call Cram_c_SMul(nb,sum,
-     >              dbl_mb(psi1_shift+(i-1)*nshift),
+c           call Cram_c_SMul(nb,sum,
+c     >              dbl_mb(psi1_shift+(i-1)*nshift),
+c     >              dbl_mb(psi1_shift+(i-1)*nshift))
+           call Cram_c_SMul1(nb,sum,
      >              dbl_mb(psi1_shift+(i-1)*nshift))
-           call Cram_c_SMul(nb,sum,
-     >              dbl_mb(psi1_shift+(i-1)*nshift + shifts),
+c           call Cram_c_SMul(nb,sum,
+c     >              dbl_mb(psi1_shift+(i-1)*nshift + shifts),
+c     >              dbl_mb(psi1_shift+(i-1)*nshift + shifts))
+           call Cram_c_SMul1(nb,sum,
      >              dbl_mb(psi1_shift+(i-1)*nshift + shifts))
-
 
 
             call cpsi_KS_update_orb_2com(psi_number,precondition,
@@ -1347,12 +1358,14 @@ c      end do
            sum = sum1 + sum2
            sum = 1.0d0/dsqrt(sum)
 
-           call Cram_c_SMul(nb,sum,
-     >              dbl_mb(psi_ptr),
-     >              dbl_mb(psi_ptr))
-           call Cram_c_SMul(nb,sum,
-     >              dbl_mb(psi_ptr+shifts),
-     >              dbl_mb(psi_ptr+shifts))
+c           call Cram_c_SMul(nb,sum,
+c     >              dbl_mb(psi_ptr),
+c     >              dbl_mb(psi_ptr))
+c           call Cram_c_SMul(nb,sum,
+c     >              dbl_mb(psi_ptr+shifts),
+c     >              dbl_mb(psi_ptr+shifts))
+           call Cram_c_SMul1(nb,sum,dbl_mb(psi_ptr))
+           call Cram_c_SMul1(nb,sum,dbl_mb(psi_ptr+shifts))
 
 
             !**** minimize orbital ****
@@ -1675,9 +1688,11 @@ c!    >                 dcpl_mb(t(1)))
          sigma=sigma+tmp
          sigma = dsqrt(sigma)
          de0 = 1.0d0/sigma
-         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
-         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)+npack1),
-     >        dcpl_mb(t(1)+npack1))
+c         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+c         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)+npack1),
+c     >        dcpl_mb(t(1)+npack1))
+         call Cram_c_SMul1(nb,de0,dcpl_mb(t(1)))
+         call Cram_c_SMul1(nb,de0,dcpl_mb(t(1)+npack1))
 
 
 
@@ -1831,12 +1846,14 @@ c     >           theta
       call Cram_cc_daxpy(nb,x,
      >                   t(npack1+1),
      >                   tau_t(npack1+1))
-      call Cram_c_SMul(nb,sigma,
-     >                  tau_t,
-     >                  tau_t)
-      call Cram_c_SMul(nb,sigma,
-     >                  tau_t(npack1+1),
-     >                  tau_t(npack1+1))
+c      call Cram_c_SMul(nb,sigma,
+c     >                  tau_t,
+c     >                  tau_t)
+c      call Cram_c_SMul(nb,sigma,
+c     >                  tau_t(npack1+1),
+c     >                  tau_t(npack1+1))
+      call Cram_c_SMul1(nb,sigma,tau_t)
+      call Cram_c_SMul1(nb,sigma,tau_t(npack1+1))
 
 *     **** orb2 = orb*cos(theta) + t*sin(theta) ****
       call Cram_c_SMul(nb,x,
@@ -1864,7 +1881,7 @@ c     >           theta
 
 *     ***********************************
 *     *                                 *
-*     *      cpsi_KS_minimize_orb      *
+*     *      cpsi_KS_minimize_orb2_com  *
 *     *                                 *
 *     ***********************************
 
@@ -2003,10 +2020,11 @@ c         write(*,*) "it,e0,eold,psi_error=",it,(-e0),(-eold),psi_error
          sigma = sigma + tmp
          sigma = dsqrt(sigma)
          de0 = 1.0d0/sigma
-         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
-         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)+npack1),
-     >       dcpl_mb(t(1)+npack1))
-
+c         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+c         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)+npack1),
+c     >       dcpl_mb(t(1)+npack1))
+         call Cram_c_SMul1(nb,de0,dcpl_mb(t(1)))
+         call Cram_c_SMul1(nb,de0,dcpl_mb(t(1)+npack1))
 
 
 *        **** compute de0 = <t|g> ****

@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize2.F,v 1.16 2008-09-03 17:07:41 bylaska Exp $                       
+c     $Id: cgminimize2.F,v 1.17 2009-02-07 03:50:32 bylaska Exp $                       
 c
 
 *  **************************************************************
@@ -192,13 +192,18 @@ c
                 scale = 0.0d0
              end if
 
-             call Grsm_gg_dScale(npack1,ne(ms),scale,
-     >                         dcpl_mb(H0(1)+(ms-1)*npack1*ne(1)),
+c             call Grsm_gg_dScale(npack1,ne(ms),scale,
+c     >                         dcpl_mb(H0(1)+(ms-1)*npack1*ne(1)),
+c     >                         dcpl_mb(H0(1)+(ms-1)*npack1*ne(1)))
+             call Grsm_gg_dScale1(npack1,ne(ms),scale,
      >                         dcpl_mb(H0(1)+(ms-1)*npack1*ne(1)))
            end do
-           call Grsm_ggg_Sum(npack1,neall,
+c           call Grsm_ggg_Sum(npack1,neall,
+c     >                       dcpl_mb(G1(1)),
+c     >                       dcpl_mb(H0(1)),
+c     >                       dcpl_mb(H0(1)))
+           call Grsm_ggg_Sum2(npack1,neall,
      >                       dcpl_mb(G1(1)),
-     >                       dcpl_mb(H0(1)),
      >                       dcpl_mb(H0(1)))
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.55 2008-09-17 00:55:34 bylaska Exp $
+* $Id: electron.F,v 1.56 2009-02-07 03:50:49 bylaska Exp $
 *
 
 
@@ -1354,8 +1354,10 @@ cccc#include "frac_occ.fh"
      >             dbl_mb(  psi_r(1)+index1r),
      >             dcpl_mb(Hpsi_k(1)+index2))
 
-      call Pack_c_SMul(1,(-1.0d0),
-     >                 dcpl_mb(Hpsi_k(1)+index2),
+c      call Pack_c_SMul(1,(-1.0d0),
+c     >                 dcpl_mb(Hpsi_k(1)+index2),
+c     >                 dcpl_mb(Hpsi_k(1)+index2))
+      call Pack_c_SMul1(1,(-1.0d0),
      >                 dcpl_mb(Hpsi_k(1)+index2))
 
       return
@@ -1419,7 +1421,8 @@ cccc#include "frac_occ.fh"
      >             dbl_mb(tmp_r(1)),
      >             Horb)
 
-      call Pack_c_SMul(1,(-1.0d0),Horb,Horb)
+c      call Pack_c_SMul(1,(-1.0d0),Horb,Horb)
+      call Pack_c_SMul1(1,(-1.0d0),Horb)
 
       value = MA_pop_stack(tmp_r(2))
       if (.not. value) call errquit(
@@ -1700,7 +1703,8 @@ cccccccccc#include "frac_occ.fh"
      >     'electron_gen_dng_dnall: out of stack memory',0, MA_ERR)
 
       call D3dB_rr_Sum(1,dn,dn(1+(ispin-1)*n2ft3d),dbl_mb(tmp1(1)))
-      call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
+c      call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
+      call D3dB_r_SMul1(1,scal1,dbl_mb(tmp1(1)))
       !call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
       call D3dB_rc_pfft3f(1,0,dbl_mb(tmp1(1)))
       call Pack_c_pack(0,dbl_mb(tmp1(1)))
@@ -1711,7 +1715,8 @@ cccccccccc#include "frac_occ.fh"
 *       ********************************************************
         if (psp_semicore(0)) then
            call semicore_density(dbl_mb(tmp1(1)))
-           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
+c           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
+           call D3dB_r_SMul1(1,0.5d0,dbl_mb(tmp1(1)))
         else
            call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
         end if
@@ -1762,9 +1767,10 @@ cccccccccc#include "frac_occ.fh"
 *       **** add up k-space potentials, vall = scal2*vl + vc  ****
         call Pack_c_SMul(0,scal2,dcpl_mb(vl(1)),
      >                           dbl_mb(vall(1)))
-        call Pack_cc_Sum(0,dbl_mb(vall(1)),
-     >                     dcpl_mb(vc(1)),
-     >                     dbl_mb(vall(1)))
+c        call Pack_cc_Sum(0,dbl_mb(vall(1)),
+c     >                     dcpl_mb(vc(1)),
+c     >                     dbl_mb(vall(1)))
+        call Pack_cc_Sum2(0,dcpl_mb(vc(1)),dbl_mb(vall(1)))
       
 *       **** fourier transform k-space potentials ****
         call Pack_c_unpack(0,dbl_mb(vall(1)))
@@ -1772,10 +1778,12 @@ cccccccccc#include "frac_occ.fh"
         call D3dB_cr_pfft3b(1,0,dbl_mb(vall(1)))
 
 *       **** add v_field to vall ****
+c        if (field_exist)
+c     >    call D3dB_rr_Sum(1,dbl_mb(vall(1)),
+c     >                       dbl_mb(v_field(1)),
+c     >                       dbl_mb(vall(1)))
         if (field_exist)
-     >    call D3dB_rr_Sum(1,dbl_mb(vall(1)),
-     >                       dbl_mb(v_field(1)),
-     >                       dbl_mb(vall(1)))
+     >    call D3dB_rr_Sum2(1,dbl_mb(v_field(1)),dbl_mb(vall(1)))
 
       else
 
@@ -1789,26 +1797,39 @@ cccccccccc#include "frac_occ.fh"
          call D3dB_cr_pfft3b(1,0,dbl_mb(vall(1)))
 
 *        **** add vlr_l, vc and v_field to vall ****
-         call D3dB_rr_Sum(1,dbl_mb(vall(1)),
-     >                      dbl_mb(vl_lr(1)),
-     >                      dbl_mb(vall(1)))
-         call D3dB_rr_Sum(1,dbl_mb(vall(1)),
-     >                      dcpl_mb(vc(1)),   
-     >                      dbl_mb(vall(1)))
+c         call D3dB_rr_Sum(1,dbl_mb(vall(1)),
+c     >                      dbl_mb(vl_lr(1)),
+c     >                      dbl_mb(vall(1)))
+c         call D3dB_rr_Sum(1,dbl_mb(vall(1)),
+c     >                      dcpl_mb(vc(1)),   
+c     >                      dbl_mb(vall(1)))
+c         if (field_exist)
+c     >     call D3dB_rr_Sum(1,dbl_mb(vall(1)),
+c     >                        dbl_mb(v_field(1)),
+c     >                        dbl_mb(vall(1)))
+         call D3dB_rr_Sum2(1,dbl_mb(vl_lr(1)),dbl_mb(vall(1)))
+         call D3dB_rr_Sum2(1,dcpl_mb(vc(1)),dbl_mb(vall(1)))
          if (field_exist)
-     >     call D3dB_rr_Sum(1,dbl_mb(vall(1)),
-     >                        dbl_mb(v_field(1)),
-     >                        dbl_mb(vall(1)))
+     >     call D3dB_rr_Sum2(1,dbl_mb(v_field(1)),dbl_mb(vall(1)))
 
       end if
 
 *     **** add xcp to vall ****
-      do ms=ispin,1,-1      
+c      do ms=ispin,1,-1      
+c        call D3dB_rr_Sum(1,dbl_mb(vall(1)),
+c     >                   dbl_mb(xcp(1)+(ms-1)*2*nfft3d),
+c     >                   dbl_mb(vall(1)+(ms-1)*2*nfft3d))
+c        call D3dB_r_Zero_Ends(1,dbl_mb(vall(1)+(ms-1)*2*nfft3d))
+c      end do
+
+      if (ispin.eq.2) then
         call D3dB_rr_Sum(1,dbl_mb(vall(1)),
-     >                   dbl_mb(xcp(1)+(ms-1)*2*nfft3d),
-     >                   dbl_mb(vall(1)+(ms-1)*2*nfft3d))
-        call D3dB_r_Zero_Ends(1,dbl_mb(vall(1)+(ms-1)*2*nfft3d))
-      end do
+     >                   dbl_mb(xcp(1) +2*nfft3d),
+     >                   dbl_mb(vall(1)+2*nfft3d))
+        call D3dB_r_Zero_Ends(1,dbl_mb(vall(1)+2*nfft3d))
+      end if
+      call D3dB_rr_Sum2(1,dbl_mb(xcp(1)),dbl_mb(vall(1)))
+      call D3dB_r_Zero_Ends(1,dbl_mb(vall(1)))
 
       return
       end
@@ -1843,9 +1864,11 @@ cccccccccc#include "frac_occ.fh"
 
 *     **** add v_oep to vall ****
       do ms=1,ispin
-        call D3dB_rr_Sum(1,dbl_mb( vall(1)+(ms-1)*n2ft3d),
-     >                     dbl_mb(v_oep(1)+(ms-1)*n2ft3d),
-     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
+c        call D3dB_rr_Sum(1,dbl_mb( vall(1)+(ms-1)*n2ft3d),
+c     >                     dbl_mb(v_oep(1)+(ms-1)*n2ft3d),
+c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
+        call D3dB_rr_Sum2(1,dbl_mb(v_oep(1)+(ms-1)*n2ft3d),
+     >                      dbl_mb( vall(1)+(ms-1)*n2ft3d))
         call D3dB_r_Zero_Ends(1,dbl_mb(vall(1)+(ms-1)*n2ft3d))
       end do
 

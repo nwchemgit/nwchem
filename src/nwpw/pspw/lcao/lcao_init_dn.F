@@ -1,5 +1,5 @@
 *
-* $Id: lcao_init_dn.F,v 1.4 2005-07-12 21:26:33 bylaska Exp $
+* $Id: lcao_init_dn.F,v 1.5 2009-02-07 03:50:40 bylaska Exp $
 *
       subroutine lcao_init_dn(ispin,ne,n2ft3d,dn,phi)
       implicit none
@@ -77,7 +77,8 @@
         call D3dB_r_dsum(1,dn(1,ms),sum)
         sum = sum*dv
         sum = dble(ne(ms))/sum
-        call D3dB_r_SMul(1,sum,dn(1,ms),dn(1,ms))
+c        call D3dB_r_SMul(1,sum,dn(1,ms),dn(1,ms))
+        call D3dB_r_SMul1(1,sum,dn(1,ms))
       end do
 
       value = MA_pop_stack(tmp(2))

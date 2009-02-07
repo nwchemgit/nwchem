@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi.F,v 1.13 2008-10-22 23:56:42 bylaska Exp $
+* $Id: paw_psi.F,v 1.14 2009-02-07 03:50:24 bylaska Exp $
 *
 
 
@@ -24,7 +24,8 @@
       do k=1,ne
          call paw_overlap_matrix_gen(1,1,psi(1,k),psi(1,k),w)
          w = 1.0d0/dsqrt(w)
-         call Pack_c_SMul(1,w,psi(1,k),psi(1,k))
+c         call Pack_c_SMul(1,w,psi(1,k),psi(1,k))
+         call Pack_c_SMul1(1,w,psi(1,k))
 
          do j=k+1,ne
             call paw_overlap_matrix_gen(1,1,psi(1,k),psi(1,j),w)

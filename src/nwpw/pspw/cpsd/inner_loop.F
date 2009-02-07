@@ -1,6 +1,6 @@
 
 *
-* $Id: inner_loop.F,v 1.32 2009-01-28 01:29:32 bylaska Exp $
+* $Id: inner_loop.F,v 1.33 2009-02-07 03:50:36 bylaska Exp $
 *
 
 *  ************************************************************
@@ -274,7 +274,8 @@ c        call mask_C(0,dcpl_mb(dng(1)))
         if (psp_semicore(0)) then
            if (move .or. (it.eq.1)) call semicore_density_update()
            call semicore_density(dcpl_mb(tmp1(1)))
-           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+           call D3dB_r_SMul1(1,0.5d0,dcpl_mb(tmp1(1)))
         else
            call dcopy(n2ft3d,0.0d0,0,dcpl_mb(tmp1(1)),1)
         end if
@@ -389,7 +390,8 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       ************************************
         do n=1,n2(ispin)
           call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
-          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+          call Pack_cc_Sum2(1,psi1(1,n),psi2(1,n))
         end do
         call nwpw_timing_end(13)
 

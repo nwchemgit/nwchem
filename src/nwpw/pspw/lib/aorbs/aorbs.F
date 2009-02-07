@@ -1,6 +1,6 @@
 
 *
-* $Id: aorbs.F,v 1.6 2008-11-03 06:06:16 bylaska Exp $
+* $Id: aorbs.F,v 1.7 2009-02-07 03:50:44 bylaska Exp $
 *
 
 #define TCGMSG
@@ -244,10 +244,14 @@
      >                          + (ia-1)*npack1*norbs_max),
      >                    sum)
          sum = 1.0d0/dsqrt(sum)
-         call Pack_t_SMul(1,sum,
-     >                    dbl_mb(aorbs(1) 
-     >                          + (lm-1)*npack1
-     >                          + (ia-1)*npack1*norbs_max),
+c         call Pack_t_SMul(1,sum,
+c     >                    dbl_mb(aorbs(1) 
+c     >                          + (lm-1)*npack1
+c     >                          + (ia-1)*npack1*norbs_max),
+c     >                    dbl_mb(aorbs(1) 
+c     >                          + (lm-1)*npack1
+c     >                          + (ia-1)*npack1*norbs_max))
+         call Pack_t_SMul1(1,sum,
      >                    dbl_mb(aorbs(1) 
      >                          + (lm-1)*npack1
      >                          + (ia-1)*npack1*norbs_max))

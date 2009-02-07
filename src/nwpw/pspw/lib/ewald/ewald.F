@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.13 2008-05-13 02:10:31 bylaska Exp $
+* $Id: ewald.F,v 1.14 2009-02-07 03:50:50 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -791,14 +791,17 @@ c      call Pack_t_Pack(0,dbl_mb(F(1)))
       call Pack_t_SMul(0,ss,dbl_mb(tmp1(1)),
      >                      dbl_mb(tmp2(1)))
       ss = 1.0d0/fourpi
-      call Pack_t_SMul(0,ss,dbl_mb(tmp1(1)),
-     >                      dbl_mb(tmp1(1)))
-      call Pack_tt_Mul(0,dbl_mb(tmp1(1)),
-     >                   dbl_mb(vc_indx),
-     >                   dbl_mb(tmp1(1)))
-      call Pack_tt_Sum(0,dbl_mb(tmp1(1)),
-     >                   dbl_mb(tmp2(1)),
-     >                   dbl_mb(tmp2(1)))
+c      call Pack_t_SMul(0,ss,dbl_mb(tmp1(1)),
+c     >                      dbl_mb(tmp1(1)))
+c      call Pack_tt_Mul(0,dbl_mb(tmp1(1)),
+c     >                   dbl_mb(vc_indx),
+c     >                   dbl_mb(tmp1(1)))
+c      call Pack_tt_Sum(0,dbl_mb(tmp1(1)),
+c     >                   dbl_mb(tmp2(1)),
+c     >                   dbl_mb(tmp2(1)))
+      call Pack_t_SMul1(0,ss,dbl_mb(tmp1(1)))
+      call Pack_tt_Mul2(0,dbl_mb(vc_indx),dbl_mb(tmp1(1)))
+      call Pack_tt_Sum2(0,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)))
 
 
 *     **** calculate Cus ****

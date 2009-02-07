@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Efield.F,v 1.4 2008-11-03 06:06:14 bylaska Exp $
+c $Id: pspw_Efield.F,v 1.5 2009-02-07 03:50:30 bylaska Exp $
 c
 
 
@@ -85,7 +85,8 @@ c
           call coulomb_v(dng,dcpl_mb(vc(1)))
           scal2 = 1.0d0/dsqrt(lattice_omega())
           scal2 = 1.0d0
-          call Pack_c_SMul(0,scal2,dcpl_mb(vc(1)),dcpl_mb(vc(1)))
+c          call Pack_c_SMul(0,scal2,dcpl_mb(vc(1)),dcpl_mb(vc(1)))
+          call Pack_c_SMul1(0,scal2,dcpl_mb(vc(1)))
        end if
 
        if (control_version().eq.4)  then
@@ -98,7 +99,8 @@ c
           call D3dB_ny(1,np2)
           call D3dB_nz(1,np3)
           scal1=1.0d0/dble(np1*np2*np3)
-          call D3dB_r_SMul(1,scal1,dcpl_mb(vc(1)),dcpl_mb(vc(1)))
+c          call D3dB_r_SMul(1,scal1,dcpl_mb(vc(1)),dcpl_mb(vc(1)))
+          call D3dB_r_SMul1(1,scal1,dcpl_mb(vc(1)))
           call D3dB_r_Zero_Ends(1,dcpl_mb(vc(1)))
           call D3dB_rc_fft3f(1,dcpl_mb(vc(1)))
           call Pack_c_pack(0,dcpl_mb(vc(1)))

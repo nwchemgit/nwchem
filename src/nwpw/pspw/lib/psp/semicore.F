@@ -1,5 +1,5 @@
 *
-* $Id: semicore.F,v 1.9 2006-10-07 00:10:07 bylaska Exp $
+* $Id: semicore.F,v 1.10 2009-02-07 03:50:58 bylaska Exp $
 *
 
 #define TCGMSG
@@ -247,16 +247,19 @@ c          call Pack_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
            call D3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
 
 *          ****  square it and add to density ****
-           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
-           call D3dB_rr_Sum(1,dbl_mb(dncore(1)),
-     >                        dcpl_mb(tmp(1)),
-     >                        dbl_mb(dncore(1)))
+c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
+c           call D3dB_rr_Sum(1,dbl_mb(dncore(1)),
+c     >                        dcpl_mb(tmp(1)),
+c     >                        dbl_mb(dncore(1)))
+           call D3dB_rr_Sqr1(1,dcpl_mb(tmp(1)))
+           call D3dB_rr_Sum2(1,dcpl_mb(tmp(1)),dbl_mb(dncore(1)))
         end if
 
       end do
       call D3dB_r_Zero_Ends(1,dbl_mb(dncore(1)))
-      call D3dB_r_SMul(1,scal2*scal2,dbl_mb(dncore(1)),
-     >                               dbl_mb(dncore(1)))
+c      call D3dB_r_SMul(1,scal2*scal2,dbl_mb(dncore(1)),
+c     >                               dbl_mb(dncore(1)))
+      call D3dB_r_SMul1(1,scal2*scal2,dbl_mb(dncore(1)))
 
       value =           MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(exi(2))
@@ -327,14 +330,16 @@ c     logical semicore(0:nkatmx)
               dcpl_mb(tmp(1)+k-1) 
      >          = dcmplx(dbl_mb(ncore(1)+(ia-1)*npack0*5+k-1),0.0d0)
            end do
-           call Pack_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
+c           call Pack_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
+           call Pack_c_SMul1(0,scal2,dcpl_mb(tmp(1)))
       
 *          **** Put put tmp into real space ****
            call Pack_c_unpack(0,dcpl_mb(tmp(1)))
            call D3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
 
 *          ****  square it  ****
-           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
+c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
+           call D3dB_rr_Sqr1(1,dcpl_mb(tmp(1)))
 
 *          ****  integrate it ****
            call D3dB_r_dsum(1,dcpl_mb(tmp(1)),sum)
@@ -522,13 +527,16 @@ c     logical semicore(0:nkatmx)
       fourpi = 16.0d0*datan(1.0d0)
       ss     = 1.0d0/fourpi
       call Pack_t_SMul(0,ss,dbl_mb(vc_indx),dbl_mb(tmp3(1)))
-      call Pack_tt_Sqrt(0,dbl_mb(tmp3(1)),dbl_mb(tmp3(1)))
-      call Pack_tt_Mul(0,dbl_mb(tmp3(1)),
-     >                   dcpl_mb(Gu),
-     >                   dbl_mb(tmp3(1)))
-      call Pack_tt_Mul(0,dbl_mb(tmp3(1)),
-     >                   dcpl_mb(Gs),
-     >                   dbl_mb(tmp3(1)))
+c      call Pack_tt_Sqrt(0,dbl_mb(tmp3(1)),dbl_mb(tmp3(1)))
+c      call Pack_tt_Mul(0,dbl_mb(tmp3(1)),
+c     >                   dcpl_mb(Gu),
+c     >                   dbl_mb(tmp3(1)))
+c      call Pack_tt_Mul(0,dbl_mb(tmp3(1)),
+c     >                   dcpl_mb(Gs),
+c     >                   dbl_mb(tmp3(1)))
+      call Pack_tt_Sqrt1(0,dbl_mb(tmp3(1)))
+      call Pack_tt_Mul2(0,dcpl_mb(Gu),dbl_mb(tmp3(1)))
+      call Pack_tt_Mul2(0,dcpl_mb(Gs),dbl_mb(tmp3(1)))
       
 
 
@@ -550,8 +558,10 @@ c     logical semicore(0:nkatmx)
            call Pack_tc_Mul(0,dbl_mb(ncore(1)+npack0+(ia-1)*npack0*5),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(tmp2(1)))
-           call Pack_tc_Mul(0,dbl_mb(tmp3(1)),
-     >                        dcpl_mb(tmp2(1)),
+c           call Pack_tc_Mul(0,dbl_mb(tmp3(1)),
+c     >                        dcpl_mb(tmp2(1)),
+c     >                        dcpl_mb(tmp2(1)))
+           call Pack_tc_Mul2(0,dbl_mb(tmp3(1)),
      >                        dcpl_mb(tmp2(1)))
 
 *          **** Put put tmp1 and tmp2 into real space ****
@@ -562,17 +572,20 @@ c     logical semicore(0:nkatmx)
 
 
 *          ****  add tmp1*tmp2=phi*dphi*dphi/dG density ****
-           call D3dB_rr_Mul(1,dcpl_mb(tmp1(1)),
-     >                        dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp1(1)))
-           call D3dB_rr_Sum(1,Aus,
-     >                        dcpl_mb(tmp1(1)),
-     >                        Aus)
+c           call D3dB_rr_Mul(1,dcpl_mb(tmp1(1)),
+c     >                        dcpl_mb(tmp2(1)),
+c     >                        dcpl_mb(tmp1(1)))
+c           call D3dB_rr_Sum(1,Aus,
+c     >                        dcpl_mb(tmp1(1)),
+c     >                        Aus)
+           call D3dB_rr_Mul2(1,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
+           call D3dB_rr_Sum2(1,dcpl_mb(tmp1(1)),Aus)
         end if
 
       end do
       call D3dB_r_Zero_Ends(1,Aus)
-      call D3dB_r_SMul(1,scal2*scal2,Aus,Aus)
+c      call D3dB_r_SMul(1,scal2*scal2,Aus,Aus)
+      call D3dB_r_SMul1(1,scal2*scal2,Aus)
 
 
 *     **** pop stack memory ****

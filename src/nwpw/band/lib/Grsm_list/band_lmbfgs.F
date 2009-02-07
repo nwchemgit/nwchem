@@ -1,5 +1,5 @@
 *
-*     $Id: band_lmbfgs.F,v 1.8 2008-09-03 17:07:23 bylaska Exp $                       
+*     $Id: band_lmbfgs.F,v 1.9 2009-02-07 03:49:59 bylaska Exp $                       
 *
 
       subroutine band_lmbfgs_init(max_m0,g)
@@ -9,6 +9,7 @@
 
 #include "band_lmbfgs_common.fh"
 
+      integer ngras
 
 *     **** external functions ****
       integer  cpsi_ispin,cpsi_ne,brillioun_nbrillq
@@ -24,10 +25,13 @@
       nsize = neall*npack1*nbrill
       call band_Grsm_list_init('lmbfgs',2*max_m,2*nsize)
       m = 1
-      call BGrsm_ff_dScale(-1.0d0,g,g)
+c      call BGrsm_ff_dScale(-1.0d0,g,g)
+      ngras = 2*nsize
+      call dscal(ngras,(-1.0d0),g,1)
       call band_Grsm_list_store(2*m-1,g)
       call band_Grsm_list_store(2*m,g)
-      call BGrsm_ff_dScale(-1.0d0,g,g)
+c      call BGrsm_ff_dScale(-1.0d0,g,g)
+      call dscal(ngras,(-1.0d0),g,1)
       return
       end
 

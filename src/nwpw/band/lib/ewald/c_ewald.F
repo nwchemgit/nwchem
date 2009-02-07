@@ -1,5 +1,5 @@
 *
-* $Id: c_ewald.F,v 1.7 2007-08-23 23:49:48 bylaska Exp $
+* $Id: c_ewald.F,v 1.8 2009-02-07 03:50:08 bylaska Exp $
 *
       integer function c_ewald_ncut()
       implicit none 
@@ -697,14 +697,20 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
       call Cram_r_SMul(0,ss,dbl_mb(tmp1(1)),
      >                      dbl_mb(tmp2(1)))
       ss = 1.0d0/fourpi
-      call Cram_r_SMul(0,ss,dbl_mb(tmp1(1)),
-     >                      dbl_mb(tmp1(1)))
-      call Cram_rr_Mul(0,dbl_mb(tmp1(1)),
-     >                   dbl_mb(vc_indx),
-     >                   dbl_mb(tmp1(1)))
-      call Cram_rr_Sum(0,dbl_mb(tmp1(1)),
-     >                   dbl_mb(tmp2(1)),
-     >                   dbl_mb(tmp2(1)))
+c      call Cram_r_SMul(0,ss,dbl_mb(tmp1(1)),
+c     >                      dbl_mb(tmp1(1)))
+      call Cram_r_SMul1(0,ss,dbl_mb(tmp1(1)))
+c      call Cram_rr_Mul(0,dbl_mb(tmp1(1)),
+c     >                   dbl_mb(vc_indx),
+c     >                   dbl_mb(tmp1(1)))
+      call Cram_rr_Mul2(0,dbl_mb(vc_indx),
+     >                    dbl_mb(tmp1(1)))
+
+c      call Cram_rr_Sum(0,dbl_mb(tmp1(1)),
+c     >                   dbl_mb(tmp2(1)),
+c     >                   dbl_mb(tmp2(1)))
+      call Cram_rr_Sum2(0,dbl_mb(tmp1(1)),
+     >                    dbl_mb(tmp2(1)))
 
 
 *     **** calculate Cus ****

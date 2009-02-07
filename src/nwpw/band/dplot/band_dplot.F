@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot.F,v 1.11 2008-06-06 17:06:28 d3p708 Exp $
+* $Id: band_dplot.F,v 1.12 2009-02-07 03:49:57 bylaska Exp $
 *
       logical function band_dplot(rtdb)
       implicit none
@@ -564,7 +564,8 @@
              call C3dB_cr_aSqrpy(1, 1.0d0,
      >                         psi_r(1,number,nb),
      >                         dbl_mb(rho(1)))
-             call C3dB_r_SMul(1,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
+c             call C3dB_r_SMul(1,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
+             call C3dB_r_SMul1(1,scal2,dbl_mb(rho(1)))
 
              if (.not.add_tag) then
              if (taskid.eq.MASTER) then
@@ -703,7 +704,8 @@
       do nb=1,nbrillioun
         call cstrfac_pack(nb,1,dcpl_mb(exi(1)))
         do n=1,nemax
-          call Cram_cc_Mul(nb,dcpl_mb(exi(1)),psi(1,n,nb),psi(1,n,nb))
+c          call Cram_cc_Mul(nb,dcpl_mb(exi(1)),psi(1,n,nb),psi(1,n,nb))
+          call Cram_cc_Mul2(nb,dcpl_mb(exi(1)),psi(1,n,nb))
         end do
       end do
 
@@ -758,8 +760,10 @@
 *     **** generate dn ****
 *     *********************
       call BGrsm_hr_SumSqr(psi_r,dn)
-      call C3dB_r_SMul(1,scal2,dn,dn)
-      if (ispin.gt.1) call C3dB_r_SMul(1,scal2,dn(1,2),dn(1,2))
+c      call C3dB_r_SMul(1,scal2,dn,dn)
+c      if (ispin.gt.1) call C3dB_r_SMul(1,scal2,dn(1,2),dn(1,2))
+      call C3dB_r_SMul1(1,scal2,dn)
+      if (ispin.gt.1) call C3dB_r_SMul1(1,scal2,dn(1,2))
 
       return
       end

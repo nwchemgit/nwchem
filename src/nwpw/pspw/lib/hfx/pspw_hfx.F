@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.20 2009-01-05 17:46:32 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.21 2009-02-07 03:50:54 bylaska Exp $
 *
 
 *     *************************
@@ -489,13 +489,15 @@ c     **** nothing to do ****
 
 *          **** generate dnij for Vij  ****
            call D3dB_rr_Mul(1,psi_r(index2),orb_r,dbl_mb(dn(1)))
-           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+           call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
 *          ***** screened coulomb solver ****
            if (solver_type.eq.1) then
-             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-     >                                dbl_mb(dn(1)))
+c             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+c     >                                dbl_mb(dn(1)))
+             call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
              call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
              call Pack_c_pack(0,dbl_mb(dn(1)))
 
@@ -517,9 +519,10 @@ c     **** nothing to do ****
 
 *          **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
            eh = eh*hfx_parameter
-           call D3dB_r_SMul(1,hfx_parameter,
-     >                      dbl_mb(vij(1)),
-     >                      dbl_mb(vij(1)))
+c           call D3dB_r_SMul(1,hfx_parameter,
+c     >                      dbl_mb(vij(1)),
+c     >                      dbl_mb(vij(1)))
+           call D3dB_r_SMul1(1,hfx_parameter,dbl_mb(vij(1)))
            if (ispin.eq.1) eh = eh + eh
            ph = 2.0d0*eh
 
@@ -707,8 +710,9 @@ c***************** sub/replicated routines *****************************
 *                   **** generate dnij for Vij  ****
                     call D3dB_rr_Mul(1,psi_r(index2),
      >                                 psi_r(index1),dbl_mb(dn(1)))
-                    call D3dB_r_SMul(1,scal2*scal1,dbl_mb(dn(1)),
-     >                                             dbl_mb(dn(1)))
+c                    call D3dB_r_SMul(1,scal2*scal1,dbl_mb(dn(1)),
+c     >                                             dbl_mb(dn(1)))
+                    call D3dB_r_SMul1(1,scal2*scal1,dbl_mb(dn(1)))
                     call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
                     call D3dB_rc_pfft3f_queuein(0,dbl_mb(dn(1)))
@@ -769,9 +773,10 @@ c***************** sub/replicated routines *****************************
                     call D3dB_cr_pfft3b_queueout(0,dbl_mb(vij(1)))
 
 *                   **** apply hfx_parameter ****
-                    call D3dB_r_SMul(1,hfx_parameter,
-     >                                 dbl_mb(vij(1)),
-     >                                 dbl_mb(vij(1)))
+c                    call D3dB_r_SMul(1,hfx_parameter,
+c     >                                 dbl_mb(vij(1)),
+c     >                                 dbl_mb(vij(1)))
+                    call D3dB_r_SMul1(1,hfx_parameter,dbl_mb(vij(1)))
 
 *                   **** generate (Vij)*psi_r ***
                     call D3dB_rr_Mul(1,dbl_mb(vij(1)),
@@ -780,9 +785,10 @@ c***************** sub/replicated routines *****************************
                     call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
 
 *                   **** add -(Vij)*psi_r to Hpsi_r ***
-                    call D3dB_rr_Sub(1,Hpsi_r(index1),
-     >                                 dbl_mb(tmp1(1)),
-     >                                 Hpsi_r(index1))
+c                    call D3dB_rr_Sub(1,Hpsi_r(index1),
+c     >                                 dbl_mb(tmp1(1)),
+c     >                                 Hpsi_r(index1))
+                    call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Hpsi_r(index1))
 
                     !**** include off diagonal terms ****
                     if (i3.ne.j3) then
@@ -793,9 +799,11 @@ c***************** sub/replicated routines *****************************
                        call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
 
 *                      **** add -(Vij)*psi_r to Hpsi_r ***
-                       call D3dB_rr_Sub(1,Hpsi_r(index2),
-     >                                 dbl_mb(tmp2(1)),
-     >                                 Hpsi_r(index2))
+c                       call D3dB_rr_Sub(1,Hpsi_r(index2),
+c     >                                 dbl_mb(tmp2(1)),
+c     >                                 Hpsi_r(index2))
+                       call D3dB_rr_Sub2(1,dbl_mb(tmp2(1)),
+     >                                     Hpsi_r(index2))
                     end if
                  end if
 
@@ -826,7 +834,8 @@ c***************** sub/replicated routines *****************************
 *             **** generate dnij for Vij  ****
               call D3dB_rr_Mul(1,psi_r(index2),psi_r(index1),
      >                         dbl_mb(dn(1)))
-              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+c              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+              call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
               call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
    
               call coulomb2_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
@@ -835,9 +844,10 @@ c***************** sub/replicated routines *****************************
 
 *             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
               eh = eh*hfx_parameter
-              call D3dB_r_SMul(1,hfx_parameter,
-     >                         dbl_mb(vij(1)),
-     >                         dbl_mb(vij(1)))
+c              call D3dB_r_SMul(1,hfx_parameter,
+c     >                         dbl_mb(vij(1)),
+c     >                         dbl_mb(vij(1)))
+              call D3dB_r_SMul1(1,hfx_parameter,dbl_mb(vij(1)))
               if (ispin0.eq.1) eh = eh + eh
               ph = 2.0d0*eh
 
@@ -854,9 +864,10 @@ c***************** sub/replicated routines *****************************
 
 
 *             **** add -(Vij)*psi_r to Hpsi_r ***
-              call D3dB_rr_Sub(1,Hpsi_r(index1),
-     >                           dbl_mb(tmp1(1)),
-     >                           Hpsi_r(index1))
+c              call D3dB_rr_Sub(1,Hpsi_r(index1),
+c     >                           dbl_mb(tmp1(1)),
+c     >                           Hpsi_r(index1))
+              call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Hpsi_r(index1))
 
               !**** include off diagonal terms ****
               if (i.ne.j) then
@@ -871,9 +882,11 @@ c***************** sub/replicated routines *****************************
                  call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
 
 *                **** add -(Vij)*psi_r to Hpsi_r ***
-                 call D3dB_rr_Sub(1,Hpsi_r(index2),
-     >                           dbl_mb(tmp2(1)),
-     >                           Hpsi_r(index2))
+c                 call D3dB_rr_Sub(1,Hpsi_r(index2),
+c     >                           dbl_mb(tmp2(1)),
+c     >                           Hpsi_r(index2))
+                 call D3dB_rr_Sub2(1,dbl_mb(tmp2(1)),
+     >                               Hpsi_r(index2))
               end if
             end if
             k1 = k1 + 1
@@ -958,15 +971,17 @@ c***************** sub/replicated routines *****************************
 *             **** generate dnij ****
               call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),
      >                         dbl_mb(dn(1)))
-              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+c              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+              call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
               call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
 *             ***** screened coulomb solver ****
               if (solver_type.eq.1) then
 
 *               **** generate dng ****
-                call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-     >                                   dbl_mb(dn(1)))
+c                call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+c     >                                   dbl_mb(dn(1)))
+                call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
                 call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
                 call Pack_c_pack(0,dbl_mb(dn(1)))
 
@@ -1074,15 +1089,17 @@ c***************** sub/replicated routines *****************************
 *             **** generate dnij ****
               call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),
      >                         dbl_mb(dn(1)))
-              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+c              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+              call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
               call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
 *             ***** screened coulomb solver ****
               if (solver_type.eq.1) then
 
 *               **** generate dng ****
-                call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-     >                                   dbl_mb(dn(1)))
+c                call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+c     >                                   dbl_mb(dn(1)))
+                call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
                 call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
                 call Pack_c_pack(0,dbl_mb(dn(1)))
 
@@ -1192,13 +1209,15 @@ c***************** sub/replicated routines *****************************
            if (p2.eq.taskid_j) then
 *             **** generate dnij for Vij  ****
               call D3dB_rr_Mul(1,psi_r(q2),orb_r,dbl_mb(dn(1)))
-              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+c              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+              call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
               call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
    
 *             ***** screened coulomb solver ****
               if (solver_type.eq.1) then
-                call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-     >                                   dbl_mb(dn(1)))
+c                call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+c     >                                   dbl_mb(dn(1)))
+                call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
                 call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
                 call Pack_c_pack(0,dbl_mb(dn(1)))
 
@@ -1219,9 +1238,10 @@ c***************** sub/replicated routines *****************************
 
 *             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
               eh = eh*hfx_parameter
-              call D3dB_r_SMul(1,hfx_parameter,
-     >                         dbl_mb(vij(1)),
-     >                         dbl_mb(vij(1)))
+c              call D3dB_r_SMul(1,hfx_parameter,
+c     >                         dbl_mb(vij(1)),
+c     >                         dbl_mb(vij(1)))
+              call D3dB_r_SMul1(1,hfx_parameter,dbl_mb(vij(1)))
               if (ispin.eq.1) eh = eh + eh
               ph = 2.0d0*eh
 
@@ -1233,9 +1253,10 @@ c***************** sub/replicated routines *****************************
               call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
 
 *             **** add -(Vij)*psi_r to Hpsi_r ***
-              call D3dB_rr_Sub(1,Horb_r,
-     >                           dbl_mb(tmp1(1)),
-     >                           Horb_r)
+c              call D3dB_rr_Sub(1,Horb_r,
+c     >                           dbl_mb(tmp1(1)),
+c     >                           Horb_r)
+              call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Horb_r)
            end if
         end do
         value =           MA_pop_stack(tmp2(2))
