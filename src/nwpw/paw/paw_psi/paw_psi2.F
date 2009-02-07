@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.13 2008-09-15 20:52:34 bylaska Exp $
+* $Id: paw_psi2.F,v 1.14 2009-02-07 18:37:35 bylaska Exp $
 *
 
 
@@ -58,9 +58,10 @@
      >            dcpl_mb(psi1(1) +(i-1)*npack1),
      >            sum)
          sum = 1.0d0/dsqrt(sum)
-         call Pack_c_SMul(1,sum,
-     >            dcpl_mb(psi1(1) +(i-1)*npack1),
-     >            dcpl_mb(psi1(1) +(i-1)*npack1))
+c         call Pack_c_SMul(1,sum,
+c     >            dcpl_mb(psi1(1) +(i-1)*npack1),
+c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
+         call Pack_c_SMul1(1,sum,dcpl_mb(psi1(1) +(i-1)*npack1))
 
 
 
@@ -210,7 +211,8 @@ c!    >                 dcpl_mb(t(1)))
      >                   sigma)
          sigma = dsqrt(sigma)
          de0 = 1.0d0/sigma
-         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+         call Pack_c_SMul1(1,de0,dcpl_mb(t(1)))
 
 
 *        **** compute de0 = <t|g> ****
@@ -454,9 +456,10 @@ c     write(*,*)
       call Pack_cc_daxpy(1,x,
      >                   t,
      >                   tau_t)
-      call Pack_c_SMul(1,sigma,
-     >                  tau_t,
-     >                  tau_t)
+c      call Pack_c_SMul(1,sigma,
+c     >                  tau_t,
+c     >                  tau_t)
+      call Pack_c_SMul1(1,sigma,tau_t)
 
 *     **** orb2 = orb*cos(theta) + t*sin(theta) ****
       call Pack_c_SMul(1,x,

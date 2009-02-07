@@ -1,8 +1,17 @@
 *
-* $Id: paw_mult.F,v 1.27 2006-01-12 00:54:01 bylaska Exp $
+* $Id: paw_mult.F,v 1.28 2009-02-07 18:37:34 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.27  2006/01/12 00:54:01  bylaska
+* Added charge component analysis wavefunctions, i.e. the following is now outputed in the results section:
+*
+*  number of electrons: spin up=    8.00000  down=    6.00000 (real space)
+*      plane-wave part:             7.96734           6.02652 (real space)
+*       augmented part:             0.03266          -0.02652 (real space)
+*
+* ...EJB
+*
 * Revision 1.26  2005/02/23 21:40:18  edo
 * fixed x1 fpe caused by 0**0
 *
@@ -448,10 +457,12 @@
 
          !**** Multiply by Structure Factor ****
          call strfac_pack(0,ii,dcpl_mb(exi(1)))
-         call Pack_cc_Mul(0,
-     >                    dcpl_mb(exi(1)),
-     >                    dcpl_mb(QYlm(1)),
-     >                    dcpl_mb(QYlm(1)))
+c         call Pack_cc_Mul(0,
+c     >                    dcpl_mb(exi(1)),
+c     >                    dcpl_mb(QYlm(1)),
+c     >                    dcpl_mb(QYlm(1)))
+         call Pack_cc_Mul2(0,dcpl_mb(exi(1)),
+     >                       dcpl_mb(QYlm(1)))
 
 
          !**** add up ncmp_smooth^ii  ****
@@ -459,9 +470,12 @@
      >                    dbl_mb(gk_smooth(1)),
      >                    dcpl_mb(QYlm(1)),
      >                    dcpl_mb(tmp(1)))
-         call Pack_cc_Sum(0,
+c         call Pack_cc_Sum(0,
+c     >                    dcpl_mb(tmp(1)),
+c     >                    dn_cmp_smooth,
+c     >                    dn_cmp_smooth)
+         call Pack_cc_Sum2(0,
      >                    dcpl_mb(tmp(1)),
-     >                    dn_cmp_smooth,
      >                    dn_cmp_smooth)
 
          !**** add up ncmp^ii ***
@@ -469,9 +483,12 @@
      >                    dbl_mb(gk(1)+(ia-1)*npack0),
      >                    dcpl_mb(QYlm(1)),
      >                    dcpl_mb(tmp(1)))
-         call Pack_cc_Sum(0,
+c         call Pack_cc_Sum(0,
+c     >                    dcpl_mb(tmp(1)),
+c     >                    dn_cmp,
+c     >                    dn_cmp)
+         call Pack_cc_Sum2(0,
      >                    dcpl_mb(tmp(1)),
-     >                    dn_cmp,
      >                    dn_cmp)
 
 
@@ -582,9 +599,12 @@
 
          !**** Multiply by Structure Factor ****
          call strfac_pack(0,ii,dcpl_mb(exi(1)))
-         call Pack_cc_Mul(0,
+c         call Pack_cc_Mul(0,
+c     >                    dcpl_mb(exi(1)),
+c     >                    dcpl_mb(QYlm(1)),
+c     >                    dcpl_mb(QYlm(1)))
+         call Pack_cc_Mul2(0,
      >                    dcpl_mb(exi(1)),
-     >                    dcpl_mb(QYlm(1)),
      >                    dcpl_mb(QYlm(1)))
 
 
@@ -1264,9 +1284,12 @@
 
          !**** Multiply by Structure Factor ****
          call strfac_pack(0,ii,dcpl_mb(exi(1)))
-         call Pack_cc_Mul(0,
+c         call Pack_cc_Mul(0,
+c     >                    dcpl_mb(exi(1)),
+c     >                    dcpl_mb(QYlm(1)),
+c     >                    dcpl_mb(QYlm(1)))
+         call Pack_cc_Mul2(0,
      >                    dcpl_mb(exi(1)),
-     >                    dcpl_mb(QYlm(1)),
      >                    dcpl_mb(QYlm(1)))
 
 
@@ -1275,9 +1298,12 @@
      >                    dbl_mb(gk_smooth(1)),
      >                    dcpl_mb(QYlm(1)),
      >                    dcpl_mb(tmp(1)))
-         call Pack_cc_Sum(0,
+c         call Pack_cc_Sum(0,
+c     >                    dcpl_mb(tmp(1)),
+c     >                    dn_cmp_smooth,
+c     >                    dn_cmp_smooth)
+         call Pack_cc_Sum2(0,
      >                    dcpl_mb(tmp(1)),
-     >                    dn_cmp_smooth,
      >                    dn_cmp_smooth)
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: paw_electron.F,v 1.10 2009-02-07 03:50:24 bylaska Exp $
+* $Id: paw_electron.F,v 1.11 2009-02-07 18:37:35 bylaska Exp $
 *
 
 
@@ -1617,7 +1617,7 @@ c      end do
 
            call D3dB_rc_fft3f(1,dcpl_mb(vh(1)))
 c           call D3dB_r_SMul(1,scal1,dcpl_mb(vh(1)),dcpl_mb(vh(1)))
-           call D3dB_r_Sul1(1,scal1,dcpl_mb(vh(1)))
+           call D3dB_r_SMul1(1,scal1,dcpl_mb(vh(1)))
            call Pack_c_pack(0,dcpl_mb(vh(1)))
 
 

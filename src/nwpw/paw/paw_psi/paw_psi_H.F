@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi_H.F,v 1.3 2003-10-21 02:05:17 marat Exp $
+* $Id: paw_psi_H.F,v 1.4 2009-02-07 18:37:36 bylaska Exp $
 *
 
 *     *************************************
@@ -98,7 +98,8 @@ c     complex*16 vpsi(nfft3d)
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
 *     **********************************************************
       call Pack_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
-      call Pack_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
+c      call Pack_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
+      call Pack_cc_Sum2(0,vc,dcpl_mb(vall(1)))
       
 *     **********************************************
 *     **** fourier transform k-space potentials ****
@@ -118,9 +119,11 @@ c     complex*16 vpsi(nfft3d)
             call D3dB_rr_Sum(1,dcpl_mb(vall(1)),
      >                       xcp(1+(ms-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
-            call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
-     >                       psi_r(1+(n-1)*n2ft3d),
-     >                       dcpl_mb(vpsi(1)))
+c            call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
+c     >                       psi_r(1+(n-1)*n2ft3d),
+c     >                       dcpl_mb(vpsi(1)))
+            call D3dB_rr_Mul2(1,psi_r(1+(n-1)*n2ft3d),
+     >                          dcpl_mb(vpsi(1)))
 
 *           **** put vpsi_r in k-space ****
             call D3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
@@ -252,7 +255,8 @@ c      call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
 *     *******************************************
 *     ****    add vc and v_field to vall     ****
 *     *******************************************
-      call D3dB_rr_Sum(1,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
+c      call D3dB_rr_Sum(1,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
+      call D3dB_rr_Sum2(1,vc,dcpl_mb(vall(1)))
 
 *     **************************************************
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*psi_r] ****
@@ -264,9 +268,11 @@ c      call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
             call D3dB_rr_Sum(1,dcpl_mb(vall(1)),
      >                       xcp(1+(ms-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
-            call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
-     >                       psi_r(1+(n-1)*n2ft3d),
-     >                       dcpl_mb(vpsi(1)))
+c            call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
+c     >                       psi_r(1+(n-1)*n2ft3d),
+c     >                       dcpl_mb(vpsi(1)))
+            call D3dB_rr_Mul2(1,psi_r(1+(n-1)*n2ft3d),
+     >                          dcpl_mb(vpsi(1)))
 
 *           **** get vpsi_r in k-space ****
             call D3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
