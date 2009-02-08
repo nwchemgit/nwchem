@@ -1,5 +1,5 @@
 *
-* $Id: psp.fh,v 1.5 2007-09-29 00:33:16 bylaska Exp $
+* $Id: psp.fh,v 1.6 2009-02-08 03:00:43 bylaska Exp $
 *
 
 *     **** common block  for psp ****
@@ -23,8 +23,8 @@
       common / psp_block / prjtmp,vl,vnl,Gijl,zv,amass,rc,
      >                     lmmax,lmax,locp,nmax,
      >                     nprj,n_projector,l_projector,m_projector,
-     >                     psp_type,core_kin,npsp,nprj_max,atom,
-     >                     comment,pawexist
+     >                     psp_type,core_kin,npsp,nprj_max,pawexist,
+     >                     atom,comment
 
 *     **** common block for psp stress ****
       integer    dvl(2)
