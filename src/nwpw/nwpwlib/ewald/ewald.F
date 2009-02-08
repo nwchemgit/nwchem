@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.20 2008-11-11 19:46:22 bylaska Exp $
+* $Id: ewald.F,v 1.21 2009-02-08 23:03:59 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -463,8 +463,8 @@ c     **** allocate memory for common block ****
       end do
       end do
 
-      call dcopy(enloc,0.0d0,0,dbl_mb(vg(1)),1)
-      call dcopy(enloc,0.0d0,0,dbl_mb(vcx(1)),1)
+      call dcopy(enpack,0.0d0,0,dbl_mb(vg(1)),1)
+      call dcopy(enpack,0.0d0,0,dbl_mb(vcx(1)),1)
 
 *     ***** find w *****
       pi  = 4.0d0*datan(1.0d0)
@@ -764,7 +764,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       value = value.and.MA_push_get(mt_dbl,nion,'fx',fx(2),fx(1)) 
       value = value.and.MA_push_get(mt_dbl,nion,'fy',fy(2),fy(1)) 
       value = value.and.MA_push_get(mt_dbl,nion,'fz',fz(2),fz(1)) 
-      if(.not.value) call errquit('ewald_f:out of heap memory',0,MA_ERR)
+      if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
+
 
       scal2 = 1.0d0/lattice_omega()
       call dcopy(nion,0.0d0,0,dbl_mb(fx(1)),1)
