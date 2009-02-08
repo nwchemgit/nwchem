@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.23 2008-12-19 00:41:58 bylaska Exp $
+* $Id: Dne.F,v 1.24 2009-02-08 03:26:07 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -1731,7 +1731,8 @@ c     **** not parallized ****
             indxk = 1+(k-1)*npack1 + (ms-1)*shift
             call Pack_cc_dot(1,U(indxk),U(indxk),sum1)
             sum1 = 1.0d0/dsqrt(sum1)
-            call Pack_c_SMul(1,sum1,U(indxk),U(indxk))
+c            call Pack_c_SMul(1,sum1,U(indxk),U(indxk))
+            call Pack_c_SMul1(1,sum1,U(indxk))
 
             do j=k-1,1,-1
                indxj = 1+(j-1)*npack1 + (ms-1)*shift
@@ -3626,7 +3627,8 @@ c     **** not parallized ****
             indxk = 1+(k-1)*npack1 + (ms-1)*shift
             call Pack_cc_dot(1,U(indxk),SU(indxk),sum1)
             sum1 = 1.0d0/dsqrt(sum1)
-            call Pack_c_SMul(1,sum1,U(indxk),U(indxk))
+c            call Pack_c_SMul(1,sum1,U(indxk),U(indxk))
+            call Pack_c_SMul1(1,sum1,U(indxk))
 
             do j=k-1,1,-1
                indxj = 1+(j-1)*npack1 + (ms-1)*shift
@@ -3725,7 +3727,8 @@ c        **** mparallized ****
                   call Pack_cc_dot(1,Q(indxk),Q(indxk),w)
                   RRM = dsqrt(w)
                   w        = 1.0d0/RRM
-                  call Pack_c_SMul(1,w,Q(indxk),Q(indxk))
+c                  call Pack_c_SMul(1,w,Q(indxk),Q(indxk))
+                  call Pack_c_SMul1(1,w,Q(indxk))
                   call dcopy(2*npack1,Q(indxk),1,dcpl_mb(tmp(1)),1)
                end if
 
@@ -3826,7 +3829,8 @@ c        **** not mparallized ****
                   call Pack_cc_dot(1,Q(indxk),Q(indxk),w)
                   R(indxm) = dsqrt(w)
                   w        = 1.0d0/R(indxm)
-                  call Pack_c_SMul(1,w,Q(indxk),Q(indxk))
+c                  call Pack_c_SMul(1,w,Q(indxk),Q(indxk))
+                  call Pack_c_SMul1(1,w,Q(indxk))
                   call dcopy(2*npack1,Q(indxk),1,dcpl_mb(tmp(1)),1)
                end if
 
@@ -3896,7 +3900,8 @@ c         **** modified Gram-Schmidt ****
             call Pack_cc_dot(1,Q(indxk),Q(indxk),w)
             R(indxm) = dsqrt(w)
             w        = 1.0d0/R(indxm)
-            call Pack_c_SMul(1,w,Q(indxk),Q(indxk))
+c            call Pack_c_SMul(1,w,Q(indxk),Q(indxk))
+            call Pack_c_SMul1(1,w,Q(indxk))
 
             do j=k+1,ne(ms)
                indxj = 1 + (j-1)*npack1 + (ms-1)*shift

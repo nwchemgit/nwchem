@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.41 2008-09-03 17:07:33 bylaska Exp $
+* $Id: Pneb.F,v 1.42 2009-02-08 03:26:09 bylaska Exp $
 *
 #define NBLOCKS 4
 
@@ -1509,8 +1509,10 @@ c     ** local variables ****
              w=1.d0/dsqrt(2.0d0*w1)
              call Cram_c_copy(nb,A(index1),A(index2))
            end if
-           call Cram_c_SMul(nb,w,A(index1),A(index1))
-           call Cram_c_SMul(nb,w,A(index2),A(index2))
+c           call Cram_c_SMul(nb,w,A(index1),A(index1))
+c           call Cram_c_SMul(nb,w,A(index2),A(index2))
+           call Cram_c_SMul1(nb,w,A(index1))
+           call Cram_c_SMul1(nb,w,A(index2))
            do j=k+1,nemax
              index3=bindex+(j-1)*npack1+1
              index4=index3+soshift
@@ -1549,7 +1551,8 @@ c     ** local variables ****
             write(*,*)"Pneb_makeOrtho: < psi | psi > = 0 K= ",k,w     
             w=1.0d0
            end if
-           call Cram_c_SMul(nb,w,A(index1),A(index1))
+c           call Cram_c_SMul(nb,w,A(index1),A(index1))
+           call Cram_c_SMul1(nb,w,A(index1))
 
            do j=k+1,ne(ms)
              index3=bindex+(j-1)*npack1+1

@@ -1,5 +1,5 @@
 *
-*     $Id: paw_lmbfgs.F,v 1.1 2004-09-05 02:18:25 bylaska Exp $                       
+*     $Id: paw_lmbfgs.F,v 1.2 2009-02-08 03:26:28 bylaska Exp $                       
 *
 
       subroutine paw_lmbfgs_init(max_m0,g)
@@ -21,10 +21,12 @@
       call paw_Grsm_list_init('lmbfgs',2*max_m,2*nsize)
 
       m = 1
-      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
+c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
+      call Grsm_gg_dScale1(npack1,neall,(-1.0d0),g)
       call paw_Grsm_list_store(2*m-1,g)
       call paw_Grsm_list_store(2*m,g)
-      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
+c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
+      call Grsm_gg_dScale1(npack1,neall,(-1.0d0),g)
       return
       end
 

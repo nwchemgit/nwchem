@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.37 2009-02-07 03:50:18 bylaska Exp $
+* $Id: cram.F,v 1.38 2009-02-08 03:26:12 bylaska Exp $
 *
 
 *     ***********************************
@@ -1602,6 +1602,30 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *          Cram_rr_Sqrt1          *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_rr_Sqrt1(nb,A)
+      implicit none
+      integer  nb
+      real*8   A(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(int_mb(nidb2_list(1)+nb))
+        A(i) = dsqrt(A(i))
+      end do
+
+      return
+      end
+
 
 *     ***********************************
 *     *					*
@@ -1867,6 +1891,32 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
       do i=1,( int_mb(nidb2_list(1)+nb))
         C(i) = A(i)*B(i)
+      end do
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_rc_Mul2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_rc_Mul2(nb,A,B)
+      implicit none
+      integer    nb
+      real*8     A(*)
+      complex*16 B(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i
+
+      do i=1,( int_mb(nidb2_list(1)+nb))
+        B(i) = B(i)*A(i)
       end do
 
       return

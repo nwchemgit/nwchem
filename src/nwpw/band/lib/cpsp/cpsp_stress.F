@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.13 2008-12-13 01:34:26 bylaska Exp $
+* $Id: cpsp_stress.F,v 1.14 2009-02-08 03:26:25 bylaska Exp $
 *
 
 
@@ -169,17 +169,21 @@
      >                          dbl_mb(tmp2(1)))
 
 *       **** tmp2(G) = tmp2(G)*(dvl(G))
-        call Cram_rr_Mul(0,dbl_mb(tmp2(1)),
-     >                     dbl_mb(dvl(1)+(ia-1)*npack0),
-     >                     dbl_mb(tmp2(1)))
+c        call Cram_rr_Mul(0,dbl_mb(tmp2(1)),
+c     >                     dbl_mb(dvl(1)+(ia-1)*npack0),
+c     >                     dbl_mb(tmp2(1)))
+        call Cram_rr_Mul2(0,dbl_mb(dvl(1)+(ia-1)*npack0),
+     >                      dbl_mb(tmp2(1)))
 
 *       **** tmp2(G) = tmp2(G)/G ****
         ss     = 1.0d0/fourpi
         call Cram_r_SMul(0,ss,dbl_mb(vc_indx),dbl_mb(tmp1(1)))
-        call Cram_rr_Sqrt(0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
-        call Cram_rr_Mul(0,dbl_mb(tmp1(1)),
-     >                     dbl_mb(tmp2(1)),
-     >                     dbl_mb(tmp2(1)))
+c        call Cram_rr_Sqrt(0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
+c        call Cram_rr_Mul(0,dbl_mb(tmp1(1)),
+c     >                     dbl_mb(tmp2(1)),
+c     >                     dbl_mb(tmp2(1)))
+        call Cram_rr_Sqrt1(0,dbl_mb(tmp1(1)))
+        call Cram_rr_Mul2(0,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)))
         
 *       **** Bus = Bus - Sum(G) tmp2(G)*Gu*Gs ***
         do u=1,3

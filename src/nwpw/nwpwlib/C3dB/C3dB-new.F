@@ -1,6 +1,6 @@
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.33 2009-02-07 03:50:12 bylaska Exp $
+* $Id: C3dB-new.F,v 1.34 2009-02-08 03:26:05 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2911,6 +2911,29 @@ c      call Parallel3d_np_i(np)
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *          C3dB_rr_Mul2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_rr_Mul2(nb,A,B)
+      implicit none
+      integer nb
+      real*8 A(*)
+      real*8 B(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         B(i) = B(i) * A(i)
+      end do
+
+      return
+      end
+
 
 
 *     ***********************************
@@ -3011,6 +3034,33 @@ c      call Parallel3d_np_i(np)
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *          C3dB_rr_Sum2           *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_rr_Sum2(nb,A,B)
+      implicit none
+      integer nb
+      real*8  A(*)
+      real*8  B(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         B(i) = B(i) + A(i)
+      end do
+
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*

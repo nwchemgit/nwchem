@@ -1,5 +1,5 @@
 *
-* $Id: kerker_G.F,v 1.1 2003-12-13 21:07:40 bylaska Exp $
+* $Id: kerker_G.F,v 1.2 2009-02-08 03:26:14 bylaska Exp $
 *
 
       subroutine kerker_G_init(g0)
@@ -113,11 +113,14 @@ c     real*8 tg(nfft3d)
       do ms=1,ispin
          call dcopy(n2ft3d,V((ms-1)*n2ft3d+1),1,dcpl_mb(tmp1(1)),1)
          call D3dB_r_Zero_Ends(1,dcpl_mb(tmp1(1)))
-         call D3dB_r_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+c         call D3dB_r_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+         call D3dB_r_SMul1(1,scal1,dcpl_mb(tmp1(1)))
          call D3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
 
-         call Pack_tc_Mul(0,dbl_mb(tg_indx),
-     >                      dcpl_mb(tmp1(1)),
+c         call Pack_tc_Mul(0,dbl_mb(tg_indx),
+c     >                      dcpl_mb(tmp1(1)),
+c     >                      dcpl_mb(tmp1(1)))
+         call Pack_tc_Mul2(0,dbl_mb(tg_indx),
      >                      dcpl_mb(tmp1(1)))
 
          call D3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))

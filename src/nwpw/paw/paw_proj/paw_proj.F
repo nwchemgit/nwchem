@@ -1,7 +1,10 @@
 *
-* $Id: paw_proj.F,v 1.37 2009-02-07 18:37:35 bylaska Exp $
+* $Id: paw_proj.F,v 1.38 2009-02-08 03:26:30 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.37  2009/02/07 18:37:35  bylaska
+* Bassi vectorization fixes ...EJB
+*
 * Revision 1.36  2007/10/01 23:02:26  bylaska
 * removed debug io...EJB
 *
@@ -780,8 +783,8 @@ c
 c           call D3dB_tc_Mul(1,dbl_mb(rayleigh(1)),
 c     >                     dcpl_mb(prj(1)),
 c     >                     dcpl_mb(prj(1)))
-           call D3dB_tc_Mul(1,dbl_mb(rayleigh(1)),
-     >                     dcpl_mb(prj(1)))
+           call D3dB_tc_Mul2(1,dbl_mb(rayleigh(1)),
+     >                         dcpl_mb(prj(1)))
 
            call rayleigh_itol_scaling(l,nfft3d,
      >                                dcpl_mb(prj(1)))
