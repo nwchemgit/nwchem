@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.21 2009-02-08 23:03:59 bylaska Exp $
+* $Id: ewald.F,v 1.22 2009-02-08 23:29:57 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -782,14 +782,17 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       do ii=1,nion
          call ewald_strfac(ii,dcpl_mb(exi(1)))
 
-         do i=1,enpack
-            dbl_mb(tmp3(1)+i-1) 
-     >              = ( dble(dcpl_mb(exi(1)+i-1))
-     >                *dimag(dcpl_mb(s(1)+i-1))
-     >              -  dimag(dcpl_mb(exi(1)+i-1))
-     >                 *dble(dcpl_mb(s(1)+i-1))
-     >                )*dbl_mb(vg(1)+i-1)
-         end do
+c         do i=1,enpack
+c            dbl_mb(tmp3(1)+i-1) 
+c     >              = ( dble(dcpl_mb(exi(1)+i-1))
+c     >                *dimag(dcpl_mb(s(1)+i-1))
+c     >              -  dimag(dcpl_mb(exi(1)+i-1))
+c     >                 *dble(dcpl_mb(s(1)+i-1))
+c     >                )*dbl_mb(vg(1)+i-1)
+c         end do
+         call ewald_f_tmp3(enpack,
+     >                     dcpl_mb(exi(1)),dcpl_mb(s(1)),
+     >                     dbl_mb(vg(1)),dbl_mb(tmp3(1)))
 
          zii=dbl_mb(zv(1)+ion_katm(ii)-1)
          sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
@@ -862,6 +865,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
 
       call nwpw_timing_end(21)
+      return
+      end
+
+      subroutine ewald_f_tmp3(n,e,s,v,t)
+      implicit none
+      integer n
+      complex*16 e(n),s(n)
+      real*8 v(n),t(n)
+
+      integer i
+
+      do i=1,n
+        t(i) = v(i)*(dble(e(i))*dimag(s(i)) - dimag(e(i))*dble(s(i)))
+      end do
+
       return
       end
 
