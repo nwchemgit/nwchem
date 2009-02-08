@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.56 2009-02-07 03:50:49 bylaska Exp $
+* $Id: electron.F,v 1.57 2009-02-08 20:59:09 bylaska Exp $
 *
 
 
@@ -1047,9 +1047,8 @@ c      end do
      >                        THpsi_k(1+(ms-1)*ne(1)*npack1))
       end do
 
-      call Grsm_gg_dScale(npack1,(neq(1)+neq(2)),
+      call Grsm_gg_dScale1(npack1,(neq(1)+neq(2)),
      >                    (-1.0d0),
-     >                    THpsi_k,
      >                    THpsi_k)
 
 
@@ -1294,9 +1293,8 @@ cccc#include "frac_occ.fh"
      >             fion,
      >             fractional,fion)
 
-      call Grsm_gg_dscale(npack1,(neq(1)+neq(2)),(-1.0d0),
-     >                    dcpl_mb(Hpsi_k(1)),
-     >                    dcpl_mb(Hpsi_k(1)))
+      call Grsm_gg_dScale1(npack1,(neq(1)+neq(2)),(-1.0d0),
+     >                     dcpl_mb(Hpsi_k(1)))
 
       return
       end
