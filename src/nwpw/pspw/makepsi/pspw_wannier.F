@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.20 2008-11-03 06:06:17 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.21 2009-02-08 04:32:13 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -28,7 +28,7 @@
       real*8 bv(3,6),wrk(6,6),wts(6),bmat(3,3)
       real*8 b(3),ixmat(3,6)
       real*8 xx,yy,zz,tmp1(tmp_len)
-      real*8 dx,dy,dz,nx,ny,nz,tx,ty,tz,alpha
+      real*8 dx,dy,dz,nx,ny,nz,tx,ty,tz,alpha,scal
       complex*16 arg,wx
       character*2 labels(6)
 
@@ -284,26 +284,32 @@ c      character*255 full_filename,full_filename2
       if (.not. value) 
      >   call errquit('pspw_wannier:out of heap memory',1,0)
 
+c     *** Silvestrelli G1 ***
       ixmat(1,1)=1.0d0
       ixmat(2,1)=0.0d0
       ixmat(3,1)=0.0d0
 
+c     *** Silvestrelli G4 ***
       ixmat(1,2)=1.0d0
       ixmat(2,2)=1.0d0
       ixmat(3,2)=0.0d0
 
+c     *** Silvestrelli G5 ***
       ixmat(1,3)=1.0d0
       ixmat(2,3)=0.0d0
       ixmat(3,3)=1.0d0
 
+c     *** Silvestrelli G2 ***
       ixmat(1,4)=0.0d0
       ixmat(2,4)=1.0d0
       ixmat(3,4)=0.0d0
 
+c     *** Silvestrelli G6 ***
       ixmat(1,5)=0.0d0
       ixmat(2,5)=1.0d0
       ixmat(3,5)=1.0d0
 
+c     *** Silvestrelli G3 ***
       ixmat(1,6)=0.0d0
       ixmat(2,6)=0.0d0
       ixmat(3,6)=1.0d0
@@ -337,9 +343,14 @@ c      character*255 full_filename,full_filename2
          wrk(6,i)=bv(3,i)*bv(3,i)
          wts(i)=0.0d0
       end do
-      wts(1)=1.0d0
-      wts(4)=1.0d0
-      wts(6)=1.0d0
+
+*     *** scal=(2*pi/L)**2 ***
+      scal = lattice_omega()**(1.0d0/3.0d0)
+      scal = 8.0*datan(1.0d0)/scal
+      scal = scal*scal
+      wts(1)=scal
+      wts(4)=scal
+      wts(6)=scal
       call dgels('N',6,6,1,wrk,6,wts,6,tmp1,tmp_len,info)
       if (info.ne.0) then
         write(*,*)"Illegal argument in call to dgels"
@@ -378,9 +389,10 @@ c      character*255 full_filename,full_filename2
       dz=0.0d0
 
       if (oprint) then
-         write(*,*) "rank=",rank
+         write(*,1260) 
+         write(*,1261) rank
          do i=1,rank
-            write(*,*) "b=",i,bv(1,i),bv(2,i),bv(3,i)
+            write(*,1262) i,bv(1,i),bv(2,i),bv(3,i),wts(i)
          end do
       end if
       
@@ -505,6 +517,7 @@ c     >                            +(ms-1)*ne(1)*ne(1))
 *     ***** write psi2 wavefunctions ****
       call psi_write_noocc(ispin,ne,dcpl_mb(psi2(1)))
 
+      call ion_write(rtdb)
       call ion_end()
 
 *     **** deallocate heap memory ****
@@ -563,6 +576,9 @@ c     >                            +(ms-1)*ne(1)*ne(1))
  1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
 
+ 1260 FORMAT(/5x,' Silvestrelli reciprocal lattice vectors:')
+ 1261 FORMAT(5x,' rank = ',I1)
+ 1262 FORMAT(5x,' bs',I1,' =<',3f8.3,' > weight=',f8.3)
  1300 FORMAT(/' Wannier orbital generation for spin up orbitals')
  1301 FORMAT(/' Wannier orbital generation for spin down orbitals')
  1380 FORMAT(/' initial position of Wannier centers:')

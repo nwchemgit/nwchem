@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.128 2008-11-17 17:25:43 bylaska Exp $
+* $Id: control.F,v 1.129 2009-02-08 04:32:48 bylaska Exp $
 *
 
 *     ***********************************
@@ -762,8 +762,8 @@ c
          tolerances(1) = 1.0d-9
          tolerances(2) = 1.0d-9
          tolerances(3) = 1.0d-4
-         ecut=9000.0d0
-         wcut=9000.0d0
+         if(.not.rtdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut)) ecut=9000.0d0
+         if(.not.rtdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut)) wcut=ecut
          rcut = 0.0d0
          ncut = 0
          npsp = 0
@@ -3961,6 +3961,32 @@ c      end
      >   value = 300.0d0
 
       control_init_velocities_temperature = value
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      control_wannier_timestep   *
+*     *                                 *
+*     ***********************************
+      real*8 function control_wannier_timestep()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 value
+
+      if (.not.rtdb_get(rtdb,'nwpw:wannier_timestep',mt_dbl,1,value))
+     >   value = 2.7e-2
+
+      control_wannier_timestep = value
       return
       end
 

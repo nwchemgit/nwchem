@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.13 2009-01-05 17:46:33 bylaska Exp $
+* $Id: silvestrelli_minimize.F,v 1.14 2009-02-08 04:32:15 bylaska Exp $
 *
 
 
@@ -38,6 +38,9 @@
 
       complex*16 one,zero,scal
 
+      real*8   control_wannier_timestep
+      external control_wannier_timestep
+
 
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER)
@@ -71,7 +74,7 @@
 
 
       maxgrad  = 9999.0d0
-      timestep =    3.0d-2
+      timestep = control_wannier_timestep()
       iter = 0
       crit   = 9999.0d0
       omega1 = 0.0d0
@@ -231,7 +234,7 @@
          call zcopy(n*n,dcpl_mb(At(1)),1,dcpl_mb(expminusAtotal(1)),1)       
 
 
-         maxgrad=0.d0
+         maxgrad=0.0d0
          do i=1,n
          do j=1,n
            wx = dble(A(i,j))**2 + dimag(A(i,j))**2
@@ -240,7 +243,7 @@
          end do
          end do
 
-         omega=0.d0
+         omega=0.0d0
          do i=1,n
             wx = wts(1)*(dble(X1(i,i))**2 + dimag(X1(i,i))**2)
             wy = wts(2)*(dble(X2(i,i))**2 + dimag(X2(i,i))**2)
@@ -260,11 +263,13 @@
             end if
          end do
 
+         if (omega.lt.omega1) timestep = 0.5d0*timestep
+
          crit = dabs(omega-omega1)/omega
          omega1 = omega
 
          if (oprint) then
-            write(6,*) iter, omega, maxgrad,crit
+            write(6,'(I5,4E15.6)') iter,omega,maxgrad,crit,timestep
          end if
       end do ! end do while
 
