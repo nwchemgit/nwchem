@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.53 2009-01-05 17:46:29 bylaska Exp $
+* $Id: ion.F,v 1.54 2009-02-09 01:59:49 bylaska Exp $
 *
 
 *     ***************************
@@ -1541,15 +1541,16 @@ c         eki1=0.5d0*eki1
       real*8 x,y,z
  
 *     **** translate ions ****
-      do ii=1,nion
-        x = dbl_mb(r1(1)+ (ii-1)*3)     + trans(1)
-        y = dbl_mb(r1(1)+ (ii-1)*3 + 1) + trans(2)
-        z = dbl_mb(r1(1)+ (ii-1)*3 + 2) + trans(3)
-
-        dbl_mb(r1(1)+ (ii-1)*3)     = x
-        dbl_mb(r1(1)+ (ii-1)*3 + 1) = y
-        dbl_mb(r1(1)+ (ii-1)*3 + 2) = z
-      end do
+c      do ii=1,nion
+c        x = dbl_mb(r1(1)+ (ii-1)*3)     + trans(1)
+c        y = dbl_mb(r1(1)+ (ii-1)*3 + 1) + trans(2)
+c        z = dbl_mb(r1(1)+ (ii-1)*3 + 2) + trans(3)
+c
+c        dbl_mb(r1(1)+ (ii-1)*3)     = x
+c        dbl_mb(r1(1)+ (ii-1)*3 + 1) = y
+c        dbl_mb(r1(1)+ (ii-1)*3 + 2) = z
+c      end do
+      call ion_trans_sub(nion,trans,dbl_mb(r1(1)))
 
 *     *** make sure ions are in the cell ***
       if (periodic) then
@@ -1557,6 +1558,18 @@ c         eki1=0.5d0*eki1
          call pspw_qmmm_incell1(dbl_mb(r1(1)))
       end if
 
+      return
+      end
+      subroutine ion_trans_sub(nion,t,r1)
+      integer nion
+      real*8 t(3)
+      real*8 r1(3,nion)
+      integer i,ii
+      do ii=1,nion
+      do i=1,3
+        r1(i,ii) = r1(i,ii) + t(i)
+      end do
+      end do
       return
       end
 
@@ -1581,15 +1594,17 @@ c         eki1=0.5d0*eki1
       integer i
       double precision scale
 
-      do i=1,nion
-         scale = dsqrt(dbl_mb(dti(1)+i-1))
-         dbl_mb(r2(1)+(i-1)*3)   = dbl_mb(r1(1)+(i-1)*3) 
-     >                           + scale*fion(1,i)
-         dbl_mb(r2(1)+(i-1)*3+1) = dbl_mb(r1(1)+(i-1)*3+1) 
-     >                           + scale*fion(2,i)
-         dbl_mb(r2(1)+(i-1)*3+2) = dbl_mb(r1(1)+(i-1)*3+2) 
-     >                           + scale*fion(3,i)
-      end do
+c      do i=1,nion
+c         scale = dsqrt(dbl_mb(dti(1)+i-1))
+c         dbl_mb(r2(1)+(i-1)*3)   = dbl_mb(r1(1)+(i-1)*3) 
+c     >                           + scale*fion(1,i)
+c         dbl_mb(r2(1)+(i-1)*3+1) = dbl_mb(r1(1)+(i-1)*3+1) 
+c     >                           + scale*fion(2,i)
+c         dbl_mb(r2(1)+(i-1)*3+2) = dbl_mb(r1(1)+(i-1)*3+2) 
+c     >                           + scale*fion(3,i)
+c      end do
+      call ion_opt_sub(nion,dbl_mb(dti(1)),fion,
+     >                 dbl_mb(r1(1)),dbl_mb(r2(1)))
       call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
 
 
@@ -1604,6 +1619,20 @@ c         eki1=0.5d0*eki1
 
       return
       end
+      subroutine ion_opt_sub(nion,dti,fion,r1,r2)
+      implicit none
+      integer nion
+      real*8 dti(nion)
+      real*8 fion(3,nion),r1(3,nion),r2(3,nion)
+      integer i,ii
+
+      do ii=1,nion
+      do i=1,3
+         r2(i,ii) = r1(i,ii) + dsqrt(dti(ii))*fion(i,ii)
+      end do
+      end do
+      return
+      end 
 
 *     ***************************
 *     *				*
@@ -1646,18 +1675,20 @@ c         eki1=0.5d0*eki1
       sa2 = alpha/(2.0d0-alpha)
 
 *     **** do a verlet step ***
-      do i=1,nion
-         scale = (dbl_mb(dti(1)+i-1))
-         dbl_mb(r2(1)+(i-1)*3)   = 2.0d0*sa1*dbl_mb(r1(1)+(i-1)*3) 
-     >                           -       sa2*dbl_mb(r0(1)+(i-1)*3) 
-     >                           +       scale*sa1*fion(1,i)
-         dbl_mb(r2(1)+(i-1)*3+1) = 2.0d0*sa1*dbl_mb(r1(1)+(i-1)*3+1) 
-     >                           -       sa2*dbl_mb(r0(1)+(i-1)*3+1) 
-     >                           +       scale*sa1*fion(2,i)
-         dbl_mb(r2(1)+(i-1)*3+2) = 2.0d0*sa1*dbl_mb(r1(1)+(i-1)*3+2) 
-     >                           -       sa2*dbl_mb(r0(1)+(i-1)*3+2) 
-     >                           +       scale*sa1*fion(3,i)
-      end do
+c      do i=1,nion
+c         scale = (dbl_mb(dti(1)+i-1))
+c         dbl_mb(r2(1)+(i-1)*3)   = 2.0d0*sa1*dbl_mb(r1(1)+(i-1)*3) 
+c     >                           -       sa2*dbl_mb(r0(1)+(i-1)*3) 
+c     >                           +       scale*sa1*fion(1,i)
+c         dbl_mb(r2(1)+(i-1)*3+1) = 2.0d0*sa1*dbl_mb(r1(1)+(i-1)*3+1) 
+c     >                           -       sa2*dbl_mb(r0(1)+(i-1)*3+1) 
+c     >                           +       scale*sa1*fion(2,i)
+c         dbl_mb(r2(1)+(i-1)*3+2) = 2.0d0*sa1*dbl_mb(r1(1)+(i-1)*3+2) 
+c     >                           -       sa2*dbl_mb(r0(1)+(i-1)*3+2) 
+c     >                           +       scale*sa1*fion(3,i)
+c      end do
+      call ion_vert_sub1(nion,sa1,sa2,dbl_mb(dti(1)),fion,
+     >                   dbl_mb(r0(1)),dbl_mb(r1(1)),dbl_mb(r2(1)))
       call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
 
 
@@ -1688,14 +1719,15 @@ c         eki1=0.5d0*eki1
 
 *     **** make r0 the velocity - note that the velocity is deleted ****
 *     **** after an ion_shift call                                  ****
-      do i=1,nion
-         dbl_mb(r0(1)+(i-1)*3)   = h*( dbl_mb(r2(1)+(i-1)*3)
-     >                               - dbl_mb(r0(1)+(i-1)*3))
-         dbl_mb(r0(1)+(i-1)*3+1) = h*( dbl_mb(r2(1)+(i-1)*3+1)
-     >                               - dbl_mb(r0(1)+(i-1)*3+1))
-         dbl_mb(r0(1)+(i-1)*3+2) = h*( dbl_mb(r2(1)+(i-1)*3+2)
-     >                               - dbl_mb(r0(1)+(i-1)*3+2))
-      end do
+c      do i=1,nion
+c         dbl_mb(r0(1)+(i-1)*3)   = h*( dbl_mb(r2(1)+(i-1)*3)
+c     >                               - dbl_mb(r0(1)+(i-1)*3))
+c         dbl_mb(r0(1)+(i-1)*3+1) = h*( dbl_mb(r2(1)+(i-1)*3+1)
+c     >                               - dbl_mb(r0(1)+(i-1)*3+1))
+c         dbl_mb(r0(1)+(i-1)*3+2) = h*( dbl_mb(r2(1)+(i-1)*3+2)
+c     >                               - dbl_mb(r0(1)+(i-1)*3+2))
+c      end do
+      call ion_vel_sub(nion,h,dbl_mb(r0(1)),dbl_mb(r2(1)))
 
 
 *     **** determine current kinetic energy and add to running average ****
@@ -1712,10 +1744,23 @@ c         eki1=0.5d0*eki1
       kg_total = kg_total + ekg
       ke_count = ke_count + 1
 
-
       return
       end
 
+      subroutine ion_vert_sub1(nion,sa1,sa2,dti,fion,r0,r1,r2)
+      implicit none
+      integer nion
+      real*8 sa1,sa2,dti(nion)
+      real*8 fion(3,nion),r0(3,nion),r1(3,nion),r2(3,nion)
+      integer i,ii
+      do ii=1,nion
+      do i=1,3
+        r2(i,ii) = 2.0d0*sa1*r1(i,ii) - sa2*r0(i,ii) 
+     >           + sa1*dti(ii)*fion(i,ii)
+      end do
+      end do
+      return
+      end 
 
 *     ***************************
 *     *                         *
@@ -1983,19 +2028,21 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
       external         control_ion_time_step,ion_amass
 
       dt = control_ion_time_step()
-      do i=1,nion
-         scale = 0.5d0*(dbl_mb(dti(1)+i-1))
-
-         dbl_mb(r2(1)+(i-1)*3)   =    dbl_mb(r1(1)+(i-1)*3) 
-     >                           + dt*alpha*dbl_mb(r0(1)+(i-1)*3) 
-     >                           +       scale*fion(1,i)
-         dbl_mb(r2(1)+(i-1)*3+1) =    dbl_mb(r1(1)+(i-1)*3+1) 
-     >                           + dt*alpha*dbl_mb(r0(1)+(i-1)*3+1) 
-     >                           +       scale*fion(2,i)
-         dbl_mb(r2(1)+(i-1)*3+2) =    dbl_mb(r1(1)+(i-1)*3+2) 
-     >                           + dt*alpha*dbl_mb(r0(1)+(i-1)*3+2) 
-     >                           +       scale*fion(3,i)
-      end do
+c      do i=1,nion
+c         scale = 0.5d0*(dbl_mb(dti(1)+i-1))
+c
+c         dbl_mb(r2(1)+(i-1)*3)   =    dbl_mb(r1(1)+(i-1)*3) 
+c     >                           + dt*alpha*dbl_mb(r0(1)+(i-1)*3) 
+c     >                           +       scale*fion(1,i)
+c         dbl_mb(r2(1)+(i-1)*3+1) =    dbl_mb(r1(1)+(i-1)*3+1) 
+c     >                           + dt*alpha*dbl_mb(r0(1)+(i-1)*3+1) 
+c     >                           +       scale*fion(2,i)
+c         dbl_mb(r2(1)+(i-1)*3+2) =    dbl_mb(r1(1)+(i-1)*3+2) 
+c     >                           + dt*alpha*dbl_mb(r0(1)+(i-1)*3+2) 
+c     >                           +       scale*fion(3,i)
+c      end do
+      call ion_newt_sub(nion,(dt*alpha),dbl_mb(dti(1)),fion,
+     >                  dbl_mb(r0(1)),dbl_mb(r1(1)),dbl_mb(r2(1)))
       call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
 
 
@@ -2029,6 +2076,19 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
       kg_total = kg_total + ekg
       ke_count = ke_count + 1
 
+      return
+      end
+      subroutine ion_newt_sub(nion,dta,dti,fion,r0,r1,r2)
+      implicit none
+      integer nion
+      real*8 dta,dti(nion)
+      real*8 fion(3,nion),r0(3,nion),r1(3,nion),r2(3,nion)
+      integer i,ii
+      do ii=1,nion
+      do i=1,3
+        r2(i,ii)=r1(i,ii)+dta*r0(i,ii)+0.5d0*dti(ii)*fion(i,ii)
+      end do
+      end do
       return
       end
 
@@ -2070,18 +2130,20 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
       smr = 2.0d0*ssr - 1.0d0
 
 *     **** do a Nose-Hoover verlet step ***
-      do i=1,nion
-         scale = (dbl_mb(dti(1)+i-1))
-         dbl_mb(r2(1)+(i-1)*3)   = 2.0d0*ssr*dbl_mb(r1(1)+(i-1)*3) 
-     >                           -       smr*dbl_mb(r0(1)+(i-1)*3) 
-     >                           +       ssr*scale*fion(1,i)
-         dbl_mb(r2(1)+(i-1)*3+1) = 2.0d0*ssr*dbl_mb(r1(1)+(i-1)*3+1) 
-     >                           -       smr*dbl_mb(r0(1)+(i-1)*3+1) 
-     >                           +       ssr*scale*fion(2,i)
-         dbl_mb(r2(1)+(i-1)*3+2) = 2.0d0*ssr*dbl_mb(r1(1)+(i-1)*3+2) 
-     >                           -       smr*dbl_mb(r0(1)+(i-1)*3+2) 
-     >                           +       ssr*scale*fion(3,i)
-      end do
+c      do i=1,nion
+c         scale = (dbl_mb(dti(1)+i-1))
+c         dbl_mb(r2(1)+(i-1)*3)   = 2.0d0*ssr*dbl_mb(r1(1)+(i-1)*3) 
+c     >                           -       smr*dbl_mb(r0(1)+(i-1)*3) 
+c     >                           +       ssr*scale*fion(1,i)
+c         dbl_mb(r2(1)+(i-1)*3+1) = 2.0d0*ssr*dbl_mb(r1(1)+(i-1)*3+1) 
+c     >                           -       smr*dbl_mb(r0(1)+(i-1)*3+1) 
+c     >                           +       ssr*scale*fion(2,i)
+c         dbl_mb(r2(1)+(i-1)*3+2) = 2.0d0*ssr*dbl_mb(r1(1)+(i-1)*3+2) 
+c     >                           -       smr*dbl_mb(r0(1)+(i-1)*3+2) 
+c     >                           +       ssr*scale*fion(3,i)
+c      end do
+      call ion_nose_sub(nion,ssr,smr,dbl_mb(dti(1)),fion,
+     >                  dbl_mb(r0(1)),dbl_mb(r1(1)),dbl_mb(r2(1)))
       call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
 
 
@@ -2112,14 +2174,15 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
 
 *     **** make r0 the velocity - note that the velocity is deleted ****
 *     **** after an ion_shift call                                  ****
-      do i=1,nion
-         dbl_mb(r0(1)+(i-1)*3)   = h*( dbl_mb(r2(1)+(i-1)*3)
-     >                               - dbl_mb(r0(1)+(i-1)*3))
-         dbl_mb(r0(1)+(i-1)*3+1) = h*( dbl_mb(r2(1)+(i-1)*3+1)
-     >                               - dbl_mb(r0(1)+(i-1)*3+1))
-         dbl_mb(r0(1)+(i-1)*3+2) = h*( dbl_mb(r2(1)+(i-1)*3+2)
-     >                               - dbl_mb(r0(1)+(i-1)*3+2))
-      end do
+c      do i=1,nion
+c         dbl_mb(r0(1)+(i-1)*3)   = h*( dbl_mb(r2(1)+(i-1)*3)
+c     >                               - dbl_mb(r0(1)+(i-1)*3))
+c         dbl_mb(r0(1)+(i-1)*3+1) = h*( dbl_mb(r2(1)+(i-1)*3+1)
+c     >                               - dbl_mb(r0(1)+(i-1)*3+1))
+c         dbl_mb(r0(1)+(i-1)*3+2) = h*( dbl_mb(r2(1)+(i-1)*3+2)
+c     >                               - dbl_mb(r0(1)+(i-1)*3+2))
+c      end do
+      call ion_vel_sub(nion,h,dbl_mb(r0(1)),dbl_mb(r2(1)))
 
 
 *     **** determine current kinetic energy and add to running average ****
@@ -2136,9 +2199,38 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
       kg_total = kg_total + ekg
       ke_count = ke_count + 1
 
-
       return
       end
+
+      subroutine ion_nose_sub(nion,ssr,smr,dti,fion,r0,r1,r2)
+      implicit none
+      integer nion
+      real*8 ssr,smr,dti(nion)
+      real*8 fion(3,nion),r0(3,nion),r1(3,nion),r2(3,nion)
+      integer i,ii
+      do ii=1,nion
+      do i=1,3
+        r2(i,ii) = 2.0d0*ssr*r1(i,ii) - smr*r0(i,ii) 
+     >           + ssr*dti(ii)*fion(i,ii)
+      end do
+      end do
+      return
+      end
+
+      subroutine ion_vel_sub(nion,h,r0,r2)
+      implicit none
+      integer nion
+      real*8 h,r0(3,nion),r2(3,nion)
+      integer i,ii
+      do ii=1,nion
+      do i=1,3
+        r0(i,ii) = h*(r2(i,ii)-r0(i,ii))
+      end do
+      end do
+      return
+      end
+
+
 
 
 *     ***************************
