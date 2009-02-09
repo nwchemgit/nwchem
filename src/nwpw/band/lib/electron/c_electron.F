@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.45 2009-02-07 03:50:06 bylaska Exp $
+* $Id: c_electron.F,v 1.46 2009-02-09 02:19:12 bylaska Exp $
 *
 
 
@@ -728,8 +728,7 @@ cccccccccccccccccc
      >                       dbl_mb(hml_shift),
      >                       zero,
      >                       dbl_mb(tpsi_shift))
-         call c_electron_fff_sub(nsize,
-     >                          dbl_mb(tpsi_shift),
+         call c_electron_ff_sub(nsize,
      >                          dbl_mb(hpsi_shift),
      >                          dbl_mb(tpsi_shift))
 c         call BGrsm_fff_Sub(dcpl_mb(Hpsi_k(1)),
@@ -745,15 +744,14 @@ c     >                     THpsi_k)
       return
       end
 
-      subroutine c_electron_fff_sub(nsize,A,B,C)
+      subroutine c_electron_ff_sub(nsize,A,B)
       implicit none
       integer nsize
       real*8 A(*)
       real*8 B(*)
-      real*8 C(*)
       integer i
       do i=1,nsize
-         C(i) = A(i) - B(i)
+         B(i) = B(i) - A(i)
       end do
       return
       end
