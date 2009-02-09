@@ -1,7 +1,10 @@
 *
-* $Id: paw_proj.F,v 1.38 2009-02-08 03:26:30 bylaska Exp $
+* $Id: paw_proj.F,v 1.39 2009-02-09 02:56:54 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.38  2009/02/08 03:26:30  bylaska
+* ...EJB
+*
 * Revision 1.37  2009/02/07 18:37:35  bylaska
 * Bassi vectorization fixes ...EJB
 *
@@ -144,11 +147,13 @@ c     *** allocate kspace arrays***
       if (.not.value) call errquit('paw_proj_init: alloc heap',0,1)
 
 *     *** set prj_indx ***
-      int_mb(prj_indx(1)) = 0
-      do ia=2,prj_nkatm
-         int_mb(prj_indx(1)+ia-1) = int_mb(prj_indx(1)+ia-2) 
-     >                            + int_mb(prj_nbasis(1)  +ia-2)*npack1
-      end do
+c      int_mb(prj_indx(1)) = 0
+c      do ia=2,prj_nkatm
+c         int_mb(prj_indx(1)+ia-1) = int_mb(prj_indx(1)+ia-2) 
+c     >                            + int_mb(prj_nbasis(1)  +ia-2)*npack1
+c      end do
+      call paw_proj_init_sub(prj_nkatm,npack1,
+     >                       int_mb(prj_nbasis(1)),int_mb(prj_indx(1)))
 
 *     **** allocate vloc potential space ***
       call paw_vloc_init()
@@ -165,8 +170,16 @@ c     *** allocate kspace arrays***
      >            dbl_mb(vl_ptr+(ia-1)*npack0))
      >           
       end do
-
-     
+      return
+      end
+      subroutine paw_proj_init_sub(n,npack,nbas,indx)
+      implicit none
+      integer n,npack,nbas(n),indx(n)
+      integer i
+      indx(1) = 0
+      do i=2,n
+         indx(i) = indx(i-1) + npack*nbas(i-1)
+      end do
       return
       end
 
@@ -766,10 +779,12 @@ c
           end if
         end do
 
-        do i=1,nfft3d
-          dbl_mb(rayleigh(1)+i-1) = 
-     >       dbl_mb(ray(1)+int_mb(gm(1)+i-1)-1)
-        end do
+c        do i=1,nfft3d
+c          dbl_mb(rayleigh(1)+i-1) = 
+c     >       dbl_mb(ray(1)+int_mb(gm(1)+i-1)-1)
+c        end do
+        call paw_proj_sub2(nfft3d,int_mb(gm(1)),
+     >                   dbl_mb(ray(1)),dbl_mb(rayleigh(1)))
 
         do m=-l,l
 *          *** generate Ylm ***
@@ -801,10 +816,12 @@ c     >                     dcpl_mb(prj(1)))
 
 
 *     ***** format local potential *****
-      do i=1,nr
-        dbl_mb(f(1)+i-1) = dbl_mb(i_rgrid+i-1)
-     >                    *dbl_mb(ps_ptr+i-1)
-      end do
+c      do i=1,nr
+c        dbl_mb(f(1)+i-1) = dbl_mb(i_rgrid+i-1)
+c     >                    *dbl_mb(ps_ptr+i-1)
+c      end do
+      call paw_proj_sub1(nr,dbl_mb(i_rgrid),dbl_mb(ps_ptr),
+     >                      dbl_mb(f(1)))
 
       do i=1,ng
           gg=dbl_mb(g(1)+i-1)
@@ -825,10 +842,12 @@ c     >                     dcpl_mb(prj(1)))
           end if
 
       end do
-      do i=1,nfft3d
-          dbl_mb(rayleigh(1)+i-1) = 
-     >       dbl_mb(ray(1)+int_mb(gm(1)+i-1)-1)
-      end do
+c      do i=1,nfft3d
+c          dbl_mb(rayleigh(1)+i-1) = 
+c     >       dbl_mb(ray(1)+int_mb(gm(1)+i-1)-1)
+c      end do
+      call paw_proj_sub2(nfft3d,int_mb(gm(1)),
+     >                   dbl_mb(ray(1)),dbl_mb(rayleigh(1)))
 
       call D3dB_t_write(1,6,dbl_mb(rayleigh(1)),dcpl_mb(tmp(1)))
 
@@ -852,6 +871,28 @@ c     >                     dcpl_mb(prj(1)))
       
       return
       end
+
+      subroutine paw_proj_sub1(n,a,b,c)
+      implicit none
+      integer n
+      real*8 a(n),b(n),c(n)
+      integer i
+      do i=1,n
+        c(i) = a(i)*b(i)
+      end do
+      return
+      end
+
+      subroutine paw_proj_sub2(n,indx,ray,rayl)
+      implicit none
+      integer n,indx(n)
+      real*8  ray(*),rayl(*)
+      integer i
+      do i=1,n
+        rayl(i) = ray(indx(i))
+      end do
+      return
+      end 
 
 !**************************************************
 !
