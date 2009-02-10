@@ -1,5 +1,5 @@
 c
-c $Id: pspw_dplot_input.F,v 1.10 2003-11-06 17:01:28 bylaska Exp $
+c $Id: pspw_dplot_input.F,v 1.11 2009-02-10 21:17:18 bylaska Exp $
 c
 
 
@@ -19,7 +19,7 @@ c
       integer rtdb
 c
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 10)
+      parameter (num_dirs = 11)
       character*22 dirs(num_dirs)
       data dirs / 'vectors',
      >            'density',
@@ -30,6 +30,7 @@ c
      >            '3d_grid',
      >            'origin',
      >            'limitxyz',
+     >            'ncell',
      >            'end'/
 
       integer num_dnames          ! No. of density directives
@@ -63,7 +64,7 @@ c
       real*8        position_tolerance
       real*8        o(3),x(3),y(3),z(3)
       real*8        sizex(2),sizey(2),sizez(2),scal
-      integer       nx,ny,nz
+      integer       nx,ny,nz,ncell(3)
 c
 c
 *     *** initializations ****
@@ -89,7 +90,7 @@ c
      >           'pspw_dplot_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 100,  200, 300, 400, 500, 600,700,800,900,
+      goto ( 100,  200, 300, 400, 500, 600,700,800,900,1000,
      >      9999) ind
       call errquit(
      >      'pspw_dplot_input: unimplemented directive', ind, INPUT_ERR)
@@ -445,11 +446,22 @@ c
 
       if (.not. value)
      >   call errquit(
-     >  'pspw_dplot_input: failed to read limitxyz',0,RTDB_ERR)
+     >  'pspw_dplot_input: failed to write limitxyz',0,RTDB_ERR)
 
       goto 10
 
 
+c
+c ncell
+c
+ 1000 if (.not.inp_i(ncell(1))) ncell(1) = 0
+      if (.not.inp_i(ncell(2))) ncell(2) = 0
+      if (.not.inp_i(ncell(3))) ncell(3) = 0
+      if (.not.rtdb_put(rtdb,'pspw_dplot:ncell',mt_int,3,ncell))
+     >   call errquit(
+     >  'pspw_dplot_input: failed to write ncell',0,RTDB_ERR)
+
+      goto 10
 
 
 

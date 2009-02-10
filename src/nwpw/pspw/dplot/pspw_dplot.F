@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.20 2009-02-07 03:50:38 bylaska Exp $
+* $Id: pspw_dplot.F,v 1.21 2009-02-10 21:17:18 bylaska Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -22,7 +22,7 @@
       integer ngrid(3)
       integer nfft3d,n2ft3d,npack1,mapping,mapping1d
       integer ispin,ne(2),nemax
-      integer psi2(2),dn(2),psir(2),occ2(2)
+      integer psi2(2),dn(2),psir(2),occ2(2),ncell(3)
       real*8  cpu1,cpu2
       real*8  position_tolerance,origin(3)
       character*8 tag
@@ -80,6 +80,13 @@
      >      rtdb_get(rtdb,'pspw_dplot:position_tolerance',
      >               mt_dbl,1,position_tolerance))
      >      position_tolerance = 0.0d0
+
+*     **** get ncell ****
+      if (.not.rtdb_get(rtdb,'pspw_dplot:ncell',mt_int,3,ncell)) then
+        ncell(1) = 0
+        ncell(2) = 0
+        ncell(3) = 0
+      end if
 
 
 *     **** get origin ****
@@ -177,6 +184,7 @@
          write(6,1115)
          write(6,1121) control_boundry(),control_version()
          write(6,1220) ne(1),ne(ispin),' ( fourier space)'
+         write(6,1224) ncell
          write(6,1225) position_tolerance
          write(6,1226) origin
 
@@ -312,6 +320,7 @@
  1121 FORMAT(5X,' boundary conditions   = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
+ 1224 FORMAT(/' ncell              = ',3I2)
  1225 FORMAT(/' position tolerance = ',E12.6)
  1226 FORMAT(/5x,'      origin=<',3f8.3,' >')
 
@@ -718,7 +727,7 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
 *     **** geometry variables ****
 c     integer geom1
 c     character*16 t
-      integer nion,nion2
+      integer nion,nion2,ncell(3),nl(3),nh(3),n1,n2,n3
       real*8 q,rxyz(3)
       real*8 position_tolerance
 
@@ -777,17 +786,62 @@ c     if (.not. value) call errquit('opening geometry',0)
      >               mt_dbl,1,position_tolerance))
      >      position_tolerance = 0.0d0
 
-      nion2 = nion
-      do i=1,nion
-c        value = geom_cent_get(geom1,i,t,rxyz,q)
-c        if (.not. value) call errquit('reading geometry',0)
-         rxyz(1) = ion_rion(1,i)
-         rxyz(2) = ion_rion(2,i)
-         rxyz(3) = ion_rion(3,i)
-         call special_position_count(position_tolerance,
-     >                                   rxyz,nion2)
+*     **** get ncell ****
+      if (.not.rtdb_get(rtdb,'pspw_dplot:ncell',mt_int,3,ncell)) then
+        ncell(1) = 0
+        ncell(2) = 0
+        ncell(3) = 0
+      end if
+      if (ncell(1).eq.0) then
+         nl(1) = 0
+         nh(1) = 0
+      else if (ncell(1).gt.0) then
+         nl(1) = -ncell(1)
+         nh(1) =  ncell(1)
+      else
+         nl(1) =  0
+         nh(1) = -ncell(1)
+      end if
+      if (ncell(2).eq.0) then
+         nl(2) = 0
+         nh(2) = 0
+      else if (ncell(2).gt.0) then
+         nl(2) = -ncell(2)
+         nh(2) =  ncell(2)
+      else
+         nl(2) =  0
+         nh(2) = -ncell(2)
+      end if
+      if (ncell(3).eq.0) then
+         nl(3) = 0
+         nh(3) = 0
+      else if (ncell(3).gt.0) then
+         nl(3) = -ncell(3)
+         nh(3) =  ncell(3)
+      else
+         nl(3) =  0
+         nh(3) = -ncell(3)
+      end if
+      nion2 = 0
+      do n3=nl(3),nh(3)
+      do n2=nl(2),nh(2)
+      do n1=nl(1),nh(1)
+         nion2= nion2+nion
+      end do
+      end do
       end do
 
+
+c      nion2 = nion
+c      do i=1,nion
+cc        value = geom_cent_get(geom1,i,t,rxyz,q)
+cc        if (.not. value) call errquit('reading geometry',0)
+c         rxyz(1) = ion_rion(1,i)
+c         rxyz(2) = ion_rion(2,i)
+c         rxyz(3) = ion_rion(3,i)
+c         call special_position_count(position_tolerance,
+c     >                                   rxyz,nion2)
+c      end do
 
       if (taskid.eq.MASTER) then
          orb_flag = 1
@@ -806,15 +860,31 @@ c        if (.not. value) call errquit('reading geometry',0)
       do i=1,nion
 c        value = geom_cent_get(geom1,i,t,rxyz,q)
 c        if (.not. value) call errquit('reading geometry',0)
-         rxyz(1) = ion_rion(1,i)
-         rxyz(2) = ion_rion(2,i)
-         rxyz(3) = ion_rion(3,i)
-         q       = ion_q(i)
-         if (taskid.eq.MASTER) then
-           WRITE(unit_id,'(I5,4F12.6)') int(q),q,rxyz
-           call special_position_tolerance(position_tolerance,
-     >                                   unit_id,q,rxyz)
-         end if
+         q = ion_q(i)
+         do n3=nl(3),nh(3)
+         do n2=nl(2),nh(2)
+         do n1=nl(1),nh(1)
+            rxyz(1) = ion_rion(1,i) + n1*lattice_unita(1,1) 
+     >                              + n2*lattice_unita(1,2) 
+     >                              + n3*lattice_unita(1,3)
+            rxyz(2) = ion_rion(2,i) + n1*lattice_unita(2,1) 
+     >                              + n2*lattice_unita(2,2) 
+     >                              + n3*lattice_unita(2,3)
+            rxyz(3) = ion_rion(3,i) + n1*lattice_unita(3,1) 
+     >                              + n2*lattice_unita(3,2) 
+     >                              + n3*lattice_unita(3,3)
+            if (taskid.eq.MASTER) then
+               WRITE(unit_id,'(I5,4F12.6)') int(q),q,rxyz
+            end if
+         end do
+         end do
+         end do
+
+c         if (taskid.eq.MASTER) then
+c           WRITE(unit_id,'(I5,4F12.6)') int(q),q,rxyz
+c           call special_position_tolerance(position_tolerance,
+c     >                                   unit_id,q,rxyz)
+c         end if
       end do
 
 *     **** write orbital header ****
