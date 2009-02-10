@@ -1,6 +1,6 @@
-      integer function idmin(n,a,ia)
+      integer function selci_idmin(n,a,ia)
 *
-* $Id: idmin.f,v 1.2 1997-10-31 23:42:04 d3e129 Exp $
+* $Id: idmin.f,v 1.3 2009-02-10 03:27:12 jhammond Exp $
 *
       real *8 a(ia,*)
 c
@@ -16,5 +16,5 @@ c
          endif
 10    continue
 c
-      idmin = ind
+      selci_idmin = ind
       end

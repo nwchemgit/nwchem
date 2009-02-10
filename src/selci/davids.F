@@ -1,6 +1,6 @@
       subroutine selci_davids(q, lword, nroot, thresh, roots)
 *
-* $Id: davids.F,v 1.12 2005-01-31 21:25:17 edo Exp $
+* $Id: davids.F,v 1.13 2009-02-10 03:27:13 jhammond Exp $
 *
 #include "implicit.fh"
 #include "errquit.fh"
@@ -246,7 +246,7 @@ c
 c
  5    continue
       do 10 i = 1,nroot
-         itemp(i) = idmin(nci,hd,1)
+         itemp(i) = selci_idmin(nci,hd,1)
          temp(i) = hd(itemp(i))
          hd(itemp(i)) = 0.0d0
  10   continue
@@ -486,7 +486,7 @@ c
          if (myiorder.eq.0) then
             it = idamax(nci,ci,1)
          else
-            it = idmin(nci,ci,1)
+            it = selci_idmin(nci,ci,1)
          endif
          temp(i) = ci(it)
          itemp(i) = it
