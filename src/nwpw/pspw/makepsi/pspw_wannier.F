@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.21 2009-02-08 04:32:13 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.22 2009-02-10 21:24:25 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -423,9 +423,9 @@ c     *** Silvestrelli G3 ***
             do j=1,rank
                arg=dcpl_mb(X(1,j)+shift)
                arg= -wts(j)*datan2(dimag(arg),dble(arg))
-               xx=xx+bv(1,j)*arg
-               yy=yy+bv(2,j)*arg
-               zz=zz+bv(3,j)*arg
+               xx=xx+bv(1,j)*arg/scal
+               yy=yy+bv(2,j)*arg/scal
+               zz=zz+bv(3,j)*arg/scal
             end do
 
             if (ms.eq.1)
@@ -454,9 +454,9 @@ c     *** Silvestrelli G3 ***
             do j=1,rank
                arg=dcpl_mb(X(1,j)+shift)
                arg= -wts(j)*datan2(dimag(arg),dble(arg))
-               xx=xx+bv(1,j)*arg
-               yy=yy+bv(2,j)*arg
-               zz=zz+bv(3,j)*arg
+               xx=xx+bv(1,j)*arg/scal
+               yy=yy+bv(2,j)*arg/scal
+               zz=zz+bv(3,j)*arg/scal
             end do
             dx=dx+xx
             dy=dy+yy
