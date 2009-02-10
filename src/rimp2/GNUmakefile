@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.45 2003-02-26 20:37:23 edo Exp $
+# $Id: GNUmakefile,v 1.46 2009-02-10 19:10:37 jhammond Exp $
 # Note: To switch on disk arrays, uncomment the DEFINE +=... after the
 # includes.  Do NOT move the DEFINE ahead of the includes or it won't
 # have the desired effect.
@@ -29,6 +29,15 @@ else
 endif
 
 USES_BLAS = dgecop.F eval_3ci.F rimp2_v_e2.F xf3ci_s12a.F xf3ci_s12b.F
+
+ifdef ESSL_TRANSPOSE
+   DEFINES += -DESSL_TRANSPOSE -DBLAS_COPY
+else
+   ifdef OSU_TRANSPOSE
+      DEFINES += -DOSU_TRANSPOSE -DBLAS_COPY
+      OBJ_OPTIMIZE += osu_transpose.o
+   endif
+endif
 
 include ../config/makefile.h
 include ../config/makelib.h

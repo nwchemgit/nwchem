@@ -4,7 +4,7 @@
       Subroutine DGeCop (TRANSA, M, N, A, LDA, B, LDB)
 #endif
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C $Id: dgecop.F,v 1.2 1995-12-16 21:06:31 gg502 Exp $
+C $Id: dgecop.F,v 1.3 2009-02-10 19:10:36 jhammond Exp $
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C     dgecop, sgecop -- copies one matrix into another
@@ -25,7 +25,7 @@ C     M       Rows of B (input)
 C     N       Columns of B (input)
 C     A       Source matrix (input)
 C     LDA     Leading dimension of A (input)
-C     B       Desitnation matrix (output)
+C     B       Destination matrix (output)
 C     LDB     Leading dimension of B (input)
 C
 C DESCRIPTION
@@ -73,18 +73,61 @@ C
 C     Gotta do the work...
 C
       If (NotA) then
+c==========================================
+c JUST COPY
+c==========================================
+#if defined(BLAS_COPY)
+c------------------------------------------
+c BLAS VERSION
+c------------------------------------------
+#ifdef SNGLPR
+         call scopy(M*N,A,1,B,1)
+#else
+         call dcopy(M*N,A,1,B,1)
+#endif
+
+c------------------------------------------
+#else
+c------------------------------------------
+c SLOW VERSION
+c------------------------------------------
          Do 100 j = 1, N
             Do 110 i = 1, M
                B(i,j) = A(i,j)
  110        Continue
  100     Continue
+c------------------------------------------
+#endif
       Else
+c==========================================
+c TRANSPOSE
+c==========================================
+#if defined(ESSL_TRANSPOSE)
+c------------------------------------------
+c ESSL VERSION
+c------------------------------------------
+#ifdef SNGLPR
+      call sgetmo(A,LDA,M,N,B,LDB)
+#else
+      call dgetmo(A,LDA,M,N,B,LDB)
+#endif
+#elif defined(OSU_TRANSPOSE)
+c------------------------------------------
+c OSU VERSION
+c------------------------------------------
+      call osu_transpose(A,B,M,N)
+#else
+c------------------------------------------
+c SLOW VERSION
+c------------------------------------------
          Do 200 j = 1, N
             Do 210 i = 1, M
                B(i,j) = A(j,i)
  210        Continue
  200     Continue
+#endif
       EndIf
+c==========================================
 C
       Return
       End
