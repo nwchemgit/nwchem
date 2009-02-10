@@ -1,10 +1,12 @@
+#define ESSL_TRANSPOSE
+
 #ifdef SNGLPR
       Subroutine SGeCop (TRANSA, M, N, A, LDA, B, LDB)
 #else
       Subroutine DGeCop (TRANSA, M, N, A, LDA, B, LDB)
 #endif
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C $Id: dgecop.F,v 1.3 2009-02-10 19:10:36 jhammond Exp $
+C $Id: dgecop.F,v 1.4 2009-02-10 20:12:09 jhammond Exp $
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C     dgecop, sgecop -- copies one matrix into another
@@ -106,10 +108,14 @@ c==========================================
 c------------------------------------------
 c ESSL VERSION
 c------------------------------------------
+      print*,'#2 LDA = ',LDA
+      print*,'#3 M   = ',M
+      print*,'#4 N   = ',N
+      print*,'#6 LDB = ',LDB
 #ifdef SNGLPR
-      call sgetmo(A,LDA,M,N,B,LDB)
+      call sgetmo(A,M,LDA,N,B,LDB)
 #else
-      call dgetmo(A,LDA,M,N,B,LDB)
+      call dgetmo(A,M,LDA,N,B,LDB)
 #endif
 #elif defined(OSU_TRANSPOSE)
 c------------------------------------------
