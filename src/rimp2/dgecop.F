@@ -4,7 +4,7 @@
       Subroutine DGeCop (TRANSA, M, N, A, LDA, B, LDB)
 #endif
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C $Id: dgecop.F,v 1.5 2009-02-11 19:00:43 jhammond Exp $
+C $Id: dgecop.F,v 1.6 2009-02-11 19:04:54 jhammond Exp $
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C     dgecop, sgecop -- copies one matrix into another
@@ -106,10 +106,6 @@ c==========================================
 c------------------------------------------
 c ESSL VERSION
 c------------------------------------------
-      print*,'#2 LDA = ',LDA
-      print*,'#3 M   = ',M
-      print*,'#4 N   = ',N
-      print*,'#6 LDB = ',LDB
 #ifdef SNGLPR
       call sgetmo(A,M,LDA,N,B,LDB)
 #else
