@@ -1,12 +1,10 @@
-#define ESSL_TRANSPOSE
-
 #ifdef SNGLPR
       Subroutine SGeCop (TRANSA, M, N, A, LDA, B, LDB)
 #else
       Subroutine DGeCop (TRANSA, M, N, A, LDA, B, LDB)
 #endif
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C $Id: dgecop.F,v 1.4 2009-02-10 20:12:09 jhammond Exp $
+C $Id: dgecop.F,v 1.5 2009-02-11 19:00:43 jhammond Exp $
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C     dgecop, sgecop -- copies one matrix into another
