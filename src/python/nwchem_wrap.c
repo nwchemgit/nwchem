@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.51 2008-08-15 16:46:31 bylaska Exp $
+ $Id: nwchem_wrap.c,v 1.52 2009-02-16 19:38:27 jhammond Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -25,6 +25,7 @@ static Integer rtdb_handle;            /* handle to the rtdb */
 #if defined(CRAY_T3E) || defined(WIN32)
 #define task_energy_ TASK_ENERGY
 #define task_gradient_ TASK_GRADIENT
+#define task_property_ TASK_PROPERTY
 #define task_optimize_ TASK_OPTIMIZE
 #define task_coulomb_ TASK_COULOMB
 #define task_coulomb_ref_ TASK_COULOMB_REF
@@ -42,6 +43,7 @@ extern int nw_inp_from_string(int, const char *);
 
 extern Integer FATR task_energy_(const Integer *);
 extern Integer FATR task_gradient_(const Integer *);
+extern Integer FATR task_property_(const Integer *);
 extern Integer FATR task_optimize_(const Integer *);
 extern Integer FATR task_coulomb_(const Integer *);
 extern Integer FATR task_coulomb_ref_(const Integer *);
@@ -702,6 +704,34 @@ static PyObject *wrap_task_energy(PyObject *self, PyObject *args)
         return NULL;
     }
     
+    return Py_BuildValue("d", energy);
+}
+
+static PyObject *wrap_task_property(PyObject *self, PyObject *args)
+{
+    char *theory;
+    double energy;
+
+    if (PyArg_Parse(args, "s", &theory)) {
+        if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR,
+                      strlen(theory)+1, theory)) {
+            PyErr_SetString(NwchemError, "task_property: putting theory failed");
+            return NULL;
+        }
+        if (!task_property_(&rtdb_handle)) {
+            PyErr_SetString(NwchemError, "task_property: failed");
+            return NULL;
+        }
+        if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy)) {
+            PyErr_SetString(NwchemError, "task_energy: getting energy failed");
+            return NULL;
+        }
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Usage: task_property(theory)");
+        return NULL;
+    }
+
     return Py_BuildValue("d", energy);
 }
 
@@ -1653,6 +1683,7 @@ static struct PyMethodDef nwchem_methods[] = {
    {"rtdb_next",       wrap_rtdb_next, 0}, 
    {"task",            wrap_task, 0}, 
    {"task_energy",     wrap_task_energy, 0}, 
+   {"task_property",   wrap_task_property, 0}, 
    {"task_gradient",   wrap_task_gradient, 0}, 
    {"task_stress",     wrap_task_stress, 0}, 
    {"task_lstress",    wrap_task_lstress, 0}, 
