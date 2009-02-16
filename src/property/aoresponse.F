@@ -6,7 +6,7 @@
      &   lgiao, lvelocity, lmagpert, lifetime, gamwidth,
      &   alfare, alfaim, betare, betaim)
 
-c     $Id: aoresponse.F,v 1.3 2007-10-15 23:29:21 bert Exp $
+c     $Id: aoresponse.F,v 1.4 2009-02-16 19:39:46 jhammond Exp $
       
 c     =================================================================
       
@@ -38,6 +38,7 @@ c     =================================================================
 #include "apiP.fh"
 #include "prop.fh"
 #include "bgj.fh"
+#include "util.fh"
 
 c     ---------------------
 c     subroutine arguments:
@@ -102,6 +103,7 @@ c     other local variables:
       integer ipm, nocc, nvir, nocv, imo, jmo, nmo1, iresp, idir
       logical debug, dbgmat, 
      &   lzora, lantisym, lstatic, haveocc, limag, lzero
+      logical oprint
       double precision omega, sum
       double precision tenm8
       parameter (tenm8=1d-8)
@@ -121,6 +123,9 @@ c     external functions:
 
 c  ====================================================================
 
+      oprint = util_print('information', print_low)
+      oprint = oprint .and. (ga_nodeid().eq.0)
+
 c     -------------------
 c     determine frequency
 c     -------------------
@@ -134,16 +139,16 @@ c     -------------------------
 c     set-up for CPKS procedure
 c     -------------------------
 
-      if (ga_nodeid().eq.0) write (LuOut,'(a,i3,a/2x,a,E15.7,a/)')
+      if (oprint) write (LuOut,'(a,i3,a/2x,a,E15.7,a/)')
      &   ' Performing order ',response_order, ' CPKS',
      &   ' with frequency omega = ',omega,' a.u.'
-      if (lstatic .and. ga_nodeid().eq.0) write (LuOut,'(a/)')
+      if (lstatic .and. oprint) write (LuOut,'(a/)')
      &   ' STATIC response' 
 
 c     set parameters that control the various computational options
 c     (later we will set most of this by input)
       nspin      =  1           ! assume closed shell
-      debug      = (.false. .and. ga_nodeid().eq.0) ! produce debug output
+      debug      = (.false. .and. oprint) ! produce debug output
       dbgmat     = .false.      ! debug large matrices
       lzora      = .false.      ! not yet available in nwchem
 
@@ -157,7 +162,7 @@ c     to the input-requested response (only for omega.ne.0)
 
       lzero = (lvelocity .and. .not.lstatic)
       if (debug) write (6,*) 'lzero:',lzero
-      if (lzero .and. (ga_nodeid().eq.0)) write (luout,*)
+      if (lzero .and. (oprint)) write (luout,*)
      & 'velocity gauge: will subtract the zero-frequency response' 
 
       if (debug) write (6,*) 'giao, velocity, magpert',
@@ -965,7 +970,7 @@ c           assign component of "Re(alfa)" matrix (output)
      &         g_work,alo,ahi)
             
             sum = -1d0 * ga_trace_diag(g_work)
-            if (debug .and. ga_nodeid().eq.0)
+            if (debug .and. oprint)
      &         write (luout,'(1x,a,i3,e15.7)') 'tr(D*P1): ',iresp,sum 
             
             alfare(idir, iresp) = sum
@@ -1028,7 +1033,7 @@ c           assign component of "Re(beta)" matrix (output)
             if (dbgmat) call nga_print_patch(g_dipmag,blo,bhi,1)
             
             sum = -1d0 * ga_trace_diag(g_work)
-            if (debug .and. ga_nodeid().eq.0)
+            if (debug .and. oprint)
      &         write (luout,'(1x,a,i3,e15.7)') 'tr(M*P1): ',iresp,sum 
             
             betare(idir, iresp) = sum
@@ -1172,16 +1177,16 @@ c       print warning in case omega=0 that we haven't divided by omega
 c       where it would have been necessary:
         
         if (lstatic .and. lvelocity) then
-          if (ga_nodeid().eq.0) write (luout,*)
+          if (oprint) write (luout,*)
      +       'NOTE: Because of omega=0 the response functions involving'
-          if (ga_nodeid().eq.0) write (luout,*)
+          if (oprint) write (luout,*)
      +       '      the dipole-velocity operator have NOT been '//
      +       ' divided by omega'
         endif
         if (lstatic) then
-          if (ga_nodeid().eq.0) write (luout,*)
+          if (oprint) write (luout,*)
      +       'NOTE: because of omega=0 the electric-magnetic response'
-          if (ga_nodeid().eq.0) write (luout,*)
+          if (oprint) write (luout,*)
      +       '      is printed as G`, NOT the beta tensor'
         endif
         

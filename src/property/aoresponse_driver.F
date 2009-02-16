@@ -1,6 +1,6 @@
       subroutine aoresponse_driver (rtdb, basis, geom)
 
-c     $Id: aoresponse_driver.F,v 1.6 2008-09-17 02:18:59 jhammond Exp $
+c     $Id: aoresponse_driver.F,v 1.7 2009-02-16 19:39:46 jhammond Exp $
 
 c     ==================================================================
 
@@ -50,6 +50,7 @@ c     ==================================================================
 #include "apiP.fh"
 #include "prop.fh"
 #include "bgj.fh"
+#include "util.fh"
 
 
       integer rtdb    ! [input] rtdb handle
@@ -107,6 +108,7 @@ c     GA handles for one-electron integrals and temp arrays
       external ga_trace_diag
 
       logical debug, lgiao, lvelocity, lmagpert, lstatic, lifetime
+      logical oprint
 
 #ifdef JEFF_OUTPUT
       double precision alfare2(3,3), alfaim2(3,3)
@@ -118,22 +120,26 @@ c     GA handles for one-electron integrals and temp arrays
       double precision alphaevi(3)  ! Dipole polarizability tensor eigenvalues (imag)
       double precision aeigvec(3,3) ! dummy dgeev eigenvectors
       double precision awork(9)     ! dgeev workspace
+      double precision alpha_rtdb(12) ! omega, XX, XY, XZ, YY, YZ, ZZ, LL, MM, NN, Iso, Ani
       integer aeiginfo              ! dgeev information
 #endif
 
 c     ==================================================================
 
       debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
+
+      oprint = util_print('information', print_low)
+      oprint = oprint .and. (ga_nodeid().eq.0)
       
 c     ----------------------
 c     start-up: print header
 c     ----------------------
       
-      if (ga_nodeid().eq.0) then
+      if (oprint) then
         write (LuOut,*) 'Entering AOResponse driver routine'
       endif
       
-      if (ga_nodeid().eq.0) then
+      if (oprint) then
         write (luout,9000)
         write (luout,9010) 
       end if
@@ -179,7 +185,7 @@ c     we use the electric or the magnetic field because it's either
 c     i nabla or i/2 (r x nabla)
 
       if (lvelocity .and. lgiao) then
-        if (ga_nodeid().eq.0) then
+        if (oprint) then
           write (LuOut,*) 
      &       'WARNING: Velocity and GIAO requested => GIAO disabled'
         endif
@@ -259,7 +265,7 @@ c     exit if response order is larger than one (TEMPORARY)
 c     force nfreq = 1 if response order equals 1 (no freq. input)
       if (response_order.eq.1 .and. nfreq.ne.1) nfreq = 1
 
-      if (ga_nodeid().eq.0) then
+      if (oprint) then
         if (nfreq.ne.0) then
           write (luout,'(1x,a,1x,i4)') 'number of frequencies: ',nfreq
           if (nfreq.gt.1) then
@@ -290,7 +296,7 @@ c     force nfreq = 1 if response order equals 1 (no freq. input)
      &       'Applying DAMPING constant of',gamwidth,'a.u.'
         endif
         write (luout,*)
-      endif                     ! ga_nodeid.eq.0
+      endif                     ! oprint
 
 c     -------------------------------------------------------
 c     assemble data neded for response calculation:
@@ -319,13 +325,13 @@ c     contains a call to hnd_prp_vec_read inside hnd_prp_get_dens:
       call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
      &                      nclosed,nopen,nvirt)
 
-      if (ga_nodeid().eq.0 .and. debug)
+      if (oprint .and. debug)
      &   write (luout,*) 'nclosed,nopen,nvirt',nclosed(1),
      &   nopen(1), nvirt(1)
       
 c     Exit gracefully if we have an open-shell system:
       if (scftyp.eq.'UHF') then
-        if (ga_nodeid().eq.0) write(luout,9020)
+        if (oprint) write(luout,9020)
         goto 7000
 c       Note: ndens = 1 means closed shell
 c             ndens = 3 open shell, then g_dens has 3 components
@@ -443,7 +449,7 @@ c       and extract diagonal elements => N(electrons)
      &     g_smat0,blo,bhi,
      &     g_temp,clo,chi)
         sum = ga_trace_diag(g_temp)
-        if (ga_nodeid().eq.0)
+        if (oprint)
      &     write (luout,'(1x,a,3x,e15.7)') 'tr(P*S): ',sum
 
 c       debug: calculate electronic dipole moments
@@ -473,7 +479,7 @@ c       calculate C = A*B with nga_matmul_patch
      &       g_dipel,blo,bhi,
      &       g_temp,clo,chi)
           sum = ga_trace_diag(g_temp)
-          if (ga_nodeid().eq.0)
+          if (oprint)
      &       write (luout,'(1x,a,i3,e15.7)') 'tr(P0*D): ',idir,sum
 
           call ga_zero(g_temp)
@@ -482,7 +488,7 @@ c       calculate C = A*B with nga_matmul_patch
      &       g_dipmag,blo,bhi,
      &       g_temp,clo,chi)
           sum = ga_trace_diag(g_temp)
-          if (ga_nodeid().eq.0)
+          if (oprint)
      &       write (luout,'(1x,a,i3,e15.7)') 'tr(P0*M): ',idir,sum
 c
 c         debug Smat1 and S-ket matrices
@@ -491,13 +497,13 @@ c
             call nga_copy_patch('t',g_sket1,blo,bhi,g_temp,clo,chi)
             call nga_add_patch(1d0,g_sket1,blo,bhi,-1d0,g_temp,clo,chi,
      &         g_temp,clo,chi)
-c            if (ga_nodeid().eq.0) then
+c            if (oprint) then
 c              call nga_print_patch(g_smat1,blo,bhi,1)
 c              call nga_print_patch(g_temp,clo,chi,1)
 c            endif
             call nga_add_patch(1d0,g_smat1,blo,bhi,-1d0,g_temp,clo,chi,
      &         g_temp,clo,chi)
-            if (ga_nodeid().eq.0) then
+            if (oprint) then
               write (6,*)
      &         '(S-ket - transpose(S-ket)) - S10 in AO bas idir =',idir
               call ga_print(g_temp)
@@ -571,7 +577,7 @@ c     ------------
 c     print result
 c     ------------
 
-      if (ga_nodeid().eq.0) then
+      if (oprint) then
         write (LuOut,*)
      &     'Electric Dipole Response Matrix (nonzero elements):'
         if (lmagpert) then
@@ -582,16 +588,17 @@ c     ------------
           endif
         endif
         call output(alfare,1,3,1,3,3,3,1)
+      endif
 c
 c
 c
 #ifdef JEFF_OUTPUT
-      do idir = 1,3
-        do ipert = 1,3
-          alfare2(idir,ipert) = alfare(idir,ipert)
-          alfaim2(idir,ipert) = alfaim(idir,ipert)
-        enddo
-      enddo
+          do idir = 1,3
+            do ipert = 1,3
+              alfare2(idir,ipert) = alfare(idir,ipert)
+              alfaim2(idir,ipert) = alfaim(idir,ipert)
+            enddo
+          enddo
           call dgeev('N','N',3,alfare2,3,alphaevr,alphaevi,
      1               aeigvec,3,aeigvec,3,awork,9,aeiginfo)
           if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
@@ -601,7 +608,7 @@ c
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
 c
-          if (ga_nodeid().eq.0) write(LuOut,9434) "DFT Linear Response",
+          if (oprint) write(LuOut,9434) "DFT Linear Response",
      1        dbl_mb(k_fr),auXnm/dbl_mb(k_fr),
      2        alfare(1,1),alfare(1,2),alfare(1,3),
      3        alfare(2,1),alfare(2,2),alfare(2,3),
@@ -609,10 +616,34 @@ c
      5        alphaevr(1),alphaevr(2),alphaevr(3),
      6        alphaiso,alphaani
           call util_flush(LuOut)
+c
+c        alpha_rtdb = [omega, XX, XY, XZ, YY, YZ, ZZ, LL, MM, NN, Iso, Ani]
+c
+          alpha_rtdb(1)  = dbl_mb(k_fr)
+          alpha_rtdb(2)  = alfare(1,1)
+          alpha_rtdb(3)  = alfare(1,2)
+          alpha_rtdb(4)  = alfare(1,3)
+          alpha_rtdb(5)  = alfare(2,2)
+          alpha_rtdb(6)  = alfare(2,3)
+          alpha_rtdb(7)  = alfare(3,3)
+          alpha_rtdb(8)  = alphaevr(1)
+          alpha_rtdb(9)  = alphaevr(2)
+          alpha_rtdb(10) = alphaevr(3)
+          alpha_rtdb(11) = alphaiso
+          alpha_rtdb(12) = alphaani
+c
+c         Write polarizability information to the RTDB
+c
+          if (.not. rtdb_put(rtdb, 'aoresponse:alpha', mt_dbl,12,
+     1                       alpha_rtdb))
+     2       call errquit('aoresponse_driver: rtdb_put failed',12,
+     3                    RTDB_ERR)
+c
 #endif
 c
 c
 c
+      if (oprint) then
         if (lifetime) then
           write (luout,*)
           write (luout,*) 'Imaginary part:'
@@ -695,7 +726,7 @@ c     ------------------------------------------------------------
       call schwarz_tidy()
       call int_terminate()
       
-      if (ga_nodeid().eq.0) then
+      if (oprint) then
         write (LuOut,*) 'Exiting AOResponse driver routine'
       endif
 
