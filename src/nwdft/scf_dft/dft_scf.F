@@ -4,7 +4,7 @@
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.288 2009-02-06 01:07:33 niri Exp $
+c     $Id: dft_scf.F,v 1.289 2009-02-17 21:46:41 jhammond Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -1090,7 +1090,8 @@ c Constrained DFT /When lcdft, save at the beginning
        call ga_dgemm('n', 't', nbf_ao, nbf_ao,
      $      noc(ispin), 2d0/dble(ipol), g_movecs(ispin),
      $      g_movecs(ispin), zero, g_dens(ispin))
-       if(nbf_ao.ne.nmo(ispin)) write(*,*) 'nbf_ao .ne. nmo '
+       if((nbf_ao.ne.nmo(ispin)).and.oprint)
+     1          write(LuOut,*) 'nbf_ao .ne. nmo '
        if(ispin.eq.2) then
          do i = 1, nconstr
            if(dtype(i).eq.2) call ga_scale(g_constr(i),onem)  ! switch sign
