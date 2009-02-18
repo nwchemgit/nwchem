@@ -13,7 +13,7 @@ c     For locations of 2nd derivatives of functionals in array
      &                       Amat2, nq, ipol, Ex, qwght, ldew, func)
 #endif
 c
-C$Id: xc_camxlsd.F,v 1.1 2009-02-18 02:34:45 niri Exp $
+C$Id: xc_camxlsd.F,v 1.2 2009-02-18 06:12:48 niri Exp $
 c
       Implicit none
 #include "errquit.fh"
@@ -67,15 +67,15 @@ c
 c        ======> SPIN-RESTRICTED <======
 c
          do 10 n = 1, nq
-            if (abs(rho(n,1)).gt.tol_rho)then
-             rho13=abs(rho(n,1))**one_third*sign(1d0,rho(n,1))
+            if (dabs(rho(n,1)).gt.tol_rho)then
+             rho13=dabs(rho(n,1))**one_third*sign(1d0,rho(n,1))
              Etmp = rho(n,1)*rho13*P2*fac
              if(ldew)func(n) = func(n) + rho(n,1)*rho13*fac*P2
-             Atmp = rho13
+             Atmp = rho13*P1*fac
              Ctmp = 0.d0
              call xc_att_xc(rho(n,1),ipol,Etmp,Atmp,Ctmp)
 #ifdef SECOND_DERIV
-             A2tmp = rho13/rho(n,1)
+             A2tmp = (rho13/rho(n,1))*2.0d0*one_third*P1*fac
              C2tmp = 0.d0
              C3tmp = 0.d0
              call xc_att_xc_d2(rho(n,1),ipol,Etmp,Atmp,Ctmp,A2tmp,
@@ -86,18 +86,15 @@ c
              Amat(n,1) = Amat(n,1) + Atmp
             endif
    10    continue
-         call dscal(nq, P1*fac, Amat(1,1), 1)
-#ifdef SECOND_DERIV
-         call dscal(nq, 2.0d0*one_third*P1*fac, Amat2(1,D2_RA_RA), 1)
-#endif
+c
       else
 c
 c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1,nq
-            if (abs(rho(n,1)).gt.tol_rho)then
-             rho32=abs(rho(n,2))**one_third*sign(1d0,rho(n,2))
-             rho33=abs(rho(n,3))**one_third*sign(1d0,rho(n,3))
+            if (dabs(rho(n,1)).gt.tol_rho)then
+             rho32=dabs(rho(n,2))**one_third*sign(1d0,rho(n,2))
+             rho33=dabs(rho(n,3))**one_third*sign(1d0,rho(n,3))
 c
              Etmp = rho32*rho(n,2)*P4*fac
              Atmp = P3*rho32*fac
@@ -136,7 +133,7 @@ c
 #endif
 c
              if (ldew)func(n) = func(n) + ( rho32*rho(n,2) + 
-     &                                        rho33*rho(n,3)   )*P4*fac
+     &                                      rho33*rho(n,3)   )*P4*fac
             endif
    20    continue
 c 

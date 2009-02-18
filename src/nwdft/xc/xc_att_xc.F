@@ -7,7 +7,7 @@
       Subroutine xc_att_xc_d2(rho,ipol,Ex,Amat,Cmat,Amat2,Cmat2,Cmat3)
 #endif
 c
-C$Id: xc_att_xc.F,v 1.4 2008-12-06 23:08:58 niri Exp $
+C$Id: xc_att_xc.F,v 1.5 2009-02-18 06:12:48 niri Exp $
 c
       implicit none
 c      
@@ -41,8 +41,6 @@ c
       double precision alpha,beta, DERF
       double precision f10, f01, b_first
 
-c      Parameter (alpha = 0d0)
-c      Parameter (beta = 1d0)
       Parameter (sqrt_pi = 1.77245385090552d0)
       Parameter (t7 = 2.666666666666666667d0)
 #ifdef SECOND_DERIV
