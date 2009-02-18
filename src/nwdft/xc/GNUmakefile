@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.110 2008-12-06 23:08:58 niri Exp $
+# $Id: GNUmakefile,v 1.111 2009-02-18 02:34:15 niri Exp $
 
 HEADERS = xc.fh
 
@@ -38,7 +38,7 @@ HEADERS = xc.fh
         xc_lb94.o xc_cs00.o xc_vdw.o xc_op.o xc_kop.o \
         xc_bc95.o xc_xm05.o xc_cm05.o xc_xpw6.o\
         xc_xvs98.o xc_cvs98.o xc_xm06.o xc_cm06.o \
-        xc_camb88.o xc_att_xc.o xc_camxpbe96.o
+        xc_camb88.o xc_att_xc.o xc_camxpbe96.o xc_camxlsd.o
 
 
      LIBRARY = libnwdft.a

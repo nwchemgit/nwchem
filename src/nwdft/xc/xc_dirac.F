@@ -13,7 +13,7 @@ c     For locations of 2nd derivatives of functionals in array
      &                       Amat2, nq, ipol, Ex, qwght, ldew, func)
 #endif
 c
-C$Id: xc_dirac.F,v 1.19 2003-10-17 22:55:53 carlfahl Exp $
+C$Id: xc_dirac.F,v 1.20 2009-02-18 02:34:15 niri Exp $
 c
       Implicit none
 #include "errquit.fh"
@@ -57,11 +57,11 @@ c
       Parameter (P2 = -0.7385587663820219D+00)
       Parameter (P3 = -0.1240700981798799D+01)
       Parameter (P4 = -0.9305257363490993D+00)
-      double precision rho13, rho32, rho33, one_third, Exp
+      double precision rho13, rho32, rho33, one_third, term
       Parameter (one_third = 1.d0/3.d0)
       integer n
 c
-      Exp = 0.d0
+      term = 0.d0
 c
       if (ipol.eq.1)then
 c
@@ -77,7 +77,7 @@ c         write(LuOut,*)'xc_dirac called: restricted'
 #ifdef SECOND_DERIV
                Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + rho13/rho(n,1)
 #endif
-               Exp = Exp + rho(n,1)*rho13*qwght(n)
+               term = term + rho(n,1)*rho13*qwght(n)
                if(ldew)func(n) = func(n) + rho(n,1)*rho13*fac*P2
             endif
    10    continue
@@ -86,7 +86,7 @@ c         write(LuOut,*)'xc_dirac called: restricted'
          call dscal(nq, 2.0d0*one_third*P1*fac, Amat2(1,D2_RA_RA), 1)
 #endif
 c
-         Ex = Ex + P2*Exp*fac
+         Ex = Ex + P2*term*fac
 c
       else
 c
@@ -119,13 +119,13 @@ c              Guard against case of no beta electrons, e.g. H atom
 #endif
                if (ldew)func(n) = func(n) + ( rho32*rho(n,2) + 
      &                                        rho33*rho(n,3)   )*P4*fac
-               Exp = Exp + (rho32*rho(n,2)+rho33*rho(n,3))*qwght(n)
+               term = term + (rho32*rho(n,2)+rho33*rho(n,3))*qwght(n)
 c      write(LuOut,*)'from xc_dirac ; rho32, rho33, qwght(n): ',
 c     &                           rho32, rho33, qwght(n)
             endif
    20    continue
 c 
-         Ex = Ex + P4*Exp*fac
+         Ex = Ex + P4*term*fac
 c
       endif
 c      write(LuOut,*)'from xc_dirac ; p4, exp, fac, Ex: ', 

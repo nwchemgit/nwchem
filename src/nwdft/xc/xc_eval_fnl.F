@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, grad, ldew, func,
      &                       do_2nd, tau, ttau, kske, Mmat, Mmat2)
 c
-c     $Id: xc_eval_fnl.F,v 1.64 2008-12-06 23:08:58 niri Exp $
+c     $Id: xc_eval_fnl.F,v 1.65 2009-02-18 02:34:15 niri Exp $
 c
       implicit none
 c
@@ -665,6 +665,18 @@ c
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
        endif
+      endif
+c
+c CAM-LSD Exchange
+c
+      if (abs(xfac(42)).gt.eps)then
+         if (.not. do_2nd) then
+           call xc_camxlsd(tol_rho, xfac(42), lxfac(42), nlxfac(42), 
+     &           rho, Amat, nq, ipol, Ex, qwght, ldew, func)
+         else
+           call xc_camxlsd_d2(tol_rho, xfac(42), lxfac(42), nlxfac(42), 
+     &          rho, Amat, Amat2, nq, ipol, Ex, qwght, .false., func)
+         endif
       endif
 c
 c     cpw6b95 is special in that the GGA part is

@@ -1,5 +1,5 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.60 2009-02-04 01:18:41 niri Exp $
+C$Id: xc_inp.F,v 1.61 2009-02-18 02:34:08 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -82,12 +82,13 @@ c     xm06-2x  => 8000
 c     cm06-2x  => 8100
 c     xbnl07   => 8200
 c     xcamb88  => 8300      
-c     xcampbe96 ==> 8400
-c     mp2      => 8500
-c     b2plyp   => 8510
+c     xcampbe96 => 8400
+c     mp2       => 8500
+c     b2plyp    => 8510
+c     xcamlsd   => 8520
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=95)
+      parameter (num_dirs=96)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -122,7 +123,8 @@ c
      &     'xm05-2x','cm05-2x','vs98','xvs98','cvs98','m06-L',
      &     'xm06-L','cm06-L','m06-hf','xm06-hf','cm06-hf','m06',
      &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x','xbnl07',
-     &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp'/
+     &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
+     &     'xcamlsd'/
 c     becke97-d
       logical disp
 c
@@ -159,7 +161,7 @@ c
      &  5000,5100,5200,5300,5400,5500,5600,5700,5800,
      &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
      &  7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,
-     &  8200,4800,8300,8400,8500,1999) ind
+     &  8200,4800,8300,8400,8500,8510,8520,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -2410,6 +2412,39 @@ c
       if (.not. inp_f(xfac(41))) then
          xfac(41) = 1.0d0
       endif
+c
+      goto 10
+c     
+c     xcamlsd; CAM-LSD for exchange
+c     
+ 8520 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' cam-xlsd "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(42) = .false.
+         else
+c
+c           assume total wanted
+c
+            lxfac(42) = .true.
+            nlxfac(42) = .false.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(42) = .true.
+         nlxfac(42) = .false.
+      endif
+      if (.not. inp_f(xfac(42))) then
+         xfac(42) = 1.0d0
+      endif
+c
       goto 10
 c
 c     mp2; MP2 ``functional'' for correlation
@@ -2436,7 +2471,7 @@ c
       if (.not. rtdb_put(rtdb,'dft:mp2fac', mt_dbl, 1, mp2fac))
      1     call errquit('xc_inp: failed to store dft:mp2fac in rtdb',
      2                  0,RTDB_ERR)
-
+c
       goto 10
 c
 c    b2plyp; B2PLYP fifth-rung double hybrid of Grimme 
