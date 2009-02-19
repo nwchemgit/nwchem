@@ -8,7 +8,7 @@ c jochen: Further extended this subroutine to deal with
 c         finite-lifetime damping. Arrays dealing with imaginary
 c         parts have been added, indicated by suffix "_im"
 *
-* $Id: cphf_solve3.F,v 1.3 2007-10-16 15:51:17 bert Exp $
+* $Id: cphf_solve3.F,v 1.4 2009-02-19 22:13:05 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -25,6 +25,7 @@ c         parts have been added, indicated by suffix "_im"
 #include "crohf.fh"
 #include "cuhf.fh"
 #include "stdio.fh"
+#include "cosmo.fh"
 c!!! BGJ
 #include "bgj.fh"
 c!!! BGJ
@@ -49,7 +50,7 @@ c     here
       external rohf_hessv_precond3,rohf_hessv, rohf_hessv3
       external rohf_hessv_precond3_damp
       external uhf_precond,uhf_hessv, uhf_hessv2
-      logical oprint, oprint_conv
+      logical oprint, oprint_conv, ocosmo
 c     
       character*255 rhs_title
       character*(nw_max_path_len) cphf_rhs(2)
@@ -323,6 +324,16 @@ c !!! BGJ
      $   call errquit('cphf_solve3: rtdb_put of j_derfit failed',0,
      &   RTDB_ERR)
 c !!! BGJ
+c
+c     Get the cosmo contribution
+c
+      if (.not. rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo))
+     $     ocosmo = .false.
+      if (ocosmo) then
+         cosmo_on = .true.
+         cosmo_phase = 2
+      endif
+c
       if(scftype .eq. 'UHF')then
         call uhf_init(rtdb)
         call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work(1))
