@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.160 2009-02-04 21:37:11 jhammond Exp $
+c $Id: tce_energy.F,v 1.161 2009-02-20 22:40:45 kowalski Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -8647,7 +8647,7 @@ c--     1  call errquit("tce_energy: MA problem",57,MA_ERR)
      1  call errquit("tce_energy: MA problem",51,MA_ERR)
       end if
 c ---
-      if(activecalc) THEN
+      if(activecalc.or.(.not.intorb)) THEN
       if (.not.ma_pop_stack(l_active))
      1  call errquit("tce_energy: MA problem",34,MA_ERR)
       end if
