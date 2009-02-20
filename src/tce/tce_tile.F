@@ -1,6 +1,6 @@
       subroutine tce_tile(rtdb)
 c
-c $Id: tce_tile.F,v 1.26 2009-01-28 21:39:26 d3p975 Exp $
+c $Id: tce_tile.F,v 1.27 2009-02-20 22:40:22 kowalski Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -921,7 +921,7 @@ c
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"alpha-izer",
      1  l_alpha,k_alpha)) call errquit("tce_tile: MA problem",8,
      2  MA_ERR)
-      if(activecalc) THEN
+      if(activecalc.or.(.not.intorb)) THEN
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"Active blocks ",
      1  l_active,k_active)) call errquit("tce_tile: MA problem",9,
      2  MA_ERR)
