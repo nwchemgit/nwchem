@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.578 2009-02-07 21:25:35 jhammond Exp $
+# $Id: makefile.h,v 1.579 2009-02-22 20:58:48 jhammond Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1154,7 +1154,7 @@ endif
     _FC=gfortran
 #gcc version 4.2.0 200512 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS   = -Wextra -Wunused #-ffast-math
+        FOPTIONS   = -Wextra #-Wunused #-ffast-math
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
        DEFINES  += -DGFORTRAN
         ifeq ($(_CPU),ppc970)
@@ -1319,7 +1319,7 @@ ifeq ($(LINUXCPU),x86)
   FOPTIMIZE  +=  -O2  -malign-double -finline-functions 
   COPTIONS   += -Wall  -malign-double 
   COPTIMIZE  += -g -O2
-    FOPTIONS  +=  -malign-double -fno-globals -Wno-globals  -Wunused  -fno-silent
+    FOPTIONS  +=  -malign-double -fno-globals -Wno-globals  -fno-silent #-Wunused  
     FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
     FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs 
     FOPTIMIZE += -fforce-addr 
@@ -1400,7 +1400,7 @@ ifeq ($(LINUXCPU),x86)
       ifeq ($(_FC),gfortran)
 #gcc version 4.1.0 20050525 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS   = -Wextra -Wunused  -ffast-math
+        FOPTIONS   = -Wextra -ffast-math #-Wunused  
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
           FOPTIONS += -march=pentium4 -mtune=pentium4
@@ -1777,7 +1777,7 @@ endif
      _GOT3DNOW= $(shell cat /proc/cpuinfo | egrep 3dnowext | tail -n 1 | awk ' /3dnowext/  {print "Y"}')
 #gcc version 4.1.0 20050525 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS   += -Wextra -Wunused -Wuninitialized
+        FOPTIONS   += -Wextra -Wuninitialized #-Wunused
         FOPTIMIZE   = -O3 
         FOPTIMIZE  += -mfpmath=sse -ffast-math
         FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
