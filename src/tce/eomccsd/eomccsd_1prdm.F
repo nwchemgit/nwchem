@@ -166,7 +166,7 @@ c
       enddo
 c
       do particle=nocc(1)+1, nmo(1)
-         i=2*(particle-nocc(1))-1
+         i=2*particle-1-nh
          call ga_get(g_movecs(1),1,nbf,particle,particle,
      1        dbl_mb(k_mo_p_tmp+(i-1)*nbf),nbf)
       enddo
@@ -174,7 +174,7 @@ c
 c     particle beta
 c
       do particle=nocc(ipol)+1,nmo(ipol)
-         i=2*(particle-nocc(ipol))
+         i=2*particle-nh
          call ga_get(g_movecs(ipol),1,nbf,particle,particle,
      1        dbl_mb(k_mo_p_tmp+(i-1)*nbf),nbf)
       enddo
