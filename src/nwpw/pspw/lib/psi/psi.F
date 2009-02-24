@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.96 2009-02-07 03:50:56 bylaska Exp $
+* $Id: psi.F,v 1.97 2009-02-24 21:30:17 bert Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.96  2009/02/07 03:50:56  bylaska
+* Bassi Vectorization Fix...EJB
+*
 * Revision 1.95  2008/12/18 21:15:51  bylaska
 * ...updates for calculating spin contaminatio....EJB
 *
@@ -5694,8 +5697,8 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       value = value.and.MA_free_heap(rho2_all(2))
       value = value.and.MA_free_heap(rho1_all(2))
       if (occupation_on) then
-         value = value.and.MA_free_heap(occ1(2))
          value = value.and.MA_free_heap(occ2(2))
+         value = value.and.MA_free_heap(occ1(2))
       end if
 
       if (.not. value) 
