@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.161 2009-02-20 22:40:45 kowalski Exp $
+c $Id: tce_energy.F,v 1.162 2009-02-25 00:34:04 d3p975 Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -2096,6 +2096,18 @@ c -------------
      2         k_d0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
      3         k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
      4         size_l1,size_l2,dipole_scf,dipole_cor)
+c
+c->d3p975
+c
+c calculated ccsd 1-particle reduced density matrix/ces
+c
+c            if(.not.intorb)
+c     1       call ccsd_1prdm(d_t1,d_t2,d_lambda1,d_lambda2,
+c     1                      k_t1_offset,k_t2_offset,
+c     2                      k_l1_offset,k_l2_offset)
+c
+c<-d3p975
+c
         endif ! left
 c -------------
 c CCSD-IR
@@ -7046,6 +7058,8 @@ c     1                               yc1(ivec),yc2(ivec),
 c     2                               k_t1_offset,k_t2_offset,
 c     3                               k_x1_offset,k_x2_offset,
 c     4                               k_y1_offset,k_y2_offset)
+c
+c 
 c<-d3p975
 c
                 enddo
