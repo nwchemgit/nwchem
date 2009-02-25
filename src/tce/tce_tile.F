@@ -1,6 +1,6 @@
       subroutine tce_tile(rtdb)
 c
-c $Id: tce_tile.F,v 1.27 2009-02-20 22:40:22 kowalski Exp $
+c $Id: tce_tile.F,v 1.28 2009-02-25 00:35:53 d3p975 Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -337,8 +337,8 @@ c
              call ga_get(g_movecs(1),1,nbf,hole,hole,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*hole-1
-              int_mb(k_mo_index+i-1)=hole
+               int_mb(k_mo_index+i-1)=2*hole-1
+c              int_mb(k_mo_index+i-1)=hole
 c<-d3p975
           endif
         enddo
@@ -352,8 +352,8 @@ c<-d3p975
              call ga_get(g_movecs(1),1,nbf,hole,hole,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*hole-1
-              int_mb(k_mo_index+i-1)=hole
+               int_mb(k_mo_index+i-1)=2*hole-1
+c              int_mb(k_mo_index+i-1)=hole
 c<-d3p975
           endif
         enddo
@@ -402,8 +402,8 @@ c
              call ga_get(g_movecs(ipol),1,nbf,hole,hole,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*hole
-              int_mb(k_mo_index+i-1)=hole
+               int_mb(k_mo_index+i-1)=2*hole
+c              int_mb(k_mo_index+i-1)=hole
 c<-d3p975
           endif
         enddo
@@ -417,8 +417,8 @@ c<-d3p975
              call ga_get(g_movecs(ipol),1,nbf,hole,hole,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*hole
-              int_mb(k_mo_index+i-1)= hole
+               int_mb(k_mo_index+i-1)=2*hole
+c              int_mb(k_mo_index+i-1)= hole
 c<-d3p975
           endif
         enddo
@@ -467,8 +467,8 @@ c
              call ga_get(g_movecs(1),1,nbf,particle,particle,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*particle-1
-              int_mb(k_mo_index+i-1)=particle
+               int_mb(k_mo_index+i-1)=2*particle-1
+c              int_mb(k_mo_index+i-1)=particle
 c<-d3p975
           endif
         enddo
@@ -482,8 +482,8 @@ c<-d3p975
              call ga_get(g_movecs(1),1,nbf,particle,particle,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*particle-1
-              int_mb(k_mo_index+i-1)=particle
+               int_mb(k_mo_index+i-1)=2*particle-1
+c              int_mb(k_mo_index+i-1)=particle
 c<-d3p975
           endif
         enddo
@@ -533,8 +533,8 @@ c
              call ga_get(g_movecs(ipol),1,nbf,particle,particle,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*particle
-              int_mb(k_mo_index+i-1)=particle
+               int_mb(k_mo_index+i-1)=2*particle
+c              int_mb(k_mo_index+i-1)=particle
 c<-d3p975
           endif
         enddo
@@ -548,8 +548,8 @@ c<-d3p975
              call ga_get(g_movecs(ipol),1,nbf,particle,particle,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*particle
-              int_mb(k_mo_index+i-1)=particle
+               int_mb(k_mo_index+i-1)=2*particle
+c              int_mb(k_mo_index+i-1)=particle
 c<-d3p975
           endif
         enddo
@@ -626,8 +626,8 @@ c
              call ga_get(g_movecs(1),1,nbf,hole,hole,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*hole-1
-              int_mb(k_mo_index+i-1)=hole
+               int_mb(k_mo_index+i-1)=2*hole-1
+c              int_mb(k_mo_index+i-1)=hole
 c<-d3p975
           endif
         enddo
@@ -641,8 +641,8 @@ c<-d3p975
              call ga_get(g_movecs(1),1,nbf,hole,hole,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*hole-1
-              int_mb(k_mo_index+i-1)=hole
+               int_mb(k_mo_index+i-1)=2*hole-1
+c               int_mb(k_mo_index+i-1)=hole
 c<-d3p975
           endif
         enddo
@@ -695,8 +695,8 @@ c
              call ga_get(g_movecs(ipol),1,nbf,hole,hole,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*hole
-              int_mb(k_mo_index+i-1)=hole
+               int_mb(k_mo_index+i-1)=2*hole
+c               int_mb(k_mo_index+i-1)=hole
 c<-d3p975
           endif
         enddo
@@ -734,8 +734,8 @@ c
              call ga_get(g_movecs(1),1,nbf,particle,particle,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*particle-1
-              int_mb(k_mo_index+i-1)=particle
+               int_mb(k_mo_index+i-1)=2*particle-1
+c               int_mb(k_mo_index+i-1)=particle
 c<-d3p975
           endif
         enddo
@@ -777,8 +777,8 @@ c
              call ga_get(g_movecs(ipol),1,nbf,particle,particle,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*particle
-              int_mb(k_mo_index+i-1)=particle
+               int_mb(k_mo_index+i-1)=2*particle
+c               int_mb(k_mo_index+i-1)=particle
 c<-d3p975
           endif
         enddo
@@ -792,8 +792,8 @@ c<-d3p975
              call ga_get(g_movecs(ipol),1,nbf,particle,particle,
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
 c->d3p975
-c             int_mb(k_mo_index+i-1)=2*particle
-              int_mb(k_mo_index+i-1)=particle
+               int_mb(k_mo_index+i-1)=2*particle
+c               int_mb(k_mo_index+i-1)=particle
 c<-d3p975
           endif
         enddo
