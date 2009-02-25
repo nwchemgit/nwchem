@@ -1,6 +1,6 @@
       subroutine tce_print_x1(d_r1,k_r1_offset,r1_thresh,irrep)
 c
-c $Id: tce_print_x1.F,v 1.10 2009-01-28 19:24:49 d3p975 Exp $
+c $Id: tce_print_x1.F,v 1.11 2009-02-25 00:46:20 d3p975 Exp $
 c
 c Prints the X1 tensor
 c
@@ -56,9 +56,11 @@ c
 c     1              int_mb(k_offset+p1b-1)+p1,irrep_p,spin_p,
 c     2              int_mb(k_offset+h2b-1)+h2,irrep_h,spin_h,
 c     3              dbl_mb(k_r1+i-1)
-     1              int_mb(k_mo_index+int_mb(k_offset+p1b-1)+p1-1),
+     1              (int_mb(k_mo_index+int_mb(k_offset+p1b-1)+p1-1)+
+     1               2-int_mb(k_spin+p1b-1))/2,
      1              irrep_p,spin_p,
-     2              int_mb(k_mo_index+int_mb(k_offset+h2b-1)+h2-1),
+     2              (int_mb(k_mo_index+int_mb(k_offset+h2b-1)+h2-1)+
+     1               2-int_mb(k_spin+h2b-1))/2,
      2              irrep_h,spin_h,
      2              dbl_mb(k_r1+i-1)
                 endif
