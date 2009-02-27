@@ -3,8 +3,6 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.67 2009-02-27 01:53:13 niri Exp $
-c
       implicit none
 #include "errquit.fh"
 c      
@@ -70,7 +68,6 @@ c
      ,     oprint_oep
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
       double precision tol2e
-      integer g_exch, g_coul
       integer g_tmp(2)
 c
 c******************************************************************************
@@ -109,11 +106,6 @@ c
          if (oprint_time)call dft_tstamp(' Before call to fock_2e. ')
          if (ipol.eq.1) then
             if (.not. CDFIT) then
-c
-c             get some work space
-              g_vxc(2) = ga_create_atom_blocked(geom,ao_bas_han,'jk')
-              g_dens(2)=g_dens(1)
-
               if (.not.cam_exch) then  ! for regular calculations
 c
 c               set up prefactors
@@ -122,55 +114,52 @@ c               set up prefactors
                 jfac(2) = 1.0d0
                 kfac(2) = 0.0d0
 c
+c               get some work space
+                g_vxc(2) = ga_create_atom_blocked(geom,ao_bas_han,'jk')
+c
 c               calculate the exchange and coulomb parts
                 call ga_zero(g_vxc(2))
+                g_dens(2)=g_dens(1)
                 call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
      &             tol2e, oskel, g_dens, g_vxc, .false.)
                 Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
                 ecoul = 0.5d0*ga_ddot(g_dens(1),g_vxc(2)) 
                 call ga_dadd(1d0,g_vxc(1),1d0,g_vxc(2),g_vxc(1))
-              else ! CAM exchange
+                if (.not. ga_destroy(g_vxc(2))) call errquit
+     $             ('xc_getv: ga corrupt?',0, GA_ERR)
+              else  ! CAM calculations
 c
-c               exchange part
-                g_exch=ga_create_atom_blocked(geom,ao_bas_han,'exch')
-                call ga_zero(g_exch)
-                call ga_zero(g_vxc(2))
-                g_dens(2)=g_dens(1)
+c               get some work space
+                g_tmp(1)=ga_create_atom_blocked(geom,ao_bas_han,'work')
+c
+c               calculate the CAM exchange
+                call ga_zero(g_tmp(1))
+c
+c               set up prefactors for exchange
                 kfac(1) = -0.5d0*xfac(1)
                 jfac(1) = 0.0d0
-                jfac(2) = 0.0d0
-                kfac(2) = 0.0d0
                 call case_setflags(.true.)
-                call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &             tol2e, oskel, g_dens, g_vxc, .false.)
-                call ga_dadd(1d0,g_vxc(1),1d0,g_exch,g_exch)
-                Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_exch)
+                call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+     &             tol2e, oskel, g_dens, g_tmp(1), .false.)
+                Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_tmp(1))
+                call ga_dadd(1d0,g_vxc(1),1d0,g_tmp(1),g_vxc(1))
                 call case_setflags(.false.)
 c
-c               coulomb part
-                g_coul=ga_create_atom_blocked(geom,ao_bas_han,'coul')
-                call ga_zero(g_coul)
-                call ga_zero(g_vxc(2))
+c               calculate the full Coulomb
+                call ga_zero(g_tmp(1))
+c
+c               set up prefactors for coulomb
                 kfac(1) = 0.0d0
                 jfac(1) = 1.0d0
-                jfac(2) = 0.0d0
-                kfac(2) = 0.0d0
-                call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &             tol2e, oskel, g_dens, g_vxc, .false.)
-                call ga_dadd(1d0,g_vxc(2),1d0,g_coul,g_coul)
-                ecoul = 0.5d0*ga_ddot(g_dens(1),g_coul) 
-c
-c               tally the exchange and coulomb
-                call ga_dadd(1d0,g_exch,1d0,g_coul,g_vxc(1))
+                call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+     &             tol2e, oskel, g_dens, g_tmp(1), .false.)
+                ecoul = 0.5d0*ga_ddot(g_dens(1),g_tmp(1)) 
+                call ga_dadd(1d0,g_vxc(1),1d0,g_tmp(1),g_vxc(1))
 c
 c               destroy work space
-                if (.not. ga_destroy(g_coul)) call errquit
-     $             ('xc_getv: ga corrupt?',0, GA_ERR)
-                if (.not. ga_destroy(g_exch)) call errquit
+                if (.not. ga_destroy(g_tmp(1))) call errquit
      $             ('xc_getv: ga corrupt?',0, GA_ERR)
               end if
-              if (.not. ga_destroy(g_vxc(2))) call errquit
-     $             ('xc_getv: ga corrupt?',0, GA_ERR)
             else  ! with CDFIT
 c
 c             set up prefactors
