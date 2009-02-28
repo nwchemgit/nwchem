@@ -131,33 +131,43 @@ c               calculate the exchange and coulomb parts
 c
 c               get some work space
                 g_tmp(1)=ga_create_atom_blocked(geom,ao_bas_han,'work')
-c
-c               calculate the CAM exchange
                 call ga_zero(g_tmp(1))
+c
+                g_tmp(2)=ga_create_atom_blocked(geom,ao_bas_han,'work')
+                call ga_zero(g_tmp(2))
 c
 c               set up prefactors for exchange
                 kfac(1) = -0.5d0*xfac(1)
                 jfac(1) = 0.0d0
+                kfac(2) = 0.0d0
+                jfac(2) = 0.0d0
+                g_dens(2)=g_dens(1)
                 call case_setflags(.true.)
-                call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
-     &             tol2e, oskel, g_dens, g_tmp(1), .false.)
+                call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+     &             tol2e, oskel, g_dens, g_tmp, .false.)
                 Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_tmp(1))
                 call ga_dadd(1d0,g_vxc(1),1d0,g_tmp(1),g_vxc(1))
                 call case_setflags(.false.)
 c
 c               calculate the full Coulomb
                 call ga_zero(g_tmp(1))
+                call ga_zero(g_tmp(2))
 c
 c               set up prefactors for coulomb
                 kfac(1) = 0.0d0
                 jfac(1) = 1.0d0
-                call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
-     &             tol2e, oskel, g_dens, g_tmp(1), .false.)
+                kfac(2) = 0.0d0
+                jfac(2) = 0.0d0
+                g_dens(2)=g_dens(1)
+                call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+     &             tol2e, oskel, g_dens, g_tmp, .false.)
                 ecoul = 0.5d0*ga_ddot(g_dens(1),g_tmp(1)) 
                 call ga_dadd(1d0,g_vxc(1),1d0,g_tmp(1),g_vxc(1))
 c
 c               destroy work space
                 if (.not. ga_destroy(g_tmp(1))) call errquit
+     $             ('xc_getv: ga corrupt?',0, GA_ERR)
+                if (.not. ga_destroy(g_tmp(2))) call errquit
      $             ('xc_getv: ga corrupt?',0, GA_ERR)
               end if
             else  ! with CDFIT
