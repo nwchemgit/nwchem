@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.31 2008-02-21 02:27:36 niri Exp $
+* $Id: dplot.F,v 1.32 2009-03-01 17:27:44 niri Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -157,7 +157,7 @@ c
       If (.not.rtdb_cget(rtdb,'dplot:What',1,What))
      &   Call ErrQuit('DPlot: rtdb_get failed - What',0, RTDB_ERR)
       If (iProc.eq.0) Then
-         If (What.eq.'DENSITY') Then
+         If (What.eq.'DENSITY' .or. What.eq.'TCE_DENSITY') Then
             Write(LuOut,*)' Type of picture      : CHARGE DENSITY'
          Else If (What.eq.'VIEW') Then
             Write(LuOut,*)' Type of picture      : ORBITAL VIEW'
@@ -354,10 +354,17 @@ c
          endif
       End If
 *
-      If (What.ne.'VIEW') Then
+      If (What.eq.'TCE_DENSITY') Then
+
+*------  For TCE case, the density is read from a file ----------
+         call ga_zero(g_dns(1))
+         call ao_rdm_read(ao_bas_han,g_Dns(1))
+
+      Else If (What.ne.'VIEW') Then
 *------- Get the density matrix for the first orbital file
          Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns,
      &                 Spin,File_Vec,nOrb,k_Orb,iProc)
+
       Else
 *------- Read the orbital file
          LResult = MA_Push_Get(MT_Dbl,nBF,'Ene',l_Ene,k_Ene)

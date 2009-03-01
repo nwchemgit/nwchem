@@ -4,7 +4,7 @@
      .     no_of_spacings,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.33 2008-02-21 02:27:36 niri Exp $
+* $Id: create_contour.F,v 1.34 2009-03-01 17:27:44 niri Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -159,7 +159,7 @@ c
       call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      &     int_mb(k_cetobfr), natom, nshells_ao)
 c
-      If (What.eq.'DENSITY') Then
+      If (What.eq.'DENSITY'.or.What.eq.'TCE_DENSITY') Then
          if(.not.MA_Push_Get(MT_dbl,natom*natom,'cet',l_rdat,
      .        k_rdat)) call errquit('cc: cant alloc rdat',0,0)
          call dfill(natom*natom, 0.0d0, dbl_mb(k_rdat), 1)
@@ -241,7 +241,7 @@ C
 *     matrix, D is the density matrix and C is the Phi-th column of the
 *     moleculat orbitals.
 *
-      If (What.eq.'DENSITY') Then
+      If (What.eq.'DENSITY'.or. What.eq.'TCE_DENSITY') Then
 *------- Get the values of the density at the grid points (use xc_rhogen
 *        from the NWDFT module)
          TOLL=1.D-15

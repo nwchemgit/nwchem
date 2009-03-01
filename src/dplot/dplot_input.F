@@ -1,6 +1,6 @@
       SubRoutine DPlot_Input(rtdb)
 *
-* $Id: dplot_input.F,v 1.12 2005-09-17 04:33:43 edo Exp $
+* $Id: dplot_input.F,v 1.13 2009-03-01 17:27:44 niri Exp $
 *
       Implicit none
 #include "errquit.fh"
@@ -21,7 +21,7 @@
       Integer   Num_Dirs,Num_Units,Num_What,Num_Spin,Num_Where
       Parameter (Num_Dirs  = 12)
       Parameter (Num_Units = 3)
-      Parameter (Num_What  = 2)
+      Parameter (Num_What  = 3)
       Parameter (Num_Spin  = 4)
       Parameter (Num_Where = 3)
 *
@@ -40,7 +40,7 @@
      A     'dos',
      .     'End' /
       Data Allowed_Units / 'angstrom','au','bohr' /
-      Data Allowed_What  / 'density','view' /
+      Data Allowed_What  / 'density','view','tce_density' /
       Data Allowed_Spin  / 'total','spindens','alpha','beta' /
       Data Allowed_Where / 'grid','nuclei','g+n' /
 *
