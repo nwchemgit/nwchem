@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.94 2009-03-01 17:26:42 niri Exp $
+* $Id: task.F,v 1.95 2009-03-02 22:06:08 d3p975 Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -36,7 +36,7 @@ c
       logical ocons
       logical rjhtest, raktest, atwtest, task_check_sum, cphf,
      $     jantest, uccsdtest
-      logical property, dplot, gapss, task_shell, moints_full
+      logical property, dplot,tce_dplot,gapss, task_shell, moints_full
       logical analyz,diana,esp,prepar,nwmd, kgdtest, jvltest, jvltest2
       logical task_energy, task_gradient, task_optimize, task_freq
       logical task_hessian, task_saddle, task_lst, task_neb
@@ -67,7 +67,7 @@ c
       external qmmm_end
       external jantest, uccsdtest
       external rjhtest, raktest, atwtest, task_check_sum, cphf
-      external property, dplot, gapss, task_shell, moints_full
+      external property, dplot,tce_dplot,gapss, task_shell, moints_full
       external analyz,diana,esp,prepar,nwmd
       external task_energy, task_gradient, task_optimize, task_freq
       external task_hessian, task_saddle, task_lst, task_neb
@@ -249,6 +249,10 @@ c            status = task_nbo(rtdb)
             status = moints_full(rtdb)
          else if (inp_compare(.false.,'dplot', theory)) then
             status = dplot(rtdb)
+c->d3p975
+         else if (inp_compare(.false.,'tce_dplot', theory)) then
+            status = tce_dplot(rtdb)
+c<-d3p975
          else if (inp_compare(.false.,'player', theory)) then
             status = player(rtdb)
          else if (inp_compare(.false.,'transport', theory)) then
