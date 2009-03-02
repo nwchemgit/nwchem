@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.32 2009-03-01 17:27:44 niri Exp $
+* $Id: dplot.F,v 1.33 2009-03-02 19:23:22 d3p975 Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -360,7 +360,7 @@ c
          call ga_zero(g_dns(1))
          call ao_rdm_read(ao_bas_han,g_Dns(1))
 
-      Else If (What.ne.'VIEW') Then
+      Else If (What.ne.'VIEW' .and. What .ne. 'TCE_DENSITY') Then
 *------- Get the density matrix for the first orbital file
          Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns,
      &                 Spin,File_Vec,nOrb,k_Orb,iProc)
