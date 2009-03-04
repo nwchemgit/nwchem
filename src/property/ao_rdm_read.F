@@ -1,4 +1,4 @@
-      logical function ao_rdm_read(basis, g_dens)
+      logical function ao_rdm_read(filename,basis, g_dens)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -46,6 +46,7 @@ c      end
 
 
 c
+      character*(*) filename
       integer basis
       integer g_dens(3)
 c
@@ -73,7 +74,7 @@ c
       call ga_sync()
       ok = 0
       if (ga_nodeid() .eq. 0) then
-         open(unitno, status='old', form='unformatted', file='ao_rdm',
+         open(unitno, status='old', form='unformatted', file=filename,
      $        err=1000)
 c
       if (.not.bas_numbf(basis,nbf)) call
@@ -116,14 +117,14 @@ c      if (oscfps) call pstat_off(ps_vecio)
       return
 c
  1000 write(6,*) ' ao_rdm_read: failed to open '
-c     $     filename(1:inp_strlen(filename))
+     $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       return
 c      goto 10
 c
  1001 write(6,*) ' ao_rdm_read: failing reading from '
-c     $     filename(1:inp_strlen(filename))
+     $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       close(unitno,err=1002)
@@ -131,7 +132,7 @@ c     $     filename(1:inp_strlen(filename))
 c      goto 10
 c
  1002 write(6,*) ' ao_rdm_read: failed to close'
-c     $     filename(1:inp_strlen(filename))
+     $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       return

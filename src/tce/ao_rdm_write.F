@@ -1,4 +1,4 @@
-      logical function ao_rdm_write(k_rdm)
+      logical function ao_rdm_write(filename,k_rdm)
 crtdb, basis, filename, 
 c     $     scftype, title,
 c     $     nbf, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
@@ -34,6 +34,7 @@ c      double precision occ(ldocc, nsets) ! [input] Occupation numbers
 c      double precision evals(ldevals, nsets) ! [input] Eigenvalues
 c      integer g_vecs(nsets)     ! Global array with eigen-vectors
 c
+      character*(*) filename
       integer unitno            ! Unit no. for writing
       parameter (unitno = 67)   ! These need to be managed !!!
 c      integer lentit
@@ -99,7 +100,7 @@ c            write(6,*) ' movecs_write: nsets > 2 ', nsets
 c            goto 10
 c         endif
          open(unitno, status='unknown', form='unformatted',
-     $        file='ao_rdm', err=1000)
+     $        file=filename, err=1000)
          do i = 1,nbf
             ind = (i-1)*nbf
             call swrite(unitno, dbl_mb(k_rdm+ind), nbf)
@@ -158,26 +159,23 @@ c      endif
 c      if (oscfps) call pstat_off(ps_vecio)
       return
 c
- 1000 write(6,*) ' movecs_write: failed to open '
-c,
-c     $     filename(1:inp_strlen(filename))
+ 1000 write(6,*) ' movecs_write: failed to open ',
+     $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       return
 c      goto 10
 c
- 1001 write(6,*) ' ao_rdm_write: failing writing to '
-c,
-c     $     filename(1:inp_strlen(filename))
+ 1001 write(6,*) ' ao_rdm_write: failing writing to ',
+     $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       close(unitno,err=1002)
       return
 c      goto 10
 c
- 1002 write(6,*) ' ao_rdm_write: failed to close'
-c,
-c     $     filename(1:inp_strlen(filename))
+ 1002 write(6,*) ' ao_rdm_write: failed to close',
+     $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       return
