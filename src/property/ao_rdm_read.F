@@ -93,7 +93,7 @@ c
          ok = 1
       endif
 c
-c 10   continue
+ 10   continue
 c      if (l_vecs .ne. -1) then
 c	 if (.not. ma_pop_stack(l_vecs)) call errquit
 c     $      ('movecs_read: pop failed', l_vecs, MA_ERR)
@@ -116,26 +116,26 @@ c      endif
 c      if (oscfps) call pstat_off(ps_vecio)
       return
 c
- 1000 write(6,*) ' ao_rdm_read: failed to open '
+ 1000 write(6,*) ' ao_rdm_read: failed to open ',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       return
-c      goto 10
+      goto 10
 c
- 1001 write(6,*) ' ao_rdm_read: failing reading from '
+ 1001 write(6,*) ' ao_rdm_read: failing reading from ',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       close(unitno,err=1002)
       return
-c      goto 10
+      goto 10
 c
- 1002 write(6,*) ' ao_rdm_read: failed to close'
+ 1002 write(6,*) ' ao_rdm_read: failed to close',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       return
-c      goto 10
+      goto 10
 c
       end
