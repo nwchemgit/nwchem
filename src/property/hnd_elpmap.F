@@ -1,6 +1,6 @@
       subroutine hnd_elpmap(rtdb,basis,geom)
 c
-c $Id: hnd_elpmap.F,v 1.9 2008-09-30 20:03:09 d3p975 Exp $
+c $Id: hnd_elpmap.F,v 1.10 2009-03-04 01:43:44 d3p975 Exp $
 c
 c     This routine calculates the electrostatic potential
 c     for a given density at the atomic positions.
@@ -80,7 +80,8 @@ c
         if (.not. bas_numbf(basis,nbf)) call
      &    errquit('hnd_elfmap: could not get nbf',0, BASIS_ERR)
 c
-        call ao_1prdm_read(nbf,g_dens(ndens))
+        if(.not.ao_1prdm_read(nbf,g_dens(ndens)))
+     1  call errquit('hnd_elpmap: ao_1prdm_read failed',0,0)
       endif
 c
 c
