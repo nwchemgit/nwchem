@@ -150,7 +150,8 @@ c     ====================================
 c     DUMP it to a file
 c     ====================================
 c      call ga_print(g_1pdm)
-      call ao_1prdm_write(nbf,g_1pdm)
+       if(.not.ao_1prdm_write(nbf,g_1pdm))
+     1   call errquit('tce_ccsd_1prdm: ao_1prdm_write failed',0,0)
 c      call ga_zero(g_1pdm)
 c      call ga_print(g_1pdm)
 c      call ao_1prdm_read(nbf,g_1pdm)
