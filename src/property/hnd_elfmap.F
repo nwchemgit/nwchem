@@ -68,7 +68,8 @@ c
 c
 c    2. read the data 
 c
-        call ao_rdm_read(basis,g_dens)
+         if (.not.ao_rdm_read('ao_rdm',basis,g_dens))
+     1   call errquit('hnd_elfmap:ao_rdm_read failed',0,0)
       else 
          call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
      &                      nclosed,nopen,nvirt)
