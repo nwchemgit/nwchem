@@ -40,6 +40,8 @@ c->d3p975
       character*30 theory
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
+      logical ao_rdm_read
+      external ao_rdm_read
 c<-d3p975
 c
 c

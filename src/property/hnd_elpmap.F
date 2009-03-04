@@ -1,6 +1,6 @@
       subroutine hnd_elpmap(rtdb,basis,geom)
 c
-c $Id: hnd_elpmap.F,v 1.10 2009-03-04 01:43:44 d3p975 Exp $
+c $Id: hnd_elpmap.F,v 1.11 2009-03-04 17:48:28 d3p975 Exp $
 c
 c     This routine calculates the electrostatic potential
 c     for a given density at the atomic positions.
@@ -48,6 +48,8 @@ c
       integer nbf
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
+      logical ao_1prdm_read
+      external ao_1prdm_read
 c
 c
 c     Initialize integrals
