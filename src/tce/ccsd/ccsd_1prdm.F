@@ -519,7 +519,7 @@ c
 c     
 c     dump the ao rdm to a file
 c     
-      if(.not.ao_rdm_write(k_rdm_ao))
+      if(.not.ao_rdm_write('ao_rdm',k_rdm_ao))
      1     call errquit('ccsd_1prdm: disk problem',1,disk_err)
       if(.not.ma_pop_stack(l_rdm_ao))
      1     call errquit('ccsd_1prdm: ma problem',03,ma_err)
