@@ -1,5 +1,5 @@
 %
-% $Id: dplot.tex,v 1.13 2004-04-19 16:16:28 edo Exp $ 
+% $Id: dplot.tex,v 1.14 2009-03-05 23:46:55 d3p975 Exp $ 
 %
 \label{sec:dplot}
 \begin{verbatim}
@@ -101,6 +101,17 @@ If the second file is optionally given the density is computed as the
 difference between the corresponding electron densities. The vector 
 files have to match.
 
+\section{{\tt DENSMAT} ---  Density matrix file name}
+
+\begin{verbatim}
+  DENSMAT <string File_Name> [<string File_Name2>]
+\end{verbatim}
+
+This sub-directive specifies the name of the density matrix file.
+If the second file is optionally given the density is computed as the
+difference between the corresponding electron densities. The density matrix
+files have to match. This option is used for plotting the density generated
+by correlation methods, such as CCSD and EOM-CCSD.
 
 
 \section{{\tt WHERE} --- Density evaluation}
@@ -164,6 +175,38 @@ dplot
   output lumo.cube
 end
 task scf     
+task dplot
+\end{verbatim}
+
+\begin{verbatim}
+start n2
+geometry
+  n  0 0   0.53879155
+  n  0 0  -0.53879155
+end
+basis;  n library cc-pvdz;end
+scf
+vectors  output n2.movecs
+end
+
+tce
+ccsd
+densmat n2.densmat
+end
+
+task tce energy
+
+dplot
+  TITLE HOMO
+   LimitXYZ
+ -3.0 3.0 10
+-3.0 3.0 10
+-3.0  3.0  10
+  spin total
+  gaussian
+  densmat n2.densmat
+  output lumo.cube
+end
 task dplot
 \end{verbatim}
 
