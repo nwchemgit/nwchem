@@ -65,6 +65,8 @@ c
 c     debug
       logical zvec_debug, wdm_debug
 c
+      logical ao_1prdm_write
+      external ao_1prdm_write
 c     parallel
       integer next
       integer count
