@@ -163,22 +163,19 @@ c
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
-      return
-c      goto 10
+      goto 10
 c
  1001 write(6,*) ' ao_rdm_write: failing writing to ',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
       close(unitno,err=1002)
-      return
-c      goto 10
+      goto 10
 c
  1002 write(6,*) ' ao_rdm_write: failed to close',
      $     filename(1:inp_strlen(filename))
       call util_flush(luout)
       ok = 0
-      return
-c      goto 10
+      goto 10
 c
       end
