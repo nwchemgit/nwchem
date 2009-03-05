@@ -1,13 +1,15 @@
-      subroutine ccsd_1prdm(d_t1,d_t2,d_lambda1,d_lambda2,
+      subroutine ccsd_1prdm(rtdb,d_t1,d_t2,d_lambda1,d_lambda2,
      1     k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+#include "rtdb.fh"
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
 c
+      integer rtdb
       integer d_t1,d_t2,d_lambda1,d_lambda2
       integer k_t1_offset,k_t2_offset
       integer k_l1_offset,k_l2_offset
@@ -36,8 +38,8 @@ c
       integer dim_mu_h,dim_mu_p,dim_mo_h,dim_mo_p
       integer l_mu_h,k_mu_h,l_mu_p,k_mu_p
       integer hole,particle
-      character*255 filename
-      logical ao_rdm_write
+      character*256 filename
+      logical  ao_rdm_write
       external ao_rdm_write
 c
 c
@@ -519,7 +521,11 @@ c
 c     
 c     dump the ao rdm to a file
 c     
-      if(.not.ao_rdm_write('ao_rdm',k_rdm_ao))
+      if (.not.rtdb_cget(rtdb,'tce:file_densmat',1,filename))
+     1   call errquit('ccsd_1prdm: rtdb_cgett failed - file_densmat',0,
+     1        RTDB_ERR)
+c
+      if(.not.ao_rdm_write(filename,k_rdm_ao))
      1     call errquit('ccsd_1prdm: disk problem',1,disk_err)
       if(.not.ma_pop_stack(l_rdm_ao))
      1     call errquit('ccsd_1prdm: ma problem',03,ma_err)
