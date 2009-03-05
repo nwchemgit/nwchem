@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.36 2009-02-04 02:23:31 jhammond Exp $
+c $Id: tce_input.F,v 1.37 2009-03-05 23:48:58 d3p975 Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -96,6 +96,10 @@ c ------------------
       character*4 targetsym
       logical symmetry
       logical left
+c --- density matrix    
+      logical idens
+      character*256 file_densmat
+c<-d3p975
       integer multipole
       logical recompf
       character*10 perturbative
@@ -259,6 +263,13 @@ c
       if (.not.rtdb_put(rtdb,'tce:symmetry',mt_log,1,symmetry))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
+c
+c     IDENS (one particle reduced density matrix)
+c
+      idens=.false.
+      if (.not.rtdb_put(rtdb,'tce:densmat',mt_log,1,idens))
+     1   call errquit('tce_input: failed writing to rtdb',0,
+     1   rtdb_err)
 c
 c     DIPOLE (dipole moments & dipole transition moments)
 c
@@ -1119,6 +1130,24 @@ c
         if (.not.rtdb_put(rtdb,'tce:symmetry',mt_log,1,symmetry))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
+c
+c     IDENS (one particle reduced density matrix)
+c
+      else if (inp_compare(.false.,test,'densmat')) then
+         idens=.true.
+         left =.true.
+         if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1      call errquit('tce_input: failed writing to rtdb',0,
+     2      RTDB_ERR)
+         if (.not.rtdb_put(rtdb,'tce:densmat',mt_log,1,idens))
+     1      call errquit('tce_input: failed writing to rtdb',0,
+     2      RTDB_ERR)
+         if (.not.inp_a(file_densmat)) then
+            call util_file_name('densmat', .false.,.false.,file_densmat)
+         endif
+         if (.not.rtdb_cput(rtdb,'tce:file_densmat',1,file_densmat))
+     1      call errquit('tce_input: rtdb_cput failed - file_densmat',0,
+     1      RTDB_ERR)
 c
 c     MULTIPOLE (multipole moments)
 c

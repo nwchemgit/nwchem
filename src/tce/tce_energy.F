@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.162 2009-02-25 00:34:04 d3p975 Exp $
+c $Id: tce_energy.F,v 1.163 2009-03-05 23:49:21 d3p975 Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -233,6 +233,7 @@ c
       integer l_l4_offset      ! Offset for Lambda 4 file
       integer k_l4_offset      ! Offset for Lambda 4 file
       integer size_l4          ! File size in doubles
+      logical idens            ! true if calculates density matrix
       integer d_d0             ! Dipole moment
       integer l_d0_offset      ! Offset for d0 file
       integer k_d0_offset      ! Offset for d0 file
@@ -568,6 +569,8 @@ c     Initialize
 c     ==========
 c
       call tce_init(rtdb)
+      if (.not.rtdb_get(rtdb,'tce:densmat',mt_log,1,idens))
+     1   call errquit('tce_energy:rtdb_get densmat failed',0, RTDB_ERR)
       if (nodezero) call util_flush(LuOut)
 c      if (lineresp) left=.true.
 c      if (imagresp) lineresp=.false.
@@ -2101,10 +2104,12 @@ c->d3p975
 c
 c calculated ccsd 1-particle reduced density matrix/ces
 c
-c            if(.not.intorb)
-c     1       call ccsd_1prdm(d_t1,d_t2,d_lambda1,d_lambda2,
-c     1                      k_t1_offset,k_t2_offset,
-c     2                      k_l1_offset,k_l2_offset)
+            if (nroots.eq.0.and.idens) then
+               if (.not.intorb)
+     1            call ccsd_1prdm(rtdb,d_t1,d_t2,d_lambda1,d_lambda2,
+     1                            k_t1_offset,k_t2_offset,
+     2                            k_l1_offset,k_l2_offset)
+            endif
 c
 c<-d3p975
 c
@@ -7049,16 +7054,17 @@ c->d3p975
 c
 c   eom-ccsd 1-particle reduced density matrix/ces
 c
-c                  if(.not.intorb)
-c     1             call eomccsd_1prdm(dbl_mb(k_omegax+ivec-1),
-c     1                               d_f1,d_v2,
-c     2                               k_f1_offset,k_v2_offset,
-c     2                               d_t1,d_t2,xc1(ivec),xc2(ivec),
-c     1                               yc1(ivec),yc2(ivec),
-c     2                               k_t1_offset,k_t2_offset,
-c     3                               k_x1_offset,k_x2_offset,
-c     4                               k_y1_offset,k_y2_offset)
-c
+                  if (idens) then
+                     if (.not.intorb)
+     1                  call eomccsd_1prdm(rtdb,dbl_mb(k_omegax+ivec-1),
+     1                               d_f1,d_v2,
+     2                               k_f1_offset,k_v2_offset,
+     2                               d_t1,d_t2,xc1(ivec),xc2(ivec),
+     1                               yc1(ivec),yc2(ivec),
+     2                               k_t1_offset,k_t2_offset,
+     3                               k_x1_offset,k_x2_offset,
+     4                               k_y1_offset,k_y2_offset)
+                  endif
 c 
 c<-d3p975
 c
