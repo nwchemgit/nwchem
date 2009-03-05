@@ -1,4 +1,4 @@
-      subroutine eomccsd_1prdm(omega,d_f1,d_v2,
+      subroutine eomccsd_1prdm(rtdb,omega,d_f1,d_v2,
      1                         k_f1_offset,k_v2_offset,
      1                         d_t1,d_t2,d_x1,d_x2,d_y1,d_y2,
      1                         k_t1_offset,k_t2_offset,
@@ -8,9 +8,11 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+#include "rtdb.fh"
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
+      integer rtdb
       double precision omega
       integer d_f1,d_v2
       integer k_f1_offset,k_v2_offset
@@ -25,7 +27,7 @@ c
       double precision denominator
       integer d_x0,l_x0_offset,k_x0_offset,size_x0
 c
-      character*255 filename
+      character*256 filename
       logical nodezero
       integer d_hh,l_hh_offset,k_hh_offset,size_hh
       integer d_hp,l_hp_offset,k_hp_offset,size_hp
@@ -415,7 +417,10 @@ c
 c
 c     dump the ao rdm to a file
 c
-      if(.not.ao_rdm_write(k_rdm_ao))
+      if (.not.rtdb_cget(rtdb,'tce:file_densmat',1,filename))
+     1   call errquit('eomccsd_1prdm: rtdb_cget failed - file_densmat',
+     1        0,RTDB_ERR)
+      if(.not.ao_rdm_write(filename,k_rdm_ao))
      1     call errquit('eomccsd_1prdm: disk problem',1,disk_err)
       if(.not.ma_pop_stack(l_rdm_ao))
      1     call errquit('eomccsd_1prdm: ma problem',03,ma_err)
