@@ -1,6 +1,6 @@
       SubRoutine DPlot_Input(rtdb)
 *
-* $Id: dplot_input.F,v 1.13 2009-03-01 17:27:44 niri Exp $
+* $Id: dplot_input.F,v 1.14 2009-03-05 17:57:27 d3p975 Exp $
 *
       Implicit none
 #include "errquit.fh"
@@ -19,28 +19,32 @@
       Double Precision Ext_From_To(3,2),ValueR
 *
       Integer   Num_Dirs,Num_Units,Num_What,Num_Spin,Num_Where
-      Parameter (Num_Dirs  = 12)
+      Parameter (Num_Dirs  = 13)
       Parameter (Num_Units = 3)
-      Parameter (Num_What  = 3)
+      Parameter (Num_What  = 2)
       Parameter (Num_Spin  = 4)
       Parameter (Num_Where = 3)
 *
       Character*255 test, Title
       Character*8   Dirs(Num_Dirs),Allowed_Units(Num_Units),
-     &              Allowed_What(Num_What),Allowed_Spin(Num_Spin),
+     &              Allowed_Spin(Num_Spin),
      &              Allowed_Where(Num_Where)
-      Character*8   Units,What,Spin,Where
+      Character*8  Allowed_What(Num_What)
+      Character*8   Units,Spin,Where
+      Character*12  What
       Character*3   Charges
 !      character*30 tag
       Character*80  File_Vec,File_Vec2,File_Out
+      Character*80  File_Mat1,File_Mat2
       logical lgaussian,dodos
 *
-      Data Dirs / 'LimitXYZ','Vectors','Output','Title','Orbitals',
+      Data Dirs / 'LimitXYZ','Vectors',
+     .            'densmat','Output','Title','Orbitals',
      &            'Spin','Where','Charges','Gaussian','print',
      A     'dos',
      .     'End' /
       Data Allowed_Units / 'angstrom','au','bohr' /
-      Data Allowed_What  / 'density','view','tce_density' /
+      Data Allowed_What  / 'density','view' /
       Data Allowed_Spin  / 'total','spindens','alpha','beta' /
       Data Allowed_Where / 'grid','nuclei','g+n' /
 *
@@ -66,6 +70,8 @@ c
       
       File_Vec = ' '
       File_Vec2 = ' '
+      File_Mat1 = ' '
+      File_Mat2 = ' '
       File_Out  = 'dplot'
       Title     = 'Unknown Title'
       Lth_Tit   = 13
@@ -90,7 +96,7 @@ c
       If (.not.inp_match(Num_Dirs,.false.,test,Dirs,ind))
      &   Call ErrQuit('DPlot_Input: unknown directive',0,
      &       INPUT_ERR)
-      GoTo (100, 200, 300, 400, 500, 600, 700, 800, 900, 964, 
+      GoTo (100, 200, 250, 300, 400, 500, 600, 700, 800, 900, 964, 
      .     1997,
      .     9999) ind
       Call ErrQuit('DPlot_Input: unimplemented directive',ind,
@@ -137,6 +143,17 @@ c
          File_Vec2(1:Lth) = test(1:Lth)
       End If
       GoTo 10
+*
+*---- Read the information about the source of the one particle reduced density matrices
+  250 Continue
+      if (.not.inp_a(File_Mat1))
+     1   call errquit('dplot_input: densmat <file1> [<file2>]',0,
+     1        input_err)
+      if (inp_a(test)) then
+         lth = inp_strlen(test)
+         File_Mat2(1:lth) = test(1:lth)
+      endif
+      goto 10
 *
 *---- Read the name of the output file
   300 Continue
@@ -244,6 +261,13 @@ c      write(0,*) ' vec1 and 2',File_vec,File_vec2
       If (.not.rtdb_cput(rtdb,'dplot:File_Vec2',1,File_Vec2))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Vec2',0,
      &       RTDB_ERR)
+c---- Write the names of the density matrix files to rtdb
+      if (.not.rtdb_cput(rtdb,'dplot:File_Mat1',1,File_Mat1))
+     1   call errquit('Dplot_Input: rtdb_cput failed - File_Mat1',0,
+     1        RTDB_ERR)
+      if (.not.rtdb_cput(rtdb,'dplot:File_Mat2',1,File_Mat2))
+     1   call errquit('Dplot_Input: rtdb_cput failed - File_Mat2',0,
+     1        RTDB_ERR)
 *---- Write the name of the output file to rtdb
       If (.not.rtdb_cput(rtdb,'dplot:File_Out',1,File_Out))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Out',0,
