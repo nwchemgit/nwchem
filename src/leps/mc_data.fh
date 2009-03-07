@@ -1,5 +1,5 @@
 c
-c $Id: mc_data.fh,v 1.2 2009-01-17 22:06:15 bojana Exp $
+c $Id: mc_data.fh,v 1.3 2009-03-07 19:29:42 bojana Exp $
 c
       integer mcsteps,natom
       double precision temp,stepsize,ratio
@@ -12,6 +12,7 @@ c
       logical ifirc
       integer h_in,i_in,i_s,h_s, i_sc,h_sc,h_prp,i_prp
       integer naccept,h_in_vel,i_in_vel, h_in_acc,i_in_acc
+      integer side_prev, nxing, trajnum
 
       common/mc_data/  mcsteps,natom,
      &  temp,stepsize,ratio,
@@ -22,5 +23,5 @@ c
      &  forside0, backside0,forside, backside,
      &  forward, backward, ifirc,
      &  h_in,i_in, i_s,h_s,i_sc,h_sc,h_prp,i_prp,
-     &  naccept,h_in_vel,i_in_vel, h_in_acc,i_in_acc
-
+     &  naccept,h_in_vel,i_in_vel, h_in_acc,i_in_acc,
+     &  side_prev, nxing, trajnum

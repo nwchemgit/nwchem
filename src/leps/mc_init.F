@@ -12,7 +12,7 @@
 #include "geom.fh"
 
       logical     ircflag 
-      integer     natom,geom, i,j,k,l, ivib, seed
+      integer     natom,geom, i,k,l, ivib, seed
       integer     c_start,c_array
       integer     tag,charge,mass,force
       integer     mc_data_get_i_c_array,mc_data_get_i_c
@@ -23,7 +23,6 @@
       integer     mc_data_get_i_prp 
       integer     prp,vel,acc  
       integer     i_eval,mc_data_get_i_eval,i_evec,mc_data_get_i_evec
-      integer     md_data_get_i_v, md_data_get_i_a, mdvel,mdacc
       double precision kB,temp,temp10,vau,pimg      
       double precision mc_data_get_temp,gks_gasdev
       logical     grad
@@ -39,7 +38,7 @@
       thr=blanks32
       task=blanks32
       task=':gradient'
-      dbug=.false. 
+      dbug=.true. 
       c_array=mc_data_get_i_c_array()  ! get the entire array of starting geometries
       c_start=mc_data_get_i_c()
       tag=mc_data_get_i_t()
@@ -51,7 +50,7 @@
       i_eval=mc_data_get_i_eval()
       i_evec=mc_data_get_i_evec()
       if (ircflag) then 
-       call mc_data_allocate_vel_acc(naccept)
+       call mc_data_allocate_vel_acc()
       endif
       vel=mc_data_get_i_in_vel()
       acc=mc_data_get_i_in_acc()
@@ -110,7 +109,7 @@ C---- calculate the gradient to get the force for acceleration
          if (.not. rtdb_get(rtdb,theory,mt_dbl,3*natom, dbl_mb(force)))
      &       call errquit('mc_grad: no grad stored ', 0, RTDB_ERR)
 
-         write(*,*) "MC-init IRC: temperature is:",temp
+c         write(*,*) "MC-init IRC: temperature is:",temp
          do ivib=1,3*natom
             if (abs(dbl_mb(i_eval+ivib-1)).lt.0.1) then
                 vau=0.0
@@ -118,32 +117,51 @@ C---- calculate the gradient to get the force for acceleration
                 vau=gks_gasdev(seed)*sqrt(kb*temp)
                 vau=vau*(unitt/unitl/sqrt(uma))
             endif
-            write(*,*) 'For ivib IRC:',ivib,' vau is: ', vau
+C            write(*,*) 'For ivib IRC:',ivib,' vau is: ', vau
             do k=1,3*natom
                dbl_mb(vel+k-1) =
      &            dbl_mb(vel+k-1)
      &          + dbl_mb(i_evec+(ivib-1)*3*natom+k-1)*vau
             enddo
          enddo
-         write(*,*) 'IRC Velocities:'
-         do k=1,3*natom
-            write(*,*) dbl_mb(vel+k-1)
-         enddo
-
+         if(dbug) then
+           write(*,*) 'IRC Velocities:'
+           do k=1,3*natom
+              write(*,*) dbl_mb(vel+k-1)
+           enddo
+         endif
 c----- set the  acceleration
          do k=1,natom
             do l=1,3
-            dbl_mb(acc+(k-1)*natom+l-1) =
-     &          -dbl_mb(force+(k-1)*natom+l-1)/dbl_mb(mass+k-1)
+            dbl_mb(acc+(k-1)*3+l-1) =
+     &          -dbl_mb(force+(k-1)*3+l-1)/dbl_mb(mass+k-1)
             enddo
          enddo
 
-         write(*,*) 'IRC Acceleration:'
-         do k=1,3*natom
-            write(*,*) dbl_mb(acc+k-1)
-         enddo
+         if(dbug) then
+           write(*,*) 'IRC Mass '
+           do k=1,natom
+               write(*,*) dbl_mb(mass+k-1)
+           enddo
+           write(*,*) 'IRC Force '
+           do k=1,natom
+            do l=1,3
+              write(*,*) -dbl_mb(force+(k-1)*3+l-1)
+            enddo
+           enddo
+           write(*,*) 'IRC Force 2'
+
+           do l=1,3*natom
+              write(*,*) -dbl_mb(force+l-1)
+           enddo
+
+           write(*,*) 'IRC Acceleration:'
+           do k=1,3*natom
+              write(*,*) dbl_mb(acc+k-1)
+           enddo
+         endif
       else 
-      write(*,*) 'in mc_init:naccept',naccept
+c      write(*,*) 'in mc_init:naccept',naccept
       do i=1,naccept+1   ! loop over all of the initial structures
          pimg=0.0 
          do k=1,3*natom
@@ -169,7 +187,7 @@ C----- set the velocity and acc to zero
              dbl_mb(vel+(i-1)*3*natom+k-1)=0.0
              dbl_mb(acc+(i-1)*3*natom+k-1)=0.0 
          enddo
-         write(*,*) "MC-init: temperature is:",temp  
+c         write(*,*) "MC-init: temperature is:",temp  
          do ivib=1,3*natom
             if (abs(dbl_mb(i_eval+ivib-1)).lt.0.1) then
                 vau=0.0
@@ -181,40 +199,43 @@ C----- set the velocity and acc to zero
                 endif
                 vau=vau*(unitt/unitl/sqrt(uma))
             endif
-            write(*,*) 'For ivib:',ivib,' vau is: ', vau
+c            write(*,*) 'For ivib:',ivib,' vau is: ', vau
             do k=1,3*natom
                dbl_mb(vel+(i-1)*3*natom+k-1) = 
      &            dbl_mb(vel+(i-1)*3*natom+k-1)
      &          + dbl_mb(i_evec+(ivib-1)*3*natom+k-1)*vau
             enddo
          enddo
-         write(*,*) 'Velocities:'
-         do k=1,3*natom
-            write(*,*) dbl_mb(vel+(i-1)*3*natom+k-1)
-         enddo 
-         write(*,*) 'PIMG= ',pimg
+         if(dbug) then
+           write(*,*) 'Velocities:'
+           do k=1,3*natom
+              write(*,*) dbl_mb(vel+(i-1)*3*natom+k-1)
+           enddo 
+           write(*,*) 'PIMG= ',pimg
+         endif
 c----- set the  acceleration
          do k=1,natom
             do l=1,3
-            dbl_mb(acc+(i-1)*3*natom+(k-1)*natom+l-1) = 
-     &          -dbl_mb(force+(k-1)*natom+l-1)/dbl_mb(mass+k-1)
+            dbl_mb(acc+(i-1)*3*natom+(k-1)*3+l-1) = 
+     &          -dbl_mb(force+(k-1)*3+l-1)/dbl_mb(mass+k-1)
             enddo
          enddo 
-
-         write(*,*) 'Acceleration:'
-         do k=1,3*natom
-            write(*,*) dbl_mb(acc+(i-1)*3*natom+k-1) 
-         enddo
+         if(dbug) then
+           write(*,*) 'Acceleration:'
+           do k=1,3*natom
+              write(*,*) dbl_mb(acc+(i-1)*3*natom+k-1) 
+           enddo
+         endif
 C ---- end of setting
       enddo             
       endif
-      if(dbug) then
-        do i=1,naccept
-         write(*,*) 'Dbug Velocities:'
+      if(dbug.and.(.not.ircflag)) then
+        do i=1,naccept+1
+         write(*,*) 'Dbug Velocities:',i
          do k=1,3*natom
             write(*,*) dbl_mb(vel+(i-1)*3*natom+k-1)
          enddo
-         write(*,*) 'Dbug Acceleration:'
+         write(*,*) 'Dbug Acceleration:',i
          do k=1,3*natom
             write(*,*) dbl_mb(acc+(i-1)*3*natom+k-1)
          enddo

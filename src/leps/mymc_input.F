@@ -18,7 +18,7 @@ c
 c
       pname = "mymc_input: "
 c
-      write(luout,*) "in ",pname
+c      write(luout,*) "in ",pname
 c
       call inp_set_field(0)
 c
@@ -83,5 +83,5 @@ c     ----------------
         goto 2
       endif
 
-      write(*,*) 'End of mymc_input.'
+c      write(*,*) 'End of mymc_input.'
       end

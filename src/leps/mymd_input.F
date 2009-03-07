@@ -18,7 +18,7 @@ c
 c
       pname = "mymd_input: "
 c
-      write(luout,*) "in ",pname
+c      write(luout,*) "in ",pname
 c
       call inp_set_field(0)
 c
@@ -70,5 +70,5 @@ c     ----------------
      >      call errquit(pname//'failed to store'//tag,0,RTDB_ERR)
         goto 2
       endif
-      write(*,*) 'End of mymd_input.'
+c      write(*,*) 'End of mymd_input.'
       end

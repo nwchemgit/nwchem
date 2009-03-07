@@ -14,50 +14,50 @@ c      natom=n
  
       if (.not. ma_alloc_get(mt_dbl, 3*natom, 'coordinate' ,
      & h_c,i_c))
-     & call errquit('leps_getgeom: coordinate not allocated',
+     & call errquit('md_data_getgeom: coordinate not allocated',
      & 3*natom,MA_ERR)
 
       if (.not. ma_alloc_get(mt_dbl, natom, 'charge' ,
      & h_q,i_q))
-     & call errquit('leps_getgeom: charge not allocated',
+     & call errquit('md_data_getgeom: charge not allocated',
      & natom,MA_ERR)
 
       if (.not.ma_alloc_get(mt_dbl, natom, 'mass', h_m,i_m))
-     & call errquit('leps_getgeom: mass not allocated',
+     & call errquit('md_data_getgeom: mass not allocated',
      & natom,MA_ERR)
 
       if (.not.ma_alloc_get(mt_byte, 16*natom, 'tags', h_t,i_t))
-     & call errquit('leps_getgeom: tags not allocated',
+     & call errquit('md_data_getgeom: tags not allocated',
      & natom,MA_ERR)
 
       if (.not. ma_alloc_get(mt_dbl, 3*natom, 'velocities' ,
      & h_v,i_v))
-     & call errquit('leps_getgeom: velocities not allocated',
+     & call errquit('md_data_getgeom: velocities not allocated',
      & natom,MA_ERR)
 
       if (.not. ma_alloc_get(mt_dbl, 3*natom, 'accelerations' ,
      & h_a,i_a))
-     & call errquit('leps_getgeom: accelerations not allocated',
+     & call errquit('md_data_getgeom: accelerations not allocated',
      & natom,MA_ERR)
 
       if (.not. ma_alloc_get(mt_dbl, 3*natom, 'b-term' ,
      & h_b,i_b))
-     & call errquit('leps_getgeom: b-term not allocated',
+     & call errquit('md_data_getgeom: b-term not allocated',
      & natom,MA_ERR)
 
       if (.not. ma_alloc_get(mt_dbl, 3*natom, 'd-term' ,
      & h_d,i_d))
-     & call errquit('leps_getgeom: d-term not allocated',
+     & call errquit('md_data_getgeom: d-term not allocated',
      & natom,MA_ERR)
 
       if (.not. ma_alloc_get(mt_dbl, 3*natom, 'force' ,
      & h_f,i_f))
-     & call errquit('leps_getgeom: force not allocated',
+     & call errquit('md_data_getgeom: force not allocated',
      & natom,MA_ERR)
 
-      write(*,*) 'Done with all the allocation'
-      write(*,*) 'i_c,i_m,i_q,i_v,i_t,i_a,i_b,i_d,i_f'
-      write(*,*) i_c,i_m,i_q,i_v,i_t,i_a,i_b,i_d,i_f
+c      write(*,*) 'Done with all the allocation'
+c      write(*,*) 'i_c,i_m,i_q,i_v,i_t,i_a,i_b,i_d,i_f'
+c      write(*,*) i_c,i_m,i_q,i_v,i_t,i_a,i_b,i_d,i_f
 
       end 
 
@@ -204,17 +204,17 @@ c     & 0,GEOM_ERR)
 
 
       if (.not. geom_masses_get(geom,natom,dbl_mb(i_m) ))
-     & call errquit('leps_getgeom:  mass error',0,GEOM_ERR)
+     & call errquit('md_data_getgeom:  mass error',0,GEOM_ERR)
 
       if (.not. geom_cart_get(geom, n, byte_mb(i_t),
      &                         dbl_mb(i_c),dbl_mb(i_q) ))
-     & call errquit('leps_getgeom: coord error',0,GEOM_ERR)
-       write(*,*) 'Geom_copy:Filled cartesians and masses  '
+     & call errquit('md_data_getgeom: coord error',0,GEOM_ERR)
+c       write(*,*) 'Geom_copy:Filled cartesians and masses  '
 
 
       end
 
-      subroutine md_data_geom_set(rtdb,geom)
+      subroutine md_data_geom_set(rtdb)
 #include "md_data.fh"
 #include "errquit.fh"
 #include "global.fh"
@@ -224,8 +224,12 @@ c     & 0,GEOM_ERR)
 
       integer rtdb,geom
 
+      if (.not. geom_create(geom, 'geom1'))
+     & call errquit('md_driver_getgeom: failed creating geometry',
+     & 0,GEOM_ERR)
 
-cC     load geometry into the object
+      write(*,*) 'Open a geometry' 
+C     load geometry into the geom object from database
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      & call errquit('md_data: no geometry',
      & 0,RTDB_ERR)
@@ -236,10 +240,14 @@ cC     load geometry into the object
 
       if (.not. geom_cart_set(geom, natom, byte_mb(i_t),
      &   dbl_mb(i_c), dbl_mb(i_q)))
-     &   call errquit('leps_putgeom: coord error',0,GEOM_ERR)
+     &   call errquit('md_data_putgeom: coord error',0,GEOM_ERR)
 
       if(.not.geom_rtdb_store(rtdb,geom,"geometry"))
-     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+     + call errquit('md_driver:Failed to store geom to rtdb',0,RTDB_ERR)
+
+      if (.not. geom_destroy(geom))
+     & call errquit('md_driver_getgeom: failed geom_destroy',
+     & 0,GEOM_ERR)
 
       end
    

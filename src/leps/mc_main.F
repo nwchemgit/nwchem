@@ -1,4 +1,4 @@
-      function mc_main(rtdb)
+      function mc_main(rtdb,grad,thr)
       implicit none
       integer rtdb
 
@@ -13,11 +13,12 @@
 #include "const_data.fh"
 
       logical mc_main
-      logical md_driver, leps_gradient,mc_driver,mc_init
+      logical md_driver,mc_driver,mc_init
       integer mcsteps
-      external leps_gradient      
+      logical grad
+      external grad
+
       logical status
-      integer geom
       integer natom 
       integer c_start
       integer vel_init,acc_init
@@ -25,23 +26,25 @@
       logical mc_data_set_ifirc, mc_data_get_ifirc
       integer mc_data_get_forside, mc_data_get_forside0
       integer mc_data_get_backside, mc_data_get_backside0
-      logical mc_data_set_backside0, mc_data_set_forside0
-      logical mc_data_set_backside, mc_data_set_forside 
-      integer i,j,k,l,naccept 
+      integer i,j,k,naccept 
       integer c_array, vel, acc, prp 
       integer mc_data_get_i_c_array, md_data_get_i_v, md_data_get_i_a 
       integer md_data_get_i_c, mc_data_get_i_in_vel,mc_data_get_i_in_acc
       integer mc_data_get_natom, mc_data_get_i_prp
       integer tag,charge,md_data_get_i_t,md_data_get_i_q
-      character*64 thr
+      character*32 thr
       logical ircflag,mc_data_set_forward,mc_data_set_backward
       integer i_sc, mc_data_get_i_sc, nonreact,reactive,reverse
       integer i_s, mc_data_get_i_s,mc_data_get_mcsteps
       double precision avg,rc,temp,mc_data_get_temp
       logical md_data_set_temp
+      logical mc_data_set_side_prev, mc_data_set_nxing
+      logical mc_data_set_trajnum
       double precision mdtemp,mdtemp10, md_data_get_temp
       logical dbug
 
+         
+      write(*,*)  '\n\t\t METROPOLIS MONTE CARLO RECROSSING \n'
       dbug=.false. 
       forward=.true.
       backward=.false.
@@ -50,9 +53,9 @@ c      status=mc_data_set_forward(forward)
 c      status=mc_data_set_backward(backward)
       status=mc_driver(rtdb,naccept)
 
-      write(*,*) 'In MC_main, after mc_driver: naccept: ', naccept  
+      write(*,*) 'Number of initial points generated: ', naccept  
       ircflag=.true.
-      thr='leps'
+c      thr=theory
       mdtemp10 =10.0 
       mdtemp = 298.15
       natom=mc_data_get_natom()
@@ -87,11 +90,11 @@ c         do k=1,3*natom
 c            write(*,*) dbl_mb(c_array+(i-1)*3*natom+k-1)
 c         enddo
 c      enddo  
-      write(*,*) 'Starting IRC '
+      write(*,*) '\nStarting the IRC trajectory\n'
 c  ---- do the IRC trajectory first,  at low temp
       status=md_data_set_temp(mdtemp10)
 C --- set vel and acc      
-      status=mc_init(rtdb,leps_gradient,ircflag)
+      status=mc_init(rtdb,grad,ircflag)
 
       c_array=mc_data_get_i_c_array()
       vel_init=mc_data_get_i_in_vel()
@@ -110,7 +113,7 @@ c      write(*,*) 'Allocation for i_sc ', i_sc
          enddo
        enddo
       endif
-      status=mc_data_set_backside0(0)
+c      status=mc_data_set_backside0(0)
 c      vel_init=mc_data_get_i_in_vel()
 c      acc_init=mc_data_get_i_in_acc()
 
@@ -126,7 +129,13 @@ c      write(*,*) 'Velocities forward:'
 c      do k=1,3*natom
 c          write(*,*) dbl_mb(vel_init+k-1)
 c      enddo
-      status=md_driver(rtdb,leps_gradient,thr,0)      
+      status=mc_data_set_side_prev(0)
+      status=mc_data_set_nxing(0)
+      status=mc_data_set_trajnum(0)
+      status=md_driver(rtdb,grad,thr)      
+      status=mc_data_set_side_prev(0)
+      status=mc_data_set_nxing(0)
+
 C --- run the IRC traj backward
       call md_set(rtdb)
       do k=1,3*natom
@@ -141,19 +150,20 @@ c      do k=1,3*natom
 c          write(*,*) dbl_mb(vel_init+k-1)
 c      enddo
 
-      status=md_driver(rtdb,leps_gradient,thr,0) 
+      status=md_driver(rtdb,grad,thr) 
 C --- get geometru from the big array in mc_driver
 C--- the first one is always the TS
-      write(*,*) 'Done with IRC'
+C      write(*,*) 'Done with IRC'
       ircflag=.false.
       status=mc_data_set_ifirc(.false.)
-      status=mc_init(rtdb,leps_gradient,ircflag)
+      status=mc_init(rtdb,grad,ircflag)
       do i=1,naccept+1
         write(*,*) 'traj, prp: ',i,dbl_mb(prp+i-1)
       enddo
-      write(*,*) 'In MC_main, after mc_init' 
-      write(*,*) 'In MC main mdtemp, mdtemp10:', mdtemp, mdtemp10
-      write(*,*) 'STARTING TRAJECTORIES '
+C      write(*,*) 'In MC_main, after mc_init' 
+C      write(*,*) 'In MC main mdtemp, mdtemp10:', mdtemp, mdtemp10
+C      return
+      write(*,*) 'STARTING MD TRAJECTORIES '
 
       status=mc_data_set_forward(.true.)
       status=mc_data_set_backward(.false.)
@@ -191,12 +201,17 @@ C ---- set the appropriate coordinate
         endif
         do  j=1,3
           if (forward.and. .not.backward) then
-           write(*,*) 'Forward: traj',i  
-            status=md_driver(rtdb,leps_gradient,thr,i)
+            write(*,*) 'Forward: traj',i  
+            status=mc_data_set_side_prev(0)
+            status=mc_data_set_nxing(0)
+            status=mc_data_set_trajnum(i)
+            status=md_driver(rtdb,grad,thr)
             forward=.false.
             backward=.true. 
             status=mc_data_set_forward(forward)
             status=mc_data_set_backward(backward)
+            status=mc_data_set_side_prev(0)
+            status=mc_data_set_nxing(0)
 
           elseif(backward.and. .not.forward) then
             write(*,*) 'Backward: traj',i
@@ -208,12 +223,16 @@ C          get the initial conditions generated in the forward run
               dbl_mb(vel+k-1)=-dbl_mb(vel_init+(i-1)*3*natom+k-1)
               dbl_mb(acc+k-1)=-dbl_mb(acc_init+(i-1)*3*natom+k-1)
             enddo
-            status=md_driver(rtdb,leps_gradient,thr,i)
+            status=mc_data_set_side_prev(0)
+            status=mc_data_set_nxing(0)
+            status=md_driver(rtdb,grad,thr)
             forward=.false.
             backward=.false.
+            status=mc_data_set_side_prev(0)
+            status=mc_data_set_nxing(0)
         write(*,*) 'traj ifirc forside0 backside0 forside backside ', i,
      &  mc_data_get_ifirc(),
-     &  mc_data_get_forside0(), mc_data_get_backside0(),
+     &  mc_data_get_forside0(),mc_data_get_backside0(),
      &  mc_data_get_forside(),mc_data_get_ backside()
 
             status=mc_data_set_forward(forward)
@@ -235,18 +254,17 @@ c     &  mc_data_get_forside0(), mc_data_get_backside0(),
 c     &  mc_data_get_forside(),mc_data_get_ backside()  
       enddo
       write(*,*) ' Recrossing Results:'
-      write(*,*) 'Handles: i_sc ',i_sc, ' prp ', prp
       nonreact=0
       reactive=0
       reverse=0
       do i=1,naccept+1
-        write(*,*) 'traj  sidef sideb ',i, int_mb(i_sc+2*i+1), 
-     &               int_mb(i_sc+2*i+2) 
-        if (int_mb(i_sc+2*i+2).eq.int_mb(i_sc+2*i+1)) then
+        write(*,*) 'traj  sidef sideb ',i, int_mb(i_sc+2*i), 
+     &               int_mb(i_sc+2*i+1) 
+        if (int_mb(i_sc+2*i).eq.int_mb(i_sc+2*i+1)) then
            nonreact=nonreact+1
            dbl_mb(prp+i-1)=0.0 
-           write(*,*) 'non-reactive traj: ', i 
-        else if (int_mb(i_sc+2*i+1).eq.mc_data_get_forside0()) then
+           write(*,*) 'trajectory number for non-reactive traj: ', i 
+        else if (int_mb(i_sc+2*i).eq.mc_data_get_forside0()) then
            reactive=reactive+1
            dbl_mb(prp+i-1)=0.5*dbl_mb(prp+i-1)
         else
@@ -264,6 +282,7 @@ c     &  mc_data_get_forside(),mc_data_get_ backside()
         write(*,*) 'adding prp :',j,' val: ',dbl_mb(prp+j-1)    
         avg=avg+dbl_mb(prp+j-1)
       enddo
+
       avg=avg/(mcsteps+1)
       temp = mc_data_get_temp()
       rc =avg/sqrt((temp*boltz)/(twopi))
@@ -272,6 +291,9 @@ c     &  mc_data_get_forside(),mc_data_get_ backside()
      &            reactive,reverse
       write(*,*)  ' Average prp value: ', avg
       write(*,*)  ' Recrossing coef: ',rc
+C      write(*,*)  'Sidecount i_sc: ', i_sc
+      call mc_data_free_all()
+      call md_data_free_all() 
       return    
       end
 

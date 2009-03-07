@@ -1,4 +1,4 @@
-      logical function md_driver(rtdb,grad,thr,trajnum)
+      logical function md_driver(rtdb,grad,thr)
       implicit none
       integer rtdb
 
@@ -17,42 +17,37 @@
       integer md_data_get_i_c, md_data_get_i_m, md_data_get_i_q
       integer md_data_get_i_t, md_data_get_i_v, md_data_get_i_a
       integer md_data_get_i_b, md_data_get_i_d, md_data_get_i_f
-      integer md_data_get_natom, md_data_get_nsteps
+      integer md_data_get_natom, md_data_get_nsteps,mc_data_get_trajnum
       double precision md_data_get_timestep, md_data_get_temp 
-      logical status,md_data_set_temp,md_set
 
       logical grad
       external grad
       integer coor,mass,bq,tag,vel,acc,bterm,dterm,frc
-      integer step, nsteps,naccept
+      integer step, nsteps
       double precision dt,ek,temp 
       double precision gks_gasdev,gasdev,seed
       external gks_gasdev
 
       character*64 theory,blanks
-      character*32 thr,task,blanks32
+      character*32 thr,task
       data blanks(1:64) /' '/
-      data blanks32(1:32)/' '/
       logical restart
-      integer i 
-      integer nxing,side_prev
       logical forward,backward
       logical mc_data_get_forward,mc_data_get_backward,mc_data_get_ifirc
+
+      write(*,*) '\n               MD-DRIVER PREDICTOR-CORRECTOR\n'
       seed = -1234
-      write(*,*) 'inside md_driver'
       gasdev=gks_gasdev(seed)
 
-
+      trajnum=mc_data_get_trajnum()
       restart=.false.
       theory=blanks
-c      thr=blanks32
       task=':gradient'
       call concat(thr,task,theory) 
       dt = 0.5  ! time step
       ek=0.0 ! kinetic energy
-      nsteps=200 
+      nsteps=100 
 
-c      double precision eleps, md_driver1
       md_driver=.true.
       forward= mc_data_get_forward()
       backward=mc_data_get_backward()
@@ -60,24 +55,24 @@ c      double precision eleps, md_driver1
       nsteps = md_data_get_nsteps()
       dt = md_data_get_timestep()   
       temp =md_data_get_temp()
-      write(*,*) 'Md_driver:input params', nsteps, dt, temp
+      write(*,*) '\nInput parameters: \nNumber of steps, stepsize, 
+     $ temperature:   \n',
+     $   nsteps, dt, temp
 c
+      write (*,*) 'Theory: ', theory
       if (.not.restart.and.mc_data_get_ifirc().and.forward) then
        write(*,*) 'Opening xyz and rest files on traj ',trajnum  
        open(unit=10,file='traj.xyz',status='new')
        open(unit=11,file='restart.pun',status='new')
       else
-       open(unit=10,file='traj.xyz',status='old')
+       open(unit=10,file='traj.xyz',status='old',ACCESS='append')
        open(unit=11,file='restart.pun',status='old')
-c       rewind(unit=10)
-c       rewind(unit=11)
-
       endif
 
 cc     create geometry object 
-      if (.not. geom_create(geom, 'geometry'))
-     & call errquit('leps_getgeom: failed creating geometry',
-     & 0,GEOM_ERR)
+c      if (.not. geom_create(geom, 'geometry'))
+c     & call errquit('md_driver_getgeom: failed creating geometry',
+c     & 0,GEOM_ERR)
 
 C     Get the handles for everything
       natom=md_data_get_natom()
@@ -93,16 +88,15 @@ C     Get the handles for everything
 
 c     end of initialization
 c      write(*,*) 'Calling MD test:'
-c      call md_test1(rtdb)
-      write(*,*) 'Starting MD'
+c      write(*,*) 'Starting MD:'
       if (restart) then
       write(*,*) 'Restarting from punch file'
              call read_punch (11,natom,nsteps,step,dt,dbl_mb(mass),
      &            dbl_mb(coor),dbl_mb(vel),dbl_mb(acc),dbl_mb(bterm),
      &            dbl_mb(dterm),byte_mb(tag))
       endif
-      nxing=0
-      side_prev=0
+C      nxing=0
+C      side_prev=0
 
 C-------- print the first point
       call print_coord(10,natom,dbl_mb(coor),byte_mb(tag))
@@ -113,11 +107,13 @@ C-------- this is where the MD loop starts
 
          call predict(natom,dt,dbl_mb(coor),dbl_mb(vel),dbl_mb(acc),
      &             dbl_mb(bterm),dbl_mb(dterm))
-
+        write(*,*) 'Rtdb is 1: ', rtdb
 C---- Add the predicted coordinates to the rtdb
-
-       call md_data_geom_set(rtdb,geom)
-
+        write(*,*) 'Done Predicting step :',step
+c       call md_data_geom_copy(rtdb,geom)
+       call md_data_geom_set(rtdb)
+        write(*,*) 'MD-data-geom-set :',step
+        write(*,*) 'Rtdb is 2: ', rtdb
 C --- calculate forces for predicted coords             
        if (.not. grad(rtdb)) 
      & call errquit('md_gradient: no grad calculated ', 0, RTDB_ERR)
@@ -130,28 +126,33 @@ C --- calculate forces for predicted coords
 
          call correct(natom,dt,dbl_mb(mass),dbl_mb(coor),dbl_mb(vel),
      &        dbl_mb(acc), dbl_mb(bterm),dbl_mb(dterm),dbl_mb(frc),ek)
+         write(*,*) 'Correcting step done:',step
          call print_coord(10,natom,dbl_mb(coor),byte_mb(tag)) 
-
+         write(*,*) 'Attempt to print:',step
          if (mod(step,10).eq.0.0) then
              rewind(11)  
              call punch (11,natom,nsteps,step,dt,dbl_mb(mass),
      &            dbl_mb(coor),dbl_mb(vel),dbl_mb(acc),dbl_mb(bterm),
      &            dbl_mb(dterm),byte_mb(tag))
          endif    
+      call crossing(natom,dbl_mb(coor))
+      write(*,*) 'Attempt to punch:',step
+      write(*,*) 'Attempt to count crossing:',step
       enddo
 C ---- End of MD_loop      
-      call crossing(natom,dbl_mb(coor),trajnum,side_prev)
-
-      if (.not. geom_destroy(geom))
-     & call errquit('leps_getgeom:  geom_destroy failed',
-     & 911,GEOM_ERR)
+c      call crossing(natom,dbl_mb(coor))
+ 
+c      if (.not. geom_destroy(geom))
+c     & call errquit('md_driver_getgeom:  geom_destroy failed',
+c     & 911,GEOM_ERR)
       
 c     close(unit=10)
       if (backward) then 
         write(10,*) 'end of traj foreard/backward' 
       endif
+      close(unit=10)
       close(unit=11)
-      write(*,*) 'END OF TRAJECTORY, side is :',side_prev
+      write(*,*) 'END OF TRAJECTORY :',mc_data_get_trajnum()
          return
       end
 
@@ -167,11 +168,6 @@ C ---- dt# are the Taylor expansion series terms dt1=dt, dt2=dt^2/2, dt3=dt^3/6 
 c    *******************************************************************
 
 c       write(*,*) 'In predictor:'
-c       do i=1,n
-c          do j=1,3
-c           write (*,*) r(i,j),v(i,j),a(i,j),b(i,j),c(i,j)
-c          enddo
-c       enddo   
        dt1 = dt
        dt2 = dt1 * dt / 2.0
        dt3 = dt2 * dt / 3.0
@@ -245,7 +241,7 @@ c    *******************************************************************
        character*16 t(n)
        cnv=1.889725989
        if (rfile.eq.10) then
-        write(rfile,*) '3'
+        write(rfile,*) n 
         write(rfile,*) 
        endif  
        do i=1,n
@@ -266,14 +262,9 @@ C
  
 C Find the first nonblank in the file name.
 C
-      write(*,*) 'str1: ',str1
-      write(*,*) 'str2: ',str2
-      write(*,*) 'str: ',str
-c      i1=1
-c      j=1
-c      Do while ((j .le. len(str1)) .and. (str1(j:j) .eq. ' '))
-c        j=j+1
-c      enddo
+c      write(*,*) 'str1: ',str1
+c      write(*,*) 'str2: ',str2
+c      write(*,*) 'str: ',str
 C
 C Now concatenate the file name.
 C
@@ -285,11 +276,6 @@ c         i1 = i1 + 1
          i=i+1
       enddo
 C Find the first nonblank in the file type.
-C
-c      j=1
-c      Do while ((j .le. len(str2)) .and. (str2(j:j) .eq. ' '))
-c        j=j+1
-c      enddo
       i1=i 
       j=1
       do while ((j .le. len(str2)) .and. (str2(j:j) .ne. ' '))
@@ -298,7 +284,7 @@ c      enddo
             j=j+1
       enddo
 
-      write (*,*) 'Long string : ', str
+c      write (*,*) 'Long string : ', str
       write (*,*)
       end
       subroutine punch (rfile,n,nsteps,step,dt,mass,c,v,a,b,d,t)
@@ -308,23 +294,6 @@ c      enddo
         double precision dt
         character*16 t(n)  
          write(rfile,*) n,nsteps,step,dt,mass,c,v,a,b,d,t
-c        write(rfile,*) 'natom, md steps, curr. step, time step:'
-c        write(rfile,*)  n,nsteps,step,dt
-c        write(rfile,*) 'mass' 
-c        do i =1,n
-c          write(rfile,*) t(i),mass(i)
-c        enddo
-c        write(rfile,*) 'coordinates'
-c        call print_coord(rfile,n,c,t)
-c        write(rfile,*) 'velocities'
-c        call print_coord(rfile,n,v,t)
-c        write(rfile,*) 'accelerations'
-c        call print_coord(rfile,n,a,t)
-c        write(rfile,*) 'b-term'
-c        call print_coord(rfile,n,b,t)
-c        write(rfile,*) 'd-terms'
-c        call print_coord(rfile,n,d,t)
-c        write(rfile,*) 'End of restart file'
       end
 
       subroutine read_punch(rfile,n,nsteps,step,dt,mass,c,v,a,b,d,t)

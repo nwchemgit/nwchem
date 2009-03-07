@@ -6,12 +6,12 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
       integer rtdb
-        if(.not. rtdb_get(rtdb,'leps:eigenvalues',mt_dbl,3*natom,
+        if(.not. rtdb_get(rtdb,'mc_data:eigenvalues',mt_dbl,3*natom,
      &      dbl_mb(i_eval)))
      &      call errquit('mc_data:rtdb_get of eigenvalues failed',
      &      0, RTDB_ERR)
 
-        if(.not. rtdb_get(rtdb,'leps:eigenvectors',mt_dbl,9*natom*natom,
+        if(.not. rtdb_get(rtdb,'mc_data:eigenvectors',mt_dbl,9*natom**2,
      &      dbl_mb(i_evec)))
      &      call errquit('mc_data:rtdb_get of eigenvectors failed',
      &      0, RTDB_ERR)
@@ -34,12 +34,12 @@ c     &      call errquit('mc_data:rtdb_get tst_coord',0, RTDB_ERR)
 
 
       if (.not. geom_masses_get(geom,natom,dbl_mb(i_m) ))
-     & call errquit('leps_getgeom:  mass error',0,GEOM_ERR)
+     & call errquit('mc_data_getgeom:  mass error',0,GEOM_ERR)
 
       if (.not. geom_cart_get(geom,natom, byte_mb(i_t),
      &                         dbl_mb(i_c),dbl_mb(i_q) ))
-     & call errquit('leps_getgeom: coord error',0,GEOM_ERR)
-       write(*,*) 'mc_data geom_copy:Filled cartesians and masses'
+     & call errquit('mc_data_getgeom: coord error',0,GEOM_ERR)
+c       write(*,*) 'mc_data geom_copy:Filled cartesians and masses'
 
 
       end
@@ -62,18 +62,18 @@ c     &      call errquit('mc_data:rtdb_get tst_coord',0, RTDB_ERR)
 
       integer n
 
-      write(*,*) 'In mc  data allocate:n,mcsteps: ', n, mcsteps 
+c      write(*,*) 'In mc  data allocate:n,mcsteps: ', n, mcsteps 
       if (.not. ma_alloc_get(mt_int, (mcsteps+2)*2, 'sidecount' ,
      & h_sc,i_sc))
      & call errquit('mc_data: array of sidecount not allocated',
      & 1,MA_ERR)
 
-      if (.not. ma_alloc_get(mt_dbl, (mcsteps+1)*3*n, 'coordinate' ,
+      if (.not. ma_alloc_get(mt_dbl, (mcsteps+2)*3*n, 'coordinates' ,
      & h_in,i_in))
      & call errquit('mc_data: array of coords not allocated',
      & 3*n,MA_ERR)
 
-      if (.not. ma_alloc_get(mt_int, mcsteps+1, 'mcsteps' ,
+      if (.not. ma_alloc_get(mt_int, mcsteps+2, 'mcsteps' ,
      & h_s,i_s))
      & call errquit('mc_data: array of properties not allocated',
      & 1,MA_ERR)
@@ -97,11 +97,11 @@ c     &      call errquit('mc_data:rtdb_get tst_coord',0, RTDB_ERR)
 c allocate memory for the eigenvalues and eigenvectors
       if (.not. ma_alloc_get(mt_dbl, 3*n, 'eigenvalues',
      & h_eval,i_eval))
-     & call errquit('leps_geteigenvalue: not allocated',
+     & call errquit('mc_data_geteigenvalue: not allocated',
      & n,MA_ERR)
       if (.not. ma_alloc_get(mt_dbl, 9*n*n, 'eigenvectors',
      & h_evec,i_evec))
-     & call errquit('leps_geteigenvectors: not allocated',
+     & call errquit('mc_data_geteigenvectors: not allocated',
      & n,MA_ERR)
 
       if (.not. ma_alloc_get(mt_dbl, 3*n, 'coords',
@@ -113,7 +113,7 @@ c allocate memory for the eigenvalues and eigenvectors
      & h_ctst,i_ctst))
      & call errquit('crossing tst allocate: not allocated',
      & n,MA_ERR)
-      write(*,*) 'In mc_data_allocatte: i_sc: ',i_sc
+c      write(*,*) 'In mc_data_allocatte: i_sc: ',i_sc
       end
 
       subroutine mc_data_allocate_vel_acc()
@@ -123,20 +123,78 @@ c allocate memory for the eigenvalues and eigenvectors
 #include "global.fh"
 #include "mafdecls.fh"
 
-      if (.not. ma_alloc_get(mt_dbl, (naccept+1), 'property' ,
+      if (.not. ma_alloc_get(mt_dbl, (naccept+2), 'property' ,
      & h_prp,i_prp))
      & call errquit('mc_data: array of property not allocated',
      & 0,MA_ERR)
        
-      if (.not. ma_alloc_get(mt_dbl, (naccept+1)*3*natom, 'velocity' ,
+      if (.not. ma_alloc_get(mt_dbl, (naccept+2)*3*natom, 'velocity' ,
      & h_in_vel,i_in_vel))
      & call errquit('mc_data: array of init vels not allocated',
      & 3*natom,MA_ERR)
 
-      if (.not. ma_alloc_get(mt_dbl, (naccept+1)*3*natom,'acceleration',
+      if (.not. ma_alloc_get(mt_dbl, (naccept+2)*3*natom,'acceleration',
      & h_in_acc,i_in_acc))
      & call errquit('mc_data: array of init acc not allocated',
      & 3*natom,MA_ERR)
+      end
+
+
+      function mc_data_get_side_prev()
+      implicit none
+#include "mc_data.fh"
+      integer mc_data_get_side_prev
+
+      mc_data_get_side_prev = side_prev
+
+      end
+
+      function mc_data_set_side_prev(sp)
+      implicit none
+#include "mc_data.fh"
+      logical mc_data_set_side_prev
+      integer sp
+
+      side_prev=sp
+      mc_data_set_side_prev=.true. 
+      end
+
+      function mc_data_get_nxing()
+      implicit none
+#include "mc_data.fh"
+      integer mc_data_get_nxing
+
+      mc_data_get_nxing = nxing
+
+      end
+
+      function mc_data_set_nxing(nx)
+      implicit none
+#include "mc_data.fh"
+      logical mc_data_set_nxing
+      integer nx
+
+      nxing=nx
+      mc_data_set_nxing=.true.
+      end
+
+      function mc_data_get_trajnum()
+      implicit none
+#include "mc_data.fh"
+      integer mc_data_get_trajnum
+
+      mc_data_get_trajnum = trajnum 
+
+      end
+
+      function mc_data_set_trajnum(tn)
+      implicit none
+#include "mc_data.fh"
+      logical mc_data_set_trajnum
+      integer tn
+
+      trajnum=tn
+      mc_data_set_trajnum=.true.
       end
 
       function mc_data_get_i_prp()
@@ -276,7 +334,7 @@ c allocate memory for the eigenvalues and eigenvectors
      & dbl_mb(i_c), dbl_mb(i_q)))
      & call errquit('mc_driver_getgeom: coord error',0,GEOM_ERR)
       if (.not. geom_masses_get(geom,natom,dbl_mb(i_m) ))
-     & call errquit('leps_getgeom:  mass error',0,GEOM_ERR)
+     & call errquit('mc_data_getgeom:  mass error',0,GEOM_ERR)
 
       if (.not. geom_cart_get(geom, natom, byte_mb(i_t),
      & dbl_mb(i_in), dbl_mb(i_q)))
@@ -512,4 +570,40 @@ c allocate memory for the eigenvalues and eigenvectors
       mc_data_get_naccept=naccept
       end
 
+      subroutine mc_data_free_all()
+      implicit none
+#include "mc_data.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
 
+      if(.not.ma_free_heap(h_c))
+     &     call errquit('memory deallocation:coord',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_q))
+     &     call errquit('memory deallocation:charge',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_t))
+     &     call errquit('memory deallocation:tag',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_m))
+     &     call errquit('memory deallocation:mass',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_f))
+     &     call errquit('memory deallocation:force',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_eval))
+     &     call errquit('memory deallocation:eigenvalues',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_evec))
+     &     call errquit('memory deallocation:eigenvectors',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_ctst))
+     &     call errquit('memory deallocation:ctst',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_in))
+     &     call errquit('memory deallocation:h_in',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_s))
+     &     call errquit('memory deallocation:s',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_sc))
+     &     call errquit('memory deallocation:sc',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_prp))
+     &     call errquit('memory deallocation:prp',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_in_vel))
+     &     call errquit('memory deallocation:in_vel',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_in_acc))
+     &     call errquit('memory deallocation:in_acc',0,RTDB_ERR)
+
+      end

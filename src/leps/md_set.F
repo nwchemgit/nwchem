@@ -32,28 +32,27 @@ c      character*64 theory
 c      write(*,*) 'inside md_set, theory',theory
 
 c      set input parameters 
-      write(*,*) ' In MD_SET '
+c      write(*,*) ' In MD_SET '
       call md_data_inp_set(rtdb)
 c      nsteps = md_data_get_nsteps()
 c      dt = md_data_get_timestep()   
 c      temp =md_data_get_temp()
-      write(*,*) 'input params set'
+c      write(*,*) 'input params set'
 c
 
 cc     create geometry object 
       if (.not. geom_create(geom, 'geometry'))
-     & call errquit('leps_getgeom: failed creating geometry',
+     & call errquit('md_set_getgeom: failed creating geometry',
      & 0,GEOM_ERR)
 cC     load geometry into the object
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     & call errquit('leps_getgeom: no geometry',
+     & call errquit('md_set_getgeom: no geometry',
      & 0,RTDB_ERR)
 
 cc    Set the natom, it is needed for all other allocations
 c      call md_data_set_natom(rtdb,geom)
       natom=md_data_get_natom()
 cc     allocate memory for coordinates
-c      call md_data_allocate(natom)
 c      write(*,*) 'Md_set: Done with all the allocation:,natom=',natom
 
 C     Get the handles for everything
