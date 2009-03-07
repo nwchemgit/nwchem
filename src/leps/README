@@ -1,0 +1,63 @@
+JAN 17, 2009 Current state:
+
+Added IRC so that it runs at low temperature and it finishes OK. 
+
+In MD_DRIVER need to fix the punch/restart file "
+In MD_DRIVER need to figure out how and when to call crossing
+Make sure crossing does not error out
+
+JAN 27, 2009 Current state
+
+Punch/restart seems to work OK
+When crossing is being called the code seg. faults. 
+
+FEB 4, 2009
+
+The results for FeHFe and OHO seems to be reproduced correctlly. 
+iNeed to figure out why Traj.txt does not contain the entire run, seems to only keep the last trajectory.
+
+FEB 5, 2009
+
+The traj.txt writing has been fixed. This on seem sto be working fine, so it was commited to CVS. 
+The next steps will include cleaning up of the code from unused variables, print statements and proper memmory dealocation.
+
+FEB 11, 2009
+
+crossing, mc_main and md_driver have been modified so that recrossing is tracked at each step. Seems to work fine.
+Removed passing traj_num to md_driver and then to crossing. It is set properly to be varriable in mc_data
+Next step:
+Double check the inital conditions for the start of MD
+change the restart, but parhaps starting a BIGMol run is also a good idea.
+
+FEB 20, 2009
+The hard-coded leps_gradient needs to be removed and replace by a proper gradient function
+
+FEB 21, 2009
+The gradient function and theory is now passed as an argument from task_dynamics. Not hardcoded.
+
+MARCH 02, 2009
+BUG: rtdb gets corrupted in MD run when SCF is used instead of LEPS.Error was first detected when running big molecule, but is reproducible with h3 system as well. 
+  
+The bug is not consistently reproducible. Some times crashes after few trajectories, and other times at the first frajectory. Looks like memory issue.  
+
+Located bug in mc_init in the vay that forcees were accessed. So acceleration generated are garbage. Still not completelly fixed.
+
+MARCH 3, 2009
+md-init subroutine is not being used. Not sure why I keep it. 
+
+Located anouther bug in crossing (where mass array was being filled in). 
+
+Looks like code is working fine now (for big molecule), but there seems to be an issue with memory dealocation in mc_main. That is the next thing to look at.
+
+MARCH 5
+There is a memory overstepping somewhere that corrupts the sidecount memory block. Have no idea where it is.
+
+Found a bug in crossing where i_sc+2*trajnum should add 0 and 1, not 1 and 2. Looks like it is fixing the memory issue. Need to test some more.  
+
+Testing shows that now crossing is not being counted correctlly. That sounds like a logic error.
+
+MARCH 6
+Just fixed the i_sc indexing in mc_main and recrossing looks good. Running tests. 
+
+Test with LEPS and SCF on small systems completed correctlly. 
+Started test on the big system. 
