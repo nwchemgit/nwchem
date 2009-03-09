@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.190 2009-01-12 19:20:08 bert Exp $
+C     $Id: geom_input.F,v 1.191 2009-03-09 21:47:38 d3p307 Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -470,7 +470,7 @@ c
          call geom_check_input_quants
      &        (tags,charge,ncenter,1.0d-12,'charge')
          call geom_check_input_quants
-     &        (tags,mass,ncenter,1.0d-8,'mass')
+     &        (tags,mass,ncenter,1.0d8,'mass')
 c
          if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
      $        call errquit('geom_input: geom_cart_set failed', 0,
