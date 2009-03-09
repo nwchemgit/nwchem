@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.52 2008-09-30 19:54:00 d3p307 Exp $
+* $Id: util_legal.F,v 1.53 2009-03-09 22:20:40 niri Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000             *
 *       2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008               *
@@ -174,8 +174,8 @@ c
      &    /,/,
      + 10x,'E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,',
      + ' T. P. Straatsma,',/,
-     + 10x,'M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond,',
-     + ' P. Nichols,' ,/,
+     + 10x,'M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond,', 
+     + ' J. Autschbach, P. Nichols,' ,/,
      + 10x,'S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,'
      + ' R. J. Harrison,',/,
      + 10x,'M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju,',
