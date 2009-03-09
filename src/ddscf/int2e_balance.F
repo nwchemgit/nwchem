@@ -1,6 +1,6 @@
       subroutine int2e_file_balance
 *
-* $Id: int2e_balance.F,v 1.8 2008-06-20 19:01:53 windus Exp $
+* $Id: int2e_balance.F,v 1.9 2009-03-09 23:10:52 d3p307 Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -21,7 +21,7 @@ c
       double precision newfilelen, used
 c
       integer maxproc
-      parameter (maxproc = 2048)
+      parameter (maxproc = 200000)
       integer info(2,0:maxproc-1) ! 1=node#, 2=nrec
       logical int2e_packed_buf_read, int2e_packed_buf_write
      $     , int2e_file_rewind
