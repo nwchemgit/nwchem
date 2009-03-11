@@ -126,6 +126,7 @@ dft
   convergence energy 1.000000E-06
   convergence density 1.000000E-05
   convergence gradient 1E-05
+  convergence lshift 0
   iterations 100  
   mulliken
 end
