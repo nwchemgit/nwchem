@@ -1,6 +1,6 @@
       logical function oniom_energy(rtdb)
 *
-* $Id: oniom.F,v 1.12 2003-10-17 22:54:49 carlfahl Exp $
+* $Id: oniom.F,v 1.13 2009-03-12 20:42:05 niri Exp $
 *
       implicit none
       integer rtdb
@@ -384,7 +384,7 @@ c
      $     ('oniom: getting ncent',0, GEOM_ERR)
       if (nat .ne. nattest) call errquit
      $     ('oniom: model does not have correct symmetry', 0, GEOM_ERR)
-      ignore = geom_zmtmak(geom,.false.)
+      ignore = geom_zmtmak(rtdb, geom, .false.)
       if (.not. geom_rtdb_store(rtdb, geom, 'oniom model'))
      $     call errquit('oniom: failed storing geometry',0, RTDB_ERR)
       if (ga_nodeid().eq.0 .and.
@@ -433,7 +433,7 @@ c
          if (nat .ne. nattest) call errquit
      $        ('oniom: inter does not have correct symmetry', 0,
      &       GEOM_ERR)
-         ignore = geom_zmtmak(geom,.false.)
+         ignore = geom_zmtmak(rtdb, geom, .false.)
          if (.not. geom_rtdb_store(rtdb, geom, 'oniom inter'))
      $        call errquit('oniom: failed storing geometry',0, RTDB_ERR)
          if (ga_nodeid().eq.0 .and.

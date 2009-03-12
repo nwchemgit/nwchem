@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.117 2005-09-01 00:47:51 marat Exp $
+* $Id: opt_drv.F,v 1.118 2009-03-12 20:42:05 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -968,7 +968,7 @@ c
             if (source .eq. 'autoz') then
                if (oprint) write(6,777)
  777           format(/' Regenerating redundant internal coordinates'/)
-               if (.not. geom_zmtmak(geom,oprint))
+               if (.not. geom_zmtmak(rtdb, geom, oprint))
      $              call errquit('driver: regeneration of autoz failed',
      $              0, GEOM_ERR)
                if (oprint) write(6,*)
