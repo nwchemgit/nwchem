@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.163 2009-03-05 23:49:21 d3p975 Exp $
+c $Id: tce_energy.F,v 1.164 2009-03-16 03:49:57 jhammond Exp $
 c 
       implicit none
 #include "mafdecls.fh"
@@ -8856,7 +8856,7 @@ c     xxx, xxy, xxz, yyx, xyz, zzx, yyy, zzy, zzz
  9501 format(/,1x,A,' hyperpolarizability / au ')
 c Use 9431 for frequency
  9502 format(1x,'-----------------------------------------------')
- 9503 format(1x,'beta(',a1,',',a1,',',a1,') = ',f13.7,a)
+ 9503 format(1x,'beta(',a1,',',a1,',',a1,') = ',f18.9,a)
  9504 format(1x,'Static Hyperpolarizability')
  9505 format(1x,'Second Harmonic Generation (SHG)')
  9506 format(1x,'Optical Rectification (OR)')

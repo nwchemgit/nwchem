@@ -880,7 +880,7 @@ c
      4            'are surely wrong.',/)
  9440 format(1x,A3,' axis ( ',A4,'symmetry)')
  9502 format(1x,'-----------------------------------------------')
- 9503 format(1x,'beta(',a1,',',a1,',',a1,') = ',f13.7,a)
+ 9503 format(1x,'beta(',a1,',',a1,',',a1,') = ',f18.9,a)
  9504 format(1x,'Static Hyperpolarizability')
  9505 format(1x,'Second Harmonic Generation (SHG)')
  9506 format(1x,'Optical Rectification (OR)')
