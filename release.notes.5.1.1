@@ -1,0 +1,42 @@
+NWChem Version 5.1.1 Release Notes
+(Also available at 
+http://www.emsl.pnl.gov/docs/nwchem/release-notes/release.notes.5.1.1.html)
+
+NOTE: These release notes are not a substitute for reading the User Manual!
+
+They are meant to give a thumbnail sketch of the new capabilities and bug
+fixes that are available in NWChem Version 5.1.1. When there is a conflict
+between the release notes and the User Manual, the User Manual takes
+precedence. 
+
+DFT:
+  o The DFT-D approach is now available. This allows one to add long-range dispersive corrections to DFT in an empirical fashion.
+
+DNTMC:
+  o New Dynamical Nucleation Theory Monte Carlo (DNTMC) module to determine
+probability distributions and evaporation rates of molecular clusters
+
+
+NBO:
+  o Hooks are reinstated that enable users to compile NBO into NWChem
+
+NWPW:
+  o Fractional occupation of molecular orbitals added to PSPW
+  o 2d processor grid for PSPW
+  o Born-Oppenheimer dynamics option added to PSPW (i.e. task pspw Born-Oppenheimer)
+  o Unnecessary duplication of the Ewald sum (ion-ion) code removed
+
+TCE:
+  o The fourth order many-body perturbation correction (MBPT4) in TCE module has been tremendously improved
+  o Additional algorithms for the 2-e integral transformation, including
+efficient and scalable spin-free out-of-core N5 algorithms
+  o Hybrid I/O schemes for both spin-orbital and spin-free calculations
+which eliminate the memory bottleneck of the 2-e integrals in favor of
+disk storage
+  o Parallel check-pointing and restart for ground-state (including
+property) calculations at the CCSD, CCSDT and CCSDTQ levels of theory
+  o Dynamic dipole polarizabilities at the CCSDTQ level using the linear
+response formalism.
+
+A general FAQ is available at
+http://www.emsl.pnl.gov/docs/nwchem/support/faq/NWChem_FAQ.html
