@@ -3,7 +3,7 @@
      2  d_trials,apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      4  target,targetsym,mult,algorithm,l_irs,k_irs)
 c
-c $Id: tddft_analysis.F,v 1.17 2003-10-17 22:58:29 carlfahl Exp $
+c $Id: tddft_analysis.F,v 1.18 2009-03-18 01:32:06 jhammond Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -60,7 +60,7 @@ c
       character*4 vname        ! Irrep name
       integer l_irs(2),k_irs(2)! Irreps of MO's
       integer nov(2)           ! Number of occupied virtual pairs
-      double precision tmom(4) ! Transition moments
+      double precision tmom(20) ! Transition moments
       double precision cntr(3) ! Center of dipole (arbitrary)
       integer target           ! Target root
       character*4 targetsym    ! Target symmetry
@@ -523,25 +523,25 @@ c
         do i=1,3
           cntr(i)=0.0d0
         enddo
-        do i=1,4
+        do i=1,20
           tmom(i)=0.0d0
         enddo
         call tddft_transfm(n,g_x,g_movecs,nbf_ao,
      1    nocc,nmo,nfc,nfv,ipol,g_tmomd,1)
         do i=1,ipol
-          call multipole_density(ao_bas_han,cntr,1,
-     1      g_tmomd(i),tmom,4)
+          call multipole_density(ao_bas_han,cntr,3,
+     1      g_tmomd(i),tmom,20)
         enddo
         if (.not.tda) then
           call tddft_transfm(n,g_y,g_movecs,nbf_ao,
      1      nocc,nmo,nfc,nfv,ipol,g_tmomd,1)
           do i=1,ipol
-            call multipole_density(ao_bas_han,cntr,1,
-     1        g_tmomd(i),tmom,4)
+            call multipole_density(ao_bas_han,cntr,3,
+     1        g_tmomd(i),tmom,20)
           enddo
         endif
         if (ipol.eq.1) then
-          do i=1,4
+          do i=1,20
             tmom(i)=tmom(i)*dsqrt(2.0d0)
           enddo
         endif
@@ -554,6 +554,12 @@ c
             write(LuOut,9210)
           else
             write(LuOut,9200) tmom(2),tmom(3),tmom(4),
+     1                        tmom(5),tmom(6),tmom(7),
+     2                        tmom(8),tmom(9),tmom(10),
+     2                        tmom(11),tmom(12),tmom(13),
+     2                        tmom(14),tmom(15),tmom(16),
+     2                        tmom(17),tmom(18),tmom(19),
+     2                        tmom(20),
      1      2.0d0/3.0d0*(tmom(2)**2+tmom(3)**2+tmom(4)**2)*apbval(n)
           endif
         endif
@@ -643,8 +649,14 @@ c
      2  /,2x,'Root',i3,1x,a7,1x,a4,f13.9,' a.u. (',f11.7,' eV)')
  9190 format(2x,
      1  '-------------------------------------------------------')
- 9200 format(5x,'Transition Moments  X',f9.5,' Y',f9.5,' Z',f9.5
-     1    ,/,5x,'Oscillator Strength',21x,f12.5)
+ 9200 format(5x,'Transition Moments    X',f9.5,'   Y',f9.5,'   Z',f9.5
+     1    ,/,5x,'Transition Moments   XX',f9.5,'  XY',f9.5,'  XZ',f9.5
+     2    ,/,5x,'Transition Moments   YY',f9.5,'  YZ',f9.5,'  ZZ',f9.5
+     3    ,/,5x,'Transition Moments  XXX',f9.5,' XXY',f9.5,' XXZ',f9.5
+     4    ,/,5x,'Transition Moments  XYY',f9.5,' XYZ',f9.5,' XZZ',f9.5
+     5    ,/,5x,'Transition Moments  YYY',f9.5,' YYZ',f9.5,' YZZ',f9.5
+     6    ,/,5x,'Transition Moments  ZZZ',f9.5
+     7    ,/,5x,'Dipole Oscillator Strength',21x,f12.5)
  9210 format(5x,'Transition Moments                    Spin forbidden'
      1    ,/,5x,'Oscillator Strength                   Spin forbidden')
  9120 format(5x,'Occ.',i3,2x,a4,'---  Virt.',i3,2x,a4,f10.5)
