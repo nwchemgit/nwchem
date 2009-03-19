@@ -1,13 +1,14 @@
 #
-# $Id: K,v 1.3 2006-07-05 23:48:03 bylaska Exp $
+# $Id: K,v 1.4 2009-03-19 21:40:21 bylaska Exp $
 #
 Comment: K pseudopotential parameters
-Comment: Fitted 12-27-04
+Comment: updated March 19 2009 
 Comment: by E.J. Bylaska, somewhat based on TM parameters
 Comment: relativistic TM, quadratic semicore
+Comment: local potential is now an s instead of a d
 
-[lmax] 2
-[locp] 2
+[lmax] 1
+[locp] 0
 [rlocal] 1.0
 <atom>
 K
@@ -22,10 +23,14 @@ K
 <solver>          pauli         <end>
 <pseudopotential> troullier-martins    <end>
 <rcut> 
-   0   3.65
-   1   3.75
+   0   4.20
+   1   4.05
    2   3.75
 <end>
 
-<semicore> 1.20   <end>
+<semicore> 2.00   <end>
 <semicore_type> quadratic <end>
+
+<comment> Parameterized on March 19,2009 TM psp <end>
+
+
