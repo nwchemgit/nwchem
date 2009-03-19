@@ -1,5 +1,5 @@
 *
-* $Id: psi_write.F,v 1.16 2008-09-16 23:42:44 bylaska Exp $
+* $Id: psi_write.F,v 1.17 2009-03-19 20:42:17 bylaska Exp $
 *
 
 *     ***********************************
@@ -138,7 +138,6 @@ c    >                       full_filename)
       implicit none 
       integer ispin,ne(2)
       double complex psi2(*)
-      integer occupation
 
 #include "mafdecls.fh"
 #include "util.fh"
@@ -146,6 +145,7 @@ c    >                       full_filename)
 
 
 *    *** local variables ***
+      integer occupation
       integer version,l
       integer nfft3d,npack1
       integer nfft(3)
@@ -221,15 +221,23 @@ c     complex*16 tmp(*)
       end if
 
 *     *** read in 3d blocks ***
+c      do n=1,(ne(1)+ne(2))
+c         call Dnexall_ntoqp(n,q,pj)
+c         if (pj.eq.taskid_j) then
+c           call Pack_c_Copy(1,psi2(1+(q-1)*npack1),dcpl_mb(tmp2(1)))
+c           call Pack_c_unpack(1,dcpl_mb(tmp2(1)))          
+c         end if
+c         call D3dB_c_write(1,6,dcpl_mb(tmp2(1)),
+c     >                         dcpl_mb(tmp(1)),pj)
+c      end do
+      if (taskid_j.eq.0) then
       do n=1,(ne(1)+ne(2))
-         call Dnexall_ntoqp(n,q,pj)
-         if (pj.eq.taskid_j) then
-           call Pack_c_Copy(1,psi2(1+(q-1)*npack1),dcpl_mb(tmp2(1)))
-           call Pack_c_unpack(1,dcpl_mb(tmp2(1)))          
-         end if
+         call Pack_c_Copy(1,psi2(1+(n-1)*npack1),dcpl_mb(tmp2(1)))
+         call Pack_c_unpack(1,dcpl_mb(tmp2(1)))          
          call D3dB_c_write(1,6,dcpl_mb(tmp2(1)),
-     >                         dcpl_mb(tmp(1)),pj)
+     >                         dcpl_mb(tmp(1)),taskid_j)
       end do
+      end if
 
 *     *** close ELCIN binary file ***
       if (taskid.eq.MASTER) then

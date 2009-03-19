@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.97 2009-02-24 21:30:17 bert Exp $
+* $Id: psi.F,v 1.98 2009-03-19 20:42:17 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.97  2009/02/24 21:30:17  bert
+* In psi_finalize, occ1 and occ2 were deallocated in wrong order.
+*
 * Revision 1.96  2009/02/07 03:50:56  bylaska
 * Bassi Vectorization Fix...EJB
 *
@@ -5898,10 +5901,10 @@ c     end if
 
       logical function epsi_finalize(writepsi)
       implicit none 
-#include "errquit.fh"
       logical writepsi
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "psi.fh"
 
 *     **** local variables ****
