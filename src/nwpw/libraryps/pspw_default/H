@@ -1,3 +1,10 @@
+#
+# $Id: H,v 1.5 2009-03-19 21:53:48 bylaska Exp $
+#
+
+Comment: H pseudopotential parameters taken from
+Comment: Lubin, Bylaska, and Weare(2000), Chem.Phys.Lett., vol 322, page 447.
+
 [lmax] -1
 [locp] -1
 [rlocal] 1.0
@@ -14,3 +21,6 @@ H
 <rcut> 0 0.800
        1 0.800
 <end>
+
+<comment> Parameterized (Chem.Phys.Lett., vol 322, page 447) Hamman psp <end>
+
