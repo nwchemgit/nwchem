@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.53 2008-11-03 06:06:09 bylaska Exp $
+c $Id: nwpw_input.F,v 1.54 2009-03-24 18:04:27 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -627,11 +627,20 @@ c
       ind = index(zone_name,' ') - 1
       if (inp_compare(.false.,zone_name,'kawai')) mulliken_kawai=.true.
 
+      if (inp_compare(.false.,zone_name,'off')) then
+          mulliken      =.false.
+          mulliken_kawai=.false.
+      end if
+
       value = rtdb_put(rtdb,'cgsd:mulliken',mt_log,1,
      >                       mulliken)
      >   .and.rtdb_put(rtdb,'band:mulliken',mt_log,1,
      >                       mulliken)
      >   .and.rtdb_put(rtdb,'nwpw:mulliken',mt_log,1,
+     >                       mulliken)
+     >   .and.rtdb_put(rtdb,'cpsd:mulliken',mt_log,1,
+     >                       mulliken)
+     >   .and.rtdb_put(rtdb,'cpmd:mulliken',mt_log,1,
      >                       mulliken)
      >   .and.rtdb_put(rtdb,'nwpw:mulliken_kawai',mt_log,1,
      >                       mulliken_kawai)
