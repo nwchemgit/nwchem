@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.129 2009-02-08 04:32:48 bylaska Exp $
+* $Id: control.F,v 1.130 2009-03-26 00:18:52 bylaska Exp $
 *
 
 *     ***********************************
@@ -262,7 +262,8 @@
      >   Tr = 298.15d0
 
 *     **** cgsd: stuff or  paw: stuff ****
-      else if ((code.eq.3).or.(code.eq.8).or.(code.eq.11)) then
+      else if ((code.eq.3).or.(code.eq.8).or.
+     >         (code.eq.11).or.(code.eq.12)) then
       if (.not.rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if

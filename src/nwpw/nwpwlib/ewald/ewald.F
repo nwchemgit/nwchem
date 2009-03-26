@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.22 2009-02-08 23:29:57 bylaska Exp $
+* $Id: ewald.F,v 1.23 2009-03-26 00:18:58 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -217,7 +217,7 @@ cccccccccccccccccccccccccccccccccccccc
       integer  ion_nion,ion_katm
       real*8   lattice_omega,lattice_unita
       real*8   lattice_unitg
-      real*8 psp_zv,cpsp_zv,paw_basis_ion_charge
+      real*8 psp_zv,cpsp_zv,paw_basis_ion_charge,mmq_zv
       real*8 paw_basis_core_charge,dsum
       integer control_ewald_ngrid
   
@@ -230,7 +230,7 @@ cccccccccccccccccccccccccccccccccccccc
       external ion_nion,ion_katm
       external lattice_omega,lattice_unita                                
       external lattice_unitg
-      external psp_zv,cpsp_zv,paw_basis_ion_charge
+      external psp_zv,cpsp_zv,paw_basis_ion_charge,mmq_zv
       external paw_basis_core_charge,dsum
       external control_ewald_ngrid
 
@@ -507,7 +507,11 @@ ccccccccccc set Mandelung constant
 
 ccccccccccc set ion charges
       ccode=control_code()
-      if (ccode.eq.5) then
+      if (ccode.eq.12) then
+         do i=1,ntyp
+            dbl_mb(zv(1)+i-1)=mmq_zv(i)
+         end do
+      else if (ccode.eq.5) then
           do i=1,ntyp
              dbl_mb(zv(1)+i-1)=cpsp_zv(i)
           end do
@@ -521,7 +525,7 @@ ccccccccccc set ion charges
           do i=1,ntyp
              dbl_mb(zv(1)+i-1)=psp_zv(i)
           end do
-       end if
+        end if
       end if
 
 cccccccccc  ewald summation

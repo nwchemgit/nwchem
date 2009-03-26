@@ -1,5 +1,5 @@
 *
-* $Id: cgmdv5.F,v 1.15 2008-12-17 19:00:22 bylaska Exp $
+* $Id: cgmdv5.F,v 1.16 2009-03-26 00:18:59 bylaska Exp $
 *
 
 ***********************************************************************
@@ -603,6 +603,7 @@ c         end if
 *     **** open EMOTION file ****
       E25 = 0.0d0
       E26 = 0.0d0
+      icount_shift = 0
       if (.not.rtdb_cget(rtdb,'nwpw:emotion_filename',1,filename))
      >  call util_file_prefix('emotion',filename)
       call util_file_name_noprefix(filename,.false.,
@@ -657,6 +658,7 @@ c         end if
 
 
 *     ***** do a simple md loop ***
+      dt = control_bo_time_step()
       call control_reduce_print()
       EV = cgsd_energy(newpsi)
       call cgsd_energy_gradient_md(dbl_mb(fion(1)))
@@ -674,7 +676,6 @@ c         end if
       icount = 0
       if (it_out.lt.1) goto 102
 
-      dt = control_bo_time_step()
 
   101 continue
          icount = icount + 1

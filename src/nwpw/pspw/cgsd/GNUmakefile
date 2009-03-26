@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.19 2008-11-03 06:06:14 bylaska Exp $
+# $Id: GNUmakefile,v 1.20 2009-03-26 00:18:59 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 		cgsd_input.o \
@@ -23,11 +23,10 @@
                 bybminimize.o \
                 bybminimize2.o \
                 sdminimize.o \
-		nominimize.o
-
+		nominimize.o \
+		md_energy.o
 
 	  OBJ = 
-
 
 
       LIBRARY = libpspw.a

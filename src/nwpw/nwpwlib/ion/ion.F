@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.54 2009-02-09 01:59:49 bylaska Exp $
+* $Id: ion.F,v 1.55 2009-03-26 00:18:59 bylaska Exp $
 *
 
 *     ***************************
@@ -1141,10 +1141,10 @@ c         eki1=0.5d0*eki1
       real*8  icharge,zv
 
 *     **** external functions ****
-      real*8   psp_zv,cpsp_zv
+      real*8   psp_zv,cpsp_zv,mmq_zv
       real*8   paw_basis_ion_charge,paw_basis_core_charge
       integer  ion_natm,ion_nkatm,control_code
-      external psp_zv,cpsp_zv
+      external psp_zv,cpsp_zv,mmq_zv
       external paw_basis_ion_charge,paw_basis_core_charge
       external ion_natm,ion_nkatm,control_code
 
@@ -1164,6 +1164,13 @@ c         eki1=0.5d0*eki1
          icharge = 0.0d0
          do ia=1,ion_nkatm()
             icharge = icharge + ion_natm(ia)*cpsp_zv(ia)
+         end do
+
+      !**** md only code ****
+      else if (control_code().eq.12) then
+         icharge = 0.0d0
+         do ia=1,ion_nkatm()
+            icharge = icharge + ion_natm(ia)*mmq_zv(ia)
          end do
 
       !**** pspw codes ****
@@ -1193,10 +1200,10 @@ c         eki1=0.5d0*eki1
       real*8  icharge,zv
 
 *     **** external functions ****
-      real*8   psp_zv,cpsp_zv
+      real*8   psp_zv,cpsp_zv,mmq_zv
       real*8   paw_basis_ion_charge,paw_basis_core_charge
       integer  ion_natm_qm,ion_nkatm_qm,control_code
-      external psp_zv,cpsp_zv
+      external psp_zv,cpsp_zv,mmq_zv
       external paw_basis_ion_charge,paw_basis_core_charge
       external ion_natm_qm,ion_nkatm_qm,control_code
 
@@ -1216,6 +1223,13 @@ c         eki1=0.5d0*eki1
          icharge = 0.0d0
          do ia=1,ion_nkatm_qm()
             icharge = icharge + ion_natm_qm(ia)*cpsp_zv(ia)
+         end do
+
+      !**** md only codes ****
+      else if (control_code().eq.12) then
+         icharge = 0.0d0
+         do ia=1,ion_nkatm_qm()
+            icharge = icharge + ion_natm_qm(ia)*mmq_zv(ia)
          end do
 
       !**** pspw codes ****

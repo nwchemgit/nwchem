@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.34 2009-01-05 17:46:33 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.35 2009-03-26 00:19:01 bylaska Exp $
 c
 
 ***********************************************************
@@ -828,7 +828,6 @@ c     **** external functions ***
 *     *         pspw_qmmm_Q_E          *
 *     *                                *
 *     **********************************
-
       real*8 function pspw_qmmm_Q_E()
       implicit none
 
@@ -864,6 +863,51 @@ c     **** external functions ***
       end if
       return
       end
+
+
+*     **********************************
+*     *                                *
+*     *         pspw_qmmm_mmq_Q_E          *
+*     *                                *
+*     **********************************
+
+      real*8 function pspw_qmmm_mmq_Q_E()
+      implicit none  
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "pspw_qmmm.fh"
+         
+c     **** external functions ***
+      integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
+      external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
+      integer  mmq_zv_ptr,ion_amass_ptr
+      external mmq_zv_ptr,ion_amass_ptr
+      real*8   pspw_Q_E
+      external pspw_Q_E
+
+      if (auxiliary_only) then
+         pspw_qmmm_mmq_Q_E = 0.0d0
+      else
+         pspw_qmmm_mmq_Q_E = pspw_Q_E(ion_nion(),
+     >                            ion_nion_qm(),
+     >                            int_mb(ion_katm_ptr()),
+     >                            dbl_mb(mmq_zv_ptr()),
+     >                            dbl_mb(ion_amass_ptr()),
+     >                            nfrag,
+     >                            int_mb(indx_frag_start(1)),
+     >                            int_mb(size_frag(1)),
+     >                            int_mb(kfrag(1)),
+     >                            dbl_mb(switch_Rin(1)),
+     >                            dbl_mb(switch_Rout(1)),
+     >                            log_mb(self_interaction(1)),
+     >                            nshl3d,dbl_mb(rcell(1)),
+     >                            dbl_mb(ion_rion_ptr()))
+      end if
+      return
+      end
+
+
 
 
 *     **********************************
@@ -1118,6 +1162,47 @@ c     **** external functions ***
       return
       end
 
+*     **********************************
+*     *                                *
+*     *         pspw_qmmm_mmq_Q_fion   *
+*     *                                *
+*     **********************************
+
+      subroutine pspw_qmmm_mmq_Q_fion(fion)
+      implicit none
+      real*8 fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "pspw_qmmm.fh"
+
+c     **** external functions ***
+      integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
+      external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
+      integer  mmq_zv_ptr,ion_amass_ptr
+      external mmq_zv_ptr,ion_amass_ptr
+      real*8   pspw_Q_E
+      external pspw_Q_E
+
+      if (.not.auxiliary_only) then
+         call pspw_Q_fion(ion_nion(),
+     >                    ion_nion_qm(),
+     >                    int_mb(ion_katm_ptr()),
+     >                    dbl_mb(mmq_zv_ptr()),
+     >                    dbl_mb(ion_amass_ptr()),
+     >                    nfrag,
+     >                    int_mb(indx_frag_start(1)),
+     >                    int_mb(size_frag(1)),
+     >                    int_mb(kfrag(1)),
+     >                    dbl_mb(switch_Rin(1)),
+     >                    dbl_mb(switch_Rout(1)),
+     >                    log_mb(self_interaction(1)),
+     >                    nshl3d,dbl_mb(rcell(1)),
+     >                    dbl_mb(ion_rion_ptr()),fion)
+      end  if
+      return
+      end
+
 
 
 
@@ -1126,7 +1211,6 @@ c     **** external functions ***
 *     *         pspw_qmmm_fion         *
 *     *                                *
 *     **********************************
-
       subroutine pspw_qmmm_fion(fion)
       implicit none
       real*8 fion(3,*)
@@ -1164,6 +1248,55 @@ c     **** external functions ***
 
          call daxpy(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
+
+         if (.not.MA_pop_stack(ftmp(2)))
+     >   call errquit('pspw_qmmm_fion:cannot pop stack memory',0,MA_ERR)
+      end if
+      return
+      end
+
+
+*     **********************************
+*     *                                *
+*     *         pspw_qmmm_mmq_fion     *
+*     *                                *
+*     **********************************
+      subroutine pspw_qmmm_mmq_fion(fion)
+      implicit none
+      real*8 fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "pspw_qmmm.fh"
+
+*      **** local variables ****
+      integer ftmp(2),nion3,np
+
+*     *** external functions ****
+      integer  ion_nion
+      external ion_nion
+      call Parallel_np(np)
+
+      if (np.eq.1) then
+         if (.not.auxiliary_only) then
+            call pspw_qmmm_LJ_fion(fion)
+            call pspw_qmmm_mmq_Q_fion(fion)
+         end if
+         call pspw_qmmm_spring_fion(fion)
+      else
+         nion3 = 3*ion_nion()
+         if (.not.MA_push_get(mt_dbl,nion3,'ftmp',ftmp(2),ftmp(1)))
+     >  call errquit('pspw_qmmm_fion:cannot push stack memory',0,MA_ERR)
+
+         call dcopy(nion3,0.0,0,dbl_mb(ftmp(1)),1)
+         if (.not.auxiliary_only) then
+            call pspw_qmmm_LJ_fion(dbl_mb(ftmp(1)))
+            call pspw_qmmm_mmq_Q_fion(dbl_mb(ftmp(1)))
+         end if
+         call pspw_qmmm_spring_fion(dbl_mb(ftmp(1)))
+         call Parallel_Vector_SumAll(nion3,dbl_mb(ftmp(1)))
+
+         call daxpy(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
          if (.not.MA_pop_stack(ftmp(2)))
      >   call errquit('pspw_qmmm_fion:cannot pop stack memory',0,MA_ERR)
