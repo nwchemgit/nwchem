@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.21 2009-02-07 03:50:54 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.22 2009-03-27 23:47:15 bylaska Exp $
 *
 
 *     *************************
@@ -24,8 +24,10 @@
       integer n1,n2,n3,mapping,ms,neq(2)
 
 *     **** external functions ****
-      integer  control_version,control_mapping
-      external control_version,control_mapping
+      integer  control_version,control_mapping,Butter_size
+      integer  Dneall_na_ptr
+      external control_version,control_mapping,Butter_size
+      external Dneall_na_ptr
 
       ispin = ispin0
       norbs(1) = 0
@@ -36,6 +38,7 @@
 
       if (.not.rtdb_get(rtdb,'pspw:HFX',mt_log,1,hfx_on))
      >   hfx_on = .false.
+
 
 *     **** get the number of HFX orbitals ****
       if (hfx_on) then
@@ -141,23 +144,25 @@
 
       end if
 
-c     **** define Amatrix ****
-c      if (hfx_on.and.fractional) then
-c        n1 = norbs(1)**2
-c        if (ispin.eq.2) n1 = n1 + norbs(2)**2
-c        value = MA_alloc_get(mt_dbl,n1,'amatrix',amatrix(2),amatrix(1))
-c        if (.not. value)   
-c     >    call errquit('pspw_init_HFX: out of heap memory',2, MA_ERR)
-c      end if
 
 c     **** define extra psi and Hpsi  ****
       call Parallel2d_np_j(npj)
       call Parallel2d_taskid_j(taskid_j)   
       replicated = (npj.gt.1)
       if (hfx_on.and.replicated) then
+
+         if (.not.rtdb_get(rtdb,'pspw:HFX_butter',mt_log,1,butterfly))
+     >      butterfly = .false.
+
         call Dneall_neq(neq)
         neqall = neq(1)+neq(2)
-        nrsize = (ne(1)+ne(2))*n2ft3d
+
+        if (butterfly) then
+           nrsize = n2ft3d*Butter_size(taskid_j,npj,
+     >                                  int_mb(Dneall_na_ptr(ms)))
+        else
+           nrsize = (ne(1)+ne(2))*n2ft3d
+        end if
         value = MA_alloc_get(mt_dbl,nrsize,
      >                      'psi_r_replicated',
      >                       psi_r_replicated(2),
@@ -342,7 +347,12 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
-      integer q,n,indx1,indx2
+      integer istart,iend,jstart,jend,imodn,imodtask
+      integer ms,l,q,n,indx1,indx2,Levels,neq(2)
+      integer requests(5),reqcnt
+
+      integer  Butter_Levels,Dneall_na_ptr
+      external Butter_Levels,Dneall_na_ptr
 
       call nwpw_timing_start(33)
       ehfx = 0.0d0
@@ -351,6 +361,68 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 
          if (replicated) then
 
+*           **** butterfly algorithm ****
+            if (butterfly) then
+               call Dneall_neq(neq)
+               Levels = Butter_Levels(npj)
+               do ms=1,ispin
+                  call dcopy(nrsize,0.0d0,0,
+     >                       dbl_mb(Hpsi_r_replicated(1)),1)
+                  call dcopy(neq(ms)*n2ft3d,
+     >                       psi_r(1+(ms-1)*neq(1)*n2ft3d),1,
+     >                       dbl_mb(psi_r_replicated(1)),1)
+                  do l=0,Levels-1
+                     call D1dB_Brdcst_step(l,
+     >                       int_mb(Dneall_na_ptr(ms)),-1,
+     >                       n2ft3d,
+     >                       dbl_mb(psi_r_replicated(1)),
+     >                       requests,reqcnt)
+
+                     call Butter_indexes(l,taskid_j,npj,
+     >                       int_mb(Dneall_na_ptr(ms)),
+     >                       istart,iend,jstart,jend,
+     >                       imodn,imodtask)
+                     call pspw_potential_HFX_sub2(solver_type,
+     >                                  istart,iend,
+     >                                  jstart,jend,
+     >                                  imodn,imodtask,
+     >                                  n2ft3d,
+     >                                  dbl_mb(psi_r_replicated(1)),
+     >                                  dbl_mb(Hpsi_r_replicated(1)),
+     >                                  ehfx)
+
+                     call D1dB_WaitAll(requests,reqcnt)
+                  end do
+
+                  call Butter_indexes(Levels,taskid_j,npj,
+     >                       int_mb(Dneall_na_ptr(ms)),
+     >                       istart,iend,jstart,jend,
+     >                       imodn,imodtask)
+                  call pspw_potential_HFX_sub2(solver_type,
+     >                               istart,iend,
+     >                               jstart,jend,
+     >                               imodn,imodtask,
+     >                               n2ft3d,
+     >                               dbl_mb(psi_r_replicated(1)),
+     >                               dbl_mb(Hpsi_r_replicated(1)),
+     >                               ehfx)
+
+                  do l=Levels-1,0,-1
+                     call D1dB_Reduce_step(l,
+     >                       int_mb(Dneall_na_ptr(ms)),-1,
+     >                       n2ft3d,
+     >                       dbl_mb(Hpsi_r_replicated(1)),
+     >                       dbl_mb(psi_r_replicated(1)))
+                  end do
+                  call dcopy(neq(ms)*n2ft3d,
+     >                       dbl_mb(Hpsi_r_replicated(1)),1,
+     >                       Hpsi_r(1+(ms-1)*neq(1)*n2ft3d),1)
+               end do
+               call Parallel_SumAll(ehfx)
+               phfx = 2.0d0*ehfx
+
+*           **** reduceall algorithm ****
+            else
             call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
             call dcopy(nrsize,0.0d0,0,dbl_mb(Hpsi_r_replicated(1)),1)
             do q=1,neqall
@@ -370,6 +442,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
                indx2 = (q-1)*n2ft3d + 1
                call daxpy(n2ft3d,1.0d0,dbl_mb(indx1),1,Hpsi_r(indx2),1)
             end do
+            end if
 
          else
             call pspw_potential_HFX_sub(ispin0,psi_r,Hpsi_r)
@@ -1275,3 +1348,298 @@ c        call D1dB_SumAll(ph)
       end
 
 
+
+*     ***********************************
+*     *                    	        *
+*     *    pspw_potential_HFX_sub2      *
+*     *                                 *
+*     ***********************************
+*
+*   This routine is a kernel for computing exact exchange.
+*
+*    for i=istart:iend
+*    for j=jstart:jend
+*       dnij(*) = psi_r(*,j) .* psi_r(*,i)
+*       Vij(*)  = Coulomb operator(dnij(*))
+*       Hpsi_r(*,i) = Vij(*) .* psi_r(*,j)
+*       Hpsi_r(*,j) = Vij(*) .* psi_r(*,i)
+*       ehfx += 0.5*<psi_r(*,i)|Hpsi(*,i)> 
+*             + 0.5*<psi_r(*,j)|Hpsi(*,j)>
+*
+*   Entry - solver_type: if solver_type==1 then periodic solver, else aperiodic solver
+*           istart,iend: indexes
+*           jstart,jend: indexes
+*           imodn,imodtask: used to define which (i,j) combinations are computed.
+*           n2ft3d: size of realspace grid
+*           psi_r: wavenfucntions in realspace.
+*           ehfx: running sum of exchange energy, not initialized in this routine
+
+*   Exit - Hpsi_r: wavefunction gradients in realspace.
+*          ehfx: running sum of exchange energy.
+
+      subroutine pspw_potential_HFX_sub2(solver_type,
+     >                                   istart,iend,
+     >                                   jstart,jend,
+     >                                   imodn,imodtask,
+     >                                   n2ft3d,psi_r,Hpsi_r,
+     >                                   ehfx)
+      implicit none
+      integer solver_type
+      integer istart,iend,jstart,jend
+      integer imodn,imodtask
+      integer n2ft3d
+      real*8  psi_r(n2ft3d,*)
+      real*8  Hpsi_r(n2ft3d,*)
+      real*8  ehfx
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value,done,special
+      integer n1,n2,n3
+      integer dn(2),vij(2),tmp1(2)
+      integer i1,j1,k1,NN
+      integer i2,j2,k2
+      integer i3,j3,k3
+      real*8  scal1,scal2,dv,eh,ph
+
+*     **** external functions ****
+      real*8   lattice_omega,icoulomb_screened_e
+      external lattice_omega,icoulomb_screened_e
+      logical  D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
+      external D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
+
+      special = ((istart.eq.jstart).and.(iend.eq.jend))
+
+      call D3dB_nx(1,n1)
+      call D3dB_ny(1,n2)
+      call D3dB_nz(1,n3)
+      value = MA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+      if (.not. value) 
+     >   call errquit('pspw_potential_HFX_sub: out of stack',0,MA_ERR)
+
+      scal1 = 1.0d0/dble(n1*n2*n3)
+      scal2 = 1.0d0/lattice_omega()
+      dv = scal1/scal2
+
+*     *** special if i and j span the same indexes ***
+      if (special) then
+         NN = (iend-istart+1)*(jend-jstart+2)/2
+      else
+         NN = (iend-istart+1)*(jend-jstart+1)
+      end if
+
+*     ***** screened coulomb solver ****
+      if (solver_type.eq.1) then
+        i1 = istart
+        j1 = jstart
+        k1 = 1
+
+        i2 = istart
+        j2 = jstart
+        k2 = 1
+
+        i3 = istart
+        j3 = jstart
+        k3 = 1
+        done = .false.
+        do while (.not.done)
+
+*          *** pipeline step 1 ***
+           if (k1.le.NN) then
+
+              if (mod(k1,imodn).eq.imodtask) then
+
+*                **** generate dnij for Vij  ****
+                 call D3dB_rr_Mul(1,psi_r(1,j1),
+     >                              psi_r(1,i1),dbl_mb(dn(1)))
+                 call D3dB_r_SMul1(1,scal2*scal1,dbl_mb(dn(1)))
+                 call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+                 call D3dB_rc_pfft3f_queuein(0,dbl_mb(dn(1)))
+
+              end if
+
+              k1 = k1 + 1
+              j1 = j1 + 1
+              if (special) then
+                 if (j1.gt.i1) then
+                    j1 = jstart
+                    i1 = i1 + 1
+                 end if
+              else
+                 if (j1.gt.jend) then
+                    j1 = jstart
+                    i1 = i1 + 1
+                 end if
+              end if
+           end if
+
+*          *** pipeline step 2 ***
+           if (     ((D3dB_rc_pfft3_queue_filled()).or.(k1.gt.NN))
+     >         .and.(k2.le.NN)) then
+
+              if (mod(k2,imodn).eq.imodtask) then
+                 call D3dB_rc_pfft3f_queueout(0,dbl_mb(dn(1)))
+
+*                **** generate Vcoul ****
+                 eh = icoulomb_screened_e(dbl_mb(dn(1)))
+                 call coulomb_screened_v(dbl_mb(dn(1)),
+     >                                   dbl_mb(vij(1)))
+
+*                **** calculcate ph ****
+                 ehfx = ehfx - eh
+
+*                **** include transpose ***
+                 if ((i2.ne.j2).or.(.not.special)) then
+                    ehfx = ehfx - eh
+                 end if
+
+                 call D3dB_cr_pfft3b_queuein(0,dbl_mb(vij(1)))
+              end if
+
+              k2 = k2 + 1
+              j2 = j2 + 1
+              if (special) then
+                 if (j2.gt.i2) then
+                    j2 = jstart
+                    i2 = i2 + 1
+                 end if
+              else
+                 if (j2.gt.jend) then
+                    j2 = jstart
+                    i2 = i2 + 1
+                 end if
+              end if
+
+           end if
+
+*          *** pipeline step 3 ***
+           if ((D3dB_cr_pfft3_queue_filled()).or.(k2.gt.NN)) then
+
+              if (mod(k3,imodn).eq.imodtask) then
+                 call D3dB_cr_pfft3b_queueout(0,dbl_mb(vij(1)))
+
+*                **** generate (Vij)*psi_r ***
+                 call D3dB_rr_Mul(1,dbl_mb(vij(1)),
+     >                              psi_r(1,j3),
+     >                              dbl_mb(tmp1(1)))
+                 call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+
+*                **** add -(Vij)*psi_r to Hpsi_r ***
+                 call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Hpsi_r(1,i3))
+
+                 !**** include transpose ****
+                 if ((i3.ne.j3).or.(.not.special)) then
+
+*                   **** generate (Vij)*psi_r ***
+                    call D3dB_rr_Mul(1,dbl_mb(vij(1)),
+     >                              psi_r(1,i3),
+     >                              dbl_mb(tmp1(1)))
+                    call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+
+*                   **** add -(Vij)*psi_r to Hpsi_r ***
+                    call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),
+     >                                Hpsi_r(1,j3))
+                 end if
+              endif
+
+              k3 = k3 + 1
+              j3 = j3 + 1
+              if (special) then
+                 if (j3.gt.i3) then
+                    j3 = jstart
+                    i3 = i3 + 1
+                 end if
+              else
+                 if (j3.gt.jend) then
+                    j3 = jstart
+                    i3 = i3 + 1
+                 end if
+              end if
+                
+           end if
+           done = (k1.gt.NN).and.(k2.gt.NN).and.(k3.gt.NN)
+        end do !**** while ****
+       
+
+*     ***** free-space coulomb solver -- not pipelined ****
+      else
+         k1 = 1
+         i1 = istart
+         j1 = jstart
+         done = .false.
+         do while (.not.done)
+
+            if (mod(k1,imodn).eq.imodtask) then
+
+*              **** generate dnij for Vij  ****
+               call D3dB_rr_Mul(1,psi_r(1,j1),psi_r(1,i1),
+     >                          dbl_mb(dn(1)))
+               call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
+               call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+   
+               call coulomb2_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
+               call D3dB_rr_idot(1,dbl_mb(dn(1)),dbl_mb(vij(1)),eh)
+               eh = 0.5d0*eh*dv
+
+*              **** calculcate ph ****
+               ehfx = ehfx - eh
+
+*              **** generate (Vij)*psi_r ***
+               call D3dB_rr_Mul(1,dbl_mb(vij(1)),
+     >                            psi_r(1,j1),
+     >                            dbl_mb(tmp1(1)))
+               call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+
+*              **** add -(Vij)*psi_r to Hpsi_r ***
+               call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Hpsi_r(1,i1))
+ 
+               !**** include transpose terms ****
+               if ((i1.ne.j1).or.(.not.special)) then
+                  ehfx = ehfx - eh
+ 
+*                 **** generate (Vij)*psi_r ***
+                  call D3dB_rr_Mul(1,dbl_mb(vij(1)),
+     >                            psi_r(1,i1),
+     >                            dbl_mb(tmp1(1)))
+                  call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+ 
+*                 **** add -(Vij)*psi_r to Hpsi_r ***
+                  call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),
+     >                                Hpsi_r(1,j1))
+               end if
+
+            end if
+            
+            k1 = k1 + 1
+            j1 = j1 + 1
+            if (special) then
+               if (j1.gt.i1) then
+                  j1 = jstart
+                  i1 = i1 + 1
+               end if
+            else
+               if (j1.gt.jend) then
+                  j1 = jstart
+                  i1 = i1 + 1
+               end if
+            end if
+            done = (k1.gt.NN)
+         end do
+
+      end if
+
+      !**** deallocate memory ****
+      value =           MA_pop_stack(tmp1(2))
+      value = value.and.MA_pop_stack(vij(2))
+      value = value.and.MA_pop_stack(dn(2))
+      if (.not. value) call errquit(
+     >   'pspw_potential_HFX_sub2:popping stack memory',0,MA_ERR)
+
+      return
+      end

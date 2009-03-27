@@ -1,4 +1,5 @@
-* $Id: Dne.F,v 1.24 2009-02-08 03:26:07 bylaska Exp $
+*
+* $Id: Dne.F,v 1.25 2009-03-27 23:47:14 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -420,6 +421,43 @@
       netmp(1) = ne(1)
       netmp(2) = ne(2)
       return 
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         Dneall_na               *
+*     *                                 *
+*     ***********************************
+
+      integer function Dneall_na(ms,jj)
+      implicit none
+      integer ms,jj
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+      Dneall_na = int_mb(na(1,ms)+jj)
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         Dneall_na_ptr           *
+*     *                                 *
+*     ***********************************
+
+      integer function Dneall_na_ptr(ms)
+      implicit none
+      integer ms
+
+#include "Dne.fh"
+
+      Dneall_na_ptr = na(1,ms)
+      return
       end
 
 

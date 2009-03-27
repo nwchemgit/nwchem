@@ -522,3 +522,315 @@ c     implicit none
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *         D1dB_isendrecv          *
+*     *                                 *
+*     ***********************************
+      subroutine D1dB_isendrecv(pto,  ssize,sdata,
+     >                          pfrom,rsize,rdata,
+     >                          request,reqcnt)
+      implicit none
+      integer pto,ssize
+      real*8  sdata(*)
+      integer pfrom,rsize
+      real*8  rdata(*)
+      integer request(*)
+      integer reqcnt
+
+#include "D1dB.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+*     **** local variables ****
+      integer msgtype,mpierr
+
+*     **** external functions ****
+      integer  Parallel2d_comm_j
+      external Parallel2d_comm_j
+
+
+      msgtype   = 7
+
+#ifdef MPI4
+            if (rsize.gt.0) then
+               stupid_msglen = rsize
+               stupid_type   = msgtype
+               stupid_taskid = pfrom
+               call MPI_IRECV(rdata,
+     >                    stupid_msglen,stupid_double,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_comm_j,
+     >                    stupid_request,stupid_ierr)
+               reqcnt          = reqcnt + 1
+               request(reqcnt) = stupid_request
+            end if
+
+            if (ssize.0) then
+               stupid_msglen = ssize
+               stupid_type   = msgtype
+               stupid_taskid = pto
+               call MPI_ISEND(sdata,
+     >                     stupid_msglen,stupid_double,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_comm_j,
+     >                     stupid_request,stupid_ierr)
+               reqcnt          = reqcnt + 1
+               request(reqcnt) = stupid_request
+            end if
+#else
+            if (rsize.gt.0) then
+               reqcnt = reqcnt + 1
+               call MPI_IRECV(rdata,rsize,MPI_DOUBLE_PRECISION,
+     >                    pfrom,
+     >                    msgtype,Parallel2d_comm_j(),
+     >                    request(reqcnt),mpierr)
+            end if
+            if (ssize.gt.0) then
+               reqcnt = reqcnt + 1
+               call MPI_ISEND(sdata,ssize,MPI_DOUBLE_PRECISION,
+     >                     pto,
+     >                     msgtype,Parallel2d_comm_j(),
+     >                     request(reqcnt),mpierr)
+            end if
+#endif
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         D1dB_WaitAll            *
+*     *                                 *
+*     ***********************************
+*
+*  This routine waits for the sends and receives to 
+* finish that were started with D1dB_isendrecv
+* 
+      subroutine D1dB_WaitAll(request,reqcnt)
+      implicit none
+      integer request(*)
+      integer reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+
+#include "mpif.h"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+*     **** local variables ****
+      integer mpierr,np
+      integer status(2)
+
+      call Parallel2d_np_j(np)
+
+*     **** allocate memory ****
+      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+     >                    'status',status(2),status(1)))
+     > call errquit(' D1dB_WaitAll:out of stack',0,MA_ERR)
+
+
+*     **** wait for completion of mp_send, also do a sync ****
+#ifdef MPI4
+      call stupid_icopy8to4(reqcnt,request,request)
+      stupid_msglen = reqcnt
+      call MPI_WAITALL(stupid_msglen,request,int_mb(status(1)),stupid_ierr)
+#else
+      call MPI_WAITALL(reqcnt,request,int_mb(status(1)),mpierr)
+#endif
+      reqcnt = 0
+
+      !*** deallocate memory ***
+      if (.not.MA_pop_stack(status(2)))
+     > call errquit(' D1dB_WaitAll:popping stack',0,MA_ERR)
+
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          D1dB_Brdcst_step            *
+c     *                                      *
+c     ****************************************
+c
+c  This routine performs step l of a butterfly Broadcast all algorithm. The step
+c  l spans from 0..(Level-1) where the number of levels is Level = Log(np_j)/Log(2).
+c
+c   Entry - l: Butterfly step 0...(Level-1)
+c           na: an array of length np_j containing the number of orbitals per taskid_j
+c           blocks0: number of blocks to send size=blocks0, 
+c                    the exceptions are:
+c                    if blocks0==0: the block size is size=2**l.
+c                    if blocks0==-1: block size is size=(np_j-2**Level)/2 + 1 for l==(Level-1),
+c                                    blocksize is size=2**l otherwise
+c           n2ft3d: leading size of psi_rep
+c           psi_rep: data array
+c   Exit -
+c           psi_rep: modified data array 
+c           requests,reqcnt: tags for asychronous message passing
+c
+      subroutine D1dB_Brdcst_step(l,na,blocks0,
+     >                            n2ft3d,psi_rep,
+     >                            requests,reqcnt)
+      implicit none
+      integer l,na(*),blocks0
+      integer n2ft3d
+      real*8 psi_rep(n2ft3d,*)
+      integer requests(*),reqcnt
+
+*     *** local variables ***
+      integer taskid_j,np_j
+      integer i,pr,ps,shift,size,Level
+      integer pto,pfrom,rsize,ssize,rindx,sindx
+
+      call Parallel2d_taskid_j(taskid_j)
+      call Parallel2d_np_j(np_j)
+
+      Level = (log(dble(np_j))/log(2.0d0))
+
+      shift = 2**l
+      pfrom = mod(taskid_j     +shift,np_j)
+      pto   = mod(taskid_j+np_j-shift,np_j)
+
+*     *** hfx exception ***
+      if (blocks0.lt.0) then
+         if (l.eq.(Level-1)) then
+            size = ((np_j-2**Level)/2) + 1
+         else
+            size =  shift
+         end if
+*     *** standard butterfly exception ***
+      elseif  (blocks0.eq.0) then
+         size = shift
+*     *** user blocksize ***
+      else
+         size = blocks0
+      end if
+
+*     *** determine message sizes ***
+      rsize = 0
+      ssize = 0
+      do i=0,(size-1)
+        pr = mod(pfrom    + i,np_j)
+        ps = mod(taskid_j + i,np_j)
+        rsize = rsize + na(pr+1)
+        ssize = ssize + na(ps+1)
+      end do
+
+*     *** determine message indexes ***
+      rindx = 1
+      do  i=0,(shift-1)
+        ps = mod(taskid_j + i,np_j)
+        rindx = rindx + na(ps+1)
+      end do
+      sindx = 1
+
+
+*     *** will be much more complicated for synchronous ***
+      reqcnt = 0
+      call D1dB_isendrecv(pto,  ssize*n2ft3d,psi_rep(1,sindx),
+     >                    pfrom,rsize*n2ft3d,psi_rep(1,rindx),
+     >                    requests,reqcnt)
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *           D1dB_Reduce_step           *
+c     *                                      *
+c     ****************************************
+c
+c  This routine performs step l of a butterfly Reduceall algorithm. The step
+c  l spans from 0..(Level-1) where the number of levels is Level = Log(np_j)/Log(2).
+c
+c   Entry - l: Butterfly step 0...(Level-1)
+c           na: an array of length np_j containing the number of orbitals per taskid_j
+c           blocks0: number of blocks to send size=blocks0, 
+c                    the exceptions are:
+c                    if blocks0==0: the block size is size=2**l.
+c                    if blocks0==-1: block size is size=(np_j-2**Level)/2 + 1 for l==(Level-1),
+c                                    blocksize is size=2**l otherwise
+c           n2ft3d: leading size of psi_rep
+c           hpsi_rep: data array
+c           tmp: tempory data array. Needs to be at least  n2ft3d*size
+c
+c   Exit - hpsi_rep: modified data array
+c          requests,reqcnt: tags for asychronous message passing
+c
+      subroutine D1dB_Reduce_step(l,na,blocks0,
+     >                            n2ft3d,hpsi_rep,tmp)
+      implicit none
+      integer l,na(*),blocks0
+      integer n2ft3d
+      real*8 hpsi_rep(n2ft3d,*)
+      real*8 tmp(*)
+
+*     *** local variables ***
+      integer taskid_j,np_j
+      integer i,pr,ps,size,shift,Level,pfrom,pto
+      integer rsize,ssize,rindx,sindx
+      integer requests(10),reqcnt
+
+      call Parallel2d_taskid_j(taskid_j)
+      call Parallel2d_np_j(np_j)
+
+      Level = (log(dble(np_j))/log(2.0d0))
+
+      shift = 2**l
+      pfrom = mod(taskid_j+np_j-shift,np_j)
+      pto   = mod(taskid_j     +shift,np_j)
+
+*     *** hfx exception ***
+      if (blocks0.lt.0) then
+         if (l.eq.(Level-1)) then
+            size = ((np_j-2**Level)/2) + 1
+         else
+            size =  shift
+         end if
+*     *** standard butterfly exception ***
+      elseif  (blocks0.eq.0) then
+         size = shift
+*     *** user blocksize ***
+      else
+         size = blocks0
+      end if
+
+*     *** determine message sizes ***
+      rsize = 0
+      ssize = 0
+      do i=0,(size-1)
+        pr = mod(taskid_j + i,np_j)
+        ps = mod(pto      + i,np_j)
+        rsize = rsize + na(pr+1)
+        ssize = ssize + na(ps+1)
+      end do
+
+*     *** determine message indexes ***
+      rindx = 1
+      sindx = 1
+      do i=0,(shift-1)
+         ps = mod(taskid_j  + i,np_j)
+         sindx = sindx + na(ps+1)
+      end do
+
+
+*     *** will be much more complicated for synchronous ***
+      reqcnt = 0
+      call D1dB_isendrecv(pto,  ssize*n2ft3d,hpsi_rep(1,sindx),
+     >                    pfrom,rsize*n2ft3d,tmp,
+     >                    requests,reqcnt)
+      call D1dB_WaitAll(requests,reqcnt)
+      call daxpy(rsize*n2ft3d,1.0d0,tmp,1,hpsi_rep(1,rindx))
+
+      return
+      end

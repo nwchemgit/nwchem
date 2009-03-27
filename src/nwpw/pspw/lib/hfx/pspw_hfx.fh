@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.fh,v 1.7 2008-09-30 19:53:34 bylaska Exp $
+* $Id: pspw_hfx.fh,v 1.8 2009-03-27 23:47:16 bylaska Exp $
 *
 
 *     **** PSPW_HFX common block ****
@@ -24,12 +24,12 @@
       common /PSPW_HFX_frac_Block/ amatrix,frac_on
 
 *     **** PSPW_HFX_replicated common block ****
-      logical replicated
+      logical replicated,butterfly
       integer npj,taskid_j,nrsize,n2ft3d,neqall
       integer psi_r_replicated(2),Hpsi_r_replicated(2)
       common /PSPW_HFX_replicated_Block/ psi_r_replicated,
      >                                   Hpsi_r_replicated,
      >                                   neqall,npj,taskid_j,
      >                                   nrsize,n2ft3d,
-     >                                   replicated
+     >                                   replicated,butterfly
 
