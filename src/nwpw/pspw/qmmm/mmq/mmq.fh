@@ -1,0 +1,8 @@
+*
+* $Id: mmq.fh,v 1.1 2009-03-27 16:37:20 bylaska Exp $
+*
+
+*     **** common block  for psp ****
+      integer    zv(2)
+      common / mmq_block / zv
+
