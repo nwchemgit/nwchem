@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.22 2009-03-27 23:47:15 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.23 2009-03-28 06:03:46 bylaska Exp $
 *
 
 *     *************************
@@ -159,10 +159,14 @@ c     **** define extra psi and Hpsi  ****
 
         if (butterfly) then
            nrsize = n2ft3d*Butter_size(taskid_j,npj,
-     >                                  int_mb(Dneall_na_ptr(ms)))
+     >                                  int_mb(Dneall_na_ptr(1)))
         else
            nrsize = (ne(1)+ne(2))*n2ft3d
         end if
+        write(*,*) "nrsize=",taskid_j,npj,nrsize/n2ft3d,nrsize
+        write(*,*) "taskid_j=",taskid_j,"na=",
+     >  int_mb(Dneall_na_ptr(1)),int_mb(Dneall_na_ptr(1)+1)
+
         value = MA_alloc_get(mt_dbl,nrsize,
      >                      'psi_r_replicated',
      >                       psi_r_replicated(2),
@@ -365,12 +369,14 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
             if (butterfly) then
                call Dneall_neq(neq)
                Levels = Butter_Levels(npj)
+c               write(*,*) "hera neq=",neq," Levels=",Levels
                do ms=1,ispin
                   call dcopy(nrsize,0.0d0,0,
      >                       dbl_mb(Hpsi_r_replicated(1)),1)
                   call dcopy(neq(ms)*n2ft3d,
      >                       psi_r(1+(ms-1)*neq(1)*n2ft3d),1,
      >                       dbl_mb(psi_r_replicated(1)),1)
+c               write(*,*) "herb, taskid_j=",taskid_j
                   do l=0,Levels-1
                      call D1dB_Brdcst_step(l,
      >                       int_mb(Dneall_na_ptr(ms)),-1,
@@ -378,6 +384,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
      >                       dbl_mb(psi_r_replicated(1)),
      >                       requests,reqcnt)
 
+c               write(*,*) "herd, taskid_j=",taskid_j
                      call Butter_indexes(l,taskid_j,npj,
      >                       int_mb(Dneall_na_ptr(ms)),
      >                       istart,iend,jstart,jend,
@@ -391,13 +398,18 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
      >                                  dbl_mb(Hpsi_r_replicated(1)),
      >                                  ehfx)
 
+c               write(*,*) "here, taskid_j=",taskid_j
                      call D1dB_WaitAll(requests,reqcnt)
                   end do
 
+c               write(*,*) "herf, taskid_j=",taskid_j
                   call Butter_indexes(Levels,taskid_j,npj,
      >                       int_mb(Dneall_na_ptr(ms)),
      >                       istart,iend,jstart,jend,
      >                       imodn,imodtask)
+               write(*,*) taskid_j," istart,iend=",istart,iend
+               write(*,*) taskid_j," jstart,jend=",jstart,jend
+               write(*,*) taskid_j," imodn,imodtask=",imodn,imodtask
                   call pspw_potential_HFX_sub2(solver_type,
      >                               istart,iend,
      >                               jstart,jend,
@@ -406,6 +418,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
      >                               dbl_mb(psi_r_replicated(1)),
      >                               dbl_mb(Hpsi_r_replicated(1)),
      >                               ehfx)
+c               write(*,*) "herg, taskid_j=",taskid_j
 
                   do l=Levels-1,0,-1
                      call D1dB_Reduce_step(l,
@@ -414,10 +427,16 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
      >                       dbl_mb(Hpsi_r_replicated(1)),
      >                       dbl_mb(psi_r_replicated(1)))
                   end do
-                  call dcopy(neq(ms)*n2ft3d,
+c               write(*,*) "herh, taskid_j=",taskid_j
+                  call daxpy(neq(ms)*n2ft3d,hfx_parameter,
      >                       dbl_mb(Hpsi_r_replicated(1)),1,
      >                       Hpsi_r(1+(ms-1)*neq(1)*n2ft3d),1)
                end do
+
+*              *** apply hfx_parameter ****
+               ehfx = ehfx*hfx_parameter
+
+               if (ispin.eq.1) ehfx = ehfx + ehfx
                call Parallel_SumAll(ehfx)
                phfx = 2.0d0*ehfx
 
@@ -810,6 +829,9 @@ c     >                                             dbl_mb(dn(1)))
                     eh = icoulomb_screened_e(dbl_mb(dn(1)))
                     call coulomb_screened_v(dbl_mb(dn(1)),
      >                                      dbl_mb(vij(1)))
+
+                    write(*,*) taskid_j," ehn=",i2,j2,eh
+                    if (i2.ne.j2) write(*,*) taskid_j," eht=",j2,i2,eh
 
 *                   **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
                     eh = eh*hfx_parameter
@@ -1395,6 +1417,8 @@ c        call D1dB_SumAll(ph)
 #include "mafdecls.fh"
 #include "errquit.fh"
 
+      integer taskid_j
+
 *     **** local variables ****
       logical value,done,special
       integer n1,n2,n3
@@ -1409,6 +1433,8 @@ c        call D1dB_SumAll(ph)
       external lattice_omega,icoulomb_screened_e
       logical  D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
       external D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
+
+      call Parallel2d_taskid_j(taskid_j)
 
       special = ((istart.eq.jstart).and.(iend.eq.jend))
 
@@ -1491,12 +1517,15 @@ c        call D1dB_SumAll(ph)
                  call coulomb_screened_v(dbl_mb(dn(1)),
      >                                   dbl_mb(vij(1)))
 
+                 write(*,*) taskid_j,"ehn=",i2,j2,eh
+
 *                **** calculcate ph ****
                  ehfx = ehfx - eh
 
 *                **** include transpose ***
                  if ((i2.ne.j2).or.(.not.special)) then
                     ehfx = ehfx - eh
+                    write(*,*) taskid_j,"eht=",j2,i2,eh
                  end if
 
                  call D3dB_cr_pfft3b_queuein(0,dbl_mb(vij(1)))
