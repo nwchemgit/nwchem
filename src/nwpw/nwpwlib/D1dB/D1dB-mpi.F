@@ -692,10 +692,15 @@ c
       integer i,pr,ps,shift,size,Level
       integer pto,pfrom,rsize,ssize,rindx,sindx
 
+*     *** local variables ***
+      integer  Butter_levels
+      external Butter_levels
+
       call Parallel2d_taskid_j(taskid_j)
       call Parallel2d_np_j(np_j)
 
-      Level = (log(dble(np_j))/log(2.0d0))
+cccc      Level = (log(dble(np_j))/log(2.0d0))
+      Level = Butter_levels(np_j)
 
       shift = 2**l
       pfrom = mod(taskid_j     +shift,np_j)
@@ -781,10 +786,15 @@ c
       integer rsize,ssize,rindx,sindx
       integer requests(10),reqcnt
 
+*     *** local variables ***
+      integer  Butter_levels
+      external Butter_levels
+
       call Parallel2d_taskid_j(taskid_j)
       call Parallel2d_np_j(np_j)
 
-      Level = (log(dble(np_j))/log(2.0d0))
+cccccc      !Level = (log(dble(np_j))/log(2.0d0))
+      Level = Butter_levels(np_j)
 
       shift = 2**l
       pfrom = mod(taskid_j+np_j-shift,np_j)
@@ -829,8 +839,9 @@ c
       call D1dB_isendrecv(pto,  ssize*n2ft3d,hpsi_rep(1,sindx),
      >                    pfrom,rsize*n2ft3d,tmp,
      >                    requests,reqcnt)
+
       call D1dB_WaitAll(requests,reqcnt)
-      call daxpy(rsize*n2ft3d,1.0d0,tmp,1,hpsi_rep(1,rindx))
+      call daxpy(rsize*n2ft3d,1.0d0,tmp,1,hpsi_rep(1,rindx),1)
 
       return
       end

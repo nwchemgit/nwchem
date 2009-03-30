@@ -1,15 +1,15 @@
 #
-# $Id: GNUmakefile,v 1.2 2009-03-27 23:47:15 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2009-03-30 14:16:05 bylaska Exp $
 #
  SUBDIRS = 
 
- OBJ_OPTIMIZE = pspw_hfx.o  butter.o
+ OBJ_OPTIMIZE = pspw_hfx.o
 
 	  OBJ = 
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = pspw_hfx.F butter.F
+    USES_BLAS = pspw_hfx.F
 
   LIB_DEFINES = 
 
