@@ -572,7 +572,7 @@ c     implicit none
                request(reqcnt) = stupid_request
             end if
 
-            if (ssize.0) then
+            if (ssize.gt.0) then
                stupid_msglen = ssize
                stupid_type   = msgtype
                stupid_taskid = pto
