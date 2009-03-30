@@ -643,7 +643,8 @@ c     implicit none
 #ifdef MPI4
       call stupid_icopy8to4(reqcnt,request,request)
       stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,request,int_mb(status(1)),stupid_ierr)
+      call MPI_WAITALL(stupid_msglen,request,
+     >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,request,int_mb(status(1)),mpierr)
 #endif
