@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.48 2008-08-14 16:18:06 bert Exp $
+* $Id: mp2_grad_doit.F,v 1.49 2009-04-01 15:54:36 jhammond Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -122,7 +122,7 @@ c
       call util_file_name('kh',.true.,.true.,fnamek)
       if(rtdb_get(rtdb,'mp2:scratchdisk',mt_dbl,1,avail_file)) then
          avail_file=avail_file*1024d0*128d0
-         write(0,*) ' #avail ',avail_file
+         if (oprint_mem) write(0,*) ' #avail ',avail_file
       else
          avail_file=util_scratch_dir_avail_for_me()*128.0d0
       endif
