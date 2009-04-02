@@ -1,4 +1,7 @@
-c     $Id: cgsd_energy.F,v 1.82 2008-11-17 17:25:44 bylaska Exp $                       
+c
+c     $Id: cgsd_energy.F,v 1.83 2009-04-02 00:01:33 bylaska Exp $                       
+c
+
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*

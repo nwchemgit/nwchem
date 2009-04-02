@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.98 2009-03-19 20:42:17 bylaska Exp $
+* $Id: psi.F,v 1.99 2009-04-02 00:01:34 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.98  2009/03/19 20:42:17  bylaska
+* ...EJB
+*
 * Revision 1.97  2009/02/24 21:30:17  bert
 * In psi_finalize, occ1 and occ2 were deallocated in wrong order.
 *
@@ -5615,7 +5618,8 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
      >                        dcpl_mb(psi2(1)),
      >                        sum3)
          else
-         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
+c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
+         call Dneall_f_GramSchmidt(0,dcpl_mb(psi1(1)),npack1)
          call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
      >                        dcpl_mb(psi1(1)),
      >                        dcpl_mb(psi1(1)),

@@ -1,5 +1,5 @@
 *
-* $Id: Dne.F,v 1.25 2009-03-27 23:47:14 bylaska Exp $
+* $Id: Dne.F,v 1.26 2009-04-02 00:01:32 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -3682,7 +3682,7 @@ c            call Pack_c_SMul(1,sum1,U(indxk),U(indxk))
       return
       end 
 
-      subroutine DneAll_m_gather(nall,npack,indx,A,B)
+      subroutine Dneall_m_gather(nall,npack,indx,A,B)
       implicit none
       integer nall,npack,indx(*)
       real*8 A(*),B(*)
@@ -5283,4 +5283,138 @@ c   warning - ms==0 not allowed
       call Parallel_Vector_SumAll(3*nall,B)
       return
       end
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_f_GramSchmidt          *
+c     *                                      *
+c     ****************************************
+
+c   performs a modified gramSchmidt on Q
+c
+      subroutine Dneall_f_GramSchmidt(mb,Q,npack1)
+      implicit none
+      integer mb
+      complex*16 Q(*)
+      integer    npack1      
+
+#include "mafdecls.fh"           
+#include "errquit.fh"
+#include "Dne.fh"
+
+c     **** local variables ****
+      integer ms,ms1,ms2,shift,j,k,indxk,indxj
+      integer jj,kk,jcur,kcur
+      integer tmp(2)
+      real*8 w
+
+      if (parallelized) then
+
+c        **** allocate temporary memory ****
+         if (.not.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1)))
+     >   call errquit('Dneall_f_Gramschmidt:out of stack',0,MA_ERR)
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+         else
+            ms1 = mb
+            ms2 = mb
+         end if
+         shift = neq(1)*npack1
+
+         do ms=ms1,ms2
+
+            kcur = np_j-1
+            kk   = int_mb(na(1,ms)+kcur) - 1 
+
+            do k=ne(ms),1,-1
+
+               if (kcur.eq.taskid_j) then
+                  indxk = 1 + kk*npack1    + (ms-1)*shift
+                  call Pack_cc_dot(1,Q(indxk),Q(indxk),w)
+                  w        = 1.0d0/dsqrt(w)
+                  call Pack_c_SMul1(1,w,Q(indxk))
+                  call dcopy(2*npack1,Q(indxk),1,dcpl_mb(tmp(1)),1)
+               end if
+
+*              *** Brdcst Q(indxk) ***
+               if (kcur.gt.0) 
+     >            call D1dB_Brdcst_values(kcur,2*npack1,dcpl_mb(tmp(1)))
+
+c              *** set j = k+1 ***
+               jj   = kk
+               jcur = kcur
+
+               jj = jj - 1
+               if (jj.lt.0) then
+                  jcur = jcur - 1
+                  jj = int_mb(na(1,ms) + jcur) - 1
+               end if
+
+               do j=k-1,1,-1
+                  if (jcur.eq.taskid_j) then
+                     indxj = 1 + jj*npack1    + (ms-1)*shift
+                     call Pack_cc_dot(1,dcpl_mb(tmp(1)),Q(indxj),w)
+                     w = -w
+                     call Pack_cc_daxpy(1,w,dcpl_mb(tmp(1)),Q(indxj))
+                  end if
+
+                  jj = jj - 1
+                  if (jj.lt.0) then
+                     jcur = jcur - 1
+                     jj = int_mb(na(1,ms) + jcur) - 1
+                  end if
+
+               end do
+
+               kk = kk - 1
+               if (kk.lt.0) then
+                  kcur = kcur - 1
+                  kk = int_mb(na(1,ms) + kcur) - 1
+               end if
+
+            end do
+         end do
+
+c        **** deallocate local memory ****
+         if (.not.MA_pop_stack(tmp(2)))
+     >   call errquit('Dneall_f_GramSchmidt:popping stack',0,MA_ERR)
+
+
+
+c     **** not parallized ****
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+         else
+            ms1 = mb
+            ms2 = mb
+         end if
+         shift = ne(1)*npack1
+
+c         **** modified Gram-Schmidt ****
+         do ms=ms1,ms2
+         do k=ne(ms),1,-1
+            indxk = 1 + (k-1)*npack1 + (ms-1)*shift
+            call Pack_cc_dot(1,Q(indxk),Q(indxk),w)
+            w        = 1.0d0/dsqrt(w)
+            call Pack_c_SMul1(1,w,Q(indxk))
+
+            do j=k-1,1,-1
+               indxj = 1 + (j-1)*npack1 + (ms-1)*shift
+               call Pack_cc_dot(1,Q(indxk),Q(indxj),w)
+               w = -w
+               call Pack_cc_daxpy(1,w,Q(indxk),Q(indxj))
+            end do
+         end do
+         end do
+      end if
+
+      return
+      end 
 

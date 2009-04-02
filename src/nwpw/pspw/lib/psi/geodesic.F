@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.32 2009-02-07 03:50:56 bylaska Exp $
+* $Id: geodesic.F,v 1.33 2009-04-02 00:01:34 bylaska Exp $
 *
 
 *     ***********************************
@@ -214,11 +214,12 @@ c      value = value.and.MA_free_heap(Vt(2))
 
 *     **** local variables ****
       logical    value
-      integer    npack1,nemax,nemaxq
+      integer    npack1,nemax,ispin,ne(2),neq(2),shift,ms
       real*8     zero,one
       integer    tmp1(2),tmp2(2),tmp3(2)
       integer    tmpC(2),tmpS(2)
-      real*8     sum1,sum2,sum3
+c      real*8     sum1,sum2,sum3
+      real*8     sum2(2),sum1
 
       integer    taskid, MASTER
       parameter  (MASTER=0)
@@ -233,8 +234,12 @@ c      value = value.and.MA_free_heap(Vt(2))
       zero = 0.0d0
       one  = 1.0d0
       call Pack_npack(1,npack1)
-      nemax  = psi_ne(1) + psi_ne(2)
-      nemaxq = psi_neq(1) + psi_neq(2)
+      ispin  = psi_ispin()
+      ne(1)  = psi_ne(1)
+      ne(2)  = psi_ne(2)
+      neq(1) = psi_neq(1)
+      neq(2) = psi_neq(2)
+      nemax  = ne(1) + ne(2)
 
 *     **** allocate tmp space ****
       value =           Dneall_m_push_get(0,tmp1)
@@ -305,29 +310,48 @@ c 100    continue
 c
 c      end do
 
-
 *     **** Orthonormality Check ****     
-      call Grsm_gg_trace(npack1,nemaxq,Ynew,Ynew,sum2)
-      call D1dB_SumAll(sum2)
-  
-      sum1 = dble(nemax)
-      if (dabs(sum2-sum1).gt.1.0d-10) then
-        call Dneall_f_ortho(0,Ynew,npack1)
+      do ms=1,ispin
+         shift = 1 + (ms-1)*neq(1)*npack1
+         call Grsm_gg_itrace(npack1,neq(ms),
+     >                       Ynew(shift),Ynew(shift),sum2(ms))
+      end do
+      call Parallel_Vector_SumAll(ispin,sum2)
+      do ms=1,ispin
+         sum1 = dble(ne(ms))
+         if (dabs(sum2(ms)-sum1).gt.1.0d-10) then
+             shift = 1 + (ms-1)*neq(1)*npack1
+            call Dneall_f_GramSchmidt(ms,Ynew,npack1)
+         end if
+      end do
 
-c        call Grsm_gg_trace(npack1,nemaxq,Ynew,Ynew,sum3)
-c        call D1dB_SumAll(sum3)
+cc      call Grsm_gg_trace(npack1,nemaxq,Ynew,Ynew,sum2)
+cc      call D1dB_SumAll(sum2)
+c      sum1 = dble(nemax)
+c      if (dabs(sum2-sum1).gt.1.0d-10) then
+cc        call Dneall_f_ortho(0,Ynew,npack1)
+c        call Dneall_f_GramSchmidt(0,Ynew,npack1)
+c
 c        call Parallel_taskid(taskid)
-c         if (taskid.eq.MASTER) 
-c     >      write(*,'(5x,A,A,4e10.3)') 
-c     >      "-  Warning: Gram-Schmidt performed in geodesic_get, ",
-c     >      "error=",dabs(sum2-sum1),sum2,dabs(sum3-sum1),sum3
-
-c         call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
-c         if (psi_ispin().gt.1) then
-c           call Grsm_g_MakeOrtho(npack1,psi_ne(2),
-c     >                           Ynew(1 + psi_ne(1)*npack1))
-c         end if
-      end if
+c        if (taskid.eq.MASTER) 
+c     >      write(*,'(5x,A,A,2e10.3)') 
+c     >      "-  Warning: Gram-Schmidt performed in geodesic_get",
+c     >      "error=",dabs(sum2-sum1),sum2
+c
+cc        call Grsm_gg_trace(npack1,nemaxq,Ynew,Ynew,sum3)
+cc        call D1dB_SumAll(sum3)
+cc        call Parallel_taskid(taskid)
+ccc         if (taskid.eq.MASTER) 
+cc     >      write(*,'(5x,A,A,4e10.3)') 
+cc     >      "-  Warning: Gram-Schmidt performed in geodesic_get, ",
+cc     >      "error=",dabs(sum2-sum1),sum2,dabs(sum3-sum1),sum3
+c
+cc         call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
+cc         if (psi_ispin().gt.1) then
+cc           call Grsm_g_MakeOrtho(npack1,psi_ne(2),
+cc     >                           Ynew(1 + psi_ne(1)*npack1))
+cc         end if
+c      end if
 
 
 *     **** deallocate tmp space ****     

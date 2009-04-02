@@ -1,8 +1,11 @@
 *
-* $Id: Grassman.F,v 1.19 2009-02-07 03:50:56 bylaska Exp $
+* $Id: Grassman.F,v 1.20 2009-04-02 00:01:33 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.19  2009/02/07 03:50:56  bylaska
+* Bassi Vectorization Fix...EJB
+*
 * Revision 1.18  2007/03/29 00:51:45  bylaska
 * queue FFT added to HFX and more rigid msgtyping added to queueFFT
 * ....EJB
@@ -815,6 +818,51 @@ c        MM = MM + sum
      >     + 2*ddot(2*nidb(1),A(nida(1)+1,j),1,B(nida(1)+1,j),1)
       end do
       if (np.gt.1) call D3dB_SumAll(MM)
+
+      return
+      end
+
+
+*     ****************************
+*     *                          *
+*     *         Grsm_gg_itrace    *
+*     *                          *
+*     ****************************
+* 
+*     uses - 
+
+      subroutine Grsm_gg_itrace(nfft3d,n,A,B,MM)
+      implicit none
+      integer nfft3d,n
+      complex*16 A(nfft3d,n)
+      complex*16 B(nfft3d,n)
+      real*8     MM
+
+*     **** local variables ****
+      integer j,np
+      real*8 sum
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+
+*     **** external functions ****
+      real*8   ddot
+      external ddot
+
+
+c      call Parallel2d_np_i(np)
+      MM = 0.0d0
+      do j=1,n
+c        call Pack_cc_idot(1,A(1,j),B(1,j),sum)
+c        MM = MM + sum
+        MM = MM
+     >     + ddot(2*nida(1),A(1,j),1,B(1,j),1)
+     >     + 2*ddot(2*nidb(1),A(nida(1)+1,j),1,B(nida(1)+1,j),1)
+      end do
+c      if (np.gt.1) call D3dB_SumAll(MM)
 
       return
       end
