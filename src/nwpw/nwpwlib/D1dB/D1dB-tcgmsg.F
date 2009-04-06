@@ -196,3 +196,146 @@ c     implicit none
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *         D1dB_isendrecv          *
+*     *                                 *
+*     ***********************************
+      subroutine D1dB_isendrecv(pto,  ssize,sdata,
+     >                          pfrom,rsize,rdata,
+     >                          request,reqcnt)
+      implicit none
+      integer pto,ssize
+      real*8  sdata(*)
+      integer pfrom,rsize
+      real*8  rdata(*)
+      integer request(*)
+      integer reqcnt
+
+#include "D1dB.fh"
+
+
+*     **** local variables ****
+      integer msgtype,mpierr
+
+*     **** external functions ****
+      integer  Parallel2d_comm_j
+      external Parallel2d_comm_j
+
+
+      call errquit(' D1dB_isendrecv:not implemented!',0,0)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         D1dB_WaitAll            *
+*     *                                 *
+*     ***********************************
+*
+*  This routine waits for the sends and receives to 
+* finish that were started with D1dB_isendrecv
+* 
+      subroutine D1dB_WaitAll(request,reqcnt)
+      implicit none
+      integer request(*)
+      integer reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      call errquit(' D1dB_WaitAll:not implemented!',0,0)
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          D1dB_Brdcst_step            *
+c     *                                      *
+c     ****************************************
+c
+c  This routine performs step l of a butterfly Broadcast all algorithm. The step
+c  l spans from 0..(Level-1) where the number of levels is Level = Log(np_j)/Log(2).
+c
+c   Entry - l: Butterfly step 0...(Level-1)
+c           na: an array of length np_j containing the number of orbitals per taskid_j
+c           blocks0: number of blocks to send size=blocks0, 
+c                    the exceptions are:
+c                    if blocks0==0: the block size is size=2**l.
+c                    if blocks0==-1: block size is size=(np_j-2**Level)/2 + 1 for l==(Level-1),
+c                                    blocksize is size=2**l otherwise
+c           n2ft3d: leading size of psi_rep
+c           psi_rep: data array
+c   Exit -
+c           psi_rep: modified data array 
+c           requests,reqcnt: tags for asychronous message passing
+c
+      subroutine D1dB_Brdcst_step(l,na,blocks0,
+     >                            n2ft3d,psi_rep,
+     >                            requests,reqcnt)
+      implicit none
+      integer l,na(*),blocks0
+      integer n2ft3d
+      real*8 psi_rep(n2ft3d,*)
+      integer requests(*),reqcnt
+
+*     *** local variables ***
+      integer taskid_j,np_j
+      integer i,pr,ps,shift,size,Level
+      integer pto,pfrom,rsize,ssize,rindx,sindx
+
+*     *** local variables ***
+      integer  Butter_levels
+      external Butter_levels
+
+      call errquit(' D1dB_Brdcst_step:not implemented!',0,0)
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *           D1dB_Reduce_step           *
+c     *                                      *
+c     ****************************************
+c
+c  This routine performs step l of a butterfly Reduceall algorithm. The step
+c  l spans from 0..(Level-1) where the number of levels is Level = Log(np_j)/Log(2).
+c
+c   Entry - l: Butterfly step 0...(Level-1)
+c           na: an array of length np_j containing the number of orbitals per taskid_j
+c           blocks0: number of blocks to send size=blocks0, 
+c                    the exceptions are:
+c                    if blocks0==0: the block size is size=2**l.
+c                    if blocks0==-1: block size is size=(np_j-2**Level)/2 + 1 for l==(Level-1),
+c                                    blocksize is size=2**l otherwise
+c           n2ft3d: leading size of psi_rep
+c           hpsi_rep: data array
+c           tmp: tempory data array. Needs to be at least  n2ft3d*size
+c
+c   Exit - hpsi_rep: modified data array
+c          requests,reqcnt: tags for asychronous message passing
+c
+      subroutine D1dB_Reduce_step(l,na,blocks0,
+     >                            n2ft3d,hpsi_rep,tmp)
+      implicit none
+      integer l,na(*),blocks0
+      integer n2ft3d
+      real*8 hpsi_rep(n2ft3d,*)
+      real*8 tmp(*)
+
+*     *** local variables ***
+      integer taskid_j,np_j
+      integer i,pr,ps,size,shift,Level,pfrom,pto
+      integer rsize,ssize,rindx,sindx
+      integer requests(10),reqcnt
+
+*     *** local variables ***
+      integer  Butter_levels
+      external Butter_levels
+
+      call errquit(' D1dB_Reduce_step:not implemented!',0,0)
+      return
+      end
