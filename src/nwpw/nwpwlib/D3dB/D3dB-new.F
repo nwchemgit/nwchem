@@ -3208,7 +3208,7 @@ c     i2_start(np+1) = index2
 
       end if
 
-      call ga_sync()
+c      call ga_sync()
 
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
@@ -3272,8 +3272,8 @@ c     i2_start(np+1) = index2
 
       end if
 
-*     **** wait ****
-      call ga_sync()
+c*     **** wait ****
+c      call ga_sync()
 
       return
       end
@@ -3432,8 +3432,8 @@ c     i2_start(np+1) = index2
 
       end if
 
-*     **** wait ****
-      call ga_sync()
+c*     **** wait ****
+c      call ga_sync()
       return
       end
 
@@ -3545,7 +3545,7 @@ c     i2_start(np+1) = index2
       value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
-      call ga_sync()
+c      call ga_sync()
 
 
 *     **** master node reads from file and distributes ****
@@ -3610,8 +3610,8 @@ c     i2_start(np+1) = index2
 
       end if
 
-*     **** wait ****
-      call ga_sync()
+c*     **** wait ****
+c      call ga_sync()
 
       return
       end
