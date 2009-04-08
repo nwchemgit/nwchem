@@ -11,5 +11,6 @@ runtest.unix procs 2 \
  $NWCHEM_TEST/had/had_md \
  $NWCHEM_TEST/prep/a3n \
  $NWCHEM_TEST/prep/aal \
- $NWCHEM_TEST/prep/fsc
+ $NWCHEM_TEST/prep/fsc \
+ $NWCHEM_TEST/water/water_md
 # $NWCHEM_TEST/h2o_qmd/h2o_scf 
