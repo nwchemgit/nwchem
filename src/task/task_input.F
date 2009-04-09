@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.57 2009-02-04 06:23:53 niri Exp $
+* $Id: task_input.F,v 1.57 2009/02/04 06:23:53 niri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -67,6 +67,10 @@ c
             operation = 'dynamics'
          else if (inp_compare(.false.,test,'thermodynamics')) then
             operation = 'thermodynamics'
+CJMC
+         else if (inp_compare(.false.,test,'mepgs')) then
+            operation = 'mepgs'
+CJMC
          else if (inp_compare(.false.,test,'et')) then
             operation = 'et'
 c         else if (inp_compare(.false.,test,'prepare')) then
@@ -220,6 +224,9 @@ c
      >      operation.ne.'frequencies' .and.
      >      operation.ne.'hessian' .and.
      >      operation.ne.'freq' .and.
+CJMC
+     >      operation.ne.'mepgs' .and.
+CJMC
      >      operation.ne.'gradient' .and.
      >      operation.ne.'property' .and.
      >      operation.ne.'dynamics' .and.
