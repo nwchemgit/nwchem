@@ -1,0 +1,41 @@
+*
+* $Id: cmepgs.fh,v 1.14 2007/05/23 22:13:12 d3p307 Exp $
+*
+c
+c     Defintions of /cmepgs/ and /cmepgs/
+c
+      double precision 
+     $     energyref,           ! [user|auto] precision in the energy
+     $     evib,                ! [user|auto] precision in the energy
+     $     stride               ! [user] trust radius for spectral step
+     $     ,maxst
+     $     ,svalue
+     $     ,ctrust2
+     $     ,distcx
+     $     ,stotal
+      integer 
+     $     modirc               ! [user] +/- mode for initial saddle step
+     $     ,nircopt
+cjmc
+c
+      logical 
+     $     mswg
+     $     , flip
+     $     , redogs
+     $     , ircdone
+     $     , forward
+     $     , backward
+     $     , ircboth
+ 
+c
+      common/cdrv_mepgs/
+c     doubles
+     $     energyref, evib, stride, maxst, svalue, ctrust2, distcx,
+     $     stotal,
+c     integers
+     $     modirc, nircopt, 
+c     logicals
+     $    mswg, flip, redogs, ircdone, forward, backward, ircboth
+c
+c     Contents of /cmepgs/
+c

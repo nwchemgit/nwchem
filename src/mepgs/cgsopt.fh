@@ -1,0 +1,140 @@
+*
+* $Id: cgsopt.fh,v 1.14 2007/05/23 22:13:12 d3p307 Exp $
+*
+c
+c     Defintions of /cgsopt/ and /cgsopt/
+c      
+c     The contents of /cgsopt/ are mostly read-only and are
+c     initialized by driver_initialize().  The zmatrix info must be
+c     updated if the internal coordinates regenerated
+c
+c     /cgsopt/ is dynamically updated
+c
+c     These parameter definitions from geomP.fh and soon to be from
+c     a standard include file
+      integer max_cent, max_nzvar, max_izmat
+      parameter (max_cent      = nw_max_atom)
+      parameter (max_nzvar     = 3*max_cent)
+      parameter (max_izmat     = 4*max_nzvar)
+c
+      integer max_cart
+      parameter (max_cart = 3*max_cent)
+      integer max_nvar
+*     parameter (max_nvar = max(max_nzvar,max_cart))  ! max function call cannot be used in a parameter statement
+*note:  max_nvar should be .eq. max(max_nzvar,max_cart)
+      parameter (max_nvar = max_cart)
+c
+c     zmatrix info will only be set if zcoord is true
+c
+c     nvar is the no. of variables in the optimization which
+c     is performed in one of
+c     .   cartesians
+c     .   redundant internals
+c     .   non-redundant user-specified internals
+c
+      double precision 
+     $     eprec,               ! [user|auto] precision in the energy
+     $     trust,               ! [user] trust radius for spectral step
+     $     gmax_tol,            ! [user] tolerance for max internal gradient
+     $     grms_tol,            ! [user] tolerance for rms internal gradient
+     $     xrms_tol,            ! [user] tolerance for rms cartesian step
+     $     xmax_tol,            ! [user] tolerance for max cartesian step
+     $     sadstp,              ! [user] step in search for saddle point
+     $     zvarsign(max_nzvar), ! sign of zmatrix variables
+     $     maxdr, 
+     $     opt_tol,
+     $     slength
+      integer 
+     $     nptopt,              ! [user] max no. of steps
+     $     inhess,              ! [user] guess hessian option
+     $     linopt,              ! [user] max. no. of steps for line search
+     $     modupd,              ! [user] update mode for hessian
+     $     moddir,              ! [user] +/- mode for initial saddle step
+     $     vardir,              ! [user] +/- var  for initial saddle step
+     $     modsad,              ! [user] 0=minim, 1=saddle
+     $     nat,                 ! no. of atoms (+ 3 pretend if ostress, or + 2 pretend if ostress2)
+     $     nat_real,            ! no. of real atoms (i.e., no cell param)
+     $     ncart,               ! no. of cartesians = 3*nat
+     $     nzmat,               ! no. of zmatrix integers
+     $     nzvar,               ! no. of zmatrix variables
+     $     nvar,                ! no. of redundant or cartesian variables
+     $     nzfrz,               ! no. of frozen zmatrix variables
+     $     isystype,            ! system type (mol, poly, slab, crys)
+     $     nactive,             ! no. of active atoms (cartesian constraints)
+     $     izmat(max_izmat),    ! zmatrix integers
+     $     izfrz(max_nzvar)     ! list of frozen variables
+cjmc
+     $     ,hfollow
+cjmc
+c
+      logical 
+     $     ofirstneg,           ! [user] take the first negative mode
+     $     opcg,                ! [user] use conjugacy
+     $     oqstep,              ! [user/auto] step in internal coords
+     $     zcoord,              ! autoz/zmatrix being used
+     $     zmatrix,             ! user specified zmatrix being used
+     $     oprint,              ! print information
+     $     odebug,              ! print debug data
+     $     ostress,             ! include stress
+     $     ostress2,            ! include lattice gradients
+     $     ocheckgrad,          ! verify the gradient
+     $     oactive(max_cent)    ! active atom flags
+     $     ,redostep
+c
+      character*8
+     $     zvarname(max_nzvar) ! name of user specified zmatrix variables
+      character*60
+     $     xyz                  ! [user] prefix for xyz files or blank
+c
+      common/cdrv_gsopt/
+c     doubles
+     $     eprec, trust, gmax_tol, grms_tol, xrms_tol, xmax_tol, 
+     $     sadstp, zvarsign, maxdr, opt_tol, slength,
+c     integers
+     $     nptopt, inhess, linopt, modupd, moddir, vardir, modsad, 
+     $     nat, nat_real, ncart, nzmat, nzvar, nvar, izmat, nzfrz, 
+     $     izfrz, isystype, nactive , hfollow,
+c     logicals
+     $     ofirstneg, opcg, oqstep, zcoord, zmatrix, oprint, odebug,
+     $     ostress, ostress2, ocheckgrad, oactive, redostep
+c     characters
+      common/ccdrv_gsopt/
+     $     zvarname, xyz
+c
+c     Contents of /cgsopt/
+c
+      double precision 
+     $     gmax,                ! maxmimum gradient element in opt. var.
+     $     grms,                ! rms gradient element in opt. var.
+     $     smax,                ! maximum step in opt. var.
+     $     srms,                ! rms step element in opt. var.
+     $     xmax,                ! maxmimum first-order cartesian step
+     $     xrms,                ! rms element in first-order cart. step
+     $     energy,              ! Current energy
+     $     alpha,               ! Current step in current search direction
+     $     gx(max_nvar),        ! Current cartesian gradient
+     $     gq(max_nvar),        ! Current internal coord gradient
+     $     g(max_nvar),         ! Current gradient in optimization variables
+     $     ds(max_nzvar),       ! Current search direction in opt. var.
+     $     energyp,             ! Previous energy
+     $     alphap,              ! Previous alpha
+     $     sp(max_nvar),        ! Previous values of optimization variables
+     $     dsp(max_nvar),       ! Previous search direction
+     $     gp(max_nvar)         ! Previous gradient in optimization variables
+cjmc
+     $     ,oldgra(max_nvar)
+     $     ,oldgeo(max_nvar)
+     $     ,radius(max_nvar)
+     $     ,center(max_nvar)
+     $     ,atmass(max_nvar)
+cjmc
+c
+      character*8 lsmode        ! Action taken by previous line search
+c
+      common /cgsopt/ gmax, grms, smax, srms, xmax, xrms,
+     $     energy, energyp, alpha, alphap, gx, gq, g, gp, ds, dsp, sp,
+cjmc
+     $     oldgra, oldgeo, radius, center, atmass
+cjmc
+c
+      common /ccgsopt/ lsmode
