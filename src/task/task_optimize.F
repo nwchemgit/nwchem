@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.31 2009-02-03 22:50:20 niri Exp $
+c     $Id: task_optimize.F,v 1.31 2009/02/03 22:50:20 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -36,6 +36,9 @@ c
       logical ousedriver ! use driver (default)
       logical ouselbfgs  ! use lbfgs
       logical ousedeloc  ! use delocalized internals
+CJMC
+      logical ousetropt  ! use Trust Region OPTimization
+CJMC
 c     
       character*32 theory
 c     
@@ -53,6 +56,11 @@ c
 c     delocalized internals optimizer driver
       logical deloc_driver
       external deloc_driver
+CJMC
+c     Trust Region OPTimization
+      logical tropt
+      external tropt
+CJMC
 c     
       call ecce_print_module_entry('task optimize')
 c     
@@ -67,6 +75,10 @@ c
 c     delocalized internals optimizer
       if (.not. rtdb_get(rtdb, 'driver:deloc', mt_log, 1, ousedeloc))
      $     ousedeloc = .false.
+CJMC
+      if (.not. rtdb_get(rtdb, 'opt:tropt', mt_log, 1, ousetropt))
+     $     ousetropt = .false.
+CJMC
 c
 c     turn off the other options if one is set
       if(ouselbfgs) then
@@ -124,6 +136,12 @@ c         status = .false.
             status =  lbfgsb_driver(rtdb)   ! lbfgs optimizer
          else if(ousedeloc) then
             status =  deloc_driver(rtdb)    ! delocalized internals optimizer
+CJMC
+         else if(ousetropt) then
+            if (.not. rtdb_put(rtdb,'tropt:modsad',mt_int, 1, 0))
+     $           call errquit('task_optimize: rtdb?',0, RTDB_ERR)
+            status = tropt(rtdb)
+CJMC
          else
             ts   = .false.
             omin = .true.
@@ -172,7 +190,7 @@ c
       end
 c
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.31 2009-02-03 22:50:20 niri Exp $
+c     $Id: task_optimize.F,v 1.31 2009/02/03 22:50:20 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -209,17 +227,29 @@ c
       double precision cpu, wall
 c     
       logical ousedriver, status, ts, omin
+CJMC
+      logical ousetropt
+CJMC
       integer modsad
 c     
       character*32 theory
 c     
       logical  task_gradient, stpr_walk_task, driver
       external task_gradient, stpr_walk_task, driver
+CJMC
+      logical  tropt
+      external tropt
+CJMC
 c     
       call ecce_print_module_entry('task saddle')
 c     
       if (.not. rtdb_get(rtdb, 'opt:driver', mt_log, 1, ousedriver))
      $     ousedriver = .true.
+CJMC
+      if (.not. rtdb_get(rtdb, 'opt:tropt', mt_log, 1, ousetropt))
+     $     ousetropt = .false.
+
+CJMC
 c     
       cpu  = util_cpusec()
       wall = util_wallsec()
@@ -264,6 +294,13 @@ c         status = .false.
             if (.not. rtdb_put(rtdb,'driver:modsad',mt_int,1,modsad))
      $           call errquit('task_saddle: rtdb corrupt?', 0, RTDB_ERR)
             status = driver(rtdb)
+CJMC
+         else if(ousetropt) then
+            modsad = 1
+            if (.not. rtdb_put(rtdb,'tropt:modsad',mt_int,1,modsad))
+     $           call errquit('task_saddle: rtdb corrupt?', 0, RTDB_ERR)
+            status = tropt(rtdb)
+CJMC
          else
             ts   = .true.
             omin = .false.
@@ -312,7 +349,7 @@ c
       end
 c
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.31 2009-02-03 22:50:20 niri Exp $
+c     $Id: task_optimize.F,v 1.31 2009/02/03 22:50:20 niri Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
