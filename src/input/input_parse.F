@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.88 2009-02-03 22:49:53 niri Exp $
+C     $Id: input_parse.F,v 1.88 2009/02/03 22:49:53 niri Exp $
       implicit none
 #include "errquit.fh"
       integer rtdb              ! [input]
@@ -89,6 +89,12 @@ c
                call input_title(rtdb)
             else if (inp_compare(.false.,test,'stepper')) then
                call stepper_input(rtdb)
+CJMC
+            else if (inp_compare(.false.,test,'mepgs')) then
+               call mepgs_input(rtdb)
+            else if (inp_compare(.false.,test,'tropt')) then
+               call tropt_input(rtdb)
+CJMC
             else if (inp_compare(.false.,test,'driver')) then
                call driver_input(rtdb)
             else if (inp_compare(.false.,test,'qcharge')) then
