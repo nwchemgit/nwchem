@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.96 2009-03-05 18:10:29 d3p975 Exp $
+* $Id: task.F,v 1.96 2009/03/05 18:10:29 d3p975 Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -39,6 +39,9 @@ c
       logical property, dplot, gapss, task_shell, moints_full
       logical analyz,diana,esp,prepar,nwmd, kgdtest, jvltest, jvltest2
       logical task_energy, task_gradient, task_optimize, task_freq
+CJMC
+      logical task_mepgs
+CJMC
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics
       logical oqmmm,opes, task_python, task_thermo,task_bq,task_nbo
@@ -70,6 +73,9 @@ c
       external property, dplot, gapss, task_shell, moints_full
       external analyz,diana,esp,prepar,nwmd
       external task_energy, task_gradient, task_optimize, task_freq
+CJMC
+      external task_mepgs
+CJMC
       external task_hessian, task_saddle, task_lst, task_neb
       external task_dynamics
       external task_version, task_python, task_thermo,task_nbo
@@ -323,6 +329,11 @@ c          status = embed_frequency(rtdb)
 c        else
            status = task_freq(rtdb)
 c        end if
+CJMC
+      else if (inp_compare(.false.,'mepgs', operation)) then
+         status = task_mepgs(rtdb)
+
+CJMC
       else if (inp_compare(.false.,'dynamics',operation)) then
          if(oqmmm) then
            status = task_qmmm_dynamics(rtdb)
