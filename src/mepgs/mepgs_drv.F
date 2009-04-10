@@ -482,7 +482,7 @@ c
 c
       ctheta = factor(1)/factor(2)
 c
-      if (abs(ctheta).gt.1.0) ctheta = sign(1.0,ctheta) 
+      if (abs(ctheta).gt.1.0) ctheta = dsign(1.d0,ctheta) 
 c
       if (angle) then
         mepgs_cosang = acos(ctheta)
