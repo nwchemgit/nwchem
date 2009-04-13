@@ -1620,7 +1620,8 @@ c
       character*9 cvg1, cvg2, cvg3, cvg4
       character*1 mark
       character*255 filename, dir
-      logical mygeom_print_xyz
+      logical mol_geom_print_xyz
+      external mol_geom_print_xyz
 c
       de = 0d0
       if (istep .gt. 1) de = energy-energyp
@@ -1690,8 +1691,8 @@ c
            rewind(88)
          end if
 c
-         if (.not. mygeom_print_xyz(geom, 88, energy))
-     $       call errquit('tropt: mygeom_print_xyz?',0, GEOM_ERR)
+         if (.not. mol_geom_print_xyz(geom, 88, energy))
+     $       call errquit('tropt: mol_geom_print_xyz?',0, GEOM_ERR)
          call util_flush(88)
 c
          if (closefile) close(88,status='keep',err=133)
@@ -3162,33 +3163,3 @@ c
       end 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCccc
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCccc
-      logical function mygeom_print_xyz(geom, unit, ener)
-      implicit none
-#include "nwc_const.fh"
-#include "geomP.fh"
-#include "util.fh"
-#include "inp.fh"
-#include "stdio.fh"
-      integer geom, unit
-      integer j, icent
-      double precision scale,ener
-      logical geom_check_handle
-      external geom_check_handle
-c     
-      mygeom_print_xyz = .true.
-c
-      scale = 1.0d0 / angstrom_to_au
-c
-      write(unit,1) ncenter(geom)
- 1    format(1x,i5)
-      write(unit,2) ener
- 2    format(1x,f15.8)
-      do icent = 1, ncenter(geom)
-        write(unit,3) tags(icent,geom), 
-     $                (coords(j,icent,geom)*scale,j=1,3)
-
-
- 3       format(1x,a16,1x,3f15.8)
-      end do
-c
-      end
