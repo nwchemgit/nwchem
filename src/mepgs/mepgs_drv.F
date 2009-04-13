@@ -50,14 +50,6 @@ c
 c     **** Print trayectory file ****
 c
       energy = energyts
-CJMC debug
-      write(6,*) "prueba de impresion"
-      if ((ga_nodeid() .eq. 0) .and.
-     $       util_print('geometry',print_default)) then
-           if (.not. geom_print(geom)) call errquit('tropt: geom?',0,
-     $       GEOM_ERR)
-        endif
-CJMC debug
       call mepgs_path(geom, .true., .false.)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     Displace TS along selected mode ! has to be negative          c
@@ -69,14 +61,6 @@ c     **** Deallocate geom ****
 c
       if (.not.geom_destroy(geom))
      &  call errquit('hnd_opt: geom_destroy?', 911, GEOM_ERR)
-CJMC debug
-      write(6,*) "prueba de impresion"
-      if ((ga_nodeid() .eq. 0) .and.
-     $       util_print('geometry',print_default)) then
-           if (.not. geom_print(geom)) call errquit('tropt: geom?',0,
-     $       GEOM_ERR)
-        endif
-CJMC debug
 c
 c     **** Move away from TS *****
 c
