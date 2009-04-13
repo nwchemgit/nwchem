@@ -1966,6 +1966,40 @@ c         write(unit,3) tags(icent,geom), (tmp(j),j=1,3)
       end do
 c
       end
+      logical function mol_geom_print_xyz(geom, unit, energy)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "stdio.fh"
+      integer geom, unit
+      integer j, icent
+      double precision scale, energy
+      logical geom_check_handle
+      external geom_check_handle
+c     
+      mol_geom_print_xyz = .true.
+      if (.not. geom_check_handle(geom, 'mol_geom_print_xyz')) then
+         mol_geom_print_xyz = .false.
+         return
+      end if
+c
+      scale = 1.0d0 / angstrom_to_au
+c
+      write(unit,1) ncenter(geom)
+ 1    format(1x,i5)
+      write(unit,2) energy
+ 2    format(1x,f15.8)
+      do icent = 1, ncenter(geom)
+        write(unit,3) tags(icent,geom), 
+     $                (coords(j,icent,geom)*scale,j=1,3)
+
+
+ 3       format(1x,a16,1x,3f15.8)
+      end do
+c
+      end
       logical function geom_print(geom)
       implicit none
 #include "errquit.fh"
