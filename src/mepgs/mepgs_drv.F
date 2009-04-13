@@ -50,6 +50,14 @@ c
 c     **** Print trayectory file ****
 c
       energy = energyts
+CJMC debug
+      write(6,*) "prueba de impresion"
+      if ((ga_nodeid() .eq. 0) .and.
+     $       util_print('geometry',print_default)) then
+           if (.not. geom_print(geom)) call errquit('tropt: geom?',0,
+     $       GEOM_ERR)
+        endif
+CJMC debug
       call mepgs_path(geom, .true., .false.)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     Displace TS along selected mode ! has to be negative          c
@@ -61,6 +69,14 @@ c     **** Deallocate geom ****
 c
       if (.not.geom_destroy(geom))
      &  call errquit('hnd_opt: geom_destroy?', 911, GEOM_ERR)
+CJMC debug
+      write(6,*) "prueba de impresion"
+      if ((ga_nodeid() .eq. 0) .and.
+     $       util_print('geometry',print_default)) then
+           if (.not. geom_print(geom)) call errquit('tropt: geom?',0,
+     $       GEOM_ERR)
+        endif
+CJMC debug
 c
 c     **** Move away from TS *****
 c
@@ -139,7 +155,29 @@ c
 c
 c     **** Update the IRC hessian ****
 c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      if (mswg) then
+        call mwcoord(   ds, nvar, .true.)
+        call mwgrad(     g, nvar, .true.)
+        call mwgrad(oldgra, nvar, .true.)
+      end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
       call mepgs_hessian_update()
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      if (mswg) then
+        call mwcoord(   ds, nvar, .false.)
+        call mwgrad(     g, nvar, .false.)
+        call mwgrad(oldgra, nvar, .false.)
+      end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
 c
 c     **** initialization ****
 c
@@ -405,16 +443,30 @@ c
       logical ophigh
 c
       ophigh = util_print('high', print_high)
-CJMC mass
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
       if (mswg) call mwgrad(pgref, nvar, .true.)
-CJMC mass
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
       pgnorm = sqrt(ddot(nvar, pgref, 1,  pgref, 1))
       call dcopy(nvar, pgref, 1, ds, 1) 
       call dscal(nvar, sfactor*stride/pgnorm, ds, 1)
-CJMC mass
-      if (mswg) call mwgrad(pgref, nvar, .false.)
-      if (mswg) call mwcoord(ds, nvar, .false.) 
-CJMC mass
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      if (mswg) then
+        call mwgrad(pgref, nvar, .false.)
+        call mwcoord(ds, nvar, .false.) 
+      end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
 c
 c     enforce symmetry
 c
@@ -754,6 +806,13 @@ c
          enddo
       enddo
 c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      if (mswg) call geom_hnd_get_data('irc.hess',dbl_mb(k_hc), nvar**2)
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
       call geom_hnd_put_data('irc.hess',dbl_mb(k_hc), nvar**2)
 c
       if (.not. ma_chop_stack(l_bi))
@@ -898,6 +957,23 @@ c
       if (.not. gsopt_geom_cart_coords_get(geom, newx))
      $    call errquit('mepgs: geom?',0, geom_err) 
 c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      if (mswg) then
+        call mwcoord(    ds, nvar, .true.)
+        call mwcoord(  newx, nvar, .true.)
+        call mwcoord(center, nvar, .true.)
+        call mwcoord(oldgeo, nvar, .true.)
+        call  mwgrad(oldgra, nvar, .true.)
+        call  mwgrad(     g, nvar, .true.)
+      end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
       call dcopy(nvar, center, 1, abvec, 1) 
       call daxpy(nvar, -1.0d0, oldgeo, 1, abvec, 1)
 c
@@ -958,6 +1034,23 @@ c
      $        a1,i5,f17.8,2f9.5,/)
       end if
 c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+       if (mswg) then
+        call mwcoord(    ds, nvar, .false.)
+        call mwcoord(  newx, nvar, .false.)
+        call mwcoord(center, nvar, .false.)
+        call mwcoord(oldgeo, nvar, .false.)
+        call  mwgrad(oldgra, nvar, .false.)
+        call  mwgrad(     g, nvar, .false.)
+      end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
       end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCc
       subroutine mepgs_dist(geom)
@@ -980,10 +1073,38 @@ c
 c
       if (.not. gsopt_geom_cart_coords_get(geom, newx))
      $    call errquit('mepgs: geom?',0, geom_err) 
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      if (mswg) then
+        call mwcoord(center, nvar, .true.)
+        call mwcoord(  newx, nvar, .true.)
+      end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
       distcx = 0d0
       do ivar=1, nvar
         distcx = distcx + (center(ivar) - newx(ivar))**2
       end do
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      if (mswg) then
+        call mwcoord(center, nvar, .false.)
+        call mwcoord(  newx, nvar, .false.)
+      end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
       end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       logical function mepgs_opt(rtdb)
@@ -1101,6 +1222,19 @@ c     ****      Based on gradient angle       ****
 c
           if (flip) then
 c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+            if (mswg) then
+              call mwgrad(     g, nvar, .true.)
+              call mwgrad(oldgra, nvar, .true.)
+            end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
             if (mepgs_cosang(g, oldgra, .false.).le.-0.7d0) then
               if (oprint) write(6,*) "Rejecting the proposed Point"
               if (stride.eq.minst) then 
@@ -1110,6 +1244,20 @@ c
               stride = stride/2d0
               stride = max(stride,minst)
               call dcopy(nvar, oldgra, 1, g, 1)
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+              if (mswg) then
+                call mwgrad(     g, nvar, .false.)
+                call mwgrad(oldgra, nvar, .false.)
+              end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
               if (.not. gsopt_geom_cart_coords_set(geom, oldgeo))
      $           call errquit('gsopt: geom?',0, geom_err) ! reload previous cart
               if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
@@ -1117,13 +1265,55 @@ c
               goto 1000
             end if
 c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+            if (mswg) then
+              call mwgrad(     g, nvar, .false.)
+              call mwgrad(oldgra, nvar, .false.)
+            end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
           end if
 c
 c     **** Update the OPT hessian ****
 c
           call dcopy(nvar, oldgeo, 1, sp, 1)
           call gsopt_compute_actual_step(geom)
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+          if (mswg) then
+            call mwcoord( ds, nvar, .true.)
+            call mwgrad(   g, nvar, .true.)
+            call mwgrad(  gp, nvar, .true.)
+          end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
           call gsopt_hessian_update()
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+          if (mswg) then
+            call mwcoord( ds, nvar, .false.)
+            call mwgrad(   g, nvar, .false.)
+            call mwgrad(  gp, nvar, .false.)
+          end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
 c
 c     **** Compute initial distance ****
 c
@@ -1193,7 +1383,36 @@ c     Update the IRC hessian
 c
         call dcopy(nvar, oldgeo, 1, sp, 1)
         call gsopt_compute_actual_step(geom)
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+        if (mswg) then
+          call mwcoord(   ds, nvar, .true.)
+          call mwgrad(     g, nvar, .true.)
+          call mwgrad(oldgra, nvar, .true.)
+        end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
         call mepgs_hessian_update()
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+        if (mswg) then
+          call mwcoord(   ds, nvar, .false.)
+          call mwgrad(     g, nvar, .false.)
+          call mwgrad(oldgra, nvar, .false.)
+        end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
 c
 c     Print a trajectory file
 c
@@ -1327,7 +1546,36 @@ c
 c     Compute step/gradient info and print for user
 c     (for current energy & gradient, and the previous alpha*step).
 c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+        if (mswg) then
+          call mwcoord(radius, nvar, .true.)
+          call mwcoord(    ds, nvar, .true.)
+          call  mwgrad(     g, nvar, .true.)
+        end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
         call gsopt_compute_info()
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+        if (mswg) then
+          call mwcoord(radius, nvar, .false.)
+          call mwcoord(    ds, nvar, .false.)
+          call  mwgrad(     g, nvar, .false.)
+        end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
         call gsopt_print(geom, istep)
 c     
 c     Check for convergence
@@ -1346,7 +1594,26 @@ C
 c
 c     generate a new search direction
 c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+        if (mswg) call mwgrad(g, nvar, .true.)
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
         call gsopt_pickstp(rtdb, geom, istep) ! fills in ds()
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+        if (mswg) call mwgrad(g, nvar, .false.)
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
 c     
 c     take recommended step.
 c     
@@ -1370,7 +1637,35 @@ c
 c
 c     update the hessian
 c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+        if (mswg) then
+          call mwcoord(ds, nvar, .true.)
+          call mwgrad(  g, nvar, .true.)
+          call mwgrad( gp, nvar, .true.)
+        end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
         call gsopt_hessian_update()
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+        if (mswg) then
+          call mwcoord(ds, nvar, .false.)
+          call mwgrad(  g, nvar, .false.)
+          call mwgrad( gp, nvar, .false.)
+        end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
 c
 c     Check time before next iteration
 c
@@ -1874,7 +2169,8 @@ c
 c
       if (.not. gsopt_geom_cart_coords_get(geom, sp))
      $    call errquit('gsopt: geom?',0, GEOM_ERR)
-      radius(1:nvar) = sp(1:nvar) - center(1:nvar)
+      call dcopy(nvar, sp, 1, radius, 1)
+      call daxpy(nvar, -1.0d0, center, 1, radius, 1)
 c     
       end
       subroutine gsopt_hessian_update()
@@ -1991,9 +2287,10 @@ c     FRACTIONAL?
 c
 c     Take the step
 c  
-       xnew(1:ncart) = alpha*ds(1:ncart)
+       call dcopy(ncart, ds, 1, xnew, 1)
+       call dscal(nvar, alpha, xnew, 1)
        call sym_grad_symmetrize(geom, xnew)
-       xnew(1:ncart) = xold(1:ncart) + xnew(1:ncart)
+       call daxpy(ncart, 1.0d0, xold, 1, xnew, 1)
 c     FRACTIONAL?
        if (.not. gsopt_geom_cart_coords_set(geom, xnew))
      $     call errquit('gsopt_energy_step: coordinates?',geom,
@@ -2009,7 +2306,20 @@ c
      $     call errquit('gsopt_energy_step: grs?',geom, RTDB_ERR)
 c
 c     Compute the maximum and RMS cartesian displacements
-c     
+c    
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      if (mswg) then
+        call mwcoord(xold, nvar, .true.)
+        call mwcoord(xnew, nvar, .true.)
+      end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
       xmax = 0d0
       xrms = 0d0
       do i = 1, ncart
@@ -2017,6 +2327,20 @@ c
          xrms = xrms + (xold(i)-xnew(i))**2
       enddo
       xrms = sqrt(xrms/dble(ncart))
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      if (mswg) then
+        call mwcoord(xold, nvar, .false.)
+        call mwcoord(xnew, nvar, .false.)
+      end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
       end
       subroutine gsopt_print(geom, istep)
       implicit none
@@ -2356,11 +2680,14 @@ c
       gmax  = 0d0
       smax  = 0d0
 c
-      zeta(1:nvar) = radius(1:nvar) + ds(1:nvar)
+      call dfill(nvar, 0d0, zeta, 1)
+      call dcopy(nvar, radius, 1, zeta, 1)
+      call daxpy(nvar, 1.0d00, ds, 1, zeta, 1)
       norm =  ddot(nvar, zeta, 1, zeta, 1)
       norm =  ddot(nvar, g, 1, zeta, 1)/norm
       call dfill(nvar, 0d0, desphere, 1)
-      desphere(1:nvar) = g(1:nvar) - norm*zeta(1:nvar)
+      call dcopy(nvar, g, 1, desphere, 1)
+      call daxpy(nvar, -norm, zeta, 1, desphere, 1)
 c
       do i = 1, nvar
          grms = grms + desphere(i)*desphere(i)
@@ -2534,7 +2861,9 @@ c
       if (.not. gsopt_geom_cart_coords_get(geom, sp))
      $    call errquit('gsopt: geom?',0, GEOM_ERR)
 c
-      ds(1:nvar) = sp(1:nvar) - ds(1:nvar)
+      do i = 1, nvar
+         ds(i) = sp(i) - ds(i)
+      enddo
       if (odebug) then
          write(6,*) ' Actual ds '
          call doutput(ds, 1, nvar, 1, 1, nvar, 1, 1)
@@ -2560,8 +2889,8 @@ c
 c
       if (isystype.ne.0 .and. (.not. zcoord)) then
          if (.not. geom_cart_to_frac(geom, coords))
-     $           call errquit('gsopt: frac_to_cart?',0, GEOM_ERR)
-      endif
+     $           call errquit('gsopt: frac_to_cart?',0, GEOM_ERR) 
+       endif
 c
       if (ostress) then
          if (.not. geom_amatrix_get(geom, coords(3*nat_real+1)))
@@ -2779,11 +3108,25 @@ c
 c
 c     *** calculate constrained saddle gradient ***
 c
-      pr(:) = 0.0
-      radius(:) = 0.0
+      call dfill(nvar, 0d0,     pr, 1)
+      call dfill(nvar, 0d0, radius, 1)
+c
       if (.not. gsopt_geom_cart_coords_get(geom, coords))
      $   call errquit('tropt: geom?',0, GEOM_ERR)
-      radius(1:nvar) = coords(1:nvar) - center(1:nvar)
+c
+      call dcopy(nvar, coords, 1, radius, 1)
+      call daxpy(nvar, -1.0d0, center, 1, radius, 1)
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      if (mswg) call mwcoord(radius, nvar, .true.)
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
+c
       call dgemv('t', nvar, nvar, 1d0, dbl_mb(k_hess), nvar,
      $     radius, 1, 0d0, pr, 1)
 c
@@ -2908,6 +3251,19 @@ c
          write(6,*)
          call util_flush(6)
       endif
+c
+c
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      if (mswg) then
+        call mwcoord(radius, nvar, .false.)
+        call mwcoord(    ds, nvar, .false.)
+      end if 
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+c
 c
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -3601,11 +3957,19 @@ C       The scaling is done to avoid numerical problems in the
 C       diagonalization routine
 C
       IMPLICIT NONE ! REAL*8 (A-H,O-Z)
+#include "cmepgs.fh"
       INTEGER NAT, NAT3, NHESS, NHESST
       COMMON /CVIB_HESS/ NAT,NAT3,NHESS,NHESST   ! HESSIAN INFORMATION
 c
       double precision HESST(NHESST) ! lower triangular Hessian
       double precision ATMASS(NAT) ! mass of the atoms
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      double precision mwhess(nat3*nat3)
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
 c
       double precision fact, scale
       integer ii, jj, jjend, iatii, iatjj, idum
@@ -3641,7 +4005,19 @@ CJMC
       SCALE = 1.0D0 ! Hessian scaling factor
 *dscal
       call dscal(nhesst,scale,hesst,1) ! Scale Hessian for diagonaization
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
+      if (mswg) then
+        call vib_dsquar(hesst, mwhess, nat3, nat3)
+        call geom_hnd_put_data('irc.hess', mwhess, nat3**2)
+      end if
+CCCCCCCCCCCCCCCCCCCCCC
+CCCC     MASS     CCCC
+CCCCCCCCCCCCCCCCCCCCCC
       END
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine mwcoord(vector, ndeg, put_mass)
       implicit none
 #include "errquit.fh"
