@@ -828,8 +828,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer geom
       logical openfile, closefile
       character*255 filename, dir
-      logical mygeom_print_xyz
-      external mygeom_print_xyz
+      logical mol_geom_print_xyz
+      external mol_geom_print_xyz
 c
 c     Print a trajectory file
 c 
@@ -854,8 +854,8 @@ CJMC
            rewind(88)
          end if
 c
-         if (.not. mygeom_print_xyz(geom, 88, energy))
-     $       call errquit('mepgs_path: mygeom_print_xyz?',0, GEOM_ERR)
+         if (.not. mol_geom_print_xyz(geom, 88, energy))
+     $       call errquit('mepgs_path: mol_geom_print_xyz?',0, GEOM_ERR)
          call util_flush(88)
 c
          if (closefile) close(88,status='keep',err=133)
