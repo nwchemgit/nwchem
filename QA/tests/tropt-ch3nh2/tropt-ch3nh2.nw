@@ -1,0 +1,29 @@
+echo
+start ch3nh2
+Title "ch3nh2 optimization with tropt" 
+
+geometry noautosym units au
+N 1.5916930881 0.0000000000 0.0000000000
+C -1.1078124728 -0.0307371822 0.0000000000
+H 2.6143261592 -1.6302003168 0.0000000000
+H -1.8166631951 1.9316390571 0.0000000000
+H 2.5780491273 1.6491159373 0.0000000000
+H -1.9297963534 -0.9599087477 1.6969519068
+H -1.9297963534 -0.9599087477 -1.6969519068
+end
+
+basis
+* library DZVP_(DFT_Orbital)
+end
+
+
+task dft freq
+
+tropt
+maxiter 50
+xyz
+inhess 2
+end
+
+task dft optimize
+task dft freq
