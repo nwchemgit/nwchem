@@ -2395,6 +2395,50 @@ c    ** external **
       end
 
 
+
+*     ***********************************
+*     *                                 *
+*     *        cpsi_eig_brdcst_tag      *
+*     *                                 *
+*     ***********************************
+      real*8 function cpsi_eig_brdcst_tag(ne,spin_orbit,eig_tag,nb,ms,i)
+      implicit none
+      integer ne(2)
+      logical spin_orbit
+      integer eig_tag
+      integer nb,ms
+      integer i
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      integer indx,eig_shift,nbq,taskid_k,p
+      real*8  e
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+      call Parallel3d_taskid_k(taskid_k)
+      call K1dB_ktoqp(nb,nbq,p)
+
+      e = 0.0d0
+      if (p.eq.taskid_k) then
+         eig_shift = cpsi_data_get_chnk(eig_tag,nbq)
+         if (spin_orbit) then
+           indx=eig_shift+i-1
+         else
+           indx=eig_shift+i-1+(ms-1)*ne(1)
+         end if
+         e = dbl_mb(indx)
+      end if
+      call K1dB_SumAll(e)
+
+      cpsi_eig_brdcst_tag = e
+      return
+      end
+
+
 *     ***********************************
 *     *                                 *
 *     *         cpsi_occupation_brdcst  *
@@ -2443,6 +2487,53 @@ c    ** external **
 
 *     ***********************************
 *     *                                 *
+*     *         cpsi_occ_brdcst_tag     *
+*     *                                 *
+*     ***********************************
+      real*8 function cpsi_occ_brdcst_tag(ne,spin_orbit,occ_tag,nb,ms,i)
+      implicit none
+      integer ne(2)
+      logical spin_orbit
+      integer occ_tag
+      integer nb,ms
+      integer i
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      integer indx,occ_shift,nbq,taskid_k,p
+      real*8  occupation
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk,cpsi_data_get_next
+      external cpsi_data_get_chnk,cpsi_data_get_next
+
+      call Parallel3d_taskid_k(taskid_k)
+      call K1dB_ktoqp(nb,nbq,p)
+
+      occupation = 0.0d0
+      if (p.eq.taskid_k) then
+         if (occ_tag.ge.0) then
+            occ_shift = cpsi_data_get_chnk(occ_tag,nbq)
+            if (spin_orbit) then
+               indx=occ_shift+i-1
+            else
+               indx=occ_shift+i-1+(ms-1)*ne(1)
+            end if
+            occupation = dbl_mb(indx)
+         else
+            occupation = 1.0d0
+         end if
+      end if
+      call K1dB_SumAll(occupation)
+
+      cpsi_occ_brdcst_tag = occupation
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
 *     *         cpsi_svector_brdcst     *
 *     *                                 *
 *     ***********************************
@@ -2476,6 +2567,47 @@ c    ** external **
       call K1dB_SumAll(w)
 
       cpsi_svector_brdcst = w
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         cpsi_sv_brdcst_tag     *
+*     *                                 *
+*     ***********************************
+      real*8  function cpsi_sv_brdcst_tag(spin_orbit,svec_tag,nb,i,xyz)
+      implicit none
+      logical spin_orbit
+      integer svec_tag
+      integer nb
+      integer i,xyz
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      integer indx,svec_shift,nbq,taskid_k,p
+      real*8  w
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+      call Parallel3d_taskid_k(taskid_k)
+      call K1dB_ktoqp(nb,nbq,p)
+
+      w=0.0d0
+      if (p.eq.taskid_k) then
+         if (spin_orbit) then
+            svec_shift = cpsi_data_get_chnk(svec_tag,nbq)
+            indx=svec_shift + (xyz-1) + 3*(i-1)
+            w = dbl_mb(indx)
+          end if
+      end if
+      call K1dB_SumAll(w)
+
+      cpsi_sv_brdcst_tag = w
       return
       end
 

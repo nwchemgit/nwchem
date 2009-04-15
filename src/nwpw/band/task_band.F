@@ -18,7 +18,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 7)
+      parameter (num_dirs = 8)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'structure',
@@ -27,13 +27,14 @@ c
      >            'stress',
      >            'cell_optimize',
      >            'band_dplot',
-     >            'dos_dplot' /
+     >            'dos_dplot',
+     >            'steepest_descent' /
 
 c     *** define external functions ****
       logical  band_structure,band_noit_energy,band_stress
-      logical  band_cell_optimize,band_dplot
+      logical  band_cell_optimize,band_dplot,band_sd
       external band_structure,band_noit_energy,band_stress
-      external band_cell_optimize,band_dplot
+      external band_cell_optimize,band_dplot,band_sd
 c
 c
       value = .false.
@@ -45,7 +46,7 @@ c
 c
 c
 c
-      goto ( 100, 110, 200, 300, 400, 500, 600 ) ind
+      goto ( 100, 110, 200, 300, 400, 500, 600, 700 ) ind
       call errquit('task band: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -134,6 +135,23 @@ c
       value = band_structure(rtdb,2)
       call ga_sync()
       goto 9999
+
+c
+c  steepest_descent
+c
+ 700  if (ga_nodeid().eq.MASTER) then
+        write(*,*)  ">>>> BAND Parallel Module - steepest_descent <<<<"
+      end if
+
+      value = .true.
+      value = rtdb_parallel(.true.)
+
+      value = band_sd(rtdb)
+
+      call ga_sync()
+      goto 9999
+
+
 
 
 
