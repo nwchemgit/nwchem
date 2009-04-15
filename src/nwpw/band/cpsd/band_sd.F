@@ -32,7 +32,7 @@
       real*8   t1,t2,t3,t4,av
 
 *     **** lattice variables ****
-      integer ngrid(3),nwave,nfft3d,n2ft3d
+      integer ngrid(3),nwave,nfft3d
       integer npack1,npack0
 
 *     **** electronic variables ****
@@ -51,6 +51,7 @@
       real*8  E(30)
 
       integer eig_tag,hml_tag,lmd_tag,svec_tag
+      integer eig_shift,hml_shift
 
 *     **** psi smearing block ****
       logical fractional
@@ -665,17 +666,12 @@ c
       icount = 0
    1  continue
          icount = icount + 1
-c         call inner_loop(ispin,neq,
-c     >             npack1,nfft3d,nemaxq,
-c     >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dbl_mb(dn(1)),
-c     >             it_in,E,deltae,deltac,deltar,
-c     >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
-c     >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)),
-c     >             fractional,dbl_mb(occ1(1)),dbl_mb(occ2(1)))
-         E(1) = 0.0
-         deltae=0.0
-         deltac=0.0
-         deltar=0.0
+         call band_inner_loop(ispin,ispinq,ne,neq,nbrillioun,nbrillq,
+     >                      nfft3d,
+     >                      psi1_tag,psi2_tag,dbl_mb(dn(1)),
+     >                      it_in,E,deltae,deltac,deltar,
+     >                      hml_tag,lmd_tag,
+     >                      psir_tag,Hpsi_tag)
 
          if (mprint) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac,deltar
@@ -766,30 +762,21 @@ c      end do
       if (taskid.eq.MASTER) then
          close(17)
       end if
-c
-c*     ***** do not diagonalize the hamiltonian matrix *****
-c      if (pspw_SIC()) then
-c        call dcopy(2*npack1*nemaxq,
-c     >             dcpl_mb(psi1(1)),1,
-c     >             dcpl_mb(psi2(1)),1)
-c
-c*     ***** diagonalize the hamiltonian matrix but don't rotate ****
-c      else if (fractional) then
-c         n = ne(1)
-cc         call Dneall_m_HmltimesSA(0,dbl_mb(hml(1)),dbl_mb(fweight(1)))
-c         call Dneall_m_diagonalize(0,dbl_mb(hml(1)),
-c     >                              dbl_mb(eig(1)),.false.)
-cc         do ms=1,ispin
-cc         do ii=1,ne(ms)
-cc            dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
-cc     >      =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
-cc     >      /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
-cc         end do
-cc         end do
-c         call dcopy(2*npack1*nemaxq,
-c     >             dcpl_mb(psi1(1)),1,
-c     >             dcpl_mb(psi2(1)),1)
-c
+
+
+*     ***** diagonalize the hamiltonian matrix but don't rotate ****
+      call cpsi_data_update(hml_tag)
+      call cpsi_data_update(eig_tag)
+      do nb=1,nbrillq
+        hml_shift = cpsi_data_get_chnk(hml_tag,nb)
+        eig_shift = cpsi_data_get_chnk(eig_tag,nb)
+        call Pneb_w_diag(0,nb,dbl_mb(eig_shift),dbl_mb(hml_shift))
+      end do
+      call cpsi_data_noupdate(hml_tag)
+      call cpsi_data_noupdate(eig_tag)
+
+
+
 c*     ***** diagonalize and rotate the hamiltonian matrix ****
 c      else
 c        call Dneall_m_diagonalize(0,dbl_mb(hml(1)),

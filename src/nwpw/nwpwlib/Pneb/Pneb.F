@@ -1211,6 +1211,34 @@ c     ****************************************
 
 
 
+c     ****************************************
+c     *                                      *
+c     *          Pneb_w_scal                 *
+c     *                                      *
+c     ****************************************
+
+      subroutine Pneb_w_scal(mb,nbb,alpha,hml)
+      implicit none
+      integer mb,nbb
+      real*8 alpha
+      complex*16 hml(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nsize
+
+*     **** external functions ****
+      integer  Pneb_w_size
+      external Pneb_w_size
+
+      nsize = Pneb_w_size(mb,nbb)
+      call dscal(2*nsize,alpha,hml,1)
+      return
+      end
+
+
+
 c     ccccccccccccccccccccccccccccccccccccccccc
 c     *                                       *
 c     *            Pneb_w_copy                *
@@ -1236,6 +1264,37 @@ c     **** external functions ****
 
       return 
       end 
+
+
+
+c     ccccccccccccccccccccccccccccccccccccccccc
+c     *                                       *
+c     *            Pneb_w_copyto0             *
+c     *                                       *
+c     ccccccccccccccccccccccccccccccccccccccccc
+c
+c A special copy
+c
+      subroutine  Pneb_w_copyto0(mbb,nbb,hml,gml)
+      implicit none
+      integer    nbb,mbb
+      complex*16 hml(*),gml(*)
+
+#include "Pneb.fh"
+
+c     **** local variables ****
+      integer nsize,shift
+
+c     **** external functions ****
+      integer  Pneb_w_size
+      external Pneb_w_size
+
+      nsize = Pneb_w_size(mbb,nbb)
+      shift = 1 + (mbb-1)*ne(1)*ne(1)
+      call dcopy(2*nsize,hml,1,gml(shift),1)
+
+      return
+      end
 
 c     cccccccccccccccccccccccccccccccccccccccc
 c     *                                      *
@@ -3154,4 +3213,55 @@ cccccccccccccccc
       end do
       return
       end
+
+
+*     **********************************************
+*     *                                            *
+*     *             Pneb_w_trace               *
+*     *                                            *
+*     **********************************************
+      subroutine Pneb_w_trace(mbb,nbb,hml,val)
+      implicit none
+      integer mbb,nbb
+      complex*16 hml(*)
+      real*8 val
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,ms,nb1,nb2,ms1,ms2,ishift2,ishift3,shift2,shift3
+      integer j,k,indx,indxt
+
+      val = 0.0d0
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      if (mbb.eq.0) then
+         ishift2 = ne(1)*ne(1)
+      else
+         ishift2 = 0
+      end if
+      if (nbb.eq.0) then
+         if (spin_orbit) then
+           ishift3 = ne(1)*ne(1)
+         else
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+         end if
+      else
+         ishift3 = 0
+      end if
+      do nb=nb1,nb2
+        shift3 = (nb-nb1)*ishift3
+        do ms=ms1,ms2
+          if (ne(ms).le.0) go to 30
+          shift2 = (ms1-1)*ishift2 + shift3
+          do k=1,ne(ms)
+             indx = k + (k-1)*ne(ms) + shift2
+             val = val + dble(hml(indx))
+          end do
+ 30     continue
+        end do
+      end do
+      return
+      end
+
 
