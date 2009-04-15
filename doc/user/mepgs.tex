@@ -1,0 +1,161 @@
+%
+% $Id: driver.tex,v 1.15 2004-05-20 01:21:27 edo Exp $
+%
+\label{sec:mepgs}
+
+
+The MEPGS module performs a search for the two critical points on the
+potential energy surface conected to a saddle point of the molecule 
+defined by input using the \verb+GEOMETRY+ directive (see Section \ref{sec:geom}). 
+The algorithm programmed in MEPGS is a {\bf constrained} trust region quasi-newton optimization and approximate energy Hessian updates.
+
+
+Optional input for this module is specified within the compound
+directive,
+\begin{verbatim}
+  MEPGS 
+
+    OPTTOL <real opttol default 3e-4>
+
+    EPREC <real eprec default 1e-7>
+
+    STRIDE <real stride default 0.1>
+
+    EVIB <real evib default 1e-4>
+
+    MAXMEP <integer maxiter default 250>
+
+    MAXITER <integer maxiter default 20>
+
+    INHESS <integer inhess default 2>
+
+    (BACKWARD || FORWARD) <string default both>
+
+    (MSWG || NOMSWG) <string default NOMSWG>
+
+    (XYZ || NOXYZ) 
+
+  END
+\end{verbatim}
+
+\sloppy
+
+\section{Convergence criteria}
+
+The user may request a specific value for the tolerance with the keyword \verb+OPTTOL+ which will couple all the convergence criteria in the following way:
+
+\begin{verbatim}
+         GRMS   1.0*OPTTOL
+         GMAX   1.5*OPTTOL
+         XRMS   4.0*OPTTOL
+         XMAX   6.0*OPTTOL
+\end{verbatim}
+
+\section{Available precision}
+
+\begin{verbatim}
+    EPREC <real eprec default 1e-7>
+\end{verbatim}
+
+In performing a constrained trust region optimization the precision of the energy is coupled to the convergence criteria (see Section \ref{sec:tropt:eprec}).
+Note that the default EPREC for DFT calculations is 5e-6 instead of 1e-7.
+
+\section{Controlling the step length}
+
+\begin{verbatim}
+    STRIDE <real stride default 0.1>
+\end{verbatim}
+
+A dynamic stride (\verb+stride+) is used to control the step length during 
+the minimum energy path walking when taking the Euler step as starting point.  
+
+\section{Moving away from the saddle point}
+
+\begin{verbatim}
+    EVIB <real evib default 1e-4>
+\end{verbatim}
+
+The expected decrease in energy (\verb+evib+) assuming a quadratic approximation around the saddle structure to be obtained. 
+
+\section{Maximum number of MEPGS steps}
+
+\begin{verbatim}
+    MAXMEP <integer maxmep default 250>
+\end{verbatim}
+
+By default at most 250 minimum energy path steps will be taken,
+but this may be modified with this directive.
+
+\section{Maximum number of steps}
+
+\begin{verbatim}
+    MAXITER <integer maxiter default 20>
+\end{verbatim}
+
+By default at most 20 {\bf constrained} geometry optimization steps will be taken,
+but this may be modified with this directive. 
+
+\section{Initial Hessian}
+\begin{verbatim}
+    INHESS <integer inhess default 2>
+\end{verbatim}
+
+With this option the MEPGS module will be able to transform
+Cartesian Hessian from previous frequency calculation.
+
+\section{Selecting the side to traverse}
+\begin{verbatim}
+    (BACKWARD || FORWARD) <string default both>
+\end{verbatim}
+
+With this option the MEPGS module will select which side of the 
+minimum energy path to explore. By default both sides are explored
+for a MEPGS run.
+
+\section{Using mass}
+\begin{verbatim}
+    (MSWG || NOMSWG) <string default NOMSWG>
+\end{verbatim}
+
+With this option the MEPGS will trigger the use of mass when following the 
+minimum energy path. Mass is not used as default, if mass is used then 
+this formally becomes an intrinsic reaction coordinate.  
+
+\section{Minimum energy path saved XYZ file}
+
+\begin{verbatim}
+    XYZ [<string xyz default $fileprefix>]
+    NOXYZ
+\end{verbatim}
+
+The \verb+XYZ+ directive causes the geometry at each calculated 
+structure on the minimum energy path to be output into file in the 
+permanent directory in XYZ format. 
+The optional string will
+prefix the filename.  The \verb+NOXYZ+ directive turns this off.
+
+For example, the input
+\begin{verbatim}
+    mepgs; xyz ; end
+\end{verbatim}
+will cause a trajectory file filename.xyz to be created
+in the permanent directory.  
+
+\section{MEPGS usage}
+
+\begin{verbatim}
+    start somename
+    geometry; <saddle point body > ; end   
+    task theory freq
+    freq; reuse somename.hess ; end
+    mepgs; <mepgs options> ; end
+    task theory mepgs
+\end{verbatim}
+
+In the above example, after performing a frequency analysis for the saddle 
+point, the information of the force constant matrix is reused (freq directive) 
+in order to be able to follow the transition state mode.
+
+\fussy
+
+
