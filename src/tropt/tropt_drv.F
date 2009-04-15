@@ -2904,7 +2904,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         trust = min(trust,maxdr)
 
         if (oprint) then
-          ratio = max(-10.0,min(ratio,10.0))
+          ratio = max(-10.d0,min(ratio,10.d0))
           write (6,5000) -echange,ratio,trust
  5000     format (/,t2,'energy change = ',f10.6,   
      $        /,t2,'energy ratio  = ',f10.6,  
