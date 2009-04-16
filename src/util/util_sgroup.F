@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.47 2008-05-20 17:46:34 marat Exp $
+C$Id: util_sgroup.F,v 1.48 2009/04/13 22:13:17 d3p852 Exp $
       block data groups
 #include "util_sgroup.fh"
 C     Make sure that the group code works even if groups are not set up yet
@@ -127,7 +127,7 @@ c      sgprint = util_print('sgroup info', print_debug)
 c
 c    Create groups
 c   
-      if(myproc.eq.0) write(luout,*) 'Creating groups'
+      if(myproc.eq.0) write(LuOut,*) 'Creating groups'
 
 c initialize sub groups using a method
 
@@ -146,7 +146,7 @@ c initialize sub groups using a method
       if (sgprint .or. .true.) then  ! Still working on code so .true.
         meafter=ga_nodeid()
         meinworld = ga_pgroup_nodeid(ga_pgroup_get_world())
-        write(*,
+        write(LuOut,
      *   "(' proc ',I4,' was (',
      *       I4,' ',I4,' ',I4,
      *       ') now is (',
@@ -155,14 +155,15 @@ c initialize sub groups using a method
      *   meinworld,
      *   myproc,mygroup(depth-1),my_ga_grp(depth-1),
      *   meafter,mygroup(depth),my_ga_grp(depth)
-       endif
+         call util_flush(LuOut)
+      endif
 
       call util_sgrtdb(rtdb,rtdb_fname(depth-1),rtdb_fname(depth),dir2)
       if (.not. rtdb_open(rtdb_fname(depth), 'old', rtdb)) call errquit
      *     (' rtdb_open old failed ',0,0)
 
       if(myproc.eq.0.and.sgprint) then
-        write(6,*) ga_nodeid(),' of group',mygroup(depth),'rtdbname '
+       write(LuOut,*) ga_nodeid(),' of group',mygroup(depth),'rtdbname '
      *           ,rtdb_fname(depth), ' rtdb=',rtdb
       endif
 c
@@ -172,9 +173,12 @@ c
 c
 c
       if(myproc.eq.0.and.sgprint) then
-        write(6,*) 'everyone should have an open file at this point'
-        call flush(6)
+        write(LuOut,*) 'everyone should have an open file at this point'
+        call util_flush(LuOut)
       endif
+c     These next lines are since we are now done creating groups
+      call util_flush(LuErr)
+      call util_flush(LuOut)
       return
       end
 C###############################################################################
@@ -191,21 +195,21 @@ C###############################################################################
       mypgroup_old = ga_pgroup_get_default()
       myproc=ga_nodeid()
       if (mypgroup_old .eq. ga_pgroup_get_world()) then
-        write(0,*) ' Node ',myproc,' tried to close world group '
+        write(LuErr,*) ' Node ',myproc,' tried to close world group '
         return
       endif
       myproc=ga_nodeid()
       if(myproc.eq.0.and.sgprint) then
-        write(0,*) ' deleting cloned rtdb '
+        write(LuErr,*) ' deleting cloned rtdb '
       endif
 C     Make sure all nodes are done using RTDB file
       call ga_pgroup_sync(mypgroup_old)
       if (.not. rtdb_close(rtdb, 'delete'))call errquit
      $        (' sgend: rtdb_close and delete failed ',0,0)
       if(myproc.eq.0) then
-        write(luout,*) 'Closing subgroup '
+        write(LuOut,*) 'Closing subgroup '
       endif
-      if (sgprint) call flush(luout)
+      if (sgprint) call util_flush(LuOut)
       call ga_pgroup_set_default(my_ga_grp(depth-1))
       ignore = ga_pgroup_destroy(my_ga_0_grp(depth))
       ignore = ga_pgroup_destroy(mypgroup_old)
@@ -246,8 +250,8 @@ C                     .true. changes to scratch dir
       myproc=ga_nodeid()
 
       if(myproc.eq.0.and.sgprint) then
-        write(luout,*) 'util_sgrtdb start'
-        call flush(luout)
+        write(LuOut,*) 'util_sgrtdb start'
+        call util_flush(LuOut)
       endif
 c
 c     do a copy of rtdb to permanent_dir or scratch_dir for each group
@@ -268,8 +272,6 @@ C       it gets to that long - other limitations on file name length exist
 
       call util_file_name(groupname(1:iend),dir,.false.,grouprtdb)
 C
-
-      call flush(0)
 C     Do not want to have other nodes to be using old RTDB file anymore
       call ga_pgroup_sync(ga_pgroup_get_default())
 C
@@ -277,20 +279,20 @@ C     Node 0 of the group now copies the original RTDB to a group specific one
 C
       if (myproc .eq. 0) then
         if(sgprint) then
-           write(6,*)'world rtdbname is ',
+           write(LuOut,*)'world rtdbname is ',
      &       name_in(1:inp_strlen(name_in))
-           write(6,*)'group rtdbname is ',
+           write(LuOut,*)'group rtdbname is ',
      &       grouprtdb(1:inp_strlen(grouprtdb))
-           call flush(6)
+           call util_flush(LuOut)
         endif
         inquire(file=name_in(1:inp_strlen(name_in)),exist=status)
         if(.not.status) then
 c          most likely cause of error: permdir not available on this node
-           write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-           write(0,*) ' ! please change permanent_dir to a   !'
-           write(0,*) ' ! filesystem available to all the    !'
-           write(0,*) ' ! processors (e.g. NFS, GPFS, Lustre)!'
-           write(0,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+           write(LuErr,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+           write(LuErr,*) ' ! please change permanent_dir to a   !'
+           write(LuErr,*) ' ! filesystem available to all the    !'
+           write(LuErr,*) ' ! processors (e.g. NFS, GPFS, Lustre)!'
+           write(LuErr,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
            call errquit(' util_sgrtdb: failed to open rtdb',0,0)
         endif
         call util_file_copy(name_in(1:inp_strlen(name_in)),
@@ -298,11 +300,11 @@ c          most likely cause of error: permdir not available on this node
         inquire(file=grouprtdb(1:inp_strlen(grouprtdb)),
      &          exist=status)
         if (.not. status) then
-          write (0,*) 'copy failed'
+          write (LuErr,*) 'copy failed'
           call errquit('util_sgrtdb: problem with system call', 0, 0)
         else if (sgprint) then
-          write(6,*) ' rtdb copied ', ga_pgroup_get_default()
-          call flush(6)
+          write(LuOut,*) ' rtdb copied ', ga_pgroup_get_default()
+          call util_flush(LuOut)
         endif
       endif
       name_out=grouprtdb
@@ -604,7 +606,7 @@ c
      *     ngroups(depth))
   
       if(myproc.eq.0.and.sgprint) then
-        write(6,*) 'mygroup=',mygroup(depth),
+        write(LuOut,*) 'mygroup=',mygroup(depth),
      $             ' movecs_in',movecs_in,
      $             ' sg_movecs_out=',sg_movecs_out
       endif
@@ -620,7 +622,7 @@ c
       endif
 c
       if (.not. rtdb_cput(rtdb,tag,1,sg_movecs_out)) then
-       write (6,*) 'error in rtdb_cput'
+       write (LuOut,*) 'error in rtdb_cput'
       endif
 c
       return
