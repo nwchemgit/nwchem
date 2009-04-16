@@ -2372,7 +2372,7 @@ c
             irrep_o=irrep_d
             irrep_x=irrep_d
 c
-          do omegasign=1,2
+          do omegasign=1,1 ! temporary 2
             if (omegasign.eq.1) then
               omega = (1.0d0)*ifreq(omegacount)
               dynaxis = 0
@@ -2541,14 +2541,15 @@ c
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
             irrep_y=irrep_g
-c
             alpha(axisA,axisB)=0.0d0
 c
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,size_a0)
 c
-c            if (nodezero) write(LuOut,*) "axisA = ",axisA
-c            if (nodezero) write(LuOut,*) "axisB = ",axisB
+#ifdef DEBUG_PRINT
+            if (nodezero) write(LuOut,*) "axisA = ",axisA
+            if (nodezero) write(LuOut,*) "axisB = ",axisB
+#endif
 c
             alpha1=0.0d0
             alpha2=0.0d0
@@ -2556,7 +2557,9 @@ c
             irrep_d=irrep_a
             irrep_tr=irrep_b
 c
-c            write(LuOut,*) "alpha_1 AB"
+#ifdef DEBUG_PRINT
+            write(LuOut,*) "alpha_1 AB"
+#endif
             call alpha_1(d_d1(axisA),d_a0,d_t1,d_t2,
      1           d_tr1(axisB+6),d_tr2(axisB+6),
      2           d_lambda1,d_lambda2,
@@ -2568,14 +2571,18 @@ c
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha1,1,0)
             call tce_zero(d_a0,size_a0)
-c            write(LuOut,*) "alpha_1 AB = ",alpha1
+#ifdef DEBUG_PRINT
+            write(LuOut,*) "alpha_1 AB = ",alpha1
+#endif
 c
             if (axisA.eq.axisB) then
               alpha2=alpha1
             else
               irrep_d=irrep_b
               irrep_tr=irrep_a
-c              write(LuOut,*) "alpha_1 BA"
+#ifdef DEBUG_PRINT
+              write(LuOut,*) "alpha_1 BA"
+#endif
               call alpha_1(d_d1(axisB),d_a0,d_t1,d_t2,
      1             d_tr1(axisA+6),d_tr2(axisA+6),
      2             d_lambda1,d_lambda2,
@@ -2588,7 +2595,9 @@ c
               call get_block(d_a0,alpha2,1,0)
               call tce_zero(d_a0,size_a0)
             endif ! axisA.eq.axisB
-c            write(LuOut,*) "alpha_1 BA = ",alpha2
+#ifdef DEBUG_PRINT
+            write(LuOut,*) "alpha_1 BA = ",alpha2
+#endif
 c
             alpha(axisA,axisB)=alpha(axisA,axisB)+alpha1+alpha2
 c
@@ -2599,10 +2608,13 @@ c
             irrep_tra=irrep_a
             irrep_trb=irrep_b
 c
-c            write(LuOut,*) "alpha_2 A(+i) B(-i)"
+#ifdef DEBUG_PRINT
+            write(LuOut,*) "alpha_2 A(+i) B(-i)"
+#endif
             call alpha_2(d_f1,d_a0,d_t1,d_t2,
      1           d_tr1(axisA),d_tr2(axisA),
-     2           d_tr1(axisB+3),d_tr2(axisB+3),
+c     2           d_tr1(axisB+3),d_tr2(axisB+3), ! temporary
+     2           d_tr1(axisB),d_tr2(axisB),
      3           d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
      4           k_t1_offset,k_t2_offset,
      5           k_tr1_offset(axisA),k_tr2_offset(axisA),
@@ -2611,11 +2623,17 @@ c            write(LuOut,*) "alpha_2 A(+i) B(-i)"
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha1,1,0)
             call tce_zero(d_a0,size_a0)
-c            write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
+            alpha1 = -alpha1 ! temporary
+#ifdef DEBUG_PRINT
+            write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
+#endif
 c
-c            write(LuOut,*) "alpha_2 A(-i) B(+i)"
+#ifdef DEBUG_PRINT
+            write(LuOut,*) "alpha_2 A(-i) B(+i)"
+#endif
             call alpha_2(d_f1,d_a0,d_t1,d_t2,
-     1           d_tr1(axisA+3),d_tr2(axisA+3),
+c     1           d_tr1(axisA+3),d_tr2(axisA+3), ! temporary
+     1           d_tr1(axisA),d_tr2(axisA),
      2           d_tr1(axisB),d_tr2(axisB),
      3           d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
      4           k_t1_offset,k_t2_offset,
@@ -2625,9 +2643,14 @@ c            write(LuOut,*) "alpha_2 A(-i) B(+i)"
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha2,1,0)
             call tce_zero(d_a0,size_a0)
-c            write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
+            alpha2 = -alpha2 ! temporary
+#ifdef DEBUG_PRINT
+            write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
+#endif
 c
-c            write(LuOut,*) "alpha_2 A(r) B(r)"
+#ifdef DEBUG_PRINT
+            write(LuOut,*) "alpha_2 A(r) B(r)"
+#endif
             call alpha_2(d_f1,d_a0,d_t1,d_t2,
      1           d_tr1(axisA+6),d_tr2(axisA+6),
      2           d_tr1(axisB+6),d_tr2(axisB+6),
@@ -2638,14 +2661,17 @@ c            write(LuOut,*) "alpha_2 A(r) B(r)"
      7           k_l1_offset,k_l2_offset)
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha3,1,0)
-c            write(LuOut,*) "alpha_2 A(r) B(r) = ",alpha3
+#ifdef DEBUG_PRINT
+            write(LuOut,*) "alpha_2 A(r) B(r) = ",alpha3
+#endif
             call deletefile(d_a0)
 c
             alpha(axisA,axisB)=alpha(axisA,axisB)-alpha1-alpha2+alpha3
             alpha(axisA,axisB)=-1.0d0*alpha(axisA,axisB)
 c
-c            write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
-c            if (nodezero) write(LuOut,9020) cpu, wall
+#ifdef DEBUG_PRINT
+            write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
+#endif
 c
           endif ! respaxis(axis)
           enddo ! axisB loop
