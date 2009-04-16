@@ -94,6 +94,7 @@ c
       character*20 title
       character*4 irrepname
       logical diis_y4
+#if defined(CCSDTQ)
       nodezero=(ga_nodeid().eq.0)
       call tce_diis_init()
       do iter=1,maxiter
@@ -163,6 +164,7 @@ c
           if (nodezero) call util_flush(LuOut)
       enddo
       call tce_diis_tidy()
+#endif
       tce_ccsdtq_lambda_driver=.false.
       return  
 c

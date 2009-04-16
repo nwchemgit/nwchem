@@ -69,6 +69,8 @@ c#include "tce_diis.fh"
       character*255 filename
       character*20 title
       character*4 irrepname
+      alpha0=0.0d0
+#if defined(CCSDTQ)
       nodezero=(ga_nodeid().eq.0)
       cpu=-util_cpusec()
       wall=-util_wallsec()
@@ -108,6 +110,7 @@ c      if (nodezero) write(LuOut,*) "ccsdtq_lr_alpha"
       if (.not.ma_pop_stack(l_a0_offset))
      1     call errquit("tce_ccsdtq_symm_polar: MA problem",
      2                  l_a0_offset,MA_ERR)
+#endif
       tce_ccsdtq_symm_polar=alpha0
       return  
 c

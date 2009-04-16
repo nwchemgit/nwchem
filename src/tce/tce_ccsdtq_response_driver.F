@@ -75,6 +75,7 @@ c
       data rr3filename/'rr3   '/
       data rr4filename/'rr4   '/
       logical diis_tr4
+#if defined(CCSDTQ)
       nodezero=(ga_nodeid().eq.0)
       call tce_diis_init()
       do iter=1,maxiter
@@ -179,6 +180,7 @@ c        write(LuOut,*) "tce_residual_tr4"
         if (nodezero) call util_flush(LuOut)
       enddo
       call tce_diis_tidy()
+#endif
       tce_ccsdtq_response_driver=.false.
       return  
 c

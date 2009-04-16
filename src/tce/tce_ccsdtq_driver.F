@@ -71,6 +71,7 @@ c
       character*255 filename
       character*20 title
       character*4 irrepname
+#if defined(CCSDTQ)
       nodezero=(ga_nodeid().eq.0)
       call tce_e_offset(l_e_offset,k_e_offset,size_e)
 #if defined(DEBUG_PRINT)
@@ -160,6 +161,7 @@ c -------------
       if (.not.ma_pop_stack(l_e_offset))
      1     call errquit("tce_ccsdtq_driver: MA problem",
      2                  l_e_offset,MA_ERR)
+#endif
       tce_ccsdtq_driver=.false.
       return  
 c
