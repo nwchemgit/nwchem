@@ -155,7 +155,7 @@
       logical      pspw_HFX,pspw_HFX_relaxed
       logical      cpsp_semicore,control_Mulliken
       real*8       cpsp_rcore,cpsp_ncore
-      external     pspw_reformant_c_wvfnc
+      external     pspw_reformat_c_wvfnc
       external     pspw_HFX,pspw_HFX_relaxed
       external     cpsp_semicore,control_Mulliken
       external     cpsp_rcore,cpsp_ncore
@@ -643,6 +643,8 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
          if (.not.control_rotation())    write(luout,1272)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc(),control_tolr()
+         write(luout,1281) control_it_in()*control_it_out(),
+     >                 control_it_in(),control_it_out()
 
          if (control_fractional()) then
            write(6,1297)
@@ -1096,6 +1098,8 @@ c     >        A)
  1271 FORMAT(5x, ' translation contrained')
  1272 FORMAT(5x, ' rotation constrained')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
+ 1281 FORMAT(5X, ' maximum iterations =',I8,
+     >           ' ( ',I4,' inner ',I4,' outer )')
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (electron)',E12.3,' (ion)')
  1297 FORMAT(/' fractional smearing parameters:')

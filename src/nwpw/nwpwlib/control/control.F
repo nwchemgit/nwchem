@@ -107,14 +107,9 @@
       
       
 
-*     **** get balance mapping ****
-      if (.not.rtdb_get(rtdb,'nwpw:balance',mt_log,1,balance)) then
-         balance = .true.
-      end if
-
-
+*     *********************
 *     **** cpsd: stuff ****
-
+*     *********************
       if (code.eq.1) then
       if (.not.rtdb_cget(rtdb,'cpsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
@@ -173,8 +168,14 @@
       if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
      >  rotation = .true.
 
+      if (.not.rtdb_get(rtdb,'nwpw:spin_orbit',mt_log,1,spin_orbit))
+     > spin_orbit=.false.
+      if (spin_orbit) ispin=2
 
+
+*     **************************
 *     **** cpmd code: stuff ****
+*     **************************
       else if (code.eq.2) then
       if (.not.rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
@@ -261,7 +262,11 @@
       if (.not.rtdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr))
      >   Tr = 298.15d0
 
+
+
+*     ************************************
 *     **** cgsd: stuff or  paw: stuff ****
+*     ************************************
       else if ((code.eq.3).or.(code.eq.8).or.
      >         (code.eq.11).or.(code.eq.12)) then
       if (.not.rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
@@ -438,7 +443,9 @@ c
          control_read = value
          return
 
+*     *********************
 *     **** band: stuff ****
+*     *********************
 
       else if (code.eq.5) then
      
@@ -545,7 +552,9 @@ c
      >  maxit_orbs = 1
 
 
+*     ***********************
 *     **** paw_sd: stuff ****
+*     ***********************
       else if (code.eq.6) then
 
       if (.not.rtdb_get(rtdb,'cgsd:geometry_optimize',mt_log,1,move))
@@ -719,7 +728,9 @@ c
      >   Tr = 298.15d0
 
 
+*     **********************
 *     **** pspw_wannier ****
+*     **********************
       else if (code.eq.9) then
 
 c     **** Figure input/output MO vectors ****

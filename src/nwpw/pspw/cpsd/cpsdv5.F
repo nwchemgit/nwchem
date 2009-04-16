@@ -21,6 +21,7 @@
 
 #include "global.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 cccc#include "frac_occ.fh"
@@ -185,23 +186,23 @@ cccc#include "frac_occ.fh"
 
 *     ***** print out header ****
       if (taskid.eq.MASTER) then
-         write(6,1000)
-         write(6,1010)
-         write(6,1020)
-         write(6,1010)
-         write(6,1030)
-         write(6,1010)
-         write(6,1035)
-         write(6,1010)
-         write(6,1040)
-         write(6,1010)
-         write(6,1041)
-         write(6,1042)
-         write(6,1043)
-         write(6,1010)
-         write(6,1000)
+         write(luout,1000)
+         write(luout,1010)
+         write(luout,1020)
+         write(luout,1010)
+         write(luout,1030)
+         write(luout,1010)
+         write(luout,1035)
+         write(luout,1010)
+         write(luout,1040)
+         write(luout,1010)
+         write(luout,1041)
+         write(luout,1042)
+         write(luout,1043)
+         write(luout,1010)
+         write(luout,1000)
          call nwpw_message(1)
-         write(6,1110)
+         write(luout,1110)
       end if
       
       value = control_read(1,rtdb)
@@ -413,70 +414,70 @@ c      call frac_occ_init(rtdb,ispin,ne)
 *                |**************************|
 
       if (taskid.eq.MASTER) then
-         write(6,1111) np
-         write(6,1117) np_i,np_j
-         if (mapping.eq.1) write(6,1112)
-         if (mapping.eq.2) write(6,1113)
+         write(luout,1111) np
+         write(luout,1117) np_i,np_j
+         if (mapping.eq.1) write(luout,1112)
+         if (mapping.eq.2) write(luout,1113)
          if (control_balance()) then
-           write(6,1114)
+           write(luout,1114)
          else
-           write(6,1116)
+           write(luout,1116)
          end if
 
-         write(6,1115)
+         write(luout,1115)
          IF(control_move()) THEN
-           write(6,1120) 'yes'
+           write(luout,1120) 'yes'
          ELSE
-           write(6,1120) 'no'
+           write(luout,1120) 'no'
          ENDIF
-         write(6,1121) control_boundry(),control_version()
-         if (ispin.eq.1) write(6,1130) 'restricted'
-         if (ispin.eq.2) write(6,1130) 'unrestricted'
+         write(luout,1121) control_boundry(),control_version()
+         if (ispin.eq.1) write(luout,1130) 'restricted'
+         if (ispin.eq.2) write(luout,1130) 'unrestricted'
          IF (control_gga().eq.-1) THEN
-            write(6,1131) 'off'
+            write(luout,1131) 'off'
          ELSE IF (control_gga().eq.0) THEN
-            write(6,1131) 'LDA (Vosko et al) parameterization'
+            write(luout,1131) 'LDA (Vosko et al) parameterization'
          ELSE IF (control_gga().eq.10) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'PBE96 (White and Bird) parameterization'
          ELSE IF (control_gga().eq.11) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'BLYP (White and Bird) parameterization'
          ELSE IF (control_gga().eq.12) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'revPBE (White and Bird) parameterization'
 
 
          ELSE IF (control_gga().eq.110) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'PBE0 (White and Bird) parameterization'
          ELSE IF (control_gga().eq.112) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'revPBE0 (White and Bird) parameterization'
          ELSE IF (control_gga().eq.113) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'BNL (White and Bird) parameterization'
 
          ELSE IF (control_gga().eq.200) THEN
-            write(6,1131) 'Hartree-Fock'
+            write(luout,1131) 'Hartree-Fock'
          ELSE
-            write(6,1131) 'unknown parameterization'
+            write(luout,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
-         if (fractional) write(6,1132)
-         call pspw_print_SIC(6)
-         call pspw_print_HFX(6)
-         write(6,1140)
+         if (fractional) write(luout,1132)
+         call pspw_print_SIC(luout)
+         call pspw_print_HFX(luout)
+         write(luout,1140)
          do ia = 1,ion_nkatm()
-           write(6,1150) ia,ion_atom(ia),
+           write(luout,1150) ia,ion_atom(ia),
      >                    psp_zv(ia),psp_lmax(ia)
-           write(6,1152) psp_lmax(ia)
-           write(6,1153) psp_locp(ia)
-           write(6,1154) psp_lmmax(ia)
-           if (control_version().eq.4) write(6,1156) psp_rlocal(ia)
+           write(luout,1152) psp_lmax(ia)
+           write(luout,1153) psp_locp(ia)
+           write(luout,1154) psp_lmmax(ia)
+           if (control_version().eq.4) write(luout,1156) psp_rlocal(ia)
            if (psp_semicore(ia)) 
-     >         write(6,1155) psp_rcore(ia),psp_ncore(ia)
-           write(6,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
+     >         write(luout,1155) psp_rcore(ia),psp_ncore(ia)
+           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          end do
 
          icharge = -(ne(1)+ne(ispin))
@@ -496,70 +497,72 @@ c      call frac_occ_init(rtdb,ispin,ne)
          do ia=1,ion_nkatm()
            icharge = icharge + ion_natm(ia)*psp_zv(ia)
          end do
-         write(6,1159) icharge
+         write(luout,1159) icharge
 
-         write(6,1160)
-         write(6,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
-         write(6,1180)
+         write(luout,1160)
+         write(luout,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
+         write(luout,1180)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
-           write(6,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+           write(luout,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
            else
-           write(6,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+           write(luout,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
            end if
          end do
-         write(6,1200) cx,cy,cz
-         write(6,1210) gx,gy,gz
+         write(luout,1200) cx,cy,cz
+         write(luout,1210) gx,gy,gz
 
 
          if (fractional) then
-           write(6,1219) en(1),en(ispin),' (   fractional)'
-           write(6,1221) ne(1),neq(1),
+           write(luout,1219) en(1),en(ispin),' (   fractional)'
+           write(luout,1221) ne(1),neq(1),
      >                   ne(ispin),neq(ispin),' (fourier space)'
          else
-           write(6,1220) ne(1),neq(1),
+           write(luout,1220) ne(1),neq(1),
      >                   ne(ispin),neq(ispin),' (fourier space)'
-           write(6,1221) ne(1),neq(1),
+           write(luout,1221) ne(1),neq(1),
      >                   ne(ispin),neq(ispin),' (fourier space)'
          end if
-         write(6,1230)
-         write(6,1241) lattice_unita(1,1),
+         write(luout,1230)
+         write(luout,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),
      >                 lattice_unita(3,1)
-         write(6,1242) lattice_unita(1,2),
+         write(luout,1242) lattice_unita(1,2),
      >                 lattice_unita(2,2),
      >                 lattice_unita(3,2)
-         write(6,1243) lattice_unita(1,3),
+         write(luout,1243) lattice_unita(1,3),
      >                 lattice_unita(2,3),
      >                 lattice_unita(3,3)
-         write(6,1244) lattice_unitg(1,1),
+         write(luout,1244) lattice_unitg(1,1),
      >                 lattice_unitg(2,1),
      >                 lattice_unitg(3,1)
-         write(6,1245) lattice_unitg(1,2),
+         write(luout,1245) lattice_unitg(1,2),
      >                 lattice_unitg(2,2),
      >                 lattice_unitg(3,2)
-         write(6,1246) lattice_unitg(1,3),
+         write(luout,1246) lattice_unitg(1,3),
      >                 lattice_unitg(2,3),
      >                 lattice_unitg(3,3)
-         write(6,1231) lattice_omega()
-         write(6,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
+         write(luout,1231) lattice_omega()
+         write(luout,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
      >                 pack_nwave_all(0),pack_nwave(0)
-         write(6,1251) lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
+         write(luout,1251) lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
      >                 pack_nwave_all(1),pack_nwave(1)
          if (control_version().eq.3) then
-         write(6,1260) ewald_rcut(),ewald_ncut()
-         write(6,1261) ewald_mandelung()
+         write(luout,1260) ewald_rcut(),ewald_ncut()
+         write(luout,1261) ewald_mandelung()
          end if
-         write(6,1270)
-         if (.not.control_translation()) write(6,1271)
-         if (.not.control_rotation())    write(6,1272)
-         write(6,1280) control_time_step(),control_fake_mass()
-         write(6,1290) control_tole(),control_tolc(),control_tolr()
-         write(6,1300)
-         write(6,1305)
-         call util_flush(6)
+         write(luout,1270)
+         if (.not.control_translation()) write(luout,1271)
+         if (.not.control_rotation())    write(luout,1272)
+         write(luout,1280) control_time_step(),control_fake_mass()
+         write(luout,1290) control_tole(),control_tolc(),control_tolr()
+        write(luout,1281) control_it_in()*control_it_out(),
+     >                 control_it_in(),control_it_out()
+         write(luout,1300)
+         write(luout,1305)
+         call util_flush(luout)
       end if
 
 *                |***************************|
@@ -581,12 +584,13 @@ c      call frac_occ_init(rtdb,ispin,ne)
      >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)),
      >             fractional,dbl_mb(occ1(1)),dbl_mb(occ2(1)))
          if (taskid.eq.MASTER) then 
-           write(6,1310) icount*it_in,E(1),deltae,deltac,deltar
-           call util_flush(6)
+           write(luout,1310) icount*it_in,E(1),deltae,deltac,deltar
+           call util_flush(luout)
          end if
          if ((deltae.gt.0.0d0).and.(icount.gt.1)) then
             if (taskid.eq.MASTER) 
-     >       write(6,*) ' *** Energy going up.  iteration terminated.'
+     >       write(luout,*) 
+     >       ' *** Energy going up.  iteration terminated.'
             go to 2
          end if
          deltae = dabs(deltae)
@@ -594,12 +598,14 @@ c      call frac_occ_init(rtdb,ispin,ne)
      >       (deltac.lt.control_tolc()).and.
      >       (deltar.lt.control_tolr())) then
             if (taskid.eq.MASTER) 
-     >       write(6,*) ' *** tolerance ok.     iteration terminated.'
+     >       write(luout,*) 
+     >       ' *** tolerance ok.     iteration terminated.'
             go to 2
          end if
       if (icount.lt.it_out) go to 1
       if (taskid.eq.MASTER) 
-     > write(6,*) '*** arived at the Maximum iiteration.   terminated.'
+     > write(luout,*) 
+     > '*** arived at the Maximum iiteration.   terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
@@ -707,65 +713,65 @@ c         end do
       call center_mass(gx,gy,gz)
 
       if (taskid.eq.MASTER) then
-         write(6,1300)
-         write(6,1410)
-         write(6,1420)
+         write(luout,1300)
+         write(luout,1410)
+         write(luout,1420)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
-           write(6,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+           write(luout,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
            else
-           write(6,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+           write(luout,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
            end if
          end do
-         write(6,1200) cx,cy,cz
-         write(6,1210) gx,gy,gz
+         write(luout,1200) cx,cy,cz
+         write(luout,1210) gx,gy,gz
 
 
-         write(6,*)
-         write(6,1320) en(1),en(ispin),' (real space)'
+         write(luout,*)
+         write(luout,1320) en(1),en(ispin),' (real space)'
 
-         write(6,1430) E(1),E(1)/ion_nion()
+         write(luout,1430) E(1),E(1)/ion_nion()
          if (pspw_qmmm_found()) then
-            write(6,1431) 
-            write(6,1432) 
-            write(6,1433) (E(1)-E(11)),
+            write(luout,1431) 
+            write(luout,1432) 
+            write(luout,1433) (E(1)-E(11)),
      >                    (E(1)-E(11))/ion_nion()
          end if
-         write(6,1440) E(2),E(2)/n2(ispin)
-         write(6,1450) E(3),E(3)/n2(ispin)
-         write(6,1460) E(4),E(4)/n2(ispin)
+         write(luout,1440) E(2),E(2)/n2(ispin)
+         write(luout,1450) E(3),E(3)/n2(ispin)
+         write(luout,1460) E(4),E(4)/n2(ispin)
          if (pspw_SIC()) then
-           write(6,1455) E(16),E(16)/n2(ispin)
-           write(6,1456) E(17),E(17)/n2(ispin)
+           write(luout,1455) E(16),E(16)/n2(ispin)
+           write(luout,1456) E(17),E(17)/n2(ispin)
          end if
          if (pspw_HFX()) then
-           write(6,1457) E(20),E(20)/n2(ispin)
+           write(luout,1457) E(20),E(20)/n2(ispin)
          end if
 
-         write(6,1470) E(5),E(5)/ion_nion()
-         write(6,1480) E(6),E(6)/n2(ispin)
-         write(6,1490) E(7),E(7)/n2(ispin)
-         write(6,1495) E(8),E(8)/n2(ispin)
-         write(6,1496) E(9),E(9)/n2(ispin)
-         write(6,1497) E(10),E(10)/n2(ispin)
+         write(luout,1470) E(5),E(5)/ion_nion()
+         write(luout,1480) E(6),E(6)/n2(ispin)
+         write(luout,1490) E(7),E(7)/n2(ispin)
+         write(luout,1495) E(8),E(8)/n2(ispin)
+         write(luout,1496) E(9),E(9)/n2(ispin)
+         write(luout,1497) E(10),E(10)/n2(ispin)
          if (pspw_SIC().and.pspw_SIC_relaxed())  then
-           write(6,1499) E(18),E(18)/n2(ispin)
-           write(6,1501) E(19),E(19)/n2(ispin)
+           write(luout,1499) E(18),E(18)/n2(ispin)
+           write(luout,1501) E(19),E(19)/n2(ispin)
          end if
          if (pspw_HFX().and.pspw_HFX_relaxed())  then
-           write(6,1502) E(21),E(21)/n2(ispin)
+           write(luout,1502) E(21),E(21)/n2(ispin)
          end if
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
-         write(6,1498) virial
+         write(luout,1498) virial
  
       if (pspw_qmmm_found()) then
-            write(6,1700)
-            write(6,1701)
-            write(6,1702) E(11)
-            write(6,1703) E(12)
-            write(6,1704) E(13)
+            write(luout,1700)
+            write(luout,1701)
+            write(luout,1702) E(11)
+            write(luout,1703) E(12)
+            write(luout,1704) E(13)
 c
 c            write(luout,1703) E(14)+E(15)
 c            write(luout,1710) E(14)
@@ -783,8 +789,8 @@ c            write(luout,1706) E(18)
           n = ne(1)
           nn = n*n
           do ms=1,ispin
-             if (ms.eq.1) write(6,1331)
-             if (ms.eq.2) write(6,1332)
+             if (ms.eq.1) write(luout,1331)
+             if (ms.eq.2) write(luout,1332)
              !*** call Gainsville matrix output ***
              call output(dbl_mb(hml(1)+(ms-1)*nn),
      >                    1,ne(ms),1,ne(ms),
@@ -794,17 +800,17 @@ c            write(luout,1706) E(18)
 
 *        **** write out KS eigenvalues ****
          else
-         write(6,1500)
+         write(luout,1500)
          NN=NE(1)-NE(2)
          EV=27.2116d0
          if (fractional) then
            do i=1,NN
-             write(6,1511) dbl_mb(EIG(1)+i-1),
+             write(luout,1511) dbl_mb(EIG(1)+i-1),
      >                     dbl_mb(EIG(1)+i-1)*EV,
      >                     dbl_mb(occ1(1)+i-1)
            end do
            do i=1,ne(2)
-             write(6,1511) dbl_mb(EIG(1)+i-1+NN),
+             write(luout,1511) dbl_mb(EIG(1)+i-1+NN),
      >                     dbl_mb(EIG(1)+i-1+NN)*EV,
      >                     dbl_mb(occ1(1)+i-1+NN),
      >                     dbl_mb(EIG(1)+i-1+n1(2)-1),
@@ -813,10 +819,10 @@ c            write(luout,1706) E(18)
            end do
          else
            do i=1,NN
-             write(6,1510) dbl_mb(EIG(1)+i-1),dbl_mb(EIG(1)+i-1)*EV
+             write(luout,1510) dbl_mb(EIG(1)+i-1),dbl_mb(EIG(1)+i-1)*EV
            end do
            do i=1,ne(2)
-             write(6,1510) dbl_mb(EIG(1)+i-1+NN),
+             write(luout,1510) dbl_mb(EIG(1)+i-1+NN),
      >                     dbl_mb(EIG(1)+i-1+NN)*EV,
      >                     dbl_mb(EIG(1)+i-1+n1(2)-1),
      >                     dbl_mb(EIG(1)+i-1+n1(2)-1)*EV
@@ -826,7 +832,7 @@ c            write(luout,1706) E(18)
          end if
 
 *        ***** extra energy output for QA test ****
-         write(6,1600) E(1)
+         write(luout,1600) E(1)
       end if
 
 *                |***************************|
@@ -912,15 +918,15 @@ c      call frac_occ_end()
          T3=CPU4-CPU3
          T4=CPU4-CPU1
          AV=T2/dble(icount*it_in)
-         write(6,*)
-         write(6,*) '-----------------'
-         write(6,*) 'cputime in seconds'
-         write(6,*) 'prologue    : ',T1
-         write(6,*) 'main loop   : ',T2
-         write(6,*) 'epilogue    : ',T3
-         write(6,*) 'total       : ',T4
-         write(6,*) 'cputime/step: ',AV
-         write(6,*)
+         write(luout,*)
+         write(luout,*) '-----------------'
+         write(luout,*) 'cputime in seconds'
+         write(luout,*) 'prologue    : ',T1
+         write(luout,*) 'main loop   : ',T2
+         write(luout,*) 'epilogue    : ',T3
+         write(luout,*) 'total       : ',T4
+         write(luout,*) 'cputime/step: ',AV
+         write(luout,*)
          call nwpw_timing_print_final(.true.,(icount*it_in))
          CALL nwpw_MESSAGE(4)
       end if 
@@ -1005,6 +1011,8 @@ c      call frac_occ_end()
  1271 FORMAT(5x, ' translation contrained')
  1272 FORMAT(5x, ' rotation constrained')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
+ 1281 FORMAT(5X, ' maximum iterations =',I8,
+     >           ' ( ',I4,' inner ',I4,' outer )')
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (electron)',E12.3,' (ion)')
  1300 FORMAT(//)
@@ -1062,7 +1070,8 @@ c      call frac_occ_end()
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
- 9000 if (taskid.eq.MASTER) write(6,9010) ierr
+ 9000 if (taskid.eq.MASTER) write(luout,9010) ierr
+      call Parallel2d_Finalize()
       call Parallel_Finalize()
 
       cpsdv5 = value
