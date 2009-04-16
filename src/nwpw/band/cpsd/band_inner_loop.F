@@ -468,24 +468,18 @@ c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
 *     **** average Kohn-Sham v_local energy ****
       call Cram_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),elocal)
 
-c 
-c*     ***** average Kohn-Sham v_nonlocal energy ****
-c      call dcopy(2*npack1*nemax,0.0d0,0,Hpsi,1)
-c      call v_nonlocal(ispin,ne,psi1,Hpsi,
-c     >                .false.,dbl_mb(ftest(1)),fractional,occ1)
-      enlocal = 0.0d0
-c      do ms=1,ispin
-c      do n=n1(ms),n2(ms)
-c         call Pack_cc_idot(1,psi1(1,n),Hpsi(1,n),sum)
-c         if (fractional) sum=sum*occ1(n)
-c         enlocal = enlocal - sum
-c      end do
-c      end do
-c      if (np.gt.1) call Parallel_SumAll(enlocal)
-c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
-c
-c
-c
+ 
+*     ***** average Kohn-Sham v_nonlocal energy ****
+      call cpsi_data_zeroall(Hpsi_tag)
+      call cpsp_v_nonlocal(ispin,neq,psi1_tag,Hpsi_tag,
+     >                     .false.,dbl_mb(ftest(1)))
+      call cpsp_v_spin_orbit(ispin,neq,psi1_tag,Hpsi_tag,
+     >                       .false.,dbl_mb(ftest(1)))
+      call Pneb_ff_traceall_tag(0,0,psi1_tag,Hpsi_tag,enlocal)
+      enlocal = -enlocal
+      if (ispin.eq.1) enlocal = enlocal + enlocal
+
+
 *     **** total energy ****
       Eold=E(1)
       E(1) = eorbit + eion + exc - ehartr - pxc
@@ -539,27 +533,6 @@ c      if (np_j.gt.1) call C1dB_MaxAll(deltac)
       if (np_k.gt.1) call K1dB_MaxAll(deltac)
       deltac = deltac/dte
 
-
-c      do n=n1(1),n2(ispin)
-c         do i=1,npack1
-c            Hpsi(i,n) = psi2(i,n) - psi1(i,n)
-c         end do
-c      end do
-c
-c      do n=n1(1),n2(ispin)
-c         call Pack_cc_idot(1,Hpsi(1,n),Hpsi(1,n),dbl_mb(sumi(1)+n-1))
-c      end do
-c     
-c      if (np_i.gt.1) 
-c     >     call D3dB_Vector_SumAll((n2(ispin)-n1(1)+1),
-c     >                             dbl_mb(sumi(1)))
-c
-c      deltac = 0.0d0
-c      do n=n1(1),n2(ispin)
-c         if (dbl_mb(sumi(1)+n-1).gt.deltac) deltac=dbl_mb(sumi(1)+n-1)
-c      end do
-c      if (np_j.gt.1) call D1dB_MaxAll(deltac)
-c
 
 *     *** deltar ***
       deltar = deltamm
