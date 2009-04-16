@@ -104,8 +104,12 @@
 
       endif
 #endif
-      
-      
+
+*     **** get balance mapping ****
+      if (.not.rtdb_get(rtdb,'nwpw:balance',mt_log,1,balance)) then
+         balance = .true.
+      end if
+
 
 *     *********************
 *     **** cpsd: stuff ****
