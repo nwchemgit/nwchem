@@ -489,6 +489,8 @@ c
          gga = 0
       end if
 
+      if(.not.rtdb_get(rtdb,'band:geometry_optimize',mt_log,1,move))
+     >    move = .false.
       if (.not.rtdb_get(rtdb,'band:fake_mass',mt_dbl,1,fake_mass))
      >  fake_mass = 400000.0d0
       if (.not.rtdb_get(rtdb,'band:time_step',mt_dbl,1,time_step))

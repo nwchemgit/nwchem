@@ -723,6 +723,7 @@ c
  3800 move = .true.
       value =     rtdb_put(rtdb,'cgsd:geometry_optimize',mt_log,1,move)
      >       .and.rtdb_put(rtdb,'cpsd:geometry_optimize',mt_log,1,move)
+     >       .and.rtdb_put(rtdb,'band:geometry_optimize',mt_log,1,move)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 3800, RTDB_ERR)
