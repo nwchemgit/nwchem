@@ -22,6 +22,7 @@
 #include "util.fh"
 #include "errquit.fh"
       
+
 *     **** parallel variables ****
       integer  taskid,np,np_i,np_j,np_k
       integer  MASTER
@@ -44,6 +45,7 @@
       real*8  dipole(3)
 
       integer psi1_tag,psi2_tag,psir_tag,Hpsi_tag,next
+      integer psi1_shift,psi2_shift
       integer dn(2)
     
 
@@ -63,6 +65,9 @@
       integer ierr
 
 *     **** local variables ****
+      complex*16 zero,one
+      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
+
       logical lprint,mprint,hprint
       integer ms,mapping,mapping1d
       real*8  deltae,deltac,deltar
@@ -776,17 +781,23 @@ c      end do
       call cpsi_data_noupdate(eig_tag)
 
 
+*     ***** diagonalize and rotate the hamiltonian matrix ****
+      call cpsi_data_update(psi2_tag)
+      do nb=1,nbrillq
+        psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+        psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
+        hml_shift  = cpsi_data_get_chnk(hml_tag,nb)
+        call Pneb_fwf_Multiply(0,nb,
+     >                       one,
+     >                       dbl_mb(psi1_shift),npack1,
+     >                       dbl_mb(hml_shift),
+     >                       zero,
+     >                       dbl_mb(psi2_shift))
 
-c*     ***** diagonalize and rotate the hamiltonian matrix ****
-c      else
-c        call Dneall_m_diagonalize(0,dbl_mb(hml(1)),
-c     >                              dbl_mb(eig(1)),.false.)
-c
-c        call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
-c     >                            dbl_mb(hml(1)),  1.0d0,
-c     >                            dcpl_mb(psi2(1)),0.0d0)
-c      end if
-c
+      end do
+      call cpsi_data_noupdate(psi2_tag)
+
+
 *                |***************************|
 ****************** report summary of results **********************
 *                |***************************|
@@ -916,16 +927,15 @@ c        call pspw_dngen_APC(ispin,ne,dbl_mb(dn(1)))
 c        call pspw_print_APC(6)
 c
 c      end if
-c
-c*     ***** write psi2 wavefunctions ****
-c      call psi_write(ispin,ne,dcpl_mb(psi2(1)),
-c     >               smearoccupation,dbl_mb(occ2(1)))
-c 
-c*     **** write geometry to rtdb ****
-c      call ion_write(rtdb)
-c
-c
-c*     **** deallocate heap memory ****
+
+*     *****  write psi2 wavefunctions ****
+      call cpsi_write(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
+
+*     **** write geometry to rtdb ****
+      call ion_write(rtdb)
+
+
+*     **** deallocate heap memory ****
       call ewald_end()
       call cstrfac_end()
       call c_coulomb_end()
