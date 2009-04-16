@@ -11,7 +11,7 @@
      >                      nfft3d,
      >                      psi1_tag,psi2_tag,dn,
      >                      it_in,E,deltae,deltac,deltar,
-     >                      hml_tag,lmd_tag,
+     >                      hml_tag,
      >                      psir_tag,Hpsi_tag)
       implicit none
       integer ispin,ispinq,ne(2),neq(2),nbrill,nbrillq,nfft3d
@@ -20,7 +20,7 @@
       integer it_in
       real*8  E(*)
       real*8  deltae,deltac,deltar
-      integer hml_tag,lmd_tag
+      integer hml_tag
 
 *     **** very big workspace variables ****
       integer psir_tag,Hpsi_tag
@@ -33,7 +33,7 @@
       integer n2ft3d,np_i,np_j,np_k,np,nbq,nemaxq
       integer i,n,n1(2),n2(2),it,ms,ierr,shifto
       integer shiftA,shiftB,nshiftA,nshiftB,psi1_shift,psi2_shift
-      integer nx,ny,nz,nbi,nbj,ki,kj,occ_tag,nb,lmd_shift
+      integer nx,ny,nz,nbi,nbj,ki,kj,occ_tag,nb
       integer gga,psi_shift,hpsi_shift,hml_shift,nshift1,nshift2
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
@@ -394,7 +394,6 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
         do nb=1,nbrillq
           psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
           psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
-c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
           do ms=1,ispinq
           if (neq(ms).gt.0) then
              call cpsi_lmbda(ms,nb,npack1,

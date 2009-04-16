@@ -168,10 +168,6 @@
       if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
      >  rotation = .true.
 
-      if (.not.rtdb_get(rtdb,'nwpw:spin_orbit',mt_log,1,spin_orbit))
-     > spin_orbit=.false.
-      if (spin_orbit) ispin=2
-
 
 *     **************************
 *     **** cpmd code: stuff ****
@@ -446,11 +442,8 @@ c
 *     *********************
 *     **** band: stuff ****
 *     *********************
-
       else if (code.eq.5) then
      
-    
-
       if (.not.rtdb_cget(rtdb,'band:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if

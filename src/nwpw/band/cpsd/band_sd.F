@@ -52,7 +52,7 @@
 *     ***** energy variables ****
       real*8  E(30)
 
-      integer eig_tag,hml_tag,lmd_tag,svec_tag
+      integer eig_tag,hml_tag,svec_tag
       integer eig_shift,hml_shift
 
 *     **** psi smearing block ****
@@ -347,7 +347,6 @@ c     **** allocate other variables ****
       Hpsi_tag = cpsi_data_alloc(nbrillq,nemaxq,2*npack1)
       psir_tag = cpsi_data_alloc(nbrillq,nemaxq,2*nfft3d)
       hml_tag  = cpsi_data_alloc(nbrillq,1,2*Pneb_w_size(0,1))
-      lmd_tag  = cpsi_data_alloc(nbrillq,1,2*Pneb_w_size(0,1))
       eig_tag  = cpsi_data_alloc(nbrillq,ne(1)+ne(2),1)
       svec_tag = cpsi_data_alloc(nbrillq,neq(1),3)
       value = MA_alloc_get(mt_dbl,2*nfft3d,'dn',dn(2),dn(1))
@@ -677,7 +676,7 @@ c
      >                      nfft3d,
      >                      psi1_tag,psi2_tag,dbl_mb(dn(1)),
      >                      it_in,E,deltae,deltac,deltar,
-     >                      hml_tag,lmd_tag,
+     >                      hml_tag,
      >                      psir_tag,Hpsi_tag)
 
          if (mprint) then 
@@ -964,7 +963,6 @@ c
       if (next.ge.0) call cpsi_data_dealloc(next)
       call cpsi_data_dealloc(psi2_tag)
       call cpsi_data_dealloc(hml_tag)
-      call cpsi_data_dealloc(lmd_tag)
       call cpsi_data_dealloc(eig_tag)
       call cpsi_data_dealloc(svec_tag)
       value = MA_free_heap(dn(2))
