@@ -62,15 +62,16 @@ c#include "tce_diis.fh"
       character*255 filename
       character*20 title
       character*4 irrepname
-      nodezero=(ga_nodeid().eq.0)
-      cpu=-util_cpusec()
-      wall=-util_wallsec()
       alpha1=0.0d0
       alpha2=0.0d0
+#if defined(CCSDTLR)
       alpha3=0.0d0
       alpha4=0.0d0
       alpha5=0.0d0
       alpha6=0.0d0
+      nodezero=(ga_nodeid().eq.0)
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
       call tce_e_offset(l_a0_offset,k_a0_offset,size_a0)
 #if defined(DEBUG_PRINT)
         if(nodezero) write(LuOut,*) 'l_a0_offset = ',l_a0_offset
@@ -126,6 +127,7 @@ c#include "tce_diis.fh"
       if (.not.ma_pop_stack(l_a0_offset))
      1     call errquit("tce_ccsdt_symm_polar: MA problem",
      2                  l_a0_offset,MA_ERR)
+#endif
       tce_ccsdt_symm_polar=alpha0+alpha1
       return  
 c

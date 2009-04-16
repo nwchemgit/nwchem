@@ -71,15 +71,15 @@ c#include "tce_diis.fh"
       character*4 irrepname
       alpha0=0.0d0
 #if defined(CCSDTQ)
-      nodezero=(ga_nodeid().eq.0)
-      cpu=-util_cpusec()
-      wall=-util_wallsec()
       alpha1=0.0d0
       alpha2=0.0d0
       alpha3=0.0d0
       alpha4=0.0d0
       alpha5=0.0d0
       alpha6=0.0d0
+      nodezero=(ga_nodeid().eq.0)
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
       call tce_e_offset(l_a0_offset,k_a0_offset,size_a0)
 #if defined(DEBUG_PRINT)
         if(nodezero) write(LuOut,*) 'l_a0_offset = ',l_a0_offset
