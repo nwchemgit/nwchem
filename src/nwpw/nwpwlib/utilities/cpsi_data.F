@@ -528,3 +528,33 @@ c      end if
       return
       end
 
+
+*     ************************************************
+*     *                                              *
+*     *               cpsi_data_scalall              *
+*     *                                              *
+*     ************************************************
+      subroutine cpsi_data_scalall(alpha,tag1)
+      implicit none
+      real*8 alpha
+      integer tag1
+
+#include "mafdecls.fh"
+#include "cpsi_data.fh"
+
+*     ***** local variables ****
+      integer nbrill,neall,nsize
+      integer indx1,neall1,nsize1,nbrill1
+
+      indx1   = int_mb(indx_psi(1)  +tag1)
+      neall1  = int_mb(neall_psi(1) +tag1)
+      nsize1  = int_mb(nsize_psi(1) +tag1)
+      nbrill1 = int_mb(nbrill_psi(1)+tag1)
+
+      nbrill = nbrill1
+      nsize  = nsize1
+      neall  = neall1
+      call dscal(nbrill*neall*nsize,alpha,dbl_mb(indx1),1)
+      return
+      end
+

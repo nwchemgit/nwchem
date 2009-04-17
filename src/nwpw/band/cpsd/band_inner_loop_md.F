@@ -7,23 +7,29 @@
 *  *                                                          *
 *  ************************************************************
   
-      subroutine band_inner_loop_md(ispin,ispinq,ne,neq,nbrill,nbrillq,
+      subroutine band_inner_loop_md(verlet,sa_alpha,
+     >                      ispin,ispinq,ne,neq,nbrill,nbrillq,
      >                      nfft3d,
      >                      psi0_tag,psi1_tag,psi2_tag,dn,
-     >                      it_in,E,deltae,deltac,deltar,
-     >                      hml_tag,lmd_tag,
-     >                      psir_tag,Hpsi_tag)
+     >                      it_in,it_sum
+     >                      E,
+     >                      hml_tag,
+     >                      psir_tag,Hpsi_tag,
+     >                      calc_pressure,pressure,p1,p2)
+
       implicit none
       integer ispin,ispinq,ne(2),neq(2),nbrill,nbrillq,nfft3d
       integer psi0_tag,psi1_tag,psi2_tag
       real*8  dn(nfft3d,*)
-      integer it_in
+      integer it_in,it_sum
       real*8  E(*)
-      real*8  deltae,deltac,deltar
-      integer hml_tag,lmd_tag
+      integer hml_tag
 
 *     **** very big workspace variables ****
       integer psir_tag,Hpsi_tag
+
+      logical calc_pressure
+      real*8  pressure,p1,p2,stress(3,3)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -153,12 +159,16 @@
 
 *     ******************************************
 *     ****                                  ****
-*     ****   Start of steepest descent loop ****
+*     **** Start of molecular dynamics loop ****
 *     ****                                  ****
 *     ******************************************
+
       do it=1,it_in
+        call cpsi_data_copyall(psi1_tag,psi0_tag)
         call cpsi_data_copyall(psi2_tag,psi1_tag)
-        if (move) call ion_shift()
+        if (verlet) call ion_shift()
+        if (nose.and.verlet) call Nose_shift()
+
 
 *       ********************************
 *       **** generate phaze factors ****
@@ -343,49 +353,99 @@ c        !*** this code needs to be optimized!!! ****
      >              Hpsi_tag,
      >              move,dbl_mb(fion(1)))
 
+
+*       *******************************************
+*       **** get ewald and semicore forces     ****
+*       *******************************************
+*       **** get the ewald force ****
+        call ewald_f(dbl_mb(fion(1)))
+
+*       **** get the semicore force ****
+        if (cpsp_semicore(0)) then
+           call c_semicore_xc_F(ispin,dbl_mb(xcp(1)),dbl_mb(fion(1)))
+        end if
+c*          **** get the qmmm force ****
+c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
+
+*       **** remove ion forces using ion_FixIon ****
+        call ion_FixIon(dbl_mb(fion(1)))
+
+
         
-*       ************************************
-*       **** do a steepest descent step ****
-*       ************************************
+*       **********************************
+*       **** do an verlet/newton step ****
+*       **********************************
+
         call cpsi_data_update(psi2_tag)
         do nb=1,nbrillq
+           psi0_shift = cpsi_data_get_chnk(psi0_tag,nb)
            psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
            psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
            Hpsi_shift = cpsi_data_get_chnk(Hpsi_tag,nb)
-           call band_sd_subupdate(nb,npack1,(neq(1)+neq(2)),
+
+*          **************************
+*          **** do a verlet step ****
+*          **************************
+           if (verlet) then
+*             **** constant temperature ****
+              if (nose) then
+                sse = Nose_sse()
+                ssr = Nose_ssr()
+                call band_md_subupdate(nb,npack1,(neq(1)+neq(2)),
      >                             dbl_mb(psi1_shift),
      >                             dbl_mb(psi2_shift),
      >                             dbl_mb(Hpsi_shift),
      >                             dte)
+                call ion_nose_step(ssr,dbl_mb(fion(1)))
+c                  do n=1,n2(ispin)
+c                 call Pack_c_SMul(1,0.5d0*dte,Hpsi(1,n),psi2(1,n))
+c                 call Pack_cc_daxpy(1,-1.0d0,psi0(1,n),psi2(1,n))
+c                 call Pack_cc_daxpy(1,1.0d0,psi1(1,n),psi2(1,n))
+c                 call Pack_c_SMul1(1,2.0d0*sse,psi2(1,n))
+c                 call Pack_cc_daxpy(1,1.0d0,psi0(1,n),psi2(1,n))
+c                end do
+
+*             **** constant energy ****
+              else
+                call band_md_subupdate(nb,npack1,(neq(1)+neq(2)),
+     >                             dbl_mb(psi1_shift),
+     >                             dbl_mb(psi2_shift),
+     >                             dbl_mb(Hpsi_shift),
+     >                             dte)
+                call ion_verlet_step(dbl_mb(fion(1)),sa_alpha(2))
+c                do n=1,n2(ispin)
+c                 call Pack_c_SMul(1,dte*sa1,Hpsi(1,n),psi2(1,n))
+c                 call Pack_cc_daxpy(1,-1.0d0*sa2,psi0(1,n),psi2(1,n))
+c                 call Pack_cc_daxpy(1,2.0d0*sa1,psi1(1,n),psi2(1,n))
+c                end do
+           end if
+
+*          **************************
+*          **** do a newton step ****
+*          **************************
+           else
+              r = 1.0d0
+              s = 1.0d0
+              if (nose) then
+                r =  (1.0d0-0.5d0*dt*Nose_dXr())
+                s =  (1.0d0-0.5d0*dt*Nose_dXe())
+              end if
+              call band_md_subupdate(nb,npack1,(neq(1)+neq(2)),
+     >                             dbl_mb(psi1_shift),
+     >                             dbl_mb(psi2_shift),
+     >                             dbl_mb(Hpsi_shift),
+              call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2)*r)
+c                do n=1,n2(ispin)
+c                 call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
+c                 call Pack_cc_daxpy(1,s*dt*sa_alpha(1),psi0(1,n),psi2(1,n))
+c                 call Pack_cc_Sum2(1,psi1(1,n),psi2(1,n))
+c                end do
+           end if
+
         end do
         call cpsi_data_noupdate(psi2_tag)
 
         call nwpw_timing_end(13)
-c
-c*       *******************************************
-c*       **** get ewald and semicore forces     ****
-c*       ****   and do steepest descent on ions ****
-c*       *******************************************
-        if (move) then
-
-*          **** get the ewald force ****
-           call ewald_f(dbl_mb(fion(1)))
-
-
-*          **** get the semicore force ****
-           if (cpsp_semicore(0)) then
-              call c_semicore_xc_F(ispin,dbl_mb(xcp(1)),dbl_mb(fion(1)))
-           end if
-
-c*          **** get the qmmm force ****
-c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
-
-*          **** remove ion forces using ion_FixIon ****
-           call ion_FixIon(dbl_mb(fion(1)))
-
-           call ion_optimize_step(dbl_mb(fion(1)))
-        end if
-
 
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
