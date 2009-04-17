@@ -149,10 +149,21 @@
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
-      move = control_move()
+      move = .true.
 
-      dt = control_time_step()
-      dte = dt/dsqrt(control_fake_mass())
+      nose = control_Nose()
+      sse = 1.0d0
+      ssr = 1.0d0
+
+      dt    = control_time_step()
+      fmass = control_fake_mass()
+      dte   = dt*dt/fmass
+      if (.not. verlet) dte=0.5d0*dte
+      if (.not.nose) then
+        sa1 =    1.0d0/(2.0d0-sa_alpha(1))
+        sa2 = sa_alpha(1)/(2.0d0-sa_alpha(1))
+      end if
+
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
       dv    = scal1*lattice_omega()
@@ -391,35 +402,24 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
               if (nose) then
                 sse = Nose_sse()
                 ssr = Nose_ssr()
-                call band_md_subupdate(nb,npack1,(neq(1)+neq(2)),
+                call band_cpmd_subupdate1(nb,npack1,(neq(1)+neq(2)),
+     >                             dbl_mb(psi0_shift),
      >                             dbl_mb(psi1_shift),
      >                             dbl_mb(psi2_shift),
      >                             dbl_mb(Hpsi_shift),
-     >                             dte)
+     >                             dte,sse)
                 call ion_nose_step(ssr,dbl_mb(fion(1)))
-c                  do n=1,n2(ispin)
-c                 call Pack_c_SMul(1,0.5d0*dte,Hpsi(1,n),psi2(1,n))
-c                 call Pack_cc_daxpy(1,-1.0d0,psi0(1,n),psi2(1,n))
-c                 call Pack_cc_daxpy(1,1.0d0,psi1(1,n),psi2(1,n))
-c                 call Pack_c_SMul1(1,2.0d0*sse,psi2(1,n))
-c                 call Pack_cc_daxpy(1,1.0d0,psi0(1,n),psi2(1,n))
-c                end do
 
 *             **** constant energy ****
               else
-                call band_md_subupdate(nb,npack1,(neq(1)+neq(2)),
+                call band_cpmd_subupdate2(nb,npack1,(neq(1)+neq(2)),
+     >                             dbl_mb(psi0_shift),
      >                             dbl_mb(psi1_shift),
      >                             dbl_mb(psi2_shift),
      >                             dbl_mb(Hpsi_shift),
-     >                             dte)
+     >                             dte,sa1,sa2)
                 call ion_verlet_step(dbl_mb(fion(1)),sa_alpha(2))
-c                do n=1,n2(ispin)
-c                 call Pack_c_SMul(1,dte*sa1,Hpsi(1,n),psi2(1,n))
-c                 call Pack_cc_daxpy(1,-1.0d0*sa2,psi0(1,n),psi2(1,n))
-c                 call Pack_cc_daxpy(1,2.0d0*sa1,psi1(1,n),psi2(1,n))
-c                end do
            end if
-
 *          **************************
 *          **** do a newton step ****
 *          **************************
@@ -430,16 +430,13 @@ c                end do
                 r =  (1.0d0-0.5d0*dt*Nose_dXr())
                 s =  (1.0d0-0.5d0*dt*Nose_dXe())
               end if
-              call band_md_subupdate(nb,npack1,(neq(1)+neq(2)),
+              call band_cpmd_subupdate3(nb,npack1,(neq(1)+neq(2)),
+     >                             dbl_mb(psi0_shift),
      >                             dbl_mb(psi1_shift),
      >                             dbl_mb(psi2_shift),
      >                             dbl_mb(Hpsi_shift),
+     >                             dte,s*dt*sa_alpha(1))
               call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2)*r)
-c                do n=1,n2(ispin)
-c                 call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
-c                 call Pack_cc_daxpy(1,s*dt*sa_alpha(1),psi0(1,n),psi2(1,n))
-c                 call Pack_cc_Sum2(1,psi1(1,n),psi2(1,n))
-c                end do
            end if
 
         end do
@@ -498,10 +495,8 @@ c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
       call K1dB_SumAll(eorbit)
       if (ispin.eq.1) eorbit = eorbit + eorbit
 
-
 *     **** get ewald energy ****
       eion = ewald_e()
-
 
 *     **** get coulomb energy ****
       ehartr = c_coulomb_e(dcpl_mb(dng(1)))
@@ -521,37 +516,32 @@ c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
       end if
       exc = exc*dv
       pxc = pxc*dv
-  
-*     ***** average Kohn-Sham kinetic energy ****
-      call cke_ave(ispin,ne,psi1_tag,eke)
 
-*     **** average Kohn-Sham v_local energy ****
-      call Cram_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),elocal)
 
- 
-*     ***** average Kohn-Sham v_nonlocal energy ****
-      call cpsi_data_zeroall(Hpsi_tag)
-      call cpsp_v_nonlocal(ispin,neq,psi1_tag,Hpsi_tag,
-     >                     .false.,dbl_mb(ftest(1)))
-      call cpsp_v_spin_orbit(ispin,neq,psi1_tag,Hpsi_tag,
-     >                       .false.,dbl_mb(ftest(1)))
-      call Pneb_ff_traceall_tag(0,0,psi1_tag,Hpsi_tag,enlocal)
-      enlocal = -enlocal
-      if (ispin.eq.1) enlocal = enlocal + enlocal
+c*     **** velocity and kinetic energy of psi ****
+c      h = 1.0d0/(2.0d0*dt)
+c      eke = 0.0d0
+c      do i=1,n2(ispin)
+c         call Pack_c_SMul1(1,-h,psi0(1,i))
+c         call Pack_cc_daxpy(1,h,psi2(1,i),psi0(1,i))
+c         call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
+c         eke = eke+sum
+c      end do
+c      if (np.gt.1) call Parallel_SumAll(eke)
+c      eke = eke*fmass
+c      if (ispin.eq.1) eke = 2.0d0*eke
 
 
 *     **** total energy ****
       Eold=E(1)
       E(1) = eorbit + eion + exc - ehartr - pxc
       E(2) = eorbit
-      E(3) = ehartr
-      E(4) = exc
-      E(5) = eion
-      E(6) = eke
-      E(7) = elocal
-      E(8) = enlocal
-      E(9) = 2.0d0*ehartr
-      E(10) = pxc
+      E(3) = eke
+      E(4) = ion_ke()
+      E(5) = eorbit
+      E(6) = ehartr
+      E(7) = exc
+      E(8) = eion
 c
 c      if (pspw_qmmm_found()) then
 c         e_lj     = pspw_qmmm_LJ_E()
@@ -565,45 +555,60 @@ c         E(13) = e_spring
 c      end if
 
 
+*     **** Energy and Energy**2 sum ***
+      E(25) = E(25) + E(2)
+      E(26) = E(26) + E(2)*E(2)
 
-*     **** set convergence variables ****
-      deltae = (E(1)-Eold)/(dt*dble(it_in))
+*     **** output Forces for Fei ***
+      call fei_output(E(2),dbl_mb(fion(1)))
 
-*     *** deltac ***
-      deltac = 0.0d0
-      do nb=1,nbrillq
-         psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
-         psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
-         Hpsi_shift = cpsi_data_get_chnk(Hpsi_tag,nb)
-         call dcopy(2*npack1*nemaxq,dbl_mb(psi2_shift),1,
-     >                              dbl_mb(Hpsi_shift),1)
-         call daxpy(2*npack1*nemaxq,(-1.0d0),dbl_mb(psi1_shift),1,
-     >                                       dbl_mb(Hpsi_shift),1)
-         do n=1,nemaxq
-            call Cram_cc_idot(nb,dbl_mb(Hpsi_shift),dbl_mb(Hpsi_shift),
-     >                           dbl_mb(sumi(1)+n-1))
-            Hpsi_shift = Hpsi_shift + 2*npack1
-         end do
-         if (np_i.gt.1) call C3dB_Vector_SumAll(nemaxq,dbl_mb(sumi(1)))
-         do n=1,nemaxq
-            if(dbl_mb(sumi(1)+n-1).gt.deltac) deltac=dbl_mb(sumi(1)+n-1)
-         end do
-      end do
-c      if (np_j.gt.1) call C1dB_MaxAll(deltac)
-      if (np_k.gt.1) call K1dB_MaxAll(deltac)
-      deltac = deltac/dte
-
-
-*     *** deltar ***
-      deltar = deltamm
-      if (move) then
-        do i=1,ion_nion()
-           sum = dsqrt( dbl_mb(fion(1)+(i-1)*3  )**2 
-     >                + dbl_mb(fion(1)+(i-1)*3+1)**2 
-     >                + dbl_mb(fion(1)+(i-1)*3+2)**2)
-           if (sum.gt.deltar) deltar = sum
-        end do
+      if (nose) then
+        E(9)  = Nose_e_energy()
+        E(10) = Nose_r_energy()
+        E(1)  = E(2)+E(3)+E(4)+E(9)+E(10)
+      else
+        E(1) = E(2)+E(3)+E(4)
       end if
+
+
+c*     ******** pressure ******
+c      if (calc_pressure) then
+c
+c*        ***** average Kohn-Sham v_nonlocal energy ****
+c        call dcopy(2*npack1*nemaxq,0.0d0,0,Hpsi,1)
+c        call v_nonlocal(ispin,neq,psi1,Hpsi,
+c     >                .false.,dbl_mb(ftest(1)),fractional,occ1)
+c        enlocal = 0.0d0
+c        do ms=1,ispin
+c        do n=n1(ms),n2(ms)
+c         call Pack_cc_idot(1,psi1(1,n),Hpsi(1,n),sum)
+c         if (fractional) sum=sum*occ1(n)
+c         enlocal = enlocal - sum
+c        end do
+c        end do
+c        if (np.gt.1) call Parallel_SumAll(enlocal)
+c        if (ispin.eq.1) enlocal = 2.0d0*enlocal
+c
+c
+c        call cgsd_pressure_stress(ispin,neq,psi1,
+c     >                            dbl_mb(dnall(1)),
+c     >                            dcpl_mb(dng(1)),
+c     >                            enlocal,exc,pxc,
+c     >                            pressure,p1,p2,stress)
+c      end if
+
+
+*      **** write ecce data ****
+       call ecce_print_module_entry('task gradient')
+
+       call ion_ecce()
+       call ecce_print1('total energy', mt_dbl, E(2), 1)
+       call ecce_print2('total gradient', mt_dbl, dbl_mb(fion(1)),
+     $        3,3,natmx)
+       call ecce_print1('gradient norm', mt_dbl, E(1), 1)
+       call ecce_print1('orbital gradient norm', mt_dbl, E(4), 1)
+c       call ecce_print1('gradient max', mt_dbl, E(1), 1)
+       call ecce_print_module_exit('task gradient', 'ok')
        
       call nwpw_timing_end(10)
 
@@ -634,24 +639,77 @@ c      if (np_j.gt.1) call C1dB_MaxAll(deltac)
       return
       end
  
-      subroutine band_cpmd_subupdate(nb,nfft3d,nn,
-     >                             psi1,psi2,Hpsi,dte)
+      subroutine band_cpmd_subupdate1(nb,nfft3d,nn,
+     >                             psi0,psi1,psi2,Hpsi,dte,sse)
       implicit none
       integer    nb,nfft3d,nn
+      complex*16 psi0(nfft3d,nn)
       complex*16 psi1(nfft3d,nn)
       complex*16 psi2(nfft3d,nn)
       complex*16 Hpsi(nfft3d,nn)
-      real*8     dte
+      real*8     dte,sse
 
       integer n
 *     ************************************
-*     **** do a steepest descent step ****
+*     **** do a nose step ****
 *     ************************************
       do n=1,nn
-        call Cram_c_SMul(nb,dte,Hpsi(1,n),psi2(1,n))
+        call Cram_c_SMul(nb,0.5d0*dte,Hpsi(1,n),psi2(1,n))
+        call Cram_cc_daxpy(nb,-1.0d0,psi0(1,n),psi2(1,n))
+        call Cram_cc_Sum2(nb,psi1(1,n),psi2(1,n))
+        call Cram_c_SMul1(nb,2.0d0*sse,psi2(1,n))
         call Cram_cc_Sum2(nb,psi1(1,n),psi2(1,n))
       end do
 
       return
       end
 
+
+      subroutine band_cpmd_subupdate2(nb,nfft3d,nn,
+     >                                psi0,psi1,psi2,Hpsi,
+     >                                dte,sa1,sa2)
+      implicit none
+      integer    nb,nfft3d,nn
+      complex*16 psi0(nfft3d,nn)
+      complex*16 psi1(nfft3d,nn)
+      complex*16 psi2(nfft3d,nn)
+      complex*16 Hpsi(nfft3d,nn)
+      real*8     dte,sa1,sa2
+
+      integer n
+*     **********************
+*     **** verlet  step ****
+*     **********************
+      do n=1,nn
+        call Cram_c_SMul(nb,sa1*dte,Hpsi(1,n),psi2(1,n))
+        call Cram_cc_daxpy(nb,-1.0d0*sa2,psi0(1,n),psi2(1,n))
+        call Cram_cc_daxpy(nb,2.0d0*sa1,psi1(1,n),psi2(1,n))
+      end do
+
+      return
+      end
+
+
+      subroutine band_cpmd_subupdate3(nb,nfft3d,nn,
+     >                                psi0,psi1,psi2,Hpsi,
+     >                                dte,dt)
+      implicit none
+      integer    nb,nfft3d,nn
+      complex*16 psi0(nfft3d,nn)
+      complex*16 psi1(nfft3d,nn)
+      complex*16 psi2(nfft3d,nn)
+      complex*16 Hpsi(nfft3d,nn)
+      real*8     dte,dt
+
+      integer n
+*     **********************
+*     **** newton  step ****
+*     **********************
+      do n=1,nn
+        call Cram_c_SMul(nb,dte,Hpsi(1,n),psi2(1,n))
+        call Cram_cc_daxpy(nb,dt,psi0(1,n),psi2(1,n))
+        call Cram_cc_Sum2(nb,psi1(1,n),psi2(1,n))
+      end do
+
+      return
+      end
