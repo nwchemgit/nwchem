@@ -123,6 +123,14 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 
 *     ***** Error checking ****
       readblock = .true.
+
+      if (spin_orbit) then
+        if (.not.spin_orbit0) readblock = .false.
+      end if
+      if (.not.spin_orbit) then
+        if (spin_orbit0) readblock = .false.
+      end if
+
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
@@ -148,7 +156,6 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
      >     (unita(2,3).ne.control_unita(2,3)) .or.
      >     (unita(3,3).ne.control_unita(3,3)) .or.
      >     (ispin     .ne.ispin0)             .or.
-     >     (spin_orbit.ne.spin_orbit0)        .or.
      >     (nbrill    .ne.nbrillioun0)        .or.
      >     (ne(1)     .ne.ne0(1))             .or.
      >     (ne(2)     .ne.ne0(2))  ) then
