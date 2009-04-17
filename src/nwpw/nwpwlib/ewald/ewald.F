@@ -511,7 +511,7 @@ ccccccccccc set ion charges
          do i=1,ntyp
             dbl_mb(zv(1)+i-1)=mmq_zv(i)
          end do
-      else if (ccode.eq.5) then
+      else if ((ccode.eq.5).or.(ccode.eq.13).or.(ccode.eq.14)) then
           do i=1,ntyp
              dbl_mb(zv(1)+i-1)=cpsp_zv(i)
           end do

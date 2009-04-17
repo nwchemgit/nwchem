@@ -111,10 +111,10 @@
       end if
 
 
-*     *********************
-*     **** cpsd: stuff ****
-*     *********************
-      if (code.eq.1) then
+*     *********************************
+*     **** cpsd and band_sd: stuff ****
+*     *********************************
+      if ((code.eq.1).or.(code.eq.13)) then
       if (.not.rtdb_cget(rtdb,'cpsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
@@ -172,11 +172,15 @@
       if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
      >  rotation = .true.
 
+      if (.not.rtdb_get(rtdb,'nwpw:spin_orbit',mt_log,1,spin_orbit))
+     > spin_orbit=.false.
+      if (spin_orbit) ispin=2
 
-*     **************************
-*     **** cpmd code: stuff ****
-*     **************************
-      else if (code.eq.2) then
+
+*     ****************************************
+*     **** cpmd and band_cpmd code: stuff ****
+*     ****************************************
+      else if ((code.eq.2) .or. (code.eq.14)) then
       if (.not.rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
@@ -262,6 +266,9 @@
       if (.not.rtdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr))
      >   Tr = 298.15d0
 
+      if (.not.rtdb_get(rtdb,'nwpw:spin_orbit',mt_log,1,spin_orbit))
+     > spin_orbit=.false.
+      if (spin_orbit) ispin=2
 
 
 *     ************************************
@@ -412,8 +419,9 @@ c
      >   Tr = 298.15d0
 
 
-
+*     ***************************
 *     **** pspw_dplot: stuff ****
+*     ***************************
       else if (code.eq.4) then
          value = .true.
          if (.not.rtdb_cget(rtdb,'pspw_dplot:wavefunction_filename',
@@ -617,7 +625,9 @@ c
      >  ispin = 1
 
 
+*     *************************
 *     **** paw_cpmd: stuff ****
+*     *************************
       else if (code.eq.7) then
 
       if (.not.rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)) then
@@ -782,8 +792,9 @@ c
          control_read = value
          return
 
-
+*     ***************************
 *     **** band_dplot: stuff ****
+*     ***************************
       else if (code.eq.10) then
          value = .true.
          if (.not.rtdb_cget(rtdb,'band_dplot:wavefunction_filename',
@@ -812,9 +823,9 @@ c
          control_read = value
          return
 
-
+*     ***************************
 *     **** unknown code type ****
-   
+*     ***************************
       else
          value = .false.
          write(*,*) "control_read: unknown code type:",code

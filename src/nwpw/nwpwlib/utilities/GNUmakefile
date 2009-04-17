@@ -28,6 +28,7 @@
 		cpsi_data.o \
 		psi_data.o \
 		butter.o \
+		print_elapsed_time.o \
 		log_integrate.o
 
 	  OBJ = 

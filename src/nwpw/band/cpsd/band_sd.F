@@ -201,7 +201,7 @@
       call Parallel_np(np)
       call Parallel_taskid(taskid)
       
-      if (.not.control_read(5,rtdb))
+      if (.not.control_read(13,rtdb))
      >   call errquit('band_sd:error reading control',0,DISK_ERR)
 
 

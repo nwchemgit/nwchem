@@ -1,0 +1,16 @@
+*
+* $Id: nose-hoover.fh,v 1.2 2006-08-13 01:03:28 bylaska Exp $
+*
+
+*     **** nose-hoover common block ****
+c      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe,Pe
+c      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr,Pr
+      integer Xem(2),Xe0(2),Xe1(2),Xe2(2),Ee0(2),Qe(2),Pe(2),Mchain
+      integer Xrm(2),Xr0(2),Xr1(2),Xr2(2),Er0(2),Qr(2),Pr(2),Nchain
+
+      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,Pe,Mchain,
+     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr,Pr,Nchain
+
+      real*8 eke0_init,Ne_chain
+      common / nose_hoover1 / eke0_init,Ne_chain
+

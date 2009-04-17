@@ -16,6 +16,7 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "errquit.fh"
       
       logical value
@@ -28,7 +29,7 @@ c      parameter (autoatm =290.360032539d6)
 
       
 *     **** parallel variables ****
-      integer  taskid,np,np_i,np_j
+      integer  taskid,np,np_i,np_j,np_k
       integer  MASTER
       parameter(MASTER=0)
 
@@ -38,33 +39,26 @@ c      parameter (autoatm =290.360032539d6)
 
 *     **** lattice variables ****
       integer ngrid(3),nwave,nfft3d,n2ft3d
-      integer npack1
+      integer npack0,npack1
 
 *     **** electronic variables ****
+      logical spin_orbit
       real*8 icharge
-      integer ispin
+      integer ispin,ispinq
       integer ne(2),n1(2),n2(2),nemax,neall,neq(2),nemaxq
+      integer nbrillioun,nbrillq
       real*8  en(2)
       real*8 dipole(3)
 
-*     complex*16 psi1(nfft3d,nemax)
-*     complex*16 psi2(nfft3d,nemax)
-*     real*8     dn(n2ft3d,2)
-*     complex*16 Hpsi(nfft3d,nemax)
-*     complex*16 psir(nfft3d,nemax)
-      integer psi0(2),psi1(2),psi2(2)
-      integer occ0(2),occ1(2),occ2(2)
+      integer psi0_tag,psi1_tag,psi2_tag,next
       integer dn(2)
-      integer Hpsi(2),psir(2)
+      integer Hpsi_tag,psir_tag
     
 
 *     ***** energy variables ****
       real*8  E(30),eke,eave,evar,cv
 
-*     real*8  eig(2*nemax)
-*     real*8  hml(2*nemax*nemax)
-*     real*8  lmd(2*nemax*nemax)
-      integer eig(2),hml(2),lmd(2)
+      integer eig_tag,hml_tag,svec_tag
 
 *     **** psi smearing block ****
       logical fractional
@@ -113,33 +107,37 @@ c      parameter (autoatm =290.360032539d6)
       external    ion_atom,ion_aname
 
       real*8   control_rti,control_rte,ion_rion
-      real*8   ion_vion,ion_com_ke,ion_ke
+      real*8   ion_vion,ion_com_ke,ion_ke,control_fractional_kT
       real*8   ion_Temperature,ion_com_Temperature
       external control_rti,control_rte,ion_rion
-      external ion_vion,ion_com_ke,ion_ke
+      external ion_vion,ion_com_ke,ion_ke,control_fractional_kT
       external ion_Temperature,ion_com_Temperature
       real*8   control_time_step,control_fake_mass
       external control_time_step,control_fake_mass
       logical  control_read,control_move,ion_init,ion_q_FixIon
       external control_read,control_move,ion_init,ion_q_FixIon
 
-      integer  pack_nwave_all
+      integer  brillioun_nbrillioun,control_fractional_smeartype
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      external pack_nwave_all
+      external brillioun_nbrillioun,control_fractional_smeartype
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
+      integer  cpsi_data_alloc,cpsi_data_get_next
+      external cpsi_data_alloc,cpsi_data_get_next
+      integer  Pneb_nbrillq,Pneb_ispinq,Pneb_w_size
+      external Pneb_nbrillq,Pneb_ispinq,Pneb_w_size
 
       character*12 control_boundry
       external     control_boundry
 
-      logical      psp_semicore,pspw_qmmm_found
-      real*8       psp_rcore,psp_ncore,psp_rlocal
-      external     psp_semicore,pspw_qmmm_found
-      external     psp_rcore,psp_ncore,psp_rlocal
+      logical      cpsp_semicore,pspw_qmmm_found
+      real*8       cpsp_rcore,cpsp_ncore,cpsp_rlocal
+      external     cpsp_semicore,pspw_qmmm_found
+      external     cpsp_rcore,cpsp_ncore,cpsp_rlocal
 
-      logical  control_Nose,control_Mulliken
-      external control_Nose,control_Mulliken
+      logical  control_Nose,control_Mulliken,control_print
+      external control_Nose,control_Mulliken,control_print
 
       integer  Nose_Mchain,Nose_Nchain
       external Nose_Mchain,Nose_Nchain
@@ -162,8 +160,8 @@ c      parameter (autoatm =290.360032539d6)
       external control_SA,control_Fei,pspw_SIC,pspw_HFX,control_pressure
       external control_SA_decay
 
-      integer  control_np_orbital,control_mapping,control_mapping1d
-      external control_np_orbital,control_mapping,control_mapping1d
+      integer  control_np_dimensions,control_mapping,control_mapping1d
+      external control_np_dimensions,control_mapping,control_mapping1d
 
 
       logical  control_translation,control_rotation,control_balance
@@ -194,8 +192,8 @@ c      parameter (autoatm =290.360032539d6)
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
-      if (.not.control_read(5,rtdb))
-     >   call errquit('band_sd:error reading control',0,DISK_ERR)
+      if (.not.control_read(14,rtdb))
+     >   call errquit('band_cpmd:error reading control',0,DISK_ERR)
 
       lprint = ((taskid.eq.MASTER).and.(control_print(print_low)))
       mprint = ((taskid.eq.MASTER).and.(control_print(print_medium)))
@@ -204,7 +202,7 @@ c      parameter (autoatm =290.360032539d6)
       if (taskid.eq.MASTER) call current_second(cpu1)
 
 *     ***** print out header ****
-      if (taskid.eq.MASTER) then
+      if (mprint) then
          write(luout,1000)
          write(luout,1010)
          write(luout,1020)
@@ -225,7 +223,8 @@ c      parameter (autoatm =290.360032539d6)
          write(luout,1110)
       end if
       
-      call Parallel3d_Init(control_np_orbital())
+      call Parallel3d_Init(control_np_dimensions(2),
+     >                     control_np_dimensions(3))
       call Parallel3d_np_i(np_i)
       call Parallel3d_np_j(np_j)
       call Parallel3d_np_j(np_k)
@@ -274,105 +273,87 @@ c      parameter (autoatm =290.360032539d6)
       call c_coulomb_init()
       call ewald_init()
 
-c*     ***** allocate psi2, psi1, and psi0 wavefunctions ****
-c      call psi_get_ne_occupation(ispin,ne,smearoccupation)
-c      if (smearoccupation.gt.0) then
-c         fractional = .true.
-c      else
-c         fractional = .false.
-c      end if
-c      mapping1d = control_mapping1d()
-c      call Dne_init(ispin,ne,mapping1d)
-c      call Dneall_neq(neq)
-c      nemaxq = neq(1)+neq(2)
-c
-c      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
-c     >                     'psi2',psi2(2),psi2(1))
-c      value = value.and.
-c     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
-c     >                     'psi1',psi1(2),psi1(1))
-c      value = value.and.
-c     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
-c     >                     'psi0',psi0(2),psi0(1))
-c      if (fractional) then
-c      value = value.and.
-c     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ0',occ0(2),occ0(1))
-c      value = value.and.
-c     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ1',occ1(2),occ1(1))
-c      value = value.and.
-c     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ2',occ2(2),occ2(1))
-c      end if
-c      if (.not.value) call errquit('out of heap memory',0, MA_ERR)
-c
-c
-c
-c*     *****  read psi2 wavefunctions ****
-c      call psi_read(ispin,ne,dcpl_mb(psi2(1)),
-c     >              smearoccupation,dbl_mb(occ2(1)))
-c
-c
-c*     **** move  wavefunction velocities ****
-c      if (control_new_vpsi()) then
-c        call v_psi_delete()
-c      end if
-c
-c
-c*     **** generate initial wavefunction velocities if it does not exist ****
-c      if (.not.v_psi_filefind()) then
-c        call v_psi_new(ispin,ne)
-c      end if
-c
-c
-c*     *****  read psi0 wavefunctions ****
-c      call dcopy(2*npack1*(neq(1)+neq(2)),0.0d0,0,dcpl_mb(psi1(1)),1)
-c      call v_psi_read(ispin,ne,dcpl_mb(psi1(1)))
-c      n1(1) = 1
-c      n2(1) = ne(1)
-c      n1(2) = ne(1)+1
-c      n2(2) = ne(1)+ne(2)
-c      nemax = ne(1)+ne(2)
-c
-c*     **** allocate other variables *****
-c      value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
-c      value = value.and.Dneall_m_allocate(0,hml)
-c      value = value.and.Dneall_m_allocate(0,lmd)
-c
-c      value = value.and.
-c     >        MA_alloc_get(mt_dbl,(4*nfft3d),
-c     >                     'dn',dn(2),dn(1))
-c      value = value.and.
-c     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
-c     >                     'Hpsi',Hpsi(2),Hpsi(1))
-c      value = value.and.
-c     >        MA_alloc_get(mt_dcpl,nfft3d*(neq(1)+neq(2)),
-c     >                     'psir',psir(2),psir(1))
-c      if (.not.value) call errquit('out of heap memory',0, MA_ERR)
-c
-c
-c
-c*     **** read ions ****
-c      value = ion_init(rtdb)
-c
-c*     **** initialize FixIon constraint ****
-c      call ion_init_FixIon(rtdb)
-c
-c*     **** allocate psp data structure and read in psedupotentials into it ****
-c      call psp_init()
-c      call psp_readall()
-c      if (psp_semicore(0)) call semicore_check()
-c
-c
-c*     **** initialize G,mask,ke,and coulomb data structures ****
-c      call ke_init()
-c      if (control_version().eq.3) call coulomb_init()
-c      if (control_version().eq.4) call coulomb2_init()
-c      call strfac_init()
-c      if (control_version().eq.3) call ewald_init()
-c      
-c
-c*     ******************************
-c*     **** scaling psi velocity ****
-c*     ******************************
+
+      call psi_get_ne(ispin,ne)
+      if (ispin.eq.3) then
+         spin_orbit = .true.
+         ispin=2
+      else
+         spin_orbit = .false.
+      end if
+      nbrillioun = brillioun_nbrillioun()
+      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
+      call Pneb_neq(neq)
+
+
+*     ***** allocate psi2, psi1, and psi0 wavefunctions ****
+      call psi_get_ne_occupation(ispin,ne,smearoccupation)
+      if (smearoccupation.gt.0) then
+         fractional = .true.
+      else
+         fractional = .false.
+      end if
+      mapping1d = control_mapping1d()
+      ispinq  = Pneb_ispinq()
+      nbrillq = Pneb_nbrillq()
+
+      call Cram_npack(0,npack0)
+      call Cram_max_npack(npack1)
+      nemaxq = neq(1)+neq(2)
+      neall  = ne(1) +ne(2)
+
+      psi2_tag = cpsi_data_alloc(nbrillq,nemaxq,2*npack1)
+      psi1_tag = cpsi_data_alloc(nbrillq,nemaxq,2*npack1)
+      psi0_tag = cpsi_data_alloc(nbrillq,nemaxq,2*npack1)
+
+*     *** fractional orbitals ***
+      if (smearoccupation.gt.0) then
+        call cpsi_data_set_next(psi2_tag,
+     >                 cpsi_data_alloc(nbrillq,nemaxq,1))
+        call cpsi_data_set_next(psi1_tag,
+     >                 cpsi_data_alloc(nbrillq,nemaxq,1))
+        call cpsi_data_set_next(psi0_tag,
+     >                 cpsi_data_alloc(nbrillq,nemaxq,1))
+        smeartype = control_fractional_smeartype()
+        smearkT   = control_fractional_kT()
+      end if
+
+c     **** allocate other variables ****
+      Hpsi_tag = cpsi_data_alloc(nbrillq,nemaxq,2*npack1)
+      psir_tag = cpsi_data_alloc(nbrillq,nemaxq,2*nfft3d)
+      hml_tag  = cpsi_data_alloc(nbrillq,1,2*Pneb_w_size(0,1))
+      eig_tag  = cpsi_data_alloc(nbrillq,ne(1)+ne(2),1)
+      svec_tag = cpsi_data_alloc(nbrillq,neq(1),3)
+      value = MA_alloc_get(mt_dbl,2*nfft3d,'dn',dn(2),dn(1))
+      if (.not. value)
+     >  call errquit('band_cpmd:out of heap memory',0,MA_ERR)
+
+
+*     *****  read psi2 wavefunctions ****
+      call cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
+
+*     **** move  wavefunction velocities ****
+      if (control_new_vpsi()) then
+        call v_cpsi_delete()
+      end if
+
+*     **** generate initial wavefunction velocities if it does not exist ****
+      if (.not.v_psi_filefind()) then
+        call v_cpsi_new(spin_orbit,ispin,ne,nbrillioun)
+      end if
+
+*     *****  read psi0 wavefunctions ****
+      call v_cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi0_tag)
+
+
+*     **** initialize FixIon constraint ****
+      call ion_init_FixIon(rtdb)
+
+
+
+*     ******************************
+*     **** scaling psi velocity ****
+*     ******************************
 c      call dcopy(2*(neq(1)+neq(2))*npack1,dcpl_mb(psi1(1)),1,
 c     >                                  dcpl_mb(psi0(1)),1)
 c      call dscal(2*(neq(1)+neq(2))*npack1,control_rte(),
@@ -395,80 +376,73 @@ c      call D1dB_SumAll(eke1)
 c      eke0 = control_fake_mass()*eke0
 c      eke1 = control_fake_mass()*eke1
 c      call ion_init_ke(ekg,eki0,eki1)
-c
-c
-c*     **** Initialize thermostats ****
-c      if (control_Nose()) then
+
+
+*     **** Initialize thermostats ****
+      if (control_Nose()) then
 c         call ke_ave(ispin,neq,dcpl_mb(psi2(1)),w,
 c     >               fractional,dbl_mb(occ2(1)))
-c         call Nose_Init((ne(1)+ne(2)),w)
-c      end if
-c
-c
-c*     **** Initialize simulated annealing ****
-c      SA       = .false.
-c      Te_init  = 0.0d0
-c      Tr_init  = 0.0d0
-c      sa_alpha(1) = 1.0d0
-c      sa_alpha(2) = 1.0d0
-c      if (control_SA()) then
-c         if (control_Nose()) then
-c            SA          = .true.
-c            sa_decay(1) = control_SA_decay(1)
-c            sa_decay(2) = control_SA_decay(2)
-c            Te_init     = control_Nose_Te()
-c            Tr_init     = control_Nose_Tr()
-c         else
-c            dt = control_time_step()
-c            SA          = .false.
-c            sa_decay(1) = control_SA_decay(1)
-c            sa_decay(2) = control_SA_decay(2)
-c            sa_alpha(1) = dexp( -(dt/control_SA_decay(1)) ) 
-c            sa_alpha(2) = dexp( -(dt/control_SA_decay(2)) ) 
-c         end if
-c      end if
-c
-c
+         call Nose_Init((ne(1)+ne(2)),w)
+      end if
+
+
+*     **** Initialize simulated annealing ****
+      SA       = .false.
+      Te_init  = 0.0d0
+      Tr_init  = 0.0d0
+      sa_alpha(1) = 1.0d0
+      sa_alpha(2) = 1.0d0
+      if (control_SA()) then
+         if (control_Nose()) then
+            SA          = .true.
+            sa_decay(1) = control_SA_decay(1)
+            sa_decay(2) = control_SA_decay(2)
+            Te_init     = control_Nose_Te()
+            Tr_init     = control_Nose_Tr()
+         else
+            dt = control_time_step()
+            SA          = .false.
+            sa_decay(1) = control_SA_decay(1)
+            sa_decay(2) = control_SA_decay(2)
+            sa_alpha(1) = dexp( -(dt/control_SA_decay(1)) ) 
+            sa_alpha(2) = dexp( -(dt/control_SA_decay(2)) ) 
+         end if
+      end if
+
+
 c*     **** initialize QM/MM ****
 c      call pspw_qmmm_init(rtdb)
 c
 c*     **** initialize dplot ****
 c      call dplot_iteration_init()
-c
-cc*     **** initialize frac_occ data structure ****
-cc      call frac_occ_init(rtdb,ispin,ne)
-c
+
+
 c*     **** initialize SIC and HFX ****
 c      call pspw_init_SIC(rtdb,ne)
 c      call pspw_init_HFX(rtdb,ispin,ne)
-c
-c
-c
-c*     **** initialize pressure ****
-c      calc_pressure = control_pressure().and.(control_version().eq.3)
-c      pressure      = 0.0d0
-c      p1            = 0.0d0
-c      p2            = 0.0d0
-c      if (calc_pressure) then
-c         call psp_stress_init()
-c         call psp_stress_readall()
-c      end if
-c
-c
-c
-c
-c
-c
-c
-c
-c*                |**************************|
-c******************   summary of input data  **********************
-c*                |**************************|
-c      call center_geom(cx,cy,cz)
-c      call center_mass(gx,gy,gz)
-c      call center_v_geom(vcx,vcy,vcz)
-c      call center_v_mass(vgx,vgy,vgz)
-c      mulliken = control_Mulliken()
+
+
+
+*     **** initialize pressure ****
+      calc_pressure = control_pressure()
+      pressure      = 0.0d0
+      p1            = 0.0d0
+      p2            = 0.0d0
+      if (calc_pressure) then
+         call cpsp_stress_init()
+         call cpsp_stress_readall()
+      end if
+
+
+
+*                |**************************|
+******************   summary of input data  **********************
+*                |**************************|
+      call center_geom(cx,cy,cz)
+      call center_mass(gx,gy,gz)
+      call center_v_geom(vcx,vcy,vcz)
+      call center_v_mass(vgx,vgy,vgz)
+      mulliken = control_Mulliken()
 c
 c      if (taskid.eq.MASTER) then
 c         write(6,1111) np
@@ -742,25 +716,23 @@ c     >             fractional,
 c     >             dbl_mb(occ0(1)),dbl_mb(occ1(1)),dbl_mb(occ2(1)))
 c
 c
-c      if (taskid.eq.MASTER) call current_second(cpu2)
-c      if ((taskid.eq.MASTER).and.(.not.calc_pressure)) 
-c     >   CALL nwpw_message(6)
-c      if ((taskid.eq.MASTER).and.(calc_pressure)) 
-c     >   CALL nwpw_message(9)
-c      
-c      it_in  = control_it_in()
-c      it_out = control_it_out()
-c      icount = 0
-c      verlet = .true.
-c      eke    = 0.0d0
+      if (taskid.eq.MASTER) call current_second(cpu2)
+      if ((mprint).and.(.not.calc_pressure))  call nwpw_message(6)
+      if ((mprint).and.     (calc_pressure))  call nwpw_message(9)
+      
+       it_in  = control_it_in()
+       it_out = control_it_out()
+       icount = 0
+       verlet = .true.
+       eke    = 0.0d0
 c      if (it_out.lt.1) goto 102
-c
-c
-c
-c      dt = control_time_step()
-c
-c      Te_new = Te_init
-c      Tr_new = Tr_init
+ 
+ 
+ 
+       dt = control_time_step()
+ 
+       Te_new = Te_init
+       Tr_new = Tr_init
 c  101 continue
 c         icount = icount + 1
 c         call inner_loop_md(verlet,sa_alpha,ispin,ne,neq,
@@ -901,8 +873,8 @@ c         call psp_stress_end()
 c      end if
 c
 c
-c      if (taskid.eq.MASTER) CALL nwpw_message(3)
-c      if (taskid.eq.MASTER) call current_second(cpu3)
+      if (mprint) CALL nwpw_message(3)
+      if (taskid.eq.MASTER) call current_second(cpu3)
 c
 c
 c*         |****************************************|
@@ -1176,75 +1148,85 @@ c
 c*     **** write geometry to rtdb ****
 c      call ion_write(rtdb)
 c
-c*     **** deallocate heap memory ****
-c      if (control_version().eq.3) call ewald_end()
-c      call strfac_end()
-c      if (controL_version().eq.3) call coulomb_end()
-c      if (controL_version().eq.4) call coulomb2_end()
-c      call ke_end()
-c      call mask_end()
-c      call Pack_end()
-c      call G_end()
-c      call ion_end()
-c      call psp_end()
-c      call ion_end_FixIon()
+*     **** deallocate heap memory ****
+      call ewald_end()
+      call cstrfac_end()
+      call c_coulomb_end()
+      call cke_end()
+      call cpsp_end()
+      call Cram_end()
+      call c_G_end()
+      call brillioun_end()
+
+      call ion_end()
+      call ion_end_FixIon()
+
 c      call pspw_end_SIC()
 c      call pspw_end_HFX()
 c      call pspw_qmmm_end()
-c      call dplot_iteration_end()
-cc      call frac_occ_end()
-c      if (control_Nose()) call Nose_end()
-c
-c      value = MA_free_heap(psir(2))
-c      value = MA_free_heap(Hpsi(2))
-c      value = MA_free_heap(dn(2))
-c      value = MA_free_heap(eig(2))
-c      value = Dneall_m_free(hml)
-c      value = Dneall_m_free(lmd)
-c      value = MA_free_heap(psi0(2))
-c      value = MA_free_heap(psi1(2))
-c      value = MA_free_heap(psi2(2))
-c      if (fractional) then
-c      value = MA_free_heap(occ0(2))
-c      value = MA_free_heap(occ1(2))
-c      value = MA_free_heap(occ2(2))
-c      end if
-c      call D3dB_pfft_end()
-c      call D3dB_end(1)
-c      if (control_version().eq.4) call D3dB_end(2)
-c      call Dne_end()
-c      call psi_data_end()
+
+      call cpsi_data_dealloc(Hpsi_tag)
+      call cpsi_data_dealloc(psir_tag)
+
+      next = cpsi_data_get_next(psi0_tag)
+      if (next.ge.0) call cpsi_data_dealloc(next)
+      call cpsi_data_dealloc(psi0_tag)
+      next = cpsi_data_get_next(psi1_tag)
+      if (next.ge.0) call cpsi_data_dealloc(next)
+      call cpsi_data_dealloc(psi1_tag)
+      next = cpsi_data_get_next(psi2_tag)
+      if (next.ge.0) call cpsi_data_dealloc(next)
+      call cpsi_data_dealloc(psi2_tag)
+
+      call cpsi_data_dealloc(hml_tag)
+      call cpsi_data_dealloc(eig_tag)
+      call cpsi_data_dealloc(svec_tag)
+      value = MA_free_heap(dn(2))
+      if (.not. value)
+     >  call errquit('band_cpmd:error freeing heap',0,MA_ERR)
+
+
+
+      call C3dB_pfft_end()
+      call cpsi_data_end()
+      call C3dB_end(1)
+      if ((control_gga().ge.10).and.(control_gga().lt.100)) then
+         call mask_end()
+         call G_end()
+         call D3dB_end(1)
+      end if
+
 c
 c*     **** do anaylysis on MOTION files ****
 c      call cpmd_properties(rtdb)
 c
 c
-c*                |***************************|
-c****************** report consumed cputime   **********************
-c*                |***************************|
-c      if (taskid.eq.MASTER) then
-c         CALL current_second(cpu4)
-c
-c         T1=CPU2-CPU1
-c         T2=CPU3-CPU2
-c         T3=CPU4-CPU3
-c         T4=CPU4-CPU1
-c         AV=T2/dble(icount*it_in)
-c         write(6,*)
-c         write(6,*) '-----------------'
-c         write(6,*) 'cputime in seconds'
-c         write(6,*) 'prologue    : ',T1
-c         write(6,*) 'main loop   : ',T2
-c         write(6,*) 'epilogue    : ',T3
-c         write(6,*) 'total       : ',T4
-c         write(6,*) 'cputime/step: ',AV
-c         write(6,*)
-c
-c         call nwpw_timing_print_final(.true.,(icount*it_in))
-c         CALL nwpw_message(4)
-c      end if 
-c
-c
+*                |***************************|
+****************** report consumed cputime   **********************
+*                |***************************|
+      if (mprint) then
+         CALL current_second(cpu4)
+
+         t1=cpu2-cpu1
+         t2=cpu3-cpu2
+         t3=cpu4-cpu3
+         t4=cpu4-cpu1
+         av=t2/dble(icount*it_in)
+         write(luout,*)
+         write(luout,*) '-----------------'
+         write(luout,*) 'cputime in seconds'
+         write(luout,*) 'prologue    : ',T1
+         write(luout,*) 'main loop   : ',T2
+         write(luout,*) 'epilogue    : ',T3
+         write(luout,*) 'total       : ',T4
+         write(luout,*) 'cputime/step: ',AV
+         write(luout,*)
+
+         call nwpw_timing_print_final(.true.,(icount*it_in))
+         CALL nwpw_message(4)
+      end if 
+
+
       call Parallel3d_Finalize()
       call Parallel_Finalize()
       band_cpmd = value
@@ -1415,25 +1397,3 @@ ccc
       band_cpmd = value
       return
       END
-
-      subroutine print_elapsed_time(autime)
-      implicit none
-      real*8 autime
-
-      real*8 sectime
-
-      sectime = autime*2.41889d-17
-
-      if (sectime.lt.1.0d-12) then
-         write(6,1800) (sectime/1.0d-15)," fs"
-      else if (sectime.lt.1.0d-9) then
-         write(6,1800) (sectime/1.0d-12)," ps"
-      else 
-         write(6,1800) (sectime/1.0d-9 )," ns"
-      end if
-
-      return
- 1800 format(//' Elapsed time of simulation was',F8.3,A)
-      end
-
-

@@ -18,7 +18,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 8)
+      parameter (num_dirs = 9)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'structure',
@@ -28,13 +28,14 @@ c
      >            'cell_optimize',
      >            'band_dplot',
      >            'dos_dplot',
-     >            'steepest_descent' /
+     >            'steepest_descent',
+     >            'car-parrinello' /
 
 c     *** define external functions ****
       logical  band_structure,band_noit_energy,band_stress
-      logical  band_cell_optimize,band_dplot,band_sd
+      logical  band_cell_optimize,band_dplot,band_sd,band_cpmd
       external band_structure,band_noit_energy,band_stress
-      external band_cell_optimize,band_dplot,band_sd
+      external band_cell_optimize,band_dplot,band_sd,band_cpmd
 c
 c
       value = .false.
@@ -46,7 +47,7 @@ c
 c
 c
 c
-      goto ( 100, 110, 200, 300, 400, 500, 600, 700 ) ind
+      goto ( 100, 110, 200, 300, 400, 500, 600, 700, 800 ) ind
       call errquit('task band: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -152,6 +153,20 @@ c
       goto 9999
 
 
+c
+c  Car-Parrinello
+c
+ 800  if (ga_nodeid().eq.MASTER) then
+        write(*,*)  ">>>> BAND Parallel Module - Car-Parrinello <<<<"
+      end if
+
+      value = .true.
+      value = rtdb_parallel(.true.)
+
+      value = band_cpmd(rtdb)
+
+      call ga_sync()
+      goto 9999
 
 
 

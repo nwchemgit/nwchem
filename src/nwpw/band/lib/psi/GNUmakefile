@@ -12,7 +12,9 @@
 			c_check.o \
 			cpsi_read.o \
 			cpsi_write.o \
-			cpsi_new.o 
+			cpsi_new.o \
+			v_cpsi_new.o \
+			v_cpsi_read.o
                         
 
 
@@ -20,7 +22,7 @@
 
       LIBRARY = libband.a
 
-    USES_BLAS = cpsi.F c_geodesic.F cpsi_lmbda.F BGrsm.F cpsi_lmbda.F cpsi_KS.F
+    USES_BLAS = cpsi.F c_geodesic.F cpsi_lmbda.F BGrsm.F cpsi_lmbda.F cpsi_KS.F cpsi_read.F cpsi_write.F
 
   LIB_DEFINES = 
 

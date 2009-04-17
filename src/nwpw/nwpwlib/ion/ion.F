@@ -78,7 +78,8 @@
 *     **** if md code then write velocities ****
       if ((control_code().eq.2).or.
      >    (control_code().eq.7).or.
-     >    (control_code().eq.11)) then
+     >    (control_code().eq.11).or.
+     >    (control_code().eq.14)) then
          value = geom_vel_set(geom,dbl_mb(r0(1)))
       end if
 
@@ -90,7 +91,9 @@
      >    (control_code().eq.2).or.
      >    (control_code().eq.6).or.
      >    (control_code().eq.7).or.
-     >    (control_code().eq.11)) then
+     >    (control_code().eq.11).or.
+     >    (control_code().eq.13).or.
+     >    (control_code().eq.14)) then
         value = geom_rtdb_store(rtdb,geom,'pspwgeometry')
       end if
       value = geom_destroy(geom)
@@ -104,7 +107,9 @@
      >    (control_code().eq.2).or.
      >    (control_code().eq.6).or.
      >    (control_code().eq.7).or.
-     >    (control_code().eq.11)) then
+     >    (control_code().eq.11).or.
+     >    (control_code().eq.13).or.
+     >    (control_code().eq.14)) then
 
 
 *       *****************************************
@@ -288,7 +293,8 @@ c     call ion_shift()
 *     **** get velocities if md code ****
       if ((control_code().eq.2).or. 
      >    (control_code().eq.7).or.
-     >    (control_code().eq.11)) then
+     >    (control_code().eq.11).or.
+     >    (control_code().eq.14)) then
 *         **** get velocities ****
          value = geom_vel_get(geom,dbl_mb(r0(1)))
 
@@ -1160,7 +1166,9 @@ c         eki1=0.5d0*eki1
          end do
 
       !**** band structure code ****
-      else if (control_code().eq.5) then
+      else if ((control_code().eq.5).or.
+     >         (control_code().eq.13).or.
+     >         (control_code().eq.14)) then
          icharge = 0.0d0
          do ia=1,ion_nkatm()
             icharge = icharge + ion_natm(ia)*cpsp_zv(ia)
@@ -1219,7 +1227,9 @@ c         eki1=0.5d0*eki1
          end do
 
       !**** band structure code ****
-      else if (control_code().eq.5) then
+      else if ((control_code().eq.5).or.
+     >         (control_code().eq.13).or.
+     >         (control_code().eq.14))  then
          icharge = 0.0d0
          do ia=1,ion_nkatm_qm()
             icharge = icharge + ion_natm_qm(ia)*cpsp_zv(ia)
