@@ -52,8 +52,8 @@
 *     ***** energy variables ****
       real*8  E(30)
 
-      integer eig_tag,hml_tag,svec_tag
-      integer eig_shift,hml_shift
+      integer eig_tag,hml_tag,lmd_tag,svec_tag
+      integer eig_shift,hml_shift,lmd_shift
 
 *     **** psi smearing block ****
       logical fractional
@@ -176,8 +176,8 @@
       logical  Dneall_m_allocate,Dneall_m_free
       external Dneall_m_allocate,Dneall_m_free
 
-      real*8   Dneall_m_value
-      external Dneall_m_value
+      complex*16 Pneb_w_value
+      external   Pneb_w_value
       character*9 ion_amm
       external    ion_amm
 
@@ -734,35 +734,31 @@ c
       end if
 
 *     **** comparison between hamiltonian an lambda matrix ****
-c      if (taskid.eq.MASTER) write(17,1330)
-c      do ms=1,ispin
-c         do j=1,ne(ms)
-c         do i=1,ne(ms)
-c            w      = Dneall_m_value(0,ms,i,j,dbl_mb(hml(1)))
-c            virial = Dneall_m_value(0,ms,i,j,dbl_mb(lmd(1)))
-c
-c            if (taskid.eq.MASTER)
-c     >      write(17,1340) ms,i,j,w,virial,w-virial
-c         end do
-c         end do
-c      end do
-
+*     **** not done - because this can generate a very large data file ****
 
 *     **** check orthonormality ****
-c      if (taskid.eq.MASTER) then
-c         write(17,1350)
-c      end if
-c      call Pneb_ffm_Multiply(0,dcpl_mb(psi1(1)),
-c     >                           dcpl_mb(psi1(1)),npack1,
-c     >                           dbl_mb(lmd(1)))
-c      do ms=1,ispin
-c         do j=1,ne(ms)
-c         do i=j,ne(ms)
-c            w  = Dneall_m_value(0,ms,i,j,dbl_mb(lmd(1)))
-c            if (taskid.eq.MASTER) write(17,1360) ms,i,j,w
-c         end do
-c         end do
-c      end do
+      if (taskid.eq.MASTER) then
+         write(17,1350)
+      end if
+      
+      lmd_tag   = cpsi_data_alloc(1,1,2*Pneb_w_size(0,1))
+      lmd_shift = cpsi_data_get_chnk(lmd_tag,1)
+      do nb=1,nbrillq
+        psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+        call Pneb_ffw_Multiply(nb,0,dbl_mb(psi1_shift),
+     >                              dbl_mb(psi1_shift),
+     >                              dbl_mb(lmd_shift))
+         do ms=1,ispin
+            do j=1,ne(ms)
+            do i=j,ne(ms)
+               if (taskid.eq.MASTER) 
+     >         write(17,1360) ms,i,j,
+     >                        Pneb_w_value(nb,ms,i,j,dbl_mb(lmd_shift))
+            end do
+            end do
+         end do
+      end do
+      call cpsi_data_dealloc(lmd_tag)
 
 *     **** close check file ****
       if (taskid.eq.MASTER) then
@@ -1113,7 +1109,7 @@ c     >        A)
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
  1341 FORMAT(I3,2I3,' H=',E16.6)
  1350 FORMAT(/' orthonormality')
- 1360 FORMAT(I3,2I3,E18.7)
+ 1360 FORMAT(I3,2I3,'(',2E18.7,')')
  1370 FORMAT(I3)
  1380 FORMAT(' ''',a,'''',I4)
  1390 FORMAT(I3)
