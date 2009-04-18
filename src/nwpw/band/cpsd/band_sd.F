@@ -741,24 +741,24 @@ c
          write(17,1350)
       end if
       
-      lmd_tag   = cpsi_data_alloc(1,1,2*Pneb_w_size(0,1))
-      lmd_shift = cpsi_data_get_chnk(lmd_tag,1)
-      do nb=1,nbrillq
-        psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
-        call Pneb_ffw_Multiply(nb,0,dbl_mb(psi1_shift),
-     >                              dbl_mb(psi1_shift),
-     >                              dbl_mb(lmd_shift))
-         do ms=1,ispin
-            do j=1,ne(ms)
-            do i=j,ne(ms)
-               if (taskid.eq.MASTER) 
-     >         write(17,1360) ms,i,j,
-     >                        Pneb_w_value(nb,ms,i,j,dbl_mb(lmd_shift))
-            end do
-            end do
-         end do
-      end do
-      call cpsi_data_dealloc(lmd_tag)
+c      lmd_tag   = cpsi_data_alloc(1,1,2*Pneb_w_size(0,1))
+c      lmd_shift = cpsi_data_get_chnk(lmd_tag,1)
+c      do nb=1,nbrillq
+c        psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+c        call Pneb_ffw_Multiply(nb,0,dbl_mb(psi1_shift),
+c     >                              dbl_mb(psi1_shift),
+c     >                              dbl_mb(lmd_shift))
+c         do ms=1,ispin
+c            do j=1,ne(ms)
+c            do i=j,ne(ms)
+c               if (taskid.eq.MASTER) 
+c     >         write(17,1360) ms,i,j,
+c     >                        Pneb_w_value(nb,ms,i,j,dbl_mb(lmd_shift))
+c            end do
+c            end do
+c         end do
+c      end do
+c      call cpsi_data_dealloc(lmd_tag)
 
 *     **** close check file ****
       if (taskid.eq.MASTER) then

@@ -190,6 +190,7 @@
 *       **** generate phaze factors ****
 *       ********************************
         call cphafac()
+        call cphafac_k()
         call ewald_phafac()
         call nwpw_timing_start(11)
 
@@ -380,72 +381,84 @@ c        !*** this code needs to be optimized!!! ****
         if (cpsp_semicore(0)) then
            call c_semicore_xc_F(ispin,dbl_mb(xcp(1)),dbl_mb(fion(1)))
         end if
+
 c*          **** get the qmmm force ****
 c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
 
 *       **** remove ion forces using ion_FixIon ****
         call ion_FixIon(dbl_mb(fion(1)))
 
-
         
 *       **********************************
 *       **** do an verlet/newton step ****
 *       **********************************
 
+*       **************************
+*       **** do a verlet step ****
+*       **************************
         call cpsi_data_update(psi2_tag)
-        do nb=1,nbrillq
-           psi0_shift = cpsi_data_get_chnk(psi0_tag,nb)
-           psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
-           psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
-           Hpsi_shift = cpsi_data_get_chnk(Hpsi_tag,nb)
-
-*          **************************
-*          **** do a verlet step ****
-*          **************************
-           if (verlet) then
-*             **** constant temperature ****
-              if (nose) then
-                sse = Nose_sse()
-                ssr = Nose_ssr()
+        if (verlet) then
+*          **** constant temperature ****
+           if (nose) then
+             sse = Nose_sse()
+             ssr = Nose_ssr()
+             do nb=1,nbrillq
+                psi0_shift = cpsi_data_get_chnk(psi0_tag,nb)
+                psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+                psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
+                Hpsi_shift = cpsi_data_get_chnk(Hpsi_tag,nb)
                 call band_cpmd_subupdate1(nb,npack1,(neq(1)+neq(2)),
      >                             dbl_mb(psi0_shift),
      >                             dbl_mb(psi1_shift),
      >                             dbl_mb(psi2_shift),
      >                             dbl_mb(Hpsi_shift),
      >                             dte,sse)
-                call ion_nose_step(ssr,dbl_mb(fion(1)))
+             end do
+             call ion_nose_step(ssr,dbl_mb(fion(1)))
 
-*             **** constant energy ****
-              else
+*          **** constant energy ****
+           else
+             do nb=1,nbrillq
+                psi0_shift = cpsi_data_get_chnk(psi0_tag,nb)
+                psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+                psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
+                Hpsi_shift = cpsi_data_get_chnk(Hpsi_tag,nb)
                 call band_cpmd_subupdate2(nb,npack1,(neq(1)+neq(2)),
      >                             dbl_mb(psi0_shift),
      >                             dbl_mb(psi1_shift),
      >                             dbl_mb(psi2_shift),
      >                             dbl_mb(Hpsi_shift),
      >                             dte,sa1,sa2)
-                call ion_verlet_step(dbl_mb(fion(1)),sa_alpha(2))
+             end do
+             call ion_verlet_step(dbl_mb(fion(1)),sa_alpha(2))
            end if
-*          **************************
-*          **** do a newton step ****
-*          **************************
-           else
-              r = 1.0d0
-              s = 1.0d0
-              if (nose) then
-                r =  (1.0d0-0.5d0*dt*Nose_dXr())
-                s =  (1.0d0-0.5d0*dt*Nose_dXe())
-              end if
+
+*       **************************
+*       **** do a newton step ****
+*       **************************
+        else
+           r = 1.0d0
+           s = 1.0d0
+           if (nose) then
+             r =  (1.0d0-0.5d0*dt*Nose_dXr())
+             s =  (1.0d0-0.5d0*dt*Nose_dXe())
+           end if
+           do nb=1,nbrillq
+              psi0_shift = cpsi_data_get_chnk(psi0_tag,nb)
+              psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+              psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
+              Hpsi_shift = cpsi_data_get_chnk(Hpsi_tag,nb)
               call band_cpmd_subupdate3(nb,npack1,(neq(1)+neq(2)),
      >                             dbl_mb(psi0_shift),
      >                             dbl_mb(psi1_shift),
      >                             dbl_mb(psi2_shift),
      >                             dbl_mb(Hpsi_shift),
      >                             dte,s*dt*sa_alpha(1))
-              call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2)*r)
-           end if
-
-        end do
+           end do
+           call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2)*r)
+        end if
         call cpsi_data_noupdate(psi2_tag)
+
 
         call nwpw_timing_end(13)
 
@@ -498,7 +511,7 @@ c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
      >                  dbl_mb(hml_shift))
          call Pneb_w_scal(0,nb,-1.0d0,dbl_mb(hml_shift))
          call Pneb_w_trace(0,nb,dbl_mb(hml_shift),sum)
-         eorbit = eorbit + sum
+         eorbit = eorbit + sum*brillioun_weight(nb)
       end do
       call cpsi_data_noupdate(hml_tag)
       call K1dB_SumAll(eorbit)
@@ -541,7 +554,7 @@ c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
      >                         dbl_mb(psi0_shift))
             call Cram_cc_idot(1,dbl_mb(psi0_shift),
      >                          dbl_mb(psi0_shift),sum)
-            eke = eke+sum
+            eke = eke+sum*brillioun_weight(nb)
             psi0_shift = psi0_shift + (2*npack1)
             psi2_shift = psi2_shift + (2*npack1)
          end do

@@ -43,7 +43,6 @@
       value = MA_alloc_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull_hndl,cfull_indx)
       call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
-      write(*,*) "n2ft3d=",n2ft3d,nfft3d
 
  
 *:::::::::::::::::  write wavefunction in CPMDV3 format ::::::::::::::

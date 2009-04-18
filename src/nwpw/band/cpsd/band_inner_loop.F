@@ -164,6 +164,7 @@
 *       **** generate phaze factors ****
 *       ********************************
         call cphafac()
+        call cphafac_k()
         call ewald_phafac()
         call nwpw_timing_start(11)
 
@@ -431,7 +432,7 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
      >                  dbl_mb(hml_shift))
          call Pneb_w_scal(0,nb,-1.0d0,dbl_mb(hml_shift))
          call Pneb_w_trace(0,nb,dbl_mb(hml_shift),sum)
-         eorbit = eorbit + sum
+         eorbit = eorbit + sum*brillioun_weight(nb)
       end do
       call cpsi_data_noupdate(hml_tag)
       call K1dB_SumAll(eorbit)
