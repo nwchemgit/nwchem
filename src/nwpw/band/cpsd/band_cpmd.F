@@ -46,7 +46,7 @@ c      parameter (autoatm =290.360032539d6)
       logical spin_orbit
       real*8 icharge
       integer ispin,ispinq
-      integer ne(2),n1(2),n2(2),nemax,neall,neq(2),nemaxq
+      integer ne(2),nemax,neall,neq(2),nemaxq
       integer nbrillioun,nbrillq
       real*8  en(2)
       real*8 dipole(3)
@@ -185,12 +185,6 @@ c      parameter (autoatm =290.360032539d6)
       logical  control_translation,control_rotation,control_balance
       external control_translation,control_rotation,control_balance
      
-      logical  Dneall_m_allocate,Dneall_m_free
-      external Dneall_m_allocate,Dneall_m_free
-
-      real*8   Dneall_m_value
-      external Dneall_m_value
-
       character*255 cpsp_comment,comment
       external      cpsp_comment
 
@@ -347,7 +341,6 @@ c     **** allocate other variables ****
       value = MA_alloc_get(mt_dbl,2*nfft3d,'dn',dn(2),dn(1))
       if (.not. value)
      >  call errquit('band_cpmd:out of heap memory',0,MA_ERR)
-
 
 *     *****  read psi2 wavefunctions ****
       call cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
@@ -753,20 +746,16 @@ c      if (mulliken) call Orb_Init(rtdb,ispin,ne) !unit=33
 
 *     ***** first step using velocity ****
       verlet = .false.
-c      call inner_loop_md(verlet,sa_alpha,ispin,ne,neq,
-c     >             npack1,nfft3d,nemaxq,
-c     >             dcpl_mb(psi0(1)),
-c     >             dcpl_mb(psi1(1)),
-c     >             dcpl_mb(psi2(1)),
-c     >             dbl_mb(dn(1)),
-c     >             1,0,E,
-c     >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
-c     >             dcpl_mb(Hpsi(1)),dcpl_mb(psir(1)),
-c     >             calc_pressure,pressure,p1,p2,
-c     >             fractional,
-c     >             dbl_mb(occ0(1)),dbl_mb(occ1(1)),dbl_mb(occ2(1)))
-c
-c
+      call band_inner_loop_md(verlet,sa_alpha,
+     >                      ispin,ispinq,ne,neq,nbrillioun,nbrillq,
+     >                      nfft3d,
+     >                      psi0_tag,psi1_tag,psi2_tag,dbl_mb(dn(1)),
+     >                      1,0,
+     >                      E,
+     >                      hml_tag,
+     >                      psir_tag,Hpsi_tag,
+     >                      calc_pressure,pressure,p1,p2)
+
       if (taskid.eq.MASTER) call current_second(cpu2)
       if ((mprint).and.(.not.calc_pressure))  call nwpw_message(6)
       if ((mprint).and.     (calc_pressure))  call nwpw_message(9)
@@ -776,8 +765,7 @@ c
        icount = 0
        verlet = .true.
        eke    = 0.0d0
-c      if (it_out.lt.1) goto 102
- 
+       if (it_out.lt.1) goto 102
  
  
        dt = control_time_step()
@@ -786,19 +774,15 @@ c      if (it_out.lt.1) goto 102
        Tr_new = Tr_init
   101 continue
          icount = icount + 1
-c         call band_inner_loop_md(verlet,sa_alpha,
-c     >             ispin,ispinq,ne,neq,nbrillioun,nbrillq,
-c     >             nfft3d,
-c     >             psi0_tag,
-c     >             psi1_tag,
-c     >             psi2_tag,
-c     >             dbl_mb(dn(1)),
-c     >             it_in,((icount-1)*it_in),
-c     >             E,
-c     >             hml_tag,
-c     >             Hpsi_tag,psir_tag,
-c     >             calc_pressure,pressure,p1,p2)
-
+         call  band_inner_loop_md(verlet,sa_alpha,
+     >                      ispin,ispinq,ne,neq,nbrillioun,nbrillq,
+     >                      nfft3d,
+     >                      psi0_tag,psi1_tag,psi2_tag,dbl_mb(dn(1)),
+     >                      it_in,((icount-1)*it_in),
+     >                      E,
+     >                      hml_tag,
+     >                      psir_tag,Hpsi_tag,
+     >                      calc_pressure,pressure,p1,p2)
          eke = eke + E(3)
 
          !**** calculate pressure ****
@@ -1070,11 +1054,11 @@ c
          write(luout,*)
          write(luout,1320) en(1),en(ispin),' (real space)'
          write(luout,1430) E(2),E(2)/ion_nion()
-         write(luout,1440) E(5),E(5)/n2(ispin)
-         write(luout,1450) E(6),E(6)/n2(ispin)
-         write(luout,1460) E(7),E(7)/n2(ispin)
-         write(luout,1470) E(8),E(8)/ion_nion()
-         write(luout,1471) E(3),E(3)/n2(ispin)
+         write(luout,1440) E(5),E(5)/neall
+         write(luout,1450) E(6),E(6)/neall
+         write(luout,1460) E(7),E(7)/neall
+         write(luout,1470) E(8),E(8)/neall
+         write(luout,1471) E(3),E(3)/neall
          write(luout,1472) ion_ke(),ion_ke()/ion_nion()
 
 c         if (pspw_qmmm_found()) then
@@ -1089,7 +1073,7 @@ c         end if
 
 
          if (control_Nose()) then
-           write(luout,1473) E(9),E(9)/n2(ispin)
+           write(luout,1473) E(9),E(9)/neall
            write(luout,1474) E(10),E(10)/ion_nion()
          end if
          write(luout,1226) E(3),ion_ke(),ion_com_ke()
@@ -1187,16 +1171,15 @@ c     >                         dipole)
 c
 c*     **** calculate the Dipole ***
 c      call Calculate_Dipole(ispin,ne,n2ft3d,dbl_mb(dn(1)),dipole)
-c
-c      
-c*     ***** write wavefunctions and v_wavefunctions ****
-c      call psi_write(ispin,ne,dcpl_mb(psi2(1)),
-c     >               smearoccupation,dbl_mb(occ2(1)))
-c      call v_psi_write(ispin,ne,dcpl_mb(psi0(1)))
-c
-c*     **** write geometry to rtdb ****
-c      call ion_write(rtdb)
-c
+
+*     ***** write wavefunctions and v_wavefunctions ****
+      call cpsi_write(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
+      call v_cpsi_write(spin_orbit,ispin,ne,nbrillioun,psi0_tag)
+
+*     **** write geometry to rtdb ****
+      call ion_write(rtdb)
+
+
 *     **** deallocate heap memory ****
       call ewald_end()
       call cstrfac_end()
@@ -1243,11 +1226,10 @@ c      call pspw_qmmm_end()
          call D3dB_end(1)
       end if
 
-c
-c*     **** do anaylysis on MOTION files ****
-c      call cpmd_properties(rtdb)
-c
-c
+*     **** do anaylysis on MOTION files ****
+      call cpmd_properties(rtdb)
+
+
 *                |***************************|
 ****************** report consumed cputime   **********************
 *                |***************************|

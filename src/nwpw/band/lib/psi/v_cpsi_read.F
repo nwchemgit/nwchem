@@ -36,8 +36,8 @@
       logical brillioun_check,psi_nolattice
       integer n,nb,nbrill,occupation,ms
       integer msglen,psiold,psiold1
-      integer q,pj,nbq,pk
-      integer ispin,ne(2),nbrillioun
+      integer q,pj,nbq,pk,i
+      integer ispin,ne(2)
       logical spin_orbit
 
 c     complex*16 tmp(*)
@@ -83,7 +83,7 @@ c     complex*16 tmp(*)
          l = index(full_filename,' ') -1
          if (control_print(print_medium))
      >     write(luout,1210) full_filename(1:l)
- 1210    FORMAT(/' input psi filename:',A)
+ 1210    FORMAT(/' input vpsi filename:',A)
 
          call openfile(5,full_filename,l,'r',l)
          call iread(5,version,1)
@@ -172,13 +172,13 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 
 *     * file may contain more data then necessary *
       if (readblock) then
-        do nb=1,nbrillioun
+        do nb=1,nbrill
            call K1dB_ktoqp(nb,nbq,pk)
            do n=1,(ne(1)+ne(2))
               pj=0
               q=n
               call C3dB_c_Read(1,5,dcpl_mb(tmp2(1)),
-     >                           dcpl_mb(tmp(1)),pj,pk)
+     >                             dcpl_mb(tmp(1)),pj,pk)
 
             if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
                call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
@@ -188,9 +188,9 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
         end do
         if (occupation.gt.0) then
            l = cpsi_data_get_next(psi0_tag)
-           if (nbrillioun.eq.nbrill) then
+           if (nbrillioun0.eq.nbrill) then
   
-              do nb=1,nbrillioun
+              do nb=1,nbrill
                  call K1dB_ktoqp(nb,nbq,pk)
                  if (taskid.eq.MASTER) then
                     call dread(5,dbl_mb(tmpe(1)),(ne(1)+ne(2)))
@@ -206,7 +206,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
               end do
 *          **** reset to zeros and ones ****
            else
-             do nb=1,nbrillioun
+             do nb=1,nbrillioun0
                call K1dB_ktoqp(nb,nbq,pk) 
                if (pk.eq.taskid_k) then 
                  do ms=1,ispin

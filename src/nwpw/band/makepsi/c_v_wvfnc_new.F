@@ -42,6 +42,8 @@
 *     ***** allocate wavefunction memory ****
       value = MA_alloc_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull_hndl,cfull_indx)
+      call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
+      write(*,*) "n2ft3d=",n2ft3d,nfft3d
 
  
 *:::::::::::::::::  write wavefunction in CPMDV3 format ::::::::::::::
@@ -65,7 +67,6 @@
       occupation = -1
       call iwrite(6,occupation,1)
  
-      call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
 
       do nb=1,nbrillioun
       do ms=1,ispin
@@ -90,7 +91,7 @@
  9999 value = MA_free_heap(cfull_hndl)
 
       write(*,*) 
-     >  "Generated initial wavefunctions velocities:",
+     >  "Generated initial cwavefunctions velocities:",
      >  v_wavefunction_filename
       end if
       call ga_sync()

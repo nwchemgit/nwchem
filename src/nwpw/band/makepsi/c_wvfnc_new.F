@@ -179,26 +179,26 @@
      >                                          .false.,
      >                    full_filename)
       l = index(full_filename,' ') - 1
-      call openfile(66,full_filename,l,'w',l)
-      call iwrite(66,version,1)
-      call iwrite(66,ngrid,3)
-      call dwrite(66,unita,9)
+      call openfile(6,full_filename,l,'w',l)
+      call iwrite(6,version,1)
+      call iwrite(6,ngrid,3)
+      call dwrite(6,unita,9)
 
       if (spin_orbit) then
          ispin0 = 3
       else
          ispin0 = ispin
       end if
-      call iwrite(66,ispin0,1)
-      call iwrite(66,ne,2)
-      call iwrite(66,nbrillioun,1)
+      call iwrite(6,ispin0,1)
+      call iwrite(6,ne,2)
+      call iwrite(6,nbrillioun,1)
 
       if (fractional) then
          occupation = ispin0
       else
          occupation = -1
       end if
-      call iwrite(66,occupation,1)
+      call iwrite(6,occupation,1)
  
  
       do nb=1,nbrillioun
@@ -212,7 +212,7 @@
         if ((spin_orbit).and.
      >      ( ((ms.eq.1).and.(n.gt.neh)).or.
      >        ((ms.eq.2).and.(n.le.neh))   )) then
-          call dwrite(66,dcpl_mb(cfull_indx),2*nfft3d) !** should be writing zeros **
+          call dwrite(6,dcpl_mb(cfull_indx),2*nfft3d) !** should be writing zeros **
         else
           l1= inc3c*filling(3,n,ms)
      >      + inc2c*filling(2,n,ms)
@@ -235,7 +235,7 @@
           p=1.0d0/dsqrt(p)
           call dscal(2*nfft3d,p,dcpl_mb(cfull_indx),1)
 
-          call dwrite(66,dcpl_mb(cfull_indx),2*nfft3d)
+          call dwrite(6,dcpl_mb(cfull_indx),2*nfft3d)
           dcpl_mb(cfull_indx+l1)=dcmplx(0.0d0,0.0d0)
         end if
  
@@ -243,7 +243,7 @@
           if ((spin_orbit).and.
      >        ( ((ms.eq.1).and.(n.gt.neh)).or.
      >          ((ms.eq.2).and.(n.le.neh))   )) then
-            call dwrite(66,dcpl_mb(cfull_indx),2*nfft3d) !** should be writing zeros **
+            call dwrite(6,dcpl_mb(cfull_indx),2*nfft3d) !** should be writing zeros **
           else
             l1= inc3c*filling(3,n,ms)
      >        + inc2c*filling(2,n,ms)
@@ -273,7 +273,7 @@ c           IF((ABS(filling(4,n,ms)).gt.1)) THEN
               p=1.0d0/dsqrt(p)
               call dscal(2*nfft3d,p,dcpl_mb(cfull_indx),1)
 c           END IF
-            call dwrite(66,dcpl_mb(cfull_indx),2*nfft3d)
+            call dwrite(6,dcpl_mb(cfull_indx),2*nfft3d)
             call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
             dcpl_mb(cfull_indx+l1)=dcmplx(0.0d0,0.0d0)
             dcpl_mb(cfull_indx+l2)=dcmplx(0.0d0,0.0d0)
@@ -293,16 +293,16 @@ c     **** add occupation ****
          do ms=1,ispin
            do n=1,ne(ms)
              if (n.le.(ne(ms)-frac_orb(ms))) then
-                call dwrite(66,rx,1)
+                call dwrite(6,rx,1)
              else
-                call dwrite(66,ry,1)
+                call dwrite(6,ry,1)
              end if
            end do
          end do
       end do
       end if
 
-      call closefile(66)
+      call closefile(6)
       IERR=0
       GO TO 9999
  

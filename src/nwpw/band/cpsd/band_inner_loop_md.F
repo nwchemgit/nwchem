@@ -11,13 +11,15 @@
      >                      ispin,ispinq,ne,neq,nbrill,nbrillq,
      >                      nfft3d,
      >                      psi0_tag,psi1_tag,psi2_tag,dn,
-     >                      it_in,it_sum
+     >                      it_in,it_sum,
      >                      E,
      >                      hml_tag,
      >                      psir_tag,Hpsi_tag,
      >                      calc_pressure,pressure,p1,p2)
 
       implicit none
+      logical verlet
+      real*8  sa_alpha(2)
       integer ispin,ispinq,ne(2),neq(2),nbrill,nbrillq,nfft3d
       integer psi0_tag,psi1_tag,psi2_tag
       real*8  dn(nfft3d,*)
@@ -35,16 +37,17 @@
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical move,sic,hfx,done
+      logical move,sic,hfx,done,nose
       integer n2ft3d,np_i,np_j,np_k,np,nbq,nemaxq
       integer i,n,n1(2),n2(2),it,ms,ierr,shifto
-      integer shiftA,shiftB,nshiftA,nshiftB,psi1_shift,psi2_shift
+      integer shiftA,shiftB,nshiftA,nshiftB
+      integer psi0_shift,psi1_shift,psi2_shift
       integer nx,ny,nz,nbi,nbj,ki,kj,occ_tag,nb,lmd_shift
       integer gga,psi_shift,hpsi_shift,hml_shift,nshift1,nshift2
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
-      real*8  deltamm,weight
+      real*8  deltamm,weight,sa1,sa2,fmass,ssr,sse,r,s,h
       real*8  e_lj, e_q, e_spring
       !real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
@@ -63,13 +66,13 @@
       integer npack1
 
 *     ***** external functions ****
-      logical  control_move,cpsp_semicore
+      logical  control_move,cpsp_semicore,control_Nose
       logical  pspw_SIC,pspw_SIC_relaxed
       logical  pspw_HFX,pspw_HFX_relaxed
       integer  ion_nion,control_gga,cpsi_data_nsize
       real*8   control_time_step,control_fake_mass,ion_dti
       real*8   lattice_omega,c_coulomb_e,ewald_e
-      external control_move,cpsp_semicore
+      external control_move,cpsp_semicore,control_Nose
       external pspw_SIC,pspw_SIC_relaxed
       external pspw_HFX,pspw_HFX_relaxed
       external ion_nion,control_gga,cpsi_data_nsize
@@ -77,8 +80,10 @@
       external lattice_omega,c_coulomb_e,ewald_e
       integer  control_version,cpsi_data_get_next,cpsi_data_get_chnk
       external control_version,cpsi_data_get_next,cpsi_data_get_chnk
-      real*8   brillioun_weight
-      external brillioun_weight
+      real*8   brillioun_weight,Nose_sse,Nose_ssr,Nose_dXe,Nose_dXr
+      external brillioun_weight,Nose_sse,Nose_ssr,Nose_dXe,Nose_dXr
+      real*8   Nose_e_energy,Nose_r_energy,ion_ke
+      external Nose_e_energy,Nose_r_energy,ion_ke
 
       double precision Dneall_m_trace
       external         Dneall_m_trace
@@ -467,6 +472,10 @@ c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
 
       end do
 
+*     **** if newton then skip energy calculations ****
+      if (.not. verlet) goto 333
+
+
 *     *************************************
 *     ***** total energy calculation ******
 *     *************************************
@@ -503,7 +512,7 @@ c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
 
 *     **** get exchange-correlation energy ****
       call C3dB_rr_dot(1,dbl_mb(dnall(1)),dbl_mb(xce(1)),exc)
-      call C3dB_rr_dot(1,dn(1,1),dbl_mb(xcp(1)),pxc)
+      call C3dB_rr_dot(1,dn,dbl_mb(xcp(1)),pxc)
       if (ispin.eq.1) then
          exc= exc + exc 
          pxc= pxc + pxc 
@@ -518,24 +527,34 @@ c          lmd_shift  = cpsi_data_get_chnk(lmd_tag,nb)
       pxc = pxc*dv
 
 
-c*     **** velocity and kinetic energy of psi ****
-c      h = 1.0d0/(2.0d0*dt)
-c      eke = 0.0d0
-c      do i=1,n2(ispin)
-c         call Pack_c_SMul1(1,-h,psi0(1,i))
-c         call Pack_cc_daxpy(1,h,psi2(1,i),psi0(1,i))
-c         call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
-c         eke = eke+sum
-c      end do
-c      if (np.gt.1) call Parallel_SumAll(eke)
-c      eke = eke*fmass
-c      if (ispin.eq.1) eke = 2.0d0*eke
+*     **** velocity and kinetic energy of psi ****
+      h   = 1.0d0/(2.0d0*dt)
+      eke = 0.0d0
+      call cpsi_data_update(psi0_tag)
+      do nb=1,nbrillq
+         psi0_shift  = cpsi_data_get_chnk(psi0_tag,nb)
+         psi2_shift  = cpsi_data_get_chnk(psi2_tag,nb)
+         do i=1,nemaxq
+            call Cram_c_SMul1(nb,-h,dbl_mb(psi0_shift))
+            call Cram_cc_daxpy(nb,h,
+     >                         dbl_mb(psi2_shift),
+     >                         dbl_mb(psi0_shift))
+            call Cram_cc_idot(1,dbl_mb(psi0_shift),
+     >                          dbl_mb(psi0_shift),sum)
+            eke = eke+sum
+            psi0_shift = psi0_shift + (2*npack1)
+            psi2_shift = psi2_shift + (2*npack1)
+         end do
+      end do
+      call cpsi_data_noupdate(psi0_tag)
+      if (np.gt.1) call Parallel_SumAll(eke)
+      eke = eke*fmass
+      if (ispin.eq.1) eke = eke + eke
 
 
 *     **** total energy ****
       Eold=E(1)
-      E(1) = eorbit + eion + exc - ehartr - pxc
-      E(2) = eorbit
+      E(2) = eorbit + eion + exc - ehartr - pxc
       E(3) = eke
       E(4) = ion_ke()
       E(5) = eorbit
@@ -613,6 +632,7 @@ c       call ecce_print1('gradient max', mt_dbl, E(1), 1)
       call nwpw_timing_end(10)
 
 *     **** dealocate MA local variables ****
+ 333  continue
       call nwpw_timing_start(12)
       value = .true.
       if (gga.gt.0) then
