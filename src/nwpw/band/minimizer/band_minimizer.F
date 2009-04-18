@@ -763,7 +763,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
      >           'number of k-point is very large')
   
  1255 FORMAT(/' brillouin zone:')
- 1256 FORMAT(5x,'number of zone points:',I3)
+ 1256 FORMAT(5x,' number of zone points:',I3)
  1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
  1258 FORMAT(5x,' number of k-point is very large or distributed')
 

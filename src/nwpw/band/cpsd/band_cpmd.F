@@ -61,7 +61,7 @@ c      parameter (autoatm =290.360032539d6)
       real*8  E(30),eke,eave,evar,cv
 
       integer eig_tag,hml_tag,svec_tag
-      integer eig_shift,hml_shift
+      integer eig_shift,hml_shift,svec_shift
 
 *     **** psi smearing block ****
       logical fractional
@@ -1113,7 +1113,21 @@ c         end if
         end if
       end if
 
+*     *** generate spinorbit vector ***
+      if (spin_orbit) then
+         call cpsi_data_update(svec_tag)
+         do nb=1,nbrillq
+            psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+            svec_shift = cpsi_data_get_chnk(svec_tag,nb)
 
+            !**** still need to check this routine!!!! ****
+            call BGrsm_f_Spins(nb,dbl_mb(psi1_shift),
+     >                            dbl_mb(svec_shift))
+         end do
+         call cpsi_data_noupdate(svec_tag)
+      end if
+
+*     *** printout the eigenvalue spetra ****
       if (brillioun_print()) then
       do nb=1,brillioun_nbrillioun()
         f0 = brillioun_weight_brdcst(nb)

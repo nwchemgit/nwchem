@@ -1453,9 +1453,7 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       integer nb,psi1_shift,svec_shift
 
 *     **** external functions ****
-      logical  BGrsm_f_Spins
       integer  cpsi_data_get_chnk
-      external BGrsm_f_Spins
       external cpsi_data_get_chnk
 
       call cpsi_data_update(svec_tag)
@@ -1463,9 +1461,8 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
          do nb=1,nbrillq
             psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
             svec_shift = cpsi_data_get_chnk(svec_tag,nb)
-            value=BGrsm_f_Spins(nb,
-     >                       dbl_mb(psi1_shift),        !**** check this routine !!!!
-     >                       dbl_mb(svec_shift))
+            call BGrsm_f_Spins(nb,dbl_mb(psi1_shift),        
+     >                            dbl_mb(svec_shift))
          end do
       else
          do nb=1,nbrillq
@@ -2289,22 +2286,24 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       integer outfile,nb,k
       real*8 w(*)
+
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
+
+*     **** local variables ****
       integer i,ii
       real*8 ei,eiv,EV
-c    ** external **
-      logical BGrsm_f_Spins 
+
+c     **** external functions ****
       integer  brillioun_nbrillioun
       real*8 cpsi_eigenvalue
       real*8   brillioun_k,brillioun_ks,brillioun_weight
       external brillioun_nbrillioun
       external cpsi_eigenvalue
       external brillioun_k,brillioun_ks,brillioun_weight
-      external BGrsm_f_Spins
  
-      EV=27.2116
+      EV=27.2116d0
       do i=0,ne(1)-1
          ii=ne(1)-i
          ei=cpsi_eigenvalue(nb,1,ii)

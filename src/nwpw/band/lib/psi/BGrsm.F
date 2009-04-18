@@ -556,18 +556,26 @@
 
 *     ****************************
 *     *                		 *
-*     *      Returns the  	 *
-*     *  Spin Amplitudes         *
+*     *     BGrsm_f_Spins        *
+*     *                		 *
 *     ****************************
-      logical function BGrsm_f_Spins(nbb,Y,S)
+
+*   Returns the  Spin Amplitudes for eigenvalue printout.
+*  !!! this routine needs to be checked!!!
+
+c      logical function BGrsm_f_Spins(nbb,Y,S)
+      subroutine BGrsm_f_Spins(nbb,Y,S)
       implicit none
       integer nbb
       complex*16 Y(*)
       real*8     S(*)
 
 #include "cpsi_common.fh"
+#include "stdio.fh"
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
       integer k,shft,nb,nb1,nb2,indx,indx2,sindx
       real*8 sx,sy,sz,wght,ssum,s12,s1,s2
       complex*16 z1
@@ -576,12 +584,15 @@
       real*8   brillioun_weight
       external brillioun_weight
 
+*     **** simple error checking - make sure we are doing a spin-orbit calculation ***
       if (.not.spin_orbit) then
-         BGrsm_f_Spins=.false.
+         call Parallel_taskid(taskid)
+         if (taskid.eq.MASTER)
+     >      write(luout,*) 
+     >      'Warning: BGrsm_f_Spins called when spin-orbit not set'
          return
-      else
-         BGrsm_f_Spins=.true.
       end if
+
       if (nbb.eq.0) then
         nb1=1
         nb2=nbrillq
