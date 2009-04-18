@@ -962,6 +962,8 @@ c
       call cpsi_data_dealloc(eig_tag)
       call cpsi_data_dealloc(svec_tag)
       value = MA_free_heap(dn(2))
+      if (.not. value)
+     >  call errquit('band_sd:freeing heap memory',0,MA_ERR)
 
 
       call C3dB_pfft_end()
@@ -1082,7 +1084,7 @@ c     >        A)
      >           'number of k-point is very large')
 
  1255 FORMAT(/' brillouin zone:')
- 1256 FORMAT(5x,'number of zone points:',I3)
+ 1256 FORMAT(5x,' number of zone points:',I3)
  1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
  1258 FORMAT(5x,' number of k-point is very large or distributed')
 

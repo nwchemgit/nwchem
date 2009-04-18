@@ -277,10 +277,10 @@
      >                        dbl_mb(dnall(1)+(ms-1)*nfft3d))
            end do
         else
-           call dcopy(ispin*nfft3d,dn,1,
-     >                dbl_mb(dnall(1)+(ms-1)*nfft3d),1)
+           call dcopy(ispin*nfft3d,dn,1,dbl_mb(dnall(1)),1)
         end if
         call nwpw_timing_end(11)
+
 
 
 *       *****************************************
@@ -328,8 +328,6 @@ c        !*** this code needs to be optimized!!! ****
             call D3dB_C3dB_r_Copy(1,dbl_mb(txce(1)),
      >                              dbl_mb(xce(1)))
          end if
-
-
 
 *       ******************
 *       **** get Hpsi ****
