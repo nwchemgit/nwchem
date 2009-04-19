@@ -591,7 +591,7 @@ c      if (hprint) then
 
 c      end if
 
-      if (psp_type.eq.0) then
+      if ((psp_type.eq.0).or.(psp_type.eq.7)) then
 
 
 c        *** add GGA options to junk.inp ***

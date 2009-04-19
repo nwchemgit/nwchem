@@ -7,6 +7,9 @@ Comment: Fitted by Patrick Nichols
 [lmax] 3
 [locp] 0
 [rlocal] 1.0
+[cutoff] 50.0
+[psp_type] 7
+
  <atom>
  U 
   0.920000E+02  238.0000   13 4

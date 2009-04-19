@@ -266,14 +266,15 @@ c         write(luout,1210) GX,GY,GZ
           write(luout,1500)
         end if
         if (cpsi_spin_orbit()) then
-          if (mprint) write(luout,1511)
+c          if (mprint) write(luout,1511)
           do i=0,cpsi_ne(1)-1
             f1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i) 
-            f2 = cpsi_svector_brdcst(nb,cpsi_ne(1)-i,3)
+            f2 = cpsi_svector_brdcst(nb,cpsi_ne(1)-i,1)
             f3 = cpsi_svector_brdcst(nb,cpsi_ne(1)-i,2)
-            f4 = cpsi_svector_brdcst(nb,cpsi_ne(1)-i,1)
+            f4 = cpsi_svector_brdcst(nb,cpsi_ne(1)-i,3)
+            f0 = dsqrt(f2*f2 + f3*f3 + f4*f4)
             f5 = cpsi_occupation_brdcst(nb,cpsi_ne(1)-i,1)       
-            if (mprint) write(luout,1512) f1,f1*EV,f2,f3,f4,f5
+            if (mprint) write(luout,1512) f1,f1*EV,f0,f2,f3,f4,f5
           end do
         else
           do i=0,NN-1
@@ -344,8 +345,11 @@ c         write(luout,1210) GX,GY,GZ
      >       /'          =<',3f8.3,'>')
  1510 FORMAT(4(E18.7,' (',F8.3,'eV) occ=',F5.3))
  1511 FORMAT(33x,"Spin(Sz,Sy,Sz)")
- 1512 FORMAT(E18.7,' (',F8.3,' eV) (',F8.3,' zhat + ',F8.3,' yhat +',
-     > F8.3,' xhat ) occ=',F5.3)
+c 1512 FORMAT(E18.7,' (',F8.3,' eV) (',F8.3,' zhat + ',F8.3,' yhat +',
+c     > F8.3,' xhat ) occ=',F5.3)
+ 1512 FORMAT(E18.7,' (',F8.3,' eV) (|s| =',F6.3,
+     >       ', s = <',F7.3,',',F7.3,',',F7.3,'> ) occ=',F5.3)
+
 
 
       end
