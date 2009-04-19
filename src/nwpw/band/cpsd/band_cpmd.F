@@ -1114,18 +1114,7 @@ c         end if
       end if
 
 *     *** generate spinorbit vector ***
-      if (spin_orbit) then
-         call cpsi_data_update(svec_tag)
-         do nb=1,nbrillq
-            psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
-            svec_shift = cpsi_data_get_chnk(svec_tag,nb)
-
-            !**** still need to check this routine!!!! ****
-            call BGrsm_f_Spins(nb,dbl_mb(psi1_shift),
-     >                            dbl_mb(svec_shift))
-         end do
-         call cpsi_data_noupdate(svec_tag)
-      end if
+      if (spin_orbit) call Pneb_f_SOSpins_tag(psi1_tag,svec_tag)
 
 *     *** printout the eigenvalue spetra ****
       if (brillioun_print()) then
@@ -1187,7 +1176,7 @@ c*     **** calculate the Dipole ***
 c      call Calculate_Dipole(ispin,ne,n2ft3d,dbl_mb(dn(1)),dipole)
 
 *     ***** write wavefunctions and v_wavefunctions ****
-      call cpsi_write(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
+      call cpsi_write(  spin_orbit,ispin,ne,nbrillioun,psi2_tag)
       call v_cpsi_write(spin_orbit,ispin,ne,nbrillioun,psi0_tag)
 
 *     **** write geometry to rtdb ****

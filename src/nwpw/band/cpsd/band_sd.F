@@ -850,18 +850,7 @@ c      call cpsi_data_dealloc(lmd_tag)
       end if
 
 *     *** generate spinorbit vector ***
-      if (spin_orbit) then
-         call cpsi_data_update(svec_tag)
-         do nb=1,nbrillq
-            psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
-            svec_shift = cpsi_data_get_chnk(svec_tag,nb)
-
-            !**** still need to check this routine!!!! ****
-            call BGrsm_f_Spins(nb,dbl_mb(psi1_shift),
-     >                            dbl_mb(svec_shift))
-         end do
-         call cpsi_data_noupdate(svec_tag)
-      end if
+      if (spin_orbit) call Pneb_f_SOSpins_tag(psi1_tag,svec_tag)
 
 *     *** printout the eigenvalue spetra ****
       if (brillioun_print()) then
@@ -879,14 +868,15 @@ c      call cpsi_data_dealloc(lmd_tag)
         end if
         next = cpsi_data_get_next(psi1_tag)
         if (spin_orbit) then
-          if (mprint) write(luout,1511)
+c          if (mprint) write(luout,1511)
           do i=0,ne(1)-1
             f1=cpsi_eig_brdcst_tag(ne,spin_orbit,eig_tag, nb,1,ne(1)-i)
-            f2=cpsi_sv_brdcst_tag( spin_orbit,svec_tag,nb,ne(1)-i,3)
+            f2=cpsi_sv_brdcst_tag( spin_orbit,svec_tag,nb,ne(1)-i,1)
             f3=cpsi_sv_brdcst_tag( spin_orbit,svec_tag,nb,ne(1)-i,2)
-            f4=cpsi_sv_brdcst_tag( spin_orbit,svec_tag,nb,ne(1)-i,1)
+            f4=cpsi_sv_brdcst_tag( spin_orbit,svec_tag,nb,ne(1)-i,3)
+            f0 = dsqrt(f2*f2 + f3*f3 + f4*f4)
             f5=cpsi_occ_brdcst_tag(ne,spin_orbit,next,    nb,1,ne(1)-i)
-            if (mprint) write(luout,1512) f1,f1*EV,f2,f3,f4,f5
+            if (mprint) write(luout,1512) f1,f1*EV,f0,f2,f3,f4,f5
           end do
         else
           do i=0,NN-1
@@ -1164,8 +1154,8 @@ c     >        A)
      >       /'          =<',3f8.3,'>')
  1510 FORMAT(4(E18.7,' (',F8.3,'eV) occ=',F5.3))
  1511 FORMAT(33x,"Spin(Sz,Sy,Sz)")
- 1512 FORMAT(E18.7,' (',F8.3,' eV) (',F8.3,' zhat + ',F8.3,' yhat +',
-     > F8.3,' xhat ) occ=',F5.3)
+ 1512 FORMAT(E18.7,' (',F8.3,' eV) (|s| =',F6.3, 
+     >       ', s = <',F7.3,',',F7.3,',',F7.3,'> ) occ=',F5.3)
 
  1600 FORMAT(/' Total BAND energy   :',E19.10)
 

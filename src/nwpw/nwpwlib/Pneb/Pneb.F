@@ -3265,3 +3265,90 @@ cccccccccccccccc
       end
 
 
+
+*     ****************************
+*     *                          *
+*     *     Pneb_f_SOSpins_tag   *
+*     *                          *
+*     ****************************
+
+*   Returns the  Spin Amplitudes for eigenvalue printout.
+*  
+*   This routine is done separately for c each BZ point?
+*
+      subroutine Pneb_f_SOSpins_tag(Y_tag,svec_tag)
+      implicit none
+      integer Y_tag,svec_tag
+
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      integer nbq,npack1,Y_shift,svec_shift
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk,cpsi_data_nsize
+      external cpsi_data_get_chnk,cpsi_data_nsize
+
+
+*     **** simple error checking - make sure we are doing a spin-orbit calculation ***
+      if (.not.spin_orbit) then
+         call Parallel_taskid(taskid)
+         if (taskid.eq.MASTER)
+     >      write(luout,*)
+     >      'Warning: Pneb_f_SOSpins_tag called when spin-orbit not set'
+         return
+      end if
+
+      npack1 = cpsi_data_nsize(Y_tag)/2 !*** divide by 2 for complex ***
+
+      call cpsi_data_update(svec_tag)
+      do nbq=1,nbrillq
+         Y_shift    = cpsi_data_get_chnk(Y_tag,   nbq)
+         svec_shift = cpsi_data_get_chnk(svec_tag,nbq)
+
+         call Pneb_f_SOSpins_sub(nbq,ne,npack1,
+     >                           dbl_mb(Y_shift),
+     >                           dbl_mb(svec_shift))
+      end do
+      call cpsi_data_noupdate(svec_tag)
+      return
+      end
+
+      subroutine Pneb_f_SOSpins_sub(nbq,neq,npack1,Y,S)
+      implicit none
+      integer nbq,neq(2),npack1
+      complex*16 Y(*)
+      real*8     S(*)
+
+*     **** local variables ****
+      integer k,indx,indx2,sindx
+      real*8     s1,s2
+      complex*16 z1
+
+      indx  = 1
+      indx2 = neq(1)*npack1
+      sindx = 1
+      do k=1,neq(1)
+         call Cram_cc_dot(nbq, Y(indx), Y(indx), s1)
+         call Cram_cc_dot(nbq, Y(indx2),Y(indx2),s2)
+         call Cram_cc_zdot(nbq,Y(indx), Y(indx2),z1)
+         S(sindx)   = dble(z1)
+         S(sindx+1) = dimag(z1)
+         S(sindx+2) = 0.50d0*(s1-s2)
+         indx  = indx  + npack1
+         indx2 = indx2 + npack1
+         sindx = sindx + 3
+      end do
+      return
+      end
+
+
+
+
+
+

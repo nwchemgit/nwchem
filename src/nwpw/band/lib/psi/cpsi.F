@@ -1456,21 +1456,22 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       integer  cpsi_data_get_chnk
       external cpsi_data_get_chnk
 
-      call cpsi_data_update(svec_tag)
       if (spin_orbit) then
-         do nb=1,nbrillq
-            psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
-            svec_shift = cpsi_data_get_chnk(svec_tag,nb)
-            call BGrsm_f_Spins(nb,dbl_mb(psi1_shift),        
-     >                            dbl_mb(svec_shift))
-         end do
+         call Pneb_f_SOSpins_tag(psi1_tag,svec_tag)
+c         do nb=1,nbrillq
+c            psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+c            svec_shift = cpsi_data_get_chnk(svec_tag,nb)
+c            call BGrsm_f_Spins(nb,dbl_mb(psi1_shift),        
+c     >                            dbl_mb(svec_shift))
+c         end do
       else
+         call cpsi_data_update(svec_tag)
          do nb=1,nbrillq
             svec_shift = cpsi_data_get_chnk(svec_tag,nb)
             call dcopy(3*ne(1),0.0d0,0,dbl_mb(svec_shift),1)
          end do
+         call cpsi_data_noupdate(svec_tag)
       end if
-      call cpsi_data_noupdate(svec_tag)
 
       return
       end
