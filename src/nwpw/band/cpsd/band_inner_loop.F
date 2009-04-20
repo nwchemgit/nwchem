@@ -370,7 +370,6 @@ c*       *******************************************
 *          **** get the ewald force ****
            call ewald_f(dbl_mb(fion(1)))
 
-
 *          **** get the semicore force ****
            if (cpsp_semicore(0)) then
               call c_semicore_xc_F(ispin,dbl_mb(xcp(1)),dbl_mb(fion(1)))

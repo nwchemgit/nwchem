@@ -699,27 +699,29 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >      dbl_mb(Kijl(1)+(ia-1)*kij_stride),scal)
             if (move) then
               shftd=nproj*npack1
-              shfts=ne(1)*npack1
+              shfts=ne(1)*npack1*2
               weight = brillioun_weight(nbq)
               if (occ_tag.gt.0) 
      >           occ1_shift = cpsi_data_get_chnk(occ_tag,nbq)
               do l=1,nproj          
                  psi_shift = psi1_shift
-                 do n=1,nn
+                 do n=1,ne(1)
+
 *                   **** routine should be vectorized!!!****
                     call Cram_zccr_Multiply2(nbq,
-     >                     dcpl_mb(zsw1(1)+(l-1)*nn+n-1),
+     >                     dcpl_mb(zsw1(1)+(l-1)*ne(1)+n-1),
      >                     dbl_mb(psi_shift),
      >                     dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                     dbl_mb(xtmp(1)))
+
                     call Cram_zccr_Multiply2Add(nbq,
-     >                     dcpl_mb(zsw1(1)+(l-1)*nn+n-1),
+     >                     dcpl_mb(zsw1(1)+(l-1)*ne(1)+n-1),
      >                     dbl_mb(psi_shift+shfts),
      >                     dcpl_mb(prjtmp(1)+(l-1)*npack1+shftd),
      >                     dbl_mb(xtmp(1)))
                     psi_shift = psi_shift + nshift
+
 *                   **** define Gx,Gy and Gz in packed space ****
-*       **** define Gx,Gy and Gz in packed space ****
                     call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
                     call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
                     call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
@@ -734,11 +736,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                                dbl_mb(sum(1)+2+3*(n-1)))
                  end do !**n**
 
-                 call C3dB_Vector_Sumall(3*(nn),dbl_mb(sum(1)))
+                 call C3dB_Vector_Sumall((3*ne(1)),dbl_mb(sum(1)))
 
                  wfrac = 1.0d0
                  if (occ_tag.gt.0) occ_shift = occ1_shift
-                 do n=1,nn
+                 do n=1,ne(1)
                     if (occ_tag.gt.0) then
                        wfrac = dbl_mb(occ_shift)
                        occ_shift = occ_shift+1
@@ -752,7 +754,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                     fion(3,ii) = fion(3,ii) 
      >                         + 2.0d0*weight*wfrac
      >                                *dbl_mb(sum(1)+2+3*(n-1))
-                 end do !** nn **
+                 end do !** ne(1) **
 
               end do !** l **
             end if !** move **
@@ -864,7 +866,6 @@ c                    end do
 
 
 *                   **** define Gx,Gy and Gz in packed space ****
-*       **** define Gx,Gy and Gz in packed space ****
                     call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
                     call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
                     call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))

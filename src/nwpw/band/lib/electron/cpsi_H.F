@@ -85,6 +85,7 @@
       call cpsp_v_spin_orbit(ispin,ne,psi_k_tag,Hpsi_k_tag,
      >  move,fion)
 
+
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
 *     **********************************************************

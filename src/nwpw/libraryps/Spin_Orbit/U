@@ -8,28 +8,27 @@ Comment: Fitted by Patrick Nichols
 [locp] 0
 [rlocal] 1.0
 [cutoff] 50.0
-[psp_type] 7
 
  <atom>
  U 
   0.920000E+02  238.0000   13 4
-      1 s 2.0
-      2 s 2.0
-      2 p 6.0
-      3 s 2.0
-      3 p 6.0
-      3 d 10.0
-      4 s 2.0
-      4 p 6.0
-      4 d 10.0
-      4 f 14.0
-      5 s 2.0
-      5 p 6.0
-      5 d 10.0
-      6 s 2.0
-      6 p 6.0
-      5 f 2.0
-      6 d 1.0
+      1   0   2.0
+      2   0   2.0
+      2   1   6.0
+      3   0   2.0
+      3   1   6.0
+      3   2   10.0
+      4   0   2.0
+      4   1   6.0
+      4   2   10.0
+      4   3   14.0
+      5   0   2.0
+      5   1   6.0
+      5   2   10.0
+      6   0   2.0
+      6   1   6.0
+      5   3   2.0
+      6   2   1.0
  <end>
  <solver> dirac			        <end>
  <pseudopotential> troullier-martins	<end>

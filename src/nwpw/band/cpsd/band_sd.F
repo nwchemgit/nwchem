@@ -415,7 +415,7 @@ c     **** allocate other variables ****
       call cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
 
 *     **** Ortho Check ****
-      call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi1_tag)
+      call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi2_tag)
 
 *     **** initialize SIC and HFX  ****
 c      call pspw_init_SIC(rtdb,ne)
