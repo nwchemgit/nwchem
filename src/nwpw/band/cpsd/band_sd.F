@@ -850,7 +850,7 @@ c      call cpsi_data_dealloc(lmd_tag)
       end if
 
 *     *** generate spinorbit vector ***
-      if (spin_orbit) call Pneb_f_SOSpins_tag(psi1_tag,svec_tag)
+      if (spin_orbit) call Pneb_f_SOSpins_tag(psi2_tag,svec_tag)
 
 *     *** printout the eigenvalue spetra ****
       if (brillioun_print()) then

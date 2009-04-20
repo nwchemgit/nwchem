@@ -1114,7 +1114,7 @@ c         end if
       end if
 
 *     *** generate spinorbit vector ***
-      if (spin_orbit) call Pneb_f_SOSpins_tag(psi1_tag,svec_tag)
+      if (spin_orbit) call Pneb_f_SOSpins_tag(psi2_tag,svec_tag)
 
 *     *** printout the eigenvalue spetra ****
       if (brillioun_print()) then
@@ -1132,7 +1132,7 @@ c         end if
         end if
         next = cpsi_data_get_next(psi1_tag)
         if (spin_orbit) then
-          if (mprint) write(luout,1511)
+c          if (mprint) write(luout,1511)
           do i=0,ne(1)-1
             f1=cpsi_eig_brdcst_tag(ne,spin_orbit,eig_tag, nb,1,ne(1)-i)
             f2=cpsi_sv_brdcst_tag( spin_orbit,svec_tag,nb,ne(1)-i,1)
