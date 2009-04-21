@@ -110,6 +110,7 @@ c
       integer nbf_ao_mxnbf_ce2, maxdbas
       double precision acc_AO_gauss 
       double precision Ex, Ec
+      double precision StericEnergy
       double precision rho_int ! [in/out]
       double precision dabsmax,wmax
       external dabsmax
@@ -275,7 +276,8 @@ c Qin end
                do_2nd = (do_hess .or. do_cpks_r)
                call xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &            nqpts, Ex, Ec, qwght, GRAD, ldew, func, do_2nd,
-     &            tau, dttau, kske, Mmat, Mmat2)
+     &            tau, dttau, kske, Mmat, Mmat2,
+     &            StericEnergy)
                if (odftps) call pstat_off(ps_ebf)
 c     
 c              exchange-correlation contribution, with or without gradient terms
