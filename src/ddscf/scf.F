@@ -12,6 +12,7 @@ C$Id: scf.F,v 1.71 2008-09-02 14:59:09 jhammond Exp $
 #include "sym.fh"
 #include "util.fh"
 #include "cscf.fh"
+#include "case.fh"
 c
 c     ROHF module.
 c
@@ -164,6 +165,16 @@ c
          endif
          call util_flush(6)
       endif
+c
+c     Get and check the Coulomb Attenuation Method (CAM) parameters
+      if (.not.rtdb_get(rtdb, 'scf:cam_exch', mt_log, 1,
+     &   cam_exch)) cam_exch=.false.
+      if (.not.rtdb_get(rtdb, 'scf:cam_omega', mt_dbl, 1,
+     &   cam_omega)) cam_omega=0.d0
+      if (.not.rtdb_get(rtdb, 'scf:cam_alpha', mt_dbl, 1,
+     &   cam_alpha)) cam_alpha=0.d0
+      if (.not.rtdb_get(rtdb, 'scf:cam_beta', mt_dbl, 1,
+     &   cam_beta)) cam_beta=0.d0
 c
       if (.not.int_normalize(rtdb,basis))
      $           call errquit('scf:int_normalize failed', 0, INT_ERR)

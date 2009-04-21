@@ -175,6 +175,7 @@ C     don't do it if RI HESSIAN is active
       call do_riscf (.false.)
 C     Dyalls method for RHF
       if ( nopen .eq. 0 ) call riscf_dovecs(.true., g_vecs)
+c
       if (.not.cam_exch) then
         call fock_2e(geom, basis, nfock, jfactor, kfactor,
      $     tol2e, oskel, iv_dens, iv_fock, .false.)

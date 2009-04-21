@@ -5,6 +5,7 @@ C     $Id: scf_input.F,v 1.11 2003-10-17 22:54:33 carlfahl Exp $
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "case.fh"
 c     
       integer rtdb
 c     
@@ -22,7 +23,7 @@ c
 c     
       multiplicity = ' '         ! If changed it needs storing at end
       nopen = -1                ! If changed it needs storing at end
-c     
+c
 c     While loop
 c     
  10   if (.not. inp_read()) call errquit('scf_input: inp_read failed',0,
@@ -332,6 +333,38 @@ c
      $        call errquit('scf_input: failed to store filesize',0,
      &       RTDB_ERR)
 c     
+      else if (inp_compare(.false.,'cam', test)) then
+c
+c       == preserve cam_exch ==
+        if (.not.rtdb_put(rtdb,'scf:cam_exch', mt_log, 1, cam_exch))
+     &   call errquit('scf_input: rtdb_put failed', 0, RTDB_ERR)
+        if (.not.inp_f(cam_omega)) cam_omega = 0.5d0
+        if (.not.rtdb_put(rtdb,'scf:cam_omega',mt_dbl,1,cam_omega))
+     &   call errquit('scf_input: rtdb_put failed cam_omega', 0,
+     &     RTDB_ERR)
+c
+c       == get cam_alpha ==
+        if (.not. inp_a(test)) goto 10
+        if (inp_compare(.false.,'cam_alpha', test)) then
+          if (.not. inp_f(cam_alpha)) cam_alpha = 1.d0
+          if (.not.rtdb_put(rtdb,'scf:cam_alpha', mt_dbl, 1, cam_alpha))
+     &      call errquit('scf_input: rtdb_put failed cam_alpha', 0,
+     &        RTDB_ERR)
+        end if
+c
+c       == get cam_beta ==
+        if (.not. inp_a(test)) goto 10
+        if (inp_compare(.false.,'cam_beta', test)) then
+          if (.not. inp_f(cam_beta)) cam_beta = 1.d0
+          if (.not.rtdb_put(rtdb,'scf:cam_beta', mt_dbl, 1, cam_beta))
+     &      call errquit('scf_input: rtdb_put failed cam_beta', 0,
+     &        RTDB_ERR)
+        end if
+c
+c       == force texas integrals to false for CAM calculations ==
+        if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
+     &   call errquit('cannot set int:cando_txs',0, RTDB_ERR)
+c
       else if (inp_compare(.false.,'end', test)) then
 c     
 c     end
