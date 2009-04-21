@@ -14,11 +14,8 @@ c
 #include "inp.fh"
 #include "stdio.fh"
 #include "cdft.fh"
-
-ccase...start
 #include "case.fh"
-ccase...end
-
+c
 c     
 c     read input for DFT calculation.  All input is of the form:
 c     <keyword>  or   <keyword> <value>  or   <keyword> <value><units>
@@ -28,7 +25,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 33)
+      parameter (num_dirs = 34)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -46,12 +43,14 @@ c
       double precision smear_sigma
       double precision shift
       integer nel_fon(2),nmo_fon(2),ispin
+      logical steric
+c
       data dirs /'convergence','decomp','dft','direct','semidirect',
      $           'ecp','grid','vectors','incore','iterations', 
      $           'max_ovl','mulliken','mult','noio','noprint','odft', 
      $           'print','tolerances', 'xc','sym','adapt','sic', 
      $           'smear','fon','lb94','cs00','cdft','cam','disp',
-     $           'dftmp2','molden','noscf','end'/
+     $           'dftmp2','molden','noscf','steric','end'/
 c Qin / cdft
       integer nconstr
       integer dtype(max_constr), iatms1(max_constr), fatms1(max_constr)
@@ -86,7 +85,7 @@ c
       goto (100,  200,  300,  400,  450,  500,  600,  700,  800,
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
-     $     2700, 2800, 2900, 3000, 3100, 9999) ind
+     $     2700, 2800, 2900, 3000, 3100, 3200, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -523,7 +522,15 @@ c     noscf;
 c
  3100 noscf = .true.
       if (.not. rtdb_put(rtdb, 'dft:noscf', mt_log, 1, noscf))
-     &   call errquit('dft_input: rtdb_put failed', 3000, RTDB_ERR)
+     &   call errquit('dft_input: rtdb_put failed', 3100, RTDB_ERR)
+c
+      goto 10
+c
+c     steric
+c
+ 3200 steric = .true.
+      if (.not.rtdb_put(rtdb,'dft:steric', mt_log, 1, steric))
+     &   call errquit('dft_input: rtdb_put failed', 3200, RTDB_ERR)
 c
       goto 10
 c

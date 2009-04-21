@@ -36,10 +36,7 @@ c
 #include "dft_conv.fh"
 #include "dftps.fh"
 #include "cosmo.fh"
-c
-czora...start
 #include "zora.fh"
-czora...end
 c     
       Logical movecs_write, movecs_converged, movecs_read
       External movecs_write, movecs_converged, movecs_read

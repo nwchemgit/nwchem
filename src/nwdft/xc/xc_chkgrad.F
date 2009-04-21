@@ -4,11 +4,8 @@
 *
       implicit none
 #include "cdft.fh"
-
-czora...start
 #include "zora.fh"
-czora...end
-
+#include "steric.fh"
 c
 c     see if any Gradient Corrected Functional is not null
 c
@@ -32,6 +29,8 @@ c    +     cfac(28) + cfac(36)
       if (abs(tot).gt.eps.or.lb94.or.cs00)then
          xc_chkgrad = .true.
       else if (do_zora) then    ! turn on gradients for zora
+         xc_chkgrad = .true.
+      else if (do_StericEnergy) then ! turn on gradients for steric calculations
          xc_chkgrad = .true.
       else
          xc_chkgrad = .false.

@@ -8,7 +8,8 @@
      ,Ex, Ec, Amat,Cmat,g_vxc,
      ,Amat2, Cmat2,
      ,nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat, l3d,
-     &triplet,tau,ttau,Mmat,Mmat2)
+     &triplet,tau,ttau,Mmat,Mmat2,
+     & StericEnergyTotal)
 
 c
 c$Id: grid_quadv0a.F,v 1.46 2008-02-01 22:27:45 niri Exp $
@@ -24,10 +25,9 @@ c
 #include "global.fh"
 #include "util.fh"
 #include "grid_quad.fh"
-
-czora...start
 #include "zora.fh"
-czora...end
+#include "steric.fh"
+#include "msgids.fh"
 c
       double precision rqbuf(*)
       double precision rad
@@ -48,6 +48,8 @@ c
       external xc_chkgrad, xc_chktau
       logical l3d
       logical triplet
+      double precision StericEnergyTotal, StericEnergy
+
 c
 c     see if any Gradient Corrected Functional is not null
 c
@@ -104,7 +106,8 @@ c
      .     ncontrset, MA_ERR)
 c
       ntot_cube=0
- 
+      StericEnergyTotal = 0.d0 ! steric energy
+c 
       do 200 iqsh = 1, n_rec_in_file
 c
 c     Define the current range of radial shells and integration center.
@@ -122,6 +125,7 @@ c        temp put buf into currently used arrays qxyz and qwght
 c     
          call grid_repack(rqbuf, qxyz, qwght, nqpts, rad,istep)
          if(nqpts.ne.0) then
+            StericEnergy = 0.d0
             call grid_quadv0b(
      &       ictr_buf,qxyz, qwght, nqpts,rad,grad,
      &       g_dens, ncoef_max, natoms, 
@@ -138,12 +142,23 @@ c
      &       l3d,triplet,
      &       int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      &       log_mb(idocsetx),
-     &       tau, ttau, kske, Mmat, Mmat2)
+     &       tau, ttau, kske, Mmat, Mmat2, StericEnergy)
 c
-            ntot_cube=ntot_cube+1
+             ntot_cube=ntot_cube+1
+c
+c            == Steric: Tally up the steric energy ==
+             if (do_StericEnergy) then 
+                  StericEnergyTotal = StericEnergyTotal + StericEnergy
+             end if
+c
          endif
       enddo
  200  continue
+c
+c     == Steric: Tally up over all nodes ==
+      if (do_StericEnergy) then
+         call ga_dgop(Msg_Excrho, StericEnergyTotal , 1, '+')  ! sum energy over all nodes
+      end if
 c
       if (.not.ma_chop_stack(lbas_cent_info))
      &     call errquit('grid_quadv0a: pop stack failed.',1, MA_ERR)

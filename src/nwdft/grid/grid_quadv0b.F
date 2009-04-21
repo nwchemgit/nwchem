@@ -13,7 +13,8 @@
      &     l3d,triplet,
      &     bas_cent_xinfo,bas_cset_xinfo,
      &     docsetx, 
-     &     tau, ttau, kske, Mmat, Mmat2)
+     &     tau, ttau, kske, Mmat, Mmat2,
+     &     StericEnergy)
 c
 c$Id: grid_quadv0b.F,v 1.64 2008-02-01 22:27:45 niri Exp $
 c
@@ -29,11 +30,8 @@ c
 #include "grid_quad.fh"
 #include "grid_sic.fh"
 #include "dftps.fh"
-c
-czora...start
 #include "zora.fh"
 #include "geom.fh"
-czora...end
 c
       integer  nqpts    ! [in] no. grid points  to be processed
       integer  ictr_buf ! [in] ctr of grid
@@ -58,6 +56,7 @@ c
       logical triplet, kske
       integer lemat,iemat,lfmat,ifmat,k_scr,l_scr
       logical do_2nd
+      double precision StericEnergy
 c
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -235,7 +234,8 @@ c
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), 
      &     Amat, Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
      &     grad, .false., 0d0, do_2nd, 
-     &     tau, ttau, kske, Mmat, Mmat2)
+     &     tau, ttau, kske, Mmat, Mmat2,
+     &     StericEnergy)
       if (odftps) call pstat_off(ps_excf)
 c
       if (sic_orb_index.eq.1) then

@@ -25,6 +25,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "steric.fh"
 c
       integer itype, icenter, jcenter
       integer lcoord, icoord, lcharge, icharge, ltags, itags,
@@ -471,6 +472,14 @@ c
          if (.not. rtdb_put(rtdb, 'dft:xccomb',
      &      mt_log, numfunc, xccomb))
      &      call errquit('dft_rdinput: rtdb_put failed', 13, RTDB_ERR)
+      endif
+c
+      do_StericEnergy = .false.
+      if (rtdb_get(rtdb, 'dft:steric', mt_log, 1, do_StericEnergy))then
+       do_StericEnergy = .true.
+       if (.not. rtdb_put(rtdb, 'dft:steric', mt_log,
+     &   1, do_StericEnergy))
+     &   call errquit('dft_rdinput: rtdb_put failed', 0, RTDB_ERR)
       endif
 c
 c     Put XC names in rtdb.

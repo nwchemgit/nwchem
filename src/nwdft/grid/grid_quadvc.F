@@ -45,6 +45,7 @@ c
       logical l3d
       logical triplet
       logical kske
+      double precision StericEnergy
 c
 c     Allocate and create info for new basis function evaluator
 c
@@ -116,7 +117,7 @@ c
      ,        l3d,triplet,
      .     int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      .        log_mb(idocsetx),
-     &        tau, ttau, kske, Mmat, Mmat2)
+     &        tau, ttau, kske, Mmat, Mmat2, StericEnergy)
          ntot_cube=ntot_cube+1
          if(cube_done) then
             nwrbuf=nwrbuf+1

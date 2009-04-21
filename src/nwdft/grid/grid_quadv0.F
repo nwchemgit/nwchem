@@ -41,6 +41,7 @@ c                               !   3 = XC matrices for CPKS RHS
 c                               !   4 = XC matrices for GIAO NMR RHS
       logical l3d               ! true if 3d GA is used
       logical triplet           ! true if triplet excitation energy calc
+      double precision StericEnergyTotal
 c
 #include "cgridfile.fh"
 #include "geom.fh"
@@ -392,7 +393,7 @@ c
      ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,        l3d,triplet,
      ,        dbl_mb(itau), dbl_mb(ittau), 
-     &        dbl_mb(immat), dbl_mb(k_mmat2))
+     &        dbl_mb(immat), dbl_mb(k_mmat2),StericEnergyTotal)
       else
 c
          if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
@@ -487,6 +488,12 @@ c
          Exc(1) = Exc(1) + Ex
          Exc(2) = Exc(2) + Ec
       endif
+c
+c     == Print total steric energy ==
+c
+      if (me.eq.0) write(LuOut,2221) StericEnergyTotal
+ 2221  format('         Total Steric energy =', f22.12/)
+c
 c
       if (.not. rtdb_get(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
      &   job_grid_acc))

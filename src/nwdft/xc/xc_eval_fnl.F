@@ -7,7 +7,8 @@ c     BGJ (8/98)
 c
       Subroutine xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &                       nq, Ex, Ec, qwght, grad, ldew, func,
-     &                       do_2nd, tau, ttau, kske, Mmat, Mmat2)
+     &                       do_2nd, tau, ttau, kske, Mmat, Mmat2,
+     &                       StericEnergy)
 c
 c     $Id: xc_eval_fnl.F,v 1.65 2009-02-18 02:34:15 niri Exp $
 c
@@ -16,6 +17,7 @@ c
 #include "cdft.fh"
 #include "dft2drv.fh"
 #include "stdio.fh"
+#include "steric.fh"
 c
       integer nq
       double precision rho(*), delrho(*)
@@ -24,6 +26,7 @@ c
 c
       double precision Amat(*), Cmat(*), Amat2(*), Cmat2(*), Mmat2(*)
       double precision Ex, Ec
+      double precision StericEnergy
       double precision qwght(nq), func(nq)
       logical grad, ldew, do_2nd, kske
       logical dohcth
@@ -841,6 +844,14 @@ c
          else
             call xc_cm06_d2()
          endif
+      endif
+c
+c     Calculate the steric energy
+c
+      if (do_StericEnergy) then
+        StericEnergy = 0.d0
+        call steric_energy(tol_rho,xfac(1),rho,delrho,nq,
+     &   qwght,ipol,StericEnergy)
       endif
 c
 c     Combine with quadrature weights
