@@ -1404,7 +1404,6 @@ C        if (groupnums(i) .eq. idmedium) then
 
       if (groupid .eq. -1)
      & call errquit('dntmc_write_prcfil:failed to allocate idgroup',0,
-
      &   GA_ERR)
 
        call dntmc_build_prcfil(prcfil, groupid)
@@ -1534,7 +1533,7 @@ C        if (groupnums(i) .eq. idmedium) then
           IDUM = i
         endif
       enddo
-      SEED(1) = 962525439.0
+      SEED(1) = 962525439.0d+00
 
 C Aquire Input Information
       if (.not. rtdb_get(rtdb, 'dntmc:norestart', MT_INT, 1, CONT1))
@@ -1920,7 +1919,7 @@ C Get initial energy if first run or new markov chain
           if(util_print('MCout',print_low)) then
           if(ga_nodeid() .eq. 0) write(12,*) 'Energy did not converge'
           endif
-          uu = -0.5                        ! set the energy arbitrarily high - H atom
+          uu = -0.5D+00                    ! set the energy arbitrarily high - H atom
         else
           if(util_print('MCout',print_low)) then
           if(ga_nodeid() .eq. 0) write(12,*)
@@ -2312,7 +2311,7 @@ c
       integer iff, mj, mk, mz, inext, inextp
       integer i, ii, k
       double precision fac
-      parameter (mbig=1000000000,mseed=161803398,mz=0,fac=1.e-9)
+      parameter (mbig=1000000000,mseed=161803398,mz=0,fac=1.d-9)
       dimension ma(55)
       data iff /0/
       save iff, mj, ma, mk, inext, inextp
@@ -3116,7 +3115,7 @@ C Results
       intpress(Kp) = rflux(point(Kp),Kp)/flux(point(Kp))/4/PI
      &          /(RB(point(Kp))**2.00D+00)
       intpress(Kp) = intpress(Kp)*kb*temp
-      intpress(Kp) = intpress(Kp)*4.184*1.00D+30/1.01325D+02/6.022142D+23
+      intpress(Kp) =intpress(Kp)*4.184*1.00D+30/1.01325D+02/6.022142D+23
       ratef(Kp) = ratec(point(Kp),Kp)
       rbf(Kp) = RB(point(Kp))
 
@@ -3356,7 +3355,7 @@ C Do Metropolis on translatonal move
           if(util_print('MCout',print_low)) then
           if(ga_nodeid() .eq. 0) write(12,*) 'Energy did not converge'
           endif
-          unew = -0.5                        ! set the energy arbitrarily high - H atom
+          unew = -0.5D+00                    ! set the energy arbitrarily high - H atom
         else
           if(util_print('MCout',print_low)) then
           if(ga_nodeid() .eq. 0) write(12,*)
@@ -3604,7 +3603,7 @@ C Do Metropolis on rotation
           if(util_print('MCout',print_low)) then
           if(ga_nodeid() .eq. 0) write(12,*) 'Energy did not converge'
           endif
-          unew = -0.5                        ! set the energy arbitrarily high - H atom
+          unew = -0.5D+00                    ! set the energy arbitrarily high - H atom
         else
           if(util_print('MCout',print_low)) then
           if(ga_nodeid() .eq. 0) write(12,*)
@@ -4062,7 +4061,7 @@ c     CALL dntmc_PSUM(NCURR,UNEW)
           if(util_print('MCout',print_low)) then
           if(ga_nodeid() .eq. 0) write(12,*) 'Energy did not converge'
           endif
-          unew = -0.5                        ! set the energy arbitrarily high - H atom
+          unew = -0.5D+00                    ! set the energy arbitrarily high - H atom
         else
           if(util_print('MCout',print_low)) then
           if(ga_nodeid() .eq. 0) write(12,*)
@@ -4307,7 +4306,7 @@ c      CALL dntmc_PSUM(NCURR,UNEW)
           if(util_print('MCout',print_low)) then
           if(ga_nodeid() .eq. 0) write(12,*) 'Energy did not converge'
           endif
-          unew = -0.5                        ! set the energy arbitrarily high - H atom
+          unew = -0.5D+00                    ! set the energy arbitrarily high - H atom
         else
           if(util_print('MCout',print_low)) then
           if(ga_nodeid() .eq. 0) write(12,*)
