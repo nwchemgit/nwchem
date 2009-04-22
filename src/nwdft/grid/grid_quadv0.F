@@ -53,14 +53,10 @@ c
 #include "util.fh"
 #include "rtdb.fh"
 #include "dft2drv.fh"
-
-czora...start
 #include "zora.fh"
+#include "steric.fh"
 
       logical rtdb_status       
-
-czora...end
-
       logical lsa ! Qin
 c
       integer me, nproc, nxyz, nctrs, 
@@ -491,8 +487,10 @@ c
 c
 c     == Print total steric energy ==
 c
-      if (me.eq.0) write(LuOut,2221) StericEnergyTotal
- 2221  format('         Total Steric energy =', f22.12/)
+      if (do_StericEnergy) then
+         if (me.eq.0) write(LuOut,2221) StericEnergyTotal
+      end if
+ 2221  format('         Total Steric Energy =', f22.12/)
 c
 c
       if (.not. rtdb_get(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
