@@ -557,13 +557,13 @@ c
                i_match = ilo.le.(iindx+len_i).and.ihi.gt.(iindx)
                j_match = jlo.le.(jindx+len_i).and.jhi.gt.(jindx)
                if (i_match.and.j_match) then 
-                  alo = max(il0,iindx)
-                  ahi = min(ihi,iindx+len_i)
-                  mlo = max(jl0,jindx)
-                  mhi = min(jhi,jindx+len_i)
-                  call ga_get(g_z,alo,ahi,mlo,mhi,dbl_mb(k_im),ahi-alo+1)
-                  call ga_acc(qV_handles(symf),alo,ahi,mlo,mhi,
-      &                       dbl_mb(k_im),ahi-alo+1,dbl_mb(k_uf+fpointer)
+                 alo = max(il0,iindx)
+                 ahi = min(ihi,iindx+len_i)
+                 mlo = max(jl0,jindx)
+                 mhi = min(jhi,jindx+len_i)
+                 call ga_get(g_z,alo,ahi,mlo,mhi,dbl_mb(k_im),ahi-alo+1)
+                 call ga_acc(qV_handles(symf),alo,ahi,mlo,mhi,
+      &                   dbl_mb(k_im),ahi-alo+1,dbl_mb(k_uf+fpointer)
                endif
                iindx = iindx + len_i
             end do
@@ -616,7 +616,8 @@ c
      &                 dimn,dbl_mb(k_vf),dimv,1.0d0,dbl_mb(k_nf),dimn)
             nflo = ov_off(v_sym(1,symf,1),0:7,sa,sb) + 1
             nfhi = flo + dimn*dimf
-            call ga_acc(g_a,nflo,nfhi,iu,iu,dbl_mb(k_nf),dimn*dimf,1.0d0)
+            call ga_acc(g_a,nflo,nfhi,iu,iu,dbl_mb(k_nf),dimn*dimf,
+     &                  1.0d0)
             if (.not. ma_pop_stack(l_vf)) call
      &          errquit('oso_moindx2_add: vf block dealloc failed',0)
             if (.not. ma_pop_stack(l_nf)) call

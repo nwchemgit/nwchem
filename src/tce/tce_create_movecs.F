@@ -62,10 +62,10 @@ c     ----------
 c
       if (reference.eq.0) then
         if (.not.rtdb_cget(rtdb,'dft:output vectors',1,movecs_out))
-     1    call errquit('tce_create_movecs: no final MO found',0,RTDB_ERR)
+     1   call errquit('tce_create_movecs: no final MO found',0,RTDB_ERR)
       else if (reference.eq.1) then
         if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_out))
-     1    call errquit('tce_create_movecs: no final MO found',0,RTDB_ERR)
+     1   call errquit('tce_create_movecs: no final MO found',0,RTDB_ERR)
       endif
 c
 c     -------------------------------------
@@ -101,8 +101,8 @@ c
         else
           if (.not.movecs_read(movecs_out,i,
      1      dbl_mb(k_occ(i)),dbl_mb(k_evl(i)),g_movecs(i)))
-     2      call errquit('tce_create_movecs: failed to read MO vectors',0,
-     3      RTDB_ERR)
+     2      call errquit('tce_create_movecs: failed to read MO vectors',
+     3      0,RTDB_ERR)
         endif
         if (util_print('MO vectors',print_debug)) then
           if (nodezero) call ma_print(dbl_mb(k_evl(i)),
@@ -115,11 +115,13 @@ c
       if (reference.eq.0) then
         if (.not.rtdb_get(rtdb,'dft:alpha irreps',mt_int,
      1    nbf,int_mb(k_irs(1))))
-     2    call errquit('tce_create_movecs: no alpha irreps found',0,RTDB_ERR)
+     2    call errquit('tce_create_movecs: no alpha irreps found',0,
+     3    RTDB_ERR)
       else if (reference.eq.1) then
         if (.not.rtdb_get(rtdb,'scf:alpha irreps',mt_int,
      1    nbf,int_mb(k_irs(1))))
-     2    call errquit('tce_create_movecs: no alpha irreps found',1,RTDB_ERR)
+     2    call errquit('tce_create_movecs: no alpha irreps found',1,
+     3    RTDB_ERR)
       endif
       do i=1,nbf
         if (oadapt) then
@@ -132,7 +134,8 @@ c
         if (reference.eq.0) then
           if (.not.rtdb_get(rtdb,'dft:beta irreps',mt_int,
      1      nbf,int_mb(k_irs(2))))
-     2      call errquit('tce_create_movecs: no beta irreps found',0,RTDB_ERR)
+     2      call errquit('tce_create_movecs: no beta irreps found',0,
+     3      RTDB_ERR)
         else if (reference.eq.1) then
           if (rohf) then
             do j = 1,nbf
@@ -141,7 +144,8 @@ c
           else
             if (.not.rtdb_get(rtdb,'scf:beta irreps',mt_int,
      1        nbf,int_mb(k_irs(2))))
-     2        call errquit('tce_create_movecs: no beta irreps found',1,RTDB_ERR)
+     2        call errquit('tce_create_movecs: no beta irreps found',1,
+     3        RTDB_ERR)
           endif
         endif
         do i=1,nbf

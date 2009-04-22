@@ -356,8 +356,10 @@ c
 c
 c     Do some final cleanup
 c
-      if (.not. ga_destroy(g_F_MO(1))) call errquit('eterm: Mdestroy',1,0)
-      if (.not. ga_destroy(g_F_MO(2))) call errquit('eterm: Mdestroy',2,0)
+      if (.not. ga_destroy(g_F_MO(1))) 
+     &              call errquit('eterm: Mdestroy',1,0)
+      if (.not. ga_destroy(g_F_MO(2)))
+     &              call errquit('eterm: Mdestroy',2,0)
 c
       return
 c
