@@ -2318,7 +2318,7 @@ c
       save iff, mj, ma, mk, inext, inextp
       if(idum.lt.0.or.iff.eq.0)then
         iff=1
-        mj=mseed-iabs(idum)
+        mj=iabs(mseed-iabs(idum))
         mj=mod(mj,mbig)
         ma(55)=mj
         mk=1
