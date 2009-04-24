@@ -2731,8 +2731,6 @@ c
       integer i,left
       character*255 filn
 c
-      if(me.eq.0) print*,'filRST=',fil(1:index(fil,' ')-1)
-      if(me.eq.0) print*,npg,ntype,irun
       if(me.eq.0) then
       if(keepr.eq.0) then
       open(unit=lfn,file=fil(1:index(fil,' ')-1),
@@ -2744,7 +2742,6 @@ c
       print*,fil(1:index(fil,'.rst')-1)
       write(filn,'(a,i5.5,a)') fil(1:index(fil,'.rst')-1),
      + irun,'.rst '
-      print*,'FILRST=',filn(1:index(filn,' ')-1)
       else
       write(filn,'(a,a,i5.5,a)') fil(1:index(fil,'.rst')-1),'-',
      + keepr,'.rst '
@@ -2754,7 +2751,6 @@ c
       endif
       endif
 c
-      if(me.eq.0) print*,'FILRST=',filn(1:index(filn,' ')-1)
       call sp_wrtrst(lfn,fil,lveloc,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_gw),
      + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
