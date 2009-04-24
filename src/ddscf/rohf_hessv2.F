@@ -142,6 +142,7 @@ c
       double precision one, zero, mone, four, half, mhalf, two, mtwo
       double precision itol_floor, itol_ceil
       double precision xc_xfac1
+      logical docoul
       parameter(itol_floor=1.d-15, itol_ceil=1.d-3)
       parameter (one=1.0d0, mone=-1.0d0, zero=0.0d0, four=4.0d0)
       parameter (half=0.5d0, mhalf=-0.5d0, two=2.0d0, mtwo=-2.0d0)
@@ -366,11 +367,14 @@ c
         call shell_fock_build(geom, basis, 0, nfock, 
      $   dbl_mb(k_jfac), dbl_mb(k_kfac),
      $   tol2e, g_dens, g_fock, noskew)
+
       else   ! for attenuated calculations
+        docoul = .false.
+        if (noskew) docoul = .true.
         call shell_fock_build_cam_multiple(geom, basis, 0, nfock,
      &     nbf, 1.d0, 1.d0, ! dbl_mb(k_jfac), dbl_mb(k_kfac)
      &     tol2e, g_dens, g_fock, g_work, 1, ! set ipol = 1: restricted
-     &    .true.,.true.,.true.,noskew,.false.)  ! doexch, docoul, doxc, osym, oprint
+     &    .true.,docoul,.true.,noskew,.false.)  ! doexch, docoul, doxc, osym, oprint
       end if
 c     
       if (oskel) 

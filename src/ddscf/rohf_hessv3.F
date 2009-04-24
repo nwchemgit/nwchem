@@ -720,7 +720,7 @@ c     case I: symmetric density matrix
          if (debug) write (6,*) 'rohf_h2e3 step 11'
       else   ! for attenuated calculations
         call shell_fock_build_cam_multiple(geom, basis, 0, nfock,
-     &     nbf, 1.d0, 1.d0, ! dbl_mb(k_jfac), dbl_mb(k_kfac)
+     &     nbf, dbl_mb(k_jfac(1)), 1.d0, ! dbl_mb(k_jfac), dbl_mb(k_kfac)
      &     tol2e, g_dens(1), g_fock(1), g_work, 1, ! set ipol = 1: restricted
      &    .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
       end if
@@ -738,7 +738,7 @@ c
          if (debug) write (6,*) 'shell_fock_build called with P(A)'
        else  ! for attenuated calculations
         call shell_fock_build_cam_multiple(geom, basis, 0, nfock,
-     &     nbf, 0.d0, 1.d0, ! dbl_mb(k_jfac), dbl_mb(k_kfac)
+     &     nbf, dbl_mb(k_jfac(2)), 1.d0, ! dbl_mb(k_jfac), dbl_mb(k_kfac)
      &     tol2e, g_dens(2), g_fock(2), g_work, 1, ! set ipol = 1: restricted
      &    .true.,.false.,.false.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
        end if
@@ -1031,5 +1031,3 @@ c ... jochen:
      &   GA_ERR)
 c     
       end
-
-
