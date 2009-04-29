@@ -1,5 +1,9 @@
+*
 * $Id: rkbpp_band.F,v 1.39 2008-03-18 16:28:25 d3p708 Exp $
 *
+
+
+
 *     **************************************
 *     *                                    *
 *     *           rkbpp_band               *
@@ -7,17 +11,14 @@
 *     *   KP pseudopotental                *
 *     *                                    *
 *     **************************************
+
+*
+*
       logical function rkbpp_band(oprint_in,version,
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp_in,lmax_in,nbrillioun,
      >                  kvectors)
       implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#include "util.fh"
-
       logical          oprint_in
       integer          version
       character*25     psp_filename,formatted_filename
@@ -25,6 +26,12 @@
       double precision unita(3,3)
       integer nbrillioun
       real*8  kvectors(3,nbrillioun)
+
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "util.fh"
 
 
 *     **** local variables ****
@@ -132,17 +139,21 @@ cccccccccccccccccccccccccccccccccccccc
       end do
       nprj_out=nprj_out+2*lmax_out
       if (nprj_out.lt.2) nprj_out=2
+
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
-     >                        'rho',rho_hndl,rho_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax0+1),
+     >                     'rho',rho_hndl,rho_indx)
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax0+1),
      >                        'vp',vp_hndl,vp_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax0+1),
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax0+1),
      >                        'vpso',vpso_hndl,vpso_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(2*lmax0+2),
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(2*lmax0+2),
      >                        'wp', wp_hndl,wp_indx)
-      value = MA_alloc_get(mt_dbl,2*nrho,
+      value = value.and.MA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
+      if (.not.value)
+     > call errquit("rkbpp_band: out of heap memory",0,MA_ERR)
+
 
 
       if (taskid.eq.MASTER) then
@@ -176,41 +187,44 @@ cccccccccccccccccccccccccccccccccccccc
 *    **** more temporary space ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'f',f_hndl,f_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = value.and.MA_alloc_get(mt_dbl,nrho,
      >                        'cs',cs_hndl,cs_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = value.and.MA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
 
 *     **** allocate vl,vnl,vnrm G ****
       nsize = ngrid(1)*ngrid(2)*ngrid(3)
-      value = MA_alloc_get(mt_dbl,nsize,
+      value = value.and.MA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
-      value = MA_alloc_get(mt_dcpl,(nsize*2*nprj_out),
+      value = value.and.MA_alloc_get(mt_dcpl,(nsize*2*nprj_out),
      >                        'vnl',vnl_hndl, vnl_indx)
-      value = MA_alloc_get(mt_dbl,nprj_out,
+      value = value.and.MA_alloc_get(mt_dbl,nprj_out,
      >                        'vnrm', vnrm_hndl, vnrm_indx)
-      value = MA_alloc_get(mt_dbl,(nsize*3),
+      value = value.and.MA_alloc_get(mt_dbl,(nsize*3),
      >                        'G',G_hndl, G_indx)
-      value = MA_alloc_get(mt_dbl,(4*nsize),
+      value = value.and.MA_alloc_get(mt_dbl,(4*nsize),
      >                        'sc_k',sc_k_hndl,sc_k_indx)
-      value = MA_alloc_get(mt_int,nprj_out,
+      value = value.and.MA_alloc_get(mt_int,nprj_out,
      >                        'n_prj', n_prj_hndl, n_prj_indx)
-      value = MA_alloc_get(mt_int,nprj_out,
+      value = value.and.MA_alloc_get(mt_int,nprj_out,
      >                        'l_prj', l_prj_hndl, l_prj_indx)
-      value = MA_alloc_get(mt_int,nprj_out,
+      value = value.and.MA_alloc_get(mt_int,nprj_out,
      >                        'm_alf_prj', m_alf_hndl, 
      >                         m_alf_indx)
-      value = MA_alloc_get(mt_int,nprj_out,
+      value = value.and.MA_alloc_get(mt_int,nprj_out,
      >                        'm_bet_prj', m_bet_hndl, 
      >                         m_bet_indx)
-      value = MA_alloc_get(mt_int,nprj_out,
+      value = value.and.MA_alloc_get(mt_int,nprj_out,
      >			      'k_prj',k_prj_hndl, k_prj_indx)
-      value = MA_alloc_get(mt_dbl,nprj_out,
+      value = value.and.MA_alloc_get(mt_dbl,nprj_out,
      >                        'c_alf_prj', c_alf_hndl, 
      >                         c_alf_indx)
-      value = MA_alloc_get(mt_dbl,nprj_out,
+      value = value.and.MA_alloc_get(mt_dbl,nprj_out,
      >			      'c_bet_prj',c_bet_hndl, 
      >                         c_bet_indx)
+      if (.not.value)
+     > call errquit("rkbpp_band: out of heap memory",0,MA_ERR)
+
 cccccccccc assign the relativistic states ccccccccccccccccccc
       call rkbpp_states(lmax_out,nprj_out,
      > int_mb(n_prj_indx),
@@ -384,27 +398,29 @@ c  nmax = 1 since we have 1 projector per (kappa) states
      
 *     **** free heap space ****
       value = MA_free_heap(rho_hndl)
-      value = MA_free_heap(vp_hndl)
-      value = MA_free_heap(vpso_hndl)
-      value = MA_free_heap(wp_hndl)
-      value = MA_free_heap(sc_r_hndl)
-      value = MA_free_heap(sc_k_hndl)
-      value = MA_free_heap(f_hndl)
-      value = MA_free_heap(cs_hndl)
-      value = MA_free_heap(sn_hndl)
+      value = value.and.MA_free_heap(vp_hndl)
+      value = value.and.MA_free_heap(vpso_hndl)
+      value = value.and.MA_free_heap(wp_hndl)
+      value = value.and.MA_free_heap(sc_r_hndl)
+      value = value.and.MA_free_heap(sc_k_hndl)
+      value = value.and.MA_free_heap(f_hndl)
+      value = value.and.MA_free_heap(cs_hndl)
+      value = value.and.MA_free_heap(sn_hndl)
 
-      value = MA_free_heap(vl_hndl)
-      value = MA_free_heap(vnl_hndl)
-      value = MA_free_heap(vnrm_hndl)
-      value = MA_free_heap(G_hndl)
-      value = MA_free_heap(n_prj_hndl)
-      value = MA_free_heap(l_prj_hndl)
-      value = MA_free_heap(k_prj_hndl)
-      value = MA_free_heap(m_alf_hndl)
-      value = MA_free_heap(m_bet_hndl)
-      value = MA_free_heap(k_prj_hndl)
-      value = MA_free_heap(c_alf_hndl)
-      value = MA_free_heap(c_bet_hndl)
+      value = value.and.MA_free_heap(vl_hndl)
+      value = value.and.MA_free_heap(vnl_hndl)
+      value = value.and.MA_free_heap(vnrm_hndl)
+      value = value.and.MA_free_heap(G_hndl)
+      value = value.and.MA_free_heap(n_prj_hndl)
+      value = value.and.MA_free_heap(l_prj_hndl)
+      value = value.and.MA_free_heap(k_prj_hndl)
+      value = value.and.MA_free_heap(m_alf_hndl)
+      value = value.and.MA_free_heap(m_bet_hndl)
+      value = value.and.MA_free_heap(k_prj_hndl)
+      value = value.and.MA_free_heap(c_alf_hndl)
+      value = value.and.MA_free_heap(c_bet_hndl)
+      if (.not.value)
+     > call errquit("rkbpp_band: out of heap memory",0,MA_ERR)
 
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
       rkbpp_band = value
@@ -414,10 +430,17 @@ c  nmax = 1 since we have 1 projector per (kappa) states
  9999 call errquit('Error reading rel psp_filename',0, DISK_ERR)
 
       END
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
+*     **********************************************
+*     *                                            *
+*     *            read_rvpwp_band                 *
+*     *                                            *
+*     **********************************************
+
 c  Read in pseudowavefunction and pseudopotential
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
       subroutine read_rvpwp_band(unit,nrho,lmax,rho,vp,wp)
       implicit none
 #include "errquit.fh"
@@ -438,16 +461,26 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
  8000 FORMAT(10(1X,D15.7))
  9999 call errquit('Error reading Rel psp_filename',0, DISK_ERR)
       end
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c Read in spin orbit pseudopot.
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+*     *******************************************
+*     *                                         *
+*     *            read_rkbpp_so                *
+*     *                                         *
+*     *******************************************
+
+c     Read in spin orbit pseudopot.
+
       subroutine read_rkbpp_so(unit,nrho,lmax,vso)
       implicit none
-#include "errquit.fh"
-      integer i,j,unit,nrho,lmax
+      integer unit,nrho,lmax
       double precision vso(nrho,0:lmax)
+
+#include "errquit.fh"
+
+      integer i,j
       double precision rhox
-ccccccccccccccccccc
+
       call dcopy((lmax+1)*nrho,0.0d0,0,vso,1)
       do i=1,nrho
         read(unit,*,ERR=9999,END=9999) rhox,(vso(i,j),j=1,lmax)
@@ -455,12 +488,19 @@ ccccccccccccccccccc
       return
  9999 call errquit('Error reading Rel psp_so_filename',0, DISK_ERR)
       end
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+*     *******************************************
+*     *                                         *
+*     *           rkbpp_vlocal                  *
+*     *                                         *
+*     *******************************************
+
       subroutine rkbpp_vlocal(lmax,locl,ngsize,nrho,nprj,rho,
-     >       vp,vpso,vnlnrm,vl,wp,
-     >       l_prj,k_prj,
-     >       f,sinqr,cosqr,rho_sc_k,rho_sc_r,
-     >       gvec,semicore,zv,drho,ierr)
+     >                        vp,vpso,vnlnrm,vl,wp,
+     >                        l_prj,k_prj,
+     >                        f,sinqr,cosqr,rho_sc_k,rho_sc_r,
+     >                        gvec,semicore,zv,drho,ierr)
       implicit none
       logical semicore
       integer lmax
@@ -482,13 +522,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 rho_sc_r(nrho,2)
       real*8 zv
       real*8 drho
-cccccccc locals ccccccccccccccccccccccccccccccccccccccc       
+
+c     **** local variables ****
       integer nproc,taskid,lp,ip,k,i,task_count,kappa,nw
       real*8 fourpi,vv,a,gx,gy,gz,q,sint,qr,dls
-cccccccc externals
-      real*8 simp
+
+c     **** externals functions ****
+      real*8   simp
       external simp
-ccccccccccccccccccccccccccccccccccccccccc
+
       call Parallel_np(nproc)
       call Parallel_taskid(taskid)
       fourpi=16.0*datan(1.0d0)
@@ -498,7 +540,8 @@ ccccccccccccccccccccccccccccccccccccccccc
              vp(k,lp)=vp(k,lp)-vp(k,locl)
          end do
 10    continue
-ccccccccccccc assign norms to each projector
+
+c     ***** assign norms to each projector *****
       do 20 ip=1,nprj
          lp=l_prj(ip)
          kappa=k_prj(ip)
@@ -528,7 +571,8 @@ ccccccccccccc assign norms to each projector
             vnlnrm(ip)=1.0d0/a
          end if
 20    continue  
-cccccccccc calculate local potential in q space
+
+c     ***** calculate local potential in q space *****
       call dcopy(ngsize,0.0d0,0,vl,1)
       call dcopy(4*ngsize,0.0d0,0,rho_sc_k,1)  
       task_count= 0
@@ -586,14 +630,21 @@ cccccccccc g=0
       ierr=0
       return 
       end
-cccccccccccccccccccccccccccc
+
+
+*     ****************************************
+*     *                                      *
+*     *          rkbpp_vnonlocal             *
+*     *                                      *
+*     ****************************************
+
       subroutine rkbpp_vnonlocal(lmax,nrho,locl,ngx,ngy,ngz,nprj,
-     >  gvec,kvec,
-     >  vp,vpso,wp,vnl,vnrm,
-     >  cosqr,sinqr,f,rho,l_prj,k_prj,malf_prj,mbet_prj,calf_prj,
-     >  cbet_prj,drho,ierr)
+     >                           gvec,kvec,
+     >                           vp,vpso,wp,vnl,vnrm,
+     >                           cosqr,sinqr,f,rho,
+     >                           l_prj,k_prj,malf_prj,mbet_prj,calf_prj,
+     >                           cbet_prj,drho,ierr)
       implicit none
-#include "mafdecls.fh"
       integer lmax,locl,nrho,ierr
       integer ngx,ngy,ngz,nprj
       integer malf_prj(nprj),mbet_prj(nprj),l_prj(nprj),k_prj(nprj)
@@ -601,28 +652,33 @@ cccccccccccccccccccccccccccc
       real*8 vp(nrho,0:lmax),vpso(nrho,0:lmax)
       real*8 wp(nrho,2*lmax+2),vnrm(nprj)  
       complex*16 vnl(ngx,ngy,ngz,nprj,2)
-      complex*16 zzero
       real*8 calf_prj(nprj)
       real*8 cbet_prj(nprj)
       real*8 drho,gvec(ngx,ngy,ngz,3),kvec(3)
-cccccccc locals
+
+#include "mafdecls.fh"
+
+c     **** local variables ****
+      complex*16 zzero
+      parameter (zzero=(0.0d0,0.0d0))
       integer taskid,nproc,tcount,k
       integer igx,igy,igz,nw,lp,icnt
       integer malfa,mbeta,kappa,ippot,key
       real*8 pi4,q,gx,gy,gz,a,d,vv,qr,pi
       real*8 calfa,cbeta,dls
-cccccc external
-      real*8 simp,sjx
-      complex*16 sphHarm
-      external sphHarm
-      external simp,sjx  
-cccccccccccccccccccccccccccccccccccccccccccccccc
-cccccccccccccccccccccccccccccccccccccccccccccccc
+
+c     **** external functions ****
+      real*8      simp,sjx
+      complex*16  sphHarm
+      external    sphHarm
+      external    simp,sjx  
+
       call Parallel_taskid(taskid)
       call Parallel_np(nproc)
       pi4=16.0d0*datan(1.0d0)
-      zzero=dcmplx(0.0d0,0.0d0)
+
       call dcopy(nprj*ngx*ngy*ngz*4,0.0d0,0,vnl,1)
+
       tcount=-1
       do 220 igz=1,ngz
       do 210 igy=1,ngy
@@ -701,22 +757,30 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
       ierr=0
       return
       end
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc         
+
+
+*     ****************************************
+*     *                                      *
+*     *              sjx                     *
+*     *                                      *
+*     ****************************************
+
 c  spherical bessel function for a given L
 c  note: no limit of L
 c  but L<50 if x is small ....blows up
 c  written by Patrick Nichols 6/11/2007
 c  based upon subroutine version in patscat 2000
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC     
+
       real*8 function sjx(x,l,cosx,sinx)
       implicit none
       integer l
-      real*8 x,cosx,sinx
-cccccccccc local variables cccccccccccc
+      real*8  x,cosx,sinx
+
+c     **** local variables ****
       integer n,lstop,lmax
       real*8 tmp,ltest,tnp3,xinv,rho,xfact,xp,c0,c1,c2,c3,c4,c5,c6
       real*8 j0,j1,a1,a2
+
 cccccccccccccccccccccccccccccccccccc   
       if (x.lt.0.1d0) then
         if (x.lt.1.0d-12) then
@@ -747,7 +811,7 @@ cccccccccccccccccccccccccccccccccccc
         c4=-c3*xfact*0.0416666666666667d0/dble(2*l+9)
         c5=-c4*xfact*0.0083333333333333d0/dble(2*l+11)
         c6=-c5*xfact*0.0013888888888889d0/dble(2*l+13)
-        sjx=xp*(1.0d0+c1+c2+c3+c4+c5+c6)/c0;
+        sjx=xp*(1.0d0+c1+c2+c3+c4+c5+c6)/c0
         return  
       end if 
       xinv=1.0d0/x       
@@ -793,132 +857,140 @@ cccccccccccccccccccccccccccccccccccc
       sjx=rho*tmp
       return
       end
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+*     ********************************************
+*     *                                          *
+*     *              rkbpp_states                *
+*     *                                          *
+*     ********************************************
+
 c Assign the quantum numbers for the 2component relativstic 
 c projectors. See Sakurai, Adv Quantum Mechanics for these
 c numbers...pages 124,128
 c               Patrick Jay Nichols
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
       subroutine rkbpp_states(lmax,nprj,np,lp,kp,ma,mb,ca,cb)
       implicit none
       integer nprj,lmax,np(*),lp(*),kp(*),ma(*),mb(*)
-      real*8 ca(*),cb(*)
-cccccccc locals
+      real*8  ca(*),cb(*)
+
+c     **** local variables ****
       integer kappa,j2,nz,iz,l,cnt
       real*8 ta,tb,td,dj,djz,dl
+
 ccccccccccccccccccccccccc
 c initialize counter
 ccccccccccccccccccccccccc
-      cnt=0
+      cnt = 0
 ccccc do initial l=0 kappa=-1 state j=1/2
-      td=1.0d0
-      kappa=-1
-      j2=1
-      dj=0.5d0
-      dl=0.0d0
+      td = 1.0d0
+      kappa = -1
+      j2 = 1
+      dj = 0.5d0
+      dl = 0.0d0
       do iz=1,2
         djz=dble(iz-1)-dj
-        cnt=cnt+1   
-        np(cnt)=  1
-        lp(cnt)=  0
-        kp(cnt)= -1
-        ma(cnt)= int(nint(djz-0.5d0))
-        mb(cnt)= int(nint(djz+0.5d0))
-        ta=dl+0.5+djz
-        tb=dl+0.5-djz
+        cnt = cnt+1   
+        np(cnt) =  1
+        lp(cnt) =  0
+        kp(cnt) = -1
+        ma(cnt) = int(nint(djz-0.5d0))
+        mb(cnt) = int(nint(djz+0.5d0))
+        ta = dl+0.5+djz
+        tb = dl+0.5-djz
         if (ta.gt.1.d-12) then
-           ca(cnt)= dsqrt(ta*td)
+           ca(cnt) = dsqrt(ta*td)
         else
-           ca(cnt)= 0.0d0
+           ca(cnt) = 0.0d0
         end if    
         if (tb.gt.1.d-12) then
-           cb(cnt)= dsqrt(tb*td)
+           cb(cnt) = dsqrt(tb*td)
         else
-           cb(cnt)= 0.0d0
+           cb(cnt) = 0.0d0
         end if    
       end do
 ccccccccccccccccccccccccc
       do l=1,lmax-1
-         td=1.0d0/dble(l+l+1)
-         kappa=l
-         j2=l+l-1
-         nz=j2+1
-         dj=dble(j2)*0.5d0 
-         dl=dble(l) 
+         td = 1.0d0/dble(l+l+1)
+         kappa = l
+         j2 = l+l-1
+         nz = j2+1
+         dj = dble(j2)*0.5d0 
+         dl = dble(l) 
          do iz=1,nz
-            djz=dble(iz-1)-dj
-            cnt=cnt+1   
-            np(cnt)=1
-            lp(cnt)=l
-            kp(cnt)=kappa
-            ma(cnt)= int(nint(djz-0.5d0))
-            mb(cnt)= int(nint(djz+0.5d0))
-            ta=dl+0.5-djz
-            tb=dl+0.5+djz
+            djz = dble(iz-1)-dj
+            cnt = cnt+1   
+            np(cnt) = 1
+            lp(cnt) = l
+            kp(cnt) = kappa
+            ma(cnt) = int(nint(djz-0.5d0))
+            mb(cnt) = int(nint(djz+0.5d0))
+            ta = dl+0.5-djz
+            tb = dl+0.5+djz
             if (ta.gt.1.d-12) then
-                 ca(cnt)= -dsqrt(ta*td)
+                 ca(cnt) = -dsqrt(ta*td)
             else
-                 ca(cnt)= 0.0d0
+                 ca(cnt) = 0.0d0
             end if    
             if (tb.gt.1.d-12) then
-                 cb(cnt)= dsqrt(tb*td)
+                 cb(cnt) = dsqrt(tb*td)
             else
-                 cb(cnt)= 0.0d0
+                 cb(cnt) = 0.0d0
             end if    
          end do
          kappa= -(l+1)
-         j2=l+l+1
-         nz=j2+1
-         dj=dble(j2)*0.5d0  
+         j2 = l+l+1
+         nz = j2+1
+         dj = dble(j2)*0.5d0  
          do iz=1,nz
-            djz=dble(iz-1)-dj
-            cnt=cnt+1   
-            np(cnt)=1
-            lp(cnt)=l
-            kp(cnt)=kappa
-            ma(cnt)= int(nint(djz-0.5d0))
-            mb(cnt)= int(nint(djz+0.5d0))
-            ta=dl+0.5+djz
-            tb=dl+0.5-djz
+            djz = dble(iz-1)-dj
+            cnt = cnt+1   
+            np(cnt) = 1
+            lp(cnt) = l
+            kp(cnt) = kappa
+            ma(cnt) = int(nint(djz-0.5d0))
+            mb(cnt) = int(nint(djz+0.5d0))
+            ta = dl+0.5+djz
+            tb = dl+0.5-djz
             if (ta.gt.1.d-12) then
-                 ca(cnt)= dsqrt(ta*td)
+                 ca(cnt) = dsqrt(ta*td)
             else
-                 ca(cnt)= 0.0d0
+                 ca(cnt) = 0.0d0
             end if    
             if (tb.gt.1.d-12) then
-                 cb(cnt)= dsqrt(tb*td)
+                 cb(cnt) = dsqrt(tb*td)
             else
-                 cb(cnt)= 0.0d0
+                 cb(cnt) = 0.0d0
             end if    
          end do
       end do
 cccccccccc final lmax state
 cccccccccc kappa= lmax, j=lmax-1/2
-      td=1.0d0/dble(lmax+lmax+1)
-      kappa=lmax
-      j2=lmax+lmax-1
-      nz=j2+1
-      dj=dble(j2)*0.5d0
-      dl=dble(lmax)  
+      td = 1.0d0/dble(lmax+lmax+1)
+      kappa = lmax
+      j2 = lmax+lmax-1
+      nz = j2+1
+      dj = dble(j2)*0.5d0
+      dl = dble(lmax)  
       do iz=1,nz
-        djz=dble(iz-1)-dj
-        cnt=cnt+1   
-        np(cnt)=1
-        lp(cnt)=lmax
-        kp(cnt)=kappa
-        ma(cnt)= int(nint(djz-0.5d0))
-        mb(cnt)= int(nint(djz+0.5d0))
-        ta=dl+0.5-djz
-        tb=dl+0.5+djz
+        djz = dble(iz-1)-dj
+        cnt = cnt+1   
+        np(cnt) = 1
+        lp(cnt) = lmax
+        kp(cnt) = kappa
+        ma(cnt) = int(nint(djz-0.5d0))
+        mb(cnt) = int(nint(djz+0.5d0))
+        ta = dl+0.5-djz
+        tb = dl+0.5+djz
         if (ta.gt.1.d-12) then
-          ca(cnt)= -dsqrt(ta*td)
+          ca(cnt) = -dsqrt(ta*td)
         else
-          ca(cnt)= 0.0d0
+          ca(cnt) = 0.0d0
         end if    
         if (tb.gt.1.d-12) then
-          cb(cnt)= dsqrt(tb*td)
+          cb(cnt) = dsqrt(tb*td)
         else
-          cb(cnt)= 0.0d0
+          cb(cnt) = 0.0d0
         end if    
       end do
       if (nprj.ne.cnt) then
@@ -929,5 +1001,3 @@ cccccccccc kappa= lmax, j=lmax-1/2
       end if
       return
       end
-cccccccccccccccccccccccccccccccccc
-

@@ -795,34 +795,46 @@ c     >                      +(ia-1)*npack1*vso_stride*nbrill
       return 
       end
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+*     ***********************************************
+*     *                                             *
+*     *             cpsp_v_nonlocal_rel             *
+*     *                                             *
+*     ***********************************************
+
 c Dirac Two Component Relativistic 
 c   Non-Local Pseudopotential
 c    pjn --- use at your own peril
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine cpsp_v_nonlocal_rel(
-     >    nb,ii,ia,nproj,npack1,nbrill,
-     >    nn,ne,
-     >    exi,prtmp,zsw1,psi1,psi2,
-     >    Gij,bz_vol)
+
+      subroutine cpsp_v_nonlocal_rel(nb,ii,ia,nproj,npack1,nbrill,nn,ne,
+     >                               exi,prtmp,zsw1,psi1,psi2,
+     >                               Gij,bz_vol)
       implicit none
-#include "cpsp_common.fh"
-#include "mafdecls.fh"
-      integer nb,nn,npack1,nproj,ia,ii,nbrill,ne(2)  
+      integer    nb,nn,npack1,nproj,ia,ii,nbrill,ne(2)  
       complex*16 prtmp(*)
       complex*16 zsw1(*)
       complex*16 exi(*)
       complex*16 psi1(*)
       complex*16 psi2(*) 
-      real*8 bz_vol,Gij(*)
-cccccccccccccc locals cccccccccccccccccccccccccccccccccccccccc
-      complex*16 one,mone,ione,cxr
+      real*8     bz_vol,Gij(*)
+
+#include "cpsp_common.fh"
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      complex*16 one,mone,ione
+      parameter(one=(1.0d0,0.0d0),mone=(-1.0d0,0.0d0))
+      parameter(ione=(0.0d0,1.0d0))
+
+      complex*16 cxr
       real*8 xx
       integer l,shifts,shiftxu,shiftxd,l_prj,npack,ne1
       integer zshft,vshiftu,vshiftd
       logical sd_function,val
+
+*     **** external functions ****
       integer  cpsp_projector_get_ptr
       external cpsp_projector_get_ptr
+
 cccccccccccccccccccccccccccccccccccccccccc
 c These should be declared as parameters
 c however there seems to be no "standard"
@@ -830,9 +842,10 @@ c way to declare a complex parameter that
 c works with all compilers...gfortran,ifort,
 c pf90,etc.
 ccccccccccccccccccccccccccccccccccccccccc
-      one  = dcmplx( 1.0d0,0.0d0)
-      mone = dcmplx(-1.0d0,0.0d0)
-      ione = dcmplx( 0.0d0,1.0d0)
+c      one  = dcmplx( 1.0d0,0.0d0)
+c      mone = dcmplx(-1.0d0,0.0d0)
+c      ione = dcmplx( 0.0d0,1.0d0)
+
       ne1=ne(1)
       shifts=1+npack1*ne1
       call Cram_npack(nb,npack)
@@ -840,8 +853,8 @@ ccccccccccccccccccccccccccccccccccccccccc
 *       **** structure factor pseudopotential ****
       call cstrfac_pack(nb,ii,exi)
       call cstrfac_k(ii,nb,cxr)
-c      call Cram_c_ZMul(nb,cxr,exi,exi)
       call zscal(npack,cxr,exi,1)
+
 *          **** generate zsw1's and projectors ****
       do 105 l=1,nproj
               vshiftu = cpsp_projector_get_ptr(
@@ -866,33 +879,33 @@ c             *** current function is s or d ****
 
 
                 call Cram_cc_Mul(nb,dbl_mb(vshiftu),
-     >                               exi,
-     >                               prtmp(shiftxu))
+     >                              exi,
+     >                              prtmp(shiftxu))
                 
                 call Cram_cc_Mul(nb,dbl_mb(vshiftd),
-     >                               exi,
-     >                               prtmp(shiftxd))
+     >                              exi,
+     >                              prtmp(shiftxd))
 *             *** current function is p or f ****
               else
 
                 call Cram_icc_Mul(nb,dbl_mb(vshiftu),
-     >                                exi,
-     >                                prtmp(shiftxu))
+     >                               exi,
+     >                               prtmp(shiftxu))
 
                 call Cram_icc_Mul(nb,dbl_mb(vshiftd),
-     >                               exi,
-     >                               prtmp(shiftxd))
+     >                              exi,
+     >                              prtmp(shiftxd))
               end if
          
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
               call Cram_cc_inzdot(nb,ne1,
-     >                      psi1,
-     >                      prtmp(shiftxu),
-     >                      zsw1(zshft))
+     >                            psi1,
+     >                            prtmp(shiftxu),
+     >                            zsw1(zshft))
               call Cram_cc_inzdotAdd(nb,ne1,
-     >                      psi1(shifts),
-     >                      prtmp(shiftxd),
-     >                      zsw1(zshft))
+     >                            psi1(shifts),
+     >                            prtmp(shiftxd),
+     >                            zsw1(zshft))
 
               xx=Gij(l)*bz_vol
               call dscal(2*ne1,xx,zsw1(zshft),1)
@@ -912,8 +925,11 @@ c             *** current function is s or d ****
      >                zsw1, ne1,
      >                one,
      >                psi2(shifts), npack1)
+
       return
       end
+
+
 ccccccccccc
 *     ***********************************
 *     *					*

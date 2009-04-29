@@ -9,6 +9,7 @@
                 wvfnc_expander.o \
                 wvfnc_reformat.o \
                 wvfnc_ionize.o \
+                wvfnc_adjust.o \
                 wvfnc_convert_restricted.o \
                 v_wvfnc_init_input.o \
                 v_wvfnc_init.o \
@@ -26,7 +27,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = wvfnc_init.F v_wvfnc_init.F wvfnc_expander.F v_wvfnc_new.F wvfnc_new.F silvestrelli_minimize.F expand_cell.F  wvfnc_expand_cell.F band_reformat_c_wvfnc.F
+    USES_BLAS = wvfnc_init.F v_wvfnc_init.F wvfnc_expander.F v_wvfnc_new.F wvfnc_new.F silvestrelli_minimize.F expand_cell.F  wvfnc_expand_cell.F band_reformat_c_wvfnc.F wvfnc_adjust.F
 
   LIB_DEFINES = 
 

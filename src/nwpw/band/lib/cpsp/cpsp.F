@@ -698,6 +698,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >      dbl_mb(psi1_shift),dbl_mb(psi2_shift),
      >      dbl_mb(Kijl(1)+(ia-1)*kij_stride),scal)
             if (move) then
+
+*              **** define Gx,Gy and Gz in packed space ****
+               call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+               call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+               call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+               call Cram_r_pack(nbq,dbl_mb(Gx(1)))
+               call Cram_r_pack(nbq,dbl_mb(Gy(1)))
+               call Cram_r_pack(nbq,dbl_mb(Gz(1)))
+
               shftd=nproj*npack1
               shfts=ne(1)*npack1*2
               weight = brillioun_weight(nbq)
@@ -713,7 +722,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                     dbl_mb(psi_shift),
      >                     dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                     dbl_mb(xtmp(1)))
-
                     call Cram_zccr_Multiply2Add(nbq,
      >                     dcpl_mb(zsw1(1)+(l-1)*ne(1)+n-1),
      >                     dbl_mb(psi_shift+shfts),
@@ -721,13 +729,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                     dbl_mb(xtmp(1)))
                     psi_shift = psi_shift + nshift
 
-*                   **** define Gx,Gy and Gz in packed space ****
-                    call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-                    call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-                    call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-                    call Cram_r_pack(nbq,dbl_mb(Gx(1)))
-                    call Cram_r_pack(nbq,dbl_mb(Gy(1)))
-                    call Cram_r_pack(nbq,dbl_mb(Gz(1)))
                     call Cram_rr_idot(nbq,dbl_mb(Gx(1)),dbl_mb(xtmp(1)),
      >                                dbl_mb(sum(1)+3*(n-1)))
                     call Cram_rr_idot(nbq,dbl_mb(Gy(1)),dbl_mb(xtmp(1)),

@@ -24,12 +24,12 @@
       integer version,rtdb
       integer ngrid(3)
       real*8  unita(3,3)
-      logical lcao_print,lcao_skip
+      logical lcao_print,lcao_skip,adjust_skip
       integer lcao_iterations
       character*30 filename
 
 
-*     ***** local functions ****
+*     ***** external functions ****
       character*30 control_input_psi
       external     control_input_psi
       double precision control_unita
@@ -42,8 +42,8 @@
       external control_totalcharge
       real*8   ion_TotalCharge_qm
       external ion_TotalCharge_qm
-      logical  lcao_wvfnc,control_print
-      external lcao_wvfnc,control_print
+      logical  lcao_wvfnc,control_print,psi_filefind
+      external lcao_wvfnc,control_print,psi_filefind
       integer  control_rtdb,control_version
       external control_rtdb,control_version
       integer  control_frac_occ_extra_orbitals
@@ -130,25 +130,38 @@
       if (.not.rtdb_get(rtdb,
      >         'nwpw:lcao_skip',mt_log,1,lcao_skip))
      >   lcao_skip = .false.
+      if (.not.rtdb_get(rtdb,
+     >         'nwpw:adjust_skip',mt_log,1,adjust_skip))
+     >   adjust_skip = .false.
     
-      success = .false.
-      if (.not.lcao_skip)
-     >  success =  lcao_wvfnc(lcao_print,lcao_iterations,
-     >                        filename,
-     >                        version,
-     >                        ngrid,
-     >                        unita,
-     >                        ispin,
-     >                        ne)
-
-      if (.not.success)
-     >   call wvfnc_new(filename,
+*     **** adjust existing wavefunction ****
+      if (psi_filefind().and.(.not.adjust_skip)) then
+         call wvfnc_adjust(filename,
      >                  version,
      >                  ngrid,
      >                  unita,
      >                  ispin,
      >                  ne)
 
+*     **** make wavefunction from scratch ****
+      else
+         success = .false.
+         if (.not.lcao_skip)
+     >     success =  lcao_wvfnc(lcao_print,lcao_iterations,
+     >                        filename,
+     >                        version,
+     >                        ngrid,
+     >                        unita,
+     >                        ispin,
+     >                        ne)
+         if (.not.success)
+     >      call wvfnc_new(filename,
+     >                  version,
+     >                  ngrid,
+     >                  unita,
+     >                  ispin,
+     >                  ne)
+      end if
 
       return
       end
