@@ -70,6 +70,9 @@ C Variable declarations
       character*256 fprefixcatt
       double precision dipole(3)
       character*256 dntmc_dir, fprefix2
+      logical dumlog
+      logical util_statldb
+      external util_statldb
 
 C Array Variables
       integer l_groupnums, k_groupnums
@@ -178,6 +181,8 @@ C Setup GA
       call dntmc_setup_ga
      &(rtdb, myid, idbig, inodesbig,
      &idmedium, idzero, g_pr, int_mb(k_groupnums),numgroups,nob,nspc) ! Now in Subgroups
+
+      dumlog = util_statldb(.true.)
 
 C Initialize group related information
       if(ga_nodeid() .eq. 0) then
@@ -295,13 +300,11 @@ C Stop Timers
       if(util_print('Timers',print_debug)) then
       Call pstat_off(i_mcloop)
       endif
-
 C Act like not converged if run out of iterations 
       goto 299 ! Not Converged
 
 C End of Monte Carlo Loop 1st.
  199  CONTINUE ! Converged
-
 C Finish up MC Loop
       IF(CONT1.EQ.1)THEN
       if (ga_nodeid() .eq. 0) then
@@ -363,7 +366,6 @@ C Finish up Job (Not Converged)
         endif
       endif
       ENDIF
-
       if(ga_pgroup_nodeid(idbig) .eq. 0) then
       if(util_print('fdist',print_low)) then
       WRITE(3,*)(L*util_sgroup_numgroups()), 'Total Configurations'
@@ -385,20 +387,20 @@ C End of DNTMC Run
 
 C Close File Units
       if (ga_nodeid() .eq. 0) then
-      if(util_print('MCout',print_low)) then
-      CLOSE(12)
-      endif
-      if(util_print('MCdata',print_low)) then
-      CLOSE(11)
-      endif
-      if(util_print('Alldata',print_low)) then
-      CLOSE(10)
-      endif
-      if (myid .eq. 0) then
-      if (util_print('fdist',print_low)) then
-      CLOSE(3)
-      endif
-      endif
+       if(util_print('MCout',print_low)) then
+        CLOSE(12)
+       endif
+       if(util_print('MCdata',print_low)) then
+        CLOSE(11)
+       endif
+       if(util_print('Alldata',print_low)) then
+        CLOSE(10)
+       endif
+       if (myid .eq. 0) then
+        if (util_print('fdist',print_low)) then
+         CLOSE(3)
+        endif
+       endif
       endif
 
 C Clean up GA
@@ -409,10 +411,10 @@ C Clean up GA
       endif
 
       if (ga_pgroup_nodeid(idmedium) .eq. 0) then
-      call ga_pgroup_set_default(idzero)
-      if(.not. ga_destroy(g_pr)) then
-        call errquit('Failure to clean up GA',0,GA_ERR)
-      endif
+        call ga_pgroup_set_default(idzero)
+        if(.not. ga_destroy(g_pr)) then
+          call errquit('Failure to clean up GA',0,GA_ERR)
+        endif
       endif
 
 C Finalize Subgroups
@@ -421,7 +423,7 @@ C Finalize Subgroups
 
 C End Performace Timers
       if(util_print('Timers',print_debug)) then
-      statuspstat = pstat_terminate()
+        statuspstat = pstat_terminate()
       endif
 
 C Clean up arrays
@@ -2840,32 +2842,32 @@ C Occasional grouping
        endif
 
       IF (Dynamic) then
-      IF (ARATIOTT .lt. 75.0D+00) then
+       IF (ARATIOTT .lt. 75.0D+00) then
         DISP = DISP*0.90D+00
-      Else if (ARATIOTT .gt. 75.0D+00) then
+       Else if (ARATIOTT .gt. 75.0D+00) then
         DISP = DISP*1.10D+00
-      endif
+       endif
 
-      IF (ARATIOTR .lt. 75.0D+00) then
+       IF (ARATIOTR .lt. 75.0D+00) then
         ALPHA = ALPHA*0.90D+00
-      else if (ARATIOTR .gt. 75.0D+00) then
+       else if (ARATIOTR .gt. 75.0D+00) then
         ALPHA = ALPHA*1.10D+00
-      endif
+       endif
       endif
 
       IF (Mod(L,MPRNT*NOB) .eq. 0) then
 C Stop Timers
-      if(util_print('Timers',print_debug)) then
-      Call pstat_off(i_mcloop)
-      endif
+       if(util_print('Timers',print_debug)) then
+        Call pstat_off(i_mcloop)
+       endif
 C End Timers
 C Grouping Together Group Information
-      if (ga_nodeid().eq.0) then
+       if (ga_nodeid().eq.0) then
          call ga_pgroup_set_default(idzero)
 C Start Timers
-      if(util_print('Timers',print_debug)) then
-         call pstat_on(i_together)
-      endif
+         if(util_print('Timers',print_debug)) then
+           call pstat_on(i_together)
+         endif
 C End Timers
 
          ilo = 1
@@ -2884,46 +2886,46 @@ C Changed dimension to (nob,nspc)
 C Changed to dimension (nob,nspc,numgroups)
          call ga_get(g_pr,ilo,ihi,jlo,jhi,TESTME,ld)
          CALL dntmc_AVERAGEDIST(ga_nnodes(),PERCENT,nda_old,nob,
-     & numgroups,rb, testme, nda, ndsig, nspc)
+     &         numgroups,rb, testme, nda, ndsig, nspc)
 C Stop Timers
-      if(util_print('Timers',print_debug)) then
-         call pstat_off(i_together)
-      endif
+         if(util_print('Timers',print_debug)) then
+            call pstat_off(i_together)
+         endif
 C End Timers
-      endif  ! idzero section
-      call ga_pgroup_set_default(idmedium)
-      call ga_brdcst(msg_dntmc0+MSGDBL, PERCENT, mdtob(1), 0)
-      call ga_brdcst(msg_dntmc1+MSGDBL, NDA, mdtob(NOB*nspc), 0)
-      call ga_brdcst(msg_dntmc2+MSGDBL, NDSIG, mdtob(NOB*nspc), 0)
+       endif  ! idzero section
+       call ga_pgroup_set_default(idmedium)
+       call ga_brdcst(msg_dntmc0+MSGDBL, PERCENT, mdtob(1), 0)
+       call ga_brdcst(msg_dntmc1+MSGDBL, NDA, mdtob(NOB*nspc), 0)
+       call ga_brdcst(msg_dntmc2+MSGDBL, NDSIG, mdtob(NOB*nspc), 0)
 
-      if(ga_pgroup_nodeid(idzero) .eq. 0) then
-      if(util_print('fdist',print_low)) then
-      WRITE(3,*)(L*util_sgroup_numgroups()), 'Total Configurations'
-      endif
-      if(util_print('fdist',print_low)) then
-      DO Kp = 1, nspc
-      WRITE(3,*)'Species number ',Kp
-      DO I=1, NOB
-      WRITE(3,*)RB(I),NDA(I,Kp),NDSIG(I,Kp)
-      ENDDO
-      ENDDO
-      WRITE(3,*)'***************************************'
-      call flush(3)
-      endif
+       if(ga_pgroup_nodeid(idzero) .eq. 0) then
+        if(util_print('fdist',print_low)) then
+         WRITE(3,*)(L*util_sgroup_numgroups()), 'Total Configurations'
+        endif
+        if(util_print('fdist',print_low)) then
+         DO Kp = 1, nspc
+          WRITE(3,*)'Species number ',Kp
+          DO I=1, NOB
+           WRITE(3,*)RB(I),NDA(I,Kp),NDSIG(I,Kp)
+          ENDDO
+         ENDDO
+         WRITE(3,*)'***************************************'
+         call flush(3)
+        endif
 C      if(util_print('information',print_none)) then
 C      WRITE(6,*)''
 C      WRITE(6,*)(L*util_sgroup_numgroups()), 'Total Configurations Done'
 C      call flush(6)
 C      endif
-      endif
+       endif
 
 C  Added save of old NDA array
-         Do j = 1, nspc
-         Do i=1, NOB
+       Do j = 1, nspc
+        Do i=1, NOB
 C Changed dimension to (nob,nspc)
          nda_old(i,j) = NDA(i,j)
-         enddo
-         enddo
+        enddo
+       enddo
 C  End added old save
 
 C      if(ga_pgroup_nodeid(idzero) .eq. 0) then
@@ -2932,7 +2934,7 @@ C         write(6,*)'Max percent difference in Markov Chains is',percent
 C         call flush(6)
 C         endif
 C      endif
-      IF(PERCENT .LT. conv_perc) then
+       IF(PERCENT .LT. conv_perc) then
          flag = .true.
           if(ga_pgroup_nodeid(idzero) .eq. 0) then
           if(util_print('Information',print_none)) then
@@ -2940,7 +2942,7 @@ C      endif
           call flush(6)
           endif
           endif
-      Else
+       Else
          flag = .false.
 C         if(ga_pgroup_nodeid(idzero) .eq. 0) then
 C         if(util_print('Information',print_none)) then
@@ -2948,27 +2950,27 @@ C         write(6,*)'Distribution has not converged below', conv_perc
 C         call flush(6)
 C         endif
 C         endif
-      endif
+       endif
 
 C  Rconfig Data Analysis
 C  nspcs > 1 not suppported for rsim methodology (results are given but not correct)
-      IF (rconf) then
+       IF (rconf) then
 C  Calculate Flux
         flux(1) = 0.00D+00
         Do Kp = 1, nspc
-        flux(1) = flux(1)+NDA(1,Kp)
+         flux(1) = flux(1)+NDA(1,Kp)
         EndDo
         
         Do i=2, NOB
-          flux(i) = flux(i-1)
+         flux(i) = flux(i-1)
          Do Kp = 1, nspc
           flux(i) = flux(i) + NDA(i,Kp)
          EndDo
         End Do ! CPF in flux
         Do Kp = 1,nspc
-        Do i = 1, NOB
+         Do i = 1, NOB
           flux2(i,Kp) = NDA(i,Kp)
-        End Do 
+         End Do 
         End Do ! Derivative CPF in flux2
 C  Errors in Flux
         sumerr(1) = 0.00D+00
@@ -2977,7 +2979,7 @@ C  Errors in Flux
         EndDo
 
         Do i = 2, NOB
-          sumerr(i) = sumerr(i-1)
+         sumerr(i) = sumerr(i-1)
          Do Kp = 1, nspc
           sumerr(i) = sumerr(i) + (NDSIG(i,Kp)**2.00D+00)
          EndDo
@@ -2986,16 +2988,16 @@ C  Errors in Flux
           sumerr(i) = DSQRT(sumerr(i))
         End DO !Error in CPF in sumerr
         Do Kp = 1, nspc
-        Do i = 1, NOB
+         Do i = 1, NOB
           sumerr2(i,Kp) = NDSIG(i,Kp)
-        EndDo
+         EndDo
         ENDDO !Error in Derivative CPF in sumerr2
-      ELSE
+       ELSE
         Do i = 1, nob
           flux(i) = 0.00D+00
-        Do Kp = 1, nspc
-          flux(i) = flux(i) + NDA(i,Kp)
-        EndDo
+          Do Kp = 1, nspc
+           flux(i) = flux(i) + NDA(i,Kp)
+          EndDo
         EndDo
         Do i = 1, NOB
           flux(i) = flux(i)/(4.D+00*PI*(RB(i)**2.D+00))
@@ -3003,20 +3005,20 @@ C  Errors in Flux
      &              *press/kb/temp)
         ENDDO ! CPF in flux
         Do Kp = 1, nspc
-        Do i = 1, NOB
+         Do i = 1, NOB
           if ((i .eq. 1) .or. (i .eq. NOB)) then
             flux2(i,Kp) = 0.00D+00
           else
           flux2(i,Kp) = (flux(i+1) - flux(i-1))/2.00D+00/DBLE(nspc)
           endif
-        EndDo
+         EndDo
         ENDDO ! Derivative CPF in flux2
 C  Errors in Flux
         Do i = 1, NOB
           sumerr(i) = 0.00D+00
-        Do Kp = 1, nspc
-          sumerr(i) = sumerr(i) + NDSIG(i,Kp)
-        ENDDO
+          Do Kp = 1, nspc
+            sumerr(i) = sumerr(i) + NDSIG(i,Kp)
+          ENDDO
         ENDDO
         Do i = 1, NOB
           sumerr(i) = sumerr(i)/(4.D+00*PI*(RB(i)**2.D+00))
@@ -3024,134 +3026,134 @@ C  Errors in Flux
      &              *press/kb/temp)
         ENDDO !Error in CPF in sumerr
         Do Kp = 1, nspc
-        DO i = 1, NOB
+         DO i = 1, NOB
           if ((i .eq. 1) .or. (i .eq. NOB)) then
             sumerr2(i,Kp) = 0.00D+00
           else
            sumerr2(i,Kp)=(sumerr(i-1)**2.00D+00)+(sumerr(i+1)**2.00D+00)
             sumerr2(i,Kp) = DSQRT(sumerr2(i,Kp))/2.00D+00/DBLE(nspc)
           endif
-        ENDDO
+         ENDDO
         ENDDO !Error in Derivative CPF in sumerr2
-      ENDIF
+       ENDIF
 C  Calculate ERROR
-      ERRX = 0.00D+00
-      Do i=1, NOB - 1
+       ERRX = 0.00D+00
+       Do i=1, NOB - 1
         ERRX = ERRX + RB(i+1) - RB(i)
-      End Do
-      ERRX = ERRX/DBLE(NOB - 1) ! Error related to bin interval
+       End Do
+       ERRX = ERRX/DBLE(NOB - 1) ! Error related to bin interval
 C  Reactive Flux
-      Do Kp = 1, nspc
-      Do i=1, NOB
-        rflux(i,Kp) = flux2(i,Kp)*kb*temp/ERRX
-      enddo
-      enddo ! Reactive flux in rflux
+       Do Kp = 1, nspc
+        Do i=1, NOB
+         rflux(i,Kp) = flux2(i,Kp)*kb*temp/ERRX
+        enddo
+       enddo ! Reactive flux in rflux
 C Rate Constants
-      Do Kp =1, nspc
-      Do i=1, NOB
-        if(flux(i) .eq. 0.D+00) then
-        ratec(i,Kp) = 1.D+99
-        else
-        ratec(i,Kp) = 1.D+00*rflux(i,Kp)/flux(i)*1.D+13/
-     &  DSQRT(2.D+00*PI*kb*temp*mtot(uspc(Kp))/4.184D+00) ! only first species
-        endif
-      EndDo
-      Enddo ! Rate Constants in ratec
+       Do Kp =1, nspc
+        Do i=1, NOB
+         if(flux(i) .eq. 0.D+00) then
+          ratec(i,Kp) = 1.D+99
+         else
+          ratec(i,Kp) = 1.D+00*rflux(i,Kp)/flux(i)*1.D+13/
+     &       DSQRT(2.D+00*PI*kb*temp*mtot(uspc(Kp))/4.184D+00) ! only first species
+         endif
+        EndDo
+       Enddo ! Rate Constants in ratec
 C Starting location is Max Flux.  Based on position will go forward or backward
 C for minumum search
 C Find Minimum Flux
 C Minima is point i .lt. i-1 .and. .le. i+1 (i+1 .gt. 0)
 C Global minimum is point i .lt. sumx
 C Find Maximum Flux
-      Do Kp = 1, nspc
+       Do Kp = 1, nspc
 
-      sumx = rflux(1,Kp)
-      j = 1
-      Do i = 2, NOB
-        IF (rflux(i,Kp) .gt. sumx) then
+        sumx = rflux(1,Kp)
+        j = 1
+        Do i = 2, NOB
+         IF (rflux(i,Kp) .gt. sumx) then
           sumx = rflux(i,Kp)
           j = i
-        EndIf
-      EndDo
-      if (j .eq. NOB) j = NOB -1
-      if (j .eq. 1) j = 2
-      z = j
+         EndIf
+        EndDo
+        if (j .eq. NOB) j = NOB -1
+        if (j .eq. 1) j = 2
+        z = j
 
 C  Find Minimum Flux
 
-      j = z
-      if (j .gt. NOB/2) then
+        j = z
+        if (j .gt. NOB/2) then
 
-      DO i = z , 2, -1
-        IF ( (rflux(i,Kp) .lt. rflux(i-1,Kp)) .and.
+         DO i = z , 2, -1
+          IF ( (rflux(i,Kp) .lt. rflux(i-1,Kp)) .and.
      &       (rflux(i,Kp) .le. rflux(i+1,Kp)) .and.
      &       (rflux(i,Kp) .lt. sumx)       .and.
      &       (rflux(i+1,Kp) .gt. 0.00D+00) ) then
-          sumx = rflux(i,Kp)
-          j = i !indux in j
-        endif
-      End Do
+            sumx = rflux(i,Kp)
+            j = i !indux in j
+          endif
+         End Do
 
-      else
+        else
 
-      DO i = z , NOB - 1
-        IF ( (rflux(i,Kp) .lt. rflux(i-1,Kp)) .and.
+         DO i = z , NOB - 1
+          IF ( (rflux(i,Kp) .lt. rflux(i-1,Kp)) .and.
      &       (rflux(i,Kp) .le. rflux(i+1,Kp)) .and.
      &       (rflux(i,Kp) .lt. sumx)       .and.
      &       (rflux(i+1,Kp) .gt. 0.00D+00) ) then
-          sumx = rflux(i,Kp)
-          j = i ! index in j
+             sumx = rflux(i,Kp)
+             j = i ! index in j
+          endif
+         End Do
+
         endif
-      End Do
 
-      endif
-
-      point(Kp) = j
-      EndDo ! Loop over species
+        point(Kp) = j
+       EndDo ! Loop over species
 C Results
-      Do Kp = 1, nspc
-      errrate(Kp) = ratec(point(Kp),Kp)*DSQRT((sumerr(point(Kp))
+       Do Kp = 1, nspc
+        errrate(Kp) = ratec(point(Kp),Kp)*DSQRT((sumerr(point(Kp))
      &          /flux(point(Kp)))**2.D+00
      &          + (flux2(point(Kp),Kp)/sumerr2(point(Kp),Kp))**2.D+00)
-      intpress(Kp) = rflux(point(Kp),Kp)/flux(point(Kp))/4/PI
+        intpress(Kp) = rflux(point(Kp),Kp)/flux(point(Kp))/4/PI
      &          /(RB(point(Kp))**2.00D+00)
-      intpress(Kp) = intpress(Kp)*kb*temp
-      intpress(Kp) =intpress(Kp)*4.184*1.00D+30/1.01325D+02/6.022142D+23
-      ratef(Kp) = ratec(point(Kp),Kp)
-      rbf(Kp) = RB(point(Kp))
+        intpress(Kp) = intpress(Kp)*kb*temp
+        intpress(Kp)=intpress(Kp)*4.184*1.0D+30/1.01325D+02/6.022142D+23
+        ratef(Kp) = ratec(point(Kp),Kp)
+        rbf(Kp) = RB(point(Kp))
 
 C Print Results
-      if(util_print('Information',print_none)) then
-        if(ga_pgroup_nodeid(idzero) .eq. 0) then
+        if(util_print('Information',print_none)) then
+         if(ga_pgroup_nodeid(idzero) .eq. 0) then
           WRITE(6,"(A7,I16, F12.3, ES16.3E3, ES16.3E3, F16.3, F16.3,
      &    F16.3)")
      &    '   @   ',(L*util_sgroup_numgroups()), rbf(Kp), ratef(Kp)
      &    , errrate(Kp)
      &    ,aratiott,aratiotr, percent
           call flush(6)
+         endif
         endif
-      endif
-      ENDDO ! End OF nspc loop
+       ENDDO ! End OF nspc loop
 
-      if(util_print('Timers',print_debug)) then
+       if(util_print('Timers',print_debug)) then
         call ga_pgroup_set_default(idbig)
         call pstat_print_all
         call ga_pgroup_set_default(idmedium)
-      endif
+       endif
 
 C Start Timers
-      if (.not. flag) then
-      if(util_print('Timers',print_debug)) then
-      Call pstat_on(i_mcloop)
-      endif
-      endif
+       if (.not. flag) then
+        if(util_print('Timers',print_debug)) then
+         Call pstat_on(i_mcloop)
+        endif
+       endif
 C End Timers
       ENDIF ! ON MOD(L,mprnt*nob)
 
 C Restart files
       lnow = L + 1
       IF(CONT1.EQ.1)THEN
-      if (ga_nodeid() .eq. 0) then
+       if (ga_nodeid() .eq. 0) then
         call dntmc_writefiles(uu, uavr, usqrd, ivtry, ittry, irtry,
      +    rsimsum, rsimavr, iacceptt, iacceptv, iacceptr, iacceptpr,
      +    iacceptpi, rsh, prcfil, nmols, lnow, fprefix, dipole, nob,
