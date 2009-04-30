@@ -228,10 +228,10 @@ C Starting Monte Carlo Loop
 
       loop_avg = 0.00D+00
       DO j = 1, nspc
-      DO i = 1, NOB
+       DO i = 1, NOB
         call dntmc_put_array_element2(dbl_mb(k_nda_old),nob,nspc,
      &     i,j,0.00D+00)
-      ENDDO
+       ENDDO
       ENDDO
       if(util_print('Information',print_none)) then
         if(ga_pgroup_nodeid(idzero) .eq. 0) then
@@ -250,9 +250,10 @@ C Starting Monte Carlo Loop
           WRITE(6,"(A115)")
      &'@****************************************************************
      &******************************************************'
-          call flush(6)
         endif
       endif
+C     We are starting loops, so flush all output buffers
+      call flush(6)
 
 C start Timers
       if(util_print('Timers',print_debug)) then
@@ -4435,21 +4436,21 @@ c               WRITE(12,*)(R(I,J,IR),IR=1,3)
   22  CONTINUE
 
       ELSE
-      ACCEPTR = .false.
+        ACCEPTR = .false.
       ENDIF ! End of Rotation
 
 C Added write for configuration files
       if(ga_nodeid() .eq. 0) then
-      if(util_print('MCdata',print_low)) then
-      ti = 1
-      DO I = 1, NMOLS  ! This should be seperated into two loops, copy and print
+       if(util_print('MCdata',print_low)) then
+        ti = 1
+        DO I = 1, NMOLS  ! This should be seperated into two loops, copy and print
          DO J = 1, NATOM(SPC(I))
             WRITE(11,*)tag(ti),(R(I,J,IR),IR=1,3)
             ti = ti + 1
          enddo
-      enddo
-      call flush(11)
-      endif
+        enddo
+        call flush(11)
+       endif
       endif
       DO I = 1, NMOLS
          CALL dntmc_CMASS(I,nspc,natmax,nmols,m,r,rcm,rs,natom,spc,mtot)
@@ -4731,17 +4732,17 @@ c      DO J = 1, NOB - 1
       ENDDO
 
        Do K = 1, nspc
-       Do J = 1, numgroups+1
+        Do J = 1, numgroups+1
          meandist(J,K) = 0.00D+00
          sumdist(J,K) = 0.00D+00
-       EndDo
+        EndDo
        EndDo
 
 C    find average for each bin across all nodes, for each species
 
 C      DO J = 1, NOB - 1
        Do K = 1, nspc
-       DO J = 1, NOB
+        DO J = 1, NOB
          NDSUM(K) = 0.D+00
          DO I = 1, NNODES
 C Changed to dimension (nob,nspc,numgroups)
@@ -4749,13 +4750,13 @@ C Changed to dimension (nob,nspc,numgroups)
          ENDDO
 C Changed to dimension (nob,nspc)
          NDA(J,K) = NDSUM(K)/DBLE(NNODES)
-      ENDDO
+       ENDDO
       ENDDO
 
 C     find sum of distributions
 C     find mean of distribution along coordinate
       Do K = 1, nspc
-      DO J = 1, NNODES
+       DO J = 1, NNODES
 C Changed to dimension (numgroups,nspc)
         sumdist(J,K) = 0.00D+00
         meandist(J,K) = 0.00D+00
@@ -4764,49 +4765,51 @@ C Changed to dimension (nob,nspc,numgroups)
           sumdist(J,K) = sumdist(J,K) + TESTME(I,K,J)
           meandist(J,K) = meandist(J,K) + (TESTME(I,K,J)*RB(I))
         EndDo
-      EndDo
+       EndDo
       EndDo
       Do K = 1, nspc
-      Do J = 1, NNODES
+       Do J = 1, NNODES
 C Changed to dimension (numgroups,nspc)
         meandist(J,K) = meandist(J,K)/sumdist(J,K)
-      EndDo
+       EndDo
       EndDo
       Do K = 1, nspc
 C Changed to dimension (numgroups,nspc)
-      sumdist(numgroups+1,K) = 0.00D+00
-      meandist(numgroups+1,K) = 0.00D+00
+       sumdist(numgroups+1,K) = 0.00D+00
+       meandist(numgroups+1,K) = 0.00D+00
       Enddo
       Do K = 1, nspc
-      if(NNODES .eq. 1) then
-      Do I = 1, NOB
+       if(NNODES .eq. 1) then
+        Do I = 1, NOB
 C Changed to dimension (numgroups,nspc) or (nob,nspc)
-        sumdist(numgroups+1,K) = sumdist(numgroups+1,K) +NDA_OLD(I,K)
-        meandist(numgroups+1,K) = meandist(numgroups+1,K)+(NDA_OLD(I,K)
+         sumdist(numgroups+1,K) = sumdist(numgroups+1,K) +NDA_OLD(I,K)
+         meandist(numgroups+1,K) = meandist(numgroups+1,K)+(NDA_OLD(I,K)
      &     *RB(I))
-      EndDo
-      else
-      Do I = 1, NOB
+        EndDo
+       else
+        Do I = 1, NOB
 C Changed to dimension (numgroups,nspc) or (nob,nspc)
-        sumdist(numgroups+1,K) = sumdist(numgroups+1,K) + NDA(I,K)
-        meandist(numgroups+1,K) = meandist(numgroups+1,K) + (NDA(I,K)
+         sumdist(numgroups+1,K) = sumdist(numgroups+1,K) + NDA(I,K)
+         meandist(numgroups+1,K) = meandist(numgroups+1,K) + (NDA(I,K)
      &     *RB(I))
-      EndDo
-      endif
+        EndDo
+       endif
       EndDO
 
       Do K = 1, nspc
 C Changed to dimension (numgroups,nspc)
-      meandist(numgroups+1,K) = meandist(numgroups+1,K)/
+       if(sumdist(numgroups+1,K) .ne. 0.0d+0) then
+         meandist(numgroups+1,K) = meandist(numgroups+1,K)/
      &     sumdist(numgroups+1,K)
+       endif
       EndDo
 C Means saved for each species
 
 C    find variance for each bin across all nodes, and species
 C      DO J = 1, NOB - 1
       IF(NNODES .eq. 1) then
-      Do K = 1, nspc
-      DO J = 1, NOB
+       Do K = 1, nspc
+        DO J = 1, NOB
 C Changed to dimension (nspc) or (nob,nspc)
          NDSIGSUM(K) = 0.D+00 
          NDSIGSUM(K) = NDSIGSUM(K) + (NDA(J,K) - NDA_OLD(J,K))**2.D+00
@@ -4816,11 +4819,11 @@ C Changed to dimension (nspc) or (nob,nspc)
            NDSIG(J,K) = DSQRT(NDSIGSUM(K)/DBLE(NNODES))/NDA(J,K)
 C Is now a percent NDSIG
          endif
-      ENDDO
-      ENDDO
+        ENDDO
+       ENDDO
       ELSE
-      DO K = 1, nspc
-      DO J = 1, NOB
+       DO K = 1, nspc
+        DO J = 1, NOB
 C Changed to dimension (nspc) or (nob,nspc) or (nob,nspc,numgroups)
          NDSIGSUM(K) = 0.D+00
          DO I = 1, NNODES
@@ -4832,25 +4835,25 @@ C Changed to dimension (nspc) or (nob,nspc) or (nob,nspc,numgroups)
            NDSIG(J,K) = DSQRT(NDSIGSUM(K)/DBLE(NNODES-1))/NDA(J,K)
 C Is now a percent NDSIG
          endif
-      ENDDO
-      ENDDO
+        ENDDO
+       ENDDO
       ENDIF
 
 C     FInd Variance in the distribution means
       DO K = 1, nspc
 C Changed to dimension (nspc) or (nob,nspc) or (numgroups,nspc)
-      NDSIGSUM(K) = 0.00D+00
-      Do J = 1, NNODES
-       NDSIGSUM(K) = NDSIGSUM(K) + (meandist(J,K)
+       NDSIGSUM(K) = 0.00D+00
+       Do J = 1, NNODES
+        NDSIGSUM(K) = NDSIGSUM(K) + (meandist(J,K)
      &     -meandist(numgroups+1,K))**2.D+00
-      EndDo
+       EndDo
       EndDo
       Do K = 1, nspc
-      if (NNODES .gt. 1) then
+       if (NNODES .gt. 1) then
 C Changed to dimension (nspc)
-       NDSIGSUM(K) = NDSIGSUM(K)/DBLE(NNODES-1)
-      endif
-      NDSIGSUM(K) = DSQRT(NDSIGSUM(K))/((RB(2) - RB(1))*DBLE(NOB))
+        NDSIGSUM(K) = NDSIGSUM(K)/DBLE(NNODES-1)
+       endif
+       NDSIGSUM(K) = DSQRT(NDSIGSUM(K))/((RB(2) - RB(1))*DBLE(NOB))
 C Is now a percent relative to the width of a bin
       EnDDO
 
@@ -4875,15 +4878,15 @@ C     Find Percent standard deviation in the means
 C     Is an average over nspc
       PERCENT = 0.00D+00
       Do K = 1, nspc
-      PERCENT = PERCENT + NDSIGSUM(K)*100.00D+00
+       PERCENT = PERCENT + NDSIGSUM(K)*100.00D+00
       EndDo
       PERCENT = PERCENT/DBLE(nspc)
 
       Do K = 1, nspc
-      Do J = 1, NOB
+       Do J = 1, NOB
 C Changed to dimension (nob, nspc)
         NDSIG(J,K) = NDSIG(J,K)*NDA(J,K)
-      End Do
+       End Do
       End Do
 
       RETURN
