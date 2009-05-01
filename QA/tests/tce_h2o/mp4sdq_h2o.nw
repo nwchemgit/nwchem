@@ -1,0 +1,49 @@
+#
+# Test for CC, CI, MBPT codes in the TCE module
+# Reference data obtained by an independent determinantal CC, CI, MBPT code are
+#
+# LCCD   -0.0505753360
+# LCCSD  -0.0508915694
+# CCD    -0.0498521356
+# CCSD   -0.0501273286
+# CCSDT  -0.0502322580
+# CCSDTQ -0.0502556616
+# QCISD  -0.0501452655
+# CISD   -0.0495138383
+# CISDT  -0.0496160908
+# CISDTQ -0.0502556615
+# MBPT2  -0.0358672469
+# MBPT3  -0.0098015863
+# MBPT4  -0.0030104405
+#
+# in units of hartree.
+#
+start h2o
+
+memory  1500 mb
+
+echo
+
+geometry units bohr
+O      0.000000000000     0.000000000000    -0.123909374404
+H      0.000000000000     1.429936611037     0.983265845431
+H      0.000000000000    -1.429936611037     0.983265845431
+symmetry c1
+end
+
+basis
+* library cc-pvdz
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+mp4(sdq)
+end
+
+task tce energy
