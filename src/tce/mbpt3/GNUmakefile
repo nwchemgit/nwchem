@@ -1,6 +1,6 @@
-#$Id: GNUmakefile,v 1.2 2005-12-20 21:19:40 edo Exp $
+#$Id: GNUmakefile,v 1.2 2005/12/20 21:19:40 edo Exp $
 
-OBJ_OPTIMIZE = mbpt3_e.o mbpt3_t1.o mbpt3_t2.o
+OBJ_OPTIMIZE = mbpt3_e.o mbpt3_t1.o mbpt3_t2.o mbpt3_t1_sd.o mbpt3_t2_sd.o
 
 LIB_INCLUDES = -I../include
 
@@ -8,7 +8,9 @@ LIBRARY = libtce.a
 
 USES_BLAS = mbpt3_e.F \
 mbpt3_t1.F \
-mbpt3_t2.F
+mbpt3_t2.F \
+mbpt3_t1_sd.F \
+mbpt3_t2_sd.F
 
 
 LIB_DEFINES = -DDEBUG_PRINT
