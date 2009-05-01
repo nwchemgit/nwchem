@@ -107,6 +107,7 @@ c
       double precision eref, eplus, eminus, grad, crd(3), q
       double precision eplus2, eminus2, grad3
       double precision delta    ! finite-difference step
+      logical use_groups
       logical task_energy, task_save_state, task_restore_state, 
      $     task_delete_state, fd_step_energy
       external task_energy, task_save_state, task_restore_state, 
@@ -125,11 +126,9 @@ c
       external util_sgroup_numgroups
 
       ncpus=ga_nnodes()
-#ifdef USE_SUBGROUPS
-      if (ncpus.ne.1) then
-#else
-      if (.false.)then
-#endif
+      if (.not.rtdb_get(rtdb,'gradient:usegroups',MT_LOG,1,use_groups))
+     $   use_groups = .false.
+      if (ncpus.ne.1 .and. use_groups) then
        if(.not.util_sgstart(rtdb)) 
      $  call errquit('Error in SUBGROUPS init', 0, RTDB_ERR) 
        mygroup = util_sgroup_mygroup()
