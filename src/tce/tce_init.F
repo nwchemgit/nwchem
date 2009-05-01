@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.71 2009-01-28 18:11:42 marat Exp $
+c $Id: tce_init.F,v 1.71 2009/01/28 18:11:42 marat Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -988,6 +988,14 @@ c         endif
      4    UNKNOWN_ERR)
       else if (model.eq.'mbpt4') then
         ctype='Fourth-order tensor many-body perturbation theory'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'umbpt').and.
+     2      (module.ne.'umbpt4'))
+     3    call errquit('tce_init: umbpt/umbpt4 module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'mbpt4sdq') then
+        ctype='Fourth-order tensor many-body perturbation theory 
+     1 with zero T3 approximation'
         if ((module.ne.'tce').and.
      1      (module.ne.'umbpt').and.
      2      (module.ne.'umbpt4'))
