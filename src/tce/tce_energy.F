@@ -1289,13 +1289,15 @@ c
         needt4 = .true.
       else if ((model.eq.'mbpt2').or.
      1         (model.eq.'mbpt3').or.
-     2         (model.eq.'mbpt4')) then
+     2         (model.eq.'mbpt4').or.
+     3         (model.eq.'mbpt4sdq')) then
         do_mbpt = .true.
         needu1 = .true.
         needu2 = .true.
         needt1 = .true.
         needt2 = .true.
-        if ((model.eq.'mbpt3').or.(model.eq.'mbpt4')) then
+        if ((model.eq.'mbpt3').or.(model.eq.'mbpt4').or.
+     1      (model.eq.'mbpt4sdq')) then
           needw1 = .true.
           needw2 = .true.
           if (model.eq.'mbpt4') then
@@ -1303,6 +1305,9 @@ c
             needw3 = .true.
             needt3 = .true.
           endif ! mbpt4
+          if (model.eq.'mbpt4sdq') then
+            neede2 = .true.
+          endif ! mbpt4sdq
         endif ! mbpt3
       endif ! model
 c
@@ -6126,7 +6131,8 @@ c -------------
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
       else if ((model.eq.'mbpt2').or.
      1         (model.eq.'mbpt3').or.
-     2         (model.eq.'mbpt4')) then
+     2         (model.eq.'mbpt4').or.
+     3         (model.eq.'mbpt4sdq')) then
 c -------------
 c MBPT(2) right
 c -------------
@@ -6218,7 +6224,7 @@ c -------------
      2                      k_u2_offset,k_w1_offset,k_w2_offset,
      3                      k_v2_offset)
             call reconcilefile(d_r2,size_r2)
-          else
+          else if (model.eq.'mbpt4') then
             call tce_filename('r2',filename)
             call createfile(filename,d_r2,size_r2)
 c->d3p975
@@ -6237,13 +6243,23 @@ c->d3p975
      3                    k_v2_offset)
 c<-d3p975
             call reconcilefile(d_r3,size_r3)
+c->d3p975
+          else if (model.eq.'mbpt4sdq') then
+            call tce_filename('r2',filename)
+            call createfile(filename,d_r2,size_r2)
+            call mbpt2_t2_sd(d_f1,d_r2,d_u1,d_u2,d_w2,d_v2,
+     1                       k_f1_offset,k_r2_offset,k_u1_offset,
+     1                       k_u2_offset,k_w2_offset,k_v2_offset)
+c
+            call reconcilefile(d_r2,size_r2)
+c<-d3p975
           endif
           call tce_residual_t1(d_r1,k_r1_offset,r1)
           call tce_residual_t2(d_r2,k_r2_offset,r2)
           if (model.eq.'mbpt4') then
             call tce_residual_t3(d_r3,k_r3_offset,r3)
           endif
-          if (model.eq.'mbpt3') then
+          if (model.eq.'mbpt3'.or.model.eq.'mbpt4sdq') then
             residual = max(r1,r2)
           else
             residual = max(r1,r2,r3)
@@ -6305,7 +6321,10 @@ c -------------
         do iter=1,maxiter
           cpu=-util_cpusec()
           wall=-util_wallsec()
-          if (nodezero.and.(iter.eq.1)) write(LuOut,9050) "MBPT(4)"
+          if (nodezero.and.(iter.eq.1)) then
+             if(model.eq.'mbpt4') write(LuOut,9050) "MBPT(4)"
+             if(model.eq.'mbpt4sdq') write(LuOut,9050) "MBPT(4)(SDQ)"
+          endif
           call tce_filename('e',filename)
           call createfile(filename,d_e,size_e)
           call mbpt4_e(d_e,d_t2,d_v2,
@@ -6313,18 +6332,32 @@ c -------------
           call reconcilefile(d_e,size_e)
           call tce_filename('r1',filename)
           call createfile(filename,d_r1,size_r1)
-          call mbpt3_t1(d_e2,d_f1,d_r1,d_u1,d_w1,d_w2,d_w3,d_t1,
+          if(model.eq.'mbpt4')
+     1     call mbpt3_t1(d_e2,d_f1,d_r1,d_u1,d_w1,d_w2,d_w3,d_t1,
      1                  d_t2,d_v2,k_e2_offset,k_f1_offset,k_r1_offset,
      2                  k_u1_offset,k_w1_offset,k_w2_offset,
      3                  k_w3_offset,k_t1_offset,k_t2_offset,k_v2_offset)
+          if(model.eq.'mbpt4sdq')
+     1     call mbpt3_t1_sd(d_e2,d_f1,d_r1,d_u1,d_w1,d_w2,d_t1,
+     1                      d_t2,d_v2,k_e2_offset,k_f1_offset,
+     1                      k_r1_offset,k_u1_offset,
+     1                      k_w1_offset,k_w2_offset,
+     1                      k_t1_offset,k_t2_offset,k_v2_offset)
           call reconcilefile(d_r1,size_r1)
           call tce_filename('r2',filename)
           call createfile(filename,d_r2,size_r2)
-          call mbpt3_t2(d_e2,d_f1,d_r2,d_u2,d_w1,d_w2,d_w3,
+          if(model.eq.'mbpt4')
+     1     call mbpt3_t2(d_e2,d_f1,d_r2,d_u2,d_w1,d_w2,d_w3,
      1                  d_t1,d_t2,d_v2,k_e2_offset,k_f1_offset,
      2                  k_r2_offset,k_u2_offset,k_w1_offset,
      3                  k_w2_offset,k_w3_offset,
      4                  k_t1_offset,k_t2_offset,k_v2_offset)
+          if(model.eq.'mbpt4sdq')
+     1      call mbpt3_t2_sd(d_e2,d_f1,d_r2,d_u2,d_w1,d_w2,
+     1                       d_t1,d_t2,d_v2,k_e2_offset,k_f1_offset,
+     1                       k_r2_offset,k_u2_offset,k_w1_offset,
+     1                       k_w2_offset,k_t1_offset,k_t2_offset,
+     1                       k_v2_offset)
           call reconcilefile(d_r2,size_r2)
           call tce_residual_t1(d_r1,k_r1_offset,r1)
           call tce_residual_t2(d_r2,k_r2_offset,r2)
@@ -6336,9 +6369,17 @@ c -------------
           if (nodezero) write(LuOut,9100) iter,residual,mbpt4,cpu,wall
           if (residual .lt. thresh) then
             if (nodezero) then
+              if(model.eq.'mbpt4') then
               write(LuOut,9060)
               write(LuOut,9070) "MBPT(4)",mbpt4
               write(LuOut,9080) "MBPT(4)",ref + corr
+              endif
+c
+              if(model.eq.'mbpt4sdq') then
+              write(LuOut,9060)
+              write(LuOut,9070) "MBPT(4)(SDQ)",mbpt4
+              write(LuOut,9080) "MBPT(4)(SDQ)",ref + corr
+              endif
               call util_flush(LuOut)
             endif
             call deletefile(d_r2)
