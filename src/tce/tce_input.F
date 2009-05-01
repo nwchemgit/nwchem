@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.37 2009-03-05 23:48:58 d3p975 Exp $
+c $Id: tce_input.F,v 1.37 2009/03/05 23:48:58 d3p975 Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -857,6 +857,16 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
+      else if (inp_compare(.false.,test,'mbpt4(sdq)')) then
+        if (module.eq.'tce') then
+        model='mbpt4sdq'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
       else if (inp_compare(.false.,test,'mp2')) then
         if (module.eq.'tce') then
         model='mbpt2'
@@ -876,6 +886,16 @@ c
         else
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'mp4(sdq)')) then
+        if (module.eq.'tce') then
+        model='mbpt4sdq'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1       INPUT_ERR)
         endif
       else if (inp_compare(.false.,test,'mp4')) then
         if (module.eq.'tce') then
