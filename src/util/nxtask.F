@@ -4,7 +4,8 @@ C$Id: nxtask.F,v 1.2 2004-10-21 01:36:52 edo Exp $
 #include "rtdb.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
-cedo#define GANXTVAL 1
+C  This is needed so that subgroups work, GA has MPI_COMM_WORLD in it
+#define GANXTVAL 1
       integer rtdb
 c
 c     load dlb info

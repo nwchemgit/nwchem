@@ -70,7 +70,6 @@ C Variable declarations
       character*256 fprefixcatt
       double precision dipole(3)
       character*256 dntmc_dir, fprefix2
-      logical dumlog
       logical util_statldb
       external util_statldb
 
@@ -181,8 +180,6 @@ C Setup GA
       call dntmc_setup_ga
      &(rtdb, myid, idbig, inodesbig,
      &idmedium, idzero, g_pr, int_mb(k_groupnums),numgroups,nob,nspc) ! Now in Subgroups
-
-      dumlog = util_statldb(.true.)
 
 C Initialize group related information
       if(ga_nodeid() .eq. 0) then
