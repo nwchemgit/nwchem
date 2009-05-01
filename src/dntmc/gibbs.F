@@ -72,6 +72,7 @@ C Variable declarations
       character*256 dntmc_dir, fprefix2
       logical util_statldb
       external util_statldb
+      logical dumlog
 
 C Array Variables
       integer l_groupnums, k_groupnums
@@ -176,6 +177,9 @@ C Setup GA
         WRITE(6,*)'*******************************************'
         call flush(6)
       endif
+
+C     Turn off dynamic load balancing, since it fails in groups
+      dumlog = util_statldb(.true.) 
 
       call dntmc_setup_ga
      &(rtdb, myid, idbig, inodesbig,
