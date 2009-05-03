@@ -29,7 +29,8 @@ c
       logical ofinite, oatomfinite
       logical include_bqbq
       logical oprint_sym
-      integer i
+      logical ecce_periodic
+      integer i,j,ii
       integer max_center        ! parameter for local array dimension
       double precision scale    ! For unit conversion
       double precision threquiv ! Threshold for autosym atom equivalence
@@ -39,6 +40,7 @@ c     .                           and for forcing symmetry
       double precision coords(3,max_center), velocities(3,max_center)
       double precision charge(max_center), mass(max_center)
       double precision invnucexp(max_center)
+      double precision ainv(3,3),t(3)
       character*16 tags(max_center)
       character*2 symbol
       character*16 element
@@ -112,6 +114,7 @@ c
 c     
       found_ang2au_conv = .false.
       found_au2ang_conv = .false.
+      ecce_periodic     = .false.
 c
       call dfill(3*max_center, 0.0d0, velocities, 1)
 c
@@ -313,7 +316,7 @@ c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
             goto 20
          else if (inp_compare(.false.,'system', field)) then
             osymmetry = .true.
-            call geom_sys_input(geom,scale)
+            call geom_sys_input(geom,scale,ecce_periodic)
             goto 20
          else if (inp_compare(.false.,'zcoord', field)) then
             call geom_autoz_input(geom,oprint)
@@ -385,6 +388,7 @@ c
                status = status .and. inp_f(velocities(3,ncenter+1))
             endif
             charge(ncenter+1) = atn
+
 c
             oatomfinite = ofinite
  111        if (inp_a(field)) then
@@ -435,6 +439,28 @@ c     For molecules, apply requested conversion of units after we have
 c     all of the information
 c     
  30   continue
+
+
+*     **** do cartesian to frac conversion here???? ****
+      if (ecce_periodic) then
+         write(*,*) "ecce periodic conversion"
+         call dscal(3*ncenter, scale, coords, 1)
+         if (geom_amatinv_get(geom, ainv)) then
+            do ii=1,ncenter
+               do i=1,3
+                  t(i) = 0.0d0
+                  do j=1,3
+                     t(i) = t(i) + ainv(i,j)*coords(j,ii)
+                  end do
+               end do
+               do i=1, 3
+                  coords(i,ii) = t(i)
+               end do
+            end do
+         end if
+      end if
+
+
 c
       if(ofile) return
 c
@@ -472,6 +498,8 @@ c
          call geom_check_input_quants
      &        (tags,mass,ncenter,1.0d8,'mass')
 c
+
+c
          if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
      $        call errquit('geom_input: geom_cart_set failed', 0,
      &       GEOM_ERR)
@@ -487,6 +515,8 @@ c
          if (.not. geom_nucexps_set(geom, ncenter, invnucexp))
      &        call errquit('geom_input: geom_nucexps_set failed', 0,
      &       GEOM_ERR)
+
+      
 c
 c     Check to see if both autosym and symmetry are being used.  If so,
 c     set autosym off.  Note the the threquiv variable is set first by the
@@ -506,6 +536,8 @@ c
      ,     name,tags,
      ,     threquiv,scale,coords,charge,velocities)
       endif                     ! End of else clause for if(oadjust)
+
+c
 c     
 c     Center origin at the center of charge if requested
 c     
@@ -522,6 +554,7 @@ c
       if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
      $     call errquit('geom_input: geom_cart_get failed', 0,
      &       GEOM_ERR)
+
 c
 c     If doing user zmatrix then remember values of constant variables
 c     so their values can be exactly enforced. 
@@ -600,7 +633,7 @@ c     done
 c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 
       end
-      subroutine geom_sys_input(geom,scale)
+      subroutine geom_sys_input(geom,scale,ecce_periodic)
       implicit none
 #include "errquit.fh"
 #include "geom.fh"
@@ -609,7 +642,7 @@ c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 #include "inp.fh"
       integer geom
 c
-      logical read_lattice_vectors
+      logical read_lattice_vectors,ecce_periodic
       integer nopt_system, ntokens, ind
 c
       double precision scale
@@ -623,6 +656,7 @@ c
      &     'alpha', 'beta', 'gamma', 'lattice_vectors', 'end'/
 c
       read_lattice_vectors = .false.
+      ecce_periodic        = .false.
 
       if (.not. geom_check_handle(geom,'system_input'))
      $     call errquit('system_input: geom handle invalid', 0,
@@ -636,6 +670,10 @@ c
         end if
       else
         goto 1000
+      end if
+
+      if (inp_a(test)) then
+        if (inp_compare(.false.,test,'cartesian')) ecce_periodic=.true.
       end if
 c
 c     Read new line of input
