@@ -78,12 +78,13 @@ c
       if(itype.eq.3) then
         do 900 i=1,nata
           do 910 j=1,3
- 2000       if(coords(j,i).lt.0.0d+00) then
+ 2000       if(coords(j,i).lt.(-0.5d+00)) then
               coords(j,i)=coords(j,i)+1.0d+00
-            elseif (coords(j,i).gt.1.0d+00) then
+            elseif (coords(j,i).ge.0.5d+00) then
               coords(j,i)=coords(j,i)-1.0d+00
             endif
-            if(coords(j,i).lt.0.0d0.or.coords(j,i).gt.1.0d0) then
+            if ( (coords(j,i).lt.(-0.5d0)) .or.
+     >           (coords(j,i).ge.0.5d0)   ) then
               goto 2000
             endif
   910     continue
@@ -160,12 +161,13 @@ c
                 if(dabs(xnew(iop,ii)).lt.1.0d-10) then
                   xnew(iop,ii)=0.0
                 endif
-                if(xnew(iop,ii).lt.0.0d0) then
+                if(xnew(iop,ii).lt.(-0.5d0)) then
                   xnew(iop,ii)=xnew(iop,ii)+1.0d0
-                elseif (xnew(iop,ii).ge.1.0d0) then
+                elseif (xnew(iop,ii).ge.0.5d0) then
                   xnew(iop,ii)=xnew(iop,ii)-1.0d0
                 endif
-                if(xnew(iop,ii).lt.0.0d0.or.xnew(iop,ii).ge.1.0d0)then
+                if ( (xnew(iop,ii).lt.(-0.5d0)) .or.
+     >               (xnew(iop,ii).ge.0.5d0)    ) then
                   goto 3000
                 endif
   380         continue
