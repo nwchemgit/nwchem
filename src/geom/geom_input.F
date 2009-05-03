@@ -642,7 +642,7 @@ c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 #include "inp.fh"
       integer geom
 c
-      logical read_lattice_vectors,ecce_periodic
+      logical read_lattice_vectors,ecce_periodic,nv2,nv3
       integer nopt_system, ntokens, ind
 c
       double precision scale
@@ -655,8 +655,18 @@ c
       data tokens /'lat_a', 'lat_b', 'lat_c', 
      &     'alpha', 'beta', 'gamma', 'lattice_vectors', 'end'/
 c
+
+*     **** initialize lattice ****
       read_lattice_vectors = .false.
       ecce_periodic        = .false.
+      lattice_vectors(1,geom) = 20.0d0/scale
+      lattice_vectors(2,geom) = 20.0d0/scale
+      lattice_vectors(3,geom) = 20.0d0/scale
+      nv2 = .false.
+      nv3 = .false.
+      lattice_angles(1,geom) = 90.0d0
+      lattice_angles(2,geom) = 90.0d0
+      lattice_angles(3,geom) = 90.0d0
 
       if (.not. geom_check_handle(geom,'system_input'))
      $     call errquit('system_input: geom handle invalid', 0,
@@ -675,6 +685,8 @@ c
       if (inp_a(test)) then
         if (inp_compare(.false.,test,'cartesian')) ecce_periodic=.true.
       end if
+
+      
 c
 c     Read new line of input
 c
@@ -696,12 +708,14 @@ c
      $         ('system:input: error reading floating number', 0,
      &       INPUT_ERR)
           lattice_vectors(2,geom) = value
+          nv2 = .true.
           goto 20
 
   300     if (.not. inp_f(value)) call errquit
      $         ('system:input: error reading floating number', 0,
      &       INPUT_ERR)
           lattice_vectors(3,geom) = value
+          nv3 = .true.
           goto 20
 
   400     if (.not. inp_f(value)) call errquit
@@ -814,6 +828,8 @@ c
         if (read_lattice_vectors) then
           call geom_3d_amatrix(geom,scale)
         else
+          if (.not.nv2) lattice_vectors(2,geom)=lattice_vectors(1,geom)
+          if (.not.nv3) lattice_vectors(3,geom)=lattice_vectors(2,geom)
           call geom_3d(geom,scale)
         end if
 c        status = geom_set_user_units(geom,'fractional')
