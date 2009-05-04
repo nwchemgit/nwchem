@@ -1,2 +1,0 @@
-$(LIBRARY_PATH)(tropt_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/nwc_const.fh /msrc/home/martind/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/errquit.fh ./ctropt.fh 
-$(LIBRARY_PATH)(tropt_drv.o):	$(INCDIR)/util.fh /msrc/home/martind/nwchem/src/tools/include/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/nwc_const.fh /msrc/home/martind/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /msrc/home/martind/nwchem/src/tools/include/global.fh ./geomP.fh $(INCDIR)/geom.fh $(INCDIR)/errquit.fh ./ctropt.fh 

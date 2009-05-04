@@ -1,2 +1,0 @@
-$(LIBRARY_PATH)(mepgs_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/nwc_const.fh /msrc/home/martind/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/errquit.fh ./cmepgs.fh ./cgsopt.fh 
-$(LIBRARY_PATH)(mepgs_drv.o):	$(INCDIR)/util.fh /msrc/home/martind/nwchem/src/tools/include/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/nwc_const.fh /msrc/home/martind/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /msrc/home/martind/nwchem/src/tools/include/global.fh $(INCDIR)/geom.fh $(INCDIR)/errquit.fh ./cmepgs.fh ./cgsopt.fh 
