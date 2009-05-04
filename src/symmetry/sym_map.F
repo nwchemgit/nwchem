@@ -89,7 +89,7 @@ c
             elseif(itype.eq.2) then ! surfaces
  3020         do 382 ii=1,2
                 if(dabs(xnew(iop,ii)).lt.1.0d-10) then
-                  xnew(iop,ii)=0.0
+                  xnew(iop,ii)=0.0d0
                 endif
                 if(xnew(iop,ii).lt.0.0d0) then
                   xnew(iop,ii)=xnew(iop,ii)+1.0d0
