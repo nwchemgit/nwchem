@@ -76,13 +76,13 @@ c
                   if(dabs(xnew(iop,ii)).lt.1.0d-10) then
                      xnew(iop,ii)=0.0d0
                   endif
-                  if (xnew(iop,ii).lt.(-0.5d0)) then
+                  if (xnew(iop,ii).lt.(0.0d0)) then
                       xnew(iop,ii)=xnew(iop,ii)+1.0d0
-                  elseif (xnew(iop,ii).ge.0.5d0) then
+                  elseif (xnew(iop,ii).ge.1.0d0) then
                      xnew(iop,ii)=xnew(iop,ii)-1.0d0
                   endif
-                  if ( (xnew(iop,ii).lt.(-0.5d0)) .or.
-     >                 (xnew(iop,ii).ge.  0.5d0)  ) then
+                  if ( (xnew(iop,ii).lt.(0.0d0)) .or.
+     >                 (xnew(iop,ii).ge. 1.0d0)  ) then
                      goto 3000
                   endif
  380           continue
