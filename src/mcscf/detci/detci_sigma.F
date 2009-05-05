@@ -393,7 +393,7 @@ c
      $                             vphase, sprime , dbl_mb(k_ci),
      $                             oreplicated)
               call dfill((nstrb*ne_kl), 0.d0, cprime, 1 )
-              call transpose( nstrb, ne_kl, sprime, cprime )
+              call transpose_nw( nstrb, ne_kl, sprime, cprime )
               call dfill((nstrb*ne_kl),0.d0,sprime,1)
 *              tgath = tgath + util_cpusec() - tx
 *              tx = util_cpusec()
@@ -416,7 +416,7 @@ c
 c
 c Scatter accumulate result into sigma vector
 c
-              call transpose( ne_kl, nstrb, sprime, cprime )
+              call transpose_nw( ne_kl, nstrb, sprime, cprime )
               call detci_ciscatter( nstrb, nstra, ne_kl, cprime,
      $                              vrhs, g_sigma, dbl_mb(k_sig),
      $                              oreplicated)

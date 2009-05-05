@@ -1417,7 +1417,7 @@ c
 
 
 
-       subroutine transpose( n, m, x, y )
+       subroutine transpose_nw( n, m, x, y )
        implicit none
        integer n, m
        double precision x(n,m)

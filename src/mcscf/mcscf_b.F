@@ -822,7 +822,7 @@ c
                 uu = nclosed + u
                 dd = (dm2(v,t,x,u) + dm2(t,v,x,u))*scale
                 call daxpy(nn,dd,hlp,1,g(1,tt,uu),1)
-                call transpose(nbf,nbf,hlp,hlp2)
+                call transpose_nw(nbf,nbf,hlp,hlp2)
                 dd = (dm2(x,u,v,t) + dm2(u,x,v,t))*scale
                 call daxpy(nn,dd,hlp2,1,g(1,uu,tt),1)
               enddo
@@ -951,7 +951,7 @@ c
           call hv_readv(88,(nbf*nbf),hlp)
           call daxpy((nbf*nbf), s4, hlp, 1, l(1,i,j), 1 )
           call daxpy((nbf*nbf), scale, hlp, 1, l(1,j,i), 1 )
-          call transpose( nbf, nbf, hlp, hlp2 )
+          call transpose_nw( nbf, nbf, hlp, hlp2 )
           call daxpy((nbf*nbf), scale, hlp2, 1, l(1,i,j), 1 )
           call daxpy((nbf*nbf), s4, hlp2, 1, l(1,j,i), 1 )
         enddo
