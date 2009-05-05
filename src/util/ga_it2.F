@@ -95,7 +95,8 @@ c
 ****      write(6,*) ' info ', info
 ****      call ga_put(g_x, 1, n, 1, nvec, b, n)
 c
-      call ga_lkain(g_x, g_b, test_product, test_precond, 1d-6, maxsub, 
+C     This should have something other than zero
+      call ga_lkain(0,g_x, g_b,test_product,test_precond,1d-6,maxsub,
      $     maxiter,.true.,.true.)
       call ga_summarize(0)
       call ma_summarize_allocated_blocks()

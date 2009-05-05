@@ -423,7 +423,7 @@ c     $        g_grad, g_work, precond_acc, precond_iter))
 c     $        call errquit('cphf did not converge',precond_iter)
          call ga_copy(g_grad(1), g_work(1))
          call uhf_precond(g_work(1),0.0d0)
-         call ga_lkain(g_work(1), g_grad(1), uhf_hessv2, uhf_precond,
+         call ga_lkain(rtdb,g_work(1),g_grad(1),uhf_hessv2,uhf_precond,
      $      precond_tol, 10*nvec, 20, .false., oprint_solve)
          noskew_uhf = .true.
        else 
