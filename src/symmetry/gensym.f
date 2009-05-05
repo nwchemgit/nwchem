@@ -462,15 +462,17 @@ c--> print the matrix reps in operator form, with labels
 c
 c dgc --> decenter if necessary
       if(numvec.gt.0) then
-         call dctr(symops,nops1,numgrp,group_name,numvec,cntvec,numset)
-         write(*,1424)
-         write(*,1425)
-         write(*,1426)
-         write(*,1427)
-         write(*,1428)
-         write(*,1429) nops1
-         nops=nops1
-         call opprint(symops,rotoop,maxops,nops1,itype)
+c         call dctr(symops,nops1,numgrp,group_name,numvec,cntvec,numset)
+c         write(*,1424)
+c         write(*,1425)
+c         write(*,1426)
+c         write(*,1427)
+c         write(*,1428)
+c         write(*,1429) nops1
+c         nops=nops1
+          write(*,1430)
+
+         call opprint(symops,rotoop,maxops,nops,itype)
       endif
 c
 1424  format(/'GENSYM.F: AFTER DE-CENTERING NEED TO REDEFINE:'/)
@@ -480,6 +482,7 @@ c
 1428  format(10X,' (4) BMAT')
 1429  format(//'The ',i3,' symmetry operators (excl. E) in the de-center
      &ed basis are as follows:'/)
+1430  format(/'DEBUG:primitive cell exists, but dctr was not called.'/)
 c
 c rjh hack to fix C1
       if (numgrp .eq. 1) nops = 0
