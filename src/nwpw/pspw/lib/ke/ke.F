@@ -431,7 +431,7 @@ c      end do
       ne(1) = 1
       ne(2) = 0
       do n=1,neall
-        call ke_ave(ispin,ne,gradk(1,n),Ep)
+        call ke_ave(ispin,ne,gradk(1,n),Ep,.false.,cm)
         Ep = 1.5d0*Ep
         do k=1,npack
            x = -2.0d0*dbl_mb(tg_indx+k-1)/Ep
@@ -478,7 +478,7 @@ c     real*8 tg(nfft3d)
       ne(1) = 1
       ne(2) = 0
       do n=1,neall
-        call ke_ave(ispin,ne,residual(1,n),Ep)
+        call ke_ave(ispin,ne,residual(1,n),Ep,.false.,cm)
         Ep = 1.5d0*Ep
         do k=1,npack
            x = -2.0d0*dbl_mb(tg_indx+k-1)/Ep
