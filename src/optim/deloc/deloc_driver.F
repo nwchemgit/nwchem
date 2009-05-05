@@ -198,5 +198,6 @@ c
        if(.not.geom_destroy(igeom))
      & call errquit(pname//'Failed to destroy geometry',0, GEOM_ERR)
 c
+      deloc_driver = .true.
       return
       end

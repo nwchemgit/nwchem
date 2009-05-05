@@ -11,6 +11,8 @@
 #include "global.fh"
 #include "geom.fh"
       logical leps_gradient
+      logical leps_energy
+      external leps_energy
       integer geom,natom, nelem 
       integer h_c,i_c,h_g,i_g 
       integer h_q,i_q
@@ -24,7 +26,10 @@ c
 c      write(*,*) "doing leps_gradient"
 c      natom=3
 c      eleps=0.0
-      call leps_energy(rtdb)
+      if (.not. leps_energy(rtdb))
+     & call errquit('leps_gradien: error',
+     & 0,GEOM_ERR)
+
 
 
 c       call leps_energy(rtdb)
@@ -123,6 +128,7 @@ c       write(*,*) "looks like properly stored in database"
 c       call leps_gradient0(natom,nelem,dbl_mb(i_g1))
 
 C ---
+      leps_gradient = .true.
       return
       end 
 

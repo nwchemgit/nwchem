@@ -294,6 +294,9 @@ c     &  mc_data_get_forside(),mc_data_get_ backside()
 C      write(*,*)  'Sidecount i_sc: ', i_sc
       call mc_data_free_all()
       call md_data_free_all() 
+  
+      mc_main = .true.
+
       return    
       end
 

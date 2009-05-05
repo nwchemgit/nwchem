@@ -103,6 +103,7 @@ C-----Calculate the energy
      & call errquit('leps_getgeom:  geom_destroy failed',
      & 911,GEOM_ERR)
 
+      leps_energy = .true.
 
       return
       END
