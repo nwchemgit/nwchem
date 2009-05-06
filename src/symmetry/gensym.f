@@ -470,9 +470,8 @@ c         write(*,1427)
 c         write(*,1428)
 c         write(*,1429) nops1
 c         nops=nops1
+c         call opprint(symops,rotoop,maxops,nops,itype)
           write(*,1430)
-
-         call opprint(symops,rotoop,maxops,nops,itype)
       endif
 c
 1424  format(/'GENSYM.F: AFTER DE-CENTERING NEED TO REDEFINE:'/)
