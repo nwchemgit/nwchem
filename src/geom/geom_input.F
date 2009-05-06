@@ -318,6 +318,11 @@ c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
             osymmetry = .true.
             call geom_sys_input(geom,scale,ecce_periodic)
             goto 20
+         else if (inp_compare(.false.,'carfile', field)) then
+            call geom_carfile_input(geom,coords,tags,charge,mass,
+     >                              ncenter,scale,ecce_periodic)
+            osymmetry = ecce_periodic
+            goto 20
          else if (inp_compare(.false.,'zcoord', field)) then
             call geom_autoz_input(geom,oprint)
             goto 20
@@ -840,6 +845,174 @@ c        status = geom_set_user_units(geom,'fractional')
       end if
       return
       end
+
+      subroutine geom_carfile_input(geom,coords,tags,charge,mass,
+     >                              ncenter,scale,ecce_periodic)
+      implicit none
+      integer          geom
+      double precision coords(3,*)
+      character*16     tags(*)
+      double precision charge(*)
+      double precision mass(*)
+      integer          ncenter
+      double precision scale
+      logical          ecce_periodic
+
+#include "inp.fh"
+#include "stdio.fh"
+#include "nwc_const.fh"
+#include "geom.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical       periodic
+      integer       atn,l
+      double precision x,y,z
+      double precision a,b,c,alpha,beta,gmma
+      double precision amat(3,3),pi,ca,cb,cg,sg,sgstar
+      character*2   symbol
+      character*16  element,symstring
+      character*80  tempstring,tempstring2
+      character*255 carfile
+
+*     **** external functions ****
+      logical  geom_amatrix_set,geom_isystype_set,geom_P1_set
+      external geom_amatrix_set,geom_isystype_set,geom_P1_set
+
+      if (inp_a(carfile)) then
+         call util_file_name_resolve(carfile, .false.)
+         write(*,*) "in geom_carfile_input carfile=",carfile
+
+         open (unit=55,file=carfile,form='FORMATTED',status='OLD')
+         rewind 55
+         read(55,'(a)') tempstring                             ! BIOSYM archive
+         read(55,'(a)') tempstring                             ! 'PBC=OFF' or 'ON'
+
+*        **** PBC=OFF ****
+         if (tempstring(5:7).eq.'OFF') then                    ! PBC=OFF
+            periodic = .false.
+            read(55,'(a)') tempstring
+            read(55,'(a)') tempstring
+            ecce_periodic = .false.
+
+*        **** PBC=ON ****
+         else
+            if (tempstring(5:6).ne.'ON') 
+     >        call errquit('ERROR in CAR file: no PBC string on line:'
+     >                     //tempstring,1,GEOM_ERR)
+
+            periodic = .true.                                         ! PBC=ON
+            read(55,'(a)') tempstring                                 ! blank line
+            read(55,'(a)') tempstring                                 ! DATE
+            read(55,*) tempstring, a,b,c,alpha,beta,gmma,tempstring2  ! cell parameters and symmetry
+
+            l = inp_strlen(tempstring2)
+            symstring = tempstring2(2:(l-1))
+
+*           **** generate amatrix used by CARFILE****
+            pi = 4.0d0*datan(1.0d0)
+            alpha = alpha*(pi/180.0d0)
+            beta  = beta *(pi/180.0d0)
+            gmma  = gmma *(pi/180.0d0)
+            ca = dcos(alpha)
+            cb = dcos(beta)
+            cg = dcos(gmma)
+            sg = dsin(gmma)
+            sgstar = dsqrt(1.0d0-ca*ca-cb*cb-cg*cg+2.0d0*ca*cb*cg)
+            amat(1,1) = a
+            amat(1,2) = b*cg
+            amat(1,3) = c*cb
+            amat(1,2) = 0.0d0
+            amat(2,2) = b*sg
+            amat(3,2) = 0.0d0
+            amat(1,3) = 0.0d0
+            amat(2,3) = c*(ca-cb*cg)/sg
+            amat(3,3) = c*sgstar/sg
+            call dscal(9,scale,amat,1)
+
+            if (.not.geom_amatrix_set(geom,amat))
+     >         call errquit('geom_carfile_input:failed to set amatrix',
+     >                      0,GEOM_ERR)
+            if (.not.geom_isystype_set(geom,3))
+     >         call errquit('geom_carfile_input:failed to set isystype',
+     >                      0,GEOM_ERR)
+            if (.not.geom_group_set(geom,symstring)) then
+               write(luout,*) 'geom_carfile_input:failed to find group '
+     >                      //'defaulting to P1'
+               if (.not.geom_P1_set(geom))
+     >            call errquit('geom_carfile_input:P1_set failed',
+     >                         0,GEOM_ERR)
+            end if
+
+            ecce_periodic = .true.
+         end if
+
+*        **** read coordinates from CAR ****
+         do while (.true.)
+            read(55,'(a)') tempstring
+            if (tempstring(1:3).eq.'end') GOTO 20
+            tags(ncenter+1) = '                '
+            read(tempstring,'(5x,3f15.9,21x,a2)') x,y,z,tags(ncenter+1)
+
+            if ((ncenter+1) .gt. nw_max_atom) 
+     >         call errquit('geom_carfile_input:too many centers',
+     >                      ncenter,GEOM_ERR)
+            charge(ncenter+1) = 0.0d0
+            if (geom_tag_to_element(tags(ncenter+1),
+     >                              symbol,element,atn)) then
+
+               if (.not.
+     >             geom_tag_to_default_mass(tags(ncenter+1),
+     >                                      mass(ncenter+1))) 
+     >          call errquit(' geom_carfile_input: default mass failed',
+     >          911, INPUT_ERR)
+
+               coords(1,ncenter+1) = x
+               coords(2,ncenter+1) = y
+               coords(3,ncenter+1) = z
+               charge(ncenter+1) = atn
+
+               ncenter=ncenter+1
+            end if
+         end do
+  20     continue
+
+         close(55)
+      end if
+
+      return
+      end
+      logical function geom_isystype_set(geom,itype)
+      implicit none
+      integer geom,itype
+#include "geom.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+      if (geom.le.max_geom) then
+         isystype(geom) = itype
+        geom_isystype_set = .true.
+      else
+        geom_isystype_set = .false.
+      end if
+      return
+      end
+      logical function geom_P1_set(geom)
+      implicit none
+      integer geom,itype
+#include "geom.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+      if (geom.le.max_geom) then
+        group_number(geom) = 1
+        geom_P1_set = .true.
+      else
+        geom_P1_set = .false.
+      end if
+      return
+      end
+
+
+
       subroutine geom_sym_input(geom, oprint_sym,threquiv)
       implicit none
 #include "errquit.fh"
