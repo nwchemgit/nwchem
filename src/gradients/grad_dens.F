@@ -2,7 +2,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs, omp2, pdm2, coeff,lsmear,osep)
 
-c     $Id: grad_dens.F,v 1.13 2003-10-17 22:55:09 carlfahl Exp $
+c     $Id: grad_dens.F,v 1.13 2003/10/17 22:55:09 carlfahl Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -106,6 +106,7 @@ c
       else
          g_tmp=g_vecs
       endif
+#if 0
          if (ga_nodeid() .eq. 0) then
             status = MA_alloc_get(MT_INT, nocc, 'indices', l_ind, k_ind)
             status = MA_alloc_get(MT_INT, nocc, 'indices',l_ind2,k_ind2)
@@ -118,6 +119,9 @@ c
             status = MA_free_heap ( l_ind )
             status = MA_free_heap ( l_ind2 )
          end if
+#else
+            call grad_diagb(g_eigen_diag, evals, nocc)
+#endif
 
 C     multiply to weighted density
          call ga_matmul_patch ('n','n', two, zero,
@@ -245,6 +249,7 @@ c
      ,          call errquit('gradients: ga diags?',nocca*nocca, GA_ERR)
            call ga_zero(g_eigen_diag)
         endif
+#if 0
          if (ga_nodeid() .eq. 0) then
             mxnoc=max(nocca,noccb)
             status=MA_alloc_get(MT_INT,mxnoc, 'indices', l_ind, k_ind)
@@ -256,6 +261,9 @@ c
             call ga_scatter ( g_eigen_diag, evals, int_mb(k_ind),
      $           int_mb(k_ind2), nocca)
          end if
+#else
+            call grad_diagb(g_eigen_diag, evals, nocca)
+#endif
 
 C     multiply to weighted density
          call ga_matmul_patch ('n','n', one, zero,
@@ -297,6 +305,7 @@ c
       else
          g_tmp2=g_vecs2
       endif
+#if 0
          if (ga_nodeid() .eq. 0) then
             do i=1, noccb
                int_mb( k_ind+i-1 ) = i
@@ -307,6 +316,9 @@ c
             status = MA_free_heap ( l_ind )
             status = MA_free_heap ( l_ind2 )
          end if
+#else
+            call grad_diagb(g_eigen_diag, evals, nocca)
+#endif
 
 C     multiply to weighted density and add to spin up part
          call ga_matmul_patch ('n','n', one, zero,
@@ -450,4 +462,24 @@ c
 
       return
       end
-
+      subroutine grad_diagb(g_a, evals, nocc)
+      implicit none
+#include "global.fh"
+      integer g_a
+      double precision evals(*)
+      integer nocc
+c
+      integer k
+      integer ilo, ihi, jlo, jhi
+c
+      call ga_distribution(g_a,
+     .     ga_nodeid(), ilo, ihi, jlo, jhi)
+      if (ilo.gt.0 .and.jlo.gt.0.and.
+     A    ilo.le.ihi.and.jlo.le.ihi) then
+         do k=1,nocc
+            if(k.ge.ilo.and.k.le.ihi.and.k.ge.jlo.and.k.le.jhi)
+     P           call ga_put(g_a,k,k,k,k,evals(k),1)
+         enddo
+      endif
+      return
+      end
