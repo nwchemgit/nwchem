@@ -47,11 +47,14 @@ c
 c
 c
       do i=1,n
-          int_mb(iz+i-1)=dbl_mb(icharge+i-1)
+          int_mb(iz+i-1)=int(dbl_mb(icharge+i-1))
       enddo
 c
       if (.not.ma_pop_stack(lcharge))
      &   call errquit('xcvdw: cannot pop stack',3, MA_ERR)
+
+      if (.not.rtdb_get(rtdb,'dft:ivdw',MT_INT,1,ivdw))
+     &      ivdw = 2
 c
 c     conversion factor angs 2 au
 c
@@ -63,8 +66,6 @@ c     write(6,*)'angs to au1', scalea
 c
       if (.not.rtdb_get(rtdb,'dft:vdwalpha',MT_DBL,1,alpha))
      &      alpha = 20.0d0
-      if (.not.rtdb_get(rtdb,'dft:ivdw',MT_INT,1,ivdw))
-     &      ivdw = 2
 c
       if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6))
      &   s6=0.0d0
@@ -353,7 +354,7 @@ c
       integer i
       double precision jnm6mol2au
 c
-      do i=1,120
+      do i=1,128
          c6(i)=-1
          r0(i)=-1
       enddo
