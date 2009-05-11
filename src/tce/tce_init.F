@@ -1001,6 +1001,14 @@ c         endif
      2      (module.ne.'umbpt4'))
      3    call errquit('tce_init: umbpt/umbpt4 module overridden',0,
      4    UNKNOWN_ERR)
+      else if (model.eq.'mbpt4sdq_t') then
+        ctype='Fourth-order tensor many-body perturbation theory
+     1 with non-iterative triples'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'umbpt').and.
+     2      (module.ne.'umbpt4'))
+     3    call errquit('tce_init: umbpt/umbpt4 module overridden',0,
+     4    UNKNOWN_ERR)
       else
         call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
       endif
