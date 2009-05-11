@@ -8,17 +8,9 @@
 *     *                                             *
 *     ***********************************************
 
-      subroutine wvfnc_adjust(wavefunction_filename,
-     >                        version,
-     >                        ngrid,
-     >                        unita,
-     >                        ispin,
-     >                        nein)
+      subroutine wvfnc_adjust(wavefunction_filename,ispin,nein)
       implicit none
       character*30 wavefunction_filename
-      integer      version
-      integer      ngrid(3)
-      real*8       unita(3,3)
       integer      ispin,nein(2)
 
 #include "mafdecls.fh"
@@ -73,9 +65,6 @@
         call sub_wvfnc_adjust(NMAX,int_mb(filling(1)),
      >                     new_filename,
      >                     old_filename,
-     >                     version,
-     >                     ngrid,
-     >                     unita,
      >                     ispin,
      >                     ne,
      >                     fractional,
@@ -97,9 +86,6 @@
       subroutine sub_wvfnc_adjust(NMAX,filling,
      >                         new_filename,
      >                         old_filename,
-     >                         version,
-     >                         ngrid,
-     >                         unita,
      >                         ispin,
      >                         ne,
      >                         fractional,
@@ -109,9 +95,6 @@
       integer filling(4,NMAX,2)
       character*255 new_filename
       character*255 old_filename
-      integer      version
-      integer      ngrid(3)
-      real*8       unita(3,3)
       integer      ispin,ne(2)
       logical      fractional
       integer      frac_orb(2)
@@ -121,6 +104,10 @@
  
       logical value
       character*255 full_filename
+
+      integer      version
+      integer      ngrid(3)
+      real*8       unita(3,3)
 
       integer nfft1,nfft2,nfft3,nfft3d,n2ft3d
       integer inc2c,inc3c
@@ -141,37 +128,11 @@
       call getfilling(ne(1),filling)
       if (ispin.eq.2) call getfilling(ne(2),filling(1,1,2))
 
-*     ***** constants *****
-      nfft1=ngrid(1)
-      nfft2=ngrid(2)
-      nfft3=ngrid(3)
-      nfft3d=(nfft1/2+1)*nfft2*nfft3
-      n2ft3d=2*nfft3d
-      inc2c = nfft1/2+1
-      inc3c =inc2c*nfft2
 
       scale=1.0d0/dsqrt(2.0d0)
       zx=(1.0d0,0.0d0)
       sx=(0.0d0,1.0d0)*scale
       cx=(1.0d0,0.0d0)*scale
-
-
-*     ***** allocate wavefunction memory ****
-      value = MA_push_get(mt_dcpl,nfft3d,
-     >                     'cfull',cfull_hndl,cfull_indx)
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-*     **** modularize the filling ****
-      do ms=1,ispin
-        do n=1,ne(ms)
-           i = filling(1,n,ms)
-           j = filling(2,n,ms)
-           k = filling(3,n,ms)
-           filling(1,n,ms) = mod(i+inc2c,inc2c)
-           filling(2,n,ms) = mod(j+nfft2,nfft2)
-           filling(3,n,ms) = mod(k+nfft3,nfft3)
-        end do
-      end do
 
  
 *     **** write wavefunction in CPMDV3 format ****
@@ -197,6 +158,34 @@
          occupation = -1
       end if
       call iwrite(6,occupation,1)
+
+
+*     ***** constants *****
+      nfft1=ngrid(1)
+      nfft2=ngrid(2)
+      nfft3=ngrid(3)
+      nfft3d=(nfft1/2+1)*nfft2*nfft3
+      n2ft3d=2*nfft3d
+      inc2c = nfft1/2+1
+      inc3c =inc2c*nfft2
+
+*     ***** allocate wavefunction memory ****
+      value = MA_push_get(mt_dcpl,nfft3d,
+     >                     'cfull',cfull_hndl,cfull_indx)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+*     **** modularize the filling ****
+      do ms=1,ispin
+        do n=1,ne(ms)
+           i = filling(1,n,ms)
+           j = filling(2,n,ms)
+           k = filling(3,n,ms)
+           filling(1,n,ms) = mod(i+inc2c,inc2c)
+           filling(2,n,ms) = mod(j+nfft2,nfft2)
+           filling(3,n,ms) = mod(k+nfft3,nfft3)
+        end do
+      end do
+
  
 
       ms0 = 1

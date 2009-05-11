@@ -134,14 +134,9 @@
      >         'nwpw:adjust_skip',mt_log,1,adjust_skip))
      >   adjust_skip = .false.
     
-*     **** adjust existing wavefunction ****
+*     **** adjust occupations of existing wavefunction ****
       if (psi_filefind().and.(.not.adjust_skip)) then
-         call wvfnc_adjust(filename,
-     >                  version,
-     >                  ngrid,
-     >                  unita,
-     >                  ispin,
-     >                  ne)
+         call wvfnc_adjust(filename,ispin,ne)
 
 *     **** make wavefunction from scratch ****
       else
