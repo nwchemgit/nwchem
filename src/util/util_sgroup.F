@@ -75,13 +75,25 @@ C     Added option to allow group rtdb's to be written
 C     to permanent_dir (0) or scratch_dir(1)
       integer dir
       logical dir2
+#ifndef GANXTVAL
+C  Turn off GA load balancing in groups
+      logical util_statldb
+      external util_statldb
+      logical dumlog
+#endif
+
 C     convert to logical
       if (dir .gt. 0) then
         dir2 = .true.
       else
         dir2 = .false.
       endif
-c
+#ifndef GANXTVAL
+C     Turn off dynamic load balancing, since it fails in groups
+C     We never turn this back on
+      if (groups_want .ne. 1) dumlog = util_statldb(.true.)
+#endif
+
       if (ga_pgroup_get_default() .eq. ga_pgroup_get_world()) then
         depth = 0
         mygroup(depth) = 1
