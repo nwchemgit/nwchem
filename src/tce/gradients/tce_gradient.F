@@ -795,12 +795,18 @@ c     -------------
 c     CCSD    right
 c     -------------
          modelname = "CCSD"
-         call ccsd_energy(d_f1,d_e,d_t1,d_t2,d_v2,d_r1,d_r2,
-     1        k_f1_offset,k_e_offset,k_t1_offset,
-     2        k_t2_offset,k_v2_offset,k_r1_offset,
-     3        k_r2_offset,size_e,size_t1,size_t2,
-     4        size_r1,size_r2,ref,corr)
-c 
+c
+c         call ccsd_energy(d_f1,d_e,d_t1,d_t2,d_v2,d_r1,d_r2,
+c     1        k_f1_offset,k_e_offset,k_t1_offset,
+c     2        k_t2_offset,k_v2_offset,k_r1_offset,
+c     3        k_r2_offset,size_e,size_t1,size_t2,
+c     4        size_r1,size_r2,ref,corr)
+c
+        call ccsd_energy_loc(d_e,d_f1,d_v2,d_t1,d_t2,
+     1       k_e_offset,k_f1_offset,k_v2_offset,
+     2       k_t1_offset,k_t2_offset,
+     3       size_t1,size_t2,ref,corr)
+c
          if(nroots.eq.0) then
          call ccsd_left(d_f1,d_lr1,d_lr2,d_t1,d_t2,d_v2,d_lambda1,
      1        d_lambda2,k_f1_offset,k_l1_offset,k_t1_offset,
@@ -1298,7 +1304,7 @@ c
      1        call errquit("tce_gradient: MA problem",47,MA_ERR)
       end if
 c     ---
-      if (activecalc) then
+      if (activecalc.or.(.not.intorb)) then
          if (.not.ma_pop_stack(l_active))
      1        call errquit("tce_gradient: MA problem",48,MA_ERR)
       end if
