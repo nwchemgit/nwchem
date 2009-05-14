@@ -11,15 +11,16 @@ c
 
       subroutine pspw_dplot_input(rtdb)
       implicit none
+      integer rtdb
+c
 #include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-c
-      integer rtdb
+#include "nwc_const.fh"
 c
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 11)
+      parameter (num_dirs = 12)
       character*22 dirs(num_dirs)
       data dirs / 'vectors',
      >            'density',
@@ -31,6 +32,7 @@ c
      >            'origin',
      >            'limitxyz',
      >            'ncell',
+     >            'atom_truncate',
      >            'end'/
 
       integer num_dnames          ! No. of density directives
@@ -64,7 +66,8 @@ c
       real*8        position_tolerance
       real*8        o(3),x(3),y(3),z(3)
       real*8        sizex(2),sizey(2),sizez(2),scal
-      integer       nx,ny,nz,ncell(3)
+      integer       j,jstart,jlast,jstride
+      integer       nx,ny,nz,ncell(3),idx(2)
 c
 c
 *     *** initializations ****
@@ -90,7 +93,7 @@ c
      >           'pspw_dplot_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 100,  200, 300, 400, 500, 600,700,800,900,1000,
+      goto ( 100,  200, 300, 400, 500, 600,700,800,900,1000,1100,
      >      9999) ind
       call errquit(
      >      'pspw_dplot_input: unimplemented directive', ind, INPUT_ERR)
@@ -463,6 +466,33 @@ c
 
       goto 10
 
+c
+c atom_truncate
+c
+ 1100 if (.not.MA_push_get(mt_int,nw_max_atom,'idx',idx(2),idx(1)))
+     >   call errquit(
+     >   'pspw_dplot_input:failed allocating idx',0,MA_ERR)
+
+      nx = 0
+      do while (inp_irange(jstart,jlast,jstride))
+         do j=jstart,jlast,jstride
+          int_mb(idx(1)+nx) = j
+          nx = nx+1
+         end do
+      end do
+      if (.not.rtdb_put(rtdb,'pspw_dplot:atom_truncate_size',
+     >                  mt_int,1,nx))
+     >  call errquit('pspw_dplot_input:failed write atom_truncate_size',
+     >                0,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'pspw_dplot:atom_truncate',
+     >                  mt_int,nx,int_mb(idx(1))))
+     >   call errquit('pspw_dplot_input:failed writing atom_truncate',
+     >                0,RTDB_ERR)
+      if (.not.MA_pop_stack(idx(2)))
+     >   call errquit('pspw_dplot_input:failed deallocating idx',
+     >                 0,MA_ERR)
+
+      goto 10
 
 
 

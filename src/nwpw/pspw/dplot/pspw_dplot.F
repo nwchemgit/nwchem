@@ -1,6 +1,13 @@
 *
 * $Id: pspw_dplot.F,v 1.21 2009-02-10 21:17:18 bylaska Exp $
 *
+
+*     ***********************************************
+*     *                                             *
+*     *          pspw_dplot                         *
+*     *                                             *
+*     ***********************************************
+
       logical function pspw_dplot(rtdb)
       implicit none
 #include "errquit.fh"
@@ -339,6 +346,12 @@
      &       '( ',I8,' waves ',I8,' per task)')
 
       end
+
+*     ***********************************************
+*     *                                             *
+*     *          dplot_gen_psi_dn                   *
+*     *                                             *
+*     ***********************************************
  
       subroutine dplot_gen_psi_dn(ispin,ne,
      >                      npack1,nfft3d,nemax,
@@ -415,6 +428,11 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       return
       end
 
+*     ***********************************************
+*     *                                             *
+*     *          dplot_loop                         *
+*     *                                             *
+*     ***********************************************
 
       subroutine dplot_loop(rtdb,
      >                      ispin,ne,
@@ -455,6 +473,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       character*30 filename
       integer name1_len,name2_len,ind,ind2
 
+      integer n_truncate,idx_truncate(2),rgrid(2),trunc(2)
 
 *     **** external functions ****
       integer  control_version
@@ -483,6 +502,35 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
 
+*     **** setup atom_truncate ****
+      n_truncate = 0
+      if (rtdb_get(rtdb,'pspw_dplot:atom_truncate_size',
+     >             mt_int,1,n_truncate)) then
+         if (n_truncate.gt.0) then
+         if (MA_push_get(mt_dbl,n2ft3d,'trunc',trunc(2),trunc(1))) then
+           if (MA_push_get(mt_int,n_truncate,'idx_truncate',
+     >                     idx_truncate(2),idx_truncate(1))) then
+               if (.not.rtdb_get(rtdb,'pspw_dplot:atom_truncate',
+     >                        mt_int,n_truncate,idx_truncate(1))) then
+                  n_truncate = 0
+               else
+                  if (.not.MA_push_get(mt_dbl,3*n2ft3d,
+     >                                 'rgrd',rgrid(2),rgrid(1)))
+     >               call errquit('pspw_dplot_loop:push stack',0,MA_ERR)
+                  call Truncating_Function_init(rtdb)
+                  call Truncating_Function_index(n_truncate,
+     >                  int_mb(idx_truncate(1)),dbl_mb(rgrid(1)),
+     >                  dbl_mb(trunc(1)))
+                  call Truncating_Function_end()
+                  if (.not.MA_pop_stack(rgrid(2)))
+     >               call errquit('pspw_dplot_loop:pop stack',0,MA_ERR)
+               end if
+               if (.not.MA_pop_stack(idx_truncate(2)))
+     >             call errquit('error popping idx_truncate',0,MA_ERR)
+           end if
+         end if
+         end if
+      end if
 
 
 *     ********************************************
@@ -677,6 +725,11 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
           cube_comment = 'SCF Molecular Orbitals'
         end if
 
+*       *** atom_truncate ***
+        if (n_truncate.gt.0) then
+           call D3dB_rr_Mul2(1,dbl_mb(trunc(1)),dbl_mb(rho(1)))
+        end if
+
         if (grid3d) then
           call dplot_gcube_write3d(rtdb,filename,
      >                         number,cube_comment,dbl_mb(rho(1)))
@@ -691,13 +744,21 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
       value = MA_pop_stack(rho(2))
       if (.not. value) call errquit('popping of stack memory',0, MA_ERR)
 
+      if (n_truncate.gt.0) then
+         if (.not.MA_pop_stack(trunc(2)))
+     >      call errquit('error popping trunc',0,MA_ERR)
+      end if
     
       return
       end
 
 
 
-  
+*     ***********************************************
+*     *                                             *
+*     *          dplot_gcube_write                  *
+*     *                                             *
+*     ***********************************************
 
       subroutine dplot_gcube_write(rtdb,filename,
      >                             number,cube_comment,rho)
@@ -927,6 +988,11 @@ c     if (.not. value) call errquit('closing geometry',0)
       return
       end 
 
+*     ***********************************************
+*     *                                             *
+*     *          special_position_tolerance         *
+*     *                                             *
+*     ***********************************************
 
       subroutine special_position_tolerance(position_tolerance,
      >                                      unit,q,r2)
@@ -1028,6 +1094,12 @@ c     if (.not. value) call errquit('closing geometry',0)
 
       return
       end
+
+*     ***********************************************
+*     *                                             *
+*     *          special_position_count             *
+*     *                                             *
+*     ***********************************************
 
       subroutine special_position_count(position_tolerance,
      >                                  r2,count)
@@ -1316,6 +1388,11 @@ c        call Pack_cc_Mul(1,dcpl_mb(exi(1)),psi(1,n),psi(1,n))
 
 
 *
+*     ***********************************************
+*     *                                             *
+*     *          dplot_gcube_write3d                *
+*     *                                             *
+*     ***********************************************
 
       subroutine dplot_gcube_write3d(rtdb,filename,
      >                             number,cube_comment,rho)

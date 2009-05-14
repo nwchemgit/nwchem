@@ -186,6 +186,47 @@ c      integer rho(2),f(2)
       return
       end
 
+*     **********************************
+*     *                                *
+*     *   Truncating_Function_index    *
+*     *                                *
+*     **********************************
+
+      subroutine Truncating_Function_index(nindx,indx,rgrid,T)
+      implicit none
+      integer nindx,indx(*)
+      real*8 rgrid(3,*)
+      real*8 T(*)
+
+#include "mafdecls.fh"
+#include "truncating_function.fh"
+#include "errquit.fh"
+
+*     ***** local variables ****
+      integer ii
+      integer n2ft3d
+      integer tmp(2)
+
+      call D3dB_n2ft3d(1,n2ft3d)
+      if (.not.MA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1)))
+     >  call errquit('Truncating_Function_index:pushing stack',0,
+     >       MA_ERR)
+
+      call Truncating_Function_atom(n2ft3d,indx(1),rgrid,T)
+      do ii=2,nindx
+        call Truncating_Function_atom(n2ft3d,indx(ii),
+     >                                rgrid,dbl_mb(tmp(1)))
+        call Truncating_Function_Union(n2ft3d,T,dbl_mb(tmp(1)),T)
+      end do
+
+      if (.not.MA_pop_stack(tmp(2)))
+     >  call errquit('Truncating_Function_index:pop stack',1,MA_ERR)
+
+      return
+      end
+
+
+
       subroutine Truncating_Function_Union(n2ft3d,T1,T2,T12)
       implicit none
       integer n2ft3d
