@@ -32,7 +32,14 @@ OBJ_OPTIMIZE = tce_gradient.o ccsd_energy.o ccsd_left.o ccsd_gradient.o \
                put_1pdm_ph_2.o put_1pdm_pp.o \
                put_1pwdm_hp.o ao_tiles.o btrans1.o ao_1prdm_write.o \
                tce_gradients_doit.o tce_grad_force.o tce_grad1.o tce_grad2.o \
-               sym_2pdm_ao.o btrans2.o 
+               sym_2pdm_ao.o btrans2.o ccsd_e_grad.o ccsd_t1_grad.o ccsd_t2_grad.o \
+               eomccsd_energy.o eomccsd_left.o eomccsd_gradients.o \
+               eomccsd_1pdm_hh_mo.o eomccsd_1pdm_pp_mo.o tce_eomccsd_1prdm.o \
+               eomccsd_2pdm_hhhh_mo.o eomccsd_2pdm_hhhp_mo.o eomccsd_2pdm_hhpp_mo.o \
+               eomccsd_2pdm_hphh_mo.o eomccsd_2pdm_hphp_mo.o eomccsd_2pdm_hppp_mo.o \
+               eomccsd_2pdm_pphh_mo.o eomccsd_2pdm_pphp_mo.o eomccsd_2pdm_pppp_mo.o \
+               eomccsd_z1.o eomccsd_z2.o eomccsd_2pdm_pphh_zvec_mo.o eomccsd_1pdm_hp_mo.o \
+               eomccsd_1pdm_ph_mo.o eomccsd_x1_grad.o eomccsd_x2_grad.o tce_eom_xdiagon_grad.o
                  
 
 LIB_INCLUDES = -I../include
@@ -57,7 +64,14 @@ USES_BLAS = ccsd_1pdm_hh_mo.F   ccsd_1pdm_pp_mo.F ccsd_1pdm_hp_mo.F ccsd_1pdm_ph
             wdm_hp_mo_b_f.F wdm_hp_mo_c.F \
             wdm_pp_mo_a.F   wdm_pp_mo_b_a_a.F wdm_pp_mo_b_a_b.F wdm_pp_mo_b_b_a.F wdm_pp_mo_b_b_b.F \
             wdm_pp_mo_b_c.F wdm_pp_mo_b_d_a.F wdm_pp_mo_b_d_b.F wdm_pp_mo_b_e_a.F wdm_pp_mo_b_e_b.F \
-            wdm_pp_mo_b_f.F 
+            wdm_pp_mo_b_f.F ccsd_e_grad.F ccsd_t1_grad.F ccsd_t2_grad.F \
+            eomccsd_1pdm_hh_mo.F eomccsd_1pdm_pp_mo.F tce_eomccsd_1prdm.F \
+            eomccsd_2pdm_hhhh_mo.F eomccsd_2pdm_hhhp_mo.F eomccsd_2pdm_hhpp_mo.F \
+            eomccsd_2pdm_hphh_mo.F eomccsd_2pdm_hphp_mo.F eomccsd_2pdm_hppp_mo.F \
+            eomccsd_2pdm_pphh_mo.F eomccsd_2pdm_pphp_mo.F eomccsd_2pdm_pppp_mo.F \
+            eomccsd_z1.F eomccsd_z2.F eomccsd_2pdm_pphh_zvec_mo.F eomccsd_1pdm_hp_mo.F \
+            eomccsd_1pdm_ph_mo.F eomccsd_x1_grad.F eomccsd_x2_grad.F tce_eom_xdiagon_grad.F
+
 
 LIB_DEFINES = -DDEBUG_PRINT
 #
