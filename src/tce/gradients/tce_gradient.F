@@ -1077,7 +1077,40 @@ c
 c     -------------
 c     CCSD    right
 c     -------------
-                  call errquit("Not yet implemented",0,CAPMIS_ERR)
+c                  call errquit("Not yet implemented",0,CAPMIS_ERR)
+c
+                  modelname="EOM-CCSD"
+                  call eomccsd_energy(d_rx1,d_rx2,size_x1,size_x2,
+     1                 k_x1_offset,k_x2_offset,
+     2                 d_f1,d_v2,d_t1,d_t2,
+     3                 k_f1_offset,k_v2_offset,
+     4                 k_t1_offset,k_t2_offset,k_omegax)
+                  call eomccsd_left(d_ry1,d_ry2,size_y1,size_y2,
+     1                 k_y1_offset,k_y2_offset,
+     2                 d_f1,d_v2,d_t1,d_t2,
+     3                 k_f1_offset,k_v2_offset,
+     4                 k_t1_offset,k_t2_offset,k_omegay)
+c
+                  ivec=nroots_reduced
+                  call dratoga(xc1(ivec))
+                  call dratoga(xc2(ivec))
+                  call dratoga(yc1(ivec))
+                  call dratoga(yc2(ivec))
+                  omegai=dbl_mb(k_omegax+ivec-1)
+c                  call tce_print_x1(xc1(ivec),k_x1_offset,1.0d-1)
+c                  call tce_print_x2(xc2(ivec),k_x2_offset,1.0d-1)
+                  call eomccsd_gradients(rtdb,
+     1                 d_f1,k_f1_offset,d_v2,k_v2_offset,
+     1                 d_t1,k_t1_offset,d_t2,k_t2_offset,
+     1                 xc1(ivec),k_x1_offset,size_x1,
+     1                 xc2(ivec),k_x2_offset,size_x2,
+     1                 yc1(ivec),k_y1_offset,size_y1,
+     1                 yc2(ivec),k_y2_offset,size_y2,
+     1                 omegai)
+                  call gatodra(yc2(ivec))
+                  call gatodra(yc1(ivec))
+                  call gatodra(xc2(ivec))
+                  call gatodra(xc1(ivec))
 c
                else if (model.eq.'ccsdt') then
 c     -------------
