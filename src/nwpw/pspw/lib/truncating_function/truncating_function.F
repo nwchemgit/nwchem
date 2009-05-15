@@ -251,15 +251,21 @@ c      integer rho(2),f(2)
 #include "truncating_function.fh"
 
 *     **** local variables ****
-      integer ia,i
+      integer ia,i,j,n1,n2,n3
       real*8 xii,yii,zii,r,rr,pp2
-      real*8 x,y,z,f
+      real*8 x,y,z,x0,y0,z0,f,a(3,3)
 
 *     **** external functions ****
       integer  ion_katm
-      real*8   ion_rion
+      real*8   ion_rion,lattice_unita
       external ion_katm
-      external ion_rion
+      external ion_rion,lattice_unita
+
+      do j=1,3
+         do i=1,3
+            a(i,j) = lattice_unita(i,j)
+         end do
+      end do
 
       ia = ion_katm(ii)
       pp2 = pp+2.0d0
@@ -270,14 +276,27 @@ c      integer rho(2),f(2)
       yii = ion_rion(2,ii)
       zii = ion_rion(3,ii)
       do i=1,n2ft3d 
-         x = (xii-rgrid(1,i))
-         y = (yii-rgrid(2,i))
-         z = (zii-rgrid(3,i))
-         r = dsqrt(x*x + y*y + z*z)
-         f = 0.0d0
-         if (r.lt.rr) f = 1.0d0
-c         f = (1.0d0-(1.0d0-dexp(-(r/rr)**pp2))**pp)
-         T(i) = f
+
+         x0 = (xii-rgrid(1,i))
+         y0 = (yii-rgrid(2,i))
+         z0 = (zii-rgrid(3,i))
+
+*        **** take into account images ****
+         do n3=-1,1
+         do n2=-1,1
+         do n1=-1,1
+            x = x0 + n1*a(1,1) + n2*a(1,2) + n3*a(1,3)
+            y = y0 + n1*a(2,1) + n2*a(2,2) + n3*a(2,3)
+            z = z0 + n1*a(3,1) + n2*a(3,2) + n3*a(3,3)
+            r = dsqrt(x*x + y*y + z*z)
+            f = 0.0d0
+            if (r.lt.rr) f = 1.0d0
+c             f = (1.0d0-(1.0d0-dexp(-(r/rr)**pp2))**pp)
+            T(i) = f
+         end do
+         end do
+         end do
+
       end do
 
       return
