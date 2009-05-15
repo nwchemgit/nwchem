@@ -208,19 +208,17 @@ c      integer rho(2),f(2)
       integer tmp(2)
 
       call D3dB_n2ft3d(1,n2ft3d)
-      if (.not.MA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1)))
-     >  call errquit('Truncating_Function_index:pushing stack',0,
-     >       MA_ERR)
+c      if (.not.MA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1)))
+c     >  call errquit('Truncating_Function_index:pushing stack',0,
+c     >       MA_ERR)
 
-      call Truncating_Function_atom(n2ft3d,indx(1),rgrid,T)
-      do ii=2,nindx
-        call Truncating_Function_atom(n2ft3d,indx(ii),
-     >                                rgrid,dbl_mb(tmp(1)))
-        call Truncating_Function_Union(n2ft3d,T,dbl_mb(tmp(1)),T)
+      call dcopy(n2ft3d,0.0d0,0,T,1)
+      do ii=1,nindx
+        call Truncating_Function_atom(n2ft3d,indx(ii),rgrid,T)
       end do
 
-      if (.not.MA_pop_stack(tmp(2)))
-     >  call errquit('Truncating_Function_index:pop stack',1,MA_ERR)
+c      if (.not.MA_pop_stack(tmp(2)))
+c     >  call errquit('Truncating_Function_index:pop stack',1,MA_ERR)
 
       return
       end
@@ -289,10 +287,7 @@ c      integer rho(2),f(2)
             y = y0 + n1*a(2,1) + n2*a(2,2) + n3*a(2,3)
             z = z0 + n1*a(3,1) + n2*a(3,2) + n3*a(3,3)
             r = dsqrt(x*x + y*y + z*z)
-            f = 0.0d0
-            if (r.lt.rr) f = 1.0d0
-c             f = (1.0d0-(1.0d0-dexp(-(r/rr)**pp2))**pp)
-            T(i) = f
+            if (r.lt.rr) T(i) = 1.0d0
          end do
          end do
          end do

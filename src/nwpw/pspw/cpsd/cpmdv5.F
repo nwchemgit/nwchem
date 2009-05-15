@@ -222,7 +222,9 @@ c      parameter (autoatm =290.360032539d6)
          write(luout,1000)
          call nwpw_message(1)
          write(luout,1110)
+         call util_flush(luout)
       end if
+      call ga_sync()
       
       value = control_read(2,rtdb)
       call Parallel2d_Init(control_np_orbital())

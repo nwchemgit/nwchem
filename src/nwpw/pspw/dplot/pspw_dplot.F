@@ -511,12 +511,13 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
            if (MA_push_get(mt_int,n_truncate,'idx_truncate',
      >                     idx_truncate(2),idx_truncate(1))) then
                if (.not.rtdb_get(rtdb,'pspw_dplot:atom_truncate',
-     >                        mt_int,n_truncate,idx_truncate(1))) then
+     >                  mt_int,n_truncate,int_mb(idx_truncate(1)))) then
                   n_truncate = 0
                else
                   if (.not.MA_push_get(mt_dbl,3*n2ft3d,
      >                                 'rgrd',rgrid(2),rgrid(1)))
      >               call errquit('pspw_dplot_loop:push stack',0,MA_ERR)
+                  call lattice_r_grid(dbl_mb(rgrid(1)))
                   call Truncating_Function_init(rtdb)
                   call Truncating_Function_index(n_truncate,
      >                  int_mb(idx_truncate(1)),dbl_mb(rgrid(1)),
@@ -741,13 +742,14 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
       end do
 
 *     **** dealocate MA local variables ****
-      value = MA_pop_stack(rho(2))
-      if (.not. value) call errquit('popping of stack memory',0, MA_ERR)
-
       if (n_truncate.gt.0) then
          if (.not.MA_pop_stack(trunc(2)))
      >      call errquit('error popping trunc',0,MA_ERR)
       end if
+
+      value = MA_pop_stack(rho(2))
+      if (.not. value) call errquit('popping of stack memory',0, MA_ERR)
+
     
       return
       end
