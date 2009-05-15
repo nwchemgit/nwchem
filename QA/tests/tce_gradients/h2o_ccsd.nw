@@ -29,7 +29,6 @@ end
 
 tce
 ccsd
-io replicated
 end
 
 task tce gradient
