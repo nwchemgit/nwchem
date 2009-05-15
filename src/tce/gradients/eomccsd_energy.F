@@ -96,13 +96,11 @@ c
          if (.not.ma_push_get(mt_dbl,nxtrials,'residual',
      1       l_residual,k_residual))
      2       call errquit('eomccsd_energy: ma problem',10,ma_err)
-         print *,'before tce_eom_xdiagon'
          call tce_eom_xdiagon_grad(needt1,needt2,needt3,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
      2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
      3        d_rx1,d_rx2,d_rx3,d_rx4,
      4        dbl_mb(k_omegax),dbl_mb(k_residual))
-         print *,'after tce_eom_xdiagon'
          cpu=cpu+util_cpusec()
          wall=wall+util_wallsec()
          converged = .true.
