@@ -2158,6 +2158,20 @@ else
   CORE_LIBS += -ltcgmsg 
 endif 
 
+
+# FFTW3 library inclusion
+ifdef USE_FFTW3
+ifndef LIBFFTW3
+  LIBFFTW3 = -lfftw3
+endif
+ifdef FFTW3_LIB
+      CORE_LIBS += -L$(FFTW3_LIB)
+endif
+CORE_LIBS += $(LIBFFTW3) 
+endif
+
+
+
 # slurm libraries for remaining wall time under slurm resource manager
 
 ifdef SLURM
