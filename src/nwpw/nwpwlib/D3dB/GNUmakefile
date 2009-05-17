@@ -36,3 +36,8 @@ endif
 ifeq ($(USE_MPIF4),y)
 LIB_DEFINES += -DMPI4
 endif
+
+ifeq ($(USE_FFTW3),y)
+  LIB_DEFINES += -DFFTW3
+  LIB_INCLUDES += -I$(FFTW3_INCLUDE)
+endif

@@ -483,7 +483,6 @@
       common    / D3dB_fft / tmpx,tmpy,tmpz
 
 
-
 *     *** local variables ***
       integer i,j,k,q,indx,ierr
       integer nxh,nxhy,nxhz,indx0,indx1,indx2
@@ -558,6 +557,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
        indx2 = indx2 + 1
        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
 
+#ifdef FFTW3
+         indx  = i + indx0
+         call dfftw_execute_dft(plans(7,nb),A(indx),A(indx))
+
+#else
          indx  = i + indx0
          indx1 = indx
          do k=1,nz(nb)
@@ -569,6 +573,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             A(indx1) = dcpl_mb(tmp2(1)+k-1)
             indx1 = indx1 + nxh
          end do
+#endif
 
        end if
       end do
@@ -622,6 +627,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
 
+#ifdef FFTW3
+         indx  = i + indx0
+         call dfftw_execute_dft(plans(8,nb),A(indx),A(indx))
+#else
          indx  = i + indx0
          indx1 = indx
          do j=1,ny(nb)
@@ -633,6 +642,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             A(indx1) = dcpl_mb(tmp2(1)+j-1)
             indx1 = indx1 + nxh
          end do
+#endif
 
         end if
       end do
@@ -655,6 +665,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 
 #else
+#ifdef FFTW3
+      call dfftw_execute_dft_c2r(plans(3,nb),A,A)
+
+#else
       call cshift1_fftb(nx(nb),ny(nb),nq(nb),1,A)
       indx = 1
       do q=1,nq(nb)
@@ -665,6 +679,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
       end do
       call zeroend_fftb(nx(nb),ny(nb),nq(nb),1,A)
+#endif
 #endif
 
 
@@ -690,7 +705,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq3(nb)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+#ifdef FFTW3
+         call dfftw_execute_dft(plans(17,nb),A(indx),A(indx))
+#else
          call dcfftb(nz(nb),A(indx),dcpl_mb(tmpz(1,nb)))
+#endif
          end if
          indx = indx + nz(nb)
       end do
@@ -716,7 +735,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq2(nb)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+#ifdef FFTW3
+         call dfftw_execute_dft(plans(18,nb),A(indx),A(indx))
+#else
          call dcfftb(ny(nb),A(indx),dcpl_mb(tmpy(1,nb)))
+#endif
          end if
          indx = indx + ny(nb)
       end do
@@ -738,6 +761,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nxh
       end do
 #else
+
+#ifdef FFTW3
+         call dfftw_execute_dft_c2r(plans(13,nb),A,A)
+
+#else
       call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
       indx = 1
       do q=1,nq1(nb)
@@ -746,6 +774,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nxh
       end do
       call zeroend_fftb(nx(nb),nq1(nb),1,1,A)
+#endif
+
 #endif
 
 
@@ -804,8 +834,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       common    / D3dB_fft / tmpx,tmpy,tmpz
 
 
-
-
 *     *** local variables ***
       integer i,j,k,q,indx,indx1,ierr,indx2,indx0
       integer nxh,nxhy,nxhz
@@ -842,6 +870,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
      >                  nx(nb)+2,1,ierr)
 
 #else
+
+#ifdef FFTW3
+      call dfftw_execute_dft_r2c(plans(4,nb),A,A)
+
+#else
       !call drffti(nx(nb),dcpl_mb(tmp1(1)))
       indx = 1
       do q=1,nq(nb)
@@ -851,6 +884,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
       end do
       call cshift_fftf(nx(nb),ny(nb),nq(nb),1,A)
+#endif
 #endif
 
 
@@ -893,6 +927,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
 
+#ifdef FFTW3
+          indx  = i + indx0
+          call dfftw_execute_dft(plans(9,nb),A(indx),A(indx))
+
+#else
           indx  = i + indx0
           indx1 = indx
           do k=1,ny(nb)
@@ -904,6 +943,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
              A(indx1) = dcpl_mb(tmp2(1)+k-1)
              indx1 = indx1 + nxh
           end do
+#endif
 
         end if
        end do
@@ -958,6 +998,11 @@ c      call D3dB_c_transpose_jk(nbb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
  
+#ifdef FFTW3
+          indx  = i + indx0
+          call dfftw_execute_dft(plans(10,nb),A(indx),A(indx))
+
+#else
           indx  = i + indx0
           indx1 = indx
           do k=1,nz(nb)
@@ -969,6 +1014,7 @@ c      call D3dB_c_transpose_jk(nbb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
              A(indx1) = dcpl_mb(tmp2(1)+k-1)
              indx1 = indx1 + nxh
           end do
+#endif
  
         end if
        end do
@@ -1001,6 +1047,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call drcfts(A,nx(nb),1,nq1(nb),
      >                  nx(nb)+2,1,ierr)
 #else
+
+#ifdef FFTW3
+          call dfftw_execute_dft_r2c(plans(14,nb),A,A)
+
+#else
       indx = 1
       do q=1,nq1(nb)
          !indx = 1 + (q-1)*(nx(nb)/2+1)
@@ -1008,6 +1059,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nxh
       end do
       call cshift_fftf(nx(nb),nq1(nb),1,1,A)
+#endif
+
 #endif
 
       call D3dB_c_ptranspose_ijk(nbb,1,A,
@@ -1030,7 +1083,13 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq2(nb)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+
+#ifdef FFTW3
+         call dfftw_execute_dft(plans(19,nb),A(indx),A(indx))
+#else
          call dcfftf(ny(nb),A(indx),dcpl_mb(tmpy(1,nb)))
+#endif
+
          end if
          indx = indx + ny(nb)
       end do
@@ -1056,7 +1115,12 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq3(nb)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+
+#ifdef FFTW3
+         call dfftw_execute_dft(plans(20,nb),A(indx),A(indx))
+#else
          call dcfftf(nz(nb),A(indx),dcpl_mb(tmpz(1,nb)))
+#endif
          end if
          indx = indx + nz(nb)
       end do
@@ -1917,6 +1981,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       !call dscal((nx(nb)+2)*ny(nb)*nq(nb),dble(nz(nb)),A(shift),1)
 
 #else
+
+
       !call dcffti(nz(nb),dcpl_mb(tmp1(1)))
       indx0 = 0
       indx2 = 0
@@ -1925,6 +1991,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
        indx2 = indx2 + 1
        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
 
+#ifdef FFTW3
+         indx = i+indx0+shift0
+         call dfftw_execute_dft(plans(7,nb),A(indx),A(indx))
+
+#else
          indx  = i + indx0
          indx1 = indx
          do k=1,nz(nb)
@@ -1936,12 +2007,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             A(shift0+indx1) = dcpl_mb(tmp2(1)+k-1)
             indx1 = indx1 + nxh
          end do
+#endif
 
        end if
       end do
       indx0 = indx0 + nxhz
       end do
 #endif
+
 
 *     ********************************************
 *     ***         Do a ptranspose of A          ***
@@ -1996,6 +2069,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
 
+#ifdef FFTW3
+         indx = i+indx0+shift0
+         call dfftw_execute_dft(plans(8,nb),A(indx),A(indx))
+#else
          indx  = i + indx0
          indx1 = indx
          do j=1,ny(nb)
@@ -2007,6 +2084,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             A(shift0+indx1) = dcpl_mb(tmp2(1)+j-1)
             indx1 = indx1 + nxh
          end do
+#endif
 
         end if
       end do
@@ -2029,6 +2107,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 
 #else
+
+#ifdef FFTW3
+      call dfftw_execute_dft_c2r(plans(3,nb),A(shift0),A(shift0))
+
+#else
       call cshift1_fftb(nx(nb),ny(nb),nq(nb),1,A(shift))
       indx = 1
       do q=1,nq(nb)
@@ -2039,6 +2122,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
       end do
       call zeroend_fftb(nx(nb),ny(nb),nq(nb),1,A(shift))
+#endif
+
 #endif
 
       shift = shift + nfft3d(nb)
@@ -2069,7 +2154,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq3(nb)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+
+#ifdef FFTW3
+         call dfftw_execute_dft(plans(17,nb),
+     >                          A(indx+shift0),A(indx+shift0))
+#else
          call dcfftb(nz(nb),A(shift0+indx),dcpl_mb(tmpz(1,nb)))
+#endif
+
          end if
          indx = indx + nz(nb)
       end do
@@ -2095,7 +2187,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq2(nb)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+
+#ifdef FFTW3
+         call dfftw_execute_dft(plans(18,nb),
+     >                          A(indx+shift0),A(indx+shift0))
+#else
          call dcfftb(ny(nb),A(shift0+indx),dcpl_mb(tmpy(1,nb)))
+#endif
+
          end if
          indx = indx + ny(nb)
       end do
@@ -2117,6 +2216,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nxh
       end do
 #else
+
+#ifdef FFTW3
+      call dfftw_execute_dft_c2r(plans(13,nb),A(shift0),A(shift0))
+
+#else
       call cshift1_fftb(nx(nb),nq1(nb),1,1,A(shift))
       indx = 1
       do q=1,nq1(nb)
@@ -2125,6 +2229,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nxh
       end do
       call zeroend_fftb(nx(nb),nq1(nb),1,1,A(shift))
+#endif
+
 #endif
 
       shift = shift + nfft3d(nb)
@@ -2196,6 +2302,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call drcfts(A,nx(1),1,ny(1)*nq(1),
      >                  nx(1)+2,1,ierr)
 #else
+
+#ifdef FFTW3
+      call dfftw_execute_dft_r2c(plans(4,1),A,A)
+
+#else
       indx = 1
       do q=1,nq(1)
       do j=1,ny(1)
@@ -2204,6 +2315,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
       end do
       call cshift_fftf(nx(1),ny(1),nq(1),1,A)
+#endif
+
 #endif
       call dcopy((nx(1)+2)*ny(1)*nq(1),A,1,tmp1,1)
       call nwpw_timing_end(31)
@@ -2219,12 +2332,19 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call drcfts(A,nx(1),1,nq1(1),
      >                  nx(1)+2,1,ierr)
 #else
+
+#ifdef FFTW3
+      call dfftw_execute_dft_r2c(plans(14,1),A,A)
+
+#else
       indx = 1
       do q=1,nq1(1)
          call drfftf(nx(1),A(indx),dcpl_mb(tmpx(1,1)))
          indx = indx + nxh
       end do
       call cshift_fftf(nx(1),nq1(1),1,1,A)
+#endif
+
 #endif
 
       call nwpw_timing_end(31)
@@ -2327,6 +2447,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
 
+#ifdef FFTW3
+          indx  = i + indx0
+          call dfftw_execute_dft(plans(9,1),tmp1(indx),tmp1(indx))
+
+#else
           indx  = i + indx0
           indx1 = indx
           do k=1,ny(1)
@@ -2338,6 +2463,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
              tmp1(indx1) = tmp2(k)
              indx1 = indx1 + nxh
           end do
+#endif
 
         end if
        end do
@@ -2385,7 +2511,13 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq2(1)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+
+#ifdef FFTW3
+         call dfftw_execute_dft(plans(19,1),tmp1(indx),tmp1(indx))
+#else
          call dcfftf(ny(1),tmp1(indx),dcpl_mb(tmpy(1,1)))
+#endif
+
          end if
          indx = indx + ny(1)
       end do
@@ -2491,6 +2623,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
 
+#ifdef FFTW3
+          indx  = i + indx0
+          call dfftw_execute_dft(plans(10,1),tmp2(indx),tmp2(indx))
+
+#else
           indx  = i + indx0
           indx1 = indx
           do k=1,nz(1)
@@ -2502,6 +2639,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
              tmp2(indx1) = tmp1(k)
              indx1 = indx1 + nxh
           end do
+#endif
 
         end if
        end do
@@ -2537,7 +2675,13 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq3(1)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+
+#ifdef FFTW3
+          call dfftw_execute_dft(plans(20,1),tmp2(indx),tmp2(indx))
+#else
          call dcfftf(nz(1),tmp2(indx),dcpl_mb(tmpz(1,1)))
+#endif
+
          end if
          indx = indx + nz(1)
       end do
@@ -2716,6 +2860,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
        indx2 = indx2 + 1
        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
 
+#ifdef FFTW3
+         indx  = i + indx0
+         call dfftw_execute_dft(plans(7,1),tmp1(indx),tmp1(indx))
+#else
+
          indx  = i + indx0
          indx1 = indx
          do k=1,nz(1)
@@ -2727,6 +2876,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             tmp1(indx1) = tmp2(k)
             indx1 = indx1 + nxh
          end do
+#endif
 
        end if
       end do
@@ -2768,7 +2918,12 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq3(1)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+
+#ifdef FFTW3
+         call dfftw_execute_dft(plans(17,1),tmp1(indx),tmp1(indx))
+#else
          call dcfftb(nz(1),tmp1(indx),dcpl_mb(tmpz(1,1)))
+#endif
          end if
          indx = indx + nz(1)
       end do
@@ -2876,6 +3031,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
 
+#ifdef FFTW3
+         indx  = i + indx0
+         call dfftw_execute_dft(plans(8,1),tmp2(indx),tmp2(indx))
+
+#else
          indx  = i + indx0
          indx1 = indx
          do j=1,ny(1)
@@ -2887,6 +3047,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             tmp2(indx1) = tmp1(j)
             indx1 = indx1 + nxh
          end do
+#endif
 
         end if
       end do
@@ -2923,7 +3084,13 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq2(1)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+
+#ifdef FFTW3
+         call dfftw_execute_dft(plans(18,1),tmp2(indx),tmp2(indx))
+#else
          call dcfftb(ny(1),tmp2(indx),dcpl_mb(tmpy(1,1)))
+#endif
+
          end if
          indx = indx + ny(1)
       end do
@@ -2994,6 +3161,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 
 #else
+
+#ifdef FFTW3
+      call dfftw_execute_dft_c2r(plans(3,1),tmp2,tmp2)
+
+#else
       call cshift1_fftb(nx(1),ny(1),nq(1),1,tmp2)
       indx = 1
       do q=1,nq(1)
@@ -3003,6 +3175,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
       end do
       call zeroend_fftb(nx(1),ny(1),nq(1),1,tmp2)
+#endif
+
 #endif
       call dcopy((nx(1)+2)*ny(1)*nq(1),tmp2,1,tmp1,1)
 
@@ -3033,6 +3207,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nxh
       end do
 #else
+
+#ifdef FFTW3
+      call dfftw_execute_dft_c2r(plans(13,1),tmp1,tmp1)
+
+#else
       call cshift1_fftb(nx(1),nq1(1),1,1,tmp1)
       indx = 1
       do q=1,nq1(1)
@@ -3040,6 +3219,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nxh
       end do
       call zeroend_fftb(nx(1),nq1(1),1,1,tmp1)
+#endif
+
 #endif
 
       call nwpw_timing_end(31)

@@ -29,3 +29,11 @@
       common /D3dB_mapping2 / q_map1,p_map1,q_map2,p_map2,q_map3,p_map3,
      >                        nq1,nq2,nq3
 
+
+#ifdef FFTW3
+      integer nplans
+      parameter (nplans=50)
+      integer   iforward,ibackward,iestimate
+      integer*8 plans(nplans,NBLOCKS)
+      common /FFTW3_plans / plans,iforward,ibackward,iestimate
+#endif
