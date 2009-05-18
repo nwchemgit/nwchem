@@ -972,7 +972,7 @@ c      end
       common	/ D3dB_fft / tmpx,tmpy,tmpz
 
 #ifdef FFTW3
-#include "fftw3.f"
+#include "fftw3.fh"
        integer Atest(2),nxh,nxhz,nxhy
 #endif
 
@@ -1015,11 +1015,16 @@ c     >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
 #endif
 
 #ifdef FFTW3
+
+c       call dfftw_init_threads()
+c       call dfftw_plan_with_nthreads(2)
+
        iforward  = FFTW_FORWARD
        ibackward = FFTW_BACKWARD
 c       iestimate = FFTW_PATIENT
 c       iestimate = FFTW_MEASURE
-       iestimate = FFTW_ESTIMATE
+c       iestimate = FFTW_ESTIMATE
+c       iestimate = FFTW_EXHAUSTIVE
        call icopy(nplans*NBLOCKS,0,0,plans,1)
       if (mapping.eq.1) then
          nxh = (nx(nb)/2+1)
@@ -1167,6 +1172,7 @@ c       iestimate = FFTW_MEASURE
       do i=1,nplans
          if (plans(i,nb).ne.0) call dfftw_destroy_plan(plans(i,nb))
       end do
+c      call dfftw_cleanup_threads()
 #endif
 
       value =           MA_free_heap(tmpx(2,nb))

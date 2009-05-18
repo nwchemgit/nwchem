@@ -32,7 +32,7 @@
 
 #ifdef FFTW3
       integer nplans
-      parameter (nplans=50)
+      parameter (nplans=20)
       integer   iforward,ibackward,iestimate
       integer*8 plans(nplans,NBLOCKS)
       common /FFTW3_plans / plans,iforward,ibackward,iestimate
