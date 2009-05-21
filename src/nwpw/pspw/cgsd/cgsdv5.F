@@ -180,7 +180,7 @@
       hprint= ((taskid.eq.MASTER).and.control_print(print_high))
 
 
-      if (oprint) call current_second(cpu1)
+      if (taskid.eq.MASTER) call current_second(cpu1)
 
 *     ***** print out header ****
       if (oprint) then
