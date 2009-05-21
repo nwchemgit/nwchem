@@ -43,7 +43,7 @@ CJMC
       logical task_mepgs
 CJMC
       logical task_hessian, task_saddle, task_lst, task_neb
-      logical task_dynamics
+      logical task_dynamics, task_rfcf
       logical oqmmm,opes, task_python, task_thermo,task_bq,task_nbo
 c     logical oembed
       logical task_version, task_vscf
@@ -77,7 +77,7 @@ CJMC
       external task_mepgs
 CJMC
       external task_hessian, task_saddle, task_lst, task_neb
-      external task_dynamics
+      external task_dynamics, task_rfcf
       external task_version, task_python, task_thermo,task_nbo
       external kgdtest, task_vscf
       external task_paw 
@@ -340,6 +340,8 @@ CJMC
          else
            status = task_dynamics(rtdb)
          endif
+      else if (inp_compare(.false.,'rfcf',operation)) then
+           status = task_rfcf(rtdb)
       else if(inp_compare(.false.,'fep',operation)) then
          if(oqmmm) then
            status = task_qmmm_fep(rtdb)

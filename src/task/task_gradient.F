@@ -484,7 +484,7 @@ c         status = .false.
          if (numerical) then
            status = task_num_grad(rtdb)
          else
-c           status = leps_gradient(rtdb)
+           status = leps_gradient(rtdb)
          endif
       else
          call errquit('task_gradient: unknown theory',0, INPUT_ERR)

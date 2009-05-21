@@ -32,6 +32,9 @@ c
       external task_smd_dynamics
       logical  md_driver
       external md_driver
+      logical  task_freq, leps_gradient, mc_main
+      external task_freq, leps_gradient, mc_main
+
 c
       logical status
       double precision cpu,wall
@@ -60,8 +63,9 @@ c     Actually do the deed
 c
       if(theory.eq."smd") then
         status = task_smd_dynamics(rtdb)
-      else if(theory.eq.'leps') then
-        status = md_driver(rtdb)
+c      else if(theory.eq.'leps') then
+c        status = task_freq(rtdb)
+c        status = mc_main(rtdb,leps_gradient,theory)
       else
         status=nwmd(rtdb)
       end if
