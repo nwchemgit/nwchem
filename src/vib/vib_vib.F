@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.18 2003-10-17 22:58:38 carlfahl Exp $
+* $Id: vib_vib.F,v 1.18 2003/10/17 22:58:38 carlfahl Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -227,18 +227,38 @@ C
       CALL vib_CALLG(DBL_MB(IHESSt),nhesst,DBL_MB(IHESSP),
      &    dbl_mb(iscr),dbl_mb(iscr+nat3),DBL_MB(IEGVAL),
      &    DBL_MB(IEGVEC), NAT3,NAT3)
+      call dfill(5*nat3,0.0d00,dbl_mb(iscr),1)    ! zero scratch used
 C
+      CALL vib_WRTFREQ(rtdb,DBL_MB(IEGVAL),NAT3,ZEROPE,NPRI) ! Write out the zero-point energy
+
 C
+C  ---Added by Bojana September 11,2008 
+        if(.not. rtdb_put(rtdb,'mc_data:eigenvalues',mt_dbl,nat3,
+     &      dbl_mb(iegval)))
+     &      call errquit('vib_vib:rtdb_put of eigenvalues failed',
+     &      555, RTDB_ERR)
+
+C      call printeig(nat3,nhess,dbl_mb(iegval),dbl_mb(iegvec))
+C  ---End of addition by Bojana, September 11, 2008 
 C
       CALL vib_NMASS(DBL_MB(IEGVEC),DBL_MB(IMASS)) ! "unmass" weight the normal modes.
+C  ---Added by Bojana September 30,2008
+        if(.not. rtdb_put(rtdb,'mc_data:eigenvectors',mt_dbl,nhess,
+     &      dbl_mb(iegvec)))
+     &      call errquit('vib_vib:rtdb_put of eigenvectors failed',
+     &      555, RTDB_ERR)
+c      call printeig(nat3,nhess,dbl_mb(iegval),dbl_mb(iegvec))
+C  ---End of addition by Bojana, September 30, 2008
+
 *      call vib_vecnormal(dbl_mb(iegvec),nat3)
 C
 C *** Note: DBL_MB(IHESST) now destroyed if needed reinitialize from DBL_MB(IHESS)
 C
 * rak dfill
-      call dfill(5*nat3,0.0d00,dbl_mb(iscr),1)    ! zero scratch used
+c      call dfill(5*nat3,0.0d00,dbl_mb(iscr),1)    ! zero scratch used
 C
-      CALL vib_WRTFREQ(rtdb,DBL_MB(IEGVAL),NAT3,ZEROPE,NPRI) ! Write out the zero-point energy
+c      CALL vib_WRTFREQ(rtdb,DBL_MB(IEGVAL),NAT3,ZEROPE,NPRI) ! Write out the zero-point energy
+c      call printeig(nat3,nhess,dbl_mb(iegval),dbl_mb(iegvec))
 C
       CALL vib_CLEAN(DBL_MB(IEGVEC),NAT3*NAT3,1.0D-27) ! CLEAN eigenvectors
       if (first_pass) then
@@ -332,3 +352,27 @@ C
      & ('vib_vib: unexpected EOF when reading file: "hess_file"',911,
      &       DISK_ERR)
       END
+
+
+C--- Added by Bojana
+      Subroutine printeig(nat3,nhess,eigval,eigvec)
+
+       integer nat3, nhess, i 
+       double precision eigval(nat3),eigvec(nhess)
+
+       write(*,*) 'Printing Eigenvalues in vib_vib:',nat3 
+       do i=1, nat3 
+        write(*,*) eigval(i)
+       enddo  
+       write(*,*) 'Printing Eigenvvectors in vib_vib:',nhess
+       do i=1, nat3
+         write(*,*) 'Vector: ',i
+         do j=1,nat3
+          write(*,*) eigvec((i-1)*nat3+j)
+         enddo
+       enddo
+
+
+      END 
+
+C--- Added by Bojana  
