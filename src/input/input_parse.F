@@ -179,6 +179,10 @@ c               call embed_input(rtdb)
                call hess_input(rtdb)
             else if (inp_compare(.false.,test,'tddft')) then
                call tddft_input(rtdb)
+            else if (inp_compare(.false.,test,'mymd')) then
+                call mymd_input(rtdb)
+            else if (inp_compare(.false.,test,'mymc')) then
+                call mymc_input(rtdb)
             else if (inp_compare(.false.,test,'tce')) then
                if (.not.rtdb_cput(rtdb,'tce:module',1,'tce'))
      1         call errquit('input_parse: failed writing to rtdb',0,
