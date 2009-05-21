@@ -9,7 +9,7 @@ C $Id: dplot_dos.F,v 1.4 2005-09-20 21:04:16 edo Exp $
 #include "global.fh"
       integer rtdb ![in]
       character*(*) filename ! [in]
-      double precision trasl,sigma ! [in]
+      double precision traslx,sigma ! [in]
       integer nstep,change ! [in]
       double precision e1,e2 ![in]
 c
@@ -73,7 +73,7 @@ c
       change=0
       e1=0d0
       e2=0d0
-      trasl=0d0
+      traslx=0d0
       if (.not.rtdb_get(rtdb,'dplot:dos_nstep',mt_int,
      &   1,nstep)) nstep=1000
       if (.not.rtdb_get(rtdb,'dplot:dos_sigma',mt_dbl,
@@ -84,6 +84,8 @@ c
      &   1,doproj)) doproj=.false.
       if (.not.rtdb_get(rtdb,'dplot:dos_trasly',mt_dbl,
      &   1,trasly)) trasly=0d0
+      if (.not.rtdb_get(rtdb,'dplot:dos_traslx',mt_dbl,
+     &   1,traslx)) traslx=0d0
       If (.not.rtdb_cget(rtdb,'dplot:File_Out',1,dfile))
      &   dfile='fort.16'
       If (ga_nodeid().eq.0 ) Then
@@ -127,7 +129,7 @@ c     neeed to generalize to uhf
             doproj=.false.
          endif
       endif
-      call dplot_dos(nbf,span,trasl,nstep,sigma,
+      call dplot_dos(nbf,span,traslx,nstep,sigma,
      P     doproj,nproj,int_mb(k_proj),dbl_mb(k_fproj),trasly,
      C     change,e1,e2,nsets,
      A     dbl_mb(k_focc),dbl_mb(k_eval))
@@ -147,14 +149,14 @@ c     neeed to generalize to uhf
       return
  111  call errquit(' failed to open file ',0,0)
       end
-      subroutine dplot_dos(nbf,span,trasl,nstep,sigma,
+      subroutine dplot_dos(nbf,span,traslx,nstep,sigma,
      P     doproj,nproj,shproj,fproj,trasly,
      C     change,e1,e2,ipol,
      A     foccs,evals)
       implicit none
 #include "global.fh"
       integer nbf ![in]
-      double precision trasl,sigma,trasly ! [in]
+      double precision traslx,sigma,trasly ! [in]
       double precision span ![in]
       integer nstep,change ! [in]
       integer ipol ![in]
@@ -184,7 +186,7 @@ c
       i1=1
       i2=nbf
 c
-c     trasl=-[E(N)-E(N-1)-e_HOMO]
+c     traslx=-[E(N)-E(N-1)-e_HOMO]
 c
       sigma=sigma/au2ev*0.5d0
       factpi=0.5d0/acos(-1d0)
@@ -212,8 +214,8 @@ c     HOMO
       if(ga_nodeid().eq.0) write(0,*) ' au extrm ',emin,emax
       if(ga_nodeid().eq.0) write(0,*) ' ev extrm ',emin*au2ev,emax*au2ev
       if(change.eq.1) then
-         emax=(-e1+trasl)/au2ev
-         emin=(-e2+trasl)/au2ev
+         emax=(-e1+traslx)/au2ev
+         emin=(-e2+traslx)/au2ev
          de=(emax-emin)/(nstep-1)
       else
          de=(emax-emin)/(nstep-1)
@@ -259,9 +261,9 @@ c           adde=exp(-((eval-ei)/sigma)**2)/sigma/sqrt(acos(-1d0))
 c        write(6,11) ei,dos(ien+1,1)*fac,dos(ien+1,2)*fac
 c        write(6,11) ei*au2ev+trasl,(dos(ien+1,1)+dos(ien+1,2))*fac
          if(ipol.eq.1) then
-            write(16,11) ei*au2ev+trasl,dos(ien+1,1)*renrm+trasly
+            write(16,11) ei*au2ev+traslx,dos(ien+1,1)*renrm+trasly
          else
-            write(16,11) ei*au2ev+trasl,
+            write(16,11) ei*au2ev+traslx,
      V           dos(ien+1,1)*renrm+trasly,dos(ien+1,2)*renrm+trasly
          endif
    11   format(3(2x,1pe14.6))
