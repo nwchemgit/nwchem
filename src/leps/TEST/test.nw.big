@@ -1,0 +1,75 @@
+permanent_dir ./data
+scratch_dir ./perm
+
+memory 800 mb
+echo
+
+title "  big    "
+
+start big
+
+#geometry noautoz
+#symmetry c1 
+#o   0.93453582  0.0 0.0
+#H   0.0 0.0 0.0
+#o   -0.93453582  0.0 0.0
+#end
+charge 1
+geometry 
+ C     0.000000     0.000000     0.000000
+ C     0.000000     0.000000     1.796224
+ C     1.439754     0.000000     2.261973
+ C    -0.656048    -1.147322     1.375991
+ C    -0.102934    -2.522462     1.179062
+ C    -0.835704     1.160548     2.297085
+ O    -1.529590    -1.708011     4.094537
+ H    -2.437428    -1.689866     4.373002
+ H    -1.057550    -2.095134     4.821996
+ H    -1.724309    -1.071366     1.290572
+ H     0.975146    -2.562999     1.168288
+ H    -0.493217    -2.965660     0.271470
+ H    -0.468650    -3.106885     2.016990
+ H     0.189855     1.062800    -0.020786
+ H    -0.896584    -0.175199    -0.576401
+ H     0.842483    -0.547832    -0.383889
+ H    -0.323486     2.102708     2.149923
+ H    -1.803412     1.207173     1.813361
+ H    -0.994036     1.017058     3.359068
+ H     1.902200     0.957071     2.058244
+ H     2.041036    -0.776968     1.814267
+ H     1.436809    -0.145995     3.336752
+end
+
+scf
+  maxiter 200
+end
+
+basis spherical
+ * Library 6-31G* 
+end
+driver
+ xyz
+end
+freq
+  reuse /scratch2/bojana/nwchem/src/leps/TEST/big.hess
+end
+
+mymd
+ temp 298.15
+ nsteps 2 
+ timestep 0.5
+end
+mymc
+ temp 298.15
+ mcsteps  2
+ stepsize 0.01
+ ratio 0.5
+end
+
+#task leps energy 
+#task leps gradient
+#task scf saddle 
+#task scf freq
+#task leps frequencies
+task scf dynamics 
+#task leps optimize 

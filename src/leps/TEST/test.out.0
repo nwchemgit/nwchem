@@ -1,0 +1,456 @@
+ argument  1 = test.nw
+
+
+
+============================== echo of input deck ==============================
+permanent_dir /scratch2/bojana/NWCHEM-TEST
+scratch_dir /scratch2/bojana/scr1
+
+memory 800 mb
+echo
+
+title "       hexaachloroethene C2Cl6"
+
+start c2cl6
+
+geometry
+h  0.9326 0.0 0.0
+h  0.0  0.0 0.0
+h  -0.9326 0.0 0.0
+end
+
+
+basis spherical
+ * Library 6-31+G*
+end
+
+
+#task leps energy
+task leps gradient
+
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 5.1
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                                         
+                                         
+
+
+                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
+                   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+
+                            >>> All Rights Reserved <<<
+
+
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC05-76RL01830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = hondo
+    program       = /scratch2/bojana/nwchem/bin/LINUX/nwchem
+    date          = Wed Jul 16 09:37:57 2008
+
+    compiled      = Wed_Jul_16_09:37:51_2008
+    source        = /scratch2/bojana/nwchem
+    nwchem branch = Development
+    input         = test.nw
+    prefix        = c2cl6.
+    data base     = /scratch2/bojana/NWCHEM-TEST/c2cl6.db
+    status        = startup
+    nproc         =    1
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =   26214401 doubles =    200.0 Mbytes
+    stack     =   26214401 doubles =    200.0 Mbytes
+    global    =   52428800 doubles =    400.0 Mbytes (distinct from heap & stack)
+    total     =  104857602 doubles =    800.0 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = /scratch2/bojana/NWCHEM-TEST
+  0 scratch   = /scratch2/bojana/scr1
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                              hexaachloroethene C2Cl6
+                              -----------------------
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ ORDER OF PRIMARY AXIS IS BEING SET TO 4
+ D4H symmetry detected
+
+          ------
+          auto-z
+          ------
+  autoz: insufficient variables  2 3
+     1 autoz failed with cvr_scaling = 1.2 changing to 1.3
+  autoz: insufficient variables  2 3
+     2 autoz failed with cvr_scaling = 1.3 changing to 1.4
+  autoz: insufficient variables  2 3
+     3 autoz failed with cvr_scaling = 1.4 changing to 1.5
+  autoz: insufficient variables  2 3
+     4 autoz failed with cvr_scaling = 1.5 changing to 1.6
+  autoz: insufficient variables  2 3
+     5 autoz failed with cvr_scaling = 1.6 changing to 1.7
+  autoz: insufficient variables  2 3
+
+ AUTOZ failed to generate good internal coordinates.
+ Cartesian coordinates will be used in optimizations.
+
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 h                    1.0000     0.00000000     0.00000000     0.93260000
+    2 h                    1.0000     0.00000000     0.00000000     0.00000000
+    3 h                    1.0000     0.00000000     0.00000000    -0.93260000
+
+      Atomic Mass 
+      ----------- 
+
+      h                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)       1.4185536377
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             D4h       
+ Group number             28
+ Group order              16
+ No. of unique centers     2
+
+      Symmetry unique atoms
+
+     1    2
+
+
+            XYZ format geometry
+            -------------------
+     3
+ geometry
+ h                     0.00000000     0.00000000     0.93260000
+ h                     0.00000000     0.00000000     0.00000000
+ h                     0.00000000     0.00000000    -0.93260000
+
+  warning:::::::::::::: from_nwchemrc
+  NWCHEM_BASIS_LIBRARY set to: <
+ /afs/msrc.pnl.gov/files/share/ecce/v4.0.1/nwchem/usr.local.lib.nwchem/libraries/
+ >
+  but file does not exist !
+  using compiled in library
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                          6-31+G*                   on all atoms 
+
+
+ doing leps_gradient
+ doing leps energy
+
+
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 h                    1.0000     0.00000000     0.00000000     0.93260000
+    2 h                    1.0000     0.00000000     0.00000000     0.00000000
+    3 h                    1.0000     0.00000000     0.00000000    -0.93260000
+
+      Atomic Mass 
+      ----------- 
+
+      h                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)       1.4185536377
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             D4h       
+ Group number             28
+ Group order              16
+ No. of unique centers     2
+
+      Symmetry unique atoms
+
+     1    2
+
+ 1  0.  0.  1.76235846  1.007825h               
+ 2  0.  0. -3.85185989E-34  1.007825h               
+ 3  0.  0. -1.76235846  1.007825h               
+
+
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 h                    1.0000     0.00000000     0.00000000     0.93260000
+    2 h                    1.0000     0.00000000     0.00000000     0.00000000
+    3 h                    1.0000     0.00000000     0.00000000    -0.93260000
+
+      Atomic Mass 
+      ----------- 
+
+      h                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)       1.4185536377
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             D4h       
+ Group number             28
+ Group order              16
+ No. of unique centers     2
+
+      Symmetry unique atoms
+
+     1    2
+
+ Leps_gradient: 9
+ 1  0.  0.  0.000734402337
+ 2  0.  0.  0.
+ 3  0.  0. -0.000734402337
+
+ Task  times  cpu:        0.0s     wall:        0.0s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:    0        0        0        0        0        0        0        0     
+number of processes/call 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes total:             0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 0 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+heap block 'tags', handle 1, address 0x9ce6140c:
+	type of elements:		byte
+	number of elements:		48
+	address of client space:	0x9ce61448
+	index for client space:		-1934285687
+	total number of bytes:		112
+heap block 'charge', handle 0, address 0x9ce613b4:
+	type of elements:		double precision
+	number of elements:		3
+	address of client space:	0x9ce613f0
+	index for client space:		-241785727
+	total number of bytes:		88
+heap block 'gradient', handle 31, address 0x9ce6132c:
+	type of elements:		double precision
+	number of elements:		9
+	address of client space:	0x9ce61368
+	index for client space:		-241785744
+	total number of bytes:		136
+heap block 'coordinate', handle 30, address 0x9ce612a4:
+	type of elements:		double precision
+	number of elements:		9
+	address of client space:	0x9ce612e0
+	index for client space:		-241785761
+	total number of bytes:		136
+heap block 'geometry:geometry:map_atoms', handle 29, address 0x9ce61008:
+	type of elements:		integer
+	number of elements:		45
+	address of client space:	0x9ce61044
+	index for client space:		-483571694
+	total number of bytes:		244
+heap block 'tags', handle 28, address 0x9ce61234:
+	type of elements:		byte
+	number of elements:		48
+	address of client space:	0x9ce61270
+	index for client space:		-1934286159
+	total number of bytes:		112
+heap block 'mass', handle 27, address 0x9ce611dc:
+	type of elements:		double precision
+	number of elements:		3
+	address of client space:	0x9ce61218
+	index for client space:		-241785786
+	total number of bytes:		88
+heap block 'charge', handle 26, address 0x9ce61184:
+	type of elements:		double precision
+	number of elements:		3
+	address of client space:	0x9ce611c0
+	index for client space:		-241785797
+	total number of bytes:		88
+heap block 'coordinate', handle 25, address 0x9ce610fc:
+	type of elements:		double precision
+	number of elements:		9
+	address of client space:	0x9ce61138
+	index for client space:		-241785814
+	total number of bytes:		136
+MA_summarize_allocated_blocks: scan completed: 9 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         9	         0
+	maximum number of blocks	        10	         5
+	current total bytes		      1140	         0
+	maximum total bytes		     80068	      2632
+	maximum total K-bytes		        81	         3
+	maximum total M-bytes		         1	         1
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 5.1" (2007), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+          Please use the following citation when publishing results
+          obtained with NWChem:
+
+          E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+          M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, P. Nichols,
+          S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
+          M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+          Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+          E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+          R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+          D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+          K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+          B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+          X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+          G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong,
+          and Z. Zhang,
+          "NWChem, A Computational Chemistry Package for Parallel Computers, 
+          Version 5.1" (2007),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:        0.0s     wall:        0.1s
