@@ -266,7 +266,7 @@
       filter = control_kbpp_filter()
 
       !**** allocate memory for rays ****
-      nray = kbpp_calc_nray(nfft1,nfft2,nfft3,dbl_mb(G_indx))
+      nray = kbpp_calc_nray(nfft1,nfft2,nfft3,unita)
 
       value =           MA_alloc_get(mt_dbl,nray,
      >                  'G_ray',G_ray_hndl,G_ray_indx)
@@ -280,8 +280,7 @@
      >   call errquit('pawppv1:out of heap memory',0,MA_ERR)
 
         call kbpp_generate_G_ray(nfft1,nfft2,nfft3,
-     >                         dbl_mb(G_indx),
-     >                         dbl_mb(G_ray_indx))
+     >                         unita,dbl_mb(G_ray_indx))
 
         zcore = zion - zv
         call integrate_pawppv1(version,rlocal,
