@@ -71,5 +71,5 @@ end
 #task scf saddle 
 #task scf freq
 #task leps frequencies
-task scf dynamics 
+task scf rfcf 
 #task leps optimize 
