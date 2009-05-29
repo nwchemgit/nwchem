@@ -182,9 +182,9 @@ c     $           ('movecs_fragment: virt shell mismatch', nvirt)
      $           g_frag, 1, nbf_frag, ioff, ioff+nvirt_frag-1-excess,
      $           g_vecs, bf_off, bf_off+nbf_frag-1,
      $                   virt_off,virt_off+nvirt_frag-1-excess)
-            call dcopy(nvirt_frag,dbl_mb(k_eval+ioff-1),1,
+            call dcopy(nvirt_frag-excess,dbl_mb(k_eval+ioff-1),1,
      $           evals(virt_off), 1)
-            virt_off = virt_off + nvirt_frag
+            virt_off = virt_off + nvirt_frag - excess
             ioff = ioff + nvirt_frag
          endif
 c
