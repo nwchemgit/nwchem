@@ -24,7 +24,9 @@ c
       integer l_vecs, k_vecs
       integer i
       integer ok
+      integer inntsize
 c
+      inntsize = MA_sizeof(MT_INT,1,MT_BYTE)
       call ga_sync()
 c
       ok = 0
@@ -46,7 +48,7 @@ c
          ok = 1
       endif
 c
- 10   continue
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
 c
       ao_1prdm_write = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.
