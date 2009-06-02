@@ -19,9 +19,11 @@ c
       integer i
       integer unitno
       parameter (unitno = 66)
+      integer inntsize
 c
       l_vecs = -1               ! An invalid MA handle
 c
+      inntsize = MA_sizeof(MT_INT,1,MT_BYTE)
       call ga_sync()
       ok = 0
       if (ga_nodeid() .eq. 0) then
@@ -43,6 +45,7 @@ c
      $      ('ao_1prdm_read: pop failed', l_vecs, MA_ERR)
       endif
       call ga_sync()
+      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
 c
       ao_1prdm_read = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and. ao_1prdm_read .and.
