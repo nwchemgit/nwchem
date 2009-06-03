@@ -1633,7 +1633,8 @@ c
 c Qin / print Lowdin populations.
         if (.not. ga_duplicate(g_fock, g_tmp2, 'ga_temp'))
      &       call errquit('dft_scf: error creating ga',0,GA_ERR)
-        call dft_header(' Total Density - Lowdin Population Analysis')
+        if (me.eq.0) call dft_header
+     &        (' Total Density - Lowdin Population Analysis')
         call diis_bld12(toll_s, svals, g_svecs,  g_tmp2, g_tmp, 3)
         call lowd_pop(geom, ao_bas_han, g_dens(1), g_tmp2, g_tmp)
         if (ipol.eq.2)then
