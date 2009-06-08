@@ -105,6 +105,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       integer i,j,icount,ierr
       integer tmp(2),mpi_group
 
+      if (ncolumns.gt.1) then
+
       np_i = np/ncolumns
       np_j = ncolumns
 
@@ -174,6 +176,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
       if (.not.MA_pop_stack(tmp(2)))
      >  call errquit('Parallel2d_init:popping stack memory',0, MA_ERR)
+
+      end if
       return
       end
 
@@ -197,6 +201,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 #include "mpif.h"
 #endif
 
+      if (np_j.gt.1) then
 #ifdef MPI4
 *      **** free comm_i and comm_j communicators ****
       call MPI_Comm_free(stupid_comm_i,  stupid_ierr)
@@ -214,6 +219,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       call MPI_Comm_free(comm_j,  mpierr)
       call MPI_Group_free(group_j,mpierr)
 #endif
+      end if
 
       return
       end
