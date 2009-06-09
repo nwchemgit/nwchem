@@ -313,9 +313,9 @@ c
 c
       if (.not. rtdb_get(rtdb, 'scf:maxiter', MT_INT, 1, maxiter)) then
          if (scftype .ne. 'UHF') then
-            maxiter = 20
+            maxiter = 30
          else
-            maxiter = 20
+            maxiter = 30
          endif
       endif
       if (.not.rtdb_get(rtdb, 'scf:thresh', MT_DBL, 1, gnorm_tol)) 
