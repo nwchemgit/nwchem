@@ -50,9 +50,6 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       stupid_complex = MPI_DOUBLE_COMPLEX
       stupid_comm_i   = MPI_COMM_WORLD
       stupid_comm_j   = -99
-      if (.not.MA_alloc_get(mt_int,np,'stupid_request',
-     >                      stupid_request(2),stupid_request(1)))
-     >  call errquit('Parallel_init:out of heap memory',0, MA_ERR)
 #endif
 
       np     = nnodes()
@@ -106,7 +103,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
 *     *** local variables ***
       integer i,j,icount,ierr
-      integer tmp(2),mpi_group
+      integer tmp(2),tmp2(2),mpi_group
 
       if (ncolumns.gt.1) then
 
@@ -130,6 +127,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >  call errquit('Parallel2d_init:out of stack memory',0, MA_ERR)
 
 #ifdef MPI4
+      if (.not.MA_push_get(mt_int,np,'tmppp3',tmp2(2),tmp2(1)))
+     >  call errquit('Parallel2d_init:out of stack memory',0, MA_ERR)
       stupid_np_i = np_i
       stupid_np_j = np_j
 *     **** set global processor group ****
@@ -138,10 +137,10 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       do i=0,np_i-1
         int_mb(tmp(1)+i) = int_mb(procNd(1) + i + taskid_j*np_i) 
       end do
-      call stupid_icopy8to4(np_i,int_mb(tmp(1)),int_mb(tmp(1)))
+      call stupid_icopy8to4(np_i,int_mb(tmp(1)),int_mb(tmp2(1)))
       call MPI_Group_incl(stupid_mpi_group,
      >                    stupid_np_i,
-     >                    int_mb(tmp(1)),
+     >                    int_mb(tmp2(1)),
      >                    stupid_group_i,stupid_ierr)
       call MPI_Comm_create(stupid_world,stupid_group_i,
      >                     stupid_comm_i,stupid_ierr)
@@ -149,8 +148,9 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       do j=0,np_j-1
         int_mb(tmp(1)+j) = int_mb(procNd(1) + taskid_i + j*np_i) 
       end do
-      call stupid_icopy8to4(np_j,int_mb(tmp(1)),int_mb(tmp(1)))
-      call MPI_Group_incl(stupid_mpi_group,stupid_np_j,int_mb(tmp(1)),
+      call stupid_icopy8to4(np_j,int_mb(tmp(1)),int_mb(tmp2(1)))
+      call MPI_Group_incl(stupid_mpi_group,stupid_np_j,
+     >                    int_mb(tmp2(1)),
      >                    stupid_group_j,stupid_ierr)
       call MPI_Comm_create(stupid_world,stupid_group_j,stupid_comm_j,  
      >                     stupid_ierr)
@@ -160,6 +160,9 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       comm_i  = stupid_comm_i
       group_j = stupid_group_j
       comm_j  = stupid_comm_j
+      if (.not.MA_pop_stack(tmp2(2)))
+     >  call errquit('Parallel2d_init:popping stack memory',0, MA_ERR)
+
 #else
 *     **** set global processor group ****
       call MPI_COMM_group(MPI_COMM_WORLD,mpi_group,ierr)
@@ -255,7 +258,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
 *     *** local variables ***
       integer i,j,k,icount,ierr
-      integer tmp(2),mpi_group
+      integer tmp(2),tmp2(2),mpi_group
 
       np_i = np/(ncolumns*nzones)
       np_j = ncolumns
@@ -280,6 +283,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >  call errquit('Parallel3d_init:out of stack memory',0, MA_ERR)
 
 #ifdef MPI4
+      if (.not.MA_push_get(mt_int,np,'tmppp3',tmp2(2),tmp2(1)))
+     >  call errquit('Parallel3d_init:out of stack memory',0, MA_ERR)
       stupid_np_i = np_i
       stupid_np_j = np_j
       stupid_np_k = np_k
@@ -292,10 +297,10 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >                           + taskid_j*np_i
      >                           + taskid_k*np_i*np_j) 
       end do
-      call stupid_icopy8to4(np_i,int_mb(tmp(1)),int_mb(tmp(1)))
+      call stupid_icopy8to4(np_i,int_mb(tmp(1)),int_mb(tmp2(1)))
       call MPI_Group_incl(stupid_mpi_group,
      >                    stupid_np_i,
-     >                    int_mb(tmp(1)),
+     >                    int_mb(tmp2(1)),
      >                    stupid_group_i,stupid_ierr)
       call MPI_Comm_create(stupid_world,stupid_group_i,
      >                     stupid_comm_i,stupid_ierr)
@@ -306,8 +311,9 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >                           + j*np_i
      >                           + taskid_k*np_i*np_j) 
       end do
-      call stupid_icopy8to4(np_j,int_mb(tmp(1)),int_mb(tmp(1)))
-      call MPI_Group_incl(stupid_mpi_group,stupid_np_j,int_mb(tmp(1)),
+      call stupid_icopy8to4(np_j,int_mb(tmp(1)),int_mb(tmp2(1)))
+      call MPI_Group_incl(stupid_mpi_group,stupid_np_j,
+     >                    int_mb(tmp2(1)),
      >                    stupid_group_j,stupid_ierr)
       call MPI_Comm_create(stupid_world,stupid_group_j,stupid_comm_j,  
      >                     stupid_ierr)
@@ -318,11 +324,10 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >                           + taskid_j*np_i
      >                           + k*np_i*np_j)
       end do
-      call stupid_icopy8to4(np_k,int_mb(tmp(1)),int_mb(tmp(1)))
-
+      call stupid_icopy8to4(np_k,int_mb(tmp(1)),int_mb(tmp2(1)))
       call MPI_Group_incl(stupid_mpi_group,
      >                    stupid_np_k,
-     >                    int_mb(tmp(1)),
+     >                    int_mb(tmp2(1)),
      >                    stupid_group_k,stupid_ierr)
       call MPI_Comm_create(stupid_world,stupid_group_k,
      >                     stupid_comm_k,stupid_ierr)
@@ -333,6 +338,9 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       comm_j  = stupid_comm_j
       group_k = stupid_group_k
       comm_k  = stupid_comm_k
+      if (.not.MA_pop_stack(tmp2(2)))
+     >  call errquit('Parallel3d_init:popping stack memory',0, MA_ERR)
+
 #else
 *     **** set global processor group ****
       call MPI_COMM_group(MPI_COMM_WORLD,mpi_group,ierr)
@@ -590,7 +598,7 @@ c     implicit none
       integer msglen,mpierr
 
 *     **** temporary workspace ****
-      integer sumall(2)
+      integer sumall(2),sumall1(2)
 
 
       call nwpw_timing_start(2)
@@ -602,12 +610,18 @@ c     implicit none
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 #ifdef MPI4
+      if (.not.MA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
+     > call errquit('out of stack memory',0, MA_ERR)
+
       stupid_msglen = n
-      call stupid_icopy8to4(n,sum,sum)
-      call MPI_Allreduce(sum,int_mb(sumall(1)),stupid_msglen,
+      call stupid_icopy8to4(n,sum,int_mb(sumall1(1)))
+      call MPI_Allreduce(int_mb(sumall1(1)),
+                         int_mb(sumall(1)),stupid_msglen,
      >                stupid_integer,
      >                stupid_sum,stupid_world,stupid_ierr)
       call stupid_icopy4to8(n,int_mb(sumall(1)),sum)
+      if (.not.MA_pop_stack(sumall1(2)))
+     >   call errquit('error popping stack',0,MA_ERR)
 #else
       msglen = n
       call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,

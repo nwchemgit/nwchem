@@ -25,12 +25,9 @@
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-c      include 'mpif.h'
-c      integer mpierr
-c     call MPI_FINALIZE(mpierr) 
-
       if (.not.MA_free_heap(procNd(2)))
-     >  call errquit('Parralel_finalalize',0,MA_ERR)
+     >  call errquit('Parralel_finalalize',1,MA_ERR)
+
       return
       end
 

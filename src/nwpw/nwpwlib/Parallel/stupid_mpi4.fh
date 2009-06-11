@@ -9,9 +9,7 @@
       integer*4 stupid_np_i,stupid_group_i,stupid_comm_i
       integer*4 stupid_np_j,stupid_group_j,stupid_comm_j
       integer*4 stupid_np_k,stupid_group_k,stupid_comm_k
-      integer   stupid_request(2)
       common / stupid_mpi4_parallel / 
-     >       stupid_request,
      >       stupid_world,stupid_sum,stupid_max,stupid_min,
      >       stupid_complex,stupid_double,stupid_integer,
      >       stupid_mpi_group,

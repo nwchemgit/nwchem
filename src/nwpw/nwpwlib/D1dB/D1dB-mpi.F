@@ -281,12 +281,12 @@ c     implicit none
 
 *       ***** allocate temporary space ****
         value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
-        value = value.and.
-     >          MA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
 #ifdef MPI4
+        if (.not.MA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
+     >     call errquit('out of stack memory',0, MA_ERR)
         stupid_msglen = n
         call stupid_icopy8to4(n,sum,int_mb(sumall1(1)))
         call MPI_Allreduce(int_mb(sumall1(1)),
@@ -294,6 +294,8 @@ c     implicit none
      >                stupid_integer,
      >                stupid_sum,stupid_comm_j,stupid_ierr)
       call stupid_icopy4to8(n,int_mb(sumall(1)),sum)
+      if (.not.MA_pop_stack(sumall1(2)))
+     > call errquit('error popping stack',0, MA_ERR)
 #else
         msglen = n
         call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,
@@ -302,8 +304,7 @@ c     implicit none
         call icopy(n,int_mb(sumall(1)),1,sum,1)
 #endif
 
-        value =           MA_pop_stack(sumall1(2))
-        value = value.and.MA_pop_stack(sumall(2))
+        value = MA_pop_stack(sumall(2))
         if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if
@@ -490,14 +491,14 @@ c     implicit none
 
 *     **** local variables ****
       integer mpierr
-      integer status(2*MPI_STATUS_SIZE)
+      integer status(2*MPI_STATUS_SIZE),request2(2)
 
 *     **** wait for completion of mp_send, also do a sync ****
       if (request(3).eq.1) then
 #ifdef MPI4
-      call stupid_icopy8to4(2,request,int_mb(stupid_request(1)))
+      call stupid_icopy8to4(2,request,request2)
       stupid_msglen = 2
-      call MPI_WAITALL(stupid_msglen,int_mb(stupid_request(1)),
+      call MPI_WAITALL(stupid_msglen,request2,
      >                 status,stupid_ierr)
 #else
       call MPI_WAITALL(2,request,status,mpierr)
@@ -506,9 +507,9 @@ c     implicit none
 
       else if (request(3).eq.2) then
 #ifdef MPI4
-      call stupid_icopy8to4(1,request,int_mb(stupid_request(1)))
+      call stupid_icopy8to4(1,request,request2)
       stupid_msglen = 1
-      call MPI_WAITALL(stupid_msglen,int_mb(stupid_request(1)),
+      call MPI_WAITALL(stupid_msglen,request2,
      >                 status,stupid_ierr)
 #else
       call MPI_WAITALL(1,request,status,mpierr)
@@ -517,9 +518,9 @@ c     implicit none
 
       else if (request(3).eq.3) then
 #ifdef MPI4
-      call stupid_icopy8to4(1,request(2),request(2))
+      call stupid_icopy8to4(1,request(2),request2)
       stupid_msglen = 1
-      call MPI_WAITALL(stupid_msglen,request(2),status,stupid_ierr)
+      call MPI_WAITALL(stupid_msglen,request2,status,stupid_ierr)
 #else
       call MPI_WAITALL(1,request(2),status,mpierr)
 #endif
@@ -635,7 +636,7 @@ c     implicit none
 
 *     **** local variables ****
       integer mpierr,np
-      integer status(2)
+      integer status(2),request2(2)
 
       call Parallel2d_np_j(np)
 
@@ -647,10 +648,15 @@ c     implicit none
 
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      call stupid_icopy8to4(reqcnt,request,request)
+      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1)))
+     > call errquit(' D1dB_WaitAll:out of stack',0,MA_ERR)
+      call stupid_icopy8to4(reqcnt,request,int_mb(request2(1)))
       stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,request,
+      call MPI_WAITALL(stupid_msglen,
+     >                 int_mb(request2(1)),
      >                 int_mb(status(1)),stupid_ierr)
+      if (.not.MA_pop_stack(request2(2)))
+     > call errquit(' D1dB_WaitAll:popping stack',0,MA_ERR)
 #else
       call MPI_WAITALL(reqcnt,request,int_mb(status(1)),mpierr)
 #endif
