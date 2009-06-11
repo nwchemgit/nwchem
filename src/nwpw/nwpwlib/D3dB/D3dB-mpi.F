@@ -569,7 +569,7 @@ c     integer i2_start(NFFT3+1)
    
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      if (.not.MA_push_get(mt_int,np,'request',request2(2),request2(1)))
+      if(.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1)))
      > call errquit(' D3dB_c_transpose_ijk:out of stack',0,MA_ERR)
       call stupid_icopy8to4(reqcnt,
      >                      int_mb(request(1)),
@@ -578,7 +578,7 @@ c     integer i2_start(NFFT3+1)
       call MPI_WAITALL(stupid_msglen,
      >                 int_mb(request2(1)),
      >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2))
+      if (.not.MA_pop_stack(request2(2)))
      > call errquit(' D3dB_c_transpose_ijk:popping stack',0,MA_ERR)
 #else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
@@ -1012,7 +1012,7 @@ c     implicit none
       if (.not.MA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
      > call errquit('out of stack memory',0, MA_ERR)
       stupid_msglen = n
-      call stupid_icopy8to4(n,sum,int_mb(small1(1)))
+      call stupid_icopy8to4(n,sum,int_mb(sumall1(1)))
       call MPI_Allreduce(int_mb(sumall1(1)),
      >                   int_mb(sumall(1)),stupid_msglen,
      >                stupid_integer,
@@ -1580,7 +1580,7 @@ c     **** external functions ****
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
       if (.not.MA_push_get(mt_int,np,'requst2',request2(2),request2(1)))
-     > call errquit(' D3dB_c_ptranspose_ijk:out of stack',0,MA_ERR)
+     > call errquit(' D3dB_c_transpose_ijk:out of stack',0,MA_ERR)
       call stupid_icopy8to4(reqcnt,
      >                      int_mb(request(1)),
      >                      int_mb(request2(1)))
@@ -2679,14 +2679,15 @@ c         msgtype   = 1
 
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      if (.not.MA_push_get(mt_int,2*np,'rqst2',request2(2),request2(1))
+      if (.not.MA_push_get(mt_int,2*np,'rqst2',request2(2),request2(1)))
      > call errquit(' D3dB_c_ptranspose_ijk:out of stack',0,MA_ERR)
       call stupid_icopy8to4(reqcnt,request,int_mb(request2(1)))
       stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,int_mb(request2(1)),
+      call MPI_WAITALL(stupid_msglen,
+     >                  int_mb(request2(1)),
      >                 int_mb(status(1)),stupid_ierr)
       if (.not.MA_pop_stack(request2(2)))
-     > call errquit(' D3dB_c_transpose_ijk_end:popping stack',0,MA_ERR)
+     > call errquit(' D3dB_c_ptranspose_ijk_end:popping stack',0,MA_ERR)
 #else
       call MPI_WAITALL(reqcnt,request,
      >                        int_mb(status(1)),mpierr)
@@ -2695,7 +2696,7 @@ c         msgtype   = 1
       !*** deallocate memory ***
       value = value.and.MA_pop_stack(status(2))
       if (.not. value) 
-     > call errquit(' D3dB_c_transpose_ijk_end:popping stack',0,MA_ERR)
+     > call errquit(' D3dB_c_ptranspose_ijk_end:popping stack',0,MA_ERR)
       
 
       end if
@@ -2940,9 +2941,10 @@ c      call Parallel_taskid(taskid)
      > call errquit(' D3dB_c_timereverse_end:out of stack',0,MA_ERR)
       call stupid_icopy8to4(reqcnt,request,int_mb(request2(2)))
       stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,int_mb(request2(1)),
+      call MPI_WAITALL(stupid_msglen,
+     >                 int_mb(request2(1)),
      >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2))
+      if (.not.MA_pop_stack(request2(2)))
      > call errquit(' D3dB_c_timereverse_end:popping stack',0,MA_ERR)
 #else
       call MPI_WAITALL(reqcnt,request,
