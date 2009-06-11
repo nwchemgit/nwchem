@@ -1935,7 +1935,7 @@ c            send data....
       call stupid_icopy8to4(reqcnt,request,int_mb(request2(1)))
       stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request(1)),
+     >                 int_mb(request2(1)),
      >                 int_mb(status(1)),stupid_ierr)
       if (.not.MA_pop_stack(request2(2)))
      > call errquit(' Balance_c_unbalance_end:popping stack',0,MA_ERR)
@@ -2177,7 +2177,8 @@ c         msgtype   = 1
      > call errquit(' D3dB_c_ptranspose2_jk_end:out of stack',0,MA_ERR)
       call stupid_icopy8to4(reqcnt,request,int_mb(request2(1)))
       stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,int_mb(request2(1)),
+      call MPI_WAITALL(stupid_msglen,
+     >                 int_mb(request2(1)),
      >                 int_mb(status(1)),stupid_ierr)
       if (.not.MA_pop_stack(request2(2)))
      > call errquit(' D3dB_c_ptranspose2_jk_end:popping stack',0,MA_ERR)
@@ -2684,7 +2685,7 @@ c         msgtype   = 1
       call stupid_icopy8to4(reqcnt,request,int_mb(request2(1)))
       stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,
-     >                  int_mb(request2(1)),
+     >                 int_mb(request2(1)),
      >                 int_mb(status(1)),stupid_ierr)
       if (.not.MA_pop_stack(request2(2)))
      > call errquit(' D3dB_c_ptranspose_ijk_end:popping stack',0,MA_ERR)
