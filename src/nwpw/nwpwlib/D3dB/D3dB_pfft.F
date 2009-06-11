@@ -2795,7 +2795,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nbb
       complex*16  tmp1(*)
       complex*16  tmp2(*)
-      integer     request,reqcnt
+      integer     request(*),reqcnt
       
 
 #include "mafdecls.fh"
