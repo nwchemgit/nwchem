@@ -2134,7 +2134,6 @@ c         msgtype   = 1
 *
 
       subroutine C3dB_c_ptranspose2_jk_end(nbb,A,tmp2,request,reqcnt)
-
       implicit none
       integer nbb
       complex*16  A(*)
@@ -2145,6 +2144,7 @@ c         msgtype   = 1
 #include "C3dB.fh"
 
 *     **** indexing variables **** integer iq_to_i1(2,0:1)
+      integer iq_to_i1(2,0:1)
       integer iq_to_i2(2,0:1)
       integer iz_to_i2(2,0:1)
       integer i1_start(2,0:1)
