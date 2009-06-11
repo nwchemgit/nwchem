@@ -207,25 +207,26 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 #include "mpif.h"
 #endif
 
-      if (np_j.gt.1) then
 #ifdef MPI4
+      if (np_j.gt.1) then
 *      **** free comm_i and comm_j communicators ****
       call MPI_Comm_free(stupid_comm_i,  stupid_ierr)
       call MPI_Group_free(stupid_group_i,stupid_ierr)
       call MPI_Comm_free(stupid_comm_j,  stupid_ierr)
       call MPI_Group_free(stupid_group_j,stupid_ierr)
+      end if
 #else
-
 *     *** local variable ***
       integer mpierr
 
+      if (np_j.gt.1) then
 *      **** free comm_i and comm_j communicators ****
       call MPI_Comm_free(comm_i,  mpierr)
       call MPI_Group_free(group_i,mpierr)
       call MPI_Comm_free(comm_j,  mpierr)
       call MPI_Group_free(group_j,mpierr)
-#endif
       end if
+#endif
 
       return
       end
