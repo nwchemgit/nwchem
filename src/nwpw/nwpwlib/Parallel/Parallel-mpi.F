@@ -835,6 +835,7 @@ c     implicit none
       integer status(2),mpierr
 #endif
      
+      if (nreq.gt.0) then
 
 *     **** allocate status memory ****
       if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*nreq*2,
@@ -874,6 +875,7 @@ c     *** danger! ***
       if (.not.MA_pop_stack(status(2)))
      > call errquit(' Parallel_mpiWaitAll:popping stack',0,MA_ERR)
 
+      end if
       return
       end
 
