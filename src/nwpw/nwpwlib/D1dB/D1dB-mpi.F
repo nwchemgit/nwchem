@@ -484,46 +484,13 @@ c     implicit none
       implicit none
       integer request(*)
 
-#include "mpif.h"
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#endif
-
-*     **** local variables ****
-      integer mpierr
-      integer status(2*MPI_STATUS_SIZE),request2(2)
-
 *     **** wait for completion of mp_send, also do a sync ****
       if (request(3).eq.1) then
-#ifdef MPI4
-      call stupid_icopy8to4(2,request,request2)
-      stupid_msglen = 2
-      call MPI_WAITALL(stupid_msglen,request2,
-     >                 status,stupid_ierr)
-#else
-      call MPI_WAITALL(2,request,status,mpierr)
-#endif
-
-
+         call Parallel_mpiWaitAll(2,request)
       else if (request(3).eq.2) then
-#ifdef MPI4
-      call stupid_icopy8to4(1,request,request2)
-      stupid_msglen = 1
-      call MPI_WAITALL(stupid_msglen,request2,
-     >                 status,stupid_ierr)
-#else
-      call MPI_WAITALL(1,request,status,mpierr)
-#endif
-
-
+         call Parallel_mpiWaitAll(1,request)
       else if (request(3).eq.3) then
-#ifdef MPI4
-      call stupid_icopy8to4(1,request(2),request2)
-      stupid_msglen = 1
-      call MPI_WAITALL(stupid_msglen,request2,status,stupid_ierr)
-#else
-      call MPI_WAITALL(1,request(2),status,mpierr)
-#endif
+          call Parallel_mpiWaitAll(1,request(2))
       endif
 
       return
@@ -625,47 +592,15 @@ c     implicit none
       integer request(*)
       integer reqcnt
 
-#include "mafdecls.fh"
-#include "errquit.fh"
-
-
-#include "mpif.h"
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#endif
-
 *     **** local variables ****
-      integer mpierr,np
-      integer status(2),request2(2)
-
-      call Parallel2d_np_j(np)
-
-*     **** allocate memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*np,
-     >                    'status',status(2),status(1)))
-     > call errquit(' D1dB_WaitAll:out of stack',0,MA_ERR)
-
+      integer np
 
 *     **** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1)))
-     > call errquit(' D1dB_WaitAll:out of stack',0,MA_ERR)
-      call stupid_icopy8to4(reqcnt,request,int_mb(request2(1)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit(' D1dB_WaitAll:popping stack',0,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,request,int_mb(status(1)),mpierr)
-#endif
-      reqcnt = 0
-
-      !*** deallocate memory ***
-      if (.not.MA_pop_stack(status(2)))
-     > call errquit(' D1dB_WaitAll:popping stack',0,MA_ERR)
-
+      call Parallel2d_np_j(np)
+      if (np.gt.1) then
+         call Parallel_mpiWaitAll(reqcnt,request)
+         reqcnt = 0
+      end if
       return
       end
 
