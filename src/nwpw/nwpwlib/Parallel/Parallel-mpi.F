@@ -836,9 +836,9 @@ c     implicit none
 #endif
      
 
-*     **** allocate memory ****
+*     **** allocate status memory ****
       if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*nreq*2,
-     >                     'status',status(2),status(1))
+     >                     'status',status(2),status(1)))
      > call errquit('Parallel_mpiWaitAll:out of stack',0,MA_ERR)
 
 
@@ -864,7 +864,7 @@ c     implicit none
 
 *     *** may need to check status here??? ***
 
-      !*** deallocate memory ***
+      !*** deallocate status memory ***
       if (.not.MA_pop_stack(status(2)))
      > call errquit(' Parallel_mpiWaitAll:popping stack',0,MA_ERR)
 
