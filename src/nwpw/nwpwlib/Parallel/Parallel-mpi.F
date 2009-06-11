@@ -812,3 +812,62 @@ c     implicit none
 #endif
 
 
+*     ***********************************
+*     *                                 *
+*     *      Parallel_mpiWaitAll        *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_mpiWaitAll(nreq,req)
+      implicit none
+      integer nreq,req(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "mpif.h"
+#include "Parallel.fh"
+
+*     *** local variables ***
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+      integer status(2),request2(2)
+#else
+      integer status(2),mpierr
+#endif
+     
+
+*     **** allocate memory ****
+      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*nreq*2,
+     >                     'status',status(2),status(1))
+     > call errquit('Parallel_mpiWaitAll:out of stack',0,MA_ERR)
+
+
+
+*     **** wait for completion of mp_send, also do a sync ****
+
+#ifdef MPI4
+
+      if (.not.MA_push_get(mt_int,nreq,'rqst2',request2(2),request2(1)))
+     > call errquit(' Parallel_mpiWaitAll:out of stack',1,MA_ERR)
+      call stupid_icopy8to4(nreq,req,int_mb(request2(1)))
+      stupid_msglen = nreq
+      call MPI_WAITALL(stupid_msglen,
+     >                 int_mb(request2(1)),
+     >                 int_mb(status(1)),stupid_ierr)
+      if (.not.MA_pop_stack(request2(2)))
+     > call errquit(' Parallel_mpiWaitAll:popping stack',1,MA_ERR)
+
+
+#else
+      call MPI_WAITALL(nreq,req,int_mb(status(1)),mpierr)
+#endif
+
+*     *** may need to check status here??? ***
+
+      !*** deallocate memory ***
+      if (.not.MA_pop_stack(status(2)))
+     > call errquit(' Parallel_mpiWaitAll:popping stack',0,MA_ERR)
+
+      return
+      end
+
