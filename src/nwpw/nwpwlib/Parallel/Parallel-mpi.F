@@ -617,7 +617,7 @@ c     implicit none
       stupid_msglen = n
       call stupid_icopy8to4(n,sum,int_mb(sumall1(1)))
       call MPI_Allreduce(int_mb(sumall1(1)),
-                         int_mb(sumall(1)),stupid_msglen,
+     >                   int_mb(sumall(1)),stupid_msglen,
      >                stupid_integer,
      >                stupid_sum,stupid_world,stupid_ierr)
       call stupid_icopy4to8(n,int_mb(sumall(1)),sum)
