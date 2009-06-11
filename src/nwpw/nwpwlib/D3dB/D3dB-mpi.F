@@ -362,8 +362,8 @@ c     integer i2_start(NFFT3+1)
 
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      if (.not.MA_push_get(mt_int,np,'request',request2(2),request2(1))
-     > call errquit('D3dB_c_timereverse:out of stack',0,MA_ERR)
+      if (.not.MA_push_get(mt_int,np,'request',request2(2),request2(1)))
+     > call errquit('D3dB_c_timereverse:out of stack',1,MA_ERR)
       call stupid_icopy8to4(reqcnt,
      >                      int_mb(request(1)),
      >                      int_mb(request2(1)))
