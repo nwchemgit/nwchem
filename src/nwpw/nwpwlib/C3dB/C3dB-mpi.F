@@ -58,7 +58,7 @@ c     integer i2_start(NFFT3+1)
       integer proc_to,proc_from,it
       integer msgtype,source
       integer msglen,type
-      integer status(2),request(2),reqcnt,request2(2)
+      integer request(2),reqcnt
       integer taskid,np
       integer mpierr
 
@@ -70,10 +70,7 @@ c     integer i2_start(NFFT3+1)
       call Parallel3d_np_i(np)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
-     >                     'status',status(2),status(1))
-      value = value.and.
-     >        MA_push_get(mt_int,np,
+      value = MA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
      > call errquit(' C3dB_c_transpose_jk:out of stack',0,MA_ERR)
@@ -166,22 +163,8 @@ c     integer i2_start(NFFT3+1)
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1)))
-     > call errquit(' C3dB_c_transpose_jk:out of stack',1,MA_ERR)
-      call stupid_icopy8to4(reqcnt,
-     >                      int_mb(request(1)),
-     >                      int_mb(request2(1)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit(' C3dB_c_transpose_jk:popping stack',1,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,int_mb(request(1)),
-     >                        int_mb(status(1)),mpierr)
-#endif
+      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+
 
 *     **** unpack A(i) array ****
 #ifndef CRAY
@@ -194,7 +177,6 @@ c     integer i2_start(NFFT3+1)
 
       !*** deallocate memory ***
       value =           MA_pop_stack(request(2))
-      value = value.and.MA_pop_stack(status(2))
       if (.not. value)
      > call errquit(' C3dB_c_transpose_jk:popping stack',0,MA_ERR)
 
@@ -262,7 +244,7 @@ c     integer i2_start(NFFT3+1)
       integer proc_to,proc_from,it
       integer msgtype,source
       integer msglen,type
-      integer status(2),request(2),reqcnt,request2(2)
+      integer request(2),reqcnt
       integer taskid,np
       integer mpierr
 
@@ -274,10 +256,7 @@ c     integer i2_start(NFFT3+1)
       call Parallel3d_np_i(np)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
-     >                     'status',status(2),status(1))
-      value = value.and.
-     >        MA_push_get(mt_int,np,
+      value = MA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
      > call errquit(' C3dB_c_transpose_jk:out of stack',0,MA_ERR)
@@ -370,22 +349,8 @@ c     integer i2_start(NFFT3+1)
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1)))
-     > call errquit(' C3dB_c_transpose_jk:out of stack',0,MA_ERR)
-      call stupid_icopy8to4(reqcnt,
-     >                      int_mb(request(1)),
-     >                      int_mb(request2(1)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit(' C3dB_r_transpose_jk:popping stack',0,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,int_mb(request(1)),
-     >                        int_mb(status(1)),mpierr)
-#endif
+      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+
 
 *     **** unpack A(i) array ****
 #ifndef CRAY
@@ -398,7 +363,6 @@ c     integer i2_start(NFFT3+1)
 
       !*** deallocate memory ***
       value =           MA_pop_stack(request(2))
-      value = value.and.MA_pop_stack(status(2))
       if (.not. value)
      > call errquit(' C3dB_r_transpose_jk:popping stack',0,MA_ERR)
 
@@ -470,7 +434,7 @@ c     integer i2_start(NFFT3+1)
       integer proc_to,proc_from,it
       integer msgtype,source
       integer msglen,type
-      integer status(2),request(2),reqcnt,request2(2)
+      integer request(2),reqcnt
       integer taskid,np
       integer mpierr
 
@@ -483,11 +447,8 @@ c     integer i2_start(NFFT3+1)
       call Parallel3d_np_i(np)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
-     >                     'status',status(2),status(1))
-      value = value.and.
-     >        MA_push_get(mt_int,np,
-     >                     'request',request(2),request(1))
+      value = MA_push_get(mt_int,np,
+     >                    'request',request(2),request(1))
       if (.not. value) 
      > call errquit(' C3dB_c_transpose_ijk:out of stack',0,MA_ERR)
 
@@ -578,22 +539,8 @@ c     integer i2_start(NFFT3+1)
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1)))
-     > call errquit(' C3dB_c_transpose_ijk:out of stack',0,MA_ERR)
-      call stupid_icopy8to4(reqcnt,
-     >                      int_mb(request(1)),
-     >                      int_mb(request2(1)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit(' C3dB_c_transpose_ijk:popping stack',0,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,int_mb(request(1)),
-     >                        int_mb(status(1)),mpierr)
-#endif
+      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+
 
 *     **** unpack A(i) array ****
       if ((op.eq.4).or.(op.eq.6)) nnfft3d = nx(nb)*nq1(nb)
@@ -608,7 +555,6 @@ c     integer i2_start(NFFT3+1)
 
       !*** deallocate memory ***
       value =           MA_pop_stack(request(2))
-      value = value.and.MA_pop_stack(status(2))
       if (.not. value) 
      > call errquit(' C3dB_c_transpose_ijk:popping stack',0,MA_ERR)
       
@@ -675,7 +621,7 @@ c     integer msglen,type,nbytes
 c     integer msgid
       integer msglen,type
 c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
-      integer status(2),request(2),reqcnt,request2(2)
+      integer request(2),reqcnt
       integer taskid,np
       integer mpierr
 
@@ -688,10 +634,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
-     >                     'status',status(2),status(1))
-      value = value.and.
-     >        MA_push_get(mt_int,np,
+      value = MA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
      > call errquit(' C3dB_r_transpose_ijk:out of stack',0,MA_ERR)
@@ -783,22 +726,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1)))
-     > call errquit(' C3dB_r_transpose_ijk:out of stack',0,MA_ERR)
-      call stupid_icopy8to4(reqcnt,
-     >                      int_mb(request(1)),
-     >                      int_mb(request2(1)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit(' C3dB_r_transpose_ijk:popping stack',0,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,int_mb(request(1)),
-     >                        int_mb(status(1)),mpierr)
-#endif
+      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+
 
 *     **** unpack A(i) array ****
       if ((op.eq.4).or.(op.eq.6)) nnfft3d = nx(nb)*nq1(nb)
@@ -814,7 +743,6 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
       !*** deallocate memory ***
       value =           MA_pop_stack(request(2))
-      value = value.and.MA_pop_stack(status(2))
       if (.not. value)
      > call errquit(' C3dB_r_transpose_ijk:popping stack',0,MA_ERR)
 
@@ -1103,7 +1031,7 @@ c     integer msglen,type,nbytes
 c     integer msgid
       integer msglen,type
 c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
-      integer status(2),request(2),reqcnt,request2(2)
+      integer request(2),reqcnt
       integer taskid,np
       integer mpierr,n1,n2
 
@@ -1115,10 +1043,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       call Parallel3d_np_i(np)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
-     >                     'status',status(2),status(1))
-      value = value.and.
-     >        MA_push_get(mt_int,np,
+      value = MA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
      > call errquit(' C3dB_c_ptranspose1_jk:out of stack',0,MA_ERR)
@@ -1204,23 +1129,9 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       end do
    
 *     **** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1)))
-     > call errquit(' C3dB_c_ptranspose1_jk:out of stack',0,MA_ERR)
-      call stupid_icopy8to4(reqcnt,
-     >                      int_mb(request(1)),
-     >                      int_mb(request2(1)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen, 
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit('C3dB_c_ptranspose1_jk:popping stack',0,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,int_mb(request(1)),
-     >                        int_mb(status(1)),mpierr)
+      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
 
-#endif
+
 *     **** unpack A(i) array ****
       call C3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
       call C3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
@@ -1228,7 +1139,6 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
       !*** deallocate memory ***
       value =           MA_pop_stack(request(2))
-      value = value.and.MA_pop_stack(status(2))
       if (.not. value)
      > call errquit('C3dB_c_ptranspose1_jk:popping stack',0,MA_ERR)
 
@@ -1288,7 +1198,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer proc_to,proc_from,it
       integer msgtype,source
       integer msglen,type
-      integer status(2),request(2),reqcnt,request2(2)
+      integer request(2),reqcnt
       integer taskid,np
       integer mpierr,n1,n2
 
@@ -1300,10 +1210,7 @@ c     **** external functions ****
       call Parallel3d_np_i(np)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
-     >                     'status',status(2),status(1))
-      value = value.and.
-     >        MA_push_get(mt_int,np,
+      value = MA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
      > call errquit(' C3dB_c_ptranspose2_jk:out of stack',0,MA_ERR)
@@ -1388,22 +1295,8 @@ c     **** external functions ****
       end do
    
 *     **** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1)))
-     > call errquit(' C3dB_c_ptranspose2_jk:out of stack',0,MA_ERR)
-      call stupid_icopy8to4(reqcnt,
-     >                      int_mb(request(1)),
-     >                      int_mb(request2(1)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit(' C3dB_c_ptranspose2_jk:popping stack',0,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,int_mb(request(1)),
-     >                        int_mb(status(1)),mpierr)
-#endif
+      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+
 
 *     **** unpack A(i) array ****
       call C3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
@@ -1411,8 +1304,7 @@ c     **** external functions ****
       
 
       !*** deallocate memory ***
-      value =           MA_pop_stack(request(2))
-      value = value.and.MA_pop_stack(status(2))
+      value = MA_pop_stack(request(2))
       if (.not. value)
      > call errquit(' C3dB_c_ptranspose2_jk:popping stack',0,MA_ERR)
 
@@ -1481,7 +1373,7 @@ c     **** external functions ****
       integer proc_to,proc_from,it
       integer msgtype,source
       integer msglen,type
-      integer status(2),request(2),reqcnt,request2(2)
+      integer request(2),reqcnt
       integer taskid,np
       integer mpierr
 
@@ -1493,10 +1385,7 @@ c     **** external functions ****
       call Parallel3d_np_i(np)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
-     >                     'status',status(2),status(1))
-      value = value.and.
-     >        MA_push_get(mt_int,np,
+      value = MA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value) 
      > call errquit('C3dB_c_ptranspose_ijk:out of stack',0,MA_ERR)
@@ -1587,22 +1476,8 @@ c     **** external functions ****
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1)))
-     > call errquit('C3dB_c_ptranspose_ijk:out of stack',1,MA_ERR)
-      call stupid_icopy8to4(reqcnt,
-     >                      int_mb(request(1)),
-     >                      int_mb(request2(1)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit('C3dB_c_transpose_ijk:popping stack',1,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,int_mb(request(1)),
-     >                        int_mb(status(1)),mpierr)
-#endif
+      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+
 
 *     **** unpack A(i) array ****
       call C3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),tmp2,A)
@@ -1610,8 +1485,7 @@ c     **** external functions ****
 
 
       !*** deallocate memory ***
-      value =           MA_pop_stack(request(2))
-      value = value.and.MA_pop_stack(status(2))
+      value = MA_pop_stack(request(2))
       if (.not. value) 
      > call errquit('C3dB_c_transpose_ijk:popping stack',0,MA_ERR)
       
@@ -1740,61 +1614,15 @@ c            recieve data....
       complex*16 A(*)
       integer    request(*),reqcnt
 
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "mpif.h"
-
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#endif
-
 *     **** local variables ***
-      logical value
       integer np
-      integer status(2),request2(2)
-      integer mpierr
 
       call Parallel3d_np_i(np)
-
       if (np.gt.1) then
-
-*     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np*2,
-     >                     'status',status(2),status(1))
-      if (.not. value)
-     > call errquit('c_Balance_c_balance_end:out of stack',0,MA_ERR)
-
-*     **** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,2*np,'req2',request2(2),request2(1)))
-     > call errquit('c_Balance_c_balance_end:out of stack',0,MA_ERR)
-      call stupid_icopy8to4(reqcnt,request,int_mb(request2(1)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit('c_Balance_c_balance_end:popping stack',0,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,request,
-     >                 int_mb(status(1)),mpierr)
-#endif
-
-      !*** deallocate memory ***
-      value = value.and.MA_pop_stack(status(2))
-      if (.not. value)
-     > call errquit('c_Balance_c_balance_end:popping stack',0,MA_ERR)
-
-
+         call Parallel_mpiWaitAll(reqcnt,request)
       end if
-
       return
       end
-
-
-
-
 #endif
 
 #ifdef MPI
@@ -1913,58 +1741,15 @@ c            send data....
       complex*16 A(*)
       integer    request(*),reqcnt
 
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "mpif.h"
-
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#endif
-
 *     **** local variables ***
-      logical value
       integer np
-      integer status(2),request2(2)
-      integer mpierr
 
       call Parallel3d_np_i(np)
-
       if (np.gt.1) then
-      !**** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np*2,
-     >                     'status',status(2),status(1))
-      if (.not. value)
-     > call errquit('c_Balance_c_unbalance_end:out of stack',0,MA_ERR)
-
-
-      !**** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,2*np,'rq2',request2(2),request2(1)))
-     > call errquit('c_Balance_c_unbalance_end:out of stack',0,MA_ERR)
-      call stupid_icopy8to4(reqcnt,request,int_mb(request2(2)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit('c_Balance_c_unbalance_end:popping stack',0,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,request,
-     >                        int_mb(status(1)),mpierr)
-#endif
-
-      !*** deallocate memory ***
-      value = value.and.MA_pop_stack(status(2))
-      if (.not. value)
-     > call errquit('c_Balance_c_unbalance_end:popping stack',0,MA_ERR)
-
-
+         call Parallel_mpiWaitAll(reqcnt,request)
       end if
-
       return
       end
-
 #endif
 
 
@@ -2147,13 +1932,7 @@ c         msgtype   = 1
       integer     request(*),reqcnt
 
 #include "mafdecls.fh"
-#include "errquit.fh"
-#include "mpif.h"
 #include "C3dB.fh"
-
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#endif
 
 *     **** indexing variables ****
       integer iq_to_i1(2,0:1)
@@ -2164,44 +1943,12 @@ c         msgtype   = 1
       common / c_ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
-
 *     **** local variables ***
-      logical value
-      integer status(2),request2(2)
-      integer np
-      integer mpierr,n2
+      integer np,n2
       
       call Parallel3d_np_i(np)
-
       if (np.gt.1) then
-*     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np*2,
-     >                     'status',status(2),status(1))
-      if (.not. value)
-     > call errquit('C3dB_c_ptranspose2_jk_end:out of stack',0,MA_ERR)
-
-
-*     **** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,2*np,'req2',request2(2),request2(1)))
-     > call errquit('C3dB_c_ptranspose2_jk_end:out of stack',0,MA_ERR)
-      call stupid_icopy8to4(reqcnt,request,int_mb(request2(1)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit('C3dB_c_ptranspose2_jk_end:popping stack',0,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,request,
-     >                 int_mb(status(1)),mpierr)
-#endif
-
-      !*** deallocate memory ***
-      value = value.and.MA_pop_stack(status(2))
-      if (.not. value)
-     > call errquit('C3dB_c_ptranspose2_jk_end:popping stack',0,MA_ERR)
-
+         call Parallel_mpiWaitAll(reqcnt,request)
       end if 
 
 *     **** unpack A(i) array ****
@@ -2395,16 +2142,9 @@ c         msgtype   = 1
       integer     request(*),reqcnt
 
 #include "mafdecls.fh"
-#include "errquit.fh"
-#include "mpif.h"
 #include "C3dB.fh"
 
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#endif
-
-*     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
+*     **** indexing variables **** integer iq_to_i1(2,0:1)
       integer iq_to_i2(2,0:1)
       integer iz_to_i2(2,0:1)
       integer i1_start(2,0:1)
@@ -2412,52 +2152,18 @@ c         msgtype   = 1
       common / c_ptrans_blk2 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
-
 *     **** local variables ***
-      logical value
-      integer status(2),request2(2)
-      integer np
-      integer mpierr,n2
+      integer np,n2
       
       call Parallel3d_np_i(np)
-
       if (np.gt.1) then
-*     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np*2,
-     >                     'status',status(2),status(1))
-      if (.not. value)
-     > call errquit('C3dB_c_ptranspose2_jk_end:out of stack',0,MA_ERR)
-
-
-*     **** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,2*np,'rq2',request2(2),request2(1)))
-     > call errquit('C3dB_c_ptranspose2_jk_end:out of stack',0,MA_ERR)
-      call stupid_icopy8to4(reqcnt,request,int_mb(request2(1)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit('C3dB_c_ptranspose2_jk_end:popping stack',0,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,request,
-     >                        int_mb(status(1)),mpierr)
-#endif
-
-      !*** deallocate memory ***
-      value = value.and.MA_pop_stack(status(2))
-      if (.not. value)
-     > call errquit('C3dB_c_ptranspose2_jk_end:popping stack',0,MA_ERR)
-
+         call Parallel_mpiWaitAll(reqcnt,request)
       end if 
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
       call C3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
       call C3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
-      
-
       return
       end
 
@@ -2650,13 +2356,7 @@ c         msgtype   = 1
       integer request(*),reqcnt
 
 #include "mafdecls.fh"
-#include "errquit.fh"
-#include "mpif.h"
 #include "C3dB.fh"
-
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#endif
 
 *     **** indexing variables ****
       integer h_iq_to_i1(2,6,0:1)
@@ -2672,44 +2372,12 @@ c         msgtype   = 1
      >                         h_i1_start,
      >                         h_i2_start
 
-
 *     **** local variables ***
-      logical value
       integer n2,n3,np
-      integer status(2),request2(2)
-      integer mpierr
       
       call Parallel3d_np_i(np)
-
       if (np.gt.1) then
-*     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np*2,
-     >                     'status',status(2),status(1))
-      if (.not. value) 
-     > call errquit('C3dB_c_ptranspose_ijk:out of stack',0,MA_ERR)
-
-*     **** wait for completion of mp_send, also do a sync ****
-#ifdef MPI4
-      if (.not.MA_push_get(mt_int,2*np,'rq2',request2(2),request2(1)))
-     > call errquit('C3dB_c_ptranspose_ijk:out of stack',0,MA_ERR)
-      call stupid_icopy8to4(reqcnt,request,int_mb(request2(1)))
-      stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request2(1)),
-     >                 int_mb(status(1)),stupid_ierr)
-      if (.not.MA_pop_stack(request2(2)))
-     > call errquit('C3dB_c_transpose_ijk_end:popping stack',0,MA_ERR)
-#else
-      call MPI_WAITALL(reqcnt,request,
-     >                        int_mb(status(1)),mpierr)
-#endif
-
-      !*** deallocate memory ***
-      value = value.and.MA_pop_stack(status(2))
-      if (.not. value) 
-     > call errquit('C3dB_c_transpose_ijk_end:popping stack',0,MA_ERR)
-      
-
+         call Parallel_mpiWaitAll(reqcnt,request)
       end if
 
 *     **** unpack A(i) array ****
@@ -2717,11 +2385,7 @@ c         msgtype   = 1
       n3 = h_iz_to_i2_count(op,nbb)
       call C3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),tmp2,A)
       call C3dB_pfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
-
-
       return
       end
 
 #endif
-
-
