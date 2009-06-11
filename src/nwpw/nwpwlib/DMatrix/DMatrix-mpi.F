@@ -544,44 +544,13 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       implicit none
       integer request(*)
 
-#include "mpif.h"
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#endif
-
-*     **** local variables ****
-      integer mpierr
-      integer request2(2),status(2*MPI_STATUS_SIZE)
-
 *     **** wait for completion of mp_send, also do a sync ****
       if (request(3).eq.1) then
-#ifdef MPI4
-      call stupid_icopy8to4(2,request,request2)
-      stupid_msglen = 2
-      call MPI_WAITALL(stupid_msglen,request2,status,stupid_ierr)
-#else
-      call MPI_WAITALL(2,request,status,mpierr)
-#endif
-
-
+         call Parallel_mpiWaitAll(2,request)
       else if (request(3).eq.2) then
-#ifdef MPI4
-      call stupid_icopy8to4(1,request,request2)
-      stupid_msglen = 1
-      call MPI_WAITALL(stupid_msglen,request2,status,stupid_ierr)
-#else
-      call MPI_WAITALL(1,request,status,mpierr)
-#endif
-
-
+         call Parallel_mpiWaitAll(1,request)
       else if (request(3).eq.3) then
-#ifdef MPI4
-      call stupid_icopy8to4(1,request(2),request2)
-      stupid_msglen = 1
-      call MPI_WAITALL(stupid_msglen,request2,status,stupid_ierr)
-#else
-      call MPI_WAITALL(1,request(2),status,mpierr)
-#endif
+         call Parallel_mpiWaitAll(1,request(2))
       endif
 
       return
