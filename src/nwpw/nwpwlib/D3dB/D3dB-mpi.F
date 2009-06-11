@@ -2937,8 +2937,8 @@ c      call Parallel_taskid(taskid)
 
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      if (.not.MA_push_get(mt_int,2*np,'rqst2',request2(2),request2(1)))
-     > call errquit(' D3dB_c_timereverse_end:out of stack',0,MA_ERR)
+      if(.not.MA_push_get(mt_int,2*np,'rq2',request2(2),request2(1)))
+     > call errquit(' D3dB_c_timereverse_end:out of stack',1,MA_ERR)
       call stupid_icopy8to4(reqcnt,request,int_mb(request2(2)))
       stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,
