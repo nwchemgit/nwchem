@@ -528,7 +528,7 @@ c     integer i2_start(NFFT3+1)
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-     call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
 
 
 *     **** unpack A(i) array ****
