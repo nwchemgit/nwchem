@@ -2250,7 +2250,7 @@
       integer nbb
       complex*16  tmp1(*)
       complex*16  tmp2(*)
-      integer     request,reqcnt
+      integer     request(*),reqcnt
       
 
 #include "mafdecls.fh"
