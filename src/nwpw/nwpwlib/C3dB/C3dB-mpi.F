@@ -167,8 +167,8 @@ c     integer i2_start(NFFT3+1)
    
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1))
-     > call errquit(' C3dB_c_transpose_jk:out of stack',0,MA_ERR)
+      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1)))
+     > call errquit(' C3dB_c_transpose_jk:out of stack',1,MA_ERR)
       call stupid_icopy8to4(reqcnt,
      >                      int_mb(request(1)),
      >                      int_mb(request2(1)))
@@ -177,7 +177,7 @@ c     integer i2_start(NFFT3+1)
      >                 int_mb(request2(1)),
      >                 int_mb(status(1)),stupid_ierr)
       if (.not.MA_pop_stack(request2(2)))
-     > call errquit(' C3dB_c_transpose_jk:popping stack',0,MA_ERR)
+     > call errquit(' C3dB_c_transpose_jk:popping stack',1,MA_ERR)
 #else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
      >                        int_mb(status(1)),mpierr)
@@ -1588,8 +1588,8 @@ c     **** external functions ****
    
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1))
-     > call errquit('C3dB_c_ptranspose_ijk:out of stack',0,MA_ERR)
+      if (.not.MA_push_get(mt_int,np,'rqst2',request2(2),request2(1)))
+     > call errquit('C3dB_c_ptranspose_ijk:out of stack',1,MA_ERR)
       call stupid_icopy8to4(reqcnt,
      >                      int_mb(request(1)),
      >                      int_mb(request2(1)))
@@ -1598,7 +1598,7 @@ c     **** external functions ****
      >                 int_mb(request2(1)),
      >                 int_mb(status(1)),stupid_ierr)
       if (.not.MA_pop_stack(request2(2)))
-     > call errquit('C3dB_c_transpose_ijk:popping stack',0,MA_ERR)
+     > call errquit('C3dB_c_transpose_ijk:popping stack',1,MA_ERR)
 #else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
      >                        int_mb(status(1)),mpierr)
