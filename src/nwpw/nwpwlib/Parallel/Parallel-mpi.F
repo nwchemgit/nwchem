@@ -50,6 +50,9 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       stupid_complex = MPI_DOUBLE_COMPLEX
       stupid_comm_i   = MPI_COMM_WORLD
       stupid_comm_j   = -99
+      if (.not.MA_alloc_get(mt_int,np,'stupid_request',
+     >                      stupid_request(2),stupid_request(1)))
+     >  call errquit('Parallel_init:out of heap memory',0, MA_ERR)
 #endif
 
       np     = nnodes()

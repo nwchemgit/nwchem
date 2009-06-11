@@ -169,10 +169,10 @@ c     integer i2_start(NFFT3+1)
 #ifdef MPI4
       call stupid_icopy8to4(reqcnt,
      >                      int_mb(request(1)),
-     >                      int_mb(request(1)))
+     >                      int_mb(stupid_request(1)))
       stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request(1)),
+     >                 int_mb(stupid_request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
@@ -360,10 +360,10 @@ c     integer i2_start(NFFT3+1)
 #ifdef MPI4
       call stupid_icopy8to4(reqcnt,
      >                      int_mb(request(1)),
-     >                      int_mb(request(1)))
+     >                      int_mb(stupid_request(1)))
       stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request(1)),
+     >                 int_mb(stupid_request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
@@ -563,10 +563,10 @@ c     integer i2_start(NFFT3+1)
 #ifdef MPI4
       call stupid_icopy8to4(reqcnt,
      >                      int_mb(request(1)),
-     >                      int_mb(request(1)))
+     >                      int_mb(stupid_request(1)))
       stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request(1)),
+     >                 int_mb(stupid_request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
@@ -764,10 +764,10 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 #ifdef MPI4
       call stupid_icopy8to4(reqcnt,
      >                      int_mb(request(1)),
-     >                      int_mb(request(1)))
+     >                      int_mb(stupid_request(1)))
       stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request(1)),
+     >                 int_mb(stupid_request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
@@ -1178,10 +1178,10 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 #ifdef MPI4
       call stupid_icopy8to4(reqcnt,
      >                      int_mb(request(1)),
-     >                      int_mb(request(1)))
+     >                      int_mb(stupid_request(1)))
       stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen, 
-     >                 int_mb(request(1)),
+     >                 int_mb(stupid_request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
@@ -1358,10 +1358,10 @@ c     **** external functions ****
 #ifdef MPI4
       call stupid_icopy8to4(reqcnt,
      >                      int_mb(request(1)),
-     >                      int_mb(request(1)))
+     >                      int_mb(stupid_request(1)))
       stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request(1)),
+     >                 int_mb(stupid_request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
@@ -1553,10 +1553,10 @@ c     **** external functions ****
 #ifdef MPI4
       call stupid_icopy8to4(reqcnt,
      >                      int_mb(request(1)),
-     >                      int_mb(request(1)))
+     >                      int_mb(stupid_request(1)))
       stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,
-     >                 int_mb(request(1)),
+     >                 int_mb(stupid_request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,int_mb(request(1)),
@@ -1726,10 +1726,10 @@ c            recieve data....
 
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      call stupid_icopy8to4(reqcnt,request,request)
+      call stupid_icopy8to4(reqcnt,request,int_mb(stupid_request(1)))
       stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,
-     >                 request,
+     >                 int_mb(stupid_request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,request,
@@ -1894,10 +1894,10 @@ c            send data....
 
       !**** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      call stupid_icopy8to4(reqcnt,request,request)
+      call stupid_icopy8to4(reqcnt,request,int_mb(stupid_request(1)))
       stupid_msglen = reqcnt
       call MPI_WAITALL(stupid_msglen,
-     >                 request,
+     >                 int_mb(request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,request,
@@ -2133,9 +2133,9 @@ c         msgtype   = 1
 
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      call stupid_icopy8to4(reqcnt,request,request)
+      call stupid_icopy8to4(reqcnt,request,int_mb(stupid_request(1)))
       stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,request,
+      call MPI_WAITALL(stupid_msglen,int_mb(stupid_request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,request,
@@ -2377,9 +2377,9 @@ c         msgtype   = 1
 
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      call stupid_icopy8to4(reqcnt,request,request)
+      call stupid_icopy8to4(reqcnt,request,int_mb(stupid_request(1)))
       stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,request,
+      call MPI_WAITALL(stupid_msglen,int_mb(stupid_request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,request,
@@ -2631,9 +2631,9 @@ c         msgtype   = 1
 
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      call stupid_icopy8to4(reqcnt,request,request)
+      call stupid_icopy8to4(reqcnt,request,int_mb(stupid_request(1)))
       stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,request,
+      call MPI_WAITALL(stupid_msglen,int_mb(stupid_request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,request,
@@ -2884,9 +2884,9 @@ c      call Parallel_taskid(taskid)
 
 *     **** wait for completion of mp_send, also do a sync ****
 #ifdef MPI4
-      call stupid_icopy8to4(reqcnt,request,request)
+      call stupid_icopy8to4(reqcnt,request,int_mb(stupid_request(2)))
       stupid_msglen = reqcnt
-      call MPI_WAITALL(stupid_msglen,request,
+      call MPI_WAITALL(stupid_msglen,int_mb(stupid_request(1)),
      >                 int_mb(status(1)),stupid_ierr)
 #else
       call MPI_WAITALL(reqcnt,request,
