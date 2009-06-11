@@ -857,6 +857,12 @@ c     implicit none
       if (.not.MA_pop_stack(request2(2)))
      > call errquit(' Parallel_mpiWaitAll:popping stack',1,MA_ERR)
 
+c     *** danger! ***
+      if (stupid_ierr.ne.0) then
+         write(*,*) "MPI_WAITALL Failed on taskid=",taskid,
+     >              "  mpierr=",stupid_ierr
+         call util_flush(6)
+      end if
 
 #else
       call MPI_WAITALL(nreq,req,int_mb(status(1)),mpierr)
