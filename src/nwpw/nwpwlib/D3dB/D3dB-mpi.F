@@ -163,7 +163,7 @@ c     integer i2_start(NFFT3+1)
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
 
 
 *     **** unpack A(i) array ****
@@ -340,7 +340,7 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** wait for completion of mp_send, also do a sync ****
-      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
 
 
 *     **** unpack A(i) array ****
@@ -528,7 +528,7 @@ c     integer i2_start(NFFT3+1)
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
 
 
 *     **** unpack A(i) array ****
@@ -715,7 +715,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
 
 
 *     **** unpack A(i) array ****
@@ -1119,7 +1119,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       end do
    
 *     **** wait for completion of mp_send, also do a sync ****
-      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
 
 
 *     **** unpack A(i) array ****
@@ -1285,7 +1285,7 @@ c     **** external functions ****
       end do
    
 *     **** wait for completion of mp_send, also do a sync ****
-      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
 
 
 *     **** unpack A(i) array ****
@@ -1466,7 +1466,7 @@ c     **** external functions ****
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
 
 
 *     **** unpack A(i) array ****
@@ -1609,9 +1609,7 @@ c            recieve data....
       integer np
 
       call Parallel2d_np_i(np)
-      if (np.gt.1) then
-         call Parallel_mpiWaitAll(reqcnt,request)
-      end if
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
       return
       end
 #endif
@@ -1735,9 +1733,7 @@ c            send data....
       integer np
 
       call Parallel2d_np_i(np)
-      if (np.gt.1) then
-         call Parallel_mpiWaitAll(reqcnt,request)
-      end if
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
       return
       end
 
@@ -1938,9 +1934,7 @@ c         msgtype   = 1
       integer np,n2
       
       call Parallel2d_np_i(np)
-      if (np.gt.1) then
-         call Parallel_mpiWaitAll(reqcnt,request)
-      end if 
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
@@ -2150,9 +2144,7 @@ c         msgtype   = 1
       integer np,n2
       
       call Parallel2d_np_i(np)
-      if (np.gt.1) then
-         call Parallel_mpiWaitAll(reqcnt,request)
-      end if 
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
@@ -2372,9 +2364,7 @@ c         msgtype   = 1
       
       call Parallel2d_np_i(np)
 
-      if (np.gt.1) then
-         call Parallel_mpiWaitAll(reqcnt,request)
-      end if
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
 
 *     **** unpack A(i) array ****
       n2 = int_mb(h_i2_start(1,op,nbb)+np) - 1
@@ -2590,9 +2580,7 @@ c         msgtype   = 1
 
       call Parallel2d_np_i(np)
 
-      if (np.gt.1) then
-         call Parallel_mpiWaitAll(reqcnt,request)
-      end if
+      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
 
 *     **** unpack A(i) array ****
 #ifndef CRAY
