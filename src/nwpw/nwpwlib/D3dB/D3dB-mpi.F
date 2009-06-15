@@ -289,7 +289,7 @@ c     integer i2_start(NFFT3+1)
             reqcnt = reqcnt + 1
 #ifdef MPI4
             stupid_msglen = msglen
-            stupid_type   = mstype
+            stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(source)
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    stupid_msglen,stupid_complex,
