@@ -1,14 +1,26 @@
- svnnwchem, len=9
-h2o_eomccsd.nw, len=14
- argument  1 = h2o_eomccsd.nw
-
+refund: UserID = d3p975
+refund: SLURM Job ID = 191904
+refund: Number of nodes          = 3
+refund: Number of cores per node = 3
+refund: Number of cores          = 9
+refund: Amount of time requested = 30
+ 
+Processor list
+ 
+cu01n[1-3]
+ 
+ARMCI configured for 3 cluster nodes. Network protocol is 'OpenIB Verbs API'.
+All connections between all procs tested: SUCCESS
+ argument  1 = /mscf/home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_gradients/h2o_eomccsd.nw
+ 
 
 
 ============================== echo of input deck ==============================
 #
 start h2o
 
-SCRATCH_DIR /home/d3p975/scratch
+permanent_dir /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_gradients/perm
+scratch_dir /scratch
 
 memory  1500 mb
 
@@ -45,28 +57,28 @@ task tce gradient
 
                                          
                                          
-
-
+ 
+ 
               Northwest Computational Chemistry Package (NWChem) 5.1
               ------------------------------------------------------
-
-
+ 
+ 
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
-
+ 
                                          
                                          
-
-
+ 
+ 
                   COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
                 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
-
+ 
                             >>> All Rights Reserved <<<
-
-
+ 
+ 
                                     DISCLAIMER
                                     ----------
 
@@ -116,18 +128,18 @@ task tce gradient
            Job information
            ---------------
 
-    hostname      = pe10339
-    program       = svnnwchem
-    date          = Thu May 14 12:33:12 2009
+    hostname      = cu1n1
+    program       = /scratch/nwchem
+    date          = Tue Jun  2 11:45:39 2009
 
-    compiled      = Thu_May_14_12:13:01_2009
+    compiled      = Tue_Jun_02_11:38:27_2009
     source        = /home/d3p975/codes/nwchem-svn/nwchem
     nwchem branch = Development
-    input         = h2o_eomccsd.nw
+    input         = /mscf/home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_gradients/h2o_eomccsd.nw
     prefix        = h2o.
-    data base     = ./h2o.db
+    data base     = /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_gradients/perm/h2o.db
     status        = startup
-    nproc         =        1
+    nproc         =        9
     time left     =     -1s
 
 
@@ -145,43 +157,43 @@ task tce gradient
 
            Directory information
            ---------------------
-
-  0 permanent = .
-  0 scratch   = /home/d3p975/scratch
-
-
-
-
+ 
+  0 permanent = /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_gradients/perm
+  0 scratch   = /scratch
+ 
+ 
+ 
+ 
                                 NWChem Input Module
                                 -------------------
-
-
+ 
+ 
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
-
+ 
 
           ------
           auto-z
           ------
-
-
+ 
+ 
                              Geometry "geometry" -> ""
                              -------------------------
-
+ 
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
-
+ 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 O                    8.0000     0.00000000     0.00000000    -0.22143504
     2 H                    1.0000     0.00000000     1.42993661     0.88574018
     3 H                    1.0000     0.00000000    -1.42993661     0.88574018
-
+ 
       Atomic Mass 
       ----------- 
-
+ 
       O                 15.994910
       H                  1.007825
-
+ 
 
  Effective nuclear repulsion energy (a.u.)       9.1969343804
 
@@ -190,21 +202,21 @@ task tce gradient
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.0000000000
-
+ 
 
 
                                 Z-matrix (autoz)
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
-
+ 
       Type          Name      I     J     K     L     M      Value
       ----------- --------  ----- ----- ----- ----- ----- ----------
     1 Stretch                  1     2                       0.95700
     2 Stretch                  1     3                       0.95700
     3 Bend                     2     1     3               104.50000
-
-
+ 
+ 
             XYZ format geometry
             -------------------
      3
@@ -212,7 +224,7 @@ task tce gradient
  O                     0.00000000     0.00000000    -0.11717839
  H                     0.00000000     0.75668992     0.46871355
  H                     0.00000000    -0.75668992     0.46871355
-
+ 
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -238,6 +250,9 @@ task tce gradient
 
 
 
+  library name resolved from: environment
+  library file name is: </home/d3p975/codes/nwchem-svn/nwchem/src/basis/libraries/>
+  
                       Basis "ao basis" -> "" (cartesian)
                       -----
   H (Hydrogen)
@@ -247,7 +262,7 @@ task tce gradient
   1 S  3.42525091E+00  0.154329
   1 S  6.23913730E-01  0.535328
   1 S  1.68855400E-01  0.444635
-
+ 
   O (Oxygen)
   ----------
             Exponent  Coefficients 
@@ -255,15 +270,15 @@ task tce gradient
   1 S  1.30709320E+02  0.154329
   1 S  2.38088610E+01  0.535328
   1 S  6.44360830E+00  0.444635
-
+ 
   2 S  5.03315130E+00 -0.099967
   2 S  1.16959610E+00  0.399513
   2 S  3.80389000E-01  0.700115
-
+ 
   3 P  5.03315130E+00  0.155916
   3 P  1.16959610E+00  0.607684
   3 P  3.80389000E-01  0.391957
-
+ 
 
 
  Summary of "ao basis" -> "" (cartesian)
@@ -276,8 +291,8 @@ task tce gradient
 
                                  NWChem SCF Module
                                  -----------------
-
-
+ 
+ 
 
   ao basis        = "ao basis"
   functions       =     7
@@ -287,7 +302,7 @@ task tce gradient
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = ./h2o.movecs
+  output vectors  = /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_gradients/perm/h2o.movecs
   use symmetry    = F
   symmetry adapt  = F
 
@@ -301,14 +316,14 @@ task tce gradient
 
 
 
- Forming initial guess at       0.1s
+ Forming initial guess at       0.9s
 
-
+ 
       Superposition of Atomic Density Guess
       -------------------------------------
-
+ 
  Sum of atomic energies:         -74.71095592
-
+ 
       Non-variational initial energy
       ------------------------------
 
@@ -317,9 +332,9 @@ task tce gradient
  2-e energy   =      37.907264
  HOMO         =      -0.258571
  LUMO         =       0.505624
+ 
 
-
- Starting SCF solution at       0.1s
+ Starting SCF solution at       0.9s
 
 
 
@@ -335,28 +350,31 @@ task tce gradient
  #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3p975/scratch/h2o.aoints.0
+ Integral file          = /scratch/h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  21492
+ Max. records in memory =      2        Max. records in file   = 225835
  No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9243513093  6.49E-01  5.52E-01      0.1
-                 2      -74.9620756344  1.36E-01  1.01E-01      0.1
-                 3      -74.9628872941  2.06E-02  1.64E-02      0.1
-                 4      -74.9629054059  5.44E-05  4.16E-05      0.1
-                 5      -74.9629054062  2.50E-10  2.07E-10      0.1
-                 6      -74.9629054062  3.21E-13  3.13E-13      0.1
+                 1      -74.9243513093  6.49E-01  5.52E-01      2.9
+                 2      -74.9620756344  1.36E-01  1.01E-01      2.9
+                 3      -74.9628872941  2.06E-02  1.64E-02      2.9
+                 4      -74.9629054059  5.44E-05  4.16E-05      2.9
+                 5      -74.9629054062  2.50E-10  2.07E-10      3.0
+                 6      -74.9629054062  3.09E-13  2.99E-13      3.0
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -74.962905406245
-      One-electron energy =   -122.374423325920
-      Two-electron energy =     38.214583539233
+         Total SCF energy =    -74.962905406246
+      One-electron energy =   -122.374423325923
+      Two-electron energy =     38.214583539234
  Nuclear repulsion energy =      9.196934380443
 
         Time for solution =      0.1s
@@ -373,51 +391,51 @@ task tce gradient
     5   -0.3913
     6    0.6059
     7    0.7426
-
+ 
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
-
+ 
  Vector    2  Occ=2.000000E+00  E=-1.268536E+00
-              MO Center=  7.0E-18,  6.3E-16,  7.3E-02, r^2= 5.4E-01
+              MO Center= -2.0E-20, -6.2E-16,  7.3E-02, r^2= 5.4E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.833413  1 O  s                  1     -0.232776  1 O  s          
-     6      0.158732  2 H  s                  7      0.158732  3 H  s          
-
+     7      0.158732  3 H  s                  6      0.158732  2 H  s          
+ 
  Vector    3  Occ=2.000000E+00  E=-6.180077E-01
-              MO Center= -3.3E-35, -1.7E-15,  1.4E-01, r^2= 8.3E-01
+              MO Center= -3.4E-34, -1.3E-15,  1.4E-01, r^2= 8.3E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.606480  1 O  py                 7     -0.444999  3 H  s          
      6      0.444999  2 H  s          
-
+ 
  Vector    4  Occ=2.000000E+00  E=-4.530671E-01
-              MO Center=  1.8E-17,  1.2E-15, -1.6E-01, r^2= 6.2E-01
+              MO Center= -5.0E-19,  2.3E-15, -1.6E-01, r^2= 6.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.776726  1 O  pz                 2     -0.536987  1 O  s          
      6      0.277769  2 H  s                  7      0.277769  3 H  s          
-
+ 
  Vector    5  Occ=2.000000E+00  E=-3.912735E-01
-              MO Center= -2.6E-17,  3.7E-35, -1.2E-01, r^2= 4.2E-01
+              MO Center=  6.3E-19, -1.9E-36, -1.2E-01, r^2= 4.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      1.000000  1 O  px         
-
+ 
  Vector    6  Occ=0.000000E+00  E= 6.059099E-01
-              MO Center=  1.2E-18, -1.1E-14,  3.9E-01, r^2= 1.1E+00
+              MO Center= -1.1E-19, -6.0E-15,  3.9E-01, r^2= 1.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.885068  1 O  s                  7     -0.797287  3 H  s          
      6     -0.797287  2 H  s                  5      0.742437  1 O  pz         
-
+ 
  Vector    7  Occ=0.000000E+00  E= 7.425787E-01
-              MO Center=  2.2E-34,  1.1E-14,  2.3E-01, r^2= 1.0E+00
+              MO Center=  1.1E-34,  5.8E-15,  2.3E-01, r^2= 1.0E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.990661  1 O  py                 6     -0.838899  2 H  s          
      7      0.838899  3 H  s          
-
+ 
 
  center of mass
  --------------
@@ -428,7 +446,7 @@ task tce gradient
            6.315769699608           0.000000000000           0.000000000000
            0.000000000000           2.194332428604           0.000000000000
            0.000000000000           0.000000000000           4.121437271004
-
+ 
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -437,31 +455,31 @@ task tce gradient
     1 O    8     8.37   2.00  1.83  4.54
     2 H    1     0.82   0.82
     3 H    1     0.82   0.82
-
+ 
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
-
+ 
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     10.000000
-
+ 
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1      0.679135      0.000000      0.000000
-
+ 
      2   2 0 0     -4.530864      0.000000      0.000000
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -3.240264      0.000000      4.089437
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -4.009875      0.000000      1.961339
+ 
 
-
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       9 records with       0 large values
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
-
+ 
               ======================================================
                    This portion of the program was automatically
                   generated by a Tensor Contraction Engine (TCE).
@@ -471,10 +489,10 @@ task tce gradient
                       TCE is a product of Battelle and PNNL.
               Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
               ======================================================
-
+ 
             General Information
             -------------------
-      Number of processors :     1
+      Number of processors :     9
          Wavefunction type : Restricted Hartree-Fock
           No. of electrons :    10
            Alpha electrons :     5
@@ -492,7 +510,7 @@ task tce gradient
         Use of symmetry is : off
       Symmetry adaption is : off
          Schwarz screening : 0.10E-09
-
+ 
           Correlation Information
           -----------------------
           Calculation type : Coupled-cluster singles & doubles                           
@@ -512,12 +530,12 @@ task tce gradient
       Symmetry restriction : off
    Dipole & oscillator str : off
                 I/O scheme : Global Array Library
-
+ 
             Memory Information
             ------------------
-          Available GA space size is      98303951 doubles
-          Available MA space size is      98303449 doubles
-
+          Available GA space size is     884735951 doubles
+          Available MA space size is      98303344 doubles
+ 
  Maximum block size        63 doubles
 
  tile_dim =      5
@@ -536,36 +554,39 @@ task tce gradient
  #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3p975/scratch/h2o.aoints.0
+ Integral file          = /scratch/h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  21492
+ Max. records in memory =      2        Max. records in file   = 225835
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+ 
  Fock matrix recomputed
  1-e file size   =               49
- 1-e file name   = /home/d3p975/scratch
+ 1-e file name   = /scratch/h2o.f1     
  1-e file handle =      -1000
- Cpu & wall time / sec            0.0            0.1
-
- 2-e (intermediate) file size =            6223
- 2-e (intermediate) file name = /home/d3p975/scratch
  Cpu & wall time / sec            0.0            0.0
-
+ 
+ 2-e (intermediate) file size =            6223
+ 2-e (intermediate) file name = /scratch/h2o.v2i    
+ Cpu & wall time / sec            0.0            0.0
+ 
  2-e file size   =             3922
- 2-e file name   = /home/d3p975/scratch
+ 2-e file name   = /scratch/h2o.v2     
  2-e file handle =       -998
  Cpu & wall time / sec            0.0            0.0
-
+ 
  t1 file size   =               10
- t1 file name   = /home/d3p975/scratch
+ t1 file name   = /scratch/h2o.t1     
  t1 file handle =       -999
  Cpu & wall time / sec            0.0
  before tce_guess_t2
  after tce_guess_t2
-
+ 
  t2 file size   =              200
- t2 file name   = /home/d3p975/scratch
+ t2 file name   = /scratch/h2o.t2     
  t2 file handle =       -996
  Cpu & wall time / sec            0.0
 
@@ -573,181 +594,71 @@ task tce gradient
  -----------------------------------------------------------------
  Iter          Residuum       Correlation     Cpu    Wall    V2*C2
  -----------------------------------------------------------------
-    1   0.0881789785111  -0.0354791708078     0.0     0.0     0.0
-    2   0.0308801099020  -0.0448111219780     0.0     0.0     0.0
-    3   0.0120609917628  -0.0476913819967     0.0     0.0     0.0
-    4   0.0050157462386  -0.0486937649154     0.0     0.0     0.0
-    5   0.0021889752915  -0.0490726808843     0.0     0.0     0.0
+    1   0.0881789785112  -0.0354791708077     0.0     0.0     0.0
+    2   0.0308801099021  -0.0448111219779     0.0     0.0     0.0
+    3   0.0120609917628  -0.0476913819966     0.0     0.0     0.0
+    4   0.0050157462386  -0.0486937649152     0.0     0.0     0.0
+    5   0.0021889752915  -0.0490726808842     0.0     0.0     0.0
  MICROCYCLE DIIS UPDATE: 5 5
-    6   0.0000595635731  -0.0493373993121     0.0     0.0     0.0
-    7   0.0000215020242  -0.0493366222036     0.0     0.0     0.0
-    8   0.0000103963950  -0.0493367850461     0.0     0.0     0.0
-    9   0.0000051831247  -0.0493368874014     0.0     0.0     0.0
-   10   0.0000026099464  -0.0493369434228     0.0     0.0     0.0
+    6   0.0000595635731  -0.0493373993120     0.0     0.0     0.0
+    7   0.0000215020242  -0.0493366222035     0.0     0.0     0.0
+    8   0.0000103963950  -0.0493367850460     0.0     0.0     0.0
+    9   0.0000051831247  -0.0493368874013     0.0     0.0     0.0
+   10   0.0000026099464  -0.0493369434227     0.0     0.0     0.0
  MICROCYCLE DIIS UPDATE: 10 5
-   11   0.0000001715626  -0.0493370016624     0.0     0.0     0.0
-   12   0.0000000588424  -0.0493370129394     0.0     0.0     0.0
+   11   0.0000001715626  -0.0493370016623     0.0     0.0     0.0
+   12   0.0000000588424  -0.0493370129393     0.0     0.0     0.0
  -----------------------------------------------------------------
  Iterations converged
- CCSD correlation energy / hartree =        -0.049337012939354
- CCSD total energy / hartree       =       -75.012242419184261
+ CCSD correlation energy / hartree =        -0.049337012939253
+ CCSD total energy / hartree       =       -75.012242419185583
 
  Singles contributions
 
  Doubles contributions
-
+ 
  Ground-state symmetry is a   
-
+ 
  =========================================
  Excited-state calculation ( a   symmetry)
  =========================================
-
+ 
  x1 file size   =               10
-
+ 
  x2 file size   =              200
- before tce_eom_xguess
 
  No. of initial right vectors    1
- after tce_eom_xguess
 
  EOM-CCSD right-hand side iterations
  --------------------------------------------------------------
       Residuum       Omega / hartree  Omega / eV    Cpu    Wall
  --------------------------------------------------------------
- iter= 1
 
  Iteration   1 using    1 trial vectors
- ivec= 1
- before eomccsd_x1
- after eomccsd_x1
- before eomccsd_x2
- after eomccsd_x2
- before tce_eom_xdiagon
- after tce_eom_xdiagon
-   0.3412084933053   0.5111969303850   13.91038     0.7     1.0
- iter= 2
+   0.3412084933057   0.5111969303849   13.91038     3.5     1.8
 
  Iteration   2 using    2 trial vectors
- ivec= 1
- ivec= 2
- before eomccsd_x1
- after eomccsd_x1
- before eomccsd_x2
- after eomccsd_x2
- before tce_eom_xdiagon
- after tce_eom_xdiagon
-   0.0599987197777   0.4590879287823   12.49242     0.1     0.1
- iter= 3
+   0.0599987197781   0.4590879287822   12.49242     0.1     0.1
 
  Iteration   3 using    3 trial vectors
- ivec= 1
- ivec= 2
- ivec= 3
- before eomccsd_x1
- after eomccsd_x1
- before eomccsd_x2
- after eomccsd_x2
- before tce_eom_xdiagon
- after tce_eom_xdiagon
-   0.0240953885984   0.4575683398738   12.45107     0.1     0.1
- iter= 4
+   0.0240953885983   0.4575683398737   12.45107     0.1     0.1
 
  Iteration   4 using    4 trial vectors
- ivec= 1
- ivec= 2
- ivec= 3
- ivec= 4
- before eomccsd_x1
- after eomccsd_x1
- before eomccsd_x2
- after eomccsd_x2
- before tce_eom_xdiagon
- after tce_eom_xdiagon
-   0.0092993200687   0.4574965936255   12.44912     0.1     0.1
- iter= 5
+   0.0092993200688   0.4574965936255   12.44912     0.1     0.1
 
  Iteration   5 using    5 trial vectors
- ivec= 1
- ivec= 2
- ivec= 3
- ivec= 4
- ivec= 5
- before eomccsd_x1
- after eomccsd_x1
- before eomccsd_x2
- after eomccsd_x2
- before tce_eom_xdiagon
- after tce_eom_xdiagon
-   0.0010734899463   0.4574813932722   12.44871     0.1     0.1
- iter= 6
+   0.0010734899463   0.4574813932721   12.44871     0.1     0.1
 
  Iteration   6 using    6 trial vectors
- ivec= 1
- ivec= 2
- ivec= 3
- ivec= 4
- ivec= 5
- ivec= 6
- before eomccsd_x1
- after eomccsd_x1
- before eomccsd_x2
- after eomccsd_x2
- before tce_eom_xdiagon
- after tce_eom_xdiagon
-   0.0002505865980   0.4574806771120   12.44869     0.1     0.1
- iter= 7
+   0.0002505865980   0.4574806771119   12.44869     0.1     0.1
 
  Iteration   7 using    7 trial vectors
- ivec= 1
- ivec= 2
- ivec= 3
- ivec= 4
- ivec= 5
- ivec= 6
- ivec= 7
- before eomccsd_x1
- after eomccsd_x1
- before eomccsd_x2
- after eomccsd_x2
- before tce_eom_xdiagon
- after tce_eom_xdiagon
-   0.0000777895731   0.4574803623537   12.44868     0.1     0.1
- iter= 8
+   0.0000777895731   0.4574803623536   12.44868     0.1     0.1
 
  Iteration   8 using    8 trial vectors
- ivec= 1
- ivec= 2
- ivec= 3
- ivec= 4
- ivec= 5
- ivec= 6
- ivec= 7
- ivec= 8
- before eomccsd_x1
- after eomccsd_x1
- before eomccsd_x2
- after eomccsd_x2
- before tce_eom_xdiagon
- after tce_eom_xdiagon
-   0.0000034545305   0.4574803634781   12.44868     0.1     0.1
- iter= 9
+   0.0000034545305   0.4574803634780   12.44868     0.1     0.1
 
  Iteration   9 using    9 trial vectors
- ivec= 1
- ivec= 2
- ivec= 3
- ivec= 4
- ivec= 5
- ivec= 6
- ivec= 7
- ivec= 8
- ivec= 9
- before eomccsd_x1
- after eomccsd_x1
- before eomccsd_x2
- after eomccsd_x2
- before tce_eom_xdiagon
- after tce_eom_xdiagon
    0.0000000000000   0.4574803765615   12.44868     0.1     0.1
  --------------------------------------------------------------
  Iterations converged
@@ -760,31 +671,31 @@ task tce gradient
  --------------------------------------------------------------
 
  Iteration   1 using    1 trial vectors
-   0.3540551135852   0.5111969303850   13.91038     0.1     0.1
+   0.3540551135857   0.5111969303849   13.91038     0.1     0.1
 
  Iteration   2 using    2 trial vectors
-   0.0590823593978   0.4601263747998   12.52068     0.1     0.1
+   0.0590823593981   0.4601263747997   12.52068     0.1     0.1
 
  Iteration   3 using    3 trial vectors
-   0.0235524521628   0.4576860250427   12.45428     0.0     0.1
+   0.0235524521627   0.4576860250426   12.45428     0.1     0.1
 
  Iteration   4 using    4 trial vectors
-   0.0093800791330   0.4575096778776   12.44948     0.0     0.1
+   0.0093800791332   0.4575096778776   12.44948     0.1     0.1
 
  Iteration   5 using    5 trial vectors
-   0.0010514636333   0.4574776021947   12.44860     0.0     0.1
+   0.0010514636334   0.4574776021946   12.44860     0.1     0.1
 
  Iteration   6 using    6 trial vectors
-   0.0002614613301   0.4574794277392   12.44865     0.1     0.1
+   0.0002614613301   0.4574794277391   12.44865     0.1     0.1
 
  Iteration   7 using    7 trial vectors
-   0.0000821926846   0.4574803741468   12.44868     0.1     0.1
+   0.0000821926846   0.4574803741467   12.44868     0.1     0.1
 
  Iteration   8 using    8 trial vectors
-   0.0000039434157   0.4574803908721   12.44868     0.1     0.1
+   0.0000039434157   0.4574803908720   12.44868     0.1     0.1
 
  Iteration   9 using    9 trial vectors
-   0.0000000000000   0.4574803780880   12.44868     0.1     0.1
+   0.0000000000000   0.4574803780879   12.44868     0.1     0.2
  --------------------------------------------------------------
  Iterations converged
 
@@ -792,22 +703,22 @@ task tce gradient
  --------------------------------------
  Iter          Residuum     Cpu    Wall
  --------------------------------------
-    1   0.0354316227131     0.1     0.1
-    2   0.0029245013659     0.1     0.1
-    3   0.0003755223757     0.1     0.1
-    4   0.0000574711207     0.1     0.1
+    1   0.0354316227131     0.1     0.2
+    2   0.0029245013658     0.1     0.1
+    3   0.0003755223757     0.1     0.2
+    4   0.0000574711207     0.1     0.2
     5   0.0000095929345     0.1     0.1
  MICROCYCLE DIIS UPDATE: 5 5
     6   0.0000000494936     0.1     0.1
  --------------------------------------
  Iterations converged
-
+ 
 
  MO Z-VEC iterations
  --------------------------------------
  Iter          Residuum     Cpu    Wall
  --------------------------------------
-    1   0.0704552499198     0.0     0.0
+    1   0.0704552499200     0.0     0.0
     2   0.0052976823246     0.0     0.0
     3   0.0005993061702     0.0     0.0
     4   0.0001640222101     0.0     0.0
@@ -816,11 +727,11 @@ task tce gradient
     6   0.0000000000000     0.0     0.0
  --------------------------------------
  Iterations converged
-
+ 
                               NWChem Gradients Module
                               -----------------------
-
-
+ 
+ 
 
   wavefunction    =   TCE RHF     CCSD
 
@@ -833,25 +744,25 @@ task tce gradient
    1 O       0.000000   0.000000  -0.221435    0.000000   0.000000   0.375032
    2 H       0.000000   1.429937   0.885740    0.000000  -0.309537  -0.187516
    3 H       0.000000  -1.429937   0.885740    0.000000   0.309537  -0.187516
-
+ 
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.01   |
+                 |  CPU   |       0.00   |       0.00   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.02   |
+                 |  WALL  |       0.00   |       0.00   |
                  ----------------------------------------
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       9 records with       0 large values
 
 
- Task  times  cpu:        5.2s     wall:        6.0s
-
-
+ Task  times  cpu:        3.1s     wall:        4.4s
+ 
+ 
                                 NWChem Input Module
                                 -------------------
-
-
+ 
+ 
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -862,12 +773,12 @@ task tce gradient
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 2257     2257     6.02e+04 1.90e+04 1.28e+04    0        0        0     
-number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             2.76e+07 2.36e+06 1.89e+07 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 461024 bytes
-
+calls: 2257     2257     1.42e+04 2760     5143        0        0        0     
+number of processes/call 3.82e+00 1.50e+00 4.87e+00 0.00e+00 0.00e+00
+bytes total:             8.32e+06 5.07e+05 5.92e+06 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            6.78e+06 3.37e+05 4.14e+06 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 51816 bytes
+ 
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -878,8 +789,8 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        23	        89
 	current total bytes		         0	         0
-	maximum total bytes		   1054080	  22508756
-	maximum total K-bytes		      1055	     22509
+	maximum total bytes		   1055192	  22509032
+	maximum total K-bytes		      1056	     22510
 	maximum total M-bytes		         2	        23
 
 
@@ -922,4 +833,4 @@ MA usage statistics:
 
 
 
- Total times  cpu:        5.3s     wall:        6.0s
+ Total times  cpu:        3.2s     wall:        5.4s
