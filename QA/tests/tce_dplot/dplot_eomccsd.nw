@@ -1,0 +1,36 @@
+start n2
+
+permanent_dir /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_dplot/perm
+scratch_dir /scratch
+
+geometry
+  n  0 0   0.53879155
+  n  0 0  -0.53879155
+symmetry c1
+end
+
+basis  
+n library cc-pvdz
+end
+
+tce
+ccsd
+nroots 1
+densmat /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_dplot/n2.densmat
+end
+
+task tce energy
+
+dplot
+  TITLE DENSITY
+   LimitXYZ
+ -3.0 3.0 10  
+ -3.0 3.0 10 
+ -3.0 3.0 10
+  spin total
+  gaussian
+  output  /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_dplot/dens_eomccsd.cube
+  densmat /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_dplot/n2.densmat
+end
+
+task dplot
