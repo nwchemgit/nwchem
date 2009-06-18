@@ -43,33 +43,27 @@ c
       needt3=.false.
       needt4=.false.
 c
-      print *,'before tce_eom_xguess'       
       call tce_eom_xguess(needt1,needt2,needt3,needt4,
      1     size_x1,size_x2,size_x3,size_x4,
      2     k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
-      print *,'after tce_eom_xguess'
       if (nxtrials.eq.0) goto 200
       modelname = "EOM-CCSD right-hand side"
       if (nodezero) write(LuOut,9220)
      1   modelname(1:inp_strlen(modelname))
       do iter=1,maxiter
-         print *,'iter=',iter
          if (nodezero.and.util_print('eom',print_default))
      1      write(LuOut,9210) iter,nxtrials
          do ivec = 1,nxtrials
-            print *,'ivec=',ivec
             if (.not.xp1_exist(ivec)) then
                call tce_filenameindexed(ivec,'xp1',filename)
                call createfile(filename,xp1(ivec),size_x1)
                xp1_exist(ivec) = .true.
                call dratoga(x1(ivec))
                call dratoga(x2(ivec))
-               print *,'before eomccsd_x1'
                call eomccsd_x1_grad(d_f1,xp1(ivec),d_t1,d_t2,d_v2,
      1            x1(ivec),x2(ivec),k_f1_offset,k_x1_offset,
      2            k_t1_offset,k_t2_offset,k_v2_offset,
      3            k_x1_offset,k_x2_offset)
-               print *,'after eomccsd_x1'
                call reconcilefile(xp1(ivec),size_x1)
                call gatodra(x2(ivec))
                call gatodra(x1(ivec))
@@ -81,12 +75,10 @@ c
                xp2_exist(ivec) = .true.
                call dratoga(x1(ivec))
                call dratoga(x2(ivec))
-               print *,'before eomccsd_x2'
                call eomccsd_x2_grad(d_f1,xp2(ivec),d_t1,d_t2,d_v2,
      1              x1(ivec),x2(ivec),k_f1_offset,k_x2_offset,
      2              k_t1_offset,k_t2_offset,k_v2_offset,
      3              k_x1_offset,k_x2_offset)
-               print *,'after eomccsd_x2'
                call reconcilefile(xp2(ivec),size_x2)
                call gatodra(x2(ivec))
                call gatodra(x1(ivec))
