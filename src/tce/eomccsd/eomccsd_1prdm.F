@@ -12,6 +12,7 @@
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
+#include "stdio.fh"
       integer rtdb
       double precision omega
       integer d_f1,d_v2
@@ -395,6 +396,24 @@ c
      2     0.d0,dbl_mb(k_mu_p),nbf)
       call dgemm('n','n',nbf,nbf,np,1.0d0,dbl_mb(k_mu_p),nbf,
      1     dbl_mb(k_mo_p),np,1.0d0, dbl_mb(k_rdm_ao),nbf)
+c
+c
+      if(nodezero.and.util_print('densmat',print_high)) then
+        write(luout,*) '==================================='
+        write(luout,*) 'Debug information of density matrix'
+        write(luout,*) '==================================='
+        do i=1,nbf
+           do j=1,nbf
+              if(abs(dbl_mb(k_rdm_ao+(i-1)+(j-1)*nbf)).gt.1.d-8)
+     1           write(luout,'(i5,i5,f20.16)') i,j,
+     1            (dbl_mb(k_rdm_ao+(i-1)+(j-1)*nbf)+
+     1             dbl_mb(k_rdm_ao+(j-1)+(i-1)*nbf))/2.d0
+           enddo
+        enddo
+        write(luout,*) '==================================='
+        write(luout,*) '      End of debug information     '
+        write(luout,*) '==================================='
+      endif
 c
 c     release the memory for pp block
 c
