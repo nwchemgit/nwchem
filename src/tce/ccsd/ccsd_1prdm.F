@@ -8,6 +8,7 @@
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
+#include "stdio.fh"
 c
       integer rtdb
       integer d_t1,d_t2,d_lambda1,d_lambda2
@@ -408,17 +409,22 @@ c<-debug
       call dgemm('n','n',nbf,nbf,nh,1.0d0,dbl_mb(k_mu_h),nbf,
      1     dbl_mb(k_mo_h),nh,1.0d0, dbl_mb(k_rdm_ao),nbf)
 c->debug
-c      if(nodezero) then
-c        open(1,file='rdm_ao_ph.dat',status='unknown',
-c     1       form='formatted')
-c        do i=1,nbf
-c           do j=1,nbf
-c              write(1,'(i5,i5,f20.16)') i,j,
-c     1            dbl_mb(k_rdm_ao+(i-1)+(j-1)*nbf)
-c           enddo
-c        enddo
-c        close(1)
-c      endif
+      if(nodezero.and.util_print('densmat',print_low)) then
+        write(luout,*) '==================================='
+        write(luout,*) 'Debug information of density matrix'
+        write(luout,*) '==================================='
+        do i=1,nbf
+           do j=1,nbf
+              if(abs(dbl_mb(k_rdm_ao+(i-1)+(j-1)*nbf)).gt.1.d-8)
+     1           write(luout,'(i5,i5,f20.16)') i,j,
+     1            (dbl_mb(k_rdm_ao+(i-1)+(j-1)*nbf)+
+     1             dbl_mb(k_rdm_ao+(j-1)+(i-1)*nbf))/2.d0
+           enddo
+        enddo
+        write(luout,*) '==================================='
+        write(luout,*) '      End of debug information     '
+        write(luout,*) '==================================='
+      endif
 c<-debug
 c     
 c     release memory for ph block
