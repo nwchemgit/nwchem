@@ -1,0 +1,22 @@
+start n2
+
+permanent_dir /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_ccsd_densmat/perm
+scratch_dir /scratch
+
+geometry
+  n  0 0   0.53879155
+  n  0 0  -0.53879155
+symmetry c1
+end
+
+basis  
+n library cc-pvdz
+end
+
+tce
+ccsd
+print low
+densmat /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_ccsd_densmat/n2.densmat
+end
+
+task tce energy
