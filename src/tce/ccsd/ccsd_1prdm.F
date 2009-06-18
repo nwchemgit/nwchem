@@ -409,7 +409,7 @@ c<-debug
       call dgemm('n','n',nbf,nbf,nh,1.0d0,dbl_mb(k_mu_h),nbf,
      1     dbl_mb(k_mo_h),nh,1.0d0, dbl_mb(k_rdm_ao),nbf)
 c->debug
-      if(nodezero.and.util_print('densmat',print_low)) then
+      if(nodezero.and.util_print('densmat',print_high)) then
         write(luout,*) '==================================='
         write(luout,*) 'Debug information of density matrix'
         write(luout,*) '==================================='
