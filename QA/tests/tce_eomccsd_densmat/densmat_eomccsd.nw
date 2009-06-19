@@ -1,3 +1,6 @@
+
+echo
+
 start n2
 
 permanent_dir /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_eomccsd_densmat/perm
@@ -15,8 +18,8 @@ end
 
 tce
 ccsd
+print high
 nroots 1
-print low
 densmat /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_eomccsd_densmat/n2.densmat
 end
 
