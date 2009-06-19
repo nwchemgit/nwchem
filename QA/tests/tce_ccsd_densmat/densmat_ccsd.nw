@@ -15,7 +15,7 @@ end
 
 tce
 ccsd
-print low
+print high
 densmat /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_ccsd_densmat/n2.densmat
 end
 
