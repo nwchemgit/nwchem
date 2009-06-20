@@ -997,6 +997,59 @@ task tce energy
 
 \end{verbatim}
 
+\section{TCE gradients}
+
+Analytic gradients for CCSD and EOM-CCSD can be calculated for closed shell and C1 symmetry within
+the TCE. The input syntax to perform energy gradient calculation is
+
+\begin{verbatim}
+
+task tce gradient
+
+\end{verbatim}
+
+One example of the input file is the following,
+
+\begin{verbatim}
+title water
+echo
+start h2o
+memory  1500 mb
+
+geometry units bohr
+O      0.000000000000     0.000000000000    -0.123909374404
+H      0.000000000000     1.429936611037     0.983265845431
+H      0.000000000000    -1.429936611037     0.983265845431
+symmetry c1
+end
+
+basis
+H library sto-3g
+O library sto-3g
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+ccsd
+end
+
+task tce gradient
+
+tce
+ccsd
+nroots 1
+end
+
+task tce gradient
+
+\end{verbatim}
+
 \section{TCE Response Properties}
 
 \subsection{Introduction}
