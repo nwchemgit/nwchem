@@ -73,6 +73,7 @@ c
        double precision, dimension(:,:), allocatable :: rd
        character*5, dimension(:), allocatable :: tag
        integer, dimension(:), allocatable :: gr
+       double precision, dimension(:), allocatable :: grs
        character*30 buf
        character*180 bigbuf
        double precision d,dr
@@ -92,7 +93,9 @@ c      size of the bin
        dr = rmax/nb
 c      g(r) array
        allocate(gr(nb))
+       allocate(grs(nb))
        gr = 0
+       grs = 0.0d0
 c      get reciprocal lattice vectors 
        call smd_lat_invrt(lat,rlat)
        write(*,*) "Inverse Lattice vectors"
@@ -185,7 +188,21 @@ c      -----------------
       
 135    continue
         write(*,*) "Number of frames processed",nf
-
+c
+c      smoothing g(r) per Allan/Tild. p 204 (6.48)
+c      ------------------------------------------
+       grs(1)=(69.0*gr(1)+4.0*gr(2)-6.0*gr(3)+
+     >         4.0*gr(4)-gr(5))/70.0d0
+       grs(2)=(2.0*gr(1)+27.0*gr(2)+12.0*gr(3)
+     >  -8.0*gr(4)+2.0*gr(5))/35.0d0
+       do i=3,nb-2
+         grs(i) =(-3.0*gr(i-2)+12.0*gr(i-1)+17.0*gr(i)+
+     >            12.0*gr(i+1)-3.0*gr(i+2))/35.0d0 
+       end do
+       grs(nb-1)=(2.0*gr(nb)+27*gr(nb-1)+12.0*gr(nb-2)-
+     >            8.0*gr(nb-3)+2.0*gr(nb-4))/35.0d0
+       grs(nb)=(69.0*gr(nb)+4.0*gr(nb-1)-6.0*gr(nb-2)+
+     >          4.0*gr(nb-3)-gr(nb-4))/70.0d0
        open(12,file="gr.dat",
      $            form='formatted',status='unknown')
 
@@ -198,11 +215,11 @@ c      -----------------
          rl = real(k-1)*dr
          ru = rl+dr
          norm = const*(ru**3-rl**3)
-         sum = sum + gr(k)*x
+         sum = sum + grs(k)*x
 c         write(12,'(i5,F12.6,I5,F12.6,F12.6)') 
 c     >             k,ru,gr(k),sum,real(gr(k))*x/norm
          write(12,'(3F12.6)') 
-     >             ru,real(gr(k))*x/norm,sum
+     >             ru,real(grs(k))*x/norm,sum
        end do
        return
 c      error section
