@@ -10,6 +10,7 @@
 #include "tce.fh"
 #include "tce_main.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 c     
       integer d_f1,k_f1_offset
       integer d_v2,k_v2_offset
@@ -349,6 +350,7 @@ c     ==========================================================================
       do iter=1,maxiter
         cpu=-util_cpusec()
         wall=-util_wallsec()
+        if (nodezero.and.(iter.eq.1)) write(LuOut,9050) "MO Z-VEC"
         call tce_filename('r1',filename)
         call createfile(filename,d_r1,size_r1)
         call ccsd_zvec(d_f1,d_r1,d_v2,d_x1,d_ph,k_f1_offset,
@@ -358,8 +360,12 @@ c     ==========================================================================
         residual = r1
         cpu=cpu+util_cpusec()
         wall=wall+util_wallsec()
-        if (nodezero) write(6,*) iter,residual
+        if (nodezero) write(LuOut,9100) iter,residual,cpu,wall
         if (residual .lt. thresh) then
+           if (nodezero) then
+              write(LuOut,9060)
+              write(LuOut,*)
+           endif
           call deletefile(d_r1)
           call tce_diis_tidy()
           goto 320
@@ -765,4 +771,12 @@ c
       if(.not.ma_pop_stack(l_hh_offset))
      1  call errquit('ccsd_dens_mo: ma problem',18,ma_err)
 c
+ 9050 format(/,1x,A,' iterations',/,
+     1  1x,'--------------------------------------',/
+     2  1x,'Iter          Residuum     Cpu    Wall',/
+     3  1x,'--------------------------------------')
+ 9060 format(
+     1  1x,'--------------------------------------',/
+     2  1x,'Iterations converged')
+ 9100 format(1x,i4,f18.13,2f8.1)
       end
