@@ -35,7 +35,6 @@
          aoresponse.o \
          CalcPerturbedTDPmat1.o \
          aoresponse_giao_rhs.o \
-         ao_rdm_read.o \
          ao_1prdm_read.o
 
    LIBRARY = libproperty.a
