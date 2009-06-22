@@ -1,5 +1,5 @@
 refund: UserID = d3p975
-refund: SLURM Job ID = 198670
+refund: SLURM Job ID = 200815
 refund: Number of nodes          = 3
 refund: Number of cores per node = 3
 refund: Number of cores          = 9
@@ -129,9 +129,9 @@ task tce gradient
 
     hostname      = cu1n1
     program       = /scratch/nwchem
-    date          = Wed Jun 17 18:58:51 2009
+    date          = Mon Jun 22 12:34:34 2009
 
-    compiled      = Wed_Jun_17_18:46:17_2009
+    compiled      = Mon_Jun_22_12:28:00_2009
     source        = /home/d3p975/codes/nwchem-svn/nwchem
     nwchem branch = Development
     input         = /mscf/home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_ccsd_gradient/h2o_ccsd.nw
@@ -315,7 +315,7 @@ task tce gradient
 
 
 
- Forming initial guess at       0.7s
+ Forming initial guess at       0.6s
 
  
       Superposition of Atomic Density Guess
@@ -341,7 +341,7 @@ task tce gradient
          Quadratically convergent ROHF
 
  Convergence threshold     :          1.000E-10
- Maximum no. of iterations :           20
+ Maximum no. of iterations :           30
  Final Fock-matrix accuracy:          1.000E-10
  ----------------------------------------------
 
@@ -351,7 +351,7 @@ task tce gradient
 
  Integral file          = /scratch/h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 225835
+ Max. records in memory =      2        Max. records in file   = 225827
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -360,12 +360,12 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9243513093  6.49E-01  5.52E-01      1.0
-                 2      -74.9620756344  1.36E-01  1.01E-01      1.0
-                 3      -74.9628872941  2.06E-02  1.64E-02      1.0
-                 4      -74.9629054059  5.44E-05  4.16E-05      1.1
-                 5      -74.9629054062  2.50E-10  2.07E-10      1.1
-                 6      -74.9629054062  3.23E-13  3.14E-13      1.1
+                 1      -74.9243513093  6.49E-01  5.52E-01      1.1
+                 2      -74.9620756344  1.36E-01  1.01E-01      1.1
+                 3      -74.9628872941  2.06E-02  1.64E-02      1.2
+                 4      -74.9629054059  5.44E-05  4.16E-05      1.2
+                 5      -74.9629054062  2.50E-10  2.07E-10      1.2
+                 6      -74.9629054062  3.20E-13  3.12E-13      1.2
 
 
        Final RHF  results 
@@ -376,7 +376,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       Two-electron energy =     38.214583539234
  Nuclear repulsion energy =      9.196934380443
 
-        Time for solution =      0.2s
+        Time for solution =      0.1s
 
 
              Final eigenvalues
@@ -395,45 +395,45 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        -------------------------------------
  
  Vector    2  Occ=2.000000E+00  E=-1.268536E+00
-              MO Center= -1.8E-20, -7.3E-16,  7.3E-02, r^2= 5.4E-01
+              MO Center= -2.4E-20,  2.8E-17,  7.3E-02, r^2= 5.4E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.833413  1 O  s                  1     -0.232776  1 O  s          
      7      0.158732  3 H  s                  6      0.158732  2 H  s          
  
  Vector    3  Occ=2.000000E+00  E=-6.180077E-01
-              MO Center=  4.9E-34, -8.0E-16,  1.4E-01, r^2= 8.3E-01
+              MO Center=  1.7E-34, -1.8E-15,  1.4E-01, r^2= 8.3E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.606480  1 O  py                 7     -0.444999  3 H  s          
      6      0.444999  2 H  s          
  
  Vector    4  Occ=2.000000E+00  E=-4.530671E-01
-              MO Center= -4.6E-19,  2.0E-15, -1.6E-01, r^2= 6.2E-01
+              MO Center= -6.0E-19,  1.1E-15, -1.6E-01, r^2= 6.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.776726  1 O  pz                 2     -0.536987  1 O  s          
      6      0.277769  2 H  s                  7      0.277769  3 H  s          
  
  Vector    5  Occ=2.000000E+00  E=-3.912735E-01
-              MO Center=  5.8E-19,  2.9E-36, -1.2E-01, r^2= 4.2E-01
+              MO Center=  7.5E-19,  3.3E-36, -1.2E-01, r^2= 4.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      1.000000  1 O  px         
  
  Vector    6  Occ=0.000000E+00  E= 6.059099E-01
-              MO Center= -1.0E-19, -3.9E-15,  3.9E-01, r^2= 1.1E+00
+              MO Center= -1.3E-19,  1.3E-15,  3.9E-01, r^2= 1.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2      0.885068  1 O  s                  7     -0.797287  3 H  s          
-     6     -0.797287  2 H  s                  5      0.742437  1 O  pz         
+     2      0.885068  1 O  s                  6     -0.797287  2 H  s          
+     7     -0.797287  3 H  s                  5      0.742437  1 O  pz         
  
  Vector    7  Occ=0.000000E+00  E= 7.425787E-01
-              MO Center= -8.4E-35,  3.2E-15,  2.3E-01, r^2= 1.0E+00
+              MO Center=  1.6E-34, -1.0E-15,  2.3E-01, r^2= 1.0E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.990661  1 O  py                 6     -0.838899  2 H  s          
-     7      0.838899  3 H  s          
+     4      0.990661  1 O  py                 7      0.838899  3 H  s          
+     6     -0.838899  2 H  s          
  
 
  center of mass
@@ -550,7 +550,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Integral file          = /scratch/h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 225835
+ Max. records in memory =      2        Max. records in file   = 225827
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -588,20 +588,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  -----------------------------------------------------------------
  Iter          Residuum       Correlation     Cpu    Wall    V2*C2
  -----------------------------------------------------------------
-    1   0.0881789785112  -0.0354791708077     0.0     0.1     0.0
-    2   0.0308801099021  -0.0448111219779     0.0     0.1     0.0
+    1   0.0881789785112  -0.0354791708077     0.0     0.0     0.0
+    2   0.0308801099021  -0.0448111219779     0.0     0.0     0.0
     3   0.0120609917628  -0.0476913819966     0.0     0.1     0.0
     4   0.0050157462386  -0.0486937649152     0.0     0.1     0.0
     5   0.0021889752915  -0.0490726808842     0.0     0.1     0.0
  MICROCYCLE DIIS UPDATE: 5 5
-    6   0.0000595635731  -0.0493373993120     0.1     0.1     0.0
-    7   0.0000215020242  -0.0493366222035     0.1     0.1     0.0
-    8   0.0000103963950  -0.0493367850460     0.1     0.1     0.0
+    6   0.0000595635731  -0.0493373993120     0.0     0.1     0.0
+    7   0.0000215020242  -0.0493366222035     0.0     0.1     0.0
+    8   0.0000103963950  -0.0493367850460     0.0     0.1     0.0
     9   0.0000051831247  -0.0493368874013     0.0     0.1     0.0
    10   0.0000026099464  -0.0493369434227     0.0     0.1     0.0
  MICROCYCLE DIIS UPDATE: 10 5
    11   0.0000001715626  -0.0493370016623     0.0     0.1     0.0
-   12   0.0000000588424  -0.0493370129393     0.1     0.1     0.0
+   12   0.0000000588424  -0.0493370129393     0.0     0.1     0.0
  -----------------------------------------------------------------
  Iterations converged
  CCSD correlation energy / hartree =        -0.049337012939253
@@ -615,23 +615,31 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  --------------------------------------
  Iter          Residuum     Cpu    Wall
  --------------------------------------
-    1   0.1071563199110     0.1     0.2
-    2   0.0071780354664     0.1     0.2
-    3   0.0009283904422     0.1     0.2
-    4   0.0001527301713     0.1     0.2
-    5   0.0000275649717     0.1     0.2
+    1   0.1071563199110     0.1     0.1
+    2   0.0071780354664     0.1     0.1
+    3   0.0009283904422     0.1     0.1
+    4   0.0001527301713     0.1     0.1
+    5   0.0000275649717     0.1     0.1
  MICROCYCLE DIIS UPDATE: 5 5
-    6   0.0000002096274     0.1     0.2
-    7   0.0000000245526     0.1     0.2
+    6   0.0000002096274     0.1     0.1
+    7   0.0000000245526     0.1     0.1
  --------------------------------------
  Iterations converged
- 1 5.00909826497851225E-3
- 2 1.44548877945507273E-3
- 3 5.59528272117092748E-4
- 4 2.40603096972848656E-4
- 5 1.03662603662036724E-4
+
+ MO Z-VEC iterations
+ --------------------------------------
+ Iter          Residuum     Cpu    Wall
+ --------------------------------------
+    1   0.0050090982650     0.0     0.0
+    2   0.0014454887795     0.0     0.0
+    3   0.0005595282721     0.0     0.0
+    4   0.0002406030970     0.0     0.0
+    5   0.0001036626037     0.0     0.0
  MICROCYCLE DIIS UPDATE: 5 5
- 6 1.22296050920876738E-17
+    6   0.0000000000000     0.0     0.0
+ --------------------------------------
+ Iterations converged
+ 
                               NWChem Gradients Module
                               -----------------------
  
@@ -660,7 +668,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Parallel integral file used       9 records with       0 large values
 
 
- Task  times  cpu:        2.2s     wall:        3.4s
+ Task  times  cpu:        1.8s     wall:        2.6s
  
  
                                 NWChem Input Module
@@ -677,10 +685,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1094     1094     7778     2626     2311        0        0        0     
-number of processes/call 2.57e+00 1.32e+00 4.26e+00 0.00e+00 0.00e+00
-bytes total:             3.56e+06 4.22e+05 2.09e+06 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            2.81e+06 2.58e+05 1.44e+06 0.00e+00 0.00e+00 0.00e+00
+calls: 1094     1094     7188     2531     2089        0        0        0     
+number of processes/call 2.45e+00 1.25e+00 4.10e+00 0.00e+00 0.00e+00
+bytes total:             3.17e+06 3.87e+05 1.90e+06 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            2.51e+06 2.36e+05 1.32e+06 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 50808 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
@@ -737,4 +745,4 @@ MA usage statistics:
 
 
 
- Total times  cpu:        2.2s     wall:        4.2s
+ Total times  cpu:        1.9s     wall:        3.4s
