@@ -13,6 +13,7 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "cosmo.fh"
+#include "bas.fh"
 c
       integer rtdb      ! [Input] rtdb
       integer basis     ! [Input] Basis set
@@ -38,10 +39,11 @@ c     property grid points variables (MV)
       integer l_tefld,k_tefld
 c->d3p975
       character*30 theory
+      integer nbf
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
-      logical ao_rdm_read
-      external ao_rdm_read
+      logical ao_1prdm_read
+      external ao_1prdm_read
 c<-d3p975
 c
 c
@@ -70,8 +72,12 @@ c
 c
 c    2. read the data 
 c
-         if (.not.ao_rdm_read('ao_rdm',basis,g_dens))
-     1   call errquit('hnd_elfmap:ao_rdm_read failed',0,0)
+        if (.not. bas_numbf(basis,nbf)) call
+     &    errquit('hnd_elfmap: could not get nbf',0, BASIS_ERR)
+c
+        if(.not.ao_1prdm_read(nbf,g_dens(ndens)))
+     1  call errquit('hnd_elfmap: ao_1prdm_read failed',0,0)
+
       else 
          call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
      &                      nclosed,nopen,nvirt)
