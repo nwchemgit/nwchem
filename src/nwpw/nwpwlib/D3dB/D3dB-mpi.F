@@ -302,7 +302,7 @@ c     integer i2_start(NFFT3+1)
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    mstype,MPI_COMM_WORLD,
+     >                    msgtype,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr)
 #endif
          end if
