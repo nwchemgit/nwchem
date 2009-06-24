@@ -3,7 +3,8 @@
 # Atomic partial charges are crude guestimations
 #
 $GLU_C
-   16
+   16    1    1    0
+GLU_C
     1 N    NH1       1    1    1    1   -0.179830    0.000000
     2 H    H         0    0    1    1    0.081563    0.000000
     3 CA   CT1       0    0    1    1    0.074962    0.000000

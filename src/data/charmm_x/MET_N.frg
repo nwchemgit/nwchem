@@ -3,7 +3,8 @@
 # Atomic partial charges are crude guestimations
 #
 $MET_N
-   19
+   19    1    1    0
+MET_N
     1 N    NH3       0    0    1    1    0.114710    0.000000
     22H    HC        0    0    1    1    0.214756    0.000000
     33H    HC        0    0    1    1    0.199641    0.000000
