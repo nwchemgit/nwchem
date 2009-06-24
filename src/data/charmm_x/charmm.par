@@ -1,0 +1,20 @@
+AMBER 95  parameter extensions: SPC/E water, GLYCAM93, Solvents
+Electrostatic 1-4 scaling factor     0.833333
+Relative dielectric constant     1.000000
+Parameters epsilon R*
+Atoms
+HWS     1.00800 0.00000E+00 0.00000E+00                            1 1111111111 
+              1 0.00000E+00 0.00000E+00                              TPS000106 Berendsen et al., JPC 91, 6269-6271 (1987)
+OWS    15.99940 6.50168E-01 1.77661E-01                            1 1111111111 
+              8 3.25084E-01 1.77661E-01                              TPS000106 Berendsen et al., JPC 91, 6269-6271 (1987)
+Cross
+Bonds
+OWS  -HWS     0.10000 0.46275E+06             tps000929 Berendsen et al., JPC 91, 6269-6271 (1987)
+HWS  -HWS     0.16667 0.46275E+06             tps000929 Berendsen et al., JPC 91, 6269-6271 (1987) 
+Angles
+HWS  -OWS  -HWS     1.91061 8.36800E+02
+Proper dihedrals
+Improper dihedrals
+Atom types
+End
+
