@@ -59,10 +59,8 @@ c     2 -- turn each SMP box into a group (array_cpu and groups_want ignored)
 c     3 -- use array_cpu(groups_want) to define number of nodes per group
 c     4 -- use array_cpu(groups_want+nnodes) to define which nodes per group
 c
-      integer nprocs, nsize, midproc
-      integer i,errout
+      integer i
       integer meinworld, meafter
-      logical lstatus
       integer X0(1)
       integer idum
 
@@ -70,6 +68,7 @@ C strings for fname definition
       character*256 permdir
       character*256 fprefix
       integer myproc,nproc
+      integer mypgroup_old
 C
 C     Added option to allow group rtdb's to be written
 C     to permanent_dir (0) or scratch_dir(1)
@@ -94,7 +93,8 @@ C     We never turn this back on
       if (groups_want .ne. 1) dumlog = util_statldb(.true.)
 #endif
 
-      if (ga_pgroup_get_default() .eq. ga_pgroup_get_world()) then
+      mypgroup_old = ga_pgroup_get_default()
+      if (mypgroup_old .eq. ga_pgroup_get_world()) then
         depth = 0
         mygroup(depth) = 1
         ngroups(depth) = 1
@@ -155,7 +155,7 @@ c initialize sub groups using a method
         call errquit('util_sggo: bad method',0,0)
       endif
 
-      if (sgprint .or. .true.) then  ! Still working on code so .true.
+      if (sgprint) then
         meafter=ga_nodeid()
         meinworld = ga_pgroup_nodeid(ga_pgroup_get_world())
         write(LuOut,
@@ -169,6 +169,8 @@ c initialize sub groups using a method
      *   meafter,mygroup(depth),my_ga_grp(depth)
          call util_flush(LuOut)
       endif
+
+      call ga_pgroup_sync(mypgroup_old) ! Make sure all is well
 
       call util_sgrtdb(rtdb,rtdb_fname(depth-1),rtdb_fname(depth),dir2)
       if (.not. rtdb_open(rtdb_fname(depth), 'old', rtdb)) call errquit
@@ -191,6 +193,7 @@ c
 c     These next lines are since we are now done creating groups
       call util_flush(LuErr)
       call util_flush(LuOut)
+      call ga_pgroup_sync(mypgroup_old) ! Make sure all is well
       return
       end
 C###############################################################################
