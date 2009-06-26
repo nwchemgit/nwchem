@@ -787,8 +787,8 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 
        end if
       end do
-      call Parallel_Vector_SumAll(3*nion,fion)
       if (np_j.gt.1) call D1dB_Vector_SumAll(2*npack0,vl_out)
+      if (move) call Parallel_Vector_SumAll(3*nion,fion)
 
       value = .true.
       if (move) value = value.and.MA_pop_stack(xtmp(2))
