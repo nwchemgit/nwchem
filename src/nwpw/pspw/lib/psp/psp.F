@@ -496,6 +496,8 @@ c     psp_rc = rc(i,ia)
       real*8  rho(*)
       real*8  fion(3,*)
 
+#include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** Error function parameters ****
       real*8  yerf,verf
@@ -506,7 +508,9 @@ c     parameter (c4=0.00015201430d0,c5=0.00027656720d0)
 c     parameter (c6=0.00004306380d0)
 
 *     **** local variables ****
-      integer i,j,np1,np2,np3,n2ft3d
+      integer ftmp(2)
+      integer taskid_j,np_j
+      integer i,j,np1,np2,np3,n2ft3d,nion
       real*8 x,y,z,q,c,r,sqrt_pi,dv,v,rx,ry,rz,fx,fy,fz
 
 *     **** external functions ****
@@ -516,7 +520,10 @@ c     parameter (c6=0.00004306380d0)
       external lattice_omega,ion_rion,psp_rlocal,psp_zv,util_erf
 
       call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
       call D3dB_n2ft3d(1,n2ft3d)
+      nion = ion_nion()
 
 *     **** constants ****
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
@@ -526,52 +533,68 @@ c     parameter (c6=0.00004306380d0)
       call D3dB_nz(1,np3)
       dv = lattice_omega()/dble(np1*np2*np3)
 
-      do j=1,ion_nion()
-         x = ion_rion(1,j)
-         y = ion_rion(2,j)
-         z = ion_rion(3,j)
-         q = -psp_zv(ion_katm(j))
-         c = 1.0d0/psp_rlocal(ion_katm(j))
-         fx = 0.0d0
-         fy = 0.0d0
-         fz = 0.0d0
-         do i=1,n2ft3d
-            rx = x - r_grid(1,i)
-            ry = y - r_grid(2,i)
-            rz = z - r_grid(3,i)
-            r  = dsqrt( rx**2 + ry**2 + rz**2)
+*     ***** allocate temporary space ****
+      if (.not.MA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1)))
+     > call errquit('grad_v_lr_local:out of stack memory',0, MA_ERR)
 
-            if (r .gt. 1.0d-8) then
-              yerf=r*c
-c             fterf = (1.0d0
-c    >              + yerf*(c1 + yerf*(c2
-c    >              + yerf*(c3 + yerf*(c4
-c    >              + yerf*(c5 + yerf*c6))))))**4
-c             verf = (1.0d0 - 1.0d0/fterf**4)
-              verf = util_erf(yerf)
-              v    = q*( (2.0d0/sqrt_pi)*(r*c)*exp(-(r*c)**2)
-     >                 - verf)/r**3
-            else
-              v = 0.0d0
-            end if
+      call dcopy(3*nion,0.0d0,0,dbl_mb(ftmp(1)),1)
+      do j=1,nion
+         if (mod(j-1,np_j).eq.taskid_j) then
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+            q = -psp_zv(ion_katm(j))
+            c = 1.0d0/psp_rlocal(ion_katm(j))
+            fx = 0.0d0
+            fy = 0.0d0
+            fz = 0.0d0
+            do i=1,n2ft3d
+               rx = x - r_grid(1,i)
+               ry = y - r_grid(2,i)
+               rz = z - r_grid(3,i)
+               r  = dsqrt( rx**2 + ry**2 + rz**2)
 
-            fx = fx + rho(i)*rx*v
-            fy = fy + rho(i)*ry*v
-            fz = fz + rho(i)*rz*v
-         end do
+               if (r .gt. 1.0d-8) then
+                 yerf=r*c
+c                fterf = (1.0d0
+c    >                 + yerf*(c1 + yerf*(c2
+c    >                 + yerf*(c3 + yerf*(c4
+c    >                 + yerf*(c5 + yerf*c6))))))**4
+c                verf = (1.0d0 - 1.0d0/fterf**4)
+                 verf = util_erf(yerf)
+                 v    = q*( (2.0d0/sqrt_pi)*(r*c)*exp(-(r*c)**2)
+     >                    - verf)/r**3
+               else
+                 v = 0.0d0
+               end if
 
+               fx = fx + rho(i)*rx*v
+               fy = fy + rho(i)*ry*v
+               fz = fz + rho(i)*rz*v
+            end do
+            dbl_mb(ftmp(1)+3*(j-1))   = -fx*dv
+            dbl_mb(ftmp(1)+3*(j-1)+1) = -fy*dv
+            dbl_mb(ftmp(1)+3*(j-1)+2) = -fz*dv
 
 *        fion(1,j) = fion(1,j) - ddot(n2ft3d,rho,1,gv(1,1),3)*dv
 *        fion(2,j) = fion(2,j) - ddot(n2ft3d,rho,1,gv(2,1),3)*dv
 *        fion(3,j) = fion(3,j) - ddot(n2ft3d,rho,1,gv(3,1),3)*dv
+c         call D3dB_SumAll(fx)
+c         call D3dB_SumAll(fy)
+c         call D3dB_SumAll(fz)
+c         fion(1,j) = fion(1,j) - fx*dv
+c         fion(2,j) = fion(2,j) - fy*dv
+c         fion(3,j) = fion(3,j) - fz*dv
 
-         call D3dB_SumAll(fx)
-         call D3dB_SumAll(fy)
-         call D3dB_SumAll(fz)
-         fion(1,j) = fion(1,j) - fx*dv
-         fion(2,j) = fion(2,j) - fy*dv
-         fion(3,j) = fion(3,j) - fz*dv
+         end if
       end do
+
+      call Parallel_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
+      call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+
+      if (.not.MA_pop_stack(ftmp(2)))
+     > call errquit('grad_v_lr_local:popping stack',1,MA_ERR)
+
       call nwpw_timing_end(5)
 
       return
@@ -605,6 +628,7 @@ c     parameter (c4=0.00015201430d0,c5=0.00027656720d0)
 c     parameter (c6=0.00004306380d0)
 
 *     **** local variables ****
+      integer taskid_j,np_j
       integer i,j,n2ft3d
       real*8 x,y,z,q,c,r,sqrt_pi
 
@@ -615,39 +639,43 @@ c     parameter (c6=0.00004306380d0)
       external ion_rion,psp_rlocal,psp_zv,util_erf
 
       call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
       call D3dB_n2ft3d(1,n2ft3d)
 
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
       call dcopy(n2ft3d,0.0d0,0,vlr_out,1)
 
       do j=1,ion_nion()
-         x = ion_rion(1,j)
-         y = ion_rion(2,j)
-         z = ion_rion(3,j)
-         q = -psp_zv(ion_katm(j))
-         c = 1.0d0/psp_rlocal(ion_katm(j))
+         if (mod(j-1,np_j).eq.taskid_j) then
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+            q = -psp_zv(ion_katm(j))
+            c = 1.0d0/psp_rlocal(ion_katm(j))
 
-         do i=1,n2ft3d
-            r = dsqrt( (r_grid(1,i)-x)**2
-     >               + (r_grid(2,i)-y)**2
-     >               + (r_grid(3,i)-z)**2)
+            do i=1,n2ft3d
+               r = dsqrt( (r_grid(1,i)-x)**2
+     >                  + (r_grid(2,i)-y)**2
+     >                  + (r_grid(3,i)-z)**2)
+               if (r .gt. 1.0d-15) then
+                 xerf=r*c
+c                yerf = (1.0d0
+c    >                 + xerf*(c1 + xerf*(c2
+c    >                 + xerf*(c3 + xerf*(c4
+c    >                 + xerf*(c5 + xerf*c6))))))**4
+c                yerf = (1.0d0 - 1.0d0/yerf**4)
+                 yerf = util_erf(xerf)
+                 vlr_out(i) = vlr_out(i) + (q/r)*yerf
+c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
+               else
+                 vlr_out(i) = vlr_out(i) + 2.0d0*q*c/sqrt_pi
+               end if
+            end do
 
-            if (r .gt. 1.0d-15) then
-              xerf=r*c
-c             yerf = (1.0d0
-c    >              + xerf*(c1 + xerf*(c2
-c    >              + xerf*(c3 + xerf*(c4
-c    >              + xerf*(c5 + xerf*c6))))))**4
-c             yerf = (1.0d0 - 1.0d0/yerf**4)
-              yerf = util_erf(xerf)
-              vlr_out(i) = vlr_out(i) + (q/r)*yerf
-c             vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
-            else
-              vlr_out(i) = vlr_out(i) + 2.0d0*q*c/sqrt_pi
-            end if
-
-         end do
+         end if
       end do
+      if (np_j.gt.1) call D1dB_Vector_SumAll(n2ft3d,vlr_out)
 
       call nwpw_timing_end(5)
 
@@ -677,7 +705,8 @@ c             vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 
 
 *     *** local variables ***
-      integer npack0
+      integer taskid_j,np_j
+      integer npack0,nion
       integer i,ii,ia
       integer exi(2),vtmp(2),xtmp(2),G(3)
       logical value,periodic,inside
@@ -690,7 +719,10 @@ c             vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       external ion_rion
 
       call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
       call Pack_npack(0,npack0)
+      nion     = ion_nion()
       periodic = (control_version().eq.3)
 
       value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
@@ -707,58 +739,56 @@ c             vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
          G(1)  = Pack_G_indx(0,1)
          G(2)  = Pack_G_indx(0,2)
          G(3)  = Pack_G_indx(0,3)
-         call dcopy(3*ion_nion(),0.0d0,0,fion,1)
+         call dcopy(3*nion,0.0d0,0,fion,1)
       end if
 
       call dcopy((2*npack0),0.0d0,0,vl_out,1)
-      do ii=1,ion_nion()
-       if (.not.periodic) then
-          rxyz(1) = ion_rion(1,ii)
-          rxyz(2) = ion_rion(2,ii)
-          rxyz(3) = ion_rion(3,ii)
-          call lattice_r1_to_frac(1,rxyz,fxyz)
-          inside =((dabs(fxyz(1)).le.0.4d0).and.
-     >             (dabs(fxyz(2)).le.0.4d0).and.
-     >             (dabs(fxyz(3)).le.0.4d0))
-       else
-          inside = .true.
-       end if
+      do ii=1,nion
+       if (mod(ii-1,np_j).eq.taskid_j) then
 
-       if (inside) then
+          if (.not.periodic) then
+             rxyz(1) = ion_rion(1,ii)
+             rxyz(2) = ion_rion(2,ii)
+             rxyz(3) = ion_rion(3,ii)
+             call lattice_r1_to_frac(1,rxyz,fxyz)
+             inside =((dabs(fxyz(1)).le.0.4d0).and.
+     >                (dabs(fxyz(2)).le.0.4d0).and.
+     >                (dabs(fxyz(3)).le.0.4d0))
+          else
+             inside = .true.
+          end if
 
-        ia=ion_katm(ii)
+          if (inside) then
+           ia=ion_katm(ii)
 
-*       **** structure factor and local pseudopotential ****
-c        call strfac(ii,dcpl_mb(exi(1)))
-c        call Pack_c_pack(0,dcpl_mb(exi(1)))
-        call strfac_pack(0,ii,dcpl_mb(exi(1)))
+*          **** structure factor and local pseudopotential ****
+           call strfac_pack(0,ii,dcpl_mb(exi(1)))
        
-*       **** add to local psp ****
-        call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
-     >                   dcpl_mb(exi(1)),
-     >                   dcpl_mb(vtmp(1)))
-c        call Pack_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
-        call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
+*          **** add to local psp ****
+           call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
+     >                      dcpl_mb(exi(1)),
+     >                      dcpl_mb(vtmp(1)))
+           call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
 
-
-        if (move) then
-       
+           if (move) then
 #ifndef CRAY
 !DIR$ ivdep
 #endif
-          do i=1,npack0
-             dbl_mb(xtmp(1)+i-1) 
+             do i=1,npack0
+                dbl_mb(xtmp(1)+i-1) 
      >          = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
      >           - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
-          end do
-         call Pack_tt_dot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fion(1,ii))
-         call Pack_tt_dot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fion(2,ii))
-         call Pack_tt_dot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fion(3,ii))
-       end if
-        
+             end do
+            call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fion(1,ii))
+            call Pack_tt_idot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fion(2,ii))
+            call Pack_tt_idot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fion(3,ii))
+           end if
+          end if
 
        end if
       end do
+      call Parallel_Vector_SumAll(3*nion,fion)
+      if (np_j.gt.1) call D1dB_Vector_SumAll(2*npack0,vl_out)
 
       value = .true.
       if (move) value = value.and.MA_pop_stack(xtmp(2))
@@ -788,7 +818,8 @@ c        call Pack_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
 
 *     *** local variables ***
       logical value,periodic,inside
-      integer npack0
+      integer taskid_j,np_j
+      integer npack0,nion
       integer i,ii,ia
       integer exi(2),vtmp(2),xtmp(2),G(3)
 c      integer Gx(2),Gy(2),Gz(2)
@@ -801,7 +832,10 @@ c      integer Gx(2),Gy(2),Gz(2)
       external ion_rion
 
       call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
       call Pack_npack(0,npack0)
+      nion     = ion_nion()
       periodic = (control_version().eq.3)
 
       value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
@@ -815,49 +849,51 @@ c     **** define Gx,Gy and Gz in packed space ****
       G(1)  = Pack_G_indx(0,1)
       G(2)  = Pack_G_indx(0,2)
       G(3)  = Pack_G_indx(0,3)
-      call dcopy(3*ion_nion(),0.0d0,0,fion,1)
+      call dcopy(3*nion,0.0d0,0,fion,1)
 
-      do ii=1,ion_nion()
-       if (.not.periodic) then
-          rxyz(1) = ion_rion(1,ii)
-          rxyz(2) = ion_rion(2,ii)
-          rxyz(3) = ion_rion(3,ii)
-          call lattice_r1_to_frac(1,rxyz,fxyz)
-          inside =((dabs(fxyz(1)).le.0.4d0).and.
-     >             (dabs(fxyz(2)).le.0.4d0).and.
-     >             (dabs(fxyz(3)).le.0.4d0))
-       else 
-          inside = .true.
-       endif
+      do ii=1,nion
+         if (mod(ii-1,np_j).eq.taskid_j) then
 
-       if (inside) then
-        ia=ion_katm(ii)
+          if (.not.periodic) then
+             rxyz(1) = ion_rion(1,ii)
+             rxyz(2) = ion_rion(2,ii)
+             rxyz(3) = ion_rion(3,ii)
+             call lattice_r1_to_frac(1,rxyz,fxyz)
+             inside =((dabs(fxyz(1)).le.0.4d0).and.
+     >                (dabs(fxyz(2)).le.0.4d0).and.
+     >                (dabs(fxyz(3)).le.0.4d0))
+          else 
+             inside = .true.
+          endif
 
-*       **** structure factor and local pseudopotential ****
-c        call strfac(ii,dcpl_mb(exi(1)))
-c        call Pack_c_pack(0,dcpl_mb(exi(1)))
-        call strfac_pack(0,ii,dcpl_mb(exi(1)))
+          if (inside) then
+           ia=ion_katm(ii)
 
-*       **** add to local psp ****
-        call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
-     >                   dcpl_mb(exi(1)),
-     >                   dcpl_mb(vtmp(1)))
+*          **** structure factor and local pseudopotential ****
+           call strfac_pack(0,ii,dcpl_mb(exi(1)))
+
+*          **** add to local psp ****
+           call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
+     >                      dcpl_mb(exi(1)),
+     >                      dcpl_mb(vtmp(1)))
 
 #ifndef CRAY
 !DIR$ ivdep
 #endif
-         do i=1,npack0
-           dbl_mb(xtmp(1)+i-1) 
+            do i=1,npack0
+              dbl_mb(xtmp(1)+i-1) 
      >        = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
      >         - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
-        end do
+           end do
+           call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fion(1,ii))
+           call Pack_tt_idot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fion(2,ii))
+           call Pack_tt_idot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fion(3,ii))
+          end if
 
-        call Pack_tt_dot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fion(1,ii))
-        call Pack_tt_dot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fion(2,ii))
-        call Pack_tt_dot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fion(3,ii))
- 
-       end if
+         end if
       end do
+      call Parallel_Vector_SumAll(3*nion,fion)
+
       value =           MA_pop_stack(xtmp(2))
       value = value.and.MA_pop_stack(vtmp(2))
       value = value.and.MA_pop_stack(exi(2))
