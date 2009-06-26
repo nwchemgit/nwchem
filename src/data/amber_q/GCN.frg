@@ -1,4 +1,4 @@
-# This is an automatically generated segment file                               
+# This is an automatically generated fragment file                               
 #                                                                               
 $GCN                                                                            
    28    1    1    0
