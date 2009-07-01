@@ -65,7 +65,7 @@ c
        open(unit=10,file='traj.xyz',status='new')
        open(unit=11,file='restart.pun',status='new')
       else
-       open(unit=10,file='traj.xyz',status='old',ACCESS='append')
+       open(unit=10,file='traj.xyz',status='old',POSITION='append')
        open(unit=11,file='restart.pun',status='old')
       endif
 
