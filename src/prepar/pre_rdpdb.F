@@ -149,6 +149,18 @@ c
       endif
  1002 format(a6,6x,a4,a1,a3,1x,a1,i4,4x,3f8.3)
  2002 format(a6,6x,a4,a1,a3,i6,4x,3f8.3)
+c     shift it to get justifcation correct
+      if (nama(2:2) .eq. ' ') then
+        nama(2:2) = nama(3:3)
+        nama(3:3) = nama(4:4)
+        nama(4:4) = ' '
+      endif
+      if (nama(2:2) .eq. ' ') then
+        nama(2:2) = nama(3:3)
+        nama(3:3) = nama(4:4)
+        nama(4:4) = ' '
+      endif
+c
       if(util_print('where',print_debug)) then
       if(lrgpdb.eq.0) then
       write(lfnout,1002) hdr,nama,alocal,namr,achain,num,x,y,z
@@ -156,6 +168,18 @@ c
       write(lfnout,2002) hdr,nama,alocal,namr,num,x,y,z
       endif
       endif
+c     shift it to get justifcation correct
+      if (nama(2:2) .eq. ' ') then
+        nama(2:2) = nama(3:3)
+        nama(3:3) = nama(4:4)
+        nama(4:4) = ' '
+      endif
+      if (nama(2:2) .eq. ' ') then
+        nama(2:2) = nama(3:3)
+        nama(3:3) = nama(4:4)
+        nama(4:4) = ' '
+      endif
+c
       if(alocal.ne.' '.and.alocal.ne.altloc.and.altloc.ne.'*') goto 100
       if(achain.ne.' '.and.achain.ne.chain.and.chain.ne.'*') goto 100
 c
