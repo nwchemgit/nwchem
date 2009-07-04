@@ -122,7 +122,8 @@ c
       call util_file_name('kh',.true.,.true.,fnamek)
       if(rtdb_get(rtdb,'mp2:scratchdisk',mt_dbl,1,avail_file)) then
          avail_file=avail_file*1024d0*128d0
-         if (oprint_mem) write(0,*) ' #avail ',avail_file
+         if (oprint_mem.and.(ga_nodeid().eq.0)) 
+     1            write(0,*) ' #avail ',avail_file
       else
          avail_file=util_scratch_dir_avail_for_me()*128.0d0
       endif
