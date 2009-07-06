@@ -71,6 +71,52 @@
       return
       end
 
+      subroutine lattice_fragcell(n1,r1)
+      implicit none
+      real*8  rcm(3)
+      integer n1
+      real*8  r1(3,*)
+
+*     **** common block ****
+      real*8 ecut,wcut,omega
+      real*8 ua(3,3),unitg(3,3)
+      common / lattice_block / ua,unitg,ecut,wcut,omega
+
+*     **** common block ****
+      real*8 ub(3,3)
+      common / lattice_block2 / ub
+
+*     **** local variables ****
+      integer i,j
+      real*8 fcm
+
+      do i=2,n1
+         do j=1,3
+            fcm = (r1(1,i)-r1(1,1))*ub(1,j) 
+     >          + (r1(2,i)-r1(2,1))*ub(2,j) 
+     >          + (r1(3,i)-r1(3,1))*ub(3,j)
+            do while (fcm.gt.0.5)
+               r1(1,i) = r1(1,i) - ua(1,j)
+               r1(2,i) = r1(2,i) - ua(2,j)
+               r1(3,i) = r1(3,i) - ua(3,j)
+               fcm = (r1(1,i)-r1(1,1))*ub(1,j) 
+     >             + (r1(2,i)-r1(2,1))*ub(2,j) 
+     >             + (r1(3,i)-r1(3,1))*ub(3,j)
+            end do
+            do while (fcm.le.(-0.5))
+               r1(1,i) = r1(1,i) + ua(1,j)
+               r1(2,i) = r1(2,i) + ua(2,j)
+               r1(3,i) = r1(3,i) + ua(3,j)
+               fcm = (r1(1,i)-r1(1,1))*ub(1,j) 
+     >             + (r1(2,i)-r1(2,1))*ub(2,j) 
+     >             + (r1(3,i)-r1(3,1))*ub(3,j)
+            end do
+         end do
+      end do
+      return
+      end
+
+
       subroutine lattice_incell1_frag(rcm,n1,r1)
       implicit none 
       real*8  rcm(3)
