@@ -528,11 +528,18 @@ c
 
 *       ***** make sure mm fragments are in cell ****
         if (periodic) then
-           call Parallel_taskid(taskid)
-           if (taskid.eq.MASTER) then
-              write(*,*) "checking for connected fragments"
+           rtdb_name = 'nwpw:qmmm_fragcell'
+           if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,value)) 
+     >        value = .true.
+           if (value) then
+              call Parallel_taskid(taskid)
+              if (taskid.eq.MASTER) then
+                 write(*,*) "Making sure that fragments are connnected"
+                 write(*,*) " - to turn this option off: ",
+     >                      "set nwpw:qmmm_fragcell .false."
+              end if
+              call pspw_qmmm_fragcell(dbl_mb(ion_rion_ptr()))
            end if
-           call pspw_qmmm_fragcell(dbl_mb(ion_rion_ptr()))
            call pspw_qmmm_incell1(dbl_mb(ion_rion_ptr()))
         end if
 

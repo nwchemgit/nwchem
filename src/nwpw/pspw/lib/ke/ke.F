@@ -354,7 +354,7 @@ c     real*8 tg(nfft3d)
       logical value
       integer k,n
       real*8  sum
-      real*8  x,cm,dm,Ep
+      real*8  x,cm,dm,Ep,cm2(1)
       integer tmp1(2)
 
 c      real*8   lattice_wggcut,control_Ep
@@ -431,7 +431,7 @@ c      end do
       ne(1) = 1
       ne(2) = 0
       do n=1,neall
-        call ke_ave(ispin,ne,gradk(1,n),Ep,.false.,cm)
+        call ke_ave(ispin,ne,gradk(1,n),Ep,.false.,cm2)
         Ep = 1.5d0*Ep
         do k=1,npack
            x = -2.0d0*dbl_mb(tg_indx+k-1)/Ep
@@ -469,7 +469,7 @@ c     real*8 tg(nfft3d)
       logical value
       integer k,n
       real*8  sum
-      real*8  x,cm,dm,Ep
+      real*8  x,cm,dm,Ep,cm2(1)
       integer ispin,ne(2)
 
 
@@ -478,7 +478,7 @@ c     real*8 tg(nfft3d)
       ne(1) = 1
       ne(2) = 0
       do n=1,neall
-        call ke_ave(ispin,ne,residual(1,n),Ep,.false.,cm)
+        call ke_ave(ispin,ne,residual(1,n),Ep,.false.,cm2)
         Ep = 1.5d0*Ep
         do k=1,npack
            x = -2.0d0*dbl_mb(tg_indx+k-1)/Ep
