@@ -9,12 +9,7 @@
 \begin{tabular}{p{15mm}p{12mm}l}
 \hline\hline
 Card & Format & Description \\ \hline
-I-1-1  & a1     & \$ to identify the start of a fragment \\ % $ for emacs
-I-1-2  & a10    & name of the fragment, the tenth character\\
-       &        & N: identifies beginning of a chain\\
-       &        & C: identifies end of a chain\\
-       &        & blank: identifies chain fragment\\
-       &        & M: identifies an integral molecule\\
+I-1-1  & a1     & \$ or \# comments to describe fragment \\ % $ for emacs
 \hline
 I-2-1  & i5     & number of atoms in the fragment\\ 
 I-2-2  & i5     & number of parameter sets\\
@@ -70,7 +65,7 @@ connectivity} \\
 \hline
 III-1-1  & 16i5   & connectivity, duplication allowed\\
 \hline
-One blanc card to signal the end of the connectivity list\\
+One blank card to signal the end of the connectivity list\\
 \hline
 For each z-matrix definition one card IV\\
 \hline
@@ -94,6 +89,7 @@ IV-1-7 & f12.6 & torson i-j-k-l\\
 \begin{tabular*}{150mm}{p{15mm}p{12mm}l}
 \hline\hline
 Deck  & Format & Description \\ \hline
+I-0-1 &        & \# lines at top are comments \\
 I-1-1 & a1     & \$ to identify the start of a segment \\ %$ for emacs
 I-1-2 & a10    & name of the segment, the tenth character\\
       &        & N: identifies beginning of a chain\\

@@ -213,8 +213,9 @@ The source of the data is identified by \verb+$level$+, and can be
 level   & Description                 & Availability \\
 {\bf s} & original published data     & public       \\
 {\bf x} & additional published data   & public       \\
+{\bf q} & contributed data            & public       \\
 {\bf u} & user preferred data         & private      \\
-{\bf t} & user defined temporary data & private    \\
+{\bf t} & user defined temporary data & private      \\
 \hline
 \end{tabular}
 \end{center}
@@ -274,14 +275,12 @@ complete atom typing, or when modified charges are required.
 \begin{tabular}{p{15mm}p{12mm}l}
 \hline\hline
 Card & Format & Description \\ \hline
-I-1-1  & a1     & \$ to identify the start of a fragment \\ % $ for emacs
-I-1-2  & a10    & name of the fragment, the tenth character\\
-       &        & N: identifies beginning of a chain\\
-       &        & C: identifies end of a chain\\
-       &        & blank: identifies chain fragment\\
-       &        & M: identifies an integral molecule\\
+I-1-1  & a1     & \$ and \# for comments that describe the fragment \\ % $ for emacs
 \hline
 I-2-1  & i5     & number of atoms in the fragment\\ 
+I-2-2  & i5     & number of parameter sets\\
+I-2-3  & i5     & default parameter set\\
+I-2-4  & i5     & number of z-matrix definition\\
 \hline
 \mc{3}{l}{For each atom one deck II} \\
 \hline
@@ -352,6 +351,7 @@ described in Tables \ref{tbl:nwaseg1}--\ref{tbl:nwaseg6}.
 \begin{tabular*}{150mm}{p{15mm}p{12mm}l}
 \hline\hline
 Deck  & Format & Description \\ \hline
+I-0-1 &        & \# lines at top are comments \\
 I-1-1 & a1     & \$ to identify the start of a segment \\ %$ for emacs
 I-1-2 & a10    & name of the segment, the tenth character\\
       &        & N: identifies beginning of a chain\\
