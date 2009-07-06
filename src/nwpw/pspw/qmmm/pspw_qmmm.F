@@ -527,7 +527,14 @@ c
         if (.not.auxiliary_only) call pspw_LJ_init(rtdb)
 
 *       ***** make sure mm fragments are in cell ****
-        if (periodic) call pspw_qmmm_incell1(dbl_mb(ion_rion_ptr()))
+        if (periodic) then
+           call Parallel_taskid(taskid)
+           if (taskid.eq.MASTER) then
+              write(*,*) "checking for connected fragments"
+           end if
+           call pspw_qmmm_fragcell(dbl_mb(ion_rion_ptr()))
+           call pspw_qmmm_incell1(dbl_mb(ion_rion_ptr()))
+        end if
 
 
 *       ***** write out header info ****
@@ -1354,6 +1361,32 @@ c     **** external functions ***
 
       return
       end
+
+*     ******************************
+*     *                            *
+*     *       pspw_qmmm_fragcell   *
+*     *                            *
+*     ******************************
+*
+      subroutine pspw_qmmm_fragcell(r1)
+      implicit none
+      real*8 r1(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "pspw_qmmm.fh"
+
+*     **** local variables ****
+      integer w1,n1,ks1
+
+      do w1=1,nfrag
+        n1  = int_mb(size_frag(1)+w1-1)
+        ks1 = int_mb(indx_frag_start(1)+w1-1)
+        call lattice_fragcell(n1,r1(1,ks1))
+      end do
+      return
+      end
+
 
 
 
