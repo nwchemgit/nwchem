@@ -654,7 +654,7 @@ static PyObject *wrap_task_coulomb(PyObject *self, PyObject *args)
             return NULL;
         }
         if (!rtdb_put(rtdb_handle, "scf:scftype", MT_CHAR, 3, "UHF")) {
-            PyErr_SetString(NwchemError, "task_coulomb_ref: putting UHF failed");
+            PyErr_SetString(NwchemError, "task_coulomb: putting UHF failed");
             return NULL;
         }
         if (!task_energy_(&rtdb_handle)) {} /*{
@@ -723,7 +723,7 @@ static PyObject *wrap_task_property(PyObject *self, PyObject *args)
             return NULL;
         }
         if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy)) {
-            PyErr_SetString(NwchemError, "task_energy: getting energy failed");
+            PyErr_SetString(NwchemError, "task_property: getting energy failed");
             return NULL;
         }
     }
@@ -792,33 +792,33 @@ static PyObject *wrap_task_stress(PyObject *self, PyObject *args)
     if (PyArg_Parse(args, "s", &theory)) {
         if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR,
                       strlen(theory)+1, theory)) {
-            PyErr_SetString(NwchemError, "task_gradient: putting theory failed");
+            PyErr_SetString(NwchemError, "task_stress: putting theory failed");
             return NULL;
         }
         if (!rtdb_put(rtdb_handle, "includestress", MT_F_LOG, 1, &one)) {
-            PyErr_SetString(NwchemError, "task_gradient: putting includestress failed");
+            PyErr_SetString(NwchemError, "task_stress: putting includestress failed");
             return NULL;
         }
 
         if (!task_gradient_(&rtdb_handle)) {
-            PyErr_SetString(NwchemError, "task_gradient: failed");
+            PyErr_SetString(NwchemError, "task_stress: gradient task failed");
             return NULL;
         }
 
         if (!rtdb_delete(rtdb_handle, "includestress")) {
-            PyErr_SetString(NwchemError, "task_gradient: deleting includestress failed");
+            PyErr_SetString(NwchemError, "task_stress: deleting includestress failed");
             return NULL;
         }
         if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy)) {
-            PyErr_SetString(NwchemError, "task_gradient: getting energy failed");
+            PyErr_SetString(NwchemError, "task_stress: getting energy failed");
             return NULL;
         }
         if (!rtdb_ma_get(rtdb_handle,"task:gradient",&ma_type,&nelem,&ma_handle)) {
-            PyErr_SetString(NwchemError, "task_gradient: getting gradient failed");
+            PyErr_SetString(NwchemError, "task_stress: getting gradient failed");
             return NULL;
         }
         if (!MA_get_pointer(ma_handle, &gradient)) {
-            PyErr_SetString(NwchemError, "task_gradient: ma_get_ptr failed");
+            PyErr_SetString(NwchemError, "task_stress: ma_get_ptr failed");
             return NULL;
         }
 
@@ -827,13 +827,13 @@ static PyObject *wrap_task_stress(PyObject *self, PyObject *args)
         stress[6] = 0.0; stress[7] = 0.0; stress[8] = 0.0; 
         strcpy(stresstheory,theory);
         if (!rtdb_get(rtdb_handle, strcat(stresstheory,":stress"), MT_F_DBL, 9, &stress)) {
-            PyErr_SetString(NwchemError, "task_gradient: getting stress failed");
+            PyErr_SetString(NwchemError, "task_stress: getting stress failed");
             return NULL;
         }
 
     }
     else {
-        PyErr_SetString(PyExc_TypeError, "Usage: task_gradient(theory)");
+        PyErr_SetString(PyExc_TypeError, "Usage: task_stress(theory)");
         return NULL;
     }
 
@@ -861,33 +861,33 @@ static PyObject *wrap_task_lstress(PyObject *self, PyObject *args)
     if (PyArg_Parse(args, "s", &theory)) {
         if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR,
                       strlen(theory)+1, theory)) {
-            PyErr_SetString(NwchemError, "task_gradient: putting theory failed");
+            PyErr_SetString(NwchemError, "task_lstress: putting theory failed");
             return NULL;
         }
         if (!rtdb_put(rtdb_handle, "includestress", MT_F_LOG, 1, &one)) {
-            PyErr_SetString(NwchemError, "task_gradient: putting includestress failed");
+            PyErr_SetString(NwchemError, "task_lstress: putting includestress failed");
             return NULL;
         }
 
         if (!task_gradient_(&rtdb_handle)) {
-            PyErr_SetString(NwchemError, "task_gradient: failed");
+            PyErr_SetString(NwchemError, "task_lstress: failed");
             return NULL;
         }
 
         if (!rtdb_delete(rtdb_handle, "includestress")) {
-            PyErr_SetString(NwchemError, "task_gradient: deleting includestress failed");
+            PyErr_SetString(NwchemError, "task_lstress: deleting includestress failed");
             return NULL;
         }
         if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy)) {
-            PyErr_SetString(NwchemError, "task_gradient: getting energy failed");
+            PyErr_SetString(NwchemError, "task_lstress: getting energy failed");
             return NULL;
         }
         if (!rtdb_ma_get(rtdb_handle,"task:gradient",&ma_type,&nelem,&ma_handle)) {
-            PyErr_SetString(NwchemError, "task_gradient: getting gradient failed");
+            PyErr_SetString(NwchemError, "task_lstress: getting gradient failed");
             return NULL;
         }
         if (!MA_get_pointer(ma_handle, &gradient)) {
-            PyErr_SetString(NwchemError, "task_gradient: ma_get_ptr failed");
+            PyErr_SetString(NwchemError, "task_lstress: ma_get_ptr failed");
             return NULL;
         }
 
@@ -896,13 +896,13 @@ static PyObject *wrap_task_lstress(PyObject *self, PyObject *args)
         stress[6] = 0.0; stress[7] = 0.0; stress[8] = 0.0;
         strcpy(stresstheory,theory);
         if (!rtdb_get(rtdb_handle, strcat(stresstheory,":lstress"), MT_F_DBL, 9, &stress)) {
-            PyErr_SetString(NwchemError, "task_gradient: getting stress failed");
+            PyErr_SetString(NwchemError, "task_lstress: getting stress failed");
             return NULL;
         }
 
     }
     else {
-        PyErr_SetString(PyExc_TypeError, "Usage: task_gradient(theory)");
+        PyErr_SetString(PyExc_TypeError, "Usage: task_lstress(theory)");
         return NULL;
     }
 
@@ -1157,21 +1157,21 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
 // First is either an integer, tuple, or nested tuples: connects with previous argument assignment(args -> args2)
 // Second is additional argument(dir): an integer
    if (!PyTuple_Check(args)) { // Not a tuple
-        PyErr_SetString(PyExc_TypeError, "pgroup_create() input error 1");
+        PyErr_SetString(PyExc_TypeError, "pgroup_create() input error 1a - not a tuple");
         return NULL;
    }
    size = PyTuple_Size(args);
    if (size != 2) { // Not a tuple of two elements
-      PyErr_SetString(PyExc_TypeError, "pgroup_create() input error 1");
+      PyErr_SetString(PyExc_TypeError, "pgroup_create() input error 1b - not a tuple of two elements");
       return NULL;
    }
    args2 = PyTuple_GetItem(args, 1);
    if (PyTuple_Check(args2)) { // second element Is a tuple
-      PyErr_SetString(PyExc_TypeError, "pgroup_create() input error 1");
+      PyErr_SetString(PyExc_TypeError, "pgroup_create() input error 1c - second element is a tuple");
       return NULL;
    }
    if (!PyArg_Parse(args2, "i", &input)) { // cannot get integer from second element
-      PyErr_SetString(PyExc_TypeError, "pgroup_create() input error 1");
+      PyErr_SetString(PyExc_TypeError, "pgroup_create() input error 1d -  cannot get integer from second element" );
       return NULL;
    }
    dir = input; // setting dir
@@ -1182,7 +1182,7 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
 // End additional code:  Additional code in subroutine (below) is changed such that args is now args2
    if (!PyTuple_Check(args2)) { // Not a tuple
       if (!PyArg_Parse(args2, "i", &input)) {
-        PyErr_SetString(PyExc_TypeError, " pgroup_create() input error 1");
+        PyErr_SetString(PyExc_TypeError, " pgroup_create() input error 1e - Not a tuple");
         return NULL;
       }
       num_groups = input;
