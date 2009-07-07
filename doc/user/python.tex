@@ -125,8 +125,87 @@ directive \verb+TASK OPTIMIZE <THEORY>+.  The energy and gradient
 will be those at the last point in the optimization and consistent
 with the current geometry in the database.
 
-\item \verb+ga_nodeid()+ --- returns the number of the parallel
+\item \verb+task_freq(theory)+ --- returns a tuple
+directive \verb+TASK FREQ <THEORY>+.  They will be consistent
+with the current geometry in the database. 
+
+\item \verb+task_property(theory)+ --- returns the energy
+as if computed with the NWChem
+directive \verb+TASK PROPERIY <THEORY>+.
+
+\item \verb+task_stress(theory)+ --- returns a tuple
+\verb+(energy,gradient,stress)+ as if computed with the NWChem
+directive \verb+TASK STRESS <THEORY>+.  The energy and gradient
+will be consistent with the current geometry in the database.
+
+\item \verb+task_lstress(theory)+ --- returns a tuple
+\verb+(energy,gradient,lstress)+.  The energy and gradient
+will be consistent with the current geometry in the database.
+
+\item \verb+task_hessian(theory)+ --- performs a hessian calculation
+as if requested with the NWChem
+directive \verb+TASK HESSIAN <THEORY>+.  They will be consistent
+with the current geometry in the database.
+
+\item \verb+task_saddle(theory)+ --- returns a tuple
+\verb+(energy,gradient)+ as if computed with the NWChem
+directive \verb+TASK SADDLE <THEORY>+.  The energy and gradient
+will be those at the last point in the search and consistent
+with the current geometry in the database.
+
+\item \verb+task_coulomb(theory)+ --- returns the
+couloumb energy.
+It will be consistent with the current geometry in the database.
+
+\item \verb+task_coulomb_ref(theory)+ --- returns the
+couloumb reference energy.
+It will be consistent with the current geometry in the database.
+
+\item \verb+ga_nodeid()+ --- returns the GA number of the parallel
 process.
+
+\item \verb+ga_groupid()+ --- returns the GA group ID.
+
+
+
+\item \verb+pgroup_create(num)+ --- create num process groups.  Must be called by all members of current group.
+
+\item \verb+pgroup_destroy()+ --- destroy current group.  Must be called by all members of current group.
+
+
+\item \verb+pgroup_sync()+ --- a barrier that all processes in a goup must get to before they are allowed to continue.
+
+\item \verb+pgroup_sync_all()+ --- sync all processes regardless of process groups.
+
+
+\item \verb+pgroup_global_op()+ --- a global operation within a group.
+ This is like the MPI DGOP/IGOP commands.
+ This input list or numbers or single number must be the same on all nodes.
+ If no operation is included then ``+''  is assumed.
+
+\item \verb+pgroup_global_op_all()+ --- a global operation regardless of process groups.
+
+\item \verb+pgroup_global_op_zero()+ --- a global operation among the zero nodes of the current set of groups.  ie. one level up from the lowest level.
+
+
+\item \verb+pgroup_broadcast()+ --- a broadcast within a group.  This is like the MPI broadcst command.
+  Node zero of the group always does the talking.
+  All nodes must pass in the same sized object (list of numbers or a single number)
+  and will recieve the same sized object.
+
+\item \verb+pgroup_broadcast_all()+ ---  a broadcast regardless of process groups.
+
+\item \verb+pgroup_broadcast_zero()+ ---  a broadcast among the zero nodes of the current set of groups.  ie. one level up from the lowest level.
+
+
+\item \verb+pgroup_nnodes()+ --- the number of nodes within the current group.
+
+\item \verb+pgroup_nodeid()+ --- the node ID within the current group.
+
+\item \verb+pgroup_groupid()+ --- the group ID of the current group.
+
+\item \verb+pgroup_ngroups()+ --- the number of groups at the current group level.
+
 
 \item \verb+rtdb_print(print_values)+ --- prints the contents of the
 RTDB.  If \verb+print_values+ is 0, only the keys are printed, if it
