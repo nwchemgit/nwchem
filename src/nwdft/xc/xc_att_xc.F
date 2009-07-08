@@ -85,7 +85,7 @@ c
 #endif
 
 
-          if (a < 0.14d0) then
+          if (a .lt. 0.14d0) then
 c             write(luout,*) 'a is small'
            a = 2d0*a
            btmp = 1d0-(4d0/3d0)*sqrt_pi*a + 2d0*a*a - (2d0/3d0)*a*a*a*a
@@ -95,7 +95,7 @@ c             write(luout,*) 'a is small'
      &                   (2d0*exp(-1/(a*a)) - 2d0)*a*a*a)  
               btmp_first = 2d0*btmp_first
              a = a /2d0
-          else if (a <4.25d0) then
+          else if (a .lt. 4.25d0) then
 c            write(luout,*) 'a is medium'
 c             stop
              b = exp(-1d0/(4d0*a*a)) - 1d0
@@ -124,9 +124,9 @@ c            stop
              a = a /2d0
           end if
 #ifdef SECOND_DERIV
-          if (abs(a) < 1d-40) then 
+          if (abs(a) .lt. 1d-40) then 
              btmp_second = 16d0
-          else if (a >=5d0)  then
+          else if (a .ge. 5d0)  then
              btmp_second = 1d0/(6d0*a**4d0) - 1d0/(48d0*a**6d0) +
      &                  1d0/(640d0*a**8d0) - 1d0/(11520d0*a**10d0)
              
