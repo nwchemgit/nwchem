@@ -65,7 +65,11 @@ c
        open(unit=10,file='traj.xyz',status='new')
        open(unit=11,file='restart.pun',status='new')
       else
+#ifdef USE_OPEN_ACCESS
+       open(unit=10,file='traj.xyz',status='old',ACCESS='append')
+#else
        open(unit=10,file='traj.xyz',status='old',POSITION='append')
+#endif
        open(unit=11,file='restart.pun',status='old')
       endif
 
