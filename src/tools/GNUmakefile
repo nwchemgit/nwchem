@@ -1,10 +1,19 @@
 #
-# $Id: GNUmakefile,v 1.13 2005-10-20 01:04:21 edo Exp $
-#
 # This makefile has to be processed by GNU make
 #
+include ../config/makefile.h
+
+ifdef NWCHEM_TARGET_CPU
+    TARGET_CPU = $(NWCHEM_TARGET_CPU)
+endif
+
+  export ARMCI_DIR_NAME := armci
+ifeq ($(ARMCI_NETWORK),PORTALS)
+  export ARMCI_DIR_NAME := armci-portals
+endif
+
 MAKESUBDIRS = for dir in $(SUBDIRS); do $(MAKE)  -C $$dir $@ || exit 1 ; done
-    SUBDIRS = ma global tcgmsg-mpi LinAlg/lapack+blas tcgmsg armci/src pario
+    SUBDIRS = ma global tcgmsg-mpi LinAlg/lapack+blas tcgmsg $(ARMCI_DIR_NAME)/src pario
   USE_ARMCI = yes
 ifndef USE_MPI
   EXTRA_INC = "TCG_INCLUDE=../../include"
@@ -12,12 +21,6 @@ ifndef USE_MPI
      MP_VER = TCG
 else
      MP_VER = MPI
-endif
-
-include ../config/makefile.h
-
-ifdef NWCHEM_TARGET_CPU
-    TARGET_CPU = $(NWCHEM_TARGET_CPU)
 endif
 
 ifdef OLD_GA
@@ -62,7 +65,7 @@ tools:  $(STAMP) lib/$(TARGET) include
 ifndef  OLD_GA
 ifdef   USE_ARMCI
 		@echo '>>> making ARMCI remote memory copy library <<< '
-		(cd ./armci/src; \
+		(cd ./$(ARMCI_DIR_NAME)/src; \
 		$(MAKE) LIB_DISTRIB=../../lib $(EXTRA) $(EXTRA_INC) )
 endif
 endif
@@ -82,7 +85,7 @@ clean:
 	$(MAKESUBDIRS) $^
 	$(RM) -r include/* *.stamp
 ifdef USE_ARMCI
-		(cd ./armci/src; $(MAKE) LIB_DISTRIB=../../lib clean )
+		(cd ./$(ARMCI_DIR_NAME)/src; $(MAKE) LIB_DISTRIB=../../lib clean )
 endif
 
 realclean: clean
