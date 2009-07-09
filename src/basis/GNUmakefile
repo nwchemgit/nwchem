@@ -1,7 +1,11 @@
 #$Id: GNUmakefile,v 1.47 2006-08-22 18:11:38 d3p307 Exp $
 TARGET = $(NWCHEM_TARGET)
-include ../tools/armci/config/makecoms.h
-include ../tools/armci/config/makemp.h
+  export ARMCI_DIR_NAME := armci
+ifeq ($(ARMCI_NETWORK),PORTALS)
+  export ARMCI_DIR_NAME := armci-portals
+endif
+include ../tools/$(ARMCI_DIR_NAME)/config/makecoms.h
+include ../tools/$(ARMCI_DIR_NAME)/config/makemp.h
 include ../config/makefile.h
 
        LIBRARY = libnwcutil.a
