@@ -10,6 +10,7 @@ set TOOLDIR = `pwd`
 if (-e $TOOLDIR/armci) then
 echo "You have an old copy of the ga tools, deleting it now"
    rm -rf $TOOLDIR/armci
+   rm -rf $TOOLDIR/armci-portals
    rm -rf $TOOLDIR/cca
    rm -rf $TOOLDIR/config
    rm -rf $TOOLDIR/ga++
@@ -19,9 +20,11 @@ echo "You have an old copy of the ga tools, deleting it now"
    rm -rf $TOOLDIR/pario
    rm -rf $TOOLDIR/tcgmsg
    rm -rf $TOOLDIR/tcgmsg-mpi
+   rm -rf $TOOLDIR/doc
+   rm -rf $TOOLDIR/examples
 endif
 
-svn checkout https://svn.pnl.gov/svn/hpctools/trunk/ga
+svn checkout https://svn.pnl.gov/svn/hpctools/branches/cvs-dev/ga
 cd ga
 rm -f README
 rm -f license.txt
