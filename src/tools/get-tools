@@ -25,6 +25,7 @@ echo "You have an old copy of the ga tools, deleting it now"
 endif
 
 svn checkout https://svn.pnl.gov/svn/hpctools/branches/cvs-dev/ga
+#svn checkout https://svn.pnl.gov/svn/hpctools/branches/ga-4-2 
 cd ga
 rm -f README
 rm -f license.txt
