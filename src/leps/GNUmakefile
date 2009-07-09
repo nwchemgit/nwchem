@@ -11,7 +11,7 @@
 # The default is POSITION='append' but if your compiler doesn't like this,
 # then add your compiler name behind g77 (with a space).
 #
-ifeq ($(FC),$(findstring $(FC),g77))
+ifeq ($(FC),$(findstring $(FC),g77 pgf77))
       LIB_DEFINES += -DUSE_OPEN_ACCESS
 endif
 
