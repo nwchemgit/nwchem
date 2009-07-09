@@ -1,6 +1,9 @@
 # $Id: GNUmakefile,v 1.30 2008-06-20 20:25:05 d3p307 Exp $
-
-include ../tools/armci/config/makecoms.h
+  export ARMCI_DIR_NAME := armci
+ifeq ($(ARMCI_NETWORK),PORTALS)
+  export ARMCI_DIR_NAME := armci-portals
+endif
+include ../tools/$(ARMCI_DIR_NAME)/config/makecoms.h
 include ../config/makefile.h
 
          LIBRARY = libnwcutil.a
