@@ -26,6 +26,7 @@ block
     [THRESH  <real thresh default 10e-6>]
     [TOL2E <real tol2e default min(10e-12 , 0.01*$thresh$)>]
     [DIISBAS  <integer diisbas default 5>]
+    [NODISK]
     [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
             [virtual <integer nfzv default 0>]]
     [IPRT  <integer IPRT default 0>]
@@ -91,6 +92,19 @@ storage are being considered, but have not yet been implemented.}
 
 \begin{verbatim}
   DIISBAS  <integer diisbas default 5>
+\end{verbatim}
+
+\section{{\tt NODISK} --- disable integral caching}
+
+Disables integral caching on disk during the CCSD iterations.  The effect
+of this keywork upon performance varies with the chemical system, basis
+set and hardware parameters.  If the time for the first CCSD iteration 
+exceeds the time for subsequent iterations, this may be indication that
+writing to disk is not useful and that \verb+NODISK+ will improve 
+performance.
+
+\begin{verbatim}
+ NODISK
 \end{verbatim}
 
 \section{{\tt FREEZE} --- Freezing orbitals}
