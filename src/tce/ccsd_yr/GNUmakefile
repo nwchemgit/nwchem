@@ -7,7 +7,11 @@ ccsd_yr1.o \
 ccsd_yr2.o \
 ccsd_y_tr1.o \
 ccsd_y_tr2.o \
-alpha_2_yr.o
+alpha_2_yr.o \
+ccsd_lr_d1_hh.o \
+ccsd_lr_d1_ph.o \
+ccsd_lr_d1_hp.o \
+ccsd_lr_d1_pp.o
 
 LIB_INCLUDES = -I../include
 
@@ -20,7 +24,11 @@ ccsd_yr1.F \
 ccsd_yr2.F \
 ccsd_y_tr1.F \
 ccsd_y_tr2.F \
-alpha_2_yr.F
+alpha_2_yr.F \
+ccsd_lr_d1_hh.F \
+ccsd_lr_d1_ph.F \
+ccsd_lr_d1_hp.F \
+ccsd_lr_d1_pp.F
             
 LIB_DEFINES = -DDEBUG_PRINT
 #
