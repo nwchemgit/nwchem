@@ -12,6 +12,6 @@ c     double precision au2kcalmol
 c     parameter(au2kcalmol=627.51d0)
 c     double precision joule2kcal
 c     parameter(joule2kcal=1d0/(4.184d0*1.0d3))
-      double precision fdmp,f1dmp,ff,x1,x2
-      fdmp(x1,x2)=1.0d0/(1.0d0+exp(-alpha*((x1/x2)-1.0d0)))
-      f1dmp(x1,x2,ff)=(alpha/x2)*ff*ff*exp(-alpha*((x1/x2)-1.0d0))
+c      double precision fdmp,f1dmp,ff,x1,x2
+c      fdmp(x1,x2)=1.0d0/(1.0d0+exp(-alpha*((x1/x2)-1.0d0)))
+c      f1dmp(x1,x2,ff)=(alpha/x2)*ff*ff*exp(-alpha*((x1/x2)-1.0d0))

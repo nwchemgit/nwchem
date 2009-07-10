@@ -148,6 +148,7 @@ c     U. Zimmerli, M Parrinello and P. Koumoutsakos, JCP. 120, 2693 (2004)
 c     Q. Wu and W. Yang, JCP. 116, 515 (2002)
 c
       implicit none
+#include "xc_vdw.fh"
       double precision s6
       integer n
       double precision x(3,*),force(3,*)
@@ -157,8 +158,8 @@ c
       double precision c6ij_sk,rAj
       external c6ij_sk
       double precision drajdxa,r0aj
-      double precision ff1,rr
-#include "xc_vdw.fh"
+      double precision ff1,rr,ff
+      double precision fdmp,f1dmp
 c
 c     deriv
 c
@@ -198,6 +199,7 @@ c
       end
       double precision function c6ij_sk(i,j,z)
       implicit none
+#include "xc_vdw.fh"
       integer i,j
       integer z(*)
 c     
@@ -205,7 +207,6 @@ c
       double precision ni,nj
       external xc_neff
       double precision xc_neff,ci,cj
-#include "xc_vdw.fh"
 c
       zi=z(i)
       zj=z(j)
@@ -216,6 +217,7 @@ c
       ci=c6(zi)
       cj=c6(zj)
 c
+      c6ij_sk=0.0d0
       if(ivdw.eq.1)then
 c version 1 
 c     S. Grimme J Comp Chem 25, 1463 (2004)
@@ -230,7 +232,6 @@ c     S. Grimme J Comp Chem 27, 1787 (2006)
           c6ij_sk=2d0*(ci*ci*cj*cj*ni*nj)**(1d0/3d0)/
      /       ((nj*nj*ci)**(1d0/3d0)+(ni*ni*cj)**(1d0/3d0))
       endif
-      c6ij_sk=c6ij_sk
       return
       end
       double precision function xc_neff(z)
@@ -256,15 +257,16 @@ c     U. Zimmerli, M Parrinello and P. Koumoutsakos, JCP. 120, 2693 (2004)
 c     Q. Wu and W. Yang, JCP. 116, 515 (2002)
 c
       implicit none
+#include "xc_vdw.fh"
       double precision s6
       integer n
       double precision x(3,*)
       integer z(*)
 c
       integer i,j
+      double precision fdmp
       double precision c6ij_sk,rij
       external c6ij_sk
-#include "xc_vdw.fh"
 c
       xc_vdw_e=0d0
       do i=1,n-1
@@ -452,13 +454,15 @@ c scaled radii
       endif
 c
 c     if(ivdw.eq.1.or.ivdw.eq.0)then
-        if (ivdw.eq.0) then
+      if (ivdw.eq.0) then
         scalerad=1.00d0
-        else if (ivdw.eq.1) then
+      else if (ivdw.eq.1) then
 c true ivdw eq 1
         scalerad=1.220d0
-        else if (ivdw.eq.2) then
+      else if (ivdw.eq.2) then
         scalerad=1.10d0
+      else
+        scalerad=0.0d0
       end if
 c     convert to au
 c     do i=1,128
@@ -535,6 +539,8 @@ c default
            write(6,*)'you are using HF or an untested DF together'
            write(6,*)'with the dispersion correction!'
         endif
+      else
+        scalec6 = 0.0
       endif
       get_scale6 = scalec6 
       return
@@ -720,4 +726,24 @@ c
       write(luout,*)'hess_file => ',filehess
       call errquit
      & ('hess_read: unexpected EOF when reading file: "filehess"',911)
+      end
+c
+c      fdmp(x1,x2)=1.0d0/(1.0d0+exp(-alpha*((x1/x2)-1.0d0)))
+c
+      double precision function fdmp(x1,x2)
+      implicit none
+#include "xc_vdw.fh"
+      double precision x1,x2
+      fdmp=1.0d0/(1.0d0+exp(-alpha*((x1/x2)-1.0d0)))
+      return
+      end
+c
+c      f1dmp(x1,x2,ff)=(alpha/x2)*ff*ff*exp(-alpha*((x1/x2)-1.0d0))
+c
+      double precision function f1dmp(x1,x2,ff)
+      implicit none
+#include "xc_vdw.fh"
+      double precision x1,x2,ff
+      f1dmp=(alpha/x2)*ff*ff*exp(-alpha*((x1/x2)-1.0d0))
+      return
       end
