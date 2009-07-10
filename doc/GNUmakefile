@@ -9,6 +9,9 @@ MAKESUBDIRS = @for dir in $(SUBDIRS); do \
 all postscript:		
 	$(MAKESUBDIRS)
 
+pdf:
+	$(MAKESUBDIRS)
+
 html:
 	$(MAKESUBDIRS)
 
