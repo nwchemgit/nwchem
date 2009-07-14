@@ -161,6 +161,14 @@ Parameters for atom types or bonded interactions do not exist in
 the force field. When this happens, additional parameters may be
 defined in the parameter files, or the segment file may be edited
 to include explicit parameters.
+\item[{\bf ~}]
+The atoms names in the pdb file do not match the names in the
+already existing frg or sgm file.  NWChem will remove the unknown
+atoms and replace them with the ones it expects, but the geometry
+will be changed.  It is best to run the prepare module the first time
+with the print level set to debug, and to look for messages like
+``Not found: atom''.  Of course, this is to be expected when 
+using PDB files without explicit hydrogen atoms.
 \end{itemize}
 
 \section{Default database directories}
