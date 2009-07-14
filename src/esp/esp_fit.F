@@ -275,8 +275,7 @@ c
       if(.not.esp_matinv(a,natoms+1,int_mb(ii0ptr),int_mb(ii1ptr),
      + int_mb(ii2ptr),dbl_mb(idtptr),ndim)) then
       if(me.eq.0) write(lfnout,1999)
- 1999 format(/,' Fit not completed: singular constraint matrix',/)
-      goto 9999
+ 1999 format(/,' Possible fit problem: singular constraint matrix',/)
       endif
 c
       do 30 i=1,natoms+1
@@ -293,7 +292,6 @@ c
       if(.not.esp_matinv(a,ndima,int_mb(ii0ptr),int_mb(ii1ptr),
      + int_mb(ii2ptr),dbl_mb(idtptr),ndim)) then
       if(me.eq.0) write(lfnout,1999)
-      goto 9999
       endif
 c
       do 32 i=1,ndim

@@ -17,6 +17,7 @@ c
       integer i,j,k,l,m,ima
       real*8 b,e
 c
+      esp_matinv=.true.
       i=0
       k=0
 c
@@ -46,11 +47,12 @@ c
         b=a(i,k)
 c
         if(dabs(b).lt.tiny) then
+          b = 1
+          a(i,k)=0
           esp_matinv=.false.
-          return
+        else
+          a(i,k)=one/b
         endif
-c
-        a(i,k)=one/b
         do 5 l=1,n
           if(l.ne.k) a(i,l)=-a(i,l)/b
     5   continue
@@ -86,6 +88,5 @@ c
    14   continue
    12 continue
 c
-      esp_matinv=.true.
       return
       end
