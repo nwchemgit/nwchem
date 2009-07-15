@@ -31,6 +31,7 @@ rm -f README
 rm -f license.txt
 rm -f INSTALL
 rm -f NOTES
+rm -f GNUmakefile
 mv -f * ..
 cd ..
 rm -rf ga
