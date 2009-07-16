@@ -45,9 +45,9 @@ c
       flag1=.false.
       do 1 i=1,natm
         if(pre_protein(cseq(1,latm(1,i)))) then
-        if(catm(1,i)(1:2).eq.'1H') flag1=.true.
-      endif
-      catm(2,i)=catm(1,i)
+          if(catm(1,i)(1:2).eq.'1H') flag1=.true.
+        endif
+        catm(2,i)=catm(1,i)
     1 continue
 c
 c     IUPAC hydrogen naming
@@ -59,9 +59,9 @@ c
               catm(2,i)(1:2)='2H'
               if(i+1 .le. natm .and. catm(2,i+1)(1:2).eq.'2H') then
                 catm(2,i+1)(1:2)='3H'
-              endif
-              if(i+2 .le. natm .and. catm(2,i+2)(1:2).eq.'3H') then
-                catm(2,i+2)(1:2)='4H'
+                if(i+2 .le. natm .and. catm(2,i+2)(1:2).eq.'3H') then
+                  catm(2,i+2)(1:2)='4H'
+                endif
               endif
             endif
           endif
