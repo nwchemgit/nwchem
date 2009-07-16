@@ -1,4 +1,4 @@
-# This is an automatically generated fragment file                               
+# This is an automatically generated segment file                               
 #                                                                               
 $KD1                                                                            
    26    1    1    0

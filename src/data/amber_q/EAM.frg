@@ -1,4 +1,4 @@
-# This is an automatically generated fragment file                               
+# This is an automatically generated segment file                               
 #                                                                               
 $EAM                                                                            
    10    1    1    0

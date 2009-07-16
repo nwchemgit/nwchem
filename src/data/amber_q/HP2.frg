@@ -1,4 +1,4 @@
-# This is an automatically generated fragment file                               
+# This is an automatically generated segment file                               
 #                                                                               
 $HP2                                                                            
    22    1    1    0

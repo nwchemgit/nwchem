@@ -119,7 +119,7 @@ DUM     0.00000 0.00000E+00 0.00000E+00                            1 1111111111
               0 0.00000E+00 0.00000E+00
 HE      4.00260 8.89937E-02 1.48000E-01                            1 1111111111
               2 8.89937E-02 1.48000E-01
-NE     20.17970 3.59824E-01 1.53000E-01                            1 1111111111
+NE     14.00700 3.59824E-01 1.53000E-01                            1 1111111111
               7 0.00000E+00 0.00000E+00
 Cross
 Bonds
@@ -1091,91 +1091,3 @@ O    -NH2  -HA   -CC      0.00000 3.76560E+02
 O    -     -     -C       0.00000 1.00416E+03
 OB   -     -     -CD      0.00000 8.36800E+02
 OC   -     -     -CC      0.00000 8.03328E+02
-Atom types
-#
-# Definition of the atom types
-#
-# This file contains the definition of AMBER atom types in terms of number and
-# type of neighbor atoms.
-#
-# Note that the order in which the definitions are given is important.
-# For each atom the last applicable entry in this file will be used, i.e.
-# atom type definitions are given in increasing specificity.
-#
-# Atomic number increased by 200 means singly protonated
-#                            400       doubly
-#                            600       triply
-#                            800       un-protonated
-#                           1000       one non-hydrogen
-#                           2000       two non-hydrogens
-#                           3000       three non-hydrogens
-#                           4000       four non-hydrogens
-#
-# Atom number 3500 would signify any unprotonated atom with three non-hydrogens
-#
-#
-# Each entry contains:
-#
-#  1 a4 atom type name
-#
-#  2 i7 atomic number
-#
-#  3 i3 atom saturation :      0 = undetermined, always applies
-#                              1 = aliphatic;
-#                              2 = double bond;
-#                              3 = aromatic;
-#
-#  4 i5 aliphatic ring :      -1 = not in aliphatic ring
-#                              0 = any
-#                              1 = in at least one aliphatic ring
-#                              3 = in 3-membered aliphatic ring
-#                              4 = in 4-membered aliphatic ring
-#                              5 = in 5-membered aliphatic ring
-#                              6 = in 6-membered aliphatic ring
-#                             56 = junction 5 & 6 membered aliphatic rings
-#                             66 = junction two 6 membered aliphatic rings
-#
-#  5 i5 aromatic ring :       -1 = not in aromatic ring
-#                              0 = any
-#                              1 = in at least one aromatic ring
-#                              5 = in 5-membered aromatic ring
-#                              6 = in 6-membered aromatic ring
-#                             56 = junction 5 & 6 membered aromatic rings
-#                             66 = junction two 6 membered aromatic rings
-#                            666 = junction three 6 membered aromatic rings
-#
-#  6 i3 number of neighbors : -1 = no neighbors
-#                              0 = any number of neighbors
-#
-#  7 i7 atom num neighbor 1
-#
-#  8 i3 num n1 neighbors       0 = any number of neighbors
-#
-#  9 i7 atom num neighb n11
-#
-# 10 i7 atom num neighb n12
-#
-# 11 i7 atom num neighb n13
-#
-# 12 i7 atom num neighbor 2
-#
-# 13 i3 num n2 neighbors       0 = any number of neighbors
-#
-# 14 i7 atom num neighb n21
-#
-# 15 i7 atom num neighb n22
-#
-# 16 i7 atom num neighb n23
-#
-# 17 i7 atom num neighbor 3
-#
-# 18 i3 num n3 neighbors       0 = any number of neighbors
-#
-# 19 i7 atom num neighb n31
-#
-# 20 i7 atom num neighb n32
-#
-# 21 i7 atom num neighb n33
-#
-#
-End
