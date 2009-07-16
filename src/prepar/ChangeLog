@@ -118,5 +118,3 @@ Jan 29 1999	 Add MODEL option
 		 Add input LINK command
 		 Add CHAIN option
 		 Change in topology format
-Jul  2 2009      Add support for PDB files that left justify atomic type
-Jul 16 2009      Fix pre_protein

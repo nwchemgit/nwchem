@@ -186,18 +186,6 @@ c      if(nchain.eq.1) cseq(1,iseq)(4:5)='_N'
       latm(2,iatm)=pre_atnum(card(77:78))
       if(latm(2,iatm).eq.0) latm(2,iatm)=pre_atnum(card(13:14))
       catm(1,iatm)(1:4)=card(13:16)
-c     shift it to get justifcation correct
-      if (catm(1,iatm)(2:2) .eq. ' ') then
-        catm(1,iatm)(2:2) = catm(1,iatm)(3:3)
-        catm(1,iatm)(3:3) = catm(1,iatm)(4:4)
-        catm(1,iatm)(4:4) = ' '
-      endif
-      if (catm(1,iatm)(2:2) .eq. ' ') then
-        catm(1,iatm)(2:2) = catm(1,iatm)(3:3)
-        catm(1,iatm)(3:3) = catm(1,iatm)(4:4)
-        catm(1,iatm)(4:4) = ' '
-      endif
-c
       read(card(31:54),'(3f8.3)') (xatm(j,iatm),j=1,3)
       endif
       goto 1
@@ -242,18 +230,6 @@ c      if(nchain.eq.1) cseq(1,iseq)(4:5)='_N'
       latm(2,iatm)=pre_atnum(card(77:78))
       if(latm(2,iatm).eq.0) latm(2,iatm)=pre_atnum(card(13:14))
       catm(1,iatm)(1:4)=card(13:16)
-c     shift it to get justifcation correct
-      if (catm(1,iatm)(2:2) .eq. ' ') then
-        catm(1,iatm)(2:2) = catm(1,iatm)(3:3)
-        catm(1,iatm)(3:3) = catm(1,iatm)(4:4)
-        catm(1,iatm)(4:4) = ' '
-      endif
-      if (catm(1,iatm)(2:2) .eq. ' ') then
-        catm(1,iatm)(2:2) = catm(1,iatm)(3:3)
-        catm(1,iatm)(3:3) = catm(1,iatm)(4:4)
-        catm(1,iatm)(4:4) = ' '
-      endif
-c
       read(card(31:54),'(3f8.3)') (xatm(j,iatm),j=1,3)
       endif
       goto 1
