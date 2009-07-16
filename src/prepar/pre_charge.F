@@ -306,9 +306,9 @@ c
       if(nox.eq.2) then
       do 6 j=1,nb
       if(latm(2,iab(j)).eq.8.and.latm(3,iab(j)).eq.1)
-     + qatm(iab(j))=qatm(iab(j))-0.33
+     + qatm(iab(j))=qatm(iab(j))-0.33d0
     6 continue
-      qatm(i)=qatm(i)-0.34
+      qatm(i)=qatm(i)-0.34d0
       endif
       endif
 c
@@ -322,9 +322,9 @@ c
       if(nhx.eq.3) then
       do 8 j=1,nb
       if(latm(2,iab(j)).eq.1.and.latm(3,iab(j)).eq.1)
-     + qatm(iab(j))=qatm(iab(j))+0.25
+     + qatm(iab(j))=qatm(iab(j))+0.25d0
     8 continue
-      qatm(i)=qatm(i)+0.25
+      qatm(i)=qatm(i)+0.25d0
       endif
       endif
 c
@@ -338,16 +338,16 @@ c
       if(nox.eq.2) then
       do 21 j=1,nb
       if(latm(2,iab(j)).eq.8.and.latm(3,iab(j)).eq.1)
-     + qatm(iab(j))=qatm(iab(j))-0.33
+     + qatm(iab(j))=qatm(iab(j))-0.33d0
    21 continue
-      qatm(i)=qatm(i)-0.34
+      qatm(i)=qatm(i)-0.34d0
       endif
       if(nox.eq.3) then
       do 22 j=1,nb
       if(latm(2,iab(j)).eq.8.and.latm(3,iab(j)).eq.1)
-     + qatm(iab(j))=qatm(iab(j))-0.50
+     + qatm(iab(j))=qatm(iab(j))-0.50d0
    22 continue
-      qatm(i)=qatm(i)-0.50
+      qatm(i)=qatm(i)-0.50d0
       endif
       endif
 c
@@ -361,9 +361,9 @@ c
       if(nox.eq.3) then
       do 24 j=1,nb
       if(latm(2,iab(j)).eq.8.and.latm(3,iab(j)).eq.1)
-     + qatm(iab(j))=qatm(iab(j))-0.25
+     + qatm(iab(j))=qatm(iab(j))-0.25d0
    24 continue
-      qatm(i)=qatm(i)-0.25
+      qatm(i)=qatm(i)-0.25d0
       endif
       endif
 c
