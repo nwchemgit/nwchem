@@ -217,7 +217,7 @@ c
       do 10 k=1,3
       a=a+tr(k)*tr(k)
       b=b+(xs(k,i)-xs(k,j))*tr(k)
-      c=c+xs(k,i)*xs(k,i)+xs(k,j)*xs(k,j)-2*xs(k,i)*xs(k,j)
+      c=c+xs(k,i)*xs(k,i)+xs(k,j)*xs(k,j)-2.0*xs(k,i)*xs(k,j)
    10 continue
       b=2.0d0*b
       c=c-touch*touch

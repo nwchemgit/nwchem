@@ -64,5 +64,5 @@ c
 c
 c 9999 continue
 c      pre_equiv=.false.
-c     return
+      return
       end

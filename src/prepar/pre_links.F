@@ -126,8 +126,8 @@ c
       else
       call md_abort('inconsistent links',9999)
       endif
-      if(.not.pre_protein(cseq(1,i)).or.
-     + .not.pre_protein(cseq(1,i+1))) then
+      if(.not.pre_protein(ffield,cseq(1,i)).or.
+     + .not.pre_protein(ffield,cseq(1,i+1))) then
       nlnk=nlnk+1
       if(nlnk.gt.mlnk) call md_abort('increase mlnk',9999)
       llnk(1,nlnk)=i

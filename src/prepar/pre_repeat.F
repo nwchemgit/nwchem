@@ -52,7 +52,7 @@ c
       do 3 k=1,3
       imin(k)=1
       jmin(k)=1
-      r2min(k)=1.0d24
+      r2min(k)=1.0e24
     3 continue
 c
       do 4 i=1,nsa

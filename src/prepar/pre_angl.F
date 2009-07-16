@@ -1,14 +1,12 @@
-      logical function pre_ang(lbnd,mbnd,nbnd,lang,mang,nang)
+      logical function pre_ang(lbnd,mbnd,nbmd,lang,mang,nang)
 c
 c $Id: pre_angl.F,v 1.2 1998-04-29 18:35:11 d3j191 Exp $
 c
-      THIS FILE IS NOT USED
       implicit none
 c
       integer mbnd,mang
       integer nbnd,nang
       integer lbnd(mbnd,2),lang(mang,3)
-      integer i,j
 c
 c     determine the list of angles
 c     ----------------------------
@@ -50,10 +48,10 @@ c
     2 continue
     1 continue
 c
-      pre_ang=.true.
+      pre_angl=.true.
       return
 c
  9999 continue
-      pre_ang=.false.
+      pre_angl=.false.
       return
       end
