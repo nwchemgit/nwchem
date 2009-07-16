@@ -21,8 +21,7 @@ c
 c
 c
       integer i,j,ifr,ito,igrp
-      character*255 target,atomi
-      integer ndx,iatom,isgm
+      integer iatom,isgm
       character*4 trgt
       integer i_list,l_list
 c
@@ -35,9 +34,6 @@ c
       if(igrp.gt.maxgrp) call md_abort('Group number error',igrp)
 c
       card=card(7:80)
-c
-      ndx=index(card,' ')
-      target=card(1:ndx-1)
 c
       if(.not.ma_push_get(mt_int,nsa,'list',l_list,i_list))
      + call md_abort('Failed to allocate list',0)
@@ -84,7 +80,7 @@ c
       integer natoms
       character*16 atomname(natoms)
       integer isegment(natoms)
-      character*255 target
+      character*80 target
       character*10 string,aname
       integer list(natoms)
 c

@@ -1237,8 +1237,8 @@ c
       goto 2
       endif
       if(inp_compare(.false.,'collapse_group',item)) then
-      if(.not.inp_i(icolgrp)) call md_abort('pre_input collapse_group')
-      if(.not.inp_i(jcolgrp)) call md_abort('pre_input collapse_group')
+      if(.not.inp_i(icolgrp))call md_abort('pre_input collapse_group',0)
+      if(.not.inp_i(jcolgrp))call md_abort('pre_input collapse_group',0)
       write(68,6885) icolgrp,jcolgrp
  6885 format('collapsgr ',2i5)
       numcmd=numcmd+1
