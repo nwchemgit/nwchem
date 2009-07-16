@@ -38,14 +38,14 @@ c
       logical flag1
 c
       if(util_print('sequence',print_debug)) then
-      write(lfnout,2000)
- 2000 format(/,'pre_namiup ')
+        write(lfnout,2000)
+ 2000   format(/,'pre_namiup ')
       endif
 c
       flag1=.false.
       do 1 i=1,natm
-      if(pre_protein(ffield,cseq(1,latm(1,i)))) then
-      if(catm(1,i)(1:2).eq.'1H') flag1=.true.
+        if(pre_protein(cseq(1,latm(1,i)))) then
+        if(catm(1,i)(1:2).eq.'1H') flag1=.true.
       endif
       catm(2,i)=catm(1,i)
     1 continue
@@ -53,17 +53,23 @@ c
 c     IUPAC hydrogen naming
 c
       if(flag1) then
-      do 2 i=1,natm
-      if(pre_protein(ffield,cseq(1,latm(1,i)))) then
-      if(catm(2,i)(1:2).eq.'3H') catm(2,i)(1:2)='4H'
-      if(catm(2,i)(1:2).eq.'2H') catm(2,i)(1:2)='3H'
-      if(catm(2,i)(1:2).eq.'1H') catm(2,i)(1:2)='2H'
-      endif
-    2 continue
-      if(util_print('sequence',print_high)) then
-      write(lfnout,2001)
- 2001 format(/,'Hydrogen atom prefix corrected ')
-      endif
+        do 2 i=1,natm
+          if(pre_protein(cseq(1,latm(1,i)))) then
+            if(catm(2,i)(1:2).eq.'1H') then
+              catm(2,i)(1:2)='2H'
+              if(i+1 .le. natm .and. catm(2,i+1)(1:2).eq.'2H') then
+                catm(2,i+1)(1:2)='3H'
+              endif
+              if(i+2 .le. natm .and. catm(2,i+2)(1:2).eq.'3H') then
+                catm(2,i+2)(1:2)='4H'
+              endif
+            endif
+          endif
+    2   continue
+        if(util_print('sequence',print_high)) then
+          write(lfnout,2001)
+ 2001     format(/,'Hydrogen atom prefix corrected ')
+        endif
       endif
 c
 c     ILE CD1 -> CD
