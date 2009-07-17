@@ -659,7 +659,7 @@ table summarize supported combinations of ARMCI_NETWORK and NWCHEM_TARGET.
   DCMFMPI         BGP           Global Tree/Interrupt      DCMF,MPI
 
   PORTALS         LINUX64       Cray SeaStar/HyperTransport PORTALS 
-                                
+  MPI-SPAWN       LINUX64       Myrinet MX or Infiniband      MPI2                        
 
 For more information/support, you are referred to the ARMCI support page at
 section 2.1.2 of the following URL
