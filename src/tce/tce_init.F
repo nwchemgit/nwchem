@@ -485,7 +485,7 @@ c
           if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
      1     call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
         endif
-        t_max =  0.99d0
+        t_max =  0.9999d0
         ifreq(1) = 0.0
         do i = 1, inumfreq-1
           t_i = -1.0d0*t_max + (i-1)*2*t_max/(inumfreq-1)
@@ -822,6 +822,11 @@ c
      2      (module.ne.'ulccd'))
      3    call errquit('tce_init: ucc/ulccd module overridden',0,
      4    UNKNOWN_ERR)
+      else if (model.eq.'multi') then
+        ctype='Multiple CCSD-like methods'
+        if (module.ne.'tce')
+     1    call errquit('tce_init: ucc/ulccd module overridden',0,
+     2    UNKNOWN_ERR)
       else if (model.eq.'ccsd') then
         if (perturbative.eq.'none') then
           ctype='Coupled-cluster singles & doubles'
