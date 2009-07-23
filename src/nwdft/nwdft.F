@@ -141,6 +141,16 @@ c
       if (movecs_in .eq. movecs_out) then
          if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $        call errquit('dft: theory not specified',0, RTDB_ERR)
+c
+          if(iproc.eq.0) then
+           if (theory .eq. 'sodft') then
+             call util_print_centered(
+     &         LuOut, 'Spin-Orbit DFT', 40, .true.)
+             write(LuOut,*)
+             write(LuOut,*)
+           endif
+          endif
+c
          if(theory .eq. 'dft'.or.theory.eq.'sodft')then 
             if(.not.xc_gotxc()) then
                grid_ok=.true.
