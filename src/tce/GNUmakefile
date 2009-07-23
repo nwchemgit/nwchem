@@ -19,7 +19,7 @@ ifdef CCSDTQ
       LIB_DEFINES += -DCCSDTQ
 endif
 
-OBJ = tce_input.o tce_init.o
+OBJ = tce_input.o tce_init.o tce_energy.o tce_energy_fragment.o
 
 OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o gatodra.o gatoeaf.o \
@@ -35,7 +35,7 @@ OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_t1_offset.o tce_t2_offset.o tce_t3_offset.o tce_t4_offset.o \
       tce_x1_offset.o tce_x2_offset.o tce_x3_offset.o tce_x4_offset.o \
       tce_y1_offset.o tce_y2_offset.o tce_y3_offset.o tce_y4_offset.o \
-      tce_mbpt2.o tce_energy.o tce_energy_fragment.o tce_restricted.o \
+      tce_mbpt2.o tce_restricted.o \
       tce_hash.o get_hash_block.o put_hash_block.o add_hash_block.o tce_sort_4kg.o \
       tce_residual_t3a.o tce_t3a_offset.o tce_x3a_offset.o \
       tce_cholesky.o tce_ao2e_cholesky.o tce_ao2e_cholesky_2d.o tce_ao2e_cholesky_4d.o \
