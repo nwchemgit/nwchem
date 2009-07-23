@@ -502,6 +502,8 @@ c
       double precision pi
       parameter(pi = 3.14159265358979323846264338327950288419D0)
       character*255 modelname
+      logical do_ccd, do_lccd, do_ccsd, do_lccsd, do_qcisd
+      logical do_pt, do_lam_pt, do_cr_pt, do_lcr_pt, do_2t_pt
 c
 c     Fragment extension
 c
@@ -546,7 +548,7 @@ c
           if (.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,ref))
      1      call errquit('tce_energy: failed to get dft energy',0,
      2      RTDB_ERR)
-        else if (reference.eq.1) then
+        elseif (reference.eq.1) then
           if (.not.scf(rtdb)) return
           if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,ref))
      1      call errquit('tce_energy: failed to get scf energy',0,
@@ -1027,7 +1029,7 @@ c          write(LuOut,9090) '2-e',d_v2
           write(LuOut,9020) cpu, wall
           call util_flush(LuOut)
         endif
-      else if(intorb) THEN !----------------------
+      elseif(intorb) THEN !----------------------
         if(nodezero) then
           write(6,*)'4-electron integrals stored in orbital form'
         end if
@@ -1104,16 +1106,16 @@ c
 c
         if(fast2e.eq.1) then
           call tce_mo2e_trans(rtdb,d_v2,kax_v2_alpha_offset,size_2e)
-        else if(fast2e.eq.2) then
+        elseif(fast2e.eq.2) then
           call tce_mo2e_zones_4a_disk_2s_new(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-        else if(fast2e.eq.3) then
+        elseif(fast2e.eq.3) then
           call tce_mo2e_zones_4a_disk_ga(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-        else if(fast2e.eq.4) then
+        elseif(fast2e.eq.4) then
           call  tce_mo2e_zones_4a_disk_ga_chop(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-        else if(fast2e.eq.5) then
+        elseif(fast2e.eq.5) then
           idisk=1
           if(idisk.ne.1) then
             call errquit('tce_energy: 2emet 5 with idiskx=1 only',
@@ -1121,7 +1123,7 @@ c
           endif
           call tce_mo2e_zones_4a_disk_4s_new_patch(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-        else if(fast2e.eq.6) then
+        elseif(fast2e.eq.6) then
           idisk=1
           if(idisk.ne.1) then
             call errquit('tce_energy: 2emet 6 with idiskx=1 only',
@@ -1129,21 +1131,21 @@ c
           endif
           call tce_mo2e_zones_4a_disk_4s_new_patch_m2(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-c        else if(fast2e.eq.7) then
+c        elseif(fast2e.eq.7) then
 c          if(idisk.ne.1) then
 c            call errquit('tce_energy: 2emet 7 with idiskx=1 only',
 c     2                                             idisk,CALC_ERR)
 c          endif
 c          call tce_mo2e_zones_4a_disk_4s_new_patch_m3(rtdb,d_v2,
 c     1                                  kax_v2_alpha_offset,size_2e)
-c        else if(fast2e.eq.8) then
+c        elseif(fast2e.eq.8) then
 c          if(idisk.ne.1) then
 c            call errquit('tce_energy: 2emet 8 with idiskx=1 only',
 c     2                                             idisk,CALC_ERR)
 c          endif
 c          call tce_mo2e_zones_4a_disk_4s_new_patch_m4(rtdb,d_v2,
 c     1                                  kax_v2_alpha_offset,size_2e)
-        else if ((fast2e.eq.9).and.(.not.(read_integrals(2)))) then
+        elseif ((fast2e.eq.9).and.(.not.(read_integrals(2)))) then
           if (nodezero) then
             write(LuOut,*)
             write(LuOut,*) 'tce_mo2e_disk_2eorb: fast2e=9'
@@ -1151,14 +1153,14 @@ c     1                                  kax_v2_alpha_offset,size_2e)
           endif
           call tce_mo2e_disk_2eorb(rtdb,d_v2,kax_v2_alpha_offset,
      1                             size_2e)
-        else if ((fast2e.eq.9).and.(read_integrals(2))) then
+        elseif ((fast2e.eq.9).and.(read_integrals(2))) then
           if (nodezero) then
             write(LuOut,*)
             write(LuOut,*) 'tce_mo2e_disk_2eorb: fast2e=9'
             write(LuOut,*) 'restarting with integral file on disk'
             call util_flush(LuOut)
           endif
-        else if(fast2e.eq.10) then
+        elseif(fast2e.eq.10) then
           idisk=0
           if(idisk.ne.0) then
             call errquit('tce_energy: 2emet 10 with idiskx=0 only',
@@ -1166,7 +1168,7 @@ c     1                                  kax_v2_alpha_offset,size_2e)
           endif
           call tce_mo2e_incore_2eorb(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-        else if(fast2e.eq.11) then
+        elseif(fast2e.eq.11) then
           idisk=0
           if(idisk.ne.0) then
             call errquit('tce_energy: 2emet 11 with idiskx=0 only',
@@ -1174,7 +1176,7 @@ c     1                                  kax_v2_alpha_offset,size_2e)
           endif
           call tce_mo2e_incore_2eorb_split(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-        else if(fast2e.eq.12) then
+        elseif(fast2e.eq.12) then
           if (nodezero) then
             write(LuOut,*)
             write(LuOut,*) 'fast2e=12'
@@ -1198,10 +1200,10 @@ c     1                             size_2e)
           idisk=1
           call tce_mo2e_hybrid_2eorb_split(d_v2ga,d_v2sf,
      1         kax_v2_alpha_offset)
-        else if(fast2e.eq.13) then
+        elseif(fast2e.eq.13) then
           call tce_mo2e_zones_4a_disk_ga_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-        else if(fast2e.eq.14) then
+        elseif(fast2e.eq.14) then
           call  tce_mo2e_zones_4a_disk_ga_chop_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
         else
@@ -1287,7 +1289,7 @@ c
         needt2 = .true.
         needt3 = .true.
         needt4 = .true.
-      else if ((model.eq.'mbpt2').or.
+      elseif ((model.eq.'mbpt2').or.
      1         (model.eq.'mbpt3').or.
      2         (model.eq.'mbpt4').or.
      2         (model.eq.'mbpt4sdq_t').or.
@@ -1310,7 +1312,45 @@ c
             neede2 = .true.
           endif ! mbpt4sdq
         endif ! mbpt3
+      elseif (model.eq.'multi') then
+        needt1 = .true.
+        needt2 = .true.
       endif ! model
+      if (.not.rtdb_get(rtdb,'tce:do_ccd',mt_log,1,do_ccd)) then
+        do_ccd = .false.
+      endif
+      if (.not.rtdb_get(rtdb,'tce:do_lccd',mt_log,1,do_lccd)) then
+        do_lccd = .false.
+      endif
+      if (.not.rtdb_get(rtdb,'tce:do_ccsd',mt_log,1,do_ccsd)) then
+        do_ccsd = .false.
+      endif
+      if (.not.rtdb_get(rtdb,'tce:do_lccsd',mt_log,1,do_lccsd)) then
+        do_lccsd = .false.
+      endif
+      if (.not.rtdb_get(rtdb,'tce:do_qcisd',mt_log,1,do_qcisd)) then
+        do_qcisd = .false.
+      endif
+      if (.not.rtdb_get(rtdb,'tce:do_pt',mt_log,1,do_pt)) then
+        do_pt = .false.
+      endif
+      if(nodezero) write(LuOut,*) 'do_pt = ',do_pt
+      if (.not.rtdb_get(rtdb,'tce:do_lam_pt',mt_log,1,do_lam_pt)) then
+        do_lam_pt = .false.
+      endif
+      if(nodezero) write(LuOut,*) 'do_lam_pt = ',do_lam_pt
+      if (.not.rtdb_get(rtdb,'tce:do_cr_pt',mt_log,1,do_cr_pt)) then
+        do_cr_pt = .false.
+      endif
+      if(nodezero) write(LuOut,*) 'do_cr_pt = ',do_cr_pt
+      if (.not.rtdb_get(rtdb,'tce:do_lcr_pt',mt_log,1,do_lcr_pt)) then
+        do_lcr_pt = .false.
+      endif
+      if(nodezero) write(LuOut,*) 'do_lcr_pt = ',do_lcr_pt
+      if (.not.rtdb_get(rtdb,'tce:do_2t_pt',mt_log,1,do_2t_pt)) then
+        do_2t_pt = .false.
+      endif
+      if(nodezero) write(LuOut,*) 'do_2t_pt = ',do_2t_pt
 c
 c     t1 amplitudes
 c
@@ -1462,7 +1502,7 @@ c -------------
           call tce_guess_t2(d_v2,k_v2_offset,d_t2,k_t2_offset)
           call reconcilefile(d_t2,size_t2)
 c starts for t1 amplitudes t1(in the second order of MBPT)
-          if(needt1.and.(model.eq.'ccsd')) then
+          if(needt1.and.((model.eq.'ccsd').or.(model.eq.'multi'))) then
             if ((ioalg.eq.2).and.(io_v2.eq.IOGA)) then
               call t1mp2(d_f1,d_t1,d_t2,d_v2,k_f1_offset,k_t1_offset,
      &                                       k_t2_offset,k_v2_offset)
@@ -1947,7 +1987,8 @@ c
         endif ! left
         if (nodezero) write(LuOut,9120) 'END PRINT'
         if (nodezero) call util_flush(LuOut)
-      elseif (model.eq.'ccd') then
+      endif
+      if ((model.eq.'ccd').or.do_ccd) then
 c -------------
 c CCD     right
 c -------------
@@ -1995,7 +2036,7 @@ c -------------
               call x2_restart_save(d_t2,k_t2_offset,size_t2,0,
      1                             handle_t2,irrep_t)
             endif
-            goto 100
+            goto 101
           endif
           if (save_t(2).and.(mod(iter,save_interval).eq.0)) then
             if(nodezero) then
@@ -2014,7 +2055,9 @@ c -------------
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-      else if (model.eq.'lccd') then
+  101 continue
+      endif
+      if ((model.eq.'lccd').or.do_lccd) then
 c -------------
 c LCCD    right
 c -------------
@@ -2062,7 +2105,7 @@ c -------------
               call x2_restart_save(d_t2,k_t2_offset,size_t2,0,
      1                             handle_t2,irrep_t)
             endif
-            goto 100
+            goto 102
           endif
           if (save_t(2).and.(mod(iter,save_interval).eq.0)) then
             if(nodezero) then
@@ -2081,7 +2124,9 @@ c -------------
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-      else if (model.eq.'ccsd') then
+  102 continue
+      endif
+      if ((model.eq.'ccsd').or.do_ccsd) then
 c -------------
 c CCSD    right
 c -------------
@@ -2126,17 +2171,18 @@ c -------------
  2234   continue
         if (imagresp) then
           if(nodezero) then
-            write(6,*)
+            write(6,*) 'inumfreq = ',inumfreq
             write(6,*) 'Casimir-Polder integration points are:'
-            do i = 1, inumfreq
+            do i = inumfreq,1,-1
               write(6,999) i,ifreq(i)
             enddo
+            call util_flush(LuOut)
           endif
-  999 format(3x,'ifreq(',i2,') = ',f14.8)
+  999 format(3x,'ifreq(',i3,') = ',f14.8)
 c
 c         REAL COMPONENT
 c
-          do omegacount=1,inumfreq
+          do omegacount=inumfreq,1,-1
             omega = ifreq(omegacount)
 c            if (omega.eq.(0.0d0)) then
 c              call errquit('tce_energy: imag(omega) is zero',0,CALC_ERR)
@@ -2564,7 +2610,7 @@ c
             irrep_tr=irrep_b
 c
 #ifdef DEBUG_PRINT
-            write(LuOut,*) "alpha_1 AB"
+            if (nodezero) write(LuOut,*) "alpha_1 AB"
 #endif
             call alpha_1(d_d1(axisA),d_a0,d_t1,d_t2,
      1           d_tr1(axisB+6),d_tr2(axisB+6),
@@ -2578,7 +2624,7 @@ c
             call get_block(d_a0,alpha1,1,0)
             call tce_zero(d_a0,size_a0)
 #ifdef DEBUG_PRINT
-            write(LuOut,*) "alpha_1 AB = ",alpha1
+            if (nodezero) write(LuOut,*) "alpha_1 AB = ",alpha1
 #endif
 c
             if (axisA.eq.axisB) then
@@ -2587,7 +2633,7 @@ c
               irrep_d=irrep_b
               irrep_tr=irrep_a
 #ifdef DEBUG_PRINT
-              write(LuOut,*) "alpha_1 BA"
+              if (nodezero) write(LuOut,*) "alpha_1 BA"
 #endif
               call alpha_1(d_d1(axisB),d_a0,d_t1,d_t2,
      1             d_tr1(axisA+6),d_tr2(axisA+6),
@@ -2602,7 +2648,7 @@ c
               call tce_zero(d_a0,size_a0)
             endif ! axisA.eq.axisB
 #ifdef DEBUG_PRINT
-            write(LuOut,*) "alpha_1 BA = ",alpha2
+            if (nodezero) write(LuOut,*) "alpha_1 BA = ",alpha2
 #endif
 c
             alpha(axisA,axisB)=alpha(axisA,axisB)+alpha1+alpha2
@@ -2615,7 +2661,7 @@ c
             irrep_trb=irrep_b
 c
 #ifdef DEBUG_PRINT
-            write(LuOut,*) "alpha_2 A(+i) B(-i)"
+            if (nodezero) write(LuOut,*) "alpha_2 A(+i) B(-i)"
 #endif
             call alpha_2(d_f1,d_a0,d_t1,d_t2,
      1           d_tr1(axisA),d_tr2(axisA),
@@ -2631,11 +2677,11 @@ c     2           d_tr1(axisB+3),d_tr2(axisB+3), ! temporary
             call tce_zero(d_a0,size_a0)
             alpha1 = -alpha1 ! temporary
 #ifdef DEBUG_PRINT
-            write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
+            if (nodezero) write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
 #endif
 c
 #ifdef DEBUG_PRINT
-            write(LuOut,*) "alpha_2 A(-i) B(+i)"
+            if (nodezero) write(LuOut,*) "alpha_2 A(-i) B(+i)"
 #endif
             call alpha_2(d_f1,d_a0,d_t1,d_t2,
 c     1           d_tr1(axisA+3),d_tr2(axisA+3), ! temporary
@@ -2651,11 +2697,11 @@ c     1           d_tr1(axisA+3),d_tr2(axisA+3), ! temporary
             call tce_zero(d_a0,size_a0)
             alpha2 = -alpha2 ! temporary
 #ifdef DEBUG_PRINT
-            write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
+            if (nodezero) write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
 #endif
 c
 #ifdef DEBUG_PRINT
-            write(LuOut,*) "alpha_2 A(r) B(r)"
+            if (nodezero) write(LuOut,*) "alpha_2 A(r) B(r)"
 #endif
             call alpha_2(d_f1,d_a0,d_t1,d_t2,
      1           d_tr1(axisA+6),d_tr2(axisA+6),
@@ -2668,7 +2714,7 @@ c
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha3,1,0)
 #ifdef DEBUG_PRINT
-            write(LuOut,*) "alpha_2 A(r) B(r) = ",alpha3
+            if (nodezero) write(LuOut,*) "alpha_2 A(r) B(r) = ",alpha3
 #endif
             call deletefile(d_a0)
 c
@@ -2676,7 +2722,9 @@ c
             alpha(axisA,axisB)=-1.0d0*alpha(axisA,axisB)
 c
 #ifdef DEBUG_PRINT
-            write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
+            if (nodezero) write(LuOut,*) "alpha(axisA,axisB) = ",
+     1                                    alpha(axisA,axisB)
+            call util_flush(LuOut)
 #endif
 c
           endif ! respaxis(axis)
@@ -2750,6 +2798,7 @@ c
      &       integral(1),integral(2),integral(3),
      &       integral(4),integral(5),integral(6),
      &       integral(7),integral(8)
+          call util_flush(LuOut)
 c
         endif ! imagresp
  2237   continue
@@ -2782,7 +2831,12 @@ c
 c -------------------
 c CCSD(T) and CCSD[T]
 c -------------------
-        if ((perturbative.eq.'(t)').or.(perturbative.eq.'[t]')) then
+        if (do_pt.or.((perturbative.eq.'(t)').or.
+     1                (perturbative.eq.'[t]'))) then
+c
+          if (nodezero) write(LuOut,*) 'CCSD(T)'
+          if (do_pt) perturbative='(t)'
+c
           cpu = - util_cpusec()
           wall = - util_wallsec()
           if (restart_ccsd_t.eq.0) then
@@ -2817,17 +2871,19 @@ c -------------------
           endif
           if (perturbative.eq.'[t]') then
             corr = corr + pt3_1
-          else if (perturbative.eq.'(t)') then
+          elseif (perturbative.eq.'(t)') then
             corr = corr + pt3_2
           endif
+        endif
 c ---------------------------------
 c Lambda-CCSD(T) and Lambda-CCSD[T]
 c ---------------------------------
-        else if ((perturbative.eq.'lambda(t)').or.
-     &           (perturbative.eq.'lambda[t]')) then
-c#ifdef DEBUG_PRINT
-c        print*,'tce_energy: Lambda-CCSD(T) stage'
-c#endif
+        if (do_lam_pt.or.((perturbative.eq.'lambda(t)').or.
+     &                    (perturbative.eq.'lambda[t]'))) then
+c
+          if (nodezero) write(LuOut,*) 'Lambda-CCSD(T)'
+          if (do_lam_pt) perturbative='lambda(t)'
+c
           cpu = - util_cpusec()
           wall = - util_wallsec()
           call lambda_ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
@@ -2847,15 +2903,20 @@ c#endif
           endif
           if (perturbative.eq.'lambda[t]') then
             corr = corr + pt3_1
-          else if (perturbative.eq.'lambda(t)') then
+          elseif (perturbative.eq.'lambda(t)') then
             corr = corr + pt3_2
           endif
+        endif
 c -------------------------
 c CR-CCSD(T) and CR-CCSD[T]
 c -------------------------
-        elseif( ((perturbative.eq.'cr_(t)')
-     1       .or.(perturbative.eq.'cr_[t]')) ) then
-          if (model.eq.'ccsd') then
+        if(do_cr_pt.or.((perturbative.eq.'cr_(t)')
+     1             .or. (perturbative.eq.'cr_[t]'))) then
+c
+          if (nodezero) write(LuOut,*) 'CR-CCSD(T)'
+          if (do_cr_pt) perturbative='cr_(t)'
+c
+          if ((model.eq.'ccsd').or.(model.eq.'multi')) then
             cpu = - util_cpusec()
             wall = - util_wallsec()
             call tce_filename('e',filename)
@@ -2866,7 +2927,7 @@ c -------------------------
             call deletefile(d_e)
             cpu = cpu + util_cpusec()
             wall = wall + util_wallsec()
-            if (nodezero.and.(model.eq.'ccsd')) then
+            if (nodezero) then
               write(LuOut,*)
               write(LuOut,9075) "CR-CCSD[T]",pt3_1
               write(LuOut,9070) "CR-CCSD[T]",corr+pt3_1
@@ -2878,16 +2939,21 @@ c -------------------------
             endif
             if (perturbative.eq.'cr_[t]') then
               corr = corr + pt3_1
-            else if (perturbative.eq.'cr_(t)') then
+            elseif (perturbative.eq.'cr_(t)') then
               corr = corr + pt3_2
             endif
           endif
+        endif
 c ----------------------------------------------------
 c LR-CCSD(T) and/or LR-CCSD(T)-1 and/or LR-CCSD(TQ)-1p
 c ----------------------------------------------------
-        else if (perturbative.eq.'lr_(t)'.or.
-     &           perturbative.eq.'lr_(tq1p)'.or.
-     &           perturbative.eq.'lr_(tq1)') then
+        if (do_lcr_pt.or.((perturbative.eq.'lr_(t)').or.
+     &                    (perturbative.eq.'lr_(tq1p)').or.
+     &                    (perturbative.eq.'lr_(tq1)'))) then
+c
+          if (nodezero) write(LuOut,*) 'LR-CCSD(T)'
+          if (do_lcr_pt) perturbative='lr_(t)'
+c
           cpu = - util_cpusec()
           wall = - util_wallsec()
           call tce_filename('e',filename)
@@ -2897,7 +2963,6 @@ c ----------------------------------------------------
      2                   d_e,k_e_offset,pt3_1,pt3_2,
      3                   pt3_3,pt3_4,pt3_5,pt3_6)
           call deletefile(d_e)
-c
 c
           cpu = cpu + util_cpusec()
           wall = wall + util_wallsec()
@@ -2929,71 +2994,94 @@ c
 c --------------------------------------
 c LR-CCSD(TQ)-1p
 c --------------------------------------
-c
-c ----
           if(perturbative.eq.'lr_(tq1p)') then
-c ----
-          cpu = - util_cpusec()
-          wall = - util_wallsec()
-          call tce_filename('e',filename)
-          call createfile(filename,d_e,size_e)
-          call  lr_ccsd_tq1p(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                   d_v2,k_v2_offset,
-     2                   d_e,k_e_offset,pt4_lr)
-          call deletefile(d_e)
-          cpu = cpu + util_cpusec()
-          wall = wall + util_wallsec()
-          if (nodezero) then
-            write(LuOut,*)
-            write(LuOut,9070) "LR-CCSD(TQ)-1p,B",corr+pt3_2+pt4_lr
-            write(LuOut,9080) "LR-CCSD(TQ)-1p,B",ref+corr+pt3_2+pt4_lr
-            write(LuOut,*)
-            write(LuOut,9020) cpu, wall
+            cpu = - util_cpusec()
+            wall = - util_wallsec()
+            call tce_filename('e',filename)
+            call createfile(filename,d_e,size_e)
+            call  lr_ccsd_tq1p(d_t1,k_t1_offset,d_t2,k_t2_offset,
+     1                         d_v2,k_v2_offset,
+     2                         d_e,k_e_offset,pt4_lr)
+            call deletefile(d_e)
+            cpu = cpu + util_cpusec()
+            wall = wall + util_wallsec()
+            if (nodezero) then
+              write(LuOut,*)
+              write(LuOut,9070) "LR-CCSD(TQ)-1p,B",corr+pt3_2+pt4_lr
+              write(LuOut,9080) "LR-CCSD(TQ)-1p,B",ref+corr+pt3_2+pt4_lr
+              write(LuOut,*)
+              write(LuOut,9020) cpu, wall
+            end if
+            if (perturbative.eq.'lr_(tq1p)') then
+              corr = corr + pt3_2 + pt4_lr
+            end if
           end if
-         if (perturbative.eq.'lr_(tq1p)') then
-          corr = corr + pt3_2 + pt4_lr
-         end if
-c ---
-       end if
-c ---
-c
 c --------------------------------------------------------
 c LR-CCSD(TQ)-1
 c --------------------------------------------------------
-c
-c ---
           if(perturbative.eq.'lr_(tq1)') then
-c ---
+            cpu = - util_cpusec()
+            wall = - util_wallsec()
+            call tce_filename('e',filename)
+            call createfile(filename,d_e,size_e)
+            call  lr_ccsd_tq_1(d_t1,k_t1_offset,d_t2,k_t2_offset,
+     1                         d_v2,k_v2_offset,
+     2                         d_e,k_e_offset,pt4_lr)
+            call deletefile(d_e)
+            cpu = cpu + util_cpusec()
+            wall = wall + util_wallsec()
+            if (nodezero) then
+              write(LuOut,*)
+              write(LuOut,9070) "LR-CCSD(TQ)-1,B",corr+pt3_2+pt4_lr
+              write(LuOut,9080) "LR-CCSD(TQ)-1,B",ref+corr+pt3_2+pt4_lr
+              write(LuOut,*)
+              write(LuOut,9020) cpu, wall
+            end if
+            if (perturbative.eq.'lr_(tq1)') then
+              corr = corr + pt3_2 + pt4_lr
+            end if
+          end if
+        end if
+c ---------------------
+c CCSD(2)_T and CCSD(2)
+c ---------------------
+        if (do_2t_pt.or.((perturbative.eq.'2_t').or.
+     1                   (perturbative.eq.'2_tq').or.
+     2                   (perturbative.eq.'2_tqf'))) then
+c
+          if (nodezero) write(LuOut,*) 'CCSD(2)_T'
+          if (do_2t_pt) perturbative='2_t'
+c
           cpu = - util_cpusec()
           wall = - util_wallsec()
           call tce_filename('e',filename)
           call createfile(filename,d_e,size_e)
-          call  lr_ccsd_tq_1(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                   d_v2,k_v2_offset,
-     2                   d_e,k_e_offset,pt4_lr)
+          call lr_ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
+     1                   d_f1,k_f1_offset,d_v2,k_v2_offset,
+     2                   d_e,k_e_offset,pt3_1,pt3_2,
+     3                   pt3_3,pt3_4,pt3_5,pt3_6)
           call deletefile(d_e)
+c
           cpu = cpu + util_cpusec()
           wall = wall + util_wallsec()
           if (nodezero) then
             write(LuOut,*)
-            write(LuOut,9070) "LR-CCSD(TQ)-1,B",corr+pt3_2+pt4_lr
-            write(LuOut,9080) "LR-CCSD(TQ)-1,B",ref+corr+pt3_2+pt4_lr
+            write(LuOut,9070) "LR-CCSD(T)IA",corr+pt3_1
+            write(LuOut,9080) "LR-CCSD(T)IA",ref+corr+pt3_1
             write(LuOut,*)
-            write(LuOut,9020) cpu, wall
-          end if
-         if (perturbative.eq.'lr_(tq1)') then
-          corr = corr + pt3_2 + pt4_lr
-         end if
-c ---
-         end if
-c ---
-c
-c ---------------------
-c CCSD(2)_T and CCSD(2)
-c ---------------------
-        else if ((perturbative.eq.'2_t')
-     1       .or.(perturbative.eq.'2_tq')
-     2       .or.(perturbative.eq.'2_tqf')) then
+            write(LuOut,9070) "LR-CCSD(T)IB",corr+pt3_2
+            write(LuOut,9080) "LR-CCSD(T)IB",ref+corr+pt3_2
+            write(LuOut,*)
+            write(LuOut,9070) "LR-CCSD(T)IIA",corr+pt3_3
+            write(LuOut,9080) "LR-CCSD(T)IIA",ref+corr+pt3_3
+            write(LuOut,*)
+            write(LuOut,9070) "LR-CCSD(T)IIB",corr+pt3_4
+            write(LuOut,9080) "LR-CCSD(T)IIB",ref+corr+pt3_4
+            write(LuOut,*)
+            write(LuOut,9070) "LR-CCSD(T)IIIA",corr+pt3_5
+            write(LuOut,9080) "LR-CCSD(T)IIIA",ref+corr+pt3_5
+            write(LuOut,*)
+            write(LuOut,9070) "LR-CCSD(T)IIIB",corr+pt3_6
           cpu = - util_cpusec()
           wall = - util_wallsec()
           call tce_filename('e',filename)
@@ -3015,7 +3103,7 @@ c ---------------------
             if (perturbative.eq.'2_t') then
               write(LuOut,9070) "CCSD(2)_T",corr+pt3_1
               write(LuOut,9080) "CCSD(2)_T",ref+corr+pt3_1
-            else if (perturbative.eq.'2_tq') then
+            elseif (perturbative.eq.'2_tq') then
               write(LuOut,9070) "CCSD(2)",corr+pt3_1+pt3_2
               write(LuOut,9080) "CCSD(2)",ref+corr+pt3_1+pt3_2
             endif
@@ -3023,8 +3111,9 @@ c ---------------------
           endif
           corr = corr + pt3_1
         endif
-        goto 100
-      else if (model.eq.'lccsd') then
+       endif
+      endif
+      if ((model.eq.'lccsd').or.do_lccsd) then
 c -------------
 c LCCSD   right
 c -------------
@@ -3092,7 +3181,7 @@ c -------------
               call x2_restart_save(d_t2,k_t2_offset,size_t2,0,
      1                             handle_t2,irrep_t)
             endif
-            goto 100
+            goto 104
           endif
           if (save_t(1).and.(mod(iter,save_interval).eq.0)) then
             if(nodezero) then
@@ -3119,7 +3208,9 @@ c -------------
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-      else if (model.eq.'ccsdt') then
+  104 continue
+      endif
+      if (model.eq.'ccsdt') then
 c -------------
 c CCSDT   right
 c -------------
@@ -4827,7 +4918,8 @@ c
 #endif
         endif ! leftresp
 c
-      else if (model.eq.'ccsdta') then
+      endif
+      if (model.eq.'ccsdta') then
 c -----------------------------
 c CCSDt (CCSDT-active)   right
 c -----------------------------
@@ -4937,7 +5029,8 @@ cedo            goto 330
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-      else if (model.eq.'ccsdtq') then
+      endif
+      if (model.eq.'ccsdtq') then
 #if !defined(CCSDTQ)
       CALL ERRQUIT('CCSDTQ not compiled (tce_energy.F)',0,CAPMIS_ERR)
 #else
@@ -5637,7 +5730,8 @@ c
         endif ! lineresp
 c
 #endif
-      else if (model.eq.'qcisd') then
+      endif
+      if ((model.eq.'qcisd').or.do_qcisd) then
 c -------------
 c QCISD   right
 c -------------
@@ -5736,7 +5830,8 @@ c            goto 100
 c -------------------
 c QCISD(T) and QCISD[T]
 c -------------------
-        if ((perturbative.eq.'(t)').or.(perturbative.eq.'[t]')) then
+        if (do_pt.or.((perturbative.eq.'(t)').or.
+     1                (perturbative.eq.'[t]'))) then
           cpu = - util_cpusec()
           wall = - util_wallsec()
           call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
@@ -5755,13 +5850,14 @@ c -------------------
           endif
           if (perturbative.eq.'[t]') then
             corr = corr + pt3_1
-          else if (perturbative.eq.'(t)') then
+          elseif (perturbative.eq.'(t)') then
             corr = corr + pt3_2
           endif
+        endif
 c -------------------------
 c CR-QCISD(T)
 c -------------------------
-        elseif (perturbative.eq.'cr_(t)') then
+        if (do_cr_pt.or.(perturbative.eq.'cr_(t)')) then
           cpu = - util_cpusec()
           wall = - util_wallsec()
 c          write(LuOut,*) 'tce_energy: cr_qcisd_t'
@@ -5780,7 +5876,8 @@ c          write(LuOut,*) 'tce_energy: cr_qcisd_t'
           endif
           corr = corr + pt3_2
         endif
-      else if (model.eq.'cisd') then
+      endif
+      if (model.eq.'cisd') then
 c -------------
 c CISD    right
 c -------------
@@ -5875,7 +5972,8 @@ c -------------
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-      else if (model.eq.'cisdt') then
+      endif
+      if (model.eq.'cisdt') then
 c -------------
 c CISDT   right
 c -------------
@@ -5995,7 +6093,8 @@ c -------------
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-      else if (model.eq.'cisdtq') then
+      endif
+      if (model.eq.'cisdtq') then
 c -------------
 c CISDTQ  right
 c -------------
@@ -6130,7 +6229,7 @@ c -------------
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-      else if ((model.eq.'mbpt2').or.
+      elseif ((model.eq.'mbpt2').or.
      1         (model.eq.'mbpt3').or.
      2         (model.eq.'mbpt4').or.
      3         (model.eq.'mbpt4sdq_t').or.
@@ -6226,7 +6325,7 @@ c -------------
      2                      k_u2_offset,k_w1_offset,k_w2_offset,
      3                      k_v2_offset)
             call reconcilefile(d_r2,size_r2)
-          else if (model.eq.'mbpt4') then
+          elseif (model.eq.'mbpt4') then
             call tce_filename('r2',filename)
             call createfile(filename,d_r2,size_r2)
 c->d3p975
@@ -6246,7 +6345,7 @@ c->d3p975
 c<-d3p975
             call reconcilefile(d_r3,size_r3)
 c->d3p975
-          else if ((model.eq.'mbpt4sdq').or.
+          elseif ((model.eq.'mbpt4sdq').or.
      1             (model.eq.'mbpt4sdq_t')) then
             call tce_filename('r2',filename)
             call createfile(filename,d_r2,size_r2)
@@ -6719,7 +6818,7 @@ ccxsg
             modelname = "LR-EOMCCSD right-hand side"
             if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
-          else if(ccsd_var.eq.'cc2') then
+          elseif(ccsd_var.eq.'cc2') then
             modelname = "CC2 right-hand side"
             if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
@@ -7271,7 +7370,7 @@ c
      8                        excit,pt3_6,pt3_5)
                     call gatodra(xc2(ivec))
                     call gatodra(xc1(ivec))
-      else if(perturbative.eq.'emb1') then
+      elseif(perturbative.eq.'emb1') then
       call emb1(xc1(ivec),k_x1_offset,xc2(ivec),k_x2_offset,
      1                        d_t1,k_t1_offset,d_t2,k_t2_offset,
      2                        d_f1,k_f1_offset,d_v2,k_v2_offset,
@@ -7361,7 +7460,7 @@ c
         end if !cr-eom
 c
 c
-          else if (model.eq.'ccsdt') then
+          elseif (model.eq.'ccsdt') then
 c -------------
 c EOM-CCSDT   right
 c -------------
@@ -7510,7 +7609,7 @@ c
 c
 c
 c
-          else if (model.eq.'ccsdta') then
+          elseif (model.eq.'ccsdta') then
 c -----------------------
 c EOM-CCSDt  right
 c -----------------------
@@ -7655,7 +7754,7 @@ c
 c
 c
 c
-          else if (model.eq.'ccsdtq') then
+          elseif (model.eq.'ccsdtq') then
 #if !defined(CCSDTQ)
       CALL ERRQUIT('CCSDTQ not compiled (tce_energy.F)',0,CAPMIS_ERR)
 #else
@@ -8439,7 +8538,7 @@ c     done with 2nd ccsdtleft
      1        ref+corr+dbl_mb(k_omegax+target-1)))
      2        call errquit('tce_energy: RTDB problem',0,RTDB_ERR)
             tce_energy=.true.
-          else if ((targetsym.eq.'none').and.(irrep_x.eq.0)
+          elseif ((targetsym.eq.'none').and.(irrep_x.eq.0)
      1      .and.(target.le.nroots_reduced)) then
             if (nodezero.and.util_print('excited state',print_low)) then
 ccx              write(LuOut,*)
