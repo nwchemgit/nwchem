@@ -1,6 +1,6 @@
       integer cc_ir_alg
       integer maxnumfreq
-      parameter (maxnumfreq=99)
+      parameter (maxnumfreq=100)
       integer anumfreq,inumfreq,bnumfreq,gnumfreq
       integer lr_diis,yr_diis,qr_diis
       double precision lr_thresh,yr_thresh,qr_thresh
@@ -15,6 +15,9 @@
       logical respaxis(3)
       logical lineresp,imagresp,leftresp,quadresp
       logical ifreqauto
+      logical ifreqgrgl                            ! use Gauss-Legendre grid with fixed inumfreq (16)
+      logical ifreqgrch                            ! use Gauss-Chebychev grid with arbitrary inumfreq
+      logical ifreqgrst                            ! use Stanton grid with arbitrary inumfreq
       logical beta_shg,beta_or,beta_eope
       logical guess_ir_real,guess_ir_imag,guess_lr_real,guess_qr_real
       logical nopolar,nohyper,nogamma
@@ -29,6 +32,7 @@
       common /tceproplogical/
      1  lineresp,imagresp,leftresp,quadresp,respaxis,
      2  beta_shg,beta_or,beta_eope,guess_ir_real,guess_ir_imag,
-     3  guess_lr_real,guess_qr_real,ifreqauto,
-     4  nopolar,nohyper,nogamma
+     3  guess_lr_real,guess_qr_real,
+     4  ifreqauto,ifreqgrgl,ifreqgrch,ifreqgrst,
+     5  nopolar,nohyper,nogamma
 
