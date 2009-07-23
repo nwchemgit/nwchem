@@ -55,7 +55,10 @@ c
      1              'quintet ','sextet  ','septet  ','octet   '/
       character*26 date
       integer ma_type
-      double precision t_max,t_i
+      double precision t_i,dt
+      double precision fac,xxx
+      double precision pi
+      parameter(pi = 3.14159265358979323846264338327950288419D0)
 c
 c
       nodezero=(ga_nodeid().eq.0)
@@ -474,7 +477,81 @@ c
         if (.not.rtdb_put(rtdb,'tce:ifreqauto',mt_log,1,ifreqauto))
      1  call errquit('tce_init: failed to write ifreqauto',0,RTDB_ERR)
       endif
+      if (.not.rtdb_get(rtdb,'tce:ifreqgrgl',mt_log,1,ifreqgrgl)) then
+        ifreqgrgl=.false.
+        if (.not.rtdb_put(rtdb,'tce:ifreqgrgl',mt_log,1,ifreqgrgl))
+     1  call errquit('tce_init: failed to write ifreqgrgl',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:ifreqgrch',mt_log,1,ifreqgrch)) then
+        ifreqgrch=.false.
+        if (.not.rtdb_put(rtdb,'tce:ifreqgrch',mt_log,1,ifreqgrch))
+     1  call errquit('tce_init: failed to write ifreqgrch',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:ifreqgrst',mt_log,1,ifreqgrst)) then
+        ifreqgrst=.false.
+        if (.not.rtdb_put(rtdb,'tce:ifreqgrch',mt_log,1,ifreqgrst))
+     1  call errquit('tce_init: failed to write ifreqgrst',0,RTDB_ERR)
+      endif
+#ifdef DEBUG_PRINT
+       if(nodezero) write(LuOut,*) 'ifreqauto = ',ifreqauto 
+       if(nodezero) write(LuOut,*) 'ifreqgrgl = ',ifreqgrgl 
+       if(nodezero) write(LuOut,*) 'ifreqgrch = ',ifreqgrch
+       if(nodezero) write(LuOut,*) 'ifreqgrst = ',ifreqgrst
+#endif
+c
+c     Check for valid options
+c
+      if (( ifreqgrgl.and.ifreqgrch ).or.
+     1    ( ifreqgrgl.and.ifreqgrst ).or.
+     1    ( ifreqgrch.and.ifreqgrst )) then
+        if(nodezero) then
+           write(LuOut,*) 'These are mutually-exclusive:'
+           write(LuOut,*) 'Gauss-Legendre  (ifreqgrgl = T)'
+           write(LuOut,*) 'Gauss-Chebyshev (ifreqgrgc = T)'
+           write(LuOut,*) 'Stanton         (ifreqgrst = T)'
+           call util_flush(LuOut)
+        endif
+        call errquit('tce_init: user input error',0,INPUT_ERR)
+      endif
       if (ifreqauto) then
+c
+c     Gauss-Chebychev grid identical to Dalton 2.0
+c
+      if (ifreqgrch) then
+#ifdef DEBUG_PRINT
+        if(nodezero) write(LuOut,*) 'Gauss-Chebychev grid'
+        if(nodezero) call util_flush(LuOut)
+#endif
+        if (.not.rtdb_get(rtdb,'tce:inumfreq',mt_int,1,inumfreq)) then
+          inumfreq = 10
+          if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
+     1     call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
+        endif
+        fac = pi/(4.0d0*inumfreq)
+#ifdef DEBUG_PRINT
+        if(nodezero) write(LuOut,*) 'fac = ',fac
+        if(nodezero) call util_flush(LuOut)
+#endif
+        ifreq(1) = 0.0d0
+        do i = 1, inumfreq-1
+          j = (2*inumfreq-2) - 2*(i-1)
+          xxx = fac*j
+          ifreq(i+1) = (dtan(xxx))**(-2)
+#ifdef DEBUG_PRINT
+          if(nodezero) write(LuOut,36) i,j,xxx,ifreq(i)
+   36 format(1x,'$$$',2x,i10,2x,i10,2x,f14.6,2x,f14.6)
+#endif
+        enddo 
+#ifdef DEBUG_PRINT
+        if(nodezero) call util_flush(LuOut)
+#endif
+c
+c     Automatic grid using Stanton's scheme [Phys. Rev. A 49, 1698 (1994)]
+c
+      elseif (ifreqgrst) then
+#ifdef DEBUG_PRINT
+       if(nodezero) write(LuOut,*) 'Stanton grid'
+#endif
         if (.not.rtdb_get(rtdb,'tce:ifreqw0',mt_dbl,1,ifreqw0)) then
           ifreqw0 = 1.0d0
           if (.not.rtdb_put(rtdb,'tce:ifreqw0',mt_dbl,1,ifreqw0))
@@ -485,22 +562,59 @@ c
           if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
      1     call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
         endif
-        t_max =  0.9999d0
-        ifreq(1) = 0.0
-        do i = 1, inumfreq-1
-          t_i = -1.0d0*t_max + (i-1)*2*t_max/(inumfreq-1)
-          j = inumfreq - (i-1) ! increasing order from small magnitude
-          ifreq(j) = ifreqw0 * (1.0d0 - t_i)/(1.0d0 + t_i)
+        dt = 1.0d0/(inumfreq-1)
+        do i = inumfreq, 1, -1
+          t_i = (i-1)*dt
+          ifreq(i) = ifreqw0 * (1.0d0 - t_i)/(1.0d0 + t_i)
+#ifdef DEBUG_PRINT
+          if(nodezero) write(LuOut,37) i,t_i,ifreq(i)
+   37 format(1x,'$$$',2x,i10,2x,f14.6,2x,f14.6)
+#endif
         enddo
-c#ifdef DEBUG_PRINT
-c        do i = 1, inumfreq
-c          if(nodezero) write(6,999) i,t_i,ifreq(i)
-c        enddo
-c  999 format(3x,'i=',i3,1x,'t_i=',d8.2,1x,'ifreq(i)=',f14.8)
-c#endif
+#ifdef DEBUG_PRINT
+        if(nodezero) call util_flush(LuOut)
+#endif
         if (.not.rtdb_put(rtdb,'tce:ifreq',mt_dbl,inumfreq,ifreq))
      1    call errquit('tce_init: failed to write ifreq',0,RTDB_ERR)
+      else ! if (ifreqgrgl) then
+c
+c     Gauss-Legendre grid with same coefficients as Dalton 2.0
+c
+#ifdef DEBUG_PRINT
+        if(nodezero) write(LuOut,*) 'Gauss-Legendre grid'
+        if(nodezero) call util_flush(LuOut)
+#endif
+        inumfreq = 17
+        if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
+     1     call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
+        ifreq(1)  = 0.0000000000d0
+        ifreq(2)  = 0.0000011354d0
+        ifreq(3)  = 0.0000324954d0
+        ifreq(4)  = 0.0002074939d0
+        ifreq(5)  = 0.0007766098d0
+        ifreq(6)  = 0.0022314002d0
+        ifreq(7)  = 0.0055272185d0
+        ifreq(8)  = 0.0125684274d0
+        ifreq(9)  = 0.0273216537d0
+        ifreq(10) = 0.0585616091d0
+        ifreq(11) = 0.1273031181d0
+        ifreq(12) = 0.2894765239d0
+        ifreq(13) = 0.7170385627d0
+        ifreq(14) = 2.0602366551d0
+        ifreq(15) = 7.7110713698d0
+        ifreq(16) = 49.2377677794d0
+        ifreq(17) = 1409.1898779477d0
+        if (.not.rtdb_put(rtdb,'tce:ifreq',mt_dbl,inumfreq,ifreq))
+     1    call errquit('tce_init: failed to write ifreq',0,RTDB_ERR)
+      endif
+c
+c     User-specified grid
+c
       else
+#ifdef DEBUG_PRINT
+        if(nodezero) write(LuOut,*) 'User-specified grid'
+        if(nodezero) call util_flush(LuOut)
+#endif
         if (.not.rtdb_get_info(rtdb,'tce:ifreq',ma_type,inumfreq,
      1    date)) then
           inumfreq = 1
@@ -1367,7 +1481,7 @@ c
  9060 format(3x,'    Number of AO shells :',2x,i4)
  9100 format(3x,'      Schwarz screening : ',d8.2)
  9110 format(3x,'     Residual threshold : ',d8.2)
- 9115 format(3x,a4,' DIIS level shift : ',d8.2)
+ 9115 format(5x,a4,' DIIS level shift : ',d8.2)
 c 9116 format(3x,' CC-LR DIIS level shift : ',d8.2)
 c 9117 format(3x,' CC-IR DIIS level shift : ',d8.2,' (imag part)')
 c 9118 format(3x,' CC-IR DIIS level shift : ',d8.2,' (real part)')
