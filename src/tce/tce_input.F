@@ -377,6 +377,16 @@ c
 c
 c     MODEL (the name of theory requested)
 c
+      else if (inp_compare(.false.,test,'multi')) then
+        if (module.eq.'tce') then
+        model='multi'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+          call errquit('tce_input: multiple theory inputs',0,
+     2    INPUT_ERR)
+        endif
       else if (inp_compare(.false.,test,'eionly')) then
         if (module.eq.'tce') then
         model='eionly'
