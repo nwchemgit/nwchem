@@ -2441,68 +2441,6 @@ c      call nwpw_timing_end(1)
 c      return
 c      end
 
-*     ***********************************
-*     *					*
-*     *	         tree_forward       	*	
-*     *					*
-*     ***********************************
-      integer function tree_forward(final_pto,taskid)
-      implicit none
-      integer final_pto,taskid
-
-      logical done
-      integer cur,taskid1,pto,parent
-
-      taskid1 = taskid+1
-      cur     = final_pto +1
-      pto     = -1
-      done = .false.
-      do  while (.not.done)
-         parent = cur/2
-         if (parent.eq.taskid1) then
-            done = .true.
-            pto  = cur
-         else if (parent.eq.1) then
-            done = .true.
-         else
-            cur = parent
-         end if
-      end do
-      tree_forward = pto-1
-      return
-      end
-
-*     ***********************************
-*     *					*
-*     *	         tree_backward      	*	
-*     *					*
-*     ***********************************
-      integer function tree_backward(final_pto,taskid)
-      implicit none
-      integer final_pto,taskid
-
-      logical done
-      integer cur,taskid1,pfrom,parent
-
-      taskid1 = taskid+1
-      cur     = final_pto +1
-      pfrom   = -1
-      done    = .false.
-      do  while (.not.done)
-         parent = cur/2
-         if (cur.eq.1) then
-            done = .true.
-         else if (cur.eq.taskid1) then
-            done = .true.
-            pfrom  = parent
-         else
-            cur = parent
-         end if
-      end do
-      tree_backward = pfrom-1
-      return
-      end
-
 
 
 
@@ -2534,7 +2472,7 @@ c      end
       logical value,fillcolumn
       integer MASTER,taskid
       parameter(MASTER=0)
-      integer p_to,p_here,pfrom,q
+      integer p_to, p_here,q
       integer index,k,j
       integer source,msglen
       integer tmp1(2),tmp2(2)
@@ -2543,8 +2481,8 @@ c      end
       integer ii,jj,jstart,jend
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij,tree_forward,tree_backward
-      external Parallel2d_convert_taskid_ij,tree_forward,tree_backward
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
 
       call Parallel_taskid(taskid)
 
@@ -2580,34 +2518,29 @@ c      end
                   call dcopy((nx(nb)+2)*ny(nb),tmp,1,A(index),1)
                else
                   msglen = (nx(nb)/2+1)*ny(nb)
-                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),
-     >                     tree_forward(p_to,MASTER),1)
+                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
                end if
             end do
          end do
 
 *     **** not master node ****
-c      else if (fillcolumn) then
-      else 
+      else if (fillcolumn) then
          do k=1,nz(nb)
             call D3dB_ktoqp(nb,k,q,ii)
-      
-            do jj=jstart,jend
-               p_here = Parallel2d_convert_taskid_ij(ii,jj)
-               pfrom  = tree_backward(p_here,taskid)
-               if (pfrom.ge.0) then
-                  msglen = (nx(nb)/2+1)*ny(nb)
-                  call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
-     >                     pfrom,rcv_proc,1)
-                  if (p_here.eq.taskid) then
-                     index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
-                     call dcopy((nx(nb)+2)*ny(nb),tmp,1,A(index),1)
-                  else
-                     call SND(9+MSGDBL,tmp,mdtob(2*msglen),
-     >                        tree_forward(p_here,taskid),1)
-                  end if
-               end if
-            end do
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (p_here.eq.taskid) then
+
+               msglen = (nx(nb)/2+1)*ny(nb)
+               source  = MASTER
+
+               call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
+     >                  source,rcv_proc,1)
+
+
+               index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
+               call dcopy((nx(nb)+2)*ny(nb),tmp,1,A(index),1)
+               
+            end if
          end do
       end if
 
@@ -2633,37 +2566,29 @@ c      else if (fillcolumn) then
                   call dcopy((nx(nb)+2),tmp,1,A(index),1)
                else
                   msglen = (nx(nb)/2+1)
-                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),
-     >                     tree_forward(p_to,MASTER),1)
+                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
                end if
             end do
          end do
          end do
 
 *     **** not master node ****
-c      else if (fillcolumn) then
-      else 
+      else if (fillcolumn) then
          do k=1,nz(nb)
          do j=1,ny(nb)
             
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            do jj=jstart,jend
-               p_here = Parallel2d_convert_taskid_ij(ii,jj)
-               pfrom  = tree_backward(p_here,taskid)
-               if (pfrom.ge.0) then
-                  msglen = (nx(nb)/2+1)
-                  call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
-     >                     pfrom,rcv_proc,1)
-                  if (p_here.eq.taskid) then
-                     index = (q-1)*(nx(nb)/2+1) + 1
-                     call dcopy((nx(nb)+2),tmp,1,A(index),1)
-                  else
-                     call SND(9+MSGDBL,tmp,mdtob(2*msglen),
-     >                        tree_forward(p_here,taskid),1)
-                  end if
-               end if
-            end do
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (p_here.eq.taskid) then
+               msglen = (nx(nb)/2+1)
+               source  = MASTER
+               call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
+     >                  source,rcv_proc,1)
+
+               index = (q-1)*(nx(nb)/2+1) + 1
+               call dcopy((nx(nb)+2),tmp,1,A(index),1)
+            end if
          end do
          end do
       end if
@@ -2718,7 +2643,7 @@ c      else if (fillcolumn) then
       logical fillcolumn
       integer MASTER,taskid
       parameter(MASTER=0)
-      integer p_to,p_here,pfrom,q
+      integer p_to, p_here,q
       integer j,k,index,index2
       integer source,msglen
 
@@ -2726,8 +2651,8 @@ c      else if (fillcolumn) then
       integer ii,jj,jstart,jend
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij,tree_forward,tree_backward
-      external Parallel2d_convert_taskid_ij,tree_forward,tree_backward
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
 
       call Parallel_taskid(taskid)
 
@@ -2768,40 +2693,33 @@ c      else if (fillcolumn) then
                   end do
                else
                   msglen = (nx(nb))*ny(nb)
-                  call SND(9+MSGDBL,tmp,mdtob(msglen),
-     >                     tree_forward(p_to,MASTER),1)
+                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                end if
             end do
          end do
 
 *     **** not master node ****
-c      else if (fillcolumn) then
-      else 
+      else if (fillcolumn) then
          do k=1,nz(nb)
 
             call D3dB_ktoqp(nb,k,q,ii)
-            do jj=jstart,jend
-               p_here = Parallel2d_convert_taskid_ij(ii,jj)
-               pfrom  = tree_backward(p_here,taskid)
-               if (pfrom.ge.0) then
-                  msglen = (nx(nb))*ny(nb)
-                  call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
-     >                       pfrom,rcv_proc,1)
-                  if (p_here.eq.taskid) then
-                     do j=1,ny(nb)
-                        index = (q-1)*(nx(nb)+2)*ny(nb) 
-     >                        + (j-1)*(nx(nb)+2) + 1
-                        index2 = (j-1)*nx(nb) + 1
-                        call dcopy(nx(nb),tmp(index2),1,A(index),1)
-                        A(index+nx(nb))   = 0.0d0
-                        A(index+nx(nb)+1) = 0.0d0
-                     end do
-                  else
-                     call SND(9+MSGDBL,tmp,mdtob(msglen),
-     >                        tree_forward(p_here,taskid),1)
-                  end if
-               end if
-            end do
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (p_here.eq.taskid) then
+
+               msglen = (nx(nb))*ny(nb)
+               source  = MASTER
+
+               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+     >                       source,rcv_proc,1)
+               do j=1,ny(nb)
+                  index = (q-1)*(nx(nb)+2)*ny(nb) 
+     >                  + (j-1)*(nx(nb)+2) + 1
+                  index2 = (j-1)*nx(nb) + 1
+                  call dcopy(nx(nb),tmp(index2),1,A(index),1)
+                  A(index+nx(nb)) = 0.0d0
+                  A(index+nx(nb)+1) = 0.0d0
+               end do
+            end if
          end do
       end if
 
@@ -2827,36 +2745,32 @@ c      else if (fillcolumn) then
                   call dcopy((nx(nb)+2),tmp,1,A(index),1)
                else
                   msglen = (nx(nb)+2)
-                  call SND(9+MSGDBL,tmp,mdtob(msglen),
-     >                     tree_forward(p_to,MASTER),1)
+                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                end if
             end do
          end do
          end do
 
 *     **** not master node ****
-c      else if (fillcolumn) then
-      else
+      else if (fillcolumn) then
          do k=1,nz(nb)
          do j=1,ny(nb)
+
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            do jj=jstart,jend
-               p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
-               pfrom  = tree_backward(p_here,taskid)
-               if (pfrom.ge.0) then
-                  msglen = (nx(nb)+2)
-                  call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
-     >                     pfrom,rcv_proc,1)
-                  if (p_here.eq.taskid) then
-                     index = (q-1)*(nx(nb)+2) + 1
-                     call dcopy((nx(nb)+2),tmp,1,A(index),1)
-                  else
-                  call SND(9+MSGDBL,tmp,mdtob(msglen),
-     >                     tree_forward(p_here,taskid),1)
-                  end if
-               end if
-            end do
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (p_here.eq.taskid) then
+
+               msglen = (nx(nb)+2)
+               source  = MASTER
+
+               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+     >                  source,rcv_proc,1)
+
+               index = (q-1)*(nx(nb)+2) + 1
+               call dcopy((nx(nb)+2),tmp,1,A(index),1)
+
+            end if
          end do
          end do
        end if
@@ -2896,7 +2810,7 @@ c      else if (fillcolumn) then
       parameter(MASTER=0)
 
       logical value,fillcolumn
-      integer p_to,p_here,pfrom,q
+      integer p_to, p_here,q
       integer j,k,index
       integer source,msglen
       integer tmp1(2),tmp2(2)
@@ -2905,8 +2819,8 @@ c      else if (fillcolumn) then
       integer ii,jj,jstart,jend
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij,tree_forward,tree_backward
-      external Parallel2d_convert_taskid_ij,tree_forward,tree_backward
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
 
       call Parallel_taskid(taskid)
 
@@ -2932,40 +2846,37 @@ c      else if (fillcolumn) then
 
             call D3dB_ktoqp(nb,k,q,ii)
             do jj=jstart,jend
+
               p_to = Parallel2d_convert_taskid_ij(ii,jj)
               if (p_to.eq.MASTER) then
                  index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                  call dcopy((nx(nb)/2+1)*ny(nb),tmp,1,A(index),1)
               else
                  msglen = (nx(nb)/2+1)*ny(nb)
-                 call SND(9+MSGDBL,tmp,mdtob(msglen),
-     >                    tree_forward(p_to,MASTER),1)
+                 call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
               end if
             end do
          end do
 
 *        **** not master node ****
-cc         else if (fillcolumn) then
-         else 
+         else if (fillcolumn) then
 
          do k=1,nz(nb)
             call D3dB_ktoqp(nb,k,q,ii)
-            do jj=jstart,jend
-               p_here = Parallel2d_convert_taskid_ij(ii,jj)
-               pfrom  = tree_backward(p_here,taskid)
-               if (pfrom.ge.0) then
-                  msglen = (nx(nb)/2+1)*ny(nb)
-                  call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
-     >                     pfrom,rcv_proc,1)
-                  if (p_here.eq.taskid) then
-                     index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
-                     call dcopy((nx(nb)/2+1)*ny(nb),tmp,1,A(index),1)
-                  else
-                     call SND(9+MSGDBL,tmp,mdtob(msglen),
-     >                        tree_forward(p_here,taskid),1)
-                  end if
-               end if
-            end do
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (p_here.eq.taskid) then
+
+               msglen = (nx(nb)/2+1)*ny(nb)
+               source  = MASTER
+
+               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+     >                       source,rcv_proc,1)
+
+
+               index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
+               call dcopy((nx(nb)/2+1)*ny(nb),tmp,1,A(index),1)
+               
+            end if
          end do
          end if
 
@@ -2984,42 +2895,40 @@ cc         else if (fillcolumn) then
             q   = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii  = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             do jj=jstart,jend
+
                p_to = Parallel2d_convert_taskid_ij(ii,jj)
                if (p_to.eq.MASTER) then
                   index = (q-1)*(nx(nb)/2+1) + 1
                   call dcopy((nx(nb)/2+1),tmp,1,A(index),1)
                else
                   msglen = (nx(nb)/2+1)
-                  call SND(9+MSGDBL,tmp,mdtob(msglen),
-     >                     tree_forward(p_to,MASTER),1)
+                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                end if
             end do
          end do
          end do
 
 *     **** not master node ****
-c      else if (fillcolumn) then
-      else
+      else if (fillcolumn) then
          do k=1,nz(nb)
          do j=1,ny(nb)
+
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            do jj=jstart,jend
-               p_here = Parallel2d_convert_taskid_ij(ii,jj)
-               pfrom  = tree_backward(p_here,taskid)
-               if (pfrom.ge.0) then
-                  msglen = (nx(nb)/2+1)
-                  call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
-     >                  pfrom,rcv_proc,1)
-                  if (p_here.eq.taskid) then
-                     index = (q-1)*(nx(nb)/2+1) + 1
-                     call dcopy((nx(nb)/2+1),tmp,1,A(index),1)
-                  else
-                     call SND(9+MSGDBL,tmp,mdtob(msglen),
-     >                        tree_forward(p_here,taskid),1)
-                  end if
-               end if
-            end do
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (p_here.eq.taskid) then
+
+               msglen = (nx(nb)/2+1)
+               source  = MASTER
+
+               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+     >                  source,rcv_proc,1)
+
+
+               index = (q-1)*(nx(nb)/2+1) + 1
+               call dcopy((nx(nb)/2+1),tmp,1,A(index),1)
+
+            end if
          end do
          end do
       end if
@@ -3424,7 +3333,7 @@ c     i2_start(np+1) = index2
       integer MASTER,taskid
       parameter(MASTER=0)
       logical value
-      integer p_from,p_here,pto,q
+      integer p_from, p_here,q
       integer j,k,index
       integer dest,source,status,msglen
       integer dum,dum_msglen
@@ -3433,8 +3342,8 @@ c     i2_start(np+1) = index2
       integer ii,taskid_j
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij,tree_forward,tree_backward
-      external Parallel2d_convert_taskid_ij,tree_forward,tree_backward
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_j(taskid_j)
@@ -3459,11 +3368,11 @@ c     i2_start(np+1) = index2
 
                msglen  = (nx(nb)/2+1)*ny(nb)
                status  = msglen
-               source  = tree_forward(p_from,MASTER)
+               source  = p_from
 
-c               dum = 99
-c               dum_msglen = 1
-c               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
+               dum = 99
+               dum_msglen = 1
+               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                       source,rcv_proc,1)
 
@@ -3474,28 +3383,26 @@ c               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
 
 *     **** not master node ****
       else
-c         dum = 99
-c         dum_msglen = 1
-         msglen  = (nx(nb)/2+1)*ny(nb)
          do k=1,nz(nb)
          
             call D3dB_ktoqp(nb,k,q,ii)
             p_here = Parallel2d_convert_taskid_ij(ii,jcol)
-            pto     = tree_backward(p_here,taskid)
-            if (pto.ge.0) then
-               if (p_here.eq.taskid) then
-                  index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
-                  call dcopy((nx(nb)+2)*ny(nb),A(index),1,tmp,1)
-               else
-                  p_from = tree_forward(p_here,taskid)
-c                  call SND(9+MSGINT,dum,mitob(dum_msglen),p_from,1)
-                  call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
-     >                       p_from,rcv_proc,1)
-               end if
-c               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
-c     >                  pto,rcv_proc,1)
-               call SND(9+MSGDBL,tmp,mdtob(2*msglen),pto,1)
+            if (p_here.eq.taskid) then
+
+               index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
+               call dcopy((nx(nb)+2)*ny(nb),A(index),1,tmp,1)
+
+
+               msglen  = (nx(nb)/2+1)*ny(nb)
+               dest    = MASTER
+
+               dum_msglen = 1
+               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
+     >                       dest,rcv_proc,1)
+               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
+
             end if
+
          end do
       end if
 
@@ -3536,17 +3443,22 @@ c      call ga_sync()
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             p_from = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_from.eq.MASTER) then
+
                index = (q-1)*(nx(nb)/2+1) + 1
                call dcopy((nx(nb)+2),A(index),1,tmp,1)
+
             else
+
                msglen  = (nx(nb)/2+1)
                status  = msglen
-               source  = tree_forward(p_from,MASTER)
-c               dum = 99
-c               dum_msglen = 1
-c               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
+               source  = p_from
+
+               dum = 99
+               dum_msglen = 1
+               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                       source,rcv_proc,1)
+
             end if
 
             call dwrite(iunit,tmp,(nx(nb)+2))
@@ -3557,26 +3469,23 @@ c               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
       else
          do k=1,nz(nb)
          do j=1,ny(nb)
+
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             p_here = Parallel2d_convert_taskid_ij(ii,jcol) 
-            pto = tree_backward(p_here,taskid)
-            if (pto.ge.0) then
+            if (p_here.eq.taskid) then
+
+               index = (q-1)*(nx(nb)/2+1) + 1
+               call dcopy((nx(nb)+2),A(index),1,tmp,1)
+
+
                msglen  = (nx(nb)/2+1)
-               if (p_here.eq.taskid) then
-                  index = (q-1)*(nx(nb)/2+1) + 1
-                  call dcopy((nx(nb)+2),A(index),1,tmp,1)
-               else
-                  p_from = tree_forward(p_here,taskid)
-c                  call SND(9+MSGINT,dum,mitob(dum_msglen),p_from,1)
-                  call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
-     >                       p_from,rcv_proc,1)
-               end if
-c               dest    = MASTER
-c               dum_msglen = 1
-c               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
-c     >                       dest,rcv_proc,1)
-               call SND(9+MSGDBL,tmp,mdtob(2*msglen),pto,1)
+               dest    = MASTER
+
+               dum_msglen = 1
+               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
+     >                       dest,rcv_proc,1)
+               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
 
             end if
 
