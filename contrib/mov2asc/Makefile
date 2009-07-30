@@ -21,7 +21,8 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
   ifeq ($(FC),gfortran)
    FFLAGS = -fdefault-integer-8
   else
-   FFLAGS = -i8
+#   FFLAGS = -i8
+   FFLAGS =
   endif	
 endif
 
@@ -41,6 +42,7 @@ endif
 LDFLAGS = -L../../src/tools/lib/${NWCHEM_TARGET} -lma -larmci	# Needs MA library
 ifeq ($(USE_MPI),y)
 LDFLAGS += -L${MPI_LIB} ${LIBMPI}
+LDFLAGS += -L../../lib/${NWCHEM_TARGET} -lnwcutil
 endif
 
 all:    mov2asc asc2mov
