@@ -125,7 +125,7 @@ c !************************************************************************
 #include "errquit.fh"
       integer ITMAX
       real*8  a,gammcf,gln,x,EPS,FPMIN
-      PARAMETER (ITMAX=100,EPS=3.0d-12,FPMIN=1.0d-30)
+      PARAMETER (ITMAX=1000,EPS=3.0d-12,FPMIN=1.0d-30)
       real*8       an,b,c,d,del,h
       double precision undovl
       parameter(undovl=-20d0*2.3025d0)
@@ -169,7 +169,7 @@ c !************************************************************************
     
 *     **** parameters ****
       integer  ITMAX 
-      parameter (ITMAX=100)
+      parameter (ITMAX=1000)
       real*8  EPS
       parameter (EPS=3.0d-12)
 
