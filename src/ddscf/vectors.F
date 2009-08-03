@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.56 2005-12-08 01:15:42 edo Exp $
+C$Id: vectors.F,v 1.56 2005/12/08 01:15:42 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -502,7 +502,9 @@ c
       integer type, nelem, handle, index
       integer l_veci, k_veci, l_vecj, k_vecj, dim1, dim2
       integer pair, i, j, ioff, joff, off, set, nset, mlen
-      logical oprint
+      logical oprint,dorot
+      double precision mixang,cosa,sina,pi
+      integer k_tj,l_tj,k_ti,l_ti
       character*40 name
       character*8 text
 c
@@ -513,6 +515,16 @@ c
          nset = 2
       else
          nset = 1
+      endif
+ccheck if we want the mix rotation
+      if (rtdb_get(rtdb, 'mixang', mt_dbl, 1, mixang)) then
+         dorot=.true.
+         pi=acos(-1d0)
+         cosa=cos(mixang*pi/180d0)
+         sina=sin(mixang*pi/180d0)
+         write(6,*) ' nseeeet ',nset
+      else
+         dorot=.false.
       endif
 c
       do set = 1, nset
@@ -558,8 +570,51 @@ c
 c     
                call ga_get(g_vecs(set), 1, dim1, i, i, dbl_mb(k_veci),1)
                call ga_get(g_vecs(set), 1, dim1, j, j, dbl_mb(k_vecj),1)
+c
+               if(dorot) then 
+                  if (.not. ma_push_get(mt_dbl, dim1, 'swap', 
+     J                 l_ti, k_ti))
+     $                 call errquit('moswap: pushget fail', dim1, 0)
+                  if (.not. ma_push_get(mt_dbl, dim1, 'swap', 
+     J                 l_tj, k_tj))
+     $                 call errquit('moswap: pushget fail', dim1, 0)
+                  if(set.eq.1) then
+c alpha
+c psi_1 =  cos*psi_1 + sin*psi_2
+                 call dcopy(dim1, 0.d0, 0, dbl_mb(k_ti), 1)
+                 call daxpy(dim1,cosa,dbl_mb(k_veci),1,dbl_mb(k_ti),1)
+                 call daxpy(dim1,sina,dbl_mb(k_vecj),1,dbl_mb(k_ti),1)
+c psi_2 = -sin*psi_1 + cos*psi_2
+                 call dcopy(dim1, 0.d0, 0, dbl_mb(k_tj), 1)
+                 call daxpy(dim1,-sina,dbl_mb(k_veci),1,dbl_mb(k_tj),1)
+                 call daxpy(dim1,cosa,dbl_mb(k_vecj),1,dbl_mb(k_tj),1)
+c
+               call ga_put(g_vecs(set), 1, dim1, i, i, dbl_mb(k_ti),1)
+               call ga_put(g_vecs(set), 1, dim1, j, j, dbl_mb(k_tj),1)
+               else
+c
+c     for beta we swap 1 and 2
+c
+               call ga_get(g_vecs(2), 1, dim1, i, i, dbl_mb(k_veci),1)
+               call ga_get(g_vecs(2), 1, dim1, j, j, dbl_mb(k_vecj),1)
+c psi_1 =  -sin*psi_1 + cos*psi_2
+                 call dcopy(dim1, 0.d0, 0, dbl_mb(k_ti), 1)
+                 call daxpy(dim1,-sina,dbl_mb(k_veci),1,dbl_mb(k_ti),1)
+                 call daxpy(dim1,cosa,dbl_mb(k_vecj),1,dbl_mb(k_ti),1)
+c psi_2 = cos*psi_1 + sin*psi_2
+                 call dcopy(dim1, 0.d0, 0, dbl_mb(k_tj), 1)
+                 call daxpy(dim1,cosa,dbl_mb(k_veci),1,dbl_mb(k_tj),1)
+                 call daxpy(dim1,sina,dbl_mb(k_vecj),1,dbl_mb(k_tj),1)
+c
+               call ga_put(g_vecs(2), 1, dim1, i, i, dbl_mb(k_ti),1)
+               call ga_put(g_vecs(2), 1, dim1, j, j, dbl_mb(k_tj),1)
+                  endif
+                  if (.not. ma_chop_stack(l_ti)) call errquit(
+     M                 'moswap: chop stack?', 0,MA_ERR)
+            else
                call ga_put(g_vecs(set), 1, dim1, i, i, dbl_mb(k_vecj),1)
                call ga_put(g_vecs(set), 1, dim1, j, j, dbl_mb(k_veci),1)
+            endif
 c
             enddo
             if (oprint) call util_flush(luout)
