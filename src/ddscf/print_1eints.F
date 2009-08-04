@@ -413,7 +413,8 @@ c
       implicit none
       integer i, j
       integer ilo, ihi, jlo, jhi
-      double precision buf(jlo:jhi,ilo:ihi)
+c      double precision buf(jlo:jhi,ilo:ihi)
+      double precision buf(ilo:ihi,jlo:jhi)
       character*10 title
       character*8 cartbf(-1:7,1:36)
       integer ishell, jshell
@@ -431,9 +432,9 @@ c
 c
       call print_1e_init_cartbf(cartbf)
 c
-      do i = ilo, ihi
-         do j = jlo, jhi
-            if (abs(buf(j,i)).gt.1d-8) then
+      do j = jlo, jhi
+         do i = ilo, ihi
+            if (abs(buf(i,j)).gt.1d-8) then
 c               write(6,*) 'ishell = ',ishell
 c               write(6,*) 'jshell = ',jshell
 c               write(6,*) 'iatom = ',iatom
@@ -447,7 +448,7 @@ c               write(6,*) 'jcbf = ',jcbf
 c               icart = '        ' ! cartbf(itype,ishell)
 c               jcart = '        ' ! cartbf(jtype,jshell)
                write(6,1) title,i,isymbol,shtypes(itype),
-     &                          j,jsymbol,shtypes(jtype),buf(j,i)
+     &                          j,jsymbol,shtypes(jtype),buf(i,j)
  1             format(A,i5,3x,a2,1x,a1,1x,
      &                  i5,3x,a2,1x,a1,1x,f20.8)
             endif
