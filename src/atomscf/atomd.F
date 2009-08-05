@@ -187,15 +187,16 @@ c
          end if
 c
          call hamild(pcap,qcap,fc,fo,s,u,t,h,dos,dt,c,smin,qmin,nbb)
+         call trafsd(nsym,nbas,ndim,fc,nbc,cont,nstrt,dc)  ! convert fc to contracted basis
+         call trafsd(nsym,nbas,ndim,fo,nbc,cont,nstrt,dc)  ! convert fo to contracted basis
 c...
 c...    now add the h-pseudo-contributions (from xpsnld)
+c...    the matrices are in the contracted basis here
 c...
          do i = 1 , ndim
-            fc(i) = fc(i) + hatom(i)
+            fc(i) = fc(i) + hatom(i)  ! hatom is in the contracted basis
             fo(i) = fo(i) + hatom(i)
          enddo
-         call trafsd(nsym,nbas,ndim,fc,nbc,cont,nstrt,dc)
-         call trafsd(nsym,nbas,ndim,fo,nbc,cont,nstrt,dc)
 c
 c.......................................................................
 c
