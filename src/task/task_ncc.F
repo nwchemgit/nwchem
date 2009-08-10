@@ -13,7 +13,7 @@ c
       external ncc_driver
       character*32 theory
 c
-      print*,'top of task_ncc'
+c      print*,'top of task_ncc'
 c
       task_ncc = .false.
 c
@@ -34,6 +34,6 @@ c
         call errquit('task_ncc: failed to store stat',0,RTDB_ERR)
       endif
 c
-      print*,'end of task_ncc'
+c      print*,'end of task_ncc'
 c
       end
