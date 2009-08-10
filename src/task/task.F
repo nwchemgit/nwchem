@@ -9,6 +9,7 @@
 #include "util.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
       integer rtdb              ! [input] data base handle
 c
 c     Called by ALL processes.  task_input has read the
@@ -86,7 +87,13 @@ CJMC
       external task_et
       external task_property
       external task_ccca
-
+c
+      logical task_ncc
+      external task_ncc
+c
+      logical socrates_driver
+      external socrates_driver
+c
       logical bq_init,bq_end
       external bq_init,bq_end
 c
@@ -215,6 +222,13 @@ c
       if (operation .eq. ' ') then ! Look for specialized routine
          if (inp_compare(.false.,'rjhtest', theory)) then
             status = rjhtest(rtdb)
+         else if (inp_compare(.false.,'ncc', theory)) then
+            status = task_ncc(rtdb)
+         else if (inp_compare(.false.,'socrates', theory)) then
+            if (ga_nodeid().eq.0) then
+              write(LuOut,*) 'calling socrates_driver'
+            endif
+            status = socrates_driver(rtdb)
          else if (inp_compare(.false.,'jantest', theory)) then
             status = jantest(rtdb)
          else if (inp_compare(.false.,'test', theory)) then
@@ -282,7 +296,8 @@ c            status = task_nbo(rtdb)
             write(errmsg,'(a,'' failed '')')theory(1:inp_strlen(theory))
             if (ga_nodeid().eq.0) then
                if (ignore) then
-                  write(6,*)' !! warning: ',errmsg(1:inp_strlen(errmsg))
+                  write(LuOut,*) ' !! warning: ',
+     1                        errmsg(1:inp_strlen(errmsg))
                   call util_flush(6)
                else
                   call errquit(errmsg, 0, CALC_ERR)
@@ -396,7 +411,8 @@ c     *** task_smd handles smd specific "operations" ***
      $      operation(1:inp_strlen(operation))
          if (ga_nodeid().eq.0) then
             if (ignore) then
-               write(6,*)' !! warning: ',errmsg(1:inp_strlen(errmsg))
+               write(LuOut,*)' !! warning: ',
+     1                 errmsg(1:inp_strlen(errmsg))
                call util_flush(6)
             else
                call errquit(errmsg, 0, CALC_ERR)
@@ -431,7 +447,7 @@ c
       task_cpu  = task_cpu  + util_cpusec()
       if (oprint_task_times) then
         if (ga_nodeid().eq.0) then
-          write(6,00001) task_cpu, task_wall
+          write(LuOut,00001) task_cpu, task_wall
 00001     format(/' Task  times  cpu:',f11.1,'s     wall:',f11.1,'s')
           call util_flush(6)
         endif
