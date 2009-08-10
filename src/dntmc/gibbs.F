@@ -1538,7 +1538,7 @@ C Aquire Input Information
      &   CONT1 = 1
 
       call util_get_rtdb_state(rtdb, os, oc, or)
-      if (or .eq. .true.) then
+      if (or .eqv. .true.) then
          CONT2=1
          ostate(1)= os
          ostate(2)= oc
