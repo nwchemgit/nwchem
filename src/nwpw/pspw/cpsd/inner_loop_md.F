@@ -752,7 +752,7 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
        call ecce_print1('gradient norm', mt_dbl, E(1), 1)
        call ecce_print1('orbital gradient norm', mt_dbl, E(4), 1)
 c       call ecce_print1('gradient max', mt_dbl, E(1), 1)
-       call ecce_print_module_exit('task gradient', 'ok')
+       call ecce_print_module_exit('task car-parrinello', 'ok')
 
 
 
