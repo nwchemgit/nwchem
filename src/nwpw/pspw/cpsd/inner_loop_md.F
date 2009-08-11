@@ -737,15 +737,15 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
 
 
 *      **** write ecce data ****
-       call ecce_print_module_entry('task gradient')
+       call ecce_print_module_entry('task car-parrinello')
        call ion_ecce()
 
        call ecce_print1('total energy', mt_dbl,     E(1), 1)
-c       call ecce_print1('total kinetic', mt_dbl,    E(3)+E(4), 1)
-c       call ecce_print1('potential energy', mt_dbl, E(2), 1)
-c       call ecce_print1('electron kinetic', mt_dbl, E(3), 1)
-c       call ecce_print1('ion kinetic', mt_dbl,      E(4), 1)
-c       call ecce_print1('time', mt_dbl,      (it_int+it_sum)*dt, 1)
+       call ecce_print1('total kinetic', mt_dbl,    E(3)+E(4), 1)
+       call ecce_print1('potential energy', mt_dbl, E(2), 1)
+       call ecce_print1('electron kinetic', mt_dbl, E(3), 1)
+       call ecce_print1('ion kinetic', mt_dbl,      E(4), 1)
+       call ecce_print1('time', mt_dbl,      (it_in+it_sum)*dt, 1)
 
        call ecce_print2('total gradient', mt_dbl, dbl_mb(fion(1)),
      $        3,3,natmx)
