@@ -1,5 +1,5 @@
 c
 c     Steric energy quantities and flags
 c
-      logical do_StericEnergy
-      common/steric_calc/do_StericEnergy
+      logical lsteric
+      common/steric/lsteric
