@@ -474,11 +474,11 @@ c
      &      call errquit('dft_rdinput: rtdb_put failed', 13, RTDB_ERR)
       endif
 c
-      do_StericEnergy = .false.
-      if (rtdb_get(rtdb, 'dft:steric', mt_log, 1, do_StericEnergy))then
-       do_StericEnergy = .true.
+      lsteric = .false.
+      if (rtdb_get(rtdb, 'dft:steric', mt_log, 1, lsteric))then
+       lsteric = .true.
        if (.not. rtdb_put(rtdb, 'dft:steric', mt_log,
-     &   1, do_StericEnergy))
+     &   1, lsteric))
      &   call errquit('dft_rdinput: rtdb_put failed', 0, RTDB_ERR)
       endif
 c
