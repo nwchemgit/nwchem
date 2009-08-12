@@ -32,12 +32,14 @@ c
       call util_print_rtdb_load(rtdb,'mp2')
       call ecce_print_module_entry('mp2')
 c
+c     Check for dftmp2
+c
       if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
      $     dftmp2 = .false.
 c
 c     Make sure the SCF is being converged accurately enough
 c
-      if (dftmp2) then ! DFT SCF
+      if (dftmp2) then ! for mp2 with dft orbitals
 c
         if (.not. rtdb_get(rtdb,'dft:e_conv',mt_dbl,1,threshscf))
      $       threshscf = 1.0d-4
@@ -75,7 +77,7 @@ c
            return
         endif
 c
-      endif ! ===============================
+      endif ! dftmp2
 c
       call mp2_pstat_init()
 c
@@ -123,17 +125,17 @@ c
       if (.not.int_normalize(rtdb,basis))
      &    call errquit('mp2_grad: int_normalize failed',0, INT_ERR)
 c
-c     Make sure that we use the same vectors as the SCF
-c     Jeff: Why are we using input vectors and not output vectors?
-c           Are they set to the same once SCF converges?
+c     Get the vectors. Output vectors of DFT/SCF are input vectors for MP2
 c
       if (dftmp2) then
-        if (.not. rtdb_cget(rtdb,'dft:input vectors',1,movecs_in)) 
+       if (.not. rtdb_cget(rtdb,'dft:input vectors',1,movecs_in)) 
      $       call errquit('mp2_grad: no DFT MO vectors',0, RTDB_ERR)
       else
         if (.not. rtdb_cget(rtdb,'scf:input vectors',1,movecs_in)) 
      $       call errquit('mp2_grad: no SCF MO vectors',0, RTDB_ERR)
       endif
+c
+c     Get the MP2 energy
 c
       call mp2_energy(rtdb, geom, basis, movecs_in, task)
 c

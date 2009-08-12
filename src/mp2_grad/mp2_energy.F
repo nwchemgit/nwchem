@@ -88,6 +88,8 @@ c
       logical dftmp2            ! use DFT reference orbitals and energy
       double precision mp2fac   ! coefficient on MP2 contribution to total energy
 c
+c     Check for dftmp2
+c
       if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
      $     dftmp2 = .false.
 c     
@@ -527,6 +529,8 @@ c
          end if
       end if
 c     
+c     Tally up the total energy
+c
       if (dftmp2) then
         if(.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,escf))
      $       call errquit('could not get dft energy',1, RTDB_ERR)
@@ -536,12 +540,13 @@ c
             write(LuOut,*) 'dft:pt2fac not found, using 1.0'
           endif
         endif
-        e_total = escf + mp2fac*e2
+        e_total = escf + mp2fac*e2   ! scale mp2 energy with mp2fac
       else
         if(.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,escf))
      $       call errquit('could not get scf energy',1, RTDB_ERR)
         e_total = escf + e2
       endif
+c
       if (util_print('information',print_low).and.ga_nodeid().eq.0) then
         if (dftmp2) then
           write(6,998) escf, e2, e_total
@@ -562,6 +567,7 @@ c
         endif
         call util_flush(6)
       end if 
+c
       call ecce_print1('total energy', mt_dbl, e_total, 1)
       call ecce_print1('correlation energy', mt_dbl, e2, 1)
       if(.not. rtdb_put(rtdb,'mp2:correlation energy',mt_dbl,1,e2))
