@@ -147,7 +147,7 @@ c
              ntot_cube=ntot_cube+1
 c
 c            == Steric: Tally up the steric energy ==
-             if (do_StericEnergy) then 
+             if (lsteric) then 
                   StericEnergyTotal = StericEnergyTotal + StericEnergy
              end if
 c
@@ -156,7 +156,7 @@ c
  200  continue
 c
 c     == Steric: Tally up over all nodes ==
-      if (do_StericEnergy) then
+      if (lsteric) then
          call ga_dgop(Msg_Excrho, StericEnergyTotal , 1, '+')  ! sum energy over all nodes
       end if
 c

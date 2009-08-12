@@ -487,7 +487,7 @@ c
 c
 c     == Print total steric energy ==
 c
-      if (do_StericEnergy) then
+      if (lsteric) then
          if (me.eq.0) write(LuOut,2221) StericEnergyTotal
       end if
  2221  format('         Total Steric Energy =', f22.12/)
