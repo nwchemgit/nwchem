@@ -848,7 +848,7 @@ c
 c
 c     Calculate the steric energy
 c
-      if (do_StericEnergy) then
+      if (lsteric) then
         StericEnergy = 0.d0
         call steric_energy(tol_rho,xfac(1),rho,delrho,nq,
      &   qwght,ipol,StericEnergy)

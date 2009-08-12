@@ -30,7 +30,7 @@ c    +     cfac(28) + cfac(36)
          xc_chkgrad = .true.
       else if (do_zora) then    ! turn on gradients for zora
          xc_chkgrad = .true.
-      else if (do_StericEnergy) then ! turn on gradients for steric calculations
+      else if (lsteric) then ! turn on gradients for steric calculations
          xc_chkgrad = .true.
       else
          xc_chkgrad = .false.
