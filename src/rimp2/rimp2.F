@@ -123,15 +123,31 @@ c
       if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
      $     dftmp2 = .false.
 c
-      if (.not. rtdb_get(rtdb,'scf:thresh',mt_dbl,1,threshscf))
+      if (dftmp2) then  ! get thresholds for dftmp2
+        if (.not. rtdb_get(rtdb,'dft:e_conv',mt_dbl,1,threshscf))
+     $       threshscf = 1.0d-4
+        if (threshscf .gt. 1.0d-6) then
+           threshscf = 1.0d-6
+           if (.not. rtdb_put(rtdb,'dft:e_conv',mt_dbl,1,threshscf))
+     $          call errquit('mp2_grad: failed setting dft:e_conv',0,
+     &                       RTDB_ERR)
+           status = rtdb_delete(rtdb,'dft:converged')
+        endif
+c
+      else  ! traditional HF
+c
+        if (.not. rtdb_get(rtdb,'scf:thresh',mt_dbl,1,threshscf))
      $     threshscf = 1.0d-4
-      if (threshscf .gt. 1.0d-6) then
+        if (threshscf .gt. 1.0d-6) then
          threshscf = 1.0d-6
          if (.not. rtdb_put(rtdb,'scf:thresh',mt_dbl,1,threshscf))
      $        call errquit('mp2_grad: failed setting scf:thresh',0,
      &       RTDB_ERR)
          status = rtdb_delete(rtdb,'scf:converged') ! Status irrelevant
-      endif
+        endif
+      end if  ! dftmp2
+c
+c     Get the DFT/HF energy
 c
       if (dftmp2) then
         if (.not.dft_energy(rtdb)) then
