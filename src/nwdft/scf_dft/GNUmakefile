@@ -24,8 +24,7 @@
 	diis_hamwgt.o \
 	dft_fdist_init.o \
 	cdft_util.o \
-	dft_zora_scale.o \
-	dft_zora_readwrite.o      
+	dft_zora_utils.o 
 	OBJ=\
 	dft_swapab.o \
 	dft_main0d.o \
