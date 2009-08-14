@@ -20,9 +20,6 @@ c Hirata & Head-Gordon, CPL 302, 375 (1999), for formalisms.
 c
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
 c
-c CAUTION: numfunc hardwired from "cdft.fh".  It is nicer if it
-c is read from runtime database.
-c
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
