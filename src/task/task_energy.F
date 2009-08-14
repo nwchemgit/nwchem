@@ -65,12 +65,13 @@ c          if (.not. rtdb_get(rtdb, 'embed:energy', mt_dbl, 1, energy))
 c     $           call errquit('task_energy: no energy in rtdb?',0,
 c     &       RTDB_ERR)
       else if (theory .ne. 'oniom') then
-         status = task_energy_doit(rtdb,theory,energy)
 cc
         if(task_bsse) then
             status = bsse_energy(rtdb,theory,energy)
             if(.not.status)
      $        call errquit('task_errr: error call bsse energy',911)
+         else
+            status = task_energy_doit(rtdb,theory,energy)
         endif
 cc
       else

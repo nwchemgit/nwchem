@@ -1364,7 +1364,7 @@ c
 c
 c
 
-        if (.not. rtdb_cput(rtdb,'theory', 1, theory))
+        if (.not. rtdb_cget(rtdb,'theory', 1, theory))
      &    call errquit('bsse_hessian: input_vectors',0,RTDB_ERR)
 
 
