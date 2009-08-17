@@ -1,5 +1,5 @@
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                  d_v2,k_v2_offset,energy1,energy2)
+     1            d_v2,k_v2_offset,energy1,energy2,size_t1)
 C
 C     $Id: ccsd_t.F,v 1.13 2008-10-14 04:17:17 jhammond Exp $
 C
@@ -33,12 +33,27 @@ C
       integer offset_h1,offset_h2,offset_h3
       integer range_p4,range_p5,range_p6
       integer range_h1,range_h2,range_h3
+c - T1/X1 LOCALIZATION -------------------
+      integer l_t1_local,k_t1_local
+      integer size_t1
+c ---------------------------------------
       double precision energy(2)
       double precision energy1,energy2
       double precision factor,denom
       double precision denom_p4,denom_p5,denom_p6
       double precision denom_h1,denom_h2,denom_h3
       external nxtask
+C
+c
+c - T1/X1 LOCALIZATION ----------
+c    opening l_t1_local and l_x1_local
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+c    copy d_t1 ==> l_t1_local
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+c -------------------------------
 C
       nprocs = GA_NNODES()
       count = 0
@@ -89,15 +104,21 @@ C
      1        k_singles)) call errquit('ccsd_t: MA error',1,MA_ERR)
             if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
      1        k_doubles)) call errquit('ccsd_t: MA error',2,MA_ERR)
-            do i = 1, size
-              dbl_mb(k_singles+i-1) = 0.0d0
-            enddo
-            do i = 1, size
-              dbl_mb(k_doubles+i-1) = 0.0d0
-            enddo
-            call ccsd_t_singles(dbl_mb(k_singles),d_t1,d_v2,k_t1_offset,
+ccx            do i = 1, size
+ccx              dbl_mb(k_singles+i-1) = 0.0d0
+ccx            enddo
+ccx            do i = 1, size
+ccx              dbl_mb(k_doubles+i-1) = 0.0d0
+ccx            enddo
+c zeroing ---
+        call dfill(size, 0.0d0, dbl_mb(k_singles), 1)
+        call dfill(size, 0.0d0, dbl_mb(k_doubles), 1)
+c -----------
+            call ccsd_t_singles_l(dbl_mb(k_singles),
+     1        k_t1_local,d_v2,k_t1_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-            call ccsd_t_doubles(dbl_mb(k_doubles),d_t2,d_v2,k_t2_offset,
+            call ccsd_t_doubles_l(dbl_mb(k_doubles),
+     1        d_t2,d_v2,k_t2_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
             if (restricted) then
               factor = 2.0d0
@@ -165,6 +186,10 @@ c
       call ga_dgop(mt_dbl,energy,2,'+')
       energy1 = energy(1)
       energy2 = energy(2)
+c - T1/X1 LOCALIZATION ------
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',4,MA_ERR)
+c ---------------------------
       return
       end
 
@@ -178,7 +203,7 @@ c                 Only does CCSD(T) not CCSD[T]
 c
 c --------------------------------------------------------------
       SUBROUTINE ccsd_t_vector(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                         d_v2,k_v2_offset,energy)
+     1                         d_v2,k_v2_offset,energy,size_t1)
 C
 C     $Id: ccsd_t.F,v 1.13 2008-10-14 04:17:17 jhammond Exp $
 C
@@ -213,11 +238,26 @@ C
       integer range_p4,range_p5,range_p6
       integer range_h1,range_h2,range_h3
       integer range_h3_b,range_h3_r
+c - T1/X1 LOCALIZATION -------------------
+      integer l_t1_local,k_t1_local
+      integer size_t1
+c ----------------------------------------
       double precision energy,energy1,energy2,energy3,energy4
       double precision factor,denom,denom_p,denom_h12,denom_ph12
       double precision denom_p4,denom_p5,denom_p6
       double precision denom_h1,denom_h2,denom_h3
       external nxtask
+C
+c
+c - T1/X1 LOCALIZATION ----------
+c    opening l_t1_local and l_x1_local
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+c    copy d_t1 ==> l_t1_local
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+c -------------------------------
 C
       nprocs = GA_NNODES()
       count = 0
@@ -278,20 +318,24 @@ C
 !DEC$ unroll(4)
 !DEC$ vector always
 #endif
-            do i = 1, size
-              dbl_mb(k_singles+i-1) = 0.0d0
-            enddo
+ccx            do i= 1, size
+ccx              dbl_mb(k_singles+i-1) = 0.0d0
+ccx            enddo
+        call dfill(size, 0.0d0, dbl_mb(k_singles), 1)
 #ifdef IFCV8
 !DEC$ loop count min(4096), avg(64000000)
 !DEC$ unroll(8)
 !DEC$ vector always
 #endif
-            do i = 1, size
-              dbl_mb(k_doubles+i-1) = 0.0d0
-            enddo
-            call ccsd_t_singles(dbl_mb(k_singles),d_t1,d_v2,k_t1_offset,
+ccx            do i = 1, size
+ccx              dbl_mb(k_doubles+i-1) = 0.0d0
+ccx            enddo
+        call dfill(size, 0.0d0, dbl_mb(k_doubles), 1)
+            call ccsd_t_singles_l(dbl_mb(k_singles),
+     1        k_t1_local,d_v2,k_t1_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-            call ccsd_t_doubles(dbl_mb(k_doubles),d_t2,d_v2,k_t2_offset,
+            call ccsd_t_doubles_l(dbl_mb(k_doubles),
+     1        d_t2,d_v2,k_t2_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
             if (restricted) then
               factor = 2.0d0
@@ -391,6 +435,10 @@ C
       energy = energy + energy1 + energy2 + energy3 + energy4
       next = nxtask(-nprocs,1)
       call ga_dgop(mt_dbl,energy,1,'+')
+c - T1/X1 LOCALIZATION ------
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',4,MA_ERR)
+c ---------------------------
       return
       end
 #endif
@@ -402,7 +450,7 @@ c                 Only does CCSD(T) not CCSD[T]
 c
 c --------------------------------------------------------------
       SUBROUTINE ccsd_t_vector(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                         d_v2,k_v2_offset,energy)
+     1                         d_v2,k_v2_offset,energy.size_t1)
 C
 C     $Id: ccsd_t.F,v 1.13 2008-10-14 04:17:17 jhammond Exp $
 C
@@ -436,11 +484,26 @@ C
       integer offset_h1,offset_h2,offset_h3
       integer range_p4,range_p5,range_p6
       integer range_h1,range_h2,range_h3
+c - T1/X1 LOCALIZATION -------------------
+      integer l_t1_local,k_t1_local
+      integer size_t1
+c ---------------------------------------
       double precision energy,energy0
       double precision factor,denom,denom_p,denom_h
       double precision denom_p4,denom_p5,denom_p6
       double precision denom_h1,denom_h2,denom_h3
       external nxtask
+C
+c
+c - T1/X1 LOCALIZATION ----------
+c    opening l_t1_local and l_x1_local
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+c    copy d_t1 ==> l_t1_local
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+c -------------------------------
 C
       nprocs = GA_NNODES()
       count = 0
@@ -490,15 +553,21 @@ C
      1        k_singles)) call errquit('ccsd_t: MA error',1,MA_ERR)
             if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
      1        k_doubles)) call errquit('ccsd_t: MA error',2,MA_ERR)
-            do i = 1, size
-              dbl_mb(k_singles+i-1) = 0.0d0
-            enddo
-            do i = 1, size
-              dbl_mb(k_doubles+i-1) = 0.0d0
-            enddo
-            call ccsd_t_singles(dbl_mb(k_singles),d_t1,d_v2,k_t1_offset,
+ccx            do i = 1, size
+ccx              dbl_mb(k_singles+i-1) = 0.0d0
+ccx            enddo
+ccx            do i = 1, size
+ccx              dbl_mb(k_doubles+i-1) = 0.0d0
+ccx            enddo
+c zeroing ---
+        call dfill(size, 0.0d0, dbl_mb(k_singles), 1)
+        call dfill(size, 0.0d0, dbl_mb(k_doubles), 1)
+c -----------
+            call ccsd_t_singles_l(dbl_mb(k_singles),k_t1_local,
+     1        d_v2,k_t1_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-            call ccsd_t_doubles(dbl_mb(k_doubles),d_t2,d_v2,k_t2_offset,
+            call ccsd_t_doubles_l(dbl_mb(k_doubles),d_t2,d_v2,
+     1        k_t2_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
             if (restricted) then
               factor = 2.0d0
@@ -544,6 +613,10 @@ c
       enddo
       next = nxtask(-nprocs,1)
       call ga_dgop(mt_dbl,energy,1,'+')
+c - T1/X1 LOCALIZATION ------
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',4,MA_ERR)
+c ---------------------------
       return
 100   format(1x,a60,3i18)
 200   format(1x,a60,3f18.8)
@@ -553,5 +626,5 @@ c
 400   format(1x,'t_*',6i8)
 500   format(1x,a12,f18.8)
 600   format(6i4,13f12.8)
-      end
+      end 
 #endif
