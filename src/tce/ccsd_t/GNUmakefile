@@ -3,6 +3,7 @@
 OBJ          = cr_ccsd_t.o lr_ccsd_t.o
 
 OBJ_OPTIMIZE = ccsd_t.o ccsd_t_doubles.o ccsd_t_singles.o lambda_ccsd_t.o lambda_ccsd_t_left.o\
+               ccsd_t_doubles_l.o ccsd_t_singles_l.o \
                ccsd2_t.o ccsd2_t_left.o ccsd2_q.o ccsd2_q_left.o ccsd2_q_right.o \
                ccsdt2_q.o ccsdt2_q_left.o ccsdt2_q_right.o \
                cr_ccsd_t_D.o cr_ccsd_t_E.o cr_ccsd_t_N.o lr_ccsd_tq.o \
@@ -12,7 +13,9 @@ LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
-USES_BLAS = ccsd_t_doubles.F ccsd_t_singles.F lambda_ccsd_t_left.F \
+USES_BLAS = ccsd_t_doubles.F ccsd_t_singles.F \
+            ccsd_t_doubles_l.F ccsd_t_singles_l.F \
+            lambda_ccsd_t_left.F \
             ccsd2_q_left.F ccsd2_q_right.F ccsd2_t_left.F \
             ccsdt2_q_left.F ccsdt2_q_right.F \
             cr_ccsd_t_D.F cr_ccsd_t_E.F cr_ccsd_t_N.F lr_ccsd_tq.F \
