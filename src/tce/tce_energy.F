@@ -2843,11 +2843,11 @@ c
             if (fast_ccsd_t) then
               if (nodezero) write(LuOut,*) 'Using tuned CCSD(T) code'
               call ccsd_t_vector(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                           d_v2,k_v2_offset,pt3_2)
+     1                           d_v2,k_v2_offset,pt3_2,size_t1)
             else
               if (nodezero) write(LuOut,*) 'Using plain CCSD(T) code'
               call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                    d_v2,k_v2_offset,pt3_1,pt3_2)
+     1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
             endif
           elseif (restart_ccsd_t.gt.0) then
             pt3_1 = 0.0d0
@@ -2923,7 +2923,7 @@ c
             call createfile(filename,d_e,size_e)
             call cr_ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                     d_f1,k_f1_offset,d_v2,k_v2_offset,
-     2                     d_e,k_e_offset,pt3_1,pt3_2)
+     2                     d_e,k_e_offset,pt3_1,pt3_2,size_t1)
             call deletefile(d_e)
             cpu = cpu + util_cpusec()
             wall = wall + util_wallsec()
@@ -7367,7 +7367,7 @@ c
      5                        d_ex2,k_ex2_offset,size_ex2,
      6                        d_c1,k_c1_offset,size_c1,
      7                        d_c2,k_c2_offset,size_c2,
-     8                        excit,pt3_6,pt3_5)
+     8                        excit,pt3_6,pt3_5,size_t1,size_x1)
                     call gatodra(xc2(ivec))
                     call gatodra(xc1(ivec))
       elseif(perturbative.eq.'emb1') then
