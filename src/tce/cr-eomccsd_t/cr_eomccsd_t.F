@@ -6,9 +6,9 @@
      5                        d_ex2,k_ex2_offset,size_ex2,
      6                        d_c1,k_c1_offset,size_c1,
      7                        d_c2,k_c2_offset,size_c2,
-     8                        excit,energy1,energy2)
+     8                        excit,energy1,energy2,size_t1,size_x1)
 C
-C     $Id: cr_eomccsd_t.F,v 1.4 2008-07-17 21:48:12 marat Exp $
+C     $Id: cr_eomccsd_t.F,v 1.4 2008/07/17 21:48:12 marat Exp $
 C 
 c from this point on we assume that corresponding one- and two-
 c body components of R(d_x1,d_x2) and T(d_t1,d_t2) operators,
@@ -21,9 +21,9 @@ c 1. calculate R0
 c 2. calculate c1 and c2 vectors (c1excit,c2excit)
 c 3. calculate d 
 c 
+c local representations go only to "triple" procedures 
+c see size_t1 size_x1  in the header of this procedure
 c
-c
-
       IMPLICIT NONE
 #include "global.fh"
 #include "mafdecls.fh"
@@ -35,11 +35,11 @@ c
       integer k_t1_offset
       integer d_t2
       integer k_t2_offset
-c *** sizes ***
+c --- sizes ---
       integer size_c1,size_c2
       integer size_ex1,size_ex2
       integer size_d2
-c *************
+c -------------
       integer d_x1
       integer k_x1_offset
       integer d_x2
@@ -65,7 +65,7 @@ c *************
       integer d_d2
       integer l_d2_offset
       integer k_d2_offset
-c ***
+c ----
       integer d_f1
       integer k_f1_offset
       integer d_v2
@@ -79,12 +79,15 @@ c ***
       integer t_p5b, t_p5
       integer t_p6b, t_p6
       integer k_den,l_den
-      integer k_right1,l_right1  !r0*M3(T1,T2)
-      integer k_right2,l_right2  !M3(T1,T2,X1,X2)
-      integer k_right3,l_right3
-c *** cr_ccsd_t_E ***
-      integer k_den0,l_den0
-c *******************
+      integer k_right,l_right  !r0*M3(T1,T2)
+c --- cr_ccsd_t_E ---
+      integer k_left,l_left
+c -------------------
+c - T1/X1 LOCALIZATION -------------------
+      integer l_t1_local,k_t1_local
+      integer l_x1_local,k_x1_local
+      integer size_t1,size_x1
+c ---------------------------------------
       integer size,i
       integer g_energy
       integer nxtask
@@ -113,22 +116,18 @@ c ----------------------------
       double precision factor
       double precision den1,num1
       double precision den2,num2
+      double precision denex
+      double precision cpu,wall
       character*255 filename
+      logical nodezero
       external nxtask
-c *** debug ***
-      double precision xxx
-c *************
+c
+c
+c
+      nodezero=(ga_nodeid().eq.0)
 c
 c Getting R0
 c
-c *** debug ************
-c      write(6,*)'step1'
-c      write(6,*)'excit from cr_eomccsd-t',excit
-c      write(6,*)'irrep_c from cr_eomccsd_t',irrep_c
-c      write(6,*)'irrep_x from cr_eomccsd_t',irrep_x 
-c      write(6,*)'energy1=',energy1
-c      call util_flush(6)
-c ********************** 
       call  nr0(d_f1,d_e,d_t1,d_v2,d_x1,d_x2,k_f1_offset,
      &k_e_offset,k_t1_offset,k_v2_offset,k_x1_offset,k_x2_offset) 
       call reconcilefile(d_e,1)
@@ -138,11 +137,6 @@ c **********************
       else
          write(6,1000)
       end if
-*** debug ************
-c      write(6,*)'step2'
-c      write(6,*)'r0 from cr_eomccsd-t',r0xx
-c      call util_flush(6)
-c **********************
       dr0xx = r0xx*r0xx
       lr0 = .true.
       if(dabs(r0xx).lt.1.0d-7) lr0 = .false.
@@ -184,12 +178,6 @@ c <C2+ D2>  here
             call deletefile(d_d2)
             if (.not.ma_pop_stack(l_d2_offset))
      1        call errquit("tce_energy: MA problem",36,MA_ERR)
-ccxxxx       call c2excit(d_c2,d_t1,d_t2,d_e,d_x1,d_x2,k_c2_offset,
-ccxxxx     & k_t1_offset,k_t2_offset,k_e_offset,k_x1_offset,k_x2_offset)
-ccxxxx       call c2_c2(d_c2,d_ex2,k_c2_offset,k_ex2_offset)
-ccxxxx       call reconcilefile(d_ex2,1)
-ccxxxx       d2xx = 0.0d0
-ccxxxx       call get_block(d_ex2,d2xx,1,0)
 c
          call tce_zero(d_ex1,size_ex1)
          call tce_zero(d_ex2,size_ex2)
@@ -216,18 +204,6 @@ c
          call get_block(d_ex2,d2xxr,1,0)
          d12xx = d1xxt*r0xx*r0xx+d2xxt*r0xx*r0xx+d1xxr+d2xxr+
      &           2.0d0*d1xxtr*r0xx+2.0d0*d2xxtr*r0xx
-ccxxxx          d12xx = d1xxt*r0xx*r0xx+d1xxr+
-ccxxxx     &            2.0d0*d1xxtr*r0xx+d2xx
-c
-c *** debug ***
-c          write(6,*)'d1xxt*r0*r0',d1xxt*r0xx*r0xx
-c          write(6,*)'d1xxr',d1xxr
-c          write(6,*)'d1xxtr*r0',d1xxtr*r0xx
-c          write(6,*)'d1xx=',d1xxt*r0xx*r0xx+d1xxr+2.0d0*d1xxtr*r0xx
-c          write(6,*)'d2xx=',d2xx
-c          write(6,*)'d12xx',d12xx
-c          call util_flush(6)
-c *************
       else         !symmetry different form the symmetry of the reference
 c        <(R1+R0*T1)^{\dagger} (R1+R0*T1)>
          call c1excit2(d_c1,d_x1,k_c1_offset,k_x1_offset)
@@ -244,74 +220,74 @@ c        <(R2+R1T1)^{\dagger} (R2+R1T1)>
          call get_block(d_ex2,d2xx,1,0)
          d12xx = d1xx+d2xx
       end if
-c
-c     Get singles & doubles part of the denominator
-c
-cccx      call c1_c1(d_c1,d_ex1,k_c1_offset,k_ex1_offset)
-cccx      call reconcilefile(d_ex1,1)
-cccx      d1xx = 0.0d0 
-cccx      call get_block(d_ex1,d1xx,1,0)
-cccx      call c2_c2(d_c2,d_ex2,k_c2_offset,k_ex2_offset)
-cccx      call reconcilefile(d_ex2,1)
-cccx      d2xx = 0.0d0
-cccx      call get_block(d_ex2,d2xx,1,0)
-cccx      d12xx = d1xx+d2xx
+c - T1/X1 LOCALIZATION ----------
+c    opening l_t1_local and l_x1_local
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,size_x1,'x1_local',
+     1      l_x1_local,k_x1_local))
+     1      call errquit('x1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+        call ma_zero(dbl_mb(k_x1_local),size_x1)
+c    copy d_t1 ==> l_t1_local
+c    copy x1(ivec) ==> l_x1_local
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+        call ga_get(d_x1,1,size_x1,1,1,dbl_mb(k_x1_local),1)
+c -------------------------------
 c
 c     Caution! k_right & k_den are not even allocated yet
 c     but they won't be used.
 c --------------- initialization -----------------------------------
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
       if(lr0) then
-      call cr_ccsd_t_N(dbl_mb(k_right1),d_f1,d_i1_1,d_i1_2,
-     1  d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
+      call cr_ccsd_t_N(dbl_mb(k_right),d_f1,d_i1_1,d_i1_2,
+     1  k_t1_local,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
      2  k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
      3  l_i1_offset_2,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
-c      call cr_eomccsd_t_N1(dbl_mb(k_right1),d_f1,d_i1_1,d_i1_2,d_i1_3,
-c     &d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
-c     &k_i1_offset_3,k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
-c     &l_i1_offset_2,l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
-c     &1)
       end if
 c
-ccx      call cr_eomccsd_t_N2(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,d_i2_3,
-ccx     &d_i2_4,d_i2_5,d_i2_6,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,
-ccx     &k_i2_offset_1,k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,
-ccx     &k_i2_offset_5,k_i2_offset_6,k_t1_offset,k_t2_offset,k_v2_offset,
-ccx     &k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,l_i2_offset_3,
-ccx     &l_i2_offset_4,l_i2_offset_5,l_i2_offset_6,t_h1b,t_h2b,t_h3b,t_p4b,
-ccx     &t_p5b,t_p6b,1)
-c
-      call creomsd_t_n2_mem(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,
-     &d_i2_3,d_i2_4,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,k_i2_offset_1,
+      call creomsd_t_n2_mem(dbl_mb(k_right),d_f1,d_i2_1,d_i2_2,
+     &d_i2_3,d_i2_4,k_t1_local,d_t2,d_v2,k_x1_local,
+     &d_x2,k_f1_offset,k_i2_offset_1,
      &k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,k_t1_offset,k_t2_offset,
      &k_v2_offset,k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,
      &l_i2_offset_3,l_i2_offset_4,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
 c
 c
-cccx      call cr_s_m3(dbl_mb(k_right3),d_v2,d_x2,k_v2_offset,k_x2_offset,
-cccx     &t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
-c
       if(lr0) then
-c      call q3rexpt(dbl_mb(k_den),d_i3_1,d_i3_2,d_t1,d_t2,d_e,
-c     &d_x1,d_x2,k_i3_offset_1,k_i3_offset_2,k_t1_offset,k_t2_offset,
-c     &k_e_offset,k_x1_offset,k_x2_offset,l_i3_offset_1,l_i3_offset_2,
-c     &t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
-      call cr_ccsd_t_E(dbl_mb(k_den0),d_i1_4,
-     1  d_t1,d_t2,k_i1_offset_4,k_t1_offset,k_t2_offset,
+      call cr_ccsd_t_E(dbl_mb(k_left),d_i1_4,
+     1  k_t1_local,d_t2,k_i1_offset_4,k_t1_offset,k_t2_offset,
      2  l_i1_offset_4,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
-      call q3rexpt2(dbl_mb(k_den),d_i3_1,d_t1,d_t2,d_x1,d_x2,
+      call q3rexpt2(dbl_mb(k_left),d_i3_1,
+     &k_t1_local,d_t2,k_x1_local,d_x2,
      &k_i3_offset_1,k_t1_offset,k_t2_offset,k_x1_offset,k_x2_offset,
      &l_i3_offset_1,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
       else 
-      call q3rexpt2(dbl_mb(k_den),d_i3_1,d_t1,d_t2,d_x1,d_x2,
+      call q3rexpt2(dbl_mb(k_left),d_i3_1,k_t1_local,d_t2,
+     &k_x1_local,d_x2,
      &k_i3_offset_1,k_t1_offset,k_t2_offset,k_x1_offset,k_x2_offset,
      &l_i3_offset_1,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
       end if
+      cpu=cpu+util_cpusec()
+      wall=wall+util_wallsec()
+      if(nodezero) then
+       write(6,*)'         '
+       write(6,111) cpu,wall
+       if(lr0) then
+        write(6,*)'cr_N i1_1 nr of boxes ',int_mb(k_i1_offset_1)
+        write(6,*)'cr_N i1_2 nr of boxes ',int_mb(k_i1_offset_2)
+       end if
+       write(6,*)'creom_N i2_1 nr of boxes ',int_mb(k_i2_offset_1)
+       write(6,*)'creom_N i2_2 nr of boxes ',int_mb(k_i2_offset_2)
+       write(6,*)'creom_N i2_3 nr of boxes ',int_mb(k_i2_offset_3)
+       write(6,*)'creom_N i2_4 nr of boxes ',int_mb(k_i2_offset_4)
+       write(6,*)'         '
+       call util_flush(6)
+      end if
+ 111  format('CR-EOMCCSD(T) Intermediates cpu wall time ',2f15.1)
 c ------------------------------------------------------------------
-c
-*** debug ************
-c      write(6,*)'after toggle=1'
-c      call util_flush(6)
-c **********************
 c
 c     Get the numerator
 c
@@ -320,6 +296,9 @@ c
 c
       num2 = 0.0d0
       den2 = 0.0d0
+c
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
 c
       if (.not.ga_create(mt_dbl,1,1,'perturbative',1,1,g_energy))
      1  call errquit('ccsd_t: GA problem',0,GA_ERR)
@@ -332,10 +311,6 @@ c
          do t_h1b = 1,noab
           do t_h2b = t_h1b,noab
            do t_h3b = t_h2b,noab
-c *** debug ***
-c        write(6,443)t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b
-c 443    format('loop ind',6i5) 
-c **************
             if (next.eq.count) then
             if (int_mb(k_spin+t_p4b-1)
      1         +int_mb(k_spin+t_p5b-1)
@@ -365,77 +340,62 @@ c
      3           * int_mb(k_range+t_h1b-1)
      4           * int_mb(k_range+t_h2b-1)
      5           * int_mb(k_range+t_h3b-1)
-          if(lr0) then 
-            if (.not.MA_PUSH_GET(mt_dbl,size,'moment 1,3',
-     1        l_right1,k_right1)) call errquit('eomccsd_t',3,MA_ERR)
-            if (.not.MA_PUSH_GET(mt_dbl,size,'t1t2_t13',
-     1        l_den0,k_den0)) call errquit('eomccsd_t',3,MA_ERR)
-          end if
             if (.not.MA_PUSH_GET(mt_dbl,size,'moment 2,3',
-     1        l_right2,k_right2)) call errquit('eomccsd_t',3,MA_ERR)
-cccx            if (.not.MA_PUSH_GET(mt_dbl,size,'moment 2,3',
-cccx     1        l_right3,k_right3)) call errquit('eomccsd_t',3,MA_ERR)
+     1        l_right,k_right)) call errquit('eomccsd_t',3,MA_ERR)
             if (.not.MA_PUSH_GET(mt_dbl,size,'denominator',
-     1        l_den,k_den)) call errquit('ccsd_t',3,MA_ERR)
-          if(lr0) then
-            do i = 1, size
-             dbl_mb(k_right1+i-1) = 0.0d0
-             dbl_mb(k_den0+i-1) = 0.0d0
-            enddo
-          end if
-            do i = 1, size
-cccx             dbl_mb(k_right3+i-1) = 0.0d0
-             dbl_mb(k_right2+i-1) = 0.0d0
-             dbl_mb(k_den+i-1) = 0.0d0
-            enddo
+     1        l_left,k_left)) call errquit('ccsd_t',3,MA_ERR)
+ccx            do i = 1, size
+ccx             dbl_mb(k_right+i-1) = 0.0d0
+ccx             dbl_mb(k_left+i-1) = 0.0d0
+ccx            enddo
+c zeroing ---
+        call dfill(size, 0.0d0, dbl_mb(k_right), 1)
+        call dfill(size, 0.0d0, dbl_mb(k_left), 1)
+c -----------
 c
 c Moments are calculated here
 c 
 c
       if(lr0) then   
-      call cr_ccsd_t_N(dbl_mb(k_right1),d_f1,d_i1_1,d_i1_2,
-     1  d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
+      call cr_ccsd_t_N(dbl_mb(k_right),d_f1,d_i1_1,d_i1_2,
+     1  k_t1_local,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
      2  k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
      3  l_i1_offset_2,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-c      call cr_eomccsd_t_N1(dbl_mb(k_right1),d_f1,d_i1_1,d_i1_2,d_i1_3,
-c     &d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
-c     &k_i1_offset_3,k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
-c     &l_i1_offset_2,l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
-c     &2)
+c       
+cc            do i = 1, size
+cc             dbl_mb(k_right+i-1) = r0xx*dbl_mb(k_right+i-1)
+cc            enddo
+        call dscal(size,r0xx,dbl_mb(k_right),1)
+c 
       end if
 c
-c      call cr_eomccsd_t_N2(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,d_i2_3,
-c     &d_i2_4,d_i2_5,d_i2_6,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,
-c     &k_i2_offset_1,k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,
-c     &k_i2_offset_5,k_i2_offset_6,k_t1_offset,k_t2_offset,k_v2_offset,
-c     &k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,l_i2_offset_3,
-c     &l_i2_offset_4,l_i2_offset_5,l_i2_offset_6,t_h1b,t_h2b,t_h3b,t_p4b,
-c     &t_p5b,t_p6b,2)
-c
-      call creomsd_t_n2_mem(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,
-     &d_i2_3,d_i2_4,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,k_i2_offset_1,
+      call creomsd_t_n2_mem(dbl_mb(k_right),d_f1,d_i2_1,d_i2_2,
+     &d_i2_3,d_i2_4,k_t1_local,d_t2,d_v2,
+     &k_x1_local,d_x2,k_f1_offset,k_i2_offset_1,
      &k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,k_t1_offset,k_t2_offset,
      &k_v2_offset,k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,
      &l_i2_offset_3,l_i2_offset_4,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
 c
-cccx      call cr_s_m3(dbl_mb(k_right3),d_v2,d_x2,k_v2_offset,k_x2_offset,
-cccx     &t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
 c
 c Q3(R0+R1+R2)exp(T1+T2)|Ref> calculated here
 c
       if(lr0) then
-c      call q3rexpt(dbl_mb(k_den),d_i3_1,d_i3_2,d_t1,d_t2,d_e,
-c     &d_x1,d_x2,k_i3_offset_1,k_i3_offset_2,k_t1_offset,k_t2_offset,
-c     &k_e_offset,k_x1_offset,k_x2_offset,l_i3_offset_1,l_i3_offset_2,
-c     &t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-      call cr_ccsd_t_E(dbl_mb(k_den0),d_i1_4,
-     1  d_t1,d_t2,k_i1_offset_4,k_t1_offset,k_t2_offset,
+      call cr_ccsd_t_E(dbl_mb(k_left),d_i1_4,
+     1  k_t1_local,d_t2,k_i1_offset_4,k_t1_offset,k_t2_offset,
      2  l_i1_offset_4,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-      call q3rexpt2(dbl_mb(k_den),d_i3_1,d_t1,d_t2,d_x1,d_x2,
+c
+cc            do i = 1, size
+cc             dbl_mb(k_left+i-1) = r0xx*dbl_mb(k_left+i-1)
+cc            enddo
+        call dscal(size,r0xx,dbl_mb(k_left),1)
+c
+      call q3rexpt2(dbl_mb(k_left),d_i3_1,k_t1_local,d_t2,
+     &k_x1_local,d_x2,
      &k_i3_offset_1,k_t1_offset,k_t2_offset,k_x1_offset,k_x2_offset,
      &l_i3_offset_1,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
       else
-      call q3rexpt2(dbl_mb(k_den),d_i3_1,d_t1,d_t2,d_x1,d_x2,
+      call q3rexpt2(dbl_mb(k_left),d_i3_1,k_t1_local,d_t2,
+     &k_x1_local,d_x2,
      &k_i3_offset_1,k_t1_offset,k_t2_offset,k_x1_offset,k_x2_offset,
      &l_i3_offset_1,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
       end if
@@ -458,7 +418,6 @@ c
 c
 c
 c
-      if(lr0) then  !excited-state symm. = symm. of ref.
             i = 0
             do t_p4 = 1, int_mb(k_range+t_p4b-1)
              do t_p5 = 1, int_mb(k_range+t_p5b-1)
@@ -467,63 +426,24 @@ c
                 do t_h2 = 1, int_mb(k_range+t_h2b-1)
                  do t_h3 = 1, int_mb(k_range+t_h3b-1)
                   i = i + 1
-c <(R3^{\dagger})*M3>
-                  num1 = num1 + factor * 
-     1            (r0xx*dbl_mb(k_right1+i-1)+dbl_mb(k_right2+i-1))*
-     2            (r0xx*dbl_mb(k_right1+i-1)+dbl_mb(k_right2+i-1))
-     3      / (-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
+            denex=-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
      4         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
      5         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
      6         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
      7         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
      8         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1)
-     9         +excit)
-c <[R0*(T1T2+1/6T1^3)+R1*(T2+T1^2)+R2*T1]^{\dagger}*M3>
+     9         +excit
+c numerator
                   num1 = num1 + factor * 
-     1            (r0xx*dbl_mb(k_den0+i-1)+dbl_mb(k_den+i-1))*
-     2            (r0xx*dbl_mb(k_right1+i-1)+dbl_mb(k_right2+i-1))
-c
-c
-cccx                  num2 = num2 + factor * 
-cccx     1            (dbl_mb(k_right3+i-1)*
-cccx     2             dbl_mb(k_right3+i-1))
-cccx     3      / (-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
-cccx     4         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
-cccx     5         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
-cccx     6         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
-cccx     7         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
-cccx     8         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1)
-cccx     9         +excit)
-c
+     1            (dbl_mb(k_right+i-1)*dbl_mb(k_right+i-1))/denex
+                  num1 = num1 + factor *
+     1            dbl_mb(k_left+i-1)*dbl_mb(k_right+i-1)
+c denominator
 c
                   den1 = den1 + factor * 
-     1            (r0xx*dbl_mb(k_den0+i-1)+dbl_mb(k_den+i-1))*
-     2            (r0xx*dbl_mb(k_right1+i-1)+dbl_mb(k_right2+i-1))
-     3      / (-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
-     4         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
-     5         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
-     6         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
-     7         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
-     8         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1)
-     9         +excit)
-                  den1 = den1 + factor * 
-     1             (r0xx*dbl_mb(k_den0+i-1)+dbl_mb(k_den+i-1))*
-     2             (r0xx*dbl_mb(k_den0+i-1)+dbl_mb(k_den+i-1))
-c
-cccx                  den2 = den2 + factor *
-cccx     1            (r0xx*dbl_mb(k_den0+i-1)+dbl_mb(k_den+i-1))*
-cccx     2            (dbl_mb(k_right3+i-1))
-cccx     3      / (-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
-cccx     4         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
-cccx     5         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
-cccx     6         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
-cccx     7         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
-cccx     8         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1)
-cccx     9         +excit)
-c inconsistent with PT
-cxxdel                  den2 = den2 + factor *
-cxxdel     1             (r0xx*dbl_mb(k_den0+i-1)+dbl_mb(k_den+i-1))*
-cxxdel     2             (r0xx*dbl_mb(k_den0+i-1)+dbl_mb(k_den+i-1))
+     1            (dbl_mb(k_left+i-1)*dbl_mb(k_right+i-1))/denex
+                  den1 = den1 + factor *
+     1            (dbl_mb(k_left+i-1)*dbl_mb(k_left+i-1))
 c
                  enddo
                 enddo
@@ -531,86 +451,12 @@ c
               enddo
              enddo
             enddo 
-      else       !excited-state symm. different from the symm. of ref.
-            i = 0
-            do t_p4 = 1, int_mb(k_range+t_p4b-1)
-             do t_p5 = 1, int_mb(k_range+t_p5b-1)
-              do t_p6 = 1, int_mb(k_range+t_p6b-1)
-               do t_h1 = 1, int_mb(k_range+t_h1b-1)
-                do t_h2 = 1, int_mb(k_range+t_h2b-1)
-                 do t_h3 = 1, int_mb(k_range+t_h3b-1)
-                  i = i + 1
-                  num1 = num1 + factor * 
-     1            dbl_mb(k_right2+i-1)*dbl_mb(k_right2+i-1)
-     2      / (-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
-     3         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
-     4         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
-     5         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
-     6         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
-     7         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1)
-     8         +excit)
-                  num1 = num1 + factor *  dbl_mb(k_den+i-1)*
-     1                   dbl_mb(k_right2+i-1)
 c
 c
-cccx                  num2 = num2 + factor *
-cccx     1            dbl_mb(k_right3+i-1)*dbl_mb(k_right3+i-1)
-cccx     2      / (-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
-cccx     3         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
-cccx     4         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
-cccx     5         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
-cccx     6         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
-cccx     7         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1)
-cccx     8         +excit)
-c
-c
-                  den1 = den1 + factor * 
-     1            dbl_mb(k_den+i-1)*dbl_mb(k_right2+i-1)
-     2      / (-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
-     3         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
-     4         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
-     5         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
-     6         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
-     7         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1)
-     8         +excit)
-                  den1 = den1 + factor * dbl_mb(k_den+i-1)*
-     1                          dbl_mb(k_den+i-1)
-c
-cccx                  den2 = den2 + factor * 
-cccx     1            dbl_mb(k_den+i-1)*dbl_mb(k_right3+i-1)
-cccx     2      / (-dbl_mb(k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1)
-cccx     3         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1)
-cccx     4         -dbl_mb(k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1)
-cccx     5         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1)
-cccx     6         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1)
-cccx     7         +dbl_mb(k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1)
-cccx     8         +excit)
-c inconsistent with PT
-cxxdel                  den2 = den2 + factor * dbl_mb(k_den+i-1)*
-cxxdel     1                          dbl_mb(k_den+i-1)
-c
-                 enddo
-                enddo
-               enddo
-              enddo
-             enddo
-            enddo 
-      end if
-c
-c
-c
-            if (.not.MA_POP_STACK(l_den)) 
+            if (.not.MA_POP_STACK(l_left)) 
      1        call errquit('eomccsd_t',6,MA_ERR)
-cccx            if (.not.MA_POP_STACK(l_right3)) 
-cccx     1        call errquit('eomccsd_t',6,MA_ERR)
-            if (.not.MA_POP_STACK(l_right2)) 
+            if (.not.MA_POP_STACK(l_right)) 
      1        call errquit('eomccsd_t',6,MA_ERR)
-          if(lr0) then
-            if (.not.MA_POP_STACK(l_den0)) 
-     1        call errquit('eomccsd_t',6,MA_ERR)
-            if (.not.MA_POP_STACK(l_right1)) 
-     1        call errquit('eomccsd_t',6,MA_ERR)
-          end if
             endif
             endif
             endif
@@ -624,52 +470,45 @@ cccx     1        call errquit('eomccsd_t',6,MA_ERR)
        enddo
       enddo
       next = nxtask(-nprocs,1)
+c
+      cpu=cpu+util_cpusec()
+      wall=wall+util_wallsec()
+      if(nodezero) then
+       write(6,*)'         '
+       write(6,112) cpu,wall
+       write(6,*)'         '
+       call util_flush(6)
+      end if
+ 112  format('CR-EOMCCSD(T) triples loop cpu wall ',2f15.1)
 c --- toggle = 3 ---
       if(lr0) then
-c      call q3rexpt(dbl_mb(k_den),d_i3_1,d_i3_2,d_t1,d_t2,d_e,
-c     &d_x1,d_x2,k_i3_offset_1,k_i3_offset_2,k_t1_offset,k_t2_offset,
-c     &k_e_offset,k_x1_offset,k_x2_offset,l_i3_offset_1,l_i3_offset_2,
-c     &t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
-      call q3rexpt2(dbl_mb(k_den),d_i3_1,d_t1,d_t2,d_x1,d_x2,
+      call q3rexpt2(dbl_mb(k_left),d_i3_1,k_t1_local,d_t2,
+     &k_x1_local,d_x2,
      &k_i3_offset_1,k_t1_offset,k_t2_offset,k_x1_offset,k_x2_offset,
      &l_i3_offset_1,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
-      call cr_ccsd_t_E(dbl_mb(k_den0),d_i1_4,
-     1  d_t1,d_t2,k_i1_offset_4,k_t1_offset,k_t2_offset,
+      call cr_ccsd_t_E(dbl_mb(k_left),d_i1_4,
+     1  k_t1_local,d_t2,k_i1_offset_4,k_t1_offset,k_t2_offset,
      2  l_i1_offset_4,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
       else
-      call q3rexpt2(dbl_mb(k_den),d_i3_1,d_t1,d_t2,d_x1,d_x2,
+      call q3rexpt2(dbl_mb(k_left),d_i3_1,k_t1_local,d_t2,
+     &k_x1_local,d_x2,
      &k_i3_offset_1,k_t1_offset,k_t2_offset,k_x1_offset,k_x2_offset,
      &l_i3_offset_1,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
       end if
 c
-cccx      call cr_s_m3(dbl_mb(k_right3),d_v2,d_x2,k_v2_offset,k_x2_offset,
-cccx     &t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
-c
-c      call cr_eomccsd_t_N2(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,d_i2_3,
-c     &d_i2_4,d_i2_5,d_i2_6,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,
-c     &k_i2_offset_1,k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,
-c     &k_i2_offset_5,k_i2_offset_6,k_t1_offset,k_t2_offset,k_v2_offset,
-c     &k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,l_i2_offset_3,
-c     &l_i2_offset_4,l_i2_offset_5,l_i2_offset_6,t_h1b,t_h2b,t_h3b,t_p4b,
-c     &t_p5b,t_p6b,3)
-c
-      call creomsd_t_n2_mem(dbl_mb(k_right2),d_f1,d_i2_1,d_i2_2,
-     &d_i2_3,d_i2_4,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offset,k_i2_offset_1,
+      call creomsd_t_n2_mem(dbl_mb(k_right),d_f1,d_i2_1,d_i2_2,
+     &d_i2_3,d_i2_4,k_t1_local,d_t2,d_v2,
+     &k_x1_local,d_x2,k_f1_offset,k_i2_offset_1,
      &k_i2_offset_2,k_i2_offset_3,k_i2_offset_4,k_t1_offset,k_t2_offset,
      &k_v2_offset,k_x1_offset,k_x2_offset,l_i2_offset_1,l_i2_offset_2,
      &l_i2_offset_3,l_i2_offset_4,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
 c
 c
       if(lr0) then
-      call cr_ccsd_t_N(dbl_mb(k_right1),d_f1,d_i1_1,d_i1_2,
-     1  d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
+      call cr_ccsd_t_N(dbl_mb(k_right),d_f1,d_i1_1,d_i1_2,
+     1  k_t1_local,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
      2  k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
      3  l_i1_offset_2,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
-c      call cr_eomccsd_t_N1(dbl_mb(k_right1),d_f1,d_i1_1,d_i1_2,d_i1_3,
-c     &d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
-c     &k_i1_offset_3,k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
-c     &l_i1_offset_2,l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
-c     &3)
       end if
 c ------------------
 c
@@ -693,26 +532,16 @@ c
       call ga_sync()
       call ga_get(g_energy,1,1,1,1,den2,1)
 c
-cccx      call ga_get(g_energy,1,1,1,1,den2,1)
       if (.not.ga_destroy(g_energy))
-     1  call errquit('ccsd_t: GA problem',1,GA_ERR)
-c      den1 = den1 + 
-c      den2 = den2 +
+     1  call errquit('creom_t: GA problem',1,GA_ERR)
        energy1 = num1/(dr0xx+d12xx+den1)
-cccx       energy2 = num2/(dr0xx+d12xx+den2)
-c *** debug *********************************
-c       write(6,*)'## from cr-eom ----- num2',num2
-c       write(6,*)'## from cr-eom ----- den2',dr0xx+d12xx+den2
-c      write(6,*)'from cr_eomsd_t - ALL DONE'
-c      write(6,*)'dr0xx',dr0xx
-c      write(6,*)'d12xx',d12xx
-c      write(6,*)'den1',den1
-c      write(6,*)'num1--- ',num1
-c      write(6,*)'den1--- ',den1
-c      write(6,*)'den --- ',dr0xx+d12xx+den1
       call util_flush(6)
-c *******************************************
-c format statements
+c - T1/X1 LOCALIZATION ------
+         if(.not.MA_POP_STACK(l_x1_local))
+     &      call errquit('l_x1_local',4,MA_ERR)
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',4,MA_ERR)
+c ---------------------------
  1000    format('corresponding excitation energy = 0')
 c
       return
