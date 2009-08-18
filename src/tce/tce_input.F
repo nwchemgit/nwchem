@@ -907,9 +907,19 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
-      else if (inp_compare(.false.,test,'mp4(sdq)')) then
+      else if (inp_compare(.false.,test,'mp4sdq')) then
         if (module.eq.'tce') then
         model='mbpt4sdq'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1       INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'mp4sdq(t)')) then
+        if (module.eq.'tce') then
+        model='mbpt4sdq_t'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
