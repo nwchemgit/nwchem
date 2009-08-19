@@ -5835,7 +5835,7 @@ c -------------------
           cpu = - util_cpusec()
           wall = - util_wallsec()
           call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                d_v2,k_v2_offset,pt3_1,pt3_2)
+     1                d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
           cpu = cpu + util_cpusec()
           wall = wall + util_wallsec()
           if (nodezero) then
@@ -6475,7 +6475,7 @@ c -------------
 c
             if (model.eq.'mbpt4sdq_t') then
               call ccsd_t(d_u1,k_u1_offset,d_u2,k_u2_offset,
-     1                    d_v2,k_v2_offset,pt3_1,pt3_2)
+     1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
             endif
 c
             if (nodezero) then
@@ -6844,10 +6844,10 @@ c - T1/X1 LOCALIZATION ----------
 c    opening l_t1_local and l_x1_local
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
-     1      call errquit('t1_local',1,MA_ERR)
+     1      call errquit('tce_energy: t1_local',1,MA_ERR)
         if (.not.MA_PUSH_GET(mt_dbl,size_x1,'x1_local',
      1      l_x1_local,k_x1_local))
-     1      call errquit('x1_local',1,MA_ERR)
+     1      call errquit('tce_energy: x1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
         call ma_zero(dbl_mb(k_x1_local),size_x1)
 c    copy d_t1 ==> l_t1_local
@@ -6915,9 +6915,9 @@ c - T1/X1 LOCALIZATION --
 c - T1/X1 LOCALIZATION --
        if(ccsd_var.ne.'cc2') then
          if(.not.MA_POP_STACK(l_x1_local))
-     &      call errquit('l_x1_local',4,MA_ERR)
+     &      call errquit('tce_energy: l_x1_local',4,MA_ERR)
          if(.not.MA_POP_STACK(l_t1_local))
-     &      call errquit('l_t1_local',4,MA_ERR)
+     &      call errquit('tce_energy: l_t1_local',4,MA_ERR)
        end if
 c -----------------------
            if(ccsd_var.eq.'lr-ccsd') then
