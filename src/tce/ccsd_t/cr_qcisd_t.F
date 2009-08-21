@@ -300,7 +300,7 @@ c
      1       k_right_3)) call errquit('cr_qcisd_t_U: MA error',5,MA_ERR)
             if (.not.MA_PUSH_GET(mt_dbl,size,'denominator',l_denom,
      1       k_denom)) call errquit('cr_qcisd_t_U: MA error',6,MA_ERR)
-            do i = 1, size
+            do i = 1, size ! replace with ma_zero(dbl_mb(k_a),size_a)
              dbl_mb(k_singles+i-1) = 0.0d0
              dbl_mb(k_doubles+i-1) = 0.0d0
              dbl_mb(k_right_1+i-1) = 0.0d0
