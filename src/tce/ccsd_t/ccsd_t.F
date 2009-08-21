@@ -49,7 +49,7 @@ c - T1/X1 LOCALIZATION ----------
 c    opening l_t1_local and l_x1_local
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
-     1      call errquit('t1_local',1,MA_ERR)
+     1      call errquit('ccsd_t: t1_local size=',size_t1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
 c    copy d_t1 ==> l_t1_local
         call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
@@ -188,7 +188,7 @@ c
       energy2 = energy(2)
 c - T1/X1 LOCALIZATION ------
          if(.not.MA_POP_STACK(l_t1_local))
-     &      call errquit('l_t1_local',4,MA_ERR)
+     &      call errquit('ccsd_t: l_t1_local',4,MA_ERR)
 c ---------------------------
       return
       end
@@ -253,7 +253,7 @@ c - T1/X1 LOCALIZATION ----------
 c    opening l_t1_local and l_x1_local
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
-     1      call errquit('t1_local',1,MA_ERR)
+     1      call errquit('ccsd_t: t1_local',11,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
 c    copy d_t1 ==> l_t1_local
         call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
@@ -437,7 +437,7 @@ ccx            enddo
       call ga_dgop(mt_dbl,energy,1,'+')
 c - T1/X1 LOCALIZATION ------
          if(.not.MA_POP_STACK(l_t1_local))
-     &      call errquit('l_t1_local',4,MA_ERR)
+     &      call errquit('ccsd_t: l_t1_local',14,MA_ERR)
 c ---------------------------
       return
       end
@@ -499,7 +499,7 @@ c - T1/X1 LOCALIZATION ----------
 c    opening l_t1_local and l_x1_local
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
-     1      call errquit('t1_local',1,MA_ERR)
+     1      call errquit('ccsd_t: t1_local',21,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
 c    copy d_t1 ==> l_t1_local
         call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
@@ -615,7 +615,7 @@ c
       call ga_dgop(mt_dbl,energy,1,'+')
 c - T1/X1 LOCALIZATION ------
          if(.not.MA_POP_STACK(l_t1_local))
-     &      call errquit('l_t1_local',4,MA_ERR)
+     &      call errquit('ccsd_t: l_t1_local',24,MA_ERR)
 c ---------------------------
       return
 100   format(1x,a60,3i18)
