@@ -42,7 +42,6 @@ c
       if(.not.lexist) filrst=filnam(1:ibl)//'.rst'
       endif
       endif
-      print*,'FILRST=',filrst(1:index(filrst,' ')-1)
       endif
 c
 c     Open debug file if requested

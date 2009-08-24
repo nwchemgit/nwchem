@@ -1256,6 +1256,7 @@ c
       do 1 iequi=kequi+1,mequi
 c
       mdstep=mdstep+1
+      stime=stime+tstep
       lpmfc=npmf.gt.1.and.iequi.gt.npmf
       call timer_start(201)
       call md_newton()
@@ -1264,7 +1265,6 @@ c
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsmp))
       call md_server
-      stime=stime+tstep
       call timer_stop(201)
     1 continue
       lpmfc=.true.
@@ -1279,6 +1279,7 @@ c
       do 2 idacq=kdacq+1,mdacq
 c
       mdstep=mdstep+1
+      stime=stime+tstep
 c
       lxw=frequency(mdstep,nfcoor)
       lvw=frequency(mdstep,nfvelo)
@@ -1329,7 +1330,6 @@ c
       if(me.eq.0) call md_fopen(.true.)
       endif
 c
-      stime=stime+tstep
 c
       if(lstop.and.(.not.lqmmm)) then
       if(me.eq.0) write(*,1000) tleft,tneed
