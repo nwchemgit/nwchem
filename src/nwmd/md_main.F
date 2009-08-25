@@ -592,31 +592,28 @@ c
      + dbl_mb(i_vs),nsaloc)
 c
       if(isdit.lt.msdit.and.dxmax.gt.dxsdmx) then
-        dx=half*dx
-        if(ga_nodeid().eq.0) then
-           write(*,*) "reducing step",dx,dxmax,dxsdmx
-        end if 
-        da=half*da
-        call timer_stop(201)
-        if(dx.gt.dxsdmx) goto 1
+      dx=half*dx
+      da=half*da
+      call timer_stop(201)
+      if(dx.gt.dxsdmx) goto 1
       else
 c
 c       this insures the global restoration of coordinates
 c       so that the right restart file written out
 c       --------------------------------------------------
-        call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     +   dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
-     +   dbl_mb(i_xsm),dbl_mb(i_xsmp))
-        call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     +   dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
+      call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
-        call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     +   dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     +   epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     +   npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
+      call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
-        endif
-        endif
+      endif
+      endif
 c
       edif=ecrit-epsd
       epsd=ecrit
