@@ -31,9 +31,12 @@
 	dft_scf.o \
 	dft_fockbld.o \
 	dft_scfutil.o \
-	dft_symbr.o dft_pstat.o\
-        fukui.o dft_canorg.o dft_diagn.o 
-
+	dft_symbr.o \
+	dft_pstat.o\
+        fukui.o \
+	dft_canorg.o \
+	dft_diagn.o \
+	dft_dump_info.o
 
      LIBRARY = libnwdft.a
 
@@ -47,5 +50,3 @@ HEADERS = dftps.fh dft_fdist.fh
 
 include ../../config/makefile.h
 include ../../config/makelib.h
-
-
