@@ -1,7 +1,8 @@
 #     $Id: GNUmakefile,v 2.18 2008-01-26 00:46:58 d3p307 Exp $
 
 include ../config/makefile.h
- OBJ = 		ccden_driver.o \
+
+ OBJ = 	ccden_driver.o \
 		ccden_interm2.o \
 		ccden_1pdm.o \
 		ccsd_driver.o \
@@ -18,6 +19,7 @@ include ../config/makefile.h
 		ccsd_pampt2.o \
 		ccsd_pampt3.o \
 		ccsd_trpdrv.o \
+		ccsd_trpdrv_nb.o \
 		moints_trp.o \
 		ccsd.o \
 		ccsd_aux.o \
@@ -36,14 +38,14 @@ include ../config/makefile.h
 		rddcom.o \
 		ccsd_input.o \
 		ccsd_graddrv.o \
-                ccsd_zvecs.o \
+        ccsd_zvecs.o \
 		ccsd_pzamp.o \
 		ccsd_zsig1.o \
 		ccsd_zsig2.o \
 		ccsd_z2pm.o \
 		ccsd_tzinta.o \
 		ccsd_tzintb.o \
-                ccsd_mem.o ccsd_pstat.o
+        ccsd_mem.o ccsd_pstat.o
 
 ifdef XLF10
   OBJ += ccsd_aosig.o
@@ -51,37 +53,35 @@ else
   OBJ_OPTIMIZE += ccsd_aosig.o
 endif
 
-    LIBRARY = libccsd.a
+ USES_BLAS = \
+     ccsd_itm.F \
+     ccsd_t2pm.F \
+     ccsd_fsig1.F \
+     ccsd_fsig2.F \
+     ccsd_iterdrv2.F \
+     ccsd_pampt2.F \
+     ccsd_pampt3.F \
+     ccsd_pdiis.F \
+     ccsd_sortmo.F \
+     ccsd_trpdrv.F \
+     ccsd_trpdrv_nb.F \
+     moints_trp.F \
+     ccsd_zvecs.F \
+     ccsd_z2pm.F \
+     ccsd_tzinta.F \
+     ccsd_tzintb.F \
+     ccsd_zsig1.F \
+     ccsd_zsig2.F \
+     ccden_interm2.F \
+     ccden_1pdm.F \
+     geaxpy.f \
+     ccsd_mktau_ga.F \
+     ccden_2pdmb.F \
+     moints_trp.F
 
-  USES_BLAS = \
-	      ccsd_itm.F \
-	      ccsd_t2pm.F \
-	      ccsd_fsig1.F \
-	      ccsd_fsig2.F \
-	      ccsd_iterdrv2.F \
-	      ccsd_pampt2.F \
-	      ccsd_pampt3.F \
-	      ccsd_pdiis.F \
-	      ccsd_sortmo.F \
-	      ccsd_trpdrv.F \
-	      moints_trp.F \
-	      ccsd_zvecs.F \
-	      ccsd_z2pm.F \
-	      ccsd_tzinta.F \
-	      ccsd_tzintb.F \
-	      ccsd_zsig1.F \
-	      ccsd_zsig2.F \
-	      ccden_interm2.F \
-	      ccden_1pdm.F \
-	      geaxpy.f \
-		ccsd_mktau_ga.F \
-		ccden_2pdmb.F \
-		moints_trp.F
+ #LIB_DEFINES = 
+ LIB_DEFINES = -DDEBUG_PRINT
 
-LIB_DEFINES =
-
-#
-#
-
+ LIBRARY = libccsd.a
 
 include ../config/makelib.h
