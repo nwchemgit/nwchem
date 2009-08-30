@@ -568,13 +568,6 @@ c
  9120 format(1x,A)
  9121 format(/,1x,A)
  9122 format(1x,A,i4)
- 9400 format(/,1x,A,' iterations',/,
-     1  1x,'---------------------------------------------',/
-     2  1x,'Iter          Residuum            Cpu    Wall',/
-     3  1x,'---------------------------------------------')
- 9410 format(
-     1  1x,'---------------------------------------------',/
-     2  1x,'Iterations converged')
  9420 format(1x,i4,f25.13,2f8.1)
  9431 format(/,1x,'Frequency = ',f15.7,' / au')
  9434 format(/,1x,A,' polarizability / au ',/
@@ -598,17 +591,6 @@ c
      6  1x,'Anisotropic = ',8x,1f15.7,3x,15x,'|',15x,1f15.7,/
      3  1x,'-----------------------------------------------'
      3    ,'--------|-----------------------------------------------')
- 9435 format(/,1x,A,' C6 coefficients ',/
-     1  1x,'--------------------------------',/
-     2  1x,'C6(XX)  ',f15.7,/
-     3  1x,'C6(YY)  ',f15.7,/
-     4  1x,'C6(ZZ)  ',f15.7,/
-     5  1x,'C6(XY)  ',f15.7,/
-     6  1x,'C6(XZ)  ',f15.7,/
-     7  1x,'C6(YZ)  ',f15.7,/
-     8  1x,'C6(AVG) ',f15.7,/
-     9  1x,'C6(ANI) ',f15.7,/
-     1  1x,'--------------------------------')
  9911 format(/,1x,'Warning: you have not solved ',
      1            'the response equations for all axes.  ',
      2            'Please analyze the results carefully as ',
@@ -886,5 +868,132 @@ c
  9506 format(1x,'Optical Rectification (OR)')
  9507 format(1x,'Electro-Optic Pockels Effect (EOPE)')
  9508 format(1x,'beta(',f1.5,',',f1.5,',',f1.5,')')
+      return
+      end
+
+
+
+      subroutine ccsd_lr_d1_build(omega,d_rho1,d_a0,d_f1,d_v2,d_d1,
+     1           d_t1,d_t2,d_y1,d_y2,d_tr1,d_tr2,d_yr1,d_yr2,
+     2           k_rho1_offset,
+     3           k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
+     4           k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset,
+     5           k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_prop.fh"
+c
+      integer i,j,dummy,axis,axisA
+      integer irrep_g
+      parameter (irrep_g=0)
+      integer d_rho1(3)
+      integer d_a0,d_f1,d_v2,d_d1(3)
+      integer d_t1,d_t2,d_y1,d_y2
+      integer k_rho1_offset(3)
+      integer k_a0_offset
+      integer k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_t1_offset,k_t2_offset,k_y1_offset,k_y2_offset
+      integer d_tr1(9),d_tr2(9),d_yr1(6),d_yr2(6)
+      integer k_tr1_offset(3),k_tr2_offset(3)
+      integer k_yr1_offset(3),k_yr2_offset(3)
+      integer aeiginfo
+      integer sym_abelian_axis
+      external sym_abelian_axis
+      double precision omega
+      double precision cpu, wall
+      logical nodezero
+      character*4 irrepname
+      character*3 axisname(3)  ! Axis
+      data axisname/'X','Y','Z'/
+      character*255 filename
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+#ifdef DEBUG_PRINT
+      if (nodezero) write(6,*) 'top of ccsd_lr_d1_build'
+      call util_flush(6)
+#endif
+c
+c CCSD-QR evaluation step
+c
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
+      do axisA = 1, 3
+        irrep_a=sym_abelian_axis(geom,axisA)
+        if (respaxis(axisA)) then
+c
+#ifdef DEBUG_PRINT
+            if (nodezero) then
+              write(LuOut,*) "axisA = ",axisA
+              call util_flush(6)
+            endif
+#endif
+c
+c           irrep_t=irrep_g
+            irrep_y=irrep_g
+            irrep_tr=irrep_a
+            irrep_yr=irrep_a
+c
+c           irrep_tr symmetry
+c
+            call ccsd_lr_d1_hh(d_rho1(axisA),
+     1           d_t1,d_tr1(axisA),d_tr2(axisA),
+     2           d_y1,d_y2,d_yr1(axisA),
+     3           k_rho1_offset(axisA),
+     4           k_t1_offset,k_tr1_offset(axisA),k_tr2_offset(axisA),
+     5           k_y1_offset,k_y2_offset,k_yr1_offset(axisA))
+c
+c           irrep_tr symmetry
+c
+            call ccsd_lr_d1_hp(d_rho1(axisA),
+     1           d_t1,d_t2,d_tr1(axisA),d_tr2(axisA),
+     2           d_y1,d_y2,d_yr1(axisA),d_yr2(axisA),
+     3           k_rho1_offset(axisA),
+     4           k_t1_offset,k_t2_offset,
+     5           k_tr1_offset(axisA),k_tr2_offset(axisA),
+     6           k_y1_offset,k_y2_offset,
+     7           k_yr1_offset(axisA),k_yr2_offset(axisA))
+c
+c           irrep_tr symmetry
+c
+            call ccsd_lr_d1_pp(d_rho1(axisA),
+     1           d_t1,d_t2,d_tr1(axisA),d_tr2(axisA),
+     2           d_y1,d_y2,d_yr1(axisA),d_yr2(axisA),
+     3           k_rho1_offset(axisA),
+     4           k_t1_offset,k_t2_offset,
+     5           k_tr1_offset(axisA),k_tr2_offset(axisA),
+     6           k_y1_offset,k_y2_offset,
+     7           k_yr1_offset(axisA),k_yr2_offset(axisA))
+c
+c           irrep_yr symmetry
+c
+            call ccsd_lr_d1_ph(d_rho1(axisA),
+     1           d_t1,d_yr1(axisA),
+     2           k_rho1_offset(axisA),
+     3           k_t1_offset,k_yr1_offset(axisA))
+c
+        endif ! respaxis(axisA)
+      enddo ! axisA loop
+      cpu=cpu+util_cpusec()
+      wall=wall+util_wallsec()
+c
+      if (nodezero) write(LuOut,9020) cpu, wall
+      call util_flush(LuOut)
+c
+ 9020 format(1x,'Cpu & wall time / sec',2f15.1)
+ 9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
+ 9100 format(1x,i4,2f18.13,2f8.1)
+ 9120 format(1x,A)
+ 9121 format(/,1x,A)
+ 9122 format(1x,A,i4)
+ 9420 format(1x,i4,f25.13,2f8.1)
+ 9431 format(/,1x,'Frequency = ',f15.7,' / au')
+ 9440 format(1x,A3,' axis ( ',A4,'symmetry)')
       return
       end
