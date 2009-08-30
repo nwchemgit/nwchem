@@ -1,3 +1,6 @@
+#ifndef __LINE__
+#define __LINE__ 0
+#endif
       subroutine tce_input(rtdb)
 c
 c $Id: tce_input.F,v 1.37 2009/03/05 23:48:58 d3p975 Exp $
@@ -1247,6 +1250,11 @@ c
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
+c     PROPERTY INPUT SUB-BLOCK
+c
+      else if (inp_compare(.false.,test,'tceprop')) then
+        call tce_prop_input(rtdb)
+c
 c     TILESIZE (the maximum tile size)
 c
       else if (inp_compare(.false.,test,'tilesize')) then
@@ -1346,3 +1354,317 @@ c ------
 c
  20   return
       end
+c
+c     This is the TCE property input block ("tceprop")
+c
+      subroutine tce_prop_input(rtdb)
+c
+      implicit none
+#include "inp.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+      integer rtdb
+      integer n_a,k_a,l_a
+      integer n_b,k_b,l_b
+      integer n_c,k_c,l_c
+      integer n_i,k_i,l_i
+      integer i,icount
+      character*10 module
+      character*20 test
+      character*20 beta_opt
+      character*20 gamm_opt
+      character*20 disp_opt
+      character*20 beta_type
+      character*20 gamm_type
+      character*20 disp_type
+      logical lineresp ! T(1) response equations - real frequency
+      logical leftresp ! L(1) response equations 
+      logical quadresp ! T(2) response equations
+      logical imagresp ! T(1) response equatiosn - imaginary frequency
+      logical status
+c
+      lineresp = .false.
+      leftresp = .false.
+      quadresp = .false.
+      imagresp = .false.
+c
+c -------------------------------------
+c What input block are we dealing with?
+c -------------------------------------
+c
+      if (.not.rtdb_cget(rtdb,'tce:module',1,module)) then
+        call errquit('tce_prop_input: line ',__LINE__,RTDB_ERR)
+      endif
+c
+c ----------
+c Read input
+c ----------
+c
+ 100  if (.not. inp_read()) then
+        call errquit('tce_prop_input: line ',__LINE__,RTDB_ERR)
+      endif
+      if (.not. inp_a(test)) then
+        call errquit('tce_prop_input: line ',__LINE__,RTDB_ERR)
+      endif
+c
+c     POLARIZABILITY
+c
+      if (inp_compare(.false.,test,'polarizability').or.
+     1    inp_compare(.false.,test,'polar').or.
+     2    inp_compare(.false.,test,'alpha')) then
+        lineresp = .true.
+c
+c     HYPERPOLARIZABILITY
+c
+      elseif (inp_compare(.false.,test,'hyperpolarizability').or.
+     1    inp_compare(.false.,test,'hyperpolar').or.
+     2    inp_compare(.false.,test,'beta')) then
+        lineresp = .true.
+        leftresp = .true.
+        if (.not.inp_a(beta_opt)) then
+          beta_type = 'static'
+        else
+          if (inp_compare(.false.,beta_opt,'shg')) then
+            beta_type = 'SHG'
+          elseif (inp_compare(.false.,beta_opt,'or')) then
+            beta_type = 'OR'
+          elseif (inp_compare(.false.,beta_opt,'eope')) then
+            beta_type = 'EOPE'
+          else
+            call errquit('tce_prop_input: invalid option for beta',
+     1                   __LINE__,RTDB_ERR)
+          endif
+        endif
+c
+c     SECOND HYPERPOLARIZABILITY
+c
+      elseif (inp_compare(.false.,test,'cubicpolarizability').or.
+     1        inp_compare(.false.,test,'cubicpolar').or.
+     2        inp_compare(.false.,test,'gamma')) then
+        lineresp = .true.
+        leftresp = .true.
+        quadresp = .true.
+        if (.not.inp_a(gamm_opt)) then
+          gamm_type = 'static'
+        else
+          if (inp_compare(.false.,gamm_opt,'thg')) then
+            gamm_type = 'THG'
+          elseif (inp_compare(.false.,gamm_opt,'efish')) then
+            gamm_type = 'EFISH'
+          elseif (inp_compare(.false.,gamm_opt,'dfwm')) then
+            gamm_type = 'DFWM'
+          elseif (inp_compare(.false.,gamm_opt,'oke')) then
+            gamm_type = 'OKE'
+          elseif (inp_compare(.false.,gamm_opt,'cars')) then
+            gamm_type = 'CARS'
+          else
+            call errquit('tce_prop_input: invalid option for gamma',
+     1                   __LINE__,RTDB_ERR)
+          endif
+        endif
+c
+c     DISPERSION
+c
+      elseif (inp_compare(.false.,test,'dispersion').or.
+     1        inp_compare(.false.,test,'disp').or.
+     2        inp_compare(.false.,test,'c6')) then
+        imagresp = .true.
+        if (.not.inp_a(disp_opt)) then
+          disp_type = 'derevianko'
+        else
+          if (inp_compare(.false.,disp_opt,'custom')) then
+            disp_type = 'custom'
+          elseif (inp_compare(.false.,disp_opt,'gauss-legendre')) then
+            disp_type = 'gauss-leg'
+          elseif (inp_compare(.false.,disp_opt,'gauss-chebyshev')) then
+            disp_type = 'gauss-cheb'
+          else
+            call errquit('tce_prop_input: invalid option for disp',
+     1                   __LINE__,RTDB_ERR)
+          endif
+        endif
+c
+c     AFREQ (omega for polarizability)
+c
+      elseif (inp_compare(.false.,test,'afreq')) then
+        lineresp = .true.
+        if (inp_i(n_a)) then
+          if (.not.ma_push_get(mt_dbl,n_a,'afreq',l_a,
+     1                         k_a)) then
+             call errquit('tce_prop_input: ma_push_get',__LINE__,MA_ERR)
+          endif
+          icount = 0
+          do i = 0, n_a-1
+            status = inp_f(dbl_mb(k_a+i))
+            if (status) then
+              icount = icount+1
+            else
+              write(6,'(a,a,i4,a)')
+     1           'Response property input found ',
+     2           'fewer frequencies than expected, only ',icount,
+     3           'will be used'
+              n_a = icount
+              if (icount.eq.0) then
+                if (.not.ma_pop_stack(l_a)) then
+                  call errquit('tce_prop_input: ma_pop_stack',__LINE__,
+     1                         MA_ERR)
+                endif
+              endif
+              goto 300
+            endif
+          enddo
+        else
+          n_a = 1
+          if (.not.ma_push_get(mt_dbl,n_a,'afreq',l_a,k_a)) then
+             call errquit('tce_prop_input: ma_push_get',__LINE__,MA_ERR)
+          endif
+          dbl_mb(k_a) = 0.0d0
+        endif
+ 300    continue
+c
+c     BFREQ (omega for first hyperpolarizability)
+c
+      elseif (inp_compare(.false.,test,'bfreq')) then
+        lineresp = .true.
+        leftresp = .true.
+        if (inp_i(n_b)) then
+          if (.not.ma_push_get(mt_dbl,n_b,'bfreq',l_b,
+     1                         k_b)) then
+             call errquit('tce_prop_input: ma_push_get',__LINE__,MA_ERR)
+          endif
+          icount = 0
+          do i = 0, n_b-1
+            status = inp_f(dbl_mb(k_b+i))
+            if (status) then
+              icount = icount+1
+            else
+              write(6,'(a,a,i4,a)')
+     1           'Response property input found ',
+     2           'fewer frequencies than expected, only ',icount,
+     3           'will be used'
+              n_b = icount
+              if (icount.eq.0) then
+                if (.not.ma_pop_stack(l_b)) then
+                  call errquit('tce_prop_input: ma_pop_stack',__LINE__,
+     1                         MA_ERR)
+                endif
+              endif
+              goto 400
+            endif
+          enddo
+        else
+          n_b = 1
+          if (.not.ma_push_get(mt_dbl,n_b,'bfreq',l_b,k_b)) then
+             call errquit('tce_prop_input: ma_push_get',__LINE__,MA_ERR)
+          endif
+          dbl_mb(k_b) = 0.0d0
+        endif
+ 400    continue
+c
+c     CFREQ (omega for second hyperpolarizability)
+c
+      elseif (inp_compare(.false.,test,'cfreq')) then
+        lineresp = .true.
+        leftresp = .true.
+        quadresp = .true.
+        if (inp_i(n_c)) then
+          if (.not.ma_push_get(mt_dbl,n_c,'cfreq',l_c,
+     1                         k_c)) then
+             call errquit('tce_prop_input: ma_push_get',__LINE__,MA_ERR)
+          endif
+          icount = 0
+          do i = 0, n_b-1
+            status = inp_f(dbl_mb(k_c+i))
+            if (status) then
+              icount = icount+1
+            else
+              write(6,'(a,a,i4,a)')
+     1           'Response property input found ',
+     2           'fewer frequencies than expected, only ',icount,
+     3           'will be used'
+              n_c = icount
+              if (icount.eq.0) then
+                if (.not.ma_pop_stack(l_c)) then
+                  call errquit('tce_prop_input: ma_pop_stack',__LINE__,
+     1                         MA_ERR)
+                endif
+              endif
+              goto 500
+            endif
+          enddo
+        else
+          n_c = 1
+          if (.not.ma_push_get(mt_dbl,n_c,'cfreq',l_c,k_c)) then
+             call errquit('tce_prop_input: ma_push_get',__LINE__,MA_ERR)
+          endif
+          dbl_mb(k_c) = 0.0d0
+        endif
+ 500    continue
+c
+c     IFREQ (omega for imaginary polarizability)
+c
+      elseif (inp_compare(.false.,test,'ifreq')) then
+        imagresp = .true.
+        if (inp_i(n_i)) then
+          if (.not.ma_push_get(mt_dbl,n_i,'ifreq',l_i,
+     1                         k_i)) then
+             call errquit('tce_prop_input: ma_push_get',__LINE__,MA_ERR)
+          endif
+          icount = 0
+          do i = 0, n_i-1
+            status = inp_f(dbl_mb(k_i+i))
+            if (status) then
+              icount = icount+1
+            else
+              write(6,'(a,a,i4,a)')
+     1           'Response property input found ',
+     2           'fewer frequencies than expected, only ',icount,
+     3           'will be used'
+              n_i = icount
+              if (icount.eq.0) then
+                if (.not.ma_pop_stack(l_c)) then
+                  call errquit('tce_prop_input: ma_pop_stack',__LINE__,
+     1                         MA_ERR)
+                endif
+              endif
+              goto 600
+            endif
+          enddo
+        else
+          n_i = 1
+          if (.not.ma_push_get(mt_dbl,n_i,'ifreq',l_i,k_i)) then
+             call errquit('tce_prop_input: ma_push_get',__LINE__,MA_ERR)
+          endif
+          dbl_mb(k_i) = 0.0d0
+        endif
+ 600    continue
+c
+c     END
+c
+      else if (inp_compare(.false.,test,'end')) then
+        goto 200
+      else
+        call errquit('tce_prop_input: unknown directive',0,INPUT_ERR)
+      endif
+      goto 100
+ 200  return
+c
+c -------------------
+c Push values to RTDB
+c -------------------
+c
+      if (.not.rtdb_put(rtdb,'tce:lineresp',mt_log,1,lineresp)) then
+        call errquit('tce_prop_input: rtdb_put',__LINE__,RTDB_ERR)
+      endif
+      if (.not.rtdb_put(rtdb,'tce:leftresp',mt_log,1,leftresp)) then
+        call errquit('tce_prop_input: rtdb_put',__LINE__,RTDB_ERR)
+      endif
+c
+c ------
+c Return
+c ------
+c
+      end
+
