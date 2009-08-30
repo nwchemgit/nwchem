@@ -914,7 +914,7 @@ c
       endif
       if ((perturbative.ne.'none').and.
      1    (model.ne.'ccsd').and.(model.ne.'ccsdt').and.
-     2    (model.ne.'qcisd'))
+     2    (model.ne.'qcisd').and.(model.ne.'lccsd'))
      3  call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
       cperturbative = 'none'
       if (model.eq.'eionly') then
