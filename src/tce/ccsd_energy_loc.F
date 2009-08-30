@@ -39,8 +39,8 @@ c
         wall=-util_wallsec()
         if (nodezero.and.(iter.eq.1)) write(LuOut,9050) "CCSD"
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
-     1      l_t1_local,k_t1_local))
-     1      call errquit('t1_local',1,MA_ERR)
+     1                       l_t1_local,k_t1_local))
+     1      call errquit('ccsd_energy_loc: t1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
         call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
         call tce_filename('e',filename)
@@ -66,7 +66,7 @@ c
         residual = max(r1,r2)
         call get_block(d_e,corr,1,0)
         if(.not.MA_POP_STACK(l_t1_local))
-     &     call errquit('l_t1_local',2,MA_ERR)
+     &     call errquit('ccsd_energy_loc: l_t1_local',2,MA_ERR)
         cpu=cpu+util_cpusec()
         wall=wall+util_wallsec()
         if (nodezero) then
