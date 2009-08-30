@@ -251,9 +251,9 @@ c      if (nodezero) write(LuOut,9000) 'Singles contributions'
       enddo
       call ga_sync()
  9000 format(/,1x,a)
- 9011 format(1x,i3,a4,'(',a5,') --- ',i3,a4,'(',a5,')',f20.8)
- 9012 format(1x,i3,',  ',a4,',',a5,',',i3,',  ',a4,',',a5,',',f20.8)
- 9013 format(1x,i3,',',i3,',',i3,',',i3,',',i3,',',i3,',',f20.8)
- 9014 format(1x,i3,', ',i3,', ',f20.8)
+ 9011 format(1x,i3,a4,'(',a5,') --- ',i3,a4,'(',a5,')',f20.14)
+ 9012 format(1x,i3,',  ',a4,',',a5,',',i3,',  ',a4,',',a5,',',f20.14)
+ 9013 format(1x,i3,',',i3,',',i3,',',i3,',',i3,',',i3,',',f20.14)
+ 9014 format(1x,i3,', ',i3,', ',f20.14)
       return
       end
