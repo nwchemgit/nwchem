@@ -1,0 +1,9 @@
+c
+c $Id: dia_params.fh,v 1.1 2006-12-10 01:03:22 d3j191 Exp $
+c
+      real*8 zero,half,one,two,three
+      parameter(zero=0.0d0)
+      parameter(half=5.0d-1)
+      parameter(one=1.0d0)
+      parameter(two=2.0d0)
+      parameter(three=3.0d0)

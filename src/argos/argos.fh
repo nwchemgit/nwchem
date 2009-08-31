@@ -1,0 +1,233 @@
+c
+c $Id: md_common.fh,v 1.88 2008-07-03 18:05:48 d3j191 Exp $
+c
+c     parameters
+c
+      real*8 tiny,small,zero,pthree,pfour,half,one,two,three
+      parameter(tiny=1.0d-20)
+      parameter(small=1.0d-9)
+      parameter(zero=0.0d0)
+      parameter(one=1.0d0)
+      parameter(pthree=3.0d-1)
+      parameter(pfour=4.0d-1)
+      parameter(half=5.0d-1)
+      parameter(two=2.0d0)
+      parameter(three=3.0d0)
+c
+c     fixed dimensions and pointers
+c
+      integer mip2,miw2,mis2,mpe,mtimes
+      parameter(mip2=7)
+      parameter(miw2=5)
+      parameter(mis2=15)
+      parameter(mpe=13)
+      parameter(mtimes=250)
+      integer lwgmn,lwbox,lwnod,lwdyn
+      parameter(lwgmn=1)
+      parameter(lwbox=2)
+      parameter(lwnod=3)
+      parameter(lwdyn=4)
+      integer lsgan,lsbox,lsnod,lsatt,lsmol,lssgm,lsgrp
+      integer lspgr,lsdyn,lsfrc,lssss,lsct1,lsct2,lsct3,lshop
+      parameter(lsgan=1)
+      parameter(lsbox=2)
+      parameter(lsnod=3)
+      parameter(lsatt=4)
+      parameter(lsmol=5)
+      parameter(lssgm=6)
+      parameter(lsgrp=7)
+      parameter(lspgr=8)
+      parameter(lsdyn=9)
+      parameter(lsfrc=10)
+      parameter(lssss=11)
+      parameter(lsct1=12)
+      parameter(lsct2=13)
+      parameter(lsct3=14)
+      parameter(lshop=15)
+      integer mperma
+      integer mdynam,mrestr,mfixed,mfixcm
+      integer ldynam,lrestr,lfixed,lfixcm
+      parameter(mperma=3)
+      parameter(mdynam=12)
+      parameter(mrestr=12)
+      parameter(mfixed=12)
+      parameter(mfixcm=12)
+      parameter(ldynam=0)
+      parameter(lrestr=4)
+      parameter(lfixed=8)
+      parameter(lfixcm=12)
+      integer lquant,lqlink,lqzone
+      parameter(lquant=16)
+      parameter(lqlink=32)
+      parameter(lqzone=64)
+c
+c     mew : process id global
+c     npw : number of processes global
+c     meg : process group id
+c     npg : number of process groups
+c     me  : process id in current group
+c     np  : number of processes in current group
+c
+c     irtdb : runtime database handle
+c
+      integer mew,npw,meg,npg,me,np,irtdb
+      integer npx,npy,npz,nbx,nby,nbz
+      common/argos_mpp/mew,npw,meg,npg,me,np,irtdb,
+     + npx,npy,npz,nbx,nby,nbz
+c
+c     argos_lfn : logical file numbers and filename lengths
+c     ---------------------------------------------------
+c
+      integer
+     + lfninp,lfnout,lfntop,lfnrst,lfntrj,lfnprp,lfngib,lfnsur,
+     + lfnrdf,lfnppd,lfndip,lfndef,lfnfld,lfnsfl,lfncmd,lfntri,
+     + lfnqrs,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,lfnpmf,
+     + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
+     + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
+     + lfntim,lfnsyn,lfnrdi,lfntst,lfnhop,
+     + ldarg,ldlog,lfsum,lfout6,iport
+      common/argos_lfn/
+     + lfninp,lfnout,lfntop,lfnrst,lfntrj,lfnprp,lfngib,lfnsur,
+     + lfnrdf,lfnppd,lfndip,lfndef,lfnfld,lfnsfl,lfncmd,lfntri,
+     + lfnqrs,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,lfnpmf,
+     + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
+     + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
+     + lfntim,lfnsyn,lfnrdi,lfntst,lfnhop,
+     + ldarg,ldlog,lfsum,lfout6,iport
+c
+c     socket stuff
+c     ------------
+c
+      integer*4 isocket
+      common/argos_sck/isocket
+c
+c     argos_nam : filenames
+c     -------------------
+c
+      character*80 root,filnam,fdarg,fdlog,fsum,server,projct
+      character*70 filday,filinp,filrst,filtop,filtrj,filprp,filfld,
+     + filgib,filppd,filhis,filhbo,filsfl,filcmd,filtri,
+     + filmro,filmri,filout,filmem,fildef,filpmf,filhop,
+     + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
+     + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
+     + rfile
+      integer nam_ptr
+      common/argos_nam/
+     + root,filnam,filday,filinp,filrst,filtop,filtrj,filprp,filfld,
+     + filgib,filppd,filhis,filhbo,filsfl,filcmd,filtri,
+     + filmro,filmri,filout,filmem,fildef,filpmf,filhop,
+     + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
+     + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
+     + rfile,
+     + fdarg,fdlog,fsum,server,projct,nam_ptr
+c
+      character*80 tittop(3),titrst(3),titinp(3)
+      character*10 dattop,datrst,datinp,timtop,timrst,timinp,today,now
+      common/argos_tit/tittop,titrst,titinp,
+     + dattop,datrst,datinp,timtop,timrst,timinp,today,now
+c
+      real*8 ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,fdacq,
+     + weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,dxmsd,dxsdmx,
+     + dx0cg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,prsext,prsrlx,
+     + compr,tmpext,tmprlx,tmsrlx,tgauss,dielec,field,factld,sil,
+     + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0(6),shift1(6),
+     + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
+     + xfvect(3),xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg,
+     + fcoll,tmpext1,tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop,thop
+      integer nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
+     + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
+     + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
+     + macfl,ixcl,iapprx,krun,mrun,mropt,ldacq,mdopt,msplit,mintyp,nem,
+     + nemcrt,nfqrs,msdit,mcgit,ncgcy,mshitw,mshits,ifss,nbias,
+     + nfoutp,nfstat,nfrest,nffree,nfcoor,nfscoo,nfprop,nfvelo,
+     + nfsvel,nfpold,nrwrec,nfindu,nfsind,nfcntr,nfslow,nfshkw,
+     + nfforc,nfsfor,npstat,linkatm,nobq,impfr,impto,npforc,nfhop,
+     + nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,nfsync,ngl,ngr,ngc,
+     + ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,lngdis,nfacfa,
+     + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,iprop,
+     + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,nftri,
+     + iwarn,irlow,idebug,icntrl,iumbr,igmass,lowmcr,noone,nwarn,nform,
+     + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,nfesp,
+     + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
+     + ngx,ngy,ngz,ipme,ireset,loadb,nffet,keepr,nfanal,nodpme,
+     + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
+     + nfefld,icomm,latom,ihess,itload,nfdrss,nftime,itime,ifidi,iprpmf,
+     + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
+     + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,npmfi,icentr,
+     + irun,iequi,idacq,iguide,nopack,idscb(10),mbbreq,ioload,iprof,
+     + isload,ncoll,ipopt,ilambd,mlambd,includ,iradgy,idifco,ndums,
+     + ipbtyp,nfnewf,ibatch,icmopt,imembr,icrit,nbget,nprec,nfload,
+     + inp_ptr
+      common/argos_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
+     + fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,dxmsd,
+     + dxsdmx,dx0cg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,prsext,prsrlx,
+     + compr,tmpext,tmprlx,tmsrlx,tgauss,dielec,field,factld,sil,
+     + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0,shift1,
+     + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
+     + xfvect,xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg,
+     + fcoll,tmpext1,tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop,thop,
+     + nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
+     + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
+     + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
+     + macfl,ixcl,iapprx,krun,mrun,mropt,ldacq,mdopt,msplit,mintyp,nem,
+     + nemcrt,nfqrs,msdit,mcgit,ncgcy,mshitw,mshits,ifss,nbias,
+     + nfoutp,nfstat,nfrest,nffree,nfcoor,nfscoo,nfprop,nfvelo,
+     + nfsvel,nfpold,nrwrec,nfindu,nfsind,nfcntr,nfslow,nfshkw,
+     + nfforc,nfsfor,npstat,linkatm,nobq,impfr,impto,npforc,nfhop,
+     + nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,nfsync,ngl,ngr,ngc,
+     + ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,lngdis,nfacfa,
+     + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,iprop,
+     + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,nftri,
+     + iwarn,irlow,idebug,icntrl,iumbr,igmass,lowmcr,noone,nwarn,nform,
+     + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,nfesp,
+     + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
+     + ngx,ngy,ngz,ipme,ireset,loadb,nffet,keepr,nfanal,nodpme,
+     + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
+     + nfefld,icomm,latom,ihess,itload,nfdrss,nftime,itime,ifidi,iprpmf,
+     + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
+     + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,npmfi,icentr,
+     + irun,iequi,idacq,iguide,nopack,idscb,mbbreq,ioload,iprof,
+     + isload,ncoll,ipopt,ilambd,mlambd,includ,iradgy,idifco,ndums,
+     + ipbtyp,nfnewf,ibatch,icmopt,imembr,icrit,nbget,nprec,nfload,
+     + inp_ptr
+c
+      logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
+     + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp,
+     + lprpmf,lpme,lhop,lstop,lload
+      common/argos_log/lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
+     + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp,
+     + lprpmf,lpme,lhop,lstop,lload
+c
+      integer mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,msf,nsf,
+     + mseq,nseq,mst
+      common/argos_dim/mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,
+     + msf,nsf,mseq,nseq,mst
+c
+      real*8 temps,tempw,temp,pres,volume,epme(3),eww(mpe,2),eskin,
+     + zw(3,3,2),fmax,fnorm,dwr,costio,corrio,
+     + epot,epotw,epotsw,epots,ekin,etot,tleft,tneed,
+     + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd,wbox,uqmd,uqmmm
+      integer npolit
+      common/argos_pro/temps,tempw,temp,pres,volume,epme,eww,eskin,
+     + zw,fmax,fnorm,dwr,costio,corrio,
+     + epot,epotw,epotsw,epots,ekin,etot,tleft,tneed,
+     + vlat,vlati,box,rlambd,dlambd,wbox,uqmd,uqmmm,
+     + npolit
+c
+      integer i_esk,l_esk,i_ess,l_ess,i_esw,l_esw,i_rtos,l_rtos,
+     + i_iw,l_iw,i_is,l_is,i_xw,l_xw,i_xs,l_xs,i_fw,l_fw,i_fs,l_fs,
+     + i_iwz,l_iwz,i_isz,l_isz,i_xwm,l_xwm,i_xsm,l_xsm,i_zs,l_zs,
+     + i_vw,l_vw,i_vs,l_vs,i_vwt,l_vwt,i_vst,l_vst,i_yw,l_yw,i_ys,l_ys,
+     + i_pw,l_pw,i_ps,l_ps,i_pwp,l_pwp,i_psp,l_psp,i_gw,l_gw,i_gs,l_gs,
+     + i_xwcr,l_xwcr,i_xscr,l_xscr,i_dsr,l_dsr,l_gsm,i_gsm,l_esa,i_esa,
+     + i_fss,l_fss,i_xsmp,l_xsmp,i_lseq,l_lseq,i_tsm,l_tsm,i_fcm,l_fcm,
+     + i_mm,l_mm,i_fm,l_fm,i_wws,l_wws
+      common/argos_ptr/i_esk,l_esk,i_ess,l_ess,i_esw,l_esw,i_rtos,
+     + l_rtos,
+     + i_iw,l_iw,i_is,l_is,i_xw,l_xw,i_xs,l_xs,i_fw,l_fw,i_fs,l_fs,
+     + i_iwz,l_iwz,i_isz,l_isz,i_xwm,l_xwm,i_xsm,l_xsm,i_zs,l_zs,
+     + i_vw,l_vw,i_vs,l_vs,i_vwt,l_vwt,i_vst,l_vst,i_yw,l_yw,i_ys,l_ys,
+     + i_pw,l_pw,i_ps,l_ps,i_pwp,l_pwp,i_psp,l_psp,i_gw,l_gw,i_gs,l_gs,
+     + i_xwcr,l_xwcr,i_xscr,l_xscr,i_dsr,l_dsr,l_gsm,i_gsm,l_esa,i_esa,
+     + i_fss,l_fss,i_xsmp,l_xsmp,i_lseq,l_lseq,i_tsm,l_tsm,i_fcm,l_fcm,
+     + i_mm,l_mm,i_fm,l_fm,i_wws,l_wws

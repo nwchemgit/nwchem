@@ -1,0 +1,24 @@
+      logical function argos_prep_slvnum(islv,boxs,nwms,box,nwm)
+c
+c $Id: argos_prep_slvnum.F,v 1.3 1998-11-18 01:19:57 d3j191 Exp $
+c
+      implicit none
+c
+      integer islv,nwms,nwm
+      real*8 boxs(3),box(3)
+c
+      nwm=0
+      if(islv.eq.1) then
+      nwm=2*int(dble(nwms)*(box(1)*box(2)*box(3))/
+     + (boxs(1)*boxs(2)*boxs(3)))
+      elseif(islv.eq.2) then
+      nwm=int(dble(nwms)*0.5d0*(box(1)*box(2)*box(3))/
+     + (boxs(1)*boxs(2)*boxs(3)))
+      elseif(islv.eq.3) then
+      nwm=2*int(dble(nwms)*(box(1)*box(2)*box(3))/
+     + (boxs(1)*boxs(2)*boxs(3)))
+      endif
+c
+      argos_prep_slvnum=.true.
+      return
+      end

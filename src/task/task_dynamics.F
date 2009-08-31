@@ -26,8 +26,8 @@ c     .  task:walltime (real) - wall time to execute the task
 c
 c     Also returns status through the function value
 c
-      logical nwmd
-      external nwmd
+      logical argos,nwmd
+      external argos,nwmd
       logical task_smd_dynamics
       external task_smd_dynamics
       logical  md_driver
@@ -66,6 +66,8 @@ c
 c      else if(theory.eq.'leps') then
 c        status = task_freq(rtdb)
 c        status = mc_main(rtdb,leps_gradient,theory)
+      elseif(theory.eq.'argos') then
+        status=argos(rtdb)
       else
         status=nwmd(rtdb)
       end if

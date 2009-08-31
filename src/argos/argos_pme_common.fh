@@ -1,0 +1,40 @@
+c $Id: pme_common.fh,v 1.9 2004-03-26 23:40:28 d3j191 Exp $
+c
+      real*8 zero,small,half,one,two,four
+      parameter(zero=0.0d0)
+      parameter(small=1.0d-6)
+      parameter(half=5.0d-1)
+      parameter(one=1.0d0)
+      parameter(two=2.0d0)
+      parameter(four=4.0d0)
+c
+      integer me,np,nodpme,lslab(512),imfft
+      common/pme_nod/me,np,nodpme,lslab,imfft
+c
+      integer i_bmod,l_bmod,i_barr,l_barr
+      integer i_grd1,l_grd1,i_grd2,l_grd2,i_grd,l_grd
+      integer i_grdt,l_grdt,i_grdh,l_grdh
+      integer i_lnod,l_lnod,i_kfr,l_kfr,i_kto,l_kto
+      integer i_nodp,l_nodp,i_knod,l_knod,i_lsld,l_lsld
+      integer i_slmax,l_slmax
+      integer i_map1,l_map1,i_map2,l_map2,i_slab,l_slab
+      integer ga_flg
+      common/pme_ptr/i_bmod,l_bmod,i_barr,l_barr,
+     + i_grd1,l_grd1,i_grd2,l_grd2,i_grd,l_grd,
+     + i_grdt,l_grdt,i_grdh,l_grdh,
+     + i_lnod,l_lnod,i_kfr,l_kfr,i_kto,l_kto,
+     + i_nodp,l_nodp,i_knod,l_knod,i_lsld,l_lsld,
+     + i_slmax,l_slmax,
+     + i_map1,l_map1,i_map2,l_map2,i_slab,l_slab,
+     + ga_flg
+c
+      integer mwa,mwm,msa,ngx,ngy,ngz,mgx,mgy,mgz,ngzloc,ngmax,morder
+      integer mgrx,mgry,mgrz,ngrx,ngry,ngrz,nbget
+      logical lpnode,lcorr(3)
+      common/pme_dim/mwa,mwm,msa,ngx,ngy,ngz,mgx,mgy,mgz,ngzloc,
+     + ngmax,morder,mgrx,mgry,mgrz,ngrx,ngry,ngrz,nbget,
+     + lpnode,lcorr
+c
+      real*8 pi,twopi,alpha,ecorr(3)
+      integer icntrl
+      common/pme_var/pi,twopi,alpha,ecorr,icntrl

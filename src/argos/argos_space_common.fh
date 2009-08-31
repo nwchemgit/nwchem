@@ -1,0 +1,112 @@
+c
+c $Id: sp_common.fh,v 1.50 2005-09-14 22:15:51 d3j191 Exp $
+c
+c     conversion factors
+c
+c     cau2kj : from hartree to kJ/mol
+c     cau2nm : from bohr to nm
+c     cau2N  : from hartree/bohr to N
+c     cnm2au : from nm to bohr
+c
+      real*8 cau2kj,cau2nm,cau2N
+      real*8 cnm2au
+c
+      parameter(cau2kj=2.625499962d+03)
+      parameter(cau2nm=5.29177249d-02)
+      parameter(cau2N=4.961475508d+04)
+      parameter(cnm2au=1.88972598786d+01)
+c
+      real*8 zero,half,one
+      parameter(zero=0.0d0)
+      parameter(half=5.0d-1)
+      parameter(one=1.0d0)
+c
+      integer mip2,miw2,mis2,mbb2
+      parameter(mip2=7)
+      parameter(miw2=4)
+      parameter(mis2=15)
+      parameter(mbb2=22)
+c
+      integer mdynam
+      parameter(mdynam=12)
+c
+      integer lwgmn,lwbox,lwnod,lwdyn
+c
+      parameter(lwgmn=1)
+      parameter(lwbox=2)
+      parameter(lwnod=3)
+      parameter(lwdyn=4)
+c
+      integer lsgan,lsbox,lsnod,lsatt,lsmol,lssgm,lsgrp
+      integer lspgr,lsdyn,lsfrc,lssss,lsct1,lsct2,lsct3,lshop
+      parameter(lsgan=1)
+      parameter(lsbox=2)
+      parameter(lsnod=3)
+      parameter(lsatt=4)
+      parameter(lsmol=5)
+      parameter(lssgm=6)
+      parameter(lsgrp=7)
+      parameter(lspgr=8)
+      parameter(lsdyn=9)
+      parameter(lsfrc=10)
+      parameter(lssss=11)
+      parameter(lsct1=12)
+      parameter(lsct2=13)
+      parameter(lsct3=14)
+      parameter(lshop=15)
+c
+      integer lquant,lqlink,lqsoft,lqhigh
+      parameter(lquant=16)
+      parameter(lqlink=32)
+      parameter(lqsoft=64)
+      parameter(lqhigh=128)
+c
+      integer me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwmg,mwa,msa,
+     + msag,nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,
+     + nbbl,msm,nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,
+     + nserie,nbxin,nbyin,nbzin,nred(3),nable,icntrl,mseq,nseq,ndums,
+     + icbbl,nbget,nprec,ibget,madbox
+      common/sd_dim/me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwmg,mwa,
+     + msa,msag,nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,
+     + mbbl,nbbl,nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,
+     + nserie,msm,nbxin,nbyin,nbzin,nred,nable,icntrl,mseq,nseq,ndums,
+     + icbbl,nbget,nprec,ibget,madbox
+c
+      integer i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr
+      integer i_ipl,l_ipl,i_jpl,l_jpl,i_xscr,l_xscr
+      integer ga_ip,ga_iw,ga_w,ga_is,ga_s,ga_iwz,ga_isz
+      integer i_x,l_x,i_v,l_v,i_r,l_r,i_i,l_i,i_bb,l_bb
+      integer i_rng,l_rng,i_pack,l_pack,i_packw,l_packw
+      integer i_bx,l_bx,i_bv,l_bv,i_bf,l_bf,i_br,l_br,i_bi,l_bi,i_n,l_n
+      integer i_buren,l_buren,i_bindex,l_bindex,i_lseq,l_lseq
+      integer i_sndx,l_sndx
+      common/sd_ptr/i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr,
+     + i_ipl,l_ipl,i_jpl,l_jpl,ga_ip,ga_iw,ga_w,ga_is,ga_s,
+     + i_pack,l_pack,i_packw,l_packw,i_xscr,l_xscr,
+     + ga_iwz,ga_isz,
+     + i_x,l_x,i_v,l_v,i_r,l_r,i_i,l_i,i_bb,l_bb,i_rng,l_rng,
+     + i_bx,l_bx,i_bv,l_bv,i_bf,l_bf,i_br,l_br,i_bi,l_bi,i_n,l_n,
+     + i_buren,l_buren,i_bindex,l_bindex,i_lseq,l_lseq,i_sndx,l_sndx
+c
+      real*8 rshort,rlong,rbox,box(3),boxh(3),bsize,vlat(3,3),vlati(3,3)
+      real*8 bxmin,bymin,bzmin,tsyncp,factld,third,tmp,prs,rsgm,rbbl
+      real*8 tslow
+      integer npbtyp,nbxtyp,neighb(27,2),loadb,lbpair,npprev,ntwin,nldup
+      integer nbbdif,ipairf,ipairt,iguide,idebug,npack,npackw,isload
+      integer ireset
+      integer misl(mis2),nbits(mis2),ipack(mis2)
+      integer miwl(miw2),nbitw(miw2),ipackw(miw2)
+      integer lfnout,lfnsyn,nfsync,lfndbg,nhist,mbbreq,nrempr
+      logical lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,lpipo
+      common/sd_var/rshort,rlong,rbox,box,boxh,bsize,vlat,vlati,
+     + bxmin,bymin,bzmin,tsyncp,factld,third,tmp,prs,rsgm,rbbl,tslow,
+     + npbtyp,nbxtyp,neighb,loadb,lbpair,npprev,ntwin,nldup,nbbdif,
+     + lfnout,lfnsyn,nfsync,ipairf,ipairt,iguide,idebug,npack,npackw,
+     + lfndbg,misl,nbits,ipack,miwl,nbitw,ipackw,nhist,mbbreq,nrempr,
+     + isload,ireset,lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,
+     + lpipo
+c
+      integer mxhist
+      parameter(mxhist=100)
+      character*108 project,hist(mxhist)
+      common/sd_chr/project,hist

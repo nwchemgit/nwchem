@@ -18,7 +18,7 @@
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper mepgs tropt driver optim dftgrad scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop ncc socrates \
-        property nwpw fft rimp2_grad python analyz diana nwmd cafe space \
+        property nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm qmd etrans tddft tce geninterface bq cons \
         perfm neb dntmc transport smd nbo dangchang leps ccca
 
@@ -30,7 +30,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -lmepgs -ltropt -ldriver -loptim -ldftgrad -lplnwv -lnwdft -ltddft -lgradients \
                     -lcphf -lscfaux -lesp -lddscf -ldangchang -lleps -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
-		    -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lsmd \
+		    -largos -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lsmd \
                     -lcafe -lspace -lanalyze -ldiana -lqhop -lncc -lsocrates \
                     -lpfft -ldplot -loimp2 -lnwpython -ldrdy -lvscf -lqmmm -lqmd -letrans\
                     -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lneb -lnbo -ldntmc -ltransport -lccca
@@ -64,7 +64,7 @@ MODULES := $(NWCHEM_MODULES)
 # For convenience, we define some shorthand "module" names which are
 # expanded below.
 
-EXPANSIONS = all qm md classical argos alldev pnnl pnnldev smallqm
+EXPANSIONS = all qm md classical tps alldev pnnl pnnldev smallqm
 
 EXP_all = $(filter-out smd uccsdt python develop oimp2 scfaux plane_wave rimp2_grad geninterface diana transport nbo,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python dntmc
@@ -80,7 +80,7 @@ EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
 #plane_wave ... broken? RJH
 EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper mepgs tropt driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft vscf leps
-EXP_argos = prepar nwmd analyz diana ddscf nwdft gradients esp
+EXP_tps = prepar argos nwmd analyz diana ddscf nwdft gradients esp
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
 EXP_classical  = prepar nwmd analyz
 EXP_venus = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
@@ -97,7 +97,7 @@ MODULES := $(patsubst smallqm,$(EXP_smallqm),$(MODULES) )
 MODULES := $(patsubst classical,$(EXP_classical),$(MODULES))
 MODULES := $(patsubst md,$(EXP_md),$(MODULES))
 MODULES := $(patsubst qmmm_valiev,$(EXP_qmmm_valiev),$(MODULES))
-MODULES := $(patsubst argos,$(EXP_argos),$(MODULES))
+MODULES := $(patsubst tps,$(EXP_tps),$(MODULES))
 MODULES := $(patsubst alldev,$(EXP_alldev),$(MODULES) )
 MODULES := $(patsubst pnnldev,$(EXP_pnnldev),$(MODULES) )
 MODULES := $(patsubst venus,$(EXP_venus),$(MODULES) )
@@ -161,6 +161,7 @@ MODULES := $(patsubst tce,tce nwdft ddscf NWints hessian dftgrad gradients,$(MOD
 MODULES := $(patsubst ncc,ncc ccsd cphf mp2_grad moints mcscf ddscf,$(MODULES) )
 MODULES := $(patsubst socrates,socrates ccsd cphf mp2_grad moints mcscf ddscf,$(MODULES) )
 
+MODULES := $(patsubst argos,argos cafe space fft qhop,$(MODULES) )
 MODULES := $(patsubst nwmd,nwmd cafe space fft qhop,$(MODULES) )
 
 MODULES := $(patsubst develop,develop ddscf uccsdt,$(MODULES) )
@@ -222,6 +223,7 @@ MOD_LIBS := $(patsubst tddft,-ltddft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst tce,-ltce,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ncc,-lncc,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst socrates,-lsocrates,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst argos,-largos,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cafe,-lcafe,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst space,-lspace,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst qhop,-lqhop,$(MOD_LIBS) )
@@ -293,6 +295,7 @@ STUBROUTINES := $(patsubst tddft,tddft_energy tddft_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst tce,tce_energy_fragment tce_gradient tce_input tce_prop_start tce_property tce_cholesky tce_imaginary,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ncc,ncc_driver,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst socrates,socrates_driver,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst argos,argos arg_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmd,qmd_setup qmd_start qmd_wrttrj qmd_forces,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmmm, qmmm_input task_qmmm_fep task_qmmm_abc qmmm_print_energy1 qmmm_forces qmmm_init qmmm_end task_qmmm_energy task_qmmm_gradient task_qmmm_optimize task_qmmm_dynamics task_qmmm_esp task_qmmm_pes task_qmmm_thermo,$(STUBROUTINES) )

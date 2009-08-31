@@ -1,0 +1,9 @@
+c
+c $Id: cf_funcs.fh,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
+c
+c
+c      erfc(x)=1.0/((1.0+x*(0.278393+x*(0.230389+x*(0.000972+
+c     + x*0.078108))))**4)
+c
+#include "arg_funcs_dec.fh"
+#include "arg_funcs_sfn.fh"

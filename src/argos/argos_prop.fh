@@ -1,0 +1,58 @@
+c
+c $Id: prop_common.fh,v 1.35 2008-07-03 18:05:48 d3j191 Exp $
+c
+c
+      real*8 zero,tiny,half,one
+      parameter(zero=0.0d0)
+      parameter(tiny=1.0d-10)
+      parameter(half=0.5d0)
+      parameter(one=1.0d0)
+c
+      real*8 rgas
+      parameter(rgas=8.31441d-03)
+c
+      integer maxpro
+      parameter(maxpro=27500)
+c
+      integer me,np,npfft,lfnout,lfnprp,lfngib
+      integer nsf,msf,mpe,nfoutp,nfstat,nfprop,maxp,mrun
+      integer mda,nda,nwm,msm,nsm,nsa,npg,meg
+c
+      common/prop_dim/me,np,npfft,lfnout,lfnprp,lfngib,
+     + nsf,msf,mpe,nfoutp,nfstat,
+     + nfprop,maxp,mda,nda,mrun,nwm,msm,nsm,nsa,npg,meg
+c
+      integer i_dfr,l_dfr,i_dfrm,l_dfrm
+      common/prop_ptr/i_dfr,l_dfr,i_dfrm,l_dfrm
+c
+      logical lcafe,lspac,ltwin,lhdr,lfhdr,lpstep,lpener,lpmf,lnoe,lpbc
+      logical lpme
+      common/prop_log/lcafe,lspac,ltwin,lhdr,lfhdr,lpstep,lpener,lpmf,
+     + lnoe,lpbc,lpme
+c
+      character*50 pronam(maxpro)
+      common/prop_txt/pronam
+c
+      real*8 p(maxpro),psum(maxpro),p2sum(maxpro),psumt(maxpro)
+      real*8 p2sumt(maxpro),pslop(maxpro),pslopt(maxpro),psump(maxpro)
+      real*8 tsum,t2sum,tsumt,t2sumt
+      real*8 dfree,deriv(24)
+      real*8 tstep,wbox,virial
+      integer ntype,nprop,isprop,ixp(maxpro),nsum,nsumt,nderiv,nserie
+      integer iset,ipset1,ipset2,iprof,npgdec,npener,nbias,npstat,nsump
+      integer iprop,npmfi,iradgy,idifco
+      logical lp(maxpro)
+      common/prop_pro/p,psum,psumt,p2sum,p2sumt,pslop,pslopt,psump,
+     + tsum,t2sum,tsumt,t2sumt,tstep,wbox,virial,
+     + dfree,deriv,
+     + ixp,ntype,nprop,isprop,nsum,nsumt,nderiv,iset,ipset1,ipset2,
+     + iprof,npgdec,npener,nbias,npstat,nserie,nsump,iprop,npmfi,
+     + iradgy,idifco,
+     + lp
+c
+      real*8 volume,temp,pres,tmpscl,tmsscl,prsscl,ddacq,edacq,samrat
+      common/prop_prp/volume,temp,pres,tmpscl,tmsscl,prsscl,ddacq,edacq,
+     + samrat
+c
+      logical lerror,lauto,lappr,limport,lfreem
+      common/prop_log/lerror,lauto,lappr,limport,lfreem

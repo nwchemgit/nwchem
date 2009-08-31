@@ -107,6 +107,8 @@ CJMC
                call pre_input(rtdb)
             else if (inp_compare(.false.,test,'md')) then
                call md_input(rtdb)
+            else if (inp_compare(.false.,test,'argos')) then
+               call argos_input(rtdb)
             else if (inp_compare(.false.,test,'esp')) then
                call esp_input(rtdb)
             else if (inp_compare(.false.,test,'et')) then

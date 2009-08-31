@@ -38,7 +38,8 @@ c
       logical rjhtest, raktest, atwtest, task_check_sum, cphf,
      $     jantest, uccsdtest
       logical property, dplot, gapss, task_shell, moints_full
-      logical analyz,diana,esp,prepar,nwmd, kgdtest, jvltest, jvltest2
+      logical argos,analyz,diana,esp,prepar,nwmd
+      logical kgdtest, jvltest, jvltest2
       logical task_energy, task_gradient, task_optimize, task_freq
 CJMC
       logical task_mepgs
@@ -72,7 +73,7 @@ c
       external jantest, uccsdtest
       external rjhtest, raktest, atwtest, task_check_sum, cphf
       external property, dplot, gapss, task_shell, moints_full
-      external analyz,diana,esp,prepar,nwmd
+      external analyz,diana,esp,prepar,nwmd,argos
       external task_energy, task_gradient, task_optimize, task_freq
 CJMC
       external task_mepgs
@@ -255,6 +256,8 @@ c
             status = task_check_sum(rtdb)
          else if (inp_compare(.false.,'md', theory)) then
             status = nwmd(rtdb)
+         else if (inp_compare(.false.,'argos', theory)) then
+            status = argos(rtdb)
          else if (inp_compare(.false.,'cphf', theory)) then
             status = cphf(rtdb)
          else if (inp_compare(.false.,'nbo', theory)) then

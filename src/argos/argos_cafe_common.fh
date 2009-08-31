@@ -1,0 +1,156 @@
+c $Id: cf_common.fh,v 1.53 2006-09-18 15:42:14 d3j191 Exp $
+c
+      real*8 zero,tiny,small
+      real*8 fourth,third,half,one,two,three,four,six,twelve
+      parameter(zero=0.0d0)
+      parameter(tiny=1.0d-18)
+      parameter(small=1.0d-6)
+      parameter(one=1.0d0)
+      parameter(fourth=2.5d-1)
+      parameter(third=3.333333333333d-1)
+      parameter(half=5.0d-1)
+      parameter(two=2.0d0)
+      parameter(three=3.0d0)
+      parameter(four=4.0d0)
+      parameter(six=6.0d0)
+      parameter(twelve=1.2d1)
+c
+      real*8 avoga,rgas
+      parameter(avoga=6.022045d-07)
+      parameter(rgas=8.31441d-03)
+c
+      integer mis2
+      parameter(mis2=15)
+c
+      integer mbs,mpe
+      parameter(mbs=2)
+      parameter(mpe=13)
+c
+      integer mdynam,ldynam,mrestr,lrestr,lquant,mfixed,mfixcm
+      integer lfixed,lfixcm
+      parameter(mdynam=12)
+      parameter(mrestr=12)
+      parameter(mfixed=12)
+      parameter(mfixcm=12)
+      parameter(ldynam=0)
+      parameter(lrestr=4)
+      parameter(lquant=16)
+      parameter(lfixed=8)
+      parameter(lfixcm=12)
+c
+      integer icnstr
+      parameter(icnstr=1)
+c
+      integer me,np,irtdb,
+     + nparms,nbs,mat,map,mqt,mqp,nwc,nsc,ndrs,
+     + nwm,mwm,nwa,mwa,nsa,msa,nsm,msm,nsf,msf,nwmtot,nsatot,
+     + mbt(mbs),mbp(mbs),mht(mbs),mhp(mbs),mdt(mbs),mdp(mbs),
+     + mit(mbs),mip(mbs),mtt(mbs),mtp(mbs),mxt(mbs),mxp(mbs),
+     + mscr,ndxp,maxl,mgl,mgc,mgr,numb(mbs),numh(mbs),numd(mbs),
+     + numi(mbs),numt(mbs),numx(mbs),mmult,nmul,nmult(4),mmuli,
+     + ndums,nprec,nbget
+      logical lscr,llst,lqmd,lpress
+      common/cf_dim/me,np,irtdb,nparms,nbs,mat,map,mqt,mqp,nwc,nsc,ndrs,
+     + nwm,mwm,nwa,mwa,nsa,msa,nsm,msm,nsf,msf,nwmtot,nsatot,
+     + numb,numh,numd,numi,numt,numx,mmult,nmul,nmult,mmuli,ndums,nprec,
+     + nbget,mbt,mbp,mht,mhp,mdt,mdp,mit,mip,mtt,mtp,mxt,mxp,
+     + mscr,ndxp,maxl,mgl,mgc,mgr,lscr,llst,lqmd,lpress
+c
+      integer i_vdw,l_vdw,i_mas,l_mas,i_nam,l_nam,i_num,l_num,
+     + i_chg,l_chg,i_iwa,l_iwa,i_iwq,l_iwq,i_ias,l_ias,i_typ,l_typ,
+     + i_ibnd(mbs),l_ibnd(mbs),i_bnd(mbs),l_bnd(mbs),
+     + i_iang(mbs),l_iang(mbs),i_ang(mbs),l_ang(mbs),
+     + i_idih(mbs),l_idih(mbs),i_dih(mbs),l_dih(mbs),
+     + i_iimp(mbs),l_iimp(mbs),i_imp(mbs),l_imp(mbs),
+     + i_itrd(mbs),l_itrd(mbs),i_ixcl(mbs),l_ixcl(mbs),
+     + i_rbnd(mbs),l_rbnd(mbs),i_rang(mbs),l_rang(mbs),
+     + i_rdih(mbs),l_rdih(mbs),i_rimp(mbs),l_rimp(mbs),
+     + i_rub(mbs),l_rub(mbs),
+     + i_wsm,l_wsm,i_imul,l_imul,i_xmul,l_xmul,i_fmul,l_fmul,
+     + i_ixmul,l_ixmul,i_idrs,l_idrs,i_rdrs,l_rdrs,i_xdrs,l_xdrs,
+     + i_s1i1,l_s1i1,i_s1i2,l_s1i2,i_s1i3,l_s1i3,
+     + i_s1i4,l_s1i4,i_s1i5,l_s1i5,i_s1i6,l_s1i6,i_s2i1,l_s2i1,
+     + i_s1r1,l_s1r1,i_s1r2,l_s1r2,i_s1r3,l_s1r3,i_s1r4,l_s1r4,
+     + i_s1r5,l_s1r5,i_s1r6,l_s1r6,
+     + i_s3r1,l_s3r1,i_s3r2,l_s3r2,i_smr1,l_smr1,
+     + i_smr2,l_smr2,i_smr3,l_smr3,i_smr4,l_smr4,
+     + i_smr5,l_smr5,i_smr6,l_smr6,
+     + i_list,l_list,i_snam,l_snam,i_sti,l_sti,i_mprot,l_mprot,
+     + i_pmew,l_pmew,i_pmes,l_pmes,
+     + i_theta,l_theta,i_dtheta,l_dtheta,
+     + i_ipmf,l_ipmf,i_jpmf,l_jpmf,i_rpmf,l_rpmf,i_xpmf,l_xpmf,
+     + i_ypmf,l_ypmf,i_wpmf,l_wpmf,i_upmf,l_upmf,
+     + i_lseq,i_lda,l_lda,i_rda,l_rda,i_uda,l_uda,i_pda,l_pda,
+     + i_lsthop,l_lsthop,i_timhop,l_timhop
+      common/cf_ptr/i_vdw,l_vdw,i_mas,l_mas,i_nam,l_nam,i_num,l_num,
+     + i_chg,l_chg,i_iwa,l_iwa,i_iwq,l_iwq,i_ias,l_ias,i_typ,l_typ,
+     + i_ibnd,l_ibnd,i_bnd,l_bnd,i_rbnd,l_rbnd,
+     + i_iang,l_iang,i_ang,l_ang,i_rang,l_rang,
+     + i_idih,l_idih,i_dih,l_dih,i_rdih,l_rdih,
+     + i_iimp,l_iimp,i_imp,l_imp,i_rimp,l_rimp,
+     + i_rub,l_rub,
+     + i_itrd,l_itrd,i_ixcl,l_ixcl,
+     + i_wsm,l_wsm,i_imul,l_imul,i_xmul,l_xmul,i_fmul,l_fmul,
+     + i_ixmul,l_ixmul,i_idrs,l_idrs,i_rdrs,l_rdrs,i_xdrs,l_xdrs,
+     + i_s1i1,l_s1i1,i_s1i2,l_s1i2,i_s1i3,l_s1i3,
+     + i_s1i4,l_s1i4,i_s1i5,l_s1i5,i_s1i6,l_s1i6,i_s2i1,l_s2i1,
+     + i_s1r1,l_s1r1,i_s1r2,l_s1r2,i_s1r3,l_s1r3,i_s1r4,l_s1r4,
+     + i_s1r5,l_s1r5,i_s1r6,l_s1r6,
+     + i_s3r1,l_s3r1,i_s3r2,l_s3r2,i_smr1,l_smr1,
+     + i_smr2,l_smr2,i_smr3,l_smr3,i_smr4,l_smr4,
+     + i_smr5,l_smr5,i_smr6,l_smr6,
+     + i_list,l_list,i_snam,l_snam,i_sti,l_sti,i_mprot,l_mprot,
+     + i_pmew,l_pmew,i_pmes,l_pmes,
+     + i_theta,l_theta,i_dtheta,l_dtheta,
+     + i_ipmf,l_ipmf,i_jpmf,l_jpmf,i_rpmf,l_rpmf,i_xpmf,l_xpmf,
+     + i_ypmf,l_ypmf,i_wpmf,l_wpmf,i_upmf,l_upmf,
+     + i_lseq,i_lda,l_lda,i_rda,l_rda,i_uda,l_uda,i_pda,l_pda,
+     + i_lsthop,l_lsthop,i_timhop,l_timhop
+c
+      integer ntype,npbtyp,nbxtyp,iqmmm,lstype,icntrl,iradgy
+      integer ngc,ngl,nfrdf,ifstep,ngrww,ireact,mset,iset,npener
+      integer lpww,lpsw,lpss,ngrsw,ngrss,nrwrec
+      integer isolvo,npww,npsw,npss,ipme,morder,ngx,ngy,ngz,ngmax
+      integer ipolt,niterw,niters,mshitw,mshits,noshak,nbias,mropt
+      integer itscal,ipscal,ipopt,islow,mdalgo,ntest,numpmf,npmfa,npmfi
+      integer npgdec,ngrx,ngry,ngrz,mseq,nseq,nhop,nlda,nldat,nhops
+      real*8 box(3),boxh(3),vlat(3,3),vlati(3,3),rshrt,rlong,rrest,
+     + rqmmm,rshrt2,rlong2,rrest2,rqmmm2,deriv(24,2),ep2(3),ep3(3),
+     + dfrdf,ewwl(2),zw(3,3,2),rffww,ewwr(2),drdf,ealpha,ewwq(2),rdfvol,
+     + recip(3,3),volume,epme,vpme(6),tolsha,xbm(3),facpsc,pscale,
+     + ewc(24)
+      real*8 rffsw,rffss,shift0(6),shift1(6),epmecs,epmecw,vpmeb(6)
+      real*8 q14fac,pi,twopi,qfac,alpha,pmetol,temp,tempw,temps,pres
+      real*8 tstep,tstepi,wbox,tmpext,prsext,tmwrlx,tmsrlx,prsrlx,epmf
+      real*8 factmp,factmw,factms,scalew,scales,ewk,ek
+      real*8 ewkc(3,3),eskc(3,3),ekc(3,3),z(3,3),prx(3,3)
+      real*8 edrs,field,fvect(3),ffreq,totchg
+      real*8 virial,scaleq,ubias,facpmf,rhop,rhop2,thop,stime
+      integer llww,lsww,llsw,lssw,llss,lsss,includ,nfhop,ipbtyp,iffld
+      logical llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lpmfcc,lanal
+      logical lhop,lqhop,lfree
+      logical ithint,ith(24),ipert2,ipert3,ip2(24),ip3(24)
+      common/cf_box/box,boxh,vlat,vlati,rshrt,rlong,rrest,rqmmm,rshrt2,
+     + rlong2,rrest2,rqmmm2,deriv,ep2,ep3,dfrdf,ewwl,zw,rffww,ewwr,drdf,
+     + ealpha,ewwq,rdfvol,rffsw,rffss,shift0,shift1,epmecs,epmecw,vpmeb,
+     + q14fac,pi,twopi,qfac,alpha,pmetol,recip,volume,epme,vpme,tolsha,
+     + tstep,tstepi,wbox,xbm,tmpext,prsext,tmwrlx,tmsrlx,prsrlx,pres,
+     + temp,tempw,temps,factmp,factmw,factms,scalew,scales,ewk,ek,edrs,
+     + ewkc,eskc,facpsc,pscale,ewc,epmf,virial,field,fvect,ffreq,totchg,
+     + prx,z,ekc,scaleq,ubias,facpmf,rhop,rhop2,thop,stime,
+     + ntype,npbtyp,nbxtyp,iqmmm,lstype,icntrl,iradgy,mset,iset,nfhop,
+     + ipbtyp,ngc,ngl,nfrdf,ifstep,ngrww,ireact,npener,ipme,lpww,lpsw,
+     + lpss,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,nbias,mropt,
+     + ngx,ngy,ngz,ngmax,ipolt,niterw,niters,mshitw,mshits,noshak,
+     + itscal,ipscal,ipopt,islow,mdalgo,ntest,numpmf,npmfa,npmfi,npgdec,
+     + ngrx,ngry,ngrz,mseq,nseq,nhop,nlda,nldat,nhops,iffld,
+     + llww,lsww,llsw,lssw,llss,lsss,includ,
+     + llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lpmfcc,lanal,lhop,
+     + lqhop,lfree,ithint,ith,ipert2,ipert3,ip2,ip3
+      character*10 ffield
+      character*16 wnam(100)
+      common/cf_chr/ffield,wnam
+      integer lfnhop
+      common/cf_lfn/lfnhop
+
+

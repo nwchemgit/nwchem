@@ -1,0 +1,142 @@
+c
+c $Id: dia_common.fh,v 1.15 2007-05-11 00:05:10 d3j191 Exp $
+c
+      integer mxdist,mxangl,mxtors,mximps
+      parameter(mxdist=100)
+      parameter(mxangl=100)
+      parameter(mxtors=250)
+      parameter(mximps=100)
+c
+      integer mxdef,mxnum
+      parameter(mxdef=10)
+      parameter(mxnum=1000)
+c
+      integer maxgrp
+      parameter(maxgrp=50)
+c
+      integer mhis,mlhis
+      parameter(mhis=10)
+      parameter(mlhis=1000)
+c
+      integer mord
+      parameter(mord=1600)
+c
+      integer irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
+     + lfnchg,lfnplt,lfnxyz,lfnrms,lfnprj,lfnval,lfnmin,lfnmax,lfncov,
+     + lfnvec,lfntop,lfnhis,lfnepz,lfngrp,lfnram,lfnord,lfnloc,lfnsel,
+     + lfnhba,lfnecc,lfndie,lfnrdf,lfnamp,lfnpin,lfnpou,lfnhol,lfnavg,
+     + lfntcl,lfnpca,lfncmd,lfnexp,lfndat
+      common/dia_rtdb/irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
+     + lfnchg,lfnplt,lfnxyz,lfnrms,lfnprj,lfnval,lfnmin,lfnmax,lfncov,
+     + lfnvec,lfntop,lfnhis,lfnepz,lfngrp,lfnram,lfnord,lfnloc,lfnsel,
+     + lfnhba,lfnecc,lfndie,lfnrdf,lfnamp,lfnpin,lfnpou,lfnhol,lfnavg,
+     + lfntcl,lfnpca,lfncmd,lfnexp,lfndat
+c
+      real*8 time,timr,timoff,box(3),spac(3),rcut,xmax(3),xmin(3)
+      real*8 temp,pres,xsmin(3),xsmax(3),scale,cpk,stick,rangle
+      real*8 rhbmin,rhbmax,hbdmin,hbdmax,hbamin,hbamax
+      integer irmsd,lcop,lsup,ifrfr,ifrto,iscof,icopf,isupf,ifrsk
+      integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)
+      integer ngx,ngy,ngz,iesppb,ngrid,mgrd,ldist,icent,jcent,numwhb
+      integer nclean,nfrtot,nfrdim,nfrndx,nfrme,ntrj,ntval,ntvec
+      integer ndist,idist(mxdist,2,3)
+      integer nangl,iangl(mxangl,3,3)
+      integer ntors,itors(mxtors,4,3)
+      integer nimps,iimps(mximps,4,3)
+      real*8 rdist(mxdist)
+      real*8 rangl(mxangl)
+      real*8 rtors(mxtors)
+      real*8 rimps(mximps)
+      real*8 valmin,valmax
+      common/dia_inp/time,timr,timoff,box,spac,rcut,xmax,xmin,temp,pres,
+     + rdist,rangl,rtors,rimps,valmin,valmax,xsmin,xsmax,scale,cpk,
+     + stick,rhbmin,rhbmax,hbdmin,hbdmax,hbamin,hbamax,rangle,irmsd,
+     + lcop,lsup,ifrfr,ifrto,ifrsk,nfrtot,nfrdim,nfrndx,nfrme,ntrj,
+     + iscof,icopf,isupf,mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,
+     + ngrd,ngx,ngy,ngz,iesppb,ngrid,mgrd,ldist,icent,jcent,numwhb,
+     + ndist,nangl,ntors,nimps,idist,iangl,itors,iimps,nclean,
+     + ntval,ntvec
+c
+      integer nfilf,iomode,ioffhd,iofffr
+      common/dia_pio/nfilf,iomode,ioffhd,iofffr
+c
+      character*255 filnam,filana,filref,filtrj,filcop,filsup,filpov,
+     + filchg,filplt,filxyz,filrms,filprj,filval,filmax,filmin,filepz,
+     + filcov,filvec,filtop,filhis,filgrp,filram,root,filord,filloc,
+     + filsel,filhba,filecc,fildie,filamp,filpin,filpou,filhol,filavg,
+     + filtcl,filpca,filexp,fildat,strplt,strepz,strram
+      character*3 fmttrj,fmtcop,fmtsup
+      common/dia_txt/filnam,filana,filref,filtrj,filcop,filsup,filpov,
+     + filchg,filplt,filxyz,fmttrj,fmtcop,fmtsup,filrms,filprj,filval,
+     + filmax,filmin,filepz,filcov,filvec,filtop,filhis,filgrp,filram,
+     + root,filord,filloc,filsel,filhba,filecc,fildie,filamp,filpin,
+     + filpou,filhol,filavg,filtcl,filpca,filexp,fildat,strplt,strepz,
+     + strram
+c
+      integer i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,l_isel,
+     + i_snam,l_snam,i_xdat,l_xdat,i_idat,l_idat,i_bnd,l_bnd,
+     + i_x,l_x,i_q,l_q,i_t,l_t,i_grid,l_grid,i_tag,l_tag,ga_vec,
+     + i_wdat,l_wdat,i_xadat,l_xadat,ga_cov,i_ndx,l_ndx,i_cov,l_cov,
+     + i_xp,l_xp,i_ord,l_ord,i_hist,l_hist,i_qdat,l_qdat,i_wsel,l_wsel,
+     + i_ndxw,l_ndxw,i_val,l_val,i_iram,l_iram,i_imol,l_imol,
+     + i_wrk,l_wrk,i_ssel,l_ssel,i_swt,l_swt,i_hbnd,l_hbnd,
+     + i_sbnd,l_sbnd,i_osel,l_osel,i_owt,l_owt,i_qwdat,l_qwdat,
+     + i_rdf,l_rdf,i_iequi,l_iequi,ga_trj,ga_trw,ga_trt,ga_tval,ga_tvec,
+     + i_tval,l_tval,i_tvec,l_tvec
+      common/dia_ptr/i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,
+     + l_isel,i_snam,l_snam,i_xdat,l_xdat,i_idat,l_idat,i_bnd,l_bnd,
+     + i_x,l_x,i_q,l_q,i_t,l_t,i_grid,l_grid,i_tag,l_tag,ga_vec,
+     + i_wdat,l_wdat,i_xadat,l_xadat,ga_cov,i_ndx,l_ndx,i_cov,l_cov,
+     + i_xp,l_xp,i_ord,l_ord,i_hist,l_hist,i_qdat,l_qdat,i_wsel,l_wsel,
+     + i_ndxw,l_ndxw,i_val,l_val,i_iram,l_iram,i_imol,l_imol,
+     + i_wrk,l_wrk,i_ssel,l_ssel,i_swt,l_swt,i_hbnd,l_hbnd,
+     + i_sbnd,l_sbnd,i_osel,l_osel,i_owt,l_owt,i_qwdat,l_qwdat,
+     + i_rdf,l_rdf,i_iequi,l_iequi,ga_trj,ga_trt,ga_trw,ga_tval,ga_tvec,
+     + i_tval,l_tval,i_tvec,l_tvec
+c
+      integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel,npov,nwsel,
+     + nwrit,indx,msgm,nsgm,msb,mwb,nselo,nsai,msai,nwmi,mwmi,nwai,mwai
+      common/dia_dim/nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel,npov,
+     + nwsel,nwrit,indx,msgm,nsgm,msb,mwb,nselo,nsai,msai,nwmi,mwmi,
+     + nwai,mwai
+c
+      integer il,ih,jl,jh,ld,ndx
+      common/dia_ndx/il,ih,jl,jh,ld,ndx
+c
+      logical lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,lsel,lana,lrms,lsonly,
+     + ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel,lrdf,lclean,
+     + lesppt,lsuper,active,ignore,lslvnt
+      common/dia_log/lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,lsel,lana,lrms,
+     + lsonly,ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel,lrdf,
+     + lclean,lesppt,lsuper,active,ignore,lslvnt
+c
+      character*24 wtag(100,2)
+      character*16 wnam(100)
+      character*10 datum,tijd
+      character*3 cnum
+      character*80 card
+      character*6 cmd
+      character*80 cord(mord),cdist(mxdist),cangl(mxangl),ctors(mxtors)
+      common/dia_chr/wtag,wnam,datum,tijd,cnum,card,cmd,cord,cangl,
+     + cdist,ctors
+c
+      real*8 wval(100,2)
+      common/dia_val/wval
+c
+      integer ndef,ldef(mxdef),idef(mxdef,mxnum),
+     + ngroups,igroups(maxgrp,6),ngroup,igroup(maxgrp,4),
+     + ihbndw(100),ibndw(100,2)
+      real*8 rgroups(maxgrp,2),rgroup(maxgrp,2)
+      integer nhis,lhis,ihis(mlhis,mhis),idhis(mhis,3)
+      integer nord,idord(mord,4),iord(mord,4,3),nrdf,numrdf
+      real*8 rord(mord)
+      real*8 rhis,dhis,rrdf,rms0,rms1
+      common/dia_def/rord,rgroups,rgroup,rhis,dhis,rrdf,
+     + rms0,rms1,
+     + ndef,ldef,idef,ngroups,igroups,ngroup,igroup,
+     + ihbndw,ibndw,nhis,lhis,ihis,idhis,
+     + nord,idord,iord,nrdf,numrdf
+c
+      integer nrot,irot(100)
+      real*8 arot(100)
+      common/dia_rot/arot,irot,nrot
