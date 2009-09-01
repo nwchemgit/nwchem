@@ -9,12 +9,14 @@
       double precision integral(8)                 ! Casimir-Polder integral for (XX,YY,ZZ,XY,YZ,XZ,AVG,ANI) components
       double precision afreq(maxnumfreq)
       double precision ifreq(maxnumfreq)           ! needs lots of alpha(i*omega) for Casimir-Polder quadrature
+      double precision ifreqqw(maxnumfreq)       ! quadrature weights for Derevianko grid
       double precision ifreqval(maxnumfreq,8)      ! alpha(ifreq(inumfreq)) for (XX,YY,ZZ,XY,YZ,XZ,AVG,ANI) components
       double precision bfreq(maxnumfreq)
       double precision gfreq(maxnumfreq)
       logical respaxis(3)
       logical lineresp,imagresp,leftresp,quadresp
       logical ifreqauto
+      logical ifreqgrdv                            ! use Derevianko grid with fixed inumfreq (50)
       logical ifreqgrgl                            ! use Gauss-Legendre grid with fixed inumfreq (16)
       logical ifreqgrch                            ! use Gauss-Chebychev grid with arbitrary inumfreq
       logical ifreqgrst                            ! use Stanton grid with arbitrary inumfreq
@@ -33,6 +35,6 @@
      1  lineresp,imagresp,leftresp,quadresp,respaxis,
      2  beta_shg,beta_or,beta_eope,guess_ir_real,guess_ir_imag,
      3  guess_lr_real,guess_qr_real,
-     4  ifreqauto,ifreqgrgl,ifreqgrch,ifreqgrst,
+     4  ifreqauto,ifreqgrdv,ifreqgrgl,ifreqgrch,ifreqgrst,
      5  nopolar,nohyper,nogamma
 
