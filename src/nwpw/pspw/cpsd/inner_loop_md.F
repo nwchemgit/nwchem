@@ -695,10 +695,11 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
 *     **** Energy and Energy**2 sum ***
       E(25) = E(25) + E(2)
       E(26) = E(26) + E(2)*E(2)
+      E(27) = E(27) + E(2)+E(3)+E(4)
+      E(28) = E(28) + (E(2)+E(3)+E(4))**2
 
 *     **** output Forces for Fei ***
       call fei_output(E(2),dbl_mb(fion(1)))
-
 
 
       if (nose) then

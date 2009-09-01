@@ -30,8 +30,8 @@ cccc#include "frac_occ.fh"
 
       real*8 kb
       parameter (kb=3.16679d-6)
-c      real*8 autoatm
-c      parameter (autoatm =290.360032539d6)
+      real*8 autoatm
+      parameter (autoatm =290.360032539d6)
 
 
       
@@ -67,7 +67,7 @@ c      parameter (autoatm =290.360032539d6)
     
 
 *     ***** energy variables ****
-      real*8  E(30),eke,eave,evar,cv
+      real*8  E(30),eke,eave,evar,cv,have,hvar
 
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
@@ -772,10 +772,10 @@ c      call frac_occ_init(rtdb,ispin,ne)
            if (calc_pressure) then
              if (SA) then
              write(luout,1309) icount*it_in,E(1),E(2),E(3),E(4),
-     >                     Te_new,Tr_new,pressure
+     >                     Te_new,Tr_new,pressure*autoatm
              else
              write(luout,1310) icount*it_in,E(1),E(2),E(3),E(4),
-     >                     ion_Temperature(),pressure
+     >                     ion_Temperature(),pressure*autoatm
              end if
            else
              if (SA) then
@@ -792,16 +792,19 @@ c      call frac_occ_init(rtdb,ispin,ne)
            eave = E(25)/dble(icount+icount_shift)
            evar = E(26)/dble(icount+icount_shift)
            evar = evar - eave*eave
+           have = E(27)/dble(icount+icount_shift)
+           hvar = E(28)/dble(icount+icount_shift)
+           hvar = hvar - have*have
            if (control_Nose()) then
              write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
      >                    e(7),e(8),e(9),e(10),
-     >                    eave,evar,ion_Temperature(),pressure
+     >                    eave,evar,have,hvar,ion_Temperature(),pressure
            else
              write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
      >                    e(7),e(8),
-     >                    eave,evar,ion_Temperature(),pressure
+     >                    eave,evar,have,hvar,ion_Temperature(),pressure
            end if
            call util_flush(31)
 
@@ -1083,10 +1086,13 @@ c         end if
          eave = E(25)/dble(icount+icount_shift)
          evar = E(26)/dble(icount+icount_shift)
          evar = evar - eave*eave
+         have = E(27)/dble(icount+icount_shift)
+         hvar = E(28)/dble(icount+icount_shift)
+         hvar = hvar - have*have
          cv = (evar)/(kb*ion_Temperature()**2)
          cv = cv/dble(ion_nion())
-         write(luout,1492) eave
-         write(luout,1493) evar
+         write(luout,1492) eave,have
+         write(luout,1493) evar,hvar
          write(luout,1494) cv
 
 *        **** write out diagonal <psi|H|psi> matrix ****
@@ -1374,8 +1380,8 @@ c      call frac_occ_end()
  1480 FORMAT(' Temperature :    ',F10.1,' K (ion)')
  1490 FORMAT('             :    ',F10.1,' K (c.o.m.)')
  1491 FORMAT(' Temperature :    ',F10.1,' K (elc)')
- 1492 FORMAT(/' Eaverage           :    ',E19.10)
- 1493 FORMAT( ' Evariance          :    ',E19.10)
+ 1492 FORMAT(/' Vaverage  Eaverage :    ',E19.10, E19.10)
+ 1493 FORMAT( ' Vvariance Evariance:    ',E19.10, E19.10)
  1494 FORMAT( ' Cv - f*kb/(2*nion) :    ',E19.10)
  1499 FORMAT( ' K.S. SIC-hartree energy  :',E19.10,
      >        ' (',E15.5,'/electron)')
