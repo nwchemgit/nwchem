@@ -392,13 +392,13 @@ c
       implicit none
       integer i, j
       integer ilo, ihi, jlo, jhi
-      double precision buf(jlo:jhi,ilo:ihi)
+      double precision buf(ilo:ihi,jlo:jhi)
       character*10 inttitle
 c
-      do i = ilo, ihi
-         do j = jlo, jhi
-            if (abs(buf(j,i)).gt.1d-8) then
-               write(6,1) inttitle,i,j,buf(j,i)
+      do j = jlo, jhi
+         do i = ilo, ihi
+            if (abs(buf(i,j)).gt.1d-8) then
+               write(6,1) inttitle,i,j,buf(i,j)
  1             format(A,2i5,f20.8)
             endif
          enddo
