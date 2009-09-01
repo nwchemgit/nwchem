@@ -140,6 +140,11 @@ CJMC
                call input_unset(rtdb)
             else if (inp_compare(.false.,test,'mcscf')) then
                call mcscf_input(rtdb)
+            else if (inp_compare(.false.,test,'ncc')) then
+               call ncc_input(rtdb)
+            else if (inp_compare(.false.,test,'socrates')) then
+!               print*,'calling socrates_input'
+               call socrates_input(rtdb)
             else if (inp_compare(.false.,test,'plnwv')) then
                call plnwv_input(rtdb)
             else if (inp_compare(.false.,test,'bq')) then
@@ -159,7 +164,7 @@ CJMC
             else if (inp_compare(.false.,test,'smd')) then
                call smd_input(rtdb)
             else if (inp_compare(.false.,test,'pause')) then
-	       call util_sleep(60)
+               call util_sleep(60)
             else if (inp_compare(.false.,test,'qmmm')) then
                call qmmm_input(rtdb)
 c            else if (inp_compare(.false.,test,'embed')) then
