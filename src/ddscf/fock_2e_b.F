@@ -136,24 +136,23 @@ c
             sij = schwarz_shell(ish,jsh)
             if (sij*smax.ge.dtol2e) then
                if (.not. bas_cn2bfr(basis, jsh, jshbflo, jshbfhi))
-     $              call errquit('fock_2e_b: bas_cn2bfr', jsh,
-     &       BASIS_ERR)
+     $            call errquit('fock_2e_b: bas_cn2bfr',jsh,
+     $                         BASIS_ERR)
                kshtop = kshhi
                if (oikjl) kshtop = ish
                do ksh = kshlo, kshtop
                   if (.not. bas_cn2bfr(basis, ksh, kshbflo, kshbfhi))
-     $                 call errquit('fock_2e_b: bas_cn2bfr', ksh,
-     &       BASIS_ERR)
+     $               call errquit('fock_2e_b: bas_cn2bfr',ksh,
+     $                            BASIS_ERR)
                   lshtop = lshhi
                   if (okl) lshtop = ksh
                   if (oikjl .and. ksh.eq.ish) lshtop = jsh
                   do lsh = lshlo, lshtop
                      if (sij*schwarz_shell(ksh,lsh)
      $                    .ge. dtol2e) then
-                        if (.not. bas_cn2bfr(basis, lsh,
-     $                       lshbflo, lshbfhi)) call errquit
-     $                       ('fock_2e_b: bas_cn2bfr', lsh,
-     &       BASIS_ERR)
+                        if (.not.bas_cn2bfr(basis,lsh,lshbflo,lshbfhi)) 
+     $                     call errquit('fock_2e_b: bas_cn2bfr',lsh,
+     $                                  BASIS_ERR)
 c     
 c     Compute the shell block of integrals with labels
 c     
