@@ -1007,36 +1007,16 @@ c     &       MA_ERR)
 *     **** PBE96 GGA part ****
       gga = control_gga()
       if ((gga.ge.10).and.(gga.lt.100)) then
-         call D3dB_nx(1,nx)
-         call D3dB_ny(1,ny)
-         call D3dB_nz(1,nz)
-         call D3dB_nq(1,nq)
-         n2ft3d = (nx+2)*ny*nq
-         value = MA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
-         if (.not. value) call errquit(
-     >     'c_rho_1exc_stress: out of stack memory',1, MA_ERR)
+         call D3dB_n2ft3d(1,n2ft3d)
+         if (.not.
+     >      MA_push_get(mt_dbl,(ispin*n2ft3d),'trho',trho(2),trho(1)))
+     >      call errquit(
+     >      'c_rho_1exc_stress: out of stack memory',1,MA_ERR)
 
-
-         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(trho(1)),1)
          do ms=1,ispin
-         do q=1,nq
-         do j=1,ny
-         do i=1,nx
-            indx1 = (i-1)
-     >            + (j-1)*nx
-     >            + (q-1)*nx*ny
-     >            + (ms-1)*nfft3d
-            indx2 = (i-1)
-     >            + (j-1)*(nx+2)
-     >            + (q-1)*(nx+2)*ny
-     >            + (ms-1)*n2ft3d
-            dbl_mb(trho(1)+indx2) = dbl_mb(rho1_all(1)+indx1)
-
+            call C3dB_D3dB_r_Copy(1,dbl_mb(rho1_all(1)+(ms-1)*nfft3d),
+     >                              dbl_mb(trho(1) +(ms-1)*n2ft3d))
          end do
-         end do
-         end do
-         end do
-         
          call v_bwexc_euv(gga,n2ft3d,ispin,dbl_mb(trho(1)),
      >                  1.0d0,1.0d0,tstress)
          do v=1,3
@@ -1045,10 +1025,9 @@ c     &       MA_ERR)
          end do
          end do
 
-         value = MA_pop_stack(trho(2))
-         if (.not. value) call errquit(
-     >     'c_rho_1exc_stress: error popping stack memory',1,
-     >       MA_ERR)
+         if (.not.MA_pop_stack(trho(2)))
+     >      call errquit(
+     >     'c_rho_1exc_stress: error popping stack memory',1,MA_ERR)
       end if
 
       return

@@ -129,7 +129,7 @@
       lcao_print = lcao_print.or.control_print(print_high)
       if (.not.rtdb_get(rtdb,
      >         'nwpw:lcao_skip',mt_log,1,lcao_skip))
-     >   lcao_skip = .false.
+     >   lcao_skip = .true.
       if (.not.rtdb_get(rtdb,
      >         'nwpw:adjust_skip',mt_log,1,adjust_skip))
      >   adjust_skip = .false.

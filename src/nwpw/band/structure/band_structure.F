@@ -549,7 +549,7 @@
 *     **** initialize lattice data structure ****
       call lattice_init()
       call c_G_init()
-      call brillioun_structure_init(k)
+      call brillioun_structure_init(k,1)
       call Cram_Init()
       call C3dB_pfft_init()
 
