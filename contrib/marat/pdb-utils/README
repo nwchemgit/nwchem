@@ -1,0 +1,11 @@
+Reorders pdb file based on the center of geometries distances from
+central residue. 
+Possible to limit center of geometry definition 
+to subset of atoms specified by a name substring.
+Can be run interactively or through parameter file.
+
+Example files for sorting based on the distance between
+oxygens
+
+oh_ref.pdb
+transform_pdb.dat
