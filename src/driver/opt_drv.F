@@ -374,8 +374,10 @@ c
      $                 ((iat-1)*3 + (i-1))*nat*3) = 0.5*amat(i,i)**2
                end do
             end do
-            write(6,*) ' The initial hessian '
-            call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
+            if (oprint) then 
+               write(6,*) ' The initial hessian '
+               call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
+            end if
          end if
       else
 c
