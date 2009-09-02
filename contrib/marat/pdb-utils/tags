@@ -1,0 +1,45 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.5.4	//
+100	smd_pdb.F	/^100   continue$/;"	l	subroutine:smd_pdb_natoms	file:
+100	smd_pdb.F	/^100   continue$/;"	l	subroutine:smd_pdb_nres	file:
+100	smd_pdb.F	/^100   continue$/;"	l	subroutine:smd_pdb_read	file:
+100	smd_pdb.F	/^100   continue$/;"	l	subroutine:smd_pdb_read_atomres	file:
+100	smd_pdb.F	/^100   continue$/;"	l	subroutine:smd_pdb_read_coords	file:
+100	smd_pdb.F	/^100   continue$/;"	l	subroutine:smd_pdb_read_res	file:
+20	smd_pdb.F	/^20    length = i $/;"	l	function:length	file:
+200	smd_pdb.F	/^200   continue$/;"	l	subroutine:smd_pdb_natoms	file:
+200	smd_pdb.F	/^200   continue$/;"	l	subroutine:smd_pdb_nres	file:
+200	smd_pdb.F	/^200   continue$/;"	l	subroutine:smd_pdb_read	file:
+200	smd_pdb.F	/^200   continue$/;"	l	subroutine:smd_pdb_read_atomres	file:
+200	smd_pdb.F	/^200   continue$/;"	l	subroutine:smd_pdb_read_coords	file:
+200	smd_pdb.F	/^200   continue$/;"	l	subroutine:smd_pdb_read_res	file:
+9000	main.f	/^9000   FORMAT("ATOM",T7,I5,T13,A4,T18,A3,T23,I4,T31,$/;"	l	subroutine:reorder	file:
+9000	smd_pdb.F	/^9000   FORMAT("ATOM",T7,I5,T13,A4,T18,A3,T23,I4,T31,$/;"	l	subroutine:smd_pdb_write_byseq	file:
+EXE	Makefile	/^EXE     = transform_pdb$/;"	m
+OBJS	Makefile	/^OBJS =$(SRCS:.f=.o)$/;"	m
+SRCS	Makefile	/^SRCS = \\$/;"	m
+infile	main.f	/^       character*255 infile$/;"	v	program:transform_pdb
+length	smd_pdb.F	/^      function length(/;"	f
+ofile	main.f	/^       logical ofile$/;"	v	program:transform_pdb
+outfile	main.f	/^       character*255 outfile$/;"	v	program:transform_pdb
+reorder	main.f	/^       subroutine reorder(/;"	s
+smd_pdb_cog	smd_pdb.F	/^      subroutine smd_pdb_cog(/;"	s
+smd_pdb_cog_byname	smd_pdb.F	/^      subroutine smd_pdb_cog_byname(/;"	s
+smd_pdb_distance	smd_pdb.F	/^      subroutine smd_pdb_distance(/;"	s
+smd_pdb_natoms	smd_pdb.F	/^      subroutine smd_pdb_natoms(/;"	s
+smd_pdb_nres	smd_pdb.F	/^      subroutine smd_pdb_nres(/;"	s
+smd_pdb_nres0	smd_pdb.F	/^      subroutine smd_pdb_nres0(/;"	s
+smd_pdb_read	smd_pdb.F	/^      subroutine smd_pdb_read(/;"	s
+smd_pdb_read_atomres	smd_pdb.F	/^      subroutine smd_pdb_read_atomres(/;"	s
+smd_pdb_read_coords	smd_pdb.F	/^      subroutine smd_pdb_read_coords(/;"	s
+smd_pdb_read_res	smd_pdb.F	/^      subroutine smd_pdb_read_res(/;"	s
+smd_pdb_sequence_bounds	smd_pdb.F	/^      subroutine smd_pdb_sequence_bounds(/;"	s
+smd_pdb_sort_byres	smd_pdb.F	/^      subroutine smd_pdb_sort_byres(/;"	s
+smd_pdb_sort_seq_distance	smd_pdb.F	/^      subroutine smd_pdb_sort_seq_distance(/;"	s
+smd_pdb_write_byseq	smd_pdb.F	/^      subroutine smd_pdb_write_byseq(/;"	s
+tar	main.f	/^       character*16  tar$/;"	v	program:transform_pdb
+transform_pdb	main.f	/^       program transform_pdb$/;"	p
