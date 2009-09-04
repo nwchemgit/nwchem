@@ -140,11 +140,6 @@ CJMC
                call input_unset(rtdb)
             else if (inp_compare(.false.,test,'mcscf')) then
                call mcscf_input(rtdb)
-            else if (inp_compare(.false.,test,'ncc')) then
-               call ncc_input(rtdb)
-            else if (inp_compare(.false.,test,'socrates')) then
-!               print*,'calling socrates_input'
-               call socrates_input(rtdb)
             else if (inp_compare(.false.,test,'plnwv')) then
                call plnwv_input(rtdb)
             else if (inp_compare(.false.,test,'bq')) then
