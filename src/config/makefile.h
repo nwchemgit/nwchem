@@ -1749,7 +1749,7 @@ endif
         FOPTIMIZE   = -O3 -OPT:Ofast:IEEE_arith=1:IEEE_NaN_inf=ON:Olimit=12000:ro=1:fold_reassociate=ON#:div_split=OFF:fast_nint=OFF
         FVECTORIZE  = -O3 -OPT:Ofast:ro=1 -fno-math-errno
         DEFINES  += -DCHKUNDFLW -DPSCALE
-        FDEBUG = -g -O2
+        FDEBUG = -g -O1
         LDOPTIONS = -Wl,--warn-once   -Wl,--relax
       endif
       ifeq ($(_CC),pgcc)
