@@ -89,12 +89,6 @@ CJMC
       external task_property
       external task_ccca
 c
-      logical task_ncc
-      external task_ncc
-c
-      logical socrates_driver
-      external socrates_driver
-c
       logical bq_init,bq_end
       external bq_init,bq_end
 c
@@ -223,13 +217,6 @@ c
       if (operation .eq. ' ') then ! Look for specialized routine
          if (inp_compare(.false.,'rjhtest', theory)) then
             status = rjhtest(rtdb)
-         else if (inp_compare(.false.,'ncc', theory)) then
-            status = task_ncc(rtdb)
-         else if (inp_compare(.false.,'socrates', theory)) then
-            if (ga_nodeid().eq.0) then
-              write(LuOut,*) 'calling socrates_driver'
-            endif
-            status = socrates_driver(rtdb)
          else if (inp_compare(.false.,'jantest', theory)) then
             status = jantest(rtdb)
          else if (inp_compare(.false.,'test', theory)) then
