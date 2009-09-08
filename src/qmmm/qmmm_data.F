@@ -109,10 +109,12 @@ c
 c     default value for bqzone from md
       if(.not.rtdb_get(irtdb,'md:rqmmm',mt_dbl,1,bqzone))
      + call errquit(pname//'failed to get bqzone from mm',0)
+c     convert from nm to angstrom
+      bqzone = bqzone*cnm2ang
 c
       tag = "qmmm:bqzone"
       if (rtdb_get(irtdb,tag,mt_dbl,1,bqzone)) then
-        if (.not.rtdb_put(irtdb,'md:rqmmm',mt_dbl,1,bqzone)) 
+        if (.not.rtdb_put(irtdb,'md:rqmmm',mt_dbl,1,bqzone/cnm2ang)) 
      >      call errquit(pname//'failed to store '//tag,0,
      >       RTDB_ERR)
       end if

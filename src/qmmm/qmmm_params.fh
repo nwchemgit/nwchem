@@ -31,11 +31,12 @@ c     -------------------
 c
 c     conversion parameters
 c     -------------------
-      double precision cnm2au,cau2ang,cau2nm,cau2kj
+      double precision cnm2au,cau2ang,cau2nm,cau2kj,cnm2ang
       parameter(cnm2au=1.88972598786d+01)
       parameter(cau2ang = 0.529177249d00)
       parameter(cau2nm=5.29177249d-02)
       parameter(cau2kj=2.625499962d+03)
+      parameter(cnm2ang=10.0d00)
 
 c     other parameters
 c     ---------------
