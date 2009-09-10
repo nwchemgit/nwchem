@@ -13,7 +13,13 @@ c     other misc variables.
 c
 
 c Exchange-Correlation related
-#include "xc.fh"
+c
+c     Common for xc parameters
+c     Note: This is repeated in xc.fh
+c     It is duplicated here to address some build issues
+c
+      integer numfunc
+      parameter(numfunc=45)
 c
       character*256 title
       character*16 grtagin
