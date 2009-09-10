@@ -1,6 +1,6 @@
 # $Id: GNUmakefile,v 1.111 2009-02-18 02:34:15 niri Exp $
 
-HEADERS =
+HEADERS = xc.fh
 
 	OBJ=xc_getv.o zora_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
 
