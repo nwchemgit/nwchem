@@ -33,7 +33,7 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 #include "dra.fh"
-#include "../nwdft/include/xc.fh"
+#include "xc.fh"
 c
       integer rtdb             ! Runtime database handle
       integer geom             ! Geometry handle
