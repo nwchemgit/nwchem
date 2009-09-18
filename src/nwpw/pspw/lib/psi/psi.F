@@ -5393,6 +5393,111 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       end
 
 
+
+*     ***************************
+*     *                         *
+*     *    psi_cpmd_start       *
+*     *                         *
+*     ***************************
+      subroutine psi_cpmd_start()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+      logical value
+
+      value = MA_alloc_get(mt_dbl,2*ispin*nfft3d,'rho0',rho0(2),rho0(1))
+      if (.not.value)
+     >   call errquit('psi_cpmd_start',0,MA_ERR)
+
+      call dcopy(2*ispin*nfft3d,dbl_mb(rho1(1)),1,dbl_mb(rho0(1)),1)
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *    psi_cpmd_end         *
+*     *                         *
+*     ***************************
+      subroutine psi_cpmd_end()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+      if (.not.MA_free_heap(rho0(2)))
+     >   call errquit('psi_cpmd_end',0,MA_ERR)
+      return
+      end
+
+
+*     ***************************
+*     *                         *
+*     *    psi_cpmd_step        *
+*     *                         *
+*     ***************************
+      subroutine psi_cpmd_step(dte)
+      implicit none
+      real*8 dte
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+      logical  control_precondition
+      external control_precondition
+      integer  control_ks_algorithm
+      external control_ks_algorithm
+      real*8   control_tole
+      external control_tole
+  
+
+*     **** psi2 = 2*psi1 - psi0 + dt*dt/fmass*Hpsi ****
+c      call electron_cpmd_update(dcpl_mb(psi0(1)),
+c     >                          dcpl_mb(psi1(1)),
+c     >                          dcpl_mb(psi2(1)),
+c     >                          dbl_mb(hml(1)),
+c     >                          dte)
+c      call Dneall_f_ortho(0,dcpl_mb(psi2(1)),npack1)
+c      write(*,*) "psi1 ortho:"
+c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi1(1)))
+c*     **** lagrange multiplier corrections ****
+c      if (pspw_SIC().or.occupation_on) then
+c        call psi_lmbda_sic(ispin,ne,(neq(1)+neq(2)),npack1,
+c     >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
+c     >                 dbl_mb(lmd_cpmd(1)),
+c     >                 dbl_mb(tmp_L_cpmd(1)),ierr)
+c      else
+c        call psi_lmbda(ispin,ne,(neq(1)+neq(2)),npack1,
+c     >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
+c     >                 dbl_mb(lmd_cpmd(1)),
+c     >                 dbl_mb(tmp_L_cpmd(1)),ierr)
+c      end if
+c      write(*,*) "psi2 ortho:"
+c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
+
+      call dcopy(2*ispin*nfft3d,dbl_mb(rho1(1)),1,dbl_mb(rho2(1)),1)
+      call dscal(2*ispin*nfft3d, 2.0d0,dbl_mb(rho2(1)),1)
+      call daxpy(2*ispin*nfft3d,-1.0d0,
+     >           dbl_mb(rho0(1)),1,dbl_mb(rho2(1)),1)
+      call dcopy(2*ispin*nfft3d,dbl_mb(rho1(1)),1,dbl_mb(rho0(1)),1)
+
+      call psi_set_density(1,dbl_mb(rho2(1)))
+
+*     **** diaganolize KS matrix ****
+      call psi_KS_update(1,
+     >                   control_ks_algorithm(),
+     >                   control_precondition(),
+     >                   control_tole())
+
+      return
+      end
+
+
+
 *     ***************************
 *     *				*
 *     *	    psi_initialize 	*

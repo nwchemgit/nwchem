@@ -53,7 +53,7 @@ ccccccc#include "frac_occ.fh"
 
 
 *     **** local variables ****
-      logical move
+      logical move,fei
       integer n2ft3d,np,np_i,np_j
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr,gga
       integer nx,ny,nz
@@ -99,8 +99,8 @@ c     real*8     fion(3,natmx)
       external psp_semicore
       integer  control_version
       external control_version
-      logical  control_Nose
-      external control_Nose
+      logical  control_Nose,control_Fei
+      external control_Nose,control_Fei
       real*8   Nose_e_energy,Nose_r_energy,Nose_sse,Nose_ssr
       real*8   Nose_dXe,Nose_dXr
       external Nose_e_energy,Nose_r_energy,Nose_sse,Nose_ssr
@@ -134,6 +134,7 @@ c     real*8     fion(3,natmx)
       sic               = pspw_SIC()
       gga               = control_gga()
       allow_translation = control_allow_translation()
+      fei = control_Fei()
 
 *     **** allocate MA local variables ****
       call nwpw_timing_start(12)
@@ -436,6 +437,8 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 *       *****************************************
 *       **** remove ion forces using ion_FixIon *
 *       *****************************************
+        if (fei) 
+     >    call dcopy(3*natmx,dbl_mb(fion(1)),1,dbl_mb(ftest(1)),1)
         call ion_FixIon(dbl_mb(fion(1)))
 
 c        !**** center of mass constraint ****
@@ -699,7 +702,7 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
       E(28) = E(28) + (E(2)+E(3)+E(4))**2
 
 *     **** output Forces for Fei ***
-      call fei_output(E(2),dbl_mb(fion(1)))
+      if (fei) call fei_output(E(2),dbl_mb(ftest(1)))
 
 
       if (nose) then

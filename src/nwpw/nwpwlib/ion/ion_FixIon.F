@@ -17,6 +17,11 @@
       integer ion_number(2)
       common / FixIon_Block / ion_number,count
 
+*     **** FixIonz common block ****
+      integer countz
+      integer ion_numberz(2)
+      common / FixIonz_Block / ion_numberz,countz
+
 
 *     **** FixIon2 common block - inverse forces ****
       integer count2
@@ -39,7 +44,9 @@
       external control_zero_forces
 
 *     *** initialize the  number of constraints ****
-      count = 0
+      count  = 0
+      count2 = 0
+      countz = 0
 
 *     **** get the nions, including charges and qmmm ****
       nion = ion_nion()
@@ -184,6 +191,41 @@
       end if
 
 
+*     ******************************************************************
+*     **** nwpw:zfreezelist constraints have been imposed           ****
+*     ******************************************************************
+      if (rtdb_ma_get(rtdb, 'nwpw:zfreezelist', ma_type,
+     >        nconstraints, h_actlist)) then
+
+         if (.not.MA_get_index(h_actlist,l_actlist))
+     >      call errquit(
+     >       'ion_init_FixIon: ma_get_index failed for actlist',911,
+     >       MA_ERR)
+
+           countz = nconstraints
+*          ***** allocate constraint list, ion_number, from heap ****
+           if (.not. MA_alloc_get(mt_int,nconstraints,
+     >       'ion_numberz',ion_numberz(2),ion_numberz(1)))
+     >         call errquit('out of heap memory',0, MA_ERR)
+
+           do i=1,countz
+              int_mb(ion_numberz(1)+i-1)  = int_mb(l_actlist+i-1)
+           end do
+
+*        *** free heap ***
+         if (.not. MA_free_heap(h_actlist))
+     >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
+      end if
+
+      if (countz.ne.0) then
+         call Parallel_taskid(taskid)
+         if (taskid.eq.MASTER) then
+          write(*,*)
+          write(*,1005) (int_mb(ion_numberz(1)+i-1),i=1,countz)
+          write(*,*)
+         end if
+      end if
+
 
 *     ******************************************************************
 *     **** geometry:inversionlistlist constraints have been imposed ****
@@ -236,6 +278,7 @@
       return
  1003 FORMAT(1x,"Fixed ion positions:",10I5)
  1004 FORMAT(1x,"Inversion constraints:",10I5)
+ 1005 FORMAT(1x,"Fixed ion z-positions:",10I5)
       end
 
 
@@ -256,6 +299,12 @@
       integer ion_number(2)
       common / FixIon_Block / ion_number,count
 
+*     **** FixIonz common block ****
+      integer countz
+      integer ion_numberz(2)
+      common / FixIonz_Block / ion_numberz,countz
+
+
 *     **** FixIon2 common block - inverse forces ****
       integer count2
       integer ion_number1(2),ion_number1r(2)
@@ -274,6 +323,11 @@
          end do
       end if
 
+      if (countz.ne.0) then
+         do i=1,countz
+            force(3,int_mb(ion_numberz(1)+i-1)) = 0.0d0
+         end do
+      end if
 
       if (count2.ne.0) then
          do i=1,count2
@@ -344,6 +398,12 @@
       integer ion_number(2)
       common / FixIon_Block / ion_number,count
 
+*     **** FixIonz common block ****
+      integer countz
+      integer ion_numberz(2)
+      common / FixIonz_Block / ion_numberz,countz
+
+
 *     **** FixIon2 common block - inverse forces ****
       integer count2
       integer ion_number1(2),ion_number1r(2)
@@ -359,6 +419,15 @@
      >  call errquit('ion_number(2):error freeing heap memory',0,
      &       MA_ERR)
       end if
+
+      if (countz.gt.0) then
+        value =  MA_free_heap(ion_numberz(2)) 
+        if (.not. value)
+     >  call errquit('ion_numberz(2):error freeing heap memory',0,
+     >       MA_ERR)
+      end if
+
+
       if (count2.gt.0) then
         value =            MA_free_heap(ion_number1(2)) 
         value =  value.and.MA_free_heap(ion_number1r(2)) 
@@ -403,3 +472,435 @@
       ion_q_FixIon = found
       return
       end
+
+
+
+*     ***************************
+*     *                         *
+*     *         ion_q_zFixIon    *
+*     *                         *
+*     ***************************
+
+      logical function ion_q_zFixIon(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+
+*     **** FixIonz common block ****
+      integer countz
+      integer ion_numberz(2)
+      common / FixIonz_Block / ion_numberz,countz
+
+*     **** local variables ***
+      logical found
+      integer j
+
+      found = .false.
+      do j=1,countz
+         if (i .eq. int_mb(ion_numberz(1)+j-1)) found = .true.
+      end do
+
+      ion_q_zFixIon = found
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *				        *
+*     *	    zFixIon_force_average	*
+*     *	 		                *
+*     ***********************************
+      subroutine ZFixIon_force_average(filename)
+      implicit none
+      character*(*) filename
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** FixIonz common block ****
+      integer countz
+      integer ion_numberz(2)
+      common / FixIonz_Block / ion_numberz,countz
+
+
+*     **** local variables ****
+      logical ok
+      integer nion
+      integer m,indx,indx2,indx3,ii,iii,nframe,l
+      double precision E
+      double precision a1x,a1y,a1z
+      double precision a2x,a2y,a2z
+      double precision a3x,a3y,a3z
+      integer r1(2),f1(2),af1(2),af2(2),ac1(2)
+
+      if (countz.gt.0) then
+         l = index(filename,' ') - 1
+         write(*,*)
+         write(*,*) "Force Energy File:",filename(1:l)
+
+         open(unit=35,file=filename,form='formatted',status='old')
+         read(35,*) nion
+         close(unit=35)
+
+         ok =        MA_push_get(mt_dbl,3*nion,'r1',r1(2),r1(1))
+         ok = ok.and.MA_push_get(mt_dbl,3*nion,'f1',f1(2),f1(1))
+         ok = ok.and.MA_push_get(mt_dbl,countz,'af1',af1(2),af1(1))
+         ok = ok.and.MA_push_get(mt_dbl,countz,'af2',af2(2),af2(1))
+         ok = ok.and.MA_push_get(mt_dbl,countz,'ac1',ac1(2),ac1(1))
+         if (.not.ok)
+     >    call errquit('zFixIon_force_average: out of stack',1,MA_ERR)
+         call dcopy(countz,0.0d0,0,dbl_mb(af1(1)),1)
+         call dcopy(countz,0.0d0,0,dbl_mb(af2(1)),1)
+         call dcopy(countz,0.0d0,0,dbl_mb(ac1(1)),1)
+
+         open(unit=35,file=filename,form='formatted',status='old')
+         nframe = 0
+         do while (.true.)
+            read(35,*,ERR=30,END=30) nion
+            read(35,*,ERR=30,END=30) E
+            read(35,*,ERR=30,END=30) a1x,a1y,a1z
+            read(35,*,ERR=30,END=30) a2x,a2y,a2z
+            read(35,*,ERR=30,END=30) a3x,a3y,a3z
+            indx = 0
+            do ii=1,nion
+              read(35,*,ERR=30,END=30) iii,
+     >                                 dbl_mb(r1(1)+indx),
+     >                                 dbl_mb(r1(1)+indx+1),
+     >                                 dbl_mb(r1(1)+indx+2),
+     >                                 dbl_mb(f1(1)+indx),
+     >                                 dbl_mb(f1(1)+indx+1),
+     >                                 dbl_mb(f1(1)+indx+2)
+              indx = indx + 3
+            end do
+
+            nframe = nframe + 1
+            call zFixIon_sub_force_average(dbl_mb(r1(1)),
+     >                                     dbl_mb(f1(1)),
+     >                                     countz,
+     >                                     int_mb(ion_numberz(1)), 
+     >                                     dbl_mb(af1(1)),
+     >                                     dbl_mb(af2(1)),
+     >                                     dbl_mb(ac1(1)))
+         end do
+
+  30     continue
+         close(unit=35)
+
+         if (nframe.eq.0) then
+            E = 0.0d0
+         else
+            E = 1.0d0/dble(nframe)
+         end if
+         call dscal(countz,E,dbl_mb(af1(1)),1)
+         call dscal(countz,E,dbl_mb(af2(1)),1)
+         call dscal(countz,E,dbl_mb(ac1(1)),1)
+
+         write(*,110) nframe
+         write(*,111) countz
+         write(*,112) nion
+  110    format(1x,'frames used           =',I8)
+  111    format(1x,'number of constraints =',I8)
+  112    format(1x,'number of atoms       =',I8)
+         do m=1,countz
+            write(*,120) int_mb(ion_numberz(1)+m-1),
+     >                   dbl_mb(ac1(1)+m-1),
+     >                   dbl_mb(af1(1)+m-1),
+     >                   dbl_mb(af2(1)+m-1)-dbl_mb(af1(1)+m-1)**2
+         end do
+  120    format(1x,'atom=',I5,
+     >          1x,'<z>=', E14.6,
+     >          4x,'<Fz>=',E14.6,
+     >          1x,'(<F**2>-<F>**2=',E10.3,')')
+
+         ok =        MA_pop_stack(ac1(2))
+         ok = ok.and.MA_pop_stack(af2(2))
+         ok = ok.and.MA_pop_stack(af1(2))
+         ok = ok.and.MA_pop_stack(f1(2))
+         ok = ok.and.MA_pop_stack(r1(2))
+         if (.not.ok)
+     >    call errquit(
+     >         'zFixIon_force_average: error popping stack',1,MA_ERR)
+
+      end if
+
+      return
+      end
+
+      subroutine zFixIon_sub_force_average(rion,fion,
+     >                                     nindx,indx,
+     >                                     af,af2,ac)
+      implicit none
+      real*8 rion(3,*)
+      real*8 fion(3,*)
+      integer nindx,indx(*)
+      real*8 af(*)
+      real*8 af2(*)
+      real*8 ac(*)
+
+*     **** local variables
+      integer m
+      real*8 ff
+
+      do m=1,nindx
+         ff = fion(3,indx(m)) 
+         af(m)  = af(m)  + ff
+         af2(m) = af2(m) + ff*ff
+         ac(m)  = ac(m)  + rion(3,indx(m))
+      end do
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *				        *
+*     *	    FixIon_force_average	*
+*     *	 		                *
+*     ***********************************
+      subroutine FixIon_force_average(filename)
+      implicit none
+      character*(*) filename
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** FixIon common block ****
+      integer count
+      integer ion_number(2)
+      common / FixIon_Block / ion_number,count
+
+
+*     **** local variables ****
+      logical ok
+      integer nion
+      integer m,indx,indx2,indx3,ii,iii,nframe,l
+      double precision E
+      double precision a1x,a1y,a1z
+      double precision a2x,a2y,a2z
+      double precision a3x,a3y,a3z
+      integer r1(2),f1(2),af1(2),af2(2),ac1(2)
+
+      if (count.gt.0) then
+         l = index(filename,' ') - 1
+         write(*,*)
+         write(*,*) "Force Energy File:",filename(1:l)
+
+         open(unit=35,file=filename,form='formatted',status='old')
+         read(35,*) nion
+         close(unit=35)
+
+         ok =        MA_push_get(mt_dbl,3*nion,'r1',r1(2),r1(1))
+         ok = ok.and.MA_push_get(mt_dbl,3*nion,'f1',f1(2),f1(1))
+         ok = ok.and.MA_push_get(mt_dbl,3*count,'af1',af1(2),af1(1))
+         ok = ok.and.MA_push_get(mt_dbl,3*count,'af2',af2(2),af2(1))
+         ok = ok.and.MA_push_get(mt_dbl,3*count,'ac1',ac1(2),ac1(1))
+         if (.not.ok)
+     >    call errquit('zFixIon_force_average: out of stack',1,MA_ERR)
+         call dcopy(3*count,0.0d0,0,dbl_mb(af1(1)),1)
+         call dcopy(3*count,0.0d0,0,dbl_mb(af2(1)),1)
+         call dcopy(3*count,0.0d0,0,dbl_mb(ac1(1)),1)
+
+         open(unit=35,file=filename,form='formatted',status='old')
+         nframe = 0
+         do while (.true.)
+            read(35,*,ERR=30,END=30) nion
+            read(35,*,ERR=30,END=30) E
+            read(35,*,ERR=30,END=30) a1x,a1y,a1z
+            read(35,*,ERR=30,END=30) a2x,a2y,a2z
+            read(35,*,ERR=30,END=30) a3x,a3y,a3z
+            indx = 0
+            do ii=1,nion
+              read(35,*,ERR=30,END=30) iii,
+     >                                 dbl_mb(r1(1)+indx),
+     >                                 dbl_mb(r1(1)+indx+1),
+     >                                 dbl_mb(r1(1)+indx+2),
+     >                                 dbl_mb(f1(1)+indx),
+     >                                 dbl_mb(f1(1)+indx+1),
+     >                                 dbl_mb(f1(1)+indx+2)
+              indx = indx + 3
+            end do
+
+            nframe = nframe + 1
+            call FixIon_sub_force_average(dbl_mb(r1(1)),
+     >                                     dbl_mb(f1(1)),
+     >                                     count,
+     >                                     int_mb(ion_number(1)), 
+     >                                     dbl_mb(af1(1)),
+     >                                     dbl_mb(af2(1)),
+     >                                     dbl_mb(ac1(1)))
+         end do
+
+  30     continue
+         close(unit=35)
+
+         if (nframe.eq.0) then
+            E = 0.0d0
+         else
+            E = 1.0d0/dble(nframe)
+         end if
+         call dscal(3*count,E,dbl_mb(af1(1)),1)
+         call dscal(3*count,E,dbl_mb(af2(1)),1)
+         call dscal(3*count,E,dbl_mb(ac1(1)),1)
+
+         write(*,110) nframe
+         write(*,111) count
+         write(*,112) nion
+  110    format(1x,'frames used           =',I8)
+  111    format(1x,'number of constraints =',I8)
+  112    format(1x,'number of atoms       =',I8)
+         do m=0,count-1
+            write(*,120) int_mb(ion_number(1)+m),
+     >                   dbl_mb(ac1(1)+3*m),
+     >                   dbl_mb(af1(1)+3*m),
+     >                   dbl_mb(af2(1)+3*m)-dbl_mb(af1(1)+3*m)**2
+            write(*,121) int_mb(ion_number(1)+m),
+     >                   dbl_mb(ac1(1)+3*m+1),
+     >                   dbl_mb(af1(1)+3*m+1),
+     >                   dbl_mb(af2(1)+3*m+1)-dbl_mb(af1(1)+3*m+1)**2
+            write(*,122) int_mb(ion_number(1)+m),
+     >                   dbl_mb(ac1(1)+3*m+2),
+     >                   dbl_mb(af1(1)+3*m+2),
+     >                   dbl_mb(af2(1)+3*m+2)-dbl_mb(af1(1)+3*m+2)**2
+         end do
+  120    format(1x,'atom=',I5,
+     >          1x,'<x>=', E14.6,
+     >          4x,'<Fx>=',E14.6,
+     >          1x,'(<Fx**2>-<Fx>**2=',E10.3,')')
+  121    format(1x,'atom=',I5,
+     >          1x,'<y>=', E14.6,
+     >          4x,'<Fy>=',E14.6,
+     >          1x,'(<Fy**2>-<Fy>**2=',E10.3,')')
+  122    format(1x,'atom=',I5,
+     >          1x,'<z>=', E14.6,
+     >          4x,'<Fz>=',E14.6,
+     >          1x,'(<Fz**2>-<Fz>**2=',E10.3,')')
+
+         ok =        MA_pop_stack(ac1(2))
+         ok = ok.and.MA_pop_stack(af2(2))
+         ok = ok.and.MA_pop_stack(af1(2))
+         ok = ok.and.MA_pop_stack(f1(2))
+         ok = ok.and.MA_pop_stack(r1(2))
+         if (.not.ok)
+     >    call errquit(
+     >         'FixIon_force_average: error popping stack',1,MA_ERR)
+
+      end if
+
+      return
+      end
+
+      subroutine FixIon_sub_force_average(rion,fion,
+     >                                    nindx,indx,
+     >                                    af,af2,ac)
+      implicit none
+      real*8 rion(3,*)
+      real*8 fion(3,*)
+      integer nindx,indx(*)
+      real*8 af(*)
+      real*8 af2(*)
+      real*8 ac(*)
+
+*     **** local variables
+      integer m,mx,my,mz
+      real*8 fx,fy,fz
+
+      do m=1,nindx
+         mx =3*(m-1)+1
+         my =3*(m-1)+2
+         mz =3*(m-1)+3
+         fx = fion(1,indx(m)) 
+         fy = fion(2,indx(m)) 
+         fz = fion(3,indx(m)) 
+
+         af(mx)  = af(mx)  + fx
+         af(my)  = af(my)  + fy
+         af(mz)  = af(mz)  + fz
+
+         af2(mx) = af2(mx) + fx*fx
+         af2(my) = af2(my) + fy*fy
+         af2(mz) = af2(mz) + fz*fz
+
+         ac(mx)  = ac(mx)  + rion(1,indx(m))
+         ac(my)  = ac(my)  + rion(2,indx(m))
+         ac(mz)  = ac(mz)  + rion(3,indx(m))
+      end do
+
+      return
+      end
+
+
+
+
+
+*     ***************************
+*     *			        *
+*     *	     FixIon_analysis    *
+*     *				*
+*     ***************************
+      subroutine FixIon_analysis(rtdb)
+      implicit none 
+      integer   rtdb
+
+#include "rtdb.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      logical value
+      character*30  filename
+      character*255 full_filename
+
+*     **** external functions ****
+
+      call ga_sync()
+
+      call Parallel_taskid(taskid)
+
+
+      call ion_init_FixIon(rtdb)
+      value = rtdb_parallel(.false.)
+      if (taskid.eq.MASTER) then
+
+
+
+         if (.not.rtdb_cget(rtdb,'cpmd:fei_filename',1,filename))
+     >     call util_file_prefix('fei',filename)
+
+         call util_file_name_noprefix(filename,.false.,
+     >                             .false.,
+     >                             full_filename)
+
+         call util_file_name_noprefix(filename,.false.,
+     >                               .false.,
+     >                               full_filename)
+
+         write(luout,*)
+         write(luout,*) '===== Performing FixIon analysis ===='
+         write(luout,*)
+         call FixIon_force_average(full_filename)
+
+         write(luout,*)
+         write(luout,*) '===== Performing z FixIon analysis ===='
+         write(luout,*)
+         call zFixIon_force_average(full_filename)
+         
+
+
+      end if
+      call ga_sync()
+      value = rtdb_parallel(.true.)
+      call ion_end_FixIon()
+   
+
+      return
+      end
+
+
+

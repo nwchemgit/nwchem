@@ -14,7 +14,7 @@
       real*8      unita(3,3),tolerances(3),scaling(2),sa_decay(2)
       real*8      time_step,fake_mass,ks_alpha,ecut,wcut,rcut
       real*8      cpu1_time,cpu2_time,attenuation
-      real*8      bo_time_step
+      real*8      bo_time_step,bo_fake_mass
       integer     bo_steps(2),bo_algorithm
       integer     loop(2),ngrid(3),npsp,ncut,mapping,mapping1d
       integer     np_dimensions(3),ewald_grid(3)
@@ -29,7 +29,8 @@
       common / control_block / unita,tolerances,scaling,sa_decay,
      >                         time_step,fake_mass,ks_alpha,
      >                         ecut,wcut,rcut,attenuation,
-     >                         bo_time_step,bo_steps,bo_algorithm,
+     >                         bo_time_step,bo_fake_mass,
+     >                         bo_steps,bo_algorithm,
      >                         mapping,mapping1d,np_dimensions,
      >                         ncut,gga,
      >                         loop,ngrid,npsp,ewald_grid,

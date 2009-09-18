@@ -40,15 +40,15 @@
         size = psi_history_size()
         call psi_history_generate_coef(coef)
 
-        call Parallel_taskid(taskid)
-        if (taskid.eq.MASTER) then
-        write(*,*)
-        write(*,*) "Number of psi histories used:",size
-        do i=1,size-1
-          write(*,*) "coef(i):",i,coef(i)
-        end do
-        write(*,*)
-        end if
+c        call Parallel_taskid(taskid)
+c        if (taskid.eq.MASTER) then
+c        write(*,*)
+c        write(*,*) "Number of psi histories used:",size
+c        do i=1,size-1
+c          write(*,*) "coef(i):",i,coef(i)
+c        end do
+c        write(*,*)
+c        end if
 
         value = MA_push_get(mt_dbl,(ne(1)*ne(1)),'mm',mm(2),mm(1))
         value = MA_push_get(mt_dcpl,(neall*nfft3d),
@@ -269,55 +269,55 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
 
 
 *     **** write out estimated ion positions ****
-      ptr = start - 1
-      if (ptr.le.0) ptr = size
-      tag2 = 'nwpw_history_ion'//CHAR(ICHAR('a')+ptr-1)
-      call ion_read_filename(tag2,dbl_mb(rion1(1)))
+c      ptr = start - 1
+c      if (ptr.le.0) ptr = size
+c      tag2 = 'nwpw_history_ion'//CHAR(ICHAR('a')+ptr-1)
+c      call ion_read_filename(tag2,dbl_mb(rion1(1)))
 
-      gx = 0.0d0
-      write(*,*) 'old and new ion positions'
-      do ii=1,nion
-        write(*,1500) ii, 
-     >                dbl_mb(rion1(1)+3*(ii-1)),
-     >                dbl_mb(rion1(1)+3*(ii-1)+1),
-     >                dbl_mb(rion1(1)+3*(ii-1)+2),
-     >                ion_rion(1,ii),
-     >                ion_rion(2,ii),
-     >                ion_rion(3,ii) 
-       gx = gx
-     >    + (dbl_mb(rion1(1)+3*(ii-1))  -ion_rion(1,ii))**2
-     >    + (dbl_mb(rion1(1)+3*(ii-1)+1)-ion_rion(2,ii))**2
-     >    + (dbl_mb(rion1(1)+3*(ii-1)+2)-ion_rion(3,ii))**2
-      end do
-      write(*,*) "diff:",dsqrt(gx)
+c      gx = 0.0d0
+c      write(*,*) 'old and new ion positions'
+c      do ii=1,nion
+c        write(*,1500) ii, 
+c     >                dbl_mb(rion1(1)+3*(ii-1)),
+c     >                dbl_mb(rion1(1)+3*(ii-1)+1),
+c     >                dbl_mb(rion1(1)+3*(ii-1)+2),
+c     >                ion_rion(1,ii),
+c     >                ion_rion(2,ii),
+c     >                ion_rion(3,ii) 
+c       gx = gx
+c     >    + (dbl_mb(rion1(1)+3*(ii-1))  -ion_rion(1,ii))**2
+c     >    + (dbl_mb(rion1(1)+3*(ii-1)+1)-ion_rion(2,ii))**2
+c     >    + (dbl_mb(rion1(1)+3*(ii-1)+2)-ion_rion(3,ii))**2
+c      end do
+c      write(*,*) "diff:",dsqrt(gx)
 
-      do i=1,(size-1)
-      do ii=1,nion
-        dbl_mb(rion1(1)+3*(ii-1))   = dbl_mb(rion1(1)+3*(ii-1))
-     >   + coef(i)*dbl_mb(gion(1) + 3*nion*(i) + 3*(ii-1))
-        dbl_mb(rion1(1)+3*(ii-1)+1) = dbl_mb(rion1(1)+3*(ii-1)+1)
-     >   + coef(i)*dbl_mb(gion(1) + 3*nion*(i) + 3*(ii-1)+1)
-        dbl_mb(rion1(1)+3*(ii-1)+2) = dbl_mb(rion1(1)+3*(ii-1)+2)
-     >   + coef(i)*dbl_mb(gion(1) + 3*nion*(i) + 3*(ii-1)+2)
-      end do
-      end do
+c      do i=1,(size-1)
+c      do ii=1,nion
+c        dbl_mb(rion1(1)+3*(ii-1))   = dbl_mb(rion1(1)+3*(ii-1))
+c     >   + coef(i)*dbl_mb(gion(1) + 3*nion*(i) + 3*(ii-1))
+c        dbl_mb(rion1(1)+3*(ii-1)+1) = dbl_mb(rion1(1)+3*(ii-1)+1)
+c     >   + coef(i)*dbl_mb(gion(1) + 3*nion*(i) + 3*(ii-1)+1)
+c        dbl_mb(rion1(1)+3*(ii-1)+2) = dbl_mb(rion1(1)+3*(ii-1)+2)
+c     >   + coef(i)*dbl_mb(gion(1) + 3*nion*(i) + 3*(ii-1)+2)
+c      end do
+c      end do
 
-      gx = 0.0d0
-      write(*,*) 'estimated and new ion positions'
-      do ii=1,nion
-        write(*,1500) ii, 
-     >                dbl_mb(rion1(1)+3*(ii-1)),
-     >                dbl_mb(rion1(1)+3*(ii-1)+1),
-     >                dbl_mb(rion1(1)+3*(ii-1)+2),
-     >                ion_rion(1,ii),
-     >                ion_rion(2,ii),
-     >                ion_rion(3,ii) 
-       gx = gx
-     >    + (dbl_mb(rion1(1)+3*(ii-1))  -ion_rion(1,ii))**2
-     >    + (dbl_mb(rion1(1)+3*(ii-1)+1)-ion_rion(2,ii))**2
-     >    + (dbl_mb(rion1(1)+3*(ii-1)+2)-ion_rion(3,ii))**2
-      end do
-      write(*,*) "diff:",dsqrt(gx)
+c      gx = 0.0d0
+c      write(*,*) 'estimated and new ion positions'
+c      do ii=1,nion
+c        write(*,1500) ii, 
+c     >                dbl_mb(rion1(1)+3*(ii-1)),
+c     >                dbl_mb(rion1(1)+3*(ii-1)+1),
+c     >                dbl_mb(rion1(1)+3*(ii-1)+2),
+c     >                ion_rion(1,ii),
+c     >                ion_rion(2,ii),
+c     >                ion_rion(3,ii) 
+c       gx = gx
+c     >    + (dbl_mb(rion1(1)+3*(ii-1))  -ion_rion(1,ii))**2
+c     >    + (dbl_mb(rion1(1)+3*(ii-1)+1)-ion_rion(2,ii))**2
+c     >    + (dbl_mb(rion1(1)+3*(ii-1)+2)-ion_rion(3,ii))**2
+c      end do
+c      write(*,*) "diff:",dsqrt(gx)
 
  1500 format(5x,I3, '(', 3F8.3, ') (' ,3F8.3, ')' )
 

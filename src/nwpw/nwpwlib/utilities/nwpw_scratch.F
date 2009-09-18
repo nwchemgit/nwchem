@@ -4,7 +4,7 @@
 
 *     *********************************
 *     *                               *
-*     *      nwpw_scratch_write  	  *
+*     *      nwpw_scratch_write       *
 *     *                               *
 *     *********************************
       subroutine nwpw_scratch_write(tag,n,A)
@@ -31,7 +31,7 @@
 
 *     *********************************
 *     *                               *
-*     *      nwpw_scratch_read  	  *
+*     *      nwpw_scratch_read        *
 *     *                               *
 *     *********************************
       subroutine nwpw_scratch_read(tag,n,A)

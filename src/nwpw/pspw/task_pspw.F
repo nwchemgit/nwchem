@@ -43,12 +43,12 @@ c
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       logical  v_wvfnc_init,wvfnc_expander,cell_optimize,mmsdv1,mmmdv1
-      logical  pspw_dplot,pspw_stress,pspw_noit_energy
+      logical  pspw_dplot,pspw_stress,pspw_noit_energy,cpmdv6
       logical  pspw_wannier,expand_cell,wvfnc_ionize
       logical  wvfnc_convert_restricted,nwpw_rdf
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize,mmsdv1,mmmdv1
-      external pspw_dplot,pspw_stress,pspw_noit_energy
+      external pspw_dplot,pspw_stress,pspw_noit_energy,cpmdv6
       external pspw_wannier,expand_cell,wvfnc_ionize
       external wvfnc_convert_restricted,nwpw_rdf
 c

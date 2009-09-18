@@ -37,6 +37,7 @@ c
 *     **** perform shake force averaging if Fei set *****
       if (control_Fei()) then
          call shake_analysis(rtdb)
+         call FixIon_analysis(rtdb)
       end if
 
       return

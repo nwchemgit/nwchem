@@ -121,6 +121,9 @@
       external control_time_step,control_fake_mass
       logical  control_read,control_move,ion_init,ion_q_FixIon
       external control_read,control_move,ion_init,ion_q_FixIon
+      logical  ion_q_zFixIon
+      external ion_q_zFixIon
+
       logical  brillioun_print
       external brillioun_print
       real*8   brillioun_k_brdcst,brillioun_ks_brdcst
@@ -550,6 +553,9 @@ c         call pspw_print_HFX(6)
            if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
+           else if (ion_q_zFixIon(I)) then
+           write(luout,1193) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0
            else
            write(luout,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
@@ -809,6 +815,9 @@ c      call cpsi_data_dealloc(lmd_tag)
            if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
+           else if (ion_q_zFixIon(I)) then
+           write(6,1193) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+     >                   ion_amass(I)/1822.89d0
            else
            write(luout,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
@@ -1054,6 +1063,8 @@ c
  1190 FORMAT(5X, I4, A5, ' (',3F11.5,' ) - atomic mass= ',F7.3,' ',A)
  1191 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F6.3,' - fixed ',A)
+ 1193 FORMAT(5X, I4, A5, ' (',3F11.5,
+     >       ' ) - atomic mass= ',F7.3,' - z fixed')
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1220 FORMAT(/' number of electrons: spin up=',F6.2, 16x,

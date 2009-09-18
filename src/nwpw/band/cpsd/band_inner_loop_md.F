@@ -54,7 +54,7 @@
 
 
 *     **** MA local variables ****
-      logical value,field_exist
+      logical value,field_exist,fei
       integer tmp_L(2),trho(2),txcp(2),txce(2)
       integer tmp1(2),tmp2(2)
       integer vl(2),vc(2),dng(2)
@@ -67,13 +67,13 @@
 
 *     ***** external functions ****
       logical  control_move,cpsp_semicore,control_Nose
-      logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_SIC,pspw_SIC_relaxed,control_Fei
       logical  pspw_HFX,pspw_HFX_relaxed
       integer  ion_nion,control_gga,cpsi_data_nsize
       real*8   control_time_step,control_fake_mass,ion_dti
       real*8   lattice_omega,c_coulomb_e,ewald_e
       external control_move,cpsp_semicore,control_Nose
-      external pspw_SIC,pspw_SIC_relaxed
+      external pspw_SIC,pspw_SIC_relaxed,control_Fei
       external pspw_HFX,pspw_HFX_relaxed
       external ion_nion,control_gga,cpsi_data_nsize
       external control_time_step,control_fake_mass,ion_dti
@@ -105,6 +105,7 @@
       nshiftA = 2*npack1
       nshiftB = 2*nfft3d
       call D3dB_n2ft3d(1,n2ft3d)
+      fei = control_Fei()
 
       n1(1) = 1
       n2(1) = neq(1)
@@ -385,6 +386,8 @@ c*          **** get the qmmm force ****
 c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
 
 *       **** remove ion forces using ion_FixIon ****
+        if (fei) 
+     >    call dcopy(3*natmx,dbl_mb(fion(1)),1,dbl_mb(ftest(1)),1)
         call ion_FixIon(dbl_mb(fion(1)))
 
         
@@ -591,7 +594,7 @@ c      end if
       E(26) = E(26) + E(2)*E(2)
 
 *     **** output Forces for Fei ***
-      call fei_output(E(2),dbl_mb(fion(1)))
+      if (fei) call fei_output(E(2),dbl_mb(ftest(1)))
 
       if (nose) then
         E(9)  = Nose_e_energy()

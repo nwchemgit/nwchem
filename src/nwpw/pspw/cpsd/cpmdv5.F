@@ -96,8 +96,7 @@ cccc#include "frac_occ.fh"
       integer icount,it_in,it_out,icount_shift
       real*8 w,sumall,pressure,stress(3,3),p1,p2
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
-      integer nfft3,mapping,mapping1d
-      parameter (nfft3=32)
+      integer mapping,mapping1d
       character*30 filename
       character*255 full_filename
   
@@ -129,6 +128,8 @@ cccc#include "frac_occ.fh"
       external control_time_step,control_fake_mass
       logical  control_read,control_move,ion_init,ion_q_FixIon
       external control_read,control_move,ion_init,ion_q_FixIon
+      logical  ion_q_zFixIon
+      external ion_q_zFixIon
 
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
@@ -541,6 +542,9 @@ c      call frac_occ_init(rtdb,ispin,ne)
            if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),
      >                    (ion_rion(K,I),K=1,3),ion_amass(i)/1822.89d0
+           else if (ion_q_zFixIon(I)) then
+           write(luout,1193) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0
            else
            write(luout,1190) I,ion_aname(I),
      >                    (ion_rion(K,I),K=1,3),ion_amass(i)/1822.89d0
@@ -1017,6 +1021,9 @@ c         end if
            if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
+           else if (ion_q_zFixIon(I)) then
+           write(6,1193) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+     >                   ion_amass(I)/1822.89d0
            else
            write(luout,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
@@ -1286,6 +1293,9 @@ c      call frac_occ_end()
  1191 FORMAT(5X, I4, A5  ,' (',3F11.5,
      >       ' ) - atomic mass= ',F6.3,' - fixed')
  1192 FORMAT(5X, I4, A5  ,' (',3F11.5,' )')
+ 1193 FORMAT(5X, I4, A5, ' (',3F11.5,
+     >       ' ) - atomic mass= ',F7.3,' - z fixed')
+
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1219 FORMAT(/' number of electrons: spin up=',F6.2,'  down=',F6.2,A)

@@ -26,6 +26,7 @@
       parameter (MASTER=0)
 
 *     **** local variables ****
+      logical notgram
       integer taskid
       integer ms,it
       integer nn
@@ -57,6 +58,7 @@ c      call dcopy(8*nn,0.0d0,0,tmp,1)
       
 *::::::::::::::::::::::  Lagrangian multipliers  ::::::::::::::::::::::
       DO 640 ms=1,ispin
+        notgram=.true.
         IF(ne(ms).le.0) GO TO 640
 
         call Dneall_m_size(ms,nn)
@@ -101,9 +103,11 @@ c        call Dne_ffm_combo_sym_Multiply(ms,psi1,psi2,npack1,tmp(s11))
 
           adiff = Dneall_m_dmax(ms,tmp(st1))
           if(adiff.lt.convg) GO TO 630
+          if (adiff.gt.1.0d10) go to 620
           call dcopy(nn,tmp(sa1),1,tmp(sa0),1)
         end do
 
+  620   continue
         ierr=10 
         call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
@@ -113,17 +117,25 @@ c        call Dne_ffm_combo_sym_Multiply(ms,psi1,psi2,npack1,tmp(s11))
           WRITE(6,*) '        +Gram-Schmidt being performed, spin:',ms
         end if
         call Dneall_f_ortho(ms,psi2,npack1)
+        notgram = .false.
 
-C       return
   630   continue
+
+*       :::::::::::::::::  correction due to the constraint  :::::::::::::::::
+        if (notgram)
+     >     call Dneall_fmf_Multiply(ms,
+     >                              psi1,npack1,
+     >                              tmp(sa1), dte,
+     >                              psi2,1.0d0)
+
         call Dneall_mm_Expand(ms,tmp(sa1),lmbda)
   640 continue
 
-*:::::::::::::::::  correction due to the constraint  :::::::::::::::::
-      call Dneall_fmf_Multiply(0,
-     >                          psi1,npack1,
-     >                          lmbda, dte,
-     >                          psi2,1.0d0) 
+c*:::::::::::::::::  correction due to the constraint  :::::::::::::::::
+c      call Dneall_fmf_Multiply(0,
+c     >                          psi1,npack1,
+c     >                          lmbda, dte,
+c     >                          psi2,1.0d0) 
 
       call nwpw_timing_end(3)
 

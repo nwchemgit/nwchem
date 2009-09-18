@@ -306,6 +306,17 @@ c
      >                  1,output_ewavefunction_filename))
      >  call util_file_prefix('emovecs',output_ewavefunction_filename)
 
+      if (code.eq.11) then
+         if(.not.rtdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
+     >                  1,input_v_wavefunction_filename))
+     >    call util_file_prefix('vmovecs',input_v_wavefunction_filename)
+         if(.not.rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
+     >                  1,output_v_wavefunction_filename))
+     >   call util_file_prefix('vmovecs',output_v_wavefunction_filename)
+      end if
+
+
+
       if (.not.rtdb_cget(rtdb,'cgsd:exchange_correlation',
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
@@ -387,6 +398,8 @@ c
      >   bo_time_step = time_step
       if (.not.rtdb_get(rtdb,'nwpw:bo_algorithm',mt_int,1,bo_algorithm))
      >   bo_algorithm = 0
+      if (.not.rtdb_get(rtdb,'nwpw:bo_fake_mass',mt_dbl,1,bo_fake_mass))
+     >   bo_fake_mass = 500.0d0
 
       if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
      >  rotation = .true.
@@ -1685,6 +1698,21 @@ c         mtensor(3,3) = z
 #include "control.fh"
 
       control_fake_mass = fake_mass
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         control_bo_fake_mass    *
+*     *                                 *
+*     ***********************************
+      real*8 function control_bo_fake_mass()
+      implicit none
+
+#include "control.fh"
+
+      control_bo_fake_mass = bo_fake_mass
       return
       end
 
@@ -3958,6 +3986,32 @@ c      end
       control_mparallelized = value
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *        control_bo_cpmd          *
+*     *                                 *
+*     ***********************************
+      logical function control_bo_cpmd()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.rtdb_get(rtdb,'nwpw:bo_cpmd',mt_log,1,value))
+     >   value = .false.
+
+      control_bo_cpmd = value
+      return
+      end
+
 
 
 

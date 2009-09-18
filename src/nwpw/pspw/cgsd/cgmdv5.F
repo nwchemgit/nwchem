@@ -57,10 +57,10 @@
       integer ierr
 
 *     **** local variables ****
-      logical verlet,mulliken,SA,calc_pressure,nose
-      logical oprint,lprint,hprint,qmmm,found
+      logical verlet,mulliken,SA,calc_pressure,nose,bo_cpmd
+      logical oprint,lprint,hprint,qmmm,found,notfirststep
       real*8  gx,gy,gz,cx,cy,cz
-      real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt
+      real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt,fmass,dte
       real*8  sum,w,emotion_time_shift,wa,wr
       real*8  EV,EV0,pi,esum1,esum2,eave,evar,dr,E25,E26
       real*8  ratio,aratio
@@ -97,8 +97,8 @@
 
       real*8   control_tole,control_tolc,control_tolr,ion_rion,ion_vion
       external control_tole,control_tolc,control_tolr,ion_rion,ion_vion
-      real*8   control_time_step,control_fake_mass
-      external control_time_step,control_fake_mass
+      real*8   control_time_step,control_fake_mass,control_bo_fake_mass
+      external control_time_step,control_fake_mass,control_bo_fake_mass
       logical  control_read,control_move,ion_init,control_out_of_time
       external control_read,control_move,ion_init,control_out_of_time
       logical  control_translation,control_rotation
@@ -134,8 +134,8 @@
       external ion_TotalCharge
       logical  control_check_charge_multiplicity
       external control_check_charge_multiplicity
-      logical   pspw_charge_found,ion_q_FixIon
-      external  pspw_charge_found,ion_q_FixIon
+      logical   pspw_charge_found,ion_q_FixIon,ion_q_zFixIon
+      external  pspw_charge_found,ion_q_FixIon,ion_q_zFixIon
       integer  control_minimizer,control_scf_algorithm
       external control_minimizer,control_scf_algorithm
       integer  control_ks_algorithm
@@ -149,8 +149,8 @@
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
 
-      logical pspw_bqext
-      external pspw_bqext
+      logical  pspw_bqext,control_bo_cpmd
+      external pspw_bqext,control_bo_cpmd
 
       integer  control_bo_steps_in,control_bo_steps_out
       integer  control_bo_algorithm
@@ -358,6 +358,7 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
          end if
       end if
 
+      bo_cpmd = control_bo_cpmd()
 
 
 *                |**************************|
@@ -462,6 +463,9 @@ c         end if
            if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0
+           else if (ion_q_zFixIon(I)) then
+           write(luout,1193) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0
            else
            write(luout,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0
@@ -548,9 +552,17 @@ c         end if
          write(luout,1310)
          if (.not.control_translation()) write(luout,1271)
          if (.not.control_rotation())    write(luout,1272)
-         write(luout,1320) control_bo_time_step(),
-     >    control_bo_steps_in()*control_bo_steps_out(),
-     >    control_bo_steps_in(),control_bo_steps_out() 
+         if (.not.bo_cpmd) then
+            write(luout,1320) control_bo_time_step(),
+     >       control_bo_steps_in()*control_bo_steps_out(),
+     >       control_bo_steps_in(),control_bo_steps_out() 
+         else
+            write(luout,1321) control_bo_time_step(),
+     >       control_bo_fake_mass(),
+     >       control_bo_steps_in()*control_bo_steps_out(),
+     >       control_bo_steps_in(),control_bo_steps_out() 
+        end if
+
          if (control_bo_algorithm().eq.0) write(6,1330) "Verlet"
 
          write(luout,1340) control_rti()
@@ -656,9 +668,13 @@ c         end if
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
+      if (bo_cpmd) call psi_cpmd_start()
 
 *     ***** do a simple md loop ***
+      notfirststep = .false.
       dt = control_bo_time_step()
+      fmass = control_bo_fake_mass()
+      dte = dt*dt/fmass
       call control_reduce_print()
       EV = cgsd_energy(newpsi)
       call cgsd_energy_gradient_md(dbl_mb(fion(1)))
@@ -683,10 +699,20 @@ c         end if
 c       **** inner loop ****
         do i=1,it_in
            call ion_shift()
-          if (nose) call Nose_shift()
+           if (nose) call Nose_shift()
+
+           if (bo_cpmd) then
+              if (notfirststep) then
+                 call psi_cpmd_step(dte)
+              else
+                 notfirststep = .true.
+                 call psi_cpmd_step(0.5d0*dte)
+              end if
+           end if
 
            EV = cgsd_energy(.false.)
            call cgsd_energy_gradient_md(dbl_mb(fion(1)))
+
            eki1 = ion_ke()
            if (nose) then
               ssr = Nose_ssr()
@@ -742,6 +768,8 @@ c       **** inner loop ****
 
   102 continue
   
+      if (bo_cpmd) call psi_cpmd_end()
+
 *     **** close xyz and MOTION files ****
       call xyz_end()
       call MOTION_end()
@@ -829,6 +857,9 @@ c      call control_up_print()
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
            write(6,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+     >                   ion_amass(I)/1822.89d0
+           else if (ion_q_zFixIon(I)) then
+           write(6,1193) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
            else
            write(6,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
@@ -1068,6 +1099,8 @@ c      call frac_occ_end()
  1191 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F7.3,' - fixed')
  1192 FORMAT(5X, I4, A5  ,' (',3F11.5,' )')
+ 1193 FORMAT(5X, I4, A5, ' (',3F11.5,
+     >       ' ) - atomic mass= ',F7.3,' - z fixed')
 
  1200 FORMAT(5X,'    G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
@@ -1120,7 +1153,10 @@ c      call frac_occ_end()
      >           ' (',I3,' outer)')
  1300 FORMAT(//)
  1310 FORMAT(/' molecular dynamics parameters:')
- 1320 FORMAT(5X, ' time step=',F10.2,5X,'iterations=',I8,
+ 1320 FORMAT(5X, ' time step=',F10.2,5X,' iterations=',I8,
+     >           ' ( ',I4,' inner ',I4,' outer )')
+ 1321 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1,
+     >       /5X,' iterations=',I8,
      >           ' ( ',I4,' inner ',I4,' outer )')
  1330 FORMAT(5X, ' integration agorithm=   ',A)
  1340 FORMAT(/5X, ' cooling/heatting rate= ',e12.5,' (ion)')

@@ -239,6 +239,45 @@ c    >                           dte)
 
       return
       end
+*     ***********************************
+*     *                                 *
+*     *         electron_cpmd_update    *
+*     *                                 *
+*     ***********************************
+      subroutine electron_cpmd_update(psi0,psi1,psi2,hml,dte)
+      implicit none
+      complex*16 psi0(*),psi1(*),psi2(*)
+      real*8     hml(*)
+      real*8     dte
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+      !**** psi2 = 2*psi1 - psi0 + dte*Hpsi ****
+      !**** - note that Hpsi = minus the gradient in electron ****
+
+      !**** rotate Hpsi ****
+c      call electron_gen_Hpsi_k(psi1)
+      call Dneall_fmf_Multiply(0,dcpl_mb(Hpsi_k(1)),npack1,
+     >                         hml,(-dte),
+     >                         psi2,0.0d0)
+      call daxpy(2*(npack1)*(neq(1)+neq(2)),
+     >           1.0d0,
+     >           psi1,1,
+     >           psi2,1)
+
+c      call daxpy(2*(npack1)*(neq(1)+neq(2)),
+c     >           -1.0d0,
+c     >           psi0,1,
+c     >           psi2,1)
+c      call daxpy(2*(npack1)*(neq(1)+neq(2)),
+c     >           (-dte),
+c     >           dcpl_mb(Hpsi_k(1)),1,
+c     >           psi2,1)
+
+      return
+      end
+
 
 
 c      subroutine electron_sd_subupdate(npack1,nn,

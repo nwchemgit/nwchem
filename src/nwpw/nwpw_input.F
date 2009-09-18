@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 91)
+      parameter (num_dirs = 92)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -90,6 +90,7 @@ c
      >            'bo_steps',
      >            'bo_time_step',
      >            'bo_algorithm',
+     >            'bo_fake_mass',
      >            'scaling',
      >            'xyz_filename',
      >            'np_dimensions',
@@ -157,7 +158,7 @@ c
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
-     >       5200,5300, 5400,5500,5600,5700,5800,5900,6000,6000,
+     >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1500,6600,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
@@ -995,6 +996,15 @@ c
       if (inp_compare(.false.,zone_name,'leap-frog'))       nx = 2
       if (.not.rtdb_put(rtdb,'nwpw:bo_algorithm',mt_int,1,nx))
      >  call errquit('nwpw_input: error writing to rtdb',5600,RTDB_ERR)
+
+      goto 10
+
+c
+c  bo_time_step
+c
+ 5650 if (.not. inp_f(wcut)) wcut = 500.d0
+      if (.not.rtdb_put(rtdb,'nwpw:bo_fake_mass',mt_dbl,1,wcut))
+     >  call errquit('nwpw_input: error writing to rtdb',5650,RTDB_ERR)
 
       goto 10
 
