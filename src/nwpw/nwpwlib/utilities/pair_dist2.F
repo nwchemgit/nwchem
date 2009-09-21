@@ -51,8 +51,9 @@ c     *** parameters ***
 
 
       MAXBIN = INT(0.5d0*(volume**(0.33333333d0))/DELR)
-      CONST =       (16.0d0*datan(1.0d0)/3.0d0)*(natoms1/volume)
-      CONST = CONST*(16.0d0*datan(1.0d0)/3.0d0)*(natoms2/volume)
+c      CONST =       (16.0d0*datan(1.0d0)/3.0d0)*(natoms1/volume)
+c      CONST = CONST*(16.0d0*datan(1.0d0)/3.0d0)*(natoms2/volume)
+      CONST =       (16.0d0*datan(1.0d0)/3.0d0)*(natoms1*natoms2/volume)
 
       value = MA_push_get(mt_int,MAXBIN,'hst89',hst(2),hst(1))
       value = value.and.

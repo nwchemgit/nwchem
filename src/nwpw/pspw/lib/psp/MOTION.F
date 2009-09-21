@@ -35,11 +35,11 @@
       integer   MASTER
       parameter (MASTER=0)
 
-      logical value,found
-      integer taskid
+      logical value,found,found_bak
+      integer taskid,l1,l2
       real*8 ch_tmp
       character*30 filename
-      character*255 full_filename
+      character*255 full_filename,full_bak
 
 
 *     **** external functions ***
@@ -59,10 +59,31 @@
 
 *     **** produce MOTION FILE ****
       if (taskid.eq.MASTER) then
-         inquire(file=full_filename,exist=found)
+
+*        **** check for backup file ****
+         call util_file_name_noprefix('MOTION99-bak',.false.,
+     >                                .false.,
+     >                                full_bak)
+         inquire(file=full_bak,exist=found_bak)
+         if (found_bak) then
+            write(*,*)
+            write(*,*) "MOTION99-bak exists:"
+            l1=index(full_bak,' ')
+            l2=index(full_filename,' ')
+            write(*,*) "   Copying ",full_bak(1:l2),
+     >                 " to ",full_filename(1:l2)
+            write(*,*)
+            call util_file_copy(full_bak,full_filename)
+         end if
+
 
 *        **** MOTION FILE already exists - parse to EOF ****
+         inquire(file=full_filename,exist=found)
          if (found) then         
+
+*          **** make a new backup file ***
+           call util_file_copy(full_filename,full_bak)
+
            open(unit=19,file=full_filename,form='formatted',
      >          status='old')
            do while(.true.)
@@ -97,11 +118,18 @@
       parameter (MASTER=0)
 
       integer taskid
+      character*255 full_bak
 
       call Parallel_taskid(taskid)
 
       if (taskid.eq.MASTER) then
          close(unit=19)
+
+*        **** remove backup file ***
+         call util_file_name_noprefix('MOTION99-bak',.false.,
+     >                                .false.,
+     >                                full_bak)
+         call util_file_unlink(full_bak)
       end if
 
       return
@@ -123,9 +151,13 @@
 
 *     **** external functions ***
       integer     ion_nion
-      real*8      ion_rion,ion_vion,lattice_omega,lattice_unita
       external    ion_nion
+      real*8      ion_rion,ion_vion,lattice_omega,lattice_unita
       external    ion_rion,ion_vion,lattice_omega,lattice_unita
+      character*2 ion_aname_nocarat
+      external    ion_aname_nocarat
+      character*4 ion_aname
+      external    ion_aname
 
       call Parallel_taskid(taskid)
     
@@ -137,7 +169,8 @@
      >     lattice_unita(1,2),lattice_unita(2,2),lattice_unita(3,2),
      >     lattice_unita(1,3),lattice_unita(2,3),lattice_unita(3,3)
          do i=1,ion_nion()
-            write(19,111) ion_rion(1,i),
+            write(19,111) i,ion_aname_nocarat(i),ion_aname(i),
+     >                    ion_rion(1,i),
      >                    ion_rion(2,i),
      >                    ion_rion(3,i),
      >                    ion_vion(1,i),
@@ -147,10 +180,8 @@
          call util_flush(19)
       end if
   110 format(e14.6,I6,e14.6,9e14.6)
-  111 format(6e14.6)
+  111 format(i6,a3,a5,6e14.6)
 
       return
       end
-
-
 

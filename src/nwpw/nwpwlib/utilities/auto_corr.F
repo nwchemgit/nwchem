@@ -32,7 +32,7 @@ c
 
 *     **** local variables ****
       logical value
-      integer i,k,natoms,natoms1,nframes
+      integer i,k,natoms,natoms1,nframes,iii
       integer vx(2),vy(2),vz(2)
       integer vt(2),vk(2)
       integer tfft(2)
@@ -43,6 +43,8 @@ c
       real*8  unita(3,3)
       character*255 full_filename1
       character*255 full_filename2
+      character*2 tag2
+      character*4 tag4
 
 
 *     *** synchronization ***
@@ -110,7 +112,7 @@ c
          time1    = time2
          read(19,*) time2,natoms1,volume1,unita
          do i=1,natoms
-            read(19,*) x,y,z,v1,v2,v3
+            read(19,*) iii,tag2,tag4,x,y,z,v1,v2,v3
             dcpl_mb(vx(1)+(k-1) + (i-1)*2*nframes) = v1
             dcpl_mb(vy(1)+(k-1) + (i-1)*2*nframes) = v2
             dcpl_mb(vz(1)+(k-1) + (i-1)*2*nframes) = v3        

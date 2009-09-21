@@ -213,6 +213,8 @@ c     >                                full_filename)
       double precision a2x,a2y,a2z
       double precision a3x,a3y,a3z
       integer r1(2),f1(2),af1(2),af2(2),ac1(2)
+      character*2 tag2
+      character*4 tag4
 
       if (value) then
          l = index(filename,' ') - 1
@@ -251,7 +253,7 @@ c     >                                full_filename)
             read(35,*,ERR=30,END=30) a3x,a3y,a3z
             indx = 0
             do ii=1,nion
-              read(35,*,ERR=30,END=30) iii,
+              read(35,*,ERR=30,END=30) iii,tag2,tag4,
      >                                 dbl_mb(r1(1)+indx),
      >                                 dbl_mb(r1(1)+indx+1),
      >                                 dbl_mb(r1(1)+indx+2),

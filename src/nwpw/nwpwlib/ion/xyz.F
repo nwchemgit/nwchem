@@ -13,10 +13,10 @@
       integer   MASTER
       parameter (MASTER=0)
 
-      logical found
-      integer taskid
+      logical found,found_bak
+      integer taskid,l1,l2
       character*30 filename
-      character*255 full_filename
+      character*255 full_filename,full_bak
 
 *     **** external functions ****
       character*30 control_xyz
@@ -27,13 +27,34 @@
 
 *     **** produce XYZ FILE ****
       if (taskid.eq.MASTER) then
+
          filename = control_xyz()
          call util_file_name_noprefix(filename,.false.,
      >                                .false.,
      >                       full_filename)
-         inquire(file=full_filename,exist=found)
 
+*        **** check for backup file ***
+         call util_file_name_noprefix('XYZ99-bak',.false.,
+     >                                  .false.,
+     >                                  full_bak)
+         inquire(file=full_bak,exist=found_bak)
+         if (found_bak) then
+            write(*,*)
+            write(*,*) "XYZ99-bak exists:"
+            l1=index(full_bak,' ')
+            l2=index(full_filename,' ')
+            write(*,*) "   Copying ",full_bak(1:l2),
+     >                 " to ",full_filename(1:l2)
+            write(*,*)
+            call util_file_copy(full_bak,full_filename)
+         end if
+
+         inquire(file=full_filename,exist=found)
          if (found) then
+
+*           **** make a new backup file ***
+            call util_file_copy(full_filename,full_bak)
+
            open(unit=18,file=full_filename,form='formatted',
      >          status='old')
            do while (found)
@@ -66,15 +87,23 @@
       parameter (MASTER=0)
 
       integer taskid
+      character*255 full_bak
 
       call Parallel_taskid(taskid)
 
       if (taskid.eq.MASTER) then
          close(unit=18)
+
+*        **** remove backup file ***
+         call util_file_name_noprefix('XYZ99-bak',.false.,
+     >                                .false.,
+     >                                full_bak)
+         call util_file_unlink(full_bak)
       end if
 
       return
       end
+
 
 *     ***************************
 *     *				*

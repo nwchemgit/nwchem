@@ -83,7 +83,7 @@ cccc#include "frac_occ.fh"
       integer ierr
 
 *     **** local variables ****
-      logical verlet,mulliken,SA,found,calc_pressure
+      logical verlet,mulliken,SA,found,calc_pressure,found_bak
       integer ms
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz
@@ -98,7 +98,7 @@ cccc#include "frac_occ.fh"
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
       integer mapping,mapping1d
       character*30 filename
-      character*255 full_filename
+      character*255 full_filename,full_bak
   
 
 
@@ -665,10 +665,30 @@ c      call frac_occ_init(rtdb,ispin,ne)
      >                    full_filename)
       if (taskid.eq.MASTER) then
 
+*        **** check for backup file ****
+         call util_file_name_noprefix('EMOTION99-bak',.false.,
+     >                                .false.,
+     >                                full_bak)
+         inquire(file=full_bak,exist=found_bak)
+         if (found_bak) then
+            write(*,*) 
+            write(*,*) "EMOTION99-bak exists:"
+            i=index(full_bak,' ')
+            j=index(full_filename,' ')
+            write(*,*) "   Copying ",full_bak(1:i),
+     >                 " to ",full_filename(1:j)
+            write(*,*)
+            call util_file_copy(full_bak,full_filename)
+         end if
+
          emotion_time_shift = 0.0d0
          icount_shift       = 0
          inquire(file=full_filename,exist=found)
          if (found) then
+
+*          **** make a new backup file ***
+           call util_file_copy(full_filename,full_bak)
+
            open(unit=31,file=full_filename,form='formatted',
      >          status='old')
            do while (found)
@@ -713,8 +733,8 @@ c      call frac_occ_init(rtdb,ispin,ne)
 *     **** open OMOTION file ****
       if (mulliken) call Orb_Init(rtdb,ispin,ne) !unit=33
 
-*     **** write initial position to xyz data ****
-      call xyz_write()
+c*     **** write initial position to xyz data ****
+c      call xyz_write()
 
 *     ***** first step using velocity ****
       verlet = .false.
@@ -876,6 +896,12 @@ c      call frac_occ_init(rtdb,ispin,ne)
         close(unit=31)
         close(unit=32)
         close(unit=34)
+
+*        **** remove EMOTION backup file ***
+         call util_file_name_noprefix('EMOTION99-bak',.false.,
+     >                                .false.,
+     >                                full_bak)
+         call util_file_unlink(full_bak)
       end if
 
 *     *** close fei io ****
