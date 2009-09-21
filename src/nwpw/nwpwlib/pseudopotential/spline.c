@@ -1,8 +1,7 @@
 /*
  $Id: spline.c,v 1.6 2007-04-09 22:55:52 d3p708 Exp $
    spline.c -
-    Taken from Numerical recipies, with slight modifications as
-suggested by hamman's code.
+    Based on algorithms in hamman's code.
 */
 
 #include 	<stdlib.h>

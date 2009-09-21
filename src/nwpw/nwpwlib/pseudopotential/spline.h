@@ -4,8 +4,6 @@
 #ifndef _SPLINE_H_
 #define _SPLINE_H_
 /* spline.h -
-    Taken from Numerical recipies, with slight modifications as
-suggested by hamman's code.
 */
 
 extern void	init_Linear(char*);
