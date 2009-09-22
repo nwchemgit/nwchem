@@ -9,3 +9,7 @@ they seem to work.
 Known to work on Sun and SGI
 Requires NWChem's include files and libnwcutil.a containing the MA
 library.
+
+
+MA_USE_ARMCI_MEM must not be set to anything for this to work:
+unsetenv MA_USE_ARMCI_MEM
