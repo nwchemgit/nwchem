@@ -25,15 +25,16 @@ c     *** parameters ***
 *     **** local variables ****
       logical value
       integer MAXBIN
-      integer i,j,bin,natoms,natoms0,t,nframes
+      integer i,j,bin,natoms,natoms0,t,nframes,iii
       integer rx(2),ry(2),rz(2),hst(2)
       real*8  time1,time2,volume,volume1
       real*8  x,y,z,r,gr,v1,v2,v3
       real*8 RLOWER,RUPPER,NIDEAL,CONST    
       real*8 grs,grm2,grm1,grp1,grp2
-
       integer k1,k2,n1,n2,n3
       real*8 unita(3,3)
+      character*2 tag2
+      character*2 tag4
 
 
 *     ***************************************
@@ -77,7 +78,7 @@ c      CONST = CONST*(16.0d0*datan(1.0d0)/3.0d0)*(natoms2/volume)
          time2    = time1
          read(19,*) time1,natoms0,volume1,unita
          do i=1,natoms0
-            read(19,*) x,y,z,v1,v2,v3
+            read(19,*) iii,tag2,tag4,x,y,z,v1,v2,v3
             dbl_mb(rx(1)+(i-1)) = x
             dbl_mb(ry(1)+(i-1)) = y
             dbl_mb(rz(1)+(i-1)) = z          

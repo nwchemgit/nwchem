@@ -32,7 +32,9 @@ c
 
 
       call pair_dist(full_filename)
+      call pair_distab(full_filename)
       call velocity_autocorrelation(full_filename)
+
 
 *     **** perform shake force averaging if Fei set *****
       if (control_Fei()) then

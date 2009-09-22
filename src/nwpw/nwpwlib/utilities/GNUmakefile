@@ -13,6 +13,7 @@
 		nwpw_rdf.o \
 		pair_dist.o \
 		pair_dist2.o \
+		pair_distab.o \
 		auto_corr.o \
 		matrix.o simp.o \
 		is_sORd.o \
