@@ -20,7 +20,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop \
         property nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm qmd etrans tce geninterface bq cons \
-        perfm neb dntmc transport smd nbo dangchang leps ccca
+        perfm dntmc transport smd nbo dangchang leps ccca
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -33,7 +33,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
 		    -largos -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lsmd \
                     -lcafe -lspace -lanalyze -ldiana -lqhop \
                     -lpfft -ldplot -loimp2 -lnwpython -ldrdy -lvscf -lqmmm -lqmd -letrans\
-                    -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lneb -lnbo -ldntmc -ltransport -lccca
+                    -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lnbo -ldntmc -ltransport -lccca
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -235,7 +235,6 @@ MOD_LIBS := $(patsubst nwpw,-lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib,$(MOD_LI
 MOD_LIBS := $(patsubst smd,-lsmd,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst perfm,-lperfm,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst neb,-lneb,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dntmc,-ldntmc,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dangchang,-ldangchang,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst leps,-lleps,$(MOD_LIBS) )
@@ -270,8 +269,7 @@ STUBROUTINES := $(patsubst symmetry,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst cphf,cphf cphf_poliz mjdtest cphf2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst scfaux,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vib,vib_vib freq_vib_input vib_dsquar,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst driver,driver oniom_energy oniom_gradient oniom_input drv_lst drv_opt driver_input neb lbfgsb_driver deloc_driver,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst neb,neb neb_input ,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst driver,driver oniom_energy oniom_gradient oniom_input drv_lst drv_opt driver_input lbfgsb_driver deloc_driver,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst plane_wave,plnwv plnwv_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst prepar,prepar pre_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst analyz,analyz ana_input,$(STUBROUTINES) )
