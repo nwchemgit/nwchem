@@ -140,13 +140,13 @@ c     call dcopy(nytrials**2,dbl_mb(k_hbar),1,dbl_mb(k_gbar),1)
 c
 c     Diagonalize the non-Hermitian matrix
 c
-      call tddft_dgeev('n','v',nytrials,dbl_mb(k_hbar),nytrials,
+      call tce_dgeev('n','v',nytrials,dbl_mb(k_hbar),nytrials,
      1  omega,dbl_mb(k_ei),dbl_mb(k_vl),1,dbl_mb(k_vr),nytrials,
      2  dbl_mb(k_wk),4*nytrials,info)
       if (info.ne.0) call errquit('tce_eom_ydiagon: dgeev failed',info,
      1  UNKNOWN_ERR)
-c     call tddft_schmidt(nytrials,dbl_mb(k_vr))
-      call tddft_sort(nytrials,omega,dbl_mb(k_vr),'A')
+c     call tce_schmidt(nytrials,dbl_mb(k_vr))
+      call tce_sort(nytrials,omega,dbl_mb(k_vr),'A')
       if (nodezero.and.util_print('omega',print_debug)) then
         do ivec = 1, nytrials
           write(LuOut,9000) omega(ivec),omega(ivec)*au2ev

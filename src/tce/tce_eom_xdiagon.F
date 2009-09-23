@@ -296,13 +296,13 @@ c
 c  DIAGONALIZE l_shbar
 c
 c
-      call tddft_dgeev('n','v',nxtrials,dbl_mb(k_shbar),nxtrials,
+      call tce_dgeev('n','v',nxtrials,dbl_mb(k_shbar),nxtrials,
      1  omega,dbl_mb(k_ei),dbl_mb(k_vl),1,dbl_mb(k_vr),nxtrials,
      2  dbl_mb(k_wk),4*nxtrials,info)
       if (info.ne.0) call errquit('tce_eom_xdiagon: dgeev failed',info,
      1  UNKNOWN_ERR)
-c     call tddft_schmidt(nxtrials,dbl_mb(k_vr))
-      call tddft_sort(nxtrials,omega,dbl_mb(k_vr),'A')
+c     call tce_schmidt(nxtrials,dbl_mb(k_vr))
+      call tce_sort(nxtrials,omega,dbl_mb(k_vr),'A')
       if (nodezero.and.util_print('omega',print_debug)) then
         do ivec = 1, nxtrials
           write(LuOut,9000) omega(ivec),omega(ivec)*au2ev
