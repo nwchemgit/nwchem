@@ -11,7 +11,6 @@
 #include "errquit.fh"
 c
 #include "mafdecls.fh"
-#include "global.fh"
 #include "dftpara.fh"
 c     
       logical ldew   ! true if weight derivatives are included [input]
