@@ -355,6 +355,59 @@ c
      &           Ex, qwght,ldew,func)
          endif
       endif
+c
+c     SSB-D
+c     consists of three parts, SSB-1 (correction to PBEx),
+c     portion of KT1 gradient correction, and sPBEc
+c     (it also includes a portion of Grimme's dispersion correction)
+c     see: Swart, Sola, Bickelhaupt  JCP 2009, 131, 094103
+c
+c     sPBEc is special in that the GGA part is dependent on
+c     the E(LDA) ... so more info has to be passed in.
+c
+      if (abs(cfac(46)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_spbe96(tol_rho, cfac, lcfac, nlcfac,
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ec, qwght, ldew, func)
+         else    
+            call xc_spbe96_d2(tol_rho, cfac, lcfac, nlcfac,
+     &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &           Ec, qwght, ldew, func)
+         endif
+      endif
+      if (abs(xfac(46)).gt.eps)then
+         if (.not. do_2nd) then
+c
+c           first the part that depends on s (correction to PBEx)
+c
+            call xc_ssbD_1(tol_rho, xfac(46), lxfac(46), nlxfac(46),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght, ldew, func)
+         else
+c
+c           first the part that depends on s (correction to PBEx)
+c
+            call xc_ssbD_1_d2(tol_rho, xfac(46), lxfac(46), nlxfac(46),
+     &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &           Ex, qwght, ldew, func)
+         endif
+      endif
+c
+c kt1
+c
+      if (abs(xfac(47)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_kt1(tol_rho, xfac(47), rho, delrho,
+     &                     Amat, Cmat, nq, ipol, Ex, qwght, ldew, func)
+         
+         else
+            call xc_kt1_d2(tol_rho, xfac(47), rho, delrho,
+     &                     Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &                     Ex, qwght, ldew, func)
+         endif 
+      endif
+c
       if (abs(xfac(8)).gt.eps)then
          if (.not. do_2nd) then
             call xc_gill96(tol_rho, xfac(8), lxfac(8), nlxfac(8), 

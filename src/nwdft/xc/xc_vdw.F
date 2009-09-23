@@ -526,6 +526,9 @@ c B3LYP
 c B97-D
          else if (xccomb(37)) then
            scalec6 = 1.25d0
+c SSB-D
+         else if (xccomb(46)) then
+           scalec6 = 0.847455d0
 c BP86
          else if(xfac(3).eq.1.0d0.and.xfac(2).eq.1.0d0.and.
      &              cfac(1).eq.1.0d0.and.cfac(4).eq.1.d0) then

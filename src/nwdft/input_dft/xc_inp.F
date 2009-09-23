@@ -47,6 +47,8 @@ c     xtpss03 => 4100
 c     ctpss03 => 4150
 c     xctpssh => 4175
 c     becke97-3 => 4500
+c     ssb-d => 4600 (numfunc=46)
+c     kt1 => 4700 (numfunc=47)
 c     becke97-d => 4800
 c     bc95 => 5000
 c     mpw1b95=> 5100
@@ -88,7 +90,7 @@ c     b2plyp    => 8510
 c     xcamlsd   => 8520
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=96)
+      parameter (num_dirs=99)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -124,8 +126,8 @@ c
      &     'xm06-L','cm06-L','m06-hf','xm06-hf','cm06-hf','m06',
      &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x','xbnl07',
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
-     &     'xcamlsd'/
-c     becke97-d
+     &     'xcamlsd','ssb-d','kt1','kt2'/
+c     becke97-d, ssb-d
       logical disp
 c
 c     Only these few arrays are initialized (not defaults).
@@ -161,7 +163,7 @@ c
      &  5000,5100,5200,5300,5400,5500,5600,5700,5800,
      &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
      &  7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,
-     &  8200,4800,8300,8400,8500,8510,8520,1999) ind
+     &  8200,4800,8300,8400,8500,8510,8520,4600,4700,4701,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -2412,6 +2414,55 @@ c
       if (.not. inp_f(xfac(41))) then
          xfac(41) = 1.0d0
       endif
+c
+      goto 10
+c
+c     ssb-d; spin-state and sn2 barrier based functional
+c            by Swart, Sola, Bickelhaupt, JCP 131, 094103 (2009)
+c            includes Grimme's dispersion correction
+c        
+ 4600 xccomb(46) = .true.
+        xfac(46) = 1.d0
+      nlxfac(46) = .true.
+        xfac(47) = 0.358830d0
+      nlxfac(47) = .true.
+        cfac(46) = 1.d0
+      nlcfac(46) = .true.
+       lxfac(2)  = .true.
+        xfac(2)  = 1.079966d0
+       lcfac(6)  = .true.
+        cfac(6)  = 1.0d0
+c
+c       this functional must be used with vdw contrib
+c       (Grimme) with factor 0.847455
+c
+      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
+     &   disp=.false.
+      if(.not.disp) then
+        if (.not.rtdb_put(rtdb, 'dft:disp', mt_log, 1, .true.))
+     &   call errquit('xc_inp: rtdb_put disp failed', 5, RTDB_ERR)
+      endif
+c
+      goto 10
+c
+c     kt1: Keal-Tozer functional nr. 1
+c
+ 4700   xfac(47) = 1.d0
+      nlxfac(47) = .true.
+       lxfac(2)  = .true.
+        xfac(2)  = 1.0d0
+       lcfac(6)  = .true.
+        cfac(6)  = 1.0d0
+c
+c     kt1: Keal-Tozer functional nr. 2
+c
+ 4701 xccomb(47) = .true.
+        xfac(47) = 1.d0
+      nlxfac(47) = .true.
+       lxfac(2)  = .true.
+        xfac(2)  = 1.07173d0
+       lcfac(6)  = .true.
+        cfac(6)  = 0.576727d0
 c
       goto 10
 c     
