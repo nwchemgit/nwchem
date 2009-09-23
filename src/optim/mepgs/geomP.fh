@@ -1,0 +1,236 @@
+*
+* $Id: geomP.fh,v 1.31 2000/11/08 00:42:30 d3g681 Exp $
+*
+c
+c     Private fortran include file for the geometry routines
+c
+c     Parameters
+c
+c     max_geom = maximum no. of geometries
+c     max_cent = maximum no. of centers in a geometry
+c     max_geom_rtdb = maximum no. of geometries stored in the rtdb
+c     nelments = no. of elements that info is stored about
+c
+c     [The only thing that cannot be dynamically allocated are the
+c      character variables for the tags ... I was lazy and just statically
+c      dimensioned everything ... just drudge work to dynamically 
+c      allocate though if necessary ... which it hopefully will not be
+c      ... since only geom.F (and maybe the basis routines) include
+c      this header file only these need to be recompiled if the parameters
+c      are changed]
+c     
+c     Members of /cgeometry/
+c
+c     ngeom_rtdb = current no. of geometries on the rtdb
+c     active(1:max_geom) = true if this geometry is open
+c     ncenter(1:max_geom) = no. of centers in this geometry
+c     coords(1:3,1:max_cent,1:max_geom) = cartesian coords of this geometry
+c     charge(1:max_cent,1:max_geom) = charges associated with centers
+c     geom_mass(1:max_cent,1:max_geom) = mass associated with centers
+c     geom_invnucexp(1:max_cent,1:max_geom) = inverse of nuclear exponent
+c     dipole ... not yet
+c     quadrupole ... not yet
+c     pseudopotential ... not yet
+c     efield(1:3,1:max_geom) = external electric field applied to this system
+c     oefield = true if efield is on
+c     angstrom_to_au = scale factor between angstom and atomic units
+c     include_bqbq(geom) = include bqbq interactions for this molecule
+c
+c--> symmetry information
+c
+c     sym_sgpnames(1:230) = list of known space groups ... must match spgen
+c     sym_mgpnames(1:46)  = list of known molecular groups ... ditto
+c     ncenter_unique(1:max_geom) = no. of symmetry unique centers
+c     unique_cent(1:max_cent,1:max_geom) = list of symmetry unique centers
+c     group_number(max_geom) = Tony magic group number
+c     setting_number(max_geom) = Where the symmetry origin is
+c     max_sym_ops                   = max. no. of operations in group
+c     sym_ops(max_sym_op*3,4) = matrix representation of symmetry operators
+c                                     molecules -> transformation of cartesians
+c                                     periodic  -> ask tony!
+c     sym_op_inv(max_sym_op,max_geom) = index of inverse operation
+c     sym_num_ops(max_geom)         = order of group minus one
+c                                   = no. of operations in the group
+c     sym_center_map_handle(max_geom) = MA handle of integer array
+c                                    sym_center_map(center,op)->op*center
+c     sym_center_map_index(max_geom)  = MA index of integer array
+c                                    sym_center_map(center,op)->op*center
+c
+c     group_name(max_geom) = symbolic name of the molecular group
+c
+c--> solid state specific information
+c
+c     isystype(1:max_geom) = 0 (molecular), 1 (polymer), 2 (surface)
+c                            3 (crystal)
+c     lattice_vectors(1:3,1:max_geom) = lengths of unit cell axes (angstrom)
+c     lattice_angles(1:3,1:max_geom)  = angles between unit cell axes (angstrom)
+c
+c     amatrix(1:3,1:3,1:max_geom) = matrix that transforms atomic fractional
+c                                   coords. to a Cartesian system in bohr.  This matrix
+c                                   is the unit matrix for molecular systems.
+c
+c     bmatrix(1:3,1:3,1:max_geom) = matrix that transforms reciprocal lattice vectors
+c                                   to a Cartesian system (a.u.).  This matrix
+c                                   is the unit matrix for molecular systems.
+c
+c     amatrix_inv(1:3,1:3,1:max_geom) = used to transform from atomic Cartesian
+c                            coords. to fractional coordinates & can be used
+c                            to resolve the scalar lattice vectors into their
+c                            Cartesian components.  This matrix is the unit
+c                            matrix for molecular systems.
+c
+c     volume_direct(1:max_geom) = direct space unit cell volume units = Ang^3
+c     metric_matrix(1:3,1:3,1:max_geom) = metric matrix for Bravais lattice
+c     recip_lat_vectors(1:3,1:max_geom) = reciprocal lattice vectors (angstroms)
+c     recip_lat_angles(1:3,1:max_geom)  = reciprocal lattice angles  (degrees)
+c     
+c     operiodic = obsolete
+c     latvec(1:3,1:3,1:max_geom) = obsolete
+c
+c     erep(1:max_geom) = interaction energy of centers with each other
+c                        and external fields.  At its simplest this is
+c                        just the nuclear repulsion energy
+c     ndipole(1:3,1:max_geom) = nuclear dipole moment
+c
+c     Members of /ccgeometry/
+c
+c     names(1:max_geom) = names of open geometries
+c     trans(1:max_geom) = translations of names of open geoms
+c     names_rtdb(1:max_geom_rtdb) = names of geometries in the rtdb
+c     tag(1:max_cent,1:max_geom) = tags associated with centers
+c     zmt_source(1:max_geom) = source of zmatrix (user or autoz)
+c     lenn(1:max_geom) = length of names(geom) minus trailing blanks
+c     lent(1:max_geom) = length of trans(geom) ...
+c     lenr(1:max_geom_rtdb) = length of names_rtdb(geom) ...
+c     symbols(1:nelements) = symbols for elements
+c     elements(1:nelements) = names of elements
+c
+
+      integer  max_geom, max_cent, max_geom_rtdb, nelements,
+     $                   max_sym_ops
+      integer  max_izmat, max_nzvar, max_zcoord
+c
+      parameter (max_sym_ops   = 192)
+      parameter (max_geom      = nw_max_geoms)
+      parameter (max_geom_rtdb = 100)
+      parameter (nelements     = 109)
+      parameter (max_cent      = nw_max_atom)
+      parameter (max_nzvar     = 6*max_cent)
+      parameter (max_izmat     = 4*max_nzvar)
+      parameter (max_zcoord    = 16) ! For augmenting autoz
+c
+      logical active, operiodic, oefield, include_bqbq, oecpcent,
+     $     zmt_ijbond_frz, zmt_ijkang_frz, zmt_ijklto_frz,
+     $     zmt_ijklop_frz, zmt_ijklnb_frz
+
+      integer ngeom_rtdb, ncenter, lenn, lent, lenr, group_number,
+     $     ncenter_unique, isystype, setting_number, unique_cent,
+     $     sym_op_inv, sym_num_ops, sym_center_map_handle,
+     $     sym_center_map_index,
+     $     zmt_izmat,zmt_nizmat,
+     $     zmt_izfrz,zmt_nzfrz, zmt_nzvar, zmt_maxtor,
+     $     zmt_ijbond, zmt_ijkang, zmt_ijklto, zmt_ijklop, zmt_ijklnb
+
+      double precision coords, charge, efield, latvec, ndipole, erep,
+     $     lattice_vectors, lattice_angles, amatrix, amatrix_inv,
+     $     volume_direct, metric_matrix, recip_lat_vectors, 
+     $     recip_lat_angles, sym_ops, angstrom_to_au, geom_invnucexp,
+     $     geom_mass,bmatrix, velocities, zmt_varsign, zmt_cvr_scaling,
+     $     zmt_ijbond_val, zmt_ijkang_val, zmt_ijklto_val,
+     $     zmt_ijklop_val, zmt_ijklnb_val, zmt_izfrz_val
+
+      common/cgeometry/
+*     doubles
+     $     coords(3,max_cent,max_geom),
+     $     velocities(3,max_cent,max_geom),
+     $     charge(max_cent,max_geom),
+     $     geom_mass(max_cent,max_geom),
+     $     geom_invnucexp(max_cent,max_geom),
+     $     efield(3, max_geom),
+     $     latvec(3,3, max_geom), ! Obsolete ?
+     $     erep(max_geom),
+     $     ndipole(3,max_geom),
+     $     lattice_vectors(1:3,1:max_geom),
+     $     lattice_angles(1:3,1:max_geom),
+     $     recip_lat_vectors(1:3,1:max_geom),
+     $     recip_lat_angles(1:3,1:max_geom),
+     $     amatrix(3,3,max_geom),
+     $     bmatrix(3,3,max_geom),
+     $     amatrix_inv(3,3,max_geom),
+     $     sym_ops(max_sym_ops*3,4,max_geom),
+     $     metric_matrix(3,3,max_geom),
+     $     volume_direct(max_geom),
+     $     angstrom_to_au,
+     $     zmt_varsign(max_nzvar,max_geom),
+     $     zmt_cvr_scaling(max_geom),
+     $     zmt_ijbond_val(max_zcoord,max_geom),
+     $     zmt_ijkang_val(max_zcoord,max_geom),
+     $     zmt_ijklto_val(max_zcoord,max_geom),
+     $     zmt_ijklop_val(max_zcoord,max_geom),
+     $     zmt_ijklnb_val(max_zcoord,max_geom),
+     $     zmt_izfrz_val(max_nzvar,max_geom),
+*     integers & logicals
+     $     ncenter(max_geom),
+     $     active(max_geom),
+     $     lenn(max_geom),
+     $     lent(max_geom),
+     $     lenr(max_geom_rtdb),
+     $     operiodic(max_geom), ! Obsolete ?
+     $     oefield(max_geom),
+     $     isystype(1:max_geom),
+     $     ncenter_unique(1:max_geom),
+     $     unique_cent(1:max_cent,1:max_geom),
+     $     group_number(max_geom),
+     $     setting_number(max_geom),
+     $     sym_op_inv(max_sym_ops,max_geom),
+     $     sym_num_ops(max_geom),
+     $     sym_center_map_handle(max_geom),
+     $     sym_center_map_index(max_geom),
+     $     include_bqbq(max_geom),
+     $     oecpcent(max_cent,max_geom),
+     $     ngeom_rtdb,
+     $     zmt_nizmat(max_geom),
+     $     zmt_nzfrz(max_geom),
+     $     zmt_nzvar(max_geom),
+     $     zmt_maxtor(max_geom),
+     $     zmt_izmat(max_izmat,max_geom),
+     $     zmt_izfrz(max_nzvar,max_geom),
+     $     zmt_ijbond(2,max_zcoord,max_geom),
+     $     zmt_ijkang(3,max_zcoord,max_geom),
+     $     zmt_ijklto(4,max_zcoord,max_geom),
+     $     zmt_ijklop(4,max_zcoord,max_geom),
+     $     zmt_ijklnb(4,max_zcoord,max_geom),
+     $     zmt_ijbond_frz(max_zcoord,max_geom),
+     $     zmt_ijkang_frz(max_zcoord,max_geom),
+     $     zmt_ijklto_frz(max_zcoord,max_geom),
+     $     zmt_ijklop_frz(max_zcoord,max_geom),
+     $     zmt_ijklnb_frz(max_zcoord,max_geom)
+c
+      character*256 names, names_rtdb, trans
+      character*16 tags
+      character*10 group_name
+      character*10 user_units
+      character*10 sym_spgnames,sym_molgnames
+      character*8 zmt_varname, zmt_source,
+     $     zmt_ijbond_nam, zmt_ijkang_nam, zmt_ijklto_nam,
+     $     zmt_ijklop_nam, zmt_ijklnb_nam
+
+      common/ccgeometry/
+     $     names(1:max_geom),
+     $     trans(1:max_geom),
+     $     names_rtdb(1:max_geom_rtdb),
+     $     tags(max_cent, max_geom),
+     $     group_name(max_geom),
+     $     user_units(max_geom),
+     $     sym_spgnames(230),
+     $     sym_molgnames(46),
+     $     zmt_varname(max_izmat,max_geom),
+     $     zmt_source(max_geom),
+     $     zmt_ijbond_nam(max_zcoord,max_geom),
+     $     zmt_ijkang_nam(max_zcoord,max_geom),
+     $     zmt_ijklto_nam(max_zcoord,max_geom),
+     $     zmt_ijklop_nam(max_zcoord,max_geom),
+     $     zmt_ijklnb_nam(max_zcoord,max_geom)
+c
+
+

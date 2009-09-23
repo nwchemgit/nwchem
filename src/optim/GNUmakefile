@@ -7,7 +7,7 @@ LIBRARY = liboptim.a
 
 LIB_DEFINES =
 
-SUBDIRS = deloc
+SUBDIRS = deloc mepgs tropt
 LIB_INCLUDES =
 
 include ../config/makefile.h
