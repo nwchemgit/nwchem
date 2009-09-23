@@ -1,0 +1,31 @@
+      integer nbeads
+      double precision timestep
+      
+      integer e1(2)
+      integer e(2)
+      integer s(2)
+      integer g0(2)
+      integer g1(2)
+      integer s2(2)
+      integer t1(2)
+      integer v1(2)
+      integer c0(2)
+      integer c1(2)
+      integer dti(2)
+
+      character*80 neb_list
+
+      common/neb_data/ neb_list,
+     &                 nbeads,
+     &                 timestep,
+     &                 e1,
+     &                 e,
+     &                 s,
+     &                 g0,
+     &                 g1,
+     &                 s2,
+     &                 t1,
+     &                 v1,
+     &                 c0,
+     &                 c1,
+     &                 dti
