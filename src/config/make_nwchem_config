@@ -19,7 +19,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper mepgs tropt driver optim dftgrad scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop \
         property nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
-        drdy vscf uccsdt qmmm qmd etrans tddft tce geninterface bq cons \
+        drdy vscf uccsdt qmmm qmd etrans tce geninterface bq cons \
         perfm neb dntmc transport smd nbo dangchang leps ccca
 
 # These are the libraries for the high-level modules.  They should be
@@ -27,7 +27,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 # be too hard to come up with.  These should be platform-independent.
 
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
-                    -lstepper -lmepgs -ltropt -ldriver -loptim -ldftgrad -lplnwv -lnwdft -ltddft -lgradients \
+                    -lstepper -lmepgs -ltropt -ldriver -loptim -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lesp -lddscf -ldangchang -lleps -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -largos -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lsmd \
@@ -71,15 +71,15 @@ EXP_pnnl = $(EXP_all) python dntmc
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          optim stepper mepgs tropt driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft tce vscf leps
+          optim stepper mepgs tropt driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tce vscf leps
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper mepgs tropt driver vib mcscf property dftgrad selci dplot \
-           mp2_grad esp etrans tddft vscf leps
+           mp2_grad esp etrans vscf leps
 EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
            optim driver analyz diana
 #plane_wave ... broken? RJH
 EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          optim stepper mepgs tropt driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft vscf leps
+          optim stepper mepgs tropt driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans vscf leps
 EXP_tps = prepar argos nwmd analyz diana ddscf nwdft gradients esp
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
 EXP_classical  = prepar nwmd analyz
@@ -156,7 +156,6 @@ MODULES := $(patsubst etrans, etrans ddscf NWints,$(MODULES) )
 
 MODULES := $(patsubst transport, transport dftgrad dplot gradients mepgs tropt driver optim,$(MODULES) )
 
-MODULES := $(patsubst tddft,tddft nwdft hessian ddscf NWints,$(MODULES) )
 MODULES := $(patsubst tce,tce nwdft ddscf NWints hessian dftgrad gradients,$(MODULES) )
 
 MODULES := $(patsubst argos,argos cafe space fft qhop,$(MODULES) )
@@ -217,7 +216,6 @@ MOD_LIBS := $(patsubst prepar,-lprepar,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst esp,-lesp,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst etrans,-letrans,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst transport,-ltransport,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst tddft,-ltddft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst tce,-ltce,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst argos,-largos,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cafe,-lcafe,$(MOD_LIBS) )
@@ -273,7 +271,7 @@ STUBROUTINES := $(patsubst rimp2_grad,rimp2g,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst oimp2,oimp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst stepper,stpr_walk stpr_walk_task stpr_walk_reset stepper_input stpr_gen_hess_at stpr_gen_hess_atc stpr_print_ddipole stpr_wrt_fd_from_sq stpr_wrt_fd_dipole,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst symmetry,,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst cphf,cphf tddft_scale cphf_poliz mjdtest cphf2,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst cphf,cphf cphf_poliz mjdtest cphf2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst scfaux,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vib,vib_vib freq_vib_input vib_dsquar,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mepgs,mepgs  mepgs_input task_mepgs,$(STUBROUTINES) )
@@ -287,7 +285,6 @@ STUBROUTINES := $(patsubst diana,diana dia_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst esp,esp esp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst etrans,etrans et_calc et_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst transport,transport player transp_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst tddft,tddft_energy tddft_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst tce,tce_energy_fragment tce_gradient tce_input tce_prop_start tce_property tce_cholesky tce_imaginary,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst argos,argos argos_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )

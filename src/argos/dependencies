@@ -1,570 +1,570 @@
-$(LIBRARY_PATH)(argos_diana_wselect.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fsw.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_slowr.o):	$(INCDIR)/msgids.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_cntlnk.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_rdrest.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prop_wtrest.o):	./argos_prop.fh 
-$(LIBRARY_PATH)(argos_diana_diehdr.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_pme_fft.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_prep_task1.o):	$(INCDIR)/rtdb.fh 
-$(LIBRARY_PATH)(argos_cafe_comb.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_prtcnt.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_add_eimprs.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_wrtsel.o):	./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fsb.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_adddistance.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_pme_for.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_diana_average.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_natyps.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_diana_settag.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_select.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_forpme.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_rmsdev.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_latoms.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_update.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh 
-$(LIBRARY_PATH)(argos_cafe_collapse.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_pdbsiz.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_diana_preadframe.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_chgrid.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_grpvectors.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_pme_putgrd.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_space_wrttrj.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_chgdst.o):	./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_report_loc.o):	./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_wthdr.o):	./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_unpackw.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh $(INCDIR)/bitops.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_wrtgib.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prop_wtmro.o):	./argos_prop.fh 
-$(LIBRARY_PATH)(argos_cafe_atotyp.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_rdgib.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_print_ctypes.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_pr_dihes.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_supimp.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_gaputix.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_pardih.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_master.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_cafe_topol_init.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_ramhdr.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_wrtdat.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_finish.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_space_qatoms.o):	./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_super.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fw.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_proj.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_fold.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_guided.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_space_wrtrst.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prop_start.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_prop.fh 
-$(LIBRARY_PATH)(argos_prep_seqsiz.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_prep_mkrst.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh 
-$(LIBRARY_PATH)(argos_cafe_dlist.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fpww.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prop_init.o):	./argos_prop.fh 
-$(LIBRARY_PATH)(argos_cafe_volume.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_protein.o):	./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_diana_center_fold.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_add_eangles.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_pme_energy.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_cafe_links.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_slow.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_rama.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_wrtrst.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_pme_dftmod.o):	./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_diana.o):	$(INCDIR)/rtdb.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_sgmfil.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_cafe_charge.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_restor.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_gagetixvf.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_numbb.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_wrest.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_rdtrj.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_print.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_listord.o):	./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_pbc.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_edfinal.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_diana_alloc.o):	$(INCDIR)/rtdb.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_input.o):	$(INCDIR)/rtdb.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /home/d3j191/nwchem/src/tools/include/global.fh $(INCDIR)/bitops.fh 
-$(LIBRARY_PATH)(argos_cafe_hop.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_rdtop.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_disres.o):	$(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(argos_space_lbbl_ind.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_center_ref.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_inirms.o):	./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_rtdbsq.o):	$(INCDIR)/geom.fh 
-$(LIBRARY_PATH)(argos_prep_rdseq.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_diana_wrttrj.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_print_dera.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_mknoe.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh 
-$(LIBRARY_PATH)(argos_diana_getsls.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_finit.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_diana_setiomode.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_prefetch.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prop_mcti.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_prop.fh 
-$(LIBRARY_PATH)(argos_diana_rdfwrt.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_printf.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prep_nucleic.o):	./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_cafe_init.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_rdgeom.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh $(INCDIR)/geom.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_membrane_init.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_prepar.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_prep_dimens.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_cafe_uhop.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_parv.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_diel.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_polar.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_lstmul.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_pardif.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_vscale.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_shake.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_space_trvl.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_inita.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_mcti_w.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_addorder.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_shakes.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_grpcogdis.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_print_solute.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_wbox.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_lbbl_indices.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_groups.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_pack.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh $(INCDIR)/bitops.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prop_print.o):	./argos_prop.fh 
-$(LIBRARY_PATH)(argos_diana_define.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_sizref.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_mkfrg.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_space_putp.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_external_field.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_getslo.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_plist.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_putix.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_pr_angles.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_atom_index.o):	$(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(argos_prep_imp.o):	./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_space_cascad.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_balanc.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_vscal.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prop_proper.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_prop.fh 
-$(LIBRARY_PATH)(argos_prep_dihimp.o):	./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_diana_rdfhdr.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_cov.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fold.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_accpbl.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_m.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_project.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_print_der.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_rtrj.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_upd_i.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_nbaccfbl.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_pr_bonds.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_am.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_owners.o):	./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_initx.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_lambda.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_final.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fnrm.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_select.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(argos_diana_grpcogang.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_finish.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_parseq.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_copwiq.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_test2.o):	./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_eminit.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_prep_wrttop.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_sp.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_diana_group.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_grploc.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_alloc2.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_pme_splfil.o):	./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_cafe_pr_imprs.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_wrtxyz.o):	./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_btop.o):	./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prop_mcti_s.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prop.fh 
-$(LIBRARY_PATH)(argos_cafe_pmec.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_print_solvent.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_gtxpbl.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_wrtime.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_print.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_space_lbbl_prefetch.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_tw.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_addangle.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_charge.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/geom.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_cafe_cms.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_super2.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh 
-$(LIBRARY_PATH)(argos_space_gtda.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_pltgrd.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_check.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_cafe_shks.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_addref.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_cafe_start.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_rmri.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_pme_finish.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_prep_scnseq.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_prep_paths2.o):	$(INCDIR)/rtdb.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_space_nbbl.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_initb.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_sfree.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_induce.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_rrst.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_prop_finish.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prop.fh 
-$(LIBRARY_PATH)(argos_diana_rmsd.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_dww.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_lsd.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_mcti_kin.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prop_mcti_step.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_prop.fh 
-$(LIBRARY_PATH)(argos_timer_init.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_cafe_mlist.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_ndxxcl.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_rdchg.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_para.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_salloc.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_rama1.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_pmecor.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_links.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_diana_task.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_atype.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_cafe_print_d.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_wtfram.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_prefetch_p.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_pme_getgrd.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_space_accfbl.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prep_mktop.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_space_bscale.o):	./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_fopen.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_space_wtrst.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_rdsel.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_report.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_final.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_hoplist.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_start.o):	$(INCDIR)/rtdb.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_partition.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_space_finish.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_lsh.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_add_esa.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_getref.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_wcharge.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_wthdr.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_rdmri.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_initag.o):	./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_orient.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_space_getxscr.o):	./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_pme_wait.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fpsw.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_initip.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_hbond_header.o):	./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_equivalent.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_gtlocal.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prep_wrtsgm.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_cafe_pmeset.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_namiup.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_prop_stat.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_prop.fh 
-$(LIBRARY_PATH)(argos_cafe_vs.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_timing.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_test.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_prop_rdrest.o):	./argos_prop.fh 
-$(LIBRARY_PATH)(argos_prep_admin.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_diana_espgrd.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prop_record.o):	./argos_prop.fh 
-$(LIBRARY_PATH)(argos_diana_gettop.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_pairs.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_pmelam.o):	./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_zinit.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_cafe_copya.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_hbond.o):	./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_collaps.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh 
-$(LIBRARY_PATH)(argos_cafe_fsd.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_getxpbl.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_listangl.o):	./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_quick_charge.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_pme_start.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_prop_mcti_r.o):	./argos_prop.fh 
-$(LIBRARY_PATH)(argos_server.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_space_local.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_nbacfbl.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_gaputixv.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_xmean.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh 
-$(LIBRARY_PATH)(argos_diana_order.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_packw.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh $(INCDIR)/bitops.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_pme_select.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_space_getxbl.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_partition_end.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_diana_rdhdr.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_wrtmro.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_setup.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_ti.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_cafe_element.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_str_replace.o):	$(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(argos_diana_getcard.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_wtrst.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_cafe_fix_sw.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh $(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_base.o):	$(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(argos_cafe_final.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_skip.o):	./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_scmfor.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_term.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_prop_dfr_copy.o):	./argos_prop.fh 
-$(LIBRARY_PATH)(argos_prep_input.o):	$(INCDIR)/rtdb.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /home/d3j191/nwchem/src/tools/include/global.fh 
-$(LIBRARY_PATH)(argos_space_rmri.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_sp_qmmm.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_main.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_diana_rotate.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prop_mcti_acc.o):	./argos_prop.fh 
-$(LIBRARY_PATH)(argos_space_getda.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_parbnd.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_wttrj.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_rdrest.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_diana_rdf_init.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_lalloc.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_copyq.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_pack_init.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/bitops.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_finish.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_dss.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_solvat.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_prep_frgrd.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_induce_start.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_diana_rdref.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_modify.o):	$(INCDIR)/util.fh $(INCDIR)/inp.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_pme_forces.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_diana_grpdis.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_rdsgm.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_cafe_lpfrog.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_sgmndx.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_diana_gettrj.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_wrtseq.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_cafe_veloc.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_scaleq.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_start.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_initf.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_owner.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_rdfram.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_alloc.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_wtmro.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_evaluate.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_sclq.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_wrtbxsz.o):	./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_shakew.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_wrtpdb.o):	./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_getcmd.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_update_i.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prep_wrtnam.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_prep_dihsel.o):	./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_cafe_rdtop.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_lochdr.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_parq.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_evaldist.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_pme_flag.o):	./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_diana_rtdbin.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_rama2.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_proper.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_tag.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_chg.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_espplt.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_parwiq.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prop_header.o):	./argos_prop.fh 
-$(LIBRARY_PATH)(argos_cafe_lww.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_epme.o):	$(INCDIR)/msgids.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fst.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_acfbl.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prep_rtdbin.o):	$(INCDIR)/rtdb.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_spi.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_prep_equiv.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh 
-$(LIBRARY_PATH)(argos_cafe_fnorm.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fpss.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_dera_i.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fpme.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_pme_chgrid.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_cafe_atonum.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_readsel.o):	./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_rdrst.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_lsw.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_gensgm.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_congra.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_space_nrnode.o):	./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_mcti.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_gettp.o):	./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prop_setup.o):	./argos_prop.fh 
-$(LIBRARY_PATH)(argos_pme_init.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_cafe_dera_init.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_mass.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_savsel.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prop_dfr.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prop.fh 
-$(LIBRARY_PATH)(argos_cafe_add_edihes.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_extern.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_scmf.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_resize.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_wrtvec.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_parimp.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_multi.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_free.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_copyg.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_mdstep.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_wrtpdb.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh 
-$(LIBRARY_PATH)(argos_space_rrest.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_report_file.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_prefetch_next.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_copyv.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_equitors.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_his.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh 
-$(LIBRARY_PATH)(argos_diana_pcovar.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_travel.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prop_mcti_run.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prop.fh 
-$(LIBRARY_PATH)(argos_diana_savssl.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_listdist.o):	./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_md.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_diana_init.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_rdpdb.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_space_diffbb.o):	./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_lpfrog_bc.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_gauss.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prop_step.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_prop.fh 
-$(LIBRARY_PATH)(argos_cafe_parang.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_rdf.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_export.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_mkseq.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/geom.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_space_ibbl_prefetch.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_lfree.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fix.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_dsw.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prop_wrtmro.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prop.fh 
-$(LIBRARY_PATH)(argos_pme_fftest.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_space_gagetixv.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_em.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_prep_sgmnum.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_cafe_tscale.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_alpha.o):	./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_rdrst.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_rdinp.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_constants.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_diana_histo.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_task.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh 
-$(LIBRARY_PATH)(argos_space_wtrest.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_gethdl.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_decomp.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_hdrtim.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_diana_anahdr.o):	./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_quantuma.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_pdbseq.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_prep_wrtpov.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh 
-$(LIBRARY_PATH)(argos_stdesc.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_newton.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_cafe_wtgib.o):	$(INCDIR)/msgids.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_rdgeom.o):	$(INCDIR)/geom.fh 
-$(LIBRARY_PATH)(argos_prep_paths.o):	./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_cafe_print_distar.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_pcopy.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_input.o):	$(INCDIR)/rtdb.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /home/d3j191/nwchem/src/tools/include/global.fh 
-$(LIBRARY_PATH)(argos_cafe_lso.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_ndxtrd.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prop_rdmri.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prop.fh 
-$(LIBRARY_PATH)(argos_prep_wrtxyz.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_prep_mklist.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_diana_xcollect.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_acpbl.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_weight.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_pme_grid.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_diana_torsion.o):	/home/d3j191/nwchem/src/tools/include/global.fh 
-$(LIBRARY_PATH)(argos_diana_getofffr.o):	./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_wtmro.o):	$(INCDIR)/msgids.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_wcount.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_print_deco.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_dldbal.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/bitops.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_slowt.o):	$(INCDIR)/msgids.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_all.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_hopping.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_gagetf.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_setbox.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_listtors.o):	./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_evalord.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_misfit.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_cafe_hopinit.o):	$(INCDIR)/util.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_pr_pmf.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_wdefin.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_coms.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_dummy.o):	./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_space_gthdl.o):	./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_lam.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_mksgm.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_space_pack_finish.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_evaltors.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_covar.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_wall.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fld.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_ffield.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_cafe_print_top.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_rgib.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_update.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cmopt.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_diana_gethdr.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_nbwaitf.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_nbwait3.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_equiord.o):	./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_lst.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_params.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_prep_rename.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
-$(LIBRARY_PATH)(argos_prep_impctr.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_cafe_print_atypes.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_cenmas.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_wrtrst.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_diana_hbond_init.o):	./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_align.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_diana_addtorsion.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_xaver.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_listbb.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_atmass.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_nbwait2.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_lss.o):	$(INCDIR)/util.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_rdssl.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_getp.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_rdpmf.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_center.o):	$(INCDIR)/msgids.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_getixv.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_shkw.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fsh.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_fd.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_cafe_lampmf.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_wtrest.o):	./argos.fh 
-$(LIBRARY_PATH)(argos_cafe_gauss1.o):	$(INCDIR)/util.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_nbwait.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_fclass.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_diana_evalangl.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_vw.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_siztop.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prep_fix.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_diana_data.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_diana_esppt.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_space_prt_s.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_puttrj.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_shkp.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_unpack.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh $(INCDIR)/bitops.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_ts.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_prefetch_all.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_add_ebonds.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_pack_ga.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_print_energy.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_forces.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_membrane_forces.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos.fh 
-$(LIBRARY_PATH)(argos_space_ownerw.o):	./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_pme_coeff.o):	./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_cafe_comw.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_dimens.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh $(INCDIR)/geom.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_diana_index.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_cmw.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_print_dstr.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_repeat.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_space_rdmri.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_space_wrtmro.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fww.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_pme_selnod.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
-$(LIBRARY_PATH)(argos_diana_edinit.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_prop_rmri.o):	./argos_prop.fh 
-$(LIBRARY_PATH)(argos_prep_frgsiz.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_cafe_fso.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_diana_getsel.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
-$(LIBRARY_PATH)(argos_cafe_fss.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_shakep.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_trjhdr.o):	/home/d3j191/nwchem/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_prep_center.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(argos_cafe_lsb.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_space_gaputf.o):	/home/d3j191/nwchem/src/tools/include/global.fh ./argos_space_common.fh 
-$(LIBRARY_PATH)(argos_prep_merge.o):	$(INCDIR)/util.fh 
 $(LIBRARY_PATH)(argos_cafe_grid.o):	./argos_cafe_common.fh 
-$(LIBRARY_PATH)(argos_cafe_rddrs.o):	$(INCDIR)/msgids.fh /home/d3j191/nwchem/src/tools/include/mafdecls.fh /home/d3j191/nwchem/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_initip.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prop_dfr_copy.o):	./argos_prop.fh 
+$(LIBRARY_PATH)(argos_prep_imp.o):	./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_diana_rama2.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_pme_init.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_prep_rename.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_prep_rdpdb.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_cafe_wbox.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_gethdr.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_adddistance.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_pmecor.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_skip.o):	./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_weight.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_pr_bonds.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_nrnode.o):	./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_print_solvent.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_copya.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_task1.o):	$(INCDIR)/rtdb.fh 
+$(LIBRARY_PATH)(argos_cafe_vscal.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_gagetf.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_center_fold.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_histo.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fold.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_ti.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_prep_fix.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_diana_rdref.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_vscale.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_gaputf.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_print_distar.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_hopinit.o):	$(INCDIR)/util.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_pme_forces.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_space_acpbl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prep_select.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(argos_prep_his.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh 
+$(LIBRARY_PATH)(argos_pme_selnod.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_space_nbbl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_pme_grid.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_partition.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_diana_order.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_start.o):	$(INCDIR)/rtdb.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_diana_xaver.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_hoplist.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_rdmri.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_listdist.o):	./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_prep_master.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_diana_espplt.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_start.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_rama.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_slow.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prop_proper.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_prop.fh 
+$(LIBRARY_PATH)(argos_forces.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_chg.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_scmf.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_sgmfil.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_prep_rrst.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_cafe_comb.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_input.o):	$(INCDIR)/rtdb.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh 
+$(LIBRARY_PATH)(argos_space_travel.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_forpme.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fpww.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_addtorsion.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_wrtvec.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_rdrst.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_space_nbwait.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_mcti_w.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_btop.o):	./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_space_numbb.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_space_wtmro.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_pmelam.o):	./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_guided.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_space_resize.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_space_free.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_task.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_print_solute.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_getda.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_stdesc.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_quantuma.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_cascad.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_addangle.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_induce_start.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_diana_covar.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_prep_admin.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_diana_wrtxyz.o):	./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_wthdr.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_cenmas.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_anahdr.o):	./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_readsel.o):	./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_owners.o):	./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_pme_flag.o):	./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_cafe_mcti.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fsd.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_dimens.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_space_rdmri.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_xmean.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh 
+$(LIBRARY_PATH)(argos_prep_merge.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_prop_mcti_s.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prop.fh 
+$(LIBRARY_PATH)(argos_prep_rdrst.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_cafe_wtmro.o):	$(INCDIR)/msgids.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_parang.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_scaleq.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_report_loc.o):	./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_gagetixv.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fpss.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_listtors.o):	./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_project.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_rdchg.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_lbbl_prefetch.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lam.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_dldbal.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/bitops.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prep_wrtnam.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_diana_rdtop.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_update_i.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_space_printf.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_uhop.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_pme_start.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_space_getp.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lfree.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_collaps.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh 
+$(LIBRARY_PATH)(argos_diana_getsel.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_pack.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh $(INCDIR)/bitops.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prep_equiv.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh 
+$(LIBRARY_PATH)(argos_pme_wait.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_cafe_pr_imprs.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_test.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_prep_input.o):	$(INCDIR)/rtdb.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh 
+$(LIBRARY_PATH)(argos_timer_init.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_rdgib.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_rdsel.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_update.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_cms.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lst.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_dww.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_listord.o):	./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_finish.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_sp.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_chgrid.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_accpbl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_equitors.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_gettop.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_initag.o):	./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_dera_i.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_sclq.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_nbacfbl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_space_wrtmro.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prep_wrttop.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_diana_settag.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_wrtbxsz.o):	./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_groups.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_wrttrj.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_rdssl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_wtrest.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_diana_wdefin.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_wall.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_tag.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_finish.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_add_eangles.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_lochdr.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_wtrest.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_proj.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_parq.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_final.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_super2.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh 
+$(LIBRARY_PATH)(argos_prep_wrtpdb.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh 
+$(LIBRARY_PATH)(argos_rdinp.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_constants.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_partition_end.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_alpha.o):	./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_center.o):	$(INCDIR)/msgids.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_modify.o):	$(INCDIR)/util.fh $(INCDIR)/inp.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_space_lbbl_indices.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_center_ref.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_prep_orient.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_cafe_print_ctypes.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_wrtdat.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_pcopy.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_initx.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_tw.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_sfree.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_setbox.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_export.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_prefetch_next.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prop_rdmri.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prop.fh 
+$(LIBRARY_PATH)(argos_prep_ffield.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_cafe_rdpmf.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_copyv.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_center.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_cafe_coms.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fsh.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_print.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_rmri.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_local.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_pme_for.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_cafe_mdstep.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_evalord.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fw.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_accfbl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prep_rtdbin.o):	$(INCDIR)/rtdb.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_cafe_wtgib.o):	$(INCDIR)/msgids.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_check.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_prep_pdbsiz.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_prep_wrtrst.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_cafe_shakep.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lpfrog.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_parwiq.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_slowr.o):	$(INCDIR)/msgids.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_pr_angles.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_external_field.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_wrtseq.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_prep_mkfrg.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_cafe_gauss1.o):	$(INCDIR)/util.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_epme.o):	$(INCDIR)/msgids.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_wrtrst.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_pme_getgrd.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_prep_atype.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_prep_impctr.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_space_getxscr.o):	./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_links.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_add_eimprs.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_initb.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_rotate.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_setup.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_rdfram.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_sizref.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lambda.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_init.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_hop.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_prt_s.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fsb.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_rdrest.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_inita.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_congra.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_prep_rdseq.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_diana_index.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_hbond_init.o):	./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_prop_record.o):	./argos_prop.fh 
+$(LIBRARY_PATH)(argos_cafe_volume.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_namiup.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fnrm.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_getixv.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_restor.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_upd_i.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_equiord.o):	./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_parv.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_edfinal.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_pme_select.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_induce.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_dihimp.o):	./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_cafe_gauss.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_ibbl_prefetch.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_puttrj.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_grpvectors.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_parbnd.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_gaputixv.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_salloc.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_print_dera.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prop_mcti_step.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_prop.fh 
+$(LIBRARY_PATH)(argos_input.o):	$(INCDIR)/rtdb.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh $(INCDIR)/bitops.fh 
+$(LIBRARY_PATH)(argos_cafe_multi.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_wcount.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lampmf.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lsd.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_putp.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lso.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_rmsd.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_alloc.o):	$(INCDIR)/rtdb.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_copyg.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_print_d.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_hopping.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_comw.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_evaluate.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_wrttrj.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_setiomode.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_evaltors.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_pme_fft.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_prep_repeat.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_prop_wrtmro.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prop.fh 
+$(LIBRARY_PATH)(argos_space_pack_ga.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_wrtgib.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_solvat.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_diana_wselect.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_qatoms.o):	./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_select.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_pme_putgrd.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_space_rrest.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_space_wrest.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_update.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh 
+$(LIBRARY_PATH)(argos_membrane_forces.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_space_gethdl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_test2.o):	./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_atotyp.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_finish.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_dsw.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_fopen.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_plist.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_wrtmro.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_paths2.o):	$(INCDIR)/rtdb.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fss.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_rdf.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_prop_mcti_run.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prop.fh 
+$(LIBRARY_PATH)(argos_cafe_pbc.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_shakew.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_dss.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_acfbl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_print_top.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_wttrj.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_pmeset.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_trjhdr.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_task.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh 
+$(LIBRARY_PATH)(argos_cmopt.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_prop_dfr.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prop.fh 
+$(LIBRARY_PATH)(argos_space_lbbl_ind.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_cntlnk.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_gaputix.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prep_mktop.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_diana_supimp.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_listbb.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lss.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_nbwaitf.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prop_stat.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_prop.fh 
+$(LIBRARY_PATH)(argos_em.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_fso.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_packw.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh $(INCDIR)/bitops.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_scmfor.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_fd.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_prep_sgmndx.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_diana_pltgrd.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_getref.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_copyq.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_pardif.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_nucleic.o):	./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_hdrtim.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_spi.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_pardih.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_all.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_xcollect.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_diel.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_veloc.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_wrtsel.o):	./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_add_ebonds.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fpsw.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_mass.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_prefetch_all.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_edinit.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_finish.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_mlist.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana.o):	$(INCDIR)/rtdb.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_para.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_mkseq.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/geom.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_space_unpack.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh $(INCDIR)/bitops.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_pme_dftmod.o):	./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_main.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_prep_sgmnum.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_cafe_lsb.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_evalangl.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_rdf_init.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_savssl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_prtcnt.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prop_rdrest.o):	./argos_prop.fh 
+$(LIBRARY_PATH)(argos_cafe_shakes.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_diffbb.o):	./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_print.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_lww.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_preadframe.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_prep_disres.o):	$(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(argos_diana_average.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_initf.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_collapse.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_print_atypes.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fix_sw.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh $(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_rddrs.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_charge.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/geom.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_space_owner.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_hbond.o):	./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_super.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_prep_align.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_cafe_add_edihes.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_unpackw.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh $(INCDIR)/bitops.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_fold.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_diana_esppt.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_wrtpdb.o):	./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_prep_dummy.o):	./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_addref.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_space_gtlocal.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_rtdbin.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_alloc.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_sp_qmmm.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_diana_report_file.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lsh.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prop_print.o):	./argos_prop.fh 
+$(LIBRARY_PATH)(argos_prop_step.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_prop.fh 
+$(LIBRARY_PATH)(argos_prepar.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_space_rdtrj.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fld.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fnorm.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_espgrd.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_wcharge.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_protein.o):	./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_cafe_ts.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_pmec.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_inirms.o):	./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_wtrst.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_space_prefetch.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_wrtrst.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_prep_rdsgm.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_cafe_print_deco.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_getofffr.o):	./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_rgib.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_gtda.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fst.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prop_finish.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prop.fh 
+$(LIBRARY_PATH)(argos_cafe_print_der.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_mknoe.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh 
+$(LIBRARY_PATH)(argos_prep_quick_charge.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_newton.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_ndxtrd.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_natyps.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_space_balanc.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fsw.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_rtrj.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_init.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_finit.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_prep_rdgeom.o):	$(INCDIR)/geom.fh 
+$(LIBRARY_PATH)(argos_cafe_element.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_gthdl.o):	./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_rdtop.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lpfrog_bc.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_rmri.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_shkp.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_mkrst.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh 
+$(LIBRARY_PATH)(argos_diana_torsion.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh 
+$(LIBRARY_PATH)(argos_prep_base.o):	$(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(argos_cafe_extern.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_slowt.o):	$(INCDIR)/msgids.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_wrtime.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_m.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_term.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_prop_wtmro.o):	./argos_prop.fh 
+$(LIBRARY_PATH)(argos_diana_diehdr.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_prep_str_replace.o):	$(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(argos_cafe_atonum.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_dera_init.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_nbwait2.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_timing.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_prop_header.o):	./argos_prop.fh 
+$(LIBRARY_PATH)(argos_diana_equivalent.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_prop_init.o):	./argos_prop.fh 
+$(LIBRARY_PATH)(argos_prep_wtrst.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_diana_savsel.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_pme_fftest.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_prep_params.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_diana_pcovar.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_am.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_nbwait3.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_dlist.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_md.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_diana_wtfram.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_pack_finish.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_vw.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_addorder.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_print_dstr.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_links.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_diana_rdfhdr.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_evaldist.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_prep_paths.o):	./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_prep_seqsiz.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_prop_mcti_r.o):	./argos_prop.fh 
+$(LIBRARY_PATH)(argos_diana_gettrj.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lstmul.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_getslo.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_parimp.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prop_mcti_acc.o):	./argos_prop.fh 
+$(LIBRARY_PATH)(argos_cafe_shks.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_fww.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh ./argos_cafe_funcs_sfn.fh ./argos_cafe_funcs_dec.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_frgrd.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_diana_define.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_pairs.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_rmsdev.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_copwiq.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prop_start.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_prop.fh 
+$(LIBRARY_PATH)(argos_cafe_fpme.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_shake.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_space_gettp.o):	./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prop_rmri.o):	./argos_prop.fh 
+$(LIBRARY_PATH)(argos_cafe_proper.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_putix.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_mcti_kin.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_gagetixvf.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prep_dihsel.o):	./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_space_pack_init.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh $(INCDIR)/bitops.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_shkw.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_getsls.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_pme_finish.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_space_gtxpbl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_space_getxbl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prep_wrtxyz.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_cafe_vs.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_prefetch_p.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_listangl.o):	./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_chgdst.o):	./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_eminit.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_prep_misfit.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_diana_siztop.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_ramhdr.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_pme_chgrid.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_cafe_atmass.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_scnseq.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_prep_mksgm.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_prep_gensgm.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_cafe_add_esa.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_pme_splfil.o):	./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_prep_pdbseq.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_fclass.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_prop_setup.o):	./argos_prop.fh 
+$(LIBRARY_PATH)(argos_cafe_fix.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_dimens.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh $(INCDIR)/geom.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_prep_frgsiz.o):	$(INCDIR)/util.fh 
+$(LIBRARY_PATH)(argos_cafe_charge.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_grpcogdis.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_prep_mklist.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_space_trvl.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_grpcogang.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_wthdr.o):	./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_pr_dihes.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_rtdbsq.o):	$(INCDIR)/geom.fh 
+$(LIBRARY_PATH)(argos_cafe_topol_init.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_ownerw.o):	./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_start.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lsw.o):	$(INCDIR)/bitops.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prop_mcti.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_prop.fh 
+$(LIBRARY_PATH)(argos_rdrest.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_diana_data.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_grploc.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_getcard.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_rdfwrt.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_lalloc.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_tscale.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_pme_energy.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_prop_wtrest.o):	./argos_prop.fh 
+$(LIBRARY_PATH)(argos_cafe_final.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_zinit.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_polar.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_atom_index.o):	$(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(argos_diana_report.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_bscale.o):	./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_cafe_print_energy.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_decomp.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_cov.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_nbaccfbl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_hbond_header.o):	./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_diana_getcmd.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_parseq.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_alloc2.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_grpdis.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_final.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_membrane_init.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos.fh 
+$(LIBRARY_PATH)(argos_cafe_cmw.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_cafe_ndxxcl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_space_getxpbl.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_diana_rama1.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_params.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_cafe_pr_pmf.o):	./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_diana_group.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_pme_coeff.o):	./argos_pme_common.fh 
+$(LIBRARY_PATH)(argos_cafe_rdgeom.o):	$(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh $(INCDIR)/geom.fh ./argos_cafe_common.fh 
+$(LIBRARY_PATH)(argos_prep_wrtsgm.o):	$(INCDIR)/util.fh ./argos_prep_common.fh 
+$(LIBRARY_PATH)(argos_diana_rdhdr.o):	/home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh ./argos_diana_common.fh 
+$(LIBRARY_PATH)(argos_space_latoms.o):	$(INCDIR)/msgids.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/global.fh ./argos_space_common.fh 
+$(LIBRARY_PATH)(argos_server.o):	./argos.fh 
+$(LIBRARY_PATH)(argos_prep_wrtpov.o):	$(INCDIR)/util.fh /home/niri/nwchem/nwchem-dev-new/src/tools/include/mafdecls.fh 
