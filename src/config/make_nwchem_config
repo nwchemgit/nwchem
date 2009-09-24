@@ -16,7 +16,7 @@
 # directories.
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
-	rimp2 stepper driver optim dftgrad scfaux cphf ccsd vib mcscf prepar \
+	rimp2 stepper driver optim scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop \
         property nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm qmd etrans tce geninterface bq cons \
@@ -27,7 +27,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 # be too hard to come up with.  These should be platform-independent.
 
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
-                    -lstepper -ldriver -loptim -ldftgrad -lplnwv -lnwdft -lgradients \
+                    -lstepper -ldriver -loptim -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lesp -lddscf -ldangchang -lleps -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -largos -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lsmd \
@@ -71,20 +71,20 @@ EXP_pnnl = $(EXP_all) python dntmc
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          optim stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tce vscf leps
+          optim stepper driver ccsd vib mcscf property selci dplot mp2_grad esp etrans tce vscf leps
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          optim stepper driver vib mcscf property dftgrad selci dplot \
+          optim stepper driver vib mcscf property selci dplot \
            mp2_grad esp etrans vscf leps
-EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
+EXP_ver2 = prepar gradients mp2_grad stepper vib mcscf \
            optim driver analyz diana
 #plane_wave ... broken? RJH
 EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          optim stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans vscf leps
+          optim stepper driver ccsd vib mcscf property selci dplot mp2_grad esp etrans vscf leps
 EXP_tps = prepar argos nwmd analyz diana ddscf nwdft gradients esp
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
 EXP_classical  = prepar nwmd analyz
 EXP_venus = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
-          ccsd vib property dftgrad mp2_grad geninterface bq cons
+          ccsd vib property mp2_grad geninterface bq cons
 # Need bq in front of cons?
 EXP_qmmm_valiev = $(filter-out transport nbo hessian tce uccsdt python diana develop oimp2 scfaux plane_wave rimp2_grad vscf geninterface dntmc leps,$(KNOWN_MODULE_SUBDIRS) )
 
@@ -131,9 +131,8 @@ MODULES := $(patsubst oimp2,oimp2 rimp2 moints,$(MODULES) )
 MODULES := $(patsubst vib,vib stepper driver optim gradients,$(MODULES) )
 MODULES := $(patsubst driver, driver stepper optim gradients,$(MODULES) )
 MODULES := $(patsubst stepper,stepper gradients,$(MODULES) )
-MODULES := $(patsubst dftgrad,dftgrad gradients ddscf nwdft,$(MODULES) )
-MODULES := $(patsubst gradients,gradients ddscf dftgrad,$(MODULES) )
-MODULES := $(patsubst hessian,hessian ddscf gradients nwdft dftgrad cphf property stepper vib,$(MODULES) )
+MODULES := $(patsubst gradients,gradients ddscf nwdft,$(MODULES) )
+MODULES := $(patsubst hessian,hessian ddscf gradients nwdft cphf property stepper vib,$(MODULES) )
 
 MODULES := $(patsubst rimp2_grad,rimp2_grad rimp2 cphf ddscf mp2_grad NWints,$(MODULES) )
 MODULES := $(patsubst rimp2,rimp2 ddscf NWints,$(MODULES) )
@@ -152,9 +151,9 @@ MODULES := $(patsubst esp,esp NWints,$(MODULES) )
 
 MODULES := $(patsubst etrans, etrans ddscf NWints,$(MODULES) )
 
-MODULES := $(patsubst transport, transport dftgrad dplot gradients driver optim,$(MODULES) )
+MODULES := $(patsubst transport, transport nwdft dplot gradients driver optim,$(MODULES) )
 
-MODULES := $(patsubst tce,tce nwdft ddscf NWints hessian dftgrad gradients,$(MODULES) )
+MODULES := $(patsubst tce,tce nwdft ddscf NWints hessian gradients,$(MODULES) )
 
 MODULES := $(patsubst argos,argos cafe space fft qhop,$(MODULES) )
 MODULES := $(patsubst nwmd,nwmd cafe space fft qhop,$(MODULES) )
@@ -191,7 +190,6 @@ MOD_LIBS := $(patsubst mp2_grad,-lmp2,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst NWints,-lnwints,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst atomscf,-lguess,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ddscf,-lddscf,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst dftgrad,-ldftgrad,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst develop,-ltest,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst uccsdt,-lccsd,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst drdy,-ldrdy,$(MOD_LIBS) )
@@ -252,7 +250,6 @@ STUBROUTINES := $(patsubst mp2_grad,mp2_grad mp2_input semi_dir_mp2,$(STUBROUTIN
 STUBROUTINES := $(patsubst NWints,int_input task_check_sum sym_bas_op intgrl_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input rel_input task_et,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst dftgrad,dft_grad_top dft_energy_gradient sodft_energy_gradient grad_dft,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst develop,uccsdtest rjhtest jantest jvltest jvltest2 raktest kgdtest debtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst drdy,drdy_input task_drdy,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gradients,grad_force scf_gradient mcscf_gradient gradients_input grad_active_atoms stpr_sjacobi,$(STUBROUTINES) )
