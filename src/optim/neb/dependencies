@@ -1,6 +1,0 @@
-$(LIBRARY_PATH)(neb_init.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh ./neb_data.fh /home/niri/nwchem/nwchem-dev-stable/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /home/niri/nwchem/nwchem-dev-stable/src/tools/include/global.fh $(INCDIR)/geom.fh $(INCDIR)/errquit.fh ./bead_list.fh 
-$(LIBRARY_PATH)(bead_list.o):	$(INCDIR)/rtdb.fh /home/niri/nwchem/nwchem-dev-stable/src/tools/include/mafdecls.fh /home/niri/nwchem/nwchem-dev-stable/src/tools/include/global.fh $(INCDIR)/geom.fh 
-$(LIBRARY_PATH)(neb_utils.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh /home/niri/nwchem/nwchem-dev-stable/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /home/niri/nwchem/nwchem-dev-stable/src/tools/include/global.fh $(INCDIR)/geom.fh 
-$(LIBRARY_PATH)(neb.o):	$(INCDIR)/rtdb.fh ./neb_data.fh /home/niri/nwchem/nwchem-dev-stable/src/tools/include/mafdecls.fh 
-$(LIBRARY_PATH)(neb_input.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh /home/niri/nwchem/nwchem-dev-stable/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/errquit.fh 
-$(LIBRARY_PATH)(neb_drv.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh /home/niri/nwchem/nwchem-dev-stable/src/tools/include/mafdecls.fh 
