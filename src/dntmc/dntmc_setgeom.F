@@ -151,8 +151,8 @@ C
 #include "rtdb.fh"
 #include "stdio.fh"
       integer rtdb     ! [input] rtdb handle
-      integer nmolunique(nspecies)  ! [input] number of molecules in each species
       integer nspecies ! [input] number of species
+      integer nmolunique(nspecies)  ! [input] number of molecules in each species
       character*255 species(nspecies) ! [input] list of geometry names
       integer natom(nspecies)    ! [output] number of atoms in a particular species
       integer uspc(nspecies) ! [output] list of unique species numbers
