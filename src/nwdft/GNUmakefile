@@ -7,7 +7,7 @@
 
  LIB_DEFINES =
 
-   SUBDIRS = include input_dft scf_dft so_dft coulomb xc util grid dftgrad lr-tddft rt-tddft
+   SUBDIRS = include input_dft scf_dft so_dft coulomb xc util grid dftgrad lr_tddft rt_tddft
 LIB_INCLUDES = -I./include -I./grid
 
 HEADERS = ../ddscf/cosmo.fh
