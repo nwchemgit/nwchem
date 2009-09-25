@@ -128,10 +128,10 @@ c
          integer g_nq
          logical wght_GA
          double precision rho_n
+         integer ipol
+         integer natoms
          double precision rdens_atom(ipol*natoms*natoms)
          integer cetobfr(2,natoms)
-         integer natoms
-         integer ipol
          integer nbf_ao_mxnbf_ce         
          integer g_tmp            ! work array (nbf x nbf)
          integer g_fockso(*)      ! real and imag parts of the fock matrix (2*nbf x 2*nbf)
@@ -221,11 +221,11 @@ c
       integer g_xyz
       integer g_nq
       logical wght_GA
+      integer natoms
+      integer ipol
       double precision rho_n
       double precision rdens_atom(ipol*natoms*natoms)
       integer cetobfr(2,natoms)
-      integer natoms
-      integer ipol
       integer nbf_ao_mxnbf_ce         
       integer g_tmp            ! work array (nbf x nbf)
       integer g_fockso(2)      ! real and imag parts of the fock matrix (2*nbf x 2*nbf)
