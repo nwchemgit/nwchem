@@ -425,6 +425,9 @@ double	*pc_psp;
     R_Exchange_DFT(f,Vx,&ex,&px);
     R_Correlation_DFT(f,Vc,&ec,&pc);
 
+    R_Screening_Cut(Vx);
+    R_Screening_Cut(Vc);
+
     /* recalculate px and pc */
     for (k=0; k<Ngrid; ++k) f[k] = (rho_psp[k])*Vx[k];
     px = Integrate_LogGrid(f);
