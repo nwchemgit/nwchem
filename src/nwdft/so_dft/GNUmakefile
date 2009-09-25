@@ -21,10 +21,8 @@
 	sym_mo_adapt_so.o sym_char_tab_so.o scf_sym_adap_so.o \
 	sym_mo_ap_op_so.o sym_op_clsfy_so.o ga_orth_mos_so.o  \
 	ga_orthog_so.o sym_op_cname_so.o grad_dens_so2.o \
-	dft_zora_utils_so.o
+	dft_zora_utils_so.o dft_scf_utils_so.o
 	OBJ_OPTIMIZE = ga_compl.o
-
-
 
      LIBRARY = libnwdft.a
 
@@ -37,5 +35,3 @@ sym_mo_adapt_so.F sym_op_clsfy_so.F dft_scf_so.F ga_orthog_so.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
-
-

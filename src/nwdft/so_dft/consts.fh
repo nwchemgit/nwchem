@@ -1,0 +1,5 @@
+c
+c     Some constant definitions
+c
+      double precision zero, onem, one, mone
+      parameter(zero = 0.d0, one = 1.d0, mone=-1.0d0, onem = -one)

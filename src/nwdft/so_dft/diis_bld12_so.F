@@ -6,6 +6,7 @@ c     S eigenvectors.
 c     iwhich = 1; build S
 c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
+c     iwhich = 4; build S**(-1)
 c***********************************************************************
 C$Id: diis_bld12_so.F,v 1.2 2003-10-17 22:55:48 carlfahl Exp $
 c
@@ -17,7 +18,7 @@ c
       integer iga_sout  ! GA handle for S^(n) [ouput]
       integer iga_stmp  ! GA handle for scratch [input]
       integer nbf       ! no. basis fns [input]
-      integer iwhich    ! 2->S(-1/2) 3->S(1/2) 
+      integer iwhich    ! 1:S, 2:S(-1/2), 3:S(1/2), 4:S(-1) 
 c
 #include "mafdecls.fh"
 #include "global.fh"
@@ -35,69 +36,30 @@ c
       call ga_sync
 c
       if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
-     &   call errquit('diis_bld12: failed to alloc tmpm',0, MA_ERR)
+     &   call errquit('diis_bld12_so: failed to alloc tmpm',0, MA_ERR)
 c
       call ga_copy(iga_svecs, iga_stmp)
 c      
-      if (iwhich.eq.1)then
+c     Build S,S^(-1/2),S^(1/2),S^(-1)
 c     
-c        Build S.
-c     
-         call ga_zero(iga_stmp)
-         do i = me+1, nbf, nproc
-            aaz = svals(i)
-            if (aaz.ge.toll_s)  then
-               call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
-               call dscal(nbf, aaz, DBL_MB(itmpm), 1)
-               call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
-            else
-c               write(LuOut,*)' Small eig of S in build of S',
-c     &           i, aaz, toll_s
-               call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
-               call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
-            endif
-         enddo
+      call ga_zero(iga_stmp)
+      do i = me+1, nbf, nproc
+         aaz = svals(i)
+         if (aaz.ge.toll_s)  then
 c
-      elseif (iwhich.eq.2)then
-c     
-c        Build S**(-1/2).
-c     
-         call ga_zero(iga_stmp)
-         do i = me+1, nbf, nproc
-            aaz = svals(i)
-            if (aaz.ge.toll_s)  then
-               aaz = 1.d0/sqrt(aaz)
-               call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
-               call dscal(nbf, aaz, DBL_MB(itmpm), 1)
-               call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
-            else
-c               write(LuOut,*)' Small eig of S in build of S^-1/2',
-c     &           i, aaz, toll_s
-               call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
-               call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
-            endif
-         enddo
+            if (iwhich.eq.1) aaz = 1.d0*aaz      ! S
+            if (iwhich.eq.2) aaz = 1.d0/sqrt(aaz)! S^(-1/2)
+            if (iwhich.eq.3) aaz = dsqrt(aaz)    ! S^(1/2)
+            if (iwhich.eq.4) aaz = 1.d0/aaz      ! S^(-1)
 c
-      elseif (iwhich.eq.3)then
-c     
-c        Build S**(1/2).
-c     
-         call ga_zero(iga_stmp)
-         do i = me+1, nbf, nproc
-            aaz = svals(i)
-            if (aaz.ge.toll_s)  then
-               aaz = dsqrt(aaz)
-               call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
-               call dscal(nbf, aaz, DBL_MB(itmpm), 1)
-               call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
-            else
-c               write(LuOut,*)' Small eig of S in build of S^1/2',
-c     &           i, aaz, toll_s
-               call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
-               call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
-            endif
-         enddo
-      endif
+            call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
+            call dscal(nbf, aaz, DBL_MB(itmpm), 1)
+            call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
+         else
+            call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
+            call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
+         endif
+      enddo
 c
       LResult = MA_Pop_Stack(ltmpm)
 c
