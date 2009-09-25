@@ -31,8 +31,8 @@ c
 c     
       double precision eaijk,eccsdt
       integer a,i,j,k,akold,av,inode,len,ad3,next
-      integer nxtask,ga_nbtest
-      external nxtask,ga_nbtest
+      integer nxtask
+      external nxtask
 c     
       Integer Nodes, IAm
 c     
