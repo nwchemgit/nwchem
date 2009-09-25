@@ -19,7 +19,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 32)
+      parameter (num_dirs = 33)
       integer NMAX              ! maximum wavfunctions
       parameter (NMAX = 100)
  
@@ -50,7 +50,7 @@ c
       real*8  v_rcut(NMAX)
       real*8  r_semicore
       integer lmax00,locp00
-      real*8  rlocal00
+      real*8  rlocal00,screening_cut
 
       character lmax,locp
       integer h,i,j,k,debug,print
@@ -85,6 +85,7 @@ c
      >            'lmax',
      >            'locp',
      >            'aperiodic_cutoff',
+     >            'screening_cutoff',
      >            'end'/
 
 
@@ -110,6 +111,7 @@ c
       locp = '?'
       r_semicore = -1.0d0
       rlocal00  = 1.0d0
+      screening_cut = 0.0d0
 
  10   if (.not. inp_read()) 
      >     call errquit(
@@ -127,7 +129,7 @@ c
      >       1000,1100,1200,1300,1400,
      >       100,  200, 300, 400, 500, 600, 700,800,900,
      >       1000,1100,1200,1300,1400,
-     >       700,710,1500,
+     >       700,710,1500,1600,
      >      9999) ind
       call errquit(
      >      'psp_generator_input: unimplemented directive', ind,
@@ -404,7 +406,11 @@ c
  1500 if (.not. inp_f(rlocal00)) rlocal00 = 1.0d0
       goto 10
  
-
+c
+c  screening cutoff radius
+c
+ 1600 if (.not. inp_f(screening_cut)) screening_cut = 0.0d0
+      goto 10
 
 
 *     ***** generate temporary data file  and run pspsolve ****
@@ -454,6 +460,9 @@ c
          write(17,*) "<end>"
       end if
  114  format(3I4,2E14.6)
+
+      if (screening_cut.gt.0.0)
+     >  write(17,*) "<screening_cut> ",screening_cut," <end>" 
 
       close(17)
 

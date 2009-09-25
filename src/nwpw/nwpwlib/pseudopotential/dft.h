@@ -28,6 +28,8 @@ extern	void	init_DFT(char*);
 extern	double	R_Hartree_DFT();
 extern	void	R_Exchange_DFT();
 extern	void	R_Correlation_DFT();
+extern  void    R_Screening_Cut();
+
 
 
 /* Hartree type: Hartree_Type */
