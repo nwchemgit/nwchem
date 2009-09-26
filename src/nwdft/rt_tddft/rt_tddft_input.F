@@ -1,10 +1,10 @@
-      subroutine rt_tddft_input(rtdb)
-c
-c Input parser for RT-TDDFT called by input/input_parse.F.
-c Also sets default values for input parameters.
+c Input parser for RT_TDDFT called by input/input_parse.F.
+c Sets default values for input parameters.
 c
 c     RT_TDDFT
 c     END
+c
+      subroutine rt_tddft_input(rtdb)
 c     
       implicit none
 c
@@ -26,6 +26,7 @@ c
       logical magnus
       double precision field_Emax
       double precision field_w
+      logical nuclear
 c
 c     == Set default values ==
 c
@@ -59,25 +60,31 @@ c
       if (.not.rtdb_put(rtdb,'rt_tddft:rk4',mt_log,1,rk4))
      & call errquit('rt_tddft_input: write failed to rtdb',0, RTDB_ERR)
 c
-c     == Euler (Euler propagator) ==
+c     == EULER (Euler propagator) ==
 c
       euler = .false.
       if (.not.rtdb_put(rtdb,'rt_tddft:euler',mt_log,1,euler))
      & call errquit('rt_tddft_input: write failed to rtdb',0, RTDB_ERR)
 c
-c     == Magnus (Magnus propagator) ==
+c     == MAGNUS (Magnus propagator) ==
 c
       magnus = .false.
       if (.not.rtdb_put(rtdb,'rt_tddft:magnus',mt_log,1,magnus))
      & call errquit('rt_tddft_input: write failed to rtdb',0, RTDB_ERR)
 c
-c     == Electric field (time-dependent electric field influencing the dynamics) ==
+c     == ELECTRIC FIELD ==
 c
-      field_Emax = 0.05d0    ! field maximum
-      field_w = 0.4764d0     ! field omega
+      field_Emax = 0.05d0    ! maximum value
+      field_w = 0.4764d0     ! omega
       if (.not.rtdb_put(rtdb,'rt_tddft:field_Emax',mt_dbl,1,field_Emax))
      & call errquit('rt_tddft_input: write failed to rtdb',0, RTDB_ERR)
       if (.not.rtdb_put(rtdb,'rt_tddft:field_w',mt_dbl,1,field_w))
+     & call errquit('rt_tddft_input: write failed to rtdb',0, RTDB_ERR)
+c
+c     == NUCLEAR (include nuclear motion) ==
+c
+      nuclear = .false.
+      if (.not.rtdb_put(rtdb,'rt_tddft:nuclear',mt_log,1,nuclear))
      & call errquit('rt_tddft_input: write failed to rtdb',0, RTDB_ERR)
 c
 c     == Parse the input ==
@@ -87,7 +94,7 @@ c
       if (.not. inp_a(test)) 
      &  call errquit('rt_tddft_input: read failed keyword',0, INPUT_ERR)
 c
-c     == NTIME (number of time steps) ==
+c     == NTIME ==
 c
       if (inp_compare(.false.,test,'ntime')) then
         if (.not.inp_i(ntime)) then
@@ -130,21 +137,21 @@ c
         if (.not.rtdb_put(rtdb,'rt_tddft:rk4',mt_log,1,rk4))
      &   call errquit('rt_tddft_input: write failed to rtdb',0,RTDB_ERR)
 c
-c     == Euler ==
+c     == EULER ==
 c
       else if (inp_compare(.false.,test,'euler')) then
         euler=.true.
         if (.not.rtdb_put(rtdb,'rt_tddft:euler',mt_log,1,euler))
      &   call errquit('rt_tddft_input: write failed to rtdb',0,RTDB_ERR)
 c
-c     == Magnus ==
+c     == MAGNUS ==
 c
       else if (inp_compare(.false.,test,'magnus')) then
         magnus=.true.
         if (.not.rtdb_put(rtdb,'rt_tddft:magnus',mt_log,1,magnus))
      &   call errquit('rt_tddft_input: write failed to rtdb',0,RTDB_ERR)
 c
-c     == Field Description (maximum value) ==
+c     == ELECTRIC FIELD DESCRIPTION (maximum value) ==
 c
       else if (inp_compare(.false.,test,'field_Emax')) then
       if (.not.inp_f(field_Emax)) then
@@ -155,7 +162,7 @@ c
       if (.not.rtdb_put(rtdb,'rt_tddft:field_Emax',mt_dbl,1,field_Emax))
      & call errquit('rt_tddft_input: write failed to rtdb',0,RTDB_ERR)
 c
-c     == Field Description (omega) ==
+c     == ELECTRIC FIELD DESCRIPTION (omega) ==
 c
       else if (inp_compare(.false.,test,'field_w')) then
       if (.not.inp_f(field_w)) then
@@ -166,12 +173,19 @@ c
       if (.not.rtdb_put(rtdb,'rt_tddft:field_Emx',mt_dbl,1,field_w))
      & call errquit('rt_tddft_input: write failed to rtdb',0,RTDB_ERR)
 c
-c     == Print ==
+c     == NUCLEAR ==
+c
+      else if (inp_compare(.false.,test,'nuclear')) then
+        nuclear=.true.
+        if (.not.rtdb_put(rtdb,'rt_tddft:magnus',mt_log,1,nuclear))
+     &   call errquit('rt_tddft_input: write failed to rtdb',0,RTDB_ERR)
+c
+c     == PRINT ==
 c
       else if (inp_compare(.false.,test,'print')) then
         call util_print_input(rtdb,'rt_tddft')
 c
-c     == End ==
+c     == END ==
 c
       else if (inp_compare(.false.,test,'end')) then
         goto 20
@@ -180,7 +194,7 @@ c
       endif
       goto 10
 c
-c     == Return ==
+c     == RETURN ==
 c
  20   return
       end
