@@ -1,13 +1,3 @@
-      logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.88 2009/02/03 22:49:53 niri Exp $
-      implicit none
-#include "errquit.fh"
-      integer rtdb              ! [input]
-#include "inp.fh"
-#include "global.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "stdio.fh"
 c     
 c     All processes call this routine.  Only process 0 actually reads the 
 c     input.  All other processes skip to the end of the routine
@@ -17,6 +7,22 @@ c     Process 0 reads input until a task directive is encountered.
 c     After this is read (by task_input) process 0 branches to the 
 c     broadcast at the end and all processes return a value of TRUE.  
 c     Otherwise FALSE is returned by all processes.
+c
+      logical function input_parse(rtdb)
+
+C     $Id: input_parse.F,v 1.88 2009/02/03 22:49:53 niri Exp $
+c
+      implicit none
+c
+#include "errquit.fh"
+c
+      integer rtdb              ! [input]
+c
+#include "inp.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "stdio.fh"
 c
       logical status
       integer found_task
@@ -181,6 +187,8 @@ c               call embed_input(rtdb)
                call hess_input(rtdb)
             else if (inp_compare(.false.,test,'tddft')) then
                call tddft_input(rtdb)
+            else if (inp_compare(.false.,test,'rt_tddft')) then
+               call rt_tddft_input(rtdb)
             else if (inp_compare(.false.,test,'mymd')) then
                 call mymd_input(rtdb)
             else if (inp_compare(.false.,test,'mymc')) then
