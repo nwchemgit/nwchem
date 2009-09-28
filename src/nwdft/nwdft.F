@@ -1,55 +1,114 @@
+c
+c     == DFT energy ==
       logical function dft_energy(rtdb)
+c
       implicit none
+c
 #include "rtdb.fh"
+c
       integer rtdb
 c
       logical nwdft
       external nwdft
       logical status
 c
+c     == Add theory flag ==
       status = rtdb_cput(rtdb,'dft:theory', 1, 'dft')
+c
       dft_energy = nwdft(rtdb)
       call grid_cleanup(.true.)
 c
       end
+c
+c     == Spin-Orbit DFT energy ==
       logical function sodft_energy(rtdb)
+c
       implicit none
+c
 #include "rtdb.fh"
+c
       integer rtdb
 c
       logical nwdft
       external nwdft
       logical status
 c
+c     == Add theory flag ==
       status = rtdb_cput(rtdb,'dft:theory', 1, 'sodft')
+c
       sodft_energy = nwdft(rtdb)
       call grid_cleanup(.true.)
 c
       end
+c
+c     == DFT RT_TDDFT ==
+      logical function dft_rt_tddft(rtdb)
+c
+      implicit none
+c
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+c
+      integer rtdb
+c
+      logical nwdft
+      external nwdft
+      logical status
+c
+c     == Add theory flag ==
+      status = rtdb_cput(rtdb,'dft:theory', 1, 'dft')
+c
+c     == Add real-time TDDFT dynamics flag ==
+      if (.not. rtdb_put(rtdb,'dft:lrt_tddft',mt_log,1,.true.))
+     &    call errquit('dft_rt_tddft: rtdb_put failed',0,RTDB_ERR)
+c
+      dft_rt_tddft = nwdft(rtdb)
+      call grid_cleanup(.true.)
+c
+      end
+c
+c     == Spin-Orbit RT_TDDFT ==
+      logical function sodft_rt_tddft(rtdb)
+c
+      implicit none
+c
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+c
+      integer rtdb
+c
+      logical nwdft
+      external nwdft
+      logical status
+c
+c     == Add theory flag ==
+      status = rtdb_cput(rtdb,'dft:theory', 1, 'sodft')
+c
+c     == Add real-time TDDFT dynamics flag ==
+      if (.not. rtdb_put(rtdb,'dft:lrt_tddft',mt_log,1,.true.))
+     &    call errquit('sodft_rt_tddft: rtdb_put failed',0,RTDB_ERR)
+c
+      sodft_rt_tddft = nwdft(rtdb)
+      call grid_cleanup(.true.)
+c
+      end
+c
+c     == Main DFT driver ==
       logical function nwdft(rtdb)
 c     
-c>>>  driver 
-c     
 C$Id: nwdft.F,v 1.76 2008-11-11 00:40:27 niri Exp $
+c
       implicit none
+c     
+c     == Include standard input and memory checking common structures ==
+c     
 #include "errquit.fh"
-c****
-c**** nwchem handles
-c****
-      integer rtdb
-c     
-c-->  Include standard input and memory checking common structures.
-c     
-c     
-c>>>  original NWdft includes ...
-c     
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "stdio.fh"
-c     
-c>>>  includes added on addition of NWdft to nwchem
-c     
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
@@ -57,9 +116,10 @@ c
 #include "util.fh"
 #include "cgridfile.fh"
 #include "cosmo.fh"
-c     
-c     local declarations
 c
+      integer rtdb
+c     
+c     == Local declarations ==
       double precision energy
       integer iproc,itype
       integer bases(3), i3
@@ -76,21 +136,17 @@ c
       iproc  = ga_nodeid()
 c
 c     Make sure database is parallel, push context down to DFT.
-c
       LResult = rtdb_parallel(.true.)
       call util_print_push
       call util_print_rtdb_load(rtdb, 'dft')
 c
-c     init pstat
-c	
+c     == Init pstat ==
       call dft_pstat_init(rtdb)
 c
-c     init fdist
-c	
+c     == Init fdist ==
       call dft_fdist_init(rtdb)
 c
-c     If Dyall-mod-dir is set, exit with error
-c
+c     == If Dyall-mod-dir is set, exit with error ==
       if (rtdb_get(rtdb,'dyall_mod_dir',mt_log,1,dyall_mod_dir)) then
         if (dyall_mod_dir) call errquit(
      &      'Cannot do DFT calculation with Dyall-modified-Dirac method'
@@ -113,13 +169,11 @@ c
         endif
       endif
 c
-c     Gather input from all available resources e.g. input unit,
-c     old checkpoint files, etc.
-c
+c     == Gather input from all available resources e.g. input unit, ==
+c     == old checkpoint files, etc. ==
       call dft_rdinput(rtdb)
 c
-c     ----- cosmo initialization ----
-c
+c     == Cosmo initialization ==
       cosmo_last = .false.
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
          if(cosmo_on) then
@@ -136,8 +190,7 @@ c
          endif
       endif
 c
-c     Can we check here to see if system if already converged?
-c
+c     == Check to see if system is already converged? ==
       if (movecs_in .eq. movecs_out) then
          if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $        call errquit('dft: theory not specified',0, RTDB_ERR)
@@ -190,8 +243,7 @@ c
  1011 format(/'  The DFT is already converged '//,
      &     '         Total DFT energy =', f20.12/)
 c     
-c     Initialize the integral object
-c    
+c     == Initialize the integral object ==
       if(XCFIT.and.CDFIT) then
         i3 = 3
         bases(1) = AO_bas_han
@@ -209,15 +261,13 @@ c
         i3 = 1
         bases(1) = AO_bas_han
       endif
-c
       call int_init(rtdb, i3, bases)
 c
-c     get 1-el in cache
-c
+c     == Get 1-el in cache ==
       call schwarz_init(geom, AO_bas_han)
 c
       l1ecache=.false.
-      if ((nbf_ao*nbf_ao*3*8)/ga_nnodes() .lt. 8000000) then! Cache if < 8MB/node
+      if ((nbf_ao*nbf_ao*3*8)/ga_nnodes() .lt. 8000000) then ! Cache if < 8MB/node
          if (iproc.eq.0 .and. oprint)then
             write(LuOut,*) ' Caching 1-el integrals '
             call util_flush(Luout)
@@ -226,21 +276,17 @@ c
          call int_1e_cache_ga(AO_bas_han, oskel)
       endif
 c
-c     Build the grid.
-c
+c     == Build the grid ==
       grid_written=.false.
       call grid_setquad(rtdb)
 c
-c     Analyze set parameters for consistency
-c
+c     == Analyze set parameters for consistency ==
       call dft_inpana(rtdb)
-c
 c     
-c--> determine system type (molecule, polymer,surface,crystal)
-c    if no system type exists in db --> default = molecular case     
+c    == Determine system type (molecule, polymer,surface,crystal) ==
+c    == if no system type exists in db --> default = molecular case ==    
 c
-      if(.not. geom_systype_get(geom,itype))
-     &    itype = 0
+      if(.not. geom_systype_get(geom,itype)) itype = 0
 c
       if(itype.eq.0) then
 #ifdef GA_TRACE
@@ -254,26 +300,23 @@ c
         call errquit('nwdft: problem with system type',0, INPUT_ERR)
       endif
 c     
-c     terminate integrals 
-c     
+c     == Terminate integrals ==
       if(l1ecache) call int_1e_uncache_ga()
       call schwarz_tidy
       call int_terminate
 c
-c     Go here if already converged
+c     == Go here if already converged ==
 c
  1101 continue
 c
-c     Clean up cosmo stuff if necessary
-c
+c     == Clean up cosmo stuff, if necessary ==
       if (cosmo_on) then
          call cosmo_tidy()
          cosmo_on = .false.
          cosmo_phase = 1
       endif
 c     
-c     destroy BS handles and geom object
-c
+c     == Destroy BS handles and geom object ==
       XCFIT    = .TRUE.
       if( XC_bas_han.eq.-99999 ) XCFIT = .FALSE.
       CDFIT    = .TRUE.
@@ -293,14 +336,11 @@ c
      &     call errquit ('dft:destroying geom and basis handles',0,
      &       BASIS_ERR)
 c
-c--> Flush ouput buffer.
-c
+c     == Flush output buffer ==
       if(iproc.eq.0) call util_flush(LuOut)
-
+c
       call dft_pstat_print
       call util_print_pop
 c
       return
-c
       end
- 

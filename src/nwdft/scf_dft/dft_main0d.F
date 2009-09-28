@@ -1,16 +1,12 @@
 c
-c     /* Main DFT driver */
-c
+c     == Main DFT driver ==
       logical function dft_main0d(rtdb)
 c     
 c     $Id: dft_main0d.F,v 1.92 2009-01-17 00:44:02 niri Exp $
 c     
       implicit none
-#include "errquit.fh"
 c
-      integer rtdb              ! rtdb handle [input]
-      Logical LResult, IOLGC, oprint, oprint_time, oprint_ioinfo
-c     
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
@@ -24,6 +20,7 @@ c
 #include "msgids.fh"
 #include "dftps.fh"
 #include "bgj.fh"
+
 #ifdef SCALAPACK
 #include "dft_scaleig.fh"
       integer ga_cholesky,ga_llt_i
@@ -34,6 +31,9 @@ c
 #include "rel_consts.fh"
 c
 #include "case.fh"
+c
+      integer rtdb              ! rtdb handle [input]
+      Logical LResult, IOLGC, oprint, oprint_time, oprint_ioinfo
 c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -58,7 +58,15 @@ c
       character*80 theory
       logical status
       logical ldirect
-
+c
+c     == Real-time TDDFT dynamics ==
+      logical lrt_tddft
+      logical dft_ehrenfest
+      external dft_ehrenfest
+      logical sodft_ehrenfest
+      external sodft_ehrenfest
+c
+c     == Main return variable ==
       dft_main0d = .false.
 c     
       me = ga_nodeid()
@@ -73,6 +81,7 @@ c
       endif
       IOLGC = .TRUE.
       if (noio.eq.1) IOLGC = .FALSE.
+c
 #ifdef SCALAPACK
 #if defined(PARALLEL_DIAG)
       call slexit
@@ -84,25 +93,24 @@ c
 #endif
 #endif
 c     
-c     Evaluate the nuclear replusion energy.
-c     
+c     == Evaluate the nuclear repulsion energy ==
       LResult = geom_nuc_rep_energy(geom, Enuc)
+      if (.not. LResult) then
+       call errquit('Error calculating nuclear repulsion energy',0,0)
+      end if
 c     
-c     Determine the characteristics of the AO Gaussian basis set.
-c     This uses the old NWdft data structures, rather than tthe rtdb
-c     
+c     == Determine the characteristics of the AO Gaussian basis set ==
+c     == This uses the old NWdft data structures, rather than the rtdb ==
       if (.not. bas_numbf(AO_bas_han, nbf_ao)) then
          call errquit('Exiting from dft_main0d',1, BASIS_ERR)
       endif 
       iter = 0
       Etold = 0.D0
 c
-c     Check zora options
+c     == Zora options ==
       do_zora_get_correction=.false.
-      if (rtdb_get(rtdb,'zora:calc',mt_log,1,
-     &    do_zora_get_correction)) 
+      if (rtdb_get(rtdb,'zora:calc',mt_log,1,do_zora_get_correction)) 
      &    do_zora_get_correction=.true.
-c
       do_zora = .false.
       if (rtdb_get(rtdb,'zora:on',mt_log,1,do_zora)) 
      &     do_zora = .true.
@@ -111,11 +119,11 @@ c     == Get the grid cutoff or set default ==
       if(.not.rtdb_get(rtdb,'zora:cutoff',mt_dbl,1,zoracutoff))
      &  zoracutoff = 1.0d-08
 c
-c     Get the light speed and other constants, if specified
+c     == Get the light speed and other constants, if specified ==
       call rel_init_con(rtdb)
       clight_au = cau
 c
-c     Get and check the Coulomb Attenuation Method (CAM) parameters
+c     == Coulomb Attenuation Method (CAM/LC) parameters ==
       if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1,
      &   cam_exch)) cam_exch=.false.
       if (.not.rtdb_get(rtdb, 'dft:cam_omega', mt_dbl, 1,
@@ -347,8 +355,6 @@ c         endif
 c
 c     Done with CD setup stuff
 c
-c     
-c     
 c     Compute the AO overlap matrix.
 c     
       if (.not. rtdb_get(rtdb, 'dft:atomblock',mt_log,1,atmblk))
@@ -369,7 +375,6 @@ c
       call dfill(nbf_ao, 0.0d0, dbl_mb(isvals), 1)
       call int_1e_ga(AO_bas_han, AO_bas_han, g_s, 'overlap', oskel)
       if (oskel)call sym_symmetrize(geom, AO_bas_han, .false., g_s)
-c     
 c     
 c     orthog BS
 c     
@@ -421,14 +426,12 @@ c
        call ga_zero(g_Vxc(2))
 c
       endif 
-
+c
       nVxc = ipol
       if (.not. ga_duplicate(g_s, g_fock, 'fock matrix'))
      &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_fock)
       g_vxc(1) = g_fock
-
-c      lkeeps=.false.
 c
 c     keeps hardwired right now ... better something smarter
 c
@@ -436,7 +439,6 @@ c
 c
 c     Set orbital overlap tolerance
 c     
-c
       call util_tolls(rtdb,.false.,toll_s,n_dep,dbl_mb(isvals),nbf_ao)
 cc     
 c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
@@ -460,30 +462,43 @@ c
       if (oprint_time)
      &     call dft_tstamp(' Before call to DFT_SCF. ')
 c 
+c     == Check for theory ==
       if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
-     $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
+     &     call errquit('task:energy: theory not specified',0, RTDB_ERR)
+c
+c     == Real-time TDDFT dynamics ==
+      if (.not. rtdb_get(rtdb, 'dft:lrt_tddft', mt_log, 1, lrt_tddft))
+     &     lrt_tddft= .false.
+c
       if (odftps) call pstat_on(ps_scfdft)
       if (theory .eq. 'dft') then
-         dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
+         if (.not.lrt_tddft) then
+           dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
      &        iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
      &        g_svecs, dbl_mb(isvals), g_xcinv, g_s,
      &        lcdft, nconstr)
+         else
+           dft_main0d = .false. ! for now
+         end if
       else if (theory .eq. 'sodft') then
-         dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
+         if (.not.lrt_tddft) then
+           dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
      &        iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock, 
      &        g_svecs, dbl_mb(isvals), g_xcinv,g_s)
+         else
+           dft_main0d = .false. ! for now
+         end if
       endif 
+c
       if (odftps) call pstat_off(ps_scfdft)
-cso 
 c     
-c     Clean up memory usage.
+c     == Clean up memory usage ==
 c     
       if (.not.ma_pop_stack(lsvals))
      &     call errquit('dft_main0d: cannot pop stack', 12, MA_ERR)
-cnos      if (.not.CDFIT)then
          if (.not. ga_destroy(g_s)) call errquit
      &      ('dft_main0d: could not destroy g_s', 0, GA_ERR)
-cnos      endif
+c
       if (me.eq.0) then
          if (CDFIT.and.IOLGC) then
             call dft_invio('CD', idum, 1, 'KILL', lmiss)
@@ -493,22 +508,26 @@ cnos      endif
             call dft_invio('XC', idum, 1, 'KILL', lmiss)
          endif
       endif
+c
       if (CDFIT.and.(.not.IOLGC)) then
          if (.not. ga_destroy(g_cdinv)) call errquit
      &      ('dft_main0d: could not destroy g_cdinv', 0, GA_ERR)
          if (.not. ga_destroy(g_2ceri)) call errquit
      &      ('dft_main0d: could not destroy g_2ceri', 0, GA_ERR)
       endif
+c
       if (XCFIT.and.(.not.IOLGC))then
          if (.not. ga_destroy(g_xcinv)) call errquit
      &      ('dft_main0d: could not destroy g_xcinv', 0, GA_ERR)
       endif
+c
       if (.not. ga_destroy(g_fock)) call errquit
      &   ('dft_main0d: could not destroy g_fock', 0, GA_ERR)
       if (ipol.eq.2)then
          if (.not. ga_destroy(g_vxc(2))) call errquit
      &      ('dft_main0d: could not destroy g_vxc(2)', 0, GA_ERR)
       endif
+c
       if (ipol.ne.1) then
          if (.not. ga_destroy(g_evecs(2))) call errquit
      &      ('dft_main0d: could not destroy g_evecs(2)', 0, GA_ERR)
@@ -517,16 +536,16 @@ cnos      endif
          if (.not. ga_destroy(g_dens_at(2))) call errquit
      &      ('dft_main0d: could not destroy g_dens_at(2)', 0, GA_ERR)
       endif   ! ipol
-
+c
       if (.not. ga_destroy(g_evecs(1))) call errquit
      &   ('dft_main0d: could not destroy g_evecs(1)', 0, GA_ERR)
       if (.not. ga_destroy(g_dens(1))) call errquit
      &   ('dft_main0d: could not destroy g_dens(1)', 0, GA_ERR)
       if (.not. ga_destroy(g_dens_at(1))) call errquit
      &   ('dft_main0d: could not destroy g_dens_at(1)', 0, GA_ERR)
-
+c
       if (.not. ga_destroy(g_svecs)) call errquit
      &   ('dft_main0d: could not destroy g_svecs', 0, GA_ERR)
-
+c
       return
       end
