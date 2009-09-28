@@ -41,9 +41,7 @@ c
       logical argos,analyz,diana,esp,prepar,nwmd
       logical kgdtest, jvltest, jvltest2
       logical task_energy, task_gradient, task_optimize, task_freq
-CJMC
       logical task_mepgs
-CJMC
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics, task_rfcf
       logical oqmmm,opes, task_python, task_thermo,task_bq,task_nbo
@@ -60,6 +58,7 @@ c     logical embed_init
       logical cons_active
       logical task_property
       logical task_ccca
+      logical task_rt_tddft
 c
 c      logical task_pes
 c      external task_pes
@@ -75,9 +74,7 @@ c
       external property, dplot, gapss, task_shell, moints_full
       external analyz,diana,esp,prepar,nwmd,argos
       external task_energy, task_gradient, task_optimize, task_freq
-CJMC
       external task_mepgs
-CJMC
       external task_hessian, task_saddle, task_lst, task_neb
       external task_dynamics, task_rfcf
       external task_version, task_python, task_thermo,task_nbo
@@ -112,6 +109,9 @@ c
 c
       logical task_dntmc
       external task_dntmc
+c
+      logical task_rt_tddft
+      external task_rt_tddft
 c
 c      logical embed_optimize
 c      external embed_optimize
@@ -328,17 +328,16 @@ c          status = embed_optimize(rtdb)
          status = task_lst(rtdb)
       else if (inp_compare(.false., 'et', operation)) then
          status = task_et(rtdb)
+      else if (inp_compare(.false., 'rt_tddft', operation)) then
+         status = task_rt_tddft(rtdb)
       else if (inp_compare(.false., 'freq', operation)) then
 c        if (oembed) then
 c          status = embed_frequency(rtdb)
 c        else
            status = task_freq(rtdb)
 c        end if
-CJMC
       else if (inp_compare(.false.,'mepgs', operation)) then
          status = task_mepgs(rtdb)
-
-CJMC
       else if (inp_compare(.false.,'dynamics',operation)) then
          if(oqmmm) then
            status = task_qmmm_dynamics(rtdb)
