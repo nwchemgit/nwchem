@@ -58,7 +58,6 @@ c     logical embed_init
       logical cons_active
       logical task_property
       logical task_ccca
-      logical task_rt_tddft
 c
 c      logical task_pes
 c      external task_pes
