@@ -59,8 +59,8 @@ c
 c
 c     == Ehrenfest dynamics ==
       logical lrt_tddft
-      logical ehrenfest_sodft
-      external ehrenfest_sodft
+      logical rt_tddft_sodft
+      external rt_tddft_sodft
       integer g_dipx  ! ga for dipole x
       integer g_dipy  ! ga for dipole y
       integer g_dipz  ! ga for dipole z
@@ -539,7 +539,7 @@ c     == Call the main drivers ==
      &       iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock, 
      &       g_svecs, dbl_mb(isvals), g_xcinv,g_s)
          else
-          dft_main0d = ehrenfest_sodft(rtdb, Etold, Enuc, iVcoul_opt, 
+          dft_main0d = rt_tddft_sodft(rtdb, Etold, Enuc, iVcoul_opt, 
      &     iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock, 
      &     g_svecs, dbl_mb(isvals), g_xcinv, g_s, 
      &     g_dipx, g_dipy, g_dipz, g_ddotE, g_vel)
