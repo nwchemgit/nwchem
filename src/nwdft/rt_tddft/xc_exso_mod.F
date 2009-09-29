@@ -1,4 +1,4 @@
-      subroutine xc_exso_mod(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
+      Subroutine xc_exso_mod(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
 C$Id: xc_exso.F,v 1.14 2003-10-17 22:55:53 carlfahl Exp $
 c
@@ -34,31 +34,8 @@ c
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
       double precision tol2e, denmax1, denmax2, denmax
 c
-c     fock matrix test using jan_all_ao_integrals
-c
-      logical jantest
-      integer l_aoint,k_aoint, i,j,k,l,
-     &     l_fock, k_fock, l_dens, k_dens
-c
       call ga_inquire(g_densso(1),type,nao,nao)
       nao=nao/2
-      jantest=.false.
-      if(jantest)then 
-c     
-c     Make all AO integrals
-c     
-         if (.not. ma_push_get(mt_dbl,nao**4,'aoint',l_aoint,k_aoint))
-     $        call errquit('allocation of AO integrals failed',nao**4,
-     &       MA_ERR)
-         if (.not. ma_push_get(mt_dbl,nao,'fock',l_fock,k_fock))
-     $        call errquit('allocation of fock matrix',nao, MA_ERR)
-         if (.not. ma_push_get(mt_dbl,nao,'dens',l_dens,k_dens))
-     $        call errquit('allocation of dens matrix',nao, MA_ERR)
-c         call jan_all_ao_integrals
-c     &        (rtdb,ao_bas_han,nao,'mulliken',dbl_mb(k_aoint))
-      endif
-c         
-c******************************************************************************
 c
 c     Compute the matrix elements for the exact exchange contribution: 
 c     Kaa, Kab and Kbb. 
@@ -138,58 +115,21 @@ c            call ga_print(g_dens(2))
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
          call asym_fock2e(g_jk(2))
          call asym_fock2e(g_jk(4))
-      if(jantest)then 
-         do l=1,nao
-            call dfill(nao,0.0d0,dbl_mb(k_fock),1)
-            do i=1,nao
-               do k=1,nao
-                  call dfill(nao,0.0d0,dbl_mb(k_dens),1)
-                  call ga_get(g_d(1),1,nao,k,k,dbl_mb(k_dens),nao)
-                  do j=1,nao
-                     dbl_mb(k_fock+i-1)=
-     &                    dbl_mb(k_fock+i-1)+
-     &                    dbl_mb(k_aoint+nao**3*(l-1)+
-     &                    nao**2*(k-1)+nao*(j-1)+i-1)*
-     &                    dbl_mb(k_dens+j-1)
-                  enddo
-               enddo
-            enddo
-            call ga_put(g_jk(1),1,nao,l,l,dbl_mb(k_fock),nao)
-         enddo
-         do l=1,nao
-            call dfill(nao,0.0d0,dbl_mb(k_fock),1)
-            do i=1,nao
-               do k=1,nao
-                  call dfill(nao,0.0d0,dbl_mb(k_dens),1)
-                  call ga_get(g_d(3),1,nao,k,k,dbl_mb(k_dens),nao)
-                  do j=1,nao
-                     dbl_mb(k_fock+i-1)=
-     &                    dbl_mb(k_fock+i-1)+
-     &                    dbl_mb(k_aoint+nao**3*(l-1)+
-     &                    nao**2*(k-1)+nao*(j-1)+i-1)*
-     &                    dbl_mb(k_dens+j-1)
-                  enddo
-               enddo
-            enddo
-            call ga_put(g_jk(3),1,nao,l,l,dbl_mb(k_fock),nao)
-         enddo
-      endif
-         exc(1) = exc(1) + xfac(1)*0.5d0*( ! All exchange energy (i.i=-1)
+c
+         exc(1) = exc(1) - xfac(1)*0.5d0*( ! All exchange energy (i.i=-1)
      $        onem*ga_ddot(g_dens(1),g_jk(2)) +
      $        onem*ga_ddot(g_dens(2),g_jk(4)))
          call ga_dadd_patch(1.0d0,g_fockso(2),1,nao,1,nao, 
-     &                    xfac(1),g_jk(2),    1,nao,1,nao,
+     &                    -xfac(1),g_jk(2),    1,nao,1,nao,
      &                            g_fockso(2),1,nao,1,nao)
          call ga_dadd_patch(1.0d0,g_fockso(2),nao+1,2*nao,nao+1,2*nao, 
-     &                    xfac(1),g_jk(4),    1,nao,1,nao,
+     &                    -xfac(1),g_jk(4),    1,nao,1,nao,
      &                            g_fockso(2),nao+1,2*nao,nao+1,2*nao)
 c
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Im(Kaa) and Im(Kbb):'
             call ga_print(g_jk(2))
-            if(jantest)call ga_print(g_jk(1))
             call ga_print(g_jk(4))
-            if(jantest)call ga_print(g_jk(3))
          endif
  1001    continue
          call ga_zero(g_jk(1))
@@ -217,42 +157,7 @@ c
          call ga_add(dble(0.5d0),g_jk(2),dble(0.5d0),g_jk(1), 
      &        g_jk(2))          !g_jk(2) has Kab
          call ga_transpose(g_jk(2),g_jk(4))
-      if(jantest)then 
-         do l=1,nao
-            call dfill(nao,0.0d0,dbl_mb(k_fock),1)
-            do i=1,nao
-               do k=1,nao
-                  call dfill(nao,0.0d0,dbl_mb(k_dens),1)
-                  call ga_get(g_d(1),1,nao,k,k,dbl_mb(k_dens),nao)
-                  do j=1,nao
-                     dbl_mb(k_fock+i-1)=
-     &                    dbl_mb(k_fock+i-1)+
-     &                    dbl_mb(k_aoint+nao**3*(l-1)+
-     &                    nao**2*(k-1)+nao*(j-1)+i-1)*
-     &                    dbl_mb(k_dens+j-1)
-                  enddo
-               enddo
-            enddo
-            call ga_put(g_jk(1),1,nao,l,l,dbl_mb(k_fock),nao)
-         enddo
-         do l=1,nao
-            call dfill(nao,0.0d0,dbl_mb(k_fock),1)
-            do i=1,nao
-               do k=1,nao
-                  call dfill(nao,0.0d0,dbl_mb(k_dens),1)
-                  call ga_get(g_d(3),1,nao,k,k,dbl_mb(k_dens),nao)
-                  do j=1,nao
-                     dbl_mb(k_fock+i-1)=
-     &                    dbl_mb(k_fock+i-1)+
-     &                    dbl_mb(k_aoint+nao**3*(l-1)+
-     &                    nao**2*(k-1)+nao*(j-1)+i-1)*
-     &                    dbl_mb(k_dens+j-1)
-                  enddo
-               enddo
-            enddo
-            call ga_put(g_jk(3),1,nao,l,l,dbl_mb(k_fock),nao)
-         enddo
-      endif
+c
          exc(1) = exc(1) - xfac(1)*0.5d0*( ! All exchange energy 
      $        ga_ddot(g_dens(1),g_jk(2)) +
      $        ga_ddot(g_dens(2),g_jk(4)))
@@ -265,9 +170,7 @@ c
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Re(Kab) and Im(Kab):'
             call ga_print(g_jk(2))
-            if(jantest)call ga_print(g_jk(1))
             call ga_print(g_jk(4))
-            if(jantest)call ga_print(g_jk(3))
          endif
 c
  1002    continue 
@@ -298,67 +201,19 @@ c
          call ga_transpose(g_jk(2),g_jk(4))
          call ga_scale(g_jk(4),dble(-1.0d0))
 c
-      if(jantest)then 
-         do l=1,nao
-            call dfill(nao,0.0d0,dbl_mb(k_fock),1)
-            do i=1,nao
-               do k=1,nao
-                  call dfill(nao,0.0d0,dbl_mb(k_dens),1)
-                  call ga_get(g_d(1),1,nao,k,k,dbl_mb(k_dens),nao)
-                  do j=1,nao
-                     dbl_mb(k_fock+i-1)=
-     &                    dbl_mb(k_fock+i-1)+
-     &                    dbl_mb(k_aoint+nao**3*(l-1)+
-     &                    nao**2*(k-1)+nao*(j-1)+i-1)*
-     &                    dbl_mb(k_dens+j-1)
-                  enddo
-               enddo
-            enddo
-            call ga_put(g_jk(1),1,nao,l,l,dbl_mb(k_fock),nao)
-         enddo
-         do l=1,nao
-            call dfill(nao,0.0d0,dbl_mb(k_fock),1)
-            do i=1,nao
-               do k=1,nao
-                  call dfill(nao,0.0d0,dbl_mb(k_dens),1)
-                  call ga_get(g_d(3),1,nao,k,k,dbl_mb(k_dens),nao)
-                  do j=1,nao
-                     dbl_mb(k_fock+i-1)=
-     &                    dbl_mb(k_fock+i-1)+
-     &                    dbl_mb(k_aoint+nao**3*(l-1)+
-     &                    nao**2*(k-1)+nao*(j-1)+i-1)*
-     &                    dbl_mb(k_dens+j-1)
-                  enddo
-               enddo
-            enddo
-            call ga_put(g_jk(3),1,nao,l,l,dbl_mb(k_fock),nao)
-         enddo
-      endif
-c
-         exc(1) = exc(1) + xfac(1)*0.5d0*( ! All exchange energy 
+         exc(1) = exc(1) - xfac(1)*0.5d0*( ! All exchange energy 
      $        onem*ga_ddot(g_dens(1),g_jk(2)) +
      $        onem*ga_ddot(g_dens(2),g_jk(4)))
          call ga_dadd_patch(1.0d0,g_fockso(2),1,nao,nao+1,2*nao,
-     &                    xfac(1),g_jk(2),    1,nao,1,nao,
+     &                    -xfac(1),g_jk(2),    1,nao,1,nao,
      &                            g_fockso(2),1,nao,nao+1,2*nao)
          call ga_dadd_patch(1.0d0,g_fockso(2),nao+1,2*nao,1,nao, 
-     &                    xfac(1),g_jk(4),    1,nao,1,nao,
+     &                    -xfac(1),g_jk(4),    1,nao,1,nao,
      &                            g_fockso(2),nao+1,2*nao,1,nao)
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Re(Kba) and Im(Kba):'
             call ga_print(g_jk(2))
-            if(jantest)call ga_print(g_jk(1))
             call ga_print(g_jk(4))
-            if(jantest)call ga_print(g_jk(3))
-         endif
-c
-         if(jantest)then 
-            if (.not. ma_pop_stack(l_dens)) call errquit('dens',0,
-     &       MA_ERR)
-            if (.not. ma_pop_stack(l_fock)) call errquit('fock',0,
-     &       MA_ERR)
-            if (.not. ma_pop_stack(l_aoint)) call errquit('aoint',0,
-     &       MA_ERR)
          endif
 c
  1003    continue
@@ -385,24 +240,3 @@ c         call ga_print(g_fockso(2))
 c     
       return
       end
-
-      subroutine asym_fock2e(g_fock)
-      implicit none
-#include "errquit.fh"
-c
-#include "global.fh"
-c
-      integer g_fock, g_tmp
-c
-      if (.not. ga_duplicate(g_fock, g_tmp, 'tmp'))
-     $     call errquit('asym_fock2e: ga duplicate?',0, GA_ERR)
-c
-      call ga_transpose(g_fock,g_tmp)
-      call ga_add(0.5d0,g_fock,-0.5d0,g_tmp,g_fock)
-
-      if (.not. ga_destroy(g_tmp)) call errquit
-     $     ('asym_fock2e: ga corrupt?',0, GA_ERR)
-c
-      return
-      end
-

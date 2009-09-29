@@ -19,8 +19,7 @@ c
       integer iVxc_opt
       integer iter, swap(20),no_swap, no_det, idet
       integer g_dens(2), g_movecs(2), g_vxc(4), 
-     &     g_fock, g_svecs,
-     &     g_xcinv,  g_scr
+     &     g_fock, g_svecs, g_xcinv,  g_scr
 c
 c     For time propagation
       integer g_dipx    ! x-dipole integrals
