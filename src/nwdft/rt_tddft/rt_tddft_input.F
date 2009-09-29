@@ -17,8 +17,8 @@ c
       integer rtdb
       character*20 test
 c
-      integer nstep
-      double precision delta
+      double precision tmax
+      double precision dt
       logical sodft
       logical dft
       logical rk4
@@ -33,14 +33,14 @@ c
 c
 c     == Set default values ==
 c
-c     == NSTEP (number of time steps) ==
-      nstep=100
-      if (.not.rtdb_put(rtdb,'rt_tddft:nstep',mt_int,1,nstep))
+c     == TMAX (maximum time) ==
+      tmax=100
+      if (.not.rtdb_put(rtdb,'rt_tddft:tmax',mt_dbl,1,tmax))
      & call errquit(pname//'Write failed to rtdb',0, RTDB_ERR)
 c
 c     == DELTA (time step in atomic units) ==
-      delta=0.02
-      if (.not.rtdb_put(rtdb,'rt_tddft:delta',mt_dbl,1,delta))
+      dt=0.02
+      if (.not.rtdb_put(rtdb,'rt_tddft:dt',mt_dbl,1,dt))
      & call errquit(pname//'Write failed to rtdb',0, RTDB_ERR)
 c
 c     == SODFT (dynamics with spin-orbit interactions) ==
@@ -88,24 +88,24 @@ c
       if (.not. inp_a(test)) 
      &  call errquit(pname//'Read failed keyword',0, INPUT_ERR)
 c
-c     == NSTEP ==
-      if (inp_compare(.false.,test,'nstep')) then
-        if (.not.inp_i(nstep)) then
-          write(LuOut,*) pname//'nstep value not found; ',
-     &      'default value of 100 will be used'
-          nstep=100
+c     == TMAX ==
+      if (inp_compare(.false.,test,'tmax')) then
+        if (.not.inp_f(tmax)) then
+          write(LuOut,*) pname//'tmax value not found; ',
+     &      'default value of 100 au will be used'
+          tmax=100.d0
         endif
-        if (.not.rtdb_put(rtdb,'rt_tddft:nstep',mt_int,1,nstep))
+        if (.not.rtdb_put(rtdb,'rt_tddft:tmax',mt_dbl,1,tmax))
      &   call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
 c
 c     == DELTA ==
-      else if (inp_compare(.false.,test,'delta')) then
-        if (.not.inp_f(delta)) then
-          write(LuOut,*) pname//'delta value not found; ',
+      else if (inp_compare(.false.,test,'dt')) then
+        if (.not.inp_f(dt)) then
+          write(LuOut,*) pname//'dt value not found; ',
      &      'default value of 0.02 atomic units will be used'
-          delta=0.02
+          dt=0.02
         endif
-        if (.not.rtdb_put(rtdb,'rt_tddft:delta',mt_dbl,1,delta))
+        if (.not.rtdb_put(rtdb,'rt_tddft:dt',mt_dbl,1,dt))
      &   call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
 c
 c     == SODFT ==
@@ -141,7 +141,7 @@ c
 c     == ELECTRIC FIELD DESCRIPTION (maximum value) ==
       else if (inp_compare(.false.,test,'field_Emax')) then
       if (.not.inp_f(field_Emax)) then
-          write(LuOut,*) pname//'delta value not found; ',
+          write(LuOut,*) pname//'field_Emax value not found; ',
      &      'default value of 0.05 atomic units will be used'
           field_Emax=0.05
       endif
@@ -151,7 +151,7 @@ c
 c     == ELECTRIC FIELD DESCRIPTION (omega) ==
       else if (inp_compare(.false.,test,'field_w')) then
       if (.not.inp_f(field_w)) then
-          write(LuOut,*) pname//'delta value not found; ',
+          write(LuOut,*) pname//'field_w value not found; ',
      &      'default value of 0.5 atomic units will be used'
           field_w=0.5
       endif

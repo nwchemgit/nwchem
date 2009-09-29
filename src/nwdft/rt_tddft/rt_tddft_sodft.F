@@ -1,13 +1,13 @@
 c
-c     == Ehrenfest dynamics - SODFT driver ==
+c     == Explicit Time TDDFT - SODFT driver ==
 c
-      logical function ehrenfest_sodft
+      logical function rt_tddft_sodft
      &                 (rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                  iter, g_dens, g_dens_at, g_movecs, g_vxc, 
      &                  g_fock, g_svecs, svals, g_xcinv, g_s,
      &                  g_dipx, g_dipy, g_dipz, g_ddotE, g_vel)
 c     
-c     $Id: ehrenfest_sodft.F,v 1.54 2008-12-31 01:37:01 niri Exp $
+c     $Id: rt_tddft_sodft.F,v 1.54 2008-12-31 01:37:01 niri Exp $
 c     
       implicit none
 c
@@ -21,7 +21,7 @@ c
       integer g_dens(2), g_movecs(2), g_vxc(4), 
      &     g_fock, g_svecs, g_xcinv,  g_scr
 c
-c     For time propagation
+c     == For time propagation ==
       integer g_dipx    ! x-dipole integrals
       integer g_dipy    ! y-dipole integrals
       integer g_dipz    ! z-dipole integrals
@@ -56,7 +56,7 @@ c
       integer g_dens_at(2)
       double precision  svals(*)
 c
-c     so
+c     == so ==
       integer g_densso(2), g_tmp2,   
      &     g_moso(2), g_old(2),
      &     g_fockso(2), g_scr2, g_damp_so(2), g_gmovecs(2)
@@ -70,8 +70,9 @@ c
       integer lbuff, ibuff
       integer nbf_mo 
       integer g_s
+      double precision rho_n, toll_s
 c
-c     declarations for fractional occupation 
+c     == Fractional occupation ==
 c
       integer nel_fon, nmo_fon  ! number of fractionally occupied electrons and orbitals
       double precision avg_fon  ! fractional occupancy (averaged)
@@ -79,9 +80,6 @@ c
       logical fon 
       double precision scale 
       integer kfon_occ, lfon_occ
-c
-c     so
-      double precision rho_n, toll_s
 c
       character*32 pname  ! name of this subroutine
 c
@@ -210,10 +208,10 @@ c
       external dft_mem3c
 c
 c     Time propagation 
-      integer itime,ntime
+      integer istep,nstep
       double precision tmin,tmax,tt,dt
 c
-      ehrenfest_sodft = .false.
+      rt_tddft_sodft = .false.
       nbf_mo = 2*nbf_ao
       lmaxov_sv = lmaxov
       oprint = util_print('information', print_low)
@@ -240,8 +238,8 @@ c
       me = ga_nodeid()
       nproc = ga_nnodes()
       ispin=1
-      pname = 'ehrenfest_sodft:'
-
+      pname = 'rt_tddft_sodft:'
+c
       call int_1e_uncache_ga()      
 c     !!! BGJ
 c     Store SCF hamiltonian type as DFT for use in BGJ routines
@@ -682,7 +680,7 @@ c
 c     get mo eigevectors
 c     
          if (2*nbf_ao .ne. nbf1)then
-          write(6,*)'ehrenfest_so movecs output = ',movecs_in
+          write(6,*)pname//'movecs output = ',movecs_in
           call errquit(pname//'Could not read mo vectors',911,DISK_ERR)
          else 
           status = .true.
@@ -692,7 +690,7 @@ c
          endif
 c     
          if (.not.status)then
-          write(6,*)'ehrenfest_so movecs output = ',movecs_in
+          write(6,*)pname//'movecs output = ',movecs_in
           call errquit(pname//'Could not read mo vectors',917,DISK_ERR)
          endif
 c     
@@ -1253,18 +1251,22 @@ c
 c
 c     Propagate the density matrix in time
 c
-      ! TODO: need ntime, tmin as part of the input
+c     == TMAX (maximum time) ==
       tmin = 0.d0
-      tmax = 0.06 !200.0
+      tmax = 100.d0
+      if (.not.rtdb_get(rtdb,'rt_tddft:tmax',mt_dbl,1,tmax)) tmax = 100.d0
+c
+c     == DELTA (time step in atomic units) ==
       dt = 0.02d0
-      ntime = max (nint (tmax/dt), 1)
+      if (.not.rtdb_get(rtdb,'rt_tddft:dt',mt_dbl,1,dt)) dt = 0.02d0
+c
+      nstep = max (nint (tmax/dt), 1) ! calculate the number of steps
+      write(luout,*) "Number of time steps:",nstep
       rk4 = .true.
-      do itime = 1,ntime
+      do istep = 1,nstep
 c
 c        Increment the time step
-         tt = tmin + (itime-1)*dt 
-c
-c        Add call to FDTD driver here to get the electric field
+         tt = tmin + (istep-1)*dt 
 c
 c        Initialize the Density matrix
          call ga_zero(g_dens(1))
@@ -1301,7 +1303,7 @@ c
 c        Total energy
          Etotal = Etnew + Edip + Enuc
          if (me.eq.0) then
-            write(luout,*) "Etotal:",tt, Etotal   ! print total energy at time tt
+            write(luout,2200) tt, Etotal   ! print total energy at time tt
          end if
 c
 c        Do the propagation
@@ -1324,12 +1326,14 @@ c        where A(mu,nu) is the anti-symmetric part of the density matrix
          end if
 c
       end do   ! time propagation loop
+
+ 2200 format(1x,'Energy:',1x,f18.10,1x,f18.10)
 c
 c     Prepare for clean up and close down
 c
       if(fon)then 
       if (.not.ma_pop_stack(kfon_occ))
-     & call errquit('ehrenfest_so: cannot pop stack:lfon_occ',0, MA_ERR)
+     & call errquit(pname//'Cannot pop stack:lfon_occ',0, MA_ERR)
       endif
       if (.not. ga_destroy(g_damp_so(1))) 
      & call errquit(pname//'Could not destroy g_damp_so', 0, GA_ERR)
@@ -1417,7 +1421,6 @@ c
      & call schwarz_print(natoms, nshells_ao)
 c     
       if (me .eq. 0)then
-cng         if (util_print('final evals', print_high))then
             call util_print_centered(LuOut,'Final alpha eigenvalues',
      &           20,.false.)
             call util_print_centered(LuOut,
@@ -1436,17 +1439,16 @@ cng         if (util_print('final evals', print_high))then
      &              1, 1, nbf_ao, 1, 1)
             endif
             call util_flush(6)
-cng         endif
-         if (oprint_final_vecs)then
-            write(LuOut,*)
-            call util_print_centered(
+            if (oprint_final_vecs)then
+               write(LuOut,*)
+               call util_print_centered(
      &           LuOut,'Final MO vectors',40,.true.)
-            write(LuOut,*)
-            call util_flush(LuOut)
-         endif
+               write(LuOut,*)
+               call util_flush(LuOut)
+            endif
       endif
 c
-c     Start deallocate
+c     == Start deallocation ==
 c
       if (.not.ma_pop_stack(lbuff)) then
       call ma_summarize_allocated_blocks()
@@ -1550,7 +1552,7 @@ c
       if(.not.ga_destroy(g_dpidt))     
      & call errquit(pname//'Error destroy g_dpidt',0, GA_ERR)
 c
-      ehrenfest_sodft = converged
+      rt_tddft_sodft = converged
 c
  4224 format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
      &           ' RLSHIFT = ',f6.2,' GAP = ',f6.2)

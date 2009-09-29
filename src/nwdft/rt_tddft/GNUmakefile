@@ -1,6 +1,6 @@
 #$Id: GNUmakefile,v 1.7 2008-10-10 19:35:05 niri Exp $
 
-OBJ = ehrenfest_sodft.o ehrenfest_utils.o fock_build_utils_so.o xc_exso_mod.o rt_tddft_input.o
+OBJ = rt_tddft_sodft.o rt_tddft_utils.o rt_tddft_fock_sodft.o xc_exso_mod.o rt_tddft_input.o
 
 OBJ_OPTIMIZE = 
 

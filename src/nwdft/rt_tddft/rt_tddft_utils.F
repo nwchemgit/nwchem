@@ -16,11 +16,11 @@ c
 c
       pi = 3.1415926535897932384626433832795d0
 c
-      field_Emax = 0.5d0
-      field_w = 0.13d0
+c      field_Emax = 0.5d0
+c      field_w = 0.13d0
 c
-c      field_Emax = 0.05d0
-c      field_w = 0.4764d0
+      field_Emax = 0.05d0
+      field_w = 0.4764d0
 c
 c      field_Emax = 0.07d0
 c      field_w = 0.10d0
@@ -365,12 +365,12 @@ c     Calculate the multipole components of the density and nucleus
       enddo
 c
 c     Store the dipole moment
-      if (.not. rtdb_put(rtdb,'ehrenfest:dipole', mt_dbl, 
+      if (.not. rtdb_put(rtdb,'rt_tddft:dipole', mt_dbl, 
      & 3,totalmoments(2))) 
      & call errquit(pname//'Failed to store dipole moments',0,RTDB_ERR)
 c     
 c     Retrieve dipoles      
-      if (.not.rtdb_get(rtdb,'ehrenfest:dipole',mt_dbl,3,dipole))
+      if (.not.rtdb_get(rtdb,'rt_tddft:dipole',mt_dbl,3,dipole))
      &  call errquit(pname//'Failed to get dipole moments',0,RTDB_ERR)
 c
       return
