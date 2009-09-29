@@ -329,10 +329,12 @@ c
       integer k, l, m, ltotal, ind
       integer i
       data center/3*0.0d0/
+      character*32 pname
+      pname = "calc_dipole:"
 c
       if (.not. bas_cando_mpoles(ao_bas_han)) return
-      if (.not. bas_geom(ao_bas_han, geom)) call errquit
-     &     ('dft_mpole: bas_geom failed',0, BASIS_ERR)
+      if (.not. bas_geom(ao_bas_han, geom)) 
+     &  call errquit(pname//'bas_geom failed',0, BASIS_ERR)
 c
 c     Initialisation
       call dfill(len_moments, 0.0d0, totalmoments, 1)
@@ -364,11 +366,12 @@ c     Calculate the multipole components of the density and nucleus
 c
 c     Store the dipole moment
       if (.not. rtdb_put(rtdb,'ehrenfest:dipole', mt_dbl, 
-     & 3,totalmoments(2))) call errquit('calc_dipole:',0,RTDB_ERR)
+     & 3,totalmoments(2))) 
+     & call errquit(pname//'Failed to store dipole moments',0,RTDB_ERR)
 c     
 c     Retrieve dipoles      
       if (.not.rtdb_get(rtdb,'ehrenfest:dipole',mt_dbl,3,dipole))
-     &  call errquit('calc_dipole:',0, RTDB_ERR)
+     &  call errquit(pname//'Failed to get dipole moments',0,RTDB_ERR)
 c
       return
       end

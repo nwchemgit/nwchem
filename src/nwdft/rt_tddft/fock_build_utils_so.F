@@ -141,17 +141,19 @@ c        Local variables
          integer nscr
          integer lscr
          integer iscr
+         character*32 pname
+         pname = "build_fock_2e_xc:"
 c
 c        Pre-compute reduced alpha and beta density matrices over atoms
          call dfill(ipol*natoms*natoms, 0.0d0, rdens_atom, 1)
          nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
          if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
-     &   call errquit('build_fock_2e_xc: cannot allocate scr',0, MA_ERR)
+     &   call errquit(pname//'Cannot allocate scr',0, MA_ERR)
          call util_ga_mat_reduce(nbf_ao, natoms, cetobfr,
      &     g_dens, ipol, rdens_atom,
      &     'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
          if (.not.ma_pop_stack(lscr))
-     &     call errquit('build_fock_2e_xc: cannot pop scr:',0, MA_ERR)
+     &     call errquit(pname//'Cannot pop scr:',0, MA_ERR)
 c
 c        Compute the XC potential and energy.
          call ga_zero(g_tmp)
