@@ -131,11 +131,14 @@ c
       logical grid_ok,l1ecache
       integer igok
       character*80 theory
+      logical lrt_tddft
+      character*32 pname
 c     
+      pname = "nwdft:"
       nwdft = .false.
       iproc  = ga_nodeid()
 c
-c     Make sure database is parallel, push context down to DFT.
+c     == Make sure database is parallel, push context down to DFT ==
       LResult = rtdb_parallel(.true.)
       call util_print_push
       call util_print_rtdb_load(rtdb, 'dft')
@@ -148,17 +151,30 @@ c     == Init fdist ==
 c
 c     == If Dyall-mod-dir is set, exit with error ==
       if (rtdb_get(rtdb,'dyall_mod_dir',mt_log,1,dyall_mod_dir)) then
-        if (dyall_mod_dir) call errquit(
+        if (dyall_mod_dir) call errquit(pname//
      &      'Cannot do DFT calculation with Dyall-modified-Dirac method'
      &      ,99, RTDB_ERR)
       end if
+c
+c     == Print header ==
       oprint = util_print('information', print_low)
+      lrt_tddft = .false.
+      if (.not. rtdb_get(rtdb,'dft:lrt_tddft',mt_log,1,lrt_tddft))
+     &   lrt_tddft = .false.
+c
       if (oprint) then
         if (.not. rtdb_cget(rtdb, 'title', 1, title))
      &       title = ' '
         if(iproc.eq.0) then
-          call util_print_centered(
+          if (.not.lrt_tddft) then
+            write(LuOut,*)
+            call util_print_centered(
      &         LuOut, 'NWChem DFT Module', 40, .true.)
+          else
+            write(LuOut,*)
+            call util_print_centered(
+     &         LuOut, 'NWChem Real-Time TDDFT Module', 40, .true.)
+          end if
           write(LuOut,*)
           write(LuOut,*)
           if (title .ne. ' ') then
@@ -193,7 +209,7 @@ c
 c     == Check to see if system is already converged? ==
       if (movecs_in .eq. movecs_out) then
          if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
-     $        call errquit('dft: theory not specified',0, RTDB_ERR)
+     $        call errquit(pname//'Theory not specified',0, RTDB_ERR)
 c
           if(iproc.eq.0) then
            if (theory .eq. 'sodft') then
@@ -221,14 +237,13 @@ c
 c     check if we can get the grid from a file
 c         
                if(theory.eq.'sodft') then
-               if (.not. rtdb_get(rtdb, 'sodft:energy', mt_dbl, 1, 
-     &              energy)) call errquit(
-     .             'nwdft: failed getting converged energy',0, RTDB_ERR)
+               if (.not. rtdb_get(rtdb,'sodft:energy',mt_dbl,1,energy)) 
+     &           call errquit(
+     &           pname//'Failed getting converged energy',0, RTDB_ERR)
                else
-               if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, 
-     &              energy)) call errquit(
-     .              'nwdft: failed getting converged energy',0,
-     &       RTDB_ERR)
+               if (.not. rtdb_get(rtdb,'dft:energy', mt_dbl,1,energy)) 
+     &           call errquit(
+     .           pname//'Failed getting converged energy',0, RTDB_ERR)
                endif
                if (iproc.eq.0 .and. oprint)then
                   write(LuOut,1011)energy
@@ -283,9 +298,8 @@ c
 c     == Analyze set parameters for consistency ==
       call dft_inpana(rtdb)
 c     
-c    == Determine system type (molecule, polymer,surface,crystal) ==
-c    == if no system type exists in db --> default = molecular case ==    
-c
+c     == Determine system type (molecule, polymer,surface,crystal) ==
+c     == if no system type exists in db --> default = molecular case ==    
       if(.not. geom_systype_get(geom,itype)) itype = 0
 c
       if(itype.eq.0) then
@@ -297,7 +311,7 @@ c
       call trace_end(ga_nodeid())                            ! end trace
 #endif
       else
-        call errquit('nwdft: problem with system type',0, INPUT_ERR)
+        call errquit(pname//'Problem with system type',0, INPUT_ERR)
       endif
 c     
 c     == Terminate integrals ==
@@ -316,7 +330,7 @@ c     == Clean up cosmo stuff, if necessary ==
          cosmo_phase = 1
       endif
 c     
-c     == Destroy BS handles and geom object ==
+c     == Destroy basis set handles and geom object ==
       XCFIT    = .TRUE.
       if( XC_bas_han.eq.-99999 ) XCFIT = .FALSE.
       CDFIT    = .TRUE.
@@ -324,16 +338,16 @@ c     == Destroy BS handles and geom object ==
 
       if(XCFIT)then
        if(.not.bas_destroy(XC_bas_han))
-     &     call errquit ('dft:destroying XC basis handle',0, BASIS_ERR)
+     &   call errquit(pname//'Destroying XC basis handle',0, BASIS_ERR)
       endif
       if(CDFIT)then
        if(.not.bas_destroy(CD_bas_han))
-     &     call errquit ('dft:destroying CD basis handle',0, BASIS_ERR)
+     &  call errquit(pname//'Destroying CD basis handle',0, BASIS_ERR)
       endif
       if (.not.(
-     &     bas_destroy(AO_bas_han)
-     &     .and. geom_destroy(geom)))
-     &     call errquit ('dft:destroying geom and basis handles',0,
+     &  bas_destroy(AO_bas_han)
+     &  .and. geom_destroy(geom)))
+     &  call errquit (pname//'Destroying geom and basis handles',0,
      &       BASIS_ERR)
 c
 c     == Flush output buffer ==
