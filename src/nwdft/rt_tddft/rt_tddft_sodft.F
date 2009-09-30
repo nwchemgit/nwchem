@@ -40,6 +40,7 @@ c
       integer g_temp
 c
       logical rk4
+      logical euler
       integer irk
       double precision xh
       double precision xh2
@@ -1234,8 +1235,7 @@ c
 c     
  2000 continue
 c    
-c     Print energies and some information
-c
+c     == Print energies and some information ==
       if (me.eq.0.and.oprint)then
          if (.not.converged)then
             write(LuOut,*)
@@ -1249,41 +1249,55 @@ c
          call util_flush(LuOut)
       endif
 c
-c     Propagate the density matrix in time
+c     == Propagate the density matrix in time ==
 c
 c     == TMAX (maximum time) ==
       tmin = 0.d0
       tmax = 100.d0
-      if (.not.rtdb_get(rtdb,'rt_tddft:tmax',mt_dbl,1,tmax)) tmax = 100.d0
+      if (.not.rtdb_get(rtdb,'rt_tddft:tmax',mt_dbl,1,tmax)) 
+     &    tmax = 100.d0
 c
-c     == DELTA (time step in atomic units) ==
+c     == DT (time step in atomic units) ==
       dt = 0.02d0
-      if (.not.rtdb_get(rtdb,'rt_tddft:dt',mt_dbl,1,dt)) dt = 0.02d0
+      if (.not.rtdb_get(rtdb,'rt_tddft:dt',mt_dbl,1,dt)) 
+     &    dt = 0.02d0
 c
-      nstep = max (nint (tmax/dt), 1) ! calculate the number of steps
+c     == RK4 (4th order Runge-Kutta propagator) ==
+      rk4= .true.
+      if (.not.rtdb_get(rtdb,'rt_tddft:rk4',mt_log,1,rk4)) 
+     &    rk4 = .true.
+c
+c     == EULER (Euler propagator) ==
+      euler = .false.
+      if (.not.rtdb_put(rtdb,'rt_tddft:euler',mt_log,1,euler)) 
+     &    euler = .false.
+c
+c     == Calculate the number of steps ==
+      nstep = max (nint (tmax/dt), 1) 
       write(luout,*) "Number of time steps:",nstep
-      rk4 = .true.
+c
+c     == Time loop ==
       do istep = 1,nstep
 c
-c        Increment the time step
+c        == Increment the time step ==
          tt = tmin + (istep-1)*dt 
 c
-c        Initialize the Density matrix
+c        == Initialize the Density matrix ==
          call ga_zero(g_dens(1))
          call ga_zero(g_dens(2))
 c     
-c        Calculate the instantaneous dipole moment
-c        Dipole moment depends on the symmetric part of the density matrix
+c        == Calculate the instantaneous dipole moment ==
+c        == Dipole moment depends on the symmetric part of the density matrix ==
          call ga_dens_sf(g_dens, g_densso(1), nbf_ao) ! g_densso(1) -> g_dens(1) and (2)
          call calc_dipole(rtdb, ao_bas_han, ipol, g_dens, dipole, tt)
          if (me.eq.0)  then
-            write(luout,*) "Dipole:",tt,dipole(1),dipole(2),dipole(3)
+            write(luout,2201) tt,dipole(1),dipole(2),dipole(3)
          end if
 c
-c        Perform an instantaneous Mulliken population analysis
+c        == Perform an instantaneous Mulliken population analysis ==
          !call calc_mullpop(rtdb,geom,ao_bas_han,g_s,g_dens) ! no need for now
 c
-c        Build the Fock matrix
+c        == Build the Fock matrix ==
          call ga_zero(g_fockso(1))
          call ga_zero(g_fockso(2))
          call ga_zero(g_fock)
@@ -1293,44 +1307,47 @@ c        Build the Fock matrix
      &    int_mb(icetobfr), natoms, ipol, nbf_ao_mxnbf_ce, g_tmp, 
      &    g_fockso, g_densso, g_so, g_fock, oskel, Etnew)
 c          
-c        Add dipole contribution to the Fock matrix
+c        == Add dipole contribution to the Fock matrix ==
          Edip = 0.d0
          call calc_ddotE(tt, g_dipx, g_dipy, g_dipz, g_ddotE)
          !call ga_print(g_ddotE)
          call energy_dipole(g_dens, g_ddotE, Edip)
          call ga_fock_sf(g_ddotE, g_fockso(1), nbf_ao)
 c
-c        Total energy
+c        == Total energy ==
          Etotal = Etnew + Edip + Enuc
          if (me.eq.0) then
             write(luout,2200) tt, Etotal   ! print total energy at time tt
          end if
 c
-c        Do the propagation
+c        == Do the time propagation ==
          if (rk4) then ! 4th order Runge-Kutta 
            call prop_densmat_rk4(nbf_mo,g_sm1,g_fockso,g_densso,
      &            g_work,g_k1,g_k2,g_k3,g_k4,g_kwork,tt,dt)
-         else ! Euler
+         else if (euler) then ! Euler
            call prop_densmat_euler(nbf_mo,g_sm1,g_fockso,g_densso,
      &            g_work,g_dprdt,g_dpidt,tt,dt)
+         else
+           call errquit(pname//'Unknown time propagator',0, 0)
          end if
 c
-c        Calculate the instantaneous current
-c        Current = Sum(mu,nu) A(mu,nu) < chi_mu | nabla | chi_nu >
-c        where A(mu,nu) is the anti-symmetric part of the density matrix
+c        == Calculate the instantaneous current ==
+c        == Current = Sum(mu,nu) A(mu,nu) < chi_mu | nabla | chi_nu > ==
+c        == where A(mu,nu) is the anti-symmetric part of the density matrix ==
          call ga_dens_sf(g_dens, g_densso(2), nbf_ao) ! g_densso(2) -> g_dens(1) and (2)
          call calc_current(ao_bas_han, nbf_ao, ipol, g_dens,
      &           g_vel, g_temp, jcurr, tt)
          if (me.eq.0) then
-            write(luout,*) "Current:", tt,jcurr(1),jcurr(2),jcurr(3)
+            write(luout,2202) tt,jcurr(1),jcurr(2),jcurr(3)
          end if
 c
       end do   ! time propagation loop
 
- 2200 format(1x,'Energy:',1x,f18.10,1x,f18.10)
+ 2200 format(1x,'Energy:',1x,f10.4,1x,f18.10)
+ 2201 format(1x,'Dipole:',1x,f10.4,1x,3f18.10)
+ 2202 format(1x,'Current:',1x,f10.4,1x,3f18.10)
 c
-c     Prepare for clean up and close down
-c
+c     == Prepare for clean up and close down ==
       if(fon)then 
       if (.not.ma_pop_stack(kfon_occ))
      & call errquit(pname//'Cannot pop stack:lfon_occ',0, MA_ERR)
@@ -1362,25 +1379,22 @@ c
      &        int_mb(k_ir), .true., dbl_mb(k_occ))
       endif
 c     
-c     Store energy and convergence status ... must store before
-c     write movecs since date of insertion is used.
-c     
+c     == Store energy and convergence status ... must store before ==
+c     == write movecs since date of insertion is used ==
       if (.not. rtdb_put(rtdb, 'sodft:energy',MT_DBL,1,(Etnew+Enuc)))
      & call errquit(pname//'Failed to store energy in rtdb',0,RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'sodft:converged',MT_LOG,1,converged))
      & call errquit(pname//'Failed to store converged in rtdb',0,
      &       RTDB_ERR)
 c
-c     Output energies and eigenvectors to disk
-c     
+c     == Output energies and eigenvectors to disk ==
       if (.not.movecs_write_so
      $     (rtdb, ao_bas_han, movecs_out, 'sodft', title,
      &     nbf_mo, dbl_mb(k_occ), dbl_mb(k_eval(1)), g_moso))
      &     call errquit(pname//'movec_write failed', 0, DISK_ERR)
       call ga_sync()
 c     
-c     Shut down DIIS.
-c     
+c     == Shut down DIIS ==
       if (icall(1).gt.0)then
          icall(1) = -1
          call diis_driver_so(toll_s, derr, icall, nfock, 
@@ -1388,8 +1402,7 @@ c
      &        g_svecs, svals, diising, nodiis)
       endif
 c     
-c     If open shell compute overlap of alpha orbitals with beta orbitals.
-c     
+c     == If open shell compute overlap of alpha orbitals with beta orbitals ==
       if (ipol.gt.1)then
          call dft_mxspin_ovlp(nbf_ao,nmo,ao_bas_han,noc,g_movecs(1), 
      &        g_movecs(2), g_tmp)
@@ -1405,18 +1418,15 @@ c
       endif
 c     
 c     == Calculate <S2> for open shell ==
-c     
       if (ipol.gt.1)
      &   call dft_s2_value(geom,AO_bas_han,.false.,noc(1),noc(2),
      &        nbf_ao,g_dens(1),g_dens(2))
 c     
 c     == Calculate moments ==
-c
       if (natoms .gt. 1)
      &   call dft_mpole(rtdb, ao_bas_han, ipol, g_dens(1), g_dens(2))
 c     
 c     == Print ==
-c     
       if (util_print('schwarz',print_high).and.(.not.CDFIT))
      & call schwarz_print(natoms, nshells_ao)
 c     
@@ -1449,7 +1459,6 @@ c
       endif
 c
 c     == Start deallocation ==
-c
       if (.not.ma_pop_stack(lbuff)) then
       call ma_summarize_allocated_blocks()
       call util_flush(6)
@@ -1519,7 +1528,6 @@ c
      & call errquit(pname//'Could not destroy g_scr2', 0, GA_ERR)
 c
 c     == Time propagation arrays ==
-c
       if(.not.ga_destroy(g_sp1))     
      & call errquit(pname//'Error destroy g_sp1',0, GA_ERR)
       if(.not.ga_destroy(g_sm1))     

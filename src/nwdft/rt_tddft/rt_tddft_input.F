@@ -19,8 +19,6 @@ c
 c
       double precision tmax
       double precision dt
-      logical sodft
-      logical dft
       logical rk4
       logical euler
       logical magnus
@@ -38,19 +36,9 @@ c     == TMAX (maximum time) ==
       if (.not.rtdb_put(rtdb,'rt_tddft:tmax',mt_dbl,1,tmax))
      & call errquit(pname//'Write failed to rtdb',0, RTDB_ERR)
 c
-c     == DELTA (time step in atomic units) ==
+c     == DT (time step in atomic units) ==
       dt=0.02
       if (.not.rtdb_put(rtdb,'rt_tddft:dt',mt_dbl,1,dt))
-     & call errquit(pname//'Write failed to rtdb',0, RTDB_ERR)
-c
-c     == SODFT (dynamics with spin-orbit interactions) ==
-      sodft=.true.
-      if (.not.rtdb_put(rtdb,'rt_tddft:sodft',mt_log,1,sodft))
-     & call errquit(pname//'Write failed to rtdb',0, RTDB_ERR)
-c
-c     == DFT (dynamics without spin-orbit interactions) ==
-      dft=.false.
-      if (.not.rtdb_put(rtdb,'rt_tddft:dft',mt_log,1,dft))
      & call errquit(pname//'Write failed to rtdb',0, RTDB_ERR)
 c
 c     == RK4 (4th order Runge-Kutta propagator) ==
@@ -98,7 +86,7 @@ c     == TMAX ==
         if (.not.rtdb_put(rtdb,'rt_tddft:tmax',mt_dbl,1,tmax))
      &   call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
 c
-c     == DELTA ==
+c     == DT ==
       else if (inp_compare(.false.,test,'dt')) then
         if (.not.inp_f(dt)) then
           write(LuOut,*) pname//'dt value not found; ',
@@ -106,18 +94,6 @@ c     == DELTA ==
           dt=0.02
         endif
         if (.not.rtdb_put(rtdb,'rt_tddft:dt',mt_dbl,1,dt))
-     &   call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
-c
-c     == SODFT ==
-      else if (inp_compare(.false.,test,'sodft')) then
-        sodft=.true.
-        if (.not.rtdb_put(rtdb,'rt_tddft:sodft',mt_log,1,sodft))
-     &   call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
-c
-c     == DFT ==
-      else if (inp_compare(.false.,test,'dft')) then
-        dft=.true.
-        if (.not.rtdb_put(rtdb,'rt_tddft:dft',mt_log,1,dft))
      &   call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
 c
 c     == RK4 ==
