@@ -64,8 +64,6 @@ c
       ntwin=1
       if(rlng.gt.rsht) ntwin=2
       ltwin=rlng.gt.rsht
-      lnode0=lqmd
-      lqmd=lqd
 c
       loadb=ldb
       lbpair=lbp

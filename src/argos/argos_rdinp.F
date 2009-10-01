@@ -334,8 +334,6 @@ c
       hbang2=two*atan(one)
       verinp=zero
 c
-      uqmd=zero
-c
       iformt=1
 c
 c     parallel execution defaults
@@ -995,7 +993,6 @@ c
       endif
 c
       lesp=.false.
-      lqmd=iquant.ne.0
       lpert2=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.2.or.isetp2.eq.2))
       lpert3=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.3.or.isetp2.eq.3))
 c

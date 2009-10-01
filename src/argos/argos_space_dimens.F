@@ -197,13 +197,6 @@ c
       msag=min(msag,2*nsa+1)
       mwmg=min(mwmg,2*nwm+1)
 c
-      if(lnode0) then
-      msa=nsa+1
-      mwm=nwm+1
-      msag=nsa+1
-      mwmg=nwm+1
-      endif
-c
       if(util_print('distribution',print_default)) then
       if(me.eq.0) then
       write(lfnout,2006) mbox-30,madbox,nbtot

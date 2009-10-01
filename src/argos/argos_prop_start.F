@@ -3,7 +3,7 @@
      + lcf,lsp,ltwn,lpol,lpmei,llpstep,llpener,npstti,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
-     + nodpme,nipmf,lguide,lqmd,iradgi,idifci,nbget,ipgi,npgi)
+     + nodpme,nipmf,lguide,iradgi,idifci,nbget,ipgi,npgi)
 c
 c $Id: argos_prop_init.F,v 1.69 2008-07-03 18:05:48 d3j191 Exp $
 c
@@ -22,7 +22,7 @@ c
       character*255 fil
 c
       integer i,j,it
-      logical lpert2,lpert3,lguide,lqmd
+      logical lpert2,lpert3,lguide
 c
       me=ga_nodeid()
       np=ga_nnodes()

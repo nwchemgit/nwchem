@@ -81,13 +81,12 @@ c
 c     start the spacial decomposition API
 c     -----------------------------------
 c
-      lqmd=.false.
       call argos_space_start(lfnout,lfntop,filtop,lfnrst,filrst,
      + lfnsyn,filsyn,nfsync,rshort,rlong,zero,rsgm,
      + npx,npy,npz,nbx,nby,nbz,
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
-     + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
+     + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,
      + iguide,lfndbg,idebug,projct,mbbreq,nserie,isload,ireset,icntrl,
      + nseq,i_lseq,ndums,nbget,nprec,madbox)
 c
@@ -99,7 +98,7 @@ c
 c     start the classical forces API
 c     ------------------------------
 c
-      call argos_cafe_start(irtdb,lqmd,lfnout,lfntop,filtop,ndistr,
+      call argos_cafe_start(irtdb,lfnout,lfntop,filtop,ndistr,
      + npmf,npmfi,nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + mdalgo,npbtyp,nbxtyp,rshort,rlong,box,
      + ipme,morder,ngx,ngy,ngz,nodpme,pmetol,
@@ -135,7 +134,7 @@ c
      + npstep.ne.0,npener.ne.0,npstat,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
      + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc,nbias,nodpme,npmfi,
-     + iguide.ne.0,lqmd,iradgy,idifco,nbget,meg,npg)
+     + iguide.ne.0,iradgy,idifco,nbget,meg,npg)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------

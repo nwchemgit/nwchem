@@ -191,10 +191,10 @@ c
      + ipbtyp,nfnewf,ibatch,icmopt,imembr,icrit,nbget,nprec,nfload,
      + inp_ptr
 c
-      logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lserver,
+      logical lfirst,llong,ltwin,lpbc,lpair,lserver,
      + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp,
      + lprpmf,lpme,lhop,lstop,lload
-      common/argos_log/lfirst,llong,ltwin,lpbc,lpair,lqmd,lserver,
+      common/argos_log/lfirst,llong,ltwin,lpbc,lpair,lserver,
      + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp,
      + lprpmf,lpme,lhop,lstop,lload
 c
@@ -206,12 +206,12 @@ c
       real*8 temps,tempw,temp,pres,volume,epme(3),eww(mpe,2),eskin,
      + zw(3,3,2),fmax,fnorm,dwr,costio,corrio,
      + epot,epotw,epotsw,epots,ekin,etot,tleft,tneed,
-     + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd,wbox,uqmd
+     + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd,wbox
       integer npolit
       common/argos_pro/temps,tempw,temp,pres,volume,epme,eww,eskin,
      + zw,fmax,fnorm,dwr,costio,corrio,
      + epot,epotw,epotsw,epots,ekin,etot,tleft,tneed,
-     + vlat,vlati,box,rlambd,dlambd,wbox,uqmd,
+     + vlat,vlati,box,rlambd,dlambd,wbox,
      + npolit
 c
       integer i_esk,l_esk,i_ess,l_ess,i_esw,l_esw,i_rtos,l_rtos,

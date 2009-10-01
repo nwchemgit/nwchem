@@ -1,4 +1,4 @@
-      subroutine argos_cafe_start(irtdbi,logqmd,lfnout,lfntop,filtop,
+      subroutine argos_cafe_start(irtdbi,lfnout,lfntop,filtop,
      + ndistr,
      + npmf,nipmf,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
@@ -28,7 +28,7 @@ c
       integer nodpme,ntyp,idset,ipset1,ipset2,ndumsi
       integer issscl,npenrg,nbiasi,mropti
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
-      logical logqmd,lpbc,ltwn
+      logical lpbc,ltwn
 c
       integer i,itemp(2)
       character*3 string
@@ -44,7 +44,6 @@ c
 c
 c     dimensions initially set to zero indicating non-allocated
 c
-      lqmd=logqmd
       irtdb=irtdbi
       lpress=lpbc
 c
@@ -68,10 +67,6 @@ c
 c
       lfnhop=lfnhopi
       nhops=0
-      if(lqmd) then
-        nparms=3
-        mset=6
-      endif
 c
       lfree=ntype.eq.3
 c
@@ -240,12 +235,8 @@ c
      + call md_abort('Failed to allocate sti',me)
       endif
 c
-      if(lqmd) then
-      call argos_cafe_rdgeom(byte_mb(i_snam))
-      else
       call argos_cafe_rdtop(lfntop,filtop,byte_mb(i_snam))
       call argos_cafe_topol_init(lfnout)
-      endif
 c
 c     distance restraints
 c     -------------------
