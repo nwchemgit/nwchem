@@ -8,8 +8,8 @@ c
 #include "msgids.fh"
 c
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      real*8 cf_anint
-      external cf_anint
+      real*8 argos_cafe_anint
+      external argos_cafe_anint
 #endif
 c
       real*8 x(nsa,3),q(nsa,nq),g(ngx,ngy,ngz)

@@ -28,7 +28,7 @@ c
       if(lclose) close(lfntrj)
       open(unit=lfntrj,file=filtrj(1:index(filtrj,' ')-1),
      + form='formatted',status='unknown')
-      call cf_trjhdr(lfntrj)
+      call argos_cafe_trjhdr(lfntrj)
       endif
       if(nfhop.gt.0) then
       if(lclose) close(lfnhop)

@@ -27,7 +27,7 @@ c
     5 continue
     4 continue
 c
-      call sp_copyg(dbl_mb(i_gw),dbl_mb(i_gs))
+      call argos_space_copyg(dbl_mb(i_gw),dbl_mb(i_gs))
       call ga_sync()
 c
       return

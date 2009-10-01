@@ -66,31 +66,5 @@ c
       endif
     4 continue
 c
-      if(iqmmm.ne.0) then
-      do 5 isa=1,nsatot
-      itemp(isa)=0
-    5 continue
-      do 6 jsa=jsafr,jsato
-      itemp(iga(jsa))=jsa
-    6 continue
-      do 7 isa=isafr,isato
-      itemp(iga(isa))=isa
-    7 continue
-      do 8 ishloc=1,nangls
-      ish=langls(ishloc)
-      ihloc=itemp(idh(ish,1))
-      jhloc=itemp(idh(ish,2))
-      khloc=itemp(idh(ish,3))
-      iq=iand(idt(ihloc),lquant)
-      jq=iand(idt(jhloc),lquant)
-      kq=iand(idt(khloc),lquant)
-      if(iq.eq.lquant.or.jq.eq.lquant.or.kq.eq.lquant) then
-      if(iq.ne.lquant) istemp(ihloc)=1
-      if(jq.ne.lquant) istemp(jhloc)=1
-      if(kq.ne.lquant) istemp(khloc)=1
-      endif
-    8 continue
-      endif
-c
       return
       end

@@ -67,9 +67,10 @@ c      write(*,'(i5,a,5i5)') me,' LDA d ',ilda,nlda,idown,idfr,idto
 c
 c     get donor and acceptor atom coordinates
 c
-      call sp_getda(idown,idfr,idto,isl,isga,isq3,xs,nsaloc)
+      call argos_space_getda(idown,idfr,idto,isl,isga,isq3,xs,nsaloc)
 c      write(*,'(i5,a,5i5)') me,' LDA a ',ilda,nlda,iaown,iafr,iato
-      call sp_getda(iaown,iafr,iato,isl,isga,isq3,xs,nsaloc+ndon)
+      call argos_space_getda(iaown,iafr,iato,isl,isga,isq3,xs,
+     + nsaloc+ndon)
 c
       do 2001 isa=1,ndon
 c      write(*,3001) isa,isga(nsaloc+isa),isq3(nsaloc+isa),

@@ -12,7 +12,7 @@ c
 c
 c     center of mass coordinates
 c
-      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+      call argo_cafe_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
@@ -23,17 +23,18 @@ c
 c
 c     atom redistribution
 c
-      call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+      call argos_space_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),
+     + dbl_mb(i_xwcr),
      + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
 c
 c     center of mass coordinates
 c
-      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+      call argos_cafe_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
-      call cf_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
+      call argos_cafe_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
      + int_mb(i_is+(lsatt-1)*msa),nsaloc)
 c
       call argos_eminit(dbl_mb(i_xw),dbl_mb(i_yw),
@@ -48,7 +49,7 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call argos_prop_proper(0,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
@@ -58,8 +59,8 @@ c
 c
 c     print energies
 c
-      call cf_print_energy(lfnout)
-      call sp_printf(filtop,lfntop,
+      call argos_cafe_print_energy(lfnout)
+      call argos_space_printf(filtop,lfntop,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
 c
       if(ifidi.ne.0) then

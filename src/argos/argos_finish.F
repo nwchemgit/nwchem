@@ -11,7 +11,7 @@ c     deallocate memory for coordinates, velocities, etc.
 c     ---------------------------------------------------
 c
 c      call ma_summarize_allocated_blocks()
-      call sp_pack_finish()
+      call argos_space_pack_finish()
       if(ipolt.gt.0) then
       if(lpert2.or.lpert3) then
       if(.not.ma_pop_stack(l_psp))
@@ -104,9 +104,9 @@ c
 c
       call argos_prop_finish()
 c
-      call cf_finish()
+      call argos_cafe_finish()
 c
-      call sp_finish()
+      call argos_space_finish()
 c
       call argos_timing
 c

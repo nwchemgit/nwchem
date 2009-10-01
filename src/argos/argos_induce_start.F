@@ -69,7 +69,7 @@ c     iterative cycle to generate induced fields
 c     ------------------------------------------
 c
       npolit=0
-      call sp_nbbl(nbbl)
+      call argos_space_nbbl(nbbl)
    11 continue
       npolit=npolit+1
 c
@@ -122,7 +122,8 @@ c
 c     copy current fields into local global array
 c     -------------------------------------------
 c
-      call sp_putp(me,pw,pwp,nwmloc,ps,psp,nsaloc,lpert2.or.lpert3)
+      call argos_space_putp(me,pw,pwp,nwmloc,ps,psp,nsaloc,
+     + lpert2.or.lpert3)
 c
 c     synchronize to ensure induced fields are available
 c     --------------------------------------------------
@@ -131,11 +132,11 @@ c
 c
       do 22 ibbl=1,nbbl
 c
-      call sp_getxpbl(ibbl,lhandl,
+      call argos_space_getxpbl(ibbl,lhandl,
      + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
      + isl,xs,ps,psp,isfr,isto,jsfr,jsto,lself,lpbcs)
 c
-      call cf_comw(xw,xwm,jwfr,jwto)
+      call argos_cafe_comw(xw,xwm,jwfr,jwto)
 c
       call argos_induce(lself,lpbcs,xw,xwm,pw,pwp,iwl(1,lwdyn),
      + int_mb(i_iwz),iwfr,iwto,jwfr,jwto,xs,dbl_mb(i_xsm),ps,psp,
@@ -143,7 +144,7 @@ c
      + isl(1,lsmol),isl(1,lssss),isl(1,lsct1),isl(1,lsct2),isl(1,lsct3),
      + int_mb(i_isz),isfr,isto,jsfr,jsto,lpbc,lhandl)
 c
-      call sp_accpbl(ibbl,lhandl,pw,pwp,ps,psp,
+      call argos_space_accpbl(ibbl,lhandl,pw,pwp,ps,psp,
      + lpair,int_mb(i_iwz),int_mb(i_isz))
 c
    22 continue
@@ -171,7 +172,8 @@ c
    29 continue
       endif
 c
-      call sp_getp(me,pw,pwp,nwmloc,ps,psp,nsaloc,lpert2.or.lpert3,1)
+      call argos_space_getp(me,pw,pwp,nwmloc,ps,psp,nsaloc,
+     + lpert2.or.lpert3,1)
 c
       if(nwmloc.gt.0) then
       do 31 k=1,nwa
@@ -192,7 +194,8 @@ c
    34 continue
       endif
 c
-      call sp_getp(me,pw,pwp,nwmloc,ps,psp,nsaloc,lpert2.or.lpert3,2)
+      call argos_space_getp(me,pw,pwp,nwmloc,ps,psp,nsaloc,
+     + lpert2.or.lpert3,2)
 c
       pmax=0.0d0
       do 23 k=1,nwa
@@ -210,7 +213,8 @@ c
 c     copy current fields into local global array
 c     -------------------------------------------
 c
-      call sp_putp(me,pw,pwp,nwmloc,ps,psp,nsaloc,lpert2.or.lpert3)
+      call argos_space_putp(me,pw,pwp,nwmloc,ps,psp,nsaloc,
+     + lpert2.or.lpert3)
 c
       return
       end

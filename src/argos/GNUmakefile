@@ -626,7 +626,6 @@ OBJ_OPTIMIZE = argos.o \
                argos_space_wttrj.o \
                argos_spi.o \
                argos_sp.o \
-               argos_sp_qmmm.o \
                argos_start.o \
                argos_stdesc.o \
                argos_test.o \

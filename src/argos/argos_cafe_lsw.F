@@ -145,13 +145,6 @@ c
       if(rw(iwm).lt.rrest2) list(iwm,1)=1
  9014 continue
       endif
-      if(iqmmm.ne.0) then
-      if(iand(isdt(isa),lquant).eq.lquant) then
-      do 9015 iwm=iwmfr,iwmto
-      if(rw(iwm).lt.rqmmm2) iwz(iwm)=1
- 9015 continue
-      endif
-      endif
       if(npsw.eq.2) then
       do 9812 iwm=iwmfr,iwmto
       if(iand(iwdt(iwm),mdynam).eq.ldynam.and.

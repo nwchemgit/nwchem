@@ -23,7 +23,7 @@ c
       call timer_stop(44)
 c
       call timer_start(45)
-      call sp_final(fw,fs,lpair,int_mb(i_iwz),int_mb(i_isz))
+      call argos_space_final(fw,fs,lpair,int_mb(i_iwz),int_mb(i_isz))
       call timer_stop(45)
 c
       if(ltwin) then
@@ -40,7 +40,7 @@ c
       endif
 c
       call timer_start(47)
-      call cf_fnorm(iwl(1,lwdyn),fw,nwmloc,
+      call argos_cafe_fnorm(iwl(1,lwdyn),fw,nwmloc,
      + isl(1,lsatt),isl(1,lsdyn),fs,nsaloc,fnorm,fmax)
       call timer_stop(47)
 c

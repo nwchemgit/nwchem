@@ -22,7 +22,7 @@ c
       write(lfnmro) (p2sumt(i),i=1,maxp)
       write(lfnmro) (pslopt(i),i=1,maxp)
       endif
-      if(ndec.gt.0) call cf_wrtmro(lfnmro)
+      if(ndec.gt.0) call argos_cafe_wrtmro(lfnmro)
 c
       return
       end

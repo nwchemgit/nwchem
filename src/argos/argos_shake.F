@@ -7,8 +7,8 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      logical cf_shakep
-      external cf_shakep
+      logical argos_cafe_shakep
+      external argos_cafe_shakep
 c
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),xs(msa,3),ys(msa,3)
       integer iwl(mwm,miw2),isl(msa,mis2)
@@ -20,7 +20,7 @@ c
       dmax=zero
 c
       if(nwmloc.gt.0) then
-      call cf_shakew(xw,yw,iwl(1,lwgmn),iwl(1,lwdyn),nwmloc)
+      call argos_cafe_shakew(xw,yw,iwl(1,lwgmn),iwl(1,lwdyn),nwmloc)
       do 1 j=1,nwa
       do 2 i=1,nwmloc
       dmax=max(dmax,(xw(i,1,j)-yw(i,1,j))**2+
@@ -31,10 +31,11 @@ c
 c
     3 continue
       if(nsaloc.gt.0) then
-      call sp_nbbl(nbbl)
+      call argos_space_nbbl(nbbl)
       do 4 ibbl=1,nbbl
-      call sp_gethdl(ibbl,lhandl,lself,iwfr,iwto,isfr,isto)
-      if(lself) call cf_shakes(lhandl,xs,ys,isl(1,lsgan),isl(1,lsatt),
+      call argos_space_gethdl(ibbl,lhandl,lself,iwfr,iwto,isfr,isto)
+      if(lself) call argos_cafe_shakes(lhandl,xs,ys,isl(1,lsgan),
+     + isl(1,lsatt),
      + isl(1,lssgm),isl(1,lsdyn),isl(1,lshop),isfr,isto)
     4 continue
       do 5 i=1,nsaloc
@@ -43,8 +44,8 @@ c
     5 continue
       endif
       if(npmf.eq.1.or.lpmfc) then
-      if(.not.cf_shakep(xs,ys,isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),
-     + isl(1,lshop),nsaloc)) goto 3
+      if(.not.argos_cafe_shakep(xs,ys,isl(1,lsgan),isl(1,lsatt),
+     + isl(1,lsdyn),isl(1,lshop),nsaloc)) goto 3
       endif
 c
       dmax=sqrt(dmax)

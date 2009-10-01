@@ -168,7 +168,7 @@ c
      + ep2avm,ep3avm
  2003 format(i10,/,4e20.12,/,2e20.12)
       if(nbias.gt.0) gbias=-rgas*taver*log(ebias)
-      if(ndec.gt.0) call cf_rdgib(lfngib,dec,dlambd/dble(ndec))
+      if(ndec.gt.0) call argos_cafe_rdgib(lfngib,dec,dlambd/dble(ndec))
 c
       slambd=slambd+dlambd
       rnum=dlambd/dble(nderiv)
@@ -241,7 +241,7 @@ c
 c
     3 continue
 c
-      if(ndec.gt.0.and.k.eq.4) call cf_print_deco(lfnout,dec)
+      if(ndec.gt.0.and.k.eq.4) call argos_cafe_print_deco(lfnout,dec)
 c
     1 continue
 c

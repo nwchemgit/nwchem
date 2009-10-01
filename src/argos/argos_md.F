@@ -34,7 +34,7 @@ c
       call timer_start(201)
       call argos_newton()
       call argos_prop_proper(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsmp))
       call argos_server
@@ -71,7 +71,8 @@ c
       call timer_start(6)
 c
       if(lfw.or.lfs) then
-      call sp_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),nsaloc)
+      call argos_space_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),
+     + nsaloc)
       endif
 c
       call timer_stop(6)
@@ -90,12 +91,12 @@ c
       call timer_stop(55)
 c
       call argos_prop_proper(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsmp))
       call argos_server
       call argos_prop_step(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm)
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd)
 c
       call timer_stop(201)
 c

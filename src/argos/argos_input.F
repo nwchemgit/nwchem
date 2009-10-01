@@ -37,7 +37,7 @@ c
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
-      real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
+      real*8 rrdf,xfield,xfvect(3),xffreq,weight,dielec,ealpha
       real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide,rfix,fcoll
       real*8 tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop,thop
       character*12 afix
@@ -231,7 +231,6 @@ c
       tgauss=298.15d0
       rlong=0.9d0
       rshort=0.9d0
-      rqmmm=0.9d0
       ptol=0.001d0
       tlwsha=0.001d0
       tlssha=0.001d0
@@ -1134,10 +1133,6 @@ c
       if(.not.inp_f(rlong)) call md_abort('argos: error long',14)
       goto 300
       endif
-      if(inp_compare(.false.,'qmmm',item)) then
-      if(.not.inp_f(rqmmm)) call md_abort('argos: error qmmm',14)
-      goto 300
-      endif
       goto 3
       endif
 c
@@ -1994,8 +1989,6 @@ c
       if(.not.rtdb_put(irtdb,'md:rlong',mt_dbl,1,rlong))
      + call md_abort('argos: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:rshort',mt_dbl,1,rshort))
-     + call md_abort('argos: rtdb_put failed',0)
-      if(.not.rtdb_put(irtdb,'md:rqmmm',mt_dbl,1,rqmmm))
      + call md_abort('argos: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ptol',mt_dbl,1,ptol))
      + call md_abort('argos: rtdb_put failed',0)

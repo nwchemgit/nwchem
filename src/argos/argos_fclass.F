@@ -6,9 +6,9 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      logical sp_local,cf_hopping
-      external sp_local,cf_hopping
-      external cf_init2
+      logical argos_space_local,argos_cafe_hopping
+      external argos_space_local,argos_cafe_hopping
+      external argos_cafe_init2
 c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
@@ -27,19 +27,19 @@ c
       itcom2=35
 c
       if(nbget.eq.0) then
-      call sp_nbbl(nbbl)
+      call argos_space_nbbl(nbbl)
       else
       itforc=35
       call timer_start(33)
       if(ipolt.eq.0) then
       if(nbget.lt.0) then
-      call sp_prefetch_all(nbbl,iwl,xw,isl,xs)
+      call argos_space_prefetch_all(nbbl,iwl,xw,isl,xs)
       else
-      call sp_prefetch(nbbl,iwl,xw,isl,xs)
+      call argos_space_prefetch(nbbl,iwl,xw,isl,xs)
       endif
       else
-      call sp_prefetch_p(nbbl,iwl,xw,dbl_mb(i_pw),dbl_mb(i_pwp),
-     + isl,xs,dbl_mb(i_ps),dbl_mb(i_psp))
+      call argos_space_prefetch_p(nbbl,iwl,xw,dbl_mb(i_pw),
+     + dbl_mb(i_pwp),isl,xs,dbl_mb(i_ps),dbl_mb(i_psp))
       endif
       call timer_stop(33)
       endif
@@ -56,7 +56,7 @@ c
 c
       do 1 ibbl=1,nbbl
 c
-      if(local.and..not.sp_local(ibbl)) then
+      if(local.and..not.argos_space_local(ibbl)) then
       itcom1=36
       itforc=37
       itcom2=38
@@ -67,11 +67,11 @@ c
       if(nbget.eq.0) then
       call timer_start(itcom1)
       if(ipolt.eq.0) then
-      call sp_getxbl(ibbl,lhandl,
+      call argos_space_getxbl(ibbl,lhandl,
      + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
      + lself,lpbcs)
       else
-      call sp_getxpbl(ibbl,lhandl,
+      call argos_space_getxpbl(ibbl,lhandl,
      + iwl,xw,dbl_mb(i_pw),dbl_mb(i_pwp),iwfr,iwto,jwfr,jwto,
      + isl,xs,dbl_mb(i_ps),dbl_mb(i_psp),isfr,isto,jsfr,jsto,
      + lself,lpbcs)
@@ -79,18 +79,18 @@ c
       call timer_stop(itcom1)
       else
       call timer_start(34)
-      call sp_nbwait(ibbl,lnew,lhandl,lself,lpbcs,
+      call argos_space_nbwait(ibbl,lnew,lhandl,lself,lpbcs,
      + iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,iwl,isl)
       call timer_stop(34)
       if(nbget.gt.0.and.lnew) then
       call timer_start(33)
-      call sp_prefetch_next(iwl,xw,isl,xs)
+      call argos_space_prefetch_next(iwl,xw,isl,xs)
       call timer_stop(33)
       endif
       endif
 c
       call timer_start(itforc)
-      call cf_comw(xw,xwm,jwfr,jwto)
+      call argos_cafe_comw(xw,xwm,jwfr,jwto)
 c
       if(ipolt.eq.0) then
       call argos_cafe(lself,lpbcs,xw,xwm,fw,zw,dbl_mb(i_rtos),
@@ -118,12 +118,12 @@ c
 c
       if(nbget.eq.0) then
       call timer_start(itcom2)
-      call sp_accfbl(ibbl,lhandl,fw,fs,
+      call argos_space_accfbl(ibbl,lhandl,fw,fs,
      + lpair,int_mb(i_iwz),int_mb(i_isz))
       call timer_stop(itcom2)
       else
       call timer_start(37)
-      call sp_nbaccfbl(ibbl,lhandl,fw,fs,
+      call argos_space_nbaccfbl(ibbl,lhandl,fw,fs,
      + lpair,int_mb(i_iwz),int_mb(i_isz))
       call timer_stop(37)
       endif
@@ -132,12 +132,13 @@ c
 c
       if(nbget.ne.0) then
       call timer_start(38)
-      call sp_nbwaitf()
+      call argos_space_nbwaitf()
       call timer_stop(38)
       endif
 c
       if(.not.ldone) then
-      if(cf_hopping(lpbc,lpbcs,stime,isl,isl(1,lssgm),isl(1,lsgan),
+      if(argos_cafe_hopping(lpbc,lpbcs,stime,isl,isl(1,lssgm),
+     + isl(1,lsgan),
      + isl(1,lsct3),isl(1,lshop),xs,nsaloc,lfnhop)) then
       if(lpair) then
       lpair=.false.
@@ -149,12 +150,12 @@ c
       lload=.true.
       lforce=.true.
       ldone=.true.
-      call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
+      call argos_space_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
       endif
       call argos_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
      + dbl_mb(i_xsm),dbl_mb(i_xsmp))
-c      call cf_init2(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
+c      call argos_cafe_init2(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
 c     + dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esa))
       goto 100
       endif

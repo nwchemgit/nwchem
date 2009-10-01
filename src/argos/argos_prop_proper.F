@@ -1,6 +1,6 @@
       subroutine argos_prop_proper(mdstep,stime,eww,esw,
      + ess,fss,esk,epme,
-     + uqmd,uqmmm,epot,epotw,epotsw,epots,vol,dwr,dsr,ekin,etot,
+     + uqmd,epot,epotw,epotsw,epots,vol,dwr,dsr,ekin,etot,
      + npolit,gsm,esa,box,xsm)
 c
       implicit none
@@ -17,7 +17,7 @@ c
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme(3)
       real*8 fss(msf,msf,3,2)
       real*8 epot,epotw,epotsw,epots,vol,ekin,etot,epmec,ubias
-      real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm,box(3)
+      real*8 eq,el,ep,ek,et,ewp,uqmd,box(3)
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,npolit
       real*8 dwr,dsr(msm),gsm(msm,4,2),esa(nsa,2)
@@ -78,13 +78,13 @@ c
    13 continue
    12 continue
 c
-      if(me.eq.0) ep=ep+uqmd+uqmmm
+      if(me.eq.0) ep=ep+uqmd
 c
 c     if using cafe get properties from it
 c
       if(lcafe) then
-      call cf_proper(volume,temp,tempw,temps,pres,tmpscl,tmsscl,prsscl,
-     + ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,
+      call argos_cafe_proper(volume,temp,tempw,temps,pres,tmpscl,tmsscl,
+     + prsscl,ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,
      + ep2,ep3,ep2m,ep3m,edrs,epmf,virial,prest,virt,ekct,ubias,upmf)
       endif
 c
@@ -117,7 +117,7 @@ c
 c
       if(me.eq.0) then
 c
-      if(ntype.eq.0) call sp_gettp(temp,pres)
+      if(ntype.eq.0) call argos_space_gettp(temp,pres)
 c
       p(1)=dble(mdstep)
       p(2)=stime
@@ -292,7 +292,7 @@ c
       dx(1)=xsm(i,1)-xsm(j,1)
       dx(2)=xsm(i,2)-xsm(j,2)
       dx(3)=xsm(i,3)-xsm(j,3)
-      if(lpbc) call cf_pbc(1,dx,1,dx,1,0,1,1)
+      if(lpbc) call argos_cafe_pbc(1,dx,1,dx,1,0,1,1)
       it=it+1
       if(me.eq.0) p(it)=sqrt(dx(1)**2+dx(2)**2+dx(3)**2)
   156 continue
@@ -319,7 +319,7 @@ c
 c
       maxp=it
 c
-      if(npener.gt.0) call cf_add_esa(esa)
+      if(npener.gt.0) call argos_cafe_add_esa(esa)
       if(np.gt.0) then
       call ga_dgop(mrg_d44,p(9),3,'max')
       if(me.ne.0) then

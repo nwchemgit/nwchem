@@ -15,7 +15,7 @@ c
       lst(i)=0
     1 continue
 c
-      call cf_links(lquant,nums,isl(1,lsgan),isl(1,lsdyn),lst)
+      call argos_cafe_links(lquant,nums,isl(1,lsgan),isl(1,lsdyn),lst)
 c
       call ga_igop(msp_21,lst,nsa,'+')
 c
@@ -28,7 +28,7 @@ c
       lst(i)=0
     3 continue
 c
-      call cf_links(lqlink,nums,isl(1,lsgan),isl(1,lsdyn),lst)
+      call argos_cafe_links(lqlink,nums,isl(1,lsgan),isl(1,lsdyn),lst)
 c
       call ga_igop(msp_26,lst,nsa,'+')
 c

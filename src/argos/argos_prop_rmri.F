@@ -4,8 +4,8 @@ c
 c
 #include "argos_prop.fh"
 c
-      logical cf_rdmri
-      external cf_rdmri
+      logical argos_cafe_rdmri
+      external argos_cafe_rdmri
 c
       integer lfnmri,ndec,mropt
       real*8 dfr(mda),dfrm(mda),dtmp
@@ -43,7 +43,7 @@ c
     1 continue
       endif
       if(ndec.gt.0) then
-      argos_prop_rmri=cf_rdmri(lfnmri)
+      argos_prop_rmri=argos_cafe_rdmri(lfnmri)
       else
       argos_prop_rmri=.true.
       endif

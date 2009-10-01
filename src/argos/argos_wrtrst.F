@@ -36,7 +36,7 @@ c
       endif
       endif
 c
-      call sp_wrtrst(lfn,fil,lveloc,pres,temp,tempw,temps,
+      call argos_space_wrtrst(lfn,fil,lveloc,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_gw),
      + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_gs),dbl_mb(i_xscr),projct,int_mb(i_lseq))
@@ -45,7 +45,7 @@ c
 c
       call argos_prop_wtrest(lfn)
 c
-      call sp_wtrest(lfn)
+      call argos_space_wtrest(lfn)
 c
       if(me.eq.0) then
       close(unit=lfn)

@@ -18,7 +18,7 @@ c
 c
       lerror=ida.gt.lda
 c
-      call cf_mcti(fdata)
+      call argos_cafe_mcti(fdata)
 c
       call ga_dgop(mrg_d44,fdata,28,'+')
 c

@@ -72,7 +72,7 @@ c
 c     reassign velocities
 c
       if(frequency(mdstep,nfgaus)) then
-      call cf_gauss(tgauss,frgaus,nwmloc,nsaloc,
+      call argos_cafe_gauss(tgauss,frgaus,nwmloc,nsaloc,
      + dbl_mb(i_vw),dbl_mb(i_vs),int_mb(i_iw+(lwdyn-1)*mwm),
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa))
       endif
@@ -90,7 +90,7 @@ c
 c
 c     center of mass coordinates
 c
-      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+      call argos_cafe_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
@@ -115,7 +115,8 @@ c
       endif
       endif
 c
-      call sp_balanc(stime,syntim,wallt,frequency(mdstep,nfsync))
+      call argos_space_balanc(stime,syntim,wallt,frequency(mdstep,
+     + nfsync))
       call timer_reset(204)
 c
       call timer_stop(3)
@@ -123,7 +124,8 @@ c
 c
 c     atom redistribution
 c
-      call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+      call argos_space_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),
+     + dbl_mb(i_xwcr),
      + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
 c
@@ -137,7 +139,8 @@ c
 c
 c     center of mass coordinates
 c
-      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+      call argos_cafe_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),
+     + nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
@@ -151,8 +154,9 @@ c
       call timer_start(6)
 c
       if(lfw.or.lfs) then
-      call sp_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),nsaloc)
-      call sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
+      call argos_space_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),
+     + nsaloc)
+      call argos_space_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
      + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
@@ -171,7 +175,7 @@ c
       call timer_start(6)
 c
       if(.not.lfw.and..not.lfs) then
-      call sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
+      call argos_space_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
      + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
@@ -214,7 +218,7 @@ c
 c     time step
 c
       call timer_start(49)
-      call cf_mdstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
+      call argos_cafe_mdstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
      + dbl_mb(i_yw),dbl_mb(i_vw),dbl_mb(i_vwt),dbl_mb(i_fw),nwmloc,
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_vst),
@@ -232,13 +236,14 @@ c
 c
 c     recalculate velocities
 c
-      call cf_veloc(nwmloc,dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_vw),
+      call argos_cafe_veloc(nwmloc,dbl_mb(i_xw),dbl_mb(i_yw),
+     + dbl_mb(i_vw),
      + nsaloc,dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs))
 c
 c     velocity scaling to preset temperature
 c
       if(frequency(mdstep,nfgaus)) then
-      call cf_vscale(tgauss,nwmloc,nsaloc,
+      call argos_cafe_vscale(tgauss,nwmloc,nsaloc,
      + dbl_mb(i_vw),dbl_mb(i_vwt),dbl_mb(i_vs),dbl_mb(i_vst),
      + int_mb(i_iw+(lwdyn-1)*mwm),
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa))
@@ -248,7 +253,7 @@ c
 c     coordinate scaling
 c
       call timer_start(51)
-      call cf_final(dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_yw),
+      call argos_cafe_final(dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_yw),
      + dbl_mb(i_vw),dbl_mb(i_vwt),nwmloc,
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_ys),dbl_mb(i_vs),
      + dbl_mb(i_vst),int_mb(i_is+(lsatt-1)*msa),
@@ -265,7 +270,7 @@ c
       if(idifco.gt.0.or.
      + frequency(mdstep,nfcntr).or.frequency(mdstep,nfslow)) then
 c
-      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+      call argos_cafe_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
@@ -278,14 +283,16 @@ c
 c     center solute in box
 c
       if(frequency(mdstep,nfcntr)) then
-      call cf_center(dbl_mb(i_xw),nwmloc,int_mb(i_is+(lsfrc-1)*msa),
+      call argos_cafe_center(dbl_mb(i_xw),nwmloc,
+     + int_mb(i_is+(lsfrc-1)*msa),
      + dbl_mb(i_xs),nsaloc,idscb,nscb,icentr)
       endif
 c
 c     remove overall translational motion
 c
       if(frequency(mdstep,nfslow)) then
-      call cf_slow(dbl_mb(i_xw),dbl_mb(i_vw),nwmloc,dbl_mb(i_xs),
+      call argos_cafe_slow(dbl_mb(i_xw),dbl_mb(i_vw),nwmloc,
+     + dbl_mb(i_xs),
      + dbl_mb(i_vs),int_mb(i_is+(lsatt-1)*msa),nsaloc)
       endif
 c
@@ -295,7 +302,7 @@ c
 c
 c     update decomposition module
 c
-      call sp_update(me,vlat,
+      call argos_space_update(me,vlat,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),dbl_mb(i_vw),nwmloc,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),nsaloc)
 c

@@ -23,7 +23,8 @@ c
 c
 c     initialize cafe
 c
-      call cf_init(stime,lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),
+      call argos_cafe_init(stime,lpair,llong,box,vlat,vlati,zw,
+     + dbl_mb(i_zs),
      + eww,dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esa))
 c
       if(lpair) call argos_zinit(int_mb(i_iwz),int_mb(i_isz))
@@ -36,9 +37,10 @@ c
 c
       call timer_start(10)
 c
-      call sp_initf(fw,fs,llong,int_mb(i_iwz),int_mb(i_isz),lpair)
+      call argos_space_initf(fw,fs,llong,int_mb(i_iwz),int_mb(i_isz),
+     + lpair)
 c
-      call sp_putix(me,iwl,xw,nwmloc,isl,xs,nsaloc)
+      call argos_space_putix(me,iwl,xw,nwmloc,isl,xs,nsaloc)
 c
       call timer_stop(10)
 c
@@ -48,7 +50,7 @@ c
 c
       if(ncoll.gt.0) then
       call timer_start(12)
-      call cf_collapse(ncoll,fcoll,nsaloc,nwmloc,isl(1,lsmol),
+      call argos_cafe_collapse(ncoll,fcoll,nsaloc,nwmloc,isl(1,lsmol),
      + isl(1,lssgm),
      + dbl_mb(i_xs),dbl_mb(i_xsm),mst,dbl_mb(i_tsm),dbl_mb(i_fs),
      + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_fw))
@@ -56,11 +58,12 @@ c
       endif
       if(ifield.gt.0) then
       call timer_start(13)
-      call cf_extern(stime,nsaloc,dbl_mb(i_fs),
+      call argos_cafe_extern(stime,nsaloc,dbl_mb(i_fs),
      + isl(1,lsct1),nwmloc,dbl_mb(i_fw))
       call timer_stop(13)
       endif
-      call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
+      call argos_cafe_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),
+     + isl(1,lsgan),
      + isl(1,lsatt),isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),
      + dbl_mb(i_ess),dbl_mb(i_fss),lfnpmf,lprpmf,iprpmf,
      + npmf.eq.1.or.lpmfc)

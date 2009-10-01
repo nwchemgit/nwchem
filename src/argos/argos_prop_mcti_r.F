@@ -23,7 +23,7 @@ c
      + ep2avm/dble(nsumt),ep3avm/dble(nsumt)
  1003 format(i10,/,4e20.12,/,2e20.12)
       endif
-      if(ndec.gt.0) call cf_wrtgib(lfngib)
+      if(ndec.gt.0) call argos_cafe_wrtgib(lfngib)
 c
       return
       end

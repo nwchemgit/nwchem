@@ -10,7 +10,7 @@ c
       logical frequency,argos_prop_mcti_step,argos_prop_rdmri,sp_rdmri
       integer argos_prop_dfr
       external frequency,argos_prop_mcti_step,argos_prop_rdmri,
-     + sp_rdmri,argos_prop_dfr
+     + argos_space_rdmri,argos_prop_dfr
 c
       logical done
       integer npp,i,irunp,jequi,jdacq,ndec,ndum
@@ -113,7 +113,7 @@ c
      + irun,'.trj '
       open(unit=lfntrj,file=filrun(1:index(filrun,' ')-1),
      + form='formatted',status='unknown')
-      call cf_trjhdr(lfntrj)
+      callargos_cafe_trjhdr(lfntrj)
       endif
       if(nfprop.gt.0) then
       write(filrun,'(a,a,i5.5,a)') filprp(1:index(filprp,'.prp')-1),'-',
@@ -136,7 +136,7 @@ c
 c
 c     initialize parameters
 c
-      call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
+      callargos_cafe_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
      + rlambd,dlambd,filnam)
 c
 c     property initialization
@@ -180,7 +180,7 @@ c
       if(.not.sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs)))
-     + call md_abort('Error reading mri in sp_rdmri',0)
+     + call md_abort('Error reading mri in argos_space_rdmri',0)
       endif
       endif
 c
@@ -220,7 +220,7 @@ c
       if(kdacq.eq.0) stime=zero
 c
       ndec=0
-      if(npgdec.gt.1) call cf_dera_init()
+      if(npgdec.gt.1) callargos_cafe_dera_init()
 c
       lequi=.false.
       jdacq=kdacq
@@ -245,20 +245,21 @@ c
 c
       if(npgdec.gt.1) ndec=ndec+1
 c
-      call cf_mcti_kin(int_mb(i_is+(lsatt-1)*msa),
+      callargos_cafe_mcti_kin(int_mb(i_is+(lsatt-1)*msa),
      + int_mb(i_is+(lsgan-1)*msa),dbl_mb(i_vs),nsaloc)
 c
       done=argos_prop_mcti_step(idacq,ldacq)
 c
       call argos_prop_proper(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsmp))
       call argos_prop_step(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm)
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd)
 c
       if(lfw.or.lfs) then
-      call sp_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),nsaloc)
+      call argos_space_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),
+     + nsaloc)
       endif
 c
       write(projct,4000) nserie,irun,mrun,mequi,idacq,tmpext,
@@ -283,14 +284,14 @@ c
       endif
       call argos_prop_wrtmro(lfnmro,ndec)
       if(me.eq.0) then
-      call sp_wrtmro(lfnmro,stime,pres,temp,tempw,temps,
+      call argos_space_wrtmro(lfnmro,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),projct)
       endif
 c
       call argos_prop_mcti_run(rlambd,dlambd,ndec)
 c
-      if(ndec.gt.2) call cf_print_dera(lfnout,ndec)
+      if(ndec.gt.2) callargos_cafe_print_dera(lfnout,ndec)
 c
       if(me.eq.0) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then

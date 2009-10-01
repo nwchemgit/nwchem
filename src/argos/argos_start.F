@@ -82,8 +82,8 @@ c     start the spacial decomposition API
 c     -----------------------------------
 c
       lqmd=.false.
-      call sp_start(lfnout,lfntop,filtop,lfnrst,filrst,lfnsyn,filsyn,
-     + nfsync,rshort,rlong,zero,rsgm,
+      call argos_space_start(lfnout,lfntop,filtop,lfnrst,filrst,
+     + lfnsyn,filsyn,nfsync,rshort,rlong,zero,rsgm,
      + npx,npy,npz,nbx,nby,nbz,
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
@@ -99,12 +99,12 @@ c
 c     start the classical forces API
 c     ------------------------------
 c
-      call cf_start(irtdb,lqmd,lfnout,lfntop,filtop,ndistr,npmf,npmfi,
-     + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
-     + mdalgo,npbtyp,nbxtyp,rshort,rlong,rqmmm,box,
+      call argos_cafe_start(irtdb,lqmd,lfnout,lfntop,filtop,ndistr,
+     + npmf,npmfi,nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
+     + mdalgo,npbtyp,nbxtyp,rshort,rlong,box,
      + ipme,morder,ngx,ngy,ngz,nodpme,pmetol,
      + tstep,tlwsha,mshitw,mshits,noshak,
-     + iqmmm,ipolt,itscal,ipscal,ipopt,tmpext,prsext,
+     + ipolt,itscal,ipscal,ipopt,tmpext,prsext,
      + tmprlx,tmsrlx,prsrlx,scaleq,facpmf,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
@@ -114,13 +114,13 @@ c
 c     + nbget)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
-     + call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
+     + call argos_cafe_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
      + rlambd,dlambd,filnam)
 c
 c     print topology information
 c     --------------------------
 c
-      call cf_print_top(lfnout,npatom,nptopw,nptops)
+      call argos_cafe_print_top(lfnout,npatom,nptopw,nptops)
 c
       msm=max(1,nsm)
       msf=max(1,nsf)
@@ -135,7 +135,7 @@ c
      + npstep.ne.0,npener.ne.0,npstat,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
      + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc,nbias,nodpme,npmfi,
-     + iguide.ne.0,iqmmm.ne.0,lqmd,iradgy,idifco,nbget,meg,npg)
+     + iguide.ne.0,lqmd,iradgy,idifco,nbget,meg,npg)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -238,35 +238,37 @@ c
 c     retrieve current coordinates for this node
 c     ------------------------------------------
 c
-      call sp_setup(me,int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),
-     + dbl_mb(i_vw),dbl_mb(i_gw),nwmloc,
+      call argos_space_setup(me,int_mb(i_iw),dbl_mb(i_xw),
+     + dbl_mb(i_xwcr),dbl_mb(i_vw),dbl_mb(i_gw),nwmloc,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_xscr),dbl_mb(i_vs),
      + dbl_mb(i_gs),nsaloc,lpack)
-      call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
+      call argos_space_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
 c
 c     initialize packing
 c     ------------------
 c
       if(lpack)
-     + call sp_pack_init(int_mb(i_is),nsaloc,int_mb(i_iw),nwmloc)
+     + call argos_space_pack_init(int_mb(i_is),nsaloc,int_mb(i_iw),
+     + nwmloc)
 c
 c     spacial decomposition
 c     ---------------------
 c
-      call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+      call argos_space_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),
+     + dbl_mb(i_xwcr),
      + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
 c
 c     calculate mass factors
 c     ----------------------
 c
-      call cf_weight(nwmloc,nsaloc,int_mb(i_is+(lsatt-1)*msa),
+      call argos_cafe_weight(nwmloc,nsaloc,int_mb(i_is+(lsatt-1)*msa),
      + int_mb(i_is+(lsmol-1)*msa),int_mb(i_is+(lshop-1)*msa),wbox)
 c
 c     calculate centers of mass
 c     -------------------------
 c
-      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+      call argos_cafe_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
@@ -278,7 +280,8 @@ c
      + form='formatted',status='old')
       rewind(lfncmd)
       endif
-      call cf_fix(lfnout,lfncmd,numfix,int_mb(i_iw+(lwgmn-1)*mwm),
+      call argos_cafe_fix(lfnout,lfncmd,numfix,
+     + int_mb(i_iw+(lwgmn-1)*mwm),
      + int_mb(i_iw+(lwdyn-1)*mwm),nwmloc,
      + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lsatt-1)*msa),
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lssgm-1)*msa),nsaloc,
@@ -286,12 +289,12 @@ c
       if(me.eq.0.and.numfix.gt.0) then
       close(unit=lfncmd)
       endif
-      call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
+      call argos_space_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
 c
 c     print decomposition information
 c     -------------------------------
 c
-      call sp_print()
+      call argos_space_print()
 c
       call argos_prop_setup(wbox)
 c
@@ -300,7 +303,7 @@ c     ------------------
 c
       if(me.eq.0.and.ntype.ne.3) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0)
-     + call cf_trjhdr(lfntrj)
+     + call argos_cafe_trjhdr(lfntrj)
       endif
 c
       if(npg.gt.1.and.me.eq.0) then
