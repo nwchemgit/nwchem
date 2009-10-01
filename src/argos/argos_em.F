@@ -62,7 +62,7 @@ c
      + call md_abort('Failed to deallocate memory for pcgw',me)
       endif
 c
-      call argois_cafe_print_energy(lfnout)
+      call argos_cafe_print_energy(lfnout)
 c
       call argos_space_printf(filtop,lfntop,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
