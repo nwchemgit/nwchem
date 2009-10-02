@@ -51,6 +51,8 @@ c
      + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call argos_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+      call argos_em_fnorm(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call argos_prop_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,
@@ -190,6 +192,8 @@ c
      + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call argos_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+      call argos_em_fnorm(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call argos_prop_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,
@@ -224,6 +228,8 @@ c       --------------------------------------------------
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
      + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call argos_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+      call argos_em_fnorm(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call argos_prop_proper(isdit,stime,eww,dbl_mb(i_esw),

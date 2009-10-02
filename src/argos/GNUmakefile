@@ -336,6 +336,7 @@ OBJ_OPTIMIZE = argos.o \
                argos_diana_xmean.o \
                argos_eminit.o \
                argos_em.o \
+               argos_em_fnorm.o\
                argos_fclass.o \
                argos_fd.o \
                argos_finish.o \

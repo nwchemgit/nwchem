@@ -110,7 +110,6 @@ c
      + npener,icntrl,nbias,mropt,includ,ltwin,
      + nseq,i_lseq,nfhop,rhop,thop,ndums,ipbtyp,lfnhop,iradgy,
      + 0,nprec)
-c     + nbget)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
      + call argos_cafe_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
