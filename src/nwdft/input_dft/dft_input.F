@@ -6,6 +6,7 @@ c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
 c
       implicit none
+c
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "geom.fh"
@@ -16,7 +17,6 @@ c
 #include "cdft.fh"
 #include "case.fh"
 c
-c     
 c     read input for DFT calculation.  All input is of the form:
 c     <keyword>  or   <keyword> <value>  or   <keyword> <value><units>
 c     
@@ -25,7 +25,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 34)
+      parameter (num_dirs = 35)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -44,13 +44,18 @@ c
       double precision shift
       integer nel_fon(2),nmo_fon(2),ispin
       logical steric
+      logical efield
+      double precision efield_x
+      double precision efield_y
+      double precision efield_z
 c
       data dirs /'convergence','decomp','dft','direct','semidirect',
      $           'ecp','grid','vectors','incore','iterations', 
      $           'max_ovl','mulliken','mult','noio','noprint','odft', 
      $           'print','tolerances', 'xc','sym','adapt','sic', 
      $           'smear','fon','lb94','cs00','cdft','cam','disp',
-     $           'dftmp2','molden','noscf','steric','end'/
+     $           'dftmp2','molden','noscf','steric','efield','end'/
+c
 c Qin / cdft
       integer nconstr
       integer dtype(max_constr), iatms1(max_constr), fatms1(max_constr)
@@ -85,7 +90,7 @@ c
       goto (100,  200,  300,  400,  450,  500,  600,  700,  800,
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
-     $     2700, 2800, 2900, 3000, 3100, 3200, 9999) ind
+     $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -388,10 +393,10 @@ c Qin/end
 c
       goto 10
 c
-c     Coulomb attenuation method for Exchange
+c     == Coulomb attenuation method for Exchange ==
 c
  2700 cam_exch = .true.
-      
+c      
 c     persist the information in the runtime database
       if (.not.rtdb_put(rtdb,'dft:cam_exch', mt_log, 1, cam_exch)) 
      &   call errquit('dft_input: rtdb_put failed', 2700, RTDB_ERR)
@@ -531,6 +536,26 @@ c
  3200 steric = .true.
       if (.not.rtdb_put(rtdb,'dft:steric', mt_log, 1, steric))
      &   call errquit('dft_input: rtdb_put failed', 3200, RTDB_ERR)
+c
+      goto 10
+c
+c     efield
+c
+ 3300 efield = .true.
+      if (.not.rtdb_put(rtdb,'dft:efield', mt_log, 1, efield))
+     &   call errquit('dft_input: rtdb_put failed', 3300, RTDB_ERR)
+      if (.not. inp_f(efield_x)) 
+     &   call errquit('dft_input: efield_x not found', 3300, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'dft:efield_x', mt_dbl, 1, efield_x))
+     &   call errquit('dft_input: rtdb_put failed', 3300, RTDB_ERR)
+      if (.not. inp_f(efield_y)) 
+     &   call errquit('dft_input: efield_y not found', 3300, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'dft:efield_y', mt_dbl, 1, efield_y))
+     &   call errquit('dft_input: rtdb_put failed', 3300, RTDB_ERR)
+      if (.not. inp_f(efield_z)) 
+     &   call errquit('dft_input: efield_z not found', 3300, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'dft:efield_z', mt_dbl, 1, efield_z))
+     &   call errquit('dft_input: rtdb_put failed', 3300, RTDB_ERR)
 c
       goto 10
 c
