@@ -384,9 +384,10 @@ c
 c     
 c     SCF energy convergence criterion. 
 c     
-      if (.not. ga_duplicate(g_fock, g_tmp, 'ga_tempoz'))
-     &     call errquit('dft_scf: error creating ga',0,GA_ERR)
-      g_focks(1)=g_fock
+      if (.not. ga_duplicate(g_fock, g_tmp, 'tmp matrix'))
+     &  call errquit('dft_scf:failed duplicate',g_fock, GA_ERR)
+      if (.not. ga_duplicate(g_fock, g_focks(1), ' alpha fock'))
+     &  call errquit('dft_scf:failed duplicate',g_fock, GA_ERR)
 c     
 c     Set up local convergence parameters
 c     
@@ -824,8 +825,8 @@ c  End of lcdft
 
  3000 continue
       if (ipol.gt.1)then
-         if(.not.ga_duplicate(g_fock, g_focks(2), ' beta fock'))
-     .       call errquit(' dftscf:failed duplicate ',g_fock, GA_ERR)
+       if(.not.ga_duplicate(g_fock, g_focks(2), ' beta fock'))
+     &    call errquit('dft_scf:failed duplicate',g_fock, GA_ERR)
       endif
 c
 c     ----- dft scf proper -----
@@ -842,6 +843,8 @@ c
       if(iterations.eq.0) then
          if (.not. ga_destroy(g_denso(1))) call errquit
      &        ('dft_scf: could not destroy g_denso', 0, GA_ERR)
+         if (.not. ga_destroy(g_focks(1))) call errquit
+     &        ('dft_scf: could not destroy g_focks1', 0, GA_ERR)
          if(ipol.eq.2) then
             if (.not. ga_destroy(g_focks(2))) call errquit
      &           ('dft_scf: could not destroy g_focks2', 0, GA_ERR)
@@ -885,7 +888,7 @@ c
 c     build DFT Fock matrix
 c
       call dft_fockbld(rtdb,natoms,ntotel,
-     ,     g_fock,g_dens,g_vxc,g_movecs,g_xcinv, 
+     ,     g_fock,g_focks,g_dens,g_vxc,g_movecs,g_xcinv, 
      ,     g_tmp,g_nq,g_wght,g_xyz,
      ,     iwhat_max,ivcoul_Opt,nexc,ivxc_opt,wght_GA,
      ,     n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd,IOLGC,
@@ -926,12 +929,11 @@ c     == is this the last energy evaluation ? ==
       if (last_time_energy) then
          etnew=etnew+tdots
 c     
-c        If open shell put the total density matrix back in 
-c        g_dens(1) and quit.
-c     
+c        If open shell put the total density matrix back in g_dens(1) and quit.
          if (ipol.eq.2)then
             call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
          endif
+c
 c Constrained DFT
          if(lcdft) then
 c    Get the final multipliers.
@@ -946,32 +948,17 @@ c Constrained dft
 
          goto 2000
       endif
-
-      if (ipol.gt.1) then
-        call ga_copy(g_fock, g_fockt)
-      endif
-
-      do ispin = 1, ipol
 c     
-c        Add V xc to Fock Matrix
-c     
-         if (ispin.eq.2) then
-          call ga_copy(g_fockt, g_focks(ispin))
-          call ga_dadd(one, g_vxc(ispin), one, g_focks(ispin), 
-     &           g_focks(ispin))
-
-         endif
-c     
-c        Symmetrize the Fock matrix
+c     == Symmetrize the Fock matrix ==
+      if (oskel) then
+       do ispin = 1, ipol
+        call sym_symmetrize(geom, AO_bas_han, .false., g_focks(ispin))
+        call ga_symmetrize(g_focks(ispin))
+       enddo
+      end if
 c
-         if (oskel)
-     &      call sym_symmetrize(geom, AO_bas_han, .false., 
-     .        g_focks(ispin))
-c
-         call ga_symmetrize(g_focks(ispin))
-      enddo
       call dft_convpam(oprint_conv_details,iter,etnew,etold,enuc)
-
+c
 c Constrained DFT
       if(lcdft) then
         do i = 1, nconstr
@@ -999,8 +986,7 @@ c Constrained DFT
         counter_cdft = 0
       endif
 c Constrained DFT
-
-
+c
       if (diising)then
 c     
 c     DIIS step taken here.
@@ -1433,6 +1419,8 @@ c
 c    
       if (.not. ga_destroy(g_denso(1))) call errquit
      &   ('dft_scf: could not destroy g_denso', 0, GA_ERR)
+      if (.not. ga_destroy(g_focks(1))) call errquit
+     &     ('dft_scf: could not destroy g_focks1', 0, GA_ERR)
       if(ipol.eq.2) then
           if (.not. ga_destroy(g_denso(2))) call errquit
      &     ('dft_scf: could not destroy g_denso', 0, GA_ERR)

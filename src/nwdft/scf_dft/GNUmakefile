@@ -36,7 +36,8 @@
         fukui.o \
 	dft_canorg.o \
 	dft_diagn.o \
-	dft_dump_info.o
+	dft_dump_info.o \
+	dft_fant.o
 
      LIBRARY = libnwdft.a
 

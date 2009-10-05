@@ -1,5 +1,5 @@
       subroutine dft_fockbld(rtdb,natoms,ntotel,
-     ,     g_fock,g_dens,g_vxc,g_movecs,g_xcinv,
+     ,     g_fock,g_focks,g_dens,g_vxc,g_movecs,g_xcinv,
      ,     g_tmp,g_nq,g_wght,g_xyz,
      ,     iwhat_max,ivcoul_Opt,nexc,ivxc_opt,wght_GA,
      ,     n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd,IOLGC,
@@ -26,6 +26,7 @@ c
 #include "case.fh"
 c
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
+      integer g_focks(2)
       integer g_xcinv
       integer g_tmp,g_nq,g_wght,g_xyz
       integer g_rho_exact,g_tmp_exact, g_addit_exact
@@ -209,8 +210,7 @@ c
      &      call errquit('dft_scf: cannot pop stack',0, MA_ERR)
       endif
 c     
-c     Compute the XC potential and energy.
-c     
+c     == Compute the XC potential and energy ==
       g_vxc(1) = g_tmp
       call ga_zero(g_vxc(1))
       rho_n = 0.0d0
@@ -225,17 +225,15 @@ czora...so_term = 0 (spin-free and the matrices are symmetric)
       do_zora_get_correction = .false.
       so_term = 0
 c
-c     Calculate the HF exchange (exact Coulomb), DFT exchange-correlation
+c     == Calculate the HF exchange (exact Coulomb), DFT exchange-correlation ==
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &             rdens_atom, cetobfr, natoms) 
 c
       if (odftps) call pstat_off(ps_xc)
 c
-czora...start
+c     == Add ZORA contributions ==
       if (do_zora) then
-
-czora...calculate the zora energy correction
         Ezora_sf =0.d0
         if (ipol.gt.1) then
           Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
@@ -243,25 +241,21 @@ czora...calculate the zora energy correction
         else
           Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
         end if
-
-czora...add zora energy correction to core
         Ecore = Ecore + Ezora_sf 
-
-czora...combine spin-free part with the exchange-correlation parts
+c
         call ga_dadd(1.d0,g_vxc(1),1.d0,g_zora_sf(1),g_vxc(1))
         if (ipol.gt.1) 
      &   call ga_dadd(1.d0,g_vxc(2),1.d0,g_zora_sf(2),g_vxc(2))
-
+c
       end if  ! do_zora
-czora...end
-
+c
+c     == Add exact pot contributions ==
       if (exact_pot.eq.1) then
         call xc_exact_pot(Ecoul_aux, g_dens, g_vxc, noc, g_rho_exact,
      &                    dif_lamda, g_tmp_exact, g_addit_exact)
       end if
 c
 c  Jorge Garza/Begin
-c       
       if (ipol.eq.2.and.noc(2).eq.0) call ga_zero(g_vxc(2))
       totsic=0.0d00
       if (test_sic.eq.2.or.test_sic.eq.4) then
@@ -276,69 +270,22 @@ c
           Exc(1) = Exc(1) + totsic
         end if
       end if
-c
 c  Jorge Garza/End
 c
-      call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
-
-      if (ipol.gt.1)then
-c     
-c     Put (-alpha+beta) in g_vxc(2)
-c     
-        call ga_dadd(-1.d0, g_vxc(1), 1.d0, g_vxc(2), g_vxc(2))
-
-      endif
+c     == Copy Fock matrix to individual components ==
+      call ga_copy(g_fock, g_focks(1))
+      if (ipol.gt.1) 
+     &     call ga_copy(g_fock, g_focks(2))
+c
+c     == Add exchange-correlation to the Fock matrix ==       
+      call ga_dadd(1.d0, g_vxc(1), 1.d0, g_focks(1), g_focks(1))
+      if (ipol.gt.1) 
+     &     call ga_dadd(1.d0, g_vxc(2), 1.d0, g_focks(2), g_focks(2))
 c     
       if (oprint_time)
      &     call dft_tstamp(' End of parallel region. ')
 c     
       if (odftps) call pstat_off(ps_fockb)
-      return
-      end
-
-
-      double precision function dft_fant(geom,natoms,a,d)
-C     Bonacic-Kouteck, V.; Cespiva, L.; Fantucci, P.; Pittner, J.; Kouteck, J. J. 
-C     Chem. Phys. 1994, 98, 490.
-C     Mitric, R.; Hartmann, M.; Stanca, B.; Bonacic-Koutecky, V.; Fantucci, P.;
-C     J. Phys. Chem. A.; (Article); 2001; 105(39); 8892-8905
-C     The core-core repulsion has been corrected according to
-C     (CC(rij) ) l/rij + D exp(-arij)). 
-C     Constants D and a obtained for 1e-RECP's from the fitting procedure
-C     described in Appendix A necessery for corection of core-core potential: 
-C     DAg-Ag ) 1619.887392, aAg-Ag ) 2.49630105, 
-C     DAu-Au ) 1911.131090, aAu-Au ) 2.46590129, 
-C     DAu-Ag ) 1765.509532, aAu-Ag ) 2.48110117. 
-      implicit none
-#include "errquit.fh"
-#include "geom.fh"
-#include "global.fh"
-#include "stdio.fh"
-      integer geom,natoms
-      double precision a,d
 c
-      integer i,j
-      double precision qi,qj
-      double precision xi(3),xj(3),rij
-      character*16 tag
-c     
-      dft_fant=0d0
-      do i=1,natoms
-         if (.not. geom_cent_get(geom, i, tag, 
-     &        xi, qi))call errquit
-     &        ('grid_acc_def: geom_cent_get failed', 0, GEOM_ERR)
-         do j=1,i-1
-            if (.not. geom_cent_get(geom, j, tag, 
-     &           xj, qj))call errquit
-     &           ('grid_acc_def: geom_cent_get failed', 0, GEOM_ERR)
-            rij=sqrt((xi(1)-xj(1))**2+(xi(2)-xj(2))**2+
-     +           (xi(3)-xj(3))**2)
-            dft_fant=dft_fant + d*exp(-a*rij)
-
-         enddo
-      enddo
-      if(ga_nodeid().eq.0)
-     W     write(luout,*) 
-     W     ' Bonacic-Koutecky Fantucci-Repulsive Term ',dft_fant
       return
       end

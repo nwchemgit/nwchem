@@ -57,14 +57,15 @@ c
       logical dft_scf_so 
       external dft_scf_so 
 c
-c     == Ehrenfest dynamics ==
-      logical lrt_tddft
-      logical rt_tddft_sodft
+c     == RT_TDDFT ==
+      logical lrt_tddft       ! real-time TDDFT dynamics flag
+      logical rt_tddft_dft    ! standard DFT
+      external rt_tddft_dft
+      logical rt_tddft_sodft  ! spin-orbit DFT
       external rt_tddft_sodft
       integer g_dipx  ! ga for dipole x
       integer g_dipy  ! ga for dipole y
       integer g_dipz  ! ga for dipole z
-c
       integer g_vel   ! velocity ga's
       integer g_ddotE ! ga for D.E
       integer alo(3),ahi(3)
@@ -105,11 +106,11 @@ c
 #endif
 #endif
 c
-c     == RT_TDDFT flag ==
+c     == Check real-time TDDFT flag ==
       lrt_tddft = .false.
       if (.not. rtdb_get(rtdb, 'dft:lrt_tddft', mt_log, 1, lrt_tddft))
      &   lrt_tddft = .false.
-c     
+c
 c     == Evaluate the nuclear repulsion energy ==
       LResult = geom_nuc_rep_energy(geom, Enuc)
       if (.not.LResult) 
@@ -123,7 +124,7 @@ c     == This uses the old NWdft data structures, rather than tthe rtdb ==
       iter = 0
       Etold = 0.D0
 c
-c     == Zora options ==
+c     == ZORA options ==
       do_zora_get_correction=.false.
       if (rtdb_get(rtdb,'zora:calc',mt_log,1,
      &    do_zora_get_correction)) 
@@ -203,7 +204,7 @@ c
 #endif
             if (info.ne.0)then
                if (me.eq.0)then
-                  write(LuOut,*)' Problem in performing a Choleski '
+                  write(LuOut,*)' Problem in performing a Cholesky '
                   write(LuOut,*)' decomposition of the 2-ctr overlap '
                   write(LuOut,*)' matrix using XC fitting basis. '
                   write(LuOut,*)' Attempting a diag/inverse. '
@@ -293,7 +294,7 @@ c         if (lmiss.eq.1) then
 #endif
             if (info.ne.0)then
                if (me.eq.0)then
-                  write(LuOut,*)' Problem in performing a Choleski '
+                  write(LuOut,*)' Problem in performing a Cholesky '
                   write(LuOut,*)' decomposition of the 2-ctr ERI '
                   write(LuOut,*)' matrix using CD fitting basis. '
                   write(LuOut,*)' Attempting a diag/inverse. '
@@ -451,7 +452,7 @@ c
 c     == Create the following GA's for RT_TDDFT
       if (lrt_tddft) then
 c
-c     Create and get the dipole matrix element ga: g_dipx,g_dipy,g_dipz
+c     == Create and get the dipole matrix element ga: g_dipx,g_dipy,g_dipz ==
       ! x
       if (.not. ga_create(MT_DBL, nbf, nbf, 'g_dipx',
      $   nbf, 0, g_dipx)) call errquit(pname//'g_dipx',0, GA_ERR)
@@ -465,10 +466,10 @@ c     Create and get the dipole matrix element ga: g_dipx,g_dipy,g_dipz
      $   nbf, 0, g_dipz)) call errquit(pname//'g_dipz',0, GA_ERR)
       call ga_zero(g_dipz)
 c
-      ! Get the dipole integrals for the 3 components
+c     == Get the dipole integrals for the 3 components ==
       call int_dip_ga(ao_bas_han, ao_bas_han, g_dipx, g_dipy, g_dipz)
 c
-c     Create and get the velocity integral element ga's
+c     == Velocity integral element ga's ==
       alo(1) = nbf
       alo(2) = -1
       alo(3) = -1
@@ -476,7 +477,7 @@ c     Create and get the velocity integral element ga's
       ahi(2) = nbf
       ahi(3) = 3
 c
-c     velocity integrals
+c     == Velocity integrals ==
       if (.not.nga_create(MT_DBL,3,ahi,'e-dipole',alo,g_vel)) call
      &  errquit(pname//'nga_create failed g_vel',0,GA_ERR)
       call ga_zero(g_vel)
@@ -484,22 +485,19 @@ c     velocity integrals
      &  origin,1,.false.)
       !call ga_print(g_vel)
 c
-      ! D.E 
+c     == D.E ==
       if (.not. ga_create(MT_DBL, nbf, nbf, 'g_ddotE',
      $   nbf, 0, g_ddotE)) call errquit(pname//'g_ddotE',0, GA_ERR)
       call ga_zero(g_ddotE)
-      end if  ! lrt_tddft   ! for Ehrenfest dynamics
+      end if  ! lrt_tddft   ! for real-time TDDFT dynamics
 c
-c     keeps hardwired right now ... better something smarter
-c
+c     == Keeps hardwired right now ... better something smarter ==
       lkeeps=.false.
 c
-c     Set orbital overlap tolerance
-c
+c     == Set orbital overlap tolerance ==
       call util_tolls(rtdb,.false.,toll_s,n_dep,dbl_mb(isvals),nbf_ao)
 cc     
-c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
-c     
+c     == Begin iteration sequence with S**(-1/2) in g_evecs arrays ==
       if (.not. ga_duplicate(g_s, g_tmp, 'temp'))
      &     call errquit(pname//'Error creating ga',0,GA_ERR)
          call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_evecs(1), 
@@ -526,18 +524,21 @@ c
 c     == Call the main drivers ==
       if (theory .eq. 'dft') then
          if (.not.lrt_tddft) then
-          dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
-     &        iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
+          dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, 
+     &        iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
      &        g_svecs, dbl_mb(isvals), g_xcinv, g_s,
      &        lcdft, nconstr)
          else
-          dft_main0d = .false. ! for now
+          dft_main0d = rt_tddft_dft(rtdb, Etold, Enuc, iVcoul_opt, 
+     &        iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
+     &        g_svecs, dbl_mb(isvals), g_xcinv, g_s,
+     &        lcdft, nconstr)
          end if   ! lrt_tddft
       else if (theory .eq. 'sodft') then
          if (.not.lrt_tddft) then
           dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
      &       iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock, 
-     &       g_svecs, dbl_mb(isvals), g_xcinv,g_s)
+     &       g_svecs, dbl_mb(isvals), g_xcinv, g_s)
          else
           dft_main0d = rt_tddft_sodft(rtdb, Etold, Enuc, iVcoul_opt, 
      &     iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock, 
