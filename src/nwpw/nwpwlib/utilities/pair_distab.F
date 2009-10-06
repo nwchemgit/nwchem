@@ -239,13 +239,15 @@ c     *** parameters ***
 
            sum1 = sum1 + grs
            sum2 = sum2 + gr
-           write(19,*) 0.529177d0*r,grs/NIDEAL,sum1,gr/NIDEAL,sum2
-           write(21,*) 0.529177d0*r,grs,gr
+           write(19,1200) 0.529177d0*r,grs/NIDEAL,sum1,gr/NIDEAL,sum2
+           write(21,1201) 0.529177d0*r,grs,gr
         end do
         close(unit=19)
         close(unit=21)
       end do
       end do
+ 1200 FORMAT(5E14.5)
+ 1201 FORMAT(3E14.5)
 
       value =           MA_pop_stack(symb(2))
       value = value.and.MA_pop_stack(rz(2))
