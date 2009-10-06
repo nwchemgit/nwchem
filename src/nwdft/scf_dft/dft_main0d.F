@@ -59,8 +59,8 @@ c
 c
 c     == RT_TDDFT ==
       logical lrt_tddft       ! real-time TDDFT dynamics flag
-      logical rt_tddft_dft    ! standard DFT
-      external rt_tddft_dft
+      !logical rt_tddft_dft    ! standard DFT
+      !external rt_tddft_dft
       logical rt_tddft_sodft  ! spin-orbit DFT
       external rt_tddft_sodft
       integer g_dipx  ! ga for dipole x
@@ -514,37 +514,49 @@ c
      &     call errquit(pname//'nconstr not found', 0, RTDB_ERR)
       endif
 c
-      if (oprint_time)
-     &     call dft_tstamp(' Before call to DFT_SCF. ')
+      if (oprint_time) call dft_tstamp(' Before call to DFT_SCF. ')
 c 
       if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
       if (odftps) call pstat_on(ps_scfdft)
 c
+c     == Block CDFT calculations with RT_TDDFT ==
+      if (lcdft .and. lrt_tddft) then
+       write(luout,*) "Real-time TDDFT is not available with"
+       write(luout,*) "constrained DFT"
+       call errquit('Please comment/remove these keywords',4, INPUT_ERR)
+      end if
+c
 c     == Call the main drivers ==
       if (theory .eq. 'dft') then
-         if (.not.lrt_tddft) then
-          dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, 
+       if (.not.lrt_tddft) then
+        ! Standard DFT
+        dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, 
      &        iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
      &        g_svecs, dbl_mb(isvals), g_xcinv, g_s,
      &        lcdft, nconstr)
-         else
-          dft_main0d = rt_tddft_dft(rtdb, Etold, Enuc, iVcoul_opt, 
-     &        iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
-     &        g_svecs, dbl_mb(isvals), g_xcinv, g_s,
-     &        lcdft, nconstr)
-         end if   ! lrt_tddft
+       else
+        ! Standard DFT + real-time dynamics
+        !dft_main0d = rt_tddft_dft(rtdb, Etold, Enuc, iVcoul_opt, 
+     &  !      iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
+     &  !      g_svecs, dbl_mb(isvals), g_xcinv, g_s, 
+     &  !      g_dipx, g_dipy, g_dipz, g_ddotE, g_vel,
+     &  !      lcdft, nconstr)
+        dft_main0d = .false.
+       end if   ! lrt_tddft
       else if (theory .eq. 'sodft') then
-         if (.not.lrt_tddft) then
-          dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
+       if (.not.lrt_tddft) then
+        ! Spin-Orbit DFT
+        dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
      &       iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock, 
      &       g_svecs, dbl_mb(isvals), g_xcinv, g_s)
-         else
-          dft_main0d = rt_tddft_sodft(rtdb, Etold, Enuc, iVcoul_opt, 
+       else
+        ! Spin-Orbit DFT + real-time dynamics
+        dft_main0d = rt_tddft_sodft(rtdb, Etold, Enuc, iVcoul_opt, 
      &     iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock, 
      &     g_svecs, dbl_mb(isvals), g_xcinv, g_s, 
      &     g_dipx, g_dipy, g_dipz, g_ddotE, g_vel)
-         end if  ! lrt_tddft
+       end if  ! lrt_tddft
       endif 
       if (odftps) call pstat_off(ps_scfdft)
 c     
