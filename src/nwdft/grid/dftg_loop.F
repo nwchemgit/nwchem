@@ -76,8 +76,46 @@ c
      &        lbas_cset_info, ibas_cset_info,
      &        ldocset, idocset
       integer ncontrset,n
+c Qin
+      integer rtdb
+      logical lcdft, ldbw
+      integer ipop, nconstr, i
+      integer iatms1(max_constr), iatms2(max_constr)
+      integer fatms1(max_constr), fatms2(max_constr)
+      integer dtype(max_constr)
+      double precision multipliers(max_constr), fact(max_constr)  ! pass to dftg_gridv0b
 c
       save nq_left
+c
+c Qin
+      ldbw = .false.
+      lcdft=.false.
+#if 0
+      if (.not. rtdb_get(rtdb, 'dft:lcdft', mt_log, 1, lcdft))
+     &     lcdft = .false.
+      if(lcdft) then
+        if (.not. rtdb_get(rtdb, 'dft:ipop', mt_int, 1, ipop))
+     &     ipop = 3
+        if(ipop.eq.1) then
+         ldbw = .true.
+         if (.not. rtdb_get(rtdb, 'dft:nconstr', mt_int, 1, nconstr))
+     &     call errquit('dft_gridv0a: get nconstr failed', 0, RTDB_ERR)
+        if (.not. (
+     $            rtdb_get(rtdb,'dft:iatms1', mt_int, nconstr,iatms1(1))
+     $      .and. rtdb_get(rtdb,'dft:iatms2', mt_int, nconstr,iatms2(1))
+     $      .and. rtdb_get(rtdb,'dft:fatms1', mt_int, nconstr,fatms1(1))
+     $      .and. rtdb_get(rtdb,'dft:fatms2', mt_int, nconstr,fatms2(1))
+     $      ))
+     &   call errquit('dft_gridv0a: atms failed', 2700, RTDB_ERR)
+        if (.not.rtdb_get(rtdb, 'dft:multipliers', mt_dbl, nconstr,
+     $       multipliers(1)))
+     &    call errquit('dft_gridv0a: get multipliers failed', 0)
+        if (.not. rtdb_get(rtdb,'dft:dtype', mt_int, nconstr, dtype(1)))
+     &   call errquit('dft_gridv0a: get dtype failed', 3000, RTDB_ERR)
+        endif
+      endif
+#endif
+c Qin / end
 c
       npts_per_ang=nqmax
       ictr = qsh(2,iqsh)
@@ -139,7 +177,9 @@ c
      &     do_hess, do_cpks_r, natoms, oactive,
      &     nactive, rdens_atom, 
      &     cetobfr,
-     &     tau, ttau, kske, Mmat, Mmat2)
+     &     tau, ttau, kske, Mmat, Mmat2,
+     &     ldbw, fact, dtype, nconstr)  ! Qin
+
 c         
          if (.not.MA_Pop_Stack(lbas_cset_info))
      &        call errquit('dftg_gridv0a: pop stack failed.',2, MA_ERR)
