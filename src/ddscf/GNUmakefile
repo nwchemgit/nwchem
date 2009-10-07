@@ -46,7 +46,7 @@
         movecs_frag.o  localize.o int_dip_ga.o \
         fock_xc.o fock_j_fit.o rohf_jkfac.o uhf_jkfac.o \
         rohf_hessv3.o \
-	fock_2e_cam.o
+	fock_2e_cam.o ga_get2eri.o
 
 
  OBJ_OPTIMIZE = \
@@ -67,7 +67,7 @@
     USES_BLAS = ao_fock_2e.F ao_replicated.F fock_2e_file.F fock_2e_slab.F int2e_file.F \
                 movecs_lock.F movecs_phase.F riscf_fock.F riscf_trans.F rohf_diis.F \
                 rohf_k2cf.F scf_movecs.F scf_vec_guess.F uhf.F movecs_frag.F localize.F fock_2e.F \
-		fock_2e_cam.F int_1e_ga.F movecs_rotate.F vectors.F
+		fock_2e_cam.F int_1e_ga.F movecs_rotate.F vectors.F ga_get2eri.F
 
 HEADERS = schwarz.fh cscfps.fh cfock.fh cscf.fh cint2efile.fh cint2esave.fh cfockmul.fh crohf.fh cosmo.fh cuhf.fh
 

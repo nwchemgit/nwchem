@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.39 2005-04-08 06:29:10 marat Exp $
+C$Id: int_1e_ga.F,v 1.39 2005/04/08 06:29:10 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "cint1cache.fh"
@@ -107,7 +107,7 @@ c
 c
       end
 c
-      subroutine int_1e_oldga(ibas, jbas, g, integ_type, oskel)
+      subroutine int_1e_ooldga(ibas, jbas, g, integ_type, oskel)
       implicit none
 #include "errquit.fh"
 #include "cint1cache.fh"
@@ -416,4 +416,184 @@ c
      &       BASIS_ERR)
       bas1 = -1
       ocache = .false.
+      end
+      subroutine int_1e_oldga(ibas, jbas, g, integ_type, oskel)
+      implicit none
+#include "inp.fh"
+#include "errquit.fh"
+#include "global.fh"
+      integer ibas, jbas        ! [input] bra and ket basis sets
+      integer g(3)              ! [output] GA handle to array. g(1..3) are used only
+                                ! for spin-orbit calculations. All other calculations use
+                                ! g(1) only 
+      character*(*) integ_type  ! [input] Name of integrals to compute
+      logical oskel             ! [input] If true generate symmetry unique list
+c
+      external int_1eke,int_1epe,int_1eov,int_1epvpe,
+     I     int_1epot,int_1epot1
+      integer type
+c
+
+      if(ibas.ne.jbas) then
+         call int_1e_ooldga(ibas, jbas, g,integ_type,oskel)
+         return
+      endif
+      if (inp_compare(.false., integ_type, 'so'))then 
+cso
+          call int_1e_ooldga(ibas, jbas, g,integ_type,oskel)
+          return
+       endif
+      if (inp_compare(.false., integ_type, 'kinetic')) then
+         type = 1
+         call int_1e_oldga0(ibas, g, type,oskel,int_1eke)
+      else if (inp_compare(.false., integ_type, 'potential')) then
+         type = 2
+         call int_1e_oldga0(ibas, g, type,oskel,int_1epe)
+      else if (inp_compare(.false., integ_type, 'overlap')) then
+         type = 3
+         call int_1e_oldga0(ibas, g, type,oskel,int_1eov)
+      else if (inp_compare(.false., integ_type, 'pvp')) then
+         type = 4
+         call int_1e_oldga0(ibas, g, type,oskel,int_1epvpe)
+      else if (inp_compare(.false., integ_type, 'cos_chg_pot'))then 
+         type = 6 
+         call int_1e_oldga0(ibas, g, type,oskel,int_1epot)
+      else if (inp_compare(.false., integ_type, 'bq_pot'))then 
+         type = 7 
+         call int_1e_oldga0(ibas, g, type,oskel,int_1epot1)
+      else
+         write(6,*) ' integ_type = ', integ_type,ga_nodeid()
+         call errquit('int_1e_ga: unknown integ_type', 0, INT_ERR)
+      end if
+
+      return
+      end
+      subroutine int_1e_oldga0(ibas, g, type, oskel,
+     I     int_call)
+      implicit none
+#include "errquit.fh"
+#include "cint1cache.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "inp.fh"
+#include "apiP.fh"
+#include "bas.fh"
+#include "cscfps.fh"
+#include "sym.fh"
+#include "geom.fh"
+c     
+c     This is the original routine of int_1e_ga. It is still needed by the 
+c     Douglas-Kroll routines to avoid recursive routine calling.
+c
+c     Compute the desired type of integrals (kinetic, potential, overlap)
+c     and ADD them into the given global array.
+c     
+c     Oskel indicates that the skeleton (petite-list symmetry) matrix should be
+c     built ... requires that ibas = jbas.
+c     
+c     arguments
+c     
+      integer ibas              ! [input] bra and ket basis sets
+      integer g(3)              ! [output] GA handle to array. g(1..3) are used only
+                                ! for spin-orbit calculations. All other calculations use
+                                ! g(1) only 
+      integer type              ! [input] Name of integrals to compute
+      logical oskel             ! [input] If true generate symmetry unique list
+      external intcall
+c     
+c     local variables
+c     
+      integer nshell_i, nshell_j
+      integer ishell, jshell, iproc, nproc, mem1, max1e
+      integer ijshell, ilo, ihi, jlo, jhi, idim
+      integer l_buf, l_scr
+      integer k_buf, k_scr
+      logical odoit
+      double precision q2
+      external block_int1e      ! For T3D
+      integer i, g_loc
+      integer geom
+c
+      logical ocache_save
+c
+      logical odbug
+      logical osome
+      external int_call
+c
+      odbug=.false.
+      osome=.false.
+      osome=osome.or.odbug
+      odbug=odbug.and.(ga_nodeid().eq.0)
+      osome=osome.and.(ga_nodeid().eq.0)
+      if(osome) then
+         write(6,*) 'in -int_1e_oldga- ... integ_type = ',
+     $              type,ga_nodeid()
+         call util_flush(6)
+      endif
+c
+      call ga_sync()
+c
+      if (oscfps) call pstat_on(ps_int_1e)
+c     
+c     
+c
+c     ----- save ocache logical variable -----
+c
+      if(type.eq.6 .or. type.eq.7 ) then
+         ocache_save=ocache
+         ocache     =.false.
+      endif
+c
+c     In-core caching
+c
+c      ocache = .false.
+      if(osome) then
+         write(6,*) 'ocache = ',ocache,ga_nodeid()
+         call util_flush(6)
+      endif
+      if (ocache .and. (ibas.eq.bas1)) then
+         call ga_dadd(1.0d0, g_cache(type), 1.0d0, g, g)
+         if (oscfps) call pstat_off(ps_int_1e)
+	 return
+      endif
+c     
+c     Get info about the basis sets
+c     
+      if (.not. bas_numcont(ibas, nshell_i)) call errquit
+     $     ('rhf_fock_1e: bas_numcont failed for ibas', ibas,
+     &       BASIS_ERR)
+      nshell_j=nshell_i
+c     
+c     allocate necessary local temporary arrays on the stack
+c     
+c     l_buf ... buffer to hold shell block of matrix
+c     l_s   ... buffer to hold shell block of matrix
+c     l_scr ... workspace for integral routines
+c     
+c     k_* are the offsets corrsponding to the l_* handles
+c     
+cso
+c     
+c     Loop thru shells with static parallel work decomposition
+c     
+      if(.not.ga_duplicate(g,g_loc,'local g')) call
+     .     errquit('int1e: dupl failed',0, GA_ERR)
+      call ga_zero(g_loc)
+      iproc = ga_nodeid()
+      nproc = ga_nnodes()
+      if (.not. bas_geom(ibas, geom)) call errquit
+     $   ('int_1e_cache_ga: basis corrupt?', 0, BASIS_ERR)
+      call ga_get2eri(ibas, g_loc,oskel,int_call)
+      if (oskel)call 
+     .     sym_symmetrize(geom,ibas,.false.,g_loc)
+c     
+      call ga_dadd(1.0d0, g_loc, 1.0d0, g, g)
+      call ga_sync()            ! So that no nasty races can result
+      if (.not. ga_destroy(g_loc)) call errquit('i1ega: gad?',0,
+     &     GA_ERR)
+      call ga_sync()            ! So that no nasty races can result
+c     
+      if (oscfps) call pstat_off(ps_int_1e)
+c     
       end
