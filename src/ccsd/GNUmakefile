@@ -79,7 +79,7 @@ endif
      ccden_2pdmb.F \
      moints_trp.F
 
- LIB_DEFINES = 
+ #LIB_DEFINES = 
  #LIB_DEFINES = -DDEBUG_PRINT
 
  LIBRARY = libccsd.a
