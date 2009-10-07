@@ -131,7 +131,7 @@ c
      + dx0cg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,prsext,prsrlx,
      + compr,tmpext,tmprlx,tmsrlx,tgauss,dielec,field,factld,sil,
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0(6),shift1(6),
-     + pmetol,drsscl,disrlx,frgaus,delta,dxmcg,rbox,ealpha,
+     + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
      + xfvect(3),xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg,
      + fcoll,tmpext1,tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop,thop
       integer nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
@@ -147,7 +147,7 @@ c
      + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,iprop,
      + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,nftri,
      + iwarn,irlow,idebug,icntrl,iumbr,igmass,lowmcr,noone,nwarn,nform,
-     + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iquant,nfesp,
+     + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,nfesp,
      + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
      + ngx,ngy,ngz,ipme,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
@@ -163,7 +163,7 @@ c
      + dxsdmx,dx0cg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,prsext,prsrlx,
      + compr,tmpext,tmprlx,tmsrlx,tgauss,dielec,field,factld,sil,
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0,shift1,
-     + pmetol,drsscl,disrlx,frgaus,delta,dxmcg,rbox,ealpha,
+     + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
      + xfvect,xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg,
      + fcoll,tmpext1,tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop,thop,
      + nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
@@ -179,7 +179,7 @@ c
      + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,iprop,
      + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,nftri,
      + iwarn,irlow,idebug,icntrl,iumbr,igmass,lowmcr,noone,nwarn,nform,
-     + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iquant,nfesp,
+     + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,nfesp,
      + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
      + ngx,ngy,ngz,ipme,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
@@ -191,10 +191,10 @@ c
      + ipbtyp,nfnewf,ibatch,icmopt,imembr,icrit,nbget,nprec,nfload,
      + inp_ptr
 c
-      logical lfirst,llong,ltwin,lpbc,lpair,lserver,
+      logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
      + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp,
      + lprpmf,lpme,lhop,lstop,lload
-      common/argos_log/lfirst,llong,ltwin,lpbc,lpair,lserver,
+      common/argos_log/lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
      + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp,
      + lprpmf,lpme,lhop,lstop,lload
 c
@@ -206,12 +206,12 @@ c
       real*8 temps,tempw,temp,pres,volume,epme(3),eww(mpe,2),eskin,
      + zw(3,3,2),fmax,fnorm,dwr,costio,corrio,
      + epot,epotw,epotsw,epots,ekin,etot,tleft,tneed,
-     + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd,wbox
+     + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd,wbox,uqmd,uqmmm
       integer npolit
       common/argos_pro/temps,tempw,temp,pres,volume,epme,eww,eskin,
      + zw,fmax,fnorm,dwr,costio,corrio,
      + epot,epotw,epotsw,epots,ekin,etot,tleft,tneed,
-     + vlat,vlati,box,rlambd,dlambd,wbox,
+     + vlat,vlati,box,rlambd,dlambd,wbox,uqmd,uqmmm,
      + npolit
 c
       integer i_esk,l_esk,i_ess,l_ess,i_esw,l_esw,i_rtos,l_rtos,
