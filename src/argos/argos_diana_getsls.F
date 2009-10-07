@@ -18,7 +18,8 @@ c
       lsels=.true.
       endif
       call argos_diana_select(card,byte_mb(i_snam),int_mb(i_ssel),
-     + dbl_mb(i_swt),dbl_mb(i_xref),nsel)
+     + dbl_mb(i_swt),
+     + dbl_mb(i_xref),nsel)
       if(me.eq.0) then
       write(*,3533) nsel,nsa
  3533 format(' Selected',i5,' out of',i5,' atoms for superposition')

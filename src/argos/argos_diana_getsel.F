@@ -20,7 +20,8 @@ c
       lsel=.true.
       endif
       call argos_diana_select(byte_mb(i_snam),int_mb(i_isel),
-     + dbl_mb(i_wt),dbl_mb(i_xref),nsel)
+     + dbl_mb(i_wt),
+     + dbl_mb(i_xref),nsel)
       if(me.eq.0) then
       write(*,3003) nsel,nsa
  3003 format(' Selected',i5,' out of',i5,' atoms')

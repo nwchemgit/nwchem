@@ -51,11 +51,9 @@ c
      + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call argos_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
-      call argos_em_fnorm(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call argos_prop_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
@@ -192,11 +190,9 @@ c
      + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call argos_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
-      call argos_em_fnorm(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call argos_prop_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
@@ -229,11 +225,9 @@ c       --------------------------------------------------
      + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call argos_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
-      call argos_em_fnorm(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call argos_prop_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
@@ -251,7 +245,8 @@ c
 c
       if(lxw.or.lxs) then
       call argos_space_wrttrj(lfntrj,lxw,.false.,.false.,lxs,.false.,
-     + .false.,stime,pres,temp,tempw,temps,
+     + .false.,
+     + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
      + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_fs))

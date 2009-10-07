@@ -139,8 +139,7 @@ c
 c
 c     center of mass coordinates
 c
-      call argos_cafe_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),
-     + nsaloc,
+      call argos_cafe_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c

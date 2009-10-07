@@ -69,5 +69,35 @@ c
       endif
     4 continue
 c
+      if(iqmmm.ne.0) then
+      do 5 isa=1,nsatot
+      itemp(isa)=0
+    5 continue
+      do 6 jsa=jsafr,jsato
+      itemp(iga(jsa))=jsa
+    6 continue
+      do 7 isa=isafr,isato
+      itemp(iga(isa))=isa
+    7 continue
+      do 8 isdloc=1,ndihes
+      isd=ldihes(isdloc)
+      idloc=itemp(idd(isd,1))
+      jdloc=itemp(idd(isd,2))
+      kdloc=itemp(idd(isd,3))
+      ldloc=itemp(idd(isd,4))
+      iq=iand(idt(idloc),lquant)
+      jq=iand(idt(jdloc),lquant)
+      kq=iand(idt(kdloc),lquant)
+      lq=iand(idt(ldloc),lquant)
+      if(iq.eq.lquant.or.jq.eq.lquant.or.
+     + kq.eq.lquant.or.lq.eq.lquant) then
+      if(iq.ne.lquant) istemp(idloc)=1
+      if(jq.ne.lquant) istemp(jdloc)=1
+      if(kq.ne.lquant) istemp(kdloc)=1
+      if(lq.ne.lquant) istemp(ldloc)=1
+      endif
+    8 continue
+      endif
+c
       return
       end

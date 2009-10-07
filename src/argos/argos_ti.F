@@ -7,10 +7,11 @@ c
 #include "global.fh"
 #include "msgids.fh"
 c
-      logical frequency,argos_prop_mcti_step,argos_prop_rdmri,sp_rdmri
+      logical frequency,argos_prop_mcti_step,argos_prop_rdmri
+      logical argos_space_rdmri
       integer argos_prop_dfr
-      external frequency,argos_prop_mcti_step,argos_prop_rdmri,
-     + argos_space_rdmri,argos_prop_dfr
+      external frequency,argos_prop_mcti_step,argos_prop_rdmri
+      external argos_space_rdmri,argos_prop_dfr
 c
       logical done
       integer npp,i,irunp,jequi,jdacq,ndec,ndum
@@ -46,7 +47,7 @@ c
       read(lfnmro,end=12,err=12) irunp,kequi,kdacq
       endif
       if(.not.argos_prop_rdmri(lfnmro,ndec,mropt)) goto 12
-      if(.not.sp_rdmri(lfnmro,stime,pres,temp,tempw,temps,
+      if(.not.argos_space_rdmri(lfnmro,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))) goto 12
       krun=irun
@@ -70,14 +71,14 @@ c
       endif
       if(.not.argos_prop_rdmri(lfnmri,ndec,mropt))
      + call md_abort('Error in mri file',0)
-      if(.not.sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
+      if(.not.argos_space_rdmri(lfnmri,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs)))
      + call md_abort('Error in mri file',0)
       read(lfnmro) irunp,kequi,kdacq
       if(.not.argos_prop_rdmri(lfnmro,ndec,mropt))
      + call md_abort('Error in mro file',0)
-      if(.not.sp_rdmri(lfnmro,stime,pres,temp,tempw,temps,
+      if(.not.argos_space_rdmri(lfnmro,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs)))
      + call md_abort('Error in mro file',0)
@@ -113,7 +114,7 @@ c
      + irun,'.trj '
       open(unit=lfntrj,file=filrun(1:index(filrun,' ')-1),
      + form='formatted',status='unknown')
-      callargos_cafe_trjhdr(lfntrj)
+      call argos_cafe_trjhdr(lfntrj)
       endif
       if(nfprop.gt.0) then
       write(filrun,'(a,a,i5.5,a)') filprp(1:index(filprp,'.prp')-1),'-',
@@ -136,7 +137,7 @@ c
 c
 c     initialize parameters
 c
-      callargos_cafe_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
+      call argos_cafe_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
      + rlambd,dlambd,filnam)
 c
 c     property initialization
@@ -177,7 +178,7 @@ c
       if(kequi.eq.0.and.kdacq.eq.0) then
       if(irun.eq.1) call md_abort('No records found on mri',me)
       else
-      if(.not.sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
+      if(.not.argos_space_rdmri(lfnmri,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs)))
      + call md_abort('Error reading mri in argos_space_rdmri',0)
@@ -220,7 +221,7 @@ c
       if(kdacq.eq.0) stime=zero
 c
       ndec=0
-      if(npgdec.gt.1) callargos_cafe_dera_init()
+      if(npgdec.gt.1) call argos_cafe_dera_init()
 c
       lequi=.false.
       jdacq=kdacq
@@ -245,17 +246,17 @@ c
 c
       if(npgdec.gt.1) ndec=ndec+1
 c
-      callargos_cafe_mcti_kin(int_mb(i_is+(lsatt-1)*msa),
+      call argos_cafe_mcti_kin(int_mb(i_is+(lsatt-1)*msa),
      + int_mb(i_is+(lsgan-1)*msa),dbl_mb(i_vs),nsaloc)
 c
       done=argos_prop_mcti_step(idacq,ldacq)
 c
       call argos_prop_proper(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsmp))
       call argos_prop_step(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme)
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
       if(lfw.or.lfs) then
       call argos_space_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),
@@ -291,7 +292,7 @@ c
 c
       call argos_prop_mcti_run(rlambd,dlambd,ndec)
 c
-      if(ndec.gt.2) callargos_cafe_print_dera(lfnout,ndec)
+      if(ndec.gt.2) call argos_cafe_print_dera(lfnout,ndec)
 c
       if(me.eq.0) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then

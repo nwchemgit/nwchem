@@ -14,6 +14,7 @@ c
       integer ibbl,nfetched
 c
       n=nbbl
+      if(lqmd) n=0
 c
       nfetched=0
       if(ibget.lt.0) nbget=nbbl+1

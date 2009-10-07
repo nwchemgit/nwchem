@@ -18,7 +18,8 @@ c
       lselo=.true.
       endif
       call argos_diana_select(card,byte_mb(i_snam),int_mb(i_osel),
-     + dbl_mb(i_owt),dbl_mb(i_xref),nselo)
+     + dbl_mb(i_owt),
+     + dbl_mb(i_xref),nselo)
       if(me.eq.0) then
       write(*,3633) nselo,nsa
  3633 format(' Selected',i5,' out of',i5,' atoms for output')

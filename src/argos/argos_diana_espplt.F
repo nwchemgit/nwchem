@@ -23,8 +23,8 @@ c
       filplt=string(i+1:80)
       filepz=filplt(1:index(filplt,'.'))//'epz '
 c
-      if(filchg(1:1).ne.' ')
-     + call argos_diana_pltgrd(.true.,int_mb(i_isel))
+      if(filchg(1:1).ne.' ') call argos_diana_pltgrd(.true.,
+     + int_mb(i_isel))
 c
       return
       end

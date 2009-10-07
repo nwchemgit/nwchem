@@ -462,9 +462,11 @@ c     define groups of solute atoms
 c     -----------------------------
 c
       if(inp_compare(.false.,'define',item)) then
-      if(.not.inp_i(isel)) call md_abort('argos_diana_input: define',0)
+      if(.not.inp_i(isel))
+     + call md_abort('argos_diana_input: define',0)
       if(.not.inp_f(rsel)) rsel=0.0d0
-      if(.not.inp_a(atom)) call md_abort('argos_diana_input: define',0)
+      if(.not.inp_a(atom))
+     + call md_abort('argos_diana_input: define',0)
       if(atom(1:7).eq.'solvent') then
       if(.not.inp_f(rsel)) rsel=0.0d0
       if(.not.inp_a(atom)) atom=' '

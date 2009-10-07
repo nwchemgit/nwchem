@@ -194,6 +194,19 @@ c
      + list(jsa,1)=1
    22 continue
       endif
+      if(iqmmm.ne.0) then
+      if(iand(idt(isa),lquant).eq.0) then
+      do 24 jsa=jsafr,jsato
+      if(iand(idt(jsa),lquant).ne.0.and.rw(jsa).lt.rqmmm2)
+     + isz(isa)=1
+   24 continue
+      else
+      do 25 jsa=jsafr,jsato
+      if(iand(idt(jsa),lquant).eq.0.and.rw(jsa).lt.rqmmm2)
+     + isz(jsa)=1
+   25 continue
+      endif
+      endif
 cx      if(nhop.gt.0) then
 c      if(ish(isa).gt.0.and.iand(ish(isa),1).ne.0) then
 c      do 326 jsa=jsafr,jsato
@@ -376,6 +389,41 @@ c
       if(igr(jsa).eq.igr(jsa+1).and.list(jsa+1,1).eq.1)
      + list(jsa,1)=1
    37 continue
+c
+      if(iqmmm.ne.0) then
+      do 38 jsa=isafr+1,isato
+      if(igr(jsa).eq.igr(jsa-1)) then
+      if(iand(idt(jsa),lquant).ne.lquant.and.isz(jsa-1).ne.0)
+     + isz(jsa)=1
+      if(isz(jsa).ne.0.and.iand(idt(jsa-1),lquant).ne.lquant)
+     + isz(jsa-1)=1
+      endif
+   38 continue
+      do 39 jsa=isato-1,isafr,-1
+      if(igr(jsa).eq.igr(jsa+1)) then
+      if(iand(idt(jsa),lquant).ne.lquant.and.isz(jsa+1).ne.0)
+     + isz(jsa)=1
+      if(isz(jsa).ne.0.and.iand(idt(jsa+1),lquant).ne.lquant)
+     + isz(jsa+1)=1
+      endif
+   39 continue
+      do 40 jsa=jsafr+1,jsato
+      if(igr(jsa).eq.igr(jsa-1)) then
+      if(iand(idt(jsa),lquant).ne.lquant.and.isz(jsa-1).ne.0)
+     + isz(jsa)=1
+      if(isz(jsa).ne.0.and.iand(idt(jsa-1),lquant).ne.lquant)
+     + isz(jsa-1)=1
+      endif
+   40 continue
+      do 41 jsa=jsato-1,jsafr,-1
+      if(igr(jsa).eq.igr(jsa+1)) then
+      if(iand(idt(jsa),lquant).ne.lquant.and.isz(jsa+1).ne.0)
+     + isz(jsa)=1
+      if(isz(jsa).ne.0.and.iand(idt(jsa+1),lquant).ne.lquant)
+     + isz(jsa+1)=1
+      endif
+   41 continue
+      endif
 c
       if(npss.eq.2) then
 c

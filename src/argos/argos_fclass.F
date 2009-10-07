@@ -39,7 +39,8 @@ c
       endif
       else
       call argos_space_prefetch_p(nbbl,iwl,xw,dbl_mb(i_pw),
-     + dbl_mb(i_pwp),isl,xs,dbl_mb(i_ps),dbl_mb(i_psp))
+     + dbl_mb(i_pwp),
+     + isl,xs,dbl_mb(i_ps),dbl_mb(i_psp))
       endif
       call timer_stop(33)
       endif
@@ -137,8 +138,8 @@ c
       endif
 c
       if(.not.ldone) then
-      if(argos_cafe_hopping(lpbc,lpbcs,stime,isl,isl(1,lssgm),
-     + isl(1,lsgan),
+      if(argos_cafe_hopping(lpbc,lpbcs,stime,isl,isl(1,lssgm),isl(1,
+     + lsgan),
      + isl(1,lsct3),isl(1,lshop),xs,nsaloc,lfnhop)) then
       if(lpair) then
       lpair=.false.

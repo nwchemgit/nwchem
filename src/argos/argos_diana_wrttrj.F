@@ -37,7 +37,8 @@ c
       ifil=ifil+1
       write(filcop,'(a,i5.5,a,a)') fname(1:ipd-1),ifil,'.',fmt
       call argos_diana_wthdr(fmt,byte_mb(i_snam),byte_mb(i_tag),
-     + int_mb(i_isel),logw)
+     + int_mb(i_isel),
+     + logw)
       endif
       ibatch=ibatch+1
 c

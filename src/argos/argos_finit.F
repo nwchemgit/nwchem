@@ -62,8 +62,8 @@ c
      + isl(1,lsct1),nwmloc,dbl_mb(i_fw))
       call timer_stop(13)
       endif
-      call argos_cafe_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),
-     + isl(1,lsgan),
+      call argos_cafe_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,
+     + lsgan),
      + isl(1,lsatt),isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),
      + dbl_mb(i_ess),dbl_mb(i_fss),lfnpmf,lprpmf,iprpmf,
      + npmf.eq.1.or.lpmfc)

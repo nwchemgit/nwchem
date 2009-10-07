@@ -5,19 +5,19 @@ c
 #include "argos.fh"
 #include "mafdecls.fh"
 c
-      external argos_space_rdtrj,argos_space_skip,frequency
-      logical argos_space_rdtrj,argos_space_skip,frequency
+      external argos_space_rdtrj,sp_skip,frequency
+      logical argos_space_rdtrj,sp_skip,frequency
 c
       integer import
 c
       if(impfr.gt.1) then
-      if(.not.argos_space_skip(lfntri,impfr-1)) return
+      if(.not.sp_skip(lfntri,impfr-1)) return
       endif
 c
       do 1 import=impfr,impto
 c
       if(.not.frequency(import+1-impfr,nftri)) then
-      if(.not.argos_space_skip(lfntri,1)) return
+      if(.not.sp_skip(lfntri,1)) return
       goto 1
       endif
 c
@@ -67,12 +67,12 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call argos_prop_proper(import,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
       call argos_prop_step(import,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme)
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
 cx      call argos_prop_print()
 c

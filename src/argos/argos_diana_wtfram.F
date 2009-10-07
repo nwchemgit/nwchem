@@ -30,9 +30,9 @@ c
       integer*4 numato
 c
       real*8 argos_diana_atrad
-      integer pre_atnum
+      integer argos_prepare_atnum
       character*255 atom_color
-      external argos_diana_atrad,pre_atnum,atom_color
+      external argos_diana_atrad,argos_prepare_atnum,atom_color
 c
       real*8 rv(3),rw(3),rotang,rx(3),ry(3),rxi(3),rxj(3),twopi
 c
@@ -337,7 +337,7 @@ c
       if(isel(i).ne.0) then
       write(lfncop,8003) sgmnam(i)
  8003 format('// ',a)
-      k=pre_atnum(sgmnam(i)(6:7))
+      k=argos_prepare_atnum(sgmnam(i)(6:7))
       color=atom_color(k)
       factor=scale*val(i,1)
       if(tag(i,2)(1:1).ne.' ') color=tag(i,2)
@@ -393,7 +393,7 @@ c
       xh(2)=0.5d0*(rxi(2)+rxj(2))
       xh(3)=0.5d0*(rxi(3)+rxj(3))
       if(tag(ib,1)(1:3).ne.'cpk') then
-      k=pre_atnum(sgmnam(ib)(6:7))
+      k=argos_prepare_atnum(sgmnam(ib)(6:7))
       color=atom_color(k)
       factor=scale*val(ib,1)
       if(tag(ib,2)(1:1).ne.' ') color=tag(ib,2)
@@ -406,7 +406,7 @@ c
      + 3x,f12.6,/,'  open',/,'  texture { pigment { ',a,' } }',/,'}')
       endif
       if(tag(jb,1)(1:3).ne.'cpk') then
-      k=pre_atnum(sgmnam(jb)(6:7))
+      k=argos_prepare_atnum(sgmnam(jb)(6:7))
       color=atom_color(k)
       factor=scale*val(jb,1)
       if(tag(jb,2)(1:1).ne.' ') color=tag(jb,2)
@@ -431,7 +431,7 @@ c
       rx(2)=w(i,j,2)
       rx(3)=w(i,j,3)
       endif
-      k=pre_atnum(wnam(j)(6:7))
+      k=argos_prepare_atnum(wnam(j)(6:7))
       color=atom_color(k)
       factor=scale*wval(j,1)
       if(wtag(j,2)(1:1).ne.' ') color=wtag(j,2)
@@ -458,8 +458,8 @@ c
    17 continue
       do 15 l=1,nwb
       read(44,6004) ib,jb
-      if(pre_atnum(wnam(ib)(6:7)).gt.1.or.
-     + pre_atnum(wnam(jb)(6:7)).gt.1.) then
+      if(argos_prepare_atnum(wnam(ib)(6:7)).gt.1.or.
+     + argos_prepare_atnum(wnam(jb)(6:7)).gt.1.) then
       do 16 i=1,nwm
       if(iwsel(i).ne.0) then
       if(rangle.gt.0.0d0) then
@@ -483,7 +483,7 @@ c
       xh(2)=0.5d0*(rxi(2)+rxj(2))
       xh(3)=0.5d0*(rxi(3)+rxj(3))
       if(wtag(ib,1)(1:3).ne.'cpk') then
-      k=pre_atnum(wnam(ib)(6:7))
+      k=argos_prepare_atnum(wnam(ib)(6:7))
       color=atom_color(k)
       factor=scale*val(ib,1)
       if(wtag(ib,2)(1:1).ne.' ') color=wtag(ib,2)
@@ -493,7 +493,7 @@ c
      + color(1:index(color,' ')-1)
       endif
       if(wtag(jb,1)(1:3).ne.'cpk') then
-      k=pre_atnum(wnam(jb)(6:7))
+      k=argos_prepare_atnum(wnam(jb)(6:7))
       color=atom_color(k)
       factor=scale*val(jb,1)
       if(wtag(jb,2)(1:1).ne.' ') color=wtag(jb,2)

@@ -39,7 +39,8 @@ c
       if(.not.ma_push_get(mt_dbl,numj,'jr',l_jr,i_jr))
      + call md_abort('Could not allocate jr',0)
       call argos_diana_report_loc(lfn,numi,numj,int_mb(i_ii),
-     + int_mb(i_ji),byte_mb(i_ic),byte_mb(i_jc),dbl_mb(i_jr))
+     + int_mb(i_ji),
+     + byte_mb(i_ic),byte_mb(i_jc),dbl_mb(i_jr))
       if(.not.ma_pop_stack(l_jr))
      + call md_abort('Failed to deallocate jr',0)
       if(.not.ma_pop_stack(l_jc))

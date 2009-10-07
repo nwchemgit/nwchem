@@ -1,5 +1,5 @@
-      subroutine argos_diana_report_loc(lfn,numi,numj,ndxi,
-     + ndxj,itxt,jtxt,tim)
+      subroutine argos_diana_report_loc(lfn,numi,numj,ndxi,ndxj,itxt,
+     + jtxt,tim)
 c
       implicit none
 c

@@ -34,8 +34,8 @@ c
       call argos_space_nbbl(nbbl)
       do 4 ibbl=1,nbbl
       call argos_space_gethdl(ibbl,lhandl,lself,iwfr,iwto,isfr,isto)
-      if(lself) call argos_cafe_shakes(lhandl,xs,ys,isl(1,lsgan),
-     + isl(1,lsatt),
+      if(lself) call argos_cafe_shakes(lhandl,xs,ys,isl(1,lsgan),isl(1,
+     + lsatt),
      + isl(1,lssgm),isl(1,lsdyn),isl(1,lshop),isfr,isto)
     4 continue
       do 5 i=1,nsaloc
@@ -44,8 +44,9 @@ c
     5 continue
       endif
       if(npmf.eq.1.or.lpmfc) then
-      if(.not.argos_cafe_shakep(xs,ys,isl(1,lsgan),isl(1,lsatt),
-     + isl(1,lsdyn),isl(1,lshop),nsaloc)) goto 3
+      if(.not.argos_cafe_shakep(xs,ys,isl(1,lsgan),isl(1,lsatt),isl(1,
+     + lsdyn),
+     + isl(1,lshop),nsaloc)) goto 3
       endif
 c
       dmax=sqrt(dmax)

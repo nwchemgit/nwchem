@@ -8,6 +8,7 @@ c
       integer n
 c
       n=nbbl
+      if(lqmd) n=0
 c
       return
       end

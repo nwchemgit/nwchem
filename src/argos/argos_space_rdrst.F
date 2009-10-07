@@ -286,6 +286,10 @@ c
 c
       ndx(i)=(ipz*npy+ipy)*npx+ipx
       ibw(i,1)=(ibz*nby+iby)*nbx+ibx
+      if(lnode0) then
+      ndx(i)=0
+      ibw(i,1)=0
+      endif
     5 continue
       do 10 node=0,np-1
       new=0
@@ -448,7 +452,7 @@ c
 c
 c     determine owning node
 c
-      nbox=(ib(3)*nb(2)+ib(2))*nb(1)+ib(1)
+      if(.not.lnode0) nbox=(ib(3)*nb(2)+ib(2))*nb(1)+ib(1)
       node=argos_space_btop(nbox,ibownr)
 c
       do 120 j=1,new
