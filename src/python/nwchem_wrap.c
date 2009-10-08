@@ -59,71 +59,71 @@ extern Integer FATR util_sgroup_zero_group_(void);
 
 static PyObject *nwwrap_integers(int n, Integer a[])
 {
-  PyObject *s;
+  PyObject *sObj;
   int i;
 
   if (n == 1)
     return PyInt_FromLong(a[0]);
 
-  if (!(s=PyList_New(n))) return NULL;
+  if (!(sObj=PyList_New(n))) return NULL;
   for(i=0; i<n; i++) {
-    PyObject *o = PyInt_FromLong(a[i]);
-    if (!o) {
-      Py_DECREF(s);
+    PyObject *oObj = PyInt_FromLong(a[i]);
+    if (!oObj) {
+      Py_DECREF(sObj);
       return NULL;
     }
-    if (PyList_SetItem(s,i,o)) {
-      Py_DECREF(s);
+    if (PyList_SetItem(sObj,i,oObj)) {
+      Py_DECREF(sObj);
       return NULL;
     }
   }
-  return s;
+  return sObj;
 }
 
 static PyObject *nwwrap_doubles(int n, double a[])
 {
-  PyObject *s;
+  PyObject *sObj;
   int i;
 
   if (n == 1)
     return PyFloat_FromDouble(a[0]);
 
-  if (!(s=PyList_New(n))) return NULL;
+  if (!(sObj=PyList_New(n))) return NULL;
   for(i=0; i<n; i++) {
-    PyObject *o = PyFloat_FromDouble(a[i]);
-    if (!o) {
-      Py_DECREF(s);
+    PyObject *oObj = PyFloat_FromDouble(a[i]);
+    if (!oObj) {
+      Py_DECREF(sObj);
       return NULL;
     }
-    if (PyList_SetItem(s,i,o)) {
-      Py_DECREF(s);
+    if (PyList_SetItem(sObj,i,oObj)) {
+      Py_DECREF(sObj);
       return NULL;
     }
   }
-  return s;
+  return sObj;
 }
 
 static PyObject *nwwrap_strings(int n, char *a[])
 {
-  PyObject *s;
+  PyObject *sObj;
   int i;
 
   if (n == 1)
     return PyString_FromString(a[0]);
 
-  if (!(s=PyList_New(n))) return NULL;
+  if (!(sObj=PyList_New(n))) return NULL;
   for(i=0; i<n; i++) {
-    PyObject *o = PyString_FromString(a[i]);
-    if (!o) {
-      Py_DECREF(s);
+    PyObject *oObj = PyString_FromString(a[i]);
+    if (!oObj) {
+      Py_DECREF(sObj);
       return NULL;
     }
-    if (PyList_SetItem(s,i,o)) {
-      Py_DECREF(s);
+    if (PyList_SetItem(sObj,i,oObj)) {
+      Py_DECREF(sObj);
       return NULL;
     }
   }
-  return s;
+  return sObj;
 }
 
 
@@ -1715,10 +1715,10 @@ static struct PyMethodDef nwchem_methods[] = {
 
 void initnwchem()
 {
-    PyObject *m, *d;
-    m = Py_InitModule("nwchem", nwchem_methods);
-    d = PyModule_GetDict(m);
+    PyObject *mObj, *dObj;
+    mObj = Py_InitModule("nwchem", nwchem_methods);
+    dObj = PyModule_GetDict(mObj);
     NwchemError = PyErr_NewException("nwchem.error", NULL, NULL);
-    PyDict_SetItemString(d, "NWChemError", NwchemError);
+    PyDict_SetItemString(dObj, "NWChemError", NwchemError);
 }
 
