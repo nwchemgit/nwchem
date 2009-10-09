@@ -39,10 +39,11 @@ c
     1 continue
       endif
 c
-      call timer_start(47)
-      call argos_cafe_fnorm(iwl(1,lwdyn),fw,nwmloc,
-     + isl(1,lsatt),isl(1,lsdyn),fs,nsaloc,fnorm,fmax)
-      call timer_stop(47)
+cx moved to argos_stdesc where the norm of forces is needed
+cx      call timer_start(47)
+cx      call argos_cafe_fnorm(iwl(1,lwdyn),fw,nwmloc,
+cx     + isl(1,lsatt),isl(1,lsdyn),fs,nsaloc,fnorm,fmax)
+cx      call timer_stop(47)
 c
       return
       end

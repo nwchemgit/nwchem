@@ -5,19 +5,19 @@ c
 #include "argos.fh"
 #include "mafdecls.fh"
 c
-      external argos_space_rdtrj,sp_skip,frequency
-      logical argos_space_rdtrj,sp_skip,frequency
+      external argos_space_rdtrj,argos_space_skip,frequency
+      logical argos_space_rdtrj,argos_space_skip,frequency
 c
       integer import
 c
       if(impfr.gt.1) then
-      if(.not.sp_skip(lfntri,impfr-1)) return
+      if(.not.argos_space_skip(lfntri,impfr-1)) return
       endif
 c
       do 1 import=impfr,impto
 c
       if(.not.frequency(import+1-impfr,nftri)) then
-      if(.not.sp_skip(lfntri,1)) return
+      if(.not.argos_space_skip(lfntri,1)) return
       goto 1
       endif
 c
