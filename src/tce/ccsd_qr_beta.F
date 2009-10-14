@@ -398,7 +398,6 @@ c
       integer d_tr1(9),d_tr2(9),d_yr1(6),d_yr2(6)
       integer k_tr1_offset(3),k_tr2_offset(3)
       integer k_yr1_offset(3),k_yr2_offset(3)
-      integer aeiginfo
       integer sym_abelian_axis
       external sym_abelian_axis
       double precision omega
@@ -415,7 +414,6 @@ c
       double precision alphaevr(3)      ! Dipole polarizability tensor eigenvalues (real)
       double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
       double precision aeigvec(3,3)     ! dummy dgeev eigenvectors
-      double precision awork(9)         ! dgeev workspace
       double precision ddotfile
       external ddotfile
       parameter (auXnm=45.563353d0)
@@ -536,9 +534,8 @@ c
         enddo
       enddo
 c
-      call dgeev('N','N',3,alphacopy,3,alphaevr,alphaevi,
-     1           aeigvec,3,aeigvec,3,awork,9,aeiginfo)
-      if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
+      call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
+c
       alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
       alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1         + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
@@ -902,7 +899,6 @@ c
       integer d_tr1(9),d_tr2(9),d_yr1(6),d_yr2(6)
       integer k_tr1_offset(3),k_tr2_offset(3)
       integer k_yr1_offset(3),k_yr2_offset(3)
-      integer aeiginfo
       integer sym_abelian_axis
       external sym_abelian_axis
       double precision omega
