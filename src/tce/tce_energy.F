@@ -423,8 +423,6 @@ c      double precision gamm4        ! Dipole second hyperpolarizability term 4
       double precision alphaevr(3)      ! Dipole polarizability tensor eigenvalues (real)
       double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
       double precision aeigvec(3,3)     ! dummy dgeev eigenvectors
-      double precision awork(9)         ! dgeev workspace
-      integer aeiginfo
 c      integer iter             ! Iteration counter
 c
 c     Excited-state CI, CC, & MBPT
@@ -2739,9 +2737,8 @@ c
             enddo
           enddo
 c
-          call dgeev('N','N',3,alphacopy,3,alphaevr,alphaevi,
-     1               aeigvec,3,aeigvec,3,awork,9,aeiginfo)
-          if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
+          call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
+c
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
@@ -4034,9 +4031,8 @@ c
             enddo
           enddo
 c
-          call dgeev('N','N',3,alphacopy,3,alphaevr,alphaevi,
-     1               aeigvec,3,aeigvec,3,awork,9,aeiginfo)
-          if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
+          call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
+c
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
@@ -4369,9 +4365,8 @@ c
             enddo
           enddo
 c
-          call dgeev('N','N',3,alphacopy,3,alphaevr,alphaevi,
-     1               aeigvec,3,aeigvec,3,awork,9,aeiginfo)
-          if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
+          call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
+c
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
@@ -4736,9 +4731,8 @@ c
             enddo
           enddo
 c
-          call dgeev('N','N',3,alphacopy,3,alphaevr,alphaevi,
-     1               aeigvec,3,aeigvec,3,awork,9,aeiginfo)
-          if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
+          call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
+c
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
@@ -5698,9 +5692,8 @@ c
             enddo
           enddo
 c
-          call dgeev('N','N',3,alphacopy,3,alphaevr,alphaevi,
-     1               aeigvec,3,aeigvec,3,awork,9,aeiginfo)
-          if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
+          call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
+c
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
