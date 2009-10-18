@@ -22,10 +22,14 @@ c
       integer mem(3)            ! Used to stuff data into the rtdb
       integer nunits
       integer ind
+      integer meg,gig
       character*255 name        ! Used to store info in the rtdb
-      parameter (nunits = 7)
+      parameter (nunits = 9)
+      parameter (meg = 1024*1024)
+      parameter (gig = 1024*1024*1024)
       character*8 units(nunits)
-      data units /'double', 'real', 'integer', 'byte', 'kb', 'mb', 'mw'/
+      data units /'double','real','integer','byte','kb',
+     &            'mb','mw','gb','gw'/
 c
 c     Parse memory directive
 c
@@ -129,19 +133,25 @@ c
          global_size = ma_sizeof(mt_byte, 1024*int(user_global), mt_dbl)
          total_size  = ma_sizeof(mt_byte, 1024*int(user_total),  mt_dbl)
       else if (user_units .eq. units(6)) then
-         heap_size   = ma_sizeof(mt_byte, 1024*1024*int(user_heap),
-     $      mt_dbl)
-         stack_size  = ma_sizeof(mt_byte, 1024*1024*int(user_stack),
-     $      mt_dbl)
-         global_size = ma_sizeof(mt_byte, 1024*1024*int(user_global),
-     $      mt_dbl)
-         total_size  = ma_sizeof(mt_byte, 1024*1024*int(user_total),
-     $      mt_dbl)
+         heap_size   = ma_sizeof(mt_byte, meg*int(user_heap),   mt_dbl)
+         stack_size  = ma_sizeof(mt_byte, meg*int(user_stack),  mt_dbl)
+         global_size = ma_sizeof(mt_byte, meg*int(user_global), mt_dbl)
+         total_size  = ma_sizeof(mt_byte, meg*int(user_total),  mt_dbl)
       else if (user_units .eq. units(7)) then
-         heap_size   = 1024*1024*user_heap
-         stack_size  = 1024*1024*user_stack
-         global_size = 1024*1024*user_global
-         total_size  = 1024*1024*user_total
+         heap_size   = meg*user_heap
+         stack_size  = meg*user_stack
+         global_size = meg*user_global
+         total_size  = meg*user_total
+      else if (user_units .eq. units(8)) then
+         heap_size   = ma_sizeof(mt_byte,gig*int(user_heap),   mt_dbl)
+         stack_size  = ma_sizeof(mt_byte,gig*int(user_stack),  mt_dbl)
+         global_size = ma_sizeof(mt_byte,gig*int(user_global), mt_dbl)
+         total_size  = ma_sizeof(mt_byte,gig*int(user_total),  mt_dbl)
+      else if (user_units .eq. units(9)) then
+         heap_size   = gig*user_heap
+         stack_size  = gig*user_stack
+         global_size = gig*user_global
+         total_size  = gig*user_total
       endif
 C
 C     Take what the user has entered and turn it into a complete
