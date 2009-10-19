@@ -63,7 +63,8 @@ C------------------------------------------------------------------------------
 #include "apiP.fh"
 #include "inp.fh"
 #include "xc.fh"
-
+#include "case.fh"
+c
       integer rtdb, basis, geom
       double precision cpu_tim(2), wall_tim(2)
 c
@@ -92,9 +93,10 @@ c
       integer lforce, l_force, k_force, l_evals, k_evals, l_occ, k_occ,
      $     l_act, k_act, 
      $     l_buf, k_buf, l_scr, k_scr, l_dens, k_dens, l_wdens, k_wdens,
-     $     k_frc_nuc, k_frc_kin, k_frc_2el, k_frc_wgh, k_frc_cd,
-     $     l_frc_nuc, l_frc_kin, l_frc_2el, l_frc_wgh, l_frc_cd,
-     $     l_frc_mp2, k_frc_mp2
+     $     k_frc_nuc, k_frc_kin, k_frc_2el, k_frc_2el_j, k_frc_2el_k, 
+     $     k_frc_wgh, k_frc_cd, l_frc_nuc, l_frc_kin, l_frc_2el, 
+     $     l_frc_2el_j, l_frc_2el_k,
+     $     l_frc_wgh, l_frc_cd, l_frc_mp2, k_frc_mp2
 
 c     pdm2d is now used by all methods.  pdm2/a/b/c only by MCSCF
       integer l_pdm2, l_pdm2a, l_pdm2b, l_pdm2c, l_pdm2d ! MCSCF 2-pdm
@@ -331,14 +333,26 @@ C     local replication(separate for the different pieces)
       if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_wgh, 
      $     k_frc_wgh)) call errquit
      &    ('grad:could not allocate l_force',lforce, MA_ERR)
-      if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_2el, 
+c
+      if (.not.cam_exch) then
+       if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_2el, 
      $     k_frc_2el)) call errquit
      &    ('grad:could not allocate l_force',lforce, MA_ERR)
+      else
+       if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_2el_j, 
+     $     k_frc_2el_j)) call errquit
+     &    ('grad:could not allocate l_force',lforce, MA_ERR)
+       if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_2el_k, 
+     $     k_frc_2el_k)) call errquit
+     &    ('grad:could not allocate l_force',lforce, MA_ERR)
+      end if
+c
       if (omp2) then
          if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_mp2, 
      $        k_frc_mp2)) call errquit
      &      ('grad:could not allocate l_force',lforce, MA_ERR)
       end if
+c
       if (odft) then
          if (.not. ma_push_get(mt_dbl, lforce, 'forces', l_frc_cd, 
      $        k_frc_cd)) call errquit
@@ -452,7 +466,12 @@ C     initialize for integral gradients
       call dfill(lforce, 0.0D0, dbl_mb(k_frc_nuc), 1)
       call dfill(lforce, 0.0D0, dbl_mb(k_frc_kin), 1)
       call dfill(lforce, 0.0D0, dbl_mb(k_frc_wgh), 1)
-      call dfill(lforce, 0.0D0, dbl_mb(k_frc_2el), 1)
+      if (.not.cam_exch) then
+         call dfill(lforce, 0.0D0, dbl_mb(k_frc_2el), 1)
+      else
+         call dfill(lforce, 0.0D0, dbl_mb(k_frc_2el_j), 1)
+         call dfill(lforce, 0.0D0, dbl_mb(k_frc_2el_k), 1)
+      end if
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
       call intb_mem_2e4c(max2e, mscratch_2e) ! blocking algorithm
       max2e = max(max2e,1296*100)          ! 100 D quartets 
@@ -660,7 +679,7 @@ c
      $        call errquit('grad:could not allocate ld_jk2',lsqa,
      &       MA_ERR)
       end if
-
+c
       if (scftype .eq. 'UHF' .and. omp2) then
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ij3', lh_ij3, ld_ij3))
      $        call errquit('grad:could not allocate ld_ij3',lsqa,
@@ -784,16 +803,15 @@ c
      $        .false., int_mb(k_rbfmap))
       end if
 c
-
       if (.not. ma_push_get(mt_int, 4*maxq, 'list', l_list, k_list))
      $     call errquit('grad:could not allocate list',4*maxq, MA_ERR)
       if (.not. ma_push_get(mt_dbl, maxq, 'q4', l_q4, k_q4))
      $     call errquit('grad:could not allocate q4',maxq, MA_ERR)
-c
 c     
       cpu_tim(2)  = util_cpusec()
       wall_tim(2) = util_wallsec()
       if (jfac.ne.0.0d0 .or. kfac.ne.0.0d0) then
+       if (.not.cam_exch) then
          call grad2(
      $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
      $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
@@ -825,7 +843,77 @@ c
      $     int_mb(k_bfmap), int_mb(k_rbfmap), 
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
      $     jfac, kfac,.false.)
-      endif
+       else  
+c
+         call case_setflags(.false.)  ! for the J part
+         call grad2(
+     $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
+     $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
+     $     dbl_mb(ld_ij2),dbl_mb(ld_kl2),dbl_mb(ld_ik2),
+     $     dbl_mb(ld_jl2),dbl_mb(ld_il2),dbl_mb(ld_jk2),
+     $     dbl_mb(ld_ij3),dbl_mb(ld_kl3),dbl_mb(ld_ik3),
+     $     dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
+     $     dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
+     $     dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
+     $     dbl_mb(ld_ik5),dbl_mb(ld_jl5),dbl_mb(ld_il5),
+     .     dbl_mb(ld_jk5),
+     $     dbl_mb(ld_ik6),dbl_mb(ld_jl6),dbl_mb(ld_il6),
+     .     dbl_mb(ld_jk6),
+     $     dbl_mb(ld_ik7),dbl_mb(ld_jl7),dbl_mb(ld_il7),
+     .     dbl_mb(ld_jk7),
+     $     dbl_mb(ld_ik8),dbl_mb(ld_jl8),dbl_mb(ld_il8),
+     .     dbl_mb(ld_jk8),
+     $     dbl_mb(k_frc_2el_j), g_dens, g_force, blen,
+     $     geom, basis, nproc, nat, 
+     $     lscratch, dbl_mb(k_scr), lbuf/12, dbl_mb(k_buf), 
+     $     int_mb(k_labels), maxq, int_mb(k_list), dbl_mb(k_q4),
+     $     tol2e, nsh, 
+     $     log_mb(k_act), oskel, scftype, omp2, nopen, nbf,
+     $     dbl_mb(k_pdm2),dbl_mb(k_pdm2a),dbl_mb(k_pdm2b), ! MCSCF
+     $     dbl_mb(k_pdm2c),dbl_mb(k_pdm2d), dbl_mb(k_coeff), ! MCSCF
+     $     nshblocks,
+     $     int_mb(k_shmap), int_mb(k_shglo), int_mb(k_shghi), 
+     $     int_mb(k_bfglo), int_mb(k_bfghi), 
+     $     int_mb(k_bfmap), int_mb(k_rbfmap), 
+     $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
+     $     jfac, 0.d0,.false.)
+c
+         call case_setflags(.true.)  ! for the K part
+         call grad2(
+     $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
+     $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
+     $     dbl_mb(ld_ij2),dbl_mb(ld_kl2),dbl_mb(ld_ik2),
+     $     dbl_mb(ld_jl2),dbl_mb(ld_il2),dbl_mb(ld_jk2),
+     $     dbl_mb(ld_ij3),dbl_mb(ld_kl3),dbl_mb(ld_ik3),
+     $     dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
+     $     dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
+     $     dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
+     $     dbl_mb(ld_ik5),dbl_mb(ld_jl5),dbl_mb(ld_il5),
+     .     dbl_mb(ld_jk5),
+     $     dbl_mb(ld_ik6),dbl_mb(ld_jl6),dbl_mb(ld_il6),
+     .     dbl_mb(ld_jk6),
+     $     dbl_mb(ld_ik7),dbl_mb(ld_jl7),dbl_mb(ld_il7),
+     .     dbl_mb(ld_jk7),
+     $     dbl_mb(ld_ik8),dbl_mb(ld_jl8),dbl_mb(ld_il8),
+     .     dbl_mb(ld_jk8),
+     $     dbl_mb(k_frc_2el_k), g_dens, g_force, blen,
+     $     geom, basis, nproc, nat, 
+     $     lscratch, dbl_mb(k_scr), lbuf/12, dbl_mb(k_buf), 
+     $     int_mb(k_labels), maxq, int_mb(k_list), dbl_mb(k_q4),
+     $     tol2e, nsh, 
+     $     log_mb(k_act), oskel, scftype, omp2, nopen, nbf,
+     $     dbl_mb(k_pdm2),dbl_mb(k_pdm2a),dbl_mb(k_pdm2b), ! MCSCF
+     $     dbl_mb(k_pdm2c),dbl_mb(k_pdm2d), dbl_mb(k_coeff), ! MCSCF
+     $     nshblocks,
+     $     int_mb(k_shmap), int_mb(k_shglo), int_mb(k_shghi), 
+     $     int_mb(k_bfglo), int_mb(k_bfghi), 
+     $     int_mb(k_bfmap), int_mb(k_rbfmap), 
+     $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
+     $     0.d0, kfac,.false.)
+         call case_setflags(.false.)
+       end if
+      end if
+c
       cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
       wall_tim(2) = util_wallsec() - wall_tim(2)
 c     
@@ -833,25 +921,35 @@ c     terminate integrals
 c     
       call schwarz_tidy()
       call intd_terminate()
-
 C     
       call ga_sync()
       call ga_dgop(msg_grad_nuc, dbl_mb(k_frc_nuc), 3*nat, '+')
       call ga_dgop(msg_grad_wgh, dbl_mb(k_frc_wgh), 3*nat, '+')
       call ga_dgop(msg_grad_kin, dbl_mb(k_frc_kin), 3*nat, '+')
-      call ga_dgop(msg_grad_nuc, dbl_mb(k_frc_2el), 3*nat, '+')
+      if (.not.cam_exch) then
+        call ga_dgop(msg_grad_nuc, dbl_mb(k_frc_2el), 3*nat, '+')
+      else
+        call ga_dgop(msg_grad_nuc, dbl_mb(k_frc_2el_j), 3*nat, '+')
+        call ga_dgop(msg_grad_nuc, dbl_mb(k_frc_2el_k), 3*nat, '+')
+      end if
+c
       call ga_sync()
 c     
       if (ga_nodeid() .eq. 0) then
-
          status = rtdb_parallel(.false.)
-
          do i=0, 3*nat-1
+           if (.not.cam_exch) then
             dbl_mb(k_force+i) = dbl_mb(k_force+i) +
      $           dbl_mb(k_frc_2el+i) + dbl_mb(k_frc_nuc+i) +
      $           dbl_mb(k_frc_wgh+i) + dbl_mb(k_frc_kin+i)
+           else
+            dbl_mb(k_force+i) = dbl_mb(k_force+i) +
+     $           dbl_mb(k_frc_2el_j+i) + dbl_mb(k_frc_2el_k+i) +
+     $           dbl_mb(k_frc_nuc+i) +
+     $           dbl_mb(k_frc_wgh+i) + dbl_mb(k_frc_kin+i)
+           end if
          end do
-
+c
          if (odft) then
             if (.not. rtdb_get(rtdb, 'dft:cd+xc gradient', 
      $           mt_dbl, 3*nat, dbl_mb(k_frc_cd))) call errquit
@@ -861,7 +959,7 @@ c
      $              dbl_mb(k_frc_cd+i) 
             end do
          endif
-
+c
          if (omp2) then
             if (.not. rtdb_get(rtdb, 'mp2:nonseparable gradient', 
      $           mt_dbl, 3*nat, dbl_mb(k_frc_mp2))) call errquit
@@ -871,7 +969,7 @@ c
      $              dbl_mb(k_frc_mp2+i) 
             end do
          end if
-
+c
 C     zero force contributions on inactive atoms
          call zero_forces(dbl_mb(k_force), log_mb(k_act), nat)
          

@@ -19,7 +19,7 @@ c
      &                        qwght,ldew,func)
 #endif
 c
-c$Id: xc_camxpbe96.F,v 1.3 2008-12-09 01:42:28 niri Exp $
+c$Id: xc_camxpbe96.F,v 1.3 2008/12/09 01:42:28 niri Exp $
 c
       implicit none
 c
@@ -111,7 +111,6 @@ CDEC$ NOSWP
             Ctmp = 0.d0
             if (lfac) then
                Etmp = rho43*fac
-               if(ldew)func(n) = func(n) + rho43*fac
                Atmp = rho13*fac
 #ifdef SECOND_DERIV
                A2tmp =  2d0*rhom23*fac
@@ -144,7 +143,6 @@ c
             d1g(1) = gp*d1s(1)
             d1g(2) = gp*d1s(2)
             Etmp = Etmp + rho43*g*fac
-            if(ldew)func(n) = func(n) + rho43*g*fac
             Atmp = Atmp + (rho13*g+rho43*d1g(1))*fac
             Ctmp = 2d0*rho43*d1g(2)*fac
 #ifdef SECOND_DERIV
@@ -175,6 +173,7 @@ c
             call xc_att_xc(rho(n,1),ipol,Etmp,Atmp,Ctmp)
 #endif
             Ex = Ex + qwght(n)*Etmp
+            if (ldew) func(n) = func(n) + Etmp
             Amat(n,1) = Amat(n,1) + Atmp
             Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + Ctmp
  10      continue
@@ -203,7 +202,6 @@ c
             Ctmp = 0.d0
             if (lfac) then
                Etmp = rho43*fac*0.5d0
-               if(ldew)func(n) = func(n) + rho43*fac*0.5d0
                Atmp = rho13*fac
 #ifdef SECOND_DERIV
                A2tmp = 2d0*rhom23*fac
@@ -236,7 +234,6 @@ c
             d1g(1) = gp*d1s(1)
             d1g(2) = gp*d1s(2)
             Etmp = Etmp + rho43*g*fac*0.5d0
-            if(ldew)func(n) = func(n) + rho43*g*fac*0.5d0
             Atmp = Atmp + (rho13*g+rho43*d1g(1))*fac
             Ctmp = 0.5d0*rho43*d1g(2)*fac
 #ifdef SECOND_DERIV
@@ -267,6 +264,7 @@ c
             call xc_att_xc(rho(n,2),ipol,Etmp,Atmp,Ctmp)
 #endif
             Ex = Ex + qwght(n)*Etmp
+            if (ldew) func(n) = func(n) + Etmp
             Amat(n,1) = Amat(n,1) + Atmp
             Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + Ctmp
 c
@@ -285,7 +283,6 @@ c
             Ctmp = 0.d0
             if (lfac) then
                Etmp = rho43*fac*0.5d0
-               if(ldew)func(n) = func(n) + rho43*fac*0.5d0
                Atmp = rho13*fac
 #ifdef SECOND_DERIV
                A2tmp= 2.d0*rhom23*fac
@@ -318,7 +315,6 @@ c
             d1g(1) = gp*d1s(1)
             d1g(2) = gp*d1s(2)
             Etmp = Etmp + rho43*g*fac*0.5d0
-            if(ldew)func(n) = func(n) + rho43*g*fac*0.5d0
             Atmp = Atmp + (rho13*g+rho43*d1g(1))*fac
             Ctmp = 0.5d0*rho43*d1g(2)*fac
 #ifdef SECOND_DERIV
@@ -350,6 +346,7 @@ c
             call xc_att_xc(rho(n,3),ipol,Etmp,Atmp,Ctmp)
 #endif
             Ex = Ex + qwght(n)*Etmp
+            if (ldew) func(n) = func(n) + Etmp
             Amat(n,2) = Amat(n,2) + Atmp
             Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + Ctmp
 c

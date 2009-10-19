@@ -10,7 +10,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_camb88.F,v 1.4 2008-12-06 23:08:58 niri Exp $
+C$Id: xc_camb88.F,v 1.4 2008/12/06 23:08:58 niri Exp $
 c
 c     Coulomb attenuated Becke88 functional
 c
@@ -103,13 +103,11 @@ c
             Ctmp = 0.d0
             if (lfac) then
                Etmp = 2d0*rho43*C*fac
-               if(ldew)func(n) = func(n) + 2d0*rho43*C*fac
                Atmp = (4d0/3d0)*rho13*C*fac
             endif
 c
             if (nlfac) then
                Etmp = Etmp + 2d0*rho43*g*fac
-               if(ldew)func(n) = func(n) + 2d0*rho43*g*fac
                Atmp = Atmp + (4d0/3d0)*rho13*(g-x*dg)*fac
             endif
 c
@@ -145,6 +143,7 @@ c
             call xc_att_xc(rho(n,1),ipol,Etmp,Atmp,Ctmp)
 #endif
             Ex = Ex + qwght(n)*Etmp
+            if(ldew) func(n) = func(n) + Etmp
             Amat(n,1) = Amat(n,1) + Atmp
             Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + Ctmp
  10      continue
@@ -180,13 +179,11 @@ c
             Ctmp = 0.d0
             if (lfac) then
                Etmp = rho43*C*fac
-               if (ldew)func(n) = func(n) + rho43*C*fac
                Atmp = (4d0/3d0)*rho13*C*fac
             endif
 c
             if (nlfac) then
                Etmp = Etmp + rho43*g*fac
-               if (ldew)func(n) = func(n) + rho43*g*fac
                Atmp = Atmp + (4d0/3d0)*rho13*(g-x*dg)*fac
             endif
 c
@@ -215,9 +212,10 @@ c
             Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp
             Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp
 #else
-            call xc_att_xc(rho(n,2),ipol,Etmp,Atmp,Ctmp)
+           call xc_att_xc(rho(n,2),ipol,Etmp,Atmp,Ctmp)
 #endif
             Ex = Ex + qwght(n)*Etmp
+            if(ldew) func(n) = func(n) + Etmp
             Amat(n,1) = Amat(n,1) + Atmp
             Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + Ctmp
 c
@@ -248,13 +246,11 @@ c
             Ctmp = 0.d0
             if (lfac) then
                Etmp = rho43*C*fac
-               if (ldew)func(n) = func(n) + rho43*C*fac
                Atmp = (4d0/3d0)*rho13*C*fac
             endif
 c
             if (nlfac) then
                Etmp = Etmp + rho43*g*fac
-               if (ldew)func(n) = func(n) +rho43*g*fac
                Atmp = Atmp + (4d0/3d0)*rho13*(g-x*dg)*fac
             endif
 c
@@ -290,6 +286,7 @@ c
             call xc_att_xc(rho(n,3),ipol,Etmp,Atmp,Ctmp)
 #endif
             Ex = Ex + qwght(n)*Etmp
+            if(ldew) func(n) = func(n) + Etmp
             Amat(n,2) = Amat(n,2) + Atmp
             Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + Ctmp
  20      continue

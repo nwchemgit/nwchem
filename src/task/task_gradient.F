@@ -243,7 +243,6 @@ c
       double precision dipole(3)
       character*80 key, prefix
 c
-      logical cam_exch
       logical dftmp2
 c
       if (.not. geom_rtdb_ncent(rtdb, 'geometry', ncent))
@@ -269,18 +268,10 @@ c
       if (.not. rtdb_get(rtdb, 'task:numerical', mt_log, 1, 
      $     numerical)) numerical = .false.
 c
-c     Check for CAM/LC xc forms
+c     Check if analytic gradients are supported within the theory
 c
-      cam_exch = .false.
       dftmp2 = .false.
       if(theory.eq.'dft') then
-        if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1,cam_exch)) 
-     1      cam_exch=.false.
-        if (cam_exch) then
-         numerical = .true.  ! do numerical gradients for cam/lc xc forms
-         if (ga_nodeid().eq.0) write(LuOut,*) 
-     1    'CAM/LC XC functional - numerical derivatives only'
-        end if
         if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
      1   dftmp2 = .false.
         if (dftmp2) then
@@ -290,7 +281,7 @@ c
         end if
       end if
 c
-c Currently cosmo does not work with analytic gradients
+c     Currently cosmo does not work with analytic gradients
 c
       if (.not. rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo))
      $     ocosmo = .false.
