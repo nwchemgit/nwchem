@@ -40,16 +40,14 @@ c
 c                       x1info(1) = MA size   ~ s_x1
 c                       x1info(2) = MA handle ~ k_x1
 c                       x1info(3) = MA handle ~ l_x1
-c                       x1info(4) = first dimension ~ nocc
-c                       x1info(5) = second dimension ~ nvir
 c
 c     other handles, such as for check-pointing, should be 
 c     added to this array, so be careful to not hard-core
 c     the length too many places
 c
-      character*(*)      ! label
-      integer nocc       ! number of occupied orbitals
-      integer nvir       ! number of virtual orbitals
+      character*(*) label  ! label
+      integer nocc         ! number of occupied orbitals
+      integer nvir         ! number of virtual orbitals
 c
 c     internal variables
 c
@@ -70,8 +68,6 @@ c
       x1info(1) = s_x1
       x1info(2) = k_x1
       x1info(3) = l_x1
-      x1info(4) = nocc
-      x1info(5) = nvir
 c
 #ifdef DEBUG_PRINT
       print*,'end of ncc_singles_create'
@@ -98,8 +94,6 @@ c
 c                       x1info(1) = MA size   ~ s_x1
 c                       x1info(2) = MA handle ~ k_x1
 c                       x1info(3) = MA handle ~ l_x1
-c                       x1info(4) = first dimension ~ nocc
-c                       x1info(5) = second dimension ~ nvir
 c
 c     other handles, such as for check-pointing, should be 
 c     added to this array, so be careful to not hard-core
