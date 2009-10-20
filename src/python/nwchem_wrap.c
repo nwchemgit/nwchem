@@ -74,6 +74,7 @@ static PyObject *nwwrap_integers(int n, Integer a[])
     }
     if (PyList_SetItem(sObj,i,oObj)) {
       Py_DECREF(sObj);
+      Py_DECREF(oObj);
       return NULL;
     }
   }
@@ -97,6 +98,7 @@ static PyObject *nwwrap_doubles(int n, double a[])
     }
     if (PyList_SetItem(sObj,i,oObj)) {
       Py_DECREF(sObj);
+      Py_DECREF(oObj);
       return NULL;
     }
   }
@@ -120,6 +122,7 @@ static PyObject *nwwrap_strings(int n, char *a[])
     }
     if (PyList_SetItem(sObj,i,oObj)) {
       Py_DECREF(sObj);
+      Py_DECREF(oObj);
       return NULL;
     }
   }
