@@ -33,7 +33,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "errquit.fh"
-c#include "stdio.fh"
+#include "stdio.fh"
 c
 c     interface variables
 c
@@ -56,7 +56,7 @@ c
 c     internal variables
 c
       integer g_x2 ! GA handle
-      integer g_s2 ! GA size
+      integer s_x2 ! GA size
 c
       integer ntocc    ! number of occupied tiles (1D)
       integer ntvir    ! number of virtual tiles (1D)
@@ -92,7 +92,7 @@ c
 c     the GA will be 2D: ntall x tilesize
 c
       s_x2 = ntall * tilesize
-      write(LuOut,100) s_x2
+      if (ga_nodeid().eq.0) write(LuOut,100) s_x2
  100  format(1x,'creating GA of ',i16,' doubles')
 c
 c     GA handle creation and labeling
