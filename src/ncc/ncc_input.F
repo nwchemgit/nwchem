@@ -14,6 +14,11 @@ c               Environmental Molecular Sciences Laboratory     c
 c               Pacific Northwest National Laboratory           c
 c               karol.kowalski@pnl.gov                          c
 c                                                               c
+c               Marta Włoch                                     c
+c               Department of Chemistry                         c
+c               Michigan Technological University               c
+c               wloch@mtu.edu                                   c
+c                                                               c
 c===============================================================c
       logical function ncc_input(rtdb)
 c

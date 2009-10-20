@@ -1,3 +1,25 @@
+c===============================================================c
+c                                                               c
+c       NCC - a New Coupled-Cluster code for NWChem             c
+c                                                               c
+c       Developed by:                                           c
+c                                                               c
+c               Jeff R. Hammond                                 c
+c               Leadership Computing Facility                   c
+c               Argonne National Laboratory                     c
+c               jhammond@mcs.anl.gov                            c
+c                                                               c
+c               Karol Kowalski                                  c
+c               Environmental Molecular Sciences Laboratory     c
+c               Pacific Northwest National Laboratory           c
+c               karol.kowalski@pnl.gov                          c
+c                                                               c
+c               Marta Włoch                                     c
+c               Department of Chemistry                         c
+c               Michigan Technological University               c
+c               wloch@mtu.edu                                   c
+c                                                               c
+c===============================================================c
 c
 c     prints shell batch of 2-e AO integrals
 c
@@ -13,7 +35,7 @@ c
          do j = jlo, jhi
             do k = klo, khi
                do l = llo, lhi
-                  if (abs(buf(l,k,j,i)).gt.tol2e) then
+                  if (abs(buf(l,k,j,i)).ge.tol2e) then
                      write(6,1) i,j,k,l,buf(l,k,j,i)
  1                   format(' ao ',4i5,f20.14)
                   endif
@@ -79,4 +101,24 @@ c
       write(6,*)
       call util_flush(LuOut)
       end
-
+c
+c
+c
+      subroutine put_ao2e_to_buf(ilo,ihi,jlo,jhi,
+     1                           klo,khi,llo,lhi,
+     2                           nbf,buf_in,buf_out)
+      implicit none
+      integer i, j, k, l
+      integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi, nbf
+      double precision buf_in(llo:lhi,klo:khi,jlo:jhi,ilo:ihi)
+      double precision buf_out(1:nbf,1:nbf,1:nbf,1:nbf)
+      do i = ilo, ihi
+         do j = jlo, jhi
+            do k = klo, khi
+               do l = llo, lhi
+                 buf_out(l,k,j,i) = buf_in(l,k,j,i)
+               enddo
+            enddo
+         enddo
+      enddo
+      end

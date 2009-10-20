@@ -14,6 +14,11 @@ c               Environmental Molecular Sciences Laboratory     c
 c               Pacific Northwest National Laboratory           c
 c               karol.kowalski@pnl.gov                          c
 c                                                               c
+c               Marta Włoch                                     c
+c               Department of Chemistry                         c
+c               Michigan Technological University               c
+c               wloch@mtu.edu                                   c
+c                                                               c
 c===============================================================c
       logical function ncc_driver(rtdb)
 c
@@ -66,19 +71,9 @@ c
       integer nbf,nshells                     ! Number of AO basis functions and shells
       integer nbfold
       integer nocc(2)                         ! Number of alpha, beta electrons
+      integer nvir(2)                         ! Number of alpha, beta electrons
       integer nmo(2)                          ! Number of alpha, beta orbitals
       integer nfc(2),nfv(2)                   ! Number of frozen cores/virtuals
-c
-c     four-index variables
-c
-      integer s_int2e,k_int2e,l_int2e
-      integer s_scr2e,k_scr2e,l_scr2e
-      integer ish,ilo,ihi,irng
-      integer jsh,jlo,jhi,jrng
-      integer ksh,klo,khi,krng
-      integer lsh,llo,lhi,lrng
-      integer ao_offset
-      integer mo_offset
 c
 c     GA and MA handles
 c
@@ -99,12 +94,15 @@ c
 c     SCF code variables
 c
       double precision scf_energy
-      double precision tol2e
-      double precision schwarz_ij,schwarz_kl
 c
 c     four-index variables
 c
       double precision blk_norm
+      integer k_v2oooo,l_v2oooo
+      integer k_v2ooov,l_v2ooov
+      integer k_v2oovv,l_v2oovv
+      integer k_v2ovvv,l_v2ovvv
+      integer k_v2vvvv,l_v2vvvv
 c
 c     low-level (GA, etc.) variables
 c
@@ -195,9 +193,6 @@ c
       endif
       if (.not.bas_numbf(basis,nbf)) then
         call errquit('ncc_driver: failed to read nbf',0,BASIS_ERR)
-      endif
-      if (.not.bas_numcont(basis,nshells)) then
-        call errquit('ncc_driver: failed to read nshells',0,BASIS_ERR)
       endif
 c
 c     ----------------------
@@ -316,15 +311,6 @@ c
         endif
       endif
 c
-c     ------------------------------------------------------
-c     Other parameters we need
-c     ------------------------------------------------------
-c
-      if (.not.rtdb_get(rtdb,'ncc:tol2e',mt_dbl,1,tol2e)) then
-        tol2e = 1.0d-10
-      endif
-      call int_acc_set(tol2e)
-c
 c===============================================================c
 c                                                               c
 c     Author information etc.                                   c
@@ -383,61 +369,59 @@ c      call ncc_print_dvec(nbf,dbl_mb(k_occb))
 c      call ncc_print_ivec(nbf,int_mb(k_irrb))
 c
 c     =======================
-c     Initialize integral API
+c     Computer 2-e integrals
 c     =======================
 c
-      call int_mem_2e4c(s_int2e,s_scr2e)
-      if (.not.ma_push_get(mt_dbl,s_int2e,'int2e',l_int2e,k_int2e)) then
-        call errquit('ncc_driver: MA problem int2e',s_int2e,MA_ERR)
+      nvir(1) = nmo(1) - nocc(1)
+      nvir(2) = nmo(2) - nocc(2)
+c
+c     allocate v2oooo
+c
+      if (.not.ma_push_get(mt_dbl,nocc(1)*nocc(1)*nocc(1)*nocc(1),
+     1                     'v2oooo',l_v2oooo,k_v2oooo)) then
+          call errquit ('ncc_driver: ma_push_get v2oooo',
+     1                  nocc(1)*nocc(1)*nocc(1)*nocc(1),MA_ERR)
       endif
-      if (.not.ma_push_get(mt_dbl,s_scr2e,'scr2e',l_scr2e,k_scr2e)) then
-        call errquit('ncc_driver: MA problem scr2e',s_scr2e,MA_ERR)
+c
+c     allocate v2ooov
+c
+      if (.not.ma_push_get(mt_dbl,nocc(1)*nocc(1)*nocc(1)*nvir(1),
+     1                     'v2ooov',l_v2ooov,k_v2ooov)) then
+          call errquit ('ncc_driver: ma_push_get v2ooov',
+     1                  nocc(1)*nocc(1)*nocc(1)*nvir(1),MA_ERR)
       endif
 c
-c     ================
-c     Loop over shells
-c     ================
+c     allocate v2oovv
 c
-      do ish=1,nshells
-        if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) then
-            call errquit('ncc_driver: bas_cn2bfr i',i,BASIS_ERR)
-        endif
-        irng = ihi - ilo + 1
-        do jsh=1,nshells
-          if (.not.bas_cn2bfr(basis,jsh,jlo,jhi)) then
-            call errquit('ncc_driver: bas_cn2bfr j',j,BASIS_ERR)
-          endif
-          jrng = jhi - jlo + 1
-          schwarz_ij = schwarz_shell(ish,jsh)
-          do ksh=1,nshells
-            if (.not.bas_cn2bfr(basis,ksh,klo,khi)) then
-              call errquit('ncc_driver: bas_cn2bfr k',k,BASIS_ERR)
-            endif
-            krng = khi - klo + 1
-            do lsh=1,nshells
-              if (.not.bas_cn2bfr(basis,lsh,llo,lhi)) then
-                call errquit('ncc_driver: bas_cn2bfr l',l,BASIS_ERR)
-              endif
-              lrng = lhi - llo + 1
-              schwarz_kl = schwarz_shell(ksh,lsh)
-              if ((schwarz_ij*schwarz_kl).ge.tol2e) then
-                call int_2e4c(basis,ish,jsh,basis,ksh,lsh,
-     1                        s_scr2e,dbl_mb(k_scr2e),
-     2                        s_int2e,dbl_mb(k_int2e))
-!                call ncc_print_ao2e(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,
-!     1                               dbl_mb(k_int2e),tol2e)
-!                call ncc_trans4(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,
-!     1                          dbl_mb(k_int2e),
-              endif
-            enddo
-          enddo
-        enddo
-      enddo
+      if (.not.ma_push_get(mt_dbl,nocc(1)*nocc(1)*nvir(1)*nvir(1),
+     1                     'v2oovv',l_v2oovv,k_v2oovv)) then
+          call errquit ('ncc_driver: ma_push_get v2oovv',
+     1                  nocc(1)*nocc(1)*nvir(1)*nvir(1),MA_ERR)
+      endif
 c
-c     ==========
-c     Deallocate
-c     ==========
+c     allocate v2ovvv
 c
+      if (.not.ma_push_get(mt_dbl,nocc(1)*nvir(1)*nvir(1)*nvir(1),
+     1                     'v2ovvv',l_v2ovvv,k_v2ovvv)) then
+          call errquit ('ncc_driver: ma_push_get v2ovvv',
+     1                  nocc(1)*nvir(1)*nvir(1)*nvir(1),MA_ERR)
+      endif
+c
+c     allocate v2vvvv
+c
+      if (.not.ma_push_get(mt_dbl,nvir(1)*nvir(1)*nvir(1)*nvir(1),
+     1                     'v2vvvv',l_v2vvvv,k_v2vvvv)) then
+          call errquit ('ncc_driver: ma_push_get v2vvvv',
+     1                  nvir(1)*nvir(1)*nvir(1)*nvir(1),MA_ERR)
+      endif
+c
+      call ncc_fourindex(rtdb,basis,
+     1                   nocc(1),nocc(2),nvir(1),nvir(2),
+     2                   nmo(1),nmo(2),nbf,
+     3                   dbl_mb(k_v2oooo),dbl_mb(k_v2ooov),
+     4                   dbl_mb(k_v2oovv),dbl_mb(k_v2ovvv),
+     5                   dbl_mb(k_v2vvvv),
+     6                   dbl_mb(k_moveca),dbl_mb(k_movecb))
 c
 c===============================================================c
 c                                                               c
@@ -446,12 +430,22 @@ c                                                               c
 c===============================================================c
 c
 #ifdef DETAILED_FREE
-      if (.not.ma_pop_stack(l_scr2e)) then
-        call errquit('ncc_driver: MA problem scr2e ',0,MA_ERR)
+      if (.not.ma_pop_stack(l_v2vvvv)) then
+        call errquit('ncc_driver: MA problem v2vvvv ',0,MA_ERR)
       endif
-      if (.not.ma_pop_stack(l_int2e)) then
-        call errquit('ncc_driver: MA problem int2e ',0,MA_ERR)
+      if (.not.ma_pop_stack(l_v2ovvv)) then
+        call errquit('ncc_driver: MA problem v2ovvv ',0,MA_ERR)
       endif
+      if (.not.ma_pop_stack(l_v2oovv)) then
+        call errquit('ncc_driver: MA problem v2oovv ',0,MA_ERR)
+      endif
+      if (.not.ma_pop_stack(l_v2ooov)) then
+        call errquit('ncc_driver: MA problem v2ooov ',0,MA_ERR)
+      endif
+      if (.not.ma_pop_stack(l_v2oooo)) then
+        call errquit('ncc_driver: MA problem v2oooo ',0,MA_ERR)
+      endif
+c
       if (.not.ma_pop_stack(l_movecb)) then
         call errquit('ncc_driver: MA problem movecb ',0,MA_ERR)
       endif
