@@ -37,9 +37,9 @@ c     interface variables
 c
       integer x1info(*)  ! array containing singles descriptor:
 c
-c                       x1info(1) = MA size   ~ s_x1
-c                       x1info(2) = MA handle ~ k_x1
-c                       x1info(3) = MA handle ~ l_x1
+c                       x1info(1) = MA handle ~ k_x1
+c                       x1info(2) = MA handle ~ l_x1
+c                       x1info(3) = MA size   ~ s_x1
 c
 c     other handles, such as for check-pointing, should be 
 c     added to this array, so be careful to not hard-core
@@ -65,9 +65,9 @@ c
           call errquit ('ncc_singles_create: ma_push_get',s_x1,MA_ERR)
       endif
 c
-      x1info(1) = s_x1
-      x1info(2) = k_x1
-      x1info(3) = l_x1
+      x1info(1) = k_x1
+      x1info(2) = l_x1
+      x1info(3) = s_x1
 c
 #ifdef DEBUG_PRINT
       print*,'end of ncc_singles_create'
@@ -91,9 +91,9 @@ c     interface variables
 c
       integer x1info(*)  ! array containing singles descriptor:
 c
-c                       x1info(1) = MA size   ~ s_x1
-c                       x1info(2) = MA handle ~ k_x1
-c                       x1info(3) = MA handle ~ l_x1
+c                       x1info(1) = MA size   ~ k_x1
+c                       x1info(2) = MA handle ~ l_x1
+c                       x1info(3) = MA handle ~ s_x1
 c
 c     other handles, such as for check-pointing, should be 
 c     added to this array, so be careful to not hard-core
@@ -107,7 +107,7 @@ c
       print*,'top of ncc_singles_destroy'
 #endif
 c
-      l_x1 = x1info(3)
+      l_x1 = x1info(2)
 c
       if (.not.ma_pop_stack(l_x1)) then
           call errquit('ncc_singles_destroy: ma_pop_stack',l_x1,MA_ERR)

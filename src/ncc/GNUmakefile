@@ -4,8 +4,9 @@ SUBDIRS =
 
 OBJ = ncc_input.o ncc_driver.o
 
-OBJ_OPTIMIZE = ncc_util.o ncc_fourindex.o \
-               ncc_singles.o ncc_doubles.o
+OBJ_OPTIMIZE = ncc_util.o ncc_offset_util.o \
+               ncc_singles.o ncc_doubles.o \
+               ncc_fourindex.o
 
 LIBRARY = libncc.a
 

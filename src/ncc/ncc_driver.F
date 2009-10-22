@@ -104,6 +104,10 @@ c
       integer k_v2ovvv,l_v2ovvv
       integer k_v2vvvv,l_v2vvvv
 c
+c     amplitudes
+c
+      integer t2info(8)                ! T2 amplitude "struct"
+c
 c     low-level (GA, etc.) variables
 c
       logical nodezero         ! am I node 0?
@@ -348,8 +352,8 @@ c
           call errquit ('ncc_driver: ma_push_get moveca',nbf,MA_ERR)
       endif
       call ga_get(g_moveca,1,nbf,1,nmo(1),dbl_mb(k_moveca),nbf)
-      call ga_print(g_moveca)
-      call ncc_print_movecs(nbf,nmo(1),dbl_mb(k_moveca))
+!       call ga_print(g_moveca)
+!       call ncc_print_movecs(nbf,nmo(1),dbl_mb(k_moveca))
 c      call ncc_print_dvec(nbf,dbl_mb(k_eiga))
 c      call ncc_print_dvec(nbf,dbl_mb(k_occa))
 c      call ncc_print_ivec(nbf,int_mb(k_irra))
@@ -362,8 +366,8 @@ c
           call errquit ('ncc_driver: ma_push_get movecb',nbf,MA_ERR)
       endif
       call ga_get(g_moveca,1,nbf,1,nmo(2),dbl_mb(k_movecb),nbf)
-      call ga_print(g_movecb)
-      call ncc_print_movecs(nbf,nmo(2),dbl_mb(k_movecb))
+!       call ga_print(g_movecb)
+!       call ncc_print_movecs(nbf,nmo(2),dbl_mb(k_movecb))
 c      call ncc_print_dvec(nbf,dbl_mb(k_eigb))
 c      call ncc_print_dvec(nbf,dbl_mb(k_occb))
 c      call ncc_print_ivec(nbf,int_mb(k_irrb))
@@ -374,54 +378,63 @@ c     =======================
 c
       nvir(1) = nmo(1) - nocc(1)
       nvir(2) = nmo(2) - nocc(2)
+! c
+! c     allocate v2oooo
+! c
+!       if (.not.ma_push_get(mt_dbl,nocc(1)*nocc(1)*nocc(1)*nocc(1),
+!      1                     'v2oooo',l_v2oooo,k_v2oooo)) then
+!           call errquit ('ncc_driver: ma_push_get v2oooo',
+!      1                  nocc(1)*nocc(1)*nocc(1)*nocc(1),MA_ERR)
+!       endif
+! c
+! c     allocate v2ooov
+! c
+!       if (.not.ma_push_get(mt_dbl,nocc(1)*nocc(1)*nocc(1)*nvir(1),
+!      1                     'v2ooov',l_v2ooov,k_v2ooov)) then
+!           call errquit ('ncc_driver: ma_push_get v2ooov',
+!      1                  nocc(1)*nocc(1)*nocc(1)*nvir(1),MA_ERR)
+!       endif
+! c
+! c     allocate v2oovv
+! c
+!       if (.not.ma_push_get(mt_dbl,nocc(1)*nocc(1)*nvir(1)*nvir(1),
+!      1                     'v2oovv',l_v2oovv,k_v2oovv)) then
+!           call errquit ('ncc_driver: ma_push_get v2oovv',
+!      1                  nocc(1)*nocc(1)*nvir(1)*nvir(1),MA_ERR)
+!       endif
+! c
+! c     allocate v2ovvv
+! c
+!       if (.not.ma_push_get(mt_dbl,nocc(1)*nvir(1)*nvir(1)*nvir(1),
+!      1                     'v2ovvv',l_v2ovvv,k_v2ovvv)) then
+!           call errquit ('ncc_driver: ma_push_get v2ovvv',
+!      1                  nocc(1)*nvir(1)*nvir(1)*nvir(1),MA_ERR)
+!       endif
+! c
+! c     allocate v2vvvv
+! c
+!       if (.not.ma_push_get(mt_dbl,nvir(1)*nvir(1)*nvir(1)*nvir(1),
+!      1                     'v2vvvv',l_v2vvvv,k_v2vvvv)) then
+!           call errquit ('ncc_driver: ma_push_get v2vvvv',
+!      1                  nvir(1)*nvir(1)*nvir(1)*nvir(1),MA_ERR)
+!       endif
 c
-c     allocate v2oooo
+!       call ncc_fourindex(rtdb,basis,
+!      1                   nocc(1),nocc(2),nvir(1),nvir(2),
+!      2                   nmo(1),nmo(2),nbf,
+!      3                   dbl_mb(k_v2oooo),dbl_mb(k_v2ooov),
+!      4                   dbl_mb(k_v2oovv),dbl_mb(k_v2ovvv),
+!      5                   dbl_mb(k_v2vvvv),
+!      6                   dbl_mb(k_moveca),dbl_mb(k_movecb))
 c
-      if (.not.ma_push_get(mt_dbl,nocc(1)*nocc(1)*nocc(1)*nocc(1),
-     1                     'v2oooo',l_v2oooo,k_v2oooo)) then
-          call errquit ('ncc_driver: ma_push_get v2oooo',
-     1                  nocc(1)*nocc(1)*nocc(1)*nocc(1),MA_ERR)
-      endif
+      call ncc_doubles_create(t2info,      ! output array
+     1                        "T2",        ! character name for this array
+     2                        nocc(1),     ! number of occupied orbitals
+     3                        nvir(1),     ! number of virtual orbitals
+     4                        10,          ! tilesize of occupied orbitals
+     5                        50)          ! tilesize of virtual orbitals
 c
-c     allocate v2ooov
-c
-      if (.not.ma_push_get(mt_dbl,nocc(1)*nocc(1)*nocc(1)*nvir(1),
-     1                     'v2ooov',l_v2ooov,k_v2ooov)) then
-          call errquit ('ncc_driver: ma_push_get v2ooov',
-     1                  nocc(1)*nocc(1)*nocc(1)*nvir(1),MA_ERR)
-      endif
-c
-c     allocate v2oovv
-c
-      if (.not.ma_push_get(mt_dbl,nocc(1)*nocc(1)*nvir(1)*nvir(1),
-     1                     'v2oovv',l_v2oovv,k_v2oovv)) then
-          call errquit ('ncc_driver: ma_push_get v2oovv',
-     1                  nocc(1)*nocc(1)*nvir(1)*nvir(1),MA_ERR)
-      endif
-c
-c     allocate v2ovvv
-c
-      if (.not.ma_push_get(mt_dbl,nocc(1)*nvir(1)*nvir(1)*nvir(1),
-     1                     'v2ovvv',l_v2ovvv,k_v2ovvv)) then
-          call errquit ('ncc_driver: ma_push_get v2ovvv',
-     1                  nocc(1)*nvir(1)*nvir(1)*nvir(1),MA_ERR)
-      endif
-c
-c     allocate v2vvvv
-c
-      if (.not.ma_push_get(mt_dbl,nvir(1)*nvir(1)*nvir(1)*nvir(1),
-     1                     'v2vvvv',l_v2vvvv,k_v2vvvv)) then
-          call errquit ('ncc_driver: ma_push_get v2vvvv',
-     1                  nvir(1)*nvir(1)*nvir(1)*nvir(1),MA_ERR)
-      endif
-c
-      call ncc_fourindex(rtdb,basis,
-     1                   nocc(1),nocc(2),nvir(1),nvir(2),
-     2                   nmo(1),nmo(2),nbf,
-     3                   dbl_mb(k_v2oooo),dbl_mb(k_v2ooov),
-     4                   dbl_mb(k_v2oovv),dbl_mb(k_v2ovvv),
-     5                   dbl_mb(k_v2vvvv),
-     6                   dbl_mb(k_moveca),dbl_mb(k_movecb))
+      call ncc_doubles_destroy(t2info)
 c
 c===============================================================c
 c                                                               c
@@ -430,21 +443,21 @@ c                                                               c
 c===============================================================c
 c
 #ifdef DETAILED_FREE
-      if (.not.ma_pop_stack(l_v2vvvv)) then
-        call errquit('ncc_driver: MA problem v2vvvv ',0,MA_ERR)
-      endif
-      if (.not.ma_pop_stack(l_v2ovvv)) then
-        call errquit('ncc_driver: MA problem v2ovvv ',0,MA_ERR)
-      endif
-      if (.not.ma_pop_stack(l_v2oovv)) then
-        call errquit('ncc_driver: MA problem v2oovv ',0,MA_ERR)
-      endif
-      if (.not.ma_pop_stack(l_v2ooov)) then
-        call errquit('ncc_driver: MA problem v2ooov ',0,MA_ERR)
-      endif
-      if (.not.ma_pop_stack(l_v2oooo)) then
-        call errquit('ncc_driver: MA problem v2oooo ',0,MA_ERR)
-      endif
+!       if (.not.ma_pop_stack(l_v2vvvv)) then
+!         call errquit('ncc_driver: MA problem v2vvvv ',0,MA_ERR)
+!       endif
+!       if (.not.ma_pop_stack(l_v2ovvv)) then
+!         call errquit('ncc_driver: MA problem v2ovvv ',0,MA_ERR)
+!       endif
+!       if (.not.ma_pop_stack(l_v2oovv)) then
+!         call errquit('ncc_driver: MA problem v2oovv ',0,MA_ERR)
+!       endif
+!       if (.not.ma_pop_stack(l_v2ooov)) then
+!         call errquit('ncc_driver: MA problem v2ooov ',0,MA_ERR)
+!       endif
+!       if (.not.ma_pop_stack(l_v2oooo)) then
+!         call errquit('ncc_driver: MA problem v2oooo ',0,MA_ERR)
+!       endif
 c
       if (.not.ma_pop_stack(l_movecb)) then
         call errquit('ncc_driver: MA problem movecb ',0,MA_ERR)
@@ -508,20 +521,24 @@ c
       return
 c
  1000 format(/,' ==============================================',/,/,
-     1         3x,'NCC - a New Coupled-Cluster code for NWChem',/,
-     3         3x,'Developed by:',/,/,
-     4         3x,'Jeff R. Hammond',/,
-     5         3x,'Leadership Computing Facility',/,
-     6         3x,'Argonne National Laboratory',/,
-     7         3x,'jhammond@mcs.anl.gov',/,/,
-     4         3x,'Karol Kowalski',/,
-     6         3x,'Environmental Molecular Sciences Laboratory',/,
-     6         3x,'Pacific Northwest National Laboratory',/,
-     5         3x,'karol.kowalski@pnl.gov',/,
-     9         ' ==============================================',/)
+     &         3x,'NCC - a New Coupled-Cluster code for NWChem',/,
+     &         3x,'Developed by:',/,/,
+     &         3x,'Jeff R. Hammond',/,
+     &         3x,'Leadership Computing Facility',/,
+     &         3x,'Argonne National Laboratory',/,
+     &         3x,'jhammond@mcs.anl.gov',/,/,
+     &         3x,'Karol Kowalski',/,
+     &         3x,'Environmental Molecular Sciences Laboratory',/,
+     &         3x,'Pacific Northwest National Laboratory',/,
+     &         3x,'karol.kowalski@pnl.gov',/,/,
+     &         3x,'Marta Włoch',/,
+     &         3x,'Department of Chemistry',/,
+     &         3x,'Michigan Technological University',/,
+     &         3x,'wloch@mtu.edu',/,/,
+     &         ' ==============================================',/)
  2001 format(/,3x,'for ',a5,' MO vectors:',/,
-     1         3x,'number of basis functions    = ',i8,/,
-     2         3x,'number of molecular orbitals = ',i8,/)
+     &         3x,'number of basis functions    = ',i8,/,
+     &         3x,'number of molecular orbitals = ',i8,/)
 
 c
       end
