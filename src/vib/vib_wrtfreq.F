@@ -30,7 +30,7 @@ c
       double precision ezero,ethermal,hthermal,temp,thetav
       double precision inertia_A,inertia_B,inertia_C,thetaA,thetaB,
      ,     thetaC,M
-      double precision Strans,Srot,Svib
+      double precision Strans,Srot,Svib,scalefreq
       double precision Cv_trans,Cv_rot,Cv_vib
       integer sigma
       integer i,it,ntemp,h_actlist,l_actlist,ma_type
@@ -116,9 +116,9 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
 10012 FORMAT( 1X,'B= ',f10.6,' cm-1  (',f10.6,' K)')
 10013 FORMAT( 1X,'C= ',f10.6,' cm-1  (',f10.6,' K)')
        
-*       *** define temperature ***
-c        if(.not. rtdb_get(rtdb,'vib:temperature',MT_DBL,1,temp))
-c     &      temp = 298.15d0
+*       *** define scalefreq ***
+        if(.not. rtdb_get(rtdb,'vib:scalefreq',MT_DBL,1,scalefreq))
+     &      scalefreq = 1.0d0
 
 *        **** define temperatures
          if (.not. rtdb_ma_get(rtdb, 'vib:temperature', ma_type,
@@ -151,7 +151,7 @@ c     &      temp = 298.15d0
 *       **** add vibrational thermal corrections ***
         do i=1,nat3
             
-          freq = eigval(i) ! eigenvalue
+          freq = scalefreq*eigval(i) ! eigenvalue
 
           if (freq.gt.0.1d0) then
             thetav = freq*(h*c/kgas)    !freqency temperature in Kelvin from cm-1
@@ -177,10 +177,12 @@ c     &      temp = 298.15d0
         hthermal = ethermal + Rgas*temp       ! htermal = ethermal+pV=ethermal+RT, since pV=RT
        
         WRITE (6,10023) temp
+        WRITE (6,10022) scalefreq
         if (linear) write(6,10027)
         WRITE (6,10024) ezero*AUKCAL,   ezero
         WRITE (6,10025) ethermal*AUKCAL,ethermal
         WRITE (6,10026) hthermal*AUKCAL,hthermal
+10022 FORMAT(1X,'frequency scaling parameter      = ',f8.4)
 10023 FORMAT(//1X,'Temperature                      = ',f8.2,'K')
 10024 FORMAT(/1X,'Zero-Point correction to Energy  = ',f8.3, 
      .     ' kcal/mol  (',f10.6,' au)')
@@ -224,7 +226,7 @@ c     &      temp = 298.15d0
         if (temp.gt.0.0d0) then
         do i=1,nat3
 
-          freq = eigval(i) ! eigenvalue
+          freq = scalefreq*eigval(i) ! eigenvalue
 
           if (freq.gt.(0.1d0)) then
             thetav = freq*(h*c/kgas)    !freqency temperature in Kelvin from cm-1
