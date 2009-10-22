@@ -175,13 +175,6 @@ BASIC BUILD INSTRUCTIONS:
                    R10000          R10000
                    R12000          R12000
 
-    LINUX using the Portland Group Compiler, pgf77, is available.  
-          However, NWChem development is under the GNU suite of
-          compilers and so the pgf77 version is far from being
-          optimal. Simply set your environment as above and 
-          use "make FC=pgf77" in the instructions below and the 
-          makefile system will take care of changing options/flags etc.  
-
 5) Configure to build the modules you need.  As a first shot you might
    want to build everything (i.e. "all"), and if you start running out of 
    memory you can exclude modules.  You can choose one or more from
