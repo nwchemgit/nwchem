@@ -69,7 +69,7 @@ cc
         if(task_bsse) then
             status = bsse_energy(rtdb,theory,energy)
             if(.not.status)
-     $        call errquit('task_errr: error call bsse energy',911)
+     $        call errquit('task_energy: bsse_energy fail',0,CALC_ERR)
          else
             status = task_energy_doit(rtdb,theory,energy)
         endif
@@ -187,6 +187,7 @@ c
       call ecce_print_module_entry('task energy')
 c
       task_energy_doit = .false.
+      status = .false.
 c
 c     Set the theory in the database so that all is consistent for
 c     the lower level modules.  Should not really have to do this,
