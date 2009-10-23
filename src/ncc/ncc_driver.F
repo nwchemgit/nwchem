@@ -427,12 +427,12 @@ c
 !      5                   dbl_mb(k_v2vvvv),
 !      6                   dbl_mb(k_moveca),dbl_mb(k_movecb))
 c
-      call ncc_doubles_create(t2info,      ! output array
-     1                        "T2",        ! character name for this array
-     2                        nocc(1),     ! number of occupied orbitals
-     3                        nvir(1),     ! number of virtual orbitals
-     4                        10,          ! tilesize of occupied orbitals
-     5                        50)          ! tilesize of virtual orbitals
+      call ncc_doubles_create_aa(t2info,      ! output array
+     1                           "T2",        ! character name for this array
+     2                           nocc(1),     ! number of occupied orbitals
+     3                           nvir(1),     ! number of virtual orbitals
+     4                           10,          ! tilesize of occupied orbitals
+     5                           20)          ! tilesize of virtual orbitals
 c
       call ncc_doubles_destroy(t2info)
 c

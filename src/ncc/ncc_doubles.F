@@ -34,22 +34,14 @@ c
       tszocc = 7
       tszvir = 17
 c
-      call ncc_doubles_create(x2info,   ! output array
-     1                        label,    ! character name for this array
-     2                        nocc,     ! number of occupied orbitals
-     3                        nvir,     ! number of virtual orbitals
-     4                        tszocc,   ! tilesize of occupied orbitals
-     5                        tszvir)   ! tilesize of virtual orbitals
+      call ncc_doubles_create_aa(x2info,   ! output array
+     1                           label,    ! character name for this array
+     2                           nocc,     ! number of occupied orbitals
+     3                           nvir,     ! number of virtual orbitals
+     4                           tszocc,   ! tilesize of occupied orbitals
+     5                           tszvir)   ! tilesize of virtual orbitals
 c
       end
-#endif
-
-#ifdef DEBUG_PRINT
-#define DP(x) print*,' x = ', x
-#else
-#define DP(x)
-#endif
-
 c
 c this removes the dependency on stdio.fh
 c
@@ -68,21 +60,30 @@ c
       integer errcode
       call ga_error(string, icode)
       end
+#endif
+
+#ifdef DEBUG_PRINT
+#define DP(x) print*,' x = ', x
+#else
+#define DP(x)
+#endif
 c
-      subroutine ncc_doubles_create(x2info,   ! output array
-     1                              label,    ! character name for this array
-     2                              nocc,     ! number of occupied orbitals
-     3                              nvir,     ! number of virtual orbitals
-     4                              tszocc,   ! tilesize of occupied orbitals
-     5                              tszvir)   ! tilesize of virtual orbitals
+      subroutine ncc_doubles_create_aa(x2info,   ! output array
+     1                                 label,    ! character name for this array
+     2                                 nocc,     ! number of occupied orbitals
+     3                                 nvir,     ! number of virtual orbitals
+     4                                 tszocc,   ! tilesize of occupied orbitals
+     5                                 tszvir)   ! tilesize of virtual orbitals
 c
 c $Id: ncc_doubles.F,v 1.0 2009/20/10 23:48:58 jhammond Exp $
 c
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
-!#include "errquit.fh"
-! #include "stdio.fh"
+#ifndef VACUUM
+#include "errquit.fh"
+#include "stdio.fh"
+#endif
 c
 c     interface variables
 c
@@ -156,7 +157,7 @@ c
       external ncc_anti, ncc_symm
 c
 #ifdef DEBUG_PRINT
-      print*,'top of ncc_doubles_create'
+      print*,'top of ncc_doubles_create_aa'
 #endif
 c
 c     determine number of full tiles (dimension tszocc^2 * tszvir^2)
@@ -369,13 +370,13 @@ c     dist_map - starting index for each block; the size s is a sum of all eleme
 c
       if (.not.ma_push_get(mt_int,dist_block(1)+dist_block(2),
      1                     'blksz_list',l_blksz_list,k_blksz_list)) then
-          call errquit ('ncc_doubles_create: ma_push_get blksz_list',
+          call errquit ('ncc_doubles_create_aa: ma_push_get blksz_list',
      1                  dist_block(1)+dist_block(2),MA_ERR)
       endif
 c
       if (.not.ma_push_get(mt_int,dist_block(1)+dist_block(2),
      1                     'dist_map',l_dist_map,k_dist_map)) then
-          call errquit ('ncc_doubles_create: ma_push_get dist_map',
+          call errquit ('ncc_doubles_create_aa: ma_push_get dist_map',
      1                  dist_block(1)+dist_block(2),MA_ERR)
       endif
 c
@@ -452,13 +453,13 @@ c
 c     don't need the dist_map anymore since it is inside of GA now
 c
       if (.not.ma_pop_stack(l_dist_map)) then
-        call errquit('ncc_doubles_create: ma_pop_stack dist_map ',0,
-     1               MA_ERR)
+        call errquit('ncc_doubles_create_aa: ma_pop_stack dist_map ',
+     1               0,MA_ERR)
       endif
 c
       if (.not.ma_pop_stack(l_blksz_list)) then
-        call errquit('ncc_doubles_create: ma_pop_stack blksz_list ',0,
-     1               MA_ERR)
+        call errquit('ncc_doubles_create_aa: ma_pop_stack blksz_list ',
+     1               0,MA_ERR)
       endif
 c
 c     Regular distribution with chunking for now
@@ -470,7 +471,8 @@ c
 c     GA allocation
 c
       if (.not. ga_allocate(g_x2) ) then
-          call errquit ('ncc_doubles_create: ga_allocate',g_x2,GA_ERR)
+          call errquit ('ncc_doubles_create_aa: ga_allocate',g_x2,
+     1                  GA_ERR)
       endif
 c
       x2info(1) = g_x2
@@ -482,7 +484,7 @@ c
 #endif
 c
 #ifdef DEBUG_PRINT
-      print*,'end of ncc_doubles_create'
+      print*,'end of ncc_doubles_create_aa'
 #endif
 c
       return
@@ -496,8 +498,10 @@ c
       implicit none
 c#include "mafdecls.fh"
 #include "global.fh"
-c#include "errquit.fh"
-c#include "stdio.fh"
+#ifndef VACUUM
+#include "errquit.fh"
+#include "stdio.fh"
+#endif
 c
 c     interface variables
 c
