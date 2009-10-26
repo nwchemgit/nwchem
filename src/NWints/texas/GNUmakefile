@@ -21,6 +21,7 @@ ifeq ($(TARGET),LAPI)
 endif
 
       LIB_DEFINES = -DUSE_TEXAS
+
   OBJ = abcd.o
   OBJ_OPTIMIZE = texas_face.o \
                  texas_hf.o \
@@ -41,21 +42,16 @@ endif
                  shells.o \
                  time.o \
                  zeroint.o \
-		 missing.o \
-		 texas_stubs.o \
+                 missing.o \
+                 texas_stubs.o \
                  uniq_pairs.o \
                  transfor.o \
                  gencon.o \
                  derivat.o \
                  convert.o \
                  test_calc2.o \
-                 screened_op.o 
-   ifdef XLF11
-    OBJ += trobsa.o
-   else
-    OBJ_OPTIMIZE += trobsa.o
-   endif
-
+                 screened_op.o \
+                 trobsa.o
 else
       OBJ = texas_stubs.o 
       OBJ_OPTIMIZE = 
@@ -67,6 +63,10 @@ endif
 
        LIBRARY = libnwints.a
        HEADERS = screened_op.fh 
+
+ifdef XLF11
+  DEFINES += -DXLF11
+endif
 
 include ../../config/makelib.h
 ifeq ($(_CPU),ia64)

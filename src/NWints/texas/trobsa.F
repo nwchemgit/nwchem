@@ -130,7 +130,14 @@ c
       endif
 C-----------------------------------------------------------------------
 c
+#ifdef XLF11
+      if ( lobsa .eq. 1 ) goto 10
+      if ( lobsa .eq. 2 ) goto 20
+      if ( lobsa .eq. 3 ) goto 30
+      if ( lobsa .eq. 4 ) goto 40
+#else
       go to (10,20,30,40) lobsa 
+#endif
 c
    10 continue
 c........(s,s|k+l,s)
@@ -251,7 +258,14 @@ c
          call ssssm(nbls1,bl(irys),bl(iconst),mmax1,
      *              bl(iwt1),l11,l12,bl(iwt0),lnij,lnkl)
 c
-         go to (10,20,30,40) lobsa 
+#ifdef XLF11
+      if ( lobsa .eq. 1 ) goto 10
+      if ( lobsa .eq. 2 ) goto 20
+      if ( lobsa .eq. 3 ) goto 30
+      if ( lobsa .eq. 4 ) goto 40
+#else
+      go to (10,20,30,40) lobsa 
+#endif
 c
    10    continue
 c........(s,s|k+l,s)
@@ -317,7 +331,14 @@ c
        call ssssm(nbls1_u,bl(irys),bl(iconst),mmax1,
      *              bl(iwt1),l11,l12,bl(iwt0_u),lnij,lnkl)
 c
-         go to (10,20,30,40) lobsa 
+#ifdef XLF11
+      if ( lobsa .eq. 1 ) goto 10
+      if ( lobsa .eq. 2 ) goto 20
+      if ( lobsa .eq. 3 ) goto 30
+      if ( lobsa .eq. 4 ) goto 40
+#else
+      go to (10,20,30,40) lobsa 
+#endif
 c
    30  continue
 c........(i+j,s|s,s) 
@@ -532,7 +553,12 @@ c====================================================================
       common /logic4/ nfu(1)
       dimension wt0(nbls,l01,l02),wt1(nbls,l11,l12)
 c
+#ifdef XLF11
+      if ( lab .eq. 1 ) goto 10
+      if ( lab .eq. 2 ) goto 20
+#else
       go to (10,20) lab
+#endif
 c
    10 continue
       do 100 inp=2,nfu(nsij +1)
