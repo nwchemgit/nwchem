@@ -394,7 +394,7 @@ c
       write(LuOut,*)
       write(LuOut,*)
       call util_print_centered(LuOut,
-     $     'Northwest Computational Chemistry Package (NWChem) 5.1',
+     $     'Northwest Computational Chemistry Package (NWChem) 5.1.1',
      $     40, .true.)
       write(LuOut,*)
       write(LuOut,*)
