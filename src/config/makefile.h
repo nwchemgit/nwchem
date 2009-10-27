@@ -2017,7 +2017,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP))
     RANLIB = $(BGCOMPILERS)/powerpc-bgp-linux-ranlib
     DEFINES  += -DDCMF -DBGP
     FOPTIONS += -qthreaded -qnosave -qalign=4k
-    FOPTIMIZE += -qarch=450 -qtune=450
+    FOPTIMIZE += -qarch=450d -qtune=450 -qcache=auto -qunroll=auto
 
     XLF11 = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
    endif
