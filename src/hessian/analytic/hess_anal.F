@@ -16,6 +16,7 @@ C  The notation here will follow that of Johnson and Frisch, J.Chem.Phys.
 C  100, 7429-7442 (1994) unless otherwise annotated.
 C
       implicit none
+c
 #include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -26,10 +27,7 @@ C
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "util.fh"
-ccase...start
-#include "case.fh"
-ccase...end
-
+c
       integer rtdb
 
       integer restr, junk
@@ -172,9 +170,7 @@ c
         if (oprint) write(LuOut,*) 'HESS: before the twodd_cont call'
         if (ohessprof) call pstat_on(ps_twodd)
         t0=util_wallsec()
-        call case_setflags(.true.)   ! ccase: turn on attenuation
         call twodd_cont(rtdb)
-        call case_setflags(.false.)  ! ccase: reset attenuation
         if (ohessprof) call pstat_off(ps_twodd)
         call hess_restart(rtdb,2)
         if (oprintsome) write(LuOut,12) util_wallsec()-t0
