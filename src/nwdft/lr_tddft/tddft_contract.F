@@ -2,7 +2,7 @@
      1  g_td,g_pd,g_qd,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet)
 c
-c $Id: tddft_contract.F,v 1.9 2009-01-16 05:31:17 niri Exp $
+c $Id: tddft_contract.F,v 1.4 2003/10/17 22:58:29 carlfahl Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c (1) A trial density matrix will be decomposed into 
@@ -28,7 +28,6 @@ c
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
-#include "case.fh"
 c
       integer rtdb             ! Runtime database
       integer geom             ! Geometry handle
@@ -41,7 +40,6 @@ c
       double precision tol2e   ! 2-e integral tolerance
       logical tda              ! True if Tamm-Dancoff approximation
       logical oskel            ! True if use symmetry in shell_fock_build
-      double precision jfac    ! Prefactor for Coulomb
       double precision kfac    ! Prefactor for HF exchange
       logical lhashf           ! True if XC has HF contribution
       logical triplet          ! True if restricted triplet
@@ -56,7 +54,6 @@ c
       double precision kf(4)   ! Prefactor for HF exchange as input for shell_fock_build
       integer i
       integer ndu,nfu
-      integer g_temp           ! NGA handles for temp array
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -81,9 +78,6 @@ c
       if (.not.nga_create(mt_dbl,3,idim,'Work product',
      1  ichunk,g_nprd)) call errquit
      2  ('tddft_contract: failed to create g_nprd',0, GA_ERR)
-      if (.not.nga_create(mt_dbl,3,idim,'Temp array',
-     1  ichunk,g_temp)) call errquit
-     2  ('tddft_contract: failed to create g_work',0, GA_ERR)
 c
 c ---------------------------
 c Symmetrize density matrices
@@ -116,50 +110,28 @@ c ---------------------
 c
       call ga_zero(g_nprd)
       if ((ipol.eq.1).and.(.not.triplet)) then
-        if (.not.cam_exch) then            ! regular calculations
-          jf(1)=1.0d0
-          kf(1)=-kfac*0.5d0
-          call shell_fock_build(geom,ao_bas_han,0,1,
-     &      jf,kf,tol2e,g_ntrl,g_nprd,.true.)
-        else                                  ! attenuated calculations
-          jfac = 1.d0
-          call shell_fock_build_cam_single(geom,ao_bas_han,0,1,
-     &      nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
-     &      .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
-        end if  ! cam_exch
+        jf(1)=1.0d0
+        kf(1)=-kfac*0.5d0
+        call shell_fock_build(geom,ao_bas_han,0,1,
+     1    jf,kf,tol2e,g_ntrl,g_nprd,.true.)
       else if ((ipol.eq.1).and.(triplet)) then
-        if (.not.cam_exch) then            ! regular calculations
-          jf(1)=0.0d0
-          kf(1)=-kfac*0.5d0
-          call shell_fock_build(geom,ao_bas_han,0,1,
-     1      jf,kf,tol2e,g_ntrl,g_nprd,.true.)
-        else                                  ! attenuated calculations
-          jfac = 1.d0
-          call shell_fock_build_cam_single(geom,ao_bas_han,0,1,
-     &      nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
-     &      .true.,.false.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
-        end if  ! cam_exch
+        jf(1)=0.0d0
+        kf(1)=-kfac*0.5d0
+        call shell_fock_build(geom,ao_bas_han,0,1,
+     1    jf,kf,tol2e,g_ntrl,g_nprd,.true.)
       else if (ipol.eq.2) then
+        jf(1)=1.0d0
+        kf(1)=kfac
+        jf(2)=1.0d0
+        kf(2)=kfac
         ndu=2
         nfu=2
-        if (.not.cam_exch) then     ! regular calculations
-          jf(1)=1.0d0
-          kf(1)=kfac
-          jf(2)=1.0d0
-          kf(2)=kfac
-          call uhf_fock_setup(g_ntrl,g_nprd,jf,kf,ndu,
-     1       nfu,nbf_ao,.false.)
-          call shell_fock_build(geom,ao_bas_han,0,ndu,
-     1       jf,kf,tol2e,g_ntrl,g_nprd,.true.)
-          call uhf_fock_finish(g_ntrl,g_nprd,jf,kf,ndu,
-     1       nfu,nbf_ao,.false.)
-        else                           ! attenuated calculations 
-          jfac = 1.d0
-          call shell_fock_build_cam_single(geom,ao_bas_han,0,ndu,
-     &       nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
-     &       .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
-        end if  ! cam_exch
-c
+        call uhf_fock_setup(g_ntrl,g_nprd,jf,kf,ndu,
+     1    nfu,nbf_ao,.false.)
+        call shell_fock_build(geom,ao_bas_han,0,ndu,
+     1    jf,kf,tol2e,g_ntrl,g_nprd,.true.)
+        call uhf_fock_finish(g_ntrl,g_nprd,jf,kf,ndu,
+     1    nfu,nbf_ao,.false.)
       endif
       do i=1,ipol
         alo(1)=1
@@ -211,39 +183,24 @@ c ---------------------
 c
         call ga_zero(g_nprd)
         if (ipol.eq.1) then
-         if (.not.cam_exch) then  ! regular calculations
-           jf(1)=0.0d0
-           kf(1)=-kfac*0.5d0
-           call shell_fock_build(geom,ao_bas_han,0,1,
-     &       jf,kf,tol2e,g_ntrl,g_nprd,.false.)
-         else                        ! attenuated calculations
-           jfac = 1.d0
-           call shell_fock_build_cam_single(geom,ao_bas_han,
-     &       0,1,nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
-     &       .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
-         end if  ! cam_exch
+          jf(1)=0.0d0
+          kf(1)=-kfac*0.5d0
+          call shell_fock_build(geom,ao_bas_han,0,1,
+     1      jf,kf,tol2e,g_ntrl,g_nprd,.false.)
         else
+          jf(1)=0.0d0
+          kf(1)=kfac
+          jf(2)=0.0d0
+          kf(2)=kfac
           ndu=2
           nfu=2
-          if (.not.cam_exch) then  ! regular calculations
-            jf(1)=0.0d0
-            kf(1)=kfac
-            jf(2)=0.0d0
-            kf(2)=kfac
-            call uhf_fock_setup(g_ntrl,g_nprd,jf,kf,ndu,
-     1        nfu,nbf_ao,.false.)
-            call shell_fock_build(geom,ao_bas_han,0,ndu,
-     1        jf,kf,tol2e,g_ntrl,g_nprd,.false.)
-            call uhf_fock_finish(g_ntrl,g_nprd,jf,kf,ndu,
-     1        nfu,nbf_ao,.false.)
-          else  ! attenuated calculations
-            jfac = 1.d0
-            call shell_fock_build_cam_single(geom,ao_bas_han,0,ndu,
-     &         nbf_ao,jfac,kfac,tol2e,g_ntrl,g_nprd,g_temp,ipol,
-     &         .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
-          end if  ! cam_exch
-        endif  ! ipol
-c
+          call uhf_fock_setup(g_ntrl,g_nprd,jf,kf,ndu,
+     1      nfu,nbf_ao,.false.)
+          call shell_fock_build(geom,ao_bas_han,0,ndu,
+     1      jf,kf,tol2e,g_ntrl,g_nprd,.false.)
+          call uhf_fock_finish(g_ntrl,g_nprd,jf,kf,ndu,
+     1      nfu,nbf_ao,.false.)
+        endif
         do i=1,ipol
           alo(1)=1
           ahi(1)=nbf_ao
@@ -302,17 +259,16 @@ c
      1  ('tddft_contract: failed to deallocate g_ntrl',0, GA_ERR)
       if (.not.ga_destroy(g_nprd)) call errquit
      1  ('tddft_contract: failed to deallocate g_nprd',0, GA_ERR)
-      if (.not.ga_destroy(g_temp)) call errquit
-     1  ('tddft_contract: failed to deallocate g_temp',0, GA_ERR)
-c
       return
       end
+
+
 
       subroutine tddft_nga_cont(rtdb,geom,ao_bas_han,
      1  g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet,nvectors)
 c
-c $Id: tddft_contract.F,v 1.9 2009-01-16 05:31:17 niri Exp $
+c $Id: tddft_contract.F,v 1.4 2003/10/17 22:58:29 carlfahl Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c Multiple trial density matrices are processed simultaneously,
@@ -332,7 +288,6 @@ c
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
-#include "case.fh"
 c
       integer rtdb             ! Runtime database
       integer geom             ! Geometry handle
@@ -346,7 +301,6 @@ c
       logical tda              ! True if Tamm-Dancoff approximation
       logical oskel            ! True if use symmetry in shell_fock_build
       double precision kfac    ! Prefactor for HF exchange
-      double precision jfac    ! Prefactor for Coulomb exchange
       logical lhashf           ! True if XC has HF contribution
       logical triplet          ! True if restricted triplet
       integer nvectors         ! Number of vectors to be processed
@@ -361,7 +315,6 @@ c
       integer l_kf,k_kf        ! Prefactor for HF exchange as input for shell_fock_build
       integer n
       integer ndu,nfu
-      integer g_temp           ! NGA handles for temp array
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -391,13 +344,13 @@ c
       ichunk(1)=ipol*nvectors
       ichunk(2)=-1
       ichunk(3)=-1
-      if (.not.nga_create(mt_dbl,3,idim,'Work sym',ichunk,g_nsym)) 
-     1 call errquit('tddft_nga_cont: failed to create g_nsym',0, GA_ERR)
-      if (.not.nga_create(mt_dbl,3,idim,'temp array',ichunk,g_temp)) 
-     1 call errquit('tddft_nga_cont: failed to create g_temp',0, GA_ERR)
+      if (.not.nga_create(mt_dbl,3,idim,'Work sym',
+     1  ichunk,g_nsym)) call errquit
+     2  ('tddft_nga_cont: failed to create g_nsym',0, GA_ERR)
       if (lhashf.and.tda) then
-       if (.not.nga_create(mt_dbl,3,idim,'Work',ichunk,g_work)) 
-     1 call errquit('tddft_nga_cont: failed to create g_work',0, GA_ERR)
+        if (.not.nga_create(mt_dbl,3,idim,'Work',
+     1    ichunk,g_work)) call errquit
+     2    ('tddft_nga_cont: failed to create g_work',0, GA_ERR)
       endif
 c
 c ---------------------------
@@ -428,35 +381,20 @@ c ---------------------
 c
       call ga_zero(g_nprd_p)
       if ((ipol.eq.1).and.(.not.triplet)) then
-       if(.not.cam_exch) then ! normal calculations
         do n=1,nvectors
           dbl_mb(k_jf+n-1)=1.0d0
           dbl_mb(k_kf+n-1)=-kfac*0.5d0
         enddo
         call shell_fock_build(geom,ao_bas_han,0,nvectors,
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
-       else   ! attenuated calculations
-        jfac = 1.d0
-        call shell_fock_build_cam_multiple(geom,ao_bas_han,0,nvectors,
-     &     nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_p,g_temp,ipol,
-     &    .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
-       end if  ! cam_exch
       else if ((ipol.eq.1).and.(triplet)) then
-       if (.not.cam_exch) then   ! normal calculations
         do n=1,nvectors
           dbl_mb(k_jf+n-1)=0.0d0
           dbl_mb(k_kf+n-1)=-kfac*0.5d0
         enddo
         call shell_fock_build(geom,ao_bas_han,0,nvectors,
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
-       else   ! attenuated calculations
-        jfac = 0.d0
-        call shell_fock_build_cam_multiple(geom,ao_bas_han,0,nvectors,
-     &     nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_p,g_temp,ipol,
-     &    .true.,.false.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
-       end if  ! cam_exch
       else if (ipol.eq.2) then
-       if (.not.cam_exch) then   ! normal calculations
         do n=1,2*nvectors
           dbl_mb(k_jf+n-1)=1.0d0
           dbl_mb(k_kf+n-1)=kfac
@@ -469,12 +407,6 @@ c
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
         call uhf_fock_finish(g_nsym,g_nprd_p,dbl_mb(k_jf),dbl_mb(k_kf),
      1    ndu,nfu,nbf_ao,.false.)
-       else  ! attenuated calculations 
-        jfac = 1.d0
-        call shell_fock_build_cam_multiple(geom,ao_bas_han,0,nvectors,
-     &     nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_p,g_temp,ipol,
-     &    .true.,.true.,.true.,.true.,.false.)  ! doexch, docoul, doxc, osym, oprint
-       end if ! cam_exch
       endif
       if (util_print('contract',print_debug))
      1  call ga_print(g_nprd_p)
@@ -518,16 +450,8 @@ c
             dbl_mb(k_kf+n-1)=-kfac*0.5d0
           enddo
           if (tda) then
-            if (.not.cam_exch) then ! normal calculations
-             call shell_fock_build(geom,ao_bas_han,0,nvectors,
-     1          dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_work,.false.)
-            else  ! attenuated calculations
-             jfac = 0.d0
-             call shell_fock_build_cam_multiple(geom,ao_bas_han,0,
-     &          nvectors,
-     &          nbf_ao,jfac,kfac,tol2e,g_nsym,g_work,g_temp,ipol,
-     &          .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
-            end if  ! cam_exch
+            call shell_fock_build(geom,ao_bas_han,0,nvectors,
+     1        dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_work,.false.)
             alo(1)=1
             ahi(1)=ipol*nvectors
             alo(2)=1
@@ -543,17 +467,9 @@ c
             call nga_add_patch(1.0d0,g_work,alo,ahi,1.0d0,
      1        g_nprd_p,blo,bhi,g_nprd_p,blo,bhi) 
           else
-            if (.not.cam_exch) then ! normal calculations
-              call shell_fock_build(geom,ao_bas_han,0,nvectors,
-     1          dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_m,.false.)
-            else  ! attenuated calculations
-             jfac = 0.d0
-             call shell_fock_build_cam_multiple(geom,ao_bas_han,0,
-     &          nvectors,
-     &          nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_m,g_temp,ipol,
-     &          .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
-            end if  ! cam_exch
-          endif ! tda
+            call shell_fock_build(geom,ao_bas_han,0,nvectors,
+     1        dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_m,.false.)
+          endif
         else
           do n=1,2*nvectors
             dbl_mb(k_jf+n-1)=0.0d0
@@ -562,50 +478,34 @@ c
           ndu=2*nvectors
           nfu=2*nvectors
           if (tda) then
-           if (.not.cam_exch) then
             call uhf_fock_setup(g_nsym,g_work,
      1        dbl_mb(k_jf),dbl_mb(k_kf),ndu,nfu,nbf_ao,.false.)
             call shell_fock_build(geom,ao_bas_han,0,ndu,
      1        dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_work,.false.)
             call uhf_fock_finish(g_nsym,g_work,
      1        dbl_mb(k_jf),dbl_mb(k_kf),ndu,nfu,nbf_ao,.false.)
-           else
-           jfac = 0.d0
-           call shell_fock_build_cam_multiple(geom,ao_bas_han,0,
-     &         nvectors,
-     &         nbf_ao,jfac,kfac,tol2e,g_nsym,g_work,g_temp,ipol,
-     &         .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
-           end if ! cam_exch
-           alo(1)=1
-           ahi(1)=ipol*nvectors
-           alo(2)=1
-           ahi(2)=nbf_ao
-           alo(3)=1
-           ahi(3)=nbf_ao
-           blo(1)=1
-           bhi(1)=ipol*nvectors
-           blo(2)=1
-           bhi(2)=nbf_ao
-           blo(3)=1
-           bhi(3)=nbf_ao
-           call nga_add_patch(1.0d0,g_work,alo,ahi,1.0d0,
+            alo(1)=1
+            ahi(1)=ipol*nvectors
+            alo(2)=1
+            ahi(2)=nbf_ao
+            alo(3)=1
+            ahi(3)=nbf_ao
+            blo(1)=1
+            bhi(1)=ipol*nvectors
+            blo(2)=1
+            bhi(2)=nbf_ao
+            blo(3)=1
+            bhi(3)=nbf_ao
+            call nga_add_patch(1.0d0,g_work,alo,ahi,1.0d0,
      1        g_nprd_p,blo,bhi,g_nprd_p,blo,bhi) 
           else
-           if (.not.cam_exch) then
-             call uhf_fock_setup(g_nsym,g_nprd_m,
+            call uhf_fock_setup(g_nsym,g_nprd_m,
      1        dbl_mb(k_jf),dbl_mb(k_kf),ndu,nfu,nbf_ao,.false.)
-             call shell_fock_build(geom,ao_bas_han,0,ndu,
+            call shell_fock_build(geom,ao_bas_han,0,ndu,
      1        dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_m,.false.)
-             call uhf_fock_finish(g_nsym,g_nprd_m,
+            call uhf_fock_finish(g_nsym,g_nprd_m,
      1        dbl_mb(k_jf),dbl_mb(k_kf),ndu,nfu,nbf_ao,.false.)
-           else 
-           jfac = 0.d0
-           call shell_fock_build_cam_multiple(geom,ao_bas_han,0,
-     &         nvectors,
-     &         nbf_ao,jfac,kfac,tol2e,g_nsym,g_nprd_m,g_temp,ipol,
-     &        .true.,.false.,.true.,.false.,.false.)  ! doexch, docoul, doxc, osym, oprint
-           end if  ! cam_exch
-          endif ! tda
+          endif
         endif
         if (tda) then
           if (util_print('contract',print_debug))
@@ -639,8 +539,6 @@ c
      1  ('tddft_nga_cont: failed to deallocate jf',0, MA_ERR)
       if (.not.ga_destroy(g_nsym)) call errquit
      1  ('tddft_nga_cont: failed to deallocate g_nsym',0, GA_ERR)
-      if (.not.ga_destroy(g_temp)) call errquit
-     1  ('tddft_nga_cont: failed to deallocate g_temp',0, GA_ERR)
       if (lhashf.and.tda) then
         if (.not.ga_destroy(g_work)) call errquit
      1    ('tddft_nga_cont: failed to deallocate g_work',0, GA_ERR)
