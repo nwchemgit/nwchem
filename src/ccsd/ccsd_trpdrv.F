@@ -30,20 +30,6 @@ c
 C     
       Integer Nodes, IAm
 c     
-*      double precision Tij(1000), Tkj(10000) ! lnvv and kchunk*lnvv
-c     
-*      double precision Tia(1000), Tka(10000) ! lnov and kchunk*lnov
-*      double precision Xia(1000), Xka(10000) ! lnov and kchunk*lnov
-c     
-*      double precision Jia(1000), Jka(10000) ! lnvv and kchunk*lnvv
-*      double precision Kia(1000), Kka(10000) ! lnvv and kchunk*lnvv
-c     
-*      double precision Jij(1000), Jkj(10000) ! lnov and kchunk*lnov
-*      double precision Kij(1000), Kkj(10000) ! lnov and kchunk*lnov
-c     
-c     rjh: D is something to do with the (T) correction ?
-*      double precision Dja(1000), Djka(1000), Djia(100) ! lnov, nvir*kchunk, nvir
-c     
       integer klo, khi, start, end
       integer kchunk
 c 
