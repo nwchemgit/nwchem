@@ -46,7 +46,9 @@ include ../config/makefile.h
 		ccsd_z2pm.o \
 		ccsd_tzinta.o \
 		ccsd_tzintb.o \
-        ccsd_mem.o ccsd_pstat.o
+        ccsd_mem.o \
+        ccsd_pstat.o \
+        f_memset.o
 
 ifdef XLF10
   OBJ += ccsd_aosig.o

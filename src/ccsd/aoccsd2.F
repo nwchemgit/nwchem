@@ -695,7 +695,7 @@ c
      $     l_trp_Djia,k_trp_Djia))
      $     call errquit('aoccsd2: triples: k_trp_Djia ', nvir, MA_ERR)
 c
-         if (use_trpdrv_nb) then
+         if (use_trpdrv_bgp) then
            if (.not. ma_push_get(MT_DBL,lnvv,'einv',l_einv,k_einv))
      $          call errquit('aoccsd2:triples einv',lnvv, MA_ERR)
          endif

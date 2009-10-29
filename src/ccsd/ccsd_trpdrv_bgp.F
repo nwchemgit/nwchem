@@ -12,40 +12,35 @@ c
 #include "ccsd_len.fh"
 #include "ccsdps.fh"
 c     
-      double precision t1(*),
-     &     f1n(*),f1t(*),f2n(*),
-     &     f2t(*),f3n(*),f3t(*),f4n(*),f4t(*),eorb(*),einv(nvir,nvir),
-     &     emp4,emp5
-      double precision Tij(*), Tkj(*), Tia(*), Tka(*), Xia(*), Xka(*), 
-     $     Jia(*), Jka(*), Kia(*), Kka(*),
-     $     Jij(*), Jkj(*), Kij(*), Kkj(*), Dja(*), Djka(*), Djia(*)
-
-      integer g_objo,g_objv,ncor,nocc,nvir,iprt,g_coul,
-     &     g_exch,oseg_lo,oseg_hi
-c     
-      integer jump
-      double precision eaijk,eorbaux,eccsdt
-      integer a,b,c,i,j,k,akold,av,inode,len,ad1,ad2,ad3,
-     &     next,nxtask
-      external nxtask
-C     
-      Integer Nodes, IAm
-c     
-      integer klo, khi, start, end
-      integer kchunk
-c 
-#ifdef DEBUG_PRINT
-      integer tt
-      double precision tt0,tt1,trp_time(26)
-#endif
+      double precision t1(*)
+      double precision f1n(*),f1t(*),f2n(*),f2t(*)
+      double precision f3n(*),f3t(*),f4n(*),f4t(*)
+      double precision eorb(*),einv(nvir,nvir)
+      double precision Tij(*), Tkj(*), Tia(*), Tka(*)
+      double precision Xia(*), Xka(*)
+      double precision Jia(*), Jka(*), Jij(*), Jkj(*)
+      double precision Kia(*), Kka(*), Kij(*), Kkj(*)
+      double precision Dja(*), Djka(*), Djia(*)
 c
-      double precision zip
-      data zip/0.0d00/
+      double precision emp4,emp5
+      double precision eaijk,eorbaux,eccsdt
+#ifdef DEBUG_PRINT
+      double precision tt0,tt1,trp_time(26)
+      integer tt
+#endif
+      integer jump,dszvv
+      integer g_objo,g_objv,g_coul,g_exch
+      integer ncor,nocc,nvir
+      integer iprt,inode,next,nxtask,nodes,iam
+      integer oseg_lo,oseg_hi
+      integer a,b,c,i,j,k,akold,av
+      integer klo, khi, kchunk
+      integer start, end, len
+      external nxtask
+c
 c     
-c     apr      call ga_print(g_coul)
-c     apr      call ga_print(g_exch)
-      Nodes = GA_NNodes()
-      IAm = GA_NodeID()
+      nodes = ga_nnodes()
+      iam = ga_nodeid()
 C     
       call ga_sync()
       if (occsdps) then
@@ -61,6 +56,8 @@ c
         trp_time(tt) = 0.0d0
       enddo
 #endif
+c
+      print*,'BlueGene/P CCSD(T) code'
 c
       do klo = 1, nocc, kchunk
          akold=0
@@ -319,23 +316,34 @@ c
 #endif
 c     
                      do k=klo,min(khi,i)
-                        call dfill(lnvv,zip,f1n,1)
-                        call dfill(lnvv,zip,f1t,1)
-                        call dfill(lnvv,zip,f2n,1)
-                        call dfill(lnvv,zip,f2t,1)
-                        call dfill(lnvv,zip,f3n,1)
-                        call dfill(lnvv,zip,f3t,1)
-                        call dfill(lnvv,zip,f4n,1)
-                        call dfill(lnvv,zip,f4t,1)
+                        dszvv=8*lnvv
+                        call f_memzero(f1n,dszvv)
+                        call f_memzero(f2n,dszvv)
+                        call f_memzero(f3n,dszvv)
+                        call f_memzero(f4n,dszvv)
+                        call f_memzero(f1t,dszvv)
+                        call f_memzero(f2t,dszvv)
+                        call f_memzero(f3t,dszvv)
+                        call f_memzero(f4t,dszvv)
 c     
 c     sum(d) (Jia, Kia)bd * Tkj,cd -> Fbc
 c     
 #ifdef DEBUG_PRINT
                         tt0 = ga_wtime()
 #endif
-                        call ccsd_dovvv_bgp(Jia, Kia,
-     $                       Tkj(1+(k-klo)*lnvv),f1n,f2n,f3n,f4n,
-     $                       nocc,nvir)
+!                        call ccsd_dovvv_bgp(Jia, Kia,Tkj(1+(k-klo)*lnvv),f1n,f2n,f3n,f4n,nocc,nvir)
+                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,Jia,
+     1                       nvir,Tkj(1+(k-klo)*lnvv),nvir,1.0d0,
+     2                       f1n,nvir)
+                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,Kia,
+     1                       nvir,Tkj(1+(k-klo)*lnvv),nvir,1.0d0,
+     2                       f2n,nvir)
+                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,Jia,
+     1                       nvir,Tkj(1+(k-klo)*lnvv),nvir,1.0d0,
+     2                       f3n,nvir)
+                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,Kia,
+     1                       nvir,Tkj(1+(k-klo)*lnvv),nvir,1.0d0,
+     2                       f4n,nvir)
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
                         trp_time(18) = trp_time(18) + (tt1-tt0)
@@ -346,27 +354,42 @@ c
 #ifdef DEBUG_PRINT
                         tt0 = ga_wtime()
 #endif
-                        call ccsd_dovvv_bgp(Jka(1+(k-klo)*lnvv),
-     $                       Kka(1+(k-klo)*lnvv),
-     $                       Tij,f1t,f2t,f3t,f4t,nocc,nvir)
+!                        call ccsd_dovvv_bgp(Jka(1+(k-klo)*lnvv),Kka(1+(k-klo)*lnvv),Tij,f1t,f2t,f3t,f4t,nocc,nvir)
+                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,
+     1                       Jka(1+(k-klo)*lnvv),nvir,Tij,nvir,1.0d0,
+     2                       f1t,nvir)
+                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,
+     1                       Kka(1+(k-klo)*lnvv),nvir,Tij,nvir,1.0d0,
+     2                       f2t,nvir)
+                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
+     1                       Jka(1+(k-klo)*lnvv),nvir,Tij,nvir,1.0d0,
+     2                       f3t,nvir)
+                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
+     1                       Kka(1+(k-klo)*lnvv),nvir,Tij,nvir,1.0d0,
+     2                       f4t,nvir)
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
                         trp_time(19) = trp_time(19) + (tt1-tt0)
 #endif
-c     
-                        ad1=(k-1)*lnov
-                        ad2=(i-1)*lnov
 c     
 c     sum(l) (Jij, Kij)cl  * Tkl,ab -> Fbc
 c     
 #ifdef DEBUG_PRINT
                         tt0 = ga_wtime()
 #endif
-                        call ccsd_doooo_bgp(Jkj(1+(k-klo)*lnov),
-     $                       Kkj(1+(k-klo)*lnov),
-     $                       Tia,Xia,
-     $                       f1n,f2n,
-     $                       f3n,f4n,nocc,nvir)
+!                        call ccsd_doooo_bgp(Jkj(1+(k-klo)*lnov),Kkj(1+(k-klo)*lnov),Tia,Xia,f1n,f2n,f3n,f4n,nocc,nvir)
+                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
+     1                       Tia,nvir,Kkj(1+(k-klo)*lnov),nocc,1.0d0,
+     2                       f1n,nvir)
+                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
+     1                       Xia,nvir,Kkj(1+(k-klo)*lnov),nocc,1.0d0,
+     2                       f2n,nvir)
+                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
+     1                       Tia,nvir,Jkj(1+(k-klo)*lnov),nocc,1.0d0,
+     2                       f3n,nvir)
+                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
+     1                       Xia,nvir,Jkj(1+(k-klo)*lnov),nocc,1.0d0,
+     2                       f4n,nvir)
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
                         trp_time(20) = trp_time(20) + (tt1-tt0)
@@ -377,10 +400,19 @@ c
 #ifdef DEBUG_PRINT
                         tt0 = ga_wtime()
 #endif
-                        call ccsd_doooo_bgp(Jij, Kij,
-     $                       Tka(1+(k-klo)*lnov),Xka(1+(k-klo)*lnov),
-     $                       f1t,f2t,
-     $                       f3t,f4t,nocc,nvir)
+!                        call ccsd_doooo_bgp(Jij, Kij,Tka(1+(k-klo)*lnov),Xka(1+(k-klo)*lnov),f1t,f2t,f3t,f4t,nocc,nvir)
+                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
+     1                       Tka(1+(k-klo)*lnov),nvir,Kij,nocc,1.0d0,
+     2                       f1t,nvir)
+                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
+     1                       Xka(1+(k-klo)*lnov),nvir,Kij,nocc,1.0d0,
+     2                       f2t,nvir)
+                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
+     1                       Tka(1+(k-klo)*lnov),nvir,Jij,nocc,1.0d0,
+     2                       f3t,nvir)
+                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
+     1                       Xka(1+(k-klo)*lnov),nvir,Jij,nocc,1.0d0,
+     2                       f4t,nvir)
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
                         trp_time(21) = trp_time(21) + (tt1-tt0)
@@ -403,35 +435,30 @@ c
                           enddo
                         enddo
 c
-                        ad1=(j-1)*lnov+(i-1)*nvir
-                        ad2=(i-1)*lnov+(j-1)*nvir
-                        ad3=(k-1)*nvir+1
-c
 #ifdef DEBUG_PRINT
                         tt0 = ga_wtime()
 #endif
-                        call ccsd_tengy_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,
-     $                       f4t,
-     &                       Dja(1+(i-1)*nvir),Djia,
-     $                       t1(ad3),eorb,einv,eaijk,emp4,emp5,
-     $                       ncor,nocc,nvir)
+                        call ccsd_tengy_bgp(f1n,f1t,f2n,f2t,
+     1                       f3n,f3t,f4n,f4t,
+     2                       Dja(1+(i-1)*nvir),Djia,
+     3                       t1((k-1)*nvir+1),
+     4                       eorb,einv,eaijk,emp4,emp5,
+     5                       ncor,nocc,nvir)
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
                         trp_time(22) = trp_time(22) + (tt1-tt0)
 #endif
 c     
                         if (i.ne.k)then
-                           ad1=(j-1)*lnov+(k-1)*nvir
-                           ad2=(k-1)*lnov+(j-1)*nvir
-                           ad3=(i-1)*nvir+1
 #ifdef DEBUG_PRINT
                            tt0 = ga_wtime()
 #endif
                            call ccsd_tengy_bgp(f1t,f1n,f2t,f2n,
-     $                          f3t,f3n,f4t,f4n,
-     $                          Dja(1+(k-1)*nvir),Djka(1+(k-klo)*nvir), 
-     $                          t1(ad3),eorb,einv,eaijk,emp4,emp5,
-     $                          ncor,nocc,nvir)
+     1                          f3t,f3n,f4t,f4n,
+     2                          Dja(1+(k-1)*nvir),Djka(1+(k-klo)*nvir), 
+     3                          t1((i-1)*nvir+1),
+     4                          eorb,einv,eaijk,emp4,emp5,
+     5                          ncor,nocc,nvir)
 #ifdef DEBUG_PRINT
                            tt1 = ga_wtime()
                            trp_time(23) = trp_time(23) + (tt1-tt0)
@@ -453,25 +480,16 @@ c
 #ifdef DEBUG_PRINT
 c
       do tt = 1, 17
-        !write(6,97) IAm,tt,trp_time(tt)
         trp_time(24) = trp_time(24) + trp_time(tt)
       enddo
-      call util_flush(6)
-   97 format('node ',i5,': ga_get timer(',i2,') = ',1e15.5)
 c
       do tt = 18, 21
-        !write(6,98) IAm,tt,trp_time(tt)
         trp_time(25) = trp_time(25) + trp_time(tt)
       enddo
-      call util_flush(6)
-   98 format('node ',i5,': dgemm timer(',i2,') = ',1e15.5)
 c
       do tt = 22, 23
-        !write(6,99) IAm,tt,trp_time(tt)
         trp_time(26) = trp_time(26) + trp_time(tt)
       enddo
-      call util_flush(6)
-   99 format('node ',i5,': tengy timer(',i2,') = ',1e15.5)
 c
       call ga_sync()
       if (IAm.eq.0) write(6,87)
@@ -527,11 +545,6 @@ c      f4n(b,c)=f4n(b,c)-t2(a,l,b,i)*vooo(c,j,l,k)
       return
       end
 
-
-
-
-
-
       subroutine ccsd_dovvv_bgp(fintc,fintx,t2,f1,f2,f3,f4,nocc,nvir)
       implicit none
       double precision fintc(*),fintx(*),t2(*),f1(*),f2(*),f3(*),f4(*)
@@ -545,16 +558,16 @@ c      f4n(b,c)=f4n(b,c)-t2(a,l,b,i)*vooo(c,j,l,k)
          call qenter('dovvv',0)
       endif
 c
-c --  f1n(b,c)=f1n(b,c)+vvvo(b,d,a,i)*t2(d,j,c,k)
+c     f1n(b,c)=f1n(b,c)+vvvo(b,d,a,i)*t2(d,j,c,k)
       call dgemm('n','t',nvir,nvir,nvir,one,fintc,nvir,
      &           t2,nvir,one,f1,nvir)
-c --  f2n(b,c)=f2n(b,c)+vvvo(a,d,b,i)*t2(d,j,c,k)
+c     f2n(b,c)=f2n(b,c)+vvvo(a,d,b,i)*t2(d,j,c,k)
       call dgemm('n','t',nvir,nvir,nvir,one,fintx,nvir,
      &           t2,nvir,one,f2,nvir)
-c --  f3n(b,c)=f3n(b,c)+vvvo(b,d,a,i)*t2(d,k,c,j)
+c     f3n(b,c)=f3n(b,c)+vvvo(b,d,a,i)*t2(d,k,c,j)
       call dgemm('n','n',nvir,nvir,nvir,one,fintc,nvir,
      &           t2,nvir,one,f3,nvir)
-c --  f4n(b,c)=f4n(b,c)+vvvo(a,d,b,i)*t2(d,k,c,j)
+c     f4n(b,c)=f4n(b,c)+vvvo(a,d,b,i)*t2(d,k,c,j)
       call dgemm('n','n',nvir,nvir,nvir,one,fintx,nvir,
      &           t2,nvir,one,f4,nvir)
       if (occsdps) then
