@@ -145,7 +145,8 @@ c
       stat=stat.and.ma_pop_stack(l_scre)
       stat=stat.and.ma_pop_stack(l_sisn)
       stat=stat.and.ma_pop_stack(l_snsi)
-      if (.not.stat)call errquit('ma_pop ccsd_sxy ',0, MA_ERR)
+      if (.not.stat)
+     &   call errquit('ccsd_pampt3: ma_pop_stack ccsd_sxy ',0, MA_ERR)
 c
       if (.not.ga_destroy(g_st2))
      &    call errquit('ga_dest g_st2 fail',0, GA_ERR)
