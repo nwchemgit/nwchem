@@ -1,5 +1,5 @@
       subroutine ccsd_trpdrv(t1,
-     &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,einv,
+     &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
      &     eccsdt,g_objo,g_objv,g_coul,g_exch,
      &     ncor,nocc,nvir,iprt,emp4,emp5,
      &     oseg_lo,oseg_hi,
@@ -14,7 +14,7 @@ c
 c     
       double precision t1(*),
      &     f1n(*),f1t(*),f2n(*),
-     &     f2t(*),f3n(*),f3t(*),f4n(*),f4t(*),eorb(*),einv(nvir,nvir),
+     &     f2t(*),f3n(*),f3t(*),f4n(*),f4t(*),eorb(*),
      &     emp4,emp5
       double precision Tij(*), Tkj(*), Tia(*), Tka(*), Xia(*), Xka(*), 
      $     Jia(*), Jka(*), Kia(*), Kka(*),
@@ -23,8 +23,7 @@ c
       integer g_objo,g_objv,ncor,nocc,nvir,iprt,g_coul,
      &     g_exch,oseg_lo,oseg_hi
 c     
-      integer jump
-      double precision eaijk,eorbaux,eccsdt
+      double precision eaijk,eccsdt
       integer a,b,c,i,j,k,akold,av,inode,len,ad1,ad2,ad3,
      &     next,nxtask
       external nxtask
@@ -394,15 +393,6 @@ c
                         eaijk=eorb(ncor+i)+eorb(ncor+j)+eorb(ncor+k)
      $                       -eorb(a)
 c
-                        jump = ncor+nocc
-                        do b=1,nvir
-                          eorbaux=eorb(jump+b)
-                          do c=1,nvir
-                            einv(c,b)=1.0d0/(eaijk-eorbaux-eorb(jump+c))
-                            einv(b,c)=einv(c,b)
-                          enddo
-                        enddo
-c
                         ad1=(j-1)*lnov+(i-1)*nvir
                         ad2=(i-1)*lnov+(j-1)*nvir
                         ad3=(k-1)*nvir+1
@@ -413,7 +403,7 @@ c
                         call ccsd_tengy(f1n,f1t,f2n,f2t,f3n,f3t,f4n,
      $                       f4t,
      &                       Dja(1+(i-1)*nvir),Djia,
-     $                       t1(ad3),eorb,einv,eaijk,emp4,emp5,
+     $                       t1(ad3),eorb,eaijk,emp4,emp5,
      $                       ncor,nocc,nvir)
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
@@ -430,7 +420,7 @@ c
                            call ccsd_tengy(f1t,f1n,f2t,f2n,
      $                          f3t,f3n,f4t,f4n,
      $                          Dja(1+(k-1)*nvir),Djka(1+(k-klo)*nvir), 
-     $                          t1(ad3),eorb,einv,eaijk,emp4,emp5,
+     $                          t1(ad3),eorb,eaijk,emp4,emp5,
      $                          ncor,nocc,nvir)
 #ifdef DEBUG_PRINT
                            tt1 = ga_wtime()
