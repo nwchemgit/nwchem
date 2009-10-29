@@ -23,28 +23,36 @@ c
       parameter(MASTER=0)
 
       integer i,j
-      integer nkatm
-      real*8  sigma_epsilon(2)
+      integer nkatm,nkatm_qm
+      real*8  sigma_epsilon(2),ei,si,ej,sj
       character*30 rtdbname
 
 *     **** external functions ****
       character*4 ion_atom
-      integer     ion_nkatm
+      integer     ion_nkatm,ion_nkatm_qm
       integer     ion_katm
       external    ion_atom
-      external    ion_nkatm
+      external    ion_nkatm,ion_nkatm_qm
       external    ion_katm
       
 
-      nkatm = ion_nkatm()
+      nkatm    = ion_nkatm()
+      nkatm_qm = ion_nkatm_qm()
 
 *     **** allocate LJ parameters ****
       value = rtdb_parallel(.true.)
       value = MA_alloc_get(mt_dbl,nkatm,
-     >                 'sigma_all',sigma_all(2),sigma_all(1))
+     >                 'sigma_atom',sigma_atom(2),sigma_atom(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,nkatm,
-     >                 'epsilon_ion',epsilon_all(2),epsilon_all(1))
+     >                 'epsilon_atom',epsilon_atom(2),epsilon_atom(1))
+
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,nkatm*nkatm,
+     >                 'sigma_all',sigma_all(2),sigma_all(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,nkatm*nkatm,
+     >                 'epsilon_all',epsilon_all(2),epsilon_all(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
@@ -57,8 +65,20 @@ c
      >                  mt_dbl,2,sigma_epsilon)
          if (.not. value) call dcopy(2,0.0d0,0,sigma_epsilon,1)
 
-        dbl_mb(sigma_all(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
-        dbl_mb(epsilon_all(1)+i-1)=sigma_epsilon(2)/(23.06d0*27.2116d0)
+        dbl_mb(sigma_atom(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
+        dbl_mb(epsilon_atom(1)+i-1)=sigma_epsilon(2)/(23.06d0*27.2116d0)
+      end do
+
+*     **** generate pairwise LJ parameters ****
+      do j=1,nkatm
+         ej = dbl_mb(epsilon_atom(1)+j-1)
+         sj = dbl_mb(sigma_atom(1)  +j-1) 
+         do i=1,nkatm
+            ei = dbl_mb(epsilon_atom(1)+i-1)
+            si = dbl_mb(sigma_atom(1)  +i-1) 
+            dbl_mb(epsilon_all(1)+(j-1)*nkatm+(i-1)) = dsqrt(ei*ej)
+            dbl_mb(sigma_all(1)  +(j-1)*nkatm+(i-1)) = 0.5d0*(si+sj)
+         end do
       end do
 
 *     **** check for LJ include_qm option ****
@@ -74,15 +94,57 @@ c
      >       write(*,*) '- including QM/QM LJ interactions'
           do i=1,nkatm
             write(*,'(A4,4x,A12,E10.3,A9,A12,E10.3,A9)') 
-     >         ion_atom(i),
-     >         'sigma:',  
-     >         dbl_mb(sigma_all(1)+i-1)*(0.529177d0), 
-     >         'Angstrom',
-     >         'epsilon:',
-     >         dbl_mb(epsilon_all(1)+ i-1)*(23.06d0*27.2116d0),
-     >         'kcal/mol'
+     >       ion_atom(i),
+     >       'sigma:',  
+     >       dbl_mb(sigma_atom(1)+i-1)*(0.529177d0), 
+     >       'Angstrom',
+     >       'epsilon:',
+     >       dbl_mb(epsilon_atom(1)+i-1)*(23.06d0*27.2116d0),
+     >       'kcal/mol'
           end do
-         write(*,*)
+          write(*,*)
+          if (include_qm) then
+             do j=1,nkatm_qm
+             do i=j,nkatm_qm
+               if (dbl_mb(epsilon_all(1)+(j-1)*nkatm+i-1).gt.1e-11)
+     >          write(*,'(A4,1x,A4,4x,A7,E10.3,A9,A12,E10.3,A9)') 
+     >          ion_atom(i),ion_atom(j),
+     >          'sigma:',  
+     >          dbl_mb(sigma_all(1)+(j-1)*nkatm+i-1)*(0.529177d0), 
+     >          'Angstrom',
+     >          'epsilon:',
+     >       dbl_mb(epsilon_all(1)+(j-1)*nkatm+i-1)*(23.06d0*27.2116d0),
+     >          'kcal/mol'
+             end do
+             end do
+          end if
+          do j=1,nkatm_qm
+          do i=nkatm_qm+1,nkatm
+            if (dbl_mb(epsilon_all(1)+(j-1)*nkatm+i-1).gt.1e-11)
+     >       write(*,'(A4,1x,A4,4x,A7,E10.3,A9,A12,E10.3,A9)') 
+     >       ion_atom(i),ion_atom(j),
+     >       'sigma:',  
+     >       dbl_mb(sigma_all(1)+(j-1)*nkatm+i-1)*(0.529177d0), 
+     >       'Angstrom',
+     >       'epsilon:',
+     >       dbl_mb(epsilon_all(1)+(j-1)*nkatm+i-1)*(23.06d0*27.2116d0),
+     >       'kcal/mol'
+          end do
+          end do
+          do j=nkatm_qm+1,nkatm
+          do i=j,nkatm
+            if (dbl_mb(epsilon_all(1)+(j-1)*nkatm+i-1).gt.1e-11)
+     >       write(*,'(A4,1x,A4,4x,A7,E10.3,A9,A12,E10.3,A9)') 
+     >       ion_atom(i),ion_atom(j),
+     >       'sigma:',  
+     >       dbl_mb(sigma_all(1)+(j-1)*nkatm+i-1)*(0.529177d0), 
+     >       'Angstrom',
+     >       'epsilon:',
+     >       dbl_mb(epsilon_all(1)+(j-1)*nkatm+i-1)*(23.06d0*27.2116d0),
+     >       'kcal/mol'
+          end do
+          end do
+          write(*,*)
       end if
 
       return
@@ -163,20 +225,24 @@ c     *************************************
 
 *     **** local variables ****
       integer dutask,taskid,np
-      integer i,j
+      integer i,j,ii,jj,nkatm
       integer w1,a,k1,kk1,n1
       integer w2,b,k2,kk2
       real*8  e1,s1,e2,s2,E
 
 *     **** external functions ****
+      integer  ion_nkatm
       real*8   pspw_VLJ_E_periodic,pspw_VLJ_E_periodic_self
       real*8   pspw_VLJ_E_onecell,pspw_VLJ_E_periodic_image
+      external ion_nkatm
       external pspw_VLJ_E_periodic,pspw_VLJ_E_periodic_self
       external pspw_VLJ_E_onecell,pspw_VLJ_E_periodic_image
       
       call nwpw_timing_start(40)
       call Parallel_np(np)
       call Parallel_taskid(taskid)
+      nkatm = ion_nkatm()
+
       E = 0.0d0
       dutask = 0
 
@@ -184,15 +250,14 @@ c     **** QM/QM LJ energy ****
       if (include_qm) then
          do j = 1,nion_qm-1
             if (dutask.eq.taskid) then
-            e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
-            s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+            jj = katm(j)
             do i=j+1,nion_qm
-               e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
-               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-               s1 = dbl_mb(sigma_all(1)+katm(i)-1)
-               E = E + pspw_VLJ_E_periodic(e1,s1,rion(1,i),
-     >                                     e2,s2,rion(1,j),
-     >                                     nshl3d,rcell)
+               ii = katm(i)
+               e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
+               if (e1.gt.1.0d-11) then
+                  s1 = dbl_mb(sigma_all(1)+(jj-1)*nkatm+ii-1)
+                  E = E + pspw_VLJ_E_periodic(e1,s1,rion(1,i),rion(1,j),
+     >                                        nshl3d,rcell)
                end if
             end do
             end if
@@ -203,15 +268,14 @@ c     **** QM/QM LJ energy ****
 c     **** QM/MM LJ energy ****
       do j = nion_qm+1,nion
          if (dutask.eq.taskid) then
-         e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
-         s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+         jj = katm(j)
          do i=1,nion_qm
-            e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
-            if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-            s1 = dbl_mb(sigma_all(1)+katm(i)-1)
-            E = E + pspw_VLJ_E_periodic(e1,s1,rion(1,i),
-     >                                  e2,s2,rion(1,j),
-     >                                  nshl3d,rcell)
+            ii = katm(i)
+            e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
+            if (e1.gt.1.0d-11) then
+               s1 = dbl_mb(sigma_all(1)+(jj-1)*nkatm+ii-1)
+               E = E + pspw_VLJ_E_periodic(e1,s1,rion(1,i),rion(1,j),
+     >                                     nshl3d,rcell)
             end if
          end do
          end if
@@ -228,13 +292,13 @@ c     **** MM/MM LJ 1 cell energy ****
          do a=1,size_frag(w1)
             kk2 = k2
             do b=1,size_frag(w2)
-               e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
-               e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
-               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-               s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
-               s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
-               E = E + pspw_VLJ_E_onecell(e1,s1,rion(1,kk1),
-     >                                    e2,s2,rion(1,kk2))
+               ii = katm(kk1)
+               jj = katm(kk2)
+               e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
+               if (e1.gt.1.0d-11) then
+                  s1 = dbl_mb(sigma_all(1)+(jj-1)*nkatm+ii-1)
+                  E = E + pspw_VLJ_E_onecell(e1,s1,
+     >                                       rion(1,kk1),rion(1,kk2))
                end if
                kk2 = kk2 + 1
             end do
@@ -255,13 +319,13 @@ c     **** MM/MM LJ self energy ****
            do a=1,n1-1
              kk2 = kk1 + 1
              do b=a+1,n1
-               e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
-               e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
-               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-               s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
-               s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
-               E = E + pspw_VLJ_E_onecell(e1,s1,rion(1,kk1),
-     >                                    e2,s2,rion(1,kk2))
+               ii = katm(kk1)
+               jj = katm(kk2)
+               e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
+               if (e1.gt.1.0d-11) then
+                  s1 = dbl_mb(sigma_all(1)+(jj-1)*nkatm+ii-1)
+                  E = E + pspw_VLJ_E_onecell(e1,s1,
+     >                                       rion(1,kk1),rion(1,kk2))
                end if
                kk2 = kk2 + 1
              end do
@@ -277,10 +341,11 @@ c     **** MM/MM LJ self image energy ****
 
       do j = nion_qm+1,nion
        if (dutask.eq.taskid) then
-         e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
-         s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+         jj = katm(j)
+         e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+jj-1)
+         s1 = dbl_mb(sigma_all(1)  +(jj-1)*nkatm+jj-1)
          if ((e2.gt.1.0d-11)) then
-            E = E + pspw_VLJ_E_periodic_image(e2,s2,nshl3d,rcell)
+            E = E + pspw_VLJ_E_periodic_image(e1,s1,nshl3d,rcell)
          end if
        end if
        dutask = mod(dutask+1,np)
@@ -290,15 +355,15 @@ c     **** MM/MM LJ self image energy ****
 c     **** MM/MM LJ image energy ****
       do j = (nion_qm+1),(nion-1)
          if (dutask.eq.taskid) then
-         e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
-         s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+         jj = katm(j)
          do i=j+1,nion
-            e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
-            if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-            s1 = dbl_mb(sigma_all(1)+katm(i)-1)
-            E = E + pspw_VLJ_E_periodic_self(e1,s1,rion(1,i),
-     >                                       e2,s2,rion(1,j),
-     >                                       nshl3d,rcell)
+            ii = katm(i)
+            e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
+            if (e1.gt.1.0d-11) then
+               s1 = dbl_mb(sigma_all(1)+(jj-1)*nkatm+ii-1)
+               E  = E + pspw_VLJ_E_periodic_self(e1,s1,
+     >                                          rion(1,i),rion(1,j),
+     >                                          nshl3d,rcell)
             end if
          end do
          end if
@@ -318,24 +383,24 @@ c     **** MM/MM LJ image energy ****
 
 c     *********************************************
 c     *                                           *
-c     *              pspw_VLJ_E_onecell          *
+c     *              pspw_VLJ_E_onecell           *
 c     *                                           *
 c     *********************************************
 
-      real*8 function pspw_VLJ_E_onecell(e1,s1,r1,e2,s2,r2)
+      real*8 function pspw_VLJ_E_onecell(epsilon12,sigma12,r1,r2)
       implicit none
-      real*8 e1,s1,r1(3)
-      real*8 e2,s2,r2(3)
+      real*8 epsilon12,sigma12
+      real*8 r1(3)
+      real*8 r2(3)
       
 
 *     **** local variables ****
       real*8  dx,dy,dz,r
-      real*8  sigma12,epsilon12
       real*8  u,u6,u12,E
 
       E         = 0.0d0
-      sigma12   = 0.5d0*(s1+s2)
-      epsilon12 = dsqrt(e1*e2)
+      !sigma12   = 0.5d0*(s1+s2)
+      !epsilon12 = dsqrt(e1*e2)
       dx = r1(1) - r2(1)
       dy = r1(2) - r2(2)
       dz = r1(3) - r2(3)
@@ -357,11 +422,12 @@ c     *              pspw_VLJ_E_periodic          *
 c     *                                           *
 c     *********************************************
 
-      real*8 function pspw_VLJ_E_periodic(e1,s1,r1,e2,s2,r2,
+      real*8 function pspw_VLJ_E_periodic(epsilon12,sigma12,r1,r2,
      >                                    nshl3d,rcell)
       implicit none
-      real*8 e1,s1,r1(3)
-      real*8 e2,s2,r2(3)
+      real*8  epsilon12,sigma12
+      real*8  r1(3)
+      real*8  r2(3)
       integer nshl3d
       real*8  rcell(nshl3d,3)
 
@@ -369,12 +435,11 @@ c     *********************************************
       integer l
       real*8  dx,dy,dz
       real*8  x,y,z,r
-      real*8  sigma12,epsilon12
       real*8  u,u6,u12,E
 
       E         = 0.0d0
-      sigma12   = 0.5d0*(s1+s2)
-      epsilon12 = dsqrt(e1*e2)
+      !sigma12   = 0.5d0*(s1+s2)
+      !epsilon12 = dsqrt(e1*e2)
       dx = r1(1) - r2(1)
       dy = r1(2) - r2(2)
       dz = r1(3) - r2(3)
@@ -401,11 +466,12 @@ c     *              pspw_VLJ_E_periodic_self     *
 c     *                                           *
 c     *********************************************
 
-      real*8 function pspw_VLJ_E_periodic_self(e1,s1,r1,e2,s2,r2,
-     >                                    nshl3d,rcell)
+      real*8 function pspw_VLJ_E_periodic_self(epsilon12,sigma12,r1,r2,
+     >                                         nshl3d,rcell)
       implicit none
-      real*8 e1,s1,r1(3)
-      real*8 e2,s2,r2(3)
+      real*8 epsilon12,sigma12
+      real*8 r1(3)
+      real*8 r2(3)
       integer nshl3d
       real*8  rcell(nshl3d,3)
 
@@ -413,12 +479,11 @@ c     *********************************************
       integer l
       real*8  dx,dy,dz
       real*8  x,y,z,r
-      real*8  sigma12,epsilon12
       real*8  u,u6,u12,E
 
       E         = 0.0d0
-      sigma12   = 0.5d0*(s1+s2)
-      epsilon12 = dsqrt(e1*e2)
+      !sigma12   = 0.5d0*(s1+s2)
+      !epsilon12 = dsqrt(e1*e2)
       dx = r1(1) - r2(1)
       dy = r1(2) - r2(2)
       dz = r1(3) - r2(3)
@@ -502,28 +567,34 @@ c     *************************************
 
 *     **** local variables ****
       integer dutask,taskid,np
-      integer i,j
+      integer i,j,ii,jj,nkatm
       integer w1,a,k1,kk1,n1
       integer w2,b,k2,kk2
       real*8  e1,s1,e2,s2
 
+*     **** external functions ****
+      integer  ion_nkatm
+      external ion_nkatm
+
       call nwpw_timing_start(40)
       call Parallel_np(np)
       call Parallel_taskid(taskid)
+      nkatm = ion_nkatm()
       dutask = 0
 
 c     **** QM/QM LJ force ****
       if (include_qm) then
          do j = 1,nion_qm-1
             if (dutask.eq.taskid) then
-            e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
-            s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+            jj = katm(j)
             do i=j+1,nion_qm
-               e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
-               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-               s1 = dbl_mb(sigma_all(1)  +katm(i)-1)
-               call pspw_VLJ_fion_periodic(e1,s1,rion(1,i),fion(1,i),
-     >                                     e2,s2,rion(1,j),fion(1,j),
+               ii = katm(i)
+               e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
+               if (e1.gt.1.0d-11) then
+               s1 = dbl_mb(sigma_all(1)+(jj-1)*nkatm+ii-1)
+               call pspw_VLJ_fion_periodic(e1,s1,
+     >                                     rion(1,i),fion(1,i),
+     >                                     rion(1,j),fion(1,j),
      >                                     nshl3d,rcell)
                end if
             end do
@@ -535,14 +606,15 @@ c     **** QM/QM LJ force ****
 c     **** QM/MM LJ energy ****
       do j = nion_qm+1,nion
          if (dutask.eq.taskid) then
-         e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
-         s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+         jj = katm(j)
          do i=1,nion_qm
-            e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
-            if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-            s1 = dbl_mb(sigma_all(1)  +katm(i)-1)
-            call pspw_VLJ_fion_periodic(e1,s1,rion(1,i),fion(1,i),
-     >                                  e2,s2,rion(1,j),fion(1,j),
+            ii = katm(i)
+            e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
+            if (e1.gt.1.0d-11) then
+            s1 = dbl_mb(sigma_all(1)+(jj-1)*nkatm+ii-1)
+            call pspw_VLJ_fion_periodic(e1,s1,
+     >                                  rion(1,i),fion(1,i),
+     >                                  rion(1,j),fion(1,j),
      >                                  nshl3d,rcell)
             end if
          end do
@@ -560,13 +632,14 @@ c     **** MM/MM LJ 1 cell energy ****
          do a=1,size_frag(w1)
             kk2 = k2
             do b=1,size_frag(w2)
-               e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
-               e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
-               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-               s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
-               s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
-               call pspw_VLJ_fion_onecell(e1,s1,rion(1,kk1),fion(1,kk1),
-     >                                    e2,s2,rion(1,kk2),fion(1,kk2))
+               ii = katm(kk1)
+               jj = katm(kk2)
+               e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
+               if (e1.gt.1.0d-11) then
+               s1 = dbl_mb(sigma_all(1)+(jj-1)*nkatm+ii-1)
+               call pspw_VLJ_fion_onecell(e1,s1,
+     >                                    rion(1,kk1),fion(1,kk1),
+     >                                    rion(1,kk2),fion(1,kk2))
                end if
                kk2 = kk2 + 1
             end do
@@ -587,13 +660,14 @@ c     **** MM/MM LJ self energy ****
            do a=1,n1-1
              kk2 = kk1 + 1
              do b=a+1,n1
-               e1 = dbl_mb(epsilon_all(1)+katm(kk1)-1)
-               e2 = dbl_mb(epsilon_all(1)+katm(kk2)-1)
-               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-               s1 = dbl_mb(sigma_all(1)+katm(kk1)-1)
-               s2 = dbl_mb(sigma_all(1)+katm(kk2)-1)
-               call pspw_VLJ_fion_onecell(e1,s1,rion(1,kk1),fion(1,kk1),
-     >                                    e2,s2,rion(1,kk2),fion(1,kk2))
+               ii = katm(kk1)
+               jj = katm(kk2)
+               e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
+               if (e1.gt.1.0d-11) then
+               s1 = dbl_mb(sigma_all(1)+(jj-1)*nkatm+ii-1)
+               call pspw_VLJ_fion_onecell(e1,s1,
+     >                                    rion(1,kk1),fion(1,kk1),
+     >                                    rion(1,kk2),fion(1,kk2))
                end if
                kk2 = kk2 + 1
              end do
@@ -610,14 +684,15 @@ c     **** MM/MM LJ self image energy - no force ****
 c     **** MM/MM LJ image energy ****
       do j = (nion_qm+1),(nion-1)
          if (dutask.eq.taskid) then
-         e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
-         s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+         jj = katm(j)
          do i=j+1,nion
-            e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
-            if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
-            s1 = dbl_mb(sigma_all(1)+katm(i)-1)
-            call pspw_VLJ_fion_periodic_self(e1,s1,rion(1,i),fion(1,i),
-     >                                       e2,s2,rion(1,j),fion(1,j),
+            ii = katm(i)
+            e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
+            if (e1.gt.1.0d-11) then
+            s1 = dbl_mb(sigma_all(1)+(jj-1)*nkatm+ii-1)
+            call pspw_VLJ_fion_periodic_self(e1,s1,
+     >                                       rion(1,i),fion(1,i),
+     >                                       rion(1,j),fion(1,j),
      >                                       nshl3d,rcell)
             end if
          end do
@@ -626,9 +701,6 @@ c     **** MM/MM LJ image energy ****
       end do
 
       end if
-
-
-
 
 
       call nwpw_timing_end(40)
@@ -642,12 +714,13 @@ c     *              pspw_VLJ_fion_periodic       *
 c     *                                           *
 c     *********************************************
 
-      subroutine pspw_VLJ_fion_periodic(e1,s1,r1,f1,
-     >                                  e2,s2,r2,f2,
+      subroutine pspw_VLJ_fion_periodic(epsilon12,sigma12,
+     >                                  r1,f1,r2,f2,
      >                                  nshl3d,rcell)
       implicit none
-      real*8 e1,s1,r1(3),f1(3)
-      real*8 e2,s2,r2(3),f2(3)
+      real*8 epsilon12,sigma12
+      real*8 r1(3),f1(3)
+      real*8 r2(3),f2(3)
       integer nshl3d
       real*8  rcell(nshl3d,3)
 
@@ -655,11 +728,10 @@ c     *********************************************
       integer l
       real*8  dx,dy,dz
       real*8  x,y,z,r
-      real*8  sigma12,epsilon12
       real*8  u,u6,u12,dVLJ
 
-      sigma12   = 0.5d0*(s1+s2)
-      epsilon12 = dsqrt(e1*e2)
+      !sigma12   = 0.5d0*(s1+s2)
+      !epsilon12 = dsqrt(e1*e2)
       dx = r1(1) - r2(1)
       dy = r1(2) - r2(2)
       dz = r1(3) - r2(3)
@@ -691,12 +763,13 @@ c     *         pspw_VLJ_fion_periodic_self       *
 c     *                                           *
 c     *********************************************
 
-      subroutine pspw_VLJ_fion_periodic_self(e1,s1,r1,f1,
-     >                                  e2,s2,r2,f2,
-     >                                  nshl3d,rcell)
+      subroutine pspw_VLJ_fion_periodic_self(epsilon12,sigma12,
+     >                                       r1,f1,r2,f2,
+     >                                       nshl3d,rcell)
       implicit none
-      real*8 e1,s1,r1(3),f1(3)
-      real*8 e2,s2,r2(3),f2(3)
+      real*8  epsilon12,sigma12
+      real*8 r1(3),f1(3)
+      real*8 r2(3),f2(3)
       integer nshl3d
       real*8  rcell(nshl3d,3)
 
@@ -704,11 +777,10 @@ c     *********************************************
       integer l
       real*8  dx,dy,dz
       real*8  x,y,z,r
-      real*8  sigma12,epsilon12
       real*8  u,u6,u12,dVLJ
 
-      sigma12   = 0.5d0*(s1+s2)
-      epsilon12 = dsqrt(e1*e2)
+      !sigma12   = 0.5d0*(s1+s2)
+      !epsilon12 = dsqrt(e1*e2)
       dx = r1(1) - r2(1)
       dy = r1(2) - r2(2)
       dz = r1(3) - r2(3)
@@ -740,19 +812,18 @@ c     *             pspw_VLJ_fion_onecell         *
 c     *                                           *
 c     *********************************************
 
-      subroutine pspw_VLJ_fion_onecell(e1,s1,r1,f1,
-     >                                 e2,s2,r2,f2)
+      subroutine pspw_VLJ_fion_onecell(epsilon12,sigma12,r1,f1,r2,f2)
       implicit none
-      real*8 e1,s1,r1(3),f1(3)
-      real*8 e2,s2,r2(3),f2(3)
+      real*8 sigma12,epsilon12
+      real*8 r1(3),f1(3)
+      real*8 r2(3),f2(3)
 
 *     **** local variables ****
       real*8  x,y,z,r
-      real*8  sigma12,epsilon12
       real*8  u,u6,u12,dVLJ
 
-      sigma12   = 0.5d0*(s1+s2)
-      epsilon12 = dsqrt(e1*e2)
+      !sigma12   = 0.5d0*(s1+s2)
+      !epsilon12 = dsqrt(e1*e2)
       x = r1(1) - r2(1)
       y = r1(2) - r2(2)
       z = r1(3) - r2(3)
