@@ -13,8 +13,10 @@ c
 #include "ccsdps.fh"
 c     
       double precision t1(*)
-      double precision f1n(*),f1t(*),f2n(*),f2t(*)
-      double precision f3n(*),f3t(*),f4n(*),f4t(*)
+      double precision f1n(nvir,nvir),f1t(nvir,nvir)
+      double precision f2n(nvir,nvir),f2t(nvir,nvir)
+      double precision f3n(nvir,nvir),f3t(nvir,nvir)
+      double precision f4n(nvir,nvir),f4t(nvir,nvir)
       double precision eorb(*),einv(nvir,nvir)
       double precision Tij(*), Tkj(*), Tia(*), Tka(*)
       double precision Xia(*), Xka(*)
@@ -22,7 +24,7 @@ c
       double precision Kia(*), Kka(*), Kij(*), Kkj(*)
       double precision Dja(*), Djka(*), Djia(*)
 c
-      double precision emp4,emp5
+      double precision emp4,emp5,denom
       double precision eaijk,eorbaux,eccsdt
 #ifdef DEBUG_PRINT
       double precision tt0,tt1,trp_time(26)
@@ -316,7 +318,7 @@ c
 #endif
 c     
                      do k=klo,min(khi,i)
-                        dszvv=8*lnvv
+                        dszvv=8*lnvv ! assuming 8 bytes per double...
                         call f_memzero(f1n,dszvv)
                         call f_memzero(f2n,dszvv)
                         call f_memzero(f3n,dszvv)
@@ -444,6 +446,17 @@ c
      3                       t1((k-1)*nvir+1),
      4                       eorb,einv,eaijk,emp4,emp5,
      5                       ncor,nocc,nvir)
+c                           subroutine ccsd_tengy_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,dintc,dintx,t1v,eorb,einv,eaijk,emp4,emp5,ncor,nocc,nvir)
+!                           do b=1,nvir
+!                             do c=1,nvir
+!                               denom=einv(c,b)
+!                               emp4=emp4+denom*(f1t(b,c)+f1n(c,b)+f2t(c,b)+f3n(b,c)+f4n(c,b))*(f1t(b,c)-2.0d0*f2t(b,c)-2.0d0*f3t(b,c)+f4t(b,c))
+!                               emp4=emp4-denom*(f1n(b,c)+f1t(c,b)+f2n(c,b)+f3n(c,b))*(2.0d0*f1t(b,c)-f2t(b,c)-f3t(b,c)+2.0d0*f4t(b,c))
+!                               emp4=emp4+3.0d0*denom*(f1n(b,c)*(f1n(b,c)+f3n(c,b)+2.0d0*f4t(c,b))+f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
+!                               emp5=emp5+denom*t1v(b)*dintx(c)*(f1t(b,c)+f2n(b,c)+f4n(c,b)-2.0d0*(f3t(b,c)+f4n(b,c)+f2n(c,b)+f1n(b,c)+f2t(b,c)+f3n(c,b))+4.0d0*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
+!                               emp5=emp5+denom*t1v(b)*dintc(c)*(f1n(b,c)+f4n(b,c)+f1t(c,b)-2.0d0*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
+!                             enddo
+!                           enddo
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
                         trp_time(22) = trp_time(22) + (tt1-tt0)
@@ -459,6 +472,17 @@ c
      3                          t1((i-1)*nvir+1),
      4                          eorb,einv,eaijk,emp4,emp5,
      5                          ncor,nocc,nvir)
+c                           subroutine ccsd_tengy_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,dintc,dintx,t1v,eorb,einv,eaijk,emp4,emp5,ncor,nocc,nvir)
+!                           do b=1,nvir
+!                             do c=1,nvir
+!                               denom=einv(c,b)
+!                               emp4=emp4+denom*(f1t(b,c)+f1n(c,b)+f2t(c,b)+f3n(b,c)+f4n(c,b))*(f1t(b,c)-2.0d0*f2t(b,c)-2.0d0*f3t(b,c)+f4t(b,c))
+!                               emp4=emp4-denom*(f1n(b,c)+f1t(c,b)+f2n(c,b)+f3n(c,b))*(2.0d0*f1t(b,c)-f2t(b,c)-f3t(b,c)+2.0d0*f4t(b,c))
+!                               emp4=emp4+3.0d0*denom*(f1n(b,c)*(f1n(b,c)+f3n(c,b)+2.0d0*f4t(c,b))+f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
+!                               emp5=emp5+denom*t1v(b)*dintx(c)*(f1t(b,c)+f2n(b,c)+f4n(c,b)-2.0d0*(f3t(b,c)+f4n(b,c)+f2n(c,b)+f1n(b,c)+f2t(b,c)+f3n(c,b))+4.0d0*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
+!                               emp5=emp5+denom*t1v(b)*dintc(c)*(f1n(b,c)+f4n(b,c)+f1t(c,b)-2.0d0*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
+!                             enddo
+!                           enddo
 #ifdef DEBUG_PRINT
                            tt1 = ga_wtime()
                            trp_time(23) = trp_time(23) + (tt1-tt0)
@@ -510,74 +534,6 @@ c
 c     
       end
 
-      subroutine ccsd_doooo_bgp(eintc,eintx,t2c,t2x,f1,f2,f3,f4,
-     1                          nocc,nvir)
-      implicit none
-      double precision eintc(*),eintx(*),t2c(*),t2x(*),
-     &                 f1(*),f2(*),f3(*),f4(*)
-      integer nocc,nvir
-      double precision one
-      data one/1.0d00/
-#include "ccsdps.fh"
-      if (occsdps) then
-         call pstat_on(ps_doooo)
-      else
-         call qenter('doooo',0)
-      endif
-c
-c      f1n(b,c)=f1n(b,c)-t2(b,l,a,i)*vooo(c,k,l,j)
-      call dgemm('n','n',nvir,nvir,nocc,-one,t2c,nvir,
-     &           eintx,nocc,one,f1,nvir)
-c      f2n(b,c)=f2n(b,c)-t2(a,l,b,i)*vooo(c,k,l,j)
-      call dgemm('n','n',nvir,nvir,nocc,-one,t2x,nvir,
-     &           eintx,nocc,one,f2,nvir)
-c      f3n(b,c)=f3n(b,c)-t2(b,l,a,i)*vooo(c,j,l,k)
-      call dgemm('n','n',nvir,nvir,nocc,-one,t2c,nvir,
-     &           eintc,nocc,one,f3,nvir)
-c      f4n(b,c)=f4n(b,c)-t2(a,l,b,i)*vooo(c,j,l,k)
-      call dgemm('n','n',nvir,nvir,nocc,-one,t2x,nvir,
-     &           eintc,nocc,one,f4,nvir)
-      if (occsdps) then
-         call pstat_off(ps_doooo)
-      else
-         call qexit('doooo',0)
-      endif
-      return
-      end
-
-      subroutine ccsd_dovvv_bgp(fintc,fintx,t2,f1,f2,f3,f4,nocc,nvir)
-      implicit none
-      double precision fintc(*),fintx(*),t2(*),f1(*),f2(*),f3(*),f4(*)
-      integer nocc,nvir
-      double precision one
-      data one/1.0d00/
-#include "ccsdps.fh"
-      if (occsdps) then
-         call pstat_on(ps_dovvv)
-      else
-         call qenter('dovvv',0)
-      endif
-c
-c     f1n(b,c)=f1n(b,c)+vvvo(b,d,a,i)*t2(d,j,c,k)
-      call dgemm('n','t',nvir,nvir,nvir,one,fintc,nvir,
-     &           t2,nvir,one,f1,nvir)
-c     f2n(b,c)=f2n(b,c)+vvvo(a,d,b,i)*t2(d,j,c,k)
-      call dgemm('n','t',nvir,nvir,nvir,one,fintx,nvir,
-     &           t2,nvir,one,f2,nvir)
-c     f3n(b,c)=f3n(b,c)+vvvo(b,d,a,i)*t2(d,k,c,j)
-      call dgemm('n','n',nvir,nvir,nvir,one,fintc,nvir,
-     &           t2,nvir,one,f3,nvir)
-c     f4n(b,c)=f4n(b,c)+vvvo(a,d,b,i)*t2(d,k,c,j)
-      call dgemm('n','n',nvir,nvir,nvir,one,fintx,nvir,
-     &           t2,nvir,one,f4,nvir)
-      if (occsdps) then
-         call pstat_off(ps_dovvv)
-      else
-         call qexit('dovvv',0)
-      endif
-      return
-      end
-
       subroutine ccsd_tengy_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      &                      dintc,dintx,t1v,eorb,einv,eaijk,
      $                      emp4,emp5,ncor,nocc,nvir)
@@ -587,14 +543,12 @@ C     $Id: ccsd_tengy.F,v 2.1 2004-12-16 23:02:58 edo Exp $
       integer ncor,nocc,nvir
       integer b,c
       double precision eaijk,emp4,emp5,denom
-      double precision one,two,three,four
       double precision f1n(nvir,nvir),f1t(nvir,nvir)
       double precision f2n(nvir,nvir),f2t(nvir,nvir)
       double precision f3n(nvir,nvir),f3t(nvir,nvir)
       double precision f4n(nvir,nvir),f4t(nvir,nvir)
       double precision dintc(nvir),dintx(nvir),t1v(nvir),eorb(*)
       double precision einv(nvir,nvir)
-      data one/1.0d00/,two/2.0d00/,three/3.0d00/,four/4.0d00/
 c
       if (occsdps) then
          call pstat_on(ps_tengy)
@@ -604,29 +558,24 @@ c
 c
       do b=1,nvir
         do c=1,nvir
-c          denom=one/(eaijk-eorb(ncor+nocc+b)-eorb(ncor+nocc+c))
           denom=einv(c,b)
           emp4=emp4+denom*
      &         (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3n(b,c)+f4n(c,b))*
-     &         (f1t(b,c)-two*f2t(b,c)-two*f3t(b,c)+f4t(b,c))
-c
+     &         (f1t(b,c)-2.0d0*f2t(b,c)-2.0d0*f3t(b,c)+f4t(b,c))
           emp4=emp4-denom*
      &         (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3n(c,b))*
-     &         (two*f1t(b,c)-f2t(b,c)-f3t(b,c)+two*f4t(b,c))
-c
-          emp4=emp4+three*denom*(
-     &         f1n(b,c)*(f1n(b,c)+f3n(c,b)+two*f4t(c,b))+
+     &         (2.0d0*f1t(b,c)-f2t(b,c)-f3t(b,c)+2.0d0*f4t(b,c))
+          emp4=emp4+3.0d0*denom*(
+     &         f1n(b,c)*(f1n(b,c)+f3n(c,b)+2.0d0*f4t(c,b))+
      &         f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
-c
           emp5=emp5+denom*t1v(b)*dintx(c)*
      &        (     f1t(b,c)+f2n(b,c)+f4n(c,b)
-     &         -two*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
+     &         -2.0d0*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
      &              f1n(b,c)+f2t(b,c)+f3n(c,b))
-     &         +four*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
+     &         +4.0d0*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
           emp5=emp5+denom*t1v(b)*dintc(c)*
      &        (     f1n(b,c)+f4n(b,c)+f1t(c,b)
-     &          -two*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
-c
+     &          -2.0d0*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
         enddo
       enddo
 c
