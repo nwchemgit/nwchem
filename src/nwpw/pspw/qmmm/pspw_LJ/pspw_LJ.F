@@ -4,7 +4,7 @@ c
 
 *     *************************
 *     *                       *
-*     *     pspw_LJ_init	  *
+*     *     pspw_LJ_init      *
 *     *                       *
 *     *************************
       subroutine pspw_LJ_init(rtdb)
@@ -60,12 +60,18 @@ c
         dbl_mb(sigma_all(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
         dbl_mb(epsilon_all(1)+i-1)=sigma_epsilon(2)/(23.06d0*27.2116d0)
       end do
+
+*     **** check for LJ include_qm option ****
+      if (.not.rtdb_get(rtdb,'pspw_LJ_include_qm',mt_log,1,include_qm))
+     >   include_qm = .false.
       
       
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
           write(*,*)
           write(*,*) 'Ion LJ Parameters:'
+          if (include_qm)
+     >       write(*,*) '- including QM/QM LJ interactions'
           do i=1,nkatm
             write(*,'(A4,4x,A12,E10.3,A9,A12,E10.3,A9)') 
      >         ion_atom(i),
@@ -172,9 +178,29 @@ c     *************************************
       call Parallel_np(np)
       call Parallel_taskid(taskid)
       E = 0.0d0
+      dutask = 0
+
+c     **** QM/QM LJ energy ****
+      if (include_qm) then
+         do j = 1,nion_qm-1
+            if (dutask.eq.taskid) then
+            e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
+            s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+            do i=j+1,nion_qm
+               e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
+               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
+               s1 = dbl_mb(sigma_all(1)+katm(i)-1)
+               E = E + pspw_VLJ_E_periodic(e1,s1,rion(1,i),
+     >                                     e2,s2,rion(1,j),
+     >                                     nshl3d,rcell)
+               end if
+            end do
+            end if
+            dutask = mod(dutask+1,np)
+         end do
+      end if
 
 c     **** QM/MM LJ energy ****
-      dutask = 0
       do j = nion_qm+1,nion
          if (dutask.eq.taskid) then
          e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
@@ -485,6 +511,26 @@ c     *************************************
       call Parallel_np(np)
       call Parallel_taskid(taskid)
       dutask = 0
+
+c     **** QM/QM LJ force ****
+      if (include_qm) then
+         do j = 1,nion_qm-1
+            if (dutask.eq.taskid) then
+            e2 = dbl_mb(epsilon_all(1)+katm(j)-1)
+            s2 = dbl_mb(sigma_all(1)  +katm(j)-1)
+            do i=j+1,nion_qm
+               e1 = dbl_mb(epsilon_all(1)+katm(i)-1)
+               if ((e1.gt.1.0d-11).and.(e2.gt.1.0d-11)) then
+               s1 = dbl_mb(sigma_all(1)  +katm(i)-1)
+               call pspw_VLJ_fion_periodic(e1,s1,rion(1,i),fion(1,i),
+     >                                     e2,s2,rion(1,j),fion(1,j),
+     >                                     nshl3d,rcell)
+               end if
+            end do
+            end if
+            dutask = mod(dutask+1,np)
+         end do
+      end if
 
 c     **** QM/MM LJ energy ****
       do j = nion_qm+1,nion

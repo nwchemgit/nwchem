@@ -4,6 +4,8 @@ c
 
 *     ***** pspw_LJ common block ************************************
       integer sigma_all(2),epsilon_all(2)
+      logical include_qm
       common / pspw_LJ /   sigma_all,		! LJ parameters
-     >                     epsilon_all		! LJ parameters
+     >                     epsilon_all,		! LJ parameters
+     >                     include_qm
 *     ******************************************************************
