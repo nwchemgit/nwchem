@@ -151,7 +151,8 @@ c ------------------------------------------------------------
       stat=stat.and.ma_push_get(MT_DBL,nbf*nbf,'scrc',l_sc3, k_sc3)
       stat=stat.and.ma_push_get(MT_DBL,nbf*nbf,'scrd',l_sc4, k_sc4)
       stat=stat.and.ma_push_get(MT_DBL,nocc*nbf,'t1ao',l_t1ao, k_t1ao)
-      if (.not.stat)call errquit('ma_get ccsd_sxy ',0, MA_ERR)
+      if (.not.stat)
+     &   call errquit('ccsd_pzamp: ma_push_get ccsd_sxy ',0, MA_ERR)
       call ccsd_sxy(basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,g_sht2,
      &              g_c,g_x,int_mb(k_offsh),dbl_mb(k_snsi),
      &              dbl_mb(k_sisn),lssni,dbl_mb(k_scre),
@@ -168,7 +169,8 @@ c ------------------------------------------------------------
       stat=stat.and.ma_pop_stack(l_eri1)
       stat=stat.and.ma_pop_stack(l_sisn)
       stat=stat.and.ma_pop_stack(l_snsi)
-      if (.not.stat)call errquit('ma_pop ccsd_sxy ',0, MA_ERR)
+      if (.not.stat)
+     &   call errquit('ccsd_pzamp: ma_pop_stack ccsd_sxy ',0, MA_ERR)
 c
 c ------------------------------------------------------------
 c - Change ht2+/- with 2 ao and 2 occ indices into normal ht2
@@ -206,7 +208,8 @@ c
       stat=stat.and.ma_push_get(MT_DBL,nbf*nbf,'scrc',l_sc3, k_sc3)
       stat=stat.and.ma_push_get(MT_DBL,nbf*nbf,'scrd',l_sc4, k_sc4)
       stat=stat.and.ma_push_get(MT_DBL,nocc*nbf,'t1ao',l_t1ao, k_t1ao)
-      if (.not.stat)call errquit('ma_get ccsd_sxy ',0, MA_ERR)
+      if (.not.stat)
+     &   call errquit('ccsd_pzamp: ma_push_get ccsd_sxy ',0, MA_ERR)
       call ccsd_sxy(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sz2,g_shz2,
      &              g_zc,g_zx,int_mb(k_offsh),dbl_mb(k_snsi),
      &              dbl_mb(k_sisn),lssni,dbl_mb(k_scre),
@@ -230,7 +233,8 @@ c
       stat=stat.and.ma_pop_stack(l_eri1)
       stat=stat.and.ma_pop_stack(l_sisn)
       stat=stat.and.ma_pop_stack(l_snsi)
-      if (.not.stat)call errquit('ma_pop ccsd_sxy ',0, MA_ERR)
+      if (.not.stat) 
+     &   call errquit('ccsd_pzamp: ma_pop_stack ccsd_sxy ',0, MA_ERR)
       stat=.true.
       lscr=nbf*nbf
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
