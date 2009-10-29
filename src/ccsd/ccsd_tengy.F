@@ -1,5 +1,5 @@
       subroutine ccsd_tengy(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
-     &                      dintc,dintx,t1v,eorb,eaijk,
+     &                      dintc,dintx,t1v,eorb,einv,eaijk,
      $                      emp4,emp5,ncor,nocc,nvir)
 C     $Id: ccsd_tengy.F,v 2.1 2004-12-16 23:02:58 edo Exp $
       implicit none
@@ -13,6 +13,7 @@ C     $Id: ccsd_tengy.F,v 2.1 2004-12-16 23:02:58 edo Exp $
       double precision f3n(nvir,nvir),f3t(nvir,nvir)
       double precision f4n(nvir,nvir),f4t(nvir,nvir)
       double precision dintc(nvir),dintx(nvir),t1v(nvir),eorb(*)
+      double precision einv(nvir,nvir)
       data one/1.0d00/,two/2.0d00/,three/3.0d00/,four/4.0d00/
 c
       if (occsdps) then

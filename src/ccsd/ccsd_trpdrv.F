@@ -402,7 +402,7 @@ c
                         call ccsd_tengy(f1n,f1t,f2n,f2t,f3n,f3t,f4n,
      $                       f4t,
      &                       Dja(1+(i-1)*nvir),Djia,
-     $                       t1(ad3),eorb,eaijk,emp4,emp5,
+     $                       t1(ad3),eorb,einv,eaijk,emp4,emp5,
      $                       ncor,nocc,nvir)
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
@@ -419,7 +419,7 @@ c
                            call ccsd_tengy(f1t,f1n,f2t,f2n,
      $                          f3t,f3n,f4t,f4n,
      $                          Dja(1+(k-1)*nvir),Djka(1+(k-klo)*nvir), 
-     $                          t1(ad3),eorb,eaijk,emp4,emp5,
+     $                          t1(ad3),eorb,einv,eaijk,emp4,emp5,
      $                          ncor,nocc,nvir)
 #ifdef DEBUG_PRINT
                            tt1 = ga_wtime()
