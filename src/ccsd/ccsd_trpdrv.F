@@ -1,5 +1,5 @@
       subroutine ccsd_trpdrv(t1,
-     &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
+     &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,einv,
      &     eccsdt,g_objo,g_objv,g_coul,g_exch,
      &     ncor,nocc,nvir,iprt,emp4,emp5,
      &     oseg_lo,oseg_hi,
@@ -14,7 +14,7 @@ c
 c     
       double precision t1(*),
      &     f1n(*),f1t(*),f2n(*),
-     &     f2t(*),f3n(*),f3t(*),f4n(*),f4t(*),eorb(*),
+     &     f2t(*),f3n(*),f3t(*),f4n(*),f4t(*),eorb(*),einv(nvir,nvir),
      &     emp4,emp5
       double precision Tij(*), Tkj(*), Tia(*), Tka(*), Xia(*), Xka(*), 
      $     Jia(*), Jka(*), Kia(*), Kka(*),

@@ -44,6 +44,7 @@ c triples
      &        l_buf1,l_buf2,l_tk
       integer k_f1n,k_f1t,k_f2n,k_f2t,k_f3n,k_f3t,k_f4n,k_f4t,
      &        k_buf1,k_buf2,k_tk
+      integer k_einv,l_einv
       integer g_objo
       integer vchunk,noper,occ_lo,vir_lo,vir_hi,oseg_lo,oseg_hi,
      &        nvpass
@@ -691,7 +692,9 @@ c
      $     l_trp_Djia,k_trp_Djia))
      $     call errquit('aoccsd2: triples: k_trp_Djia ', nvir, MA_ERR)
 c
-
+         if (.not. ma_push_get(MT_DBL,lnvv,'einv',l_einv,k_einv))
+     $        call errquit('aoccsd2:triples einv',lnvv, MA_ERR)
+c
          call ga_sync
          tx(2)=tcgtime()
 c
@@ -725,7 +728,7 @@ c
          call ccsd_trpdrv(dbl_mb(k_t1),dbl_mb(k_f1n),
      $        dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
      $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
-     $        dbl_mb(k_f4t),eorb,eccsdt,g_objo,g_objv,
+     $        dbl_mb(k_f4t),eorb,dbl_mb(k_einv),eccsdt,g_objo,g_objv,
      $        g_coul,g_exch,ncor,nocc,nvir,iprt,
      $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
      $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia), 
