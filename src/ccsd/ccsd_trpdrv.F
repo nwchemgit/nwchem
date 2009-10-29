@@ -23,8 +23,9 @@ c
       integer g_objo,g_objv,ncor,nocc,nvir,iprt,g_coul,
      &     g_exch,oseg_lo,oseg_hi
 c     
-      double precision eaijk,eccsdt
-      integer a,i,j,k,akold,av,inode,len,ad1,ad2,ad3,
+      integer jump
+      double precision eaijk,eorbaux,eccsdt
+      integer a,b,c,i,j,k,akold,av,inode,len,ad1,ad2,ad3,
      &     next,nxtask
       external nxtask
 C     
@@ -390,8 +391,18 @@ c
      $                          f4t, nvir)
                         end if
 c
-                        eaijk=eorb(ncor+i)+eorb(ncor+j)+eorb(ncor+k)-
-     $                       eorb(a)
+                        eaijk=eorb(ncor+i)+eorb(ncor+j)+eorb(ncor+k)
+     $                       -eorb(a)
+c
+                        jump = ncor+nocc
+                        do b=1,nvir
+                          eorbaux=eorb(jump+b)
+                          do c=1,nvir
+                            einv(c,b)=1.0d0/(eaijk-eorbaux-eorb(jump+c))
+                            einv(b,c)=einv(c,b)
+                          enddo
+                        enddo
+c
                         ad1=(j-1)*lnov+(i-1)*nvir
                         ad2=(i-1)*lnov+(j-1)*nvir
                         ad3=(k-1)*nvir+1
