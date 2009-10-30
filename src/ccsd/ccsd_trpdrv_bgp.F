@@ -146,12 +146,12 @@ c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,Jia,
      1                       nvir,Tkj(jump),nvir,0.0d0,
      2                       f1n,nvir)
-                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,Kia,
-     1                       nvir,Tkj(jump),nvir,0.0d0,
-     2                       f2n,nvir)
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,Jia,
      1                       nvir,Tkj(jump),nvir,0.0d0,
      2                       f3n,nvir)
+                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,Kia,
+     1                       nvir,Tkj(jump),nvir,0.0d0,
+     2                       f2n,nvir)
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,Kia,
      1                       nvir,Tkj(jump),nvir,0.0d0,
      2                       f4n,nvir)
@@ -159,12 +159,12 @@ c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Jka(jump),nvir,Tij,nvir,0.0d0,
      2                       f1t,nvir)
-                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,
-     1                       Kka(jump),nvir,Tij,nvir,0.0d0,
-     2                       f2t,nvir)
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
      1                       Jka(jump),nvir,Tij,nvir,0.0d0,
      2                       f3t,nvir)
+                        call dgemm('n','t',nvir,nvir,nvir,1.0d0,
+     1                       Kka(jump),nvir,Tij,nvir,0.0d0,
+     2                       f2t,nvir)
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
      1                       Kka(jump),nvir,Tij,nvir,0.0d0,
      2                       f4t,nvir)
@@ -174,11 +174,11 @@ c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
      1                       Tia,nvir,Kkj(jump),nocc,1.0d0,
      2                       f1n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
-     1                       Xia,nvir,Kkj(jump),nocc,1.0d0,
-     2                       f2n,nvir)
-                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tia,nvir,Jkj(jump),nocc,1.0d0,
      2                       f3n,nvir)
+                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
+     1                       Xia,nvir,Kkj(jump),nocc,1.0d0,
+     2                       f2n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xia,nvir,Jkj(jump),nocc,1.0d0,
      2                       f4n,nvir)
@@ -187,11 +187,11 @@ c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
      1                       Tka(jump),nvir,Kij,nocc,1.0d0,
      2                       f1t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
-     1                       Xka(jump),nvir,Kij,nocc,1.0d0,
-     2                       f2t,nvir)
-                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tka(jump),nvir,Jij,nocc,1.0d0,
      2                       f3t,nvir)
+                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
+     1                       Xka(jump),nvir,Kij,nocc,1.0d0,
+     2                       f2t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xka(jump),nvir,Jij,nocc,1.0d0,
      2                       f4t,nvir)
