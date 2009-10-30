@@ -34,7 +34,7 @@ c
       double precision dgemm_time
       double precision einv_time
 #endif
-      integer jump!,dszvv
+      integer jump
       integer g_objo,g_objv,g_coul,g_exch
       integer ncor,nocc,nvir
       integer inode,next,nxtask,nodes,iam
@@ -47,11 +47,7 @@ c
       iam = ga_nodeid()
 c
 c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
-!       if (occsdps) then
-!          call pstat_on(ps_trpdrv)
-!       else
-!          call qenter('trpdrv',0)
-!       endif
+c
       inode=-1
       next=nxtask(nodes, 1)
 #ifdef DEBUG_PRINT
@@ -125,24 +121,10 @@ c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
                      ga_time(2) = ga_time(2) + (tt1-tt0)
 #endif
                      do k=klo,min(khi,i)
-!                        emp4a = 0.0d0
-!                        emp5a = 0.0d0
-!                        emp4b = 0.0d0
-!                        emp5b = 0.0d0
-!                         dszvv=8*lnvv ! assuming 8 bytes per double...
-!                         call f_memzero(f1n,dszvv)
-!                         call f_memzero(f2n,dszvv)
-!                         call f_memzero(f3n,dszvv)
-!                         call f_memzero(f4n,dszvv)
-!                         call f_memzero(f1t,dszvv)
-!                         call f_memzero(f2t,dszvv)
-!                         call f_memzero(f3t,dszvv)
-!                         call f_memzero(f4t,dszvv)
 #ifdef DEBUG_PRINT
                         tt0 = ga_wtime()
 #endif
                         jump = 1+(k-klo)*lnvv
-!                        call ccsd_dovvv_bgp(Jia, Kia,Tkj(1+(k-klo)*lnvv),f1n,f2n,f3n,f4n,nocc,nvir)
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,Jia,
      1                       nvir,Tkj(jump),nvir,0.0d0,
      2                       f1n,nvir)
@@ -155,7 +137,6 @@ c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,Kia,
      1                       nvir,Tkj(jump),nvir,0.0d0,
      2                       f4n,nvir)
-!                        call ccsd_dovvv_bgp(Jka(1+(k-klo)*lnvv),Kka(1+(k-klo)*lnvv),Tij,f1t,f2t,f3t,f4t,nocc,nvir)
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Jka(jump),nvir,Tij,nvir,0.0d0,
      2                       f1t,nvir)
@@ -169,7 +150,6 @@ c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
      1                       Kka(jump),nvir,Tij,nvir,0.0d0,
      2                       f4t,nvir)
                         jump = 1+(k-klo)*lnov
-!                        call ccsd_doooo_bgp(Jkj(1+(k-klo)*lnov),Kkj(1+(k-klo)*lnov),Tia,Xia,f1n,f2n,f3n,f4n,nocc,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tia,nvir,Kkj(jump),nocc,1.0d0,
      2                       f1n,nvir)
@@ -182,7 +162,6 @@ c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xia,nvir,Jkj(jump),nocc,1.0d0,
      2                       f4n,nvir)
-!                        call ccsd_doooo_bgp(Jij, Kij,Tka(1+(k-klo)*lnov),Xka(1+(k-klo)*lnov),f1t,f2t,f3t,f4t,nocc,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tka(jump),nvir,Kij,nocc,1.0d0,
      2                       f1t,nvir)
@@ -214,27 +193,6 @@ c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
                         einv_time = einv_time + (tt1-tt0)
                         tt0 = ga_wtime()
 #endif
-!                        call ccsd_tengy4_bgp(f1n,f1t,f2n,f2t,
-!     1                                       f3n,f3t,f4n,f4t,
-!     2                                       einv,emp4a,nvir)
-!                        call ccsd_tengy4ab_bgp(f1n,f1t,f2n,f2t,
-!     1                                         f3n,f3t,f4n,f4t,
-!     2                                         einv,emp4a,emp4b,nvir)
-!                        call ccsd_tengy5_bgp(f1n,f1t,f2n,f2t,
-!     1                                       f3n,f3t,f4n,f4t,
-!     2                                       Dja(1+(i-1)*nvir),
-!     3                                       Djia,
-!     4                                       t1((k-1)*nvir+1),
-!     5                                       einv,emp5a,nvir)
-!                        call ccsd_tengy5ab_bgp(f1n,f1t,f2n,f2t,
-!     1                                         f3n,f3t,f4n,f4t,
-!     2                                         Dja(1+(i-1)*nvir),    ! A
-!     3                                         Djia,                 ! A
-!     4                                         t1((k-1)*nvir+1),     ! A
-!     5                                         Dja(1+(k-1)*nvir),    ! B
-!     6                                         Djka(1+(k-klo)*nvir), ! B 
-!     7                                         t1((i-1)*nvir+1),     ! B
-!     8                                         einv,emp5a,emp5b,nvir)
                         call ccsd_tengy_bgp(f1n,f1t,f2n,f2t,
      1                                      f3n,f3t,f4n,f4t,
      2                                      Dja(1+(i-1)*nvir),
@@ -250,15 +208,6 @@ c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
 #ifdef DEBUG_PRINT
                            tt0 = ga_wtime()
 #endif
-!                           call ccsd_tengy4_bgp(f1t,f1n,f2t,f2n,
-!     1                                          f3t,f3n,f4t,f4n,
-!     2                                          einv,emp4b,nvir)
-!                           call ccsd_tengy5_bgp(f1t,f1n,f2t,f2n,
-!     1                                          f3t,f3n,f4t,f4n,
-!     2                                          Dja(1+(k-1)*nvir),
-!     3                                          Djka(1+(k-klo)*nvir), 
-!     4                                          t1((i-1)*nvir+1),
-!     5                                          einv,emp5b,nvir)
                            call ccsd_tengy_bgp(f1t,f1n,f2t,f2n,
      1                                         f3t,f3n,f4t,f4n,
      2                                         Dja(1+(k-1)*nvir),
@@ -270,14 +219,7 @@ c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
                            tt1 = ga_wtime()
                            tengy_time(2) = tengy_time(2) + (tt1-tt0)
 #endif
-!                        else
-!                        if (i.eq.k) then
-!                           emp4b = 0.0d0
-!                           emp5b = 0.0d0
-!                        end if ! (i.eq.k)
                         end if ! (i.ne.k)
-!                        emp4 = emp4 + emp4a + emp4b
-!                        emp5 = emp5 + emp5a + emp5b
                      end do
                   end do
                   next=nxtask(nodes, 1)
@@ -287,20 +229,15 @@ c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
       end do
 #ifdef DEBUG_PRINT
       call ga_sync()
-      if (IAm.eq.0) write(6,87)
+      if (iam.eq.0) write(6,87)
    87 format(2x,'node',6x,'ga_get',9x,'dgemm',10x,'einv'10x,'tengy')
       call ga_sync()
-      write(6,88) IAm,ga_time(1)+ga_time(2),dgemm_time,einv_time,
+      write(6,88) iam,ga_time(1)+ga_time(2),dgemm_time,einv_time,
      &                tengy_time(1)+tengy_time(2)
    88 format(i7,4e15.5)
 #endif
       next=nxtask(-nodes, 1)
-!       call ga_sync()
-!       if (occsdps) then
-!          call pstat_off(ps_trpdrv)
-!       else
-!          call qexit('trpdrv',0)
-!       endif
+      call ga_sync()
 c
       end
 
@@ -351,7 +288,7 @@ c
       return
       end
 
-
+#if 0
       subroutine ccsd_tengy4_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      1                           einv,emp4,nvir)
       implicit none
@@ -513,4 +450,4 @@ c
 c
       return
       end
-
+#endif
