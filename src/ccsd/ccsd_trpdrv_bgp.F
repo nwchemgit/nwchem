@@ -628,22 +628,24 @@ c
           emp4a=emp4a+denom*
      &         ( f1t(b,c)+f1n(c,b)+f2t(c,b)+f3n(b,c)+f4n(c,b) )*
      &         ( f1t(b,c)-2.0d0*f2t(b,c)-2.0d0*f3t(b,c)+f4t(b,c) )
-          emp4a=emp4a-denom*
+          emp4a=emp4a+denom*
      &         (       f1n(b,c)+f1t(c,b)+f2n(c,b)+f3n(c,b) )*
-     &         ( 2.0d0*f1t(b,c)-f2t(b,c)-f3t(b,c)+2.0d0*f4t(b,c) )
-          emp4a=emp4a+3.0d0*denom*
-     &         ( f1n(b,c)*(f1n(b,c)+f3n(c,b)+2.0d0*f4t(c,b))+
-     &           f2n(b,c)*f2t(c,b) + f3n(b,c)*f4t(b,c) )
+     &         (-2.0d0*f1t(b,c)+f2t(b,c)+f3t(b,c)-2.0d0*f4t(b,c) )
+          emp4a=emp4a+3.0d0*denom*f1n(b,c)*
+     &         ( f1n(b,c)+f3n(c,b)+2.0d0*f4t(c,b) )
+          emp4a=emp4a+3.0d0*denom*f2n(b,c)*f2t(c,b)
+          emp4a=emp4a+3.0d0*denom*f3n(b,c)*f4t(b,c)
 c
           emp4b=emp4b+denom*
      &         ( f1n(b,c)+f1t(c,b)+f2n(c,b)+f3t(b,c)+f4t(c,b) )*
      &         ( f1n(b,c)-2.0d0*f2n(b,c)-2.0d0*f3n(b,c)+f4n(b,c) )
-          emp4b=emp4b-denom*
+          emp4b=emp4b+denom*
      &         (       f1t(b,c)+f1n(c,b)+f2t(c,b)+f3t(c,b) )*
-     &         ( 2.0d0*f1n(b,c)-f2n(b,c)-f3n(b,c)+2.0d0*f4n(b,c) )
-          emp4b=emp4b+3.0d0*denom*
-     &         ( f1t(b,c)*(f1t(b,c)+f3t(c,b)+2.0d0*f4n(c,b))+
-     &           f2t(b,c)*f2n(c,b) + f3t(b,c)*f4n(b,c) )
+     &         (-2.0d0*f1n(b,c)+f2n(b,c)+f3n(b,c)-2.0d0*f4n(b,c) )
+          emp4b=emp4b+3.0d0*denom*f1t(b,c)*
+     &         ( f1t(b,c)+f3t(c,b)+2.0d0*f4n(c,b) )
+          emp4b=emp4b+3.0d0*denom*f2t(b,c)*f2n(c,b)
+          emp4b=emp4b+3.0d0*denom*f3t(b,c)*f4n(b,c)
 c
         enddo
       enddo
