@@ -1,7 +1,7 @@
       subroutine ccsd_trpdrv_bgp(t1,
      &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,einv,
      &     eccsdt,g_objo,g_objv,g_coul,g_exch,
-     &     ncor,nocc,nvir,iprt,emp4,emp5,
+     &     ncor,nocc,nvir,emp4,emp5,
      &     oseg_lo,oseg_hi,
      $     kchunk, Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
      $     Jij, Jkj, Kij, Kkj, Dja, Djka, Djia)
@@ -34,14 +34,13 @@ c
       integer jump,dszvv
       integer g_objo,g_objv,g_coul,g_exch
       integer ncor,nocc,nvir
-      integer iprt,inode,next,nxtask,nodes,iam
+      integer inode,next,nxtask,nodes,iam
       integer oseg_lo,oseg_hi
       integer a,b,c,i,j,k,akold,av
       integer klo, khi, kchunk
       integer start, end, len
       external nxtask
 c
-c     
       nodes = ga_nnodes()
       iam = ga_nodeid()
 C     
@@ -427,11 +426,6 @@ c
                         trp_time(21) = trp_time(21) + (tt1-tt0)
 #endif
 c
-                        if (iprt.gt.50)then
-                           call prtfmat(f1n,f1t,f2n,f2t,f3n,f3t,f4n,
-     $                          f4t, nvir)
-                        end if
-c
                         eaijk=eorb(ncor+i)+eorb(ncor+j)+eorb(ncor+k)
      $                       -eorb(a)
 c
@@ -450,33 +444,41 @@ c
 !                        call ccsd_tengy4_bgp(f1n,f1t,f2n,f2t,
 !     1                                       f3n,f3t,f4n,f4t,
 !     2                                       einv,emp4a,nvir)
-                        call ccsd_tengy4ab_bgp(f1n,f1t,f2n,f2t,
-     1                                         f3n,f3t,f4n,f4t,
-     2                                         einv,emp4a,emp4b,nvir)
+!                        call ccsd_tengy4ab_bgp(f1n,f1t,f2n,f2t,
+!     1                                         f3n,f3t,f4n,f4t,
+!     2                                         einv,emp4a,emp4b,nvir)
 !                        call ccsd_tengy5_bgp(f1n,f1t,f2n,f2t,
 !     1                                       f3n,f3t,f4n,f4t,
 !     2                                       Dja(1+(i-1)*nvir),
 !     3                                       Djia,
 !     4                                       t1((k-1)*nvir+1),
 !     5                                       einv,emp5a,nvir)
-                        call ccsd_tengy5ab_bgp(f1n,f1t,f2n,f2t,
-     1                                         f3n,f3t,f4n,f4t,
-     2                                         Dja(1+(i-1)*nvir),    ! A
-     3                                         Djia,                 ! A
-     4                                         t1((k-1)*nvir+1),     ! A
-     5                                         Dja(1+(k-1)*nvir),    ! B
-     6                                         Djka(1+(k-klo)*nvir), ! B 
-     7                                         t1((i-1)*nvir+1),     ! B
-     8                                         einv,emp5a,emp5b,nvir)
+!                        call ccsd_tengy5ab_bgp(f1n,f1t,f2n,f2t,
+!     1                                         f3n,f3t,f4n,f4t,
+!     2                                         Dja(1+(i-1)*nvir),    ! A
+!     3                                         Djia,                 ! A
+!     4                                         t1((k-1)*nvir+1),     ! A
+!     5                                         Dja(1+(k-1)*nvir),    ! B
+!     6                                         Djka(1+(k-klo)*nvir), ! B 
+!     7                                         t1((i-1)*nvir+1),     ! B
+!     8                                         einv,emp5a,emp5b,nvir)
+                        call ccsd_tengy_bgp(f1n,f1t,f2n,f2t,
+     1                                      f3n,f3t,f4n,f4t,
+     2                                      Dja(1+(i-1)*nvir),
+     3                                      Djia,
+     4                                      t1((k-1)*nvir+1),
+     5                                      eorb,eaijk,emp4,emp5,
+     6                                      ncor,nocc,nvir)
+
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
                         trp_time(22) = trp_time(22) + (tt1-tt0)
 #endif
 c     
-!                        if (i.ne.k) then
-!#ifdef DEBUG_PRINT
-!                           tt0 = ga_wtime()
-!#endif
+                        if (i.ne.k) then
+#ifdef DEBUG_PRINT
+                           tt0 = ga_wtime()
+#endif
 !                           call ccsd_tengy4_bgp(f1t,f1n,f2t,f2n,
 !     1                                          f3t,f3n,f4t,f4n,
 !     2                                          einv,emp4b,nvir)
@@ -486,27 +488,30 @@ c
 !     3                                          Djka(1+(k-klo)*nvir), 
 !     4                                          t1((i-1)*nvir+1),
 !     5                                          einv,emp5b,nvir)
-!#ifdef DEBUG_PRINT
-!                           tt1 = ga_wtime()
-!                           trp_time(23) = trp_time(23) + (tt1-tt0)
-!#endif
+                           call ccsd_tengy_bgp(f1t,f1n,f2t,f2n,
+     1                                         f3t,f3n,f4t,f4n,
+     2                                         Dja(1+(k-1)*nvir),
+     3                                         Djka(1+(k-klo)*nvir),
+     4                                         t1((i-1)*nvir+1),
+     5                                         eorb,eaijk,emp4,emp5,
+     6                                         ncor,nocc,nvir)
+#ifdef DEBUG_PRINT
+                           tt1 = ga_wtime()
+                           trp_time(23) = trp_time(23) + (tt1-tt0)
+#endif
 c     
 !                        else
-                        if (i.eq.k) then
-                           emp4b = 0.0d0
-                           emp5b = 0.0d0
-                        end if ! (i.eq.k)
-!                        end if ! (i.ne.k)
+!                        if (i.eq.k) then
+!                           emp4b = 0.0d0
+!                           emp5b = 0.0d0
+!                        end if ! (i.eq.k)
+                        end if ! (i.ne.k)
 c
                         emp4 = emp4 + emp4a + emp4b
                         emp5 = emp5 + emp5a + emp5b
 c
                      end do
                   end do
-                  if (iprt.gt.50)then
-                     write(6,1234)iam,a,j,emp4,emp5
- 1234                format(' iam aijk',3i5,2e15.5)
-                  end if
                   next=nxtask(nodes, 1)
                end if
             end do
@@ -545,6 +550,53 @@ c
       endif
 c     
       end
+
+
+      subroutine ccsd_tengy_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+     1                          dintc,dintx,t1v,eorb,eaijk,
+     2                          emp4,emp5,ncor,nocc,nvir)
+      implicit none
+      integer ncor,nocc,nvir
+      integer b,c
+      double precision eaijk,emp4,emp5,denom
+      double precision one,two,three,four
+      double precision f1n(nvir,nvir),f1t(nvir,nvir)
+      double precision f2n(nvir,nvir),f2t(nvir,nvir)
+      double precision f3n(nvir,nvir),f3t(nvir,nvir)
+      double precision f4n(nvir,nvir),f4t(nvir,nvir)
+      double precision dintc(nvir),dintx(nvir),t1v(nvir),eorb(*)
+      data one/1.0d00/,two/2.0d00/,three/3.0d00/,four/4.0d00/
+c
+      do b=1,nvir
+        do c=1,nvir
+          denom=one/(eaijk-eorb(ncor+nocc+b)-eorb(ncor+nocc+c))
+          emp4=emp4+denom*
+     &         (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3n(b,c)+f4n(c,b))*
+     &         (f1t(b,c)-two*f2t(b,c)-two*f3t(b,c)+f4t(b,c))
+c
+          emp4=emp4-denom*
+     &         (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3n(c,b))*
+     &         (two*f1t(b,c)-f2t(b,c)-f3t(b,c)+two*f4t(b,c))
+c
+          emp4=emp4+three*denom*(
+     &         f1n(b,c)*(f1n(b,c)+f3n(c,b)+two*f4t(c,b))+
+     &         f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
+c
+          emp5=emp5+denom*t1v(b)*dintx(c)*
+     &        (     f1t(b,c)+f2n(b,c)+f4n(c,b)
+     &         -two*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
+     &              f1n(b,c)+f2t(b,c)+f3n(c,b))
+     &         +four*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
+          emp5=emp5+denom*t1v(b)*dintc(c)*
+     &        (     f1n(b,c)+f4n(b,c)+f1t(c,b)
+     &          -two*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
+c
+        enddo
+      enddo
+c
+      return
+      end
+
 
       subroutine ccsd_tengy4_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      1                           einv,emp4,nvir)
