@@ -678,9 +678,16 @@ c
      &         (
      &                  f1t(b,c)+f2n(b,c)+f4n(c,b)
      &          +4.0d0*(f3n(b,c)+f4t(b,c)+f1n(c,b))
-     &          -2.0d0*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
-     &                  f1n(b,c)+f2t(b,c)+f3n(c,b))
+     &          -2.0d0*(f3t(b,c)+f4n(b,c)+f2n(c,b))
+     &          -2.0d0*(f1n(b,c)+f2t(b,c)+f3n(c,b))
      &         )
+c
+          emp5b=emp5b+denom*t1vB(b)*dintcB(c)*
+     &         (
+     &                  f1t(b,c)+f4t(b,c)+f1n(c,b)
+     &          -2.0d0*(f2t(b,c)+f3t(b,c)+f2n(c,b))
+     &         )
+c
           emp5a=emp5a+denom*t1vA(b)*dintcA(c)*
      &         (
      &                  f1n(b,c)+f4n(b,c)+f1t(c,b)
@@ -691,13 +698,8 @@ c
      &         (
      &                  f1n(b,c)+f2t(b,c)+f4t(c,b)
      &          +4.0d0*(f3t(b,c)+f4n(b,c)+f1t(c,b))
-     &          -2.0d0*(f3n(b,c)+f4t(b,c)+f2t(c,b)+
-     &                  f1t(b,c)+f2n(b,c)+f3t(c,b))
-     &         )
-          emp5b=emp5b+denom*t1vB(b)*dintcB(c)*
-     &         (
-     &                  f1t(b,c)+f4t(b,c)+f1n(c,b)
-     &          -2.0d0*(f2t(b,c)+f3t(b,c)+f2n(c,b))
+     &          -2.0d0*(f3n(b,c)+f4t(b,c)+f2t(c,b))
+     &          -2.0d0*(f1t(b,c)+f2n(b,c)+f3t(c,b))
      &         )
 c
         enddo
