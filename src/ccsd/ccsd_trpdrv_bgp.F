@@ -182,8 +182,9 @@ c
                         eaijk=eorb(ncor+i)+eorb(ncor+j)+eorb(ncor+k)
      $                       -eorb(a)
                         jump = ncor+nocc
-!$omp parallel do private(b,c) shared(einv) 
-!&             firstprivate(eaijk,jump,eorb) schedule(static)
+!$omp parallel do
+!$omp& private(b,c) shared(einv,eorb) schedule(static)
+!$omp& firstprivate(eaijk,jump)
                         do b=1,nvir
                           eorbaux=eorb(jump+b)-eaijk
                           do c=1,nvir
@@ -318,11 +319,11 @@ c
       double precision t0, t1, t2, t3, t4, t5, t6, t7, t8, t9
       double precision z0, z1, z3, z5, z9, s0
 c
-!$omp parallel do private(b,c,e1,e2,e3,e4,t0,t1,t2,t3,t4,t5)
-!$&               private(t6,t7,t8,t9,z0,z1,z3,z5,z9,s0)
-!$& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t,dintx,dintc,t1v,eorb_r)
-!$& firstprivate(eaijk)
-!$& reduction(+:emp5,emp4) schedule(static)
+!$omp parallel do
+!$omp& private(b,c,e1,e2,e3,e4,z0,z1,z3,z5,z9,s0,
+!$omp&         t0,t1,t2,t3,t4,t5,t6,t7,t8,t9)
+!$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t,dintx,dintc,t1v,einv)
+!$omp& reduction(+:emp5,emp4) schedule(static)
       do b = 1, nvir
          do c = 1, nvir
 
