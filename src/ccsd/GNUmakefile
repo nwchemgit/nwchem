@@ -33,7 +33,6 @@ include ../config/makefile.h
 		ccsd_pdiis.o \
 		ccsd_trpmo.o \
 		ccsd_rdtrpo.o \
-		ccsd_tengy.o \
 		qstat.o \
 		cputime.o \
 		rddcom.o \
