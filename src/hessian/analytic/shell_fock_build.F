@@ -18,7 +18,6 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
-#include "case.fh"
 c
       integer basis, nder, ndens, nfock
       integer geom
@@ -53,9 +52,6 @@ c
       integer ga_create_atom_blocked
       logical xc_gotxc
       external ga_create_atom_blocked,xc_gotxc
-c
-      character*32 pname
-      pname = "shell_fock_build:"
 c
 c Quietly modify the values of jfac and kfac so that the original
 c values coming in can be consistent with the original fock_2e
@@ -183,8 +179,7 @@ c
       call nga_reorder(g_fock, .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
 c
-      if (.not.cam_exch) then  ! for non-LC/CAM calculations
-         call newfock(
+      call newfock(
      $     basis, nder, ndens, nfock,
      $     g_dens, g_fock,
      $     dbl_mb(k_d_ij), dbl_mb(k_d_kl), dbl_mb(k_d_ik),  
@@ -198,46 +193,8 @@ c
      $     int_mb(k_bfglo), int_mb(k_bfghi), int_mb(k_bfmap), 
      $     int_mb(k_rbfmap),
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi), 
+c     $     oactive,
      $     jfac, kfac)
-c
-      else  ! for LC/CAM calculations
-         ! get 2e-Coulomb part
-         call case_setflags(.false.)  ! unset attenuation
-         call newfock(
-     $     basis, nder, ndens, nfock,
-     $     g_dens, g_fock,
-     $     dbl_mb(k_d_ij), dbl_mb(k_d_kl), dbl_mb(k_d_ik),  
-     $     dbl_mb(k_d_jl), dbl_mb(k_d_il), dbl_mb(k_d_jk), 
-     $     dbl_mb(k_f_ij), dbl_mb(k_f_kl), dbl_mb(k_f_ik),  
-     $     dbl_mb(k_f_jl), dbl_mb(k_f_il), dbl_mb(k_f_jk), 
-     $     lscr, dbl_mb(k_scr), leri, dbl_mb(k_eri), int_mb(k_labels), 
-     $     maxq, int_mb(k_list), dbl_mb(k_q4), tol2e,
-     $     nsh,  nbf, blen,
-     $     nshblocks, int_mb(k_shmap), int_mb(k_shglo), int_mb(k_shghi),
-     $     int_mb(k_bfglo), int_mb(k_bfghi), int_mb(k_bfmap), 
-     $     int_mb(k_rbfmap),
-     $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi), 
-     $     jfac, 0.d0)
-c
-         ! get 2e-Exchange part
-         call case_setflags(.true.)  ! set attenuation
-         call newfock(
-     $     basis, nder, ndens, nfock,
-     $     g_dens, g_fock,
-     $     dbl_mb(k_d_ij), dbl_mb(k_d_kl), dbl_mb(k_d_ik),  
-     $     dbl_mb(k_d_jl), dbl_mb(k_d_il), dbl_mb(k_d_jk), 
-     $     dbl_mb(k_f_ij), dbl_mb(k_f_kl), dbl_mb(k_f_ik),  
-     $     dbl_mb(k_f_jl), dbl_mb(k_f_il), dbl_mb(k_f_jk), 
-     $     lscr, dbl_mb(k_scr), leri, dbl_mb(k_eri), int_mb(k_labels), 
-     $     maxq, int_mb(k_list), dbl_mb(k_q4), tol2e,
-     $     nsh,  nbf, blen,
-     $     nshblocks, int_mb(k_shmap), int_mb(k_shglo), int_mb(k_shghi),
-     $     int_mb(k_bfglo), int_mb(k_bfghi), int_mb(k_bfmap), 
-     $     int_mb(k_rbfmap),
-     $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi), 
-     $     0.d0, kfac)
-         call case_setflags(.false.)  ! unset attenuation
-      end if
 c
       call nga_reorder(g_dens, .true., int_mb(k_bfmap),
      $     .true., int_mb(k_bfmap))
@@ -258,7 +215,7 @@ c
       enddo
 c
       if(xc_gotxc().and.nder.eq.0)then
-       call xc_newfock(geom,basis,jfac,kfac,nbf,
+         call xc_newfock(geom,basis,jfac,kfac,nbf,
      %        nder, ndens, nfock, g_fock,g_dens)
       endif
 c
