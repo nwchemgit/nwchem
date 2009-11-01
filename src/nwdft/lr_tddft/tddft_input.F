@@ -23,6 +23,12 @@ c        [ALGORITHM <integer algorithm default 1>]
 c        [VECTOR <character vector default jobname'.tddft']
 c        [PRINT (none||low||medium||high||debug)
 c          <string list_of_names ...>]
+c
+c ... jochen:
+c     added keyword for CD spectra
+c     [CDSPECTRUM <not default: compute rotatory strengths>]
+c     /jochen
+c
 c     END
 c     
       implicit none
@@ -39,7 +45,7 @@ C     character*80 vector
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet
-      logical tda,symmetry
+      logical tda,symmetry, cdspectrum
       double precision thresh
 c
 c ------------------
@@ -122,6 +128,14 @@ c
 C     call util_file_name('tddft',.false.,.false.,vector)
 C     if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
 C    1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+c
+c ... jochen:
+c     CIS (Tamm-Dancoff approximation)
+c
+      cdspectrum  = .false.
+      if (.not.rtdb_put(rtdb,'tddft:cdspectrum',mt_log,1,cdspectrum))
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+c     /jochen
 c
 c ----------
 c Read input
@@ -279,6 +293,17 @@ c
         if (.not.rtdb_put(rtdb,'tddft:algorithm',mt_int,1,algorithm))
      1    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
+c
+c ... jochen:
+c
+c     CDSPECTRUM
+c
+      else if (inp_compare(.false.,test,'cdspectrum')) then
+        cdspectrum=.true.
+        if (.not.rtdb_put(rtdb,'tddft:cdspectrum',mt_log,1,cdspectrum))
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c     /jochen
 c
 c     VECTOR (filename for solution vectors)
 c

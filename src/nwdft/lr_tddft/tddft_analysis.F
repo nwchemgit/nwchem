@@ -31,7 +31,7 @@ c
       parameter (thresh=5.0d-2)
       double precision au2ev   ! Conversion factor from a.u. to eV
       parameter (au2ev=27.2113961d0)
-c
+
       integer rtdb             ! RTDB handle
       integer geom             ! Geometry handle
       integer ao_bas_han       ! AO basis set handle
@@ -86,10 +86,92 @@ c
       integer l_y(2),k_y(2)
       integer l_corr,k_corr
       integer dummy,request
+
+c     jochen 11/2009: add calculation of rotatory strengths (CD spwectra)    
+      logical cdspectrum ! true if CDSPECTRUM in TDDFT input
+c     We will declare the variables needed for the g_dip{x,y,z}
+c     This was modified from dft_main0d.F
+      integer g_dipx  ! ga for dipole x
+      integer g_dipy  ! ga for dipole y
+      integer g_dipz  ! ga for dipole z
+      integer g_dipmag ! ga for magnetic dipole matrices (all 3)
+      integer alo(3), ahi(3), blo(3), bhi(3)
+      integer icomp ! field components
+c     caution: speed of light and rotatory strength conversion factor
+c     are hardwired here:
+      double precision cl, rau2cgs
+      parameter (cl = 137.0359895d0, rau2cgs = 235.726327d0)
+      integer g_temp, g_tmpdip
+      double precision mux
+      double precision muy
+      double precision muz
+      double precision mag_transdip(3)
+      double precision ga_trace_diag
+      external ga_trace_diag
+      character*32 pname
+      double precision origin(3)
+      data origin/0d0,0d0,0d0/
+c     /jochen
+
 C     character*80 vector
 C     logical vector_exists,fileerror
 c
       nodezero=(ga_nodeid().eq.0)
+
+c     jochen:
+c     check for CDSPECTRUM input key in RTDB
+      if (.not.rtdb_get(rtdb,'tddft:cdspectrum',mt_log,1,cdspectrum))
+     $  cdspectrum=.false.
+
+      pname="tddft_analysis:"
+      if (cdspectrum) then         
+        
+c     We will create arrays for some dipole matrix elements here.
+c     adapted from dft_main0d.F
+c     == Create and get the dipole matrix element ga: g_dipx,g_dipy,g_dipz ==
+                                ! x
+         if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_dipx',
+     $       nbf_ao, 0, g_dipx)) call errquit(pname//'g_dipx',0, GA_ERR)
+         call ga_zero(g_dipx)
+                                ! y
+         if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_dipy',
+     $       nbf_ao, 0, g_dipy)) call errquit(pname//'g_dipy',0, GA_ERR)
+         call ga_zero(g_dipy)
+                                ! z
+         if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_dipz',
+     $       nbf_ao, 0, g_dipz)) call errquit(pname//'g_dipz',0, GA_ERR)
+         call ga_zero(g_dipz)
+
+           if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_temp',
+     $       nbf_ao, 0, g_temp)) call errquit(pname//'g_temp',0, GA_ERR)
+           call ga_zero(g_temp)
+
+           if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_tmpdip',
+     $       nbf_ao, 0, g_tmpdip))
+     $          call errquit(pname//'g_tmpdip',0, GA_ERR)
+           call ga_zero(g_tmpdip)
+c     
+c     == Compute the dipole integrals for the 3 components ==
+         call int_dip_ga(ao_bas_han, ao_bas_han, g_dipx, g_dipy, g_dipz)
+
+c     magnetic dipole moment integrals (r x nabla), times 0.5:
+         alo(1) = nbf_ao
+         alo(2) = -1
+         alo(3) = -1
+         ahi(1) = nbf_ao
+         ahi(2) = nbf_ao
+         ahi(3) = 3
+         
+         if (.not.nga_create(MT_DBL,3,ahi,'mag-dipole',alo,g_dipmag))
+     $       call errquit(pname//' nga_create failed g_dipmag',0,GA_ERR)
+         call ga_zero(g_dipmag)
+
+         call int_giao_1ega(ao_bas_han,ao_bas_han,g_dipmag,'angmom',
+     $        origin,1, .false.)
+         call ga_scale (g_dipmag, 0.5d0)
+        endif ! cdspectrum
+c     /jochen
+
 c
 c --------------------------------
 c Number of occupied virtual pairs
@@ -521,30 +603,152 @@ c Compute transition moments and oscillator strength
 c --------------------------------------------------
 c
         do i=1,3
-          cntr(i)=0.0d0
+           cntr(i)=0.0d0
         enddo
         do i=1,20
           tmom(i)=0.0d0
         enddo
+
+c     jochen:
+        if (cdspectrum) then           
+c     initialize transition dipoles for this transition
+           mux = 0d0
+           muy = 0d0
+           muz = 0d0
+           mag_transdip = 0d0 ! 3 components
+        end if
+
+c ... jochen - comment: the following code 
+c     calculates X(omega) in the AO basis, then contracts with multipole
+c     integrals:
+
         call tddft_transfm(n,g_x,g_movecs,nbf_ao,
      1    nocc,nmo,nfc,nfv,ipol,g_tmomd,1)
+
         do i=1,ipol
+
+c     jochen:
+          if (cdspectrum) then
+c     The following is adapted from rttdf_utils.F:
+c     recompute the electric transition dipoles (mainly to
+c     debug the code) and also compute the magnetic transition dip.
+
+             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
+     &            g_tmomd(i), g_dipx, 0.d0, g_temp)
+             mux = mux - ga_trace_diag(g_temp)
+             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
+     &            g_tmomd(i), g_dipy, 0.d0, g_temp)
+             muy = muy - ga_trace_diag(g_temp)
+             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
+     &            g_tmomd(i), g_dipz, 0.d0, g_temp)
+             muz = muz - ga_trace_diag(g_temp)
+             
+             alo(1) = 1
+             ahi(1) = nbf_ao
+             alo(2) = 1
+             ahi(2) = nbf_ao
+             alo(3) = 1
+             ahi(3) = 1
+             blo(1) = 1
+             bhi(1) = nbf_ao
+             blo(2) = 1
+             bhi(2) = nbf_ao
+
+             do icomp = 1,3
+                blo(3) = icomp  ! there are 3 components of the
+                bhi(3) = icomp  ! perturbing field       
+     
+              call nga_copy_patch('n',g_dipmag,blo,bhi,g_tmpdip,alo,ahi)
+                call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
+     &               g_tmomd(i), g_tmpdip, 0.d0, g_temp)
+                mag_transdip(icomp) = mag_transdip(icomp)  +
+     $               ga_trace_diag(g_temp)
+                
+             end do ! icomp
+
+          endif                 ! cdspectrum
+c     /jochen
+
           call multipole_density(ao_bas_han,cntr,3,
      1      g_tmomd(i),tmom,20)
-        enddo
-        if (.not.tda) then
+
+        enddo ! ipol
+
+        if (.not.tda) then ! we have a also matrix Y to consider
+
+c ... jochen - comment: repeat the preceeding step with Y:
+c     calculate Y(omega) in AO basis, then contract with multipole
+c     integrals, and add results to the transition moments
+
           call tddft_transfm(n,g_y,g_movecs,nbf_ao,
      1      nocc,nmo,nfc,nfv,ipol,g_tmomd,1)
+
           do i=1,ipol
+
+c     jochen: 
+            if (cdspectrum) then
+               call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
+     &              g_tmomd(i), g_dipx, 0.d0, g_temp)
+               mux = mux - ga_trace_diag(g_temp)
+               call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
+     &              g_tmomd(i), g_dipy, 0.d0, g_temp)
+               muy = muy - ga_trace_diag(g_temp)
+               call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
+     &              g_tmomd(i), g_dipz, 0.d0, g_temp)
+               muz = muz - ga_trace_diag(g_temp)
+
+             alo(1) = 1
+             ahi(1) = nbf_ao
+             alo(2) = 1
+             ahi(2) = nbf_ao
+             alo(3) = 1
+             ahi(3) = 1
+             blo(1) = 1
+             bhi(1) = nbf_ao
+             blo(2) = 1
+             bhi(2) = nbf_ao
+
+             do icomp = 1,3
+                blo(3) = icomp  ! there are 3 components of the
+                bhi(3) = icomp  ! responding magnetic moment
+     
+              call nga_copy_patch('n',g_dipmag,blo,bhi,g_tmpdip,alo,ahi)
+                call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
+     &               g_tmomd(i), g_tmpdip, 0.d0, g_temp)
+                mag_transdip(icomp) = mag_transdip(icomp)  -
+     $               ga_trace_diag(g_temp)
+                
+             end do ! icomp
+
+            endif ! cdspectrum
+c     /jochen
+
             call multipole_density(ao_bas_han,cntr,3,
      1        g_tmomd(i),tmom,20)
-          enddo
-        endif
+
+         enddo ! ipol
+
+        endif ! .not.tda 
+
         if (ipol.eq.1) then
           do i=1,20
             tmom(i)=tmom(i)*dsqrt(2.0d0)
           enddo
-        endif
+
+c     jochen:
+          if (cdspectrum) then
+            mux = mux *dsqrt(2.0d0)
+            muy = muy *dsqrt(2.0d0)
+            muz = muz *dsqrt(2.0d0)
+            do icomp = 1,3
+              mag_transdip(icomp) = mag_transdip(icomp) *dsqrt(2.0d0)
+            end do
+          end if
+c     /jochen
+
+        endif ! ipol
+
+
         if (nodezero.and.util_print('excited state',print_default))
      1    write(LuOut,9190)
         if (nodezero.and.
@@ -561,8 +765,21 @@ c
      2                        tmom(17),tmom(18),tmom(19),
      2                        tmom(20),
      1      2.0d0/3.0d0*(tmom(2)**2+tmom(3)**2+tmom(4)**2)*apbval(n)
+
+c     jochen:
+            if (cdspectrum) then
+c            write (LuOut,*) 'el. dipole integrals:',mux,muy,muz
+            write (LuOut,9250)
+     $           mag_transdip(1)/cl,
+     $           mag_transdip(2)/cl,
+     $           mag_transdip(3)/cl,
+     $          (mux*mag_transdip(1) + muy*mag_transdip(2) +
+     $           muz*mag_transdip(3)) * 2d0 * rau2cgs 
+         end if ! cdspectrum
+c     /jochen
           endif
         endif
+
 c
 c ----------------------------------
 c Print dominant components of X & Y
@@ -643,6 +860,27 @@ c
      &       UNKNOWN_ERR)
       if (nodezero.and.
      1  util_print('excited state',print_default)) write(LuOut,*)
+
+c       jochen:
+        if (cdspectrum) then
+c     Clean up arrays used for CD spectra
+        if (.not. ga_destroy(g_dipx)) call errquit
+     &   (pname//'Could not destroy g_dipx', 0, GA_ERR)
+        if (.not. ga_destroy(g_dipy)) call errquit
+     &   (pname//'Could not destroy g_dipy', 0, GA_ERR)
+        if (.not. ga_destroy(g_dipz)) call errquit
+     &   (pname//'Could not destroy g_dipz', 0, GA_ERR)
+      if (.not.ga_destroy(g_dipmag)) call
+     &    errquit(pname//'ga_destroy failed g_dipmag',0,GA_ERR)
+
+        if (.not. ga_destroy(g_temp)) call errquit
+     &   (pname//'Could not destroy g_temp', 0, GA_ERR)
+        if (.not. ga_destroy(g_tmpdip)) call errquit
+     &   (pname//'Could not destroy g_tmpdip', 0, GA_ERR)
+        endif
+c      /jochen
+
+
  9100 format(2x,'Ground state ',a4,f16.9,' a.u.')
  9110 format(2x,
      1  '-------------------------------------------------------',
@@ -669,6 +907,9 @@ c
  9170 format(5x,'Occ.',i3,1x,a5,1x,a4,'---  Virt.',
      1  i3,1x,a5,1x,a4,f8.5,' Y')
  9180 format(2x,'<S2> = ',f8.4)
+ 9250 format(/5x,'Magnetic Transition Moments:'
+     $     ,/,5x,'       X ',f12.7,'   Y',f12.7,'   Z',f12.7
+     $     ,/,5x,'Rotatory Strength (1E-40 esu**2cm**2):',1x,f20.7)
 c
 c -----------
 c Target root
