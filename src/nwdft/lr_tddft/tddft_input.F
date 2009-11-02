@@ -27,6 +27,7 @@ c
 c ... jochen:
 c     added keyword for CD spectra
 c     [CDSPECTRUM <not default: compute rotatory strengths>]
+c     [VELOCITY]  <not default: compute velocity rep. of trans. dipoles>]
 c     /jochen
 c
 c     END
@@ -45,7 +46,7 @@ C     character*80 vector
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet
-      logical tda,symmetry, cdspectrum
+      logical tda,symmetry, cdspectrum, velocity
       double precision thresh
 c
 c ------------------
@@ -129,11 +130,14 @@ C     call util_file_name('tddft',.false.,.false.,vector)
 C     if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
 C    1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
-c ... jochen:
 c     CIS (Tamm-Dancoff approximation)
 c
+c ... jochen:
       cdspectrum  = .false.
       if (.not.rtdb_put(rtdb,'tddft:cdspectrum',mt_log,1,cdspectrum))
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+      velocity  = .false.
+      if (.not.rtdb_put(rtdb,'tddft:velocity',mt_log,1,velocity))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c     /jochen
 c
@@ -301,6 +305,14 @@ c
       else if (inp_compare(.false.,test,'cdspectrum')) then
         cdspectrum=.true.
         if (.not.rtdb_put(rtdb,'tddft:cdspectrum',mt_log,1,cdspectrum))
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c     VELOCITY
+c
+      else if (inp_compare(.false.,test,'velocity')) then
+        velocity=.true.
+        if (.not.rtdb_put(rtdb,'tddft:velocity',mt_log,1,velocity))
      1    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
 c     /jochen
