@@ -13,6 +13,10 @@ c !! CAUTION !! au2ev conversion factor is hardwired here.
 c
 c Written by So Hirata, Mar 2002. (c) Battelle, PNNL, 2002.
 c
+c Circular dichroism and velocity-representation dipole moments:
+c J. Autschbach, SUNY Buffalo (2009).
+c reference: J.Chem.Phys. 116 (2002), pages 891 and 6930
+c
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -87,14 +91,13 @@ c
       integer l_corr,k_corr
       integer dummy,request
 
-c     jochen 11/2009: add calculation of rotatory strengths (CD spwectra)    
+c     jochen 11/2009: add calculation of rotatory strengths (CD spectra)    
       logical cdspectrum ! true if CDSPECTRUM in TDDFT input
       logical velocity   ! true if VELOCITY in TDDFT input
+      logical lvelok     ! check for division by zero
 c     We will declare the variables needed for the g_dip{x,y,z}
 c     This was modified from dft_main0d.F
-      integer g_dipx  ! ga for dipole x
-      integer g_dipy  ! ga for dipole y
-      integer g_dipz  ! ga for dipole z
+      integer g_dipole(3)  ! ga for dipole integrals
       integer g_dipmag ! ga for magnetic dipole matrices (all 3)
       integer g_dipvel ! ga for dipole-velocity integrals
       integer alo(3), ahi(3), blo(3), bhi(3)
@@ -104,14 +107,12 @@ c     are hardwired here:
       double precision cl, rau2cgs
       parameter (cl = 137.0359895d0, rau2cgs = 235.726327d0)
       integer g_temp, g_tmpdip
-      double precision mux
-      double precision muy
-      double precision muz
+      double precision el_transdip(3)  ! length-gauge electric dipoles
       double precision mag_transdip(3) ! magnetic transition dipoles (rxp)
       double precision vel_transdip(3) ! velocity electric dipoles
       double precision ga_trace_diag
       external ga_trace_diag
-      character*32 pname
+      character*32 pname, clabel
       double precision origin(3)
       data origin/0d0,0d0,0d0/
 c     /jochen
@@ -136,31 +137,19 @@ c     check for VELOCITY input key in RTDB
         
 c     We will create arrays for some dipole matrix elements here.
 c     adapted from dft_main0d.F
-c     == Create and get the dipole matrix element ga: g_dipx,g_dipy,g_dipz ==
-                                ! x
-         if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_dipx',
-     $       nbf_ao, 0, g_dipx)) call errquit(pname//'g_dipx',0, GA_ERR)
-         call ga_zero(g_dipx)
-                                ! y
-         if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_dipy',
-     $       nbf_ao, 0, g_dipy)) call errquit(pname//'g_dipy',0, GA_ERR)
-         call ga_zero(g_dipy)
-                                ! z
-         if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_dipz',
-     $       nbf_ao, 0, g_dipz)) call errquit(pname//'g_dipz',0, GA_ERR)
-         call ga_zero(g_dipz)
+c     == Create and get the dipole matrix element ga: g_dipole ==
 
-           if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_temp',
-     $       nbf_ao, 0, g_temp)) call errquit(pname//'g_temp',0, GA_ERR)
-           call ga_zero(g_temp)
-
-           if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_tmpdip',
-     $       nbf_ao, 0, g_tmpdip))
-     $          call errquit(pname//'g_tmpdip',0, GA_ERR)
-           call ga_zero(g_tmpdip)
+         do icomp = 1,3
+            write(clabel,'(a,i1)'), 'g_dipole',icomp
+            if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, trim(clabel),
+     $       nbf_ao, 0, g_dipole(icomp)))
+     $        call errquit(pname//clabel,0, GA_ERR)
+            call ga_zero(g_dipole(icomp))
+         end do ! icomp
 c     
 c     == Compute the dipole integrals for the 3 components ==
-         call int_dip_ga(ao_bas_han, ao_bas_han, g_dipx, g_dipy, g_dipz)
+         call int_dip_ga(ao_bas_han, ao_bas_han,
+     $        g_dipole(1), g_dipole(2), g_dipole(3))
 
 c     magnetic dipole moment integrals (r x nabla), times 0.5:
          alo(1) = nbf_ao
@@ -168,8 +157,7 @@ c     magnetic dipole moment integrals (r x nabla), times 0.5:
          alo(3) = -1
          ahi(1) = nbf_ao
          ahi(2) = nbf_ao
-         ahi(3) = 3
-         
+         ahi(3) = 3         
          if (.not.nga_create(MT_DBL,3,ahi,'mag-dipole',alo,g_dipmag))
      $       call errquit(pname//' nga_create failed g_dipmag',0,GA_ERR)
          call ga_zero(g_dipmag)
@@ -179,8 +167,25 @@ c     magnetic dipole moment integrals (r x nabla), times 0.5:
          call ga_scale (g_dipmag, 0.5d0)
         endif ! cdspectrum
 
+        if (cdspectrum .or. velocity) then
+           if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_temp',
+     $       nbf_ao, 0, g_temp)) call errquit(pname//'g_temp',0, GA_ERR)
+             call ga_zero(g_temp)
+
+           if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_tmpdip',
+     $       nbf_ao, 0, g_tmpdip))
+     $          call errquit(pname//'g_tmpdip',0, GA_ERR)
+           call ga_zero(g_tmpdip)
+        end if ! cdspectrum .or. velocity
+
         if (velocity) then
 c     allocate workspace for dipole-velocity integrals
+         alo(1) = nbf_ao
+         alo(2) = -1
+         alo(3) = -1
+         ahi(1) = nbf_ao
+         ahi(2) = nbf_ao
+         ahi(3) = 3   
            if (.not.nga_create(MT_DBL,3,ahi,'e-dipvel',alo,g_dipvel))
      $        call 
      &        errquit(pname//' nga_create failed g_dipvel',0,GA_ERR)
@@ -189,7 +194,7 @@ c     compute  dipole-velocity integrals
            call int_giao_1ega(ao_bas_han,ao_bas_han,g_dipvel,'velocity',
      $          origin,1,.false.)
 c     invert sign of velocity integrals for compatibility 
-c     w/ dipole-length optical rotation
+c     w/ dipole-length formalism
            call ga_scale (g_dipvel, -1d0) 
         end if                  ! velocity
 c
@@ -635,10 +640,8 @@ c
 c     jochen:
         if (cdspectrum) then           
 c     initialize transition dipoles for this transition (mainly debug)
-           mux = 0d0
-           muy = 0d0
-           muz = 0d0
            do icomp = 1,3
+              el_transdip (icomp) = 0d0
               mag_transdip(icomp) = 0d0 ! 3 components
            end do
         end if ! cdspectrum
@@ -646,6 +649,7 @@ c     initialize transition dipoles for this transition (mainly debug)
            do icomp = 1,3
               vel_transdip(icomp) = 0d0 ! 3 components
            end do
+           lvelok = (apbval(n) .gt. 1d-6) ! make sure excit. E is >0
         end if ! velocity
 
         if (cdspectrum .or. velocity) then
@@ -679,20 +683,15 @@ c     The following is adapted from rttdf_utils.F:
 c     recompute the electric transition dipoles (mainly to
 c     debug the code) and also compute the magnetic transition dip.
 
-             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &            g_tmomd(i), g_dipx, 0.d0, g_temp)
-             mux = mux - ga_trace_diag(g_temp)
-             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &            g_tmomd(i), g_dipy, 0.d0, g_temp)
-             muy = muy - ga_trace_diag(g_temp)
-             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &            g_tmomd(i), g_dipz, 0.d0, g_temp)
-             muz = muz - ga_trace_diag(g_temp)            
-
              do icomp = 1,3
+                call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
+     &               g_tmomd(i), g_dipole(icomp), 0.d0, g_temp)
+                el_transdip(icomp) = el_transdip(icomp)
+     $               - ga_trace_diag(g_temp) 
+
                 blo(3) = icomp 
                 bhi(3) = icomp       
-     
+                
               call nga_copy_patch('n',g_dipmag,blo,bhi,g_tmpdip,alo,ahi)
                 call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
      &               g_tmomd(i), g_tmpdip, 0.d0, g_temp)
@@ -703,7 +702,7 @@ c     debug the code) and also compute the magnetic transition dip.
 
           endif                 ! cdspectrum
 
-          if (velocity) then
+          if (velocity .and. lvelok) then
              do icomp = 1,3
                 blo(3) = icomp 
                 bhi(3) = icomp        
@@ -735,17 +734,14 @@ c     integrals, and add results to the transition moments
 
 c     jochen: 
             if (cdspectrum) then
-               call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &              g_tmomd(i), g_dipx, 0.d0, g_temp)
-               mux = mux - ga_trace_diag(g_temp)
-               call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &              g_tmomd(i), g_dipy, 0.d0, g_temp)
-               muy = muy - ga_trace_diag(g_temp)
-               call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
-     &              g_tmomd(i), g_dipz, 0.d0, g_temp)
-               muz = muz - ga_trace_diag(g_temp)
 
              do icomp = 1,3
+
+                call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
+     &               g_tmomd(i), g_dipole(icomp), 0.d0, g_temp)
+                el_transdip(icomp) = el_transdip(icomp)
+     $               - ga_trace_diag(g_temp) 
+
                 blo(3) = icomp  ! there are 3 components of the
                 bhi(3) = icomp  ! responding magnetic moment
      
@@ -759,10 +755,10 @@ c     jochen:
 
             endif ! cdspectrum
 
-          if (velocity) then
+          if (velocity .and. lvelok) then
              do icomp = 1,3
-                blo(3) = icomp  ! there are 3 components of the
-                bhi(3) = icomp  ! responding moment      
+                blo(3) = icomp 
+                bhi(3) = icomp 
      
               call nga_copy_patch('n',g_dipvel,blo,bhi,g_tmpdip,alo,ahi)
                 call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
@@ -787,15 +783,16 @@ c     /jochen
 
 c     jochen:
           if (cdspectrum) then
-            mux = mux *dsqrt(2.0d0)
-            muy = muy *dsqrt(2.0d0)
-            muz = muz *dsqrt(2.0d0)
             do icomp = 1,3
+              el_transdip(icomp) = el_transdip(icomp) *dsqrt(2.0d0)
               mag_transdip(icomp) = mag_transdip(icomp) *dsqrt(2.0d0)
             end do
           end if
           if (velocity) then
             do icomp = 1,3
+               if (.not.cdspectrum) ! keep the old stuff for now
+     $          el_transdip(icomp) = tmom(icomp+1)   
+
               vel_transdip(icomp) = vel_transdip(icomp) *dsqrt(2.0d0)
             end do
          end if ! velocity
@@ -823,30 +820,49 @@ c     /jochen
 
 c     jochen:
             if (cdspectrum) then
-c            write (LuOut,*) 'el. dipole integrals:',mux,muy,muz
-            write (LuOut,9250) 'Magnetic Transition Moments:',
+               write (LuOut,*)
+            write (LuOut,9250) 'Electric Transition Dipole:',
+     $           el_transdip(1), el_transdip(2), el_transdip(3)
+            write (LuOut,9250) 'Magnetic Transition Dipole:',
      $           mag_transdip(1)/cl,
      $           mag_transdip(2)/cl,
      $           mag_transdip(3)/cl
             write (LuOut,9251)
      $          'Rotatory Strength (1E-40 esu**2cm**2):',
-     $          (mux*mag_transdip(1) + muy*mag_transdip(2) +
-     $           muz*mag_transdip(3)) * 2d0 * rau2cgs 
+     $          (el_transdip(1)*mag_transdip(1) +
+     $           el_transdip(2)*mag_transdip(2) +
+     $           el_transdip(3)*mag_transdip(3))
+     $           * 2d0 * rau2cgs 
             end if ! cdspectrum
-            if (velocity) then
-c            write (LuOut,*) 'el. dipole integrals:',mux,muy,muz
+            if (velocity .and. lvelok) then
+               write (LuOut,*)
             write (LuOut,9250)
-     $      'Electric Transition Moments (velocity representation):',
+     $      'Electric Transition Dipole (velocity representation):',
      $           vel_transdip(1),
      $           vel_transdip(2),
      $           vel_transdip(3)
+            write (LuOut,9251)
+     $           'Oscillator Strength (velocity repr.) :',
+     $           (vel_transdip(1)*vel_transdip(1) +
+     $            vel_transdip(2)*vel_transdip(2) +
+     $            vel_transdip(3)*vel_transdip(3))
+     $           * apbval(n) * 2.0d0/3.0d0
+            write (LuOut,9251)
+     $           'Oscillator Strength (mixed repr.   ) :',
+     $           (vel_transdip(1)*el_transdip(1) +
+     $            vel_transdip(2)*el_transdip(2) +
+     $            vel_transdip(3)*el_transdip(3))
+     $           * apbval(n) * 2.0d0/3.0d0 ! it can be negative ...
             if (cdspectrum) then
                write (LuOut,9251)
-     $          'Rotatory Strength (velocity repr.)   :',
+     $           'Rotatory Strength   (velocity repr.) :',
      $          (vel_transdip(1)*mag_transdip(1) +
      $           vel_transdip(2)*mag_transdip(2) +
      $           vel_transdip(3)*mag_transdip(3)) * 2d0 * rau2cgs 
             end if
+            else if(velocity .and. .not.lvelok) then
+              write (LuOut,*) 
+     $        'Velocity: E <= 1e-6. skipping this excitation'
             end if ! velocity
 c     /jochen
           endif
@@ -936,20 +952,22 @@ c
 c       jochen:
         if (cdspectrum) then
 c     Clean up arrays used for CD spectra
-        if (.not. ga_destroy(g_dipx)) call errquit
-     &   (pname//'Could not destroy g_dipx', 0, GA_ERR)
-        if (.not. ga_destroy(g_dipy)) call errquit
-     &   (pname//'Could not destroy g_dipy', 0, GA_ERR)
-        if (.not. ga_destroy(g_dipz)) call errquit
-     &   (pname//'Could not destroy g_dipz', 0, GA_ERR)
-      if (.not.ga_destroy(g_dipmag)) call
-     &    errquit(pname//'ga_destroy failed g_dipmag',0,GA_ERR)
+           do icomp = 1,3
+              write (clabel,'(a,i1)') 'could not destroy g_dipole',icomp
+              if (.not. ga_destroy(g_dipole(icomp))) call errquit
+     &             (pname//clabel, 0, GA_ERR)
+           end do
+           if (.not.ga_destroy(g_dipmag)) call
+     &          errquit(pname//'ga_destroy failed g_dipmag',0,GA_ERR)
 
-        if (.not. ga_destroy(g_temp)) call errquit
-     &   (pname//'Could not destroy g_temp', 0, GA_ERR)
-        if (.not. ga_destroy(g_tmpdip)) call errquit
-     &   (pname//'Could not destroy g_tmpdip', 0, GA_ERR)
-        endif ! cdspectrum
+        end if
+
+        if (cdspectrum .or. velocity) then
+           if (.not. ga_destroy(g_temp)) call errquit
+     &          (pname//'Could not destroy g_temp', 0, GA_ERR)
+           if (.not. ga_destroy(g_tmpdip)) call errquit
+     &          (pname//'Could not destroy g_tmpdip', 0, GA_ERR)
+        endif ! cdspectrum .or. velocity
         
         if (velocity) then
 c     clean up arrays used for dipole-velocity integrals
@@ -985,8 +1003,8 @@ c      /jochen
  9170 format(5x,'Occ.',i3,1x,a5,1x,a4,'---  Virt.',
      1  i3,1x,a5,1x,a4,f8.5,' Y')
  9180 format(2x,'<S2> = ',f8.4)
- 9250 format(/5x,a
-     $     ,/,5x,'       X ',f12.7,'   Y',f12.7,'   Z',f12.7)
+ 9250 format(5x,a
+     $    ,/,5x,'       X ',f12.7,'   Y',f12.7,'   Z',f12.7)
  9251 format( 5x,a,1x,f20.7)
 c
 c -----------
