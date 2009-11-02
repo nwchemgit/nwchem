@@ -132,12 +132,7 @@
       call Parallel_taskid(taskid)
     
       if (taskid.eq.MASTER) then
-#if defined(PSCALE) || defined(__crayx1)
-       write(18,110,IOSTAT=ierr) ion_nion()
-       if(ierr.ne.0)  backspace 18
-#else
-       write(18,110) ion_nion()
-#endif
+         write(18,110) ion_nion()
          do i=1,ion_nion()
             write(18,111) ion_aname_nocarat(i),
      >                  ion_rion(1,i)*AACONV,
