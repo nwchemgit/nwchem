@@ -1,0 +1,50 @@
+The dotests.msub MOAB script runs a bunch of NWChem and Amber runs, you might have to
+edit it to set the right path and account number.  The resulting test.out.* file
+should be empty when the job completes.
+
+Each one of these subdirectories is a seperate test with its own README file.
+big: amino acid sequence
+big.shake: amino acid sequence, which shake enabled
+ethane: single ethane molecule
+ethane+: single ethane molecule with a +4 charge
+small: ALA dimer
+methanol: solvent only run (NWChem only)
+
+Within each directory is a README file that describes what results you should get.
+
+-------
+
+Hints for generating your own amber tests:
+First you need a PDB file of the molecule of interest (assume this is tiny.pdb)
+Do this in an xterm
+module purge
+module load amber/10
+./xleap &
+
+Fix the PDB to match amber based upon these files:
+${AMBERHOME}/dat/leap/lib/all_amino94.lib     ("normal" amino acids)
+${AMBERHOME}/dat/leap/lib/all_aminont94.lib   (N terminating)
+${AMBERHOME}/dat/leap/lib/all_aminoct94.lib   (C terminating)
+Until all atoms are correctly named when you type:
+tiny = loadPdb tiny.pdb on the xleap command line
+For example, I had to change CD to CD1 in ILE
+
+You may have to "edit tiny" to set atom types, add bonds, set charges, etc.  I
+had to do that with ethane (there was nothing in the default libraries, because
+it is not an amino acid).
+To add bonds, you must be in "draw" mode
+
+Once you think you are done, type this in the xleap command line:
+check tiny
+
+If all is well then save it as tiny2  (note this this is new name, since we 'fixed' things).
+savePdb tiny tiny2.pdb
+saveOff tiny tiny2.lib
+saveAmberParm tiny tiny2.top tiny2.cor
+
+-------
+
+Hints for NWChem runs:
+The atoms might need changed to match *.frg files for NWChem
+This is why the pdb files might not be the same for amber and NWChem
+

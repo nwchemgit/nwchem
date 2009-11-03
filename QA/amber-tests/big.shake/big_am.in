@@ -1,0 +1,17 @@
+initial minimization prior to MD 
+ &cntrl 
+  imin   = 1, 
+  maxcyc = 3000, 
+  ncyc   = 2000, 
+  ntb    = 0, 
+  igb    = 6, 
+  cut    = 500,
+  ntmin  = 1,
+  drms   = 0.000001,
+  scee   = 1.2,
+  scnb   = 2.0,
+  nsnb   = 1,
+  ntc=3,
+  ntf=1
+ /
+

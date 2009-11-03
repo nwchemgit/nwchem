@@ -1,0 +1,32 @@
+#
+#  This is a AMBER test that uses a PDB geometry, and the *.frg files from NWChem to asign atom types
+#
+Title "big"
+
+memory 3500 Mb
+permanent_dir .
+
+echo
+
+prepare
+ system big
+ source big.pdb
+ new_top new_seq
+ new_rst
+ amber 
+ vacuo
+end
+
+print debug
+task prepare
+
+md
+   system big_md
+   sd 3000 init 0.001  min 0.000000004 max 0.05
+   noshake solvent solute
+   cutoff short 500 long 500
+end
+
+task md energy
+task shell "cp big_md.out big_energy.out"
+task md optimize

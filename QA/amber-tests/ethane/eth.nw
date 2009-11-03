@@ -1,0 +1,54 @@
+#
+#  This is an AMBER test that uses a NWChem geometry
+#  It is uses the automatic atom type determination at the end of the Amber force file
+#
+Title "ethane"
+
+memory 3000 Mb
+permanent_dir .
+
+start eth
+
+echo
+
+geometry autosym
+ H   -0.97624726    -0.26158466    -1.15438725
+ H    0.71466259    -0.71466259    -1.15438725
+ H    0.26158466     0.97624726    -1.15438725
+ C    0.00000000     0.00000000    -0.76221612
+ C    0.00000000     0.00000000     0.76221612
+ H   -0.71466259     0.71466259     1.15438725
+ H   -0.26158466    -0.97624726     1.15438725
+ H    0.97624726     0.26158466     1.15438725
+end
+
+basis
+ * library sto-3g
+end
+
+task scf
+
+esp
+ constrain equal 1 2 3 6 7 8
+ constrain equal 4 5
+end
+
+prepare
+ source rtdb
+ amber  
+ new_top new_seq
+ new_rst
+# write pdb eth.pdb
+end
+
+task prepare
+
+md
+   system eth_md
+   noshake solvent solute
+end
+
+task md energy
+task shell "cp eth_md.out eth_energy.out"
+task md optimize
+

@@ -1,0 +1,47 @@
+This is an Ethane molecule, that NWChem generates new data for
+
+NWChem input file:
+eth.nw   - nwchem input deck
+
+Amber input files:
+eth_am.in   - amber input deck
+eth_am.cor  - coordinates
+eth_am.top  - topology file
+
+NWChem output files:
+-rw-rw-r--  1 d3p852 d3p852  248 Oct 19 14:12 eth.zmat
+-rw-rw-r--  1 d3p852 d3p852 6.2K Oct 19 14:12 eth.p
+-rw-rw-r--  1 d3p852 d3p852 6.2K Oct 19 14:12 eth.c
+-rw-rw-r--  1 d3p852 d3p852 5.3K Oct 19 14:12 eth.b^-1
+-rw-rw-r--  1 d3p852 d3p852 5.3K Oct 19 14:12 eth.b
+-rw-rw-r--  1 d3p852 d3p852  803 Oct 19 14:12 eth.q
+-rw-rw-r--  1 d3p852 d3p852  104 Oct 19 14:12 eth.nam
+-rw-rw-r--  1 d3p852 d3p852 2.7K Oct 19 14:12 eth.movecs
+-rw-rw-r--  1 d3p852 d3p852 167K Oct 19 14:12 eth.grid
+-rw-rw-r--  1 d3p852 d3p852  442 Oct 19 14:12 eth.xyz
+-rw-rw-r--  1 d3p852 d3p852 4.7K Oct 19 14:12 eth.top
+-rw-rw-r--  1 d3p852 d3p852 2.3K Oct 19 14:12 eth.sgm
+-rw-rw-r--  1 d3p852 d3p852   40 Oct 19 14:12 eth.seq
+-rw-rw-r--  1 d3p852 d3p852 169K Oct 19 14:12 eth.plt
+-rw-rw-r--  1 d3p852 d3p852  41K Oct 19 14:12 eth.out
+-rw-rw-r--  1 d3p852 d3p852 1.3K Oct 19 14:12 eth_md.rst
+-rw-rw-r--  1 d3p852 d3p852  20K Oct 19 14:12 eth_md.qrs
+-rw-rw-r--  1 d3p852 d3p852 9.6K Oct 19 14:12 eth_md.out
+-rw-rw-r--  1 d3p852 d3p852    0 Oct 19 14:12 eth_md.cmd
+-rw-rw-r--  1 d3p852 d3p852  824 Oct 19 14:12 eth.frg
+-rw-rw-r--  1 d3p852 d3p852  12K Oct 19 14:12 eth_energy.out
+-rw-rw-r--  1 d3p852 d3p852 1.1M Oct 19 14:12 eth.db
+-rw-rw-r--  1 d3p852 d3p852  426 Oct 19 14:12 eth.bsg
+
+Amber output files:
+-rw-rw-r--  1 d3p852 d3p852  384 Oct 19 14:11 mdinfo
+-rw-rw-r--  1 d3p852 d3p852  303 Oct 19 14:11 eth_am.rst
+-rw-rw-r--  1 d3p852 d3p852  13K Oct 19 14:11 eth_am.out
+
+Results from *.out files:
+3.714703721E+00 kJ/mol Single point energy NWChem (8.8784E-01 kcal/mol)
+1.63128E+00     kJ/mol after 19 steps in NWChem   (3.8989E-01 kcal/mol)
+8.8371E-01    kcal/mol single point energy Amber
+3.8987E-01    kcal/mol after 500 steps in Amber
+
+Note that NWChem and Amber match both optimized and initial

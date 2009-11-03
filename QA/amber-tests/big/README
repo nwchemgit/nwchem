@@ -1,0 +1,52 @@
+This is a series of amino acids
+
+NWChem input files:
+big.nw     - nwchem input deck
+big.pdb    - pdb file with geometry
+THR_N.sgm  - amber95 segment file: one in SVN does not match
+
+amber input files:
+big_am.in  - amber input deck
+big_am.top - amber topology file
+big_am.cor - coordinates
+
+NWChem output files:
+big.seq
+big.nam
+VAL.mat
+THR.mat
+SER.mat
+PHE.mat
+MET.mat
+LEU.mat
+ILE.mat
+GLU.mat
+big.top
+big_md.rst
+big_md.cmd
+big.bsg
+ASP.mat
+ASN.mat
+ARG.mat
+ALA.mat
+big_energy.out
+big.out
+big_md.qrs
+big_md.out
+big.db
+
+amber output files:
+mdinfo
+big_am.rst
+big_am.out
+
+results from *.out files:
+ 4.269883063E+03  kJ/mol for nwchem single point (1.0205d+03 kcal/mol)
+-1.36273E+03 for step 500 of nwchem (-3.2570E+02 kcal/mol)
+-2.19845E+03 for step 1500 of nwchem (-5.2544E+02 kcal/mol)
+-2.63110E+03 for step 3000 of nwchem (-6.2885E+02 kcal/mol)
+ 1.0211E+03 kcal/mol for amber single point
+-4.6434E+02 kcal/mol for amber 500 steps
+-6.4649E+02 kcal/mol for amber 1500 steps
+-7.5345E+02 kcal/mol for amber 3000 steps
+Note that this is an unzipping of the amino acid chain, so the energy just keeps dropping

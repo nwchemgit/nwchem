@@ -1,0 +1,14 @@
+HEADER
+TITLE    THIS IS ETHANE
+REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996
+CRYST1    1.952    1.952    2.309  90.00  90.00  90.00
+ATOM      1 2H1  ETH     1      -0.715   0.715   1.154        0.00     H
+ATOM      2 3H1  ETH     1       0.976   0.262   1.154        0.00     H
+ATOM      3 4H1  ETH     1      -0.262  -0.976   1.154        0.00     H
+ATOM      4  C1  ETH     1       0.000   0.000   0.762        0.00     C
+ATOM      5  C2  ETH     1       0.000   0.000  -0.762        0.00     C
+ATOM      6 2H2  ETH     1      -0.976  -0.262  -1.154        0.00     H
+ATOM      7 3H2  ETH     1       0.262   0.976  -1.154        0.00     H
+ATOM      8 4H2  ETH     1       0.715  -0.715  -1.154        0.00     H
+TER
+END

@@ -1,0 +1,68 @@
+#!/bin/csh -f
+#MSUB -A mscfcons
+#MSUB -l nodes=1:ppn=8,walltime=30:00
+#MSUB -e test.out.%j
+#MSUB -o test.out.%j
+#MSUB -N NWChemAmber
+
+
+### If you do this as a bash shell then NWChem gives bogus errors at completion related the the task system calls
+
+source /etc/profile.d/modules.csh
+source /home/scicons/bin/set_modulepath.csh 
+module purge
+module load amber/10
+
+setenv AMBEREXE ${AMBERHOME}/bin/sander.MPI 
+setenv DOAMBER "srun --mpi=none -n 1 -N 1 ${AMBEREXE}"
+
+cd big
+${DOAMBER} -O -i big_am.in -o big_am.out -p big_am.top -c big_am.cor -r big_am.rst
+cd ..
+
+cd big.shake
+${DOAMBER} -O -i big_am.in -o big_am.out -p big_am.top -c big_am.cor -r big_am.rst
+cd ..
+
+cd ethane
+${DOAMBER} -O -i eth_am.in -o eth_am.out -p eth_am.top -c eth_am.cor -r eth_am.rst
+cd ..
+
+cd ethane+
+${DOAMBER} -O -i ethplus_am.in -o ethplus_am.out -p ethplus_am.top -c ethplus_am.cor -r ethplus_am.rst
+cd ..
+
+cd small
+${DOAMBER} -O -i small_am.in -o small_am.out -p small_am.top -c small_am.cor -r small_am.rst
+cd ..
+
+module purge
+module load nwchem
+
+setenv NWCHEMEXE ${NWCHEM_TOP}/bin/${NWCHEM_TARGET}/nwchem
+setenv DONWCHEM "mpirun -srun -n 1 -N 1 ${NWCHEMEXE}"
+
+cd big
+${DONWCHEM} big.nw >& big.out
+cd ..
+
+cd big.shake
+${DONWCHEM} big.nw >& big.out
+cd ..
+
+cd ethane
+${DONWCHEM} eth.nw >& eth.out
+cd ..
+
+cd ethane+
+${DONWCHEM} ethplus.nw >& ethplus.out
+cd ../
+
+cd small
+${DONWCHEM} small.nw >& small.out
+cd ..
+
+cd methanol
+${DONWCHEM} meoh.nw >& meoh.out
+cd ..
+

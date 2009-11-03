@@ -1,0 +1,33 @@
+#
+#  This is a amber test that uses a PDB geometry
+#
+Title "small"
+
+memory 3500 Mb
+permanent_dir .
+
+# use the next line to verify that all atoms are really found
+# print debug
+
+echo
+
+prepare
+ system small
+ source small.pdb
+ new_top new_seq
+ new_rst
+ amber 
+ vacuo
+end
+print debug
+task prepare
+
+md
+   system small_md
+   sd 7000 init 0.001  min 0.000000001 max 0.05
+   noshake solvent solute
+end
+
+task md energy
+task shell "cp small_md.out small_energy.out"
+task md optimize

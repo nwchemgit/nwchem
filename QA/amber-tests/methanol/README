@@ -1,0 +1,21 @@
+This is a solvent only NWChem run
+
+NWChem input files:
+meoh.nw  - nwchem input deck
+meoh.pdb - EMPTY pdb file, to fool nwchem
+meoh.rst - restart file - same as scr/data/solvents/meoh.rst
+
+NWChem output files:
+meoh.top
+meoh.seq
+meoh_out.pdb - This is a PDB file of the resulting structure
+meoh.out
+meoh.nam
+meoh_em.rst
+meoh.db
+meoh.bsg
+
+Result:
+Expect a 5780 line PDB file that starts like
+CRYST1   42.476   42.476   42.476  90.00  90.00  90.00
+Note that this is not a test of a result, it is a functionality test

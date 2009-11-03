@@ -1,0 +1,47 @@
+This is an Ethane 4 plus ion, that NWChem generates new data for
+
+NWChem input file:
+ethplus.nw   - nwchem input deck
+
+Amber input files:
+ethplus_am.in   - amber input deck
+ethplus_am.cor  - coordinates
+ethplus_am.top  - topology file
+
+NWChem output files:
+ethplus.zmat
+ethplus.p
+ethplus.nam
+ethplus.movecs
+ethplus.c
+ethplus.b^-1
+ethplus.b
+ethplus.xyz
+ethplus.top
+ethplus.seq
+ethplus.q
+ethplus.plt
+ethplus_md.rst
+ethplus_md.cmd
+ethplus.grid
+ethplus_energy.out
+ethplus.bsg
+ethpl.sgm
+ethpl.frg
+ethplus.out
+ethplus_md.qrs
+ethplus_md.out
+ethplus.db
+
+Amber output files:
+mdinfo
+ethplus_am.rst
+ethplus_am.out
+
+Results from *.out files:
+1.471673291E+03  kJ/mol NWChem single point (3.5174E+02 kcal/mol)
+1.38277E+03      kJ/mol NWChem step 25 (3.3049E+02 kcal/mol)
+3.5181E+02   kcal/mol Amber single point
+3.3048E+02   kcal/mol Amber step 400
+Note that NWChem and Amber match both optimized and initial
+

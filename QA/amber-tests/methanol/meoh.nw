@@ -1,0 +1,33 @@
+#
+#  This is a test of a Solvent Only run
+#  The meoh.pdb file is empty, because NWChem needs a solute
+#  This uses the segment file provided with NWChem
+#
+Title "solvent methanol"
+
+memory 1800 Mb
+permanent_dir .
+
+start meoh
+
+echo
+
+basis
+ * library sto-3g
+end
+
+prepare
+ amber
+ source pdb
+ read rst meoh.rst
+ system meoh_em
+ solvent name MOH model meoh
+ touch 0.25
+ expand 0.1
+ center
+ solvate
+ new_top new_seq
+ new_rst
+ write pdb meoh_out.pdb
+end
+task prepare

@@ -1,0 +1,37 @@
+This is an ALA dimer
+
+NWChem input files:
+small.nw  - nwchem job file
+small.pdb - geometry as a PDB file, used by small.nw
+
+NWChem output file:
+small_energy.out
+small_md.out
+small.top
+small.seq
+small.out
+small.nam
+small_md.rst
+small_md.qrs
+small_md.cmd
+small.db
+small.bsg
+
+Amber input files:
+small_am.in  - amber job file
+small_am.cor - amber coordinate file
+small_am.top - amber topology file
+
+Amber output files:
+small_am.out
+small_am.rst
+mdinfo
+
+Results from *.out files:
+-1.374134919E+02 kJ/mol for single point NWChem (-3.2843E+01 kcal/mol)
+-1.83007E+02     kJ/mol for 500 steps NWChem    (-4.3740E+01 kcal/mol)
+-1.90732E+02     kj/mol for 7000 steps NWChem   (-4.5586E+01 kcal/mol)
+-3.2847E+01      kcal/mol for single point Amber
+-4.5025E+01      kcal/mol for 500 steps Amber
+-4.5867E+01      kcal/mol for 7000 steps Amber
+Note that the initial and optimized energies match well
