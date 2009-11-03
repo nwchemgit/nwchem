@@ -26,6 +26,8 @@ c
       double precision get_scale6
       external get_scale6
 c
+      double precision delta,delta_default
+c
       oprint = util_print('vdw', print_medium)
       oprinth = util_print('vdw high', print_high)
 c
@@ -131,7 +133,11 @@ c
              enddo
           endif
       elseif(what.eq.'hessian') then
-          call xc_vdw_hess(rtdb,s6,n,dbl_mb(i_xyz),int_mb(iz))
+c     get delta as used in a numerical hessian DFT calculation
+      delta_default  =  0.01d0
+      if (.not.rtdb_get(rtdb,'stpr_gen:delta',MT_DBL,1,delta))
+     &      delta = delta_default 
+         call xc_vdw_hess(delta,s6,n,dbl_mb(i_xyz),int_mb(iz))
          if(oprint.and.ga_nodeid().eq.0)  then
               write(luout,*) ' s6 = ',s6
               write(luout,*) ' vdw to hessian contribution is done'
@@ -571,19 +577,15 @@ c
      $ call errquit('xc_vdw_to_hessian: no geometry load form rtdb', 0,
      $        GEOM_ERR)
 c
-c
-      call xc_vdw(rtdb,geom,dum,
-     A     dum1, 'hessian')
+      call xc_vdw(rtdb, geom, dum, dum1, 'hessian')
 c
       if(.not. geom_destroy(geom))
      $ call errquit('xc_vdw_to_hessian: geom_create failed !', 
      $                                                0,GEOM_ERR)
 c
-      write(6,*) ' vdw hessian contribution DONE'
-c
       return
       end
-      subroutine xc_vdw_hess(rtdb,s6,n,x,z)
+      subroutine xc_vdw_hess(delta,s6,n,x,z)
       implicit none
 c This function makes vdw empirical correction to the hessian
 c must be called before thermochemical data and vibrational
@@ -594,11 +596,9 @@ c#include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "errquit.fh"
-#include "rtdb.fh"
 #include "global.fh"
       double precision s6     
       integer n                
-      integer rtdb                
       double precision x(3,n)
       double precision z(n)
       double precision l_force(3,n)
@@ -607,7 +607,6 @@ c#include "global.fh"
       double precision dval0
       double precision dval1
       double precision delta
-      double precision delta_default
       integer i, j, A, B
       integer n3xyz 
       integer nat2
@@ -645,30 +644,21 @@ c
       write(LuOut,* ) 'Read old hessian file : ', filehess 
 c
       call dfill(dbl_mb(k_exybt),0.0d0,nhesst,1)
-      write(6,* ) 'leee '
+      !write(6,* ) 'leee '
       open(unit=69,file=filehess,form='formatted',status='old',
      &    err=99900,access='sequential')
       do j = 0,(nhesst-1)
         read(69,*,err=99901,end=99902) dval0
         dbl_mb(k_exybt+j) = dval0
-      write(6,* ) 'dval ', dval0
+      !write(6,* ) 'dval ', dval0
       enddo
       close(unit=69,status='keep')
 c
-c
-c
-c complete the square matrix from triangle values
+c     complete the square matrix from triangle values
 c
       call trin2squa(dbl_mb(k_exybs),dbl_mb(k_exybt),n3xyz)
 c
-c delta thinking in a numerical hessian DFT calculation
-      delta_default  =  0.01d0
-c     delta_default  =  0.001d0
-      if (.not.rtdb_get(rtdb,'stpr_gen:delta',MT_DBL,1,delta))
-     &      delta = delta_default 
-c
       write(LuOut,* ) 'vdW contribution to hessian '
-c
 c
 c     call output(dbl_mb(k_exybs), 1, n3xyz, 1, n3xyz, n3xyz, n3xyz, 1)
 c
@@ -701,8 +691,8 @@ c
 c         call output(hessvdw,1,n3xyz,1,n3xyz,
 c    &        n3xyz,n3xyz,1)
 c
-cedo      call dadd(hessvdw,dbl_mb(k_exybs),dbl_mb(k_exybs),1,nat2,1) 
-      call dcopy(nat2,1d0,hessvdw,1,dbl_mb(k_exybs),1)
+      call daxpy(nat2,1d0,hessvdw,1,dbl_mb(k_exybs),1)
+      !call dcopy(nat2,hessvdw,1,dbl_mb(k_exybs),1)
 c
 c:write the final hessian
 c
