@@ -692,7 +692,6 @@ c         call output(hessvdw,1,n3xyz,1,n3xyz,
 c    &        n3xyz,n3xyz,1)
 c
       call daxpy(nat2,1d0,hessvdw,1,dbl_mb(k_exybs),1)
-      !call dcopy(nat2,hessvdw,1,dbl_mb(k_exybs),1)
 c
 c:write the final hessian
 c
