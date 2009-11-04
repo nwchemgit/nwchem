@@ -68,18 +68,12 @@ c
      $    call
      $  errquit('task_hessian: error call bsse hessian',911,UNKNOWN_ERR)
       endif
-
-
+c
       if(.not.status)
      $    call errquit('task_hessian: error task_hessian_doit',0,0)
 c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
-c
-c     if (status) then
-c        key = ' '
-c        write(key,'(a,'':hessian'')') prefix(1:inp_strlen(prefix))
-c     endif
 c
       task_hessian = status
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, task_hessian))
@@ -105,6 +99,7 @@ c
          call ecce_print_module_exit('task hessian', 'failed')
       endif
       end
+c
       logical function task_hessian_doit(rtdb)
 c
       implicit none
@@ -152,12 +147,13 @@ c
       double precision default_delta
       character*80 prefix
       character*32 theory
-c   vdw contrib
+c
+c     vdw contrib
       logical disp
 c
       call ecce_print_module_entry('task hessian')
 c
-c   Prevent  BSSE calculations
+c     Prevent BSSE calculations
       if (.not. rtdb_get(rtdb,'bsse',mt_log,1,task_bsse))
      $    task_bsse = .false.
 c
@@ -165,6 +161,10 @@ c
         if (.not. rtdb_put(rtdb,'bsse',mt_log,1,.false.))
      $    call errquit('task_hessian_doit:rtdb_put failed',911,RTDB_ERR)
       endif
+c
+c     Check for vdw (disp) calculations
+      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
+     &      disp=.false.
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:hessian: theory not specified',0,
@@ -174,13 +174,6 @@ c
       if (.not. rtdb_get(rtdb,'task:analytic',mt_log,1,analytic))
      &    analytic = .true.
 c
-c  for numerical hessian reset task:numerical so gradients are done analytically
-c
-*      if (numerical) then
-*        if (.not.rtdb_put(rtdb,'task:numerical',mt_log,1,.false.))
-*     &      call errquit('task_hessian: failed to reset numerical',911)
-*      endif
-
       ignore = rtdb_delete(rtdb, 'task:numerical')
       ignore = rtdb_delete(rtdb, 'task:hessian file name')
       ignore = rtdb_delete(rtdb,'task:hessian')
@@ -257,15 +250,12 @@ c
      &       INPUT_ERR)
         endif
 c
-c  vdw bit
-        if(theory.eq.'dft') then
-c activate disp if is present in rtdb
-          if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
-     &      disp=.false.
-          if(disp)  call xc_vdw_to_hessian(rtdb)
-        endif
+      endif  ! numerical
 c
-      endif
+c     vdw contribution to hessian
+      if(theory.eq.'dft') then
+       if(disp) call xc_vdw_to_hessian(rtdb)
+      endif ! vdw
 c
       if (task_bsse) then
         if (.not. rtdb_put(rtdb,'bsse',mt_log,1,task_bsse))
