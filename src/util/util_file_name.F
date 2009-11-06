@@ -849,6 +849,45 @@ c
      .     availkb, fstype).eq.0
       return
       end
-
-
-      
+c
+      subroutine util_full_file_name(filename, oscratch, name)
+      implicit none
+#include "errquit.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "cfileprefix.fh"
+#include "global.fh"
+#include "stdio.fh"
+c
+      character*(*) filename          ! [input] raw file name
+      logical oscratch                ! [input] true=scratch, false=permanent
+      character*(*) name              ! [output] full filename including scratch path
+c
+      character*(nw_max_path_len) dir, tmp
+      integer ltmp, ldir, me
+      logical util_file_parse_dir
+      external util_file_parse_dir
+c
+      me = ga_nodeid()
+c
+      call util_directory_name(dir, oscratch, me)
+      tmp   = filename
+      ltmp  = inp_strlen(tmp)
+      ldir  = inp_strlen(dir)
+      if (ltmp+ldir+1 .gt. len(name)) then
+        write(LuOut,*) ' util_full_file_name: filename = ', filename
+        write(LuOut,*) ' util_full_file_name: ltmp, ldir, lname',
+     $        ltmp, ldir, len(name)
+        call util_flush(LuOut)
+        call errquit('util_full_file_name: name too small', ltmp+ldir+1,
+     &       INPUT_ERR)
+      endif
+      if (dir .ne. ' ') then
+         name = dir
+         name(ldir+1:ldir+1) = '/'
+         name(ldir+2:) = tmp
+      else
+         name = tmp
+      endif
+c
+      end
