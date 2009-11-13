@@ -234,8 +234,8 @@ c
       logical leps_gradient 
       external leps_gradient
 c
-      logical tce_gradient
-      external tce_gradient
+c      logical tce_gradient
+c      external tce_gradient
 c
       integer nelem, ncent
       logical status, numerical, ocosmo, xc_chktau
@@ -345,11 +345,12 @@ c
       else if (theory .eq. 'tddft') then
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'tce') then
-         if (numerical) then 
-            status = task_num_grad(rtdb) ! Only numerical
-         else
-            status = tce_gradient(rtdb)
-         endif
+         status = task_num_grad(rtdb) ! Only numerical
+c         if (numerical) then 
+c            status = task_num_grad(rtdb) ! Only numerical
+c         else
+c            status = tce_gradient(rtdb)
+c         endif
       else if (theory .eq. 'uccd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'ccd'))
