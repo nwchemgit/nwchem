@@ -456,7 +456,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 #include "rtdb.fh"
 
 *     **** local variables ****
-      logical value,grid3d
+      logical value,grid3d,grid1d
       integer taskid
       integer MASTER
       parameter (MASTER=0)
@@ -485,6 +485,10 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       grid3d = .false.
       if (rtdb_get(rtdb,'pspw_dplot:3d_grid:nx',mt_int,1,i))
      >  grid3d = .true.
+
+      grid1d = .false.
+      if (rtdb_get(rtdb,'pspw_dplot:1d_grid:nx',mt_int,1,i))
+     >  grid1d = .true.
 
       call Parallel_taskid(taskid)
       n2ft3d = 2*nfft3d
@@ -733,6 +737,9 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
 
         if (grid3d) then
           call dplot_gcube_write3d(rtdb,filename,
+     >                         number,cube_comment,dbl_mb(rho(1)))
+        else if (grid1d) then
+          call dplot_gcube_write1d(rtdb,filename,
      >                         number,cube_comment,dbl_mb(rho(1)))
         else
           call dplot_gcube_write(rtdb,filename,
@@ -1755,6 +1762,227 @@ c     if (.not. value) call errquit('closing geometry',0)
 
 
 *     **** CLOSE cube FILE ****
+      if (taskid.eq.MASTER) then
+         CLOSE(unit_id)     
+      end if
+
+      return
+      end 
+
+
+
+
+
+*
+*     ***********************************************
+*     *                                             *
+*     *          dplot_gcube_write1d                *
+*     *                                             *
+*     ***********************************************
+
+      subroutine dplot_gcube_write1d(rtdb,filename,
+     >                             number,cube_comment,rho)
+      implicit none
+      integer rtdb
+      character*30 filename
+      integer      number
+      character*72 cube_comment
+      real*8 rho(*)
+     
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer unit_id
+      parameter (unit_id = 72)
+
+      integer taskid
+      integer MASTER
+      parameter (MASTER=0)
+
+
+*     **** geometry variables ****
+c     integer geom1
+c     character*16 t
+      integer nion,nion2
+      real*8 q,rxyz(3),p(3)
+      real*8 position_tolerance
+
+*     **** lattice variables ****
+      integer np1,np2,np3
+      real*8 ua(3,3),r0(3)
+
+      integer nx,ny,nz
+      integer nxh,nyh,nzh
+      real*8 sx,sy,sz,xy,xz,yz,scal1
+      real*8 dx,dy,dz,w
+      real*8  sizex(2),sizey(2),sizez(2)
+      real*8 xaxis(3),yaxis(3),zaxis(3),qq(3)
+    
+
+      integer l,orb_flag,i,j,k,ii,jj,kk,indx
+      character*255 full_filename
+      integer nfft3d,tmp1(2),tmp2(2),tmp3(2)
+      integer Gx,Gy,Gz
+
+*     **** external functions ****
+      integer  ion_nion      
+      real*8   lattice_unita,ion_rion,ion_q
+      external ion_nion
+      external lattice_unita,ion_rion,ion_q
+
+      integer  G_indx
+      external G_indx
+
+
+      call parallel_taskid(taskid)
+
+      
+*     **** OPEN cube FILE ****
+      if (taskid.eq.MASTER) then
+         call util_file_name_noprefix(filename,.false.,
+     >                                .false.,
+     >                       full_filename)
+         l = index(full_filename,' ') -1
+         OPEN(unit_id,file=full_filename(1:l),form='formatted')
+c         WRITE(unit_id,*) 'molecule'
+c         WRITE(unit_id,*)  cube_comment
+      end if
+
+*     **** open geom ****
+      nion = ion_nion()
+c     value = geom_create(geom1,'geometry')
+c     value = value.and.geom_rtdb_load(rtdb,geom1,'geometry')
+c     value = value.and.geom_ncent(geom1,nion)
+c     if (.not. value) call errquit('opening geometry',0)
+
+*     **** read the origin ***
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:1d_grid:o',
+     >               mt_dbl,3,r0)) then
+        r0(1) = 0.0
+        r0(2) = 0.0
+        r0(3) = 0.0
+      end if
+
+*     **** read the x point ****
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:1d_grid:x',
+     >               mt_dbl,3,xaxis)) then
+        xaxis(1) = 1.0
+        xaxis(2) = 0.0
+        xaxis(3) = 0.0
+      end if
+
+*     **** read nx ***
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:1d_grid:nx',
+     >               mt_int,1,nx))
+     >  nx = 32
+       nxh = nx/2
+
+      if (taskid.eq.MASTER) then
+         write(*,*)
+         write(*,1240) 
+         write(*,1241) r0
+         write(*,1242) xaxis,nx
+         write(*,*)
+         write(*,*)
+      end if
+ 1240 FORMAT(5x,'    1d-Grid Generation')
+ 1241 FORMAT(5x,'    origin=<',3f8.3,' >')
+ 1242 FORMAT(5x,'    x-point=<',3f8.3,' >  nx=',I3)
+
+*     *** define line ****
+      do i=1,3
+        xaxis(i) = xaxis(i)-r0(i)
+      end do
+
+*     ** normalization of x **
+      sx = dsqrt(xaxis(1)**2+xaxis(2)**2+xaxis(3)**2)
+      do i=1,3
+        xaxis(i) = xaxis(i) / sx
+      end do
+
+
+      call D3dB_nx(1,np1)
+      call D3dB_ny(1,np2)
+      call D3dB_nz(1,np3)
+
+      dx = sx/dble(nx)
+      do i=1,3
+         ua(i,1) = dx*xaxis(i)
+         ua(i,2) = 0.0d0
+         ua(i,3) = 0.0d0
+      end do
+
+*     ** shift origin **
+      qq(1) = r0(1) + 
+     >       - 0.5d0*(lattice_unita(1,1)
+     >               +lattice_unita(1,2)
+     >               +lattice_unita(1,3))
+      qq(2) = r0(2) + 
+     >       - 0.5d0*(lattice_unita(2,1)
+     >               +lattice_unita(2,2)
+     >               +lattice_unita(2,3))
+      qq(3) = r0(3) + 
+     >       - 0.5d0*(lattice_unita(3,1)
+     >               +lattice_unita(3,2)
+     >               +lattice_unita(3,3))
+
+
+*     **** allocate space ****
+      call D3dB_nfft3d(1,nfft3d)
+      value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+
+*     **** fft density  ****
+      scal1=1.0d0/dble(np1*np2*np3)
+      call D3dB_r_SMul(1,scal1,rho,dcpl_mb(tmp2(1)))
+      call D3dB_r_Zero_Ends(1,dcpl_mb(tmp2(1)))
+      call D3dB_rc_fft3f(1,dcpl_mb(tmp2(1)))
+      call Pack_c_pack(0,dcpl_mb(tmp2(1)))
+
+
+*     **** density at mesh points ****
+      Gx= G_indx(1)
+      Gy= G_indx(2)
+      Gz= G_indx(3)
+      do i=1,nx
+        !ii = i-1-nxh
+        ii = i-1
+        p(1) = ii*ua(1,1) + qq(1)
+        p(2) = ii*ua(2,1) + qq(2)
+        p(3) = ii*ua(3,1) + qq(3)
+        do l=1,nfft3d
+          w = dbl_mb(Gx+l-1)*p(1) 
+     >      + dbl_mb(Gy+l-1)*p(2) 
+     >      + dbl_mb(Gz+l-1)*p(3)
+          dcpl_mb(tmp1(1)+l-1)=dcmplx(dcos(w),-dsin(w))
+        end do
+        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
+        call Pack_cc_dot(0,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)),w)
+
+        if (taskid.eq.MASTER)
+     >     write(unit_id,'(2e13.5)') (i-1)*dx,w
+      end do
+
+
+*     **** deallocate space ****
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('popping stack memory',0, MA_ERR)
+
+
+
+*     **** CLOSE FILE ****
       if (taskid.eq.MASTER) then
          CLOSE(unit_id)     
       end if

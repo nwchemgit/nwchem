@@ -20,7 +20,7 @@ c
 #include "nwc_const.fh"
 c
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 12)
+      parameter (num_dirs = 13)
       character*22 dirs(num_dirs)
       data dirs / 'vectors',
      >            'density',
@@ -33,6 +33,7 @@ c
      >            'limitxyz',
      >            'ncell',
      >            'atom_truncate',
+     >            '1d_grid',
      >            'end'/
 
       integer num_dnames          ! No. of density directives
@@ -93,7 +94,7 @@ c
      >           'pspw_dplot_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 100,  200, 300, 400, 500, 600,700,800,900,1000,1100,
+      goto ( 100,  200, 300, 400, 500, 600,700,800,900,1000,1100,1200,
      >      9999) ind
       call errquit(
      >      'pspw_dplot_input: unimplemented directive', ind, INPUT_ERR)
@@ -494,6 +495,34 @@ c
 
       goto 10
 
+c     
+c 1d_grid
+c     
+*     **** read o,x,sizex,y,sizey ****
+ 1200 value =            inp_read()
+      value =  value.and.inp_i(nx)
+
+      value =  value.and.inp_read()
+      value =  value.and.inp_f(o(1))
+      value =  value.and.inp_f(o(2))
+      value =  value.and.inp_f(o(3))
+
+      value =  value.and.inp_read()
+      value =  value.and.inp_f(x(1))
+      value =  value.and.inp_f(x(2))
+      value =  value.and.inp_f(x(3))
+
+
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:1d_grid:o',
+     >                           mt_dbl,3,o)
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:1d_grid:x',
+     >                           mt_dbl,3,x)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw_dplot:1d_grid:nx',
+     >                  mt_int,1,nx)
+
+
+      goto 10
 
 
  9999 continue
