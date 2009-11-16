@@ -1921,15 +1921,15 @@ c     if (.not. value) call errquit('opening geometry',0)
       end do
 
 *     ** shift origin **
-      qq(1) = r0(1) + 
+      qq(1) = r0(1)  
      >       - 0.5d0*(lattice_unita(1,1)
      >               +lattice_unita(1,2)
      >               +lattice_unita(1,3))
-      qq(2) = r0(2) + 
+      qq(2) = r0(2)  
      >       - 0.5d0*(lattice_unita(2,1)
      >               +lattice_unita(2,2)
      >               +lattice_unita(2,3))
-      qq(3) = r0(3) + 
+      qq(3) = r0(3)  
      >       - 0.5d0*(lattice_unita(3,1)
      >               +lattice_unita(3,2)
      >               +lattice_unita(3,3))
