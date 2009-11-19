@@ -46,6 +46,8 @@ C###############################################################################
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "util.fh"
+#include "errquit.fh"
+
 c
 c Input
 c
@@ -98,7 +100,7 @@ c     We never turn this back on
 c
       if(.not.rtdb_put(rtdb,'dft:largenode',mt_log,1,.true.))
      &   call errquit('util_sggo: rtdb_put nodisk failed',1,RTDB_ERR)
-      if (.not. rtdb_put(rtdb, 'dft:noio', mt_int, 1, noio))
+      if (.not. rtdb_put(rtdb, 'dft:noio', mt_int, 1, 1))
      &   call errquit('util_sggo: rtdb_put noio failed',1,RTDB_ERR)
 c
 
