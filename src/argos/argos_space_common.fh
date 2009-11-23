@@ -97,13 +97,13 @@ c
       integer misl(mis2),nbits(mis2),ipack(mis2)
       integer miwl(miw2),nbitw(miw2),ipackw(miw2)
       integer lfnout,lfnsyn,nfsync,lfndbg,nhist,mbbreq,nrempr
-      logical lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,lpipo
+      logical lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lpipo
       common/sd_var/rshort,rlong,rbox,box,boxh,bsize,vlat,vlati,
      + bxmin,bymin,bzmin,tsyncp,factld,third,tmp,prs,rsgm,rbbl,tslow,
      + npbtyp,nbxtyp,neighb,loadb,lbpair,npprev,ntwin,nldup,nbbdif,
      + lfnout,lfnsyn,nfsync,ipairf,ipairt,iguide,idebug,npack,npackw,
      + lfndbg,misl,nbits,ipack,miwl,nbitw,ipackw,nhist,mbbreq,nrempr,
-     + isload,ireset,lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,
+     + isload,ireset,lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,
      + lpipo
 c
       integer mxhist

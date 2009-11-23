@@ -33,7 +33,7 @@ c
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
       integer iprop,iprpmf,nfhop,ipbtyp,iradgy,idifco,nfnewf,ncolt
-      integer icmopt,imembr,icrit,nbget,nprec,nfload
+      integer icmopt,imembr,icrit,nbget,nprec,nfload,ncp
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -56,6 +56,7 @@ c
 c
 c     set the defaults
 c
+      ncp=1
       nbx=0
       nby=0
       nbz=0
@@ -353,6 +354,11 @@ c
 c
       if(inp_compare(.false.,'groups',item)) then
       if(.not.inp_i(npg)) call md_abort('argos: error npg',0)
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'cores',item)) then
+      if(.not.inp_i(ncp)) call md_abort('argos: error ncp',0)
       goto 2
       endif
 c
@@ -1669,6 +1675,8 @@ c
       if(.not.rtdb_put(irtdb,'md:npz',mt_int,1,npz))
      + call md_abort('argos: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:npg',mt_int,1,npg))
+     + call md_abort('argos: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:ncp',mt_int,1,ncp))
      + call md_abort('argos: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:mdalgo',mt_int,1,mdalgo))
      + call md_abort('argos: rtdb_put failed',0)

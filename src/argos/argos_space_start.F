@@ -4,7 +4,7 @@
      + npxi,npyi,npzi,nbxi,nbyi,nbzi,
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
-     + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi,
+     + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,iguidi,
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl,nseqi,
      + i_lseqi,ndumsi,nbgeti,npreci,madbxi)
 c
@@ -30,7 +30,7 @@ c
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi,nseri,ictrl,ndumsi
       integer nbgeti,npreci,madbxi
-      logical lpol,lfre,ignore,lpbc,lqd
+      logical lpol,lfre,ignore,lpbc
       character*80 prjct
 c
       integer i,j,l_f,i_f
@@ -64,8 +64,6 @@ c
       ntwin=1
       if(rlng.gt.rsht) ntwin=2
       ltwin=rlng.gt.rsht
-      lnode0=lqmd
-      lqmd=lqd
 c
       loadb=ldb
       lbpair=lbp

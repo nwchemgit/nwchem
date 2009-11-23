@@ -16,12 +16,6 @@ c
       integer i, grp_handle
       real*8 rantmp
 c
-c      write(*,1000) npg
-c 1000 format(' The number of processor groups requested is ',i5)
-c      write(*,1001) ga_pgroup_get_world()
-c 1001 format(' The world group handle is ',i5)
-c      write(*,1002) ga_pgroup_get_default()
-c 1002 format(' The default group handle is ',i5)
 c
       if(npg.eq.0) npg=1
 c
@@ -45,6 +39,21 @@ c
 c
       np=ga_nnodes()
       me=ga_nodeid()
+c
+      if(me.eq.0) then
+      if(util_print('distribution', print_high)) then
+      write(*,1000) npg
+ 1000 format(' The number of processor groups requested is ',i5)
+      write(*,1001) npw
+ 1001 format(' The number of processors is ',i5)
+      endif
+      endif
+c
+c      write(*,1001) ga_pgroup_get_world()
+c 1001 format(' The world group handle is ',i5)
+c      write(*,1002) ga_pgroup_get_default()
+c 1002 format(' The default group handle is ',i5)
+c
       return
       end
 c

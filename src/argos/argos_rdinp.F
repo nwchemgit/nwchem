@@ -334,8 +334,6 @@ c
       hbang2=two*atan(one)
       verinp=zero
 c
-      uqmd=zero
-c
       iformt=1
 c
 c     parallel execution defaults
@@ -446,6 +444,8 @@ c
       if(.not.rtdb_get(irtdb,'md:npz',mt_int,1,npz))
      + call md_abort('argos_rtdbin: rtdb_get failed',6)
       if(.not.rtdb_get(irtdb,'md:npg',mt_int,1,npg))
+     + call md_abort('argos_rtdbin: rtdb_get failed',6)
+      if(.not.rtdb_get(irtdb,'md:ncp',mt_int,1,ncp))
      + call md_abort('argos_rtdbin: rtdb_get failed',6)
       if(.not.rtdb_get(irtdb,'md:mdalgo',mt_int,1,mdalgo))
      + call md_abort('argos_rtdbin: rtdb_get failed',7)
@@ -813,25 +813,25 @@ c
 c
       if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
      + call md_abort('argos_rtdbin: rtdg_cget failed',137)
-      if(theory.eq.'md') then
-      iquant=0
-      iqmmm=0
-      else
-      iqmmm=1
-      if(.not.rtdb_get(irtdb,'task:QMMM',mt_log,1,lqmmm)) iqmmm=0
-      if(iqmmm.eq.1) then
-      if(.not.rtdb_get(irtdb,'qmmm:uqmatm',mt_dbl,1,uqmatm))
-     + uqmatm=0.0d0
-      if(.not.rtdb_get(irtdb,'qmmm:linkatm',mt_int,1,linkatm))
-     + linkatm=0
-      if(.not.rtdb_get(irtdb,'qmmm:nobq',mt_int,1,nobq))
-     + nobq=1
-      uqmatm=cau2kj*uqmatm
-      iquant=0
-      else
-      iquant=1
-      endif
-      endif
+c      if(theory.eq.'md') then
+c      iquant=0
+c      iqmmm=0
+c      else
+c      iqmmm=1
+c      if(.not.rtdb_get(irtdb,'task:QMMM',mt_log,1,lqmmm)) iqmmm=0
+c      if(iqmmm.eq.1) then
+c      if(.not.rtdb_get(irtdb,'qmmm:uqmatm',mt_dbl,1,uqmatm))
+c     + uqmatm=0.0d0
+c      if(.not.rtdb_get(irtdb,'qmmm:linkatm',mt_int,1,linkatm))
+c     + linkatm=0
+c      if(.not.rtdb_get(irtdb,'qmmm:nobq',mt_int,1,nobq))
+c     + nobq=1
+c      uqmatm=cau2kj*uqmatm
+c      iquant=0
+c      else
+c      iquant=1
+c      endif
+c      endif
 c
       if(.not.rtdb_cget(irtdb,'task:operation',1,operat))
 c     + call md_abort('argos_rtdbin: rtdg_cget failed',138)
@@ -1011,8 +1011,6 @@ c
       endif
 c
       lesp=.false.
-      lqmd=iquant.ne.0
-      lqmmm=iqmmm.ne.0
       lpert2=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.2.or.isetp2.eq.2))
       lpert3=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.3.or.isetp2.eq.3))
 c

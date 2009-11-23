@@ -67,12 +67,12 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call argos_prop_proper(import,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
       call argos_prop_step(import,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm)
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme)
 c
 cx      call argos_prop_print()
 c

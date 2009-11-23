@@ -1,6 +1,6 @@
       subroutine argos_prop_proper(mdstep,stime,eww,esw,
      + ess,fss,esk,epme,
-     + uqmd,uqmmm,epot,epotw,epotsw,epots,vol,dwr,dsr,ekin,etot,
+     + epot,epotw,epotsw,epots,vol,dwr,dsr,ekin,etot,
      + npolit,gsm,esa,box,xsm)
 c
       implicit none
@@ -17,7 +17,7 @@ c
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme(3)
       real*8 fss(msf,msf,3,2)
       real*8 epot,epotw,epotsw,epots,vol,ekin,etot,epmec,ubias
-      real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm,box(3)
+      real*8 eq,el,ep,ek,et,ewp,box(3)
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,npolit
       real*8 dwr,dsr(msm),gsm(msm,4,2),esa(nsa,2)
@@ -77,8 +77,6 @@ c
       epmec3=epmec3+ess(k,j,11,1)
    13 continue
    12 continue
-c
-      if(me.eq.0) ep=ep+uqmd+uqmmm
 c
 c     if using cafe get properties from it
 c

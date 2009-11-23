@@ -8,70 +8,15 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 c
-      character*5 gid
-      integer iun,ibl
-      logical lexist
+c     determine the partition of processes, process ids, etc
+c     ------------------------------------------------------
 c
       call argos_partition
 c
-      if(me.eq.0) then
-      if(npg.gt.1) then
-      write(gid,3300) meg
- 3300 format(i5.5)
-      ibl=index(filnam,' ')-1
-      if(ibl.lt.1) then
-      filnam='nwmd'
-      ibl=4
-      endif
-      iun=index(filnam,'_')-1
-      if(iun.lt.0) iun=ibl
-      if(iun.eq.0) then
-      ibl=index(filnam,' ')-1
-      iun=5
-      endif
-      filtop=filnam(1:iun)//'.top'
-      filrst=filnam(1:ibl)//'.rst'
-      filout=filnam(1:ibl)//gid//'.out'
-      filtrj=filnam(1:ibl)//gid//'.trj'
-      filprp=filnam(1:ibl)//gid//'.prp'
-      filmro=filnam(1:ibl)//gid//'.mro'
-      filgib=filnam(1:ibl)//gid//'.gib'
-      if(npg.gt.1) then
-      filrst=filnam(1:ibl)//gid//'.rst'
-      inquire(file=filrst(1:index(filrst,' ')-1),exist=lexist)
-      if(.not.lexist) filrst=filnam(1:ibl)//'.rst'
-      endif
-      endif
-      endif
+c     generate file names and open all files
+c     --------------------------------------
 c
-c     Open debug file if requested
-c     ----------------------------
-c
-      if(idebug.gt.0) then
-      lfndbg=18
-      write(fildbg,'(a,i5.5,a)') 'nwchem_',me,'.dbg'
-      open(unit=lfndbg,file=fildbg,form='formatted',status='unknown')
-      endif
-c
-c     open recording file
-c
-      if(me.eq.0) then
       call argos_fopen(.false.)
-c
-      if(ntype.eq.3) then
-      open(unit=lfngib,file=filgib(1:index(filgib,' ')-1),
-     + form='formatted',status='unknown')
-      endif
-      if(ntype.eq.0.and.nftri.gt.0) then
-      open(unit=lfntri,file=filtri(1:index(filtri,' ')-1),
-     + form='formatted',status='unknown')
-      endif
-c
-      if(itest.gt.0) then
-      open(unit=lfntst,file=filtst(1:index(filtst,' ')-1),
-     + form='formatted',status='unknown')
-      endif
-      endif
 c
 c     print input information
 c     -----------------------
@@ -81,14 +26,13 @@ c
 c     start the spacial decomposition API
 c     -----------------------------------
 c
-      lqmd=.false.
       call argos_space_start(lfnout,lfntop,filtop,lfnrst,filrst,lfnsyn,
      + filsyn,
      + nfsync,rshort,rlong,zero,rsgm,
      + npx,npy,npz,nbx,nby,nbz,
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
-     + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
+     + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,
      + iguide,lfndbg,idebug,projct,mbbreq,nserie,isload,ireset,icntrl,
      + nseq,i_lseq,ndums,nbget,nprec,madbox)
 c
@@ -100,7 +44,7 @@ c
 c     start the classical forces API
 c     ------------------------------
 c
-      call argos_cafe_start(irtdb,lqmd,lfnout,lfntop,filtop,ndistr,npmf,
+      call argos_cafe_start(irtdb,lfnout,lfntop,filtop,ndistr,npmf,
      + npmfi,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + mdalgo,npbtyp,nbxtyp,rshort,rlong,rqmmm,box,
@@ -137,7 +81,7 @@ c
      + npstep.ne.0,npener.ne.0,npstat,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
      + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc,nbias,nodpme,npmfi,
-     + iguide.ne.0,iqmmm.ne.0,lqmd,iradgy,idifco,nbget,meg,npg)
+     + iguide.ne.0,iradgy,idifco,nbget,meg,npg)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -310,9 +254,10 @@ c
       endif
 c
       if(npg.gt.1.and.me.eq.0) then
-      root=filnam(1:ibl)//gid
-      filrst=filnam(1:ibl)//gid//'.rst'
-      rfile=filrst
+c      root=filnam(1:ibl)//gid
+c      filrst=filnam(1:ibl)//gid//'.rst'
+c      rfile=filrst
+      filrst=rfile
       endif
 c
       if(.not.ma_verify_allocator_stuff())

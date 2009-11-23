@@ -12,7 +12,6 @@ c
       real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
 c
       n=nbbl
-      if(lqmd) n=0
 c
       call argos_space_lbbl_prefetch(int_mb(i_bb),int_mb(i_ipl),
      + int_mb(i_jpl),

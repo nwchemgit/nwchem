@@ -34,7 +34,7 @@ c
       call timer_start(201)
       call argos_newton()
       call argos_prop_proper(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsmp))
       call argos_server
@@ -91,12 +91,12 @@ c
       call timer_stop(55)
 c
       call argos_prop_proper(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsmp))
       call argos_server
       call argos_prop_step(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm)
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme)
 c
       call timer_stop(201)
 c

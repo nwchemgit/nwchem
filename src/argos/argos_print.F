@@ -24,12 +24,13 @@ c
       endif
 c
       call swatch(today,now)
-      write(lfnout,1000) ctype,today,now,npw,npg,np
+      write(lfnout,1000) ctype,today,now,npw,npg,np,ncp
  1000 format(' ARGOS MOLECULAR DYNAMICS SIMULATION PACKAGE',//,
      + ' MODULE: ',a22,t110,2a10,//,
      + ' Number of processes',t30,i6,/,
      + ' Number of process groups',t30,i6,/,
-     + ' Number of processes in group',t30,i6,/)
+     + ' Number of processes in group',t30,i6,/,
+     + ' Number of cores per cell',t30,i6,/)
 c
       write(lfnout,1001) titinp(1),datinp,timinp,titinp(2),titinp(3)
  1001 format(/,' Title ',t10,a,t110,2a10,/,t10,a,/,t10,a)
