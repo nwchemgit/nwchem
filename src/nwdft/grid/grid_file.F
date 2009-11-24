@@ -84,7 +84,8 @@ c     this memory is sitting around during the initial guess routines
 c
       call util_file_name('grinfo',.true.,.false.,grinfo_in)
       call util_pname(grinfo_in, grinfo)
-      if(.not.oreopen) then
+c     If "largenode", then it should never be opened
+      if(.not.oreopen .or. largenode) then
 c
 c     Figure out sizes.  The -1 is to leave room for the end record
 c     which for semidirect may be written out after EOF has been reported.
