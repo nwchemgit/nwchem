@@ -37,6 +37,7 @@ c
       external ewald_e
       external cpsi_1eorbit,cpsi_smearcorrection
       external cpsi_1vnlso
+      integer taskid
 
       call Cram_max_npack(npack1)
       neall  = cpsi_neq(1)+cpsi_neq(2)

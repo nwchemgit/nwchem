@@ -287,7 +287,6 @@ c        *****                          agr,fn,fdn      *****
         tmp(1) = xfdn(1)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-
 c        ***** calculate rhoup  ****
          call D3dB_r_Copy(1,dn(1,1),dbl_mb(rhoup(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(rhoup(1)))
@@ -342,7 +341,6 @@ c     >                            dbl_mb(rhodn(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(rhodn(1)))
          call D3dB_rc_fft3f(1,dbl_mb(rhodn(1)))
          call mask_C(0,dbl_mb(rhodn(1)))
-
 
 c        ***** calculate   grdn = grad ndn ****
          call D3dB_ic_Mul(1,dbl_mb(G_indx(1)),

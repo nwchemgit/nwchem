@@ -331,7 +331,7 @@ cccccccccccccccccc
       external cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
       external cpsi_data_get_next
       external lattice_omega,c_coulomb_e,brillioun_weight
-      
+
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
@@ -382,7 +382,6 @@ cccccccccccccccccc
 *     **** get coulomb energy ****
       ehartr = c_coulomb_e(dng)
               
-
 *     **** get exchange-correlation energy ****
       call C3dB_rr_dot(1,dnall(1),
      >                dbl_mb(xce(1)),
@@ -1185,10 +1184,8 @@ c     >                     dn)
      >     'electron_gen_densities: out of stack memory',0, MA_ERR)
 
       call C3dB_rrc_Sum(1,dn,dn(1,ispin),dcpl_mb(tmp1(1)))
-c      call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
-      call C3dB_c_SMul1(1,scal1,dcpl_mb(tmp1(1)))
-      !call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
       call C3dB_rc_pfft3f(1,0,dcpl_mb(tmp1(1)))
+      call C3dB_c_SMul1(1,scal1,dcpl_mb(tmp1(1)))
       call Cram_c_pack(0,dcpl_mb(tmp1(1)))
       call Cram_c_Copy(0,dcpl_mb(tmp1(1)),dng)
 
@@ -1264,9 +1261,9 @@ c         call C3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 
       call C3dB_rrc_Sum(1,dn,dn(1,ispin),dcpl_mb(tmp1(1)))
 c      call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
-      call C3dB_c_SMul1(1,scal1,dcpl_mb(tmp1(1)))
       !call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
       call C3dB_rc_pfft3f(1,0,dcpl_mb(tmp1(1)))
+      call C3dB_c_SMul1(1,scal1,dcpl_mb(tmp1(1)))
       call Cram_c_pack(0,dcpl_mb(tmp1(1)))
       call Cram_c_Copy(0,dcpl_mb(tmp1(1)),dng)
 
@@ -1467,6 +1464,7 @@ c      end do
            call D3dB_C3dB_r_Copy(1,dbl_mb(txcp(1)+(ms-1)*n2ft3d),
      >                             dbl_mb(xcp(1) +(ms-1)*nfft3d))
          end do
+
          call D3dB_C3dB_r_Copy(1,dbl_mb(txce(1)),
      >                           dbl_mb(xce(1)))
 
@@ -1579,6 +1577,8 @@ c      end do
       call Cram_c_unpack(0,dcpl_mb(tmp1(1)))
       !call C3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
       call C3dB_cr_pfft3b(1,0,dcpl_mb(tmp1(1)))
+
+
       if (occ_tag.gt.0) then
          elocal = 0.0d0
          do nb=1,nbrillq
@@ -1587,11 +1587,11 @@ c      end do
             occ_shift = cpsi_data_get_chnk(occ_tag,nb)
 
             do n=1,neall
-               call C3dB_cc_Mul(1,
+               call C3dB_bb_Mul(1,
      >                          dcpl_mb(tmp1(1)),
      >                          dbl_mb(psi_shift),
      >                          dcpl_mb(tmp2(1)))
-               call C3dB_cc_idot(1,
+               call C3dB_bb_idot(1,
      >                          dbl_mb(psi_shift),
      >                          dcpl_mb(tmp2(1)),
      >                          sum)
@@ -1609,11 +1609,11 @@ c      end do
             psi_shift = cpsi_data_get_chnk(psi_r_tag,nb)
              
             do n=1,neall
-               call C3dB_cc_Mul(1,
+               call C3dB_bb_Mul(1,
      >                          dcpl_mb(tmp1(1)),
      >                          dbl_mb(psi_shift),
      >                          dcpl_mb(tmp2(1)))
-               call C3dB_cc_idot(1,
+               call C3dB_bb_idot(1,
      >                          dbl_mb(psi_shift),
      >                          dcpl_mb(tmp2(1)),
      >                          sum)

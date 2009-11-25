@@ -69,7 +69,7 @@
 #include "C3dB.fh"
 
 
-      integer k,q,p
+      integer k,q,p,j
 *     integer kn
       integer taskid,np
       logical value
@@ -195,6 +195,29 @@
      >                          int_mb(p_map3(1,nb)),
      >                          int_mb(q_map3(1,nb)),nq3(nb))
 
+c      if (taskid.eq.0) then
+c      write(*,*) taskid,"nq2=",nq2(nb), ny(nb)*nq2(nb)
+c      write(*,*) taskid,"nq1=",nq1(nb), nx(nb)*nq1(nb)
+c      write(*,*) taskid,"nq3=",nq3(nb), nz(nb)*nq3(nb)
+c      write(*,*) 'hilbert map1 nb=',nb
+c      do j=0,nz(nb)-1
+c        write(*,'(A,80I4)') 'hilbert map:',
+c     >   (int_mb(p_map1(1,nb)+k+j*ny(nb)), k=0,ny(nb)-1)
+c      end do
+c      write(*,*)
+c      write(*,*) 'hilbert map2 nb=',nb
+c      do j=0,nx(nb)-1
+c        write(*,'(A,80I4)') 'hilbert map:',
+c     >   (int_mb(p_map2(1,nb)+k+j*nz(nb)), k=0,nz(nb)-1)
+c      end do
+c      write(*,*)
+c      write(*,*) 'hilbert map3 nb=',nb
+c      do j=0,ny(nb)-1
+c        write(*,'(A,80I4)') 'hilbert map:',
+c     >   (int_mb(p_map3(1,nb)+k+j*nx(nb)), k=0,nx(nb)-1)
+c      end do
+c      write(*,*)
+c      end if
 
       nfft3d(nb) = nx(nb)*nq1(nb)
       if ((ny(nb)*nq2(nb)).gt.nfft3d(nb)) nfft3d(nb) = ny(nb)*nq2(nb)
@@ -203,10 +226,6 @@
 
       nfft3d_map(nb) = nz(nb)*nq3(nb)
       n2ft3d_map(nb) = nx(nb)*nq1(nb)
-
-
-
-
 
       end if
 
@@ -1834,7 +1853,7 @@ c      integer mpierr,mstatus(MPI_STATUS_SIZE)
 
       integer i
 
-      do i=1,nfft3d_map(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = dcmplx(scale*A(i),0.0d0)
       end do
       return
@@ -2671,6 +2690,35 @@ c     integer i2_start(NFFT3+1)
       end
 
 
+      subroutine C3dB_bb_idot(nb,A,B,sumall)
+      implicit none
+      integer nb
+      real*8 A(*)
+      real*8 B(*)
+      real*8     sumall
+
+#include "C3dB.fh"   
+               
+      real*8  sum     
+
+               
+      real*8   ddot
+      external ddot
+
+      call nwpw_timing_start(2)
+
+*     **** sum up dot product on this node ****
+      sum = ddot(n2ft3d_map(nb),A(1),2,B(1),2)
+     >    + ddot(n2ft3d_map(nb),A(2),2,B(2),2)
+         
+*     **** do not add up sums from other nodes ****       
+      call nwpw_timing_end(2)
+
+      sumall = sum              
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*
@@ -2770,6 +2818,26 @@ c      call Parallel3d_np_i(np)
 
 
 
+      subroutine C3dB_bb_Mul(nb,A,B,C)
+      implicit none 
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+      complex*16 C(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+            C(i) = dconjg(A(i)) * B(i)
+         end do
+
+      return
+      end
+
+
+
 *     ***********************************
 *     *                                 *
 *     *          C3dB_cc_Mul2           *
@@ -2814,6 +2882,26 @@ c      call Parallel3d_np_i(np)
          B(i) = dconjg(B(i)) * A(i)
       end do
 
+      return
+      end
+
+
+
+
+      subroutine C3dB_bb_Mul2c(nb,A,B)
+      implicit none          
+      integer    nb          
+      complex*16 A(*)        
+      complex*16 B(*)
+
+#include "C3dB.fh"
+            
+      integer i    
+
+      do i=1,n2ft3d_map(nb)
+         B(i) = dconjg(B(i)) * A(i)
+      end do
+            
       return
       end
 
@@ -2978,7 +3066,7 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
-      do i=1,nfft3d_map(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = A(i) + B(i)
       end do
 
@@ -3001,7 +3089,7 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
-      do i=1,nfft3d_map(nb)
+      do i=1,n2ft3d_map(nb)
          B(i) = B(i) + A(i)
       end do
 
@@ -3079,7 +3167,7 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
-      do i=1,nfft3d_map(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = dcmplx((A(i) + B(i)),0.0d0)
       end do
 

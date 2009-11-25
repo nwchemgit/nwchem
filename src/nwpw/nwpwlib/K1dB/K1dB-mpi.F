@@ -70,7 +70,7 @@
 #ifdef MPI4
         stupid_msglen = 1
         stupid_tsum   = sum
-        call MPI_Allreduce(stupid_sum,stupid_tsum2,stupid_msglen,
+        call MPI_Allreduce(stupid_tsum,stupid_tsum2,stupid_msglen,
      >                     stupid_integer,
      >                     stupid_sum,stupid_comm_k,stupid_ierr)
         sum = stupid_tsum2

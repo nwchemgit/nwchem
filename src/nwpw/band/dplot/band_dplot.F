@@ -1599,7 +1599,9 @@ c        if (.not. value) call errquit('reading geometry',0)
 
 *     **** fft density  ****
       scal1=1.0d0/dble(np1*np2*np3)
-      call C3dB_c_SMul(1,scal1,orb,dcpl_mb(tmp2(1)))
+c      call C3dB_c_SMul(1,scal1,orb,dcpl_mb(tmp2(1)))
+      call dcopy(2*nfft3d,orb,1,dcpl_mb(tmp2(1)),1)
+      call dscal(2*nfft3d,scal1,dcpl_mb(tmp2(1)),1)
       call C3dB_rc_fft3f(1,dcpl_mb(tmp2(1)))
       call Cram_c_pack(0,dcpl_mb(tmp2(1)))
 

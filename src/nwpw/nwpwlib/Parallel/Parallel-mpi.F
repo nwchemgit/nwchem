@@ -50,6 +50,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       stupid_complex = MPI_DOUBLE_COMPLEX
       stupid_comm_i   = MPI_COMM_WORLD
       stupid_comm_j   = -99
+      stupid_comm_k   = -99
 #endif
 
       np     = nnodes()

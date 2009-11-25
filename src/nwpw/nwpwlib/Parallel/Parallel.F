@@ -143,7 +143,10 @@
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      Parallel2d_convert_taskid_i = int_mb(procNd(1)+i+taskid_j*np_i)
+      Parallel2d_convert_taskid_i = int_mb(procNd(1)
+     >                                     + i
+     >                                     + taskid_j*np_i 
+     >                                     + taskid_k*np_i*np_j)
       return
       end
 
@@ -160,7 +163,10 @@
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      Parallel2d_convert_taskid_j = int_mb(procNd(1)+taskid_i+j*np_i)
+      Parallel2d_convert_taskid_j = int_mb(procNd(1)
+     >                                    + taskid_i
+     >                                    + j*np_i 
+     >                                    + taskid_k*np_i*np_j)
       return
       end
 
@@ -180,7 +186,8 @@
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      Parallel2d_convert_taskid_ij = int_mb(procNd(1)+i+j*np_i)
+      Parallel2d_convert_taskid_ij = int_mb(procNd(1)+i+j*np_i 
+     >                                    + taskid_k*np_i*np_j)
       return
       end
 

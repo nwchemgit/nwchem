@@ -509,7 +509,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 *     **** calculate energy ****
       if (flag.eq.-1) then
 
-        EV= c_cgsd_noit_energy(newpsi)
+        EV= c_cgsd_noit_energy()
       else
 
         EV= c_cgsd_energy(newpsi)
@@ -517,7 +517,6 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
 *     **** extra energy output for QA test ****
       if (lprint) write(luout,1600) EV
-
 
 *     **** calculate the spin contamination ****
       if (flag.gt.-1) call cpsi_spin2(dipole(1))
@@ -585,7 +584,6 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 ******************         Epilogue          **********************
 *                |***************************|
 
-      
 *     **** calculate Mulliken Populations ***
 
 *     **** write geometry to rtdb ****
@@ -597,7 +595,6 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
       else
         value = cpsi_finalize(.true.)
       end if
-
 
 *     **** deallocate heap memory ****
       call c_electron_finalize()

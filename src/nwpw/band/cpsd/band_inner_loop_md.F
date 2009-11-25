@@ -285,8 +285,8 @@
 *       **** generate dng ****
 *       **********************
         call C3dB_rrc_Sum(1,dn,dn(1,ispin),dcpl_mb(rho(1)))
-        call C3dB_c_SMul1(1,scal1,dcpl_mb(rho(1)))
         call C3dB_rc_pfft3f(1,0,dcpl_mb(rho(1)))
+        call C3dB_c_SMul1(1,scal1,dcpl_mb(rho(1)))
         call Cram_c_pack(0,dcpl_mb(rho(1)))
         call Cram_c_Copy(0,dcpl_mb(rho(1)),dcpl_mb(dng(1)))
 

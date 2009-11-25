@@ -28,18 +28,17 @@
       integer nb
       integer nx,ny,nz
       integer nxh,nyh,nzh      
-      integer pack(2),nidb,nbrill
+      integer pack(2),nidb
       real*8  kv(3),ecut
 
 *     **** external functions ****
       logical  cloak_masker
-      integer  brillioun_nbrillq,brillioun_nbrillioun
+      integer  brillioun_nbrillq
       real*8   lattice_ecut,lattice_wcut,brillioun_k
       external cloak_masker
-      external brillioun_nbrillq,brillioun_nbrillioun
+      external brillioun_nbrillq
       external lattice_ecut,lattice_wcut,brillioun_k
       
-      nbrill  = brillioun_nbrillioun()
       maxsize = brillioun_nbrillq()+1
 
       value = MA_alloc_get(mt_int,maxsize,

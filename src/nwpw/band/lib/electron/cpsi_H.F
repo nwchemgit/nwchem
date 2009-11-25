@@ -121,7 +121,7 @@ c      call Cram_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
 c            call C3dB_cc_Mul(1,dcpl_mb(vpsi(1)),
 c     >                       dbl_mb(psi_shift),
 c     >                       dcpl_mb(vpsi(1)))
-            call C3dB_cc_Mul2c(1,dbl_mb(psi_shift),
+            call C3dB_bb_Mul2c(1,dbl_mb(psi_shift),
      >                           dcpl_mb(vpsi(1)))
 
 *           **** get vpsi_r in k-space ****
@@ -263,7 +263,7 @@ c     >                       dcpl_mb(vpsi(1)))
 *     **************************************************
 
 *     **** vpsi_r = (vall_r)*orb_r ****
-      call C3dB_cc_Mul(1,vall(1+(ms-1)*nfft3d),
+      call C3dB_bb_Mul(1,vall(1+(ms-1)*nfft3d),
      >                   orb_r,
      >                   dcpl_mb(vpsi(1)))
 
@@ -373,10 +373,10 @@ c     >                       dcpl_mb(vpsi(1)))
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*orb_r] ****
 *     **************************************************
 *     **** vpsi_r = (vall_r)*orb_r ****
-      call C3dB_cc_Mul(1,vall(1),
+      call C3dB_bb_Mul(1,vall(1),
      >                   orb_r,
      >                   dcpl_mb(vpsi(1)))
-      call C3dB_cc_Mul(1,vall(1+nfft3d),
+      call C3dB_bb_Mul(1,vall(1+nfft3d),
      >                   orb_r(shiftr),
      >                   dcpl_mb(vpsi(1)+nfft3d))
 
@@ -488,7 +488,7 @@ c      call Cram_max_npack(npack1)
 *           *************************************
 *           **** vpsi_r = (vall_r)*psi_r ****
 *           *************************************
-            call C3dB_cc_Mul(1,vall(1+(ms-1)*nfft3d),
+            call C3dB_bb_Mul(1,vall(1+(ms-1)*nfft3d),
      >                         dbl_mb(psi_shift),
      >                         dcpl_mb(vpsi(1)))
 

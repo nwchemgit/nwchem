@@ -529,12 +529,10 @@ c     >  call errquit("psi_1_get_Tgradient:out of stack memory",0,MA_ERR)
      >                   dbl_mb(rho1(1)),
      >                   dcpl_mb(dng1(1)),
      >                   dbl_mb(rho1_all(1)))
-
       E0 = c_electron_energy(psi1_tag,
      >                       dbl_mb(rho1(1)),
      >                       dcpl_mb(dng1(1)),
      >                       dbl_mb(rho1_all(1)))
-
       call c_electron_gen_hml(psi1_tag,
      >                        tmp1_tag)
 
@@ -542,7 +540,6 @@ c     >  call errquit("psi_1_get_Tgradient:out of stack memory",0,MA_ERR)
      >                             tmp1_tag,
      >                             THpsi_tag)
       
-
       call cpsi_data_pop_stack(tmp1_tag)
 c      if (.not.Pneb_w_pop_stack(tmp1))
 c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
@@ -1566,7 +1563,7 @@ c         end do
     
 #include "cpsi_common.fh"
 
-      call Calculate_cpsi_spin2(nbrillioun,ispin,ne,npack1,psi1_tag,Sab)
+      call Calculate_cpsi_spin2(nbrillq,ispin,ne,npack1,psi1_tag,Sab)
       return
       end
 

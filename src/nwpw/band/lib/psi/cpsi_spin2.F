@@ -66,6 +66,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             end do
             Sab=Sab+w*(dble(ne(2))-ssum)
          end do
+         call K1dB_SumAll(Sab)
          Sab = Sexact + Sab
       else
          Sexact = 0.0d0
