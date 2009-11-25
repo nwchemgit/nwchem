@@ -1,4 +1,5 @@
-      subroutine ga_get2eri(basis, g_2ceri,oskel,int_call)
+      subroutine ga_get2eri(basis, g_2ceri,oskel,maxg_in,mscratch_in, 
+     &            int_call)
 c
       implicit none
 #include "errquit.fh"
@@ -11,6 +12,8 @@ c
 #include "geom.fh"
 #include "sym.fh"
 c      
+      integer  maxg_in, mscratch_in
+c
       integer  me, nproc, icount,
      &        maxg, mscratch_2e2c, Nintegrals,
      &        ishp, ifirstp, ilastp, nshp,
@@ -68,7 +71,8 @@ c     Allocate scratch space.
 c
       me  = ga_nodeid()
       nproc  = ga_nnodes()
-      call int_mem_2e2c(maxg, mscratch_2e2c)
+      mscratch_2e2c = mscratch_in
+      maxg = maxg_in
 c
       vecl=0
 c     get max no. shells on a given atom

@@ -536,8 +536,6 @@ c
 c
       if (oscfps) call pstat_on(ps_int_1e)
 c     
-c     
-c
 c     ----- save ocache logical variable -----
 c
       if(type.eq.6 .or. type.eq.7 ) then
@@ -584,9 +582,10 @@ c
       nproc = ga_nnodes()
       if (.not. bas_geom(ibas, geom)) call errquit
      $   ('int_1e_cache_ga: basis corrupt?', 0, BASIS_ERR)
-      call ga_get2eri(ibas, g_loc,oskel,int_call)
-      if (oskel)call 
-     .     sym_symmetrize(geom,ibas,.false.,g_loc)
+c
+      call int_mem_1e(max1e, mem1)
+      call ga_get2eri(ibas, g_loc, oskel, max1e, mem1, int_call)
+      if (oskel) call sym_symmetrize(geom,ibas,.false.,g_loc)
 c     
       call ga_dadd(1.0d0, g_loc, 1.0d0, g, g)
       call ga_sync()            ! So that no nasty races can result
