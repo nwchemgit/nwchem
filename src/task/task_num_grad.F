@@ -255,7 +255,6 @@ c
 c
       call dfill(natoms3, 0.0d0, dbl_mb(k_grad), 1)
 c
-      write (6,*) 'nvec=',nvec
       do ivec = 1, nvec
        if (num_groups.gt.1) then
          ipcount=ipcount+1
