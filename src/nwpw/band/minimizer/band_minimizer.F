@@ -374,6 +374,9 @@ c           write(luout,1154) cpsp_lmmax(ia)
          icharge = icharge + ion_TotalCharge()
          write(luout,1159) icharge
 
+
+         write(luout,1160)
+         write(luout,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
          if (hprint) then
          write(luout,1180)
          do I=1,ion_nion()
