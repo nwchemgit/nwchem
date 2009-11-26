@@ -843,17 +843,13 @@ c
       if(iterations.eq.0) then
          if (.not. ga_destroy(g_denso(1))) call errquit
      &        ('dft_scf: could not destroy g_denso', 0, GA_ERR)
-         if (.not. ga_destroy(g_focks(1))) call errquit
-     &        ('dft_scf: could not destroy g_focks1', 0, GA_ERR)
          if(ipol.eq.2) then
-            if (.not. ga_destroy(g_focks(2))) call errquit
-     &           ('dft_scf: could not destroy g_focks2', 0, GA_ERR)
             if (.not. ga_destroy(g_denso(2))) call errquit
      &           ('dft_scf: could not destroy g_dens2', 0, GA_ERR)
-         if (.not. MA_free_heap(l_gdiis))
-     .        call errquit(' dft_scf:cannot popstack',111, MA_ERR)
+            if (.not. MA_free_heap(l_gdiis))  call errquit
+     &           (' dft_scf:cannot popstack',111, MA_ERR)
          endif
-      if (odftps) call pstat_on(ps_scfend)
+         if (odftps) call pstat_on(ps_scfend)
          goto 1970
       endif
  1000 continue
@@ -1419,13 +1415,9 @@ c
 c    
       if (.not. ga_destroy(g_denso(1))) call errquit
      &   ('dft_scf: could not destroy g_denso', 0, GA_ERR)
-      if (.not. ga_destroy(g_focks(1))) call errquit
-     &     ('dft_scf: could not destroy g_focks1', 0, GA_ERR)
       if(ipol.eq.2) then
           if (.not. ga_destroy(g_denso(2))) call errquit
      &     ('dft_scf: could not destroy g_denso', 0, GA_ERR)
-          if (.not. ga_destroy(g_focks(2))) call errquit
-     &     ('dft_scf: could not destroy g_focks2', 0, GA_ERR)
       end if
 c
       if (exact_pot.eq.1) then
@@ -1800,8 +1792,15 @@ c !!! BGJ
      &       CALC_ERR)
       endif
 c !!! BGJ
+c
       if (.not. ga_destroy(g_tmp)) call errquit
      &   ('dft_scf: could not destroy g_tmp', 0, GA_ERR)
+      if (.not. ga_destroy(g_focks(1))) call errquit
+     &        ('dft_scf: could not destroy g_focks1', 0, GA_ERR)
+      if (ipol.gt.1) then
+         if (.not. ga_destroy(g_focks(2))) call errquit
+     &           ('dft_scf: could not destroy g_focks2', 0, GA_ERR)
+      end if
 c
 cdft...Deallocate cdft arrays
       if(lcdft) then
