@@ -4208,6 +4208,62 @@ C
          ENDIF
       ENDDO
 C
+C     check for axis that might be incorrectly set to twice the right value
+C     This happens when you have a proper rotation that would be improper,
+C     if you removed all the atoms along the axis.  Example, take a d2d molecule
+C     and stretch the last atom on one end that is on the Z-axis.  The S4 is now
+C     C2 axis, but NWChem thinks that it is still 4 fold, since the code ignores
+C     Atoms on the axis when determining order of the axis.
+C
+      DO IAXIS=1,3
+       if((.not.proper(IAXIS)).and.(.not.improp(IAXIS)).and.
+     *   (mod(AXORDR(IAXIS),2).eq.0)) then
+         AXORDR(IAXIS) = AXORDR(IAXIS)/2
+         IF(IAXIS.EQ.1) THEN
+            I=2
+            J=3
+            K=1
+         ELSEIF(IAXIS.EQ.2) THEN
+            I=3
+            J=1
+            K=2
+         ELSEIF(IAXIS.EQ.3) THEN
+            I=1
+            J=2
+            K=3
+         ENDIF
+         THETA=TWOPI/DBLE(AXORDR(IAXIS))
+         IF(OUT) THEN
+            WRITE(IW,9979) IAXIS,AXORDR(IAXIS)
+         ENDIF
+         PROPER(IAXIS)=.TRUE.
+         DO IAT=1,NAT
+            PRPAXS=.FALSE.
+            DO JAT=1,NAT
+               IF(sameatm(JAT,IAT).AND..NOT.PRPAXS) THEN
+                  QDUMI=CMPLX(C2(I,IAT),C2(J,IAT))
+                  RR=ABS(QDUMI)
+                  QDUMI=CMPLX(COS(THETA),SIN(THETA))*QDUMI
+                  QDUMJ=CMPLX(C2(I,JAT),C2(J,JAT))
+                  DD=ABS(QDUMI-QDUMJ)
+                  DZ=C2(K,IAT)-C2(K,JAT)
+                  PRPAXS=(ABS(DD).LT.THREQUIV).AND.
+     1                   (ABS(DZ).LT.THREQUIV)
+                  IF(DBUG) THEN
+                     WRITE(IW,*) ' IAT,JAT,PRPAXS = ',
+     1                             IAT,JAT,PRPAXS,RR,DD,DZ
+                  ENDIF
+               ENDIF
+            ENDDO
+            PROPER(IAXIS)=PROPER(IAXIS).AND.PRPAXS
+            IF(DBUG) THEN
+               WRITE(IW,*) ' IAT,PRPAXS,PROPER(IAXIS) = ',
+     1                       IAT,PRPAXS,PROPER(IAXIS)
+            ENDIF
+         ENDDO
+       ENDIF
+      ENDDO
+C
 c     do a check to fix if there is a high order axis that is not
 c     proper and not improper
 c
