@@ -317,7 +317,7 @@ c
             status = MA_free_heap ( l_ind2 )
          end if
 #else
-            call grad_diagb(g_eigen_diag, evals, nocca)
+            call grad_diagb(g_eigen_diag, evals(nbf+1), noccb)
 #endif
 
 C     multiply to weighted density and add to spin up part
