@@ -140,7 +140,7 @@ c     adapted from dft_main0d.F
 c     == Create and get the dipole matrix element ga: g_dipole ==
 
          do icomp = 1,3
-            write(clabel,'(a,i1)'), 'g_dipole',icomp
+            write(clabel,'(a,i1)') 'g_dipole',icomp
             if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, trim(clabel),
      $       nbf_ao, 0, g_dipole(icomp)))
      $        call errquit(pname//clabel,0, GA_ERR)
