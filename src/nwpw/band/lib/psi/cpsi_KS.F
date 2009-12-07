@@ -284,14 +284,16 @@ c     >                      dbl_mb(psi1_shift))
 *     **** local variables ****
       logical stalled
       integer nb,i,j,neall,maxit_orb,maxit_orbs
-      integer psi1_shift,eig_shift
+      integer psi1_shift,eig_shift,taskid
       real*8 error_out,psi_error_out,e0,sum
+
 *     **** external functions ****
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       integer  cpsi_data_get_ptr
       external control_ks_maxit_orb,control_ks_maxit_orbs
       external cpsi_data_get_ptr
 
+      call Parallel_taskid(taskid)
 
       if (spin_orbit) then
         call  cpsi_KS_minimize2com(psi_number,precondition,
@@ -321,7 +323,6 @@ c     >                      dbl_mb(psi1_shift))
               stalled = .false.
            end if
 
-
            !*** orthogonalize to lower orbitals  ****
            call cpsi_project_out_f_orb1(nb,i,dbl_mb(psi1_shift))
 
@@ -338,11 +339,17 @@ c     >              dbl_mb(psi1_shift))
 
 
             !**** minimize orbital ****
+           write(*,*) "gerb,taskid,nb,i=",taskid,nb,i
+           call flush(6)
+
             j = 0
  2          call cpsi_KS_minimize_orb(psi_number,precondition,maxit_orb,
      >                       maxerror,maxpsi_error,0.001d0,
      >                       nb,i,error_out,psi_error_out,e0)
             j = j+1
+           write(*,*) "gerc,taskid,nb,i,j=",taskid,nb,i,j,error_out
+           call flush(6)
+
             if (((error_out.gt.maxerror).or.
      >           (psi_error_out.gt.maxpsi_error))
      >          .and.(j.le.24)) go to 2
@@ -352,7 +359,16 @@ c     >              dbl_mb(psi1_shift))
 
         end do
         end do
+
+           write(*,*) "gere,taskid=",taskid
+           call flush(6)
+           call ga_sync()
+
       call cpsi_sort_minimize()
+
+           write(*,*) "gerf,taskid=",taskid
+           call flush(6)
+           call ga_sync()
 
       return
       end
@@ -901,7 +917,6 @@ c     >                  tau_t)
          psi_ptr=cpsi_data_get_ptr(psi2_tag,nb,i)
       end if
 
-      call Parallel_taskid(taskid)
 
       value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
       value = value.and.

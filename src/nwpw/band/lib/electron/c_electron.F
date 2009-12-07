@@ -159,11 +159,9 @@ c      complex*16 psi_k(*)
 
       counter = counter+1
 
-
       call c_electron_gen_psi_r(psi_k_tag)
       call c_electron_gen_densities(dn,dng,dnall)
       call c_electron_gen_Hpsi_k_vall(psi_k_tag)
-
       return
       end
 

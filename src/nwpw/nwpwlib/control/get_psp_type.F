@@ -29,15 +29,15 @@
         call util_file_name_noprefix(psp_filename,.false.,.false.,
      >                    full_filename)
         l = index(full_filename,' ') - 1
-        open(unit=11,file=full_filename(1:l),form='formatted',
+        open(unit=27,file=full_filename(1:l),form='formatted',
      >             status='old')
-        read(11,9090,ERR=9998,END=9998) psp_type
- 9090   format(I1)
+        read(27,9090,ERR=9998,END=9998) psp_type
+ 9090   format(i1)
         go to 9999
  9998   psp_type = 0
  9999   continue
 
-        close(11)
+        close(27)
       end if
 
 c     **** send header to all nodes ****

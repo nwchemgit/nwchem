@@ -866,7 +866,6 @@ c     &       MA_ERR)
      >                          dbl_mb(rho1_all(1)))
 
 *     **** do a steepest descent step ****
-
       call c_electron_sd_update(psi1_tag,psi2_tag,dte)
 
 *     **** lagrange multiplier corrections ****

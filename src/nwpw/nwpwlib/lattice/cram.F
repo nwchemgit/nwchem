@@ -736,7 +736,6 @@
 
       if (np.gt.1) then
          call C3dB_Vector_SumAll(2*ne,sum)
-         call ga_sync()
       end if
 
       call nwpw_timing_end(2)
@@ -786,7 +785,6 @@
 
       if (np.gt.1) then
          call C3dB_Vector_SumAll(2*ne,sum)
-         call ga_sync()
       end if
 
       call nwpw_timing_end(2)

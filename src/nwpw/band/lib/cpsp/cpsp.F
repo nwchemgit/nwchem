@@ -1555,6 +1555,7 @@ ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
       msglen = 1
       call Parallel_Brdcst_ivalues(MASTER,msglen,ierr)
       if (ierr.ne.0) then
+         if (taskid.eq.MASTER) call closefile(5)
          return
       end if
 

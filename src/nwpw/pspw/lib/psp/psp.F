@@ -122,12 +122,14 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       integer npack1
 
 *     ***** external functions *****
-      integer  psp_nprj_max
-      external psp_nprj_max
+      integer  psp_nprj_max,control_nprj_mult
+      external psp_nprj_max,control_nprj_mult
+
 
       call Pack_npack(1,npack1)
+      nprj_mult= control_nprj_mult()
       nprj_max = psp_nprj_max()
-      value = MA_alloc_get(mt_dcpl,npack1*nprj_max,
+      value = MA_alloc_get(mt_dcpl,npack1*nprj_max*nprj_mult,
      >                     'prjtmp',prjtmp(2),prjtmp(1))
       if (.not. value)
      >   call errquit('psp_proj_init:out of heap memory',0,MA_ERR)
@@ -374,7 +376,9 @@ c     psp_rc = rc(i,ia)
 #include "mafdecls.fh"
 #include "psp.fh"
 
+*     **** local variables ****
       integer ia,nprjmax,nprjtmp
+
 
       nprjmax = 0
       do ia=1,npsp
@@ -961,9 +965,9 @@ ccccccc#include "frac_occ.fh"
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('v_nonlocal: out of stack',0, MA_ERR)
 
@@ -1051,7 +1055,7 @@ c              end do
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dbl_mb(sw1(1)+(l-1)*nn))
         end do
-        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
+        call D3dB_Vector_SumAll((nn*nproj*nprj_mult),dbl_mb(sw1(1)))
 
 
 *       **** sw2 = Gijl*sw1 ******
@@ -1072,8 +1076,9 @@ c              end do
         
 *       **** do Kleinman-Bylander Multiplication ****
         !scal = 1.0d0/(omega)
-        call dscal(nn*int_mb(nprj(1)+ia-1),scal,dbl_mb(sw2(1)),1)
-        call DGEMM('N','T',2*npack1,nn,int_mb(nprj(1)+ia-1),
+        call dscal(nn*int_mb(nprj(1)+ia-1)*nprj_mult,
+     >             scal,dbl_mb(sw2(1)),1)
+        call DGEMM('N','T',2*npack1,nn,int_mb(nprj(1)+ia-1)*nprj_mult,
      >             (-1.0d0),
      >             dcpl_mb(prjtmp(1)), 2*npack1,
      >             dbl_mb(sw2(1)),     nn,
@@ -1249,9 +1254,9 @@ c      integer Gx(2),Gy(2),Gz(2)
       value = value.and.
      >        MA_push_get(mt_dbl, npack1,'xtmp',xtmp(2),xtmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
       value = value.and.
      >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
       if (.not. value) 

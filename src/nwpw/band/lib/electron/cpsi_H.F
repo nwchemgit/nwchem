@@ -442,6 +442,7 @@ c     >                       dcpl_mb(vpsi(1)))
       external cpsi_data_get_chnk,cpsi_data_nsize
       external lattice_omega
       
+
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)
@@ -478,7 +479,7 @@ c      call Cram_max_npack(npack1)
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+)*psi_r]    ****
 *     **************************************************
       do nbq=1,nbrillq
-         nb = Pneb_convert_nb(nbq)
+cccc         nb = Pneb_convert_nb(nbq)
          psi_shift  = cpsi_data_get_chnk( psi_r_tag,nbq)
          Hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
     
@@ -496,13 +497,13 @@ c      call Cram_max_npack(npack1)
 *           **** get vpsi_r in k-space ****
 *           *******************************
             !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
-            call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
-            call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
+            call C3dB_rc_pfft3f(1,nbq,dcpl_mb(vpsi(1)))
+            call Cram_c_pack(nbq,dcpl_mb(vpsi(1)))
 
 *           ***********************
 *           **** add to Hpsi_k ****
 *           ***********************
-            call Cram_cc_daxpy(nb,(-scal1),
+            call Cram_cc_daxpy(nbq,(-scal1),
      >                         dcpl_mb(vpsi(1)),
      >                         dbl_mb(Hpsi_shift))
 

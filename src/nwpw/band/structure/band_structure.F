@@ -2,7 +2,7 @@
 * $Id: band_structure.F,v 1.37 2008-06-22 16:43:45 bylaska Exp $
 *
 ***********************************************************************
-*                     band_structure								  *
+*                     band_structure				      *
 *                                                                     *
 *     This is a developing band structure parallel code for NWCHEM    *
 *       + tcgmsg message passing library used                         *
@@ -21,12 +21,12 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "errquit.fh"
-
 
       
 *     **** parallel variables ****
-      integer  taskid,np,np_i,np_j,np_k
+      integer  taskid,taskid_k,np,np_i,np_j,np_k
       integer  MASTER
       parameter(MASTER=0)
 
@@ -53,13 +53,13 @@
       integer ierr
 
 *     **** local variables ****
-      logical newpsi,grid3d,spin_orbit
+      logical newpsi,grid3d,spin_orbit,lprint,mprint,hprint
       real*8  gx,gy,gz,cx,cy,cz
-      real*8  EV,pi
+      real*8  EV,pi,e1,e2,f0,f1,f2,f3,f4,f5,f6
       real*8  pathlength,dist,kold(3),emin,emax
-      integer ii,jj,i,k,ia,nion,vers,nbrillioun,icharge,isize,indx
-      integer npoints
-      integer mapping
+      integer ii,jj,kk,ll,i,k,ia,nion,vers,nbrillioun,icharge,isize,indx
+      integer npoints,nbrillall,if1,if2
+      integer mapping,tmp(2)
       character*255 full_filename
       character*30 filename
       character*72 cube_comment
@@ -73,12 +73,12 @@
       external    cpsp_nprj
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,ion_amass,ion_TotalCharge
-      logical     cpsi_spin_orbit,control_spin_orbit
+      logical     cpsi_spin_orbit,control_spin_orbit,control_print
       character*4 ion_aname
       integer     control_ispin
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg,ion_amass,ion_TotalCharge
-      external    ion_aname
+      external    ion_aname,control_print
       external    cpsi_spin_orbit,control_spin_orbit,control_ispin
 
 
@@ -100,17 +100,21 @@
       character*12 control_boundry
       external     control_boundry
 
+      logical  brillioun_print
       integer  brillioun_nbrillioun
-      real*8   brillioun_weight,brillioun_ks,brillioun_k
+      real*8   brillioun_weight_brdcst
+      real*8   brillioun_ks_brdcst,brillioun_k_brdcst
+      external brillioun_print
       external brillioun_nbrillioun
-      external brillioun_weight,brillioun_ks,brillioun_k
+      external brillioun_weight_brdcst
+      external brillioun_ks_brdcst,brillioun_k_brdcst
       integer  c_electron_count,linesearch_count
       external c_electron_count,linesearch_count
 
       real*8   nwpw_timing
       external nwpw_timing
-      integer  Cram_nwave_all,Cram_nwave
-      external Cram_nwave_all,Cram_nwave
+      integer  Cram_nwave_all_brdcst,Cram_nwave_brdcst
+      external Cram_nwave_all_brdcst,Cram_nwave_brdcst
 
       integer  ewald_ncut
       real*8   ewald_rcut,ewald_mandelung,ewald_e
@@ -120,8 +124,8 @@
       external cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize
       logical  cpsi_band_finalize
       external cpsi_band_finalize
-      real*8   c_cgsd_noit_energy,cpsi_1energy,cpsi_eigenvalue
-      external c_cgsd_noit_energy,cpsi_1energy,cpsi_eigenvalue
+      real*8   c_cgsd_noit_energy,cpsi_1energy,cpsi_eigenvalue_brdcst
+      external c_cgsd_noit_energy,cpsi_1energy,cpsi_eigenvalue_brdcst
       integer  cpsp_lmax,cpsp_locp,cpsp_lmmax
       external cpsp_lmax,cpsp_locp,cpsp_lmmax
       real*8   cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
@@ -157,8 +161,17 @@
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) call current_second(cpu1)
 
+      
+      value = control_read(5,rtdb)
+      if (.not. value) 
+     > call errquit('error reading control',0, DISK_ERR)
+
+      lprint = ((taskid.eq.MASTER).and.(control_print(print_low)))
+      mprint = ((taskid.eq.MASTER).and.(control_print(print_medium)))
+      hprint = ((taskid.eq.MASTER).and.(control_print(print_high)))
+
 *     ***** print out header ****
-      if (taskid.eq.MASTER) then
+      if (mprint) then
          write(luout,1000)
          write(luout,1010)
          write(luout,1020)
@@ -172,17 +185,14 @@
          call nwpw_message(1)
          write(luout,1110)
       end if
-      
-      value = control_read(5,rtdb)
-      if (.not. value) 
-     > call errquit('error reading control',0, DISK_ERR)
+
 
       call Parallel3d_Init(control_np_dimensions(2),
      >                     control_np_dimensions(3))
       call Parallel3d_np_i(np_i)
       call Parallel3d_np_j(np_j)
       call Parallel3d_np_k(np_k)
-
+      call Parallel3d_taskid_k(taskid_k)
 
 
       ngrid(1) = control_ngrid(1)
@@ -285,7 +295,7 @@
 ******************   summary of input data  **********************
 *                |**************************|
 
-      if (taskid.eq.MASTER) then
+      if (mprint) then
          write(luout,1111) np
          write(luout,1117) np_i,np_j,np_k
          if (mapping.eq.1) write(luout,1112)
@@ -365,21 +375,47 @@
          ia = brillioun_nbrillioun()
          write(luout,1255)
          write(luout,1256) ia
-         do i=1,ia
-           write(luout,1257) brillioun_weight(i),
-     >        brillioun_ks(1,i),brillioun_ks(2,i),brillioun_ks(3,i),
-     >        brillioun_k(1,i), brillioun_k(2,i), brillioun_k(3,i)
-         end do
+      end if
 
+c     **** print brillioun zone - extra logic for distributed kpoints ****
+      if (brillioun_print()) then 
+         do i=1,brillioun_nbrillioun()
+            f0 = brillioun_weight_brdcst(i)
+            f1 = brillioun_ks_brdcst(1,i) 
+            f2 = brillioun_ks_brdcst(2,i)
+            f3 = brillioun_ks_brdcst(3,i)
+            f4 = brillioun_k_brdcst(1,i) 
+            f5 = brillioun_k_brdcst(2,i)
+            f6 = brillioun_k_brdcst(3,i)
+            if (mprint) write(luout,1257) f0,f1,f2,f3,f4,f5,f6
+         end do
+      else
+        if (mprint) write(luout,1258)
+      end if
+
+      if1 = Cram_nwave_all_brdcst(0)
+      if2 = Cram_nwave_brdcst(0)
+      if (mprint) then
          write(luout,1249)
          write(luout,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
-     >                 Cram_nwave_all(0),Cram_nwave(0)
-         do i=1,ia
+     >                     if1,if2
+      end if
+
+      if (brillioun_print()) then
+        do i=1,brillioun_nbrillioun()
+          if1 = Cram_nwave_all_brdcst(i)
+          if2 = Cram_nwave_brdcst(i)
+          if (mprint) then
           write(luout,1251) i,lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
-     >                 Cram_nwave_all(i),Cram_nwave(i)
-         end do
+     >                      if1,if2
+          end if
+        end do
+      else
+        if (mprint) write(luout,1252)
+      end if
 
 
+      if (mprint) then
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc()
@@ -468,8 +504,7 @@
 
 *     **** DOS calculation ****
       if (flag.eq.1) then
-        if (taskid.eq.MASTER) 
-     >    write(luout,*) "DOS of states calculation"
+        if (taskid.eq.MASTER) write(luout,*) "DOS of states calculation"
         call control_dos_grid_structure(dosgrid)
 
 
@@ -515,7 +550,7 @@
      >                                dbl_mb(weight_dos(1)+ii))
         call dcopy(ispin*nfft3d,0.0d0,0,dbl_mb(rho(1)),1)
 
-        write(*,*) "Ein=",ein
+        if (taskid.eq.MASTER)  then
         do k=1,dosgrid(1)*dosgrid(2)*dosgrid(3)
            write(*,*)
            write(*,*) "brillioun k=",k
@@ -528,6 +563,7 @@
               call flush(6)
            end do
         end do
+        end if
 
 
 
@@ -537,19 +573,25 @@
      >     write(luout,*) "band structure calculation"
       end if
 
+      nbrillall = control_num_kvectors_structure()
       call control_reset_band_structure()
-      do k=1,control_num_kvectors_structure()
+      kk = 0
+      do k=1,nbrillall,np_k
         ortho = .true.
+        kk = kk + np_k
+        if (kk.gt.nbrillall) kk = nbrillall
 
         if (taskid.eq.MASTER) then
-          write(luout,1301) k
+          do ii=k,kk
+             write(luout,1301) ii
+          end do
         end if
 
 
 *     **** initialize lattice data structure ****
       call lattice_init()
       call c_G_init()
-      call brillioun_structure_init(k,1)
+      call brillioun_structure_init(k,kk-k+1)
       call Cram_Init()
       call C3dB_pfft_init()
 
@@ -557,7 +599,6 @@
       call cpsp_init()
       call cpsp_readall()
       if (cpsp_semicore(0)) call c_semicore_check()
-
 
 *     **** initialize ke,and coulomb data structures ****
       call cstrfac_init()
@@ -598,28 +639,26 @@
          spin_orbit = .false.
       end if
       nbrillioun = brillioun_nbrillioun()
+
       call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       value = cpsi_initialize(ortho)
- 
-      if (flag.eq.2) call cpsi_dospsi_read(k)
+
+c      if (flag.eq.2) call cpsi_dospsi_read(k)
 
 
 *     **** allocate eigs_dos if first iteration ****
-      if ((flag.eq.1).and.(k.eq.1).and.(taskid.eq.MASTER)) then
+      if ((flag.eq.1).and.(k.eq.1)) then
         isize = dosgrid(1)*dosgrid(2)*dosgrid(3)*(cpsi_ne(1)+cpsi_ne(2))
         value = MA_alloc_get(mt_dbl,isize,
      >                       'eigs_dos',eigs_dos(2),eigs_dos(1))
         if (.not. value)
-     >   call errquit('band_structure:out of heap memory',0, MA_ERR)
+     >   call errquit('band_structure:out of stack memory',0, MA_ERR)
       end if
-
-
 
 *     **** electron and geodesic data structures ****
       call c_electron_init()
       call c_geodesic_init()
       call linesearch_init()
-
 
 *     **** diagonalize hamiltonian and rotate psi ****
       call c_electron_set_vall(dcpl_mb(vall(1)))
@@ -633,9 +672,17 @@
       call cpsi_1rotate2()
       call cpsi_2to1()
 
+      write(*,*) "herj,taskid=",taskid
+      call flush(6)
+      call ga_sync()
+
       call cpsi_KS_minimize(1,.false.,control_tole(),control_tolc())
 
-      call cpsi_check_indx(k)
+      write(*,*) "herk,taskid=",taskid
+      call flush(6)
+      call ga_sync()
+
+      if (control_print(print_high)) call cpsi_check_indx(k)
 
       if (band_dplot_iteration_check(k)) then
         call band_dplot_iteration(k,ispin,ne,1,
@@ -644,117 +691,148 @@
      >                            dcpl_mb(c_electron_iptr_psir()))
       end if
 
-
-      if (taskid.eq.MASTER) then
-
-         !*** determine pathlength ****
-         if (k.eq.1) then
-           pathlength = 0.0d0
+     
+      NN=cpsi_ne(1)-cpsi_ne(2)
+      EV=27.2116d0
+      do nb=1,brillioun_nbrillioun()
+         
+         f1 = brillioun_ks_brdcst(1,nb)
+         f2 = brillioun_ks_brdcst(2,nb)
+         f3 = brillioun_ks_brdcst(3,nb)
+         f4 = brillioun_k_brdcst(1,nb)
+         f5 = brillioun_k_brdcst(2,nb)
+         f6 = brillioun_k_brdcst(3,nb)
+         if ((k+nb).eq.2) then
+            pathlength = 0.0d0
          else
-            dist = (brillioun_k(1,1) - kold(1))**2
-     >           + (brillioun_k(2,1) - kold(2))**2
-     >           + (brillioun_k(3,1) - kold(3))**2
-            dist = dsqrt(dist)     
+            dist=dsqrt((f4-kold(1))**2+(f5-kold(2))**2+(f6-kold(3))**2)
             pathlength = pathlength + dist
          end if
-         kold(1) = brillioun_k(1,1)
-         kold(2) = brillioun_k(2,1)
-         kold(3) = brillioun_k(3,1)
+         kold(1) = f4
+         kold(2) = f5
+         kold(3) = f6
 
+         if (taskid.eq.MASTER) then
+            write(luout,1508) k+nb-1,pathlength,f1,f2,f3,f4,f5,f6
+            write(luout,1500)
+         end if
 
-         NN=cpsi_ne(1)-cpsi_ne(2)
-         EV=27.2116
-         nb=1
-           write(luout,1508) k,
-     >                   pathlength,
-     >                   brillioun_ks(1,nb),
-     >                   brillioun_ks(2,nb),
-     >                   brillioun_ks(3,nb),
-     >                   brillioun_k(1,nb),
-     >                   brillioun_k(2,nb),
-     >                   brillioun_k(3,nb)
-           write(luout,1500)
-           if (flag.eq.2) then
+         !*** flag==2 ***
+         if (flag.eq.2) then
 
-             if (cpsi_spin_orbit()) then
-               call cpsi_output21(luout,nb,dbl_mb(weight_dos(1)),k)
-               write(58,'(1000E14.6)') pathlength,
-     >          (cpsi_eigenvalue(nb,1,i),i=1,cpsi_ne(1))
-               goto 902
-             end if
-             do i=0,NN-1
-               ii = cpsi_ne(1)-i
-               write(luout,1511) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
-     >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV,
-     >                     dbl_mb(weight_dos(1)+(ii-1)+(k-1)*ne(1))
-             end do
-             do i=0,cpsi_ne(2)-1
-               ii = cpsi_ne(1)-i
-               jj = cpsi_ne(2)-i + 
-     >            dosgrid(1)*dosgrid(2)*dosgrid(3)*ne(1)
-               write(luout,1511)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
-     >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN)*EV,
-     >                      dbl_mb(weight_dos(1)+(ii-1)+(k-1)*ne(1)),
-     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
-     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV,
-     >                      dbl_mb(weight_dos(1)+(jj-1)+(k-1)*ne(2))
-             end do
-           else
-             if (cpsi_spin_orbit()) then
-               call cpsi_output22(luout,nb)
-                write(58,'(1000E14.6)') pathlength,
-     >          (cpsi_eigenvalue(nb,1,i),i=1,cpsi_ne(1))
-               goto 902
-             end if
-           do i=0,NN-1
-             write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
-     >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
-           end do
-           do i=0,cpsi_ne(2)-1
-           write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
-     >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN)*EV,
-     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
-     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV
-           end do
-           end if
-           write(58,'(1000E14.6)') pathlength,
-     >          (cpsi_eigenvalue(nb,1,i),i=1,cpsi_ne(1))
-           if (.not.cpsi_spin_orbit()) then
-            if (ispin.eq.2)
-     >      write(59,'(1000E14.6)') pathlength,
-     >          (cpsi_eigenvalue(nb,2,i),i=1,cpsi_ne(2))
-           end if         
-902        continue
-           !*** set eigs_dos ***
-           if (flag.eq.1) then
+            !*** spin-orbit ****
+            if (cpsi_spin_orbit()) then
+               do i=0,cpsi_ne(1)-1
+                  ii=cpsi_ne(1)-i
+                  e1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i)
+                  if (taskid.eq.MASTER)
+     >            write(luout,1511)  e1,e1*EV,
+     >                     dbl_mb(weight_dos(1)+ii+(k+nb-1)*cpsi_ne(1))
+               end do
+
+            !*** not spin-orbit ****
+            else
+               do i=0,NN-1
+                  ii = cpsi_ne(1)-i
+                  e1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i)
+                  if (taskid.eq.MASTER) 
+     >            write(luout,1511) e1,e1*EV,
+     >                     dbl_mb(weight_dos(1)+(ii-1)+(k+nb-1)*ne(1))
+               end do
+               do i=0,cpsi_ne(2)-1
+                  ii = cpsi_ne(1)-i
+                  jj = cpsi_ne(2)-i +
+     >               dosgrid(1)*dosgrid(2)*dosgrid(3)*ne(1)
+                  e1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i-NN)
+                  e2 = cpsi_eigenvalue_brdcst(nb,2,cpsi_ne(2)-i)
+                  if (taskid.eq.MASTER)
+     >            write(luout,1511)  e1,e1*EV,
+     >                      dbl_mb(weight_dos(1)+(ii-1)+(k+nb-2)*ne(1)),
+     >                      e2,e2*EV,
+     >                      dbl_mb(weight_dos(1)+(jj-1)+(k+nb-2)*ne(2))
+               end do
+            end if
+
+         !*** flag!=2 ***
+         else
+
+            !*** spin-orbit ****
+            if (cpsi_spin_orbit()) then
+               do i=0,cpsi_ne(1)-1
+                  e1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i)
+                  if (taskid.eq.MASTER)
+     >            write(luout,1510)  e1,e1*EV
+               end do
+
+            !*** not spin-orbit ****
+            else
+               do i=0,NN-1
+                  e1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i)
+                  if (taskid.eq.MASTER)
+     >            write(luout,1510) e1,e1*EV
+               end do
+               do i=0,cpsi_ne(2)-1
+                  e1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i-NN)
+                  e2 = cpsi_eigenvalue_brdcst(nb,2,cpsi_ne(2)-i)
+                  if (taskid.eq.MASTER)
+     >            write(luout,1510)  e1,e1*EV,e2,e2*EV
+               end do
+            end if
+
+         end if
+
+         !*** set eigs_dos ***
+         if (flag.eq.1) then
             do i=1,cpsi_ne(1)
-             indx = eigs_dos(1) 
-     >            + (k-1) 
-     >            + (i-1)*dosgrid(1)*dosgrid(2)*dosgrid(3)
-             dbl_mb(indx) = cpsi_eigenvalue(nb,1,i)
+               indx = eigs_dos(1) 
+     >              + (k+nb-2) 
+     >              + (i-1)*dosgrid(1)*dosgrid(2)*dosgrid(3)
+               dbl_mb(indx) = cpsi_eigenvalue_brdcst(nb,1,i)
             end do
             do i=1,cpsi_ne(2)
-             indx = eigs_dos(1) 
-     >            + (k-1) 
-     >            + (i-1+cpsi_ne(1))*dosgrid(1)*dosgrid(2)*dosgrid(3)
-             dbl_mb(indx) = cpsi_eigenvalue(nb,2,i)
+               indx = eigs_dos(1) 
+     >              + (k+nb-2) 
+     >              + (i-1+cpsi_ne(1))*dosgrid(1)*dosgrid(2)*dosgrid(3)
+               dbl_mb(indx) = cpsi_eigenvalue_brdcst(nb,2,i)
             end do
-           end if
-      end if
+         end if
+         
+         if (.not.MA_push_get(mt_dbl,cpsi_ne(1),'tmp',tmp(2),tmp(1)))
+     >      call errquit('band_structure:push stack',99,MA_ERR)
+
+         do i=1,cpsi_ne(1)
+            dbl_mb(tmp(1)+i-1) = cpsi_eigenvalue_brdcst(nb,1,i)
+         end do
+         if (taskid.eq.MASTER)
+     >   write(58,'(1000E14.6)') pathlength,
+     >          (dbl_mb(tmp(1)+i-1),i=1,cpsi_ne(1))
+
+         if ((.not.cpsi_spin_orbit()).and.(ispin.eq.2)) then
+            do i=1,cpsi_ne(2)
+               dbl_mb(tmp(1)+i-1) = cpsi_eigenvalue_brdcst(nb,2,i)
+            end do
+            if (taskid.eq.MASTER)
+     >      write(59,'(1000E14.6)') pathlength,
+     >          (dbl_mb(tmp(1)+i-1),i=1,cpsi_ne(2))
+         end if         
+         if (.not.MA_pop_stack(tmp(2)))
+     >      call errquit('band_structure:pop stack',99,MA_ERR)
+
+      end do !*** nb ***
 
       !*** set rho ***
-      if (flag.eq.2) then
-        ii = (k-1)*ne(1)
+      if ((flag.eq.2).and.((k+taskid_k).le.nbrillall)) then
+        ii = (k+taskid_k-1)*ne(1)
         call c_electron_gen_weighted_density(1,
      >                               dbl_mb(weight_dos(1)+ii),
      >                               dbl_mb(rho(1)))
-        ii = (k-1)*ne(2)+dosgrid(1)*dosgrid(2)*dosgrid(3)*ne(1)
+        ii = (k+taskid_k-1)*ne(2)+dosgrid(1)*dosgrid(2)*dosgrid(3)*ne(1)
         if (ispin.eq.2)
      >  call c_electron_gen_weighted_density(2,
      >                               dbl_mb(weight_dos(1)+ii),
      >                               dbl_mb(rho(1)+nfft3d))
       end if
-                  
+
 
 *     **** writeout dospsi -- needed for task band dos_dplot ****
       if (flag.eq.1) call cpsi_dospsi_write(k)
@@ -889,7 +967,7 @@
 *     **** deallocate heap memory ****
 
       value = MA_free_heap(vall(2)) 
-      if ((flag.eq.1).and.(taskid.eq.MASTER))      ! deallocate eigs_dos
+      if (flag.eq.1)      ! deallocate eigs_dos
      >  value = value.and.MA_free_heap(eigs_dos(2)) 
 
       if (flag.eq.2) then
@@ -912,7 +990,7 @@
 *                |***************************|
 ****************** report consumed cputime   **********************
 *                |***************************|
-      if (taskid.eq.MASTER) then
+      if (lprint) then
          CALL current_second(cpu4)
 
          T1=CPU2-CPU1
@@ -1008,10 +1086,12 @@
  1251 FORMAT(5X,' wavefnc ',I3,' cutoff=',F7.3,
      &        '  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
-  
+ 1252 FORMAT(5x, ' wavefunction grids not printed - ',
+     >           'number of k-point is very large')
  1255 FORMAT(/' brillouin zone:')
- 1256 FORMAT(5x,'number of zone points:',I3)
+ 1256 FORMAT(5x,'number of zone points:',I5)
  1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
+ 1258 FORMAT(5x,' number of k-point is very large or distributed')
 
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
@@ -1048,7 +1128,7 @@
  1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
- 1508 FORMAT(/' Brillouin zone point: ',i2,
+ 1508 FORMAT(/' Brillouin zone point: ',i5,
      >       /'pathlength=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')
@@ -1471,7 +1551,7 @@ c      end do
 
       return
  1310 FORMAT(3E15.5)
- 3508 FORMAT(/' Brillouin zone point: ',i2,
+ 3508 FORMAT(/' Brillouin zone point: ',i5,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')
       end

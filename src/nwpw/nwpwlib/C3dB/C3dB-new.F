@@ -1549,7 +1549,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       end if
 
 *     **** WAIT ****
-      call ga_sync()
+c      call ga_sync()
 
       return
       end
@@ -1730,7 +1730,7 @@ c      integer mpierr,mstatus(MPI_STATUS_SIZE)
       end if
 
 *     **** WAIT ****
-      call ga_sync()
+c      call ga_sync()
 
       return
       end
@@ -2257,7 +2257,7 @@ c     integer i2_start(NFFT3+1)
      >      call errquit('C3dB_c_Write:error popping stack',0, MA_ERR)
       end if
 
-      call ga_sync()
+c      call ga_sync()
 
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
@@ -2315,7 +2315,7 @@ c     integer i2_start(NFFT3+1)
       end if
 
 *     **** WAIT ****
-      call ga_sync()
+c      call ga_sync()
 
       return
       end
@@ -2453,7 +2453,7 @@ c     integer i2_start(NFFT3+1)
       end if
 
 *     **** wait ****
-      call ga_sync()
+c      call ga_sync()
       return
       end
 

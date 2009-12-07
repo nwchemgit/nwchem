@@ -2614,7 +2614,7 @@ c      end
 
 
 *     **** wait ****
-      call ga_sync()
+c      call ga_sync()
 
       return
       end
@@ -2779,7 +2779,7 @@ c      end
       end if
 
 *     **** wait ****
-      call ga_sync()
+c      call ga_sync()
       return
       end
 
@@ -2954,7 +2954,7 @@ c      end
       end if
 
 *     **** wait ****
-      call ga_sync()
+c      call ga_sync()
       return
       end
 

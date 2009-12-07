@@ -3797,6 +3797,33 @@ c      end
 
 *     ************************************
 *     *                                  *
+*     *      control_nprj_mult           *
+*     *                                  *
+*     ************************************
+
+      integer function control_nprj_mult()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer qmax
+
+      if (.not.rtdb_get(rtdb,'nwpw:nprj_mult',mt_int,1,qmax))
+     >  qmax = 1
+
+      control_nprj_mult = qmax
+      return
+      end
+
+
+
+*     ************************************
+*     *                                  *
 *     *         control_symmetry         *
 *     *                                  *
 *     ************************************

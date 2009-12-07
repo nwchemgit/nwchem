@@ -74,6 +74,7 @@ c     $Id: c_sdminimize.F,v 1.6 2007-02-23 01:18:11 bylaska Exp $
       external control_it_in
       external control_time_step,control_fake_mass
 
+
       dt = control_time_step()
       dte = dt/dsqrt(control_fake_mass())
       it_in = control_it_in()
