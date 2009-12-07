@@ -132,6 +132,7 @@ c     dont use disk for grid pts
 c     
                 largenode=.true.
                 grid_file_open=.true.
+                if(oreopen)grid_file_open=.false.
                 return
              endif
             max_file_rec = nint((0.95*1024.0d0*availkb) / 
