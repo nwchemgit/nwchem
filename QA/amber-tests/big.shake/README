@@ -3,7 +3,6 @@ This is a series of amino acids, with SHAKE ON
 NWChem input files:
 big.nw     - nwchem input deck
 big.pdb    - pdb file with geometry
-THR_N.sgm  - amber95 segment file: one in SVN does not match
 
 amber input files:
 big_am.in  - amber input deck
