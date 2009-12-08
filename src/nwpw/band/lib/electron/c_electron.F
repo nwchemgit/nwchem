@@ -160,7 +160,7 @@ c      complex*16 psi_k(*)
       counter = counter+1
 
       call c_electron_gen_psi_r(psi_k_tag)
-      call c_electron_gen_densities(dn,dng,dnall)
+c      call c_electron_gen_densities(dn,dng,dnall)
       call c_electron_gen_Hpsi_k_vall(psi_k_tag)
       return
       end
@@ -996,7 +996,8 @@ c      end do
       kj  = 1 
       shiftB =  cpsi_data_get_chnk(psi_r_tag,nbj)
 
-      done = .false.
+c      done = .false.
+      done = (nbrillq.eq.0)
       do while (.not.done)
 
          if (nbi.le.nbrillq) then

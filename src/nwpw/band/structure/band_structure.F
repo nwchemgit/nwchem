@@ -655,6 +655,7 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
      >   call errquit('band_structure:out of stack memory',0, MA_ERR)
       end if
 
+
 *     **** electron and geodesic data structures ****
       call c_electron_init()
       call c_geodesic_init()
@@ -672,15 +673,7 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
       call cpsi_1rotate2()
       call cpsi_2to1()
 
-      write(*,*) "herj,taskid=",taskid
-      call flush(6)
-      call ga_sync()
-
       call cpsi_KS_minimize(1,.false.,control_tole(),control_tolc())
-
-      write(*,*) "herk,taskid=",taskid
-      call flush(6)
-      call ga_sync()
 
       if (control_print(print_high)) call cpsi_check_indx(k)
 

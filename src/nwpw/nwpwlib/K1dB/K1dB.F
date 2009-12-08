@@ -242,12 +242,13 @@
       !**** Make sure ngrid is consistent with mapping ***
       if (np_k.gt.nz_in) then
           if (taskid.eq.MASTER) then
-            write(6,*) 'Error: for 1d decomposition the',
+            write(6,*) 'Possible Error?: for 1d decomposition the',
      >                 ' number of columns (np_k processors) must ',
      >                 ' be in the range ( 1 ...nz=',
      >                   nz_in,')'
+            call util_flush(6)
           end if
-          call errquit('K1dB_init: mapping error',0,0)
+c          call errquit('K1dB_init: mapping error',0,0)
       end if
 
 *     ***** initialize K1dB common block *****

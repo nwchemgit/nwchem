@@ -1297,7 +1297,6 @@ c      end
       integer tmp2(2),tmp3(2)
       logical value
 
-
       call nwpw_timing_start(1)
 
 *     ***** allocate temporary space ****
@@ -1583,8 +1582,9 @@ c      end do
     
 *     **** deallocate temporary space  ****
       value = MA_pop_stack(tmp3(2))
-      value = MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp2(2))
       !value = MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('popping stack memory',0,MA_ERR)
 
       call nwpw_timing_end(1)
       return

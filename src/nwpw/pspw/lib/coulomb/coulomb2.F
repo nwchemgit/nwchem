@@ -12,9 +12,9 @@
  
       subroutine coulomb2_init()      
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     *** cutoff constant ***
       real*8 EPSILON
@@ -63,7 +63,7 @@ c     **** external functions ****
 
 
       call Parallel2d_taskid_i(taskid)
-      call D3dB_nq(2,nq)
+c      call D3dB_nq(2,nq)
       call D3dB_nz(2,nz)
       call D3dB_ny(2,ny)
       call D3dB_nx(2,nx)
@@ -216,7 +216,8 @@ c                 temp = yerf/temp
      >                     + dbl_mb(glr(1)+2*(k-1)) 
       end do
 
-      value = MA_pop_stack(glr(2))
+      if (.not.MA_pop_stack(glr(2)))
+     > call errquit('coulomb2_init:error popping stack memory',0,MA_ERR)
 
       return
       end
@@ -224,15 +225,17 @@ c                 temp = yerf/temp
 
       subroutine coulomb2_end()
       implicit none
+
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
       integer gk(2)
       common / vc_block2 / gk
 
-      logical value
+      if (.not.MA_free_heap(gk(2)))
+     > call errquit('coulomb2_end:error freeing heap memory',0,MA_ERR)
 
-      value = MA_free_heap(gk(2))
       return
       end
 

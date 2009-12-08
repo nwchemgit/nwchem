@@ -237,7 +237,7 @@ c           call Pack_c_pack(0,dcpl_mb(exi(1)))
 
 
 *          **** put sqrt(core-density) at atom position ****
-           call Pack_tc_MUL(0,dbl_mb(ncore(1)+(ia-1)*npack0*5),
+           call Pack_tc_Mul(0,dbl_mb(ncore(1)+(ia-1)*npack0*5),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(tmp(1)))
 c          call Pack_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
@@ -332,7 +332,7 @@ c     logical semicore(0:nkatmx)
            end do
 c           call Pack_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
            call Pack_c_SMul1(0,scal2,dcpl_mb(tmp(1)))
-      
+
 *          **** Put put tmp into real space ****
            call Pack_c_unpack(0,dcpl_mb(tmp(1)))
            call D3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
@@ -344,6 +344,7 @@ c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 *          ****  integrate it ****
            call D3dB_r_dsum(1,dcpl_mb(tmp(1)),sum)
            dbl_mb(ncore_sum(1)+ia-1) = sum*dV
+
         end if
 
       end do

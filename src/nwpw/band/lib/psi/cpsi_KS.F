@@ -284,7 +284,7 @@ c     >                      dbl_mb(psi1_shift))
 *     **** local variables ****
       logical stalled
       integer nb,i,j,neall,maxit_orb,maxit_orbs
-      integer psi1_shift,eig_shift,taskid
+      integer psi1_shift,eig_shift
       real*8 error_out,psi_error_out,e0,sum
 
 *     **** external functions ****
@@ -293,7 +293,6 @@ c     >                      dbl_mb(psi1_shift))
       external control_ks_maxit_orb,control_ks_maxit_orbs
       external cpsi_data_get_ptr
 
-      call Parallel_taskid(taskid)
 
       if (spin_orbit) then
         call  cpsi_KS_minimize2com(psi_number,precondition,
@@ -339,16 +338,11 @@ c     >              dbl_mb(psi1_shift))
 
 
             !**** minimize orbital ****
-           write(*,*) "gerb,taskid,nb,i=",taskid,nb,i
-           call flush(6)
-
             j = 0
  2          call cpsi_KS_minimize_orb(psi_number,precondition,maxit_orb,
      >                       maxerror,maxpsi_error,0.001d0,
      >                       nb,i,error_out,psi_error_out,e0)
             j = j+1
-           write(*,*) "gerc,taskid,nb,i,j=",taskid,nb,i,j,error_out
-           call flush(6)
 
             if (((error_out.gt.maxerror).or.
      >           (psi_error_out.gt.maxpsi_error))
@@ -360,15 +354,7 @@ c     >              dbl_mb(psi1_shift))
         end do
         end do
 
-           write(*,*) "gere,taskid=",taskid
-           call flush(6)
-           call ga_sync()
-
       call cpsi_sort_minimize()
-
-           write(*,*) "gerf,taskid=",taskid
-           call flush(6)
-           call ga_sync()
 
       return
       end
@@ -583,9 +569,6 @@ c      psi_ptr=psi1(1)+(nb-1)*(ne(1)+ne(2))*npack1
 #include "cpsi_common.fh"
 
 *     **** local variables ****
-      integer MASTER,taskid
-      parameter (MASTER=0)
-
       logical value,done,oneloop
       integer it
       real*8 e0,eold,error0,de0,lmbda_r0,lmbda_r1
@@ -612,7 +595,6 @@ c      psi_ptr=psi1(1)+(nb-1)*(ne(1)+ne(2))*npack1
          psi_ptr=cpsi_data_get_ptr(psi2_tag,nb,i)
       end if
 
-      call Parallel_taskid(taskid)
 
       value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
       value = value.and.
@@ -887,9 +869,6 @@ c     >                  tau_t)
 #include "cpsi_common.fh"
 
 *     **** local variables ****
-      integer MASTER,taskid
-      parameter (MASTER=0)
-
       logical value,done,oneloop
       integer it
       real*8 eold,error0,de0,lmbda_r0,lmbda_r1
@@ -900,6 +879,7 @@ c     >                  tau_t)
 *     **** external functions ****
       integer  cpsi_data_get_ptr
       external cpsi_data_get_ptr
+
      
       if (spin_orbit) then
         call cpsi_KS_minimize_orb_2com(psi_number,
@@ -981,7 +961,6 @@ c         end if
          lmbda_r0 = lmbda_r1
          oneloop = .true.
  3       call Cram_c_Copy(nb,dcpl_mb(t(1)),dcpl_mb(t0(1)))
-
 
 
 *        *** normalize search direction, t ****
@@ -1579,9 +1558,6 @@ c           write(*,*)"THIS IS I IN KS_MINIM",i," ",e0
 #include "cpsi_common.fh"
 
 *     **** local variables ****
-      integer MASTER,taskid
-      parameter (MASTER=0)
-
       logical value,done,oneloop
       integer it,shifts
       real*8 e0,eold,error0,de0,lmbda_r0,lmbda_r1
@@ -1602,7 +1578,6 @@ c           write(*,*)"THIS IS I IN KS_MINIM",i," ",e0
          psi_ptr=cpsi_data_get_ptr(psi2_tag,nb,i)
       end if
 
-      call Parallel_taskid(taskid)
 
       value = MA_push_get(mt_dcpl,2*npack1,'t0',t0(2),t0(1))
       value = value.and.
@@ -1920,9 +1895,6 @@ c     >                  tau_t(npack1+1))
 #include "cpsi_common.fh"
 
 *     **** local variables ****
-      integer MASTER,taskid
-      parameter (MASTER=0)
-
       logical value,done,oneloop
       integer it,shifts,ne1
       real*8 eold,error0,de0,lmbda_r0,lmbda_r1
@@ -1943,7 +1915,6 @@ c     >                  tau_t(npack1+1))
          psi_ptr=cpsi_data_get_ptr(psi2_tag,nb,i)
       end if
 
-      call Parallel_taskid(taskid)
 
       value = MA_push_get(mt_dcpl,2*npack1,'t0',t0(2),t0(1))
       value = value.and.
