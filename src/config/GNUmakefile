@@ -51,8 +51,14 @@ ifeq ($(TARGET),BGP)
  CC=gcc
 endif
 
+ifeq ($(TARGET),BGP)
+  DEPEND_CC=gcc
+else
+  DEPEND_CC=$(CC)
+endif
+
 $(BINDIR)/depend.x:	depend.c
-	$(CC) $(DEPENDCFLAGS) -g -o $@ $^
+	$(DEPEND_CC) $(DEPENDCFLAGS) -g -o $@ $^
 	/bin/rm -f depend.o
 
 clean:
