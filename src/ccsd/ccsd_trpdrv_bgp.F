@@ -12,6 +12,7 @@ c
 #include "ccsd_len.fh"
 #include "ccsdps.fh"
 c     
+      integer ncor,nocc,nvir
       double precision t1(*)
       double precision f1n(nvir,nvir),f1t(nvir,nvir)
       double precision f2n(nvir,nvir),f2t(nvir,nvir)
@@ -36,7 +37,6 @@ c
 #endif
       integer jump
       integer g_objo,g_objv,g_coul,g_exch
-      integer ncor,nocc,nvir
       integer inode,next,nxtask,nodes,iam
       integer oseg_lo,oseg_hi
       integer a,b,c,i,j,k,akold,av
