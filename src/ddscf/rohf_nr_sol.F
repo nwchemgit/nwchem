@@ -44,6 +44,7 @@ c
       logical oprint_parm, oprint_conv, oprint_eval, oprint_vecs
       logical oprint_ls
       logical ovariable
+      logical noscf  ! one-shot energy
 c
       double precision tol2e_save ! Used with variable integral tolerance
 *     double precision djunk
@@ -256,6 +257,12 @@ c
             eprec = max(1d-7,gnorm*0.01d0, eprec_tol) ! Aovid noise in LS
 *            write(LuOut,*) ' EPREC ', eprec
 *            call util_flush(LuOut)
+c
+c           == is this a oneshot "noscf" type calculation ==
+            noscf = .false.
+            if (.not.rtdb_get(rtdb, 'scf:noscf', mt_log, 1, noscf))
+     &         noscf=.false.
+            if (noscf) converged = .true.
             goto 10
 c     
          else if (mode .eq. 'precondition') then

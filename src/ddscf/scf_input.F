@@ -365,6 +365,12 @@ c       == force texas integrals to false for CAM calculations ==
         if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
      &   call errquit('cannot set int:cando_txs',0, RTDB_ERR)
 c
+      else if (inp_compare(.false.,'noscf', test)) then
+c
+c       == store the noscf flag ==
+        if (.not.rtdb_put(rtdb,'scf:noscf', mt_log, 1, .true.))
+     &   call errquit('scf_input: rtdb_put failed', 0, RTDB_ERR)
+c
       else if (inp_compare(.false.,'end', test)) then
 c     
 c     end

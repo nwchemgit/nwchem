@@ -257,6 +257,7 @@ c
       double precision step     ! Step to take in search direction
       double precision time_iter_start
       integer time_prev_iter
+      logical noscf ! one-shot energy option
 c
       double precision gnorm    ! measures for convergence
       logical converged
@@ -343,6 +344,12 @@ c
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
             call ecce_print1('total energy', mt_dbl, energy, 1)
             call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
+c
+c           == is this a oneshot "noscf" type calculation ==
+            noscf = .false.
+            if (.not.rtdb_get(rtdb, 'scf:noscf', mt_log, 1, noscf))
+     &                      noscf=.false.
+            if (noscf) converged = .true.
             goto 10
 c     
          else if (mode .eq. 'precondition') then
