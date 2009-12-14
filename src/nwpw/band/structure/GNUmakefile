@@ -2,7 +2,8 @@
 # $Id: GNUmakefile,v 1.1 2003-12-02 19:25:09 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
-				band_structure.o 
+		band_structure.o \
+		band_interpolate_structure.o
                 
 	  OBJ = 
 
@@ -10,7 +11,7 @@
 
       LIBRARY = libband.a
 
-    USES_BLAS = band_structure.F
+    USES_BLAS = band_structure.F band_interpolate_structure.F
                 
 
   LIB_DEFINES =
