@@ -17,29 +17,15 @@ c
       integer md_data_get_i_t, md_data_get_i_v, md_data_get_i_a
       integer md_data_get_i_b, md_data_get_i_d, md_data_get_i_f
       integer md_data_get_natom
-c      integer md_data_get_nsteps
-c      double precision md_data_get_timestep, md_data_get_temp 
-c      logical md_data_set_temp
 
-c      logical grad
-c      external grad
       integer coor,mass,bq,tag,vel,acc,bterm,dterm,frc
-c      integer nsteps
-c      double precision dt,temp 
 
-c      character*64 theory
       integer i 
-c      write(*,*) 'inside md_set, theory',theory
 
 c      set input parameters 
 c      write(*,*) ' In MD_SET '
       call md_data_inp_set(rtdb)
-c      nsteps = md_data_get_nsteps()
-c      dt = md_data_get_timestep()   
-c      temp =md_data_get_temp()
-c      write(*,*) 'input params set'
-c
-
+c      write(*,*) ' In MD_SET -1'
 cc     create geometry object 
       if (.not. geom_create(geom, 'geometry'))
      & call errquit('md_set_getgeom: failed creating geometry',
@@ -50,10 +36,7 @@ cC     load geometry into the object
      & 0,RTDB_ERR)
 
 cc    Set the natom, it is needed for all other allocations
-c      call md_data_set_natom(rtdb,geom)
       natom=md_data_get_natom()
-cc     allocate memory for coordinates
-c      write(*,*) 'Md_set: Done with all the allocation:,natom=',natom
 
 C     Get the handles for everything
       coor=md_data_get_i_c()
@@ -66,7 +49,6 @@ C     Get the handles for everything
       dterm=md_data_get_i_d()
       frc=md_data_get_i_f()
 c
-cC-----Finished allocating memory for info we get from database
 c
 cC ----- Fill up the local copies with data(mass,coords,charge,tags) from geometry object
 cC------- accessed by the geom handle
@@ -91,7 +73,7 @@ c     & call errquit('md_gradient:  no grad found', 0, RTDB_ERR)
       if (.not. geom_destroy(geom))
      & call errquit('md_set:  geom_destroy failed',
      & 911,GEOM_ERR)
-
+c      write(*,*) 'OUt of MD_set'
       md_set=.true.
       end
 

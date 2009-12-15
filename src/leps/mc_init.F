@@ -12,7 +12,7 @@
 #include "geom.fh"
 
       logical     ircflag 
-      integer     natom,geom, i,k,l, ivib, seed
+      integer     natom,geom, i,k,l, ivib, gseed
       integer     c_start,c_array
       integer     tag,charge,mass,force
       integer     mc_data_get_i_c_array,mc_data_get_i_c
@@ -34,11 +34,16 @@
       data blanks32(1:32)/' '/
       double precision unitt,unitl,uma  
       logical dbug 
+      integer iw
+      iw=0
+      if (ga_nodeid().eq.0) iw=6 
       theory=blanks64
+
       thr=blanks32
       task=blanks32
       task=':gradient'
-      dbug=.true. 
+      dbug=.false. 
+c      if (ga_nodeid().eq.0) then 
       c_array=mc_data_get_i_c_array()  ! get the entire array of starting geometries
       c_start=mc_data_get_i_c()
       tag=mc_data_get_i_t()
@@ -65,15 +70,17 @@ C      boltz   = 1.380662D-16
 C                             ( = BOLTZMANN CONSTANT IN ERG/DEG. )
 
 
-      seed = -1234
+      gseed = -1234
       kB = boltz
       temp = mc_data_get_temp()
       temp10=10.0   
+      write(iw,*) 'In mc_init:'
+      call printeg(3*natom,dbl_mb(i_eval),dbl_mb(i_evec))
 
       if (.not. geom_create(geom, 'geometry'))
      & call errquit('mc_driver_getgeom: failed creating geometry',
      & 0,GEOM_ERR)
-c      write(*,*) 'MC_init created geom object'
+c      write(*,*) 'MC_init: generating initial conditions'
 
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, thr))
      $     call errquit('mc_driver: theory not specified',0, RTDB_ERR)
@@ -101,7 +108,7 @@ c         mdacc=md_data_get_i_a()
          if(.not.geom_rtdb_store(rtdb,geom,"geometry"))
      &       call errquit('mc_init: Failed to store geom to rtdb',0,
      &       RTDB_ERR)
-
+             call ga_sync()
 C---- calculate the gradient to get the force for acceleration
          if (.not.grad(rtdb))
      &       call errquit('mc_init: no grad calculated ', 0, RTDB_ERR)
@@ -109,15 +116,22 @@ C---- calculate the gradient to get the force for acceleration
          if (.not. rtdb_get(rtdb,theory,mt_dbl,3*natom, dbl_mb(force)))
      &       call errquit('mc_grad: no grad stored ', 0, RTDB_ERR)
 
-c         write(*,*) "MC-init IRC: temperature is:",temp
+         do k=1,3*natom
+            if (abs(dbl_mb(force+k-1)).lt.tolg) then
+              dbl_mb(force+k-1)=0.0
+            endif
+         enddo 
+c         write(iw,*) "MC-init IRC: force is:"
+c         call printcoord(iw,natom,dbl_mb(force),byte_mb(tag))
          do ivib=1,3*natom
-            if (abs(dbl_mb(i_eval+ivib-1)).lt.0.1) then
+            if (dbl_mb(i_eval+ivib-1).gt.-0.1) then
                 vau=0.0
             else
-                vau=gks_gasdev(seed)*sqrt(kb*temp)
+                vau=gks_gasdev(gseed)*sqrt(kb*temp)
                 vau=vau*(unitt/unitl/sqrt(uma))
+c                vau=0.005449
             endif
-C            write(*,*) 'For ivib IRC:',ivib,' vau is: ', vau
+c            write(iw,*) 'For ivib IRC:',ivib,' vau is: ', vau
             do k=1,3*natom
                dbl_mb(vel+k-1) =
      &            dbl_mb(vel+k-1)
@@ -125,10 +139,11 @@ C            write(*,*) 'For ivib IRC:',ivib,' vau is: ', vau
             enddo
          enddo
          if(dbug) then
-           write(*,*) 'IRC Velocities:'
-           do k=1,3*natom
-              write(*,*) dbl_mb(vel+k-1)
-           enddo
+           write(iw,*) 'IRC Velocities:'
+c           do k=1,3*natom
+              call printcoord(iw,natom,dbl_mb(vel),byte_mb(tag))
+c             write(iw,*) dbl_mb(vel+k-1)
+c           enddo
          endif
 c----- set the  acceleration
          do k=1,natom
@@ -139,26 +154,27 @@ c----- set the  acceleration
          enddo
 
          if(dbug) then
-           write(*,*) 'IRC Mass '
+           write(iw,*) 'IRC Mass '
            do k=1,natom
-               write(*,*) dbl_mb(mass+k-1)
+               write(iw,*) dbl_mb(mass+k-1)
            enddo
-           write(*,*) 'IRC Force '
+           write(iw,*) 'IRC Force '
            do k=1,natom
             do l=1,3
-              write(*,*) -dbl_mb(force+(k-1)*3+l-1)
+              write(iw,*) -dbl_mb(force+(k-1)*3+l-1)
             enddo
            enddo
-           write(*,*) 'IRC Force 2'
+           write(iw,*) 'IRC Force 2'
 
            do l=1,3*natom
-              write(*,*) -dbl_mb(force+l-1)
+              write(iw,*) -dbl_mb(force+l-1)
            enddo
 
-           write(*,*) 'IRC Acceleration:'
-           do k=1,3*natom
-              write(*,*) dbl_mb(acc+k-1)
-           enddo
+           write(iw,*) 'IRC Acceleration:'
+c           do k=1,3*natom
+              call printcoord(iw,natom,dbl_mb(acc),byte_mb(tag))
+c              write(iw,*) dbl_mb(acc+k-1)
+c           enddo
          endif
       else 
 c      write(*,*) 'in mc_init:naccept',naccept
@@ -182,6 +198,12 @@ C---- calculate the gradient to get the force for acceleration
          if (.not. rtdb_get(rtdb,theory,mt_dbl,3*natom, dbl_mb(force)))
      &       call errquit('mc_grad: no grad stored ', 0, RTDB_ERR)
 
+         do k=1,3*natom
+            if (abs(dbl_mb(force+k-1)).lt.tolg) then
+              dbl_mb(force+k-1)=0.0
+            endif
+         enddo 
+
 C----- set the velocity and acc to zero
          do k=1,3*natom
              dbl_mb(vel+(i-1)*3*natom+k-1)=0.0
@@ -192,7 +214,7 @@ c         write(*,*) "MC-init: temperature is:",temp
             if (abs(dbl_mb(i_eval+ivib-1)).lt.0.1) then
                 vau=0.0
             else
-                vau=gks_gasdev(seed)*sqrt(kb*temp)
+                vau=gks_gasdev(gseed)*sqrt(kb*temp)
                 if (ivib.eq.1) then
                     pimg=vau
                     dbl_mb(prp+i-1)=pimg
@@ -207,11 +229,11 @@ c            write(*,*) 'For ivib:',ivib,' vau is: ', vau
             enddo
          enddo
          if(dbug) then
-           write(*,*) 'Velocities:'
+           write(iw,*) 'Velocities:'
            do k=1,3*natom
-              write(*,*) dbl_mb(vel+(i-1)*3*natom+k-1)
+              write(iw,*) dbl_mb(vel+(i-1)*3*natom+k-1)
            enddo 
-           write(*,*) 'PIMG= ',pimg
+           write(iw,*) 'PIMG= ',pimg
          endif
 c----- set the  acceleration
          do k=1,natom
@@ -221,9 +243,9 @@ c----- set the  acceleration
             enddo
          enddo 
          if(dbug) then
-           write(*,*) 'Acceleration:'
+           write(iw,*) 'Acceleration:'
            do k=1,3*natom
-              write(*,*) dbl_mb(acc+(i-1)*3*natom+k-1) 
+              write(iw,*) dbl_mb(acc+(i-1)*3*natom+k-1) 
            enddo
          endif
 C ---- end of setting
@@ -231,13 +253,13 @@ C ---- end of setting
       endif
       if(dbug.and.(.not.ircflag)) then
         do i=1,naccept+1
-         write(*,*) 'Dbug Velocities:',i
+         write(iw,*) 'Dbug Velocities:',i
          do k=1,3*natom
-            write(*,*) dbl_mb(vel+(i-1)*3*natom+k-1)
+            write(iw,*) dbl_mb(vel+(i-1)*3*natom+k-1)
          enddo
-         write(*,*) 'Dbug Acceleration:',i
+         write(iw,*) 'Dbug Acceleration:',i
          do k=1,3*natom
-            write(*,*) dbl_mb(acc+(i-1)*3*natom+k-1)
+            write(iw,*) dbl_mb(acc+(i-1)*3*natom+k-1)
          enddo
  
         enddo
@@ -246,5 +268,7 @@ C ---- end of setting
      &   call errquit('mc_init:  geom_destroy failed',
      &   911,GEOM_ERR)
 
+c      endif
+c      write(*,*) 'MC_init: end'
       end
 C_CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC

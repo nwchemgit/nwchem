@@ -60,14 +60,17 @@ c       write(*,*) 'mc_data geom_copy:Filled cartesians and masses'
 #include "global.fh"
 #include "mafdecls.fh"
 
-      integer n
+      integer i,n
 
 c      write(*,*) 'In mc  data allocate:n,mcsteps: ', n, mcsteps 
       if (.not. ma_alloc_get(mt_int, (mcsteps+2)*2, 'sidecount' ,
      & h_sc,i_sc))
      & call errquit('mc_data: array of sidecount not allocated',
      & 1,MA_ERR)
-
+       do i=0,(mcsteps+2)*2-1
+          int_mb(i_sc+i)=0
+c          write(*,*) 'In mcdata i_sc,val=',i_sc+i,int_mb(i_sc+i)
+       enddo
       if (.not. ma_alloc_get(mt_dbl, (mcsteps+2)*3*n, 'coordinates' ,
      & h_in,i_in))
      & call errquit('mc_data: array of coords not allocated',

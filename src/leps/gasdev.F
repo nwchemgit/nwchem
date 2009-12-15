@@ -1,3 +1,10 @@
+C     program gasdev1
+C     double precision gks_gasdev,gasdev,seed
+C      seed = -1234
+C      write(*,*)  'before gasdev'
+C      gasdev=gks_gasdev(seed)
+C      write(*,*)  'Afer gasdev'
+C     end
 C    rundom number generators from gaussian distribution, 
 C    from Numerical Recipies
 C    it is initialized with -IDUM
@@ -8,6 +15,7 @@ c     implicit undefined (a-z)
       integer idum,iset
       double precision v1,v2,r,fac,gset,gks_ran1
       DATA ISET /0/
+c      write(*,*) 'inside GKS_GASDEV'
       IF(ISET.EQ.0) THEN
    10   V1=2.0E+00*GKS_RAN1(IDUM)-1.0E+00
         V2=2.0E+00*GKS_RAN1(IDUM)-1.0E+00
@@ -21,8 +29,8 @@ c     implicit undefined (a-z)
         GKS_GASDEV=GSET
         ISET=0
       ENDIF
-c     write(6,9999) idum,iset,gks_gasdev
-c9999 format(' ---gasdev--- = ',2i15,f10.6)
+c      write(*,*) idum,iset,gks_gasdev
+C9999 format(' ---gasdev--- = ',2i15,f10.6)
       RETURN
       END
 ccccccccc/ccccccccc/ccccccccc/ccccccccc/ccccccccc/ccccccccc/ccccccccc/ccccccccc/

@@ -5,12 +5,11 @@
 #include "global.fh"
 #include "mafdecls.fh"
 
-c      integer n
+      integer i
 c      natom=n
-      if (natom.eq.0) then
-         write(*,*) ' Natom is not set in md_data. Allocation failed. ' 
-         return
-      endif   
+      if (natom.eq.0)
+     &    call errquit('md_data: Natom is not set in md_data.
+     &    Allocation failed.',natom,MA_ERR) 
  
       if (.not. ma_alloc_get(mt_dbl, 3*natom, 'coordinate' ,
      & h_c,i_c))
@@ -55,6 +54,14 @@ c      natom=n
      & call errquit('md_data_getgeom: force not allocated',
      & natom,MA_ERR)
 
+C --- zero out all the alocated memory
+      do i=1,3*natom
+       dbl_mb(i_c+i-1)=0.0
+       dbl_mb(i_v+i-1)=0.0
+       dbl_mb(i_a+i-1)=0.0
+       dbl_mb(i_b+i-1)=0.0
+       dbl_mb(i_d+i-1)=0.0
+      enddo
 c      write(*,*) 'Done with all the allocation'
 c      write(*,*) 'i_c,i_m,i_q,i_v,i_t,i_a,i_b,i_d,i_f'
 c      write(*,*) i_c,i_m,i_q,i_v,i_t,i_a,i_b,i_d,i_f
@@ -228,7 +235,7 @@ c       write(*,*) 'Geom_copy:Filled cartesians and masses  '
      & call errquit('md_driver_getgeom: failed creating geometry',
      & 0,GEOM_ERR)
 
-      write(*,*) 'Open a geometry' 
+c      write(*,*) 'Open a geometry' 
 C     load geometry into the geom object from database
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      & call errquit('md_data: no geometry',
@@ -243,7 +250,7 @@ C     load geometry into the geom object from database
      &   call errquit('md_data_putgeom: coord error',0,GEOM_ERR)
 
       if(.not.geom_rtdb_store(rtdb,geom,"geometry"))
-     + call errquit('md_driver:Failed to store geom to rtdb',0,RTDB_ERR)
+     & call errquit('md_driver:Failed to store geom to rtdb',0,RTDB_ERR)
 
       if (.not. geom_destroy(geom))
      & call errquit('md_driver_getgeom: failed geom_destroy',
@@ -260,6 +267,7 @@ C     load geometry into the geom object from database
 #include "geom.fh"
 
       integer rtdb
+
       if (.not.rtdb_get(rtdb,"mymd:temp",mt_dbl,1,temp))
      >      call errquit('failed to get temp',0,
      >       RTDB_ERR)
@@ -269,7 +277,6 @@ C     load geometry into the geom object from database
       if (.not.rtdb_get(rtdb,"mymd:nsteps",mt_int,1,nsteps))
      >      call errquit('failed to get nsteps',0,
      >       RTDB_ERR)
-
 
       end
       

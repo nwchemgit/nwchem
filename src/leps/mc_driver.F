@@ -11,6 +11,8 @@
 #include "global.fh"
 #include "geom.fh"
 #include "const_data.fh"
+#include "util_sgroup.fh"  !for subgroup support
+c#include "subgr.fh"
 
       logical mc_driver
       integer geom
@@ -31,25 +33,31 @@
       character*32 thr,task
       data blanks(1:64) /' '/
       double precision seed,nseed
-      integer seed1
+      integer iworld,idef
       COMMON/DYSEED/SEED,NSEED
  
       logical md_driver
       external md_driver
       logical status 
+      integer iw
+      integer cntnrg
       theory=blanks
       task=':energy'
       call mc_data_inp_set(rtdb)
       natom=0
-      seed1=152
-      seed= 52.34
+      seed= 523.4
       mcstep=mc_data_get_mcsteps() ! number of monte carlo steps  
       temp=mc_data_get_temp()      ! temperature, should be the same as in md
       stepsize=mc_data_get_stepsize() ! stepsize scale for the geometry displacement
       ratio = mc_data_get_ratio()     ! the ratio of accepted and rejected steps in the run
                                       ! if the ratio is below or above the given value, the stepsize should be 
                                       ! increased or reduced NOT YET IMPLEMENTED 
-      write(*,*) 'MC driver input parameters:\n
+      cntnrg=0
+      iw=0
+      
+      if (ga_nodeid().eq.0) iw=6
+                
+      write(iw,*) 'MC driver input parameters:\n
      $  number of steps, temperature, stepsize, ratio',
      &  mcstep,temp,stepsize,ratio
       naccept=0
@@ -101,30 +109,37 @@ c      call mc_data_geom_copy(rtdb,geom)
 
 
       call mc_data_init(rtdb)
-C      write(*,*) 'mc_data_init'
-C      call printeg(3*natom,dbl_mb(i_eval),dbl_mb(i_evec))
+      write(iw,*) 'ieigen values and vectors'
+      call printeg(3*natom,dbl_mb(i_eval),dbl_mb(i_evec))
 
 C  ! get ihe energy for the initial point
-C      R=util_random(seed1) ! init random number generator
       R=dynrnd(1) 
-C      do i=1,10
-C          write(*,*) 'dynrnd',dynrnd(0)
-C      enddo 
-C      return 
 
       int_mb(i_s)=1  ! always the first step is accepted cause it is the irc 
-      do step=1,mcstep
-c     write(*,*) 'Starting step',step
-      write(*,*)'In MC-driver:current step :',step,' from ',mcstep
-      write(*,*)'In MC-driver:current geometry '
-C      call printcoord(natom,dbl_mb(i_c),byte_mb(i_t))
 
-      call task_energy(rtdb) 
-      
+C ---- get the energy of the TST (0th step)
+      call task_energy(rtdb)
+      cntnrg=cntnrg+1
+      write (iw,*) 'cntnrg = ',cntnrg 
       if (.not. rtdb_get(rtdb,theory,mt_dbl,1,E0))
      & call errquit('mc_driver:  no energy ', 0,
      & RTDB_ERR)
 
+      do step=1,mcstep
+      write(*,*) 'Starting step',step
+      write(iw,*)'In MC-driver:current step :',step,' from ',mcstep
+c      write(*,*)'In MC-driver:current geometry '
+C      call printcoord(natom,dbl_mb(i_c),byte_mb(i_t))
+
+C --- if the previous value is 0, it means the previous step was rejacted
+C --- so E0 is E0, but if it is 1, the previous step was accepted, so E0=E1 
+c      if (int_mb(i_s+step-1).ne.0) then
+c     &   call task_energy(rtdb) 
+      
+c      if (.not. rtdb_get(rtdb,theory,mt_dbl,1,E0))
+c     & call errquit('mc_driver:  no energy ', 0,
+c     & RTDB_ERR)
+c      endif
 c      call printcoord(natom,dbl_mb(i_c),byte_mb(i_t))
 
 c      write(*,*)'In MC-driver: end of temp array C'
@@ -153,27 +168,25 @@ c            write(*,*)'In MC-driver:dir , rnd ', dir,R*dir*stepsize
             enddo
        endif
       enddo
-
-C      write(*,*) 'In MC-driver the new state is:'
-C      call printcoord(natom,dbl_mb(i_c),byte_mb(i_t))
-
 C store the new coords in rtdb
         if (.not. geom_cart_set(geom, natom, byte_mb(i_t),
      &   dbl_mb(i_c), dbl_mb(i_q)))
      &   call errquit('mc_driver_putgeom: coord error',0,GEOM_ERR)
 
         if(.not.geom_rtdb_store(rtdb,geom,"geometry"))
-     &   call errquit('mc_driver: Failed to store geom to rtdb',0, 
+     &    call errquit('mc_driver: Failed to store geom to rtdb',0, 
      &               RTDB_ERR)
-
+        call ga_sync()
 C call the energy calculation 
-        write(*,*)'In MC-driver: new geometry :'
+c        write(*,*)'In MC-driver: new geometry :'
         call task_energy(rtdb)
+      cntnrg=cntnrg+1
+      write (iw,*) 'cntnrg = ',cntnrg
         if (.not. rtdb_get(rtdb,theory,mt_dbl,1,E1))
      &   call errquit('mc_driver:  no energy ', 0,
      &                 RTDB_ERR)
 
-       
+        write(iw,*) ' In MC-driver E0,E1 :',E0,E1       
         if (E1.lt.E0) then
           int_mb(i_s+step)=1
           naccept=naccept+1
@@ -181,6 +194,9 @@ c          write(*,*) 'naccept1= ',naccept
           do i=1, 3*natom
              dbl_mb(i_in+naccept*3*natom+i-1)=dbl_mb(i_c+i-1)
           enddo
+          E0=E1
+          write(iw,*) 'In MC-driver the new state is:'
+          call printcoord(iw,natom,dbl_mb(i_c),byte_mb(i_t))
         else
 C          R=util_random(0)
           R=(dynrnd(0))
@@ -193,9 +209,13 @@ c             write(*,*) 'naccept2= ',naccept
              do i=1, 3*natom
                 dbl_mb(i_in+naccept*3*natom+i-1)=dbl_mb(i_c+i-1)
              enddo
+             E0=E1
+             write(iw,*) 'In MC-driver the new state is:'
+             call printcoord(iw,natom,dbl_mb(i_c),byte_mb(i_t))
           else
              int_mb(i_s+step)=0
              nreject=nreject+1
+             E0=E0
 c             write(*,*) 'nreject= ',nreject
 C     ---and return the old coordinates in the rtdb  
              do i=1,3*natom
@@ -203,12 +223,16 @@ C     ---and return the old coordinates in the rtdb
              enddo 
              if (.not. geom_cart_set(geom, natom, byte_mb(i_t),
      &            dbl_mb(i_c), dbl_mb(i_q)))
-     &       call errquit('mc_driver_putgeom: coord error',0,GEOM_ERR)
+     &        call errquit('mc_driver_putgeom: coord error',0,GEOM_ERR)
 
              if(.not.geom_rtdb_store(rtdb,geom,"geometry"))
-     &       call errquit('mc_driver: Failed to store geom to rtdb',0,
+     &         call errquit('mc_driver: Failed to store geom to rtdb',0,
      &               RTDB_ERR)
-             write(*,*) 'Step rejected. Returning to previous state :'
+             call ga_sync()
+              write(iw,*) 'Step rejected. Returning to previous state :'
+C ----       no need to recalculate energy at previous step
+C ----       just make a step  
+
 c             do i=1,3*natom
 c                write(*,*) dbl_mb(i_c+i-1)
 c             enddo
@@ -217,53 +241,79 @@ c             enddo
          endif 
 C      write(*,*) 'In MC-driver the new state is:'
 C      call printcoord(natom,dbl_mb(i_c),byte_mb(i_t))
-
-      write(*,*) '\nIn MC-driver E0,E1 :',E0,E1
-      write(*,*) 'k*T :', (temp*boltzmann*JToHartree)
-      write(*,*) 'Ediff :', ediff
+c      write(*,*) 'k*T :', (temp*boltzmann*JToHartree)
+c      write(*,*) 'Ediff :', ediff
 c      write(*,*) 'Rand :',R  
         endif
+      write(iw,*) 'In MC-driver E0,E1 -two:',E0,E1
       enddo
-      do i=0,mcstep
-          write(*,*) 'property is ',int_mb(i_s+i) 
-      enddo 
-      write(*,*) 'number of accepted steps: ',naccept
-      write(*,*) 'number of rejected steps: ', nreject
+       call ga_sync()
+       do i=0,mcstep
+          write(iw,*) 'property is ',int_mb(i_s+i) 
+       enddo 
+       write(iw,*) 'number of accepted steps: ',naccept
+       write(iw,*) 'number of rejected steps: ', nreject
       status=mc_data_set_naccept(naccept)
-
+c       if(ga_nodeid().eq.0.and.util_sgroup_mygroup().eq.1) then
+c         call print_div(dbl_mb(i_in),natom,naccept,byte_mb(i_t))
+c       endif
        if (.not. geom_destroy(geom, 'geometry'))
      & call errquit('mc_driver: failed destroing geometry',
      & 0,GEOM_ERR)
-      
       mc_driver=.true.
       return 
       END
 
-      subroutine printcoord(nat,coord,tags)
-         integer i,nat
+      subroutine print_div(coords,nat,naccept,tags)
+        double precision coord(3*nat)
+        character*16 tags(nat)
+        integer i,j,nat,nfile
+
+        nfile=13
+        open (nfile,file='dividing_surface.xyz', status='REPLACE') 
+        do i=0,naccept-1
+           do j=1,3*nat
+              coord(j)=coords(i*3*nat+j) 
+           enddo 
+           call printcoord(nfile,nat,coord,tags)
+        enddo
+        close(13)
+
+      end
+      subroutine printcoord(nfile,nat,coord,tags)
+#include "global.fh"
+         integer i,nat,iw,nfile
          double precision coord(3,nat)
-         character*16 tags(nat)  
+         character*16 tags(nat) 
+         iw=0
+         nfile=6 
+         if (ga_nodeid().eq.0) iw=nfile     
          do i=1,nat
-            write(*,*) tags(i),coord(1,i),coord(2,i),coord(3,i)
-         enddo  
+            write(iw,9000) tags(i),coord(1,i),coord(2,i),coord(3,i)
+         enddo 
+ 9000 format (A4,F14.9,F14.9,F14.9) 
       END 
 
       Subroutine printeg(nat3,eigval,eigvec)
-
+#include "global.fh"
+ 
        integer nat3, i,nhess
        double precision eigval(nat3)
        double precision eigvec(nat3*nat3)
-
+       integer iw
+       iw=0
+       if (ga_nodeid().eq.0) iw=6
+       
        nhess = nat3*nat3  
        write(*,*) 'Printing Eigenvalues in mc_driver:',nat3
        do i=1, nat3
-        write(*,*) eigval(i)
+        write(iw,*) eigval(i)
        enddo
-       write(*,*) 'Printing Eigenvectors in mc_driver:',nhess
+       write(iw,*) 'Printing Eigenvectors in mc_driver:',nhess
        do i=1, nat3
-         write(*,*) 'Vector: ',i
+         write(iw,*) 'Vector: ',i
          do j=1,nat3
-          write(*,*) eigvec((i-1)*nat3+j)
+          write(iw,*) eigvec((i-1)*nat3+j)
          enddo
        enddo
 

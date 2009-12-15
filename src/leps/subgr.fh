@@ -1,0 +1,6 @@
+      integer util_sgroup_numgroups, util_sgroup_mygroup
+      integer util_sgroup_zero_group
+      external util_sgroup_numgroups
+      external util_sgroup_mygroup
+      external util_sgroup_zero_group
+

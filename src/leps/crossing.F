@@ -31,7 +31,13 @@ C  v_tst is the imaginary mode eigenvector
       logical mc_data_get_ifirc,mc_data_get_forward,mc_data_get_backward
       logical mc_data_set_side_prev, mc_data_set_nxing
       double precision small
+      integer iw
+      logical debug
+
+      debug=.false.
       small =1E-8
+      iw =-1
+      if(ga_nodeid().eq.0) iw=6
 c      write(*,*) 'natom =', natom
       forward=mc_data_get_forward()
       backward=mc_data_get_backward()
@@ -91,7 +97,7 @@ c      enddo
       do i=1,3*natom
          dot=dot+(c(i)-dbl_mb(i_ctst+i-1))*mass(i)*v_tst(i)
       enddo
-      write(*,*) 'Dot is: ',dot  
+c      write(*,*) 'Dot is: ',dot  
 C
       if (abs(dot).lt.small) then
          side=0
@@ -103,15 +109,17 @@ C
          endif
       endif
 c      goto 7
-      write(*,*)'In crossing:trajnum ',trajnum 
+c      write(*,*)'In crossing:trajnum ',trajnum 
+c      write(iw,*)'In crossing: i_sc=',i_sc
       if (forward) then
+c         call nga_put(i_sc,2*trajnum+1,1,side, ld)
          int_mb(i_sc+2*trajnum)=side
-c      write(*,*)'In crossing: (i_sc+2*trajnum+1) ',trajnum ,
-c     $  ' forw ',forward,' back ', backward,int_mb(i_sc+2*trajnum+1)
+c         write(iw,*)'In crossing: (i_sc+2*trajnum) ',trajnum ,
+c     $  ' forw ',forward,' back ', backward,int_mb(i_sc+2*trajnum)
       else
          int_mb(i_sc+2*trajnum+1)=side
-c      write(*,*)'In crossing: (i_sc+2*trajnum+2) ',trajnum ,
-c     $  ' forw ',forward,' back ', backward,int_mb(i_sc+2*trajnum+2)
+c      write(*,*)'In crossing: (i_sc+2*trajnum+1) ',trajnum ,
+c     $  ' forw ',forward,' back ', backward,int_mb(i_sc+2*trajnum+1)
       endif
 
 C
@@ -119,8 +127,10 @@ C     ----- Side ? Xing ? ... -----
 C
       if ((side.ne.side_prev).and.(side_prev.ne.0)) then
          nxing=nxing+1
-      write(*,*) 'Recrossing: side_prev, side ',side_prev,side
-      write(*,*) 'Total nxing; ', nxing
+c       if (ga_nodeid().eq.0) then
+        write(iw,*) 'Recrossing: side_prev, side ',side_prev,side
+        write(iw,*) 'Total nxing; ', nxing
+c       endif
       endif
 c      goto 7
       status=mc_data_set_side_prev(side)
@@ -154,13 +164,15 @@ C they are set in this subroutine, when the ifirc flag is true
  
 C forside backside  are the directions of the current trajectory
 C are set in this subroutine 
-      write(*,*) 'ifirc forward backward forside0 backside0 forside back
-     &side ', 
+      if (debug) then
+      write(iw,9000) 'ifirc for back for0 back0 forside backside ',
      &   mc_data_get_ifirc(),  mc_data_get_forward(), 
      &   mc_data_get_backward(), mc_data_get_forside0(),
      &   mc_data_get_backside0(), mc_data_get_forside(), 
      &   mc_data_get_backside()
+      endif
 c      write(*,*) 'In crossing: nxing ',nxing
 c    7 continue
-
+ 9000 format(A,3(L4),4(I4))
+      return
       end
