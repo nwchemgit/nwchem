@@ -343,8 +343,8 @@ c        end if
          else
            status = task_dynamics(rtdb)
          endif
-c      else if (inp_compare(.false.,'rfcf',operation)) then
-c           status = task_rfcf(rtdb)
+      else if (inp_compare(.false.,'rfcf',operation)) then
+           status = task_rfcf(rtdb)
       else if(inp_compare(.false.,'fep',operation)) then
          if(oqmmm) then
            status = task_qmmm_fep(rtdb)
