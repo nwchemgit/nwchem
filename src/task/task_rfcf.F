@@ -40,6 +40,8 @@ c      external md_driver
       external dft_energy_gradient
       logical task_freq
       external task_freq
+      logical semi_dir_mp2,task_num_grad
+      external semi_dir_mp2,task_num_grad
 c
       logical status
       double precision cpu,wall
@@ -75,8 +77,18 @@ c
       else if (theory.eq.'scf') then
         status = task_freq(rtdb)
         status = mc_main(rtdb,scf_gradient,theory)
+      else if (theory.eq.'mp2') then
+        status = task_freq(rtdb)
+           if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'gradient'))
+     $        call errquit('task_gradient: rtdb_put failed',0, RTDB_ERR)
+           status = semi_dir_mp2(rtdb)
+        status = mc_main(rtdb,semi_dir_mp2,theory)
+      else if (theory.eq.'direct_mp2') then
+        status = task_freq(rtdb)
+c        status = task_num_grad(rtdb)
+        status = mc_main(rtdb,task_num_grad,theory)
       else
-        call errquit('task_rfcf: invalid theory: only dft,scf and leps',0,
+      call errquit('task_rfcf: invalid theory: only dft,scf and leps',0,
      &       RTDB_ERR)
 
       end if
