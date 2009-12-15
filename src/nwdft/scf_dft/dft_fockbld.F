@@ -64,6 +64,11 @@ czora...start
       double precision Ezora_sf
 czora...end
 c
+c     timings
+c
+      double precision time1_ke,time2_ke
+      double precision time1_pot,time2_pot
+c
       me=ga_nodeid()
       if (odftps) call pstat_on(ps_fockb)
 c
@@ -90,7 +95,21 @@ c
      &     call dft_tstamp(' calling 1-e int ')
       if (odftps) call pstat_on(ps_onel)
       call ga_zero(g_fock)
+c
+      if(util_print('dft timings', print_high))
+     &      time1_ke=util_cpusec()   ! start kinetic time
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'kinetic', oskel)
+      if(util_print('dft timings', print_high))
+     &      time2_ke=util_cpusec()   ! end kinetic time
+c
+c     print kinetic energy matrix time
+      if(util_print('dft timings', print_high)) then
+        if (me.eq.0) then
+           write(*,"(4x,'Kinetic Matrix Time:',F13.1,'s')") 
+     &        time2_ke-time1_ke
+        endif
+      end if
+c
       if(util_print('kinetic_energy', print_high)) then
          Ecore = ga_ddot(g_dens(1), g_fock)
          if(ga_nodeid().eq.0) then
@@ -113,8 +132,20 @@ c     -----------------------------------------------------------
      $     call errquit('dft: writing bq_energy failed', 
      $     0, RTDB_ERR)
       else
+        if(util_print('dft timings', print_high))
+     &        time1_pot=util_cpusec()   ! start time
         call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 
      &                 'potential', oskel)
+        if(util_print('dft timings', print_high))
+     &        time2_pot=util_cpusec()   ! end time
+c
+c     print potential matrix time
+        if(util_print('dft timings', print_high)) then
+         if (me.eq.0) then
+           write(*,"(4x,'Potential Matrix Time:',F13.1,'s')")
+     &        time2_pot-time1_pot
+         endif
+        end if
       end if
 c
 c     ----- Add cosmo potential when needed -----

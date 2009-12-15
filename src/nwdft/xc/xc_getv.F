@@ -70,6 +70,11 @@ c
       double precision tol2e
       integer g_tmp(2)
 c
+c     timings
+c
+      double precision time1_2e,time2_2e
+      double precision time1_xc,time2_xc
+c
 c******************************************************************************
 c
 c Compute the matrix elements for the XC potential and energy.
@@ -97,6 +102,8 @@ c
          if(ipol.eq.2)call ga_print(g_dens(2))
       endif
 c
+      if(util_print('dft timings', print_high))
+     &      time1_2e=util_cpusec()   ! start 2e build time
       if (havehfxc .or. (.not. CDFIT))then
 c       
 c        Compute the exact exchange potential (as in Hartree-Fock calculations).
@@ -310,8 +317,21 @@ c
          if (oprint_time)call dft_tstamp('  After call to fock_2e. ')
          call ga_sync
       endif
+      if(util_print('dft timings', print_high))
+     &      time2_2e=util_cpusec()   ! end 2e build time
+c
+c     print fock_2e build time
+c
+      if(util_print('dft timings', print_high)) then
+       if (me.eq.0) then
+         write(*,"(4x,'Fock_2e Build Time:',F13.1,'s')") 
+     &              time2_2e-time1_2e
+       endif
+      end if
 c
 c     Get the DFT exchange-correlation contribution
+      if(util_print('dft timings', print_high)) 
+     &      time1_xc=util_cpusec()   ! start xc build time
       if (xc_gotxc()) then  
          if(xcfit) then       
             nTrows = nbf_xc
@@ -350,6 +370,16 @@ c
      &              ' xc_getv: ga_destroy failed ',0, GA_ERR)
                 endif
               endif
+         if(util_print('dft timings', print_high)) 
+     &         time2_xc=util_cpusec()   ! end xc build time
+c
+c        print fock_xc build time
+         if(util_print('dft timings', print_high)) then
+          if (me.eq.0) then
+           write(*,"(4x,'Fock_xc Build Time:',F13.1,'s')") 
+     &                 time2_xc-time1_xc
+          endif
+         end if
 c
 c        In case we are performing an xc fit calculation
          if(xcfit) then

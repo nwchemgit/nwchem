@@ -13,6 +13,7 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "dftps.fh"
+#include "util.fh"
 #ifdef SCALAPACK
 #include "dft_scaleig.fh"
 #endif
@@ -36,6 +37,10 @@ c
       double precision fjj
       integer dft_lindep
       external dft_lindep
+c
+c     timing
+c
+      double precision time1,time2
 c     
 c     Level shifting is implemented here (similarity 
 c     transformation before standard eigensolver).  Note,
@@ -89,6 +94,8 @@ c
 c     
 c     Solve for the eigenvalues and eigenvectors of the Hamiltonian.
 c     
+      if(util_print('dft timings', print_high))
+     &      time1=util_cpusec()   ! start diagonalization time
       if (oprint_intermediate_fock)then     
          call ga_print(g_fockt)
       endif
@@ -113,6 +120,16 @@ c
       if (odftps) call pstat_off(ps_diag)
       if (oprint_time)
      &     call dft_tstamp(' called diag ')
+      time2=util_cpusec()   ! end diagonalization time
+      if(util_print('dft timings', print_high))
+     &      time2=util_cpusec()   ! end diagonalization time
+c
+c     print diagonalization time
+      if(util_print('dft timings', print_high)) then
+       if (me.eq.0) then
+         write(*,"(4x,'Diagonalization Time:',F13.1,'s')") time2-time1
+       endif
+      end if
 c     
 c     Check HOMO/LUMO gap.
 c     

@@ -179,6 +179,10 @@ c
       integer g_zora_scr(2)
       double precision ener_scal
 c
+c     timings 
+c
+      double precision time1,time2
+c
       gotsmear(ss)=abs(ss).gt.1d-9
 c
       call ecce_print_module_entry('dft')
@@ -883,6 +887,8 @@ c
 c
 c     build DFT Fock matrix
 c
+      if(util_print('dft timings', print_high))
+     &      time1=util_cpusec()  ! start fock matrix build time
       call dft_fockbld(rtdb,natoms,ntotel,
      ,     g_fock,g_focks,g_dens,g_vxc,g_movecs,g_xcinv, 
      ,     g_tmp,g_nq,g_wght,g_xyz,
@@ -896,6 +902,16 @@ c
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time,
      &     g_zora_sf)
+      if(util_print('dft timings', print_high))
+     &      time2=util_cpusec()  ! end fock matrix build time
+c
+c     print fock matrix build time
+      if(util_print('dft timings', print_high)) then
+        if (me.eq.0) then
+          write(*,"(4x,'Total Fock Matrix Build Time:',F13.1,'s')") 
+     &                     time2-time1
+        endif
+      end if
 c     
 c     Calculate the total electronic energy.
 c     
@@ -1339,10 +1355,19 @@ c
       call ga_sync
       if (oprint_time)
      &     call dft_tstamp(' calling scfcvg ')
-      call dft_scfcvg(rms, derr, Etold, Etnew,
+c
+      if (do_zora) then
+        call dft_zora_scfcvg(rms, derr, Etold, Etnew,
      &                e_conv, d_conv, g_conv, ipol, 
      &                iter, iterations, idone, rtdb,
      &                converged, diising)
+      else
+        call dft_scfcvg(rms, derr, Etold, Etnew,
+     &                e_conv, d_conv, g_conv, ipol, 
+     &                iter, iterations, idone, rtdb,
+     &                converged, diising)
+      end if
+c
       if (oprint_time)
      &     call dft_tstamp(' called scfcvg ')
 c
