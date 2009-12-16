@@ -2685,6 +2685,110 @@ c      end
       return
       end
 
+*     **********************************
+*     *                                *
+*     *  control_monkhorst_pack_grid   *
+*     *                                *
+*     **********************************
+      subroutine control_monkhorst_pack_grid(grid)
+      implicit none
+      integer grid(3)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     **** local variables ****
+      character*30 zone_name
+      character*30 rtdb_name
+      integer l
+
+      if (.not.rtdb_cget(rtdb,'band:zone_name',1,zone_name))
+     >   zone_name = 'zone_default'
+
+      l = index(zone_name,' ') -1
+      rtdb_name = zone_name(1:l)//':monkhorst-pack'
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,3,grid)) then
+         grid(1) = 0
+         grid(2) = 0
+         grid(3) = 0
+      end if
+
+      return
+      end
+
+
+*     **********************************
+*     *                                *
+*     *      control_ksvector_index    *
+*     *                                *
+*     **********************************
+      integer function control_ksvector_index(ks)
+      implicit none
+      real*8 ks(*)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     **** local variables ****
+      character*30 zone_name
+      character*30 rtdb_name
+      integer num_kvectors,i,i1,i2
+      integer kvs(2)
+      real*8  d1,d2
+
+*     **** external functions ****
+      integer  control_num_kvectors
+      external control_num_kvectors
+
+      num_kvectors = control_num_kvectors()
+
+      if (.not.MA_push_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
+     >  call errquit('control_ksvector: out of stack', 0,MA_ERR)
+
+      if (.not.rtdb_cget(rtdb,'band:zone_name',1,zone_name))
+     >   zone_name = 'zone_default'
+
+      i = index(zone_name,' ') -1
+      rtdb_name = zone_name(1:i)//':kvectors'
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,
+     >                  (4*num_kvectors),dbl_mb(kvs(1)))) then
+         call dcopy(4*num_kvectors,0.0d0,0,dbl_mb(kvs(1)),1)
+      end if
+
+      i1 = -1
+      i2 = -1
+      do i=1,num_kvectors
+         d1 = dsqrt((dbl_mb(kvs(1)+4*(i-1))   - ks(1))**2
+     >            + (dbl_mb(kvs(1)+4*(i-1)+1) - ks(2))**2
+     >            + (dbl_mb(kvs(1)+4*(i-1)+2) - ks(3))**2)
+         if (d1.lt.1.0e-6) i1 = i
+         d2 = dsqrt((dbl_mb(kvs(1)+4*(i-1))   + ks(1))**2
+     >            + (dbl_mb(kvs(1)+4*(i-1)+1) + ks(2))**2
+     >            + (dbl_mb(kvs(1)+4*(i-1)+2) + ks(3))**2)
+         if (d2.lt.1.0e-6) i2 = i
+      end do
+    
+      if (.not.MA_pop_stack(kvs(2)))
+     >  call errquit('control_ksvector: failed to free stack',0,MA_ERR)
+
+      if (i1.eq.-1) i1 = i2
+      control_ksvector_index = i1
+      return
+      end
+
+
+
+
 *     *****************************
 *     *                	 	  *
 *     *    control_TotalCharge	  *

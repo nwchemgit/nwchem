@@ -15,24 +15,35 @@
       integer  MASTER
       parameter(MASTER=0)
 
-      integer nbrillall,k,isize,NN,i
-      integer eigs(2)
+      integer nbrillall,k,isize,NN,i,j,n1,n2,n3,ii,i1,i2,i3
+      integer itet(3,10),eigs(2),mgrid(3),tindx(10),ix,iy,iz
+      real*8  ktet(3,10),kstet(3,10),kstetm(3,10),rx,ry,rz
       real*8  ks(3),kv(3),kold(3),pathlength,dist,e1,e2,EV
       character*255 full_filename
  
 
 *     **** external functions ****
-      logical     cpsi_spin_orbit,control_spin_orbit,control_print
-      integer     cpsi_ispin,cpsi_ne,control_num_kvectors_structure
-      external    cpsi_spin_orbit,control_spin_orbit,control_print
-      external    cpsi_ispin,cpsi_ne,control_num_kvectors_structure
+      logical  cpsi_spin_orbit,control_spin_orbit,control_print
+      integer  cpsi_ispin,cpsi_ne,control_num_kvectors_structure
+      integer  control_ksvector_index
+      real*8   lattice_unitg
+      external cpsi_spin_orbit,control_spin_orbit,control_print
+      external cpsi_ispin,cpsi_ne,control_num_kvectors_structure
+      external control_ksvector_index
+      external lattice_unitg
 
 
       NN=cpsi_ne(1)-cpsi_ne(2)
       EV=27.2116d0
 
       nbrillall = control_num_kvectors_structure()
-      if (nbrillall.gt.0) then
+      call control_monkhorst_pack_grid(mgrid)
+
+      if ((nbrillall.gt.0).and.
+     >    (mgrid(1).ne.0) .and.
+     >    (mgrid(2).ne.0) .and.
+     >    (mgrid(3).ne.0)) then
+
       call Parallel_taskid(taskid)
 
 *     **** allocate eigs ****
@@ -85,6 +96,120 @@
       do k=1,nbrillall
          call control_ksvector_structure(k,ks)
          call control_kvector_structure(k,kv)
+         rx = 0.5d0*(ks(1)*2*mgrid(1) + mgrid(1) - 1)
+         ry = 0.5d0*(ks(2)*2*mgrid(2) + mgrid(2) - 1)
+         rz = 0.5d0*(ks(3)*2*mgrid(3) + mgrid(3) - 1)
+         i1 = nint(rx)
+         i2 = nint(ry)
+         i3 = nint(rz)
+         if (rx.ge.i1)  then
+            ix= 1
+         else
+            ix=-1
+         end if
+         if (ry.ge.i2)  then
+            iy= 1
+         else
+            iy=-1
+         end if
+         if (rz.ge.i3)  then
+            iz= 1
+         else
+            iz=-1
+         end if
+         itet(1,1) = i1
+         itet(2,1) = i2
+         itet(3,1) = i3
+
+         itet(1,2) = i1 + ix
+         itet(2,2) = i2
+         itet(3,2) = i3
+
+         itet(1,3) = i1
+         itet(2,3) = i2 + iy
+         itet(3,3) = i3
+
+         itet(1,4) = i1
+         itet(2,4) = i2
+         itet(3,4) = i3 + iz
+
+         itet(1,5) = i1 - ix
+         itet(2,5) = i2
+         itet(3,5) = i3
+
+         itet(1,6) = i1
+         itet(2,6) = i2 - iy
+         itet(3,6) = i3
+
+         itet(1,7) = i1
+         itet(2,7) = i2
+         itet(3,7) = i3 - iz
+
+         itet(1,8) = i1 + ix
+         itet(2,8) = i2 + iy
+         itet(3,8) = i3
+
+         itet(1,9) = i1 + ix
+         itet(2,9) = i2 
+         itet(3,9) = i3 + iz
+
+         itet(1,10) = i1 
+         itet(2,10) = i2 + iy
+         itet(3,10) = i3 + iz
+
+c         itet(1,11) = i1 + ix
+c         itet(2,11) = i2 - iy
+c         itet(3,11) = i3
+c         itet(1,12) = i1 - ix
+c         itet(2,12) = i2 + iy
+c         itet(3,12) = i3 
+c         itet(1,13) = i1 - ix
+c         itet(2,13) = i2 - iy
+c         itet(3,13) = i3
+c         itet(1,14) = i1 + ix
+c         itet(2,14) = i2 
+c         itet(3,14) = i3 - iz
+c         itet(1,15) = i1 - ix
+c         itet(2,15) = i2 
+c         itet(3,15) = i3 + iz
+c         itet(1,16) = i1 - ix
+c         itet(2,16) = i2 
+c         itet(3,16) = i3 - iz
+c         itet(1,17) = i1 
+c         itet(2,17) = i2 + iy
+c         itet(3,17) = i3 - iz
+c         itet(1,18) = i1 
+c         itet(2,18) = i2 - iy
+c         itet(3,18) = i3 + iz
+c         itet(1,19) = i1 
+c         itet(2,19) = i2 - iy
+c         itet(3,19) = i3 - iz
+c         itet(1,20) = i1 + ix
+c         itet(2,20) = i2 + iy
+c         itet(3,20) = i3 + iz
+
+
+         do j=1,10
+         do i=1,3
+            kstet(i,j) = (2*itet(i,j)+1-mgrid(i))/(2.0d0*mgrid(i))
+         end do
+         end do
+
+         do j=1,10
+         do i=1,3
+            ktet(i,j) = lattice_unitg(i,1)*kstet(1,j)
+     >                + lattice_unitg(i,2)*kstet(2,j)
+     >                + lattice_unitg(i,3)*kstet(3,j)
+         end do
+         end do
+
+         do j=1,10
+            do i=1,3
+               itet(i,j)   = mod(itet(i,j),mgrid(i))
+               kstetm(i,j) = (2*itet(i,j)+1-mgrid(i))/(2.0d0*mgrid(i))
+            end do
+            tindx(j) = control_ksvector_index(kstetm(1,j))
+         end do
 
          if (taskid.eq.MASTER) then
             if (k.eq.1) then
@@ -100,10 +225,16 @@
             kold(2) = kv(2)
             kold(3) = kv(3)
             write(luout,1508) k,pathlength,ks,kv
+c            do i=1,4
+c               write(luout,1509) i,tindx(i),
+c     >                             kstet(1,i),kstet(2,i),kstet(3,i),
+c     >                              ktet(1,i), ktet(2,i), ktet(3,i)
+c            end do
+           
             write(luout,1500)
          end if
 
-         call band_interpolate_eigs(kv,dbl_mb(eigs(1)))
+         call band_interpolate_eigs(kv,tindx,ktet,dbl_mb(eigs(1)))
 
          !*** spin-orbit ****
          if (taskid.eq.MASTER) then
@@ -151,16 +282,21 @@
      >       /'pathlength=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')
+ 1509 FORMAT(/' Brillouin zone tet-point: ',i3,i5
+     >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
+     >       /'          =<',3f8.3,'>')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
 
 
       return
       end 
 
-      subroutine band_interpolate_eigs(kv,eigs)
+      subroutine band_interpolate_eigs(kv,tindx,ktet,eigs)
       implicit none
-      real*8 kv(3)
-      real*8 eigs(*)
+      real*8  kv(3)
+      integer tindx(*)
+      real*8  ktet(3,*)
+      real*8  eigs(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -171,8 +307,8 @@
 *     **** local variables ****
       logical done,noarea,novolume
       integer nbrill,nb,i,imax,n1,n2,n3,ierr,i1,i2,i3,i4
-      integer dist(2),kvv(2),indx(2),itet(4),ipiv(4)
-      real*8  vandermonde(4,4),A(4,4),f(4),kmin(3),kf(3)
+      integer dist(2),kvv(2),indx(2),itet(4),ipiv(10)
+      real*8  vandermonde(10,10),A(10,10),f(10),kmin(3),kf(3)
       real*8 dd,dp,dm,dx,dy,dz
       real*8 xp,yp,zp,xm,ym,zm
 
@@ -184,234 +320,101 @@
       external cpsi_ispin,cpsi_ne,brillioun_nbrillioun
       external brillioun_k_brdcst,lattice_unitg,cpsi_eigenvalue_brdcst
 
-      call Parallel_taskid(taskid)
       
-      nbrill = brillioun_nbrillioun()
+      call band_interpolate_setvandermonde(ktet,vandermonde)
 
-      if (.not.MA_push_get(mt_dbl,nbrill,'dist',dist(2),dist(1)))
-     >  call errquit(
-     > 'band_interpolate structure:out of stack memory',0,MA_ERR)
-      if (.not.MA_push_get(mt_dbl,3*nbrill,'kvv',kvv(2),kvv(1)))
-     >  call errquit(
-     > 'band_interpolate structure:out of stack memory',1,MA_ERR)
-      if (.not.MA_push_get(mt_int,nbrill,'indx',indx(2),indx(1)))
-     >  call errquit(
-     > 'band_interpolate structure:out of stack memory',2,MA_ERR)
-
-
-      do nb=1,nbrill
-         kf(1) = brillioun_k_brdcst(1,nb)
-         kf(2) = brillioun_k_brdcst(2,nb)
-         kf(3) = brillioun_k_brdcst(3,nb)
-      
-         xp = kf(1)-kv(1)
-         yp = kf(2)-kv(2)
-         zp = kf(3)-kv(3)
-         xm = -kf(1)-kv(1)
-         ym = -kf(2)-kv(2)
-         zm = -kf(3)-kv(3)
-
-         dd = 1.0d10
-         do n1=-1,1
-         do n2=-1,1
-         do n3=-1,1
-            dx = n1*lattice_unitg(1,1)
-     >         + n2*lattice_unitg(1,2)
-     >         + n3*lattice_unitg(1,3)
-            dy = n1*lattice_unitg(2,1)
-     >         + n2*lattice_unitg(2,2)
-     >         + n3*lattice_unitg(2,3)
-            dz = n1*lattice_unitg(3,1)
-     >         + n2*lattice_unitg(3,2)
-     >         + n3*lattice_unitg(3,3)
-            dp = dsqrt((xp+dx)**2 + (yp+dy)**2 + (zp+dz)**2)
-            dm = dsqrt((xm+dx)**2 + (ym+dy)**2 + (zm+dz)**2)
-            if (dp.lt.dd) then
-               dd=dp
-               kmin(1) = xp+dx
-               kmin(2) = yp+dy
-               kmin(3) = zp+dz
-            end if
-            if (dm.lt.dd) then
-               dd=dm
-               kmin(1) = xm+dx
-               kmin(2) = ym+dy
-               kmin(3) = zm+dz
-            end if
+      do i=1,cpsi_ne(1)
+         do i1 = 1,10
+            f(i1) = cpsi_eigenvalue_brdcst(tindx(i1),1,i)
          end do
-         end do
-         end do
-         dbl_mb(dist(1)+nb-1)      = dd
-         dbl_mb(kvv(1)+3*(nb-1))   = kmin(1)
-         dbl_mb(kvv(1)+3*(nb-1)+1) = kmin(2)
-         dbl_mb(kvv(1)+3*(nb-1)+2) = kmin(3)
-         int_mb(indx(1)+nb-1) = nb
-         if (taskid.eq.MASTER) write(*,*) "nb,kmin,dd=",nb,kmin,dd
+         call dcopy(100,vandermonde,1,A,1)
+         call DGESV(10,1,A,10,ipiv,f,10,ierr)
+         eigs(i) = f(1)*kv(1)+f(2)*kv(2)+f(3)*kv(3)
+     >           + f(4)*kv(1)*kv(1)
+     >           + f(5)*kv(1)*kv(2)
+     >           + f(6)*kv(1)*kv(3)
+     >           + f(7)*kv(2)*kv(2)
+     >           + f(8)*kv(2)*kv(3)
+     >           + f(9)*kv(3)*kv(3)
+     >           + f(10)
+c     >           + f(10)*kv(1)*kv(1)*kv(1)
+c     >           + f(11)*kv(1)*kv(1)*kv(2)
+c     >           + f(12)*kv(1)*kv(1)*kv(3)
+c     >           + f(13)*kv(1)*kv(2)*kv(2)
+c     >           + f(14)*kv(1)*kv(2)*kv(3)
+c     >           + f(15)*kv(1)*kv(3)*kv(3)
+c     >           + f(16)*kv(2)*kv(2)*kv(2)
+c     >           + f(17)*kv(2)*kv(2)*kv(3)
+c     >           + f(18)*kv(2)*kv(3)*kv(3)
+c     >           + f(19)*kv(3)*kv(3)*kv(3)
+c     >           + f(20)
       end do
-      call band_interpolate_sort(nbrill,int_mb(indx(1)),dbl_mb(dist(1)))
 
-      imax = 4
-      itet(1) = 1
-      itet(2) = 2
-      itet(3) = 3
-      itet(4) = 4
-      done = .false.
-      do while ((.not.done).and.(imax.le.nb))
-         call band_interpolate_checktet(itet,int_mb(indx(1)),
-     >                                  dbl_mb(kvv(1)),
-     >                                  noarea,novolume)
-         if (noarea) then
-            itet(3) = imax+1
-            imax    = imax+1
-         else
-            if (novolume) then
-               itet(4) = imax+1
-               imax    = imax+1
-            else
-               done = .true.
-            end if
-         end if
-      end do
-      if (done) then
-         call band_interpolate_setvandermonde(itet,int_mb(indx(1)),
-     >                                        dbl_mb(kvv(1)),
-     >                                        vandermonde)
-
-         i1 = int_mb(indx(1)+itet(1)-1) 
-         i2 = int_mb(indx(1)+itet(2)-1) 
-         i3 = int_mb(indx(1)+itet(3)-1) 
-         i4 = int_mb(indx(1)+itet(4)-1) 
-         do i=1,cpsi_ne(1)
-            f(1) = cpsi_eigenvalue_brdcst(i1,1,i)
-            f(2) = cpsi_eigenvalue_brdcst(i2,1,i)
-            f(3) = cpsi_eigenvalue_brdcst(i3,1,i)
-            f(4) = cpsi_eigenvalue_brdcst(i4,1,i)
-            if (taskid.eq.MASTER) then
-               write(*,*) "kv=",kv
-               write(*,*) "f =",f
-               call dcopy(16,vandermonde,1,A,1)
-               write(*,*) "A=",A(1,1),A(1,2),A(1,3),A(1,4)
-               write(*,*) "  ",A(2,1),A(2,2),A(2,3),A(2,4)
-               write(*,*) "  ",A(3,1),A(3,2),A(3,3),A(3,4)
-               write(*,*) "  ",A(4,1),A(4,2),A(4,3),A(4,4)
-
-               call DGESV(4,1,A,4,ipiv,f,4,ierr)
-               write(*,*) "ierr=",ierr
-               eigs(i) = f(1)*kv(1)+f(2)*kv(2)+f(3)*kv(3)+f(4)
-               write(*,*) "fout=",f
-               write(*,*) "eig=",eigs(i)
-            end if
-         end do
-
-         if ((.not.cpsi_spin_orbit()).and.(cpsi_ispin().eq.2)) then
-            do i=1,cpsi_ne(2)
-               f(1) = cpsi_eigenvalue_brdcst(i1,2,i)
-               f(2) = cpsi_eigenvalue_brdcst(i2,2,i)
-               f(3) = cpsi_eigenvalue_brdcst(i3,2,i)
-               f(4) = cpsi_eigenvalue_brdcst(i4,2,i)
-               call dcopy(16,vandermonde,1,A,1)
-               call DGESV(4,1,A,4,ipiv,f,4,ierr)
-               eigs(i+cpsi_ne(1))=f(1)*kv(1)+f(2)*kv(2)+f(3)*kv(3)+f(4)
+      if ((.not.cpsi_spin_orbit()).and.(cpsi_ispin().eq.2)) then
+         do i=1,cpsi_ne(2)
+            do i1 = 1,10
+               f(i1) = cpsi_eigenvalue_brdcst(tindx(i1),2,i)
             end do
-         end if         
-
-      else
-         i1 = int_mb(indx(1)+itet(1)-1) 
-         do i=1,cpsi_ne(1)
-            eigs(i) = cpsi_eigenvalue_brdcst(i1,1,i)
+            call dcopy(100,vandermonde,1,A,1)
+            call DGESV(10,1,A,10,ipiv,f,10,ierr)
+            eigs(i+cpsi_ne(1))=f(1)*kv(1)+f(2)*kv(2)+f(3)*kv(3)
+     >           + f(4)*kv(1)*kv(1)
+     >           + f(5)*kv(1)*kv(2)
+     >           + f(6)*kv(1)*kv(3)
+     >           + f(7)*kv(2)*kv(2)
+     >           + f(8)*kv(2)*kv(3)
+     >           + f(9)*kv(3)*kv(3)
+     >           + f(10)
+c     >           + f(10)*kv(1)*kv(1)*kv(1)
+c     >           + f(11)*kv(1)*kv(1)*kv(2)
+c     >           + f(12)*kv(1)*kv(1)*kv(3)
+c     >           + f(13)*kv(1)*kv(2)*kv(2)
+c     >           + f(14)*kv(1)*kv(2)*kv(3)
+c     >           + f(15)*kv(1)*kv(3)*kv(3)
+c     >           + f(16)*kv(2)*kv(2)*kv(2)
+c     >           + f(17)*kv(2)*kv(2)*kv(3)
+c     >           + f(18)*kv(2)*kv(3)*kv(3)
+c     >           + f(19)*kv(3)*kv(3)*kv(3)
+c     >           + f(20)
          end do
-         if ((.not.cpsi_spin_orbit()).and.(cpsi_ispin().eq.2)) then
-            do i=1,cpsi_ne(2)
-               eigs(i+cpsi_ne(1))= cpsi_eigenvalue_brdcst(i1,2,i)
-            end do
-         end if         
-      end if
-
-*     *** deallocate stack ***
-      if (.not.MA_pop_stack(indx(2))) 
-     >  call errquit(
-     > 'band_interpolate structure:popping stack memory',0,MA_ERR)
-      if (.not.MA_pop_stack(kvv(2))) 
-     >  call errquit(
-     > 'band_interpolate structure:popping stack memory',0,MA_ERR)
-      if (.not.MA_pop_stack(dist(2))) 
-     >  call errquit(
-     > 'band_interpolate structure:popping stack memory',0,MA_ERR)
-     
-      
-      return
-      end
-
-
-      subroutine band_interpolate_checktet(itet,indx,point,
-     >                                     noarea,novolume)
-      implicit none
-      integer itet(4),indx(*)
-      real*8 point(3,*)
-      logical noarea,novolume
-
-      real*8 a(3,3),a1a2(3),vv
-
-      a(1,1) = point(1,indx(itet(2)))-point(1,indx(itet(1)))
-      a(2,1) = point(2,indx(itet(2)))-point(2,indx(itet(1)))
-      a(3,1) = point(3,indx(itet(2)))-point(3,indx(itet(1)))
-      a(1,2) = point(1,indx(itet(3)))-point(1,indx(itet(1)))
-      a(2,2) = point(2,indx(itet(3)))-point(2,indx(itet(1)))
-      a(3,2) = point(3,indx(itet(3)))-point(3,indx(itet(1)))
-      a(1,3) = point(1,indx(itet(4)))-point(1,indx(itet(1)))
-      a(2,3) = point(2,indx(itet(4)))-point(2,indx(itet(1)))
-      a(3,3) = point(3,indx(itet(4)))-point(3,indx(itet(1)))
-      a1a2(1) = a(2,1)*a(3,2) - a(3,1)*a(2,2)
-      a1a2(2) = a(3,1)*a(1,2) - a(1,1)*a(3,2)
-      a1a2(3) = a(1,1)*a(2,2) - a(2,1)*a(1,2)
-      vv = a(1,3)*a1a2(1)+a(2,3)*a1a2(2)+a(3,3)*a1a2(3)
-      novolume = (dabs(vv).lt.1.0d-6)
-      noarea   = (dabs(a1a2(1)).lt.1.0d-6).and.
-     >           (dabs(a1a2(2)).lt.1.0d-6).and.
-     >           (dabs(a1a2(3)).lt.1.0d-6)
-      return
-      end
-
-
-      subroutine band_interpolate_setvandermonde(itet,indx,point,
-     >                                           vandermonde)
-      implicit none
-      integer itet(4),indx(*)
-      real*8 point(3,*),vandermonde(4,4)
-
-      vandermonde(1,1) = point(1,indx(itet(1)))
-      vandermonde(1,2) = point(2,indx(itet(1)))
-      vandermonde(1,3) = point(3,indx(itet(1)))
-      vandermonde(1,4) = 1.0d0
-      vandermonde(2,1) = point(1,indx(itet(2)))
-      vandermonde(2,2) = point(2,indx(itet(2)))
-      vandermonde(2,3) = point(3,indx(itet(2)))
-      vandermonde(2,4) = 1.0d0
-      vandermonde(3,1) = point(1,indx(itet(3)))
-      vandermonde(3,2) = point(2,indx(itet(3)))
-      vandermonde(3,3) = point(3,indx(itet(3)))
-      vandermonde(3,4) = 1.0d0
-      vandermonde(4,1) = point(1,indx(itet(4)))
-      vandermonde(4,2) = point(2,indx(itet(4)))
-      vandermonde(4,3) = point(3,indx(itet(4)))
-      vandermonde(4,4) = 1.0d0
+      end if         
 
       return
       end
 
-      subroutine band_interpolate_sort(N,indx,key)
+
+
+      subroutine band_interpolate_setvandermonde(ktet,vandermonde)
       implicit none
-      integer N,indx(*)
-      real*8 key(*)
-      integer i,j,ii
-      do i=1,N-1
-      do j=i+1,N
-         if (key(indx(j)).lt.key(indx(i))) then
-           ii = indx(i)
-           indx(i) = indx(j)
-           indx(j) = ii
-         end if
+      real*8 ktet(3,*),vandermonde(10,10)
+
+      integer i
+
+      do i=1,10
+         vandermonde(i,1) = ktet(1,i)
+         vandermonde(i,2) = ktet(2,i)
+         vandermonde(i,3) = ktet(3,i)
+         vandermonde(i,4) = ktet(1,i)*ktet(1,i)
+         vandermonde(i,5) = ktet(1,i)*ktet(2,i)
+         vandermonde(i,6) = ktet(1,i)*ktet(3,i)
+         vandermonde(i,7) = ktet(2,i)*ktet(2,i)
+         vandermonde(i,8) = ktet(2,i)*ktet(3,i)
+         vandermonde(i,9) = ktet(3,i)*ktet(3,i)
+         vandermonde(i,10) = 1.0d0
+
+c         vandermonde(i,10) = ktet(1,i)*ktet(1,i)*ktet(1,i)
+c         vandermonde(i,11) = ktet(1,i)*ktet(1,i)*ktet(2,i)
+c         vandermonde(i,12) = ktet(1,i)*ktet(1,i)*ktet(3,i)
+c         vandermonde(i,13) = ktet(1,i)*ktet(2,i)*ktet(2,i)
+c         vandermonde(i,14) = ktet(1,i)*ktet(2,i)*ktet(3,i)
+c         vandermonde(i,15) = ktet(1,i)*ktet(3,i)*ktet(3,i)
+c         vandermonde(i,16) = ktet(2,i)*ktet(2,i)*ktet(2,i)
+c         vandermonde(i,17) = ktet(2,i)*ktet(2,i)*ktet(3,i)
+c         vandermonde(i,18) = ktet(2,i)*ktet(3,i)*ktet(3,i)
+c         vandermonde(i,19) = ktet(3,i)*ktet(3,i)*ktet(3,i)
+c         vandermonde(i,20) = 1.0d0
       end do
-      end do
+
       return
       end
+

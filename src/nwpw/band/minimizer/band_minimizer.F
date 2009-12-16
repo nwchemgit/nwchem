@@ -459,7 +459,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
           end if
         end do
       else
-        if (mprint) write(luout,1252) 
+        if (mprint) write(luout,1252) lattice_wcut()
       end if
 
       if (mprint) then
@@ -757,18 +757,19 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
  1246 FORMAT(5x,'             b3=<',3f8.3,' >')
 
  1249 FORMAT(/' computational grids:')
- 1250 FORMAT(5X,' density     cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
+ 1250 FORMAT(5X,' density     cutoff=',F7.3,'  fft=',I4,'x',I4,'x',I4,
      &       '( ',I8,' waves ',I8,' per task)')
  1251 FORMAT(5X,' wavefnc ',I3,' cutoff=',F7.3,
-     &        '  fft=',I3,'x',I3,'x',I3,
+     &        '  fft=',I4,'x',I4,'x',I4,
      &       '( ',I8,' waves ',I8,' per task)')
- 1252 FORMAT(5x, ' wavefunction grids not printed - ',
-     >           'number of k-point is very large')
+ 1252 FORMAT(5x,' wavefnc     cutoff=',F7.3,
+     >       ' wavefunction grids not printed - ',
+     >       'number of k-points is very large')
   
  1255 FORMAT(/' brillouin zone:')
- 1256 FORMAT(5x,' number of zone points:',I3)
+ 1256 FORMAT(5x,' number of zone points:',I6)
  1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
- 1258 FORMAT(5x,' number of k-point is very large or distributed')
+ 1258 FORMAT(5x,' number of k-points is very large')
 
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)

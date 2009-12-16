@@ -411,7 +411,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
           end if
         end do
       else
-        if (mprint) write(luout,1252)
+        if (mprint) write(luout,1252) lattice_wcut()
       end if
 
 
@@ -1063,7 +1063,7 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
  1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
- 1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
+ 1220 FORMAT(/' number of electrons: spin up=',I4,'  spin down=',I4,A)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,' volume : ',F10.1)
  1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
@@ -1074,17 +1074,18 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
  1246 FORMAT(5x,'             b3=<',3f8.3,' >')
 
  1249 FORMAT(/' computational grids:')
- 1250 FORMAT(5X,' density     cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
+ 1250 FORMAT(5X,' density     cutoff=',F7.3,'  fft=',I4,'x',I4,'x',I4,
      &       '( ',I8,' waves ',I8,' per task)')
- 1251 FORMAT(5X,' wavefnc ',I3,' cutoff=',F7.3,
-     &        '  fft=',I3,'x',I3,'x',I3,
+ 1251 FORMAT(5X,' wavefnc ',I4,' cutoff=',F7.3,
+     &        '  fft=',I4,'x',I4,'x',I4,
      &       '( ',I8,' waves ',I8,' per task)')
- 1252 FORMAT(5x, ' wavefunction grids not printed - ',
-     >           'number of k-point is very large')
+ 1252 FORMAT(5x,' wavefnc     cutoff=',F7.3,
+     >       ' wavefunction grids not printed - ',
+     >       'number of k-points is very large')
  1255 FORMAT(/' brillouin zone:')
- 1256 FORMAT(5x,'number of zone points:',I5)
+ 1256 FORMAT(5x,'number of zone points:',I6)
  1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
- 1258 FORMAT(5x,' number of k-point is very large or distributed')
+ 1258 FORMAT(5x,' number of k-points is very large')
 
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
@@ -1121,7 +1122,7 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
  1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
- 1508 FORMAT(/' Brillouin zone point: ',i5,
+ 1508 FORMAT(/' Brillouin zone point: ',i6,
      >       /'pathlength=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')

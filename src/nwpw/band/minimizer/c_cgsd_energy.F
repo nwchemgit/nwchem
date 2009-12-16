@@ -291,6 +291,8 @@ c          if (mprint) write(luout,1511)
           end do
         end if
       end do
+      else
+         if (mprint) write(luout,1501) 
       endif
 
       c_cgsd_energy = E(1)
@@ -338,8 +340,10 @@ c          if (mprint) write(luout,1511)
  1498 FORMAT( ' K.S. V_so energy    :',E19.10,' (',E15.5,'/electron)')
  1499 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
+ 1501 FORMAT(/' orbital energies not printed',
+     >        ' - number of k-points is very large')
  1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
- 1508 FORMAT(/' Brillouin zone point: ',i3,
+ 1508 FORMAT(/' Brillouin zone point: ',i6,
      >       /'    weight=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')

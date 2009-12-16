@@ -168,7 +168,7 @@ c
       logical timereverse
       character*30 rtdb_name
       integer i1,i2,i3,k,l,num_kvectors
-      integer kvs(2)
+      integer kvs(2),nn(3)
       real*8  kx,ky,kz,xx,yy,zz,xxx,yyy,zzz,weight
 
       timereverse = .true.
@@ -237,7 +237,22 @@ c
      >                   (4*num_kvectors),
      >                    dbl_mb(kvs(1))))
      >  call errquit(
-     >  'monkhorst_pack_set: rtdb_put(number_kvectors) failed', 0,
+     >  'monkhorst_pack_set: rtdb_put(kvectors) failed', 0,
+     &       RTDB_ERR)
+
+      if (timereverse) then
+         nn(1) = nx
+         nn(2) = ny
+         nn(3) = nz
+      else
+         nn(1) = -nx
+         nn(2) = -ny
+         nn(3) = -nz
+      end if
+      rtdb_name = zone_name(1:l)//':monkhorst-pack'
+      if (.not. rtdb_put(rtdb,rtdb_name,mt_int,3,nn))
+     >  call errquit(
+     >  'monkhorst_pack_set: rtdb_put(monkhorst-pack) failed', 0,
      &       RTDB_ERR)
 
 
