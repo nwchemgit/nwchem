@@ -177,6 +177,7 @@ C --- calculate forces for predicted coords
 
          call correct1(natom,dt,dbl_mb(mass),dbl_mb(coor),dbl_mb(vel),
      &        dbl_mb(acc), dbl_mb(bterm),dbl_mb(dterm),dbl_mb(frc),ek)
+       if (dbug) then 
          write(iw,*) 'Corrected coord:'
          call print_coord(iw,natom,dbl_mb(coor),byte_mb(tag))
          write(iw,*) 'Corrected vel:'
@@ -187,6 +188,7 @@ C --- calculate forces for predicted coords
          call print_coord(iw,natom,dbl_mb(bterm),byte_mb(tag))
          write(iw,*) ' d:'
          call print_coord(iw,natom,dbl_mb(dterm),byte_mb(tag))
+       endif
 c --- calculate energy for the corrected geometry         
          call md_data_geom_set(rtdb)
 
@@ -325,7 +327,7 @@ c    *******************************************************************
 
            ai(j) = -force(j,i) / mass(i)
            corr(j) = ai(j) - a(j,i)
-           write(6,*) 'corr i',corr(j)
+c           write(6,*) 'corr i',corr(j)
            r(j,i) = r(j,i) + cr * corr(j)
            v(j,i) = v(j,i) + cv * corr(j)
            a(j,i) = ai(j)
@@ -488,12 +490,14 @@ C ---  take step dt/3 into r_one, and 2dt/3 into r_two
           dbl_mb(i_r2+i-1) = r(i)+v(i)*dt2+a(i)*dt2**2/2.0
      &                    + b(i)*dt2**3/6.0 + c(i)*dt2**4/24.0
        enddo
-       write(iw,*) 'Entering MD _init_traj: set coords'
-       call print_coord(6,n,dbl_mb(i_r0),byte_mb(tag))
-       write(iw,*) 'r1'
-       call print_coord(6,n,dbl_mb(i_r1),byte_mb(tag))
-       write(iw,*) 'r2'
-       call print_coord(6,n,dbl_mb(i_r2),byte_mb(tag))
+       if(dbug) then 
+        write(iw,*) 'Entering MD _init_traj: set coords'
+        call print_coord(6,n,dbl_mb(i_r0),byte_mb(tag))
+        write(iw,*) 'r1'
+        call print_coord(6,n,dbl_mb(i_r1),byte_mb(tag))
+        write(iw,*) 'r2'
+        call print_coord(6,n,dbl_mb(i_r2),byte_mb(tag))
+       endif
 C  --- find the gradient for point dt/3
        do i=1,3*n
           r(i) = dbl_mb(i_r1+i-1)
