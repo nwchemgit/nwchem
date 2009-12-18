@@ -79,8 +79,8 @@ C    SPLITTING INTO SUBGROUPS
 
 C   Close the output file and reopen it as series of ".out" files
 c      flush(6)  
-      call ga_sync()
-      CLOSE(UNIT = 6)            
+c      call ga_sync()
+c      CLOSE(UNIT = 6)            
       call mc_setup_ga
      &    (rtdb, myid, idbig, inodesbig,
      &    idmedium, idzero, g_pr, int_mb(k_groupnums),numgroups) ! Now in Subgroups
@@ -88,6 +88,14 @@ c      flush(6)
       write(iw,*) 'DONE SPLITTING INTO SUBGROUPS'
 C Initialize group related information
 C mostly file opening for each group,etc. 
+      call ga_sync()
+      CLOSE(UNIT = 6)
+      
+      call util_file_name('out',.true.,.true.,fnameout)
+      if (eaf_open(fnameout,eaf_rw,tunita) .ne. 0)
+     $      call errquit('mc_main: eaf open of xyz failed',0,
+     &       DISK_ERR)
+      
       if (ga_nodeid() .eq. 0) then
          call mc_setup_group  !deals with file i/o
      &     (rtdb, idmedium, myid, int_mb(k_groupnums),prcfil, prcfil2,
@@ -109,11 +117,16 @@ C mostly file opening for each group,etc.
      &        '/',
      &        fprefix2(1:inp_strlen(fprefix2))
       endif
+      iw=0
+      if (ga_nodeid().eq.0) then
+       iw=6
+      endif
       write(iw,*) 'DONE SETTING I/O files'
 C-- the stdout is now redirected to other .out output files for each trajectory
 C from here we can start mc_loop 
 c      goto 100
-      call task_energy(rtdb)
+c      call task_energy(rtdb)
+c      goto 100 
       if (ga_nodeid().eq.0) then
         iw=6   
         write(iw,*)  '\n\t\t METROPOLIS MONTE CARLO RECROSSING \n'
