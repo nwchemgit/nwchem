@@ -12,6 +12,7 @@
 #include "geom.fh"
 #include "util_sgroup.fh"  !for subgroup support
 #include "const_data.fh"
+#include "eaf.fh"
 #include "subgr.fh"
       logical mc_main
       logical md_driver,mc_driver,mc_init
@@ -43,7 +44,9 @@
       logical mc_data_set_trajnum
       double precision mdtemp,mdtemp10, md_data_get_temp
       logical dbug
-
+      character*(nw_max_path_len) fnameout
+      integer tunita
+c
       integer g_a,ncpu
 C     PROCESS AND SUBGROUP VARS
       integer myid,idbig,inodesbig
