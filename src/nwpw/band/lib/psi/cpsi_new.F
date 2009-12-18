@@ -221,3 +221,76 @@ c    >                        ne)
      >                  nbrillioun)
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          ecpsi_new              *
+*     *                                 *
+*     ***********************************
+
+      subroutine ecpsi_new()
+      implicit none 
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*    *** local variables ***
+      logical success,soc
+      integer ispin,ne(2),nbrillioun
+      integer version,rtdb
+      integer ngrid(3)
+      real*8  unita(3,3)
+      character*30 filename
+
+*     ***** local functions ****
+      character*30 control_input_epsi
+      external     control_input_epsi
+      double precision control_unita
+      external         control_unita
+      integer  control_ngrid,control_ispin,control_excited_ne
+      external control_ngrid,control_ispin,control_excited_ne
+      integer  brillioun_nbrillioun
+      external brillioun_nbrillioun
+      logical  control_spin_orbit
+      external control_spin_orbit
+
+      filename = control_input_epsi()
+      version = 5   !version 5-band structure, version 3- pspw
+      ngrid(1) = control_ngrid(1)
+      ngrid(2) = control_ngrid(2)
+      ngrid(3) = control_ngrid(3)
+      unita(1,1) = control_unita(1,1)
+      unita(2,1) = control_unita(2,1)
+      unita(3,1) = control_unita(3,1)
+      unita(1,2) = control_unita(1,2)
+      unita(2,2) = control_unita(2,2)
+      unita(3,2) = control_unita(3,2)
+      unita(1,3) = control_unita(1,3)
+      unita(2,3) = control_unita(2,3)
+      unita(3,3) = control_unita(3,3)
+
+      ispin   = control_ispin()
+      ne(1) = 0
+      ne(2) = 0
+      ne(1) = control_excited_ne(1)
+      if (ispin.eq.2) ne(2) = control_excited_ne(2)
+
+      write(*,*) "filename=",filename
+
+      soc=control_spin_orbit()
+      nbrillioun = brillioun_nbrillioun()
+      call c_wvfnc_new(filename,
+     >                  version,
+     >                  ngrid,
+     >                  unita,
+     >                  soc,
+     >                  ispin,
+     >                  ne,
+     >                  nbrillioun)
+
+      return
+      end
+
+

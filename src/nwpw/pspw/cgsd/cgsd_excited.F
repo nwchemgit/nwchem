@@ -11,7 +11,6 @@ c     $Id: cgsd_excited.F,v 1.9 2008-09-11 21:26:47 bylaska Exp $
 
 #include "stdio.fh"
 
-
 c#include "global.fh"
 c#include "mafdecls.fh"
 c#include "rtdb.fh"
@@ -55,7 +54,7 @@ c#include "rtdb.fh"
 
       if (neall.gt.0) then
 
-      if (taskid.eq.MASTER) write(*,1301)
+      if (taskid.eq.MASTER) write(luout,1301)
 
 *     **** read in excited wavefunctions and initialize epsi ****
       if (.not.epsi_filefind()) then
@@ -74,19 +73,19 @@ c#include "rtdb.fh"
       if (control_symmetry().gt.0) call psi_ab_gen_irrep_names(.true.)
 
       if (taskid.eq.MASTER) then
-        write(*,1500)
+        write(luout,1500)
         NN=psi_ne_excited(1)-psi_ne_excited(2)
         EV=27.2116
         if (control_symmetry().eq.1) then
 
           do I=psi_ne_excited(1),(psi_ne_excited(2)+1),-1
-            write(*,1512) psi_virtual(1,I),
+            write(luout,1512) psi_virtual(1,I),
      >                    psi_virtual(1,I)*EV,
      >                    psi_ab_irrep_name(I)
           end do
 
           do I=psi_ne_excited(2),1,-1
-            write(*,1512)  psi_virtual(1,I),
+            write(luout,1512)  psi_virtual(1,I),
      >                     psi_virtual(1,I)*EV,
      >                     psi_ab_irrep_name(I),
      >                     psi_virtual(2,I),
@@ -95,19 +94,19 @@ c#include "rtdb.fh"
           end do
         else
           do I=psi_ne_excited(1),(psi_ne_excited(2)+1),-1
-            write(*,1510) psi_virtual(1,I),
+            write(luout,1510) psi_virtual(1,I),
      >                    psi_virtual(1,I)*EV
           end do
 
           do I=psi_ne_excited(2),1,-1
-            write(*,1510)  psi_virtual(1,I),
+            write(luout,1510)  psi_virtual(1,I),
      >                     psi_virtual(1,I)*EV,
      >                     psi_virtual(2,I),
      >                     psi_virtual(2,I)*EV
           end do
         end if
-        write(*,*)
-        write(*,*)
+        write(luout,*)
+        write(luout,*)
 
       end if
       if (control_symmetry().gt.0) call psi_ab_kill_irrep_names()

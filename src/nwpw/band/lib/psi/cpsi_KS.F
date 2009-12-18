@@ -186,6 +186,47 @@
       end
 
 
+*     **************************************
+*     *                                    *
+*     *     cpsi_gen_density_potentials    *
+*     *                                    *
+*     **************************************
+
+*    This routine sets the densities and potentials in psi and electron.  
+* This routine is needed for a band by band minimizer.
+*
+      subroutine cpsi_gen_density_potentials(psi_number)
+      implicit none
+      integer psi_number
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+#include "rhoall_common.fh"
+
+*     **** local variables ****
+      integer rho_ptr,dng_ptr,rho_all_ptr
+
+      if (psi_number.eq.1) then
+        rho_ptr     = rho1(1)
+        dng_ptr     = dng1(1)
+        rho_all_ptr = rho1_all(1)
+      else
+        rho_ptr     = rho2(1)
+        dng_ptr     = dng2(1)
+        rho_all_ptr = rho2_all(1)
+      end if
+
+      call c_electron_gen_densities(dbl_mb(rho_ptr),
+     >                              dcpl_mb(dng_ptr),
+     >                              dbl_mb(rho_all_ptr))
+      call c_electron_gen_scf_potentials(dbl_mb(rho_ptr),
+     >                                 dcpl_mb(dng_ptr),
+     >                                 dbl_mb(rho_all_ptr))
+      call c_electron_gen_vall()
+      return
+      end
+
+
 
 
 ************************ KS orbital Part ************************
@@ -1147,7 +1188,7 @@ c     >           theta
 
       value = MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       if (.not. value) call errquit(
-     >     'psi_sort_virtual: out of stack memory',0, MA_ERR)
+     >     'psi_sort_sort_minimize: out of stack memory',0,MA_ERR)
 
       nshift = 2*npack1
       do nb=1,nbrillq
@@ -2202,7 +2243,7 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
 
       value = MA_push_get(mt_dcpl,npack1*2,'r1',r1(2),r1(1))
       if (.not. value) call errquit(
-     >     'psi_sort_virtual: out of stack memory',0, MA_ERR)
+     >     'psi_sort_sort_minimize2com: out of stack memory',0,MA_ERR)
 
       ne1=ne(1)
       shifts=2*ne1*npack1
@@ -2245,6 +2286,561 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
       value = MA_pop_stack(r1(2))
       if (.not. value) call errquit(
      >     'cpsi_sort_minimize: popping stack memory',1, MA_ERR)
+      return
+      end
+
+
+
+************************ virtural orbital Part ************************
+
+
+*     ***********************************
+*     *                                 *
+*     *     cpsi_minimize_virtual       *
+*     *                                 *
+*     ***********************************
+
+      subroutine cpsi_minimize_virtual()
+      implicit none
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+      
+      !*** local variables ***
+      integer maxit_orb
+      integer ii,l,nb,epsi_ptr,eig_ptr
+      real*8  sum,maxerror,error_out,e0
+
+      !*** external functions ***
+      integer  cpsi_data_get_ptr
+      real*8   control_tole
+      external cpsi_data_get_ptr
+      external control_tole
+
+      maxit_orb=120
+      maxerror = control_tole()
+
+      do nb=1,nbrillq
+      do ii=1,(ne_excited(1)+ne_excited(2))
+         epsi_ptr = cpsi_data_get_ptr(psi1_excited_tag,nb,ii)
+         eig_ptr = cpsi_data_get_ptr(eig_excited_tag,nb,ii)
+     
+         !*** orthogonalize to lower orbitals  ****
+         call cpsi_project_out_virtual1(nb,ii,dbl_mb(epsi_ptr))
+
+         !*** normalize ****
+         call Cram_cc_dot(nb,
+     >            dbl_mb(epsi_ptr),
+     >            dbl_mb(epsi_ptr),
+     >            sum)
+         sum = 1.0d0/dsqrt(sum)
+         write(*,*) "normsum,nb,ii=",sum
+         call Cram_c_SMul1(nb,sum,dbl_mb(epsi_ptr))
+
+
+         !*** minimize orbital ****
+          l = 0
+ 2        call cpsi_KS_update_virtual(maxit_orb,
+     >                               maxerror,
+     >                               0.001d0,nb,ii,error_out,e0)
+          l = l+1
+          if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
+
+          dbl_mb(eig_ptr) = e0
+
+      end do
+      end do
+      call cpsi_sort_virtual()
+
+      return
+      end
+
+*     *******************************************
+*     *                                         *
+*     *          cpsi_project_out_virtual1      *
+*     *                                         *
+*     *******************************************
+*
+*    This routine projects out non-orthogonal components of Horb.
+* This routine is needed for a KS minimizer.
+*
+      subroutine cpsi_project_out_virtual1(nb,i,Horb)
+      implicit none
+      integer nb,i
+      complex*16 Horb(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+      integer x(2),ii,ms,n,psi_ptr,epsi_ptr,nshift
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk,cpsi_data_nsize
+      external cpsi_data_get_chnk,cpsi_data_nsize
+
+*     **** allocate stack memory ****
+      if(.not.MA_push_get(mt_dcpl,(neq(1)+ne_excited(1)),'x',x(2),x(1)))
+     > call errquit('cpsi_project_out_virtual1: out of stack memory',0,
+     >       MA_ERR)
+
+      psi_ptr  = cpsi_data_get_chnk(psi1_tag,nb)
+      epsi_ptr = cpsi_data_get_chnk(psi1_excited_tag,nb)
+      nshift   = cpsi_data_nsize(psi1_tag)
+      if (i.le.ne(1)) then
+        ii = i-1
+      else
+        ii = i-ne_excited(1)-1
+        psi_ptr  = psi_ptr  + 2*ne(1)*npack1
+        epsi_ptr = epsi_ptr + 2*ne_excited(1)*npack1
+      end if
+
+      call Cram_cc_nzdot(nb,neq(ms),
+     >            dbl_mb(psi_ptr),
+     >            Horb,
+     >            dcpl_mb(x(1)))
+      do n=1,neq(ms)
+           call Cram_cc_zaxpy(nb,
+     >               (-dcpl_mb(x(1)+n-1)),
+     >               dbl_mb(psi_ptr),
+     >               Horb)
+           psi_ptr = psi_ptr + nshift
+      end do
+
+      !**** project out virtual orbitals ****
+      if (ii.gt.0) then
+         call Cram_cc_nzdot(nb,ii,
+     >               dbl_mb(epsi_ptr),
+     >               Horb,
+     >               dcpl_mb(x(1)))
+         do n=1,ii
+            call Cram_cc_zaxpy(nb,
+     >               (-dcpl_mb(x(1)+n-1)),
+     >               dbl_mb(epsi_ptr),
+     >               Horb)
+            epsi_ptr = epsi_ptr + nshift
+         end do
+      end if
+
+*     **** release stack memory ****
+      if (.not.MA_pop_stack(x(2)))
+     > call errquit('cpsi_project_out_virtual1:popping stack memory',0,
+     &       MA_ERR)
+
+      return
+      end 
+
+
+*     *******************************************
+*     *                                         *
+*     *          cpsi_project_out_virtual      *
+*     *                                         *
+*     *******************************************
+*     
+*    This routine projects out non-orthogonal components of Horb.
+* This routine is needed for a KS minimizer.
+* 
+      subroutine cpsi_project_out_virtual(nb,i,Horb)
+      implicit none
+      integer nb,i
+      complex*16 Horb(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer x(2),ii,n,psi_ptr,epsi_ptr,nshift,ms
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk,cpsi_data_nsize
+      external cpsi_data_get_chnk,cpsi_data_nsize
+
+*     **** allocate stack memory ****
+      if (.not.MA_push_get(mt_dcpl,ne(1)+ne_excited(1),'x',x(2),x(1)))
+     > call errquit('cpsi_project_out_virtual: out of stack memory',0,
+     >       MA_ERR)
+
+      psi_ptr  = cpsi_data_get_chnk(psi1_tag,nb)
+      epsi_ptr = cpsi_data_get_chnk(psi1_excited_tag,nb)
+      nshift   = cpsi_data_nsize(psi1_tag)
+      if (i.le.ne_excited(1)) then
+        ii = i
+        ms = 1
+      else
+        ii = i-ne_excited(1)
+        ms = 2
+        psi_ptr  = psi_ptr  + 2*ne(1)*npack1
+        epsi_ptr = epsi_ptr + 2*ne_excited(1)*npack1
+      end if
+
+      call Cram_cc_nzdot(nb,neq(ms),
+     >            dbl_mb(psi_ptr),
+     >            Horb,
+     >            dcpl_mb(x(1)))
+      do n=1,neq(ms)
+           call Cram_cc_zaxpy(nb,
+     >               (-dcpl_mb(x(1)+n-1)),
+     >               dbl_mb(psi_ptr),
+     >               Horb)
+           psi_ptr = psi_ptr + nshift
+      end do
+      !**** project out virtual orbitals ****
+      call Cram_cc_nzdot(nb,ii, 
+     >            dbl_mb(epsi_ptr),
+     >            Horb,
+     >            dcpl_mb(x(1)))
+      do n=1,ii
+           call Cram_cc_zaxpy(nb,
+     >               (-dcpl_mb(x(1)+n-1)),
+     >               dbl_mb(epsi_ptr),
+     >               Horb)
+           epsi_ptr = epsi_ptr + nshift
+      end do
+
+*     **** release stack memory ****
+      if (.not.MA_pop_stack(x(2)))
+     > call errquit('cpsi_project_out_virtual:popping stack memory',0,
+     &       MA_ERR)
+
+      return
+      end
+
+
+
+      
+
+*     ***********************************
+*     *                                 *
+*     *      cpsi_KS_update_virtual     *
+*     *                                 *
+*     ***********************************
+
+*    This routine performs a KS update on orbital i
+*
+      subroutine cpsi_KS_update_virtual(maxiteration,
+     >                             maxerror,perror,nb,i,
+     >                             error_out,e0)
+      implicit none
+      integer maxiteration
+      real*8  maxerror,perror
+      integer nb,i
+      real*8 error_out,eo
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+
+*     **** local variables ****
+      logical value,done,oneloop
+      integer it
+      real*8 e0,eold,error0,de0,lmbda_r0,lmbda_r1
+      real*8 theta,sigma
+      integer r1(2),t0(2),t(2),g(2)
+      integer psi_ptr
+
+*     **** external functions ****
+      integer  cpsi_data_get_ptr
+      external cpsi_data_get_ptr
+
+      psi_ptr=cpsi_data_get_ptr(psi1_excited_tag,nb,i)
+
+      lmbda_r0 = 1.0d0
+
+      value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
+      if (.not. value) call errquit(
+     >     'cpsi_KS_update_virtual: out of stack memory',0, MA_ERR)
+
+      done = .false.
+      error0 = 0.0d0
+      e0 = 0.0d0
+      theta = -3.14159d0/600.0d0
+      it = 0
+ 2    continue
+ 
+         it = it + 1
+         eold = e0 
+
+*        *** calculate residual (steepest descent) direction for a single band ***
+         call cpsi_get_gradient_virtual(nb,i,dcpl_mb(g(1)))
+         call Cram_cc_dot(nb,dbl_mb(psi_ptr),
+     >                   dcpl_mb(g(1)),
+     >                    e0)
+         e0 = -e0
+         write(*,*) "it,e0=",it,e0
+
+         done = ((it.gt.maxiteration)
+     >           .or.
+     >           (dabs(e0-eold).lt.maxerror))
+
+         if (done) go to 4
+
+         call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(r1(1)))
+         call cpsi_project_out_virtual(nb,i,dcpl_mb(r1(1)))
+
+
+
+*        *** determine conjuagate direction ***
+         call Cram_cc_dot(nb,dcpl_mb(r1(1)),
+     >                   dcpl_mb(r1(1)),
+     >                   lmbda_r1)
+         call Cram_c_Copy(nb,dcpl_mb(r1(1)),dcpl_mb(t(1)))
+
+         if (it.gt.1) then
+         call Cram_cc_daxpy(nb,(lmbda_r1/lmbda_r0),
+     >                   dcpl_mb(t0(1)),
+     >                   dcpl_mb(t(1)))
+         end if
+         lmbda_r0 = lmbda_r1
+         oneloop = .true.
+ 3       call Cram_c_Copy(nb,dcpl_mb(t(1)),dcpl_mb(t0(1)))
+
+*        *** normalize search direction, t ****
+         call Cram_cc_dot(nb,dcpl_mb(t(1)),
+     >                   dcpl_mb(t(1)),
+     >                   sigma)
+         sigma = dsqrt(sigma)
+         de0 = 1.0d0/sigma
+         call Cram_c_SMul1(nb,de0,dcpl_mb(t(1)))
+
+*        **** compute de0 = <t|g> ****
+         call Cram_cc_dot(nb,dcpl_mb(t(1)),
+     >                   dcpl_mb(g(1)),
+     >                   de0)
+
+*        *** bad direction ***
+         if ((de0.lt.0.0d0).and.oneloop) then
+           call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(t(1)))
+           oneloop = .false.
+           go to 3
+         end if
+
+         de0 = -2.0d0*de0
+         call cpsi_linesearch_virtual(nb,i,
+     >                              theta,e0,de0,
+     >                              dcpl_mb(t(1)))
+
+      go to 2
+
+
+*     **** release stack memory ****
+ 4    value =           MA_pop_stack(t(2))
+      value = value.and.MA_pop_stack(g(2))
+      value = value.and.MA_pop_stack(r1(2))
+      value = value.and.MA_pop_stack(t0(2))
+      if (.not.value) call errquit(
+     >     'cpsi_KS_update_virtual: popping stack memory',1,MA_ERR)
+
+      error_out = dabs(e0-eold)
+      e0 = -e0
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      cpsi_get_gradient_virtual   *
+*     *                                 *
+*     ***********************************
+
+*    This routine returns the Hpsi(i).  
+* This routine is needed for a KS minimizer.
+*
+      subroutine cpsi_get_gradient_virtual(nb,ii,Horb)
+      implicit none
+      integer nb,ii
+      complex*16 Horb(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer psi_ptr,ms
+
+*     **** external functions ****
+      integer  cpsi_data_get_ptr
+      external cpsi_data_get_ptr
+
+      psi_ptr=cpsi_data_get_ptr(psi1_excited_tag,nb,ii)
+      if (ii.le.ne_excited(1)) then
+         ms = 1
+      else
+         ms = 2
+      end if
+
+      call c_electron_get_gradient_virtual(nb,ms,dbl_mb(psi_ptr),Horb)
+      return
+      end
+
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      cpsi_linesearch_virtual    *
+*     *                                 *
+*     ***********************************
+
+*    This routine performs a linesearch on orbital ii, in the direction t.  
+* This routine is needed for a KS minimizer.
+*  e0 = <orb|g>
+*  de0 = 2*<t|g>
+*
+      subroutine cpsi_linesearch_virtual(nb,ii,theta,e0,de0,t)
+      implicit none
+      integer nb,ii
+      real*8  theta
+      real*8  e0,de0
+      complex*16 t(*) !search direction
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      logical value
+      integer orb(2),g(2),psi_ptr
+      real*8 x,y,pi,dtheta_min,e1
+
+*     **** external functions ****
+      integer  cpsi_data_get_ptr
+      external cpsi_data_get_ptr
+
+      psi_ptr=cpsi_data_get_ptr(psi1_excited_tag,nb,ii)
+
+      pi = 4.0d0*datan(1.0d0)
+      !dtheta = pi/300.0d0
+      dtheta_min = 0.01*theta
+
+*     **** allocate stack memory ****
+      value = MA_push_get(mt_dcpl,npack1,'orb',
+     >                       orb(2),orb(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack1,'g',
+     >                       g(2),g(1))
+      if (.not. value) call errquit(
+     >  'cpsi_linesearch_virtual: out of stack memory',0,MA_ERR)
+
+
+      call Cram_c_Copy(nb,dbl_mb(psi_ptr),
+     >                    dcpl_mb(orb(1)))
+
+*     **** orb2 = orb*cos(pi/300) + t*sin(pi/300) ****
+  10  x = cos(theta)
+      y = sin(theta)
+      call Cram_c_SMul(nb,x,
+     >                  dcpl_mb(orb(1)),
+     >                  dbl_mb(psi_ptr))
+      call Cram_cc_daxpy(nb,y,
+     >                   t,
+     >                   dbl_mb(psi_ptr))
+
+*     *** determine theta ***
+      call cpsi_get_gradient_virtual(nb,ii,dcpl_mb(g(1)))
+      call Cram_cc_dot(nb,dbl_mb(psi_ptr),
+     >                   dcpl_mb(g(1)),
+     >                   e1)
+      e1 = -e1
+
+      x = (e0 - e1 + 0.5d0*de0*sin(2*theta))
+     >    /(1.0d0-cos(2*theta))
+      theta = 0.5d0*datan(0.5d0*de0/x)
+
+*     **** orb2 = orb*cos(theta) + t*sin(theta) ****
+      x = cos(theta)
+      y = sin(theta)
+      call Cram_c_SMul(nb,x,
+     >                  dcpl_mb(orb(1)),
+     >                  dbl_mb(psi_ptr))
+      call Cram_cc_daxpy(nb,y,
+     >                   t,
+     >                   dbl_mb(psi_ptr))
+
+*     **** release stack memory ****
+      value =           MA_pop_stack(g(2))
+      value = value.and.MA_pop_stack(orb(2))
+      if (.not. value) call errquit(
+     >     'cpsi_linesearch_virtual: popping stack memory',1, MA_ERR)
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *        cpsi_sort_virtual        *
+*     *                                 *
+*     ***********************************
+
+      subroutine cpsi_sort_virtual()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+      logical value
+      integer i,j,ii,jj,ms,nb,nshift
+      integer r1(2),psi1_shift,eig_shift
+      real*8  ei,ej
+
+*      ***** external functions ****
+       integer  cpsi_data_get_chnk
+       external cpsi_data_get_chnk
+
+c      if (spin_orbit) then
+c        call cpsi_sort_minimize2com()
+c        return
+c      end if
+
+      if (.not.MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1)))
+     >  call errquit(
+     >     'cpsi_sort_sort_virtual: out of stack memory',0,MA_ERR)
+
+      nshift = 2*npack1
+      do nb=1,nbrillq
+        psi1_shift = cpsi_data_get_chnk(psi1_excited_tag,nb)
+        eig_shift  = cpsi_data_get_chnk(eig_excited_tag,nb)
+        do ms=1,ispin
+
+        !*** Bubble sort ***
+        do ii=1,ne_excited(ms)
+         do jj=ii+1,ne_excited(ms)
+           i = ii + (ms-1)*ne(1)
+           j = jj + (ms-1)*ne(1)
+           ei = dbl_mb(eig_shift+i-1)
+           ej = dbl_mb(eig_shift+j-1)
+
+           !*** swap ***
+           if (ej.lt.ei) then
+             dbl_mb(eig_shift+i-1) = ej
+             dbl_mb(eig_shift+j-1) = ei
+             call Cram_c_Copy(nb,dbl_mb(psi1_shift+(i-1)*nshift),
+     >                           dcpl_mb(r1(1)))
+             call Cram_c_Copy(nb,dbl_mb(psi1_shift+(j-1)*nshift),
+     >                           dbl_mb(psi1_shift+(i-1)*nshift))
+             call Cram_c_Copy(nb,dcpl_mb(r1(1)),
+     >                           dbl_mb(psi1_shift+(j-1)*nshift))
+           end if
+
+         end do
+        end do
+      end do
+      end do
+
+      if (.not.MA_pop_stack(r1(2)))
+     >  call errquit(
+     >     'cpsi_sort_virtual: popping stack memory',1, MA_ERR)
       return
       end
 

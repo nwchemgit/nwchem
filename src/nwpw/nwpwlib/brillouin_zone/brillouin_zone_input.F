@@ -503,7 +503,6 @@ c
        end do 
       end do
 
-      write(*,*) "nk=",nk
       return
       end
 

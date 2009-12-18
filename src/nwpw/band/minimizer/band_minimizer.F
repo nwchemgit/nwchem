@@ -518,6 +518,10 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
         EV= c_cgsd_energy(newpsi)
       end if
 
+*     **** calculate excited state orbitals ****
+      call ga_sync()
+      call c_cgsd_excited()
+
 *     **** extra energy output for QA test ****
       if (lprint) write(luout,1600) EV
 
@@ -635,51 +639,18 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
          T3=CPU4-CPU3
          T4=CPU4-CPU1
          AV=T2/dble(c_electron_count())
-         write(luout,*)
-         write(luout,*) '-----------------'
-         write(luout,*) 'cputime in seconds'
-         write(luout,*) 'prologue    : ',T1
-         write(luout,*) 'main loop   : ',T2
-         write(luout,*) 'epilogue    : ',T3
-         write(luout,*) 'total       : ',T4
-         write(luout,*) 'cputime/step: ',AV,
-     >              '   (',c_electron_count(),' evalulations, ', 
-     >                     linesearch_count(),' line searches)'
+         write(luout,1801)
+         write(luout,1802)
+         write(luout,1803) T1
+         write(luout,1804) T2
+         write(luout,1805) T3
+         write(luout,1806) T4
+         write(luout,1807) AV,c_electron_count(),linesearch_count()
 
-         write(luout,*)
-         write(luout,*) '-------------------------------'
-         write(luout,*) 'Time spent doing:'
-         write(luout,*) '  FFTs                       : ', 
-     >                          nwpw_timing(1),
-     >                          nwpw_timing(1)/dble(c_electron_count())
-         write(luout,*) '  dot products               : ', 
-     >                          nwpw_timing(2),
-     >                          nwpw_timing(2)/dble(c_electron_count())
-         write(luout,*) '  geodesic                   : ', 
-     >                          nwpw_timing(10),
-     >                          nwpw_timing(10)/dble(c_electron_count())
-         write(luout,*) '  exchange correlation       : ', 
-     >                          nwpw_timing(4),
-     >                          nwpw_timing(4)/dble(c_electron_count())
-         write(luout,*) '  local pseudopotentials     : ', 
-     >                          nwpw_timing(5),
-     >                          nwpw_timing(5)/dble(c_electron_count())
-         write(luout,*) '  non-local pseudopotentials : ', 
-     >                          nwpw_timing(6),
-     >                          nwpw_timing(6)/dble(c_electron_count())
-         write(luout,*) '  hartree potentials         : ', 
-     >                          nwpw_timing(7),
-     >                          nwpw_timing(7)/dble(c_electron_count())
-         write(luout,*) '  structure factors          : ', 
-     >                          nwpw_timing(8),
-     >                          nwpw_timing(8)/dble(c_electron_count())
-         write(luout,*) '  masking and packing        : ', 
-     >                          nwpw_timing(9),
-     >                          nwpw_timing(9)/dble(c_electron_count())
+         call nwpw_timing_print_final(mprint,c_electron_count())
          write(luout,*)
          CALL nwpw_MESSAGE(4)
       end if 
-
 
 
       call Parallel3d_Finalize()
@@ -818,6 +789,18 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1600 FORMAT(/' Total BAND energy   :',E19.10)
+
+ 1801 FORMAT(//'== Timing ==')
+ 1802 FORMAT(/'cputime in seconds')
+ 1803 FORMAT( '  prologue    : ',E14.6)
+ 1804 FORMAT( '  main loop   : ',E14.6)
+ 1805 FORMAT( '  epilogue    : ',E14.6)
+ 1806 FORMAT( '  total       : ',E14.6)
+ 1807 FORMAT( '  cputime/step: ',E14.6,
+     >        '       (',I8,' evalulations,', I8,' linesearches)')
+ 1808 FORMAT(A,E14.6,E14.6)
+ 1809 FORMAT(//A,2A14)
+
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
  9000 if (taskid.eq.MASTER) write(6,9010) ierr

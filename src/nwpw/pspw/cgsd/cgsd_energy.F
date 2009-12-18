@@ -918,6 +918,8 @@ c     *** call dscal(9,-1.0d0,stress,1)
       real*8 stress(3,3)
       character*(*) name
 
+#include "stdio.fh"
+
       integer MASTER,taskid
       parameter (MASTER=0)
       real*8 pressure,autoMbar,autoGPa,autoatm
@@ -927,21 +929,21 @@ c     *** call dscal(9,-1.0d0,stress,1)
 
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-         write(*,1900)
-         write(*,1901)
-         write(*,1902)
-         write(*,1904)
-         write(*,1910) name
-         write(*,1911) stress(1,1),stress(1,2),stress(1,3)
-         write(*,1912) stress(2,1),stress(2,2),stress(2,3)
-         write(*,1912) stress(3,1),stress(3,2),stress(3,3)
-         write(*,1915)
-         write(*,1916) dsqrt(
+         write(luout,1900)
+         write(luout,1901)
+         write(luout,1902)
+         write(luout,1904)
+         write(luout,1910) name
+         write(luout,1911) stress(1,1),stress(1,2),stress(1,3)
+         write(luout,1912) stress(2,1),stress(2,2),stress(2,3)
+         write(luout,1912) stress(3,1),stress(3,2),stress(3,3)
+         write(luout,1915)
+         write(luout,1916) dsqrt(
      >                  stress(1,1)**2+stress(1,2)**2+stress(1,3)**2
      >                 +stress(2,1)**2+stress(2,2)**2+stress(2,3)**2
      >                 +stress(3,1)**2+stress(3,2)**2+stress(3,3)**2)
          pressure = (stress(1,1) + stress(2,2) + stress(3,3))/3.0d0
-         write(*,1917) pressure,
+         write(luout,1917) pressure,
      >                 pressure*autoMbar,
      >                 pressure*autoGPa,
      >                 pressure*autoatm

@@ -16,6 +16,7 @@
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
+#include "stdio.fh"
 cccc#include "frac_occ.fh"
 #include "nwpw_timing.fh"
 #include "errquit.fh"
@@ -163,23 +164,23 @@ cccc#include "frac_occ.fh"
 
 *     ***** print out header ****
       if (oprint) then
-         write(6,1000)
-         write(6,1010)
-         write(6,1020)
-         write(6,1010)
-         write(6,1030)
-         write(6,1010)
-         write(6,1035)
-         write(6,1010)
-         write(6,1040)
-         write(6,1010)
-         write(6,1041)
-         write(6,1042)
-         write(6,1043)
-         write(6,1010)
-         write(6,1000)
+         write(luout,1000)
+         write(luout,1010)
+         write(luout,1020)
+         write(luout,1010)
+         write(luout,1030)
+         write(luout,1010)
+         write(luout,1035)
+         write(luout,1010)
+         write(luout,1040)
+         write(luout,1010)
+         write(luout,1041)
+         write(luout,1042)
+         write(luout,1043)
+         write(luout,1010)
+         write(luout,1000)
          call nwpw_message(1)
-         write(6,1110)
+         write(luout,1110)
       end if
       
 
@@ -311,13 +312,13 @@ ccc      call frac_occ_end()
          T3=CPU4-CPU3
          T4=CPU4-CPU1
          AV=T2/dble(electron_count())
-         write(6,1801)
-         write(6,1802)
-         write(6,1803) T1
-         write(6,1804) T2
-         write(6,1805) T3
-         write(6,1806) T4
-         write(6,*)
+         write(luout,1801)
+         write(luout,1802)
+         write(luout,1803) T1
+         write(luout,1804) T2
+         write(luout,1805) T3
+         write(luout,1806) T4
+         write(luout,*)
          CALL nwpw_MESSAGE(4)
       end if 
 

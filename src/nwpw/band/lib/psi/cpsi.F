@@ -1159,6 +1159,38 @@ c     &       MA_ERR)
       end
 
 
+
+*     ***********************************
+*     *                                 *
+*     *         cpsi_virtual            *
+*     *                                 *
+*     ***********************************
+      real*8  function cpsi_virtual(nb,ms,i)
+      implicit none
+      integer nb,ms
+      integer i
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer indx,eig_shift
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+      eig_shift = cpsi_data_get_chnk(eig_excited_tag,nb)
+      if (spin_orbit) then
+        indx=eig_shift+i-1
+      else
+        indx=eig_shift+i-1+(ms-1)*ne(1)
+      end if
+      cpsi_virtual = dbl_mb(indx)
+      return
+      end
+
+
 *     ***********************************
 *     *                                 *
 *     *         cpsi_occupation         *
@@ -1840,6 +1872,24 @@ c         end do
       cpsi_neq = neq(ms)
       return
       end
+
+
+*     ******************************
+*     *                            *
+*     *         cpsi_ne_excited    *
+*     *                            *
+*     ******************************
+      integer function cpsi_ne_excited(ms)
+      implicit none
+      integer ms
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      cpsi_ne_excited = ne_excited(ms)
+      return
+      end
+
 
 
 
@@ -2585,4 +2635,174 @@ c    ** external **
       cpsi_sv_brdcst_tag = w
       return
       end
+
+
+
+
+*     ***************************
+*     *				*
+*     *	    ecpsi_initialize 	*
+*     *				*
+*     ***************************
+
+      logical function ecpsi_initialize()
+      implicit none 
+      logical ortho
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+      logical value,psi_nogrid
+      integer neall,n,vers,ispin0
+      integer hversion,hnfft(3),hispin,hne(2)
+      real*8 hunita(3,3)
+      integer rtdb,ind
+      integer  control_rtdb,control_ngrid
+      external control_rtdb,control_ngrid
+      character*30 filename
+      character*30 control_input_epsi
+      external     control_input_epsi
+      logical  c_wvfnc_expander
+      external c_wvfnc_expander
+  
+*     **** external functions ****
+      logical  pspw_reformat_c_wvfnc
+      integer  brillioun_nbrillioun,psi_get_version
+      integer  Pneb_ispinq,Pneb_nbrillq,Pneb_w_size
+      integer  cpsi_data_alloc
+      double precision util_random,control_fractional_kT
+      external pspw_reformat_c_wvfnc
+      external brillioun_nbrillioun,psi_get_version
+      external cpsi_data_alloc
+
+      integer  cpsi_data_get_ptr,l
+      external cpsi_data_get_ptr
+      real*8   w
+
+
+*     ***** get ispin, and ne, and nfft3d ****
+      call psi_get_ne_excited(ispin0,ne_excited)
+      neall  = ne_excited(1)  + ne_excited(2)
+
+       
+*     **** allocate memory ****
+      psi2_excited_tag = cpsi_data_alloc(nbrillq,neall,2*npack1)
+      psi1_excited_tag = cpsi_data_alloc(nbrillq,neall,2*npack1)
+      eig_excited_tag  = cpsi_data_alloc(nbrillq,neall,1)
+
+
+c     *****  read initial wavefunctions into psi1  ****
+      rtdb = control_rtdb()
+      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+     >                  mt_log,1,psi_nogrid))
+     >   psi_nogrid = .true.
+
+      if (psi_nogrid) then
+
+        filename = control_input_epsi()
+        call psi_get_header_filename(filename,
+     >                      hversion,hnfft,hunita,hispin,hne)
+
+        if ( (hnfft(1).ne.control_ngrid(1)) .or.
+     >       (hnfft(2).ne.control_ngrid(2)) .or.
+     >       (hnfft(3).ne.control_ngrid(3)) ) then
+
+        hnfft(1) = control_ngrid(1)
+        hnfft(2) = control_ngrid(2)
+        hnfft(3) = control_ngrid(3)
+        call Parallel_taskid(taskid)
+        value = rtdb_parallel(.false.)
+        if (taskid.eq.MASTER) then
+
+          filename =  control_input_epsi()
+
+          ind = index(filename,' ') - 1
+          if (.not. rtdb_cput(rtdb,'c_xpndr:old_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'c_wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+
+          if (.not. rtdb_cput(rtdb,'c_xpndr:new_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'c_wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+
+          if (.not. rtdb_put(rtdb,'c_xpndr:ngrid',mt_int,3,hnfft))
+     >     call errquit(
+     >     'c_wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
+
+          write(*,*)
+          write(*,*) "Grid is being converted:"
+          write(*,*) "------------------------"
+          write(*,*)
+          write(*,*) "To turn off automatic grid conversion:"
+          write(*,*)
+          write(*,*) "set nwpw:psi_nogrid .false."
+          write(*,*)
+          value = c_wvfnc_expander(rtdb)
+
+        end if
+        value = rtdb_parallel(.true.)
+
+        end if
+
+      end if
+
+*     *****  read initial wavefunctions into psi1  ****
+      call ecpsi_read(spin_orbit,ispin,ne_excited,
+     >                nbrillioun,psi1_excited_tag)
+
+
+      ecpsi_initialize = value
+      return
+      end
+
+
+
+*     ***************************
+*     *				*
+*     *	     ecpsi_finalize	*
+*     *				*
+*     ***************************
+
+      logical function ecpsi_finalize(wpsi)
+      implicit none 
+      logical wpsi
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      logical value
+      integer next1,next2
+
+*     **** external functions ****
+      integer  cpsi_data_get_next
+      external cpsi_data_get_next
+
+*     ***** write psi1 wavefunctions ****
+      if (wpsi) then
+        call ecpsi_write(spin_orbit,ispin,ne_excited,
+     >                   nbrillioun,psi1_excited_tag)
+      end if
+    
+      next1 = cpsi_data_get_next(psi1_excited_tag)
+      if (next1.ge.0) call cpsi_data_dealloc(next1)
+      call cpsi_data_dealloc(psi1_excited_tag)
+
+      next2 = cpsi_data_get_next(psi2_excited_tag)
+      if (next2.ge.0) call cpsi_data_dealloc(next2)
+      call cpsi_data_dealloc(psi2_excited_tag)
+
+      call cpsi_data_dealloc(eig_excited_tag)
+
+      ecpsi_finalize = value
+      return
+      end
+
 

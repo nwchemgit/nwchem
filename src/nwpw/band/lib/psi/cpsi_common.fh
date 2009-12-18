@@ -5,20 +5,26 @@
 *     ***** psi common block ****
       integer ispin,ne(2),nfft3d,npack0,npack1,nbrillioun
       integer neq(2),nbrillq,ispinq
-      integer psi1_tag
-      integer psi2_tag
+      integer ne_excited(2),neq_excited(2)
+      integer psi1_tag,psi1_excited_tag
+      integer psi2_tag,psi2_excited_tag
       integer rho1(2)
       integer rho2(2)
       integer dng1(2)
       integer dng2(2)
       integer hml_tag
-      integer eig_tag,svec_tag
+      integer eig_tag,svec_tag,eig_excited_tag
       logical spin_orbit
       common / cpsi_block / rho1,rho2,dng1,dng2,ne,neq,
      >                     hml_tag,eig_tag,svec_tag,
      >                     psi1_tag,psi2_tag,ispin,ispinq,
      >                     nfft3d,npack0,npack1,nbrillioun,nbrillq,
      >                     spin_orbit
+
+      common / epsi_block / ne_excited,neq_excited,
+     >                      psi1_excited_tag,psi2_excited_tag,
+     >                      eig_excited_tag
+
 
 *     **** psi smearing block ****
       integer smearoccupation,smeartype

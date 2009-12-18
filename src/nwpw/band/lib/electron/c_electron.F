@@ -239,6 +239,55 @@ c      complex*16 psi_k(*)
       return
       end
 
+*     **********************************************
+*     *                                            *
+*     *         c_electron_get_gradient_virtual    *
+*     *                                            *
+*     **********************************************
+
+      subroutine c_electron_get_gradient_virtual(nb,ms,orb,Horb)
+      implicit none
+      integer    nb,ms
+      complex*16 orb(*),Horb(*)
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer tmp_r(2)
+
+      if (.not.MA_push_get(mt_dcpl,(nfft3d),'tmp_r',tmp_r(2),tmp_r(1)))
+     >   call errquit('c_electron_get_gradient_virtual: push stack',0,
+     &       MA_ERR)
+
+      call Cram_c_Copy(nb,orb,dcpl_mb(tmp_r(1)))
+      call Cram_c_unpack(nb,dcpl_mb(tmp_r(1)))
+      call C3dB_cr_pfft3b(1,nb,dcpl_mb(tmp_r(1)))
+
+*     ******************
+*     **** get Hpsi ****
+*     ******************
+      call cpsi_Horb(nb,ispin,ms,
+     >              dcpl_mb(vall(1)),
+     >              orb,
+     >              dcpl_mb(tmp_r(1)),
+     >              Horb)
+      call Cram_c_SMul1(nb,(-1.0d0),Horb)
+
+c      if (spin_orbit) then
+c       call Cram_c_SMul1(nb,(-1.0d0),dbl_mb(hpsi_shift))
+c      end if
+
+
+      if (.not.MA_pop_stack(tmp_r(2)))
+     >   call errquit('c_electron_get_gradient_virtual: poping stack',1,
+     >                MA_ERR)
+
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*

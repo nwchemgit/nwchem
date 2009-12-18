@@ -492,6 +492,13 @@ c
       if (input_wavefunction_filename.eq.'atomic')then
          input_wavefunction_filename = output_wavefunction_filename
       end if
+      if (.not.rtdb_cget(rtdb,'cgsd:input_ewavefunction_filename',
+     >                  1,input_ewavefunction_filename))
+     >  call util_file_prefix('emovecs',input_ewavefunction_filename)
+
+      if (.not.rtdb_cget(rtdb,'cgsd:output_ewavefunction_filename',
+     >                  1,output_ewavefunction_filename))
+     >  call util_file_prefix('emovecs',output_ewavefunction_filename)
 
 
       if (.not.rtdb_cget(rtdb,'band:exchange_correlation',

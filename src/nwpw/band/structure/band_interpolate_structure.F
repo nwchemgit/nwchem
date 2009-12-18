@@ -39,7 +39,7 @@
       nbrillall = control_num_kvectors_structure()
       call control_monkhorst_pack_grid(mgrid)
 
-      if ((nbrillall.gt.0).and.
+      if ((nbrillall.gt.1).and.
      >    (mgrid(1).ne.0) .and.
      >    (mgrid(2).ne.0) .and.
      >    (mgrid(3).ne.0)) then
