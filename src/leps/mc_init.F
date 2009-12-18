@@ -27,6 +27,7 @@
       double precision mc_data_get_temp,gks_gasdev
       logical     grad
       external    grad       
+      character*8 task1 
       character*32 thr     ! this is just the theory ex: leps
       character*64 theory, blanks64  !theory should be leps:gradient 
       character*32 task, blanks32    ! this is ":gradient"
@@ -75,7 +76,7 @@ C                             ( = BOLTZMANN CONSTANT IN ERG/DEG. )
       temp = mc_data_get_temp()
       temp10=10.0   
       write(iw,*) 'In mc_init:'
-      call printeg(3*natom,dbl_mb(i_eval),dbl_mb(i_evec))
+      if (dbug)  call printeg(3*natom,dbl_mb(i_eval),dbl_mb(i_evec))
 
       if (.not. geom_create(geom, 'geometry'))
      & call errquit('mc_driver_getgeom: failed creating geometry',
@@ -84,8 +85,10 @@ c      write(*,*) 'MC_init: generating initial conditions'
 
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, thr))
      $     call errquit('mc_driver: theory not specified',0, RTDB_ERR)
+c      if (thr.eq.'mp2')   thr='sdmp2'
       call concat(thr,task,theory)
-c      write(*,*) 'Theory is:  ',thr
+      write(iw,*) 'Theory is:  ',thr
+      write(iw,*) 'Grad is: ', theory
 C --- get geometry from the big array in mc_driver
 C--- the first one is always the TS
 C ---- set the appropriate coordinate
@@ -110,9 +113,22 @@ c         mdacc=md_data_get_i_a()
      &       RTDB_ERR)
              call ga_sync()
 C---- calculate the gradient to get the force for acceleration
+         if (thr.eq.'mp2') then
+           if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'gradient'))
+     $        call errquit('task_gradient: rtdb_put failed',0, RTDB_ERR)
+c           if(.not.rtdb_cget(rtdb,'sdmp2:task',1,task1)) call errquit
+c     $     ('mc_init:could not determine task for semi-direct mp2',1,
+c     &       RTDB_ERR)
+c         write(*,*) 'In mc_grad:task ',task1
+         endif
+         call ga_sync()
          if (.not.grad(rtdb))
      &       call errquit('mc_init: no grad calculated ', 0, RTDB_ERR)
 
+         write (iw,*) 'calculated gradinet?'
+c         if (thr.eq.'mp2') then
+c             theory='mp2:nonseparable gradient'
+c         endif
          if (.not. rtdb_get(rtdb,theory,mt_dbl,3*natom, dbl_mb(force)))
      &       call errquit('mc_grad: no grad stored ', 0, RTDB_ERR)
 
@@ -121,8 +137,8 @@ C---- calculate the gradient to get the force for acceleration
               dbl_mb(force+k-1)=0.0
             endif
          enddo 
-c         write(iw,*) "MC-init IRC: force is:"
-c         call printcoord(iw,natom,dbl_mb(force),byte_mb(tag))
+         write(iw,*) "MC-init IRC: force is:"
+         call printcoord(iw,natom,dbl_mb(force),byte_mb(tag))
          do ivib=1,3*natom
             if (dbl_mb(i_eval+ivib-1).gt.-0.1) then
                 vau=0.0
