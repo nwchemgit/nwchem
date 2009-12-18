@@ -109,8 +109,8 @@ c      call mc_data_geom_copy(rtdb,geom)
 
 
       call mc_data_init(rtdb)
-      write(iw,*) 'ieigen values and vectors'
-      call printeg(3*natom,dbl_mb(i_eval),dbl_mb(i_evec))
+c      write(iw,*) 'ieigen values and vectors'
+c      call printeg(3*natom,dbl_mb(i_eval),dbl_mb(i_evec))
 
 C  ! get ihe energy for the initial point
       R=dynrnd(1) 
