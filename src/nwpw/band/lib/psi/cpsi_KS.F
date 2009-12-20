@@ -204,18 +204,21 @@
 #include "rhoall_common.fh"
 
 *     **** local variables ****
-      integer rho_ptr,dng_ptr,rho_all_ptr
+      integer rho_ptr,dng_ptr,rho_all_ptr,psi_ptr
 
       if (psi_number.eq.1) then
+        psi_ptr     = psi1_tag
         rho_ptr     = rho1(1)
         dng_ptr     = dng1(1)
         rho_all_ptr = rho1_all(1)
       else
+        psi_ptr     = psi2_tag
         rho_ptr     = rho2(1)
         dng_ptr     = dng2(1)
         rho_all_ptr = rho2_all(1)
       end if
 
+c      call c_electron_gen_psi_r(psi_ptr)
       call c_electron_gen_densities(dbl_mb(rho_ptr),
      >                              dcpl_mb(dng_ptr),
      >                              dbl_mb(rho_all_ptr))
@@ -2323,7 +2326,7 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
       do nb=1,nbrillq
       do ii=1,(ne_excited(1)+ne_excited(2))
          epsi_ptr = cpsi_data_get_ptr(psi1_excited_tag,nb,ii)
-         eig_ptr = cpsi_data_get_ptr(eig_excited_tag,nb,ii)
+         eig_ptr  = cpsi_data_get_ptr(eig_excited_tag,nb,ii)
      
          !*** orthogonalize to lower orbitals  ****
          call cpsi_project_out_virtual1(nb,ii,dbl_mb(epsi_ptr))
@@ -2334,7 +2337,6 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
      >            dbl_mb(epsi_ptr),
      >            sum)
          sum = 1.0d0/dsqrt(sum)
-         write(*,*) "normsum,nb,ii=",sum
          call Cram_c_SMul1(nb,sum,dbl_mb(epsi_ptr))
 
 
@@ -2354,6 +2356,67 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
 
       return
       end
+*
+c      subroutine cpsi_check_orthodebug(nb,i,Horb)
+c      implicit none
+c      integer nb,i
+c      complex*16 Horb(*)
+c
+c#include "mafdecls.fh"
+c#include "errquit.fh"
+c#include "cpsi_common.fh"
+c
+c      integer x(2),ii,ms,n,psi_ptr,epsi_ptr,nshift
+c
+c*     **** external functions ****
+c      integer  cpsi_data_get_chnk,cpsi_data_nsize
+c      external cpsi_data_get_chnk,cpsi_data_nsize
+c
+c*     **** allocate stack memory ****
+c      if(.not.MA_push_get(mt_dcpl,(neq(1)+ne_excited(1)),'x',x(2),x(1)))
+c     > call errquit('cpsi_project_out_virtual1: out of stack memory',0,
+c     >       MA_ERR)
+c
+c      psi_ptr  = cpsi_data_get_chnk(psi1_tag,nb)
+c      epsi_ptr = cpsi_data_get_chnk(psi1_excited_tag,nb)
+c      nshift   = cpsi_data_nsize(psi1_tag)
+c      if (i.le.ne_excited(1)) then
+c        ii = i-1
+c        ms = 1
+c      else
+c        ms = 2
+c        ii = i-ne_excited(1)-1
+c        psi_ptr  = psi_ptr  + 2*ne(1)*npack1
+c        epsi_ptr = epsi_ptr + 2*ne_excited(1)*npack1
+c      end if
+c      call Cram_cc_nzdot(nb,ne(ms),
+c     >            dbl_mb(psi_ptr),
+c     >            Horb,
+c     >            dcpl_mb(x(1)))
+c      do n=1,ne(ms)
+c         write(*,*) "occ,n,x=",n,dcpl_mb(x(1)+n-1)
+c      end do
+c
+c      !**** project out virtual orbitals ****
+c      if (ii.gt.0) then
+c         call Cram_cc_nzdot(nb,ii,
+c     >               dbl_mb(epsi_ptr),
+c     >               Horb,
+c     >               dcpl_mb(x(1)))
+c         do n=1,ii
+c            write(*,*) "virt,n,x=",n,dcpl_mb(x(1)+n-1)
+c         end do
+c      end if
+c
+c*     **** release stack memory ****
+c      if (.not.MA_pop_stack(x(2)))
+c     > call errquit('cpsi_project_out_virtual1:popping stack memory',0,
+c     &       MA_ERR)
+c
+c      return
+c      end
+
+
 
 *     *******************************************
 *     *                                         *
@@ -2374,6 +2437,7 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
 #include "cpsi_common.fh"
 
       integer x(2),ii,ms,n,psi_ptr,epsi_ptr,nshift
+      complex*16  xxx
 
 *     **** external functions ****
       integer  cpsi_data_get_chnk,cpsi_data_nsize
@@ -2387,37 +2451,36 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
       psi_ptr  = cpsi_data_get_chnk(psi1_tag,nb)
       epsi_ptr = cpsi_data_get_chnk(psi1_excited_tag,nb)
       nshift   = cpsi_data_nsize(psi1_tag)
-      if (i.le.ne(1)) then
+      if (i.le.ne_excited(1)) then
+        ms = 1
         ii = i-1
       else
+        ms = 2
         ii = i-ne_excited(1)-1
         psi_ptr  = psi_ptr  + 2*ne(1)*npack1
         epsi_ptr = epsi_ptr + 2*ne_excited(1)*npack1
       end if
 
-      call Cram_cc_nzdot(nb,neq(ms),
-     >            dbl_mb(psi_ptr),
-     >            Horb,
-     >            dcpl_mb(x(1)))
-      do n=1,neq(ms)
-           call Cram_cc_zaxpy(nb,
-     >               (-dcpl_mb(x(1)+n-1)),
-     >               dbl_mb(psi_ptr),
-     >               Horb)
-           psi_ptr = psi_ptr + nshift
+      !**** project out occupied orbitals ****
+c      call Cram_cc_nzdot(nb,ne(ms),
+c     >            dbl_mb(psi_ptr),
+c     >            Horb,
+c     >            dcpl_mb(x(1)))
+      do n=1,ne(ms)
+         call Cram_cc_zdot(nb,dbl_mb(psi_ptr),Horb,xxx)
+         call Cram_cc_zaxpy(nb,(-xxx),dbl_mb(psi_ptr),Horb)
+         psi_ptr = psi_ptr + nshift
       end do
 
       !**** project out virtual orbitals ****
       if (ii.gt.0) then
-         call Cram_cc_nzdot(nb,ii,
-     >               dbl_mb(epsi_ptr),
-     >               Horb,
-     >               dcpl_mb(x(1)))
+c         call Cram_cc_nzdot(nb,ii,
+c     >               dbl_mb(epsi_ptr),
+c     >               Horb,
+c     >               dcpl_mb(x(1)))
          do n=1,ii
-            call Cram_cc_zaxpy(nb,
-     >               (-dcpl_mb(x(1)+n-1)),
-     >               dbl_mb(epsi_ptr),
-     >               Horb)
+            call Cram_cc_zdot(nb,dbl_mb(epsi_ptr),Horb,xxx)
+            call Cram_cc_zaxpy(nb,(-xxx),dbl_mb(epsi_ptr),Horb)
             epsi_ptr = epsi_ptr + nshift
          end do
       end if
@@ -2451,13 +2514,14 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
 
 *     **** local variables ****
       integer x(2),ii,n,psi_ptr,epsi_ptr,nshift,ms
+      complex*16 xxx
 
 *     **** external functions ****
       integer  cpsi_data_get_chnk,cpsi_data_nsize
       external cpsi_data_get_chnk,cpsi_data_nsize
 
 *     **** allocate stack memory ****
-      if (.not.MA_push_get(mt_dcpl,ne(1)+ne_excited(1),'x',x(2),x(1)))
+      if (.not.MA_push_get(mt_dcpl,neq(1)+ne_excited(1),'x',x(2),x(1)))
      > call errquit('cpsi_project_out_virtual: out of stack memory',0,
      >       MA_ERR)
 
@@ -2474,28 +2538,26 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
         epsi_ptr = epsi_ptr + 2*ne_excited(1)*npack1
       end if
 
-      call Cram_cc_nzdot(nb,neq(ms),
-     >            dbl_mb(psi_ptr),
-     >            Horb,
-     >            dcpl_mb(x(1)))
-      do n=1,neq(ms)
-           call Cram_cc_zaxpy(nb,
-     >               (-dcpl_mb(x(1)+n-1)),
-     >               dbl_mb(psi_ptr),
-     >               Horb)
-           psi_ptr = psi_ptr + nshift
+      !**** project out occupied orbitals ****
+c      call Cram_cc_nzdot(nb,ne(ms),
+c     >            dbl_mb(psi_ptr),
+c     >            Horb,
+c     >            dcpl_mb(x(1)))
+      do n=1,ne(ms)
+         call Cram_cc_zdot(nb,dbl_mb(psi_ptr),Horb,xxx)
+         call Cram_cc_zaxpy(nb,(-xxx),dbl_mb(psi_ptr),Horb)
+         psi_ptr = psi_ptr + nshift
       end do
+
       !**** project out virtual orbitals ****
-      call Cram_cc_nzdot(nb,ii, 
-     >            dbl_mb(epsi_ptr),
-     >            Horb,
-     >            dcpl_mb(x(1)))
+c      call Cram_cc_nzdot(nb,ii, 
+c     >            dbl_mb(epsi_ptr),
+c     >            Horb,
+c     >            dcpl_mb(x(1)))
       do n=1,ii
-           call Cram_cc_zaxpy(nb,
-     >               (-dcpl_mb(x(1)+n-1)),
-     >               dbl_mb(epsi_ptr),
-     >               Horb)
-           epsi_ptr = epsi_ptr + nshift
+         call Cram_cc_zdot(nb,dbl_mb(epsi_ptr),Horb,xxx)
+         call Cram_cc_zaxpy(nb,(-xxx),dbl_mb(epsi_ptr),Horb)
+         epsi_ptr = epsi_ptr + nshift
       end do
 
 *     **** release stack memory ****
@@ -2535,8 +2597,8 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
 *     **** local variables ****
       logical value,done,oneloop
       integer it
-      real*8 e0,eold,error0,de0,lmbda_r0,lmbda_r1
-      real*8 theta,sigma
+      real*8 e0,eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
+      real*8 theta
       integer r1(2),t0(2),t(2),g(2)
       integer psi_ptr
 
@@ -2574,7 +2636,10 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
      >                   dcpl_mb(g(1)),
      >                    e0)
          e0 = -e0
-         write(*,*) "it,e0=",it,e0
+
+         percent_error=0.0d0
+         if(error0.ne.0.0d0)
+     A      percent_error = dabs(e0-eold)/error0
 
          done = ((it.gt.maxiteration)
      >           .or.
@@ -2583,37 +2648,34 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
          if (done) go to 4
 
          call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(r1(1)))
-         call cpsi_project_out_virtual(nb,i,dcpl_mb(r1(1)))
-
+         call Cram_cc_daxpy(nb,e0,dbl_mb(psi_ptr),dcpl_mb(r1(1)))
 
 
 *        *** determine conjuagate direction ***
          call Cram_cc_dot(nb,dcpl_mb(r1(1)),
-     >                   dcpl_mb(r1(1)),
-     >                   lmbda_r1)
+     >                       dcpl_mb(r1(1)),
+     >                       lmbda_r1)
          call Cram_c_Copy(nb,dcpl_mb(r1(1)),dcpl_mb(t(1)))
 
          if (it.gt.1) then
          call Cram_cc_daxpy(nb,(lmbda_r1/lmbda_r0),
-     >                   dcpl_mb(t0(1)),
-     >                   dcpl_mb(t(1)))
+     >                         dcpl_mb(t0(1)),
+     >                         dcpl_mb(t(1)))
          end if
          lmbda_r0 = lmbda_r1
          oneloop = .true.
  3       call Cram_c_Copy(nb,dcpl_mb(t(1)),dcpl_mb(t0(1)))
 
 *        *** normalize search direction, t ****
+         call cpsi_project_out_virtual(nb,i,dcpl_mb(t(1)))
          call Cram_cc_dot(nb,dcpl_mb(t(1)),
-     >                   dcpl_mb(t(1)),
-     >                   sigma)
-         sigma = dsqrt(sigma)
-         de0 = 1.0d0/sigma
+     >                       dcpl_mb(t(1)),
+     >                       de0)
+         de0 = 1.0d0/dsqrt(de0)
          call Cram_c_SMul1(nb,de0,dcpl_mb(t(1)))
-
-*        **** compute de0 = <t|g> ****
          call Cram_cc_dot(nb,dcpl_mb(t(1)),
-     >                   dcpl_mb(g(1)),
-     >                   de0)
+     >                       dcpl_mb(g(1)),
+     >                       de0)
 
 *        *** bad direction ***
          if ((de0.lt.0.0d0).and.oneloop) then

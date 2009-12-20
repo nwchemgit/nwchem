@@ -917,8 +917,8 @@ c     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
          !  error0 = dabs(e0-eold)
          !  percent_error = 1.0d0
          !else
-         percent_error=0d0
-         if(error0.ne.0d0)
+         percent_error=0.0d0
+         if(error0.ne.0.0d0)
      A      percent_error = dabs(e0-eold)/error0
          !end if
 

@@ -1752,11 +1752,15 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 #include "cram_common.fh"
 
 *     **** local variables ****
-      integer i
+      integer i,nn
 
-      do i=1,(int_mb(nidb2_list(1)+nb))
+      nn = int_mb(nidb2_list(1)+nb)
+
+!$OMP PARALLEL DO SHARED (nn,A,C,alpha) PRIVATE(i)
+      do i=1,nn
         C(i) = alpha*A(i)
       end do
+!$OMP END PARALLEL DO
 
       return
       end

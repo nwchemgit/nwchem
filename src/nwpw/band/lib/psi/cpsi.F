@@ -2421,6 +2421,49 @@ c    ** external **
 
 
 
+
+*     ***********************************
+*     *                                 *
+*     *         cpsi_virtual_brdcst     *
+*     *                                 *
+*     ***********************************
+      real*8  function cpsi_virtual_brdcst(nb,ms,i)
+      implicit none
+      integer nb,ms
+      integer i
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer indx,eig_shift,nbq,taskid_k,p
+      real*8  e
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+      call Parallel3d_taskid_k(taskid_k)
+      call K1dB_ktoqp(nb,nbq,p)
+
+      e = 0.0d0
+      if (p.eq.taskid_k) then
+         eig_shift = cpsi_data_get_chnk(eig_excited_tag,nbq)
+         if (spin_orbit) then
+           indx=eig_shift+i-1
+         else
+           indx=eig_shift+i-1+(ms-1)*ne(1)
+         end if
+         e = dbl_mb(indx)
+      end if
+      call K1dB_SumAll(e)
+
+      cpsi_virtual_brdcst = e
+      return
+      end
+
+
+
 *     ***********************************
 *     *                                 *
 *     *        cpsi_eig_brdcst_tag      *
@@ -2804,5 +2847,6 @@ c     *****  read initial wavefunctions into psi1  ****
       ecpsi_finalize = value
       return
       end
+
 
 

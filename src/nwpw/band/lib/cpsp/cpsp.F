@@ -771,11 +771,11 @@ c             call Cram_c_ZMul(nbq,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
 
 
 *          **** generate zsw1's and projectors ****
+!$OMP PARALLEL DO DEFAULT(PRIVATE)
+!$OMP& SHARED(ia,int_mb, dcpl_mb,dbl_mb,nbq,
+!$OMP&        nn,psi1_shift,vnl,exi,prjtmp,zsw1,npack1)
             do l=1,nproj
 
-c              shift = vnl(1)+(l-1) *npack1
-c     >                      +(nb-1)*npack1*vnl_stride
-c     >                      +(ia-1)*npack1*vnl_stride*nbrill
               shift = cpsp_projector_get_ptr(
      >                     int_mb(vnl(1)+ia-1),nbq,l)
               l_prj = int_mb(l_projector(1)+(l-1)
@@ -808,6 +808,8 @@ c             *** current function is s or d ****
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dcpl_mb(zsw1(1)+(l-1)*nn))
            end do !**l**
+!OMP$ END PARALLEL DO
+
            call C3dB_Vector_SumAll((2*nn*nproj),dcpl_mb(zsw1(1)))
 
 

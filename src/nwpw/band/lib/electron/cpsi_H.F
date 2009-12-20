@@ -269,7 +269,7 @@ c     >                       dcpl_mb(vpsi(1)))
 
 
 *     **** put vpsi_r in k-space ****
-      call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+      call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
       !call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
       call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
 

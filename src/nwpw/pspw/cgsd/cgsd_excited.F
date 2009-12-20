@@ -46,7 +46,6 @@ c#include "rtdb.fh"
       external    control_symmetry,control_mapping1d
       character*4 psi_ab_irrep_name
       external    psi_ab_irrep_name
-      
 
 
       call Parallel_taskid(taskid)
