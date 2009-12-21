@@ -6464,11 +6464,16 @@ c -------------
           cpu=cpu+util_cpusec()
           wall=wall+util_wallsec()
           if (nodezero) write(LuOut,9100) iter,residual,mbpt4,cpu,wall
+          call util_flush(LuOut)
           if (residual .lt. thresh) then
 c
             if (model.eq.'mbpt4sdq_t') then
+              cpu=-util_cpusec()
+              wall=-util_wallsec()
               call ccsd_t(d_u1,k_u1_offset,d_u2,k_u2_offset,
      1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
+              cpu=cpu+util_cpusec()
+              wall=wall+util_wallsec()
             endif
 c
             if (nodezero) then
@@ -6490,6 +6495,7 @@ c
                 write(LuOut,9080) "MBPT(4)(SDQ)",ref + corr
                 write(LuOut,9070) "MBPT(4)",mbpt4 + pt3_1
                 write(LuOut,9080) "MBPT(4)",ref + corr + pt3_1
+                write(LuOut,9480) 'triples',cpu, wall
               endif
               call util_flush(LuOut)
             endif
