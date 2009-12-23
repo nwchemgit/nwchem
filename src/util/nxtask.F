@@ -103,8 +103,12 @@ c
 *      call forflush(6)
 c     
       end
-      logical function util_statldb(lstatic)
+      logical function util_statldb(lstatic,rtdb)
       implicit none
+#include "rtdb.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
       logical lstatic
 c
 c     set static load balancing if lstatic eq t
@@ -113,6 +117,7 @@ c     return value = true if old oldb is static
 c
       logical odlb
       common /dlbinfo/ odlb
+      integer rtdb
       
       util_statldb=.not.odlb
       if(lstatic) then
@@ -120,5 +125,8 @@ c
       else
          odlb=.true.
       endif
+      if (.not.rtdb_put(rtdb,'loadbalancing:dynamic',MT_LOG,1,odlb))
+     &     call errquit('util_statldb: put failed',0,RTDB_ERR)
+
       return
       end

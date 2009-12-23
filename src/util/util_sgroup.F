@@ -92,7 +92,7 @@ C     convert to logical
 #ifndef GANXTVAL
 C     Turn off dynamic load balancing, since it fails in groups
 C     We never turn this back on
-      if (groups_want .ne. 1) dumlog = util_statldb(.true.)
+      if (groups_want .ne. 1) dumlog = util_statldb(.true.,rtdb)
 #endif
 c
 c     dont use disk for gridpts, etc. in DFT
