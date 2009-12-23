@@ -516,7 +516,7 @@ c     better have static ldb at high node counts
 c
       if (.not.rtdb_get(rtdb,'dft:staticguess',
      ,     mt_log,1,staticguess)) staticguess=.false.
-      if(staticguess) llldb=util_statldb(.true.)
+      if(staticguess) llldb=util_statldb(.true.,rtdb)
       call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &                       basis_trans, movecs_in, movecs_out, 
      &                       movecs_guess, scftype, nclosed, nopen, 
@@ -524,7 +524,7 @@ c
      &                       k_ir, g_gmovecs, g_dens, vecs_or_dens, 
      &                       'dft', title, oskel, oadapt, 
      &                       .true.) 
-      if(staticguess) llldb_out=util_statldb(llldb)
+      if(staticguess) llldb_out=util_statldb(llldb,rtdb)
       call dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
       if (me.eq.0.and.oprint)
      &     write(LuOut,'(2x," Time after variat. SCF: ",f8.1)')

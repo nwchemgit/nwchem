@@ -891,7 +891,7 @@ c
       endif
 c
       if (oprint_intermediate_xc)then
-         write(*,*)' Fock XC matrix leaving xc_getv: '
+         write(*,*)' Fock XC matrix leaving xc_pot: '
          call ga_print(g_vxc(1))
          if(ipol.eq.2)call ga_print(g_vxc(2))
       endif
