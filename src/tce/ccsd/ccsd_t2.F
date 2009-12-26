@@ -919,53 +919,62 @@ C     i2 ( h10 h11 h1 h2 )_v
       INTEGER h2b
       length = 0
       DO h10b = 1,noab
-      DO h11b = h10b,noab
-      DO h1b = 1,noab
-      DO h2b = h1b,noab
-      IF (int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b-1) .eq. int_mb(k_spin
-     &+h1b-1)+int_mb(k_spin+h2b-1)) THEN
-      IF (ieor(int_mb(k_sym+h10b-1),ieor(int_mb(k_sym+h11b-1),ieor(int_m
-     &b(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. irrep_v) THEN
-      IF ((.not.restricted).or.(int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b
-     &-1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
-      length = length + 1
-      END IF
-      END IF
-      END IF
+       DO h11b = h10b,noab
+        DO h1b = 1,noab
+         DO h2b = h1b,noab
+          IF (int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b-1) .eq.
+     &        int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1)) THEN
+           IF (ieor(int_mb(k_sym+h10b-1),ieor(int_mb(k_sym+h11b-1),
+     &         ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) 
+     &         .eq. irrep_v) THEN
+            IF ((.not.restricted).or.
+     &          (int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b-1)
+     &          +int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
+             length = length + 1
+            END IF
+           END IF
+          END IF
+         END DO
+        END DO
+       END DO
       END DO
-      END DO
-      END DO
-      END DO
-      IF (.not.MA_PUSH_GET(mt_int,2*length+1,'noname',l_a_offset,k_a_off
-     &set)) CALL ERRQUIT('ccsd_t2_2_2_1',0,MA_ERR)
+      IF (.not.MA_PUSH_GET(mt_int,2*length+1,'a',l_a_offset,k_a_offset))
+     &   CALL ERRQUIT('ccsd_t2_2_2_1',0,MA_ERR)
       int_mb(k_a_offset) = length
       addr = 0
       size = 0
       DO h10b = 1,noab
-      DO h11b = h10b,noab
-      DO h1b = 1,noab
-      DO h2b = h1b,noab
-      IF (int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b-1) .eq. int_mb(k_spin
-     &+h1b-1)+int_mb(k_spin+h2b-1)) THEN
-      IF (ieor(int_mb(k_sym+h10b-1),ieor(int_mb(k_sym+h11b-1),ieor(int_m
-     &b(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. irrep_v) THEN
-      IF ((.not.restricted).or.(int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b
-     &-1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
-      addr = addr + 1
-      int_mb(k_a_offset+addr) = h2b - 1 + noab * (h1b - 1 + noab * (h11b
-     & - 1 + noab * (h10b - 1)))
-      int_mb(k_a_offset+length+addr) = size
-      size = size + int_mb(k_range+h10b-1) * int_mb(k_range+h11b-1) * in
-     &t_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
-      END IF
-      END IF
-      END IF
-      END DO
-      END DO
-      END DO
+       DO h11b = h10b,noab
+        DO h1b = 1,noab
+         DO h2b = h1b,noab
+          IF (int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b-1) .eq.
+     &        int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1)) THEN
+           IF (ieor(int_mb(k_sym+h10b-1),ieor(int_mb(k_sym+h11b-1),
+     &         ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) 
+     &         .eq. irrep_v) THEN
+            IF ((.not.restricted).or.
+     &          (int_mb(k_spin+h10b-1)+int_mb(k_spin+h11b-1)
+     &          +int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
+             addr = addr + 1
+             int_mb(k_a_offset+addr) = h2b-1+noab*(h1b-1+noab
+     &                                 *(h11b-1+noab*(h10b-1)))
+             int_mb(k_a_offset+length+addr) = size
+             size = size+int_mb(k_range+h10b-1)*int_mb(k_range+h11b-1)
+     &                  *int_mb(k_range+h1b-1)*int_mb(k_range+h2b-1)
+            END IF
+           END IF
+          END IF
+         END DO
+        END DO
+       END DO
       END DO
       RETURN
       END
+
+
+
+
+
       SUBROUTINE ccsd_t2_2_2_2(d_a,k_a_offset,d_b,k_b_offset,d_c,k_c_off
      &set)
 C     $Id: ccsd_t2.F,v 1.15 2008-12-14 00:11:49 jhammond Exp $
