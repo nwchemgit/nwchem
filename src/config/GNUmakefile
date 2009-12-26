@@ -4,7 +4,8 @@
 
 include makefile.h
 
-  DEPENDCFLAGS = 
+DEPENDCFLAGS = 
+DEPEND_CC=$(CC)
 
 ifeq ($(TARGET),CRAY-T3D)
 # Assume here that are cross compiling on a YMP
@@ -18,43 +19,31 @@ ifeq ($(TARGET),cray-sv2)
   DEPENDCFLAGS = -hcommand
 endif
 
-ifeq ($(TARGET),SP)
-# Must use plain cc not mpcc
-  CC = cc
-endif
-
-ifeq ($(TARGET),LAPI)
-# LAPI different from SP now
-# Must use plain cc not mpcc
-  CC = cc
-endif
-
-ifeq ($(TARGET),LAPI64)
-# LAPI different from SP now
-# Must use plain cc not mpcc
-  CC = cc
-endif
-
 ifeq ($(TARGET),HPUX)
   DEPENDCFLAGS = -Aa -D_HPUX_SOURCE +e
 endif
 
+#
+# force serial compiler in case CC=mpicc used (even though it should not be)
+#
 ifeq ($(TARGET),LINUX)
-  CC = gcc
+  DEPEND_CC = gcc
 endif
 
+#
+# use serial compilers which run on the front-end
+#
+ifeq ($(TARGET),LAPI)
+  DEPEND_CC = cc
+endif
+ifeq ($(TARGET),LAPI64)
+  DEPEND_CC = cc
+endif
 ifeq ($(TARGET),BGL)
- CC=gcc
+ DEPEND_CC=gcc
 endif
-
 ifeq ($(TARGET),BGP)
- CC=gcc
-endif
-
-ifeq ($(TARGET),BGP)
-  DEPEND_CC=gcc
-else
-  DEPEND_CC=$(CC)
+ DEPEND_CC=gcc
 endif
 
 $(BINDIR)/depend.x:	depend.c
