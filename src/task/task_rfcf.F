@@ -42,6 +42,8 @@ c      external md_driver
       external task_freq
       logical semi_dir_mp2,task_num_grad
       external semi_dir_mp2,task_num_grad
+      logical task_gradient
+      external task_gradient
 c
       logical status
       double precision cpu,wall
@@ -70,7 +72,8 @@ c     Actually do the deed
 c
       if(theory.eq."dft") then
         status = task_freq(rtdb)
-        status = mc_main(rtdb,dft_energy_gradient,theory)
+        status = mc_main(rtdb,task_gradient,theory)
+ci        status = mc_main(rtdb,dft_energy_gradient,theory)
       else if(theory.eq.'leps') then
         status = task_freq(rtdb)
         status = mc_main(rtdb,leps_gradient,theory)
@@ -79,10 +82,7 @@ c
         status = mc_main(rtdb,scf_gradient,theory)
       else if (theory.eq.'mp2') then
         status = task_freq(rtdb)
-           if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'gradient'))
-     $        call errquit('task_gradient: rtdb_put failed',0, RTDB_ERR)
-           status = semi_dir_mp2(rtdb)
-        status = mc_main(rtdb,semi_dir_mp2,theory)
+        status = mc_main(rtdb,task_gradient,theory)
       else if (theory.eq.'direct_mp2') then
         status = task_freq(rtdb)
 c        status = task_num_grad(rtdb)
