@@ -13,12 +13,13 @@ c     $Id: c_cgsd_noit_energy.F,v 1.11 2008-11-17 17:25:40 bylaska Exp $
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "util.fh"
 #include "errquit.fh"
 
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      logical value
+      logical value,mprint
       real*8  E(30),virial,EV
       real*8  f0,f1,f2,f3,f4,f5,f6
       integer rtdb,neall
@@ -28,7 +29,7 @@ c     $Id: c_cgsd_noit_energy.F,v 1.11 2008-11-17 17:25:40 bylaska Exp $
        integer  control_rtdb
        external control_rtdb
       logical     cpsp_semicore,control_out_of_time,cpsi_spin_orbit
-      logical     control_fractional
+      logical     control_fractional,control_print,brillioun_print
       character*4 ion_aname
       integer     control_it_in,control_it_out,control_minimizer
       integer     ion_nion,ion_katm,cpsi_ne,cpsi_ispin
@@ -36,7 +37,7 @@ c     $Id: c_cgsd_noit_energy.F,v 1.11 2008-11-17 17:25:40 bylaska Exp $
       real*8      ion_rion,cpsi_eigenvalue_brdcst,cpsi_svector_brdcst
       real*8      ion_amass
       external    cpsp_semicore,control_out_of_time,cpsi_spin_orbit
-      external    control_fractional
+      external    control_fractional,control_print,brillioun_print
       external ion_aname
       external control_it_in,control_it_out,control_minimizer
       external ion_nion,ion_katm,cpsi_ne,cpsi_ispin
@@ -53,9 +54,10 @@ c     $Id: c_cgsd_noit_energy.F,v 1.11 2008-11-17 17:25:40 bylaska Exp $
       external cpsi_smearfermi,cpsi_smearcorrection
 
 
-
-
       call Parallel_taskid(taskid)
+
+      mprint = (taskid.eq.MASTER).and.control_print(print_medium)
+
 
 *     **** generate phaze factors and local psp and core density ****
 c      call cphafac()
@@ -85,7 +87,7 @@ c      call cphafac_k()
 
 
 **:::::::::::::::::   report summary of results  :::::::::::::::::::::::
-      if (taskid.eq.MASTER) then
+      if (mprint) then
          neall = (cpsi_ne(1)+cpsi_ne(2))
          write(luout,1304)
          write(luout,1410)
@@ -111,7 +113,7 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
 
       NN=cpsi_ne(1)-cpsi_ne(2)
       EV=27.2116d0
-      if (taskid.eq.MASTER) then
+      if (mprint) then
         if (control_fractional()) then
           if (cpsi_ispin().eq.1) then
             write(luout,1507) cpsi_smearfermi(1),cpsi_smearfermi(1)*EV
@@ -122,6 +124,7 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
         end if
       end if
 
+      if (brillioun_print()) then
       do nb=1,brillioun_nbrillioun()
          f0 = brillioun_weight_brdcst(nb) 
          f1 = brillioun_ks_brdcst(1,nb) 
@@ -130,37 +133,43 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
          f4 = brillioun_k_brdcst(1,nb) 
          f5 = brillioun_k_brdcst(2,nb) 
          f6 = brillioun_k_brdcst(3,nb) 
-         if (taskid.eq.MASTER) then
+         if (mprint) then
             write(luout,1508) nb,f0,f1,f2,f3,f4,f5,f6
             write(luout,1500)
          end if
          if (cpsi_spin_orbit()) then
-           if (taskid.eq.MASTER) write(luout,1511)
+           if (mprint) write(luout,1511)
            do i=0,cpsi_ne(1)-1
              f1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i) 
              f2 = cpsi_svector_brdcst(nb,cpsi_ne(1)-i,3) 
              f3 = cpsi_svector_brdcst(nb,cpsi_ne(1)-i,2) 
              f4 = cpsi_svector_brdcst(nb,cpsi_ne(1)-i,1) 
              f5 = cpsi_occupation_brdcst(nb,cpsi_ne(1)-i,1)
-             if(taskid.eq.MASTER) 
+             if (mprint)
      >          write(luout,1512) f1,f1*EV,f2,f3,f4,f5
            end do
          else
            do i=0,NN-1
              f1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i) 
              f2 = cpsi_occupation_brdcst(nb,1,cpsi_ne(1)-i)
-             if (taskid.eq.MASTER) write(luout,1510) f1,f1*EV,f2
+             if (mprint) write(luout,1510) f1,f1*EV,f2
            end do
            do i=0,cpsi_ne(2)-1
              f1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i-NN) 
              f2 = cpsi_occupation_brdcst(nb,1,cpsi_ne(1)-i-NN) 
              f3 = cpsi_eigenvalue_brdcst(nb,2,cpsi_ne(2)-i) 
              f4 = cpsi_occupation_brdcst(nb,2,cpsi_ne(2)-i)
-             if(taskid.eq.MASTER) 
+             if (mprint) 
      >          write(luout,1510) f1,f1*EV,f2,f3,f3*EV,f4
            end do
          end if
       end do
+
+      else
+         if (mprint) write(luout,1501)
+      endif
+
+
 
 
 *     **** diagonalize hamiltonian and rotate psi ****
@@ -226,8 +235,10 @@ c     call psi_2to1()
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1499 FORMAT( ' K.S. V_nlso energy  :',E19.10,' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
+ 1501 FORMAT(/' orbital energies not printed',
+     >        ' - number of k-points is very large')
  1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
- 1508 FORMAT(/' Brillouin zone point: ',i2,
+ 1508 FORMAT(/' Brillouin zone point: ',i6,
      >       /'    weight=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')

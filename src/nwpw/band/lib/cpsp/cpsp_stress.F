@@ -18,17 +18,17 @@
 #include "cpsp_common.fh"
 #include "errquit.fh"
 
-      integer npack1,npack0,nbrillioun
+      integer npack1,npack0,nbrillq
       logical value
 
 *     **** external functions *****
-      integer  ion_nkatm,brillioun_nbrillioun
-      external ion_nkatm,brillioun_nbrillioun
+      integer  ion_nkatm,brillioun_nbrillq
+      external ion_nkatm,brillioun_nbrillq
  
 
       call Cram_npack(0,npack0)
       call Cram_max_npack(npack1)
-      nbrillioun = brillioun_nbrillioun()
+      nbrillq = brillioun_nbrillq()
 
       value = MA_alloc_get(mt_dbl,(npsp*npack0),
      >                    'dvl',dvl(2),dvl(1))
@@ -245,11 +245,11 @@ c     >                     dbl_mb(tmp2(1)))
 
 
 *     *** local variables ***
-      integer nfft3d,npack1,npack,shift,shift2,nbrillioun,nb
+      integer nfft3d,npack1,npack,shift,shift2,nbrillq,nb
       integer nproj,l_prj,psi1_shift,occ1_tag,occ1_shift,occ_shift
       integer i,ii,ia,k,l,n,nn
       integer s,u,v
-      real*8  omega,Bus(3,3),hm(3,3),kx,ky,kz
+      real*8  omega,Bus(3,3),hm(3,3),kx,ky,kz,Aus(3,3)
       complex*16 ctmp,cxr
       real*8  pi,scal,weight
       integer exi(2),vtmp(2),tmp1(2),zsw1(2),zsw2(2),zsw3(2)
@@ -259,13 +259,13 @@ c     >                     dbl_mb(tmp2(1)))
 *     **** external functions ****
       logical  is_sORd
       integer  ion_nion,ion_katm,c_G_indx
-      integer  brillioun_nbrillioun,cpsp_projector_get_ptr
+      integer  Pneb_nbrillq,cpsp_projector_get_ptr
       integer  cpsi_data_get_chnk,cpsi_data_get_next
       real*8   brillioun_weight,brillioun_k
       real*8   lattice_omega,lattice_unitg
       external is_sORd
       external ion_nion,ion_katm,c_G_indx
-      external brillioun_nbrillioun,cpsp_projector_get_ptr
+      external Pneb_nbrillq,cpsp_projector_get_ptr
       external cpsi_data_get_chnk,cpsi_data_get_next
       external brillioun_weight,brillioun_k
       external lattice_omega,lattice_unitg
@@ -278,7 +278,7 @@ c     >                     dbl_mb(tmp2(1)))
 
 *     **** allocate local memory ****
       nn         = ne(1)+ne(2)
-      nbrillioun = brillioun_nbrillioun()
+      nbrillq = Pneb_nbrillq()
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
 
@@ -317,7 +317,8 @@ c     >                     dbl_mb(tmp2(1)))
 
         if (nproj.gt.0) then
 
-        do nb=1,nbrillioun
+        do nb=1,nbrillq
+          call dcopy(9,0.0d0,0,Aus,1)
 
           psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
           if (occ1_tag.gt.0) 
@@ -340,18 +341,13 @@ c     >                     dbl_mb(tmp2(1)))
 *         **** structure factor and local pseudopotential ****
           call cstrfac_pack(nb,ii,dcpl_mb(exi(1)))
           call cstrfac_k(ii,nb,cxr)
-c          call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
           call zscal(npack,cxr,dcpl_mb(exi(1)),1)
-
 
   
 *       *********************************************
 *       **** calculate F^(lm)_I = <psi|vnl(nlm)> ****
 *       *********************************************
         do l=1,nproj
-c           shift = vnl(1)+(l-1)*npack1
-c     >           + (nb-1)*npack1*nmax_max*lmmax_max
-c     >           + (ia-1)*npack1*nmax_max*lmmax_max*nbrillioun
            shift = cpsp_projector_get_ptr(int_mb(vnl(1)+ia-1),nb,l)
            l_prj = int_mb(l_projector(1)+(l-1)+(ia-1)*jmmax_max)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -414,35 +410,31 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
            sd_function = (k.eq.0)
 
            do s=1,3
-           do u=1,3
-c              shift2 = dvnl(1) 
-c     >               + (s-1)*npack1
-c     >               + (l-1)*3*npack1
-c     >               + (nb-1)*3*npack1*nmax_max*lmmax_max
-c     >               + (ia-1)*3*npack1*nmax_max*lmmax_max*nbrillioun
               shift2 = cpsp_projector_get_ptr(
-     >                      int_mb(dvnl(1)+ia-1),nb,(3*(l-1)+s))
-              call Cram_rr_Mul(nb,dbl_mb(shift2),
-     >                         dbl_mb(G(1,u)),
-     >                         dbl_mb(tmp1(1)))
+     >                  int_mb(dvnl(1)+ia-1),nb,(3*(l-1)+s))
+              do u=1,3
+                 call Cram_rr_Mul(nb,dbl_mb(shift2),
+     >                            dbl_mb(G(1,u)),
+     >                            dbl_mb(tmp1(1)))
 
-*             *** current function is s or d ****
-              if (sd_function) then
-                call Cram_rc_Mul(nb,dbl_mb(tmp1(1)),
-     >                        dcpl_mb(exi(1)),
-     >                        dcpl_mb(vtmp(1)))
-*             *** current function is p or f ****
-              else
-                 call Cram_irc_Mul(nb,dbl_mb(tmp1(1)),
-     >                        dcpl_mb(exi(1)),
-     >                        dcpl_mb(vtmp(1)))
-              end if
-              call Cram_cc_nzdot(nb,nn,
-     >                        dbl_mb(psi1_shift),
-     >                        dcpl_mb(vtmp(1)),
-     >                        dcpl_mb(zsw3(1)+(u-1)*nn
-     >                                       +(s-1)*nn*3))
-          end do
+*                *** current function is s or d ****
+                 if (sd_function) then
+                   call Cram_rc_Mul(nb,dbl_mb(tmp1(1)),
+     >                              dcpl_mb(exi(1)),
+     >                              dcpl_mb(vtmp(1)))
+
+*                *** current function is p or f ****
+                 else
+                    call Cram_irc_Mul(nb,dbl_mb(tmp1(1)),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(vtmp(1)))
+                 end if
+                 call Cram_cc_nzdot(nb,nn,
+     >                              dbl_mb(psi1_shift),
+     >                              dcpl_mb(vtmp(1)),
+     >                              dcpl_mb(zsw3(1)+(u-1)*nn
+     >                                             +(s-1)*nn*3))
+             end do
           end do
 
           if (occ1_tag.gt.0) then
@@ -472,6 +464,8 @@ c     >               + (ia-1)*3*npack1*nmax_max*lmmax_max*nbrillioun
 
                 Bus(u,s) = Bus(u,s) 
      >            - weight*2.0d0*dble(ctmp)/(omega)
+                Aus(u,s) = 
+     >            - weight*2.0d0*dble(ctmp)/(omega)
                end do
                end do
              end do
@@ -482,6 +476,7 @@ c     >               + (ia-1)*3*npack1*nmax_max*lmmax_max*nbrillioun
 
         end if
       end do !** ii **
+      call K1dB_Vector_SumAll(9,Bus)
 
       value =           MA_pop_stack(zsw3(2))
       value = value.and.MA_pop_stack(zsw2(2))
@@ -602,6 +597,7 @@ c     >               + (ia-1)*3*npack1*nmax_max*lmmax_max*nbrillioun
             end do
          else
             ierr = 1
+            call closefile(5)
          end if
       end if
 
@@ -633,7 +629,7 @@ c     >               + (ia-1)*3*npack1*nmax_max*lmmax_max*nbrillioun
          call K1dB_ktoqp(nb,nbq,pk)
          do n=1,lmmax
          do i=1,3
-            call C3dB_r_read(1,5,tmp2,tmp,-1,pk)
+            call C3dB_r_Read(1,5,tmp2,tmp,-1,pk)
             if (pk.eq.taskid_k) then
                call Cram_r_pack(nbq,tmp2)
                call cpsp_projector_add(dvnl_tag,nbq,(3*(n-1)+i),tmp2)

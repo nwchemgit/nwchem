@@ -828,7 +828,7 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
 
 
 *     **** writeout dospsi -- needed for task band dos_dplot ****
-      if (flag.eq.1) call cpsi_dospsi_write(k)
+cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
 
 
 *     **** finalize and deallocate cpsi ****

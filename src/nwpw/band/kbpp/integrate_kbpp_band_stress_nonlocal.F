@@ -79,7 +79,7 @@
       p3=dsqrt(105.0d0*forpi)
 
 *======================  Fourier transformation  ======================
-      call dcopy(lmmax*nfft3d,0.0d0,0,dvnl,1)
+      call dcopy(3*lmmax*nfft3d,0.0d0,0,dvnl,1)
       task_count = -1
       do 700 k3=1,nfft3
       do 700 k2=1,nfft2
@@ -398,7 +398,7 @@
     
   700 CONTINUE
 
-      call Parallel_Vector_Sumall(3*lmmax*nfft3d,dvnl)
+      call Parallel_Vector_SumAll(3*lmmax*nfft3d,dvnl)
 
       IERR=0
       RETURN

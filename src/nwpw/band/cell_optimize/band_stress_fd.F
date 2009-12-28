@@ -12,6 +12,8 @@
 #include "util.fh"
 #include "geom.fh"
 
+      integer taskid,MASTER
+      parameter (MASTER=0)
       integer l,i,j
       integer r1(2),geom,nion
 
@@ -39,9 +41,10 @@
       logical  band_noit_energy
       external band_noit_energy
 
+      call Parallel_taskid(taskid)
 
 *     **** initialize and read in geometry object ****
-      value     = value.and.geom_create(geom,'geometry')
+      value     = geom_create(geom,'geometry')
       value     = value.and.geom_rtdb_load(rtdb,geom,'geometry')
       value     = value.and.geom_ncent(geom,nion)
       value     = value.and.
@@ -74,13 +77,15 @@
 *     **** update geometry object ****
       call util_date(date_string)
       date_len = inp_strlen(date_string)
-      write(6,*)
-      write(6,
+      if (taskid.eq.MASTER) then
+         write(6,*)
+         write(6,
      &   '(1x,a12,i2,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
      &   'amatrix i,j:',i,j,unita2(i,j),'(+)',
      &   'wall time:',util_wallsec(),
      &   'date:',date_string(1:date_len)
-      call util_flush(6)
+         call util_flush(6)
+      end if
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita2)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
       value = value.and.band_noit_energy(rtdb)
@@ -120,13 +125,15 @@
 *     **** update geometry object ****
       call util_date(date_string)
       date_len = inp_strlen(date_string)
-      write(6,*)
-      write(6,
+      if (taskid.eq.MASTER) then
+         write(6,*)
+         write(6,
      &   '(1x,a12,i2,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
      &   'amatrix i,j:',i,j,unita3(i,j),'(-)',
      &   'wall time:',util_wallsec(),
      &   'date:',date_string(1:date_len)
-      call util_flush(6)
+         call util_flush(6)
+      end if
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita3)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
     

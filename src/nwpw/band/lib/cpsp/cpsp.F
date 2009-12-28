@@ -611,13 +611,13 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 *     *** local variables ***
       complex*16 one,mone,ione
       integer nfft3d,G(3),npack1,npack
-      integer ii,ia,l,n,nn,nb,nbq,neall,nbrillq
+      integer ii,ia,l,n,nn,nb,nbq,neall,nbrillq,nion
       integer shift,l_prj,nproj
       integer psi1_shift,psi2_shift,psi_shift,nshift
       integer occ_tag,occ_shift,occ1_shift
       real*8  omega,weight,scal,wfrac
       complex*16 cxr
-      integer exi(2),xtmp(2),zsw1(2),zsw2(2),sum(2)
+      integer exi(2),xtmp(2),zsw1(2),zsw2(2),sum(2),ftmp(2)
       integer Gx(2),Gy(2),Gz(2),shfts,shftd
       logical value,sd_function
 
@@ -641,6 +641,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
       neall = ne(1)+ne(2)
+      nion  = ion_nion()
       nbrillq = Pneb_nbrillq()
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
@@ -666,12 +667,14 @@ ccccccccccccccc if move we do this ccccccccccccccccccccccccc
      >          MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
         value = value.and.
      >        MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
+        value = value.and.
+     >        MA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1))
         if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1,
      &       MA_ERR)
         G(1)  = c_G_indx(1)
         G(2)  = c_G_indx(2)
         G(3)  = c_G_indx(3)
-
+        call dcopy(3*nion,0.0d0,0,dbl_mb(ftmp(1)),1)
       end if
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -683,7 +686,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         psi2_shift = cpsi_data_get_chnk(psi2_tag,nbq)
         call Cram_npack(nbq,npack)
 
-      do 500 ii=1,ion_nion()
+      do 500 ii=1,nion
         ia=ion_katm(ii)
 
         nproj = int_mb(nprj(1)+ia-1)
@@ -746,13 +749,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                        wfrac = dbl_mb(occ_shift)
                        occ_shift = occ_shift+1
                     end if
-                    fion(1,ii) = fion(1,ii) 
+                    dbl_mb(ftmp(1)+3*(ii-1)) = 
+     >                         dbl_mb(ftmp(1)+3*(ii-1))
      >                         + 2.0d0*weight*wfrac
      >                                *dbl_mb(sum(1)+3*(n-1))
-                    fion(2,ii) = fion(2,ii) 
+                    dbl_mb(ftmp(1)+3*(ii-1)+1) = 
+     >                         dbl_mb(ftmp(1)+3*(ii-1)+1)
      >                         + 2.0d0*weight*wfrac
      >                                *dbl_mb(sum(1)+1+3*(n-1))
-                    fion(3,ii) = fion(3,ii) 
+                    dbl_mb(ftmp(1)+3*(ii-1)+2) = 
+     >                         dbl_mb(ftmp(1)+3*(ii-1)+2)
      >                         + 2.0d0*weight*wfrac
      >                                *dbl_mb(sum(1)+2+3*(n-1))
                  end do !** ne(1) **
@@ -893,13 +899,16 @@ c                    end do
                        wfrac = dbl_mb(occ_shift)
                        occ_shift = occ_shift+1
                     end if
-                    fion(1,ii) = fion(1,ii) 
+                    dbl_mb(ftmp(1)+3*(ii-1)) = 
+     >                         dbl_mb(ftmp(1)+3*(ii-1))
      >                         + 2.0d0*weight*wfrac
      >                                *dbl_mb(sum(1)+3*(n-1))
-                    fion(2,ii) = fion(2,ii) 
+                    dbl_mb(ftmp(1)+3*(ii-1)+1) = 
+     >                         dbl_mb(ftmp(1)+3*(ii-1)+1)
      >                         + 2.0d0*weight*wfrac
      >                                *dbl_mb(sum(1)+1+3*(n-1))
-                    fion(3,ii) = fion(3,ii) 
+                    dbl_mb(ftmp(1)+3*(ii-1)+2) = 
+     >                         dbl_mb(ftmp(1)+3*(ii-1)+2)
      >                         + 2.0d0*weight*wfrac
      >                                *dbl_mb(sum(1)+2+3*(n-1))
                  end do !** nn **
@@ -913,7 +922,10 @@ c                    end do
       end do !** nbq **
 
       if (move) then
-        value = MA_pop_stack(sum(2))
+        call K1dB_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
+        call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+        value = MA_pop_stack(ftmp(2))
+        value = value.and.MA_pop_stack(sum(2))
         value = value.and.MA_pop_stack(Gz(2))
         value = value.and.MA_pop_stack(Gy(2))
         value = value.and.MA_pop_stack(Gx(2))
@@ -1171,12 +1183,12 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
 
 
 *     *** local variables ***
-      integer nfft3d,G(3),npack1,npack,nbrillq,neall
+      integer nfft3d,G(3),npack1,npack,nbrillq,neall,nion
       integer ii,ia,l,n,nn,nbq,l_prj,nproj,shift
       integer psi1_shift,psi_shift,nshift
       real*8  omega,weight,scal,wfrac
       complex*16 cxr
-      integer exi(2),xtmp(2),zsw1(2),zsw2(2),sum(2)
+      integer exi(2),xtmp(2),zsw1(2),zsw2(2),sum(2),ftmp(2)
       integer Gx(2),Gy(2),Gz(2),it
       integer occ1_tag,occ1_shift,occ_shift
       logical value,sd_function
@@ -1198,6 +1210,7 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
       neall   = ne(1)+ne(2)
+      nion    = ion_nion()
       nbrillq = Pneb_nbrillq()
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
@@ -1224,8 +1237,11 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
 
       value = value.and.
      >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
+      value = value.and.
+     >      MA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1))
       if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1,
      &       MA_ERR)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(ftmp(1)),1)
       G(1)  = c_G_indx(1)
       G(2)  = c_G_indx(2)
       G(3)  = c_G_indx(3)
@@ -1249,7 +1265,7 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
         call Cram_r_pack(nbq,dbl_mb(Gy(1)))
         call Cram_r_pack(nbq,dbl_mb(Gz(1)))
 
-        do 100 ii=1,ion_nion()
+        do 100 ii=1,nion
            ia=ion_katm(ii)
            it=int_mb(psp_type(1)+ia-1)
            nproj = int_mb(nprj(1)+ia-1)
@@ -1261,7 +1277,9 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
      >          dbl_mb(xtmp(1)),dbl_mb(sum(1)),
      >          dbl_mb(Kijl(1)+(ia-1)*kij_stride),
      >          dbl_mb(Gx(1)),dbl_mb(Gy(1)),dbl_mb(Gz(1)),
-     >          fion(1,ii),fion(2,ii),fion(3,ii),
+     >          dbl_mb(ftmp(1)+3*(ii-1)),
+     >          dbl_mb(ftmp(1)+3*(ii-1)+1),
+     >          dbl_mb(ftmp(1)+3*(ii-1)+2),
      >          weight,scal)
                 goto 100 
               end if
@@ -1366,13 +1384,16 @@ c                    end do
                        wfrac = dbl_mb(occ_shift)
                        occ_shift = occ_shift+1
                     end if
-                    fion(1,ii) = fion(1,ii) 
+                    dbl_mb(ftmp(1)+3*(ii-1)) = 
+     >                         dbl_mb(ftmp(1)+3*(ii-1))
      >                         + 2.0d0*wfrac*weight
      >                           *dbl_mb(sum(1)+3*(n-1))
-                    fion(2,ii) = fion(2,ii) 
+                    dbl_mb(ftmp(1)+3*(ii-1)+1) = 
+     >                         dbl_mb(ftmp(1)+3*(ii-1)+1)
      >                         + 2.0d0*wfrac*weight
      >                           *dbl_mb(sum(1)+1+3*(n-1))
-                    fion(3,ii) = fion(3,ii) 
+                    dbl_mb(ftmp(1)+3*(ii-1)+2) = 
+     >                         dbl_mb(ftmp(1)+3*(ii-1)+2)
      >                         + 2.0d0*wfrac*weight
      >                          *dbl_mb(sum(1)+2+3*(n-1))
                  end do
@@ -1384,7 +1405,10 @@ c                    end do
 
       end do !** nbq ***
 
-      value =           MA_pop_stack(sum(2))
+      call K1dB_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
+      call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+      value =           MA_pop_stack(ftmp(2))
+      value = value.and.MA_pop_stack(sum(2))
       value = value.and.MA_pop_stack(Gz(2))
       value = value.and.MA_pop_stack(Gy(2))
       value = value.and.MA_pop_stack(Gx(2))

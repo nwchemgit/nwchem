@@ -1761,7 +1761,7 @@ c      end do
             end do
          end do
       end if
-      if (np.gt.1) call C3dB_SumAll(enlocal)
+      if (np.gt.1) call Parallel_SumAll(enlocal)
       if (ispin.eq.1) enlocal = 2.0d0*enlocal
  
       call cpsi_data_pop_stack(tmp1_tag)

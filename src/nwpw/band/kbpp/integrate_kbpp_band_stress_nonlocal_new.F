@@ -80,7 +80,7 @@
 
 *======================  Fourier transformation  ======================
       dG = G_ray(3)-G_ray(2)
-      call dcopy(lmmax*nfft3d,0.0d0,0,dvnl,1)
+      call dcopy(3*lmmax*nfft3d,0.0d0,0,dvnl,1)
       task_count = -1
       do 700 k3=1,nfft3
       do 700 k2=1,nfft2

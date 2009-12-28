@@ -326,7 +326,10 @@ c      call Parallel_init()
       do nb=1,nbrillioun
 
          if ((oprint).and.(taskid.eq.MASTER))
-     >      write(*,*) "generating brillioun #",nb
+     >      write(*,*) "generating brillioun #",nb,
+     >                  kvectors(1,nb),
+     >                  kvectors(2,nb),
+     >                  kvectors(3,nb)
 
             if (kray) then
             call integrate_kbpp_band_stress_nonlocal_new(version,

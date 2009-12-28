@@ -277,8 +277,6 @@ c    >                        ne)
       ne(1) = control_excited_ne(1)
       if (ispin.eq.2) ne(2) = control_excited_ne(2)
 
-      write(*,*) "filename=",filename
-
       soc=control_spin_orbit()
       nbrillioun = brillioun_nbrillioun()
       call c_wvfnc_new(filename,

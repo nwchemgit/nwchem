@@ -480,7 +480,6 @@ c     >                     dbl_mb(tmp2(1)))
       end do
       end do
 
-
       call nwpw_timing_end(6)
       return 
       end
