@@ -102,6 +102,9 @@ c
      &   call errquit('util_sggo: rtdb_put nodisk failed',1,RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'dft:noio', mt_int, 1, 1))
      &   call errquit('util_sggo: rtdb_put noio failed',1,RTDB_ERR)
+      if(.not.rtdb_put(rtdb,'dft:xcreplicated',mt_log,1,.false.))
+     &  call errquit('util_sggo: rtdb_put xcreplicated fail',1,RTDB_ERR)
+
 c
 
       mypgroup_old = ga_pgroup_get_default()
