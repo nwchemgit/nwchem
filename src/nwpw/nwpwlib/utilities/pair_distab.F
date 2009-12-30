@@ -89,14 +89,16 @@ c     *** parameters ***
          read(19,*) time1,natoms0,volume1,unita
          do i=1,natoms0
             read(19,*) iii,tag2,tag4,x,y,z,v1,v2,v3
+
             found = .false.
             j = 0
-            do while ((j<nkatm).and.(.not.found))
+            do while ((j.lt.nkatm).and.(.not.found))
                tagA(1:1) = byte_mb(symb(1)+2*j)
                tagA(2:2) = byte_mb(symb(1)+2*j+1)
                if (tag2.eq.tagA) found = .true.
                j = j + 1
             end do
+
             if (.not.found) then
                byte_mb(symb(1)+2*nkatm)   = tag2(1:1)
                byte_mb(symb(1)+2*nkatm+1) = tag2(2:2)
@@ -105,6 +107,7 @@ c     *** parameters ***
                iA = iA + 3
                iB = iB + 3
             end if
+
          end do
          close(19)
 
