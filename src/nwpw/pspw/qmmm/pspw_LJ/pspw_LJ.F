@@ -164,7 +164,9 @@ c
 
       logical value
 
-      value =           MA_free_heap(sigma_all(2))
+      value =           MA_free_heap(sigma_atom(2))
+      value = value.and.MA_free_heap(epsilon_atom(2))
+      value = value.and.MA_free_heap(sigma_all(2))
       value = value.and.MA_free_heap(epsilon_all(2))
       if (.not.value) call errquit('pspw_LJ_end: error MA_free_heap',
      >                             0,MA_ERR)
