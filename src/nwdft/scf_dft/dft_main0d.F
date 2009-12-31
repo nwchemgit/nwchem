@@ -552,10 +552,11 @@ c     == Call the main drivers ==
      &       g_svecs, dbl_mb(isvals), g_xcinv, g_s)
        else
         ! Spin-Orbit DFT + real-time dynamics
-        dft_main0d = rt_tddft_sodft(rtdb, Etold, Enuc, iVcoul_opt, 
-     &     iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock, 
-     &     g_svecs, dbl_mb(isvals), g_xcinv, g_s, 
-     &     g_dipx, g_dipy, g_dipz, g_ddotE, g_vel)
+        !dft_main0d = rt_tddft_sodft(rtdb, Etold, Enuc, iVcoul_opt, 
+     &  !   iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock, 
+     &  !   g_svecs, dbl_mb(isvals), g_xcinv, g_s, 
+     &  !   g_dipx, g_dipy, g_dipz, g_ddotE, g_vel)
+        dft_main0d = .false.
        end if  ! lrt_tddft
       endif 
       if (odftps) call pstat_off(ps_scfdft)
