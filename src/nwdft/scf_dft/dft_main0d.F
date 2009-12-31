@@ -545,6 +545,16 @@ c     == Call the main drivers ==
         dft_main0d = .false.
        end if   ! lrt_tddft
       else if (theory .eq. 'sodft') then
+c
+c      announce that spin-orbit calculations are being performed
+       if (me.eq.0) then
+          write(luout,*)
+          write(luout,*) "==============================="
+          write(luout,*) " Performing SODFT calculations "
+          write(luout,*) "==============================="
+          write(luout,*)
+       end if
+c
        if (.not.lrt_tddft) then
         ! Spin-Orbit DFT
         dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 

@@ -540,7 +540,7 @@ c
 czora...announce that spin-orbit zora calculations are being performed
        if (me.eq.0) then 
           write(luout,*) 
-          write(luout,*) "Performing spin-orbit zora calculations"
+          write(luout,*) "Performing ZORA calculations"
           write(luout,*)
        end if
 c
