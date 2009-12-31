@@ -81,7 +81,11 @@ c      == assemble the appropriate correction ==
        end if
 c
 c      == multiply by the integration weight ==
-       zoraCorr = zoraCorr*qwght(igrid)
+       if (igrid.eq.closegridpts(igrid)) then
+          zoraCorr = 0.d0
+       else
+          zoraCorr = zoraCorr*qwght(igrid)
+       end if
 c
 c      == fill array ==
        amat(igrid,1) = zoraCorr
