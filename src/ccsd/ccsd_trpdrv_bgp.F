@@ -37,14 +37,19 @@ c
 #endif
       integer jump,jump1,jump2
       integer g_objo,g_objv,g_coul,g_exch
-      integer inode,next,nxtask,nodes,iam
+      integer inode,next,nodes,iam
       integer oseg_lo,oseg_hi
       integer a,b,c,i,j,k,akold,av
       integer klo, khi, kchunk
+      integer nxtask
       external nxtask
+      integer omp_get_max_threads
+      external omp_get_max_threads
 c
       nodes = ga_nnodes()
       iam = ga_nodeid()
+      if (iam.eq.0) write(6,99) omp_get_max_threads()
+   99 format(2x,'Using ',i2,' OpenMP threads in CCSD(T)')
 c
 c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
 c
@@ -124,10 +129,12 @@ c
 #ifdef DEBUG_PRINT
                         tt0 = ga_wtime()
 #endif
+
+!$omp sections
+!$omp& firstprivate(nvir)
+!$omp& private(jump1,jump2)
+!$omp section
                         jump1 = 1+(k-klo)*lnvv
-                        jump2 = 1+(k-klo)*lnov
-!$OMP SECTIONS
-!$OMP SECTION
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Jia,nvir,Tkj(jump1),nvir,0.0d0,
      2                       f1n,nvir)
@@ -140,7 +147,8 @@ c
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
      1                       Kia,nvir,Tkj(jump1),nvir,0.0d0,
      2                       f4n,nvir)
-!$OMP SECTION
+!$omp section
+                        jump1 = 1+(k-klo)*lnvv
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Jka(jump1),nvir,Tij,nvir,0.0d0,
      2                       f1t,nvir)
@@ -153,7 +161,8 @@ c
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
      1                       Kka(jump1),nvir,Tij,nvir,0.0d0,
      2                       f4t,nvir)
-!$OMP SECTION
+!$omp section
+                        jump2 = 1+(k-klo)*lnov
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tia,nvir,Kkj(jump2),nocc,1.0d0,
      2                       f1n,nvir)
@@ -166,7 +175,8 @@ c
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xia,nvir,Jkj(jump2),nocc,1.0d0,
      2                       f4n,nvir)
-!$OMP SECTION
+!$omp section
+                        jump2 = 1+(k-klo)*lnov
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tka(jump2),nvir,Kij,nocc,1.0d0,
      2                       f1t,nvir)
@@ -179,25 +189,30 @@ c
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xka(jump2),nvir,Jij,nocc,1.0d0,
      2                       f4t,nvir)
-!$OMP END SECTIONS
+!$omp end sections
+
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
                         dgemm_time = dgemm_time + (tt1-tt0)
                         tt0 = ga_wtime()
 #endif
-                        eaijk=eorb(ncor+i)+eorb(ncor+j)+eorb(ncor+k)
-     $                       -eorb(a)
+                        eaijk=eorb(a) - (  eorb(ncor+i)
+     &                                    +eorb(ncor+j)
+     &                                    +eorb(ncor+k) )
                         jump = ncor+nocc
 !$omp parallel do
-!$omp& private(b,c) shared(einv,eorb) schedule(static)
+!$omp& schedule(static)
+!$omp& shared(einv,eorb)
+!$omp& private(b,c)
 !$omp& firstprivate(eaijk,jump)
                         do b=1,nvir
-                          eorbaux=eorb(jump+b)-eaijk
                           do c=1,nvir
-                            einv(c,b)=-1.0d0/(eorbaux+eorb(jump+c))
+                            einv(c,b)=-1.0d0/( eorb(jump+b)
+     &                                        +eorb(jump+c)+eaijk )
                           enddo
                         enddo
 !$omp end parallel do
+
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
                         einv_time = einv_time + (tt1-tt0)
@@ -229,6 +244,7 @@ c
                            tt1 = ga_wtime()
                            tengy_time(2) = tengy_time(2) + (tt1-tt0)
 #endif
+
                         end if ! (i.ne.k)
                      end do
                   end do
