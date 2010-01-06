@@ -338,8 +338,10 @@ cccc#include "frac_occ.fh"
 *     **** read ions ****
       value = ion_init(rtdb)
 
+
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
+
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()

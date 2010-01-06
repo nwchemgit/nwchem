@@ -344,7 +344,7 @@ c     **** add occupation ****
       end do
       end do
 
-      GCDOT=sum
+      gcdot=sum
       return
       end
 
