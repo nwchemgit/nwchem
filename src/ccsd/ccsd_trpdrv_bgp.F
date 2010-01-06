@@ -35,7 +35,7 @@ c
       double precision dgemm_time
       double precision einv_time
 #endif
-      integer jump1,jump2
+      integer jump,jump1,jump2
       integer g_objo,g_objv,g_coul,g_exch
       integer inode,next,nxtask,nodes,iam
       integer oseg_lo,oseg_hi
@@ -126,7 +126,8 @@ c
 #endif
                         jump1 = 1+(k-klo)*lnvv
                         jump2 = 1+(k-klo)*lnov
-
+!$OMP SECTIONS
+!$OMP SECTION
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Jia,nvir,Tkj(jump1),nvir,0.0d0,
      2                       f1n,nvir)
@@ -139,6 +140,7 @@ c
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
      1                       Kia,nvir,Tkj(jump1),nvir,0.0d0,
      2                       f4n,nvir)
+!$OMP SECTION
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Jka(jump1),nvir,Tij,nvir,0.0d0,
      2                       f1t,nvir)
@@ -151,7 +153,7 @@ c
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
      1                       Kka(jump1),nvir,Tij,nvir,0.0d0,
      2                       f4t,nvir)
-
+!$OMP SECTION
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tia,nvir,Kkj(jump2),nocc,1.0d0,
      2                       f1n,nvir)
@@ -164,6 +166,7 @@ c
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xia,nvir,Jkj(jump2),nocc,1.0d0,
      2                       f4n,nvir)
+!$OMP SECTION
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tka(jump2),nvir,Kij,nocc,1.0d0,
      2                       f1t,nvir)
@@ -176,6 +179,7 @@ c
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xka(jump2),nvir,Jij,nocc,1.0d0,
      2                       f4t,nvir)
+!$OMP END SECTIONS
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
                         dgemm_time = dgemm_time + (tt1-tt0)
