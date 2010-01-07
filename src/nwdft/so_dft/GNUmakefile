@@ -31,7 +31,7 @@
 LIB_INCLUDES = -I../include -I../../ddscf
 
    USES_BLAS = dft_mxovlso.F diis_bld12_so.F diis_bsolve_so.F \
-sym_mo_adapt_so.F sym_op_clsfy_so.F dft_scf_so.F ga_orthog_so.F
+sym_mo_adapt_so.F sym_op_clsfy_so.F dft_scf_so.F ga_orthog_so.F dft_scf_utils_so.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
