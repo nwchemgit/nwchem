@@ -3117,7 +3117,7 @@ c     ****************************************
             w = DMatrix_m_get_value(i,j,A(shift2),
      >                 mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)))
          else
-            shift2 = (ms-1)*ne(1)
+            shift2 = (ms-1)*ne(1)*ne(1)
             w = A(i+(j-1)*ne(ms)+shift2)
          end if
       end if
