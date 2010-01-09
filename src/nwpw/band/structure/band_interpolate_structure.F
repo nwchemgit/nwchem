@@ -381,7 +381,7 @@ c     >           + f(20)
       if ((.not.cpsi_spin_orbit()).and.(cpsi_ispin().eq.2)) then
          do i=1,neall(2)
             do i1 = 1,10
-               if (i.le.ne(1)) then
+               if (i.le.ne(2)) then
                   f(i1) = cpsi_eigenvalue_brdcst(tindx(i1),2,i)
                else
                   f(i1) = cpsi_virtual_brdcst(tindx(i1),2,i-ne(2))

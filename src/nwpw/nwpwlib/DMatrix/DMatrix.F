@@ -580,6 +580,62 @@ c
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_m_set_value     *
+*     *                                 *
+*     ***********************************
+
+      subroutine DMatrix_m_set_value(w,i1,j1,A,ldq,mq,nq)
+      implicit none
+      real*8  w
+      integer i1,j1
+      integer ldq,mq(*),nq(*)
+      real*8  A(ldq,*)
+
+*     **** local variables ****
+      logical value
+      integer taskid
+      integer i,j
+      integer ii,jj
+      integer icur,jcur
+      integer precv
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
+
+      call Parallel_taskid(taskid)
+
+      jj   = 1
+      jcur = 0
+      do j=1,j1-1
+          jj = jj + 1
+         if (jj.gt.nq(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 1
+         end if
+      end do
+
+      ii   = 1
+      icur = 0
+      do i=1,i1-1
+         ii = ii +1
+         if (ii.gt.mq(icur+1)) then
+            icur = icur + 1
+            ii   = 1
+         end if
+      end do
+
+      precv = Parallel2d_convert_taskid_ij(icur,jcur)
+      if (precv.eq.taskid) then
+          A(ii,jj) = w
+      end if
+
+      return
+      end
+
+
 
 *     ***********************************
 *     *                                 *

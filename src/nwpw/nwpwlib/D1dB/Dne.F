@@ -3128,6 +3128,39 @@ c     ****************************************
 
 
 
+      subroutine Dneall_m_set_value(w,mb,ms,i,j,A)
+      implicit none
+      real*8 w
+      integer mb,ms,i,j
+      real*8  A(*)
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ishift2,shift2
+
+      if (ne(ms).gt.0)  then
+         if (mparallelized) then
+            if (mb.eq.0) then
+               ishift2 = mcq(1)*ncq(1)
+            else
+               ishift2 = 0
+            end if
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_m_set_value(w,i,j,A(shift2),
+     >                 mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)))
+         else
+            shift2 = (ms-1)*ne(1)*ne(1)
+             A(i+(j-1)*ne(ms)+shift2) = w
+         end if
+      end if
+
+      return
+      end
+
+
+
       real*8 function  Dneall_sm_value(i,j,A)
       implicit none
       integer i,j
@@ -5417,4 +5450,596 @@ c         **** modified Gram-Schmidt ****
 
       return
       end 
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_mne_diagonalize        *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_mne_diagonalize(mb,nein,hml,eig,assending)
+      implicit none
+      integer    mb,nein(2)
+      real*8     hml(*),eig(*)
+      logical    assending
+
+#include "mafdecls.fh"           
+#include "errquit.fh"
+#include "Dne.fh"
+
+*     ***** local variables ****
+      logical value
+      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,ierr
+      integer tmp1(2),V(2),VV(2),Q(2),tu(2),ework(2)
+
+      integer mcqin(NBLOCKS),ncqin(NBLOCKS)
+      integer mcin(2,NBLOCKS),ncin(2,NBLOCKS)
+      integer work1in(2),work2in(2)
+      integer i,j,k,nework
+
+
+      call nwpw_timing_start(17)
+      if (mparallelized) then
+
+*        ****************************************************
+*        **** define mcin,ncin,mcqin,ncqin based on nein ****
+*        ****************************************************
+         value = .true.
+         mcqin(1) = 0
+         mcqin(2) = 0
+         ncqin(1) = 0
+         ncqin(2) = 0
+         do ms=1,ispin
+             value = value.and.
+     >           MA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
+             value = value.and.
+     >           MA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
+             if (.not.value) then
+               call errquit(': out of heap memory',0,MA_ERR)
+             end if
+             call icopy(np_i,0,0,int_mb(mcin(1,ms)),1)
+             call icopy(np_j,0,0,int_mb(ncin(1,ms)),1)
+             i = 0
+             j = 0
+             do k=1,nein(ms)
+                int_mb(mcin(1,ms)+i) = int_mb(mcin(1,ms)+i) + 1
+                int_mb(ncin(1,ms)+j) = int_mb(ncin(1,ms)+j) + 1
+                i = mod(i+1,np_i)
+                j = mod(j+1,np_j)
+             end do
+             mcqin(ms) = int_mb(mcin(1,ms)+taskid_i)
+             ncqin(ms) = int_mb(ncin(1,ms)+taskid_j)
+         end do
+*        ****************************************************
+*        **** define mcin,ncin,mcqin,ncqin based on nein ****
+*        ****************************************************
+*        ***************************************************************
+*        ****** allocate work1in and work2in ***************************
+*        ***************************************************************
+         value = value.and.MA_push_get(mt_dbl,
+     >                                2*2*64*int_mb(mcin(1,1)+taskid_i),
+     >                                  'work1in',work1in(2),work1in(1))
+         nework = 2*64*int_mb(ncin(1,1)+taskid_j)
+         if (nework.lt.mcqin(1)*ncqin(1)) nework = mcqin(1)*ncqin(1)
+         value = value.and.MA_push_get(mt_dbl,
+     >                                  3*nework,
+     >                                  'work2in',work2in(2),work2in(1))
+         if (.not.value) 
+     >      call errquit(': out of heap memory',1,MA_ERR)
+*        ***************************************************************
+*        ****** allocate work1in and work2in ***************************
+*        ***************************************************************
+
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = nein(1)
+            ishift2 = mcqin(1)*ncqin(1)
+            call dcopy((nein(1)+nein(2)),0.0d0,0,eig,1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            call dcopy(nein(mb),0.0d0,0,eig,1)
+         end if
+         value = MA_push_get(mt_dbl,mcqin(1)*ncqin(1),'V',V(2),V(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,mcqin(1)*ncqin(1),'VV',VV(2),VV(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,mcqin(1)*ncqin(1),'Q',Q(2),Q(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,nein(1),'tu',tu(2),tu(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,nein(1),'ework',ework(2),ework(1))
+         if (.not. value) 
+     >      call errquit('Dneall_m_diagonalize:out of stack',
+     >                    0,MA_ERR)
+         do ms=ms1,ms2
+            shift1 = 1+(ms-1)*ishift1
+            shift2 = 1+(ms-1)*ishift2
+
+      
+            call nwpw_timing_start(22)
+            call DMatrix_tredq(nein(ms),
+     >                hml(shift2),dbl_mb(Q(1)),
+     >                mcqin(ms),int_mb(mcin(1,ms)),int_mb(ncin(1,ms)),
+     >                taskid_i,taskid_j,
+     >                np_i,np_j,
+     >                comm_i,comm_j,
+     >                dbl_mb(work1in(1)),dbl_mb(work2in(1)),
+     >                dbl_mb(V(1)),dbl_mb(VV(1)))
+            call nwpw_timing_end(22)
+
+            call nwpw_timing_start(23)
+            call DMatrix_getdiags(nein(ms),
+     >                eig(shift1),dbl_mb(tu(1)),
+     >                hml(shift2),
+     >                mcqin(ms),int_mb(mcin(1,ms)),int_mb(ncin(1,ms)),
+     >                taskid_i,taskid_j,
+     >                np_i,np_j,
+     >                comm_i,comm_j,
+     >                dbl_mb(ework(1)))
+            call dcopy(mcqin(ms)*ncqin(ms),dbl_mb(Q(1)),1,hml(shift2),1)
+            call nwpw_timing_end(23)
+
+            call nwpw_timing_start(24)
+            call DMatrix_tqliq(nein(ms),
+     >                eig(shift1),dbl_mb(tu(1)),
+     >                hml(shift2),
+     >                mcqin(ms),int_mb(mcin(1,ms)),int_mb(ncin(1,ms)),
+     >                taskid_i,taskid_j,
+     >                np_i,np_j,
+     >                comm_i,comm_j,
+     >                dbl_mb(work1in(1)),dbl_mb(work2in(1)))
+            call nwpw_timing_end(24)
+
+            call nwpw_timing_start(25)
+            if (.not.assending)
+     >      call DMatrix_eigsrtq(nein(ms),
+     >              eig(shift1),
+     >              hml(shift2),
+     >              mcqin(ms),int_mb(mcin(1,ms)),int_mb(ncin(1,ms)),
+     >              taskid_i,taskid_j,
+     >              np_i,np_j,
+     >              comm_i,comm_j,
+     >              dbl_mb(work1in(1)),dbl_mb(work2in(1)))
+            call nwpw_timing_end(25)
+
+         end do
+
+         value =           MA_pop_stack(ework(2))
+         value = value.and.MA_pop_stack(tu(2))
+         value = value.and.MA_pop_stack(Q(2))
+         value = value.and.MA_pop_stack(VV(2))
+         value = value.and.MA_pop_stack(V(2))
+         if (.not. value) 
+     >    call errquit('error popping stack in Dneall_mne_diagonalize',
+     >                 0,MA_ERR)
+
+*        ****************************************************
+*        **** deallocate mcin,ncin,work1in,work2in       ****
+*        ****************************************************
+         value = .true.
+         value = value.and.MA_pop_stack(work2in(2))
+         value = value.and.MA_pop_stack(work1in(2))
+         do ms=ispin,1,-1
+            value = value.and.MA_pop_stack(ncin(2,ms))
+            value = value.and.MA_pop_stack(mcin(2,ms))
+         end do
+        if (.not.value) 
+     >     call errquit('Dne_end: error deallocating stack',
+     >                  0,MA_ERR)
+*        ****************************************************
+*        **** deallocate mcin,ncin,work1in,work2in       ****
+*        ****************************************************
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = nein(1)
+            ishift2 = nein(1)*ne(1)
+            call dcopy((nein(1)+nein(2)),0.0d0,0,eig,1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            call dcopy(nein(mb),0.0d0,0,eig,1)
+         end if
+
+         value = MA_push_get(mt_dbl,(2*nein(1)*nein(1)),
+     >                       'tmp1',tmp1(2),tmp1(1))
+         if (.not. value) 
+     >      call errquit('Dneall_mne_diagonalize:out of stack',
+     >                    1,MA_ERR)
+
+*        ***** diagonalize the matrix *****
+         do ms=ms1,ms2
+            shift1 = 1+(ms-1)*ishift1
+            shift2 = 1+(ms-1)*ishift2
+            if (nein(ms).le.0) go to 30
+
+            call DSYEV('V','U',nein(ms),
+     >                 hml(shift2),nein(ms), 
+     >                 eig(shift1),
+     >                 dbl_mb(tmp1(1)),2*nein(1)*nein(1),
+     >                 ierr)
+
+            if (.not.assending)
+     >       call eigsrt(eig(shift1),
+     >                   hml(shift2),
+     >                   nein(ms),nein(ms))
+
+  30       continue
+         end do
+
+         value = MA_pop_stack(tmp1(2))
+         if (.not. value) 
+     >    call errquit('error popping stack in Dneall_mne_diagonalize',
+     >                 0,MA_ERR)
+
+      end if
+
+      call nwpw_timing_end(17)
+      return
+      end
+
+
+      real*8 function  Dneall_mne_value(mb,nein,ms,i,j,A)
+      implicit none
+      integer mb,ms,i,j,nein(2)
+      real*8  A(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ishift2,shift2
+      real*8 w
+
+      logical value
+      integer mcqin(2),ncqin(2)
+      integer mcin(2,NBLOCKS),ncin(2,NBLOCKS)
+      integer ii,jj,k
+
+*     **** external functions ****
+      real*8   DMatrix_m_get_value
+      external DMatrix_m_get_value
+      
+      w = 0.0d0
+      if (nein(ms).gt.0)  then
+         if (mparallelized) then
+
+
+         value = .true.
+         mcqin(1) = 0
+         mcqin(2) = 0
+         ncqin(1) = 0
+         ncqin(2) = 0
+         do ms=1,ispin
+             value = value.and.
+     >           MA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
+             value = value.and.
+     >           MA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
+             if (.not.value) then
+               call errquit(': out of heap memory',0,MA_ERR)
+             end if
+             call icopy(np_i,0,0,int_mb(mcin(1,ms)),1)
+             call icopy(np_j,0,0,int_mb(ncin(1,ms)),1)
+             ii = 0
+             jj = 0
+             do k=1,nein(ms)
+                int_mb(mcin(1,ms)+ii) = int_mb(mcin(1,ms)+ii) + 1
+                int_mb(ncin(1,ms)+jj) = int_mb(ncin(1,ms)+jj) + 1
+                ii = mod(jj+1,np_i)
+                jj = mod(jj+1,np_j)
+             end do
+             mcqin(ms) = int_mb(mcin(1,ms)+taskid_i)
+             ncqin(ms) = int_mb(ncin(1,ms)+taskid_j)
+         end do
+
+
+            if (mb.eq.0) then
+               ishift2 = mcqin(1)*ncqin(1)
+            else
+               ishift2 = 0
+            end if
+            shift2 = 1 + (ms-1)*ishift2
+            w = DMatrix_m_get_value(i,j,A(shift2),
+     >                 mcqin(ms),int_mb(mcin(1,ms)),int_mb(ncin(1,ms)))
+
+
+         do ms=ispin,1,-1
+            value = value.and.MA_pop_stack(ncin(2,ms))
+            value = value.and.MA_pop_stack(mcin(2,ms))
+         end do
+        if (.not.value) 
+     >     call errquit('Dne_end: error deallocating stack',
+     >                  0,MA_ERR)
+
+
+
+         else
+            if (mb.eq.0) then
+               ishift2 = nein(1)*nein(1)
+            else
+               ishift2 = 0
+            end if
+            shift2 = (ms-1)*ishift2
+            w = A(i+(j-1)*nein(ms)+shift2)
+         end if
+      end if
+
+      Dneall_mne_value = w
+      return
+      end
+
+
+
+      subroutine Dneall_mne_set_value(w,mb,nein,ms,i,j,A)
+      implicit none
+      real*8 w
+      integer mb,ms,i,j,nein(2)
+      real*8  A(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ishift2,shift2
+
+      logical value
+      integer mcqin(2),ncqin(2)
+      integer mcin(2,NBLOCKS),ncin(2,NBLOCKS)
+      integer ii,jj,k
+
+      if (nein(ms).gt.0)  then
+         if (mparallelized) then
+
+
+
+         value = .true.
+         mcqin(1) = 0
+         mcqin(2) = 0
+         ncqin(1) = 0
+         ncqin(2) = 0
+         do ms=1,ispin
+             value = value.and.
+     >           MA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
+             value = value.and.
+     >           MA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
+             if (.not.value) then
+               call errquit(': out of heap memory',0,MA_ERR)
+             end if
+             call icopy(np_i,0,0,int_mb(mcin(1,ms)),1)
+             call icopy(np_j,0,0,int_mb(ncin(1,ms)),1)
+             ii = 0
+             jj = 0
+             do k=1,nein(ms)
+                int_mb(mcin(1,ms)+ii) = int_mb(mcin(1,ms)+ii) + 1
+                int_mb(ncin(1,ms)+jj) = int_mb(ncin(1,ms)+jj) + 1
+                ii = mod(ii+1,np_i)
+                jj = mod(jj+1,np_j)
+             end do
+             mcqin(ms) = int_mb(mcin(1,ms)+taskid_i)
+             ncqin(ms) = int_mb(ncin(1,ms)+taskid_j)
+         end do
+
+
+
+
+            if (mb.eq.0) then
+               ishift2 = mcqin(1)*ncqin(1)
+            else
+               ishift2 = 0
+            end if
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_m_set_value(w,i,j,A(shift2),
+     >                 mcqin(ms),int_mb(mcin(1,ms)),int_mb(ncin(1,ms)))
+
+
+
+         do ms=ispin,1,-1
+            value = value.and.MA_pop_stack(ncin(2,ms))
+            value = value.and.MA_pop_stack(mcin(2,ms))
+         end do
+        if (.not.value)
+     >     call errquit('Dne_end: error deallocating stack',
+     >                  0,MA_ERR)
+
+
+
+         else
+            if (mb.eq.0) then
+               ishift2 = nein(1)*nein(1)
+            else
+               ishift2 = 0
+            end if
+            shift2 = (ms-1)*ishift2
+             A(i+(j-1)*nein(ms)+shift2) = w
+         end if
+      end if
+
+      return
+      end
+
+
+
+c
+c
+c     ****************************************
+c     *                                      *
+c     *        Dneall_mne_allocate_block     *
+c     *                                      *
+c     ****************************************
+      logical function Dneall_mne_allocate_block(mb,nb,nein,hml)
+      implicit none
+      integer mb,nb,nein(2)
+      integer hml(2)
+
+#include "Dne.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+
+      integer size
+
+      logical value
+      integer mcqin(2),ncqin(2)
+      integer mcin(2,NBLOCKS),ncin(2,NBLOCKS)
+      integer ii,jj,k,ms
+
+     
+      if (mparallelized) then
+
+         value = .true.
+         mcqin(1) = 0
+         mcqin(2) = 0
+         ncqin(1) = 0
+         ncqin(2) = 0
+         do ms=1,ispin
+             value = value.and.
+     >           MA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
+             value = value.and.
+     >           MA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
+             if (.not.value) 
+     >         call errquit(': out of stackmemory',0,MA_ERR)
+     
+             call icopy(np_i,0,0,int_mb(mcin(1,ms)),1)
+             call icopy(np_j,0,0,int_mb(ncin(1,ms)),1)
+             ii = 0
+             jj = 0
+             do k=1,nein(ms)
+                int_mb(mcin(1,ms)+ii) = int_mb(mcin(1,ms)+ii) + 1
+                int_mb(ncin(1,ms)+jj) = int_mb(ncin(1,ms)+jj) + 1
+                ii = mod(ii+1,np_i)
+                jj = mod(jj+1,np_j)
+             end do
+             mcqin(ms) = int_mb(mcin(1,ms)+taskid_i)
+             ncqin(ms) = int_mb(ncin(1,ms)+taskid_j)
+         end do
+
+
+
+         if (mb.eq.0) then
+            size = mcqin(1)*ncqin(1) + mcqin(2)*ncqin(2)
+         else
+            size = mcqin(mb)*ncqin(mb)
+         end if
+
+
+         do ms=ispin,1,-1
+            value = value.and.MA_pop_stack(ncin(2,ms))
+            value = value.and.MA_pop_stack(mcin(2,ms))
+         end do
+        if (.not.value)
+     >     call errquit('Dne_end: error deallocating stack',
+     >                  0,MA_ERR)
+
+
+      else
+         if (mb.eq.0) then 
+            size = nein(1)*nein(1) + nein(2)*nein(2)
+         else
+            size = nein(mb)*nein(mb)
+         end if
+      end if
+     
+      Dneall_mne_allocate_block 
+     > = MA_alloc_get(mt_dbl,nb*size,'hmlab',hml(2),hml(1))
+      return
+      end
+
+
+
+
+c
+c
+c     ****************************************
+c     *                                      *
+c     *        Dneall_mne_size                *
+c     *                                      *
+c     ****************************************
+      integer function Dneall_mne_size(mb,nein)
+      implicit none
+      integer mb,nein(2)
+
+#include "Dne.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+
+      integer size
+
+      logical value
+      integer mcqin(2),ncqin(2)
+      integer mcin(2,NBLOCKS),ncin(2,NBLOCKS)
+      integer ii,jj,k,ms
+
+     
+      if (mparallelized) then
+
+         value = .true.
+         mcqin(1) = 0
+         mcqin(2) = 0
+         ncqin(1) = 0
+         ncqin(2) = 0
+         do ms=1,ispin
+             value = value.and.
+     >           MA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
+             value = value.and.
+     >           MA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
+             if (.not.value) 
+     >         call errquit(': out of stackmemory',0,MA_ERR)
+     
+             call icopy(np_i,0,0,int_mb(mcin(1,ms)),1)
+             call icopy(np_j,0,0,int_mb(ncin(1,ms)),1)
+             ii = 0
+             jj = 0
+             do k=1,nein(ms)
+                int_mb(mcin(1,ms)+ii) = int_mb(mcin(1,ms)+ii) + 1
+                int_mb(ncin(1,ms)+jj) = int_mb(ncin(1,ms)+jj) + 1
+                ii = mod(ii+1,np_i)
+                jj = mod(jj+1,np_j)
+             end do
+             mcqin(ms) = int_mb(mcin(1,ms)+taskid_i)
+             ncqin(ms) = int_mb(ncin(1,ms)+taskid_j)
+         end do
+
+
+
+         if (mb.eq.0) then
+            size = mcqin(1)*ncqin(1) + mcqin(2)*ncqin(2)
+         else
+            size = mcqin(mb)*ncqin(mb)
+         end if
+
+
+         do ms=ispin,1,-1
+            value = value.and.MA_pop_stack(ncin(2,ms))
+            value = value.and.MA_pop_stack(mcin(2,ms))
+         end do
+        if (.not.value)
+     >     call errquit('Dne_end: error deallocating stack',
+     >                  0,MA_ERR)
+
+
+      else
+         if (mb.eq.0) then 
+            size = nein(1)*nein(1) + nein(2)*nein(2)
+         else
+            size = nein(mb)*nein(mb)
+         end if
+      end if
+     
+      Dneall_mne_size = size
+      return
+      end
+
 

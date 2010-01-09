@@ -1944,6 +1944,7 @@ c         end do
 
 
 
+
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne_occupation(ispin,ne,smearoccupation)  !** only ne and occupation are used 
       nbrillioun = brillioun_nbrillioun()
@@ -2082,6 +2083,9 @@ c     *****  read initial wavefunctions into psi1  ****
 *     **** Ortho Check ****
       call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,
      >                             psi1_tag)
+
+      ne_excited(1) = 0
+      ne_excited(2) = 0
 
       cpsi_initialize = value
       return
@@ -2848,5 +2852,128 @@ c     *****  read initial wavefunctions into psi1  ****
       return
       end
 
+ 
+*     ***************************
+*     *				*
+*     *	  ecpsi_generate_kb_H   *
+*     *				*
+*     ***************************
+      subroutine ecpsi_generate_kb_H(dk,nb,H)
+      implicit none
+      real*8     dk(3)
+      integer    nb
+      complex*16 H(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      logical value 
+      integer ms,i,j,neall(1),isize
+      integer nbq,p,taskid_k,indx,indxt
+      integer Gx(2),Gy(2),Gz(2),tmp(2),psii,psij
+      real*8  kx,ky,kz
+      complex*16 vv(3),ww
+
+*     **** external functions ****
+      integer  c_G_indx,Parallel3d_taskid_k,cpsi_data_get_ptr
+      real*8   brillioun_k
+      external c_G_indx,Parallel3d_taskid_k,cpsi_data_get_ptr
+      external brillioun_k
+
+      neall(1) = ne(1)+ne_excited(1)
+      neall(2) = ne(2)+ne_excited(2)
+
+      isize = neall(1)*neall(1) + neall(2)*neall(2)
+      call dcopy(2*isize,0.0d0,0,H,1)
+
+      call Parallel3d_taskid_k(taskid_k)
+      call K1dB_ktoqp(nb,nbq,p)
+      if (p.eq.taskid_k) then
+         value = MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl, 2*npack1,'tmp',tmp(2),tmp(1))
+         if (.not. value) 
+     >      call errquit('ecpsi_generate_kb_H:pushing stack',1,MA_ERR)
+
+*        **** define Gx,Gy and Gz in packed space ****
+         kx = brillioun_k(1,nbq)
+         ky = brillioun_k(2,nbq)
+         kz = brillioun_k(3,nbq)
+         call C3dB_r_Copy(1,dbl_mb(c_G_indx(1)),dbl_mb(Gx(1)))
+         call C3dB_r_Copy(1,dbl_mb(c_G_indx(2)),dbl_mb(Gy(1)))
+         call C3dB_r_Copy(1,dbl_mb(c_G_indx(3)),dbl_mb(Gz(1)))
+         do i=1,nfft3d
+            dbl_mb(Gx(1)+i-1) = dbl_mb(Gx(1)+i-1) + kx
+            dbl_mb(Gy(1)+i-1) = dbl_mb(Gy(1)+i-1) + ky
+            dbl_mb(Gz(1)+i-1) = dbl_mb(Gz(1)+i-1) + kz
+         end do
+         call Cram_r_pack(nbq,dbl_mb(Gx(1)))
+         call Cram_r_pack(nbq,dbl_mb(Gy(1)))
+         call Cram_r_pack(nbq,dbl_mb(Gz(1)))
+
+
+         do ms=1,ispin
+         do j=1,neall(ms)
+            if (j.le.ne(ms)) then
+               psij = cpsi_data_get_ptr(psi1_tag,nbq,j)
+            else
+               psij = cpsi_data_get_ptr(psi1_excited_tag,nbq,j-ne(ms))
+            end if
+
+            do i=j,neall(ms)
+               indx  = i+(j-1)*neall(ms)+(ms-1)*neall(1)**2
+               indxt = j+(i-1)*neall(ms)+(ms-1)*neall(1)**2
+               if (i.le.ne(ms)) then
+                 psii = cpsi_data_get_ptr(psi1_tag,nbq,i)
+               else
+                 psii = cpsi_data_get_ptr(psi1_excited_tag,nbq,i-ne(ms))
+               end if
+               call Cram_rc_Mul(nbq,
+     >                          dbl_mb(Gx(1)),
+     >                          dbl_mb(psij),
+     >                          dbl_mb(tmp(1)))
+               call Cram_cc_zdot(nbq,
+     >                           dbl_mb(psii),
+     >                           dbl_mb(tmp(1)),
+     >                           vv(1))
+               call Cram_rc_Mul(nbq,
+     >                          dbl_mb(Gy(1)),
+     >                          dbl_mb(psij),
+     >                          dbl_mb(tmp(1)))
+               call Cram_cc_zdot(nbq,
+     >                           dbl_mb(psii),
+     >                           dbl_mb(tmp(1)),
+     >                           vv(2))
+               call Cram_rc_Mul(nbq,
+     >                          dbl_mb(Gz(1)),
+     >                          dbl_mb(psij),
+     >                          dbl_mb(tmp(1)))
+               call Cram_cc_zdot(nbq,
+     >                           dbl_mb(psii),
+     >                           dbl_mb(tmp(1)),
+     >                           vv(3))
+               H(indx) = -dk(1)*vv(1) - dk(2)*vv(2) - dk(3)*vv(3)
+               if (i.ne.j) H(indxt) = H(indx)
+            end do
+         end do
+         end do
+         value =           MA_pop_stack(tmp(2))
+         value = value.and.MA_pop_stack(Gz(2))
+         value = value.and.MA_pop_stack(Gy(2))
+         value = value.and.MA_pop_stack(Gx(2))
+         if (.not. value) 
+     >      call errquit('ecpsi_generate_kb_H:popping stack',1,MA_ERR)
+      end if
+      isize = neall(1)*neall(1) + neall(2)*neall(2)
+      call K1dB_Vector_SumAll(2*isize,H)
+
+      return
+      end
 
 

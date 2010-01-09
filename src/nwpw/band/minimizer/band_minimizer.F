@@ -593,6 +593,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
 *     **** calculate interpolated band structure plot ***
       call band_interpolate_structure(rtdb)
+cc      call band_kp_structure(rtdb)
 
 *     **** calculate Mulliken Populations ***
 

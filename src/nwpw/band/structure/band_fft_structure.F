@@ -113,11 +113,8 @@
         end if
       end if
 
-      if (taskid.eq.MASTER)  then
-         write(luout,*)
-         write(luout,*) "kp band structure calculation" 
-         write(luout,*)
-      end if
+      if (taskid.eq.MASTER) 
+     >   write(luout,*) "kp band structure calculation" 
 
       do k=1,nbrillall
          call control_ksvector_structure(k,ks)
@@ -158,6 +155,7 @@
          itet(1,4) = i1
          itet(2,4) = i2
          itet(3,4) = i3 + iz
+
 
          do j=1,4
          do i=1,3
@@ -207,7 +205,9 @@
             dk(2) = ktet(2,j)-kv(2)
             dk(3) = ktet(3,j)-kv(3)
             dk2   = dk(1)*dk(1) + dk(2)*dk(2) + dk(3)*dk(3)
+            write(*,*) "j=",j,dk2,tindx(j),neall,dk
             call ecpsi_generate_kb_H(dk,tindx(j),dcpl_mb(hml(1)))
+            write(*,*) " - herb"
             call band_kb_add_eigs(dk2,tindx(j),neall,dcpl_mb(hml(1)))
             call Pneb_wne_diag(0,1,neall,
      >                         dbl_mb(teigs(1,j)),dcpl_mb(hml(1)))
@@ -218,9 +218,11 @@
             end do
             call dcopy(16,vandermonde,1,A,1)
             call DGESV(4,1,A,4,ipiv,f,4,ierr)
+c            dbl_mb(eigs(1)+i-1)=f(1)*kv(1)+f(2)*kv(2)+f(3)*kv(3)+f(4)
             dbl_mb(eigs(1)+i-1)=f(4)
          end do
 
+c         call band_kp_eigs(kv,tindx,ktet,dcpl_mb(hml(1)),dbl_mb(eigs(1)))
 
          !*** spin-orbit ****
          if (taskid.eq.MASTER) then
@@ -316,8 +318,7 @@ c     >       /'          =<',3f8.3,'>')
             else
                f = cpsi_virtual_brdcst(nb,ms,i-ne(ms))
             end if
-            
-            H(indx) = H(indx) + dcmplx((f+0.5d0*dk2),0.0d0)
+            H(indx) = H(indx) + (f + 0.5d0*dk2)
          end do
       end do
       

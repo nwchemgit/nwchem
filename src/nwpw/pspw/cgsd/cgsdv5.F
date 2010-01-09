@@ -137,8 +137,8 @@
       external control_ks_maxit_orb,control_ks_maxit_orbs
       logical  control_fractional
       external control_fractional
-      integer  control_fractional_smeartype
-      external control_fractional_smeartype
+      integer  control_fractional_smeartype,control_excited_ne
+      external control_fractional_smeartype,control_excited_ne
       real*8   control_fractional_kT,control_fractional_temperature
       external control_fractional_kT,control_fractional_temperature
 
@@ -593,7 +593,11 @@ c     end if
 *                |***************************|
 
 *     **** calculate Mulliken Populations ***
-      if (control_Mulliken()) call psi_Mulliken(rtdb)
+      if (control_Mulliken()) then
+         call psi_Mulliken(rtdb)
+         i = control_excited_ne(1)+control_excited_ne(2)
+         if (i.eq.0) call kp_structure(rtdb)
+      end if
 
 
 *     **** write wavefunctions to file and finalize psi ****

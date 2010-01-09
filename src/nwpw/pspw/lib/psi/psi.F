@@ -5546,6 +5546,8 @@ c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
       external         control_fractional_kT
 
 
+      ne_excited(1) = 0
+      ne_excited(2) = 0
 
 *     **** reformat wavefunction if it is a band wavefunction ****
       vers = psi_get_version()
@@ -6274,5 +6276,117 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
+      subroutine epsi_generate_kb_vnm(vnm)
+      implicit none
+      real*8 vnm(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      logical value
+      integer ms,i,j,vshift,ishift,neall(2)
+      integer Gx(2),Gy(2),Gz(2),tmp(2),psii_ptr,psij_ptr
+      real*8  vv(3)
+
+*     **** external functions ****
+      integer  Dneall_mne_size,G_indx
+      external Dneall_mne_size,G_indx
+       
+      neall(1) = ne(1)+ne_excited(1)
+      neall(2) = ne(2)+ne_excited(2)
+
+      value = MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl, 2*npack1,'tmp',tmp(2),tmp(1))
+         if (.not. value)
+     >      call errquit('epsi_generate_kb_vnm:pushing stack',1,MA_ERR)
+
+
+*     **** define Gx,Gy and Gz in packed space ****
+      call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(Gx(1)))
+      call D3dB_t_Copy(1,dbl_mb(G_indx(2)),dbl_mb(Gy(1)))
+      call D3dB_t_Copy(1,dbl_mb(G_indx(3)),dbl_mb(Gz(1)))
+      call Pack_t_pack(1,dbl_mb(Gx(1)))
+      call Pack_t_pack(1,dbl_mb(Gy(1)))
+      call Pack_t_pack(1,dbl_mb(Gz(1)))
+
+
+      vshift = Dneall_mne_size(0,neall)
+      call dcopy(3*vshift,0.0d0,0,vnm,1)
+
+      do ms=1,ispin
+         ishift = (ms-1)*ne(1)
+
+         do j=1,neall(ms)
+            if (j.le.ne(ms)) then
+               psij_ptr =(j-1+ishift)*npack1 + psi1(1)
+            else
+               psij_ptr =(j-ne(ms)-1+ishift)*npack1 + psi1_excited(1)
+            end if
+
+            do i=j,neall(ms)
+               if (i.le.ne(ms)) then
+                  psii_ptr =(i-1+ishift)*npack1 + psi1(1)
+               else
+                  psii_ptr =(i-ne(ms)-1+ishift)*npack1 + psi1_excited(1)
+               end if
+
+               call Pack_tc_Mul(1,
+     >                          dbl_mb(Gx(1)),
+     >                          dcpl_mb(psij_ptr),
+     >                          dbl_mb(tmp(1)))
+               call Pack_cc_dot(1,
+     >                          dcpl_mb(psii_ptr),
+     >                          dbl_mb(tmp(1)),
+     >                          vv(1))
+               call Pack_tc_Mul(1,
+     >                          dbl_mb(Gy(1)),
+     >                          dcpl_mb(psij_ptr),
+     >                          dbl_mb(tmp(1)))
+               call Pack_cc_dot(1,
+     >                          dcpl_mb(psii_ptr),
+     >                          dbl_mb(tmp(1)),
+     >                          vv(2))
+               call Pack_tc_Mul(1,
+     >                          dbl_mb(Gz(1)),
+     >                          dcpl_mb(psij_ptr),
+     >                          dbl_mb(tmp(1)))
+               call Pack_cc_dot(1,
+     >                          dcpl_mb(psii_ptr),
+     >                          vv(3))
+   
+
+               call Dneall_mne_set_value(vv(1),0,neall,ms,i,j,vnm)
+               call Dneall_mne_set_value(vv(2),0,neall,ms,i,j,
+     >                                   vnm(1+vshift))
+               call Dneall_mne_set_value(vv(3),0,neall,ms,i,j,
+     >                                   vnm(1+vshift+vshift))
+               if (i.ne.j) then
+                  call Dneall_mne_set_value(vv(1),0,neall,ms,j,i,vnm)
+                  call Dneall_mne_set_value(vv(2),0,neall,ms,j,i,
+     >                                      vnm(1+vshift))
+                  call Dneall_mne_set_value(vv(3),0,neall,ms,j,i,
+     >                                      vnm(1+vshift+vshift))
+               end if
+            end do
+         end do
+      end do
+
+      value =           MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(Gz(2))
+      value = value.and.MA_pop_stack(Gy(2))
+      value = value.and.MA_pop_stack(Gx(2))
+      if (.not. value)
+     >   call errquit('epsi_generate_kb_vnm:popping stack',1,MA_ERR)
+
+      
+      return
+      end
 
 

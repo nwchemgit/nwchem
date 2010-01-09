@@ -421,6 +421,44 @@ c     ****************************************
       return
       end
 
+
+
+c
+c     ****************************************
+c     *                                      *
+c     *        Pneb_wne_size                 *
+c     *                                      *
+c     ****************************************
+      integer function Pneb_wne_size(mb,nb,nein)
+      implicit none
+      integer mb,nb,nein(2)
+
+#include "Pneb.fh"
+
+      integer mbsize,nbsize
+
+      if (nb.eq.0) then
+        nbsize = nbrillq
+      else
+        nbsize = 1
+      end if
+
+      if (mb.eq.0) then
+         if (.not.spin_orbit) then
+            mbsize = nein(1)*nein(1) + nein(2)*nein(2)       !*** Changing back to a more packed space! ***
+         else
+            mbsize = nein(1)*nein(1)
+         end if
+      else
+         mbsize = nein(mb)*nein(mb)
+      end if
+
+      Pneb_wne_size = mbsize*nbsize
+      return
+      end
+
+
+
 c     ****************************************
 c     *                                      *
 c     *        Pneb_m_allocate               *
@@ -469,6 +507,34 @@ c     ****************************************
      
       size = Pneb_w_size(mb,nb)
       Pneb_w_allocate = MA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        Pneb_wne_allocate_block       *
+c     *                                      *
+c     ****************************************
+
+      logical function Pneb_wne_allocate_block(mb,nb,nblocks,nein,hml)
+      implicit none
+      integer mb,nb,nblocks,nein(2)
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_wne_size
+      external Pneb_wne_size
+
+      size = nblocks*Pneb_wne_size(mb,nb,nein)
+      Pneb_wne_allocate_block 
+     > = MA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
       return
       end
 
@@ -1397,6 +1463,86 @@ c     ***** pop stack memory *****
 
       return
       end      
+
+
+
+c     ccccccccccccccccccccccccccccccccccc
+c     *                                 *
+c     *         Pneb_wne_diag           *
+c     *                                 *
+c     ccccccccccccccccccccccccccccccccccc
+
+      subroutine Pneb_wne_diag(mbb,nbb,nein,S,V)
+      implicit none
+      integer    mbb,nbb,nein(2)
+      real*8     S(*)
+      complex*16 V(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Pneb.fh"
+
+c     *** local variables ***
+      logical value
+      integer nb,nb1,nb2,ms,ms1,ms2
+      integer rwork(2),work(2),lwork,ierr
+      integer vindex,sindex
+
+      if (nbb.eq.0) then
+        nb1=1
+        nb2=nbrillq
+      else
+        nb1=nbb
+        nb2=nbb
+      end if   
+
+      if (mbb.eq.0) then
+         ms1 = 1
+         ms2 = ispinq
+      else
+         ms1 = mbb
+         ms2 = mbb
+      end if
+
+
+c     **** get temp memory from stack ****
+      lwork=3*nein(1)*nein(1)
+      value =MA_push_get(mt_dbl,lwork,'rwork',rwork(2),rwork(1))
+      value =value.and.MA_push_get(mt_dcpl,lwork,'work',work(2),work(1))
+      if (.not.value) 
+     >  call errquit('Pneb_wne_diag: out of stack',0,MA_ERR)
+
+      sindex = 1
+      vindex = 1
+      do nb=nb1,nb2
+      do ms=ms1,ms2
+        if (nein(ms).gt.0) then
+           call ZHEEV('V','L',nein(ms),
+     >                 V(vindex),nein(ms),
+     >                 S(sindex),
+     >                 dcpl_mb(work(1)),lwork,
+     >                 dbl_mb(rwork(1)),
+     >                 ierr)
+           if (ierr.ne.0) 
+     >       call errquit("Pneb_wne_diag: ZHEEV failed",ierr,0)
+        endif
+
+        vindex=vindex + nein(ms)*nein(ms)
+        sindex=sindex + nein(ms)       
+      end do
+      end do
+             
+
+c     ***** pop stack memory *****
+      value=          MA_pop_stack(work(2))
+      value=value.and.MA_pop_stack(rwork(2))
+      if (.not.value) then
+        call errquit('Pneb_wne_diag:error popping stack',0,MA_ERR)
+      end if
+
+      return
+      end      
+
 
 
 c     ccccccccccccccccccccccccccccccccccccccccccc

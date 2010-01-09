@@ -24,7 +24,8 @@
                 bybminimize2.o \
                 sdminimize.o \
 		nominimize.o \
-		md_energy.o
+		md_energy.o \
+		kp_structure.o
 
 	  OBJ = 
 

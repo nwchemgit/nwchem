@@ -114,10 +114,15 @@ c#include "rtdb.fh"
 
 *     **** calculate Density of States ***
       rtdb = control_rtdb()
-      if (control_DOS()) call epsi_DOS(rtdb)
+      if (control_DOS()) then
+         call epsi_DOS(rtdb)
+      end if
 
 *     **** calculate Mulliken Populations ***
-      if (control_Mulliken()) call epsi_Mulliken(rtdb)
+      if (control_Mulliken()) then
+         call epsi_Mulliken(rtdb)
+         call kp_structure(rtdb)
+      end if
 
 
 
