@@ -2848,6 +2848,7 @@ c     *****  read initial wavefunctions into psi1  ****
 
       call cpsi_data_dealloc(eig_excited_tag)
 
+      value = .true.
       ecpsi_finalize = value
       return
       end
@@ -2870,16 +2871,16 @@ c     *****  read initial wavefunctions into psi1  ****
 
 *     **** local variables ****
       logical value 
-      integer ms,i,j,neall(1),isize
+      integer ms,i,j,neall(2),isize
       integer nbq,p,taskid_k,indx,indxt
       integer Gx(2),Gy(2),Gz(2),tmp(2),psii,psij
       real*8  kx,ky,kz
       complex*16 vv(3),ww
 
 *     **** external functions ****
-      integer  c_G_indx,Parallel3d_taskid_k,cpsi_data_get_ptr
+      integer  c_G_indx,cpsi_data_get_ptr
       real*8   brillioun_k
-      external c_G_indx,Parallel3d_taskid_k,cpsi_data_get_ptr
+      external c_G_indx,cpsi_data_get_ptr
       external brillioun_k
 
       neall(1) = ne(1)+ne_excited(1)
