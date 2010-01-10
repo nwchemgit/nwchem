@@ -517,6 +517,40 @@ c
          gga = 11
       else if (inp_compare(.false.,exchange_correlation,'revpbe')) then
          gga = 12
+
+
+*     **** Hartree-Fock ***
+      else if (inp_compare(.false.,exchange_correlation,'hf')) then
+        gga = 200
+        value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'hartree-fock')) then
+        gga = 200
+        value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
+
+
+*     **** hybrid functionals ****
+      else if (inp_compare(.false.,exchange_correlation,'pbe0')) then
+        gga = 110
+        value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_parameter',mt_dbl,1,0.25d0)
+
+      else if (inp_compare(.false.,exchange_correlation,'revpbe0')) then
+        gga = 112
+        value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_parameter',mt_dbl,1,0.25d0)
+
+      else if (inp_compare(.false.,exchange_correlation,'bnl')) then
+        gga = 113
+        value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_parameter',mt_dbl,1,1.00d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_screening_type',mt_int,1,2)
+
+
       else
          gga = 0
       end if

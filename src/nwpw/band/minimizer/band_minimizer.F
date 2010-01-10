@@ -226,7 +226,7 @@ c      external      cpsp_comment
       call C3dB_pfft_init()
 
 *     **** initialize D3dB data structure and mask for GGA ****
-      if ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
+      if ((control_gga().ge.10).and.(control_gga().le.200)) THEN
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call G_init()
       call mask_init()
@@ -286,6 +286,10 @@ c      external      cpsp_comment
 *     **** electron and geodesic data structures ****
       call c_electron_init()
       call c_geodesic_init()
+
+*     **** initialize HFX ****
+      call band_init_HFX(rtdb,nbrillioun,ispin,ne)
+
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
@@ -350,10 +354,22 @@ c      external      cpsp_comment
          ELSE IF (control_gga().eq.12) THEN
             write(luout,1131)
      >      'revPBE (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.110) THEN
+            write(luout,1131) 
+     >      'PBE0 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.112) THEN
+            write(luout,1131)
+     >      'revPBE0 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.113) THEN
+            write(luout,1131) 
+     >      'BNL (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.200) THEN
+            write(luout,1131) 'Hartree-Fock'
          ELSE
             write(luout,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
+         call band_print_HFX(luout)
          write(luout,1140)
          do ia = 1,ion_nkatm()
            write(luout,1150) ia,ion_atom(ia),
@@ -617,13 +633,14 @@ cc      call band_kp_structure(rtdb)
       call cpsp_end()
       call Cram_end()
       call c_G_end()
+      call band_end_HFX()
       call brillioun_end()
       call ion_end()
       call ion_end_FixIon()
       call cpsi_data_end()
       call C3dB_pfft_end()
       call C3dB_end(1)
-      IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
+      IF ((control_gga().ge.10).and.(control_gga().le.200)) THEN
       call mask_end()
       call G_end()
       call D3dB_end(1)

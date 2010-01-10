@@ -32,7 +32,7 @@ c
       parameter (deltat_min=1.0d-3)
        
       integer vall_in(2),vall_out(2),vall_junk(2)
-      real*8  Ein,deltae_history(10)
+      real*8  Ein,deltae_history(10),ehfx,phfx
       real*8  ks_deltae,deltav,dV,deltav_old,diis_error
       integer nx,ny,nz,stalled_count
 
@@ -50,6 +50,7 @@ c
 
 
 *     **** external functions ****
+      logical  band_hfx
       logical  control_print,control_precondition
       integer  control_ispin,control_scf_algorithm
       integer  control_it_in,control_it_out,control_version
@@ -65,6 +66,7 @@ c
       real*8   ewald_e
       real*8   cpsi_1eorbit
    
+      external band_hfx
       external control_print,control_precondition
       external control_ispin,control_scf_algorithm
       external control_it_in,control_it_out,control_version
@@ -330,6 +332,14 @@ c      value =           MA_pop_stack(rho_in(2))
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
       E(11) = cpsi_1vnlso()
+
+*     **** HFX terms ****
+      if (band_HFX()) then
+         call c_electron_HFX_energies(ehfx,phfx)
+         E(26) = ehfx
+         E(27) = phfx
+      end if
+
       return
       end
  

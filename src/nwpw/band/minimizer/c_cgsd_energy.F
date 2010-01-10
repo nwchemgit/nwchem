@@ -27,7 +27,7 @@
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2)
-      real*8  E(20),f0,f1,f2,f3,f4,f5,f6
+      real*8  E(30),f0,f1,f2,f3,f4,f5,f6
 
 *     **** external functions ****
       logical     cpsp_semicore,control_out_of_time
@@ -54,8 +54,8 @@
       external brillioun_nbrillioun
       external brillioun_k_brdcst,brillioun_ks_brdcst
       external brillioun_weight_brdcst
-      logical  cpsi_spin_orbit,control_fractional
-      external cpsi_spin_orbit,control_fractional
+      logical  cpsi_spin_orbit,control_fractional,band_hfx
+      external cpsi_spin_orbit,control_fractional,band_hfx
       real*8   cpsi_smearfermi
       external cpsi_smearfermi
 
@@ -226,6 +226,9 @@ c         write(luout,1210) GX,GY,GZ
          write(luout,1440) E(2),E(2)/neall
          write(luout,1450) E(3),E(3)/neall
          write(luout,1460) E(4),E(4)/neall
+         if (band_HFX()) then
+           write(luout,1457) E(26),E(26)/neall
+         end if
          write(luout,1470) E(5),E(5)/ion_nion()
          if (control_fractional()) write(luout,1471) E(12),E(12)/neall
 
@@ -235,6 +238,10 @@ c         write(luout,1210) GX,GY,GZ
          write(luout,1496) E(9),E(9)/neall
          write(luout,1497) E(10),E(10)/neall
          write(luout,1498) E(11),E(11)/neall
+         if (band_HFX())  then
+           write(luout,1502) E(27),E(27)/neall
+         end if
+
          virial = (E(11)+E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1499) virial
       end if
@@ -328,6 +335,7 @@ c          if (mprint) write(luout,1511)
  1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
+ 1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1471 FORMAT( ' smearing  energy    :',E19.10,' (',E15.5,'/electron)')
@@ -342,6 +350,8 @@ c          if (mprint) write(luout,1511)
  1500 FORMAT(/' orbital energies:')
  1501 FORMAT(/' orbital energies not printed',
      >        ' - number of k-points is very large')
+ 1502 FORMAT( ' K.S. HFX energy     :',E19.10,
+     >        ' (',E15.5,'/electron)')
  1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
  1508 FORMAT(/' Brillouin zone point: ',i6,
      >       /'    weight=',f10.6,

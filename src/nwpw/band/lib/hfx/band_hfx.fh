@@ -8,14 +8,12 @@
       real*8  ehfx,phfx
       real*8  hfx_parameter
       integer solver_type,flag
-      integer norbs(2),ispin
-      integer orbital_list(2,2)
+      integer norbs(2),ispin,nbrillioun
       integer ehfx_orb(2,2)
       common / BAND_HFX_Block / ehfx,phfx,rcut,pp,
      >                          hfx_parameter,
-     >                          orbital_list,
      >                          ehfx_orb,
-     >                          norbs,ispin,solver_type,flag,
+     >                          norbs,ispin,nbrillioun,solver_type,flag,
      >                          relaxed,orb_contribution,hfx_on
 
 *     **** BAND_HFX_frac common block ****

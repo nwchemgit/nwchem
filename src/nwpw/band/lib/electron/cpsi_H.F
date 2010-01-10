@@ -26,7 +26,7 @@
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical done
+      logical done,dohfx
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
       integer ki,kj,nbi,nbj
@@ -35,19 +35,21 @@
 
 *     **** tempory space ****
       integer nfft3d,npack0,nb,nbq,neall,nbrillq
-      integer vall(2),vpsi(2)
+      integer vall(2),vpsi(2),Hpsi_r_tag
       logical value
 
 
 *     **** external functions ****
-      logical  C3dB_rc_pfft3_queue_filled
+      logical  C3dB_rc_pfft3_queue_filled,band_HFX,band_HFX_relaxed
       integer  Pneb_nbrillq,Pneb_convert_nb
       integer  cpsi_data_get_chnk,cpsi_data_nsize
       real*8   lattice_omega
-      external C3dB_rc_pfft3_queue_filled
+      external C3dB_rc_pfft3_queue_filled,band_HFX,band_HFX_relaxed
       external Pneb_nbrillq,Pneb_convert_nb
       external cpsi_data_get_chnk,cpsi_data_nsize
       external lattice_omega
+
+      dohfx = (band_HFX().and.band_HFX_relaxed())
 
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
@@ -59,6 +61,11 @@
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      if (dohfx) then
+         Hpsi_r_tag = 0
+      end if
+
       
 
       scal2 = 1.0d0/lattice_omega()
@@ -84,6 +91,14 @@
       call cpsp_v_nonlocal(ispin,ne,psi_k_tag,Hpsi_k_tag,move,fion)
       call cpsp_v_spin_orbit(ispin,ne,psi_k_tag,Hpsi_k_tag,
      >  move,fion)
+
+*     *******************************************************
+*     **** HF exchange corrections- Hpsi_r = Vhfx*psi_r ****
+*     *******************************************************
+      if (dohfx) then
+         call band_potential_HFX(ispin,psi_r_tag,Hpsi_r_tag)
+      end if
+
 
 
 *     **********************************************************
@@ -124,6 +139,11 @@ c     >                       dcpl_mb(vpsi(1)))
             call C3dB_bb_Mul2c(1,dbl_mb(psi_shift),
      >                           dcpl_mb(vpsi(1)))
 
+c            if (dohfx)
+c     >        call C3dB_rr_Sum2(1,dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
+c     >                            dcpl_mb(vpsi(1)))
+
+
 *           **** get vpsi_r in k-space ****
             call C3dB_rc_pfft3f_queuein(nbi,dcpl_mb(vpsi(1)))
 
@@ -163,7 +183,11 @@ c     >                       dcpl_mb(vpsi(1)))
 
 
 
-      value =           MA_pop_stack(vpsi(2))
+      value = .true.
+c      if (dohfx)
+c     >  value = value.and.MA_pop_stack(Hpsi_r(2))
+
+      value = value.and.MA_pop_stack(vpsi(2))
       value = value.and.MA_pop_stack(vall(2))
       if (.not.value)
      >  call errquit('cpsi_H: error popping stack',0,MA_ERR)
@@ -206,23 +230,29 @@ c     >                       dcpl_mb(vpsi(1)))
 #include "errquit.fh"
 
 *     **** local variables ****
+      logical dohfx
       integer nx,ny,nz,npack1
       real*8  scal1
 
 *     **** tempory space ****
       integer nfft3d,ne1,shiftk
-      integer vpsi(2)
+      integer vpsi(2),Horb_r(2)
       logical value
 
 
 *     **** external functions ****
-      integer cpsi_ne
+      logical  band_HFX,band_HFX_relaxed
+      integer  cpsi_ne
       real*8   lattice_omega
       logical  control_spin_orbit
       complex*16 zdotc
+      external band_HFX,band_HFX_relaxed
       external lattice_omega
       external control_spin_orbit
       external zdotc,cpsi_ne
+
+
+      dohfx = band_HFX().and.band_HFX_relaxed()
 
       if (control_spin_orbit()) then
         call cpsi_Horb2com(nb,ispin,ms,
@@ -240,8 +270,14 @@ c     >                       dcpl_mb(vpsi(1)))
       call C3dB_nfft3d(1,nfft3d)
 
       value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+      if (dohfx) then
+         value = value.and.
+     >          MA_push_get(mt_dcpl,nfft3d,'Horb_r',Horb_r(2),Horb_r(1))
+         call dcopy(2*nfft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
+      end if
       if (.not. value)
      >  call errquit('cpsi_Horb:out of stack memory',0, MA_ERR)
+
 
       shiftk=npack1*ne1
       scal1 = 1.0d0/dble(nx*ny*nz)
@@ -257,6 +293,17 @@ c     >                       dcpl_mb(vpsi(1)))
 *     *********************************************************
       call cpsp_v_nonlocal_orb(nb,orb_k,Horb_k)
 
+*     **********************
+*     **** HFX energy   ****
+*     **********************
+c      if (dohfx) then
+c         call band_potential_HFX_orb(ms,
+c     >                               psi_r,
+c     >                               orb_r,
+c     >                               dcpl_mb(Horb_r(1)))
+c      end if
+
+
 
 *     **************************************************
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*orb_r] ****
@@ -266,6 +313,10 @@ c     >                       dcpl_mb(vpsi(1)))
       call C3dB_bb_Mul(1,vall(1+(ms-1)*nfft3d),
      >                   orb_r,
      >                   dcpl_mb(vpsi(1)))
+
+c      if (dohfx)
+c     >   call C3dB_bb_Sum2(1,dcpl_mb(Horb_r(1)),
+c     >                      dcpl_mb(vpsi(1)))
 
 
 *     **** put vpsi_r in k-space ****
@@ -278,7 +329,10 @@ c     >                       dcpl_mb(vpsi(1)))
      >                   dcpl_mb(vpsi(1)),
      >                   Horb_k)
 
-      value = MA_pop_stack(vpsi(2))
+      value = .true.
+      if (dohfx)
+     >  value = value.and.MA_pop_stack(Horb_r(2))
+      value = value.and.MA_pop_stack(vpsi(2))
       if (.not.value)
      >  call errquit('cpsi_Horb: popping stack',0,MA_ERR)
 

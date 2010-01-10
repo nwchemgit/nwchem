@@ -32,7 +32,7 @@ c
       parameter (deltat_min=1.0d-3)
        
       integer rho_in(2),rho_out(2),rho_junk(2)
-      real*8  Ein,deltae_history(10)
+      real*8  Ein,deltae_history(10),ehfx,phfx
       real*8  ks_deltae,deltav,dV,deltav_old,diis_error
       integer nx,ny,nz,stalled_count
 
@@ -50,6 +50,7 @@ c
 
 
 *     **** external functions ****
+      logical  band_HFX
       logical  control_print,control_precondition,control_fractional
       integer  control_ispin,control_scf_algorithm
       integer  control_it_in,control_it_out,control_version
@@ -65,6 +66,7 @@ c
       real*8   ewald_e
       real*8   cpsi_1eorbit,cpsi_smearfermi,cpsi_smearcorrection
    
+      external band_HFX
       external control_print,control_precondition,control_fractional
       external control_ispin,control_scf_algorithm
       external control_it_in,control_it_out,control_version
@@ -335,6 +337,14 @@ c      call cpsi_check()
         E(12) = cpsi_smearcorrection()
         E(1)  = E(1) + E(12)
       end if
+
+*     **** HFX terms ****
+      if (band_HFX()) then
+         call c_electron_HFX_energies(ehfx,phfx)
+         E(26) = ehfx
+         E(27) = phfx
+      end if
+
 
       return
       end

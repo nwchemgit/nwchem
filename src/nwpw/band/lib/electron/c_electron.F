@@ -370,11 +370,14 @@ cccccccccccccccccc
       integer nbq,ii,nx,ny,nz,neall
       integer psi_shift,Hpsi_shift,nshift1,nshift2,occ_shift,occ_tag
       real*8  sum,eorbit,ehartr,exc,pxc,exc2,pxc2,dv,weight
+      real*8  total_energy
 
 *     **** external functions *****
+      logical  band_HFX,band_HFX_relaxed
       integer  cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
       integer  cpsi_data_get_next
       real*8   lattice_omega,c_coulomb_e,brillioun_weight
+      external band_HFX,band_HFX_relaxed
       external cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
       external cpsi_data_get_next
       external lattice_omega,c_coulomb_e,brillioun_weight
@@ -452,8 +455,21 @@ cccccccccccccccccc
       exc = exc*dv
       pxc = pxc*dv
 
+      total_energy = eorbit + exc - ehartr - pxc
+
+
+*     **** HFX energy ****
+      if (band_HFX()) then
+      if (band_HFX_relaxed()) then
+         call band_energy_HFX(ispin,psi_r_tag,
+     >                        ehfx,
+     >                        phfx)
+         total_energy = total_energy + ehfx - phfx
+      end if
+      end if
+
 *     **** total energy ****
-      c_electron_energy = eorbit + exc - ehartr - pxc
+      c_electron_energy = total_energy
       return
       end
 
@@ -683,6 +699,37 @@ cccccccccccccccccc
       c_electron_pxc_rho =  pxc
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *     c_electron_HFX_energies      *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_electron_HFX_energies(ehfx0,phfx0)
+      implicit none
+      real*8 ehfx0,phfx0
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+
+      logical  band_HFX_relaxed
+      external band_HFX_relaxed
+      
+      if (.not.band_HFX_relaxed()) then
+         call band_energy_HFX(ispin,psi_r_tag,
+     >                        ehfx,
+     >                        phfx)
+         phfx = 0.0d0
+      end if
+
+      ehfx0 = ehfx
+      phfx0 = phfx
+      return
+      end
+
+
 
 
 *     ***********************************
@@ -1487,7 +1534,7 @@ c      end do
 
       !*** this code needs to be optimized!!! ****
       !*** GGA calculation ****
-      else
+      else if ((gga.ge.10).and.(gga.lt.200)) then
          call D3dB_n2ft3d(1,n2ft3d)
          value = MA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
          value = value.and.
@@ -1502,11 +1549,27 @@ c      end do
      >                             dbl_mb(trho(1)+(ms-1)*n2ft3d))
          end do
 
-         call v_bwexc(gga,n2ft3d,ispin,
+         if ((gga.ge.10).and.(gga.lt.100)) then
+
+            call v_bwexc(gga,n2ft3d,ispin,
      >                    dbl_mb(trho(1)),
      >                    1.0d0,1.0d0,
      >                    dbl_mb(txcp(1)),
      >                    dbl_mb(txce(1)))
+         else if (gga.eq.110) then
+           call v_bwexc(10,n2ft3d,ispin,
+     >                    dbl_mb(trho(1)),
+     >                    0.75d0,1.0d0,
+     >                    dbl_mb(xcp(1)),
+     >                    dbl_mb(xce(1)))
+         else if (gga.eq.112) then
+           call v_bwexc(12,n2ft3d,ispin,
+     >                    dbl_mb(trho(1)),
+     >                    0.75d0,1.0d0,
+     >                    dbl_mb(xcp(1)),
+     >                    dbl_mb(xce(1)))
+         end if
+
 
          do ms=1,ispin
            call D3dB_C3dB_r_Copy(1,dbl_mb(txcp(1)+(ms-1)*n2ft3d),

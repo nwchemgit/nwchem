@@ -42,6 +42,7 @@ c
       integer it,it_in
       real*8 deltat
       real*8 max_sigma,dt
+      real*8  ehfx,phfx
 
       integer ispin,neq(2),neall,npack1,nbrillq
 
@@ -86,8 +87,8 @@ c
       external control_time_step,control_fake_mass
       integer  control_lmbfgs_size
       external control_lmbfgs_size
-      logical  control_precondition
-      external control_precondition
+      logical  control_precondition,band_hfx
+      external control_precondition,band_hfx
 
       dt = control_time_step()
 c     dte = dt/dsqrt(control_fake_mass())
@@ -223,6 +224,15 @@ c     call c_dng_2to1()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
       E(11) = cpsi_1vnlso()
+
+
+*     **** HFX terms ****
+      if (band_HFX()) then
+         call c_electron_HFX_energies(ehfx,phfx)
+         E(26) = ehfx
+         E(27) = phfx
+      end if
+
 
       return
       end

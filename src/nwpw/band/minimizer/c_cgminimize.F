@@ -39,12 +39,13 @@ c      complex*16 G1(nfft3d,nemax)
 
       integer it
       real*8 tmin,deltat
-      real*8 max_sigma
+      real*8 max_sigma,ehfx,phfx
 
       integer ispin,ne(2)
       integer neall,nfft3d,npack1,nbrill
 
 *     **** external functions ****
+      logical  band_hfx
       integer  cpsi_neq,control_version,cpsi_ispinq,cpsi_nbrillq
       integer  cpsi_data_push_stack
       real*8   control_tole,control_tolc
@@ -61,6 +62,7 @@ c      complex*16 G1(nfft3d,nemax)
       real*8   ewald_e
       real*8   cpsi_1eorbit
       real*8   linesearch
+      external band_hfx
       external cpsi_neq,control_version,cpsi_ispinq,cpsi_nbrillq
       external cpsi_data_push_stack
       external control_tole,control_tolc
@@ -231,6 +233,14 @@ c      call cpsi_data_pop_stack(G0_tag)
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
       E(11) = cpsi_1vnlso()  
+
+*     **** HFX terms ****
+      if (band_HFX()) then
+         call c_electron_HFX_energies(ehfx,phfx)
+         E(26) = ehfx
+         E(27) = phfx
+      end if
+
       return
       end
  
