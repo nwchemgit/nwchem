@@ -235,7 +235,7 @@ c
          deltav = ddot(ispin*nfft3d,
      >                 dbl_mb(rho_junk(1)),1,
      >                 dbl_mb(rho_junk(1)),1)
-         call D3dB_SumAll(deltav)
+         call C3dB_SumAll(deltav)
          deltav = deltav*dV
 
          call cpsi_1gen_hml()

@@ -1560,14 +1560,14 @@ c      end do
            call v_bwexc(10,n2ft3d,ispin,
      >                    dbl_mb(trho(1)),
      >                    0.75d0,1.0d0,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
+     >                    dbl_mb(txcp(1)),
+     >                    dbl_mb(txce(1)))
          else if (gga.eq.112) then
            call v_bwexc(12,n2ft3d,ispin,
      >                    dbl_mb(trho(1)),
      >                    0.75d0,1.0d0,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
+     >                    dbl_mb(txcp(1)),
+     >                    dbl_mb(txce(1)))
          end if
 
 

@@ -3050,6 +3050,30 @@ c      call Parallel3d_np_i(np)
 
 
 *     ***********************************
+*     *                                 *
+*     *          C3dB_cc_Sum2            *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_cc_Sum2(nb,A,B)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,nfft3d_map(nb)
+         B(i) = B(i) + A(i)
+      end do
+
+      return
+      end
+
+
+*     ***********************************
 *     *					*
 *     *	         C3dB_rc_Sum  	 	*	
 *     *					*

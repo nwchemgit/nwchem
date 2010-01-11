@@ -203,7 +203,6 @@ c
      >                   control_ks_algorithm(),
      >                   precondition,
      >                   ks_deltae)
-
       call rho_1to2()
 
 *     **** rotate orbitals ****
@@ -245,7 +244,8 @@ c     >    ((dabs(deltae).lt.1.0d1) .and.
 c     >    (deltav       .lt.1.0d1) .and.
 c     >    (.not.stalled          ))) then
       if ((it2.le.0) .or.
-     >    ((deltae.lt.0.0d0) .and.
+     >    ((dabs(deltae).lt.1.0d5) .and.
+     >     (deltav.lt.1.0d5) .and.
      >     (.not.stalled          ))) then
 
          call nwpw_scf_mixing(dbl_mb(rho_in(1)),dbl_mb(rho_out(1)),
@@ -265,7 +265,6 @@ c     >    (.not.stalled          ))) then
      >              dbl_mb(rho_out(1)),1,
      >              dbl_mb(rho_junk(1)),1)
 
-         !call electron_gen_vall()
          call psi_get_density(1,dbl_mb(rho_out(1)))
          call nwpw_scf_mixing_reset(dbl_mb(rho_out(1)))
 
@@ -331,7 +330,7 @@ c     >    (.not.stalled          ))) then
          stalled = .false.
       end if
       stalled_count = stalled_count + 1
-      if (deltae.gt.0.0d0) stalled = .true.
+      stalled = .false.
 
       precondition = precondition.and.(dabs(deltae).gt.1*tole)
 
