@@ -36,8 +36,7 @@ C  v_tst is the imaginary mode eigenvector
 
       debug=.false.
       small =1E-8
-      iw =-1
-      if(ga_nodeid().eq.0) iw=6
+      iw=6 
 c      write(*,*) 'natom =', natom
       forward=mc_data_get_forward()
       backward=mc_data_get_backward()
@@ -103,7 +102,7 @@ C
          side=0
       else
          if(dot.lt.0.0) then
-            side=-1
+            side=2
          else
             side=1
          endif
@@ -127,10 +126,8 @@ C     ----- Side ? Xing ? ... -----
 C
       if ((side.ne.side_prev).and.(side_prev.ne.0)) then
          nxing=nxing+1
-c       if (ga_nodeid().eq.0) then
         write(iw,*) 'Recrossing: side_prev, side ',side_prev,side
         write(iw,*) 'Total nxing; ', nxing
-c       endif
       endif
 c      goto 7
       status=mc_data_set_side_prev(side)
@@ -138,20 +135,16 @@ c      goto 7
   
       if (mc_data_get_ifirc()) then
         if (forward) then
-c           write(*,*) 'setting forside0'
            status= mc_data_set_forside0(side)
         endif
         if (backward) then 
-c           write(*,*) 'setting backside0'
            status= mc_data_set_backside0(side)
         endif
       else 
         if (forward) then
-c           write(*,*) 'setting forside'
            status= mc_data_set_forside(side)
         endif
         if (backward) then
-c           write(*,*) 'setting backside'
            status= mc_data_set_backside(side)
         endif
       endif
