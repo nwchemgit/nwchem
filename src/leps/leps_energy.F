@@ -86,6 +86,7 @@ C-----Calculate the energy
      & call errquit('leps_energy:  no energy ', 0,
      & RTDB_ERR)
 
+       write(*,*) 'Leps energy: ',eleps
       if(.not.ma_free_heap(h_c))
      &     call errquit('memory deallocation:coord',0,RTDB_ERR)
       if(.not.ma_free_heap(h_q))

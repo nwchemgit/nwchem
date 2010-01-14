@@ -36,15 +36,15 @@
       double precision unitt,unitl,uma  
       logical dbug 
       integer iw
-      iw=0
-      if (ga_nodeid().eq.0) iw=6 
+      iw=6
+
       theory=blanks64
 
       thr=blanks32
       task=blanks32
       task=':gradient'
       dbug=.false. 
-c      if (ga_nodeid().eq.0) then 
+
       c_array=mc_data_get_i_c_array()  ! get the entire array of starting geometries
       c_start=mc_data_get_i_c()
       tag=mc_data_get_i_t()
@@ -87,23 +87,24 @@ c      write(*,*) 'MC_init: generating initial conditions'
      $     call errquit('mc_driver: theory not specified',0, RTDB_ERR)
 c      if (thr.eq.'mp2')   thr='sdmp2'
       call concat(thr,task,theory)
-      write(iw,*) 'Theory is:  ',thr
-      write(iw,*) 'Grad is: ', theory
+c      write(iw,*) 'Theory is:  ',thr
+c      write(iw,*) 'Grad is: ', theory
 C --- get geometry from the big array in mc_driver
 C--- the first one is always the TS
 C ---- set the appropriate coordinate
       if(ircflag) then
-c         mdvel=md_data_get_i_v()
-c         mdacc=md_data_get_i_a()
+
          temp = 10.0
 
          do k=1,3*natom
              dbl_mb(vel+k-1)=0.0
              dbl_mb(acc+k-1)=0.0
          enddo
+
          do k=1,3*natom
            dbl_mb(c_start+k-1)=dbl_mb(c_array+k-1)
          enddo
+
          if (.not. geom_cart_set(geom, natom, byte_mb(tag),
      &       dbl_mb(c_start), dbl_mb(charge)))
      &       call errquit('mc_init_putgeom: coord error',0,GEOM_ERR)
@@ -111,21 +112,12 @@ c         mdacc=md_data_get_i_a()
          if(.not.geom_rtdb_store(rtdb,geom,"geometry"))
      &       call errquit('mc_init: Failed to store geom to rtdb',0,
      &       RTDB_ERR)
-             call ga_sync()
+
 C---- calculate the gradient to get the force for acceleration
-         if (thr.eq.'mp2') then
-           if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'gradient'))
-     $        call errquit('task_gradient: rtdb_put failed',0, RTDB_ERR)
-c           if(.not.rtdb_cget(rtdb,'sdmp2:task',1,task1)) call errquit
-c     $     ('mc_init:could not determine task for semi-direct mp2',1,
-c     &       RTDB_ERR)
-c         write(*,*) 'In mc_grad:task ',task1
-         endif
-         call ga_sync()
          if (.not.grad(rtdb))
      &       call errquit('mc_init: no grad calculated ', 0, RTDB_ERR)
 
-         write (iw,*) 'calculated gradinet?'
+c         write (iw,*) 'calculated gradinet?'
 c         if (thr.eq.'mp2') then
 c             theory='mp2:nonseparable gradient'
 c         endif
@@ -137,8 +129,8 @@ c         endif
               dbl_mb(force+k-1)=0.0
             endif
          enddo 
-         write(iw,*) "MC-init IRC: force is:"
-         call printcoord(iw,natom,dbl_mb(force),byte_mb(tag))
+c         write(iw,*) "MC-init IRC: force is:"
+c         call printcoord(iw,natom,dbl_mb(force),byte_mb(tag))
          do ivib=1,3*natom
             if (dbl_mb(i_eval+ivib-1).gt.-0.1) then
                 vau=0.0
@@ -156,10 +148,7 @@ c            write(iw,*) 'For ivib IRC:',ivib,' vau is: ', vau
          enddo
          if(dbug) then
            write(iw,*) 'IRC Velocities:'
-c           do k=1,3*natom
               call printcoord(iw,natom,dbl_mb(vel),byte_mb(tag))
-c             write(iw,*) dbl_mb(vel+k-1)
-c           enddo
          endif
 c----- set the  acceleration
          do k=1,natom
@@ -187,10 +176,7 @@ c----- set the  acceleration
            enddo
 
            write(iw,*) 'IRC Acceleration:'
-c           do k=1,3*natom
               call printcoord(iw,natom,dbl_mb(acc),byte_mb(tag))
-c              write(iw,*) dbl_mb(acc+k-1)
-c           enddo
          endif
       else 
 c      write(*,*) 'in mc_init:naccept',naccept
@@ -284,7 +270,5 @@ C ---- end of setting
      &   call errquit('mc_init:  geom_destroy failed',
      &   911,GEOM_ERR)
 
-c      endif
-c      write(*,*) 'MC_init: end'
       end
 C_CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC

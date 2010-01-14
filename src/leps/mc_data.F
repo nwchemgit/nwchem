@@ -63,20 +63,20 @@ c       write(*,*) 'mc_data geom_copy:Filled cartesians and masses'
       integer i,n
 
 c      write(*,*) 'In mc  data allocate:n,mcsteps: ', n, mcsteps 
-      if (.not. ma_alloc_get(mt_int, (mcsteps+2)*2, 'sidecount' ,
+      if (.not. ma_alloc_get(mt_int, (mcsteps+1)*2, 'sidecount' ,
      & h_sc,i_sc))
      & call errquit('mc_data: array of sidecount not allocated',
      & 1,MA_ERR)
-       do i=0,(mcsteps+2)*2-1
+       do i=0,(mcsteps+1)*2-1
           int_mb(i_sc+i)=0
 c          write(*,*) 'In mcdata i_sc,val=',i_sc+i,int_mb(i_sc+i)
        enddo
-      if (.not. ma_alloc_get(mt_dbl, (mcsteps+2)*3*n, 'coordinates' ,
+      if (.not. ma_alloc_get(mt_dbl, (mcsteps+1)*3*n, 'coordinates' ,
      & h_in,i_in))
      & call errquit('mc_data: array of coords not allocated',
      & 3*n,MA_ERR)
 
-      if (.not. ma_alloc_get(mt_int, mcsteps+2, 'mcsteps' ,
+      if (.not. ma_alloc_get(mt_int, mcsteps+1, 'mcsteps' ,
      & h_s,i_s))
      & call errquit('mc_data: array of properties not allocated',
      & 1,MA_ERR)
@@ -126,17 +126,17 @@ c      write(*,*) 'In mc_data_allocatte: i_sc: ',i_sc
 #include "global.fh"
 #include "mafdecls.fh"
 
-      if (.not. ma_alloc_get(mt_dbl, (naccept+2), 'property' ,
+      if (.not. ma_alloc_get(mt_dbl, (naccept+1), 'property' ,
      & h_prp,i_prp))
      & call errquit('mc_data: array of property not allocated',
      & 0,MA_ERR)
        
-      if (.not. ma_alloc_get(mt_dbl, (naccept+2)*3*natom, 'velocity' ,
+      if (.not. ma_alloc_get(mt_dbl, (naccept+1)*3*natom, 'velocity' ,
      & h_in_vel,i_in_vel))
      & call errquit('mc_data: array of init vels not allocated',
      & 3*natom,MA_ERR)
 
-      if (.not. ma_alloc_get(mt_dbl, (naccept+2)*3*natom,'acceleration',
+      if (.not. ma_alloc_get(mt_dbl, (naccept+1)*3*natom,'acceleration',
      & h_in_acc,i_in_acc))
      & call errquit('mc_data: array of init acc not allocated',
      & 3*natom,MA_ERR)

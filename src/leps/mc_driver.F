@@ -53,9 +53,8 @@ c#include "subgr.fh"
                                       ! if the ratio is below or above the given value, the stepsize should be 
                                       ! increased or reduced NOT YET IMPLEMENTED 
       cntnrg=0
-      iw=0
-      
-      if (ga_nodeid().eq.0) iw=6
+      iw=6
+      mc_driver=.false.      
                 
       write(iw,*) 'MC driver input parameters:\n
      $  number of steps, temperature, stepsize, ratio',
@@ -111,7 +110,13 @@ c      call mc_data_geom_copy(rtdb,geom)
       call mc_data_init(rtdb)
 c      write(iw,*) 'ieigen values and vectors'
 c      call printeg(3*natom,dbl_mb(i_eval),dbl_mb(i_evec))
-
+C    find out if it is a TS
+      if (dbl_mb(i_eval).gt.-0.1.or.abs(dbl_mb(i_eval+1)).gt.0.1)  then
+        write (iw,*)  'The initial structure is not a transition state:'
+        write (iw,*) dbl_mb(i_eval)
+        write (iw,*) dbl_mb(i_eval+1)
+        return
+      endif      
 C  ! get ihe energy for the initial point
       R=dynrnd(1) 
 
@@ -126,7 +131,7 @@ C ---- get the energy of the TST (0th step)
      & RTDB_ERR)
 
       do step=1,mcstep
-      write(*,*) 'Starting step',step
+c      write(*,*) 'Starting step',step
       write(iw,*)'In MC-driver:current step :',step,' from ',mcstep
 c      write(*,*)'In MC-driver:current geometry '
 C      call printcoord(natom,dbl_mb(i_c),byte_mb(i_t))
@@ -285,9 +290,8 @@ c       endif
          integer i,nat,iw,nfile
          double precision coord(3,nat)
          character*16 tags(nat) 
-         iw=0
          nfile=6 
-         if (ga_nodeid().eq.0) iw=nfile     
+         iw=nfile
          do i=1,nat
             write(iw,9000) tags(i),coord(1,i),coord(2,i),coord(3,i)
          enddo 
@@ -301,8 +305,7 @@ c       endif
        double precision eigval(nat3)
        double precision eigvec(nat3*nat3)
        integer iw
-       iw=0
-       if (ga_nodeid().eq.0) iw=6
+       iw=6
        
        nhess = nat3*nat3  
        write(*,*) 'Printing Eigenvalues in mc_driver:',nat3

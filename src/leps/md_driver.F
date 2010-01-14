@@ -35,15 +35,11 @@
       integer i, iw, iwtr
       logical dbug
       dbug=.false.
-      iwtr=0
-      iw=0
-      if (ga_nodeid().eq.0) then
-         iw=6
-         iwtr=12
-      endif   
-c      if (ga_nodeid().eq.0) then
+      iwtr=12
+      iw=6
+      md_driver=.false.
+
        write(iw,*) 'MD-DRIVER PRED-CORR: ',mc_data_get_trajnum()
-c      endif
       trajnum=mc_data_get_trajnum()
       restart=.false.
       theorye=blanks
@@ -57,7 +53,6 @@ c      write(*,*) 'after concat'
       ek=0.0 ! kinetic energy
       nsteps=100 
 
-      md_driver=.true.
       forward= mc_data_get_forward()
       backward=mc_data_get_backward()
 
@@ -69,8 +64,9 @@ c      write(*,*) 'after concat'
      $ temperature:   \n',
      $   nsteps, dt, temp
        write (iw,*) 'Theory: ', thr
+C  ----- may want to add MD restart, but not priority ----
       goto 100
-c      if(ga_nodeid().eq.0) then
+
       if (.not.restart.and.mc_data_get_ifirc().and.forward) then
        write(*,*) 'Opening xyz and rest files on traj ',trajnum  
        open(unit=10,file='traj.xyz',status='new')
@@ -83,12 +79,7 @@ c      if(ga_nodeid().eq.0) then
 #endif
        open(unit=11,file='restart.pun',status='old')
       endif
-c      endif 
   100 continue
-cc     create geometry object 
-c      if (.not. geom_create(geom, 'geometry'))
-c     & call errquit('md_driver_getgeom: failed creating geometry',
-c     & 0,GEOM_ERR)
 
 C     Get the handles for everything
       natom=md_data_get_natom()
@@ -103,7 +94,6 @@ C     Get the handles for everything
       frc=md_data_get_i_f()
 
 c     end of initialization
-c      write(*,*) 'Calling MD test:'
 c      write(*,*) 'Starting MD:'
       if (restart) then
       write(iw,*) 'Restarting from punch file'
@@ -111,8 +101,6 @@ c      write(*,*) 'Starting MD:'
      &            dbl_mb(coor),dbl_mb(vel),dbl_mb(acc),dbl_mb(bterm),
      &            dbl_mb(dterm),byte_mb(tag))
       endif
-C      nxing=0
-C      side_prev=0
 
 C-------- print the first point
        if(dbug) then
@@ -217,15 +205,9 @@ C ---- End of MD_loop
       call ga_sync()
 
 
-c      if(ga_nodeid().eq.0) then 
-c      close(unit=10)
-c       if (backward) then 
-c         write(10,*) 'end of traj foreard/backward' 
-c       endif
-c       close(unit=10)
-c       close(unit=11)
       write(iw,*) 'END OF TRAJECTORY :',mc_data_get_trajnum()
-         return
+      md_driver=.true. 
+      return
  1000 format(A,i4,a,i4,a,F14.8,a,F14.8,a,F14.8)
       end
 
@@ -267,10 +249,7 @@ C ********** NEW PREDICTOR
 C ----  time -scaled variables, the expansion is Pascal triangle
 
 c    *******************************************************************
-      iw=0
-      if (ga_nodeid().eq.0) then
-         iw=6
-      endif
+        iw=6
        
 c       write(iw,*) 'In predictor1,dt:',dt
        do i = 1,3*n
@@ -358,9 +337,8 @@ C ---- dt# are the Taylor expansion series terms dt1=dt, dt2=dt^2/2, dt3=dt^3/6 
      1              c3 = 1.0 / 2.0,    c4 = 1.0 / 12.0 )
 
 c    *******************************************************************
-        iw=0
+        iw=6
       
-        if (ga_nodeid().eq.0) iw=6   
 c        write(iw,*) 'In corrector 1, dt:',dt
         ek = 0.0
 
@@ -421,7 +399,7 @@ C --- at the end of it, b and c will not be 0
        logical dbug
        dbug=.false. 
 
-       iw=0
+       iw=6
        if (ga_nodeid().eq.0) then
          iw=6
        endif   
@@ -474,7 +452,7 @@ C --- at the end of it, b and c will not be 0
        coord=md_data_get_i_c()
        dt1=dt/3.0
        dt2=2.0*dt/3.0
-       write(iw,*) 'Entering MD _init_traj'
+       write(iw,*) ' Initializing MD trajcory: points t/3 and 2t/3 '
 C ---  take step dt/3 into r_one, and 2dt/3 into r_two
        if (dbug) then
         call print_coord(6,n,r,byte_mb(tag)) 
