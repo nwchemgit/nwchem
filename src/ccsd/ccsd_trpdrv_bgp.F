@@ -43,13 +43,13 @@ c
       integer klo, khi, kchunk
       integer nxtask
       external nxtask
-      integer omp_get_max_threads
-      external omp_get_max_threads
+ceric      integer omp_get_max_threads
+ceric      external omp_get_max_threads
 c
       nodes = ga_nnodes()
       iam = ga_nodeid()
-      if (iam.eq.0) write(6,99) omp_get_max_threads()
-   99 format(2x,'Using ',i2,' OpenMP threads in CCSD(T)')
+ceric      if (iam.eq.0) write(6,99) omp_get_max_threads()
+ceric   99 format(2x,'Using ',i2,' OpenMP threads in CCSD(T)')
 c
 c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
 c
