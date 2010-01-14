@@ -236,9 +236,35 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
 
 
-*     ***********************************************
-*     ***** use periodic definitions of kernel ******
-*     ***********************************************
+*     *********************************************************
+*     ***** flag == 1 use periodic definitions of kernel ******
+*     *********************************************************
+      else if (flag.eq.1) then
+        i=0
+        j=0
+        k=0
+        call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
+
+*       **** short-range part of Greens function ****
+        call dcopy(nfft3d,0.0d0,0,dbl_mb(gk2(1)),1)
+        do i=1,nfft3d
+
+           gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >           + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >           + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
+
+           if ((pzero.eq.taskid) .and. (i.eq.zero)) then
+              temp = 8.0d0*pi*pi*dsqrt(pi*rcut)
+              !temp = 2.0d0*lattice_omega()/(pi*pi)
+           else
+              temp = fourpi/gg
+           end if
+           dbl_mb(gk2(1)+i-1) = temp
+        end do
+
+*     ******************************************************
+*     ***** flag==3 use periodic definitions of cutoff-kernel ******
+*     ******************************************************
       else 
         i=0
         j=0

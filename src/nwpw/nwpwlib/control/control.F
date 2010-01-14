@@ -2321,6 +2321,50 @@ c      end
 
 
 
+*     *****************************************
+*     *                                       *
+*     *   control_check_number_virtuals       *
+*     *                                       *
+*     *****************************************
+      logical function control_check_number_virtuals()
+      implicit none
+
+#include "control.fh"
+
+*    *** local variables ***
+      logical check
+      integer ispin_wf,ne_wf(2),ne(2)
+
+*     ***** local functions ****
+      logical  epsi_filefind
+      external epsi_filefind
+      integer  control_excited_ne
+      external control_excited_ne
+
+*     **** check wavefunction file ****
+      if (epsi_filefind()) then
+
+*        **** get mult and e-charge from wavefunction file ****
+         call psi_get_ne_excited(ispin_wf,ne_wf)
+         ne(1) = 0
+         ne(2) = 0
+         ne(1) = control_excited_ne(1)
+         if (ispin.eq.2) ne(2) = control_excited_ne(2)
+
+         check = ((ne(1).eq.ne_wf(1)).and.
+     >            (ne(2).eq.ne_wf(2)).and.
+     >            (ispin.eq.ispin_wf))
+
+*     **** no wavefunction file ***
+      else
+         check = .false.
+      end if
+
+      control_check_number_virtuals = check
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*

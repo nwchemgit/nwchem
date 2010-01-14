@@ -1437,13 +1437,11 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
 
       call Pack_c_Copy(1,orb,dbl_mb(tmp_r(1)))
       call Pack_c_unpack(1,  dbl_mb(tmp_r(1)))
-      !call D3dB_cr_fft3b(1,  dbl_mb(tmp_r(1))) 
       call D3dB_cr_pfft3b(1,1,dbl_mb(tmp_r(1))) 
-
 
 *     **** get Hpsi ****
       if (control_version().eq.3)
-     >  call psi_Horb(ispin,ms,
+     >  call psi_Horb_replicated(ispin,ms,
      >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
      >             orb,
@@ -1451,14 +1449,13 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
      >             Horb)
 
       if (control_version().eq.4)
-     >  call psi_Horbv4(ispin,ms,
+     >  call psi_Horbv4_replicated(ispin,ms,
      >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
      >             orb,
      >             dbl_mb(tmp_r(1)),
      >             Horb)
 
-c      call Pack_c_SMul(1,(-1.0d0),Horb,Horb)
       call Pack_c_SMul1(1,(-1.0d0),Horb)
 
       value = MA_pop_stack(tmp_r(2))

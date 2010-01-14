@@ -352,7 +352,159 @@ c     >                      dcpl_mb(vpsi(1)))
      >                      dcpl_mb(vpsi(1)))
 
 *     **** put vpsi_r in k-space ****
-      call D3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+      call D3dB_rc_pfft3f(1,1,dcpl_mb(vpsi(1)))
+      call Pack_c_pack(1,dcpl_mb(vpsi(1)))
+
+*     **** add to Horb_k ****
+      call Pack_cc_daxpy(1,(-scal1),
+     >                   dcpl_mb(vpsi(1)),
+     >                   Horb_k)
+
+      call nwpw_timing_start(12)
+      value = .true.
+      if (dohfx) 
+     >  value = value.and.MA_pop_stack(Horb_r(2))
+      value = value.and.MA_pop_stack(vpsi(2))
+      if (.not.value) 
+     >  call errquit('psi_Horb: popping stack',1, MA_ERR)
+      call nwpw_timing_end(12)
+
+      return
+      end
+
+
+*     *************************************
+*     *                                   *
+*     *         psi_Horb_replicated       *
+*     *                                   *
+*     *************************************
+*
+*  This routine calculates 
+*
+*       Hpsi_k = KE*psi_k + Vnl*psi_k +VSic*psi_k + FFT[(vall+xcp)*psi_r]
+*
+*  where vall = iFFT[Vl+Vc] + Vfield
+*
+*   Entry - ispin,ne            - spin and number of electrons in each spin
+*           ms,n                - spin and electron number 
+*           psi_k,psi_r         - distributed orbitals in k-space and r-space
+*           orb_k,orb_h         - replicated orbital in k-space and r-space
+*           vall                  - local +external fields+coulomb in r-space
+*           xcp                 - xc potential in r-space
+*   Exit - Horb_k - replicated gradient in k-space
+*
+      subroutine psi_Horb_replicated(ispin,ms,
+     >                 psi_r,
+     >                 vall,
+     >                 orb_k,orb_r,
+     >                 Horb_k)
+      implicit none
+      integer    ispin,ms
+      real*8     psi_r(*)
+      real*8     vall(*)      
+      complex*16 orb_k(*)
+      real*8     orb_r(*)
+      complex*16 Horb_k(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical dohfx
+      integer nne(2)
+      integer nx,ny,nz
+      real*8  scal1,fion(3,1)
+
+*     **** tempory space ****
+      integer nfft3d,n2ft3d,npack1
+      integer vpsi(2),Horb_r(2)
+      logical value
+
+
+*     **** external functions ****
+      logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_HFX,pspw_HFX_relaxed
+      real*8   lattice_omega
+      external pspw_SIC,pspw_SIC_relaxed
+      external pspw_HFX,pspw_HFX_relaxed
+      external lattice_omega
+
+
+      dohfx = pspw_HFX().and.pspw_HFX_relaxed() 
+      call Pack_npack(1,npack1)
+      
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      call D3dB_nfft3d(1,nfft3d)
+      n2ft3d = 2*nfft3d
+      call nwpw_timing_start(12)
+      value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+      if (dohfx) then
+         value = value.and.
+     >           MA_push_get(mt_dbl,n2ft3d,'Horb_r',Horb_r(2),Horb_r(1))
+         call dcopy(n2ft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
+      end if
+      if (.not. value) 
+     >  call errquit('psi_Horb:out of stack memory',0, MA_ERR)
+      call nwpw_timing_end(12)
+      
+      if (ms.eq.1) then
+        nne(1) = 1
+        nne(2) = 0
+      else
+        nne(1) = 0
+        nne(2) = 1
+      end if
+*
+      scal1 = 1.0d0/dble(nx*ny*nz)
+
+
+*     ************************************************
+*     **** add kinetic energy - Horb_k = Ke*orb_k ****
+*     ************************************************
+      call ke(ispin,nne,orb_k,Horb_k)
+
+*     *********************************************************
+*     **** add non-local psp - Horb_k = Horb_k + Vnl*orb_k ****
+*     *********************************************************
+      call v_nonlocal(ispin,nne,orb_k,Horb_k,
+     >                .false.,fion,.false.,fion)
+
+*     ***************************
+*     **** SIC corrections?? ****
+*     ***************************
+c     if (pspw_SIC().and.pspw_SIC_relaxed()) then
+c        call pspw_potential_SIC(ispin,psi_r,Hpsi_k)
+c     end if
+
+*     **********************
+*     **** HFX energy   ****
+*     **********************
+      if (dohfx) then
+         call pspw_potential_HFX_orb_replicated(ms,
+     >                               psi_r,
+     >                               orb_r,
+     >                               dbl_mb(Horb_r(1)))
+      end if
+
+
+*     **************************************************
+*     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*orb_r] **** 
+*     **************************************************        
+
+*     **** vpsi_r = (vall_r)*orb_r ****
+      call D3dB_rr_Mul(1,vall(1+(ms-1)*n2ft3d),
+     >                   orb_r,
+     >                   dcpl_mb(vpsi(1)))
+
+*     **** vpsi_r = vpsi_r + Hpsi_r ****
+      if (dohfx)
+     >   call D3dB_rr_Sum2(1,dbl_mb(Horb_r(1)),
+     >                      dcpl_mb(vpsi(1)))
+
+*     **** put vpsi_r in k-space ****
+      call D3dB_rc_pfft3f(1,1,dcpl_mb(vpsi(1)))
       call Pack_c_pack(1,dcpl_mb(vpsi(1)))
 
 *     **** add to Horb_k ****

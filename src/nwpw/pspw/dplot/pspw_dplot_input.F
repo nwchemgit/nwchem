@@ -20,7 +20,7 @@ c
 #include "nwc_const.fh"
 c
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 13)
+      parameter (num_dirs = 14)
       character*22 dirs(num_dirs)
       data dirs / 'vectors',
      >            'density',
@@ -34,6 +34,7 @@ c
      >            'ncell',
      >            'atom_truncate',
      >            '1d_grid',
+     >            'orbital2',
      >            'end'/
 
       integer num_dnames          ! No. of density directives
@@ -58,9 +59,9 @@ c
 
       logical value
       integer ind               ! Index of matched directive
-      integer       number,count,ia
-      integer       name1_len,name2_len
-      character*30  name1,name2
+      integer       number,number2,count,ia
+      integer       name1_len,name2_len,name3_len
+      character*30  name1,name2,name3
       character*30  filename
       character*30  wavefunction_filename
       character*255 test
@@ -95,6 +96,7 @@ c
 
 
       goto ( 100,  200, 300, 400, 500, 600,700,800,900,1000,1100,1200,
+     >       350,
      >      9999) ind
       call errquit(
      >      'pspw_dplot_input: unimplemented directive', ind, INPUT_ERR)
@@ -195,6 +197,51 @@ c
      >     'pspw_dplot_input: rtdb_put failed for orbital', 0, RTDB_ERR)
 
       goto 10
+
+
+c     
+c  orbital2
+c     
+*     *** read orbital number ****
+ 350  if (.not. inp_i(number))
+     >   call errquit(
+     >       'pspw_dplot_input: failed to read orbital number1',0,
+     &       INPUT_ERR)
+      if (.not. inp_i(number2))
+     >   call errquit(
+     >       'pspw_dplot_input: failed to read orbital number2',0,
+     &       INPUT_ERR)
+
+*     *** read filename ****
+      if (.not. inp_a(filename))
+     >    call errquit(
+     >         'pspw_dplot_input: failed to read orbital2 filename',0,
+     &       INPUT_ERR)
+
+*     **** define name  - not very elegent and could break if ****
+*     ****                      count becomes very large      ****
+      count = count + 1
+      name1 = 'pspw_dplot:filename'//CHAR(count-1+ia)
+      name2 = 'pspw_dplot:number1'//CHAR(count-1+ia)
+      name3 = 'pspw_dplot:number2'//CHAR(count-1+ia)
+      name1_len = index(name1,' ') - 1
+      name2_len = index(name2,' ') - 1
+      name3_len = index(name3,' ') - 1
+
+      ind = index(filename,' ') - 1
+      value = rtdb_cput(rtdb,name1(1:name1_len),1,filename(1:ind))
+      value = value.and.rtdb_put(rtdb,name2(1:name2_len),
+     >                           mt_int,1,number)
+      value = value.and.rtdb_put(rtdb,name3(1:name3_len),
+     >                           mt_int,1,number2)
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:count',
+     >                           mt_int,1,count)
+      if (.not.value)
+     >     call errquit(
+     >     'pspw_dplot_input:rtdb_put failed for orbital2',0,RTDB_ERR)
+
+      goto 10
+
 c     
 c position_tolerance
 c     

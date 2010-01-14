@@ -1270,7 +1270,7 @@ c     >                                   dbl_mb(dn(1)))
 
 *     **** local variables ****
       logical value
-      integer i,j,n1,n2,n3,q2,p2
+      integer j,n1,n2,n3,q2,p2
       integer dn(2),vij(2),tmp1(2),tmp2(2),index2
       real*8  scal1,scal2,dv,eh,ph
 
@@ -1297,20 +1297,17 @@ c     >                                   dbl_mb(dn(1)))
         dv = scal1/scal2
 
         do j=1,norbs(ms)
-           index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
-           call Dneall_ntoqp(index2,q2,p2)
+           call Dneall_ntoqp(int_mb(orbital_list(1,ms)+j-1),q2,p2)
+           index2 = (q2-1)*n2ft3d + 1
 
            if (p2.eq.taskid_j) then
 *             **** generate dnij for Vij  ****
-              call D3dB_rr_Mul(1,psi_r(q2),orb_r,dbl_mb(dn(1)))
-c              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+              call D3dB_rr_Mul(1,psi_r(index2),orb_r,dbl_mb(dn(1)))
               call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
               call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
    
 *             ***** screened coulomb solver ****
               if (solver_type.eq.1) then
-c                call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-c     >                                   dbl_mb(dn(1)))
                 call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
                 call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
                 call Pack_c_pack(0,dbl_mb(dn(1)))
@@ -1332,9 +1329,6 @@ c     >                                   dbl_mb(dn(1)))
 
 *             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
               eh = eh*hfx_parameter
-c              call D3dB_r_SMul(1,hfx_parameter,
-c     >                         dbl_mb(vij(1)),
-c     >                         dbl_mb(vij(1)))
               call D3dB_r_SMul1(1,hfx_parameter,dbl_mb(vij(1)))
               if (ispin.eq.1) eh = eh + eh
               ph = 2.0d0*eh
@@ -1342,14 +1336,11 @@ c     >                         dbl_mb(vij(1)))
 
 *             **** generate (Vij)*psi_r ***
               call D3dB_rr_Mul(1,dbl_mb(vij(1)),
-     >                           psi_r(q2),
+     >                           psi_r(index2),
      >                           dbl_mb(tmp1(1)))
               call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
 
 *             **** add -(Vij)*psi_r to Hpsi_r ***
-c              call D3dB_rr_Sub(1,Horb_r,
-c     >                           dbl_mb(tmp1(1)),
-c     >                           Horb_r)
               call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Horb_r)
            end if
         end do
@@ -1669,3 +1660,44 @@ c        call D1dB_SumAll(ph)
 
       return
       end
+
+
+
+*     *******************************************
+*     *                    	                *
+*     *     pspw_potential_HFX_orb_replicated   *
+*     *                                         *
+*     *******************************************
+      subroutine pspw_potential_HFX_orb_replicated(ms,psi_r,
+     >                                  orb_r,Horb_r)
+      implicit none
+      integer    ms
+      real*8     psi_r(*)
+      real*8     orb_r(*)
+      real*8     Horb_r(*)
+
+#include "mafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+
+      call nwpw_timing_start(33)
+      if ((norbs(ms).ne.0).and.relaxed) then
+         if (replicated) then
+            call dcopy(n2ft3d,0.0d0,0,dbl_mb(Hpsi_r_replicated(1)),1)
+            call pspw_potential_HFX_orb_sub(ms,psi_r,orb_r,
+     >                                  dbl_mb(Hpsi_r_replicated(1)))
+            call D1dB_Vector_SumAll(n2ft3d,dbl_mb(Hpsi_r_replicated(1)))
+            call daxpy(n2ft3d,1.0d0,dbl_mb(Hpsi_r_replicated(1)),1,
+     >                 Horb_r,1)
+
+         else
+            call pspw_potential_HFX_orb_sub(ms,psi_r,orb_r,Horb_r)
+         end if
+
+      end if
+      call nwpw_timing_end(33)
+      return
+      end
+
+

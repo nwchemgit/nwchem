@@ -462,7 +462,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       parameter (MASTER=0)
 
       integer n2ft3d
-      integer i,count,number,ia
+      integer i,count,number,ia,number1,number2
       integer n1(2),n2(2),nn(2)
       integer nx,ny,nz
       integer rho(2)
@@ -562,12 +562,20 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
           ind = index(filename,' ') - 1
         end if
 
-        value = value.and.rtdb_get(rtdb,name2(1:name2_len),
-     >                           mt_int,1,number)
+        if(.not.rtdb_get(rtdb,name2(1:name2_len),mt_int,1,number)) then
+           number = 99999999
+           name1 = 'pspw_dplot:number1'//CHAR(i-1+ia)
+           name2 = 'pspw_dplot:number2'//CHAR(i-1+ia)
+           name1_len = index(name1,' ') - 1
+           name2_len = index(name2,' ') - 1
+           value=value.and.rtdb_get(rtdb,name1(1:name1_len),mt_int,1,
+     >                              number1)
+           value=value.and.rtdb_get(rtdb,name2(1:name2_len),mt_int,1,
+     >                              number2)
+        end if
         if (.not.value)
      >     call errquit(
      >     'pspw_dplot: rtdb_get failed for orbital', 0, RTDB_ERR)
-
 
 *       **** outputing density ****
         if (number.lt.0) then
@@ -710,24 +718,52 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
  790       continue
            number = -number
 
-*       **** outputing wavefunction ****
+*       **** outputing wavefunction or wavefunction2 ****
         else
-           if ((number.gt.nemax).or.(number.lt.1)) then
+
+           if (number.eq.99999999) then
+              number = -99
+              if ((number1.gt.nemax).or.(number1.lt.1)) then
+              if (taskid.eq.MASTER) then
+                write(*,*)  '   Bad orbital number1 ', number1,
+     >                     ', changing to orbital number1 1.'
+              end if
+              number1 = 1
+              end if
+              if ((number2.gt.nemax).or.(number2.lt.1)) then
+              if (taskid.eq.MASTER) then
+                write(*,*)  '   Bad orbital number2 ', number2,
+     >                     ', changing to orbital number2 1.'
+              end if
+              number2 = 1
+              end if
+              call D3dB_rr_Mul(1,psi_r(1,number1),psi_r(1,number2),
+     >                         dbl_mb(rho(1)))
+              if (.not.add_tag) then
+              if (taskid.eq.MASTER) then
+                write(*,*) '   writing orbital2 ',number1, number2,
+     >                     ' to filename: ',filename(1:ind)
+              end if
+              end if
+              cube_comment = 'SCF Molecular Orbitals squared'
+           else
+              if ((number.gt.nemax).or.(number.lt.1)) then
               if (taskid.eq.MASTER) then
                 write(*,*)  '   Bad orbital number ', number,
      >                     ', changing to orbital number 1.'
               end if
               number = 1
-           end if
+              end if
           
-           call D3dB_r_Copy(1,psi_r(1,number),dbl_mb(rho(1)))
-           if (.not.add_tag) then
-           if (taskid.eq.MASTER) then
-             write(*,*) '   writing orbital ',number, 
-     >                  ' to filename: ',filename(1:ind)
+              call D3dB_r_Copy(1,psi_r(1,number),dbl_mb(rho(1)))
+              if (.not.add_tag) then
+              if (taskid.eq.MASTER) then
+                write(*,*) '   writing orbital ',number, 
+     >                     ' to filename: ',filename(1:ind)
+              end if
+              end if
+              cube_comment = 'SCF Molecular Orbitals'
            end if
-           end if
-          cube_comment = 'SCF Molecular Orbitals'
         end if
 
 *       *** atom_truncate ***

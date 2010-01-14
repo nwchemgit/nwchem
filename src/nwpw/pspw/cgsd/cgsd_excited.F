@@ -35,15 +35,17 @@ c#include "rtdb.fh"
 
 *     **** external functions ****
       logical     control_DOS,control_Mulliken
-      logical     epsi_initialize,epsi_finalize,epsi_filefind
+      logical     epsi_initialize,epsi_finalize
+      logical     control_check_number_virtuals
       integer     psi_ne_excited,control_excited_ne,control_rtdb
       real*8      psi_virtual
       external    control_DOS,control_Mulliken
-      external    epsi_initialize,epsi_finalize,epsi_filefind
+      external    epsi_initialize,epsi_finalize
+      external    control_check_number_virtuals
       external    psi_ne_excited,control_excited_ne,control_rtdb
       external    psi_virtual
-      integer     control_symmetry,control_mapping1d
-      external    control_symmetry,control_mapping1d
+      integer     control_symmetry,control_mapping1d,psi_ispin
+      external    control_symmetry,control_mapping1d,psi_ispin
       character*4 psi_ab_irrep_name
       external    psi_ab_irrep_name
 
@@ -56,14 +58,15 @@ c#include "rtdb.fh"
       if (taskid.eq.MASTER) write(luout,1301)
 
 *     **** read in excited wavefunctions and initialize epsi ****
-      if (.not.epsi_filefind()) then
+      call control_ispin_set(psi_ispin())
+      if (.not.control_check_number_virtuals()) then
         call epsi_new()
         newpsi = .true.
       else
         newpsi = .false.
       end if
       call psi_get_ne_excited(ispin,nexcited)
-      call Dnex_init(ispin,nexcited,control_mapping1d())
+cccccccc  call Dnex_init(ispin,nexcited,control_mapping1d()) ccccccc
 
       value = epsi_initialize()
       call psi_gen_density_potentials(1)
@@ -126,11 +129,10 @@ c#include "rtdb.fh"
 
 
 
-
 *     **** write out excited wavefunctions ***
       value = epsi_finalize(.true.)
 
-      call Dnex_end()
+ccccccc  call Dnex_end() ccccccc
       end if
 
       return
