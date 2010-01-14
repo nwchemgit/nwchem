@@ -44,9 +44,14 @@
       logical mc_data_set_trajnum
       double precision mdtemp,mdtemp10, md_data_get_temp
       logical dbug
+c<<<<<<< .mine
+      logical restart_dump
+
+c=======
       character*(nw_max_path_len) fnameout
       integer tunita
 c
+c>>>>>>> .r18494
       integer g_a,ncpu
 C     PROCESS AND SUBGROUP VARS
       integer myid,idbig,inodesbig
@@ -58,94 +63,70 @@ C   I/O vars
       character*256 fprefix, fprefix2
       character*256 mc_dir
       integer iw 
-      iw=0
-      if (ga_nodeid().eq.0) then
-       iw=6
-      endif
+      mc_main=.false.
+      iw=6
       call ga_sync()
 C     INFO ON PROCESSES in the big group
       myid = ga_nodeid()
       idbig = ga_pgroup_get_default()
       inodesbig = ga_nnodes() 
-c      return
+
+      if (myid.eq.0) then
+         open(unit=ir,file='restart.pun',status='replace')
+      endif
       if (.not. rtdb_get(rtdb,'subgroups_number', MT_INT, 1, numgroups))
      & numgroups = ga_nnodes() 
-      write(iw,*) "numgroups is ",numgroups
-C in general I want nproc/want_groups
-C at the moment I want numgroups=nproc
+
 C     Allocate memory for array of group numbers
       if (.not. ma_push_get(MT_INT, numgroups, 'mc: groupnums',
      &    l_groupnums, k_groupnums)) 
      &    call errquit('mc_allocate_arrays: error groupnums',0,MA_ERR)
-      write(iw,*) 'SPLITTING INTO SUBGROUPS'
+
+      if (ga_nodeid().eq.0) then
+        write(iw,*) 'SPLITTING INTO SUBGROUPS'
+      endif
+      call ga_sync()
+      call util_flush(iw)
+      close(iw) 
 C    SPLITTING INTO SUBGROUPS
 
 C   Close the output file and reopen it as series of ".out" files
-c      flush(6)  
-c      call ga_sync()
-c      CLOSE(UNIT = 6)            
       call mc_setup_ga
      &    (rtdb, myid, idbig, inodesbig,
      &    idmedium, idzero, g_pr, int_mb(k_groupnums),numgroups) ! Now in Subgroups
 
-      write(iw,*) 'DONE SPLITTING INTO SUBGROUPS'
 C Initialize group related information
 C mostly file opening for each group,etc. 
-      call ga_sync()
-      CLOSE(UNIT = 6)
-      
-      call util_file_name('out',.true.,.true.,fnameout)
-      if (eaf_open(fnameout,eaf_rw,tunita) .ne. 0)
-     $      call errquit('mc_main: eaf open of xyz failed',0,
-     &       DISK_ERR)
-      
-      if (ga_nodeid() .eq. 0) then
-         call mc_setup_group  !deals with file i/o
-     &     (rtdb, idmedium, myid, int_mb(k_groupnums),prcfil, prcfil2,
+      call mc_setup_group  !deals with file i/o
+     &     (rtdb, myid, int_mb(k_groupnums),prcfil, prcfil2,
      &     fprefix, numgroups)
-      else
-         call mc_write_prcfil(idmedium, int_mb(k_groupnums), prcfil,
-     &     numgroups)
-         call mc_build_prcfil(prcfil2, myid)
-         write(fprefix2,'(256(a))') (' ', i=1,256)
-         if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix2))
-     &     call errquit('mc_main:rtdb get file_prefix failed'
-     &      ,0,RTDB_ERR)
-            write(mc_dir,'(256(a))') (' ', i=1,256)
-         if (.not. rtdb_cget(rtdb, 'mc:directory',1,mc_dir))
-     &      mc_dir(1:2)='./'
-           write(fprefix,'(256(a))') (' ', i=1, 256)
-           write(fprefix,'(3(a))')
-     &        mc_dir(1:inp_strlen(mc_dir)),
-     &        '/',
-     &        fprefix2(1:inp_strlen(fprefix2))
-      endif
-      iw=0
-      if (ga_nodeid().eq.0) then
-       iw=6
-      endif
-      write(iw,*) 'DONE SETTING I/O files'
+
+      write(iw,*) 'DONE SETTING I/O files for subgroups'
 C-- the stdout is now redirected to other .out output files for each trajectory
 C from here we can start mc_loop 
 c      goto 100
 c      call task_energy(rtdb)
 c      goto 100 
-      if (ga_nodeid().eq.0) then
-        iw=6   
-        write(iw,*)  '\n\t\t METROPOLIS MONTE CARLO RECROSSING \n'
-      endif
+      write(iw,*)  '\n\t\t METROPOLIS MONTE CARLO RECROSSING \n'
       
       write(iw,*) 'Subgroup is: ',util_sgroup_mygroup()
       dbug=.false. 
       forward=.true.
       backward=.false.
-      write(iw,*)  "groupnum :"
-      do i=1,numgroups
-         write(iw,*)  int_mb(k_groupnums+i-1)
-      enddo
-       status=mc_data_set_ifirc(.true.)  
-       status=mc_driver(rtdb,naccept)
+
+c      write(iw,*)  "groupnum :"
+c      do i=1,numgroups
+c         write(iw,*)  int_mb(k_groupnums+i-1)
+c      enddo
+
+      status=mc_data_set_ifirc(.true.)  
+      if(.not.mc_driver(rtdb,naccept)) call errquit('mc_driver:failed',
+     & , UNKNOWN_ERR)
       write(iw,*) 'Number of initial points generated: ', naccept  
+
+      if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
+         status=restart_dump()
+      endif
 c      go to 100 
       ircflag=.true.
       mdtemp10 =10.0 
@@ -163,11 +144,11 @@ c      go to 100
       vel=md_data_get_i_v()
       acc=md_data_get_i_a()
 c  100 continue     
-c --- not sure if I need a ga at all
       write(iw,*) '\nStarting the IRC trajectory\n'
 
 c  ---- do the IRC trajectory first,  at low temp
 C  ---- this requires quenching of velocities so that Ek is close to 0
+C  ---- quenching not implemented yet
       status=md_data_set_temp(mdtemp10)
 C --- set vel and acc      
 
@@ -213,7 +194,8 @@ C  --- run the IRC traj forward
       status=mc_data_set_nxing(0)
       status=mc_data_set_trajnum(0)
 
-      status=md_driver(rtdb,grad,thr)      
+      if(.not.md_driver(rtdb,grad,thr)) 
+     &  call errquit('Error in MDDriver',0,0)      
       status=mc_data_set_side_prev(0)
       status=mc_data_set_nxing(0)
 C --- run the IRC traj backward
@@ -226,7 +208,9 @@ C --- run the IRC traj backward
 
       status=mc_data_set_forward(.false.)
       status=mc_data_set_backward(.true.)
-      status=md_driver(rtdb,grad,thr) 
+
+      if(.not.md_driver(rtdb,grad,thr))
+     &  call errquit('Error in MDDriver',0,0)  
 
       call ga_sync()
 C --- get geometry from the big array in mc_driver
@@ -236,7 +220,11 @@ C --- the first one is always the TS
       status=mc_data_set_ifirc(.false.)
 C --- generate initial velocities for all trajectories
       status=mc_init(rtdb,grad,ircflag)
-
+      
+c ---- dump the data for restart
+      if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
+         status=restart_dump()
+      endif
       do i=1,naccept+1
         write(iw,*) 'traj, prp: ',i,dbl_mb(prp+i-1)
       enddo
@@ -282,7 +270,9 @@ C ---- set the appropriate coordinate
             status=mc_data_set_side_prev(0)
             status=mc_data_set_nxing(0)
             status=mc_data_set_trajnum(i)
-            status=md_driver(rtdb,grad,thr)
+            
+            if(.not.md_driver(rtdb,grad,thr))
+     &       call errquit('Error in MDDriver',0,0)  
             forward=.false.
             backward=.true. 
             status=mc_data_set_forward(forward)
@@ -302,7 +292,9 @@ C --- get the initial conditions generated in the forward run
             enddo
             status=mc_data_set_side_prev(0)
             status=mc_data_set_nxing(0)
-            status=md_driver(rtdb,grad,thr)
+
+            if(.not.md_driver(rtdb,grad,thr))
+     &         call errquit('Error in MDDriver',0,0)  
             forward=.false.
             backward=.false.
             status=mc_data_set_side_prev(0)
@@ -331,13 +323,22 @@ c      else
 c         write(*,*) 'SKIP TRAJECTORY ',i,' node ',ga_nodeid()
       endif
 c      write(*,*) 'LOOP ',i,' node ',ga_nodeid()
+c           call ga_sync()
+c           call ga_pgroup_set_default(idbig)
+c           call ga_sync()
+c           call ga_igop(MT_F_INT,int_mb(i_sc),(mcsteps+1)*2,'+')
+c        if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
+cc           status=restart_dump()
+c        endif
+c           call ga_sync()
+c           call ga_pgroup_set_default(idmedium)
       enddo
 c      write(*,*) ' Out of loop. Node id :',ga_nodeid()
 C --- loop over trajectories finished
       call ga_sync()
       call ga_pgroup_set_default(idbig) 
       call ga_sync()
-      call ga_igop(MT_F_INT,int_mb(i_sc),(mcsteps+2)*2,'+')
+      call ga_igop(MT_F_INT,int_mb(i_sc),(mcsteps+1)*2,'max')
       call ga_sync()
       write(iw,*) ' Recrossing Results:'
 
@@ -346,7 +347,7 @@ C --- loop over trajectories finished
       reactive=0
       reverse=0
 
-      iw=6
+c      iw=6
       if (ga_nodeid().eq.0) then
        do i=1,naccept+1
         write(iw,9001) 'traj  sidef sideb ',i, int_mb(i_sc+2*i), 
@@ -371,7 +372,7 @@ C --- loop over trajectories finished
         if (int_mb(i_s+i).eq.1) then
            j=j+1
         endif 
-        write(iw,*) 'adding prp :',j,' val: ',dbl_mb(prp+j-1)    
+        write(iw,*) 'Mc step: ',i,'adding: ',j,' val: ',dbl_mb(prp+j-1) 
         avg=avg+dbl_mb(prp+j-1)
        enddo
 
@@ -392,6 +393,7 @@ c  100 continue
 c --- close files that were open
       close(iw)
       close(12)
+      close(ir)
       call util_sgend(rtdb)
       mc_main = .true.
  9000 format(A,I4,L3,4(I4))
@@ -471,10 +473,10 @@ C     This is just option 3, but you get to lay the groups out exactly.
 
       call util_sggo(rtdb,groups_want,method,array_cpu,dir)
 
-C      if (util_print('debug',print_debug)) then
-        write(6,*)'Now in Subgroups'
+      if (util_print('debug',print_debug)) then
+        write(0,*)'Now in Subgroups'
         call flush(6)
-C      endif
+      endif
 
 C   I this is the handle to get into subgroups subgroup
       idmedium = ga_pgroup_get_default() ! Now in Subgroups
@@ -526,22 +528,7 @@ C Destroy GA "proc list"
 C Create Zeros GAs
 C this may not be needed, or will be needed for setting hared data for a subgroup
 
-C      if (ga_pgroup_nodeid(idmedium).eq.0) then
-C        call ga_pgroup_set_default(idzero)
-C        write(*,*) 'In zero group nnodes ',ga_nnodes()
-C          ndim = 2
-C Changed to dimension (nob,nspc,numgroups)
-C          dims(1) = NOB*nspc
-C          dims(2) = util_sgroup_numgroups()
-C          chunk(1) = dims(1)
-C          chunk(2) = 0
-C          g_pr = ga_create_handle()
-C          call ga_set_data(g_pr,ndim,dims,MT_F_DBL)
-C          call ga_set_chunk(g_pr,chunk)
-C          status = ga_allocate(g_pr)
-C          call ga_zero(g_pr)
-C       endif
-       write(6,*)'Now starting subgroups '
+c       write(6,*)'Now starting subgroups '
 C Start Subgroups
        call ga_pgroup_set_default(idmedium) ! Now in Subgroups
 c       write(*,*) 'In isubgroups nnodes ',ga_nnodes()
@@ -564,7 +551,7 @@ c       endif
 
 C***********************************************************************
       subroutine mc_setup_group
-     &(rtdb, idmedium, myid, groupnums, prcfil, prcfil2, fprefix,
+     &(rtdb, myid, groupnums, prcfil, prcfil2, fprefix,
      & numgroups)
 C gets the appropriate path for the output files and opens them
 C***********************************************************************
@@ -577,11 +564,10 @@ C Include Statements
 #include "subgr.fh"
 #include "util.fh"
 #include "util_sgroup.fh"
-
+#include "global.fh"
 C Variable declarations
       integer rtdb ! input
       integer myid ! input
-      integer idmedium ! input
       integer numgroups ! input
       integer groupnums(numgroups) ! input
       character*4 prcfil, prcfil2
@@ -591,7 +577,8 @@ C Indect output of file units
       character*256 fprefix2, mc_dir
 
 C Begin Main Program
-      call mc_write_prcfil(idmedium, groupnums, prcfil, numgroups)
+      call mc_write_prcfil(groupnums, prcfil, numgroups)
+
       call mc_build_prcfil(prcfil2, myid)
       write(fprefix2,'(256(a))') (' ', i=1,256)
       if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix2))
@@ -608,38 +595,39 @@ C Begin Main Program
 
 C Open file Units
 C general output ! Only group Zeros write
-      write(fprefixcat,'(256(a))') (' ', i=1, 256)
-      write(fprefixcat,'(3(a))')
+      if (ga_nodeid().eq.0) then 
+          write(fprefixcat,'(256(a))') (' ', i=1, 256)
+          write(fprefixcat,'(3(a))')
      &      fprefix(1:inp_strlen(fprefix)),
-     &      '.xyz.',
-     &      prcfil(1:4)
+     &      '.xyz.',prcfil(1:4)
 
 c -- open a file for trajectory for each subgroup
-c      if(util_print('MCout',print_low)) then
-      OPEN(UNIT = 12,FILE = fprefixcat(1:inp_strlen(fprefixcat))
-     +    ,STATUS = 'REPLACE')
-c      endif
+           OPEN(UNIT = 12,FILE = fprefixcat(1:inp_strlen(fprefixcat))
+     &     ,STATUS = 'REPLACE')
 
-      write(fprefixcat,'(256(a))') (' ', i=1, 256)
-      write(fprefixcat,'(3(a))')
-     &      fprefix(1:inp_strlen(fprefix)),
-     &      '.out.',
-     &      prcfil(1:4)
+           write(fprefixcat,'(256(a))') (' ', i=1, 256)
+           write(fprefixcat,'(3(a))')
+     &        fprefix(1:inp_strlen(fprefix)),
+     &        '.out.',prcfil(1:4)
 
 C  ---- added this so that the output file is closed and output is open for each 
 C  ---- subgroup
-c      if(util_print('out',print_low)) then
-      OPEN(UNIT = 6,FILE = fprefixcat(1:inp_strlen(fprefixcat))
-     +    ,STATUS = 'REPLACE')
-c      endif
+           OPEN(UNIT = 6,FILE = fprefixcat(1:inp_strlen(fprefixcat))
+     &     ,STATUS = 'REPLACE')
+      else
+C all non-zeros write to dev/null
+            OPEN(6,FILE='/dev/null',STATUS='UNKNOWN')
+            OPEN(12,FILE='/dev/null',STATUS='UNKNOWN')
+      endif 
 
 
       return
       end
 
 C***********************************************************************
-      subroutine mc_write_prcfil(idmedium,groupnums,prcfil,numgroups)
+      subroutine mc_write_prcfil(groupnums,prcfil,numgroups)
 C finds the appropriate groupid, to get the right output file
+C not using idmedium, need to remove it
 C***********************************************************************
       Implicit none
 
@@ -651,7 +639,7 @@ C Include Statements
 C Variable Declarations
       integer i
       integer numgroups
-      integer idmedium, groupnums(numgroups)
+      integer groupnums(numgroups)
       integer groupid
       character*4 prcfil ! only output
 
@@ -698,5 +686,77 @@ C  Main Program
 
 C  End Main Program
       return
+      end
+
+      function restart_dump() 
+      Implicit none
+#include "inp.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "util_sgroup.fh"  !for subgroup support
+#include "const_data.fh"
+#include "subgr.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh" 
+      logical restart_dump
+C: save the array of initial velocities and initial structures and initial prp values
+C: save the array with 1 and 0 for iniital values
+C: before the run, save values to -1, so at restart we know which ones to get.      
+C: restart file has handle ir=11 (set as parameter in const_data.fh
+      integer prp, vel, acc, coor, sidecnt, mcsteps, naccept, natom
+      integer mc_data_get_i_prp !property (naccept+2)
+      integer mc_data_get_i_sc  !side count (mcsteps+1)*2
+      integer mc_data_get_i_in_vel ! initial velocities (naccept+2)*3*natom
+      integer mc_data_get_i_in_acc ! initial accelerations  (naccept+2)*3*natom
+      integer mc_data_get_i_c_array ! initial coordinates (mcsteps+1)*3*natom
+      integer mc_data_get_natom     ! number of atoms
+      integer mc_data_get_mcsteps   ! mc steps mcsteps+1
+      integer mc_data_get_naccept   ! number of accepted steps
+      integer myid, mysubgr
+      integer i
+C*******  double check the size of the array for vel,acc and prp****
+      restart_dump=.false.
+      natom=mc_data_get_natom()
+      mcsteps=mc_data_get_mcsteps()
+      naccept=mc_data_get_naccept()
+      prp=mc_data_get_i_prp()
+      vel=mc_data_get_i_in_vel()
+      acc=mc_data_get_i_in_acc() 
+      coor=mc_data_get_i_c_array()
+      sidecnt=mc_data_get_i_sc()  
+C:   Check again if it is subgroup 1, node 0 before you write
+      myid = ga_nodeid()
+      mysubgr = util_sgroup_mygroup() 
+c      write(ir,*) 'writing to restart file'
+      if (myid.eq.0.and.mysubgr.eq.1) then
+          rewind(ir)
+          write(ir,*) natom,mcsteps,naccept    
+C figure out a better print      
+          write(ir,*) 'structures'
+          call print_array_dbl(dbl_mb(coor),(mcsteps+1)*3*natom,ir)
+          write(ir,*) 'sidecount' 
+          call print_array_int(int_mb(sidecnt), (mcsteps+1)*2,ir)
+          write(ir,*) 'prp'
+          call print_array_dbl(dbl_mb(prp),(naccept+1),ir)
+          write(ir,*) 'vel'
+          call print_array_dbl(dbl_mb(vel),(naccept+1)*3*natom,ir)
+          write(ir,*) 'acc'
+          call print_array_dbl(dbl_mb(acc),(naccept+1)*3*natom,ir)
+      endif 
+      restart_dump=.true.
+      return 
+      end
+      subroutine print_array_int(array,asize,fileout)
+      implicit none
+      integer asize,fileout
+      integer array(asize)
+      write(fileout,*) array
+      end
+      subroutine print_array_dbl(array,asize,fileout)
+      implicit none
+      integer asize,fileout
+      double precision array(asize)
+      write(fileout,*) array
       end
 
