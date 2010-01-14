@@ -1706,7 +1706,7 @@ endif
            @echo ifort 8.1 is required for x86_64 CPUs
            @exit 1
        endif
-        FOPTIONS += -align -w -g -vec-report1
+        FOPTIONS += -openmp -align -w -g -vec-report1
         DEFINES+= -DIFCV8 -DIFCLINUX
         ifeq ($(FC),ifc)
           FOPTIONS += -quiet
@@ -2048,11 +2048,14 @@ errorpython2:
 	@echo " subdirs <$(NWSUBDIRS)>"
 	@exit 1
 endif
-ifdef USE_LIB64
-CORE_LIBS += -L$(PYTHONHOME)/lib64/python$(PYTHONVERSION)/config -lpython$(PYTHONVERSION)
-else
+###### !!!! Turning this off since lib64 doesnot seem like a standard!!!! ######
+######ifdef USE_LIB64
+######CORE_LIBS += -L$(PYTHONHOME)/lib64/python$(PYTHONVERSION)/config -lpython$(PYTHONVERSION)
+######else
+######CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).a
+######endif
 CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).a
-endif
+
 endif
 ######
 #PAPI#
