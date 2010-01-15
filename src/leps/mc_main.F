@@ -72,10 +72,10 @@ C     INFO ON PROCESSES in the big group
       inodesbig = ga_nnodes() 
 
       if (myid.eq.0) then
-         open(unit=ir,file='restart.pun',status='replace')
+          open(unit=ir,file='restart.pun',status='replace')
       endif
       if (.not. rtdb_get(rtdb,'subgroups_number', MT_INT, 1, numgroups))
-     & numgroups = ga_nnodes() 
+     &    numgroups = ga_nnodes() 
 
 C     Allocate memory for array of group numbers
       if (.not. ma_push_get(MT_INT, numgroups, 'mc: groupnums',
@@ -83,7 +83,7 @@ C     Allocate memory for array of group numbers
      &    call errquit('mc_allocate_arrays: error groupnums',0,MA_ERR)
 
       if (ga_nodeid().eq.0) then
-        write(iw,*) 'SPLITTING INTO SUBGROUPS'
+          write(iw,*) 'SPLITTING INTO SUBGROUPS'
       endif
       call ga_sync()
       call util_flush(iw)
@@ -92,8 +92,8 @@ C    SPLITTING INTO SUBGROUPS
 
 C   Close the output file and reopen it as series of ".out" files
       call mc_setup_ga
-     &    (rtdb, myid, idbig, inodesbig,
-     &    idmedium, idzero, g_pr, int_mb(k_groupnums),numgroups) ! Now in Subgroups
+     &     (rtdb, myid, idbig, inodesbig,
+     &     idmedium, idzero, g_pr, int_mb(k_groupnums),numgroups) ! Now in Subgroups
 
 C Initialize group related information
 C mostly file opening for each group,etc. 
@@ -114,21 +114,20 @@ c      goto 100
       forward=.true.
       backward=.false.
 
-c      write(iw,*)  "groupnum :"
-c      do i=1,numgroups
-c         write(iw,*)  int_mb(k_groupnums+i-1)
-c      enddo
+C********* MC driver ******
 
-      status=mc_data_set_ifirc(.true.)  
+C******* RESTART point 1******
       if(.not.mc_driver(rtdb,naccept)) call errquit('mc_driver:failed',
-     &   0,UNKNOWN_ERR)
+     & , UNKNOWN_ERR)
       write(iw,*) 'Number of initial points generated: ', naccept  
 
       if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
          status=restart_dump()
       endif
+C******** End of MC driver *******
 c      go to 100 
       ircflag=.true.
+      status=mc_data_set_ifirc(.true.)
       mdtemp10 =10.0 
       mdtemp = 298.15
 
@@ -213,18 +212,19 @@ C --- run the IRC traj backward
      &  call errquit('Error in MDDriver',0,0)  
 
       call ga_sync()
-C --- get geometry from the big array in mc_driver
-C --- the first one is always the TS
+
+C ****** RESTART point 2 ******* 
+c ---- dump the data for restart
+      if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
+         status=restart_dump()
+      endif
+
       write(iw,*) 'Done with IRC'
       ircflag=.false.
       status=mc_data_set_ifirc(.false.)
 C --- generate initial velocities for all trajectories
       status=mc_init(rtdb,grad,ircflag)
-      
-c ---- dump the data for restart
-      if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
-         status=restart_dump()
-      endif
+
       do i=1,naccept+1
         write(iw,*) 'traj, prp: ',i,dbl_mb(prp+i-1)
       enddo
@@ -238,6 +238,7 @@ C --- START LOOP OVER MD TRAJ - PARALLEL
       call ga_sync()
       ncpu=numgroups
 
+C ****** RESTART point 3 ******* 
       do i=1,naccept+1
 C ---- decide where to run the traj 
       if(util_sgroup_mygroup().eq.mod(i,ncpu)+1) then
@@ -323,15 +324,16 @@ c      else
 c         write(*,*) 'SKIP TRAJECTORY ',i,' node ',ga_nodeid()
       endif
 c      write(*,*) 'LOOP ',i,' node ',ga_nodeid()
-c           call ga_sync()
-c           call ga_pgroup_set_default(idbig)
-c           call ga_sync()
-c           call ga_igop(MT_F_INT,int_mb(i_sc),(mcsteps+1)*2,'+')
-c        if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
-cc           status=restart_dump()
-c        endif
-c           call ga_sync()
-c           call ga_pgroup_set_default(idmedium)
+c      call ga_sync()
+      idmedium = ga_pgroup_get_default()     
+      write(iw,*) 'big,med,node',idbig,idmedium,ga_nodeid() 
+      flush(iw)
+      call ga_pgroup_set_default(idbig)
+c      call ga_igop(MT_F_INT,int_mb(i_sc),(mcsteps+1)*2,'max')
+      call ga_pgroup_set_default(idmedium)
+      if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
+           status=restart_dump()
+      endif
       enddo
 c      write(*,*) ' Out of loop. Node id :',ga_nodeid()
 C --- loop over trajectories finished
@@ -350,13 +352,13 @@ C --- loop over trajectories finished
 c      iw=6
       if (ga_nodeid().eq.0) then
        do i=1,naccept+1
-        write(iw,9001) 'traj  sidef sideb ',i, int_mb(i_sc+2*i), 
-     &               int_mb(i_sc+2*i+1) 
-        if (int_mb(i_sc+2*i).eq.int_mb(i_sc+2*i+1)) then
+        write(iw,9001) 'traj  sidef sideb ',i, int_mb(i_sc+2*i-2), 
+     &               int_mb(i_sc+2*i-1) 
+        if (int_mb(i_sc+2*i-2).eq.int_mb(i_sc+2*i-1)) then
            nonreact=nonreact+1
            dbl_mb(prp+i-1)=0.0 
            write(iw,*) 'trajectory number for non-reactive traj: ', i 
-        else if (int_mb(i_sc+2*i).eq.mc_data_get_forside0()) then
+        else if (int_mb(i_sc+2*i-2).eq.mc_data_get_forside0()) then
            reactive=reactive+1
            dbl_mb(prp+i-1)=0.5*dbl_mb(prp+i-1)
         else
@@ -733,20 +735,74 @@ c      write(ir,*) 'writing to restart file'
           rewind(ir)
           write(ir,*) natom,mcsteps,naccept    
 C figure out a better print      
-          write(ir,*) 'structures'
+c          write(ir,*) 'structures'
           call print_array_dbl(dbl_mb(coor),(mcsteps+1)*3*natom,ir)
-          write(ir,*) 'sidecount' 
+c          write(ir,*) 'sidecount' 
           call print_array_int(int_mb(sidecnt), (mcsteps+1)*2,ir)
-          write(ir,*) 'prp'
+c          write(ir,*) 'prp'
           call print_array_dbl(dbl_mb(prp),(naccept+1),ir)
-          write(ir,*) 'vel'
+c          write(ir,*) 'vel'
           call print_array_dbl(dbl_mb(vel),(naccept+1)*3*natom,ir)
-          write(ir,*) 'acc'
+c          write(ir,*) 'acc'
           call print_array_dbl(dbl_mb(acc),(naccept+1)*3*natom,ir)
+          call util_flush(ir)
       endif 
       restart_dump=.true.
       return 
       end
+C ******** End of writing restart file *********
+C ******** Start reading restart file *********
+      function restart_read()
+      Implicit none
+#include "inp.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "util_sgroup.fh"  !for subgroup support
+#include "const_data.fh"
+#include "subgr.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+      logical restart_read
+C: save the array of initial velocities and initial structures and initial prp values
+C: save the array with 1 and 0 for iniital values
+C: before the run, save values to -1, so at restart we know which ones to get.      
+C: restart file has handle ir=11 (set as parameter in const_data.fh
+      integer prp, vel, acc, coor, sidecnt, mcsteps, naccept, natom
+      integer mc_data_get_i_prp !property (naccept+2)
+      integer mc_data_get_i_sc  !side count (mcsteps+1)*2
+      integer mc_data_get_i_in_vel ! initial velocities (naccept+2)*3*natom
+      integer mc_data_get_i_in_acc ! initial accelerations  (naccept+2)*3*natom
+      integer mc_data_get_i_c_array ! initial coordinates (mcsteps+1)*3*natom
+      logical mc_data_set_naccept   ! number of accepted steps
+      integer myid, mysubgr
+      integer i
+      logical status
+C*******  double check the size of the array for vel,acc and prp****
+      restart_read=.false.
+      prp=mc_data_get_i_prp()
+      vel=mc_data_get_i_in_vel()
+      acc=mc_data_get_i_in_acc()
+      coor=mc_data_get_i_c_array()
+      sidecnt=mc_data_get_i_sc()
+C:   Check again if it is subgroup 1, node 0 before you write
+c      write(ir,*) 'writing to restart file'
+      rewind(ir)
+      read(ir,*) natom,mcsteps,naccept
+C figure out a better print      
+          call read_array_dbl(dbl_mb(coor),(mcsteps+1)*3*natom,ir)
+          call read_array_int(int_mb(sidecnt), (mcsteps+1)*2,ir)
+          call read_array_dbl(dbl_mb(prp),(naccept+1),ir)
+          call read_array_dbl(dbl_mb(vel),(naccept+1)*3*natom,ir)
+          call read_array_dbl(dbl_mb(acc),(naccept+1)*3*natom,ir)
+      status=mc_data_set_naccept(naccept)
+      restart_read=.true.
+      return
+      end
+C ******** End reading restart file **********
+
+
+
       subroutine print_array_int(array,asize,fileout)
       implicit none
       integer asize,fileout
@@ -759,4 +815,15 @@ C figure out a better print
       double precision array(asize)
       write(fileout,*) array
       end
-
+      subroutine read_array_int(array,asize,filein)
+      implicit none
+      integer asize,filein
+      integer array(asize)
+      read(filein,*) array
+      end
+      subroutine read_array_dbl(array,asize,filein)
+      implicit none
+      integer asize,filein
+      double precision array(asize)
+      read(filein,*) array
+      end
