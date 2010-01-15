@@ -1706,7 +1706,11 @@ endif
            @echo ifort 8.1 is required for x86_64 CPUs
            @exit 1
        endif
-        FOPTIONS += -openmp -align -w -g -vec-report1
+        ifdef USE_OPENMP
+           FOPTIONS += -openmp
+           DEFINES+= -DUSE_OPENMP
+        endif
+        FOPTIONS += -align -w -g -vec-report1
         DEFINES+= -DIFCV8 -DIFCLINUX
         ifeq ($(FC),ifc)
           FOPTIONS += -quiet
