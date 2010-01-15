@@ -115,12 +115,13 @@ c     parameter (c6=0.00004306380d0)
 *     ***** find the G==0 point in the lattice *****
       call D3dB_ijktoindexp(1,1,1,1,zero,pzero)
       
-      countj = 0
+      countj = -1
       DO 700 k1=1,nfft3d
+
+        countj = mod(countj+1,np_j)
 
         if (countj.ne.taskid_j) go to 700
         if ((pzero.eq.taskid_i).and.(k1.eq.zero)) go to 700
-        countj = mod(countj+1,np_j)
 
         Q=DSQRT(G(k1,1)**2
      >         +G(k1,2)**2
