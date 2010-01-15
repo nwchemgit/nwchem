@@ -117,6 +117,10 @@ C    find out if it is a TS
         write (iw,*) dbl_mb(i_eval+1)
         return
       endif      
+
+C*********** This is where the restart would come in **********
+C *********** skip the rest of the subroutine *****************   
+C**************************************************************   
 C  ! get ihe energy for the initial point
       R=dynrnd(1) 
 
