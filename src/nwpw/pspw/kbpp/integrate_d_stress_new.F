@@ -55,6 +55,7 @@
 
 *     *** local variables ****
       integer np,taskid,MASTER
+      integer np_i,np_j,taskid_i,taskid_j,countj
       parameter (MASTER=0)
 
       integer lcount,pzero,zero
@@ -71,8 +72,10 @@
       double precision dsum,simp,control_ecut,control_wcut,nwpw_splint
       external         dsum,simp,control_ecut,control_wcut,nwpw_splint
 
-      call Parallel_np(np)
-      call Parallel_taskid(taskid)
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_i(taskid_i)
+      call Parallel2d_taskid_j(taskid_j)
 
       if (version.ne.3) then
          call errquit('integrate_stress_new - unit cell is aperiodic',0,
@@ -146,14 +149,18 @@
 *     ***** find the G==0 point in the lattice *****
       call D3dB_ijktoindexp(1,1,1,1,zero,pzero)
       
+      countj = 0
       DO 700 k1=1,nfft3d
+
+        if (countj.ne.taskid_j) go to 700
+        if ((pzero.eq.taskid_i).and.(k1.eq.zero)) go to 700
+        countj = mod(countj+1,np_j)
 
         q=DSQRT(G(k1,1)**2
      >         +G(k1,2)**2
      >         +G(k1,3)**2)
         nx = (q/dG) + 1.0d0
 
-        if ((pzero.eq.taskid).and.(k1.eq.zero)) go to 700
         
         gx=G(k1,1)/q
         gy=G(k1,2)/q
@@ -404,6 +411,10 @@
      >                                rho_sc_k_ray(1,2),nray,nx,Q)
         end if
   700 CONTINUE
+      call D1dB_Vector_SumAll(nfft3d,dvl)
+      call D1dB_Vector_Sumall(3*lmmax*nfft3d,dvnl)
+      call D1dB_Vector_SumAll(nfft3d,rho_sc_k)
+
 
 *:::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
 

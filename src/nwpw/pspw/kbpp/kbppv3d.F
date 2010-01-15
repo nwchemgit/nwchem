@@ -384,26 +384,19 @@ c      call Parallel_Init()
          call dwrite(2,rcore,1)
       endif
 
-c         call dwrite(2,dbl_mb(vl_indx),nsize)
-c         if (nprj.gt.0) then
-c            call dwrite(2,dbl_mb(vnl_indx),nsize*lmmax)
-c         end if
-c         if (semicore) then
-c           call dwrite(2,dbl_mb(sc_k_indx),4*nsize)
-c         end if
-      call D3dB_t_write(1,2,dbl_mb(vl_indx),dcpl_mb(tmp(1)))
+      call D3dB_t_write(1,2,dbl_mb(vl_indx),dcpl_mb(tmp(1)),0)
       do i=1,nprj
          call D3dB_t_write(1,2,
      >                     dbl_mb(vnl_indx+(i-1)*nsize),
-     >                     dcpl_mb(tmp(1)))
+     >                     dcpl_mb(tmp(1)),0)
 
       end do
 
       if (semicore) then
-       call D3dB_t_write(1,2,dbl_mb(sc_k_indx),        dcpl_mb(tmp(1)))
-       call D3dB_t_write(1,2,dbl_mb(sc_k_indx+nsize),  dcpl_mb(tmp(1)))
-       call D3dB_t_write(1,2,dbl_mb(sc_k_indx+2*nsize),dcpl_mb(tmp(1)))
-       call D3dB_t_write(1,2,dbl_mb(sc_k_indx+3*nsize),dcpl_mb(tmp(1)))
+      call D3dB_t_write(1,2,dbl_mb(sc_k_indx),        dcpl_mb(tmp(1)),0)
+      call D3dB_t_write(1,2,dbl_mb(sc_k_indx+nsize),  dcpl_mb(tmp(1)),0)
+      call D3dB_t_write(1,2,dbl_mb(sc_k_indx+2*nsize),dcpl_mb(tmp(1)),0)
+      call D3dB_t_write(1,2,dbl_mb(sc_k_indx+3*nsize),dcpl_mb(tmp(1)),0)
       end if
       
 

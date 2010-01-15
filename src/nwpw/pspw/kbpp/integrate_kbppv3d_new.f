@@ -50,6 +50,7 @@
       integer ierr
 
       integer np,taskid,MASTER
+      integer np_i,np_j,taskid_i,taskid_j,countj
       parameter (MASTER=0)
 
 *     *** local variables ****
@@ -66,8 +67,10 @@
       external         dsum,simp,util_erf,control_ecut,control_wcut
       external         nwpw_splint
 
-      call Parallel_np(np)
-      call Parallel_taskid(taskid)
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_i(taskid_i)
+      call Parallel2d_taskid_j(taskid_j)
 
       pi=4.0d0*datan(1.0d0)
       twopi=2.0d0*pi
@@ -165,14 +168,18 @@
 *     ***** find the G==0 point in the lattice *****
       call D3dB_ijktoindexp(1,1,1,1,zero,pzero)
       
+      countj = 0
       DO 700 k1=1,nfft3d
+
+        if (countj.ne.taskid_j) go to 700
+        if ((pzero.eq.taskid_i).and.(k1.eq.zero)) go to 700
+        countj = mod(countj+1,np_j)
 
         Q=DSQRT(G(k1,1)**2
      >         +G(k1,2)**2
      >         +G(k1,3)**2)
         nx = (Q/dG) + 1.0d0
 
-        if ((pzero.eq.taskid).and.(k1.eq.zero)) go to 700
         
         GX=G(k1,1)/Q
         GY=G(k1,2)/Q
@@ -261,10 +268,14 @@
         end if
     
   700 CONTINUE
+      call D1dB_Vector_SumAll(4*nfft3d,rho_sc_k)
+      call D1dB_Vector_SumAll(nfft3d,vl)
+      call D1dB_Vector_Sumall(lmmax*nfft3d,vnl)
+
 
 
 *     :::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
-      if (pzero.eq.taskid) then
+      if (pzero.eq.taskid_i) then
 
 *        **** local potential ****
          vl(zero)=vl_ray(1,1)

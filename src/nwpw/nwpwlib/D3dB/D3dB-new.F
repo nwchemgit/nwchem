@@ -3656,26 +3656,23 @@ c      call ga_sync()
 
       end if
 
-c*     **** wait ****
-c      call ga_sync()
       return
       end
 
-
-      subroutine D3dB_t_write(nb,iunit,A,tmp)
+      subroutine D3dB_t_write(nb,iunit,A,tmp,jcol)
       implicit none 
       integer nb
       integer iunit
-      real*8 A(*)
-      real*8 tmp(*)
+      real*8  A(*)
+      real*8  tmp(*)
+      integer jcol
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
-
-
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
+
       integer rcv_len,rcv_proc
 
       
@@ -3689,7 +3686,14 @@ c      call ga_sync()
       integer dum,dum_msglen
       integer tmp1(2),tmp2(2)
 
+      integer ii,taskid_j
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
+
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_j(taskid_j)
 
       !**********************
       !**** slab mapping ****
@@ -3699,8 +3703,9 @@ c      call ga_sync()
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
 
-            call D3dB_ktoqp(nb,k,q,p_from)
+            call D3dB_ktoqp(nb,k,q,ii)
 
+            p_from = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_from.eq.MASTER) then
 
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
@@ -3727,7 +3732,8 @@ c      call ga_sync()
       else
          do k=1,nz(nb)
          
-            call D3dB_ktoqp(nb,k,q,p_here)
+            call D3dB_ktoqp(nb,k,q,ii)
+            p_here = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_here.eq.taskid) then
 
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
@@ -3753,23 +3759,25 @@ c      call ga_sync()
       !*************************
       else
 
-*     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
-     >                    tmp1(2),tmp1(1))
-      value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (taskid_j.eq.jcol) then
+
+*       **** allocate temporary space  ****
+        value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+     >                      tmp1(2),tmp1(1))
+        value = value.and.
+     >          MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
-      call D3dB_t_transpose_ijk(nb,6,A,
-     >                          dcpl_mb(tmp1(1)),
-     >                          dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
+        call D3dB_t_transpose_ijk(nb,6,A,
+     >                            dcpl_mb(tmp1(1)),
+     >                            dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
 
-*     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+*       **** deallocate temporary space  ****
+        value = MA_pop_stack(tmp2(2))
+        value = value.and.MA_pop_stack(tmp1(2))
+        if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
-c      call ga_sync()
+      end if
 
 
 *     **** master node reads from file and distributes ****
@@ -3778,8 +3786,8 @@ c      call ga_sync()
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_from = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_from = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_from.eq.MASTER) then
 
                index = (q-1)*(nx(nb)/2+1) + 1
@@ -3809,8 +3817,8 @@ c      call ga_sync()
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = Parallel2d_convert_taskid_ij(ii,jcol) 
             if (p_here.eq.taskid) then
 
                index = (q-1)*(nx(nb)/2+1) + 1
@@ -3834,11 +3842,11 @@ c      call ga_sync()
 
       end if
 
-c*     **** wait ****
-c      call ga_sync()
-
       return
       end
+
+
+
 
 
 *     ***********************************

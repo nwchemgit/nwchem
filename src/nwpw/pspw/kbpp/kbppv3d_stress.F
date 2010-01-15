@@ -322,21 +322,16 @@ c      call Parallel_init()
          call dwrite(2,unita,9)
       endif
 
-c         call dwrite(2,dbl_mb(vl_indx),nsize)
-c         call dwrite(2,dbl_mb(vnl_indx),nsize*lmmax*3)
-c         if (semicore) then
-c           call dwrite(2,dbl_mb(sc_k_indx),nsize)
-c         end if
-      call D3dB_t_write(1,2,dbl_mb(vl_indx),dcpl_mb(tmp(1)))
+      call D3dB_t_write(1,2,dbl_mb(vl_indx),dcpl_mb(tmp(1)),0)
       do l=1,lmmax
       do i=1,3
          call D3dB_t_write(1,2,
      >                     dbl_mb(vnl_indx+((i-1)+(l-1)*3)*nsize),
-     >                     dcpl_mb(tmp(1)))
+     >                     dcpl_mb(tmp(1)),0)
       end do
       end do
       if (semicore) then
-         call D3dB_t_write(1,2,dbl_mb(sc_k_indx),dcpl_mb(tmp(1)))
+         call D3dB_t_write(1,2,dbl_mb(sc_k_indx),dcpl_mb(tmp(1)),0)
       end if
 
       if (taskid.eq.MASTER) then
