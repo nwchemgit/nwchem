@@ -110,15 +110,18 @@ C
 c      goto 7
 c      write(*,*)'In crossing:trajnum ',trajnum 
 c      write(iw,*)'In crossing: i_sc=',i_sc
-      if (forward) then
+C Do not cpunt trajectory as it is IRC
+      if(.not.mc_data_get_ifirc()) then
+       if (forward) then
 c         call nga_put(i_sc,2*trajnum+1,1,side, ld)
-         int_mb(i_sc+2*trajnum)=side
+         int_mb(i_sc+2*trajnum-2)=side
 c         write(iw,*)'In crossing: (i_sc+2*trajnum) ',trajnum ,
 c     $  ' forw ',forward,' back ', backward,int_mb(i_sc+2*trajnum)
-      else
-         int_mb(i_sc+2*trajnum+1)=side
+       else
+         int_mb(i_sc+2*trajnum-1)=side
 c      write(*,*)'In crossing: (i_sc+2*trajnum+1) ',trajnum ,
 c     $  ' forw ',forward,' back ', backward,int_mb(i_sc+2*trajnum+1)
+       endif
       endif
 
 C
