@@ -118,7 +118,7 @@ C********* MC driver ******
 
 C******* RESTART point 1******
       if(.not.mc_driver(rtdb,naccept)) call errquit('mc_driver:failed',
-     & , UNKNOWN_ERR)
+     &  UNKNOWN_ERR)
       write(iw,*) 'Number of initial points generated: ', naccept  
 
       if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
@@ -327,7 +327,7 @@ c      write(*,*) 'LOOP ',i,' node ',ga_nodeid()
 c      call ga_sync()
       idmedium = ga_pgroup_get_default()     
       write(iw,*) 'big,med,node',idbig,idmedium,ga_nodeid() 
-      flush(iw)
+      call flush(iw)
       call ga_pgroup_set_default(idbig)
 c      call ga_igop(MT_F_INT,int_mb(i_sc),(mcsteps+1)*2,'max')
       call ga_pgroup_set_default(idmedium)
@@ -508,8 +508,8 @@ C          write(*,*) 'big proc (i,1): ',bigproc(i,1)
           endif
         enddo
         if (j.ne.util_sgroup_numgroups())
-     &    call errquit('mc_setup_ga:zero node creation problem',
-     &      j, UNKNOWN_ERR)
+     &   call errquit('mc_setup_ga:zero node creation problem',
+     &           UNKNOWN_ERR)
       else
         call ga_sync()
       endif
