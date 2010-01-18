@@ -87,7 +87,7 @@ C      write(*,*) 'Loaded Geom object'
 C      write(*,*) 'Entering mc_driver'
 C      write(*,*) 'Allocated big array'
  
-      call mc_data_allocate(natom)
+      call mc_data_allocate(natom,rtdb)
       call mc_data_set(rtdb,geom)
 C      write(*,*) 'Mc data set'
 

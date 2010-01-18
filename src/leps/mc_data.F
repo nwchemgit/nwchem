@@ -53,21 +53,24 @@ c       write(*,*) 'mc_data geom_copy:Filled cartesians and masses'
 
       end
 
-      subroutine mc_data_allocate(n)
+      subroutine mc_data_allocate(n,rtdb)
       implicit none
 #include "mc_data.fh"
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
-
-      integer i,n
-
-c      write(*,*) 'In mc  data allocate:n,mcsteps: ', n, mcsteps 
-      if (.not. ma_alloc_get(mt_int, (mcsteps+1)*2, 'sidecount' ,
+      integer md_data_get_nsteps,rtdb
+      integer i,n,nsteps
+   
+      call md_data_inp_set(rtdb)
+      nsteps=md_data_get_nsteps() 
+      write(*,*) 'In mc  data allocate:n,mcsteps,nsteps: ', n, 
+     &  mcsteps,nsteps 
+      if (.not. ma_alloc_get(mt_int,(mcsteps+1)*2*nsteps, 'sidecount',
      & h_sc,i_sc))
      & call errquit('mc_data: array of sidecount not allocated',
      & 1,MA_ERR)
-       do i=0,(mcsteps+1)*2-1
+       do i=0,(mcsteps+1)*2*nsteps-1
           int_mb(i_sc+i)=0
 c          write(*,*) 'In mcdata i_sc,val=',i_sc+i,int_mb(i_sc+i)
        enddo
@@ -129,6 +132,11 @@ c      write(*,*) 'In mc_data_allocatte: i_sc: ',i_sc
       if (.not. ma_alloc_get(mt_dbl, (naccept+1), 'property' ,
      & h_prp,i_prp))
      & call errquit('mc_data: array of property not allocated',
+     & 0,MA_ERR)
+
+      if (.not. ma_alloc_get(mt_dbl, (naccept+1), 'property_tmp' ,
+     & h_prp_tmp,i_prp_tmp))
+     & call errquit('mc_data: array of property_tmp not allocated',
      & 0,MA_ERR)
        
       if (.not. ma_alloc_get(mt_dbl, (naccept+1)*3*natom, 'velocity' ,
@@ -206,6 +214,15 @@ c      write(*,*) 'In mc_data_allocatte: i_sc: ',i_sc
       integer mc_data_get_i_prp
 
       mc_data_get_i_prp = i_prp
+
+      end
+
+      function mc_data_get_i_prp_tmp()
+      implicit none
+#include "mc_data.fh"
+      integer mc_data_get_i_prp_tmp
+
+      mc_data_get_i_prp_tmp = i_prp_tmp
 
       end
 
@@ -604,6 +621,8 @@ c      write(*,*) 'In mc_data_allocatte: i_sc: ',i_sc
      &     call errquit('memory deallocation:sc',0,RTDB_ERR)
       if(.not.ma_free_heap(h_prp))
      &     call errquit('memory deallocation:prp',0,RTDB_ERR)
+      if(.not.ma_free_heap(h_prp_tmp))
+     &     call errquit('memory deallocation:prp_tmp',0,RTDB_ERR)
       if(.not.ma_free_heap(h_in_vel))
      &     call errquit('memory deallocation:in_vel',0,RTDB_ERR)
       if(.not.ma_free_heap(h_in_acc))

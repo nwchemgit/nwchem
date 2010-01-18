@@ -196,12 +196,15 @@ c --- calculate energy for the corrected geometry
 
          write(iw,1000) '@MD trajectory ',trajnum, ' MD step ', 
      &   step,' V: ',E1,' Ek: ',ek,' Tot E: ',Etot
-      
+
+          if (ga_nodeid().eq.0) then
+             call crossing(natom,dbl_mb(coor),step)
+          endif      
       enddo
 C ---- End of MD_loop      
-      if (ga_nodeid().eq.0) then
-        call crossing(natom,dbl_mb(coor))
-      endif 
+C      if (ga_nodeid().eq.0) then
+C        call crossing(natom,dbl_mb(coor),step)
+C      endif 
       call ga_sync()
 
 

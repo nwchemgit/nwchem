@@ -1,4 +1,4 @@
-       subroutine crossing(natom,c)
+       subroutine crossing(natom,c,mdstep)
 c      subroutine crossing(c,c_tst,v_tst,side,side_prev,nxing,forward,backward,forside,backside)
       implicit none
 
@@ -14,7 +14,7 @@ c      subroutine crossing(c,c_tst,v_tst,side,side_prev,nxing,forward,backward,f
 c  forside0 and backside0 are determined from the irc (at low T=10 K)
 c  c is the coordintate of the current position and the ts
 C  v_tst is the imaginary mode eigenvector 
-      integer natom,trajnum
+      integer natom,trajnum,mdstep
       double precision dot,c(3*natom),v_tst(3*natom)
       double precision mass(3*natom)
       integer j,i,side,side_prev,nxing
@@ -28,10 +28,11 @@ C  v_tst is the imaginary mode eigenvector
       integer mc_data_get_forside, mc_data_get_backside
       integer mc_data_get_side_prev, mc_data_get_nxing
       integer mc_data_get_i_sc, mc_data_get_trajnum
+      integer md_data_get_nsteps
       logical mc_data_get_ifirc,mc_data_get_forward,mc_data_get_backward
       logical mc_data_set_side_prev, mc_data_set_nxing
       double precision small
-      integer iw
+      integer iw, nsteps
       logical debug
 
       debug=.false.
@@ -54,6 +55,7 @@ c      write(*,*) ' Traj num: ',trajnum
       i_sc=mc_data_get_i_sc()
       nxing=mc_data_get_nxing()
       side_prev=mc_data_get_side_prev()
+       nsteps=md_data_get_nsteps()
 C      write(*,*) 'In crossing: i_sc: ', i_sc 
 c      do i=1,3*natom
 c         write(*,*) dbl_mb(i_ctst+i-1)
@@ -114,11 +116,14 @@ C Do not cpunt trajectory as it is IRC
       if(.not.mc_data_get_ifirc()) then
        if (forward) then
 c         call nga_put(i_sc,2*trajnum+1,1,side, ld)
-         int_mb(i_sc+2*trajnum-2)=side
+c         int_mb(i_sc+(2*trajnum-2))=side
+         int_mb(i_sc+(trajnum-1)*2*nsteps+mdstep-1) = side
 c         write(iw,*)'In crossing: (i_sc+2*trajnum) ',trajnum ,
 c     $  ' forw ',forward,' back ', backward,int_mb(i_sc+2*trajnum)
        else
-         int_mb(i_sc+2*trajnum-1)=side
+
+c         int_mb(i_sc+(2*trajnum-1))=side
+         int_mb(i_sc+(trajnum-1)*2*nsteps+nsteps+mdstep-1) = side
 c      write(*,*)'In crossing: (i_sc+2*trajnum+1) ',trajnum ,
 c     $  ' forw ',forward,' back ', backward,int_mb(i_sc+2*trajnum+1)
        endif

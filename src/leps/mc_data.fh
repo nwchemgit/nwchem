@@ -11,6 +11,7 @@ c
       logical forward, backward
       logical ifirc
       integer h_in,i_in,i_s,h_s, i_sc,h_sc,h_prp,i_prp
+      integer h_prp_tmp,i_prp_tmp
       integer naccept,h_in_vel,i_in_vel, h_in_acc,i_in_acc
       integer side_prev, nxing, trajnum
 
@@ -23,5 +24,6 @@ c
      &  forside0, backside0,forside, backside,
      &  forward, backward, ifirc,
      &  h_in,i_in, i_s,h_s,i_sc,h_sc,h_prp,i_prp,
+     &  h_prp_tmp,i_prp_tmp,
      &  naccept,h_in_vel,i_in_vel, h_in_acc,i_in_acc,
      &  side_prev, nxing, trajnum
