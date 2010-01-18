@@ -29,10 +29,11 @@
       integer mc_data_get_forside, mc_data_get_forside0
       integer mc_data_get_backside, mc_data_get_backside0
       integer i,j,k,naccept 
-      integer c_array, vel, acc, prp 
+      integer c_array, vel, acc, prp, prp_tmp,sidef,sideb 
       integer mc_data_get_i_c_array, md_data_get_i_v, md_data_get_i_a 
       integer md_data_get_i_c, mc_data_get_i_in_vel,mc_data_get_i_in_acc
       integer mc_data_get_natom, mc_data_get_i_prp
+      integer  mc_data_get_i_prp_tmp
       integer tag,charge,md_data_get_i_t,md_data_get_i_q
       character*32 thr
       logical ircflag,mc_data_set_forward,mc_data_set_backward
@@ -43,6 +44,7 @@
       logical mc_data_set_side_prev, mc_data_set_nxing
       logical mc_data_set_trajnum
       double precision mdtemp,mdtemp10, md_data_get_temp
+      integer md_data_get_nsteps, nsteps
       logical dbug
 c<<<<<<< .mine
       logical restart_dump
@@ -118,7 +120,7 @@ C********* MC driver ******
 
 C******* RESTART point 1******
       if(.not.mc_driver(rtdb,naccept)) call errquit('mc_driver:failed',
-     &  UNKNOWN_ERR)
+     & , UNKNOWN_ERR)
       write(iw,*) 'Number of initial points generated: ', naccept  
 
       if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
@@ -135,7 +137,7 @@ c      go to 100
 
       call md_data_set_natom(natom)
       call md_data_allocate()
-      call md_set(rtdb) ! sets md_temp, md_steps and mc_stepsize
+      call md_set(rtdb) ! sets md_temp, nsteps and mc_stepsize
       mdtemp=md_data_get_temp()
       tag=md_data_get_i_t()
       charge=md_data_get_i_q()
@@ -159,6 +161,7 @@ C --- set vel and acc
       i_sc=mc_data_get_i_sc()
       i_s=mc_data_get_i_s()
       prp=mc_data_get_i_prp()
+      prp_tmp = mc_data_get_i_prp_tmp()
       mcsteps=mc_data_get_mcsteps()
 
       do k=1,3*natom
@@ -227,6 +230,7 @@ C --- generate initial velocities for all trajectories
 
       do i=1,naccept+1
         write(iw,*) 'traj, prp: ',i,dbl_mb(prp+i-1)
+        dbl_mb(prp_tmp+i-1) = dbl_mb(prp+i-1)
       enddo
 
       write(iw,*) 'STARTING MD TRAJECTORIES '
@@ -327,8 +331,10 @@ c      write(*,*) 'LOOP ',i,' node ',ga_nodeid()
 c      call ga_sync()
       idmedium = ga_pgroup_get_default()     
       write(iw,*) 'big,med,node',idbig,idmedium,ga_nodeid() 
-      call flush(iw)
+      flush(iw)
       call ga_pgroup_set_default(idbig)
+* CCCCCC igop needs to sync all procs, so it makes the subgroups wait for eachother
+* CCCCCc may need to have it as a global array        
 c      call ga_igop(MT_F_INT,int_mb(i_sc),(mcsteps+1)*2,'max')
       call ga_pgroup_set_default(idmedium)
       if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
@@ -340,8 +346,10 @@ C --- loop over trajectories finished
       call ga_sync()
       call ga_pgroup_set_default(idbig) 
       call ga_sync()
-      call ga_igop(MT_F_INT,int_mb(i_sc),(mcsteps+1)*2,'max')
+      nsteps=md_data_get_nsteps()
+      call ga_igop(MT_F_INT,int_mb(i_sc),(mcsteps+1)*2*nsteps,'max')
       call ga_sync()
+      status=restart_dump()
       write(iw,*) ' Recrossing Results:'
 
 
@@ -351,19 +359,23 @@ C --- loop over trajectories finished
 
 c      iw=6
       if (ga_nodeid().eq.0) then
+c loop over each mdstep to get kappa for each step      
+       do k=0,nsteps-1
        do i=1,naccept+1
-        write(iw,9001) 'traj  sidef sideb ',i, int_mb(i_sc+2*i-2), 
-     &               int_mb(i_sc+2*i-1) 
-        if (int_mb(i_sc+2*i-2).eq.int_mb(i_sc+2*i-1)) then
+c      int_mb(i_sc+(trajnum-1)*2*nsteps+mdstep-1) = side
+        sidef = int_mb(i_sc+2*(i-1)*nsteps+k)
+        sideb = int_mb(i_sc+2*(i-1)*nsteps+nsteps+k)
+        write(iw,9001) 'traj sidef sideb ',i,sidef,sideb
+        if (sidef.eq.sideb) then
            nonreact=nonreact+1
-           dbl_mb(prp+i-1)=0.0 
+           dbl_mb(prp_tmp+i-1)=0.0 
            write(iw,*) 'trajectory number for non-reactive traj: ', i 
-        else if (int_mb(i_sc+2*i-2).eq.mc_data_get_forside0()) then
+        else if (sidef.eq.mc_data_get_forside0()) then
            reactive=reactive+1
-           dbl_mb(prp+i-1)=0.5*dbl_mb(prp+i-1)
+           dbl_mb(prp_tmp+i-1)=0.5*dbl_mb(prp_tmp+i-1)
         else
            reverse=reverse+1
-           dbl_mb(prp+i-1)=-0.5*dbl_mb(prp+i-1)
+           dbl_mb(prp_tmp+i-1)=-0.5*dbl_mb(prp_tmp+i-1)
         endif
        enddo
 
@@ -374,8 +386,9 @@ c      iw=6
         if (int_mb(i_s+i).eq.1) then
            j=j+1
         endif 
-        write(iw,*) 'Mc step: ',i,'adding: ',j,' val: ',dbl_mb(prp+j-1) 
-        avg=avg+dbl_mb(prp+j-1)
+        write(iw,*) 'Mc step: ',i,'adding: ',j,' val: ',
+     &    dbl_mb(prp_tmp+j-1)
+          avg=avg+dbl_mb(prp_tmp+j-1)
        enddo
 
       avg=avg/(mcsteps+1)
@@ -385,7 +398,12 @@ c      iw=6
        write(iw,*) 'non-reactive, reactive,reverse traj: ',nonreact,
      &            reactive,reverse
        write(iw,*)  ' Average prp value: ',avg
-       write(iw,*)  ' Recrossing coef: ',rc
+       write(iw,*)  'Steps,  Recrossing coef: ',k+1,rc
+C   --- reset the original prp values         
+       do i=1,naccept+1
+        dbl_mb(prp_tmp+i-1) = dbl_mb(prp+i-1)
+       enddo
+       enddo  ! end of loop over nsteps
        endif
 c  100 continue 
       call ga_pgroup_set_default(idbig)
@@ -508,8 +526,8 @@ C          write(*,*) 'big proc (i,1): ',bigproc(i,1)
           endif
         enddo
         if (j.ne.util_sgroup_numgroups())
-     &   call errquit('mc_setup_ga:zero node creation problem',
-     &           UNKNOWN_ERR)
+     &    call errquit('mc_setup_ga:zero node creation problem',
+     &      j, UNKNOWN_ERR)
       else
         call ga_sync()
       endif
@@ -707,8 +725,9 @@ C: save the array with 1 and 0 for iniital values
 C: before the run, save values to -1, so at restart we know which ones to get.      
 C: restart file has handle ir=11 (set as parameter in const_data.fh
       integer prp, vel, acc, coor, sidecnt, mcsteps, naccept, natom
+      integer nsteps
       integer mc_data_get_i_prp !property (naccept+2)
-      integer mc_data_get_i_sc  !side count (mcsteps+1)*2
+      integer mc_data_get_i_sc  !side count (mcsteps+1)*2*nsteps
       integer mc_data_get_i_in_vel ! initial velocities (naccept+2)*3*natom
       integer mc_data_get_i_in_acc ! initial accelerations  (naccept+2)*3*natom
       integer mc_data_get_i_c_array ! initial coordinates (mcsteps+1)*3*natom
@@ -716,6 +735,7 @@ C: restart file has handle ir=11 (set as parameter in const_data.fh
       integer mc_data_get_mcsteps   ! mc steps mcsteps+1
       integer mc_data_get_naccept   ! number of accepted steps
       integer myid, mysubgr
+      integer md_data_get_nsteps    ! number of steps in MD trajectory
       integer i
 C*******  double check the size of the array for vel,acc and prp****
       restart_dump=.false.
@@ -727,23 +747,25 @@ C*******  double check the size of the array for vel,acc and prp****
       acc=mc_data_get_i_in_acc() 
       coor=mc_data_get_i_c_array()
       sidecnt=mc_data_get_i_sc()  
+      nsteps = md_data_get_nsteps()
 C:   Check again if it is subgroup 1, node 0 before you write
       myid = ga_nodeid()
       mysubgr = util_sgroup_mygroup() 
 c      write(ir,*) 'writing to restart file'
       if (myid.eq.0.and.mysubgr.eq.1) then
           rewind(ir)
-          write(ir,*) natom,mcsteps,naccept    
+          write(ir,*) 'natom,mcsteps,naccept,nsteps'
+          write(ir,*) natom,mcsteps,naccept,nsteps    
 C figure out a better print      
-c          write(ir,*) 'structures'
+          write(ir,*) 'structures'
           call print_array_dbl(dbl_mb(coor),(mcsteps+1)*3*natom,ir)
-c          write(ir,*) 'sidecount' 
-          call print_array_int(int_mb(sidecnt), (mcsteps+1)*2,ir)
-c          write(ir,*) 'prp'
+          write(ir,*) 'sidecount' 
+          call print_array_int(int_mb(sidecnt), (mcsteps+1)*2*nsteps,ir)
+          write(ir,*) 'prp'
           call print_array_dbl(dbl_mb(prp),(naccept+1),ir)
-c          write(ir,*) 'vel'
+          write(ir,*) 'vel'
           call print_array_dbl(dbl_mb(vel),(naccept+1)*3*natom,ir)
-c          write(ir,*) 'acc'
+          write(ir,*) 'acc'
           call print_array_dbl(dbl_mb(acc),(naccept+1)*3*natom,ir)
           call util_flush(ir)
       endif 
@@ -769,12 +791,14 @@ C: save the array with 1 and 0 for iniital values
 C: before the run, save values to -1, so at restart we know which ones to get.      
 C: restart file has handle ir=11 (set as parameter in const_data.fh
       integer prp, vel, acc, coor, sidecnt, mcsteps, naccept, natom
+      integer nsteps
       integer mc_data_get_i_prp !property (naccept+2)
-      integer mc_data_get_i_sc  !side count (mcsteps+1)*2
+      integer mc_data_get_i_sc  !side count (mcsteps+1)*2*nsteps
       integer mc_data_get_i_in_vel ! initial velocities (naccept+2)*3*natom
       integer mc_data_get_i_in_acc ! initial accelerations  (naccept+2)*3*natom
       integer mc_data_get_i_c_array ! initial coordinates (mcsteps+1)*3*natom
       logical mc_data_set_naccept   ! number of accepted steps
+      logical md_data_set_nsteps
       integer myid, mysubgr
       integer i
       logical status
@@ -788,10 +812,10 @@ C*******  double check the size of the array for vel,acc and prp****
 C:   Check again if it is subgroup 1, node 0 before you write
 c      write(ir,*) 'writing to restart file'
       rewind(ir)
-      read(ir,*) natom,mcsteps,naccept
+      read(ir,*) natom,mcsteps,naccept,nsteps
 C figure out a better print      
           call read_array_dbl(dbl_mb(coor),(mcsteps+1)*3*natom,ir)
-          call read_array_int(int_mb(sidecnt), (mcsteps+1)*2,ir)
+          call read_array_int(int_mb(sidecnt), (mcsteps+1)*2*nsteps,ir)
           call read_array_dbl(dbl_mb(prp),(naccept+1),ir)
           call read_array_dbl(dbl_mb(vel),(naccept+1)*3*natom,ir)
           call read_array_dbl(dbl_mb(acc),(naccept+1)*3*natom,ir)
