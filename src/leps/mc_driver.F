@@ -129,7 +129,7 @@ C  ! get ihe energy for the initial point
 C ---- get the energy of the TST (0th step)
       call task_energy(rtdb)
       cntnrg=cntnrg+1
-      write (iw,*) 'cntnrg = ',cntnrg 
+c      write (iw,*) 'cntnrg = ',cntnrg 
       if (.not. rtdb_get(rtdb,theory,mt_dbl,1,E0))
      & call errquit('mc_driver:  no energy ', 0,
      & RTDB_ERR)
@@ -190,7 +190,7 @@ C call the energy calculation
 c        write(*,*)'In MC-driver: new geometry :'
         call task_energy(rtdb)
       cntnrg=cntnrg+1
-      write (iw,*) 'cntnrg = ',cntnrg
+c      write (iw,*) 'cntnrg = ',cntnrg
         if (.not. rtdb_get(rtdb,theory,mt_dbl,1,E1))
      &   call errquit('mc_driver:  no energy ', 0,
      &                 RTDB_ERR)
