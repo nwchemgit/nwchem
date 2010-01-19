@@ -99,6 +99,9 @@ C-------- Store the gradient into the database
      & call errquit('leps_gradient:  no grad ', 0,
      & RTDB_ERR)
 
+
+      call leps_gradient0(natom,nelem,dbl_mb(i_g))
+
       if(.not.ma_free_heap(h_c))
      &     call errquit('memory deallocation:coord',0,RTDB_ERR)
       if(.not.ma_free_heap(h_q))
@@ -146,15 +149,15 @@ C THis function just prints the coordinates, masses and tags(names for the atoms
 
 c      logical leps_gradient0
       integer n,nel
-      double precision grad(3,3)
+      double precision grad(3,n)
 c
       integer i
       write(*,*) 'Leps_gradient:', nel
 
       do i=1,n
-       write(*,*) i,grad(1,i),grad(2,i),grad(3,i)
+       write(6,9000) i,grad(1,i),grad(2,i),grad(3,i)
       end do
-
+ 9000 format (i4, F18.14,F18.14,F18.14)
       return
       END
 
