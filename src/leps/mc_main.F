@@ -120,7 +120,7 @@ C********* MC driver ******
 
 C******* RESTART point 1******
       if(.not.mc_driver(rtdb,naccept)) call errquit('mc_driver:failed',
-     & , UNKNOWN_ERR)
+     &  UNKNOWN_ERR)
       write(iw,*) 'Number of initial points generated: ', naccept  
 
       if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
