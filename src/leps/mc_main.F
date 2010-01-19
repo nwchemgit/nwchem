@@ -329,17 +329,17 @@ c         write(*,*) 'SKIP TRAJECTORY ',i,' node ',ga_nodeid()
       endif
 c      write(*,*) 'LOOP ',i,' node ',ga_nodeid()
 c      call ga_sync()
-      idmedium = ga_pgroup_get_default()     
-      write(iw,*) 'big,med,node',idbig,idmedium,ga_nodeid() 
-      flush(iw)
-      call ga_pgroup_set_default(idbig)
+c      idmedium = ga_pgroup_get_default()     
+c      write(iw,*) 'big,med,node',idbig,idmedium,ga_nodeid() 
+c      flush(iw)
+c      call ga_pgroup_set_default(idbig)
 * CCCCCC igop needs to sync all procs, so it makes the subgroups wait for eachother
 * CCCCCc may need to have it as a global array        
 c      call ga_igop(MT_F_INT,int_mb(i_sc),(mcsteps+1)*2,'max')
-      call ga_pgroup_set_default(idmedium)
-      if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
-           status=restart_dump()
-      endif
+c      call ga_pgroup_set_default(idmedium)
+c      if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
+c           status=restart_dump()
+c      endif
       enddo
 c      write(*,*) ' Out of loop. Node id :',ga_nodeid()
 C --- loop over trajectories finished
@@ -353,57 +353,60 @@ C --- loop over trajectories finished
       write(iw,*) ' Recrossing Results:'
 
 
-      nonreact=0
-      reactive=0
-      reverse=0
 
-c      iw=6
       if (ga_nodeid().eq.0) then
 c loop over each mdstep to get kappa for each step      
        do k=0,nsteps-1
-       do i=1,naccept+1
+          nonreact=0
+          reactive=0
+          reverse=0
+          do i=1,naccept+1
 c      int_mb(i_sc+(trajnum-1)*2*nsteps+mdstep-1) = side
-        sidef = int_mb(i_sc+2*(i-1)*nsteps+k)
-        sideb = int_mb(i_sc+2*(i-1)*nsteps+nsteps+k)
-        write(iw,9001) 'traj sidef sideb ',i,sidef,sideb
-        if (sidef.eq.sideb) then
-           nonreact=nonreact+1
-           dbl_mb(prp_tmp+i-1)=0.0 
-           write(iw,*) 'trajectory number for non-reactive traj: ', i 
-        else if (sidef.eq.mc_data_get_forside0()) then
-           reactive=reactive+1
-           dbl_mb(prp_tmp+i-1)=0.5*dbl_mb(prp_tmp+i-1)
-        else
-           reverse=reverse+1
-           dbl_mb(prp_tmp+i-1)=-0.5*dbl_mb(prp_tmp+i-1)
-        endif
-       enddo
+             sidef = int_mb(i_sc+2*(i-1)*nsteps+k)
+             sideb = int_mb(i_sc+2*(i-1)*nsteps+nsteps+k)
+             if(dbug)
+     &         write(iw,9001) 'step traj sidef sideb ',k,i,sidef,sideb
+             if (sidef.eq.sideb) then
+                nonreact=nonreact+1
+                dbl_mb(prp_tmp+i-1)=0.0 
+                if (dbug)
+     &            write(iw,*) 'tr number for non-reactive traj: ', i 
+             else if (sidef.eq.mc_data_get_forside0()) then
+                reactive=reactive+1
+                dbl_mb(prp_tmp+i-1)=0.5*dbl_mb(prp_tmp+i-1)
+             else
+                reverse=reverse+1
+                dbl_mb(prp_tmp+i-1)=-0.5*dbl_mb(prp_tmp+i-1)
+             endif
+          enddo
 
-      j=0 
-      avg=0 
+          j=0 
+          avg=0 
 
-       do i=0,mcsteps
-        if (int_mb(i_s+i).eq.1) then
-           j=j+1
-        endif 
-        write(iw,*) 'Mc step: ',i,'adding: ',j,' val: ',
-     &    dbl_mb(prp_tmp+j-1)
-          avg=avg+dbl_mb(prp_tmp+j-1)
-       enddo
+          do i=0,mcsteps
+            if (int_mb(i_s+i).eq.1) then
+              j=j+1
+            endif
+            if(dbug) then 
+              write(iw,*) 'Mc step: ',i,'adding: ',j,' val: ',
+     &        dbl_mb(prp_tmp+j-1)
+            endif
+              avg=avg+dbl_mb(prp_tmp+j-1)
+          enddo
 
-      avg=avg/(mcsteps+1)
-      temp = mc_data_get_temp()
-      rc =avg/sqrt((temp*boltz)/(twopi))
+          avg=avg/(mcsteps+1)
+          temp = mc_data_get_temp()
+          rc =avg/sqrt((temp*boltz)/(twopi))
 
-       write(iw,*) 'non-reactive, reactive,reverse traj: ',nonreact,
-     &            reactive,reverse
-       write(iw,*)  ' Average prp value: ',avg
-       write(iw,*)  'Steps,  Recrossing coef: ',k+1,rc
+          write(iw,9001) 'non-reactive, reactive,reverse traj: ',
+     &         nonreact,reactive,reverse
+c       write(iw,*)  ' Average prp value: ',avg
+          write(iw,9002)  'MD Step,  Recrossing coef: ',k+1,rc
 C   --- reset the original prp values         
-       do i=1,naccept+1
-        dbl_mb(prp_tmp+i-1) = dbl_mb(prp+i-1)
-       enddo
-       enddo  ! end of loop over nsteps
+          do i=1,naccept+1
+             dbl_mb(prp_tmp+i-1) = dbl_mb(prp+i-1)
+          enddo
+        enddo  ! end of loop over nsteps
        endif
 c  100 continue 
       call ga_pgroup_set_default(idbig)
@@ -416,8 +419,9 @@ c --- close files that were open
       close(ir)
       call util_sgend(rtdb)
       mc_main = .true.
- 9000 format(A,I4,L3,4(I4))
- 9001 format(A,3(I4))
+ 9000 format(A,I6,L3,4(I6))
+ 9001 format(A,3(I6))
+ 9002 format(A,I6,F10.6)
       return    
       end
 
