@@ -316,6 +316,7 @@ c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
             goto 20
          else if (inp_compare(.false.,'system', field)) then
             osymmetry = .true.
+            oautoz    = .false.
             call geom_sys_input(geom,scale,ecce_periodic)
             goto 20
          else if (inp_compare(.false.,'carfile', field)) then
