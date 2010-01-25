@@ -68,4 +68,25 @@ c
      >                       Kr0_mbond,nKr0_mbond_start,
      >                       mbond_found
 
+*     **** pspw_qmmm dihedral spring common block ****
+      integer ndihedral_spring(2)
+      integer indx_dihedral_spring(2),nindx_dihedral_spring_start(2)
+      integer Kr0_dihedral_spring(2), nKr0_dihedral_spring_start(2)
+      logical dihedral_spring_found
+      common / pspw_2qmmm7 /  ndihedral_spring,
+     >               indx_dihedral_spring,nindx_dihedral_spring_start,
+     >               Kr0_dihedral_spring,nKr0_dihedral_spring_start,
+     >               dihedral_spring_found
+
+*     **** pspw_qmmm dihedral common block ****
+      integer ndihedral(2)
+      integer indx_dihedral(2),nindx_dihedral_start(2)
+      integer Kr0_dihedral(2), nKr0_dihedral_start(2)
+      logical dihedral_found
+      common / pspw_2qmmm8 /  ndihedral,
+     >               indx_dihedral,nindx_dihedral_start,
+     >               Kr0_dihedral,nKr0_dihedral_start,
+     >               dihedral_found
+
+
 *     ******************************************************************

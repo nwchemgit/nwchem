@@ -28,7 +28,7 @@ c
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
-      parameter (num_fdirs = 11)
+      parameter (num_fdirs = 13)
       character*30 fdirs(num_fdirs)
       data fdirs / 'size',
      >             'index_start',
@@ -40,6 +40,8 @@ c
      >             'incell',
      >             'cross_bond_spring',
      >             'bond_morse',
+     >             'dihedral_spring',
+     >             'dihedral',
      >             'end'/
 c
       logical       value
@@ -62,7 +64,7 @@ c
       logical self
       integer sindx(50),na,nb,nshk
       real*8  sdist(50)
-      integer nbs,nas,ncbs,nbm
+      integer nbs,nas,ncbs,nbm,nds,ndds
 
 *     **** external functions ****
       character*7 c_index_name
@@ -218,6 +220,8 @@ c
       nbs  = 0
       ncbs  = 0
       nbm   = 0
+      nds  = 0
+      ndds  = 0
       rtdb_name = 'pspw_qmmm_nkfrag'
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkf)
       if (.not. value)
@@ -232,7 +236,7 @@ c
      >  call errquit('pspw_qmmm_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 610, 620,630,640,650,660,670,680,690,651,
+      goto ( 610, 620,630,640,650,660,670,680,690,651,661,662,
      >       699) ind
       call errquit('pspw_qmmm_input:directive not found',ind,INPUT_ERR)
 
@@ -496,6 +500,89 @@ c
       end if
 
       goto 601
+
+c
+c dihedral spring
+c
+ 661  if (inp_i(sindx(1))) then
+      if (inp_i(sindx(2))) then
+      if (inp_i(sindx(3))) then
+      if (inp_i(sindx(4))) then
+      if (inp_f(sdist(1))) then
+      if (inp_f(sdist(2))) then
+         nds = nds+1
+         rtdb_name='pspw_qmmm_frag_ndihedral_spring:'//c_index_name(nkf)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,nds)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_qmmm_input:failed writing nds',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_qmmm_frag_indx_dihedral_spring:'
+     >               //c_index_name(nkf)
+     >               //c_index_name(nds)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,4,sindx)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_qmmm_input:failed dihedral spring ijkl',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_qmmm_frag_Kr0_dihedral_spring:'
+     >               //c_index_name(nkf)
+     >               //c_index_name(nds)
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,2,sdist)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_qmmm_input:failed dihedral spring K,q0',0,RTDB_ERR)
+
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+      goto 601
+
+c
+c dihedral
+c
+ 662  if (inp_i(sindx(1))) then
+      if (inp_i(sindx(2))) then
+      if (inp_i(sindx(3))) then
+      if (inp_i(sindx(4))) then
+      if (inp_f(sdist(1))) then
+      if (inp_f(sdist(2))) then
+      if (inp_f(sdist(3))) then
+         ndds = ndds+1
+         rtdb_name='pspw_qmmm_frag_ndihedral:'//c_index_name(nkf)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,ndds)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_qmmm_input:failed writing ndds',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_qmmm_frag_indx_dihedral:'
+     >               //c_index_name(nkf)
+     >               //c_index_name(ndds)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,4,sindx)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_qmmm_input:failed dihedral ijkl',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_qmmm_frag_Kr0_dihedral:'
+     >               //c_index_name(nkf)
+     >               //c_index_name(ndds)
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,3,sdist)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_qmmm_input:failed dihedral K,n0,q0',0,RTDB_ERR)
+
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+      goto 601
+
 
 c
 c  self_interaction
