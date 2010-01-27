@@ -93,3 +93,53 @@ c
       nwpw_splint = y
       return
       end
+
+
+
+*     *********************************************
+*     *                                           *
+*     *              nwpw_dsplint                 *
+*     *                                           *
+*     *********************************************
+      real*8 function nwpw_dsplint(xa,ya,y2a,n,nx,x)
+      implicit none
+      real*8 xa(*),ya(*),y2a(*)
+      integer n,nx
+      real*8 x
+
+*     **** local variables ****
+      integer khi,klo
+      real*8 a,b,h,da,db,dy
+
+      khi = nx+1
+      klo = nx
+
+      do while ((xa(klo).gt.x) .or. (xa(khi).lt.x))
+         if (xa(klo).gt.x) then
+           klo = klo - 1
+           khi = khi - 1
+         end if
+         if (xa(khi).lt.x) then
+           klo = klo + 1
+           khi = khi + 1
+         end if
+      end do
+
+      h = xa(khi)-xa(klo)
+      a = (xa(khi)-x)/h
+      b = (x-xa(klo))/h
+      da = -1.0d0/h
+      db =  1.0d0/h
+c      y = a*ya(klo)
+c     >  + b*ya(khi)
+c     >  + ((a**3-a)*y2a(klo) + (b**3-b)*y2a(khi)) * h**2 / 6.0d0
+
+      dy = da*ya(klo)
+     >   + db*ya(khi)
+     >   + ( (da*3*a**2-da)*y2a(klo) 
+     >    +  (db*3*b**2-db)*y2a(khi)) * h**2 / 6.0d0
+
+      nwpw_dsplint = dy
+      return
+      end
+
