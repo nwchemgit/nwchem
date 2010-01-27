@@ -529,8 +529,8 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
       real*8  fxl,fyl,fzl
       real*8  dx_a,dy_a,dz_a
       real*8  dx_b,dy_b,dz_b
-      real*8   dmax
-      external dmax
+c      real*8   dmax
+c      external dmax
 
 
       do b=1,nangle
@@ -601,7 +601,7 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
 
         phi    = dacos(cosphi)
         sinphi = dsin(phi)
-        dE     = 2*Kr0(1,b) * (phi-Kr0(2,b))/dmax(1.0d-8,sinphi)
+        dE     = 2*Kr0(1,b) * (phi-Kr0(2,b))/max(1.0d-8,sinphi)
 
         dx_ijk = dx_ijk * rr_ijk
         dy_ijk = dy_ijk * rr_ijk
@@ -787,8 +787,8 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
       real*8  fxl,fyl,fzl
       real*8  dx_a,dy_a,dz_a
       real*8  dx_b,dy_b,dz_b
-      real*8   dmax
-      external dmax
+c      real*8   dmax
+c      external dmax
 
       do b=1,nangle
         ii = indx(1,b)
@@ -858,7 +858,7 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
 cccc  E =  Kr0(1,b)*(1.0d0+dcos(Kr0(2,b)*phi-Kr0(3,b))) cccc
 
         dE =  -Kr0(1,b)*(Kr0(2,b)*dsin(Kr0(2,b)*phi-Kr0(3,b)))
-        dE = dE/dmax(1.0e-8,sinphi)
+        dE = dE/max(1.0e-8,sinphi)
 
         dx_ijk = dx_ijk * rr_ijk
         dy_ijk = dy_ijk * rr_ijk
