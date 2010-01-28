@@ -1,0 +1,20 @@
+
+
+      logical metafound
+      integer tmeta(2)
+
+      integer bxmeta(2),bymeta(2),by2meta(2)
+      integer bwsigmameta(2)
+      integer bindxmeta(2),bnxmeta,bnmeta
+
+      integer axmeta(2),aymeta(2),ay2meta(2)
+      integer awsigmameta(2)
+      integer aindxmeta(2),anxmeta,anmeta
+
+      common / metacommon / bxmeta,bymeta,by2meta,bwsigmameta,
+     >                      bindxmeta,bnxmeta,bnmeta,
+     >                      axmeta,aymeta,ay2meta,awsigmameta,
+     >                      aindxmeta,anxmeta,anmeta,
+     >                      tmeta,metafound
+
+
