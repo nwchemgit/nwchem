@@ -153,9 +153,19 @@ c FOR CR-EOMCCSD(T) ---------------------
       double precision energy_grcr
 c  NEW SOLVER ---------------------------
       integer l_hbar,k_hbar,ihbar
+      integer imicro,xdiis,iroot
+      integer l_c_eff,k_c_eff
+      integer l_h_eff,k_h_eff
+      integer ipos,ipos1,ipos2
 c - T1/X1 LOCALIZATION -------------------
       integer l_t1_local,k_t1_local
       integer l_x1_local,k_x1_local
+c ---------------------------------------
+c - intermediates reuse --
+      integer l_aux_off,k_aux_off,size_aux
+      integer ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5
+      integer rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,rec_d_6
+      integer rec_d_7,rec_d_8,rec_d_9
 c ---------------------------------------
       logical needt1
       logical needt2
@@ -2958,7 +2968,7 @@ c
           call lr_ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                   d_f1,k_f1_offset,d_v2,k_v2_offset,
      2                   d_e,k_e_offset,pt3_1,pt3_2,
-     3                   pt3_3,pt3_4,pt3_5,pt3_6)
+     3                   pt3_3,pt3_4,pt3_5,pt3_6,size_t1)
           call deletefile(d_e)
 c
           cpu = cpu + util_cpusec()
@@ -3086,7 +3096,7 @@ c
           call ccsd2_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                 d_f1,k_f1_offset,d_v2,k_v2_offset,
      2                 d_lambda1,k_l1_offset,d_lambda2,k_l2_offset,
-     3                 d_e,k_e_offset,pt3_1)
+     3                 d_e,k_e_offset,pt3_1,size_t1)
           if (perturbative.eq.'2_tq') then
             call ccsd2_q(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                   d_v2,k_v2_offset,d_lambda2,k_l2_offset,
@@ -5856,8 +5866,7 @@ c -------------------------
 c          write(LuOut,*) 'tce_energy: cr_qcisd_t'
           call cr_qcisd_t(d_t1,k_t1_offset,size_t1,
      1                    d_t2,k_t2_offset,size_t2,
-     2                    d_f1,k_f1_offset,d_v2,k_v2_offset,
-     3                    pt3_2)
+     2                    d_f1,k_f1_offset,d_v2,k_v2_offset,pt3_2)
           cpu = cpu + util_cpusec()
           wall = wall + util_wallsec()
           if (nodezero) then
@@ -6651,7 +6660,8 @@ c
           if(nodezero) then
            write(LuOut,9251) hbard
           end if
-c
+c new EOMCC solver
+       if(.not.((model.ne.'ccsd').and.(eom_solver.eq.2))) then
        if (.not.ma_push_get(mt_dbl,hbard*hbard,'hbar',
      1  l_hbar,k_hbar)) call errquit('tce_eom_xdiagon: MA problem',0,
      2  MA_ERR)
@@ -6661,6 +6671,7 @@ c
         do ihbar=1,hbard
          dbl_mb(k_hbar+(ihbar-1)*hbard+ihbar-1)=1.0d+8
         enddo
+        end if
 c
 c
           if (.not.ma_push_get(mt_dbl,maxtrials,'omegax',
@@ -6768,9 +6779,89 @@ c
           cpu=-util_cpusec()
           wall=-util_wallsec()
           if (model.eq.'ccsd') then
-c -------------
-c EOM-CCSD    right
-c -------------
+
+
+      if(eom_solver.eq.1) then !  ------- EOM-SOLVER ----- (solver 1)
+c
+c
+      if(nodezero) then
+       write(LuOut,*)'EOMCCSD SOLVER TYPE 1'
+       call util_flush(LuOut)
+      end if
+c
+      if(ccsd_var.ne.'cc2') then
+      ister=0
+c rec_s_1
+       CALL OFFSET_eomccsd_x1_1_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_1_1_i1',filename)
+       CALL CREATEFILE(filename,rec_s_1,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs1',-1,MA_ERR)
+c rec_s_2
+       CALL OFFSET_eomccsd_x1_2_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_2_1_i1',filename)
+       CALL CREATEFILE(filename,rec_s_2,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs2',-1,MA_ERR)
+c rec_s_3
+       CALL OFFSET_eomccsd_x1_4_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_4_1_i1',filename)
+       CALL CREATEFILE(filename,rec_s_3,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs3',-1,MA_ERR)
+c rec_s_4
+       CALL OFFSET_eomccsd_x1_5_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_5_1_i1',filename)
+       CALL CREATEFILE(filename,rec_s_4,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs4',-1,MA_ERR)
+c rec_s_5
+       CALL OFFSET_eomccsd_x1_7_1_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_7_1_1_i2',filename)
+       CALL CREATEFILE(filename,rec_s_5,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs5',-1,MA_ERR)
+c rec_d_1
+       CALL OFFSET_eomccsd_x2_1_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_1_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_1,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd1',-1,MA_ERR)
+c rec_d_2
+       CALL OFFSET_eomccsd_x2_3_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_3_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_2,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd2',-1,MA_ERR)
+c rec_d_3
+       CALL OFFSET_eomccsd_x2_4_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_4_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_3,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd3',-1,MA_ERR)
+c rec_d_4
+       CALL OFFSET_eomccsd_x2_5_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_5_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_4,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd4',-1,MA_ERR)
+c rec_d_5
+       CALL OFFSET_eomccsd_x2_6_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_6_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_5,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd5',-1,MA_ERR)
+c rec_d_6
+       CALL OFFSET_eomccsd_x2_8_1_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_8_1_1_i2',filename)
+       CALL CREATEFILE(filename,rec_d_6,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd6',-1,MA_ERR)
+c rec_d_7
+       CALL OFFSET_eomccsd_x2_8_3_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_8_3_1_i2',filename)
+       CALL CREATEFILE(filename,rec_d_7,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd7',-1,MA_ERR)
+c rec_d_8
+       CALL OFFSET_eomccsd_x2_8_4_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_8_4_1_i2',filename)
+       CALL CREATEFILE(filename,rec_d_8,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd8',-1,MA_ERR)
+c rec_d_9
+      CALL OFFSET_eomccsd_x2_10_1_1(l_aux_off,k_aux_off,size_aux)
+      CALL TCE_FILENAME('eomccsd_x2_10_1_1_i2',filename)
+      CALL CREATEFILE(filename,rec_d_9,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd9',-1,MA_ERR)
+      end if 
 c
       if(ccsd_var.eq.'lr-ccsd') then
             call tce_x1_offset(l_j1_offset,k_j1_offset,size_j1)
@@ -6817,7 +6908,7 @@ ccxsg
             modelname = "LR-EOMCCSD right-hand side"
             if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
-          elseif(ccsd_var.eq.'cc2') then
+          else if(ccsd_var.eq.'cc2') then
             modelname = "CC2 right-hand side"
             if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
@@ -6839,41 +6930,33 @@ c           call hbar_init
                   call dratoga(x1(ivec))
                   call dratoga(x2(ivec))
 c - T1/X1 LOCALIZATION ----------
-       if(ccsd_var.ne.'cc2') then
-c    opening l_t1_local and l_x1_local
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
-     1      call errquit('tce_energy: t1_local',1,MA_ERR)
+     1      call errquit('t1_local',1,MA_ERR)
         if (.not.MA_PUSH_GET(mt_dbl,size_x1,'x1_local',
      1      l_x1_local,k_x1_local))
-     1      call errquit('tce_energy: x1_local',1,MA_ERR)
+     1      call errquit('x1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
         call ma_zero(dbl_mb(k_x1_local),size_x1)
 c    copy d_t1 ==> l_t1_local
 c    copy x1(ivec) ==> l_x1_local
         call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
         call ga_get(x1(ivec),1,size_x1,1,1,dbl_mb(k_x1_local),1)
-       end if
+ccx       end if
 c -------------------------------
          if(ccsd_var.eq.'cc2') then
-          call cc2_x1(d_f1,xp1(ivec),d_t1,d_t2,d_v2,x1(ivec),x2(ivec),
+          call cc2_x1(d_f1,xp1(ivec),k_t1_local,d_t2,d_v2,
+     &      k_x1_local,x2(ivec),
      &      k_f1_offset,k_x1_offset,k_t1_offset,k_t2_offset,
      &      k_v2_offset,k_x1_offset,k_x2_offset)
          else
-c                  call eomccsd_x1(d_f1,xp1(ivec),d_t1,d_t2,d_v2,
-c     1              x1(ivec),x2(ivec),k_f1_offset,k_x1_offset,
-c     2              k_t1_offset,k_t2_offset,k_v2_offset,
-c     3              k_x1_offset,k_x2_offset)
-ccx                  call eomccsd_x1(d_f1,xp1(ivec),d_t1,d_t2,d_v2,
-ccx     1              x1(ivec),x2(ivec),k_f1_offset,k_x1_offset,
-ccx     2              k_t1_offset,k_t2_offset,k_v2_offset,
-ccx     3              k_x1_offset,k_x2_offset)
-c - T1/X1 LOCALIZATION --
-                  call eomccsd_x1(d_f1,xp1(ivec),k_t1_local,d_t2,d_v2,
+                  call eomccsd_x1_n(d_f1,xp1(ivec),k_t1_local,d_t2,d_v2,
      1              k_x1_local,x2(ivec),k_f1_offset,k_x1_offset,
      2              k_t1_offset,k_t2_offset,k_v2_offset,
-     3              k_x1_offset,k_x2_offset)
-c - T1/X1 LOCALIZATION --
+     3              k_x1_offset,k_x2_offset,
+     4 ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5       rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6       rec_d_6,rec_d_7,rec_d_8,rec_d_9)
          end if
                   call reconcilefile(xp1(ivec),size_x1)
            if(ccsd_var.eq.'lr-ccsd') then
@@ -6891,33 +6974,28 @@ c - T1/X1 LOCALIZATION --
                   call dratoga(x1(ivec))
                   call dratoga(x2(ivec))
          if(ccsd_var.eq.'cc2') then
-           call cc2_x2(d_f1,xp2(ivec),d_t1,d_v2,x1(ivec),x2(ivec),
+           call cc2_x2(d_f1,xp2(ivec),k_t1_local,d_v2,
+     &       k_x1_local,x2(ivec),
      &       k_f1_offset,k_x2_offset,k_t1_offset,k_v2_offset,
      &       k_x1_offset,k_x2_offset,size_x1,size_x2)
          else
-c                  call eomccsd_x2(d_f1,xp2(ivec),d_t1,d_t2,d_v2,
-c     1              x1(ivec),x2(ivec),k_f1_offset,k_x2_offset,
-c     2              k_t1_offset,k_t2_offset,k_v2_offset,
-c     3              k_x1_offset,k_x2_offset)
-ccx                  call eomccsd_x2(d_f1,xp2(ivec),d_t1,d_t2,d_v2,
-ccx     1              x1(ivec),x2(ivec),k_f1_offset,k_x2_offset,
-ccx     2              k_t1_offset,k_t2_offset,k_v2_offset,
-ccx     3              k_x1_offset,k_x2_offset,size_x1,size_x2)
-c - T1/X1 LOCALIZATION --
-                  call eomccsd_x2(d_f1,xp2(ivec),k_t1_local,d_t2,d_v2,
+                  call eomccsd_x2_n(d_f1,xp2(ivec),k_t1_local,d_t2,d_v2,
      1              k_x1_local,x2(ivec),k_f1_offset,k_x2_offset,
      2              k_t1_offset,k_t2_offset,k_v2_offset,
-     3              k_x1_offset,k_x2_offset,size_x1,size_x2)
-c - T1/X1 LOCALIZATION --
+     3              k_x1_offset,k_x2_offset,size_x1,size_x2,
+     4     ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5             rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6             rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+c
+           ister=1
+c
          end if
                   call reconcilefile(xp2(ivec),size_x2)
 c - T1/X1 LOCALIZATION --
-       if(ccsd_var.ne.'cc2') then
          if(.not.MA_POP_STACK(l_x1_local))
-     &      call errquit('tce_energy: l_x1_local',4,MA_ERR)
+     &      call errquit('l_x1_local',4,MA_ERR)
          if(.not.MA_POP_STACK(l_t1_local))
-     &      call errquit('tce_energy: l_t1_local',4,MA_ERR)
-       end if
+     &      call errquit('l_t1_local',4,MA_ERR)
 c -----------------------
            if(ccsd_var.eq.'lr-ccsd') then
                   call tce_j2_x2_scaling(xp2(ivec),k_x2_offset,
@@ -6964,7 +7042,7 @@ c               call hbar_tidy
                     write(LuOut,*) 'Saving X1 now...'
                   endif
                   do ivec = 1,min(nroots_reduced,8)
-                    call x1_restart_save(xc1(ivec),k_x1_offset,size_x1,
+                    call x1_restart_save(x1(ivec),k_x1_offset,size_x1,
      1                             ivec,handle_x1,irrep_x)
                   enddo
                 endif
@@ -6973,7 +7051,7 @@ c               call hbar_tidy
                     write(LuOut,*) 'Saving X2 now...'
                   endif
                   do ivec = 1,min(nroots_reduced,8)
-                    call x2_restart_save(xc2(ivec),k_x2_offset,size_x2,
+                    call x2_restart_save(x2(ivec),k_x2_offset,size_x2,
      1                             ivec,handle_x2,irrep_x)
                   enddo
                 endif
@@ -6987,8 +7065,8 @@ c ---
              call util_flush(6)
             end if
              do jvec=1,nroots_reduced
-              call tce_print_x1(xc1(jvec),k_x1_offset,printtol,irrep_x)
-              call tce_print_x2(xc2(jvec),k_x2_offset,printtol,irrep_x)
+              call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0)
+              call tce_print_x2(xc2(jvec),k_x2_offset,0.10d0)
               call util_flush(LuOut)
              enddo
 c ---
@@ -7005,12 +7083,595 @@ c
      1        call errquit("tce_energy: MA problem",37,MA_ERR)
            end if
 c
-            call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
+         if(ccsd_var.ne.'cc2') then ! ----
+          call deletefile(rec_d_9)
+          call deletefile(rec_d_8)
+          call deletefile(rec_d_7)
+          call deletefile(rec_d_6)
+          call deletefile(rec_d_5)
+          call deletefile(rec_d_4)
+          call deletefile(rec_d_3)
+          call deletefile(rec_d_2)
+          call deletefile(rec_d_1)
+          call deletefile(rec_s_5)
+          call deletefile(rec_s_4)
+          call deletefile(rec_s_3)
+          call deletefile(rec_s_2)
+          call deletefile(rec_s_1)
+         end if !---------
+c
+         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
+c
+c
+c
+      else !  ------- EOM-SOLVER --------------- (solver 2)
+c
+c
+      if(nodezero) then
+       write(LuOut,*)'EOMCCSD SOLVER TYPE 2'
+       call util_flush(LuOut)
+      end if
+c
+       modelname = "CIS-like initial guess for EOM-CCSD"
+        if (nodezero) write(LuOut,9220)
+     1  modelname(1:inp_strlen(modelname))
+c
+        call cis(LuOut,size_x1,k_x1_offset,d_f1,k_f1_offset,d_v2,
+     1           k_v2_offset,k_omegax,l_omegax,d_rx1)
+c
+c
+            if(nodezero) then
+             write(LuOut,*)'INITIAL STARTS -----'
+             call util_flush(6)
+            end if
+            do iroot=1,nroots_reduced
+             call tce_print_x1(x1_ini(iroot),k_x1_offset,0.10d0)
+            enddo
+            if(nodezero) then
+             write(LuOut,*)'                    '
+             write(LuOut,*)'INITIAL STARTS -----'
+             call util_flush(6)
+            end if
+c
+c
+            if (nxtrials.eq.0) goto 200
+            call tce_eom_init
+c
+      if(ccsd_var.ne.'cc2') then
+      ister=0
+c rec_s_1
+       CALL OFFSET_eomccsd_x1_1_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_1_1_i1',filename)
+       CALL CREATEFILE(filename,rec_s_1,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs1',-1,MA_ERR)
+c rec_s_2
+       CALL OFFSET_eomccsd_x1_2_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_2_1_i1',filename)
+       CALL CREATEFILE(filename,rec_s_2,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs2',-1,MA_ERR)
+c rec_s_3
+       CALL OFFSET_eomccsd_x1_4_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_4_1_i1',filename)
+       CALL CREATEFILE(filename,rec_s_3,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs3',-1,MA_ERR)
+c rec_s_4
+       CALL OFFSET_eomccsd_x1_5_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_5_1_i1',filename)
+       CALL CREATEFILE(filename,rec_s_4,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs4',-1,MA_ERR)
+c rec_s_5
+       CALL OFFSET_eomccsd_x1_7_1_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_7_1_1_i2',filename)
+       CALL CREATEFILE(filename,rec_s_5,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs5',-1,MA_ERR)
+c rec_d_1
+       CALL OFFSET_eomccsd_x2_1_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_1_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_1,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd1',-1,MA_ERR)
+c rec_d_2
+       CALL OFFSET_eomccsd_x2_3_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_3_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_2,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd2',-1,MA_ERR)
+c rec_d_3
+       CALL OFFSET_eomccsd_x2_4_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_4_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_3,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd3',-1,MA_ERR)
+c rec_d_4
+       CALL OFFSET_eomccsd_x2_5_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_5_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_4,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd4',-1,MA_ERR)
+c rec_d_5
+       CALL OFFSET_eomccsd_x2_6_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_6_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_5,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd5',-1,MA_ERR)
+c rec_d_6
+       CALL OFFSET_eomccsd_x2_8_1_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_8_1_1_i2',filename)
+       CALL CREATEFILE(filename,rec_d_6,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd6',-1,MA_ERR)
+c rec_d_7
+       CALL OFFSET_eomccsd_x2_8_3_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_8_3_1_i2',filename)
+       CALL CREATEFILE(filename,rec_d_7,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd7',-1,MA_ERR)
+c rec_d_8
+       CALL OFFSET_eomccsd_x2_8_4_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_8_4_1_i2',filename)
+       CALL CREATEFILE(filename,rec_d_8,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd8',-1,MA_ERR)
+c rec_d_9
+      CALL OFFSET_eomccsd_x2_10_1_1(l_aux_off,k_aux_off,size_aux)
+      CALL TCE_FILENAME('eomccsd_x2_10_1_1_i2',filename)
+      CALL CREATEFILE(filename,rec_d_9,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd9',-1,MA_ERR)
+      end if 
+c
+      if(ccsd_var.eq.'lr-ccsd') then
+            call tce_x1_offset(l_j1_offset,k_j1_offset,size_j1)
+            call tce_filename('j1',filename)
+            call createfile(filename,d_j1,size_j1)
+cc            call gatoeaf(d_j1)
+            call tce_zero(d_j1,size_j1)
+c
+            call tce_x2_offset(l_j2_offset,k_j2_offset,size_j2)
+            call tce_filename('j2',filename)
+            call createfile(filename,d_j2,size_j2)
+cc            call gatoeaf(d_j2)
+            call tce_zero(d_j2,size_j2)
+c
+            call tce_loc_j1_one(d_j1,k_j1_offset)
+            call tce_loc_j2_one(d_j2,k_j2_offset)
+c
+            call tce_loc_j1(d_j1,k_j1_offset,d_t1,k_t1_offset)
+            call tce_loc_j2(d_j2,k_j2_offset,d_t2,k_t2_offset)
+c
+            call tce_loc_j1_inv(d_j1,k_j1_offset)
+            call tce_loc_j2_inv(d_j2,k_j2_offset)
+      end if
+c
+c
+            xdiis=diis
+            do imicro=1,xdiis*nroots_reduced
+              call tce_filenameindexed(imicro,'xp1',filename)
+              call createfile(filename,xp1(imicro),size_x1)
+              call gatodra(xp1(imicro))
+              xp1_exist(imicro)=.true.
+              call tce_filenameindexed(imicro,'xp2',filename)
+              call createfile(filename,xp2(imicro),size_x2)
+              call gatodra(xp2(imicro))
+              xp2_exist(imicro)=.true.
+              call tce_filenameindexed(imicro,'x1',filename)
+              call createfile(filename,x1(imicro),size_x1)
+              call tce_zero(x1(imicro),size_x1)
+              call gatodra(x1(imicro))
+              x1_exist(imicro)=.true.
+              call tce_filenameindexed(imicro,'x2',filename)
+              call createfile(filename,x2(imicro),size_x2)
+              call tce_zero(x2(imicro),size_x2)
+              call gatodra(x2(imicro))
+              x2_exist(imicro)=.true.
+            enddo
+c
+          do ivec=1,nroots_reduced
+            call tce_filenameindexed(ivec,'xc1',filename)
+            call createfile(filename,xc1(ivec),size_x1)
+            call gatoeaf(xc1(ivec))
+            call gatodra(xc1(ivec))
+            xc1_exist(ivec) = .true.
+            call tce_filenameindexed(ivec,'xc2',filename)
+            call createfile(filename,xc2(ivec),size_x2)
+            call gatoeaf(xc2(ivec))
+            call gatodra(xc2(ivec))
+            xc2_exist(ivec) = .true.
+          enddo
+c
+          if(ccsd_var.eq.'lr-ccsd') then
+            modelname = "LR-EOMCCSD right-hand side"
+            if (nodezero) write(LuOut,9220)
+     1        modelname(1:inp_strlen(modelname))
+          else if(ccsd_var.eq.'cc2') then
+            modelname = "CC2 right-hand side"
+            if (nodezero) write(LuOut,9220)
+     1        modelname(1:inp_strlen(modelname))
+          else
+            modelname = "EOM-CCSD right-hand side"
+            if (nodezero) write(LuOut,9220)
+     1        modelname(1:inp_strlen(modelname))
+          end if
+c
+c open k_h_eff  and k_c_eff
+c
+        if (.not.MA_PUSH_GET(mt_dbl,
+     1      xdiis*xdiis*nroots_reduced*nroots_reduced,'h_eff',
+     1      l_h_eff,k_h_eff)) call errquit('h_eff',1,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,xdiis*nroots_reduced*nroots_reduced,
+     1      'c_eff',
+     1      l_c_eff,k_c_eff)) call errquit('c_eff',1,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,nroots_reduced,'residual',
+     1          l_residual,k_residual)) call errquit('l_res',1,MA_ERR)
+c
+            iter=1
+c
+             if(iter.eq.1) then
+              do iroot=1,nroots_reduced
+               call copyfile(x1_ini(iroot),xc1(iroot),size_x1)
+               call tce_zero(xc2(iroot),size_x2)
+              enddo
+             endif 
+c
+ 111         continue  !iter continuation
+c
+             imicro = 1
+c
+c
+            do iroot=1,nroots_reduced
+             call copyfile(xc1(iroot),x1(iroot),size_x1)
+             call copyfile(xc2(iroot),x2(iroot),size_x2)
+            enddo
+c
+            call norm_x_vector_mr(k_x1_offset,k_x2_offset,
+     1                            size_x1,size_x2,nroots_reduced)
+c
+            do iroot=1,nroots_reduced
+             call tce_zero(xp1(iroot),size_x1)
+             call tce_zero(xp2(iroot),size_x2)
+            enddo
+c
+             imicro = 1
+c
+             do i=1,xdiis*nroots_reduced*nroots_reduced
+              dbl_mb(k_c_eff+i-1)=0.0d0
+             enddo
+             do i=1,nroots_reduced
+             dbl_mb(k_c_eff+(i-1)*xdiis*nroots_reduced+i-1)=1.0d0
+             enddo
+             do i=1,xdiis*xdiis*nroots_reduced*nroots_reduced
+               dbl_mb(k_h_eff+i-1)=0.0d0
+             enddo
+c
+c    declare h_eff c_eff - MA 
+c
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
+c
+      do iroot=1,nroots_reduced ! x-x-x-x-x-x-x-x-x
+c
+c - T1/X1 LOCALIZATION ----------
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,size_x1,'x1_local',
+     1      l_x1_local,k_x1_local))
+     1      call errquit('x1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+        call ma_zero(dbl_mb(k_x1_local),size_x1)
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+        call ga_get(x1(iroot),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+c -------------------------------
+         if(ccsd_var.eq.'cc2') then
+          call cc2_x1(d_f1,xp1(iroot),k_t1_local,d_t2,d_v2,
+     &      k_x1_local,x2(iroot),
+     &      k_f1_offset,k_x1_offset,k_t1_offset,k_t2_offset,
+     &      k_v2_offset,k_x1_offset,k_x2_offset)
+         else
+          call eomccsd_x1_n(d_f1,xp1(iroot),k_t1_local,d_t2,d_v2,
+     1      k_x1_local,x2(iroot),k_f1_offset,k_x1_offset,
+     2      k_t1_offset,k_t2_offset,k_v2_offset,
+     3      k_x1_offset,k_x2_offset,
+     4      ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5      rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6      rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+         end if
+         if(ccsd_var.eq.'lr-ccsd') then
+            call tce_j1_x1_scaling(xp1(iroot),k_x1_offset,
+     1           d_j1,k_j1_offset)
+         end if
+         if(ccsd_var.eq.'cc2') then
+           call cc2_x2(d_f1,xp2(iroot),k_t1_local,d_v2,
+     &       k_x1_local,x2(iroot),
+     &       k_f1_offset,k_x2_offset,k_t1_offset,k_v2_offset,
+     &       k_x1_offset,k_x2_offset,size_x1,size_x2)
+         else
+           call eomccsd_x2_n(d_f1,xp2(iroot),k_t1_local,d_t2,d_v2,
+     1       k_x1_local,x2(iroot),k_f1_offset,k_x2_offset,
+     2       k_t1_offset,k_t2_offset,k_v2_offset,
+     3       k_x1_offset,k_x2_offset,size_x1,size_x2,
+     4       ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5       rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6       rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+         end if
+         if(ccsd_var.eq.'lr-ccsd') then
+           call tce_j1_x1_scaling(xp1(iroot),k_x1_offset,
+     1          d_j1,k_j1_offset)
+         end if
+c
+         ister=1
+c - T1/X1 LOCALIZATION --
+         if(.not.MA_POP_STACK(l_x1_local))
+     &      call errquit('l_x1_local',4,MA_ERR)
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',4,MA_ERR)
+c -----------------------------
+         enddo ! x-x-x-x-x-x-x-x-x
+c   calculate  H-bar delta x
+c
+           call form_heff_mr(k_x1_offset,k_x2_offset,size_x1,size_x2,
+     &        dbl_mb(k_c_eff),dbl_mb(k_h_eff),dbl_mb(k_omegax),
+     &        imicro,xdiis,iter)
+c
+c
+          do imicro=2,xdiis !microloop(imicro)
+c
+          do iroot=1,nroots_reduced
+           ipos=(imicro-1)*nroots_reduced+iroot
+           call tce_zero(x1(ipos),size_x1)
+           call tce_zero(x2(ipos),size_x2)
+           call tce_zero(xp1(ipos),size_x1)
+           call tce_zero(xp2(ipos),size_x2)
+          enddo
+c
+          do iroot=1,nroots_reduced
+           dbl_mb(k_residual+iroot-1)=0.0d0
+          enddo
+c
+          do iroot=1,nroots_reduced
+           call form_correction_mr(k_x1_offset,k_x2_offset,
+     1                  size_x1,size_x2,
+     1                  dbl_mb(k_c_eff+(iroot-1)*xdiis*nroots_reduced),
+     1                  dbl_mb(k_omegax+iroot-1),
+     1                  imicro,xdiis,dbl_mb(k_residual+iroot-1),iroot)
+          enddo
+c
+      cpu=cpu+util_cpusec()
+      wall=wall+util_wallsec()
+      if(nodezero) then
+                  write(LuOut,9211) iter
+             do iroot=1,nroots_reduced
+                if(iroot.eq.nroots_reduced) then
+                  write(LuOut,9230) dbl_mb(k_residual+iroot-1),
+     2            dbl_mb(k_omegax+iroot-1),
+     3            dbl_mb(k_omegax+iroot-1)*au2ev,cpu,wall
+                else
+                  write(LuOut,9230) dbl_mb(k_residual+iroot-1),
+     2            dbl_mb(k_omegax+iroot-1),
+     3            dbl_mb(k_omegax+iroot-1)*au2ev
+                end if
+             enddo
+      end if
+      call util_flush(LuOut)
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
+c
+           converged=.true.
+           do iroot=1,nroots_reduced
+             if(dabs(dbl_mb(k_residual+iroot-1)).gt.thresh) 
+     &             converged=.false. 
+           enddo 
+c
+            if(converged) then
+             do iroot=1,nroots_reduced
+              call form_best_guess_mr(k_x1_offset,k_x2_offset,
+     &                size_x1,size_x2,
+     &                dbl_mb(k_c_eff+(iroot-1)*xdiis*nroots_reduced),
+     &                imicro-1,
+     &                xdiis,iroot)
+             enddo
+c
+               do iroot=1,nroots_reduced
+                if(nodezero)
+     &                  write(LuOut,*)'EOMCCSD root nr. ',iroot
+                call tce_print_x1(xc1(iroot),k_x1_offset,0.10d0)
+                call tce_print_x2(xc2(iroot),k_x2_offset,0.10d0)
+               enddo
+              go to 112
+            end if
+c all together
+            call deltax_ort_norm_mr(k_x1_offset,k_x2_offset,
+     1                              size_x1,size_x2,
+     1                              imicro,xdiis)
+c
+c
+c
+         do iroot=1,nroots_reduced ! --- iroot
+c
+          ipos=(imicro-1)*nroots_reduced+iroot
+c
+c - T1/X1 LOCALIZATION ----------
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,size_x1,'x1_local',
+     1      l_x1_local,k_x1_local))
+     1      call errquit('x1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+        call ma_zero(dbl_mb(k_x1_local),size_x1)
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+        call ga_get(x1(ipos),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+c -------------------------------
+         if(ccsd_var.eq.'cc2') then
+          call cc2_x1(d_f1,xp1(ipos),k_t1_local,d_t2,d_v2,
+     &      k_x1_local,x2(ipos),
+     &      k_f1_offset,k_x1_offset,k_t1_offset,k_t2_offset,
+     &      k_v2_offset,k_x1_offset,k_x2_offset)
+         else
+          call eomccsd_x1_n(d_f1,xp1(ipos),k_t1_local,d_t2,d_v2,
+     1      k_x1_local,x2(ipos),k_f1_offset,k_x1_offset,
+     2      k_t1_offset,k_t2_offset,k_v2_offset,
+     3      k_x1_offset,k_x2_offset,
+     4      ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5      rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6      rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+         end if
+         if(ccsd_var.eq.'lr-ccsd') then
+            call tce_j1_x1_scaling(xp1(ipos),k_x1_offset,
+     1           d_j1,k_j1_offset)
+         end if
+         if(ccsd_var.eq.'cc2') then
+           call cc2_x2(d_f1,xp2(ipos),k_t1_local,d_v2,
+     &       k_x1_local,x2(ipos),
+     &       k_f1_offset,k_x2_offset,k_t1_offset,k_v2_offset,
+     &       k_x1_offset,k_x2_offset,size_x1,size_x2)
+         else
+           call eomccsd_x2_n(d_f1,xp2(ipos),k_t1_local,d_t2,d_v2,
+     1       k_x1_local,x2(ipos),k_f1_offset,k_x2_offset,
+     2       k_t1_offset,k_t2_offset,k_v2_offset,
+     3       k_x1_offset,k_x2_offset,size_x1,size_x2,
+     4       ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5       rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6       rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+         end if
+         if(ccsd_var.eq.'lr-ccsd') then
+           call tce_j1_x1_scaling(xp1(ipos),k_x1_offset,
+     1          d_j1,k_j1_offset)
+         end if
+c
+         ister=1
+c - T1/X1 LOCALIZATION --
+         if(.not.MA_POP_STACK(l_x1_local))
+     &      call errquit('l_x1_local',4,MA_ERR)
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',4,MA_ERR)
+c -----------------------
+c
+        enddo ! --- iroot 
+c
+c             calculate  H-bar delta x
+c
+           call form_heff_mr(k_x1_offset,k_x2_offset,size_x1,size_x2,
+     &        dbl_mb(k_c_eff),dbl_mb(k_h_eff),dbl_mb(k_omegax),
+     &        imicro,xdiis,iter)
+c
+           iter=iter+1                              
+             if(iter.gt.maxiter) then
+              if(nodezero) then
+                 write(LuOut,9233) iroot
+              end if
+             do iroot=1,nroots_reduced
+              call form_best_guess_mr(k_x1_offset,k_x2_offset,
+     &                size_x1,size_x2,
+     &                dbl_mb(k_c_eff+(iroot-1)*xdiis*nroots_reduced),
+     &                imicro,
+     &                xdiis,iroot)
+               call tce_print_x1(xc1(iroot),k_x1_offset,0.10d0)
+               call tce_print_x2(xc2(iroot),k_x2_offset,0.10d0)
+             enddo
+              go to 112
+             end if
+c
+          enddo   !microloop(imicro)
+c
+             do iroot=1,nroots_reduced
+              call form_best_guess_mr(k_x1_offset,k_x2_offset,
+     &                size_x1,size_x2,
+     &                dbl_mb(k_c_eff+(iroot-1)*xdiis*nroots_reduced),
+     &                xdiis,
+     &                xdiis,iroot)
+             enddo
+c
+               go to 111
+c
+ 112          continue !from converged
+c
+
+         if(.not.MA_POP_STACK(l_residual))
+     &      call errquit('l_residual',4,MA_ERR)
+         if(.not.MA_POP_STACK(l_c_eff))
+     &      call errquit('l_c_eff',4,MA_ERR)
+         if(.not.MA_POP_STACK(l_h_eff))
+     &      call errquit('l_h_eff',4,MA_ERR)
+c
+            do imicro=1,xdiis
+              call deletefile(xp1(imicro))
+              xp1_exist(imicro)=.false.
+              call deletefile(xp2(imicro))
+              xp2_exist(imicro)=.false.
+              call deletefile(x1(imicro))
+              x1_exist(imicro)=.false.
+              call deletefile(x2(imicro))
+              x2_exist(imicro)=.false.
+            enddo
+c
+c
+c
+c xc1 xc2 are deleted by tce_eom_tidy (later on)
+c
+c
+           if(ccsd_var.eq.'lr-ccsd')then
+            call deletefile(d_j2)
+            if (.not.ma_pop_stack(l_j2_offset))
+     1        call errquit("tce_energy: MA problem",36,MA_ERR)
+            call deletefile(d_j1)
+            if (.not.ma_pop_stack(l_j1_offset))
+     1        call errquit("tce_energy: MA problem",37,MA_ERR)
+           end if
+c
+c
+         if(ccsd_var.ne.'cc2') then ! ----
+          call deletefile(rec_d_9)
+          call deletefile(rec_d_8)
+          call deletefile(rec_d_7)
+          call deletefile(rec_d_6)
+          call deletefile(rec_d_5)
+          call deletefile(rec_d_4)
+          call deletefile(rec_d_3)
+          call deletefile(rec_d_2)
+          call deletefile(rec_d_1)
+          call deletefile(rec_s_5)
+          call deletefile(rec_s_4)
+          call deletefile(rec_s_3)
+          call deletefile(rec_s_2)
+          call deletefile(rec_s_1)
+         end if !---------
+c
+         do ivec=1,maxtrials
+           if(x1_ini_exist(ivec))  then
+            call deletefile(x1_ini(ivec))
+            x1_ini_exist(ivec) = .false.
+           end if
+         enddo
+c
+c
+c
+         end if ! ------- EOM-SOLVER ---------------
+c
+c
+c
 c -------------
 c EOM-CCSD    left
 c -------------
   200       continue
 c
+         if(eom_solver.eq.1) then
+           if(ccsd_var.eq.'lr-ccsd')then
+            call deletefile(d_j2)
+            if (.not.ma_pop_stack(l_j2_offset))
+     1        call errquit("tce_energy: MA problem",36,MA_ERR)
+            call deletefile(d_j1)
+            if (.not.ma_pop_stack(l_j1_offset))
+     1        call errquit("tce_energy: MA problem",37,MA_ERR)
+           end if
+           if(ccsd_var.ne.'cc2') then ! ----
+            call deletefile(rec_d_9)
+            call deletefile(rec_d_8)
+            call deletefile(rec_d_7)
+            call deletefile(rec_d_6)
+            call deletefile(rec_d_5)
+            call deletefile(rec_d_4)
+            call deletefile(rec_d_3)
+            call deletefile(rec_d_2)
+            call deletefile(rec_d_1)
+            call deletefile(rec_s_5)
+            call deletefile(rec_s_4)
+            call deletefile(rec_s_3)
+            call deletefile(rec_s_2)
+            call deletefile(rec_s_1)
+           end if !---------
+         end if
 c
            if(ccsd_var.eq.'lr-ccsd')then
             call deletefile(d_j2)
@@ -7378,7 +8039,7 @@ c
      5                        d_ex2,k_ex2_offset,size_ex2,
      6                        d_c1,k_c1_offset,size_c1,
      7                        d_c2,k_c2_offset,size_c2,
-     8                        excit,pt3_6,pt3_5)
+     8                        excit,pt3_6,pt3_5,size_t1,size_x1)
       else       !emb2
       call emb2(xc1(ivec),k_x1_offset,xc2(ivec),k_x2_offset,
      1                        d_t1,k_t1_offset,d_t2,k_t2_offset,
@@ -7388,7 +8049,7 @@ c
      5                        d_ex2,k_ex2_offset,size_ex2,
      6                        d_c1,k_c1_offset,size_c1,
      7                        d_c2,k_c2_offset,size_c2,
-     8                        excit,pt3_6,pt3_5)
+     8                        excit,pt3_6,pt3_5,size_t1,size_x1)
       end if
 c
           call deletefile(d_ex2)
@@ -8632,8 +9293,11 @@ ccc
           endif
           if (.not.ma_pop_stack(l_omegax))
      1      call errquit("tce_energy: MA problem",1002,MA_ERR)
+c new EOMCC solver
+       if(.not.((model.ne.'ccsd').and.(eom_solver.eq.2))) then
       if (.not.ma_pop_stack(l_hbar))
-     1  call errquit('tce_eom_xdiagon: MA problem',11,MA_ERR)
+     1  call errquit('tce_eom_xdiagon: MA problem',12,MA_ERR)
+      end if
           endif
         enddo
       endif
@@ -8936,7 +9600,9 @@ c 9126 format(1x,'imaxsize = ',2x,i6)
      3'     Residuum       Omega / hartree  Omega / eV    Cpu    Wall'
      4,/,1x,
      5'--------------------------------------------------------------')
+ 9211 format(/,1x,'Iteration ',i5)
  9230 format(1x,f17.13,f18.13,f11.5,2f8.1)
+ 9233 format(/,1x,'Iterations for root',1x,i3,1x,'failed to converge')
  9240 format(1x,
      1'--------------------------------------------------------------'
      2,/,1x,'Iterations converged')
