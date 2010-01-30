@@ -6,7 +6,7 @@ SUBDIRS = include diis diis2 diis3 gradients \
           ccsd_t cr-eomccsd_t lrh emb \
           response ccsd_yr ccsd_alpha ccsd_beta \
           ccd lccd lccsd qcisd cc3 \
-          mbpt1 mbpt2 mbpt3 mbpt4 cisd cisdt cisdtq \
+          mbpt1 mbpt2 mbpt3 mbpt4 cis cisd cisdt cisdtq \
           ccsdt ccsdt_lambda eomccsdt
 
 ifdef CCSDTLR
