@@ -48,7 +48,7 @@ c
 c     Determine threshold
 c
       nodezero = (ga_nodeid().eq.0)
-      ibumper=50000
+      ibumper=200000
 cx      if (.not.ma_push_get(mt_dbl,maxtrials,'diff',l_diff,k_diff))
 cx     1  call errquit('tce_eom_xguess: MA problem',0,MA_ERR)
 cx      call dfill(maxtrials,1.0d99,dbl_mb(k_diff),1)
