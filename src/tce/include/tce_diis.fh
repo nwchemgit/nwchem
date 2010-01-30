@@ -64,7 +64,10 @@ c ------------------------------------
       integer yp3(maxtrials)            ! Product LHS3 vectors
       integer xp4(maxtrials)            ! Product RHS4 vectors
       integer yp4(maxtrials)            ! Product LHS4 vectors
+      integer x1_ini(maxtrials) ! initial cis vectors
       integer hbard                     ! max dimension of the EOMCC iterative space
+      integer eom_solver                ! type of EOM solver
+      logical x1_ini_exist(maxtrials) ! True if X1_INI exist
       logical xc1_exist(maxtrials)      ! True if XC1 file exist
       logical yc1_exist(maxtrials)      ! True if YC1 file exist
       logical xc2_exist(maxtrials)      ! True if XC2 file exist
@@ -98,7 +101,8 @@ c
      3  t3_pointer,r3_pointer,t4_pointer,r4_pointer,
      4  nroots,nroots_reduced,nroots_restart,nxtrials,nytrials,
      5  x1,y1,x2,y2,x3,y3,x4,y4,xp1,yp1,xp2,yp2,xp3,yp3,xp4,yp4,
-     6  xc1,xc2,xc3,xc4,yc1,yc2,yc3,yc4,diis,diis2,diis3,hbard
+     6  xc1,xc2,xc3,xc4,yc1,yc2,yc3,yc4,diis,diis2,diis3,hbard,x1_ini,
+     7  eom_solver
 c
 c     Logicals
 c
@@ -109,7 +113,7 @@ c
      4  x3_exist,y3_exist,x4_exist,y4_exist,xp1_exist,yp1_exist,
      5  xp2_exist,yp2_exist,xp3_exist,yp3_exist,xp4_exist,yp4_exist,
      6  xc1_exist,xc2_exist,xc3_exist,xc4_exist,
-     7  yc1_exist,yc2_exist,yc3_exist,yc4_exist
+     7  yc1_exist,yc2_exist,yc3_exist,yc4_exist,x1_ini_exist
 c
 c     Doubles
 c
