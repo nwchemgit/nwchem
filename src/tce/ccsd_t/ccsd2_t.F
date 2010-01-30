@@ -1,7 +1,7 @@
       SUBROUTINE ccsd2_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                   d_f1,k_f1_offset,d_v2,k_v2_offset,
      2                   d_y1,k_y1_offset,d_y2,k_y2_offset,
-     3                   d_e,k_e_offset,energy)
+     3                   d_e,k_e_offset,energy,size_t1)
 C
 C     $Id: ccsd2_t.F,v 1.3 2008-07-17 21:48:07 marat Exp $
 C
@@ -47,15 +47,30 @@ C
       integer k_i1_offset_3,l_i1_offset_3
       integer k_i1_offset_4,l_i1_offset_4
       integer k_i1_offset_5,l_i1_offset_5
+c - T1/X1 LOCALIZATION -------------------
+      integer l_t1_local,k_t1_local
+      integer size_t1
+c ---------------------------------------
       double precision energy
       double precision factor
       external nxtask
+c
+c - T1/X1 LOCALIZATION ----------
+c    opening l_t1_local and l_x1_local
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+c    copy d_t1 ==> l_t1_local
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+c -------------------------------
+c
 c
 c     Caution! k_right & k_left are not even allocated yet
 c     but they won't be used.
 c
       call cr_ccsd_t_N(dbl_mb(k_right),d_f1,d_i1_1,d_i1_2,
-     1  d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
+     1  k_t1_local,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
      2  k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
      3  l_i1_offset_2,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
       call ccsd2_t_left(dbl_mb(k_left),d_f1,d_i1_3,d_i1_4,d_i1_5,
@@ -116,7 +131,8 @@ c
              dbl_mb(k_left+i-1) = 0.0d0
             enddo
             call cr_ccsd_t_N(dbl_mb(k_right),d_f1,d_i1_1,d_i1_2,
-     1        d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
+     1        k_t1_local,d_t2,
+     &        d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
      2        k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
      3        l_i1_offset_2,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
             call ccsd2_t_left(dbl_mb(k_left),d_f1,d_i1_3,d_i1_4,d_i1_5,
@@ -191,7 +207,7 @@ c
      3  k_y1_offset,k_y2_offset,l_i1_offset_3,l_i1_offset_4,
      4  l_i1_offset_5,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
       call cr_ccsd_t_N(dbl_mb(k_right),d_f1,d_i1_1,d_i1_2,
-     1  d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
+     1  k_t1_local,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
      2  k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
      3  l_i1_offset_2,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
       call ga_zero(g_energy)
@@ -200,5 +216,9 @@ c
       call ga_get(g_energy,1,1,1,1,energy,1)
       if (.not.ga_destroy(g_energy))
      1  call errquit('ccsd_t: GA problem',1,GA_ERR)
+c - T1/X1 LOCALIZATION ------
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',4,MA_ERR)
+c ---------------------------
       return
       end
