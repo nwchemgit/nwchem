@@ -3,6 +3,7 @@
 *
 
 ***********************************************************************
+** for karol
 *                      cpmdv5-mpi  (MPI code)                         *
 *                                                                     *
 *     This is a developing cpsdv5 parallel code for NWChem            *
