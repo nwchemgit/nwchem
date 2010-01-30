@@ -251,6 +251,11 @@ c#endif
         if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))
      1  call errquit('tce_init: failed to write ioalg',0,RTDB_ERR)
       endif
+      if (.not.rtdb_get(rtdb,'tce:eoms',mt_int,1,eom_solver)) then
+        eom_solver = 1
+        if (.not.rtdb_put(rtdb,'tce:eoms',mt_int,1,eom_solver))
+     1  call errquit('tce_init: failed to write eoms',0,RTDB_ERR)
+      endif
       if (.not.rtdb_get(rtdb,'tce:diis',mt_int,1,diis)) then
         diis = 5
         if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
