@@ -1,0 +1,5 @@
+$(LIBRARY_PATH)(cis_xtidy.o):	../include/tce_diis.fh 
+$(LIBRARY_PATH)(cis_xguess.o):	$(INCDIR)/util.fh ../include/tce_main.fh ../include/tce_diis.fh ../include/tce.fh $(INCDIR)/sym.fh $(INCDIR)/stdio.fh /mscf/home/kowalski/nwchem_new_release/src/tools/include/mafdecls.fh /mscf/home/kowalski/nwchem_new_release/src/tools/include/global.fh $(INCDIR)/errquit.fh 
+$(LIBRARY_PATH)(cis_xdiagon.o):	$(INCDIR)/util.fh ../include/tce_main.fh ../include/tce_diis.fh ../include/tce.fh $(INCDIR)/sym.fh $(INCDIR)/stdio.fh /mscf/home/kowalski/nwchem_new_release/src/tools/include/mafdecls.fh /mscf/home/kowalski/nwchem_new_release/src/tools/include/global.fh $(INCDIR)/errquit.fh 
+$(LIBRARY_PATH)(cis_x1.o):	$(INCDIR)/util.fh ../include/tce.fh $(INCDIR)/sym.fh /mscf/home/kowalski/nwchem_new_release/src/tools/include/mafdecls.fh /mscf/home/kowalski/nwchem_new_release/src/tools/include/global.fh $(INCDIR)/errquit.fh 
+$(LIBRARY_PATH)(cis.o):	$(INCDIR)/util.fh ../include/tce_main.fh ../include/tce_diis.fh ../include/tce.fh /mscf/home/kowalski/nwchem_new_release/src/tools/include/mafdecls.fh /mscf/home/kowalski/nwchem_new_release/src/tools/include/global.fh $(INCDIR)/errquit.fh 
