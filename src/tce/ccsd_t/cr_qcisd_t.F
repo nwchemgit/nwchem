@@ -130,7 +130,7 @@ c      print*,'calling cr_qcisd_t_U'
      2                  d_c2,d_m1,d_m2,
      3                  e_trip_u_1_1,e_trip_u_1_2,
      4                  e_trip_u_2_1,e_trip_u_2_2,
-     5                  e_trip_c,den_trip)
+     5                  e_trip_c,den_trip,size_t1)
       e_trip_u = e_trip_u_1_1 + e_trip_u_1_2
      1         + e_trip_u_2_1 + e_trip_u_2_2
 c
@@ -178,7 +178,7 @@ c
       SUBROUTINE cr_qcisd_t_U(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                        d_f1,k_f1_offset,d_v2,k_v2_offset,
      2                        d_c2,d_m1,d_m2,
-     3                        e1_1,e1_2,e2_1,e2_2,e3_1,den2)
+     3                        e1_1,e1_2,e2_1,e2_2,e3_1,den2,size_t1)
 c
 c     ccsd_t_singles:
 c     i0 ( p4 p5 p6 h1 h2 h3 )_vt + = 1 * P( 9 ) * t ( p4 h1 )_t * v ( p5 p6 h2 h3 )_v
@@ -230,9 +230,23 @@ c
       integer next
       integer nprocs
       integer count
+c - T1/X1 LOCALIZATION -------------------
+      integer l_t1_local,k_t1_local
+      integer size_t1
+c ---------------------------------------
       double precision e1_1,e1_2,e2_1,e2_2,e3_1,den2
       double precision factor
       external nxtask
+c
+c - T1/X1 LOCALIZATION ----------
+c    opening l_t1_local and l_x1_local
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+c    copy d_t1 ==> l_t1_local
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+c -------------------------------
 c
 c     This is used to accumulate contribution from all nodes.
 c
@@ -240,11 +254,11 @@ c
      1  call errquit('cr_qcisd_t_U: GA problem',0,GA_ERR)
 c
       call cr_ccsd_t_N(dbl_mb(k_right_3),d_f1,d_i1_1,d_i1_2,
-     1  d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
+     1  k_t1_local,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
      2  k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
      3  l_i1_offset_2,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
       call cr_ccsd_t_E(dbl_mb(k_denom),d_i1_3,
-     1  d_t1,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
+     1  k_t1_local,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
      2  l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
 c
       nprocs = GA_NNODES()
@@ -326,12 +340,13 @@ c      print*,'calling cr_qcisd_t_right'
      2        t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b)
 c      print*,'calling cr_ccsd_t'
             call cr_ccsd_t_N(dbl_mb(k_right_3),d_f1,d_i1_1,d_i1_2,
-     1        d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
+     1        k_t1_local,d_t2,d_v2,
+     1        k_f1_offset,k_i1_offset_1,k_i1_offset_2,
      2        k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
      3        l_i1_offset_2,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
 c      print*,'calling cr_ccsd_t_E'
             call cr_ccsd_t_E(dbl_mb(k_denom),d_i1_3,
-     1        d_t1,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
+     1        k_t1_local,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
      2        l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
             if (restricted) then
               factor = 2.0d0
@@ -455,10 +470,10 @@ c
       enddo
       next = nxtask(-nprocs,1)
       call cr_ccsd_t_E(dbl_mb(k_denom),d_i1_3,
-     1  d_t1,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
+     1  k_t1_local,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
      2  l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
       call cr_ccsd_t_N(dbl_mb(k_right_3),d_f1,d_i1_1,d_i1_2,
-     1  d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
+     1  k_t1_local,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
      2  k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
      3  l_i1_offset_2,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
 c
@@ -486,6 +501,10 @@ c
       if (.not.ga_destroy(g_energy))
      1  call errquit('cr_qcisd_t_U: GA problem',1,GA_ERR)
 c
+c - T1/X1 LOCALIZATION ------
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',4,MA_ERR)
+c ---------------------------
       return
       end
 
