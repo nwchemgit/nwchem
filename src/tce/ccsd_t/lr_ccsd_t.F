@@ -1,7 +1,7 @@
       SUBROUTINE lr_ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                     d_f1,k_f1_offset,d_v2,k_v2_offset,
      2                     d_e,k_e_offset,energy1,energy2,
-     3  energy3,energy4,energy5,energy6)
+     3  energy3,energy4,energy5,energy6,size_t1)
 C
 C     $Id: lr_ccsd_t.F,v 1.4 2008-10-16 14:16:38 jhammond Exp $
 C
@@ -46,11 +46,25 @@ c
       integer k_i1_offset_1,l_i1_offset_1
       integer k_i1_offset_2,l_i1_offset_2
       integer k_i1_offset_3,l_i1_offset_3
+c - T1/X1 LOCALIZATION -------------------
+      integer l_t1_local,k_t1_local
+      integer size_t1
+c ---------------------------------------
       double precision energy1,energy2,energy3,energy4
       double precision energy5,energy6
       double precision factor
       double precision den0,den1,den2,den3,num1,num2
       external nxtask
+c
+c - T1/X1 LOCALIZATION ----------
+c    opening l_t1_local and l_x1_local
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+c    copy d_t1 ==> l_t1_local
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+c -------------------------------
 c
 c     Get singles & doubles part of the denominator
 c
@@ -79,11 +93,11 @@ c     Caution! k_right & k_den are not even allocated yet
 c     but they won't be used.
 c
       call cr_ccsd_t_N(dbl_mb(k_right),d_f1,d_i1_1,d_i1_2,
-     1  d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
+     1  k_t1_local,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
      2  k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
      3  l_i1_offset_2,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
       call cr_ccsd_t_E(dbl_mb(k_den),d_i1_3,
-     1  d_t1,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
+     1  k_t1_local,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
      2  l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,1)
 c
 c     Get the numerator
@@ -145,11 +159,12 @@ c
             call ccsd_t_doubles(dbl_mb(k_doubles),d_t2,d_v2,k_t2_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
             call cr_ccsd_t_N(dbl_mb(k_right),d_f1,d_i1_1,d_i1_2,
-     1        d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
+     1        k_t1_local,d_t2,d_v2,
+     &        k_f1_offset,k_i1_offset_1,k_i1_offset_2,
      2        k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
      3        l_i1_offset_2,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
             call cr_ccsd_t_E(dbl_mb(k_den),d_i1_3,
-     1        d_t1,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
+     1        k_t1_local,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
      2        l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
             if (restricted) then
               factor = 2.0d0
@@ -340,10 +355,10 @@ cccx     1        call errquit('ccsd_t',8,MA_ERR)
       enddo
       next = nxtask(-nprocs,1)
       call cr_ccsd_t_E(dbl_mb(k_den),d_i1_3,
-     1  d_t1,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
+     1  k_t1_local,d_t2,k_i1_offset_3,k_t1_offset,k_t2_offset,
      2  l_i1_offset_3,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
       call cr_ccsd_t_N(dbl_mb(k_right),d_f1,d_i1_1,d_i1_2,
-     1  d_t1,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
+     1  k_t1_local,d_t2,d_v2,k_f1_offset,k_i1_offset_1,k_i1_offset_2,
      2  k_t1_offset,k_t2_offset,k_v2_offset,l_i1_offset_1,
      3  l_i1_offset_2,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,3)
       call ga_zero(g_energy)
@@ -385,6 +400,10 @@ c
       if (.not.ma_pop_stack(l_hole))
      1  call errquit("tce_energy: MA problem",19,MA_ERR)
 c
+c - T1/X1 LOCALIZATION ------
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',4,MA_ERR)
+c ---------------------------
       return
       end
 c
