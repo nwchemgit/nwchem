@@ -23,6 +23,7 @@ c        [MAXITER <integer maxiter default 100>]
 c        [PRINT (none||low||medium||high||debug)]
 c        [IO (fortran||eaf||ga||sf||replicated||dra||ga_eaf) default ga]
 c        [DIIS <integer diis default 5>]
+c        [EOMSOL <integer default 1 >]
 c        [DIIS2 <integer diis default 5>]
 c        [DIIS3 <integer diis default 5>]
 c        [NROOTS <integer nroots default 0>]
@@ -89,6 +90,7 @@ c
       integer ioalg
       integer reference
       integer diis,diis2,diis3
+      integer eomsol
 c --- level shift --
       double precision zlshift,zlshiftl,zlshift2(2),zlshift3(2)
 c ------------------
@@ -200,6 +202,13 @@ c
      2  RTDB_ERR)
       diis3=5
       if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+c     EOMCC SOLVER
+c
+      eomsol=1
+      if (.not.rtdb_put(rtdb,'tce:eoms',mt_int,1,eomsol))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
@@ -1039,6 +1048,18 @@ c
           endif
         endif
         if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c EOMCC SOLVER
+c
+      else if (inp_compare(.false.,test,'eomsol')) then
+        if (.not.inp_i(eomsol)) then
+          write(LuOut,*) 'tce_input: eomsol value not found; ',
+     1      'default value of 1 will be used'
+          eomsol=1
+        endif
+        if (.not.rtdb_put(rtdb,'tce:eoms',mt_int,1,eomsol))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
