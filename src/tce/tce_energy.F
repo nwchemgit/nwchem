@@ -7065,8 +7065,8 @@ c ---
              call util_flush(6)
             end if
              do jvec=1,nroots_reduced
-              call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0)
-              call tce_print_x2(xc2(jvec),k_x2_offset,0.10d0)
+              call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0,irrep_x)
+              call tce_print_x2(xc2(jvec),k_x2_offset,0.10d0,irrep_x)
               call util_flush(LuOut)
              enddo
 c ---
@@ -7125,7 +7125,7 @@ c
              call util_flush(6)
             end if
             do iroot=1,nroots_reduced
-             call tce_print_x1(x1_ini(iroot),k_x1_offset,0.10d0)
+             call tce_print_x1(x1_ini(iroot),k_x1_offset,0.10d0,irrep_x)
             enddo
             if(nodezero) then
              write(LuOut,*)'                    '
@@ -7465,8 +7465,8 @@ c
                do iroot=1,nroots_reduced
                 if(nodezero)
      &                  write(LuOut,*)'EOMCCSD root nr. ',iroot
-                call tce_print_x1(xc1(iroot),k_x1_offset,0.10d0)
-                call tce_print_x2(xc2(iroot),k_x2_offset,0.10d0)
+                call tce_print_x1(xc1(iroot),k_x1_offset,0.10d0,irrep_x)
+                call tce_print_x2(xc2(iroot),k_x2_offset,0.10d0,irrep_x)
                enddo
               go to 112
             end if
@@ -7557,8 +7557,8 @@ c
      &                dbl_mb(k_c_eff+(iroot-1)*xdiis*nroots_reduced),
      &                imicro,
      &                xdiis,iroot)
-               call tce_print_x1(xc1(iroot),k_x1_offset,0.10d0)
-               call tce_print_x2(xc2(iroot),k_x2_offset,0.10d0)
+               call tce_print_x1(xc1(iroot),k_x1_offset,0.10d0,irrep_x)
+               call tce_print_x2(xc2(iroot),k_x2_offset,0.10d0,irrep_x)
              enddo
               go to 112
              end if
