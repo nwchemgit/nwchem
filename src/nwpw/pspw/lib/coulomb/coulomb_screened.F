@@ -256,7 +256,8 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
            if ((pzero.eq.taskid) .and. (i.eq.zero)) then
               !temp = 8.0d0*pi*pi*dsqrt(pi*rcut)
               !temp = 0.25d0*dsqrt(pi)*lattice_omega()/(pi*pi)
-              temp = (5.633714987781071d0)*0.5d0*lattice_omega()/(pi*pi)
+              !temp = (5.633714987781071d0)*0.5d0*lattice_omega()/(pi*pi)
+              temp = (5.633714987781071d0)*fourpi
            else
               temp = fourpi/gg
            end if
