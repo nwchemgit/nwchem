@@ -7673,15 +7673,6 @@ c
            end if !---------
          end if
 c
-           if(ccsd_var.eq.'lr-ccsd')then
-            call deletefile(d_j2)
-            if (.not.ma_pop_stack(l_j2_offset))
-     1        call errquit("tce_energy: MA problem",36,MA_ERR)
-            call deletefile(d_j1)
-            if (.not.ma_pop_stack(l_j1_offset))
-     1        call errquit("tce_energy: MA problem",37,MA_ERR)
-           end if
-c
             if (left) then
             call tce_eom_yguess(needt1,needt2,needt3,needt4,
      1        size_y1,size_y2,size_y3,size_y4,
