@@ -1,13 +1,17 @@
-# $Id: glendening_polarization,v 1.1 2002-01-04 21:16:01 bert Exp $
-basis "K_Glendening_Polarization" CARTESIAN
-  K    D
-         0.480000000      1.00000000
-end
-basis "Rb_Glendening_Polarization" CARTESIAN
-  Rb   D
-         0.240000000      1.00000000
-end
-basis "Cs_Glendening_Polarization" CARTESIAN
-  Cs   D
-         0.190000000      1.00000000
-end
+#  Glendening Polarization  EMSL  Basis Set Exchange Library  1/20/10 3:32 PM
+# !
+#   
+
+
+BASIS "ao basis" PRINT
+#BASIS SET: (1d)
+K    D
+      0.4800000              1.0000000        
+#BASIS SET: (1d)
+Rb    D
+      0.2400000              1.0000000        
+#BASIS SET: (1d)
+Cs    D
+      0.1900000              1.0000000        
+END
+

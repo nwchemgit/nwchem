@@ -1,115 +1,106 @@
-# $Id: lanl2dzdp_ecp_polarization,v 1.1 2002-01-03 23:42:20 mhackler Exp $
-basis "H_LANL2DZdp_ECP_Polarization" SPHERICAL
-  H    S
-         0.049800000      1.00000000
-  H    P
-         0.356000000      1.00000000
-end
-basis "C_LANL2DZdp_ECP_Polarization" SPHERICAL
-  C    P
-         0.031100000      1.00000000
-  C    D
-         0.587000000      1.00000000
-end
-basis "N_LANL2DZdp_ECP_Polarization" SPHERICAL
-  N    P
-         0.053300000      1.00000000
-  N    D
-         0.736000000      1.00000000
-end
-basis "O_LANL2DZdp_ECP_Polarization" SPHERICAL
-  O    P
-         0.067300000      1.00000000
-  O    D
-         0.961000000      1.00000000
-end
-basis "F_LANL2DZdp_ECP_Polarization" SPHERICAL
-  F    P
-         0.073700000      1.00000000
-  F    D
-         1.577000000      1.00000000
-end
-basis "Si_LANL2DZdp_ECP_Polarization" SPHERICAL
-  Si   P
-         0.023700000      1.00000000
-  Si   D
-         0.296000000      1.00000000
-end
-basis "P_LANL2DZdp_ECP_Polarization" SPHERICAL
-  P    P
-         0.029800000      1.00000000
-  P    D
-         0.364000000      1.00000000
-end
-basis "S_LANL2DZdp_ECP_Polarization" SPHERICAL
-  S    P
-         0.034700000      1.00000000
-  S    D
-         0.496000000      1.00000000
-end
-basis "Cl_LANL2DZdp_ECP_Polarization" SPHERICAL
-  Cl   P
-         0.046700000      1.00000000
-  Cl   D
-         0.648000000      1.00000000
-end
-basis "Ge_LANL2DZdp_ECP_Polarization" SPHERICAL
-  Ge   P
-         0.020900000      1.00000000
-  Ge   D
-         0.246000000      1.00000000
-end
-basis "As_LANL2DZdp_ECP_Polarization" SPHERICAL
-  As   P
-         0.026300000      1.00000000
-  As   D
-         0.286000000      1.00000000
-end
-basis "Se_LANL2DZdp_ECP_Polarization" SPHERICAL
-  Se   P
-         0.032800000      1.00000000
-  Se   D
-         0.363000000      1.00000000
-end
-basis "Br_LANL2DZdp_ECP_Polarization" SPHERICAL
-  Br   P
-         0.037600000      1.00000000
-  Br   D
-         0.434000000      1.00000000
-end
-basis "Sn_LANL2DZdp_ECP_Polarization" SPHERICAL
-  Sn   P
-         0.017400000      1.00000000
-  Sn   D
-         0.186000000      1.00000000
-end
-basis "Sb_LANL2DZdp_ECP_Polarization" SPHERICAL
-  Sb   P
-         0.022000000      1.00000000
-  Sb   D
-         0.207000000      1.00000000
-end
-basis "Te_LANL2DZdp_ECP_Polarization" SPHERICAL
-  Te   P
-         0.027400000      1.00000000
-  Te   D
-         0.250000000      1.00000000
-end
-basis "I_LANL2DZdp_ECP_Polarization" SPHERICAL
-  I    P
-         0.030800000      1.00000000
-  I    D
-         0.294000000      1.00000000
-end
-basis "Pb_LANL2DZdp_ECP_Polarization" SPHERICAL
-  Pb   P
-         0.016800000      1.00000000
-  Pb   D
-         0.179000000      1.00000000
-end
-basis "Bi_LANL2DZdp_ECP_Polarization" SPHERICAL
-  Bi   P
-         0.020400000      1.00000000
-  Bi   D
-         0.192000000      1.00000000
-end
+#  LANL2DZdp ECP Polarization  EMSL  Basis Set Exchange Library  1/20/10 3:32 PM
+# Elements                             References
+# --------                             ----------
+# H  - Bi: C.E. Check, T.O. Faust, J.M. Bailey, B.J. Wright, T.M. Gilbert and
+#          L.S. Sunderlin, J. Phys. Chem. A, 105, 8111 (2001)
+#   
+
+
+BASIS "ao basis" PRINT
+#BASIS SET: (1s,1p)
+H    S
+      0.0498000              1.0000000        
+H    P
+      0.3560000              1.0000000        
+#BASIS SET: (1p,1d)
+C    P
+      0.0311000              1.0000000        
+C    D
+      0.5870000              1.0000000        
+#BASIS SET: (1p,1d)
+N    P
+      0.0533000              1.0000000        
+N    D
+      0.7360000              1.0000000        
+#BASIS SET: (1p,1d)
+O    P
+      0.0673000              1.0000000        
+O    D
+      0.9610000              1.0000000        
+#BASIS SET: (1p,1d)
+F    P
+      0.0737000              1.0000000        
+F    D
+      1.5770000              1.0000000        
+#BASIS SET: (1p,1d)
+Si    P
+      0.0237000              1.0000000        
+Si    D
+      0.2960000              1.0000000        
+#BASIS SET: (1p,1d)
+P    P
+      0.0298000              1.0000000        
+P    D
+      0.3640000              1.0000000        
+#BASIS SET: (1p,1d)
+S    P
+      0.0347000              1.0000000        
+S    D
+      0.4960000              1.0000000        
+#BASIS SET: (1p,1d)
+Cl    P
+      0.0467000              1.0000000        
+Cl    D
+      0.6480000              1.0000000        
+#BASIS SET: (1p,1d)
+Ge    P
+      0.0209000              1.0000000        
+Ge    D
+      0.2460000              1.0000000        
+#BASIS SET: (1p,1d)
+As    P
+      0.0263000              1.0000000        
+As    D
+      0.2860000              1.0000000        
+#BASIS SET: (1p,1d)
+Se    P
+      0.0328000              1.0000000        
+Se    D
+      0.3630000              1.0000000        
+#BASIS SET: (1p,1d)
+Br    P
+      0.0376000              1.0000000        
+Br    D
+      0.4340000              1.0000000        
+#BASIS SET: (1p,1d)
+Sn    P
+      0.0174000              1.0000000        
+Sn    D
+      0.1860000              1.0000000        
+#BASIS SET: (1p,1d)
+Sb    P
+      0.0220000              1.0000000        
+Sb    D
+      0.2070000              1.0000000        
+#BASIS SET: (1p,1d)
+Te    P
+      0.0274000              1.0000000        
+Te    D
+      0.2500000              1.0000000        
+#BASIS SET: (1p,1d)
+I    P
+      0.0308000              1.0000000        
+I    D
+      0.2940000              1.0000000        
+#BASIS SET: (1p,1d)
+Pb    P
+      0.0168000              1.0000000        
+Pb    D
+      0.1790000              1.0000000        
+#BASIS SET: (1p,1d)
+Bi    P
+      0.0204000              1.0000000        
+Bi    D
+      0.1920000              1.0000000        
+END
+

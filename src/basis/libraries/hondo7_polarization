@@ -1,69 +1,59 @@
-# $Id: hondo7_polarization,v 1.1 2002-01-03 23:42:10 mhackler Exp $
-basis "H_HONDO7_Polarization" CARTESIAN
-  H    P
-         1.000000000      1.00000000
-end
-basis "He_HONDO7_Polarization" CARTESIAN
-  He   P
-         1.000000000      1.00000000
-end
-basis "Be_HONDO7_Polarization" CARTESIAN
-  Be   D
-         0.320000000      1.00000000
-end
-basis "B_HONDO7_Polarization" CARTESIAN
-  B    D
-         0.500000000      1.00000000
-end
-basis "C_HONDO7_Polarization" CARTESIAN
-  C    D
-         0.720000000      1.00000000
-end
-basis "N_HONDO7_Polarization" CARTESIAN
-  N    D
-         0.980000000      1.00000000
-end
-basis "O_HONDO7_Polarization" CARTESIAN
-  O    D
-         1.280000000      1.00000000
-end
-basis "F_HONDO7_Polarization" CARTESIAN
-  F    D
-         1.620000000      1.00000000
-end
-basis "Ne_HONDO7_Polarization" CARTESIAN
-  Ne   D
-         2.000000000      1.00000000
-end
-basis "Na_HONDO7_Polarization" CARTESIAN
-  Na   D
-         0.157000000      1.00000000
-end
-basis "Mg_HONDO7_Polarization" CARTESIAN
-  Mg   D
-         0.234000000      1.00000000
-end
-basis "Al_HONDO7_Polarization" CARTESIAN
-  Al   D
-         0.311000000      1.00000000
-end
-basis "Si_HONDO7_Polarization" CARTESIAN
-  Si   D
-         0.388000000      1.00000000
-end
-basis "P_HONDO7_Polarization" CARTESIAN
-  P    D
-         0.465000000      1.00000000
-end
-basis "S_HONDO7_Polarization" CARTESIAN
-  S    D
-         0.542000000      1.00000000
-end
-basis "Cl_HONDO7_Polarization" CARTESIAN
-  Cl   D
-         0.619000000      1.00000000
-end
-basis "Ar_HONDO7_Polarization" CARTESIAN
-  Ar   D
-         0.696000000      1.00000000
-end
+#  HONDO7 Polarization  EMSL  Basis Set Exchange Library  1/20/10 3:31 PM
+# !
+#   
+
+
+BASIS "ao basis" PRINT
+#BASIS SET: (1p)
+H    P
+      1.0000000              1.0000000        
+#BASIS SET: (1p)
+He    P
+      1.0000000              1.0000000        
+#BASIS SET: (1d)
+Be    D
+      0.3200000              1.0000000        
+#BASIS SET: (1d)
+B    D
+      0.5000000              1.0000000        
+#BASIS SET: (1d)
+C    D
+      0.7200000              1.0000000        
+#BASIS SET: (1d)
+N    D
+      0.9800000              1.0000000        
+#BASIS SET: (1d)
+O    D
+      1.2800000              1.0000000        
+#BASIS SET: (1d)
+F    D
+      1.6200000              1.0000000        
+#BASIS SET: (1d)
+Ne    D
+      2.0000000              1.0000000        
+#BASIS SET: (1d)
+Na    D
+      0.1570000              1.0000000        
+#BASIS SET: (1d)
+Mg    D
+      0.2340000              1.0000000        
+#BASIS SET: (1d)
+Al    D
+      0.3110000              1.0000000        
+#BASIS SET: (1d)
+Si    D
+      0.3880000              1.0000000        
+#BASIS SET: (1d)
+P    D
+      0.4650000              1.0000000        
+#BASIS SET: (1d)
+S    D
+      0.5420000              1.0000000        
+#BASIS SET: (1d)
+Cl    D
+      0.6190000              1.0000000        
+#BASIS SET: (1d)
+Ar    D
+      0.6960000              1.0000000        
+END
+

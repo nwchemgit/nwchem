@@ -1,189 +1,178 @@
-# $Id: aug-cc-pvdz_diffuse,v 1.1 2002-01-03 23:37:52 mhackler Exp $
-basis "H_aug-cc-pVDZ_Diffuse" CARTESIAN
-  H    S
-         0.029740000      1.00000000
-  H    P
-         0.141000000      1.00000000
-end
-basis "He_aug-cc-pVDZ_Diffuse" CARTESIAN
-  He   S
-         0.072550000      1.00000000
-  He   P
-         0.247300000      1.00000000
-end
-basis "Li_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Li   S
-         0.008640000      1.00000000
-  Li   P
-         0.005790000      1.00000000
-  Li   D
-         0.072500000      1.00000000
-end
-basis "Be_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Be   S
-         0.018770000      1.00000000
-  Be   P
-         0.008500000      1.00000000
-  Be   D
-         0.074000000      1.00000000
-end
-basis "B_aug-cc-pVDZ_Diffuse" CARTESIAN
-  B    S
-         0.031050000      1.00000000
-  B    P
-         0.023780000      1.00000000
-  B    D
-         0.090400000      1.00000000
-end
-basis "C_aug-cc-pVDZ_Diffuse" CARTESIAN
-  C    S
-         0.046900000      1.00000000
-  C    P
-         0.040410000      1.00000000
-  C    D
-         0.151000000      1.00000000
-end
-basis "N_aug-cc-pVDZ_Diffuse" CARTESIAN
-  N    S
-         0.061240000      1.00000000
-  N    P
-         0.056110000      1.00000000
-  N    D
-         0.230000000      1.00000000
-end
-basis "O_aug-cc-pVDZ_Diffuse" CARTESIAN
-  O    S
-         0.078960000      1.00000000
-  O    P
-         0.068560000      1.00000000
-  O    D
-         0.332000000      1.00000000
-end
-basis "F_aug-cc-pVDZ_Diffuse" CARTESIAN
-  F    S
-         0.098630000      1.00000000
-  F    P
-         0.085020000      1.00000000
-  F    D
-         0.464000000      1.00000000
-end
-basis "Ne_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Ne   S
-         0.123000000      1.00000000
-  Ne   P
-         0.106400000      1.00000000
-  Ne   D
-         0.631000000      1.00000000
-end
-basis "Na_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Na   S
-         0.007250000      1.00000000
-  Na   P
-         0.006330000      1.00000000
-  Na   D
-         0.046800000      1.00000000
-end
-basis "Mg_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Mg   S
-         0.014880000      1.00000000
-  Mg   P
-         0.009350000      1.00000000
-  Mg   D
-         0.059500000      1.00000000
-end
-basis "Al_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Al   S
-         0.023100000      1.00000000
-  Al   P
-         0.015300000      1.00000000
-  Al   D
-         0.053500000      1.00000000
-end
-basis "Si_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Si   S
-         0.033200000      1.00000000
-  Si   P
-         0.025000000      1.00000000
-  Si   D
-         0.082300000      1.00000000
-end
-basis "P_aug-cc-pVDZ_Diffuse" CARTESIAN
-  P    S
-         0.041700000      1.00000000
-  P    P
-         0.034300000      1.00000000
-  P    D
-         0.113000000      1.00000000
-end
-basis "S_aug-cc-pVDZ_Diffuse" CARTESIAN
-  S    S
-         0.050700000      1.00000000
-  S    P
-         0.039900000      1.00000000
-  S    D
-         0.152000000      1.00000000
-end
-basis "Cl_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Cl   S
-         0.060800000      1.00000000
-  Cl   P
-         0.046600000      1.00000000
-  Cl   D
-         0.196000000      1.00000000
-end
-basis "Ar_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Ar   S
-         0.070900000      1.00000000
-  Ar   P
-         0.053300000      1.00000000
-  Ar   D
-         0.240000000      1.00000000
-end
-basis "Ga_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Ga   S
-         0.024348000      1.00000000
-  Ga   P
-         0.015164000      1.00000000
-  Ga   D
-         0.053700000      1.00000000
-end
-basis "Ge_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Ge   S
-         0.033961000      1.00000000
-  Ge   P
-         0.023945000      1.00000000
-  Ge   D
-         0.077100000      1.00000000
-end
-basis "As_aug-cc-pVDZ_Diffuse" CARTESIAN
-  As   S
-         0.041152000      1.00000000
-  As   P
-         0.031268000      1.00000000
-  As   D
-         0.107800000      1.00000000
-end
-basis "Se_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Se   S
-         0.048747000      1.00000000
-  Se   P
-         0.035492000      1.00000000
-  Se   D
-         0.128300000      1.00000000
-end
-basis "Br_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Br   S
-         0.056946000      1.00000000
-  Br   P
-         0.041049000      1.00000000
-  Br   D
-         0.171900000      1.00000000
-end
-basis "Kr_aug-cc-pVDZ_Diffuse" CARTESIAN
-  Kr   S
-         0.065145000      1.00000000
-  Kr   P
-         0.046606000      1.00000000
-  Kr   D
-         0.215500000      1.00000000
-end
+#  aug-cc-pVDZ Diffuse  EMSL  Basis Set Exchange Library  1/20/10 3:30 PM
+# Elements                             References
+# --------                             ---------
+#  H    :  T.H. Dunning, Jr. J. Chem. Phys. 90, 1007 (1989).
+#  He   :  D.E. Woon and T.H. Dunning, Jr., J. Chem. Phys. 100, 2975 (1994).
+#  B - F:  R.A. Kendall, T.H. Dunning, Jr. and R.J. Harrison, J. Chem. Phys. 96,
+#          6796 (1992).
+# Al - Cl: D.E. Woon and T.H. Dunning, Jr. J. Chem. Phys. 98, 1358 (1993).
+#   
+
+
+BASIS "ao basis" PRINT
+#BASIS SET: (1s,1p)
+H    S
+      0.0297400              1.0000000        
+H    P
+      0.1410000              1.0000000        
+#BASIS SET: (1s,1p)
+He    S
+      0.0725500              1.0000000        
+He    P
+      0.2473000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Li    S
+      0.0086400              1.0000000        
+Li    P
+      0.0057900              1.0000000        
+Li    D
+      0.0725000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Be    S
+      0.0187700              1.0000000        
+Be    P
+      0.0085000              1.0000000        
+Be    D
+      0.0740000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+B    S
+      0.0310500              1.0000000        
+B    P
+      0.0237800              1.0000000        
+B    D
+      0.0904000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+C    S
+      0.0469000              1.0000000        
+C    P
+      0.0404100              1.0000000        
+C    D
+      0.1510000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+N    S
+      0.0612400              1.0000000        
+N    P
+      0.0561100              1.0000000        
+N    D
+      0.2300000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+O    S
+      0.0789600              1.0000000        
+O    P
+      0.0685600              1.0000000        
+O    D
+      0.3320000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+F    S
+      0.0986300              1.0000000        
+F    P
+      0.0850200              1.0000000        
+F    D
+      0.4640000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Ne    S
+      0.1230000              1.0000000        
+Ne    P
+      0.1064000              1.0000000        
+Ne    D
+      0.6310000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Na    S
+      0.0072500              1.0000000        
+Na    P
+      0.0063300              1.0000000        
+Na    D
+      0.0468000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Mg    S
+      0.0148800              1.0000000        
+Mg    P
+      0.0093500              1.0000000        
+Mg    D
+      0.0595000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Al    S
+      0.0231000              1.0000000        
+Al    P
+      0.0153000              1.0000000        
+Al    D
+      0.0535000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Si    S
+      0.0332000              1.0000000        
+Si    P
+      0.0250000              1.0000000        
+Si    D
+      0.0823000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+P    S
+      0.0417000              1.0000000        
+P    P
+      0.0343000              1.0000000        
+P    D
+      0.1130000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+S    S
+      0.0507000              1.0000000        
+S    P
+      0.0399000              1.0000000        
+S    D
+      0.1520000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Cl    S
+      0.0608000              1.0000000        
+Cl    P
+      0.0466000              1.0000000        
+Cl    D
+      0.1960000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Ar    S
+      0.0709000              1.0000000        
+Ar    P
+      0.0533000              1.0000000        
+Ar    D
+      0.2400000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Ga    S
+      0.0243480              1.0000000        
+Ga    P
+      0.0151640              1.0000000        
+Ga    D
+      0.0537000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Ge    S
+      0.0339610              1.0000000        
+Ge    P
+      0.0239450              1.0000000        
+Ge    D
+      0.0771000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+As    S
+      0.0411520              1.0000000        
+As    P
+      0.0312680              1.0000000        
+As    D
+      0.1078000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Se    S
+      0.0487470              1.0000000        
+Se    P
+      0.0354920              1.0000000        
+Se    D
+      0.1283000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Br    S
+      0.0569460              1.0000000        
+Br    P
+      0.0410490              1.0000000        
+Br    D
+      0.1719000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Kr    S
+      0.0651450              1.0000000        
+Kr    P
+      0.0466060              1.0000000        
+Kr    D
+      0.2155000              1.0000000        
+END
+

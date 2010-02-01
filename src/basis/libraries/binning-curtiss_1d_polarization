@@ -1,25 +1,26 @@
-# $Id: binning-curtiss_1d_polarization,v 1.1 2002-01-03 23:38:10 mhackler Exp $
-basis "Ga_Binning-Curtiss_(1d)_Polarization" SPHERICAL
-  Ga   D
-         0.141000000      1.00000000
-end
-basis "Ge_Binning-Curtiss_(1d)_Polarization" SPHERICAL
-  Ge   D
-         0.202000000      1.00000000
-end
-basis "As_Binning-Curtiss_(1d)_Polarization" SPHERICAL
-  As   D
-         0.273000000      1.00000000
-end
-basis "Se_Binning-Curtiss_(1d)_Polarization" SPHERICAL
-  Se   D
-         0.315000000      1.00000000
-end
-basis "Br_Binning-Curtiss_(1d)_Polarization" SPHERICAL
-  Br   D
-         0.338000000      1.00000000
-end
-basis "Kr_Binning-Curtiss_(1d)_Polarization" SPHERICAL
-  Kr   D
-         0.318000000      1.00000000
-end
+#  Binning-Curtiss (1d) Polarization  EMSL  Basis Set Exchange Library  1/20/10 3:30 PM
+# !
+#   
+
+
+BASIS "ao basis" PRINT
+#BASIS SET: (1d)
+Ga    D
+      0.1410000              1.0000000        
+#BASIS SET: (1d)
+Ge    D
+      0.2020000              1.0000000        
+#BASIS SET: (1d)
+As    D
+      0.2730000              1.0000000        
+#BASIS SET: (1d)
+Se    D
+      0.3150000              1.0000000        
+#BASIS SET: (1d)
+Br    D
+      0.3380000              1.0000000        
+#BASIS SET: (1d)
+Kr    D
+      0.3180000              1.0000000        
+END
+

@@ -1,9 +1,17 @@
-# $Id: blaudeau_polarization,v 1.1 2002-01-03 23:38:17 mhackler Exp $
-basis "K_Blaudeau_Polarization" CARTESIAN
-  K    D
-         0.235000000      1.00000000
-end
-basis "Ca_Blaudeau_Polarization" CARTESIAN
-  Ca   D
-         0.216000000      1.00000000
-end
+#  Blaudeau Polarization  EMSL  Basis Set Exchange Library  1/20/10 3:32 PM
+# Elements                             References
+# --------                             ----------
+# K  - Ca: J-P. Blaudeau, M. P. McGrath, L.A. Curtiss and L. Radom, J. Chem. Phys.
+#          107, 5016 (1997)
+#   
+
+
+BASIS "ao basis" PRINT
+#BASIS SET: (1d)
+K    D
+      0.2350000              1.0000000        
+#BASIS SET: (1d)
+Ca    D
+      0.2160000              1.0000000        
+END
+

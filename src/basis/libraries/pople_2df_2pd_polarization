@@ -1,97 +1,94 @@
-# $Id: pople_2df_2pd_polarization,v 1.1 2002-01-03 23:46:34 mhackler Exp $
-basis "H_Pople_(2df,2pd)_Polarization" CARTESIAN
-  H    P
-         1.500000000      1.00000000
-  H    P
-         0.375000000      1.00000000
-  H    D
-         1.000000000      1.00000000
-end
-basis "He_Pople_(2df,2pd)_Polarization" CARTESIAN
-  He   P
-         1.500000000      1.00000000
-  He   P
-         0.375000000      1.00000000
-  He   D
-         2.000000000      1.00000000
-end
-basis "Li_Pople_(2df,2pd)_Polarization" CARTESIAN
-  Li   D
-         0.400000000      1.00000000
-  Li   D
-         0.100000000      1.00000000
-  Li   F
-         0.150000000      1.00000000
-end
-basis "Be_Pople_(2df,2pd)_Polarization" CARTESIAN
-  Be   D
-         0.510000000      1.00000000
-  Be   D
-         0.127500000      1.00000000
-  Be   F
-         0.260000000      1.00000000
-end
-basis "B_Pople_(2df,2pd)_Polarization" CARTESIAN
-  B    D
-         0.802000000      1.00000000
-  B    D
-         0.200500000      1.00000000
-  B    F
-         0.500000000      1.00000000
-end
-basis "C_Pople_(2df,2pd)_Polarization" CARTESIAN
-  C    D
-         1.252000000      1.00000000
-  C    D
-         0.313000000      1.00000000
-  C    F
-         0.800000000      1.00000000
-end
-basis "N_Pople_(2df,2pd)_Polarization" CARTESIAN
-  N    D
-         1.826000000      1.00000000
-  N    D
-         0.456500000      1.00000000
-  N    F
-         1.000000000      1.00000000
-end
-basis "O_Pople_(2df,2pd)_Polarization" CARTESIAN
-  O    D
-         2.584000000      1.00000000
-  O    D
-         0.646000000      1.00000000
-  O    F
-         1.400000000      1.00000000
-end
-basis "F_Pople_(2df,2pd)_Polarization" CARTESIAN
-  F    D
-         2.396000000      1.00000000
-  F    D
-         0.875000000      1.00000000
-  F    F
-         1.850000000      1.00000000
-end
-basis "Ne_Pople_(2df,2pd)_Polarization" CARTESIAN
-  Ne   D
-         4.608000000      1.00000000
-  Ne   D
-         1.152000000      1.00000000
-  Ne   F
-         2.500000000      1.00000000
-end
-basis "K_Pople_(2df,2pd)_Polarization" CARTESIAN
-  K    D
-         0.458000000      1.00000000
-  K    D
-         0.114500000      1.00000000
-  K    F
-         1.110000000      1.00000000
-end
-basis "Ca_Pople_(2df,2pd)_Polarization" CARTESIAN
-  Ca   D
-         0.520000000      1.00000000
-  Ca   D
-         0.130000000      1.00000000
-  Ca   F
-         1.330000000      1.00000000
-end
+#  Pople (2df,2pd) Polarization  EMSL  Basis Set Exchange Library  1/20/10 3:30 PM
+# Elements                             References
+# --------                             ----------
+# H-Ne: M.J. Frisch, J.A. Pople and J.S. Binkley, J. Chem. Phys. 80, 3265 (1984)
+#   
+
+
+BASIS "ao basis" PRINT
+#BASIS SET: (2p,1d)
+H    P
+      1.5000000              1.0000000        
+H    P
+      0.3750000              1.0000000        
+H    D
+      1.0000000              1.0000000        
+#BASIS SET: (2p,1d)
+He    P
+      1.5000000              1.0000000        
+He    P
+      0.3750000              1.0000000        
+He    D
+      2.0000000              1.0000000        
+#BASIS SET: (2d,1f)
+Li    D
+      0.4000000              1.0000000        
+Li    D
+      0.1000000              1.0000000        
+Li    F
+      0.1500000              1.0000000        
+#BASIS SET: (2d,1f)
+Be    D
+      0.5100000              1.0000000        
+Be    D
+      0.1275000              1.0000000        
+Be    F
+      0.2600000              1.0000000        
+#BASIS SET: (2d,1f)
+B    D
+      0.8020000              1.0000000        
+B    D
+      0.2005000              1.0000000        
+B    F
+      0.5000000              1.0000000        
+#BASIS SET: (2d,1f)
+C    D
+      1.2520000              1.0000000        
+C    D
+      0.3130000              1.0000000        
+C    F
+      0.8000000              1.0000000        
+#BASIS SET: (2d,1f)
+N    D
+      1.8260000              1.0000000        
+N    D
+      0.4565000              1.0000000        
+N    F
+      1.0000000              1.0000000        
+#BASIS SET: (2d,1f)
+O    D
+      2.5840000              1.0000000        
+O    D
+      0.6460000              1.0000000        
+O    F
+      1.4000000              1.0000000        
+#BASIS SET: (2d,1f)
+F    D
+      2.3960000              1.0000000        
+F    D
+      0.8750000              1.0000000        
+F    F
+      1.8500000              1.0000000        
+#BASIS SET: (2d,1f)
+Ne    D
+      4.6080000              1.0000000        
+Ne    D
+      1.1520000              1.0000000        
+Ne    F
+      2.5000000              1.0000000        
+#BASIS SET: (2d,1f)
+K    D
+      0.4580000              1.0000000        
+K    D
+      0.1145000              1.0000000        
+K    F
+      1.1100000              1.0000000        
+#BASIS SET: (2d,1f)
+Ca    D
+      0.5200000              1.0000000        
+Ca    D
+      0.1300000              1.0000000        
+Ca    F
+      1.3300000              1.0000000        
+END
+
