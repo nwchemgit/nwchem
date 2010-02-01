@@ -1,0 +1,53 @@
+#  Core/valence Functions (cc-pCVDZ(old))  EMSL  Basis Set Exchange Library  1/20/10 3:30 PM
+# Elements                             References
+# --------                             ----------
+# Al - Ar: unpublished
+# 
+
+
+
+BASIS "ao basis" PRINT
+#BASIS SET: (1s,1p,1d)
+Al    S
+      4.0320000              1.0000000        
+Al    P
+      1.5290000              1.0000000        
+Al    D
+      4.7260000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Si    S
+      4.9600000              1.0000000        
+Si    P
+      1.9980000              1.0000000        
+Si    D
+      5.8070000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+P    S
+      5.9800000              1.0000000        
+P    P
+      2.5240000              1.0000000        
+P    D
+      7.0200000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+S    S
+      7.0820000              1.0000000        
+S    P
+      3.0890000              1.0000000        
+S    D
+      8.3630000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Cl    S
+      8.2730000              1.0000000        
+Cl    P
+      3.6970000              1.0000000        
+Cl    D
+      9.8440000              1.0000000        
+#BASIS SET: (1s,1p,1d)
+Ar    S
+      9.5490000              1.0000000        
+Ar    P
+      4.3610000              1.0000000        
+Ar    D
+     11.4600000              1.0000000        
+END
+
