@@ -1,0 +1,8 @@
+ecp "F_qmmm_zhang_3-21g_ecp"
+  F nelec  2 # down to carbon
+  F ul
+  1  8.51659   4.36253
+  F s
+  2 36.09243   29.00829
+end
+

@@ -1,0 +1,145 @@
+# $Id: pople_2d_2p_polarization,v 1.1 2002-01-03 23:46:33 mhackler Exp $
+basis "H_Pople_(2d,2p)_Polarization" CARTESIAN
+  H    P
+         1.500000000      1.00000000
+  H    P
+         0.375000000      1.00000000
+end
+basis "He_Pople_(2d,2p)_Polarization" CARTESIAN
+  He   P
+         1.500000000      1.00000000
+  He   P
+         0.375000000      1.00000000
+end
+basis "Li_Pople_(2d,2p)_Polarization" CARTESIAN
+  Li   D
+         0.400000000      1.00000000
+  Li   D
+         0.100000000      1.00000000
+end
+basis "Be_Pople_(2d,2p)_Polarization" CARTESIAN
+  Be   D
+         0.510000000      1.00000000
+  Be   D
+         0.127500000      1.00000000
+end
+basis "B_Pople_(2d,2p)_Polarization" CARTESIAN
+  B    D
+         0.802000000      1.00000000
+  B    D
+         0.200500000      1.00000000
+end
+basis "C_Pople_(2d,2p)_Polarization" CARTESIAN
+  C    D
+         1.252000000      1.00000000
+  C    D
+         0.313000000      1.00000000
+end
+basis "N_Pople_(2d,2p)_Polarization" CARTESIAN
+  N    D
+         1.826000000      1.00000000
+  N    D
+         0.456500000      1.00000000
+end
+basis "O_Pople_(2d,2p)_Polarization" CARTESIAN
+  O    D
+         2.584000000      1.00000000
+  O    D
+         0.646000000      1.00000000
+end
+basis "F_Pople_(2d,2p)_Polarization" CARTESIAN
+  F    D
+         2.396000000      1.00000000
+  F    D
+         0.875000000      1.00000000
+end
+basis "Ne_Pople_(2d,2p)_Polarization" CARTESIAN
+  Ne   D
+         4.608000000      1.00000000
+  Ne   D
+         1.152000000      1.00000000
+end
+basis "Na_Pople_(2d,2p)_Polarization" CARTESIAN
+  Na   D
+         0.350000000      1.00000000
+  Na   D
+         0.087500000      1.00000000
+end
+basis "Mg_Pople_(2d,2p)_Polarization" CARTESIAN
+  Mg   D
+         0.350000000      1.00000000
+  Mg   D
+         0.087500000      1.00000000
+end
+basis "Al_Pople_(2d,2p)_Polarization" CARTESIAN
+  Al   D
+         0.650000000      1.00000000
+  Al   D
+         0.162500000      1.00000000
+end
+basis "Si_Pople_(2d,2p)_Polarization" CARTESIAN
+  Si   D
+         0.900000000      1.00000000
+  Si   D
+         0.225000000      1.00000000
+end
+basis "P_Pople_(2d,2p)_Polarization" CARTESIAN
+  P    D
+         1.100000000      1.00000000
+  P    D
+         0.275000000      1.00000000
+end
+basis "S_Pople_(2d,2p)_Polarization" CARTESIAN
+  S    D
+         1.300000000      1.00000000
+  S    D
+         0.325000000      1.00000000
+end
+basis "Cl_Pople_(2d,2p)_Polarization" CARTESIAN
+  Cl   D
+         1.500000000      1.00000000
+  Cl   D
+         0.375000000      1.00000000
+end
+basis "Ar_Pople_(2d,2p)_Polarization" CARTESIAN
+  Ar   D
+         1.700000000      1.00000000
+  Ar   D
+         0.425000000      1.00000000
+end
+basis "K_Pople_(2d,2p)_Polarization" CARTESIAN
+  K    D
+         0.458000000      1.00000000
+  K    D
+         0.114500000      1.00000000
+end
+basis "Ca_Pople_(2d,2p)_Polarization" CARTESIAN
+  Ca   D
+         0.520000000      1.00000000
+  Ca   D
+         0.130000000      1.00000000
+end
+basis "Ga_Pople_(2d,2p)_Polarization" CARTESIAN
+  Ga   D
+         0.169000000      1.00000000
+end
+basis "Ge_Pople_(2d,2p)_Polarization" CARTESIAN
+  Ge   D
+         0.228000000      1.00000000
+end
+basis "As_Pople_(2d,2p)_Polarization" CARTESIAN
+  As   D
+         0.264000000      1.00000000
+end
+basis "Se_Pople_(2d,2p)_Polarization" CARTESIAN
+  Se   D
+         0.305000000      1.00000000
+end
+basis "Br_Pople_(2d,2p)_Polarization" CARTESIAN
+  Br   D
+         0.415000000      1.00000000
+end
+basis "Kr_Pople_(2d,2p)_Polarization" CARTESIAN
+  Kr   D
+         0.395000000      1.00000000
+end

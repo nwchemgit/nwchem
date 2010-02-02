@@ -1,0 +1,121 @@
+# $Id: sdb-aug-cc-pvqz_diffuse,v 1.1 2002-01-03 23:46:52 mhackler Exp $
+basis "Ga_SDB-aug-cc-pVQZ_Diffuse" SPHERICAL
+  Ga   S
+         0.014288000      1.00000000
+  Ga   P
+         0.008637000      1.00000000
+  Ga   D
+         0.029017000      1.00000000
+  Ga   F
+         0.063337000      1.00000000
+  Ga   G
+         0.168998000      1.00000000
+end
+basis "Ge_SDB-aug-cc-pVQZ_Diffuse" SPHERICAL
+  Ge   S
+         0.022026000      1.00000000
+  Ge   P
+         0.014297000      1.00000000
+  Ge   D
+         0.043539000      1.00000000
+  Ge   F
+         0.087823000      1.00000000
+  Ge   G
+         0.218100000      1.00000000
+end
+basis "As_SDB-aug-cc-pVQZ_Diffuse" SPHERICAL
+  As   S
+         0.030490000      1.00000000
+  As   P
+         0.018393000      1.00000000
+  As   D
+         0.065823000      1.00000000
+  As   F
+         0.109144000      1.00000000
+  As   G
+         0.234084000      1.00000000
+end
+basis "Se_SDB-aug-cc-pVQZ_Diffuse" SPHERICAL
+  Se   S
+         0.057032000      1.00000000
+  Se   P
+         0.038063000      1.00000000
+  Se   D
+         0.079244000      1.00000000
+  Se   F
+         0.127709000      1.00000000
+  Se   G
+         0.269491000      1.00000000
+end
+basis "Br_SDB-aug-cc-pVQZ_Diffuse" SPHERICAL
+  Br   S
+         0.070898000      1.00000000
+  Br   P
+         0.046986000      1.00000000
+  Br   D
+         0.123007000      1.00000000
+  Br   F
+         0.182161000      1.00000000
+  Br   G
+         0.319618000      1.00000000
+end
+basis "In_SDB-aug-cc-pVQZ_Diffuse" SPHERICAL
+  In   S
+         0.014360000      1.00000000
+  In   P
+         0.009189000      1.00000000
+  In   D
+         0.029698000      1.00000000
+  In   F
+         0.055291000      1.00000000
+  In   G
+         0.144360000      1.00000000
+end
+basis "Sn_SDB-aug-cc-pVQZ_Diffuse" SPHERICAL
+  Sn   S
+         0.012437000      1.00000000
+  Sn   P
+         0.014698000      1.00000000
+  Sn   D
+         0.044488000      1.00000000
+  Sn   F
+         0.073838000      1.00000000
+  Sn   G
+         0.175101000      1.00000000
+end
+basis "Sb_SDB-aug-cc-pVQZ_Diffuse" SPHERICAL
+  Sb   S
+         0.024439000      1.00000000
+  Sb   P
+         0.018236000      1.00000000
+  Sb   D
+         0.051236000      1.00000000
+  Sb   F
+         0.089046000      1.00000000
+  Sb   G
+         0.185414000      1.00000000
+end
+basis "Te_SDB-aug-cc-pVQZ_Diffuse" SPHERICAL
+  Te   S
+         0.049732000      1.00000000
+  Te   P
+         0.032036000      1.00000000
+  Te   D
+         0.062829000      1.00000000
+  Te   F
+         0.104284000      1.00000000
+  Te   G
+         0.210263000      1.00000000
+end
+basis "I_SDB-aug-cc-pVQZ_Diffuse" SPHERICAL
+  I    S
+         0.058108000      1.00000000
+  I    P
+         0.037653000      1.00000000
+  I    D
+         0.074797000      1.00000000
+  I    F
+         0.150736000      1.00000000
+  I    G
+         0.244249000      1.00000000
+end

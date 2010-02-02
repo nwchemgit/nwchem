@@ -1,0 +1,97 @@
+# $Id: dunning-hay_rydberg,v 1.1 2002-01-03 23:41:38 mhackler Exp $
+basis "B_Dunning-Hay_Rydberg" CARTESIAN
+  B    S
+         0.019000000      1.00000000
+  B    P
+         0.015000000      1.00000000
+  B    D
+         0.015000000      1.00000000
+end
+basis "C_Dunning-Hay_Rydberg" CARTESIAN
+  C    S
+         0.023000000      1.00000000
+  C    P
+         0.021000000      1.00000000
+  C    D
+         0.015000000      1.00000000
+end
+basis "N_Dunning-Hay_Rydberg" CARTESIAN
+  N    S
+         0.028000000      1.00000000
+  N    P
+         0.025000000      1.00000000
+  N    D
+         0.015000000      1.00000000
+end
+basis "O_Dunning-Hay_Rydberg" CARTESIAN
+  O    S
+         0.032000000      1.00000000
+  O    P
+         0.028000000      1.00000000
+  O    D
+         0.015000000      1.00000000
+end
+basis "F_Dunning-Hay_Rydberg" CARTESIAN
+  F    S
+         0.036000000      1.00000000
+  F    P
+         0.029000000      1.00000000
+  F    D
+         0.015000000      1.00000000
+end
+basis "Ne_Dunning-Hay_Rydberg" CARTESIAN
+  Ne   S
+         0.040000000      1.00000000
+  Ne   P
+         0.030000000      1.00000000
+  Ne   D
+         0.015000000      1.00000000
+end
+basis "Al_Dunning-Hay_Rydberg" CARTESIAN
+  Al   S
+         0.014000000      1.00000000
+  Al   P
+         0.011000000      1.00000000
+  Al   D
+         0.015000000      1.00000000
+end
+basis "Si_Dunning-Hay_Rydberg" CARTESIAN
+  Si   S
+         0.017000000      1.00000000
+  Si   P
+         0.014000000      1.00000000
+  Si   D
+         0.015000000      1.00000000
+end
+basis "P_Dunning-Hay_Rydberg" CARTESIAN
+  P    S
+         0.020000000      1.00000000
+  P    P
+         0.017000000      1.00000000
+  P    D
+         0.015000000      1.00000000
+end
+basis "S_Dunning-Hay_Rydberg" CARTESIAN
+  S    S
+         0.023000000      1.00000000
+  S    P
+         0.020000000      1.00000000
+  S    D
+         0.015000000      1.00000000
+end
+basis "Cl_Dunning-Hay_Rydberg" CARTESIAN
+  Cl   S
+         0.025000000      1.00000000
+  Cl   P
+         0.020000000      1.00000000
+  Cl   D
+         0.015000000      1.00000000
+end
+basis "Ar_Dunning-Hay_Rydberg" CARTESIAN
+  Ar   S
+         0.027000000      1.00000000
+  Ar   P
+         0.020000000      1.00000000
+  Ar   D
+         0.015000000      1.00000000
+end

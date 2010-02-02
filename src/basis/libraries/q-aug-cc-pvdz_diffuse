@@ -1,0 +1,70 @@
+# $Id: q-aug-cc-pvdz_diffuse,v 1.1 2008-10-29 13:04:54 jhammond Exp $
+basis "H_q-aug-cc-pVDZ_Diffuse" SPHERICAL
+   H   S
+    0.0004308086004   1.0000000000
+   H   P
+    0.0010286632347   1.0000000000
+end
+basis "He_q-aug-cc-pVDZ_Diffuse" SPHERICAL
+   He  S
+    0.0010286632347   1.0000000000
+   He  P
+    0.0010286632347   1.0000000000
+end
+basis "B_q-aug-cc-pVDZ_Diffuse" SPHERICAL
+   B   S
+    0.0010286632347   1.0000000000
+   B   P
+    0.0003685322060   1.0000000000
+   B   D
+    0.0016549747106   1.0000000000
+end
+basis "C_q-aug-cc-pVDZ_Diffuse" SPHERICAL
+   C   S
+    0.0011901253608   1.0000000000
+   C   P
+    0.0007638334258   1.0000000000
+   C   D
+    0.0031247819745   1.0000000000
+end
+basis "N_q-aug-cc-pVDZ_Diffuse" SPHERICAL
+   N   S
+    0.0012380888357   1.0000000000
+   N   P
+    0.0009501818948   1.0000000000
+   N   D
+    0.0051315099398   1.0000000000
+end
+basis "O_q-aug-cc-pVDZ_Diffuse" SPHERICAL
+   O   S
+    0.0014070648600   1.0000000000
+   O   P
+    0.0010589235367   1.0000000000
+   O   D
+    0.0073012510849   1.0000000000
+end
+basis "F_q-aug-cc-pVDZ_Diffuse" SPHERICAL
+   F   S
+    0.0015989869346   1.0000000000
+   F   P
+    0.0012494548337   1.0000000000
+   F   D
+    0.0105084915193   1.0000000000
+end
+basis "Ne_q-aug-cc-pVDZ_Diffuse" SPHERICAL
+   Ne  S
+    0.0019829014124   1.0000000000
+   Ne  P
+    0.0015930168365   1.0000000000
+   Ne  D
+    0.0148479156974   1.0000000000
+end
+basis "Cl_q-aug-cc-pVDZ_Diffuse" SPHERICAL
+   Cl   S
+    0.0018773835101   1.0000000000
+   Cl   P
+    0.0011091712988   1.0000000000
+   Cl   D
+    0.0068323567407   1.0000000000
+end
+

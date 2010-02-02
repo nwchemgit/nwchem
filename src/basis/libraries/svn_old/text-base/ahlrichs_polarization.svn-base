@@ -1,0 +1,149 @@
+# $Id: ahlrichs_polarization,v 1.1 2002-01-03 23:37:07 mhackler Exp $
+basis "H_Ahlrichs_Polarization" SPHERICAL
+  H    P
+         0.800000000      1.00000000
+end
+basis "He_Ahlrichs_Polarization" SPHERICAL
+  He   P
+         1.000000000      1.00000000
+end
+basis "Li_Ahlrichs_Polarization" SPHERICAL
+  Li   P
+         0.170000000      1.00000000
+end
+basis "Be_Ahlrichs_Polarization" SPHERICAL
+  Be   P
+         3.631691715     -0.02903400
+         0.716956944     -0.16877854
+         0.195419329     -0.51403420
+  Be   P
+         0.060515466      1.00000000
+end
+basis "B_Ahlrichs_Polarization" SPHERICAL
+  B    D
+         0.500000000      1.00000000
+end
+basis "C_Ahlrichs_Polarization" SPHERICAL
+  C    D
+         0.800000000      1.00000000
+end
+basis "N_Ahlrichs_Polarization" SPHERICAL
+  N    D
+         1.000000000      1.00000000
+end
+basis "O_Ahlrichs_Polarization" SPHERICAL
+  O    D
+         1.200000000      1.00000000
+end
+basis "F_Ahlrichs_Polarization" SPHERICAL
+  F    D
+         1.400000000      1.00000000
+end
+basis "Ne_Ahlrichs_Polarization" SPHERICAL
+  Ne   D
+         1.888000000      1.00000000
+end
+basis "Na_Ahlrichs_Polarization" SPHERICAL
+  Na   P
+         0.052000000      1.00000000
+end
+basis "Mg_Ahlrichs_Polarization" SPHERICAL
+  Mg   P
+         0.189147962      1.00000000
+end
+basis "Al_Ahlrichs_Polarization" SPHERICAL
+  Al   D
+         0.300000000      1.00000000
+end
+basis "Si_Ahlrichs_Polarization" SPHERICAL
+  Si   D
+         0.350000000      1.00000000
+end
+basis "P_Ahlrichs_Polarization" SPHERICAL
+  P    D
+         0.450000000      1.00000000
+end
+basis "S_Ahlrichs_Polarization" SPHERICAL
+  S    D
+         0.550000000      1.00000000
+end
+basis "Cl_Ahlrichs_Polarization" SPHERICAL
+  Cl   D
+         0.650000000      1.00000000
+end
+basis "Ar_Ahlrichs_Polarization" SPHERICAL
+  Ar   D
+         0.969000000      1.00000000
+end
+basis "K_Ahlrichs_Polarization" SPHERICAL
+  K    P
+         0.041737000      1.00000000
+end
+basis "Ca_Ahlrichs_Polarization" SPHERICAL
+  Ca   P
+         0.074979000      1.00000000
+end
+basis "Sc_Ahlrichs_Polarization" SPHERICAL
+  Sc   P
+         0.089748000      1.00000000
+end
+basis "Ti_Ahlrichs_Polarization" SPHERICAL
+  Ti   P
+         0.101561000      1.00000000
+end
+basis "V_Ahlrichs_Polarization" SPHERICAL
+  V    P
+         0.111248000      1.00000000
+end
+basis "Cr_Ahlrichs_Polarization" SPHERICAL
+  Cr   P
+         0.120675000      1.00000000
+end
+basis "Mn_Ahlrichs_Polarization" SPHERICAL
+  Mn   P
+         0.127650000      1.00000000
+end
+basis "Fe_Ahlrichs_Polarization" SPHERICAL
+  Fe   P
+         0.134915000      1.00000000
+end
+basis "Co_Ahlrichs_Polarization" SPHERICAL
+  Co   P
+         0.141308000      1.00000000
+end
+basis "Ni_Ahlrichs_Polarization" SPHERICAL
+  Ni   P
+         0.146588000      1.00000000
+end
+basis "Cu_Ahlrichs_Polarization" SPHERICAL
+  Cu   P
+         0.155065000      1.00000000
+end
+basis "Zn_Ahlrichs_Polarization" SPHERICAL
+  Zn   P
+         0.162455000      1.00000000
+end
+basis "Ga_Ahlrichs_Polarization" SPHERICAL
+  Ga   D
+         0.207000000      1.00000000
+end
+basis "Ge_Ahlrichs_Polarization" SPHERICAL
+  Ge   D
+         0.246000000      1.00000000
+end
+basis "As_Ahlrichs_Polarization" SPHERICAL
+  As   D
+         0.293000000      1.00000000
+end
+basis "Se_Ahlrichs_Polarization" SPHERICAL
+  Se   D
+         0.338000000      1.00000000
+end
+basis "Br_Ahlrichs_Polarization" SPHERICAL
+  Br   D
+         0.389000000      1.00000000
+end
+basis "Kr_Ahlrichs_Polarization" SPHERICAL
+  Kr   D
+         0.443000000      1.00000000
+end
