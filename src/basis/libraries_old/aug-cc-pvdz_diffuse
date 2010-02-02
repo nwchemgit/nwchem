@@ -1,0 +1,189 @@
+# $Id: aug-cc-pvdz_diffuse,v 1.1 2002-01-03 23:37:52 mhackler Exp $
+basis "H_aug-cc-pVDZ_Diffuse" CARTESIAN
+  H    S
+         0.029740000      1.00000000
+  H    P
+         0.141000000      1.00000000
+end
+basis "He_aug-cc-pVDZ_Diffuse" CARTESIAN
+  He   S
+         0.072550000      1.00000000
+  He   P
+         0.247300000      1.00000000
+end
+basis "Li_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Li   S
+         0.008640000      1.00000000
+  Li   P
+         0.005790000      1.00000000
+  Li   D
+         0.072500000      1.00000000
+end
+basis "Be_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Be   S
+         0.018770000      1.00000000
+  Be   P
+         0.008500000      1.00000000
+  Be   D
+         0.074000000      1.00000000
+end
+basis "B_aug-cc-pVDZ_Diffuse" CARTESIAN
+  B    S
+         0.031050000      1.00000000
+  B    P
+         0.023780000      1.00000000
+  B    D
+         0.090400000      1.00000000
+end
+basis "C_aug-cc-pVDZ_Diffuse" CARTESIAN
+  C    S
+         0.046900000      1.00000000
+  C    P
+         0.040410000      1.00000000
+  C    D
+         0.151000000      1.00000000
+end
+basis "N_aug-cc-pVDZ_Diffuse" CARTESIAN
+  N    S
+         0.061240000      1.00000000
+  N    P
+         0.056110000      1.00000000
+  N    D
+         0.230000000      1.00000000
+end
+basis "O_aug-cc-pVDZ_Diffuse" CARTESIAN
+  O    S
+         0.078960000      1.00000000
+  O    P
+         0.068560000      1.00000000
+  O    D
+         0.332000000      1.00000000
+end
+basis "F_aug-cc-pVDZ_Diffuse" CARTESIAN
+  F    S
+         0.098630000      1.00000000
+  F    P
+         0.085020000      1.00000000
+  F    D
+         0.464000000      1.00000000
+end
+basis "Ne_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Ne   S
+         0.123000000      1.00000000
+  Ne   P
+         0.106400000      1.00000000
+  Ne   D
+         0.631000000      1.00000000
+end
+basis "Na_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Na   S
+         0.007250000      1.00000000
+  Na   P
+         0.006330000      1.00000000
+  Na   D
+         0.046800000      1.00000000
+end
+basis "Mg_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Mg   S
+         0.014880000      1.00000000
+  Mg   P
+         0.009350000      1.00000000
+  Mg   D
+         0.059500000      1.00000000
+end
+basis "Al_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Al   S
+         0.023100000      1.00000000
+  Al   P
+         0.015300000      1.00000000
+  Al   D
+         0.053500000      1.00000000
+end
+basis "Si_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Si   S
+         0.033200000      1.00000000
+  Si   P
+         0.025000000      1.00000000
+  Si   D
+         0.082300000      1.00000000
+end
+basis "P_aug-cc-pVDZ_Diffuse" CARTESIAN
+  P    S
+         0.041700000      1.00000000
+  P    P
+         0.034300000      1.00000000
+  P    D
+         0.113000000      1.00000000
+end
+basis "S_aug-cc-pVDZ_Diffuse" CARTESIAN
+  S    S
+         0.050700000      1.00000000
+  S    P
+         0.039900000      1.00000000
+  S    D
+         0.152000000      1.00000000
+end
+basis "Cl_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Cl   S
+         0.060800000      1.00000000
+  Cl   P
+         0.046600000      1.00000000
+  Cl   D
+         0.196000000      1.00000000
+end
+basis "Ar_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Ar   S
+         0.070900000      1.00000000
+  Ar   P
+         0.053300000      1.00000000
+  Ar   D
+         0.240000000      1.00000000
+end
+basis "Ga_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Ga   S
+         0.024348000      1.00000000
+  Ga   P
+         0.015164000      1.00000000
+  Ga   D
+         0.053700000      1.00000000
+end
+basis "Ge_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Ge   S
+         0.033961000      1.00000000
+  Ge   P
+         0.023945000      1.00000000
+  Ge   D
+         0.077100000      1.00000000
+end
+basis "As_aug-cc-pVDZ_Diffuse" CARTESIAN
+  As   S
+         0.041152000      1.00000000
+  As   P
+         0.031268000      1.00000000
+  As   D
+         0.107800000      1.00000000
+end
+basis "Se_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Se   S
+         0.048747000      1.00000000
+  Se   P
+         0.035492000      1.00000000
+  Se   D
+         0.128300000      1.00000000
+end
+basis "Br_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Br   S
+         0.056946000      1.00000000
+  Br   P
+         0.041049000      1.00000000
+  Br   D
+         0.171900000      1.00000000
+end
+basis "Kr_aug-cc-pVDZ_Diffuse" CARTESIAN
+  Kr   S
+         0.065145000      1.00000000
+  Kr   P
+         0.046606000      1.00000000
+  Kr   D
+         0.215500000      1.00000000
+end

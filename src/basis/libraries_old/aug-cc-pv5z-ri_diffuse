@@ -1,0 +1,231 @@
+# $Id: aug-cc-pv5z-ri_diffuse,v 1.1 2009-04-06 13:51:23 jhammond Exp $
+#
+#  aug-cc-pV5Z-RI diffuse  EMSL  Basis Set Exchange Library  4/4/09 7:44 AM
+# Elements                             References
+# --------                             ----------
+# H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr : Christof Hattig, Optimization of auxiliary basis sets for RI-MP2 and RI-CC2 calculations: Core-valence and quintuple-? basis sets for H to Ar and QZVPP basis sets for Li to Kr, Physical Chemistry Chemical Physics 7, 59 (2005).
+# 
+basis "H_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+H    S
+      0.1109110              1.0000000        
+H    P
+      0.1960670              1.0000000        
+H    D
+      0.2336010              1.0000000        
+H    F
+      0.2361550              1.0000000        
+H    G
+      0.7963200              1.0000000        
+H    H
+      1.0349800              1.0000000        
+end
+basis "He_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+He    S
+      0.1809660              1.0000000        
+He    P
+      0.3372280              1.0000000        
+He    D
+      0.5473270              1.0000000        
+He    F
+      0.8601010              1.0000000        
+He    G
+      1.1894600              1.0000000        
+He    H
+      2.2244000              1.0000000        
+end
+basis "B_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+B    S
+      0.0500000              1.0000000        
+B    P
+      0.0650000              1.0000000        
+B    D
+      0.0700000              1.0000000        
+B    F
+      0.0850000              1.0000000        
+B    G
+      0.1396790              1.0000000        
+B    H
+      0.2896520              1.0000000        
+B    I
+      0.5284480              1.0000000        
+end
+basis "C_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+C    S
+      0.0625447              1.0000000        
+C    P
+      0.0900000              1.0000000        
+C    D
+      0.0847893              1.0000000        
+C    F
+      0.1353510              1.0000000        
+C    G
+      0.2417170              1.0000000        
+C    H
+      0.4754360              1.0000000        
+C    I
+      0.8330670              1.0000000        
+end
+basis "N_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+N    S
+      0.0850000              1.0000000        
+N    P
+      0.1100000              1.0000000        
+N    D
+      0.1100000              1.0000000        
+N    F
+      0.2000000              1.0000000        
+N    G
+      0.3473910              1.0000000        
+N    H
+      0.6493390              1.0000000        
+N    I
+      1.1088600              1.0000000        
+end
+basis "O_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+O    S
+      0.0966305              1.0000000        
+O    P
+      0.1699760              1.0000000        
+O    D
+      0.1400000              1.0000000        
+O    F
+      0.2386920              1.0000000        
+O    G
+      0.4103430              1.0000000        
+O    H
+      0.7907810              1.0000000        
+O    I
+      1.3829200              1.0000000        
+end
+basis "F_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+F    S
+      0.1232440              1.0000000        
+F    P
+      0.2301060              1.0000000        
+F    D
+      0.1800000              1.0000000        
+F    F
+      0.3294220              1.0000000        
+F    G
+      0.5697670              1.0000000        
+F    H
+      1.0185500              1.0000000        
+F    I
+      1.8277000              1.0000000        
+end
+basis "Ne_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+Ne    S
+      0.1800000              1.0000000        
+Ne    P
+      0.3386110              1.0000000        
+Ne    D
+      0.2376930              1.0000000        
+Ne    F
+      0.4551150              1.0000000        
+Ne    G
+      0.7765610              1.0000000        
+Ne    H
+      1.3023800              1.0000000        
+Ne    I
+      2.3811900              1.0000000        
+end
+basis "Al_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+Al    S
+      0.0400000              1.0000000        
+Al    P
+      0.0600000              1.0000000        
+Al    D
+      0.0600399              1.0000000        
+Al    F
+      0.0779236              1.0000000        
+Al    G
+      0.0773450              1.0000000        
+Al    H
+      0.1562970              1.0000000        
+Al    I
+      0.3213140              1.0000000        
+end
+basis "Si_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+Si    S
+      0.0500000              1.0000000        
+Si    P
+      0.0650000              1.0000000        
+Si    D
+      0.0800000              1.0000000        
+Si    F
+      0.0978920              1.0000000        
+Si    G
+      0.1210350              1.0000000        
+Si    H
+      0.2307520              1.0000000        
+Si    I
+      0.4663400              1.0000000        
+end
+basis "P_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+P    S
+      0.0600000              1.0000000        
+P    P
+      0.0731432              1.0000000        
+P    D
+      0.0850000              1.0000000        
+P    F
+      0.1181590              1.0000000        
+P    G
+      0.1441110              1.0000000        
+P    H
+      0.2852270              1.0000000        
+P    I
+      0.5297980              1.0000000        
+end
+basis "S_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+S    S
+      0.0650000              1.0000000        
+S    P
+      0.0900000              1.0000000        
+S    D
+      0.0860772              1.0000000        
+S    F
+      0.1535770              1.0000000        
+S    G
+      0.2084460              1.0000000        
+S    H
+      0.3493280              1.0000000        
+S    I
+      0.6795320              1.0000000        
+end
+basis "Cl_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+Cl    S
+      0.0750000              1.0000000        
+Cl    P
+      0.1200000              1.0000000        
+Cl    D
+      0.1050000              1.0000000        
+Cl    F
+      0.2002040              1.0000000        
+Cl    G
+      0.2841980              1.0000000        
+Cl    H
+      0.4450810              1.0000000        
+Cl    I
+      0.8746310              1.0000000        
+end
+basis "Ar_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+Ar    S
+      0.1020860              1.0000000        
+Ar    P
+      0.1594830              1.0000000        
+Ar    D
+      0.1290720              1.0000000        
+Ar    F
+      0.2400560              1.0000000        
+Ar    G
+      0.3780240              1.0000000        
+Ar    H
+      0.5532920              1.0000000        
+Ar    I
+      1.1033800              1.0000000        
+end
+
+
+
+

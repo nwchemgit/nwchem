@@ -1,0 +1,61 @@
+# $Id: aug-cc-pvt+dz_diffuse,v 1.1 2002-01-03 23:38:01 mhackler Exp $
+basis "Al_aug-cc-pV(T+d)Z_Diffuse" SPHERICAL
+  Al   S
+         0.022100000      1.00000000
+  Al   P
+         0.014600000      1.00000000
+  Al   D
+         0.035700000      1.00000000
+  Al   F
+         0.085800000      1.00000000
+end
+basis "Si_aug-cc-pV(T+d)Z_Diffuse" SPHERICAL
+  Si   S
+         0.033000000      1.00000000
+  Si   P
+         0.023700000      1.00000000
+  Si   D
+         0.055100000      1.00000000
+  Si   F
+         0.125000000      1.00000000
+end
+basis "P_aug-cc-pV(T+d)Z_Diffuse" SPHERICAL
+  P    S
+         0.040900000      1.00000000
+  P    P
+         0.030700000      1.00000000
+  P    D
+         0.077500000      1.00000000
+  P    F
+         0.165000000      1.00000000
+end
+basis "S_aug-cc-pV(T+d)Z_Diffuse" SPHERICAL
+  S    S
+         0.049700000      1.00000000
+  S    P
+         0.035100000      1.00000000
+  S    D
+         0.101000000      1.00000000
+  S    F
+         0.218000000      1.00000000
+end
+basis "Cl_aug-cc-pV(T+d)Z_Diffuse" SPHERICAL
+  Cl   S
+         0.059100000      1.00000000
+  Cl   P
+         0.041900000      1.00000000
+  Cl   D
+         0.130000000      1.00000000
+  Cl   F
+         0.312000000      1.00000000
+end
+basis "Ar_aug-cc-pV(T+d)Z_Diffuse" SPHERICAL
+  Ar   S
+         0.068500000      1.00000000
+  Ar   P
+         0.048700000      1.00000000
+  Ar   D
+         0.155000000      1.00000000
+  Ar   F
+         0.406000000      1.00000000
+end

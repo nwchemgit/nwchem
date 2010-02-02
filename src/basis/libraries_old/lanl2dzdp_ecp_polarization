@@ -1,0 +1,115 @@
+# $Id: lanl2dzdp_ecp_polarization,v 1.1 2002-01-03 23:42:20 mhackler Exp $
+basis "H_LANL2DZdp_ECP_Polarization" SPHERICAL
+  H    S
+         0.049800000      1.00000000
+  H    P
+         0.356000000      1.00000000
+end
+basis "C_LANL2DZdp_ECP_Polarization" SPHERICAL
+  C    P
+         0.031100000      1.00000000
+  C    D
+         0.587000000      1.00000000
+end
+basis "N_LANL2DZdp_ECP_Polarization" SPHERICAL
+  N    P
+         0.053300000      1.00000000
+  N    D
+         0.736000000      1.00000000
+end
+basis "O_LANL2DZdp_ECP_Polarization" SPHERICAL
+  O    P
+         0.067300000      1.00000000
+  O    D
+         0.961000000      1.00000000
+end
+basis "F_LANL2DZdp_ECP_Polarization" SPHERICAL
+  F    P
+         0.073700000      1.00000000
+  F    D
+         1.577000000      1.00000000
+end
+basis "Si_LANL2DZdp_ECP_Polarization" SPHERICAL
+  Si   P
+         0.023700000      1.00000000
+  Si   D
+         0.296000000      1.00000000
+end
+basis "P_LANL2DZdp_ECP_Polarization" SPHERICAL
+  P    P
+         0.029800000      1.00000000
+  P    D
+         0.364000000      1.00000000
+end
+basis "S_LANL2DZdp_ECP_Polarization" SPHERICAL
+  S    P
+         0.034700000      1.00000000
+  S    D
+         0.496000000      1.00000000
+end
+basis "Cl_LANL2DZdp_ECP_Polarization" SPHERICAL
+  Cl   P
+         0.046700000      1.00000000
+  Cl   D
+         0.648000000      1.00000000
+end
+basis "Ge_LANL2DZdp_ECP_Polarization" SPHERICAL
+  Ge   P
+         0.020900000      1.00000000
+  Ge   D
+         0.246000000      1.00000000
+end
+basis "As_LANL2DZdp_ECP_Polarization" SPHERICAL
+  As   P
+         0.026300000      1.00000000
+  As   D
+         0.286000000      1.00000000
+end
+basis "Se_LANL2DZdp_ECP_Polarization" SPHERICAL
+  Se   P
+         0.032800000      1.00000000
+  Se   D
+         0.363000000      1.00000000
+end
+basis "Br_LANL2DZdp_ECP_Polarization" SPHERICAL
+  Br   P
+         0.037600000      1.00000000
+  Br   D
+         0.434000000      1.00000000
+end
+basis "Sn_LANL2DZdp_ECP_Polarization" SPHERICAL
+  Sn   P
+         0.017400000      1.00000000
+  Sn   D
+         0.186000000      1.00000000
+end
+basis "Sb_LANL2DZdp_ECP_Polarization" SPHERICAL
+  Sb   P
+         0.022000000      1.00000000
+  Sb   D
+         0.207000000      1.00000000
+end
+basis "Te_LANL2DZdp_ECP_Polarization" SPHERICAL
+  Te   P
+         0.027400000      1.00000000
+  Te   D
+         0.250000000      1.00000000
+end
+basis "I_LANL2DZdp_ECP_Polarization" SPHERICAL
+  I    P
+         0.030800000      1.00000000
+  I    D
+         0.294000000      1.00000000
+end
+basis "Pb_LANL2DZdp_ECP_Polarization" SPHERICAL
+  Pb   P
+         0.016800000      1.00000000
+  Pb   D
+         0.179000000      1.00000000
+end
+basis "Bi_LANL2DZdp_ECP_Polarization" SPHERICAL
+  Bi   P
+         0.020400000      1.00000000
+  Bi   D
+         0.192000000      1.00000000
+end

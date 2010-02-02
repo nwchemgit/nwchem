@@ -1,0 +1,33 @@
+# $Id: sto-3gs_polarization,v 1.1 2002-01-03 23:47:08 mhackler Exp $
+basis "Na_STO-3G*_Polarization" SPHERICAL
+  Na   D
+         0.090000000      1.00000000
+end
+basis "Mg_STO-3G*_Polarization" SPHERICAL
+  Mg   D
+         0.090000000      1.00000000
+end
+basis "Al_STO-3G*_Polarization" SPHERICAL
+  Al   D
+         0.390000000      1.00000000
+end
+basis "Si_STO-3G*_Polarization" SPHERICAL
+  Si   D
+         0.390000000      1.00000000
+end
+basis "P_STO-3G*_Polarization" SPHERICAL
+  P    D
+         0.390000000      1.00000000
+end
+basis "S_STO-3G*_Polarization" SPHERICAL
+  S    D
+         0.390000000      1.00000000
+end
+basis "Cl_STO-3G*_Polarization" SPHERICAL
+  Cl   D
+         0.390000000      1.00000000
+end
+basis "Ar_STO-3G*_Polarization" SPHERICAL
+  Ar   D
+         0.390000000      1.00000000
+end
