@@ -1003,7 +1003,7 @@ c      call frac_occ_end()
      >        ' (',I4,' per task)',
      >        A)
  1230 FORMAT(/' supercell:')
- 1231 FORMAT(5x,' volume : ',F10.1)
+ 1231 FORMAT(5x,' volume : ',F12.1)
  1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
  1242 FORMAT(5x,'             a2=<',3f8.3,' >')
  1243 FORMAT(5x,'             a3=<',3f8.3,' >')

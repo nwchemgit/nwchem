@@ -257,7 +257,11 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
               !temp = 8.0d0*pi*pi*dsqrt(pi*rcut)
               !temp = 0.25d0*dsqrt(pi)*lattice_omega()/(pi*pi)
               !temp = (5.633714987781071d0)*0.5d0*lattice_omega()/(pi*pi)
-              temp = (5.633714987781071d0)*fourpi
+              !temp =(5.633714987781071d0)*0.25d0*lattice_omega()/(pi*pi)
+              !temp = (5.633714987781071d0)*fourpi
+              temp = (5.633714987781071d0)*
+     >              (lattice_omega()**(2.0d0/3.0d0))/(pi)
+              !temp = 0.0d0
            else
               temp = fourpi/gg
            end if

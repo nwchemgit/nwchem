@@ -1119,7 +1119,7 @@ c      call frac_occ_end()
      >                                     e12.5,' (c.o.m.)')
 
  1230 FORMAT(/' supercell:')
- 1231 FORMAT(5x,'             omega=',F8.1)
+ 1231 FORMAT(5x,'             omega=',F12.1)
  1232 FORMAT(5x,' lattice:    a=    ',f8.3,' b=   ',f8.3,' c=    ',f8.3,
      >      /5x,'             alpha=',f8.3,' beta=',f8.3,' gamma=',f8.3)
  1233 FORMAT(5x,' cell_name:  ',A)
