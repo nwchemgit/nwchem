@@ -109,19 +109,19 @@
       end if
 
 
-*     **** generate new grid ***
-      l = index(cell_name,' ') - 1
-      rtdb_ngrid = cell_name(1:l)//':ngrid'
-
-      if (.not.rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
-        ngrid(1) = 32
-        ngrid(2) = 32
-        ngrid(3) = 32
-      end if
-      ngrid(1) = ngrid(1)*cell_expand(1)
-      ngrid(2) = ngrid(2)*cell_expand(2)
-      ngrid(3) = ngrid(3)*cell_expand(3)
-      value = value.and.rtdb_put(rtdb,rtdb_ngrid,mt_int,3,ngrid)
+c*     **** generate new grid ***
+c      l = index(cell_name,' ') - 1
+c      rtdb_ngrid = cell_name(1:l)//':ngrid'
+c
+c      if (.not.rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
+c        ngrid(1) = 32
+c        ngrid(2) = 32
+c        ngrid(3) = 32
+c      end if
+c      ngrid(1) = ngrid(1)*cell_expand(1)
+c      ngrid(2) = ngrid(2)*cell_expand(2)
+c      ngrid(3) = ngrid(3)*cell_expand(3)
+ccc      value = value.and.rtdb_put(rtdb,rtdb_ngrid,mt_int,3,ngrid)
 
 
 

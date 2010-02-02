@@ -33,6 +33,7 @@
       external control_optimize_lattice
       external control_optimize_lattice_vectors
 
+      call Parallel_taskid(taskid)
 
 *      **** apply lattice constraints ****
        if (control_optimize_cell_strategy().eq.1) then
