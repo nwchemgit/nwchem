@@ -682,8 +682,14 @@ c
         write(luout,*) 'average: ',sum/3d0, ' + I ',sumim/3d0
         write (LuOut,*)
       endif
-
-
+c
+c     == Raman bits ==
+c
+      if (.not. rtdb_put(rtdb, 'raman:alfare ', mt_dbl, 9, alfare))   ! real alpha
+     &  call errquit('aoresponse:failed to write alfare', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'raman:alfaim ', mt_dbl, 9, alfaim))   ! imag alpha
+     &  call errquit('aoresponse:failed to write alfaim', 0, RTDB_ERR)
+c
 c     ----------------------------------------
 c     clean up, print exit statment and return
 c     ----------------------------------------
