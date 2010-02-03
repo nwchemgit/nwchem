@@ -47,6 +47,7 @@ c
       logical oqmmm,opes, task_python, task_thermo,task_bq,task_nbo
 c     logical oembed
       logical task_version, task_vscf
+      logical task_raman 
       logical task_paw 
       logical task_pspw,task_band,task_ofpw,task_smd
       logical task_drdy
@@ -78,6 +79,7 @@ c
       external task_dynamics, task_rfcf
       external task_version, task_python, task_thermo,task_nbo
       external kgdtest, task_vscf
+      external task_raman 
       external task_paw 
       external task_pspw,task_band,task_ofpw,task_smd
       external task_drdy
@@ -361,6 +363,8 @@ c        end if
           status=task_thermo(rtdb)
 c     else if(inp_compare(.false.,'prepare',operation)) then
 c         status=embed_prepare(rtdb)
+      else if (inp_compare(.false.,'raman',operation)) then
+         status=task_raman(rtdb)
       else if(inp_compare(.false.,'vscf',operation)) then
          status=task_vscf(rtdb)
       else if(inp_compare(.false.,'dntmc',operation)) then
