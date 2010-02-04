@@ -186,7 +186,8 @@ c note: the original default value for "tol" was 1d-4
       if (.not. rtdb_get(rtdb, 'cphf:thresh', mt_dbl, 1, 
      $     precond_tol)) precond_tol=1d-4
       if (.not. rtdb_get(rtdb, 'cphf:maxiter', mt_int, 1,
-     $     max_precond_iter)) max_precond_iter = 20
+     $     max_precond_iter)) max_precond_iter = 50
+      maxiter = max_precond_iter
 c
 c ... jochen: open second rhs file first and check if it has data
       if (ncomp.gt.1) then
