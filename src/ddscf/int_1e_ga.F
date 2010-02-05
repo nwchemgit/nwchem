@@ -500,7 +500,6 @@ c
                                 ! g(1) only 
       integer type              ! [input] Name of integrals to compute
       logical oskel             ! [input] If true generate symmetry unique list
-      external intcall
 c     
 c     local variables
 c     
