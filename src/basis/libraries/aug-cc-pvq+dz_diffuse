@@ -1,73 +1,80 @@
-# $Id: aug-cc-pvq+dz_diffuse,v 1.1 2002-01-03 23:37:54 mhackler Exp $
-basis "Al_aug-cc-pV(Q+d)Z_Diffuse" SPHERICAL
-  Al   S
-         0.018300000      1.00000000
-  Al   P
-         0.012100000      1.00000000
-  Al   D
-         0.027400000      1.00000000
-  Al   F
-         0.058200000      1.00000000
-  Al   G
-         0.153000000      1.00000000
+#  aug-cc-pV(Q+d)Z Diffuse  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+# Elements                             References
+# --------                             ---------
+# Al - Ar: T.H. Dunning, Jr., K. A. Peterson and A. K. Wilson, J. Chem. Phys.
+# 114, 9244 (2001).
+#   
+
+
+basis "Al_aug-cc-pV(Q+d)Z Diffuse" SPHERICAL
+Al    S
+      0.0183000              1.0000000        
+Al    P
+      0.0121000              1.0000000        
+Al    D
+      0.0274000              1.0000000        
+Al    F
+      0.0582000              1.0000000        
+Al    G
+      0.1530000              1.0000000        
 end
-basis "Si_aug-cc-pV(Q+d)Z_Diffuse" SPHERICAL
-  Si   S
-         0.027500000      1.00000000
-  Si   P
-         0.020000000      1.00000000
-  Si   D
-         0.041400000      1.00000000
-  Si   F
-         0.084600000      1.00000000
-  Si   G
-         0.212000000      1.00000000
+basis "Si_aug-cc-pV(Q+d)Z Diffuse" SPHERICAL
+Si    S
+      0.0275000              1.0000000        
+Si    P
+      0.0200000              1.0000000        
+Si    D
+      0.0414000              1.0000000        
+Si    F
+      0.0846000              1.0000000        
+Si    G
+      0.2120000              1.0000000        
 end
-basis "P_aug-cc-pV(Q+d)Z_Diffuse" SPHERICAL
-  P    S
-         0.035400000      1.00000000
-  P    P
-         0.027200000      1.00000000
-  P    D
-         0.057000000      1.00000000
-  P    F
-         0.109000000      1.00000000
-  P    G
-         0.250000000      1.00000000
+basis "P_aug-cc-pV(Q+d)Z Diffuse" SPHERICAL
+P    S
+      0.0354000              1.0000000        
+P    P
+      0.0272000              1.0000000        
+P    D
+      0.0570000              1.0000000        
+P    F
+      0.1090000              1.0000000        
+P    G
+      0.2500000              1.0000000        
 end
-basis "S_aug-cc-pV(Q+d)Z_Diffuse" SPHERICAL
-  S    S
-         0.042800000      1.00000000
-  S    P
-         0.031700000      1.00000000
-  S    D
-         0.072200000      1.00000000
-  S    F
-         0.140000000      1.00000000
-  S    G
-         0.297000000      1.00000000
+basis "S_aug-cc-pV(Q+d)Z Diffuse" SPHERICAL
+S    S
+      0.0428000              1.0000000        
+S    P
+      0.0317000              1.0000000        
+S    D
+      0.0722000              1.0000000        
+S    F
+      0.1400000              1.0000000        
+S    G
+      0.2970000              1.0000000        
 end
-basis "Cl_aug-cc-pV(Q+d)Z_Diffuse" SPHERICAL
-  Cl   S
-         0.051900000      1.00000000
-  Cl   P
-         0.037600000      1.00000000
-  Cl   D
-         0.091200000      1.00000000
-  Cl   F
-         0.217000000      1.00000000
-  Cl   G
-         0.378000000      1.00000000
+basis "Cl_aug-cc-pV(Q+d)Z Diffuse" SPHERICAL
+Cl    S
+      0.0519000              1.0000000        
+Cl    P
+      0.0376000              1.0000000        
+Cl    D
+      0.0912000              1.0000000        
+Cl    F
+      0.2170000              1.0000000        
+Cl    G
+      0.3780000              1.0000000        
 end
-basis "Ar_aug-cc-pV(Q+d)Z_Diffuse" SPHERICAL
-  Ar   S
-         0.061000000      1.00000000
-  Ar   P
-         0.043500000      1.00000000
-  Ar   D
-         0.108000000      1.00000000
-  Ar   F
-         0.294000000      1.00000000
-  Ar   G
-         0.459000000      1.00000000
+basis "Ar_aug-cc-pV(Q+d)Z Diffuse" SPHERICAL
+Ar    S
+      0.0610000              1.0000000        
+Ar    P
+      0.0435000              1.0000000        
+Ar    D
+      0.1080000              1.0000000        
+Ar    F
+      0.2940000              1.0000000        
+Ar    G
+      0.4590000              1.0000000        
 end

@@ -1,0 +1,147 @@
+#  aug-cc-pVQZ-DK Diffuse  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+# Elements                             References
+# --------                             ----------
+# Sc - Zn: N.B. Balabanov and K.A. Peterson, J. Chem. Phys, 123, 064107 (2005)
+#   
+
+
+basis "Sc_aug-cc-pVQZ-DK Diffuse" SPHERICAL
+Sc    S
+      0.0104700              1.0000000        
+Sc    P
+      0.0100800              1.0000000        
+Sc    D
+      0.0094700              1.0000000        
+Sc    F
+      0.0306700              1.0000000        
+Sc    G
+      0.0706000              1.0000000        
+Sc    H
+      0.1193100              1.0000000        
+end
+basis "Ti_aug-cc-pVQZ-DK Diffuse" SPHERICAL
+Ti    S
+      0.0111000              1.0000000        
+Ti    P
+      0.0109800              1.0000000        
+Ti    D
+      0.0127600              1.0000000        
+Ti    F
+      0.0544900              1.0000000        
+Ti    G
+      0.1231300              1.0000000        
+Ti    H
+      0.2625300              1.0000000        
+end
+basis "V_aug-cc-pVQZ-DK Diffuse" SPHERICAL
+V    S
+      0.0117200              1.0000000        
+V    P
+      0.0117200              1.0000000        
+V    D
+      0.0162000              1.0000000        
+V    F
+      0.0805300              1.0000000        
+V    G
+      0.1892900              1.0000000        
+V    H
+      0.4549900              1.0000000        
+end
+basis "Cr_aug-cc-pVQZ-DK Diffuse" SPHERICAL
+Cr    S
+      0.0115700              1.0000000        
+Cr    P
+      0.0123200              1.0000000        
+Cr    D
+      0.0178000              1.0000000        
+Cr    F
+      0.1024200              1.0000000        
+Cr    G
+      0.2400200              1.0000000        
+Cr    H
+      0.6147900              1.0000000        
+end
+basis "Mn_aug-cc-pVQZ-DK Diffuse" SPHERICAL
+Mn    S
+      0.0128000              1.0000000        
+Mn    P
+      0.0128400              1.0000000        
+Mn    D
+      0.0196900              1.0000000        
+Mn    F
+      0.1262400              1.0000000        
+Mn    G
+      0.3111900              1.0000000        
+Mn    H
+      0.7551300              1.0000000        
+end
+basis "Fe_aug-cc-pVQZ-DK Diffuse" SPHERICAL
+Fe    S
+      0.0134800              1.0000000        
+Fe    P
+      0.0130200              1.0000000        
+Fe    D
+      0.0218600              1.0000000        
+Fe    F
+      0.1527000              1.0000000        
+Fe    G
+      0.3981500              1.0000000        
+Fe    H
+      0.9324500              1.0000000        
+end
+basis "Co_aug-cc-pVQZ-DK Diffuse" SPHERICAL
+Co    S
+      0.0140900              1.0000000        
+Co    P
+      0.0141900              1.0000000        
+Co    D
+      0.0238600              1.0000000        
+Co    F
+      0.1808700              1.0000000        
+Co    G
+      0.4852100              1.0000000        
+Co    H
+      1.1246100              1.0000000        
+end
+basis "Ni_aug-cc-pVQZ-DK Diffuse" SPHERICAL
+Ni    S
+      0.0146700              1.0000000        
+Ni    P
+      0.0138300              1.0000000        
+Ni    D
+      0.0264700              1.0000000        
+Ni    F
+      0.2152600              1.0000000        
+Ni    G
+      0.6112100              1.0000000        
+Ni    H
+      1.3438200              1.0000000        
+end
+basis "Cu_aug-cc-pVQZ-DK Diffuse" SPHERICAL
+Cu    S
+      0.0152400              1.0000000        
+Cu    P
+      0.0141900              1.0000000        
+Cu    D
+      0.0452700              1.0000000        
+Cu    F
+      0.2500700              1.0000000        
+Cu    G
+      0.7103500              1.0000000        
+Cu    H
+      1.6227600              1.0000000        
+end
+basis "Zn_aug-cc-pVQZ-DK Diffuse" SPHERICAL
+Zn    S
+      0.0157600              1.0000000        
+Zn    P
+      0.0146400              1.0000000        
+Zn    D
+      0.0650000              1.0000000        
+Zn    F
+      0.2939000              1.0000000        
+Zn    G
+      0.8473000              1.0000000        
+Zn    H
+      1.9605400              1.0000000        
+end

@@ -1,285 +1,437 @@
-# $Id: aug-cc-pvqz_diffuse,v 1.1 2002-01-03 23:37:58 mhackler Exp $
-basis "H_aug-cc-pVQZ_Diffuse" CARTESIAN
-  H    S
-         0.023630000      1.00000000
-  H    P
-         0.084800000      1.00000000
-  H    D
-         0.190000000      1.00000000
-  H    F
-         0.360000000      1.00000000
+#  aug-cc-pVQZ Diffuse  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+# Elements                             References
+# --------                             ---------
+# H    :  T.H. Dunning, Jr. J. Chem. Phys. 90, 1007 (1989).
+# He   :  D.E. Woon and T.H. Dunning, Jr., J. Chem. Phys. 100, 2975 (1994).
+# B - F:  R.A. Kendall, T.H. Dunning, Jr. and R.J. Harrison, J. Chem. Phys. 96,
+# 6796 (1992).
+# Al - Cl: D.E. Woon and T.H. Dunning, Jr. J. Chem. Phys. 98, 1358 (1993).
+# Sc - Zn: N.B. Balabanov and K.A. Peterson, J. Chem. Phys, 123, 064107 (2005)
+# 
+
+
+
+basis "H_aug-cc-pVQZ Diffuse" SPHERICAL
+H    S
+      0.0236300              1.0000000        
+H    P
+      0.0848000              1.0000000        
+H    D
+      0.1900000              1.0000000        
+H    F
+      0.3600000              1.0000000        
 end
-basis "He_aug-cc-pVQZ_Diffuse" CARTESIAN
-  He   S
-         0.048190000      1.00000000
-  He   P
-         0.162600000      1.00000000
-  He   D
-         0.351000000      1.00000000
-  He   F
-         0.690600000      1.00000000
+basis "He_aug-cc-pVQZ Diffuse" SPHERICAL
+He    S
+      0.0481900              1.0000000        
+He    P
+      0.1626000              1.0000000        
+He    D
+      0.3510000              1.0000000        
+He    F
+      0.6906000              1.0000000        
 end
-basis "Li_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Li   S
-         0.006360000      1.00000000
-  Li   P
-         0.007560000      1.00000000
-  Li   D
-         0.026600000      1.00000000
-  Li   F
-         0.055200000      1.00000000
-  Li   G
-         0.105000000      1.00000000
+basis "Li_aug-cc-pVQZ Diffuse" SPHERICAL
+Li    S
+      0.0063600              1.0000000        
+Li    P
+      0.0075600              1.0000000        
+Li    D
+      0.0266000              1.0000000        
+Li    F
+      0.0552000              1.0000000        
+Li    G
+      0.1050000              1.0000000        
 end
-basis "Be_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Be   S
-         0.014390000      1.00000000
-  Be   P
-         0.006500000      1.00000000
-  Be   D
-         0.055400000      1.00000000
-  Be   F
-         0.093000000      1.00000000
-  Be   G
-         0.183400000      1.00000000
+basis "Be_aug-cc-pVQZ Diffuse" SPHERICAL
+Be    S
+      0.0143900              1.0000000        
+Be    P
+      0.0065000              1.0000000        
+Be    D
+      0.0554000              1.0000000        
+Be    F
+      0.0930000              1.0000000        
+Be    G
+      0.1834000              1.0000000        
 end
-basis "B_aug-cc-pVQZ_Diffuse" CARTESIAN
-  B    S
-         0.027210000      1.00000000
-  B    P
-         0.018780000      1.00000000
-  B    D
-         0.046600000      1.00000000
-  B    F
-         0.113000000      1.00000000
-  B    G
-         0.273000000      1.00000000
+basis "B_aug-cc-pVQZ Diffuse" SPHERICAL
+B    S
+      0.0272100              1.0000000        
+B    P
+      0.0187800              1.0000000        
+B    D
+      0.0466000              1.0000000        
+B    F
+      0.1130000              1.0000000        
+B    G
+      0.2730000              1.0000000        
 end
-basis "C_aug-cc-pVQZ_Diffuse" CARTESIAN
-  C    S
-         0.041450000      1.00000000
-  C    P
-         0.032180000      1.00000000
-  C    D
-         0.076600000      1.00000000
-  C    F
-         0.187000000      1.00000000
-  C    G
-         0.424000000      1.00000000
+basis "C_aug-cc-pVQZ Diffuse" SPHERICAL
+C    S
+      0.0414500              1.0000000        
+C    P
+      0.0321800              1.0000000        
+C    D
+      0.0766000              1.0000000        
+C    F
+      0.1870000              1.0000000        
+C    G
+      0.4240000              1.0000000        
 end
-basis "N_aug-cc-pVQZ_Diffuse" CARTESIAN
-  N    S
-         0.054640000      1.00000000
-  N    P
-         0.044020000      1.00000000
-  N    D
-         0.111000000      1.00000000
-  N    F
-         0.245000000      1.00000000
-  N    G
-         0.559000000      1.00000000
+basis "N_aug-cc-pVQZ Diffuse" SPHERICAL
+N    S
+      0.0546400              1.0000000        
+N    P
+      0.0440200              1.0000000        
+N    D
+      0.1110000              1.0000000        
+N    F
+      0.2450000              1.0000000        
+N    G
+      0.5590000              1.0000000        
 end
-basis "O_aug-cc-pVQZ_Diffuse" CARTESIAN
-  O    S
-         0.069590000      1.00000000
-  O    P
-         0.053480000      1.00000000
-  O    D
-         0.154000000      1.00000000
-  O    F
-         0.324000000      1.00000000
-  O    G
-         0.714000000      1.00000000
+basis "O_aug-cc-pVQZ Diffuse" SPHERICAL
+O    S
+      0.0695900              1.0000000        
+O    P
+      0.0534800              1.0000000        
+O    D
+      0.1540000              1.0000000        
+O    F
+      0.3240000              1.0000000        
+O    G
+      0.7140000              1.0000000        
 end
-basis "F_aug-cc-pVQZ_Diffuse" CARTESIAN
-  F    S
-         0.085940000      1.00000000
-  F    P
-         0.065680000      1.00000000
-  F    D
-         0.207000000      1.00000000
-  F    F
-         0.460000000      1.00000000
-  F    G
-         0.924000000      1.00000000
+basis "F_aug-cc-pVQZ Diffuse" SPHERICAL
+F    S
+      0.0859400              1.0000000        
+F    P
+      0.0656800              1.0000000        
+F    D
+      0.2070000              1.0000000        
+F    F
+      0.4600000              1.0000000        
+F    G
+      0.9240000              1.0000000        
 end
-basis "Ne_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Ne   S
-         0.105400000      1.00000000
-  Ne   P
-         0.081780000      1.00000000
-  Ne   D
-         0.273000000      1.00000000
-  Ne   F
-         0.689000000      1.00000000
-  Ne   G
-         1.224000000      1.00000000
+basis "Ne_aug-cc-pVQZ Diffuse" SPHERICAL
+Ne    S
+      0.1054000              1.0000000        
+Ne    P
+      0.0817800              1.0000000        
+Ne    D
+      0.2730000              1.0000000        
+Ne    F
+      0.6890000              1.0000000        
+Ne    G
+      1.2240000              1.0000000        
 end
-basis "Na_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Na   S
-         0.005030000      1.00000000
-  Na   P
-         0.007720000      1.00000000
-  Na   D
-         0.021000000      1.00000000
-  Na   F
-         0.045300000      1.00000000
-  Na   G
-         0.086600000      1.00000000
+basis "Na_aug-cc-pVQZ Diffuse" SPHERICAL
+Na    S
+      0.0050300              1.0000000        
+Na    P
+      0.0077200              1.0000000        
+Na    D
+      0.0210000              1.0000000        
+Na    F
+      0.0453000              1.0000000        
+Na    G
+      0.0866000              1.0000000        
 end
-basis "Mg_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Mg   S
-         0.012390000      1.00000000
-  Mg   P
-         0.007060000      1.00000000
-  Mg   D
-         0.038200000      1.00000000
-  Mg   F
-         0.070000000      1.00000000
-  Mg   G
-         0.148000000      1.00000000
+basis "Mg_aug-cc-pVQZ Diffuse" SPHERICAL
+Mg    S
+      0.0123900              1.0000000        
+Mg    P
+      0.0070600              1.0000000        
+Mg    D
+      0.0382000              1.0000000        
+Mg    F
+      0.0700000              1.0000000        
+Mg    G
+      0.1480000              1.0000000        
 end
-basis "Al_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Al   S
-         0.018300000      1.00000000
-  Al   P
-         0.012100000      1.00000000
-  Al   D
-         0.028200000      1.00000000
-  Al   F
-         0.058200000      1.00000000
-  Al   G
-         0.153000000      1.00000000
+basis "Al_aug-cc-pVQZ Diffuse" SPHERICAL
+Al    S
+      0.0183000              1.0000000        
+Al    P
+      0.0121000              1.0000000        
+Al    D
+      0.0282000              1.0000000        
+Al    F
+      0.0582000              1.0000000        
+Al    G
+      0.1530000              1.0000000        
 end
-basis "Si_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Si   S
-         0.027500000      1.00000000
-  Si   P
-         0.020000000      1.00000000
-  Si   D
-         0.043500000      1.00000000
-  Si   F
-         0.084600000      1.00000000
-  Si   G
-         0.212000000      1.00000000
+basis "Si_aug-cc-pVQZ Diffuse" SPHERICAL
+Si    S
+      0.0275000              1.0000000        
+Si    P
+      0.0200000              1.0000000        
+Si    D
+      0.0435000              1.0000000        
+Si    F
+      0.0846000              1.0000000        
+Si    G
+      0.2120000              1.0000000        
 end
-basis "P_aug-cc-pVQZ_Diffuse" CARTESIAN
-  P    S
-         0.035400000      1.00000000
-  P    P
-         0.027200000      1.00000000
-  P    D
-         0.059400000      1.00000000
-  P    F
-         0.109000000      1.00000000
-  P    G
-         0.250000000      1.00000000
+basis "P_aug-cc-pVQZ Diffuse" SPHERICAL
+P    S
+      0.0354000              1.0000000        
+P    P
+      0.0272000              1.0000000        
+P    D
+      0.0594000              1.0000000        
+P    F
+      0.1090000              1.0000000        
+P    G
+      0.2500000              1.0000000        
 end
-basis "S_aug-cc-pVQZ_Diffuse" CARTESIAN
-  S    S
-         0.042800000      1.00000000
-  S    P
-         0.031700000      1.00000000
-  S    D
-         0.074800000      1.00000000
-  S    F
-         0.140000000      1.00000000
-  S    G
-         0.297000000      1.00000000
+basis "S_aug-cc-pVQZ Diffuse" SPHERICAL
+S    S
+      0.0428000              1.0000000        
+S    P
+      0.0317000              1.0000000        
+S    D
+      0.0748000              1.0000000        
+S    F
+      0.1400000              1.0000000        
+S    G
+      0.2970000              1.0000000        
 end
-basis "Cl_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Cl   S
-         0.051900000      1.00000000
-  Cl   P
-         0.037600000      1.00000000
-  Cl   D
-         0.095200000      1.00000000
-  Cl   F
-         0.217000000      1.00000000
-  Cl   G
-         0.378000000      1.00000000
+basis "Cl_aug-cc-pVQZ Diffuse" SPHERICAL
+Cl    S
+      0.0519000              1.0000000        
+Cl    P
+      0.0376000              1.0000000        
+Cl    D
+      0.0952000              1.0000000        
+Cl    F
+      0.2170000              1.0000000        
+Cl    G
+      0.3780000              1.0000000        
 end
-basis "Ar_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Ar   S
-         0.061000000      1.00000000
-  Ar   P
-         0.043500000      1.00000000
-  Ar   D
-         0.116000000      1.00000000
-  Ar   F
-         0.294000000      1.00000000
-  Ar   G
-         0.459000000      1.00000000
+basis "Ar_aug-cc-pVQZ Diffuse" SPHERICAL
+Ar    S
+      0.0610000              1.0000000        
+Ar    P
+      0.0435000              1.0000000        
+Ar    D
+      0.1160000              1.0000000        
+Ar    F
+      0.2940000              1.0000000        
+Ar    G
+      0.4590000              1.0000000        
 end
-basis "Ga_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Ga   S
-         0.018475000      1.00000000
-  Ga   P
-         0.011406000      1.00000000
-  Ga   D
-         0.027900000      1.00000000
-  Ga   F
-         0.065500000      1.00000000
-  Ga   G
-         0.016800000      1.00000000
+basis "Sc_aug-cc-pVQZ Diffuse" SPHERICAL
+Sc    S
+      0.0104700              1.0000000        
+Sc    P
+      0.0101200              1.0000000        
+Sc    D
+      0.0095200              1.0000000        
+Sc    F
+      0.0312800              1.0000000        
+Sc    G
+      0.0723600              1.0000000        
+Sc    H
+      0.1226400              1.0000000        
 end
-basis "Ge_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Ge   S
-         0.026390000      1.00000000
-  Ge   P
-         0.018550000      1.00000000
-  Ge   D
-         0.039700000      1.00000000
-  Ge   F
-         0.088400000      1.00000000
-  Ge   G
-         0.214300000      1.00000000
+basis "Ti_aug-cc-pVQZ Diffuse" SPHERICAL
+Ti    S
+      0.0111000              1.0000000        
+Ti    P
+      0.0110300              1.0000000        
+Ti    D
+      0.0127900              1.0000000        
+Ti    F
+      0.0554100              1.0000000        
+Ti    G
+      0.1256600              1.0000000        
+Ti    H
+      0.2724200              1.0000000        
 end
-basis "As_aug-cc-pVQZ_Diffuse" CARTESIAN
-  As   S
-         0.032499000      1.00000000
-  As   P
-         0.023698000      1.00000000
-  As   D
-         0.053100000      1.00000000
-  As   F
-         0.113200000      1.00000000
-  As   G
-         0.239000000      1.00000000
+basis "V_aug-cc-pVQZ Diffuse" SPHERICAL
+V    S
+      0.0117200              1.0000000        
+V    P
+      0.0116600              1.0000000        
+V    D
+      0.0163000              1.0000000        
+V    F
+      0.0818500              1.0000000        
+V    G
+      0.1933900              1.0000000        
+V    H
+      0.4711900              1.0000000        
 end
-basis "Se_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Se   S
-         0.038152000      1.00000000
-  Se   P
-         0.026569000      1.00000000
-  Se   D
-         0.061900000      1.00000000
-  Se   F
-         0.124000000      1.00000000
-  Se   G
-         0.263000000      1.00000000
+basis "Cr_aug-cc-pVQZ Diffuse" SPHERICAL
+Cr    S
+      0.0115700              1.0000000        
+Cr    P
+      0.0123300              1.0000000        
+Cr    D
+      0.0177800              1.0000000        
+Cr    F
+      0.1037300              1.0000000        
+Cr    G
+      0.2454500              1.0000000        
+Cr    H
+      0.6329200              1.0000000        
 end
-basis "Br_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Br   S
-         0.044270000      1.00000000
-  Br   P
-         0.030513000      1.00000000
-  Br   D
-         0.082900000      1.00000000
-  Br   F
-         0.174800000      1.00000000
-  Br   G
-         0.311000000      1.00000000
+basis "Mn_aug-cc-pVQZ Diffuse" SPHERICAL
+Mn    S
+      0.0128000              1.0000000        
+Mn    P
+      0.0128700              1.0000000        
+Mn    D
+      0.0197800              1.0000000        
+Mn    F
+      0.1282900              1.0000000        
+Mn    G
+      0.3184100              1.0000000        
+Mn    H
+      0.7767100              1.0000000        
 end
-basis "Kr_aug-cc-pVQZ_Diffuse" CARTESIAN
-  Kr   S
-         0.050388000      1.00000000
-  Kr   P
-         0.034457000      1.00000000
-  Kr   D
-         0.103900000      1.00000000
-  Kr   F
-         0.225600000      1.00000000
-  Kr   G
-         0.359000000      1.00000000
+basis "Fe_aug-cc-pVQZ Diffuse" SPHERICAL
+Fe    S
+      0.0134800              1.0000000        
+Fe    P
+      0.0130500              1.0000000        
+Fe    D
+      0.0220500              1.0000000        
+Fe    F
+      0.1551400              1.0000000        
+Fe    G
+      0.4073800              1.0000000        
+Fe    H
+      0.9587800              1.0000000        
+end
+basis "Co_aug-cc-pVQZ Diffuse" SPHERICAL
+Co    S
+      0.0140900              1.0000000        
+Co    P
+      0.0142100              1.0000000        
+Co    D
+      0.0243200              1.0000000        
+Co    F
+      0.1841600              1.0000000        
+Co    G
+      0.4963100              1.0000000        
+Co    H
+      1.1579100              1.0000000        
+end
+basis "Ni_aug-cc-pVQZ Diffuse" SPHERICAL
+Ni    S
+      0.0146700              1.0000000        
+Ni    P
+      0.0138800              1.0000000        
+Ni    D
+      0.0269100              1.0000000        
+Ni    F
+      0.2265000              1.0000000        
+Ni    G
+      0.6237000              1.0000000        
+Ni    H
+      1.4486000              1.0000000        
+end
+basis "Cu_aug-cc-pVQZ Diffuse" SPHERICAL
+Cu    S
+      0.0152400              1.0000000        
+Cu    P
+      0.0142600              1.0000000        
+Cu    D
+      0.0461400              1.0000000        
+Cu    F
+      0.2574700              1.0000000        
+Cu    G
+      0.7321200              1.0000000        
+Cu    H
+      1.6768100              1.0000000        
+end
+basis "Zn_aug-cc-pVQZ Diffuse" SPHERICAL
+Zn    S
+      0.0157600              1.0000000        
+Zn    P
+      0.0147200              1.0000000        
+Zn    D
+      0.0659800              1.0000000        
+Zn    F
+      0.2994900              1.0000000        
+Zn    G
+      0.8673600              1.0000000        
+Zn    H
+      2.0273400              1.0000000        
+end
+basis "Ga_aug-cc-pVQZ Diffuse" SPHERICAL
+Ga    S
+      0.0184750              1.0000000        
+Ga    P
+      0.0114060              1.0000000        
+Ga    D
+      0.0279000              1.0000000        
+Ga    F
+      0.0655000              1.0000000        
+Ga    G
+      0.1680000              1.0000000        
+end
+basis "Ge_aug-cc-pVQZ Diffuse" SPHERICAL
+Ge    S
+      0.0263900              1.0000000        
+Ge    P
+      0.0185500              1.0000000        
+Ge    D
+      0.0397000              1.0000000        
+Ge    F
+      0.0884000              1.0000000        
+Ge    G
+      0.2143000              1.0000000        
+end
+basis "As_aug-cc-pVQZ Diffuse" SPHERICAL
+As    S
+      0.0324990              1.0000000        
+As    P
+      0.0236980              1.0000000        
+As    D
+      0.0531000              1.0000000        
+As    F
+      0.1132000              1.0000000        
+As    G
+      0.2390000              1.0000000        
+end
+basis "Se_aug-cc-pVQZ Diffuse" SPHERICAL
+Se    S
+      0.0381520              1.0000000        
+Se    P
+      0.0265690              1.0000000        
+Se    D
+      0.0619000              1.0000000        
+Se    F
+      0.1240000              1.0000000        
+Se    G
+      0.2630000              1.0000000        
+end
+basis "Br_aug-cc-pVQZ Diffuse" SPHERICAL
+Br    S
+      0.0442700              1.0000000        
+Br    P
+      0.0305130              1.0000000        
+Br    D
+      0.0829000              1.0000000        
+Br    F
+      0.1748000              1.0000000        
+Br    G
+      0.3110000              1.0000000        
+end
+basis "Kr_aug-cc-pVQZ Diffuse" SPHERICAL
+Kr    S
+      0.0503880              1.0000000        
+Kr    P
+      0.0344570              1.0000000        
+Kr    D
+      0.1039000              1.0000000        
+Kr    F
+      0.2256000              1.0000000        
+Kr    G
+      0.3590000              1.0000000        
 end

@@ -1,11 +1,12 @@
-# $Id: aug-cc-pv5z-ri_diffuse,v 1.1 2009-04-06 13:51:23 jhammond Exp $
-#
-#  aug-cc-pV5Z-RI diffuse  EMSL  Basis Set Exchange Library  4/4/09 7:44 AM
+#  aug-cc-pV5Z-RI diffuse  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
 # Elements                             References
 # --------                             ----------
 # H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr : Christof Hattig, Optimization of auxiliary basis sets for RI-MP2 and RI-CC2 calculations: Core-valence and quintuple-? basis sets for H to Ar and QZVPP basis sets for Li to Kr, Physical Chemistry Chemical Physics 7, 59 (2005).
 # 
-basis "H_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+
+
+
+basis "H_aug-cc-pV5Z-RI diffuse" SPHERICAL
 H    S
       0.1109110              1.0000000        
 H    P
@@ -19,7 +20,7 @@ H    G
 H    H
       1.0349800              1.0000000        
 end
-basis "He_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "He_aug-cc-pV5Z-RI diffuse" SPHERICAL
 He    S
       0.1809660              1.0000000        
 He    P
@@ -33,7 +34,7 @@ He    G
 He    H
       2.2244000              1.0000000        
 end
-basis "B_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "B_aug-cc-pV5Z-RI diffuse" SPHERICAL
 B    S
       0.0500000              1.0000000        
 B    P
@@ -49,7 +50,7 @@ B    H
 B    I
       0.5284480              1.0000000        
 end
-basis "C_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "C_aug-cc-pV5Z-RI diffuse" SPHERICAL
 C    S
       0.0625447              1.0000000        
 C    P
@@ -65,7 +66,7 @@ C    H
 C    I
       0.8330670              1.0000000        
 end
-basis "N_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "N_aug-cc-pV5Z-RI diffuse" SPHERICAL
 N    S
       0.0850000              1.0000000        
 N    P
@@ -81,7 +82,7 @@ N    H
 N    I
       1.1088600              1.0000000        
 end
-basis "O_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "O_aug-cc-pV5Z-RI diffuse" SPHERICAL
 O    S
       0.0966305              1.0000000        
 O    P
@@ -97,7 +98,7 @@ O    H
 O    I
       1.3829200              1.0000000        
 end
-basis "F_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "F_aug-cc-pV5Z-RI diffuse" SPHERICAL
 F    S
       0.1232440              1.0000000        
 F    P
@@ -113,7 +114,7 @@ F    H
 F    I
       1.8277000              1.0000000        
 end
-basis "Ne_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "Ne_aug-cc-pV5Z-RI diffuse" SPHERICAL
 Ne    S
       0.1800000              1.0000000        
 Ne    P
@@ -129,7 +130,7 @@ Ne    H
 Ne    I
       2.3811900              1.0000000        
 end
-basis "Al_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "Al_aug-cc-pV5Z-RI diffuse" SPHERICAL
 Al    S
       0.0400000              1.0000000        
 Al    P
@@ -145,7 +146,7 @@ Al    H
 Al    I
       0.3213140              1.0000000        
 end
-basis "Si_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "Si_aug-cc-pV5Z-RI diffuse" SPHERICAL
 Si    S
       0.0500000              1.0000000        
 Si    P
@@ -161,7 +162,7 @@ Si    H
 Si    I
       0.4663400              1.0000000        
 end
-basis "P_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "P_aug-cc-pV5Z-RI diffuse" SPHERICAL
 P    S
       0.0600000              1.0000000        
 P    P
@@ -177,7 +178,7 @@ P    H
 P    I
       0.5297980              1.0000000        
 end
-basis "S_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "S_aug-cc-pV5Z-RI diffuse" SPHERICAL
 S    S
       0.0650000              1.0000000        
 S    P
@@ -193,7 +194,7 @@ S    H
 S    I
       0.6795320              1.0000000        
 end
-basis "Cl_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "Cl_aug-cc-pV5Z-RI diffuse" SPHERICAL
 Cl    S
       0.0750000              1.0000000        
 Cl    P
@@ -209,7 +210,7 @@ Cl    H
 Cl    I
       0.8746310              1.0000000        
 end
-basis "Ar_aug-cc-pV5Z-RI_diffuse" SPHERICAL
+basis "Ar_aug-cc-pV5Z-RI diffuse" SPHERICAL
 Ar    S
       0.1020860              1.0000000        
 Ar    P
@@ -225,7 +226,3 @@ Ar    H
 Ar    I
       1.1033800              1.0000000        
 end
-
-
-
-

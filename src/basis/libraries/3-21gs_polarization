@@ -1,33 +1,40 @@
-# $Id: 3-21gs_polarization,v 1.1 2002-01-03 23:36:17 mhackler Exp $
-basis "Na_3-21G*_Polarization" CARTESIAN
-  Na   D
-         0.175000000      1.00000000
+#  3-21G* Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+# Elements                             Reference
+# --------                             ----------
+# Na - Ar:  W.J. Pietro, M.M. Francl, W.J. Hehre, D.J. DeFrees, J.A. Pople and 
+#           J.S. Binkley, J. Am. Chem. Soc. 104, 5039 (1982)
+#   
+
+
+basis "Na_3-21G* Polarization" CARTESIAN
+Na    D
+      0.1750000              1.0000000        
 end
-basis "Mg_3-21G*_Polarization" CARTESIAN
-  Mg   D
-         0.175000000      1.00000000
+basis "Mg_3-21G* Polarization" CARTESIAN
+Mg    D
+      0.1750000              1.0000000        
 end
-basis "Al_3-21G*_Polarization" CARTESIAN
-  Al   D
-         0.325000000      1.00000000
+basis "Al_3-21G* Polarization" CARTESIAN
+Al    D
+      0.3250000              1.0000000        
 end
-basis "Si_3-21G*_Polarization" CARTESIAN
-  Si   D
-         0.450000000      1.00000000
+basis "Si_3-21G* Polarization" CARTESIAN
+Si    D
+      0.4500000              1.0000000        
 end
-basis "P_3-21G*_Polarization" CARTESIAN
-  P    D
-         0.550000000      1.00000000
+basis "P_3-21G* Polarization" CARTESIAN
+P    D
+      0.5500000              1.0000000        
 end
-basis "S_3-21G*_Polarization" CARTESIAN
-  S    D
-         0.650000000      1.00000000
+basis "S_3-21G* Polarization" CARTESIAN
+S    D
+      0.6500000              1.0000000        
 end
-basis "Cl_3-21G*_Polarization" CARTESIAN
-  Cl   D
-         0.750000000      1.00000000
+basis "Cl_3-21G* Polarization" CARTESIAN
+Cl    D
+      0.7500000              1.0000000        
 end
-basis "Ar_3-21G*_Polarization" CARTESIAN
-  Ar   D
-         0.850000000      1.00000000
+basis "Ar_3-21G* Polarization" CARTESIAN
+Ar    D
+      0.8500000              1.0000000        
 end

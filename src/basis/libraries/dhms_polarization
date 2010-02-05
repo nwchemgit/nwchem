@@ -1,61 +1,67 @@
-# $Id: dhms_polarization,v 1.1 2002-01-03 23:41:32 mhackler Exp $
-basis "H_DHMS_Polarization" CARTESIAN
-  H    P
-         1.000000000      1.00000000
+#  DHMS Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  H - F: T.H. DUNNING JR. AND P.J. HAY, IN METHODS OF ELECTRONIC STRUCTURE 
+#               THEORY VOL. 2, H.F. SCHAEFER III, ED., PLENUM PRESS (1977). 
+#   Si - Cl:    E. MAGNUSSON AND H.F. SCHAEFER III, JCP 83, 5721 (1985).
+#   
+
+
+basis "H_DHMS Polarization" CARTESIAN
+H    P
+      1.0000000              1.0000000        
 end
-basis "He_DHMS_Polarization" CARTESIAN
-  He   P
-         1.000000000      1.00000000
+basis "He_DHMS Polarization" CARTESIAN
+He    P
+      1.0000000              1.0000000        
 end
-basis "Li_DHMS_Polarization" CARTESIAN
-  Li   D
-         0.200000000      1.00000000
+basis "Li_DHMS Polarization" CARTESIAN
+Li    D
+      0.2000000              1.0000000        
 end
-basis "Be_DHMS_Polarization" CARTESIAN
-  Be   D
-         0.400000000      1.00000000
+basis "Be_DHMS Polarization" CARTESIAN
+Be    D
+      0.4000000              1.0000000        
 end
-basis "B_DHMS_Polarization" CARTESIAN
-  B    D
-         0.700000000      1.00000000
+basis "B_DHMS Polarization" CARTESIAN
+B    D
+      0.7000000              1.0000000        
 end
-basis "C_DHMS_Polarization" CARTESIAN
-  C    D
-         0.750000000      1.00000000
+basis "C_DHMS Polarization" CARTESIAN
+C    D
+      0.7500000              1.0000000        
 end
-basis "N_DHMS_Polarization" CARTESIAN
-  N    D
-         0.800000000      1.00000000
+basis "N_DHMS Polarization" CARTESIAN
+N    D
+      0.8000000              1.0000000        
 end
-basis "O_DHMS_Polarization" CARTESIAN
-  O    D
-         0.850000000      1.00000000
+basis "O_DHMS Polarization" CARTESIAN
+O    D
+      0.8500000              1.0000000        
 end
-basis "F_DHMS_Polarization" CARTESIAN
-  F    D
-         0.900000000      1.00000000
+basis "F_DHMS Polarization" CARTESIAN
+F    D
+      0.9000000              1.0000000        
 end
-basis "Ne_DHMS_Polarization" CARTESIAN
-  Ne   D
-         0.950000000      1.00000000
+basis "Ne_DHMS Polarization" CARTESIAN
+Ne    D
+      0.9500000              1.0000000        
 end
-basis "Al_DHMS_Polarization" CARTESIAN
-  Al   D
-         0.325000000      1.00000000
+basis "Al_DHMS Polarization" CARTESIAN
+Al    D
+      0.3250000              1.0000000        
 end
-basis "Si_DHMS_Polarization" CARTESIAN
-  Si   D
-         0.550000000      1.00000000
+basis "Si_DHMS Polarization" CARTESIAN
+Si    D
+      0.5500000              1.0000000        
 end
-basis "P_DHMS_Polarization" CARTESIAN
-  P    D
-         0.600000000      1.00000000
+basis "P_DHMS Polarization" CARTESIAN
+P    D
+      0.6000000              1.0000000        
 end
-basis "S_DHMS_Polarization" CARTESIAN
-  S    D
-         0.700000000      1.00000000
+basis "S_DHMS Polarization" CARTESIAN
+S    D
+      0.7000000              1.0000000        
 end
-basis "Cl_DHMS_Polarization" CARTESIAN
-  Cl   D
-         0.750000000      1.00000000
+basis "Cl_DHMS Polarization" CARTESIAN
+Cl    D
+      0.7500000              1.0000000        
 end

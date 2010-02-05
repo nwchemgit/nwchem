@@ -1,181 +1,187 @@
-# $Id: pople_3df_3pd_polarization,v 1.1 2002-01-03 23:46:36 mhackler Exp $
-basis "H_Pople_(3df,3pd)_Polarization" SPHERICAL
-  H    P
-         3.000000000      1.00000000
-  H    P
-         0.750000000      1.00000000
-  H    P
-         0.187500000      1.00000000
-  H    D
-         1.000000000      1.00000000
+#  Pople (3df,3pd) Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+# Elements                             References
+# --------                             ----------
+# H-Ne: M.J. Frisch, J.A. Pople and J.S. Binkley, J. Chem. Phys. 80, 3265 (1984)
+#   
+
+
+basis "H_Pople (3df,3pd) Polarization" SPHERICAL
+H    P
+      3.0000000              1.0000000        
+H    P
+      0.7500000              1.0000000        
+H    P
+      0.1875000              1.0000000        
+H    D
+      1.0000000              1.0000000        
 end
-basis "He_Pople_(3df,3pd)_Polarization" SPHERICAL
-  He   P
-         3.000000000      1.00000000
-  He   P
-         0.750000000      1.00000000
-  He   P
-         0.187500000      1.00000000
-  He   D
-         2.000000000      1.00000000
+basis "He_Pople (3df,3pd) Polarization" SPHERICAL
+He    P
+      3.0000000              1.0000000        
+He    P
+      0.7500000              1.0000000        
+He    P
+      0.1875000              1.0000000        
+He    D
+      2.0000000              1.0000000        
 end
-basis "Li_Pople_(3df,3pd)_Polarization" SPHERICAL
-  Li   D
-         0.800000000      1.00000000
-  Li   D
-         0.200000000      1.00000000
-  Li   D
-         0.050000000      1.00000000
-  Li   F
-         0.150000000      1.00000000
+basis "Li_Pople (3df,3pd) Polarization" SPHERICAL
+Li    D
+      0.8000000              1.0000000        
+Li    D
+      0.2000000              1.0000000        
+Li    D
+      0.0500000              1.0000000        
+Li    F
+      0.1500000              1.0000000        
 end
-basis "Be_Pople_(3df,3pd)_Polarization" SPHERICAL
-  Be   D
-         1.020000000      1.00000000
-  Be   D
-         0.255000000      1.00000000
-  Be   D
-         0.063750000      1.00000000
-  Be   F
-         0.260000000      1.00000000
+basis "Be_Pople (3df,3pd) Polarization" SPHERICAL
+Be    D
+      1.0200000              1.0000000        
+Be    D
+      0.2550000              1.0000000        
+Be    D
+      0.0637500              1.0000000        
+Be    F
+      0.2600000              1.0000000        
 end
-basis "B_Pople_(3df,3pd)_Polarization" SPHERICAL
-  B    D
-         1.604000000      1.00000000
-  B    D
-         0.401000000      1.00000000
-  B    D
-         0.100250000      1.00000000
-  B    F
-         0.500000000      1.00000000
+basis "B_Pople (3df,3pd) Polarization" SPHERICAL
+B    D
+      1.6040000              1.0000000        
+B    D
+      0.4010000              1.0000000        
+B    D
+      0.1002500              1.0000000        
+B    F
+      0.5000000              1.0000000        
 end
-basis "C_Pople_(3df,3pd)_Polarization" SPHERICAL
-  C    D
-         2.504000000      1.00000000
-  C    D
-         0.626000000      1.00000000
-  C    D
-         0.156500000      1.00000000
-  C    F
-         0.800000000      1.00000000
+basis "C_Pople (3df,3pd) Polarization" SPHERICAL
+C    D
+      2.5040000              1.0000000        
+C    D
+      0.6260000              1.0000000        
+C    D
+      0.1565000              1.0000000        
+C    F
+      0.8000000              1.0000000        
 end
-basis "N_Pople_(3df,3pd)_Polarization" SPHERICAL
-  N    D
-         3.652000000      1.00000000
-  N    D
-         0.913000000      1.00000000
-  N    D
-         0.228250000      1.00000000
-  N    F
-         1.000000000      1.00000000
+basis "N_Pople (3df,3pd) Polarization" SPHERICAL
+N    D
+      3.6520000              1.0000000        
+N    D
+      0.9130000              1.0000000        
+N    D
+      0.2282500              1.0000000        
+N    F
+      1.0000000              1.0000000        
 end
-basis "O_Pople_(3df,3pd)_Polarization" SPHERICAL
-  O    D
-         5.160000000      1.00000000
-  O    D
-         1.292000000      1.00000000
-  O    D
-         0.322500000      1.00000000
-  O    F
-         1.400000000      1.00000000
+basis "O_Pople (3df,3pd) Polarization" SPHERICAL
+O    D
+      5.1600000              1.0000000        
+O    D
+      1.2920000              1.0000000        
+O    D
+      0.3225000              1.0000000        
+O    F
+      1.4000000              1.0000000        
 end
-basis "F_Pople_(3df,3pd)_Polarization" SPHERICAL
-  F    D
-         7.000000000      1.00000000
-  F    D
-         1.750000000      1.00000000
-  F    D
-         0.437500000      1.00000000
-  F    F
-         1.850000000      1.00000000
+basis "F_Pople (3df,3pd) Polarization" SPHERICAL
+F    D
+      7.0000000              1.0000000        
+F    D
+      1.7500000              1.0000000        
+F    D
+      0.4375000              1.0000000        
+F    F
+      1.8500000              1.0000000        
 end
-basis "Ne_Pople_(3df,3pd)_Polarization" SPHERICAL
-  Ne   D
-         9.216000000      1.00000000
-  Ne   D
-         2.304000000      1.00000000
-  Ne   D
-         0.576000000      1.00000000
-  Ne   F
-         2.500000000      1.00000000
+basis "Ne_Pople (3df,3pd) Polarization" SPHERICAL
+Ne    D
+      9.2160000              1.0000000        
+Ne    D
+      2.3040000              1.0000000        
+Ne    D
+      0.5760000              1.0000000        
+Ne    F
+      2.5000000              1.0000000        
 end
-basis "Na_Pople_(3df,3pd)_Polarization" SPHERICAL
-  Na   D
-         0.700000000      1.00000000
-  Na   D
-         0.175000000      1.00000000
-  Na   D
-         0.043750000      1.00000000
-  Na   F
-         0.150000000      1.00000000
+basis "Na_Pople (3df,3pd) Polarization" SPHERICAL
+Na    D
+      0.7000000              1.0000000        
+Na    D
+      0.1750000              1.0000000        
+Na    D
+      0.0437500              1.0000000        
+Na    F
+      0.1500000              1.0000000        
 end
-basis "Mg_Pople_(3df,3pd)_Polarization" SPHERICAL
-  Mg   D
-         0.700000000      1.00000000
-  Mg   D
-         0.175000000      1.00000000
-  Mg   D
-         0.043750000      1.00000000
-  Mg   F
-         0.200000000      1.00000000
+basis "Mg_Pople (3df,3pd) Polarization" SPHERICAL
+Mg    D
+      0.7000000              1.0000000        
+Mg    D
+      0.1750000              1.0000000        
+Mg    D
+      0.0437500              1.0000000        
+Mg    F
+      0.2000000              1.0000000        
 end
-basis "Al_Pople_(3df,3pd)_Polarization" SPHERICAL
-  Al   D
-         1.300000000      1.00000000
-  Al   D
-         0.325000000      1.00000000
-  Al   D
-         0.081250000      1.00000000
-  Al   F
-         0.250000000      1.00000000
+basis "Al_Pople (3df,3pd) Polarization" SPHERICAL
+Al    D
+      1.3000000              1.0000000        
+Al    D
+      0.3250000              1.0000000        
+Al    D
+      0.0812500              1.0000000        
+Al    F
+      0.2500000              1.0000000        
 end
-basis "Si_Pople_(3df,3pd)_Polarization" SPHERICAL
-  Si   D
-         1.800000000      1.00000000
-  Si   D
-         0.450000000      1.00000000
-  Si   D
-         0.112500000      1.00000000
-  Si   F
-         0.320000000      1.00000000
+basis "Si_Pople (3df,3pd) Polarization" SPHERICAL
+Si    D
+      1.8000000              1.0000000        
+Si    D
+      0.4500000              1.0000000        
+Si    D
+      0.1125000              1.0000000        
+Si    F
+      0.3200000              1.0000000        
 end
-basis "P_Pople_(3df,3pd)_Polarization" SPHERICAL
-  P    D
-         2.200000000      1.00000000
-  P    D
-         0.550000000      1.00000000
-  P    D
-         0.137500000      1.00000000
-  P    F
-         0.450000000      1.00000000
+basis "P_Pople (3df,3pd) Polarization" SPHERICAL
+P    D
+      2.2000000              1.0000000        
+P    D
+      0.5500000              1.0000000        
+P    D
+      0.1375000              1.0000000        
+P    F
+      0.4500000              1.0000000        
 end
-basis "S_Pople_(3df,3pd)_Polarization" SPHERICAL
-  S    D
-         2.600000000      1.00000000
-  S    D
-         0.650000000      1.00000000
-  S    D
-         0.162500000      1.00000000
-  S    F
-         0.550000000      1.00000000
+basis "S_Pople (3df,3pd) Polarization" SPHERICAL
+S    D
+      2.6000000              1.0000000        
+S    D
+      0.6500000              1.0000000        
+S    D
+      0.1625000              1.0000000        
+S    F
+      0.5500000              1.0000000        
 end
-basis "Cl_Pople_(3df,3pd)_Polarization" SPHERICAL
-  Cl   D
-         3.000000000      1.00000000
-  Cl   D
-         0.750000000      1.00000000
-  Cl   D
-         0.187500000      1.00000000
-  Cl   F
-         0.700000000      1.00000000
+basis "Cl_Pople (3df,3pd) Polarization" SPHERICAL
+Cl    D
+      3.0000000              1.0000000        
+Cl    D
+      0.7500000              1.0000000        
+Cl    D
+      0.1875000              1.0000000        
+Cl    F
+      0.7000000              1.0000000        
 end
-basis "Ar_Pople_(3df,3pd)_Polarization" SPHERICAL
-  Ar   D
-         3.400000000      1.00000000
-  Ar   D
-         0.850000000      1.00000000
-  Ar   D
-         0.212500000      1.00000000
-  Ar   F
-         0.850000000      1.00000000
+basis "Ar_Pople (3df,3pd) Polarization" SPHERICAL
+Ar    D
+      3.4000000              1.0000000        
+Ar    D
+      0.8500000              1.0000000        
+Ar    D
+      0.2125000              1.0000000        
+Ar    F
+      0.8500000              1.0000000        
 end

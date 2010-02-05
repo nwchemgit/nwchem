@@ -1,0 +1,367 @@
+#  aug-cc-pVDZ-PP Diffuse  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+# Elements                             References
+# --------                             ----------
+# Ga-As,In-Sb, Tl-Bi   : K.A. Peterson, J. Chem. Phys., 119, 11099 (2003).
+# Se-Kr, Te-Xe, Po-Rn  : K.A. Peterson, D. Figgen, E. Goll, H. Stoll, and M. Dolg, J. Chem. Phys., 119, 11113 (2003).
+# Cu, Zn, Pd, Ag, Au, Hg: K.A. Peterson and C. Puzzarini, Theor. Chem. Acc., 114, 283 (2005)
+# Y Zr Nb Mo Tc Ru Rh Pd : K.A. Peterson, D. Figgen, M. Dolg, H. Stoll, Energy-consistent relativistic pseudopotentials and correlation consistent basis sets for the 4d elements Y-Pd, Journal of Chemical Physics 126, 124101 (2007).
+# I : K. A. Peterson, B. C. Shepler, D. Figgen, H. Stoll, On the spectroscopic and thermochemical properties of ClO, BrO, IO, and their anions, Journal of Physical Chemistry A 110, 13877 (2006).
+# Hf Ta W Re Os Ir Pt: D. Figgen, K.A. Peterson, M. Dolg, and H. Stoll, Energy-consistent pseudopotentials and correlation consistent basis sets for the 5d elements Hf-Pt, Journal of Chemical Physics 130, 164108 (2009).
+# 
+
+
+
+basis "Cu_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Cu    S
+      0.0174000              1.0000000        
+Cu    P
+      0.0170000              1.0000000        
+Cu    D
+      0.0872000              1.0000000        
+Cu    F
+      0.9066000              1.0000000        
+end
+basis "Zn_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Zn    S
+      0.0181000              1.0000000        
+Zn    P
+      0.0174000              1.0000000        
+Zn    D
+      0.1172000              1.0000000        
+Zn    F
+      1.0870000              1.0000000        
+end
+basis "Ga_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Ga    S
+      0.0222000              1.0000000        
+Ga    P
+      0.0145000              1.0000000        
+Ga    D
+      0.0514000              1.0000000        
+end
+basis "Ge_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Ge    S
+      0.0310000              1.0000000        
+Ge    P
+      0.0232000              1.0000000        
+Ge    D
+      0.0780000              1.0000000        
+end
+basis "As_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+As    S
+      0.0370000              1.0000000        
+As    P
+      0.0308000              1.0000000        
+As    D
+      0.1000000              1.0000000        
+end
+basis "Se_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Se    S
+      0.0433000              1.0000000        
+Se    P
+      0.0345000              1.0000000        
+Se    D
+      0.1260000              1.0000000        
+end
+basis "Br_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Br    S
+      0.0502000              1.0000000        
+Br    P
+      0.0394000              1.0000000        
+Br    D
+      0.1548000              1.0000000        
+end
+basis "Kr_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Kr    S
+      0.0571000              1.0000000        
+Kr    P
+      0.0443000              1.0000000        
+Kr    D
+      0.1836000              1.0000000        
+end
+basis "Y_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Y    S
+      0.0109000              1.0000000        
+Y    P
+      0.0117000              1.0000000        
+Y    D
+      0.0119000              1.0000000        
+Y    F
+      0.0484000              1.0000000        
+end
+basis "Zr_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Zr    S
+      0.0118000              1.0000000        
+Zr    P
+      0.0114000              1.0000000        
+Zr    D
+      0.0159000              1.0000000        
+Zr    F
+      0.0891000              1.0000000        
+end
+basis "Nb_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Nb    S
+      0.0125000              1.0000000        
+Nb    P
+      0.0123000              1.0000000        
+Nb    D
+      0.0204000              1.0000000        
+Nb    F
+      0.1387000              1.0000000        
+end
+basis "Mo_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Mo    S
+      0.0131000              1.0000000        
+Mo    P
+      0.0131000              1.0000000        
+Mo    D
+      0.0231000              1.0000000        
+Mo    F
+      0.1850000              1.0000000        
+end
+basis "Tc_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Tc    S
+      0.0137000              1.0000000        
+Tc    P
+      0.0136000              1.0000000        
+Tc    D
+      0.0264000              1.0000000        
+Tc    F
+      0.2272000              1.0000000        
+end
+basis "Ru_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Ru    S
+      0.0144000              1.0000000        
+Ru    P
+      0.0137000              1.0000000        
+Ru    D
+      0.0302000              1.0000000        
+Ru    F
+      0.2719000              1.0000000        
+end
+basis "Rh_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Rh    S
+      0.0150000              1.0000000        
+Rh    P
+      0.0151000              1.0000000        
+Rh    D
+      0.0420000              1.0000000        
+Rh    F
+      0.3222000              1.0000000        
+end
+basis "Pd_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Pd    S
+      0.0156000              1.0000000        
+Pd    P
+      0.0145000              1.0000000        
+Pd    D
+      0.0467000              1.0000000        
+Pd    F
+      0.3788000              1.0000000        
+end
+basis "Ag_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Ag    S
+      0.0162000              1.0000000        
+Ag    P
+      0.0152000              1.0000000        
+Ag    D
+      0.0620000              1.0000000        
+Ag    F
+      0.4449000              1.0000000        
+end
+basis "Cd_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Cd    S
+      0.0167000              1.0000000        
+Cd    P
+      0.0153000              1.0000000        
+Cd    D
+      0.0782000              1.0000000        
+Cd    F
+      0.5177000              1.0000000        
+end
+basis "In_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+In    S
+      0.0203000              1.0000000        
+In    P
+      0.0141000              1.0000000        
+In    D
+      0.0472000              1.0000000        
+end
+basis "Sn_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Sn    S
+      0.0275000              1.0000000        
+Sn    P
+      0.0209000              1.0000000        
+Sn    D
+      0.0649000              1.0000000        
+end
+basis "Sb_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Sb    S
+      0.0327000              1.0000000        
+Sb    P
+      0.0271000              1.0000000        
+Sb    D
+      0.0802000              1.0000000        
+end
+basis "Te_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Te    S
+      0.0369000              1.0000000        
+Te    P
+      0.0299000              1.0000000        
+Te    D
+      0.0988000              1.0000000        
+end
+basis "I_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+I    S
+      4.200000E-02           1.0000000        
+I    P
+      3.380000E-02           1.0000000        
+I    D
+      1.191000E-01           1.0000000        
+end
+basis "Xe_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Xe    S
+      0.0473000              1.0000000        
+Xe    P
+      0.0379000              1.0000000        
+Xe    D
+      0.1404000              1.0000000        
+end
+basis "Hf_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Hf    S
+      0.0135000              1.0000000        
+Hf    P
+      0.0126000              1.0000000        
+Hf    D
+      0.0179000              1.0000000        
+Hf    F
+      0.0824000              1.0000000        
+end
+basis "Ta_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Ta    S
+      0.0144000              1.0000000        
+Ta    P
+      0.0136000              1.0000000        
+Ta    D
+      0.0226000              1.0000000        
+Ta    F
+      0.1286000              1.0000000        
+end
+basis "W_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+W    S
+      0.0152000              1.0000000        
+W    P
+      0.0143000              1.0000000        
+W    D
+      0.0256000              1.0000000        
+W    F
+      0.1768000              1.0000000        
+end
+basis "Re_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Re    S
+      0.0159000              1.0000000        
+Re    P
+      0.0136000              1.0000000        
+Re    D
+      0.0285000              1.0000000        
+Re    F
+      0.2126000              1.0000000        
+end
+basis "Os_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Os    S
+      0.0169000              1.0000000        
+Os    P
+      0.0134000              1.0000000        
+Os    D
+      0.0317000              1.0000000        
+Os    F
+      0.2478000              1.0000000        
+end
+basis "Ir_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Ir    S
+      0.0177000              1.0000000        
+Ir    P
+      0.0148000              1.0000000        
+Ir    D
+      0.0351000              1.0000000        
+Ir    F
+      0.2898000              1.0000000        
+end
+basis "Pt_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Pt    S
+      0.0185000              1.0000000        
+Pt    P
+      0.0139000              1.0000000        
+Pt    D
+      0.0389000              1.0000000        
+Pt    F
+      0.3357000              1.0000000        
+end
+basis "Au_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Au    S
+      0.0193000              1.0000000        
+Au    P
+      0.0147000              1.0000000        
+Au    D
+      0.0489000              1.0000000        
+Au    F
+      0.3789000              1.0000000        
+end
+basis "Hg_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Hg    S
+      0.0199000              1.0000000        
+Hg    P
+      0.0147000              1.0000000        
+Hg    D
+      0.0585000              1.0000000        
+Hg    F
+      0.4377000              1.0000000        
+end
+basis "Tl_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Tl    S
+      0.0206000              1.0000000        
+Tl    P
+      0.0130000              1.0000000        
+Tl    D
+      0.0437000              1.0000000        
+end
+basis "Pb_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Pb    S
+      0.0278000              1.0000000        
+Pb    P
+      0.0197000              1.0000000        
+Pb    D
+      0.0609000              1.0000000        
+end
+basis "Bi_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Bi    S
+      0.0317000              1.0000000        
+Bi    P
+      0.0254000              1.0000000        
+Bi    D
+      0.0745000              1.0000000        
+end
+basis "Po_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Po    S
+      0.0359000              1.0000000        
+Po    P
+      0.0278000              1.0000000        
+Po    D
+      0.0895000              1.0000000        
+end
+basis "At_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+At    S
+      0.0404000              1.0000000        
+At    P
+      0.0313000              1.0000000        
+At    D
+      0.1073000              1.0000000        
+end
+basis "Rn_aug-cc-pVDZ-PP Diffuse" SPHERICAL
+Rn    S
+      0.0449000              1.0000000        
+Rn    P
+      0.0348000              1.0000000        
+Rn    D
+      0.1251000              1.0000000        
+end

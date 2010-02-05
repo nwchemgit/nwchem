@@ -1,89 +1,96 @@
-# $Id: huzinaga_polarization,v 1.1 2002-01-03 23:42:12 mhackler Exp $
-basis "K_Huzinaga_Polarization" CARTESIAN
-  K    D
-         0.100000000      1.00000000
+#  Huzinaga Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+# K, CA, RB, SR: GAMESS(US) 1994 
+#  S. Huzinaga, J. Anzelm, M. Klobukowski, E. Radzio-Andzelm, Y. Sakai, 
+#  H. Tatewaki in Gaussian Basis Sets for Molecular Calculations, (Elsevier, 
+#  Amsterdam, 1984)
+#   
+
+
+basis "K_Huzinaga Polarization" CARTESIAN
+K    D
+      0.1000000              1.0000000        
 end
-basis "Ca_Huzinaga_Polarization" CARTESIAN
-  Ca   D
-         0.100000000      1.00000000
+basis "Ca_Huzinaga Polarization" CARTESIAN
+Ca    D
+      0.1000000              1.0000000        
 end
-basis "Ga_Huzinaga_Polarization" CARTESIAN
-  Ga   D
-         0.207000000      1.00000000
+basis "Ga_Huzinaga Polarization" CARTESIAN
+Ga    D
+      0.2070000              1.0000000        
 end
-basis "Ge_Huzinaga_Polarization" CARTESIAN
-  Ge   D
-         0.246000000      1.00000000
+basis "Ge_Huzinaga Polarization" CARTESIAN
+Ge    D
+      0.2460000              1.0000000        
 end
-basis "As_Huzinaga_Polarization" CARTESIAN
-  As   D
-         0.293000000      1.00000000
+basis "As_Huzinaga Polarization" CARTESIAN
+As    D
+      0.2930000              1.0000000        
 end
-basis "Se_Huzinaga_Polarization" CARTESIAN
-  Se   D
-         0.338000000      1.00000000
+basis "Se_Huzinaga Polarization" CARTESIAN
+Se    D
+      0.3380000              1.0000000        
 end
-basis "Br_Huzinaga_Polarization" CARTESIAN
-  Br   D
-         0.389000000      1.00000000
+basis "Br_Huzinaga Polarization" CARTESIAN
+Br    D
+      0.3890000              1.0000000        
 end
-basis "Kr_Huzinaga_Polarization" CARTESIAN
-  Kr   D
-         0.443000000      1.00000000
+basis "Kr_Huzinaga Polarization" CARTESIAN
+Kr    D
+      0.4430000              1.0000000        
 end
-basis "Rb_Huzinaga_Polarization" CARTESIAN
-  Rb   D
-         0.110000000      1.00000000
+basis "Rb_Huzinaga Polarization" CARTESIAN
+Rb    D
+      0.1100000              1.0000000        
 end
-basis "Sr_Huzinaga_Polarization" CARTESIAN
-  Sr   D
-         0.110000000      1.00000000
+basis "Sr_Huzinaga Polarization" CARTESIAN
+Sr    D
+      0.1100000              1.0000000        
 end
-basis "In_Huzinaga_Polarization" CARTESIAN
-  In   D
-         0.160000000      1.00000000
+basis "In_Huzinaga Polarization" CARTESIAN
+In    D
+      0.1600000              1.0000000        
 end
-basis "Sn_Huzinaga_Polarization" CARTESIAN
-  Sn   D
-         0.183000000      1.00000000
+basis "Sn_Huzinaga Polarization" CARTESIAN
+Sn    D
+      0.1830000              1.0000000        
 end
-basis "Sb_Huzinaga_Polarization" CARTESIAN
-  Sb   D
-         0.211000000      1.00000000
+basis "Sb_Huzinaga Polarization" CARTESIAN
+Sb    D
+      0.2110000              1.0000000        
 end
-basis "Te_Huzinaga_Polarization" CARTESIAN
-  Te   D
-         0.237000000      1.00000000
+basis "Te_Huzinaga Polarization" CARTESIAN
+Te    D
+      0.2370000              1.0000000        
 end
-basis "I_Huzinaga_Polarization" CARTESIAN
-  I    D
-         0.266000000      1.00000000
+basis "I_Huzinaga Polarization" CARTESIAN
+I    D
+      0.2660000              1.0000000        
 end
-basis "Xe_Huzinaga_Polarization" CARTESIAN
-  Xe   D
-         0.297000000      1.00000000
+basis "Xe_Huzinaga Polarization" CARTESIAN
+Xe    D
+      0.2970000              1.0000000        
 end
-basis "Tl_Huzinaga_Polarization" CARTESIAN
-  Tl   D
-         0.146000000      1.00000000
+basis "Tl_Huzinaga Polarization" CARTESIAN
+Tl    D
+      0.1460000              1.0000000        
 end
-basis "Pb_Huzinaga_Polarization" CARTESIAN
-  Pb   D
-         0.164000000      1.00000000
+basis "Pb_Huzinaga Polarization" CARTESIAN
+Pb    D
+      0.1640000              1.0000000        
 end
-basis "Bi_Huzinaga_Polarization" CARTESIAN
-  Bi   D
-         0.185000000      1.00000000
+basis "Bi_Huzinaga Polarization" CARTESIAN
+Bi    D
+      0.1850000              1.0000000        
 end
-basis "Po_Huzinaga_Polarization" CARTESIAN
-  Po   D
-         0.204000000      1.00000000
+basis "Po_Huzinaga Polarization" CARTESIAN
+Po    D
+      0.2040000              1.0000000        
 end
-basis "At_Huzinaga_Polarization" CARTESIAN
-  At   D
-         0.225000000      1.00000000
+basis "At_Huzinaga Polarization" CARTESIAN
+At    D
+      0.2250000              1.0000000        
 end
-basis "Rn_Huzinaga_Polarization" CARTESIAN
-  Rn   D
-         0.247000000      1.00000000
+basis "Rn_Huzinaga Polarization" CARTESIAN
+Rn    D
+      0.2470000              1.0000000        
 end

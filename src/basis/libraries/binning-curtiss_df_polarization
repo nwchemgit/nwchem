@@ -1,37 +1,42 @@
-# $Id: binning-curtiss_df_polarization,v 1.1 2002-01-03 23:38:11 mhackler Exp $
-basis "Ga_Binning-Curtiss_(df)_Polarization" SPHERICAL
-  Ga   D
-         0.141000000      1.00000000
-  Ga   F
-         0.167000000      1.00000000
+#  Binning-Curtiss (df) Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+# R. C. BINNING AND L. A. CURTISS, J. COMP. CHEM. 11, 1206 (1990). 
+#  T. H. DUNNING, JR. J. CHEM. PHYS. 66, 1382 (1977).
+#   
+
+
+basis "Ga_Binning-Curtiss (df) Polarization" SPHERICAL
+Ga    D
+      0.1410000              1.0000000        
+Ga    F
+      0.1670000              1.0000000        
 end
-basis "Ge_Binning-Curtiss_(df)_Polarization" SPHERICAL
-  Ge   D
-         0.202000000      1.00000000
-  Ge   F
-         0.267000000      1.00000000
+basis "Ge_Binning-Curtiss (df) Polarization" SPHERICAL
+Ge    D
+      0.2020000              1.0000000        
+Ge    F
+      0.2670000              1.0000000        
 end
-basis "As_Binning-Curtiss_(df)_Polarization" SPHERICAL
-  As   D
-         0.273000000      1.00000000
-  As   F
-         0.372000000      1.00000000
+basis "As_Binning-Curtiss (df) Polarization" SPHERICAL
+As    D
+      0.2730000              1.0000000        
+As    F
+      0.3720000              1.0000000        
 end
-basis "Se_Binning-Curtiss_(df)_Polarization" SPHERICAL
-  Se   D
-         0.315000000      1.00000000
-  Se   F
-         0.400000000      1.00000000
+basis "Se_Binning-Curtiss (df) Polarization" SPHERICAL
+Se    D
+      0.3150000              1.0000000        
+Se    F
+      0.4000000              1.0000000        
 end
-basis "Br_Binning-Curtiss_(df)_Polarization" SPHERICAL
-  Br   D
-         0.338000000      1.00000000
-  Br   F
-         0.401000000      1.00000000
+basis "Br_Binning-Curtiss (df) Polarization" SPHERICAL
+Br    D
+      0.3380000              1.0000000        
+Br    F
+      0.4010000              1.0000000        
 end
-basis "Kr_Binning-Curtiss_(df)_Polarization" SPHERICAL
-  Kr   D
-         0.318000000      1.00000000
-  Kr   F
-         0.401000000      1.00000000
+basis "Kr_Binning-Curtiss (df) Polarization" SPHERICAL
+Kr    D
+      0.3180000              1.0000000        
+Kr    F
+      0.4010000              1.0000000              !.0000000         Binning.0000000           and                 Curtiss.0000000           did                    not.0000000           give                     an.0000000              f.0000000         exponent                  for.0000000        
 end
