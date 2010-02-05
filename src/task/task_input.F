@@ -86,8 +86,8 @@ c            operation = 'prepare'
             analytic  = .true.
          else if (inp_compare(.false.,test,'vscf')) then
             operation  = 'vscf'
-         else if (inp_compare(.false.,test,'raman')) then
-            operation  = 'raman'
+c         else if (inp_compare(.false.,test,'raman')) then
+c            operation  = 'raman'
          else if (inp_compare(.false.,test,'dntmc')) then
             operation  = 'dntmc'
          else if (inp_compare(.false.,test,'ccca')) then
