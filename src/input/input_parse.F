@@ -174,8 +174,8 @@ c               call embed_input(rtdb)
                call nbo_input(rtdb)
             else if (inp_compare(.false.,test,'vscf')) then
                call vscf_input(rtdb)
-c            else if (inp_compare(.false.,test,'raman')) then
-c               call raman_input(rtdb)
+            else if (inp_compare(.false.,test,'raman')) then
+               call raman_input(rtdb)
             else if (inp_compare(.false.,test,'dntmc')) then
                call dntmc_input(rtdb)
             else if (inp_compare(.false.,test,'vib')) then
