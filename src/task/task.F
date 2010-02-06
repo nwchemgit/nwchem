@@ -363,8 +363,8 @@ c        end if
           status=task_thermo(rtdb)
 c     else if(inp_compare(.false.,'prepare',operation)) then
 c         status=embed_prepare(rtdb)
-c      else if (inp_compare(.false.,'raman',operation)) then
-c         status=task_raman(rtdb)
+      else if (inp_compare(.false.,'raman',operation)) then
+         status=task_raman(rtdb)
       else if(inp_compare(.false.,'vscf',operation)) then
          status=task_vscf(rtdb)
       else if(inp_compare(.false.,'dntmc',operation)) then
