@@ -36,6 +36,7 @@
          CalcPerturbedTDPmat1.o \
          aoresponse_giao_rhs.o \
          ao_1prdm_read.o \
+	 task_raman.o \
 	 raman_input.o \
 	 raman.o
 
