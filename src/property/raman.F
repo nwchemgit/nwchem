@@ -85,7 +85,7 @@ c
 c
       double precision rminfo(rmmodes,4) ! raman data
       double precision step_size,stepsize ! [input] step of finite differencing
-c      double precision lazer(nfreq) ! [input] frequency used in AORESPONSE 
+c      double precision laser(nfreq) ! [input] frequency used in AORESPONSE 
       double precision eigenvecs(nat3,nat3) ! [input](xyz&atom,mode)
       double precision tmode(3,natom) ! [input](atom#,xyz)
       double precision mass(natom) ! [input](atom#)
@@ -221,7 +221,7 @@ c --------------------------------------------------------------------
       end 
 c --------------------------------------------------------------------
       subroutine raman_scattering(rtdb,start,last,rmmodes,nfreq,plot,
-     *                            line,width,lazer,rminfo)
+     *                            line,width,laser,rminfo)
 c --------------------------------------------------------------------
 c   calculate absolute differential raman scattering cross section.
 c   Producing a raman scattering output file 
@@ -242,7 +242,8 @@ c
       integer begin ! first=begin if not restarting, else modified
       integer start ! [input] first mode to use in calculation of plot
 c
-      Double precision lazer(nfreq) ! [input] laser used in AORESPONSE calculation
+      integer ifreq
+      Double precision laser(nfreq) ! [input] laser used in AORESPONSE calculation
       Double precision width ! [input] line width
       Double precision rminfo(rmmodes,4) ! raman data
 c      Double precision freq(rmmodes) ! [input] number of excitation frequencies used in AORESPONSE
@@ -293,13 +294,19 @@ c                      /atomic_mass_unit{amu/kg}
 c --------------------------------------------------------------------
       if (debug) then
           write(6,*) "rmmodes",rmmodes
-          write(6,*) "lazer",lazer
+          do ifreq = 1,nfreq
+            write(6,*) "laser",laser(ifreq)
+          end do
           write(6,*) 'rminfo'
           call output(rminfo,1,rmmodes,1,4,rmmodes,4,1)
       endif
 c
       if ( ga_nodeid().eq.0 )  write(luout,9002) plot
-      if ( ga_nodeid().eq.0 )  write(luout,9003) au2nm/lazer
+      if (ga_nodeid().eq.0) then
+       do ifreq = 1,nfreq
+         write(luout,9003) au2nm/laser(ifreq)
+       end do
+      end if
       if ( ga_nodeid().eq.0 )  write(luout,9004) line 
       if ( ga_nodeid().eq.0 )  write(luout,9005) width
       if ( ga_nodeid().eq.0 )  write(luout,9010) rmmodes
@@ -318,8 +325,8 @@ c
          end do
             write(luout,9006)
       end if ! normal
-c ----------convert lazer from au. -> nm -> 1/cm ----------------------------
-        lambda = nm2icm/(au2nm/lazer(1))
+c ----------convert laser from au. -> nm -> 1/cm ----------------------------
+        lambda = nm2icm/(au2nm/laser(1))
 c ------------Calculate differential cross section-----------------------
       do i=start,rmmodes
          crs_real(i) = zero
@@ -394,7 +401,7 @@ c --------------------------------------------------------------------
  9015 FORMAT(1X,I4,F10.2,2E12.4)
  9016 FORMAT(1X,F10.2,3E12.4)
  9017 FORMAT(1X,'plot',F8.2,G14.4)
- 9018 FORMAT(1X,'plot'F8.2,3G14.4)
+ 9018 FORMAT(1X,'plot',F8.2,3G14.4)
 c
       return
       end  

@@ -35,7 +35,9 @@
          aoresponse.o \
          CalcPerturbedTDPmat1.o \
          aoresponse_giao_rhs.o \
-         ao_1prdm_read.o 
+         ao_1prdm_read.o \
+	 raman_input.o \
+	 raman.o
 
    LIBRARY = libproperty.a
    LIB_DEFINES = -DJEFF_OUTPUT
