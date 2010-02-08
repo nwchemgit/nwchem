@@ -390,8 +390,9 @@ c     *** task_ofpw handles ofpw specific "operations" ***
 
 c     *** task_smd handles smd specific "operations" ***
       else if (inp_compare(.false.,'smd',theory)) then
-        write(*,*) "going to task_smd"
-        status = task_smd(rtdb)
+        write(*,*) "task_smd is disabled for now"
+c        write(*,*) "going to task_smd"
+c        status = task_smd(rtdb)
 
       else
          call errquit('task: unknown generic operation',0, INPUT_ERR)
