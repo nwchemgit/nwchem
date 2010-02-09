@@ -66,7 +66,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md classical tps alldev pnnl pnnldev smallqm
 
-EXP_all = $(filter-out leps smd uccsdt python develop oimp2 scfaux plane_wave rimp2_grad geninterface diana transport nbo,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out argos leps smd uccsdt python develop oimp2 scfaux plane_wave rimp2_grad geninterface diana transport nbo,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python dntmc
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -86,7 +86,7 @@ EXP_classical  = prepar nwmd analyz
 EXP_venus = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
           ccsd vib property mp2_grad geninterface bq cons
 # Need bq in front of cons?
-EXP_qmmm_valiev = $(filter-out leps transport nbo hessian tce uccsdt python diana develop oimp2 scfaux plane_wave rimp2_grad vscf geninterface dntmc ,$(KNOWN_MODULE_SUBDIRS) )
+EXP_qmmm_valiev = $(filter-out argos leps transport nbo tce uccsdt python diana develop oimp2 scfaux plane_wave rimp2_grad vscf geninterface dntmc ,$(KNOWN_MODULE_SUBDIRS) )
 
 # Check each expansion
 
