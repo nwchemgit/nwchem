@@ -317,7 +317,6 @@ c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
      &       INPUT_ERR)
               if (.not. rtdb_cput(rtdb, 'geom:source', 1,filename)) 
      $       call errquit("geom:source",0,0)
-             write(*,*) "source of geometry was set to "//field
              osource = .true.
              goto 20
          else if (inp_compare(.false.,'symmetry',field)) then
