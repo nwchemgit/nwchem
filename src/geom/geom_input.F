@@ -20,7 +20,7 @@ c
       logical status            ! scratch for return codes
       logical oadjust
       logical oprint
-      logical ofile
+      logical ofile,osource
       logical ozmatrix
       logical oautoz
       logical oautosym
@@ -98,6 +98,7 @@ c
       units = 'angstroms'        ! The new default
       name  = ' '
       ofile = .false.
+      osource = .false.
       oprint = .true.           ! Default is to print the geometry
       ozmatrix = .false.        ! Default is cartesian input
       oautoz   = .true.         ! Default is try -autoz-
@@ -310,6 +311,15 @@ c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
      $        call errquit
      $         ('geom_input: geom_create from file !', 0, GEOM_ERR)
             goto 20
+         else if (inp_compare(.false.,'source',field)) then
+            if (.not. inp_a(filename)) call errquit
+     $           ('geom_input: file <filename>?', 0,
+     &       INPUT_ERR)
+              if (.not. rtdb_cput(rtdb, 'geom:source', 1,filename)) 
+     $       call errquit("geom:source",0,0)
+             write(*,*) "source of geometry was set to "//field
+             osource = .true.
+             goto 20
          else if (inp_compare(.false.,'symmetry',field)) then
             osymmetry = .true.
             call geom_sym_input(geom, oprint_sym, threquiv)
@@ -468,7 +478,7 @@ c
 
 
 c
-      if(ofile) return
+      if(ofile.or.osource) return
 c
       if (ncenter .eq. 1) then ! Keep atoms as simple as possible
          oautoz = .false. ! No point for atoms
@@ -638,6 +648,7 @@ c     done
       
 c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 
+50    continue
       end
       subroutine geom_sys_input(geom,scale,ecce_periodic)
       implicit none
