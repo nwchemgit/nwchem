@@ -30,7 +30,8 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -loptim -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lesp -lddscf -ldangchang -lleps -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
-		    -largos -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib -lsmd \
+		    -largos -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib \
+                    -lsmddb -lsmd \
                     -lcafe -lspace -lanalyze -ldiana -lqhop \
                     -lpfft -ldplot -loimp2 -lnwpython -ldrdy -lvscf -lqmmm -lqmd -letrans\
                     -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lnbo -ldntmc -ltransport -lccca
@@ -230,7 +231,7 @@ MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cons,-lcons,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst bq,-lbq,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwpw,-lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst smd,-lsmd,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst smd,-lsmd -lsmddb,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst perfm,-lperfm,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dntmc,-ldntmc,$(MOD_LIBS) )
@@ -286,7 +287,7 @@ STUBROUTINES := $(patsubst dntmc,task_dntmc dntmc_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dangchang,dc_energy dangchang_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst leps,leps_energy mymd_input mymc_input leps_gradient md_driver md_data  mc_driver mc_data gasdev crossing mc_main md_set mc_init urand,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input ofpw_energy paw_energy paw_gradient task_paw task_pspw task_ofpw pspw_input pspw_energy pspw_gradient band_energy band_gradient task_band,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst smd,task_smd smd_input task_smd_energy task_smd_dynamics,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst smd,task_smd smd_input task_smd_energy task_smd_dynamics task_fragment_energy,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ccca,task_ccca,$(STUBROUTINES) )
