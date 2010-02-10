@@ -351,6 +351,11 @@ c
          rhoa=rho(n,2)   
          rhob=rho(n,3)   
 c
+c        Check for small densities (H atom case as well)
+c
+         if ((abs(rhoa).lt.tol_rho).or.
+     &          (abs(rhob).lt.tol_rho)) goto 20
+c
          dcccdna=0.d0
          dcccdnb=0.d0
          dcccdgaa=0.d0
