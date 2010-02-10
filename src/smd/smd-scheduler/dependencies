@@ -1,0 +1,2 @@
+$(LIBRARY_PATH)(sched_perf.o):	./armci.h 
+$(LIBRARY_PATH)(sched_groups.o):	./armci.h 

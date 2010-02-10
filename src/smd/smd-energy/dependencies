@@ -1,0 +1,2 @@
+$(LIBRARY_PATH)(task_smd_energy.o):	$(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh /opt/codes/nwchem/nwchem-ref/src/tools/include/mafdecls.fh $(INCDIR)/errquit.fh 
+$(LIBRARY_PATH)(smd_init_energy.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh /opt/codes/nwchem/nwchem-ref/src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /opt/codes/nwchem/nwchem-ref/src/tools/include/global.fh $(INCDIR)/errquit.fh 

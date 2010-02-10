@@ -1,0 +1,146 @@
+# Magic: LR-70-2595584-9ER
+# Generated file -- DO NOT EDIT
+# Breakpoint list saved by Mac OS X Darwin x86 TotalView 8.7.0-0
+
+dset TV::Private::saved_breakpoint_actual_format 3
+dset TV::Private::saved_breakpoint_actual_revision 0
+
+namespace eval TV::Private {
+
+BP_initiate_saved_bp 1
+BP_set_saved_property 	ContextPath {/opt/codes/nwchem/nwchem-2-8-10/src/nwchem.F#1}
+BP_set_saved_property 	LinePath {/opt/codes/nwchem/nwchem-2-8-10/src/smd/smd-energy/task_smd_energy.F#18}
+BP_set_saved_property 	InnerUnitPath {##/opt/codes/nwchem/nwchem-2-8-10/bin/MACX/nwchem#task_smd_energy.F#task_smd_energy_}
+BP_set_saved_property 	InnerUnitLineOffset {17}
+BP_set_saved_property 	Share {g}
+BP_set_saved_property 	ProcEnabled {1}
+BP_set_saved_property 	BreakSWH {p}
+BP_set_saved_property 	BarrSWH {g}
+BP_set_saved_property 	BarrSWD {g}
+BP_set_saved_property 	SatSet {C}
+# List property BlockEnabled was null
+# List property BlockAddress was null
+BP_set_saved_property 	SourceText {      call smd_init_energy("energy",rtdb)}
+BP_set_saved_property 	Instruction {movl     8[esp],6}
+BP_instantiate_saved_bp 1
+
+BP_initiate_saved_bp 2
+BP_set_saved_property 	ContextPath {/opt/codes/nwchem/nwchem-2-8-10/src/nwchem.F#1}
+BP_set_saved_property 	LinePath {/opt/codes/nwchem/nwchem-2-8-10/src/smd/smd-energy/smd_init_energy.F#124}
+BP_set_saved_property 	InnerUnitPath {##/opt/codes/nwchem/nwchem-2-8-10/bin/MACX/nwchem#smd_init_energy.F#smd_init_energy_}
+BP_set_saved_property 	InnerUnitLineOffset {123}
+BP_set_saved_property 	Share {g}
+BP_set_saved_property 	ProcEnabled {1}
+BP_set_saved_property 	BreakSWH {p}
+BP_set_saved_property 	BarrSWH {g}
+BP_set_saved_property 	BarrSWD {g}
+BP_set_saved_property 	SatSet {C}
+# List property BlockEnabled was null
+# List property BlockAddress was null
+BP_set_saved_property 	SourceText {      call smd_system_set_component(tag,sp_ewald)}
+BP_set_saved_property 	Instruction {movl     12[esp],72}
+BP_instantiate_saved_bp 2
+
+BP_initiate_saved_bp 3
+BP_set_saved_property 	ContextPath {/opt/codes/nwchem/nwchem-2-8-10/src/nwchem.F#1}
+BP_set_saved_property 	LinePath {/opt/codes/nwchem/nwchem-2-8-10/src/smd/smd-energy/smd_init_energy.F#131}
+BP_set_saved_property 	InnerUnitPath {##/opt/codes/nwchem/nwchem-2-8-10/bin/MACX/nwchem#smd_init_energy.F#smd_init_energy#$b1}
+BP_set_saved_property 	InnerUnitLineOffset {0}
+BP_set_saved_property 	Share {g}
+BP_set_saved_property 	ProcEnabled {1}
+BP_set_saved_property 	BreakSWH {p}
+BP_set_saved_property 	BarrSWH {g}
+BP_set_saved_property 	BarrSWD {g}
+BP_set_saved_property 	SatSet {C}
+# List property BlockEnabled was null
+# List property BlockAddress was null
+BP_set_saved_property 	SourceText {      call smd_rtdb_init(.false.,rtdb)}
+BP_set_saved_property 	Instruction {movl     eax,8[ebp]}
+BP_instantiate_saved_bp 3
+
+BP_initiate_saved_bp 4
+BP_set_saved_property 	ContextPath {/opt/codes/nwchem/nwchem-2-8-10/src/nwchem.F#1}
+BP_set_saved_property 	LinePath {/opt/codes/nwchem/nwchem-2-8-10/src/smd/smdlib/smd_rtdb_data.F#267}
+BP_set_saved_property 	InnerUnitPath {##/opt/codes/nwchem/nwchem-2-8-10/bin/MACX/nwchem#smd_rtdb_data.F#smd_rtdb_init#$b3}
+BP_set_saved_property 	InnerUnitLineOffset {2}
+BP_set_saved_property 	Share {g}
+BP_set_saved_property 	ProcEnabled {1}
+BP_set_saved_property 	BreakSWH {p}
+BP_set_saved_property 	BarrSWH {g}
+BP_set_saved_property 	BarrSWD {g}
+BP_set_saved_property 	SatSet {C}
+# List property BlockEnabled was null
+# List property BlockAddress was null
+BP_set_saved_property 	SourceText {      tag = "rtdb"}
+BP_set_saved_property 	Instruction {leal     edx,-248[ebp]}
+BP_instantiate_saved_bp 4
+
+BP_initiate_saved_bp 5
+BP_set_saved_property 	ContextPath {/opt/codes/nwchem/nwchem-2-8-10/src/nwchem.F#1}
+BP_set_saved_property 	LinePath {/opt/codes/nwchem/nwchem-2-8-10/src/smd/smdlib/smd_rtdb_data.F#273}
+BP_set_saved_property 	InnerUnitPath {##/opt/codes/nwchem/nwchem-2-8-10/bin/MACX/nwchem#smd_rtdb_data.F#smd_rtdb_init#$b4}
+BP_set_saved_property 	InnerUnitLineOffset {2}
+BP_set_saved_property 	Share {g}
+BP_set_saved_property 	ProcEnabled {1}
+BP_set_saved_property 	BreakSWH {p}
+BP_set_saved_property 	BarrSWH {g}
+BP_set_saved_property 	BarrSWD {g}
+BP_set_saved_property 	SatSet {C}
+# List property BlockEnabled was null
+# List property BlockAddress was null
+BP_set_saved_property 	SourceText {      call smd_namespace_create(namespace)}
+BP_set_saved_property 	Instruction {movl     4[esp],32}
+BP_instantiate_saved_bp 5
+
+BP_initiate_saved_bp 6
+BP_set_saved_property 	ContextPath {/opt/codes/nwchem/nwchem-2-8-10/src/nwchem.F#1}
+BP_set_saved_property 	LinePath {/opt/codes/nwchem/nwchem-2-8-10/src/smd/smdlib/smd_rtdb_data.F#275}
+BP_set_saved_property 	InnerUnitPath {##/opt/codes/nwchem/nwchem-2-8-10/bin/MACX/nwchem#smd_rtdb_data.F#smd_rtdb_init}
+BP_set_saved_property 	InnerUnitLineOffset {36}
+BP_set_saved_property 	Share {g}
+BP_set_saved_property 	ProcEnabled {1}
+BP_set_saved_property 	BreakSWH {p}
+BP_set_saved_property 	BarrSWH {g}
+BP_set_saved_property 	BarrSWD {g}
+BP_set_saved_property 	SatSet {C}
+# List property BlockEnabled was null
+# List property BlockAddress was null
+BP_set_saved_property 	SourceText {      call smd_data_namespace_rtdb_get(rtdb,namespace,"smd")}
+BP_set_saved_property 	Instruction {movl     16[esp],3}
+BP_instantiate_saved_bp 6
+
+BP_initiate_saved_bp 7
+BP_set_saved_property 	ContextPath {/opt/codes/nwchem/nwchem-2-8-10/src/nwchem.F#1}
+BP_set_saved_property 	LinePath {/opt/codes/nwchem/nwchem-2-8-10/src/smd/smddb/smd_data.F#1183}
+BP_set_saved_property 	InnerUnitPath {##/opt/codes/nwchem/nwchem-2-8-10/bin/MACX/nwchem#smd_data.F#smd_data_namespace_rtdb_get#$b1}
+BP_set_saved_property 	InnerUnitLineOffset {4}
+BP_set_saved_property 	Share {g}
+BP_set_saved_property 	ProcEnabled {1}
+BP_set_saved_property 	BreakSWH {p}
+BP_set_saved_property 	BarrSWH {g}
+BP_set_saved_property 	BarrSWD {g}
+BP_set_saved_property 	SatSet {C}
+# List property BlockEnabled was null
+# List property BlockAddress was null
+BP_set_saved_property 	SourceText {     +  call errquit(pname//'rtdb is empty',0,0)}
+BP_set_saved_property 	Instruction {movl     8[esp],32}
+BP_instantiate_saved_bp 7
+
+BP_initiate_saved_bp 9
+BP_set_saved_property 	ContextPath {/opt/codes/nwchem/nwchem-2-8-10/src/nwchem.F#1}
+BP_set_saved_property 	LinePath {/opt/codes/nwchem/nwchem-2-8-10/src/smd/smddb/smd_data.F#1186}
+BP_set_saved_property 	InnerUnitPath {##/opt/codes/nwchem/nwchem-2-8-10/bin/MACX/nwchem#smd_data.F#smd_data_namespace_rtdb_get}
+BP_set_saved_property 	InnerUnitLineOffset {43}
+BP_set_saved_property 	Share {g}
+BP_set_saved_property 	ProcEnabled {1}
+BP_set_saved_property 	BreakSWH {p}
+BP_set_saved_property 	BarrSWH {g}
+BP_set_saved_property 	BarrSWD {g}
+BP_set_saved_property 	SatSet {C}
+# List property BlockEnabled was null
+# List property BlockAddress was null
+BP_set_saved_property 	SourceText {      if(index(token,prefix).gt.0) then}
+BP_set_saved_property 	Instruction {movl     16[esp],0}
+BP_instantiate_saved_bp 9
+
+}

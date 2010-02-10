@@ -1,0 +1,1 @@
+$(LIBRARY_PATH)(smd_input.o):	$(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh /opt/codes/nwchem/nwchem-2-8-10//src/tools/include/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/errquit.fh 
