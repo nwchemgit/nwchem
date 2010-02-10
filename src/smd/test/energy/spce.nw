@@ -13,7 +13,7 @@ smd
  lat_c  0.00000000  0.00000000 19.66155506
 # veloc input spce.vel0 output spce.vel
  veloc input random output spce.vel
- coord spce-big.pdb
+# coord spce-big.pdb
  param smd.par
  ndata 2 nequil 1 nprint 10
  temp 300

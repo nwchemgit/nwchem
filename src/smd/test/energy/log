@@ -3,8 +3,8 @@
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 5.1
-              ------------------------------------------------------
+             Northwest Computational Chemistry Package (NWChem) 5.1.1
+             --------------------------------------------------------
 
 
                     Environmental Molecular Sciences Laboratory
@@ -72,16 +72,16 @@
            Job information
            ---------------
 
-    hostname      = marat-macbook.local
-    program       = ../../../../bin/MACX/nwchem
-    date          = Mon Feb  1 21:48:16 2010
+    hostname      = marat-macbook.emsl.pnl.gov
+    program       = nwchem
+    date          = Wed Feb 10 13:43:44 2010
 
-    compiled      = Mon_Feb_01_21:48:09_2010
-    source        = /opt/codes/nwchem
+    compiled      = Wed_Feb_10_13:43:37_2010
+    source        = /opt/codes/nwchem/nwchem-2-8-10
     nwchem branch = Development
     input         = spce.nw
     prefix        = test.
-    data base     = ./test.db
+    data base     = /opt/codes/nwchem/nwchem-2-8-10/src/smd/test/energy/perm/test.db
     status        = startup
     nproc         =        1
     time left     =     -1s
@@ -102,8 +102,8 @@
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = /opt/codes/nwchem/nwchem-2-8-10/src/smd/test/energy/perm
+  0 scratch   = /opt/codes/nwchem/nwchem-2-8-10/src/smd/test/energy/data
 
 
 
@@ -112,27 +112,17 @@
                                 -------------------
 
 
- in smd_input:                      
- calling cfoo
-Hello from C
  in smd_input_vel                   
  current tokeninput                                                                                                                                                                                                                                                                     2           5
  current tokenoutput                                                                                                                                                                                                                                                                    4           5
- in task_smd_dynamics               
  in smd_atom_init                   
- filenamespce-big.pdb                     
- filenamespce-big.pdb                     
- filenamespce-big.pdb                     
  BOND           1           2           1   1.0000000000000000        0.0000000000000000     
  BOND           1           3           1   1.0000000000000000        0.0000000000000000     
  BOND           2           3           1   1.6329929999999999        0.0000000000000000     
  BOND           4           5           1   1.0000000000000000        0.0000000000000000     
  BOND           4           6           1   1.0000000000000000        0.0000000000000000     
  BOND           5           6           1   1.6329929999999999        0.0000000000000000     
- in smd_vel_init_system             
- in smd_type_init                   
- kinetic energy   191192.18389424976     
- current ke 1   191192.18389424976     
+ in smd_system_print              
 atom            = atom            
 parameters      = parameters      
 lattice         = lattice         
@@ -140,7 +130,6 @@ type            = type
 potential       = potential       
 coordinates     = coordinates     
 charge          = charge          
-velocity        = velocity        
 mass            = mass            
 energy          = energy          
 force           = force           
@@ -153,37 +142,22 @@ temperature     = temperature
 rtdb            = rtdb            
 ewald           = ewald           
 bond            = bond            
- in smd_system_ndata                
- in smd_system_tstep                
- in smd_system_shake                
  in smd_energy_compute              
-total            :       -92.901280
-kinetic          :        15.116649
+total            :      -108.017929
 vdw              :        29.368021
 electrostatic    :      -137.385950
 ewald self       :      -734.182495
 ewald reciprocal :         1.114522
 ewald excluded   :       719.864835
 ewald real       :      -124.182812
- in smd_system_tstep                
- in smd_system_shake                
- in smd_energy_compute              
-total            :       -94.468500
-kinetic          :        13.691854
-vdw              :        29.397601
-electrostatic    :      -137.557955
-ewald self       :      -734.182495
-ewald reciprocal :         1.101099
-ewald excluded   :       719.864862
-ewald real       :      -124.341420
 
-Total CPU time :                0.224
+Total CPU time :                0.059
 
-Initialization :                0.114
+Initialization :                0.000
 
-Verlet         :               -0.141
+Verlet         :                0.028
 
-Force          :                0.000
+Force          :                0.031
  Goodbye from task_smd
 
  Task  times  cpu:        0.2s     wall:        0.2s
@@ -212,8 +186,8 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        69	         5
 	current total bytes		         0	         0
-	maximum total bytes		   4078796	   4319428
-	maximum total K-bytes		      4079	      4320
+	maximum total bytes		   4060396	   4319428
+	maximum total K-bytes		      4061	      4320
 	maximum total M-bytes		         5	         5
 
 
@@ -247,7 +221,7 @@ MA usage statistics:
           M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, J. Autschbach,
           P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
           M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
-          A. Vazquez-Mayagoitia, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+          A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
           L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl,
           J. Garza, K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman
           K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
@@ -263,4 +237,4 @@ MA usage statistics:
 
 
 
- Total times  cpu:        0.3s     wall:        0.3s
+ Total times  cpu:        0.2s     wall:        0.2s

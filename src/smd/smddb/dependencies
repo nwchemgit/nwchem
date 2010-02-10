@@ -1,1 +1,0 @@
-$(LIBRARY_PATH)(smd_data.o):	./smd_data.fh ../include/smd_const_data.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh /opt/codes/nwchem/nwchem-2-8-10//src/tools/include/mafdecls.fh $(INCDIR)/inp.fh /opt/codes/nwchem/nwchem-2-8-10//src/tools/include/global.fh $(INCDIR)/errquit.fh 

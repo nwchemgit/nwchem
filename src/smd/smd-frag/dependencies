@@ -1,1 +1,0 @@
-$(LIBRARY_PATH)(task_smd_fragment.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh /opt/codes/nwchem/nwchem-2-8-10/src/tools/include/mafdecls.fh /opt/codes/nwchem/nwchem-2-8-10/src/tools/include/global.fh $(INCDIR)/errquit.fh 
