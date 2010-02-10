@@ -1164,7 +1164,6 @@ c
       integer istart,iend
       integer ndim,dtype,ind
       character*(smd_string_size) token
-c      character*(smd_string_size) mtoken(100)
       character*256 mtoken(100)
       integer  itoken(100)
       double precision  ftoken(100)
@@ -1201,7 +1200,6 @@ c
         if(.not.rtdb_cget(rtdb,token,ndim,mtoken))
      >     call errquit("rtdb_get"//token,0,0)
         call smd_data_put_string(sname,token,ndim,mtoken)
-        call smd_data_get_string(sname,token,ndim,mtoken,result)
       else if(dtype.eq.MT_LOG) then
         if(.not.rtdb_get(rtdb,token,mt_log,ndim,ltoken))
      >     call errquit("rtdb_get"//token,0,0)
