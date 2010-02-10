@@ -273,6 +273,11 @@ c
          rhob=rho(n,3)   
          rhob2 = rhob*rhob
 c
+c        Check for small densities (H atom case as well)
+c
+         if ((abs(rhoa).lt.tol_rho).or.
+     &          (abs(rhob).lt.tol_rho)) goto 20
+c
          tauwa = 0.125d0*gaa/rhoa
          tauwb = 0.125d0*gbb/rhob
 c
