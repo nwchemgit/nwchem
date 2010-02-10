@@ -273,6 +273,7 @@ c     *        errquit('rtdb_getfname failed',0,0)
       call smd_namespace_create(namespace)
 
       call smd_data_namespace_rtdb_get(rtdb,namespace,"smd")
+      call smd_data_namespace_rtdb_get(rtdb,namespace,"geom:source")
       oldmode = rtdb_parallel(oldmode)
       end 
 
