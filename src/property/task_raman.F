@@ -51,7 +51,7 @@ c
       double precision width ! full-width at half maximum (FWHM) in 1/cm
       double precision cpu, wall
       double precision step_size ! multiplictive factor for step along normal mode
-      double precision lazer(1)
+      double precision laser(1)
 c
       character*32 pname
 c
@@ -170,7 +170,7 @@ c
      &    call errquit(pname//'file close problem',555, DISK_ERR)
       endif  
 c
-c -------------grab lazer freq(s) from rtdb---------------------------
+c -------------grab laser freq(s) from rtdb---------------------------
 c          (blatanly stolen from aoresponse_driver.F)
 c
       if (.not.rtdb_get(rtdb, 'aoresponse:nfreq', mt_int, 1, nfreq))then  
@@ -216,8 +216,8 @@ c     force nfreq = 1 if response order equals 1 (no freq. input)
       if (response_order.eq.1 .and. nfreq.ne.1) nfreq = 1
       if (debug) write (luout,*) 'freqs',dbl_mb(k_fr)
       nfreq = 1
-      lazer(1) = 0.088559D+00  ! 514 nm
-      if (debug) write (luout,*) "freq",lazer(1)
+      laser(1) = 0.088559D+00  ! 514 nm
+      if (debug) write (luout,*) "freq",laser(1)
 c
 c ------------allocate freq and nmode and broadcast from node 0----------------
 c
@@ -270,7 +270,7 @@ c     == perform raman calculation ==
 c
       subroutine task_raman_doit(rtdb,geom,nc,nat,first,last,rmmodes,
      &         steps,nfreq,plot,line,width,step_size,low,high,eigenvecs,
-     &         eigenvals,mass,lazer )
+     &         eigenvals,mass,laser )
 c
       implicit none
 #include "errquit.fh"
@@ -321,7 +321,7 @@ c
       double precision master(3,nat) ! saved initial coordinates
       double precision coord(3,nat)  ! displaced coordinate passed to raman_modestep
       double precision junk3(6,3), junk4(6,3) ! temp. arrays for FD of polarizanbility
-      double precision lazer(nfreq) ! [input] frequency of lazer
+      double precision laser(nfreq) ! [input] frequency of laser
       double precision low, high ! wavenumber bounds for normal modes allowed in raman calc
 c
       character*32 pname
@@ -432,7 +432,7 @@ c
  200  continue ! come here on a restart to recalculate a plot / from the high variable
 c
       call raman_scattering(rtdb,start,last,rmmodes,nfreq,plot,
-     &                      line,width,lazer,rminfo)
+     &                      line,width,laser,rminfo)
 c
       return
       end
