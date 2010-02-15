@@ -112,7 +112,7 @@ c     are hardwired here:
       double precision vel_transdip(3) ! velocity electric dipoles
       double precision ga_trace_diag
       external ga_trace_diag
-      character*32 pname, clabel
+      character*32 pname
       double precision origin(3)
       data origin/0d0,0d0,0d0/
 c     /jochen
@@ -132,7 +132,7 @@ c     check for VELOCITY input key in RTDB
       if (.not.rtdb_get(rtdb,'tddft:velocity',mt_log,1,velocity))
      $  velocity=.false.
 
-      pname="tddft_analysis:"
+      pname="tddft_analysis: "
       if (cdspectrum) then         
         
 c     We will create arrays for some dipole matrix elements here.
@@ -140,10 +140,9 @@ c     adapted from dft_main0d.F
 c     == Create and get the dipole matrix element ga: g_dipole ==
 
          do icomp = 1,3
-            write(clabel,'(a,i1)') 'g_dipole',icomp
-            if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, clabel(1:10),
+            if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_dipole',
      $       nbf_ao, 0, g_dipole(icomp)))
-     $        call errquit(pname//clabel,0, GA_ERR)
+     $        call errquit(pname//'ga_create failed g_dipole',0, GA_ERR)
             call ga_zero(g_dipole(icomp))
          end do ! icomp
 c     
@@ -159,7 +158,7 @@ c     magnetic dipole moment integrals (r x nabla), times 0.5:
          ahi(2) = nbf_ao
          ahi(3) = 3         
          if (.not.nga_create(MT_DBL,3,ahi,'mag-dipole',alo,g_dipmag))
-     $       call errquit(pname//' nga_create failed g_dipmag',0,GA_ERR)
+     $       call errquit(pname//'nga_create failed g_dipmag',0,GA_ERR)
          call ga_zero(g_dipmag)
 
          call int_giao_1ega(ao_bas_han,ao_bas_han,g_dipmag,'angmom',
@@ -953,9 +952,8 @@ c       jochen:
         if (cdspectrum) then
 c     Clean up arrays used for CD spectra
            do icomp = 1,3
-              write (clabel,'(a,i1)') 'could not destroy g_dipole',icomp
               if (.not. ga_destroy(g_dipole(icomp))) call errquit
-     &             (pname//clabel, 0, GA_ERR)
+     &             (pname//'ga_destroy failed g_dipole', 0, GA_ERR)
            end do
            if (.not.ga_destroy(g_dipmag)) call
      &          errquit(pname//'ga_destroy failed g_dipmag',0,GA_ERR)
