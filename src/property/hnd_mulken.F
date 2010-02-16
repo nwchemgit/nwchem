@@ -234,7 +234,7 @@ c
                if (.not. geom_cent_tag(geom, irow, tag))
      $             call errquit('bas_vec_info: tag', irow, BASIS_ERR)
                status = geom_tag_to_element(tag, symbol, element, atn)
-               write(luout,2592) irow,symbol,atn,
+               write(luout,2592) irow,symbol,dble(atn),
      &               (dbl_mb(sh_offset+lmax+1)-dbl_mb(ij_offset+lmax+1))
             enddo
          endif
