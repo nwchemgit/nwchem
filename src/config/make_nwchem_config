@@ -31,7 +31,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lcphf -lscfaux -lesp -lddscf -ldangchang -lleps -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -largos -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib \
-                    -lsmddb -lsmd \
+                    -lsmd -lsmddb\
                     -lcafe -lspace -lanalyze -ldiana -lqhop \
                     -lpfft -ldplot -loimp2 -lnwpython -ldrdy -lvscf -lqmmm -lqmd -letrans\
                     -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lnbo -ldntmc -ltransport -lccca
