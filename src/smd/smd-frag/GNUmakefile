@@ -2,9 +2,9 @@
 # $Id: GNUmakefile,v 1.14 2008/05/20 16:59:46 marat Exp $
 #
 
-          OBJ = task_smd_fragment.o 
+          OBJ = task_smd_fragment.o  smd_monomer.o
 
-      LIBRARY = libsmdfrag.a
+      LIBRARY = libsmd.a
 
 #  LIB_DEFINES = -DMPI -I$(MPI_INCLUDE)
 
