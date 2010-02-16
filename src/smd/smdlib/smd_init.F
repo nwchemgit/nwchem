@@ -328,28 +328,28 @@ c     --------------------------------
 c
       if(ga_nodeid().eq.master) then
       call smd_rtdb_init(.false.,rtdb)
-      call smd_cutoff_init()
-      call smd_temper_init()
+c      call smd_cutoff_init()
+c      call smd_temper_init()
       call smd_atom_init_system()
       call smd_param_init_system()
       call smd_lat_init_system()
-      call smd_pot_init_system()
+c      call smd_pot_init_system()
       call smd_type_init_system()
-      call smd_energy_init_system()
-      call smd_force_init_system()
+c      call smd_energy_init_system()
+c      call smd_force_init_system()
       call smd_charge_init_system()
       call smd_coords_init_system()
-      call smd_exlist_init_system()
-      call smd_vlist_init_system()
-      call smd_bond_init_system()
-      call smd_shakelist_init_system()
-      call smd_bondlist_init_system()
+c      call smd_exlist_init_system()
+c      call smd_vlist_init_system()
+c      call smd_bond_init_system()
+c      call smd_shakelist_init_system()
+c      call smd_bondlist_init_system()
       call smd_mass_init_system()
 c
 c     finish system setup
 c     -------------------
       call smd_coords_rebox()
-      call smd_ewald_init()
+c      call smd_ewald_init()
       call smd_system_print(6)
 
       end if
