@@ -880,19 +880,19 @@ c
       if (.not. geom_tag_to_element(tag_in_lib, symbol, element, atn))
      $     call errquit
      &    ('bas_tag_lib: tag does not refer to an atom', 0, INPUT_ERR)
-
+c
+c     replace all underscores with spaces in basis name in standard
+c
+      lenn = inp_strlen(standard)
+      do ind = 1, lenn
+         if (standard(ind:ind).eq.'_') standard(ind:ind) = ' '
+      enddo
+c
       string = symbol
       lenn = inp_strlen(string)
       string(lenn+1:lenn+1) = '_'
       string(lenn+2:) = standard
       call inp_lcase(string)
-c
-c     replace all non-trailing spaces with underscore
-c
-      lenn = inp_strlen(string)
-      do ind = 1, lenn
-         if (string(ind:ind).eq.' ') string(ind:ind) = '_'
-      enddo
 c
 c two possibilities for filename:
 c 1. user defined file -> don not do anything, just read file
