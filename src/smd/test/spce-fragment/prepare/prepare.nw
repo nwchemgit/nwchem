@@ -1,0 +1,22 @@
+Title "QM/MM of water dimer"
+
+memory total 800 Mb
+
+
+start h2o
+
+echo
+
+prepare
+ source spce.pdb
+ new_top new_seq
+ new_rst
+ periodic
+ modify segment 1 quantum
+ update lists
+ ignore
+ write h2o_ref.rst
+ write h2o_ref.pdb
+end
+task prepare
+

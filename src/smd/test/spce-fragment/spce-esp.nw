@@ -1,0 +1,39 @@
+memory total 2000 Mb
+start test
+
+permanent_dir /home/marat/codes/nwchem-test/src/smd/test/spce-fragment/perm
+scratch_dir /home/marat/codes/nwchem-test/src/smd/test/spce-fragment/data
+
+geometry nocenter noautosym noautoz
+OW         7.661785195        -3.724471335        -2.058131047    
+HW2        6.892049609        -3.432944934        -2.626039783    
+HW3        8.381227807        -3.030657154        -2.090147933    
+end
+
+set smd:theory "dft"
+
+
+basis noprint
+* library 6-31G
+end
+
+
+dft
+print low
+xc b3lyp
+iterations 200
+end
+
+esp
+print medium
+end
+
+set smd:theory "dft"
+set dft:xcreplicated f
+
+
+set subgroups_number 2
+set smd:fragment_istart 1
+set smd:fragment_iend 1
+task dft energy 
+task esp

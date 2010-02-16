@@ -1,0 +1,19 @@
+ argument  1 = h2o.nw
+  Unable to open h2o.nw --- appending .nw
+ ------------------------------------------------------------------------
+ nwchem: failed to open the input file        0
+ ------------------------------------------------------------------------
+ ------------------------------------------------------------------------
+  current input line : 
+     0: 
+ ------------------------------------------------------------------------
+ ------------------------------------------------------------------------
+ There is an error in the input file
+ ------------------------------------------------------------------------
+ For more information see the NWChem manual at 
+ http://www.emsl.pnl.gov/docs/nwchem/nwchem.html
+
+
+ For further details see manual section: 
+                                                                                                                                                                                                                                                                
+0:0:nwchem: failed to open the input file:: 0

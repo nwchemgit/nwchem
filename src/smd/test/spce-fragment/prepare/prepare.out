@@ -1,0 +1,285 @@
+ argument  1 = prepare.nw
+
+
+
+============================== echo of input deck ==============================
+Title "QM/MM of water dimer"
+
+memory total 800 Mb
+
+
+start h2o
+
+echo
+
+prepare
+ source spce.pdb
+ new_top new_seq
+ new_rst
+ periodic
+ modify segment 1 quantum
+ update lists
+ ignore
+ write h2o_ref.rst
+ write h2o_ref.pdb
+end
+task prepare
+
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 5.1
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                                         
+                                         
+
+
+                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
+                   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+
+                            >>> All Rights Reserved <<<
+
+
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC05-76RL01830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = colibry
+    program       = /home/marat/codes/nwchem-test/bin/LINUX/nwchem
+    date          = Tue May 20 13:55:38 2008
+
+    compiled      = Tue_May_20_13:52:38_2008
+    source        = /home/marat/codes/nwchem-test
+    nwchem branch = Development
+    input         = prepare.nw
+    prefix        = h2o.
+    data base     = ./h2o.db
+    status        = startup
+    nproc         =    1
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =   26214401 doubles =    200.0 Mbytes
+    stack     =   26214401 doubles =    200.0 Mbytes
+    global    =   52428800 doubles =    400.0 Mbytes (distinct from heap & stack)
+    total     =  104857602 doubles =    800.0 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                               QM/MM of water dimer
+                               --------------------
+                                  Prepare Module
+                                  --------------
+
+ Force field                           amber
+
+
+ Directories used for fragment and segment files
+
+                                       /home/marat/codes/nwchem-5.0/src/data/amber_s/
+                                       /home/marat/codes/nwchem-5.0/src/data/amber_q/
+                                       /home/marat/codes/nwchem-5.0/src/data/amber_x/
+                                       /home/marat/codes/nwchem-5.0/src/data/amber_u/
+                                       ./
+
+ Parameter files used to resolve force field parameters
+
+                                       /home/marat/codes/nwchem-5.0/src/data/amber_s/amber.par
+                                       /home/marat/codes/nwchem-5.0/src/data/amber_q/amber.par
+                                       /home/marat/codes/nwchem-5.0/src/data/amber_x/amber.par
+                                       /home/marat/codes/nwchem-5.0/src/data/amber_u/amber.par
+                                       ./amber.par
+ PDB geometry                          spce.pdb
+
+ Created segment                       ./WTT.sgm
+
+ Created sequence                      ./h2o.seq
+
+ 
+ modify segment     1 set 0 quantum 
+ Parameter file                        /home/marat/codes/nwchem-5.0/src/data/amber_s/amber.par
+ Parameter file                        /home/marat/codes/nwchem-5.0/src/data/amber_q/amber.par
+ Parameter file                        /home/marat/codes/nwchem-5.0/src/data/amber_x/amber.par
+ 
+ Total charge                              0.000000
+
+ Created topology                      h2o.top
+
+ Topology                              h2o.top
+
+ Restart generation using command file directives
+
+ PDB file                              spce.pdb
+ Number of missing coordinates                0
+ Total number of atoms                        3
+
+ Generating missing atom coordinates:     0    1
+
+ Crystal waters done
+
+ Coordinates generated for missing atoms
+
+
+ Boxsize determined to                     1.966000    1.958600    1.964800
+
+
+ Periodic boundary conditions on
+
+ Created restart                       h2o_ref.rst
+
+ Created pdb                           h2o_ref.pdb
+
+
+ Task  times  cpu:        0.0s     wall:        0.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:    0        0        0        0        0        0        0        0     
+number of processes/call 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes total:             0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 0 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	         7	        33
+	current total bytes		         0	         0
+	maximum total bytes		     39360	   3033780
+	maximum total K-bytes		        40	      3034
+	maximum total M-bytes		         1	         4
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 5.1" (2007), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+          Please use the following citation when publishing results
+          obtained with NWChem:
+
+          E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+          M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, P. Nichols,
+          S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
+          M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+          Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+          E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+          R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+          D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+          K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+          B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+          X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+          G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong,
+          and Z. Zhang,
+          "NWChem, A Computational Chemistry Package for Parallel Computers, 
+          Version 5.1" (2007),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:        0.1s     wall:        0.2s

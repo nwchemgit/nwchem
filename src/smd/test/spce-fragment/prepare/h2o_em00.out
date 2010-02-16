@@ -1,0 +1,26 @@
+
+ ENERGY EVALUATION                                                                                           05/20/08   13:57:03 
+
+ Title   NWChem:MD input                                                                                     05/20/08   13:57:03 
+                                                                                         
+                                                                                         
+
+ System h2o_em00
+
+ Force field parameter set    1
+
+ Initial simulation
+
+
+ Cutoff radius     1.500000 nm
+
+ Maximum number of solvent SHAKE iterations   100, solvent SHAKE tolerance     0.000001 nm
+ Maximum number of solute SHAKE iterations    100, solute SHAKE tolerance      0.000001 nm
+
+
+ LOAD BALANCING
+
+ Redistribution of inter-processor box pairs: retry      10
+ Resizing of processor domains: smallest scaling          0.750000
+
+ Load balancing based on last synchronization time
