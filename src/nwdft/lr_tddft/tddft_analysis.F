@@ -156,13 +156,16 @@ c     Temp array
      $       nbf_ao, 0, g_temp)) call errquit(pname//'g_temp',0, GA_ERR)
       call ga_zero(g_temp)
 c
-c     Calculate the overlap: S matrix
-      if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'AO ovl',
+      if (gmhcoupling) then
+c
+c       Calculate the overlap: S matrix
+        if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'AO ovl',
      &     -1, -1, g_smat))
      &     call errquit(pname//'Error creating ga',0,GA_ERR)
-      call ga_zero(g_smat)
-      call int_1e_ga(ao_bas_han, ao_bas_han, g_smat, 'overlap', oskel)
-      if (oskel)call sym_symmetrize(geom, ao_bas_han, .false., g_smat)
+        call ga_zero(g_smat)
+        call int_1e_ga(ao_bas_han, ao_bas_han, g_smat, 'overlap', oskel)
+        if (oskel)call sym_symmetrize(geom, ao_bas_han, .false., g_smat)
+      endif
 c
       if (cdspectrum) then         
         
@@ -221,7 +224,7 @@ c          compute  dipole-velocity integrals
 c          invert sign of velocity integrals for compatibility 
 c          w/ dipole-length formalism
            call ga_scale (g_dipvel, -1d0) 
-        end if                  ! velocity
+      end if                  ! velocity
 c
 c --------------------------------
 c Number of occupied virtual pairs
@@ -418,15 +421,19 @@ c All roots
 c ---------
 c
       do i=1,ipol
-        if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'Transition density',
+       if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'Transition density',
      1    -1,-1,g_tmomd(i))) call errquit
      2    ('tddft_analysis: failed to create g_tmomd',0, GA_ERR)
+c
+       if (gmhcoupling) then
         if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'Ground state density',
      1    -1,-1,g_gsd(i))) call errquit
      2    ('tddft_analysis: failed to create g_gsd',0, GA_ERR)
         if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'Excited state density',
      1    -1,-1,g_exd(i))) call errquit
      2    ('tddft_analysis: failed to create g_exd',0, GA_ERR)
+       endif
+c
       enddo
 c
 c ------------
@@ -470,6 +477,8 @@ c ... frozen cores are irrelevant
         nb=dfloat(nocc(2)-nfc(2))
       endif
 c
+      if (gmhcoupling) then
+c
 c     Calculate ground state dipole
       if (ipol.eq.1) then  ! closed shell
          call ga_dgemm('n','t',nbf_ao,nmo(1),nocc(1), 2.d0, g_movecs(1),
@@ -477,18 +486,15 @@ c     Calculate ground state dipole
          call multipole_density(ao_bas_han,cntr,3, g_gsd(1),gsmom,20)
 c        write(6,*) gsmom(1),gsmom(2),gsmom(3),gsmom(4)
       else  ! open shell
-       if (nocc(1).gt.0) then
         call ga_dgemm('n','t',nbf_ao,nmo(1),nocc(1), 1.d0, g_movecs(1),
      &       g_movecs(1), 0.d0, g_gsd(1))
         call multipole_density(ao_bas_han,cntr,3, g_gsd(1),gsmom,20)
-       endif
-       if (nocc(2).gt.0) then
         call ga_dgemm('n','t',nbf_ao,nmo(2),nocc(2), 1.d0, g_movecs(2),
      &       g_movecs(2), 0.d0, g_gsd(2))
         call multipole_density(ao_bas_han,cntr,3, g_gsd(2),gsmom,20)
 c       write(6,*) gsmom(1),gsmom(2),gsmom(3),gsmom(4)
-       endif
       endif
+      endif  ! gmhcoupling
 c
 c --------------
 c Excited states
@@ -719,9 +725,11 @@ c
         call tddft_transfm(n,g_x,g_movecs,nbf_ao,
      1    nocc,nmo,nfc,nfv,ipol,g_tmomd,1)  ! transition density
 c
-        call tddft_transfm(n,g_x,g_x,nbf_ao,
-     1    nocc,nmo,nfc,nfv,ipol,g_exd,1)    ! excited state density
-
+        if (gmhcoupling) then
+          call tddft_transfm(n,g_x,g_x,nbf_ao,
+     &        nocc,nmo,nfc,nfv,ipol,g_exd,1)    ! excited state density
+        endif
+c
         do i=1,ipol
 c
           if (cdspectrum) then
@@ -765,10 +773,11 @@ c
           call multipole_density(ao_bas_han,cntr,3,
      1      g_tmomd(i),tmom,20)  ! transition moments
 c
+          if (gmhcoupling) then
           call multipole_density(ao_bas_han,cntr,3,
      1      g_exd(i),exmom,20)   ! excited state moments
-cng
-
+          endif
+c
         enddo ! ipol
 
         if (.not.tda) then ! we have a also matrix Y to consider
@@ -780,8 +789,10 @@ c     integrals, and add results to the transition moments
           call tddft_transfm(n,g_y,g_movecs,nbf_ao,
      1      nocc,nmo,nfc,nfv,ipol,g_tmomd,1)  ! transiton density
 c
-          call tddft_transfm(n,g_y,g_y,nbf_ao,
-     1      nocc,nmo,nfc,nfv,ipol,g_exd,1)    ! excited state density
+          if (gmhcoupling) then
+            call tddft_transfm(n,g_y,g_y,nbf_ao,
+     1        nocc,nmo,nfc,nfv,ipol,g_exd,1)    ! excited state density
+          endif
 c
           do i=1,ipol
 
@@ -824,8 +835,10 @@ c
             call multipole_density(ao_bas_han,cntr,3,
      1        g_tmomd(i),tmom,20)   ! transition moments
 c
-            call multipole_density(ao_bas_han,cntr,3,
+            if (gmhcoupling) then
+             call multipole_density(ao_bas_han,cntr,3,
      1        g_exd(i),exmom,20)    ! excited state moments
+            endif
 c
          enddo ! ipol
 
@@ -1133,14 +1146,18 @@ c
       do i=1,ipol
         if (.not.ga_destroy(g_tmomd(i))) call errquit
      2    ('tddft_analysis: failed to destroy g_tmomd',0, GA_ERR)
+        if (gmhcoupling) then
         if (.not.ga_destroy(g_gsd(i))) call errquit
      2    ('tddft_analysis: failed to destroy g_gsd',0, GA_ERR)
         if (.not.ga_destroy(g_exd(i))) call errquit
      2    ('tddft_analysis: failed to destroy g_exd',0, GA_ERR)
+        endif
       enddo
 c
+      if (gmhcoupling) then
       if (.not.ga_destroy(g_smat)) call errquit
      2    ('tddft_analysis: failed to destroy g_smat',0, GA_ERR)
+      endif
 c
       return
       end
