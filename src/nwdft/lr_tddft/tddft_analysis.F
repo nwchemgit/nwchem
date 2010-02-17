@@ -896,7 +896,7 @@ c           Calculate GMHCoupling Hab = mij*Eij/dsqrt((deltamu)**2 + 4*mij*mij)
      &                    + (gsmom(4)-exmom(4))**2
                hab = mijdeltaEij/dsqrt(deltamuij2 + 4.d0*mij*mij)
                write (LuOut,*) 
-               write (LuOut,9252) hab
+               write (LuOut,9252) dabs(hab)
             endif  ! gmhcoupling
 c
             if (cdspectrum) then
@@ -1086,7 +1086,8 @@ c      /jochen
  9250 format(5x,a
      $    ,/,5x,'       X ',f12.7,'   Y',f12.7,'   Z',f12.7)
  9251 format( 5x,a,1x,f20.7)
- 9252 format(5x,'Generalized Mulliken-Hush Coupling = ',f8.4,' a.u')
+ 9252 format(5x,'Generalized Mulliken-Hush Coupling |Hab| = ',
+     & f8.4,' a.u')
 c
 c -----------
 c Target root
