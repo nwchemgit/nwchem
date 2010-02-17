@@ -46,7 +46,7 @@ C     character*80 vector
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet
-      logical tda,symmetry, cdspectrum, velocity
+      logical tda,symmetry, cdspectrum, velocity, gmhcoupling
       double precision thresh
 c
 c ------------------
@@ -130,16 +130,20 @@ C     call util_file_name('tddft',.false.,.false.,vector)
 C     if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
 C    1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
-c     CIS (Tamm-Dancoff approximation)
+c     CDSPECTRUM
 c
-c ... jochen:
       cdspectrum  = .false.
       if (.not.rtdb_put(rtdb,'tddft:cdspectrum',mt_log,1,cdspectrum))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
       velocity  = .false.
       if (.not.rtdb_put(rtdb,'tddft:velocity',mt_log,1,velocity))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
-c     /jochen
+c
+c     GENERALIZED MULLIKEN-HUSH H_IJ
+c
+      gmhcoupling = .false.
+      if (.not.rtdb_put(rtdb,'tddft:gmhcoupling',mt_log,1,gmhcoupling))
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c ----------
 c Read input
@@ -298,8 +302,6 @@ c
      1    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
 c
-c ... jochen:
-c
 c     CDSPECTRUM
 c
       else if (inp_compare(.false.,test,'cdspectrum')) then
@@ -315,7 +317,14 @@ c
         if (.not.rtdb_put(rtdb,'tddft:velocity',mt_log,1,velocity))
      1    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
-c     /jochen
+c
+c     GENERALIZED MULLIKEN-HUSH H_IJ COUPLING
+c
+      else if (inp_compare(.false.,test,'gmhcoupling')) then
+       gmhcoupling=.true.
+       if (.not.rtdb_put(rtdb,'tddft:gmhcoupling',mt_log,1,gmhcoupling))
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     VECTOR (filename for solution vectors)
 c
