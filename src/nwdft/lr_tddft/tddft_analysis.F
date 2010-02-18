@@ -193,7 +193,6 @@ c     magnetic dipole moment integrals (r x nabla), times 0.5:
          if (.not.nga_create(MT_DBL,3,ahi,'mag-dipole',alo,g_dipmag))
      $       call errquit(pname//'nga_create failed g_dipmag',0,GA_ERR)
          call ga_zero(g_dipmag)
-
          call int_giao_1ega(ao_bas_han,ao_bas_han,g_dipmag,'angmom',
      $        origin,1, .false.)
          call ga_scale (g_dipmag, 0.5d0)
@@ -478,22 +477,21 @@ c ... frozen cores are irrelevant
       endif
 c
       if (gmhcoupling) then
-c
-c     Calculate ground state dipole
-      if (ipol.eq.1) then  ! closed shell
+c       Calculate ground state dipole
+        if (ipol.eq.1) then  ! closed shell
          call ga_dgemm('n','t',nbf_ao,nmo(1),nocc(1), 2.d0, g_movecs(1),
      &       g_movecs(1), 0.d0, g_gsd(1))
          call multipole_density(ao_bas_han,cntr,3, g_gsd(1),gsmom,20)
 c        write(6,*) gsmom(1),gsmom(2),gsmom(3),gsmom(4)
-      else  ! open shell
-        call ga_dgemm('n','t',nbf_ao,nmo(1),nocc(1), 1.d0, g_movecs(1),
+        else  ! open shell
+         call ga_dgemm('n','t',nbf_ao,nmo(1),nocc(1), 1.d0, g_movecs(1),
      &       g_movecs(1), 0.d0, g_gsd(1))
-        call multipole_density(ao_bas_han,cntr,3, g_gsd(1),gsmom,20)
-        call ga_dgemm('n','t',nbf_ao,nmo(2),nocc(2), 1.d0, g_movecs(2),
+         call multipole_density(ao_bas_han,cntr,3, g_gsd(1),gsmom,20)
+         call ga_dgemm('n','t',nbf_ao,nmo(2),nocc(2), 1.d0, g_movecs(2),
      &       g_movecs(2), 0.d0, g_gsd(2))
-        call multipole_density(ao_bas_han,cntr,3, g_gsd(2),gsmom,20)
-c       write(6,*) gsmom(1),gsmom(2),gsmom(3),gsmom(4)
-      endif
+         call multipole_density(ao_bas_han,cntr,3, g_gsd(2),gsmom,20)
+c         write(6,*) gsmom(1),gsmom(2),gsmom(3),gsmom(4)
+        endif
       endif  ! gmhcoupling
 c
 c --------------
@@ -726,8 +724,8 @@ c
      1    nocc,nmo,nfc,nfv,ipol,g_tmomd,1)  ! transition density
 c
         if (gmhcoupling) then
-          call tddft_transfm(n,g_x,g_x,nbf_ao,
-     &        nocc,nmo,nfc,nfv,ipol,g_exd,1)    ! excited state density
+          !call tddft_transfm(n,g_x,g_x,nbf_ao,
+     &    !    nocc,nmo,nfc,nfv,ipol,g_exd,1)    ! excited state density
         endif
 c
         do i=1,ipol
@@ -774,8 +772,8 @@ c
      1      g_tmomd(i),tmom,20)  ! transition moments
 c
           if (gmhcoupling) then
-          call multipole_density(ao_bas_han,cntr,3,
-     1      g_exd(i),exmom,20)   ! excited state moments
+           ! call multipole_density(ao_bas_han,cntr,3,
+     1     !    g_exd(i),exmom,20)   ! excited state moments
           endif
 c
         enddo ! ipol
@@ -790,8 +788,8 @@ c     integrals, and add results to the transition moments
      1      nocc,nmo,nfc,nfv,ipol,g_tmomd,1)  ! transiton density
 c
           if (gmhcoupling) then
-            call tddft_transfm(n,g_y,g_y,nbf_ao,
-     1        nocc,nmo,nfc,nfv,ipol,g_exd,1)    ! excited state density
+            !call tddft_transfm(n,g_y,g_y,nbf_ao,
+     1      !  nocc,nmo,nfc,nfv,ipol,g_exd,1)    ! excited state density
           endif
 c
           do i=1,ipol
@@ -836,8 +834,8 @@ c
      1        g_tmomd(i),tmom,20)   ! transition moments
 c
             if (gmhcoupling) then
-             call multipole_density(ao_bas_han,cntr,3,
-     1        g_exd(i),exmom,20)    ! excited state moments
+             !call multipole_density(ao_bas_han,cntr,3,
+     1       ! g_exd(i),exmom,20)    ! excited state moments
             endif
 c
          enddo ! ipol
@@ -1148,15 +1146,15 @@ c
         if (.not.ga_destroy(g_tmomd(i))) call errquit
      2    ('tddft_analysis: failed to destroy g_tmomd',0, GA_ERR)
         if (gmhcoupling) then
-        if (.not.ga_destroy(g_gsd(i))) call errquit
+         if (.not.ga_destroy(g_gsd(i))) call errquit
      2    ('tddft_analysis: failed to destroy g_gsd',0, GA_ERR)
-        if (.not.ga_destroy(g_exd(i))) call errquit
+         if (.not.ga_destroy(g_exd(i))) call errquit
      2    ('tddft_analysis: failed to destroy g_exd',0, GA_ERR)
         endif
       enddo
 c
       if (gmhcoupling) then
-      if (.not.ga_destroy(g_smat)) call errquit
+        if (.not.ga_destroy(g_smat)) call errquit
      2    ('tddft_analysis: failed to destroy g_smat',0, GA_ERR)
       endif
 c
