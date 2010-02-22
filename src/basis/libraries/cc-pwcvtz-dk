@@ -1,4 +1,4 @@
-#  cc-pwCVTZ-DK  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  cc-pwCVTZ-DK  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # Sc - Zn: N.B. Balabanov and K.A. Peterson, J. Chem. Phys., accepted (2005).
@@ -1258,3 +1258,4 @@ Pd    G
       2.8084000              1.0000000              0.0000000        
       1.3187000              0.0000000              1.0000000        
 end
+

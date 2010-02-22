@@ -1,4 +1,4 @@
-#  cc-pCV6Z(old)  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pCV6Z(old)  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
 # Elements                             References
 # --------                             ----------
 # H:         K.A. Peterson, D.E. Woon and T. H. Dunning, Jr., (to be published). 
@@ -104,3 +104,4 @@ O    H
 O    I
       2.7730000              1.0000000        
 end
+

@@ -1,4 +1,4 @@
-#  Ahlrichs VDZ  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  Ahlrichs VDZ  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H - Kr: A. Schafer, H. Horn and R. Ahlrichs, J. Chem. Phys. 97, 2571 (1992).
@@ -1047,3 +1047,4 @@ Kr    D
 Kr    D
       1.5079273157           0.26676858913    
 end
+

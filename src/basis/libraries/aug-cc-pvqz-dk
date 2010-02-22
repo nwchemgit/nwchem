@@ -1,4 +1,4 @@
-#  aug-cc-pVQZ-DK  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  aug-cc-pVQZ-DK  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Original basis sets:
 # Elements                             References
 # --------                             ----------
@@ -791,3 +791,4 @@ Zn    H
 Zn    H
       1.9605400              1.0000000        
 end
+

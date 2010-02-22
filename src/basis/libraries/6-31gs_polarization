@@ -1,4 +1,4 @@
-#  6-31G* Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  6-31G* Polarization  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # Li - Ne: P.C. Hariharan and J.A. Pople, Theoret. Chimica Acta 28, 213 (1973).
@@ -7,6 +7,8 @@
 # K  - Zn: V. Rassolov, J.A. Pople, M. Ratner and T.L. Windus, J. Chem. Phys. 
 #          109, 1223 (1998) 
 #          
+#          Note: He and Ne are unpublished basis sets taken from Gaussian.
+#   
 
 
 basis "Li_6-31G* Polarization" CARTESIAN
@@ -121,3 +123,4 @@ basis "Zn_6-31G* Polarization" CARTESIAN
 Zn    F
       0.8000000              1.000000E+00     
 end
+

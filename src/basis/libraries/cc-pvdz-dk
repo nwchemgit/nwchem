@@ -1,4 +1,4 @@
-#  cc-pVDZ-DK  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  cc-pVDZ-DK  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # Original basis sets:
 # Elements                             References
 # --------                             ----------
@@ -610,3 +610,4 @@ Kr    D
       1.5075240              0.2606169              0.0000000        
       0.5030000              0.0000000              1.0000000        
 end
+

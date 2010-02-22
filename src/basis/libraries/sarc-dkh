@@ -1,4 +1,4 @@
-#  SARC-DKH  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  SARC-DKH  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # Hf Ta W Re Os Ir Pt Au Hg: Dimitrios. A. Pantazis, Xian-Yang Chen, Clark R. Landis, and Frank Neese, All-Electron Scalar Relativistic Basis Sets for Third-Row Transition Metal Atoms, Journal of Chemical Theory and Computation 4(6), 908?919 (2008).
@@ -546,3 +546,4 @@ Hg    F
       1.1937160000           0.0563736427           0.0000000        
       0.3979050000           0.0000000              1.0000000000     
 end
+

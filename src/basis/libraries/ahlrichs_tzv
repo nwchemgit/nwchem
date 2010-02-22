@@ -1,4 +1,4 @@
-#  Ahlrichs TZV  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  Ahlrichs TZV  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # Li - Kr: A. Schafer, C. Huber and R. Ahlrichs, J. Chem. Phys. 100, 5829 (1994).
@@ -1315,3 +1315,4 @@ Kr    D
 Kr    D
       1.1952170102           1.0000000000     
 end
+

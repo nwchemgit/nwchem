@@ -1,4 +1,4 @@
-#  ccJ-pVTZ  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  ccJ-pVTZ  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H He B C N O F Ne: Udo Benedikt, Alexander A. Auer, Frank Jensen, Optimization of Augmentation Functions for Correlated Calculations of Spin-Spin Coupling Constants and Related Properties, J. Chem. Phys. 129, 064111 (2008).
@@ -209,3 +209,4 @@ Ne    D
 Ne    F
       2.5440000              1.0000000        
 end
+

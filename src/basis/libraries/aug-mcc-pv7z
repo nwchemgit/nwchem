@@ -1,4 +1,4 @@
-#  aug-mcc-pV7Z  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  aug-mcc-pV7Z  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ---------
 # H    : S.L. Mielke, B.C. Garrett and K.A. Peterson, J. Chem. Phys. 116, 4142
@@ -87,3 +87,4 @@ H    I
 H    I
       0.7313800              1.0000000        
 end
+

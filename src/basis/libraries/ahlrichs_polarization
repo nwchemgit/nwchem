@@ -1,4 +1,4 @@
-#  Ahlrichs Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  Ahlrichs Polarization  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
 # Elements                             References
 # --------                             ----------
 # H - Kr: R. Ahlrichs and coworkers, (mostly unpublished)
@@ -153,3 +153,4 @@ basis "Kr_Ahlrichs Polarization" SPHERICAL
 Kr    D
       0.4430000              1.0000000        
 end
+

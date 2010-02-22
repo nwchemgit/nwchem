@@ -1,4 +1,4 @@
-#  cc-pV5Z(fi/sf/fw)  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pV5Z(fi/sf/fw)  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
 # Original cc- basis sets:
 # T.H. Dunning, Jr. J. Chem. Phys. 90, 1007 (1989).
 # D.E. Woon and T.H. Dunning, Jr. J. Chem. Phys. 100, 2975 (1994).
@@ -1020,3 +1020,4 @@ Kr    G
 Kr    H
       9.3030000E-01          1.00000000000E+00      
 end
+

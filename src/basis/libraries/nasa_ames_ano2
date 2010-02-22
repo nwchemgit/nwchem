@@ -1,4 +1,4 @@
-#  NASA Ames ANO2  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  NASA Ames ANO2  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # ! 
 #   
 
@@ -191,3 +191,4 @@ V    G
       0.562500000            0.5433640              0.0610640        
       0.225000000            0.3550200              0.6522650        
 end
+

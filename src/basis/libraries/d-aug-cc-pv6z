@@ -1,4 +1,4 @@
-#  d-aug-cc-pV6Z  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  d-aug-cc-pV6Z  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H:         K.A. Peterson, D.E. Woon and T. H. Dunning, Jr., (to be published). 
@@ -382,3 +382,4 @@ O    I
 O    I
       1.3450000              1.0000000        
 end
+

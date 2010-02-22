@@ -1,4 +1,4 @@
-#  Huzinaga Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  Huzinaga Polarization  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # K, CA, RB, SR: GAMESS(US) 1994 
 #  S. Huzinaga, J. Anzelm, M. Klobukowski, E. Radzio-Andzelm, Y. Sakai, 
 #  H. Tatewaki in Gaussian Basis Sets for Molecular Calculations, (Elsevier, 
@@ -94,3 +94,4 @@ basis "Rn_Huzinaga Polarization" CARTESIAN
 Rn    D
       0.2470000              1.0000000        
 end
+

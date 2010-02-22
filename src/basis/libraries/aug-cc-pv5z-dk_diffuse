@@ -1,4 +1,4 @@
-#  aug-cc-pV5Z-DK Diffuse  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  aug-cc-pV5Z-DK Diffuse  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # Sc - Zn: N.B. Balabanov and K.A. Peterson, J. Chem. Phys, 123, 064107 (2005)
@@ -165,3 +165,4 @@ Zn    H
 Zn    I
       2.8706900              1.0000000        
 end
+

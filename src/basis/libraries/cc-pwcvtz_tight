@@ -1,4 +1,4 @@
-#  cc-pwCVTZ Tight  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pwCVTZ Tight  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # B  - Ne: K.A. Peterson and T.H. Dunning, Jr. J. Chem. Phys. (submitted)
@@ -175,3 +175,4 @@ Ar    D
 Ar    F
       3.5720000              1.0000000        
 end
+

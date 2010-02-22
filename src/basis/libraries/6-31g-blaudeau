@@ -1,4 +1,4 @@
-#  6-31G-Blaudeau  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  6-31G-Blaudeau  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # K  - Ca: J-P. Blaudeau, M. P. McGrath, L.A. Curtiss and L. Radom,
@@ -80,3 +80,4 @@ Ca    D
       2.7680000              0.2610100        
       0.8281000              0.5086920        
 end
+

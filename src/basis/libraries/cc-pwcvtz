@@ -1,4 +1,4 @@
-#  cc-pwCVTZ  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  cc-pwCVTZ  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H     : T.H. Dunning, Jr. J. Chem. Phys. 90, 1007 (1989).
@@ -506,3 +506,4 @@ Ar    F
 Ar    F
       3.5720000              1.0000000        
 end
+

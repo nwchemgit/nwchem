@@ -1,4 +1,4 @@
-#  3-21++G  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  3-21++G  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # Elements                             References
 # --------                             ----------
 #  H - Ne: J.S. Binkley, J.A. Pople, W.J. Hehre, J. Am. Chem. Soc 102 939 (1980)
@@ -27,13 +27,6 @@ H    S
       0.1831920              1.0000000        
 H    S
       0.0360000              1.0000000        
-end
-basis "He_3-21++G" CARTESIAN
-  He   S
-        13.626700000      0.17523000
-         1.999350000      0.89348300
-  He   S
-         0.382993000      1.00000000
 end
 basis "Li_3-21++G" CARTESIAN
 Li    S
@@ -317,3 +310,4 @@ Ca    SP
 Ca    SP
       0.0071000              1.0000000              1.0000000        
 end
+

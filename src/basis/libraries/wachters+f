@@ -1,4 +1,4 @@
-#  Wachters+f  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  Wachters+f  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # Sc - Cu: A. J. H. Wachters, J. Chem. Phys. 52, 1033 (1970).
@@ -503,3 +503,4 @@ Cu    F
       2.8785728              0.5973381        
       1.2326390              0.3929396        
 end
+

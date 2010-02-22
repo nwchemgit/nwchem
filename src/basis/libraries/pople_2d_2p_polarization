@@ -1,4 +1,4 @@
-#  Pople (2d,2p) Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  Pople (2d,2p) Polarization  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # Elements                             References
 # --------                             ----------
 # H-Ne: M.J. Frisch, J.A. Pople and J.S. Binkley, J. Chem. Phys. 80, 3265 (1984)
@@ -149,3 +149,4 @@ basis "Kr_Pople (2d,2p) Polarization" SPHERICAL
 Kr    D
       0.3950000              1.0000000        
 end
+

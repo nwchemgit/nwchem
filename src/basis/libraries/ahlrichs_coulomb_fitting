@@ -1,4 +1,4 @@
-#  Ahlrichs Coulomb Fitting  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  Ahlrichs Coulomb Fitting  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
 # Elements                             References
 #   --------                             ----------
 # H - Ba; Hf - At: 
@@ -2696,3 +2696,4 @@ At    F
 At    G
       3.44282000E-01         1.00000000       
 end
+

@@ -1,4 +1,4 @@
-#  cc-pVTZ MP2 Fitting  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pVTZ MP2 Fitting  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
 # Elements                             References
 # --------                             ----------
 # Sc Ti V Cr Mn Fe Co Ni Cu Zn: J. Grant Hill and James A. Platts, Auxiliary basis sets for density fitting-MP2 calculations: Non-relativistic triple-? all-electron correlation consistent basis sets for the 3d elements Sc-Zn, J. Chem. Phys. 128, 044104 (2008).
@@ -1026,3 +1026,4 @@ Zn    I
 Zn    I
       5.7089131197           1.0000000        
 end
+

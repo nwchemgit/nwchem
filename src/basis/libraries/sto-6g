@@ -1,4 +1,4 @@
-#  STO-6G  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  STO-6G  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H - Ne:  W.J. Hehre, R.F. Stewart and J.A. Pople, J. Chem. Phys. 51, 2657
@@ -991,3 +991,4 @@ Kr    D
       0.3310132155D+01       0.3434092326D+00 
       0.1699958288D+01       0.5389056980D-01 
 end
+

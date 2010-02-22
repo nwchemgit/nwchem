@@ -1,4 +1,4 @@
-#  aug-cc-pwCVQZ  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  aug-cc-pwCVQZ  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H     : T.H. Dunning, Jr. J. Chem. Phys. 90, 1007 (1989).
@@ -928,3 +928,4 @@ Br    G
 Br    H
       2.5630000              1.0000000        
 end
+

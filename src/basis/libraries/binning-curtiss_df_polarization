@@ -1,4 +1,4 @@
-#  Binning-Curtiss (df) Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  Binning-Curtiss (df) Polarization  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # R. C. BINNING AND L. A. CURTISS, J. COMP. CHEM. 11, 1206 (1990). 
 #  T. H. DUNNING, JR. J. CHEM. PHYS. 66, 1382 (1977).
 #   
@@ -40,3 +40,4 @@ Kr    D
 Kr    F
       0.4010000              1.0000000              !.0000000         Binning.0000000           and                 Curtiss.0000000           did                    not.0000000           give                     an.0000000              f.0000000         exponent                  for.0000000        
 end
+

@@ -1,4 +1,4 @@
-#  cc-pVDZ-RI  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pVDZ-RI  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H He B C N O F Ne: Weigend, Kohn, Hattig, Efficient use of the correlation consistent basis sets in resolution of the identity MP2 calculations, The Journal of Chemical Physics 116, 3175 (2002).
@@ -771,3 +771,4 @@ Kr    G
      18.843913374            1.0000000000           0.0000000        
       1.8832303404           0.0000000              1.0000000000     
 end
+

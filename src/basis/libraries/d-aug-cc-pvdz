@@ -1,4 +1,4 @@
-#  d-aug-cc-pVDZ  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  d-aug-cc-pVDZ  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # Elements                             References
 # --------                             ----------
 # H     : T.H. Dunning, Jr. J. Chem. Phys. 90, 1007 (1989).
@@ -247,3 +247,4 @@ Ne    D
 Ne    D
       0.1810000              1.0000000        
 end
+

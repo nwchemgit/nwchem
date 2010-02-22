@@ -1,4 +1,4 @@
-#  Feller Misc. CVQZ  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  Feller Misc. CVQZ  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # K : (s,p) exponents from H. Partridge 
@@ -156,3 +156,4 @@ K    G
 K    G
       0.8880000              1.00000000       
 end
+

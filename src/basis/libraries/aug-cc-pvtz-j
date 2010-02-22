@@ -1,4 +1,4 @@
-#  aug-cc-pVTZ-J  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  aug-cc-pVTZ-J  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H C N O F: T. Enevoldsen, J. Oddershede and S. P. A. Sauer, Correlated calculations of indirect nuclear spin-spin coupling constants using second order polarization propagator approximations : SOPPA and SOPPA(CCSD), Theor. Chem. Acc. 100, 275-284 (1998).
@@ -239,3 +239,4 @@ S    D
 S    F
       0.5570000              1.00000000       
 end
+

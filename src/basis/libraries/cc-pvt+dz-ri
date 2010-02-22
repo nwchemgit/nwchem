@@ -1,4 +1,4 @@
-#  cc-pV(T+d)Z-RI  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pV(T+d)Z-RI  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # B C N O F Ne Al Si P S Cl Ar : F. Weigend, A. Kohn, C. Hattig, Efficient use of the correlation consistent basis sets in resolution of the identity MP2 calculations, The Journal of Chemical Physics 116, 3175 (2002).
@@ -404,3 +404,4 @@ Ar    G
 Ar    G
       1.3740549263           1.0000000000     
 end
+

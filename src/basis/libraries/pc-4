@@ -1,4 +1,4 @@
-#  pc-4  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  pc-4  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H C N O F: Frank Jensen, Polarization consistent basis sets: Principles, J. Chem. Phys. 115, 9113 (2001).
@@ -883,3 +883,4 @@ Ar    G
 Ar    H
       0.112000E+01           0.100000E+01     
 end
+

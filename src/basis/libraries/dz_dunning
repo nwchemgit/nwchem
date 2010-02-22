@@ -1,4 +1,4 @@
-#  DZ (Dunning)  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  DZ (Dunning)  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # T.H. DUNNING, JR., J. CHEM. PHYS. 53, 2823 (1970). 
 #  T.H. DUNNING, JR. AND P.J. HAY, IN METHODS OF ELECTRONIC STRUCTURE THEORY, 
 #  VOL. 2, H.F. SCHAEFER III, ED., PLENUM PRESS (1977).
@@ -327,3 +327,4 @@ Cl    P
 Cl    P
       0.1838000              1.0000000        
 end
+

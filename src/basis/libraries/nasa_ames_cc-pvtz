@@ -1,4 +1,4 @@
-#  NASA Ames cc-pVTZ  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  NASA Ames cc-pVTZ  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # C.W. Bauschlicher, Jr., Theor. Chem. Acc. 103, 141 (1999)
 # C.W. Bauschlicher, Jr., Theor. Chim Acta 92, 183 (1995)
 # A. Ricca and C. W. Bauschlicher, Jr. Theor. Chem. Acc. 106, 314 (2001)
@@ -116,3 +116,4 @@ Fe    F
 Fe    G
       2.2480000              1.0000000        
 end
+

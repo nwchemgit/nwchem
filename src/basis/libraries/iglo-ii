@@ -1,4 +1,4 @@
-#  IGLO-II  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  IGLO-II  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # W. Kutzelnigg, U. Fleischer, M. Schindler, The IGLO-Method: Ab Initio
 # Calculation and Interpretation of NMR Chemical Shifts and Magnetic 
 # Susceptibilities, Springer-Verlag, Heidelberg, 1990, vol. 23.
@@ -337,3 +337,4 @@ Cl    D
 Cl    D
       1.6000000              1.0000000        
 end
+

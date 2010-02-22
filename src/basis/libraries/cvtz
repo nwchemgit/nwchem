@@ -1,4 +1,4 @@
-#  CVTZ  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  CVTZ  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # Li Be Na Mg K Ca : M. A. Iron, M. Oren, J. M. L. Martin, Alkali and Alkaline Earth Metal Compounds : Core-Valence Basis Sets and Importance of Subvalence, Mol. Phys. 101, 1345 (2003).
@@ -543,3 +543,4 @@ Ca    F
       0.1474011780           1.0000000              0.0000000        
       1.3868465157           0.0000000              1.0000000        
 end
+

@@ -1,4 +1,4 @@
-#  Core/valence Functions (cc-pCV6Z(old))  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  Core/valence Functions (cc-pCV6Z(old))  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # B - F:  A.K. Wilson and T.H. Dunning, Jr. (to be published)
@@ -49,3 +49,4 @@ O    G
 O    H
      62.7153200              1.0000000        
 end
+

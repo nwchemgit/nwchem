@@ -1,4 +1,4 @@
-#  cc-pVTZ-PP MP2 Fitting  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pVTZ-PP MP2 Fitting  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # Ru: J. G. Hill and J. A. Platts, Calculating interaction energies in transition metal complexes with local electron correlation methods, J. Chem. Phys. 129, 134101 (2008).
@@ -775,3 +775,4 @@ Pd    I
 Pd    I
       1.9861364              1.0000000        
 end
+

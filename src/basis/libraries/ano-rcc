@@ -1,4 +1,4 @@
-#  ANO-RCC  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  ANO-RCC  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
 # Elements                             References
 # --------                             ----------
 # H He: P.-O. Widmark, P.-Å. Malmqvist, and B. O. Roos, Density-matrix averaged atomic natural orbital (ANO) basis-sets for correlated molecular wave-functions 1: 1st row atoms., Theor. Chim. Acta 77, 291-306 (1990).
@@ -6820,3 +6820,4 @@ Cm    H
       0.3662879400           0.01573205             1.11983654            -0.78781480       
       0.1465151700           0.07314211             0.03610946             1.19729993       
 end
+

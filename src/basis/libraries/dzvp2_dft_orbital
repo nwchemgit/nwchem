@@ -1,4 +1,4 @@
-#  DZVP2 (DFT Orbital)  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  DZVP2 (DFT Orbital)  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # N. Godbout, D. R. Salahub, J. Andzelm, and E. Wimmer, Can. J. Chem. 70, 560
 #  (1992)
 #   
@@ -808,3 +808,4 @@ Zn    D
 Zn    D
       0.1720000              1.0000000        
 end
+

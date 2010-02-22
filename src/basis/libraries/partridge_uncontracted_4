@@ -1,4 +1,4 @@
-#  Partridge Uncontracted 4  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  Partridge Uncontracted 4  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # Sc - Zn:         H. Partridge
@@ -1006,3 +1006,4 @@ Zn    D
 Zn    D
       0.1593350              1.0000000        
 end
+

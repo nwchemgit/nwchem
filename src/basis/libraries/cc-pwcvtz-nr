@@ -1,4 +1,4 @@
-#  cc-pwCVTZ-NR  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pwCVTZ-NR  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # Sc - Zn: N.B. Balabanov and K.A. Peterson, J. Chem. Phys., accepted (2005).
@@ -625,3 +625,4 @@ Zn    G
       9.2538000              1.0000000              0.0000000        
       4.1144000              0.0000000              1.0000000        
 end
+

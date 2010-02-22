@@ -1,4 +1,4 @@
-#  Feller Misc. CVDZ  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  Feller Misc. CVDZ  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # Elements                             References
 # --------                             ----------
 # K : (s,p) exponents from A. Schafer, H. Horn and R. Ahlrichs, J. Chem. Phys.
@@ -100,3 +100,4 @@ K    D
 K    D
       0.07000000             1.00000000       
 end
+

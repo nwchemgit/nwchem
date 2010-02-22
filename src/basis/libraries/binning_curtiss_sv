@@ -1,4 +1,4 @@
-#  Binning/Curtiss SV  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  Binning/Curtiss SV  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # R. C. BINNING AND L. A. CURTISS, J. COMP. CHEM. 11, 1206 (1990). 
 #  T. H. DUNNING, JR. J. CHEM. PHYS. 66, 1382 (1977).
 #   
@@ -262,3 +262,4 @@ Kr    D
       4.3500000              0.4117100        
       1.4940000              0.2154800        
 end
+

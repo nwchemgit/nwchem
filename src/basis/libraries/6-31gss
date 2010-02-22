@@ -1,4 +1,4 @@
-#  6-31G**  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  6-31G**  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
 # Elements                             References
 # --------                             ----------
 # H - He: W.J. Hehre, R. Ditchfield and J.A. Pople, J. Chem. Phys. 56,
@@ -8,6 +8,8 @@
 # D.J. DeFrees and J.A. Pople, J. Chem. Phys. 77, 3654 (1982)
 # K  - Zn: V. Rassolov, J.A. Pople, M. Ratner and T.L. Windus, J. Chem. Phys.
 # 109, 1223 (1998)
+# Note: He and Ne are unpublished basis sets taken from the Gaussian
+# program
 # 
 
 
@@ -18,6 +20,7 @@
 #            DeFrees and J.A. Pople, J. Chem. Phys. 77, 3654 (1982).
 # K  - Zn:   V.A. Rassolov, J.A. Pople, M.A. Ratner, and T.L. Windus
 #            J. Chem. Phys. 109, 1223 (1998)
+#            Note: He and Ne are unpublished basis sets taken from Gaussian.
 #   
 
 
@@ -801,3 +804,4 @@ Zn    D
 Zn    F
       0.8000000              1.000000E+00     
 end
+

@@ -1,4 +1,4 @@
-#  LANL2DZdp ECP Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  LANL2DZdp ECP Polarization  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H  - Bi: C.E. Check, T.O. Faust, J.M. Bailey, B.J. Wright, T.M. Gilbert and
@@ -120,3 +120,4 @@ Bi    P
 Bi    D
       0.1920000              1.0000000        
 end
+

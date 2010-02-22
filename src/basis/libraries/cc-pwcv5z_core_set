@@ -1,4 +1,4 @@
-#  cc-pwCV5Z Core Set  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pwCV5Z Core Set  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # B  - Ne: K.A. Peterson and T.H. Dunning, Jr. J. Chem. Phys. 117, 10548 (2002).
@@ -546,3 +546,4 @@ Ar    G
 Ar    H
       1.2640000              1.0000000        
 end
+

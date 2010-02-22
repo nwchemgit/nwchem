@@ -1,4 +1,4 @@
-#  6-311G  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  6-311G  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # Elements                             References
 # --------                             ----------
 # H, Li - Ne: R. Krishnan, J.S. Binkley, R. Seeger and J.A. Pople,
@@ -913,3 +913,4 @@ I    D
 I    D
       1.1370000              1.0000000        
 end
+

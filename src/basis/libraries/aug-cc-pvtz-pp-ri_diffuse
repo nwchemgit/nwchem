@@ -1,4 +1,4 @@
-#  aug-cc-pVTZ-PP-RI Diffuse  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  aug-cc-pVTZ-PP-RI Diffuse  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
 # Elements                             References
 # --------                             ----------
 # Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn: Christof Hattig, auxiliary basis sets for RI-MP2 calculations, TURBOMOLE basis set library 6.0, 1 (2009).
@@ -355,3 +355,4 @@ Rn    G
 Rn    H
       0.60393000000          1.0000000        
 end
+

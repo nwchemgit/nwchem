@@ -1,4 +1,4 @@
-#  cc-pCVDZ(old)  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pCVDZ(old)  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
 # Elements                             References
 # --------                             ----------
 # H     : T.H. Dunning, Jr. J. Chem. Phys. 90, 1007 (1989).
@@ -209,3 +209,4 @@ Ar    D
 Ar    D
      11.4600000              1.0000000        
 end
+

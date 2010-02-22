@@ -1,4 +1,4 @@
-#  DHMS Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  DHMS Polarization  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 #  H - F: T.H. DUNNING JR. AND P.J. HAY, IN METHODS OF ELECTRONIC STRUCTURE 
 #               THEORY VOL. 2, H.F. SCHAEFER III, ED., PLENUM PRESS (1977). 
 #   Si - Cl:    E. MAGNUSSON AND H.F. SCHAEFER III, JCP 83, 5721 (1985).
@@ -65,3 +65,4 @@ basis "Cl_DHMS Polarization" CARTESIAN
 Cl    D
       0.7500000              1.0000000        
 end
+

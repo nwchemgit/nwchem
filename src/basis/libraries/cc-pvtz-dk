@@ -1,4 +1,4 @@
-#  cc-pVTZ-DK  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pVTZ-DK  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Original basis sets:
 # Elements                             References
 # --------                             ----------
@@ -1908,3 +1908,4 @@ Pd    F
 Pd    G
       1.3187000              1.0000000        
 end
+

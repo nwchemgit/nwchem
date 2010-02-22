@@ -1,4 +1,4 @@
-#  Bauschlicher ANO  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  Bauschlicher ANO  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # Elements                             References
 # --------                             ----------
 # Sc - Cu: C. W. Bauschlicher, Jr., Theor. Chim. Acta 92, 183 (1995).
@@ -566,3 +566,4 @@ Cu    G
       1.8974000             -0.1617680              0.0005770        
       0.7589000             -0.1032330              0.2036260        
 end
+

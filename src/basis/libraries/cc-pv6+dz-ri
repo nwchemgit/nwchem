@@ -1,4 +1,4 @@
-#  cc-pV(6+d)Z-RI  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  cc-pV(6+d)Z-RI  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # : Christof Hattig, to be published .
@@ -762,3 +762,4 @@ Ar    I
 Ar    K
       2.0354000000           1.0000000000     
 end
+

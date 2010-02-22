@@ -1,4 +1,4 @@
-#  aug-pV7Z  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  aug-pV7Z  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
 # Elements                             References
 # --------                             ----------
 # H:         D. Feller
@@ -418,3 +418,4 @@ S    K
 S    K
       0.7110000              1.0000000        
 end
+

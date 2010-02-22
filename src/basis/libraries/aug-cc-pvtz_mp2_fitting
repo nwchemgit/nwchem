@@ -1,4 +1,4 @@
-#  aug-cc-pVTZ MP2 Fitting  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  aug-cc-pVTZ MP2 Fitting  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # Elements                             References
 # --------                             ----------
 # Zn: J. Grant Hill and James A. Platts, Auxiliary basis sets for density fitting-MP2 calculations: Nonrelativistic triple-zeta all-electron correlation consistent basis sets for the 3d elements
@@ -717,3 +717,4 @@ Zn    I
 Zn    I
       2.8828645211           1.0000000        
 end
+

@@ -1,4 +1,4 @@
-#  NASA Ames ANO  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  NASA Ames ANO  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # J. ALMLOF AND P.R. TAYLOR, J. CHEM. PHYS. 86, 4070 (1987). 
 #  C.W. BAUSCHLICHER, JR., S.R. LANGHOFF, A. KORMORNICKI,  THEOR. CHIM ACTA 77, 
 #  263 (1990)
@@ -552,3 +552,4 @@ Ni    F
       0.506000000            0.3043240             -0.5452100        
       0.202400000            0.0953710             -0.2765610        
 end
+

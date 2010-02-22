@@ -1,4 +1,4 @@
-#  aug-pc-3  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  aug-pc-3  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # :  .
@@ -754,3 +754,4 @@ Ar    G
       0.930000E+00           0.100000E+01           0.000000E+00     
       0.163600E+00           0.000000E+00           0.100000E+01     
 end
+

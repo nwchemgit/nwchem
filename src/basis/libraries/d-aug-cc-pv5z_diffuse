@@ -1,4 +1,4 @@
-#  d-aug-cc-pV5Z Diffuse  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  d-aug-cc-pV5Z Diffuse  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # Elements                             References
 # --------                             ---------
 # H - He:  D.E. Woon and T.H. Dunning, Jr., J. Chem. Phys. 100, 2975 (1994).
@@ -115,3 +115,4 @@ Ne    G
 Ne    H
       0.7020000              1.0000000        
 end
+

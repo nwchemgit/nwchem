@@ -1,4 +1,4 @@
-#  pcJ-2  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  pcJ-2  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H C N O F Si P S Cl: Frank Jensen, The basis set convergence of spin-spin coupling constants calculated by density functional methods, J. Chem. Theory Comput. 2, 1360 (2006).
@@ -445,3 +445,4 @@ Ar    F
       0.351000E+02           0.100000E+01           0.000000E+00     
       0.780000E+00           0.000000E+00           0.100000E+01     
 end
+

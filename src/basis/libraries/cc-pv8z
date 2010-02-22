@@ -1,4 +1,4 @@
-#  cc-pV8Z  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pV8Z  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H    : S. L. Mielke and K. A. Peterson, to be published.
@@ -130,3 +130,4 @@ Ne    K
 Ne    L
       5.7880000              1.0000000        
 end
+

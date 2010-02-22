@@ -1,4 +1,4 @@
-#  HONDO7 Polarization  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  HONDO7 Polarization  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # !
 #   
 
@@ -71,3 +71,4 @@ basis "Ar_HONDO7 Polarization" CARTESIAN
 Ar    D
       0.6960000              1.0000000        
 end
+

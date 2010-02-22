@@ -1,4 +1,4 @@
-#  GAMESS PVTZ  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  GAMESS PVTZ  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # T. H. DUNNING, JR., J. CHEM. PHYS. 55, 716 (1971) 
 #  A.D. MCCLEAN AND G.S. CHANDLER, J. CHEM. PHYS. 72, 5639 (1980) 
 #  A.J.H. WATCHERS, J. CHEM. PHYS. 52, 1033 (1970).
@@ -522,3 +522,4 @@ Ar    P
 Ar    D
       0.6960000              1.0000000        
 end
+

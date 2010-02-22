@@ -1,4 +1,4 @@
-#  cc-pVTZ-fit2-1  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  cc-pVTZ-fit2-1  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H - Ne: D.E. Bernholdt and R.J. Harrison, J. Chem. Phys. 109, 1593 (1998)
@@ -519,3 +519,4 @@ Ne    F
 Ne    G
       5.0880000              1.0000000        
 end
+

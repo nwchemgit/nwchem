@@ -1,8 +1,9 @@
-#  4-31G  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  4-31G  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H, C - F: R. Ditchfield, W.J. Hehre and J.A. Pople, J. Chem. Phys. 54, 724 
 #           (1971).
+# He, Ne:   Gaussian 90 
 # Li, Be:   These are actually 5-21G basis sets.
 # Na - Ar:  M.S. Gordon, J.S. Binkley, J.A. Pople, W.J. Pietro and W.J. Hehre,
 #           J. Am. Chem. Soc. 104, 2797 (1983).
@@ -183,3 +184,4 @@ Cl    SP
 Cl    SP
       0.195659411            1.0000000              1.0000000        
 end
+

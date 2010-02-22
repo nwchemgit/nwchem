@@ -1,4 +1,4 @@
-#  DGauss A1 DFT Exchange Fitting  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  DGauss A1 DFT Exchange Fitting  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H - Xe: N. Godbout, D. R. Salahub, J. Andzelm, and E. Wimmer, Can. J. Chem. 70,
@@ -1566,3 +1566,4 @@ Xe    D
 Xe    D
       0.05500000E+00         1.00000000       
 end
+

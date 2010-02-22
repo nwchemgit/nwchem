@@ -1,4 +1,4 @@
-#  pV6Z  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  pV6Z  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
 # Elements                             References
 # --------                             ----------
 # H:         T. H. Dunning, Jr., (to be published). 
@@ -196,3 +196,4 @@ O    H
 O    I
       2.6000000              1.0000000        
 end
+

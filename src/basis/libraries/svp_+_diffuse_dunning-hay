@@ -1,4 +1,4 @@
-#  SVP + Diffuse (Dunning-Hay)  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  SVP + Diffuse (Dunning-Hay)  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # T.H. DUNNING JR. AND P.J. HAY, IN METHODS OF ELECTRONIC STRUCTURE THEORY, 
 #  VOL. 2, H.F. SCHAEFER III, ED., PLENUM PRESS (1977).
 #   
@@ -234,3 +234,4 @@ Ne    P
 Ne    D
       0.9500000              1.0000000        
 end
+

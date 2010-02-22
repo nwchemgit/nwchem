@@ -1,4 +1,4 @@
-#  aug-cc-pVTZ-PP Diffuse  EMSL  Basis Set Exchange Library  2/3/10 5:23 PM
+#  aug-cc-pVTZ-PP Diffuse  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # Ga-As,In-Sb, Tl-Bi   : K.A. Peterson, J. Chem. Phys., 119, 11099 (2003).
@@ -443,3 +443,4 @@ Rn    D
 Rn    F
       0.2084000              1.0000000        
 end
+

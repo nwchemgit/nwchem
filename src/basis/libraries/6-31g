@@ -1,4 +1,4 @@
-#  6-31G  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  6-31G  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H - He: W.J. Hehre, R. Ditchfield and J.A. Pople, J. Chem. Phys. 56,
@@ -8,7 +8,10 @@
 # D.J. DeFrees and J.A. Pople, J. Chem. Phys. 77, 3654 (1982)
 # K  - Zn: V. Rassolov, J.A. Pople, M. Ratner and T.L. Windus, J. Chem. Phys.
 # 109, 1223 (1998)
+# Note: He and Ne are unpublished basis sets taken from the Gaussian
+# program
 # 
+
 
 
 basis "H_6-31G" SPHERICAL
@@ -731,3 +734,4 @@ Zn    D
 Zn    D
       0.7302940              1.000000E+00     
 end
+

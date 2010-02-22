@@ -1,4 +1,4 @@
-#  NASA Ames cc-pCVTZ  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  NASA Ames cc-pCVTZ  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # C.W. Bauschlicher, Jr., Theor. Chem. Acc. 103, 141 (1999)
 # C.W. Bauschlicher, Jr., Theor. Chim Acta 92, 183 (1995)
 #   
@@ -61,3 +61,4 @@ Ti    F
 Ti    G
       0.6300000              1.0000000        
 end
+

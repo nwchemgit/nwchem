@@ -1,4 +1,4 @@
-#  cc-pVTZ-PP-RI  EMSL  Basis Set Exchange Library  2/3/10 5:24 PM
+#  cc-pVTZ-PP-RI  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # Hf Ta W Re Os Ir Pt: Christof Hattig, auxiliary basis sets for RI-MP2 calculations, TURBOMOLE basis set library 6.0, 1 (2009).
@@ -2328,3 +2328,4 @@ Rn    H
 Rn    H
       1.1708700000           1.0000000        
 end
+
