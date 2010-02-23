@@ -7,6 +7,7 @@ public class whichjava implements Runnable {
     if (System.getProperty("java.version").indexOf("1.3")>=0){System.exit((int)0);};
     if (System.getProperty("java.version").indexOf("1.4")>=0){System.exit((int)0);};
     if (System.getProperty("java.version").indexOf("1.5")>=0){System.exit((int)0);};
+    if (System.getProperty("java.version").indexOf("1.6")>=0){System.exit((int)0);};
     System.out.println (" This code requires Java 1.2 or greater"); System.exit((int)1);
   }
 

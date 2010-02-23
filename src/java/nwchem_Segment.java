@@ -40,11 +40,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     boolean frBool = true;
 
     JLabel help1 = new JLabel("SGM list: LEFT selects segment, RIGHT toggles between segments");
-    JLabel help2 = new JLabel("ATM list: in SELECT mode: LEFT splits atoms");
-    JLabel help3 = new JLabel("ATM list: in SELECT mode: CTRL-SHIFT-LEFT selects atom to join");
-    JLabel help4 = new JLabel("ATM list: in SELECT mode: LEFT joins atom to previous selected atom");
-    JLabel help5 = new JLabel("ATM list: in SELECT mode: SHIFT-LEFT moves atom one position up");
-    JLabel help6 = new JLabel("ATM list: in SELECT mode: CTRL-LEFT moves atom one position down");
+    JLabel help2 = new JLabel("ATM list: in SELECT mode: LEFT splits atom pairs");
+    JLabel help3 = new JLabel("ATM list: in SELECT mode: LEFT selects first atom for join");
+    JLabel help4 = new JLabel("ATM list: in SELECT mode: LEFT joins second atom to previous selected first atom");
+    JLabel help5 = new JLabel("ATM list: in SELECT mode: CTRL-LEFT moves atom one position up");
+    JLabel help6 = new JLabel("ATM list: in SELECT mode: CTRL-RIGHT moves atom one position down");
     JLabel help7 = new JLabel("ATM list: in ORDER mode: LEFT selects atoms in order");
     JLabel help8 = new JLabel("WRITE writes new segment file to NEW.sgm");
     JLabel help9 = new JLabel("ORDER/SELECT toggles between ORDER and SELECT mode");
@@ -1061,13 +1061,17 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	int j;
 	String fileName;
 	if(mouse.getModifiers()==(MouseEvent.BUTTON1_MASK+MouseEvent.CTRL_MASK+MouseEvent.SHIFT_MASK)){
-	    if(mouse.getSource()==atmList){ 
-		selected=atmList.getSelectedIndex();
+	    if(mouse.getSource()==atmList){
+		System.out.println("SELECT TO JOIN atmList"); 
+		selected=atmList.getSelectedIndex(); 
+		j=atmList.getSelectedIndex();
+		System.out.println("SELECT TO JOIN "+j);
 	    } else {
+		System.out.println("SELECT TO JOIN NOT atmList"); 
 		selected = -1;
 	    };
 	};
-	if(mouse.getModifiers()==(MouseEvent.BUTTON1_MASK+MouseEvent.SHIFT_MASK)){
+	if(mouse.getModifiers()==(MouseEvent.BUTTON1_MASK+MouseEvent.CTRL_MASK)){
 	    if(mouse.getSource()==atmList){
 		j=atmList.getSelectedIndex();
 		if(j>0){
@@ -1079,7 +1083,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	    };
 	    selected = -1;
 	};
-	if(mouse.getModifiers()==(MouseEvent.BUTTON1_MASK+MouseEvent.CTRL_MASK)){
+	if(mouse.getModifiers()==(MouseEvent.BUTTON3_MASK+MouseEvent.CTRL_MASK)){
 	    if(mouse.getSource()==atmList){
 		j=atmList.getSelectedIndex();
 		if(j<(atmNumber-1)){
@@ -1165,9 +1169,13 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			if(ToSgm.atom[id[j+1][1]].Name.charAt(4)==' '){
 			    ToSgm.atom[id[j+1][1]].Name=ToSgm.atom[id[j+1][1]].Name.substring(0,4)+"t";
 			};
+			selected=-1;
 			id[j][1]=-1; id[j+1][0]=-1;  atmNumber++;
+		    }; 
+		    if(id[j][0]>=0 && id[j][1]<0){
+			selected=j;
 		    };
-		    if(selected>=0 && selected!=j){
+		    if(id[j][0]<0 && id[j][1]>=0 && selected>=0){
 			if(id[j][0]==-1 && id[j][1]>=0 && id[selected][0]>=0 && id[selected][1]==-1){
 			    id[selected][1]=id[j][1];
 			    if(FrSgm.atom[id[selected][0]].Name.substring(0,4).equals(ToSgm.atom[id[selected][1]].Name.substring(0,4)) &&
@@ -1179,6 +1187,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    };
 			};
 			if(id[j][0]>=0 && id[j][1]==-1 && id[selected][0]==-1 && id[selected][1]>=0){
+			    System.out.println("Join "+j+" and "+selected);
 			    id[j][1]=id[selected][1];
 			    if(FrSgm.atom[id[j][0]].Name.substring(0,4).equals(ToSgm.atom[id[j][1]].Name.substring(0,4)) &&
 			       ToSgm.atom[id[j][1]].Name.charAt(4)=='t') ToSgm.atom[id[j][1]].Name=ToSgm.atom[id[j][1]].Name.substring(0,4)+" ";
@@ -1188,13 +1197,15 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 				id[k][1]=id[k+1][1];
 			    };
 			};
+			atomListUpdate();
 		    };
 		};
-		selected= -1;
+		//		selected= -1;
 		atomListUpdate();
 	    };
 	};
 	if(mouse.getModifiers()==MouseEvent.BUTTON3_MASK){
+	    System.out.println("RIGHT");
 	    if(mouse.getSource()==sgmList){
 		if(frBool) {
 		    toLabel.setBackground(Color.yellow);
