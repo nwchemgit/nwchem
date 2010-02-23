@@ -1205,7 +1205,6 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	    };
 	};
 	if(mouse.getModifiers()==MouseEvent.BUTTON3_MASK){
-	    System.out.println("RIGHT");
 	    if(mouse.getSource()==sgmList){
 		if(frBool) {
 		    toLabel.setBackground(Color.yellow);
