@@ -676,6 +676,8 @@ endif
 
 ifeq ($(peigs_TARGET),BGP)
 #bluegene/p
+     peigs_AR     = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-ar
+     peigs_RANLIB = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-ranlib
      peigs_COMM =TCGMSG
      peigs_CPU = RS6000
      peigs_CODEOBJ=DBLE
