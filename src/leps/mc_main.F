@@ -79,6 +79,12 @@ C     INFO ON PROCESSES in the big group
       if (.not. rtdb_get(rtdb,'subgroups_number', MT_INT, 1, numgroups))
      &    numgroups = ga_nnodes() 
 
+C ***** Can't have more subgroups then procs *****
+      if (numgroups.gt.ga_nnodes()) then
+          numgroups = ga_nnodes()
+          write (iw,*) 'Requested number of subgroups too big, 
+     &    reseting to:', numgroups
+      endif
 C     Allocate memory for array of group numbers
       if (.not. ma_push_get(MT_INT, numgroups, 'mc: groupnums',
      &    l_groupnums, k_groupnums)) 
@@ -99,9 +105,9 @@ C   Close the output file and reopen it as series of ".out" files
 
 C Initialize group related information
 C mostly file opening for each group,etc. 
-      call mc_setup_group  !deals with file i/o
-     &     (rtdb, myid, int_mb(k_groupnums),prcfil, prcfil2,
-     &     fprefix, numgroups)
+      call mc_setup_group()  !deals with file i/o
+c     &     (rtdb, myid, int_mb(k_groupnums),prcfil, prcfil2,
+c     &     fprefix, numgroups)
 
       write(iw,*) 'DONE SETTING I/O files for subgroups'
 C-- the stdout is now redirected to other .out output files for each trajectory
@@ -120,7 +126,7 @@ C********* MC driver ******
 
 C******* RESTART point 1******
       if(.not.mc_driver(rtdb,naccept)) call errquit('mc_driver:failed',
-     &  UNKNOWN_ERR)
+     & , UNKNOWN_ERR)
       write(iw,*) 'Number of initial points generated: ', naccept  
 
       if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
@@ -369,8 +375,8 @@ c      int_mb(i_sc+(trajnum-1)*2*nsteps+mdstep-1) = side
              if (sidef.eq.sideb) then
                 nonreact=nonreact+1
                 dbl_mb(prp_tmp+i-1)=0.0 
-                if (dbug)
-     &            write(iw,*) 'tr number for non-reactive traj: ', i 
+c                if (dbug)
+                 write(iw,*) 'tr number for non-reactive traj: ', i 
              else if (sidef.eq.mc_data_get_forside0()) then
                 reactive=reactive+1
                 dbl_mb(prp_tmp+i-1)=0.5*dbl_mb(prp_tmp+i-1)
@@ -574,9 +580,7 @@ c       endif
 
 
 C***********************************************************************
-      subroutine mc_setup_group
-     &(rtdb, myid, groupnums, prcfil, prcfil2, fprefix,
-     & numgroups)
+      subroutine mc_setup_group()
 C gets the appropriate path for the output files and opens them
 C***********************************************************************
       Implicit none
@@ -590,53 +594,58 @@ C Include Statements
 #include "util_sgroup.fh"
 #include "global.fh"
 C Variable declarations
-      integer rtdb ! input
-      integer myid ! input
-      integer numgroups ! input
-      integer groupnums(numgroups) ! input
-      character*4 prcfil, prcfil2
-      integer i
+c      integer rtdb ! input
+c      integer myid ! input
+c      integer numgroups ! input
+c      integer groupnums(numgroups) ! input
+c      character*4 prcfil, prcfil2
+c      integer i
 C Indect output of file units
-      character*256 fprefix, fprefixcat ! internal use only !fprefix output
-      character*256 fprefix2, mc_dir
-
+c      character*256 fprefix, fprefixcat ! internal use only !fprefix output
+c      character*256 fprefix2, mc_dir
+      character*256 xyzname, outname
+      character*256 pxyzname, poutname
 C Begin Main Program
-      call mc_write_prcfil(groupnums, prcfil, numgroups)
+c      call mc_write_prcfil(groupnums, prcfil, numgroups)
 
-      call mc_build_prcfil(prcfil2, myid)
-      write(fprefix2,'(256(a))') (' ', i=1,256)
-      if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix2))
-     &     call errquit('dntmc_setup_group:rtdb get file_prefix failed'
-     &     ,0,RTDB_ERR)
-      write(mc_dir,'(256(a))') (' ', i=1,256)
-      if (.not. rtdb_cget(rtdb, 'mc:directory',1,mc_dir))
-     &   mc_dir(1:2)='./'
-      write(fprefix,'(256(a))') (' ', i=1, 256)
-      write(fprefix,'(3(a))')
-     &     mc_dir(1:inp_strlen(mc_dir)),
-     &     '/',
-     &     fprefix2(1:inp_strlen(fprefix2))
-
+c     call mc_build_prcfil(prcfil2, myid)
+c      write(fprefix2,'(256(a))') (' ', i=1,256)
+c      if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix2))
+c     &     call errquit('dntmc_setup_group:rtdb get file_prefix failed'
+c     &     ,0,RTDB_ERR)
+c      write(mc_dir,'(256(a))') (' ', i=1,256)
+c      if (.not. rtdb_cget(rtdb, 'mc:directory',1,mc_dir))
+c     &   mc_dir(1:2)='./'
+c      write(fprefix,'(256(a))') (' ', i=1, 256)
+c      write(fprefix,'(3(a))')
+c     &     mc_dir(1:inp_strlen(mc_dir)),
+c     &     '/',
+c     &     fprefix2(1:inp_strlen(fprefix2))
 C Open file Units
 C general output ! Only group Zeros write
       if (ga_nodeid().eq.0) then 
-          write(fprefixcat,'(256(a))') (' ', i=1, 256)
-          write(fprefixcat,'(3(a))')
-     &      fprefix(1:inp_strlen(fprefix)),
-     &      '.xyz.',prcfil(1:4)
-
+          call util_file_name('xyz', .false., .false., xyzname)
+          call util_file_name('out', .false., .false., outname)
+          call util_pname(xyzname,pxyzname)
+          call util_pname(outname,poutname) 
+          write(6,*) 'opening files', pxyzname, poutname 
+c          write(fprefixcat,'(256(a))') (' ', i=1, 256)
+c          write(fprefixcat,'(3(a))')
+c     &      fprefix(1:inp_strlen(fprefix)),
+c     &      '.xyz.',prcfil(1:4)
+c           write(6,*) 'Filename', xyzname
 c -- open a file for trajectory for each subgroup
-           OPEN(UNIT = 12,FILE = fprefixcat(1:inp_strlen(fprefixcat))
+           OPEN(UNIT = 12,FILE = pxyzname
      &     ,STATUS = 'REPLACE')
 
-           write(fprefixcat,'(256(a))') (' ', i=1, 256)
-           write(fprefixcat,'(3(a))')
-     &        fprefix(1:inp_strlen(fprefix)),
-     &        '.out.',prcfil(1:4)
+c           write(fprefixcat,'(256(a))') (' ', i=1, 256)
+c           write(fprefixcat,'(3(a))')
+c     &        fprefix(1:inp_strlen(fprefix)),
+c     &        '.out.',prcfil(1:4)
 
 C  ---- added this so that the output file is closed and output is open for each 
 C  ---- subgroup
-           OPEN(UNIT = 6,FILE = fprefixcat(1:inp_strlen(fprefixcat))
+           OPEN(UNIT = 6,FILE = poutname
      &     ,STATUS = 'REPLACE')
       else
 C all non-zeros write to dev/null
