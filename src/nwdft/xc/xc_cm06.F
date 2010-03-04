@@ -40,8 +40,8 @@ c
 c
 c     Threshold parameters
 c
-      double precision DTol,F1, F2, F3, F4,COpp 
-      Data DTol/1.0d-8/,COpp/0.0031d0/,F1/1.0d0/,F2/2.0d0/,
+      double precision F1, F2, F3, F4,COpp 
+      Data COpp/0.0031d0/,F1/1.0d0/,F2/2.0d0/,
      & F3/3.0d0/,F4/4.0d0/ 
 c
 c     Correlation energy
@@ -88,12 +88,10 @@ c
       double precision P, EUEG, U, W
       double precision dUdChiA,dUdChiB,dUdPA,dUdPB,dUdGA,dUdGB,
      &dWdU,dWdPA,dWdPB, dWdGA,dWdGB,EUEGPA,EUEGPB
-
       
 c
 c     ======> BOTH SPIN-RESTRICETED AND UNRESTRICTED <======
 c
-      DTol=tol_rho
       sop=1.0d0
       if (ijzy.eq.1) then
 C     Parameters for M06-L Correlation
@@ -138,7 +136,7 @@ C     Parameters for M06-2X Correlation
       F13 = F1 / F3
 
       do 20 n = 1, nq
-       if (rho(n,1).lt.DTol) goto 20
+       if (rho(n,1).lt.Tol_Rho) goto 20
        if (ipol.eq.1) then
 c
 c    get the density, gradient, and tau for the alpha spin from the total 
@@ -147,14 +145,16 @@ c
          GAA = (    delrho(n,1,1)*delrho(n,1,1) +
      &                 delrho(n,2,1)*delrho(n,2,1) +
      &                 delrho(n,3,1)*delrho(n,3,1))/F4
+         if(sqrt(gaa).lt.tol_rho) goto 20
 c  In the m05css subroutine, we use 2*TA as the tau, so we do not divide 
 c  the tau by 2 here
 
          TA = tau(n,1,1) + 
      &             tau(n,2,1) + 
      &             tau(n,3,1)
+         if(ta.lt.tol_rho) goto 20
                   
-         Call m06css(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+         Call m06css(Tol_Rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                ChiA,EUPA,ChiAP,ChiAG,ijzy)
          PB = PA
          GBB = GAA
@@ -186,7 +186,7 @@ c       alpha
 c
 
          PA = rho(n,2)
-         if (PA.le.DTol) go to 25
+         if (PA.le.Tol_Rho) go to 25
          GAA =   delrho(n,1,1)*delrho(n,1,1) +
      &           delrho(n,2,1)*delrho(n,2,1) +
      &          delrho(n,3,1)*delrho(n,3,1)
@@ -197,7 +197,7 @@ c
      &        tau(n,2,1) +
      &        tau(n,3,1))
 
-         Call m06css(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+         Call m06css(Tol_Rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                ChiA,EUPA,ChiAP,ChiAG,ijzy)
          Ec = Ec + FA*qwght(n)     
          if(ldew) func(n)=func(n)+ FA
@@ -212,7 +212,7 @@ c       Beta
 c
  25      continue
          PB = rho(n,3)
-         if (PB.le.DTol) go to 30
+         if (PB.le.Tol_Rho) go to 30
          GBB =   delrho(n,1,2)*delrho(n,1,2) +
      &           delrho(n,2,2)*delrho(n,2,2) +
      &          delrho(n,3,2)*delrho(n,3,2)
@@ -221,7 +221,7 @@ c
      &        tau(n,2,2) +
      &        tau(n,3,2))
 
-         Call m06css(DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+         Call m06css(Tol_Rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
      &                ChiB,EUPB,ChiBP,ChiBG,ijzy)
          Ec = Ec + FB*qwght(n)          
          if(ldew) func(n)=func(n)+ FB
@@ -233,13 +233,14 @@ c
  30   continue
       P = PA + PB
       
-      If((PA.gt.DTol).and.(PB.gt.DTol)) then
+      If((PA.gt.Tol_Rho).and.(PB.gt.Tol_Rho)) then
           RS = (Pi34/P) ** F13
           RSP = -RS/(F3*P)
           Zeta = (PA-PB)/P
           dZdA = (F1-Zeta)/P
           dZdB = (-F1-Zeta)/P
-          Call lsdac(RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
+          Call lsdac(tol_rho,
+     R         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
      $      d2LdZZ)
           EUEG = P*PotLC - EUA - EUB
           U = COpp*(ChiA+ChiB)/(F1 + COpp*(ChiA+ChiB))
@@ -276,6 +277,7 @@ c      Stop
       end
 
       Subroutine xc_cm06_d2()
+      implicit none
       call errquit(' not coded ',0,0)
       return
       end
@@ -283,7 +285,7 @@ c      Stop
 
 
 
-      Subroutine m06css(DTol,PX,GX,TX,F,FP,FG,FT,EUEG,Chi,EUEGP,
+      Subroutine m06css(Tol_Rho,PX,GX,TX,F,FP,FG,FT,EUEG,Chi,EUEGP,
      &                   ChiP,ChiG,ijzy)
       Implicit none
 C
@@ -292,7 +294,7 @@ C     point and one spin-case.
 C
 C
       integer ijzy
-      double precision PX, GX, TX, F, FP, FG, FT, DTol
+      double precision PX, GX, TX, F, FP, FG, FT, Tol_Rho
       double precision EUEG, Chi, EUEGP, ChiP, ChiG
       double precision Zero, Pt25, F1, F2, F3, F4, F5, F6, F8, F11
       double precision ss, sss0,sss1, sss2, sss3, sss4, Css
@@ -307,8 +309,8 @@ C
      $  F4/4.0d0/, F5/5.0d0/, F6/6.0d0/, F8/8.0d0/, F11/11.0d0/,
      $  Css/0.06d0/
 C
-c      DTol=1.0D-7
-c      write (*,*) DTol
+c      Tol_Rho=1.0D-7
+c      write (*,*) Tol_Rho
       ss=1.0
       if (ijzy.eq.1) then
 C     Parameters for M06-L Correlation
@@ -340,7 +342,7 @@ C     Parameters for M06-2X Correlation
          sss4=  2.846742D+01
       endif
       
-      If ((PX.le.DTol))  then
+      If ((PX.le.Tol_Rho))  then
         EUEG = Zero
         Chi = Zero
         EUEGP = Zero
@@ -364,7 +366,8 @@ C     Parameters for M06-2X Correlation
         F113 = F11 / F3
         FDUEG = (F3/F5)*(F6*Pi*Pi)**F23
         RS = (Pi34/PX) ** F13
-        Call lsdac(RS,F1,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+        Call lsdac(tol_rho,
+     R       RS,F1,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
         EUEG = PX*PotLC
         D = TX - Pt25*GX/PX
 C        DUEG = FDUEG*PX**F53

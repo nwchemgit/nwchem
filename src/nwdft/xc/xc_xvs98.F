@@ -23,7 +23,7 @@ c     [b] Y. Zhao and D. G. Truhlar, J. Chem. Phys. 125, 194101 (2006).
 
 
 c   
-c$Id: xc_xvs98.F,v 1.1 2007-02-14 20:21:53 bert Exp $
+c$Id: xc_xvs98.F,v 1.1 2007/02/14 20:21:53 bert Exp $
 c
       implicit none
 c
@@ -75,7 +75,7 @@ c      functional derivatives below FFFFFFFFFFFF
 c      functional derivatives above FFFFFFFFFFFF
 
 
-       parameter( pi = 3.1415926535897932384626433832795d0 )
+cedo       parameter( pi = 3.1415926535897932384626433832795d0 )
          
        parameter (cf = 9.115599720d0, Axlsda = -0.9305257363491d0 )
        parameter (gg  = 0.00186726d0) 
@@ -84,6 +84,7 @@ c      functional derivatives above FFFFFFFFFFFF
        parameter (One=1.0d0, Two=2.0d0, Three=3.0d0, Four=4.0d0, 
      &             Five=5.0d0,Six=6.0d0, Seven=7.0d0,
      &             Eight=8.0d0, Nine=9.0d0,F10=10.d0, F11=11.d0)
+      pi=acos(-1d0)
 
 
       if (ijzy.eq.1) then
@@ -128,7 +129,7 @@ c
         r6 =   0.000000D+00
       endif
       
-      DTol = 1.0D-7
+      DTol = tol_rho
       
          
 c     
@@ -155,10 +156,12 @@ c
             tauN = tau(n,1,1) +
      &             tau(n,2,1) +
      &             tau(n,3,1)
+            if(taun.lt.dtol) goto 10
             tauu=tauN
             gamma = delrho(n,1,1)*delrho(n,1,1) +
      &           delrho(n,2,1)*delrho(n,2,1) +
      &           delrho(n,3,1)*delrho(n,3,1)
+         if(sqrt(gamma).lt.dtol) goto 10
             gamma = gamma/Four
             x = gamma/rho83
             dxdr = -f83*x*rrho
@@ -180,8 +183,6 @@ c
      &                  rho43*(dgdx*dxdr + dgdz*dzdr) 
             Cmat(n,1)=  Cmat(n,1) + rho43*(dgdx*dxdg) 
             Mmat(n,1)=  Mmat(n,1) + rho43*(dgdz*dzdt)
-
-
 
 10      continue
 
@@ -296,6 +297,7 @@ c
 
 
       Subroutine xc_xvs98_d2()
+      implicit none
       call errquit(' not coded ',0,0)
       return
       end

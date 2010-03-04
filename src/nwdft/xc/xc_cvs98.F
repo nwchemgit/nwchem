@@ -95,7 +95,8 @@ c
 c
 c     ======> BOTH SPIN-RESTRICETED AND UNRESTRICTED <======
 c
-      DTol=1.0d-7
+c      DTol=1.0d-7
+      dtol=tol_rho
 C     Parameters for VS98 
       if (ijzy.eq.1) then
               r7=   7.035010d-01
@@ -156,14 +157,16 @@ c
          GAA = (    delrho(n,1,1)*delrho(n,1,1) +
      &                 delrho(n,2,1)*delrho(n,2,1) +
      &                 delrho(n,3,1)*delrho(n,3,1))/4.0d0
+         if(sqrt(gaa).lt.dtol) goto 20
 c  In the bc95css subroutine, we use 2*TA as the tau, so we do not divide 
 c  the tau by 2 here
 
          TA = tau(n,1,1) + 
      &             tau(n,2,1) + 
      &             tau(n,3,1)
+         if(ta.lt.dtol) goto 20
                   
-         Call vs98ss(PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
+         Call vs98ss(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
      &                ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,ijzy)
          PB = PA
          GBB = GAA
@@ -212,7 +215,7 @@ c
      &        tau(n,2,1) +
      &        tau(n,3,1))*2.0d0
 
-         Call vs98ss(PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
+         Call vs98ss(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
      &                ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,ijzy)
          Ec = Ec + FA*qwght(n)    
          if(ldew) func(n)=func(n)+ FA
@@ -241,7 +244,7 @@ c
      &        tau(n,2,2) +
      &        tau(n,3,2))*2.0d0
 
-         Call vs98ss(PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ZB,
+         Call vs98ss(tol_rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ZB,
      &                ChiB,EUPB,ChiBP,ChiBG,ZBP,ZBT,ijzy)
          Ec = Ec + FB*qwght(n)          
          if(ldew) func(n)=func(n)+ FB
@@ -261,7 +264,8 @@ c
           Zeta = (PA-PB)/P
           dZdA = (F1-Zeta)/P
           dZdB = (-F1-Zeta)/P
-          Call lsdac(RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
+          Call lsdac(tol_rho,
+     A         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
      $      d2LdZZ)
           EUEG = P*PotLC - EUA - EUB
           ZAB = ZA + ZB
@@ -304,7 +308,7 @@ c      stop
       return
       end
 
-      Subroutine vs98ss(PX,GX,TX,F,FP,FG,FT,EUEG,Z,Chi,EUEGP,
+      Subroutine vs98ss(tol_rho,PX,GX,TX,F,FP,FG,FT,EUEG,Z,Chi,EUEGP,
      &                   ChiP,ChiG,ZP,ZT,ijzy)
       Implicit none
 C
@@ -313,6 +317,7 @@ C     point and one spin-case.
 C
 
       integer ijzy
+      double precision tol_rho
       double precision r13, r14, r15, r16, r17, r18
       double precision PX, GX, TX, F, FP, FG, FT, DTol, Z, ZP, ZT
       double precision EUEG, Chi, EUEGP, ChiP, ChiG, cf, gcc
@@ -370,8 +375,9 @@ C     Parameters for M06-2X
               r17= -6.775479D-03
               r18=  0.000000D+00
       endif
-
-      DTol =1.0d-7 
+couch
+c      DTol =1.0d-7 
+      dtol=tol_rho
       If(PX.le.DTol) then
         EUEG = Zero
         Chi = Zero
@@ -404,7 +410,8 @@ C     Parameters for M06-2X
         rho83 = rho53*rhoo
         
         RS = (Pi34/PX) ** F13
-        Call lsdac(RS,F1,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+        Call lsdac(tol_rho,
+     A       RS,F1,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
         EUEG = PX*PotLC
         Chi = GX/rho83
         Z = (TX/rho53) - cf

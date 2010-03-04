@@ -20,7 +20,7 @@ c     [b]       Zhao, Y. and  Truhlar, D. G. J. Phys. Chem. A (2006),110(49),131
 
 
 c   
-c$Id: xc_xm06.F,v 1.1 2007-02-14 20:21:53 bert Exp $
+c$Id: xc_xm06.F,v 1.1 2007/02/14 20:21:53 bert Exp $
 c
       implicit none
 c
@@ -71,24 +71,23 @@ c
 
 c      functional derivatives below FFFFFFFFFFFF
 
-       double precision dFdW, dWdT, dTdR, dTdTau, dGGAdR, dFdR
-       double precision dFdTau, dGGAdG,tauW
+      double precision dFdW, dWdT, dTdR, dTdTau, dGGAdR, dFdR
+      double precision dFdTau, dGGAdG,tauW
 
-c      functional derivatives above FFFFFFFFFFFF
+c     functional derivatives above FFFFFFFFFFFF
 
 
-       parameter( pi = 3.1415926535897932384626433832795d0 )
+cedo       parameter( pi = 3.1415926535897932384626433832795d0 )
          
-        
-        parameter (F1o3=1.d0/3.d0, F1o4=1.d0/4.d0, F2o3=2.d0/3.d0, 
-     &             F3o2=3.d0/2.d0,F13=1.d0/3.d0)
-        parameter (F4o3=4.d0/3.d0, F4o9=4.d0/9.d0, F3o5=3.d0/5.d0)
-        parameter (F83=8.d0/3.0d0, F23=2.0d0/3.d0, F53=5.d0/3.d0)
-        parameter (One=1.0d0, Two=2.0d0, Three=3.0d0, Four=4.0d0, 
-     &             Five=5.0d0,Six=6.0d0, Seven=7.0d0,
-     &             Eight=8.0d0, Nine=9.0d0,F10=10.d0, F11=11.d0)
       
-      
+      parameter (F1o3=1.d0/3.d0, F1o4=1.d0/4.d0, F2o3=2.d0/3.d0, 
+     &     F3o2=3.d0/2.d0,F13=1.d0/3.d0)
+      parameter (F4o3=4.d0/3.d0, F4o9=4.d0/9.d0, F3o5=3.d0/5.d0)
+      parameter (F83=8.d0/3.0d0, F23=2.0d0/3.d0, F53=5.d0/3.d0)
+      parameter (One=1.0d0, Two=2.0d0, Three=3.0d0, Four=4.0d0, 
+     &     Five=5.0d0,Six=6.0d0, Seven=7.0d0,
+     &     Eight=8.0d0, Nine=9.0d0,F10=10.d0, F11=11.d0)
+        pi=acos(-1d0)      
 
       if (ijzy.eq.1) then
         at0=    3.987756D-01
@@ -155,7 +154,8 @@ C     Parameters for M06-2X
 
       C1 = 0.2195149727645171d0
       C2 = C1/0.804d0 
-      DTol=1.0D-8
+cedo      DTol=1.0D-8
+      DTol=tol_rho
 C
 C     Scale factors for local and non-local contributions.
 C
@@ -190,6 +190,7 @@ c
             tauN = tau(n,1,1) +
      &             tau(n,2,1) +
      &             tau(n,3,1)
+         if(taun.lt.dtol) goto 10
             tauu=tauN 
             TauUEG=0.3d0*P32*rho53
             Tsig =TauUEG/tauu
@@ -213,6 +214,7 @@ c
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
             Gamma = dsqrt(Gamma2)
+         if(gamma.lt.dtol) goto 10
             s      = Cs*Gamma/rho43
             s2     = s*s
             En     = C1*s2
@@ -243,8 +245,6 @@ c
             Cmat(n,1)=  Cmat(n,1) + 
      &                    Two*dGGAdG*Ax*rho43*Fsig 
             Mmat(n,1)=  Mmat(n,1) + 0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
-
-
 
 10      continue
 

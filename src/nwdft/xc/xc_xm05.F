@@ -119,7 +119,7 @@ c     Parameters for M05-2X
       at=1.0d0
       C1 = 0.2195149727645171d0
       C2 = C1/0.804d0 
-      DTol=1.0D-8
+      DTol=tol_rho
 C
 C     Scale factors for local and non-local contributions.
 C
@@ -141,8 +141,8 @@ c                SPIN-UNPOLARIZED
 c
 c
          do 10 n = 1, nq
-            if (rho(n,1).lt.DTol) goto 10
            
+            if (rho(n,1).lt.DTol) goto 10
             rhoo = rho(n,1)
             rho43 = rhoo**F4o3  
             rrho = 1d0/rhoo       ! reciprocal of rho
@@ -155,6 +155,12 @@ c
      &             tau(n,2,1) +
      &             tau(n,3,1)
             tauu=tauN 
+            if (taun.lt.sqrt(DTol)) goto 10
+            Gamma2 = delrho(n,1,1)*delrho(n,1,1) +
+     &              delrho(n,2,1)*delrho(n,2,1) +
+     &              delrho(n,3,1)*delrho(n,3,1)
+            Gamma = dsqrt(Gamma2)
+            if (gamma.lt.DTol) goto 10
             TauUEG=0.3d0*P32*rho53
             Tsig =TauUEG/tauu
             Wsig =(Tsig-One)/(Tsig+One)
@@ -173,10 +179,6 @@ c
      &          + at4*W4 + at5*W5 + at6*W6 + at7*W7
      &          + at8*W8 + at9*W9 + at10*W10 + at11*W11)
 
-            Gamma2 = delrho(n,1,1)*delrho(n,1,1) +
-     &              delrho(n,2,1)*delrho(n,2,1) +
-     &              delrho(n,3,1)*delrho(n,3,1)
-            Gamma = dsqrt(Gamma2)
             s      = Cs*Gamma/rho43
             s2     = s*s
             En     = C1*s2

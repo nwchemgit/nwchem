@@ -37,7 +37,7 @@ c
 c     Threshold parameters
 c
       double precision DTol,F1, F2, F3, F4,COpp 
-      Data DTol/1.0d-8/,COpp/0.0031d0/,F1/1.0d0/,F2/2.0d0/,
+      Data COpp/0.0031d0/,F1/1.0d0/,F2/2.0d0/,
      & F3/3.0d0/,F4/4.0d0/ 
 c
 c     Correlation energy
@@ -215,7 +215,8 @@ c
           Zeta = (PA-PB)/P
           dZdA = (F1-Zeta)/P
           dZdB = (-F1-Zeta)/P
-          Call lsdac(RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
+          Call lsdac(dtol,
+     D         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
      $      d2LdZZ)
           EUEG = P*PotLC - EUA - EUB
           U = COpp*(ChiA+ChiB)/(F1 + COpp*(ChiA+ChiB))
@@ -252,6 +253,7 @@ c      Stop
       end
 
       Subroutine xc_cm05_d2()
+      implicit none
       call errquit(' not coded ',0,0)
       return
       end
@@ -302,7 +304,7 @@ C     Parameters for M05-2X Correlation
          sss4=  -11.92365d0
       endif
       
-      If ((PX.le.DTol))  then
+      If ((PX.le.DTol).or.(TX.le.dtol)) then
         EUEG = Zero
         Chi = Zero
         EUEGP = Zero
@@ -326,7 +328,8 @@ C     Parameters for M05-2X Correlation
         F113 = F11 / F3
         FDUEG = (F3/F5)*(F6*Pi*Pi)**F23
         RS = (Pi34/PX) ** F13
-        Call lsdac(RS,F1,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+        Call lsdac(dtol,
+     D       RS,F1,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
         EUEG = PX*PotLC
         D = TX - Pt25*GX/PX
 C        DUEG = FDUEG*PX**F53
@@ -365,11 +368,13 @@ c
 c Perdew 91 local correlation functional at one grid point 
 c
 
-      Subroutine lsdac(rs,zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+      Subroutine lsdac(tol_rho,
+     R     rs,zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
 
 C     Evaluate the Perdew 91 local correlation functional and its
 C     derivatives at one point. 
-
+      implicit none
+      double precision tol_rho
       double precision rs
       double precision PotLC,dLdS, dLdZ, d2dSS, d2dSZ, d2dZZ
       double precision eps0c(6), eps1c(6), epsc(6)
@@ -379,6 +384,8 @@ C     derivatives at one point.
       double precision EP,dEPdRS,d2PdRS
       double precision AlphaM,dAMdRS,d2AdRS
       double precision GZ, HZ, dGZ, dHZ, d2GZ, d2HZ
+      double precision d2LdSS,d2LdSZ,d2LdZZ,fzzi,
+     Z     z2,z3,z4,third,pi
  
       data eps0c/0.03109070D0,0.21370D0, 7.5957D0,3.5876D0,1.6382D0,
      &         0.49294D0/
@@ -397,7 +404,7 @@ C     derivatives at one point.
       FZZI = F9*(F2**Third-F1) / F4
       GammaI = F1 / (F2*F2**Third-F2)
       
-      Call EvFZet(GammaI,Zeta,FZeta,dfZdz,d2fZdz)
+      Call EvFZet(tol_rho,GammaI,Zeta,FZeta,dfZdz,d2fZdz)
       Call EvPWLC(eps0c(1),eps0c(2),eps0c(3),eps0c(4),eps0c(5),
      &    eps0c(6), RS,EU,dEUdRS,d2UdRS)
       Call EvPWLC(eps1c(1),eps1c(2),eps1c(3),eps1c(4),eps1c(5),
@@ -425,11 +432,12 @@ C     derivatives at one point.
 c
 c   f(zeta)
 c
-      Subroutine EvFZet(S,Zeta,FZeta,dfZdz,d2fZdz)
-      Implicit Real*8(A-H,O-Z)
+      Subroutine EvFZet(tol_rho,S,Zeta,FZeta,dfZdz,d2fZdz)
+      Implicit none
 c
 c     evaluate f(Zeta) and its derivatives for lsdac.
 c
+      double precision tol_rho
       double precision Small
       double precision S, Zeta, FZeta,dfZdz,d2fZdz
       double precision Zero, One, Two, Three, Four, Nine, F8, F27
@@ -438,7 +446,8 @@ c
       data Zero/0.0d0/, One/1.0d0/, Two/2.0d0/, Three/3.0d0/,
      $  Four/4.0d0/, Nine/9.0d0/, F8/8.0D0/, F27/27.0D0/
 C
-      Small = 1.0d-14
+c      Small = 1.0d-14
+      small=tol_rho
       FZeta = -Two
       dfZdz = Zero
       d2fZdz = Zero

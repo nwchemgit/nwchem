@@ -212,7 +212,8 @@ c
           Zeta = (PA-PB)/P
           dZdA = (F1-Zeta)/P
           dZdB = (-F1-Zeta)/P
-          Call lsdac(RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
+          Call lsdac(dtol,
+     D         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
      $      d2LdZZ)
           EUEG = P*PotLC - EUA - EUB
           Denom = F1 + COpp*(ChiA+ChiB)
@@ -306,7 +307,8 @@ C     Parameters for PWB6K Correlation
         F113 = F11 / F3
         FDUEG = (F3/F5)*(F6*Pi*Pi)**F23
         RS = (Pi34/PX) ** F13
-        Call lsdac(RS,F1,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+        Call lsdac(dtol,
+     D       RS,F1,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
         EUEG = PX*PotLC
         D = TX - Pt25*GX/PX
         DUEG = FDUEG*PX**F53
