@@ -20,6 +20,7 @@ xc m06-L
 mult 1
 grid fine
  tolerances tight
+iterations 40
 end
 
 task dft
