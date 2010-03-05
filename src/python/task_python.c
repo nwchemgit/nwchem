@@ -2,7 +2,7 @@
  $Id: task_python.c,v 1.12 2007-07-26 21:05:03 d3p852 Exp $
 */
 #include "macdecls.h"
-#include "global.h"
+#include "ga.h"
 
 #include <Python.h>
 #include <import.h>
@@ -49,9 +49,9 @@ int FATR task_python_(Integer *rtdb_ptr)
    ret += PyRun_SimpleString(pbuf);
    sprintf(pbuf, "LOGICAL = %d", MT_BASE + 11); 
    ret += PyRun_SimpleString(pbuf);
-   sprintf(pbuf, "taskid = %d", ga_nodeid_());
+   sprintf(pbuf, "taskid = %d", GA_Nodeid());
    ret += PyRun_SimpleString(pbuf);
-   sprintf(pbuf, "np = %d", ga_nnodes_());
+   sprintf(pbuf, "np = %d", GA_Nnodes());
    ret += PyRun_SimpleString(pbuf);
 
    if (ret) {
@@ -59,8 +59,8 @@ int FATR task_python_(Integer *rtdb_ptr)
      return 0;
    }
 
-   if (ga_nodeid_())
-       sprintf(filename,"nwchem.py-%d",ga_nodeid_());
+   if (GA_Nodeid())
+       sprintf(filename,"nwchem.py-%d",GA_Nodeid());
    else
        strcpy(filename,"nwchem.py");
 

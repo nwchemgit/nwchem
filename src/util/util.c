@@ -8,7 +8,7 @@
 #ifdef MPI
 #  include <mpi.h>
 #else
-#  include <sndrcv.h>
+#  include <tcgmsg.h>
 #endif
 
 #define MAXDIM 10
@@ -406,7 +406,7 @@ char msg[100];
 Integer FATR util_mdtob_(Integer *n)
 {
   if (*n < 0)
-    ga_error("util_MDTOB_: negative argument",*n);
+    GA_Error("util_MDTOB_: negative argument",*n);
 
   return (Integer) (*n * sizeof(double));
 }
@@ -418,7 +418,7 @@ Integer FATR util_mdtob_(Integer *n)
 Integer FATR util_mitob_(Integer *n)
 {
   if (*n < 0)
-    ga_error("util_MITOB_: negative argument",*n);
+    GA_Error("util_MITOB_: negative argument",*n);
 
   return (Integer) (*n * sizeof(Integer));
 }
@@ -461,6 +461,6 @@ double FATR util_timer_()
 #ifdef MPI
        return MPI_Wtime();
 #else
-       return TCGTIME_();
+       return tcg_time();
 #endif
 }

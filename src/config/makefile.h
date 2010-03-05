@@ -31,7 +31,8 @@ error1:
 	@exit 1
 endif
 
-# Select the old (pre-1999 version of GA) by uncommenting the next line
+# Select the old (pre-autotools version of GA) by uncommenting the next line.
+# The value of OLD_GA does not matter -- it is detected as an ifdef only.
 #OLD_GA = y 
 
 #
@@ -98,7 +99,11 @@ endif
 # e.g. LIBPATH = -L/msrc/proj/mss/lib
 #
     LIBPATH = 
+ifdef OLD_GA
     LIBPATH = -L$(SRCDIR)/tools/lib/$(TARGET)
+else
+    LIBPATH = -L$(SRCDIR)/tools/install/lib
+endif
 
 #
 # Define INCPATH to be directories to get includes for
@@ -106,7 +111,11 @@ endif
 # will be searched AFTER anything you are building now.
 #
     INCPATH = 
+ifdef OLD_GA
     INCPATH = -I$(SRCDIR)/tools/include
+else
+    INCPATH = -I$(SRCDIR)/tools/install/include
+endif
 
 # These subdirectories will build the core, or supporting libraries
 # that are required by all NWChem modules.  The include directory is
@@ -232,7 +241,11 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
           CDEBUG = -g
               AR = ar
 
-       CORE_LIBS =  -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
+ifdef OLD_GA
+       CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
+else
+       CORE_LIBS = -lnwcutil -lga -lpeigs -lperfm -lcons -lbq -lnwcutil
+endif
 
     ifdef USE_INTEGER4
       integer4:
@@ -1900,9 +1913,15 @@ ifeq ($(TARGET),FUJITSU_VPP)
  NW_CORE_SUBDIRS = include basis geom inp input  \
        pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
 
+ifdef OLD_GA
         CORE_LIBS = -lnwcutil \
                     -L$(GA_LIBDIR) -lglobal -lpario -lma -lpeigs \
                     -ltcgmsg-mpi -L/usr/lang/mpi2/lib32 -lmpi -lmp
+else
+        CORE_LIBS = -lnwcutil \
+                    -L$(GA_LIBDIR) -lga -lpeigs \
+                    -L/usr/lang/mpi2/lib32 -lmpi -lmp
+endif
        EXTRA_LIBS = -llapackvp -lblasvp -lsocket -Wl,-J,-P,-t,-dy
 #end of FUJITSU_VPP 
 endif
@@ -1949,9 +1968,15 @@ ifeq ($(TARGET),FUJITSU_VPP64)
  NW_CORE_SUBDIRS = include basis geom inp input  \
        pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
 
+ifdef OLD_GA
         CORE_LIBS = -lnwcutil \
                     -L$(GA_LIBDIR) -lglobal -lpeigs -lpario -lma \
                     -ltcgmsg-mpi -L/usr/lang/mpi2/lib64 -lmpi -lmp
+else
+        CORE_LIBS = -lnwcutil \
+                    -L$(GA_LIBDIR) -lga -lpeigs \
+                    -L/usr/lang/mpi2/lib64 -lmpi -lmp
+endif
        EXTRA_LIBS = -llapack -lblas -lsocket -Wl,-J,-P,-t,-dy
 #end of FUJITSU_VPP64
 endif
@@ -2149,7 +2174,11 @@ endif
 #  some of the definitions below will be 'lost'                   #
 ###################################################################
 #the new GA uses ARMCI library
+ifdef OLD_GA
       CORE_LIBS += -larmci
+else
+      CORE_LIBS +=
+endif
 
 # MPI version requires tcgmsg-mpi library
 
@@ -2160,9 +2189,17 @@ endif
 ifdef MPI_LIB 
       CORE_LIBS += -L$(MPI_LIB) 
 endif 
+ifdef OLD_GA
   CORE_LIBS += -ltcgmsg-mpi $(LIBMPI) 
+else
+  CORE_LIBS += $(LIBMPI) 
+endif
 else 
+ifdef OLD_GA
   CORE_LIBS += -ltcgmsg 
+else
+  CORE_LIBS += 
+endif
 endif 
 
 

@@ -31,7 +31,7 @@ static int subscript = 0;
 Integer util_gnxtval_(Integer *val) {
 
     if(*val > 0) {
-       if(!initialized) ga_error("nxtval: not yet initialized", 0L);
+       if(!initialized) GA_Error("nxtval: not yet initialized", 0L);
        return (Integer) NGA_Read_inc(g_T, &subscript, 1);
     }
     else if(*val==0) {
@@ -52,7 +52,7 @@ Integer util_gnxtval_(Integer *val) {
     }
     else if (*val < 0) { GA_Destroy(g_T); initialized=0; initval=0; return 0;}
     
-    ga_error("nxtval: invalid value passed", 0L);
+    GA_Error("nxtval: invalid value passed", 0L);
     return -1;
 }
 

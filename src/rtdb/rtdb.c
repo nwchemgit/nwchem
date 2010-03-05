@@ -3,7 +3,7 @@
 #include <string.h>
 #include "rtdb.h"
 #include "macdecls.h"
-#include "global.h"
+#include "ga.h"
 #include "hdbm.h"
 
 #define TYPE_RTDB_HANDLE  30001
@@ -51,7 +51,7 @@ static int verify_parallel_access()
 */
 {
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #endif
   if ((parallel_mode == SEQUENTIAL) && (me != 0)) {
     (void) fflush(stdout);
@@ -73,16 +73,16 @@ static void rtdb_broadcast(const int msg_type, const int ma_type,
   Integer len = MA_sizeof(ma_type, nelem, MT_CHAR);
   Integer from = 0;
   Integer type = msg_type;
-  ga_brdcst_(&type, (char *) data, &len, &from);
+  GA_Brdcst(data, len, from);
 }
 
 int rtdb_open(const char *filename, const char *mode, int *handle)
 {
   int status;
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #else
-  me = ga_nodeid_();
+  me = GA_Nodeid();
 #endif
 
   if (!verify_parallel_access()) return 0;
@@ -105,9 +105,9 @@ int rtdb_clone(const int handle, const char *suffix)
 {
   int status;
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #else
-  me = ga_nodeid_();
+  me = GA_Nodeid();
 #endif
 
   if (!verify_parallel_access()) return 0;
@@ -136,7 +136,7 @@ int rtdb_getfname(const int handle,
   int status;
   int length;
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #endif
 
   if (!verify_parallel_access()) return 0;
@@ -173,7 +173,7 @@ int rtdb_close(const int handle, const char *mode)
 {
   int status;
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #endif
   
   if (!verify_parallel_access()) return 0;
@@ -202,7 +202,7 @@ int rtdb_put(const int handle, const char *name, const int ma_type,
 {
   int status;
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #endif
 
   if (!verify_parallel_access()) return 0;
@@ -234,7 +234,7 @@ int rtdb_get(const int handle, const char *name, const int ma_type,
 {
   int status;
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #endif
 
   if (!verify_parallel_access()) return 0;
@@ -274,7 +274,7 @@ int rtdb_get_info(const int handle,
 {
   int status;
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #endif
 
   if (!verify_parallel_access()) return 0;
@@ -312,7 +312,7 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
 {
   int status;
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #endif
 
   if (!verify_parallel_access()) return 0;
@@ -350,14 +350,13 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
 	     error condition to all the other processes ... exit via
 	     the TCGMSG error routine */
 
-	  ga_error("rtdb_get_ma: rtdb_get_ma: MA_alloc failed, nelem=",
-		(Integer) nelem);
+	  GA_Error("rtdb_get_ma: rtdb_get_ma: MA_alloc failed, nelem=", nelem);
 	}
         *ma_handle = (int) ma_handle_buf;
       }
       
       if (!MA_get_pointer((Integer) *ma_handle, &ma_data)) {
-	ga_error("rtdb_get_ma: rtdb_get_ma: MA_get_ptr failed, nelem=",
+	GA_Error("rtdb_get_ma: rtdb_get_ma: MA_get_ptr failed, nelem=",
 	      (Integer) nelem);
       }
 
@@ -372,7 +371,7 @@ int rtdb_first(const int handle, const int namelen, char *name)
 {
   int status;
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #endif
 
   if (!verify_parallel_access()) return 0;
@@ -410,7 +409,7 @@ int rtdb_next(const int handle, const int namelen, char *name)
 {
   int status;
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #endif
 
   if (!verify_parallel_access()) return 0;
@@ -449,7 +448,7 @@ int rtdb_print(const int handle, const int print_values)
 {
   int status;
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #endif
 
   if (!verify_parallel_access()) return 0;
@@ -479,7 +478,7 @@ int rtdb_delete(const int handle, const char *name)
 {
   int status;
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #endif
 
   if (!verify_parallel_access()) return 0;
@@ -510,7 +509,7 @@ void rtdb_print_usage()
 {
 #ifdef USE_HDBM
 #ifdef GAGROUPS
-  int me = ga_nodeid_();
+  int me = GA_Nodeid();
 #endif
   if (me == 0)
     hdbm_print_usage();

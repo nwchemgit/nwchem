@@ -15,7 +15,7 @@
 
 #include "rtdb.h"
 #include "macdecls.h"
-#include "global.h"
+#include "ga.h"
 #include "typesf2c.h"
 
 static PyObject *NwchemError;
@@ -1225,8 +1225,8 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
    } else if (method == 4) {
       Integer *node_list ;
       num_groups = PyTuple_Size(args2);
-      my_ga_group = ga_pgroup_get_default_() ;
-      nnodes = ga_pgroup_nnodes_(&my_ga_group);
+      my_ga_group = GA_Pgroup_get_default() ;
+      nnodes = GA_Pgroup_nnodes(my_ga_group);
       if (!(node_list = malloc(MA_sizeof(MT_F_INT, num_groups+nnodes, MT_CHAR)))) {
          PyErr_SetString(PyExc_MemoryError, "pgroup_create() failed allocating array");
          return NULL;
@@ -1254,9 +1254,9 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
       util_sggo_(&rtdb_handle,&num_groups,&method, node_list,&dir);
       free(node_list);
    }
-   my_ga_group = ga_pgroup_get_default_() ;
-   nnodes = ga_pgroup_nnodes_(&my_ga_group);
-   nodeid = ga_pgroup_nodeid_(&my_ga_group);
+   my_ga_group = GA_Pgroup_get_default() ;
+   nnodes = GA_Pgroup_nnodes(my_ga_group);
+   nodeid = GA_Pgroup_nodeid(my_ga_group);
    ngroups = util_sgroup_numgroups_() ;
    mygroup = util_sgroup_mygroup_() ;
    PyTuple_SET_ITEM(returnObj, 0, PyInt_FromLong((long) mygroup ));
@@ -1287,9 +1287,9 @@ static PyObject *do_pgroup_destroy(PyObject *self, PyObject *args)
        return NULL;
    }
    util_sgend_(&rtdb_handle);
-   my_ga_group = ga_pgroup_get_default_() ;
-   nnodes = ga_pgroup_nnodes_(&my_ga_group);
-   nodeid = ga_pgroup_nodeid_(&my_ga_group);
+   my_ga_group = GA_Pgroup_get_default() ;
+   nnodes = GA_Pgroup_nnodes(my_ga_group);
+   nodeid = GA_Pgroup_nodeid(my_ga_group);
    ngroups = util_sgroup_numgroups_() ;
    mygroup = util_sgroup_mygroup_() ;
    PyTuple_SET_ITEM(returnObj, 0, PyInt_FromLong((long) mygroup ));
@@ -1308,19 +1308,19 @@ static PyObject *do_pgroup_sync_work(PyObject *args, Integer my_group)
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_sync() or pgroup_sync_all()");
       return NULL;
    }
-   ga_pgroup_sync_(&my_group);
+   GA_Pgroup_sync(my_group);
    Py_INCREF(Py_None);
    return Py_None;
 }
 static PyObject *do_pgroup_sync(PyObject *self, PyObject *args)
 {
-   Integer my_group = ga_pgroup_get_default_() ;
+   Integer my_group = GA_Pgroup_get_default() ;
    PyObject *returnObj = do_pgroup_sync_work(args,my_group);
    return returnObj ;
 }
 static PyObject *do_pgroup_sync_all(PyObject *self, PyObject *args)
 {
-   Integer my_group = ga_pgroup_get_world_() ;
+   Integer my_group = GA_Pgroup_get_world() ;
    PyObject *returnObj = do_pgroup_sync_work(args,my_group);
    return returnObj ;
 }
@@ -1421,7 +1421,7 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
          }
       }
 
-      ga_pgroup_dgop_(&my_group,&message_id,array,&nelem,pchar);
+      gai_pgroup_gop(my_group, ga_type_f2c(MT_F_DBL), array, nelem, pchar);
 
       returnObj =  nwwrap_doubles(nelem, array);
       free(array);
@@ -1444,7 +1444,7 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
          array[i] = (Integer) tmp_int;
       }
       
-      ga_pgroup_igop_(&my_group,&message_id,array,&nelem,pchar);
+      gai_pgroup_gop(my_group, ga_type_f2c(MT_F_INT), array, nelem, pchar);
       
       returnObj =  nwwrap_integers(nelem, array);
       free(array);
@@ -1453,20 +1453,20 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
 }
 static PyObject *do_pgroup_global_op(PyObject *self, PyObject *args)
 {          
-   Integer my_group = ga_pgroup_get_default_() ;
+   Integer my_group = GA_Pgroup_get_default() ;
    PyObject *returnObj = do_pgroup_global_op_work(args,my_group);
    return returnObj ;
 }      
 static PyObject *do_pgroup_global_op_all(PyObject *self, PyObject *args)
 {
-   Integer my_group = ga_pgroup_get_world_() ;
+   Integer my_group = GA_Pgroup_get_world() ;
    PyObject *returnObj = do_pgroup_global_op_work(args,my_group);
    return returnObj ;
 }
 static PyObject *do_pgroup_global_op_zero(PyObject *self, PyObject *args)
 {
    Integer my_group;
-   if (ga_nodeid_() != 0) {
+   if (GA_Nodeid() != 0) {
      Py_INCREF(Py_None); 
      return Py_None;
    }
@@ -1552,7 +1552,7 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
          }
       }
 
-      ga_pgroup_brdcst_(&my_group,&message_id,array,&size,&node0);
+      GA_Pgroup_brdcst(my_group,array,size,node0);
 
       returnObj =  nwwrap_doubles(nelem, array);
       free(array);
@@ -1575,7 +1575,7 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
          array[i] = (Integer) tmp_int;
       }
       
-      ga_pgroup_brdcst_(&my_group,&message_id,array,&size,&node0);
+      GA_Pgroup_brdcst(my_group,array,size,node0);
       
       returnObj =  nwwrap_integers(nelem, array);
       free(array);
@@ -1584,13 +1584,13 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
 }
 static PyObject *do_pgroup_broadcast(PyObject *self, PyObject *args)
 {     
-   Integer my_group = ga_pgroup_get_default_() ;
+   Integer my_group = GA_Pgroup_get_default() ;
    PyObject *returnObj = do_pgroup_broadcast_work(args,my_group);
    return returnObj ;
 }
 static PyObject *do_pgroup_broadcast_all(PyObject *self, PyObject *args)
 {
-   Integer my_group = ga_pgroup_get_world_() ;
+   Integer my_group = GA_Pgroup_get_world() ;
    PyObject *returnObj = do_pgroup_broadcast_work(args,my_group);
    return returnObj ;
 }
@@ -1598,7 +1598,7 @@ static PyObject *do_pgroup_broadcast_zero(PyObject *self, PyObject *args)
 {
    Integer my_group;
    my_group = util_sgroup_zero_group_();
-   if (ga_nodeid_() != 0) {
+   if (GA_Nodeid() != 0) {
      Py_INCREF(Py_None);
      return Py_None;
    }
@@ -1609,8 +1609,8 @@ static PyObject *do_pgroup_broadcast_zero(PyObject *self, PyObject *args)
 static PyObject *do_pgroup_nnodes(PyObject *self, PyObject *args)
 {
    /// Returns the number of nodes in a group
-   Integer my_group = ga_pgroup_get_default_() ;
-   int nnodes = ga_pgroup_nnodes_(&my_group);
+   Integer my_group = GA_Pgroup_get_default() ;
+   int nnodes = GA_Pgroup_nnodes(my_group);
    if (args) {
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_nnodes()");
       return NULL;
@@ -1623,8 +1623,8 @@ static PyObject *do_pgroup_nodeid(PyObject *self, PyObject *args)
 {
    /// This returns the node number (within the group, not global)
    /// Nodes are numbered, 0 to NumNodes-1
-   Integer my_group = ga_pgroup_get_default_() ;
-   int nodeid = ga_pgroup_nodeid_(&my_group);
+   Integer my_group = GA_Pgroup_get_default() ;
+   int nodeid = GA_Pgroup_nodeid(my_group);
    if (args) {
       PyErr_SetString(PyExc_TypeError, "Usage: pgroup_nodeid()");
       return NULL;
@@ -1657,7 +1657,7 @@ static PyObject *do_pgroup_groupid(PyObject *self, PyObject *args)
 static PyObject *do_ga_groupid(PyObject *self, PyObject *args)
 {
    /// The returns the GA group ID
-   Integer my_group = ga_pgroup_get_default_() ;
+   Integer my_group = GA_Pgroup_get_default() ;
    if (args) {
       PyErr_SetString(PyExc_TypeError, "Usage: ga_groupid()");
       return NULL;

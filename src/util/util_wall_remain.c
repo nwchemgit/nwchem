@@ -18,7 +18,7 @@
 
 #ifdef LSF
 #include <stdlib.h>
-#  include <sndrcv.h>
+#  include <tcgmsg.h>
 Integer FATR util_batch_job_time_remaining_(void)
 {
   Integer wallspent, lsflimit;
@@ -26,7 +26,7 @@ Integer FATR util_batch_job_time_remaining_(void)
   uval = getenv("JOB_RLIMIT_RUN"); 
   if(uval != NULL){
     sscanf(uval,"%ld",&lsflimit);
-    wallspent = (Integer) TCGTIME_();
+    wallspent = (Integer) tcg_time();
 #ifdef DEBUG
     (void) fprintf(stderr,"ujtr: returning time= %d -- %d \n", lsflimit,wallspent);
 #endif

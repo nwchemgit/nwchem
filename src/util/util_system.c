@@ -30,8 +30,6 @@ int fortchar_to_string(_fcd, int, char *, const int);
 int fortchar_to_string(const char *, int, char *, const int);
 #endif
 
-void ga_error(const char *, long);
-
 #if defined(USE_FCD)
 Integer FATR UTIL_SYSTEM(_fcd input)
 {
@@ -46,7 +44,7 @@ Integer util_system_(const char *input, int lin)
 #endif
     char in[1024];
     if (!fortchar_to_string(input, lin, in, sizeof(in)))
-	ga_error("util_system: fortchar_to_string failed for in",0);
+	GA_Error("util_system: fortchar_to_string failed for in",0);
 
 #if defined(DECOSF)
 	Siginit = signal(SIGCHLD,SIG_IGN);
@@ -54,7 +52,7 @@ Integer util_system_(const char *input, int lin)
 	Siginit = signal(SIGCHLD,Siginit);
     return i;
 #elif defined(CATAMOUNT)
-    ga_error("system calls do not work on this machine", 0);
+    GA_Error("system calls do not work on this machine", 0);
 #else
     return system(in);
 #endif

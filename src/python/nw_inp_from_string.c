@@ -1,7 +1,7 @@
 /*
  $Id: nw_inp_from_string.c,v 1.14 2007-08-21 17:20:40 d3p852 Exp $
 */
-#include "global.h"
+#include "ga.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,8 +18,6 @@
 #if defined(CRAY_T3E)  || defined(WIN32)
 #define nw_inp_from_file_ NW_INP_FROM_FILE
 #define util_sgroup_mygroup_ UTIL_SGROUP_MYGROUP
-#define ga_pgroup_get_default_ GA_PGROUP_GET_DEFAULT
-#define ga_pgroup_get_world_ GA_PGROUP_GET_WORLD
 #endif
 
 #if defined(CRAY_T3E) || defined(USE_FCD) || defined(WIN32)
@@ -28,8 +26,6 @@ extern Integer FATR nw_inp_from_file_(Integer *rtdb, _fcd filename);
 extern Integer FATR nw_inp_from_file_(Integer *rtdb, char *filename, int flen);
 #endif
 extern Integer FATR util_sgroup_mygroup_(void);
-extern Integer FATR ga_pgroup_get_default_(void);
-extern Integer FATR ga_pgroup_get_world_(void);
 
 int nw_inp_from_string(Integer rtdb, const char *input)
 {
@@ -46,21 +42,21 @@ int nw_inp_from_string(Integer rtdb, const char *input)
     int number ;
 
 // This is bad, not 100% sure to be unique, since could be subgroup
-    if (ga_pgroup_get_world_() != ga_pgroup_get_default_()) {
+    if (GA_Pgroup_get_world() != GA_Pgroup_get_default()) {
        number = (int) util_sgroup_mygroup_() ;
     } else {
        number = 0 ;
     }
     sprintf(filename, "%s%d%s", base,number,ending);
-    if (ga_nodeid_() == 0) {
+    if (GA_Nodeid() == 0) {
       if (!(file = fopen(filename,"w"))) {
-        ga_error("nw_inp_from_string: failed to open temp.nw\n",0);
+        GA_Error("nw_inp_from_string: failed to open temp.nw\n",0);
       }
       if (fwrite(input, 1, strlen(input), file) != strlen(input)) {
-        ga_error("nw_inp_from_string: failed to write to temp.nw\n",0);
+        GA_Error("nw_inp_from_string: failed to write to temp.nw\n",0);
       }
       if (fwrite("\n", 1, 1, file) != 1) {
-        ga_error("nw_inp_from_string: failed to write to temp.nw\n",0);
+        GA_Error("nw_inp_from_string: failed to write to temp.nw\n",0);
       }
       (void) fclose(file);
     }
@@ -79,7 +75,7 @@ int nw_inp_from_string(Integer rtdb, const char *input)
 #endif
 
 
-    if (ga_nodeid_() == 0) (void) unlink(filename);
+    if (GA_Nodeid() == 0) (void) unlink(filename);
 
     return status;
 }

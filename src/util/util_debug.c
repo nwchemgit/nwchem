@@ -12,7 +12,7 @@
 
 void FATR util_debug_(Integer *rtdb)
 {
-  ga_error("Don't know how to debug on this machine", 0);
+  GA_Error("Don't know how to debug on this machine", 0);
 }
 
 #else
@@ -22,7 +22,7 @@ void FATR util_debug_(Integer *rtdb)
 #include <unistd.h>
 #include <string.h>
 #include "macdecls.h"
-#include "global.h"
+#include "ga.h"
 #include "rtdb.h"
 
 #include "typesf2c.h"
@@ -33,7 +33,7 @@ void FATR util_debug_(Integer *rtdb)
   char *argv[20];
   char display[256], path[256], title[256], pid[256], xterm[256];
 
-  sprintf(title, "Debugging NWChem process %d", ga_nodeid_());
+  sprintf(title, "Debugging NWChem process %d", GA_Nodeid());
   sprintf(pid, "%d", getpid());
 
   if (!rtdb_get(*rtdb, "dbg:path", MT_CHAR, sizeof(path), path)) 
@@ -106,11 +106,11 @@ void FATR util_debug_(Integer *rtdb)
   if (!xterm[0])
     strcpy(xterm, "/usr/bin/X11/xterm");
 #else
-  ga_error("Don't know how to debug on this machine", 0);
+  GA_Error("Don't know how to debug on this machine", 0);
 #endif
 
   argv[0] = xterm;
-  if (ga_nodeid_() == 0) {
+  if (GA_Nodeid() == 0) {
     int i;
     printf("\n Starting xterms with debugger using command\n\n    ");
     for (i=0; argv[i]; i++)
@@ -118,12 +118,12 @@ void FATR util_debug_(Integer *rtdb)
     printf("\n\n");
     fflush(stdout);
   }
-  ga_sync_();
+  GA_Sync();
 
   child = fork();
 
   if (child < 0) {
-    ga_error("util_debug: fork failed?", 0);
+    GA_Error("util_debug: fork failed?", 0);
   }
   else if (child > 0) {
     sleep(5);			/* Release cpu while debugger starts*/
@@ -131,7 +131,7 @@ void FATR util_debug_(Integer *rtdb)
   else {
     execv(xterm, argv);
     perror("");
-    ga_error("util_debug: execv of xterm with debugger failed", 0);
+    GA_Error("util_debug: execv of xterm with debugger failed", 0);
   }
 }
 #endif

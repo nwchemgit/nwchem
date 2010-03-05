@@ -1,40 +1,72 @@
-#!/bin/csh
+#!/bin/sh
 #
 # $Id: get-tools,v 1.15 2008-08-15 23:24:44 d3p307 Exp $
 #
 
-unalias mv
-unalias rm
+unalias -a
 
-set TOOLDIR = `pwd`
-if (-e $TOOLDIR/armci) then
-echo "You have an old copy of the ga tools, deleting it now"
-   rm -rf $TOOLDIR/armci
-   rm -rf $TOOLDIR/armci-portals
-   rm -rf $TOOLDIR/cca
-   rm -rf $TOOLDIR/config
-   rm -rf $TOOLDIR/ga++
-   rm -rf $TOOLDIR/global
-   rm -rf $TOOLDIR/LinAlg
-   rm -rf $TOOLDIR/ma
-   rm -rf $TOOLDIR/pario
-   rm -rf $TOOLDIR/tcgmsg
-   rm -rf $TOOLDIR/tcgmsg-mpi
-   rm -rf $TOOLDIR/doc
-   rm -rf $TOOLDIR/examples
-   rm -rf $TOOLDIR/build-aux
-   rm -rf $TOOLDIR/f2c
-endif
+if test "x$NWCHEM_TOP" = x
+then
+    echo You must set NWCHEM_TOP to use this script.
+    exit 1
+fi
 
-svn checkout https://svn.pnl.gov/svn/hpctools/branches/cvs-dev/ga
+TOOLDIR=`pwd`
+CONFIG=$NWCHEM_TOP/src/config/makefile.h
+GA_NEW=ga-dev
+GA_OLD=ga-4-3
 
-cd ga
+# If OLD_GA is set at all in the user's environment then it means 'yes'
+if test "x$OLD_GA" != x
+then
+    OLD_GA=yes
+fi
+# Or, if OLD_GA is uncommented within $NWCHEM_TOP/src/config/makefile.h
+if grep "^\s*OLD_GA\s*=" $CONFIG >/dev/null 2>&1
+then
+    OLD_GA=yes
+fi
+echo "OLD_GA=$OLD_GA"
+
+# Update the "OLD_GA" source.
+if test -e $TOOLDIR/armci
+then
+    echo "You have an old copy of the ga tools using GNUmakefiles"
+    echo "Deleting it now"
+    rm -rf $TOOLDIR/armci
+    rm -rf $TOOLDIR/armci-portals
+    rm -rf $TOOLDIR/build-aux
+    rm -rf $TOOLDIR/cca
+    rm -rf $TOOLDIR/config
+    rm -rf $TOOLDIR/doc
+    rm -rf $TOOLDIR/examples
+    rm -rf $TOOLDIR/f2c
+    rm -rf $TOOLDIR/ga++
+    rm -rf $TOOLDIR/gaf2c
+    rm -rf $TOOLDIR/global
+    rm -rf $TOOLDIR/lib
+    rm -rf $TOOLDIR/LinAlg
+    rm -rf $TOOLDIR/ma
+    rm -rf $TOOLDIR/pario
+    rm -rf $TOOLDIR/tcgmsg
+    rm -rf $TOOLDIR/tcgmsg-mpi
+fi
+svn checkout https://svn.pnl.gov/svn/hpctools/branches/ga-4-3 $GA_OLD
+pushd $GA_OLD
 rm -f README
 rm -f license.txt
 rm -f INSTALL
 rm -f NOTES
 rm -f GNUmakefile
-mv -f * ..
-cd ..
-rm -rf ga
+cp -f -R * ..
+popd
 
+# Update the autotools build of GA.
+if test -e $TOOLDIR/build
+then
+    echo "You have an old copy of the ga tools using configure"
+    echo "Deleting it now"
+    rm -rf $TOOLDIR/build
+    rm -rf $TOOLDIR/install
+fi
+svn checkout https://svn.pnl.gov/svn/hpctools/branches/cvs-dev/ga $GA_NEW

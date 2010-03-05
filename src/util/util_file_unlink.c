@@ -28,8 +28,6 @@ int fortchar_to_string(_fcd, int, char *, const int);
 int fortchar_to_string(const char *, int, char *, const int);
 #endif
 
-void ga_error(const char *, long);
-
 void util_file_unlink(const char *filename)
 /*
   Delete the file.  If the file does not exist, quietly return.
@@ -41,12 +39,12 @@ void util_file_unlink(const char *filename)
 	if (unlink(filename)) {
 	    fprintf(stderr,"util_file_unlink: failed unlinking %s\n",
 		    filename);
-	    ga_error("util_file_unlink",0);
+	    GA_Error("util_file_unlink",0);
 	}
     }
   */
-  if (eaf_delete(filename) != 0)
-    ga_error("util_file_unlink",0);
+  if (EAF_Delete(filename) != 0)
+    GA_Error("util_file_unlink",0);
 }
 
 #if defined(USE_FCD)
@@ -59,7 +57,7 @@ void util_file_unlink_(const char *input, int lin)
 #endif
     char in[255];
     if (!fortchar_to_string(input, lin, in, sizeof(in)))
-	ga_error("util_file_unlink: fortchar_to_string failed for in",0);
+	GA_Error("util_file_unlink: fortchar_to_string failed for in",0);
     util_file_unlink(in);
 }
 

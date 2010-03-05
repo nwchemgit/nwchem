@@ -16,7 +16,7 @@
 #define FC_MAXLEN 256 /* Length of message buffer.  Longer Fortran string
 			 are sent in several messages. */
 
-#include "sndrcv.h"
+#include <tcgmsg.h>
 #include <string.h>
 #if defined(CRAY) && !defined(__crayx1)
 #define FATR
@@ -75,12 +75,12 @@ void FCSND_(type, fstring, node, sync, flength)
 	    clength++;
 	    cstring[clength] = '\0';
 	} else if ( fpos == flength && clength == lenbuf ) {
-	    SND_(type, cstring, &clength, node, sync);
+	    tcg_snd(*type, cstring, clength, *node, *sync);
 	    clength = 1;
 	    cstring[0] = '\0';
 	}
 
-	SND_(type, cstring, &clength, node, sync);
+	tcg_snd(*type, cstring, clength, *node, *sync);
     }
 }
 
@@ -116,7 +116,7 @@ void FCRCV_(type, fstring, flength, nodeselect, nodefrom, sync, fsize)
     /* Collect the text, which may be broken into multiple messages */
     *flength = 0;
     do {
-	RCV_(type, cstring, &lenbuf, &clength, nodeselect, nodefrom, sync);
+	tcg_rcv(*type, cstring, lenbuf, &clength, *nodeselect, nodefrom, *sync);
 
 	strncpy(&fstring[*flength], cstring,
 		(size_t) MIN(fsize-*flength, clength) ); 

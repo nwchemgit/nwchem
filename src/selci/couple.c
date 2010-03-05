@@ -8,7 +8,7 @@
 #include <strings.h>
 #endif
 #include <stdlib.h>
-#include "global.h"
+#include "ga.h"
 
 extern int fortchar_to_string();
 
@@ -28,7 +28,7 @@ static void Error(char *string, int integer)
   (void) fprintf(stderr,string);
   (void) fprintf(stderr," %d (%#x).\n",integer,integer);
   exit(1); */
-  ga_error(string, (long) integer);
+  GA_Error(string, (long) integer);
 }
 
 

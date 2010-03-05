@@ -625,7 +625,7 @@ int rtdb_seq_next(const int handle, const int namelen, char *name)
 }
 
 
-#include "global.h"
+#include "ga.h"
 int rtdb_seq_close(const int handle, const char *mode)
 /*
   Close the data base
