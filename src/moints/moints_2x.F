@@ -86,10 +86,11 @@ c
        integer tottask
        integer geom
        logical status, osym, st
-       logical odoit
+       logical odoit,doloop
 c
 #include "moints_stats.fh"
 c
+       integer clo, chi, rlo, rhi,nodesloop
        integer moints_numgr, gr_len, moints_nxttask
        external moints_numgr, gr_len, moints_nxttask
 c
@@ -153,7 +154,14 @@ c  excludes frozen core & virtual
 c
        status = status.and.ma_push_get(MT_DBL,(nbf*nmo),
      $                                 'movecs cols',l_mo,k_mo)
+#ifdef CRAYXT
+      if(ga_nodeid().eq.0)
+     G      call ga_get(g_movecs, 1, nbf, qlo, qhi, dbl_mb(k_mo), nbf)
+      call ga_brdcst(65537, dbl_mb(k_mo), 
+     G     MA_sizeof(MT_DBL,1,MT_BYTE)*nbf*(qhi-qlo+1), 0)
+#else
        call ga_get(g_movecs, 1, nbf, qlo, qhi, dbl_mb(k_mo), nbf)
+#endif
 c
 c  AO ints allocation
 c
@@ -222,8 +230,25 @@ c
        if (oexch) call ga_zero(g_exch)
        if (ocoul) call ga_zero(g_coul)
        ploop = 0
-       next = moints_nxttask(num_nodes)
        thalf = util_cpusec()
+#ifdef CRAYXT
+cedo
+c     skip if we do not own any patch of g_exch to avoid slowdowns
+c     
+       call ga_distribution(g_exch, ga_nodeid(), rlo, rhi, clo, chi )
+       doloop=.not.(rlo.eq.0.and.rhi.eq.-1.and.clo.eq.0.and.chi.eq.-1)
+       nodesloop=0
+       if(doloop) nodesloop=1
+       call ga_igop(65536,nodesloop,1,'+')
+       if(ga_nodeid().eq.0) then
+          write(6,*) ' using ',nodesloop,
+     C      ' nodes out of ',ga_nnodes()
+          call util_flush(6)
+       endif
+       if (doloop) then
+#else
+       next = moints_nxttask(num_nodes)
+#endif
 c
 c  4-fold shell loop
 c
@@ -243,7 +268,11 @@ c
               odoit = sym_shell_pair(basis, ish, jsh, q2)
            endif
            if (odoit) then
+#ifdef CRAYXT
+             if (mod(ploop,nodesloop).eq.ga_nodeid()) then
+#else
              if (next.eq.ploop) then
+#endif
                tottask = tottask + 1
                ttask = util_cpusec()
                n_ijni = ilen*jlen*nbf*nmo1
@@ -335,7 +364,9 @@ c
      $                                  g_exch )
                  t3kidx = t3kidx + util_cpusec() - tz
                endif
+#ifndef CRAYXT
                next = moints_nxttask(num_nodes)
+#endif
                ttask = util_cpusec() - ttask
                ttaskmax = max(ttaskmax,ttask)
                ttaskmin = min(ttaskmin,ttask)
@@ -345,9 +376,14 @@ c
            endif
          enddo
        enddo
+#ifdef CRAYXT
+       endif!doloop
+#endif
        tsynch = util_cpusec()
        call ga_sync()
+#ifndef CRAYXT
        next = moints_nxttask(-num_nodes)
+#endif
        tsynch = util_cpusec() - tsynch
        thalf = util_cpusec() - thalf
        call moints_aodisk_tidy()
@@ -738,6 +774,7 @@ c
      $                            scale, ssni, h1, h2, h3, c, 
      $                            g_exch )
        implicit none
+#include "global.fh"
        integer nbf, qlo, qhi
        integer ostart, olo, ohi, ilo, ihi, jlo, jhi
        integer bfmap(nbf)
@@ -751,6 +788,7 @@ c
 c
        integer nni,nnj,ab,ijlo,ijhi,ofroz,ilen,jlen
        integer aoff,a,b,i,j,iz
+       integer ain,olb
        double precision xx
 c
        ofroz = ostart - 1
@@ -759,7 +797,11 @@ c
        jlen = jhi - jlo + 1
        nni = ilen*nbf
        nnj = jlen*nbf
-       do a=olo,ohi
+cedo       do a=olo,ohi
+cstaggering to avoid congestion in ga_acc
+       olb=ohi-olo+1
+       do ain=ga_nodeid()+1,ga_nodeid()+olb
+          a=mod(ain,olb)+olo
          do b=ostart,a
            call dfill(nni,0.d0,h1,1)
            do i=ilo,ihi
@@ -780,7 +822,11 @@ c
          enddo
        enddo
 c
-       do a=olo,ohi
+cedo      do a=olo,ohi
+cstaggering to avoid congestion in ga_acc
+       olb=ohi-olo+1
+       do ain=ga_nodeid()+1,ga_nodeid()+olb
+          a=mod(ain,olb)+olo
          do b=ostart,a
            call dfill(nnj,0.d0,h2,1)
            do j=jlo,jhi
@@ -815,6 +861,7 @@ c
      $                              vlo, vhi, ilo, ihi, jlo, jhi, scale, 
      $                              ssni, ssv, h1, h2, c, xc, g_exch )
        implicit none
+#include "global.fh"
        integer nbf, qlo, qhi
        integer ostart, ohi, olo, nvir, vlo, vhi
        integer ilo, ihi, jlo, jhi
@@ -829,6 +876,7 @@ c
        integer aoff,nni,nnij,nnj,ab,ivlo,ivhi,jvlo,jvhi,ofroz
        integer ssij
        integer aa,bb,a,b,i,j,v
+       integer ain,olb
        double precision cc
 c     
        ofroz = ostart - 1
@@ -843,7 +891,11 @@ c
        jvlo = (jlo-1)*nvir + 1
        jvhi = jhi*nvir
 
-       do a=olo,ohi
+cedo       do a=olo,ohi
+cstaggering to avoid congestion in ga_acc
+       olb=ohi-olo+1
+       do ain=ga_nodeid()+1,ga_nodeid()+olb
+          a=mod(ain,olb)+olo
          call dgemm('t', 'n', nvir, ssij, nbf, 1.d0,
      $               xc(1,vlo), nbf, ssni(1,jlo,ilo,a),
      $               nbf, 0.d0, ssv, nvir )

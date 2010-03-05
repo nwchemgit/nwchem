@@ -907,6 +907,7 @@ c
      $                         ilo, ihi, jlo, jhi, ssni, h1, h2, 
      $                         c, g_coul )
       implicit none
+#include "global.fh"
       integer nbf, qlo, qhi
       integer ostart, olo, ohi, ilo, ihi, jlo, jhi
       double precision ssni(nbf,jlo:jhi,ilo:ihi,olo:ohi)
@@ -917,6 +918,7 @@ c
 c
       integer nni, ijlo, ijhi, ilen, jlen, ijlen
       integer ab, aa, bb, a, b, i, aoff, ofroz
+      integer olb,ain
 c
       ofroz = ostart - 1
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
@@ -928,7 +930,11 @@ c
       ijlo = (ilo-1)*nbf + 1
       ijhi = ihi*nbf
 #endif
-      do a=olo,ohi
+cedo       do a=olo,ohi
+cstaggering to avoid congestion in ga_acc
+      olb=ohi-olo+1
+      do ain=ga_nodeid()+1,ga_nodeid()+olb
+        a=mod(ain,olb)+olo
         do b=ostart,a
           call dgemm('t','n',ijlen,1,nbf,1.d0,ssni(1,jlo,ilo,a),
      $               nbf,c(1,b),nbf,0.d0,h2,ijlen)
