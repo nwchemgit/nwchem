@@ -274,6 +274,8 @@ ifeq ($(MPI_COMBINED),)
 else
     MAYBE_MPI = --with-mpi="$(MPI_COMBINED)"
 endif
+else # USE_MPI
+	MAYBE_MPI = --without-mpi
 endif # USE_MPI
 
 ifneq ($(CC),)
