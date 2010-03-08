@@ -1,0 +1,34 @@
+Comment: 
+Comment: PAW basis set generation file for Aluminum
+Comment: 
+
+[psp_type] 4
+
+<atom_charge> 13.0
+<orbitals>
+5  0 1
+1         0       2.0   
+2         0       2.0   
+2         1       6.0   
+3     0   2.0
+3     1   1.0
+3     2   0.0 
+<atomic_sphere_radius>
+1.3
+<paw_basis>
+3
+3 0 3.0
+3 1 3.0
+3 2 3.5
+
+<ref_potential_matching_radius> 2.8
+<ref_potential_at_zero> 0
+<compensation_charge_radius> 2.0
+<nodal_constraint> on
+<projector_method> blochl
+
+<scattering_test>
+3
+0  -5.5   0  2.2 300
+1  -5.5   0  2.2 300
+2  -5.5   0  2.2 300

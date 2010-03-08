@@ -1,0 +1,39 @@
+Comment: 
+Comment: PAW basis set generation file for Scandium
+Comment: 
+
+[psp_type] 4
+
+<atom_charge> 21.0 
+<orbitals>
+7 1 1
+1  0   2.0
+2  0   2.0
+2  1   6.0
+3  0   2.0
+3  1   6.0
+3  2   1.0
+4  0   2.0
+4  1   0.0   
+4  2   0.0   0.1
+<paw_basis>
+6
+3  0   2.5
+3  1   2.5
+3  2   2.5
+4  0   2.5
+4  1   2.5
+4  2   2.5
+<ref_potential_matching_radius> 2.5
+<ref_potential_at_zero> -3.5
+<compensation_charge_radius> 1.5
+<nodal_constraint> on
+<projector_method> blochl
+
+<scattering_test>
+3
+1  -2.5 -1.5  1.8 300
+0  -1.5  0.5  1.8 300
+2  -0.5  0.5  1.8 100
+
+

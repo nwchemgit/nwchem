@@ -1,0 +1,36 @@
+Comment: 
+Comment: PAW basis set generation file for Zinc
+Comment: 
+
+[psp_type] 4
+
+<atom_charge> 30.0
+<orbitals>
+7 1 1
+1  0   2.0
+2  0   2.0
+2  1   6.0
+3  0   2.0
+3  1   6.0
+3  2   10.0
+4  0   2.0
+4  1   0.0
+4  2   0.0 0.1
+<paw_basis>
+4
+3  2   2.0
+4  0   2.0
+4  1   2.0
+4  2   2.0
+<ref_potential_matching_radius> 2.0
+<ref_potential_at_zero>     -3.5
+<compensation_charge_radius> 1.3
+<nodal_constraint> off
+<projector_method> blochl
+<grid>
+15.0  2000 0.0003
+<scattering_test>
+3
+1  -2.5 -1.5  1.8 300
+0  -1.5  0.5  1.8 300
+2  -0.5  0.5  1.8 100
