@@ -265,9 +265,12 @@ endif
 ifneq ($(MPI_LIB),)
         MPI_COMBINED += $(MPI_LIB)
 endif
-#ifneq ($(LIBMPI),)
-#        MPI_COMBINED += $(LIBMPI)
-#endif
+ifneq ($(LIBMPI),)
+        MPI_COMBINED += $(LIBMPI)
+endif
+ifneq ($(MPI_LOC),)
+        MPI_COMBINED += $(MPI_LOC)
+endif
 MPI_COMBINED := $(strip $(MPI_COMBINED))
 ifeq ($(MPI_COMBINED),)
     MAYBE_MPI = --with-mpi
