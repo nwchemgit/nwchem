@@ -126,16 +126,8 @@ c Note that if restart fails orestart will be set false
       call ccsd_mktask(basis,nsh,tklst)
 c
 c ------------------------------------------------------------
-c create square GAs with proposed final ordering
+c if the calculation is already converged get out of here
 c ------------------------------------------------------------
-      if (.not.ga_create(MT_DBL,lnov,lnov,'nt2',
-     &                   nvir,nvir,g_nt2))
-     &     call errquit('ga_create g_nt2 failed',0, GA_ERR)
-      if (.not.ga_create(MT_DBL,lnov,lnov,'nht2',
-     &                   nvir,nvir,g_nht2))
-     &     call errquit('ga_create g_nht2 failed',0, GA_ERR)
-c
-      call ga_sync()
 c
       if(oconverged) then
          if (iam.eq.0 .and. oprint)write(luout,*) 
@@ -151,6 +143,19 @@ c
          endif
          return
       endif
+c
+c ------------------------------------------------------------
+c create square GAs with proposed final ordering
+c ------------------------------------------------------------
+c
+      if (.not.ga_create(MT_DBL,lnov,lnov,'nt2',
+     &                   nvir,nvir,g_nt2))
+     &     call errquit('ga_create g_nt2 failed',0, GA_ERR)
+      if (.not.ga_create(MT_DBL,lnov,lnov,'nht2',
+     &                   nvir,nvir,g_nht2))
+     &     call errquit('ga_create g_nht2 failed',0, GA_ERR)
+c
+      call ga_sync()
 c
       iter=0
       idiis=0
