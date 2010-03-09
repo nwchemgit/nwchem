@@ -1421,7 +1421,8 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
          }
       }
 
-      gai_pgroup_gop(my_group, ga_type_f2c(MT_F_DBL), array, nelem, pchar);
+      ga_pgroup_dgop_(&my_group,&message_id,array,&nelem,pchar);
+      //gai_pgroup_gop(my_group, ga_type_f2c(MT_F_DBL), array, nelem, pchar);
 
       returnObj =  nwwrap_doubles(nelem, array);
       free(array);
@@ -1444,7 +1445,8 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
          array[i] = (Integer) tmp_int;
       }
       
-      gai_pgroup_gop(my_group, ga_type_f2c(MT_F_INT), array, nelem, pchar);
+      ga_pgroup_igop_(&my_group,&message_id,array,&nelem,pchar);
+      //gai_pgroup_gop(my_group, ga_type_f2c(MT_F_INT), array, nelem, pchar);
       
       returnObj =  nwwrap_integers(nelem, array);
       free(array);
