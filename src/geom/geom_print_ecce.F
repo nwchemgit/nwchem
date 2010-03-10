@@ -37,7 +37,16 @@ c
       call ecce_print2('cartesian coordinates', mt_dbl,
      $     coords(1,1,geom), 3, 3, nat)
       call dscal(nat*3, angstrom_to_au, coords(1,1,geom), 1)
+
+*     **** output amatrix in angstroms ****
+      if (isystype(geom).eq.3) then
+         call dscal(3*3, 1.0d0/angstrom_to_au, amatrix(1,1,geom), 1)
+         call ecce_print2('lattice vectors', mt_dbl,
+     $     amatrix(1,1,geom), 3, 3, 3)
+         call dscal(3*3, angstrom_to_au, amatrix(1,1,geom), 1)
+      end if
 c
+
       call ecce_print1('atomic charges', mt_dbl, charge(1,geom), nat)
       call ecce_print1_char('atomic tags', tags(1,geom), nat)
       call ecce_print1_char('group name', group_name(geom), 1)
