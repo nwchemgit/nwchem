@@ -15,7 +15,7 @@ basis
 end
 
 ecp
-  C library SBKJC_VDZ_ECP
+  C library SBKJC_ECP
 end
 
 task scf
