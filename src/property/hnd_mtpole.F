@@ -221,6 +221,13 @@ c
       enddo
 c
       write(luout,3995)
+      write(luout,3996) 
+     1    mptval2(1,1),mptval2(1,2),mptval2(1,1)+mptval2(1,2),
+     2    mptval2(4,1),mptval2(4,2),mptval2(4,1)+mptval2(4,2),
+     3    mptval2(6,1),mptval2(6,2),mptval2(6,1)+mptval2(6,2),
+     4    mptval2(2,1),mptval2(2,2),mptval2(2,1)+mptval2(2,2),
+     5    mptval2(3,1),mptval2(3,2),mptval2(3,1)+mptval2(3,2),
+     6    mptval2(5,1),mptval2(5,2),mptval2(5,1)+mptval2(5,2)
 c
 c     Quadrupole moments
 c
