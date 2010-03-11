@@ -42,7 +42,7 @@ c
           if(qmmm_master()) then
             write(6,'(//)')
           end if
-          basis_name = "qmmm_zhang_6-31Gs_ecp"
+          basis_name = "qmmm_zhang_6-31G*_ecp"
           nb = inp_strlen(basis_name)
           basis_string='ecp; F_L library "'//basis_name(1:nb)//'"; end'
           call nw_inp_from_character(irtdb, basis_string)
