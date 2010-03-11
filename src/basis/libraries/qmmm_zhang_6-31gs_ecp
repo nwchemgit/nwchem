@@ -1,4 +1,4 @@
-ecp "F_qmmm_zhang_6-31Gs_ecp"
+ecp "F_qmmm zhang 6-31G* ecp"
   F nelec  2 # down to carbon
   F ul
   1  2.21955   0.49852
