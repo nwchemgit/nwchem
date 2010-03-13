@@ -426,6 +426,44 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *         Parallel_MaxAll         *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_MaxAll(sum)
+c     implicit none
+      real*8  sum
+
+#include "Parallel.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+      real*8 sumall
+#ifdef MPI4
+      if (np.gt.1) then
+         stupid_msglen = 1
+         call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
+     >                      stupid_max,stupid_world,stupid_ierr)
+         sum = sumall
+      end if
+#else
+      integer msglen,mpierr
+      if (np.gt.1) then
+         msglen = 1
+         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+     >                       MPI_MAX,MPI_COMM_WORLD,mpierr)
+         sum = sumall
+      end if
+#endif
+      return
+      end
+
+
 
 
 

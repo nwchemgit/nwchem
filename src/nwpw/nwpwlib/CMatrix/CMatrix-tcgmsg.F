@@ -758,7 +758,8 @@ c        **** add to current rows of C ****
      >   call GA_PGROUP_BRDCST(comm_j,9+MSGDBL,v2,mdtob(1),jcur0)
 
 
-      call CMatrix_eye(n,n,1.0d0,Q,lda,ma,na,taskid_i,taskid_j)
+      call CMatrix_eye(n,n,dcmplx(1.0d0,0.0d0),
+     >                 Q,lda,ma,na,taskid_i,taskid_j)
       call CMatrix_zgemm3(n,n,n,64,
      >             (-v2),
      >             V,ma(taskid_i+1), ma,na,
@@ -1003,7 +1004,7 @@ c     implicit none
 *     *         CMatrix_SumAll          *
 *     *                                 *
 *     ***********************************
-      subroutine DMatrix_SumAll(sum)
+      subroutine CMatrix_SumAll(sum)
 c     implicit none
       complex*16 sum
 

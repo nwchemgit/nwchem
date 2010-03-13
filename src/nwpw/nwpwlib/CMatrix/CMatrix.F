@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix.F,v 1.6 2008-11-17 17:25:41 bylaska Exp $
+* $Id: CMatrix.F,v 1.6 2008-11-17 17:25:41 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -86,7 +86,8 @@ c
       integer k
 
 
-      call CMatrix_eye(n,n,1.0d0,Q,lda,ma,na,taskid_i,taskid_j)
+      call CMatrix_eye(n,n,dcmplx(1.0d0,0.0d0),
+     >                 Q,lda,ma,na,taskid_i,taskid_j)
       do k = 1,n-2
 
          call CMatrix_houseq(k,n,A,V1,Q1,lda,ma,na,
@@ -94,21 +95,21 @@ c
      >            work1,work2)
 
 *        **** A = Q1*A*Q1 ****
-         call CMatrix_dgemm1(n,n,n,64,
-     >             1.0d0,
+         call CMatrix_zgemm1(n,n,n,64,
+     >             dcmplx(1.0d0,0.0d0),
      >             Q1,lda, ma,na,
      >             A, lda, ma,na,
-     >             0.0d0,
+     >             dcmplx(0.0d0,0.0d0),
      >             V1,lda, ma,na,
      >             taskid_i,taskid_j,
      >             np_i,np_j,
      >             comm_i, comm_j,
      >             work1,work2)
-         call CMatrix_dgemm1(n,n,n,64,
-     >             1.0d0,
+         call CMatrix_zgemm1(n,n,n,64,
+     >             dcmplx(1.0d0,0.0d0),
      >             V1,lda, ma,na,
      >             Q1,lda, ma,na,
-     >             0.0d0,
+     >             dcmplx(0.0d0,0.0d0),
      >             A, lda, ma,na,
      >             taskid_i,taskid_j,
      >             np_i,np_j,
@@ -117,11 +118,11 @@ c
 
 *        **** Q = Q*Q1 ****
         call dcopy(ma(taskid_i+1)*na(taskid_j+1),Q,1,V1,1)
-         call CMatrix_dgemm1(n,n,n,64,
-     >             1.0d0,
+         call CMatrix_zgemm1(n,n,n,64,
+     >             dcmplx(1.0d0,0.0d0),
      >             V1,lda, ma,na,
      >             Q1,lda, ma,na,
-     >             0.0d0,
+     >             dcmplx(0.0d0,0.0d0),
      >             Q,lda, ma,na,
      >             taskid_i,taskid_j,
      >             np_i,np_j,
@@ -148,7 +149,7 @@ c
      >               taskid_i,taskid_j)
       implicit none
       integer m,n
-      real*8  alpha
+      complex*16 alpha
 
       integer ldq,mq(*),nq(*)
       complex*16  Q(ldq,*)
@@ -169,7 +170,7 @@ c
 
             if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
                if (i.eq.j) then
-                  Q(ii,jj) = dcmplx(alpha,0.0d0)
+                  Q(ii,jj) = alpha
                else
                   Q(ii,jj) = dcmplx(0.0d0,0.0d0)
                end if
@@ -195,10 +196,10 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *         DMatrix_s22             *
+*     *         CMatrix_s22             *
 *     *                                 *
 *     ***********************************
-      subroutine DMatrix_s22(n,
+      subroutine CMatrix_s22(n,
      >               dte,
      >               Q,ldq,mq,nq,
      >               taskid_i,taskid_j)
@@ -250,10 +251,10 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *         DMatrix_s21             *
+*     *         CMatrix_s21             *
 *     *                                 *
 *     ***********************************
-      subroutine DMatrix_s21(n,
+      subroutine CMatrix_s21(n,
      >               dte,
      >               Q,ldq,mq,nq,
      >               taskid_i,taskid_j)
@@ -304,11 +305,11 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *         DMatrix_s11             *
+*     *         CMatrix_s11             *
 *     *                                 *
 *     ***********************************
 
-      subroutine DMatrix_s11(n,
+      subroutine CMatrix_s11(n,
      >               dte,
      >               Q,ldq,mq,nq,
      >               taskid_i,taskid_j)
@@ -354,10 +355,10 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *     DMatrix_Kiril_BTransform    *
+*     *     CMatrix_Kiril_BTransform    *
 *     *                                 *
 *     ***********************************
-      subroutine DMatrix_Kiril_BTransform(n,
+      subroutine CMatrix_Kiril_BTransform(n,
      >               s12,s21,
      >               ldq,mq,nq,
      >               taskid_i,taskid_j)
@@ -413,11 +414,11 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *      DMatrix_SASBtimesVtrans    *
+*     *      CMatrix_SASBtimesVtrans    *
 *     *                                 *
 *     ***********************************
 
-      subroutine DMatrix_SASBtimesVtrans(n,
+      subroutine CMatrix_SASBtimesVtrans(n,
      >               SA,SB,
      >               Vt,A,B,ldq,mq,nq,
      >               taskid_i,taskid_j)
@@ -467,16 +468,16 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *         DMatrix_trace           *
+*     *         CMatrix_tracesqr        *
 *     *                                 *
 *     ***********************************
-      double precision function DMatrix_trace(n,
+      double precision function CMatrix_tracesqr(n,
      >                           Q,ldq,mq,nq,
      >                           taskid_i,taskid_j)
       implicit none
       integer n
       integer ldq,mq(*),nq(*)
-      real*8  Q(ldq,*)
+      complex*16  Q(ldq,*)
       integer taskid_i,taskid_j
 
 
@@ -495,7 +496,7 @@ c
 
             if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
                if (i.eq.j) then
-                  sum = sum + Q(ii,jj) 
+                  sum = sum + dble(Q(ii,jj))**2 + dimag(Q(ii,jj))**2
                end if
             end if
 
@@ -513,20 +514,74 @@ c
          end if
       end do
 
-      call DMatrix_SumAll(sum)
-      DMatrix_trace = sum
+      call Parallel_SumAll(sum)
+      CMatrix_tracesqr = sum
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         CMatrix_max             *
+*     *                                 *
+*     ***********************************
+      double precision function CMatrix_max(n,
+     >                           Q,ldq,mq,nq,
+     >                           taskid_i,taskid_j)
+      implicit none
+      integer n
+      integer ldq,mq(*),nq(*)
+      complex*16  Q(ldq,*)
+      integer taskid_i,taskid_j
+
+
+*     **** local variables ****
+      integer i,j,ii,jj
+      integer icur,jcur
+      double precision dum,maxgrad
+
+      maxgrad = 0.0d0
+      jj   = 1
+      jcur = 0
+      do j=1,n
+         ii   = 1
+         icur = 0
+         do i=1,n
+
+            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+               dum = dsqrt(dble(Q(ii,jj))**2 + dimag(Q(ii,jj))**2)
+               if (dum.gt.maxgrad) maxgrad = dum
+            end if
+
+            ii = ii + 1
+            if (ii.gt.mq(icur+1)) then
+              icur = icur + 1
+              ii   = 1
+            end if
+         end do
+
+         jj = jj + 1
+         if (jj.gt.nq(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 1
+         end if
+      end do
+
+      call Parallel_MaxAll(maxgrad)
+      CMatrix_max = maxgrad
       return
       end
 
 
 
+
 *     ***********************************
 *     *                                 *
-*     *         DMatrix_m_get_value     *
+*     *         CMatrix_m_get_value     *
 *     *                                 *
 *     ***********************************
 
-      real*8 function DMatrix_m_get_value(i1,j1,A,ldq,mq,nq)
+      real*8 function CMatrix_m_get_value(i1,j1,A,ldq,mq,nq)
       implicit none
       integer i1,j1
       integer ldq,mq(*),nq(*)
@@ -575,18 +630,18 @@ c
       end if
       call Parallel_Brdcst_value(psend,w)
 
-      Dmatrix_m_get_value = w
+      CMatrix_m_get_value = w
       return
       end
 
 
 *     ***********************************
 *     *                                 *
-*     *         DMatrix_m_set_value     *
+*     *         CMatrix_m_set_value     *
 *     *                                 *
 *     ***********************************
 
-      subroutine DMatrix_m_set_value(w,i1,j1,A,ldq,mq,nq)
+      subroutine CMatrix_m_set_value(w,i1,j1,A,ldq,mq,nq)
       implicit none
       real*8  w
       integer i1,j1
@@ -639,11 +694,11 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *      DMatrix_HmltimesSA         *
+*     *      CMatrix_HmltimesSA         *
 *     *                                 *
 *     ***********************************
 
-      subroutine DMatrix_HmltimesSA(n,SA,
+      subroutine CMatrix_HmltimesSA(n,SA,
      >               A,ldq,mq,nq,
      >               taskid_i,taskid_j)
       implicit none
@@ -691,11 +746,11 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *      DMatrix_HmldivideSA        *
+*     *      CMatrix_HmldivideSA        *
 *     *                                 *
 *     ***********************************
 
-      subroutine DMatrix_HmldivideSA(n,SA,
+      subroutine CMatrix_HmldivideSA(n,SA,
      >               A,ldq,mq,nq,
      >               taskid_i,taskid_j)
       implicit none
@@ -744,11 +799,11 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *      DMatrix_HmldivideDplusD    *
+*     *      CMatrix_HmldivideDplusD    *
 *     *                                 *
 *     ***********************************
 
-      subroutine DMatrix_HmldivideDplusD(n,D,
+      subroutine CMatrix_HmldivideDplusD(n,D,
      >               A,ldq,mq,nq,
      >               taskid_i,taskid_j)
       implicit none
@@ -797,13 +852,13 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *      DMatrix_Hmlfweightscale    *
+*     *      CMatrix_Hmlfweightscale    *
 *     *                                 *
 *     ***********************************
 *
 *     A(i,j) = A(i,j) * (2*fw(i)/(fw(i)+fw(j)))
 
-      subroutine DMatrix_Hmlfweightscale(n,fw,
+      subroutine CMatrix_Hmlfweightscale(n,fw,
      >               A,ldq,mq,nq,
      >               taskid_i,taskid_j)
       implicit none

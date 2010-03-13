@@ -2558,10 +2558,15 @@ c     **** ouput xyz format ****
       common / ION2/ geom1a
 
       logical value
-      integer rt(2),qt(2),tt(2)
+      integer rt(2),qt(2),tt(2),i,j
+      double precision unita(3,3)
 
       double precision angstrom_to_au 
       data angstrom_to_au /1.88972598858d0/
+
+      double precision lattice_unita
+      external lattice_unita
+ 
 
       call dscal(nion*3, 1.0d0/angstrom_to_au, dbl_mb(r1(1)), 1)
       call ecce_print2('cartesian coordinates', mt_dbl,
@@ -2579,6 +2584,15 @@ c
      >                                dbl_mb(rt(1)),
      >                                dbl_mb(qt(1)))
       if (.not. value) call errquit('error ion_ecce',0,0)
+
+*     *** print out lattice vectors ***
+      do j=1,3
+      do i=1,3
+         unita(i,j) = lattice_unita(i,j)
+      end do
+      end do
+      call ecce_print2('lattice vectors', mt_dbl, unita, 3, 3, 3)
+
 
       call ecce_print1('atomic charges', mt_dbl, dbl_mb(qt(1)), nion)
       call ion_ecce_tmp(nion, byte_mb(tt(1)))

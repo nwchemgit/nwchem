@@ -441,7 +441,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
 
 *     ***********************************
 *     *                                 *
-*     *         DMatrix_start_rot       *
+*     *         CMatrix_start_rot       *
 *     *                                 *
 *     ***********************************
 
@@ -536,11 +536,11 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
 
 *     ***********************************
 *     *                                 *
-*     *         DMatrix_end_rot         *
+*     *         CMatrix_end_rot         *
 *     *                                 *
 *     ***********************************
 
-      subroutine DMatrix_end_rot(request)
+      subroutine CMatrix_end_rot(request)
       implicit none
       integer request(*)
 
@@ -1042,7 +1042,7 @@ c        **** add to current rows of C ****
          do while ((iter.lt.MAXITER).and.(notdone))
             g = (eig(l+1)-eig(l))/(2.0d0*tu(l))
             r = dsqrt(g**2+1.0d0)
-            g = eig(m)-eig(l)+tu(l)/(g+dsign(r,g))
+ccccneed to fixccc            g = eig(m)-eig(l)+tu(l)/(g+dsign(r,g))
             s = 1.0d0
             c = 1.0d0
             p = 0.0d0
@@ -1261,8 +1261,8 @@ c        **** add to current rows of C ****
 
 
          if (mu.ne.0.0d0) then
-           if (icur1.eq.taskid_i)
-     >        beta = V(ii1,jj0) + dsign(mu,V(ii1,jj0))
+cccc need to fix           if (icur1.eq.taskid_i)
+cccc need to fix   >        beta = V(ii1,jj0) + dsign(mu,V(ii1,jj0))
 #ifdef MPI4
            stupid_msglen = 1
            stupid_taskid = icur1
@@ -1320,7 +1320,8 @@ c        **** add to current rows of C ****
      >               jcur0,comm_j,ierr)
 #endif
 
-      call CMatrix_eye(n,n,1.0d0,Q,lda,ma,na,taskid_i,taskid_j)
+      call CMatrix_eye(n,n,dcmplx(1.0d0,0.0d0),
+     >                 Q,lda,ma,na,taskid_i,taskid_j)
       call CMatrix_zgemm3(n,n,n,64,
      >             dcmplx(-v2,0.0d0),
      >             V,ma(taskid_i+1), ma,na,
@@ -1445,7 +1446,7 @@ c        **** add to current rows of C ****
 *     *         CMatrix_getdiags        *
 *     *                                 *
 *     ***********************************
-      subroutine DMatrix_getdiags(n,eig,tu,
+      subroutine CMatrix_getdiags(n,eig,tu,
      >                  A,lda,ma,na,
      >                  taskid_i,taskid_j,
      >                  np_i,np_j,
@@ -1628,7 +1629,7 @@ c     implicit none
 *     *         CMatrix_SumAll          *
 *     *                                 *
 *     ***********************************
-      subroutine DMatrix_SumAll(sum)
+      subroutine CMatrix_SumAll(sum)
 c     implicit none
       complex*16  sum
 

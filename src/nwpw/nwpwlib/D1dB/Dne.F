@@ -25,7 +25,7 @@
 
 *     **** local variables ****
       logical value
-      integer ms,k,i,j,npack1,nida1
+      integer ms,k,i,j,npack1,nida1,n2ft3d
       integer nework,ncqmax
       integer ii,jj,icur,jcur,indx0,indx1,indx2
 
@@ -71,6 +71,8 @@
              value = value.and.
      >               MA_alloc_get(mt_int,np_i,'ma1',ma1(2,ms),ma1(1,ms))
              value = value.and.
+     >               MA_alloc_get(mt_int,np_i,'ma2',ma2(2,ms),ma2(1,ms))
+             value = value.and.
      >               MA_alloc_get(mt_int,np_i,'mc',mc(2,ms),mc(1,ms))
              value = value.and.
      >               MA_alloc_get(mt_int,np_j,'na',na(2,ms),na(1,ms))
@@ -82,6 +84,7 @@
 
              call icopy(np_i,0,0,int_mb(ma(1,ms)),1)
              call icopy(np_i,0,0,int_mb(ma1(1,ms)),1)
+             call icopy(np_i,0,0,int_mb(ma2(1,ms)),1)
              call icopy(np_i,0,0,int_mb(mc(1,ms)),1)
              call icopy(np_j,0,0,int_mb(na(1,ms)),1)
              call icopy(np_j,0,0,int_mb(nc(1,ms)),1)
@@ -99,10 +102,13 @@
 
              call Pack_npack(1,npack1)
              call Pack_nida(1, nida1)
+             call D3dB_n2ft3d(1,n2ft3d)
              int_mb(ma(1,ms) +taskid_i) = 2*npack1
              int_mb(ma1(1,ms)+taskid_i) = 2*nida1
+             int_mb(ma2(1,ms)+taskid_i) = n2ft3d
              call D3dB_Vector_iSumAll(np_i,int_mb(ma(1,ms)))
              call D3dB_Vector_iSumAll(np_i,int_mb(ma1(1,ms)))
+             call D3dB_Vector_iSumAll(np_i,int_mb(ma2(1,ms)))
 
              mcq(ms) = int_mb(mc(1,ms)+taskid_i)
              ncq(ms) = int_mb(nc(1,ms)+taskid_j)
@@ -114,9 +120,11 @@
 
              npack1_all = 0
              nida1_all  = 0
+             n2ft3d_all = 0
              do i=0,np_i-1
                 npack1_all = npack1_all + int_mb(ma(1,ms) +i)
                 nida1_all  = nida1_all  + int_mb(ma1(1,ms)+i)
+                n2ft3d_all = n2ft3d_all + int_mb(ma2(1,ms)+i)
              end do
 
          end do
@@ -311,6 +319,7 @@
          do ms=1,ispin
             value = value.and.MA_free_heap(ma(2,ms))
             value = value.and.MA_free_heap(ma1(2,ms))
+            value = value.and.MA_free_heap(ma2(2,ms))
             value = value.and.MA_free_heap(na(2,ms))
             value = value.and.MA_free_heap(mc(2,ms))
             value = value.and.MA_free_heap(nc(2,ms))
@@ -564,6 +573,82 @@ c     ****************************************
       Dneall_m_allocate = MA_alloc_get(mt_dbl,size,'hmla',hml(2),hml(1))
       return
       end
+
+
+c
+c
+c
+c     ****************************************
+c     *                                      *
+c     *        Dneall_w_allocate             *
+c     *                                      *
+c     ****************************************
+      logical function Dneall_w_allocate(mb,hml)
+      implicit none
+      integer mb
+      integer hml(2)
+
+#include "Dne.fh"
+#include "mafdecls.fh"
+
+      integer size
+
+      if (mparallelized) then
+         if (mb.eq.0) then
+            size = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+         else
+            size = mcq(mb)*ncq(mb)
+         end if
+      else
+         if (mb.eq.0) then
+            size = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            size = ne(mb)*ne(mb)
+         end if
+      end if
+
+      Dneall_w_allocate=MA_alloc_get(mt_dcpl,size,'hmla',hml(2),hml(1))
+      return
+      end
+
+
+c
+c
+c
+c     ****************************************
+c     *                                      *
+c     *        Dneall_w_push_get             *
+c     *                                      *
+c     ****************************************
+      logical function Dneall_w_push_get(mb,hml)
+      implicit none
+      integer mb
+      integer hml(2)
+
+#include "Dne.fh"
+#include "mafdecls.fh"
+
+      integer size
+
+      if (mparallelized) then
+         if (mb.eq.0) then
+            size = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+         else 
+            size = mcq(mb)*ncq(mb)
+         end if
+      else
+         if (mb.eq.0) then
+            size = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            size = ne(mb)*ne(mb)
+         end if
+      end if
+
+      Dneall_w_push_get=MA_push_get(mt_dcpl,size,'hmla',hml(2),hml(1))
+      return
+      end
+
+
 c
 c     ****************************************
 c     *                                      *
@@ -577,6 +662,23 @@ c     ****************************************
 #include "mafdecls.fh"
 
       Dneall_m_free = MA_free_heap(hml(2))
+      return
+      end
+
+
+c
+c     ****************************************
+c     *                                      *
+c     *        Dneall_w_free                 *
+c     *                                      *
+c     ****************************************
+      logical function Dneall_w_free(hml)
+      implicit none
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+      Dneall_w_free = MA_free_heap(hml(2))
       return
       end
 
@@ -665,6 +767,24 @@ c     ****************************************
       Dneall_m_pop_stack = MA_pop_stack(hml(2))
       return
       end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_w_pop_stack            *
+c     *                                      *
+c     ****************************************
+      logical function Dneall_w_pop_stack(hml)
+      implicit none
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+      Dneall_w_pop_stack = MA_pop_stack(hml(2))
+      return
+      end
+
 
 c
 c
@@ -3550,7 +3670,7 @@ c     ****************************************
 
          do ms=ms1,ms2
              shift2 = 1 + (ms-1)*ishift2
-             call DMatrix_eye(ne(ms),ne(ms),
+             call DMatrix_eye(ne(ms),ne(ms),alpha,
      >                A(shift2),
      >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
      >                taskid_i,taskid_j)
@@ -3583,6 +3703,76 @@ c     ****************************************
 
       return
       end
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_w_eye                  *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_w_eye(mb,A,alpha)
+      implicit none
+      integer mb
+      complex*16 A(*)
+      complex*16 alpha
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,k
+      integer indx2
+
+      if (mparallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+             shift2 = 1 + (ms-1)*ishift2
+             call CMatrix_eye(ne(ms),ne(ms),alpha,
+     >                A(shift2),
+     >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
+     >                taskid_i,taskid_j)
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 30
+           shift2 = 1 + (ms-1)*ishift2
+           call dcopy(2*ne(ms)*ne(ms),0.0d0,0,A(shift2),1)
+           indx2 = shift2
+           do k=1,ne(ms)
+              A(indx2) = alpha
+              indx2    = indx2 + (1+ne(ms))
+           end do
+
+ 30        continue
+         end do
+      end if
+
+      return
+      end
+
+
 
 
 
@@ -5179,6 +5369,43 @@ c     ****************************************
       return
       end
 
+c     ****************************************
+c     *                                      *
+c     *        Dneall_wtom_Real              *
+c     *                                      *
+c     ****************************************
+      subroutine Dneall_wtom_Real(mb,A,B)
+      implicit none
+      integer mb
+      complex*16 A(*)
+      real*8     B(*)
+      integer i,nsize
+      call Dneall_m_size(mb,nsize)
+      do i=1,nsize
+         B(i) = dble(A(i))
+      end do
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_mmtow_Cmplx            *
+c     *                                      *
+c     ****************************************
+      subroutine Dneall_mmtow_Cmplx(mb,Ar,Br,C)
+      implicit none
+      integer mb
+      real*8 Ar(*),Br(*)
+      complex*16 C(*)
+      integer i,nsize
+      call Dneall_m_size(mb,nsize)
+      do i=1,nsize
+         C(i) = dcmplx(Ar(i),Br(i))
+      end do
+      return
+      end
+
 
 
 c     ****************************************
@@ -6042,4 +6269,384 @@ c     ****************************************
       return
       end
 
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_ggm_sym_Multiply      *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_ggm_sym_Multiply(mb,A1,A2,n2ft3d,hml)
+      implicit none
+      integer    mb
+      complex*16 A1(*),A2(*)
+      integer    n2ft3d
+      real*8     hml(*)
+           
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,n,shift,shift2,ishift2
+
+      call nwpw_timing_start(15)
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         if (mparallelized) then
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 20
+            shift  = 1 + (ms-1)*neq(1)*n2ft3d
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_dgemm2(ne(ms),ne(ms),n2ft3d_all,128,
+     >             1.0d0,
+     >             A1(shift),int_mb(ma2(1,ms)+taskid_i), 
+     >                       int_mb(ma2(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             A2(shift),int_mb(ma2(1,ms)+taskid_i), 
+     >                       int_mb(ma2(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             0.0d0,
+     >             hml(shift2),int_mb(mc(1,ms)+taskid_i), 
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+  20        continue
+         end do
+         else
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 21
+            shift  = 1 + (ms-1)*neq(1)*n2ft3d
+            shift2 =     (ms-1)*ishift2
+            call DMatrix_dgemm2(ne(ms),ne(ms),n2ft3d_all,128,
+     >             1.0d0,
+     >             A1(shift),int_mb(ma2(1,ms)+taskid_i),
+     >                       int_mb(ma2(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             A2(shift),int_mb(ma2(1,ms)+taskid_i),
+     >                       int_mb(ma2(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             0.0d0,
+     >             dbl_mb(mat_tmp(1)+shift2),int_mb(mc(1,ms)+taskid_i),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+  21        continue
+         end do
+         call Dneall_m_gather(mall(mb),mpack(mb),int_mb(mindx(1,mb)),
+     >                        dbl_mb(mat_tmp(1)),hml)
+
+         end if
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            shift  = 1 + (ms-1)*ne(1)*n2ft3d
+            shift2 = 1 + (ms-1)*ishift2
+            n     = ne(ms)
+            if (n.le.0) go to 30
+
+            call D3dB_rrm_sym_dot(1,n,
+     >                        A1(shift),
+     >                        A2(shift),
+     >                        hml(shift2))
+  30        continue
+         end do
+      end if
+
+      call nwpw_timing_end(15)
+      return
+      end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_www_Multiply          *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_www_Multiply(mb,A,B,alpha,C,beta)
+      implicit none
+      integer mb
+      complex*16 A(*),B(*),C(*)
+      complex*16 alpha,beta
+           
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,n,shift2,ishift2
+  
+      if (mparallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 20
+            shift2 = 1 + (ms-1)*ishift2
+            call CMatrix_zgemm1(ne(ms),ne(ms),ne(ms),64,
+     >             alpha,
+     >             A(shift2),mcq(ms),
+     >                       int_mb(mc(1,ms)),
+     >                       int_mb(nc(1,ms)),
+     >             B(shift2),mcq(ms),
+     >                       int_mb(mc(1,ms)),
+     >                       int_mb(nc(1,ms)),
+     >             beta,
+     >             C(shift2),mcq(ms),
+     >                       int_mb(mc(1,ms)),
+     >                       int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+   20       continue
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            n     = ne(ms)
+            if (n.le.0) go to 30
+            shift2 = 1 + (ms-1)*ishift2
+            call ZGEMM('N','N',n,n,n,
+     >                alpha,
+     >                A(shift2), n,
+     >                B(shift2), n,
+     >                beta,
+     >                C(shift2), n)
+   30       continue
+         end do
+      end if
+
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *           Dneall_ww_copy             *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_ww_copy(mb,M1,M2)
+      implicit none
+      integer mb
+      complex*16 M1(*),M2(*)
+
+#include "Dne.fh" 
+
+*     **** local variables ****
+      integer nn
+
+      if (mparallelized) then
+         if (mb.eq.0) then
+            nn = mcq(1)*ncq(1)+mcq(2)*ncq(2)
+         else
+            nn = mcq(mb)*ncq(mb)
+         end if
+      else
+         if (mb.eq.0) then
+            nn = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            nn = ne(mb)*ne(mb)
+         end if 
+      end if
+
+      call dcopy(2*nn,M1,1,M2,1)
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *            Dneall_w_tracesqr         *
+c     *                                      *
+c     ****************************************
+
+      double precision function Dneall_w_tracesqr(mb,M)
+      implicit none
+      integer mb
+      complex*16  M(*)
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,indx,i
+      real*8  sum
+
+*     ***** external functions ****
+      real*8   CMatrix_tracesqr
+      external CMatrix_tracesqr
+
+      if (mparallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+         sum = 0.0d0
+         do ms=ms1,ms2
+            shift2 = 1 + (ms-1)*ishift2
+            sum =  sum + CMatrix_tracesqr(ne(ms),
+     >                                 M(shift2),mcq(ms),
+     >                                           int_mb(mc(1,ms)),
+     >                                           int_mb(nc(1,ms)),
+     >                                 taskid_i,taskid_j)
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         sum = 0.0d0
+         do ms=ms1,ms2
+
+           if (ne(ms).le.0) goto 30
+           shift2 = (ms-1)*ishift2
+
+           do i=1,ne(ms)
+              indx = i + (i-1)*ne(ms) + shift2
+              sum = sum + dble(M(indx))**2 + dimag(M(indx))**2
+           end do
+
+ 30        continue
+         end do
+      end if
+
+      Dneall_w_tracesqr = sum
+      return
+      end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *            Dneall_w_Max              *
+c     *                                      *
+c     ****************************************
+
+      double precision function Dneall_w_max(mb,M)
+      implicit none
+      integer mb
+      complex*16  M(*)
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,indx,i,j
+      real*8  sum,maxgrad
+
+*     ***** external functions ****
+      real*8   CMatrix_max
+      external CMatrix_max
+
+      maxgrad = 0.0d0
+      if (mparallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+         sum = 0.0d0
+         do ms=ms1,ms2
+            shift2 = 1 + (ms-1)*ishift2
+            sum =  CMatrix_max(ne(ms),
+     >                         M(shift2),mcq(ms),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >                         taskid_i,taskid_j)
+            if (sum.gt.maxgrad) maxgrad = sum 
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+
+           if (ne(ms).le.0) goto 30
+           shift2 = (ms-1)*ishift2
+
+           do j=1,ne(ms)
+           do i=1,ne(ms)
+              indx = i + (j-1)*ne(ms) + shift2
+              sum =  dsqrt(dble(M(indx))**2 + dimag(M(indx))**2)
+              if (sum.gt.maxgrad) maxgrad = sum 
+           end do
+           end do
+
+ 30        continue
+         end do
+      end if
+
+      Dneall_w_max = maxgrad
+      return
+      end
 

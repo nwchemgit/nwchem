@@ -4679,6 +4679,50 @@ c      call Parallel2d_np_i(np)
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *          D3dB_rrm_sym_dot       *       
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_rrm_sym_dot(nb,n,A,B,matrix)
+      implicit none
+      integer nb,n
+      real*8  A(*)
+      real*8  B(*)
+      real*8  matrix(n,n)
+
+#include "D3dB.fh"
+
+*     **** local variables ****
+      integer j,k
+      integer np
+
+      call nwpw_timing_start(2)
+      call Parallel2d_np_i(np)
+
+      do k=1,n
+        call DGEMM('T','N',k,1,n2ft3d(nb),
+     >             1.0d0,
+     >             A,n2ft3d(nb),
+     >             B(1+(k-1)*n2ft3d(nb)),n2ft3d(nb),
+     >             0.0d0,
+     >             matrix(1,k),k)
+      end do
+
+      do k=1,n
+      do j=k+1,n
+        matrix(j,k) = matrix(k,j)
+      end do
+      end do
+
+      if (np.gt.1) call D3dB_Vector_SumAll(n*n,matrix)
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
 
 
 *     ***********************************

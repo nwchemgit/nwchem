@@ -11,7 +11,8 @@
       integer comm_i,comm_j
 
       !*** used for Ng x (ne(1)+ne(2)) matrices ***
-      integer ma(2,NBLOCKS),ma1(2,NBLOCKS),na(2,NBLOCKS)
+      integer ma(2,NBLOCKS),ma1(2,NBLOCKS),ma2(2,NBLOCKS)
+      integer na(2,NBLOCKS)
 
       !*** used for ne(ms) x ne(ms) matrices ***
       integer mc(2,NBLOCKS),nc(2,NBLOCKS)
@@ -28,8 +29,8 @@
       integer work1(2),work2(2)
       integer rwork1(2),rwork2(2),bcolwork(2),bwork2(2)
       integer mat_tmp(2)
-      integer npack1_all,nida1_all
-      common    / Dne_sub / ma,ma1,na,mc,nc,
+      integer npack1_all,nida1_all,n2ft3d_all
+      common    / Dne_sub / ma,ma1,ma2,na,mc,nc,
      >                      mcq,ncq,
      >                      m2c,n2c,m2cq,n2cq,
      >                      md,nd,mdq,ndq,
@@ -39,7 +40,7 @@
      >                      taskid_i,taskid_j,
      >                      np_i,np_j,
      >                      comm_i,comm_j,
-     >                      npack1_all,nida1_all,
+     >                      npack1_all,nida1_all,n2ft3d_all,
      >                      parallelized,mparallelized
 
       integer mpack(0:2),mall(0:2),mindx(2,0:2)

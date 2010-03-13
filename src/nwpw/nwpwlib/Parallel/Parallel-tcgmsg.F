@@ -248,6 +248,29 @@ c      integer mpierr
 
 
 
+*     ***********************************
+*     *                                 *
+*     *         Parallel_MaxAll         *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_MaxAll(sum)
+c     implicit none
+      real*8  sum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+      if (np.gt.1) then
+         call GA_DGOP(9+MSGDBL,sum,1,'max')
+      end if
+
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *                                 *

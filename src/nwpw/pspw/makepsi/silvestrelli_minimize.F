@@ -12,9 +12,10 @@
 *   This routine minimizes
 *
 
-      subroutine silvestrelli_minimize(n,rank,wts,X1,X2,X3,X4,X5,X6,A)
+      subroutine silvestrelli_minimize(maxiter,ms,n,rank,wts,
+     >                                 X1,X2,X3,X4,X5,X6,A)
       implicit none
-      integer n,rank
+      integer maxiter,ms,n,rank
       real*8 wts(*)
       complex*16 X1(N,N),X2(N,N),X3(N,N),X4(N,N),X5(N,N),X6(N,N)
       complex*16 A(n,n)
@@ -24,11 +25,9 @@
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
-      integer MAXITER
-      parameter (MAXITER=500)
 
       logical value,oprint
-      integer i,j,k,sign,iter
+      integer i,j,k,sign,iter,nn
 
       integer At(2),Att(2)
       integer expplusA(2),expminusA(2),expminusAtotal(2)
@@ -38,8 +37,13 @@
 
       complex*16 one,zero,scal
 
-      real*8   control_wannier_timestep
-      external control_wannier_timestep
+      real*8   control_wannier_timestep,Dneall_w_tracesqr
+      real*8   Dneall_w_max
+      external control_wannier_timestep,Dneall_w_tracesqr
+      external Dneall_w_max
+
+      logical  Dneall_w_push_get,Dneall_w_pop_stack
+      external Dneall_w_push_get,Dneall_w_pop_stack
 
 
       call Parallel_taskid(taskid)
@@ -47,31 +51,19 @@
 
       one  = dcmplx(1.0d0,0.0d0)
       zero = dcmplx(0.0d0,0.0d0)
+      call Dneall_m_size(ms,nn)
 
 *     **** allocate space from stack ****
-      value = MA_push_get(mt_dcpl,(n*n),'At',
-     >                    At(2),At(1))
-      value = MA_push_get(mt_dcpl,(n*n),'Att',
-     >                    Att(2),Att(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,(n*n),'expplusA',
-     >                    expplusA(2),expplusA(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,(n*n),'expminusA',
-     >                    expminusA(2),expminusA(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,(n*n),'expminusAtotal',
-     >                    expminusAtotal(2),expminusAtotal(1))
+      value =           Dneall_w_push_get(ms,At)
+      value = value.and.Dneall_w_push_get(ms,Att)
+      value = value.and.Dneall_w_push_get(ms,expplusA)
+      value = value.and.Dneall_w_push_get(ms,expminusA)
+      value = value.and.Dneall_w_push_get(ms,expminusAtotal)
       if (.not. value) 
      >  call errquit('silvestrelli_minimize:out of stack memory',0,0)
 
 
-      call zcopy(n*n,zero,0,dcpl_mb(expminusAtotal(1)),1)
-      do i=1,n
-        dcpl_mb(expminusAtotal(1)+(i-1)+(i-1)*n) = one
-      end do
-
-
+      call Dneall_w_eye(ms,dcpl_mb(expminusAtotal(1)),one)
 
       maxgrad  = 9999.0d0
       timestep = control_wannier_timestep()
@@ -82,7 +74,7 @@
 
       do while( (iter.lt.10)    .or.
      >          (((crit.gt.1.0d-7).or.(maxgrad.gt.1.0d-08))
-     >           .and.(iter.lt.MAXITER)))
+     >           .and.(iter.lt.maxiter)))
 
          iter=iter+1
 
@@ -90,7 +82,7 @@
          do j=1,n
            A(i,j)= wts(1)*( 
      >             X1(j,i)* (dconjg(X1(j,j))-dconjg(X1(i,i)) ) 
-     >	         - dconjg(X1(i,j))*( X1(i,i)-X1(j,j))) 
+     >           - dconjg(X1(i,j))*( X1(i,i)-X1(j,j))) 
      >           + wts(2)*(X2(j,i)*(dconjg(X2(j,j))-dconjg(X2(i,i))) 
      >           - dconjg(X2(i,j))*(X2(i,i)-X2(j,j))) 
      >           + wts(3)*(X3(j,i)*(dconjg(X3(j,j))-dconjg(X3(i,i))) 
@@ -98,7 +90,7 @@
            if (rank.gt.3) then
             A(i,j)= A(i,j)+
      >             wts(4)*( X4(j,i)*(dconjg(X4(j,j))-dconjg(X4(i,i))) 
-     >	         - dconjg(X4(i,j))*(X4(i,i)-X4(j,j)))
+     >           - dconjg(X4(i,j))*(X4(i,i)-X4(j,j)))
             if (rank.gt.4) then 
              A(i,j)= A(i,j)+
      >             wts(5)*(X5(j,i)*(dconjg(X5(j,j))-dconjg(X5(i,i))) 
@@ -121,147 +113,107 @@
          end do
          end do
 
-         call zcopy(n*n,zero,0,dcpl_mb(At(1)),1)
-         call zcopy(n*n,zero,0,dcpl_mb(expplusA(1)),1)
-         call zcopy(n*n,zero,0,dcpl_mb(expminusA(1)),1)
-         do i=1,n
-           dcpl_mb(At(1)       +(i-1)+(i-1)*n) = one
-           dcpl_mb(expplusA(1) +(i-1)+(i-1)*n) = one
-           dcpl_mb(expminusA(1)+(i-1)+(i-1)*n) = one
-         end do
+         call Dneall_w_eye(ms,dcpl_mb(At(1)),one)
+         call Dneall_w_eye(ms,dcpl_mb(expplusA(1)),one)
+         call Dneall_w_eye(ms,dcpl_mb(expminusA(1)),one)
 
          sign = 1             
          do k=1,12
             scal = dcmplx(1.0d0/dble(k),0.0d0)
-            call ZGEMM('N','N',n,n,n,scal,
-     >                 dcpl_mb(At(1)),n,
-     >                 A,n,
-     >                 zero,
-     >                 dcpl_mb(Att(1)),n)
-            call zcopy(n*n,dcpl_mb(Att(1)),1,
-     >                     dcpl_mb(At(1)),1)
+            call Dneall_www_Multiply(ms,
+     >                       dcpl_mb(At(1)),
+     >                       A,scal,
+     >                       dcpl_mb(Att(1)),zero)
+            call Dneall_ww_copy(ms,dcpl_mb(Att(1)),
+     >                             dcpl_mb(At(1)))
 
             sign = -sign
             scal = dcmplx(dble(sign),0.0d0)
-            call zaxpy(n*n,one, dcpl_mb(At(1)),1,
+            call zaxpy(nn,one, dcpl_mb(At(1)),1,
      >                          dcpl_mb(expplusA(1)),1)
-            call zaxpy(n*n,scal,dcpl_mb(At(1)),1,
+            call zaxpy(nn,scal,dcpl_mb(At(1)),1,
      >                          dcpl_mb(expminusA(1)),1) 
          end do
 
 
 
-	 !X = matmul(expminusA , matmul(X , expplusA))
-	 !Y = matmul(expminusA , matmul(Y , expplusA))
+         !X = matmul(expminusA , matmul(X , expplusA))
+         !Y = matmul(expminusA , matmul(Y , expplusA))
          !Z = matmul(expminusA , matmul(Z , expplusA))
 
-         call ZGEMM('N','N',n,n,n,one,
-     >              X1,n,
-     >              dcpl_mb(expplusA(1)),n,
-     >              zero,
-     >              dcpl_mb(At(1)),n)
-         call ZGEMM('N','N',n,n,n,one,
-     >              dcpl_mb(expminusA(1)),n,
-     >              dcpl_mb(At(1)),n,
-     >              zero,
-     >              X1,n)
-
-         call ZGEMM('N','N',n,n,n,one,
-     >              X2,n,
-     >              dcpl_mb(expplusA(1)),n,
-     >              zero,
-     >              dcpl_mb(At(1)),n)
-         call ZGEMM('N','N',n,n,n,one,
-     >              dcpl_mb(expminusA(1)),n,
-     >              dcpl_mb(At(1)),n,
-     >              zero,
-     >              X2,n)
-
-         call ZGEMM('N','N',n,n,n,one,
-     >              X3,n,
-     >              dcpl_mb(expplusA(1)),n,
-     >              zero,
-     >              dcpl_mb(At(1)),n)
-         call ZGEMM('N','N',n,n,n,one,
-     >              dcpl_mb(expminusA(1)),n,
-     >              dcpl_mb(At(1)),n,
-     >              zero,
-     >              X3,n)
+         call Dneall_www_Multiply(ms,
+     >                       X1,
+     >                       dcpl_mb(expplusA(1)),one,
+     >                       dcpl_mb(At(1)),zero)
+         call Dneall_www_Multiply(ms,
+     >                       dcpl_mb(expminusA(1)),
+     >                       dcpl_mb(At(1)),one,
+     >                       X1,zero)
+         call Dneall_www_Multiply(ms,
+     >                       X2,
+     >                       dcpl_mb(expplusA(1)),one,
+     >                       dcpl_mb(At(1)),zero)
+         call Dneall_www_Multiply(ms,
+     >                       dcpl_mb(expminusA(1)),
+     >                       dcpl_mb(At(1)),one,
+     >                       X2,zero)
+         call Dneall_www_Multiply(ms,
+     >                       X3,
+     >                       dcpl_mb(expplusA(1)),one,
+     >                       dcpl_mb(At(1)),zero)
+         call Dneall_www_Multiply(ms,
+     >                       dcpl_mb(expminusA(1)),
+     >                       dcpl_mb(At(1)),one,
+     >                       X3,zero)
 
          if (rank.gt.3) then
-         call ZGEMM('N','N',n,n,n,one,
-     >              X4,n,
-     >              dcpl_mb(expplusA(1)),n,
-     >              zero,
-     >              dcpl_mb(At(1)),n)
-         call ZGEMM('N','N',n,n,n,one,
-     >              dcpl_mb(expminusA(1)),n,
-     >              dcpl_mb(At(1)),n,
-     >              zero,
-     >              X4,n)
+         call Dneall_www_Multiply(ms,
+     >                       X4,
+     >                       dcpl_mb(expplusA(1)),one,
+     >                       dcpl_mb(At(1)),zero)
+         call Dneall_www_Multiply(ms,
+     >                       dcpl_mb(expminusA(1)),
+     >                       dcpl_mb(At(1)),one,
+     >                       X4,zero)
          if (rank.gt.4) then
-         call ZGEMM('N','N',n,n,n,one,
-     >              X5,n,
-     >              dcpl_mb(expplusA(1)),n,
-     >              zero,
-     >              dcpl_mb(At(1)),n)
-         call ZGEMM('N','N',n,n,n,one,
-     >              dcpl_mb(expminusA(1)),n,
-     >              dcpl_mb(At(1)),n,
-     >              zero,
-     >              X5,n)
+         call Dneall_www_Multiply(ms,
+     >                       X5,
+     >                       dcpl_mb(expplusA(1)),one,
+     >                       dcpl_mb(At(1)),zero)
+         call Dneall_www_Multiply(ms,
+     >                       dcpl_mb(expminusA(1)),
+     >                       dcpl_mb(At(1)),one,
+     >                       X5,zero)
          if (rank.gt.5) then
-         call ZGEMM('N','N',n,n,n,one,
-     >              X6,n,
-     >              dcpl_mb(expplusA(1)),n,
-     >              zero,
-     >              dcpl_mb(At(1)),n)
-         call ZGEMM('N','N',n,n,n,one,
-     >              dcpl_mb(expminusA(1)),n,
-     >              dcpl_mb(At(1)),n,
-     >              zero,
-     >              X6,n)
+         call Dneall_www_Multiply(ms,
+     >                       X6,
+     >                       dcpl_mb(expplusA(1)),one,
+     >                       dcpl_mb(At(1)),zero)
+         call Dneall_www_Multiply(ms,
+     >                       dcpl_mb(expminusA(1)),
+     >                       dcpl_mb(At(1)),one,
+     >                       X6,zero)
          end if
          end if
          end if 
 
          !expminusAtotal = matmul(expminusA,expminusAtotal)
-	 call ZGEMM('N','N',n,n,n,one,
-     >              dcpl_mb(expminusA(1)),n,
-     >              dcpl_mb(expminusAtotal(1)),n,
-     >              zero,
-     >              dcpl_mb(At(1)),n)
-         call zcopy(n*n,dcpl_mb(At(1)),1,dcpl_mb(expminusAtotal(1)),1)       
+         call Dneall_www_Multiply(ms,
+     >                       dcpl_mb(expminusA(1)),
+     >                       dcpl_mb(expminusAtotal(1)),one,
+     >                       dcpl_mb(At(1)),zero)
+         call Dneall_ww_copy(ms,dcpl_mb(At(1)),
+     >                          dcpl_mb(expminusAtotal(1)))
 
+         maxgrad =  Dneall_w_max(ms,A)
 
-         maxgrad=0.0d0
-         do i=1,n
-         do j=1,n
-           wx = dble(A(i,j))**2 + dimag(A(i,j))**2
-           wx = dsqrt(wx)
-           if(wx .GT. maxgrad) maxgrad=wx
-         end do
-         end do
-
-         omega=0.0d0
-         do i=1,n
-            wx = wts(1)*(dble(X1(i,i))**2 + dimag(X1(i,i))**2)
-            wy = wts(2)*(dble(X2(i,i))**2 + dimag(X2(i,i))**2)
-            wz = wts(3)*(dble(X3(i,i))**2 + dimag(X3(i,i))**2)
-            omega = omega + (wx+wy+wz)
-            if (rank.gt.3) then
-             wx = wts(4)*(dble(X4(i,i))**2 + dimag(X4(i,i))**2)
-             omega=omega+wx
-            if (rank.gt.4) then
-             wx = wts(5)*(dble(X5(i,i))**2 + dimag(X5(i,i))**2)
-             omega=omega+wx
-            if (rank.gt.5) then 
-             wx = wts(6)*(dble(X6(i,i))**2 + dimag(X6(i,i))**2)
-             omega = omega + wx
-            end if
-            end if 
-            end if
-         end do
+         omega = 0.0d0
+         omega = omega + wts(1)*Dneall_w_tracesqr(ms,X1)
+         omega = omega + wts(2)*Dneall_w_tracesqr(ms,X2)
+         omega = omega + wts(3)*Dneall_w_tracesqr(ms,X3)
+         if (rank.gt.3) omega = omega + wts(4)*Dneall_w_tracesqr(ms,X4)
+         if (rank.gt.4) omega = omega + wts(5)*Dneall_w_tracesqr(ms,X5)
+         if (rank.gt.5) omega = omega + wts(6)*Dneall_w_tracesqr(ms,X6)
 
          if (omega.lt.omega1) timestep = 0.5d0*timestep
 
@@ -283,14 +235,14 @@
 
       end if
 
-      call zcopy(n*n,dcpl_mb(expminusAtotal(1)),1,A,1)
+      call zcopy(nn,dcpl_mb(expminusAtotal(1)),1,A,1)
 
 *     **** pop memory ***
-      value =           MA_pop_stack(expminusAtotal(2))
-      value = value.and.MA_pop_stack(expminusA(2))
-      value = value.and.MA_pop_stack(expplusA(2))
-      value = value.and.MA_pop_stack(Att(2))
-      value = value.and.MA_pop_stack(At(2))  
+      value =           Dneall_w_pop_stack(expminusAtotal)
+      value = value.and.Dneall_w_pop_stack(expminusA)
+      value = value.and.Dneall_w_pop_stack(expplusA)
+      value = value.and.Dneall_w_pop_stack(Att)
+      value = value.and.Dneall_w_pop_stack(At)
       if (.not. value) 
      >  call errquit('silvestrelli_minimize:popping stack memory',1,0)
 

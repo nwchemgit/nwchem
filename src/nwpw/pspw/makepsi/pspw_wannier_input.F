@@ -13,16 +13,20 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 4)
+      parameter (num_dirs = 6)
       character*30 dirs(num_dirs)
       data dirs / 'old_wavefunction_filename',
      >            'new_wavefunction_filename',
      >            'vectors',
+     >            'maxiter',
+     >            'time_step',
      >            'end'/
 
       character*255 test
       character*25  new_wavefunction_filename
       character*25  old_wavefunction_filename
+      integer it
+      double precision tstep
 
 *     ***** initializations ****
 
@@ -37,7 +41,7 @@ c
      >           'pspw_wannier_input: unknown directive', 2,0)
 
 
-      goto ( 100,  200, 300,
+      goto ( 100,  200, 300, 400, 500,
      >      9999) ind
       call errquit(
      >   'pspw_wannier_input: unimplemented directive', ind,0)
@@ -82,7 +86,26 @@ c
 
       goto 10
 
- 
+
+c
+c maxiter
+c
+ 400  if (.not.inp_i(it)) it = 500
+      if (.not.rtdb_put(rtdb,'wannier:maxiter',mt_int,1,it))
+     >  call errquit('nwpw_input: error writing to rtdb',9,0)
+
+      goto 10
+
+c
+c time_step
+c
+ 500  if (inp_f(tstep)) then
+        if (.not.rtdb_put(rtdb,'wannier:time_step',mt_dbl,1,tstep))
+     >  call errquit('nwpw_input: error writing to rtdb',10,0)
+      end if
+
+      goto 10
+
 
 *     ***** add wavefunction to rtdb ****
  9999 continue

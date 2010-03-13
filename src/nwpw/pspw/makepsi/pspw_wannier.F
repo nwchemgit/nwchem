@@ -15,19 +15,19 @@
       parameter (MASTER=0,tmp_len=140)
 
       logical value,oprint
-      integer mapping,mapping1d
+      integer mapping,mapping1d,maxiter
       integer i,j,ms,n,ne(2),ispin,ngrid(3),nemax
       integer neq(2),nemaxq,shift,rank
       integer nfft3d,n2ft3d,npack1
       integer info
       integer np,nion
 
-      integer psi(2),psi2(2),psi_r(2)
+      integer psi(2),psi2(2),psi_r(2),psi_r2(2)
       integer X(2,6)
-      integer A(2)
+      integer A(2),Ar(2)
       real*8 bv(3,6),wrk(6,6),wts(6),bmat(3,3)
       real*8 b(3),ixmat(3,6)
-      real*8 xx,yy,zz,tmp1(tmp_len)
+      real*8 xx,yy,zz,tmp1(tmp_len),maxtime
       real*8 dx,dy,dz,nx,ny,nz,tx,ty,tz,alpha,scal
       complex*16 arg,wx
       character*2 labels(6)
@@ -47,20 +47,22 @@ c      character*255 full_filename,full_filename2
       integer      control_ngrid,control_ispin,control_mapping
       integer      control_mapping1d
       integer      pack_nwave,pack_nwave_all
-      integer      control_np_orbital
-      real*8       lattice_unita,lattice_unitg
+      integer      control_np_orbital,control_wannier_maxiter
+      real*8       lattice_unita,lattice_unitg,control_wannier_timestep
       real*8       lattice_ecut,lattice_wcut,lattice_omega
       character*30 control_input_psi,control_output_psi
       external     control_read
       external     control_ngrid,control_ispin,control_mapping
       external     control_mapping1d
       external     pack_nwave,pack_nwave_all
-      external     control_np_orbital
-      external     lattice_unita,lattice_unitg
+      external     control_np_orbital,control_wannier_maxiter
+      external     lattice_unita,lattice_unitg,control_wannier_timestep
       external     lattice_ecut,lattice_wcut,lattice_omega
       external     control_input_psi,control_output_psi
       external     ion_katm,ion_nion
       external     ion_rion,psp_zv
+      logical  Dneall_m_allocate,Dneall_w_allocate,Dneall_m_free
+      external Dneall_m_allocate,Dneall_w_allocate,Dneall_m_free
 
       value = .true.
 
@@ -98,6 +100,8 @@ c      character*255 full_filename,full_filename2
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
       mapping = control_mapping()
+      maxiter = control_wannier_maxiter()
+      maxtime = control_wannier_timestep()
 
       call Parallel2d_Init(control_np_orbital())
 
@@ -211,6 +215,9 @@ c      character*255 full_filename,full_filename2
       value = value.and.
      >        MA_alloc_get(mt_dbl,n2ft3d*nemaxq,
      >                     'psi_r',psi_r(2),psi_r(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,n2ft3d*nemaxq,
+     >                     'psi_r2',psi_r2(2),psi_r2(1))
       if (.not. value) 
      >   call errquit('pspw_wannier:out of heap memory',0,0)
 
@@ -250,17 +257,19 @@ c      character*255 full_filename,full_filename2
          write(6,1251) lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
      >                 pack_nwave_all(1),pack_nwave(1)
 
+         write(6,1280) maxtime
+         write(6,1281) maxiter
       end if
 
 
 *     **** psi_r <-- FFT(psi) - complex to real FFT ****
-      nemax = ne(1)+ne(2)
-      do n=1,nemax
+      !nemax = ne(1)+ne(2)
+      do n=1,nemaxq
          call Pack_c_Copy(1,dcpl_mb(psi(1)  +(n-1)*npack1),
      >                       dbl_mb(psi_r(1)+(n-1)*n2ft3d))
       end do
-      call Grsm_gh_fftb(nfft3d,nemax,dbl_mb(psi_r(1)))
-      call Grsm_h_Zero_Ends(nfft3d,nemax,dbl_mb(psi_r(1)))
+      call Grsm_gh_fftb(nfft3d,nemaxq,dbl_mb(psi_r(1)))
+      call Grsm_h_Zero_Ends(nfft3d,nemaxq,dbl_mb(psi_r(1)))
 
 
 *     ***** allocate X,Y,Z  ****
@@ -273,14 +282,20 @@ c      character*255 full_filename,full_filename2
       n=ne(1)
       if (n.lt.ne(2)) n=ne(2)
       value=.true.
+c      do j=1,6
+c      value = value.and.MA_alloc_get(mt_dcpl,
+c     >                     n*n,
+c     >                     labels(j),X(2,j),X(1,j))      
+c      end do
+c      value = value.and.
+c     >        MA_alloc_get(mt_dcpl,n*n,
+c     >                     'A',A(2),A(1))
+
       do j=1,6
-      value = value.and.MA_alloc_get(mt_dcpl,
-     >                     n*n,
-     >                     labels(j),X(2,j),X(1,j))      
+         value = value.and.Dneall_w_allocate(1,X(1,j))
       end do
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,n*n,
-     >                     'A',A(2),A(1))
+      value = value.and.Dneall_w_allocate(1,A)
+      value = value.and.Dneall_m_allocate(1,Ar)
       if (.not. value) 
      >   call errquit('pspw_wannier:out of heap memory',1,0)
 
@@ -407,9 +422,9 @@ c     *** Silvestrelli G3 ***
           b(2) = bv(2,i)
           b(3) = bv(3,i)
           call silvestrelli_overlap(
-     >                  b,
-     >                  ne(ms),
-     >                  dbl_mb(psi_r(1)+(ms-1)*n2ft3d*ne(1)),
+     >                  b,ms,ne,neq,
+     >                  dbl_mb(psi_r(1)),
+     >                  dbl_mb(psi_r2(1)),
      >                  dcpl_mb(X(1,i)))
         end do
 
@@ -435,9 +450,10 @@ c     *** Silvestrelli G3 ***
             if (ms.eq.2)
      >        write(6,1391) i+ne(1),xx,yy,zz
           end do
+          write(6,1800)
         end if
 
-        call silvestrelli_minimize(ne(ms),rank,wts,
+        call silvestrelli_minimize(maxiter,ms,ne(ms),rank,wts,
      >                             dcpl_mb(X(1,1)),dcpl_mb(X(1,2)),
      >                             dcpl_mb(X(1,3)),dcpl_mb(X(1,4)),
      >                             dcpl_mb(X(1,5)),dcpl_mb(X(1,6)),
@@ -487,31 +503,33 @@ ccccccccccccccccccccccccccccccccccccccccccccc
           WRITE(6,1777)tx,ty,tz
         end if
 
-
-
-
 *       **** rotate psi to produce Wannier orbitals ****
-        do i=1,ne(ms)
-          call Pack_c_Zero(1,
-     >                     dcpl_mb(psi2(1)+(i-1) *npack1
-     >                                    +(ms-1)*npack1*ne(1)))
-          do j=1,ne(ms)
-c              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms) 
-c     >                            +(ms-1)*ne(1)*ne(1))
-              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms)) 
-              alpha = dble(wx)
-
-              call Pack_cc_daxpy(1,alpha,
-     >                           dcpl_mb(psi(1) +(j-1)*npack1
-     >                                          +(ms-1)*npack1*ne(1)),
-     >                           dcpl_mb(psi2(1)+(i-1)*npack1
-     >                                          +(ms-1)*npack1*ne(1)))
-          end do
-        end do
+        call Dneall_wtom_Real(ms,dcpl_mb(A(1)),dbl_mb(Ar(1)))
+        call Dneall_mm_transpose(ms,dbl_mb(Ar(1)),dcpl_mb(A(1)))
+        call Dneall_fmf_Multiply(ms,
+     >                  dcpl_mb(psi(1)),npack1,
+     >                  dcpl_mb(A(1)),1.0d0,
+     >                  dcpl_mb(psi2(1)),
+     >                  0.0d0)
+c        do i=1,ne(ms)
+c          call Pack_c_Zero(1,
+c     >                     dcpl_mb(psi2(1)+(i-1) *npack1
+c     >                                    +(ms-1)*npack1*ne(1)))
+c          do j=1,ne(ms)
+cc              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms) 
+cc     >                            +(ms-1)*ne(1)*ne(1))
+c              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms)) 
+c              alpha = dble(wx)
+c
+c              call Pack_cc_daxpy(1,alpha,
+c     >                           dcpl_mb(psi(1) +(j-1)*npack1
+c     >                                          +(ms-1)*npack1*ne(1)),
+c     >                           dcpl_mb(psi2(1)+(i-1)*npack1
+c     >                                          +(ms-1)*npack1*ne(1)))
+c          end do
+c        end do
 
       end do !* ms *
-
-
 
 
 *     ***** write psi2 wavefunctions ****
@@ -528,10 +546,16 @@ c     >                            +(ms-1)*ne(1)*ne(1))
       call D3dB_end(1)
       call Dne_end()
 
-      value =  MA_free_heap(A(2))
+c      value =  MA_free_heap(A(2))
+c      do j=1,6
+c        value=value.and.MA_free_heap(X(2,j))
+c      end do
+      value = Dneall_m_free(Ar)
+      value = value.and.Dneall_m_free(A)
       do j=1,6
-        value=value.and.MA_free_heap(X(2,j))
+      value = value.and.Dneall_m_free(X(1,j))
       end do
+      value = value.and.MA_free_heap(psi_r2(2))
       value = value.and.MA_free_heap(psi_r(2))
       value = value.and.MA_free_heap(psi2(2))
       value = value.and.MA_free_heap(psi(2))
@@ -579,14 +603,22 @@ c     >                            +(ms-1)*ne(1)*ne(1))
  1260 FORMAT(/5x,' Silvestrelli reciprocal lattice vectors:')
  1261 FORMAT(5x,' rank = ',I1)
  1262 FORMAT(5x,' bs',I1,' =<',3f8.3,' > weight=',f8.3)
+ 1280 FORMAT(5X, ' maximum time step=',F10.4)
+ 1281 FORMAT(5X, ' maximum iterations =',I8)
  1300 FORMAT(/' Wannier orbital generation for spin up orbitals')
  1301 FORMAT(/' Wannier orbital generation for spin down orbitals')
  1380 FORMAT(/' initial position of Wannier centers:')
  1381 FORMAT(/' final position of Wannier centers:')
  1390 FORMAT(5X,'psi',I5,' (',3F11.5,' ) - spin up orbital')
  1391 FORMAT(5X,'psi',I5,' (',3F11.5,' ) - spin down orbital')
- 1776 FORMAT("ELECTRONIC DIPOLES")
+ 1776 FORMAT(/"ELECTRONIC DIPOLES")
  1777 FORMAT("DX =",F11.5," DY= ",F11.5," DZ= ",F11.5)
  1780 FORMAT("NUCLEAR DIPOLES")
  1785 FORMAT("TOTAL DIPOLES")
+ 1800 FORMAT(/2x,'iter.',8x,'Omega ',6x,' maxgrad',9x,'domega ',5x,
+     >       'time_step'/
+     >     2x,'------------------------------------------------------',
+     >        '---------')
+
+ 
       end
