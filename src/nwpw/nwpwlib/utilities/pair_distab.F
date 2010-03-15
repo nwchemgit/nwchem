@@ -65,9 +65,9 @@ c     *** parameters ***
 
       value = MA_push_get(mt_int,MAXBIN,'hst89',hst(2),hst(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,natoms,'indxA',indxA(2),indxA(1))
+     >        MA_push_get(mt_int,natoms,'indxA',indxA(2),indxA(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,natoms,'indxB',indxB(2),indxB(1))
+     >        MA_push_get(mt_int,natoms,'indxB',indxB(2),indxB(1))
       value = value.and.
      >        MA_push_get(mt_dbl,natoms,'rx',rx(2),rx(1))
       value = value.and.
