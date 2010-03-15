@@ -369,7 +369,8 @@ cccc#include "frac_occ.fh"
       if (dabs(sum2-sum1).gt.1.0d-10) then
          if (taskid.eq.MASTER)
      >      write(*,*) "Warning: Gram-Schmidt being performed on psi2"
-         call Dneall_f_ortho(0,dcpl_mb(psi2(1)),npack1)
+c         call Dneall_f_ortho(0,dcpl_mb(psi2(1)),npack1)
+         call Dneall_f_GramSchmidt(0,dcpl_mb(psi2(1)),npack1)
 c         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi2(1)))
 c         if (ispin.gt.1) then
 c           call Grsm_g_MakeOrtho(npack1,ne(2),

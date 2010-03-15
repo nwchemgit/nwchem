@@ -119,7 +119,8 @@ c        enddo
           write(6,*) '        +Try using a smaller time step'
           write(6,*) '        +Gram-Schmidt being performed, spin:',ms
         end if
-        call Dneall_f_ortho(ms,psi2,npack1)
+c        call Dneall_f_ortho(ms,psi2,npack1)
+        call Dneall_f_GramSchmidt(ms,psi2,npack1)
         notgram = .false.
 
   630   continue

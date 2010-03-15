@@ -162,7 +162,8 @@ c         CALL DMSUB(n,ne(MS), tmp(sa1), tmp(sa0), tmp(st1))
           WRITE(6,*) '        +Try using a smaller time step'
           WRITE(6,*) '        +Gram-Schmidt being performed, spin:',ms
         end if
-        call Dneall_f_ortho(ms,psi2,npack1)
+c        call Dneall_f_ortho(ms,psi2,npack1)
+        call Dneall_f_GramSchmidt(ms,psi2,npack1)
 c        call Grsm_g_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
 
 C       return
