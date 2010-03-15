@@ -85,11 +85,13 @@ C ***** Can't have more subgroups then procs *****
           write (iw,*) 'Requested number of subgroups too big, 
      &    reseting to:', numgroups
       endif
-C     Allocate memory for array of group numbers
+C     Allocate memory for array of group numbersi, only if more then 1 subgroup requested
+      if (numgroups.gt.1) then
       if (.not. ma_push_get(MT_INT, numgroups, 'mc: groupnums',
      &    l_groupnums, k_groupnums)) 
      &    call errquit('mc_allocate_arrays: error groupnums',0,MA_ERR)
 
+     
       if (ga_nodeid().eq.0) then
           write(iw,*) 'SPLITTING INTO SUBGROUPS'
       endif
@@ -105,7 +107,8 @@ C   Close the output file and reopen it as series of ".out" files
 
 C Initialize group related information
 C mostly file opening for each group,etc. 
-      call mc_setup_group()  !deals with file i/o
+      endif
+      call mc_setup_group(numgroups)  !deals with file i/o
 c     &     (rtdb, myid, int_mb(k_groupnums),prcfil, prcfil2,
 c     &     fprefix, numgroups)
 
@@ -115,6 +118,8 @@ C from here we can start mc_loop
 c      goto 100
 c      call task_energy(rtdb)
 c      goto 100 
+
+
       write(iw,*)  '\n\t\t METROPOLIS MONTE CARLO RECROSSING \n'
       
       write(iw,*) 'Subgroup is: ',util_sgroup_mygroup()
@@ -580,7 +585,7 @@ c       endif
 
 
 C***********************************************************************
-      subroutine mc_setup_group()
+      subroutine mc_setup_group(numgroups)
 C gets the appropriate path for the output files and opens them
 C***********************************************************************
       Implicit none
@@ -603,8 +608,10 @@ c      integer i
 C Indect output of file units
 c      character*256 fprefix, fprefixcat ! internal use only !fprefix output
 c      character*256 fprefix2, mc_dir
+      integer numgroups
       character*256 xyzname, outname
       character*256 pxyzname, poutname
+     
 C Begin Main Program
 c      call mc_write_prcfil(groupnums, prcfil, numgroups)
 
@@ -623,7 +630,7 @@ c     &     '/',
 c     &     fprefix2(1:inp_strlen(fprefix2))
 C Open file Units
 C general output ! Only group Zeros write
-      if (ga_nodeid().eq.0) then 
+      if (ga_nodeid().eq.0 ) then 
           call util_file_name('xyz', .false., .false., xyzname)
           call util_file_name('out', .false., .false., outname)
           call util_pname(xyzname,pxyzname)
@@ -635,18 +642,16 @@ c     &      fprefix(1:inp_strlen(fprefix)),
 c     &      '.xyz.',prcfil(1:4)
 c           write(6,*) 'Filename', xyzname
 c -- open a file for trajectory for each subgroup
-           OPEN(UNIT = 12,FILE = pxyzname
-     &     ,STATUS = 'REPLACE')
-
-c           write(fprefixcat,'(256(a))') (' ', i=1, 256)
-c           write(fprefixcat,'(3(a))')
-c     &        fprefix(1:inp_strlen(fprefix)),
-c     &        '.out.',prcfil(1:4)
+           if(numgroups.gt.1) then 
+             OPEN(UNIT = 12,FILE = pxyzname,STATUS = 'REPLACE')
 
 C  ---- added this so that the output file is closed and output is open for each 
 C  ---- subgroup
-           OPEN(UNIT = 6,FILE = poutname
-     &     ,STATUS = 'REPLACE')
+             OPEN(UNIT = 6,FILE = poutname,STATUS = 'REPLACE')
+           else
+               OPEN(UNIT = 12,FILE = xyzname,STATUS = 'REPLACE')
+               OPEN(UNIT = 6,FILE = outname,STATUS = 'REPLACE')
+           endif
       else
 C all non-zeros write to dev/null
             OPEN(6,FILE='/dev/null',STATUS='UNKNOWN')
